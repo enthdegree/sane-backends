@@ -149,7 +149,8 @@ usb_low_init (ma1017 ** chip_address)
   chip->lines_left = 0x00;
   for (i = 0; i < 32; i++)
     chip->is_transfer_table[i] = SANE_FALSE;
-  chip->sensor = SR_CANON600;
+  chip->sensor = ST_CANON600;
+  chip->motor = MT_1200;
   
   DBG (7, "usb_low_init: exit\n");
   return SANE_STATUS_GOOD;
@@ -2486,7 +2487,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
     {
       RIE(usb_low_read_rows (chip, resample_buffer, chip->byte_width));
 
-      if ((chip->sensor == SR_CANON600) && (chip->pixel_depth == 0x20))
+      if ((chip->sensor == ST_CANON600) && (chip->pixel_depth == 0x20))
 	{
 	  pixel_temp = (SANE_Word *) malloc (6 * 1024 * sizeof (SANE_Word));
 	  if (!pixel_temp)
@@ -2533,7 +2534,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
     {
       RIE(usb_low_read_rows (chip, resample_buffer, chip->byte_width));
       
-      if ((chip->sensor == SR_CANON600) && (chip->pixel_depth == 0x20))
+      if ((chip->sensor == ST_CANON600) && (chip->pixel_depth == 0x20))
 	{
 	  pixel_temp = (SANE_Word *) malloc (6 * 1024 * sizeof (SANE_Word));
 	  if (!pixel_temp)
@@ -2682,7 +2683,7 @@ usb_low_write_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte data)
 	   "wrote %ul: %s\n", 2, (unsigned long) n, sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
-  DBG (7, "usb_low_write_reg: reg: %02x, value: %02x\n",
+  DBG (7, "usb_low_write_reg: reg: 0x%02x, value: 0x%02x\n",
        reg_no, data);
   return SANE_STATUS_GOOD;
 }
@@ -2733,7 +2734,7 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
     }
   if (data)
     *data = read_byte;
-  DBG (7, "usb_low_read_reg: Reg: %02x, Value: %02x\n",
+  DBG (7, "usb_low_read_reg: Reg: 0x%02x, Value: 0x%02x\n",
        reg_no, read_byte);
   return SANE_STATUS_GOOD;
 }

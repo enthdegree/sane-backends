@@ -1,5 +1,18 @@
 CHANGES for the SANE Mustek USB backend
 
+2001-09-10
+  * Release of version 1.0-5.
+
+2001-09-10
+  * mustek_usb_mid: Added functions for 300 dpi sensor.
+  * mustek_usb_mid: Fixed 200 dpi mode.
+  * mustek_usb_mid: added general sensor functions.
+
+2001-09-09
+  * mustek_usb_mid: Added functions for 600 dpi motor.
+  * mustek_usb_mid, usb_high: Added functions for selecting the motor
+    functions.
+
 2001-09-06
   * Release of version 1.0-4.
 

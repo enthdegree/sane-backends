@@ -45,7 +45,7 @@
 
    This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
 
-#define BUILD 4
+#define BUILD 5
 
 #include "../include/sane/config.h"
 
@@ -100,8 +100,8 @@ static const SANE_Int resbit_list[] =
 
 static const SANE_Int resbit300_list[] =
 {
-  4,
-  50, 100, 150, 300
+  5,
+  50, 100, 150, 200, 300
 };
 
 /* NOTE: This is used for Brightness, Contrast, Threshold, AutoBackAdj

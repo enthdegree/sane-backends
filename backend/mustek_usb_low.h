@@ -80,15 +80,23 @@ Mustek_Type;
 
 typedef enum Sensor_Type
 {
-  SR_NONE=0,
-  SR_INI=1,
-  SR_INI_DARK=2,
-  SR_CANON300=3,
-  SR_CANON600=4,
-  SR_TOSHIBA600=5,
-  SR_CANON300600=6
+  ST_NONE=0,
+  ST_INI=1,
+  ST_INI_DARK=2,
+  ST_CANON300=3,
+  ST_CANON600=4,
+  ST_TOSHIBA600=5,
+  ST_CANON300600=6
 } 
 Sensor_Type;
+
+typedef enum Motor_Type
+{
+  MT_NONE=0,
+  MT_600=1,
+  MT_1200=2
+} 
+Motor_Type;
 
 struct ma1017;
 
@@ -167,6 +175,7 @@ typedef struct ma1017
   SANE_Word lines_left;
   SANE_Bool is_transfer_table[32];
   Sensor_Type sensor;
+  Motor_Type motor;
   Mustek_Type scanner_type;
 }
 ma1017;

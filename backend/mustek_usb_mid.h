@@ -56,9 +56,6 @@
 
 /* ----------------- sensor 600 CIS function declarations ----------------- */
 
-static SANE_Bool
-usb_mid_c600_is600_mode (ma1017 * chip, SANE_Word dpi);
-
 static SANE_Status
 usb_mid_c600_prepare_rgb (ma1017 * chip, SANE_Word dpi);
 
@@ -108,9 +105,6 @@ static SANE_Status
 usb_mid_c600_prepare_mono_50_dpi (ma1017 * chip);
 
 /* -------------- sensor 300/600 CIS function declarations ---------------- */
-
-static SANE_Bool
-usb_mid_c300600_is600_mode (ma1017 * chip, SANE_Word dpi);
 
 static SANE_Status
 usb_mid_c300600_prepare_rgb (ma1017 * chip, SANE_Word dpi);
@@ -162,20 +156,11 @@ usb_mid_c300600_prepare_mono_50_dpi (ma1017 * chip);
 
 /* ----------------- sensor 300 CIS function declarations ----------------- */
 
-static SANE_Bool
-usb_mid_c300_is600_mode (ma1017 * chip, SANE_Word dpi);
-
 static SANE_Status
 usb_mid_c300_prepare_rgb (ma1017 * chip, SANE_Word dpi);
 
 static SANE_Status
 usb_mid_c300_prepare_mono (ma1017 * chip, SANE_Word dpi);
-
-static SANE_Status
-usb_mid_c300_prepare_rgb_600_dpi (ma1017 * chip);
-
-static SANE_Status
-usb_mid_c300_prepare_rgb_400_dpi (ma1017 * chip);
 
 static SANE_Status
 usb_mid_c300_prepare_rgb_300_dpi (ma1017 * chip);
@@ -193,12 +178,6 @@ static SANE_Status
 usb_mid_c300_prepare_rgb_50_dpi (ma1017 * chip);
 
 static SANE_Status
-usb_mid_c300_prepare_mono_600_dpi (ma1017 * chip);
-
-static SANE_Status
-usb_mid_c300_prepare_mono_400_dpi (ma1017 * chip);
-
-static SANE_Status
 usb_mid_c300_prepare_mono_300_dpi (ma1017 * chip);
 
 static SANE_Status
@@ -213,7 +192,18 @@ usb_mid_c300_prepare_mono_100_dpi (ma1017 * chip);
 static SANE_Status
 usb_mid_c300_prepare_mono_50_dpi (ma1017 * chip);
 
-/* ---------------------- motor function declarations --------------------- */
+/* --------------------- sensor function declarations -------------------- */
+
+SANE_Bool
+usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_sensor_prepare_rgb (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_sensor_prepare_mono (ma1017 * chip, SANE_Word dpi);
+
+/* ------------------- motor 1200 function declarations ------------------ */
 
 static SANE_Status
 usb_mid_motor1200_prepare_rgb_1200_dpi (ma1017 * chip);
@@ -310,17 +300,109 @@ usb_mid_motor1200_mono_capability (SANE_Word dpi);
 
 /* ---------------600 dpi motor function declarations --------------------- */
 
-SANE_Status
+static SANE_Status
+usb_mid_motor600_prepare_rgb_600_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_200_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_150_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_100_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_50_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_600_dpi (ma1017 * chip);
+
+static SANE_Status
 usb_mid_motor600_prepare_mono_200_dpi (ma1017 * chip);
 
-SANE_Status
+static SANE_Status
+usb_mid_motor600_prepare_mono_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_150_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_100_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_50_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_half_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_rgb_bi_full_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_half_300_dpi (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_mono_bi_full_300_dpi (ma1017 * chip);
+
+static SANE_Status 
 usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi);
 
-SANE_Status
+static SANE_Status
 usb_mid_motor600_prepare_mono (ma1017 * chip, SANE_Word dpi);
 
-SANE_Status
+static SANE_Status
+usb_mid_motor600_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor600_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
 usb_mid_motor600_prepare_step (ma1017 * chip, SANE_Word step_count);
+
+static SANE_Status
+usb_mid_motor600_prepare_home (ma1017 * chip);
+
+static SANE_Status
+usb_mid_motor600_prepare_adjust (ma1017 * chip, Channel channel);
+
+static SANE_Word
+usb_mid_motor600_rgb_capability (SANE_Word dpi);
+
+static SANE_Word
+usb_mid_motor600_mono_capability (SANE_Word dpi);
+
+/* ------------------ motor function declarations ------------------------ */
+
+static SANE_Status
+usb_mid_motor_prepare_home (ma1017 * chip);
+
+static SANE_Status 
+usb_mid_motor_prepare_rgb (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor_prepare_mono (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor_prepare_adjust (ma1017 * chip, Channel channel);
+
+static SANE_Status
+usb_mid_motor_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor_prepare_step (ma1017 * chip, SANE_Word step_count);
+
+static SANE_Word
+usb_mid_motor_rgb_capability (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Word
+usb_mid_motor_mono_capability (ma1017 * chip, SANE_Word dpi);
 
 /* --------------------- frontend function declarations ------------------- */
 

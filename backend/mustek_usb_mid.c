@@ -307,14 +307,6 @@ usb_mid_c600_prepare_mono (ma1017 * chip, SANE_Word dpi)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Bool
-usb_mid_c600_is600_mode (ma1017 * chip, SANE_Word dpi)
-{
-  DBG (6, "usb_mid_c600_is600_mode: start, chip=%p, dpi=%d, TRUE\n",
-       chip, dpi);
-  /* Cannon 600 CIS is 600 dpi mode always. */
-  return SANE_TRUE;
-}
 
 
 /* ------------------- sensor 300/600 CIS functions ----------------------- */
@@ -575,61 +567,10 @@ usb_mid_c300600_prepare_mono (ma1017 * chip, SANE_Word dpi)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Bool
-usb_mid_c300600_is600_mode (ma1017 * chip, SANE_Word dpi)
-{
-  switch (dpi)
-    {
-    case 300:
-    case 150:
-    case 100:
-    case 50:
-      DBG (6, "usb_mid_c300600_is600_mode: chip=%p, dpi=%d, FALSE\n", 
-	   chip, dpi);
-      return SANE_FALSE;
-    case 600:
-    case 400:
-    case 200:
-      DBG (6, "usb_mid_c300600_is600_mode: chip=%p, dpi=%d, TRUE\n", 
-	   chip, dpi);
-      return SANE_TRUE;
-    default:
-      DBG (3, "usb_mid_c300600_is600_mode: unmatched DPI?\n");
-      return SANE_FALSE;
-      break;
-    }
-}
-
-/* ---------------------- sensor 600 CIS functions ----------------------- */
+/* ---------------------- sensor 300 CIS functions ----------------------- */
 
 static SANE_Word usb_mid_c300_optical_x_dpi[] =
-  { 600, 400, 300, 200, 150, 100, 50, 0 };
-
-SANE_Status
-usb_mid_c300_prepare_rgb_600_dpi (ma1017 * chip)
-{
-  SANE_Status status;
-  
-  DBG(6, "usb_mid_c300_prepare_rgb_600_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
-  DBG(6, "usb_mid_c300_prepare_rgb_600_dpi: exit\n");
-  return SANE_STATUS_GOOD;
-}
-
-SANE_Status
-usb_mid_c300_prepare_rgb_400_dpi (ma1017 * chip)
-{
-  SANE_Status status;
-  
-  DBG(6, "usb_mid_c300_prepare_rgb_400_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
-  DBG(6, "usb_mid_c300_prepare_rgb_400_dpi: exit\n");
-  return SANE_STATUS_GOOD;
-}
+  { 300, 200, 150, 100, 50, 0 };
 
 SANE_Status
 usb_mid_c300_prepare_rgb_300_dpi (ma1017 * chip)
@@ -637,8 +578,7 @@ usb_mid_c300_prepare_rgb_300_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_rgb_300_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P6P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
   RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
   DBG(6, "usb_mid_c300_prepare_rgb_300_dpi: exit\n");
   return SANE_STATUS_GOOD;
@@ -651,7 +591,6 @@ usb_mid_c300_prepare_rgb_200_dpi (ma1017 * chip)
   
   DBG(6, "usb_mid_c300_prepare_rgb_200_dpi: start\n");
   RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
   RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
   DBG(6, "usb_mid_c300_prepare_rgb_200_dpi: exit\n");
   return SANE_STATUS_GOOD;
@@ -663,8 +602,7 @@ usb_mid_c300_prepare_rgb_150_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_rgb_150_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P3P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P3P6));
   RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
   DBG(6, "usb_mid_c300_prepare_rgb_150_dpi: exit\n");
   return SANE_STATUS_GOOD;
@@ -676,8 +614,7 @@ usb_mid_c300_prepare_rgb_100_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_rgb_100_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P2P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P2P6));
   RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
   DBG(6, "usb_mid_c300_prepare_rgb_100_dpi: exit\n");
   return SANE_STATUS_GOOD;
@@ -689,36 +626,9 @@ usb_mid_c300_prepare_rgb_50_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_rgb_50_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P1P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
   RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
   DBG(6, "usb_mid_c300_prepare_rgb_50_dpi: start\n");
-  return SANE_STATUS_GOOD;
-}
-
-SANE_Status
-usb_mid_c300_prepare_mono_600_dpi (ma1017 * chip)
-{
-  SANE_Status status;
-  
-  DBG(6, "usb_mid_c300_prepare_mono_600_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
-  DBG(6, "usb_mid_c300_prepare_mono_600_dpi: exit\n");
-  return SANE_STATUS_GOOD;
-}
-
-SANE_Status
-usb_mid_c300_prepare_mono_400_dpi (ma1017 * chip)
-{
-  SANE_Status status;
-  
-  DBG(6, "usb_mid_c300_prepare_mono_400_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
-  DBG(6, "usb_mid_c300_prepare_mono_400_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -728,9 +638,8 @@ usb_mid_c300_prepare_mono_300_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_mono_300_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P6P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P6P6));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
   DBG(6, "usb_mid_c300_prepare_mono_300_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -742,8 +651,7 @@ usb_mid_c300_prepare_mono_200_dpi (ma1017 * chip)
   
   DBG(6, "usb_mid_c300_prepare_mono_200_dpi: start\n");
   RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P4P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
   DBG(6, "usb_mid_c300_prepare_mono_200_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -754,9 +662,8 @@ usb_mid_c300_prepare_mono_150_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_mono_150_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P3P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P3P6));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
   DBG(6, "usb_mid_c300_prepare_mono_150_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -767,9 +674,8 @@ usb_mid_c300_prepare_mono_100_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_mono_100_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P2P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P2P6));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
   DBG(6, "usb_mid_c300_prepare_mono_100_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -780,9 +686,8 @@ usb_mid_c300_prepare_mono_50_dpi (ma1017 * chip)
   SANE_Status status;
   
   DBG(6, "usb_mid_c300_prepare_mono_50_dpi: start\n");
-  RIE(usb_low_set_image_dpi (chip, SANE_FALSE, SW_P1P6));
-  RIE(usb_low_set_soft_resample (chip, 1));
-  RIE(usb_low_set_led_light_all (chip, SANE_FALSE));
+  RIE(usb_low_set_image_dpi (chip, SANE_TRUE, SW_P1P6));
+  RIE(usb_low_set_led_light_all (chip, SANE_TRUE));
   DBG(6, "usb_mid_c300_prepare_mono_50_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -807,12 +712,6 @@ usb_mid_c300_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       break;
     case 300:
       return usb_mid_c300_prepare_rgb_300_dpi (chip);
-      break;
-    case 400:
-      return usb_mid_c300_prepare_rgb_400_dpi (chip);
-      break;
-    case 600:
-      return usb_mid_c300_prepare_rgb_600_dpi (chip);
       break;
     default:
       DBG (3, "usb_mid_c300_prepare_rgb: unmatched DPI?\n");
@@ -843,12 +742,6 @@ usb_mid_c300_prepare_mono (ma1017 * chip, SANE_Word dpi)
     case 300:
       return usb_mid_c300_prepare_mono_300_dpi (chip);
       break;
-    case 400:
-      return usb_mid_c300_prepare_mono_400_dpi (chip);
-      break;
-    case 600:
-      return usb_mid_c300_prepare_mono_600_dpi (chip);
-      break;
     default:
       DBG (3, "usb_mid_c300_prepare_mono: unmatched DPI?\n");
       return SANE_STATUS_INVAL;
@@ -857,13 +750,76 @@ usb_mid_c300_prepare_mono (ma1017 * chip, SANE_Word dpi)
   return SANE_STATUS_GOOD;
 }
 
+/* -------------------------- sensor functions ---------------------------- */
+
 SANE_Bool
-usb_mid_c300_is600_mode (ma1017 * chip, SANE_Word dpi)
+usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi)
 {
-  DBG (6, "usb_mid_c300_is600_mode: chip=%p, dpi=%d, FALSE\n", chip, dpi);
+  if (chip->sensor == ST_CANON300)
+    {
+      DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, FALSE\n",
+	   chip, dpi);
+      return SANE_FALSE;
+    }
+  else if (chip->sensor == ST_CANON600)
+    {
+      DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, TRUE\n",
+	   chip, dpi);
+      return SANE_TRUE;
+    }
+  else 
+    {
+      switch (dpi)
+	{
+	case 300:
+	case 150:
+	case 100:
+	case 50:
+	  DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, FALSE\n", 
+	       chip, dpi);
+	  return SANE_FALSE;
+	case 600:
+	case 400:
+	case 200:
+	  DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, TRUE\n", 
+	       chip, dpi);
+	  return SANE_TRUE;
+	default:
+	  DBG (3, "usb_mid_sensor_is600_mode: unmatched DPI?\n");
+	  return SANE_FALSE;
+	  break;
+	}
+      
+    }
+  
   return SANE_FALSE;
 }
 
+static SANE_Status
+usb_mid_sensor_prepare_rgb (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->sensor == ST_CANON300)
+    return usb_mid_c300_prepare_rgb (chip, dpi);
+  else if (chip->sensor == ST_CANON600)
+    return usb_mid_c600_prepare_rgb (chip, dpi);
+  else
+    return usb_mid_c300600_prepare_rgb (chip, dpi);
+
+  return SANE_STATUS_INVAL;
+}
+
+static SANE_Status
+usb_mid_sensor_prepare_mono (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->sensor == ST_CANON300)
+    return usb_mid_c300_prepare_mono (chip, dpi);
+  else if (chip->sensor == ST_CANON600)
+    return usb_mid_c600_prepare_mono (chip, dpi);
+  else
+    return usb_mid_c300600_prepare_mono (chip, dpi);
+
+  return SANE_STATUS_INVAL;
+}
 
 /* ---------------1200 dpi motor function declarations --------------------- */
 
@@ -1638,6 +1594,169 @@ usb_mid_motor1200_mono_capability (SANE_Word dpi)
 
 /* ---------------600 dpi motor function declarations --------------------- */
 
+
+static SANE_Word usb_mid_motor600_optical_dpi[] =
+{ 600, 300, 200, 150, 120, 100, 75, 60, 50, 0 };
+
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_600_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+
+  DBG (6, "usb_mid_motor600_prepare_rgb_600_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 4));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_FALSE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_600_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 4));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_FALSE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_200_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_200_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 5, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 5));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_200_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_150_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_150_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 3));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_150_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_100_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_100_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 5, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 5));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_100_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_50_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_50_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_BLUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 3));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_50_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_600_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_mono_600_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_600_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_mono_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
 SANE_Status
 usb_mid_motor600_prepare_mono_200_dpi (ma1017 * chip)
 {
@@ -1645,31 +1764,10 @@ usb_mid_motor600_prepare_mono_200_dpi (ma1017 * chip)
   
   DBG (6, "usb_mid_motor600_prepare_mono_200_dpi: start\n");
   RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
-  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_TRUE, SANE_FALSE));
   RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 4, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 5, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 6, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 7, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 8, CH_GREEN, SANE_TRUE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 9, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 10, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 11, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 12, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 13, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 14, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 15, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 16, CH_GREEN, SANE_TRUE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 17, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 18, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 19, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 20, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 21, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 22, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 23, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table (chip, 24, CH_GREEN, SANE_FALSE, SANE_FALSE));
-  RIE(usb_low_set_cmt_table_length (chip, 24));
+  RIE(usb_low_set_cmt_table_length (chip, 3));
   RIE(usb_low_set_cmt_second_position (chip, 0));
   RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
   RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
@@ -1678,35 +1776,171 @@ usb_mid_motor600_prepare_mono_200_dpi (ma1017 * chip)
   return SANE_STATUS_GOOD;
 }
 
+
 SANE_Status
-usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
+usb_mid_motor600_prepare_mono_150_dpi (ma1017 * chip)
 {
   SANE_Status status;
   
-  DBG (6, "usb_mid_motor600_prepare_Monorgb: start\n");
-  RIE(usb_low_move_motor_home (chip, SANE_FALSE, SANE_FALSE));
-  /* No Motor & Forward */
-  RIE(usb_low_set_motor_direction (chip, SANE_FALSE));
-  RIE(usb_low_enable_motor (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_150_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_150_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_100_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_mono_100_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 3));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_100_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_50_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_mono_50_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 3));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_50_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_half_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_half_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_BLUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_BLUE, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_RED, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 5, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 6, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 6));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_half_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_rgb_bi_full_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_rgb_bi_full_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 3, CH_BLUE, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 4, CH_RED, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 5, CH_RED, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 6, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 6));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_FALSE));
+  DBG (6, "usb_mid_motor600_prepare_rgb_bi_full_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_half_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_mono_half_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_half_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+
+}
+
+SANE_Status
+usb_mid_motor600_prepare_mono_bi_full_300_dpi (ma1017 * chip)
+{
+  SANE_Status status;
+
+  DBG (6, "usb_mid_motor600_prepare_mono_bi_full_300_dpi: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, CH_GREEN, SANE_TRUE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, CH_GREEN, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  RIE(usb_low_set_motor_movement (chip, SANE_TRUE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_mono_bi_full_300_dpi: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+
+SANE_Status
+usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
+{
+  DBG (6, "usb_mid_motor600_prepare_rgb: start\n");
   switch (dpi)
     {
+    case 600:
+      return usb_mid_motor600_prepare_rgb_600_dpi (chip);
+      break;
     case 300:
-      return usb_mid_motor1200_prepare_rgb_600_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_300_dpi (chip);
       break;
     case 200:
-      return usb_mid_motor1200_prepare_rgb_400_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_200_dpi (chip);
       break;
     case 150:
-      return usb_mid_motor1200_prepare_rgb_300_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_150_dpi (chip);
       break;
     case 100:
-      return usb_mid_motor1200_prepare_rgb_200_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_100_dpi (chip);
       break;
     case 50:
-      return usb_mid_motor1200_prepare_rgb_100_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_50_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_rgb: unmatched dpi (%d)\n", dpi);
+      DBG (3, "usb_mid_motor600_prepare_rgb: unmatched dpi?\n");
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1716,32 +1950,89 @@ usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
 SANE_Status
 usb_mid_motor600_prepare_mono (ma1017 * chip, SANE_Word dpi)
 {
+  DBG (3, "usb_mid_motor600_prepare_mono: start\n");
+  switch (dpi)
+    {
+    case 600:
+      return usb_mid_motor600_prepare_mono_600_dpi (chip);
+      break;
+    case 300:
+      return usb_mid_motor600_prepare_mono_300_dpi (chip);
+      break;
+    case 200:
+      return usb_mid_motor600_prepare_mono_200_dpi (chip);
+      break;
+    case 150:
+      return usb_mid_motor600_prepare_mono_150_dpi (chip);
+      break;
+    case 100:
+      return usb_mid_motor600_prepare_mono_100_dpi (chip);
+      break;
+    case 50:
+      return usb_mid_motor600_prepare_mono_50_dpi (chip);
+      break;
+    default:
+      DBG (3, "usb_mid_motor600_prepare_mono_: unmatched dpi?\n");
+      return SANE_STATUS_INVAL;
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi)
+{
   SANE_Status status;
   
-  DBG (3, "usb_mid_motor600_prepare_mono: start\n");
+  DBG (6, "usb_mid_motor600_prepare_calibrate_rgb: start\n");
   RIE(usb_low_move_motor_home (chip, SANE_FALSE, SANE_FALSE));
   /* No Motor & Forward */
   RIE(usb_low_set_motor_direction (chip, SANE_FALSE));
   RIE(usb_low_enable_motor (chip, SANE_TRUE));
   switch (dpi)
     {
-    case 300:
-      return usb_mid_motor1200_prepare_mono_600_dpi (chip);
-      break;
+    case 600:
     case 200:
-      return usb_mid_motor600_prepare_mono_200_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_half_300_dpi (chip);
       break;
+    case 300:
     case 150:
-      return usb_mid_motor1200_prepare_mono_300_dpi (chip);
-      break;
     case 100:
-      return usb_mid_motor1200_prepare_mono_200_dpi (chip);
-      break;
     case 50:
-      return usb_mid_motor1200_prepare_mono_100_dpi (chip);
+      return usb_mid_motor600_prepare_rgb_bi_full_300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_mono: unmatched dpi (%d)\n", dpi);
+      DBG (3, "usb_mid_motor600_prepare_calibrate_rgb: unmatched dpi?\n");
+      return SANE_STATUS_INVAL;
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_calibrate_mono: start\n");
+  RIE(usb_low_move_motor_home (chip, SANE_FALSE, SANE_FALSE));
+  /* No Motor & Forward */
+  RIE(usb_low_set_motor_direction (chip, SANE_FALSE));
+  RIE(usb_low_enable_motor (chip, SANE_TRUE));
+  switch (dpi)
+    {
+    case 600:
+    case 200:
+      return usb_mid_motor600_prepare_mono_half_300_dpi (chip);
+      break;
+    case 300:
+    case 150:
+    case 100:
+    case 50:
+      return usb_mid_motor600_prepare_mono_bi_full_300_dpi (chip);
+      break;
+    default:
+      DBG (3, "usb_mid_motor600_prepare_calibrate_mono: unmatched dpi?\n");
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1755,7 +2046,7 @@ usb_mid_motor600_prepare_step (ma1017 * chip, SANE_Word step_count)
 
   DBG (6, "usb_mid_motor600_prepare_step: start\n");
   RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
-  /* Make it in 600dpi */
+  /* Make it in 300dpi */
   RIE(usb_low_set_io_3 (chip, SANE_TRUE)); /* (IO3) ? High power : Low power */
   RIE(usb_low_move_motor_home (chip, SANE_FALSE, SANE_FALSE));
   /* No Motor & Forward */
@@ -1790,6 +2081,163 @@ usb_mid_motor600_prepare_step (ma1017 * chip, SANE_Word step_count)
   DBG (6, "usb_mid_motor600_prepare_step: exit\n");
   return SANE_STATUS_GOOD;
 }
+
+SANE_Status
+usb_mid_motor600_prepare_home (ma1017 * chip)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_home: start\n");
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  /* Make it in 600dpi */
+  RIE(usb_low_set_io_3 (chip, SANE_TRUE)); /* (IO3) ? High power : Low power */
+  RIE(usb_low_move_motor_home (chip, SANE_TRUE, SANE_TRUE));
+  DBG (6, "usb_mid_motor600_prepare_home: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+usb_mid_motor600_prepare_adjust (ma1017 * chip, Channel channel)
+{
+  SANE_Status status;
+  
+  DBG (6, "usb_mid_motor600_prepare_adjust: start\n");
+  RIE(usb_low_set_cmt_table (chip, 0, channel, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 1, channel, SANE_FALSE, SANE_TRUE));
+  RIE(usb_low_set_cmt_table (chip, 2, channel, SANE_FALSE, SANE_FALSE));
+  RIE(usb_low_set_cmt_table_length (chip, 2));
+  RIE(usb_low_set_cmt_second_position (chip, 0));
+  RIE(usb_low_set_cmt_loop_count (chip, 0xefff));
+  DBG (6, "usb_mid_motor600_prepare_adjust: exit\n");
+  return SANE_STATUS_GOOD;
+}
+
+
+SANE_Word
+usb_mid_motor600_rgb_capability (SANE_Word dpi)
+{
+  DBG (6, "usb_mid_motor600_rgb_capability: start\n");
+  switch (dpi)
+    {
+    case 600:
+    case 300:
+    case 200:
+      return 2600;
+    case 100:
+      return 4500;
+    case 150:
+    case 50:
+      return 9000;
+    default:
+      DBG (3, "usb_mid_motor600_rgb_capability: unmatched DPI?\n");
+      return 0;
+    }
+}
+
+SANE_Word
+usb_mid_motor600_mono_capability (SANE_Word dpi)
+{
+  DBG (5, "usb_mid_motor600_mono_capability: start\n");
+  switch (dpi)
+    {
+    case 600:
+    case 200:
+      return 2600;
+    case 300:
+    case 100:
+      return 4500;
+    case 150:
+    case 50:
+      return 9000;
+    default:
+      DBG (3, "usb_mid_motor600_mono_capability: unmatched dpi?\n");
+      return 0;
+    }
+}
+
+/* ------------------ motor function declarations ------------------------ */
+static SANE_Status
+usb_mid_motor_prepare_home (ma1017 * chip)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_home (chip);
+  else
+    return usb_mid_motor1200_prepare_home (chip);
+}
+
+static SANE_Status 
+usb_mid_motor_prepare_rgb (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_rgb (chip, dpi);
+  else
+    return usb_mid_motor1200_prepare_rgb (chip, dpi);
+}
+
+static SANE_Status
+usb_mid_motor_prepare_mono (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_mono (chip, dpi);
+  else
+    return usb_mid_motor1200_prepare_mono (chip, dpi);
+}
+
+static SANE_Status
+usb_mid_motor_prepare_adjust (ma1017 * chip, Channel channel)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_adjust (chip, channel);
+  else
+    return usb_mid_motor1200_prepare_adjust (chip, channel);
+}
+
+static SANE_Status
+usb_mid_motor_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_calibrate_rgb (chip, dpi);
+  else
+    return usb_mid_motor1200_prepare_calibrate_rgb (chip, dpi);
+}
+
+static SANE_Status
+usb_mid_motor_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_calibrate_mono (chip, dpi);
+  else
+    return usb_mid_motor1200_prepare_calibrate_mono (chip, dpi);
+}
+
+static SANE_Status
+usb_mid_motor_prepare_step (ma1017 * chip, SANE_Word step_count)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_prepare_step (chip, step_count);
+  else
+    return usb_mid_motor1200_prepare_step (chip, step_count);
+}
+
+static SANE_Word
+usb_mid_motor_rgb_capability (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_rgb_capability (dpi);
+  else
+    return usb_mid_motor1200_rgb_capability (dpi);
+}
+
+static SANE_Word
+usb_mid_motor_mono_capability (ma1017 * chip, SANE_Word dpi)
+{
+  if (chip->motor == MT_600)
+    return usb_mid_motor600_mono_capability (dpi);
+  else
+    return usb_mid_motor1200_mono_capability (dpi);
+}
+
+
 /* ----------------------------- frontend ------------------------------- */
 
 SANE_Status

@@ -123,6 +123,9 @@ static struct option long_options[] =
   };
 
 
+static int gtk_quit_flag; /* Call gtk_main_quit() only if at least one device
+                             device is found. */
+
 /* forward declarations: */
 
 int main (int argc, char ** argv);
@@ -454,7 +457,8 @@ quit_xscan (void)
   if (dialog && gsg_dialog_get_device (dialog))
     sane_close (gsg_dialog_get_device (dialog));
   sane_exit ();
-  gtk_main_quit ();
+  if (gtk_quit_flag == 1)
+    gtk_main_quit ();
 #ifdef HAVE_LIBGIMP_GIMP_H
   if (scan_win.mode == SANE_GIMP_EXTENSION)
     gimp_quit ();
@@ -1696,6 +1700,7 @@ interface (int argc, char **argv)
 	  quit_xscan ();
 	}
     }
+  gtk_quit_flag = 1;
   gtk_main ();
   sane_exit ();
 }
@@ -1704,7 +1709,7 @@ int
 main (int argc, char **argv)
 {
   scan_win.mode = STANDALONE;
-
+  gtk_quit_flag = 0;
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
     ++prog_name;

@@ -1,3 +1,9 @@
+2002-02-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in include/sane/config.h.in lib/Makefile.in
+	  lib/inet_pton.c: Added wrapper for inet_pton(). If this function
+	  is not available, try first inet_aton() and then inet_addr().
+
 2002-02-13  Peter Fales <peter@fales.com>
 
 	* configure, acinclude.m4, aclocal.m4 - Another tweak to the

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-02-07"		; version of backend
+:version "2004-02-14"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -437,7 +437,7 @@
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x07b3/0x0001. See link for details."
 
-:model "Colorpage Vivid 1200EX"
+:model "Colorpage Vivid 1200 XE"
 :url "/unsupported/genius-colorpage-vivid-1200EX.html"
 :interface "USB"
 :status :unsupported
@@ -564,6 +564,12 @@
 :status :unsupported
 
 :model "ScanJet 4600"
+:url "/unsupported/hp-scanjet-4600.html"
+:interface "USB"
+:comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 4670"
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :comment "Not supported. See link for details."
@@ -1001,11 +1007,6 @@
 :status :unsupported
 :comment "Uses Plustek ASIC."
 
-:model "OpticSlim 2400"
-:interface "USB"
-:status :unsupported
-:comment "Probably the same as OpticSlim 1200, with higher resolution."
-
 :model "Spectra ADF"
 ;:url ""
 :interface "Proprietary"
@@ -1181,6 +1182,18 @@
 
 ;********************************************************************************************
 
+:mfg "Tamarack"
+;:comment ""
+;:url ""
+
+:model "Artiscan 9600 pro 36"                ; name models for above-specified mfg.
+:interface "Parport"
+:status :unsupported
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2004-February/010113.html"
+:comment "Unsupported. Someone wants to write a backend. See link."
+
+;********************************************************************************************
+
 :mfg "TCE"
 :comment "Brasilian vendor."
 :url "http://www.tce.com.br/"
@@ -1338,10 +1351,10 @@
 :comment "Unsupported. See link for details."
 
 :model "Onetouch 8700"
-;:url "/unsupported/visioneer-onetouch8920.html"
+:url "/unsupported/visioneer-onetouch8920.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Same as 8920 but without TA?"
+:comment "Not supported. See link for details."
 
 :model "Onetouch 8900"
 ;:url "/unsupported/visioneer-onetouch8920.html"

@@ -1,3 +1,8 @@
+2004-02-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added HP ScanJet 4670 and
+	  Tamarack Artiscan 9600 pro 36. Removed Plustek OpticSlim 2400.
+
 2004-02-11  Frank Zago  <fzago at austin dot rr dot com>
 	* backend/matsushita.c backend/matsushita.conf
 	  doc/sane-matsushita.man doc/descriptions/matsushita.desc: added

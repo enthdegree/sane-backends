@@ -553,7 +553,7 @@ gt6801_setup_scan (GT68xx_Device * dev,
       GT68xx_Packet req;
       SANE_Byte motor_mode_1, motor_mode_2;
 
-      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode)
+      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode && color)
 	{
 	  DBG (0, "gt6801_setup_scan: the scanner's memory is too small for "
 	       "that combination of resolution, dpi and width\n");

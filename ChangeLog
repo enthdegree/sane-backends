@@ -1,3 +1,12 @@
+2004-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  backend/gt68xx_gt6801.c backend/gt68xx_gt6816.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Fixed test
+	  to move home sensor at the start of scan.  Fixed gray mode
+	  linemode test. That stopped e.g. the Plustek OpticPro U 16 B from
+	  working in gray mode.
+
 2004-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/v4l.c: 64 bit fix from Frank Zago <fzago at austin dot

@@ -1074,8 +1074,7 @@ static GT68xx_Model genius_vivid4_model = {
   SANE_FALSE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_NO_POWER_STATUS| GT68XX_FLAG_NO_LINEMODE 
   /* Which flags are needed for this scanner? */
-  /* Untested but as this scanner seems to be very similar to Plustelk U16B it
-     should work. */
+  /* This scanner seems to be very similar to Plustelk U16B and is reported to work. */
 };
 
 
@@ -1126,7 +1125,7 @@ static GT68xx_Model genius_vivid3x_model  = {
 
   SANE_FALSE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_OFFSET_INV 	/* Which flags are needed for this scanner? */
-  /* Tested zo some degree, based on the Plustek OpticPro 1248U*/
+  /* Tested to some degree, based on the Plustek OpticPro 1248U*/
 };
 
 static GT68xx_Model genius_vivid4x_model  = {

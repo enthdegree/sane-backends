@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 66
+#define BUILD 67
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -1342,7 +1342,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   RIE (gt68xx_device_get_id (dev));
 
-  if (!(dev->model->flags | GT68XX_FLAG_NO_STOP))
+  if (!(dev->model->flags & GT68XX_FLAG_NO_STOP))
     RIE (gt68xx_device_stop_scan (dev));
 
   RIE (gt68xx_device_get_power_status (dev, &power_ok));
@@ -1736,7 +1736,7 @@ sane_start (SANE_Handle handle)
     }
 
   s->calib = s->val[OPT_QUALITY_CAL].w;
-  if (!(s->dev->model->flags | GT68XX_FLAG_NO_STOP))
+  if (!(s->dev->model->flags & GT68XX_FLAG_NO_STOP))
     RIE (gt68xx_device_stop_scan (s->dev));
 
   RIE (gt68xx_device_carriage_home (s->dev));

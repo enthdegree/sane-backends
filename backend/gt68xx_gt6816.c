@@ -534,7 +534,7 @@ gt6816_setup_scan (GT68xx_Device * dev,
 	  return SANE_STATUS_NO_MEM;
 	}
 
-      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode)
+      if ((dev->model->flags & GT68XX_FLAG_NO_LINEMODE) && line_mode && color)
 	{
 	  DBG (0, "gt6816_setup_scan: the scanner's memory is too small for "
 	       "that combination of resolution, dpi and width\n");

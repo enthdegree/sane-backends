@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.67 (2004-11-14)
+
+* Fixed test to move home sensor at the start of scan.
+* Fixed gray mode linemode test. That stopped e.g. the Plustek OpticPro U 16 B
+  from working in gray mode.
+
 V 1.0.66 (2004-10-31)
 
 * Removed unused gain and offset options.

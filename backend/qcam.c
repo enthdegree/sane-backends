@@ -332,6 +332,16 @@ static SANE_Status
 qc_unlock (QC_Device *q)
 {
 #ifdef F_SETLK
+#ifndef HAVE_STRUCT_FLOCK
+  struct flock
+  {    	
+    off_t   l_start;
+    off_t   l_len;
+    pid_t   l_pid;
+    short   l_type;
+    short   l_whence;
+  };
+#endif /* !HAVE_STRUCT_FLOCK */
   struct flock sfl;
 #endif
 

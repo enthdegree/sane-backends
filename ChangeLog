@@ -1,3 +1,9 @@
+2004-01-14  Gerhard Jaeger <gerhard@gjaeger.de>
+	* descriptions/u12.desc: fixed wrong man-page reference, status updates.
+	* backend/u12.c backend/u12.h backend/u12-hwdef.h backend/u12-scanner.h
+	  backend/u12-*.c: bump up version, fixed device autodetection and corrupted
+	  pictures, improved model-detection.
+
 2004-01-13  Karl Heinz Kremer <khk@khk.net>
 	*  backend/epson-usb.c: Added product ID for RX-500
 

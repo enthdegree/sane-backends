@@ -1,4 +1,4 @@
-TODO (2000-11-15)
+TODO (2000-11-19)
 
 ******** todo ********
 
@@ -71,13 +71,6 @@ frontends
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
 
-  * stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
-    <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to
-    specify the TAG "BitsPerSample", which tells a reader how many bits each
-    sample has. The current version only specifies one value (8 or 16). This
-    is wrong, as we have to specify one value for each channel (i.e for a
-    24bit RGB pic we must specify 8,8,8, see TIFF6.0 spec, [...]
-
  [the remaining entries have been moved to the sane-frontends package]
 
 sanei
@@ -103,7 +96,7 @@ misc
   * Test SANE on different os/platforms, fix possible compilation problems 
      Test methods: scanimage -d pnm:0 --filename=file.pnm -T
                    scanimage -d net:localhost:pnm:0 --filename=file.pnm -T
-                   (not possible if I'm not root on the system)
+                   (start saned by inetd or saned -d before testing)
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
 
@@ -140,6 +133,12 @@ misc
   * libdl is used in dll backend but -ldl is not added to LDFLAGS?
 
 ******** done ********
+* stiff.c: Tiff header not written correctly: "Jaeger, Gerhard"
+  <gjaeger@sysgo.de> writes: When writing the TIFF header, you have to
+  specify the TAG "BitsPerSample", which tells a reader how many bits each
+  sample has. The current version only specifies one value (8 or 16). This
+  is wrong, as we have to specify one value for each channel (i.e for a
+  24bit RGB pic we must specify 8,8,8, see TIFF6.0 spec, [...]
 * don't install sanei_* headers
 * Add sane-pie (Pacific Image Electronics series of ScanAce SCSI scanners, and
   the Devcom 9636/9630 BlackWidow) http://www.munton.demon.co.uk/sane

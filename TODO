@@ -1,4 +1,4 @@
-TODO (2001-04-19)
+TODO (2001-04-22)
 
 ******** todo ********
 
@@ -78,12 +78,8 @@ backends
     sane_get_devices().
       - qcam
       - etc?
-  * as6e: change :new status to :alpha, :beta, or :stable.
 
-  * epson: backend tries to detect usb scanners by default. This breaks with
-    non-epson scanners like the LM9831 bases Mustek Bearpaw 1200. The epson
-    backend freezes if such a scanner is plugged in. Try to make the test safe
-    or don't test without user interaction.
+  * as6e: change :new status to :alpha, :beta, or :stable.
 
   * add a contact address for each backend (in backend.desc).
 
@@ -131,11 +127,6 @@ misc
   * move .desc files for backends that are not included in SANE to
     different directory (e.g. backends and external-backends)?
 
-  * Add a check for installed sane versions.
-    - Print a warning when already a sane version is installed
-    - If SANE is installed at a different location, ask user to
-      remove old installation first
-
   * Maybe add script to detect and deinstall existing sane versions
     - make uninstall
     - install sane-uninstall script. Advantage: uninstall possible
@@ -154,6 +145,14 @@ misc
   * Add USB support for sane-find-scanner.
 
 ******** done ********
+* Add a check for installed sane versions.
+  - Print a warning when already a sane version is installed
+  - If SANE is installed at a different location, ask user to
+    remove old installation first
+* epson: backend tries to detect usb scanners by default. This breaks with
+  non-epson scanners like the LM9831 bases Mustek Bearpaw 1200. The epson
+  backend freezes if such a scanner is plugged in. Try to make the test safe
+  or don't test without user interaction.
 * pnm: add more options for testing (e.g. arrays and read-only options)
 * sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
   (probably fixed by testing for os2.h in configure).

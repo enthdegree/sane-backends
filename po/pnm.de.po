@@ -1,6 +1,5 @@
-# # Translation file for SANE Mustek (SCSI) backend
-# # Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
-# # Based on the translation file for the UMAX backend
+# Translation file for SANE PNM backend
+# Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"

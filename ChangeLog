@@ -1,3 +1,8 @@
+2003-01-12  Michael Herder  <crapsite@gmx.net>
+
+        * doc/descriptions/artec_eplus48u.desc:  Added new
+	  models.
+
 2002-01-11  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* sanei/sanei_pa4s2.h: prepared sanei for use with fork()ing

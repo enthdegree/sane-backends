@@ -1,3 +1,9 @@
+2001-10-27 Peter Kirchgessner <peter@kirchgessner.net>
+
+  *backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c hp-option.c
+           hp-scl.c:
+    Use ../include/lassert.h
+
 2001-10-17 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
   * umax backend bugfixes (new version number: 1.0 build 31):

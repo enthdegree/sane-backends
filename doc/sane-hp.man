@@ -1,4 +1,4 @@
-.TH sane-hp 5 "08 Aug 2002"
+.TH sane-hp 5 "10 Sep 2002"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -88,7 +88,9 @@ device or a symlink to such a device.  Under Linux, such a device name could be
 .I /dev/sga
 or
 .IR /dev/sg2 ,
-for example. For the HP ScanJet Plus the special device name must be the device
+for example. If the special device name contains "usb", "uscanner" or "ugen",
+it is assumed that the scanner is connected by USB.
+For the HP ScanJet Plus the special device name must be the device
 that corresponds to the parallel interface card that was shipped with the
 scanner. That is
 .IR /dev/hpscan .
@@ -116,8 +118,10 @@ and
 Option
 .B connect-scsi
 specifies that the scanner is connected to the system by SCSI.
-Input/output is performed using SCSI-commands.
-This is the default.
+Input/output is performed using SCSI-commands. This is the default.
+But if your SCSI device name contains "usb", "uscanner" or "ugen",
+option connect-scsi must be specified. Otherwise it is assumed that
+the scanner is connected by USB.
 
 Option
 .B connect-device
@@ -126,6 +130,8 @@ device. Input/output is performed by read()/write()-operations
 on the device. This option must be used for HP ScanJet Plus and
 scanners connected to the USB. However if the scanner requires an USB
 driver that simulates a SCSI device, connect-scsi might be used.
+For device names that contain "usb", "uscanner" or "ugen", it is not
+necessary to specify option connect-device.
 
 Option
 .B enable-image-buffering
@@ -144,7 +150,7 @@ used in case of forward/backward moving scanner lamp.
   option connect-device
 .RE
 .PP
-/dev/scanner is typically a symlink to the actual scanner device.
+/dev/scanner is typically a symlink to the actual SCSI scanner device.
 .RE
 .SH FILES
 .TP

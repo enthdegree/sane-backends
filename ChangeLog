@@ -1,5 +1,9 @@
 2000-11-19  Karl Heinz Kremer <khk@khk.net>
 
+	* backend/epson.c: Removed one debug output statement.
+
+2000-11-19  Karl Heinz Kremer <khk@khk.net>
+
 	* backend/epson.[ch]: Added support for "set focus position" command. This
 	  command is necessary to scan via the TPU with the Expression1600.
 2000-11-19  Henning Meier-Geinitz <hmg@gmx.de>

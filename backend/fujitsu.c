@@ -5491,7 +5491,7 @@ init_options (struct fujitsu *scanner)
       SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
 
-  scanner->opt[OPT_VARIANCE_RATE].name = "variance_rate";
+  scanner->opt[OPT_VARIANCE_RATE].name = "variancerate";
   scanner->opt[OPT_VARIANCE_RATE].title = "variance rate";
   scanner->opt[OPT_VARIANCE_RATE].desc =
     "variance rate for simplified dynamic threshold";
@@ -5502,7 +5502,7 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_VARIANCE_RATE].cap =
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_THRESHOLD_CURVE].name = "threshold_curve";
+  scanner->opt[OPT_THRESHOLD_CURVE].name = "thresholdcurve";
   scanner->opt[OPT_THRESHOLD_CURVE].title = "threshold curve";
   scanner->opt[OPT_THRESHOLD_CURVE].desc = "DTC threshold_curve";
   scanner->opt[OPT_THRESHOLD_CURVE].type = SANE_TYPE_INT;
@@ -5523,7 +5523,7 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_GRADATION].cap =
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_SMOOTHING_MODE].name = "smoothing_mode";
+  scanner->opt[OPT_SMOOTHING_MODE].name = "smoothingmode";
   scanner->opt[OPT_SMOOTHING_MODE].title = "smoothing mode";
   scanner->opt[OPT_SMOOTHING_MODE].desc = "smoothing mode";
   scanner->opt[OPT_SMOOTHING_MODE].type = SANE_TYPE_STRING;
@@ -5560,7 +5560,7 @@ init_options (struct fujitsu *scanner)
       SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
 
-  scanner->opt[OPT_NOISE_REMOVAL].name = "noise_removal";
+  scanner->opt[OPT_NOISE_REMOVAL].name = "noiseremoval";
   scanner->opt[OPT_NOISE_REMOVAL].title = "noise removal";
   scanner->opt[OPT_NOISE_REMOVAL].desc = "enables the noise removal matrixes";
   scanner->opt[OPT_NOISE_REMOVAL].type = SANE_TYPE_BOOL;
@@ -5569,7 +5569,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_MATRIX2X2].name = "matrix_2x2";
+  scanner->opt[OPT_MATRIX2X2].name = "matrix2x2";
   scanner->opt[OPT_MATRIX2X2].title = "2x2 noise removal matrix";
   scanner->opt[OPT_MATRIX2X2].desc = "2x2 noise removal matrix";
   scanner->opt[OPT_MATRIX2X2].type = SANE_TYPE_BOOL;
@@ -5578,7 +5578,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_MATRIX2X2].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_MATRIX3X3].name = "matrix_3x3";
+  scanner->opt[OPT_MATRIX3X3].name = "matrix3x3";
   scanner->opt[OPT_MATRIX3X3].title = "3x3 noise removal matrix";
   scanner->opt[OPT_MATRIX3X3].desc = "3x3 noise removal matrix";
   scanner->opt[OPT_MATRIX3X3].type = SANE_TYPE_BOOL;
@@ -5587,7 +5587,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_MATRIX3X3].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_MATRIX4X4].name = "matrix_4x4";
+  scanner->opt[OPT_MATRIX4X4].name = "matrix4x4";
   scanner->opt[OPT_MATRIX4X4].title = "4x4 noise removal matrix";
   scanner->opt[OPT_MATRIX4X4].desc = "4x4 noise removal matrix";
   scanner->opt[OPT_MATRIX4X4].type = SANE_TYPE_BOOL;
@@ -5596,7 +5596,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_MATRIX4X4].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_MATRIX5X5].name = "matrix_5x5";
+  scanner->opt[OPT_MATRIX5X5].name = "matrix5x5";
   scanner->opt[OPT_MATRIX5X5].title = "5x5 noise removal matrix";
   scanner->opt[OPT_MATRIX5X5].desc = "5x5 noise removal matrix";
   scanner->opt[OPT_MATRIX5X5].type = SANE_TYPE_BOOL;
@@ -5605,7 +5605,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_MATRIX5X5].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_WHITE_LEVEL_FOLLOW].name = "white_level_follow";
+  scanner->opt[OPT_WHITE_LEVEL_FOLLOW].name = "whitelevelfollow";
   scanner->opt[OPT_WHITE_LEVEL_FOLLOW].title = "white level follow";
   scanner->opt[OPT_WHITE_LEVEL_FOLLOW].desc = "white level follow";
   scanner->opt[OPT_WHITE_LEVEL_FOLLOW].type = SANE_TYPE_STRING;
@@ -5619,7 +5619,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_WHITE_LEVEL_FOLLOW].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_DTC_SELECTION].name = "dtc_selection";
+  scanner->opt[OPT_DTC_SELECTION].name = "dtcselection";
   scanner->opt[OPT_DTC_SELECTION].title = "DTC selection";
   scanner->opt[OPT_DTC_SELECTION].desc = "DTC selection";
   scanner->opt[OPT_DTC_SELECTION].type = SANE_TYPE_STRING;
@@ -5633,7 +5633,7 @@ init_options (struct fujitsu *scanner)
     scanner->opt[OPT_DTC_SELECTION].cap = SANE_CAP_SOFT_SELECT |
       SANE_CAP_SOFT_DETECT;
 
-  scanner->opt[OPT_PAPER_SIZE].name = "paper_size";
+  scanner->opt[OPT_PAPER_SIZE].name = "papersize";
   scanner->opt[OPT_PAPER_SIZE].title = "paper size";
   scanner->opt[OPT_PAPER_SIZE].desc = "Physical size of the paper in the ADF";
   scanner->opt[OPT_PAPER_SIZE].type = SANE_TYPE_STRING;
@@ -5658,7 +5658,7 @@ init_options (struct fujitsu *scanner)
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
 
-  scanner->opt[OPT_DROPOUT_COLOR].name = "dropout_color";
+  scanner->opt[OPT_DROPOUT_COLOR].name = "dropoutcolor";
   scanner->opt[OPT_DROPOUT_COLOR].title = "dropout color";
   scanner->opt[OPT_DROPOUT_COLOR].desc =
     "select dropout color";
@@ -5681,7 +5681,7 @@ init_options (struct fujitsu *scanner)
 
   if (scanner->has_hw_status)
     {
-      scanner->opt[OPT_START_BUTTON].name = "start_button";
+      scanner->opt[OPT_START_BUTTON].name = "startbutton";
       scanner->opt[OPT_START_BUTTON].title = "start button";
       scanner->opt[OPT_START_BUTTON].desc =
         "is the start button of the scanner pressed";
@@ -5709,7 +5709,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 
       opt = scanner->opt + OPT_IMPRINTER_DIR;
-      opt->name = "imprinter_direction";
+      opt->name = "imprinterdirection";
       opt->title = "imprinter direction";
       opt->desc = "writing direction of the imprinter";
       opt->type = SANE_TYPE_STRING;
@@ -5719,7 +5719,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_INACTIVE;
 
       opt = scanner->opt + OPT_IMPRINTER_CTR_DIR;
-      opt->name = "imprinter_ctr_dir";
+      opt->name = "imprinterctrdir";
       opt->title = "imprinter counter direction";
       opt->desc = "imprinter counter direction";
       opt->type = SANE_TYPE_STRING;
@@ -5729,7 +5729,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_INACTIVE;
 
       opt = scanner->opt + OPT_IMPRINTER_YOFFSET;
-      opt->name = "imprinter_yoffset";
+      opt->name = "imprinteryoffset";
       opt->title = "imprinter Y-Offset";
       opt->desc = "imprinter Y-Offset";
       opt->type = SANE_TYPE_FIXED;
@@ -5739,7 +5739,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_INACTIVE;
 
       opt = scanner->opt + OPT_IMPRINTER_STRING;
-      opt->name = "imprinter_string";
+      opt->name = "imprinterstring";
       opt->title = "imprinter string";
       opt->desc = "The string the imprinter prints";
       opt->type = SANE_TYPE_STRING;
@@ -5747,7 +5747,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_INACTIVE;
 
       opt = scanner->opt + OPT_IMPRINTER_CTR_INIT;
-      opt->name = "imprinter_ctr_init";
+      opt->name = "imprinterctrinit";
       opt->title = "imprinter counter init value";
       opt->desc = "imprinter counter initial value";
       opt->type = SANE_TYPE_INT;
@@ -5755,7 +5755,7 @@ init_options (struct fujitsu *scanner)
       opt->cap = SANE_CAP_INACTIVE;
 
       opt = scanner->opt + OPT_IMPRINTER_CTR_STEP;
-      opt->name = "imprinter_ctr_step";
+      opt->name = "imprinterctrstep";
       opt->title = "imprinter counter step";
       opt->desc = "imprinter counter step";
       opt->type = SANE_TYPE_INT;
@@ -5835,7 +5835,7 @@ init_options (struct fujitsu *scanner)
     SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
   opt = scanner->opt + OPT_SLEEP_MODE;
-  opt->name = "sleep_timer";
+  opt->name = "sleeptimer";
   opt->title = "sleep timer";
   opt->desc = "time in minutes until the internal power supply switches to sleep mode"; 
   opt->type = SANE_TYPE_INT;

@@ -57,6 +57,11 @@
 
 #ifdef HAVE_LIBGIMP_GIMP_H
 
+/*
+ * Enable old Gimp API.  Eventually, we should rewrite this frontend
+ * to use the new API. [pere 2000-10-29]
+ */
+#define GIMP_ENABLE_COMPAT_CRUFT
 #include <libgimp/gimp.h>
 
 static void query (void);

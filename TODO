@@ -1,4 +1,4 @@
-TODO (2000-10-29)
+TODO (2000-10-30)
 
 ******** todo ********
 
@@ -12,8 +12,8 @@ backends
     - primax http://primax.sourceforge.net/
     - hp4200 http://hp4200-backend.sourceforge.net/
     - v4l2 http://video.inodes.org/sane-v4l2/
-    - Relisys Scorpio Super 3 SCSI II by Tyler
-      Bindon <martica@martica.org>.
+    - Relisys Scorpio Super 3 SCSI II
+      Mark Plowman <mplowman@wxs.nl>
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <hbauer@online.de>
     - sane-pie (Pacific Image Electronics series of ScanAce SCSI
@@ -23,6 +23,14 @@ backends
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
      - microtek2
+
+  * use #include "sane..." instead of #include <sane...>
+     * net.h
+     * qcam.h
+     * ricoh.h
+     * v4l.h
+     * avision.c
+     * epson.c
 
   * check #include <lalloca.h> (is this a global system header
     on any platform? Otherwise --> "lalloca.h")
@@ -97,10 +105,23 @@ frontends
   * Adapt xscanimage to new GIMP API. Try to make it backwards compatible
     with old GIMP versions if possible.
 
+  * xcam: if the user quits xcam by the window manager, the process isn't
+    killed, only the window is closed
+
 sanei
 -----
   * don't install sanei_* headers
-
+ 
+  * use #include "sane..." instead of #include <sane...>
+      * sanei.h
+      * sanei_ab306.h
+      * sanei_backend.h
+      * sanei_debug.h
+      * sanei_net.h
+      * sanei_pa4s2.h
+      * sanei_pio.h
+      * sanei_scsi.h
+ 
   * add sanei_authorize (function for all backends)
 
 misc
@@ -131,6 +152,14 @@ misc
   * Print a warning when already a sane version is installed.
 
   * Maybe add script to detect and deinstall existing sane versions
+ 
+  * configure --without-x doesn't work 
+
+  * use #include "sane..." instead of #include <sane...>
+     * japi/Sane.c ?
+     * tools/find-scanner.c
+     * tools/mustek600iin-off.c
+
 
 ******** done ********
 

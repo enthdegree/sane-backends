@@ -3,6 +3,8 @@
 	* configure configure.in include/sane/config.h.in lib/Makefile.in
 	  lib/inet_pton.c: Added wrapper for inet_pton(). If this function
 	  is not available, try first inet_aton() and then inet_addr().
+	* fronetnd/saned.c: Use inet_pton() instead of inet_aton() to avoid
+	  compilation errors on e.g. OS/2.
 
 2002-02-13  Peter Fales <peter@fales.com>
 

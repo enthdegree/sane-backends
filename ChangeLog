@@ -1,3 +1,8 @@
+2001-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/umax1220u.desc: New file (from Marcio Luis Teixeira
+	  <marciot@holly.colostate.edu>).
+
 2001-09-18  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp.desc:

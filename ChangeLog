@@ -1,3 +1,11 @@
+2002-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/fujitsu-scsi.h backend/fujitsu.c backend/fujitsu.conf
+	  backend/fujitsu.h doc/sane-fujitsu.man 
+	  doc/descriptions/fujitsu.desc: Added new fujitsu backend (from
+	  Oliver Schirrmeister <oschirr@abm.de>). This backend supersedes the
+	  m3096g backend and also includes the m3091 backend.
+
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net
 	  featuring infrastructure for various models and the (new) SM 3750i.

@@ -1,3 +1,15 @@
+2003-12-15  Oliver Schirrmeister <oschirr@abm.de>
+	* backends/fujitsu.[hc]:
+         - Bugfix: set default threshold range to 0..255 There is a problem
+           with the M3093 when you are not allows to set the threshold to 0.
+         - Bugfix: set the allowable x- and y-DPI values from VPD. Scanning
+           with x=100 and y=100 dpi with an fi4120 resulted in an image
+           with 100,75 dpi.
+         - Bugfix: Set the default value of gamma to 0x80 for all scanners
+           that don't have build in gamma patterns.
+         - Bugfix: fi-4530 and fi-4210 don't support standard paper size
+           spezification. Disabled this option for these scanners.
+
 2003-12-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Eugene S. Weiss has CVS write access now.

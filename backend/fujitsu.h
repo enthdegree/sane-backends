@@ -9,7 +9,7 @@
 
 /* ------------------------------------------------------------------------- */
 
-static int num_devices;
+static int num_devices = 0;
 static struct fujitsu *first_dev;
 
 /* ------------------------------------------------------------------------- 
@@ -153,6 +153,8 @@ struct fujitsu
   int has_brightness;
   int has_contrast;
   int has_gamma;
+  int num_download_gamma;
+  int has_fixed_paper_size;
 
   SANE_Range adf_width_range;
   SANE_Range adf_height_range;

@@ -112,6 +112,16 @@
 	   in format rr...r gg.g bb...b the reader process crashed.
 	 - Bugfix. The option gamma was enabled for
 	   the fi-4120. The result was an 'invalid field in parm list'-error.
+      V 1.14 15-Dec-2003 (oschirr@abm.de)
+         - Bugfix: set default threshold range to 0..255 There is a problem
+           with the M3093 when you are not allows to set the threshold to 0.
+         - Bugfix: set the allowable x- and y-DPI values from VPD. Scanning
+           with x=100 and y=100 dpi with an fi4120 resulted in an image
+           with 100,75 dpi.
+         - Bugfix: Set the default value of gamma to 0x80 for all scanners
+           that don't have build in gamma patterns.
+         - Bugfix: fi-4530 and fi-4210 don't support standard paper size
+           spezification. Disable this option for these scanners.
 
    SANE FLOW DIAGRAM
 
@@ -219,7 +229,7 @@ static SANE_String_Const dropout_color_list[] =
   dropout_color_green, dropout_color_blue, NULL
 };
 
-static const SANE_Range default_threshold_range = { 1, 255, 1 };
+static const SANE_Range default_threshold_range = { 0, 255, 1 };
 static const SANE_Range default_brightness_range = { 0, 255, 1 };
 static const SANE_Range default_contrast_range = { 0, 255, 1 };
 
@@ -559,7 +569,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   if (devlist)
     free (devlist);
-  devlist = calloc (num_devices + 1, sizeof (devlist[0]));
+  devlist = calloc (num_devices + 1, sizeof (SANE_Device*));
   if (!devlist)
     return SANE_STATUS_NO_MEM;
 
@@ -632,6 +642,31 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
    * Setting the default values can be quite model-specific, so
    * we're using an extra routine for each.
    */
+
+  if (!scanner->has_gamma && scanner->num_download_gamma > 0) 
+    {
+      
+      scanner->gamma = 0x80;
+    }
+  else 
+    {
+      scanner->gamma = WD_gamma_DEFAULT;
+    }
+
+  if(!scanner->has_fixed_paper_size) 
+    {
+      scanner->paper_selection = WD_paper_SEL_NON_STANDARD;
+      scanner->paper_size = WD_paper_UNDEFINED;
+      scanner->paper_orientation = WD_paper_PORTRAIT;
+    }
+  else 
+    {
+      scanner->paper_size = WD_paper_A4;
+      scanner->paper_orientation = WD_paper_PORTRAIT;
+      scanner->paper_selection = WD_paper_SEL_STANDARD;
+    }
+
+
   switch (scanner->model)
     {
 
@@ -1231,8 +1266,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
                       scanner->opt[OPT_DUPLEX].cap =
                         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
                     }
-                  /* 3091 has fixed paper size code */
-                  if ((scanner->model != MODEL_3091) && (scanner->model != MODEL_3092))
+
+		  /* enable adf paper size selection */
+                  if (scanner->has_fixed_paper_size)
                     {
                       scanner->opt[OPT_PAPER_SIZE].cap =
                         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
@@ -4386,7 +4422,30 @@ identify_scanner (struct fujitsu *s)
           s->has_imprinter = get_IN_imprinter(s->buffer);
 
 	  s->has_gamma = get_IN_num_gamma(s->buffer);
+	  s->num_download_gamma = get_IN_num_gamma_download (s->buffer);
         }
+    }
+  if (s->has_adf) 
+    { 
+      if (!strncmp (product, "fi-4530C", 8) ||
+	  !strncmp (product, "M3091", 5) ||
+	  !strncmp (product, "M3092", 5) ||
+	  !strncmp (product, "fi-4120", 7) )
+	{
+	  /* These scanner don't support standard paper size specification
+	   * in bye 0x35 of the window descriptor block
+	   */
+	  s->has_fixed_paper_size = SANE_FALSE;
+	} 
+      else
+	{
+	  s->has_fixed_paper_size = SANE_TRUE;
+	}
+      
+    } 
+  else 
+    {
+      s->has_fixed_paper_size = SANE_FALSE;
     }
 
   s->object_count = 0;
@@ -5508,6 +5567,8 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_GAMMA].constraint.string_list = gamma_mode_list;
   if (scanner -> has_gamma)
     scanner->opt[OPT_GAMMA].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  else 
+    scanner->opt[OPT_GAMMA].cap = SANE_CAP_INACTIVE;
 
   scanner->opt[OPT_EMPHASIS].name = "emphasis";
   scanner->opt[OPT_EMPHASIS].title = "emphasis";
@@ -5670,8 +5731,15 @@ init_options (struct fujitsu *scanner)
   scanner->opt[OPT_PAPER_SIZE].size = maxStringSize (paper_size_mode_list);
   scanner->opt[OPT_PAPER_SIZE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   scanner->opt[OPT_PAPER_SIZE].constraint.string_list = paper_size_mode_list;
-  scanner->opt[OPT_PAPER_SIZE].cap = ((scanner->model == MODEL_3091)||(scanner->model == MODEL_3092)) ?
-    SANE_CAP_INACTIVE : (SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT);
+  if (scanner->has_fixed_paper_size) 
+    {
+      scanner->opt[OPT_PAPER_SIZE].cap = 
+	(SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT);
+    } 
+  else 
+    {
+      scanner->opt[OPT_PAPER_SIZE].cap = SANE_CAP_INACTIVE;
+    }
 
   scanner->opt[OPT_PAPER_ORIENTATION].name = "orientation";
   scanner->opt[OPT_PAPER_ORIENTATION].title = "orientation";
@@ -5684,8 +5752,15 @@ init_options (struct fujitsu *scanner)
     SANE_CONSTRAINT_STRING_LIST;
   scanner->opt[OPT_PAPER_ORIENTATION].constraint.string_list =
     paper_orientation_mode_list;
-  scanner->opt[OPT_PAPER_ORIENTATION].cap =
-    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  if (scanner->has_fixed_paper_size) 
+    {
+      scanner->opt[OPT_PAPER_ORIENTATION].cap = 
+	(SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT);
+    } 
+  else 
+    {
+      scanner->opt[OPT_PAPER_ORIENTATION].cap = SANE_CAP_INACTIVE;
+    }
 
 
   scanner->opt[OPT_DROPOUT_COLOR].name = "dropoutcolor";
@@ -7127,10 +7202,11 @@ reader3091GrayDuplex (struct fujitsu *scanner, FILE * fp_front, FILE * fp_back)
 static SANE_Status
 setMode3091 (struct fujitsu *scanner, int mode)
 {
-
+  /*
   static const SANE_Int allowableY3091Color[] = { 4, 75, 150, 300, 600 };
   static const SANE_Range allowableY3091Mono = { 50, 600, 1 };
   static const SANE_Range allowableX3091 = { 50, 300, 1 };
+  */
   static const SANE_Range allowableThreshold = { 0, 255, 1 };
 
   SANE_Word tmp;
@@ -7165,10 +7241,12 @@ setMode3091 (struct fujitsu *scanner, int mode)
         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
       /* X resolution free from 50-300, Y resolution free from 50-600 */
+      /*
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_X_RES].constraint.range = &allowableX3091;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_Y_RES].constraint.range = &allowableY3091Mono;
+      */
 
       /* verify that the currently set resolutions aren't out of order */
       /* - for this specific scanner that's not necessary since */
@@ -7196,10 +7274,12 @@ setMode3091 (struct fujitsu *scanner, int mode)
         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
       /* X resolution free from 50-300, Y resolution free from 50-600 */
+      /*
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_X_RES].constraint.range = &allowableX3091;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_Y_RES].constraint.range = &allowableY3091Mono;
+      */
 
       /* verify that the currently set resolutions aren't out of order */
       /* - for this specific scanner that's not necessary since */
@@ -7226,10 +7306,12 @@ setMode3091 (struct fujitsu *scanner, int mode)
       scanner->opt[OPT_LAMP_COLOR].cap = SANE_CAP_INACTIVE;
 
       /* X resolution free from 50-300, Y one out of 75, 150, 300, 600 */
+      /*
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_RANGE;
       scanner->opt[OPT_X_RES].constraint.range = &allowableX3091;
       scanner->opt[OPT_Y_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
       scanner->opt[OPT_Y_RES].constraint.word_list = allowableY3091Color;
+      */
 
       /* verify that the currently set resolutions aren't out of order */
 
@@ -7285,9 +7367,6 @@ setDefaults3091 (struct fujitsu *scanner)
   scanner->mirror = SANE_FALSE;
   scanner->use_temp_file = SANE_FALSE;
 
-  scanner->paper_selection = WD_paper_SEL_NON_STANDARD;
-  scanner->paper_size = WD_paper_UNDEFINED;
-  scanner->paper_orientation = WD_paper_PORTRAIT;
   /* required according to manual */
 
   scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_INACTIVE;
@@ -7304,9 +7383,6 @@ setDefaults3091 (struct fujitsu *scanner)
 
   scanner->opt[OPT_DROPOUT_COLOR].cap = SANE_CAP_INACTIVE;
   scanner->dropout_color = MSEL_dropout_DEFAULT;
-
-  if ( scanner->model == MODEL_FI4x20) 
-      scanner->gamma = 0x80;
 
   scanner->sleep_time = 15;
   scanner->use_imprinter = SANE_FALSE;
@@ -7348,7 +7424,6 @@ setDefaults3096 (struct fujitsu *scanner)
   scanner->compress_type = 0;
   scanner->compress_arg = 0;
   scanner->vendor_id_code = 0;
-  scanner->gamma = WD_gamma_DEFAULT;
   scanner->outline = 0;
   scanner->emphasis = WD_emphasis_NONE;
   scanner->auto_sep = 0;
@@ -7373,9 +7448,6 @@ setDefaults3096 (struct fujitsu *scanner)
 
   scanner->white_level_follow = WD_white_level_follow_DEFAULT;
 
-  scanner->paper_size = WD_paper_A4;
-  scanner->paper_orientation = WD_paper_PORTRAIT;
-  scanner->paper_selection = WD_paper_SEL_STANDARD;
   scanner->page_width = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_x);
   scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
   scanner->opt[OPT_PAGE_HEIGHT].cap = SANE_CAP_INACTIVE;
@@ -7449,8 +7521,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
       if (scanner->cmp_present)
         scanner->opt[OPT_COMPRESSION].cap =
           SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-      scanner->opt[OPT_GAMMA].cap =
-        SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;;
+      if (scanner->has_gamma)
+	{
+	  scanner->opt[OPT_GAMMA].cap =
+	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;;
+	}
 
       /* X resolution and Y resolution in steps including 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
@@ -7494,8 +7569,11 @@ setMode3096 (struct fujitsu *scanner, int mode)
       if (scanner->cmp_present)
         scanner->opt[OPT_COMPRESSION].cap =
           SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-      scanner->opt[OPT_GAMMA].cap =
-        SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;;
+      if (scanner->has_gamma)
+	{
+	  scanner->opt[OPT_GAMMA].cap =
+	    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	}
 
       /* X resolution and Y resolution in steps including 240 
       scanner->opt[OPT_X_RES].constraint_type = SANE_CONSTRAINT_WORD_LIST;
@@ -7532,7 +7610,10 @@ setMode3096 (struct fujitsu *scanner, int mode)
 
       /* Compression and Gamma unavailable. */
       scanner->opt[OPT_COMPRESSION].cap = SANE_CAP_INACTIVE;
-      scanner->opt[OPT_GAMMA].cap = SANE_CAP_INACTIVE;
+      if (scanner->has_gamma) 
+	{
+	  scanner->opt[OPT_GAMMA].cap = SANE_CAP_INACTIVE;
+	}
       scanner->compress_type = WD_cmp_NONE;
 
       /* X and y in steps without the 240 
@@ -7630,11 +7711,6 @@ setDefaults3092 (struct fujitsu *scanner)
   scanner->page_height = FIXED_MM_TO_SCANNER_UNIT (scanner->bottom_right_y);
   scanner->mirror = SANE_FALSE;
   scanner->use_temp_file = SANE_FALSE;
-
-  scanner->paper_selection = WD_paper_SEL_NON_STANDARD;
-  scanner->paper_size = WD_paper_UNDEFINED;
-  scanner->paper_orientation = WD_paper_PORTRAIT;
-  /* required according to manual */
 
   scanner->opt[OPT_NOISE_REMOVAL].cap = SANE_CAP_INACTIVE;
   scanner->opt[OPT_BACKGROUND].cap = SANE_CAP_INACTIVE;

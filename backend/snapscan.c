@@ -75,8 +75,8 @@
 #define PATH_MAX        1024
 #endif
 
-#define EXPECTED_MAJOR        1
-#define MINOR_VERSION        3
+#define EXPECTED_MAJOR       1
+#define MINOR_VERSION        4
 #define BUILD                0
 
 #include "snapscan.h"
@@ -1210,6 +1210,9 @@ SANE_Status sane_init (SANE_Int *version_code,
     DBG_INIT ();
 
     DBG (DL_CALL_TRACE, "%s\n", me);
+    DBG (DL_VERBOSE, "%s: Snapscan backend version %d.%d.%d\n",
+        me,
+        EXPECTED_MAJOR, MINOR_VERSION, BUILD);
 
     /* version check */
     if (SANE_CURRENT_MAJOR != EXPECTED_MAJOR)
@@ -3089,6 +3092,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.9  2001/10/25 10:56:39  oliverschwartz
+ * Change snapscan backend version number to 1.4.0
+ *
  * Revision 1.8  2001/10/12 21:19:14  oliverschwartz
  * update to snapscan-20011012
  *

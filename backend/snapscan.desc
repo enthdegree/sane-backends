@@ -11,7 +11,7 @@
 ;
 
 :backend "SnapScan"               	; name of backend
-:version "1.2"                    	; version of backend
+:version "1.4"                    	; version of backend
 :status :beta                    	; :alpha, :beta, :stable, :new
 :manpage "sane-snapscan"          	; name of manpage (if it exists)
 :url "http://snapscan.sourceforge.net/" ; backend's web page
@@ -49,6 +49,10 @@
 :comment "Ditto. Have no specific programming info yet."
 
 :model "SnapScan e20"
+:interface "USB"
+:comment "Have no specific programming info yet."
+
+:model "SnapScan e25"
 :interface "USB"
 :comment "Have no specific programming info yet."
 
@@ -114,15 +118,15 @@
 
 :model "Prisa 3300"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:comment "Have no specific programming info yet."
 
 :model "Prisa 4300"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:comment "Have no specific programming info yet, untested."
 
 :model "Prisa 5300"
 :interface "USB"
-:comment "Seems to be a close SnapScan 310/600 compatible."
+:comment "Have no specific programming info yet, untested."
 
 :mfg "Guillemot International"
 ;------------------------------------------------------------------------------

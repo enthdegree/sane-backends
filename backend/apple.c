@@ -1482,6 +1482,7 @@ init_options (Apple_Scanner * s)
   if (s->hw->ScannerModel != APPLESCANNER)
     s->opt[OPT_GRAYMAP].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_GRAYMAP].constraint.string_list = graymap_list;
+  s->opt[OPT_GRAYMAP].size = max_string_size (graymap_list);
   s->val[OPT_GRAYMAP].s = strdup (graymap_list[1]);
 
   /* Enable auto background adjustment */

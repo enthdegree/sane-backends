@@ -1,3 +1,8 @@
+2003-03-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/apple.c: Added missing option size (avoids crash on network
+	  scanning). Patch from Milon Firikis <milonf@hotpop.com>.
+
 2003-03-05  Oliver Schirrmeister <oschirr@abm.de>
 	* backend/fujitsu.c, backend/fujitsu.h: renamed some variables
 	* backend/fujitsu.c: gray duplex scanning now works with the 4097D

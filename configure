@@ -4868,7 +4868,7 @@ ac_given_INSTALL="$INSTALL"
 trap 'rm -fr `echo "Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
 	   po/Makefile testsuite/Makefile
-	   tools/Makefile tools/sane-config include/sane/config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
+	   tools/sane-desc.el tools/Makefile tools/sane-config include/sane/config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
 
@@ -4995,7 +4995,7 @@ cat >> $CONFIG_STATUS <<EOF
 CONFIG_FILES=\${CONFIG_FILES-"Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
 	   po/Makefile testsuite/Makefile
-	   tools/Makefile tools/sane-config"}
+	   tools/sane-desc.el tools/Makefile tools/sane-config"}
 EOF
 cat >> $CONFIG_STATUS <<\EOF
 for ac_file in .. $CONFIG_FILES; do if test "x$ac_file" != x..; then

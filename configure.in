@@ -386,7 +386,7 @@ AC_SUBST(DISTCLEAN_FILES)
 AC_OUTPUT([Makefile lib/Makefile sanei/Makefile frontend/Makefile
 	   japi/Makefile backend/Makefile include/Makefile doc/Makefile
 	   po/Makefile testsuite/Makefile
-	   tools/Makefile tools/sane-config],)
+	   tools/sane-desc.el tools/Makefile tools/sane-config],)
 
 if test "$SANE_CONFIG_PATH" != "no" ; then
   SANE_INSTALLED_VERSION=`$SANE_CONFIG_PATH --version`

@@ -1,3 +1,7 @@
+2002-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in: Removed configure.os2.
+
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 
 	* Added option to display short resolution list to.

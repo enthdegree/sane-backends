@@ -1,4 +1,4 @@
-TODO (2000-10-30)
+TODO (2000-11-08)
 
 ******** todo ********
 
@@ -19,23 +19,17 @@ backends
     - sane-pie (Pacific Image Electronics series of ScanAce SCSI
       scanners, and the Devcom 9636/9630 BlackWidow)
       http://www.munton.demon.co.uk/sane
+    - viceo (Visioneer OneTouch 8600)
+      http://www.abaforum.es/martim/bird/otlinux.htm
+    - addition to hp backend (support for SCL-based HP OfficeJets)
+      http://hpoj.sourceforge.net
 
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
      - microtek2
 
-  * use #include "sane..." instead of #include <sane...>
-     * net.h
-     * qcam.h
-     * ricoh.h
-     * v4l.h
-     * avision.c
-     * epson.c
-
-  * check #include <lalloca.h> (is this a global system header
-    on any platform? Otherwise --> "lalloca.h")
-
-  * make authorization_callback work in net-backend and saned 
+  * make authorization_callback work in net-backend and saned. Try to 
+    avoid plain text passwords?
 
   * check net/saned
      - net backend segfaults if saned isn't started
@@ -50,13 +44,16 @@ backends
   * qcam: figure out how/if to support bulb mode
 
   * qcam: convert to use sanei_pio functions instead of direct port
-  access.
+    access.
+  
+  * pnm: add more options for testing (e.g. arrays and read-only options)
 
 doc
 ---
   * add sane manpage
      - versioning system
-     - SANE API
+     - SANE API (maybe summary only?)
+     - point to backends and other information?
 
   * add sane-usb manpage
 
@@ -66,10 +63,9 @@ doc
 frontends
 ---------
   * Remove frontends (at least xscanimage/xcam) from distribution. Create
-    new package for frontends.
+    new package for frontends. 
 
   * add new frondends (possibly to frontend package) (?)
-     - xsane
      - scanadf
 
   * add possibility to use external filters to xscanimage/xsane (?)
@@ -103,7 +99,8 @@ frontends
     backends?
 
   * Adapt xscanimage to new GIMP API. Try to make it backwards compatible
-    with old GIMP versions if possible.
+    with old GIMP versions if possible. Maybe two source/header files
+    for compatibility with old API?
 
   * xcam: if the user quits xcam by the window manager, the process isn't
     killed, only the window is closed
@@ -111,16 +108,6 @@ frontends
 sanei
 -----
   * don't install sanei_* headers
- 
-  * use #include "sane..." instead of #include <sane...>
-      * sanei.h
-      * sanei_ab306.h
-      * sanei_backend.h
-      * sanei_debug.h
-      * sanei_net.h
-      * sanei_pa4s2.h
-      * sanei_pio.h
-      * sanei_scsi.h
  
   * add sanei_authorize (function for all backends)
 
@@ -134,8 +121,11 @@ misc
     - look for Irix/cc problems (program searches for libsane.so.2 instead
       of libsane.so.1). This was fixed by a "bad hack" which should be 
       reverted .
-
-  * remove compiler warnings (>400 warnings even in disable-warning mode!)
+    - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
+      "installed=yes" the correct entry?
+       
+  * remove compiler warnings (>400 warnings even in disable-warnings mode,
+    >800 with --enable-warnings))
 
   * Test SANE on different os/platforms, fix possible compilation problems 
      Test methods: scanimage -d pnm:0 --filename=file.pnm -T
@@ -143,23 +133,30 @@ misc
                    (not possible if I'm not root on the system)
                    xscanimage / gimp with xscanimage plugin (where available)
      All the above with shared and static libraries.
+     - build on Irix fails because of problems with the jpeg library. If this
+       is removed in configure, build works.
+     - build on AIX does only work for static libraries. The shared libraries
+       seem to overwrite each other.
 
   * move .desc files for backends that are not included in SANE to
-    different directory (e.g. backends and external-backends)
+    different directory (e.g. backends and external-backends)?
 
   * Add a check for installed sane versions.
-
-  * Print a warning when already a sane version is installed.
+    - Print a warning when already a sane version is installed
+    - If SANE is installed at a different location, ask user to
+      remove old installation first
 
   * Maybe add script to detect and deinstall existing sane versions
- 
-  * configure --without-x doesn't work 
+    - make uninstall
+    - install sane-uninstall script. Advantage: uninstall possible
+      without sourcecode
 
-  * use #include "sane..." instead of #include <sane...>
-     * japi/Sane.c ?
-     * tools/find-scanner.c
-     * tools/mustek600iin-off.c
+  * configure --without-x doesn't work (doesn't matter when frontends
+    are removed from package)
 
+  * use #include "../include/sane..." instead of #include <sane...>
+
+  * use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
 ******** done ********
 

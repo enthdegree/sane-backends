@@ -1,4 +1,4 @@
-TODO (2002-02-12)
+TODO (2002-02-15)
 
 ******** todo ********
 
@@ -88,19 +88,11 @@ backends
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
-    - sanei_auth.c
-    - sanei_codec*
-    - sanei_config.c
-    - sanei_config2.c
-    - sanei_constrain_value.c
-    - sanei_init_debug.c
-    - sanei_net.c
-    - sanei_pa4s2.c
-    - sanei_pio.c
-    - sanei_pv8630.c
-    - sanei_scsi.c
-    - sanei_thread.c
-    - sanei_wire.c
+    - sanei_pa4s2.h
+    - sanei_pio.h
+    - sanei_pv8630.h
+    - sanei_scsi.h
+    - sanei_wire.h
 
   * sane.tex: Define the return values for sane_init?  Define the
     consequences if sane_init doesn't return SANE_STATUS_GOOD.
@@ -179,11 +171,10 @@ misc
   * Make output of sane-find-scanner more flexible. See scanimage -f for
     details.
 
-  * make distclean should remove *.orig, *.old, .#*, *.tar.gz, and similar
-    files.
-
 
 ******** done ********
+* make distclean should remove *.orig, *.old, .#*, *.tar.gz, and similar
+  files.
 * Shared libs work with OpenBSD. However, they are named libsane.so.1.6
   instead of 1.0.6. Is this correct?
 * #include "../include/sane/config.h" should be the first include in every

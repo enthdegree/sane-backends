@@ -8,6 +8,8 @@
 	  include/sane/sanei_usb.h: Added, fixed and updated documentation
 	  for sanei using doxygen.
 	* doc/.cvsignore: Added sanei-html.
+	* TODO: Updated entry about missing sanei documentation. Removed
+	  entry about make distclean issues.
 
 2002-02-15  Stéphane Voltz  <svoltz@wanadoo.fr>
 

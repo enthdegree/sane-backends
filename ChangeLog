@@ -1,3 +1,9 @@
+2002-07-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/template.desc.
+	  doc/descriptions-external/template.desc.: Updated and added more
+	  examples.
+
 2002-07-19 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* doc/descriptions/umax.desc: added per scanner status

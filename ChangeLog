@@ -1,3 +1,15 @@
+2003-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Reflecta iScan
+	  1800. Updated information for Epson Perfection 1670.
+	* README.linux: Added information about compilation problems when
+	  Linux 2.6 is installed.
+	* tools/sane-desc.c: In error and warning messages print the name
+	  of the description file. Print warning if the status is not set
+	  for a device.
+	* backend/test.c: Reindented.
+	* AUTHORS: Nathan Ruthman has CVS access now.
+
 2003-10-17  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Fixed bug #30149 (added :status information for all scanners)

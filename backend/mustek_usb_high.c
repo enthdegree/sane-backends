@@ -859,6 +859,12 @@ usb_high_scan_exit (Mustek_Usb_Device * dev)
   SANE_Status status;
   
   DBG (5, "usb_high_scan_exit: start\n");
+  if (!dev->chip)
+    {
+      DBG (5, "usb_high_scan_exit: already exited (`%s')\n", dev->name);
+      return SANE_STATUS_INVAL;
+    }
+
   RIE(usb_low_exit (dev->chip));
   dev->chip = 0;
   DBG (5, "usb_high_scan_exit: exit\n");
@@ -1926,6 +1932,7 @@ usb_high_scan_adjust_mono_600_exposure (Mustek_Usb_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+#if 0
 /* CCD */
 SANE_Status
 usb_high_scan_adjust_mono_600_offset (Mustek_Usb_Device * dev)
@@ -1942,7 +1949,7 @@ usb_high_scan_adjust_mono_600_offset (Mustek_Usb_Device * dev)
 SANE_Status
 usb_high_scan_adjust_mono_600_pga (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_adjust_mono_600_pga: start\n");
+  DBG (5, "usb_high_scan_adjust_mono_600_pga: start (dev = %p)\n", dev);
   DBG (5, "usb_high_scan_adjust_mono_600_pga: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1951,10 +1958,12 @@ usb_high_scan_adjust_mono_600_pga (Mustek_Usb_Device * dev)
 SANE_Status
 usb_high_scan_adjust_mono_600_skips_per_row (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_adjust_mono_600_skips_per_row: start\n");
+  DBG (5, "usb_high_scan_adjust_mono_600_skips_per_row: start (dev = %p)\n",
+       dev);
   DBG (5, "usb_high_scan_adjust_mono_600_skips_per_row: exit\n");
   return SANE_STATUS_GOOD;
 }
+#endif
 
 SANE_Status
 usb_high_scan_adjust_rgb_300_power_delay (Mustek_Usb_Device * dev)

@@ -1,5 +1,18 @@
 CHANGES for the SANE Mustek USB backend
 
+2002-01-11
+  * Release of version 1.0-10. 
+
+2002-01-11
+  * mustek_usb_high.(c|h), mustek_usb_mid.(c|h): commented out unused CCD code.
+  * mustek_usb_mid.h: Fixed OFFSET_TABLE_SIZE.
+  * mustek_usb.c: Fixed bug concerning opening with empty name.
+  * mustek_usb.c, mustek_usb_high.c: Make sure usb_low_exit is only called once
+    per device. Fixed segfault.
+
+2002-01-10
+  * mustek_usb.desc: Status is "beta" now.
+
 2002-01-03
   * Added link to plustek to manual page.
 

@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    flatbed scanners.  */
 
-#define BUILD 9
+#define BUILD 10
 
 #include "../include/sane/config.h"
 
@@ -917,10 +917,13 @@ sane_exit (void)
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;
-      status = usb_high_scan_exit (dev);
-      if (status != SANE_STATUS_GOOD)
-	DBG (3, "sane_exit: while closing %s, usb_high_scan_exit returned: "
-	     "%s\n", dev->name, sane_strstatus (status));
+      if (dev->chip)
+	{
+	  status = usb_high_scan_exit (dev);
+	  if (status != SANE_STATUS_GOOD)
+	    DBG (3, "sane_exit: while closing %s, usb_high_scan_exit returned: "
+		 "%s\n", dev->name, sane_strstatus (status));
+	}
       free ((void *) dev->name);
       free (dev);
     }
@@ -964,7 +967,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   Mustek_Usb_Scanner *s;
   SANE_Int value;
   
-  DBG (5, "sane_open: start\n");
+  DBG (5, "sane_open: start (devicename = `%s')\n", devicename);
 
   if (devicename[0])
     {
@@ -974,12 +977,19 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       
       if (!dev)
 	{
+	  DBG (5, "sane_open: couldn't find `%s' in devlist, trying attach)\n",
+	       devicename);
 	  RIE(attach (devicename, &dev, SANE_TRUE));
 	}
+      else
+	DBG (5, "sane_open: found `%s' in devlist\n", dev->name);
     }
   else
-    /* empty devicname -> use first device */
-    dev = first_dev;
+    {
+      /* empty devicname -> use first device */
+      dev = first_dev;
+      DBG (5, "sane_open: empty devicename, trying `%s'\n", dev->name);
+    }
   
   if (!dev)
     return SANE_STATUS_INVAL;
@@ -1003,7 +1013,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   first_handle = s;
   
   *handle = s;
-  strcpy (s->hw->device_name, devicename);
+  strcpy (s->hw->device_name, dev->name);
 
   RIE(usb_high_scan_turn_power (s->hw, SANE_TRUE));
   RIE(usb_high_scan_back_home (s->hw));

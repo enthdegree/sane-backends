@@ -311,7 +311,7 @@ typedef struct Mustek_Usb_Device
   SANE_Byte threshold;
   SANE_Word * gamma_table;
   SANE_Word skips_per_row;
-  
+
   /* CCD */
   SANE_Bool is_adjusted_mono_600_offset;
   SANE_Bool is_adjusted_mono_600_exposure;
@@ -567,6 +567,8 @@ usb_high_scan_adjust_mono_600_power_delay (Mustek_Usb_Device * dev);
 static SANE_Status
 usb_high_scan_adjust_mono_600_exposure (Mustek_Usb_Device * dev);
 
+#if 0
+/* CCD */
 static SANE_Status
 usb_high_scan_adjust_mono_600_offset (Mustek_Usb_Device * dev);
 
@@ -575,6 +577,7 @@ usb_high_scan_adjust_mono_600_pga (Mustek_Usb_Device * dev);
 
 static SANE_Status
 usb_high_scan_adjust_mono_600_skips_per_row (Mustek_Usb_Device * dev);
+#endif
 
 static SANE_Status
 usb_high_scan_adjust_rgb_300_power_delay (Mustek_Usb_Device * dev);

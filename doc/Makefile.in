@@ -53,7 +53,8 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
 SECT7   = sane.7
 MANPAGES = $(SECT1) $(SECT5) $(SECT7)
 READMES = README AUTHORS COPYING ChangeLog LEVEL2 LICENSE NEWS PROBLEMS \
-          PROJECTS README README.aix README.hp-ux README.linux README.os2 \
+          PROJECTS README README.aix README.beos README.darwin README.freebsd \
+          README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
           README.solaris README.unixware2 README.unixware7 TODO
 DOCS    = backend-writing.txt sane.ps sane.dvi
 BACKDIRS= canon matsushita mustek mustek_usb umax sceptre teco

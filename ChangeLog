@@ -1,3 +1,8 @@
+2001-08-19  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c tools/umax_pp.c:
+	  Finished probe code cleaning, increased version number
+	  
 2001-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Fixed bug concerning libusb that

@@ -1,3 +1,7 @@
+2004-09-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure: Regenerated.
+
 2004-09-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* backend/mustek_pp.c: clarify error message

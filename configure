@@ -25300,7 +25300,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
     BACKENDS="abaton agfafocus apple artec as6e avision bh canon \
           canon630u coolscan coolscan2 dc25 dmc \
           epson fujitsu gt68xx hp leo matsushita microtek \
-          microtek2 mustek mustek_pp mustek_usb nec pie plustek \
+          microtek2 mustek mustek_usb nec pie plustek \
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
           artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash"
@@ -25322,6 +25322,14 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
     echo "*** disabling HPSJ5S backend (failed to find libieee1284 library)"
   else
     BACKENDS="${BACKENDS} canon_pp hpsj5s"
+  fi
+
+  if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"
+    then
+    echo "*** disabling MUSTEK_PP backend (failed to find libieee1284 library"
+    echo "***                              and parport-directio is disabled)"
+  else
+    BACKENDS="${BACKENDS} mustek_pp"
   fi
 
   if test "${HAVE_GPHOTO2}" != "true" \

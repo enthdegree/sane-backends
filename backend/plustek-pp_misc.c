@@ -35,6 +35,7 @@
  * - 0.42 - changed get_fast_time to _GET_TIME
  *        - changed include names
  * - 0.43 - added LINUX_26 stuff
+ *        - minor fixes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -139,9 +140,6 @@ static void misc_attach(struct parport *port)
 		DBG( DBG_LOW, "Port mode reported: (0x%04x)\n",  port->modes );
 		__ps->pp = port;
 	}
-
-	__ps = NULL;
-	__pa = -1;
 }
 
 static void misc_detach( struct parport *port )

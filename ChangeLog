@@ -1,3 +1,9 @@
+2001-09-04  Peter Fales <peter@fales.com>
+
+	* backend/PROJECTS:  Added gphoto2 project to provide support
+	  for some or all of the cameras supported by gphoto2.  (See
+	  http://www.gphoto.org)
+
 2001-09-03  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c backend/umax_pp_mid.c

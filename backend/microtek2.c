@@ -574,8 +574,8 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
     *handle = ms;
 
 #ifdef HAVE_AUTHORIZATION
-    /* check whether the file with the passwords exists. If it doesn´t */
-    /* exist, we don´t use any authorization */
+    /* check whether the file with the passwords exists. If it doesnt */
+    /* exist, we dont use any authorization */
 
     rc = stat(PASSWD_FILE, &st);
     if ( rc == -1 && errno == ENOENT )
@@ -798,7 +798,7 @@ attach(Microtek2_Device *md)
     md->sane.type = "flatbed scanner";
     md->revision = strtod(md->info[MD_SOURCE_FLATBED].revision, NULL);
 
-    status = scsi_read_attributes(&md->info[MD_SOURCE_FLATBED],
+    status = scsi_read_attributes(&md->info[0],
                                   md->name, MD_SOURCE_FLATBED);
     if ( status != SANE_STATUS_GOOD )
       {
@@ -813,7 +813,7 @@ attach(Microtek2_Device *md)
     /* check whether the device supports transparency media adapters */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_TMA )
       {
-        status = scsi_read_attributes(&md->info[MD_SOURCE_TMA],
+        status = scsi_read_attributes(&md->info[0],
                                       md->name, MD_SOURCE_TMA);
         if ( status != SANE_STATUS_GOOD )
             return status;
@@ -822,7 +822,7 @@ attach(Microtek2_Device *md)
     /* check whether the device supports an ADF */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_ADF )
       {
-        status = scsi_read_attributes(&md->info[MD_SOURCE_ADF],
+        status = scsi_read_attributes(&md->info[0],
                                       md->name, MD_SOURCE_ADF);
         if ( status != SANE_STATUS_GOOD )
             return status;
@@ -831,7 +831,7 @@ attach(Microtek2_Device *md)
     /* check whether the device supports STRIPES */
     if ( md->info[MD_SOURCE_FLATBED].option_device & MI_OPTDEV_STRIPE )
       {
-        status = scsi_read_attributes(&md->info[MD_SOURCE_STRIPE],
+        status = scsi_read_attributes(&md->info[0],
                                       md->name, MD_SOURCE_STRIPE);
         if ( status != SANE_STATUS_GOOD )
             return status;
@@ -845,7 +845,7 @@ attach(Microtek2_Device *md)
 
         if ( ! (md->model_flags & MD_NO_SLIDE_MODE) )
           {
-            status = scsi_read_attributes(&md->info[MD_SOURCE_SLIDE],
+            status = scsi_read_attributes(&md->info[0],
                                           md->name, MD_SOURCE_SLIDE);
             if ( status != SANE_STATUS_GOOD )
                 return status;
@@ -928,7 +928,7 @@ check_option(const char *cp, Config_Options *co)
     char *endptr;
 
     /* When this function is called, it is already made sure that this */
-    /* is an option line, i.e. a line that starts with ´option´ */
+    /* is an option line, i.e. a line that starts with option */
 
     cp = sanei_config_skip_whitespace(cp);     /* skip blanks */
     cp = sanei_config_skip_whitespace(cp + 6); /* skip "option" */
@@ -1164,6 +1164,17 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
         return SANE_STATUS_IO_ERROR;
       }
 
+    if ( mi->depth & MI_HASDEPTH_16 )
+        md->shading_depth = 16;
+    else if ( mi->depth & MI_HASDEPTH_14 )
+        md->shading_depth = 14;
+    else if ( mi->depth & MI_HASDEPTH_12 )
+        md->shading_depth = 12;
+    else if ( mi->depth & MI_HASDEPTH_10 )
+        md->shading_depth = 10;
+    else 
+        md->shading_depth = 8;
+
     switch (mi->model_code)
       {
         case 0x81:
@@ -1171,12 +1182,13 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           *model_string = "ScanMaker 4";
           break;
         case 0x85:
-          *model_string = "ScanMaker V300";
-          /* The ScanMaker V300 returns some values for the */
+          *model_string = "ScanMaker V300 / ColorPage-EP";
+          /* The ScanMaker V300 (FW < 2.70) returns some values for the */
           /* "read image info" command in only two bytes */
           /* and doesn't understand read_image_status */
-          md->model_flags |= MD_RII_TWO_BYTES
-                          | MD_NO_RIS_COMMAND;
+          md->model_flags |= MD_NO_RIS_COMMAND;
+          if ( md->revision < 2.70 )
+              md->model_flags |= MD_RII_TWO_BYTES;
           break;
         case 0x87:
           *model_string = "ScanMaker 5";
@@ -1291,8 +1303,7 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
           md->opt_no_backtrack_default = SANE_TRUE;
           md->n_control_bytes = 320;
           md->controlbit_offset = 7;
-          /*md->shading_depth = 10;*/ /*don't know*/
-	  break;
+          break;
         case 0xb0:
           *model_string = "ScanMaker X12USL";
           md->opt_backend_calib_default = SANE_TRUE;
@@ -1421,7 +1432,7 @@ do_authorization(char *ressource)
     /* encrypted password. If several users are allowed to access a device */
     /* an entry must be created for each user. If no entry exists for device */
     /* or the file does not exist no authentication is neccessary. If the */
-    /* file exists, but can´t be opened the authentication fails */
+    /* file exists, but cant be opened the authentication fails */
 
     SANE_Status status;
     FILE *fp;
@@ -1441,7 +1452,7 @@ do_authorization(char *ressource)
     if ( auth_callback == NULL )  /* frontend does not require authorization */
         return SANE_STATUS_GOOD;
 
-    /* first check if an entry exists in for this device. If not, we don´t */
+    /* first check if an entry exists in for this device. If not, we dont */
     /* use authorization */
 
     fp = fopen(PASSWD_FILE, "r");
@@ -1510,7 +1521,7 @@ do_authorization(char *ressource)
             *p = '\0';
             user = linep;
             if ( strncmp(user, username, SANE_MAX_USERNAME_LEN) != 0 )
-                continue;                  /* username doesn´t match */
+                continue;                  /* username doesnt match */
 
             linep = ++p;
             /* rest of the line is considered to be the password */
@@ -3581,12 +3592,9 @@ restore_gamma_options(SANE_Option_Descriptor *sod, Option_Value *val)
 {
 
     DBG(40, "restore_gamma_options: val=%p, sod=%p\n", (void *) val, (void *) sod);
-
-#if 0
-    /* if we don´t have a gamma table return immediately */
+    /* if we dont have a gamma table return immediately */
     if ( ! val[OPT_GAMMA_MODE].s )
        return SANE_STATUS_GOOD;
-#endif
 
     if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 )
       {
@@ -3908,12 +3916,15 @@ get_scan_parameters(Microtek2_Scanner *ms)
     if ( ms->y1_dots > ( mi->geo_height - 10 ) )
         ms->y1_dots = ( mi->geo_height - 10 );
     x2_dots = (int) ( SANE_UNFIX(ms->val[OPT_BR_X].w) * dpm + 0.5 );
-    if ( x2_dots > mi->geo_width )
-        x2_dots = mi->geo_width;
+    if ( x2_dots >= mi->geo_width )
+        x2_dots = mi->geo_width - 1;
     y2_dots = (int) ( SANE_UNFIX(ms->val[OPT_BR_Y].w) * dpm + 0.5 );
-    if ( y2_dots > mi->geo_height )
-        y2_dots = mi->geo_height;
+    if ( y2_dots >= mi->geo_height )
+        y2_dots = mi->geo_height - 1;
     ms->width_dots = x2_dots - ms->x1_dots;
+    if ( md->model_flags && MD_OFFSET_2 ) /* this firmware has problems with */
+      if ( ( ms->width_dots % 2 ) == 1 )  /* odd pixel numbers */
+        ms->width_dots -= 1;
     if ( ms->width_dots < 10 )
         ms->width_dots = 10;
     ms->height_dots = y2_dots - ms->y1_dots;
@@ -4643,7 +4654,7 @@ scsi_read_image_info(Microtek2_Scanner *ms)
         dump_area2(result, size, "readimageinforesult");
 
     /* The V300 returns some values in only two bytes */
-    if ( md->model_flags & MD_RII_TWO_BYTES )
+    if ( !(md->revision==2.70) && (md->model_flags & MD_RII_TWO_BYTES) )
       {
         RII_GET_V300_WIDTHPIXEL(ms->ppl, result);
         RII_GET_V300_WIDTHBYTES(ms->bpl, result);
@@ -5362,7 +5373,8 @@ sane_start(SANE_Handle handle)
         if ( ms->lightlid35 )
           {
             md->status.flamp &= ~MD_FLAMP_ON;
-            md->status.tlamp |= MD_TLAMP_ON;
+/*            md->status.tlamp |= MD_TLAMP_ON;*/
+/* with this line on some scanners (X6, 0x91) the Flamp goes on  */
           }
           
         if ( ms->no_backtracking )
@@ -5458,6 +5470,21 @@ sane_start(SANE_Handle handle)
             )
        )
         status = read_cx_shading(ms);
+        
+    if ( ms->lightlid35 )  
+    /* hopefully this leads to a switched off flatbed lamp with lightlid */
+      {
+        status = scsi_read_system_status(md, ms->sfd);
+        if ( status != SANE_STATUS_GOOD )
+            goto cleanup;
+
+        md->status.flamp &= ~MD_FLAMP_ON;
+        md->status.tlamp &= ~MD_TLAMP_ON;
+      
+        status = scsi_send_system_status(md, ms->sfd);
+        if ( status != SANE_STATUS_GOOD )
+            goto cleanup;
+      }
 
     if ( md->model_flags & MD_READ_CONTROL_BIT )
       {
@@ -5675,11 +5702,19 @@ write_shading_buf_pnm(Microtek2_Scanner *ms, u_int32_t lines)
               switch( mi->data_format )
                 {
                   case MI_DATAFMT_LPLCONCAT:
-                    img_val = *((u_int16_t *) ms->shading_image
-                               + linenr * ( ms->bpl / ms->lut_entry_size )
-                               + mi->color_sequence[color]
-                                    * ( ms->bpl / ms->lut_entry_size / 3 )
-                               + pixel);
+                    if ( md->shading_depth > 8)
+                      img_val = *((u_int16_t *) ms->shading_image
+                                 + linenr * ( ms->bpl / ms->lut_entry_size )
+                                 + mi->color_sequence[color]
+                                      * ( ms->bpl / ms->lut_entry_size / 3 )
+                                 + pixel);
+                    else
+                      img_val = *((u_int8_t *) ms->shading_image
+                                 + linenr * ( ms->bpl / ms->lut_entry_size )
+                                 + mi->color_sequence[color]
+                                      * ( ms->bpl / ms->lut_entry_size / 3 )
+                                 + pixel);
+                      
                     break;
                   case MI_DATAFMT_CHUNKY:
                   case MI_DATAFMT_9800:
@@ -7039,7 +7074,7 @@ set_exposure(Microtek2_Scanner *ms)
 {
     /* This function manipulates the colors according to the exposure time */
     /* settings on models where they are ignored. Currently this seems to */
-    /* be the case for all models with the data format ´chunky data´. They */
+    /* be the case for all models with the data format chunky data. They */
     /* all have tables with two byte gamma output, so for now we ignore */
     /* gamma tables with one byte output */
 
@@ -8355,7 +8390,7 @@ get_cshading_values(Microtek2_Scanner *ms,
   else
     csh_offset = color * ms->ppl + pixel;
 
-  if ( ms->lut_entry_size == 2 )
+  if ( ( md->shading_depth > 8 ) && ( ms->lut_entry_size == 2) )
     /* condensed shading is 2 byte color data */
     {
       if ( ms->condensed_shading_d != NULL )

@@ -3,6 +3,15 @@
 	* tools/sane-find-scanner.c: Fixed compilation problem when
 	  compiled without libusb support. Print sane-backends version
 	  number. Print if built without libusb.
+	
+	* backend/microtek2.c backend/microtek2.h: Added backend version
+	  200410042220 from Karsten Festag <karsten.festag@gmx.de>.  While
+	  attaching devices only read attributes from source 0 (=
+	  MD_SOURCE_FLATBED), others give wrong results. Better handling of
+	  different shading depths. Including model ColorPage-EP. Workaround
+	  for firmware bug for V300 (FW < 2.70). Workaround for firmware bug
+	  with odd pixel numbers. Bugfix for lamp switching when using
+	  LightLid35 Transparency Adaptor.
 
 2004-10-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

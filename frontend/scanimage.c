@@ -102,6 +102,7 @@ static int window_val_user[2];	/* is width/height user-specified? */
 static int accept_only_md5_auth = 0;
 
 static void fetch_options (SANE_Device * device);
+static void scanimage_exit (void);
 
 static void
 auth_callback (SANE_String_Const resource,
@@ -1325,14 +1326,14 @@ get_resolution (void)
   return resol;
 }
 
-void
-scanimage_exit ()
+static void
+scanimage_exit (void)
 {
   if (device)
     {
       if (verbose > 1) 
 	fprintf (stderr, "Closing device\n");
-      sane_close (&device);
+      sane_close (device);
     }
   if (verbose > 1) 
     fprintf (stderr, "Calling sane_exit\n");

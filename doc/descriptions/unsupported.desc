@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-01-26"		; version of backend
+:version "2004-02-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -44,6 +44,8 @@
 :url "/unsupported/artec-ultima-2000-2.html"
 :interface "USB"
 :comment "Same name, but different ids: vendor/product 0x05d8/0x4001 is not supported. The scanner with product id 0x4002 is supported by the gt68xx backend."
+
+;********************************************************************************************
 
 ;********************************************************************************************
 
@@ -434,6 +436,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x07b3/0x0001. See link for details."
+
+:model "Colorpage Vivid 1200EX"
+:url "/unsupported/genius-colorpage-vivid-1200EX.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported yet. May work with the gt68xx bacend in future. See link for details."
 
 
 ;********************************************************************************************
@@ -845,6 +853,12 @@
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
 :comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
+
+:model "Paragon 800 II EP"
+:interface "USB"
+;:url ""
+:status :unsupported
+:comment "Not supported. Maybe similar to 600 II EP (SCSI_over-parport)? In this case it could be supported by the mustek SCSI backend."
 
 :model "ScanExpress 600 USB"
 :interface "USB"

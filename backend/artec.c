@@ -2122,7 +2122,10 @@ attach (const char *devname, ARTEC_Device ** devp)
     }
   product_revision[4] = ' ';
   t = strchr (product_revision, ' ');
-  *t = '\0';
+  if (t)
+    *t = '\0';
+  else
+    t = "unknown revision";
 
   /* get the vendor info */
   str = malloc (9);
@@ -2589,7 +2592,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
   if (authorize)
-    DBG (7, "sane_init(), authorize callback specified as %p\n", authorize );
+    DBG (7, "sane_init(), authorize callback specified as %p\n", (void *) authorize);
 
   fp = sanei_config_open (ARTEC_CONFIG_FILE);
   if (!fp)

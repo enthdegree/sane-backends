@@ -14,7 +14,7 @@ Backends:
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Michael Herder (*)
- as6e:          Eugene S. Weiss
+ as6e:          Eugene S. Weiss (*)
  avision:       Meino Christian Cramer, Rene Rebe (*)
  bh:            Tom Martone
  canon:         Helmut Koeberle, Manuel Panea, and Markus Mertinat

@@ -1,6 +1,11 @@
 2003-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-as6e.man: Added info about $PATH. Minor formatting fixes.
+	* doc/sane.man: Reorganization. Updated DEVELOPER'S DOCUMENTATION.
+	  Rewrote PROBLEMS in a more user-centric way. Added "HOW CAN YOU
+	  HELP" section. Added paragraph about SANE device lists. Updated
+	  CONTACT section. Minor additions to the gt68xx and plustek
+	  entries. Minor spelling fixes.
 
 2003-03-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -52,7 +52,7 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
 @SET_MAKE@
 
-PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision canon \
+PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         coolscan dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek \
         mustek_pp nec @NET@ pie @PINT@ plustek pnm @QCAM@ ricoh s9036 sharp \
         snapscan sp15c st400 tamarack umax @V4L@
@@ -182,6 +182,9 @@ libsane-as6e.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_config2.lo
 libsane-avision.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_scsi.lo
+libsane-bh.la: ../sanei/sanei_config2.lo
+libsane-bh.la: ../sanei/sanei_constrain_value.lo
+libsane-bh.la: ../sanei/sanei_scsi.lo
 libsane-canon.la: ../sanei/sanei_config2.lo
 libsane-canon.la: ../sanei/sanei_constrain_value.lo
 libsane-canon.la: ../sanei/sanei_scsi.lo

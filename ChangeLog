@@ -1,6 +1,8 @@
 2002-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* config.sub config.guess: Updated to current versions.
+	* doc/releases.txt: Added paragraph about the different freeze types
+	  and a timetable.
 	
 2002-09-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -13,7 +13,7 @@
 ;:version "(0.1)"			; version of backend
 ;:manpage "sane-niash"		; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/hp3300backend"  ; backend's web page
-:comment "The backend is intended to be included durimng the next weeks (2003-12-25). See the hp3300 website for the latest information."
+:comment "The backend is intended to be included during the next weeks (2003-12-25). See the niash website for the latest information."
 
 :devicetype :scanner		; start of a list of devices....
 				; other types:  :stillcam, :vidcam,

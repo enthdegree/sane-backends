@@ -28,6 +28,7 @@
    MA 02111-1307, USA.
 
    As a special exception, the authors of SANE give permission for
+
    additional uses of the libraries contained in this release of SANE.
 
    The exception is that, if you link a SANE library with other files
@@ -202,3 +203,11 @@ static SANE_Int read_dir (SANE_String dir, SANE_Bool read_files);
 static void set_res (SANE_Int lowres);
 
 static SANE_Int read_info (SANE_String_Const fname);
+
+static SANE_Status converter_do_scan_complete_cleanup (void);
+
+static SANE_Int converter_fill_buffer (void);
+
+static SANE_Bool converter_scan_complete (void);
+
+static void converter_init (void);

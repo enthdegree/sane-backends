@@ -1,3 +1,9 @@
+2002-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/test.c doc/descriptions/test.desc: Check return value
+	  of waitpid. Don't evaluate status of children if waitpid wasn't
+	  successful.
+
 ---- FEATURE FREEZE FOR SANE 1.0.8 ---
 
 2002-05-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>

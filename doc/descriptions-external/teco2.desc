@@ -10,9 +10,9 @@
 ;
 
 :backend "teco2"                  ; name of backend
-;:version "1.0-0"                  ; version of backend
+:version "(1.0-0)"                ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
-;:manpage "sane-teco2"            ; name of manpage (if it exists)
+:manpage "sane-teco2"            ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco2"   ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -21,11 +21,24 @@
 
 :mfg "Relisys"
 :url "http://www.relisys.com/"
+
 :model "AVEC Super 3"
 :interface "SCSI"
+:comment "sub model VM3575"
 :status :untested
-:comment "sub model VM3575 - untested"
+
 :model "SCORPIO Super 3"
 :comment "sub model VM3575"
 :interface "SCSI"
+:status :alpha
+
+:model "APOLLO Express 6"
+:comment "sub model VM656A"
+:interface "SCSI"
+:status :beta
+
+:model "SCORPIO Pro-S"
+:comment "sub model VM6586"
+:interface "SCSI"
+:status :alpha
 

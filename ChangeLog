@@ -1,3 +1,8 @@
+2002-05-07  Frank Zago  <fzago@greshamstorage.com>
+
+	* doc/descriptions-external/tevion9693usb.desc: new backend,
+	  from mh <crapsite@gmx.net>.
+
 2002-05-06  Andras Major <andras@users.sourceforge.net>
 
 	* doc/sane.man: coolscan2 entry updated.

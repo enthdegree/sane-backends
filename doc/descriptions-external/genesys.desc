@@ -153,6 +153,11 @@
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
+:model "OpticFilm 7200"
+:url "/unsupported/plustek-opticfilm-7200.html"
+:interface "USB"
+:status :unsupported
+
 :model "OpticPro S12"
 :url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"

@@ -1,3 +1,10 @@
+2004-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/genesys.desc: Moved Plustek OpticFilm
+	  7200 to genesys.desc (GL841 chipset). Added UMAX Astra 3400
+	  (0x50 model). Added Xerox WorkCentre M15i.
+
 2004-10-23 Giuseppe Sacco <eppesuig@debian.org>
 
 	* Updated italian translation.

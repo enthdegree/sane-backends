@@ -57,7 +57,7 @@ SANE_Status
 usb_low_init (ma1017 ** chip_address)
 {
   SANE_Int i;
-  ma1017 * chip;
+  ma1017 *chip;
 
   DBG (7, "usb_low_init: start\n");
   if (!chip_address)
@@ -82,7 +82,7 @@ usb_low_init (ma1017 ** chip_address)
   /* Construction/Destruction */
   chip->is_opened = SANE_FALSE;
   chip->is_rowing = SANE_FALSE;
-  
+
   /* A2 */
   chip->append = 0x00;
   chip->test_sram = 0x00;
@@ -138,10 +138,10 @@ usb_low_init (ma1017 ** chip_address)
   chip->sclk = 0x00;
   chip->sen = 0x00;
   chip->serial_length = 0x10;
-  
+
   /* Use for Rowing */
   chip->get_row = NULL;
-  
+
   chip->cmt_table_length_word = 0x00000000;
   chip->cmt_second_pos_word = 0x00000000;
   chip->row_size = 0x00;
@@ -152,7 +152,7 @@ usb_low_init (ma1017 ** chip_address)
     chip->is_transfer_table[i] = SANE_FALSE;
   chip->sensor = ST_CANON600;
   chip->motor = MT_1200;
-  
+
   DBG (7, "usb_low_init: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -224,7 +224,7 @@ usb_low_set_cmt_table (ma1017 * chip, SANE_Int index, Channel channel,
   if (index > 15)
     reg_no++;
 
-  RIE(usb_low_write_reg (chip, reg_no, pattern));
+  RIE (usb_low_write_reg (chip, reg_no, pattern));
 
   chip->is_transfer_table[index] = is_transfer;
 
@@ -235,7 +235,7 @@ usb_low_set_cmt_table (ma1017 * chip, SANE_Int index, Channel channel,
 
 /* A2 */
 SANE_Status
-usb_low_get_a2 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a2 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -251,7 +251,7 @@ usb_low_get_a2 (ma1017 * chip, SANE_Byte *value)
       DBG (3, "usb_low_get_a2: stop rowing first\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_read_reg (chip, 2, &pattern));
+  RIE (usb_low_read_reg (chip, 2, &pattern));
 
   chip->append = pattern & 0x10;
   chip->test_sram = pattern & 0x20;
@@ -271,8 +271,7 @@ usb_low_start_cmt_table (ma1017 * chip)
 
   DBG (7, "usb_low_start_cmt_table: start\n");
 
-  data_field[0] = 0x02 | chip->append | chip->test_sram 
-    | chip->fix_pattern;
+  data_field[0] = 0x02 | chip->append | chip->test_sram | chip->fix_pattern;
   data_field[1] = 2;
 
   if (!chip->is_opened)
@@ -307,9 +306,9 @@ usb_low_stop_cmt_table (ma1017 * chip)
   SANE_Byte read_byte;
   size_t n;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_stop_cmt_table: start\n");
-  
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_stop_cmt_table: not opened yet\n");
@@ -321,9 +320,8 @@ usb_low_stop_cmt_table (ma1017 * chip)
       return SANE_STATUS_INVAL;
     }
 
-  data_field [0] = 0x01 | chip->append | chip->test_sram 
-    | chip->fix_pattern;
-  data_field [1] = 2;
+  data_field[0] = 0x01 | chip->append | chip->test_sram | chip->fix_pattern;
+  data_field[1] = 2;
   data_field[1] |= 0x80;
   n = 2;
   status = sanei_usb_write_bulk (chip->fd, data_field, &n);
@@ -376,7 +374,7 @@ usb_low_set_test_sram_mode (ma1017 * chip, SANE_Bool is_test)
   else
     chip->test_sram = 0x00;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_set_test_sram_mode: exit\n");
   return SANE_STATUS_GOOD;
@@ -409,7 +407,7 @@ usb_low_set_fix_pattern (ma1017 * chip, SANE_Bool is_fix)
   else
     chip->fix_pattern = 0x00;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_set_fix_pattern: exit\n");
   return SANE_STATUS_GOOD;
@@ -436,7 +434,7 @@ usb_low_adjust_timing (ma1017 * chip, SANE_Byte data)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_adjust_timing: exit\n");
 
@@ -445,7 +443,7 @@ usb_low_adjust_timing (ma1017 * chip, SANE_Byte data)
 
 /* A4 */
 SANE_Status
-usb_low_get_a4 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a4 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Status status;
   SANE_Byte pattern;
@@ -462,7 +460,7 @@ usb_low_get_a4 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 4, &pattern));
+  RIE (usb_low_read_reg (chip, 4, &pattern));
 
   chip->select = pattern & 0xfe;
   chip->frontend = pattern & 0x01;
@@ -499,8 +497,8 @@ usb_low_select_timing (ma1017 * chip, SANE_Byte data)
   chip->select = data & 0xfe;
   chip->frontend = data & 0x01;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
- 
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_select_timing: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -531,15 +529,15 @@ usb_low_turn_frontend_mode (ma1017 * chip, SANE_Bool is_on)
   data = chip->select | chip->frontend;
   reg_no = 4;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_turn_frontend_mode: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A6 */
-SANE_Status 
-usb_low_get_a6 (ma1017 * chip, SANE_Byte *value)
+SANE_Status
+usb_low_get_a6 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -556,7 +554,7 @@ usb_low_get_a6 (ma1017 * chip, SANE_Byte *value)
       DBG (3, "usb_low_get_a6: stop rowing first\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_read_reg (chip, 6, &pattern));
+  RIE (usb_low_read_reg (chip, 6, &pattern));
 
   chip->asic_io_pins = pattern & 0xdc;
   chip->rgb_sel_pin = pattern & 0x03;
@@ -593,8 +591,8 @@ usb_low_set_asic_io_pins (ma1017 * chip, SANE_Byte data)
   data = chip->asic_io_pins | chip->rgb_sel_pin;
   reg_no = 6;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_asic_io_pins: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -604,7 +602,7 @@ usb_low_set_rgb_sel_pins (ma1017 * chip, SANE_Byte data)
 {
   SANE_Status status;
   SANE_Byte reg_no;
-  
+
   DBG (7, "usb_low_set_rgb_sel_pins: start\n");
 
   if (!chip->is_opened)
@@ -621,15 +619,15 @@ usb_low_set_rgb_sel_pins (ma1017 * chip, SANE_Byte data)
   data = chip->asic_io_pins | chip->rgb_sel_pin;
   reg_no = 6;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_set_rgb_sel_pins: exit\n");
-  return SANE_STATUS_GOOD; /* was false? */
+  return SANE_STATUS_GOOD;	/* was false? */
 }
 
 /* A7 */
 SANE_Status
-usb_low_get_a7 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a7 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -645,7 +643,7 @@ usb_low_get_a7 (ma1017 * chip, SANE_Byte *value)
       DBG (3, "usb_low_get_a7: stop rowing first\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_read_reg (chip, 7, &pattern));
+  RIE (usb_low_read_reg (chip, 7, &pattern));
 
   if (value)
     *value = pattern;
@@ -663,7 +661,7 @@ usb_low_set_timing (ma1017 * chip, SANE_Byte data)
 {
   SANE_Status status;
   SANE_Byte reg_no;
-  
+
   DBG (7, "usb_low_set_timing: start\n");
   if (!chip->is_opened)
     {
@@ -680,7 +678,7 @@ usb_low_set_timing (ma1017 * chip, SANE_Byte data)
   data = chip->timing | chip->sram_bank;
   reg_no = 7;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_set_timing: exit\n");
   return SANE_STATUS_GOOD;
@@ -691,7 +689,7 @@ usb_low_set_sram_bank (ma1017 * chip, Banksize banksize)
 {
   SANE_Status status;
   SANE_Byte data, reg_no;
-  
+
   DBG (7, "usb_low_set_sram_bank: start\n");
   if (!chip->is_opened)
     {
@@ -723,15 +721,15 @@ usb_low_set_sram_bank (ma1017 * chip, Banksize banksize)
   data = chip->timing | chip->sram_bank;
   reg_no = 7;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_sram_bank: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A8 */
 SANE_Status
-usb_low_get_a8 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a8 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -748,7 +746,7 @@ usb_low_get_a8 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 8, &pattern));
+  RIE (usb_low_read_reg (chip, 8, &pattern));
 
   chip->dummy_msb = pattern & 0x40;
   chip->ccd_width_msb = pattern & 0x20;
@@ -772,7 +770,7 @@ usb_low_set_cmt_table_length (ma1017 * chip, SANE_Byte table_length)
 {
   SANE_Status status;
   SANE_Byte data, reg_no;
-  
+
   DBG (7, "usb_low_set_cmt_table_length: start\n");
   if (!chip->is_opened)
     {
@@ -787,7 +785,7 @@ usb_low_set_cmt_table_length (ma1017 * chip, SANE_Byte table_length)
   if (table_length > 32)
     {
       DBG (3, "usb_low_set_cmt_table_length: length %d exceeds 32\n",
-	      (int) table_length);
+	   (int) table_length);
       return SANE_STATUS_INVAL;
     }
   if (table_length == 0)
@@ -801,15 +799,15 @@ usb_low_set_cmt_table_length (ma1017 * chip, SANE_Byte table_length)
   data = chip->cmt_table_length | chip->ccd_width_msb | chip->dummy_msb;
   reg_no = 8;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_cmt_table_length: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A9 */
 SANE_Status
-usb_low_get_a9 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a9 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -826,10 +824,10 @@ usb_low_get_a9 (ma1017 * chip, SANE_Byte *value)
       DBG (3, "usb_low_get_a9: stop rowing first\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_read_reg (chip, 9, &pattern));
- 
+  RIE (usb_low_read_reg (chip, 9, &pattern));
+
   chip->cmt_second_pos = pattern & 0x1f;
-  
+
   if (value)
     *value = pattern;
 
@@ -842,7 +840,7 @@ usb_low_set_cmt_second_position (ma1017 * chip, SANE_Byte position)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_cmt_second_position: start\n");
 
   if (!chip->is_opened)
@@ -858,7 +856,7 @@ usb_low_set_cmt_second_position (ma1017 * chip, SANE_Byte position)
   if (position > 31)
     {
       DBG (3, "usb_low_set_cmt_second_position: length: %d exceeds 31\n",
-	      (int) position);
+	   (int) position);
       return SANE_STATUS_INVAL;
     }
 
@@ -867,8 +865,8 @@ usb_low_set_cmt_second_position (ma1017 * chip, SANE_Byte position)
   data = chip->cmt_second_pos;
   reg_no = 9;
 
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_cmt_second_position: exit\n");
 
   return SANE_STATUS_GOOD;
@@ -876,13 +874,13 @@ usb_low_set_cmt_second_position (ma1017 * chip, SANE_Byte position)
 
 /* A10 + A8ID5 */
 SANE_Status
-usb_low_get_a10 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a10 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
 
   DBG (7, "usb_low_get_a10: start\n");
-      
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_get_a10: not opened yet\n");
@@ -894,7 +892,7 @@ usb_low_get_a10 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 10, &pattern));
+  RIE (usb_low_read_reg (chip, 10, &pattern));
 
   chip->ccd_width =
     ((SANE_Word) (pattern)) * 32 +
@@ -902,7 +900,7 @@ usb_low_get_a10 (ma1017 * chip, SANE_Byte *value)
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a10: exit\n");
 
   return SANE_STATUS_GOOD;
@@ -913,7 +911,7 @@ usb_low_set_ccd_width (ma1017 * chip, SANE_Word ccd_width)
 {
   SANE_Status status;
   SANE_Byte data, reg_no;
-  
+
   DBG (7, "usb_low_set_ccd_width: start\n");
 
   if (!chip->is_opened)
@@ -941,19 +939,19 @@ usb_low_set_ccd_width (ma1017 * chip, SANE_Word ccd_width)
 
   data = chip->cmt_table_length | chip->ccd_width_msb | chip->dummy_msb;
   reg_no = 8;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   data = LOBYTE (ccd_width);
   reg_no = 10;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_ccd_width: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A11 + A8ID6 */
 SANE_Status
-usb_low_get_a11 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a11 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -971,11 +969,10 @@ usb_low_get_a11 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 11, &pattern));
+  RIE (usb_low_read_reg (chip, 11, &pattern));
 
   chip->dummy =
-    ((SANE_Word) (pattern)) * 32 +
-    ((chip->dummy_msb == 0) ? 0 : 0x0100 * 32);
+    ((SANE_Word) (pattern)) * 32 + ((chip->dummy_msb == 0) ? 0 : 0x0100 * 32);
 
   if (value)
     *value = pattern;
@@ -989,7 +986,7 @@ usb_low_set_dummy (ma1017 * chip, SANE_Word dummy)
 {
   SANE_Status status;
   SANE_Byte data, reg_no;
-  
+
   DBG (7, "usb_low_set_dummy: start\n");
 
   if (!chip->is_opened)
@@ -1017,19 +1014,19 @@ usb_low_set_dummy (ma1017 * chip, SANE_Word dummy)
     chip->dummy_msb = 0x00;
   data = chip->cmt_table_length | chip->ccd_width_msb | chip->dummy_msb;
   reg_no = 8;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   data = LOBYTE (dummy);
   reg_no = 11;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_dummy: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A12 + A13 */
 SANE_Status
-usb_low_get_a12 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a12 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1047,26 +1044,24 @@ usb_low_get_a12 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 12, &pattern));
+  RIE (usb_low_read_reg (chip, 12, &pattern));
 
-  chip->byte_width =
-    (chip->byte_width & 0x3f00) + ((SANE_Word) pattern);
-  chip->soft_resample =
-    (chip->soft_resample == 0) ? 1 : chip->soft_resample;
+  chip->byte_width = (chip->byte_width & 0x3f00) + ((SANE_Word) pattern);
+  chip->soft_resample = (chip->soft_resample == 0) ? 1 : chip->soft_resample;
   chip->get_row =
-    (chip->soft_resample == 1) 
-    ? & usb_low_get_row_direct : & usb_low_get_row_resample;
+    (chip->soft_resample == 1)
+    ? &usb_low_get_row_direct : &usb_low_get_row_resample;
   chip->row_size = chip->byte_width / chip->soft_resample;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a12: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_get_a13 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a13 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1084,20 +1079,19 @@ usb_low_get_a13 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 13, &pattern));
+  RIE (usb_low_read_reg (chip, 13, &pattern));
 
   chip->byte_width =
     (chip->byte_width & 0x00ff) + (((SANE_Word) (pattern & 0x3f)) << 8);
-  chip->soft_resample =
-    (chip->soft_resample == 0) ? 1 : chip->soft_resample;
+  chip->soft_resample = (chip->soft_resample == 0) ? 1 : chip->soft_resample;
   chip->get_row =
     (chip->soft_resample ==
-     1) ? & usb_low_get_row_direct : & usb_low_get_row_resample;
+     1) ? &usb_low_get_row_direct : &usb_low_get_row_resample;
   chip->row_size = chip->byte_width / chip->soft_resample;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a13: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1107,7 +1101,7 @@ usb_low_set_image_byte_width (ma1017 * chip, SANE_Word row_size)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_image_byte_width: start\n");
 
   if (!chip->is_opened)
@@ -1123,26 +1117,26 @@ usb_low_set_image_byte_width (ma1017 * chip, SANE_Word row_size)
 
   chip->row_size = row_size;
   chip->soft_resample = (chip->soft_resample == 0) ? 1 : chip->soft_resample;
-  chip->get_row = (chip->soft_resample == 1) ? &usb_low_get_row_direct 
+  chip->get_row = (chip->soft_resample == 1) ? &usb_low_get_row_direct
     : &usb_low_get_row_resample;
   chip->byte_width = chip->row_size * chip->soft_resample;
   if (chip->byte_width > 0x3fff)
     {
       DBG (3, "usb_low_set_image_byte_width: width %d exceeded\n",
-	      (int) chip->byte_width);
+	   (int) chip->byte_width);
       return SANE_STATUS_INVAL;
     }
 
   data = LOBYTE (chip->byte_width);
   reg_no = 12;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   data = HIBYTE (chip->byte_width);
   reg_no = 13;
-  RIE(usb_low_write_reg (chip, reg_no, data));
+  RIE (usb_low_write_reg (chip, reg_no, data));
 
   DBG (7, "usb_low_set_image_byte_width: exit\n");
-  
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1153,7 +1147,7 @@ usb_low_set_soft_resample (ma1017 * chip, SANE_Word soft_resample)
   SANE_Status status;
 
   DBG (7, "usb_low_set_soft_resample: start\n");
-  
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_set_soft_resample: not opened yet\n");
@@ -1171,24 +1165,24 @@ usb_low_set_soft_resample (ma1017 * chip, SANE_Word soft_resample)
     }
 
   chip->soft_resample = soft_resample;
-  chip->get_row = (chip->soft_resample == 1) ? &usb_low_get_row_direct 
+  chip->get_row = (chip->soft_resample == 1) ? &usb_low_get_row_direct
     : &usb_low_get_row_resample;
   chip->byte_width = chip->row_size * chip->soft_resample;
   if (chip->byte_width > 0x3fff)
     {
       DBG (3, "usb_low_set_soft_resample: width %d exceeded",
-	      (int) chip->byte_width);
+	   (int) chip->byte_width);
       return SANE_STATUS_INVAL;
     }
 
   data = LOBYTE (chip->byte_width);
   reg_no = 12;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   data = HIBYTE (chip->byte_width);
   reg_no = 13;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_soft_resample: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1199,7 +1193,7 @@ usb_low_set_cmt_loop_count (ma1017 * chip, SANE_Word loop_count)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_cmt_loop_count: start\n");
 
   if (!chip->is_opened)
@@ -1217,19 +1211,19 @@ usb_low_set_cmt_loop_count (ma1017 * chip, SANE_Word loop_count)
 
   data = LOBYTE (loop_count);
   reg_no = 14;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   data = HIBYTE (loop_count);
   reg_no = 30;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_cmt_loop_count: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A15 */
 SANE_Status
-usb_low_get_a15 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a15 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1247,7 +1241,7 @@ usb_low_get_a15 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 15, &pattern));
+  RIE (usb_low_read_reg (chip, 15, &pattern));
 
   chip->motor_enable = pattern & 0x80;
   chip->motor_movement = pattern & 0x68;
@@ -1257,7 +1251,7 @@ usb_low_get_a15 (ma1017 * chip, SANE_Byte *value)
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a15: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1267,7 +1261,7 @@ usb_low_enable_motor (ma1017 * chip, SANE_Bool is_enable)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_enable_motor: start\n");
   if (!chip->is_opened)
     {
@@ -1286,19 +1280,19 @@ usb_low_enable_motor (ma1017 * chip, SANE_Bool is_enable)
   data = chip->motor_enable | chip->motor_movement
     | chip->motor_direction | chip->motor_signal | chip->motor_home;
   reg_no = 15;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_enable_motor: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 usb_low_set_motor_movement (ma1017 * chip, SANE_Bool is_full_step,
-			  SANE_Bool is_double_phase, SANE_Bool is_two_step)
+			    SANE_Bool is_double_phase, SANE_Bool is_two_step)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_motor_movement: start\n");
   if (!chip->is_opened)
     {
@@ -1318,11 +1312,11 @@ usb_low_set_motor_movement (ma1017 * chip, SANE_Bool is_full_step,
     chip->motor_movement |= 0x20;
   if (is_two_step)
     chip->motor_movement |= 0x08;
-  data = chip->motor_enable | chip->motor_movement 
+  data = chip->motor_enable | chip->motor_movement
     | chip->motor_direction | chip->motor_signal | chip->motor_home;
   reg_no = 15;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_motor_movement:  exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1332,7 +1326,7 @@ usb_low_set_motor_direction (ma1017 * chip, SANE_Bool is_backward)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_motor_direction: start\n");
 
   if (!chip->is_opened)
@@ -1352,8 +1346,8 @@ usb_low_set_motor_direction (ma1017 * chip, SANE_Bool is_backward)
   data = chip->motor_enable | chip->motor_movement
     | chip->motor_direction | chip->motor_signal | chip->motor_home;
   reg_no = 15;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_motor_direction: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1363,7 +1357,7 @@ usb_low_set_motor_signal (ma1017 * chip, SANE_Byte signal)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_motor_signal: start\n");
 
   if (!chip->is_opened)
@@ -1381,21 +1375,21 @@ usb_low_set_motor_signal (ma1017 * chip, SANE_Byte signal)
   data = chip->motor_enable | chip->motor_movement
     | chip->motor_direction | chip->motor_signal | chip->motor_home;
   reg_no = 15;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_motor_signal: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_move_motor_home (ma1017 * chip, SANE_Bool is_home, 
+usb_low_move_motor_home (ma1017 * chip, SANE_Bool is_home,
 			 SANE_Bool is_backward)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
 
   DBG (7, "usb_low_move_motor_home: start\n");
-  
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_move_motor_home: not opened yet\n");
@@ -1420,15 +1414,15 @@ usb_low_move_motor_home (ma1017 * chip, SANE_Bool is_home,
   data = chip->motor_enable | chip->motor_movement
     | chip->motor_direction | chip->motor_signal | chip->motor_home;
   reg_no = 15;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_move_motor_home: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A16 */
 SANE_Status
-usb_low_get_a16 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a16 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1446,7 +1440,7 @@ usb_low_get_a16 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 16, &pattern));
+  RIE (usb_low_read_reg (chip, 16, &pattern));
 
   chip->pixel_depth = pattern & 0xe0;
   chip->image_invert = pattern & 0x10;
@@ -1455,7 +1449,7 @@ usb_low_get_a16 (ma1017 * chip, SANE_Byte *value)
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a16: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1466,7 +1460,7 @@ usb_low_set_image_dpi (ma1017 * chip, SANE_Bool is_optical600,
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_image_dpi: start\n");
 
   if (!chip->is_opened)
@@ -1512,8 +1506,8 @@ usb_low_set_image_dpi (ma1017 * chip, SANE_Bool is_optical600,
   data = chip->pixel_depth | chip->image_invert | chip->optical_600
     | chip->sample_way;
   reg_no = 16;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_image_dpi: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1523,7 +1517,7 @@ usb_low_set_pixel_depth (ma1017 * chip, Pixeldepth pixeldepth)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_pixel_depth: start\n");
   if (!chip->is_opened)
     {
@@ -1558,8 +1552,8 @@ usb_low_set_pixel_depth (ma1017 * chip, Pixeldepth pixeldepth)
   data = chip->pixel_depth | chip->image_invert | chip->optical_600
     | chip->sample_way;
   reg_no = 16;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_SetPixelDeepth: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1569,7 +1563,7 @@ usb_low_invert_image (ma1017 * chip, SANE_Bool is_invert)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_invert_image: start\n");
   if (!chip->is_opened)
     {
@@ -1588,15 +1582,15 @@ usb_low_invert_image (ma1017 * chip, SANE_Bool is_invert)
   data = chip->pixel_depth | chip->image_invert | chip->optical_600
     | chip->sample_way;
   reg_no = 16;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_invert_image: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A17 + A18 + A19 */
 SANE_Status
-usb_low_get_a17 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a17 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1613,19 +1607,19 @@ usb_low_get_a17 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 17, &pattern));
+  RIE (usb_low_read_reg (chip, 17, &pattern));
 
   chip->red_ref = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a17: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_get_a18 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a18 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1642,19 +1636,19 @@ usb_low_get_a18 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 18, &pattern));
+  RIE (usb_low_read_reg (chip, 18, &pattern));
 
   chip->green_ref = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a18: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_get_a19 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a19 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1671,7 +1665,7 @@ usb_low_get_a19 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 19, &pattern));
+  RIE (usb_low_read_reg (chip, 19, &pattern));
 
   chip->blue_ref = pattern;
 
@@ -1687,7 +1681,7 @@ usb_low_set_red_ref (ma1017 * chip, SANE_Byte red_ref)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_red_ref: start\n");
 
   if (!chip->is_opened)
@@ -1704,8 +1698,8 @@ usb_low_set_red_ref (ma1017 * chip, SANE_Byte red_ref)
   chip->red_ref = red_ref;
   data = red_ref;
   reg_no = 17;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_red_ref: stop\n");
   return SANE_STATUS_GOOD;
 }
@@ -1715,7 +1709,7 @@ usb_low_set_green_ref (ma1017 * chip, SANE_Byte green_ref)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_green_ref: start\n");
 
 
@@ -1734,8 +1728,8 @@ usb_low_set_green_ref (ma1017 * chip, SANE_Byte green_ref)
 
   data = green_ref;
   reg_no = 18;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_green_ref: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1745,9 +1739,9 @@ usb_low_set_blue_ref (ma1017 * chip, SANE_Byte blue_ref)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_blue_ref: start\n");
-      
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_set_blue_ref: not opened yet\n");
@@ -1763,15 +1757,15 @@ usb_low_set_blue_ref (ma1017 * chip, SANE_Byte blue_ref)
 
   data = blue_ref;
   reg_no = 19;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_blue_ref: stop\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A20 + A21 + A22 */
 SANE_Status
-usb_low_get_a20 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a20 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1788,19 +1782,19 @@ usb_low_get_a20 (ma1017 * chip, SANE_Byte *value)
       DBG (3, "usb_low_get_a20: stop rowing first\n");
       return SANE_STATUS_INVAL;
     }
-  RIE(usb_low_read_reg (chip, 20, &pattern));
+  RIE (usb_low_read_reg (chip, 20, &pattern));
 
   chip->red_pd = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a20: stop\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_get_a21 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a21 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1818,19 +1812,19 @@ usb_low_get_a21 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 21, &pattern));
+  RIE (usb_low_read_reg (chip, 21, &pattern));
 
   chip->green_pd = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a21: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_get_a22 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a22 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1848,13 +1842,13 @@ usb_low_get_a22 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 22, &pattern));
+  RIE (usb_low_read_reg (chip, 22, &pattern));
 
   chip->blue_pd = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a22: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1864,7 +1858,7 @@ usb_low_set_red_pd (ma1017 * chip, SANE_Byte red_pd)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_red_pd: start\n");
 
   if (!chip->is_opened)
@@ -1882,8 +1876,8 @@ usb_low_set_red_pd (ma1017 * chip, SANE_Byte red_pd)
 
   data = chip->red_pd;
   reg_no = 20;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_red_pd: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1893,7 +1887,7 @@ usb_low_set_green_pd (ma1017 * chip, SANE_Byte green_pd)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_green_pd: start\n");
 
   if (!chip->is_opened)
@@ -1910,8 +1904,8 @@ usb_low_set_green_pd (ma1017 * chip, SANE_Byte green_pd)
   chip->green_pd = green_pd;
   data = chip->green_pd;
   reg_no = 21;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_green_pd: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1921,7 +1915,7 @@ usb_low_set_blue_pd (ma1017 * chip, SANE_Byte blue_pd)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_blue_pd: start\n");
 
   if (!chip->is_opened)
@@ -1939,15 +1933,15 @@ usb_low_set_blue_pd (ma1017 * chip, SANE_Byte blue_pd)
 
   data = chip->blue_pd;
   reg_no = 22;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_blue_pd: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A23 */
 SANE_Status
-usb_low_get_a23 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a23 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -1964,13 +1958,13 @@ usb_low_get_a23 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 23, &pattern));
+  RIE (usb_low_read_reg (chip, 23, &pattern));
 
   chip->a23 = pattern;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a23: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -1980,7 +1974,7 @@ usb_low_turn_peripheral_power (ma1017 * chip, SANE_Bool is_on)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_turn_peripheral_power: start\n");
 
   if (!chip->is_opened)
@@ -1999,8 +1993,8 @@ usb_low_turn_peripheral_power (ma1017 * chip, SANE_Bool is_on)
     chip->a23 |= 0x80;
   data = chip->a23;
   reg_no = 23;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_turn_peripheral_power: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2012,7 +2006,7 @@ usb_low_turn_lamp_power (ma1017 * chip, SANE_Bool is_on)
   SANE_Status status;
 
   DBG (7, "usb_low_turn_lamp_power: start\n");
-      
+
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_turn_lamp_power: not opened yet\n");
@@ -2030,8 +2024,8 @@ usb_low_turn_lamp_power (ma1017 * chip, SANE_Bool is_on)
 
   data = chip->a23;
   reg_no = 23;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_turn_lamp_power: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2041,7 +2035,7 @@ usb_low_set_io_3 (ma1017 * chip, SANE_Bool is_high)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_io_3: start\n");
 
   if (!chip->is_opened)
@@ -2061,8 +2055,8 @@ usb_low_set_io_3 (ma1017 * chip, SANE_Bool is_high)
 
   data = chip->a23;
   reg_no = 23;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_io_3: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2072,7 +2066,7 @@ usb_low_set_led_light_all (ma1017 * chip, SANE_Bool is_light_all)
 {
   SANE_Byte data, reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_led_light_all: start\n");
 
   if (!chip->is_opened)
@@ -2092,15 +2086,15 @@ usb_low_set_led_light_all (ma1017 * chip, SANE_Bool is_light_all)
 
   data = chip->a23;
   reg_no = 23;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_led_light_all: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A24 */
 SANE_Status
-usb_low_get_a24 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a24 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -2118,14 +2112,14 @@ usb_low_get_a24 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 24, &pattern));
+  RIE (usb_low_read_reg (chip, 24, &pattern));
 
   chip->fy1_delay = pattern & 0x01;
   chip->special_ad = pattern & 0x02;
 
   if (value)
     *value = pattern;
-  
+
   DBG (7, "usb_low_get_a24: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2135,7 +2129,7 @@ usb_low_set_ad_timing (ma1017 * chip, SANE_Byte data)
 {
   SANE_Byte reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_ad_timing: start\n");
 
   if (!chip->is_opened)
@@ -2154,8 +2148,8 @@ usb_low_set_ad_timing (ma1017 * chip, SANE_Byte data)
 
   data = chip->special_ad | chip->fy1_delay;
   reg_no = 24;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_ad_timing: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2166,7 +2160,7 @@ usb_low_set_serial_byte1 (ma1017 * chip, SANE_Byte data)
 {
   SANE_Byte reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_serial_byte1: start\n");
 
   if (!chip->is_opened)
@@ -2181,8 +2175,8 @@ usb_low_set_serial_byte1 (ma1017 * chip, SANE_Byte data)
     }
 
   reg_no = 25;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_serial_byte1: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2192,7 +2186,7 @@ usb_low_set_serial_byte2 (ma1017 * chip, SANE_Byte data)
 {
   SANE_Byte reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_serial_byte2: start\n");
 
   if (!chip->is_opened)
@@ -2207,15 +2201,15 @@ usb_low_set_serial_byte2 (ma1017 * chip, SANE_Byte data)
     }
 
   reg_no = 26;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_serial_byte2: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 /* A27 */
 SANE_Status
-usb_low_get_a27 (ma1017 * chip, SANE_Byte *value)
+usb_low_get_a27 (ma1017 * chip, SANE_Byte * value)
 {
   SANE_Byte pattern;
   SANE_Status status;
@@ -2233,7 +2227,7 @@ usb_low_get_a27 (ma1017 * chip, SANE_Byte *value)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 27, &pattern));
+  RIE (usb_low_read_reg (chip, 27, &pattern));
 
   chip->sclk = pattern & 0x80;
   chip->sen = pattern & 0x40;
@@ -2251,7 +2245,7 @@ usb_low_set_serial_format (ma1017 * chip, SANE_Byte data)
 {
   SANE_Byte reg_no;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_set_serial_format: start\n");
 
   if (!chip->is_opened)
@@ -2271,8 +2265,8 @@ usb_low_set_serial_format (ma1017 * chip, SANE_Byte data)
   chip->serial_length = data & 0x1f;
 
   reg_no = 27;
-  RIE(usb_low_write_reg (chip, reg_no, data));
-  
+  RIE (usb_low_write_reg (chip, reg_no, data));
+
   DBG (7, "usb_low_set_serial_format: exit\n");
   return SANE_STATUS_GOOD;
 }
@@ -2296,7 +2290,7 @@ usb_low_get_home_sensor (ma1017 * chip)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_read_reg (chip, 31, &data));
+  RIE (usb_low_read_reg (chip, 31, &data));
 
   DBG (7, "usb_low_get_home_sensor: exit\n");
   if ((data & 0x80) != 0)
@@ -2313,7 +2307,7 @@ usb_low_start_rowing (ma1017 * chip)
   SANE_Word line_of_second = 0;
   SANE_Int i;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_start_rowing: start\n");
 
   if (chip->loop_count == 0)
@@ -2352,7 +2346,7 @@ usb_low_start_rowing (ma1017 * chip)
     ((SANE_Word) (chip->loop_count - 1)) * line_of_second + line_of_first;
   chip->lines_left = chip->total_lines;
 
-  RIE(usb_low_start_cmt_table (chip));
+  RIE (usb_low_start_cmt_table (chip));
 
   DBG (7, "usb_low_start_rowing: exit\n");
   return SANE_STATUS_GOOD;
@@ -2362,21 +2356,21 @@ SANE_Status
 usb_low_stop_rowing (ma1017 * chip)
 {
   SANE_Status status;
-  
+
   DBG (7, "usb_low_stop_rowing: start\n");
 
-  RIE(usb_low_stop_cmt_table (chip));
+  RIE (usb_low_stop_cmt_table (chip));
 
   DBG (7, "usb_low_stop_rowing: exit\n");
   return SANE_STATUS_GOOD;
- 
+
 }
 
 SANE_Status
 usb_low_wait_rowing_stop (ma1017 * chip)
 {
   SANE_Status status;
-  
+
   DBG (7, "usb_low_wait_rowing_stop: start\n");
   if (chip->total_lines != 0)
     {
@@ -2384,7 +2378,7 @@ usb_low_wait_rowing_stop (ma1017 * chip)
       return SANE_STATUS_INVAL;
     }
 
-  RIE(usb_low_wait_rowing (chip));
+  RIE (usb_low_wait_rowing (chip));
   chip->is_rowing = SANE_FALSE;
   DBG (7, "usb_low_wait_rowing_stop: exit\n");
   return SANE_STATUS_GOOD;
@@ -2394,51 +2388,52 @@ SANE_Status
 usb_low_read_all_registers (ma1017 * chip)
 {
   SANE_Status status;
-  
+
   DBG (7, "usb_low_read_all_registers: start\n");
 
-  RIE(usb_low_get_a2 (chip, 0));
-  RIE(usb_low_get_a4 (chip, 0));
-  RIE(usb_low_get_a6 (chip, 0));
-  RIE(usb_low_get_a7 (chip, 0));
-  RIE(usb_low_get_a8 (chip, 0));
-  RIE(usb_low_get_a9 (chip, 0));
-  RIE(usb_low_get_a10 (chip, 0));
-  RIE(usb_low_get_a11 (chip, 0));
-  RIE(usb_low_get_a12 (chip, 0));
-  RIE(usb_low_get_a13 (chip, 0));
-  RIE(usb_low_get_a15 (chip, 0));
-  RIE(usb_low_get_a16 (chip, 0));
-  RIE(usb_low_get_a17 (chip, 0));
-  RIE(usb_low_get_a18 (chip, 0));
-  RIE(usb_low_get_a19 (chip, 0));
-  RIE(usb_low_get_a20 (chip, 0));
-  RIE(usb_low_get_a21 (chip, 0));
-  RIE(usb_low_get_a22 (chip, 0));
-  RIE(usb_low_get_a23 (chip, 0));
-  RIE(usb_low_get_a24 (chip, 0));
-  RIE(usb_low_get_a27 (chip, 0));
-  
+  RIE (usb_low_get_a2 (chip, 0));
+  RIE (usb_low_get_a4 (chip, 0));
+  RIE (usb_low_get_a6 (chip, 0));
+  RIE (usb_low_get_a7 (chip, 0));
+  RIE (usb_low_get_a8 (chip, 0));
+  RIE (usb_low_get_a9 (chip, 0));
+  RIE (usb_low_get_a10 (chip, 0));
+  RIE (usb_low_get_a11 (chip, 0));
+  RIE (usb_low_get_a12 (chip, 0));
+  RIE (usb_low_get_a13 (chip, 0));
+  RIE (usb_low_get_a15 (chip, 0));
+  RIE (usb_low_get_a16 (chip, 0));
+  RIE (usb_low_get_a17 (chip, 0));
+  RIE (usb_low_get_a18 (chip, 0));
+  RIE (usb_low_get_a19 (chip, 0));
+  RIE (usb_low_get_a20 (chip, 0));
+  RIE (usb_low_get_a21 (chip, 0));
+  RIE (usb_low_get_a22 (chip, 0));
+  RIE (usb_low_get_a23 (chip, 0));
+  RIE (usb_low_get_a24 (chip, 0));
+  RIE (usb_low_get_a27 (chip, 0));
+
   return SANE_STATUS_GOOD;
   DBG (7, "usb_low_read_all_registers: exit\n");
 }
 
 SANE_Status
-usb_low_get_row (ma1017 * chip, SANE_Byte * data, SANE_Word *lines_left)
+usb_low_get_row (ma1017 * chip, SANE_Byte * data, SANE_Word * lines_left)
 {
   SANE_Status status;
-  
+
   DBG (7, "usb_low_get_row: start\n");
-  RIE((*chip->get_row) (chip, data, lines_left));
+  RIE ((*chip->get_row) (chip, data, lines_left));
   DBG (7, "usb_low_get_row: exit\n");
   return SANE_STATUS_GOOD;;
 }
 
 SANE_Status
-usb_low_get_row_direct (ma1017 * chip, SANE_Byte * data, SANE_Word *lines_left)
+usb_low_get_row_direct (ma1017 * chip, SANE_Byte * data,
+			SANE_Word * lines_left)
 {
   SANE_Status status;
-  
+
   DBG (7, "usb_low_get_row_direct: start\n");
   if (chip->lines_left == 0)
     {
@@ -2448,8 +2443,8 @@ usb_low_get_row_direct (ma1017 * chip, SANE_Byte * data, SANE_Word *lines_left)
 
   if (chip->lines_left <= 1)
     {
-      RIE(usb_low_read_rows (chip, data, chip->byte_width));
-      RIE(usb_low_wait_rowing (chip));
+      RIE (usb_low_read_rows (chip, data, chip->byte_width));
+      RIE (usb_low_wait_rowing (chip));
 
       chip->lines_left = 0x00;
       chip->is_rowing = SANE_FALSE;
@@ -2457,7 +2452,7 @@ usb_low_get_row_direct (ma1017 * chip, SANE_Byte * data, SANE_Word *lines_left)
     }
   else
     {
-      RIE(usb_low_read_rows (chip, data, chip->byte_width));
+      RIE (usb_low_read_rows (chip, data, chip->byte_width));
       chip->lines_left--;
       *lines_left = chip->lines_left;
     }
@@ -2467,7 +2462,7 @@ usb_low_get_row_direct (ma1017 * chip, SANE_Byte * data, SANE_Word *lines_left)
 
 SANE_Status
 usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
-			  SANE_Word *lines_left)
+			  SANE_Word * lines_left)
 {
   static SANE_Byte resample_buffer[8 * 1024];
   SANE_Word *pixel_temp;
@@ -2475,7 +2470,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
   SANE_Word j;
   SANE_Word k;
   SANE_Status status;
-  
+
   DBG (7, "usb_low_get_row_resample: start\n");
 
   if (chip->lines_left == 0)
@@ -2486,7 +2481,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
 
   if (chip->lines_left <= 1)
     {
-      RIE(usb_low_read_rows (chip, resample_buffer, chip->byte_width));
+      RIE (usb_low_read_rows (chip, resample_buffer, chip->byte_width));
 
       if ((chip->sensor == ST_CANON600) && (chip->pixel_depth == 0x20))
 	{
@@ -2498,7 +2493,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
 	  for (i = 0; i < chip->byte_width; i += 3)
 	    {
 	      pixel_temp[j] = (SANE_Word) resample_buffer[i];
-	      pixel_temp[j] |= ((SANE_Word) 
+	      pixel_temp[j] |= ((SANE_Word)
 				(resample_buffer[i + 1] & 0xf0)) << 4;
 	      j++;
 	      pixel_temp[j] = ((SANE_Word)
@@ -2520,12 +2515,12 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
 	    }
 	  free (pixel_temp);
 	}
-      else /* fixme ?*/
+      else			/* fixme ? */
 	{
 	  for (i = 0; i < chip->byte_width; i += chip->soft_resample)
 	    *(data++) = resample_buffer[i];
 	}
-      RIE(usb_low_wait_rowing (chip));
+      RIE (usb_low_wait_rowing (chip));
 
       chip->lines_left = 0x00;
       chip->is_rowing = SANE_FALSE;
@@ -2533,8 +2528,8 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
     }
   else
     {
-      RIE(usb_low_read_rows (chip, resample_buffer, chip->byte_width));
-      
+      RIE (usb_low_read_rows (chip, resample_buffer, chip->byte_width));
+
       if ((chip->sensor == ST_CANON600) && (chip->pixel_depth == 0x20))
 	{
 	  pixel_temp = (SANE_Word *) malloc (6 * 1024 * sizeof (SANE_Word));
@@ -2545,10 +2540,10 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
 	  for (i = 0; i < chip->byte_width; i += 3)
 	    {
 	      pixel_temp[j] = (SANE_Word) resample_buffer[i];
-	      pixel_temp[j] |= 
+	      pixel_temp[j] |=
 		((SANE_Word) (resample_buffer[i + 1] & 0xf0)) << 4;
 	      j++;
-	      pixel_temp[j] = 
+	      pixel_temp[j] =
 		((SANE_Word) (resample_buffer[i + 1] & 0x0f)) << 8;
 	      pixel_temp[j] |= (SANE_Word) resample_buffer[i + 2];
 	      j++;
@@ -2567,7 +2562,7 @@ usb_low_get_row_resample (ma1017 * chip, SANE_Byte * data,
 	    }
 	  free (pixel_temp);
 	}
-      else /* fixme? */
+      else			/* fixme? */
 	{
 	  for (i = 0; i < chip->byte_width; i += chip->soft_resample)
 	    *(data++) = resample_buffer[i];
@@ -2599,7 +2594,7 @@ usb_low_wait_rowing (ma1017 * chip)
       return SANE_STATUS_INVAL;
     }
   n = 1;
-  status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) &read_byte, &n);
+  status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) & read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
     {
       DBG (3, "usb_low_wait_rowing: couldn't read: %s\n",
@@ -2629,12 +2624,14 @@ usb_low_read_rows (ma1017 * chip, SANE_Byte * data, SANE_Word byte_count)
       return SANE_STATUS_INVAL;
     }
 
-  n = MIN(byte_count, chip->max_block_size);
+  n = MIN (byte_count, chip->max_block_size);
   bytes_total = 0;
 
   while ((SANE_Word) bytes_total < byte_count)
     {
-      status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) (data + bytes_total), &n);
+      status =
+	sanei_usb_read_bulk (chip->fd, (SANE_Byte *) (data + bytes_total),
+			     &n);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (7, "usb_low_read_rows: problems during read: %s -- exiting\n",
@@ -2648,10 +2645,11 @@ usb_low_read_rows (ma1017 * chip, SANE_Byte * data, SANE_Word byte_count)
 	       "bytes (%d in total) -- retrying\n", byte_count, (SANE_Word) n,
 	       (SANE_Word) bytes_total);
 	}
-      n = MIN((byte_count - (SANE_Word) bytes_total), chip->max_block_size);
+      n = MIN ((byte_count - (SANE_Word) bytes_total), chip->max_block_size);
     }
 
-  DBG (7, "usb_low_read_rows: exit, read %d bytes\n", (SANE_Word) bytes_total);
+  DBG (7, "usb_low_read_rows: exit, read %d bytes\n",
+       (SANE_Word) bytes_total);
   return SANE_STATUS_GOOD;
 }
 
@@ -2690,13 +2688,12 @@ usb_low_write_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte data)
 	   sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
-  DBG (7, "usb_low_write_reg: reg: 0x%02x, value: 0x%02x\n",
-       reg_no, data);
+  DBG (7, "usb_low_write_reg: reg: 0x%02x, value: 0x%02x\n", reg_no, data);
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
+usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte * data)
 {
   SANE_Byte data_field[2];
   SANE_Byte read_byte;
@@ -2722,8 +2719,7 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
       return SANE_STATUS_INVAL;
     }
   n = 2;
-  status = sanei_usb_write_bulk (chip->fd, data_field,
-				 &n);
+  status = sanei_usb_write_bulk (chip->fd, data_field, &n);
   if (status != SANE_STATUS_GOOD || n != 2)
     {
       DBG (3, "usb_low_read_reg: couldn't write, tried to write %d, "
@@ -2732,11 +2728,11 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
       return SANE_STATUS_IO_ERROR;
     }
   n = 1;
-  status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) &read_byte, &n);
+  status = sanei_usb_read_bulk (chip->fd, (SANE_Byte *) & read_byte, &n);
   if (status != SANE_STATUS_GOOD || n != 1)
     {
       DBG (3, "usb_low_read_reg: couldn't read, tried to read %lu, "
-	   "read %lu: %s\n", (unsigned long int) 1, 
+	   "read %lu: %s\n", (unsigned long int) 1,
 	   (unsigned long int) n, sane_strstatus (status));
       return SANE_STATUS_IO_ERROR;
     }
@@ -2748,7 +2744,7 @@ usb_low_read_reg (ma1017 * chip, SANE_Byte reg_no, SANE_Byte *data)
 }
 
 SANE_Status
-usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
+usb_low_identify_scanner (SANE_Int fd, Mustek_Type * scanner_type)
 {
   SANE_Status status;
   SANE_Word devvendor, devproduct;
@@ -2764,10 +2760,10 @@ usb_low_identify_scanner (SANE_Int fd, Mustek_Type *scanner_type)
 	{
 	  switch (devproduct)
 	    {
-	    case 0x0001: 
+	    case 0x0001:
 	      devtype = MT_1200CU;
 	      break;
-	    case 0x0002: 
+	    case 0x0002:
 	      devtype = MT_600CU;
 	      break;
 	    case 0x0003:
@@ -2826,14 +2822,14 @@ usb_low_open (ma1017 * chip, SANE_String_Const devname)
     }
 
   status = sanei_usb_open ((SANE_String_Const) devname, &chip->fd);
-  
+
   if (status == SANE_STATUS_GOOD)
     {
       DBG (7, "usb_low_open: device %s successfully opened\n", devname);
       chip->is_opened = SANE_TRUE;
       /* Try to get vendor and device ids */
-      DBG(7, "usb_low_open: trying to identify device `%s'\n", devname);
-      RIE(usb_low_identify_scanner (chip->fd, &scanner_type));
+      DBG (7, "usb_low_open: trying to identify device `%s'\n", devname);
+      RIE (usb_low_identify_scanner (chip->fd, &scanner_type));
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (3, "usb_low_open: device `%s' doesn't look like a supported "
@@ -2858,14 +2854,14 @@ usb_low_open (ma1017 * chip, SANE_String_Const devname)
     }
   else
     {
-      DBG (1, "usb_low_open: device %s couldn't be opened: %s\n", 
+      DBG (1, "usb_low_open: device %s couldn't be opened: %s\n",
 	   devname, sane_strstatus (status));
       return status;
     }
 
   chip->is_opened = SANE_TRUE;
 
-  RIE(usb_low_read_all_registers (chip));
+  RIE (usb_low_read_all_registers (chip));
 
   DBG (7, "usb_low_open: exit, type is %d\n", scanner_type);
   return SANE_STATUS_GOOD;

@@ -89,7 +89,7 @@ static Mustek_Usb_Scanner *first_handle;
 static SANE_Word max_block_size = 8 * 1024;
 
 /* Array of newly attached devices */
-static Mustek_Usb_Device **new_dev;	
+static Mustek_Usb_Device **new_dev;
 
 /* Length of new_dev array */
 static SANE_Int new_dev_len;
@@ -99,31 +99,29 @@ static SANE_Int new_dev_alloced;
 
 static SANE_String_Const mode_list[6];
 
-static const SANE_Range char_range =
-{
-	-127, 127,1
+static const SANE_Range char_range = {
+  -127, 127, 1
 };
 
-static const SANE_Range u8_range =
-{
-	0,				/* minimum */
-	255,				/* maximum */
-	0				/* quantization */
+static const SANE_Range u8_range = {
+  0,				/* minimum */
+  255,				/* maximum */
+  0				/* quantization */
 };
 
 
-static size_t 
+static size_t
 max_string_size (const SANE_String_Const strings[])
-{  
-  size_t size, max_size = 0;  
-  SANE_Int i;  
+{
+  size_t size, max_size = 0;
+  SANE_Int i;
 
   for (i = 0; strings[i]; ++i)
-    {      
-      size = strlen (strings[i]) + 1;      
-      if (size > max_size)        
-	max_size = size;    
-    }  
+    {
+      size = strlen (strings[i]) + 1;
+      if (size > max_size)
+	max_size = size;
+    }
   return max_size;
 }
 
@@ -137,7 +135,7 @@ calc_parameters (Mustek_Usb_Scanner * s)
 
   DBG (5, "calc_parameters: start\n");
   val = s->val[OPT_MODE].s;
-  
+
   s->params.last_frame = SANE_TRUE;
 
   if (!strcmp (val, "Lineart"))
@@ -166,12 +164,12 @@ calc_parameters (Mustek_Usb_Scanner * s)
       DBG (1, "calc_parameters: invalid mode %s\n", (SANE_Char *) val);
       status = SANE_STATUS_INVAL;
     }
-  
+
   s->tl_x = SANE_UNFIX (s->val[OPT_TL_X].w) / MM_PER_INCH;
   s->tl_y = SANE_UNFIX (s->val[OPT_TL_Y].w) / MM_PER_INCH;
   s->width = SANE_UNFIX (s->val[OPT_BR_X].w) / MM_PER_INCH - s->tl_x;
   s->height = SANE_UNFIX (s->val[OPT_BR_Y].w) / MM_PER_INCH - s->tl_y;
-  
+
   if (s->width < 0)
     {
       DBG (1, "calc_parameters: warning: tl_x > br_x\n");
@@ -180,14 +178,14 @@ calc_parameters (Mustek_Usb_Scanner * s)
     {
       DBG (1, "calc_parameters: warning: tl_y > br_y\n");
     }
-  max_x = s->hw->max_width * SANE_UNFIX(s->val[OPT_RESOLUTION].w) / 300;
-  max_y = s->hw->max_height * SANE_UNFIX(s->val[OPT_RESOLUTION].w) / 300;  
-  
-  s->tl_x_dots = s->tl_x * SANE_UNFIX(s->val[OPT_RESOLUTION].w);
-  s->width_dots = s->width * SANE_UNFIX(s->val[OPT_RESOLUTION].w);
-  s->tl_y_dots = s->tl_y * SANE_UNFIX(s->val[OPT_RESOLUTION].w);
-  s->height_dots = s->height * SANE_UNFIX(s->val[OPT_RESOLUTION].w);
-  
+  max_x = s->hw->max_width * SANE_UNFIX (s->val[OPT_RESOLUTION].w) / 300;
+  max_y = s->hw->max_height * SANE_UNFIX (s->val[OPT_RESOLUTION].w) / 300;
+
+  s->tl_x_dots = s->tl_x * SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+  s->width_dots = s->width * SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+  s->tl_y_dots = s->tl_y * SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+  s->height_dots = s->height * SANE_UNFIX (s->val[OPT_RESOLUTION].w);
+
   if (s->width_dots > max_x)
     s->width_dots = max_x;
   if (s->height_dots > max_y)
@@ -198,38 +196,37 @@ calc_parameters (Mustek_Usb_Scanner * s)
       if (s->width_dots == 0)
 	s->width_dots = 8;
     }
-  if (s->tl_x_dots < 0) 
+  if (s->tl_x_dots < 0)
     s->tl_x_dots = 0;
   if (s->tl_y_dots < 0)
     s->tl_y_dots = 0;
   if (s->tl_x_dots + s->width_dots > max_x)
     s->tl_x_dots = max_x - s->width_dots;
-  if (s->tl_y_dots + s->height_dots> max_y)
+  if (s->tl_y_dots + s->height_dots > max_y)
     s->tl_y_dots = max_y - s->height_dots;
-  
+
   s->val[OPT_TL_X].w = SANE_FIX (s->tl_x * MM_PER_INCH);
   s->val[OPT_TL_Y].w = SANE_FIX (s->tl_y * MM_PER_INCH);
   s->val[OPT_BR_X].w = SANE_FIX ((s->tl_x + s->width) * MM_PER_INCH);
   s->val[OPT_BR_Y].w = SANE_FIX ((s->tl_y + s->height) * MM_PER_INCH);
-  
+
   s->params.pixels_per_line = s->width_dots;
   if (s->params.pixels_per_line < 0)
     s->params.pixels_per_line = 0;
   s->params.lines = s->height_dots;
   if (s->params.lines < 0)
     s->params.lines = 0;
-  s->params.bytes_per_line = s->params.pixels_per_line * s->params.depth/8 
+  s->params.bytes_per_line = s->params.pixels_per_line * s->params.depth / 8
     * s->channels;
-  
+
   DBG (4, "calc_parameters: format=%d\n", s->params.format);
   DBG (4, "calc_parameters: last frame=%d\n", s->params.last_frame);
   DBG (4, "calc_parameters: lines=%d\n", s->params.lines);
-  DBG (4, "calc_parameters: pixels per line=%d\n", 
-       s->params.pixels_per_line);
+  DBG (4, "calc_parameters: pixels per line=%d\n", s->params.pixels_per_line);
   DBG (4, "calc_parameters: bytes per line=%d\n", s->params.bytes_per_line);
   DBG (4, "calc_parameters: Pixels %dx%dx%d\n",
        s->params.pixels_per_line, s->params.lines, 1 << s->params.depth);
-  
+
   DBG (5, "calc_parameters: exit\n");
   return status;
 }
@@ -240,12 +237,12 @@ init_options (Mustek_Usb_Scanner * s)
 {
   SANE_Int option;
   SANE_Status status;
-  
+
   DBG (5, "init_options: start\n");
 
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
-  
+
   for (option = 0; option < NUM_OPTIONS; ++option)
     {
       s->opt[option].size = sizeof (SANE_Word);
@@ -259,19 +256,19 @@ init_options (Mustek_Usb_Scanner * s)
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* "Mode" group: */
-  s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
+  s->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].size = 0;
   s->opt[OPT_MODE_GROUP].cap = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-  
+
   /* scan mode */
-  mode_list[0]=SANE_I18N("Color");
-  mode_list[1]=SANE_I18N("Gray");
-  mode_list[2]=SANE_I18N("Lineart");
-  mode_list[3]=NULL;
-  
+  mode_list[0] = SANE_I18N ("Color");
+  mode_list[1] = SANE_I18N ("Gray");
+  mode_list[2] = SANE_I18N ("Lineart");
+  mode_list[3] = NULL;
+
   s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
   s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
   s->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
@@ -280,7 +277,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_MODE].size = max_string_size (mode_list);
   s->opt[OPT_MODE].constraint.string_list = mode_list;
   s->val[OPT_MODE].s = strdup (mode_list[1]);
-  
+
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -291,9 +288,9 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_RESOLUTION].constraint.range = &s->hw->dpi_range;
   s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
   if (s->hw->chip->scanner_type == MT_600CU)
-    s->hw->dpi_range.max = SANE_FIX(600);
+    s->hw->dpi_range.max = SANE_FIX (600);
   else
-    s->hw->dpi_range.max = SANE_FIX(1200);
+    s->hw->dpi_range.max = SANE_FIX (1200);
 
   /* preview */
   s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -304,13 +301,13 @@ init_options (Mustek_Usb_Scanner * s)
   s->val[OPT_PREVIEW].w = SANE_FALSE;
 
   /* "Geometry" group: */
-  s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
+  s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-  
+
   /* top-left x */
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
   s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
@@ -320,7 +317,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_TL_X].constraint.range = &s->hw->x_range;
   s->val[OPT_TL_X].w = 0;
-  
+
   /* top-left y */
   s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
   s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -330,7 +327,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_TL_Y].constraint.range = &s->hw->y_range;
   s->val[OPT_TL_Y].w = 0;
-  
+
   /* bottom-right x */
   s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
   s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -340,7 +337,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_X].constraint.range = &s->hw->x_range;
   s->val[OPT_BR_X].w = s->hw->x_range.max;
-  
+
   /* bottom-right y */
   s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
   s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -350,15 +347,15 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_Y].constraint.range = &s->hw->y_range;
   s->val[OPT_BR_Y].w = s->hw->y_range.max;
-  
+
   /* "Enhancement" group: */
-  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
+  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-  
+
   /* brightness */
   s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
   s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
@@ -369,14 +366,14 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_BRIGHTNESS].constraint.range = &char_range;
   s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_BRIGHTNESS].w = 0;
-  
+
   /* custom-gamma table */
   s->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
   s->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
   s->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
   s->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
   s->val[OPT_CUSTOM_GAMMA].w = SANE_FALSE;
-  
+
   /* gray gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
@@ -400,7 +397,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_GAMMA_VECTOR_R].constraint.range = &u8_range;
   s->val[OPT_GAMMA_VECTOR_R].wa = &s->red_gamma_table[0];
-  
+
   /* green gamma vector */
   s->opt[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
   s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
@@ -412,7 +409,7 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_GAMMA_VECTOR_G].constraint.range = &u8_range;
   s->val[OPT_GAMMA_VECTOR_G].wa = &s->green_gamma_table[0];
-  
+
   /* blue gamma vector */
   s->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
   s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
@@ -424,8 +421,8 @@ init_options (Mustek_Usb_Scanner * s)
   s->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
   s->val[OPT_GAMMA_VECTOR_B].wa = &s->blue_gamma_table[0];
-  
-  RIE(calc_parameters (s));
+
+  RIE (calc_parameters (s));
 
   DBG (5, "init_options: exit\n");
   return SANE_STATUS_GOOD;
@@ -433,7 +430,7 @@ init_options (Mustek_Usb_Scanner * s)
 
 
 static SANE_Status
-attach (SANE_String_Const devname, Mustek_Usb_Device ** devp, 
+attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
 	SANE_Bool may_wait)
 {
   Mustek_Usb_Device *dev;
@@ -441,7 +438,7 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
   Mustek_Type scanner_type;
   SANE_Int fd;
 
-  DBG (5, "attach: start: devp %s NULL, may_wait = %d\n", devp ? "!=" : "==", 
+  DBG (5, "attach: start: devp %s NULL, may_wait = %d\n", devp ? "!=" : "==",
        may_wait);
   if (!devname)
     {
@@ -492,7 +489,7 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
       return SANE_STATUS_NO_MEM;
     }
 
-  memset(dev, 0, sizeof (*dev));
+  memset (dev, 0, sizeof (*dev));
   dev->name = strdup (devname);
   dev->sane.name = (SANE_String_Const) dev->name;
   dev->sane.vendor = "Mustek";
@@ -530,23 +527,23 @@ attach (SANE_String_Const devname, Mustek_Usb_Device ** devp,
   dev->y_range.max = SANE_FIX (11.7 * MM_PER_INCH);
   dev->y_range.quant = 0;
 
-  dev->max_height = 11.7*300;
-  dev->max_width = 8.4*300;
+  dev->max_height = 11.7 * 300;
+  dev->max_width = 8.4 * 300;
   dev->dpi_range.min = SANE_FIX (50);
   dev->dpi_range.max = SANE_FIX (600);
   dev->dpi_range.quant = SANE_FIX (1);
-  
+
   status = usb_high_scan_init (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "attach: usb_high_scan_init returned status: %s\n",
-	  sane_strstatus (status));
+	   sane_strstatus (status));
       free (dev);
       return status;
     }
   dev->chip->scanner_type = scanner_type;
   dev->chip->max_block_size = max_block_size;
-  
+
   DBG (2, "attach: found %s %s %s at %s\n", dev->sane.vendor, dev->sane.type,
        dev->sane.model, dev->sane.name);
   ++num_devices;
@@ -565,18 +562,19 @@ attach_one_device (SANE_String_Const devname)
 {
   Mustek_Usb_Device *dev;
   SANE_Status status;
-  
-  RIE(attach (devname, &dev, SANE_FALSE));
+
+  RIE (attach (devname, &dev, SANE_FALSE));
 
   if (dev)
     {
       /* Keep track of newly attached devices so we can set options as
-	 necessary.  */
+         necessary.  */
       if (new_dev_len >= new_dev_alloced)
 	{
 	  new_dev_alloced += 4;
 	  if (new_dev)
-	    new_dev = realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
+	    new_dev =
+	      realloc (new_dev, new_dev_alloced * sizeof (new_dev[0]));
 	  else
 	    new_dev = malloc (new_dev_alloced * sizeof (new_dev[0]));
 	  if (!new_dev)
@@ -591,8 +589,8 @@ attach_one_device (SANE_String_Const devname)
 }
 
 static SANE_Status
-fit_lines (Mustek_Usb_Scanner * s, SANE_Byte *src, SANE_Byte *dst, 
-	   SANE_Word src_lines, SANE_Word *dst_lines)
+fit_lines (Mustek_Usb_Scanner * s, SANE_Byte * src, SANE_Byte * dst,
+	   SANE_Word src_lines, SANE_Word * dst_lines)
 {
   SANE_Int bright;
   SANE_Word src_width, dst_width;
@@ -605,10 +603,10 @@ fit_lines (Mustek_Usb_Scanner * s, SANE_Byte *src, SANE_Byte *dst,
 
   bright = s->val[OPT_BRIGHTNESS].w;
   bright = 128 - bright;
-     
+
   DBG (5, "fit_lines: dst_width=%d, src_width=%d, src_lines=%d, "
        "offset=%d\n", dst_width, src_width, src_lines, s->hw->line_offset);
-      
+
   dst_line = 0;
   src_line = s->hw->line_offset;
 
@@ -627,36 +625,35 @@ fit_lines (Mustek_Usb_Scanner * s, SANE_Byte *src, SANE_Byte *dst,
 	      pixel_switch -= dst_width;
 	    }
 	  pixel_switch += src_width;
-	  
-	  src_address = src_pixel * s->hw->bpp / 8  
-	    + src_width * src_line * s->hw->bpp / 8 ;
-	  dst_address = dst_pixel * s->bpp / 8 
+
+	  src_address = src_pixel * s->hw->bpp / 8
+	    + src_width * src_line * s->hw->bpp / 8;
+	  dst_address = dst_pixel * s->bpp / 8
 	    + dst_width * dst_line * s->bpp / 8;
 
 	  if (s->bpp == 8)
 	    {
-	      dst[dst_address] 
-		= s->gray_table[src[src_address]];
+	      dst[dst_address] = s->gray_table[src[src_address]];
 	    }
 	  else if (s->bpp == 24)
 	    {
-	      dst[dst_address] 
+	      dst[dst_address]
 		= s->red_table[s->gray_table[src[src_address]]];
-	      dst[dst_address + 1] 
+	      dst[dst_address + 1]
 		= s->green_table[s->gray_table[src[src_address + 1]]];
-	      dst[dst_address + 2] 
+	      dst[dst_address + 2]
 		= s->blue_table[s->gray_table[src[src_address + 2]]];
 	    }
-	  else /* lineart */
+	  else			/* lineart */
 	    {
 	      if ((dst_pixel % 8) == 0)
 		dst[dst_address] = 0;
-	      dst[dst_address] |= 
-		(((src[src_address] > bright)  ? 0 : 1) 
+	      dst[dst_address] |=
+		(((src[src_address] > bright) ? 0 : 1)
 		 << (7 - (dst_pixel % 8)));
 	    }
 	}
-      
+
       dst_line++;
       while (s->hw->line_switch >= s->height_dots)
 	{
@@ -668,7 +665,7 @@ fit_lines (Mustek_Usb_Scanner * s, SANE_Byte *src, SANE_Byte *dst,
 
   *dst_lines = dst_line;
   s->hw->line_offset = (src_line - src_lines);
-  
+
   DBG (4, "fit_lines: exit, src_line=%d, *dst_lines=%d, offset=%d\n",
        src_line, *dst_lines, s->hw->line_offset);
   return SANE_STATUS_GOOD;
@@ -691,7 +688,7 @@ check_gamma_table (SANE_Word * table)
 	  status = SANE_STATUS_INVAL;
 	}
     }
-    
+
   return status;
 }
 
@@ -728,7 +725,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;
     }
   linenumber = 0;
-  DBG (4, "sane_init: reading config file `%s'\n",  MUSTEK_USB_CONFIG_FILE);
+  DBG (4, "sane_init: reading config file `%s'\n", MUSTEK_USB_CONFIG_FILE);
 
   while (sanei_config_read (line, sizeof (line), fp))
     {
@@ -751,7 +748,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  free (word);
 	  continue;
 	}
-                    
+
       if (strcmp (word, "option") == 0)
 	{
 	  free (word);
@@ -767,21 +764,24 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      max_block_size = strtol (word, &end, 0);
 	      if (end == word)
 		{
-		  DBG(3, "sane-init: config file line %d: max_block_size "
-		      "must have a parameter; using 8192 bytes\n", linenumber);
+		  DBG (3, "sane-init: config file line %d: max_block_size "
+		       "must have a parameter; using 8192 bytes\n",
+		       linenumber);
 		  max_block_size = 8192;
 		}
 	      if (errno)
 		{
-		  DBG(3, "sane-init: config file line %d: max_block_size `%s' "
-		      "is invalid (%s); using 8192 bytes\n",  linenumber,
-		      word, strerror (errno));
-		  max_block_size = 8192;	
+		  DBG (3,
+		       "sane-init: config file line %d: max_block_size `%s' "
+		       "is invalid (%s); using 8192 bytes\n", linenumber,
+		       word, strerror (errno));
+		  max_block_size = 8192;
 		}
 	      else
 		{
-		  DBG(3, "sane_init: config file line %d: max_block_size set "
-		      "to %d bytes\n", linenumber, max_block_size);
+		  DBG (3,
+		       "sane_init: config file line %d: max_block_size set "
+		       "to %d bytes\n", linenumber, max_block_size);
 		}
 	      if (word)
 		free (word);
@@ -792,12 +792,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      if (new_dev_len > 0)
 		{
 		  /* this is a 1200 UB */
-		  new_dev[new_dev_len - 1]->chip->scanner_type 
-		    = MT_1200UB;
-		  new_dev[new_dev_len - 1]->sane.model 
-		    = "1200 UB";
+		  new_dev[new_dev_len - 1]->chip->scanner_type = MT_1200UB;
+		  new_dev[new_dev_len - 1]->sane.model = "1200 UB";
 		  DBG (3, "sane_init: config file line %d: `%s' is a Mustek "
-		       "1200 UB\n", linenumber, 
+		       "1200 UB\n", linenumber,
 		       new_dev[new_dev_len - 1]->sane.name);
 		}
 	      else
@@ -815,12 +813,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      if (new_dev_len > 0)
 		{
 		  /* this is a 1200 CU */
-		  new_dev[new_dev_len - 1]->chip->scanner_type 
-		    = MT_1200CU;
-		  new_dev[new_dev_len - 1]->sane.model 
-		    = "1200 CU";
+		  new_dev[new_dev_len - 1]->chip->scanner_type = MT_1200CU;
+		  new_dev[new_dev_len - 1]->sane.model = "1200 CU";
 		  DBG (3, "sane_init: config file line %d: `%s' is a Mustek "
-		       "1200 CU\n", linenumber, 
+		       "1200 CU\n", linenumber,
 		       new_dev[new_dev_len - 1]->sane.name);
 		}
 	      else
@@ -837,13 +833,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    {
 	      if (new_dev_len > 0)
 		{
-		  /* this is a 1200 CU Plus*/
-		  new_dev[new_dev_len - 1]->chip->scanner_type 
+		  /* this is a 1200 CU Plus */
+		  new_dev[new_dev_len - 1]->chip->scanner_type
 		    = MT_1200CU_PLUS;
-		  new_dev[new_dev_len - 1]->sane.model 
-		    = "1200 CU Plus";
+		  new_dev[new_dev_len - 1]->sane.model = "1200 CU Plus";
 		  DBG (3, "sane_init: config file line %d: `%s' is a Mustek "
-		       "1200 CU Plus\n", linenumber, 
+		       "1200 CU Plus\n", linenumber,
 		       new_dev[new_dev_len - 1]->sane.name);
 		}
 	      else
@@ -861,12 +856,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      if (new_dev_len > 0)
 		{
 		  /* this is a 600 CU */
-		  new_dev[new_dev_len - 1]->chip->scanner_type 
-		    = MT_600CU;
-		  new_dev[new_dev_len - 1]->sane.model 
-		    = "600 CU";
+		  new_dev[new_dev_len - 1]->chip->scanner_type = MT_600CU;
+		  new_dev[new_dev_len - 1]->sane.model = "600 CU";
 		  DBG (3, "sane_init: config file line %d: `%s' is a Mustek "
-		       "600 CU\n", linenumber, 
+		       "600 CU\n", linenumber,
 		       new_dev[new_dev_len - 1]->sane.name);
 		}
 	      else
@@ -879,7 +872,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		free (word);
 	      word = 0;
 	    }
-	  else 
+	  else
 	    {
 	      DBG (3, "sane_init: config file line %d: option "
 		   "%s is unknown\n", linenumber, word);
@@ -889,7 +882,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    }
 	}
       else
-	{ 
+	{
 	  new_dev_len = 0;
 	  DBG (4, "sane_init: config file line %d: trying to attach `%s'\n",
 	       linenumber, line);
@@ -898,10 +891,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    free (word);
 	  word = 0;
 	}
-    }     
+    }
 
   if (new_dev_alloced > 0)
-    {     
+    {
       new_dev_len = new_dev_alloced = 0;
       free (new_dev);
     }
@@ -917,7 +910,7 @@ sane_exit (void)
 {
   Mustek_Usb_Device *dev, *next;
   SANE_Status status;
-  
+
   DBG (5, "sane_exit: start\n");
   for (dev = first_dev; dev; dev = next)
     {
@@ -937,7 +930,8 @@ sane_exit (void)
 	{
 	  status = usb_high_scan_exit (dev);
 	  if (status != SANE_STATUS_GOOD)
-	    DBG (3, "sane_exit: while closing %s, usb_high_scan_exit returned: "
+	    DBG (3,
+		 "sane_exit: while closing %s, usb_high_scan_exit returned: "
 		 "%s\n", dev->name, sane_strstatus (status));
 	}
       free ((void *) dev->name);
@@ -953,22 +947,22 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   Mustek_Usb_Device *dev;
   SANE_Int dev_num;
-  
-  DBG (5, "sane_get_devices: start: local_only = %s\n", 
+
+  DBG (5, "sane_get_devices: start: local_only = %s\n",
        local_only == SANE_TRUE ? "true" : "false");
 
   if (devlist)
     free (devlist);
-  
+
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
   if (!devlist)
     return SANE_STATUS_NO_MEM;
-  
+
   dev_num = 0;
-  for (dev = first_dev; dev_num < num_devices; dev = dev->next) 
+  for (dev = first_dev; dev_num < num_devices; dev = dev->next)
     devlist[dev_num++] = &dev->sane;
   devlist[dev_num++] = 0;
-  
+
   *device_list = devlist;
 
   DBG (5, "sane_get_devices: exit\n");
@@ -983,20 +977,21 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   SANE_Status status;
   Mustek_Usb_Scanner *s;
   SANE_Int value;
-  
+
   DBG (5, "sane_open: start (devicename = `%s')\n", devicename);
 
   if (devicename[0])
     {
       for (dev = first_dev; dev; dev = dev->next)
-	if (strcmp (dev->sane.name, devicename) == 0) 
+	if (strcmp (dev->sane.name, devicename) == 0)
 	  break;
-      
+
       if (!dev)
 	{
-	  DBG (5, "sane_open: couldn't find `%s' in devlist, trying attach)\n",
+	  DBG (5,
+	       "sane_open: couldn't find `%s' in devlist, trying attach)\n",
 	       devicename);
-	  RIE(attach (devicename, &dev, SANE_TRUE));
+	  RIE (attach (devicename, &dev, SANE_TRUE));
 	}
       else
 	DBG (5, "sane_open: found `%s' in devlist\n", dev->name);
@@ -1008,14 +1003,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       if (dev)
 	DBG (5, "sane_open: empty devicename, trying `%s'\n", dev->name);
     }
-  
+
   if (!dev)
     return SANE_STATUS_INVAL;
-  
+
   if (dev->chip->scanner_type == MT_UNKNOWN)
     {
       DBG (0, "sane_open: the type of your scanner is unknown, edit "
-	  "mustek_usb.conf before using the scanner\n");
+	   "mustek_usb.conf before using the scanner\n");
       return SANE_STATUS_INVAL;
     }
   s = malloc (sizeof (*s));
@@ -1023,18 +1018,18 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     return SANE_STATUS_NO_MEM;
   memset (s, 0, sizeof (*s));
   s->hw = dev;
-  
-  RIE(init_options (s));
-  
+
+  RIE (init_options (s));
+
   /* insert newly opened handle into list of open handles: */
   s->next = first_handle;
   first_handle = s;
-  
+
   *handle = s;
   strcpy (s->hw->device_name, dev->name);
 
-  RIE(usb_high_scan_turn_power (s->hw, SANE_TRUE));
-  RIE(usb_high_scan_back_home (s->hw));
+  RIE (usb_high_scan_turn_power (s->hw, SANE_TRUE));
+  RIE (usb_high_scan_back_home (s->hw));
 
   s->hw->scan_buffer = (SANE_Byte *) malloc (SCAN_BUFFER_SIZE * 2);
   if (!s->hw->scan_buffer)
@@ -1069,7 +1064,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   s->green_table = s->linear_gamma_table;
   s->blue_table = s->linear_gamma_table;
   s->gray_table = s->linear_gamma_table;
-  
+
   DBG (5, "sane_open: exit\n");
 
   return SANE_STATUS_GOOD;
@@ -1080,7 +1075,7 @@ sane_close (SANE_Handle handle)
 {
   Mustek_Usb_Scanner *prev, *s;
   SANE_Status status;
-  
+
   DBG (5, "sane_close: start\n");
 
   /* remove handle from list of open handles: */
@@ -1094,14 +1089,14 @@ sane_close (SANE_Handle handle)
   if (!s)
     {
       DBG (5, "close: invalid handle %p\n", handle);
-      return; /* oops, not a handle we know about */
+      return;			/* oops, not a handle we know about */
     }
-  
+
   if (prev)
     prev->next = s->next;
   else
     first_handle = s->next;
-  
+
   if (s->hw->is_open)
     {
       status = usb_high_scan_turn_power (s->hw, SANE_FALSE);
@@ -1145,7 +1140,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
-  DBG (5, "sane_get_option_descriptor: option = %s (%d)\n", 
+  DBG (5, "sane_get_option_descriptor: option = %s (%d)\n",
        s->opt[option].name, option);
   return s->opt + option;
 }
@@ -1160,11 +1155,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Int myinfo = 0;
 
   DBG (5, "sane_control_option: start: action = %s, option = %s (%d)\n",
-       (action == SANE_ACTION_GET_VALUE) ? "get" : 
+       (action == SANE_ACTION_GET_VALUE) ? "get" :
        (action == SANE_ACTION_SET_VALUE) ? "set" :
        (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
        s->opt[option].name, option);
-  
+
   if (info)
     *info = 0;
 
@@ -1174,22 +1169,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	   "scanning\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
-  
+
   if (option >= NUM_OPTIONS || option < 0)
     {
       DBG (1, "sane_control_option: option %d >= NUM_OPTIONS || option < 0\n",
 	   option);
       return SANE_STATUS_INVAL;
     }
-  
+
   cap = s->opt[option].cap;
-  
+
   if (!SANE_OPTION_IS_ACTIVE (cap))
     {
       DBG (2, "sane_control_option: option %d is inactive\n", option);
       return SANE_STATUS_INVAL;
     }
-  
+
   if (action == SANE_ACTION_GET_VALUE)
     {
       switch (option)
@@ -1215,7 +1210,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 	  /* string options: */
 	case OPT_MODE:
-	  strcpy(val, s->val[option].s);
+	  strcpy (val, s->val[option].s);
 	  break;
 	default:
 	  DBG (2, "sane_control_option: can't get unknown option %d\n",
@@ -1229,16 +1224,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  DBG (2, "sane_control_option: option %d is not settable\n", option);
 	  return SANE_STATUS_INVAL;
 	}
-      
+
       status = sanei_constrain_value (s->opt + option, val, &myinfo);
-      
+
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (2, "sane_control_option: sanei_constrain_value returned %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
-      
+
       switch (option)
 	{
 	  /* (mostly) side-effect-free word options: */
@@ -1248,7 +1243,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	  s->val[option].w = *(SANE_Word *) val;
-	  RIE(calc_parameters (s));
+	  RIE (calc_parameters (s));
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
 	case OPT_BRIGHTNESS:
@@ -1279,7 +1274,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 	      else if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
 		{
-		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
@@ -1291,7 +1286,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->green_table = s->linear_gamma_table;
 	      s->blue_table = s->linear_gamma_table;
 	      s->gray_table = s->linear_gamma_table;
-	      s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+	      s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
@@ -1301,8 +1296,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
-	  
-	  RIE(calc_parameters(s));
+
+	  RIE (calc_parameters (s));
 
 	  s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
@@ -1311,7 +1306,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 
-	  if (strcmp(val, "Lineart") == 0)
+	  if (strcmp (val, "Lineart") == 0)
 	    {
 	      s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
 	    }
@@ -1332,7 +1327,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  DBG (2, "sane_control_option: can't set unknown option %d\n",
 	       option);
 	}
-    } 
+    }
   else
     {
       DBG (2, "sane_control_option: unknown action %d for option %d\n",
@@ -1351,10 +1346,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Mustek_Usb_Scanner *s = handle;
   SANE_Status status;
-  
+
   DBG (5, "sane_get_parameters: start\n");
 
-  RIE(calc_parameters (s));
+  RIE (calc_parameters (s));
   if (params)
     *params = s->params;
 
@@ -1376,10 +1371,10 @@ sane_start (SANE_Handle handle)
 
   /* First make sure we have a current parameter set.  Some of the
      parameters will be overwritten below, but that's OK.  */
-  
+
   s->total_bytes = 0;
   s->total_lines = 0;
-  RIE(calc_parameters (s));
+  RIE (calc_parameters (s));
 
   if (s->width_dots <= 0)
     {
@@ -1391,17 +1386,17 @@ sane_start (SANE_Handle handle)
       DBG (0, "sane_start: top left y > bottom right y --- exiting\n");
       return SANE_STATUS_INVAL;
     }
-    
+
 
   val = s->val[OPT_MODE].s;
   if (!strcmp (val, "Lineart"))
     color_mode = GRAY8;
   else if (!strcmp (val, "Gray"))
     color_mode = GRAY8;
-  else /* Color */
+  else				/* Color */
     color_mode = RGB24;
-  
-  dpi = SANE_UNFIX(s->val[OPT_RESOLUTION].w);
+
+  dpi = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
   x = s->tl_x_dots;
   y = s->tl_y_dots;
   width = s->width_dots;
@@ -1409,25 +1404,25 @@ sane_start (SANE_Handle handle)
 
   if (!s->hw->is_prepared)
     {
-      RIE(usb_high_scan_prepare (s->hw));
-      RIE(usb_high_scan_reset (s->hw));
+      RIE (usb_high_scan_prepare (s->hw));
+      RIE (usb_high_scan_reset (s->hw));
     }
-  RIE(usb_high_scan_set_threshold (s->hw, 128));
-  RIE(usb_high_scan_embed_gamma (s->hw, NULL));
-  RIE(usb_high_scan_suggest_parameters (s->hw, dpi, x, y, width, height,
-					color_mode));
-  RIE(usb_high_scan_setup_scan (s->hw, s->hw->scan_mode, s->hw->x_dpi,
-				s->hw->y_dpi, 0, s->hw->x, s->hw->y,
-				s->hw->width));
+  RIE (usb_high_scan_set_threshold (s->hw, 128));
+  RIE (usb_high_scan_embed_gamma (s->hw, NULL));
+  RIE (usb_high_scan_suggest_parameters (s->hw, dpi, x, y, width, height,
+					 color_mode));
+  RIE (usb_high_scan_setup_scan (s->hw, s->hw->scan_mode, s->hw->x_dpi,
+				 s->hw->y_dpi, 0, s->hw->x, s->hw->y,
+				 s->hw->width));
 
   DBG (3, "sane_start: wanted: dpi=%d, x=%d, y=%d, width=%d, height=%d, "
        "scan_mode=%d\n", dpi, x, y, width, height, color_mode);
   DBG (3, "sane_start: got: x_dpi=%d, y_dpi=%d, x=%d, y=%d, width=%d, "
        "height=%d, scan_mode=%d\n", s->hw->x_dpi, s->hw->y_dpi, s->hw->x,
        s->hw->y, s->hw->width, s->hw->height, s->hw->scan_mode);
-  
+
   s->scanning = SANE_TRUE;
-  s->read_rows = s->hw->height; 
+  s->read_rows = s->hw->height;
   s->hw->line_switch = s->hw->height;
   s->hw->line_offset = 0;
   s->hw->scan_buffer_len = 0;
@@ -1463,7 +1458,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       DBG (1, "sane_read: len is null!\n");
       return SANE_STATUS_INVAL;
     }
-  
+
   *len = 0;
 
   if (!s->scanning)
@@ -1481,13 +1476,13 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  if (lines_to_read > s->read_rows)
 	    lines_to_read = s->read_rows;
 	  s->hw->temp_buffer_start = s->hw->temp_buffer;
-	  s->hw->temp_buffer_len = (s->hw->width * s->hw->bpp / 8) 
+	  s->hw->temp_buffer_len = (s->hw->width * s->hw->bpp / 8)
 	    * lines_to_read;
 	  DBG (4, "sane_read: reading %d source lines\n", lines_to_read);
-	  RIE(usb_high_scan_get_rows (s->hw, s->hw->temp_buffer,
-				      lines_to_read, SANE_FALSE));
-	  RIE(fit_lines (s, s->hw->temp_buffer, s->hw->scan_buffer,
-			 lines_to_read, &lines_read));
+	  RIE (usb_high_scan_get_rows (s->hw, s->hw->temp_buffer,
+				       lines_to_read, SANE_FALSE));
+	  RIE (fit_lines (s, s->hw->temp_buffer, s->hw->scan_buffer,
+			  lines_to_read, &lines_read));
 	  s->read_rows -= lines_to_read;
 	  if ((s->total_lines + lines_read) > s->height_dots)
 	    lines_read = s->height_dots - s->total_lines;
@@ -1495,9 +1490,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  DBG (4, "sane_read: %d destination lines, %d total\n",
 	       lines_read, s->total_lines);
 	  s->hw->scan_buffer_start = s->hw->scan_buffer;
-	  s->hw->scan_buffer_len = (s->width_dots * s->bpp / 8) 
-	    * lines_read;
-	} 
+	  s->hw->scan_buffer_len = (s->width_dots * s->bpp / 8) * lines_read;
+	}
       else
 	{
 	  DBG (4, "sane_read: scan finished -- exit\n");
@@ -1525,16 +1519,16 @@ sane_cancel (SANE_Handle handle)
 {
   Mustek_Usb_Scanner *s = handle;
   SANE_Status status;
-  
+
   DBG (5, "sane_cancel: start\n");
 
   status = usb_high_scan_stop_scan (s->hw);
   if (status != SANE_STATUS_GOOD)
-    DBG (3, "sane_cancel: usb_high_scan_stop_scan returned `%s' for `%s'\n", 
+    DBG (3, "sane_cancel: usb_high_scan_stop_scan returned `%s' for `%s'\n",
 	 sane_strstatus (status), s->hw->name);
   usb_high_scan_back_home (s->hw);
   if (status != SANE_STATUS_GOOD)
-    DBG (3, "sane_cancel: usb_high_scan_back_home returned `%s' for `%s'\n", 
+    DBG (3, "sane_cancel: usb_high_scan_back_home returned `%s' for `%s'\n",
 	 sane_strstatus (status), s->hw->name);
 
   if (s->scanning)
@@ -1562,7 +1556,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Mustek_Usb_Scanner *s = handle;
 
-  DBG (5, "sane_set_io_mode: handle = %p, non_blocking = %s\n", 
+  DBG (5, "sane_set_io_mode: handle = %p, non_blocking = %s\n",
        handle, non_blocking == SANE_TRUE ? "true" : "false");
   if (!s->scanning)
     {

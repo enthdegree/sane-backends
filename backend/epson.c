@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.04 - 2001-05-13"
-#define SANE_EPSON_BUILD	204
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.05 - 2001-05-19"
+#define SANE_EPSON_BUILD	205
 
 /*
    This file is part of the SANE package.
@@ -59,15 +59,19 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
-   2000-05-13	Version 0.2.04
+   2001-05-19   Version  0.2.05
+		fixed the year in the recent change log entries - I now that it's
+		2001...
+		Finally fixed the TPU problem with B4 level scanners
+   2001-05-13	Version 0.2.04
 		Removed check for '\n' before end of line
 		Free memory malloced in sane_get_devices() in sane_exit() again
-   2000-04-22	Version 0.2.03
+   2001-04-22	Version 0.2.03
 		Check first if the scanner does support the set film type
 		and set focus position before the GUI elements are displayed.
 		This caused problems with older (B4 level) scanners when a TPU
 		was connected.
-   2000-03-31   Version 0.2.02
+   2001-03-31   Version 0.2.02
    2001-03-17   Next attempt to get the reported number of lines correct
    		for the "color shuffling" part.
 		Added more comments.
@@ -810,6 +814,9 @@ static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Stat
 static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status);
 static SANE_Status color_shuffle(SANE_Handle handle, int *new_length);
 static SANE_Status request_focus_position(SANE_Handle handle, u_char * position);
+static void sane_activate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
+static void sane_deactivate( Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
+static void sane_optstate( SANE_Bool state, Epson_Scanner * s, SANE_Int option, SANE_Bool * change);
 
 /*
  *
@@ -2123,6 +2130,7 @@ SANE_Status sane_get_devices ( const SANE_Device * * * device_list, SANE_Bool lo
 
 static SANE_Status init_options ( Epson_Scanner * s) {
 	int i;
+	SANE_Bool dummy;
 
 	for( i = 0; i < NUM_OPTIONS; ++i) {
 		s->opt[ i].size = sizeof( SANE_Word);
@@ -2694,8 +2702,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 		s->val[ OPT_FILM_TYPE].w	= 0;
 
-		s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;		/* default is inactive */
-
+		sane_deactivate(s, OPT_FILM_TYPE, &dummy);	/* default is inactive */
 
 		/* focus position */
 		s->opt[ OPT_FOCUS].name = SANE_EPSON_FOCUS_NAME;
@@ -2719,7 +2726,9 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 #if 0
 		if( ( ! s->hw->TPU) && ( ! s->hw->cmd->set_bay) ) {		/* Hack: Using set_bay to indicate. */
-			s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
+			SANE_Bool dummy;
+			sane_deactivate(s, OPT_FILM_TYPE, &dummy);
+			
 		}
 #endif
 
@@ -3216,16 +3225,20 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->y_range = &s->hw->adf_y_range;
 		s->hw->use_extension = SANE_TRUE;
 		/* disable film type option */
-		s->opt[ OPT_FILM_TYPE].cap &= ~SANE_CAP_INACTIVE;
+		sane_deactivate(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
 	} else if( ! strcmp( TPU_STR, value) ) {
 		s->hw->x_range = &s->hw->tpu_x_range;
 		s->hw->y_range = &s->hw->tpu_y_range;
 		s->hw->use_extension = SANE_TRUE;
-		/* enable film type option if the scanner supports it */
+		/* enable film type option only if the scanner supports it */
 		if (s->hw->cmd->set_film_type != 0)
 		{
-			s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
+			sane_activate(s, OPT_FILM_TYPE, &dummy);
+		}
+		else
+		{
+			sane_deactivate(s, OPT_FILM_TYPE, &dummy);
 		}
 		/* enable focus position if the scanner supports it */
 		if (s->hw->cmd->set_focus_position != 0)
@@ -3238,7 +3251,7 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->y_range = &s->hw->fbf_y_range;
 		s->hw->use_extension = SANE_FALSE;
 		/* disable film type option */
-		s->opt[ OPT_FILM_TYPE].cap &= ~SANE_CAP_INACTIVE;
+		sane_deactivate(s, OPT_FILM_TYPE, &dummy);
 		s->val[ OPT_FOCUS].w = 0;
 	}
 
@@ -3262,8 +3275,6 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 	if( s->val[ OPT_BR_Y].w > s->hw->y_range->max || force_max)
 		s->val[ OPT_BR_Y].w = s->hw->y_range->max;
 
-	sane_optstate( s->hw->TPU && s->hw->use_extension,
-		s, OPT_FILM_TYPE, &dummy );
 	sane_optstate( s->hw->ADF && s->hw->use_extension,
 		s, OPT_AUTO_EJECT, &dummy );
 	sane_optstate( s->hw->ADF && s->hw->use_extension,
@@ -3869,11 +3880,8 @@ SANE_Status sane_start ( SANE_Handle handle)
 	s->invert_image = SANE_FALSE;	/* default to not inverting the image */
 
 	if( SANE_OPTION_IS_ACTIVE( s->opt[ OPT_FILM_TYPE].cap) ) {
-
 		s->invert_image = (s->val[ OPT_FILM_TYPE].w == FILM_TYPE_NEGATIVE);
-
 		status = set_film_type( s, film_params[ s->val[ OPT_FILM_TYPE].w]);
-
 		if( SANE_STATUS_GOOD != status) {
 			DBG( 1, "sane_start: set_film_type failed: %s\n", sane_strstatus( status));
 			return status;

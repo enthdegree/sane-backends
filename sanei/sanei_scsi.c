@@ -121,7 +121,7 @@
 #  ifdef HAVE_SYS_PASSTHRUDEF_H 
 #   define USE SCO_UW71_INTERFACE 
 #   include <sys/scsi.h> 
-#   include <sys/sdi_edt.h> 
+#   include <sys/sdi_edt.h>
 #   include <sys/sdi.h> 
 #   include <sys/passthrudef.h> 
 #  else 
@@ -321,10 +321,12 @@ typedef struct req
    let's set the sense buffer size to 64.
 */
 #define SENSE_MAX 64
+#define MAX_CDB 12
         struct
           {
             struct sg_io_hdr hdr;
             u_char sense_buffer[SENSE_MAX];
+            u_int8_t data[1];
           } sg3;
 #endif
       }
@@ -335,7 +337,7 @@ req;
 typedef struct Fdparms
   {
     int sg_queue_used, sg_queue_max;
-    int buffersize;
+    size_t buffersize;
     req *sane_qhead, *sane_qtail, *sane_free_list;
   }
 fdparms;
@@ -1874,7 +1876,8 @@ sanei_scsi_req_enter2 (int fd,
              + fdp->buffersize);
 #ifdef SG_IO
       else
-        size = sizeof(*req);
+        size = sizeof(*req) + MAX_CDB + fdp->buffersize 
+             - sizeof(req->sgdata.sg3.data);
 #endif
       req = malloc (size);
       if (!req)
@@ -1928,14 +1931,30 @@ sanei_scsi_req_enter2 (int fd,
       else if (src_size)
         {
           req->sgdata.sg3.hdr.dxfer_direction = SG_DXFER_TO_DEV;
+          if (src_size > fdp->buffersize) 
+            {
+              DBG(1, "sanei_scsi_req_enter2 warning: truncating write data "
+                     "from requested %i bytes to allowed %i bytes\n",
+                     src_size, fdp->buffersize);
+              src_size = fdp->buffersize;
+            }
           req->sgdata.sg3.hdr.dxfer_len = src_size;
-          (const void*) req->sgdata.sg3.hdr.dxferp = src;
+          memcpy(&req->sgdata.sg3.data[MAX_CDB], src, src_size);
+          (const void*) req->sgdata.sg3.hdr.dxferp = &req->sgdata.sg3.data[MAX_CDB];
         }
       else
         {
           req->sgdata.sg3.hdr.dxfer_direction = SG_DXFER_NONE;
         }
-      (const void*) req->sgdata.sg3.hdr.cmdp = cmd;
+      if (cmd_size > MAX_CDB)
+        {
+          DBG(1, "sanei_scsi_req_enter2 warning: truncating write data "
+                 "from requested %i bytes to allowed %i bytes\n",
+                 cmd_size, MAX_CDB);
+          cmd_size = MAX_CDB;
+        }
+      memcpy(req->sgdata.sg3.data, cmd, cmd_size);
+      (const void*) req->sgdata.sg3.hdr.cmdp = req->sgdata.sg3.data;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       /* 10 minutes should be ok even for slow scanners */
       req->sgdata.sg3.hdr.timeout = 1000 * 60 * 10;
@@ -2397,8 +2416,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   char vendor[32], model[32], type[32], revision[32];
   int bus, channel, id, lun;
 
-  int number, i, definedd;
-  char line[256], dev_name[128];
+  int number, i, j, definedd;
+  char line[256], dev_name[128], *c1, *c2, ctmp;
   const char *string;
   FILE *proc_fp;
   char *end;
@@ -2468,20 +2487,41 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	      if (strncmp (string, param[i].name, param[i].name_len) == 0)
 		{
 		  string += param[i].name_len;
+		  /* Make sure that we don't read the next parameter name
+		     as a value, if the real value consists only of spaces
+		  */
+		  c2 = string + strlen(string);
+		  for (j = 0; j < NELEMS(param); ++j) 
+		    {
+		      c1 = strstr(string, param[j].name);
+		      if ((j != i) && c1 && (c1 < c2))
+		        c2 = c1;
+		    }
+		  ctmp = *c2;
+		  *c2 = 0;
 		  string = sanei_config_skip_whitespace (string);
+		  
 		  if (param[i].is_int)
 		    {
-		      *param[i].u.i = strtol (string, &end, 10);
-		      string = (char *) end;
+		      if (*string)
+		        {
+		          *param[i].u.i = strtol (string, &end, 10);
+		          string = (char *) end;
+		        }
+		      else
+		         *param[i].u.i = 0;
 		    }
 		  else
 		    {
 		      strncpy (param[i].u.str, string, 32);
 		      param[i].u.str[31] = '\0';
-		      while (*string && !isspace (*string))
+		      /* while (*string && !isspace (*string))
 			++string;
+		      */
 		    }
-		  string = sanei_config_skip_whitespace (string);
+		  /* string = sanei_config_skip_whitespace (string); */
+		  *c2 = ctmp;
+		  string = c2;
 		  definedd |= 1 << i;
 
 		  if (param[i].u.v == &bus)

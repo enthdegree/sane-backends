@@ -1078,7 +1078,7 @@ prescan (Coolscan_t * s)
   return ret;
 }
 
-SANE_Status
+static SANE_Status
 do_prescan_now (Coolscan_t * scanner)
 {
 
@@ -2201,7 +2201,7 @@ typedef struct Color_correct_s
                            
   ----------------------------------------------------------------*/
 
-int Calc_fix_LUT(Coolscan_t * s)
+static int Calc_fix_LUT(Coolscan_t * s)
 { int uselutr,uselutg,uselutb,useluti;    
 /*  static int irmulr= -34*25; */
    int irmulr= -64*25;
@@ -2288,7 +2288,7 @@ int Calc_fix_LUT(Coolscan_t * s)
                            
   ----------------------------------------------------------------*/
 
-int RGBIfix(Coolscan_t * scanner,
+static int RGBIfix(Coolscan_t * scanner,
 	    unsigned char* rgbimat,
 	    unsigned char* orgbimat, 	   
 	    int size,
@@ -2355,7 +2355,7 @@ int RGBIfix(Coolscan_t * scanner,
                            
   ----------------------------------------------------------------*/
 
-int RGBIfix16(Coolscan_t * scanner,
+static int RGBIfix16(Coolscan_t * scanner,
 	      unsigned short* rgbimat,
 	      unsigned short* orgbimat, 	   
 	      int size,
@@ -2407,7 +2407,7 @@ int RGBIfix16(Coolscan_t * scanner,
 #define GtoG ((int)(0.54*256))
 #define BtoG ((int)(0.19*256))
 
-int rgb2g(unsigned char* rgbimat,unsigned char* gomat, 	   
+static int rgb2g(unsigned char* rgbimat,unsigned char* gomat, 	   
 	  int size)
 	    
 {  unsigned char *pr,*pg,*pb;
@@ -2452,7 +2452,7 @@ int rgb2g(unsigned char* rgbimat,unsigned char* gomat,
                            
   ----------------------------------------------------------------*/
 
-int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat, 	   
+static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat, 	   
 	    int size,
 	    int *lutr,
 	    int *lutg,

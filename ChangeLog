@@ -1,8 +1,13 @@
+2004-01-13  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/sane-plustek_pp.man: added missing explanation. Bug #300441.
+	* include/sane/sanei_thread.h: updated copyright info.
+	* sanei/sanei_thread.c: fixed return value handling for sanei_wait_pid().
+
 2004-01-12  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson.c: Fixed bug # 300444 - Changed OPT_CCT_( desc. string. 
+	* backend/epson.c: Fixed bug # 300444 - Changed OPT_CCT_( desc. string.
 
-2004-01-10  Oliver Rauch <oliver.rauch@rauch-domain.de>
+2004-01-12  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax backend/Makefile.in: repleaced fork routines by sanei_thread
 	* doc/umax/umax.CHANGES updated
 

@@ -169,6 +169,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner24",    PRISA5300},
     {"FlatbedScanner25",    PRISA5000},
     {"FlatbedScanner40",    PRISA5000}, /* 5250C */
+    {"FlatbedScanner42",    PRISA5000}, /* 5000S */
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
     {"SNAPSCAN e10",        SNAPSCANE20},
@@ -405,6 +406,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.33  2005/02/08 22:17:53  oliver-guest
+ * Added IDs for Benq 5250C and 5000S
+ *
  * Revision 1.32  2005/01/18 20:36:13  oliver-guest
  * Added ID for Benq 5250C
  *

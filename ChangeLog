@@ -1,3 +1,8 @@
+2005-02-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h backend/snapscan.conf
+	  Added IDs for Benq 5250C and 5000S
+
 2005-02-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_pp.c: Cleanup, uses now static array for parport

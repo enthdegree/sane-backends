@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/gt68xx.conf: Updated status of scanners.
 	* doc/doxygen.conf: Increased version to 1.0.9.
+	* configure configure.in: New version: 1.0.9. Disabled compilation
+	  warnings.
 
 2002-10-23  Stéphane Voltz  <svoltz@wanadoo.fr>
 

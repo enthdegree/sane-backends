@@ -109,6 +109,16 @@ Contains a list of hosts permitted to access local SANE devices (see
 also description of
 .B SANE_CONFIG_DIR
 below).
+.TP
+.I @CONFIGDIR@/saned.users
+If this file contains lines of the form
+.PP
+.RS
+backend:user:password
+.PP
+access to the listed backends is restricted. A backend may be listed multiple
+times for different user/password combinations. The server uses MD5 encryption
+if supported by the client.
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR

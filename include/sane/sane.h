@@ -178,8 +178,8 @@ SANE_Parameters;
 
 struct SANE_Auth_Data;
 
-#define SANE_MAX_USERNAME_LEN	256
-#define SANE_MAX_PASSWORD_LEN	256
+#define SANE_MAX_USERNAME_LEN	128
+#define SANE_MAX_PASSWORD_LEN	128
 
 typedef void (*SANE_Auth_Callback) (SANE_String_Const resource,
 				    SANE_Char username[SANE_MAX_USERNAME_LEN],

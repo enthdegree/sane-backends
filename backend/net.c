@@ -563,11 +563,11 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
         return status;
     }
 
+  sanei_w_call (&dev->wire, SANE_NET_OPEN,
+                (WireCodecFunc) sanei_w_string, &dev_name,
+                (WireCodecFunc) sanei_w_open_reply, &reply);
   do
     {
-      sanei_w_call (&dev->wire, SANE_NET_OPEN,
-                    (WireCodecFunc) sanei_w_string, &dev_name,
-                    (WireCodecFunc) sanei_w_open_reply, &reply);
       if (dev->wire.status != 0)
         {
           DBG(1, "open rpc call failed (%s)\n", strerror (dev->wire.status));
@@ -579,9 +579,19 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       need_auth = (reply.resource_to_authorize != 0);
 
       if (need_auth)
-        do_authorization (dev, reply.resource_to_authorize);
+	{
+          do_authorization (dev, reply.resource_to_authorize);
 
-      sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
+	  sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
+
+	  sanei_w_set_dir (&dev->wire, WIRE_DECODE);
+	  sanei_w_open_reply (&dev->wire, &reply);
+
+	  continue;
+	  
+	}
+      else
+        sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
 
       if (need_auth && !dev->auth_active)
         return SANE_STATUS_CANCELLED;
@@ -699,15 +709,26 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   req.value_size = value_size;
   req.value = value;
 
+  sanei_w_call (&s->hw->wire, SANE_NET_CONTROL_OPTION,
+                (WireCodecFunc) sanei_w_control_option_req, &req,
+                (WireCodecFunc) sanei_w_control_option_reply, &reply);
+  
   do
     {
-      sanei_w_call (&s->hw->wire, SANE_NET_CONTROL_OPTION,
-                    (WireCodecFunc) sanei_w_control_option_req, &req,
-                    (WireCodecFunc) sanei_w_control_option_reply, &reply);
       status = reply.status;
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
-        do_authorization (s->hw, reply.resource_to_authorize);
+	{
+          do_authorization (s->hw, reply.resource_to_authorize);
+          sanei_w_free (&s->hw->wire,
+                    (WireCodecFunc) sanei_w_control_option_reply, &reply);
+
+	  sanei_w_set_dir (&s->hw->wire, WIRE_DECODE);
+
+	  sanei_w_control_option_reply (&s->hw->wire, &reply);
+	  continue;
+	  
+	}
       else if (status == SANE_STATUS_GOOD)
         {
           if (info)
@@ -785,17 +806,28 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
+  sanei_w_call (&s->hw->wire, SANE_NET_START,
+               (WireCodecFunc) sanei_w_word, &s->handle,
+               (WireCodecFunc) sanei_w_start_reply, &reply);
   do
     {
-      sanei_w_call (&s->hw->wire, SANE_NET_START,
-                    (WireCodecFunc) sanei_w_word, &s->handle,
-                    (WireCodecFunc) sanei_w_start_reply, &reply);
 
       status = reply.status;
       port = reply.port;
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
-        do_authorization (s->hw, reply.resource_to_authorize);
+	{
+          do_authorization (s->hw, reply.resource_to_authorize);
+
+	  sanei_w_free (&s->hw->wire,
+			 (WireCodecFunc) sanei_w_start_reply, &reply);
+
+	  sanei_w_set_dir (&s->hw->wire, WIRE_DECODE);
+
+	  sanei_w_start_reply (&s->hw->wire, &reply);
+
+	  continue;
+	}
       sanei_w_free (&s->hw->wire, (WireCodecFunc) sanei_w_start_reply, &reply);
       if (need_auth && !s->hw->auth_active)
         return SANE_STATUS_CANCELLED;

@@ -21,7 +21,7 @@
  */
 
 #ifdef _AIX
-# include <lalloca.h>   /* MUST come first for AIX! */
+# include <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
 #include <sane/config.h>
@@ -35,12 +35,16 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#ifdef NEED_STRINGS_H
+# include <strings.h>
+#else
+# include <string.h>
+#endif
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
 #ifdef HAVE_LIBC_H
-# include <libc.h>      /* NeXTStep/OpenStep */
+# include <libc.h>		/* NeXTStep/OpenStep */
 #endif
 
 #ifdef HAVE_SYS_SELECT_H
@@ -62,6 +66,8 @@
 #include <sane/sanei_codec_bin.h>
 #include <sane/sanei_config.h>
 
+#include "../include/sane/sanei_auth.h"
+
 #ifndef EXIT_SUCCESS
 # define EXIT_SUCCESS   0
 #endif
@@ -79,12 +85,12 @@
 
 
 typedef struct
-  {
-    u_int inuse : 1;                    /* is this handle in use? */
-    u_int scanning : 1;                 /* are we scanning? */
-    u_int docancel : 1;                 /* cancel the current scan */
-    SANE_Handle handle;                 /* backends handle */
-  }
+{
+  u_int inuse:1;		/* is this handle in use? */
+  u_int scanning:1;		/* are we scanning? */
+  u_int docancel:1;		/* cancel the current scan */
+  SANE_Handle handle;		/* backends handle */
+}
 Handle;
 
 static SANE_Net_Procedure_Number current_request;
@@ -95,10 +101,10 @@ static int num_handles;
 static int debug;
 static Handle *handle;
 static union
-  {
-    int w;
-    u_char ch;
-  }
+{
+  int w;
+  u_char ch;
+}
 byte_order;
 
 /* The default-user name.  This is not used to imply any rights.  All
@@ -112,17 +118,17 @@ static char *remote_hostname;
 # define _PATH_HEQUIV   "/etc/hosts.equiv"
 #endif
 
-static const char *config_file_names[] =
-  {
-    _PATH_HEQUIV, SANED_CONFIG_FILE
-  };
+static const char *config_file_names[] = {
+  _PATH_HEQUIV, SANED_CONFIG_FILE
+};
 
 /* forward declarations: */
-static void process_request (Wire *w);
+static void process_request (Wire * w);
 
 #define DBG	saned_debug_call
 
-static void saned_debug_call(int level, const char *fmt, ...)
+static void
+saned_debug_call (int level, const char *fmt, ...)
 {
 #ifndef NDEBUG
   va_list ap;
@@ -143,8 +149,8 @@ reset_watchdog (void)
 
 static void
 auth_callback (SANE_String_Const res,
-               SANE_Char username[SANE_MAX_USERNAME_LEN],
-               SANE_Char password[SANE_MAX_PASSWORD_LEN])
+	       SANE_Char username[SANE_MAX_USERNAME_LEN],
+	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
 {
   SANE_Net_Procedure_Number procnum;
   SANE_Authorization_Req req;
@@ -156,8 +162,8 @@ auth_callback (SANE_String_Const res,
   if (!can_authorize)
     {
       syslog (LOG_ERR,
-              "auth_callback(resource=%s) during non-authorizable RPC\n",
-              res);
+	      "auth_callback(resource=%s) during non-authorizable RPC\n",
+	      res);
       return;
     }
 
@@ -165,38 +171,38 @@ auth_callback (SANE_String_Const res,
     {
     case SANE_NET_OPEN:
       {
-        SANE_Open_Reply reply;
+	SANE_Open_Reply reply;
 
-        memset (&reply, 0, sizeof (reply));
-        reply.resource_to_authorize = (char *) res;
-        sanei_w_reply (&wire, (WireCodecFunc) sanei_w_open_reply, &reply);
+	memset (&reply, 0, sizeof (reply));
+	reply.resource_to_authorize = (char *) res;
+	sanei_w_reply (&wire, (WireCodecFunc) sanei_w_open_reply, &reply);
       }
       break;
 
     case SANE_NET_CONTROL_OPTION:
       {
-        SANE_Control_Option_Reply reply;
+	SANE_Control_Option_Reply reply;
 
-        memset (&reply, 0, sizeof (reply));
-        reply.resource_to_authorize = (char *) res;
-        sanei_w_reply (&wire,
-                       (WireCodecFunc) sanei_w_control_option_reply, &reply);
+	memset (&reply, 0, sizeof (reply));
+	reply.resource_to_authorize = (char *) res;
+	sanei_w_reply (&wire,
+		       (WireCodecFunc) sanei_w_control_option_reply, &reply);
       }
       break;
 
     case SANE_NET_START:
       {
-        SANE_Start_Reply reply;
+	SANE_Start_Reply reply;
 
-        memset (&reply, 0, sizeof (reply));
-        reply.resource_to_authorize = (char *) res;
-        sanei_w_reply (&wire, (WireCodecFunc) sanei_w_start_reply, &reply);
+	memset (&reply, 0, sizeof (reply));
+	reply.resource_to_authorize = (char *) res;
+	sanei_w_reply (&wire, (WireCodecFunc) sanei_w_start_reply, &reply);
       }
       break;
 
     default:
       syslog (LOG_ERR, "auth_callback(resource=%s) for request %d\n",
-              res, current_request);
+	      res, current_request);
       break;
     }
   reset_watchdog ();
@@ -206,8 +212,9 @@ auth_callback (SANE_String_Const res,
   procnum = word;
   if (procnum != SANE_NET_AUTHORIZE)
     {
-      syslog (LOG_ERR, "auth_callback(resource=%s): bad procedure number %d\n",
-              res, procnum);
+      syslog (LOG_ERR,
+	      "auth_callback(resource=%s): bad procedure number %d\n", res,
+	      procnum);
       return;
     }
 
@@ -219,8 +226,8 @@ auth_callback (SANE_String_Const res,
   if (!req.resource || strcmp (req.resource, res) != 0)
     {
       syslog (LOG_WARNING,
-              "auth_callback(resource=%s): got auth for resource %s\n",
-              res, req.resource);
+	      "auth_callback(resource=%s): got auth for resource %s\n",
+	      res, req.resource);
     }
   sanei_w_free (&wire, (WireCodecFunc) sanei_w_authorization_req, &req);
   sanei_w_reply (&wire, (WireCodecFunc) sanei_w_word, &ack);
@@ -233,11 +240,11 @@ quit (int signum)
   int i;
 
   if (signum)
-    DBG(1, "received signal %d\n", signum);
+    DBG (1, "received signal %d\n", signum);
 
   if (running)
     {
-      DBG(1, "quit is already active, returning\n");
+      DBG (1, "quit is already active, returning\n");
       return;
     }
   running = 1;
@@ -249,7 +256,7 @@ quit (int signum)
   sane_exit ();
   syslog (LOG_INFO, "exiting\n");
   closelog ();
-  exit (EXIT_SUCCESS);          /* This is a nowait-daemon. */
+  exit (EXIT_SUCCESS);		/* This is a nowait-daemon. */
 }
 
 static SANE_Word
@@ -262,18 +269,18 @@ get_free_handle (void)
     {
       h = last_handle_checked + 1;
       do
-        {
-          if (h >= num_handles)
-            h = 0;
-          if (!handle[h].inuse)
-            {
-              last_handle_checked = h;
-              memset (handle + h, 0, sizeof (handle[0]));
-              handle[h].inuse = 1;
-              return h;
-            }
-          ++h;
-        }
+	{
+	  if (h >= num_handles)
+	    h = 0;
+	  if (!handle[h].inuse)
+	    {
+	      last_handle_checked = h;
+	      memset (handle + h, 0, sizeof (handle[0]));
+	      handle[h].inuse = 1;
+	      return h;
+	    }
+	  ++h;
+	}
       while (h != last_handle_checked);
     }
 
@@ -285,9 +292,9 @@ get_free_handle (void)
   else
     handle = malloc (num_handles * sizeof (handle[0]));
   if (!handle)
-      return -1;
+    return -1;
   memset (handle + last_handle_checked + 1, 0,
-          ALLOC_INCREMENT*sizeof (handle[0]));
+	  ALLOC_INCREMENT * sizeof (handle[0]));
   return get_free_handle ();
 # undef ALLOC_INCREMENT
 }
@@ -301,7 +308,7 @@ close_handle (int h)
 }
 
 static SANE_Word
-decode_handle (Wire *w, const char * op)
+decode_handle (Wire * w, const char *op)
 {
   SANE_Word h;
 
@@ -309,8 +316,8 @@ decode_handle (Wire *w, const char * op)
   if (w->status || (unsigned) h >= num_handles || !handle[h].inuse)
     {
       syslog (LOG_WARNING,
-              "%s: error while decoding handle argument (h=%d, %s)\n",
-              op, h, strerror (w->status));
+	      "%s: error while decoding handle argument (h=%d, %s)\n",
+	      op, h, strerror (w->status));
       return -1;
     }
   return h;
@@ -322,29 +329,29 @@ check_host (int fd)
 {
   struct sockaddr_in sin;
   int i, j, access_ok = 0;
-  struct hostent * he;
+  struct hostent *he;
   char rhost[1024];
   int len;
   FILE *fp;
 
   if (gethostname (hostname, sizeof (hostname)) < 0)
     {
-      DBG(1, "gethostname: %s\n", strerror (errno));
+      DBG (1, "gethostname: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
 
   /* first, check whether we allow connections from the peer-host: */
   len = sizeof (sin);
-  if (getpeername (fd, (struct sockaddr *)&sin, &len) < 0)
+  if (getpeername (fd, (struct sockaddr *) &sin, &len) < 0)
     {
-      DBG(1, "getpeername: %s\n", strerror (errno));
+      DBG (1, "getpeername: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
   he = gethostbyaddr ((const char *) &sin.sin_addr,
-                      sizeof (sin.sin_addr), sin.sin_family);
+		      sizeof (sin.sin_addr), sin.sin_family);
   if (!he)
     {
-      DBG(1, "gethostbyaddr: %s\n", strerror (errno));
+      DBG (1, "gethostbyaddr: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
 
@@ -366,44 +373,44 @@ check_host (int fd)
   /* must be a remote host: check contents of PATH_NET_CONFIG or
      /etc/hosts.equiv if former doesn't exist: */
 
-  for (j = 0; j < NELEMS(config_file_names); ++j)
+  for (j = 0; j < NELEMS (config_file_names); ++j)
     {
       if (config_file_names[j][0] == '/')
-        fp = fopen (config_file_names[j], "r");
+	fp = fopen (config_file_names[j], "r");
       else
-        fp = sanei_config_open (config_file_names[j]);
+	fp = sanei_config_open (config_file_names[j]);
       if (!fp)
-        continue;
+	continue;
 
       while (!access_ok && sanei_config_read (rhost, sizeof (rhost), fp))
-        {
-          if (rhost[0] == '#')  /* ignore line comments */
-            continue;
-          len = strlen (rhost);
-          if (rhost[len - 1] == '\n')
-            rhost[--len] = '\0';
+	{
+	  if (rhost[0] == '#')	/* ignore line comments */
+	    continue;
+	  len = strlen (rhost);
+	  if (rhost[len - 1] == '\n')
+	    rhost[--len] = '\0';
 
-          if (!len)
-            continue;           /* ignore empty lines */
+	  if (!len)
+	    continue;		/* ignore empty lines */
 
-          if (strcasecmp (rhost, he->h_name) == 0 || strcmp (rhost, "+") == 0)
-            access_ok = 1;
-          for (i = 0; he->h_aliases[i]; ++i)
-            if (strcasecmp (rhost, he->h_aliases[i]) == 0)
-              {
-                access_ok = 1;
-                break;
-              }
-        }
+	  if (strcasecmp (rhost, he->h_name) == 0 || strcmp (rhost, "+") == 0)
+	    access_ok = 1;
+	  for (i = 0; he->h_aliases[i]; ++i)
+	    if (strcasecmp (rhost, he->h_aliases[i]) == 0)
+	      {
+		access_ok = 1;
+		break;
+	      }
+	}
       fclose (fp);
       if (access_ok)
-        return SANE_STATUS_GOOD;
+	return SANE_STATUS_GOOD;
     }
   return SANE_STATUS_INVAL;
 }
 
 static int
-init (Wire *w)
+init (Wire * w)
 {
   SANE_Word word, be_version_code;
   SANE_Init_Reply reply;
@@ -413,14 +420,14 @@ init (Wire *w)
   reset_watchdog ();
 
   sanei_w_set_dir (w, WIRE_DECODE);
-  sanei_w_word (w, &word);              /* decode procedure number */
+  sanei_w_word (w, &word);	/* decode procedure number */
   sanei_w_init_req (w, &req);
   w->version = SANEI_NET_PROTOCOL_VERSION;
 
   if (w->status || word != SANE_NET_INIT)
     {
       syslog (LOG_WARNING, "init: bad status=%d or procnum=%d\n",
-              w->status, word);
+	      w->status, word);
       return -1;
     }
   if (req.username)
@@ -428,29 +435,29 @@ init (Wire *w)
 
   sanei_w_free (w, (WireCodecFunc) sanei_w_init_req, &req);
 
-  reply.version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR,
-                                         SANEI_NET_PROTOCOL_VERSION);
+  reply.version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR,
+					  SANEI_NET_PROTOCOL_VERSION);
 
   status = check_host (w->io.fd);
 
   syslog (LOG_NOTICE, "access by %s@%s %s\n",
-          default_username, remote_hostname,
-          (status == SANE_STATUS_GOOD) ? "accepted" : "rejected");
+	  default_username, remote_hostname,
+	  (status == SANE_STATUS_GOOD) ? "accepted" : "rejected");
 
   if (status == SANE_STATUS_GOOD)
     {
       status = sane_init (&be_version_code, auth_callback);
       if (status != SANE_STATUS_GOOD)
-        DBG (1, "failed to initialize backend (%s)\n",
-             sane_strstatus (status));
+	DBG (1, "failed to initialize backend (%s)\n",
+	     sane_strstatus (status));
 
-      if (SANE_VERSION_MAJOR(be_version_code) != V_MAJOR)
-        {
-          syslog (LOG_ERR,
-                  "unexpected backend major version %d (expected %d)\n",
-                  SANE_VERSION_MAJOR(be_version_code), V_MAJOR);
-          status = SANE_STATUS_INVAL;
-        }
+      if (SANE_VERSION_MAJOR (be_version_code) != V_MAJOR)
+	{
+	  syslog (LOG_ERR,
+		  "unexpected backend major version %d (expected %d)\n",
+		  SANE_VERSION_MAJOR (be_version_code), V_MAJOR);
+	  status = SANE_STATUS_INVAL;
+	}
     }
   reply.status = status;
   if (status != SANE_STATUS_GOOD)
@@ -464,7 +471,7 @@ init (Wire *w)
 }
 
 static int
-start_scan (Wire *w, int h, SANE_Start_Reply *reply)
+start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 {
   struct sockaddr_in sin;
   SANE_Handle be_handle;
@@ -476,7 +483,7 @@ start_scan (Wire *w, int h, SANE_Start_Reply *reply)
   if (getsockname (w->io.fd, (struct sockaddr *) &sin, &len) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to obtain socket address (%s)\n",
-              strerror (errno));
+	      strerror (errno));
       reply->status = SANE_STATUS_IO_ERROR;
       return -1;
     }
@@ -485,16 +492,16 @@ start_scan (Wire *w, int h, SANE_Start_Reply *reply)
   if (fd < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to obtain data socket (%s)\n",
-              strerror (errno));
+	      strerror (errno));
       reply->status = SANE_STATUS_IO_ERROR;
       return -1;
     }
 
   sin.sin_port = 0;
-  if (bind (fd, (struct sockaddr *)&sin, len) < 0)
+  if (bind (fd, (struct sockaddr *) &sin, len) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to bind address (%s)\n",
-              strerror (errno));
+	      strerror (errno));
       reply->status = SANE_STATUS_IO_ERROR;
       return -1;
     }
@@ -502,7 +509,7 @@ start_scan (Wire *w, int h, SANE_Start_Reply *reply)
   if (listen (fd, 1) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to make socket listen (%s)\n",
-              strerror (errno));
+	      strerror (errno));
       reply->status = SANE_STATUS_IO_ERROR;
       return -1;
     }
@@ -510,14 +517,14 @@ start_scan (Wire *w, int h, SANE_Start_Reply *reply)
   if (getsockname (fd, (struct sockaddr *) &sin, &len) < 0)
     {
       syslog (LOG_ERR, "start_scan: failed to obtain socket address (%s)\n",
-              strerror (errno));
+	      strerror (errno));
       reply->status = SANE_STATUS_IO_ERROR;
       return -1;
     }
 
   reply->port = ntohs (sin.sin_port);
 
-  DBG(3, "start_scan: using port %d for data\n", reply->port);
+  DBG (3, "start_scan: using port %d for data\n", reply->port);
 
   reply->status = sane_start (be_handle);
   if (reply->status == SANE_STATUS_GOOD)
@@ -530,17 +537,25 @@ start_scan (Wire *w, int h, SANE_Start_Reply *reply)
 }
 
 static int
-store_reclen (SANE_Byte *buf, size_t buf_size, int i, size_t reclen)
+store_reclen (SANE_Byte * buf, size_t buf_size, int i, size_t reclen)
 {
-  buf[i++] = (reclen >> 24) & 0xff; if (i >= buf_size) i = 0;
-  buf[i++] = (reclen >> 16) & 0xff; if (i >= buf_size) i = 0;
-  buf[i++] = (reclen >>  8) & 0xff; if (i >= buf_size) i = 0;
-  buf[i++] = (reclen >>  0) & 0xff; if (i >= buf_size) i = 0;
+  buf[i++] = (reclen >> 24) & 0xff;
+  if (i >= buf_size)
+    i = 0;
+  buf[i++] = (reclen >> 16) & 0xff;
+  if (i >= buf_size)
+    i = 0;
+  buf[i++] = (reclen >> 8) & 0xff;
+  if (i >= buf_size)
+    i = 0;
+  buf[i++] = (reclen >> 0) & 0xff;
+  if (i >= buf_size)
+    i = 0;
   return i;
 }
 
 static void
-do_scan (Wire *w, int h, int data_fd)
+do_scan (Wire * w, int h, int data_fd)
 {
   int num_fds, be_fd = -1, reader, writer, bytes_in_buf, status_dirty = 0;
   SANE_Handle be_handle = handle[h].handle;
@@ -566,7 +581,7 @@ do_scan (Wire *w, int h, int data_fd)
     {
       FD_SET (be_fd, &rd_mask);
       if (be_fd >= num_fds)
-        num_fds = be_fd + 1;
+	num_fds = be_fd + 1;
     }
   else
     {
@@ -581,303 +596,326 @@ do_scan (Wire *w, int h, int data_fd)
       rd_set = rd_mask;
       wr_set = wr_mask;
       if (select (num_fds, &rd_set, &wr_set, 0, timeout) < 0)
-        {
-          if (be_fd >= 0 && errno == EBADF)
-            {
-              /* This normally happens when a backend closes a select
-                 filedescriptor when reaching the end of file.  So
-                 pass back this status to the client: */
-              FD_CLR(be_fd, &rd_mask);
-              be_fd = -1;
-              status = SANE_STATUS_EOF;
-              status_dirty = 1;
-              continue;
-            }
-          else
-            {
-              status = SANE_STATUS_IO_ERROR;
-              DBG(1, "do_scan: select failed (%s)\n", strerror (errno));
-              break;
-            }
-        }
+	{
+	  if (be_fd >= 0 && errno == EBADF)
+	    {
+	      /* This normally happens when a backend closes a select
+	         filedescriptor when reaching the end of file.  So
+	         pass back this status to the client: */
+	      FD_CLR (be_fd, &rd_mask);
+	      be_fd = -1;
+	      status = SANE_STATUS_EOF;
+	      status_dirty = 1;
+	      continue;
+	    }
+	  else
+	    {
+	      status = SANE_STATUS_IO_ERROR;
+	      DBG (1, "do_scan: select failed (%s)\n", strerror (errno));
+	      break;
+	    }
+	}
 
       if (bytes_in_buf)
-        {
-          if (FD_ISSET (data_fd, &wr_set))
-            {
-              if (bytes_in_buf > 0)
-                {
-                  /* write more input data */
-                  nbytes = bytes_in_buf;
-                  if (writer + nbytes > sizeof (buf))
-                    nbytes = sizeof (buf) - writer;
-                  nwritten = write (data_fd, buf + writer, nbytes);
-                  DBG(4, "do_scan: wrote %ld bytes to client\n", nwritten);
-                  if (nwritten < 0)
-                    {
-                      syslog (LOG_WARNING, "do_scan: write failed (%s)\n",
-                              strerror (errno));
-                      status = SANE_STATUS_CANCELLED;
-                      break;
-                    }
-                  bytes_in_buf -= nwritten;
-                  writer += nwritten;
-                  if (writer == sizeof (buf))
-                    writer = 0;
-                }
-            }
-        }
+	{
+	  if (FD_ISSET (data_fd, &wr_set))
+	    {
+	      if (bytes_in_buf > 0)
+		{
+		  /* write more input data */
+		  nbytes = bytes_in_buf;
+		  if (writer + nbytes > sizeof (buf))
+		    nbytes = sizeof (buf) - writer;
+		  nwritten = write (data_fd, buf + writer, nbytes);
+		  DBG (4, "do_scan: wrote %ld bytes to client\n", nwritten);
+		  if (nwritten < 0)
+		    {
+		      syslog (LOG_WARNING, "do_scan: write failed (%s)\n",
+			      strerror (errno));
+		      status = SANE_STATUS_CANCELLED;
+		      break;
+		    }
+		  bytes_in_buf -= nwritten;
+		  writer += nwritten;
+		  if (writer == sizeof (buf))
+		    writer = 0;
+		}
+	    }
+	}
       else if (status == SANE_STATUS_GOOD
-               && (timeout || FD_ISSET (be_fd, &rd_set)))
-        {
-          int i;
+	       && (timeout || FD_ISSET (be_fd, &rd_set)))
+	{
+	  int i;
 
-          /* get more input data */
+	  /* get more input data */
 
-          /* reserve 4 bytes to store the length of the data record: */
-          i = reader;
-          reader += 4;
-          if (reader >= sizeof (buf))
-            reader = 0;
+	  /* reserve 4 bytes to store the length of the data record: */
+	  i = reader;
+	  reader += 4;
+	  if (reader >= sizeof (buf))
+	    reader = 0;
 
-          assert (bytes_in_buf == 0);
-          nbytes = sizeof (buf) - 4;
-          if (reader + nbytes > sizeof (buf))
-            nbytes = sizeof (buf) - reader;
+	  assert (bytes_in_buf == 0);
+	  nbytes = sizeof (buf) - 4;
+	  if (reader + nbytes > sizeof (buf))
+	    nbytes = sizeof (buf) - reader;
 
-          status = sane_read (be_handle, buf + reader, nbytes, &length);
-          DBG(4, "do_scan: read %d bytes from scanner\n", length);
+	  status = sane_read (be_handle, buf + reader, nbytes, &length);
+	  DBG (4, "do_scan: read %d bytes from scanner\n", length);
 
-          reset_watchdog ();
+	  reset_watchdog ();
 
-          reader += length; if (reader >= sizeof (buf)) reader = 0;
-          bytes_in_buf += length + 4;
+	  reader += length;
+	  if (reader >= sizeof (buf))
+	    reader = 0;
+	  bytes_in_buf += length + 4;
 
-          if (status != SANE_STATUS_GOOD)
-            {
-              reader = i;       /* restore reader index */
-              status_dirty = 1;
-            }
-          else
-            store_reclen (buf, sizeof (buf), i, length);
-        }
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      reader = i;	/* restore reader index */
+	      status_dirty = 1;
+	    }
+	  else
+	    store_reclen (buf, sizeof (buf), i, length);
+	}
 
       if (status_dirty && sizeof (buf) - bytes_in_buf >= 5)
-        {
-          status_dirty = 0;
-          reader = store_reclen (buf, sizeof (buf), reader, 0xffffffff);
-          buf[reader] = status;
-          bytes_in_buf += 5;
-        }
+	{
+	  status_dirty = 0;
+	  reader = store_reclen (buf, sizeof (buf), reader, 0xffffffff);
+	  buf[reader] = status;
+	  bytes_in_buf += 5;
+	}
 
       if (FD_ISSET (w->io.fd, &rd_set))
-        {
-          DBG(4, "do_scan: processing RPC request on fd %d\n", w->io.fd);
-          process_request (w);
-          if (handle[h].docancel)
-            break;
-        }
+	{
+	  DBG (4, "do_scan: processing RPC request on fd %d\n", w->io.fd);
+	  process_request (w);
+	  if (handle[h].docancel)
+	    break;
+	}
     }
   while (status == SANE_STATUS_GOOD || bytes_in_buf > 0 || status_dirty);
-  DBG(2, "do_scan: done, status=%s\n", sane_strstatus (status));
+  DBG (2, "do_scan: done, status=%s\n", sane_strstatus (status));
   handle[h].docancel = 0;
   handle[h].scanning = 0;
 }
 
 static void
-process_request (Wire *w)
+process_request (Wire * w)
 {
   SANE_Handle be_handle;
   SANE_Word h, word;
   int i;
 
   sanei_w_set_dir (w, WIRE_DECODE);
-  sanei_w_word (w, &word);              /* decode procedure number */
+  sanei_w_word (w, &word);	/* decode procedure number */
   current_request = word;
 
-  DBG(2, "process_request: got request %d\n", current_request);
+  DBG (2, "process_request: got request %d\n", current_request);
 
   switch (current_request)
     {
     case SANE_NET_GET_DEVICES:
       {
-        SANE_Get_Devices_Reply reply;
+	SANE_Get_Devices_Reply reply;
 
-        reply.status =
-          sane_get_devices ((const SANE_Device ***) &reply.device_list,
-                            SANE_TRUE);
-        sanei_w_reply (w, (WireCodecFunc) sanei_w_get_devices_reply, &reply);
+	reply.status =
+	  sane_get_devices ((const SANE_Device ***) &reply.device_list,
+			    SANE_TRUE);
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_get_devices_reply, &reply);
       }
       break;
 
     case SANE_NET_OPEN:
       {
-        SANE_Open_Reply reply;
-        SANE_Handle be_handle;
-        SANE_String name;
+	SANE_Open_Reply reply;
+	SANE_Handle be_handle;
+	SANE_String name, resource;
 
-        sanei_w_string (w, &name);
-        if (w->status)
-          {
-            syslog (LOG_WARNING, "open: error while decoding args (%s)\n",
-                    strerror (w->status));
-            return;
-          }
+	sanei_w_string (w, &name);
+	if (w->status)
+	  {
+	    syslog (LOG_WARNING, "open: error while decoding args (%s)\n",
+		    strerror (w->status));
+	    return;
+	  }
 
-        can_authorize = 1;
+	can_authorize = 1;
 
-        memset (&reply, 0, sizeof (reply));     /* avoid leaking bits */
-        reply.status = sane_open (name, &be_handle);
-        if (reply.status == SANE_STATUS_GOOD)
-          {
-            h = get_free_handle ();
-            if (h < 0)
-              reply.status = SANE_STATUS_NO_MEM;
-            else
-              {
-                handle[h].handle = be_handle;
-                reply.handle = h;
-              }
-          }
+	resource = strdup (name);
 
-        can_authorize = 0;
+	if (index (resource, ':'))
+	  *(index (resource, ':')) = 0;
 
-        sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	if (sanei_authorize (resource, "saned", auth_callback) !=
+	    SANE_STATUS_GOOD)
+	  {
+
+
+	    free (resource);
+	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
+	    reply.status = SANE_STATUS_ACCESS_DENIED;
+
+	  }
+	else
+	  {
+
+	    free (resource);
+
+	    memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
+	    reply.status = sane_open (name, &be_handle);
+	  }
+	if (reply.status == SANE_STATUS_GOOD)
+	  {
+	    h = get_free_handle ();
+	    if (h < 0)
+	      reply.status = SANE_STATUS_NO_MEM;
+	    else
+	      {
+		handle[h].handle = be_handle;
+		reply.handle = h;
+	      }
+	  }
+
+	can_authorize = 0;
+
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
       }
       break;
 
     case SANE_NET_CLOSE:
       {
-        SANE_Word ack = 0;
+	SANE_Word ack = 0;
 
-        h = decode_handle (w, "close");
-        close_handle (h);
-        sanei_w_reply (w, (WireCodecFunc) sanei_w_word, &ack);
+	h = decode_handle (w, "close");
+	close_handle (h);
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_word, &ack);
       }
       break;
 
     case SANE_NET_GET_OPTION_DESCRIPTORS:
       {
-        SANE_Option_Descriptor_Array opt;
+	SANE_Option_Descriptor_Array opt;
 
-        h = decode_handle (w, "get_option_descriptors");
-        if (h < 0)
-          return;
-        be_handle = handle[h].handle;
-        sane_control_option (be_handle, 0, SANE_ACTION_GET_VALUE,
-                             &opt.num_options, 0);
+	h = decode_handle (w, "get_option_descriptors");
+	if (h < 0)
+	  return;
+	be_handle = handle[h].handle;
+	sane_control_option (be_handle, 0, SANE_ACTION_GET_VALUE,
+			     &opt.num_options, 0);
 
-        opt.desc = malloc (opt.num_options * sizeof (opt.desc[0]));
-        for (i = 0; i < opt.num_options; ++i)
-          opt.desc[i] = (SANE_Option_Descriptor *)
-            sane_get_option_descriptor (be_handle, i);
+	opt.desc = malloc (opt.num_options * sizeof (opt.desc[0]));
+	for (i = 0; i < opt.num_options; ++i)
+	  opt.desc[i] = (SANE_Option_Descriptor *)
+	    sane_get_option_descriptor (be_handle, i);
 
-        sanei_w_reply (w,
-                       (WireCodecFunc) sanei_w_option_descriptor_array, &opt);
+	sanei_w_reply (w,
+		       (WireCodecFunc) sanei_w_option_descriptor_array, &opt);
 
-        free (opt.desc);
+	free (opt.desc);
       }
       break;
 
     case SANE_NET_CONTROL_OPTION:
       {
-        SANE_Control_Option_Req req;
-        SANE_Control_Option_Reply reply;
+	SANE_Control_Option_Req req;
+	SANE_Control_Option_Reply reply;
 
-        sanei_w_control_option_req (w, &req);
-        if (w->status || (unsigned) req.handle >= num_handles
-            || !handle[req.handle].inuse)
-          {
-            syslog (LOG_WARNING,
-                    "control_option: error while decoding args h=%d "
-                    "(%s)\n", req.handle, strerror (w->status));
-            return;
-          }
+	sanei_w_control_option_req (w, &req);
+	if (w->status || (unsigned) req.handle >= num_handles
+	    || !handle[req.handle].inuse)
+	  {
+	    syslog (LOG_WARNING,
+		    "control_option: error while decoding args h=%d "
+		    "(%s)\n", req.handle, strerror (w->status));
+	    return;
+	  }
 
-        can_authorize = 1;
+	can_authorize = 1;
 
-        memset (&reply, 0, sizeof (reply));     /* avoid leaking bits */
-        be_handle = handle[req.handle].handle;
-        reply.status = sane_control_option (be_handle, req.option,
-                                            req.action, req.value,
-                                            &reply.info);
-        reply.value_type = req.value_type;
-        reply.value_size = req.value_size;
-        reply.value = req.value;
+	memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
+	be_handle = handle[req.handle].handle;
+	reply.status = sane_control_option (be_handle, req.option,
+					    req.action, req.value,
+					    &reply.info);
+	reply.value_type = req.value_type;
+	reply.value_size = req.value_size;
+	reply.value = req.value;
 
-        can_authorize = 0;
+	can_authorize = 0;
 
-        sanei_w_reply (w,
-                       (WireCodecFunc) sanei_w_control_option_reply, &reply);
+	sanei_w_reply (w,
+		       (WireCodecFunc) sanei_w_control_option_reply, &reply);
       }
       break;
 
     case SANE_NET_GET_PARAMETERS:
       {
-        SANE_Get_Parameters_Reply reply;
+	SANE_Get_Parameters_Reply reply;
 
-        h = decode_handle (w, "get_parameters");
-        if (h < 0)
-          return;
-        be_handle = handle[h].handle;
+	h = decode_handle (w, "get_parameters");
+	if (h < 0)
+	  return;
+	be_handle = handle[h].handle;
 
-        reply.status = sane_get_parameters (be_handle, &reply.params);
+	reply.status = sane_get_parameters (be_handle, &reply.params);
 
-        sanei_w_reply (w,
-                       (WireCodecFunc) sanei_w_get_parameters_reply, &reply);
+	sanei_w_reply (w,
+		       (WireCodecFunc) sanei_w_get_parameters_reply, &reply);
       }
       break;
 
     case SANE_NET_START:
       {
-        SANE_Start_Reply reply;
-        int fd = -1, data_fd;
+	SANE_Start_Reply reply;
+	int fd = -1, data_fd;
 
-        h = decode_handle (w, "start");
-        if (h < 0)
-          return;
+	h = decode_handle (w, "start");
+	if (h < 0)
+	  return;
 
-        memset (&reply, 0, sizeof (reply));     /* avoid leaking bits */
-        reply.byte_order = SANE_NET_LITTLE_ENDIAN;
-        if (byte_order.w != 1)
-          reply.byte_order = SANE_NET_BIG_ENDIAN;
+	memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
+	reply.byte_order = SANE_NET_LITTLE_ENDIAN;
+	if (byte_order.w != 1)
+	  reply.byte_order = SANE_NET_BIG_ENDIAN;
 
-        if (handle[h].scanning)
-          reply.status = SANE_STATUS_DEVICE_BUSY;
-        else
-          fd = start_scan (w, h, &reply);
+	if (handle[h].scanning)
+	  reply.status = SANE_STATUS_DEVICE_BUSY;
+	else
+	  fd = start_scan (w, h, &reply);
 
-        sanei_w_reply (w, (WireCodecFunc) sanei_w_start_reply, &reply);
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_start_reply, &reply);
 
-        if (reply.status == SANE_STATUS_GOOD)
-          {
-            data_fd = accept (fd, 0, 0); /* XXX may want to verify peer */
-            close (fd);
-            if (data_fd < 0)
-              {
-                sane_cancel (handle[h].handle);
-                handle[h].scanning = 0;
-                handle[h].docancel = 0;
-                syslog (LOG_ERR, "process_request: accept failed! (%s)\n",
-                        strerror (errno));
-                return;
-              }
-            fcntl (data_fd, F_SETFL, 1);        /* set non-blocking */
-            shutdown (data_fd, 0);
-            do_scan (w, h, data_fd);
-            close (data_fd);
-          }
+	if (reply.status == SANE_STATUS_GOOD)
+	  {
+	    data_fd = accept (fd, 0, 0);	/* XXX may want to verify peer */
+	    close (fd);
+	    if (data_fd < 0)
+	      {
+		sane_cancel (handle[h].handle);
+		handle[h].scanning = 0;
+		handle[h].docancel = 0;
+		syslog (LOG_ERR, "process_request: accept failed! (%s)\n",
+			strerror (errno));
+		return;
+	      }
+	    fcntl (data_fd, F_SETFL, 1);	/* set non-blocking */
+	    shutdown (data_fd, 0);
+	    do_scan (w, h, data_fd);
+	    close (data_fd);
+	  }
       }
       break;
 
     case SANE_NET_CANCEL:
       {
-        SANE_Word ack = 0;
+	SANE_Word ack = 0;
 
-        h = decode_handle (w, "cancel");
-        sane_cancel (handle[h].handle);
-        handle[h].docancel=1;
-        sanei_w_reply (w, (WireCodecFunc) sanei_w_word, &ack);
+	h = decode_handle (w, "cancel");
+	sane_cancel (handle[h].handle);
+	handle[h].docancel = 1;
+	sanei_w_reply (w, (WireCodecFunc) sanei_w_word, &ack);
       }
       break;
 
@@ -889,8 +927,8 @@ process_request (Wire *w)
     case SANE_NET_AUTHORIZE:
     default:
       syslog (LOG_WARNING,
-              "process_request: received unexpected procedure number %d\n",
-              current_request);
+	      "process_request: received unexpected procedure number %d\n",
+	      current_request);
       quit (0);
     }
 }
@@ -927,20 +965,20 @@ main (int argc, char *argv[])
 
       debug = 1;
       if (argv[1][2])
-        debug = atoi (argv[1] + 2);
+	debug = atoi (argv[1] + 2);
 
       memset (&sin, 0, sizeof (sin));
 
       serv = getservbyname ("sane", "tcp");
       if (serv)
-        port = serv->s_port;
+	port = serv->s_port;
       else
-        {
-          port = htons (6566);
-          fprintf (stderr, "%s: could not find `sane' service (%s)\n"
-                   "%s: using default port %d\n", prog_name, strerror (errno),
-                   prog_name, ntohs (port));
-        }
+	{
+	  port = htons (6566);
+	  fprintf (stderr, "%s: could not find `sane' service (%s)\n"
+		   "%s: using default port %d\n", prog_name, strerror (errno),
+		   prog_name, ntohs (port));
+	}
       sin.sin_family = AF_INET;
       sin.sin_addr.s_addr = INADDR_ANY;
       sin.sin_port = port;
@@ -948,40 +986,40 @@ main (int argc, char *argv[])
       fd = socket (AF_INET, SOCK_STREAM, 0);
 
       if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
-        syslog (LOG_ERR, "failed to put socket in SO_REUSEADDR mode (%s)",
-                strerror (errno));
+	syslog (LOG_ERR, "failed to put socket in SO_REUSEADDR mode (%s)",
+		strerror (errno));
 
-      if (bind (fd, (struct sockaddr *)&sin, sizeof (sin)) < 0)
-        {
-          perror ("bind");
-          exit (1);
-        }
+      if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+	{
+	  perror ("bind");
+	  exit (1);
+	}
       if (listen (fd, 1) < 0)
-        {
-          perror ("listen");
-          exit (1);
-        }
+	{
+	  perror ("listen");
+	  exit (1);
+	}
       wire.io.fd = accept (fd, 0, 0);
       if (wire.io.fd < 0)
-        {
-          perror ("accept");
-          exit (1);
-        }
+	{
+	  perror ("accept");
+	  exit (1);
+	}
       close (fd);
     }
   else
     /* use filedescriptor opened by inetd: */
 #ifdef HAVE_OS2_H
-      /* under OS/2, the socket handle is passed as argument on the command
-         line; the socket handle is relative to IBM TCP/IP, so a call
-         to impsockethandle() is required to add it to the EMX runtime */
-    if (argc == 2)
-      {
-        wire.io.fd = _impsockhandle (atoi (argv[1]),0);
-        if (wire.io.fd==-1)
-          perror( "impsockhandle");
-      }
-    else
+    /* under OS/2, the socket handle is passed as argument on the command
+       line; the socket handle is relative to IBM TCP/IP, so a call
+       to impsockethandle() is required to add it to the EMX runtime */
+  if (argc == 2)
+    {
+      wire.io.fd = _impsockhandle (atoi (argv[1]), 0);
+      if (wire.io.fd == -1)
+	perror ("impsockhandle");
+    }
+  else
 #endif /* HAVE_OS2_H */
     wire.io.fd = 1;
 
@@ -998,16 +1036,16 @@ main (int argc, char *argv[])
     p = getprotobyname ("tcp");
     if (p == 0)
       {
-        DBG (1, "connect_dev: cannot look up `tcp' protocol number");
+	DBG (1, "connect_dev: cannot look up `tcp' protocol number");
       }
     else
       level = p->p_proto;
   }
-# endif /* SOL_TCP */
+# endif	/* SOL_TCP */
   if (level == -1
       || setsockopt (wire.io.fd, level, TCP_NODELAY, &on, sizeof (on)))
     syslog (LOG_ERR, "failed to put socket in TCP_NODELAY mode (%s)",
-            strerror (errno));
+	    strerror (errno));
 #endif /* !TCP_NODELAY */
 
   if (init (&wire) < 0)

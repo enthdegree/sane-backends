@@ -420,14 +420,23 @@ authorized.  This argument should be set to the string returned in the
 \code{resource} argument of the RPC reply that required this
 authorization call.  The \code{username} and \code{password} are the
 name of the user that is accessing the resource and the password for
-the specified resource/user pair.\footnote{The username and password
-  should be encrypted before network transmission but currently they
-  are always in plain text.}
+the specified resource/user pair.
+
+Since the password is not encrypted during network transmission, it is
+recommended to use the following extension:
+
+If the server adds the string `\code{\$MD5\$}' to the resource-name followed
+by a random string not longer then 128 bytes, the client may answer with the
+MD5 digest of the concatenation of the password and the random string. To
+differentiate between the MD5 digest and a strange password the client prepends
+the MD5 digest with the string `\code{\$MD5\$}'.
 
 In the reply, \code{dummy} is completely unused.  Note that there is
 no direct failure indication.  This is unnecessary since a net client
 will retry the RPC that resulted in the authorization request until
-that call succeeds (or until the request is cancelled).
+that call succeeds (or until the request is cancelled). The RPC that resulted
+in the authorization request continues after the reply from the client and may
+fail with \code{SANE\_STATUS\_ACCESS\_DENIED}.
 
 
 \subsection{\code{\defn{SANE\_NET\_EXIT}}}

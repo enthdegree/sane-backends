@@ -12,9 +12,9 @@
 \setlength{\marginparsep}{0pt}
 \addtolength{\topmargin}{-0.75in}
 
-\title{\huge SANE Standard Version 1.01}
+\title{\huge SANE Standard Version 1.02}
 \author{}
-\date{November 12, 2000} 
+\date{November 14, 2000} 
 
 \makeindex
 
@@ -1089,8 +1089,8 @@ The authentication function type has the following declaration:
 \begin{quote}\index{SANE\_Authorization\_Callback}
   \index{domain}\index{username}\index{password}
 \begin{verbatim}
-#define SANE_MAX_USERNAME_LEN   256
-#define SANE_MAX_PASSWORD_LEN   256
+#define SANE_MAX_USERNAME_LEN   128
+#define SANE_MAX_PASSWORD_LEN   128
 
 typedef void (*SANE_Authorization_Callback)
     (SANE_String_Const resource,

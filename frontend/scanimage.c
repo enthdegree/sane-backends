@@ -19,7 +19,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef _AIX
-# include <lalloca.h>	/* MUST come first for AIX! */
+# include <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
 #include <sane/config.h>
@@ -30,16 +30,23 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#ifdef NEED_STRINGS_H
+# include <strings.h>
+#else
+# include <string.h>
+#endif
 #include <unistd.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
 #include <sane/saneopts.h>
 
 #include "stiff.h"
+
+#include "../include/md5.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024
@@ -50,20 +57,20 @@
 #endif
 
 typedef struct
-  {
-    u_char *data;
-    int Bpp;		/* bytes/pixel */
-    int width;
-    int height;
-    int x;
-    int y;
-  }
+{
+  u_char *data;
+  int Bpp;			/* bytes/pixel */
+  int width;
+  int height;
+  int x;
+  int y;
+}
 Image;
 
 #define OPTION_FORMAT   1001
+#define OPTION_MD5	1002
 
-static struct option basic_options[] =
-{
+static struct option basic_options[] = {
   {"device-name", required_argument, NULL, 'd'},
   {"list-devices", no_argument, NULL, 'L'},
   {"help", no_argument, NULL, 'h'},
@@ -72,30 +79,172 @@ static struct option basic_options[] =
   {"version", no_argument, NULL, 'V'},
   {"batch", optional_argument, NULL, 'b'},
   {"format", required_argument, NULL, OPTION_FORMAT},
+  {"accept-md5-only", no_argument, NULL, OPTION_MD5},
   {0, 0, NULL, 0}
 };
 
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hLvVT"
+#define BASE_OPTSTRING	"d:hLvVTb"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
-static struct option * all_options;
+static struct option *all_options;
 static int option_number_len;
-static int * option_number;
+static int *option_number;
 static SANE_Handle device;
 static int verbose;
 static int test;
 static int output_format = OUTPUT_PNM;
 static int help;
-static const char * prog_name;
+static const char *prog_name;
 static SANE_Option_Descriptor window_option[2];
 static int window[4];
 static int resolution_optind = -1, resolution_value = 0;
 static SANE_Word window_val[2];
 static int window_val_user[2];	/* is width/height user-specified? */
+static int accept_only_md5_auth = 0;
 
+
+static void
+auth_callback (SANE_String_Const resource,
+	       SANE_Char username[SANE_MAX_USERNAME_LEN],
+	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
+{
+  char tmp[512], *wipe;
+  unsigned char md5digest[16];
+  int md5mode = 0, len, query_user = 1;
+  FILE *pass_file;
+  struct stat stat_buf;
+
+  *tmp = 0;
+
+  if (getenv ("HOME") != NULL)
+    {
+      if (strlen (getenv ("HOME")) < 500)
+	{
+	  sprintf (tmp, "%s/.sane/pass", getenv ("HOME"));
+	}
+    }
+
+  if ((strlen (tmp) > 0) && (stat (tmp, &stat_buf) == 0))
+    {
+
+      if ((stat_buf.st_mode & 63) != 0)
+	{
+	  fprintf (stderr, "%s has wrong permissions (use at least 0600)\n",
+		   tmp);
+	}
+      else
+	{
+
+	  if ((pass_file = fopen (tmp, "r")) != NULL)
+	    {
+
+	      if (strstr (resource, "$MD5$") != NULL)
+		len = (strstr (resource, "$MD5$") - resource);
+	      else
+		len = strlen (resource);
+
+	      while (fgets (tmp, 512, pass_file))
+		{
+		  if (strncmp (tmp, resource, len) == 0)
+		    {
+		      if ((index (tmp, ':') - tmp) == (signed) len)
+			{
+			  if (index (index (tmp, ':') + 1, ':') != NULL)
+			    {
+			      strncpy (username, index (tmp, ':') + 1,
+				       index (index (tmp, ':') + 1, ':') -
+				       (index (tmp, ':') + 1));
+
+			      username[index (index (tmp, ':') + 1, ':') -
+				       (index (tmp, ':') + 1)] = 0;
+
+			      strncpy (password, index (tmp, ':') + 2 +
+				       strlen (username), 127);
+
+			      password[127] = 0;
+
+			      if (strlen (password) > 0)
+				if (password[strlen (password) - 1] == '\n')
+				  password[strlen (password) - 1] = 0;
+
+			      query_user = 0;
+			      break;
+			    }
+			}
+		    }
+		}
+
+	      fclose (pass_file);
+	    }
+	}
+    }
+
+  if (strstr (resource, "$MD5$") != NULL)
+    {
+      md5mode = 1;
+      len = (strstr (resource, "$MD5$") - resource);
+      if (query_user == 1)
+	fprintf (stderr,
+		 "Authentification required for resource %*.*s. Enter username: ",
+		 len, len, resource);
+    }
+  else
+    {
+
+      if (accept_only_md5_auth != 0)
+	{
+	  fprintf (stderr, "ERROR: backend requested plain-text password\n");
+	  return;
+	}
+      else
+	{
+	  fprintf (stderr,
+		   "WARNING: backend requested plain-text password\n");
+	  query_user = 1;
+	}
+
+      if (query_user == 1)
+	fprintf (stderr,
+		 "Authentification required for resource %s. Enter username: ",
+		 resource);
+    }
+
+  if (query_user == 1)
+    fgets (username, SANE_MAX_USERNAME_LEN, stdin);
+
+  if ((strlen (username)) && (username[strlen (username) - 1] == '\n'))
+    username[strlen (username) - 1] = 0;
+
+  if (query_user == 1)
+    {
+      strcpy (password, (wipe = getpass ("Enter password: ")));
+      memset (wipe, 0, strlen (password));
+    }
+
+  if (md5mode)
+    {
+
+      sprintf (tmp, "%.128s%s", (strstr (resource, "$MD5$")) + 5, password);
+
+      md5_buffer (tmp, strlen (tmp), md5digest);
+
+      memset (password, 0, SANE_MAX_PASSWORD_LEN);
+
+      sprintf (password, "$MD5$%02x%02x%02x%02x%02x%02x%02x%02x"
+	       "%02x%02x%02x%02x%02x%02x%02x%02x",
+	       md5digest[0], md5digest[1],
+	       md5digest[2], md5digest[3],
+	       md5digest[4], md5digest[5],
+	       md5digest[6], md5digest[7],
+	       md5digest[8], md5digest[9],
+	       md5digest[10], md5digest[11],
+	       md5digest[12], md5digest[13], md5digest[14], md5digest[15]);
+    }
+
+}
 static RETSIGTYPE
 sighandler (int signum)
 {
@@ -112,18 +261,31 @@ print_unit (SANE_Unit unit)
 {
   switch (unit)
     {
-    case SANE_UNIT_NONE:	break;
-    case SANE_UNIT_PIXEL:	fputs ("pel", stdout); break;
-    case SANE_UNIT_BIT:		fputs ("bit", stdout); break;
-    case SANE_UNIT_MM:		fputs ("mm", stdout); break;
-    case SANE_UNIT_DPI:		fputs ("dpi", stdout); break;
-    case SANE_UNIT_PERCENT:	fputc ('%', stdout); break;
-    case SANE_UNIT_MICROSECOND:	fputs ("us", stdout); break;
+    case SANE_UNIT_NONE:
+      break;
+    case SANE_UNIT_PIXEL:
+      fputs ("pel", stdout);
+      break;
+    case SANE_UNIT_BIT:
+      fputs ("bit", stdout);
+      break;
+    case SANE_UNIT_MM:
+      fputs ("mm", stdout);
+      break;
+    case SANE_UNIT_DPI:
+      fputs ("dpi", stdout);
+      break;
+    case SANE_UNIT_PERCENT:
+      fputc ('%', stdout);
+      break;
+    case SANE_UNIT_MICROSECOND:
+      fputs ("us", stdout);
+      break;
     }
 }
 
 static void
-print_option (SANE_Device *device, int opt_num, char short_name)
+print_option (SANE_Device * device, int opt_num, char short_name)
 {
   const char *str, *last_break, *start;
   const SANE_Option_Descriptor *opt;
@@ -157,13 +319,19 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 	case SANE_CONSTRAINT_NONE:
 	  switch (opt->type)
 	    {
-	    case SANE_TYPE_INT:		fputs ("<int>", stdout); break;
-	    case SANE_TYPE_FIXED:	fputs ("<float>", stdout); break;
-	    case SANE_TYPE_STRING:	fputs ("<string>", stdout); break;
+	    case SANE_TYPE_INT:
+	      fputs ("<int>", stdout);
+	      break;
+	    case SANE_TYPE_FIXED:
+	      fputs ("<float>", stdout);
+	      break;
+	    case SANE_TYPE_STRING:
+	      fputs ("<string>", stdout);
+	      break;
 	    default:
 	      break;
 	    }
-	  if (opt->type != SANE_TYPE_STRING && opt->size 
+	  if (opt->type != SANE_TYPE_STRING && opt->size
 	      > (SANE_Int) sizeof (SANE_Word))
 	    fputs (",...", stdout);
 	  break;
@@ -177,20 +345,19 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
 	      if (opt->constraint.range->quant)
-		printf (" (in steps of %d)",
-			opt->constraint.range->quant);
+		printf (" (in steps of %d)", opt->constraint.range->quant);
 	    }
 	  else
 	    {
 	      printf ("%g..%g",
-		    SANE_UNFIX(opt->constraint.range->min),
-		    SANE_UNFIX(opt->constraint.range->max));
+		      SANE_UNFIX (opt->constraint.range->min),
+		      SANE_UNFIX (opt->constraint.range->max));
 	      print_unit (opt->unit);
 	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
 	      if (opt->constraint.range->quant)
 		printf (" (in steps of %g)",
-			SANE_UNFIX(opt->constraint.range->quant));
+			SANE_UNFIX (opt->constraint.range->quant));
 	    }
 	  break;
 
@@ -205,8 +372,7 @@ print_option (SANE_Device *device, int opt_num, char short_name)
 	      if (opt->type == SANE_TYPE_INT)
 		printf ("%d", opt->constraint.word_list[i + 1]);
 	      else
-		printf ("%g",
-			SANE_UNFIX(opt->constraint.word_list[i + 1]));
+		printf ("%g", SANE_UNFIX (opt->constraint.word_list[i + 1]));
 	    }
 	  print_unit (opt->unit);
 	  if (opt->size > (SANE_Int) sizeof (SANE_Word))
@@ -228,22 +394,23 @@ print_option (SANE_Device *device, int opt_num, char short_name)
     {
       /* print current option value */
       fputs (" [", stdout);
-      if (SANE_OPTION_IS_ACTIVE(opt->cap))
+      if (SANE_OPTION_IS_ACTIVE (opt->cap))
 	{
-	  void * val = alloca (opt->size);
-	  sane_control_option (device, opt_num, SANE_ACTION_GET_VALUE, val, 0);
+	  void *val = alloca (opt->size);
+	  sane_control_option (device, opt_num, SANE_ACTION_GET_VALUE, val,
+			       0);
 	  switch (opt->type)
 	    {
 	    case SANE_TYPE_BOOL:
-	      fputs (*(SANE_Bool *)val ? "yes" : "no", stdout);
+	      fputs (*(SANE_Bool *) val ? "yes" : "no", stdout);
 	      break;
 
 	    case SANE_TYPE_INT:
-	      printf ("%d", *(SANE_Int *)val);
+	      printf ("%d", *(SANE_Int *) val);
 	      break;
 
 	    case SANE_TYPE_FIXED:
-	      printf ("%g", SANE_UNFIX(*(SANE_Fixed *)val));
+	      printf ("%g", SANE_UNFIX (*(SANE_Fixed *) val));
 	      break;
 
 	    case SANE_TYPE_STRING:
@@ -271,7 +438,9 @@ print_option (SANE_Device *device, int opt_num, char short_name)
       break;
 
     default:
-      column = 8; last_break = 0; start = opt->desc;
+      column = 8;
+      last_break = 0;
+      start = opt->desc;
       for (str = opt->desc; *str; ++str)
 	{
 	  ++column;
@@ -314,10 +483,10 @@ print_option (SANE_Device *device, int opt_num, char short_name)
      SANE_UNIT_PERCENT:	us
  */
 static const char *
-parse_scalar (const SANE_Option_Descriptor * opt, const char * str,
+parse_scalar (const SANE_Option_Descriptor * opt, const char *str,
 	      SANE_Word * value)
 {
-  char * end;
+  char *end;
   double v;
 
   if (opt->type == SANE_TYPE_FIXED)
@@ -350,7 +519,7 @@ parse_scalar (const SANE_Option_Descriptor * opt, const char * str,
 
     case SANE_UNIT_MM:
       if (str[0] == '\0')
-	v *= 1.0;			/* default to mm */
+	v *= 1.0;		/* default to mm */
       else if (strcmp (str, "mm") == 0)
 	str += sizeof ("mm") - 1;
       else if (strcmp (str, "cm") == 0)
@@ -362,7 +531,7 @@ parse_scalar (const SANE_Option_Descriptor * opt, const char * str,
 	{
 	  if (*str++ != '"')
 	    ++str;
-	  v *= 25.4;	/* 25.4 mm/inch */
+	  v *= 25.4;		/* 25.4 mm/inch */
 	}
       else
 	{
@@ -412,74 +581,77 @@ parse_scalar (const SANE_Option_Descriptor * opt, const char * str,
    vector of 256 elements whose value starts at 0 and increases to
    255.  */
 static void
-parse_vector (const SANE_Option_Descriptor * opt, const char * str,
+parse_vector (const SANE_Option_Descriptor * opt, const char *str,
 	      SANE_Word * vector, size_t vector_length)
 {
   SANE_Word value, prev_value = 0;
   int index = -1, prev_index = 0;
-  char * end, separator = '\0';
+  char *end, separator = '\0';
 
   /* initialize vector to all zeroes: */
   memset (vector, 0, vector_length * sizeof (SANE_Word));
 
-  do {
-    if (*str == '[')
-      {
-	/* read index */
-	index = strtol (++str, &end, 10);
-	if (str == end || *end != ']')
-	  {
-	    fprintf (stderr, "%s: option --%s: closing bracket missing "
-		     "(rest of option: %s)\n", prog_name, opt->name, str);
-	    exit (1);
-	  }
-	str = end + 1;
-      }
-    else
-      ++index;
+  do
+    {
+      if (*str == '[')
+	{
+	  /* read index */
+	  index = strtol (++str, &end, 10);
+	  if (str == end || *end != ']')
+	    {
+	      fprintf (stderr, "%s: option --%s: closing bracket missing "
+		       "(rest of option: %s)\n", prog_name, opt->name, str);
+	      exit (1);
+	    }
+	  str = end + 1;
+	}
+      else
+	++index;
 
-    if (index < 0 || index >= (int) vector_length)
-      {
-	fprintf (stderr, "%s: option --%s: index %d out of range [0..%ld]\n",
-		 prog_name, opt->name, index, (long) vector_length - 1);
+      if (index < 0 || index >= (int) vector_length)
+	{
+	  fprintf (stderr,
+		   "%s: option --%s: index %d out of range [0..%ld]\n",
+		   prog_name, opt->name, index, (long) vector_length - 1);
+	  exit (1);
+	}
+
+      /* read value */
+      str = parse_scalar (opt, str, &value);
+      if (!str)
 	exit (1);
-      }
 
-    /* read value */
-    str = parse_scalar (opt, str, &value);
-    if (!str)
-      exit (1);
+      if (*str && *str != '-' && *str != ',')
+	{
+	  fprintf (stderr,
+		   "%s: option --%s: illegal separator (rest of option: %s)\n",
+		   prog_name, opt->name, str);
+	  exit (1);
+	}
 
-    if (*str && *str != '-' && *str != ',')
-      {
-	fprintf (stderr,
-		 "%s: option --%s: illegal separator (rest of option: %s)\n",
-		 prog_name, opt->name, str);
-	exit (1);
-      }
+      /* store value: */
+      vector[index] = value;
+      if (separator == '-')
+	{
+	  /* interpolate */
+	  double v, slope;
+	  int i;
 
-    /* store value: */
-    vector[index] = value;
-    if (separator == '-')
-      {
-	/* interpolate */
-	double v, slope;
-	int i;
+	  v = (double) prev_value;
+	  slope = ((double) value - v) / (index - prev_index);
 
-	v = (double) prev_value;
-	slope = ((double) value - v) / (index - prev_index);
+	  for (i = prev_index + 1; i < index; ++i)
+	    {
+	      v += slope;
+	      vector[i] = (SANE_Word) v;
+	    }
+	}
 
-	for (i = prev_index + 1; i < index; ++i)
-	  {
-	    v += slope;
-	    vector[i] = (SANE_Word) v;
-	  }
-      }
-
-    prev_index = index;
-    prev_value = value;
-    separator = *str++;
-  } while (separator == ',' || separator == '-');
+      prev_index = index;
+      prev_value = value;
+      separator = *str++;
+    }
+  while (separator == ',' || separator == '-');
 
   if (verbose > 2)
     {
@@ -488,7 +660,7 @@ parse_vector (const SANE_Option_Descriptor * opt, const char * str,
       fprintf (stderr, "%s: value for --%s is: ", prog_name, opt->name);
       for (i = 0; i < (int) vector_length; ++i)
 	if (opt->type == SANE_TYPE_FIXED)
-	  fprintf (stderr, "%g ", SANE_UNFIX(vector[i]));
+	  fprintf (stderr, "%g ", SANE_UNFIX (vector[i]));
 	else
 	  fprintf (stderr, "%d ", vector[i]);
       fputc ('\n', stderr);
@@ -498,7 +670,7 @@ parse_vector (const SANE_Option_Descriptor * opt, const char * str,
 void
 fetch_options (SANE_Device * device)
 {
-  const SANE_Option_Descriptor * opt;
+  const SANE_Option_Descriptor *opt;
   SANE_Int num_dev_options;
   int i, option_count;
 
@@ -531,12 +703,12 @@ fetch_options (SANE_Device * device)
       if ((opt->type == SANE_TYPE_FIXED || opt->type == SANE_TYPE_INT)
 	  && opt->size == sizeof (SANE_Int)
 	  && (opt->unit == SANE_UNIT_DPI)
-          && (strcmp (opt->name, SANE_NAME_SCAN_RESOLUTION) == 0))
-        resolution_optind = i;
+	  && (strcmp (opt->name, SANE_NAME_SCAN_RESOLUTION) == 0))
+	resolution_optind = i;
 
       /* Keep track of top-left corner options (if they exist at
-	 all) and replace the bottom-right corner options by a
-	 width/height option (if they exist at all).  */
+         all) and replace the bottom-right corner options by a
+         width/height option (if they exist at all).  */
       if ((opt->type == SANE_TYPE_FIXED || opt->type == SANE_TYPE_INT)
 	  && opt->size == sizeof (SANE_Int)
 	  && (opt->unit == SANE_UNIT_MM || opt->unit == SANE_UNIT_PIXEL))
@@ -555,7 +727,7 @@ fetch_options (SANE_Device * device)
 	    {
 	      window[0] = i;
 	      all_options[option_count].name = "width";
-	      all_options[option_count].val  = 'x';
+	      all_options[option_count].val = 'x';
 	      window_option[0] = *opt;
 	      window_option[0].title = "Scan width";
 	      window_option[0].desc = "Width of scanning area.";
@@ -567,7 +739,7 @@ fetch_options (SANE_Device * device)
 	    {
 	      window[1] = i;
 	      all_options[option_count].name = "height";
-	      all_options[option_count].val  = 'y';
+	      all_options[option_count].val = 'y';
 	      window_option[1] = *opt;
 	      window_option[1].title = "Scan height";
 	      window_option[1].desc = "Height of scanning area.";
@@ -579,7 +751,7 @@ fetch_options (SANE_Device * device)
       ++option_count;
     }
   memcpy (all_options + option_count, basic_options, sizeof (basic_options));
-  option_count += NELEMS(basic_options);
+  option_count += NELEMS (basic_options);
   memset (all_options + option_count, 0, sizeof (all_options[0]));
 
   /* Initialize width & height options based on backend default
@@ -597,9 +769,9 @@ fetch_options (SANE_Device * device)
 }
 
 static void
-set_option (SANE_Handle device, int optnum, void * valuep)
+set_option (SANE_Handle device, int optnum, void *valuep)
 {
-  const SANE_Option_Descriptor * opt;
+  const SANE_Option_Descriptor *opt;
   SANE_Status status;
   SANE_Word orig = 0;
   SANE_Int info;
@@ -626,7 +798,7 @@ set_option (SANE_Handle device, int optnum, void * valuep)
       else if (opt->type == SANE_TYPE_FIXED)
 	fprintf (stderr, "%s: rounded value of %s from %g to %g\n",
 		 prog_name, opt->name,
-		 SANE_UNFIX(orig), SANE_UNFIX(*(SANE_Word *) valuep));
+		 SANE_UNFIX (orig), SANE_UNFIX (*(SANE_Word *) valuep));
     }
 
   if (info & SANE_INFO_RELOAD_OPTIONS)
@@ -634,19 +806,19 @@ set_option (SANE_Handle device, int optnum, void * valuep)
 }
 
 static void
-process_backend_option (SANE_Handle device, int optnum, const char * optarg)
+process_backend_option (SANE_Handle device, int optnum, const char *optarg)
 {
-  static SANE_Word * vector = 0;
+  static SANE_Word *vector = 0;
   static size_t vector_size = 0;
-  const SANE_Option_Descriptor * opt;
+  const SANE_Option_Descriptor *opt;
   size_t vector_length;
   SANE_Status status;
   SANE_Word value;
-  void * valuep;
+  void *valuep;
 
   opt = sane_get_option_descriptor (device, optnum);
 
-  if (!SANE_OPTION_IS_ACTIVE(opt->cap))
+  if (!SANE_OPTION_IS_ACTIVE (opt->cap))
     {
       fprintf (stderr, "%s: attempted to set inactive option %s\n",
 	       prog_name, opt->name);
@@ -659,7 +831,8 @@ process_backend_option (SANE_Handle device, int optnum, const char * optarg)
 				    0, 0);
       if (status != SANE_STATUS_GOOD)
 	{
-	  fprintf (stderr, "%s: failed to set option --%s to automatic (%s)\n",
+	  fprintf (stderr,
+		   "%s: failed to set option --%s to automatic (%s)\n",
 		   prog_name, opt->name, sane_strstatus (status));
 	  exit (1);
 	}
@@ -670,7 +843,7 @@ process_backend_option (SANE_Handle device, int optnum, const char * optarg)
   switch (opt->type)
     {
     case SANE_TYPE_BOOL:
-      value = 1;	/* no argument means option is set */
+      value = 1;		/* no argument means option is set */
       if (optarg)
 	{
 	  if (strncasecmp (optarg, "yes", strlen (optarg)) == 0)
@@ -709,7 +882,7 @@ process_backend_option (SANE_Handle device, int optnum, const char * optarg)
       break;
 
     case SANE_TYPE_BUTTON:
-      value = 0;	/* value doesn't matter */
+      value = 0;		/* value doesn't matter */
       break;
 
     default:
@@ -733,7 +906,7 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth)
     case SANE_FRAME_BLUE:
     case SANE_FRAME_RGB:
       printf ("P6\n# SANE data follows\n%d %d\n%d\n", width, height,
-              (depth <= 8) ? 255 : 65535);
+	      (depth <= 8) ? 255 : 65535);
       break;
 
     default:
@@ -741,16 +914,16 @@ write_pnm_header (SANE_Frame format, int width, int height, int depth)
 	printf ("P4\n# SANE data follows\n%d %d\n", width, height);
       else
 	printf ("P5\n# SANE data follows\n%d %d\n%d\n", width, height,
-                (depth <= 8) ? 255 : 65535);
+		(depth <= 8) ? 255 : 65535);
       break;
     }
-#ifdef __EMX__	/* OS2 - write in binary mode. */
-  _fsetmode(stdout, "b");
+#ifdef __EMX__			/* OS2 - write in binary mode. */
+  _fsetmode (stdout, "b");
 #endif
 }
 
 static void *
-advance (Image *image)
+advance (Image * image)
 {
   if (++image->x >= image->width)
     {
@@ -774,8 +947,8 @@ advance (Image *image)
 	}
     }
   if (!image->data)
-      fprintf (stderr, "%s: can't allocate image buffer (%dx%d)\n",
-	       prog_name, image->width, image->height);
+    fprintf (stderr, "%s: can't allocate image buffer (%dx%d)\n",
+	     prog_name, image->width, image->height);
   return image->data;
 }
 
@@ -783,14 +956,13 @@ static SANE_Status
 scan_it (void)
 {
   int i, len, first_frame = 1, offset = 0, must_buffer = 0;
-  SANE_Byte buffer[32*1024], min = 0xff, max = 0;
+  SANE_Byte buffer[32 * 1024], min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = {0,0,0,0,0,0};
-  static const char *format_name[] =
-    {
-      "gray", "RGB", "red", "green", "blue"
-    };
+  Image image = { 0, 0, 0, 0, 0, 0 };
+  static const char *format_name[] = {
+    "gray", "RGB", "red", "green", "blue"
+  };
 
   do
     {
@@ -844,33 +1016,34 @@ scan_it (void)
 	    case SANE_FRAME_RGB:
 	      assert ((parm.depth == 8) || (parm.depth == 16));
 	    case SANE_FRAME_GRAY:
-	      assert ((parm.depth == 1)||(parm.depth == 8)||(parm.depth == 16));
+	      assert ((parm.depth == 1) || (parm.depth == 8)
+		      || (parm.depth == 16));
 	      if (parm.lines < 0)
 		{
 		  must_buffer = 1;
 		  offset = 0;
 		}
 	      else
-              {
-                if (output_format == OUTPUT_TIFF)
-		  sanei_write_tiff_header (parm.format, parm.pixels_per_line,
-				           parm.lines, parm.depth,
-                                           resolution_value);
-                else
-		  write_pnm_header (parm.format, parm.pixels_per_line,
-				    parm.lines, parm.depth);
-              }
+		{
+		  if (output_format == OUTPUT_TIFF)
+		    sanei_write_tiff_header (parm.format,
+					     parm.pixels_per_line, parm.lines,
+					     parm.depth, resolution_value);
+		  else
+		    write_pnm_header (parm.format, parm.pixels_per_line,
+				      parm.lines, parm.depth);
+		}
 	      break;
 	    }
 
 	  if (must_buffer)
 	    {
 	      /* We're either scanning a multi-frame image or the
-                 scanner doesn't know what the eventual image height
-                 will be (common for hand-held scanners).  In either
-                 case, we need to buffer all data before we can write
-                 the image.  */
-	      image.width  = parm.pixels_per_line;
+	         scanner doesn't know what the eventual image height
+	         will be (common for hand-held scanners).  In either
+	         case, we need to buffer all data before we can write
+	         the image.  */
+	      image.width = parm.pixels_per_line;
 	      if (parm.lines >= 0)
 		/* See advance(); we allocate one extra line so we
 		   don't end up realloc'ing in when the image has been
@@ -897,7 +1070,7 @@ scan_it (void)
 	  offset = parm.format - SANE_FRAME_RED;
 	  image.x = image.y = 0;
 	}
-	
+
       while (1)
 	{
 	  status = sane_read (device, buffer, sizeof (buffer), &len);
@@ -923,14 +1096,14 @@ scan_it (void)
 		case SANE_FRAME_BLUE:
 		  for (i = 0; i < len; ++i)
 		    {
-		      image.data[offset + 3*i] = buffer[i];
+		      image.data[offset + 3 * i] = buffer[i];
 		      if (!advance (&image))
 			{
 			  status = SANE_STATUS_NO_MEM;
 			  goto cleanup;
 			}
 		    }
-		  offset += 3*len;
+		  offset += 3 * len;
 		  break;
 
 		case SANE_FRAME_RGB:
@@ -981,9 +1154,9 @@ scan_it (void)
       image.height = image.y;
       if (output_format == OUTPUT_TIFF)
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
-			         parm.lines, parm.depth, resolution_value);
+				 parm.lines, parm.depth, resolution_value);
       else
-        write_pnm_header (parm.format, image.width, image.height, parm.depth);
+	write_pnm_header (parm.format, image.width, image.height, parm.depth);
       fwrite (image.data, image.Bpp, image.height * image.width, stdout);
     }
 
@@ -998,13 +1171,14 @@ cleanup:
 #define clean_buffer(buf,size)	memset ((buf), 0x23, size)
 
 static void
-pass_fail (int max, int len, SANE_Byte *buffer, SANE_Status status)
+pass_fail (int max, int len, SANE_Byte * buffer, SANE_Status status)
 {
   if (status != SANE_STATUS_GOOD)
     fprintf (stderr, "FAIL Error: %s\n", sane_strstatus (status));
   else if (buffer[len] != 0x23)
     {
-      while (buffer[len] != 0x23) ++len;
+      while (buffer[len] != 0x23)
+	++len;
       fprintf (stderr, "FAIL Cheat: %d bytes\n", len);
     }
   else if (len > max)
@@ -1021,7 +1195,7 @@ test_it (void)
   int i, len;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = {0,0,0,0,0,0};
+  Image image = { 0, 0, 0, 0, 0, 0 };
   static const char *format_name[] =
     { "gray", "RGB", "red", "green", "blue" };
 
@@ -1044,20 +1218,20 @@ test_it (void)
   if (parm.lines >= 0)
     fprintf (stderr, "%s: scanning image of size %dx%d pixels at "
 	     "%d bits/pixel\n", prog_name, parm.pixels_per_line, parm.lines,
-             8 * parm.bytes_per_line / parm.pixels_per_line);
+	     8 * parm.bytes_per_line / parm.pixels_per_line);
   else
     fprintf (stderr, "%s: scanning image %d pixels wide and "
-             "variable height at %d bits/pixel\n",
+	     "variable height at %d bits/pixel\n",
 	     prog_name, parm.pixels_per_line,
-             8 * parm.bytes_per_line / parm.pixels_per_line);
+	     8 * parm.bytes_per_line / parm.pixels_per_line);
   fprintf (stderr, "%s: acquiring %s frame, %d bits/sample\n",
-           prog_name, format_name[parm.format], parm.depth);
+	   prog_name, format_name[parm.format], parm.depth);
 
-  image.data= malloc (parm.bytes_per_line * 2);
+  image.data = malloc (parm.bytes_per_line * 2);
 
   clean_buffer (image.data, parm.bytes_per_line * 2);
   fprintf (stderr, "%s: reading one scanline, %d bytes...\t", prog_name,
-           parm.bytes_per_line);
+	   parm.bytes_per_line);
   status = sane_read (device, image.data, parm.bytes_per_line, &len);
   pass_fail (parm.bytes_per_line, len, image.data, status);
   if (status != SANE_STATUS_GOOD)
@@ -1070,7 +1244,7 @@ test_it (void)
   if (status != SANE_STATUS_GOOD)
     goto cleanup;
 
-  for (i = 2; i < parm.bytes_per_line * 2; i*=2)
+  for (i = 2; i < parm.bytes_per_line * 2; i *= 2)
     {
       clean_buffer (image.data, parm.bytes_per_line * 2);
       fprintf (stderr, "%s: stepped read, %d bytes... \t", prog_name, i);
@@ -1080,7 +1254,7 @@ test_it (void)
 	goto cleanup;
     }
 
-  for (i/=2; i > 2; i/=2)
+  for (i /= 2; i > 2; i /= 2)
     {
       clean_buffer (image.data, parm.bytes_per_line * 2);
       fprintf (stderr, "%s: stepped read, %d bytes... \t", prog_name, i - 1);
@@ -1089,8 +1263,8 @@ test_it (void)
       if (status != SANE_STATUS_GOOD)
 	goto cleanup;
     }
- 
- cleanup:
+
+cleanup:
   sane_cancel (device);
   if (image.data)
     free (image.data);
@@ -1100,24 +1274,29 @@ test_it (void)
 
 static int
 get_resolution (void)
-{const SANE_Option_Descriptor * resopt;
- int resol = 0;
- void * val;
+{
+  const SANE_Option_Descriptor *resopt;
+  int resol = 0;
+  void *val;
 
- if (resolution_optind < 0) return 0;
- resopt = sane_get_option_descriptor (device, resolution_optind);
- if (!resopt) return 0;
+  if (resolution_optind < 0)
+    return 0;
+  resopt = sane_get_option_descriptor (device, resolution_optind);
+  if (!resopt)
+    return 0;
 
- val = alloca (resopt->size);
- if (!val) return 0;
+  val = alloca (resopt->size);
+  if (!val)
+    return 0;
 
- sane_control_option (device, resolution_optind, SANE_ACTION_GET_VALUE, val, 0);
- if (resopt->type == SANE_TYPE_INT)
-   resol = *(SANE_Int *)val;
- else
-   resol = (int)(SANE_UNFIX(*(SANE_Fixed *)val) + 0.5);
+  sane_control_option (device, resolution_optind, SANE_ACTION_GET_VALUE, val,
+		       0);
+  if (resopt->type == SANE_TYPE_INT)
+    resol = *(SANE_Int *) val;
+  else
+    resol = (int) (SANE_UNFIX (*(SANE_Fixed *) val) + 0.5);
 
- return resol;
+  return resol;
 }
 
 
@@ -1125,12 +1304,12 @@ int
 main (int argc, char **argv)
 {
   int ch, i, index, all_options_len;
-  const SANE_Option_Descriptor * opt;
-  const SANE_Device ** device_list;
+  const SANE_Option_Descriptor *opt;
+  const SANE_Device **device_list;
   SANE_Int num_dev_options = 0;
-  const char * devname = 0;
-  const char * defdevname = 0;
-  const char * format = 0;
+  const char *devname = 0;
+  const char *defdevname = 0;
+  const char *format = 0;
   int batch = 0;
   SANE_Status status;
   char *full_optstring;
@@ -1143,32 +1322,47 @@ main (int argc, char **argv)
   else
     prog_name = argv[0];
 
-  defdevname = getenv("SANE_DEFAULT_DEVICE");
+  defdevname = getenv ("SANE_DEFAULT_DEVICE");
 
-  sane_init (0, 0);
+  sane_init (0, auth_callback);
 
   /* make a first pass through the options with error printing and argument
      permutation disabled: */
   opterr = 0;
   while ((ch = getopt_long (argc, argv, "-" BASE_OPTSTRING, basic_options,
-			    &index))
-	 != EOF)
+			    &index)) != EOF)
     {
       switch (ch)
 	{
 	case ':':
 	case '?':
-	  break;	/* may be an option that we'll parse later on */
+	  break;		/* may be an option that we'll parse later on */
 
-	case 'd': devname = optarg; break;
-	case 'b': batch = 1; format = optarg; break;
-	case 'h': help = 1; break;
-	case 'v': ++verbose; break;
-	case 'T': test= 1; break;
+	case 'd':
+	  devname = optarg;
+	  break;
+	case 'b':
+	  batch = 1;
+	  format = optarg;
+	  break;
+	case 'h':
+	  help = 1;
+	  break;
+	case 'v':
+	  ++verbose;
+	  break;
+	case 'T':
+	  test = 1;
+	  break;
 	case OPTION_FORMAT:
-                  if (strcmp (optarg, "tiff") == 0) output_format = OUTPUT_TIFF;
-                  else output_format = OUTPUT_PNM;
-                  break;
+	  if (strcmp (optarg, "tiff") == 0)
+	    output_format = OUTPUT_TIFF;
+	  else
+	    output_format = OUTPUT_PNM;
+	  break;
+	case OPTION_MD5:
+	  accept_only_md5_auth = 1;
+	  break;
 	case 'L':
 	  {
 	    int i;
@@ -1184,15 +1378,15 @@ main (int argc, char **argv)
 	    for (i = 0; device_list[i]; ++i)
 	      {
 		printf ("device `%s' is a %s %s %s\n",
-			 device_list[i]->name, device_list[i]->vendor,
-			 device_list[i]->model, device_list[i]->type);
+			device_list[i]->name, device_list[i]->vendor,
+			device_list[i]->model, device_list[i]->type);
 	      }
 	    if (i == 0)
 	      printf ("\nNo scanners were identified. If you were expecting "
-	        "something different,\ncheck that the scanner is plugged "
-		"in, turned on and detected by the\nfind-scanner tool (if "
-		"appropriate). Please read the documentation which came\n"
-		"with this software (README, FAQ, manpages).\n");
+		      "something different,\ncheck that the scanner is plugged "
+		      "in, turned on and detected by the\nfind-scanner tool (if "
+		      "appropriate). Please read the documentation which came\n"
+		      "with this software (README, FAQ, manpages).\n");
 	    if (defdevname)
 	      printf ("default device is `%s'\n", defdevname);
 
@@ -1204,7 +1398,7 @@ main (int argc, char **argv)
 	  exit (0);
 
 	default:
-	  break;	/* ignore device specific options for now */
+	  break;		/* ignore device specific options for now */
 	}
     }
 
@@ -1221,8 +1415,8 @@ standard output.\n\
 -L, --list-devices         show available scanner devices\n\
 -T, --test                 test backend thoroughly\n\
 -v, --verbose              give even more status messages\n\
--V, --version              print version information\n",
-	    prog_name);
+-V, --version              print version information\n\
+    --accept-md5-only      only accept authorization requests using md5\n", prog_name);
 
   if (!devname)
     {
@@ -1230,8 +1424,8 @@ standard output.\n\
          environment variable SANE_DEFAULT_DEVICE.  If this variable
          is not set, we open the first device we find (if any): */
       devname = defdevname;
-      if (!devname )
-        {
+      if (!devname)
+	{
 	  status = sane_get_devices (&device_list, SANE_FALSE);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -1245,7 +1439,7 @@ standard output.\n\
 	      exit (1);
 	    }
 	  devname = device_list[0]->name;
-    	}
+	}
     }
 
   status = sane_open (devname, &device);
@@ -1279,7 +1473,7 @@ standard output.\n\
 	  exit (1);
 	}
 
-      all_options_len = num_dev_options + NELEMS(basic_options) + 1;
+      all_options_len = num_dev_options + NELEMS (basic_options) + 1;
       all_options = malloc (all_options_len * sizeof (all_options[0]));
       option_number_len = num_dev_options;
       option_number = malloc (option_number_len * sizeof (option_number[0]));
@@ -1328,18 +1522,21 @@ standard output.\n\
       }
 
       optind = 0;
-      opterr = 1;	/* re-enable error printing and arg permutation */
+      opterr = 1;		/* re-enable error printing and arg permutation */
       while ((ch = getopt_long (argc, argv, full_optstring, all_options,
-				&index))
-	     != EOF)
+				&index)) != EOF)
 	{
 	  switch (ch)
 	    {
 	    case ':':
 	    case '?':
-	      exit (1);	/* error message is printed by getopt_long() */
+	      exit (1);		/* error message is printed by getopt_long() */
 
-	    case 'd': case 'h': case 'v': case 'V': case 'T':
+	    case 'd':
+	    case 'h':
+	    case 'v':
+	    case 'V':
+	    case 'T':
 	      /* previously handled options */
 	      break;
 
@@ -1353,11 +1550,11 @@ standard output.\n\
 	      parse_vector (&window_option[1], optarg, &window_val[1], 1);
 	      break;
 
-	    case 'l':	/* tl-x */
+	    case 'l':		/* tl-x */
 	      process_backend_option (device, window[2], optarg);
 	      break;
 
-	    case 't':	/* tl-y */
+	    case 't':		/* tl-y */
 	      process_backend_option (device, window[3], optarg);
 	      break;
 
@@ -1447,12 +1644,12 @@ List of available devices:", prog_name);
   if (output_format != OUTPUT_PNM)
     resolution_value = get_resolution ();
 
-  signal (SIGHUP,  sighandler);
-  signal (SIGINT,  sighandler);
+  signal (SIGHUP, sighandler);
+  signal (SIGINT, sighandler);
   signal (SIGPIPE, sighandler);
   signal (SIGTERM, sighandler);
 
-  if (test == 0) 
+  if (test == 0)
     {
       int n = 1;
 
@@ -1461,11 +1658,11 @@ List of available devices:", prog_name);
 
       do
 	{
-	  char path [PATH_MAX];
-	  if (batch) /* format is NULL unless batch mode */
+	  char path[PATH_MAX];
+	  if (batch)		/* format is NULL unless batch mode */
 	    sprintf (path, format, n);	/* love --(C++) */
 
-	  if (batch && NULL == freopen (path, "w", stdout) )
+	  if (batch && NULL == freopen (path, "w", stdout))
 	    {
 	      fprintf (stderr, "cannot open %s\n", path);
 	      return SANE_STATUS_ACCESS_DENIED;
@@ -1473,23 +1670,23 @@ List of available devices:", prog_name);
 
 	  status = scan_it ();
 	  if (batch)
-	    fprintf( stderr, "status = %d\n", status);
+	    fprintf (stderr, "status = %d\n", status);
 
 	  switch (status)
 	    {
-	      case SANE_STATUS_GOOD:
-	        break;
-	      case SANE_STATUS_EOF:
-	        status = SANE_STATUS_GOOD;
-	        break;
-	      default:
-	        if (batch)
-	          {
-		    fclose(stdout);
-		    unlink(path);
-		  }
-	        break;
-	    }	/* switch */
+	    case SANE_STATUS_GOOD:
+	      break;
+	    case SANE_STATUS_EOF:
+	      status = SANE_STATUS_GOOD;
+	      break;
+	    default:
+	      if (batch)
+		{
+		  fclose (stdout);
+		  unlink (path);
+		}
+	      break;
+	    }			/* switch */
 	  n++;
 	}
       while (batch && SANE_STATUS_GOOD == status);

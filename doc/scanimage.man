@@ -8,6 +8,7 @@ scanimage - scan an image
 .IR dev ]
 .RB [ --format
 .IR format ]
+.RB [ --accept-md5-only ]
 .RB [ -h | --help ]
 .RB [ -L | --list-devices ]
 .RB [ -T | --test ]
@@ -60,6 +61,12 @@ tiff
 to select file format PNM or TIFF. If
 .B --format
 is not used, PNM is written.
+.PP
+The
+.B --accept-md5-only
+option only accepts user authorization requests that support MD5 security. The
+SANE network daemon (saned) is capable of doing such requests. See
+.B saned(1)
 .PP
 The
 .B -h
@@ -258,6 +265,17 @@ The default device-name.
 .I @CONFIGDIR@
 This directory holds various configuration files.  For details, please
 refer to the manual pages listed below.
+.TP
+.I ~/.sane/pass
+This file contains a lines of the form
+.PP
+.RS
+backend:user:password
+.PP
+scanimage uses this information to answer user authorization requests
+automatically. The file must have 0600 permissions or stricter. You should
+use this file in conjunction with the --accept-md5-only option to avoid
+server-side attacks.
 .SH "SEE ALSO"
 xscanimage(1), xcam(1), sane\-dll(5), sane\-dmc(5), sane\-epson(5),
 sane\-hp(5), sane\-microtek(5), sane\-mustek(5), sane\-net(5), sane\-pnm(5),

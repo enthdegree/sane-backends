@@ -1,3 +1,8 @@
+2002-09-17  Oliver Schirrmeister <oschirr@abm.de>
+        * backend/fujitsu.c fujitsu.h fujitsu-scsi.h:
+          added m3092 support
+        * doc/descriptions/fujitsu doc/sane-fujitsu
+          added description 
 2002-09-17  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp.c backend/canon_pp.h backend/canon_pp.conf:
 	  Added init_mode option to conf file for faster starts.

@@ -14,7 +14,8 @@
 	  backend/net.c doc/mustek/mustek.CHANGES
 	  doc/mustek_usb/mustek_usb.CHANGES sanei/sanei_usb.c: Fixed some
 	  DBG format warnings.
-	
+	* lib/inet_ntop.c: Only use inet_ntoa if it's available.
+
 2002-02-13  Peter Fales <peter@fales.com>
 
 	* configure, acinclude.m4, aclocal.m4 - Another tweak to the

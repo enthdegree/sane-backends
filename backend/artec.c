@@ -80,8 +80,8 @@
 
 #define ARTEC_MAJOR     0
 #define ARTEC_MINOR     5
-#define ARTEC_SUB       14
-#define ARTEC_LAST_MOD  "07/28/2000 12:30 EST"
+#define ARTEC_SUB       15
+#define ARTEC_LAST_MOD  "11/29/2000 20:10 EST"
 
 #define MM_PER_INCH	25.4
 
@@ -1232,7 +1232,7 @@ artec_set_scan_window (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
   char write_6[4096];
-  char *data;
+  unsigned char *data;
   int counter;
   int reversed_x;
   int max_x;
@@ -1250,7 +1250,7 @@ artec_set_scan_window (SANE_Handle handle)
       s->tl_y -= (s->line_offset * 2);
     }
 
-  data = write_6 + 10;
+  data = (unsigned char *)write_6 + 10;
 
   DBG (5, "Scan window info:\n");
   DBG (5, "  X resolution: %5d (%d-%d)\n",
@@ -3287,7 +3287,7 @@ sane_start (SANE_Handle handle)
   if (DBG_LEVEL == 101)
     {
       debug_fd = open ("artec.data.raw",
-		       O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0666);
+		       O_WRONLY | O_CREAT | O_TRUNC, 0666);
       if (debug_fd > -1)
 	DBG (101, "opened artec.data.raw output file\n");
     }

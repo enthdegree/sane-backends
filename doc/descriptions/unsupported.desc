@@ -127,6 +127,12 @@
 :status :unsupported
 :comment "Not supported. However, someone started working on this scanner and some information is available (see link)."
 
+:model "CanoScan D2400UF"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported."
+
 :model "LiDE 50"
 :url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
 :interface "USB"
@@ -156,6 +162,12 @@
 :interface "USB SCSI"
 :status :unsupported
 :comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan. Maybe SCSI over USB."
+
+:model "IS 12"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
 
 
 ;********************************************************************************************

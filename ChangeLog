@@ -3,6 +3,8 @@
 	* README.darwin: Minor updates.
 	* TODO: Added v4l2 problem, desc file issues. Removed sm3600 
 	  MacOS	X problem + printing backends in configure.
+	* doc/descriptions/unsupported.desc: Added Canon D2400UF
+	  and IS 12.
 
 2003-06-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

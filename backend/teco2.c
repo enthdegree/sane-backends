@@ -43,7 +43,7 @@
 
 /*
    $Id$
-   TECO scanner VM3575, VM6586, VM6565, VM6575
+   TECO scanner VM3575, VM6565, VM6575, VM6586
 */
 
 /*--------------------------------------------------------------------------*/
@@ -115,6 +115,41 @@ static const int filter_color_val[] = {
 
 /*--------------------------------------------------------------------------*/
 
+/* List of dithering options. */
+static SANE_String_Const dither_list[] = {
+  "Line art",
+  "2x2",
+  "3x3",
+  "4x4 bayer",
+  "4x4 smooth",
+  "8x8 bayer",
+  "8x8 smooth",
+  "8x8 horizontal",
+  "8x8 vertical",
+  NULL
+};
+static const int dither_val[] = {
+  0x00,
+  0x01,
+  0x02,
+  0x03,
+  0x04,
+  0x05,
+  0x06,
+  0x07,
+  0x08
+};
+
+/*--------------------------------------------------------------------------*/
+
+static const SANE_Range threshold_range = {
+  0,				/* minimum */
+  255,				/* maximum */
+  0				/* quantization */
+};
+
+/*--------------------------------------------------------------------------*/
+
 /* Gamma range */
 static const SANE_Range gamma_range = {
   0,				/* minimum */
@@ -134,6 +169,8 @@ static const struct dpi_color_adjust vm3575_dpi_color_adjust[] = {
   {100, 2, 1, 0, 0, 3},
   {120, 2, 0, 1, 1, 3},
   {150, 2, 0, 1, 1, 4},
+  {180, 2, 1, 0, 0, 4},
+  {225, 2, 0, 1, 0, 6},
   {300, 2, 0, 1, 1, 8},
 
   /* must be the last entry */
@@ -149,10 +186,27 @@ static const struct dpi_color_adjust vm6575_dpi_color_adjust[1] = {
 };
 
 static const struct dpi_color_adjust vm6586_dpi_color_adjust[] = {
+  {25, 1, 0, 2, 1, 0},
+  {40, 1, 0, 2, 1, 0},
   {50, 1, 0, 2, 1, 0},
+  {75, 1, 2, 0, 0, 1},
   {150, 1, 0, 2, 1, 1},
+  {160, 1, 0, 2, 1, 1},
+  {175, 1, 0, 2, 1, 1},
+  {180, 1, 0, 2, 1, 1},
   {300, 1, 0, 2, 1, 2},
+  {320, 1, 0, 2, 1, 2},
+  {325, 1, 0, 2, 1, 2},
+  {450, 1, 0, 2, 1, 3},
+  {460, 1, 0, 2, 1, 3},
   {600, 1, 0, 2, 1, 4},
+  {620, 1, 0, 2, 1, 6},
+  {625, 1, 0, 2, 1, 6},
+  {750, 1, 0, 2, 1, 12},
+  {760, 1, 0, 2, 1, 12},
+  {900, 1, 0, 2, 1, 12},
+  {1050, 1, 0, 2, 1, 15},
+  {1200, 1, 0, 2, 1, 15},
 
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
@@ -588,7 +642,10 @@ teco_set_window (Teco_Scanner * dev)
   switch (dev->scan_mode)
     {
     case TECO_BW:
+      window[31] = dev->val[OPT_THRESHOLD].w;
       window[33] = 0x00;
+      i = get_string_list_index (dither_list, dev->val[OPT_DITHER].s);
+      window[36] = dither_val[i];
       break;
     case TECO_GRAYSCALE:
       window[33] = 0x02;
@@ -1392,6 +1449,17 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   dev->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
+  /* Halftone pattern */
+  dev->opt[OPT_DITHER].name = "dither";
+  dev->opt[OPT_DITHER].title = SANE_I18N ("Dither");
+  dev->opt[OPT_DITHER].desc = SANE_I18N ("Dither");
+  dev->opt[OPT_DITHER].type = SANE_TYPE_STRING;
+  dev->opt[OPT_DITHER].size = max_string_size (dither_list);
+  dev->opt[OPT_DITHER].cap |= SANE_CAP_INACTIVE;
+  dev->opt[OPT_DITHER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  dev->opt[OPT_DITHER].constraint.string_list = dither_list;
+  dev->val[OPT_DITHER].s = strdup (dither_list[0]);
+
   /* custom-gamma table */
   dev->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
   dev->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
@@ -1458,6 +1526,18 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_FILTER_COLOR].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   dev->opt[OPT_FILTER_COLOR].constraint.string_list = filter_color_list;
   dev->val[OPT_FILTER_COLOR].s = (SANE_Char *) strdup (filter_color_list[0]);
+
+  /* Threshold */
+  dev->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  dev->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_THRESHOLD].size = sizeof (SANE_Int);
+  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+  dev->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_THRESHOLD].constraint.range = &threshold_range;
+  dev->val[OPT_THRESHOLD].w = 128;
 
   /* preview */
   dev->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -2090,11 +2170,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_CUSTOM_GAMMA:
 	case OPT_PREVIEW:
+	case OPT_THRESHOLD:
 	  *(SANE_Word *) val = dev->val[option].w;
 	  return SANE_STATUS_GOOD;
 
 	  /* string options */
 	case OPT_MODE:
+	case OPT_DITHER:
 	case OPT_FILTER_COLOR:
 	  strcpy (val, dev->val[option].s);
 	  return SANE_STATUS_GOOD;
@@ -2135,6 +2217,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	case OPT_TL_X:
 	case OPT_BR_X:
+	case OPT_THRESHOLD:
 	case OPT_RESOLUTION:
 	  if (info)
 	    {
@@ -2149,6 +2232,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	  /* String side-effect free options */
+	case OPT_DITHER:
+	  free (dev->val[option].s);
+	  dev->val[option].s = (SANE_String) strdup (val);
+	  return SANE_STATUS_GOOD;
+
 	case OPT_FILTER_COLOR:
 	  free (dev->val[option].s);
 	  dev->val[option].s = (SANE_String) strdup (val);
@@ -2167,7 +2255,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_GAMMA_VECTOR_GRAY].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_DITHER].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_FILTER_COLOR].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
 	  /* This the default resolution range, except for the
 	   * VM3575 and VM6586 in color mode. */
@@ -2178,7 +2268,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      dev->scan_mode = TECO_BW;
 	      dev->depth = 8;
+	      dev->opt[OPT_DITHER].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_FILTER_COLOR].cap &= ~SANE_CAP_INACTIVE;
+	      dev->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  else if (strcmp (dev->val[OPT_MODE].s, GRAYSCALE_STR) == 0)
 	    {

@@ -10,6 +10,9 @@
 	* doc/sane.man: Added comment about translations.
 	* Makefile.in: Added Changelogs to DISTFILES. test/Makefile is
 	  removed in make distclean now. 
+	* doc/backend-writing.txt: Added paragraph about getting started.
+	  Added comments about ANSI C, compilation warnings, testing and 
+	  keeping manpages up-to-date.
 
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

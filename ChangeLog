@@ -2,6 +2,8 @@
 
 	* doc/backend-writing.txt: Updated concerning splitted .desc
 	  directories.
+	* doc/Makefile.in: Updated install-mostang concerning splitted HTML
+	  pages.
 
 2002-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

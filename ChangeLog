@@ -1,5 +1,9 @@
 2001-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+	
+	* doc/Makefile.in: Install all the READMEs and other available
+	  documentation in $docdir. Print which manpage is generated.
+	  Don't remove files/dirs that doesn't exist. Remove the html
+	  manpages in distclean. Fixed spelling mistake in .PHONY.
 	* TODO: Added entries about possible segfaults and memory leaks.
 	* PROJECTS: Added Canon Canon FB330P, FP630P.
 

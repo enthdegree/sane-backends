@@ -1,3 +1,7 @@
+2003-10-24  Peter Kirchgessner <peter@kirchgessner.net>
+	* backend/hp.c, backend/hp-handle.c, backend/Makefile.in:
+	  second check-in: use new sanei_thread-interface for hp-backend
+
 2003-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/hp_rts88xx.desc: Added description

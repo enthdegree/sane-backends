@@ -1,3 +1,9 @@
+2002-07-23  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* doc/descriptions/canon_pp.desc: Added "N640P ex" model to supported 
+	  scanners after report of successful test. Also, "EPP" really should 
+	  have been "ECP".
+
 2002-07-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/scanimage.c: Fail if there are arguments without a preceding

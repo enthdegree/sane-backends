@@ -1,3 +1,10 @@
+2004-02-08  Frank Zago  <fzago at austin dot rr dot com>
+	* README.windows: added info about USB scanners.
+
+	* backend/teco1.c backend/teco1.conf backend/teco1.h
+	  doc/sane-teco1.man doc/descriptions/teco1.desc: added new
+	  scanner Relisys RELI 4816, marked Relisys AVEC 2412 as tested.
+
 2004-02-08  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax: bugfix for DOR mode, sane-umax-build-43
 	* doc/umax/umax.CHANGES updated

@@ -1,9 +1,9 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2000 Mustek.
-   Maintained by Tom Wang <tom.wang@mustek.com.tw>
+   Originally maintained by Tom Wang <tom.wang@mustek.com.tw>
 
-   Updates (C) 2001 by Henning Meier-Geinitz.
+   Copyright (C) 2001, 2002 by Henning Meier-Geinitz.
 
    This file is part of the SANE package.
 
@@ -43,7 +43,8 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file implements a SANE backend for Mustek 1200UB flatbed scanners.  */
+   This file implements a SANE backend for Mustek 1200UB and similar 
+   USB flatbed scanners.  */
   
 #ifndef mustek_usb_mid_h
 #define mustek_usb_mid_h

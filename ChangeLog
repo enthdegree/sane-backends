@@ -1,3 +1,8 @@
+2001-09-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added m3096g updates and website. Added 600CU to list
+	  of supported Mustek USB scanners.
+
 2001-09-04  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/net.desc doc/saned.man doc/sane-net.man: added

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-09-12"		; version of backend
+:version "2003-09-18"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -381,6 +381,12 @@
 :status :unsupported
 :comment "Unsupported. See 3570c."
 
+:model "ScanJet 3970c"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3970c.html"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "ScanJet 4400C"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4470c.html"
 :interface "USB"
@@ -511,6 +517,12 @@
 
 :model "ScanMaker 3830"
 :url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3830.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
+:model "ScanMaker 3840"
+:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3840.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
@@ -848,6 +860,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as Avision iVina FB2400."
+
+:model "Powerlook 1000 USB"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No further information available."
 
 ;********************************************************************************************
 

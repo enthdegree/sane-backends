@@ -9,6 +9,9 @@
 	  configure.in ltmain.sh: Update to latest libtool (1.4.3), config.sub
 	  and config.gues. This should fix the build problems on MacOS X
 	  concerning dynamic loading.
+	* backend/Makefile.in: Backends shouldn't be linked to sanei_config2 if
+	  they aren't also linked to sanei_scsi. sanei_config2 needs
+	  sanei_scsi.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

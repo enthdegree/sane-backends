@@ -265,7 +265,6 @@ libsane-artec.la: ../sanei/sanei_constrain_value.lo
 libsane-artec.la: ../sanei/sanei_scsi.lo
 libsane-artec_eplus48u.la: ../sanei/sanei_constrain_value.lo
 libsane-artec_eplus48u.la: ../sanei/sanei_usb.lo
-libsane-as6e.la: ../sanei/sanei_config2.lo
 libsane-as6e.la: ../sanei/sanei_constrain_value.lo
 libsane-avision.la: ../sanei/sanei_config2.lo
 libsane-avision.la: ../sanei/sanei_constrain_value.lo
@@ -278,7 +277,6 @@ libsane-canon.la: ../sanei/sanei_constrain_value.lo
 libsane-canon.la: ../sanei/sanei_scsi.lo
 libsane-canon630u.la: ../sanei/sanei_constrain_value.lo
 libsane-canon630u.la: ../sanei/sanei_usb.lo
-libsane-canon_pp.la: ../sanei/sanei_config2.lo
 libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
 libsane-coolscan.la: ../sanei/sanei_config2.lo
 libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
@@ -328,7 +326,6 @@ libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
-libsane-mustek_pp.la: ../sanei/sanei_config2.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_usb.la: ../sanei/sanei_usb.lo
@@ -339,7 +336,6 @@ libsane-net.la: ../sanei/sanei_codec_bin.lo
 libsane-net.la: ../sanei/sanei_net.lo
 libsane-net.la: ../sanei/sanei_wire.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo
-libsane-plustek.la: ../sanei/sanei_config2.lo
 libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-plustek.la: ../sanei/sanei_lm983x.lo

@@ -26,7 +26,7 @@ Backends:
  gphoto2:	Peter Fales (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
- m3096g:        Randolph Bentson (*)
+ m3096g:        Randolph Bentson, Oliver Schirrmeister (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag (*)
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
@@ -50,7 +50,7 @@ Backends:
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien
                 Sable (*), Henrik Johansson, Chris Bagwell (*), and Oliver 
                 Schwartz (*)
- sp15c:         Randolph Bentson (*)
+ sp15c:         Randolph Bentson
  st400:         Ingo Wilken (*)
  tamarack:      Roger Wolff
  umax:          Oliver Rauch (*) and Michael K. Johnson
@@ -121,6 +121,7 @@ Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
 Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
+Oliver Schirrmeister <oschirr@abm.de>
 Oliver Schwartz <oliverschwartz@users.sourceforge.net>
 Patrick Reynolds <patrickr@virginia.edu>
 Peter Fales <peter@fales.com>

@@ -1,3 +1,8 @@
+2001-10-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Removed entry about @LIBDIR@ and @CONFIGDIR@ in man pages.
+	  Added Entry about sanei_scsi return values and timeout.
+
 2001-10-27 Peter Kirchgessner <peter@kirchgessner.net>
 
   *backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c hp-option.c

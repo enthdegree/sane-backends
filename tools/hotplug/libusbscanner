@@ -17,3 +17,12 @@ if [ "$ACTION" = "add" -a "$TYPE" = "usb" ]; then
   chown root:scanner "$DEVICE"
   chmod 0660 "$DEVICE"
 fi
+
+
+# That's an insecure but simple alternative
+# Everyone has access to the scanner
+
+# if [ "$ACTION" = "add" -a "$TYPE" = "usb" ]; then
+#  chmod 0666 "$DEVICE"
+# fi
+

@@ -1,4 +1,4 @@
-.TH sane-usb 5 "27 Nov 2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-usb 5 "8 Mar 2004"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-usb
 .SH NAME
 sane-usb \- USB configuration tips for SANE
@@ -57,7 +57,8 @@ methods are tried by SANE, if they are available. Currently USB access is
 tested for Linux (kernel, libusb), FreeBSD (kernel, libsub), NetBSD (libusb),
 OpenBSD (kernel, libusb) and MacOS X (libusb). Testing on MacOS X is very
 limited and not all scanners seem to work reliably with the BSDs. For
-installation issues, also check the @DOCDIR@/README.platform files.
+installation issues, also check the @DOCDIR@/README.platform files. The scanner
+module is on longer available on Linux 2.6 and later. Use libusb instead.
 .PP
 Generally speaking, if your scanner works with one method, there is no need to
 switch to the other one.
@@ -94,9 +95,9 @@ the devices are located in /proc/bus/usb/. There are directories named
 e.g. "001" (the bus name) containing files "001", "002" etc. (the device
 files). The right device files can be found out by running scanimage -L as
 root. Setting permissions with "chmod" is not permanent, however. They will be
-resetted after reboot or replugging the scanner. It's also possible to mount
-the usbfs with the option "devmode=0666", e.g. by using the following line in
-/etc/fstab:
+resetted after reboot or replugging the scanner. In Linux versions before 2.6 it
+was also possible to mount the usbfs with the option "devmode=0666", e.g. by
+using the following line in /etc/fstab:
 .PP
 .RS
 none /proc/bus/usb usbfs defaults,devmode=0666  0  0
@@ -105,8 +106,10 @@ none /proc/bus/usb usbfs defaults,devmode=0666  0  0
 However, this way everyone has access to all USB devices. Another way to set
 permissions is to use the hotplug utilities
 .RI ( http://linux-hotplug.sourceforge.net/ ),
-which support dynamic setting of access permissions. Last, the frontends can
-be run as root. However, that's not recommended for security reasons.
+which support dynamic setting of access permissions. SANE comes with hotplug
+scripts in the directory tools/hotplug. They can be used for setting
+permissions.  Last, the frontends can be run as root. However, that's not
+recommended for security reasons.
 .PP
 For the
 .BR BSDs ,

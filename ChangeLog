@@ -1,3 +1,9 @@
+2004-03-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/README tools/hotplug/README tools/hotplug/libsane.usermap
+	  tools/hotplug/libusbscanner: Added scanner ids (from Marcel
+	  Pol). Added more documentation. Added "chmod a+rw" alternative.
+
 2004-03-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Vantas 3000. Added some

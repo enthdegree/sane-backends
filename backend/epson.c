@@ -16,8 +16,8 @@
    Copyright (C) 2003 EPSON KOWA Corporation
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.40 - 2003-10-27"
-#define SANE_EPSON_BUILD	240
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.41 - 2004-02-01"
+#define SANE_EPSON_BUILD	241
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2004-02-01   Added D7 function level as copy of D1 for CX-6400
+        	Added IDs for CX-6400 and Perfection 4870
    2003-10-27   Replaced DBG(0, ... with DBG(1, ...
    2003-09-12   Increment only once in loop to find USB scanners
 		Fix rounding problem when determining number of lines to scan

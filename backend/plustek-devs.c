@@ -1854,7 +1854,7 @@ static HWDef Hw0x04A9_0x2206_0 =
  	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode (runtime)          */
 			/* illumination mode settings 				      */
-	{ 3,  0,    0, 23, 1800,  0,    0 },
+	{ 3,  0,    0, 23, 1500,  0,    0 },
 	{ 2, 23, 4000, 23, 2600, 23, 1600 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */

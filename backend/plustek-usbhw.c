@@ -1288,7 +1288,7 @@ static SANE_Bool usb_Wait4Warmup( pPlustek_Device dev )
 
 	pHWDef hw = &dev->usbDev.HwSetting;
 
-   	if( hw->bReg_0x29 != 1 ) {
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 		DBG(_DBG_INFO,"Warmup: skipped for CIS devices\n" );
 		return SANE_TRUE;
 	}

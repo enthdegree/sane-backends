@@ -1155,15 +1155,17 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 		return SANE_FALSE;
 
 	a_bRegs[0x07] = 0;
+	a_bRegs[0x28] = 0;
 
 	/* set unused registers to 0 */
 	memset( &a_bRegs[0x03], 0, 3 );
 	memset( &a_bRegs[0x5f], 0, 0x7f-0x5f+1 );
 
 	/* set the merlin registers */
+	_UIO(sanei_lm983x_write( dev->fd, 0x03, &a_bRegs[0x03], 3, SANE_TRUE));
 	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x7f - 0x08+1, SANE_TRUE));
 
-    usleep( 50 );
+    usleep( 100 );
 	
 	if( !usbio_WriteReg( dev->fd, 0x07, 0 ))
 		return SANE_FALSE;

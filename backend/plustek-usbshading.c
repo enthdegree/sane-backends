@@ -333,9 +333,20 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 
 	case kCIS650:
 		DBG( _DBG_INFO2, "kCIS650 adjustments\n" );
-		pParam->swGain[0] = 1160;
-		pParam->swGain[1] = 1160;
-		pParam->swGain[2] = 1160;
+		if(pParam->bDataType == SCANDATATYPE_Color) {
+			pParam->swGain[0] = 1160;
+			pParam->swGain[1] = 1160;
+			pParam->swGain[2] = 1160;
+		} else {
+			pParam->swOffset[0] =
+			pParam->swOffset[1] =
+			pParam->swOffset[2] = -1500;
+
+			pParam->swGain[0] =
+			pParam->swGain[1] =
+			pParam->swGain[2] = 1000;
+
+		}
 		break;
 
 	case kCIS670:
@@ -349,13 +360,13 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 			pParam->swGain[1] = 1150;
 			pParam->swGain[2] = 1150;
 		} else {
-			pParam->swOffset[0] = -1500;
-			pParam->swOffset[1] = -1500;
-			pParam->swOffset[2] = -1500;
+			pParam->swOffset[0] =
+			pParam->swOffset[1] =
+			pParam->swOffset[2] = -2800;
 			
-			pParam->swGain[0] = 900;
-			pParam->swGain[1] = 900;
-			pParam->swGain[2] = 900;
+			pParam->swGain[0] =
+			pParam->swGain[1] =
+			pParam->swGain[2] = 980;
 		}
 		break;
 
@@ -555,7 +566,6 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 }
 
 /** as the name says..
- *
  */
 static void usb_Swap( u_short *pw, u_long dwBytes )
 {
@@ -564,7 +574,6 @@ static void usb_Swap( u_short *pw, u_long dwBytes )
 }
 
 /** according to the pixel values,
- *
  */
 static u_char usb_GetNewGain( u_short wMax )
 {
@@ -2485,10 +2494,15 @@ static int usb_DoCalibration( pPlustek_Device dev )
  */
 static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 {
+	u_char    channel;
 	pDCapsDef scaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_INFO2, "usb_DownloadShadingData(%u)\n", bJobID );
+
+	channel = CHANNEL_green;
+	if( hw->bReg_0x26 & _ONE_CH_COLOR )
+		channel = CHANNEL_blue;
 
 	switch( bJobID ) {
 
@@ -2504,7 +2518,7 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 									m_ScanParam.Size.dwPhyPixels * 2,
 								    (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 			} else {
-				usb_SetDarkShading( dev->fd, CHANNEL_green, a_wDarkShading +
+				usb_SetDarkShading( dev->fd, channel, a_wDarkShading +
 									m_ScanParam.Size.dwPhyPixels,
 								    (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 			}
@@ -2575,7 +2589,7 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 										a_wDarkShading + m_dwPixels * 2,
 									(u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				} else {
-					usb_SetDarkShading( dev->fd, CHANNEL_green,
+					usb_SetDarkShading( dev->fd, channel,
 										a_wDarkShading + m_dwPixels,
 									(u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				}
@@ -2586,13 +2600,13 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 					usb_SetWhiteShading( dev->fd, CHANNEL_green,
 										 a_wWhiteShading +
 										 m_ScanParam.Size.dwPhyPixels,
-									 (u_short)m_ScanParam.Size.dwPhyPixels * 2);
+									(u_short)m_ScanParam.Size.dwPhyPixels * 2);
 					usb_SetWhiteShading( dev->fd, CHANNEL_blue,
 									     a_wWhiteShading +
 										 m_ScanParam.Size.dwPhyPixels * 2,
-									 (u_short)m_ScanParam.Size.dwPhyPixels * 2);
+									(u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				} else {
-					usb_SetWhiteShading( dev->fd,CHANNEL_green,a_wWhiteShading,
+					usb_SetWhiteShading( dev->fd, channel, a_wWhiteShading,
 									(u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				}
 				

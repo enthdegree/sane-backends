@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "18 May 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "30 May 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -593,10 +593,6 @@ These values can be used to adjust the internally detected gain values of
 the AFE for each channel. The range is between 0 and 63.
 .RE
 
-
-
-
-
 .PP
 See the plustek.conf file for examples.
 .PP
@@ -656,6 +652,19 @@ Mailing-List archive at:
 or directly from the projects' homepage at:
 .br
 .B http://www.gjaeger.de/scanner/plustek.html
+.PP
+To obtain debug messages from the backend, please set the
+environment-variable
+.I SANE_DEBUG_PLUSTEK
+before calling your favorite scan-frontend (i.e. xscanimage).
+.br
+.B i.e.: export SANE_DEBUG_PLUSTEK=20 ; xscanimage
+.PP
+The value controls the verbosity of the backend. Please note, that
+values greater than 19 force the backend to output raw data files,
+which could be rather large. The ending of these files is ".raw".
+For problem reports it should be enough the set the verbosity to
+13.
 .PP
 
 .SH "KNOWN BUGS & RESTRICTIONS"

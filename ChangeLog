@@ -1,5 +1,15 @@
+2003-08-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane-plustek.man: Added debug description
+	* backend/plustek.c backend/plustek-usbhw.c backend/plustek-usbshading.c
+	  backend/plustek-usbscan.c backend/plustek-devs.c
+	  Fixed warmup bug
+	  Fixed EPSON12x0 and CanoScan hangs during init step
+	  Some fine-tuning for the CanoScan devices
+
 2003-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
-	* doc/descritpions/plustek.desc: Update to new keywords,
+
+	* doc/descriptions/plustek.desc: Update to new keywords,
 	  added Genius Colorpage HR6X EPP
 	* TODO: moved Plustek topics to done section
 

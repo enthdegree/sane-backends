@@ -55,7 +55,7 @@
 
 #define MICROTEK_MAJOR 0
 #define MICROTEK_MINOR 12
-#define MICROTEK_PATCH 2
+#define MICROTEK_PATCH 3
 
 #include "sane/config.h"
 
@@ -1494,6 +1494,7 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   case 0x57: /* ScanMaker IIHR    */
   case 0x59: /* ScanMaker III     */
   case 0x5c: /* Agfa Arcus II     */
+  case 0x5e: /* Agfa StudioStar   */
   case 0x63: /* ScanMaker E6      */
   case 0x66: /* ScanMaker E6 (new)*/
     mi->base_resolution = 600;
@@ -1807,6 +1808,8 @@ dump_inquiry(Microtek_Info *mi, unsigned char *result)
     fprintf(stderr, "line-by-line, R-G-B sequence\n"); break;
   case MI_COLSEQ_NONRGB:
     fprintf(stderr, "line-by-line, non-sequential with headers\n"); break;
+  case MI_COLSEQ_2PIXEL: 
+    fprintf(stderr, "2pixel-by-2pixel RRGGBB\n"); break;
   default:
     fprintf(stderr, "UNKNOWN CODE (0x%02x)\n", mi->color_sequence);
   }
@@ -2160,7 +2163,7 @@ static SANE_Status end_scan(Microtek_Scanner *s, SANE_Status ostat)
 
 static int comparo(const void *a, const void *b)
 {
-  return (*(int *)a - *(int *)b);
+  return (*(const int *)a - *(const int *)b);
 }
 
 
@@ -2502,8 +2505,7 @@ static SANE_Status pack_flat_data(Microtek_Scanner *s, size_t nlines)
   }
 
   if (s->doexpansion) {
-    int i;
-    unsigned int line, bit;
+    unsigned int line, bit, i;
     SANE_Byte *sb, *db, byte;
 
     size_t pos;
@@ -2576,7 +2578,7 @@ static SANE_Status
 pack_seqrgb_data (Microtek_Scanner *s, size_t nlines)
 {
   ring_buffer *rb = s->rb;
-  int seg, i;
+  unsigned int seg;
   SANE_Byte *db = rb->base;
   SANE_Byte *sb = s->scsi_buffer;
   size_t completed;
@@ -2621,7 +2623,7 @@ pack_seqrgb_data (Microtek_Scanner *s, size_t nlines)
     }
 
     if (s->doexpansion) {
-      int i;
+      unsigned int i;
       double x1, x2, n1, n2;
       for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	   i < s->dest_ppl; 
@@ -2635,6 +2637,7 @@ pack_seqrgb_data (Microtek_Scanner *s, size_t nlines)
       }
       sb += s->ppl;
     } else {
+      size_t i;
       for (i=0; i < rb->ppl; i++) {
 	db[spot] = *sb;
 	sb++;
@@ -2673,7 +2676,7 @@ static SANE_Status
 pack_goofyrgb_data(Microtek_Scanner *s, size_t nlines)
 {
   ring_buffer *rb = s->rb;  
-  int seg, i;
+  unsigned int seg; /* , i;*/
   SANE_Byte *db;
   SANE_Byte *sb = s->scsi_buffer;
   size_t completed;
@@ -2733,7 +2736,7 @@ pack_goofyrgb_data(Microtek_Scanner *s, size_t nlines)
     sb++; /* skip the other header byte */
 
     if (s->doexpansion) {
-      int i;
+      unsigned int i;
       double x1, x2, n1, n2;
       for (i = 0, x1 = 0.0, x2 = s->exp_aspect, n1 = 0.0, n2 = floor(x2);
 	   i < s->dest_ppl; 
@@ -2747,6 +2750,7 @@ pack_goofyrgb_data(Microtek_Scanner *s, size_t nlines)
       }
       sb += s->ppl;
     } else {
+      unsigned int i;
       for (i=0; i < rb->ppl; i++) {
 	db[spot] = *sb;
 	sb++;
@@ -2776,6 +2780,62 @@ pack_goofyrgb_data(Microtek_Scanner *s, size_t nlines)
   return SANE_STATUS_GOOD;
 }
   
+
+
+/********************************************************************/
+/* Process R1R2-G1G2-B1B2 double pixels (AGFA StudioStar)           */
+/********************************************************************/
+
+static SANE_Status
+pack_seq2r2g2b_data(Microtek_Scanner *s, size_t nlines)
+{
+  SANE_Status status;
+  ring_buffer *rb = s->rb;
+  size_t nbytes = nlines * rb->bpl;
+ 
+  size_t start = (rb->head_complete + rb->complete_count) % rb->size;
+  size_t max_xfer = 
+    (start < rb->head_complete) ?
+    (rb->head_complete - start) :
+    (rb->size - start + rb->head_complete);
+  size_t length = MIN(nbytes, max_xfer);
+  
+  if (nbytes > max_xfer) {
+    DBG(23, "pack_2r2g2b: must expand ring, %lu + %lu\n",
+	(u_long)rb->size, (u_long)(nbytes - max_xfer));
+    status = ring_expand(rb, (nbytes - max_xfer));
+    if (status != SANE_STATUS_GOOD) return status;
+  }
+  {
+    unsigned int line, p;
+    size_t pos = start; 
+    SANE_Byte *sb = s->scsi_buffer;
+    SANE_Byte *db = rb->base;
+
+    for (line = 0; line < nlines; line++) {
+      for (p = 0; p < s->dest_ppl; p += 2){
+	/* first pixel */
+	db[pos] = sb[0];
+	if (++pos >= rb->size) pos = 0; /* watch out for ringbuff end? */
+	db[pos] = sb[2];
+	if (++pos >= rb->size) pos = 0;
+	db[pos] = sb[4];
+	if (++pos >= rb->size) pos = 0;
+	/* second pixel */
+	db[pos] = sb[1];
+	if (++pos >= rb->size) pos = 0;
+	db[pos] = sb[3];
+	if (++pos >= rb->size) pos = 0;
+	db[pos] = sb[5];
+	if (++pos >= rb->size) pos = 0;
+	sb += 6;
+      }
+    }
+  }
+  rb->complete_count += length;
+  return SANE_STATUS_GOOD;
+}
+
 
 
 /********************************************************************/
@@ -2846,6 +2906,8 @@ pack_into_ring(Microtek_Scanner *s, int nlines)
     status = pack_seqrgb_data(s, nlines); break;
   case MS_LNFMT_GOOFY_RGB:
     status = pack_goofyrgb_data(s, nlines); break;
+  case MS_LNFMT_SEQ_2R2G2B:
+    status = pack_seq2r2g2b_data(s, nlines); break;
   default:
     status = SANE_STATUS_JAMMED;
   }
@@ -3682,7 +3744,7 @@ sane_get_parameters (SANE_Handle handle,
 /********************************************************************/
 /* sane_start                                                       */
 /********************************************************************/
-SANE_Status
+static SANE_Status
 sane_start_guts (SANE_Handle handle)
 {
   Microtek_Scanner *s = handle;
@@ -3802,6 +3864,12 @@ sane_start_guts (SANE_Handle handle)
       s->planes = 3;
       s->line_format = MS_LNFMT_FLAT;
       break;
+    case MI_COLSEQ_2PIXEL:
+      s->pixel_bpl = linewidth * 3 * ((s->bits_per_color + 7) / 8);
+      s->ppl = linewidth;
+      s->header_bpl = 0;
+      s->planes = 3;
+      s->line_format = MS_LNFMT_SEQ_2R2G2B;
     case MI_COLSEQ_RGB:
       s->pixel_bpl = linewidth * 3 * ((s->bits_per_color + 7) / 8);
       s->ppl = linewidth;
@@ -3891,7 +3959,7 @@ sane_start (SANE_Handle handle)
 /********************************************************************/
 /* sane_read                                                        */
 /********************************************************************/
-SANE_Status 
+static SANE_Status 
 sane_read_guts (SANE_Handle handle, SANE_Byte *dest_buffer,
 		SANE_Int dest_length, SANE_Int *ret_length)
 {

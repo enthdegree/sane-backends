@@ -193,6 +193,7 @@ typedef struct Microtek_Info {
 #define MI_COLSEQ_PIXEL  0x01
 #define MI_COLSEQ_RGB    0x02
 #define MI_COLSEQ_NONRGB 0x03
+#define MI_COLSEQ_2PIXEL 0x11       /* Agfa StudioStar */
   SANE_Byte color_sequence;     /* color sequence spec. code         */
   SANE_Byte does_3pass;         /* allows 3-pass scanning?           */
   SANE_Byte does_mode1;         /* allows MODE1 sense/select comm's? */
@@ -342,6 +343,7 @@ typedef struct Microtek_Scanner {
 #define MS_LNFMT_FLAT 0
 #define MS_LNFMT_SEQ_RGB 1
 #define MS_LNFMT_GOOFY_RGB 2
+#define MS_LNFMT_SEQ_2R2G2B 3
   SANE_Int line_format; /* specify how we need to repackage scanlines */
 
   SANE_Int pixel_bpl;   /* bytes per line, pixels  */

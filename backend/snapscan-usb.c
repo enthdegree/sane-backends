@@ -398,7 +398,7 @@ static int enqueue_bq(int fd,const void *src, size_t src_size)
 
     bqelements++;
     DBG(DL_DATA_TRACE, "%s: Busy queue: elements=%d, bqhead=%p, bqtail=%p\n",
-        me,bqelements,bqhead,bqtail);
+        me,bqelements,(void*)bqhead,(void*)bqtail);
     return 0;
 }
 
@@ -423,7 +423,7 @@ static void dequeue_bq()
 
     bqelements--;
     DBG(DL_DATA_TRACE, "%s: Busy queue: elements=%d, bqhead=%p, bqtail=%p\n",
-        me,bqelements,bqhead,bqtail);
+        me,bqelements,(void*)bqhead,(void*)bqtail);
 }
 
 static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
@@ -456,6 +456,9 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
+ * Revision 1.13  2003/11/08 09:50:27  oliver-guest
+ * Fix TPO scanning range for Epson 1670
+ *
  * Revision 1.12  2003/07/26 17:16:55  oliverschwartz
  * Changed licence to GPL + SANE exception for snapscan-usb.[ch]
  *

@@ -1,5 +1,10 @@
 2003-11-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
+	* backend/snapscan-options.c backend/snapscan-usb.c
+	  Fix TPO range for Epson 1670, fix compiler warnings on gcc 3.3
+
+2003-11-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
 	* backend/snapscan-scsi.c backend/snapscan.c doc/descriptions/snapscan.desc:
 	  Final bugfixes for Epson 1670
 

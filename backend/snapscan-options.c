@@ -144,6 +144,16 @@ static const SANE_Range y_range_tpo_e50 =
     SANE_FIX (0.0), SANE_FIX (240.0), 0
 };        /* mm */
 
+/* TPO range for the Epson 1670 */
+static const SANE_Range x_range_tpo_1670 =
+{
+    SANE_FIX (0.0), SANE_FIX (101.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_1670 =
+{
+    SANE_FIX (0.0), SANE_FIX (228.0), 0
+};        /* mm */
+
 static SANE_Range x_range_tpo;
 static SANE_Range y_range_tpo;
 static const SANE_Range gamma_range =
@@ -219,6 +229,10 @@ static void init_options (SnapScan_Scanner * ps)
     case SNAPSCANE52:
         x_range_tpo = x_range_tpo_e50;
         y_range_tpo = y_range_tpo_e50;
+        break;
+    case PERFECTION1670:
+        x_range_tpo = x_range_tpo_1670;
+        y_range_tpo = y_range_tpo_1670;
         break;
     default:
         x_range_tpo = x_range_tpo_default;
@@ -1470,6 +1484,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.11  2003/11/08 09:50:27  oliver-guest
+ * Fix TPO scanning range for Epson 1670
+ *
  * Revision 1.10  2003/10/21 20:43:25  oliver-guest
  * Bugfixes for SnapScan backend
  *

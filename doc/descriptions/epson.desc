@@ -10,7 +10,7 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.2.19"                 ; version of backend
+:version "0.2.21"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.khk.net/sane"    ; backend's web page
@@ -92,7 +92,7 @@
 :interface "USB"
 
 :model "Perfection 2450"
-:comment "no positive report about FireWire yet"
+:comment "IEEE-1394 is not supported"
 :interface "USB"
 
 :model "Expression 636"

@@ -55,7 +55,9 @@ Expression 1600              USB, SCSI, IEEE-1394
 .RE
 
 For other scanners the software  may or may not work.  Please send mail to 
-the backend author (khk@khk.net) to report successes or failures.
+the backend author (khk@khk.net) to report successes with scanners not on
+the list or failures with scanners that are listed. At this time, the
+Perfection 2450 is only supported with the USB interface.
 .SH OPTIONS
 The options the backend supports can either be selected through command line
 options to programs like scanimage or through GUI elements in xscanimage or xsane.
@@ -292,6 +294,9 @@ probably because the device name reported by the scanner is not in the
 correct format. Please send this information to the backend maintainer
 (email address is in the AUTHOR section of this man page or in the
 AUTHORS file of the SANE distribution). 
+
+The Perfection 600 and Perfection 1250 are not supported by this
+backend.
 
 .SH AUTHOR
 

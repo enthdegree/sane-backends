@@ -282,7 +282,7 @@ This allows to override the function or command level that the backend
 uses to communicate with the scanner. The function level a scanner
 supports is determined during the initialization of the device. If
 the backend does not recognize the function level reported by the 
-scanner it will default to function level B5. Valid function levels
+scanner it will default to function level B3. Valid function levels
 are A1, A2, B1, B2, B3, B4, B5, B6, B7, B8, D1 and F5. Use this feature
 only if you know what you are doing!
 

@@ -2,6 +2,9 @@
 
 	* doc/sane-scsi.man: The "scsi ..." way of specifying devices is not
 	  Linux-only. Some minor formatting updates.
+	* TODO: Added entries for "missing" scanners in desc files: snapscan
+	  and epson. Added sanei_usb issues. Updated MacOS X and OS/2 porting
+	  issues.
 
 2002-12-07 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: improved error handling

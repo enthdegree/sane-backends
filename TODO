@@ -1,4 +1,4 @@
-TODO (2002-12-01)
+TODO (2002-12-07)
 
 ******** todo ********
 
@@ -71,7 +71,12 @@ doc
   * desc files:
     - Add viceo.desc to descriptions-external (from Steven Ellis 
       <viceo@stevencherie.net>)
-
+    - snapscan.desc: Add Mitsubishi DV650U usb scanner
+      "It turns out the DV650U has the same ID string (FlatbedScanner_23),
+       vendor & product ID (0x04a5, 0x20b0) and firmware file (u176v042.bin)
+       as Acer/Benq 4300, listed at http://snapscan.sourceforge.net"
+    - Add Epson Stylus cx3200 MFP to epson.desc (supported only with
+      patch to Linux USB scanner driver)
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
 
 frontends
@@ -116,6 +121,10 @@ sanei
   * sanei_usb, sanei_scsi: Print all data send to and received from devices.
     Use high debug level.
 
+  * sanei_usb:
+    - using only the first interface may be a problem with all-in-one devices
+    - some scanners semm to provide more than one bulk-in endpoint(?) 
+
 platform-specific
 -----------------
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
@@ -124,22 +133,20 @@ platform-specific
   * Really fix all the parport/inb/outb compilation issues which break
     porting to some non-i386 platforms.
 
-  * Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
-    the correct extensions (e.g. for OS/2). Also update the Makefiles
-    accordingly.
-
-  * Add support for semaphores also for OS/2 (currently used in snapscan).
-
   * Find out why USB on *BSD only works once (at least for Mustek scanners).
 
   * Fix MacOS X issues: 
     - Add support in sanei_scsi.c.
-    - Find out why libusb doesn't work propperly. Seems to work with some scanners,
-      however.
+    - Find out why libusb doesn't work propperly. Seems to work with some
+      scanners, however.
     - More docu in README.darwin.
     - Check libtool glitches. Does an update make sense?
-    - Check that LDFLAGS approach in configure works for dynamic loading.
     - sm3600 is reported to crash with MacOS X.
+  
+  * OS/2 issues: 
+    - configure creates 264 sh-thd-??????? files?
+    - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
+    - Add support for semaphores also for OS/2 (currently used in snapscan).
 
 misc
 ----
@@ -158,7 +165,12 @@ misc
   * Fix japi to run on current jdks. Swing is now included, and there is
     a segfault in Sane.c.
 
+  * Remove backend-specific .po files when they are no longer needed.
+
 ******** done ********
+* Add AC_OBJEXT and AC_EXEEXT to configure.in for automatically adding
+  the correct extensions (e.g. for OS/2).--> that's now done automatically
+* MacOS X: Check that LDFLAGS approach in configure works for dynamic loading.
 * manpages:
   - Make sure that .SH NAME uses \- to distinguish between the backend 
     name and the description

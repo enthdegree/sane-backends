@@ -1,3 +1,8 @@
+2003-01-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Primax/Visioneer Primascan
+	  Colorado 2600u and UMAX Astra 4500.
+
 2003-01-22  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Corrected syntax for GT-6000 entry

@@ -173,7 +173,7 @@
 :url "http://www.sq.com.tw/products/spec/scan08Spec.PDF"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. Seems to be based on the SQ Scan08 chip. Ssee link to spec sheet."
+:comment "Unsupported. Vendor/Product ids: 0x05da/0x30ce. Seems to be based on the SQ Scan08 chip. See link to spec sheet."
 
 ;********************************************************************************************
 
@@ -253,6 +253,12 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
 
+:model "Primascan Colorado 2600u"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "See Visioneer Primascan Colorado 2600u."
+
 :model "JEWEL 4800"
 :url "http://gkall.hobby.nl/notes2.html"
 :interface "SCSI"
@@ -270,8 +276,19 @@
 
 ;********************************************************************************************
 
+:mfg "UMAX"
+:url "http://www.umax.com/"
+:model "Astra 4500"
+:url "http://www.genesyslogic.com/GL646.htm"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Is reported to use GeneScan II GL646 chipset."
+
+;********************************************************************************************
+
 :mfg "Visioneer"
 :url "http://www.visioneer.com/"
+
 :model "6200"
 :url "http://ingchai.sytes.net:81/scanner-info.txt"
 :interface "USB"
@@ -284,6 +301,11 @@
 :status :unsupported
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. See link for output of /proc/bus/usb/devices."
 
+:model "Primascan Colorado 2600u"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Chipset unknown. Vendor/product 0x0461/0x0347 (Primax!). One bulk-in and one bulk-out ep."
 
 ;********************************************************************************************
 

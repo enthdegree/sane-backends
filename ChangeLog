@@ -1,3 +1,11 @@
+2002-11-25  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp-device.h backend/hp-accessor.c backend/hp-scl.c
+	  backend/hp.c backend/hp-device.c backend/hp-option.c
+	  backend/hp.h backend/hp.conf backend/Makefile.in
+	  doc/sane-hp.man doc/descriptions/hp.desc
+	  Added libusb support for hp-backend
+
 2002-11-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Removed projects for scanners that are now supported

@@ -1,4 +1,4 @@
-TODO (2000-12-05)
+TODO (2000-12-07)
 
 ******** todo ********
 
@@ -48,8 +48,6 @@ backends
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necssary).
 
-  * plustek-share.h: remove //
-
 doc
 ---
   * add sane manpage
@@ -80,10 +78,6 @@ sanei
 
 misc
 ----
-  * update libtool versioning system
-    - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
-      "installed=yes" the correct entry?
-       
   * remove compiler warnings (>400 warnings even in disable-warnings mode,
     >800 with --enable-warnings))
 
@@ -113,7 +107,15 @@ misc
 
   * check include/sane/config.h.in for unnecessary macros.
 
+  * add configure option to enable only the net backend for users without
+    local scanners. Install only sane-dll/sane-net (or even only sane-net).
+    Maybe something like  --network-client-only or --disable-local-devices.
+
 ******** done ********
+* update libtool versioning system
+  - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
+    "installed=yes" the correct entry?
+* plustek-share.h: remove //
 * as6e: Check result of stat for errors to avoid false recognitions of the
   as6edriver.
 * artec: O_SYNC is not Posix. Breaks compilation on FreeBSD and (maybe) OS/2.

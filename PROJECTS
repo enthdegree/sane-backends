@@ -30,9 +30,6 @@ Canon N670U USB scanner support [alpha/developers only] (wip)
 http://home.t-online.de/home/gunther.mayer/ (look for merlin* files)
 Gunther Mayer <Gunther.Mayer@t-online.de>
 
-Coolscan2 backend: support for LS-40, LS-4000, and LS-8000 (wip)
-http://coolscan2.sourceforge.net/
-
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)
 http://homepages.paradise.net.nz/stevenel/scanner/

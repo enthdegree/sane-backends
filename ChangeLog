@@ -5,6 +5,8 @@
 	  compilation.
 	* doc/descriptions/leo.desc doc/descriptions/teco1.desc: Changed
 	  status to ":new" for release.
+	* doc/descriptions/umax1220u.desc: Changed status from :new to :alpha
+	  as the baceknd was already in SANE 1.0.7.
 		
 2002-05-25  Andras Major <andras@users.sourceforge.net>
 

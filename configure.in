@@ -56,8 +56,15 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
       -Wstrict-prototypes \
       -pedantic"
 
-  dnl OS/2 doesn't include some headers with -ansi enabled
-  AC_CHECK_HEADER(os2.h,,[WARN_CFLAGS="${WARN_CFLAGS} -ansi"])
+  dnl OS/2 and others don't include some headers with -ansi enabled
+  ANSI_FLAG=-ansi
+  AC_CHECK_HEADER(os2.h,[ANSI_FLAG=],)
+  case "${host_os}" in  
+    solaris*)
+      ANSI_FLAG=
+      ;;
+  esac
+  WARN_CFLAGS="${WARN_CFLAGS} ${ANSI_FLAG}"
 
   # Warnings enabled by default (development)
   AC_ARG_ENABLE(warnings,
@@ -86,6 +93,7 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
        done
     fi])
 fi # ac_cv_prog_gcc
+echo using CFLAGS=${CFLAGS}
 
 dnl Checks for header files.
 AC_HEADER_STDC

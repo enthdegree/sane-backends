@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2001-11-22
+  * Released Mustek backend 1.0-114.
+
+2001-11-22
+  * Added OS/2 compatibility fixes from "Franz Bakan" <fbakan@gmx.net>.
+
 2001-11-18
   * The Primax Compact 4800 seems to bes also supported. Added .desc and 
     manpage entries.

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 113
+#define BUILD 114
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -70,6 +70,9 @@
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_ab306.h"
+#ifdef HAVE_OS2_H
+  #include "../include/sane/sanei_thread.h"
+#endif
 
 #include "mustek.h"
 
@@ -2806,6 +2809,20 @@ do_stop (Mustek_Scanner *s)
 
   return status;
 }
+
+#ifdef HAVE_OS2_H
+/*
+ * reader thread for OS/2: need a wrapper, because threads can have
+ * only one parameter.
+*/
+static void os2_reader_process( void* data)
+{
+   struct Mustek_Scanner* scanner = (struct Mustek_Scanner*) data;
+
+   DBG(1,"reader_process thread started\n");
+   reader_process( scanner, scanner->reader_fds);
+}
+#endif
 
 /* Paragon I + II: Determine the CCD's distance between the primary color
    lines.  */
@@ -6100,7 +6117,14 @@ sane_start (SANE_Handle handle)
   if (pipe (fds) < 0)
     return SANE_STATUS_IO_ERROR;
 
+#ifndef HAVE_OS2_H
   s->reader_pid = fork ();
+#else
+  /* create reader routine as new process or thread */
+  s->reader_fds = fds[1];
+  s->reader_pid = sanei_thread_begin( os2_reader_process, 
+                                            (void*) s);
+#endif
   if (s->reader_pid == 0)
     {
       SANE_Int status;

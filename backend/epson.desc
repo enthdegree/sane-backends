@@ -10,7 +10,7 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.1.36"                 ; version of backend
+:version "0.1.38"                 ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.freecolormanagement.com/sane"        ; backend's web page
@@ -82,8 +82,8 @@
 :model "Expression 800"
 :interface "SCSI"
 
-:model "Expression 800"
-:comment "only 8/24 bit mode supported at this time"
+:model "Expression 1600"
+:comment "only 8/24 bit mode supported at this time - an experimental version with support for 12/36bit can be found at <A HREF=\"http://www.freecolormanagement.com/sane\">http://www.freecolormanagement.com/sane</A>"
 :interface "SCSI USB"
 
 :model "FilmScan 200"

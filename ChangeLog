@@ -5,6 +5,10 @@
 	
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/sm3600-color.c backend/sm3600-gray.c backend/sm3600-homerun.c
+	  backend/sm3600-scanmtek.c backend/sm3600-scanusb.c
+	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h:
+	  Made all non-sane-api functions static. Fixed some warnings.
 	* backend/sm3600.desc: Changed status to new.
 	* backend/as6e.desc: Changed status to alpha because backend
 	  isn't new any more.

@@ -57,7 +57,6 @@
  * @sa sanei.h sanei_backend.h
  */
 
-  
 #ifndef sanei_thread_h
 #define sanei_thread_h
 #include "../include/sane/config.h"
@@ -67,11 +66,11 @@
  */
 extern void sanei_thread_init( void );
 
-/**
+/** function to check, whether we're in forked environment or not
  */
 extern SANE_Bool sanei_thread_is_forked( void );
   
-/** function to start
+/** function to start func() in own thread/process
  */
 extern int sanei_thread_begin( int (func)(void *args), void* args );
 
@@ -105,11 +104,12 @@ extern SANE_Status sanei_thread_get_status( int pid );
  * own reader process. See mustek.c for an example.
  */
 #ifdef HAVE_OS2_H
-static void os2_reader_process( void* data);
+static int os2_reader_process( void* data);
 
 #define fork()            sanei_thread_begin(os2_reader_process)
 #define kill(a, b)        sanei_thread_kill( a )
 #define waitpid(a, b, c)  sanei_thread_waitpid( a, b )
+#endif
 #endif
 
 #endif /* sanei_thread_h */

@@ -54,9 +54,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#if !defined USE_PTHREAD && !defined HAVE_OS2_H
+#include <signal.h>
+#endif
+#if defined USE_PTHREAD
+#include <pthread.h>
 #endif
 
 #define BACKEND_NAME sanei_thread      /**< name of this module for debugging */
@@ -68,19 +75,88 @@
 #ifndef _VAR_NOT_USED
 # define _VAR_NOT_USED(x)	((x)=(x))
 #endif
-      
+
+typedef struct {
+
+	int         (*func)( void* );
+	SANE_Status  status;
+	void        *func_data;
+
+} ThreadDataDef, *pThreadDataDef;
+
+static ThreadDataDef td;
+
 /** for init issues - here only for the debug output
  */
 void
 sanei_thread_init( void )
 {
 	DBG_INIT();
+
+	memset( &td, 0, sizeof(ThreadDataDef));
+	td.status = SANE_STATUS_GOOD;
+}
+
+SANE_Bool
+sanei_thread_is_forked( void )
+{
+#if defined USE_PTHREAD || defined HAVE_OS2_H
+	return SANE_FALSE;
+#else
+	return SANE_TRUE;
+#endif
+}
+
+int
+sanei_thread_kill( int pid )
+{
+	DBG(2, "sanei_thread_kill() will kill %d\n", (int)pid);
+#ifdef USE_PTHREAD
+	return pthread_cancel((pthread_t)pid);
+#elif defined HAVE_OS2_H
+	return DosKillThread(pid);
+#else
+	return kill( pid, SIGTERM );
+#endif
+}
+
+SANE_Status
+sanei_thread_get_status( int pid )
+{
+#if defined USE_PTHREAD || defined HAVE_OS2_H
+	_VAR_NOT_USED( pid );
+
+	return td.status;
+#else
+	int ls, stat, result;
+
+	stat = SANE_STATUS_IO_ERROR;
+	if( pid > 0 ) {
+
+		result = waitpid( pid, &ls, WNOHANG );
+
+		stat = eval_wp_result( pid, result, ls );
+	}
+	return stat;
+#endif
 }
 
 #ifdef HAVE_OS2_H
 
 #define INCL_DOSPROCESS
 #include <os2.h>
+
+static void
+local_thread( void *arg )
+{
+	pThreadDataDef ltd = (pThreadDataDef)arg;
+
+	DBG( 2, "thread started, calling func() now...\n" );
+	ltd->status = ltd->func( ltd->func_data );
+
+	DBG( 2, "func() done - status = %d\n", ltd->status );
+	_end_thread();
+}
 
 /*
  * starts a new thread or process
@@ -92,13 +168,21 @@ sanei_thread_init( void )
 int
 sanei_thread_begin( int (*func)(void *args), void* args )
 {
-   return _beginthread( func, NULL, 1024*1024, args );
+	int           pid;
+
+	td.func      = func;
+	td.func_data = args;
+
+	pid = _beginthread( local_thread, NULL, 1024*1024, (void*)&td );
+	if ( pid == -1 ) {
+		DBG( 1, "_beginthread() failed\n" );
+		return -1;
+	}
+   
+	DBG( 2, "_beginthread() created thread %d\n", pid );
+	return pid;
 }
 
-int
-sanei_thread_kill( int pid )
-{
-   return DosKillThread(pid);
 }
 
 int
@@ -111,12 +195,6 @@ sanei_thread_waitpid( int pid, int *status )
 
 int
 sanei_thread_sendsig( int pid, int sig )
-{
-	return 0;
-}
-
-int
-sanei_thread_get_status( int pid )
 {
 	return 0;
 }
@@ -137,25 +215,18 @@ sanei_thread_get_status( int pid )
 # define PTHREAD_CANCELED ((void *) -1)
 #endif
 
-typedef struct {
-
-    int  (*func)( void* );
-    void *func_data;
-
-} ThreadDataDef, *pThreadDataDef;
-
 static void*
 local_thread( void *arg )
 {
 	static int     status;
 	int            old;
-	pThreadDataDef td = (pThreadDataDef)arg;
+	pThreadDataDef ltd = (pThreadDataDef)arg;
 
 	DBG( 2, "thread started, calling func() now...\n" );
 	pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &old );
 	pthread_setcanceltype( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
 	
-	status = td->func( td->func_data );
+	status = ltd->func( ltd->func_data );
 
 	DBG( 2, "func() done - status = %d\n", status );
 
@@ -194,8 +265,7 @@ sanei_thread_begin( int (func)(void *args), void* args )
 {
 	int       pid;
 #ifdef USE_PTHREAD
-	pthread_t     thread;
-	ThreadDataDef td;
+	pthread_t thread;
 
     td.func      = func;
     td.func_data = args;
@@ -227,17 +297,6 @@ sanei_thread_begin( int (func)(void *args), void* args )
 
 	/* parents return */
 	return pid;
-#endif
-}
-
-int
-sanei_thread_kill( int pid )
-{
-	DBG(2, "sanei_thread_kill() will kill %d\n", (int)pid);
-#ifdef USE_PTHREAD
-	return pthread_cancel((pthread_t)pid);
-#else
-	return kill( pid, SIGTERM );
 #endif
 }
 
@@ -302,35 +361,6 @@ sanei_thread_waitpid( int pid, int *status )
 #endif
 }
 
-SANE_Status
-sanei_thread_get_status( int pid )
-{
-#ifdef USE_PTHREAD
-	_VAR_NOT_USED( pid );
-
-	return SANE_STATUS_GOOD;
-#else
-	int ls, stat, result;
-
-	stat = SANE_STATUS_IO_ERROR;
-	if( pid > 0 ) {
-
-		result = waitpid( pid, &ls, WNOHANG );
-		
-		stat = eval_wp_result( pid, result, ls );
-	}
-	return stat;
-#endif
-}
-
-SANE_Bool
-sanei_thread_is_forked( void )
-{
-#ifdef USE_PTHREAD
-	return SANE_FALSE;
-#else
-	return SANE_TRUE;
-#endif
-}
-
 #endif /* HAVE_OS2_H */
+
+

@@ -1,4 +1,4 @@
-PROJECTS (2001-05-04)
+PROJECTS (2001-05-16)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -49,9 +49,6 @@ ftp://www.cs.ubishops.ca/pub/lhii/
 
 HP USB backend for HP 4200 (wip)
 http://hp4200-backend.sourceforge.net/
-
-Microtek ScanMaker 3600 USB scanner (wip)
-http://sm3600.sourceforge.net
 
 Mustek BearPaw USB scanner (wip)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.

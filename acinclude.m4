@@ -142,7 +142,7 @@ AC_DEFUN(SANE_LINKER_RPATH,
   AC_CACHE_CHECK([linker parameter to set runtime link path], LINKER_RPATH,
     [LINKER_RPATH=
     case "$host_os" in
-    linux* | freebsd* | netbsd* | openbsd*)
+    linux* | freebsd* | netbsd* | openbsd* | irix*)
       # I believe this only works with GNU ld [pere 2001-04-16]
       LINKER_RPATH="-Wl,-rpath,"
       ;;

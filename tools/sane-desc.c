@@ -1674,7 +1674,7 @@ html_backends_split_table (device_type dev_type)
 	    printf (", \n");
 	  first = SANE_FALSE;
 	  printf ("<a href=\"#%s\">%s</a>",
-		  html_generate_anchor_name (be->type->type, be->name), be->name);
+		  html_generate_anchor_name (dev_type, be->name), be->name);
 	}
       be = be->next;
     }
@@ -1697,7 +1697,7 @@ html_backends_split_table (device_type dev_type)
 	      model_entry *model;
 
 	      printf ("<h3><a name=\"%s\">Backend: %s\n",
-		      html_generate_anchor_name (be->type->type, be->name), be->name);
+		      html_generate_anchor_name (type->type, be->name), be->name);
 
 	      if (be->version || be->new)
 		{

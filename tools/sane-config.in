@@ -31,7 +31,7 @@ srcdir="@srcdir@"
 top_srcdir="@top_srcdir@"
 cflags=
 
-function usage ()
+usage ()
 {
   echo "Usage: "  1>&2
   echo "$scriptname --version         - show installed script and SANE version"  1>&2

@@ -44,8 +44,8 @@ Backends:
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag
- mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and
-                Henning Meier-Geinitz (*)
+ mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski,
+                Henning Meier-Geinitz (*), and James Perry.
  mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda
@@ -140,6 +140,7 @@ Henning Meier-Geinitz <henning@meier-geinitz.de>
 Henrik Johansson <henrikjo@post.urfors.se>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
+James Perry <jamesp@epcc.ed.ac.uk>
 Jeff Freedman <jsf@hevanet.com>
 Jochen Eisinger <jochen.eisinger@gmx.net>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>

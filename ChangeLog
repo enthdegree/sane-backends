@@ -1,3 +1,7 @@
+2002-09-24  Peter Fales <peter@fales-lorenz.net>
+
+	* backend/dc25.c:  Backend returning too much data for image size
+
 2002-09-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/tevion9693usb.desc: Added MD9693, updated

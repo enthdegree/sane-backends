@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 38
+#define BUILD 39
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -2557,7 +2557,8 @@ static SANE_Status umax_do_calibration(Umax_Device *dev)
     if (width * bytespp > dev->bufsize)
     {
       DBG(DBG_error,"ERROR: scsi buffer is to small for one shading line, calibration aborted\n");
-      return SANE_STATUS_NO_MEM;
+      DBG(DBG_error,"=> change umax.conf options scsi-buffer-size-min and scsi-buffer-size-max\n");
+     return SANE_STATUS_NO_MEM;
     }
 
     /* UMAX S12 sends a kind of uncalibrated image data, bright -> 255, dark -> 0 */
@@ -2927,10 +2928,16 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
 
       if (dev->calibration_width_offset == -99999) /* no calibration-width-offset defined in umax.conf */
       {
-        dev->calibration_width_offset = 52;
+        dev->calibration_width_offset = 22;
         DBG(DBG_warning," - adding calibration width offset of %d pixels\n", dev->calibration_width_offset);
       }
       /* calibration_area = image */
+
+      if (dev->calibration_width_offset_batch == -99999) /* no calibration-width-offset for batch scanning defined in umax.conf */
+      {
+        dev->calibration_width_offset_batch = 24;
+        DBG(DBG_warning," - adding calibration width offset for batch scanning of %d pixels\n", dev->calibration_width_offset_batch);
+      }
     }
     else if (!strncmp(product, "PowerLook 2100XL", 16))
     {

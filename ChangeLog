@@ -1,3 +1,7 @@
+2002-04-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in: make libcheck now also checks for non-static variables.
+
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.c backend/avision.h doc/descriptions/avision.desc
 	  doc/sane-avision.man: updated to Avision backend build 25. More

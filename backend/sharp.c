@@ -109,6 +109,7 @@
 #ifdef HAVE_SYS_SHM_H
 #define USE_FORK
 #endif
+#define USE_FORK
 
 #ifdef USE_FORK
 #include <signal.h>
@@ -201,6 +202,8 @@ static const SANE_String_Const halftone_list[] =
 #define LIGHT_RED   "red"
 #define LIGHT_BLUE  "blue"
 #define LIGHT_WHITE "white"
+
+#define MAX_RETRIES 50
 
 static const SANE_String_Const light_color_list[] =
 {
@@ -816,7 +819,7 @@ reader_process(SHARP_Scanner *s)
   size_t nread;
   size_t max_bytes_per_read;
   int max_queue;
-  int i;
+  int i, retries = MAX_RETRIES;
   SHARP_shmem_ctl *bc;
 
   s->rdr_ctl->running = 1;
@@ -939,9 +942,17 @@ reader_process(SHARP_Scanner *s)
             DBG(2, "rd: data received    %li.%06li\n", t.tv_sec, t.tv_usec);
           }
 #endif
-          if (status != SANE_STATUS_GOOD)
+          if (status == SANE_STATUS_DEVICE_BUSY && retries) 
             {
-              DBG(1, "reader_process: read command failed: %s", 
+              bc->used = 0;
+              retries--;
+              DBG(11, "reader: READ command returned BUSY\n");
+              status = SANE_STATUS_GOOD;
+              usleep(10000);
+            }
+          else if (status != SANE_STATUS_GOOD)
+            {
+              DBG(1, "reader_process: read command failed: %s\n", 
                   sane_strstatus(status));
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
               sanei_scsi_req_flush_all_extended(s->fd);
@@ -952,8 +963,22 @@ reader_process(SHARP_Scanner *s)
               s->rdr_ctl->running = 0;
               return 2;
             }
+          else 
+            {
+              retries = MAX_RETRIES;
+            }
+#if 1
           s->bytes_to_read -= bc->used;
           bytes_to_queue += bc->nreq - bc->used;
+#else
+          /* xxxxxxxxxxxxxxxxxxx TEST xxxxxxxxxxxxxxx */
+          s->bytes_to_read -= bc->nreq;
+          /* memset(bc->buffer + bc->used, 0, bc->nreq - bc->used); */
+          bc->used = bc->nreq;
+          /* bytes_to_queue += bc->nreq - bc->used; */
+          DBG(1, "btr: %i btq: %i nreq: %i nrcv: %i\n", 
+            s->bytes_to_read, bytes_to_queue, bc->nreq, bc->used);
+#endif
           bc->start = 0;
           bc->shm_status = SHM_FULL;
 
@@ -1103,6 +1128,7 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
   SANE_Status status = SANE_STATUS_GOOD;
   size_t remain = *buf_size;
   size_t nread;
+  int retries = MAX_RETRIES;
   DBG (11, "<< read_data ");
 
   /* sane_read_shuffled requires that read_data returns
@@ -1121,10 +1147,20 @@ read_data (SHARP_Scanner *s, SANE_Byte *buf, size_t * buf_size)
       cmd[8] = nread;
       status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 
                  &buf[*buf_size - remain], &nread);
-      if (status != SANE_STATUS_GOOD)
+      if (status == SANE_STATUS_DEVICE_BUSY && retries)
+        {
+          retries--;
+          nread = 0;
+          usleep(10000);
+        }
+      else if (status != SANE_STATUS_GOOD)
         {
           DBG(11, ">>\n");
           return(status);
+        }
+      else 
+        {
+          retries = MAX_RETRIES;
         }
       remain -= nread;
     }

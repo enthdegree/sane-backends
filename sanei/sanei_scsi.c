@@ -2100,7 +2100,12 @@ sanei_scsi_req_wait (void *id)
                           req->sgdata.cdb.hdr.driver_status);
                   #endif
 
-                 if (req->sgdata.cdb.hdr.result == EBUSY)
+                 if (   req->sgdata.cdb.hdr.host_status == DID_NO_CONNECT
+                     || req->sgdata.cdb.hdr.host_status == DID_BUS_BUSY
+                     || req->sgdata.cdb.hdr.host_status == DID_TIME_OUT
+                     || req->sgdata.cdb.hdr.driver_status == DRIVER_BUSY
+                     || req->sgdata.cdb.hdr.target_status == 0x04) /* BUSY */
+                 /* if (req->sgdata.cdb.hdr.result == EBUSY) */
                    status = SANE_STATUS_DEVICE_BUSY;
                  else if (handler)
                    /* sense handler should return SANE_STATUS_GOOD if it
@@ -2166,20 +2171,43 @@ sanei_scsi_req_wait (void *id)
                  if (   req->sgdata.sg3.hdr.host_status == SG_ERR_DID_NO_CONNECT
                      || req->sgdata.sg3.hdr.host_status == SG_ERR_DID_BUS_BUSY
                      || req->sgdata.sg3.hdr.host_status == SG_ERR_DID_TIME_OUT
-                     || req->sgdata.sg3.hdr.driver_status == DRIVER_BUSY)
+                     || req->sgdata.sg3.hdr.driver_status == DRIVER_BUSY
+                     || req->sgdata.sg3.hdr.masked_status == 0x04) /* BUSY */
                    status = SANE_STATUS_DEVICE_BUSY;
-                 else if (handler)
+                 else if (handler && req->sgdata.sg3.hdr.sb_len_wr)
                    /* sense handler should return SANE_STATUS_GOOD if it
                       decided all was ok afterall */
                    status = (*handler) (req->fd, req->sgdata.sg3.sense_buffer, arg);
+  
+                 /* status bits INTERMEDIATE and CONDITION MET should not
+                    result in an error; neither should reserved bits
+                 */
+                 else if (   ((req->sgdata.sg3.hdr.status & 0x2a) == 0)
+                          && (req->sgdata.sg3.hdr.host_status == SG_ERR_DID_OK)
+                          && (req->sgdata.sg3.hdr.driver_status == SG_ERR_DRIVER_OK))
+                   status = SANE_STATUS_GOOD;
                  else
                    status = SANE_STATUS_IO_ERROR;
                }
 
+#if 0
+             /* Sometimes the Linux SCSI system reports bogus resid values. 
+                Observed with lk 2.4.5, 2.4.13, aic7xxx and sym53c8xx drivers, 
+                if command queueing is used. So we better issue only a warning
+             */
              if (status == SANE_STATUS_GOOD)
                {
                  if (req->dst_len)
-                   *req->dst_len -= req->sgdata.sg3.hdr.resid;
+                   { 
+                     *req->dst_len -= req->sgdata.sg3.hdr.resid;
+                   }
+               }
+#endif
+             if (req->sgdata.sg3.hdr.resid)
+               {
+                 DBG(1, "sanei_scsi_req_wait: SG driver returned resid %i\n",
+                   req->sgdata.sg3.hdr.resid);
+                 DBG(1, "                     NOTE: This value may be bogus\n");
                }
            }
 #endif

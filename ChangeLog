@@ -1,7 +1,8 @@
 2003-04-14  Peter Kirchgessner <peter@kirchgessner.net>
 
-	* backend/hp.c: Check pointers received in sane_control_option().
-	  Caused saned to crash on scanimage --help -d net:localhost:hp:...
+	* backend/hp.c, hp-option.c: Check pointers received in
+	  sane_control_option(). Caused saned to crash on
+	  scanimage --help -d net:localhost:hp:...
 
 2003-04-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

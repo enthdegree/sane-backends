@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2002-12-30"		; version of backend
+:version "2003-01-03"		; version of backend
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -44,6 +44,13 @@
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
+
+:model "HR7X Slim"
+:url "http://www.genesyslogic.com/GL646.htm"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Is reported to use the GL646 chipset (see link)."
+
 
 ;********************************************************************************************
 
@@ -162,6 +169,23 @@
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
+
+;********************************************************************************************
+
+:mfg "Visioneer"
+:url "http://www.visioneer.com/"
+:model "6200"
+:url "http://ingchai.sytes.net:81/scanner-info.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details."
+
+:model "Onetouch 8920"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. See link for output of /proc/bus/usb/devices."
+
 
 ;********************************************************************************************
 

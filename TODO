@@ -1,4 +1,4 @@
-TODO (2001-06-04)
+TODO (2001-06-05)
 
 ******** todo ********
 
@@ -53,7 +53,8 @@ backends
        support depths > 8 bits/channel)
      - saned times out after 5 minutes (now 60 minutes). Check if the
        watchdog timer is really necessary (e.g. to avoid blocking scanners
-       by one user). Otherwise turn on TCP keep alive (where available) and
+       by one user). Maybe add an command line option to saned to set the
+       timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
 
   * qcam:

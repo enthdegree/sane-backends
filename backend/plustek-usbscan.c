@@ -1085,7 +1085,8 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 /* original code:
  *	a_bRegs[0x4f] = 1;
  */
-	a_bRegs[0x4f] = a_bRegs[0x4e] - 1;
+/*	a_bRegs[0x4f] = a_bRegs[0x4e] - 1;*/
+	a_bRegs[0x4f] = 1;
 
 	DBG( _DBG_INFO, "PauseLimit = %lu, [0x4e] = 0x%02x, [0x4f] = 0x%02x\n",
 					m_dwPauseLimit, a_bRegs[0x4e], a_bRegs[0x4f] );

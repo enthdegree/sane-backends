@@ -80,8 +80,8 @@
 
 #define ARTEC_MAJOR     0
 #define ARTEC_MINOR     5
-#define ARTEC_SUB       15
-#define ARTEC_LAST_MOD  "11/29/2000 20:10 EST"
+#define ARTEC_SUB       16
+#define ARTEC_LAST_MOD  "05/26/2001 17:28 EST"
 
 #define MM_PER_INCH	25.4
 
@@ -93,6 +93,7 @@
 #define ARTEC_MAX_READ_SIZE 32768
 
 static int num_devices;
+static const SANE_Device **devlist = 0;
 static ARTEC_Device *first_dev;
 static ARTEC_Scanner *first_handle;
 
@@ -274,7 +275,7 @@ static char artec_model[17] = "";
 /* file descriptor for debug data output */
 static int debug_fd = -1;
 
-char *artec_skip_whitespace (char *str)
+static char *artec_skip_whitespace (char *str)
 {
   while (isspace (*str))
     ++str;
@@ -746,7 +747,7 @@ read_data (int fd, int data_type_code, u_char * dest, size_t * len)
   return (sanei_scsi_cmd (fd, read_6, sizeof (read_6), dest, len));
 }
 
-int
+static int
 artec_get_status (int fd)
 {
   u_char write_10[10];
@@ -821,7 +822,9 @@ artec_reverse_line (SANE_Handle handle, SANE_Byte * data)
   return (SANE_STATUS_GOOD);
 }
 
-SANE_Status
+
+#if 0
+static SANE_Status
 artec_byte_rgb_to_line_rgb (SANE_Byte * data, SANE_Int len)
 {
   SANE_Byte tmp_buf[32768];	/* max dpi 1200 * 8.5 inches * 3 = 30600 */
@@ -842,8 +845,9 @@ artec_byte_rgb_to_line_rgb (SANE_Byte * data, SANE_Int len)
 
   return (SANE_STATUS_GOOD);
 }
+#endif
 
-SANE_Status
+static SANE_Status
 artec_line_rgb_to_byte_rgb (SANE_Byte * data, SANE_Int len)
 {
   SANE_Byte tmp_buf[32768];	/* max dpi 1200 * 8.5 inches * 3 = 30600 */
@@ -1042,7 +1046,8 @@ artec_buffer_line_offset_free (void)
 }
 
 
-SANE_Status
+#if 0
+static SANE_Status
 artec_read_gamma_table (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
@@ -1124,8 +1129,9 @@ artec_read_gamma_table (SANE_Handle handle)
       return (sanei_scsi_cmd (s->fd, write_6, 10 + 9 + s->gamma_length, 0, 0));
     }
 }
+#endif
 
-SANE_Status
+static SANE_Status
 artec_send_gamma_table (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
@@ -2544,7 +2550,7 @@ do_cancel (ARTEC_Scanner * s)
 }
 
 
-SANE_Status
+static SANE_Status
 attach_one (const char *dev)
 {
   DBG (7, "attach_one()\n");
@@ -2651,12 +2657,14 @@ sane_exit (void)
       free ((void *) dev->sane.model);
       free (dev);
     }
+
+  if (devlist)
+    free (devlist);
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device **devlist = 0;
   ARTEC_Device *dev;
   int i;
 
@@ -3102,7 +3110,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   return (SANE_STATUS_INVAL);
 }
 
-void
+static void
 set_pass_parameters (SANE_Handle handle)
 {
   ARTEC_Scanner *s = handle;
@@ -3421,7 +3429,9 @@ sane_start (SANE_Handle handle)
   return (SANE_STATUS_GOOD);
 }
 
-void
+
+#if 0
+static void
 binout (SANE_Byte byte)
 {
   SANE_Byte b = byte;
@@ -3433,8 +3443,9 @@ binout (SANE_Byte byte)
       b = b << 1;
     }
 }
+#endif
 
-SANE_Status
+static SANE_Status
 artec_sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len)
 {
   ARTEC_Scanner *s = handle;

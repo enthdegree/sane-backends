@@ -101,6 +101,9 @@
       V 1.10 04-Jun-2003 
          - removed SP15 code (anoah@pfeiffer.edu)
          - sane_open actually opens the device you request (anoah@pfeiffer.edu)
+      V 1.11 11-Jun-2003
+         - fixed bug in that code when a scanner is disconnected 
+            (anoah@pfeiffer.edu)
 
    SANE FLOW DIAGRAM
 
@@ -580,8 +583,10 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
  
   if(name[0] == 0){
     DBG (10, "sane_open: no device requested, using default\n");
-    scanner = (struct fujitsu *) first_dev;
-    DBG (10, "sane_open: device %s found\n", first_dev->sane.name);
+    if(first_dev){
+      scanner = (struct fujitsu *) first_dev;
+      DBG (10, "sane_open: device %s found\n", first_dev->sane.name);
+    }
   }
   else{
     DBG (10, "sane_open: device %s requested\n", name);
@@ -596,8 +601,10 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
       }
   }
 
-  if (!scanner)
+  if (!scanner) {
+    DBG (10, "sane_open: no device found\n");
     return SANE_STATUS_INVAL;
+  }
 
   *handle = scanner;
 

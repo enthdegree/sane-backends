@@ -1,3 +1,8 @@
+2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c fixed bug in that code when a scanner is 
+	  disconnected (anoah@pfeiffer.edu)
+	
 2003-06-10  Michael Herder <crapsite@gmx.net>
 
 	* po/Makefile.in: Added Czech translation

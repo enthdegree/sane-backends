@@ -126,13 +126,19 @@ AC_TYPE_PID_T
 AC_CHECK_TYPE(ssize_t, long)
 SANE_CHECK_U_TYPES
 
+# from Python, check for "long long" type
+AC_MSG_CHECKING(for long long support)
+have_long_long=no
+AC_TRY_COMPILE([], [long long x; x = (long long)0;], AC_DEFINE(HAVE_LONG_LONG, 1, [Define if the long long type is available.]) have_long_long=yes)
+AC_MSG_RESULT($have_long_long)
+
 AC_CHECK_HEADER([asm/io.h],[
  AC_MSG_CHECKING([whether asm/io.h can be included]);
  AC_TRY_COMPILE([
  #include <sys/types.h>
  #include <asm/io.h>
  ],[outb (0, 0l)],
-   [AC_DEFINE([HAVE_ASM_IO_H]) AC_MSG_RESULT(yes)],AC_MSG_RESULT(no))],)
+   [AC_DEFINE(HAVE_ASM_IO_H, 1, [Define if you have the <asm/io.h> header file.]) AC_MSG_RESULT(yes)],AC_MSG_RESULT(no))],)
 
 AC_MSG_CHECKING([for struct flock in fcntl.h])
 AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;

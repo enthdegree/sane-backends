@@ -388,7 +388,7 @@
 #define	 EPSON_LEVEL_F5		10
 #define  EPSON_LEVEL_D1		11
 #define  EPSON_LEVEL_D7		12
-#define  EPSON_LEVEL_D7		13
+#define  EPSON_LEVEL_D8		13
 
 /* there is also a function level "A5", which I'm igoring here until somebody can 
    convince me that this is still needed. The A5 level was for the GT-300, which

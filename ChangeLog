@@ -1,3 +1,8 @@
+2002-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.man: Formatting fixes. Updates some backend entries and
+	  sane-find-scanner. Some clarifications.
+
 2002-11-22  Michael Herder <crapsite at gmx.net>
 
           Fixed header in artec_eplus48u.de.po.

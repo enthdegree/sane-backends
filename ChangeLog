@@ -12,6 +12,15 @@
 	  linemode test. That stopped e.g. the Plustek OpticPro U 16 B from
 	  working in gray mode.
 
+2004-11-13  Frank Zago <fzago at austin dot rr dot com>
+
+	* include/sane/sanei_backend.h: Added compiler attribute __unused__ for unused variables/functions.
+
+	* backend/leo.c backend/teco3.c backend/matsushita.c
+	  backend/sceptre.c backend/teco1.c: use __unused__
+	* sanei/sanei_wire.c sanei/sanei_pa4s2.c sanei/sanei_scsi.c: fixes for 64 bits platforms.
+	* backend/sp15c-scsi.h backend/sp15c.h backend/dc210.c backend/dc210.h: fixes some warnings.
+	
 2004-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/v4l.c: 64 bit fix from Frank Zago <fzago at austin dot

@@ -50,6 +50,7 @@
 
 #undef BACKEND_NAME
 #define BACKEND_NAME	hp
+#define DEBUG_NOT_STATIC
 #include "sane/sanei_debug.h"
 
 /* FIXME: these should be options? */

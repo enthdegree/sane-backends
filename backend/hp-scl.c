@@ -42,8 +42,10 @@
    HP Scanner Control Language (SCL).
 */
 
+/*
 #define STUBS
-extern int sanei_debug_hp;
+extern int sanei_debug_hp;*/
+#define DEBUG_DECLARE_ONLY
 #include "sane/config.h"
 #include <lalloca.h>		/* Must be first */
 
@@ -51,6 +53,7 @@ extern int sanei_debug_hp;
 # include <unistd.h>
 #endif
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>

@@ -43,8 +43,13 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.91";
+static char *hp_backend_version = "0.92";
 /* Changes:
+
+   V 0.92, 03-Oct-2000, Rupert W. Curwen (rcurwen@uk.research.att.com):
+      - try to not allocate accessors twice (only for accessors
+        that have fixed length)
+      - fix problem with leaving connection open for some error conditions
 
    V 0.91, 04-Sep-2000, David Paschal (paschal@rcsis.com):
       - Added support for flatbed HP OfficeJets

@@ -42,8 +42,9 @@
    HP Scanner Control Language (SCL).
 */
 
-#define STUBS
-extern int sanei_debug_hp;
+/* #define STUBS
+extern int sanei_debug_hp; */
+#define DEBUG_DECLARE_ONLY
 #include "sane/config.h"
 
 #ifdef HAVE_UNISTD_H
@@ -441,12 +442,14 @@ sanei_hp_handle_startScan (HpHandle this)
             != SANE_STATUS_GOOD )
     {
       DBG(1, "start: Error checking if ADF is ready\n");
+      sanei_hp_scsi_destroy(scsi,0);
       return SANE_STATUS_UNSUPPORTED;
     }
 
     if ( adfstat != 1 )
     {
       DBG(1, "start: ADF scan requested without paper. Finished.\n");
+      sanei_hp_scsi_destroy(scsi,0);
       return SANE_STATUS_NO_DOCS;
     }
   }

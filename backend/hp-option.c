@@ -49,11 +49,14 @@
 #endif
 #endif
 
+/* To be done: dont reallocate choice accessors */
+/* #define HP_ALLOC_CHOICEACC_ONCE 1 */
 /*
 #define HP_EXPERIMENTAL
-*/
+*/ /*
 #define STUBS
-extern int sanei_debug_hp;
+extern int sanei_debug_hp; */
+#define DEBUG_DECLARE_ONLY
 #include "sane/config.h"
 #include <lalloca.h>
 
@@ -742,8 +745,12 @@ _probe_int (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (minval >= maxval)
       return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Int));
   return _set_range(this, data, minval, 1, maxval);
@@ -779,8 +786,13 @@ _probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet optset,
   if (minval >= maxval)
       return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Int));
   return _set_range(this, data, minval, 1, maxval);
@@ -851,8 +863,13 @@ _probe_bool (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (scl)
       RETURN_IF_FAIL( sanei_hp_scl_inquire(scsi, scl, &val, 0, 0) );
 
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+           return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Bool));
   return SANE_STATUS_GOOD;
@@ -877,8 +894,13 @@ _probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if ( status != SANE_STATUS_GOOD )
     return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, cap);
   _set_size(this, data, sizeof(SANE_Bool));
 
@@ -907,8 +929,13 @@ _probe_unload (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if ( status != SANE_STATUS_GOOD )
     return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, cap);
   _set_size(this, data, sizeof(SANE_Bool));
 
@@ -947,8 +974,13 @@ _probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   /* And the desired ID of 10963 does not work. So we have to trust */
   /* the evaluated HP model number. */
 
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Bool));
 
@@ -1075,8 +1107,12 @@ _probe_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                      this->descriptor->may_change);
+  /* If no accessor, create one here. */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+  if (!(this->data_acsr))
+#endif
+      this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                          this->descriptor->may_change);
 
   if (!(this->data_acsr))
       return SANE_STATUS_NO_MEM;
@@ -1118,9 +1154,16 @@ _probe_each_choice (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                            this->descriptor->may_change )))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+  if (!this->data_acsr)
+#endif
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                                this->descriptor->may_change )))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
 
   _set_stringlist(this, data,
@@ -1146,9 +1189,16 @@ _probe_ps_exposure_time (_HpOption this, HpScsi scsi, HpOptSet optset,
 
     info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
 
-    if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                              this->descriptor->may_change )))
-       return SANE_STATUS_NO_MEM;
+    /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+    if (!this->data_acsr)
+#endif
+    {
+      if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                                  this->descriptor->may_change )))
+         return SANE_STATUS_NO_MEM;
+    }
+
     sanei_hp_accessor_setint(this->data_acsr, data, val);
 
     _set_stringlist(this, data,
@@ -1211,9 +1261,16 @@ _probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet optset,
 
   info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
 
-  if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                            this->descriptor->may_change )))
-     return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+  if (!this->data_acsr)
+#endif
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                                this->descriptor->may_change )))
+         return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
 
   _set_stringlist(this, data,
@@ -1248,9 +1305,16 @@ _probe_mirror_horiz (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                            this->descriptor->may_change )))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+  if (!this->data_acsr)
+#endif
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                                this->descriptor->may_change )))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
 
   _set_stringlist(this, data,
@@ -1284,9 +1348,16 @@ _probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
-                            this->descriptor->may_change )))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+  if (!this->data_acsr)
+#endif
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_choice_new(data, choices,
+                                this->descriptor->may_change )))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
 
   _set_stringlist(this, data,
@@ -1309,8 +1380,12 @@ static SANE_Status _probe_front_button(_HpOption this, HpScsi scsi,
 
   _set_size(this, data, sizeof(SANE_Bool));
 
-  if ( !(this->data_acsr = sanei_hp_accessor_bool_new(data)) )
-    return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if ( !(this->data_acsr = sanei_hp_accessor_bool_new(data)) )
+          return SANE_STATUS_NO_MEM;
+  }
 
   sanei_hp_accessor_setint(this->data_acsr, data, 0);
 
@@ -1422,8 +1497,13 @@ _probe_custom_gamma (_HpOption this, HpScsi scsi, HpOptSet optset,
     RETURN_IF_FAIL( sanei_hp_scl_inquire(scsi, scl, &val, 0, 0) );
   }
 
-  if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
+
   sanei_hp_accessor_setint(this->data_acsr, data, val);
   _set_size(this, data, sizeof(SANE_Bool));
   return SANE_STATUS_GOOD;
@@ -1479,7 +1559,13 @@ _probe_vector (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       assert(type->scl);
 
       RETURN_IF_FAIL ( _probe_download_type (scl, scsi) );
-      this->data_acsr = (*type->creator)(data, type->length, type->depth);
+      /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+      if (!this->data_acsr)
+#endif
+      {
+          this->data_acsr = (*type->creator)(data, type->length, type->depth);
+      }
     }
   else
     {
@@ -1494,8 +1580,14 @@ _probe_vector (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       super = hp_optset_get(optset, type->super);
       assert(super);
 
-      this->data_acsr = sanei_hp_accessor_subvector_new(
-	  (HpAccessorVector) super->data_acsr, type->nchan, type->chan);
+      /* If we dont have an accessor, get one */
+#ifdef HP_ALLOC_CHOICEACC_ONCE
+      if (!this->data_acsr)
+#endif
+      {
+          this->data_acsr = sanei_hp_accessor_subvector_new(
+            (HpAccessorVector) super->data_acsr, type->nchan, type->chan);
+      }
     }
 
   if (!this->data_acsr)
@@ -1575,8 +1667,12 @@ _probe_matrix (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 static SANE_Status
 _probe_num_options (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 {
-  if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
-      return SANE_STATUS_NO_MEM;
+  /* If we dont have an accessor, get one */
+  if (!this->data_acsr)
+  {
+      if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
+          return SANE_STATUS_NO_MEM;
+  }
   _set_size(this, data, sizeof(SANE_Int));
   return SANE_STATUS_GOOD;
 }

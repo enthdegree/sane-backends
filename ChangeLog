@@ -1,3 +1,7 @@
+2002-07-23  Simon Munton <simon@munton.demon.co.uk>
+	* backend/pie.c: added consistency check for TL_X < BR_X and
+	  TL_Y < BR_Y
+
 2002-07-23  Peter Fales <peter@fales-lorenz.net>
 
 	* doc/descriptions/gphoto2.desc:  Comment out :interface line

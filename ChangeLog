@@ -1,3 +1,24 @@
+2000-09-09 Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp.h hp-scsi.h hp-scl.h hp-option.h hp-option.c
+                  hp-device.h hp-scl.c hp.c hp-device.c hp-handle.c
+
+          David Paschal (paschal@rcsis.com)
+            Added support for flatbed HP OfficeJets.
+          fix problem with cancel preview
+          fix timing problem between killing child and writing to pipe
+          change fprintf(stderr,...) to DBG
+          change include <sane..> to "sane.." in hp.h
+          change handling of options that have global effects.
+            i.e. if option scanmode is received (has global effect),
+            all options that "may change" are send to the scanner again.
+            This fixes a problem that --resolution specified infront of
+            --mode on command line of scanimage was ignored.
+            NOTE: This change does not allow to specify --depth 12 infront of
+            --mode color, because --depth is only enabled with --mode color.
+          add depth greater 8 bits for mode grayscale
+          add option for 8 bit output but 10/12 bit scanning
+
 2000-08-24 Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* Updated plustek backend to support multiple devices and 12bit color-depth

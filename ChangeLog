@@ -1,3 +1,7 @@
+2001-03-04 Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* umack backend updated to version 1.0-build-25
+
 2001-02-26 Abel Deuring <a.deuring@satzbau-gmbh.de>
 
 	* sanei/sanei_scsi.c: removed a possible null pointer 

@@ -1,3 +1,8 @@
+2001-05-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in backend/Makefile.in doc/Makefile.in lib/Makefile.in
+	  sanei/Makefile.in tools/Makefile.in: Added target "uninstall".
+
 2001-05-20  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* removed a bug in saned (patch by Matthias Trute <mtrute@topmail.de>)

@@ -115,7 +115,6 @@ doc
 
     - Mark scanners with ":status :untested" if they are untested by the author
       or users:
-      - artec (at6)
       - bh
       - coolscan2 (LS 400 ED)
       - microtek (Scanmaker 600Z(S))
@@ -125,7 +124,6 @@ doc
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
-      - artec ("parallel port" and "USB")
       - mustek_pp
       - nec
       - plustek

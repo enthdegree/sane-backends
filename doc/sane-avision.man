@@ -35,17 +35,23 @@ the first scans!
  #
  option force-a4
  option allow-usb
+ option disable-gamma-table
  
  - force-a4:
-   forces the backend to overwrite the scanable area
+   Forces the backend to overwrite the scanable area
    returned by the scanner. This might be needed for
    the AV 630 which returns no area - or newer scanners
    which retuns the area in a unkown format our backend
    doesn't recongize yet.
  
  - allow-usb:
-   tells the backend to use USB scanner - which do not
+   Tells the backend to use USB scanner - which do not
    work correctly yet.
+
+ - disable-gamma-table:
+   Disables the usage of the scanner's gamma-table. You
+   might try this if your scans hang, or only produces
+   random garbage.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:

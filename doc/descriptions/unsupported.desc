@@ -1008,6 +1008,11 @@
 :status :unsupported
 :comment "Not supported yet. GL646. May be supported later, see link for details."
 
+:model "OpticPro S28"
+:interface "USB"
+:status :unsupported
+:comment "Uses Plustek ASIC."
+
 :model "OpticPro ST28"
 :interface "USB"
 :status :unsupported

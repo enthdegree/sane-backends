@@ -1,5 +1,7 @@
 2001-05-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+	
+	* PROJECTS: Removed entry about Polaroid SprintScan 35LE (now in
+	  microtek).
 	* TODO: Removed umax from lists of backends with sane_get_devices
 	  and config_line bug. Removed entry about make uninstall and
 	  sanei_wire.c bug. Removed entry about microtek update. Added point

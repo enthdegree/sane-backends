@@ -296,7 +296,7 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
     add_ifd_entry (ifd, 257, (height > 0xffff) ? IFDE_TYP_LONG : IFDE_TYP_SHORT,
                    1, height);
     /* bits per sample */
-    add_ifd_entry (ifd, 258, IFDE_TYP_SHORT, 1, 8);
+    add_ifd_entry (ifd, 258, IFDE_TYP_SHORT, 1, depth);
     /* compression (uncompressed) */
     add_ifd_entry (ifd, 259, IFDE_TYP_SHORT, 1, 1);
     /* photometric interpretation */

@@ -1,6 +1,9 @@
-2002-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2002-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>q
 
 	* README.solaris: Added comment about SCSI-only support.
+	* doc/sane-usb.man: Updated list of backends that use sanei_usb.
+	  Fixed some minor spelling issues. Really used decimal numbers
+	  in example.
 
 2002-06-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

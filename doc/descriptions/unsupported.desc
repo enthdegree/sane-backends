@@ -253,7 +253,7 @@
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
 
-:model "LiDE35"
+:model "CanoScan LiDE35"
 :interface "USB"
 :status :unsupported
 :comment "No further information available."

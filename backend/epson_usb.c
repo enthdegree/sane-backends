@@ -27,7 +27,7 @@ SANE_Word sanei_epson_usb_product_ids [] =
 
 
 
-int sanei_epson_getNumberOfUSBProductIds()
+int sanei_epson_getNumberOfUSBProductIds(void)
 {
 	return sizeof(sanei_epson_usb_product_ids)/sizeof(SANE_Word);
 }

@@ -843,7 +843,8 @@ static SANE_Status open_scanner( Epson_Scanner * s);
 SANE_Status sane_auto_eject ( Epson_Scanner * s);
 static SANE_Status attach_one_usb(SANE_String_Const devname);
 static void filter_resolution_list(Epson_Scanner * s);
-
+static void get_size(char c1, char c2, double *w, double *h);
+static void scan_finish(Epson_Scanner * s);
 /*
  *
  *
@@ -1336,7 +1337,7 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 
 
 void
-get_size( char c1, char c2, double *w, double *h )
+get_size(char c1, char c2, double *w, double *h)
 {
 	int ind;
 	unsigned char flag;
@@ -2292,7 +2293,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 				if ((strcmp(dev->sane.model, "GT-30000") == 0) || 
 						(strcmp(dev->sane.model, "ES-9000H") == 0))
 				{
-					fix_up_extended_status_reply(buf+26, buf);
+					fix_up_extended_status_reply((const char *) buf+26, buf);
 
 					dev->duplexSupport = (buf[0] & 0x10) != 0;
 					if (dev->duplexSupport)
@@ -2579,8 +2580,8 @@ void sane_exit ( void) {
 	for (dev = first_dev; dev; dev = next)
 	{
 		next = dev->next;
-		free((char *) dev->sane.name);
-		free((char *) dev->sane.model);
+		free((void *) dev->sane.name);
+		free((void *) dev->sane.model);
 		free(dev);
 	}
 
@@ -5027,7 +5028,6 @@ SANE_Status sane_read ( SANE_Handle handle, SANE_Byte * data, SANE_Int max_lengt
 	int index = 0;
 	SANE_Bool reorder = SANE_FALSE;
 	SANE_Bool needStrangeReorder = SANE_FALSE;
-	int i;	/* loop counter */
 	int bytes_to_process = 0;
 
 START_READ:
@@ -5862,7 +5862,6 @@ void sane_cancel ( SANE_Handle handle)
 	{
 		u_char * dummy;
 		int len;
-		SANE_Status status;
 
 		/* malloc one line */
 		dummy = malloc (s->params.bytes_per_line);

@@ -1,3 +1,8 @@
+2003-08-22  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson*.[ch]: Fixed compile problem on Linux
+	  Code cleanup to get rid of compiler warnings
+
 2003-08-21  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed '//' comments - again ...

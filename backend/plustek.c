@@ -1616,7 +1616,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 	AdjDef                  *adj = &dev->adj;
 	SANE_Status              status;
 	const SANE_String_Const *optval;
-	int                      scanmode, idx;
+	int                      scanmode;
 
 	if ( s->scanning )
 		return SANE_STATUS_DEVICE_BUSY;

@@ -146,6 +146,13 @@ static const struct scanners_supported scanners[] = {
    {1, 600, 1},			/* resolution */
    300, 600,			/* max x and Y resolution */
    3				/* color 3 pass */
+   },
+
+  {6, "TECO VM4542",
+   "Relisys", "RELI 4830",
+   {1, 400, 1},			/* resolution */
+   400, 400,			/* max x and Y resolution */
+   1				/* color 1 pass */
    }
 };
 
@@ -1893,12 +1900,15 @@ sane_start (SANE_Handle handle)
 	  return status;
 	}
 
+#if 0
+      /* The windows driver does that, but some scanners don't like it. */
       teco_vendor_spec (dev);
       if (status)
 	{
 	  teco_close (dev);
 	  return status;
 	}
+#endif
 
       status = teco_send_gamma (dev);
       if (status)
@@ -2030,7 +2040,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   while ((buf_offset != max_len) && dev->bytes_left);
 
   DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n",
-     (long) dev->bytes_left);
+       (long) dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }

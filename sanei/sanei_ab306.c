@@ -78,7 +78,7 @@ inb (u_long port)
 #include "sane/sanei.h"
 #include "sane/sanei_ab306.h"
 
-#if defined(HAVE_IOPERM) && !defined(IO_SUPPORT_MISSING)
+#if (defined(HAVE_IOPERM) || defined(__FreeBSD__)) && !defined(IO_SUPPORT_MISSING)
 
 #include <errno.h>
 #include <fcntl.h>
@@ -98,6 +98,8 @@ inb (u_long port)
 
 #define PORT_DEV	"/dev/port"
 #define AB306_CIO	0x379		/* control i/o port */
+
+static int dev_io_fd = 0;
 
 typedef struct port
   {
@@ -283,6 +285,21 @@ sanei_ab306_open (const char *dev, int *fdp)
 
   status = sanei_ab306_get_io_privilege (i);
 
+#if defined(__FreeBSD__)
+  status = sanei_ab306_get_io_privilege (i);
+  if (status != SANE_STATUS_GOOD)
+    return status;
+  
+  DBG(1, "sanei_ab306_ioport: using inb/outb access\n");
+  for (j = 0; j < NELEMS(wakeup); ++j)
+    {
+      byte = wakeup[j];
+      if (j == NELEMS(wakeup) - 1)
+	byte |= i;
+      outb (byte, AB306_CIO);
+    }
+
+#else /* !defined(__FreeBSD__) */
   if (ioperm (AB306_CIO, 1, 1) != 0)
     {
       DBG(1, "sanei_ab306_ioport: using /dev/port access\n");
@@ -315,6 +332,8 @@ sanei_ab306_open (const char *dev, int *fdp)
       if (status != SANE_STATUS_GOOD)
 	return status;
     }
+#endif /* !defined(__FreeBSD__) */
+
   ab306_outb (port + i, port[i].base + 1, 0x60);
   port[i].in_use = 1;
   port[i].active = 1;
@@ -345,8 +364,15 @@ sanei_ab306_get_io_privilege (int fd)
 {
   if (port[fd].port_fd < 0)
     {
+#if defined(__FreeBSD__)
+      if (dev_io_fd == 0)
+	dev_io_fd = open ("/dev/io", O_RDONLY);
+      if (dev_io_fd < 0)
+        return SANE_STATUS_IO_ERROR;
+#else /* !defined(__FreeBSD__) */
       if (ioperm (port[fd].base, 3, 1) != 0)
 	return SANE_STATUS_IO_ERROR;
+#endif /* !defined(__FreeBSD__) */
     }
   return SANE_STATUS_GOOD;
 }
@@ -489,6 +515,10 @@ sanei_ab306_exit (void)
 	/* power off the scanner: */
 	ab306_outb (port + i, port[i].base + 1, 0x00);
       }
+#if defined(__FreeBSD)
+  if (dev_io_fd >0)
+    close (dev_io_fd);
+#endif /* defined(__FreeBSD__) */
 }
 
 SANE_Status

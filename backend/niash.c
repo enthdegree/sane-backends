@@ -62,10 +62,6 @@
 #define MM_TO_PIXEL(_mm_, _dpi_)    ((_mm_) * (_dpi_) / 25.4 )
 #define PIXEL_TO_MM(_pixel_, _dpi_) ((_pixel_) * 25.4 / (_dpi_) )
 
-/* set this value to 1, if you want to use 75dpi as lowest resolution */
-#define DPI75 1
-
-
 
 /* options enumerator */
 typedef enum
@@ -141,21 +137,14 @@ static const SANE_Device **_pSaneDevList = 0;
 static const SANE_Range rangeGammaTable = { 0, 255, 1 };
 
 /* available scanner resolutions */
-static const SANE_Int setResolutions[] = {
-#if DPI75
-  4, 75,
-#else
-  3,
-#endif
-  150, 300, 600
-};
+static const SANE_Int setResolutions[] = { 4, 75, 150, 300, 600 };
 
 static const SANE_Range rangeGamma = { SANE_FIX (0.25), SANE_FIX (4.0),
   SANE_FIX (0.0)
 };
 static const SANE_Range rangeXmm = { 0, 220, 1 };
 static const SANE_Range rangeYmm = { 0, 290, 1 };
-
+static const SANE_Int startUpGamma = SANE_FIX (1.6);
 
 #define WARMUP_AFTERSTART    1	/* flag for 1st warm up */
 #define WARMUP_INSESSION     0
@@ -341,12 +330,30 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
     }
 }
 
+
+static void
+_SetAnalogGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
+{
+  int j;
+  double fGamma;
+  fGamma = ((double) sfGamma) / 0x10000;
+  for (j = 0; j < 4096; j++)
+    {
+      int iData;
+      iData = floor (256.0 * pow (((double) j / 4096.0), 1.0 / fGamma));
+      if (iData > 255)
+	iData = 255;
+      aiGamma[j] = iData;
+    }
+}
+
 static void
 _InitOptions (TScanner * s)
 {
-  int i, j;
+  int i;
   SANE_Option_Descriptor *pDesc;
   TOptionValue *pVal;
+  _SetAnalogGamma (s->aGammaTable, startUpGamma);
 
   for (i = optCount; i < optLast; i++)
     {
@@ -432,7 +439,7 @@ _InitOptions (TScanner * s)
 	  pDesc->constraint_type = SANE_CONSTRAINT_WORD_LIST;
 	  pDesc->constraint.word_list = setResolutions;
 	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = setResolutions[1 + (DPI75 != 0)];	/* default to 150dpi */
+	  pVal->w = setResolutions[2];	/* default to 150dpi */
 	  break;
 
 	case optGroupImage:
@@ -449,7 +456,7 @@ _InitOptions (TScanner * s)
 	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pDesc->constraint.range = &rangeGamma;
 	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = SANE_FIX (1.0);
+	  pVal->w = startUpGamma;
 	  break;
 
 	case optGammaTable:
@@ -460,11 +467,6 @@ _InitOptions (TScanner * s)
 	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	  pDesc->constraint.range = &rangeGammaTable;
 	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  /* set a neutral gamma */
-	  for (j = 0; j < 4096; j++)
-	    {
-	      s->aGammaTable[j] = j / 16;
-	    }
 	  pVal->wa = s->aGammaTable;
 	  break;
 
@@ -705,13 +707,14 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 {
   TScanner *s;
   SANE_Bool fVal;
-  static char szTable[15000];
+  static char szTable[100];
   char szTemp[16];
   int *pi;
   int i;
   SANE_Int info;
   SANE_Bool fLampIsOn;
   SANE_Status status;
+  SANE_Bool fSame;
 
   DBG (DBG_MSG, "sane_control_option: option %d, action %d\n", n, Action);
 
@@ -779,10 +782,8 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optTLY:
 	case optBRX:
 	case optBRY:
-	  info |= SANE_INFO_RELOAD_PARAMS;
-	  /* fall through */
-
 	case optGamma:
+	  info |= SANE_INFO_RELOAD_PARAMS;
 	  status = sanei_constrain_value (&s->aOptions[n], pVal, &info);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -790,26 +791,52 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 		   s->aOptions[n].title);
 	      return status;
 	    }
+
+	  /* check values if they are equal */
+	  fSame = s->aValues[n].w == *(SANE_Word *) pVal;
+
+	  /* set the values */
 	  s->aValues[n].w = *(SANE_Word *) pVal;
 	  DBG (DBG_MSG,
 	       "sane_control_option: SANE_ACTION_SET_VALUE %d = %d\n", n,
 	       (int) s->aValues[n].w);
+	  if (n == optGamma)
+	    {
+	      if (!fSame && optLast > optGammaTable)
+		{
+		  info |= SANE_INFO_RELOAD_OPTIONS;
+		}
+	      _SetAnalogGamma (s->aGammaTable, s->aValues[n].w);
+	    }
 	  break;
 
 	case optGammaTable:
 	  DBG (DBG_MSG, "Writing gamma table\n");
 	  pi = (SANE_Int *) pVal;
-	  strcpy (szTable, "");
+	  memcpy (s->aValues[n].wa, pVal, s->aOptions[n].size);
+
+	  /* prepare table for debug */
+	  strcpy (szTable, "Gamma table summary:");
 	  for (i = 0; i < 4096; i++)
 	    {
+	      if ((i % 256) == 0)
+		{
+		  strcat (szTable, "\n");
+		  DBG (DBG_MSG, szTable);
+		  strcpy (szTable, "");
+		}
+	      /* test for number print */
 	      if ((i % 32) == 0)
 		{
 		  sprintf (szTemp, " %04X", pi[i]);
 		  strcat (szTable, szTemp);
 		}
 	    }
-	  memcpy (s->aValues[n].wa, pVal, s->aOptions[n].size);
-	  DBG (DBG_MSG, "Gamma table summary:\n%s\n", szTable);
+	  if (strlen (szTable))
+	    {
+	      strcat (szTable, "\n");
+	      DBG (DBG_MSG, szTable);
+	    }
 	  break;
 
 	case optLamp:
@@ -944,7 +971,7 @@ sane_start (SANE_Handle h)
   /* copy gamma table */
   for (i = 0; i < 4096; i++)
     {
-      abGamma[i] = s->aValues[optGammaTable].wa[i];
+      abGamma[i] = s->aGammaTable[i];
     }
 
   WriteGammaCalibTable (abGamma, abGamma, abGamma, abCalibTable, 0, 0,

@@ -1,3 +1,10 @@
+2004-10-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c: Bumped release number.
+	* backend/plustek-usbscan.c: Fixed a bug in buffer calculation
+	  for CIS devices.
+	* doc/plustek/Plustek-USB.changes: Update.
+
 2004-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc

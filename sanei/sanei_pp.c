@@ -67,20 +67,20 @@
  * note that this will slow down the calls
  */
 #if 0
-#define _PARANOIA
+#  define _PARANOIA
 #endif
 
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+# include <unistd.h>
 #endif
 
-#if defined(ENABLE_PARPORT_DIRECTIO)
+#if defined (ENABLE_PARPORT_DIRECTIO)
 # undef HAVE_LIBIEEE1284
 # if defined(HAVE_SYS_IO_H)
 #  if defined (__ICC) && __ICC >= 700
 #   define __GNUC__ 2
 #  endif
-# include <sys/io.h>
+#  include <sys/io.h>
 #  if defined (__ICC) && __ICC >= 700
 #   undef __GNUC__
 #  elif defined(__ICC) && defined(HAVE_ASM_IO_H)
@@ -106,19 +106,13 @@ inb( u_long port )
   __asm__ __volatile__ ("inb %1,%0":"=a" (value):"d" ((u_short) port));
   return value;
 }
-
-# elif defined(HAVE_LIBIEEE1284)
-#  include <ieee1284.h>
-# else
-#  warning "No I/O support for this architecture!"
-#  define IO_SUPPORT_MISSING
 # endif
-
+#elif defined(HAVE_LIBIEEE1284)
+#  include <ieee1284.h>
 #else
-
+# warning "No I/O support for this architecture!"
 # define IO_SUPPORT_MISSING
-
-#endif /* HAVE_LIBIEEE1284 */
+#endif
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -139,6 +133,8 @@ inb( u_long port )
 # include <sys/types.h>
 #endif
 
+/** our global init flag... */
+static int first_time = SANE_TRUE;
 
 #if (defined (HAVE_IOPERM) || defined (HAVE_LIBIEEE1284)) && !defined (IO_SUPPORT_MISSING)
 
@@ -150,7 +146,7 @@ typedef struct {
 #endif
 
 	u_int in_use;           /* port in use?      */
-	u_int enabled;          /* port enabled?     */
+	u_int claimed;          /* port claimed?     */
 	
 	int caps;               /* port capabilities */
 
@@ -166,16 +162,16 @@ static PortRec             *port;
 /** redefine the CAPability flags */
 enum ieee1284_capabilities
 {
-	CAP1284_RAW    = (1<<0),  
-	CAP1284_NIBBLE = (1<<1), /* SPP mode             */
+	CAP1284_RAW    = (1<<0), 
+	CAP1284_NIBBLE = (1<<1), /* SPP mode             */ 
 	CAP1284_BYTE   = (1<<2), /* PS/2 bidirectional   */
 	CAP1284_COMPAT = (1<<3),
 	CAP1284_BECP   = (1<<4),
-	CAP1284_ECP    = (1<<5),
-	CAP1284_ECPRLE = (1<<6),
+	CAP1284_ECP    = (1<<5), /* ECP                  */
+	CAP1284_ECPRLE = (1<<6), /* ECP with RLE support */
 	CAP1284_ECPSWE = (1<<7),
 	CAP1284_EPP    = (1<<8), /* EPP hardware support */
-	CAP1284_EPPSL  = (1<<9),
+	CAP1284_EPPSL  = (1<<9), /* EPP 1.7              */
 	CAP1284_EPPSWE = (1<<10) /* EPP software support */
 };
 
@@ -284,6 +280,67 @@ static const char *pp_libieee1284_errorstr( int error )
 	}
 }
 #endif
+
+/** show the caps
+ */
+static int
+pp_showcaps( int caps )
+{
+	int  mode = 0;
+	char ct[1024];
+
+    ct[0] = '\0';
+	
+	if( caps & CAP1284_NIBBLE ) {
+		strcat( ct, "SPP " );
+		mode |= SANEI_PP_MODE_SPP;
+	}
+		
+	if( caps & CAP1284_BYTE ) {
+		strcat( ct, "PS/2 " );
+		mode |= SANEI_PP_MODE_BIDI;
+	}
+
+	if( caps &  CAP1284_EPP ) {
+		strcat( ct, "EPP " );
+		mode |= SANEI_PP_MODE_EPP;
+	}
+	
+	if( caps &  CAP1284_EPPSWE ) {
+		strcat( ct, "EPPSWE " );
+		mode |= SANEI_PP_MODE_EPP;
+	}
+
+	if( caps &  CAP1284_ECP ) {
+		strcat( ct, "ECP " );
+		mode |= SANEI_PP_MODE_ECP;
+	}
+
+	if( caps &  CAP1284_ECPRLE ) {
+		strcat( ct, "ECPRLE " );
+		mode |= SANEI_PP_MODE_ECP;
+	}
+
+#if 0
+	if( caps &  CAP1284_RAW )
+		strcat( ct, "RAW " );
+
+	if( caps &  CAP1284_COMPAT )
+		strcat( ct, "COMPAT " );
+		
+	if( caps &  CAP1284_EPPSL )
+		strcat( ct, "EPPSL " );
+
+	if( caps &  CAP1284_EPPSWE )
+		strcat( ct, "EPPSWE " );
+
+	if( caps &  CAP1284_BECP )
+		strcat( ct, "BECP " );
+#endif
+
+	DBG( 4, "Supported Modes: %s\n", ct );
+	return mode;
+}
 
 #ifndef HAVE_LIBIEEE1284
 
@@ -456,7 +513,6 @@ no_ecp:
 static SANE_Status
 pp_init( void )
 {
-	static int first_time = SANE_TRUE;
 #if defined (HAVE_LIBIEEE1284)
 	int result, i;
 #endif
@@ -465,7 +521,6 @@ pp_init( void )
 		DBG( 5, "pp_init: already initalized\n" );
 		return SANE_STATUS_GOOD;
     }
-    DBG_INIT();
 
 	DBG( 5, "pp_init: called for the first time\n");
 	first_time = SANE_FALSE;
@@ -603,7 +658,7 @@ pp_open( const char *dev, SANE_Status * status )
 	}
 
 	port[i].in_use  = SANE_TRUE;
-	port[i].enabled = SANE_FALSE;
+	port[i].claimed = SANE_FALSE;
 
 #if defined (HAVE_LIBIEEE1284)
 
@@ -636,6 +691,8 @@ pp_open( const char *dev, SANE_Status * status )
 	port[i].caps = pp_probe( i );
 #endif
 
+	port[i].caps = pp_showcaps( port[i].caps );
+	
 	DBG( 3, "pp_open: device `%s` opened...\n", dev );
 	*status = SANE_STATUS_GOOD;
 	return i;
@@ -655,7 +712,7 @@ pp_close( int fd, SANE_Status *status )
 	DBG( 6, "pp_close: this is port 0x%03lx\n", port[fd].base );
 #endif
 
-	if( port[fd].enabled == SANE_TRUE ) {
+	if( port[fd].claimed == SANE_TRUE ) {
 		sanei_pp_release( fd );
 	}
 
@@ -688,6 +745,9 @@ SANE_Status
 sanei_pp_open( const char *dev, int *fd )
 {
 	SANE_Status status;
+
+	if( first_time )
+	    DBG_INIT();
 
 	DBG( 4, "sanei_pp_open: called for device '%s'\n", dev);
 
@@ -760,6 +820,9 @@ sanei_pp_claim( int fd )
 		return -1;
 	}
 #endif
+
+	port[fd].claimed = SANE_TRUE;
+	
 	return SANE_STATUS_GOOD;
 }
 
@@ -776,6 +839,8 @@ sanei_pp_release( int fd )
 		
 	ieee1284_release( pplist.portv[fd] );
 #endif
+	port[fd].claimed = SANE_FALSE;
+	
 	return SANE_STATUS_GOOD;
 }
 
@@ -910,14 +975,36 @@ sanei_pp_inb_epp( int fd )
 	return inbyte4( fd );
 }
 
-#else /* !HAVE_IOPERM */
+SANE_Status
+sanei_pp_getmode( int fd, int *mode )
+{
+#if defined(HAVE_LIBIEEE1284)
+	if ((fd < 0) || (fd >= pplist.portc)) {
+#else
+	if ((fd < 0) || (fd >= NELEMS (port))) {
+#endif
+		DBG( 2, "sanei_pp_getmode: invalid fd %d\n", fd );
+		return SANE_STATUS_INVAL;
+    }
 
+    if( mode )
+    	*mode = port[fd].caps;
+
+    return SANE_STATUS_GOOD;
+}
+
+#else /* !HAVE_IOPERM */
 
 SANE_Status
 sanei_pp_open( const char *dev, int *fd )
 {
 	if (fd)
 		*fd = -1;
+
+	if( first_time ) {
+	    DBG_INIT();
+		first_time = SANE_FALSE;
+	}
 
 	DBG( 4, "sanei_pp_open: called for device `%s`\n", dev );
 	DBG( 3, "sanei_pp_open: support not compiled\n" );
@@ -1006,6 +1093,15 @@ SANE_Byte sanei_pp_inb_epp ( int fd )
 {
 	DBG( 4, "sanei_pp_inb_epp: called for fd %d\n", fd );
 	DBG( 2, "sanei_pp_inb_epp: fd %d is invalid\n", fd );
+	return SANE_STATUS_INVAL;
+}
+
+SANE_Status
+sanei_pp_getmode( int fd, int *mode )
+{
+	_VAR_NOT_USED( mode );
+	DBG( 4, "sanei_pp_getmode: called for fd %d\n", fd );
+	DBG( 2, "sanei_pp_getmode: fd %d is invalid\n", fd );
 	return SANE_STATUS_INVAL;
 }
 

@@ -1040,6 +1040,5 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
   Canon_Scanner *scanner = handle;
   DBG (3, "sane_get_select_fd: handle = %p, fd %s 0\n", handle,
        fd ? "!=" : "=");
-  *fd = scanner->scan.fd;
-  return SANE_STATUS_GOOD;
+  return SANE_STATUS_UNSUPPORTED;
 }

@@ -1,3 +1,12 @@
+2003-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/canon630u.c: Workaround for bug in canon630u backend:
+	  The backend assumes that the id it gets back from sanei_usb_open
+	  is a file descriptor. It isn't. So sane_get_select_fd returns
+	  just a random number. That breals at least saned, other
+	  frontends may not work either. This is a workaround for bug
+	  #300257.
+
 2003-10-07  m. allan noah <anoah at pfeiffer dot edu>
 
 	* backend/fujitsu.c: removed ~25 '_' from option names (#300139)

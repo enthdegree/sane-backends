@@ -6,65 +6,68 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
 "POT-Creation-Date: 2002-01-17 22:00+0100\n"
 "PO-Revision-Date: 2002-01-17 22:08+0100\n"
-"Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
+"Last-Translator: Gerhard Jaeger <g.jaeger@earthling.net>\n"
 "Language-Team:\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/plustek.c:194 .tmp/plustek.c:204 .tmp/plustek.c:214
+#: .tmp/plustek.c:200 .tmp/plustek.c:210 .tmp/plustek.c:220
 msgid "Binary"
 msgstr "Strichzeichnung"
 
-#: .tmp/plustek.c:195 .tmp/plustek.c:205
+#: .tmp/plustek.c:201 .tmp/plustek.c:211
 msgid "Halftone"
 msgstr "Halbton"
 
-#: .tmp/plustek.c:196 .tmp/plustek.c:206 .tmp/plustek.c:215
+#: .tmp/plustek.c:202 .tmp/plustek.c:212 .tmp/plustek.c:221
 msgid "Gray"
 msgstr "Graustufen"
 
-#: .tmp/plustek.c:197 .tmp/plustek.c:207 .tmp/plustek.c:216
+#: .tmp/plustek.c:203 .tmp/plustek.c:213 .tmp/plustek.c:222
 msgid "Color"
 msgstr "Farbe"
 
-#: .tmp/plustek.c:208
+#: .tmp/plustek.c:214
 msgid "Color36"
 msgstr "Farbe36"
 
-#: .tmp/plustek.c:217
+#: .tmp/plustek.c:223
 msgid "Color42"
 msgstr "Farbe42"
 
-#: .tmp/plustek.c:223
+#: .tmp/plustek.c:229
 msgid "Normal"
 msgstr "Normal"
 
-#: .tmp/plustek.c:224
+#: .tmp/plustek.c:230
 msgid "Transparency"
 msgstr "Durchlicht"
 
-#: .tmp/plustek.c:225 .tmp/saneopts.h:145
+#: .tmp/plustek.c:231
 msgid "Negative"
 msgstr "Negativ"
 
-#: .tmp/plustek.c:231
+#: .tmp/plustek.c:237
 msgid "Dithermap 1"
 msgstr "Halbtonmuster 1"
 
-#: .tmp/plustek.c:232
+#: .tmp/plustek.c:238
 msgid "Dithermap 2"
 msgstr "Halbtonmuster 2"
 
-#: .tmp/plustek.c:233
+#: .tmp/plustek.c:239
 msgid "Randomize"
 msgstr "Zufallsmuster"
 
-#: .tmp/plustek.c:632
+#: .tmp/plustek.c:717
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: .tmp/plustek.c:711
+#: .tmp/plustek.c:805
 msgid "Geometry"
 msgstr "Scanbereich"
 
+#: .tmp/plustek.c:851
+msgid "Enhancement"
+msgstr "Farbverbesserung"

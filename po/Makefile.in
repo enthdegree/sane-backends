@@ -54,7 +54,8 @@ ALL_LINGUAS = $(sort $(subst .,,$(suffix $(basename $(ALL_POS)))))
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 DISTFILES = Makefile.in README epson.de.po mustek.de.po matsushita.fr.po \
-  mustek_usb.de.po plustek.de.po pnm.de.po saneopts.de.po saneopts.fr.po \
+  mustek_usb.de.po plustek.de.po plustek.es.po pnm.de.po \
+  saneopts.de.po saneopts.fr.po saneopts.es.po \
   sceptre.fr.po umax.de.po umax.fr.po snapscan.de.po
 
 .PHONY: all clean depend dist distclean install install-translations \

@@ -3,6 +3,8 @@
 	* backend/ibm.desc: Removed old entry.
 	* backend/sm3600.desc: Changed status to :alpha.
 	* doc/sane-agfafocus.man: Fixed some small mistakes.
+	* doc/sane-apple.man: Fixed some small mistakes. Added link
+	  to mostang.com mailing list archive.
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

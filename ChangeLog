@@ -1,3 +1,9 @@
+2002-04-21  Frank Zago <fzago@greshamstorage.com>
+
+	* AUTHORS PROJECT backend/Makefile.in backend/leo.c backend/leo.h
+	  backend/leo.conf doc/sane.man doc/sane-leo.man
+	  doc/descriptions/leo.desc doc/Makefile.in: added leo backend
+
 2002-04-22  Rene Rebe <rene.rebe@gmx.net>
 
 	* backend/avision.c next backend version, several new scsi id's,

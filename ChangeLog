@@ -1,3 +1,7 @@
+2003-04-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.man: Added SEE ALSO section.
+
 2003-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c doc/sane-gt68xx.man

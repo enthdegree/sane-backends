@@ -1,4 +1,4 @@
-.TH sane 7 "April 2nd, 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "13 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -764,6 +764,69 @@ porting, and documentation of
 .BR SANE ,
 you can also contact the author of this manual page:
 <henning@meier-geinitz.de>.
+
+.SH "SEE ALSO"
+.BR saned (1),
+.BR sane-find-scanner (1),
+.BR scanimage (1),
+.BR sane\-abaton (5),
+.BR sane\-agfafocus (5),
+.BR sane\-apple (5),
+.BR sane\-artec (5),
+.BR sane\-artec_eplus48u (5),
+.BR sane\-as6e (5),
+.BR sane\-avision (5),
+.BR sane\-bh (5),
+.BR sane\-canon (5),
+.BR sane\-canon630u (5),
+.BR sane\-canon_pp (5),
+.BR sane\-coolscan2 (5),
+.BR sane\-coolscan (5),
+.BR sane\-dc210 (5),
+.BR sane\-dc240 (5),
+.BR sane\-dc25 (5),
+.BR sane\-dll (5),
+.BR sane\-dmc (5),
+.BR sane\-epson (5),
+.BR sane\-fujitsu (5),
+.BR sane\-gphoto2 (5),
+.BR sane\-gt68xx (5),
+.BR sane\-hp (5),
+.BR sane\-hpsj5s (5),
+.BR sane\-leo (5),
+.BR sane\-ma1509 (5),
+.BR sane\-matsushita (5),
+.BR sane\-microtek2 (5),
+.BR sane\-microtek (5),
+.BR sane\-mustek (5),
+.BR sane\-mustek_pp (5),
+.BR sane\-mustek_usb (5),
+.BR sane\-nec (5),
+.BR sane\-net (5),
+.BR sane\-pie (5),
+.BR sane\-pint (5),
+.BR sane\-plustek (5),
+.BR sane\-pnm (5),
+.BR sane\-qcam (5),
+.BR sane\-ricoh (5),
+.BR sane\-s9036 (5),
+.BR sane\-sceptre (5),
+.BR sane\-scsi (5),
+.BR sane\-sharp (5),
+.BR sane\-sm3600 (5),
+.BR sane\-snapscan (5),
+.BR sane\-sp15c (5),
+.BR sane\-st400 (5),
+.BR sane\-tamarack (5),
+.BR sane\-teco1 (5),
+.BR sane\-teco2 (5),
+.BR sane\-teco3 (5),
+.BR sane\-test (5),
+.BR sane\-umax1220u (5),
+.BR sane\-umax (5),
+.BR sane\-umax_pp (5),
+.BR sane\-usb (5),
+.BR sane\-v4l (5)
 
 .SH AUTHOR
 David Mosberger-Tang and many many more (see

@@ -1,4 +1,4 @@
-TODO (2002-01-19)
+TODO (2002-01-20)
 
 ******** todo ********
 
@@ -30,11 +30,10 @@ backends
     - Combine all the Fujitsu backends into one single backend
     
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
-    avoid segfaults or even scanner damage.
-
-  * Don't use exit() in backends.
-    - (v4l)
-    - tamarack
+    avoid segfaults or even scanner damage. This should NOT be done
+    in sane_control_option, it should be possible to temporary set
+    TL_X > BR_X or TL_ > BR, otherwise it is hard for a frontend to
+    set the correct values.
 
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
      - microtek
@@ -51,8 +50,8 @@ backends
 
   * dll: Rewrite to use libtool ltdl library
 
-  * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
-    necessary).
+  * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
+    (if they are necessary). 
 
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
@@ -126,9 +125,8 @@ frontends
 
 sanei
 -----
-  * sanei_scsi: Check return values of req_wait and cmd in case of
-    SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
-    functions (e.g. return values, timeout 10 min versus 1 min)?
+  * sanei_scsi: Think about a completeley new interface. Details are in
+    http://www.mostang.com/pipermail/sane-devel/2002-January/001995.html .
 
   * create sanei_parport_* and remove all inb, outb,... from all backends;
     use libieee1284 if available (see
@@ -157,6 +155,8 @@ platform-specific
   * Shared libs work with OpenBSD. However, they are named libsane.so.1.6
     instead of 1.0.6. Is this correct?
 
+  * Check if a new version of libtool can fix the above mentioned issues.
+
 misc
 ----
   * sane-config: add options "--exec-prefix=...." and "--prefix=..."
@@ -170,6 +170,10 @@ misc
 
 
 ******** done ********
+* Don't use exit() in backends.
+* sanei_scsi: Check return values of req_wait and cmd in case of
+  SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi
+  functions (e.g. return values, timeout 10 min versus 1 min)?
 * Documentation for sanei API
 * Fix missing or wrong links to backend homepages (*.desc). If a homepage
   doesn't exist, add a contact address (where available).

@@ -89,7 +89,7 @@ static SANE_Status sanei_umaxusb_cmd(int fd, const void *src, size_t src_size, v
 	char * param_ptr = ((char *) src) + cmd_size;
 	size_t tmp_len;
 	
-	DBG(DBG_info, "Sending SCSI cmd 0x%02x cdb len %d, param len %d, result len %d\n", ((unsigned char *)src)[0], cmd_size, param_size, dst_size? *dst_size:0);
+	DBG(DBG_info, "Sending SCSI cmd 0x%02x cdb len %ld, param len %ld, result len %ld\n", ((unsigned char *)src)[0], (long)cmd_size, (long)param_size, dst_size? (long)*dst_size:(long)0);
 
 	/* This looks like some kinf of pre-initialization. */
 	sanei_pv8630_write_byte(fd, PV8630_UNKNOWN, 0x0c);

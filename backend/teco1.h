@@ -220,8 +220,8 @@ getbitfield (unsigned char *pageaddr, int mask, int shift)
 
 /*--------------------------------------------------------------------------*/
 
-#define GAMMA_LENGTH 0x100	/* number of value per color */
-
+#define MAX_GAMMA_LENGTH 0x400	/* maximum number of value per color */
+#define GAMMA_LENGTH (dev->def->num_gamma_color) /* number of value per color */
 /*--------------------------------------------------------------------------*/
 
 enum Teco_Option
@@ -277,6 +277,9 @@ struct scanners_supported
   int y_resolution_max;		/* maximum Y dpi */
 
   int pass;			/* number of passes in color mode */
+	
+	size_t num_gamma_color; /* number of value per color */
+
 };
 
 /*--------------------------------------------------------------------------*/
@@ -348,10 +351,10 @@ typedef struct Teco_Scanner
   Option_Value val[OPT_NUM_OPTIONS];
 
   /* Gamma table. 1 array per colour. */
-  SANE_Word gamma_GRAY[GAMMA_LENGTH];
-  SANE_Word gamma_R[GAMMA_LENGTH];
-  SANE_Word gamma_G[GAMMA_LENGTH];
-  SANE_Word gamma_B[GAMMA_LENGTH];
+  SANE_Word gamma_GRAY[MAX_GAMMA_LENGTH];
+  SANE_Word gamma_R[MAX_GAMMA_LENGTH];
+  SANE_Word gamma_G[MAX_GAMMA_LENGTH];
+  SANE_Word gamma_B[MAX_GAMMA_LENGTH];
 }
 Teco_Scanner;
 

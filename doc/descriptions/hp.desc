@@ -11,7 +11,6 @@
 
 :backend "hp"                     ; name of backend
 :version "1.02"                   ; version of backend
-:status :stable                     ; :alpha, :beta, :stable, :new
 :manpage "sane-hp"                ; name of manpage (if it exists)
 :url "http://www.kirchgessner.net/" ; backend's web page
 
@@ -23,45 +22,64 @@
 :url "http://www.hp.com/"
 :model "ScanJet Plus"           ; name models for above-specified mfg.
 :interface "Propietary"
+:status :complete
 :comment "Driver for HP parallel interface card required"
 :model "ScanJet IIc"
 :interface "SCSI"
+:status :complete
 :model "ScanJet IIp"
 :interface "SCSI"
+:status :complete
 :model "ScanJet IIcx"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 3c"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 3p"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 4c"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 4p"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 4100C"
 :interface "USB"
+:status :complete
 :model "ScanJet 5p"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 5100C"
 :interface "Parport"
+:status :complete
 :comment "Requires ppscsi driver and epst module"
 :model "ScanJet 5200C"
 :interface "Parport USB"
+:status :complete
 :comment "Parallel interface requires ppscsi driver and epst module"
 :model "ScanJet 6100C"
 :interface "SCSI"
+:status :complete
 :model "ScanJet 6200C"
 :interface "SCSI USB"
+:status :complete
 :model "ScanJet 6250C"
 :interface "SCSI USB"
+:status :complete
 :model "ScanJet 6300C"
 :interface "SCSI USB"
+:status :complete
 :model "ScanJet 6350C"
 :interface "SCSI USB"
+:status :complete
 :model "ScanJet 6390C"
 :interface "SCSI USB"
+:status :complete
 :model "PhotoSmart PhotoScanner"
 :interface "SCSI"
+:status :complete
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,3 +1,15 @@
+2003-10-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Memorex, TCE and Optrox
+	  scanners. 
+	
+2003-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon DR-2080C. Updated
+	  some links.
+	* backend/mustek_pp_ccd.conf doc/sane-mustek_pp_ccd.man: Explained
+	  that libieee1284 device names like "parport0" can also be used.
+
 2003-10-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_thread.c: Fixed some compilation errors on Darwin and OS/2

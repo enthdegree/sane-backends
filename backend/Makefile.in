@@ -357,7 +357,7 @@ libsane-pint.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-plustek.la: ../sanei/sanei_lm983x.lo
-libsane-plustekpp.la: ../sanei/sanei_constrain_value.lo
+libsane-plustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-pnm.la: ../sanei/sanei_constrain_value.lo
 libsane-qcam.la: ../sanei/sanei_constrain_value.lo
 libsane-ricoh.la: ../sanei/sanei_config2.lo

@@ -2,6 +2,8 @@
 
 	* backend/epson.c: "flaming hack to get USB scanners working without timeouts 
 	  under linux" submitted by "Steve" (in comment to bug #300830)
+	* doc/descriptions/epson.desc, doc/sane-epson.man: 
+	  Added SCSI version of GT-5000 to supported list.
 
 2004-12-29  Julien Blache <jb@jblache.org>
 	* tools/sane-find-scanner.c: Added a hint about switching the

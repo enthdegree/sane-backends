@@ -21,11 +21,11 @@ Model:                       Connection Type
 .br
 ---------------------------  -------------------
 .br
-GT-5000                      parallel
+GT-5000                      SCSI, parallel
 .br
 GT-6000                      parallel
 .br
-ActionScanner II             parallel
+ActionScanner II             SCSI, parallel
 .br
 GT-7000                      SCSI
 .br
@@ -62,6 +62,8 @@ Expression 1680              USB, SCSI, IEEE-1394
 CX-3200                      USB
 .br
 CX-5200                      USB
+.br
+and many more. The official list is on the Sane web site.
 .RE
 
 For other scanners the software  may or may not work.  Please send mail to 

@@ -23,12 +23,12 @@
 :url "http://www.epson.com/"
 
 :model "GT-5000"                  ; name models for above-specified mfg.
-:interface "Parport"
+:interface "SCSI Parport"
 :status :good
 
 :model "Actionscanner II"
 :comment "US version of GT-5000"
-:interface "Parport"
+:interface "SCSI Parport"
 :status :good
 
 :model "GT-6000"

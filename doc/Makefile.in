@@ -64,9 +64,10 @@ MAN2HTML= nroff -man |\
 EMACS   = xemacs
 WWW_PATH= /home/httpd/html/sane/
 
-SUBDIRS = $(BACKDIRS) icons figs
+SUBDIRS = $(BACKDIRS) icons figs descriptions descriptions-external
 
-DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty net.tex \
+DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty \
+  net.tex \
   releases.txt sane-abaton.man sane-agfafocus.man sane-apple.man \
   sane-artec.man sane-as6e.man sane-avision.man sane-bh.man \
   sane-canon.man sane-coolscan.man sane-dc210.man sane-dc240.man \
@@ -83,7 +84,7 @@ DISTFILES = Makefile.in backend-writing.txt doxygen-sanei.conf html.sty net.tex 
   sane.tex saned.man scanimage.man sane-sceptre.man \
 
 .PHONY: all clean depend dist distclean html html-man install \
-  install-mostang sane-backends.html sane-html uninstall
+  install-mostang sane-html uninstall
 
 all: sane.ps $(MANPAGES) 
 
@@ -160,9 +161,15 @@ sane.ps: sane.ind
 sane-html: sane.ind
 	$(DLH) $(srcdir)/sane.tex
 
-sane-backends.html:
-	cd $(top_srcdir)/backend \
-	 && $(EMACS) -batch --load $(top_srcdir)/tools/sane-desc.el \
+sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc.el
+	cd $(top_srcdir)/doc/descriptions \
+	 && $(EMACS) -batch --load ../../tools/sane-desc.el \
+	      -f sane-desc-doit
+
+sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
+                             ../tools/sane-desc-ext.el
+	cd $(top_srcdir)/doc/descriptions-external \
+	 && $(EMACS) -batch --load ../../tools/sane-desc-ext.el \
 	      -f sane-desc-doit
 
 html-man: $(MANPAGES)
@@ -171,7 +178,7 @@ html-man: $(MANPAGES)
 	  cat $${page} | $(MAN2HTML) > $${page}.html; \
 	done
 
-html: sane-backends.html html-man sane-html
+html: sane-backends.html sane-backends-external.html html-man sane-html
 
 %.gz: %
 	gzip -f -c $^ >$@
@@ -204,7 +211,7 @@ distclean: clean
 	rm -f $(MANPAGES)
 	rm -f Makefile
 	rm -f *.lot *.lof *.ind *.gz
-	rm -f sane.dvi sane.ps sane-backends.html
+	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html
 	rm -f sane/*.html sane/*.gif
 	-rm -rf sane sanei-html
 	for manpage in $(MANPAGES) ; do \

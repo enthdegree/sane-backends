@@ -307,6 +307,7 @@ libsane-gt68xx.la: ../sanei/sanei_usb.lo
 libsane-hp.la: ../sanei/sanei_config2.lo
 libsane-hp.la: ../sanei/sanei_constrain_value.lo
 libsane-hp.la: ../sanei/sanei_scsi.lo
+libsane-hp.la: ../sanei/sanei_usb.lo
 libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
 libsane-hp.la: ../sanei/sanei_pio.lo
 libsane-leo.la: ../sanei/sanei_config2.lo

@@ -1,3 +1,8 @@
+2004-06-15  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c tools/umax_pp.c: final fixes for 610P color
+	  scanning, parallel port autodetection for the umax_pp tool.
+
 2004-06-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/mustek_usb.desc: Fixed version number.

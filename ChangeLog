@@ -1,3 +1,11 @@
+2002-05-26  Frank Zago  <fzago@austin.rr.com>
+
+	* doc/descriptions-external/teco2.desc
+	  doc/descriptions-external/teco3.desc: new backends descriptions.
+	* AUTHORS: changed my email address
+	* doc/descriptions/teco1.desc: added the mising connection type
+	  for the vm3520
+
 2002-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: Added workaround for GNU make 3.79. This version

@@ -88,13 +88,14 @@ static struct option basic_options[] = {
   {"batch-increment", required_argument, NULL, OPTION_BATCH_INCREMENT},
   {"format", required_argument, NULL, OPTION_FORMAT},
   {"accept-md5-only", no_argument, NULL, OPTION_MD5},
+  {"icc-profile", required_argument, NULL, 'i'},
   {0, 0, NULL, 0}
 };
 
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hLf:vVTb"
+#define BASE_OPTSTRING	"d:hi:Lf:vVTb"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -112,6 +113,7 @@ static int resolution_optind = -1, resolution_value = 0;
 static SANE_Word window_val[2];
 static int window_val_user[2];	/* is width/height user-specified? */
 static int accept_only_md5_auth = 0;
+static const char *icc_profile = NULL;
 
 static void fetch_options (SANE_Device * device);
 static void scanimage_exit (void);
@@ -1079,7 +1081,7 @@ scan_it (void)
 		  if (output_format == OUTPUT_TIFF)
 		    sanei_write_tiff_header (parm.format,
 					     parm.pixels_per_line, parm.lines,
-					     parm.depth, resolution_value);
+					     parm.depth, resolution_value, icc_profile);
 		  else
 		    write_pnm_header (parm.format, parm.pixels_per_line,
 				      parm.lines, parm.depth);
@@ -1246,7 +1248,7 @@ scan_it (void)
       image.height = image.y;
       if (output_format == OUTPUT_TIFF)
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
-				 parm.lines, parm.depth, resolution_value);
+				 parm.lines, parm.depth, resolution_value, icc_profile);
       else
 	write_pnm_header (parm.format, image.width, image.height, parm.depth);
       if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1)
@@ -1495,6 +1497,9 @@ main (int argc, char **argv)
 	case 'h':
 	  help = 1;
 	  break;
+        case 'i': /* icc profile */
+          icc_profile = optarg;
+          break;
 	case 'v':
 	  ++verbose;
 	  break;
@@ -1676,7 +1681,8 @@ standard output.\n\
 -T, --test                 test backend thoroughly\n\
 -v, --verbose              give even more status messages\n\
 -V, --version              print version information\n\
-    --accept-md5-only      only accept authorization requests using md5\n", prog_name);
+    --accept-md5-only      only accept authorization requests using md5\n\
+-i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
 
   if (!devname)
     {

@@ -1,5 +1,6 @@
 /* Create SANE/tiff headers TIFF interfacing routines for SANE
    Copyright (C) 2000 Peter Kirchgessner
+   Copyright (C) 2002 Oliver Rauch: added tiff ICC profile
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -18,6 +19,7 @@
 /* Changes:
    2000-11-19, PK: Color TIFF-header: write 3 values for bits per sample
    2001-12-16, PK: Write fill order tag for b/w-images
+   2002-08-27, OR: Added tiff tag for ICC profile
 */
 #ifdef _AIX
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
@@ -260,13 +262,30 @@ write_tiff_bw_header (FILE *fptr, int width, int height, int resolution)
 
 static void
 write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
-                        int resolution)
+                        int resolution, const char *icc_profile)
 {IFD *ifd;
     int header_size = 8, ifd_size;
     int strip_offset, data_offset, data_size;
     int strip_bytecount;
     int ntags;
     int motorola, bps, maxsamplevalue;
+    FILE *icc_file = 0;
+    int icc_len = -1;
+
+    if (icc_profile)
+    {
+      icc_file = fopen(icc_profile, "r");
+
+      if (!icc_file)
+      {
+        fprintf(stderr, "Could not open ICC profile %s\n", icc_profile);
+      }
+      else
+      {
+        icc_len = 16777216 * fgetc(icc_file)*65536+fgetc(icc_file)+fgetc(icc_file)*256+fgetc(icc_file);
+        rewind(icc_file);
+      }
+    }
 
     ifd = create_ifd ();
 
@@ -281,6 +300,12 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
     {
         ntags += 3;
         data_size += 2*4 + 2*4;
+    }
+
+    if (icc_len > 0) /* if icc profile exists add memory for tag */
+    {
+        ntags += 1;
+        data_size += icc_len;
     }
 
     ifd_size = 2 + ntags*12 + 4;
@@ -330,6 +355,12 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
         add_ifd_entry (ifd, 296, IFDE_TYP_SHORT, 1, 2);
     }
 
+    if (icc_len > 0) /* add ICC-profile TAG */
+    {
+      add_ifd_entry(ifd, 34675, 7, icc_len, data_offset);
+      data_offset += icc_len;
+    }
+
     /* I prefer motorola format. Its human readable. But for 16 bit, */
     /* the image format is defined by SANE to be the native byte order */
     if (bps == 1)
@@ -352,19 +383,55 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
         write_i4 (fptr, 1, motorola);
     }
 
+    /* Write ICC profile */
+    if (icc_len > 0)
+    {
+      int i;
+      for (i=0; i<icc_len; i++)
+      {
+        if (!feof(icc_file))
+        {
+          fputc(fgetc(icc_file), fptr);
+        }
+        else
+        {
+          fprintf(stderr, "ICC profile %s is too short\n", icc_profile);
+          break;
+        }
+      }
+    }
+
     free_ifd (ifd);
 }
 
 
 static void
 write_tiff_color_header (FILE *fptr, int width, int height, int depth,
-                         int resolution)
+                         int resolution, const char *icc_profile)
 {IFD *ifd;
     int header_size = 8, ifd_size;
     int strip_offset, data_offset, data_size;
     int strip_bytecount;
     int ntags;
     int motorola, bps, maxsamplevalue;
+    FILE *icc_file = 0;
+    int icc_len = -1;
+
+    if (icc_profile)
+    {
+      icc_file = fopen(icc_profile, "r");
+
+      if (!icc_file)
+      {
+        fprintf(stderr, "Could not open ICC profile %s\n", icc_profile);
+      }
+      else
+      {
+        icc_len = 16777216 * fgetc(icc_file)*65536+fgetc(icc_file)+fgetc(icc_file)*256+fgetc(icc_file);
+        rewind(icc_file);
+      }
+    }
+
 
     ifd = create_ifd ();
 
@@ -375,11 +442,19 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     /* the following values must be known in advance */
     ntags = 13;
     data_size = 3*2 + 3*2 + 3*2;
+
     if (resolution > 0)
     {
         ntags += 3;
         data_size += 2*4 + 2*4;
     }
+
+    if (icc_len > 0) /* if icc profile exists add memory for tag */
+    {
+        ntags += 1;
+        data_size += icc_len;
+    }
+
 
     ifd_size = 2 + ntags*12 + 4;
     data_offset = header_size + ifd_size;
@@ -416,6 +491,7 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     /* max sample value */
     add_ifd_entry (ifd, 281, IFDE_TYP_SHORT, 3, data_offset);
     data_offset += 3*2;
+
     if (resolution > 0)
     {
         /* x resolution */
@@ -425,11 +501,19 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
         add_ifd_entry (ifd, 283, IFDE_TYP_RATIONAL, 1, data_offset);
         data_offset += 2*4;
     }
+
     if (resolution > 0)
     {
         /* resolution unit (dpi) */
         add_ifd_entry (ifd, 296, IFDE_TYP_SHORT, 1, 2);
     }
+
+    if (icc_len > 0) /* add ICC-profile TAG */
+    {
+      add_ifd_entry(ifd, 34675, 7, icc_len, data_offset);
+      data_offset += icc_len;
+    }
+
 
     /* I prefer motorola format. Its human readable. But for 16 bit, */
     /* the image format is defined by SANE to be the native byte order */
@@ -468,13 +552,31 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
         write_i4 (fptr, 1, motorola);
     }
 
+    /* Write ICC profile */
+    if (icc_len > 0)
+    {
+      int i;
+      for (i=0; i<icc_len; i++)
+      {
+        if (!feof(icc_file))
+        {
+          fputc(fgetc(icc_file), fptr);
+        }
+        else
+        {
+          fprintf(stderr, "ICC profile %s is too short\n", icc_profile);
+          break;
+        }
+      }
+    }
+
     free_ifd (ifd);
 }
 
 
 void
 sanei_write_tiff_header (SANE_Frame format, int width, int height, int depth,
-                         int resolution)
+                         int resolution, const char *icc_profile)
 {
 #ifdef __EMX__	/* OS2 - write in binary mode. */
     _fsetmode(stdout, "b");
@@ -485,14 +587,14 @@ sanei_write_tiff_header (SANE_Frame format, int width, int height, int depth,
     case SANE_FRAME_GREEN:
     case SANE_FRAME_BLUE:
     case SANE_FRAME_RGB:
-        write_tiff_color_header (stdout, width, height, depth, resolution);
+        write_tiff_color_header (stdout, width, height, depth, resolution, icc_profile);
         break;
 
     default:
         if (depth == 1)
             write_tiff_bw_header (stdout, width, height, resolution);
         else
-            write_tiff_grey_header (stdout, width, height, depth, resolution);
+            write_tiff_grey_header (stdout, width, height, depth, resolution, icc_profile);
         break;
     }
 }

@@ -1,4 +1,11 @@
-2002-06-05  A bel Deuring <a.deuring@satzbau-gmbh.de>
+2002-06-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c doc/descriptions/mustek.desc 
+	  doc/mustek/mustek.CHANGES: Fixed problem for Paragon 6000SP (color
+	  and gray modes produced solid black images). Minor cleanups.
+	  New version: 1.0-125.
+
+2002-06-05  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* doc/descriptions/sharp.desc: added "interface" parameter
 
 2002-06-05  Stéphane Voltz  <svoltz@wanadoo.fr>

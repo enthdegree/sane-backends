@@ -9,6 +9,7 @@
 	  necessary with older kernels. Fixed torque.net URL. Added comment,
 	  that usually every SCSI adapter should work. Added paragraph about
 	  problems with Acard adapters. Rephrased NCR810 entry.
+	* doc/sane-net.man: Updated BUGS section. Added SEE ALSO.
 
 2001-06-09  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

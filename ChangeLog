@@ -5,6 +5,7 @@
 	  V_EXTRA=-pre1 would result in "sane-backends-1.0.7-pre1(.tar.gz)".
 	  For release, V_EXTRA is empty. Added NUMBER_VERSION to avoid
 	  confusing sane-config and frontends that rely on numbered versions.
+	* tools/sane-config.in: Use @NUMBER_VERSION@.
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

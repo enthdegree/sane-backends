@@ -1,5 +1,12 @@
 2000-12-10  Henning Meier-Geinitz <hmg@gmx.de>
 
+	* doc/sane-scsi.man: Small changes/updates concerning Linux
+	  2.2. Updated entries about Adaptec cards, NCR53c400/Domex 3181
+	  cards, NCR 810 cards. Removed direct links to some backends.
+	* doc/sane-snapscan.man: Added link to new snapscan website.
+
+2000-12-10  Henning Meier-Geinitz <hmg@gmx.de>
+
 	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES:
 	  Fixed wrong comment in encode_resolution. Added missing test for
 	  return status in sane_start.  Fixed wrong calculation of tlx and

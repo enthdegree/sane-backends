@@ -88,9 +88,8 @@ PictureInfo;
 
 typedef struct GPHOTO2_s
 {
-  SANE_Int fd;			/* file descriptor to talk to it */
-  SANE_String tty_name;		/* the tty port name it's on */
-  speed_t baud;			/* current tty speed */
+  SANE_String port;		/* the port name it's on */
+  SANE_Int speed;		/* current port speed */
   SANE_String camera_name;
   SANE_Bool scanning;		/* currently scanning an image? */
   SANE_Byte model;
@@ -188,7 +187,7 @@ FILE *sanei_config_open (const char *filename);
 
 static SANE_Int init_gphoto2 (void);
 
-static void close_gphoto2 (SANE_Int);
+static void close_gphoto2 (void);
 
 static PictureInfo *get_pictures_info (void);
 

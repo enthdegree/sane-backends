@@ -1,3 +1,7 @@
+2003-09-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/.cvsignore sanei/.cvsignore: Added .libs. Sorted.
+
 2003-09-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon Lide 80, updated

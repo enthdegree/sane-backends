@@ -16,7 +16,7 @@ Backends:
  avision:       Meino Christian Cramer, Rene Rebe(*)
  bh:            Tom Martone (*)
  canon:         Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
-		Mitsuru Okaniwa, Ulrich Deiters
+                Mitsuru Okaniwa, Ulrich Deiters
  canon630u:     Nathan Rutman (*)
  canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick (*)
@@ -62,6 +62,7 @@ Backends:
  st400:         Ingo Wilken (*)
  tamarack:      Rogier Wolff
  teco1:         Frank Zago (*)
+ teco3:         Frank Zago (*)
  test:          Henning Meier-Geinitz (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
@@ -114,7 +115,7 @@ Didier Carlier <didier@sema.be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
-Frank Zago <fzago@austin.rr.com>
+Frank Zago <fzago at austin dot rr dot com>
 Frederik Ramm <frederik@remote.org>
 Gerhard Jaeger <gerhard@gjaeger.de>
 Glenn Ramsey <glenn@componic.com>

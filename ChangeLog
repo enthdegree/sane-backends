@@ -1,3 +1,6 @@
+---- CODE FREEZE FOR SANE 1.0.7 ---
+---- sane-backends-1.0.7-beta2 ----
+
 2002-01-27  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek-usbhw.c: Fixed LM9831 problem...

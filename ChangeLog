@@ -10,6 +10,15 @@
 	  mostang.com directory. Added OpenBSD.
 	* include/Makefile.in: Added targed "dist". Moved include targets from
 	  root dir to this file. Added standard variables and .PHONY.
+	* backend/Makefile.in doc/Makefile.in frontend/Makefile.in
+	  japi/Makefile.in lib/Makefile.in po/Makefile.in sanei/Makefile.in
+	  testsuite/Makefile.in tools/Makefile.in: Added target "dist". 
+	  Fixed .PHONY.
+	* Makefile.in: Added targets "dist" and "sane-backends". make dist
+          creates sane-backends-x.y.z.tar.gz and make sane-backends also
+          creates the appropriate sane-x-y-z.lsm. Moved distclean to include/.
+          Fixed .PHONY. Made sane-backands-*.lsm look nicer.
+
 
 2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
 

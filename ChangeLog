@@ -7,6 +7,8 @@
 	  in color mode now. Made 600 dpi mode for Mustek BearPaw 2400 TA
 	  Plus a bit faster. Changed Mustek ScanExpress A3 linedistance
 	  correction. Added detection of Visioneer Onetouch 7300.
+	* doc/descriptions/unsupported.desc: Removed Canon D660. Now
+	  supported by plustek backend.
 
 2004-04-04  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/plustek.desc: added Canon D660U.

@@ -229,12 +229,6 @@
 :status :unsupported
 :comment "Probably not supported. No further details known."
 
-:model "CanoScan D660U"
-:interface "USB"
-:url "/unsupported/canon-d660u.html"
-:status :unsupported
-:comment "Unsupported. Vendor/product 0x04a9/0x2208. See link for more information."
-
 :model "CanoScan D1250U2"
 :url "/unsupported/canon-d1250u2.html"
 :interface "USB"

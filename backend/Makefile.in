@@ -322,6 +322,7 @@ libsane-hp.la: ../sanei/sanei_scsi.lo
 libsane-hp.la: ../sanei/sanei_usb.lo
 libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
 libsane-hp.la: ../sanei/sanei_pio.lo
+libsane-hp.la: ../sanei/sanei_thread.lo
 libsane-hp5400.la: ../sanei/sanei_usb.lo
 libsane-ibm.la: ../sanei/sanei_scsi.lo
 libsane-ibm.la: ../sanei/sanei_config2.lo

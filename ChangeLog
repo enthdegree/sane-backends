@@ -1,3 +1,7 @@
+2003-10-22  Peter Kirchgessner <peter@kirchgessner.net>
+	* backend/hp.c, backend/hp-handle.c, backend/Makefile.in:
+	  use new sanei_thread-interface for hp-backend
+
 2003-10-22  Gerard Klaver <gerard at gkall dot hobby dot nl>
 	* doc/descriptions/teco2.desc backend/teco2.conf doc/sane-teco2.man:
 	  Mustek ScanMagic 4830S added.

@@ -4,6 +4,7 @@
 
 2001-06-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* NEWS: Updated concerning backend versions.
 	* TODO: Removed nec entries. Added entry about ADF extension to
 	  scanimage.
 	* backend/qcam.c: Another occurence where struct flock must be defined

@@ -1140,26 +1140,10 @@
 :status :unsupported
 :comment "Probably LM983x based."
 
-:model "OpticPro S12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-
-:model "OpticPro ST12"
-:url "/unsupported/plustek-opticpro-st12.html"
-:interface "USB"
-:status :unsupported
-
 :model "OpticPro ST64"
 :interface "USB"
 :status :unsupported
 :comment "No further information available."
-
-:model "OpticSlim 2420"
-:url "/unsupported/plustek-opticslim-2420.html"
-:interface "USB"
-:status :unsupported
-:comment "See link for Details."
 
 :model "OpticSlim M12"
 :interface "USB"
@@ -1171,12 +1155,6 @@
 :interface "Parport"
 :status :unsupported
 :comment "Multifunction device. No further information available."
-
-:model "OpticBook 3600"
-:interface "USB"
-:url "/unsupported/plustek-opticbook-3600.html"
-:status :unsupported
-:comment "Bookscanner. No further information available."
 
 :model "OptiCard 600+"
 :interface "USB"

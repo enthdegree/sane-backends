@@ -169,6 +169,27 @@
 :interface "USB"
 :status :unsupported
 
+:model "OpticBook 3600"
+:interface "USB"
+:url "/unsupported/plustek-opticbook-3600.html"
+:status :unsupported
+:comment "Bookscanner. No further information available."
+
+:model "OpticSlim 2420"
+:url "/unsupported/plustek-opticslim-2420.html"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro S12"
+:url "/unsupported/plustek-opticpro-st12.html"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro ST12"
+:url "/unsupported/plustek-opticpro-st12.html"
+:interface "USB"
+:status :unsupported
+
 :model "OpticPro ST16"
 :url "/unsupported/plustek-opticpro-st16.html"
 :interface "USB"

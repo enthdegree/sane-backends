@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have been never released.
 
+V 0.48-8 (2004-10-06)
+---------------------
+- split scanmodes & bit-depths
+
 V 0.48-7 (2004-10-04)
 ---------------------
 - changed some strings according to bug #300963

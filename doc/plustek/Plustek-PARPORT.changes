@@ -137,3 +137,7 @@ Version 0.43-4 07/15/2004
     3.0 More cleanup work
     4.0 bumped up build number
 
+Version 0.43-5 10/06/2004
+    1.0 Change some scanmode definitions to match the SANE predefined
+        ones
+

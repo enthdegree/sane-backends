@@ -1,5 +1,5 @@
-U12.changes (2004-21-01) Gerhard Jäger <gerhard@gjaeger.de>
-===========================================================
+U12.changes - Gerhard Jäger <gerhard@gjaeger.de>
+================================================
 
 V 0.01-1 (2004-09-01)
 ---------------------
@@ -21,4 +21,8 @@ V 0.02-6 (2004-21-01)
 ---------------------
 - compilation fixes
 - changes to some structures
+
+V 0.02-9 (2004-06-10)
+---------------------
+- using now SANE definitions for scanmodes
                                   

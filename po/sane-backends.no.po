@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
-"POT-Creation-Date: 2004-10-04 09:12+0200\n"
+"POT-Creation-Date: 2004-10-06 14:59+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Sigurd Stordal <polarbear42@phreaker.net>\n"
 "Language-Team: \n"
@@ -27,8 +27,7 @@ msgstr "Gråskala"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:482 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:268 .tmp/plustek.c:217 .tmp/plustek_pp.c:184
-#: .tmp/plustek_pp.c:193 .tmp/saneopts.h:393 .tmp/sceptre.h:292
+#: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
 #: .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 msgid "Color"
@@ -36,7 +35,7 @@ msgstr "Farge"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:740
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:768
 #: .tmp/plustek_pp.c:792 .tmp/sceptre.c:753 .tmp/snapscan-options.c:507
 #: .tmp/teco1.c:1146 .tmp/teco2.c:1952 .tmp/teco3.c:971 .tmp/umax.c:5214
 #: .tmp/umax_pp.c:546
@@ -54,7 +53,7 @@ msgstr "Velg standard verdier for kontroll av forbedring"
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3216 .tmp/gt68xx.c:708
 #: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:694 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
+#: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
 #: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:497
 msgid "Geometry"
@@ -131,14 +130,12 @@ msgstr "Gamma korreksjon"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Velger den gamma korrigerte overførsels kurven"
 
-#: .tmp/epson.c:480 .tmp/plustek.c:214 .tmp/plustek_pp.c:181
-#: .tmp/plustek_pp.c:190
+#: .tmp/epson.c:480
 msgid "Binary"
 msgstr "Binær"
 
 #: .tmp/epson.c:481 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:215 .tmp/plustek_pp.c:183
-#: .tmp/plustek_pp.c:192 .tmp/saneopts.h:394 .tmp/sceptre.h:291
+#: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Grå"
@@ -314,7 +311,7 @@ msgstr "maks"
 
 #: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:622 .tmp/plustek_pp.c:657
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:637 .tmp/plustek_pp.c:657
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:276 .tmp/teco2.c:1876
 #: .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
@@ -697,7 +694,7 @@ msgid "Slow"
 msgstr "Treigere"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:224 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:141 .tmp/plustek.c:217 .tmp/plustek_pp.c:200
 msgid "Normal"
 msgstr ""
 
@@ -739,7 +736,7 @@ msgstr ""
 msgid "Film-strip"
 msgstr "Filmtype"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:226 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:219 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
 msgid "Negative"
 msgstr "Negativ"
@@ -1447,138 +1444,130 @@ msgstr ""
 msgid "Calibrates for black and white level."
 msgstr ""
 
-#: .tmp/plustek.c:216
-msgid "Gray 14/16"
-msgstr "Grå 14/16"
-
-#: .tmp/plustek.c:218
-msgid "Color 42/48"
-msgstr "Farge 42/48"
-
-#: .tmp/plustek.c:225 .tmp/plustek_pp.c:201
+#: .tmp/plustek.c:218 .tmp/plustek_pp.c:201
 msgid "Transparency"
 msgstr ""
 
-#: .tmp/plustek.c:805
+#: .tmp/plustek.c:832
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:812
+#: .tmp/plustek.c:839
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:813
+#: .tmp/plustek.c:840
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:818
+#: .tmp/plustek.c:845
 #, fuzzy
 msgid "Calibration data cache"
 msgstr "Kalibrering"
 
-#: .tmp/plustek.c:819
+#: .tmp/plustek.c:846
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:830
+#: .tmp/plustek.c:857
 #, fuzzy
 msgid "Warmup-time"
 msgstr "Varmopp lampe"
 
-#: .tmp/plustek.c:831
+#: .tmp/plustek.c:858
 #, fuzzy
 msgid "Warmup-time in seconds."
 msgstr "Varmopp lampe"
 
-#: .tmp/plustek.c:838
+#: .tmp/plustek.c:865
 #, fuzzy
 msgid "Lampoff-time"
 msgstr "Lampe av"
 
-#: .tmp/plustek.c:839
+#: .tmp/plustek.c:866
 #, fuzzy
 msgid "Lampoff-time in seconds."
 msgstr "Varmopp lampe"
 
-#: .tmp/plustek.c:847
+#: .tmp/plustek.c:874
 msgid "Analog frontend"
 msgstr ""
 
-#: .tmp/plustek.c:853
+#: .tmp/plustek.c:880
 msgid "Red-gain"
 msgstr ""
 
-#: .tmp/plustek.c:854
+#: .tmp/plustek.c:881
 msgid "Red-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:861
+#: .tmp/plustek.c:888
 msgid "Red-offset"
 msgstr ""
 
-#: .tmp/plustek.c:862
+#: .tmp/plustek.c:889
 msgid "Red-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:869
+#: .tmp/plustek.c:896
 #, fuzzy
 msgid "Green-gain"
 msgstr "Grønn"
 
-#: .tmp/plustek.c:870
+#: .tmp/plustek.c:897
 msgid "Green-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:877
+#: .tmp/plustek.c:904
 #, fuzzy
 msgid "Green-offset"
 msgstr "Lampe av"
 
-#: .tmp/plustek.c:878
+#: .tmp/plustek.c:905
 msgid "Green-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:885
+#: .tmp/plustek.c:912
 #, fuzzy
 msgid "Blue-gain"
 msgstr "Blå"
 
-#: .tmp/plustek.c:886
+#: .tmp/plustek.c:913
 msgid "Blue-gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:893
+#: .tmp/plustek.c:920
 msgid "Blue-offset"
 msgstr ""
 
-#: .tmp/plustek.c:894
+#: .tmp/plustek.c:921
 msgid "Blue-offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:901
+#: .tmp/plustek.c:928
 #, fuzzy
 msgid "Red lamp off"
 msgstr "Lampe av"
 
-#: .tmp/plustek.c:902
+#: .tmp/plustek.c:929
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:909
+#: .tmp/plustek.c:936
 #, fuzzy
 msgid "Green lamp off"
 msgstr "Lampe av"
 
-#: .tmp/plustek.c:910
+#: .tmp/plustek.c:937
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:917
+#: .tmp/plustek.c:944
 #, fuzzy
 msgid "Blue lamp off"
 msgstr "Lampe av"
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:945
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
@@ -2917,6 +2906,12 @@ msgstr "Lampe av"
 #, fuzzy
 msgid "Sets blue channel offset"
 msgstr "Kontrast blåkanal"
+
+#~ msgid "Gray 14/16"
+#~ msgstr "Grå 14/16"
+
+#~ msgid "Color 42/48"
+#~ msgstr "Farge 42/48"
 
 #~ msgid "Lamp always on"
 #~ msgstr "Lampen alltid på"

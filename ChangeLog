@@ -1,3 +1,13 @@
+--- cvs snapshot-2001-06-17 ---
+
+2001-06-17  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/umax*: bugfixes:
+         - removed "#include <assert.h>" from umax.c: assert() is never called
+         - bugfix for 3 pass scanning:
+           reposition_scanner is called in sane_start for 2nd and 3rd pass of 3 pass scan
+         - bugfix for UTA and DOR geometry offsets
+
 2001-06-14  Peter Fales <peter@fales.com>
 
 	* backend/dc25.c - Added a patch from Tim Waugh to use mkdtemp()

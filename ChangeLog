@@ -2,6 +2,12 @@
 
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
 	  Fixed problem with gamma correction. New version: 1.0-113.
+	* backend/mustek_usb.c backend/mustek_usb.desc 
+	  backend/mustek_usb_high.c backend/mustek_usb_low.c
+	  backend/mustek_usb_low.h backend/mustek_usb_mid.c
+	  backend/mustek_usb_mid.h doc/mustek_usb/mustek_usb.CHANGES:
+	  200 dpi support for 600 CU. Some internal reorganizations.
+	  New version: 1.0-5.
 
 2001-09-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

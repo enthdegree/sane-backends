@@ -1,3 +1,8 @@
+2000-09-15 Gerhard Jaeger <g.jaeger@earthling.net>
+	
+	* backend/plustek.c
+	  added some code to support timing measurement in debug sessions
+
 2000-09-10 Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp-handle.c

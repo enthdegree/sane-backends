@@ -4,6 +4,7 @@
 	  backend description files (*.desc).
 	* configure configure.in: Added some sanity checks. Configure
 	  now stops if one of the essential headers isn't found.
+	* backend/dll.conf: Added entry for test backend (commented out).
 
 2002-06-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

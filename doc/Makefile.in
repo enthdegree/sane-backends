@@ -69,8 +69,6 @@ MAN2HTML= nroff -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
           -cgiurl '$$title.$$section.html'|\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'
-EMACS   = xemacs
-WWW_PATH= /home/httpd/html/sane/
 
 HTML_PAGES = sane-backends.html sane-backends-external.html \
              sane-mfgs.html sane-mfgs-external.html
@@ -105,7 +103,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-ma1509.man sane-ibm.man sane-hp5400.man sane-plustek_pp.man
 
 .PHONY: all clean depend dist distclean html html-man install \
-  install-mostang sane-html uninstall
+  sane-html uninstall
 
 all: $(STANDARD) $(MANPAGES) html-pages
 
@@ -229,28 +227,6 @@ html: html-pages html-man sane-html
 
 %.gz: %
 	gzip -f -c $^ >$@
-
-install-mostang: html sane.ps sane.ps.gz
-	@echo Installing html manpages in $(WWW_PATH)/man...
-	$(MKDIR) $(WWW_PATH)/man
-	for manpage in $(MANPAGES) ; do \
-	  $(INSTALL_DATA) $${manpage}.html $(WWW_PATH)/man/$${manpage}.html; \
-	done
-	@echo Installing sane-backends.html in $(WWW_PATH)...
-	$(MKDIR) $(WWW_PATH)
-	$(INSTALL_DATA) sane-backends.html $(WWW_PATH)/sane-backends.html
-	@echo Installing sane-backends-external.html in $(WWW_PATH)...
-	$(INSTALL_DATA) sane-backends-external.html \
-          $(WWW_PATH)/sane-backends.html
-	@echo Installing SANE standard \(html\) in $(WWW_PATH)/html/...
-	$(MKDIR) $(WWW_PATH)/html/
-	for html in sane/* ; do \
-	  $(INSTALL_DATA) $${html} $(WWW_PATH)/html/ || exit 1; \
-	done
-	@echo Installing SANE standard \(postscript\) in $(WWW_PATH)/...
-	$(INSTALL_DATA) sane.ps $(WWW_PATH)/sane.ps
-	@echo Installing SANE standard \(ps.gz\) in $(WWW_PATH)/...
-	$(INSTALL_DATA) sane.ps.gz $(WWW_PATH)/sane.ps.gz
 
 clean:
 	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb

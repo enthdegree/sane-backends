@@ -7,6 +7,13 @@
 	  missing.
 	* sanei/sanei_config.c: Actually return 0 if there is no second
 	  quotation mark. 
+	* backend/ma1509.c backend/mustek.c backend/mustek_usb.c
+	  backend/test.c doc/descriptions/ma1509.desc
+	  doc/descriptions/mustek.desc doc/descriptions/mustek_usb.desc
+	  doc/descriptions/test.desc doc/mustek/mustek.CHANGES
+	  doc/mustek_usb/mustek_usb.CHANGES: Check if
+	  sanei_config_get_string fails because of a single quotation mark
+	  in the configuration file. Update version numbers.
 
 2003-09-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

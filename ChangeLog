@@ -4,6 +4,8 @@
 	  ma1509 backend for Mustek BearPaw 1200F scanners.
 	* doc/descriptions/unsupported.desc: Added Avision, Brother, and Umax
 	  scanners. Removed Mustek BearPaw 1200F.
+	* sanei/sanei_usb.c: Check all acceptable interfaces instead of using
+	  the first one.
 
 2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 

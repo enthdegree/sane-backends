@@ -255,6 +255,9 @@ sanei_usb_init (void)
     {
       for (dev = bus->devices; dev; dev = dev->next)
 	{
+	  int interface;
+	  SANE_Bool found;
+
 	  if (!dev->config)
 	    {
 	      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
@@ -267,29 +270,36 @@ sanei_usb_init (void)
 		   dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
-	  switch (dev->descriptor.bDeviceClass)
+	  found = SANE_FALSE;
+	  for (interface = 0; interface < dev->config[0].bNumInterfaces && !found; interface++)
 	    {
-	    case USB_CLASS_VENDOR_SPEC:
-	      break;
-	    case USB_CLASS_PER_INTERFACE:
-	      switch (dev->config[0].interface[0].altsetting[0].bInterfaceClass)
+	      switch (dev->descriptor.bDeviceClass)
 		{
 		case USB_CLASS_VENDOR_SPEC:
-		case USB_CLASS_PER_INTERFACE:
-		case 16:                /* data? */
+		  found = SANE_TRUE;
 		  break;
-		default:
-		  DBG (5, "sanei_usb_init: device 0x%04x/0x%04x doesn't look like a "
-		       "scanner (%d/%d)\n", dev->descriptor.idVendor,
-		       dev->descriptor.idProduct, dev->descriptor.bDeviceClass, 
-		       dev->config[0].interface[0].altsetting[0].bInterfaceClass);
-		  continue;
+		case USB_CLASS_PER_INTERFACE:
+		  switch (dev->config[0].interface[interface].altsetting[0].bInterfaceClass)
+		    {
+		    case USB_CLASS_VENDOR_SPEC:
+		    case USB_CLASS_PER_INTERFACE:
+		    case 16:                /* data? */
+		      found = SANE_TRUE;
+		      break;
+		    }
+		  break;
 		}
-	      break;
-	    default:
-	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x doesn't look like a scanner (%d)\n",
-		   dev->descriptor.idVendor, dev->descriptor.idProduct,
-		   dev->descriptor.bDeviceClass);
+	      if (!found)
+		DBG (5, "sanei_usb_init: device 0x%04x/0x%04x, interface %d doesn't look like a "
+		     "scanner (%d/%d)\n", dev->descriptor.idVendor,
+		     dev->descriptor.idProduct, interface, dev->descriptor.bDeviceClass, 
+		     dev->config[0].interface[interface].altsetting[0].bInterfaceClass);
+	    }
+	  interface--;
+	  if (!found)
+	    {
+	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+		   dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
 	  
@@ -303,8 +313,9 @@ sanei_usb_init (void)
 	  devices[dn].product = dev->descriptor.idProduct;
 	  devices[dn].method = sanei_usb_method_libusb;
 	  devices[dn].open = SANE_FALSE;
-	  DBG (4, "sanei_usb_init: found libusb device (0x%04x/0x%04x) at %s\n",
-	       dev->descriptor.idVendor, dev->descriptor.idProduct, devname);
+	  devices[dn].interface_nr = interface;
+	  DBG (4, "sanei_usb_init: found libusb device (0x%04x/0x%04x) interface %d  at %s\n",
+	       dev->descriptor.idVendor, dev->descriptor.idProduct, interface, devname);
 	  dn++;
 	  if (dn >= MAX_DEVICES)
 	    return;
@@ -530,15 +541,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	}
       
       /* Claim the interface */
-      devices[devcount].interface_nr = 
-	dev->config[0].interface[0].altsetting[0].bInterfaceNumber;
-      if (dev->config[0].bNumInterfaces > 1)
-	{
-	  DBG (3, "sanei_usb_open: more than one "
-	       "interface (%d), choosing first interface (%d)\n",
-	       dev->config[0].bNumInterfaces, 
-	       devices[devcount].interface_nr);
-	}
       result = usb_claim_interface (devices[devcount].libusb_handle, 
 				    devices[devcount].interface_nr);
       if (result < 0)

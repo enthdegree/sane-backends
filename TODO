@@ -1,4 +1,4 @@
-TODO (2001-06-05)
+TODO (2001-06-10)
 
 ******** todo ********
 
@@ -115,7 +115,46 @@ doc
   * sane.tex: Define the return values for sane_init?  Define the
     consequences if sane_init do not return SANE_STATUS_GOOD.
 
-  * Add links to sane(7) in all maual pages
+  * Update backend manpages
+
+  * Check for logical errors and spelling
+    - agfafocus (CONFIGURATION: Microtek scanners? SANE_DEBUG_AGFAFOCUS:
+                 SANE_DEBUG_UMAX values? Last paragraph of DEBUG)
+    - apple (Compression (AppleScanner), Multiple Windows (AppleScanner),
+             ftpdev.info.apple.com doesn't exist, DEBUG)
+    - artec (BUGS)
+    - mustek_pp (SEE ALSO, there is no sane-musteka4s2(5))
+    - plustek: (http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3: not found!)
+
+  * Check for formatting bugs in manual pages:
+    - apple (The list of scanners doesn't look like a table)
+    - artec (CONFIGURATION: F<artec.conf> and similar)
+    - nec (DESCRIPTION, list doesn't look like a table)
+    - pie (Last two lines in table are not aligned; the last .PP generates a
+           new page)
+    - sharp (table isn't aligned)
+
+  * If you mention sane-devel, also mention the website concerning
+    subscription (http://www.mostang.com/sane/mail.html), because you can't
+    write to sane-devel without subscribing.
+    Or use your own mail address in the manual page.
+    - abaton
+    - agfafocus
+    - apple
+    - bh
+    - dc210
+    - dc240
+    - dc25
+    - epson
+    - hp
+    - microtek
+    - mustek_pp
+    - pint
+    - st400
+ 
+  * Use @LIBDIR@, @CONFIGDIR@ and the other @@ macros to refer to paths.
+    These are updated when installing to a non-standard prefix.
+    - umax
  
 frontends
 ---------
@@ -173,6 +212,7 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* Add links to sane(7) in all maual pages
 * Check AIX/gcc shared lib loading problem: When starting scanimage,
     only dll is loaded.
     Backend libraries can't be loaded:

@@ -55,6 +55,7 @@
 	* tools/Makefile.in tools/sane-desc.el.in tools/sane-desc-ext.el:
 	  Updated for separated lists of backends. Use package version in
 	  internal list. Don't use version and man page in external list.
+	* tools/sane-desc.el: Removed.
 	
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

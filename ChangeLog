@@ -1,3 +1,10 @@
+2004-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/hp_rts88xx.desc: Moved HP 35xx
+	  scanners to hp_rts88x backend. Updated status settings and URL
+	  (from johanneshub@foni.net).
+
 2004-10-27  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
 	* backend/niash_core.c backend/niash.c: moving critical timing

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-24"		; version of backend
+:version "2004-10-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -522,30 +522,6 @@
 :url "/unsupported/hp-photosmart-s20xi.html"
 :status :unsupported
 :comment "Not supported yet by SANE, but a backend is under development. See link for details."
-
-:model "ScanJet 3500c"
-:url "/unsupported/hp-scanjet-3500c.html"
-:interface "USB"
-:status :unsupported
-:comment "Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3530c"
-:url "/unsupported/hp-scanjet-3530c.html"
-:interface "USB"
-:status :unsupported
-:comment "Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570c"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3570c.html"
-:status :unsupported
-:comment "Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
-
-:model "ScanJet 3570cxi"
-;:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
-:interface "USB"
-:status :unsupported
-:comment "Unsupported. See 3570c."
 
 :model "ScanJet 3970c"
 :interface "USB"

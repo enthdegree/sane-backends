@@ -1,3 +1,8 @@
+2004-03-03  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions/unsupported.desc: Updated Plustek section.
+	* doc/descriptions-external/genesys.desc: updated list of scanners
+	  that should be supported by the genesys backend.
+
 2004-03-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Added checks for bad handles for

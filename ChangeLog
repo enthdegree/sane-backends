@@ -1,3 +1,14 @@
+2000-12-25  Karl Heinz Kremer <khk@khk.net
+
+	* backend/epson.*: Version 0.2.01
+	  Added bit-depth selection again. 
+   	  Fixed problem with bilevel scanning with Perfection610: The
+	  line count has to be an even number with this scanner.
+	  Several initialization fixes regarding bit depth selection.
+	  This version goes back into the CVS repository, the 1.0.4 
+	  release is out and therefore the code freeze is over.
+	  Some general cleanup, added more comments.
+
 2000-12-23  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Removed entry about net/saned crashes.

@@ -1,4 +1,4 @@
-TODO (2001-05-13)
+TODO (2001-05-16)
 
 ******** todo ********
 
@@ -25,7 +25,6 @@ backends
       Mark Plowman <mplowman@wxs.nl>
     - Linux Handscanner Ioctl Interface scanner by Harald
       Bauer <bauer-h@web.de>
-      Update email in lhii.desc and/or add backend.
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
     - Mustek 1200 UB backend
@@ -92,12 +91,10 @@ backends
       - canon
       - coolscan
       - dmc
-      - epson
       - m3096
       - microtek
       - microtek2 ?
       - nec
-      - plustek
       - qcam
       - ricoh
       - s9036
@@ -105,7 +102,6 @@ backends
       - sp15c
       - tamarack
       - umax
-      - umax_pp
       
       - etc?
 
@@ -123,7 +119,6 @@ backends
     This ist just a fast grep. Check all backends!
     - artec
     - bh
-    - epson
     - m3096g
     - microtek2
     - sp15c

@@ -142,7 +142,7 @@ sanei_pv8630_bulkwrite (int fd, const void *data, size_t * len)
 {
   SANE_Status status;
 
-  status = sanei_usb_write_bulk (fd, (char *) data, len);
+  status = sanei_usb_write_bulk (fd, (SANE_Byte *) data, len);
 
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error, "sanei_pv8630_bulkwrite error\n");

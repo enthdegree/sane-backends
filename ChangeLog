@@ -1,3 +1,8 @@
+2002-02-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Version is 1.0.7-cvs. Enable warnings by
+	  default. Don't use "-ansi" for HPUX.
+
 ******  Release of sane-backends 1.0.7. End of code freeze ******
 
 2002-02-03  Henning Meier-Geinitz <henning@meier-geinitz.de>

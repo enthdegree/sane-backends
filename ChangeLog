@@ -1,3 +1,10 @@
+2002-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in frontend/scaneimage.c
+	  include/sane/config.h.in: Fixed 16 bit pnm output. The byte-order
+	  was wrong for little-endian systems. Based on code from Roland
+	  Roberts <roland@astrofoto.org>.
+
 2002-05-07  Frank Zago  <fzago@greshamstorage.com>
 
 	* doc/descriptions-external/tevion9693usb.desc: new backend,

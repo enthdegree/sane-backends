@@ -876,7 +876,8 @@ process_backend_option (SANE_Handle device, int optnum, const char *optarg)
       exit (1);
     }
 
-  if ((opt->cap & SANE_CAP_AUTOMATIC) && strncasecmp (optarg, "auto", 4) == 0)
+  if ((opt->cap & SANE_CAP_AUTOMATIC) && optarg && 
+      strncasecmp (optarg, "auto", 4) == 0)
     {
       status = sane_control_option (device, optnum, SANE_ACTION_SET_AUTO,
 				    0, 0);

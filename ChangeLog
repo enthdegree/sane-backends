@@ -1,3 +1,8 @@
+2002-08-01  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp-dev.c: Misc bug fixes for fast machines, more
+	  useful debug messages, more reliable file reads/writes.
+
 2002-07_31  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* doc/descriptions/hp.desc: Use Hewlett-Packard instead of HP

@@ -12,12 +12,12 @@
    Copyright (C) 1998-1999 Kling & Hautzinger GmbH
    Copyright (C) 1999 Norihiko Sawa <sawa@yb3.so-net.ne.jp>
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
-   Copyright (C) 1999-2001 Karl Heinz Kremer <khk@khk.net>
+   Copyright (C) 1999-2002 Karl Heinz Kremer <khk@khk.net>
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.31 - 2002-11-23"
-#define SANE_EPSON_BUILD	231
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.32 - 2002-12-28"
+#define SANE_EPSON_BUILD	232
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-12-28	Added advanced option to display only short resolution list for 
+   		displays that can not show the complete list.
    2002-11-23	Fixed problem with dropout color.
    2002-11-03	Full libusb support.
    2002-10-05	Fixed problem with incorrect response to sane_get_parameters()
@@ -812,6 +814,7 @@ static void close_scanner( Epson_Scanner * s);
 static SANE_Status open_scanner( Epson_Scanner * s);
 SANE_Status sane_auto_eject ( Epson_Scanner * s);
 static SANE_Status attach_one_usb(SANE_String_Const devname);
+static void filter_resolution_list(Epson_Scanner * s);
 
 /*
  *
@@ -2765,6 +2768,13 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 			s->opt[ OPT_AAS].cap |= SANE_CAP_INACTIVE;
 		}
 
+		/* limit resolution list */
+		s->opt[OPT_LIMIT_RESOLUTION].name = "short-resolution";
+		s->opt[OPT_LIMIT_RESOLUTION].title = SANE_I18N("Short resolution list");
+		s->opt[OPT_LIMIT_RESOLUTION].desc = SANE_I18N("Display short resolution list");
+		s->opt[OPT_LIMIT_RESOLUTION].type = SANE_TYPE_BOOL;
+		s->val[OPT_LIMIT_RESOLUTION].w = SANE_FALSE;
+
 
 		/* zoom */
 		s->opt[ OPT_ZOOM].name	= "zoom";
@@ -3254,9 +3264,9 @@ static SANE_Status getvalue( SANE_Handle handle,
 	case OPT_ZOOM:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
+	case OPT_LIMIT_RESOLUTION:
 		*((SANE_Word *) value) = sval->w;
 		break;
-
 	case OPT_MODE:
 	case OPT_HALFTONE:
 	case OPT_DROPOUT:
@@ -3619,8 +3629,14 @@ static SANE_Status setvalue( SANE_Handle handle,
 	case OPT_AUTO_EJECT:
 	case OPT_THRESHOLD:
 	case OPT_ZOOM:
-  case OPT_WAIT_FOR_BUTTON:
+	case OPT_WAIT_FOR_BUTTON:
 		sval->w = *(( SANE_Word *) value);
+		break;
+
+	case OPT_LIMIT_RESOLUTION:
+		sval->w = *(( SANE_Word *) value);
+		filter_resolution_list(s);
+		reload = SANE_TRUE;
 		break;
 
 	case OPT_QUICK_FORMAT:
@@ -5328,6 +5344,9 @@ get_identity_information(SANE_Handle handle)
 	}
 	*(s->hw->resolution_list) = s->hw->res_list_size;
 	memcpy(&(s->hw->resolution_list[1]), s->hw->res_list, s->hw->res_list_size * sizeof(SANE_Word));
+
+	/* filter the resolution list */
+	filter_resolution_list(s);
 	
 	return SANE_STATUS_GOOD;
 
@@ -5470,15 +5489,15 @@ request_push_button_status(SANE_Handle handle, SANE_Bool *theButtonStatus)
 	int len;
 	u_char param[3];
 	u_char result[4];
-  u_char *buf;
+	u_char *buf;
 
 	DBG(5, "request_push_button_status()\n");
 
 	if (s->hw->cmd->request_push_button_status == 0)
-  {
-    DBG(1, "push button status unsupported\n");
-		return SANE_STATUS_UNSUPPORTED;
-  }
+	{
+		DBG(1, "push button status unsupported\n");
+			return SANE_STATUS_UNSUPPORTED;
+	}
 
 	param[0] = ESC;
 	param[1] = s->hw->cmd->request_push_button_status;
@@ -5487,26 +5506,86 @@ request_push_button_status(SANE_Handle handle, SANE_Bool *theButtonStatus)
 	send( s, param, 2, &status);
 
 	if( SANE_STATUS_GOOD != status)
-  {
-    DBG(1, "error sending command\n");
+	{
+    	DBG(1, "error sending command\n");
+			return status;
+	}
+
+	len = 4;        /* receive header */
+
+	receive( s, result, len, &status);
+	if( SANE_STATUS_GOOD != status)
 		return status;
-  }
 
-  len = 4;        /* receive header */
+	len = result[ 3] << 8 | result[ 2];   /* this should be 1 for scanners with one button */
+	buf = alloca( len);
 
-  receive( s, result, len, &status);
-      if( SANE_STATUS_GOOD != status)
-          return status;
+	receive( s, buf, len, &status);   /* reveive actual status data */
 
-  len = result[ 3] << 8 | result[ 2];   /* this should be 1 for scanners with one button */
-  buf = alloca( len);
+	DBG(1, "Push button status = %d\n", buf[0] & 0x01);
+	*theButtonStatus = ((buf[0] & 0x01) != 0);
 
-  receive( s, buf, len, &status);   /* reveive actual status data */
+	return (SANE_STATUS_GOOD);
+}
 
-  DBG(1, "Push button status = %d\n", buf[0] & 0x01);
-  *theButtonStatus = ((buf[0] & 0x01) != 0);
 
-  return (SANE_STATUS_GOOD);
+
+static void filter_resolution_list(Epson_Scanner * s)
+{
+	/* re-create the list */
+
+	if (s->val[OPT_LIMIT_RESOLUTION].w == SANE_TRUE) 
+	{
+		/* copy the short list */
+
+		/* filter out all values that are not 300 or 400 dpi based */
+		int i;
+
+		int new_size = 0;
+		SANE_Bool is_correct_resolution = SANE_FALSE;
+
+		for (i=1; i <= s->hw->res_list_size; i++)
+		{
+			SANE_Word res;
+			res = s->hw->res_list[i];
+			if ( (res < 100) ||
+				(0 == (res % 300)) ||
+				(0 == (res % 400)) )
+				{
+					/* add the value */
+					new_size++;
+
+					s->hw->resolution_list[new_size] = s->hw->res_list[i];
+
+					/* check for a valid current resolution */
+					if (res == s->val[OPT_RESOLUTION].w)
+					{
+						is_correct_resolution = SANE_TRUE;
+					}
+				}
+		}
+		s->hw->resolution_list[0] = new_size;
+
+		if (is_correct_resolution == SANE_FALSE)
+		{
+			for (i=1; i<= new_size; i++)
+			{
+				if (s->val[OPT_RESOLUTION].w < s->hw->resolution_list[i])
+				{
+					s->val[OPT_RESOLUTION].w = s->hw->resolution_list[i];
+					i = new_size+1;
+				}
+			}
+		}
+
+	}
+	else
+	{
+		// copy the full list
+		s->hw->resolution_list[0] = s->hw->res_list_size;
+		memcpy(&(s->hw->resolution_list[1]), s->hw->res_list,
+				s->hw->res_list_size * sizeof(SANE_Word));
+	}
 }
 
 /**********************************************************************************/

@@ -43,7 +43,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 24
+#define BUILD 25
 
 #include "../include/sane/config.h"
 
@@ -1262,7 +1262,9 @@ reader_process (Test_Device * test_device, SANE_Int fd)
   free (buffer);
   DBG (4, "(child) reader_process: finished,  wrote %d bytes, expected %d "
        "bytes, now waiting\n", byte_count, bytes_total);
-  sleep (10);
+  while (SANE_TRUE)
+    sleep (10);
+  DBG (4, "(child) reader_process: this should have never happened...");
   close (fd);
   return SANE_STATUS_GOOD;
 }
@@ -1277,25 +1279,26 @@ static int reader_task(void *data)
   struct SIGACTION    act;
   struct Test_Device *test_device = (struct Test_Device *) data;
 
-  DBG (1, "reader_task started\n");
+  DBG (2, "reader_task started\n");
   if( sanei_thread_is_forked()) {
-    DBG( 1, "reader_task started (forked)\n" );
+    DBG( 3, "reader_task started (forked)\n" );
     close( test_device->pipe );
     test_device->pipe = -1;
 
   } else {
-    DBG( 1, "reader_task started (as thread)\n" );
+    DBG( 3, "reader_task started (as thread)\n" );
   }
 
-  /* block all signals but SIGTERM */
-  sigfillset  (&ignore_set);
-  sigdelset   (&ignore_set, SIGTERM);
+  /* block SIGPIPE */
+  sigemptyset  (&ignore_set);
+  sigaddset (&ignore_set, SIGPIPE);
   sigprocmask (SIG_SETMASK, &ignore_set, 0);
   memset      (&act, 0, sizeof (act));
   sigaction   (SIGTERM, &act, 0);
-            
+
   status = reader_process (test_device, test_device->reader_fds );
-  DBG (2, "(child) sane_start: reader_process timed out\n");
+  DBG (2, "(child) reader_task: reader_process finished (%s)\n",
+       sane_strstatus (status));
   return (int)status;
 }
 
@@ -1324,10 +1327,10 @@ finish_pass (Test_Device * test_device)
       pid = sanei_thread_waitpid (test_device->reader_pid, &status );
       if (pid < 0)
         {
-          DBG (1, "finish_pass: waitpid failed, already terminated? (%s)\n",
+          DBG (1, "finish_pass: sanei_thread_waitpid failed, already terminated? (%s)\n",
                 strerror (errno));
         } else {
-          DBG (2, "finish_pass: reader process terminated with status %s\n",
+          DBG (2, "finish_pass: reader process terminated with status: %s\n",
                sane_strstatus (status));
         }
       test_device->reader_pid = 0;
@@ -2390,13 +2393,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       break;
     }
 
-  DBG (2, "sane_get_parameters: format=%s\n", text_format);
-  DBG (2, "sane_get_parameters: last_frame=%s\n",
+  DBG (3, "sane_get_parameters: format=%s\n", text_format);
+  DBG (3, "sane_get_parameters: last_frame=%s\n",
        p->last_frame ? "true" : "false");
-  DBG (2, "sane_get_parameters: lines=%d\n", p->lines);
-  DBG (2, "sane_get_parameters: depth=%d\n", p->depth);
-  DBG (2, "sane_get_parameters: pixels_per_line=%d\n", p->pixels_per_line);
-  DBG (2, "sane_get_parameters: bytes_per_line=%d\n", p->bytes_per_line);
+  DBG (3, "sane_get_parameters: lines=%d\n", p->lines);
+  DBG (3, "sane_get_parameters: depth=%d\n", p->depth);
+  DBG (3, "sane_get_parameters: pixels_per_line=%d\n", p->pixels_per_line);
+  DBG (3, "sane_get_parameters: bytes_per_line=%d\n", p->bytes_per_line);
 
   if (params)
     *params = *p;
@@ -2630,7 +2633,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   test_device->bytes_total += bytes_read;
 
   DBG (2, "sane_read: read %d bytes of %d, total %d\n", bytes_read,
-       max_length, test_device->bytes_total);
+       max_scan_length, test_device->bytes_total);
   return SANE_STATUS_GOOD;
 }
 
@@ -2657,12 +2660,12 @@ sane_cancel (SANE_Handle handle)
     }
   if (test_device->cancelled)
     {
-      DBG (1, "sane_read: scan already cancelled\n");
+      DBG (1, "sane_cancel: scan already cancelled\n");
       return;
     }
   if (!test_device->scanning)
     {
-      DBG (1, "sane_read: not scanning\n");
+      DBG (2, "sane_cancel: scan is already finished\n");
       return;
     }
   finish_pass (test_device);

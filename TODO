@@ -1,4 +1,4 @@
-TODO (2002-03-15)
+TODO (2002-03-17)
 
 ******** todo ********
 
@@ -109,9 +109,6 @@ doc
   * sane.tex: Add a warning/explanation about problems with 
     sane_get_select_fd, Unix select() calls and sane_cancel.
 
-  * sane.tex: Add new sane.type = "film scanner". Check the other well known
-    strings for completeness.
-
   * sane-backends.html should state more clearly which backends are included
     in the distribution.
 
@@ -150,8 +147,6 @@ sanei
 
 platform-specific
 -----------------
-  * Keep config.guess and config.sub up-to-date.
-
   * SCSI access doesn't seem to work on Linux/Sparc. See emails from
     Tomislav Renic on sane-devel (2001-09-21).
 
@@ -168,6 +163,8 @@ platform-specific
     "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
 
   * Check if a new version of libtool can fix the above mentioned issues.
+    Currently (2002-03-17) the CVS version of libtool works on NetBSD but
+    breaks AIX-4.
 
 
 misc
@@ -189,6 +186,9 @@ misc
 
 
 ******** done ********
+* Keep config.guess and config.sub up-to-date.
+* sane.tex: Add new sane.type = "film scanner". Check the other well known
+  strings for completeness.
 * make distclean should remove *.orig, *.old, .#*, *.tar.gz, and similar
   files.
 * Shared libs work with OpenBSD. However, they are named libsane.so.1.6

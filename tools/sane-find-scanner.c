@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2000 Oliver Rauch and others.
+   Copyright (C) 1997-2001 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "../include/sane/config.h"
 #include "../include/sane/sanei_scsi.h"
+#include "../include/sane/sanei_usb.h"
 
 #define BACKEND_NAME	findscanner
 #include "../include/sane/sanei_debug.h"
@@ -125,7 +126,6 @@ scanner_do_inquiry (unsigned char *buffer, int sfd)
   sanei_scsi_cmd (sfd, inquiry.cmd, inquiry.size, buffer, &size);
 }
 
-
 static void 
 scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
 {
@@ -168,19 +168,19 @@ scanner_identify_scanner (unsigned char *buffer, int sfd, char *devicename)
   while (pp >= version && (*pp == ' ' || *(pp - 1) >= 127))
     *pp-- = '\0';
 
-  printf ("%s: found %s \"%s %s %s\" at device %s\n", prog_name,
+  printf ("%s: found SCSI %s \"%s %s %s\" at device %s\n", prog_name,
 	  devtype < NELEMS(devtypes) ? devtypes[devtype] : "unknown device",
 	  vendor, product, version, devicename);
   return;
 }
 
-
 int
 main (int argc, char **argv)
 {
   unsigned char buffer[16384];
-  char **dev_list, *dev_name, **ap;
+  char **dev_list, **usb_dev_list, *dev_name, **ap;
   int sfd;
+  SANE_Bool unknown_found = SANE_FALSE;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -204,7 +204,10 @@ main (int argc, char **argv)
 	}
     }
   if (ap < argv + argc)
-    dev_list = ap;
+    {
+      dev_list = ap;
+      usb_dev_list = ap;
+    }
   else
     {
       static char *default_dev_list[] =
@@ -406,14 +409,39 @@ main (int argc, char **argv)
 #endif
 	  0
 	};
+      static char *usb_default_dev_list[] =
+        {
+	  "/dev/usb/scanner",
+	  "/dev/usb/scanner0", "/dev/usb/scanner1",
+	  "/dev/usb/scanner2", "/dev/usb/scanner3",
+	  "/dev/usb/scanner4", "/dev/usb/scanner5",
+	  "/dev/usb/scanner5", "/dev/usb/scanner7",
+	  "/dev/usb/scanner8", "/dev/usb/scanner9",
+	  "/dev/usb/scanner10", "/dev/usb/scanner11",
+	  "/dev/usb/scanner12", "/dev/usb/scanner13",
+	  "/dev/usb/scanner14", "/dev/usb/scanner15",
+	  "/dev/usbscanner",
+	  "/dev/usbscanner0", "/dev/usbscanner1",
+	  "/dev/usbscanner2", "/dev/usbscanner3",
+	  "/dev/usbscanner4", "/dev/usbscanner5",
+	  "/dev/usbscanner6", "/dev/usbscanner7",
+	  "/dev/usbscanner8", "/dev/usbscanner9",
+	  "/dev/usbscanner10", "/dev/usbscanner11",
+	  "/dev/usbscanner12", "/dev/usbscanner13",
+	  "/dev/usbscanner14", "/dev/usbscanner15",
+	  0
+	};
+
       dev_list = default_dev_list;
+      usb_dev_list = usb_default_dev_list;
     }
 
   printf (
        "# Note that sane-find-scanner will find any scanner that is connected\n"
-       "# to a SCSI bus.  It will even find scanners that are not supported\n"
-       "# at all by SANE. It won't find a scanner that is connected to a\n"
-       "# parallel, USB or other non-SCSI port.\n\n");
+       "# to a SCSI bus and some scanners that are connected to the Universal\n"
+       "# Serial Bus (USB) depending on your OS. It will even find scanners\n"
+       "# that are not supported at all by SANE. It won't find a scanner that\n"
+       "# is connected to a parallel or proprietary port.\n\n");
 
   if (getuid ())
     printf (
@@ -422,7 +450,7 @@ main (int argc, char **argv)
      "# permissions as necessary.\n\n");
 
   if (verbose)
-    printf ("%s: searching for scanners:\n", prog_name);
+    printf ("%s: searching for SCSI scanners:\n", prog_name);
   while ((dev_name = *dev_list++))
     {
       int result;
@@ -446,14 +474,67 @@ main (int argc, char **argv)
 	  sanei_scsi_close (sfd);
 	}
     }
-  if (!check_sg()) {
+  if (!check_sg())
+    {
     printf (
        "# If your scanner uses SCSI, you must have a driver for your SCSI\n"
-       "# adaptor and support for SCSI Generic (sg) in your Operating System\n"
+       "# adapter and support for SCSI Generic (sg) in your Operating System\n"
        "# in order for the scanner to be used with SANE. If your scanner is\n"
        "# NOT listed above, check that you have installed the drivers.\n\n");
-  }
+    }
+
+  sanei_usb_init ();
+  if (verbose)
+    printf ("%s: searching for USB scanners:\n", prog_name);
+  while ((dev_name = *usb_dev_list++))
+    {
+      SANE_Status result;
+      SANE_Word vendor, product;
+      SANE_Int fd;
+
+      if (verbose)
+	printf ("%s: checking %s...", prog_name, dev_name);
+
+      result = sanei_usb_open (dev_name, &fd);
+
+      if (result != SANE_STATUS_GOOD)
+	{
+	  if (verbose)
+	    printf (" failed to open (status %d)\n", result);
+	}
+      else
+	{
+	  result = sanei_usb_get_vendor_product (fd, &vendor, &product);
+	  if (result == SANE_STATUS_GOOD)
+	    {
+	      if (verbose)
+		printf (" open ok, vendor and product ids were identified\n");
+	      printf ("%s: found USB scanner (vendor = 0x%04x, "
+		      "product = 0x%04x) at device %s\n", prog_name, vendor,
+		      product, dev_name);
+	    }
+	  else
+	    {
+	      if (verbose)
+		printf (" open ok, but vendor and product could NOT be "
+			"identified\n");
+	      printf ("%s: found USB scanner (UNKNOWN vendor and product) "
+		      "at device %s\n", prog_name, dev_name);
+	      unknown_found = SANE_TRUE;
+	    }
+	  sanei_usb_close (fd);
+	}
+    }
+  if (unknown_found)
+    printf ("\n"
+    "# `UNKNOWN vendor and product´ means that there seems to be a scanner\n"
+    "# at this device file but the vendor and product ids couldn't be \n"
+    "# identified. Currently identification only works with Linux versions\n"
+    "# >= 2.4.8. \n");
+
   if (verbose)
     printf ("%s: done\n", prog_name);
+  
   return 0;
 }
+

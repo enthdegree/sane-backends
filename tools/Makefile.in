@@ -77,7 +77,7 @@ sane-config: sane-config.in $(top_builddir)/config.status
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
 sane-find-scanner: sane-find-scanner.o \
-	../sanei/sanei_scsi.lo ../sanei/sanei_init_debug.lo
+	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o $(LIBSANEI) $(LIBLIB) \
 		$(LIBS)
 

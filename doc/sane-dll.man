@@ -1,4 +1,4 @@
-.TH sane-dll 5 "13 May 1998"
+.TH sane-dll 5 "10 Jun 2001"
 .IX sane-dll
 .SH NAME
 sane-dll - SANE dynamic backend loader
@@ -64,11 +64,9 @@ in file backend/Makefile.in of the SANE source code distribution.  After
 changing the value of this macro, it is necessary to reconfigure, rebuild,
 and reinstall SANE for the change to take effect.
 
-Aliases are defined in the new config file 
-.I dll.aliases
-.  This can
-contain entries of the form
-
+Aliases are defined in the config file 
+.IR dll.aliases .
+It can contain entries of the form
 .PP
 .RS
 .br
@@ -143,5 +141,7 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
+.SH "SEE ALSO"
+sane(7), scanimage(1), sane\-"backendname"(5)
 .SH AUTHOR
 David Mosberger

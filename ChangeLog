@@ -1,3 +1,14 @@
+2005-01-12  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number. Copyright Update.
+	* backend/plustek-usbscan.c backend/plustek-usbshading.c: 
+	  Using now PhyDpi.y as selector for the motor MCLK setting. 
+	  Copyright Update.
+	* backend/plustek-usbdevs.c: 
+	  Tweaked motor settings for EPSON and CANON1200. Copyright Update.
+	* backend/plustek-*.[ch]: Copyright Update.
+
 2005-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Guillemot scanner.

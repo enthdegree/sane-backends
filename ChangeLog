@@ -27,6 +27,15 @@
 	  backend/u12-*.c: bump up version, fixed device autodetection and corrupted
 	  pictures, improved model-detection.
 
+2004-01-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added several Canon, HP,
+	  Plustek, and UMAX scanners.
+	* doc/descriptions-external/epkowa.desc: Epson 1670 is supported
+	  by SnapScan backend now.
+	* doc/descriptions/gt68xx.desc doc/sane-gt68xx.man: Added Packard
+	  Bell Diamond 2450.
+
 2004-01-13  Karl Heinz Kremer <khk@khk.net>
 	*  backend/epson-usb.c: Added product ID for RX-500
 

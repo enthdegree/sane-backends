@@ -1,11 +1,14 @@
-Plustek.changes (2003-26-11) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-09-01) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
-V 0.47-1 (2003-26-11)
+V 0.47-5 (2004-09-01)
 ---------------------
 - Added big-endian code to support also PPC architectures
 - Added mov (model override) to support various devices using
   the same product ID (namely Mustek BearPaw 1200)
+- Added per-model gamma values
+- Fixed a but in the coarse CIS-lamp calibration
+- Cleanup work
 
 V 0.46-9 (2003-03-11)
 ---------------------

@@ -24,6 +24,7 @@ OpticPro P9636           detected as OP12000                   none
 Genius VividPro II Film  Halftone/Gray > 450 dpi didn't work   none
 OpticPro P4830           binary scanning does not work         none
 OpticPro A3I             bad picture quality                   none
+Genius HR6               negative scanning not okay            none
 
 ********************************* DONE ***************************************
 

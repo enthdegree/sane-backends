@@ -21,6 +21,11 @@
 	  functions in any case.
 	* backend/plustek.[ch]: changes due to the sanei_thread-lib work
 
+2003-10-06  m. allan noah <anoah at pfeiffer dot edu>
+
+	* backend/fujitsu.[ch]: Added support for color modes of fi-4x20C and
+	  fi-4340C, maybe others as well.
+
 2003-10-06  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c, backend/hp-option.h: Bug #300248 fixed

@@ -746,6 +746,7 @@ XferBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 	{
 	  iLines = p->iLinesLeft;
 	  DBG (DBG_MSG, "\n");
+	  DBG (DBG_MSG, "last bulk read\n");
 	  if (iLines < p->iLinesPerXferBuf)
 	    {
 	      DBG (DBG_MSG,
@@ -1038,7 +1039,7 @@ CircBufferInit (int iHandle, TDataPipe * p,
     }
   else
     {
-#define SAFETY_LINES 2
+#define SAFETY_LINES 0
 #define MAX_LINES_PER_XFERBUF 800
       /* estimate of number of unsigned chars to transfer at all via the USB */
       /* add some lines for securtiy */

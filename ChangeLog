@@ -1,3 +1,8 @@
+2004-10-17  Ullrich Sigwanz <usigwanz@freesurf.ch>
+
+        * backend/niash_core.c: using exact number of lines
+          for a scan
+
 ---- FEATURE FREEZE FOR SANE 1.0.15 ---
 -- snapshot 1.0.15-pre1
 

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.10\n"
-"POT-Creation-Date: 2003-04-27 14:51+0200\n"
+"POT-Creation-Date: 2003-05-08 14:19+0200\n"
 "PO-Revision-Date: 2003-01-10 13:51+0000\n"
 "Last-Translator: Pedro Morais <morais@inocam.com>\n"
 "Language-Team: pt <morais@inocam.com>\n"
@@ -14,7 +14,7 @@ msgstr ""
 
 #: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/ma1509.c:101
 #: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
-#: .tmp/sceptre.h:297 .tmp/snapscan.c:160 .tmp/umax.c:185 .tmp/umax_pp.c:133
+#: .tmp/sceptre.h:297 .tmp/snapscan.c:160 .tmp/umax.c:189 .tmp/umax_pp.c:133
 msgid "Lineart"
 msgstr "Linhas"
 
@@ -27,15 +27,15 @@ msgstr "Cinzento"
 #: .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
 #: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
 #: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:358 .tmp/teco3.h:304
-#: .tmp/test.c:123 .tmp/umax.c:190 .tmp/umax_pp.c:133
+#: .tmp/test.c:123 .tmp/umax.c:194 .tmp/umax_pp.c:133
 msgid "Color"
 msgstr "Cor"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:611
 #: .tmp/mustek.c:4294 .tmp/mustek_usb.c:353 .tmp/plustek.c:918
-#: .tmp/sceptre.c:753 .tmp/snapscan-options.c:402 .tmp/teco1.c:1136
-#: .tmp/teco2.c:1679 .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:461
+#: .tmp/sceptre.c:753 .tmp/snapscan-options.c:403 .tmp/teco1.c:1136
+#: .tmp/teco2.c:1679 .tmp/teco3.c:971 .tmp/umax.c:5188 .tmp/umax_pp.c:461
 msgid "Enhancement"
 msgstr "Melhorias"
 
@@ -50,9 +50,9 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2831 .tmp/gt68xx.c:650
 #: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
 #: .tmp/microtek2.h:610 .tmp/mustek.c:4246 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:335
+#: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:336
 #: .tmp/teco1.c:1088 .tmp/teco2.c:1631 .tmp/teco3.c:923 .tmp/test.c:619
-#: .tmp/umax.c:5112 .tmp/umax_pp.c:412
+#: .tmp/umax.c:5138 .tmp/umax_pp.c:412
 msgid "Geometry"
 msgstr "Geometria"
 
@@ -151,12 +151,12 @@ msgstr "Binário"
 #: .tmp/epson.c:455 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
 #: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:223
 #: .tmp/plustek.c:233 .tmp/plustek.c:242 .tmp/sceptre.h:299
-#: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:187
+#: .tmp/snapscan.c:159 .tmp/test.c:123 .tmp/umax.c:191
 msgid "Gray"
 msgstr "Cinzento"
 
 #: .tmp/epson.c:465 .tmp/gt68xx.c:123 .tmp/ma1509.c:106 .tmp/mustek.c:148
-#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan.c:163 .tmp/umax.c:181
+#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan.c:163 .tmp/umax.c:185
 msgid "Flatbed"
 msgstr "Flachbett"
 
@@ -164,7 +164,7 @@ msgstr "Flachbett"
 msgid "Transparency Unit"
 msgstr "Unidade de Transparências"
 
-#: .tmp/epson.c:467 .tmp/mustek.c:152 .tmp/umax.c:183
+#: .tmp/epson.c:467 .tmp/mustek.c:152 .tmp/umax.c:187
 msgid "Automatic Document Feeder"
 msgstr ""
 
@@ -318,7 +318,7 @@ msgstr "máximo"
 #: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4109
 #: .tmp/mustek_usb.c:260 .tmp/plustek.c:777 .tmp/sceptre.c:676
 #: .tmp/snapscan-options.c:189 .tmp/teco2.c:1603 .tmp/test.c:294
-#: .tmp/umax.c:4990
+#: .tmp/umax.c:5016
 msgid "Scan Mode"
 msgstr "Modo de Digitalização"
 
@@ -418,7 +418,7 @@ msgstr ""
 msgid "Control blue level"
 msgstr ""
 
-#: .tmp/epson.c:2737 .tmp/snapscan-options.c:624 .tmp/umax.c:5501
+#: .tmp/epson.c:2737 .tmp/snapscan-options.c:625 .tmp/umax.c:5527
 msgid "Advanced"
 msgstr ""
 
@@ -515,7 +515,7 @@ msgid ""
 msgstr ""
 
 #: .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:156 .tmp/snapscan.c:164
-#: .tmp/umax.c:182
+#: .tmp/umax.c:186
 msgid "Transparency Adapter"
 msgstr "Adaptador de Transparências"
 
@@ -1037,7 +1037,7 @@ msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
 #: .tmp/mustek.c:125 .tmp/plustek.c:222 .tmp/plustek.c:232 .tmp/sceptre.h:298
-#: .tmp/snapscan.c:158 .tmp/umax.c:186
+#: .tmp/snapscan.c:158 .tmp/umax.c:190
 msgid "Halftone"
 msgstr ""
 
@@ -1903,30 +1903,30 @@ msgid ""
 "responding to X events and your system could bog down."
 msgstr ""
 
-#: .tmp/snapscan-options.c:278
+#: .tmp/snapscan-options.c:279
 msgid "Preview mode"
 msgstr ""
 
-#: .tmp/snapscan-options.c:280
+#: .tmp/snapscan-options.c:281
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
 msgstr ""
 
-#: .tmp/snapscan-options.c:386
+#: .tmp/snapscan-options.c:387
 msgid "Predefined settings"
 msgstr ""
 
-#: .tmp/snapscan-options.c:388
+#: .tmp/snapscan-options.c:389
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 
-#: .tmp/snapscan-options.c:631
+#: .tmp/snapscan-options.c:632
 msgid "Colour lines per read"
 msgstr ""
 
-#: .tmp/snapscan-options.c:643
+#: .tmp/snapscan-options.c:644
 msgid "Greyscale lines per read"
 msgstr ""
 
@@ -2317,99 +2317,99 @@ msgstr ""
 msgid "(1/1) Button test option. Prints some text..."
 msgstr ""
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5748
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5774
 msgid "Lamp off"
 msgstr ""
 
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5749
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5775
 msgid "Turn off scanner lamp"
 msgstr ""
 
-#: .tmp/umax.c:188
+#: .tmp/umax.c:192
 msgid "Color Lineart"
 msgstr "Linhas em cor"
 
-#: .tmp/umax.c:189
+#: .tmp/umax.c:193
 msgid "Color Halftone"
 msgstr ""
 
-#: .tmp/umax.c:235
+#: .tmp/umax.c:239
 msgid "Use Image Composition"
 msgstr ""
 
-#: .tmp/umax.c:236
+#: .tmp/umax.c:240
 msgid "Bi-level black and white (lineart mode)"
 msgstr ""
 
-#: .tmp/umax.c:237
+#: .tmp/umax.c:241
 msgid "Dithered/halftone black & white (halftone mode)"
 msgstr ""
 
-#: .tmp/umax.c:238
+#: .tmp/umax.c:242
 msgid "Multi-level black & white (grayscale mode)"
 msgstr ""
 
-#: .tmp/umax.c:239
+#: .tmp/umax.c:243
 msgid "Multi-level RGB color (one pass color)"
 msgstr ""
 
-#: .tmp/umax.c:240
+#: .tmp/umax.c:244
 msgid "Ignore calibration"
 msgstr "Ignorar a calibração"
 
-#: .tmp/umax.c:5669
+#: .tmp/umax.c:5695
 msgid "Disable pre focus"
 msgstr ""
 
-#: .tmp/umax.c:5670
+#: .tmp/umax.c:5696
 msgid "Do not calibrate focus"
 msgstr ""
 
-#: .tmp/umax.c:5681
+#: .tmp/umax.c:5707
 msgid "Manual pre focus"
 msgstr ""
 
-#: .tmp/umax.c:5693
+#: .tmp/umax.c:5719
 msgid "Fix focus position"
 msgstr ""
 
-#: .tmp/umax.c:5705
+#: .tmp/umax.c:5731
 msgid "Lens calibration in doc position"
 msgstr ""
 
-#: .tmp/umax.c:5706
+#: .tmp/umax.c:5732
 msgid "Calibrate lens focus in document position"
 msgstr ""
 
-#: .tmp/umax.c:5717
+#: .tmp/umax.c:5743
 msgid "Holder focus position 0mm"
 msgstr ""
 
-#: .tmp/umax.c:5718
+#: .tmp/umax.c:5744
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr ""
 
-#: .tmp/umax.c:5731 .tmp/umax_pp.c:471
+#: .tmp/umax.c:5757 .tmp/umax_pp.c:471
 msgid "Lamp on"
 msgstr "Lâmpada acesa"
 
-#: .tmp/umax.c:5732
+#: .tmp/umax.c:5758
 msgid "Turn on scanner lamp"
 msgstr ""
 
-#: .tmp/umax.c:5765
+#: .tmp/umax.c:5791
 msgid "Lamp off at exit"
 msgstr ""
 
-#: .tmp/umax.c:5766
+#: .tmp/umax.c:5792
 msgid "Turn off lamp when program exits"
 msgstr ""
 
-#: .tmp/umax.c:5821
+#: .tmp/umax.c:5847
 msgid "Calibration mode"
 msgstr "Modo de calibração"
 
-#: .tmp/umax.c:5822
+#: .tmp/umax.c:5848
 msgid "Define calibration mode"
 msgstr "Definine o modo de calibração"
 

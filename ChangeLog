@@ -4,6 +4,7 @@
 	* backend/microtek2.c backend/microtek2.h doc/sane-microtek2.man:
 	  Updated Microtek2 backend to version 0.9 build 20010828 (from
 	  Karsten Festag <karsten.festag@t-online.de>).
+	* NEWS: Updated.
 	
 2001-10-04  Peter Kirchgessner <peter@kirchgessner.net>
 

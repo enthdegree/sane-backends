@@ -10,8 +10,7 @@
 ;
 
 :backend "microtek2"              ; name of backend
-:version "0.95"                   ; version of backend
-;:status :alpha                    ; :alpha, :beta, :stable, :new
+:version "0.96"                   ; version of backend
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
 :url "http://karstenfestag.gmxhome.de"
 
@@ -140,5 +139,9 @@
 :interface "SCSI"
 :status :basic
 
-
+:mfg "Genius"
+:url "http://www.geniusmouse.co.uk/"
+:model "ColorPage-EP"
+:interface "Parport"
+:status :good
 

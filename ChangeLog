@@ -1,3 +1,9 @@
+2004-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.h doc/descriptions/microtek2.desc: New
+	  version: 0.96. Added Genius ColorPage-EP (from Karsten Festag
+	  <karsten.festag@gmx.de>). 
+
 2004-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: Fixed compilation problem when

@@ -28,8 +28,7 @@
 :url "http://hpinkjet.sourceforge.net/hplip_readme.html"
 :interface "Parport(ECP) USB JetDirect"
 :status :good
-:comment "Distributed with the HP Linux Imaging and Printing Project (hplip), see
-table on website for product support status"
+:comment "Distributed with the HP Linux Imaging and Printing Project (hplip), see table on website for product support status"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

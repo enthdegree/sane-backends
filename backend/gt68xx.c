@@ -490,16 +490,15 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_PREVIEW].w = SANE_FALSE;
 
   /* lamp on */
-  s->opt[OPT_LAMP_ON].name = "lamp-on";
-  s->opt[OPT_LAMP_ON].title = SANE_I18N ("Lamp always on");
-  s->opt[OPT_LAMP_ON].desc =
-    SANE_I18N ("Don't turn off the lamp after leaving the frontend.");
-  s->opt[OPT_LAMP_ON].type = SANE_TYPE_BOOL;
-  s->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
-  s->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_LAMP_ON].w = SANE_FALSE;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].name = SANE_NAME_LAMP_OFF_AT_EXIT;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].title = SANE_TITLE_LAMP_OFF_AT_EXIT;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].desc = SANE_DESC_LAMP_OFF_AT_EXIT;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].type = SANE_TYPE_BOOL;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].unit = SANE_UNIT_NONE;
+  s->opt[OPT_LAMP_OFF_AT_EXIT].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_LAMP_OFF_AT_EXIT].w = SANE_TRUE;
   if (s->dev->model->is_cis && !(s->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
-    DISABLE (OPT_LAMP_ON);
+    DISABLE (OPT_LAMP_OFF_AT_EXIT);
 
   /* bit depth */
   s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
@@ -1428,7 +1427,7 @@ sane_close (SANE_Handle handle)
   else
     first_handle = s->next;
 
-  if (s->val[OPT_LAMP_ON].w == SANE_FALSE)
+  if (s->val[OPT_LAMP_OFF_AT_EXIT].w == SANE_TRUE)
     gt68xx_device_lamp_control (s->dev, SANE_FALSE, SANE_FALSE);
   gt68xx_device_deactivate (s->dev);
   gt68xx_device_close (s->dev);
@@ -1507,7 +1506,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BACKTRACK:
 	case OPT_BACKTRACK_LINES:
 	case OPT_PREVIEW:
-	case OPT_LAMP_ON:
+	case OPT_LAMP_OFF_AT_EXIT:
 	case OPT_AUTO_WARMUP:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
@@ -1560,7 +1559,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  RIE (calc_parameters (s));
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  break;
-	case OPT_LAMP_ON:
+	case OPT_LAMP_OFF_AT_EXIT:
 	case OPT_AUTO_WARMUP:
 	case OPT_COARSE_CAL_ONCE:
 	case OPT_BACKTRACK_LINES:

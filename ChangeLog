@@ -1,6 +1,11 @@
 2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED.
+	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED (bug
+	  #300972). 
+	* include/sane/saneopts.h: Added option for turning off the
+	  scanner's lamp on exit.
+	* backend/gt68xx.c backend/gt68xx_high.h: Used new lamp option
+	  from saneopts.h.
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

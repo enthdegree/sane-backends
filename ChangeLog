@@ -1,5 +1,6 @@
 2001-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* sanei/sanei_scsi.c: Fixed some small bugs concerning error reporting.
 	* frontend/scanimage.c: Fixed small bug in output for batch mode.
 
 2001-06-03  Peter Fales <peter@fales.com>

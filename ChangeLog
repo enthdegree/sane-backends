@@ -1,3 +1,7 @@
+2004-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Nikon LS-5000 ED.
+
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
 	* backend/hp5400_internal.c backend/hp5400_internal.h

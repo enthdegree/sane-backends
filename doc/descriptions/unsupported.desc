@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-02"		; version of backend
+:version "2004-10-03"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1000,6 +1000,12 @@
 :model "Coolscan V ED"
 :interface "USB"
 :url "/unsupported/nikon-ls50-ed.html"
+:status :unsupported
+:comment "Most probably unsupported. See link for details."
+
+:model "Super Coolscan LS-5000 ED"
+:interface "USB"
+:url "/unsupported/nikon-ls5000-ed.html"
 :status :unsupported
 :comment "Most probably unsupported. See link for details."
 

@@ -2140,7 +2140,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		{
 		  parms.bytes_per_line = 320 * 3;
 		  parms.pixels_per_line = 320;
-		  parms.lines = 241;
+		  parms.lines = 243;
 		}
 	      else
 		{
@@ -2177,7 +2177,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		{
 		  parms.bytes_per_line = 320 * 3;
 		  parms.pixels_per_line = 320;
-		  parms.lines = 241;
+		  parms.lines = 243;
 		}
 	      else
 		{
@@ -2506,7 +2506,7 @@ sane_start (SANE_Handle handle)
 
 	  parms.bytes_per_line = 320 * 3;	/* 3 Colors */
 	  parms.pixels_per_line = 320;
-	  parms.lines = 241;
+	  parms.lines = 243;
 
 	  bytes_in_buffer = 1024;
 	  bytes_read_from_buffer = 0;
@@ -2687,6 +2687,9 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	       image_range.max);
 
 	  get_info (tfd);
+
+          *length=0;
+
 	  return SANE_STATUS_EOF;
 	}
 

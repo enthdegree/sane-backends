@@ -5,6 +5,9 @@
 	  The old backend and device statuses are translated. Removed
 	  the option to generate one big table of backends (wasn't used
 	  anyway).
+	* doc/descriptions.txt: Explained the new status values. Removed
+	  reference to emacs-lisp code for generation of HTML
+	  files. Explained unsupported.desc.
 
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.30 - 2002-11-03"
-#define SANE_EPSON_BUILD	230
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.31 - 2002-11-23"
+#define SANE_EPSON_BUILD	231
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2002-11-23	Fixed problem with dropout color.
    2002-11-03	Full libusb support.
    2002-10-05	Fixed problem with incorrect response to sane_get_parameters()
    		in certain situations.
@@ -4818,7 +4819,10 @@ START_READ:
 		}
 
 		if (needStrangeReorder)
-			reorder = !reorder;
+			reorder = SANE_FALSE;	/* reordering once is enough */
+
+		if (s->params.format != SANE_FRAME_RGB)
+			reorder = SANE_FALSE;	/* don't reorder for BW or gray */
 
 		if (reorder)
 		{

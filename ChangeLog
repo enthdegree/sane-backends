@@ -1,3 +1,7 @@
+2002-12-07  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Fixed problem with dropout color
+
 2002-12-06  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.h backend/hp.c backend/hp-scl.c backend/hp.conf

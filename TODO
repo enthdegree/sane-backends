@@ -1,10 +1,10 @@
-TODO (2000-12-23)
+TODO (2000-12-31)
 
 ******** todo ********
 
 backends
 --------
-  * add new backends (?)
+  * Add new backends (?)
     - bh http://www.martoneconsulting.com/sane-bh.html
     - Polaroid SprintScan 35 LE [should be included into microtek] 
       Dick Bruijn <dick@wau.mis.ah.nl>
@@ -18,15 +18,15 @@ backends
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
 
-  * update backends
+  * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag
       <karsten.festag@t-online.de> (partially done)
     - include snapscan updates http://sourceforge.net/projects/snapscan
 
-  * use DBG(...) instead of fprintf(stderr, ...)
+  * Use DBG(...) instead of fprintf(stderr, ...)
      - microtek
 
-  * check net/saned
+  * Check net/saned
      - sometimes saned+net freezes right after a scan
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
@@ -40,6 +40,8 @@ backends
 
   * qcam: convert to use sanei_pio functions instead of direct port
     access.
+
+  * qcam: Check file handling in /tmp.
   
   * pnm: add more options for testing (e.g. arrays and read-only options)
 
@@ -53,12 +55,12 @@ backends
 
 doc
 ---
-  * add sane manpage
+  * Add sane manpage
      - versioning system
      - SANE API (maybe summary only?)
      - point to backends and other information?
 
-  * add sane-usb manpage
+  * Add sane-usb manpage
 
   * Documentation for sanei API
     - any ideas for this?
@@ -80,7 +82,7 @@ sanei
 
 misc
 ----
-  * remove compiler warnings (>400 warnings even in disable-warnings mode,
+  * Remove compiler warnings (>400 warnings even in disable-warnings mode,
     >800 with --enable-warnings))
 
   * Test SANE on different os/platforms, fix possible compilation problems 
@@ -103,22 +105,28 @@ misc
     - install sane-uninstall script. Advantage: uninstall possible
       without sourcecode
 
-  * use #include "../include/sane/..." instead of #include <sane...>
+  * Use #include "../include/sane/..." instead of #include <sane...>
 
-  * use #include "../include/lalloca.h" instead of #include <lalloca.h>
+  * Use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
-  * check include/sane/config.h.in for unnecessary macros.
+  * Check include/sane/config.h.in for unnecessary macros.
 
-  * add configure option to enable only the net backend for users without
+  * Add configure option to enable only the net backend for users without
     local scanners. Install only sane-dll/sane-net (or even only sane-net).
     Maybe something like  --network-client-only or --disable-local-devices.
 
+  * Add USB support for sane-find-scanner.
+
+  * Check all manpages for references to find-scanner (->sane-find-scanner).
+
 ******** done ********
+* Add manpage for find-scanner.
+* Should find-scanner be installed?
 * net backend segfaults sometimes when connected to localhost. Enabling
   debug output sometimes prevents segfaults. Cause of the problem:
   Copying SANE_TYPE_STRINGs up to their maximum size in 
   SANE_Option_Descriptor (strings may be shorter then size).
-* compilation of most backends break with OS/2 and gcc because the
+* Compilation of most backends break with OS/2 and gcc because the
   option -ansi doesn't seem to like sigset_t ?
 * Check for shm.h in configure
 * Add a global PATH_MAX macro somewhere (config.h ?) if it's not defined

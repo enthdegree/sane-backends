@@ -2,6 +2,7 @@
 
 	* sanei/sanei_usb.c: Don't call usb_clearhalt and usb_set_altinterface
 	  to avoid errors on Mac OS X.
+	* doc/descriptions/unsupported.desc: Added HP 5490c.
 
 2003-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

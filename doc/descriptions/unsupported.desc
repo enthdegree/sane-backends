@@ -122,6 +122,12 @@
 :comment "Not supported yet, but in development. A test program is available."
 :status :unsupported
 
+:model "ScanJet 5490C"
+:url "http://sourceforge.net/projects/hp5400backend/"
+:interface "USB"
+:comment "Not supported yet, but in development. A test program is available."
+:status :unsupported
+
 ;********************************************************************************************
 
 :mfg "Microtek"

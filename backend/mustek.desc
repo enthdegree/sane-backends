@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-115"		; version of backend
+:version "1.0-116"		; version of backend
 :status :stable			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/"

@@ -51,7 +51,7 @@
 	  doc/descriptions-external/v4l2.desc
 	  doc/descriptions-external/template.desc.:
 	  Moved descriptions of external backends from backend/*.desc.
-
+	* doc/Makefile.in: Updated for separated lists of backends.
 
 2002-03-19  Frank Zago <fzago@greshamstorage.com>
 

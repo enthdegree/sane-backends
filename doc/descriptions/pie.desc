@@ -21,66 +21,79 @@
 
 :mfg "Devcom"
 :url "http://www.blackwidow.co.uk/"
-:model "parallel scanners"        ; name models for above-specified mfg.
-:interface "Parport"
-:comment "Not supported!"
-:model "USB scanners"
-:interface "USB"
-:comment "Not supported!"
+
 :model "9636PRO"
 :interface "SCSI"
-:comment "OK"
+:status :stable
+
 :model "9636S"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "9630S"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
 
 :mfg "PIE"                        ; name a manufacturer
 :url "http://www.scanace.com/"
-:model "parallel scanners"        ; name models for above-specified mfg.
-:interface "Parport"
-:comment "Not supported!"
-:model "USB scanners"
-:interface "USB"
-:comment "Not supported!"
+
 :model "ScanAce 1236S"
 :interface "SCSI"
-:comment "Untested"
+:status :stable
+
 :model "ScanAce 1230S"
 :interface "SCSI"
-:comment "Untested"
+:status :stable
+
 :model "ScanAce II"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce III"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce Plus"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce II Plus"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce III Plus"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce V"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce ScanMedia"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce ScanMedia II"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce 630S"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
 :model "ScanAce 636S"
 :interface "SCSI"
-:comment "Untested"
+:status :untested
+
+:mfg "Adlib"
+
+:model "JetScan630"
+:interface "SCSI"
+:status :stable
+
+:model "JetScan636PRO"
+:interface "SCSI"
+:status :untested
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

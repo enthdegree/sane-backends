@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-14"		; version of backend
+:version "2003-05-18"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -473,6 +473,11 @@
 :status :unsupported
 :comment "Not supported. SCSI over Parport."
 
+:model "ScanMagic 9636P"
+:interface "Parport"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018800.html"
+:status :unsupported
+:comment "Probably not supported. Same as Mustek 12000 P?. ASIC 1505."
 
 
 ;********************************************************************************************

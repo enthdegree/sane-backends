@@ -101,7 +101,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   sm3600-color.c sm3600-gray.c sm3600.h sm3600-homerun.c sm3600-scanmtek.c \
   sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c snapscan.c \
   snapscan.conf snapscan.h snapscan-scsi.c snapscan-sources.c \
-  snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-utils.c sp15c.c \
+  snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
   sp15c.conf sp15c.h sp15c-scsi.h st400.c st400.conf st400.h stubs.c \
   tamarack.c tamarack.conf tamarack.h umax1220u.c umax1220u-common.c \
   umax1220u.conf umax.c umax.conf umax.h umax_pp.c umax_pp.conf umax_pp.h \

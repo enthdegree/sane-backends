@@ -237,7 +237,12 @@ static SANE_Status usb_read(int fd, void *buf, int n) {
     do
     {
       if((r=read(fd,buf,n)) != n && !(r == -1 && errno == EAGAIN)) {
-        DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,r);
+        if (r == -1) {
+           DBG (DL_MAJOR_ERROR, "%s Error returned from read: %s (%d)\n",
+                me,strerror(errno),errno);
+        } else {
+           DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,r);
+        }
         return SANE_STATUS_IO_ERROR;
       }
       if (r == -1 && errno == EAGAIN)
@@ -447,13 +452,15 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
- * Revision 1.7  2002/01/27 18:24:47  hmg
- * Only define union semun if not already defined in <sys/sem.h>. Fixes
- * compilation bugs on Irix and FreeBSD.
- * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ * Revision 1.8  2002/03/24 12:32:28  oliverschwartz
+ * Snapscan backend version 1.4.9
  *
- * Revision 1.6  2002/01/15 20:16:55  oliverschwartz
- * Added workaround for bug in semctl() on PPC; backend version 1.4.5
+ * Revision 1.18  2002/03/24 12:16:09  oliverschwartz
+ * Better error report in usb_read
+ *
+ * Revision 1.17  2002/02/05 19:32:39  oliverschwartz
+ * Only define union semun if not already defined in <sys/sem.h>. Fixes
+ * compilation bugs on Irix and FreeBSD. Fixed by Henning Meier-Geinitz.
  *
  * Revision 1.16  2002/01/14 21:11:56  oliverschwartz
  * Add workaround for bug semctl() call in libc for PPC

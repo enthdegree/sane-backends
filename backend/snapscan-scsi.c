@@ -1080,62 +1080,14 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     return SANE_STATUS_GOOD;
 }
 
-static SANE_Status get_firmware_name(char** firmware_path)
-{
-    char line[PATH_MAX];
-    char found = 0;
-    FILE *fp;
-    SANE_Status status = SANE_STATUS_GOOD;
-    char* me = "get_firmware_name";
-
-    fp = sanei_config_open (SNAPSCAN_CONFIG_FILE);
-    if (!fp)
-    {
-        DBG (0,
-             "%s: configuration file not found.\n",
-             me);
-        status = SANE_STATUS_INVAL;
-    }
-    else
-    {
-        while (sanei_config_read (line, sizeof (line), fp))
-        {
-            if (line[0] == '#')    /* ignore line comments */
-                continue;
-            if (!strlen(line))
-                continue;        /* ignore empty lines */
-            if (strncasecmp(line, FIRMWARE_KW, strlen(FIRMWARE_KW)) == 0)
-            {
-                found = 1;
-                break;
-            }
-        }
-        fclose (fp);
-    }
-    if (found)
-    {
-        sanei_config_get_string(line + strlen(FIRMWARE_KW), firmware_path);
-        if (*firmware_path == NULL)
-        {
-            DBG (0, "%s: Illegal firmware entry %s.\n", me, line);
-            status = SANE_STATUS_INVAL;
-        }
-    }
-    else
-    {
-        DBG (0, "%s: No firmware entry found in config file %s.\n", me, SNAPSCAN_CONFIG_FILE);
-        status = SANE_STATUS_INVAL;
-    }
-    return status;
-}
-
 static SANE_Status download_firmware(SnapScan_Scanner * pss)
 {
+    static const char *me = "download_firmware";
     unsigned char *pFwBuf, *pCDB;
-    char* firmware_path = NULL;
+    char* firmware = NULL;
     FILE *fd;
     size_t bufLength,cdbLength;
-    SANE_Status status;
+    SANE_Status status = SANE_STATUS_GOOD;
     char cModelName[8], cModel[255];
     unsigned char bModelNo;
     int readByte;
@@ -1144,15 +1096,26 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
     zero_buf((unsigned char *)cModel, 255);
     sprintf(cModelName, "%d", bModelNo);
     DBG(DL_INFO, "Looking up %s\n", cModelName);
-    status = get_firmware_name(&firmware_path);
+    if (pss->pdev->firmware_filename) {
+        firmware = pss->pdev->firmware_filename;
+    } else if (default_firmware_filename) {
+        firmware = default_firmware_filename;
+    } else {
+        DBG (0,
+            "%s: No firmware entry found in config file %s.\n",
+            me,
+            SNAPSCAN_CONFIG_FILE
+        );
+        status = SANE_STATUS_INVAL;
+    }
     if (status == SANE_STATUS_GOOD)
     {
         cdbLength = 10;
-        DBG(DL_INFO, "Downloading %s\n", firmware_path);
-        fd = fopen(firmware_path,"r");
+        DBG(DL_INFO, "Downloading %s\n", firmware);
+        fd = fopen(firmware,"r");
         if(fd == NULL)
         {
-            DBG (0, "Cannot open firmware file %s\n", firmware_path);
+            DBG (0, "Cannot open firmware file %s\n", firmware);
             status = SANE_STATUS_INVAL;
         }
         else
@@ -1206,15 +1169,22 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             free(pCDB);
             fclose(fd);
         }
-        free(firmware_path);
     }
     return status;
 }
 
 /*
  * $Log$
- * Revision 1.11  2002/01/23 20:50:32  oliverschwartz
- * Fix recognition of Acer 320U
+ * Revision 1.12  2002/03/24 12:32:26  oliverschwartz
+ * Snapscan backend version 1.4.9
+ *
+ * Revision 1.27  2002/03/24 12:11:20  oliverschwartz
+ * Get name of firmware file in sane_init
+ *
+ * Revision 1.26  2002/01/23 20:42:41  oliverschwartz
+ * Improve recognition of Acer 320U
+ * Add sense_handler code for sense code 0x0b
+ * Fix for spaces in model strings
  *
  * Revision 1.25  2001/12/12 19:44:59  oliverschwartz
  * Clean up CVS log

@@ -61,6 +61,7 @@
 #define TMP_FILE_PREFIX "/var/tmp/snapscan"
 #define SNAPSCAN_CONFIG_FILE "snapscan.conf"
 #define FIRMWARE_KW "firmware"
+#define OPTIONS_KW "options"
 
 /* Define the colour channel order in arrays */
 #define R_CHAN    0
@@ -95,6 +96,37 @@ typedef enum
     PRISA1240,          /* Acer ScanPrisa 1240 - 1200 DPI */
     PRISA5300           /* Acer ScanPrisa 5300 - 1200 DPI */
 } SnapScan_Model;
+
+struct SnapScan_Driver_desc {
+    SnapScan_Model id;
+    char *driver_name;
+};
+
+static struct SnapScan_Driver_desc drivers[] =
+{
+    /* enum value -> Driver name */
+    {UNKNOWN,        "Unknown"},
+    {SNAPSCAN300,    "SnapScan300"},
+    {SNAPSCAN310,    "SnapScan310"},
+    {SNAPSCAN600,    "SnapScan600"},
+    {SNAPSCAN1236,   "SnapScan1236"},
+    {SNAPSCAN1212U,  "SnapScan1212"},
+    {SNAPSCANE20,    "SnapScanE20"},
+    {SNAPSCANE50,    "SnapScanE50"},
+    {SNAPSCANE52,    "SnapScanE52"},
+    {ACER300F,       "Acer300"},
+    {VUEGO310S,      "Acer310"},
+    {VUEGO610S,      "Acer610"},
+    {PRISA620S,      "Acer620"},
+    {PRISA640,       "Acer640"},
+    {PRISA4300,      "Acer4300"},
+    {PRISA4300_2,    "Acer4300-2"},
+    {PRISA1240,      "Acer1240"},
+    {PRISA5300,      "Acer5300"}
+};
+
+#define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
+
 struct SnapScan_Model_desc
 {
     char *scsi_name;
@@ -167,7 +199,6 @@ static struct SnapScan_USB_Model_desc usb_scanners[] =
     {0x04a5, 0x2022, SNAPSCAN310}  /* Acer 320U */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
-
 
 typedef enum
 {
@@ -248,11 +279,12 @@ typedef enum
 typedef struct snapscan_device
 {
     SANE_Device dev;
-    SANE_Range x_range;        /* x dimension of scan area */
-    SANE_Range y_range;        /* y dimension of scan area */
-    SnapScan_Model model;    /* type of scanner */
-    SnapScan_Bus bus;       /* bus of the device usb/scsi */
-    u_char *depths;            /* bit depth table */
+    SANE_Range x_range;           /* x dimension of scan area */
+    SANE_Range y_range;           /* y dimension of scan area */
+    SnapScan_Model model;         /* type of scanner */
+    SnapScan_Bus bus;             /* bus of the device usb/scsi */
+    u_char *depths;               /* bit depth table */
+    SANE_Char *firmware_filename; /* The name of the firmware file for USB scanners */
     struct snapscan_device *pnext;
 }
 SnapScan_Device;
@@ -266,79 +298,83 @@ typedef struct snapscan_scanner SnapScan_Scanner;
 
 struct snapscan_scanner
 {
-    SANE_String devname;    /* the scsi device name */
-    SnapScan_Device *pdev;    /* the device */
-    int fd;                    /* scsi file descriptor */
-    int opens;                /* open count */
-    int rpipe[2];            /* reader pipe descriptors */
-    int orig_rpipe_flags;    /* initial reader pipe flags */
-    pid_t child;            /* child reader process pid */
-    SnapScan_Mode mode;        /* mode */
-    SnapScan_Mode preview_mode;    /* preview mode */
-    SnapScan_Source source;    /* scanning source */
-    SnapScan_State state;    /* scanner state */
-    u_char cmd[MAX_SCSI_CMD_LEN];    /* scsi command buffer */
+    SANE_String devname;          /* the scsi device name */
+    SnapScan_Device *pdev;        /* the device */
+    int fd;                       /* scsi file descriptor */
+    int opens;                    /* open count */
+    int rpipe[2];                 /* reader pipe descriptors */
+    int orig_rpipe_flags;         /* initial reader pipe flags */
+    pid_t child;                  /* child reader process pid */
+    SnapScan_Mode mode;           /* mode */
+    SnapScan_Mode preview_mode;   /* preview mode */
+    SnapScan_Source source;       /* scanning source */
+    SnapScan_State state;         /* scanner state */
+    u_char cmd[MAX_SCSI_CMD_LEN]; /* scsi command buffer */
     u_char *buf;                  /* data buffer */
     size_t phys_buf_sz;           /* physical buffer size */
     size_t buf_sz;                /* effective buffer size */
     size_t expected_read_bytes;   /* expected amount of data in a single read */
     size_t read_bytes;            /* amount of actual data read */
-    size_t bytes_remaining;        /* remaining bytes expected from scanner */
-    size_t actual_res;        /* actual resolution */
-    size_t lines;            /* number of scan lines */
-    size_t bytes_per_line;    /* bytes per scan line */
-    size_t pixels_per_line;    /* pixels per scan line */
-    u_char hconfig;            /* hardware configuration byte */
-    float ms_per_line;        /* speed: milliseconds per scan line */
-    SANE_Bool nonblocking;    /* wait on reads for data? */
-    char *sense_str;        /* sense string */
-    char *as_str;            /* additional sense string */
-    u_char asi1;            /* first additional sense info byte */
-    u_char asi2;            /* second additional sense info byte */
-    SANE_Byte chroma_offset[3];    /* chroma offsets */
+    size_t bytes_remaining;       /* remaining bytes expected from scanner */
+    size_t actual_res;            /* actual resolution */
+    size_t lines;                 /* number of scan lines */
+    size_t bytes_per_line;        /* bytes per scan line */
+    size_t pixels_per_line;       /* pixels per scan line */
+    u_char hconfig;               /* hardware configuration byte */
+    float ms_per_line;            /* speed: milliseconds per scan line */
+    SANE_Bool nonblocking;        /* wait on reads for data? */
+    char *sense_str;              /* sense string */
+    char *as_str;                 /* additional sense string */
+    u_char asi1;                  /* first additional sense info byte */
+    u_char asi2;                  /* second additional sense info byte */
+    SANE_Byte chroma_offset[3];   /* chroma offsets */
     SANE_Int chroma;
-    Source *psrc;            /* data source */
-
-    SANE_Option_Descriptor
-        options[NUM_OPTS];    /* the option descriptors */
-    Option_Value val[NUM_OPTS];
-    /* the options themselves... */
-    SANE_Int res;            /* resolution */
-    SANE_Bool preview;        /* preview mode toggle */
-    SANE_String mode_s;        /* scanning mode */
-    SANE_String source_s;    /* scanning source */
-    SANE_String preview_mode_s;    /* scanning mode for preview */
-    SANE_Fixed tlx;            /* window top left x */
-    SANE_Fixed tly;            /* window top left y */
-    SANE_Fixed brx;            /* window bottom right x */
-    SANE_Fixed bry;            /* window bottom right y */
-    int bright;                /* brightness */
-    int contrast;            /* contrast */
-    SANE_String predef_window;    /* predefined window name */
-    SANE_Fixed gamma_gs;    /* gamma correction value (greyscale) */
-    SANE_Fixed gamma_r;        /* gamma correction value (red) */
-    SANE_Fixed gamma_g;        /* gamma correction value (green) */
-    SANE_Fixed gamma_b;        /* gamma correction value (blue) */
-    SANE_Int *gamma_tables;    /* gamma correction vectors */
+    Source *psrc;                 /* data source */
+    SANE_Option_Descriptor options[NUM_OPTS];  /* the option descriptors */
+    Option_Value val[NUM_OPTS];  /* the options themselves... */
+    SANE_Int res;                /* resolution */
+    SANE_Bool preview;           /* preview mode toggle */
+    SANE_String mode_s;          /* scanning mode */
+    SANE_String source_s;        /* scanning source */
+    SANE_String preview_mode_s;  /* scanning mode for preview */
+    SANE_Fixed tlx;              /* window top left x */
+    SANE_Fixed tly;              /* window top left y */
+    SANE_Fixed brx;              /* window bottom right x */
+    SANE_Fixed bry;              /* window bottom right y */
+    int bright;                  /* brightness */
+    int contrast;                /* contrast */
+    SANE_String predef_window;   /* predefined window name */
+    SANE_Fixed gamma_gs;         /* gamma correction value (greyscale) */
+    SANE_Fixed gamma_r;          /* gamma correction value (red) */
+    SANE_Fixed gamma_g;          /* gamma correction value (green) */
+    SANE_Fixed gamma_b;          /* gamma correction value (blue) */
+    SANE_Int *gamma_tables;      /* gamma correction vectors */
     SANE_Int *gamma_table_gs;    /* gamma correction vector (greyscale) */
-    SANE_Int *gamma_table_r;    /* gamma correction vector (red) */
-    SANE_Int *gamma_table_g;    /* gamma correction vector (green) */
-    SANE_Int *gamma_table_b;    /* gamma correction vector (blue) */
-    int gamma_length;        /* length of gamma vectors */
-    SANE_Bool halftone;        /* halftone toggle */
-    SANE_String dither_matrix;    /* the halftone dither matrix */
-    SANE_Bool negative;        /* swap black and white */
-    SANE_Int threshold;        /* threshold for line art */
-    SANE_Int rgb_lpr;        /* lines per scsi read (RGB) */
-    SANE_Int gs_lpr;        /* lines per scsi read (greyscale) */
+    SANE_Int *gamma_table_r;     /* gamma correction vector (red) */
+    SANE_Int *gamma_table_g;     /* gamma correction vector (green) */
+    SANE_Int *gamma_table_b;     /* gamma correction vector (blue) */
+    int gamma_length;            /* length of gamma vectors */
+    SANE_Bool halftone;          /* halftone toggle */
+    SANE_String dither_matrix;   /* the halftone dither matrix */
+    SANE_Bool negative;          /* swap black and white */
+    SANE_Int threshold;          /* threshold for line art */
+    SANE_Int rgb_lpr;            /* lines per scsi read (RGB) */
+    SANE_Int gs_lpr;             /* lines per scsi read (greyscale) */
 };
 
 #endif
 
 /*
  * $Log$
- * Revision 1.12  2002/01/23 20:50:34  oliverschwartz
- * Fix recognition of Acer 320U
+ * Revision 1.13  2002/03/24 12:32:38  oliverschwartz
+ * Snapscan backend version 1.4.9
+ *
+ * Revision 1.29  2002/03/24 12:14:34  oliverschwartz
+ * Add Snapcan_Driver_desc
+ *
+ * Revision 1.28  2002/01/23 20:38:20  oliverschwartz
+ * Fix model ID for e42
+ * Improve recognition of Acer 320U
  *
  * Revision 1.27  2002/01/06 18:34:02  oliverschwartz
  * Added support for Snapscan e42 thanks to Yari Adán Petralanda

@@ -1,3 +1,6 @@
+2001-11-24 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* backend/sharp.c: removed an unconditional "#define USE_FORK"
+
 2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: fixed color calibration bug. Scans are

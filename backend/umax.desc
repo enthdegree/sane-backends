@@ -31,7 +31,7 @@
 :comment "Not supported - see backend umax_pp"
 :model "USB scanners"
 :interface "USB"
-:comment "Not supported"
+:comment "Not supported - see backend umax1220u"
 :model "firewire scanners"
 :interface "Firewire"
 :comment "not tested"
@@ -179,6 +179,12 @@
 :model "Scanboostar Premium"
 :interface "SCSI"
 :comment "OK, SCSI-ID=LinoHell Office2"
+
+:mfg "EDGE"                      ; another manufacturer...
+; :url "http://???/"
+:model "KTX-9600US"
+:interface "SCSI"
+:comment "no feedback"
 
 :mfg "Epson"                      ; another manufacturer...
 :url "http://www.epson.com/"

@@ -1,3 +1,8 @@
+2001-06-14  Peter Fales <peter@fales.com>
+
+	* backend/dc25.c - Added a patch from Tim Waugh to use mkdtemp()
+	  instead of mktemp().  Also cleaned up some compiler warnings.
+
 2001-06-14  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Removed reference to sane-devel list

@@ -1855,7 +1855,7 @@ html_backends_split_table (device_type dev_type)
 	  if (type->type == dev_type)
 	    {
 	      mfg_entry *mfg = type->mfg;
-	      model_entry *model = mfg->model;
+	      model_entry *model;
 
 	      printf ("<h3><a name=\"%s\">Backend: %s\n",
 		      html_generate_anchor_name (be->name), be->name);

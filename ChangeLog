@@ -26,6 +26,7 @@
 	  platforms any more.
 	* include/lalloca.h: Don't use builtin alloca on MacOS X.
 	* tools/Makefile.in: Build sane-desc by default.
+	* tools/sane-desc.c: Fixed segfault.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

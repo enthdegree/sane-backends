@@ -1,3 +1,9 @@
+2004-04-10  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* tools/sane-find-scanner.c, doc/sane-mustek_pp.man,
+	  doc/sane-find-scanner.man: added support for detecting
+	  mustek parallel port scanners.
+
 2004-04-09  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c: Fixes bug #300620.
 	* sanei_thread.c: Fixes bug-reports #300617 & #300618,

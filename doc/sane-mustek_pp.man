@@ -216,6 +216,10 @@ scanner Mustek_600CP 0x378 cis600
 scanner Mustek_600IIIEP * ccd300
 .RE
 
+If in doubt which port you have to use, or whether your scanner is
+detected at all, you can use 
+.B sane-find-scanner -p
+to probe all configured ports.
 
 .SH CONFIGURATION
 .PP
@@ -468,7 +472,7 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-mustek(5), sane\-net(5), saned(1)
+sane(7), sane\-mustek(5), sane\-net(5), saned(1), sane-find-scanner(1)
 
 .TP
 For latest bug fixes and information see

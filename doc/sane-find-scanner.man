@@ -7,6 +7,7 @@ sane-find-scanner \- find SCSI and USB scanners and their device files
 .RB [ \-h | \-? ]
 .RB [ \-v ]
 .RB [ \-q ]
+.RB [ \-p ]
 .RB [ \-f ]
 .RI [ devname ]
 
@@ -52,7 +53,12 @@ it will be printed after the vendor and product ids.
 will even find USB scanners, that are not supported by any SANE backend.
 .PP
 .B sane-find-scanner
-won't find parallel port scanners, or scanners connected to proprietary ports.
+won't find most 
+parallel port scanners, or scanners connected to proprietary ports. Some
+.B parallel port
+scanners may be detected by
+.B sane-find-scanner -p. 
+At the time of writing this will only detect Mustek parallel port scanners.
 
 .SH OPTIONS
 .TP 8
@@ -67,6 +73,9 @@ information and the USB device descriptors are also printed.
 .TP 8
 .B \-q
 Be quiet. Print only the devices, no comments.
+.TP 8
+.B \-p
+Probe parallel port scanners.
 .TP 8
 .B \-f
 Force opening all explicitely given devices as SCSI and USB devices. That's
@@ -85,6 +94,10 @@ every device file.
 .B sane-find-scanner /dev/scanner
 .br
 Look for a (SCSI) scanner only at /dev/scanner and print the result.
+.PP
+.B sane-find-scanner -p
+.br
+Probe for parallel port scanners.
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane-scsi (5),
@@ -105,7 +118,7 @@ SCSI support is available on Irix, EMX, Linux, Next, AIX, Solaris, FreeBSD,
 NetBSD, OpenBSD, and HP-UX.
 
 .SH BUGS
-No support for parallel port scanners yet. 
+No support for most parallel port scanners yet. 
 .br
 Detection of USB chipsets is limited to GrandTech 6801 and 6816, Mustek chips
 and National Semiconductor lm983x chips.

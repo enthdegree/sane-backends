@@ -44,6 +44,7 @@ extern char * check_usb_chip (struct usb_device *dev, int verbosity);
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sanei_pa4s2.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX 1024
@@ -90,6 +91,7 @@ usage (char *msg)
   fprintf (stderr, "\t-q: be quiet (print only devices, no comments)\n");
   fprintf (stderr, "\t-f: force opening devname as SCSI even if it looks "
 	   "like USB\n");
+  fprintf (stderr, "\t-p: enable scannig for parallel port devices\n");
   if (msg)
     fprintf (stderr, "\t%s\n", msg);
 }
@@ -781,10 +783,87 @@ static char **build_scsi_dev_list()
 }
 #endif
 
+static int
+check_mustek_pp_device (void)
+{
+  const char **devices;
+  int ctr = 0, found = 0, scsi = 0;
+
+  if (verbose > 1)
+    printf ("searching for Mustek parallel port scanners:\n");
+
+  devices = sanei_pa4s2_devices ();
+
+  while (devices[ctr] != NULL) {
+    int fd;
+    SANE_Status result;
+
+    /* ordinary parallel port scanner type */
+    if (verbose > 1)
+      printf ("checking %s...", devices[ctr]);
+
+    result = sanei_pa4s2_open (devices[ctr], &fd);
+    
+    if (verbose > 1)
+      {
+        if (result != 0)
+  	  printf (" failed to open (%s)\n", sane_strstatus (result));
+        else
+	  printf (" open ok\n");
+      }
+
+    if (result == 0) {
+      printf ("found possible Mustek parallel port scanner at \"%s\"\n",
+              devices[ctr]);
+      found++;
+      sanei_pa4s2_close(fd);
+    }
+    
+    /* trying scsi over pp devices */
+    if (verbose > 1)
+      printf ("checking %s (SCSI emulation)...", devices[ctr]);
+
+    result = sanei_pa4s2_scsi_pp_open (devices[ctr], &fd);
+    
+    if (verbose > 1)
+      {
+        if (result != 0)
+  	  printf (" failed to open (%s)\n", sane_strstatus (result));
+        else
+	  printf (" open ok\n");
+      }
+
+    if (result == 0) {
+      printf ("found possible Mustek SCSI over PP scanner at \"%s\"\n",
+              devices[ctr]);
+      scsi++;
+      sanei_pa4s2_close(fd);
+    }
+
+    ctr++;
+  }
+
+  free(devices);
+
+  if (found > 0 && verbose > 0)
+    printf("\n  # Your Mustek parallel port scanner was detected.  It may or\n"
+           "  # may not be supported by SANE.  Please read the sane-mustek_pp\n"
+	   "  # man-page for setup instructions.\n");
+
+  if (scsi > 0 && verbose > 0)
+    printf("\n  # Your Mustek parallel port scanner was detected.  It may or\n"
+           "  # may not be supported by SANE.  Please read the sane-mustek_pp\n"
+	   "  # man-page for setup instructions.\n");
+
+  return (found > 0 || scsi > 0);
+
+}
+
 int
 main (int argc, char **argv)
 {
   char **dev_list, **usb_dev_list, *dev_name, **ap;
+  int enable_pp_checks = SANE_FALSE;
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
@@ -813,6 +892,10 @@ main (int argc, char **argv)
 
 	case 'f':
 	  force = SANE_TRUE;
+	  break;
+
+	case 'p':
+	  enable_pp_checks = SANE_TRUE;
 	  break;
 
 	default:
@@ -1218,9 +1301,19 @@ main (int argc, char **argv)
 	   "make sure that\n  # you have loaded a driver for your USB host "
 	   "controller and have installed a\n  # kernel scanner module.\n");
     }
+  if (enable_pp_checks == SANE_TRUE) 
+    {
+      if (!check_mustek_pp_device() && verbose > 0)
+        printf ("\n  # No Mustek parallel port scanners found. If you expected"
+                " something\n  # different, make sure the scanner is correctly"
+	        " connected to your computer\n  # and you have apropriate"
+	        " access rights.\n");
+    }
+  else if (verbose > 0)
+    printf ("\n  # Not checking for parallel port scanners.\n");
   if (verbose > 0)
-    printf ("\n  # Scanners connected to the parallel port or other "
-	    "proprietary ports can't be\n  # detected by this program.\n");
+    printf ("\n  # Most Scanners connected to the parallel port or other "
+	    "proprietary ports\n  # can't be detected by this program.\n");
   if (getuid ())
     if (verbose > 0)
       printf

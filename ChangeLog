@@ -2,6 +2,7 @@
 
 	* README.darwin: New file. Added some basic information for
 	  Darwin (Mac OS X) users.
+	* Makefile.in: Added the new README files to DISTFILES.
 
 2002-07-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

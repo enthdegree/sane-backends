@@ -1,6 +1,6 @@
 :backend "mustek_usb"
 :status :beta
-:version "1.0-112"
+:version "1.0-113"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/"
 

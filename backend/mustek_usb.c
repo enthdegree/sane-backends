@@ -46,7 +46,7 @@
    This file implements a SANE backend for Mustek 1200UB and similar 
    USB flatbed scanners.  */
 
-#define BUILD 12
+#define BUILD 13
 
 #include "../include/sane/config.h"
 
@@ -943,6 +943,7 @@ sane_exit (void)
       free ((void *) dev->name);
       free (dev);
     }
+  first_dev = 0;
   DBG (5, "sane_exit: exit\n");
 }
 
@@ -1156,6 +1157,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   Mustek_Usb_Scanner *s = handle;
   SANE_Status status;
   SANE_Word cap;
+  SANE_Int myinfo = 0;
 
   DBG (5, "sane_control_option: start: action = %s, option = %s (%d)\n",
        (action == SANE_ACTION_GET_VALUE) ? "get" : 
@@ -1165,7 +1167,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   
   if (info)
     *info = 0;
-  
+
   if (s->scanning)
     {
       DBG (1, "sane_control_option: don't call this function while "
@@ -1175,7 +1177,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   
   if (option >= NUM_OPTIONS || option < 0)
     {
-      DBG (1, "sane_control_option: option >= NUM_OPTIONS || option < 0\n");
+      DBG (1, "sane_control_option: option %d >= NUM_OPTIONS || option < 0\n",
+	   option);
       return SANE_STATUS_INVAL;
     }
   
@@ -1183,7 +1186,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   
   if (!SANE_OPTION_IS_ACTIVE (cap))
     {
-      DBG (2, "sane_control_option: option is inactive\n");
+      DBG (2, "sane_control_option: option %d is inactive\n", option);
       return SANE_STATUS_INVAL;
     }
   
@@ -1202,34 +1205,39 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BRIGHTNESS:
 	case OPT_CUSTOM_GAMMA:
 	  *(SANE_Word *) val = s->val[option].w;
-	  return SANE_STATUS_GOOD;
-	  
+	  break;
 	  /* word-array options: */
 	case OPT_GAMMA_VECTOR:
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
 	  memcpy (val, s->val[option].wa, s->opt[option].size);
-	  return SANE_STATUS_GOOD;
-
+	  break;
 	  /* string options: */
 	case OPT_MODE:
 	  strcpy(val, s->val[option].s);
-	  return SANE_STATUS_GOOD;
+	  break;
+	default:
+	  DBG (2, "sane_control_option: can't get unknown option %d\n",
+	       option);
 	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
     {
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	{
-	  DBG (2, "sane_control_option: option is not settable\n");
+	  DBG (2, "sane_control_option: option %d is not settable\n", option);
 	  return SANE_STATUS_INVAL;
 	}
       
-      status = sanei_constrain_value (s->opt + option, val, info);
+      status = sanei_constrain_value (s->opt + option, val, &myinfo);
       
       if (status != SANE_STATUS_GOOD)
-	return status;
+	{
+	  DBG (2, "sane_control_option: sanei_constrain_value returned %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
       
       switch (option)
 	{
@@ -1241,19 +1249,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_Y:
 	  s->val[option].w = *(SANE_Word *) val;
 	  RIE(calc_parameters (s));
-	  if (info)
-	    *info |= SANE_INFO_INEXACT|SANE_INFO_RELOAD_PARAMS;
-	  return SANE_STATUS_GOOD;
-	  
-	  /* fall through */
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
 	case OPT_BRIGHTNESS:
 	  s->val[option].w = *(SANE_Word *) val;
-	  return SANE_STATUS_GOOD;
+	  break;
 	  /* Boolean */
 	case OPT_PREVIEW:
 	  s->val[option].w = *(SANE_Bool *) val;
-	  return SANE_STATUS_GOOD;
-
+	  break;
 	  /* side-effect-free word-array options: */
 	case OPT_GAMMA_VECTOR:
 	case OPT_GAMMA_VECTOR_R:
@@ -1261,13 +1265,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAMMA_VECTOR_B:
 	  memcpy (s->val[option].wa, val, s->opt[option].size);
 	  check_gamma_table (s->val[option].wa);
-	  return SANE_STATUS_GOOD;
-
+	  break;
 	case OPT_CUSTOM_GAMMA:
 	  s->val[OPT_CUSTOM_GAMMA].w = *(SANE_Word *) val;
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	  if (s->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
 	    {
 	      s->red_table = s->red_gamma_table;
@@ -1295,9 +1296,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 	    }
-	  
-	  return SANE_STATUS_GOOD;
-	  
+	  break;
 	case OPT_MODE:
 	  if (s->val[option].s)
 	    free (s->val[option].s);
@@ -1327,16 +1326,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		}
 	    }
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-	  return SANE_STATUS_GOOD;
-	} 
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+	  break;
+	default:
+	  DBG (2, "sane_control_option: can't set unknown option %d\n",
+	       option);
+	}
     } 
+  else
+    {
+      DBG (2, "sane_control_option: unknown action %d for option %d\n",
+	   action, option);
+      return SANE_STATUS_INVAL;
+    }
+  if (info)
+    *info = myinfo;
 
-  DBG (4, "sane_control_option: unknown action for option %s\n",
-       s->opt[option].name);
-  
-  return SANE_STATUS_INVAL;
+  DBG (5, "sane_control_option: exit\n");
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status
@@ -1553,14 +1560,30 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  Mustek_Usb_Scanner *s = handle;
+
   DBG (5, "sane_set_io_mode: handle = %p, non_blocking = %s\n", 
        handle, non_blocking == SANE_TRUE ? "true" : "false");
-  return SANE_STATUS_UNSUPPORTED;
+  if (!s->scanning)
+    {
+      DBG (1, "sane_set_io_mode: not scanning\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (non_blocking)
+    return SANE_STATUS_UNSUPPORTED;
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  Mustek_Usb_Scanner *s = handle;
+
   DBG (5, "sane_get_select_fd: handle = %p, fd = %p\n", handle, fd);
+  if (!s->scanning)
+    {
+      DBG (1, "sane_get_select_fd: not scanning\n");
+      return SANE_STATUS_INVAL;
+    }
   return SANE_STATUS_UNSUPPORTED;
 }

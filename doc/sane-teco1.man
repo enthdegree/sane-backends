@@ -1,4 +1,4 @@
-.TH sane-teco1 5 "19 March 2002"
+.TH sane-teco1 5 "August 30th, 2002"
 .IX sane-teco1
 .SH NAME
 sane-teco1 - SANE backend for TECO / RELISYS scanners
@@ -16,7 +16,7 @@ may not support yours.
 The scanners that should work with this backend are:
 .PP
 .RS
-   Vendor Model           TECO model       status
+   Vendor Model           TECO model      status
 .br
 ----------------------  --------------  -----------
 .br
@@ -35,6 +35,7 @@ The scanners that should work with this backend are:
   Relisys RELI 9630        VM6540        untested  
   Relisys RELI DS15        VM3440        untested  
   Relisys RELI DS6         VM3420        untested  
+  Dextra  DF-600P          VM3510        tested
   Dextra  DF-4830T         VM4542        untested
   Dextra  DF-1200T+        VM3530+       untested
   Dextra  DF-9624          VM6530+       untested
@@ -191,3 +192,4 @@ The package is actively maintained by Frank Zago.
 .SH CREDITS
 
 Thanks to Gerard Delafond for the VM4542 support.
+Thanks to Jean-Yves Simon for the VM3510 support.

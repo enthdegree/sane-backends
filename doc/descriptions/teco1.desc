@@ -10,7 +10,7 @@
 ;
 
 :backend "teco1"                  ; name of backend
-:version "1.0-6"                  ; version of backend
+:version "1.0-7"                  ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-teco1"             ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco"    ; backend's web page
@@ -100,6 +100,12 @@
 :status :untested
 
 :mfg "Dextra"
+
+:model "DF-600P"
+:comment "sub model VM3510"
+:interface "SCSI"
+:status :beta
+
 :model "DF-1200T+"
 :comment "sub model VM3530+"
 :interface "SCSI"

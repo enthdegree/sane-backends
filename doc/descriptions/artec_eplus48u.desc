@@ -28,14 +28,25 @@
 
 :model "MD4394"
 :interface "USB"
+:comment "Obviously two different scanners were sold under this name. Only scanners with product id 0x4003 will work; try the gt68xx backend otherwise"
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
 :model "Easy Webscan 19200"
 :interface "USB"
-:comment "Different product id: 0x4006; modify artec_eplus48u.conf, if the scanner isn't detected"
+:comment "Different product id: 0x4006"
 
 :mfg "Memorex"
 :model "Mem 48 u"
 :interface "USB"
 
+:mfg "UMAX"
+:url "http://www.umax.com/"
+:url "http://www.umax.com.tw/"
+:url "http://www.umax.de/en"
+:url "http://www.umax-europe.com"
+:url "http://www.umaxjapan.co.jp"
+:url "http://www.umax.com.cn"
+:model "AstraSlim SE"
+:interface "USB"
+:comment "Different product id: 0x4009"

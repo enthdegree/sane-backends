@@ -1,3 +1,9 @@
+2003-03-02  Michael Herder <crapsite@gmx.net>
+
+        * doc/descriptions/artec_eplus48u.desc:
+        * backend/artec_eplus48u.conf:
+          Added new model Umax AstraSlim SE
+
 2003-03-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/ibm.desc: Added Ricoh IS-430.

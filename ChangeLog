@@ -15,6 +15,8 @@
 	  gt68xx_low.h: Fixed __FUNCTION__ bug on non-gcc compilers.
 	  Added more details about the BSDs in the manpage. Fixed color order
 	  for ScanExpress A3 USB.
+	* TODO: Removed tevion9693usb and umax1220u warnings entries. Added
+	  avsion warnings. Little bit of restructuring.
 
 2002-11-21  Michael Herder <crapsite at gmx.net>
 

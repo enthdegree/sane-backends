@@ -1,4 +1,4 @@
-TODO (2002-11-15)
+TODO (2002-11-21)
 
 ******** todo ********
 
@@ -7,8 +7,6 @@ backends
   * Add new backends (+ means scheduled for SANE 1.0.10)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
-    + tevion9693usb backend
-      http://www.angelfire.com/linux/crapsite/
 
   * qcam:
      - implement auto mode for brightness and black-level (don't
@@ -28,41 +26,24 @@ backends
      - Frequency setting is missing
      - check if v4lctl distributed with xawtv can be used
 
-  * Fix backends where sane_exit() does not release memory allocated by
-    sane_get_devices().
-      - abaton
-      - agfafocus
-      - apple
-      - as6e
-      - bh
-      - canon
-      - coolscan
-      - dmc
-      - qcam
-      - ricoh
-      - s9036
-      - sp15c
-      - tamarack
-      
-      - etc?
-
-  * as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
-    found.
+  * memory leaks:
+    - sane_exit() does not release memory allocated by sane_get_devices():
+      abaton, agfafocus, apple, as6e, bh, canon, coolscan, dmc, qcam,
+      ricoh, s9036, sp15c, tamarack
+    - as6e: attach: memory (dev + dev-sane.name) isn't freed if driver isn't
+      found.
 
   * net: add IPv6 support.
 
-  * Fix warnings about DBG calls (try gcc 3.x to get these warnings):
-    - umax1220u
- 
-  * bh: Suspicious loop ("../../backend/bh.c", line 1923: warning:
-    end-of-loop code not reached), see sane-devel.
-
-  * coolscan: Lots of compilation warnings (e.g.
-    "../../backend/coolscan-scsidef.h", line 160: warning: initialization
-    type mismatch; empty declarations), see sane-devel.
-
-  * microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
-    to sanei_scsi_cmd().
+  * suspicious warnings or type mismatchs:
+    - avision.c: avision.c:3163: warning: too many arguments for format
+    - bh: backend/bh.c", line 1923: warning: end-of-loop code not reached
+      see sane-devel.
+    - coolscan: Lots of compilation warnings (e.g.
+      "backend/coolscan-scsidef.h", line 160: warning: initialization
+      type mismatch; empty declarations), see sane-devel.
+    - microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
+      to sanei_scsi_cmd().
 
   * hpsj5s seems to freeze in DetectScanner() if a printer is connected to
     the system. Is the access to the parport device save at all? Should
@@ -85,10 +66,11 @@ doc
   * sane.tex:
     - Add a warning/explanation about problems with sane_get_select_fd, Unix
       select() calls and sane_cancel (-->backend-writing.txt?).
-    - Define, how to handle SANE_CAP_ADVANCED for groups. (-->backend-writing.txt?)
-    - Add a well-known option that represents the status of buttons or some other
-      means to support buttons if this is possible before SANE2. Keep in mind
-      locking issues.
+    - Define, how to handle SANE_CAP_ADVANCED for groups. 
+      (-->backend-writing.txt?)
+    - Add a well-known option that represents the status of buttons or some
+      other means to support buttons if this is possible before SANE2. Keep
+      in mind locking issues.
 
   * desc files:
     - Add viceo.desc to descriptions-external (from Steven Ellis 
@@ -155,13 +137,14 @@ platform-specific
 
   * Add support for semaphores also for OS/2 (currently used in snapscan).
 
-  * Find out why USB on *BSD only works once (at least for Mustek scanners
-    and OHCI).
+  * Find out why USB on *BSD only works once (at least for Mustek scanners).
 
   * Fix MacOS X issues: 
     - Add support in sanei_scsi.c.
     - Find out why libusb doesn't work propperly.
-    - Check if dll.c need to use the .dylib postfix for libraries.
+    - Check if dll.c needs to use the .dylib postfix for libraries. The usage
+      of .so or .dylib seems to depend on a compat package and the availability
+      of the dl.h header file (?).
     - sm3600 is reported to crash with MacOS X.
 
 misc
@@ -182,6 +165,8 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* Fix warnings about DBG calls (try gcc 3.x to get these warnings):
+* add backend: tevion9693usb backend
 * canon.c: Fix model extraction code.
 * po files: use msgcat if available, remove awk hook instead.
 * sane.tex:

@@ -13,7 +13,7 @@
 ;:version "(0.1)"			; version of backend
 ;:manpage "sane-niash"		; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/hp3300backend"  ; backend's web page
-:comment "This backend is not included yet because the author wants to do some code clean-up and bug fixes before adding the backend to SANE. See the hp3300 website for the latest information."
+:comment "The backend is intended to be included durimng the next weeks (2003-12-25). See the hp3300 website for the latest information."
 
 :devicetype :scanner		; start of a list of devices....
 				; other types:  :stillcam, :vidcam,
@@ -54,7 +54,7 @@
 :mfg "Agfa"			; another manufacturer...
 :url "http://www.agfa.com"
 
-:model "Snapscan Touch"
+:model "SnapScan Touch"
 :interface "USB"
 :status :basic
 :comment "NIASH00014 chip"

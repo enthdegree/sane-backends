@@ -1,3 +1,9 @@
+2003-12-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/niash.desc: Added information that
+	  this backend will be included soon. Fixed "Snapscan" to
+	  "SnapScan" (bug #300394).
+
 2003-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added more information about

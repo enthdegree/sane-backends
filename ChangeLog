@@ -1,3 +1,18 @@
+2003-10-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS configure configure.in backend/Makefile.in backend/dll.conf
+	  backend/mustek_pp_ccd.c backend/mustek_pp_ccd.conf backend/mustek_pp_ccd.h
+	  doc/Makefile.in doc/sane.man doc/sane-mustek_pp_ccd.man
+	  doc/descriptions/mustek_pp_ccd.desc: Added back old mustek_pp
+	  backend. That backend supports Mustek CCD scanners. The backend
+	  was renamed to mustek_pp_ccd to avoid conflicts with the new
+	  mustek_pp backend for CIS scanners. The code was taken from
+	  sane-backends 1.0.9. This is only a temporary solution. The goal
+	  is to incooperate CCD and CIS support into mustek_pp.
+	* doc/sane-mustek_pp.man doc/descriptions/mustek_pp.desc: Added
+	  links to the mustek_pp_ccd backend. Removed scanners supported by
+	  mustek_pp_ccd.
+
 2003-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker

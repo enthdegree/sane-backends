@@ -1,4 +1,4 @@
-.TH sane-hp 5 "26 November 2000"
+.TH sane-hp 5 "28 April 2001"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -58,11 +58,17 @@ OfficeJet Pro 1150C            PTAL
 .br
 OfficeJet Pro 1170C/1175C      PTAL
 .br
-OfficeJet R series/PSC500      PTAL
+OfficeJet R series             PTAL
+.br
+PSC 500 series                 PTAL
 .br
 OfficeJet G series             PTAL
 .br
+PSC 700 series                 PTAL
+.br
 OfficeJet K series             PTAL
+.br
+OfficeJet V series             PTAL
 .RE
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
@@ -73,13 +79,14 @@ Support for models 5200C/6200C/6250C/6300C/6350C connected to the USB requires
 an USB driver available at http://www.jump.net/~dnelson/linux/usb
 (under development)
 .PP
-Support for OfficeJet MFPs requires the "HP OfficeJet driver for Linux",
+Support for OfficeJet MFPs requires the "HP OfficeJet Linux driver",
 available at "http://hpoj.sourceforge.net".  The "PTAL" (peripheral
-transport abstraction library) interface supports peripherals
-connected to a parallel port (using special Linux kernel drivers)
-or to a LAN with an HP JetDirect 70X/170X/300X/500X external print
-server (firmware x.07.xx or later; x.08.xx or later required for
-the G and K series).
+transport abstraction library) interface supports peripherals connected to a
+parallel port or USB (using the user-mode "ptal-mlcd" driver provided with
+hpoj-0.8 or later), or to a LAN with an HP JetDirect external print server.
+Supported parallel-port JetDirects include the 70X, 170X, 300X, and 500X
+(with firmware x.07.xx or later; x.08.xx or later required for
+the G and K series).  The JetDirect 175X is supported for USB peripherals.
 .PP
 If you own a ScanJet scanner other than the ones listed above, please
 let us know if your model works with this backend.  To do this, send a
@@ -108,16 +115,18 @@ A special driver is required for this card.
 See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details. If the link
 does not work, try ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners.
 .PP
-For OfficeJets connected to the parallel port, the format of
+For OfficeJets connected to a parallel port or USB, the format of
 .I special
-is one of
+is
 .RS
-.I mlc:mlcpp0
+.I mlc:par:0
 .RE
+or
 .RS
-.I mlc:mlcpp1
+.I mlc:usb:0
 .RE
-depending on whether the device is serviced by parport0 or parport1.
+respectively, substituting if necessary for "0" the suffix specified when
+invoking the ptal-mlcd driver.
 .PP
 For OfficeJets connected to an HP JetDirect print server, the format of
 .I special
@@ -172,8 +181,8 @@ Option
 .B connect-ptal
 specifies that the scanner uses the PTAL interface via the libptal
 shared library.  This option must be used for the OfficeJet MFPs.
-Support for OfficeJet MFPs is added to the backend on compile time.
-If you get an error message "hp-backend not compiled with PTAL support",
+Support for OfficeJet MFPs is added to the backend at compile time.
+If you get the error message "hp-backend not compiled with PTAL support",
 you need to install PTAL (see above) and rebuild SANE (running configure
 and make).
 
@@ -203,9 +212,15 @@ used in case of forward/backward moving scanner lamp.
 .br
 /dev/scanner
 .PP
-# Parallel port connected MFP:
+# Parallel-port-connected MFP:
 .br
-mlc:mlcpp0
+mlc:par:0
+.br
+option connect-ptal
+.PP
+# USB-connected MFP:
+.br
+mlc:usb:0
 .br
 option connect-ptal
 .PP
@@ -300,12 +315,12 @@ supported in the backend.  The OfficeJet 1175 and R series refuse to
 unload an ADF-loaded document after scanning, and instead display a
 message on the front panel prompting the user to remove the document
 from the glass and press a button to continue; the OfficeJet G series
-doesn't have this problem, however.  The OfficeJet G and K series automatically
-unload an ADF-loaded document when the scan channel is closed, particularly
-after an idle timeout when connected to an HP JetDirect.
+doesn't have this problem, however.  The OfficeJet G, K, and V series
+automatically unload an ADF-loaded document when the scan channel is closed,
+particularly after an idle timeout when connected to an HP JetDirect.
 .TP
-.B OfficeJet K series
-The K series features a "scrollfed" scanner, where the paper is fed
+.B OfficeJet K series and V series
+The K and V series feature a "scrollfed" scanner, where the paper is fed
 across a stationary scanhead, as opposed to flatbed, where the scanhead
 moves across the page.  A consequence of this difference is that the
 document length is not known in advance; the scan stops when the end
@@ -321,7 +336,7 @@ eliminate the need to cancel the scan, but you still need to click on
 "Change document" before each scan and "Unload" after the last page.
 Note that due to the use of the "Change document" and "Unload" options,
 you will probably not be able to use the command-line "scanimage" program
-with the K series, not even the "-T" or "--test" parameters.
+with the K or V series, not even the "-T" or "--test" parameters.
 
 .SH TODO
 .TP
@@ -341,13 +356,18 @@ These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
 .TP
 .B Scrollfed MFP support
-A separate backend is planned to properly support the OfficeJet K series,
-as well as other non-SCL HP MFPs, such as the OfficeJet 300/500/600/700
-and T series and the LaserJet 1100A and 3200.  Support for the LaserJet
-3100/3150 is NOT planned, because programming information for these models
-is not expected to ever become available.  However, if you have a LaserJet
-3150 connected to a JetDirect 70X/170X/300X/500X with firmware x.08.xx or
-later, you can scan using the JetDirect's embedded web server.
+A separate backend is planned to properly support the OfficeJet K and V
+series, as well as other non-SCL HP MFPs, such as the OfficeJet 500, 600,
+700, T, and PSC 300 series and the LaserJet 1100A, 1220, and 3200.
+Experimental scanning support for these models is under development;
+see the HP OfficeJet Linux driver project at http://hpoj.sourceforge.net
+for more information.
+.TP
+.B LaserJet 3100 and 3150
+Support for the LaserJet 3100 and 3150 is NOT planned, because programming
+information for these models is not available.  However, if you have a
+LaserJet 3150 connected to a JetDirect 70X/170X/300X/500X with firmware
+x.08.xx or later, you can scan using the JetDirect's embedded web server.
 
 .SH "SEE ALSO"
 sane\-scsi(5)

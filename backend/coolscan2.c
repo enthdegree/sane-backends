@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /*
    SANE - Scanner Access Now Easy.
-   coolscan2.c , version CVS
+   coolscan2.c , version 0.1.5
 
    This file is part of the SANE package.
 
@@ -56,8 +56,8 @@
 /*
    Revision log:
 
-   0.1.4, 22/04/2002, andras: first version to be included in SANE CVS
    0.1.5, 26/04/2002, andras: lots of minor fixes related to saned
+   0.1.4, 22/04/2002, andras: first version to be included in SANE CVS
 
 */
 /* ========================================================================= */

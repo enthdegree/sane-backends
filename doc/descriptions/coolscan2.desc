@@ -12,7 +12,7 @@
 :backend "coolscan2"
 :version "0.1.5"
 :status :beta
-; :manpage "sane-template"
+:manpage "sane-coolscan2"
 :url "http://coolscan2.sourceforge.net/"
 
 :devicetype :scanner

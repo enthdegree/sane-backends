@@ -81,7 +81,7 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
         done
       fi
     ],
-    [if true; then # release (false) or development (true)
+    [if false; then # release (false) or development (true)
        # Warnings enabled by default (development)
        for flag in $WARN_CFLAGS; do
          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])

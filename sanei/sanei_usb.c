@@ -139,37 +139,27 @@ SANE_Status
 sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
 			      SANE_Word * product)
 {
-  SANE_Word vendorID, productID;
+  SANE_Word vendorID = 0;
+  SANE_Word productID = 0;
 
 #if defined (__linux__)
   /* read the vendor and product IDs via the IOCTLs */
   if (ioctl (fd, SCANNER_IOCTL_VENDOR , &vendorID) == -1)
     {
       if (ioctl (fd, SCANNER_IOCTL_VENDOR_OLD , &vendorID) == -1)
-	{
-	  DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d "
-	       "failed: %s\n", fd, strerror (errno));
-	  /* just set the vendor ID to 0 */
-	  vendorID = 0;
-	}
+	DBG (3, "sanei_usb_get_vendor_product: ioctl (vendor) of fd %d "
+	     "failed: %s\n", fd, strerror (errno));
     }
   if (ioctl (fd, SCANNER_IOCTL_PRODUCT , &productID) == -1)
     {
       if (ioctl (fd, SCANNER_IOCTL_PRODUCT_OLD , &productID) == -1)
-	{
-	  DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of fd %d "
-	       "failed: %s\n", fd, strerror (errno));
-	  /* just set the product ID to 0 */
-	  productID = 0;
-	}
+	DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of fd %d "
+	     "failed: %s\n", fd, strerror (errno));
     }
   if (vendor)
     *vendor = vendorID;
   if (product)
     *product = productID;
-#else /* not defined (__linux__) */
-  vendorID = 0;
-  productID = 0;
 #endif /* not defined (__linux__) */
 
   if (!vendorID || !productID)

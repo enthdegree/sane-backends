@@ -1,3 +1,7 @@
+2004-06-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/mustek_usb.desc: Fixed version number.
+
 2004-06-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-pp_misc.c: fixed multiple parport problem for kernel 2.6.x.

@@ -1,3 +1,9 @@
+2002-09-01  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* doc/sane-canon_pp.man doc/descriptions/canon_pp.desc:
+	  Added FB320P to supported scanners after report of successful test.
+	  Added FB310P and FB610P to desc as specifically not supported yet.
+
 2002-09-01  Karl Henz Kremer <khk@khk.net>
 
 	* backend/epson_scsi.c: Fixed alloca compile problem.

@@ -1,3 +1,7 @@
+2002-04-21 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* sane-umax backend update to version 1.0 build 34
+
 2002-04-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c doc/descriptions/test.desc: Check if sane_init was

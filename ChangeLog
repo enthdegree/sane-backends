@@ -4,6 +4,8 @@
 	  doc/mustek/mustek.CHANGES: Fixed color three-pass scanning for some
 	  scanners.
 	* PROJECTS: Added Hewlett-Packard ScanJet 2200c project.
+	* sanei/sabei_constrain_value.c: Check that a SANE_Bool variable
+	  can only be SANE_TRUE or SANE_FALSE.
 
 2002-04-02  Peter Fales <peter@fales.com>
 

@@ -1,9 +1,9 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-9"
+:version "1.0-11"
 ;:manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
-;:comment "Only the USB scanners mentioned below are supported. For other BearPaws, look at the Plustek backend."
+:comment "Only the USB scanners mentioned below are supported. For other BearPaws, look at the Plustek backend."
 :devicetype :scanner
 
 :mfg "Mustek"
@@ -13,22 +13,28 @@
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
-:comment "similar results as the BearPaw 1200 CU"
+:comment "Similar results as the BearPaw 1200 CU"
 :status :alpha
 
 :model "BearPaw 1200 CU"
 :interface "USB"
-:comment "Gray 8 bit 150 and 300 dpi work, color 50, 150, 300 dpi work"
+:comment "All resolutions supported at 8 bit/pixel"
 :status :alpha
 
 :model "BearPaw 1200 TA"
 :interface "USB"
 :status :alpha
-:comment "basically works"
+:comment "All resolutions supported at 8 bit/pixel, top margin wrong?"
+
+:model "BearPaw 1200 TA"
+:interface "USB"
+:status :alpha
+:comment "Images are completely black?"
 
 :model "BearPaw 2400 CU"
 :interface "USB"
 :status :untested
+:comment "Testers welcome"
 
 :model "BearPaw 2400 TA"
 :interface "USB"
@@ -47,5 +53,48 @@
 :model "OpticPro 1248U"
 :interface "USB"
 :status :untested
-:comment "Uses the GT-6801 chip, maybe supported in future"
+:comment "Contact author if you own such a model"
+
+:mfg "Artec/Ultima"
+:url "http://www.artecusa.com/"
+
+:model "2000"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
+
+:mfg "Boeder"
+:model "Sm@rtScan Slim Edition"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
+
+:mfg "Packard Bell"
+:model "Diamond 1200"
+:status :alpha
+:interface "USB"
+:comment "Seems to scan black images(?). Contact author if you own such a model"
+
+:mfg "Tchibo"
+:model "Cytron ?"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
+
+:mfg "Lifetec"
+:comment "Sold by Aldi"
+:model "LT 9452"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
+:model "LT 9385"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
+
+:mfg "Trust"
+:model "Flat Scan USB 19200"
+:status :untested
+:interface "USB"
+:comment "Contact author if you own such a model"
 

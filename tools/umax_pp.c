@@ -19,7 +19,7 @@ static void
 Usage (char *name)
 {
   fprintf (stderr,
-	   "%s [-c color_mode] [-x coord] [-y coord] [-w width] [-h height] [-g gain] [-z highlight] [-d dpi] [-t level] [-s] [-p] [-l 0|1] [-a ioport_addr] [-r]\n",
+	   "%s [-c color_mode] [-x coord] [-y coord] [-w width] [-h height] [-g brightness] [-z contrast] [-d dpi] [-t level] [-s] [-p] [-l 0|1] [-a ioport_addr] [-r]\n",
 	   name);
 }
 
@@ -39,8 +39,8 @@ main (int argc, char **argv)
   int trace = 0;
 
 /* scanning parameters : defaults to preview (75 dpi color, full scan area) */
-  int gain = 0x0;
-  int highlight = 0x2C0;
+  int brightness = 0x0;
+  int contrast = 0x2C0;
   int dpi = 75;
   int x = 0, y = 0;
   int width = 5100, height = 7000;
@@ -50,23 +50,23 @@ main (int argc, char **argv)
 
   /* option parsing */
   /*
-     -c --color  : color mode: RGB, BW, BW12, RGB12
-     -x          : x coordinate
-     -y          : y coordinate
-     -w --witdh  : scan width
-     -h --height : scan height
-     -f --file   : session file
-     -p --probe  : probe scanner
-     -s --scan   : scan
-     -t --trace  : execution trace
-     -l --lamp   : turn lamp on/off 1/0
-     -d --dpi    : set scan resolution
-     -g --gain   : set RVB gain
-     -z --highlight: set highlight
-     -a --addr   : io port address
-     -n --name   : ppdev device name
-     -r          : recover from previous failed scan
-     -m --model  : model revision
+     -c --color   : color mode: RGB, BW, BW12, RGB12
+     -x           : x coordinate
+     -y           : y coordinate
+     -w --witdh   : scan width
+     -h --height  : scan height
+     -f --file    : session file
+     -p --probe   : probe scanner
+     -s --scan    : scan
+     -t --trace   : execution trace
+     -l --lamp    : turn lamp on/off 1/0
+     -d --dpi     : set scan resolution
+     -g --brightness   : set RVB brightness
+     -z --contrast: set contrast
+     -a --addr    : io port address
+     -n --name    : ppdev device name
+     -r           : recover from previous failed scan
+     -m --model   : model revision
    */
 
 
@@ -249,12 +249,12 @@ main (int argc, char **argv)
 	  found = 1;
 	}
 
-      if ((strcmp (argv[i], "-g") == 0) || (strcmp (argv[i], "--gain") == 0))
+      if ((strcmp (argv[i], "-g") == 0) || (strcmp (argv[i], "--brightness") == 0))
 	{
 	  if (i == (argc - 1))
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
 	      return (0);
 	    }
 	  i++;
@@ -262,20 +262,20 @@ main (int argc, char **argv)
 	  if (strlen (argv[i]) != 3)
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex gain value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex brightness value ( ex: A59 )\n");
 	      return (0);
 	    }
-	  gain = strtol (argv[i], NULL, 16);
+	  brightness = strtol (argv[i], NULL, 16);
 	  sanei_umax_pp_setauto (0);
 	}
 
       if ((strcmp (argv[i], "-z") == 0)
-	  || (strcmp (argv[i], "--highlight") == 0))
+	  || (strcmp (argv[i], "--contrast") == 0))
 	{
 	  if (i == (argc - 1))
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex highlight value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
 	      return (0);
 	    }
 	  i++;
@@ -283,10 +283,10 @@ main (int argc, char **argv)
 	  if (strlen (argv[i]) != 3)
 	    {
 	      Usage (argv[0]);
-	      fprintf (stderr, "expected hex highlight value ( ex: A59 )\n");
+	      fprintf (stderr, "expected hex contrast value ( ex: A59 )\n");
 	      return (0);
 	    }
-	  highlight = strtol (argv[i], NULL, 16);
+	  contrast = strtol (argv[i], NULL, 16);
 	}
 
       if ((strcmp (argv[i], "-n") == 0) || (strcmp (argv[i], "--name") == 0))
@@ -367,7 +367,7 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 1220P scanning program version 3.0 starting ...\n");
+      printf ("UMAX 1220P scanning program version 3.1 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -477,7 +477,7 @@ main (int argc, char **argv)
 	}
       /* scan */
       if (sanei_umax_pp_Scan
-	  (x, y, width, height, dpi, color, gain, highlight) != 1)
+	  (x, y, width, height, dpi, color, brightness, contrast) != 1)
 	{
 	  sanei_umax_pp_ReleaseScanner ();
 	  sanei_umax_pp_EndSession ();

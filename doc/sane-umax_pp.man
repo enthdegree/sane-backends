@@ -112,35 +112,36 @@ scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.
 .PP
 The height options supported are
-.BR red-gain ,
-.BR green-gain ,
-.BR blue-gain ,
-.BR red-highlight ,
-.BR green-highlight ,
-.BR blue-highlight ,
+.BR red-brightness ,
+.BR green-brightness ,
+.BR blue-brightness ,
+.BR red-contrast ,
+.BR green-contrast ,
+.BR blue-contrast ,
 .BR astra ,
 and
 .BR buffer .
 
 Options
-.B red-gain
+.B red-brightness
 ,
-.B green-gain
+.B green-brightness
 and
-.B blue-gain
+.B blue-brightness
 allow you to adjust the sensitivy of your scanner for the given color. Values
-range from 0 (lowest gain) to 15 (highest). When all three gains are set to
-0, the backend does auto gain tuning.
+range from 0 (lowest brightness) to 15 (highest). The "Brightness" option isn't
+checked in the frontend, the backend does automatic brightness calibration.
+
 .PP
 
 Options
-.B red-highlight
+.B red-contrast
 ,
-.B green-highlight
+.B green-contrast
 and
-.B blue-highlight
-allow you to adjust the highlight of your scanner for the given color. Values
-range from 0 (lowest highlight) to 15 (highest). 
+.B blue-contrast
+allow you to adjust the contrast of your scanner for the given color. Values
+range from 0 (lowest contrast) to 15 (highest). 
 .PP
 
 Option

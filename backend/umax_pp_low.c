@@ -461,8 +461,8 @@ sanei_umax_pp_InitPort (int port, char *name)
   /* since this function must be called before */
   /* any other, we put debug init here         */
   DBG_INIT ();
-
-  /* sets global vars */
+ 
+  /* sets global vars */  
   ggGreen = ggamma;
   ggBlue = ggamma;
   ggRed = ggamma;
@@ -3821,7 +3821,7 @@ sanei_umax_pp_InitScanner (int recover)
   sentcmd[j] = 0x80;
   j++;
   sentcmd[j] = 0xF0;
-  j++;				/* F0 means light on, 90 light off */
+  j++;				/* F0 means brightness on, 90 brightness off */
   if (GetModel () == 0x07)
     {
       sentcmd[j] = 0x00;
@@ -6334,10 +6334,10 @@ Bloc2Decode (int *op)
   DBG (0, "\t->scan height   =0x%04X (%d)\n", scanh, scanh);
   DBG (0, "\t->skip height   =0x%04X (%d)\n", skiph, skiph);
   DBG (0, "\t->y dpi         =0x%04X (%d)\n", dpi, dpi);
-  DBG (0, "\t->channel 1 gain=0x%02X (%d)\n", op[10] & 0x0F, op[10] & 0x0F);
-  DBG (0, "\t->channel 2 gain=0x%02X (%d)\n", (op[10] & 0xF0) / 16,
+  DBG (0, "\t->channel 1 brightness=0x%02X (%d)\n", op[10] & 0x0F, op[10] & 0x0F);
+  DBG (0, "\t->channel 2 brightness=0x%02X (%d)\n", (op[10] & 0xF0) / 16,
        (op[10] & 0xF0) / 16);
-  DBG (0, "\t->channel 3 gain=0x%02X (%d)\n", op[11] & 0x0F, op[11] & 0x0F);
+  DBG (0, "\t->channel 3 brightness=0x%02X (%d)\n", op[11] & 0x0F, op[11] & 0x0F);
   DBG (0, "\t->channel 1 high=0x%02X (%d)\n", (op[11] / 16) & 0x0F,
        (op[11] / 16) & 0x0F);
   DBG (0, "\t->channel 2 high=0x%02X (%d)\n", (op[12] & 0xF0) / 16,
@@ -7026,7 +7026,7 @@ MoveToOrigin (void)
 */
 
 static int
-WarmUp (int color, int *gain)
+WarmUp (int color, int *brightness)
 {
   unsigned char buffer[5300];
   int i, val, min, max;
@@ -7221,16 +7221,16 @@ WarmUp (int color, int *gain)
 
 
 	/***********************/
-  /* auto gain computing */
+  /* auto brightness computing */
 	/***********************/
 
   /* color correction set to 53 05 */
   /* for a start                   */
-  *gain = 0x535;
+  *brightness = 0x535;
   CMDSETGET (2, 0x10, opsc18);
   CMDSETGET (8, 0x24, opsc39);
   opsc04[7] = opsc04[7] & 0x20;
-  opsc04[6] = 0x06;		/* one channel gain value */
+  opsc04[6] = 0x06;		/* one channel brightness value */
   CMDSETGET (1, 0x08, opsc10);	/* was opsc04, extraneaous string */
   /* that prevents using Move .... */
   CMDSYNC (0xC2);
@@ -7242,10 +7242,10 @@ WarmUp (int color, int *gain)
     Dump (0x200, buffer, NULL);
 
 
-  /* auto correction of gain levels */
+  /* auto correction of brightness levels */
   /* first color component X        */
-  opsc51[10] = (*gain) / 16;	/* channel 1 & 2 gain */
-  opsc51[11] = (*gain) % 16;	/* channel 3 gain     */
+  opsc51[10] = (*brightness) / 16;	/* channel 1 & 2 brightness */
+  opsc51[11] = (*brightness) % 16;	/* channel 3 brightness     */
   if (color >= RGB_MODE)
     {
       if (sanei_umax_pp_getastra () == 1600)
@@ -7263,7 +7263,7 @@ WarmUp (int color, int *gain)
 	  Bloc2Decode (opsc51);
 	  Bloc8Decode (opsc40);
 	}
-      opsc04[6] = (*gain) / 256;
+      opsc04[6] = (*brightness) / 256;
       CMDSETGET (1, 0x08, opsc04);
       CMDSYNC (0xC2);
       CMDSYNC (0x00);
@@ -7301,9 +7301,9 @@ WarmUp (int color, int *gain)
 	    }
 	}
 
-      *gain = (*gain & 0xFF) + 256 * (opsc04[6] - 1);
-      opsc51[10] = *gain / 16;	/* channel 1 & 2 gain */
-      opsc51[11] = *gain % 16;	/* channel 3 gain     */
+      *brightness = (*brightness & 0xFF) + 256 * (opsc04[6] - 1);
+      opsc51[10] = *brightness / 16;	/* channel 1 & 2 brightness */
+      opsc51[11] = *brightness % 16;	/* channel 3 brightness     */
       opsc51[0] = 0x01;
       opsc51[13] = 0x80;
       if (sanei_umax_pp_getastra () == 1600)
@@ -7316,7 +7316,7 @@ WarmUp (int color, int *gain)
 	}
       CMDSETGET (2, 0x10, opsc51);
       CMDSETGET (8, 0x24, opsc40);
-      opsc04[6] = (*gain & 0x00F);
+      opsc04[6] = (*brightness & 0x00F);
       CMDSETGET (1, 0x08, opsc04);
       CMDSYNC (0xC2);
       CMDSYNC (0x00);
@@ -7354,7 +7354,7 @@ WarmUp (int color, int *gain)
 		max = buffer[i];
 	    }
 	}
-      *gain = (*gain & 0xFF0) + (opsc04[6] - 1);
+      *brightness = (*brightness & 0xFF0) + (opsc04[6] - 1);
     }
 
 
@@ -7362,8 +7362,8 @@ WarmUp (int color, int *gain)
 
 
   /* component Z: B&W component */
-  opsc51[10] = *gain / 16;	/* channel 1 & 2 gain */
-  opsc51[11] = *gain % 16;	/* channel 3 gain     */
+  opsc51[10] = *brightness / 16;	/* channel 1 & 2 brightness */
+  opsc51[11] = *brightness % 16;	/* channel 3 brightness     */
   if (color < RGB_MODE)
     opsc51[0] = 0x01;		/* in BW, scan zone doesn't have an extra 4 points */
   else
@@ -7383,7 +7383,7 @@ WarmUp (int color, int *gain)
       Bloc2Decode (opsc51);
     }
   CMDSETGET (8, 0x24, opsc40);
-  opsc04[6] = (*gain & 0x0F0) / 16;
+  opsc04[6] = (*brightness & 0x0F0) / 16;
   CMDSETGET (1, 0x08, opsc04);
   CMDSYNC (0xC2);
   CMDSYNC (0x00);
@@ -7420,7 +7420,7 @@ WarmUp (int color, int *gain)
 	    max = buffer[i];
 	}
     }
-  *gain = (*gain & 0xF0F) + (opsc04[6] - 1) * 16;
+  *brightness = (*brightness & 0xF0F) + (opsc04[6] - 1) * 16;
   DBG (1, "Warm-up done ...\n");
   return (1);
 }
@@ -7459,7 +7459,7 @@ sanei_umax_pp_Park (void)
 
 /* calibrates CCD: returns 1 on success, 0 on failure */
 static int
-ColorCalibration (int color, int dpi, int gain, int highlight, int width,
+ColorCalibration (int color, int dpi, int brightness, int contrast, int width,
 		  int *calibration)
 {
   int opsc32[17] =
@@ -7507,18 +7507,18 @@ ColorCalibration (int color, int dpi, int gain, int highlight, int width,
 
   /* get calibration data */
   if (sanei_umax_pp_getauto ())
-    {				/* auto settings doesn't use highlight */
-      highlight = 0x000;
+    {				/* auto settings doesn't use contrast */
+      contrast = 0x000;
     }
   else
     {				/* manual settings */
-      gain = 0x777;
-      highlight = 0x000;
+      brightness = 0x777;
+      contrast = 0x000;
     }
-  opsc32[10] = gain / 16;
-  opsc32[11] = gain % 16 | ((highlight / 16) & 0xF0);
-  opsc32[12] = highlight % 256;
-  DBG (8, "USING 0x%03X gain, 0x%03X highlight\n", gain, highlight);
+  opsc32[10] = brightness / 16;
+  opsc32[11] = brightness % 16 | ((contrast / 16) & 0xF0);
+  opsc32[12] = contrast % 256;
+  DBG (8, "USING 0x%03X brightness, 0x%03X contrast\n", brightness, contrast);
   if (sanei_umax_pp_getastra () == 1600)
     {
       opsc32[13] = 0x03;
@@ -7649,7 +7649,7 @@ sanei_umax_pp_ReadBlock (long len, int window, int dpi, int last,
 
 int
 sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
-		    int gain, int highlight)
+		    int brightness, int contrast)
 {
 #ifdef HAVE_SYS_TIME_H
   struct timeval td, tf;
@@ -7665,7 +7665,7 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
   int bx, by;
 
   if (sanei_umax_pp_StartScan
-      (x, y, width, height, dpi, color, gain, highlight, &bpp, &tw, &th) == 1)
+      (x, y, width, height, dpi, color, brightness, contrast, &bpp, &tw, &th) == 1)
     {
       COMPLETIONWAIT;
 
@@ -7852,7 +7852,7 @@ sanei_umax_pp_ParkWait (void)
 /* starts scan: return 1 on success */
 int
 sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
-			 int color, int gain, int highlight, int *rbpp,
+			 int color, int brightness, int contrast, int *rbpp,
 			 int *rtw, int *rth)
 {
   unsigned char *buffer;
@@ -7893,7 +7893,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
 
 
   DBG (8, "StartScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
-       color, gain);
+       color, brightness);
   buffer = (unsigned char *) malloc (2096100);
   if (buffer == NULL)
     {
@@ -8042,11 +8042,11 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     }
 
 
-  /* adjust gain and color offset */
+  /* adjust brightness and color offset */
   /* red*256+green*16+blue        */
   if (sanei_umax_pp_getauto ())
     {
-      if (WarmUp (color, &gain) == 0)
+      if (WarmUp (color, &brightness) == 0)
 	{
 	  DBG (0, "Warm-up failed !!! (%s:%d)\n", __FILE__, __LINE__);
 	  return (0);
@@ -8078,7 +8078,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   tw = (width * xdpi) / 600;
 
   /* do gamma calibration */
-  if (ColorCalibration (color, dpi, gain, highlight, width, calibration) == 0)
+  if (ColorCalibration (color, dpi, brightness, contrast, width, calibration) == 0)
     {
       DBG (0, "Gamma calibration failed !!! (%s:%d)\n", __FILE__, __LINE__);
       return (0);
@@ -8173,10 +8173,10 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
       break;
     }
 
-  /* channels gain */
-  opsc53[10] = gain / 16;
-  opsc53[11] = ((highlight / 16) & 0xF0) | (gain % 16);
-  opsc53[12] = highlight % 256;
+  /* channels brightness */
+  opsc53[10] = brightness / 16;
+  opsc53[11] = ((contrast / 16) & 0xF0) | (brightness % 16);
+  opsc53[12] = contrast % 256;
 
   /* scan height */
   opsc53[0] = h % 256;
@@ -8218,7 +8218,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
       opsc53[7] = 0x2F;
       /* 00 seems to give better results ?     */
-      /* 80 some more gain, lamp power level ? */
+      /* 80 some more brightness, lamp power level ? */
       /* 8x does not make much difference      */
       opsc04[6] = 0x8F;
       if (sanei_umax_pp_getastra () == 1600)
@@ -8236,7 +8236,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
       opsc53[7] = 0x40;
       opsc53[13] = 0xC0;
-      opsc04[6] = 0x80 | ((gain / 16) & 0x0F);
+      opsc04[6] = 0x80 | ((brightness / 16) & 0x0F);
       if (sanei_umax_pp_getastra () == 1600)
 	{
 	  opsc04[7] = 0x20;

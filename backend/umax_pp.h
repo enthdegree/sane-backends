@@ -77,17 +77,17 @@ enum Umax_PP_Option
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
 
-  OPT_MANUAL_GAIN,
-  OPT_GRAY_GAIN,
-  OPT_RED_GAIN,
-  OPT_GREEN_GAIN,
-  OPT_BLUE_GAIN,
+  OPT_MANUAL_BRIGHTNESS,
+  OPT_GRAY_BRIGHTNESS,
+  OPT_RED_BRIGHTNESS,
+  OPT_GREEN_BRIGHTNESS,
+  OPT_BLUE_BRIGHTNESS,
 
-  OPT_MANUAL_HIGHLIGHT,
-  OPT_GRAY_HIGHLIGHT,
-  OPT_RED_HIGHLIGHT,
-  OPT_GREEN_HIGHLIGHT,
-  OPT_BLUE_HIGHLIGHT,
+  OPT_MANUAL_CONTRAST,
+  OPT_GRAY_CONTRAST,
+  OPT_RED_CONTRAST,
+  OPT_GREEN_CONTRAST,
+  OPT_BLUE_CONTRAST,
 
   /* must come last: */
   NUM_OPTIONS
@@ -116,14 +116,14 @@ typedef struct Umax_PP_Descriptor
   u_char revision;
 
   /* default values */
-  SANE_Int gray_gain;
-  SANE_Int red_gain;
-  SANE_Int blue_gain;
-  SANE_Int green_gain;
-  SANE_Int gray_highlight;
-  SANE_Int red_highlight;
-  SANE_Int blue_highlight;
-  SANE_Int green_highlight;
+  SANE_Int gray_brightness;
+  SANE_Int red_brightness;
+  SANE_Int blue_brightness;
+  SANE_Int green_brightness;
+  SANE_Int gray_contrast;
+  SANE_Int red_contrast;
+  SANE_Int blue_contrast;
+  SANE_Int green_contrast;
 }
 Umax_PP_Descriptor;
 
@@ -147,7 +147,7 @@ typedef struct Umax_PP_Device
   int BottomY;
 
   int dpi;
-  int gain;
+  int brightness;
   int color;
   int bpp;			/* bytes per pixel */
   int tw;			/* target width in pixels */
@@ -168,15 +168,15 @@ typedef struct Umax_PP_Device
   SANE_Range x_range;
   SANE_Range y_range;
 
-  SANE_Int gray_gain;
-  SANE_Int red_gain;
-  SANE_Int blue_gain;
-  SANE_Int green_gain;
+  SANE_Int gray_brightness;
+  SANE_Int red_brightness;
+  SANE_Int blue_brightness;
+  SANE_Int green_brightness;
 
-  SANE_Int gray_highlight;
-  SANE_Int red_highlight;
-  SANE_Int blue_highlight;
-  SANE_Int green_highlight;
+  SANE_Int gray_contrast;
+  SANE_Int red_contrast;
+  SANE_Int blue_contrast;
+  SANE_Int green_contrast;
 }
 Umax_PP_Device;
 

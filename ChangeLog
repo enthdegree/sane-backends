@@ -1,3 +1,10 @@
+2003-02-23   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.c 
+	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h 
+	  backend/umax_pp.conf tools/umax_pp.c doc/sane-umax_pp.man: changed 
+	  highlight option to contrast, and gain to brightness.
+
 2003-02-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in backend/dll.conf backend/ma1509.c

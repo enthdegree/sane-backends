@@ -1,3 +1,13 @@
+2002-01-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c:
+          Do not use quantization for scan areas
+	* backend/snapscan-scsi.c:
+	  Add sense handling for sense code 0x0b to avoid infinite loops,
+          Change snapscan version to 1.4.6
+        * backend/snapscan.conf
+          Use /dev/sg0 as default instead of the more uncommon /dev/sga
+          
 ---- sane-backends-1.0.7-beta1 ----
 
 2002-01-21  Henning Meier-Geinitz <henning@meier-geinitz.de>

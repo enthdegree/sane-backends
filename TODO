@@ -4,6 +4,9 @@ TODO (2001-01-21)
 
 backends
 --------
+  * Configuration problems:
+    - add options "--exec-prefix=...." and "--prefix=..." compareable to gtk-config
+
   * Add new backends (?)
     - Polaroid SprintScan 35 LE [should be included into microtek] 
       Dick Bruijn <dick@wau.mis.ah.nl>

@@ -411,6 +411,7 @@ pa4s2_readend_uni (u_int base)
 {
 
   DBG (6, "pa4s2_readend_uni: end of reading sequence\n");
+  DBG (129, "unused base 0x%03X\n", base);
 
 }
 
@@ -458,6 +459,7 @@ pa4s2_readend_nib (u_int base)
 {
 
   DBG (6, "pa4s2_readend_nib: end of reading sequence\n");
+  DBG (129, "unused base 0x%03X\n", base);
 
 }
 

@@ -109,6 +109,7 @@ typedef enum { HP_CONNECT_SCSI, HP_CONNECT_DEVICE,
 typedef struct
 {
   HpConnect connect;
+  hp_bool_t got_connect_type;
   hp_bool_t use_scsi_request;
   hp_bool_t use_image_buffering;
 } HpDeviceConfig;

@@ -1,5 +1,5 @@
 :backend "mustek_usb"
-:status :beta
+:status :stable
 :version "1.0-114"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/"
@@ -7,20 +7,36 @@
 :devicetype :scanner
 
 :mfg "Mustek"
-:url "http://www.mustek.com"
+:url "http://www.mustek.com/"
+:url "http://www.mustek.com.tw/"
+:url "http://www.mustek.de/"
+
 :model "600 CU"
 :interface "USB"
+:status :stable
+
 :model "1200 CU"
 :interface "USB"
+:status :stable
+
 :model "1200 CU Plus"
 :interface "USB"
+:status :stable
+
 :model "1200 UB"
 :interface "USB"
+:status :stable
 :comment "Only 1200 UB is supported, NOT UB Plus!"
+
 ;:model "1200 USB"
 ;:interface "USB"
 ;:comment "CCD not yet supported"
+;:status :untested
+
 :mfg "Trust"
 :url "http://www.trust-site.com"
+
 :model "Compact Scan USB 19200"
 :interface "USB"
+:status :stable
+:comment "Mustek 1200 UB compatible"

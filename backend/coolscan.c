@@ -2333,7 +2333,7 @@ static int RGBIfix(Coolscan_t * scanner,
 	}
    }
    return 1;
-};
+}
 
 /* --------------------------------------------------------------- 
 
@@ -2386,7 +2386,7 @@ static int RGBIfix16(Coolscan_t * scanner,
 	(*opi)=(((*pi)&0x00ff)<<8)+(((*pi)&0xff00)>>8); 
    }
    return 1;
-};
+}
 
 
 /* --------------------------------------------------------------- 
@@ -2425,7 +2425,7 @@ static int rgb2g(unsigned char* rgbimat,unsigned char* gomat,
 	(*opg)=(unsigned char)(g>>8);	
    }
    return 1;
-};
+}
 
 
 /* --------------------------------------------------------------- 
@@ -2529,7 +2529,7 @@ static int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat,
 	(*opi)=(unsigned char)(ii);	
    }
    return 1;
-};
+}
 
 
 /* This function is executed as a child process. */

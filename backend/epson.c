@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.33 - 2000-07-29"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.34 - 2000-11-19"
 
 /*
    This file is part of the SANE package.
@@ -58,6 +58,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-11-19   Added support for the "set focus position" command,
+                this is necessary for the Expression1600.
    2000-07-28   Changed #include <...> to #include "..." for the
    		sane/... include files.
    2000-07-26   Fixed problem with Perfection610: The variable
@@ -356,32 +358,23 @@ static EpsonCmdRec epson_cmd [ ] =
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   set exposure time
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   set bay
  *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   set threshold
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |
- *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   set focus position
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   request focus position 
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   |
+ *       |   |   |   |   |   |   |   |   |   |   |            |   |   |   |   |   |   |   |   |   |   |   |   |    |   |   |   |   |   |   |   |   |
  */
-  {"A1",'I', 0 ,'F','S', 0 ,'G', 0 ,'R', 0 ,'A', 0 ,{ 0,0,0}, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,
-  {"A2",'I', 0 ,'F','S', 0 ,'G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B1",'I', 0 ,'F','S','C','G','D','R', 0 ,'A', 0 ,{ 0,0,0}, 0 ,'B', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B2",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B3",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@', 0 , 0 , 0 , 0 , 0 , 0 ,'m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B4",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d', 0 ,'z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,
-  {"B6",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"B7",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f','!','s','N', 0 , 0 ,'t'}
-  ,	      	      	      	      	
-  {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 ,'!','s','N', 0 , 0 , 0 }
-  ,	      	      	      	      	
-  {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0 , 0 ,'N','T','P', 0 }
-  ,
-  {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 ,'!', 0 , 0 , 0 , 0 , 0 }
+  {"A1",'I', 0 ,'F','S', 0 ,'G', 0 ,'R', 0 ,'A', 0 ,{ 0,0,0}, 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"A2",'I', 0 ,'F','S', 0 ,'G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B1",'I', 0 ,'F','S','C','G','D','R', 0 ,'A', 0 ,{ 0,0,0}, 0 ,'B', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B2",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B', 0 ,'@', 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B3",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@', 0 , 0 , 0 , 0 , 0 , 0 ,'m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B4",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d', 0 ,'z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B6",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 },
+  {"B7",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f','!','s','N', 0 , 0 ,'t', 0 , 0 },
+  {"B8",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-4,3,0},'Z','B','M','@','g','d','K','z','Q','b','m','f','e',  0 ,'!','s','N', 0 , 0 , 0 ,'p','q'},
+  {"F5",'I', 0 ,'F','S','C','G','D','R','H','A','L',{-3,3,0},'Z', 0 ,'M','@','g','d','K','z','Q', 0 ,'m','f','e','\f', 0 , 0 ,'N','T','P', 0 , 0 , 0 },
+  {"D1",'I','i','F', 0 ,'C','G','D','R', 0 ,'A', 0 ,{ 0,0,0},'Z', 0 , 0 ,'@','g','d', 0 ,'z', 0 , 0 , 0 ,'f', 0 ,  0 ,'!', 0 , 0 , 0 , 0 , 0 , 0 , 0 },
 };
 
 
@@ -492,6 +485,13 @@ static const SANE_String_Const film_list [ ] =
 	, "Negative Film"
 	, NULL
 	};
+
+static const SANE_String_Const focus_list [] =
+{
+	"Focus on glass",
+	"Focus 2.5mm above glass",
+	NULL
+};
 
 /*
  * TODO: add some missing const.
@@ -774,6 +774,7 @@ static SANE_Status get_identity2_information(SANE_Handle handle);
 static int send ( Epson_Scanner * s, const void *buf, size_t buf_size, SANE_Status * status);
 static ssize_t receive ( Epson_Scanner * s, void *buf, ssize_t buf_size, SANE_Status * status);
 static SANE_Status color_shuffle(SANE_Handle handle, int *new_length);
+static SANE_Status request_focus_position(SANE_Handle handle, u_char * position);
 
 /*
  *
@@ -927,7 +928,8 @@ static SANE_Status set_cmd ( Epson_Scanner * s, u_char cmd, int val) {
  *
  */
 
-#define  set_color_mode(s,v)		set_cmd(s,(s)->hw->cmd->set_color_mode,v)
+#define  set_focus_position(s,v)        set_cmd( s,(s)->hw->cmd->set_focus_position,v)
+#define  set_color_mode(s,v)		set_cmd( s,(s)->hw->cmd->set_color_mode,v)
 #define  set_data_format(s,v)		set_cmd( s,(s)->hw->cmd->set_data_format, v)
 #define  set_halftoning(s,v)		set_cmd( s,(s)->hw->cmd->set_halftoning, v)
 #define  set_gamma(s,v)			set_cmd( s,(s)->hw->cmd->set_gamma, v)
@@ -1253,6 +1255,8 @@ static SANE_Status check_ext_status ( Epson_Scanner * s) {
  *
  */
 
+
+#if 0
 static SANE_Status reset ( Epson_Scanner * s) {
 	SANE_Status status;
 	u_char param[2];
@@ -1267,6 +1271,8 @@ static SANE_Status reset ( Epson_Scanner * s) {
 	status = expect_ack( s);
 	return status;
 }
+
+#endif
 
 /*
  *
@@ -1711,6 +1717,39 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 			return status;
 	}	/* request identity 2 */
 
+
+	/*
+	 * Check for "request focus position" command. If this command is 
+	 * supported, then the scanner does also support the "set focus
+	 * position" command.
+	 */
+
+	if (request_focus_position(s, &s->currentFocusPosition) == SANE_STATUS_GOOD)
+	{
+		DBG( 0, "Enabling 'Set Focus' support\n");
+		s->hw->focusSupport = SANE_TRUE;
+		s->opt[ OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE; 
+
+		/* reflect the current focus position in the GUI */
+		if (s->currentFocusPosition < 0x4C)
+		{
+			/* focus on glass */
+			s->val[OPT_FOCUS].w = 0;
+		}
+		else
+		{
+			/* focus 2.5mm above glass */
+			s->val[OPT_FOCUS].w = 1;
+		}
+
+	}
+	else
+	{
+		DBG( 0, "Disabling 'Set Focus' support\n");
+		s->hw->focusSupport = SANE_FALSE;
+		s->opt[ OPT_FOCUS].cap |= SANE_CAP_INACTIVE; 
+	}
+
 		
 
 /*
@@ -1990,20 +2029,6 @@ void sane_exit ( void) {
 SANE_Status sane_get_devices ( const SANE_Device * * * device_list, SANE_Bool local_only) 
 {
 
-#if 0
-
-	static const SANE_Device *devlist [ 2];
-	int i;
-
-	i = 0;
-	if( dummy_dev.sane.name != NULL)
-		devlist[ i++] = &dummy_dev.sane;
-
-	devlist[ i] = NULL;
-
-	*device_list = devlist;
-	return SANE_STATUS_GOOD;
-#endif
 	static const SANE_Device **devlist = 0;
 	Epson_Device *dev;
 	int i;
@@ -2592,6 +2617,18 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 		s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;		/* default is inactive */
 
+
+		/* focus position */
+		s->opt[ OPT_FOCUS].name = SANE_EPSON_FOCUS_NAME;
+		s->opt[ OPT_FOCUS].title = SANE_EPSON_FOCUS_TITLE;
+		s->opt[ OPT_FOCUS].desc = SANE_EPSON_FOCUS_DESC;
+		s->opt[ OPT_FOCUS].type = SANE_TYPE_STRING;
+		s->opt[ OPT_FOCUS].size = max_string_size(focus_list);
+		s->opt[ OPT_FOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+		s->opt[ OPT_FOCUS].constraint.string_list = focus_list;
+		s->val[ OPT_FOCUS].w = 0;
+		s->opt[ OPT_FOCUS].cap |= SANE_CAP_ADVANCED; 
+
 #if 0
 		if( ( ! s->hw->TPU) && ( ! s->hw->cmd->set_bay) ) {		/* Hack: Using set_bay to indicate. */
 			s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
@@ -2602,7 +2639,7 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 		/* forward feed / eject */
 		s->opt[ OPT_EJECT].name		= "eject";
 		s->opt[ OPT_EJECT].title	= "Eject";
-		s->opt[ OPT_EJECT].desc		= "";
+		s->opt[ OPT_EJECT].desc		= "Eject the sheet in the ADF";
 
 		s->opt[ OPT_EJECT].type	= SANE_TYPE_BUTTON;
 
@@ -2933,6 +2970,7 @@ static SANE_Status getvalue( SANE_Handle handle,
 	case OPT_GAMMA_CORRECTION:
 	case OPT_COLOR_CORRECTION:
 	case OPT_BAY:
+	case OPT_FOCUS:
 		strcpy( (char *) value, sopt->constraint.string_list[sval->w]);
 		break;
 #if 0
@@ -3063,11 +3101,16 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 /*
     Handles setting the source (flatbed, transparency adapter (TPU),
     or auto document feeder (ADF)).
+
+    For newer scanners it also sets the focus according to the 
+    glass / TPU settings.
 */
 
 {
 	int force_max = SANE_FALSE;
 	SANE_Bool dummy;
+
+	s->focusOnGlass = SANE_TRUE;	/* this is the default */
 
 	if (s->val[ OPT_SOURCE ].w == optindex) return;
 	s->val[ OPT_SOURCE ].w = optindex;
@@ -3085,18 +3128,22 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->use_extension = SANE_TRUE;
 		/* disable film type option */
 		s->opt[ OPT_FILM_TYPE].cap &= ~SANE_CAP_INACTIVE;
+		s->val[ OPT_FOCUS].w = 0;
 	} else if( ! strcmp( TPU_STR, value) ) {
 		s->hw->x_range = &s->hw->tpu_x_range;
 		s->hw->y_range = &s->hw->tpu_y_range;
 		s->hw->use_extension = SANE_TRUE;
 		/* enable film type option */
 		s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
+		s->val[ OPT_FOCUS].w = 1;
+		s->focusOnGlass = SANE_FALSE;
 	} else {
 		s->hw->x_range = &s->hw->fbf_x_range;
 		s->hw->y_range = &s->hw->fbf_y_range;
 		s->hw->use_extension = SANE_FALSE;
 		/* disable film type option */
 		s->opt[ OPT_FILM_TYPE].cap &= ~SANE_CAP_INACTIVE;
+		s->val[ OPT_FOCUS].w = 0;
 	}
 
 	qf_params[ XtNumber(qf_params)-1 ].tl_x = s->hw->x_range->min;
@@ -3193,6 +3240,7 @@ static SANE_Status setvalue( SANE_Handle handle,
 	case OPT_DROPOUT:
 	case OPT_FILM_TYPE:
 	case OPT_BAY:
+	case OPT_FOCUS:
 		sval->w = optindex;			/* Simple lists */
 		break;
 
@@ -3464,20 +3512,6 @@ SANE_Status sane_start ( SANE_Handle handle) {
  */
 
 
-#if 0
-	if( s->hw->TPU) {
-
-/*
- * NOTE: should remove source TPU, and switch automatically.
- * NOTE: not shure if that is a good idea.
- */
-
-
-
-
-	} else
-#endif
-
 /*
  *
  */
@@ -3553,6 +3587,27 @@ SANE_Status sane_start ( SANE_Handle handle) {
 		if( SANE_STATUS_GOOD != status) {
 			close_scanner( s);
 			return status;
+		}
+
+
+		/* 
+		 * set the focus position according to the extension used:
+		 * if the TPU is selected, then focus 2.5mm above the glass,
+		 * otherwise focus on the glass
+		 */
+
+		if (s->hw->focusSupport == SANE_TRUE)
+		{
+			if (s->val[ OPT_FOCUS].w == 0)
+			{
+		    	DBG( 1, "Setting focus to glass surface\n");
+		    	set_focus_position(s, 0x40);
+			}
+			else
+			{
+		    	DBG( 1, "Setting focus to 2.5mm above glass\n");
+		    	set_focus_position(s, 0x59);
+			}
 		}
 	}
 
@@ -4944,6 +4999,51 @@ void sane_cancel ( SANE_Handle handle) {
 	if( s->buf != NULL)
 		s->canceling = SANE_TRUE;
 }
+
+
+static SANE_Status
+request_focus_position(SANE_Handle handle, u_char * position)
+{
+	Epson_Scanner * s = ( Epson_Scanner *) handle;
+	SANE_Status	status;
+	int len;
+	u_char param[3];
+	u_char result[4];
+	u_char *buf;
+
+	DBG(5, "request_focus_position()\n");
+
+	if (s->hw->cmd->request_focus_position == 0)
+		return SANE_STATUS_UNSUPPORTED;
+
+	param[0] = ESC;
+	param[1] = s->hw->cmd->request_focus_position;
+	param[2] = '\0';
+
+	send( s, param, 2, &status);
+
+	if( SANE_STATUS_GOOD != status)
+		return status;
+
+	len = 4;				/* receive header */
+
+	receive( s, result, len, &status);
+    	if( SANE_STATUS_GOOD != status)
+      		return status;
+
+	len = result[ 3] << 8 | result[ 2];
+	buf = alloca( len);
+
+	receive( s, buf, len, &status);		/* reveive actual status data */
+
+	*position = buf[ 1];
+	DBG(1, "Focus position = 0x%x\n", buf[1]);
+
+	return SANE_STATUS_GOOD;
+}
+
+
+/**********************************************************************************/
 
 /*
  * SANE_Status sane_set_io_mode()

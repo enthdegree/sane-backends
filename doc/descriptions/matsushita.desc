@@ -12,7 +12,7 @@
 :backend "matsushita"             ; name of backend
 :version "1.0-6"                  ; version of backend
 :manpage "sane-matsushita"        ; name of manpage
-:url "http://zago.net/sane"    ; backend's web page
+:url "http://www.zago.net/sane"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 

@@ -12,7 +12,7 @@
 :backend "teco2"                  ; name of backend
 :version "1.0-5"                  ; version of backend
 :manpage "sane-teco2"
-:url "http://zago.net/sane/#teco2"   ; backend's web page
+:url "http://www.zago.net/sane/#teco2"   ; backend's web page
 
 :devicetype :scanner
 

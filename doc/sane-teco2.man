@@ -170,7 +170,7 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 .SH AUTHORS
 
 The package is actively maintained by Frank Zago.
-    http://fz.eryx.net/sane/#teco2
+    http://www.zago.net/sane/#teco2
 
 Gerard Klaver contributed a patch to support the VM3564 and VM356A.
 

@@ -12,7 +12,7 @@
 :backend "leo"                    ; name of backend
 :version "1.0-10"                  ; version of backend
 :manpage "sane-leo"               ; name of manpage (if it exists)
-:url "http://zago.net/sane/#leo" ; backend's web page
+:url "http://www.zago.net/sane/#leo" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 

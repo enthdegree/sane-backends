@@ -1,3 +1,12 @@
+2003-10-20  Frank Zago <fzago at austin dot rr dot com>
+	* README.aix doc/sane-leo.man doc/sane-matsushita.man 
+	  doc/sane-sceptre.man doc/sane-teco1.man doc/sane-teco2.man
+	  doc/sane-teco3.man doc/descriptions/leo.desc 
+	  doc/descriptions/matsushita.desc doc/descriptions/sceptre.desc
+	  doc/descriptions/teco1.desc doc/descriptions/teco2.desc
+	  doc/descriptions/teco3.desc doc/descriptions-external/hp4200.desc:
+	  fixed urls.
+
 2003-10-19  m. allan noah <anoah at pfeiffer dot edu>
 
 	* backend/fujitsu.c: reverse previous patch. Dont blindly trust

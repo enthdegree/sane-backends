@@ -12,7 +12,7 @@
 :backend "teco3"                  ; name of backend
 :version "1.0-1"                  ; version of backend
 :manpage "sane-teco3"             ; name of manpage (if it exists)
-:url "http://zago.net/sane/#teco3"    ; backend's web page
+:url "http://www.zago.net/sane/#teco3"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

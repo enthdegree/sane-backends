@@ -152,4 +152,4 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 .SH AUTHOR
 
 The package is actively maintained by Frank Zago.
-    http://fz.eryx.net/sane/#leo
+    http://www.zago.net/sane/#leo

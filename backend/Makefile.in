@@ -260,9 +260,9 @@ libsane-snapscan.la: ../sanei/sanei_scsi.lo
 libsane-sp15c.la: ../sanei/sanei_config2.lo
 libsane-sp15c.la: ../sanei/sanei_constrain_value.lo
 libsane-sp15c.la: ../sanei/sanei_scsi.lo
-libsane-st400c.la: ../sanei/sanei_config2.lo
-libsane-st400c.la: ../sanei/sanei_constrain_value.lo
-libsane-st400c.la: ../sanei/sanei_scsi.lo
+libsane-st400.la: ../sanei/sanei_config2.lo
+libsane-st400.la: ../sanei/sanei_constrain_value.lo
+libsane-st400.la: ../sanei/sanei_scsi.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo

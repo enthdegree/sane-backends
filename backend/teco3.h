@@ -258,6 +258,7 @@ enum Teco_Option
   OPT_GAMMA_VECTOR_G,		/* Custom Green Gamma table */
   OPT_GAMMA_VECTOR_B,		/* Custom Blue Gamma table */
   OPT_GAMMA_VECTOR_GRAY,	/* Custom Grayscale Gamma table */
+  OPT_THRESHOLD,		/* Threshold */
   OPT_DITHER,
   OPT_PREVIEW,
 

@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               18
+#define BUILD               25
 
 #include "snapscan.h"
 
@@ -220,7 +220,15 @@ static inline int is_colour_mode (SnapScan_Mode m)
 
 static inline int calibration_line_length(SnapScan_Scanner *pss)
 {
-    int pixel_length = pss->actual_res * 8.5;
+    int pos_factor = pss->actual_res;
+    int pixel_length; 
+
+    if (pss->pdev->model == PRISA5000) 
+    {
+        pos_factor = 600;
+    }
+
+    pixel_length = pos_factor * 8.5;
 
     if(is_colour_mode(actual_mode(pss))) {
         return 3 * pixel_length;
@@ -1754,8 +1762,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.27  2003/01/08 21:45:15  oliverschwartz
- * Update to snapscan backend 1.4.18
+ * Revision 1.28  2003/04/02 21:00:47  oliverschwartz
+ * SnapScan backend 1.4.25
+ *
+ * Revision 1.56  2003/02/08 10:45:09  oliverschwartz
+ * Use 600 DPI as optical resolution for Benq 5000
  *
  * Revision 1.55  2003/01/08 21:16:17  oliverschwartz
  * Added support for Acer / Benq 310U

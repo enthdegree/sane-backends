@@ -96,7 +96,8 @@ typedef enum
     PRISA4300,          /* Acer ScanPrisa 3300/4300 - 600 DPI */
     PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI, 42 bit*/
     PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
-    PRISA5300           /* Acer ScanPrisa 5300 - 1200 DPI */
+    PRISA5300,          /* Acer ScanPrisa 5300 - 1200 DPI */
+    PERFECTION660       /* Epson Perfection 660 - 1200 DPI */
 } SnapScan_Model;
 
 struct SnapScan_Driver_desc {
@@ -126,7 +127,8 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA4300_2,    "Acer4300 (42 bit)"},
     {PRISA1240,      "Acer1240"},
     {PRISA5000,      "Acer5000"},
-    {PRISA5300,      "Acer5300"}
+    {PRISA5300,      "Acer5300"},
+    {PERFECTION660,  "Perfection 660"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -140,8 +142,8 @@ struct SnapScan_Model_desc
 static struct SnapScan_Model_desc scanners[] =
 {
     /* SCSI model name -> enum value */
-    {"FlatbedScanner_2",    VUEGO610S},
-    {"FlatbedScanner_4",    VUEGO310S},
+    {"FlatbedScanner_2",    VUEGO310S},
+    {"FlatbedScanner_4",    VUEGO610S},
     {"FlatbedScanner_5",    PRISA620S},
     {"FlatbedScanner_9",    PRISA620S},
     {"FlatbedScanner13",    PRISA620S},
@@ -171,7 +173,8 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN 310",        SNAPSCAN310},
     {"SNAPSCAN 600",        SNAPSCAN600},
     {"SnapScan",            SNAPSCAN},
-    {"ACERSCAN_A4____1",    ACER300F}
+    {"ACERSCAN_A4____1",    ACER300F},
+    {"Perfection 660",      PERFECTION660}
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
 
@@ -181,7 +184,8 @@ static char *vendors[] =
     "AGFA",
     "COLOR",
     "Color",
-    "ACERPER"
+    "ACERPER",
+    "EPSON"
 };
 #define known_vendors ((int) (sizeof(vendors)/sizeof(vendors[0])))
 
@@ -189,7 +193,8 @@ static SANE_Word usb_vendor_ids[] =
 {
     /* USB Vendor IDs */
     0x06bd,     /* Agfa */
-    0x04a5      /* Acer */
+    0x04a5,     /* Acer */
+    0x04b8      /* Epson */
 };
 #define known_usb_vendor_ids ((int) (sizeof(usb_vendor_ids)/sizeof(usb_vendor_ids[0])))
 
@@ -369,8 +374,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.19  2003/01/08 21:45:15  oliverschwartz
- * Update to snapscan backend 1.4.18
+ * Revision 1.20  2003/04/02 21:00:48  oliverschwartz
+ * SnapScan backend 1.4.25
+ *
+ * Revision 1.37  2003/02/05 22:11:11  oliverschwartz
+ * Added Epson Perfection 660
  *
  * Revision 1.36  2003/01/08 21:16:36  oliverschwartz
  * Added support for Acer / Benq 310U

@@ -518,6 +518,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
 
     pss->actual_res =
         u_char_to_u_short (pss->buf + INQUIRY_OPT_RES);
+
     pss->pixels_per_line =
         u_char_to_u_short (pss->buf + INQUIRY_PIX_PER_LINE);
     pss->bytes_per_line =
@@ -742,6 +743,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     SANE_Status status;
     unsigned char source;
     u_char *pc;
+    int pos_factor;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
@@ -763,19 +765,32 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     u_short_to_u_charp (pss->res, pc + SET_WINDOW_P_YRES);
     DBG (DL_CALL_TRACE, "%s Resolution: %d\n", me, pss->res);
 
+    pos_factor = pss->actual_res;
+    if (pss->pdev->model == PRISA5000) 
+    {
+        if (pss->res > 600) 
+        {
+            pos_factor = 1200;
+        }
+        else
+        {
+            pos_factor = 600;
+        }    
+    }
+
     /* it's an ugly sound if the scanner drives against the rear
        wall, and with changing max values we better be sure */
     check_range(&(pss->brx), pss->pdev->x_range);
     check_range(&(pss->bry), pss->pdev->y_range);
     {
         int tlxp =
-            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tlx));
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tlx));
         int tlyp =
-            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tly));
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->tly));
         int brxp =
-            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->brx));
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->brx));
         int bryp =
-            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->bry));
+            (int) (pos_factor*IN_PER_MM*SANE_UNFIX(pss->bry));
 
         /* Check for brx > tlx and bry > tly */
         if (brxp <= tlxp) {
@@ -1186,8 +1201,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.20  2003/01/08 21:45:15  oliverschwartz
- * Update to snapscan backend 1.4.18
+ * Revision 1.21  2003/04/02 21:00:47  oliverschwartz
+ * SnapScan backend 1.4.25
+ *
+ * Revision 1.35  2003/02/08 10:45:09  oliverschwartz
+ * Use 600 DPI as optical resolution for Benq 5000
  *
  * Revision 1.34  2002/12/10 20:14:12  oliverschwartz
  * Enable color offset correction for SnapScan300

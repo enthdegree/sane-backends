@@ -21,9 +21,10 @@
                                   	; other types:  :stillcam, :vidcam,
                                   	;               :meta, :api
 
+;-----------------------------------------------------------------------------
+
 :mfg "AGFA"				; name a manufacturer
 :url "http://www.agfa.com/"
-;-----------------------------------------------------------------------------
 
 :model "SnapScan 300"                  	; name models for above-specified mfg.
 :interface "SCSI"
@@ -90,6 +91,8 @@
 :interface "USB"
 :status :untested
 
+;------------------------------------------------------------------------------
+
 :mfg "Acer Peripherals"
 :comment "Company was renamed to <a href=\"#BENQ\">Benq</a>."
 
@@ -99,7 +102,6 @@
 :mfg "Benq"
 :url "http://www.benq.com"
 :comment "Formerly Acer Peripherals"
-;------------------------------------------------------------------------------
 
 :model "300f"
 :interface "SCSI"
@@ -162,16 +164,17 @@
 
 :model "5000"
 :interface "USB"
-:status :alpha
+:status :beta
 
 :model "5300"
 :interface "USB"
 :status :alpha
 :comment "Problems with firmware upload reported"
 
+;------------------------------------------------------------------------------
+
 :mfg "Guillemot / Hercules"
 :url "http://www.guillemot.com"
-;------------------------------------------------------------------------------
 
 :model "Maxi Scan A4 Deluxe (SCSI)"
 :interface "SCSI"
@@ -183,9 +186,10 @@
 :status :stable
 :comment "Seems to be a repackaged Benq 3300."
 
+;------------------------------------------------------------------------------
+
 :mfg "Mitsubishi"
 :url "http://www.mitsubishi.com"
-;------------------------------------------------------------------------------
 
 :model "Diamondview 648UT"
 :interface "USB"
@@ -196,6 +200,15 @@
 :interface "USB"
 :status :stable
 :comment "Seems to be a repackaged Benq 4300."
+
+;------------------------------------------------------------------------------
+
+:mfg "Epson"
+:url "http://www.epson.com"
+
+:model "Perfection 660"
+:interface "USB"
+:status :beta
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

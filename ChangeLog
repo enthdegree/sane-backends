@@ -1,3 +1,10 @@
+2003-04-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan.h backend/snapscan-scsi.c
+	  backend/snapscan.conf doc/descriptions/snapscan.desc:
+	  SnapScan backend 1.4.25 - added support for Epson Perfection 660,
+	  enhanced support for Acer 5000
+
 2003-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-as6e.man: Added info about $PATH. Minor formatting fixes.

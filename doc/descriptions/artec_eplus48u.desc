@@ -37,8 +37,10 @@
 :comment "Different product id: 0x4006"
 
 :mfg "Memorex"
-:model "Mem 48 u"
+:url "http://www.artecusa.com/"
+:model "MEM 48U"
 :interface "USB"
+:comment "Different product id: 0x4005"
 
 :mfg "UMAX"
 :url "http://www.umax.com/"

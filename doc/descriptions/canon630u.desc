@@ -12,6 +12,7 @@
 :backend "canon630u"                ; name of backend
 :manpage "sane-canon630u"
 :version "0.1"                  ; version of backend
+:status :beta
 :url "http://canon-fb630u.sourceforge.net/" ; backend home page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -23,6 +24,11 @@
 :model "CanoScan fb630u"           ; name models for above-specified mfg.
 :interface "USB"
 :comment "OK"
+
+:model "CanoScan fb636u"           ; name models for above-specified mfg.
+:interface "USB"
+:status :untested
+:comment "hopefully works"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

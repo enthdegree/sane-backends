@@ -21,13 +21,13 @@ The scanners that should work with this backend are:
 ----------------------  --------------  -----------
 .br
   Relisys AVEC 2400        VM3520        tested  
-  Relisys AVEC 2412        VM3520+       untested
+  Relisys AVEC 2412        VM3520+       tested
   Relisys AVEC 4800        VM4530        untested  
   Relisys AVEC 4816        VM4530+       untested  
   Relisys RELI 2400        VM3530        untested  
   Relisys RELI 2412        VM3530+       tested
   Relisys RELI 2412        VM3530+       untested  
-  Relisys RELI 4816        VM4540        untested  
+  Relisys RELI 4816        VM4540        tested  
   Relisys RELI 4830        VM4542        tested
   Relisys RELI 9600        VM6530        untested  
   Relisys RELI 9612        VM6530*       untested  

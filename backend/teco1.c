@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 9			/* 2002/10/09 */
+#define BUILD 10			/* 2004/02/08 */
 #define BACKEND_NAME teco1
 #define TECO_CONFIG_FILE "teco1.conf"
 
@@ -190,6 +190,16 @@ static const struct scanners_supported scanners[] = {
    99
   },
 
+  {6, "TECO VM4540", 
+   TECO_VM4540, 
+   "Relisys", "RELI 4816", 
+   {1, 1600, 1},       /* resolution */ 
+   400, 1600,          /* max x and Y resolution */ 
+   1,                  /* color 1 pass */ 
+   256,                /* number of bytes per gamma color */ 
+   99                  /* number of bytes in a window */ 
+  },
+  
   {6, "TECO VM4542",
    TECO_VM4542,
    "Relisys", "RELI 4830",

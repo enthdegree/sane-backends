@@ -266,6 +266,7 @@ struct scanners_supported
     TECO_VM3510,
     TECO_VM3520,
     TECO_VM353A,
+    TECO_VM4540,
     TECO_VM4542
   }
   tecoref;

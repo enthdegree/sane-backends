@@ -2567,8 +2567,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
        ARTEC_MAJOR, ARTEC_MINOR, ARTEC_SUB, ARTEC_LAST_MOD);
   DBG (1, "http://www4.infi.net/~cpinkham/sane-artec-doc.html\n");
 
-  DBG (7, "sane_init( version_code = %d, callback() = %p )\n",
-    *version_code, authorize );
+  DBG (7, "sane_init()\n" );
 
   /* make sure these 2 are empty */
   strcpy (artec_vendor, "");
@@ -2576,6 +2575,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+
+  if (authorize)
+    DBG (7, "sane_init(), authorize callback specified as %p\n", authorize );
 
   fp = sanei_config_open (ARTEC_CONFIG_FILE);
   if (!fp)

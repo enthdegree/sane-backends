@@ -1,3 +1,7 @@
+2000-10-08  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* sanei/sanei_pa4s2.c: fixed all but one compiler warning
+
 2000-10-03  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* tools/find-scanner.c: Explicitly state that find-scanner won't

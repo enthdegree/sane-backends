@@ -50,7 +50,7 @@
 
 :model "ScanAce III"
 :interface "SCSI"
-:status :untested
+:status :good
 
 :model "ScanAce Plus"
 :interface "SCSI"

@@ -1,3 +1,8 @@
+2003-09-15  Simon Munton <simon@munton.demon.co.uk>
+
+	* doc/sane-pie.man doc/descriptions/pie.desc: Updated status of ScanAce
+	  III to 'good' based on feedback from Brian Wood.
+
 2003-09-14  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: put Henning's #include change back in.

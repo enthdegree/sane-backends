@@ -27,7 +27,7 @@ ScanAce 1230S           Untested
 .br
 ScanAce II              Untested
 .br
-ScanAce III             Untested
+ScanAce III             OK
 .br
 ScanAce Plus            Untested
 .br

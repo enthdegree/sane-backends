@@ -43,8 +43,11 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.92";
+static char *hp_backend_version = "0.93";
 /* Changes:
+
+   V 0.93, 04-Dec-2000, PK (peter@kirchgessner.net)
+      - fix problem with ADF-support on ScanJet 6350 (and maybe others)
 
    V 0.92, 03-Oct-2000, Rupert W. Curwen (rcurwen@uk.research.att.com):
       - try to not allocate accessors twice (only for accessors

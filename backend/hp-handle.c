@@ -426,13 +426,19 @@ sanei_hp_handle_startScan (HpHandle this)
 
     /* HP ScanJet IIp does not support commands ADF scan window */
     /* and unload document. We have to use the usual scan window. */
-    if ( sanei_hp_device_support_get (this->dev->sanedev.name,
-                                      SCL_UNLOAD, &minval, &maxval)
-           != SANE_STATUS_GOOD )
+    /* It turned out that other scanners also do not support unload */
+    /* document, but change document (which is not supported by IIp too) */
+    if (   (sanei_hp_device_support_get (this->dev->sanedev.name,
+                                       SCL_UNLOAD, &minval, &maxval)
+              != SANE_STATUS_GOOD )
+        && (sanei_hp_device_support_get (this->dev->sanedev.name,
+                                       SCL_UNLOAD, &minval, &maxval)
+              != SANE_STATUS_GOOD ) )
     {
 
-      DBG(1, "start: Request for ADF scan without support of unload doc.\n");
-      DBG(1, "       Seems to be a IIp. Use standard scan window command.\n");
+      DBG(1, "start: Request for ADF scan without support of unload doc\n");
+      DBG(1, "       and change doc. Seems to be a IIp.\n");
+      DBG(1, "       Use standard scan window command.\n");
 
       scl = SCL_START_SCAN;
     }

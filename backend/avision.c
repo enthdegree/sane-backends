@@ -48,14 +48,14 @@
    command set.
    
    Copyright 2003 by
-                "René Rebe" <rene.rebe@gmx.net>
+                "René Rebe" <rene@rocklinux.org>
    
    Copyright 2002 by
-                "René Rebe" <rene.rebe@gmx.net>
+                "René Rebe" <rene@rocklinux.org>
                 "Jose Paulo Moitinho de Almeida" <moitinho@civil.ist.utl.pt>
    
    Copyright 1999, 2000, 2001 by
-                "René Rebe" <rene.rebe@gmx.net>
+                "René Rebe" <rene@rocklinux.org>
                 "Meino Christian Cramer" <mccramer@s.netic.de>
    
    Additional Contributers:
@@ -85,7 +85,13 @@
    
    2003-10-28: René Rebe
          * merging with the new SANE CVS, converted the .desc to the new
-           format
+           format (Bug #300146)
+         * some textual changes incl. a rewrite of the sane-avision man-page
+           (Bugs #300290 and  #300291)
+         * added another name overwrite for the Minolta Dimage Scan Dual II
+           (Bug #300288)
+         * fixed config file reading for non-terminated options (Bug #300196)
+         * removed Option_Value since it is now included in sanei_backend.h
    
    2003-10-04: René Rebe
          * fixed adf model detection bug - could even crash (not functional
@@ -785,7 +791,7 @@ static Avision_HWEntry Avision_Device_List [] =
     
     { "MINOLTA", "FS-V1",
       0x0638, 0x026a,
-      "Minolta", "FS-V1",
+      "Minolta", "Dimage Scan Dual II",
       AV_USB, AV_FILM, AV_ONE_CALIB_CMD},
     /* comment="1 pass, film-scanner" */
     /* status="basic" */
@@ -2130,7 +2136,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   memcpy (&rev, result + 32, 4);
   rev [4] = 0;
   
-  /* shorten strings ( -1 for last index
+  /* shorten strings (-1 for last index
      -1 for last 0; >0 because one char at least) */
   for (i = sizeof (mfg) - 2; i > 0; i--) {
     if (mfg[i] == 0x20)
@@ -2163,7 +2169,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   if (!found) {
     DBG (1, "attach: model is not in the list of supported models!\n");
     DBG (1, "attach: You might want to report this output. To:\n");
-    DBG (1, "attach: rene@rocklinux.org (Backend author)\n");
+    DBG (1, "attach: rene@rocklinux.org (the Avision backend author)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;
@@ -4435,14 +4441,23 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	      line);
       
 	  cp = sanei_config_get_string (line, &word);
-      
+	  
 	  if (!word || cp == line) {
 	    DBG(5, "sane_init: config file line %d: ignoring empty line\n",
 		linenumber);
-	    free (word);
-	    word = NULL;
+	    if (word) {
+	      free (word);
+	      word = NULL;
+	    }
 	    continue;
 	  }
+	  
+	  if (!word) {
+	    DBG(1, "sane_init: config file line %d: could not be parsed\n",
+		linenumber);
+	    continue;
+	  }
+	  
 	  if (word[0] == '#') {
 	    DBG(5, "sane_init: config file line %d: ignoring comment line\n",
 		linenumber);

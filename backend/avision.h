@@ -174,13 +174,6 @@ enum Avision_Option
   NUM_OPTIONS            /* must come last */
 };
 
-typedef union Option_Value
-{
-  SANE_Word w;
-  SANE_Word *wa;	 /* word array */
-  SANE_String s;
-} Option_Value;
-
 typedef struct Avision_Dimensions
 {
   /* in dpi */

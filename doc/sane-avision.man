@@ -3,11 +3,11 @@
 
 .SH NAME
 sane-avision \- SANE backend for original Avision and Avision OEM scanners
-(HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed scanners
+(HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed scanners.
 
 .SH ABOUT THIS FILE
 
-This file only is a short descripton of the avision-backend for sane!
+This file is a short descripton for the avision-backend shipped with SANE.
 
 .SH DESCRIPTION
 The
@@ -15,6 +15,9 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to various Avision scanners and the Avision OEM
 scanners labelled by HP, Minolta, Mitsubishi or Fujitsu.
+
+.B I suggest you hold one hand on the power-button of the scanner while you try
+the first scans!
 
 .SH CONFIGURATION
 
@@ -24,9 +27,6 @@ The configuration file for this backend resides in
 Its contents is a list of device names that correspond to Avision and Avision
 compatible scanners and backend-options. Empty lines and lines starting with
 a hash mark (#) are ignored. A sample configuration file is shown below: 
-
-.B I suggest you hold one hand on the power-button of the scanner while you try
-the first scans!
 
  # this is a comment
   
@@ -82,32 +82,36 @@ the first scans!
 This backend expects device names of the form:
 .PP
 .RS
-.I scsi special
-.I usb special
+.I scsi scsi-spec
+
+.I usb usb-sec
 .RE
 .PP
 Where
-.I special
-is the path-name for the device that corresponds to a SCSI scanner or
-the USB vendor/product ID pair corresponding to the USB scanner. The
-special device name must be a generic SCSI device or a
-symlink to such a device.  The program 
-.IR sane-find-scanner 
-helps to find out the correct device. Under Linux, such a device name
-could be
-.I /dev/sg0
-or
-.IR /dev/sga ,
-for example.  See sane-scsi(5) for details.
+.I scsi-spec
+is the path-name to a special device or a device ID for the device that
+corresponds to a SCSI scanner. The special device name must be a generic
+SCSI device or a symlink to such a device, for example on Linux "/dev/sga"
+or "/dev/sg0". The device ID is the ID returned by the scanner, for example
+"HP" or "AVISION". See sane-scsi(5) for details.
 
  Note: Since the backend now includes native USB access,
        it is no longer needed - even considered obsolete -
-       to access the scanner via the SCSI emulation (named
+       to access USB scanner via the SCSI emulation (named
        hpusbscsi on Linux) for Avision USB devices such as
        the HP 53xx, HP 74xx or Minolta film-scanners.
 
- A list with supported devices is built into the avision backend so
- normally specifying an ID should not be necessary.
+.I usb-spec
+is the USB device name, the vendor/product ID pair or the name used by
+libusb corresponding to the USB scanner. For example "0x03f0 0x0701" or
+"libusb:002:003". See sane-usb(5) for details.
+
+The program
+.IR sane-find-scanner 
+helps to find out the correct scsi or usb device name.
+
+A list with supported devices is built into the avision backend so
+normally specifying an ID should not be necessary.
 
 .SH FILES
 .TP
@@ -149,9 +153,9 @@ Example:
 export SANE_DEBUG_AVISION=7
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane\-scsi(5), sane\-usb(5)
 .br
-http://drocklinux.dyndns.org/rene/avision/index.html
+http://www.rocklinux-consulting.de/oss/avision/
 
 .SH AUTHOR
 René Rebe and Meino Christian Cramer

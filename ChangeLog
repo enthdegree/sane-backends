@@ -5,8 +5,11 @@
 	  revision of SANE/Avision. The fixes include: endianess fixes,
 	  calibration code, ADF detection, correct lamp warmup, gamma table
 	  for new ASICs, some workarounds for ASIC variations and the
-	  convertion to use OPT_SOURCE insteat of seperate OPT_ADF and
-	  OPT_TRANS.
+	  convertion to use OPT_SOURCE instead of seperate OPT_ADF and
+	  OPT_TRANS. Also fixed Bugs #300288 and #300196 and removed
+	  the conflicting Option_Valu now present in sanei_backend.h
+	* doc/sane-avision.man: made requested clarifications (Bugs #300290,
+	  #300291)
 
 2003-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/sane-plustek.man backend/plustek.conf backend/plustek.c:

@@ -16,10 +16,13 @@ General:
 If scanimage -L (or any other frontend) stops with a segmentation fault in the
 sm3600 backend, disable sm3600 in dll.conf if you don't need it.
 
+Backends that use the function "fork" may not work at least with USB scanners.
+That's a limitation of MacOS X (doesn't use file descriptors for USB access).
+
 SCSI-scanners:
 --------------
-Probably not supported because there are no functions in sanei_scsi to access
-the Darwin generic SCSI devices. Patches are welcome.
+There is support for SCSI scanners but hasn't had much testing. Please send 
+failure and success reports to the sane-devel mailing list.
 
 USB-scanners:
 -------------
@@ -32,4 +35,4 @@ Parport-scanners:
 I don't have any information about these. Please contact me or the SANE mailing
 list if you succeeded in using one of these.
 
-2002-12-30 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2003-04-30 Henning Meier-Geinitz <henning@meier-geinitz.de>

@@ -1203,7 +1203,8 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x043d, 0x002d, &lexmark_x73_model},
   {0x07b3, 0x0400, &plustek_op1248u_model},
   {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */
-  {0x07b3, 0x0403, &plustek_u16b_model},
+  {0x07b3, 0x0402, &plustek_u16b_model},
+  {0x07b3, 0x0403, &plustek_u16b_model}, /* two ids? 403 seems to be more common */
   {0x07b3, 0x0413, &plustek_opticslim1200},
   {0x0458, 0x2011, &genius_vivid3x_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},

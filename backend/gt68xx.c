@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 52
+#define BUILD 53
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -111,6 +111,7 @@ static SANE_Int new_dev_len = 0;
 static SANE_Int new_dev_alloced = 0;
 /* Is this computer little-endian ?*/
 SANE_Bool little_endian;
+SANE_Bool debug_options = SANE_FALSE;
 
 static SANE_String_Const mode_list[] = {
   SANE_I18N ("Color"),
@@ -519,6 +520,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_DEBUG_GROUP].size = 0;
   s->opt[OPT_DEBUG_GROUP].cap = 0;
   s->opt[OPT_DEBUG_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  if (!debug_options)
+    DISABLE (OPT_DEBUG_GROUP);
 
   /* auto warmup */
   s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
@@ -530,7 +533,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
   s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
-  if (s->dev->model->is_cis)
+  if (s->dev->model->is_cis || !debug_options)
     DISABLE (OPT_AUTO_WARMUP);
 
   /* full scan */
@@ -543,6 +546,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_FULL_SCAN].unit = SANE_UNIT_NONE;
   s->opt[OPT_FULL_SCAN].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_FULL_SCAN].w = SANE_FALSE;
+  if (!debug_options)
+    DISABLE (OPT_FULL_SCAN);
 
   /* coarse calibration */
   s->opt[OPT_COARSE_CAL].name = "coarse-calibration";
@@ -556,6 +561,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_COARSE_CAL].unit = SANE_UNIT_NONE;
   s->opt[OPT_COARSE_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_COARSE_CAL].w = SANE_TRUE;
+  if (!debug_options)
+    DISABLE (OPT_COARSE_CAL);
 
   /* coarse calibration only once */
   s->opt[OPT_COARSE_CAL_ONCE].name = "coarse-calibration-once";
@@ -570,6 +577,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_COARSE_CAL_ONCE].unit = SANE_UNIT_NONE;
   s->opt[OPT_COARSE_CAL_ONCE].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_COARSE_CAL_ONCE].w = SANE_FALSE;
+  if (!debug_options)
+    DISABLE (OPT_COARSE_CAL_ONCE);
 
   /* calibration */
   s->opt[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
@@ -579,6 +588,8 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
   s->opt[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
+  if (!debug_options)
+    DISABLE (OPT_QUALITY_CAL);
 
   /* fast preview */
   s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
@@ -589,6 +600,8 @@ init_options (GT68xx_Scanner * s)
 	       "resolution mode.");
   s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
   s->val[OPT_FAST_PREVIEW].w = SANE_TRUE;
+  if (!debug_options)
+    DISABLE (OPT_FAST_PREVIEW);
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -940,6 +953,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   new_dev_len = 0;
   new_dev_alloced = 0;
 
+#ifdef DBG_LEVEL
+  if (DBG_LEVEL > 0)
+    {
+      DBG (5, "sane_init: debug options are enabled, handle with care\n");
+      debug_options = SANE_TRUE;
+    }
+#endif
+    
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
     {

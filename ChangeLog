@@ -1,3 +1,10 @@
+2004-01-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Debug options are only enabled if the
+	  debug level is 1 and higher. Added product id 0x0402 for Plustek U16B.
+
 2004-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/gamma4scanimage.man: scanimage is in section 1.

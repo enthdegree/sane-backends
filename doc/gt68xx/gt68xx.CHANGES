@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-53 (2004-01-19)
+
+* Debug options are only enabled if the debug level is 1 and higher. This may
+  stop some people from activating dangerous options.
+* Added product id 0x0402 for Plustek U16B.
+
 V 1.0-52 (2004-01-01)
 
 * gt68xx_gt6801.c: Fixed a bug in the stop scan function for Plustek U16b.

@@ -213,10 +213,10 @@ static inline u_char inb_eppdata(int fd)
 	return val;
 }
 
-#define outbyte0(fd,val) ieee1284_write_data(pplist.portv[fd], val)
-#define outbyte2(fd,val) ieee1284_write_control(pplist.portv[fd], \
+#define outb_data(fd,val) ieee1284_write_data(pplist.portv[fd], val)
+#define outb_ctrl(fd,val) ieee1284_write_control(pplist.portv[fd], \
                                                    (val) ^ C1284_INVERTED)
-static inline void outbyte3(int fd, u_char val)
+static inline void outb_addr(int fd, u_char val)
 {
 	ieee1284_epp_write_addr (pplist.portv[fd], 0, (char *)&val, 1);
 }
@@ -228,10 +228,10 @@ static inline void outbyte3(int fd, u_char val)
 #define inb_ctrl(fd)    inb(port[fd].base + 2)
 #define inb_eppdata(fd) inb(port[fd].base + 4)
 
-#define outbyte0(fd,val)	outb(val, port[fd].base)
-#define outbyte1(fd,val)	outb(val, port[fd].base + 1)
-#define outbyte2(fd,val)	outb(val, port[fd].base + 2)
-#define outbyte3(fd,val)	outb(val, port[fd].base + 3)
+#define outb_data(fd,val) outb(val, port[fd].base)
+#define outb_stat(fd,val) outb(val, port[fd].base + 1)
+#define outb_ctrl(fd,val) outb(val, port[fd].base + 2)
+#define outb_addr(fd,val) outb(val, port[fd].base + 3)
 
 #ifdef HAVE_IOPL
 # define _SET_IOPL()        iopl(3)
@@ -375,8 +375,8 @@ pp_probe( int handle )
 
 	/* SPP check */
 	outbyte402( handle, 0x0c );
-	outbyte2( handle, 0x0c );
-	outbyte0( handle, 0x55 );
+	outb_ctrl( handle, 0x0c );
+	outb_data( handle, 0x55 );
 	a = inb_data( handle );
 	if( a != 0x55 ) {
 	    DBG( 4, "pp_probe: nothing supported :-(\n" );
@@ -443,11 +443,11 @@ no_ecp:
 		outbyte402(handle, 0x20 );
 	}
 
-	outbyte0( handle, 0x55 );
-	outbyte2( handle, 0x0c );
+	outb_data( handle, 0x55 );
+	outb_ctrl( handle, 0x0c );
 	a = inb_data( handle );
-	outbyte0( handle, 0x55 );
-	outbyte2( handle, 0x2c );
+	outb_data( handle, 0x55 );
+	outb_ctrl( handle, 0x2c );
 	b = inb_data( handle );
 	if( a != b ) {
     	DBG( 4, "pp_probe: PS/2 bidirectional port present\n");
@@ -465,8 +465,8 @@ no_ecp:
 	    	outbyte402( handle, i );
 
 		    a = inb_stat( handle );
-		    outbyte1( handle, a );
-		    outbyte1( handle, (a & 0xfe));
+		    outb_stat( handle, a );
+		    outb_stat( handle, (a & 0xfe));
 		    a = inb_stat( handle );
 	    	if (!(a & 0x01)) {
 			    DBG( 2, "pp_probe: "
@@ -480,21 +480,21 @@ no_ecp:
 #endif
 
 	a = inb_stat( handle );
-	outbyte1( handle, a);
-	outbyte1(handle, (a & 0xfe));
+	outb_stat( handle, a);
+	outb_stat(handle, (a & 0xfe));
 	a = inb_stat( handle );
 
 	if (a & 0x01) {
 		outbyte402( handle, 0x0c );
-		outbyte2  ( handle, 0x0c );
+		outb_ctrl  ( handle, 0x0c );
 		return retv;
 	}
 
-	outbyte2( handle, 0x04 );
+	outb_ctrl( handle, 0x04 );
 	inb_eppdata ( handle );
 	a = inb_stat( handle );
-	outbyte1( handle, a );
-	outbyte1( handle, (a & 0xfe));
+	outb_stat( handle, a );
+	outb_stat( handle, (a & 0xfe));
 
 	if( a & 0x01 ) {
 	    DBG( 4, "pp_probe: EPP 1.9 with hardware direction protocol\n");
@@ -504,11 +504,11 @@ no_ecp:
 		 * EPP 1.7
 		 * EPP 1.9 with software direction
 		 */
-		outbyte2( handle, 0x24 );
+		outb_ctrl( handle, 0x24 );
 		inb_eppdata ( handle );
 		a = inb_stat( handle );
-		outbyte1( handle, a );
-		outbyte1( handle, (a & 0xfe));
+		outb_stat( handle, a );
+		outb_stat( handle, (a & 0xfe));
 		if( a & 0x01 ) {
 			DBG( 4, "pp_probe: EPP 1.9 with software direction protocol\n" );
 		    retv += CAP1284_EPPSWE;
@@ -519,7 +519,7 @@ no_ecp:
 	}
 
 	outbyte402( handle, 0x0c );
-	outbyte2  ( handle, 0x0c );
+	outb_ctrl  ( handle, 0x0c );
     return retv;
 }
 #endif
@@ -531,7 +531,11 @@ pp_time_diff( struct timeval *start, struct timeval *end )
 
 	s = (double)start->tv_sec * 1000000.0 + (double)start->tv_usec;
 	e = (double)end->tv_sec   * 1000000.0 + (double)end->tv_usec;
-	r = (e - s);
+
+	if( e > s )
+		r = (e - s);
+	else
+		r = (s - e);
 
 	if( r <= (double)ULONG_MAX )
 		return (unsigned long)r;
@@ -544,7 +548,7 @@ pp_time_diff( struct timeval *start, struct timeval *end )
 static unsigned long
 pp_calculate_thresh( void )
 {
-	unsigned long  i, r;
+	unsigned long  i, r, ret;
 	struct timeval start, end, deadline;
 
 	gettimeofday( &start, NULL);
@@ -559,8 +563,9 @@ pp_calculate_thresh( void )
 
 	gettimeofday( &end, NULL);
 
-	r = pp_time_diff( &start, &end );
-	return (r/_TEST_LOOPS);
+	r   = pp_time_diff( &start, &end );
+	ret = r/_TEST_LOOPS;
+	return ret;
 }
 
 /**
@@ -796,7 +801,7 @@ pp_close( int fd, SANE_Status *status )
 #else
 	DBG( 6, "pp_close: this is port 0x%03lx\n", port[fd].base );
 	DBG( 6, "pp_close: restoring the CTRL registers\n" );
-	outbyte2( fd, port[fd].ctrl );
+	outb_ctrl( fd, port[fd].ctrl );
 #ifdef HAVE_IOPL
 	outbyte402( fd, port[fd].ecp_ctrl );
 #endif
@@ -960,8 +965,7 @@ sanei_pp_outb_data( int fd, SANE_Byte val )
 		return SANE_STATUS_INVAL;
     }
 #endif
-    outbyte0( fd, val );
-    
+	outb_data( fd, val );
 	return SANE_STATUS_GOOD;
 }
 
@@ -980,8 +984,7 @@ sanei_pp_outb_ctrl( int fd, SANE_Byte val )
 		return SANE_STATUS_INVAL;
     }
 #endif
-    outbyte2( fd, val );
-
+	outb_ctrl( fd, val );
 	return SANE_STATUS_GOOD;
 }
 
@@ -1000,8 +1003,7 @@ sanei_pp_outb_addr( int fd, SANE_Byte val )
 		return SANE_STATUS_INVAL;
     }
 #endif
-    outbyte3( fd, val );
-
+    outb_addr( fd, val );
 	return SANE_STATUS_GOOD;
 }
 
@@ -1099,7 +1101,7 @@ sanei_pp_udelay( unsigned long usec )
 {
 	struct timeval now, deadline;
 
-	if( usec <= pp_thresh )
+	if( usec < pp_thresh )
 		return;
 
 	gettimeofday( &deadline, NULL );
@@ -1119,6 +1121,8 @@ sanei_pp_set_datadir( int fd, int rev )
 #if defined(HAVE_LIBIEEE1284)
 	if ((fd < 0) || (fd >= pplist.portc)) {
 #else
+	SANE_Byte tmp;
+
 	if ((fd < 0) || (fd >= NELEMS (port))) {
 #endif
 		DBG( 2, "sanei_pp_setdir: invalid fd %d\n", fd );
@@ -1128,7 +1132,12 @@ sanei_pp_set_datadir( int fd, int rev )
 #if defined(HAVE_LIBIEEE1284)
 	ieee1284_data_dir( pplist.portv[fd], rev );
 #else
-	_VAR_NOT_USED( rev );
+	tmp = inb_ctrl( fd );
+	if( SANEI_PP_DATAIN == rev )
+		tmp |= SANEI_PP_CTRL_DIRECTION;
+	else
+		tmp &= ~SANEI_PP_CTRL_DIRECTION;
+	outb_ctrl( fd, tmp );
 #endif
 
     return SANE_STATUS_GOOD;

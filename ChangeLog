@@ -1,3 +1,8 @@
+2002-02-09  Abel Deuring <a.deuring@satzbau-gmbh.de>:
+	* sanei/sanei_scsi.c: Added checks to the Linux part of
+	  sanei_scsi_open_extended, if an SG device file is being
+	  opened
+
 2002-02-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* po/Makefile.in po/snapscan.de.po backend/snapscan.c:

@@ -49,7 +49,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 9			/* 2002-03-19 */
+#define BUILD 10		/* 2002-03-21 */
 #define BACKEND_NAME sceptre
 #define SCEPTRE_CONFIG_FILE "sceptre.conf"
 
@@ -338,7 +338,13 @@ sceptre_get_status (Sceptre_Scanner * dev, size_t * data_left)
       return (SANE_STATUS_IO_ERROR);
     }
 
-  assert (size == 16);
+  if (size != 16)
+    {
+      DBG (DBG_error,
+	   "sceptre_get_status: invalid data size returned (%ld)\n",
+	   (long) size);
+      return (SANE_STATUS_IO_ERROR);
+    }
 
   hexdump (DBG_info2, "GET BUFFER STATUS result", dev->buffer, 16);
 
@@ -346,12 +352,12 @@ sceptre_get_status (Sceptre_Scanner * dev, size_t * data_left)
    * bytes to read, not just what's in its buffers. */
   *data_left = B32TOI (&dev->buffer[8]);
 
-  assert (dev->params.lines <= B16TOI (&dev->buffer[12]));
-  assert (dev->params.pixels_per_line == B16TOI (&dev->buffer[14]));
-
   if (dev->raster_real == 0)
     {
+      /* First call. Set the correct parameters. */
       dev->raster_real = B16TOI (&dev->buffer[12]) * 3;
+      dev->params.lines = B16TOI (&dev->buffer[12]);
+      dev->params.pixels_per_line = B16TOI (&dev->buffer[14]);
     }
 
   DBG (DBG_proc, "sceptre_get_status: exit, data_left=%ld\n",
@@ -1041,7 +1047,7 @@ sceptre_set_window (Sceptre_Scanner * dev)
   hexdump (DBG_info2, "windows", window, sizeof (window));
 
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
-			    &window, sizeof (window), NULL, NULL);
+			    window, sizeof (window), NULL, NULL);
 
   DBG (DBG_proc, "sceptre_set_window: exit, status=%d\n", status);
 
@@ -1908,14 +1914,17 @@ sane_start (SANE_Handle handle)
 	  sceptre_close (dev);
 	  return status;
 	}
+
+      status = sceptre_get_status (dev, &dev->real_bytes_left);
+      if (status)
+	{
+	  sceptre_close (dev);
+	  return status;
+	}
+
     }
 
   dev->bytes_left = dev->params.bytes_per_line * dev->params.lines;
-  if ((status =
-       sceptre_get_status (dev, &dev->real_bytes_left)) != SANE_STATUS_GOOD)
-    {
-      return (status);
-    }
 
   dev->scanning = SANE_TRUE;
 
@@ -1963,7 +1972,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
 
       /* Something must have been read */
-      assert (dev->image_begin != dev->image_end);
+      if (dev->image_begin == dev->image_end)
+	{
+	  DBG (DBG_info, "sane_read: nothing read\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
 
       /* Copy the data to the frontend buffer. */
       size = max_len - buf_offset;
@@ -1989,14 +2002,31 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  SANE_Status status;
+  Sceptre_Scanner *dev = handle;
+
   DBG (DBG_proc, "sane_set_io_mode: enter\n");
 
   handle = handle;		/* silence gcc */
   non_blocking = non_blocking;	/* silence gcc */
 
+  if (dev->scanning == SANE_FALSE)
+    {
+      return (SANE_STATUS_INVAL);
+    }
+
+  if (non_blocking == SANE_FALSE)
+    {
+      status = SANE_STATUS_GOOD;
+    }
+  else
+    {
+      status = SANE_STATUS_UNSUPPORTED;
+    }
+
   DBG (DBG_proc, "sane_set_io_mode: exit\n");
 
-  return SANE_STATUS_UNSUPPORTED;
+  return status;
 }
 
 SANE_Status

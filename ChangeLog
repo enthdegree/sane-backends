@@ -1,7 +1,10 @@
 2002-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/sane-mustek.man doc/sane-mustek_usb.man doc/descriptions/mustek.desc
-	  doc/descriptions/mustek_usb.desc: Updated links.
+	* doc/sane-mustek.man doc/sane-mustek_usb.man
+	  doc/descriptions/mustek.desc doc/descriptions/mustek_usb.desc:
+	  Updated links.
+	* backend/test.c po/sane-backends.de.po: Minor spelling and translation
+	  fixes.
 	
 2002-12-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -153,14 +153,16 @@ static SANE_Int fixed_constraint_word_list[] = {
 };
 
 static SANE_String_Const string_constraint_string_list[] = {
-  "First entry", "Second entry",
-  "This is the very long third entry. Maybe the frontend has an idea how to "
-    "display it",
+  SANE_I18N ("First entry"), SANE_I18N ("Second entry"),
+  SANE_I18N
+    ("This is the very long third entry. Maybe the frontend has an idea how to "
+     "display it"),
   0
 };
 
 static SANE_String_Const string_constraint_long_string_list[] = {
-  "First entry", "Second entry", "3", "4", "5", "6", "7", "8", "9", "10",
+  SANE_I18N ("First entry"), SANE_I18N ("Second entry"), "3", "4", "5", "6",
+    "7", "8", "9", "10",
   "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22",
   "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
   "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46",
@@ -362,7 +364,7 @@ init_options (Test_Device * test_device)
   /* opt_three_pass_order */
   od = &test_device->opt[opt_three_pass_order];
   od->name = "three-pass-order";
-  od->title = SANE_I18N ("Set the order of frames.");
+  od->title = SANE_I18N ("Set the order of frames");
   od->desc = SANE_I18N ("Set the order of frames in three-pass color mode.");
   od->type = SANE_TYPE_STRING;
   od->unit = SANE_UNIT_NONE;
@@ -428,14 +430,14 @@ init_options (Test_Device * test_device)
     return SANE_STATUS_NO_MEM;
   strcpy (test_device->val[opt_test_picture].s, init_test_picture);
 
-  /* opt_invert_endianess */
+  /* opt_invert_endianness */
   od = &test_device->opt[opt_invert_endianess];
   od->name = "invert-endianess";
-  od->title = SANE_I18N ("Invert endianess");
+  od->title = SANE_I18N ("Invert endianness");
   od->desc = SANE_I18N ("Exchange upper and lower byte of image data in 16 "
 			"bit modes. This option can be used to test the 16 "
 			"bit modes of frontends, e.g. if the frontend uses "
-			"the correct endianess.");
+			"the correct endianness.");
   od->type = SANE_TYPE_BOOL;
   od->unit = SANE_UNIT_NONE;
   od->size = sizeof (SANE_Word);
@@ -1917,10 +1919,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	    }
 	  test_device->val[option].w = *(SANE_Int *) value;
 	  if (test_device->val[option].w == 16)
-	    test_device->opt[opt_invert_endianess].cap &= ~ SANE_CAP_INACTIVE;
+	    test_device->opt[opt_invert_endianess].cap &= ~SANE_CAP_INACTIVE;
 	  else
 	    test_device->opt[opt_invert_endianess].cap |= SANE_CAP_INACTIVE;
-	  
+
 	  myinfo |= SANE_INFO_RELOAD_PARAMS;
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	  DBG (4, "sane_control_option: set option %d (%s) to %d\n",
@@ -2451,7 +2453,7 @@ sane_start (SANE_Handle handle)
       status = reader_process (test_device, pipe_descriptor[1]);
       DBG (2, "(child) sane_start: reader_process waiting ... returned %s\n",
 	   sane_strstatus (status));
-      sleep (1000); /* wait for explicit kill */
+      sleep (1000);		/* wait for explicit kill */
       DBG (2, "(child) sane_start: reader_process timed out\n");
       _exit (status);
     }

@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2002-12-02 21:47+0100\n"
-"PO-Revision-Date: 2002-12-02 19:57CET\n"
+"POT-Creation-Date: 2002-12-05 10:04+0100\n"
+"PO-Revision-Date: 2002-12-05 10:10CET\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -57,7 +57,7 @@ msgstr "Auf Voreinstellungen für Verbesserungen zurücksetzen."
 #: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/mustek.c:4207
 #: .tmp/mustek_usb.c:305 .tmp/plustek.c:834 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:334 .tmp/teco1.c:1088 .tmp/teco2.c:1397
-#: .tmp/teco3.c:923 .tmp/test.c:614 .tmp/umax.c:5105 .tmp/umax_pp.c:397
+#: .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5105 .tmp/umax_pp.c:397
 msgid "Geometry"
 msgstr "Scanbereich"
 
@@ -104,7 +104,7 @@ msgstr ""
 msgid "Selects the number of the frame to scan"
 msgstr ""
 
-#: .tmp/canon630u.c:208 .tmp/umax1220u.c:206
+#: .tmp/canon630u.c:208
 msgid "gray"
 msgstr "Graustufen"
 
@@ -306,7 +306,7 @@ msgstr "maximal"
 #: .tmp/epson.c:2337 .tmp/gt68xx.c:358 .tmp/matsushita.c:1044
 #: .tmp/mustek.c:4070 .tmp/mustek_usb.c:260 .tmp/plustek.c:739
 #: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1369
-#: .tmp/test.c:289 .tmp/umax.c:4983
+#: .tmp/test.c:291 .tmp/umax.c:4983
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
@@ -1423,8 +1423,7 @@ msgid "Set lamp density"
 msgstr "Definiere Lichtwert"
 
 #: .tmp/saneopts.h:177
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+msgid "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Nur-Lese-Option, die angibt, wieviele Optionen ein bestimmtes Gerät "
 "unterstützt."
@@ -1609,8 +1608,7 @@ msgid ""
 msgstr "Legt die Größe der für den Scanvorgang verwendeten Halbtonmatrix fest."
 
 #: .tmp/saneopts.h:299
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Definiert die für den Scanvorgang zu verwendende Halbton-Matrix."
 
 #: .tmp/saneopts.h:303
@@ -1663,18 +1661,15 @@ msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung."
 
 #: .tmp/saneopts.h:329
 msgid "Define exposure-time for red calibration"
-msgstr ""
-"Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
 
 #: .tmp/saneopts.h:331
 msgid "Define exposure-time for green calibration"
-msgstr ""
-"Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
 
 #: .tmp/saneopts.h:333
 msgid "Define exposure-time for blue calibration"
-msgstr ""
-"Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
 
 #: .tmp/saneopts.h:335
 msgid "Define exposure-time for scan"
@@ -1790,10 +1785,8 @@ msgstr "Vordefinierte Einstellungen"
 
 # snapscan.c:566
 #: .tmp/snapscan-options.c:387
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
-msgstr ""
-"Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
+msgstr "Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
 
 # snapscan.c:809
 #: .tmp/snapscan-options.c:630
@@ -1827,11 +1820,27 @@ msgstr "Farbmuster"
 msgid "Grid"
 msgstr "Gitter"
 
-#: .tmp/test.c:331
+#: .tmp/test.c:156 .tmp/test.c:164
+msgid "First entry"
+msgstr "Erster Eintrag"
+
+#: .tmp/test.c:156 .tmp/test.c:164
+msgid "Second entry"
+msgstr "Zweiter Eintrag"
+
+#: .tmp/test.c:158
+msgid ""
+"This is the very long third entry. Maybe the frontend has an idea how to "
+"display it"
+msgstr ""
+"Dies ist der sehr lange dritte Eintrag. Vielleicht weiß das "
+"Frontend, wie man ihn darstellen kann."
+
+#: .tmp/test.c:333
 msgid "Hand-scanner simulation"
 msgstr "Handscanner-Simulation"
 
-#: .tmp/test.c:332
+#: .tmp/test.c:334
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
@@ -1843,34 +1852,33 @@ msgstr ""
 "Mit dieser Option kann man prüfen, ob das Frontend damit richtig umgehen "
 "kann."
 
-#: .tmp/test.c:349
+#: .tmp/test.c:351
 msgid "Three-pass simulation"
 msgstr "Three-Pass-Simulation"
 
-#: .tmp/test.c:350
-msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+#: .tmp/test.c:352
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuliere einen Three-Pass-Scanner. Im Farbmodus werden drei Frames "
 "übertragen."
 
-#: .tmp/test.c:365
-msgid "Set the order of frames."
-msgstr "Legt die Reihenfolge der Frames fest."
+#: .tmp/test.c:367
+msgid "Set the order of frames"
+msgstr "Legt die Reihenfolge der Frames fest"
 
-#: .tmp/test.c:366
+#: .tmp/test.c:368
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Legt die Reihenfolge der Frames im Three-Pass-Modus fest."
 
-#: .tmp/test.c:398
+#: .tmp/test.c:400
 msgid "Special Options"
 msgstr "Spezialoptionen"
 
-#: .tmp/test.c:411
+#: .tmp/test.c:413
 msgid "Select the test picture"
 msgstr "Wählt das Testbild aus."
 
-#: .tmp/test.c:413
+#: .tmp/test.c:415
 msgid ""
 "Select the kind of test picture. Available options:\n"
 "Solid black: fills the whole scan with black.\n"
@@ -1886,65 +1894,64 @@ msgstr ""
 "Gitter: zeichnet ein Schwarz-Weiß-Gitter mit einer Höhe und Breite der "
 "einzelnen Felder von jeweils 10 mm."
 
-#: .tmp/test.c:434
-msgid "Invert endianess"
-msgstr "Kehre Endianess um"
+#: .tmp/test.c:436
+msgid "Invert endianness"
+msgstr "Kehre Endianness um"
 
-#: .tmp/test.c:435
+#: .tmp/test.c:437
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option can "
 "be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
-"correct endianess."
+"correct endianness."
 msgstr ""
 "Tausche das untere und das obere Byte der Bilddaten im 16-Bit-Modus aus. "
 "Diese Option kann dazu benutzt werden, den 16-Bit-Modus der Frontends zu "
 "testen, beispielsweise um festzustellen, ob das Frontend die richtige "
-"Endianess verwendet."
+"Endianness verwendet."
 
-#: .tmp/test.c:451
+#: .tmp/test.c:453
 msgid "Read limit"
 msgstr "Lesebegrenzung"
 
-#: .tmp/test.c:452
+#: .tmp/test.c:454
 msgid "Limit the amount of data tranferred with each call to sane_read()."
 msgstr ""
 "Begrenzt die Menge an Daten, die mit jedem Aufruf von sane_read() übertragen "
 "wird."
 
-#: .tmp/test.c:465
+#: .tmp/test.c:467
 msgid "Size of read-limit"
 msgstr "Größe der Lesebegrenzung"
 
-#: .tmp/test.c:466
+#: .tmp/test.c:468
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "Die (maximale) Menge and Daten, die bei jedem Aufruf von sane_read() "
 "übertragen wird."
 
-#: .tmp/test.c:481
+#: .tmp/test.c:483
 msgid "Read delay"
 msgstr "Leseverzögerung"
 
-#: .tmp/test.c:482
+#: .tmp/test.c:484
 msgid "Delay the transfer of data to the pipe."
 msgstr "Verzögere die Datenübertragung durch die Pipe."
 
-#: .tmp/test.c:494
+#: .tmp/test.c:496
 msgid "Duration of read-delay"
 msgstr "Dauer der Leseverzögerung."
 
-#: .tmp/test.c:495
-msgid ""
-"How long to wait after transferring each buffer of data through the pipe."
+#: .tmp/test.c:497
+msgid "How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Legt fest, wie lange nach der Übertragung eines Datenpuffers durch die Pipe "
 "gewartet wird."
 
-#: .tmp/test.c:510
+#: .tmp/test.c:512
 msgid "Return-value of sane_read"
 msgstr "Rückgabewert von sane_read"
 
-#: .tmp/test.c:512
+#: .tmp/test.c:514
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal handling "
 "for scanning. All other status codes are for testing how the frontend "
@@ -1954,19 +1961,19 @@ msgstr ""
 "Einstellung für's Scannen. Alle anderen Rückgabewerte dienen dazu, das "
 "Verhalten des Frontends festzustellen."
 
-#: .tmp/test.c:529
+#: .tmp/test.c:531
 msgid "Loss of pixels per line"
 msgstr "Pixelverlust pro Zeile"
 
-#: .tmp/test.c:531
+#: .tmp/test.c:533
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Die Anzahl der Pixel, die am Ende der Zeile ungenutzt sind."
 
-#: .tmp/test.c:544
+#: .tmp/test.c:546
 msgid "Fuzzy parameters"
 msgstr "Ungenaue Parameter"
 
-#: .tmp/test.c:545
+#: .tmp/test.c:547
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
 "before sane_start()."
@@ -1974,32 +1981,31 @@ msgstr ""
 "Gebe ungenaue Werte für die Anzahl der Zeilen und die Bytes pro Zeile "
 "zurück, wenn sane_parameters() vor sane_start() aufgerufen wird."
 
-#: .tmp/test.c:558
+#: .tmp/test.c:560
 msgid "Use non-blocking IO"
 msgstr "Nichtblockierendes IO"
 
-#: .tmp/test.c:559
+#: .tmp/test.c:561
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
 "Verwende nichtblockierndes IO für sane_read(), wenn das durch das Frontend "
 "unterstützt wird."
 
-#: .tmp/test.c:572
+#: .tmp/test.c:574
 msgid "Offer select file descriptor"
 msgstr "Biete Select-Dateideskriptor an"
 
-#: .tmp/test.c:573
-msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+#: .tmp/test.c:575
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Biete einen Select-Dateideskriptor an, damit das Frontend erkennen kann, ob "
 "sane_read() Daten zurückliefern würde."
 
-#: .tmp/test.c:586
+#: .tmp/test.c:588
 msgid "Enable test options"
 msgstr "Test-Optionen einschalten"
 
-#: .tmp/test.c:587
+#: .tmp/test.c:589
 msgid ""
 "Enable various test options. This is for testing the ability of frontends to "
 "view and modify all the different SANE option types."
@@ -2008,23 +2014,23 @@ msgstr ""
 "Fähigkeit des Frontends feststellen, die verschiedenen Typen von SANE-"
 "Optionen darzustellen und zu ändern."
 
-#: .tmp/test.c:601
+#: .tmp/test.c:603
 msgid "Print options"
 msgstr "Gebe Optionen aus"
 
-#: .tmp/test.c:602
+#: .tmp/test.c:604
 msgid "Print a list of all options."
 msgstr "Gibt eine Liste aller Optionen aus."
 
-#: .tmp/test.c:679
+#: .tmp/test.c:681
 msgid "Bool test options"
 msgstr "Bool-Testoptionen"
 
-#: .tmp/test.c:692
+#: .tmp/test.c:694
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Bool soft select soft detect"
 
-#: .tmp/test.c:694
+#: .tmp/test.c:696
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and advanced) "
 "capabilities. That's just a normal bool option."
@@ -2033,11 +2039,11 @@ msgstr ""
 "und \"soft detect\" (und \"advanced\") hat. Also eine ganz normale Bool-"
 "Option."
 
-#: .tmp/test.c:710
+#: .tmp/test.c:712
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Bool hard select soft detect"
 
-#: .tmp/test.c:712
+#: .tmp/test.c:714
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and advanced) "
 "capabilities. That means the option can't be set by the frontend but by the "
@@ -2048,11 +2054,11 @@ msgstr ""
 "nicht vom Frontend geändert werden kann, sondern vom Benutzer (z. B. indem "
 "er einen Knopf am Gerät drückt)."
 
-#: .tmp/test.c:729
+#: .tmp/test.c:731
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
-#: .tmp/test.c:730
+#: .tmp/test.c:732
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
 "That means the option can't be set by the frontend but by the user (e.g. by "
@@ -2063,11 +2069,11 @@ msgstr ""
 "geändert werden kann, sondern vom Benutzer (z. B. indem er einen Knopf am "
 "Gerät drückt). Außerdem kann sie nicht vom Frontend gelesen werden."
 
-#: .tmp/test.c:748
+#: .tmp/test.c:750
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
-#: .tmp/test.c:749
+#: .tmp/test.c:751
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
@@ -2075,11 +2081,11 @@ msgstr ""
 "(4/6) Die ist eine Bool-Testoption, welche die Fähigkeiten \"soft detect"
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
-#: .tmp/test.c:765
+#: .tmp/test.c:767
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
-#: .tmp/test.c:766
+#: .tmp/test.c:768
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
 "advanced) capabilities. "
@@ -2087,11 +2093,11 @@ msgstr ""
 "(5/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select\", "
 "\"soft detect\", und \"emulated\" (und \"advanced\") hat. "
 
-#: .tmp/test.c:782
+#: .tmp/test.c:784
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
-#: .tmp/test.c:783
+#: .tmp/test.c:785
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic (and "
 "advanced) capabilities. This option can be automatically set by the backend."
@@ -2100,23 +2106,23 @@ msgstr ""
 "\"soft detect\",  und \"automatic\" (und \"advanced\") hat. Diese Option "
 "kann vom Backend automatisch gesetzt werden."
 
-#: .tmp/test.c:800
+#: .tmp/test.c:802
 msgid "Int test options"
 msgstr "Int-Testoptionen"
 
-#: .tmp/test.c:813
+#: .tmp/test.c:815
 msgid "(1/6) Int"
 msgstr "(1/6) Int"
 
-#: .tmp/test.c:814
+#: .tmp/test.c:816
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Int-Testoption ohne Einheit und Beschränkung."
 
-#: .tmp/test.c:829
+#: .tmp/test.c:831
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Int constraint range"
 
-#: .tmp/test.c:830
+#: .tmp/test.c:832
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum is "
 "4, maximum 192, and quant is 2."
@@ -2125,31 +2131,29 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: .tmp/test.c:846
+#: .tmp/test.c:848
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int constraint word list"
 
-#: .tmp/test.c:847
+#: .tmp/test.c:849
 msgid "(3/6) Int test option with unit bits and constraint word list set. "
 msgstr ""
 "(3/6) Int-Testoption mit der Einheit \"Bits\" und einer Wortlisten-"
 "Beschränkung."
 
-#: .tmp/test.c:862
+#: .tmp/test.c:864
 msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
-#: .tmp/test.c:863
-msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
-msgstr ""
-"(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
+#: .tmp/test.c:865
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
+msgstr "(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
 
-#: .tmp/test.c:878
+#: .tmp/test.c:880
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int array constraint range"
 
-#: .tmp/test.c:879
+#: .tmp/test.c:881
 msgid ""
 "(5/6) Int test option with unit mm and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
@@ -2158,11 +2162,11 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: .tmp/test.c:896
+#: .tmp/test.c:898
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array constraint word list"
 
-#: .tmp/test.c:897
+#: .tmp/test.c:899
 msgid ""
 "(6/6) Int test option with unit percent and using an array a word list "
 "constraint."
@@ -2170,23 +2174,23 @@ msgstr ""
 "(6/6) Int-Testoption mit der Einheit \"Prozent\" und einem Feld mit einer "
 "Wort-Beschränkung."
 
-#: .tmp/test.c:913
+#: .tmp/test.c:915
 msgid "Fixed test options"
 msgstr "Fixed-Testoptionen"
 
-#: .tmp/test.c:926
+#: .tmp/test.c:928
 msgid "(1/3) Fixed"
 msgstr "(1/3) Fixed"
 
-#: .tmp/test.c:927
+#: .tmp/test.c:929
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Fixed-Testoption ohne Einheit und ohne Beschränkung."
 
-#: .tmp/test.c:942
+#: .tmp/test.c:944
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Fixed constraint range"
 
-#: .tmp/test.c:943
+#: .tmp/test.c:945
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
@@ -2195,40 +2199,39 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist -42.17, das Maximum 32767.9999, und "
 "die Schrittweite ist 2.0."
 
-#: .tmp/test.c:959
+#: .tmp/test.c:961
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Fixed constraint word list"
 
-#: .tmp/test.c:960
+#: .tmp/test.c:962
 msgid "(3/3) Fixed test option with no unit and constraint word list set. "
-msgstr ""
-"(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
+msgstr "(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
 
-#: .tmp/test.c:975
+#: .tmp/test.c:977
 msgid "String test options"
 msgstr "String-Testoptionen"
 
-#: .tmp/test.c:988
+#: .tmp/test.c:990
 msgid "(1/3) String"
 msgstr "(1/3) String"
 
-#: .tmp/test.c:989
+#: .tmp/test.c:991
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) String-Testoption ohne Beschränkung."
 
-#: .tmp/test.c:1006
+#: .tmp/test.c:1008
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) String constraint string list"
 
-#: .tmp/test.c:1007
+#: .tmp/test.c:1009
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) String-Testoption mit einer Stringlisten-Beschränkung."
 
-#: .tmp/test.c:1026
+#: .tmp/test.c:1028
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) String constraint long string list"
 
-#: .tmp/test.c:1027
+#: .tmp/test.c:1029
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
@@ -2236,23 +2239,17 @@ msgstr ""
 "(3/3) String-Testoption mit einer Stringlisten-Beschränkung. Enthält ein "
 "paar mehr Einträge..."
 
-#: .tmp/test.c:1047
+#: .tmp/test.c:1049
 msgid "Button test options"
 msgstr "Button-Testoptionen"
 
-#: .tmp/test.c:1060
+#: .tmp/test.c:1062
 msgid "(1/1) Button"
 msgstr "(1/1) Button"
 
-#: .tmp/test.c:1061
+#: .tmp/test.c:1063
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Button-Testoption. Gibt etwas Text aus..."
-
-# Do not mark option names with SANE_I18N()!
-#: .tmp/umax1220u.c:246
-#, fuzzy
-msgid "lamp-off"
-msgstr "Lampe aus"
 
 #: .tmp/umax1220u.c:247 .tmp/umax.c:5741
 msgid "Lamp off"
@@ -2431,10 +2428,3 @@ msgstr "Setzt die Grünkanalbelichtung"
 msgid "Sets blue channel highlight"
 msgstr "Setzt die Blaukanalbelichtung"
 
-#~ msgid "lamp-control"
-#~ msgstr "Lampenkontrolle"
-
-# Do not mark option names with SANE_I18N()!
-#, fuzzy
-#~ msgid "UTA-control"
-#~ msgstr "Lampenkontrolle"

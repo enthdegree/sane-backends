@@ -1,3 +1,7 @@
+2003-01-23  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added Perfection 3200/GT-9800
+
 2003-01-23  Andras Major <andras@users.sourceforge.net>
 
 	* backend/coolscan2.c: hack for IR readout with LS-4000.

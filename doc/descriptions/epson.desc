@@ -124,6 +124,11 @@
 :interface "USB IEEE-1394"
 :status :stable
 
+:model "Perfection 3200"
+:comment "US version of the GT-9800"
+:interface "USB"
+:status :stable
+
 :model "Expression 636"
 :comment "US version of GT-9500"
 :interface "SCSI"

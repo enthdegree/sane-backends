@@ -2,6 +2,8 @@
 
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Fixed shutting off
 	  the lamp for the Paragon 1200 A3 Pro.
+	* doc/descriptions/mustek.desc: Updated version number and A3 Pro
+	  information.
 
 2002-10-10  Petter Reinholdtsen <pere@td.org.uit.no>
 

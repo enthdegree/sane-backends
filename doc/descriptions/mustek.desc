@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-127"		; version of backend
+:version "1.0-128"		; version of backend
 :status :stable			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/"
@@ -107,8 +107,7 @@
 
 :model "Paragon 1200 A3 Pro"
 :interface "SCSI"
-:comment "Please test!"
-:status :beta
+:status :stable
 
 :model "Paragon 600 II N"
 :interface "Proprietary"

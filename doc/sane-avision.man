@@ -1,12 +1,51 @@
-.TH sane-avision 5 "24 Jun 2000"
+.TH sane-avision 5 "10 Dec 2001"
 .IX sane-avision
+
 .SH NAME
-sane-avision - SANE backend for Avision AV 630 CS flatbed scanners
+sane-avision - SANE backend for Avision (and OEM HP, Minolta) flatbed scanners
+
+.SH ABOUT THIS FILE
+
+This file only is a short descripton of the avision-backend for sane!
+
 .SH DESCRIPTION
 The
 .B sane-avision
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Avision AV 630 CS flatbed scanners.
+provides access to Avision flatbed scanners and the Avision
+OEM scanners labelled with HP and Minolta.
+
+.SH CONFIGURATION
+
+The configuration file for this backend resides in 
+	@CONFIGDIR@/avision.conf. 
+
+Its contents is a list of device names that correspond to Avision and Avision
+compatible scanners. Empty lines and lines starting with a hash mark (#) are
+ignored. A sample configuration file is shown below: 
+
+.B I suggest you hold one hand on the power-button of the scanner while you try
+the first scans!
+
+ #scsi Vendor Model Type Bus Channel ID LUN 
+ scsi AVISION
+ /dev/scanner
+
+ # this is a comment
+ #
+ option force-a4
+ option allow-usb
+ 
+ - force-a4:
+   forces the backend to overwrite the scanable area
+   returned by the scanner. This might be needed for
+   the AV 630 which returns no area - or newer scanners
+   which retuns the area in a unkown format our backend
+   doesn't recongize yet.
+ 
+ - allow-usb:
+   tells the backend to use USB scanner - which do not
+   work correctly yet.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -41,6 +80,7 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-avision.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR
@@ -68,6 +108,7 @@ export SANE_DEBUG_AVISION=4
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5)
 .br
-http://www.rene.rebe.myokay.net/avision/index.html
+http://drocklinux.dyndns.org/rene/avision/index.html
+
 .SH AUTHOR
-Meino Christian Cramer, Rene Rebe
+René Rebe, Meino Christian Cramer and Martin Jelínek

@@ -3,8 +3,6 @@
 
    avision.h 
 
-   This file (C) 1999, 2000  Meino Christian Cramer and Rene Rebe
-
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -41,21 +39,35 @@
 
    *****************************************************************************
 
-   This file implements a SANE backend for the Avision AV 630CS (and other ...)
-   scanner with SCSI-2 command set.
-
-   (feedback to:  mccramer@s.netic.de and rene.rebe@myokay.net)
-
+   This backend is based upon the Tamarack backend and adapted to the Avision
+   scanners by René Rebe and Meino Cramer.
+   
+   Copyright 1999, 2000, 2001, 2002 by
+                "René Rebe" <rene.rebe@gmx.net>
+                "Meino Christian Cramer" <mccramer@s.netic.de>
+                "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
+   
+   Additional Contributers:
+                "Gunter Wagner"
+                  (some fixes and the transparency option)
+   
    Very much thanks to:
-     Avision INC for the documentation we got! ;-)
-     Gunter Wagner for some fixes and the transparency option.
-
-   *****************************************************************************/
+                Avision INC for the documentation we got! ;-)
+   
+   Check the avision.c file for a ChangeLog ...
+   
+********************************************************************************/
 
 #ifndef avision_h
 #define avision_h
 
 #include <sys/types.h>
+
+typedef struct Avision_HWEntry {
+  char* mfg;
+  char* model;
+  SANE_Bool usb;
+} Avision_HWEntry;
 
 enum Avision_Option
 {
@@ -92,15 +104,14 @@ enum Avision_Option
   NUM_OPTIONS            /* must come last */
 };
 
-
-typedef union
+typedef union Option_Value
 {
   SANE_Word w;
   SANE_Word *wa;	 /* word array */
   SANE_String s;
 } Option_Value;
 
-typedef struct
+typedef struct Avision_Dimensions
 {
   long tlx;
   long tly;
@@ -115,42 +126,70 @@ typedef struct
   int res;
 } Avision_Dimensions;
 
-typedef struct
+/* this contains our low-level info - not relevant for the SANE interface  */
+typedef struct Avision_Device
 {
   struct Avision_Device* next;
   SANE_Device sane;
+  
+  /* structs used to store config options */
   SANE_Range dpi_range;
   SANE_Range x_range;
   SANE_Range y_range;
   SANE_Range speed_range;
-  unsigned flags;
+  
+  SANE_Bool is_usb;
+  
+  SANE_Bool inquiry_new_protocol;
+  SANE_Bool inquiry_needs_calibration;
+  SANE_Bool inquiry_needs_gamma;
+  SANE_Bool inquiry_needs_software_colorpack;
+  
+  int    inquiry_grey_res;        /* in dpi */
+  int    inquiry_color_res;       /* in dpi */
+  
+  double inquiry_x_range;         /* in mm */
+  double inquiry_y_range;         /* in mm */
+  
+  double inquiry_adf_x_range;     /* in mm */
+  double inquiry_adf_y_range;     /* in mm */
+  
+  double inquiry_transp_x_range;  /* in mm */
+  double inquiry_transp_y_range;  /* in mm */
+  
+  int    inquiry_color_boundary;
+  int    inquiry_grey_boundary;
+  int    inquiry_line_difference; /* software color pack */
+  
+  int    inquiry_bits_per_channel;
+  
 } Avision_Device;
 
-typedef struct
+/* all the state relevant for the SANE interface */
+typedef struct Avision_Scanner
 {
-  /* all the state needed to define a scan request: */
   struct Avision_Scanner *next;
+  Avision_Device *hw;
   
   SANE_Option_Descriptor opt [NUM_OPTIONS];
   Option_Value val [NUM_OPTIONS];
   SANE_Int gamma_table [4][256];
   
-  int scanning;
-  int pass;			/* pass number */
+  SANE_Bool scanning;           /* scan in progress */
+  /*int pass;*/			/* pass number */ 
   int line;			/* current line number */
+  
   SANE_Parameters params;
   
   /* Parsed option values and variables that are valid only during
      actual scanning: */
   int mode;
-  Avision_Dimensions avdimen;  /* Used for internal calculationg */
+  Avision_Dimensions avdimen;   /* Used for internal calculationg */
   
   int fd;			/* SCSI filedescriptor */
   pid_t reader_pid;		/* process id of reader */
   int pipe;			/* pipe to reader process */
   
-  /* scanner dependent/low-level state: */
-  Avision_Device *hw;
 } Avision_Scanner;
 
 #define AV_ADF_ON     0x80
@@ -286,9 +325,9 @@ struct command_read
   unsigned char opc;
   unsigned char bitset1;
   unsigned char datatypecode;
-  unsigned char calibchn;  
+  unsigned char calibchn;
   unsigned char datatypequal [2];
-  unsigned char transferlen [3];     
+  unsigned char transferlen [3];
   unsigned char control;
 };
 
@@ -307,10 +346,9 @@ struct command_send
   unsigned char datatypecode;
   unsigned char reserved0;  
   unsigned char datatypequal [2];
-  unsigned char transferlen [3];     
+  unsigned char transferlen [3];
   unsigned char reserved1;
 };
-
 
 struct command_set_window_window_header
 {
@@ -372,7 +410,6 @@ struct avision_page
   char pad0;
 };
 
-
 /* set SCSI highended variables. Declare them as an array of chars */
 /* endianness-safe, int-size safe... */
 #define set_double(var,val) var[0] = ((val) >> 8) & 0xff;  \
@@ -386,5 +423,7 @@ struct avision_page
                             var[1] = ((val) >> 16) & 0xff; \
                             var[2] = ((val) >> 8 ) & 0xff; \
                             var[3] = ((val)      ) & 0xff;
+
+#define BIT(n, p) ((n & ( 1 << p))?1:0)
 
 #endif /* avision_h */

@@ -8,6 +8,9 @@
 	  backend/dll.conf: teco3 integration
 	* sane-backends/Makefile.in: added an etags rule to create an
 	  emacs tag file
+	* doc/backend-writing.txt: Enlarged the "SUBMITTING A NEW BACKEND"
+	  section.
+
 
 2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
 

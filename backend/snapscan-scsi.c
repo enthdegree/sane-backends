@@ -78,11 +78,13 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
         pss->asi1 = result[18];
         pss->asi2 = result[19];
     }
-
     if ((result[0] & 0x80) == 0)
     {
         DBG (DL_DATA_TRACE, "%s: sense key is invalid.\n", me);
         return SANE_STATUS_GOOD;    /* sense key invalid */
+    } else {
+        DBG (DL_DATA_TRACE, "%s: sense key: 0x%02x, asc: 0x%02x, ascq: 0x%02x, i1: 0x%02x, i2: 0x%02x\n",
+        me, sense, asc, ascq, result[18], result[19]);
     }
 
     switch (sense)
@@ -90,49 +92,61 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
     case 0x00:
         /* no sense */
         sense_str = "No sense.";
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
         break;
     case 0x02:
         /* not ready */
         sense_str = "Not ready.";
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
         if (asc == 0x04  &&  ascq == 0x01)
         {
             /* warming up; byte 18 contains remaining seconds */
             as_str = "Logical unit is in process of becoming ready.";
+            DBG (DL_MINOR_INFO, "%s: %s (%d seconds)\n", me, as_str, result[18]);
             status = SANE_STATUS_DEVICE_BUSY;
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
         }
         break;
     case 0x04:
         /* hardware error */
         sense_str = "Hardware error.";
         /* byte 18 and 19 detail the hardware problems */
+        DBG (DL_MINOR_INFO, "%s: %s (0x%02x, 0x%02x)\n", me, sense_str, result[18],
+            result[19]);
         status = SANE_STATUS_IO_ERROR;
         break;
     case 0x05:
         /* illegal request */
         sense_str = "Illegal request.";
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
         if (asc == 0x25 && ascq == 0x00)
             as_str = "Logical unit not supported.";
+            DBG (DL_MINOR_INFO, "%s: %s\n", me, as_str);
         status = SANE_STATUS_IO_ERROR;
         break;
     case 0x09:
         /* process error */
         sense_str = "Process error.";
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
         if (asc == 0x00 && ascq == 0x05)
         {
             /* no documents in ADF */
             as_str = "End of data detected.";
+            DBG (DL_MINOR_INFO, "%s: %s\n", me, as_str);
             status = SANE_STATUS_NO_DOCS;
         }
         else if (asc == 0x3b && ascq == 0x05)
         {
             /* paper jam in ADF */
             as_str = "Paper jam.";
+            DBG (DL_MINOR_INFO, "%s: %s\n", me, as_str);
             status = SANE_STATUS_JAMMED;
         }
         else if (asc == 0x3b && ascq == 0x09)
         {
             /* scanning area exceeds end of paper in ADF */
             as_str = "Read past end of medium.";
+            DBG (DL_MINOR_INFO, "%s: %s\n", me, as_str);
             status = SANE_STATUS_EOF;
         }
         break;
@@ -163,7 +177,8 @@ static SANE_Status open_scanner (SnapScan_Scanner *pss)
         }
         else
         {
-            status = snapscani_usb_open (pss->devname, &(pss->fd));
+            status = snapscani_usb_open (pss->devname, &(pss->fd),
+                sense_handler, (void *) pss);
         }
     }
     else
@@ -435,17 +450,20 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     default:
     {
         signed char min_diff;
+        u_char r_off, g_off, b_off;
         signed char g = (pss->buf[INQUIRY_G2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_G2R_DIFF] & 0x7F) : pss->buf[INQUIRY_G2R_DIFF];
         signed char b = (pss->buf[INQUIRY_B2R_DIFF] & 0x80) ? -(pss->buf[INQUIRY_B2R_DIFF] & 0x7F) : pss->buf[INQUIRY_B2R_DIFF];
         DBG (DL_DATA_TRACE, "%s: G2R_DIFF: %d\n", me, pss->buf[INQUIRY_G2R_DIFF]);
         DBG (DL_DATA_TRACE, "%s: B2R_DIFF: %d\n", me, pss->buf[INQUIRY_B2R_DIFF]);
 
         min_diff = MIN (MIN (b, g), 0);
-
-        pss->chroma_offset[R_CHAN] = (u_char) (0 - min_diff);
-        pss->chroma_offset[G_CHAN] = (u_char) (g - min_diff);
-        pss->chroma_offset[B_CHAN] = (u_char) (b - min_diff);
-        pss->chroma = abs(min_diff);
+        r_off = (u_char) (0 - min_diff);
+        g_off = (u_char) (g - min_diff);
+        b_off = (u_char) (b - min_diff);
+        pss->chroma_offset[R_CHAN] = r_off;
+        pss->chroma_offset[G_CHAN] = g_off;
+        pss->chroma_offset[B_CHAN] = b_off;
+        pss->chroma = MAX(MAX(r_off, g_off), b_off);
         DBG (DL_DATA_TRACE,
             "%s: Chroma offsets=%d; Red=%u, Green:=%u, Blue=%u\n",
             me, pss->chroma,
@@ -799,19 +817,21 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        &&
        pss->pdev->model != VUEGO310S
        &&
-       pss->pdev->model != VUEGO610S)
-      {
-    pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
-    pc[SET_WINDOW_P_GAMMA_NO] = 0x01;        /* downloaded table */
-      }
-    if (pss->preview) {
-        source = 0x20 + 0x40;
-
-    } else {
-    source = 0x20 + 0x80;
+       pss->pdev->model != VUEGO610S
+    ) {
+        pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
+        pc[SET_WINDOW_P_GAMMA_NO] = 0x01;        /* downloaded table */
     }
-    if (pss->source == SRC_TPO)
-    source |= 0x08;
+    source = 0x20;
+    if (pss->preview) {
+        source |= 0x80; /* no high quality */
+    } else {
+        source |= 0x40; /* no preview */
+    }
+
+    if (pss->source == SRC_TPO) {
+        source |= 0x08;
+    }
     pc[SET_WINDOW_P_OPERATION_MODE] = source;
     DBG (DL_DATA_TRACE, "%s: operation mode set to %d\n", me, (int) source);
     pc[SET_WINDOW_P_RED_UNDER_COLOR] = 0xff;    /* defaults */
@@ -918,33 +938,29 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
     for (retries = 5; retries; retries--)
     {
         status = test_unit_ready (pss);
-        if (status == SANE_STATUS_GOOD)
+        switch (status)
         {
-            status = request_sense (pss);
-            switch (status)
+        case SANE_STATUS_GOOD:
+            return status;
+        case SANE_STATUS_DEVICE_BUSY:
+            /* first additional sense byte contains time to wait */
             {
-            case SANE_STATUS_GOOD:
-                return status;
-            case SANE_STATUS_DEVICE_BUSY:
-                /* first additional sense byte contains time to wait */
-                {
-                    int delay = pss->asi1 + 1;
-                    DBG (DL_INFO,
-                        "%s: scanner warming up. Waiting %ld seconds.\n",
-                         me, (long) delay);
-                    sleep (delay);
-                }
-                break;
-            case SANE_STATUS_IO_ERROR:
-                /* hardware error; bail */
-                DBG (DL_MAJOR_ERROR, "%s: hardware error detected.\n", me);
-                return status;
-            default:
-                DBG (DL_MAJOR_ERROR,
-                     "%s: unhandled request_sense result; trying again.\n",
-                     me);
-                break;
+                int delay = pss->asi1 + 1;
+                DBG (DL_INFO,
+                    "%s: scanner warming up. Waiting %ld seconds.\n",
+                    me, (long) delay);
+                sleep (delay);
             }
+            break;
+        case SANE_STATUS_IO_ERROR:
+            /* hardware error; bail */
+            DBG (DL_MAJOR_ERROR, "%s: hardware error detected.\n", me);
+            return status;
+        default:
+            DBG (DL_MAJOR_ERROR,
+                "%s: unhandled request_sense result; trying again.\n",
+                me);
+            break;
         }
     }
 
@@ -1159,11 +1175,28 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.8  2001/10/22 22:14:20  oliverschwartz
- * Limit number of scan lines for quality calibration to fit in SCSI buffer (thanks to Mikko Työläjärvi)
+ * Revision 1.9  2001/12/17 22:51:49  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
  *
- * Revision 1.7  2001/10/12 21:19:13  oliverschwartz
- * update to snapscan-20011012
+ * Revision 1.25  2001/12/12 19:44:59  oliverschwartz
+ * Clean up CVS log
+ *
+ * Revision 1.24  2001/12/09 23:01:00  oliverschwartz
+ * - use sense handler for USB
+ * - fix scan mode
+ *
+ * Revision 1.23  2001/12/08 11:53:31  oliverschwartz
+ * - Additional logging in sense handler
+ * - Fix wait_scanner_ready() if device reports busy
+ * - Fix scanning mode (preview/normal)
+ *
+ * Revision 1.22  2001/11/27 23:16:17  oliverschwartz
+ * - Fix color alignment for SnapScan 600
+ * - Added documentation in snapscan-sources.c
+ * - Guard against TL_X < BR_X and TL_Y < BR_Y
+ *
+ * Revision 1.21  2001/10/21 08:49:37  oliverschwartz
+ * correct number of scan lines for calibration thanks to Mikko Työläjärvi
  *
  * Revision 1.20  2001/10/12 20:54:04  oliverschwartz
  * enable gamma correction for Snapscan 1236, e20 and e50 scanners
@@ -1205,15 +1238,6 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * Applying Mikael Magnusson patch concerning Gamma correction
  * Support for 1212U_2
  *
- * Revision 1.3  2001/03/04 16:37:57  mikael
- * Remove brightness and contrast settings in window.
- *
- * Revision 1.2  2001/02/16 18:32:28  mikael
- * impl calibration, signed position, increased buffer size
- *
- * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
- * Imported from snapscan-11282000.tar.gz
- *
  * Revision 1.9  2000/11/10 01:01:59  sable
  * USB (kind of) autodetection
  *
@@ -1239,19 +1263,4 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
  * Updating to source from SANE 1.0.3.  Calling this versin 1.1
  *
- * Revision 1.3  2000/08/12 15:09:34  pere
- * Merge devel (v1.0.3) into head branch.
- *
- * Revision 1.1.2.3  2000/07/17 21:37:27  hmg
- * 2000-07-17  Henning Meier-Geinitz <hmg@gmx.de>
- *
- *     * backend/snapscan.c backend/snapscan-scsi.c: Replace C++ comment
- *       with C comment.
- *
- * Revision 1.1.2.2  2000/07/13 04:47:44  pere
- * New snapscan backend version dated 20000514 from Steve Underwood.
- *
- * Revision 1.2.1  2000/05/14 13:30:20  coppice
- * Added history log to pre-existing code. Some reformatting and minor
- * tidying.
  * */

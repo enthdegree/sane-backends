@@ -84,6 +84,7 @@ typedef enum
     SNAPSCAN1212U,
     SNAPSCANE20,        /* SnapScan e20/e25, 600 DPI */
     SNAPSCANE50,        /* SnapScan e40/e50, 1200 DPI */
+    SNAPSCANE52,        /* SnapScan e52, 1200 DPI, no quality calibration */
     ACER300F,
     VUEGO310S,          /* Vuego-Version of SnapScan 310 WG changed */
     VUEGO610S,          /* Vuego 610S and 610plus SJU changed */
@@ -120,8 +121,11 @@ static struct SnapScan_Model_desc scanners[] =
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
     {"SNAPSCAN e20",        SNAPSCANE20},
     {"SNAPSCAN e25",        SNAPSCANE20},
+    {"SNAPSCAN e26",        SNAPSCANE20},
+    {"SNAPSCAN e26    ",        SNAPSCANE20},
     {"SNAPSCAN e40",        SNAPSCANE50},
     {"SNAPSCAN e50",        SNAPSCANE50},
+    {"SNAPSCAN e52",        SNAPSCANE52},
     {"SNAPSCAN 1236",       SNAPSCAN1236},
     {"SNAPSCAN 1236U",      SNAPSCAN1236},
     {"SNAPSCAN 300",        SNAPSCAN300},
@@ -321,11 +325,25 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.7  2001/10/27 09:08:17  oliverschwartz
- * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ * Revision 1.8  2001/12/17 22:51:52  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
  *
- * Revision 1.6  2001/10/12 21:19:16  oliverschwartz
- * update to snapscan-20011012
+ * Revision 1.24  2001/12/12 19:44:59  oliverschwartz
+ * Clean up CVS log
+ *
+ * Revision 1.23  2001/11/25 18:51:41  oliverschwartz
+ * added support for SnapScan e52 thanks to Rui Lopes
+ *
+ * Revision 1.22  2001/11/16 20:56:47  oliverschwartz
+ * additional identification string for e26 added
+ *
+ * Revision 1.21  2001/11/16 20:28:35  oliverschwartz
+ * add support for Snapscan e26
+ *
+ * Revision 1.20  2001/11/16 20:23:16  oliverschwartz
+ * Merge with sane-1.0.6
+ *   - Check USB vendor IDs to avoid hanging scanners
+ *   - fix bug in dither matrix computation
  *
  * Revision 1.19  2001/10/11 14:02:10  oliverschwartz
  * Distinguish between e20/e25 and e40/e50
@@ -368,15 +386,6 @@ struct snapscan_scanner
  * Revision 1.9  2001/03/17 22:53:21  sable
  * Applying Mikael Magnusson patch concerning Gamma correction
  * Support for 1212U_2
- *
- * Revision 1.3  2001/03/04 16:51:29  mikael
- * Added Scan Mode, Geometry, Enhancement and Advanced groups. Added Quality Calibration, Analog Gamma Bind, Custom Gamma and Gamma Vector GS,R,G,B options. Added SNAPSCAN 1212U_2.
- *
- * Revision 1.2  2001/02/16 18:32:28  mikael
- * impl calibration, signed position, increased buffer size
- *
- * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
- * Imported from snapscan-11282000.tar.gz
  *
  * Revision 1.8  2000/11/10 01:01:59  sable
  * USB (kind of) autodetection

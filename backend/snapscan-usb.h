@@ -30,9 +30,12 @@
 #ifndef snapscan_usb_h
 #define snapscan_usb_h
 
+typedef SANE_Status (*sense_handler_type)(int fd, u_char *sense_buffer, void *arg);
+
 static SANE_Status snapscani_usb_cmd(int fd, const void *src, size_t src_size,
                          void *dst, size_t * dst_size);
-static SANE_Status snapscani_usb_open(const char *dev, int *fdp);
+static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
+    sense_handler_type, void*);
 static void snapscani_usb_close(int fd);
 
 /*
@@ -82,11 +85,16 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
 /*
  * $Log$
- * Revision 1.3  2001/10/27 09:08:14  oliverschwartz
- * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ * Revision 1.4  2001/12/17 22:51:50  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
  *
- * Revision 1.2  2001/10/09 09:45:15  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.10  2001/12/09 23:06:45  oliverschwartz
+ * - use sense handler for USB if scanner reports CHECK_CONDITION
+ *
+ * Revision 1.9  2001/11/16 20:23:16  oliverschwartz
+ * Merge with sane-1.0.6
+ *   - Check USB vendor IDs to avoid hanging scanners
+ *   - fix bug in dither matrix computation
  *
  * Revision 1.8  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload

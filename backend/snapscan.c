@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                0
+#define BUILD                3
 
 #include "snapscan.h"
 
@@ -396,6 +396,7 @@ static void init_options (SnapScan_Scanner * ps)
         po[OPT_SCANRES].constraint.word_list = resolutions_300;
         break;
     case SNAPSCANE50:
+    case SNAPSCANE52:
     case PRISA5300:
     case PRISA1240:
         po[OPT_SCANRES].constraint.word_list = resolutions_1200;
@@ -589,8 +590,11 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
     po[OPT_QUALITY_CAL].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     ps->val[OPT_QUALITY_CAL].b = DEFAULT_QUALITY;
-    /* Disable quality calibration option if not supported */
-    if (!(ps->hconfig & HCFG_CAL_ALLOWED)) {
+    /* Disable quality calibration option if not supported
+       Note: Snapscan e52 does not support quality calibration,
+       although HCFG_CAL_ALLOWED is set. */
+    if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
+        || (ps->pdev->model == SNAPSCANE52)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
     }
@@ -917,57 +921,26 @@ static void gamma_to_sane (int length, u_char *in, SANE_Int *out)
 }
 
 /* dispersed-dot dither matrices; this is discussed in Foley, Van Dam,
-   Feiner and Hughes, 2nd ed., pp 570-571.
- 
+   Feiner and Hughes: Computer Graphics: principles and practice,
+   2nd ed. (Addison-Wesley), pp 570-571.
+
    The function mfDn computes the nth dispersed-dot dither matrix Dn
    given D(n/2) and n; n is presumed to be a power of 2. D8 and D16
    are the matrices of interest to us, since the SnapScan supports
    only 8x8 and 16x16 dither matrices. */
 
-static u_char D2[] =
-{
-    0, 2, 3, 1
-};
+static u_char D2[] ={0, 2, 3, 1};
 
 static u_char D4[16], D8[64], D16[256];
 
-static void mkDn (u_char *Dn, u_char *Dn2, unsigned n)
+static void mkDn (u_char *Dn, u_char *Dn_half, unsigned n)
 {
-    static u_char tmp[256];
-    unsigned n2 = n/2;
-    unsigned nsq = n*n;
-    unsigned i;
-    unsigned r;
-    unsigned imin;
-    unsigned f;
-
-    /* compute 4*D(n/2) */
-    /* Oliver Schwartz, 27 Oct. 2001: Changed code from
-          tmp[i] = (u_char) (4 * Dn2[i]);
-       to
-          tmp[i] = (u_char) (4 * Dn2[i/4]);
-       to avoid illegal indices in Dn2. Don't know if this
-       is the desired algorithm.
-    */
-    for (i = 0;  i < nsq;  i++)
-        tmp[i] = (u_char) (4 * Dn2[i/4]);
-
-    /* now the dither matrix */
-    for (r = 0, imin = 0, f = 0;  r < 2;  r++, imin += n2)
-    {
-        unsigned c;
-        unsigned jmin;
-        for (c = 0, jmin = 0;  c < 2;  c++, jmin += n2, f++)
-        {
-            unsigned i;
-            unsigned i2;
-            unsigned j;
-            unsigned j2;
-            for (i = imin, i2 = 0;  i < imin + n2;  i++, i2++)
-            {
-                for (j = jmin, j2 = 0;  j < jmin + n2;  j++, j2++)
-                    Dn[i * n + j] = (u_char) (tmp[i2 * n2 + j2] + D2[f]);
-            }
+    unsigned int x, y;
+    for (y = 0; y < n; y++) {
+        for (x = 0; x < n; x++) {
+            /* Dn(x,y) = D2(2*x/n, 2*y/n) +4*Dn_half(x%(n/2), y%(n/2)) */
+            Dn[y*n + x] = D2[((int)(2*y/n))*2 + (int)(2*x/n)]
+                          + 4*Dn_half[(y%(n/2))*(n/2) + x%(n/2)];
         }
     }
 }
@@ -1026,7 +999,7 @@ static SANE_Status add_device (SANE_String_Const name)
             name += 3;
             name = sanei_config_skip_whitespace(name);
         }
-        status = snapscani_usb_open (name, &fd);
+        status = snapscani_usb_open (name, &fd, sense_handler, NULL);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
@@ -1129,9 +1102,11 @@ static SANE_Status add_device (SANE_String_Const name)
              me,
              vendor,
              model,
-             "AGFA SnapScan 300, 310, 600 or 1236, "
-             "Acer VUEGO 300, 310S, 610S, or 610plus, "
-             "Acer PRISA 620, 640, 1240, 3300, 4300 or 5300");
+             "AGFA SnapScan 300, 310, 600, 1212, 1236, e20, e25, e26, "
+             "e40, e50, e52 or e60\n"
+             "Acer 300, 310, 610, 610+, "
+             "620, 620+, 640, 1240, 3300, 4300 or 5300\n"
+             "Guillemot MaxiScan A4 Deluxe");
 
         if(bus_type == SCSI)
           {
@@ -1314,7 +1289,7 @@ SANE_Status sane_init (SANE_Int *version_code,
     {
         u_char i;
         for (i = 0;  i < 64;  i++)
-            D8[i] = (u_char) (4 * D8[i] + 3);
+            D8[i] = (u_char) (4 * D8[i] + 2);
     }
 
     return SANE_STATUS_GOOD;
@@ -1660,6 +1635,7 @@ SANE_Status sane_control_option (SANE_Handle h,
 {
     static const char *me = "sane_snapscan_control_option";
     SnapScan_Scanner *pss = h;
+    SnapScan_Device *pdev = pss->pdev;
     static SANE_Status status;
 
     DBG (DL_CALL_TRACE,
@@ -1791,6 +1767,10 @@ SANE_Status sane_control_option (SANE_Handle h,
         }
         break;
     case SANE_ACTION_SET_VALUE:
+        status = sanei_constrain_value(&pss->options[n], v, i);
+        if (status != SANE_STATUS_GOOD) {
+            return status;
+        }
         switch (n)
         {
         case OPT_COUNT:
@@ -1959,9 +1939,9 @@ SANE_Status sane_control_option (SANE_Handle h,
             }
             /* Adjust actual range values to new max values */
             if (pss->brx > pss->pdev->x_range.max)
-                pss->brx = pss->pdev->x_range.max;
+                pss->brx = pss->pdev->x_range.max - pdev->x_range.quant;
             if (pss->bry > pss->pdev->y_range.max)
-                pss->bry = pss->pdev->y_range.max;
+                pss->bry = pss->pdev->y_range.max - pdev->y_range.quant;
             pss->predef_window = pdw_none;
             if (pss->source_s)
                 free (pss->source_s);
@@ -1972,23 +1952,47 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_TLX:
             pss->tlx = *(SANE_Fixed *) v;
             pss->predef_window = pdw_none;
+            if (fabs(pss->tlx - pdev->x_range.max) < pdev->x_range.quant) {
+                pss->tlx -= pdev->x_range.quant;
+            }
+            if (pss->brx < pss->tlx) {
+                pss->brx = pss->tlx + pdev->x_range.quant;
+            }
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_TLY:
             pss->tly = *(SANE_Fixed *) v;
+            if (fabs(pss->tly - pdev->y_range.max) < pdev->y_range.quant) {
+                pss->tly -= pdev->y_range.quant;
+            }
             pss->predef_window = pdw_none;
+            if (pss->bry < pss->tly) {
+                pss->bry = pss->tly + pdev->y_range.quant;
+            }
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRX:
             pss->brx = *(SANE_Fixed *) v;
+            if (fabs(pss->brx - pdev->x_range.min) < pdev->x_range.quant) {
+                pss->brx += pdev->x_range.quant;
+            }
+            if (pss->brx < pss->tlx) {
+                pss->tlx = pss->brx - pdev->x_range.quant;
+            }
             pss->predef_window = pdw_none;
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_BRY:
             pss->bry = *(SANE_Fixed *) v;
+            if (fabs(pss->bry - pdev->y_range.min) < pdev->y_range.quant) {
+                pss->bry += pdev->y_range.quant;
+            }
+            if (pss->bry < pss->tly) {
+                pss->tly = pss->bry - pdev->y_range.quant;
+            }
             pss->predef_window = pdw_none;
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
@@ -2353,7 +2357,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 *i = 0;
             break;
         case OPT_NEGATIVE:
-            pss->halftone = DEFAULT_NEGATIVE;
+            pss->negative = DEFAULT_NEGATIVE;
             if (i)
                 *i = 0;
             break;
@@ -2694,7 +2698,7 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
                                  pss->buf + SEND_LENGTH);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
-                
+
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
                                  pss->buf + SEND_LENGTH);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
@@ -2732,7 +2736,7 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
                          pss->buf + SEND_LENGTH, bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
-                
+
                 gamma_n (gamma_b, pss->bright, pss->contrast,
                          pss->buf + SEND_LENGTH, bpp);
                 status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
@@ -2764,7 +2768,8 @@ static SANE_Status download_halftone_matrices (SnapScan_Scanner *pss)
 {
     static char me[] = "download_halftone_matrices";
     SANE_Status status = SANE_STATUS_GOOD;
-    if (pss->halftone)
+    if ((pss->halftone) &&
+        ((actual_mode(pss) == MD_LINEART) || (actual_mode(pss) == MD_BILEVELCOLOUR)))
     {
         u_char *matrix;
         size_t matrix_sz;
@@ -3123,14 +3128,40 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.10  2001/10/27 09:08:14  oliverschwartz
- * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ * Revision 1.11  2001/12/17 22:51:51  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
  *
- * Revision 1.9  2001/10/25 10:56:39  oliverschwartz
+ * Revision 1.33  2001/12/12 19:43:30  oliverschwartz
+ * - Set version number to 1.4.3
+ * - Clean up CVS Log
+ *
+ * Revision 1.32  2001/12/09 23:06:45  oliverschwartz
+ * - use sense handler for USB if scanner reports CHECK_CONDITION
+ *
+ * Revision 1.31  2001/12/08 11:50:34  oliverschwartz
+ * Fix dither matrix computation
+ *
+ * Revision 1.30  2001/11/29 22:50:14  oliverschwartz
+ * Add support for SnapScan e52
+ *
+ * Revision 1.29  2001/11/27 23:16:17  oliverschwartz
+ * - Fix color alignment for SnapScan 600
+ * - Added documentation in snapscan-sources.c
+ * - Guard against TL_X < BR_X and TL_Y < BR_Y
+ *
+ * Revision 1.28  2001/11/25 18:51:41  oliverschwartz
+ * added support for SnapScan e52 thanks to Rui Lopes
+ *
+ * Revision 1.27  2001/11/16 20:28:35  oliverschwartz
+ * add support for Snapscan e26
+ *
+ * Revision 1.26  2001/11/16 20:23:16  oliverschwartz
+ * Merge with sane-1.0.6
+ *   - Check USB vendor IDs to avoid hanging scanners
+ *   - fix bug in dither matrix computation
+ *
+ * Revision 1.25  2001/10/25 11:06:22  oliverschwartz
  * Change snapscan backend version number to 1.4.0
- *
- * Revision 1.8  2001/10/12 21:19:14  oliverschwartz
- * update to snapscan-20011012
  *
  * Revision 1.24  2001/10/11 14:02:10  oliverschwartz
  * Distinguish between e20/e25 and e40/e50

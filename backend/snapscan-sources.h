@@ -88,8 +88,11 @@ static SANE_Status Source_init (Source *pself,
 
 /*
  * $Log$
- * Revision 1.4  2001/10/09 09:45:13  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.5  2001/12/17 22:51:50  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
+ *
+ * Revision 1.5  2001/12/12 19:44:59  oliverschwartz
+ * Clean up CVS log
  *
  * Revision 1.4  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
@@ -101,18 +104,6 @@ static SANE_Status Source_init (Source *pself,
  * Applying Mikael Magnusson patch concerning Gamma correction
  * Support for 1212U_2
  *
- * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
- * Imported from snapscan-11282000.tar.gz
- *
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
  * Updating to source from SANE 1.0.3.  Calling this versin 1.1
- *
- * Revision 1.2  2000/08/12 15:09:35  pere
- * Merge devel (v1.0.3) into head branch.
- *
- * Revision 1.1.2.1  2000/07/13 04:47:46  pere
- * New snapscan backend version dated 20000514 from Steve Underwood.
- *
- * Revision 1.1.1  2000/05/14 13:30:20  coppice
- * Added history log to pre-existing code. Some reformatting.
  * */

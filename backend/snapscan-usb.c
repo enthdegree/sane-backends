@@ -4,7 +4,7 @@
   Copyright (C) 2000 Henrik Johansson
  
   Henrik Johansson (henrikjo@post.urfors.se)
-    
+
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
   published by the Free Software Foundation; either version 2 of the
@@ -60,6 +60,11 @@
 static int sem_id;
 static struct sembuf sem_wait = { 0, -1, 0 };
 static struct sembuf sem_signal = { 0, 1, 0 };
+static sense_handler_type usb_sense_handler;
+static void* usb_pss;
+
+/* Forward declarations */
+static SANE_Status usb_request_sense(SnapScan_Scanner *pss);
 
 static SANE_Status snapscani_usb_cmd(int fd, const void *src, size_t src_size,
                     void *dst, size_t * dst_size)
@@ -123,7 +128,8 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
 
 }
 
-static SANE_Status snapscani_usb_open(const char *dev, int *fdp)
+static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
+    sense_handler_type sense_handler, void* pss)
 {
     static const char me[] = "snapscani_usb_open";
 
@@ -135,6 +141,8 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp)
     }
     semop(sem_id, &sem_signal, 1);
     sanei_usb_init();
+    usb_sense_handler=sense_handler;
+    usb_pss = pss;
     return sanei_usb_open(dev, fdp);
 }
 
@@ -184,24 +192,6 @@ static char *usb_debug_data(char *str,const char *data, int len) {
     return str;
 }
 
-/*
-static int usb_status(char *status_buf) {
-    int status;
-
-    status = (status_buf[1] & STATUS_MASK) >> 1;
-
-    switch(status) {
-    case GOOD:
-        return SANE_STATUS_GOOD;
-    case CHECK_CONDITION:
-    case BUSY:
-        return SANE_STATUS_DEVICE_BUSY;
-    default:
-        return SANE_STATUS_IO_ERROR;
-    }
-}
-*/
-
 #define RETURN_ON_FAILURE(x) if((status = x) != SANE_STATUS_GOOD) return status;
 
 static SANE_Status usb_write(int fd, const void *buf, int n) {
@@ -249,6 +239,7 @@ static SANE_Status usb_read(int fd, void *buf, int n) {
 
 static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_status)
 {
+    static const char me[] = "usb_read_status";
     unsigned char status_buf[8];
     int scsistat;
     int status;
@@ -267,6 +258,14 @@ static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_sta
     case GOOD:
         return SANE_STATUS_GOOD;
     case CHECK_CONDITION:
+        if (usb_pss != NULL) {
+            return usb_request_sense(usb_pss);
+        } else {
+            DBG (DL_MAJOR_ERROR, "%s: scanner structure not set, returning default error\n",
+                me);
+            return SANE_STATUS_DEVICE_BUSY;
+        }
+        break;
     case BUSY:
         return SANE_STATUS_DEVICE_BUSY;
     default:
@@ -402,15 +401,48 @@ static void dequeue_bq()
     bqelements--;
     DBG(DL_DATA_TRACE, "%s: Busy queue: elements=%d, bqhead=%p, bqtail=%p\n",
         me,bqelements,bqhead,bqtail);
-    
 }
+
+static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
+    static const char *me = "usb_request_sense";
+    size_t read_bytes = 0;
+    u_char cmd[] = {REQUEST_SENSE, 0, 0, 0, 20, 0};
+    u_char data[20];
+    SANE_Status status;
+
+    read_bytes = 20;
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+    status = usb_cmd (pss->fd, cmd, sizeof (cmd), data, &read_bytes);
+    if (status != SANE_STATUS_GOOD)
+    {
+        DBG (DL_MAJOR_ERROR, "%s: usb command error: %s\n",
+             me, sane_strstatus (status));
+    }
+    else
+    {
+        if (usb_sense_handler) {
+            status = usb_sense_handler (pss->fd, data, (void *) pss);
+        } else {
+            DBG (DL_MAJOR_ERROR, "%s: No sense handler for USB\n", me);
+            status = SANE_STATUS_UNSUPPORTED;
+        }
+    }
+    return status;
+}
+
 /*
  * $Log$
- * Revision 1.4  2001/10/27 09:08:13  oliverschwartz
- * Check USB vendor IDs to avoid hanging scanners, fix bug in dither matrix computation
+ * Revision 1.5  2001/12/17 22:51:50  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
  *
- * Revision 1.3  2001/10/10 07:30:06  oliverschwartz
- * fix compiler warnings
+ * Revision 1.15  2001/12/09 23:06:44  oliverschwartz
+ * - use sense handler for USB if scanner reports CHECK_CONDITION
+ *
+ * Revision 1.14  2001/11/16 20:23:16  oliverschwartz
+ * Merge with sane-1.0.6
+ *   - Check USB vendor IDs to avoid hanging scanners
+ *   - fix bug in dither matrix computation
  *
  * Revision 1.13  2001/10/09 22:34:23  oliverschwartz
  * fix compiler warnings

@@ -50,6 +50,61 @@
 /* $Id$
    SnapScan backend data sources (implementation) */
 
+/**************************************************************************************
+If you get confused from all the structs (like I did when I first saw them),
+think of it as "C++ in C". If you're accustomed to OO and UML maybe the
+following diagram helps you to make sense of it:
+
+                       ------------------------
+                       !        Source        !
+                       ------------------------
+                       !pss: SnapScan_Scanner*!
+                       ------------------------   +psub
+                       !init() = 0            !-----------------
+                       !remaining() = 0       !                !
+                       !bytesPerLine()        !                !
+                       !pixelsPerLine()       !                !
+                       !get() = 0             !                !{TransformerSource forwards
+                       !done() = 0            !                ! function calls to corres-
+                       ------------------------                ! ponding functions in psub}
+                                   ^                           !
+                                  /_\                          !
+                                   !                           !
+       --------------------------------------------------     /\
+       !               !                !               !     \/
+-------------    -------------    -------------    -------------------
+!SCSISource !    ! FDSource  !    !BufSource  !    !TransformerSource!
+=============    =============    =============    ===================
+!remaining()!    !remaining()!    !remaining()!    !init()           !
+!get()      !    !get()      !    !get()      !    !remaining()      !
+!done()     !    !done()     !    !done()     !    !bytesPerLine()   !
+!init()     !    !init()     !    !init()     !    !pixelsPerLine()  !
+-------------    -------------    -------------    !get()            !
+                                                   !done()           !
+                                                   -------------------
+                                                            ^
+                                                           /_\
+                                                            !
+                                       ------------------------------------
+                                       !                 !                !
+                              ----------------    -------------    -------------
+                              !   Expander   !    ! RGBRouter !    !  Inverter !
+                              ================    =============    =============
+                              !remaining()   !    !remaining()!    !remaining()!
+                              !bytesPerLine()!    !get()      !    !get()      !
+                              !get()         !    !done()     !    !done()     !
+                              !done()        !    !init()     !    !init()     !
+                              !init()        !    -------------    -------------
+                              ----------------
+All instances of the descendants of TransformerSource can be chained together. For
+color scanning, a typical source chain would consist of an RGBRouter sitting on top
+of a SCSISource. In the get() method, RGBRouter will then call the get() method of
+the subsource, process the data and return it.
+
+I hope this makes sense to you (and I got the right idea of the original author's
+intention).
+***********************************************************************************/
+
 #ifndef __FUNCTION__
 #define __FUNCTION__ "(undef)"
 #endif
@@ -910,8 +965,16 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
- * Revision 1.5  2001/10/09 09:45:12  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.6  2001/12/17 22:51:49  oliverschwartz
+ * Update to snapscan-20011212 (snapscan 1.4.3)
+ *
+ * Revision 1.18  2001/12/12 19:44:59  oliverschwartz
+ * Clean up CVS log
+ *
+ * Revision 1.17  2001/11/27 23:16:17  oliverschwartz
+ * - Fix color alignment for SnapScan 600
+ * - Added documentation in snapscan-sources.c
+ * - Guard against TL_X < BR_X and TL_Y < BR_Y
  *
  * Revision 1.16  2001/10/08 18:22:02  oliverschwartz
  * - Disable quality calibration for Acer Vuego 310F
@@ -946,15 +1009,6 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  * Applying Mikael Magnusson patch concerning Gamma correction
  * Support for 1212U_2
  *
- * Revision 1.3  2001/03/04 16:53:21  mikael
- * Reading absolute max from SNAPSCAN 1212U
- *
- * Revision 1.2  2001/02/16 18:32:28  mikael
- * impl calibration, signed position, increased buffer size
- *
- * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
- * Imported from snapscan-11282000.tar.gz
- *
  * Revision 1.8  2000/11/28 03:55:07  cbagwell
  * Reverting a fix to RGBRouter_remaining to original fix.  This allows
  * most scanners to scan at 600 dpi by ignoring insufficent data in
@@ -982,15 +1036,4 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  *
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
  * Updating to source from SANE 1.0.3.  Calling this versin 1.1
- *
- * Revision 1.3  2000/08/12 15:09:35  pere
- * Merge devel (v1.0.3) into head branch.
- *
- * Revision 1.1.2.2  2000/07/13 04:47:45  pere
- * New snapscan backend version dated 20000514 from Steve Underwood.
- *
- * Revision 1.2.1  2000/05/14 13:30:20  coppice
- * Added history log to pre-existing code.Some reformatting.
- * R, G and B images now merge correctly. There are still some outstanding
- * issues in this area, but its a lot more usable than before.
  * */

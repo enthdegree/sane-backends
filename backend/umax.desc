@@ -13,7 +13,7 @@
 :version "1.0-24"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-umax"              ; name of manpage (if it exists)
-:url "http://www.wolfsburg.de/~rauch/sane/sane-umax.html" ; backend's web page
+:url "http://www.rauch-domain.de/sane-umax/index.html" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -103,7 +103,7 @@
 :comment "Not tested"
 :model "PowerLook 3000"
 :interface "SCSI"
-:comment "Not tested"
+:comment "not tested"
 :model "Gemini D-16"
 :interface "SCSI"
 :comment "OK"

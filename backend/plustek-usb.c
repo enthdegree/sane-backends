@@ -32,6 +32,7 @@
  *        - removed the scaler stuff for CIS devices
  *        - removed homeing stuff from readline function
  *        - fixed flag setting in usbDev_startScan()
+ * - 0.46 - added additional branch to support alternate calibration
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -74,8 +75,11 @@
  * <hr>
  */
 
-/**
- * to allow different vendors...
+#ifndef PATH_MAX
+# define PATH_MAX	1024
+#endif
+ 
+/** to allow different vendors...
  */
 static TabDef usbVendors[] = {
 
@@ -99,19 +103,51 @@ static SANE_Char USB_devname[1024];
 
 /********************** the USB scanner interface ****************************/
 
+/** remove the slash out of the model-name to obtain a valid filename
+ */
+static SANE_Bool usb_normFileName( char *fname, char* buffer, u_long max_len )
+{
+	char *src, *dst;
+	
+	if( NULL == fname )
+		return SANE_FALSE;
+		
+	if( strlen( fname ) >= max_len )
+		return SANE_FALSE;
+
+	src = fname;
+	dst = buffer;
+	while( *src != '\0' ) {
+
+		if((*src == '/') || isspace(*src))
+			*dst = '_';
+		else
+			*dst = *src;
+
+		*dst++;
+		*src++;
+	}
+	*dst = '\0';
+		
+	return SANE_TRUE;	
+}
+
 /**
  * assign the values to the structures used by the currently found scanner
  */
 static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 {
+	char     *ptr;
+	char      tmp_str1[PATH_MAX];
+	char      tmp_str2[PATH_MAX];
 	int       i;
 	ScanParam sParam;
 	u_short   tmp = 0;
 
-	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%u)\n",
+	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%i)\n",
 											idx, vendor, dev->initialized );
 	/* save capability flags... */
-	if( dev->initialized ) {
+	if( dev->initialized >= 0 ) {
   		tmp = DEVCAPSFLAG_TPA;
 	}
 
@@ -120,7 +156,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	memcpy( &dev->usbDev.HwSetting, Settings[idx].pHwDef, sizeof(HWDef));
 
 	/* restore capability flags... */
-	if( dev->initialized ) {
+	if( dev->initialized >= 0 ) {
 		dev->usbDev.Caps.wFlags |= tmp;
 	}
 
@@ -182,7 +218,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	/* check for TPA on EPSON device
 	 */
-	if( !dev->initialized && vendor == 0x04B8 ) {
+	if((dev->initialized < 0) && vendor == 0x04B8 ) {
 
 		u_char t;
 
@@ -221,9 +257,11 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	}
 
 	dev->usbDev.currentLamp = usb_GetLampStatus( dev );
-
 	usb_ResetRegisters( dev );
 
+	if( dev->initialized >= 0 )
+		return;
+	
     usbio_ResetLM983x ( dev );
 	usb_IsScannerReady( dev );
 
@@ -240,6 +278,23 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	sParam.dMCLK         = 4;
 	sParam.Size.dwPixels = 0;
 
+	/* create calibration-filename */
+	ptr = getenv ("HOME");
+    if( !usb_normFileName( dev->usbDev.ModelStr, tmp_str1, PATH_MAX )) {
+		strcpy( tmp_str1, "plustek-default" );
+	}
+	
+    if( NULL == ptr ) {
+		sprintf( tmp_str2, "/tmp/%s-%s.cal",
+				 dev->sane.vendor, tmp_str1 );
+	} else {
+		sprintf( tmp_str2, "%s/.sane/%s-%s.cal",
+				 ptr, dev->sane.vendor, tmp_str1 );
+	}
+	dev->calFile = strdup( tmp_str2 );
+	DBG( _DBG_INFO, "Calibration file-name set to:\n" );
+	DBG( _DBG_INFO, ">%s<\n", dev->calFile );
+
 	/* initialize the ASIC registers */
 	usb_SetScanParameters( dev, &sParam );
 
@@ -247,7 +302,7 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	usb_ModuleToHome( dev, SANE_FALSE );
 
 	/* set the global flag, that we are initialized so far */
-	dev->initialized = SANE_TRUE;
+	dev->initialized = idx;
 }
 
 /**
@@ -354,7 +409,7 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 		dev->fd = -1;
 		sanei_usb_close( handle );
 	}
-	
+
 	usb_StopLampTimer( dev );
 }
 
@@ -631,14 +686,9 @@ static int usbDev_getCaps( Plustek_Device *dev )
 		dev->caps.dwFlag |= SFLAG_TPA;
 	}
 
-	dev->caps.wIOBase = 0;
 	dev->caps.wLens   = 1;
-
 	dev->caps.wMaxExtentX = scaps->Normal.Size.x;
 	dev->caps.wMaxExtentY = scaps->Normal.Size.y;
-	dev->caps.AsicID      = _ASIC_IS_USB;
-	dev->caps.Model       = MODEL_OP_USB;
-	dev->caps.Version     = 0;
 
     return 0;
 }
@@ -941,7 +991,7 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 		return 0;
 	}
 
-    return _E_ALLOC;
+	return _E_ALLOC;
 }
 
 /**
@@ -963,12 +1013,27 @@ static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 	 */
 	usb_ModuleStatus( dev );
 
-    result = usb_DoCalibration( dev );
+	/* the CanoScan CIS devices need special handling... */
+	if((dev->usbDev.vendor == 0x04A9) &&    
+		(dev->usbDev.product==0x2206 || dev->usbDev.product==0x2207 ||
+		 dev->usbDev.product==0x220D || dev->usbDev.product==0x220E)) {
+		result = cano_DoCalibration( dev );
+		
+	} else {
+
+	if( dev->adj.altCalibrate )
+		result = cano_DoCalibration( dev );
+	else
+		result = usb_DoCalibration( dev );
+	}
+
     if( SANE_TRUE != result ) {
 		DBG( _DBG_INFO, "calibration failed!!!\n" );
         return result;
 	}
 
+	if( dev->adj.cacheCalData )
+		usb_SaveCalData( dev );
 	DBG( _DBG_INFO, "calibration done.\n" );
 
 	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {
@@ -1309,7 +1374,6 @@ static int usbDev_readLine( struct Plustek_Device *dev )
         	}
         }
 	}
-
     return 0;
 }
 

@@ -3,7 +3,7 @@
  *.............................................................................
  */
 
-/** @file plustek-devs.c
+/** @file plustek-usbdevs.c
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
@@ -38,6 +38,9 @@
  *        - removed EPSON 660 stuff
  *        - added Canon 1220U entry
  *        - added entry for Compaq S4-100
+ * -0.46  - fine-tuning for the CanoScan devices
+ *        - fixed HP2200 shading position
+ *        - renamed to plustek-usbdevs.c
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -491,11 +494,10 @@ static DCapsDef Cap0x03F0_0x0505 =
 static DCapsDef Cap0x03F0_0x0605 =
 {
 	/* DataOrigin (x, y), ShadingOriginY */
-	{{ 0, 209},  0, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
-    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-    {{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
-	
+	{{ 0, 209},  40, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
+    {{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
+    {{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
 	{600, 600},                          /* Motor can handle 1200 DPI */
 	0,	                                 	   /* OK */
 	SENSORORDER_rgb,	                 	   /* OK */
@@ -543,7 +545,7 @@ static DCapsDef Cap0x0400_0x1001_0 =
 static DCapsDef Cap0x04B8_0x010F_0 =
 {
 	/* Normal */
-	{{   25,  80},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	{{   25,  85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
 	/* Positive */
 	{{ 1100,  972}, 720, -1, { 473,  414}, { 150, 150 }, COLOR_GRAY16 },
 	/* Negative */
@@ -618,7 +620,7 @@ static DCapsDef Cap0x04A9_0x2206_0 =
  	1,		      	    /* number of buttons                       */
  	kCIS650,            /* use default settings during calibration */
  	0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N1220U
@@ -634,9 +636,9 @@ static DCapsDef Cap0x04A9_0x2207_0 =
     SENSORORDER_rgb,
     16,                 /* sensor distance                         */
     1,                  /* number of buttons                       */
-    kCIS650,            /* use default settings during calibration */
+    kCIS1220,           /* use default settings during calibration */
     0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N670U/N676U/LiDE20
@@ -654,7 +656,7 @@ static DCapsDef Cap0x04A9_0x220D_0 =
  	3,		      	    /* number of buttons                       */
  	kCIS670,            
  	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /* Canon N1240U
@@ -672,7 +674,7 @@ static DCapsDef Cap0x04A9_0x220E_0 =
     3,                  /* number of buttons                       */
     kCIS1240,           /* use default settings during calibration */
     0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -1854,8 +1856,8 @@ static HWDef Hw0x04A9_0x2206_0 =
  	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode (runtime)          */
 			/* illumination mode settings 				      */
-	{ 3,  0,    0, 23, 1500,  0,    0 },
-	{ 2, 23, 4000, 23, 2600, 23, 1600 },
+	{ 3,  0,    0, 23, 1300,  0,   0 },
+	{ 2, 23, 4000, 23, 2600, 23, 850 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -1863,12 +1865,12 @@ static HWDef Hw0x04A9_0x2206_0 =
     89,     /* ? wActivePixelsStart (reg 0x1e + 0x1f)         */
     6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
 
-    23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
-    2416,   /* red lamp off   (reg 0x2e + 0x2f)               */
-    23,  	/* green lamp on  (reg 0x30 + 0x31)               */
-    1801,   /* green lamp off (reg 0x32 + 0x33)               */
-    23,  	/* blue lamp on   (reg 0x34 + 0x35)               */
-    1472,   /* blue lamp off  (reg 0x36 + 0x37)               */
+    23,     /* red lamp on    (reg 0x2c + 0x2d)               */
+    4000,   /* red lamp off   (reg 0x2e + 0x2f)               */
+    23,     /* green lamp on  (reg 0x30 + 0x31)               */
+    2600,   /* green lamp off (reg 0x32 + 0x33)               */
+    23,     /* blue lamp on   (reg 0x34 + 0x35)               */
+    850,    /* blue lamp off  (reg 0x36 + 0x37)               */
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -1920,8 +1922,8 @@ static HWDef Hw0x04A9_0x2207_0 =
 
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
-	{ 3,  0,     0, 23, 3937,  0,    0 },
-	{ 2, 23, 14000, 23, 7500, 23, 5900 },
+	{ 3,  0,     0, 23,  4950,  0,    0 },
+	{ 2, 23, 16383, 23, 15000, 23, 6600 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -1930,11 +1932,11 @@ static HWDef Hw0x04A9_0x2207_0 =
     10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
 
     23,     /* red lamp on    (reg 0x2c + 0x2d)               */
-    8870,   /* red lamp off   (reg 0x2e + 0x2f)               */
+    16383,  /* red lamp off   (reg 0x2e + 0x2f)               */
     23,     /* green lamp on  (reg 0x30 + 0x31)               */
-    5055,   /* green lamp off (reg 0x32 + 0x33)               */
+    15000,  /* green lamp off (reg 0x32 + 0x33)               */
     23,     /* blue lamp on   (reg 0x34 + 0x35)               */
-    2828,   /* blue lamp off  (reg 0x36 + 0x37)               */
+    6600,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -1996,14 +1998,12 @@ static HWDef Hw0x04A9_0x220D_0 =
     75,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
     6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
 
-/* ??0x17ba = 6074 bis 100dpi, 0x14ba = 5306 */
-
     23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
-    4562,   /* red lamp off   (reg 0x2e + 0x2f)               */
+    3800,   /* red lamp off   (reg 0x2e + 0x2f)               */
     23,  	/* green lamp on  (reg 0x30 + 0x31)               */
-    4315,   /* green lamp off (reg 0x32 + 0x33)               */
+    3300,   /* green lamp off (reg 0x32 + 0x33)               */
     23,  	/* blue lamp on   (reg 0x34 + 0x35)               */
-    3076,   /* blue lamp off  (reg 0x36 + 0x37)               */
+    2700,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -2055,28 +2055,22 @@ static HWDef Hw0x04A9_0x220E_0 =
 
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
-#if 1    
-    { 3,  0,     0, 23, 3937,  0,    0 },
-    { 2, 23, 13000, 23, 6500, 23, 4900 },
-#else	
-	{ 3,  0,     0, 23, 16383,  0,     0 },
-	{ 2, 23, 16383, 23, 16383, 23, 16383 },
-#endif
-
+    
+    { 3,  0,     0, 23,  4000,  0,    0 },
+    { 2, 23, 16383, 23,  6500, 23, 4900 },
+    
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
     0,      /* bOpticBlackEnd (reg 0x1d)                      */
     52,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-	10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
-
-/* 0x2f7a = 12154 bis 100dpi, 0x295a = 10586 */
+    10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
 
     23,     /* red lamp on    (reg 0x2c + 0x2d)               */
-    10581,  /* red lamp off   (reg 0x2e + 0x2f)               */
+    16383,  /* red lamp off   (reg 0x2e + 0x2f)               */
     23,     /* green lamp on  (reg 0x30 + 0x31)               */
-    5096,   /* green lamp off (reg 0x32 + 0x33)               */
+    6500,   /* green lamp off (reg 0x32 + 0x33)               */
     23,     /* blue lamp on   (reg 0x34 + 0x35)               */
-    3735,   /* blue lamp off  (reg 0x36 + 0x37)               */
+    4900,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -2146,7 +2140,7 @@ static SetDef Settings[] =
 	{"0x0458-0x2016",	&Cap0x07B3_0x0005_4, &Hw0x07B3_0x0007_0, "ColorPage-HR6X"   },
 
 	/* Hewlett Packard... */
- 	{"0x03F0-0x0505",	&Cap0x03F0_0x0505, &Hw0x03F0_0x0505, "Scanjet 2100c" },
+	{"0x03F0-0x0505",	&Cap0x03F0_0x0505, &Hw0x03F0_0x0505, "Scanjet 2100c" },
 	{"0x03F0-0x0605",	&Cap0x03F0_0x0605, &Hw0x03F0_0x0605, "Scanjet 2200c" },
 
 	/* EPSON... */
@@ -2154,18 +2148,18 @@ static SetDef Settings[] =
 	{"0x04B8-0x011D",	&Cap0x04B8_0x010F_0, &Hw0x04B8_0x011D_0, "Perfection 1260/Photo" },
 
 	/* UMAX... */
- 	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "3400/3450" },
- 	{"0x1606-0x0160",	&Cap0x1606_0x0160_0, &Hw0x1606_0x0160_0, "5400"      },
+	{"0x1606-0x0060",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "3400/3450" },
+	{"0x1606-0x0160",	&Cap0x1606_0x0160_0, &Hw0x1606_0x0160_0, "5400"      },
   
 	/* COMPAQ... */
- 	{"0x049F-0x001A",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "S4-100" },
+	{"0x049F-0x001A",	&Cap0x1606_0x0060_0, &Hw0x1606_0x0060_0, "S4-100" },
 
 	/* CANON... */
 	{"0x04A9-0x2206",   &Cap0x04A9_0x2206_0, &Hw0x04A9_0x2206_0, "N650U/N656U" },
 	{"0x04A9-0x2207",   &Cap0x04A9_0x2207_0, &Hw0x04A9_0x2207_0, "N1220U"      },
 	{"0x04A9-0x220D",   &Cap0x04A9_0x220D_0, &Hw0x04A9_0x220D_0, "N670U/N676U/LiDE20" },
 	{"0x04A9-0x220E",   &Cap0x04A9_0x220E_0, &Hw0x04A9_0x220E_0, "N1240U/LiDE30"      },
-		
+	
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
 	 * it's used by the driver to select the device settings. For other devices
@@ -2351,4 +2345,4 @@ static ClkMotorDef Motors[] = {
 	},
 };
 
-/* END PLUSTEK-DEVS.C .......................................................*/
+/* END PLUSTEK-USBDEVS.C ....................................................*/

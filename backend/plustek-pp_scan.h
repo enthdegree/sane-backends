@@ -1,0 +1,185 @@
+/*.............................................................................
+ * Project : linux driver for Plustek parallel-port scanners
+ *.............................................................................
+ * File:	 plustek-pp_scan.h - the global header for the plustek driver
+ *.............................................................................
+ *
+ * Copyright (C) 2000-2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ *.............................................................................
+ * History:
+ * 0.30 - initial version
+ * 0.31 - no changes
+ * 0.32 - changed _DODELAY macro to work properly for delays > 5 ms
+ * 0.33 - no changes
+ * 0.34 - no changes
+ * 0.35 - removed _PTDRV_PUT_SCANNER_MODEL from ioctl interface
+ * 0.36 - now including plustek-share.h from the backend path
+ *        changed _INB/_OUTB to _INB_STATUS, _INB_CTRL, _INB_DATA ...
+ * 0.37 - added _OUTB_ECTL/_INB_ECTL, _MAX_PTDEVS, _DRV_NAME and _MAX_BTNS
+ *        added _OUTB_STATUS
+ * 0.38 - added _IS_ASIC96() and _IS_ASIC98() macros
+ * 0.39 - no changes
+ * 0.40 - no changes
+ * 0.41 - no changes
+ * 0.42 - changed include names
+ *
+ *.............................................................................
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+#ifndef __PLUSTEK_SCAN_H__
+#define __PLUSTEK_SCAN_H__
+
+#ifndef __KERNEL__
+
+# include <stdlib.h>
+# include <stdarg.h>
+# include <string.h>
+# include <stdio.h>
+# include <unistd.h>
+# include <sched.h>
+# include <sys/time.h>
+# include <sys/signal.h>
+# include <sys/ioctl.h>
+# include <sys/io.h>
+
+#else
+
+# include <linux/version.h>
+# include "plustek-pp_sysdep.h"
+# include <linux/delay.h>
+# include <linux/parport.h>
+
+#ifdef LINUX_24
+# include <linux/parport_pc.h>
+#endif	/* LINUX_24   */
+
+#endif  /* __KERNEL__ */
+
+/*.............................................................................
+ * driver properties
+ */
+#define _DRV_NAME		"pt_drv"	/* driver's name		 */
+#define	_MAX_PTDEVS 	 4			/* support for 4 devices */
+#define	_MAX_BTNS 		 6			/* support for 6 buttons */
+#define _PTDRV_MAJOR	40			/* our major number		 */
+
+/*.............................................................................
+ * for port operations
+ */
+# define _OPF	ps->IO.fnOut
+# define _IPF	ps->IO.fnIn
+
+#if 1
+
+#define _OUTB_CTRL(pSD,port_value)	 _OPF(port_value,pSD->IO.pbControlPort)
+#define _OUTB_DATA(pSD,port_value)	 _OPF(port_value,pSD->IO.pbSppDataPort)
+#define _OUTB_ECTL(pSD,port_value)	 _OPF(port_value,(pSD->IO.portBase+0x402))
+#define _OUTB_STATUS(pSD,port_value) _OPF(port_value,pSD->IO.pbStatusPort)
+
+#define _INB_CTRL(pSD)				_IPF(pSD->IO.pbControlPort)
+#define _INB_DATA(pSD)				_IPF(pSD->IO.pbSppDataPort)
+#define _INB_EPPDATA(pSD)			_IPF(pSD->IO.pbEppDataPort)
+#define _INB_STATUS(pSD)			_IPF(pSD->IO.pbStatusPort)
+#define _INB_ECTL(pSD)				_IPF((pSD->IO.portBase+0x402))
+
+#else
+
+#define _OUTB_CTRL(pSD,port_value)	 parport_pc_write_control(pSD->pp, port_value)
+#define _OUTB_DATA(pSD,port_value)	 parport_pc_write_data(pSD->pp, port_value)
+#define _OUTB_STATUS(pSD,port_value) parport_pc_write_status(pSD->pp, port_value)
+
+#define _INB_CTRL(pSD)				parport_pc_read_control(pSD->pp)
+#define _INB_DATA(pSD)				parport_pc_read_data(pSD->pp)
+#define _INB_STATUS(pSD)			parport_pc_read_status(pSD->pp)
+
+#ifdef LINUX_24
+# define _OUTB_ECTL(pSD,port_value)	outb_p(port_value,(pSD->IO.portBase+0x402))
+# define _INB_EPPDATA(pSD)			inb_p(pSD->IO.pbEppDataPort)
+# define _INB_ECTL(pSD)				inb_p((pSD->IO.portBase+0x402))
+#else
+# define _OUTB_ECTL(pSD,port_value)	parport_pc_write_econtrol(pSD->pp, port_value)
+# define _INB_EPPDATA(pSD)			parport_pc_read_epp(pSD->pp)
+# define _INB_ECTL(pSD)				parport_pc_read_econtrol(pSD->pp)
+#endif
+
+#endif
+
+/*.............................................................................
+ * for memory allocation
+ */
+#ifndef __KERNEL__
+# define _KALLOC(x,y)   malloc(x)
+# define _KFREE(x)		free(x)
+# define _VMALLOC(x)	malloc(x)
+# define _VFREE(x)		free(x)
+#else
+# define _KALLOC(x,y)   kmalloc(x,y)
+# define _KFREE(x)		kfree(x)
+# define _VMALLOC(x)	vmalloc(x)
+# define _VFREE(x)		vfree(x)
+#endif
+
+/*
+ * WARNING - never use the _SECOND define with the _DODELAY macro !!
+ * they are for use the the MiscStartTimer function and the _DO_UDELAY macro
+ */
+#ifndef __KERNEL__
+typedef long long TimerDef, *pTimerDef;
+#else
+typedef long long TimerDef, *pTimerDef;
+#endif
+
+#define _MSECOND	1000							/* based on 1 us */
+#define _SECOND		(1000*_MSECOND)
+
+
+/*.............................................................................
+ * timer topics
+ */
+#ifndef __KERNEL__
+#define _DO_UDELAY(usecs)	{ int i; for( i = usecs; i--; ) outb(0x80,0); } 
+#define _DODELAY(msecs)		{ int i; for( i = msecs; i--; ) _DO_UDELAY(1); }
+#else
+#define _DO_UDELAY(usecs)	udelay(usecs)
+#define _DODELAY(msecs)		mdelay(msecs)
+#endif
+
+/*.............................................................................
+ * include the shared stuff right here, this concerns the ioctl interface
+ * and the communication stuff
+ */
+#include "plustek-share.h"
+
+/*.............................................................................
+ * WARNING: don't move the following headers above the previous defines !!!!!!!
+ *
+ * the include files for user-mode and kernel-mode program
+ */
+#include "plustek-pp_types.h"
+#include "plustek-pp_hwdefs.h"
+#include "plustek-pp_scandata.h"
+#include "plustek-pp_procs.h"
+#include "plustek-pp_dbg.h"
+
+/*.............................................................................
+ * some macros for convenience
+ */
+#define _IS_ASIC96(aid)    ((_ASIC_IS_96001 == aid) || (_ASIC_IS_96003 == aid))
+#define _IS_ASIC98(aid)    ((_ASIC_IS_98001 == aid) || (_ASIC_IS_98003 == aid))
+
+#endif /* guard __PLUSTEK_SCAN_H__ */
+
+/* END PLUSTEK-PP_SCAN.H ....................................................*/

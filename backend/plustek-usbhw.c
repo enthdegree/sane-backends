@@ -27,6 +27,8 @@
  * - 0.45 - added function usb_AdjustLamps() to tweak CIS lamp settings
  *        - fixed NULL pointer problem in lamp-off ISR
  *        - added usb_AdjustCISLampSettings()
+ *        - skipping warmup for CIS devices 
+ * - 0.46 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1070,6 +1072,8 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
  * 0x0f - 0x18 - Sensor Configuration - directly from the HwDef<br>
  * 0x1a - 0x1b - Stepper Phase Correction<br>
  * 0x20 - 0x21 - Line End<br>
+ * 0x21 - 0x22 - Data Pixel start<br>
+ * 0x23 - 0x24 - Data Pixel end<br>
  * 0x45        - Stepper Motor Mode<br>
  * 0x4c - 0x4d - Full Steps to Scan after PAPER SENSE 2 trips<br>
  * 0x50        - Steps to reverse when buffer is full<br>
@@ -1082,19 +1086,37 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
  */
 static void usb_ResetRegisters( pPlustek_Device dev )
 {
+	int linend;
+
 	pHWDef hw = &dev->usbDev.HwSetting;
 
-	DBG( _DBG_INFO, "RESETTING REGISTERS(%u)\n", dev->initialized );
+	DBG( _DBG_INFO, "RESETTING REGISTERS(%i)\n", dev->initialized );
 	memset( a_bRegs, 0, sizeof(a_bRegs));
 
 	memcpy( a_bRegs+0x0b, &hw->bSensorConfiguration, 4 );
 	memcpy( a_bRegs+0x0f, &hw->bReg_0x0f_Color, 10 );
 	a_bRegs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
 	a_bRegs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
+#if 0
 	a_bRegs[0x1e] = _HIBYTE( hw->wActivePixelsStart );
 	a_bRegs[0x1f] = _LOBYTE( hw->wActivePixelsStart );
+#endif
 	a_bRegs[0x20] = _HIBYTE( hw->wLineEnd );
 	a_bRegs[0x21] = _LOBYTE( hw->wLineEnd );
+
+	a_bRegs[0x22] = _HIBYTE( hw->bOpticBlackStart );
+	a_bRegs[0x22] = _LOBYTE( hw->bOpticBlackStart );
+
+	linend = hw->bOpticBlackStart + hw->wLineEnd;
+	if( linend < (hw->wLineEnd-20))
+		linend = hw->wLineEnd-20;
+
+	a_bRegs[0x24] = _HIBYTE( linend );
+	a_bRegs[0x25] = _LOBYTE( linend );
+
+	a_bRegs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleHigh );
+	a_bRegs[0x2b] = _LOBYTE( hw->wGreenPWMDutyCycleHigh );
+
 	a_bRegs[0x45] = hw->bReg_0x45;
 	a_bRegs[0x4c] = _HIBYTE( hw->wStepsAfterPaperSensor2 );
 	a_bRegs[0x4d] = _LOBYTE( hw->wStepsAfterPaperSensor2 );
@@ -1104,21 +1126,25 @@ static void usb_ResetRegisters( pPlustek_Device dev )
 	/* if already initialized, we ignore the MISC I/O settings as
      * they are used to determine the current lamp settings...
      */
-	if( dev->initialized ) {
+	if( dev->initialized >= 0 ) {
+
+		DBG( _DBG_INFO2, "USING MISC I/O settings\n" );
 		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x58 - 0x54 + 1 );
 		a_bRegs[0x5c] = hw->bReg_0x5c;
 		a_bRegs[0x5d] = hw->bReg_0x5d;
 		a_bRegs[0x5e] = hw->bReg_0x5e;
 		sanei_lm983x_read( dev->fd, 0x59, &a_bRegs[0x59], 3, SANE_TRUE );
 	} else {
+
+		DBG( _DBG_INFO2, "SETTING THE MISC I/Os\n" );
 		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
+		sanei_lm983x_write( dev->fd, 0x59, &a_bRegs[0x59], 3, SANE_TRUE );
 	}
 	DBG( _DBG_INFO, "MISC I/O after RESET: 0x%02x, 0x%02x, 0x%02x\n",
 								a_bRegs[0x59], a_bRegs[0x5a], a_bRegs[0x5b] );
 }
 
 /** usb_ModuleStatus
- *
  */
 static SANE_Bool usb_ModuleStatus( pPlustek_Device dev )
 {

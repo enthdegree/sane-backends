@@ -21,6 +21,7 @@
  *        - fixed cancel hang problem
  *        - fixed CIS PhyBytes adjustment
  *        - removed CanoScan specific setting stuff
+ * - 0.46 - fixed problem in usb_SetScanParameters()
  * .
  * <hr>
  * This file is part of the SANE package.

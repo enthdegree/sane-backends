@@ -3,8 +3,8 @@
  *.............................................................................
  */
 
-/** @file plustek-pp.c
- *  @brief The interface to the parport driver.
+/** @file plustek-pp_wrapper.c
+ *  @brief The interface to the parport driver-code and the kernel module.
  *
  * Based on sources acquired from Plustek Inc.<br>
  * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
@@ -17,6 +17,7 @@
  * - 0.43 - no changes
  * - 0.44 - added initialized setting
  * - 0.45 - no changes
+ * - 0.46 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -61,8 +62,28 @@
 
 /******************* wrapper functions for parport device ********************/
 
-/*.............................................................................
- *
+/*
+ * stuff needed for user space stuff
+ */
+int PtDrvInit     ( int portAddr, unsigned short model_override );
+int PtDrvShutdown ( void );
+int PtDrvOpen	  ( void );
+int PtDrvClose	  ( void );
+int PtDrvIoctl	  ( unsigned int cmd, void *arg );
+int PtDrvRead	  ( unsigned char *buffer, int count );
+
+#ifdef _USER_MODE
+
+
+#define _IOCTL(hd,cmd,arg)	PtDrvIoctl(cmd,arg)
+
+#else
+
+#define _IOCTL(hd,cmd,arg)  ioctl(hd,cmd,arg)
+#endif
+
+
+/**
  */
 static int ppDev_open( const char *dev_name, void *misc )
 {
@@ -73,14 +94,30 @@ static int ppDev_open( const char *dev_name, void *misc )
 	unsigned short  version = _PTDRV_IOCTL_VERSION;
 	Plustek_Device *dev     = (Plustek_Device *)misc;
 
-	_INIT(0x378,190,15);
 
-	if ((handle = _OPEN(dev_name)) < 0) {
+	if( dev->adj.direct_io ) {
+
+        /* convert device name to port-address... */
+        long portaddr = strtol( dev_name, 0, 0 );
+		
+		PtDrvInit((int)portaddr, dev->adj.mov );
+	}
+
+	if( dev->adj.direct_io )
+		handle = PtDrvOpen();
+	else
+		handle = open( dev_name, O_RDONLY );
+	
+	if ( handle  < 0 ) {
 	    DBG(_DBG_ERROR, "open: can't open %s as a device\n", dev_name);
     	return handle;
 	}
-	
-	result = _IOCTL( handle, _PTDRV_OPEN_DEVICE, &version );
+
+	if( dev->adj.direct_io )
+		result = PtDrvIoctl( _PTDRV_OPEN_DEVICE, &version );
+	else
+		result = ioctl( handle, _PTDRV_OPEN_DEVICE, &version );
+		
 	if( result < 0 ) {
 
         if( -9019 == result ) {
@@ -91,9 +128,18 @@ static int ppDev_open( const char *dev_name, void *misc )
 
 			version = _PTDRV_COMPAT_IOCTL_VERSION;
 
-			result = _IOCTL( handle, _PTDRV_OPEN_DEVICE, &version );
+			if( dev->adj.direct_io )
+				result = PtDrvIoctl( _PTDRV_OPEN_DEVICE, &version );
+			else
+				result = ioctl( handle, _PTDRV_OPEN_DEVICE, &version );
+			
 			if( result < 0 ) {
-				_CLOSE( handle );
+				
+				if( dev->adj.direct_io )
+					PtDrvClose();
+				else
+					close( dev->fd );
+					
 				DBG( _DBG_ERROR,
 					 "ioctl PT_DRV_OPEN_DEVICE failed(%d)\n", result );
 
@@ -113,7 +159,10 @@ static int ppDev_open( const char *dev_name, void *misc )
 				memcpy( &compatAdj.neg, &dev->adj.neg, sizeof(OffsDef));
 				memcpy( &compatAdj.tpa, &dev->adj.tpa, sizeof(OffsDef));
 
-				_IOCTL( handle, _PTDRV_ADJUST, &compatAdj );
+				if( dev->adj.direct_io )
+					PtDrvIoctl( _PTDRV_ADJUST, &compatAdj );
+				else
+					ioctl( handle, _PTDRV_ADJUST, &compatAdj );
 				return handle;
 			}
 		}
@@ -135,71 +184,85 @@ static int ppDev_open( const char *dev_name, void *misc )
 	adj.bgamma    = dev->adj.bgamma;
 	adj.graygamma = dev->adj.graygamma;
 
-	_IOCTL( handle, _PTDRV_ADJUST, &adj );
-	dev->initialized = SANE_TRUE;
+	if( dev->adj.direct_io )
+		PtDrvIoctl( _PTDRV_ADJUST, &adj );
+	else
+		ioctl( handle, _PTDRV_ADJUST, &adj );
 
+	dev->initialized = SANE_TRUE;
 	return handle;
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_close( Plustek_Device *dev )
 {
-	return _CLOSE( dev->fd );
+	if( dev->adj.direct_io )
+		return PtDrvClose();
+	else
+		return close( dev->fd );
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_getCaps( Plustek_Device *dev )
 {
 	return _IOCTL( dev->fd, _PTDRV_GET_CAPABILITIES, &dev->caps );
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_getLensInfo( Plustek_Device *dev, pLensInfo lens )
 {
+#ifdef _USER_MODE
+	_VAR_NOT_USED( dev );
+#endif
 	return _IOCTL( dev->fd, _PTDRV_GET_LENSINFO, lens );
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_getCropInfo( Plustek_Device *dev, pCropInfo crop )
 {
+#ifdef _USER_MODE
+	_VAR_NOT_USED( dev );
+#endif
 	return _IOCTL( dev->fd, _PTDRV_GET_CROPINFO, crop );
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_putImgInfo( Plustek_Device *dev, pImgDef img )
 {
+#ifdef _USER_MODE
+	_VAR_NOT_USED( dev );
+#endif
 	return _IOCTL( dev->fd, _PTDRV_PUT_IMAGEINFO, img );
 }
 
-/*.............................................................................
+/**
  *
  */
 static int ppDev_setScanEnv( Plustek_Device *dev, pScanInfo sinfo )
 {
+#ifdef _USER_MODE
+	_VAR_NOT_USED( dev );
+#endif
 	return _IOCTL( dev->fd, _PTDRV_SET_ENV, sinfo );
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_startScan( Plustek_Device *dev, pStartScan start )
 {
+#ifdef _USER_MODE
+	_VAR_NOT_USED( dev );
+#endif
 	return _IOCTL( dev->fd, _PTDRV_START_SCAN, start );
 }
 
-/**
- * function to send a gamma table to the kernel module. As the default table
- * entry is 16-bit, but the maps are 8-bit, we have to copy the values...
+/** function to send a gamma table to the kernel module. As the default table
+ *  entry is 16-bit, but the maps are 8-bit, we have to copy the values...
  */
 static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 						 SANE_Word length, SANE_Word channel )
@@ -229,7 +292,11 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	
 	m.map = buf;
 	
-	_IOCTL( dev->fd, _PTDRV_SETMAP, &m );
+	if( dev->adj.direct_io )
+		PtDrvIoctl( _PTDRV_SETMAP, &m );
+	else
+		ioctl( dev->fd, _PTDRV_SETMAP, &m );
+
 	/* we ignore the return values */
 
 	free( buf );
@@ -237,8 +304,7 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	return 0;
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_stopScan( Plustek_Device *dev, int *mode )
 {
@@ -247,24 +313,32 @@ static int ppDev_stopScan( Plustek_Device *dev, int *mode )
 	/* save this one... */
 	tmp = *mode;
 
-	retval = _IOCTL( dev->fd, _PTDRV_STOP_SCAN, mode );
-
-	/* ... and use it here */
-	if( 0 == tmp )
-		_IOCTL( dev->fd, _PTDRV_CLOSE_DEVICE, 0);
+	if( dev->adj.direct_io )
+		retval = PtDrvIoctl( _PTDRV_STOP_SCAN, mode );
 	else
+		retval = ioctl( dev->fd, _PTDRV_STOP_SCAN, mode );
+	
+	/* ... and use it here */
+	if( 0 == tmp ) {
+		if( dev->adj.direct_io )
+			PtDrvIoctl( _PTDRV_CLOSE_DEVICE, 0 );
+		else
+			ioctl( dev->fd, _PTDRV_CLOSE_DEVICE, 0);
+	}else
 		sleep( 1 );		
 
 	return retval;
 }
 
-/*.............................................................................
- *
+/**
  */
 static int ppDev_readImage( Plustek_Device *dev,
                             SANE_Byte *buf, unsigned long data_length )
 {
-	return _READ( dev->fd, buf, data_length );
+	if( dev->adj.direct_io )
+		return PtDrvRead( buf, data_length );
+	else
+		return read( dev->fd, buf, data_length );
 }
 
-/* END PLUSTEK_PP.C .........................................................*/
+/* END PLUSTEK-PP_WRAPPER.C .................................................*/

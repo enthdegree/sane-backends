@@ -4,7 +4,7 @@
  */
 
 /** @file plustek-share.h
- *  @brief Common definitions for the backend and the kernel driver
+ *  @brief Common definitions for the usb backend and parport backend
  *
  * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
@@ -27,6 +27,8 @@
  * - 0.43 - added tpa entry for AdjDef
  * - 0.44 - extended AdjDef
  * - 0.45 - added skipFine and skipFineWhite to AdjDef
+ * - 0.46 - added altCalibrate and cacheCalData to AdjDef
+ *        - moved some stuff to the specific backend headers
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -70,57 +72,6 @@
  */
 #ifndef __PLUSTEK_SHARE_H__
 #define __PLUSTEK_SHARE_H__
-
-/*
- * for other OS than Linux, we might have to define the _IO macros
- */
-#ifndef _IOC
-#define _IOC(dir,type,nr,size) \
-	(((dir)  << 30) | \
-	 ((type) << 8)  | \
-	 ((nr)   << 0)  | \
-	 ((size) << 16))
-#endif
-
-#ifndef _IO
-#define _IO(type,nr)		_IOC(0U,(type),(nr),0)
-#endif
-
-#ifndef _IOR
-#define _IOR(type,nr,size)	_IOC(2U,(type),(nr),sizeof(size))
-#endif
-
-#ifndef _IOW
-#define _IOW(type,nr,size)	_IOC(1U,(type),(nr),sizeof(size))
-#endif
-
-#ifndef _IOWR
-#define _IOWR(type,nr,size)	_IOC(3U,(type),(nr),sizeof(size))
-#endif
-
-/*.............................................................................
- * the ioctl interface
- */
-#define _PTDRV_OPEN_DEVICE 	    _IOW('x', 1, unsigned short)/* open			 */
-#define _PTDRV_GET_CAPABILITIES _IOR('x', 2, ScannerCaps)	/* get caps		 */
-#define _PTDRV_GET_LENSINFO 	_IOR('x', 3, LensInfo)		/* get lenscaps	 */
-#define _PTDRV_PUT_IMAGEINFO 	_IOW('x', 4, ImgDef)		/* put image info*/
-#define _PTDRV_GET_CROPINFO 	_IOR('x', 5, CropInfo)		/* get crop		 */
-#define _PTDRV_SET_ENV 			_IOWR('x',6, ScanInfo)		/* set env.		 */
-#define _PTDRV_START_SCAN 		_IOR('x', 7, StartScan)		/* start scan 	 */
-#define _PTDRV_STOP_SCAN 		_IOWR('x', 8, int)			/* stop scan 	 */
-#define _PTDRV_CLOSE_DEVICE 	_IO('x',  9)				/* close 		 */
-#define _PTDRV_ACTION_BUTTON	_IOR('x', 10, int)	 		/* rd act. button*/
-#define _PTDRV_ADJUST           _IOR('x', 11, AdjDef)		/* adjust driver */
-#define _PTDRV_SETMAP           _IOR('x', 12, MapDef)		/* download gamma*/
-
-/*
- * this version MUST match the one inside the driver to make sure, that
- * both sides use the same structures. This version changes each time
- * the ioctl interface changes
- */
-#define _PTDRV_COMPAT_IOCTL_VERSION	0x0102
-#define _PTDRV_IOCTL_VERSION		0x0103
 
 /*.............................................................................
  * the structures for driver communication
@@ -217,132 +168,21 @@ typedef struct {
 	int y;
 } OffsDef, *pOffsDef;
 
-/*
- * for compatiblity to version 0x0102 drivers
- */
-typedef struct {
-
-	int     lampOff;
-	int     lampOffOnEnd;
-	int     warmup;
-
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
-
-} CompatAdjDef, *pCompatAdjDef;
-
-/*
- * for adjusting the parport-drivers
- */
-typedef struct {
-	int     lampOff;
-	int     lampOffOnEnd;
-	int     warmup;
-	int     enableTpa;
-
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
-	
-	/* for adjusting the default gamma settings */
-	double  rgamma;
-	double  ggamma;
-	double  bgamma;
-	
-	double  graygamma;
-
-} PPAdjDef, *pPPAdjDef;
-
-/*
- * for adjusting the usb stuff
- */
-typedef struct {
-	int     lampOff;
-	int     lampOffOnEnd;
-	int     warmup;
-	int     enableTpa;
-	int     skipCalibration;
-	int     skipFine;
-	int     skipFineWhite;
-	int     invertNegatives;
-
-	int rgain;
-	int ggain;
-	int bgain;
-
-	OffsDef pos; 	/* for adjusting normal scan area       */
-	OffsDef tpa; 	/* for adjusting transparency scan area */
-	OffsDef neg; 	/* for adjusting negative scan area     */
-
-	int     posShadingY;
-	int     tpaShadingY;
-	int     negShadingY;
-
-	/* for adjusting the default gamma settings */
-	double  rgamma;
-	double  ggamma;
-	double  bgamma;
-
-	double  graygamma;
-
-} AdjDef, *pAdjDef;
-
-/*
- * useful for description tables
+/** useful for description tables
  */
 typedef struct {
 	int	  id;
 	char *desc;	
 } TabDef, *pTabDef;
 
-/* NOTE: needs to be kept in sync with table below */
-#define MODELSTR static char *ModelStr[] = { \
-    "unknown",						 \
-    "Primax 4800",  				 \
-    "Primax 4800 Direct",  			 \
-    "Primax 4800 Direct 30Bit", 	 \
-    "Primax 9600 Direct 30Bit", 	 \
-    "4800P",  						 \
-    "4830P",  						 \
-    "600P/6000P",					 \
-    "4831P",  						 \
-    "9630P",  						 \
-    "9630PL",  						 \
-    "9636P",  						 \
-    "A3I",    						 \
-    "12000P/96000P",				 \
-    "9636P+/Turbo",					 \
-    "9636T/12000T",					 \
-	"P8",							 \
-	"P12",							 \
-	"PT12",							 \
-    "Genius Colorpage Vivid III V2", \
-	"USB-Device"					 \
-}
-
-/* the models */
-#define MODEL_OP_UNKNOWN  0	/* unknown */
-#define MODEL_PMX_4800	  1 /* Primax Colorado 4800 like OP 4800 			 */
-#define MODEL_PMX_4800D   2 /* Primax Compact 4800 Direct, OP 600 R->G, G->R */
-#define MODEL_PMX_4800D3  3 /* Primax Compact 4800 Direct 30                 */
-#define MODEL_PMX_9600D3  4 /* Primax Compact 9600 Direct 30                 */
-#define MODEL_OP_4800P 	  5 /* 32k,  96001 ASIC, 24 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_4830P 	  6 /* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_600P 	  7	/* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_4831P 	  8 /* 128k, 96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
-#define MODEL_OP_9630P 	  9	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9630PL	 10	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x14	 */
-#define MODEL_OP_9636P 	 11	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_A3I 	 12	/* 128k, 96003 ASIC, 30 bit, 400x800,  11.69x17  */
-#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9636PP  14	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_9636T 	 15	/* like OP_9636PP + transparency 				 */
-#define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
-#define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
-#define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
-#define MODEL_GEN_CPV2   19 /* Genius Colorpage Vivid III V2, ASIC 98003     */
-#define MODEL_OP_USB	 20 /* some USB scanner device                       */
+/** for defining the scanmodes
+ */
+typedef const struct mode_param
+{
+	int color;
+	int depth;
+	int scanmode;
+} ModeParam, *pModeParam;
 
 /******************************************************************************
  * Section 1
@@ -366,22 +206,18 @@ typedef struct {
 
 #define SFLAG_CUSTOM_GAMMA		0x00000200  /* driver supports custom gamma */
 
-/*
- * (1.2.1) Provide the scanner ID. This field is valid when the wIOBase
- * field of ScannerCaps is not _NO_BASE
- */
-#define SFLAG_CCDTypeMask	    0x000f0000		/* CCD type, system reserved*/
-#define SFLAG_IDMask		    0x00f00000		/* Scanner ID				*/
-
 /* (1.3): SCANNERINFO.wIOBase */
 #define _NO_BASE	0xFFFF
 
+#if 0
 /******************************************************************************
  * Section 2
  * (2.1): MAPINFO.wRGB
  */
 #define RGB_Master		    1
 #define RGB_RGB 		    3
+
+#endif
 
 /******************************************************************************
  * Section 3
@@ -416,13 +252,14 @@ typedef struct {
 #define _SCANNER_SCANNING	    	0x8000000
 #define _SCANNER_PAPEROUT			0x4000000
 
-
+#if 0
 /* (3.2): SCANINFO.wMapType */
 #define CHANNEL_Master		    0	/* used only MAPINFO.wRGB == RGB_Master	*/
 									/* or scan gray							*/
 									/* it is illegal when in RGB_RGB mode.  */
 #define CHANNEL_RGB		    	1
 #define CHANNEL_Default 	    2
+
 
 /* these are used only to pointer out which color are used as gray map
  * It also pointers out which channel will be used to scan gray data
@@ -438,6 +275,9 @@ typedef struct {
 #define DITHER_Bayer		    2
 #define DITHER_VerticalLine	    3
 #define DITHER_UserDefine	    4
+
+#endif
+
 
 /* (3.4): SCANINFO.wBits */
 #define OUTPUT_8Bits		    0
@@ -497,7 +337,6 @@ typedef struct {
 #define _ASIC_IS_96003		0x10	/* value for 96003  */
 #define _ASIC_IS_98001		0x81	/* value for 98001	*/
 #define _ASIC_IS_98003		0x83	/* value for 98003	*/
-#define _ASIC_IS_USB        0x42    /* for the USB stuff*/
 
 /*
  * transparency/negative mode set ranges
@@ -515,8 +354,8 @@ typedef struct {
 #define _Transparency96OriginOffsetX  	0x03DB  /* org. was 0x0430	*/
 #define _Negative96OriginOffsetX	  	0x03F3	/* org. was 0x0428	*/
 
-#define _NegativePageWidth				460U	/* 38.9 mm */
-#define _NegativePageHeight	    		350U	/* 29.6 mm */
+#define _NegativePageWidth				460UL	/* 38.9 mm */
+#define _NegativePageHeight	    		350UL	/* 29.6 mm */
 
 #define _DEF_DPI		 		 50
 
@@ -566,37 +405,6 @@ typedef struct {
 #define _E_NODATA           (_FIRST_ERR-42)
 #define _E_BUFFER_TOO_SMALL (_FIRST_ERR-43)
 #define _E_DATAREAD         (_FIRST_ERR-44)
-
-/*
- * stuff needed for user space stuff
- */
-#ifdef _USER_MODE
-
-int PtDrvInit	  ( int portAddr, int lamp_off, int warm_up );
-int PtDrvShutdown ( void );
-int PtDrvOpen	  ( void );
-int PtDrvClose	  ( void );
-int PtDrvIoctl	  ( unsigned int cmd, void *arg );
-int PtDrvRead	  ( unsigned char *buffer, int count );
-
-#define _INIT(portAddr,lamp_off,warmup)	PtDrvInit(portAddr,lamp_off,warmup)
-#define _DOWN()							PtDrvShutdown()
-
-#define _OPEN(dev)			PtDrvOpen()
-#define _CLOSE(hd)			PtDrvClose()
-#define _IOCTL(hd,cmd,arg)	PtDrvIoctl(cmd,arg)
-#define _READ(hd,buf,len)	PtDrvRead(buf,len)
-
-#else
-
-#define _INIT(portAddr,lamp_off,warmup)
-#define _DOWN()
-
-#define _OPEN(dev)			open(dev,O_RDONLY)
-#define _CLOSE(hd)			close(hd)
-#define _IOCTL(hd,cmd,arg)  ioctl(hd,cmd,arg)
-#define _READ(hd,buf,len)	read(hd,buf,len)
-#endif
 
 #endif	/* guard __PLUSTEK_SHARE_H__ */
 

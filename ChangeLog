@@ -1,3 +1,30 @@
+2003-09-23  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* configure.in: added new backend plustek_pp
+	* doc/descriptions/plustek_pp.desc : added
+	* doc/plustek/*: added/updated various doc-files
+	* doc/sane-plustek_pp.man doc/Makefile.in : added new man page
+	* backend/dll.conf : added plustek_pp
+	* backend/Makefile.in : added plustek_pp files, updated plustek files
+	* backend/plustek-devs.c backend/pustek-pp.c : removed
+	* backend/plustek-usbcalfile.c backend/plustek-usbcal.c
+	  backend/plustek-usbdevs.c: new files for the plustek usb backend
+	* backend/plustek_pp.c backend/plustek_pp.conf
+	* backend/plustek-pp.h backend/plustek-pp_dac.c backend/plustek-pp_dbg.h
+	  backend/plustek-pp_detect.c backend/plustek-pp_genericio.c
+	  backend/plustek-pp_hwdefs.h backend/plustek-pp_image.c
+	  backend/plustek-pp_io.c backend/plustek-pp_map.c backend/plustek-pp_misc.c
+	  backend/plustek-pp_models.c backend/plustek-pp_motor.c
+	  backend/plustek-pp_p12.c backend/plustek-pp_p12ccd.c
+	  backend/plustek-pp_p48xx.c backend/plustek-pp_p9636.c
+	  backend/plustek-pp_procfs.c backend/plustek-pp_procs.h
+	  backend/plustek-pp_ptdrv.c backend/plustek-pp_scale.c
+	  backend/plustek-pp_scan.h backend/plustek-pp_scandata.h
+	  backend/plustek-pp_sysdep.h backend/plustek-pp_tpa.c
+	  backend/plustek-pp_types.h backend/plustek-pp_wrapper.c :
+	  new added, contains all the code necessary for controlling various Plustek
+	  ASIC 9600x/9800x based parallelport scanner
+
 2003-09-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: PATH_MAX is too small for long comments on

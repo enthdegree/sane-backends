@@ -3,7 +3,7 @@
  *.............................................................................
  */
 
-/** @file plustek.h
+/** @file plustek-pp.h
  *  @brief Definitions for the backend.
  *
  * Based on Kazuhiro Sasayama previous
@@ -14,34 +14,7 @@
  * Copyright (C) 2001-2003 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
- * - 0.30 - initial version
- * - 0.31 - no changes
- * - 0.32 - no changes
- * - 0.33 - no changes
- * - 0.34 - moved some definitions and typedefs from plustek.c
- * - 0.35 - removed OPT_MODEL from options list
- *		  - added max_y to struct Plustek_Scan
- * - 0.36 - added reader_pid, pipe and bytes_read to struct Plustek_Scanner
- *		  - removed unused variables from struct Plustek_Scanner
- *        - moved fd from struct Plustek_Scanner to Plustek_Device
- *		  - added next members to struct Plustek_Scanner and Plustek_Device
- * - 0.37 - added max_x to struct Plustek_Device
- * - 0.38 - added caps to struct Plustek_Device
- *        - added exit code to struct Plustek_Scanner
- *        - removed dropout stuff
- * - 0.39 - PORTTYPE enum
- *        - added function pointers to control a scanner device
- *        (Parport and USB)
- * - 0.40 - added USB stuff
- * - 0.41 - added configuration stuff
- * - 0.42 - added custom gamma tables
- *        - changed usbId to static array
- *		  - added _MAX_ID_LEN
- * - 0.43 - no changes
- * - 0.44 - added flag initialized
- * - 0.45 - added readLine function
- * - 0.46 - flag initialized is now used as device index
- *        - added calFile to Plustek_Device
+ * - 0.01 - initial version
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -83,14 +56,14 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
-#ifndef __PLUSTEK_H__
-#define __PLUSTEK_H__
+#ifndef __PLUSTEKPP_H__
+#define __PLUSTEKPP_H__
 
 /************************ some definitions ***********************************/
 
 #define MM_PER_INCH         25.4
 
-#define PLUSTEK_CONFIG_FILE	"plustek.conf"
+#define PLUSTEK_CONFIG_FILE	"plustek_pp.conf"
 
 #ifndef PATH_MAX
 # define PATH_MAX 1024
@@ -126,6 +99,110 @@
 
 #define _MAX_ID_LEN	20
 
+/******************** from former plustek-share.h ***************************/
+
+/*
+ * for other OS than Linux, we might have to define the _IO macros
+ */
+#ifndef _IOC
+#define _IOC(dir,type,nr,size) \
+	(((dir)  << 30) | \
+	 ((type) << 8)  | \
+	 ((nr)   << 0)  | \
+	 ((size) << 16))
+#endif
+
+#ifndef _IO
+#define _IO(type,nr)		_IOC(0U,(type),(nr),0)
+#endif
+
+#ifndef _IOR
+#define _IOR(type,nr,size)	_IOC(2U,(type),(nr),sizeof(size))
+#endif
+
+#ifndef _IOW
+#define _IOW(type,nr,size)	_IOC(1U,(type),(nr),sizeof(size))
+#endif
+
+#ifndef _IOWR
+#define _IOWR(type,nr,size)	_IOC(3U,(type),(nr),sizeof(size))
+#endif
+
+/*.............................................................................
+ * the ioctl interface
+ */
+#define _PTDRV_OPEN_DEVICE 	    _IOW('x', 1, unsigned short)/* open			 */
+#define _PTDRV_GET_CAPABILITIES _IOR('x', 2, ScannerCaps)	/* get caps		 */
+#define _PTDRV_GET_LENSINFO 	_IOR('x', 3, LensInfo)		/* get lenscaps	 */
+#define _PTDRV_PUT_IMAGEINFO 	_IOW('x', 4, ImgDef)		/* put image info*/
+#define _PTDRV_GET_CROPINFO 	_IOR('x', 5, CropInfo)		/* get crop		 */
+#define _PTDRV_SET_ENV 			_IOWR('x',6, ScanInfo)		/* set env.		 */
+#define _PTDRV_START_SCAN 		_IOR('x', 7, StartScan)		/* start scan 	 */
+#define _PTDRV_STOP_SCAN 		_IOWR('x', 8, int)			/* stop scan 	 */
+#define _PTDRV_CLOSE_DEVICE 	_IO('x',  9)				/* close 		 */
+#define _PTDRV_ACTION_BUTTON	_IOR('x', 10, int)	 		/* rd act. button*/
+#define _PTDRV_ADJUST           _IOR('x', 11, AdjDef)		/* adjust driver */
+#define _PTDRV_SETMAP           _IOR('x', 12, MapDef)		/* download gamma*/
+
+/*
+ * this version MUST match the one inside the driver to make sure, that
+ * both sides use the same structures. This version changes each time
+ * the ioctl interface changes
+ */
+#define _PTDRV_COMPAT_IOCTL_VERSION	0x0102
+#define _PTDRV_IOCTL_VERSION		0x0103
+
+
+/* NOTE: needs to be kept in sync with table below */
+#define MODELSTR static char *ModelStr[] = { \
+    "unknown",						 \
+    "Primax 4800",  				 \
+    "Primax 4800 Direct",  			 \
+    "Primax 4800 Direct 30Bit", 	 \
+    "Primax 9600 Direct 30Bit", 	 \
+    "4800P",  						 \
+    "4830P",  						 \
+    "600P/6000P",					 \
+    "4831P",  						 \
+    "9630P",  						 \
+    "9630PL",  						 \
+    "9636P",  						 \
+    "A3I",    						 \
+    "12000P/96000P",				 \
+    "9636P+/Turbo",					 \
+    "9636T/12000T",					 \
+	"P8",							 \
+	"P12",							 \
+	"PT12",							 \
+    "Genius Colorpage Vivid III V2", \
+	"USB-Device"					 \
+}
+
+/* the models */
+#define MODEL_OP_UNKNOWN  0	/* unknown */
+#define MODEL_PMX_4800	  1 /* Primax Colorado 4800 like OP 4800 			 */
+#define MODEL_PMX_4800D   2 /* Primax Compact 4800 Direct, OP 600 R->G, G->R */
+#define MODEL_PMX_4800D3  3 /* Primax Compact 4800 Direct 30                 */
+#define MODEL_PMX_9600D3  4 /* Primax Compact 9600 Direct 30                 */
+#define MODEL_OP_4800P 	  5 /* 32k,  96001 ASIC, 24 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_4830P 	  6 /* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_600P 	  7	/* 32k,  96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_4831P 	  8 /* 128k, 96003 ASIC, 30 bit, 300x600, 8.5x11.69  */
+#define MODEL_OP_9630P 	  9	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9630PL	 10	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x14	 */
+#define MODEL_OP_9636P 	 11	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_A3I 	 12	/* 128k, 96003 ASIC, 30 bit, 400x800,  11.69x17  */
+#define MODEL_OP_12000P  13	/* 128k, 96003 ASIC, 30 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9636PP  14	/* 512k, 98001 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_9636T 	 15	/* like OP_9636PP + transparency 				 */
+#define MODEL_OP_P8      16 /* 512k, 98003 ASIC, 36 bit,  300x600, 8.5x11.69 */
+#define MODEL_OP_P12     17 /* 512k, 98003 ASIC, 36 bit, 600x1200, 8.5x11.69 */
+#define MODEL_OP_PT12    18 /* like OP_P12 + transparency 					 */
+#define MODEL_GEN_CPV2   19 /* Genius Colorpage Vivid III V2, ASIC 98003     */
+#define MODEL_UNKNOWN	 20 /* not known/supported                           */
+
+#define _NO_BASE	0xFFFF
+
 /************************ some structures ************************************/
 
 enum {
@@ -152,42 +229,31 @@ enum {
     NUM_OPTIONS
 };
 
-/*
- * to distinguish between parallelport and USB device
+/** for compatiblity to version 0x0102 drivers
  */
-typedef enum {
-	PARPORT = 0,
-	USB,
-	NUM_PORTTYPES
-} PORTTYPE;
+typedef struct {
 
-/** for adjusting the scanner settings
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+
+} CompatAdjDef, *pCompatAdjDef;
+
+/** for adjusting the parport stuff
  */
 typedef struct {
 	int     lampOff;
 	int     lampOffOnEnd;
 	int     warmup;
 	int     enableTpa;
-	int     skipCalibration;
-	int     skipFine;
-	int     skipFineWhite;
-	int     invertNegatives;
-	int     cacheCalData;
-	int     altCalibrate;  /* force use of the alternate canoscan
-                                  autocal; perhaps other Canon
-                                  scanners require the alternate
-                                  autocalibration as well */
-	int rgain;
-	int ggain;
-	int bgain;
 
 	OffsDef pos; 	/* for adjusting normal scan area       */
 	OffsDef tpa; 	/* for adjusting transparency scan area */
 	OffsDef neg; 	/* for adjusting negative scan area     */
-
-	int     posShadingY;
-	int     tpaShadingY;
-	int     negShadingY;
 
 	/* for adjusting the default gamma settings */
 	double  rgamma;
@@ -196,15 +262,41 @@ typedef struct {
 
 	double  graygamma;
 
+} PPAdjDef, *pPPAdjDef;
+
+/** for adjusting the scanner settings
+ */
+typedef struct {
+
+	int 	direct_io;
+	int     mov;
+	
+	int     lampOff;
+	int     lampOffOnEnd;
+	int     warmup;
+
+	OffsDef pos; 	/* for adjusting normal scan area       */
+	OffsDef tpa; 	/* for adjusting transparency scan area */
+	OffsDef neg; 	/* for adjusting negative scan area     */
+
+	/* for adjusting the default gamma settings */
+	double  rgamma;
+	double  ggamma;
+	double  bgamma;
+
+	double  graygamma;
+	
 } AdjDef, *pAdjDef;
 
+
+/**
+ */
 typedef struct Plustek_Device
 {
 	SANE_Int               initialized;      /* device already initialized?  */
 	struct Plustek_Device *next;             /* pointer to next dev in list  */
 	int 				   fd;				 /* device handle                */
     char                  *name;             /* (to avoid compiler warnings!)*/
-	char                  *calFile;          /* for saving calibration data  */
     SANE_Device 		   sane;             /* info struct                  */
 	SANE_Int			   max_x;            /* max XY-extension of the scan-*/
 	SANE_Int			   max_y;            /* area                         */
@@ -216,15 +308,6 @@ typedef struct Plustek_Device
     ScannerCaps            caps;             /* caps reported by the driver  */
 	AdjDef                 adj;	             /* for driver adjustment        */
 	
-    /**************************** USB-stuff **********************************/
-    char                   usbId[_MAX_ID_LEN];/* to keep Vendor and product  */
-                                             /* ID string (from conf) file   */
-#ifdef _PLUSTEK_USB
-    ScanDef                scanning;         /* here we hold all stuff for   */
-                                             /* the USB-scanner              */
-	DeviceDef              usbDev;	
-	struct itimerval       saveSettings;     /* for lamp timer               */
-#endif
     /*
      * each device we support may need other access functions...
      */
@@ -280,19 +363,17 @@ typedef struct Plustek_Scanner
 
 } Plustek_Scanner, *pPlustek_Scanner;
 
-
 /** for collecting configuration info...
  */
 typedef struct {
 	
-	char     devName[PATH_MAX];
-	char     usbId[_MAX_ID_LEN];	
+	char   devName[PATH_MAX];
 
 	/* contains the stuff to adjust... */
-	AdjDef   adj;
+	AdjDef adj;
 
 } CnfDef, *pCnfDef;
 
-#endif	/* guard __PLUSTEK_H__ */
+#endif	/* guard __PLUSTEKPP_H__ */
 
-/* END PLUSTEK.H.............................................................*/
+/* END PLUSTEK-PP.H .........................................................*/

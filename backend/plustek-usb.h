@@ -24,6 +24,9 @@
  *        - added _WAF_SKIP_WHITEFINE for skipping fine white calibration
  *        - added MCLK setting for 16 bit modes
  *        - added _WAF_FIX_GAIN and _WAF_FIX_OFS
+ * - 0.46 - added UMAX1200 for 5400 model
+ *        - removed _WAF_FIX_GAIN and _WAF_FIX_OFS
+ *        - added skipCoarseCalib to ScanDef
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -77,7 +80,8 @@
 #define	kNECSLIM	5
 #define	kCIS650     6
 #define	kCIS670     7
-#define	kCIS1240    8
+#define	kCIS1220    8
+#define	kCIS1240    9
 
 /*********************************** plustek_types.h!!! ************************/
 
@@ -213,9 +217,7 @@ enum _WORKAROUNDS
 	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
 	_WAF_INV_NEGATIVE_MAP   = 0x00000010, /* the backend does the neg. stuff */
 	_WAF_SKIP_FINE          = 0x00000020, /* skip the fine calbration        */
-	_WAF_SKIP_WHITEFINE     = 0x00000040, /* skip the fine white calbration  */
-	_WAF_FIX_GAIN           = 0x00000080, /* use fixed gain for coarse cal.  */
-	_WAF_FIX_OFS            = 0x00000100  /* use fixed offset for coarse cal.*/
+	_WAF_SKIP_WHITEFINE     = 0x00000040  /* skip the fine white calbration  */
 };
 
 /** for lamps connected to the misc I/O pins*/
@@ -537,6 +539,7 @@ struct Plustek_Device;
 typedef struct ScanDef
 {
     SANE_Bool           fCalibrated;    /**< calibrated or not              */
+    SANE_Bool           skipCoarseCalib;/**< skip coarse calibration or not */
 	u_long				dwFlag;         /**< scan attributes                */
 
 	ScanParam			sParam;         /**< all we need to scan            */

@@ -20,6 +20,8 @@
  * - 0.45 - added coarse calibration for CIS devices
  *        - added _WAF_SKIP_FINE to skip the results of fine calibration
  *        - CanoScan fixes and fine-tuning
+ * - 0.46 - CanoScan will now be calibrated by code in plustek-usbcal.c
+ *        - added functions to save and restore calibration data from a file
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -332,63 +334,33 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 		break;
 
 	case kCIS650:
-		DBG( _DBG_INFO2, "kCIS650 adjustments\n" );
-		if(pParam->bDataType == SCANDATATYPE_Color) {
-			pParam->swGain[0] = 1160;
-			pParam->swGain[1] = 1160;
-			pParam->swGain[2] = 1160;
-		} else {
-			pParam->swOffset[0] =
-			pParam->swOffset[1] =
-			pParam->swOffset[2] = -1500;
-
-			pParam->swGain[0] =
-			pParam->swGain[1] =
-			pParam->swGain[2] = 1000;
-
-		}
-		break;
-
 	case kCIS670:
-		DBG( _DBG_INFO2, "kCIS670 adjustments\n" );
+	case kCIS1220:
+		DBG( _DBG_INFO2, "kCIS adjustments\n" );
 		if(pParam->bDataType == SCANDATATYPE_Color) {
-			pParam->swOffset[0] = -2650;
-			pParam->swOffset[1] = -2800;
-			pParam->swOffset[2] = -2850;
 
-			pParam->swGain[0] = 1150;
-			pParam->swGain[1] = 1150;
-			pParam->swGain[2] = 1150;
-		} else {
-			pParam->swOffset[0] =
-			pParam->swOffset[1] =
-			pParam->swOffset[2] = -2800;
-			
 			pParam->swGain[0] =
 			pParam->swGain[1] =
-			pParam->swGain[2] = 980;
+			pParam->swGain[2] = 952;
+
+			pParam->swOffset[0] =
+			pParam->swOffset[1] =
+			pParam->swOffset[2] = 1000;
 		}
 		break;
-
+		
 	case kCIS1240:
 		DBG( _DBG_INFO2, "kCIS1240 adjustments\n" );
 		if(pParam->bDataType == SCANDATATYPE_Color) {
-			pParam->swOffset[0] = -1650;
-			pParam->swOffset[1] = -1500;
-			pParam->swOffset[2] = -1500;
 
-			pParam->swGain[0] = 1010;
-			pParam->swGain[1] = 1050;
-			pParam->swGain[2] = 1030;
-		} else {
-			pParam->swOffset[0] = -1000;
-			pParam->swOffset[1] = -1000;
-			pParam->swOffset[2] = -1000;
+			pParam->swGain[0] = 950;
+			pParam->swGain[1] = 950;
+			pParam->swGain[2] = 900;
 
-			pParam->swGain[0] = 1100;
-			pParam->swGain[1] = 1100;
-			pParam->swGain[2] = 1100;
-		}	
+			pParam->swOffset[0] =
+			pParam->swOffset[1] =
+			pParam->swOffset[2] = 0; /*1000;*/
+		}
 		break;
 		
 	case kNEC3799:
@@ -702,14 +674,6 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 	bMaxITA = 0xff;
 
 	DBG( _DBG_INFO2, "usb_AdjustGain()\n" );
-	if( scaps->workaroundFlag & _WAF_FIX_GAIN ) {
-		a_bRegs[0x3b] =
-		a_bRegs[0x3c] =
-		a_bRegs[0x3d] = _CIS_GAIN;
-
-		/* don't blame on me - I know it's shitty... */
-		goto show_sets;
-	}
 	
 	/*
      * define the strip to scan for coarse calibration
@@ -1074,7 +1038,6 @@ TOGAIN:
 		}
 	}
 
-show_sets:		
 	DBG( _DBG_INFO2, "REG[0x3b] = %u\n", a_bRegs[0x3b] );
 	DBG( _DBG_INFO2, "REG[0x3c] = %u\n", a_bRegs[0x3c] );
 	DBG( _DBG_INFO2, "REG[0x3d] = %u\n", a_bRegs[0x3d] );
@@ -1164,19 +1127,12 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 	u_long        dw, dwPixels;
     u_long        dwDiff[3], dwSum[3];
 
-	pDCapsDef scaps = &dev->usbDev.Caps;
-	pHWDef    hw    = &dev->usbDev.HwSetting;
+	pHWDef    hw = &dev->usbDev.HwSetting;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
 
 	DBG( _DBG_INFO2, "usb_AdjustOffset()\n" );
-	if( scaps->workaroundFlag & _WAF_FIX_OFS ) {
-		a_bRegs[0x38] =
-		a_bRegs[0x39] =
-		a_bRegs[0x3a] = _CIS_OFFS;
-		return SANE_TRUE;
-	}
 
 	m_ScanParam.Size.dwLines  = 1;				/* for gain */
 	m_ScanParam.Size.dwPixels = 2550;
@@ -2017,7 +1973,6 @@ static void usb_ResizeWhiteShading( double dAmp, u_short *pwShading, int iGain )
 		pwShading[dw] = (u_short)_LOBYTE(w) * 256 + _HIBYTE(w);
 	}
 }
-
 /**
  */
 static void usb_PrepareCalibration( pPlustek_Device dev )
@@ -2053,10 +2008,15 @@ static void usb_PrepareCalibration( pPlustek_Device dev )
 
 	memset( a_wWhiteShading, 0, _SHADING_BUF );
 	memset( a_wDarkShading,  0, _SHADING_BUF );
+
+	scanning->skipCoarseCalib = SANE_FALSE;
+
+	if( dev->adj.cacheCalData )
+		if( usb_ReadAndSetCalData( dev ))
+			scanning->skipCoarseCalib = SANE_TRUE;
 }
 
 /** usb_DoCalibration
- *
  */
 static int usb_DoCalibration( pPlustek_Device dev )
 {
@@ -2071,14 +2031,12 @@ static int usb_DoCalibration( pPlustek_Device dev )
 
 	/* Go to shading position
      */
-	if( !(scaps->workaroundFlag & (_WAF_FIX_GAIN & _WAF_FIX_OFS))) {
-     
-		DBG( _DBG_INFO, "goto shading position\n" );
+	DBG( _DBG_INFO, "goto shading position\n" );
 
-		/* HEINER: Currently not clear why Plustek didn't use the ShadingOriginY
-		 *         for all modes
-		 * It should be okay to remove this and reference to the ShadingOriginY
-		 */	
+	/* HEINER: Currently not clear why Plustek didn't use the ShadingOriginY
+	 *         for all modes
+	 * It should be okay to remove this and reference to the ShadingOriginY
+	 */	
 #if 0	
 	if( scanning->sParam.bSource == SOURCE_Negative ) {
 
@@ -2092,22 +2050,21 @@ static int usb_DoCalibration( pPlustek_Device dev )
 
 	} else {
 #endif
-			DBG( _DBG_INFO, "ShadingOriginY=%lu\n",
-					(u_long)dev->usbDev.pSource->ShadingOriginY );
+		DBG( _DBG_INFO, "ShadingOriginY=%lu\n",
+				(u_long)dev->usbDev.pSource->ShadingOriginY );
 
-			if((hw->motorModel == MODEL_HuaLien) && (scaps->OpticDpi.x==600)) {
-				if (!usb_ModuleMove(dev, MOVE_ToShading,
-								(u_long)dev->usbDev.pSource->ShadingOriginY)) {
-					return _E_LAMP_NOT_IN_POS;
-				}
-			} else {
-				if( !usb_ModuleMove(dev, MOVE_Forward,
-								(u_long)dev->usbDev.pSource->ShadingOriginY)) {
-					return _E_LAMP_NOT_IN_POS;
-				}
+		if((hw->motorModel == MODEL_HuaLien) && (scaps->OpticDpi.x==600)) {
+			if (!usb_ModuleMove(dev, MOVE_ToShading,
+							(u_long)dev->usbDev.pSource->ShadingOriginY)) {
+				return _E_LAMP_NOT_IN_POS;
 			}
-/*		}*/
-	}
+		} else {
+			if( !usb_ModuleMove(dev, MOVE_Forward,
+							(u_long)dev->usbDev.pSource->ShadingOriginY)) {
+				return _E_LAMP_NOT_IN_POS;
+			}
+		}
+/*	}*/
 
 	DBG( _DBG_INFO, "shading position reached\n" );
 
@@ -2474,7 +2431,8 @@ static int usb_DoCalibration( pPlustek_Device dev )
 	}
 
 	scanning->fCalibrated = SANE_TRUE;
-	DBG( _DBG_INFO, "Calibration done\n-----------------------\n" );
+	DBG( _DBG_INFO, "Calibration done\n" );
+	DBG( _DBG_INFO, "-----------------------\n" );
 	DBG( _DBG_INFO, "Static Gain:\n" );
 	DBG( _DBG_INFO, "REG[0x3b] = %u\n", a_bRegs[0x3b] );
 	DBG( _DBG_INFO, "REG[0x3c] = %u\n", a_bRegs[0x3c] );

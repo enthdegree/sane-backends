@@ -22,6 +22,7 @@
  *        - fixed a bug in usb_GrayScalePseudo16 function
  *        - fixed a bug in usb_GrayDuplicatePseudo16 function
  *        - removed the scaler stuff for CIS devices
+ * - 0.46 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

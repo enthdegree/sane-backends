@@ -19,6 +19,7 @@
  *        - beautyfied output of ASIC detection
  * - 0.45 - fixed dumpRegs
  *        - added dimension stuff to dumpPic
+ * - 0.46 - disabled reset prior to the detection of Merlin
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -262,8 +263,7 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
 	return SANE_FALSE;
 }
 
-/*.............................................................................
- *
+/**
  */
 static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 {
@@ -273,10 +273,12 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 
 	DBG( _DBG_INFO, "usbio_DetectLM983x\n");
 
+#if 0	
 	_UIO( sanei_lm983x_write_byte(fd, 0x07, 0x00));
 	_UIO( sanei_lm983x_write_byte(fd, 0x08, 0x02));
 	_UIO( usbio_ReadReg(fd, 0x07, &value));
 	_UIO( usbio_ReadReg(fd, 0x08, &value));
+#endif	
 	_UIO( usbio_ReadReg(fd, 0x69, &value));
 
 	value &= 7;
@@ -303,8 +305,7 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 	return res;
 }
 
-/*.............................................................................
- *
+/**
  */
 static SANE_Status usbio_ResetLM983x( pPlustek_Device dev )
 {

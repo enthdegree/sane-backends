@@ -58,6 +58,8 @@
 :interface "SCSI"
 :model "Phantom 636CX"
 :interface "Parport"
+:model "SlimScan C6"
+:interface "USB"
 :model "ScanMaker V6USL"
 :interface "SCSI"
 
@@ -66,6 +68,15 @@
 :model "HighScan"                 ; name models for above-specified mfg.
 :interface "SCSI"
 :comment "only E3plus based models"
+
+:mfg "Scanport"
+:url "http://www.scanport.com/"
+:model "SQ300"
+:interface "Parport?"
+:model "SQ2030"
+:interface "Parport"
+:model "SQ4836"
+:interface "SCSI"
 
 
 

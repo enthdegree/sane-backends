@@ -2,7 +2,8 @@
 .IX sane-avision
 
 .SH NAME
-sane-avision - SANE backend for Avision (and OEM HP, Minolta) flatbed scanners
+sane-avision - SANE backend for original Avision and Avision OEM scanners
+(HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed scanners
 
 .SH ABOUT THIS FILE
 
@@ -34,7 +35,6 @@ the first scans!
  # this is a comment
  #
  option force-a4
- option allow-usb
  option disable-gamma-table
  
  - force-a4:
@@ -44,12 +44,13 @@ the first scans!
    which retuns the area in a unkown format our backend
    doesn't recongize yet.
  
- - allow-usb:
-   Tells the backend to use USB scanner - which do not
-   work correctly yet.
-
  - disable-gamma-table:
    Disables the usage of the scanner's gamma-table. You
+   might try this if your scans hang, or only produces
+   random garbage.
+ 
+ - disable-calibration:
+   Disables the scanner's color calibration. You
    might try this if your scans hang, or only produces
    random garbage.
 

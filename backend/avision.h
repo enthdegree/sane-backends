@@ -45,13 +45,20 @@
    Copyright 1999, 2000, 2001, 2002 by
                 "René Rebe" <rene.rebe@gmx.net>
                 "Meino Christian Cramer" <mccramer@s.netic.de>
-                "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
+                "Jose Paulo Moitinho de Almeida" <moitinho@civil.ist.utl.pt>
    
    Additional Contributers:
                 "Gunter Wagner"
                   (some fixes and the transparency option)
+                "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
+                   nice attach debug output
+                "Marcin Siennicki" <m.siennicki@cloos.pl>
+                   found some typos
+                "Frank Zago" <fzago@greshamstorage.com>
+                   Mitsubishi IDs and report
    
    Very much thanks to:
+                Oliver Neukum who sponsored a HP 5300 USB scanner !!! ;-)
                 Avision INC for the documentation we got! ;-)
    
    Check the avision.c file for a ChangeLog ...
@@ -67,6 +74,7 @@ typedef struct Avision_HWEntry {
   char* mfg;
   char* model;
   SANE_Bool usb;
+  SANE_Bool film;
 } Avision_HWEntry;
 
 enum Avision_Option
@@ -99,6 +107,8 @@ enum Avision_Option
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
   
+  OPT_FRAME,             /* Film holder control */
+  
   NUM_OPTIONS            /* must come last */
 };
 
@@ -111,17 +121,23 @@ typedef union Option_Value
 
 typedef struct Avision_Dimensions
 {
+  /* in dpi */
+  int res;
+  int resx;
+  int rexy;
+  
+  /* in 1200/dpi */
   long tlx;
   long tly;
   long brx;
   long bry;
-  long wid;
-  long len;
-  long pixelnum;
-  long linenum;
-  int resx;
-  int rexy;
-  int res;
+  
+  long width;
+  long length;
+  
+  /* in pixels */
+  int line_difference;
+  
 } Avision_Dimensions;
 
 /* this contains our low-level info - not relevant for the SANE interface  */
@@ -137,14 +153,15 @@ typedef struct Avision_Device
   SANE_Range speed_range;
   
   SANE_Bool is_usb;
+  SANE_Bool is_film_scanner;
   
   SANE_Bool inquiry_new_protocol;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
   SANE_Bool inquiry_needs_software_colorpack;
   
-  int    inquiry_grey_res;        /* in dpi */
-  int    inquiry_color_res;       /* in dpi */
+  int    inquiry_optical_res;     /* in dpi */
+  int    inquiry_max_res;         /* in dpi */
   
   double inquiry_x_range;         /* in mm */
   double inquiry_y_range;         /* in mm */
@@ -159,7 +176,11 @@ typedef struct Avision_Device
   int    inquiry_grey_boundary;
   int    inquiry_line_difference; /* software color pack */
   
-  int    inquiry_bits_per_channel;
+  /* int    inquiry_bits_per_channel; */
+  
+  SANE_Range frame_range;
+  SANE_Word current_frame;
+  SANE_Word holder_type;
   
 } Avision_Device;
 
@@ -173,20 +194,18 @@ typedef struct Avision_Scanner
   Option_Value val [NUM_OPTIONS];
   SANE_Int gamma_table [4][256];
   
-  SANE_Bool scanning;           /* scan in progress */
-  /*int pass;*/			/* pass number */ 
-  int line;			/* current line number */
-  
-  SANE_Parameters params;
-  
   /* Parsed option values and variables that are valid only during
-     actual scanning: */
+     the actual scan: */
+  
+  SANE_Bool scanning;           /* scan in progress */
+  SANE_Parameters params;       /* scan window */
+  Avision_Dimensions avdimen;   /* scan window - detailed internals */
   int mode;
-  Avision_Dimensions avdimen;   /* Used for internal calculationg */
   
   int fd;			/* SCSI filedescriptor */
   pid_t reader_pid;		/* process id of reader */
   int pipe;			/* pipe to reader process */
+  int line;			/* current line number during scan */
   
 } Avision_Scanner;
 
@@ -304,108 +323,107 @@ typedef struct Avision_Scanner
 
 struct command_header
 {
-  unsigned char opc;
-  unsigned char pad0 [3];
-  unsigned char len;
-  unsigned char pad1;
+  u_int8_t opc;
+  u_int8_t pad0 [3];
+  u_int8_t len;
+  u_int8_t pad1;
 };
 
 struct command_set_window
 {
-  unsigned char opc;
-  unsigned char reserved0 [5];
-  unsigned char transferlen [3];
-  unsigned char control;
+  u_int8_t opc;
+  u_int8_t reserved0 [5];
+  u_int8_t transferlen [3];
+  u_int8_t control;
 };
 
 struct command_read
 {
-  unsigned char opc;
-  unsigned char bitset1;
-  unsigned char datatypecode;
-  unsigned char calibchn;
-  unsigned char datatypequal [2];
-  unsigned char transferlen [3];
-  unsigned char control;
+  u_int8_t opc;
+  u_int8_t bitset1;
+  u_int8_t datatypecode;
+  u_int8_t calibchn;
+  u_int8_t datatypequal [2];
+  u_int8_t transferlen [3];
+  u_int8_t control;
 };
 
 struct command_scan
 {
-  unsigned char opc;
-  unsigned char pad0 [3];
-  unsigned char transferlen;
-  unsigned char bitset1;
+  u_int8_t opc;
+  u_int8_t pad0 [3];
+  u_int8_t transferlen;
+  u_int8_t bitset1;
 };
 
 struct command_send
 {
-  unsigned char opc;
-  unsigned char bitset1;
-  unsigned char datatypecode;
-  unsigned char reserved0;  
-  unsigned char datatypequal [2];
-  unsigned char transferlen [3];
-  unsigned char reserved1;
+  u_int8_t opc;
+  u_int8_t bitset1;
+  u_int8_t datatypecode;
+  u_int8_t reserved0;  
+  u_int8_t datatypequal [2];
+  u_int8_t transferlen [3];
+  u_int8_t reserved1;
 };
 
 struct command_set_window_window_header
 {
-  unsigned char reserved0 [6];
-  unsigned char desclen [2];
+  u_int8_t reserved0 [6];
+  u_int8_t desclen [2];
 };
 
 struct command_set_window_window_descriptor
 {
-  unsigned char winid;
-  unsigned char pad0;
-  unsigned char xres [2];
-  unsigned char yres [2];
-  unsigned char ulx [4];
-  unsigned char uly [4];
-  unsigned char width [4];  
-  unsigned char length [4];
-  unsigned char brightness;
-  unsigned char thresh;
-  unsigned char contrast;
-  unsigned char image_comp;
-  unsigned char bpp;
-  unsigned char halftone [2];
-  unsigned char pad_type;
-  unsigned char bitordering [2];
-  unsigned char compr_type;
-  unsigned char compr_arg;
-  unsigned char pad4 [6];
-  unsigned char vendor_specid;
-  unsigned char paralen;
-  unsigned char bitset1;
-  unsigned char highlight;
-  unsigned char shadow;
-  unsigned char linewidth [2];
-  unsigned char linecount [2];
-  unsigned char bitset2;
-  unsigned char pad5;
-#if 1
-  unsigned char r_exposure_time [2];
-  unsigned char g_exposure_time [2];
-  unsigned char b_exposure_time [2];
-#endif
+  u_int8_t winid;
+  u_int8_t pad0;
+  u_int8_t xres [2];
+  u_int8_t yres [2];
+  u_int8_t ulx [4];
+  u_int8_t uly [4];
+  u_int8_t width [4];  
+  u_int8_t length [4];
+  u_int8_t brightness;
+  u_int8_t thresh;
+  u_int8_t contrast;
+  u_int8_t image_comp;
+  u_int8_t bpc;
+  u_int8_t halftone [2];
+  u_int8_t pad_type;
+  u_int8_t bitordering [2];
+  u_int8_t compr_type;
+  u_int8_t compr_arg;
+  u_int8_t pad4 [6];
+  u_int8_t vendor_specid;
+  u_int8_t paralen;
+  u_int8_t bitset1;
+  u_int8_t highlight;
+  u_int8_t shadow;
+  u_int8_t linewidth [2];
+  u_int8_t linecount [2];
+  u_int8_t bitset2;
+  u_int8_t pad5;
+  
+  u_int8_t r_exposure_time [2];
+  u_int8_t g_exposure_time [2];
+  u_int8_t b_exposure_time [2];
 };
 
 struct page_header
 {
-  char pad0 [4];
-  char code;
-  char length;
+  u_int8_t pad0 [4];
+  u_int8_t code;
+  u_int8_t length;
 };
 
 struct avision_page
 {
-  char gamma;
-  char thresh;
-  char masks;
-  char delay;
-  char features;
-  char pad0;
+  u_int8_t gamma;
+  u_int8_t thresh;
+  u_int8_t masks;
+  u_int8_t delay;
+  u_int8_t features;
+  u_int8_t pad0;
 };
 
 /* set SCSI highended variables. Declare them as an array of chars */
@@ -423,5 +441,10 @@ struct avision_page
                             var[3] = ((val)      ) & 0xff;
 
 #define BIT(n, p) ((n & ( 1 << p))?1:0)
+
+/* These should be in saneopts.h */
+#define SANE_NAME_FRAME "frame"
+#define SANE_TITLE_FRAME SANE_I18N("Number of the frame to scan")
+#define SANE_DESC_FRAME  SANE_I18N("Selects the number of the frame to scan")
 
 #endif /* avision_h */

@@ -150,6 +150,18 @@ AC_TRY_COMPILE([
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
 AC_MSG_RESULT(no))
 
+AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <scsi/sg.h>
+],[
+struct sg_header hdr;
+hdr.target_status = 1;
+return 0;
+],[AC_MSG_RESULT(yes);
+AC_DEFINE(HAVE_SG_TARGET_STATUS,1,[Define if sg_header.target_status is
+available.])],
+AC_MSG_RESULT(no))
 
 SANE_V4L_VERSION
 

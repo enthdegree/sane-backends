@@ -2091,21 +2091,24 @@ sanei_scsi_req_wait (void *id)
                           req->sgdata.cdb.hdr.sense_buffer[13],
                           req->sgdata.cdb.hdr.sense_buffer[14],
                           req->sgdata.cdb.hdr.sense_buffer[15]);
-                  /* xxx compilation breaks with the original SG header: */
-                  #if 0
+#ifdef HAVE_SG_TARGET_STATUS
+                  /* really old SG header do not define target_status,
+                     host_status and driver_status
+                  */
                   DBG(10, "target status: %02x host status: %02x"
                           " driver status: %02x\n",
                           req->sgdata.cdb.hdr.target_status,
                           req->sgdata.cdb.hdr.host_status,
                           req->sgdata.cdb.hdr.driver_status);
-                  #endif
 
                  if (   req->sgdata.cdb.hdr.host_status == DID_NO_CONNECT
                      || req->sgdata.cdb.hdr.host_status == DID_BUS_BUSY
                      || req->sgdata.cdb.hdr.host_status == DID_TIME_OUT
                      || req->sgdata.cdb.hdr.driver_status == DRIVER_BUSY
                      || req->sgdata.cdb.hdr.target_status == 0x04) /* BUSY */
-                 /* if (req->sgdata.cdb.hdr.result == EBUSY) */
+#else
+                 if (req->sgdata.cdb.hdr.result == EBUSY)
+#endif
                    status = SANE_STATUS_DEVICE_BUSY;
                  else if (handler)
                    /* sense handler should return SANE_STATUS_GOOD if it

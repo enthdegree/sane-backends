@@ -404,6 +404,11 @@
 /* Define if you have PTAL. */
 #undef HAVE_PTAL
 
+/* Define if struct sg_header (scsi/sg.h) has the field target_status 
+   (Linux only)
+*/ 
+#undef HAVE_SG_TARGET_STATUS
+
 /* Version of the dll backend (=version of the sane-backends package) */
 #undef SANE_DLL_V_MAJOR
 #undef SANE_DLL_V_MINOR

@@ -73,7 +73,6 @@
 # include <string.h>
 # include <stdio.h>
 # include <unistd.h>
-/*# include <sched.h>*/
 # include <sys/time.h>
 # include <sys/signal.h>
 # include <sys/ioctl.h>
@@ -152,21 +151,26 @@
  * they are for use the the MiscStartTimer function and the _DO_UDELAY macro
  */
 #ifndef __KERNEL__
-typedef long long TimerDef, *pTimerDef;
+typedef double TimerDef, *pTimerDef;
 #else
 typedef long long TimerDef, *pTimerDef;
 #endif
 
-#define _MSECOND	1000							/* based on 1 us */
-#define _SECOND		(1000*_MSECOND)
-
+#define _MSECOND    1000             /* based on 1 us */
+#define _SECOND     (1000*_MSECOND)
 
 /*.............................................................................
  * timer topics
  */
 #ifndef __KERNEL__
-# define _DO_UDELAY(usecs)   { int i,j; for( i = usecs; i--; ) j+=i*3; }
-# define _DODELAY(msecs)     { int i; for( i = msecs; i--; ) usleep(1000); }
+#if 0
+# warning "outb as delay!!!!"
+# define _DO_UDELAY(usecs)   { int i; for( i = usecs; i--; ) outb(0, 0x80); }
+#else
+# define _DO_UDELAY(usecs)   sanei_pp_udelay(usecs)
+#endif
+
+# define _DODELAY(msecs)     { int i; for( i = msecs; i--; ) _DO_UDELAY(1000); }
 #else
 # define _DO_UDELAY(usecs)   udelay(usecs)
 # define _DODELAY(msecs)     mdelay(msecs)

@@ -521,6 +521,9 @@ _LOC int MiscInitPorts( pScanData ps, int port )
 		return _E_NOSUPP;
 	}
 
+	DBG(DBG_HIGH, "SPP mode used (WORKAROUND)!!!\n" );
+	ps->IO.portMode = _PORT_SPP;
+
 	_VAR_NOT_USED( port );
 #endif
 	return _OK;

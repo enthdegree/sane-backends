@@ -1143,9 +1143,16 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
     CnfDef   config;
 	size_t   len;
 	FILE    *fp;
+	SANE_Status res;
 
 	DBG_INIT();
 	sanei_thread_init();
+	
+	res = sanei_pp_init();
+	if( SANE_STATUS_GOOD != res ) {
+		DBG( _DBG_ERROR, "Could not initialize Parport library!\n" );
+		return res;
+	}
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "PlustekPP backend V"BACKEND_VERSION", part of "

@@ -1,3 +1,9 @@
+2001-12-30  Gerhard Jaeger <g.jaeger@earthling.net>
+
+	* backend/plustek_usbmap.c backend/plustek-usbimg.c
+	  backend/plustek_usb.c backend/plustek_usb.h:
+      Fixed bug in lineart scaling and in brightness setting
+
 2001-12-29  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek.c backend/plustek-share.h backend/plustek.h

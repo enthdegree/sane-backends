@@ -1863,7 +1863,7 @@ static HWDef Hw0x1606_0x0060 =
 	0x0d,   /* Paper sense (reg 0x58)                    */
 
 	0x44,   /* misc io12 (reg 0x59)                      */
-	0x4a,   /* misc io34 (reg 0x5a)                      */
+	0x45,   /* misc io34 (reg 0x5a)                      */
 	0x7c,   /* misc io56 (reg 0x5b)                      */
 	0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
 	0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */

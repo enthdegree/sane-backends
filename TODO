@@ -1,4 +1,4 @@
-TODO (2003-07-29)
+TODO (2003-08-21)
 
 ******** todo ********
 
@@ -68,6 +68,9 @@ backends
   * Don't mark option names with SANE_I18N (see po/README for details):
     - canon630u.c ("cal")
 
+  * mustek: Add patches from James Perry to support 600 II EP.
+
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -80,7 +83,7 @@ doc
     - umax: genius.kye.de times out?
     - Change all description files to use the new status keyword:
       avision, canon, canon630u, epson, fujitsu,
-      hp, hpsj5s, microtek, microtek2, sharp, umax1220u.
+      hpsj5s, microtek, microtek2, sharp, umax1220u.
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -136,6 +139,12 @@ sanei
 
   * sanei_usb:
     - some scanners seem to provide more than one bulk-in endpoint(?) 
+    - automatic loading of drivers with devfs doesn't work because sanei_usb checks
+      the directories instead of opening the device files. However, if the device
+      files are opened without checking for their existence, the scan for USB
+      devices takes too long.
+
+  * Move Option_Value from the backends to a general file like sanei_backend.h.
 
 
 platform-specific
@@ -143,6 +152,7 @@ platform-specific
 
   * Fix MacOS X issues: 
     - More docu in README.darwin.
+    - Check if the new sanei_scsi functions work with MacOS X 10.1 also.
   
   * OS/2 issues: 
     - Add support for semaphores also for OS/2 (currently used in snapscan).

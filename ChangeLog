@@ -3,6 +3,8 @@
 	* README.darwin sanei/sanei_scsi.c: Added support for the
 	  MacOS X IOKit SCSI Architecture Model API. Added support for
 	  Firewire scanners. Patch from Guy Brooker <guy_brooker@mac.com>.
+	* TODO: Added entries for mustek patch, sanei_usb devfs trouble,
+	  and moving of Option_Value. Updated .desc file section.
 
 2003-07-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

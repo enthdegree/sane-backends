@@ -1,3 +1,8 @@
+2002-05-30  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_mid.c backend/umax_pp.c:  software lineart for real
+          this time.
+
 2002-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/saned.man: Added explicit path to tcpd example.

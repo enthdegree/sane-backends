@@ -1,3 +1,7 @@
+2004-04-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.windows: Mentioned C++ misdetection trouble.
+
 2004-04-11  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added missing device IDs for current MFDs

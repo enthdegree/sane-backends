@@ -1,6 +1,7 @@
 2002-02-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added info about HP Scanjet 5S.
+	* lib/inet_ntop.c: Removed OS/2 kludge: it's not necessary.
 
 2002-02-05  Stéphane Voltz  <svoltz@wanadoo.fr>
 

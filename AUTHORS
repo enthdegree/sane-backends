@@ -27,6 +27,7 @@ Backends:
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  m3096g:        Randolph Bentson, Oliver Schirrmeister (*)
+ matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag (*)
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski and

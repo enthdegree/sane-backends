@@ -170,6 +170,10 @@ by HP). See sane-hp(5) for details.
 This backend supports the Fujitsu M3096Gm flatbed scanner. See sane-fujitsu(5)
 for details.
 .TP
+.B matsushita
+This backend supports some Panasonic KVSS high speed scanners. See
+sane-matsushita(5) for details.
+.TP
 .B microtek
 The microtek backend provides access to the "second generation" Microtek
 scanners with SCSI-1 command set. See sane-microtek(5) for details.

@@ -10,17 +10,46 @@
 ;
 
 :backend "matsushita"             ; name of backend
-:version "(1.0-0)"                ; version of backend
+:version "1.0-5"                  ; version of backend
 :status :new                      ; :alpha, :beta, :stable, :new
-;:manpage "sane-template"         ; name of manpage (if it exists)
+:manpage "sane-matsushita"        ; name of manpage
 :url "http://www.geocities.com/harikus2000/sane" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 
 :mfg "Panasonic"                  ; name a manufacturer
 :url "http://www.panasonic.com/"
-:model "KV-SS25"                  ; name models for above-specified mfg.
+
+:model "KV-SS25"
 :interface "SCSI"
+
+:model "KV-SS25D"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS50"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS55"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS50EX"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS55EX"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS850"
+:interface "SCSI"
+:comment "untested"
+
+:model "KV-SS855"
+:interface "SCSI"
+:comment "untested"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

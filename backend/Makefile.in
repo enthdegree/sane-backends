@@ -61,9 +61,9 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
         coolscan dc25 @DC210@ @DC240@ dmc epson @GPHOTO2@ hp m3096g \
-	microtek microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ \
-	plustek @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ sp15c \
-	st400 tamarack umax umax_pp umax1220u @V4L@
+	matsushita microtek microtek2 mustek mustek_pp mustek_usb nec @NET@ \
+	pie @PINT@ plustek @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ \
+	@SNAPSCAN@ sp15c st400 tamarack umax umax_pp umax1220u @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -92,6 +92,7 @@ DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \
   hp-option.h hp-scl.c hp-scl.h hp-scsi.h hp.README hp.TODO hp.c \
   hp.conf hp.desc hp.h hp4200.desc ibm.desc jinclude.h lhii.desc \
   m3091.desc m3096g-scsi.h m3096g.c m3096g.conf m3096g.desc m3096g.h \
+  matsushita.desc matsushita.c matsushita.conf matsushita.h \
   microtek.c microtek.conf microtek.desc microtek.h microtek2.c \
   microtek2.conf microtek2.desc microtek2.h mustek.c mustek.conf \
   mustek.desc mustek.h mustek_pp.c mustek_pp.conf mustek_pp.desc \
@@ -273,6 +274,9 @@ libsane-hp.la: ../sanei/sanei_pio.lo
 libsane-m3096g.la: ../sanei/sanei_config2.lo
 libsane-m3096g.la: ../sanei/sanei_constrain_value.lo
 libsane-m3096g.la: ../sanei/sanei_scsi.lo
+libsane-matsushita.la: ../sanei/sanei_config2.lo
+libsane-matsushita.la: ../sanei/sanei_constrain_value.lo
+libsane-matsushita.la: ../sanei/sanei_scsi.lo
 libsane-microtek.la: ../sanei/sanei_config2.lo
 libsane-microtek.la: ../sanei/sanei_constrain_value.lo
 libsane-microtek.la: ../sanei/sanei_scsi.lo

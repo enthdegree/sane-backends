@@ -2050,7 +2050,7 @@ sanei_pa4s2_options (u_int * options, int set)
 
 }
 
-char **
+const char **
 sanei_pa4s2_devices()
 {
   TEST_DBG_INIT ();

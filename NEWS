@@ -1,13 +1,14 @@
 -*-Mode: outline-*-
 
-New with 1.0.9, released 2002-??-??:
+New with 1.0.9, released 2002-10-20:
 
 * New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner), 
   teco2 (some Relisys/Primax SCSI flatbed scanners, models VM3575, VM6565,
   VM6586 and VM6575), teco3 (some Relisys/Piotech/Trust/Plustek SCSI
   flatbed scanners, model VM3552).
-* Updated backends: avision, canon_pp, coolscan2, epson, hp, microtek, mustek,
-  mustek_usb, pie, plustek, snapscan, teco1, test, umax_pp, v4l.
+* Updated backends: avision, canon_pp, coolscan2, epson, fujitsu, hp,
+  microtek, mustek, mustek_usb, pie, plustek, snapscan, teco1, test, umax,
+  umax_pp, v4l.
 * sane-find-scanner finds more scanners and has more verbosity options now.
 * New tool to create gamma tables (gamma4scanimage).
 * Support for ICC profiles for scanimage.
@@ -16,7 +17,7 @@ New with 1.0.9, released 2002-??-??:
   Solaris).
 * New and updated translations for various backends.
 * New system for generating lists of manufacturers/backends.
-* Various Documentation updates.
+* Various documentation updates.
 * Bugfixes.
 
 New with 1.0.8, released 2002-05-27:

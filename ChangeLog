@@ -1,6 +1,7 @@
 2002-01-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in: Added SHELL variable. Fixes po generation on OS/2.
+	* po/README: Added some comments on what the Makefile actually does.
 
 2001-01-24  Stéphane Voltz  <svoltz@wanadoo.fr>
 

@@ -358,7 +358,7 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 
 		AC_CHECK_TOOL(HAVE_GPHOTO2, gphoto2-config, false)
 	
-		if test $HAVE_GPHOTO2 != ""
+		if test $HAVE_GPHOTO2 != "false"
 		then
 			with_gphoto2=`gphoto2-config --prefix`
 			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"

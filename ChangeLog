@@ -1,3 +1,8 @@
+2004-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 aclocal.m4 configure: If the test for gphoto2-config
+	  fails, don't call it later.
+
 -- snapshot 1.0.14-pre2
 
 2004-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>

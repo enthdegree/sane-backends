@@ -1,4 +1,4 @@
-.TH sane 7 "10 Jan 2002"
+.TH sane 7 "12 Jan 2002"
 .IX sane
 
 .SH NAME
@@ -59,7 +59,7 @@ The package
 contains a lot of backends, documentation (including the 
 .B SANE
 standard), networking support, and the command line frontend `scanimage'.  The
-frontends `xscanimage' and `xcam' are included in the package
+frontends `xscanimage', `xcam', and `scanadf' are included in the package
 .B `sane-frontends'. 
 Both packages can be downloaded from the
 .B SANE
@@ -112,8 +112,8 @@ available on the local host. See saned(1).
 sane-find-scanner is a command-line tool to find SCSI and some USB scanners
 and determine their Unix device files. See sane-find-scanner(1).
 .P
-Also, have a look at the sane-frontends package (including xscanimage and xcam)
-and the frontend information page at
+Also, have a look at the sane-frontends package (including xscanimage, xcam,
+and scanadf) and the frontend information page at
 http://www.mostang.com/sane/sane-frontends.html.
 
 .SH BACKENDS FOR SCANNERS

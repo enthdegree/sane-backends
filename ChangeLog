@@ -1,6 +1,7 @@
 2001-06-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Disabled warnings by default.
+	* NEWS: Updated version numbers, added dc25.
 
 2001-06-25  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 

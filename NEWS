@@ -1,5 +1,27 @@
 -*-Mode: outline-*-
 
+New with 1.0.8, released 2002-05-27:
+
+* New backends: canon_pp (Canon parport scanners), canon630u (CanoScan 630u 
+  + 636u), coolscan2 (Nikon Coolscan LS-30, LS-40 ED, LS-4000 ED, and
+  LS-8000 ED), fujitsu (M3091, M3093, M3096 and similar scanners), 
+  leo (Leo/Across FS-1130 scanner), matsushita (Panasonic KV-SS scanners),
+  sceptre (Sceptre VividScan S1200), teco1 (some Teco/Relisys flatbed
+  scanners), test (test frontends and SANE installation).
+* Updated backends: avision, canon, dc240, dll, epson, gphoto2, mustek,
+  mustek_usb, net, plustek, pnm, sharp, sm3600, snapscan, umax, umax_pp, v4l.
+* New translations for several backends (de, es, fr).
+* Networking supports hosts without working DNS now.
+* SCSI system ignores USB files and doesn't block (Linux).
+* New test frontend and backend for testing SANE.
+* Several build system improvements (e.g., new libtool, better make distclean,
+  build only shared libs by default).
+* Portability fixes (especially for AIX, Linux (2.2, hppa, sparc), HP/UX,
+  NetBSD, OS/2).
+* Better documentation of internal functions (sanei).
+* Various Documentation updates.
+* Bugfixes.
+
 New with 1.0.7, released 2002-02-04:
 
 * New backend: umax1220u (for UMAX Astra 1220U and 2000U scanners).

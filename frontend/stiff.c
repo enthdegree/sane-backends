@@ -15,6 +15,9 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
+/* Changes:
+   2000-11-19, PK: Color TIFF-header: write 3 values for bits per sample
+*/
 #ifdef _AIX
 # include <lalloca.h>	/* MUST come first for AIX! */
 #endif
@@ -366,7 +369,7 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
 
     /* the following values must be known in advance */
     ntags = 13;
-    data_size = 3*2 + 3*2;
+    data_size = 3*2 + 3*2 + 3*2;
     if (resolution > 0)
     {
         ntags += 3;
@@ -386,7 +389,8 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     add_ifd_entry (ifd, 257, (height > 0xffff) ? IFDE_TYP_LONG : IFDE_TYP_SHORT,
                    1, height);
     /* bits per sample */
-    add_ifd_entry (ifd, 258, IFDE_TYP_SHORT, 1, depth);
+    add_ifd_entry (ifd, 258, IFDE_TYP_SHORT, 3, data_offset);
+    data_offset += 3*2;
     /* compression (uncompressed) */
     add_ifd_entry (ifd, 259, IFDE_TYP_SHORT, 1, 1);
     /* photometric interpretation */
@@ -434,6 +438,11 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
     }
 
     write_ifd (fptr, ifd, motorola);
+
+    /* Write bits per sample value values */
+    write_i2 (fptr, depth, motorola);
+    write_i2 (fptr, depth, motorola);
+    write_i2 (fptr, depth, motorola);
 
     /* Write min sample value values */
     write_i2 (fptr, 0, motorola);

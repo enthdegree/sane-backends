@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4-p5
+dnl aclocal.m4 generated automatically by aclocal 1.4-p4
 
-dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -113,9 +113,14 @@ AC_DEFUN(SANE_CHECK_PTAL,
 # Checks for ieee1284 library, needed for canon_pp backend.
 AC_DEFUN(SANE_CHECK_IEEE1284,
 [
-  AC_CHECK_LIB(ieee1284, ieee1284_wait_status, [
-    AC_CHECK_HEADER(ieee1284.h,
-      [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+  AC_CHECK_HEADER(ieee1284.h, [
+    AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
+      AC_TRY_COMPILE([#include <ieee1284.h>], [
+	struct parport p; char *buf; 
+	ieee1284_nibble_read(&p, 0, buf, 1);
+ 	], 
+        [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+      ],[sane_cv_use_libieee1284="no"])
     ],)
   ],)
 ])
@@ -3754,24 +3759,6 @@ AC_DEFUN([AM_PROG_NM],        [AC_PROG_NM])
 # This is just to silence aclocal about the macro not being used
 ifelse([AC_DISABLE_FAST_INSTALL])
 
-#serial 1
-# This test replaces the one in autoconf.
-# Currently this macro should have the same name as the autoconf macro
-# because gettext's gettext.m4 (distributed in the automake package)
-# still uses it.  Otherwise, the use in gettext.m4 makes autoheader
-# give these diagnostics:
-#   configure.in:556: AC_TRY_COMPILE was called before AC_ISC_POSIX
-#   configure.in:556: AC_TRY_RUN was called before AC_ISC_POSIX
-
-undefine([AC_ISC_POSIX])
-
-AC_DEFUN([AC_ISC_POSIX],
-  [
-    dnl This test replaces the obsolescent AC_ISC_POSIX kludge.
-    AC_CHECK_LIB(cposix, strerror, [LIBS="$LIBS -lcposix"])
-  ]
-)
-
 
 # serial 1
 
@@ -3790,7 +3777,7 @@ AC_DEFUN([AC_ISC_POSIX],
 # program @code{ansi2knr}, which comes with Ghostscript.
 # @end defmac
 
-AC_DEFUN([AM_PROG_CC_STDC],
+AC_DEFUN(AM_PROG_CC_STDC,
 [AC_REQUIRE([AC_PROG_CC])
 AC_BEFORE([$0], [AC_C_INLINE])
 AC_BEFORE([$0], [AC_C_CONST])

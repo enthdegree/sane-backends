@@ -101,9 +101,14 @@ AC_DEFUN(SANE_CHECK_PTAL,
 # Checks for ieee1284 library, needed for canon_pp backend.
 AC_DEFUN(SANE_CHECK_IEEE1284,
 [
-  AC_CHECK_LIB(ieee1284, ieee1284_wait_status, [
-    AC_CHECK_HEADER(ieee1284.h,
-      [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+  AC_CHECK_HEADER(ieee1284.h, [
+    AC_CACHE_CHECK([for libieee1284 >= 0.1.5], sane_cv_use_libieee1284, [
+      AC_TRY_COMPILE([#include <ieee1284.h>], [
+	struct parport p; char *buf; 
+	ieee1284_nibble_read(&p, 0, buf, 1);
+ 	], 
+        [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+      ],[sane_cv_use_libieee1284="no"])
     ],)
   ],)
 ])

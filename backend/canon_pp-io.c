@@ -198,7 +198,7 @@ int sanei_canon_pp_write(struct parport *port, int length, unsigned char *data)
 	switch (ieee_mode)
 	{
 		case 0: 
-			count = ieee1284_compat_write(port, (char *)data, 
+			count = ieee1284_compat_write(port, 0, (char *)data, 
 					length);
 			if (count != length)
 				return -1;
@@ -209,7 +209,7 @@ int sanei_canon_pp_write(struct parport *port, int length, unsigned char *data)
 				return -1;
 			break;
 		default: 
-			if (ieee1284_compat_write(port, (char *)data, 
+			if (ieee1284_compat_write(port, 0, (char *)data, 
 						length) != length)
 				return -1;
 			break;
@@ -337,7 +337,7 @@ static int ieee_transfer(struct parport *port, int length, unsigned char *data)
 					length);
 			break;		
 		default:
-			result = ieee1284_nibble_read(port, (char *)data, 
+			result = ieee1284_nibble_read(port, 0, (char *)data, 
 					length);
 			break;
 	}

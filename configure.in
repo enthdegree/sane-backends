@@ -269,7 +269,7 @@ AC_SUBST(DJPEG)
 
 if test "${sane_cv_use_libieee1284}" != "yes"
 then
-  echo "disabling CANON_PP backend (failed to find required libieee1284)"
+  echo "disabling CANON_PP backend (failed to find required libieee1284 version)"
   CANON_PP=
 else
   echo "enabling CANON_PP backend"

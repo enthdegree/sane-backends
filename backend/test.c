@@ -685,7 +685,7 @@ init_options (Test_Device * test_device)
   od->type = SANE_TYPE_GROUP;
   od->unit = SANE_UNIT_NONE;
   od->size = 0;
-  od->cap = 0;
+  od->cap = SANE_CAP_ADVANCED;
   od->constraint_type = SANE_CONSTRAINT_NONE;
   od->constraint.range = 0;
   test_device->val[opt_bool_group].w = 0;
@@ -806,7 +806,7 @@ init_options (Test_Device * test_device)
   od->type = SANE_TYPE_GROUP;
   od->unit = SANE_UNIT_NONE;
   od->size = 0;
-  od->cap = 0;
+  od->cap = SANE_CAP_ADVANCED;
   od->constraint_type = SANE_CONSTRAINT_NONE;
   od->constraint.range = 0;
   test_device->val[opt_int_group].w = 0;
@@ -919,7 +919,7 @@ init_options (Test_Device * test_device)
   od->type = SANE_TYPE_GROUP;
   od->unit = SANE_UNIT_NONE;
   od->size = 0;
-  od->cap = 0;
+  od->cap = SANE_CAP_ADVANCED;
   od->constraint_type = SANE_CONSTRAINT_NONE;
   od->constraint.range = 0;
   test_device->val[opt_fixed_group].w = 0;

@@ -1,3 +1,8 @@
+2004-04-06  Gerard Klaver   <gerard at gkall dot hobby dot nl>
+
+	* backend/test.c changed some option group headers to advanced option
+	  menu.
+	
 2004-04-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* sanei/sanei_pa4s2.c include/sane/sanei_pa4s2.h, backend/mustek_pp.c:

@@ -76,8 +76,8 @@
 
 :model "OpticPro AI3"
 :interface "Parport (SPP, EPP)"
-:status :stable
-:comment "use driver-switch mov=5"
+:status :beta
+:comment "use driver-switch mov=5, poor picture quality"
 
 :model "OpticPro P8"
 :interface "Parport"
@@ -271,26 +271,26 @@
 
 :model "CanoScan N1220U"
 :interface "USB"
-:status :stable
+:status :beta
 :comment "Poor color picture quality"
 
 :model "CanoScan N670U/N676U" 
 :interface "USB"
-:status :stable
+:status :beta
 :comment "Poor color picture quality"
 
 :model "CanoScan N1240U"
 :interface "USB"
-:status :stable
+:status :beta
 :comment "Poor color picture quality"
 
-:model "CanoScan LIDE20"
+:model "CanoScan LiDE20"
 :interface "USB"
-:status :stable
+:status :beta
 :comment "Poor color picture quality"
 
-:model "CanoScan LIDE30"
+:model "CanoScan LiDE30"
 :interface "USB"
-:status :stable
+:status :beta
 :comment "Poor color picture quality"
 

@@ -17,6 +17,7 @@
  * - 0.44 - added CIS parts and dumpPic function
  * - 0.45 - added gray scaling functions for CIS devices
  *        - fixed usb_GrayScale16 function
+ *        - fixed a bug in usb_ColorScale16_2 function
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -668,13 +669,13 @@ static void usb_ColorScale16_2( struct Plustek_Device *dev )
 
 			while((ddax < 0) && (dw > 0)) {
 
-				tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Red.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp) >> Shift;
         	
-				tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Green.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp) >> Shift;
 
-				tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Blue.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp) >> Shift;
 
 				dwPixels = dwPixels + iNext;
@@ -691,13 +692,13 @@ static void usb_ColorScale16_2( struct Plustek_Device *dev )
 
 			while((ddax < 0) && (dw > 0)) {
 
-				tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Red.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp);
 
-				tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Green.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp);
 
-				tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+				tmp = *((pHiLoDef)&scanning->Blue.pw[dwBitsPut]);
 				scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp);
 
 				dwPixels = dwPixels + iNext;

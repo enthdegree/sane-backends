@@ -1,10 +1,11 @@
-Plustek-USB-TODO.txt (2003-01-11) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2003-01-21) Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
 	- more documentation/comments on the different functions
     - Move documents to its correct SANE place
 	- improve calibration
+	- copy picture line by line to backend
 
 KNOWN BUGS/Limitations:
 
@@ -14,8 +15,6 @@ Canon             fine calibration does not work        none
 Canon  650        color modes >=600 dpi too dark        change gamma settings
 Canon 1220        image quality not very good           none
 Canon 1240        gray mode too bright                  none
-all but Plustek   improve motor settings for 42bit      none
-                  modes
 
 ********************************* DONE ***************************************
 

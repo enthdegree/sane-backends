@@ -39,7 +39,7 @@
  *		  - added _MAX_ID_LEN
  * - 0.43 - no changes
  * - 0.44 - added flag initialized
- * - 0.45 - no changes
+ * - 0.45 - added readLine function
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -202,6 +202,9 @@ typedef struct Plustek_Device
     int  (*startScan)  ( struct Plustek_Device*, pStartScan );
     int  (*stopScan)   ( struct Plustek_Device*, int* );
     int  (*readImage)  ( struct Plustek_Device*, SANE_Byte*, unsigned long );
+
+    int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );
+    int  (*readLine)   ( struct Plustek_Device* );
 
 } Plustek_Device, *pPlustek_Device;
 

@@ -239,17 +239,14 @@ typedef enum
 	MODEL_KaoHsiung = 0,
 	MODEL_HuaLien,
 	MODEL_Tokyo600,
-	MODEL_NOPLUSTEK_600,  /**< for 600 dpi models   */
-	MODEL_NOPLUSTEK_1200, /**< for 1200 dpi models  */
-	MODEL_EPSON,          /**< for EPSON1250/1260   */
-	MODEL_MUSTEK600,      /**< for BearPaw 1200     */
-	MODEL_MUSTEK1200,     /**< for BearPaw 2400     */
-	MODEL_HP,             /**< for HP2x00           */
-	MODEL_CANON650 ,      /**< for Canon N650U/656U */
-	MODEL_CANON1220,      /**< for Canon N1220U     */
-	MODEL_CANON670 ,      /**< for Canon N670U/676U */
-	MODEL_CANON1240,      /**< for Canon N1240U     */
-	MODEL_UMAX,           /**< for UMAX 3400/3450   */
+	MODEL_EPSON,          /**< for EPSON1250/1260         */
+	MODEL_MUSTEK600,      /**< for BearPaw 1200           */
+	MODEL_MUSTEK1200,     /**< for BearPaw 2400           */
+	MODEL_HP,             /**< for HP2x00                 */
+	MODEL_CANON600 ,      /**< for CanoScan 600dpi models */
+	MODEL_CANON1220,      /**< for Canon N1220U           */
+	MODEL_CANON1240,      /**< for Canon N1240U           */
+	MODEL_UMAX,           /**< for UMAX 3400/3450         */
 	MODEL_LAST
 } eModelDef;
 
@@ -541,6 +538,7 @@ typedef struct ScanDef
 	AnyPtr 				UserBuf;        /**< pointer to the user buffer     */
 	u_long				dwLinesUser;	/**< Number of lines of user buffer */
 	u_long				dwBytesLine;	/**< Bytes per line of user buffer. */
+	u_long				dwLinesToProcess;
 
 	/** Image processing routine according to the scan mode  */
 	void (*pfnProcess)(struct Plustek_Device*);
@@ -549,12 +547,12 @@ typedef struct ScanDef
 
 	u_long				dwLinesPerScanBufs;
 	u_long				dwNumberOfScanBufs;
+	u_long				dwLinesScanBuf;
 
 	u_char*				pbScanBufBegin;
 	u_char*				pbScanBufEnd;
 	u_char*             pbGetDataBuf;
 	u_long				dwBytesScanBuf;
-	u_long				dwLinesScanBuf;
 	u_long				dwLinesDiscard;
 
 	u_long				dwRedShift;
@@ -584,9 +582,10 @@ typedef struct ScanDef
  */
 typedef struct
 {
-	u_char pwm;
-	u_char pwm_duty;
-
+	u_char pwm;                 /**< PWM             */
+	u_char pwm_duty;			/**< PWM duty cycles */
+	u_char scan_lines_per_line;	/**< lines to scan to obtain 1 real line
+                                      will be used in 16bit color modes only */
 } MDef, *pMDef;
 
 /** array used to get motor-settings and mclk-settings

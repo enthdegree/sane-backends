@@ -624,10 +624,10 @@ static DCapsDef Cap0x04A9_0x2206_0 =
  */
 static DCapsDef Cap0x04A9_0x2207_0 =
 {
-	{{ 0, 85}, 35,-1, {2550, 3508}, {75, 75}, COLOR_BW },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 85}, 35, -1, {2550, 3508}, {75, 75}, COLOR_BW },
+    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+    {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {1200, 1200},
     0,
     SENSORORDER_rgb,
@@ -638,11 +638,11 @@ static DCapsDef Cap0x04A9_0x2207_0 =
     (_WAF_MISC_IO_LAMPS | _WAF_SKIP_WHITEFINE), _NO_MIO
 };
 
-/* Canon N670U/N676U
+/* Canon N670U/N676U/LiDE20
  */
 static DCapsDef Cap0x04A9_0x220D_0 =
 {
- 	{{ 0, 100}, 30, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+ 	{{ 0, 100}, 35, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -660,10 +660,10 @@ static DCapsDef Cap0x04A9_0x220D_0 =
  */
 static DCapsDef Cap0x04A9_0x220E_0 =
 {
-	{{ 0, 80}, 22,-1, {2550, 3508}, {75, 75}, COLOR_BW },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
-    {{ 0,  0},  0, 0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 100}, 35, -1, {2550, 3508}, {75, 75}, COLOR_BW },
+    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+    {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {1200, 1200},
     0,
     SENSORORDER_rgb,
@@ -1581,12 +1581,12 @@ static HWDef Hw0x04B8_0x010F_0 =
 
     0x02,   /* ok bSensorConfiguration (0x0b)               */
     0x04,   /* ok sensor control settings (reg 0x0c)        */
-    0x7f,   /* ok sensor control settings (reg 0x0d)        */
-    0x13,   /* ok sensor control settings (reg 0x0e)        */
+    0x7d,   /* ok sensor control settings (reg 0x0d)        */
+    0x37,   /* ok sensor control settings (reg 0x0e)        */
 
-    {0x02, 0x07, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00},
-            /* ?? mono (reg 0x0f to 0x18) */
-    {0x06, 0x16, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x08, 0x14},
+    {0x02, 0x07, 0x00, 0x01, 0x04, 0x07, 0x00, 0x00, 0x03, 0x07},
+            /* ok mono (reg 0x0f to 0x18) */
+    {0x06, 0x16, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x0a, 0x17},
             /* ok color (reg 0x0f to 0x18)                  */
 	_GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
 	0x40,       /* ok bReg 0x27 color mode                  */
@@ -1599,7 +1599,7 @@ static HWDef Hw0x04B8_0x010F_0 =
     0x00,   /* ok bOpticBlackStart (reg 0x1c)               */
     0x42,   /* ok bOpticBlackEnd (reg 0x1d)                 */
     69,     /* ok wActivePixelsStart (reg 0x1e + 0x1f)      */
-    10766,  /* ok wLineEnd (reg 0x20 + 0x21)                */
+    10758,  /* ok wLineEnd (reg 0x20 + 0x21)                */
 
     16383,  /* ok red lamp on    (reg 0x2c + 0x2d)          */
     0,      /* ok red lamp off   (reg 0x2e + 0x2f)          */
@@ -1649,7 +1649,7 @@ static HWDef Hw0x04B8_0x011D_0 =
     0x37,   /* ok sensor control settings (reg 0x0e)        */
 
     {0x02, 0x07, 0x00, 0x01, 0x04, 0x07, 0x00, 0x00, 0x03, 0x07},
-            /* ?? mono (reg 0x0f to 0x18) */
+            /* ok mono (reg 0x0f to 0x18) */
 	{0x06, 0x0b, 0x00, 0x05, 0x0c, 0x17, 0x00, 0x00, 0x0a, 0x17},
             /* ok color (reg 0x0f to 0x18)                  */
 	_GREEN_CH,	/* ok bReg_0x26 color mode - bits 4 and 5   */
@@ -1853,14 +1853,16 @@ static HWDef Hw0x04A9_0x2206_0 =
  	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode (runtime)          */
 			/* illumination mode settings 				      */
-	{ 3,  0,    0, 23, 1467,  0,    0 },
-	{ 2, 23, 2416, 23, 1801, 23, 1472 },
+	{ 3,  0,    0, 23, 1800,  0,    0 },
+	{ 2, 23, 4000, 23, 2600, 23, 1600 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
     0,      /* bOpticBlackEnd (reg 0x1d)                      */
     89,     /* ? wActivePixelsStart (reg 0x1e + 0x1f)         */
     6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+/* 0x17ba = 6074 bis 100dpi, 0x14ba = 5306 */
 
     23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
     2416,   /* red lamp off   (reg 0x2e + 0x2f)               */
@@ -1887,7 +1889,7 @@ static HWDef Hw0x04A9_0x2206_0 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
     0,      /* test mode (reg 0x5e)                      */
     _LM9832,
-	MODEL_CANON650
+	MODEL_CANON600
 };
 
 /** Canon N1220U */
@@ -1956,14 +1958,14 @@ static HWDef Hw0x04A9_0x2207_0 =
     MODEL_CANON1220
 };
 
-/** Canon 670/676 */
+/** Canon 670/676/LiDE20 */
 static HWDef Hw0x04A9_0x220D_0 =
 {
-    0.86,   /* dMaxMotorSpeed (Max_Speed)                     */
-    0.21,   /* dMaxMoveSpeed (Max_Speed)                      */
-    100,    /* dIntegrationTimeLowLamp                        */
-    100,    /* dIntegrationTimeHighLamp                       */
-    1200,   /* wMotorDpi (Full step DPI)                      */
+    0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
+    0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
+    100,    /* dIntegrationTimeLowLamp                       */
+    100,    /* dIntegrationTimeHighLamp                      */
+    1200,   /* wMotorDpi (Full step DPI)                     */
     512,    /* wRAMSize (KB)                                  */
     3.75,   /* dMinIntegrationTimeLowres (ms)                 */
     5.75,   /* dMinIntegrationTimeHighres (ms)                */
@@ -1985,14 +1987,17 @@ static HWDef Hw0x04A9_0x220D_0 =
 
  	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode (runtime)          */
-	{ 3,  0,    0, 23, 5000,  0,    0 },
-	{ 2, 23, 4562, 23, 4315, 23, 3076 },
+
+	{ 3,  0,    0, 23, 1800,  0,    0 },
+	{ 2, 23, 3562, 23, 3315, 23, 2676 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
     0,      /* bOpticBlackEnd (reg 0x1d)                      */
     75,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-    5293,   /* wLineEnd (reg 0x20 + 0x21)                     */
+    6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+/* ??0x17ba = 6074 bis 100dpi, 0x14ba = 5306 */
 
     23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
     4562,   /* red lamp off   (reg 0x2e + 0x2f)               */
@@ -2003,7 +2008,7 @@ static HWDef Hw0x04A9_0x220D_0 =
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
-    0,      /* steps to reverse when buffer is full reg 0x50) */
+    0x3f,   /* steps to reverse when buffer is full reg 0x50) */
     0xfc,   /* acceleration profile (reg 0x51)                */
     0,      /* lines to process (reg 0x54)                    */
     0x0f,   /* kickstart (reg 0x55)                           */
@@ -2019,7 +2024,7 @@ static HWDef Hw0x04A9_0x220D_0 =
     0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
     0,      /* test mode (reg 0x5e)                           */
     _LM9833,
-	MODEL_CANON670
+	MODEL_CANON600
 };
 
 /** Canon N1240U */
@@ -2051,25 +2056,27 @@ static HWDef Hw0x04A9_0x220E_0 =
 
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
-	{ 3,  0,     0, 23, 3472,  0,    0 },
-	{ 2, 23, 10581, 23, 5304, 23, 3735 },
+	{ 3,  0,     0, 23, 3937,  0,    0 },
+	{ 2, 23, 12000, 23, 5500, 23, 3900 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
     0,      /* bOpticBlackEnd (reg 0x1d)                      */
     52,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-    10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
+	10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
+
+/* 0x2f7a = 12154 bis 100dpi, 0x295a = 10586 */
 
     23,     /* red lamp on    (reg 0x2c + 0x2d)               */
     10581,  /* red lamp off   (reg 0x2e + 0x2f)               */
     23,     /* green lamp on  (reg 0x30 + 0x31)               */
-    5304,   /* green lamp off (reg 0x32 + 0x33)               */
+    5096,   /* green lamp off (reg 0x32 + 0x33)               */
     23,     /* blue lamp on   (reg 0x34 + 0x35)               */
     3735,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
     3,      /* stepper motor control (reg 0x45)               */
     0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
-    0,      /* steps to reverse when buffer is full reg 0x50) */
+    0x20,   /* steps to reverse when buffer is full reg 0x50) */
     0xfc,   /* acceleration profile (reg 0x51)                */
     0,      /* lines to process (reg 0x54)                    */
     0x0f,   /* kickstart (reg 0x55)                           */
@@ -2149,8 +2156,8 @@ static SetDef Settings[] =
 	/* CANON... */
 	{"0x04A9-0x2206",   &Cap0x04A9_0x2206_0, &Hw0x04A9_0x2206_0, "N650U/N656U" },
 	{"0x04A9-0x2207",   &Cap0x04A9_0x2207_0, &Hw0x04A9_0x2207_0, "N1220U"      },
-	{"0x04A9-0x220D",   &Cap0x04A9_0x220D_0, &Hw0x04A9_0x220D_0, "N670U/N676U" },
-	{"0x04A9-0x220E",   &Cap0x04A9_0x220E_0, &Hw0x04A9_0x220E_0, "N1240U"      },
+	{"0x04A9-0x220D",   &Cap0x04A9_0x220D_0, &Hw0x04A9_0x220D_0, "N670U/N676U/LiDE20" },
+	{"0x04A9-0x220E",   &Cap0x04A9_0x220E_0, &Hw0x04A9_0x220E_0, "N1240U/LiDE30"      },
 		
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
@@ -2188,8 +2195,8 @@ static ClkMotorDef Motors[] = {
 		64, 20, 6, /* PWM, PWM_Duty, MCLK for fast move */
 		
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
-		 { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
+	    {{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
+		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
         /* Color mode MCLK settings */
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
@@ -2200,8 +2207,8 @@ static ClkMotorDef Motors[] = {
 
 	{ MODEL_HuaLien, 64, 20, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
-		 { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
+	    {{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
+		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
         /* Color mode MCLK settings */
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
@@ -2212,8 +2219,8 @@ static ClkMotorDef Motors[] = {
 
 	{ MODEL_Tokyo600, 4, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
-		 { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
+	    {{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
+		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
         /* Color mode MCLK settings */
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 },
@@ -2222,37 +2229,10 @@ static ClkMotorDef Motors[] = {
 	    { 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_NOPLUSTEK_600, 64, 20, 6,
-		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 },
-		 { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }},
-        /* Color mode MCLK settings */
-	    { 4.0, 3.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-	    { 4.0, 3.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-		/* Gray mode MCLK settings */
-	    { 3.0, 3.0, 3.0, 3.0, 3.0, 9.0, 9.0, 9.0, 9.0, 9.0 },
-	    { 3.0, 3.0, 3.0, 3.0, 3.0, 9.0, 9.0, 9.0, 9.0, 9.0 }
-	},
-
-	{ MODEL_NOPLUSTEK_1200, 1, 48, 6,
-		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-	    {{ 1, 48 }, { 1, 48 }, { 1, 48 }, { 1, 48 }, { 1, 48 },
-
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 2, 48 }, { 8, 48 }, { 2, 48 }, { 1, 48 }, { 1, 48 }},
-        /* Color mode MCLK settings */
-	    { 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 4.0, 4.0, 5.5, 5.5 },
-	    { 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 4.0, 4.0, 5.5, 5.5 },
-		/* Gray mode MCLK settings */
-	    { 5.0, 5.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
-	    { 5.0, 5.0, 5.0, 5.0, 5.0, 6.0, 6.0, 6.0, 6.0, 6.0 }
-	},
-
 	{ MODEL_MUSTEK600, 4, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 },
-		 { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }},
+	    {{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
+	     { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
         /* Color mode MCLK settings */
 	    { 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
 	    { 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
@@ -2263,11 +2243,11 @@ static ClkMotorDef Motors[] = {
 
 	{ MODEL_MUSTEK1200, 2, 32, 3,
 		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi   <=100dpi   <=150dpi   <=200dpi  <=300dpi   */
-	    {{ 2, 32 }, { 2, 32 }, { 2, 32 }, { 2, 32 }, { 2, 32 },
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi   */
+	    {{ 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 },
 
-		/* <=400dpi  <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
- 		 { 2, 32 }, { 2, 32 }, { 2, 32 }, { 2, 32 }, { 2, 32 }},
+		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+ 		 { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }},
         /* Color mode MCLK settings */
 	    { 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5 },
 	    { 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5 },
@@ -2279,8 +2259,8 @@ static ClkMotorDef Motors[] = {
 	/* settings good for the HP models (tested with 2200)*/
 	{ MODEL_HP, 8, 60, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 8, 60 }, { 8, 60 }, { 8, 60 }, { 8, 60 }, { 8, 60 },
-		 { 8, 60 }, { 8, 60 }, { 8, 60 }, { 8, 60 }, { 8, 60 }},
+	    {{ 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 },
+		 { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }},
         /* Color mode MCLK settings */
 	    { 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },
 	    { 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },
@@ -2290,73 +2270,58 @@ static ClkMotorDef Motors[] = {
 	    { 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
-	{ MODEL_CANON650, 8, 51, 6,
+	{ MODEL_CANON600, 8, 51, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-	    {{ 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 },
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+	    {{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
 
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }},
-        /* Color mode MCLK settings */
-	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 2.0, 6.0, 6.0, 6.0 },
-	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 2.0, 6.0, 6.0, 6.0 },
-
-		/* Gray mode MCLK settings */
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 },
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 }
-	},
-
-	{ MODEL_CANON1220, 8, 51, 6,
-		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-	    {{ 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 },
-
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }},
+		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		 { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
         /* Color mode MCLK settings */
 	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 
-		/* Gray mode MCLK settings */
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 },
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 }
-	},
-
-	{ MODEL_CANON670, 8, 51, 6,
-		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-	    {{ 8, 63 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 6, 31 },
-
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 6, 31 }, { 6, 31 }, { 6, 31 }, { 6, 31 }, { 6, 31 }},
-        /* Color mode MCLK settings */
-	    { 6.0, 5.0, 4.0, 4.0, 4.0, 2.0, 2.0, 2.0, 2.0, 2.0 },
-	    { 6.0, 5.0, 4.0, 4.0, 4.0, 2.0, 2.0, 2.0, 2.0, 2.0 },
-		/* Gray mode MCLK settings */
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 },
-	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 }
-	},
-
-	{ MODEL_CANON1240, 8, 31, 3,
-		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-		{{ 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 },
-
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }, { 8, 31 }},
-		/* Color mode MCLK settings */
-	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 2.0, 2.0, 2.0 },
-	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 2.0, 2.0, 2.0, 2.0 },
 		/* Gray mode MCLK settings */
 	    { 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
 	    { 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
+	{ MODEL_CANON1220, 8, 51, 6,
+		/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+	    {{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
+
+		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		 { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
+        /* Color mode MCLK settings */
+	    { 6.0, 6.0, 3.0, 3.0, 6.0, 6.0, 6.0, 6.0, 2.5, 6.0 },
+	    { 6.0, 6.0, 3.0, 3.0, 6.0, 6.0, 6.0, 6.0, 2.5, 6.0 },
+
+		/* Gray mode MCLK settings */
+	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 },
+	    { 18.0, 15.0, 12.0, 12.0, 9.5, 6.5, 6.0, 6.0, 6.0, 6.0 }
+	},
+
+	{ MODEL_CANON1240, 8, 51, 3,
+		/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+	    {{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
+
+		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		 { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
+		/* Color mode MCLK settings */
+	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+	    { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 6.0, 6.0, 6.0 },
+		/* Gray mode MCLK settings */
+	    { 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
+	    { 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
+	},
+
 	/* settings good for the UMAX models (tested with 3400) */
 	{ MODEL_UMAX, 16, 4, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-	    {{ 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 },
-		 { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }, { 16, 4 }},
+	    {{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
+		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
         /* Color mode MCLK settings */
 	    { 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5 },
 	    { 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5 },
@@ -2368,11 +2333,11 @@ static ClkMotorDef Motors[] = {
 	/* settings good for the EPSON models (tested with 1260) */
 	{ MODEL_EPSON, 2, 1, 6,
 		/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi    <=100dpi    <=150dpi   <=200dpi  <=300dpi  */
-	    {{ 2, 1 }, { 2, 1 }, { 2, 1 }, { 2, 1 }, { 2, 1 },
+		/* <=75dpi      <=100dpi     <=150dpi     <=200dpi     <=300dpi  */
+	    {{ 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 },
 
-		/* <=400dpi   <=600dpi   <=800dpi   <=1200dpi  <=2400dpi */
-		 { 2, 1 }, { 2, 1 }, { 2, 1 }, { 2, 1 }, { 2, 1 }},
+		/* <=400dpi     <=600dpi     <=800dpi     <=1200dpi    <=2400dpi */
+		 { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }},
         /* Color mode MCLK settings */
 	    { 2.0, 2.0, 2.0, 2.0, 2.0, 2.5, 3.0, 4.0, 6.0, 6.0 },
 	    { 2.0, 2.0, 2.0, 2.0, 3.0, 2.5, 3.0, 4.0, 6.0, 6.0 },

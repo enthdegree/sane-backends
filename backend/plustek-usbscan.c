@@ -523,7 +523,8 @@ static double usb_GetMCLKDivider( pPlustek_Device dev, pScanParam pParam )
 				m_bIntTimeAdjust = bMaxITA;
 			}
 
-			if((hw->motorModel == MODEL_HP) && (sCaps->bCCD == kNECSLIM)) {
+			if(((hw->motorModel == MODEL_HP) && (sCaps->bCCD == kNECSLIM))/* ||
+			 	( a_bRegs[0x26] & _ONE_CH_COLOR )*/) {
 
        			bMaxITA = (u_char)floor((m_dMCLKDivider + 1) / 2.0);
 
@@ -741,6 +742,22 @@ static void usb_GetMotorParam( pPlustek_Device dev, pScanParam pParam )
 
 		a_bRegs[0x56] = md[idx].pwm;
 		a_bRegs[0x57] = md[idx].pwm_duty;
+
+		a_bRegs[0x43] = 0;
+		a_bRegs[0x44] = 0;
+
+		if( md[idx].scan_lines_per_line > 1 ) {
+
+			if((pParam->bBitDepth > 8) &&
+				(pParam->bDataType == SCANDATATYPE_Color)) {
+
+				a_bRegs[0x43] = 0xff;
+				a_bRegs[0x44] = md[idx].scan_lines_per_line;
+
+				DBG( _DBG_INFO, "* Line Skipping : 0x43=0x%02x, 0x44=0x%02x\n",
+	  											a_bRegs[0x43], a_bRegs[0x44] );
+			}
+		}
 
     } else {
         if( sCaps->OpticDpi.x == 1200 ) {
@@ -1029,6 +1046,12 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 	m_wFastFeedStepSize = (u_short)(dwCrystalFrequency /
 							(m_dMCLKDivider * 8 * m_bCM * hw->dMaxMoveSpeed *
 							 4 * hw->wMotorDpi));
+	/* CIS special ;-) */
+	if((hw->bReg_0x26 & _ONE_CH_COLOR) && (m_bCM == 1)) {
+		DBG( _DBG_INFO2, "* CIS FFStep-Speedup\n" );
+		m_wFastFeedStepSize /= 3;
+	}
+
 	if( m_bIntTimeAdjust != 0 )
 		m_wFastFeedStepSize /= m_bIntTimeAdjust;
 

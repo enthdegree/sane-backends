@@ -289,6 +289,17 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 
 	a_bRegs[0x45] |= 0x10;
 
+	DBG( _DBG_INFO2,"MotorDPI=%u, MaxMoveSpeed=%.3f, "
+					"FFStepSize=%u, Steps=%lu\n", hw->wMotorDpi,
+					hw->dMaxMoveSpeed, wFastFeedStepSize, dwStep );
+	DBG( _DBG_INFO2, "MOTOR: "
+					"PWM=0x%02x, PWM_DUTY=0x%02x 0x45=0x%02x "
+                    "0x48=0x%02x, 0x49=0x%02x \n",
+					a_bRegs[0x56], a_bRegs[0x57], a_bRegs[0x45],
+					a_bRegs[0x48], a_bRegs[0x49] );
+
+	DBG( _DBG_INFO2,"MCLK_FFW = %u --> 0x%02x\n", mclk_div, (mclk_div-1)*2 );
+
 	/* The setting for chassis moving is:
 	 * MCLK divider = 6, 8 bits/pixel, HDPI divider = 12,
 	 * no integration time adjustment and 1 channel grayscale

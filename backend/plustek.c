@@ -56,6 +56,7 @@
  *        - fixed a bug, that stops our lamp timer
  * - 0.45 - added additional flags
  *        - added WIFSIGNALED to check result of child termination
+ *        - changed readImage interface for USB devices
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -129,7 +130,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.45-1"
+#define BACKEND_VERSION "0.45-3"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -489,6 +490,7 @@ static RETSIGTYPE sigalarm_handler( int signal )
  */
 static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
 {
+	int              line;
 	unsigned long	 status;
 	unsigned long 	 data_length;
 	struct SIGACTION act;
@@ -521,8 +523,32 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	}
 	
 	/* here we read all data from the driver... */
-	status = (unsigned long)scanner->hw->readImage( scanner->hw,
+	if( scanner->hw->readImage ) {
+
+		status = (unsigned long)scanner->hw->readImage( scanner->hw,
                                                     scanner->buf, data_length);
+	} else {
+
+		unsigned char *buf = scanner->buf;
+
+
+		status = scanner->hw->prepare( scanner->hw, buf );
+    	
+        if( 0 == status ) {
+
+			for( line = 0; line < scanner->params.lines; line++ ) {
+
+				status = scanner->hw->readLine( scanner->hw );
+				if((int)status < 0 ) {
+					break;
+				}
+
+			    write( pipe_fd, buf, scanner->params.bytes_per_line );
+
+				buf += scanner->params.bytes_per_line;
+			}
+		}
+	}
 
 	/* on error, there's no need to clean up, as this is done by the parent */
 	if((int)status < 0 ) {
@@ -538,9 +564,10 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
     }
 
 	/* send to parent */
-	DBG( _DBG_PROC, "sending %lu bytes to parent\n", status );
-
-    write( pipe_fd, scanner->buf, status );
+	if( scanner->hw->readImage ) {
+		DBG( _DBG_PROC, "sending %lu bytes to parent\n", status );
+	    write( pipe_fd, scanner->buf, status );
+	}
 
 	pipe_fd = -1;
 
@@ -1173,6 +1200,8 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
      	dev->setMap      = ppDev_setMap;
         dev->readImage   = ppDev_readImage;
 		dev->shutdown    = NULL;
+        dev->readLine    = NULL;
+		dev->prepare     = NULL;
 
 	} else {
 
@@ -1189,7 +1218,9 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		dev->startScan   = usbDev_startScan;
      	dev->stopScan    = usbDev_stopScan;
      	dev->setMap      = usbDev_setMap;
-        dev->readImage   = usbDev_readImage;
+        dev->readImage   = NULL;
+        dev->readLine    = usbDev_readLine;
+		dev->prepare     = usbDev_Prepare;
 		dev->shutdown    = usbDev_shutdown;
 
         strncpy( dev->usbId, cnf->usbId, _MAX_ID_LEN );
@@ -1263,6 +1294,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
     	dev->sane.model = ModelStr[0];
     }
    	
+   	DBG( _DBG_INFO, "Vendor : %s\n",      dev->sane.vendor  );
    	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Asic   : 0x%02x\n",  dev->caps.AsicID  );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag  );

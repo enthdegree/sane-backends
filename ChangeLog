@@ -1,3 +1,15 @@
+2003-01-24  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/plustek/Plustek-USB-TODO.txt
+	  doc/plustek/Plustek-USB.txt
+	  Documentation update
+	* doc/descriptions/plustek.desc: status updates
+	* backend/plustek.conf fixed options
+	* backend/plustek.c backend/plustek-devs.c backend/plustek-usb.c
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c
+	  backend/plustek.h backend/plustek-usb.h
+	  Minor fixes and prototype description updates, code cleanup
+
 2003-01-23  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added Perfection 3200/GT-9800
@@ -183,7 +195,7 @@
 
 	* po/sane-backends.pt.po: Even more Portuguese translations from
 	  Pedro Morais <morais@inocam.com>.
-	* sanei/sanei_usb.c: Comment out resetep at sane_close. This 
+	* sanei/sanei_usb.c: Comment out resetep at sane_close. This
 	  function sets th USB data toggle only on the host side.
 	* TODO: Removed microtek2 problem, updated Irix patch section and
 	  Linux/Sparc section.

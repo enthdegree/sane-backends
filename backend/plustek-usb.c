@@ -946,21 +946,21 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
     return _E_ALLOC;
 }
 
+
 /**
  * do the reading stuff here...
  * first we perform the calibration step, and then we read the image
  * line for line
  */
-static int usbDev_readImage( struct Plustek_Device *dev,
-                             SANE_Byte *buf, unsigned long data_length )
+static int usbDev_Prepare( struct Plustek_Device *dev, SANE_Byte *buf )
 {
-    int       result, lines;
-    u_long    dw, scaler;
+    int       result;
+    u_long    scaler;
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
 
-	DBG( _DBG_INFO, "usbDev_readImage()\n" );
+	DBG( _DBG_INFO, "usbDev_PrepareScan()\n" );
 
 	/* check the current position of the sensor and move it back
 	 * to it's home position if necessary...
@@ -1197,111 +1197,134 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 
 	dumpPic( "plustek-pic.raw", NULL, 0 );
 
-	lines = usb_ReadData( dev  );
-	if( 0 == lines )
+	scanning->dwLinesToProcess = usb_ReadData( dev  );
+	if( 0 == scanning->dwLinesToProcess )
 		return _E_DATAREAD;
-		
-	/*
-     * all settings done, so go ahead and read the data
-     */
-	for( dw = 0; scanning->dwLinesUser; ) {
 
-		int wrap = 0;
+	return 0;
+}
 
-		if( usb_IsEscPressed()) {
-			DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
-			return 0;
-		}
+/**
+ *
+ */
+static int usbDev_readLine( struct Plustek_Device *dev )
+{
+	int       wrap;
+	u_long    cur, scaler;
+    pScanDef  scanning = &dev->scanning;
+	pHWDef    hw       = &dev->usbDev.HwSetting;
 
-		if( !(scanning->dwFlag & SCANFLAG_SampleY))	{
+ 	scaler = 1;
+	if((hw->bReg_0x26 & _ONE_CH_COLOR) &&
+	   (scanning->sParam.bDataType == SCANDATATYPE_Color)) {
+		scaler = 3;
+    }
 
-			scanning->pfnProcess( dev );
+	cur = scanning->dwLinesUser;
 
-			/* Adjust user buffer pointer */
-			scanning->UserBuf.pb += scanning->lBufAdjust;
-			scanning->dwLinesUser--;
-			dw++;
+	/* we stay within this sample loop until one line has been processed for
+     * the user...
+	 */
+	while( cur == scanning->dwLinesUser ) {
 
-		} else {
 
-			scanning->wSumY += scanning->sParam.UserDpi.y;
+        if( usb_IsEscPressed()) {
+        	DBG( _DBG_INFO, "readLine() - Cancel detected...\n" );
+        	return _E_ABORT;
+        }
 
-			if( scanning->wSumY >= scanning->sParam.PhyDpi.y ) {
-				scanning->wSumY -= scanning->sParam.PhyDpi.y;
-				
-				scanning->pfnProcess( dev );
-		
-				/* Adjust user buffer pointer */
-				scanning->UserBuf.pb += scanning->lBufAdjust;
-				scanning->dwLinesUser--;
-				dw++;
-			}
-		}
+        if( !(scanning->dwFlag & SCANFLAG_SampleY))	{
 
-		/* Adjust get buffer pointers */
-		if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
+        	scanning->pfnProcess( dev );
 
-			scanning->Red.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
-			if( scanning->Red.pb >= scanning->pbScanBufEnd ) {
-				scanning->Red.pb = scanning->pbScanBufBegin +
-								   scanning->dwRedShift;
-				wrap = 1;
-			}
+        	/* Adjust user buffer pointer */
+        	scanning->UserBuf.pb += scanning->lBufAdjust;
+        	scanning->dwLinesUser--;
 
-			scanning->Green.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
-			if( scanning->Green.pb >= scanning->pbScanBufEnd ) {
-				scanning->Green.pb = scanning->pbScanBufBegin +
-									 scanning->dwGreenShift;
-				wrap = 1;
-			}
+        } else {
 
-			scanning->Blue.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
-			if( scanning->Blue.pb >= scanning->pbScanBufEnd ) {
-				scanning->Blue.pb = scanning->pbScanBufBegin +
-									scanning->dwBlueShift;
-				wrap = 1;
-			}
-		} else {
-			scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Green.pb >= scanning->pbScanBufEnd )
-				scanning->Green.pb = scanning->pbScanBufBegin +
-									 scanning->dwGreenShift;
-		}
+        	scanning->wSumY += scanning->sParam.UserDpi.y;
 
-		/*
-		 * on any wrap-around of the get pointers in one channel mode
+        	if( scanning->wSumY >= scanning->sParam.PhyDpi.y ) {
+        		scanning->wSumY -= scanning->sParam.PhyDpi.y;
+
+        		scanning->pfnProcess( dev );
+
+        		/* Adjust user buffer pointer */
+        		scanning->UserBuf.pb += scanning->lBufAdjust;
+        		scanning->dwLinesUser--;
+        	}
+        }
+
+        /* Adjust get buffer pointers */
+		wrap = 0;
+
+        if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
+
+        	scanning->Red.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+        	if( scanning->Red.pb >= scanning->pbScanBufEnd ) {
+        		scanning->Red.pb = scanning->pbScanBufBegin +
+        						   scanning->dwRedShift;
+        		wrap = 1;
+        	}
+
+        	scanning->Green.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+        	if( scanning->Green.pb >= scanning->pbScanBufEnd ) {
+        		scanning->Green.pb = scanning->pbScanBufBegin +
+        							 scanning->dwGreenShift;
+        		wrap = 1;
+        	}
+
+        	scanning->Blue.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+        	if( scanning->Blue.pb >= scanning->pbScanBufEnd ) {
+        		scanning->Blue.pb = scanning->pbScanBufBegin +
+        								scanning->dwBlueShift;
+        		wrap = 1;
+        	}
+        } else {
+        	scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
+        	if( scanning->Green.pb >= scanning->pbScanBufEnd )
+        		scanning->Green.pb = scanning->pbScanBufBegin +
+        							 scanning->dwGreenShift;
+        }
+
+        /*
+         * on any wrap-around of the get pointers in one channel mode
          * we have to reset them
-		 */
-		if( wrap ) {
+         */
+        if( wrap ) {
 
-			if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+        	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-				scanning->Red.pb   = scanning->pbScanBufBegin;
-				scanning->Green.pb = scanning->pbScanBufBegin +
-										 (scanning->sParam.Size.dwPhyBytes );
-				scanning->Blue.pb  = scanning->pbScanBufBegin +
-									 (scanning->sParam.Size.dwPhyBytes )* 2UL;
-			}
-		}
+        		scanning->Red.pb   = scanning->pbScanBufBegin;
+        		scanning->Green.pb = scanning->pbScanBufBegin +
+        								 (scanning->sParam.Size.dwPhyBytes );
+        		scanning->Blue.pb  = scanning->pbScanBufBegin +
+       								 (scanning->sParam.Size.dwPhyBytes )* 2UL;
+        	}
+        }
 
-		/*
-		 * line processed, check if we have to get more...
-		 */		
-		lines--;
+        /*
+         * line processed, check if we have to get more...
+         */
+        scanning->dwLinesToProcess--;
 
-		if( 0 == lines ) {
-		
-			lines = usb_ReadData( dev );
-			if(( 0 == lines ) && !usb_IsEscPressed())
-				break;
-		}
+        if( 0 == scanning->dwLinesToProcess ) {
+
+        	scanning->dwLinesToProcess = usb_ReadData( dev );
+        	if( 0 == scanning->dwLinesToProcess ) {
+
+        		if( usb_IsEscPressed())
+        			return _E_ABORT;
+        	}
+        }
 	}
-	
-	DBG( _DBG_INFO, "We've got %lu bytes (%lu lines, needed: %lu bytes)\n",
-							 (dw * scanning->dwBytesLine), dw, data_length );
-	usb_ScanEnd( dev );
 
-    return data_length; 
+	/* after reaching the last line, home the sensor... */
+	if( 0 == scanning->dwLinesUser )
+		usb_ScanEnd( dev );
+
+    return 0; 
 }
 
 /* END PLUSTEK-USB.C ........................................................*/

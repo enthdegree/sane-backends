@@ -181,6 +181,12 @@ and fill in the appropriate vendor and product id (see there for examples)
 This is it...
 
 
+Autoloading scanner.o
+---------------------
+
+boot.local
+
+
 Debugging your USB scanner (written by Kev Green)
 -------------------------------------------------
 

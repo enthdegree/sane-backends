@@ -13,9 +13,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
-"POT-Creation-Date: 2003-02-18 11:19+0100\n"
+"POT-Creation-Date: 2003-02-24 21:29+0100\n"
 "PO-Revision-Date: 2003-02-14 13:02+0100\n"
-"Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>\n"
+"Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
+"dot fr>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -34,20 +35,20 @@ msgstr ""
 # I'll keep the english there as well.
 # ####################################################
 # sceptre.h:280
-#: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/mustek.c:125
-#: .tmp/mustek.c:130 .tmp/mustek_usb.c:270 .tmp/sceptre.h:297
-#: .tmp/snapscan.c:160 .tmp/umax.c:185 .tmp/umax_pp.c:133
+#: .tmp/artec_eplus48u.c:153 .tmp/gt68xx.c:118 .tmp/ma1509.c:101
+#: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
+#: .tmp/sceptre.h:297 .tmp/snapscan.c:160 .tmp/umax.c:185 .tmp/umax_pp.c:133
 msgid "Lineart"
 msgstr "Trait"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/leo.h:269 .tmp/teco1.h:299 .tmp/teco2.h:353
-#: .tmp/teco3.h:303
+#: .tmp/teco3.h:303 .tmp/umax_pp.c:133
 msgid "Grayscale"
 msgstr "Niveaux de gris"
 
 # sceptre.h:280
 #: .tmp/artec_eplus48u.c:155 .tmp/epson.c:454 .tmp/gt68xx.c:116 .tmp/leo.h:270
-#: .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
+#: .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130 .tmp/mustek_usb.c:268
 #: .tmp/plustek.c:224 .tmp/plustek.c:234 .tmp/plustek.c:244 .tmp/sceptre.h:300
 #: .tmp/snapscan.c:157 .tmp/teco1.h:300 .tmp/teco2.h:354 .tmp/teco3.h:304
 #: .tmp/test.c:120 .tmp/umax.c:190 .tmp/umax_pp.c:133
@@ -55,10 +56,10 @@ msgid "Color"
 msgstr "Couleur"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:594 .tmp/leo.c:871
-#: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4269
-#: .tmp/mustek_usb.c:353 .tmp/plustek.c:918 .tmp/sceptre.c:753
-#: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
-#: .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:461
+#: .tmp/ma1509.c:597 .tmp/matsushita.c:1149 .tmp/microtek2.h:611
+#: .tmp/mustek.c:4269 .tmp/mustek_usb.c:353 .tmp/plustek.c:918
+#: .tmp/sceptre.c:753 .tmp/snapscan-options.c:401 .tmp/teco1.c:1136
+#: .tmp/teco2.c:1445 .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:461
 msgid "Enhancement"
 msgstr "Réglages fins"
 
@@ -71,11 +72,11 @@ msgid "Set default values for enhancement controls."
 msgstr "Valeurs par défaut pour les réglages fins."
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2821 .tmp/gt68xx.c:650
-#: .tmp/leo.c:823 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
-#: .tmp/mustek.c:4221 .tmp/mustek_usb.c:305 .tmp/plustek.c:872
-#: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
-#: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
-#: .tmp/umax_pp.c:412
+#: .tmp/leo.c:823 .tmp/ma1509.c:549 .tmp/matsushita.c:1095
+#: .tmp/microtek2.h:610 .tmp/mustek.c:4221 .tmp/mustek_usb.c:305
+#: .tmp/plustek.c:872 .tmp/sceptre.c:705 .tmp/snapscan-options.c:334
+#: .tmp/teco1.c:1088 .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616
+#: .tmp/umax.c:5112 .tmp/umax_pp.c:412
 msgid "Geometry"
 msgstr "Aire de numérisation"
 
@@ -165,15 +166,15 @@ msgid "Binary"
 msgstr "Noir et blanc"
 
 # sceptre.h:280
-#: .tmp/epson.c:453 .tmp/gt68xx.c:117 .tmp/mustek.c:125 .tmp/mustek.c:130
-#: .tmp/mustek_usb.c:269 .tmp/plustek.c:223 .tmp/plustek.c:233
-#: .tmp/plustek.c:242 .tmp/sceptre.h:299 .tmp/snapscan.c:159 .tmp/test.c:120
-#: .tmp/umax.c:187 .tmp/umax_pp.c:133
+#: .tmp/epson.c:453 .tmp/gt68xx.c:117 .tmp/ma1509.c:101 .tmp/mustek.c:125
+#: .tmp/mustek.c:130 .tmp/mustek_usb.c:269 .tmp/plustek.c:223
+#: .tmp/plustek.c:233 .tmp/plustek.c:242 .tmp/sceptre.h:299
+#: .tmp/snapscan.c:159 .tmp/test.c:120 .tmp/umax.c:187
 msgid "Gray"
 msgstr "Gris"
 
-#: .tmp/epson.c:463 .tmp/gt68xx.c:123 .tmp/mustek.c:148 .tmp/mustek.c:152
-#: .tmp/mustek.c:156 .tmp/snapscan.c:163 .tmp/umax.c:181
+#: .tmp/epson.c:463 .tmp/gt68xx.c:123 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan.c:163 .tmp/umax.c:181
 msgid "Flatbed"
 msgstr "A plat"
 
@@ -333,10 +334,11 @@ msgstr "A4"
 msgid "max"
 msgstr "max"
 
-#: .tmp/epson.c:2352 .tmp/gt68xx.c:432 .tmp/matsushita.c:1044
-#: .tmp/microtek2.h:609 .tmp/mustek.c:4084 .tmp/mustek_usb.c:260
-#: .tmp/plustek.c:777 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
-#: .tmp/teco2.c:1369 .tmp/test.c:291 .tmp/umax.c:4990
+#: .tmp/epson.c:2352 .tmp/gt68xx.c:432 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1044 .tmp/microtek2.h:609 .tmp/mustek.c:4084
+#: .tmp/mustek_usb.c:260 .tmp/plustek.c:777 .tmp/sceptre.c:676
+#: .tmp/snapscan-options.c:189 .tmp/teco2.c:1369 .tmp/test.c:291
+#: .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Mode de numérisation"
 
@@ -540,7 +542,8 @@ msgstr ""
 "Aprés avoir envoyer la commande de numérisation, attendre l'appui du bouton "
 "avant de commencer la numérisation."
 
-#: .tmp/gt68xx.c:124 .tmp/mustek.c:156 .tmp/snapscan.c:164 .tmp/umax.c:182
+#: .tmp/gt68xx.c:124 .tmp/ma1509.c:106 .tmp/mustek.c:156 .tmp/snapscan.c:164
+#: .tmp/umax.c:182
 msgid "Transparency Adapter"
 msgstr "Adaptateur pour transparents"
 

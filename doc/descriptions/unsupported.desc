@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-28"		; version of backend
+:version "2003-11-01"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -727,6 +727,12 @@
 :status :unsupported
 :comment "Not supported. Vendor/product 0x05e3/0x0120. See link for details."
 
+:model "Powerslide 3600"
+:interface "USB IEEE-1394"
+:url "/unsupported/reflecta-digitdia-3600.html"
+:status :unsupported
+:comment "Probably unsupported. Film scanner that can scan directly from the magazine."
+
 ;********************************************************************************************
 
 :mfg "Packard Bell"
@@ -862,6 +868,7 @@
 
 :model "DigitDia 3600"
 :interface "USB IEEE-1394"
+:url "/unsupported/reflecta-digitdia-3600.html"
 :status :unsupported
 :comment "Probably unsupported. Film scanner that can scan directly from the magazine."
 

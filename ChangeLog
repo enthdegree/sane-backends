@@ -1,3 +1,7 @@
+2004-12-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added several scanners.
+
 2004-12-18  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c backend/epson_usb.c: Added USB IDs for

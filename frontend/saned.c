@@ -740,6 +740,32 @@ process_request (Wire * w)
 	can_authorize = 1;
 
 	resource = strdup (name);
+	
+	if (strlen(resource) == 0) {
+
+	  SANE_Device **device_list;
+	  
+	  free (resource);
+
+	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != SANE_STATUS_GOOD) {
+
+	    memset (&reply, 0, sizeof (reply));
+	    reply.status = i;
+	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+		  
+	  }
+
+	  if ((device_list == NULL) || (device_list[0] == NULL)) {
+		  
+	    memset (&reply, 0, sizeof (reply));
+	    reply.status = SANE_STATUS_INVAL;
+	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+
+	  }
+
+	  resource = strdup (device_list[0]->name);
+	  
+	}
 
 	if (strchr (resource, ':'))
 	  *(strchr (resource, ':')) = 0;

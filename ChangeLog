@@ -1,5 +1,11 @@
 2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
+	* Added "Introduction" to README that tells about
+	  the new X-frontend package
+
+
+2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
 	* removed gimp and gtk parts from include/sane/config.h.in
 
 	* removed gtk test from aclocal.m4

@@ -17,17 +17,20 @@
 
 :devicetype :scanner              ; start of a list of devices....
 
-;;mfg "LEO"
-;:model "FS-1130"                  ; name models for above-specified mfg.
-;:interface "SCSI"
+:mfg "LEO"
+:model "FS-1130" 
+:interface "SCSI"
+:status :untested
 
-:mfg "Across Technologies"        ; name a manufacturer
-:model "FS-1130"                  ; name models for above-specified mfg.
+:mfg "Across Technologies"
+:model "FS-1130"
 :interface "SCSI"
 :comment "FCC ID LUZFS1130"
+:status :beta
 
-;:mfg "Genius"
-;:model "FS-1130 Colorpage Scanner"
-;:interface "SCSI"
+:mfg "Genius"
+:model "FS-1130 Colorpage Scanner"
+:interface "SCSI"
+:status :untested
 
 

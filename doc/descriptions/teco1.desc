@@ -21,6 +21,7 @@
 
 :mfg "Relisys"
 :url "http://www.relisys.com/"
+:url "http://www.tecoimage.com.tw/"
 
 :model "RELI 2412"
 :interface "SCSI"

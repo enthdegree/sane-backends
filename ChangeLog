@@ -1,3 +1,7 @@
+2001-10-28  Karl Heinz Kremer <khk@khk.net>
+
+  * backend/epson.c: Fixed bug in recognition of faulty Perfection 1650
+
 2001-10-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Removed entry about @LIBDIR@ and @CONFIGDIR@ in man pages.

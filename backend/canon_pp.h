@@ -67,7 +67,7 @@
 /* options: num,res,colour,depth,tl-x,tl-y,br-x,br-y,cal */
 /* preview option disabled */
 #define NUM_OPTIONS 9  
-#define BUF_MAX 65520
+#define BUF_MAX 64000
 
 /* Indexes into options array */
 #define OPT_NUM_OPTIONS 0
@@ -101,6 +101,7 @@ struct CANONP_Scanner_Struct
 	SANE_Bool cancelled;
 	SANE_Bool setup;
 	SANE_Int lines_scanned;
+	SANE_Int bytes_sent;
 
 	char *weights_file;
 	SANE_Bool cal_readonly;

@@ -50,7 +50,7 @@
 #include  <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
-#define VERSION "$Revision$ (0.3)"
+#define VERSION "$Revision$"
 #define BACKEND_NAME canon_pp
 
 #define THREE_BITS 0xE0
@@ -872,7 +872,8 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 
 	/* 
 	 * These don't change whether we're scanning or not 
-	 * NOTE: Assumes options don't change after scanning commences
+	 * NOTE: Assumes options don't change after scanning commences, which
+         *       is part of the standard
 	 */
 
 	/* Copy the options stored in the vals into the scaninfo */
@@ -888,12 +889,16 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	/* x values have to be divisible by 4 (round down) */
 	params->pixels_per_line -= (params->pixels_per_line%4);
 
+        /* Can't scan nothing */
+        if (!(params->pixels_per_line)) params->pixels_per_line = 4;
+
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
 	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
                                         (max_res / res);
 
-        if(params->pixels_per_line > max_width) params->pixels_per_line = max_width;
+        if(params->pixels_per_line > max_width) 
+                params->pixels_per_line = max_width;
         if(total_lines > max_height) total_lines = max_height;
 
 
@@ -921,7 +926,6 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	/* Always assume next packet will be the last 
 	 * - frontends seem to like it that way */
 	params->last_frame = SANE_TRUE;
-	params->lines = total_lines - cs->lines_scanned;
 
 	switch (cs->vals[OPT_COLOUR_MODE]) 
 	{
@@ -937,6 +941,21 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 			/* shouldn't happen */
 			break;
 	}
+
+        if (cs->bytes_sent > 0)
+	        /* we want to round up the number of lines still to come */
+                params->lines = total_lines - 
+                        ceilf((float)(cs->bytes_sent) / 
+                                (float)(params->bytes_per_line));
+        else
+                params->lines = total_lines;
+
+	DBG(10, "get_params: bytes_per_line=%d, pixels_per_line=%d, lines=%d\n"
+                "max_res=%d, res=%d, max_height=%d, total_lines=%d\n"
+                "br_y=%d, tl_y=%d, mm_per_in=%f\n",
+                params->bytes_per_line, params->pixels_per_line, params->lines,
+                max_res, res, max_height, total_lines,
+                cs->vals[OPT_BR_Y], cs->vals[OPT_TL_Y], MM_PER_IN);
 
 	/* FIXME: Do we need to account for the scanner's max buffer here? */
 
@@ -975,8 +994,10 @@ sane_start (SANE_Handle h)
 	res = res630[cs->vals[OPT_RESOLUTION]];
 
 	/* Copy the options stored in the vals into the scaninfo */
-	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) / MM_PER_IN;
-	cs->scan.height = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) / MM_PER_IN;
+	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) 
+                / MM_PER_IN;
+	cs->scan.height = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
+                / MM_PER_IN;
 
 	cs->scan.xoffset = (cs->vals[OPT_TL_X] * res) / MM_PER_IN;
 	cs->scan.yoffset = (cs->vals[OPT_TL_Y] * res) / MM_PER_IN;
@@ -994,6 +1015,9 @@ sane_start (SANE_Handle h)
 	/* x values have to be divisible by 4 (round down) */
 	cs->scan.width -= (cs->scan.width%4);
 	cs->scan.xoffset -= (cs->scan.xoffset%4);
+
+	/* Can't scan nothing */
+        if (!(cs->scan.width)) cs->scan.width = 4;
 
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
@@ -1047,6 +1071,8 @@ sane_start (SANE_Handle h)
 	cs->scanning = SANE_TRUE;
 	cs->cancelled = SANE_FALSE;
 	cs->sent_eof = SANE_FALSE;
+	cs->lines_scanned = 0;
+	cs->bytes_sent = 0;
 
 	/*  init_scan doesn't return a value yet... but Simon might get keen
 	*  one day 
@@ -1083,7 +1109,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	unsigned int i;
 	short *shortptr;
 	SANE_Byte *charptr;
-	int max_buf, tmp;
+	int tmp;
 
 	static SANE_Byte *lbuf;
 	static unsigned int bytesleft;
@@ -1107,25 +1133,30 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		/* feed some more data in until we've run out - don't care 
 		 * whether or not we _think_ the scanner is scanning now, 
 		 * because we may still have data left over to send */
+		DBG(100, "sane_read: didn't send it all last time\n");
 
 		/* Now feed it some data from lbuf */
 		if (bytesleft <= (unsigned int)maxlen)
 		{
 			/* enough buffer to send the lot */
-			memcpy(buf, lbuf, bytesleft);
+			memcpy(buf, read_leftover, bytesleft);
 			free(lbuf);
 			*lenp = bytesleft;
 			lbuf = NULL;
 			read_leftover = NULL;
 			bytesleft = 0;
+                        cs->bytes_sent += bytesleft;
 			return SANE_STATUS_GOOD;
 
 		} else {
 			/* only enough to send maxlen */
-			memcpy(buf, lbuf, maxlen);
-			read_leftover = lbuf + maxlen;
+			memcpy(buf, read_leftover, maxlen);
+			read_leftover += maxlen;
 			bytesleft -= maxlen;
 			*lenp = maxlen;
+                        cs->bytes_sent += maxlen;
+		        DBG(100, "sane_read: sent %d bytes, still have %d to "
+                                "go\n", maxlen, bytesleft);
 			return SANE_STATUS_GOOD;
 		}
 
@@ -1137,11 +1168,13 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	}
 
 	/* Has the last scan ended? */
-	if (((unsigned)cs->scan.height == (unsigned)cs->lines_scanned) 
+	if (((unsigned)cs->scan.height <= (unsigned)cs->lines_scanned) 
 		|| !(cs->scanning))
 	{
 		if (cs->cancelled)
+                {
 			return SANE_STATUS_CANCELLED;
+                }
 
 		if (cs->sent_eof)
 		{
@@ -1150,6 +1183,9 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			return SANE_STATUS_INVAL;
 		} else {
 			cs->sent_eof = SANE_TRUE;
+			cs->scanning = SANE_FALSE;
+			cs->lines_scanned = 0;
+			cs->bytes_sent = 0;
 			return SANE_STATUS_EOF;
 		}
 	}
@@ -1166,23 +1202,27 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	/* We will have as many lines as possible, or the size of the scan.
 	 * Each pixel is 5/4 bytes per colour, so we multiply the buffer 
 	 * size by 4/5 to get the number of lines. */
+
+        /* New way: scan a whole scanner buffer full, and return as much as 
+         * the frontend wants.  It's faster and more reliable since the 
+         * scanners crack the shits if we ask for too many small packets */
+#if 0
 	if ((int)maxlen > (BUF_MAX * 4 / 5))
 		max_buf = (BUF_MAX * 4 / 5);
 	else
 		max_buf = (int)maxlen;
 
 	lines = max_buf / (int)bpl;
-	if (lines > cs->scan.height) lines = cs->scan.height;
-	if ((cs->scan.height - cs->lines_scanned) < lines) 
+#endif
+	lines = (BUF_MAX * 4 / 5) / bpl;
+
+	if (lines > (cs->scan.height - cs->lines_scanned)) 
 		lines = cs->scan.height - cs->lines_scanned;
 
 	if (!lines)
 	{
-		/* can't fit a whole line into the buffer */
-		DBG(10, "sane_read: Tighter than a duck's butt (can't fit a "
-				"whole scanline in the buffer)\n");
-		/* return SANE_STATUS_INVAL; */
-		/* Try and deal with this gracefully */
+		/* can't fit a whole line into the buffer 
+                 * (should never happen!) */
 		lines = 1;
 	}
 
@@ -1302,6 +1342,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		lbuf = NULL;
 		read_leftover = NULL;
 		bytesleft = 0;
+                cs->bytes_sent += bytes;
 
 	} else {
 		/* only enough to send maxlen */
@@ -1309,6 +1350,9 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		*lenp = maxlen;
 		read_leftover = lbuf + maxlen;
 		bytesleft = bytes - maxlen;
+                cs->bytes_sent += maxlen;
+		DBG(100, "sane_read: sent %d bytes, still have %d to go\n",
+                        maxlen, bytesleft);
 	}
 
 	if ((unsigned)cs->lines_scanned >= cs->scan.height)
@@ -1318,6 +1362,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		DBG(10, "sane_read: Scan is finished.\n");
 		cs->scanning = SANE_FALSE;
 		cs->lines_scanned = 0;
+		cs->bytes_sent = 0;
 	}
 
 	DBG(2, "<< sane_read\n");
@@ -1353,6 +1398,7 @@ sane_cancel (SANE_Handle h)
 	cs->cancelled = SANE_TRUE;
 
 	cs->lines_scanned = 0;
+	cs->bytes_sent = 0;
 	DBG(2, "sane_cancel: >> abort_scan\n");
 	tmp = sanei_canon_pp_abort_scan(&(cs->params), &(cs->scan));
 	DBG(2, "sane_cancel: << abort_scan\n");
@@ -1563,6 +1609,8 @@ static SANE_Status init_device(struct parport *pp)
 	cs->scanning = SANE_FALSE;
 	cs->cancelled = SANE_FALSE;
 	cs->sent_eof = SANE_TRUE;
+	cs->lines_scanned = 0;
+	cs->bytes_sent = 0;
 
 	DBG(10, "init_device: [configuring options]\n");
 

@@ -8,7 +8,7 @@
 
 :devicetype :api	           ; start of a list of devices....
  
-:mfg "Multiple cameras supported by the gphoto2 libraries"
+:desc "Multiple cameras supported by the gphoto2 libraries"
 :url "http://www.gphoto.org"
-
+:interface "USB, serial port"
 :comment "The long-term plan is to support all the cameras supported by the gphoto2 libraries (currently over 140 models).  However, at this stage, the Kodak DC240 is the only camera tested actually tested and working.  Other cameras will probably not work yet.  Testers welcome!"

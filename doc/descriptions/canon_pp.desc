@@ -20,14 +20,17 @@
 :mfg "Canon"			; name a manufacturer
 :url "http://www.canon.com/"
 :model "CanoScan FB330P"	; name models for above-specified mfg.
-:interface "Parport (EPP)"
+:interface "Parport (ECP)"
 :comment "1 pass; flatbed scanner"
 :model "CanoScan FB630P"	; name models for above-specified mfg.
-:interface "Parport (EPP)"
+:interface "Parport (ECP)"
 :comment "1 pass; flatbed scanner"
 :model "CanoScan N340P"		; name models for above-specified mfg.
-:interface "Parport (EPP)"
+:interface "Parport (ECP)"
 :comment "1 pass; flatbed scanner"
 :model "CanoScan N640P"		; name models for above-specified mfg.
-:interface "Parport (EPP)"
+:interface "Parport (ECP)"
 :comment "1 pass; flatbed scanner"
+:model "CanoScan N640P ex"	; name models for above-specified mfg.
+:interface "Parport (ECP)"
+:comment "Just an N640P in a different box?"

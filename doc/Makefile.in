@@ -195,7 +195,7 @@ sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
 sane-mfgs.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
 	@../tools/sane-desc -m html-mfgs -s descriptions \
 	   -i "The following table summarizes the devices supported \
-	       by the $(PACKAGE)-$(VERSION)." \
+	       by $(PACKAGE)-$(VERSION)." \
 	   -d 1 > sane-mfgs.html
 
 sane-mfgs-external.html: $(wildcard descriptions-external/*.desc) \

@@ -412,6 +412,14 @@ static const struct mode_param mode_params_12 [ ] =
 	, { 1, 0x03, 0x10,  12}
 	};
 
+static const struct mode_param mode_params_14 [ ] =
+	{ { 0, 0x00, 0x30,  1}
+	, { 0, 0x00, 0x30,  8}
+	, { 0, 0x00, 0x30,  14}
+	, { 1, 0x03, 0x10,  8}
+	, { 1, 0x03, 0x10,  14}
+	};
+
 static const struct mode_param mode_params_16 [ ] =
 	{ { 0, 0x00, 0x30,  1}
 	, { 0, 0x00, 0x30,  8}
@@ -435,13 +443,22 @@ static const SANE_String_Const mode_list_12 [ ] =
 	, "Color (36 bit)"
 	, NULL
 	};
+	
+static const SANE_String_Const mode_list_14 [ ] =
+	{ "Binary"
+	, "Gray (8 bit)"
+	, "Gray (14 bit)"
+	, "Color (24 bit)"
+	, "Color (42 bit)"
+	, NULL
+	};
 
 static const SANE_String_Const mode_list_16 [ ] =
 	{ "Binary"
 	, "Gray (8 bit)"
 	, "Gray (16 bit)"
 	, "Color (24 bit)"
-	, "Color (42 bit)"
+	, "Color (48 bit)"
 	, NULL
 	};
 
@@ -1742,6 +1759,13 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 
 		mode_list = mode_list_16;
 		mode_params = mode_params_16;
+	}
+	else if (set_data_format(s, 14) == SANE_STATUS_GOOD)
+	{
+		s->hw->maxDepth = 14;
+
+		mode_list = mode_list_14;
+		mode_params = mode_params_14;
 	}
 	else if (set_data_format(s, 12) == SANE_STATUS_GOOD)
 	{

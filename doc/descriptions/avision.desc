@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 63"
+:version "Build: 64"
 ;status: alpha, beta, stable, new
 :status :stable
 
@@ -25,7 +25,8 @@
 :manpage "sane-avision"
 
 :devicetype :scanner
-:url "http://www.avision.com"
+
+:mfg "Avision"
 :model "AV100CS"
 :interface "SCSI"
 :status :untested
@@ -133,7 +134,8 @@
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
 :status :untested
-:url "http://www.hp.com"
+
+:mfg "Hewlett-Packard"
 :model "ScanJet 5300C"
 :interface "USB"
 :comment "1 pass, 1200 dpi - regularly tested"
@@ -144,14 +146,16 @@
 :status :alpha
 :model "ScanJet 7400c"
 :interface "USB"
-:comment "1 pass, 1200 dpi - the HP ScanJet 7450c/7490c are HP ScanJet 7400s plus gadgets"
+:comment "1 pass, 1200 dpi - the HP ScanJet 7450c/7490c are normal HP ScanJet 7400c plus gadgets"
 :status :beta
-:url "http://www.minolta.com"
+
+:mfg "Minolta"
 :model "FS-V1"
 :interface "USB"
 :comment "1 pass, film-scanner"
 :status :alpha
-:url ""
+
+:mfg "Mitsubishi"
 :model "MCA-ADFC"
 :interface "SCSI"
 :status :untested
@@ -164,7 +168,8 @@
 :model "SS600"
 :interface "SCSI"
 :status :beta
-:url ""
+
+:mfg "Fujitsu"
 :model "ScanPartner"
 :interface "SCSI"
 :status :untested

@@ -46,6 +46,13 @@
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 #undef size_t
 
+/* Do we need <sys/bitypes.h>? */
+#undef NEED_SYS_BITYPES_H
+
+#ifdef NEED_SYS_BITYPES_H
+# include <sys/bitypes.h>
+#else // not NEED_SYS_BITYPES_H
+
 /* Define to `unsigned char' if <sys/types.h> doesn't define.  */
 #undef u_char
 
@@ -54,6 +61,17 @@
 
 /* Define to `unsigned long' if <sys/types.h> doesn't define.  */
 #undef u_long
+
+/* Define to `unsigned char' if <sys/types.h> doesn't define. */
+#undef u_int8_t
+
+/* Define to `unsigned short' if <sys/types.h> doesn't define. */
+#undef u_int16_t
+
+/* Define to `unsigned int' if <sys/types.h> doesn't define. */
+#undef u_int32_t
+
+#endif // not NEED_SYS_BITYPES_H
 
 /* Define to `long' if <sys/types.h> doesn't define.  */
 #undef ssize_t
@@ -66,15 +84,6 @@
 
 /* Define scsireq_t as `struct scsireq' if necessary.  */
 #undef scsireq_t
-
-/* Define to `unsigned char' if <sys/types.h> doesn't define. */
-#undef u_int8_t
-
-/* Define to `unsigned short' if <sys/types.h> doesn't define. */
-#undef u_int16_t
-
-/* Define to `unsigned int' if <sys/types.h> doesn't define. */
-#undef u_int32_t
 
 /* Define to the return type of signal handlers. */
 #undef RETSIGTYPE

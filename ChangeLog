@@ -1,3 +1,7 @@
+2001-08-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in: Added sanei_usb dependency.
+
 2001-08-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c doc/sane.man frontend/scanimage.c sanei/sanei_usb.c

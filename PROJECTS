@@ -1,4 +1,4 @@
-PROJECTS (2001-01-19)
+PROJECTS (2001-03-31)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -20,7 +20,7 @@ Autobrightness/contrast for cameras etc. (planned?)
 David Mosberger
 
 Canon 1220U USB scanner (wip)
-Vladimir Dergachev <volodya@mindspring.com>
+http://sourceforge.net/projects/canonscanner/
 
 ePhoto (wip?)
 Matthew K. Gray <mkgray@mit.edu>
@@ -33,6 +33,9 @@ ftp://www.cs.ubishops.ca/pub/lhii/
 
 HP USB backend for HP 4200 (wip)
 http://hp4200-backend.sourceforge.net/
+
+Kodak DC-240 backend (wip)
+Peter Fales <psfales@lucent.com>
 
 Mustek BearPaw USB scanner (wip)
 Henning Meier-Geinitz <hmg@gmx.de>
@@ -53,7 +56,7 @@ SGI IndyCam (wip)
 Erik Nygren <nygren@mit.edu>
 
 Umax 1220P / HP3200C parport scanner (wip)
-Stéphane VOLTZ <svoltz@wanadoo.fr>
+http://umax1220p.sourceforge.net
 
 Visioneer OneTouch 8600: viceo (wip)
 http://www.littlecms.com/iphoto/otlinux.htm

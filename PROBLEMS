@@ -1,4 +1,4 @@
-Last update: Sun Jul 30 22:24:27 CEST 2000
+Last update: Sun Nov 12 16:47:01 CET 2000
 
 - Compiling SANE aborts with error "virtual memory exhausted" on Slackware
   linux with gcc. What goes wrong?
@@ -48,11 +48,6 @@ Last update: Sun Jul 30 22:24:27 CEST 2000
 	Newer versions of SANE (>1.01) tries to read the current
 	SG_BIG_BUFF from /proc/sys/kernel/sg-big-buff which is
 	available with newer linux kernels (>= v2.2).
-
-- xscanimage/xcam crashes X server on Linux/Alpha
-	Older versions of the TGA X server (such as version 3.1.2) are known
-	to fail when creating shared images of certain sizes.  This can be
-	avoided by invoking xscanimage and xcam with option --no-shm.
 
 - Missing /usr/include/scsi on Linux systems
 	Older Linux distributions are missing the /usr/include/scsi directory.

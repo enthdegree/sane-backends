@@ -17,31 +17,21 @@ In order to build SANE, the following tools and libraries are required:
 	- ANSI C compiler: GNU C (gcc) is recommended for best performance,
 	  but any ANSI-compliant compiler should do
 
-	- To build the graphical frontends (xscanimage and xcam), it is
-	  necessary to have the GTK libraries (libgtk, libgdk, and
-	  libglib) and associated header files installed.  In
-	  addition, if you want to use xscanimage from within GIMP,
-	  you'll need to make sure libgimp (version 0.99.13 or newer)
-	  and its header files are installed as well.  The GTK libraries and
-	  GIMP can be obtained from:
-
-		ftp://ftp.gimp.org/pub/
-
 SANE should build on most Unix-like systems. Support for OS/2 is also
-available. For more details look at the operating system specific
-README.* files. For a detailed support matrix, see:
+available. For more details look at the operating system specific README.*
+files. For a detailed support matrix, see:
 
     http://www.mostang.com/sane/sane-support.html
 
-This table may be out of date. Please send any corrections or additions
-to sane-devel@mostang.com together with your platform, os and version.
+This table may be out of date. Please send any corrections or additions to
+sane-devel@mostang.com together with your platform, os and version.
 
 
 Configuration
 =============
 
-Simply invoke configure in the top-level directory.  Besides the usual
-GNU configure options, there are the following SANE specific options:
+Simply invoke configure in the top-level directory.  Besides the usual GNU
+configure options, there are the following SANE specific options:
 
  --disable-shared
 	Don't use shared libraries.  Useful for debugging or when there
@@ -107,9 +97,7 @@ below:
   -----------------        ------------------------------------------
   Frontends:
     scanimage              scanimage(1)
-    xscanimage	           xscanimage(1)
     saned		   saned(1)
-    xcam		   xcam(1)
 
   Backends for scanners:
     Abaton                 sane-abaton(5)
@@ -151,28 +139,32 @@ below:
     Networking             sane-net(5) and saned(1)
     SCSI configuration     sane-scsi(5)
 
-For more details on supported scanners and cameras look at the SANE
-website: http://www.mostang.com/sane/sane-backends.html
+For more details on supported scanners and cameras look at the SANE website:
+http://www.mostang.com/sane/sane-backends.html.
 
-Please note that the default configuration uses sane-dll as the
-top-level backend.  Hence it is probably a good idea to start with
-reading sane-dll(5).  The top-level backend is determined by the
-libsane.* symlinks in /usr/local/lib/.
+Concerning frontends (applications): Starting from SANE 1.0.4, only scanimage
+is included in the package. Some of the available frontends can be found in
+the separate package sane-frontends.  For more information about frontends and
+where to get them look at http://www.mostang.com/sane/sane-frontends.html.
+
+Please note that the default configuration uses sane-dll as the top-level
+backend.  Hence it is probably a good idea to start with reading sane-dll(5).
+The top-level backend is determined by the libsane.* symlinks in
+/usr/local/lib/.
 
 For SCSI scanners reading of sane-scsi(5) is recommended.
 
-Please also read the file PROJECTS for projects that are planned or
-not yet included into the SANE distribution.
+Please also read the file PROJECTS for projects that are planned or not yet
+included into the SANE distribution.
 
-If you encounter any problems with getting your device(s) recognized,
-try setting the various environment variables that are there to assist
-in debugging such problems.  The environment variables are documented
-in the relevant manual pages.  For example, to get the maximum amount
-of debug information when testing a Mustek scanner, set environment
-variables SANE_DEBUG_DLL, SANE_DEBUG_MUSTEK, and SANE_DEBUG_SANEI_SCSI
-to 128 and then invoke scanimage or whatever program you're trying to
-debug.  For a Mustek scanner at /dev/scanner, you might want to invoke
-scanimage as follows:
+If you encounter any problems with getting your device(s) recognized, try
+setting the various environment variables that are available to assist in
+debugging such problems.  The environment variables are documented in the
+relevant manual pages.  For example, to get the maximum amount of debug
+information when testing a Mustek scanner, set environment variables
+SANE_DEBUG_DLL, SANE_DEBUG_MUSTEK, and SANE_DEBUG_SANEI_SCSI to 128 and then
+invoke scanimage or whatever program you're trying to debug.  For a Mustek
+scanner at /dev/scanner, you might want to invoke scanimage as follows:
 
 	scanimage -d mustek:/dev/scanner -h
 
@@ -180,22 +172,20 @@ If this works, you could try to acquire an image with:
 
 	scanimage -d mustek:/dev/scanner >t.pnm
 
-If you are not sure what generic SCSI device your scanner is connected
-to, try the command tools/find-scanner.  It is normally sufficient to
-invoke the program without any arguments.  Invoking this command
-should produce output similar to this:
+If you are not sure what generic SCSI device your scanner is connected to, try
+the command tools/find-scanner.  It is normally sufficient to invoke the
+program without any arguments.  Invoking this command should produce output
+similar to this:
 
   $ tools/find-scanner
   find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/scanner
   find-scanner: found "MUSTEK MFC-06000CZ 1.01" at device /dev/sge
 
-Note that find-scanner will find any scanner that is connected to a
-SCSI bus.  It will even find scanners that are not supported at all
-by SANE.
+Note that find-scanner will find any scanner that is connected to a SCSI bus.
+It will even find scanners that are not supported at all by SANE.
 
-There may be several causes for the following messages from the
-frontends: "scanimage: no SANE devices found" or "xscanimage: no
-devices available.".
+There may be several causes for the following messages from the frontends:
+"scanimage: no SANE devices found" or "xscanimage: no devices available.".
  
   * Your scanner is not recognized by any backend. It is not supported.
     You may ask the maintainer of your backend (see AUTHORS) or 

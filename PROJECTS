@@ -1,10 +1,10 @@
-Sat Aug  5 17:57:45 CEST 2000
+Sun Nov 12 16:44:11 CET 2000
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
 good idea to get in touch with the relevant people. Please also read
 the files AUTHORS and README for projects that are included into the
-SANE-package.
+SANE-package. For frontends, look at the sane-frontends package.
 
 Status    description
 --------- ----------------------------------------------------------------
@@ -12,21 +12,6 @@ wanted    Somebody would like to have this feature but can't do it himself.
 planned   Only plans but no code yet.
 wip       Work in progress. There is (more or less) working code. For details,
           look at the web page or contact the author.
-
-
-Frontends:
-----------
-
-sanecgi: web interface to all SANE-compatible scanners (wip)
-http://www.boutell.com/sanecgi/
-
-scanadf: a command-line frontend that offers additional capabilities that are
-         suited towards document scanners with automatic document feeders (wip)
-http://www.martoneconsulting.com/sane-scanadf.html
-
-xsane  (wip)
-http://www.wolfsburg.de/~rauch/sane/sane-xsane.html
-
 
 Backends:
 ---------

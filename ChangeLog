@@ -1,3 +1,12 @@
+2002-10-27  Peter Fales <peter@fales-lorenz.net>
+
+	* configure, acinclude.m4, aclocal.m4 - Remove checks for 
+	  specific version numbers of gphoto2 - that's not good for long 
+	  term maintenance, and the API has settled down enough that all 
+	  recent versions (both releases and CVS) are workable for SANE.
+	  It is still necessary to specify --with-gphoto2 if you want to
+	  use the gphoto2 backend.
+
 2002-10-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Added a warning if sysconfdir is set to

@@ -1,3 +1,10 @@
+2001-03-31  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* PROJECTS: Updated entry about Canon 1220U and Umax 1220P / HP3200C.
+	  Added entry about Kodak DC-240.
+	* TODO: Added Umax 1200P/2000P & HP 320C + Kodak DC-240 as backends
+	  to be included. Added net.c compilation problem.
+	
 2001-03-10  Jochen Eisinger <jochen.eisinger@gmx.net>
 
 	* frontend/saned.c: fixed bug that allowed access to a scanner

@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define BUILD 17				/* 2002-05-28 */
+#define BUILD 18				/* 2003-02-22 */
 
 #include "../include/sane/config.h"
 
@@ -1622,6 +1622,7 @@ main (int argc, char **argv)
 	/* First test */
 	check(MSG, 0, "TEST: init/exit");
 	for (i=0; i<10; i++) {
+		/* Test 1. init/exit with a version code */
 		status = sane_init(&version_code, NULL);
 		check(FATAL, (status == SANE_STATUS_GOOD),
 			  "sane_init failed with %s", sane_strstatus (status));
@@ -1629,9 +1630,43 @@ main (int argc, char **argv)
 			  "invalid SANE version linked");
 		sane_exit();
 
+		/* Test 2. init/exit without a version code */
 		status = sane_init(NULL, NULL);
 		check(FATAL, (status == SANE_STATUS_GOOD),
 			  "sane_init failed with %s", sane_strstatus (status));
+		sane_exit();
+
+		/* Test 3. Init/get_devices/open invalid/exit */
+		status = sane_init(NULL, NULL);
+		check(FATAL, (status == SANE_STATUS_GOOD),
+			  "sane_init failed with %s", sane_strstatus (status));
+
+		status = sane_get_devices (&device_list, SANE_TRUE);
+		check(FATAL, (status == SANE_STATUS_GOOD),
+			  "sane_get_devices() failed (%s)", sane_strstatus (status));
+
+		status = sane_open ("opihndvses75bvt6fg", &device);
+		check(WRN, (status == SANE_STATUS_INVAL),
+			  "sane_open() failed (%s)", sane_strstatus (status));
+		
+		if (status == SANE_STATUS_GOOD)
+			sane_close(device);
+
+		sane_exit();
+
+		/* Test 4. Init/get_devices/open default/exit */
+		status = sane_init(NULL, NULL);
+		check(FATAL, (status == SANE_STATUS_GOOD),
+			  "sane_init failed with %s", sane_strstatus (status));
+
+		status = sane_get_devices (&device_list, SANE_TRUE);
+		check(FATAL, (status == SANE_STATUS_GOOD),
+			  "sane_get_devices() failed (%s)", sane_strstatus (status));
+
+		status = sane_open ("", &device);
+		if (status == SANE_STATUS_GOOD)
+			sane_close(device);
+
 		sane_exit();
 	}
 
@@ -1687,12 +1722,14 @@ main (int argc, char **argv)
 					(strcmp(dev->vendor, "Logitech") == 0) ||
 					(strcmp(dev->vendor, "Microtek") == 0) ||
 					(strcmp(dev->vendor, "Minolta") == 0) ||
+					(strcmp(dev->vendor, "Mitsubishi") == 0) ||
 					(strcmp(dev->vendor, "Mustek") == 0) ||
 					(strcmp(dev->vendor, "NEC") == 0) ||
 					(strcmp(dev->vendor, "Nikon") == 0) ||
 					(strcmp(dev->vendor, "Noname") == 0) ||
 					(strcmp(dev->vendor, "Plustek") == 0) ||
 					(strcmp(dev->vendor, "Polaroid") == 0) ||
+					(strcmp(dev->vendor, "Relisys") == 0) ||
 					(strcmp(dev->vendor, "Ricoh") == 0) ||
 					(strcmp(dev->vendor, "Sharp") == 0) ||
 					(strcmp(dev->vendor, "Siemens") == 0) ||

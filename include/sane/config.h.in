@@ -317,6 +317,9 @@
 /* Define if you have the <os2.h> header file.  */
 #undef HAVE_OS2_H
 
+/* Define if you have the <linux/ppdev.h> header file.  */
+#undef HAVE_LINUX_PPDEV_H
+
 /* Define if you have EMX's sys/hw.h headers. */
 #undef HAVE_SYS_HW_H
 

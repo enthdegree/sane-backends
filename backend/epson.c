@@ -16,7 +16,7 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.38 - 2000-12-03"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.1.39 - 2000-12-09"
 
 /*
    This file is part of the SANE package.
@@ -58,6 +58,14 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-12-4	We've introduced the concept of inverting images
+		when scanning from a TPU.  This is fine, but
+		the user supplied gamma tables no longer work.
+		This is because the data a frontend is going
+		to compute a gamma table for is not what the
+		scanner actually sent.	So, we have to back into
+		the proper gamma table.  (mjp)
+
    2000-12-03   Version 0.1.38
    		removed changes regarding 12/14 bit support because
    		of SANE feature freeze for 1.0.4. The D1 fix for 
@@ -1105,12 +1113,16 @@ static SANE_Status set_color_correction_coefficients ( Epson_Scanner * s) {
  */
 
 static SANE_Status set_gamma_table ( Epson_Scanner * s) {
+
 	SANE_Status status;
 	u_char cmd = s->hw->cmd->set_gamma_table;
 	u_char params [ 2];
 	const int length = 257;
 	u_char gamma [ 257];
 	int n;
+	int table;
+	static const char gamma_cmds[] = { 'm', 'r', 'g', 'b' };
+
 
 	DBG( 1, "set_gamma_table: starting.\n" );
 	if( ! cmd)
@@ -1122,81 +1134,60 @@ static SANE_Status set_gamma_table ( Epson_Scanner * s) {
 /*
 	Print the gamma tables before sending them to the scanner.
 */
-
 	if (DBG_LEVEL > 0) {
 		int	c, i, j;
 
-		DBG (10, "set_gamma_table()\n");
+		DBG (1, "set_gamma_table()\n");
 		for (c=0; c<4; c++) {
 			for (i=0; i<256; i+= 16) {
-				DBG (1, "Gamma Table[%d][%d] ", c, i);
+				char gammaValues[16*3 + 1], newValue[3];
+
+				gammaValues[0] = '\0';
+
 				for (j=0; j<16; j++) {
-					DBG (1, " %02x", s->gamma_table[c][i+j]);
+					sprintf(newValue, " %02x", s->gamma_table[c][i+j]);
+					strcat(gammaValues, newValue);
 				}
-				DBG (1, "\n");
+
+				DBG (10, "Gamma Table[%d][%d] %s\n", c, i, gammaValues);
 			}
 		}
 	}
 
 
 /*
- * TODO: &status in send make no sense like that.
+ * TODO: &status in send makes no sense like that.
  */
 
-	send( s, params, 2, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
+/*
+    When handling inverted images, we must also invert the user
+    supplied gamma function.  This is *not* just 255-gamma -
+    this gives a negative image.
+*/
 
-	gamma[ 0] = 'm';
+	for( table = 0; table < 4; table++ ) {
+		gamma[0] = gamma_cmds[ table ];
+		if (s->invert_image) {
+			for( n = 0; n < 256; ++n) {
+				gamma[ n + 1] =
+					255 - s->gamma_table[table][255-n];
+			}
+		} else {
+			for( n = 0; n < 256; ++n) {
+				gamma[ n + 1] = s->gamma_table[table][n];
+			}
+		}
 
-	for( n = 0; n < 256; ++n) {
-		gamma[ n + 1] = s->gamma_table[ 0] [ n];
+		send( s, params, 2, &status);
+		if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
+			return status;
+
+		send( s, gamma, length, &status);
+		if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
+			return status;
+
 	}
 
-	send( s, gamma, length, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	send( s, params, 2, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	gamma[ 0] = 'r';
-
-	for( n = 0; n < 256; ++n) {
-		gamma[ n + 1] = s->gamma_table[ 1] [ n];
-	}
-
-	send( s, gamma, length, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	send( s, params, 2, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	gamma[ 0] = 'g';
-
-	for( n = 0; n < 256; ++n) {
-		gamma[ n + 1] = s->gamma_table[ 2] [ n];
-	}
-
-	send( s, gamma, length, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	send( s, params, 2, &status);
-	if( SANE_STATUS_GOOD != ( status = expect_ack( s) ) )
-		return status;
-
-	gamma[ 0] = 'b';
-
-	for( n = 0; n < 256; ++n) {
-		gamma[ n + 1] = s->gamma_table[ 3] [ n];
-	}
-
-	send( s, gamma, length, &status);
-	status = expect_ack( s);
 	DBG( 1, "set_gamma_table: complete = %d.\n", status );
 
 	return status;

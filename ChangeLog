@@ -1,5 +1,6 @@
 2001-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/.cvsignore: Added sane.7.
 	* README: Removed content that's now in the sane maual page.
 	  Added reference to man sane.
 	* doc/Makefile.in doc/sane.man: Added SANE manual page.

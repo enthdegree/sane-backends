@@ -1,0 +1,37 @@
+SANE and FreeBSD
+----------------
+
+Building:
+---------
+Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
+SANE should compile and install out-of-the-box.
+
+SCSI-scanners:
+--------------
+If the SCSI host adapter is supported, there are no known problems. Try
+sane-find-scanner to find out the correct device and edit the backend's
+configuration file appropriately or set a link /dev/scanner to the device
+file. Auto-configuration using the "scsi *" lines in the config files
+doesn't work.
+
+USB-scanners:
+-------------
+USB-Scanners are supported by FreeBSD. The USB scanner driver "uscanner" and
+access over libusb can be used.
+
+To get your scanner detected by the uscanner driver, it may be necessary to
+add its vendor and device ids to the kernel and recompile. Use MAKEDEV to
+generate the /dev/uscanner* files if they are not already there. Use
+sane-find-scanner to find your scanner and edit your backend's configuration
+file appropriately.
+
+If you want to use libusb, your scanner should *not* be claimed by the
+uscanner driver. Make sure, that /dev/ugen* and /dev/usb* devices are
+available. Use /dev/MAKEDEV to create them, if necessary.
+
+Parport-scanners:
+-----------------
+I don't have any information about these. Please contact me or the SANE mailing
+list if you succeeded in using one of these.
+
+2002-07-14 Henning Meier-Geinitz <henning@meier-geinitz.de>

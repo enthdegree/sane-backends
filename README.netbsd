@@ -1,0 +1,34 @@
+SANE and NetBSD
+----------------
+
+Building:
+---------
+Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
+SANE should compile and install out-of-the-box. Since SANE 1.0.8 shared
+libraries are working again.
+
+SCSI-scanners:
+--------------
+If the SCSI host adapter is supported, there are no known problems. Try
+sane-find-scanner to find out the correct device and edit the backend's
+configuration file appropriately or set a link /dev/scanner to the device
+file. Auto-configuration using the "scsi *" lines in the config files
+doesn't work.
+
+USB-scanners:
+-------------
+USB-Scanners are supported in principle. Access over libusb is tested. It's
+unknown, if a kernel usb scanner driver works.
+
+Make sure that the kernel is NOT compiled with DIAGNOSTIC. Disable it in the
+config file or use a GENERIC kernel without DIAGNOSTIC. If it is, you will get
+errors like "ugenioctl: USB_SET_TIMEOUT, no pipe". Make sure, that /dev/ugen*
+and /dev/usb* devices are available. Use /dev/MAKEDEV to create them, if
+necessary.
+
+Parport-scanners:
+-----------------
+I don't have any information about these. Please contact me or the SANE mailing
+list if you succeded in using one of these.
+
+2002-07-14 Henning Meier-Geinitz <henning@meier-geinitz.de>

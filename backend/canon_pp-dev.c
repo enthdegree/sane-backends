@@ -106,7 +106,7 @@ static const int fileversion = 3;
 static int abort_now = 0;
 
 /* Internal functions */
-static unsigned long column_sum(image_segment *image, int x, int colournum);
+static unsigned long column_sum(image_segment *image, int x);
 static int adjust_output(image_segment *image, scan_parameters *scanp, 
 		scanner_parameters *scannerp);
 static int check8(unsigned char *p, int s);
@@ -952,6 +952,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	int scanline_size;
 
 	int scanline_count = 6;
+	/* Don't change this unless you also want to change do_adjust */
 	const int calibration_reads = 3;
 
 	unsigned char command_buffer[10];
@@ -1039,11 +1040,18 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	/* Take column totals */
 	for (count = 0; count < sp->scanheadwidth; count++)
 	{
-		sp->blackweight[count] = column_sum(&image, count, 3) >> 6;
+		/* Value is normalised as if we took 6 scanlines, even if we 
+		 * didn't (620P I'm looking at you!) */
+		sp->blackweight[count] = (column_sum(&image, count) * 6) 
+			/ scanline_count >> 6;
 	}
 
 	/* 620P has to be difficult here... */
-	if (!(sp->type) ) scanline_count = 6;
+	if (!(sp->type) )
+	{
+		scanline_count = 6;
+		image.height = scanline_count * calibration_reads;
+	}
 
 	DBG(40, "Step 2/3: Gamma tables...\n");
 	DBG(40, "  * Requesting creation of new of gamma tables...\n");
@@ -1126,13 +1134,13 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		{
 			if (colournum == 1)
 				sp->redweight[count] = 
-					column_sum(&image, count, 3) >> 6;
+					column_sum(&image, count) >> 6;	
 			else if (colournum == 2)
 				sp->greenweight[count] = 
-					column_sum(&image, count, 3) >> 6;
+					column_sum(&image, count) >> 6;	
 			else
 				sp->blueweight[count] = 
-					column_sum(&image, count, 3) >> 6;	
+					column_sum(&image, count) >> 6;	
 		}
 
 	}
@@ -1183,48 +1191,20 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	return 0;
 }
 
-static unsigned long column_sum(image_segment *image, int x, int colournum)
-	/* Colournum is 0 for red, 1 for green, 2 for blue, 
-	 * 3 for greyscale data.  This gives us a number from 
-	 * 0-n*1024 where n is the height of the image */
+static unsigned long column_sum(image_segment *image, int x)
+/* This gives us a number from 0-n*65535 where n is the height of the image */
 {
-	unsigned int scanline;
+	unsigned int row, p;
 	unsigned long total = 0;
-	unsigned int temp;
 
-	for (scanline = 0; scanline < image->height; scanline++)
+	p = x;
+	for (row = 0; row < image->height; row++)
 	{
-		/* Greyscale 16bpp */
-		if (colournum >= 3)
-		{
-			/* High 2 bits */
-			temp = (int)image->image_data[
-				(scanline * (image->width) * 2) +
-				(x * 2)] << 8;
-
-			/* Low 8 bits */
-			temp += image->image_data[
-				(scanline * (image->width) * 2) +
-				(x * 2) + 1];
-		}
-		/* RGB 48bpp */
-		else
-		{		
-			/* High 2 bits */
-			temp = image->image_data[
-				(scanline * image->width * 3 * 2) +
-				(x * 3 * 2) + (colournum * 2)] << 8;
-			/* Low 8 bits */
-			temp |= image->image_data[
-				(scanline * image->width * 3 * 2) +
-				(x * 3 * 2) + (colournum * 2) + 1];
-		}
-		total += temp;
-
+		total+= MAKE_SHORT(image->image_data[2*p],
+				image->image_data[2*p+1]);
+		p += image->width;
 	}
-
 	return total;
-
 }
 
 
@@ -1331,6 +1311,8 @@ int sanei_canon_pp_sleep_scanner(struct parport *port)
 	/* *SCANEND Command - puts scanner to sleep */
 	sanei_canon_pp_write(port, 10, cmd_scanend);
 	sanei_canon_pp_check_status(port);
+
+  ieee1284_terminate(port);
 
 	return 0;
 	/* FIXME: I murdered Simon's code here */

@@ -1,3 +1,8 @@
+2002-09-07  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp-dev.c backend/canon_pp-dev.h:
+	  Changes to improve calibration quality on FB620P.
+
 2002-09-06  Frank Zago  <fzago at austin dot rr dot com>
 
 	* README.aix: added mention of the AIX 5.1 version of the passthru

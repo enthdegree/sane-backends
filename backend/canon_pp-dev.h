@@ -80,7 +80,7 @@
 #define T_CALIBRATE 2
 
 /* Macros */
-#define MAKE_SHORT(a,b) (a*0x100+b)
+#define MAKE_SHORT(a,b) (((short)a)*0x100+(short)b)
 #define LOW_BYTE(a) (a%0x100)
 #define HIGH_BYTE(a) (a/0x100)
 

@@ -11,10 +11,12 @@
 
 2003-10-22  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* configure configure.in include/sane/config.in.h: added checks for iopl
+	* configure configure.in include/sane/config.in.h: added checks for iopl.
 	* sanei/sanei_pp.c sanei/Makefile.in
 	  include/sanei/sanei_pp.h include/sanei/Makefile.in: added generic
-	  parallel-port function lib
+	  parallel-port function lib.
+	* backend/plustek-pp* backend/plustek_pp.c: major update, sanei_pp
+	  integration, compilation fixes.
 
 2003-10-21  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

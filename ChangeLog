@@ -1,3 +1,11 @@
+2001-05-07  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+	* applied a patch by Douglas Gilbert to sanei_scsi.c
+          it solves the Problem that the scanner is not
+          found on linux systems when the order of the
+          scsi devices is not coverd by the order of
+          devices listed by /proc/scsi/scsi, it prefers
+          new kernel 2.4 methods when available
+
 2001-05-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Free devlist

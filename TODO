@@ -1,4 +1,4 @@
-TODO (2001-06-10)
+TODO (2001-06-14)
 
 ******** todo ********
 
@@ -169,8 +169,9 @@ frontends
 
 sanei
 -----
-  * create sanei_parport_* and remove all inb, outb,... from all backends
-   (for sane-1.0.6)
+  * create sanei_parport_* and remove all inb, outb,... from all backends;
+    use libieee1284 if available (see
+    http://people.redhat.com/twaugh/libieee1284/). (for sane-1.0.6)
 
   * create sanei_usb.* (maybe containing access for libusb and direct access
     for usb device files)? (sane-1.0.6)

@@ -43,6 +43,15 @@
 */
 
 /*
+   $Log$
+   Revision 1.12  2003/10/09 19:34:57  kig-guest
+   Redo when TEST UNIT READY failed
+   Redo when read returns with 0 bytes (non-SCSI only)
+
+
+*/
+
+/*
 #define STUBS
 extern int sanei_debug_hp;*/
 #define DEBUG_DECLARE_ONLY
@@ -166,32 +175,52 @@ hp_nonscsi_read (HpScsi this, hp_byte_t *data, size_t *len, HpConnect connect,
   int UNUSEDARG isResponse)
 
 {int n = -1;
+ static int retries = -1;
+ size_t save_len = *len;
  SANE_Status status = SANE_STATUS_GOOD;
 
  if (*len <= 0) return SANE_STATUS_GOOD;
 
- switch (connect)
+ if (retries < 0)  /* Read environment */
+ {char *eptr = getenv ("SANE_HP_RDREDO");
+
+   retries = 1;       /* Set default value */
+   if (eptr != NULL)
+   {
+     if (sscanf (eptr, "%d", &retries) != 1) retries = 1; /* Restore default */
+     else if (retries < 0) retries = 0; /* Allow no retries here */
+   }
+ }
+
+ for (;;) /* Retry on EOF */
  {
-   case HP_CONNECT_DEVICE:
-     n = read (this->fd, data, *len);
-     break;
+   switch (connect)
+   {
+     case HP_CONNECT_DEVICE:
+       n = read (this->fd, data, *len);
+       break;
 
-   case HP_CONNECT_PIO:
-     n = sanei_pio_read (this->fd, data, *len);
-     break;
+     case HP_CONNECT_PIO:
+       n = sanei_pio_read (this->fd, data, *len);
+       break;
 
-   case HP_CONNECT_USB:
-     status = sanei_usb_read_bulk ((SANE_Int)this->fd, (SANE_Byte *)data, len);
-     n = *len;
-     break;
+     case HP_CONNECT_USB:
+       status = sanei_usb_read_bulk((SANE_Int)this->fd, (SANE_Byte *)data, len);
+       n = *len;
+       break;
 
-   case HP_CONNECT_RESERVE:
-     n = -1;
-     break;
+     case HP_CONNECT_RESERVE:
+       n = -1;
+       break;
 
-   default:
-     n = -1;
-     break;
+     default:
+       n = -1;
+       break;
+   }
+   if ((n != 0) || (retries <= 0)) break;
+   retries--;
+   usleep (100*1000);  /* sleep 0.1 seconds */
+   *len = save_len;    /* Restore value */
  }
 
  if (n == 0) return SANE_STATUS_EOF;
@@ -386,13 +415,22 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
    DBG(3, "vendor=%s, model=%s, rev=%s\n", vendor, model, rev);
   }
 
-
   DBG(3, "scsi_new: sending TEST_UNIT_READY\n");
   status = sanei_scsi_cmd(new->fd, tur_cmd, 6, 0, 0);
   if (FAILED(status))
     {
       DBG(1, "hp_scsi_open: test unit ready failed (%s)\n",
 	  sane_strstatus(status));
+      usleep (500*1000); /* Wait 0.5 seconds */
+      DBG(3, "scsi_new: sending TEST_UNIT_READY second time\n");
+      status = sanei_scsi_cmd(new->fd, tur_cmd, 6, 0, 0);
+    }
+
+  if (FAILED(status))
+    {
+      DBG(1, "hp_scsi_open: test unit ready failed (%s)\n",
+	  sane_strstatus(status));
+
       sanei_scsi_close(new->fd);
       sanei_hp_free(new);
       return status; /* Fix problem with non-scanner devices */

@@ -2,6 +2,8 @@
 
 	* doc/descriptions.txt: New file. Specification of the format of
 	  backend description files (*.desc).
+	* configure configure.in: Added some sanity checks. Configure
+	  now stops if one of the essential headers isn't found.
 
 2002-06-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -5,6 +5,8 @@
 	  was wrong for little-endian systems. Based on code from Roland
 	  Roberts <roland@astrofoto.org>.
 	* NEWS: Minor updates.
+	* TODO: Removed entry about 16 bit scanimage problem. Added entry about
+	  scanimage and width/height ranges.
 
 2002-05-07  Frank Zago  <fzago@greshamstorage.com>
 

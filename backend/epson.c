@@ -16,7 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.02 - 2001-03-31"
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.04 - 2001-05-13"
+#define SANE_EPSON_BUILD	204
 
 /*
    This file is part of the SANE package.
@@ -58,6 +59,14 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2000-05-13	Version 0.2.04
+		Removed check for '\n' before end of line
+		Free memory malloced in sane_get_devices() in sane_exit() again
+   2000-04-22	Version 0.2.03
+		Check first if the scanner does support the set film type
+		and set focus position before the GUI elements are displayed.
+		This caused problems with older (B4 level) scanners when a TPU
+		was connected.
    2000-03-31   Version 0.2.02
    2001-03-17   Next attempt to get the reported number of lines correct
    		for the "color shuffling" part.
@@ -724,9 +733,16 @@ static SANE_Word * resolution_list = NULL;
 
  */
 
+
 /*
- *
- *
+ * List of pointers to devices - will be dynamically allocated depending
+ * on the number of devices found. 
+ */
+static const SANE_Device **devlist = 0;
+
+
+/*
+ * Some utility functions
  */
 
 static size_t
@@ -2012,7 +2028,7 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize) {
 #endif
 
   if( version_code != NULL)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
 
   /* default to /dev/scanner instead of insisting on config file */
   if( (fp = sanei_config_open (EPSON_CONFIG_FILE)))
@@ -2025,8 +2041,6 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize) {
 	  if( line[0] == '#')		/* ignore line comments */
 	    continue;
 	  len = strlen (line);
-	  if( line[len - 1] == '\n')
-            line[--len] = '\0';
 	  if( !len)
             continue;			/* ignore empty lines */
 	  DBG( 4, "sane_init, >%s<\n", line);
@@ -2059,6 +2073,8 @@ void sane_exit ( void) {
 		free((char *) dev->sane.model);
 		free(dev);
 	}
+
+	free(devlist);
 }
 
 /*
@@ -2068,8 +2084,6 @@ void sane_exit ( void) {
 
 SANE_Status sane_get_devices ( const SANE_Device * * * device_list, SANE_Bool local_only) 
 {
-
-	static const SANE_Device **devlist = 0;
 	Epson_Device *dev;
 	int i;
 
@@ -3208,10 +3222,17 @@ static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 		s->hw->x_range = &s->hw->tpu_x_range;
 		s->hw->y_range = &s->hw->tpu_y_range;
 		s->hw->use_extension = SANE_TRUE;
-		/* enable film type option */
-		s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
-		s->val[ OPT_FOCUS].w = 1;
-		s->focusOnGlass = SANE_FALSE;
+		/* enable film type option if the scanner supports it */
+		if (s->hw->cmd->set_film_type != 0)
+		{
+			s->opt[ OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
+		}
+		/* enable focus position if the scanner supports it */
+		if (s->hw->cmd->set_focus_position != 0)
+		{
+			s->val[ OPT_FOCUS].w = 1;
+			s->focusOnGlass = SANE_FALSE;
+		}
 	} else {
 		s->hw->x_range = &s->hw->fbf_x_range;
 		s->hw->y_range = &s->hw->fbf_y_range;

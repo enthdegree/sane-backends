@@ -433,8 +433,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 	{
 	  /* ppdev opening and configuration                               */
 	  found = 0;
-	  /*fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK); */
-	  fd = open (name, O_RDWR | O_NOCTTY);
+	  fd = open (name, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	  if (fd < 0)
 	    {
 	      switch (errno)

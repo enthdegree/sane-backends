@@ -66,7 +66,7 @@
 
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
 #define SANE_TITLE_GAMMA_CORRECTION SANE_I18N("Gamma Correction")
-#define SANE_DESC_GAMMA_CORRECTION SANE_I18N("Selectes the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner")
+#define SANE_DESC_GAMMA_CORRECTION SANE_I18N("Selects the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner")
 
 #define SANE_EPSON_FOCUS_NAME "focus-position"
 #define SANE_EPSON_FOCUS_TITLE SANE_I18N("Focus Position")

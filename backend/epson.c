@@ -3046,9 +3046,9 @@ static SANE_Status init_options ( Epson_Scanner * s) {
 
 
 		/* speed */
-		s->opt[ OPT_SPEED].name     = "speed";
-		s->opt[ OPT_SPEED].title    = SANE_I18N("Speed");
-		s->opt[ OPT_SPEED].desc     = "";
+		s->opt[ OPT_SPEED].name     = SANE_NAME_SCAN_SPEED;
+		s->opt[ OPT_SPEED].title    = SANE_TITLE_SCAN_SPEED;
+		s->opt[ OPT_SPEED].desc     = SANE_DESC_SCAN_SPEED;
 
 		s->opt[ OPT_SPEED].type = SANE_TYPE_BOOL;
 		s->val[ OPT_SPEED].w = SANE_FALSE;

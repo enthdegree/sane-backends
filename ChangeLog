@@ -1,3 +1,9 @@
+2003-10-04  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.[ch]: Fixed bug 300246 - Use SANE_TITLE_SCAN_SPEED
+	  (and DESC and NAME) from saneopts.h instead of my own strings.
+	  Fixed typo in gamma correction description.
+
 2003-10-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS configure configure.in backend/Makefile.in backend/dll.conf

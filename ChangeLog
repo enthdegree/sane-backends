@@ -1,5 +1,8 @@
 2000-09-17  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* config.guess config.sub : Upgraded to latest version from
+	<URL:ftp://ftp.gnu.org/pub/gnu/config/>.
+
 	* doc/Makefile.in: New target 'install-docs' to install
 	documentation in $(prefix)/doc/sane-<version>/.
 

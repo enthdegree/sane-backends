@@ -51,6 +51,8 @@
     Parts of this source were inspired by other backends.
 */
 
+#include "../include/sane/config.h"
+
 #include "hp5400.h"
 #include "hp5400_debug.h"
 

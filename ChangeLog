@@ -5,6 +5,9 @@
 	  Added vid/pid 0x07b3/0x0400 to gt68xx.conf also. Added indormation
 	  about Medion 4394. Mention ma1509 backend. Fix segfault when calling
 	  sane_open with an empty device name.
+	* backend/net.c doc/descriptions/net.desc: Initialize global variables
+	  in sane_init to avoid segmentation faults when sane_init/sane_exit is
+	  run more than once.
 
 2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

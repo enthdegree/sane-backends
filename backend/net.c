@@ -42,7 +42,7 @@
 
 /* Please increase version number with every change
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.9"
+#define NET_VERSION "1.0.10"
 
 #ifdef _AIX
 # include "../include/lalloca.h" /* MUST come first for AIX! */
@@ -455,6 +455,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (2, "sane_init: authorize = %p, version_code = %p\n", authorize,
        version_code);
+
+  devlist = 0;
+  first_device = 0;
+  first_handle = 0;
 
   auth_callback = authorize;
 

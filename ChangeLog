@@ -1,9 +1,15 @@
+
+2002-06-04  Rene Rebe <rene.rebe@gmx.net>
+
+        * backend/avision.c backend/avision.h backend/avision.conf: next
+	  backend version. Should work for the HP 5300 and HP 5370 now.
+	  Serveral other minor fixes.
+
 2002-06-04  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c:  relaxed scanner detection not to fail on
 	  some parports.
           
-
 2002-06-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in backend/Makefile.in: Added option 

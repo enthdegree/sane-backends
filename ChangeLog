@@ -1,3 +1,7 @@
+2003-04-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c: Added some missing debug messages. Fixed a warning.
+
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* TODO: removed mustek_pp entry (Check that global variables are 

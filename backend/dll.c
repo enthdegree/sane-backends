@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.8"
+#define DLL_VERSION "1.0.9"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -612,6 +612,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     {
       if (!preloaded_backends[i].name)
 	continue;
+      DBG (3, "sane_init: adding backend `%s' (preloaded)\n", preloaded_backends[i].name);
       preloaded_backends[i].next = first_backend;
       first_backend = &preloaded_backends[i];
     }
@@ -631,9 +632,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;	/* don't insist on config file */
     }
 
+  DBG (5, "sane_init: reading %s\n", DLL_CONFIG_FILE);
   while (sanei_config_read (config_line, sizeof (config_line), fp))
     {
-      char *cp, *comment;
+      char *comment;
+      SANE_String_Const cp;
 
       cp = sanei_config_get_string (config_line, &backend_name);
       /* ignore empty lines */
@@ -662,6 +665,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (!fp)
     return SANE_STATUS_GOOD;	/* don't insist on aliases file */
 
+  DBG (5, "sane_init: reading %s\n", DLL_ALIASES_FILE);
   while (sanei_config_read (config_line, sizeof (config_line), fp))
     {
       if (config_line[0] == '#')	/* ignore line comments */
@@ -779,6 +783,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       }                                                                    \
   }
 
+  DBG (3, "sane_get_devices\n");
+
   if (devlist)
     for (i = 0; i < devlist_len; ++i)
       free ((void *) devlist[i]);
@@ -860,6 +866,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   devlist[devlist_len++] = 0;
 
   *device_list = devlist;
+  DBG (3, "sane_get_devices: found %d devices\n", devlist_len - 1);
   return SANE_STATUS_GOOD;
 }
 
@@ -872,6 +879,8 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   struct backend *be;
   SANE_Status status;
   struct alias *alias;
+
+  DBG (3, "sane_open: trying to open `%s'\n", full_name);
 
   for (alias = first_alias; alias != NULL; alias = alias->next)
     {
@@ -941,6 +950,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   s->handle = handle;
   *meta_handle = s;
 
+  DBG (3, "sane_open: open successful\n");
   return SANE_STATUS_GOOD;
 }
 

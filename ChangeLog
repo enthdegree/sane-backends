@@ -1,3 +1,9 @@
+2002-04-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/backend-writing.txt: More details for the exported symbols
+	  issue. Used test.c instead of pnm.c as example. Fixed paths for
+	  .desc files.
+
 2002-04-21  Frank Zago <fzago@greshamstorage.com>
 
 	* backend/teco1.c doc/descriptions/teco1.desc: updates.

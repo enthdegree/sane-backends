@@ -1,5 +1,14 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-43 (2003-03-06)
+
+- Small requests are done with a response buffer of 8 bytes (instead of 64)
+  now. Looks like GT-6816 based scanners return 8 bytes if the firmware is
+  loaded and 64 bytes if it's not loaded.
+- Changed GT-6816 firmware check to ignore errors from above change. 
+  GT-6816 scanners work with the BSDs now (at least once).
+- Updated manpage concerning the BSDs.
+
 V 1.0-42 (2003-03-02)
 
 - Make sure that the firmware for plustek-like scanners is loaded. Didn't work for

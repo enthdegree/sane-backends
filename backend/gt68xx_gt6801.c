@@ -49,32 +49,6 @@
 
 #include "gt68xx_gt6801.h"
 
-#if 0
-SANE_Status
-gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
-{
-  SANE_Status status;
-  GT68xx_Packet req;
-
-  memset (req, 0, sizeof (req));
-  req[0] = 0x00;
-  req[1] = 0x01;
-
-  RIE (gt68xx_device_small_req (dev, req, req));
-
-  /*
-   * this is wrong but i do not get the right answer from the scanner....
-   * should be 0x00 0x55 0x55 0x55
-   */
-  if (req[0] == 0x00 && req[1] == 0x12 && req[2] == 0x00 && req[3] == 0x00)
-    *loaded = SANE_TRUE;
-  else
-    *loaded = SANE_FALSE;
-
-  return SANE_STATUS_GOOD;
-}
-#endif
-#if 1
 /* doesn't work with plustek scanner */
 SANE_Status
 gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
@@ -96,7 +70,6 @@ gt6801_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
 
   return SANE_STATUS_GOOD;
 }
-#endif
 
 /* doesn't work with at least cytron scanner */
 SANE_Status
@@ -110,7 +83,13 @@ gt6801_check_plustek_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
   req[0] = 0x73;
   req[1] = 0x01;
 
-  RIE (gt68xx_device_small_req (dev, req, req));
+  status = gt68xx_device_small_req (dev, req, req);
+  if (status != SANE_STATUS_GOOD)
+    {
+      /* Assume that firmware is not loaded */
+      *loaded = SANE_FALSE;
+      return SANE_STATUS_GOOD;
+    }
 
   /* check for correct answer */
   if ((req[0] == 0) && (req[1] == 0x12) && (req[3] == 0x80))

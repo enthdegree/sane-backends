@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -502,7 +502,7 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
 			   SANE_Byte request_type, SANE_Word request,
 			   SANE_Word cmd_value, SANE_Word cmd_index,
 			   SANE_Word res_value, SANE_Word res_index,
-			   GT68xx_Packet cmd, GT68xx_Packet res)
+			   GT68xx_Packet cmd, GT68xx_Packet res, size_t res_size)
 {
   SANE_Status status;
 
@@ -524,7 +524,7 @@ gt68xx_device_generic_req (GT68xx_Device * dev,
 
   status = sanei_usb_control_msg (dev->fd,
 				  request_type | 0x80, request, res_value, res_index,
-				  GT68XX_PACKET_SIZE, res);
+				  res_size, res);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (3, "gt68xx_device_generic_req: reading response failed: %s\n",
@@ -546,7 +546,8 @@ gt68xx_device_req (GT68xx_Device * dev, GT68xx_Packet cmd, GT68xx_Packet res)
 				    command_set->send_cmd_value,
 				    command_set->send_cmd_index,
 				    command_set->recv_res_value,
-				    command_set->recv_res_index, cmd, res);
+				    command_set->recv_res_index, cmd, res,
+				    GT68XX_PACKET_SIZE);
 }
 
 SANE_Status
@@ -567,7 +568,7 @@ gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
 				    command_set->send_small_cmd_index,
 				    command_set->recv_small_res_value,
 				    command_set->recv_small_res_index,
-				    fixed_cmd, res);
+				    fixed_cmd, res, 0x08);
 }
 
 SANE_Status

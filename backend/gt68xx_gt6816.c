@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -58,8 +58,15 @@ gt6816_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
   req[0] = 0x70;
   req[1] = 0x01;
 
-  RIE (gt68xx_device_small_req (dev, req, req));
-
+  status = gt68xx_device_small_req (dev, req, req);
+  if (status != SANE_STATUS_GOOD)
+    {
+      /* Assume that firmware is not loaded because without firmware, we need
+	 64 bytes for the result, not 8 */
+      *loaded = SANE_FALSE;
+      return SANE_STATUS_GOOD;
+    }
+  /* check anyway */
   if (req[0] == 0x00 && req[1] == 0x70 && req[2] == 0xff)
     *loaded = SANE_TRUE;
   else

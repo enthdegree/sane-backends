@@ -1,3 +1,14 @@
+2003-03-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_gt6801.c backend/gt68xx_gt6816.c
+	  backend/gt68xx_low.c doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Small requests are done with a response
+	  buffer of 8 bytes (instead of 64) now. Looks like GT-6816 based
+	  scanners return 8 bytes if the firmware is loaded and 64 bytes if
+	  it's not loaded. Changed GT-6816 firmware check to ignore errors
+	  from above change. GT-6816 scanners work with the BSDs now (at least
+	  once). Updated manpage concerning the BSDs.
+
 2003-03-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/apple.c: Added missing option size (avoids crash on network

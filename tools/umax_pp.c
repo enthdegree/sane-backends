@@ -13,6 +13,7 @@
 #define __MAIN__
 
 #include "../backend/umax_pp_low.h"
+#include "../backend/umax_pp_mid.h"
 
 static void
 Usage (char *name)
@@ -69,6 +70,7 @@ main (int argc, char **argv)
 
   i = 1;
   trace = 0;
+  sanei_umax_pp_setauto(1);
   while (i < argc)
     {
       found = 0;
@@ -262,6 +264,7 @@ main (int argc, char **argv)
 	      return (0);
 	    }
 	  gain = strtol (argv[i], NULL, 16);
+	  sanei_umax_pp_setauto(0);
 	}
 
       if ((strcmp (argv[i], "-z") == 0)
@@ -342,13 +345,13 @@ main (int argc, char **argv)
 
   /*  enable I/O */
   /* parport_claim */
-  if(sanei_umax_pp_InitPort (port) != 1)
+  if (sanei_umax_pp_InitPort (port) != 1)
     {
-      fprintf (stderr, "failed to gain direct acces to port 0x%X!\n",port);
+      fprintf (stderr, "failed to gain direct acces to port 0x%X!\n", port);
       return (0);
     }
   if (trace)
-    printf ("UMAX 1220P scanning program version 2.5 starting ...\n");
+    printf ("UMAX 1220P scanning program version 2.6 starting ...\n");
 
 
   /* scanning is the default behaviour */
@@ -375,6 +378,7 @@ main (int argc, char **argv)
   /* probe scanner */
   if (probe)
     {
+      printf ("Probing scanner ....\n");
       if (sanei_umax_pp_ProbeScanner (recover) != 1)
 	{
 	  if (recover)
@@ -433,15 +437,15 @@ main (int argc, char **argv)
 	  printf ("InitTransport() failed (%s:%d)\n", __FILE__, __LINE__);
 	  return (0);
 	}
-      i = sanei_umax_pp_CheckModel ();
-      if (i < 610)
-	{
-	  sanei_umax_pp_EndSession ();
-	  printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
-	}
-      if (trace)
-	printf ("UMAX Astra %dP detected \n", i);
+      /*i = sanei_umax_pp_CheckModel ();
+         if (i < 610)
+         {
+         sanei_umax_pp_EndSession ();
+         printf ("CheckModel() failed (%s:%d)\n", __FILE__, __LINE__);
+         return (0);
+         }
+         if (trace)
+         printf ("UMAX Astra %dP detected \n", i); */
       /* init scanner */
       if (sanei_umax_pp_InitScanner (recover) == 0)
 	{

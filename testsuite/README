@@ -7,3 +7,6 @@ This is a test framework for the Scanner Access Now Easy project
 everything without installing, to make sure a new distribution is
 function properly before the old one is replaced.  If it isn't, please
 fix the bug. :-)
+
+The current test needs the pnm backend. Hint: 
+"configure --enable-pnm-backend".

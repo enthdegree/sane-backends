@@ -6396,7 +6396,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 #endif
                 *((u_int16_t *) *data
                    + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                           MIN(0xffff, (u_int16_t) value);
+                                           (u_int16_t) MIN(0xffff, value);
               }
           }
         break;
@@ -6435,7 +6435,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 #endif
                 *((u_int16_t *) *data
                  + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                               MIN(0xffff, (u_int16_t) value);
+                                               (u_int16_t) MIN(0xffff, value);
               }
           }
         break;
@@ -6457,7 +6457,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 		    value /= lines;
                     *((u_int8_t *) *data
 			+ color * ( mi->geo_width / mi->calib_divisor ) + i) =
-			MIN(0xff, (u_int8_t) value);
+			(u_int8_t) MIN(0xff, value);
 
 		  }
 		else
@@ -6471,7 +6471,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 		    value /= lines;
 		    *((u_int16_t *) *data
 			+ color * ( mi->geo_width / mi->calib_divisor ) + i) =
-			MIN(0xffff, (u_int16_t) value);
+			(u_int16_t) MIN(0xffff, value);
 		  }
 
               }
@@ -6969,7 +6969,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
                   value = (ms->lut_size * ms->lut_size) / value;
                   *((u_int16_t *) data
                     + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                               MIN(0xffff, (u_int16_t) value);
+                                               (u_int16_t) MIN(0xffff, value);
                   break;
 
                 case 0x11:
@@ -6979,7 +6979,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
                                              / 255.0));
                   *((u_int16_t *) data
                     + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                               MIN(0xffff, (u_int16_t) value);
+                                               (u_int16_t) MIN(0xffff, value);
                   break;
                 case 0x15:
                   value = (u_int32_t) ( ( 1073741824 / (double) value )
@@ -6988,7 +6988,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
                   value = MIN(value, (u_int32_t)65535);
                  *((u_int16_t *) data
                     + color * ( mi->geo_width / mi->calib_divisor ) + i) =
-                                               MIN(0xffff, (u_int16_t) value);
+                                               (u_int16_t) MIN(0xffff, value);
                   break;
 
                 default:

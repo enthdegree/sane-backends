@@ -1,3 +1,8 @@
+2004-06-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.c: Fixed some (but not all) MIN related
+	  compilation warnings (bug #300823).
+
 2004-06-22  Rene Rebe <rene@rocklinux.org>
 	* backend/avision.c, backend/avision.h, doc/sane-avision.man:
 	  Fixed compilation warning (Bug #300399) and added a force-a3

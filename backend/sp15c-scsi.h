@@ -49,6 +49,9 @@ static const char RCSid_sh[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.4  2003/12/27 17:48:38  hmg-guest
+ * Silenced some compilation warnings.
+ *
  * Revision 1.3  2000/08/12 15:09:37  pere
  * Merge devel (v1.0.3) into head branch.
  *
@@ -148,8 +151,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes) \
 
 typedef struct
 {
-  char *cmd;
-  int size;
+  unsigned char *cmd;
+  unsigned int size;
 }
 scsiblk;
 

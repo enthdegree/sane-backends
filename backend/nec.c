@@ -292,6 +292,8 @@ sense_handler(int fd, u_char *sense_buffer, void *ss)
   int sense_key;
   NEC_Sense_Data *sdat = (NEC_Sense_Data *) ss;
   
+  fd = fd; /* silence compilation warnings */
+
   #define add_sense_code sense_buffer[12]
   #define add_sense_qual sense_buffer[13]
 
@@ -554,6 +556,7 @@ get_window (int fd, void *buf, size_t * buf_size)
   return (status);
 }
 
+#if 0
 static SANE_Status
 get_data_buffer_status (int fd, void *buf, size_t *buf_size)
 {
@@ -568,6 +571,7 @@ get_data_buffer_status (int fd, void *buf, size_t *buf_size)
   DBG (11, ">>\n");
   return (status);
 }
+#endif
 
 #ifdef USE_FORK
 
@@ -979,7 +983,7 @@ attach (const char *devnam, NEC_Device ** devp)
 
   int fd;
   unsigned char inquiry_data[INQUIRY_LEN];
-  const char *model_name;
+  const unsigned char *model_name;
   mode_sense_param msp;
   size_t buf_size;
   DBG (10, "<< attach ");
@@ -1102,7 +1106,7 @@ attach (const char *devnam, NEC_Device ** devp)
     return (SANE_STATUS_NO_MEM);
   memset (dev, 0, sizeof (*dev));
 
-  dev->sane.name = strdup (devnam);
+  dev->sane.name = (SANE_String) strdup (devnam);
   dev->sane.vendor = "NEC";
   model_name = inquiry_data + 16;
   dev->sane.model  = strndup (model_name, 10);
@@ -1885,6 +1889,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   NEC_New_Device *np;
   int i;
 
+  authorize = authorize; /* silence compilation warnings */
+
   DBG_INIT ();
   DBG (10, "<< sane_init ");
 
@@ -2072,6 +2078,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   int i;
   DBG (10, "<< sane_get_devices ");
 
+  local_only = local_only; /* silence compilation warnings */
+
   if (devlist)
     free (devlist);
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
@@ -2200,7 +2208,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 #else
   SANE_Word cap;
 #endif
-  int i, range_index;
+  int range_index;
   DBG (10, "<< sane_control_option %i", option);
 
   if (info)
@@ -2650,9 +2658,9 @@ sprint_gamma(Option_Value val, SANE_Byte *dst)
   int i;
   SANE_Byte *p = dst;
   
-  p += sprintf(p, "%i", val.wa[0]);
+  p += sprintf((char *) p, "%i", val.wa[0]);
   for (i = 1; i < 256; i++)
-    p += sprintf(p, ",%i", val.wa[i] > 255 ? 255 : val.wa[i]);
+    p += sprintf((char *) p, ",%i", val.wa[i] > 255 ? 255 : val.wa[i]);
   return p - dst;
 }
 
@@ -2702,7 +2710,9 @@ static SANE_Status
 send_binary_g_table(NEC_Scanner *s, SANE_Word *a, int dtq)
 {
   SANE_Status status;
-  int i, j;
+  unsigned int i, j;
+  
+  dtq = dtq; /* silence compilation warnings */
   
   DBG(11, "<< send_binary_g_table\n");
 
@@ -2782,6 +2792,8 @@ send_gamma_tables (NEC_Scanner *s)
 #endif
 
 #ifdef USE_COLOR_THRESHOLD
+/* not used? */
+#if 0
 static SANE_Status
 send_threshold_data(NEC_Scanner *s)
 {
@@ -2794,7 +2806,7 @@ send_threshold_data(NEC_Scanner *s)
      restricted to the range 0..255), 3 '/' and the null-byte,
      total: 16 bytes.
   */
-  len = sprintf(&cmd[10], "%i/%i/%i/%i", 
+  len = sprintf((char *) &cmd[10], "%i/%i/%i/%i", 
                 s->val[OPT_THRESHOLD_R].w,
                 s->val[OPT_THRESHOLD_G].w,
                 s->val[OPT_THRESHOLD_B].w,
@@ -2805,6 +2817,7 @@ send_threshold_data(NEC_Scanner *s)
   status = sanei_scsi_cmd(s->fd, cmd, len + 10, 0, 0);
   return status;
 }
+#endif
 #endif
 
 SANE_Status
@@ -3682,6 +3695,9 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  handle = handle;
+  non_blocking = non_blocking; /* silence compilation warnings */
+
   DBG (10, "<< sane_set_io_mode");
   DBG (10, ">>\n");
 
@@ -3691,6 +3707,9 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  handle = handle;
+  fd = fd; /* silence compilation warnings */
+  
   DBG (10, "<< sane_get_select_fd");
   DBG (10, ">>\n");
 

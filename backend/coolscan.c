@@ -1254,7 +1254,7 @@ coolscan_read_data_block (Coolscan_t * s, unsigned int datatype, unsigned int le
   set_R_xfer_length (sread.cmd, length);
 
   r = do_scsi_cmd (s->sfd, sread.cmd, sread.size, s->buffer, length);
-  return ((r != 0) ? -1 : length);
+  return ((r != 0) ? -1 : (int) length);
 }
 
 

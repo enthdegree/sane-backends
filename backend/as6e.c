@@ -624,7 +624,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp = NULL;
 
   DBG_INIT ();
-  DBG (2, "sane_init (authorize = %p)\n", authorize);
+  DBG (2, "sane_init (authorize = %p)\n", (void *) authorize);
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 /*  fp = sanei_config_open (AS6E_CONFIG_FILE);*/
@@ -933,6 +933,6 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
-  DBG (2, "sane_get_select_fd( %p, %p )\n", handle, fd);
+  DBG (2, "sane_get_select_fd( %p, %p )\n",(void *)  handle, (void *) fd);
   return SANE_STATUS_UNSUPPORTED;
 }

@@ -87,7 +87,7 @@ usb_high_cal_init (Calibrator * cal, SANE_Byte type, SANE_Word target_white,
 		   SANE_Word target_dark)
 {
   DBG (5, "usb_high_cal_init: start, cal=%p, type=%d, target_white=%d "
-       "target_dark=%d\n", cal, type, target_white, target_dark);
+       "target_dark=%d\n", (void *) cal, type, target_white, target_dark);
   cal->is_prepared = SANE_FALSE;
   cal->k_white = NULL;
   cal->k_dark = NULL;
@@ -869,7 +869,7 @@ usb_high_scan_exit (Mustek_Usb_Device * dev)
 SANE_Status
 usb_high_scan_prepare (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_prepare: start dev=%p\n", dev);
+  DBG (5, "usb_high_scan_prepare: start dev=%p\n", (void *) dev);
   if (dev->is_prepared)
     {
       DBG (5, "usb_high_scan_prepare: is already prepared\n");
@@ -895,7 +895,7 @@ usb_high_scan_prepare (Mustek_Usb_Device * dev)
 SANE_Status
 usb_high_scan_clearup (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_clearup: start, dev=%p\n", dev);
+  DBG (5, "usb_high_scan_clearup: start, dev=%p\n", (void *) dev);
   if (!dev->is_prepared)
     {
       DBG (3, "usb_high_scan_clearup: is not prepared\n");
@@ -977,7 +977,7 @@ SANE_Status
 usb_high_scan_set_threshold (Mustek_Usb_Device * dev, SANE_Byte threshold)
 {
   DBG (5, "usb_high_scan_set_threshold: start, dev=%p, threshold=%d\n",
-       dev, threshold);
+       (void *) dev, threshold);
 
   dev->threshold = threshold;
   DBG (5, "usb_high_scan_set_threshold: exit\n");
@@ -988,7 +988,7 @@ SANE_Status
 usb_high_scan_embed_gamma (Mustek_Usb_Device * dev, SANE_Word * gamma_table)
 {
   DBG (5, "usb_high_scan_embed_gamma: start, dev=%p, gamma_table=%p\n",
-       dev, gamma_table);
+       (void *) dev, (void *) gamma_table);
   if (!dev->is_prepared)
     {
       DBG (5, "usb_high_scan_embed_gamma !is_prepared\n");
@@ -2082,7 +2082,7 @@ usb_high_scan_adjust_mono_300_power_delay (Mustek_Usb_Device * dev)
 SANE_Status
 usb_high_scan_evaluate_pixel_rate (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_evaluate_pixel_rate: start, dev=%p\n", dev);
+  DBG (5, "usb_high_scan_evaluate_pixel_rate: start, dev=%p\n", (void *) dev);
 
   /* fixme: new for CCD */
   dev->pixel_rate = 2000;
@@ -2101,7 +2101,7 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
   SANE_Word lines_left;
   SANE_Word minor_average;
 
-  DBG (5, "usb_high_scan_calibration_rgb_24: start, dev=%p\n", dev);
+  DBG (5, "usb_high_scan_calibration_rgb_24: start, dev=%p\n", (void *) dev);
   if (dev->is_cis_detected)
     {
       RIE (usb_mid_motor_prepare_calibrate_rgb (dev->chip, dev->y_dpi));
@@ -2364,7 +2364,7 @@ usb_high_scan_calculate_max_rgb_600_expose (Mustek_Usb_Device * dev,
   SANE_Word max_light_up;
   SANE_Word ideal_expose_time;
 
-  DBG (5, "usb_high_scan_calculate_max_rgb_600_expose: dev=%p\n", dev);
+  DBG (5, "usb_high_scan_calculate_max_rgb_600_expose: dev=%p\n", (void *) dev);
 
   red_light_up = dev->expose_time - dev->red_rgb_600_power_delay * 64;
   green_light_up = dev->expose_time - dev->green_rgb_600_power_delay * 64;
@@ -2400,7 +2400,7 @@ usb_high_scan_calculate_max_mono_600_expose (Mustek_Usb_Device * dev,
   SANE_Word ideal_expose_time;
   SANE_Word transfer_time;
 
-  DBG (5, "usb_high_scan_calculate_max_mono_600_expose: dev=%p\n", dev);
+  DBG (5, "usb_high_scan_calculate_max_mono_600_expose: dev=%p\n", (void *) dev);
 
   max_light_up = dev->expose_time - dev->green_mono_600_power_delay * 64;
   transfer_time = (SANE_Word) ((SANE_Word) (dev->pixel_rate)
@@ -2674,7 +2674,7 @@ usb_high_scan_get_rgb_24_bit_line (Mustek_Usb_Device * dev, SANE_Byte * line,
   SANE_Word lines_left;
 
   DBG (5, "usb_high_scan_get_rgb_24_bit_line: start, dev=%p, line=%p, "
-       "is_order_invert=%d\n", dev, line, is_order_invert);
+       "is_order_invert=%d\n", (void *) dev, line, is_order_invert);
 
   RIE (usb_low_get_row (dev->chip, dev->green, &lines_left));
 
@@ -2703,7 +2703,7 @@ usb_high_scan_get_mono_8_bit_line (Mustek_Usb_Device * dev, SANE_Byte * line,
   SANE_Word lines_left;
 
   DBG (5, "usb_high_scan_get_mono_8_bit_line: start, dev=%p, line=%p, "
-       "is_order_invert=%d\n", dev, line, is_order_invert);
+       "is_order_invert=%d\n", (void *) dev, line, is_order_invert);
 
   RIE (usb_low_get_row (dev->chip, dev->green, &lines_left));
   RIE (usb_high_cal_calibrate (dev->mono_calibrator, dev->green +
@@ -2715,7 +2715,7 @@ usb_high_scan_get_mono_8_bit_line (Mustek_Usb_Device * dev, SANE_Byte * line,
 SANE_Status
 usb_high_scan_backtrack_rgb_24 (Mustek_Usb_Device * dev)
 {
-  DBG (5, "usb_high_scan_backtrack_rgb_24: noop, dev=%p\n", dev);
+  DBG (5, "usb_high_scan_backtrack_rgb_24: noop, dev=%p\n", (void *) dev);
   return SANE_STATUS_GOOD;
 }
 
@@ -2726,7 +2726,7 @@ usb_high_scan_backtrack_mono_8 (Mustek_Usb_Device * dev)
   SANE_Status status;
   SANE_Word lines_left;
 
-  DBG (5, "usb_high_scan_backtrack_mono_8: start, dev=%p\n", dev);
+  DBG (5, "usb_high_scan_backtrack_mono_8: start, dev=%p\n", (void *) dev);
 
   if (dev->y_dpi >= 300)
     {

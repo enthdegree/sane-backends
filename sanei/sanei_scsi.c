@@ -1809,7 +1809,7 @@ issue (struct req *req)
     return;
 
   fdp = (fdparms *) fd_info[req->fd].pdata;
-  DBG (4, "sanei_scsi.issue: %p\n", req);
+  DBG (4, "sanei_scsi.issue: %p\n", (void *) req);
 
   rp = fdp->sane_qhead;
   while (rp && rp->running)
@@ -2118,7 +2118,7 @@ issue (struct req *req)
 	    else
 	    fdp->sane_qhead = fdp->sane_qtail = req);
 
-    DBG (4, "scsi_req_enter: entered %p\n", req);
+    DBG (4, "scsi_req_enter: entered %p\n", (void *) req);
 
     *idp = req;
     issue (req);
@@ -2139,7 +2139,7 @@ issue (struct req *req)
     /* we don't support out-of-order completion */
     assert (req == ((fdparms *) fd_info[req->fd].pdata)->sane_qhead);
 
-    DBG (4, "sanei_scsi_req_wait: waiting for %p\n", req);
+    DBG (4, "sanei_scsi_req_wait: waiting for %p\n", (void *) req);
 
     issue (req);		/* ensure the command is running */
     if (req->done)

@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.5  2003/12/27 17:48:38  hmg-guest
+ * Silenced some compilation warnings.
+ *
  * Revision 1.4  2001/05/31 18:01:39  hmg
  * Fixed config_line[len-1] bug which could generate an access
  * violation if len==0.
@@ -233,6 +236,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   char dev_name[PATH_MAX];
   size_t len;
   FILE *fp;
+  authorize = authorize; /* silence compilation warnings */
+
   DBG_INIT ();
   DBG (10, "sane_init\n");
 
@@ -266,6 +271,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   struct sp15c *dev;
   int i;
+  
+  local_only = local_only; /* silence compilation warnings */
 
   DBG (10, "sane_get_devices\n");
 
@@ -289,6 +296,9 @@ SANE_Status
 sane_open (SANE_String_Const name, SANE_Handle * handle)
 {
   struct sp15c *dev = first_dev;
+
+  name = name; /* silence compilation warnings */
+  /* Strange, name is not used? */
 
   DBG (10, "sane_open\n");
 
@@ -340,6 +350,9 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 {
+  h = h; 
+  non_blocking = non_blocking; /* silence compilation warnings */
+
   DBG (10, "sane_set_io_mode\n");
   return SANE_STATUS_UNSUPPORTED;
 }                               /* sane_set_io_mode */
@@ -348,6 +361,9 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle h, SANE_Int * fdp)
 {
+  h = h;
+  fdp = fdp; /* silence compilation warnings */
+
   DBG (10, "sane_get_select_fd\n");
   return SANE_STATUS_UNSUPPORTED;
 }                               /* sane_get_select_fd */
@@ -1038,6 +1054,9 @@ attach_one (const char *name)
 static SANE_Status
 sense_handler (int scsi_fd, u_char * result, void *arg)
 {
+  scsi_fd = scsi_fd;
+  arg = arg; /* silence compilation warnings */
+
   return request_sense_parse (result);
 }                               /* sense_handler */
 
@@ -1273,6 +1292,7 @@ static SANE_Status
 sp15c_do_inquiry (struct sp15c *s)
 {
   static SANE_Status ret;
+  
   DBG (10, "do_inquiry\n");
 
   memset (s->buffer, '\0', 256);        /* clear buffer */
@@ -1283,7 +1303,7 @@ sp15c_do_inquiry (struct sp15c *s)
 }                               /* sp15c_do_inquiry */
 
 static SANE_Status
-do_scsi_cmd (int fd, char *cmd, int cmd_len, char *out, size_t out_len)
+do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len, unsigned char *out, size_t out_len)
 {
   SANE_Status ret;
   size_t ol = out_len;
@@ -1733,7 +1753,10 @@ do_cancel (struct sp15c *scanner)
 
 static void
 swap_res (struct sp15c *s)
-{                               /* for the time being, do nothing */
+{
+  s = s; /* silence compilation warnings */
+  
+  /* for the time being, do nothing */
 }                               /* swap_res */
 
 static int
@@ -1763,6 +1786,8 @@ sp15c_set_window_param (struct sp15c *s, int prescan)
   int ret;
   int active_buffer_size;
 
+  prescan = prescan;   /* silence compilation warnings */
+  
   wait_scanner (s);
   DBG (10, "set_window_param\n");
   memset (buffer_r, '\0', WDB_size_max);        /* clear buffer */
@@ -1896,6 +1921,8 @@ sp15c_start_scan (struct sp15c *s)
 static void
 sigterm_handler (int signal)
 {
+  signal = signal; /* silence compilation warnings */
+
   sanei_scsi_req_flush_all ();  /* flush SCSI queue */
   _exit (SANE_STATUS_GOOD);
 }                               /* sigterm_handler */
@@ -1910,7 +1937,7 @@ reader_process (struct sp15c *scanner, int pipe_fd)
   FILE *fp;
   sigset_t sigterm_set;
   struct SIGACTION act;
-  int i;
+  unsigned int i;
   unsigned char *src, *dst;
 
   DBG (10, "reader_process started\n");
@@ -2051,7 +2078,7 @@ bytes_per_line (struct sp15c *s)
 static void
 sp15c_trim_rowbufsize (struct sp15c *s)
 {
-  int row_len;
+  unsigned int row_len;
   row_len = bytes_per_line (s);
   if (s->row_bufsize >= row_len)
     {

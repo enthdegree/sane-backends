@@ -1003,7 +1003,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   DBG (3,
        "sane_control_option(handle=%p,option=%d,action=%d,value=%p,info=%p)\n",
-       handle, option, action, value, info);
+       handle, option, action, value, (void *) info);
   return (*(op_ctl_option_t)s->be->op[OP_CTL_OPTION]) (s->handle, option, action, value,
 					     info);
 }
@@ -1013,7 +1013,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   struct meta_scanner *s = handle;
 
-  DBG (3, "sane_get_parameters(handle=%p,params=%p)\n", handle, params);
+  DBG (3, "sane_get_parameters(handle=%p,params=%p)\n", handle, (void *) params);
   return (*(op_get_params_t)s->be->op[OP_GET_PARAMS]) (s->handle, params);
 }
 
@@ -1033,7 +1033,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_read(handle=%p,data=%p,maxlen=%d,lenp=%p)\n",
-       handle, data, max_length, length);
+       handle, data, max_length, (void *) length);
   return (*(op_read_t)s->be->op[OP_READ]) (s->handle, data, max_length, length);
 }
 
@@ -1061,6 +1061,6 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   struct meta_scanner *s = handle;
 
-  DBG (3, "sane_get_select_fd(handle=%p,fdp=%p)\n", handle, fd);
+  DBG (3, "sane_get_select_fd(handle=%p,fdp=%p)\n", handle, (void *) fd);
   return (*(op_get_select_fd_t)s->be->op[OP_GET_SELECT_FD]) (s->handle, fd);
 }

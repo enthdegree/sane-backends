@@ -983,13 +983,13 @@ usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi)
   if (chip->sensor == ST_CANON300)
     {
       DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, FALSE\n",
-	   chip, dpi);
+	   (void *) chip, dpi);
       return SANE_FALSE;
     }
   else if ((chip->sensor == ST_CANON600) || (chip->sensor == ST_NEC600))
     {
       DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, TRUE\n",
-	   chip, dpi);
+	   (void *) chip, dpi);
       return SANE_TRUE;
     }
   else
@@ -1001,13 +1001,13 @@ usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi)
 	case 100:
 	case 50:
 	  DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, FALSE\n",
-	       chip, dpi);
+	       (void *) chip, dpi);
 	  return SANE_FALSE;
 	case 600:
 	case 400:
 	case 200:
 	  DBG (6, "usb_mid_sensor_is600_mode: chip=%p, dpi=%d, TRUE\n",
-	       chip, dpi);
+	       (void *) chip, dpi);
 	  return SANE_TRUE;
 	default:
 	  DBG (3, "usb_mid_sensor_is600_mode: unmatched dpi: %d\n", dpi);

@@ -2,6 +2,15 @@
 
 	* doc/descriptions/unsupported.desc: Updated/added several Medion
 	  scanners.
+	* backend/as6e.c backend/coolscan.c backend/dll.c backend/ibm.c
+	  backend/microtek2.c backend/mustek_scsi_pp.c
+	  backend/mustek_usb_high.c backend/mustek_usb_low.c
+	  backend/mustek_usb_mid.c backend/nec.c backend/net.c
+	  backend/qcam.c backend/ricoh-scsi.c backend/s9036.c
+	  backend/sp15c-scsi.h backend/sp15c.c backend/sp15c.h
+	  backend/st400.c backend/tamarack.c backend/tamarack.h
+	  sanei/sanei_scsi.c tools/check-usb-chip.c: Silenced some
+	  compilation warnings.
 
 2003-12-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

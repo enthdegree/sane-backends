@@ -241,8 +241,8 @@ struct page_header{
 
 struct tamarack_page {
   char gamma;
-  char thresh;
-  char masks;
+  unsigned char thresh;
+  unsigned char masks;
   char delay;
   char features;
   char pad0;

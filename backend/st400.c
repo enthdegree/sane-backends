@@ -100,7 +100,7 @@ static ST400_Model st400_models[] = {
 { 0, "", 0, "", 6, 0x200000UL, 65536UL, NULL, "Unknown", "untested", "flatbed scanner" },	/* matches anything */
 
 	/* must be last */
-	{ 0, NULL }
+	{ 0, NULL, 0, NULL, 0, 0, 0, NULL, NULL, NULL, NULL }
 };
 
 #define MM_PER_INCH		25.4
@@ -173,7 +173,7 @@ static void st400_reset_options( ST400_Device *dev );
 } while(0)
 
 
-static int str_at_offset(char *str, size_t offset, char *data)
+static int str_at_offset(char *str, size_t offset, unsigned char *data)
 {
 	size_t len;
 
@@ -381,7 +381,7 @@ st400_fill_scanner_buffer( ST400_Device *dev )
 {
 	SANE_Status status;
 
-	DBG(DCODE, "st400_fill_scanner_buffer(%p)\n", dev);
+	DBG(DCODE, "st400_fill_scanner_buffer(%p)\n", (void *) dev);
 
 	if( dev->lines_to_read == 0 )
 		dev->status.eof = 1;
@@ -414,7 +414,7 @@ st400_fill_backend_buffer( ST400_Device *dev )
 	size_t r;
 	SANE_Status status;
 
-	DBG(DCODE, "st400_fill_backend_buffer(%p)\n", dev);
+	DBG(DCODE, "st400_fill_backend_buffer(%p)\n", (void *) dev);
 
 	if( dev->bytes_in_scanner == 0 ) {
 		status = st400_fill_scanner_buffer(dev);
@@ -441,6 +441,9 @@ st400_sense_handler( int fd, SANE_Byte *result, void *arg )
 {
 	/* ST400_Device *dev = arg; */
 	SANE_Status status;
+
+	fd = fd;
+	arg = arg; /* silence compilation warnings */
 
 	switch( result[0] & 0x0f ) {
 		case 0x0:
@@ -491,7 +494,7 @@ st400_attach( const char *devname, ST400_Device **devP )
 	SANE_Status status;
 	int fd;
 
-	DBG(DCODE, "st400_attach(%s, %p)\n", devname, devP);
+	DBG(DCODE, "st400_attach(%s, %p)\n", devname, (void *) devP);
 	if( devP )
 		*devP = NULL;
 
@@ -507,7 +510,7 @@ st400_attach( const char *devname, ST400_Device **devP )
 	dev = calloc(1, sizeof(*dev));
 	if( !dev )
 		return SANE_STATUS_NO_MEM;
-	DBG(DCODE, "st400_attach: new device struct at %p\n", dev);
+	DBG(DCODE, "st400_attach: new device struct at %p\n", (void *) dev);
 
 	status = sanei_scsi_open(devname, &fd, st400_sense_handler, dev);
 	if( status == SANE_STATUS_GOOD ) {
@@ -562,6 +565,8 @@ static SANE_Status
 st400_config_get_arg(char **optP, unsigned long *argP, size_t linenum)
 {
 	int n;
+
+	linenum = linenum; /* silence compilation warnings */
 
 	if( sscanf(*optP, "%lu%n", argP, &n) == 1 ) {
 		*optP += n;
@@ -675,7 +680,7 @@ sane_init( SANE_Int *versionP, SANE_Auth_Callback authorize )
 	SANE_Status status;
 
 	DBG_INIT();
-	DBG(DCODE, "sane_init(%p, %p)\n", versionP, authorize);
+	DBG(DCODE, "sane_init(%p, %p)\n", (void *) versionP, (void *) authorize);
 
 	if( versionP != NULL )
 		*versionP = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
@@ -748,7 +753,7 @@ sane_get_devices( const SANE_Device ***devarrayP, SANE_Bool local_only )
 	ST400_Device *dev;
 	unsigned int i;
 
-	DBG(DCODE, "sane_get_devices(%p, %d)\n", devarrayP, (int)local_only);
+	DBG(DCODE, "sane_get_devices(%p, %d)\n", (void *) devarrayP, (int)local_only);
 
 	if( !st400_status.array_valid ) {
 		if( st400_device_array ) {
@@ -758,7 +763,7 @@ sane_get_devices( const SANE_Device ***devarrayP, SANE_Bool local_only )
 		st400_device_array = malloc((st400_num_devices + 1) * sizeof(*st400_device_array));
 		if( !st400_device_array )
 			return SANE_STATUS_NO_MEM;
-		DBG(DCODE, "sane_get_devices: new device array at %p\n", st400_device_array);
+		DBG(DCODE, "sane_get_devices: new device array at %p\n", (void *) st400_device_array);
 
 		dev = st400_devices;
 		for( i = 0; i < st400_num_devices; i++ ) {
@@ -781,7 +786,7 @@ sane_open( SANE_String_Const devicename, SANE_Handle *handleP )
 	ST400_Device *dev;
 	SANE_Status status;
 
-	DBG(DCODE, "sane_open(%s, %p)\n", devicename, handleP);
+	DBG(DCODE, "sane_open(%s, %p)\n", devicename, (void *) handleP);
 
 	*handleP = NULL;
 	if( devicename && devicename[0] ) {
@@ -826,7 +831,7 @@ sane_close( SANE_Handle handle )
 static void
 st400_reset_options( ST400_Device *dev )
 {
-	DBG(DCODE, "st400_reset_options(%p)\n", dev);
+	DBG(DCODE, "st400_reset_options(%p)\n", (void *) dev);
 
 	dev->val[OPT_NUM_OPTS]	= NUM_OPTIONS;
 	dev->val[OPT_RESOLUTION]	= dev->opt[OPT_RESOLUTION].constraint.word_list[1];
@@ -857,7 +862,7 @@ st400_init_options( ST400_Device *dev )
 		SANE_FIX(0.0), SANE_FIX(ST400_MAX_Y * MM_PER_INCH), SANE_FIX(0.0)
 	};
 
-	DBG(DCODE, "st400_init_options(%p)\n", dev);
+	DBG(DCODE, "st400_init_options(%p)\n", (void *)dev);
 
 	dev->opt[OPT_NUM_OPTS].name	= SANE_NAME_NUM_OPTIONS;
 	dev->opt[OPT_NUM_OPTS].title	= SANE_TITLE_NUM_OPTIONS;
@@ -967,7 +972,7 @@ sane_control_option( SANE_Handle handle, SANE_Int optnum,
 	ST400_Device *dev = handle;
 	SANE_Status status;
 
-	DBG(DCODE, "sane_control_option(%p, %d, %d, %p, %p)\n", handle, (int)optnum, (int)action, valP, infoP);
+	DBG(DCODE, "sane_control_option(%p, %d, %d, %p, %p)\n", (void *) handle, (int)optnum, (int)action, valP, (void *) infoP);
 
 	if( infoP )
 		*infoP = 0;
@@ -1052,7 +1057,7 @@ sane_get_parameters( SANE_Handle handle, SANE_Parameters *paramsP )
 {
 	ST400_Device *dev = handle;
 
-	DBG(DCODE, "sane_get_parameters(%p, %p)\n", handle, paramsP);
+	DBG(DCODE, "sane_get_parameters(%p, %p)\n", handle, (void *) paramsP);
 
 	if( !dev->status.open )
 		return SANE_STATUS_INVAL;
@@ -1125,10 +1130,10 @@ sane_start( SANE_Handle handle )
 
 	if( !dev->buffer ) {
 		if( st400_maxread > 0 )
-			dev->bufsize = min(st400_maxread, sanei_scsi_max_request_size);
+			dev->bufsize = min(st400_maxread, (unsigned int) sanei_scsi_max_request_size);
 		else
 		if( dev->model->maxread > 0 )
-			dev->bufsize = min(dev->model->maxread, sanei_scsi_max_request_size);
+			dev->bufsize = min(dev->model->maxread, (unsigned int) sanei_scsi_max_request_size);
 		else
 			dev->bufsize = sanei_scsi_max_request_size;
 		DBG(DVAR, "allocating %lu bytes buffer\n", (u_long)dev->bufsize);
@@ -1219,7 +1224,7 @@ sane_read( SANE_Handle handle, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenP )
 	size_t r, i;
 	SANE_Byte val;
 
-	DBG(DCODE, "sane_read(%p, %p, %d, %p)\n", handle, buf, (int)maxlen, lenP);
+	DBG(DCODE, "sane_read(%p, %p, %d, %p)\n", handle, buf, (int)maxlen, (void *) lenP);
 
 	*lenP = 0;
 	if( !dev->status.scanning )
@@ -1239,7 +1244,7 @@ sane_read( SANE_Handle handle, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenP )
 			}
 		}
 
-		r = min(dev->bytes_in_buffer, maxlen);
+		r = min((SANE_Int) dev->bytes_in_buffer, maxlen);
 
 		if( dev->val[OPT_DEPTH] == 1 || dev->model->bits == 8 ) {
 			/* This is simple.  We made sure the scanning are is aligned to
@@ -1298,7 +1303,7 @@ sane_set_io_mode( SANE_Handle handle, SANE_Bool nonblock )
 SANE_Status
 sane_get_select_fd( SANE_Handle handle, SANE_Int *fdP )
 {
-	DBG(DCODE, "sane_get_select_fd(%p, %p)\n", handle, fdP);
+	DBG(DCODE, "sane_get_select_fd(%p, %p)\n", handle, (void *) fdP);
 
 	return SANE_STATUS_UNSUPPORTED;
 }

@@ -399,7 +399,7 @@ qc_waithand2 (QC_Device *q, int val)
 
   do {
     status = read_lpdata (q);
-  } while ((status & CamRdy2) != val);
+  } while ((status & CamRdy2) != (unsigned int) val);
   return status;
 }
 
@@ -899,7 +899,8 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
       else
 	{
 	  /* strange -- should be 15:63 below, but 4bpp is odd */
-	  int i, shift, invert;
+	  int shift, invert;
+	  unsigned int i;
 	  u_char val;
 
 	  switch (s->val[OPT_DEPTH].w)
@@ -1404,6 +1405,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize; /* silence compilation warnings */
+
   DBG_INIT();
 
   if (version_code)
@@ -1454,6 +1457,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device ** devlist = 0;
   QC_Device *dev;
   int i;
+
+  local_only = local_only;  /* silence compilation warnings */
 
   if (devlist)
     free (devlist);

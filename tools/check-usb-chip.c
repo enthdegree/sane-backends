@@ -1342,7 +1342,6 @@ check_gl660_gl646 (struct usb_device *dev)
 static char *
 check_icm532b (struct usb_device *dev)
 {
-  unsigned char val;
   int result;
   usb_dev_handle *handle;
 

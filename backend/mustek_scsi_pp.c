@@ -467,7 +467,7 @@ mustek_scsi_pp_check_response (int fd)
 }
 
 static SANE_Status
-mustek_scsi_pp_send_command (int fd, u_char * cmd)
+mustek_scsi_pp_send_command (int fd, const u_char * cmd)
 {
   int i;
   signed char checksum;
@@ -525,7 +525,7 @@ mustek_scsi_pp_send_command (int fd, u_char * cmd)
 }
 
 static SANE_Status
-mustek_scsi_pp_send_data_block (int fd, u_char * data, int len)
+mustek_scsi_pp_send_data_block (int fd, const u_char * data, int len)
 {
   int i;
   signed char checksum;
@@ -812,7 +812,7 @@ mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
 	   src_size - 6);
 
       stat =
-	mustek_scsi_pp_send_data_block (fd, ((u_char *) src) + 6,
+	mustek_scsi_pp_send_data_block (fd, ((const u_char *) src) + 6,
 					src_size - 6);
       if (stat != SANE_STATUS_GOOD)
 	{

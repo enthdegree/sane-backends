@@ -160,7 +160,7 @@ usb_low_init (ma1017 ** chip_address)
 SANE_Status
 usb_low_exit (ma1017 * chip)
 {
-  DBG (7, "usb_low_exit: chip = %p\n", chip);
+  DBG (7, "usb_low_exit: chip = %p\n", (void *) chip);
   if (chip)
     {
       if (chip->fd >= 0)
@@ -2808,7 +2808,7 @@ usb_low_open (ma1017 * chip, SANE_String_Const devname)
   SANE_Status status;
   Mustek_Type scanner_type;
 
-  DBG (7, "usb_low_open: start: chip = %p\n", chip);
+  DBG (7, "usb_low_open: start: chip = %p\n", (void *) chip);
 
   if (chip->is_rowing)
     {
@@ -2870,7 +2870,7 @@ usb_low_open (ma1017 * chip, SANE_String_Const devname)
 SANE_Status
 usb_low_close (ma1017 * chip)
 {
-  DBG (7, "usb_low_close: start, chip=%p\n", chip);
+  DBG (7, "usb_low_close: start, chip=%p\n", (void *) chip);
   if (!chip->is_opened)
     {
       DBG (3, "usb_low_close: already close or never opened\n");

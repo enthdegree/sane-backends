@@ -468,7 +468,7 @@ static SANE_Status
 fetch_options (Net_Scanner * s)
 {
   int option_number;
-  DBG (3, "fetch_options: %p\n", s);
+  DBG (3, "fetch_options: %p\n", (void *) s);
 
   if (s->opt.num_options)
     {
@@ -544,7 +544,7 @@ fetch_options (Net_Scanner * s)
 static SANE_Status
 do_cancel (Net_Scanner * s)
 {
-  DBG (2, "do_cancel: %p\n", s);
+  DBG (2, "do_cancel: %p\n", (void *) s);
   s->hw->auth_active = 0;
   if (s->data >= 0)
     {
@@ -563,7 +563,7 @@ do_authorization (Net_Device * dev, SANE_String resource)
   SANE_Char password[SANE_MAX_PASSWORD_LEN];
   char *net_resource;
 
-  DBG (2, "do_authorization: dev=%p resource=%s\n", dev, resource);
+  DBG (2, "do_authorization: dev=%p resource=%s\n", (void *) dev, resource);
 
   dev->auth_active = 1;
 
@@ -632,8 +632,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
 
-  DBG (2, "sane_init: authorize = %p, version_code = %p\n", authorize,
-       version_code);
+  DBG (2, "sane_init: authorize = %p, version_code = %p\n", (void *) authorize,
+       (void *) version_code);
 
   devlist = 0;
   first_device = 0;
@@ -773,7 +773,7 @@ sane_exit (void)
     {
       next_device = dev->next;
 
-      DBG (2, "sane_exit: closing dev %p, ctl=%d\n", dev, dev->ctl);
+      DBG (2, "sane_exit: closing dev %p, ctl=%d\n", (void *) dev, dev->ctl);
 
       if (dev->ctl >= 0)
 	{
@@ -1718,7 +1718,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   int is_even;
 
   DBG (3, "sane_read: handle=%p, data=%p, max_length=%d, length=%p\n",
-       handle, data, max_length, length);
+       handle, data, max_length, (void *) length);
   if (!length)
     {
       DBG (1, "sane_read: length == NULL\n");

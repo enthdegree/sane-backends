@@ -124,6 +124,9 @@ test_ready (int fd)
 static SANE_Status
 sense_handler (int scsi_fd, u_char *result, void *arg)
 {
+  scsi_fd = scsi_fd;
+  arg = arg; /* silence compilation warnings */
+
   if (result[0])
     {
       DBG (0, "sense_handler() : sense code = %02x\n", result[0]);
@@ -138,6 +141,8 @@ sense_handler (int scsi_fd, u_char *result, void *arg)
 static SANE_Status
 stop_scan (int fd)
 {
+  fd = fd; /* silence compilation warnings */
+
   /* XXX don't know how to stop the scanner. To be tested ! */
 #if 0
   const Byte scsi_rewind[] =
@@ -447,7 +452,7 @@ read_more_data (S9036_Scanner * s)
   size_t size;
   int lines_read;
   int bpl = s->params.bytes_per_line;
-  int i;
+  unsigned int i;
 
   if (s->lines_in_scanner == 0)
     {
@@ -495,7 +500,7 @@ read_more_data (S9036_Scanner * s)
 	  return SANE_STATUS_IO_ERROR;
 	}
 
-      if (size != lines_read * s->params.bytes_per_line)
+      if (size != (unsigned int) lines_read * s->params.bytes_per_line)
 	{
 	  DBG (1, "sanei_scsi_cmd(): got %lu bytes, expected %d\n",
 	       (u_long) size, lines_read * s->params.bytes_per_line);
@@ -823,6 +828,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize; /* silence compilation warnings */
+
   DBG_INIT ();
 
   if (version_code)
@@ -871,6 +878,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   S9036_Device *dev;
   int i;
+  
+  local_only = local_only; /* silence compilation warnings */
 
   if (devlist)
     free (devlist);
@@ -1229,7 +1238,7 @@ static void
 copy_buffer (S9036_Scanner * s, SANE_Byte ** buf, SANE_Int * max_len,
 	     SANE_Int * len)
 {
-  if (*max_len > s->in_buffer)
+  if (*max_len > (SANE_Int) s->in_buffer)
     {
       memcpy (*buf, s->bufstart, s->in_buffer);
       *buf += s->in_buffer;
@@ -1266,7 +1275,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
   DBG (3, "sane_read(%d) : lines_read %d\n", max_len, s->lines_read);
 
-  while (max_len > s->in_buffer && s->lines_read < s->params.lines)
+  while (max_len > (SANE_Int) s->in_buffer && s->lines_read < s->params.lines)
     {
 
       if (s->in_buffer == 0)
@@ -1314,6 +1323,8 @@ sane_cancel (SANE_Handle handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
+  handle = handle; /* silence compilation warnings */
+  
   DBG (1, "sane_set_io_mode(%d)\n", non_blocking);
 
   return (non_blocking == SANE_TRUE) ?
@@ -1323,5 +1334,8 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  handle = handle;
+  fd = fd; /* silence compilation warnings */
+
   return SANE_STATUS_UNSUPPORTED;
 }

@@ -49,6 +49,9 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.4  2003/12/27 17:48:38  hmg-guest
+ * Silenced some compilation warnings.
+ *
  * Revision 1.3  2000/08/12 15:09:42  pere
  * Merge devel (v1.0.3) into head branch.
  *
@@ -242,7 +245,7 @@ static SANE_Status
   sp15c_do_inquiry (struct sp15c *s);
 
 static SANE_Status
-  do_scsi_cmd (int fd, char *cmd, int cmd_len, char *out, size_t out_len);
+  do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len, unsigned char *out, size_t out_len);
 
 static void
   hexdump (int level, char *comment, unsigned char *p, int l);

@@ -539,7 +539,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp;
 
   DBG_INIT ();
-  DBG (11, ">> sane_init (authorize = %p)\n", authorize);
+  DBG (11, ">> sane_init (authorize = %p)\n", (void *) authorize);
 
 #if defined PACKAGE && defined VERSION
   DBG (2, "sane_init: ibm backend version %d.%d-%d ("
@@ -1176,7 +1176,7 @@ SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   DBG (5, ">> sane_get_select_fd (handle = %p, fd = %p)\n",
-       handle, fd);
+       handle, (void *) fd);
   DBG (5, "<< sane_get_select_fd\n");
 
   return SANE_STATUS_UNSUPPORTED;

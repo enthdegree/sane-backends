@@ -318,7 +318,7 @@ get_data_status (int fd, struct scsi_status_desc *dbs)
 
   memcpy (dbs, &ssd.desc, sizeof(*dbs));
   if (status == SANE_STATUS_GOOD && 
-      (_3btol(ssd.len) <= sizeof(*dbs) || _3btol(ssd.desc.filled) == 0)) {
+      (((unsigned int) _3btol(ssd.len)) <= sizeof(*dbs) || _3btol(ssd.desc.filled) == 0)) {
     DBG (11, "get_data_status: busy\n");
     status = SANE_STATUS_DEVICE_BUSY;
   }

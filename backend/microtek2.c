@@ -144,7 +144,7 @@ sane_close (SANE_Handle handle)
 {
     Microtek2_Scanner *ms = handle;
 
-    DBG(30, "sane_close: ms=%p\n", ms);
+    DBG(30, "sane_close: ms=%p\n", (void *) ms);
 
     if ( ! ms )
         return;
@@ -162,7 +162,7 @@ sane_close (SANE_Handle handle)
             ts = ts->next;
         ts->next = ts->next->next; /* == ms->next */
       }
-    DBG(100, "free ms at %p\n", ms);
+    DBG(100, "free ms at %p\n", (void *) ms);
     free((void *) ms);
     ms = NULL;
 }
@@ -191,7 +191,7 @@ sane_exit (void)
             if ( md_first_dev->custom_gamma_table[i] )
               {
                 DBG(100, "free md_first_dev->custom_gamma_table[%d] at %p\n",
-                          i, md_first_dev->custom_gamma_table[i]);
+                          i, (void *) md_first_dev->custom_gamma_table[i]);
                 free((void *) md_first_dev->custom_gamma_table[i]);
                 md_first_dev->custom_gamma_table[i] = NULL;
               }
@@ -213,7 +213,7 @@ sane_exit (void)
             md_first_dev->shading_table_d = NULL;
           }
 
-        DBG(100, "free md_first_dev at %p\n", md_first_dev);
+        DBG(100, "free md_first_dev at %p\n", (void *) md_first_dev);
         free((void *) md_first_dev);
         md_first_dev = next;
       }
@@ -244,7 +244,7 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
       {
         if ( sd_list )
           {
-            DBG(100, "free sd_list at %p\n", sd_list);
+            DBG(100, "free sd_list at %p\n", (void *) sd_list);
             free(sd_list);
             sd_list=NULL;
           }
@@ -255,14 +255,14 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
     /* first free old list, if there is one; frontend wants a new list */
     if ( sd_list )
       {
-        DBG(100, "free sd_list at %p\n", sd_list);
+        DBG(100, "free sd_list at %p\n", (void *) sd_list);
         free(sd_list);                            /* free array of pointers */
       }
 
     sd_list = (const SANE_Device **)
                malloc( (md_num_devices + 1) * sizeof(SANE_Device **));
     DBG(100, "sane_get_devices: sd_list=%p, malloc'd %d bytes\n",
-               sd_list, (md_num_devices + 1) * sizeof(SANE_Device **));
+               (void *) sd_list, (md_num_devices + 1) * sizeof(SANE_Device **));
 
     if ( ! sd_list )
       {
@@ -327,7 +327,8 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
     double height_pixel;
 
 
-    DBG(40, "sane_get_parameters: handle=%p, params=%p\n", handle, params);
+    DBG(40, "sane_get_parameters: handle=%p, params=%p\n", handle,
+	(void *) params);
 
 
     md = ms->dev;
@@ -429,7 +430,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
     Microtek2_Scanner *ms = handle;
 
 
-    DBG(30, "sane_get_select_fd: ms=%p\n", ms);
+    DBG(30, "sane_get_select_fd: ms=%p\n", (void *) ms);
 
     if ( ! ms->scanning )
       {
@@ -542,7 +543,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 
     ms = malloc(sizeof(Microtek2_Scanner));
     DBG(100, "sane_open: ms=%p, malloc'd %d bytes\n",
-                         ms, sizeof(Microtek2_Scanner));
+                         (void *) ms, sizeof(Microtek2_Scanner));
     if ( ms == NULL )
       {
         DBG(1, "sane_open: malloc() for ms failed\n");
@@ -614,7 +615,7 @@ sane_read(SANE_Handle handle, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len )
           }
         else
           {
-            DBG(15, "sane_read: Scanner %p not scanning\n", ms);
+            DBG(15, "sane_read: Scanner %p not scanning\n", (void *) ms);
             status = SANE_STATUS_IO_ERROR;
           }
         DBG(15, "sane_read: scan cancelled or scanner not scanning->cleanup\n");
@@ -720,7 +721,7 @@ add_device_list(SANE_String_Const dev_name, Microtek2_Device **mdev)
 
     md = (Microtek2_Device *) malloc(sizeof(Microtek2_Device));
     DBG(100, "add_device_list: md=%p, malloc'd %d bytes\n",
-                         md, sizeof(Microtek2_Device));
+                         (void *) md, sizeof(Microtek2_Device));
     if ( md == NULL )
       {
 	DBG(1, "add_device_list: malloc() for md failed\n");
@@ -890,7 +891,7 @@ cancel_scan(Microtek2_Scanner *ms)
     SANE_Status status;
 
 
-    DBG(30, "cancel_scan: ms=%p\n", ms);
+    DBG(30, "cancel_scan: ms=%p\n", (void *) ms);
 
     /* READ IMAGE with a transferlength of 0 aborts a scan */
     ms->transfer_length = 0;
@@ -1135,7 +1136,7 @@ check_inquiry(Microtek2_Device *md, SANE_String *model_string)
 {
     Microtek2_Info *mi;
 
-    DBG(30, "check_inquiry: md=%p\n", md);
+    DBG(30, "check_inquiry: md=%p\n", (void *) md);
 
     md->n_control_bytes = 0;
     md->shading_length = 0;
@@ -1339,7 +1340,7 @@ cleanup_scanner(Microtek2_Scanner *ms)
     Microtek2_Device *md;
     md = ms->dev;
 
-    DBG(30, "cleanup_scanner: ms=%p, ms->sfd=%d\n", ms, ms->sfd);
+    DBG(30, "cleanup_scanner: ms=%p, ms->sfd=%d\n", (void *) ms, ms->sfd);
 
     if ( ms->scanning == SANE_TRUE )
       status=cancel_scan(ms);
@@ -1659,7 +1660,7 @@ dump_attributes(Microtek2_Info *mi)
 
   int i;
 
-  DBG(30, "dump_attributes: mi=%p\n", mi);
+  DBG(30, "dump_attributes: mi=%p\n", (void *) mi);
   DBG(1, "\n");
   DBG(1, "Scanner attributes from device structure\n");
   DBG(1, "========================================\n");
@@ -1898,7 +1899,7 @@ parse_config_file(FILE *fp, Config_Temp **ct)
     Config_Temp *hct2;
 
 
-    DBG(30, "parse_config_file: fp=%p\n", fp);
+    DBG(30, "parse_config_file: fp=%p\n", (void *) fp);
 
     *ct = hct1 = NULL;
 
@@ -2014,7 +2015,8 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
                                    /* descriptors must be initialized */
        /* cannot be used as after a sane_close the sod's must be initialized */
 
-    DBG(30, "init_options: handle=%p, source=%d\n", ms, current_scan_source);
+    DBG(30, "init_options: handle=%p, source=%d\n", (void *) ms,
+	current_scan_source);
 
     sod = ms->sod;
     val = ms->val;
@@ -2231,7 +2233,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         md->custom_gamma_table[color] =
                               (SANE_Int *) malloc(tablesize * sizeof(SANE_Int));
         DBG(100, "init_options: md->custom_gamma_table[%d]=%p, malloc'd %d bytes\n",
-            color, md->custom_gamma_table[color],(tablesize * sizeof(SANE_Int)));
+            color, (void *) md->custom_gamma_table[color],(tablesize * sizeof(SANE_Int)));
         if ( md->custom_gamma_table[color] == NULL )
           {
             DBG(1, "init_options: malloc for custom gamma table failed\n");
@@ -2357,7 +2359,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
         sod[OPT_NUM_OPTS].constraint_type = SANE_CONSTRAINT_NONE;
         val[OPT_NUM_OPTS].w = NUM_OPTIONS;      /* NUM_OPTIONS is no option */
-        DBG(255, "sod=%p\n", sod);
+        DBG(255, "sod=%p\n", (void *) sod);
         DBG(255, "OPT_NUM_OPTS=%d\n", OPT_NUM_OPTS);
         DBG(255, "SANE_CAP_SOFT_DETECT=%d\n", SANE_CAP_SOFT_DETECT);
         DBG(255, "OPT_NUM_OPTS.cap=%d\n", sod[0].cap);
@@ -2849,7 +2851,7 @@ set_option_dependencies(Microtek2_Scanner *ms, SANE_Option_Descriptor *sod,
     md = ms->dev;
 
     DBG(40, "set_option_dependencies: val=%p, sod=%p, mode=%s\n",
-             val, sod, val[OPT_MODE].s);
+             (void *) val, (void *) sod, val[OPT_MODE].s);
 
     if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 )
       {
@@ -3563,7 +3565,7 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
     Microtek2_Scanner *ms = handle;
 
     DBG(255, "sane_get_option_descriptor: handle=%p, sod=%p, opt=%d\n",
-              handle, ms->sod, n);
+              (void *) handle, (void *) ms->sod, n);
 
     if ( n < 0 || n > NUM_OPTIONS )
       {
@@ -3580,7 +3582,7 @@ static SANE_Status
 restore_gamma_options(SANE_Option_Descriptor *sod, Option_Value *val)
 {
 
-    DBG(40, "restore_gamma_options: val=%p, sod=%p\n", val, sod);
+    DBG(40, "restore_gamma_options: val=%p, sod=%p\n", (void *) val, (void *) sod);
 
 #if 0
     /* if we don´t have a gamma table return immediately */
@@ -3716,7 +3718,7 @@ calculate_sane_params(Microtek2_Scanner *ms)
     Microtek2_Info *mi;
 
 
-    DBG(30, "calculate_sane_params: ms=%p\n", ms);
+    DBG(30, "calculate_sane_params: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -3763,7 +3765,7 @@ get_calib_params(Microtek2_Scanner *ms)
     Microtek2_Info *mi;
 
     
-    DBG(30, "get_calib_params: handle=%p\n", ms);
+    DBG(30, "get_calib_params: handle=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -3834,7 +3836,7 @@ get_scan_parameters(Microtek2_Scanner *ms)
     int i;
 
 
-    DBG(30, "get_scan_parameters: handle=%p\n", ms);
+    DBG(30, "get_scan_parameters: handle=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -4026,7 +4028,7 @@ get_scan_mode_and_depth(Microtek2_Scanner *ms,
     Microtek2_Device *md;
     Microtek2_Info *mi;
 
-    DBG(30, "get_scan_mode_and_depth: handle=%p\n", ms);
+    DBG(30, "get_scan_mode_and_depth: handle=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -4137,7 +4139,7 @@ scsi_wait_for_image(Microtek2_Scanner *ms)
     SANE_Status status;
 
 
-    DBG(30, "scsi_wait_for_image: ms=%p\n", ms);
+    DBG(30, "scsi_wait_for_image: ms=%p\n", (void *) ms);
 
     while ( retry-- > 0 )
       {
@@ -4289,7 +4291,7 @@ scsi_inquiry(Microtek2_Info *mi, char *device)
     int sfd;
 
 
-    DBG(30, "scsi_inquiry: mi=%p, device='%s'\n", mi, device);
+    DBG(30, "scsi_inquiry: mi=%p, device='%s'\n", (void *) mi, device);
 
     status = sanei_scsi_open(device, &sfd, scsi_sense_handler, 0);
     if ( status != SANE_STATUS_GOOD )
@@ -4375,7 +4377,7 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
     mi = &pmi[scan_source];
 
     DBG(30, "scsi_read_attributes: mi=%p, device='%s', source=%d\n",
-             mi, device, scan_source);
+             (void *) mi, device, scan_source);
 
     RSA_CMD(readattributes);
     RSA_SETMEDIA(readattributes, scan_source);
@@ -4477,7 +4479,7 @@ scsi_read_control_bits(Microtek2_Scanner *ms)
 
     md = ms->dev;
 
-    DBG(30, "scsi_read_control_bits: ms=%p, fd=%d\n", ms, ms->sfd);
+    DBG(30, "scsi_read_control_bits: ms=%p, fd=%d\n", (void *) ms, ms->sfd);
     DBG(30, "ms->control_bytes = %p\n", ms->control_bytes);
 
     RCB_SET_CMD(cmd);
@@ -4528,7 +4530,7 @@ scsi_set_window(Microtek2_Scanner *ms, int n) {   /* n windows, not yet */
     int size;
 
 
-    DBG(30, "scsi_set_window: ms=%p, wnd=%d\n", ms, n);
+    DBG(30, "scsi_set_window: ms=%p, wnd=%d\n", (void *) ms, n);
 
     size = SW_CMD_L + SW_HEADER_L + n * SW_BODY_L;
     setwindow = (u_int8_t *) malloc(size);
@@ -4624,7 +4626,7 @@ scsi_read_image_info(Microtek2_Scanner *ms)
 
     md = ms->dev;
 
-    DBG(30, "scsi_read_image_info: ms=%p\n", ms);
+    DBG(30, "scsi_read_image_info: ms=%p\n", (void *) ms);
 
     RII_SET_CMD(cmd);
 
@@ -4676,7 +4678,7 @@ scsi_read_image(Microtek2_Scanner *ms, u_int8_t *buffer)
     size_t size;
 
 
-    DBG(30, "scsi_read_image:  ms=%p, buffer=%p\n", ms, buffer);
+    DBG(30, "scsi_read_image:  ms=%p, buffer=%p\n", (void *) ms, buffer);
 
     ENDIAN_TYPE(endiantype)
     RI_SET_CMD(cmd);
@@ -4718,7 +4720,7 @@ scsi_read_image_status(Microtek2_Scanner *ms)
     md = ms->dev;
     mi = &md->info[md->scan_source];
 
-    DBG(30, "scsi_read_image_status: ms=%p\n", ms);
+    DBG(30, "scsi_read_image_status: ms=%p\n", (void *) ms);
 
     ENDIAN_TYPE(endian_type)
     RIS_SET_CMD(cmd);
@@ -4883,7 +4885,7 @@ scsi_read_system_status(Microtek2_Device *md, int fd)
     size_t size;
     SANE_Status status;
 
-    DBG(30, "scsi_read_system_status: md=%p, fd=%d\n", md, fd);
+    DBG(30, "scsi_read_system_status: md=%p, fd=%d\n", (void *) md, fd);
 
     if ( fd == -1 )
       {
@@ -4959,7 +4961,7 @@ scsi_request_sense(Microtek2_Scanner *ms)
     int asl;
     int as_info_length;
 
-    DBG(30, "scsi_request_sense: ms=%p\n", ms);
+    DBG(30, "scsi_request_sense: ms=%p\n", (void *) ms);
 
     RQS_CMD(requestsense);
     RQS_ALLOCLENGTH(requestsense, 100);
@@ -4999,7 +5001,7 @@ scsi_send_system_status(Microtek2_Device *md, int fd)
     SANE_Status status;
 
 
-    DBG(30, "scsi_send_system_status: md=%p, fd=%d\n", md, fd);
+    DBG(30, "scsi_send_system_status: md=%p, fd=%d\n", (void *) md, fd);
 
     memset(cmd, 0, SSS_CMD_L + SSS_DATA_L);
     if ( fd == -1 )
@@ -5500,7 +5502,7 @@ prepare_buffers(Microtek2_Scanner *ms)
     int i;
 
     status = SANE_STATUS_GOOD;
-    DBG(30, "prepare_buffers: ms=0x%p\n", ms);
+    DBG(30, "prepare_buffers: ms=0x%p\n", (void *) ms);
    
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -5702,7 +5704,7 @@ write_shading_pnm(Microtek2_Scanner *ms)
   md = ms->dev;
   mi = &md->info[md->scan_source];
 
-  DBG(30, "write_shading_pnm: ms=%p\n", ms);
+  DBG(30, "write_shading_pnm: ms=%p\n", (void *) ms);
 
   if ( mi->depth & MI_HASDEPTH_16 )
       factor = 256;
@@ -5860,7 +5862,7 @@ condense_shading(Microtek2_Scanner *ms)
     md = ms->dev;
     mi = &md->info[md->scan_source];
 
-    DBG(30, "condense_shading: ms=%p, ppl=%d\n", ms, ms->ppl);
+    DBG(30, "condense_shading: ms=%p, ppl=%d\n", (void *) ms, ms->ppl);
     if ( md->shading_table_w == NULL )
       {
         DBG(1, "condense shading: no shading table found, skip shading\n");
@@ -6018,7 +6020,7 @@ read_shading_image(Microtek2_Scanner *ms)
     int max_lines;
     int lines_to_read;
 
-    DBG(30, "read_shading_image: ms=%p\n", ms);
+    DBG(30, "read_shading_image: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -6337,7 +6339,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 #endif
 
   DBG(30, "prepare_shading_data: ms=%p, lines=%d, *data=%p\n",
-          ms, lines, *data);
+          (void *) ms, lines, *data);
 
   md = ms->dev;
   mi = &md->info[md->scan_source];
@@ -6361,7 +6363,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 #ifdef  MICROTEK2_CALIB_USE_MEDIAN
   sortbuf = malloc( lines * ms->lut_entry_size );
   DBG(100, "prepare_shading_data: sortbuf= %p, malloc'd %d Bytes\n",
-            sortbuf, lines * ms->lut_entry_size);
+            (void *) sortbuf, lines * ms->lut_entry_size);
   if ( sortbuf == NULL )
     {
       DBG(1, "prepare_shading_data: malloc for sort buffer failed\n");
@@ -6492,7 +6494,7 @@ prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
     }
 
 #ifdef  MICROTEK2_CALIB_USE_MEDIAN
-  DBG(100, "prepare_shading_data: free sortbuf at %p\n", sortbuf);
+  DBG(100, "prepare_shading_data: free sortbuf at %p\n", (void *) sortbuf);
   free(sortbuf);
   sortbuf = NULL;
 #endif
@@ -6509,7 +6511,7 @@ read_cx_shading(Microtek2_Scanner *ms)
     Microtek2_Device *md;
     md = ms->dev;
 
-    DBG(30, "read_cx_shading: ms=%p\n",ms);
+    DBG(30, "read_cx_shading: ms=%p\n",(void *) ms);
 
     md->shading_table_contents = ms->mode;
 
@@ -6575,7 +6577,7 @@ read_cx_shading_image(Microtek2_Scanner *ms)
     buf = ms->shading_image;
 
     DBG(30, "read_cx_shading_image: ms=%p, shading_bytes=%d\n",
-                                       ms, shading_bytes);
+                                       (void *) ms, shading_bytes);
 
     linesize = shading_bytes / md->shading_length;
 #ifdef TESTBACKEND
@@ -6639,7 +6641,7 @@ calc_cx_shading_line(Microtek2_Scanner *ms)
 
     sortbuf = malloc( md->shading_length * sizeof(float) );
     DBG(100, "calc_cx_shading: sortbuf= %p, malloc'd %d Bytes\n",
-              sortbuf, md->shading_length * sizeof(float));
+              (void *) sortbuf, md->shading_length * sizeof(float));
     if ( sortbuf == NULL )
       {
         DBG(1, "calc_cx_shading: malloc for sort buffer failed\n");
@@ -6697,7 +6699,7 @@ calc_cx_shading_line(Microtek2_Scanner *ms)
             "shading_line_bytes=%d\n"
             "shading_line_pixels=%d\n"
             "shading_table_pointer=%p\n",
-             ms, md->shading_table_w, md->shading_table_d,
+             (void *) ms, md->shading_table_w, md->shading_table_d,
              shading_line_bytes, shading_line_pixels, shading_table_pointer);
 
     /*  calculating the median pixel values over the shading lines  */
@@ -6753,7 +6755,7 @@ get_lut_size(Microtek2_Info *mi, int *max_lut_size, int *lut_entry_size)
     /* returns the maximum lookup table size. A device might indicate */
     /* several lookup table sizes. */
 
-    DBG(30, "get_lut_size: mi=%p\n", mi);
+    DBG(30, "get_lut_size: mi=%p\n", (void *) mi);
 
     *max_lut_size = 0;
     *lut_entry_size = 0;
@@ -6805,7 +6807,7 @@ get_lut_size(Microtek2_Info *mi, int *max_lut_size, int *lut_entry_size)
           *lut_entry_size = 2;
       }
     DBG(30, "get_lut_size:  mi=%p, lut_size=%d, lut_entry_size=%d\n",
-             mi, *max_lut_size, *lut_entry_size);
+             (void *) mi, *max_lut_size, *lut_entry_size);
     return SANE_STATUS_GOOD;
 }
 
@@ -6830,7 +6832,7 @@ calculate_gamma(Microtek2_Scanner *ms, u_int8_t *pos, int color, char *mode)
 
 
     DBG(30, "calculate_gamma: ms=%p, pos=%p, color=%d, mode=%s\n",
-             ms, pos, color, mode);
+             (void *) ms, pos, color, mode);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -6948,7 +6950,7 @@ shading_function(Microtek2_Scanner *ms, u_int8_t *data)
     int i;
 
 
-    DBG(40, "shading_function: ms=%p, data=%p\n", ms, data);
+    DBG(40, "shading_function: ms=%p, data=%p\n", (void *) ms, data);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -7034,7 +7036,7 @@ set_exposure(Microtek2_Scanner *ms)
     u_int8_t exposure_rgb[3];
 
     
-    DBG(30, "set_exposure: ms=%p\n", ms);
+    DBG(30, "set_exposure: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -7107,7 +7109,7 @@ reader_process(Microtek2_Scanner *ms)
     sigset_t sigterm_set;
     static u_int8_t *temp_current = NULL;
 
-    DBG(30, "reader_process: ms=%p\n", ms);
+    DBG(30, "reader_process: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -7239,7 +7241,7 @@ chunky_proc_data(Microtek2_Scanner *ms)
     int bpl_ppl_diff;
 
 
-    DBG(30, "chunky_proc_data: ms=%p\n", ms);
+    DBG(30, "chunky_proc_data: ms=%p\n", (void *) ms);
              
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -7301,7 +7303,7 @@ chunky_copy_pixels(Microtek2_Scanner *ms, u_int8_t *from)
     int color;
 
     DBG(30, "chunky_copy_pixels: from=%p, pixels=%d, fp=%p, depth=%d\n",
-             from, ms->ppl, ms->fp, ms->depth);
+             from, ms->ppl, (void *) ms->fp, ms->depth);
 
     md = ms->dev;
     if ( ms->depth > 8 )
@@ -7362,7 +7364,7 @@ segreg_proc_data(Microtek2_Scanner *ms)
     int frame;
     int right_to_left;
 
-    DBG(30, "segreg_proc_data: ms=%p\n", ms);
+    DBG(30, "segreg_proc_data: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -7531,7 +7533,7 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
 
     DBG(30, "segreg_copy_pixels: pixels=%d\n", ms->ppl);
     DBG(100, "segreg_copy_pixels: buffer 0x%p, right_to_left=%d, depth=%d\n",
-                                 ms->buf.current_pos, right_to_left, ms->depth);
+	(void *) ms->buf.current_pos, right_to_left, ms->depth);
 
     for (color = 0; color < 3; color++ )
         f[color] = (float) ms->balance[color] / 100.0;
@@ -7643,7 +7645,7 @@ lplconcat_proc_data(Microtek2_Scanner *ms)
     int right_to_left;       /* 0=left to right, 1=right to left */
 
 
-    DBG(30, "lplconcat_proc_data: ms=%p\n", ms);
+    DBG(30, "lplconcat_proc_data: ms=%p\n", (void *) ms);
 
     /* This data format seems to honour the color sequence indicator */
 
@@ -7714,7 +7716,7 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
 
 
   DBG(30, "lplconcat_copy_pixels: ms=%p, righttoleft=%d, gamma=%d,\n",
-           ms, right_to_left, gamma_by_backend);
+           (void *) ms, right_to_left, gamma_by_backend);
 
   md = ms->dev;
   mi = &md->info[md->scan_source];
@@ -7829,7 +7831,7 @@ wordchunky_proc_data(Microtek2_Scanner *ms)
     u_int32_t line;
 
 
-    DBG(30, "wordchunky_proc_data: ms=%p\n", ms);
+    DBG(30, "wordchunky_proc_data: ms=%p\n", (void *) ms);
 
     from = ms->buf.src_buf;
     for ( line = 0; line < (u_int32_t) ms->src_lines_to_read; line++ )
@@ -7965,7 +7967,7 @@ gray_copy_pixels(Microtek2_Scanner *ms,
     float s_w, s_d, shading_factor = 0;
 
     DBG(30, "gray_copy_pixels: pixels=%d, from=%p, fp=%p, depth=%d\n",
-             ms->ppl, from, ms->fp, ms->depth);
+             ms->ppl, from, (void *) ms->fp, ms->depth);
 
     md = ms->dev;
     step = right_to_left == 1 ? -1 : 1;
@@ -8069,7 +8071,7 @@ proc_onebit_data(Microtek2_Scanner *ms)
     int toindex;
 
 
-    DBG(30, "proc_onebit_data: ms=%p\n", ms);
+    DBG(30, "proc_onebit_data: ms=%p\n", (void *) ms);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -8200,7 +8202,7 @@ lineartfake_copy_pixels(Microtek2_Scanner *ms,
 
 
     DBG(30, "lineartfake_copy_pixels: from=%p,pixels=%d,threshold=%d,file=%p\n",
-             from, pixels, threshold, fp);
+             from, pixels, threshold, (void *) fp);
     md = ms->dev;
     bit = 0;
     dest = 0;
@@ -8274,7 +8276,7 @@ auto_adjust_proc_data(Microtek2_Scanner *ms, u_int8_t **temp_current)
 
 
     DBG(30, "auto_adjust_proc_data: ms=%p, temp_current=%p\n",
-            ms, *temp_current);
+            (void *) ms, *temp_current);
 
     md = ms->dev;
     mi = &md->info[md->scan_source];

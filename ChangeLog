@@ -1,3 +1,7 @@
+2001-05-14  Gerhard Jaeger <g.jaeger@earthling.net>
+	* backend/plustek.c:
+      Free memory malloced in sane_get_devices() in sane_exit()
+
 2001-05-14  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* backend/lhii.desc: Updated with current version and contact

@@ -3,6 +3,7 @@
 	* doc/descriptions-external/brother.desc: One more report about a
 	  working scanner. Added link.
 	* doc/descriptions/unsupported.desc: Added some scanners.
+	* configure configure.in: New version: 1.0.15.
 
 2004-11-07  Giuseppe Sacco <eppesuig@debian.org>
 

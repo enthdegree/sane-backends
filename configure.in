@@ -3,10 +3,10 @@ dnl Process this file with autoconf to produce a configure script. -*-m4-*-
 dnl ***********************************************************************
 dnl When preparing a release, increase the numeric and string version numbers,
 dnl remove the "-cvs" suffix, and set is_release=yes
-AC_INIT([sane-backends],[1.0.14-cvs],[sane-devel@lists.alioth.debian.org])
+AC_INIT([sane-backends],[1.0.15],[sane-devel@lists.alioth.debian.org])
 V_MAJOR=1
 V_MINOR=0
-V_REV=14
+V_REV=15
 is_release=yes
 dnl ***********************************************************************
 

@@ -1,3 +1,8 @@
+2002-11-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Added manpage issues and hpsj5s freeze problem. Removed canon.c
+	  model problem.
+
 2002-11-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-mustek_usb.man doc/sane-usb.man: Fixed wrong .TH headers.

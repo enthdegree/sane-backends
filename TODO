@@ -1,4 +1,4 @@
-TODO (2002-11-03)
+TODO (2002-11-15)
 
 ******** todo ********
 
@@ -64,13 +64,14 @@ backends
   * microtek2.c (scsi_read_control_bits): Make sure to pass a size_t*
     to sanei_scsi_cmd().
 
-  * canon.c: Fix model extraction code.
+  * hpsj5s seems to freeze in DetectScanner() if a printer is connected to
+    the system. Is the access to the parport device save at all? Should
+    hpsj5s be commented out in dll.conf?
+    See "[sane-devel] My Umax works well, now it hangs up?" for details.
 
   * Make sure that USB backends don't depend on the kernel USB scanner
     driver but also work with libusb. The linux kernel scanner driver may be
     gone in Linux 2.6.0.
-    - epson: already has a check for vendor/device ids but may need a way
-             to search for all epson scanners automaticall
     - plustek: will need some work to autodetect all supported scanners
     - hp: currently no support for sanei_usb at all
 
@@ -94,6 +95,12 @@ doc
       <viceo@stevencherie.net>)
 
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
+
+  * manpages:
+    - Make sure that .SH NAME uses \- to distinguish between the backend 
+      name and the description
+    - Check .IX for correctness (e.g. umax-1220u). Is it needed at all?
+    - Maybe add sane-backends-version to .TH?
 
 frontends
 ---------
@@ -175,6 +182,7 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* canon.c: Fix model extraction code.
 * po files: use msgcat if available, remove awk hook instead.
 * sane.tex:
     - Define the return values for sane_init?  Define the consequences if

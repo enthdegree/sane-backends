@@ -73,8 +73,18 @@
 typedef struct Avision_HWEntry {
   char* mfg;
   char* model;
-  SANE_Bool usb;
-  SANE_Bool film;
+  const char* real_mfg;
+  const char* real_model;
+  
+  enum {AV_SCSI,
+	AV_USB
+  } connection_type;
+  
+  enum {AV_FLATBED,
+	AV_FILM,
+	AV_SHEETFEED
+  } scanner_type;
+  
 } Avision_HWEntry;
 
 enum Avision_Option
@@ -151,10 +161,7 @@ typedef struct Avision_Device
   SANE_Range x_range;
   SANE_Range y_range;
   SANE_Range speed_range;
-  
-  SANE_Bool is_usb;
-  SANE_Bool is_film_scanner;
-  
+
   SANE_Bool inquiry_new_protocol;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
@@ -181,14 +188,16 @@ typedef struct Avision_Device
   SANE_Range frame_range;
   SANE_Word current_frame;
   SANE_Word holder_type;
-  
+
+  Avision_HWEntry* hw;
+
 } Avision_Device;
 
 /* all the state relevant for the SANE interface */
 typedef struct Avision_Scanner
 {
-  struct Avision_Scanner *next;
-  Avision_Device *hw;
+  struct Avision_Scanner* next;
+  Avision_Device* hw;
   
   SANE_Option_Descriptor opt [NUM_OPTIONS];
   Option_Value val [NUM_OPTIONS];

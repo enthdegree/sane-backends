@@ -502,7 +502,7 @@ init (int fd)
   gl640ReadReq (fd, GL640_GPIO_READ, &rv);
   gl640WriteReq (fd, GL640_GPIO_OE, 0x70);
 
-  if (rv != 64)
+  if (rv != 0x64)
     {
       gl640WriteReq (fd, GL640_GPIO_WRITE, 0x00);
       gl640WriteReq (fd, GL640_GPIO_WRITE, 0x40);
@@ -526,7 +526,7 @@ init (int fd)
 
   DBG (2, "init: %x\n", rv);
   /* Returns 1 if this was the first time the scanner was plugged in. */
-  return (rv == 4);
+  return (rv != 0x64);
 }
 
 

@@ -3166,8 +3166,6 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
 		  if (line[0] == '#')           /* ignore line comments */
 		    continue;
 		  len = strlen (line);
-		  if (line[len - 1] == '\n')
-		    line[--len] = '\0';
 		    
 		  if (!len)
 		    continue;                   /* ignore empty lines */

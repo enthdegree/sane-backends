@@ -45,6 +45,11 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.4  2001/05/31 18:01:39  hmg
+ * Fixed config_line[len-1] bug which could generate an access
+ * violation if len==0.
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
  * Revision 1.3  2000/08/12 15:09:38  pere
  * Merge devel (v1.0.3) into head branch.
  *
@@ -245,10 +250,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       if (dev_name[0] == '#')
         continue;
       len = strlen (dev_name);
-      if (dev_name[len - 1] == '\n')
-        {
-          dev_name[--len] = '\0';
-        }
       if (!len)
         continue;
       sanei_config_attach_matching_devices (dev_name, attach_one);

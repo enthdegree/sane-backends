@@ -1880,6 +1880,8 @@ ccd300_start (SANE_Handle handle)
   DBG (4, "ccd300_start: setting hardware resolution to %d dpi\n",
        priv->hwres);
 
+  priv->skipimagebytes = dev->topX;
+  
   sanei_pa4s2_enable (dev->fd, SANE_TRUE);
   config_ccd (dev);
   set_voltages (dev);

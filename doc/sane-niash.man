@@ -1,0 +1,65 @@
+.\" $Id$
+.TH sane-niash 5 "29 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-niash
+
+.SH NAME
+sane-niash - SANE backend for scanners based on the NIASH chipset.
+
+.SH DESCRIPTION
+The
+.B sane-niash
+implements a SANE (Scanner Access Now Easy) backend that
+provides access to NIASH chipset based scanners. This backend will try to support
+the following models:
+
+MANUFACTURER:    MODEL:          USB ID:
+.br
+---------------  --------------  ---------
+.br
+Agfa             Snapscan Touch  06BD-0100 (1)(a)
+.br
+Hewlett-Packard  Scanjet 3300c   03F0-0205 (1)(a)(b)
+.br
+Hewlett-Packard  Scanjet 3400c   03F0-0405 (2)(b)
+.br
+Hewlett-Packard  Scanjet 4300c   03F0-0305 (2)(a)
+.PP
+.br
+ASIC: (1) - NIASH00012/00013/00014 / (2) - NIASH00019
+.br
+ANALOG FRONT-END: (a) - ESIC ES8100QA / (b) - WM8143-12
+.br
+
+.SH CONFIGURATION
+The
+.I niash.conf
+file is meant for future configuration options.
+Empty lines and lines starting with a hash mark (#) are
+ignored. Currently no configuration options exist.
+
+.SH FILES
+.TP
+.I @LIBDIR@/libsane-niash.a
+The static library implementing this backend.
+
+.TP
+.I @LIBDIR@/libsane-niash.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+
+.TP
+.B SANE_DEBUG_NIASH
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example:
+export SANE_DEBUG_NIASH=255
+
+.SH "SEE ALSO"
+sane(7), sane\-usb(5)
+.br
+http://www.sourceforge.net/projects/hp3300backend
+.SH AUTHOR
+Bertrik Sikken <bertrik@zonnet.nl>

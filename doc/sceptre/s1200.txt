@@ -1,6 +1,6 @@
 Scanner overview
 - One pass scanner
-- 36 DPI minimum. Max X=600 dpi, max Y=1200 dpi.
+- 10 DPI minimum. Max X=600 dpi, max Y=1200 dpi.
 - A4 size
 
 /*--------------------------------------------------------------------------*/

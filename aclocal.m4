@@ -187,7 +187,8 @@ AC_DEFUN(SANE_CHECK_U_TYPES,
   #endif
   ],[AC_MSG_RESULT([no, also in standard headers])],
     [AC_EGREP_HEADER(u_int8_t,netinet/in.h,
-       [CPPFLAGS="$CPPFLAGS -isys/bitypes.h"; AC_MSG_RESULT(yes)],
+       [AC_DEFINE(NEED_SYS_BITYPES_H, 1, [Do we need <sys/bitypes.h>?])
+	AC_MSG_RESULT(yes)],
        [AC_MSG_RESULT([no, not even included with netinet/in.h])])])
 fi
 AC_CHECK_TYPE(u_int8_t, unsigned char)
@@ -197,6 +198,7 @@ AC_CHECK_TYPE(u_char, unsigned char)
 AC_CHECK_TYPE(u_int, unsigned int)
 AC_CHECK_TYPE(u_long, unsigned long)
 ])
+
 
 # serial 40 AC_PROG_LIBTOOL
 AC_DEFUN(AC_PROG_LIBTOOL,

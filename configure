@@ -23873,7 +23873,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
           microtek2 mustek mustek_pp mustek_usb nec pie plustek \
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-          artec_eplus48u ma1509 ibm hp5400 u12"
+          artec_eplus48u ma1509 ibm hp5400 u12 snapscan"
 
   if test "${sane_cv_use_libjpeg}" != "yes"; then
     echo "*** disabling DC210 backend (failed to find JPEG library)"
@@ -23926,12 +23926,6 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
     echo "*** disabling net backend (sys/socket.h not found)"
   else
     BACKENDS="${BACKENDS} net"
-  fi
-
-  if test "${ac_cv_header_sys_sem_h}" = "no" ; then
-    echo "*** disabling snapscan backend (sys/sem.h not found)"
-  else
-    BACKENDS="${BACKENDS} snapscan"
   fi
 
   # Check whether --enable-pnm-backend or --disable-pnm-backend was given.

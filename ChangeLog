@@ -1,3 +1,10 @@
+2004-04-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-mutex.c: Fixed compilation problem on OS/2
+	  (Thanks to Franz Bakan).
+	* configure.in configure: SnapScan backend now compiled in by 
+	  default on OS/2
+      
 2004-04-15  Marian Eichholz <eichholz@computer.org>
 
 	* backend/sm3600.h backend/sm3600-scanmtek.c

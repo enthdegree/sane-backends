@@ -39,7 +39,7 @@
   whether to permit this exception to apply to your modifications.
   If you do not wish that, delete this exception notice.*/
   
-#if defined USE_PTHREAD
+#if defined USE_PTHREAD || defined HAVE_OS2_H
 
 #include <pthread.h>
 #define snapscan_mutex_t pthread_mutex_t
@@ -65,7 +65,7 @@ static void snapscani_mutex_unlock(snapscan_mutex_t* sem_id)
     pthread_mutex_unlock(sem_id);
 }
 
-#else /* defined USE_PTHREAD */
+#else /* defined USE_PTHREAD || defined HAVE_OS2_H */
 
 #include <sys/ipc.h>
 #include <sys/sem.h>
@@ -115,4 +115,4 @@ static void snapscani_mutex_unlock(snapscan_mutex_t* sem_id)
     semop(*sem_id, &sem_signal, 1);
 }
 
-#endif /* defined USE_PTHREAD */
+#endif /* defined USE_PTHREAD || defined HAVE_OS2_H */

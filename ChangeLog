@@ -1,3 +1,13 @@
+2001-10-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc
+	  backend/mustek_usb_high.c backend/mustek_usb_high.h
+	  backend/mustek_usb_low.c backend/mustek_usb_low.h
+	  backend/mustek_usb_mid.c backend/mustek_usb_mid.h
+	  doc/mustek_usb/mustek_usb.CHANGES: Fixed problem with 1200UB
+	  sensor detection. Started work on 1200 USB. New version:
+	  1.0-7.
+
 2001-10-07 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
         * created directory "po"

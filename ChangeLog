@@ -1,3 +1,6 @@
+---- FEATURE FREEZE FOR SANE 1.0.10 ---
+-- snapshot 1.0.10-pre1
+
 2003-01-12  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc,

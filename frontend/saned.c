@@ -35,11 +35,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef NEED_STRINGS_H
-# include <strings.h>
-#else
-# include <string.h>
-#endif
+#include <string.h>
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
@@ -745,8 +741,8 @@ process_request (Wire * w)
 
 	resource = strdup (name);
 
-	if (index (resource, ':'))
-	  *(index (resource, ':')) = 0;
+	if (strchr (resource, ':'))
+	  *(strchr (resource, ':')) = 0;
 
 	if (sanei_authorize (resource, "saned", auth_callback) !=
 	    SANE_STATUS_GOOD)

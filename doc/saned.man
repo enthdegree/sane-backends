@@ -114,7 +114,7 @@ below).
 If this file contains lines of the form
 .PP
 .RS
-backend:user:password
+user:password:backend
 .PP
 access to the listed backends is restricted. A backend may be listed multiple
 times for different user/password combinations. The server uses MD5 encryption

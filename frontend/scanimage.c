@@ -30,11 +30,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef NEED_STRINGS_H
-# include <strings.h>
-#else
-# include <string.h>
-#endif
+#include <string.h>
 #include <unistd.h>
 
 #include <sys/types.h>
@@ -111,7 +107,7 @@ auth_callback (SANE_String_Const resource,
 	       SANE_Char username[SANE_MAX_USERNAME_LEN],
 	       SANE_Char password[SANE_MAX_PASSWORD_LEN])
 {
-  char tmp[512], *wipe;
+  char tmp[3 + 128 + SANE_MAX_USERNAME_LEN + SANE_MAX_PASSWORD_LEN], *wipe;
   unsigned char md5digest[16];
   int md5mode = 0, len, query_user = 1;
   FILE *pass_file;
@@ -148,30 +144,68 @@ auth_callback (SANE_String_Const resource,
 
 	      while (fgets (tmp, 512, pass_file))
 		{
-		  if (strncmp (tmp, resource, len) == 0)
+
+		  if ((strlen (tmp) > 0) && (tmp[strlen (tmp) - 1] == '\n'))
+		    tmp[strlen (tmp) - 1] = 0;
+		  if ((strlen (tmp) > 0) && (tmp[strlen (tmp) - 1] == '\r'))
+		    tmp[strlen (tmp) - 1] = 0;
+
+
+
+		  if (strchr (tmp, ':') != NULL)
 		    {
-		      if ((index (tmp, ':') - tmp) == (signed) len)
+
+		      if (strchr (strchr (tmp, ':') + 1, ':') != NULL)
 			{
-			  if (index (index (tmp, ':') + 1, ':') != NULL)
+
+
+			  if (
+			      (strncmp
+			       (strchr (strchr (tmp, ':') + 1, ':') + 1,
+				resource, len) == 0)
+			      &&
+			      (strlen
+			       (strchr (strchr (tmp, ':') + 1, ':') + 1) ==
+			       len))
 			    {
-			      strncpy (username, index (tmp, ':') + 1,
-				       index (index (tmp, ':') + 1, ':') -
-				       (index (tmp, ':') + 1));
 
-			      username[index (index (tmp, ':') + 1, ':') -
-				       (index (tmp, ':') + 1)] = 0;
 
-			      strncpy (password, index (tmp, ':') + 2 +
-				       strlen (username), 127);
 
-			      password[127] = 0;
 
-			      if (strlen (password) > 0)
-				if (password[strlen (password) - 1] == '\n')
-				  password[strlen (password) - 1] = 0;
+			      if ((strchr (tmp, ':') - tmp) <
+				  SANE_MAX_USERNAME_LEN)
+				{
 
-			      query_user = 0;
-			      break;
+				  if (
+				      (strchr (strchr (tmp, ':') + 1, ':') -
+				       (strchr (tmp, ':') + 1)) <
+				      SANE_MAX_PASSWORD_LEN)
+				    {
+
+
+				      strncpy (username, tmp,
+					       strchr (tmp, ':') - tmp);
+
+				      username[strchr (tmp, ':') - tmp] = 0;
+
+				      strncpy (password,
+					       strchr (tmp, ':') + 1,
+					       strchr (strchr (tmp, ':') + 1,
+						       ':') -
+					       (strchr (tmp, ':') + 1));
+				      password[strchr
+					       (strchr (tmp, ':') + 1,
+						':') - (strchr (tmp,
+								':') + 1)] =
+					0;
+
+				      query_user = 0;
+				      break;
+				    }
+				}
+
+
+
 			    }
 			}
 		    }
@@ -227,7 +261,8 @@ auth_callback (SANE_String_Const resource,
   if (md5mode)
     {
 
-      sprintf (tmp, "%.128s%s", (strstr (resource, "$MD5$")) + 5, password);
+      sprintf (tmp, "%.128s%.*s", (strstr (resource, "$MD5$")) + 5,
+	       SANE_MAX_PASSWORD_LEN - 1, password);
 
       md5_buffer (tmp, strlen (tmp), md5digest);
 

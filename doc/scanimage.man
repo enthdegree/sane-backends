@@ -270,12 +270,13 @@ refer to the manual pages listed below.
 This file contains a lines of the form
 .PP
 .RS
-backend:user:password
+user:password:resource
 .PP
 scanimage uses this information to answer user authorization requests
 automatically. The file must have 0600 permissions or stricter. You should
 use this file in conjunction with the --accept-md5-only option to avoid
-server-side attacks.
+server-side attacks. The resource may contain any character but is limited
+to 127 characters.
 .SH "SEE ALSO"
 xscanimage(1), xcam(1), sane\-dll(5), sane\-dmc(5), sane\-epson(5),
 sane\-hp(5), sane\-microtek(5), sane\-mustek(5), sane\-net(5), sane\-pnm(5),

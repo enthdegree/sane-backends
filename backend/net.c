@@ -41,7 +41,7 @@
    This file implements a SANE network-based meta backend.  */
 
 #ifdef _AIX
-# include "lalloca.h"   /* MUST come first for AIX! */
+# include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
 #include "sane/config.h"
@@ -54,14 +54,14 @@
 #include <string.h>
 #include <unistd.h>
 #ifdef HAVE_LIBC_H
-# include <libc.h>      /* NeXTStep/OpenStep */
+# include <libc.h>		/* NeXTStep/OpenStep */
 #endif
 
 #include <sys/time.h>
 #include <sys/types.h>
 
 #include <netinet/in.h>
-#include <netdb.h>      /* OS/2 needs this _after_ <netinet/in.h>, grrr... */
+#include <netdb.h>		/* OS/2 needs this _after_ <netinet/in.h>, grrr... */
 
 #include "sane/sane.h"
 #include "sane/sanei.h"
@@ -85,23 +85,23 @@ static Net_Scanner *first_handle;
 static int saned_port;
 
 static SANE_Status
-add_device (const char *name, Net_Device **ndp)
+add_device (const char *name, Net_Device ** ndp)
 {
   struct hostent *he;
   Net_Device *nd;
 
-  DBG(1, "adding backend %s\n", name);
+  DBG (1, "adding backend %s\n", name);
 
   he = gethostbyname (name);
   if (!he)
     {
-      DBG(1, "can't get address of host %s\n", name);
+      DBG (1, "can't get address of host %s\n", name);
       return SANE_STATUS_IO_ERROR;
     }
 
   if (he->h_addrtype != AF_INET)
     {
-      DBG(1, "don't know how to deal with addr family %d\n", he->h_addrtype);
+      DBG (1, "don't know how to deal with addr family %d\n", he->h_addrtype);
       return SANE_STATUS_INVAL;
     }
 
@@ -129,7 +129,7 @@ add_device (const char *name, Net_Device **ndp)
 }
 
 static SANE_Status
-connect_dev (Net_Device *dev)
+connect_dev (Net_Device * dev)
 {
   struct sockaddr_in *sin;
   SANE_Word version_code;
@@ -143,24 +143,25 @@ connect_dev (Net_Device *dev)
 
   if (dev->addr.sa_family != AF_INET)
     {
-      DBG(1, "connect_dev: don't know how to deal with addr family %d\n",
-          dev->addr.sa_family);
+      DBG (1, "connect_dev: don't know how to deal with addr family %d\n",
+	   dev->addr.sa_family);
       return SANE_STATUS_IO_ERROR;
     }
 
   dev->ctl = socket (dev->addr.sa_family, SOCK_STREAM, 0);
   if (dev->ctl < 0)
     {
-      DBG(1, "connect_dev: failed to obtain socket (%s)\n", strerror (errno));
+      DBG (1, "connect_dev: failed to obtain socket (%s)\n",
+	   strerror (errno));
       dev->ctl = -1;
       return SANE_STATUS_IO_ERROR;
     }
-  sin = (struct sockaddr_in*) &dev->addr;
+  sin = (struct sockaddr_in *) &dev->addr;
   sin->sin_port = saned_port;
 
   if (connect (dev->ctl, &dev->addr, sizeof (dev->addr)) < 0)
     {
-      DBG(1, "connect_dev: failed to connect (%s)\n", strerror (errno));
+      DBG (1, "connect_dev: failed to connect (%s)\n", strerror (errno));
       dev->ctl = -1;
       return SANE_STATUS_IO_ERROR;
     }
@@ -174,16 +175,16 @@ connect_dev (Net_Device *dev)
     struct protoent *p;
     p = getprotobyname ("tcp");
     if (p == 0)
-      DBG(1, "connect_dev: cannot look up `tcp' protocol number");
+      DBG (1, "connect_dev: cannot look up `tcp' protocol number");
     else
       level = p->p_proto;
   }
-# endif /* SOL_TCP */
+# endif	/* SOL_TCP */
 
   if (level == -1 ||
       setsockopt (dev->ctl, level, TCP_NODELAY, &on, sizeof (on)))
-    DBG(1, "connect_dev: failed to put send socket in TCP_NODELAY mode (%s)",
-        strerror (errno));
+    DBG (1, "connect_dev: failed to put send socket in TCP_NODELAY mode (%s)",
+	 strerror (errno));
 #endif /* !TCP_NODELAY */
 
   sanei_w_init (&dev->wire, sanei_codec_bin_init);
@@ -193,16 +194,16 @@ connect_dev (Net_Device *dev)
 
   /* exchange version codes with the server: */
   req.version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR,
-                                        SANEI_NET_PROTOCOL_VERSION);
+					SANEI_NET_PROTOCOL_VERSION);
   req.username = getlogin ();
   sanei_w_call (&dev->wire, SANE_NET_INIT,
-                (WireCodecFunc) sanei_w_init_req, &req,
-                (WireCodecFunc) sanei_w_init_reply, &reply);
+		(WireCodecFunc) sanei_w_init_req, &req,
+		(WireCodecFunc) sanei_w_init_reply, &reply);
 
   if (dev->wire.status != 0)
     {
-      DBG(1, "connect_dev: argument marshalling error (%s)\n",
-          strerror (dev->wire.status));
+      DBG (1, "connect_dev: argument marshalling error (%s)\n",
+	   strerror (dev->wire.status));
       goto fail;
     }
 
@@ -211,18 +212,18 @@ connect_dev (Net_Device *dev)
 
   sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_init_reply, &reply);
 
-  if (SANE_VERSION_MAJOR(version_code) != V_MAJOR)
+  if (SANE_VERSION_MAJOR (version_code) != V_MAJOR)
     {
-      DBG(1, "connect_dev: major version mismatch: got %d, expected %d\n",
-          SANE_VERSION_MAJOR(version_code), V_MAJOR);
+      DBG (1, "connect_dev: major version mismatch: got %d, expected %d\n",
+	   SANE_VERSION_MAJOR (version_code), V_MAJOR);
       goto fail;
     }
-  if (SANE_VERSION_BUILD(version_code) != SANEI_NET_PROTOCOL_VERSION
-      && SANE_VERSION_BUILD(version_code) != 2)
+  if (SANE_VERSION_BUILD (version_code) != SANEI_NET_PROTOCOL_VERSION
+      && SANE_VERSION_BUILD (version_code) != 2)
     {
-      DBG(1, "connect_dev: network protocol version mismatch: "
-          "got %d, expected %d\n",
-          SANE_VERSION_BUILD(version_code), SANEI_NET_PROTOCOL_VERSION);
+      DBG (1, "connect_dev: network protocol version mismatch: "
+	   "got %d, expected %d\n",
+	   SANE_VERSION_BUILD (version_code), SANEI_NET_PROTOCOL_VERSION);
       goto fail;
     }
   dev->wire.version = SANE_VERSION_BUILD (version_code);
@@ -235,7 +236,7 @@ fail:
 }
 
 static SANE_Status
-fetch_options (Net_Scanner *s)
+fetch_options (Net_Scanner * s)
 {
   if (s->opt.num_options)
     {
@@ -243,11 +244,11 @@ fetch_options (Net_Scanner *s)
       s->hw->wire.status = 0;
       sanei_w_option_descriptor_array (&s->hw->wire, &s->opt);
       if (s->hw->wire.status)
-        return SANE_STATUS_IO_ERROR;
+	return SANE_STATUS_IO_ERROR;
     }
   sanei_w_call (&s->hw->wire, SANE_NET_GET_OPTION_DESCRIPTORS,
-                (WireCodecFunc) sanei_w_word, &s->handle,
-                (WireCodecFunc) sanei_w_option_descriptor_array, &s->opt);
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_option_descriptor_array, &s->opt);
   if (s->hw->wire.status)
     return SANE_STATUS_IO_ERROR;
 
@@ -256,7 +257,7 @@ fetch_options (Net_Scanner *s)
 }
 
 static SANE_Status
-do_cancel (Net_Scanner *s)
+do_cancel (Net_Scanner * s)
 {
   s->hw->auth_active = 0;
   if (s->data >= 0)
@@ -268,18 +269,38 @@ do_cancel (Net_Scanner *s)
 }
 
 static void
-do_authorization (Net_Device *dev, SANE_String resource)
+do_authorization (Net_Device * dev, SANE_String resource)
 {
   SANE_Authorization_Req req;
   SANE_Char username[SANE_MAX_USERNAME_LEN];
   SANE_Char password[SANE_MAX_PASSWORD_LEN];
+  char *net_resource;
 
   dev->auth_active = 1;
 
   memset (&req, 0, sizeof (req));
 
+  net_resource = malloc (strlen (resource) + 6 + strlen (dev->name));
+
+  if (net_resource != NULL)
+    sprintf (net_resource, "net:%s:%s", dev->name, resource);
+  else
+    {
+      SANE_Word ack;
+
+      DBG (1, "do_authorization: not enough memory\n");
+      req.resource = resource;
+      sanei_w_call (&dev->wire, SANE_NET_AUTHORIZE,
+		    (WireCodecFunc) sanei_w_authorization_req, &req,
+		    (WireCodecFunc) sanei_w_word, &ack);
+
+      return;
+    }
+
   if (auth_callback)
-    (*auth_callback) (resource, username, password);
+    (*auth_callback) (net_resource, username, password);
+
+  free (net_resource);
 
   if (dev->auth_active)
     {
@@ -289,13 +310,12 @@ do_authorization (Net_Device *dev, SANE_String resource)
       req.username = username;
       req.password = password;
       sanei_w_call (&dev->wire, SANE_NET_AUTHORIZE,
-                    (WireCodecFunc) sanei_w_authorization_req, &req,
-                    (WireCodecFunc) sanei_w_word, &ack);
+		    (WireCodecFunc) sanei_w_authorization_req, &req,
+		    (WireCodecFunc) sanei_w_word, &ack);
     }
 }
 
-SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char device_name[PATH_MAX];
   struct servent *serv;
@@ -303,7 +323,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
-  DBG_INIT();
+  DBG_INIT ();
 
   auth_callback = authorize;
 
@@ -316,27 +336,27 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   else
     {
       saned_port = htons (6566);
-      DBG(1,
-          "init: could not find `sane' service (%s); using default port %d\n",
-          strerror (errno), htons (saned_port));
+      DBG (1,
+	   "init: could not find `sane' service (%s); using default port %d\n",
+	   strerror (errno), htons (saned_port));
     }
 
   fp = sanei_config_open (NET_CONFIG_FILE);
   if (fp)
     {
       while (sanei_config_read (device_name, sizeof (device_name), fp))
-        {
-          if (device_name[0] == '#')    /* ignore line comments */
-            continue;
-          len = strlen (device_name);
-          if (device_name[len - 1] == '\n')
-            device_name[--len] = '\0';
+	{
+	  if (device_name[0] == '#')	/* ignore line comments */
+	    continue;
+	  len = strlen (device_name);
+	  if (device_name[len - 1] == '\n')
+	    device_name[--len] = '\0';
 
-          if (!len)
-            continue;           /* ignore empty lines */
+	  if (!len)
+	    continue;		/* ignore empty lines */
 
-          add_device (device_name, 0);
-        }
+	  add_device (device_name, 0);
+	}
       fclose (fp);
     }
 
@@ -347,7 +367,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       copy = strdup (env);
       next = copy;
       while ((host = strsep (&next, ":")))
-        add_device (host, 0);
+	add_device (host, 0);
       free (copy);
     }
 
@@ -360,7 +380,7 @@ sane_exit (void)
   Net_Scanner *handle, *next_handle;
   Net_Device *dev, *next_device;
 
-  DBG(1, "exiting\n");
+  DBG (1, "exiting\n");
 
   /* first, close all handles: */
   for (handle = first_handle; handle; handle = next_handle)
@@ -375,15 +395,15 @@ sane_exit (void)
     {
       next_device = dev->next;
 
-      DBG(2, "closing dev %p, ctl=%d\n", dev, dev->ctl);
+      DBG (2, "closing dev %p, ctl=%d\n", dev, dev->ctl);
 
       if (dev->ctl >= 0)
-        {
-          sanei_w_call (&dev->wire, SANE_NET_EXIT,
-                        (WireCodecFunc) sanei_w_void, 0,
-                        (WireCodecFunc) sanei_w_void, 0);
-          close (dev->ctl);
-        }
+	{
+	  sanei_w_call (&dev->wire, SANE_NET_EXIT,
+			(WireCodecFunc) sanei_w_void, 0,
+			(WireCodecFunc) sanei_w_void, 0);
+	  close (dev->ctl);
+	}
       free (dev);
     }
 }
@@ -399,7 +419,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   static int devlist_size = 0, devlist_len = 0;
   static const SANE_Device **devlist;
-  static const SANE_Device *empty_devlist[1] = {0};
+  static const SANE_Device *empty_devlist[1] = { 0 };
   SANE_Get_Devices_Reply reply;
   SANE_Status status;
   Net_Device *dev;
@@ -434,27 +454,27 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   for (dev = first_device; dev; dev = dev->next)
     {
       if (dev->ctl < 0)
-        {
-          status = connect_dev (dev);
-          if (status != SANE_STATUS_GOOD)
-            {
-              DBG(1, "get_devices: ignoring failure to connect to %s\n",
-                  dev->name);
-              continue;
-            }
-        }
+	{
+	  status = connect_dev (dev);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (1, "get_devices: ignoring failure to connect to %s\n",
+		   dev->name);
+	      continue;
+	    }
+	}
 
       sanei_w_call (&dev->wire, SANE_NET_GET_DEVICES,
-                    (WireCodecFunc) sanei_w_void, 0,
-                    (WireCodecFunc) sanei_w_get_devices_reply, &reply);
+		    (WireCodecFunc) sanei_w_void, 0,
+		    (WireCodecFunc) sanei_w_get_devices_reply, &reply);
       if (reply.status != SANE_STATUS_GOOD)
-        {
-          DBG(1, "get_devices: ignoring rpc-returned status %s\n",
-              sane_strstatus (reply.status));
-          sanei_w_free (&dev->wire,
-                        (WireCodecFunc) sanei_w_get_devices_reply, &reply);
-          continue;
-        }
+	{
+	  DBG (1, "get_devices: ignoring rpc-returned status %s\n",
+	       sane_strstatus (reply.status));
+	  sanei_w_free (&dev->wire,
+			(WireCodecFunc) sanei_w_get_devices_reply, &reply);
+	  continue;
+	}
 
       /* count the number of devices for this backend: */
       for (num_devs = 0; reply.device_list[num_devs]; ++num_devs);
@@ -462,34 +482,34 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       ASSERT_SPACE (num_devs);
 
       for (i = 0; i < num_devs; ++i)
-        {
-          SANE_Device *rdev;
-          char *mem;
+	{
+	  SANE_Device *rdev;
+	  char *mem;
 
-          /* create a new device entry with a device name that is the
-             sum of the backend name a colon and the backend's device
-             name: */
-          len = strlen (dev->name) + 1 + strlen (reply.device_list[i]->name);
-          mem = malloc (sizeof (*dev) + len + 1);
-          if (!mem)
-            return SANE_STATUS_NO_MEM;
+	  /* create a new device entry with a device name that is the
+	     sum of the backend name a colon and the backend's device
+	     name: */
+	  len = strlen (dev->name) + 1 + strlen (reply.device_list[i]->name);
+	  mem = malloc (sizeof (*dev) + len + 1);
+	  if (!mem)
+	    return SANE_STATUS_NO_MEM;
 
-          full_name = mem + sizeof (*dev);
-          strcpy (full_name, dev->name);
-          strcat (full_name, ":");
-          strcat (full_name, reply.device_list[i]->name);
+	  full_name = mem + sizeof (*dev);
+	  strcpy (full_name, dev->name);
+	  strcat (full_name, ":");
+	  strcat (full_name, reply.device_list[i]->name);
 
-          rdev = (SANE_Device *) mem;
-          rdev->name = full_name;
-          rdev->vendor = strdup (reply.device_list[i]->vendor);
-          rdev->model = strdup (reply.device_list[i]->model);
-          rdev->type = strdup (reply.device_list[i]->type);
+	  rdev = (SANE_Device *) mem;
+	  rdev->name = full_name;
+	  rdev->vendor = strdup (reply.device_list[i]->vendor);
+	  rdev->model = strdup (reply.device_list[i]->model);
+	  rdev->type = strdup (reply.device_list[i]->type);
 
-          devlist[devlist_len++] = rdev;
-        }
+	  devlist[devlist_len++] = rdev;
+	}
       /* now free up the rpc return value: */
       sanei_w_free (&dev->wire,
-                    (WireCodecFunc) sanei_w_get_devices_reply, &reply);
+		    (WireCodecFunc) sanei_w_get_devices_reply, &reply);
     }
 
   /* terminate device list with NULL entry: */
@@ -500,8 +520,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
+SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 {
   SANE_Open_Reply reply;
   const char *dev_name;
@@ -512,7 +531,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   Net_Scanner *s;
   int need_auth;
 
-  DBG(3, "open(\"%s\")\n", full_name);
+  DBG (3, "open(\"%s\")\n", full_name);
 
   dev_name = strchr (full_name, ':');
   if (dev_name)
@@ -527,7 +546,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       tmp[dev_name - full_name] = '\0';
       nd_name = tmp;
 #endif
-      ++dev_name;               /* skip colon */
+      ++dev_name;		/* skip colon */
     }
   else
     {
@@ -542,37 +561,37 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     /* Unlike other backends, we never allow an empty backend-name.
        Otherwise, it's possible that sane_open("") will result in
        endless looping (consider the case where NET is the first
-       backend...)*/
+       backend...) */
     return SANE_STATUS_INVAL;
   else
     for (dev = first_device; dev; dev = dev->next)
       if (strcmp (dev->name, nd_name) == 0)
-        break;
+	break;
 
   if (!dev)
     {
       status = add_device (nd_name, &dev);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
     }
 
   if (dev->ctl < 0)
     {
       status = connect_dev (dev);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
     }
 
   sanei_w_call (&dev->wire, SANE_NET_OPEN,
-                (WireCodecFunc) sanei_w_string, &dev_name,
-                (WireCodecFunc) sanei_w_open_reply, &reply);
+		(WireCodecFunc) sanei_w_string, &dev_name,
+		(WireCodecFunc) sanei_w_open_reply, &reply);
   do
     {
       if (dev->wire.status != 0)
-        {
-          DBG(1, "open rpc call failed (%s)\n", strerror (dev->wire.status));
-          return SANE_STATUS_IO_ERROR;
-        }
+	{
+	  DBG (1, "open rpc call failed (%s)\n", strerror (dev->wire.status));
+	  return SANE_STATUS_IO_ERROR;
+	}
 
       status = reply.status;
       handle = reply.handle;
@@ -580,27 +599,28 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
       if (need_auth)
 	{
-          do_authorization (dev, reply.resource_to_authorize);
+	  do_authorization (dev, reply.resource_to_authorize);
 
-	  sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
+	  sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply,
+			&reply);
 
 	  sanei_w_set_dir (&dev->wire, WIRE_DECODE);
 	  sanei_w_open_reply (&dev->wire, &reply);
 
 	  continue;
-	  
+
 	}
       else
-        sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
+	sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
 
       if (need_auth && !dev->auth_active)
-        return SANE_STATUS_CANCELLED;
+	return SANE_STATUS_CANCELLED;
 
       if (status != SANE_STATUS_GOOD)
-        {
-          DBG(1, "remote open failed\n");
-          return reply.status;
-        }
+	{
+	  DBG (1, "remote open failed\n");
+	  return reply.status;
+	}
     }
   while (need_auth);
 
@@ -629,13 +649,13 @@ sane_close (SANE_Handle handle)
   for (s = first_handle; s; s = s->next)
     {
       if (s == handle)
-        break;
+	break;
       prev = s;
     }
   if (!s)
     {
-      DBG(1, "close: invalid handle %p\n", handle);
-      return;           /* oops, not a handle we know about */
+      DBG (1, "close: invalid handle %p\n", handle);
+      return;			/* oops, not a handle we know about */
     }
   if (prev)
     prev->next = s->next;
@@ -643,8 +663,8 @@ sane_close (SANE_Handle handle)
     first_handle = s->next;
 
   sanei_w_call (&s->hw->wire, SANE_NET_CLOSE,
-                (WireCodecFunc) sanei_w_word, &s->handle,
-                (WireCodecFunc) sanei_w_word, &ack);
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_word, &ack);
   if (s->data >= 0)
     close (s->data);
   free (s);
@@ -660,7 +680,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     {
       status = fetch_options (s);
       if (status != SANE_STATUS_GOOD)
-        return 0;
+	return 0;
     }
 
   if ((unsigned) option >= s->opt.num_options)
@@ -670,7 +690,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-                     SANE_Action action, void *value, SANE_Word * info)
+		     SANE_Action action, void *value, SANE_Word * info)
 {
   Net_Scanner *s = handle;
   SANE_Control_Option_Req req;
@@ -683,7 +703,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     {
       status = fetch_options (s);
       if (status != SANE_STATUS_GOOD)
-        return status;
+	return status;
     }
   if ((unsigned) option >= s->opt.num_options)
     return SANE_STATUS_INVAL;
@@ -691,7 +711,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   switch (s->opt.desc[option]->type)
     {
     case SANE_TYPE_BUTTON:
-    case SANE_TYPE_GROUP:       /* shouldn't happen... */
+    case SANE_TYPE_GROUP:	/* shouldn't happen... */
       /* the SANE standard defines that the option size of a BUTTON or
          GROUP is IGNORED.  */
       value_size = 0;
@@ -710,52 +730,51 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   req.value = value;
 
   sanei_w_call (&s->hw->wire, SANE_NET_CONTROL_OPTION,
-                (WireCodecFunc) sanei_w_control_option_req, &req,
-                (WireCodecFunc) sanei_w_control_option_reply, &reply);
-  
+		(WireCodecFunc) sanei_w_control_option_req, &req,
+		(WireCodecFunc) sanei_w_control_option_reply, &reply);
+
   do
     {
       status = reply.status;
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
-          do_authorization (s->hw, reply.resource_to_authorize);
-          sanei_w_free (&s->hw->wire,
-                    (WireCodecFunc) sanei_w_control_option_reply, &reply);
+	  do_authorization (s->hw, reply.resource_to_authorize);
+	  sanei_w_free (&s->hw->wire,
+			(WireCodecFunc) sanei_w_control_option_reply, &reply);
 
 	  sanei_w_set_dir (&s->hw->wire, WIRE_DECODE);
 
 	  sanei_w_control_option_reply (&s->hw->wire, &reply);
 	  continue;
-	  
+
 	}
       else if (status == SANE_STATUS_GOOD)
-        {
-          if (info)
-            *info = reply.info;
-          if (value_size > 0)
-            {
-              if (value_size == reply.value_size)
-                memcpy (value, reply.value, reply.value_size);
-              else
-                DBG(1, "control_option: size changed from %d to %d\n",
-                    s->opt.desc[option]->size, reply.value_size);
-            }
+	{
+	  if (info)
+	    *info = reply.info;
+	  if (value_size > 0)
+	    {
+	      if (value_size == reply.value_size)
+		memcpy (value, reply.value, reply.value_size);
+	      else
+		DBG (1, "control_option: size changed from %d to %d\n",
+		     s->opt.desc[option]->size, reply.value_size);
+	    }
 
-          if (reply.info & SANE_INFO_RELOAD_OPTIONS)
-            s->options_valid = 0;
-        }
+	  if (reply.info & SANE_INFO_RELOAD_OPTIONS)
+	    s->options_valid = 0;
+	}
       sanei_w_free (&s->hw->wire,
-                    (WireCodecFunc) sanei_w_control_option_reply, &reply);
+		    (WireCodecFunc) sanei_w_control_option_reply, &reply);
       if (need_auth && !s->hw->auth_active)
-        return SANE_STATUS_CANCELLED;
+	return SANE_STATUS_CANCELLED;
     }
   while (need_auth);
   return status;
 }
 
-SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Net_Scanner *s = handle;
   SANE_Get_Parameters_Reply reply;
@@ -765,19 +784,18 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     return SANE_STATUS_INVAL;
 
   sanei_w_call (&s->hw->wire, SANE_NET_GET_PARAMETERS,
-                (WireCodecFunc) sanei_w_word, &s->handle,
-                (WireCodecFunc) sanei_w_get_parameters_reply, &reply);
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_get_parameters_reply, &reply);
 
   status = reply.status;
   *params = reply.params;
   sanei_w_free (&s->hw->wire,
-                (WireCodecFunc) sanei_w_get_parameters_reply, &reply);
+		(WireCodecFunc) sanei_w_get_parameters_reply, &reply);
 
   return status;
 }
 
-SANE_Status
-sane_start (SANE_Handle handle)
+SANE_Status sane_start (SANE_Handle handle)
 {
   Net_Scanner *s = handle;
   SANE_Start_Reply reply;
@@ -785,7 +803,7 @@ sane_start (SANE_Handle handle)
   SANE_Status status;
   int fd, need_auth;
   int len;
-  short port;           /* Internet-specific */
+  short port;			/* Internet-specific */
 
   if (s->data >= 0)
     return SANE_STATUS_INVAL;
@@ -795,20 +813,20 @@ sane_start (SANE_Handle handle)
   len = sizeof (sin);
   if (getpeername (s->hw->ctl, (struct sockaddr *) &sin, &len) < 0)
     {
-      DBG(1, "start: getpeername() failed (%s)\n", strerror (errno));
+      DBG (1, "start: getpeername() failed (%s)\n", strerror (errno));
       return SANE_STATUS_IO_ERROR;
     }
 
   fd = socket (s->hw->addr.sa_family, SOCK_STREAM, 0);
   if (fd < 0)
     {
-      DBG(1, "start: socket() failed (%s)\n", strerror (errno));
+      DBG (1, "start: socket() failed (%s)\n", strerror (errno));
       return SANE_STATUS_IO_ERROR;
     }
 
   sanei_w_call (&s->hw->wire, SANE_NET_START,
-               (WireCodecFunc) sanei_w_word, &s->handle,
-               (WireCodecFunc) sanei_w_start_reply, &reply);
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_start_reply, &reply);
   do
     {
 
@@ -817,10 +835,10 @@ sane_start (SANE_Handle handle)
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
-          do_authorization (s->hw, reply.resource_to_authorize);
+	  do_authorization (s->hw, reply.resource_to_authorize);
 
 	  sanei_w_free (&s->hw->wire,
-			 (WireCodecFunc) sanei_w_start_reply, &reply);
+			(WireCodecFunc) sanei_w_start_reply, &reply);
 
 	  sanei_w_set_dir (&s->hw->wire, WIRE_DECODE);
 
@@ -828,15 +846,16 @@ sane_start (SANE_Handle handle)
 
 	  continue;
 	}
-      sanei_w_free (&s->hw->wire, (WireCodecFunc) sanei_w_start_reply, &reply);
+      sanei_w_free (&s->hw->wire, (WireCodecFunc) sanei_w_start_reply,
+		    &reply);
       if (need_auth && !s->hw->auth_active)
-        return SANE_STATUS_CANCELLED;
+	return SANE_STATUS_CANCELLED;
 
       if (status != SANE_STATUS_GOOD)
-        {
-          close (fd);
-          return status;
-        }
+	{
+	  close (fd);
+	  return status;
+	}
     }
   while (need_auth);
 
@@ -844,7 +863,7 @@ sane_start (SANE_Handle handle)
 
   if (connect (fd, (struct sockaddr *) &sin, len) < 0)
     {
-      DBG(1, "start: connect() failed (%s)\n", strerror (errno));
+      DBG (1, "start: connect() failed (%s)\n", strerror (errno));
       close (fd);
       return SANE_STATUS_IO_ERROR;
     }
@@ -857,7 +876,7 @@ sane_start (SANE_Handle handle)
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-           SANE_Int * length)
+	   SANE_Int * length)
 {
   Net_Scanner *s = handle;
   ssize_t nread;
@@ -875,41 +894,41 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
       /* boy, is this painful or what? */
 
       nread = read (s->data, s->reclen_buf + s->reclen_buf_offset,
-                    4 - s->reclen_buf_offset);
+		    4 - s->reclen_buf_offset);
       if (nread < 0)
-        {
-          if (errno == EAGAIN)
-            return SANE_STATUS_GOOD;
-          else
-            {
-              do_cancel (s);
-              return SANE_STATUS_IO_ERROR;
-            }
-        }
+	{
+	  if (errno == EAGAIN)
+	    return SANE_STATUS_GOOD;
+	  else
+	    {
+	      do_cancel (s);
+	      return SANE_STATUS_IO_ERROR;
+	    }
+	}
       s->reclen_buf_offset += nread;
       if (s->reclen_buf_offset < 4)
-        return SANE_STATUS_GOOD;
+	return SANE_STATUS_GOOD;
 
       s->reclen_buf_offset = 0;
-      s->bytes_remaining = (  ((u_long) s->reclen_buf[0] << 24)
-                            | ((u_long) s->reclen_buf[1] << 16)
-                            | ((u_long) s->reclen_buf[2] <<  8)
-                            | ((u_long) s->reclen_buf[3] <<  0));
-      DBG(3, "read: next record length=%ld bytes\n",
-          (long) s->bytes_remaining);
-      if (s->bytes_remaining == (size_t)-1)
-        {
-          char ch;
+      s->bytes_remaining = (((u_long) s->reclen_buf[0] << 24)
+			    | ((u_long) s->reclen_buf[1] << 16)
+			    | ((u_long) s->reclen_buf[2] << 8)
+			    | ((u_long) s->reclen_buf[3] << 0));
+      DBG (3, "read: next record length=%ld bytes\n",
+	   (long) s->bytes_remaining);
+      if (s->bytes_remaining == (size_t) - 1)
+	{
+	  char ch;
 
-          /* turn off non-blocking I/O (s->data will be closed anyhow): */
-          fcntl (s->data, F_SETFL, 0);
+	  /* turn off non-blocking I/O (s->data will be closed anyhow): */
+	  fcntl (s->data, F_SETFL, 0);
 
-          /* read the status byte: */
-          if (read (s->data, &ch, sizeof (ch)) != 1)
-            ch = SANE_STATUS_IO_ERROR;
-          do_cancel (s);
-          return (SANE_Status) ch;
-        }
+	  /* read the status byte: */
+	  if (read (s->data, &ch, sizeof (ch)) != 1)
+	    ch = SANE_STATUS_IO_ERROR;
+	  do_cancel (s);
+	  return (SANE_Status) ch;
+	}
     }
 
   if (max_length > s->bytes_remaining)
@@ -924,12 +943,12 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   if (nread < 0)
     {
       if (errno == EAGAIN)
-        return SANE_STATUS_GOOD;
+	return SANE_STATUS_GOOD;
       else
-        {
-          do_cancel (s);
-          return SANE_STATUS_IO_ERROR;
-        }
+	{
+	  do_cancel (s);
+	  return SANE_STATUS_IO_ERROR;
+	}
     }
   s->bytes_remaining -= nread;
   *length = nread;
@@ -943,13 +962,12 @@ sane_cancel (SANE_Handle handle)
   SANE_Word ack;
 
   sanei_w_call (&s->hw->wire, SANE_NET_CANCEL,
-                (WireCodecFunc) sanei_w_word, &s->handle,
-                (WireCodecFunc) sanei_w_word, &ack);
+		(WireCodecFunc) sanei_w_word, &s->handle,
+		(WireCodecFunc) sanei_w_word, &ack);
   do_cancel (s);
 }
 
-SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Net_Scanner *s = handle;
 
@@ -962,8 +980,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
+SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   Net_Scanner *s = handle;
 

@@ -1,0 +1,12 @@
+Shared libraries doesn't seem to work with sane-backends and NetBSD. One
+reason may be the old libtool used in the sane distribution.
+
+To use static libraries:
+
+./configure --disable-shared
+
+Otherwise, compilation should work out-of-the-box.
+
+sane-frontends is untested.
+
+Last changed: 2002-02-02

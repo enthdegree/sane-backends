@@ -17,6 +17,7 @@
 	  parallel-port function lib.
 	* backend/plustek-pp* backend/plustek_pp.c: major update, sanei_pp
 	  integration, compilation fixes.
+	* backend/plustek.c: fixed, the "generic disable" switch
 
 2003-10-21  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -1,3 +1,8 @@
+2002-06-14  Andras Major <andras@users.sourceforge.net>
+
+	* backend/coolscan2.c doc/sane-coolscan2.man
+	  doc/descriptions/coolscan2.desc: updated to 0.1.6.
+
 2002-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>q
 
 	* README.solaris: Added comment about SCSI-only support.

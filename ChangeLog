@@ -17,6 +17,10 @@
 	  read and the saneopts translations are consistent through backends.
 	* backend/microtek2.c backend/microtek2.h: Update to backend 
 	  0.95-20020112 (from karsten.festag@t-online.de (Karsten Festag)).
+	* include/sane/sanei.h include/sane/sanei_config.h
+	  include/sane/sanei_thread.h sanei/sanei_config.c: Made documentation
+	  doxygen-compatible. Move comments from sanei_config.c to
+	  sanei_config.h.
 
 2002-01-18  Karl Heinz Kremer <khk@khk.net>
 

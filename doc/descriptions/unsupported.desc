@@ -132,6 +132,12 @@
 :status :unsupported
 :comment "Probably not supported. Chipset probably Genesys. Some information is available."
 
+:model "CanoScan FB620U"
+:url "http://www.meier-geinitz.de/sane/misc/canon-fb620u.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported.  Vendor/product 0x4a9/0x2202. Some information is available."
+
 :model "CanoScan FB1210U"
 :url "http://sourceforge.net/projects/canonscanner/"
 :interface "USB"
@@ -222,13 +228,13 @@
 :comment "No chipset information is available."
 
 :model "ScanJet 3500c"
-:url "http://www.realtek.com.tw/products/products1-2.aspx?modelid=37"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.txt"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Seems to use RealTek RTS8801C2-6, see link. Vendor/Product ID 0x03F0/0x2205."
 
 :model "ScanJet 3530c"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2530c.txt"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3530c.txt"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Chipset is Realtek RTS8801C2-6, see ScanJet 3500c. Vendor/Product ID 0x03F0/0x2005."

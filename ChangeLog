@@ -1,4 +1,8 @@
+2003-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/descriptions/unsupported.desc: Added Canon CanoScan FB620U.
+	  Added more info for HP ScanJet 3500c.
+	
 2003-03-24  Rene Rebe <rene.rebe@gmx.net>
 
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: support for

@@ -1,4 +1,4 @@
-.TH sane-canon_pp 5 "4 September 2002"
+.TH sane-canon_pp 5 "1 October 2002"
 .IX sane-canon_pp
 .SH NAME
 sane-canon_pp - SANE backend for Canon CanoScan Parallel Port flatbed scanners
@@ -28,7 +28,7 @@ CanoScan N640P ex
 No USB scanners are supported and there are no plans to support them in the 
 future.  Other projects are working on support for USB scanners. See the 
 .B PROJECTS 
-file for more detail.  The FB310P and FB610P are rebadged Avision scanners
+file for more detail.  The FB310P and FB610P are re-badged Avision scanners
 which use a different command set, so are unlikely to be supported by this 
 backend in the future.
 .PP
@@ -43,7 +43,7 @@ below).
 .PP
 .SH "DEVICE NAMES"
 This backend expects device names of the form presented by libieee1284.  These 
-names are highly dependant on operating system and version.
+names are highly dependent on operating system and version.
 
 On Linux 2.4 kernels this will be of the form 
 .I "parport0"
@@ -71,20 +71,20 @@ and
 
 Option
 .B ieee1284 
-.IR portname
-defines which port to use.  The format of portname is OS dependant, based on 
+.IR port-name
+defines which port to use.  The format of port-name is OS dependent, based on 
 the names presented by libieee1284.  Please only have one of these lines, or
 all but one will be ignored.
 
 Option 
 .B calibrate 
 .IR cal-file 
-.IR [portname]
+.IR [port-name]
 defines which calibration file to use on a per-port basis.  If you only have 
-one parport, the portname argument may be omitted - but be careful as this 
+one parport, the port-name argument may be omitted - but be careful as this 
 will cause problems on multi-scanner systems.  You may have as many of these
 lines as you like, as long as each has a unique port name.  The tilde (`~') 
-character is acceptable and will be expaned to the value of the HOME 
+character is acceptable and will be expanded to the value of the HOME 
 environment.
 
 Option 
@@ -156,12 +156,12 @@ export SANE_DEBUG_CANON_PP=4
 .TP
 .B Brightness and Contrast 
 These are not implemented, and probably never will be.  These appear to be 
-implented entirely in software.  Use GIMP or a similar program if you need 
+implemented entirely in software.  Use GIMP or a similar program if you need 
 these features.
 .TP
 .B Descreen Mode
 This appears on our first analysis to be just oversampling with an 
-anti-aliasing filter.  Again, it seems to be implemeneted entirely in software,
+anti-aliasing filter.  Again, it seems to be implemented entirely in software,
 so GIMP is your best bet for now.
 .TP
 .B Gamma Tables
@@ -171,14 +171,14 @@ one returned during calibration) will be loaded.
 .B Communication Problems
 .PP
 ECP mode in libieee1284 doesn't always work properly, even with new hardware.  
-We beleive that this is a ppdev problem.  If you change the configuration file
+We believe that this is a ppdev problem.  If you change the configuration file
 to include 
 .B force_nibble
 , the problem will go away, but you will only be able to scan in nibble mode.
 .PP
 Sometimes the scanner can be left in a state where our code cannot revive it.
 If the backend reports no scanner present, try unplugging the power and 
-plugging it back in.  Also try unplugging printers from the passthrough port.
+plugging it back in.  Also try unplugging printers from the pass-through port.
 .PP
 The scanner will not respond correctly to our commands when you first plug in 
 the power.  You may find if you try a scan very soon after plugging in the 
@@ -197,13 +197,26 @@ the windows driver so I'm not sure how (or if) it works around this problem,
 but as we don't know how to rewind the scanner head to do these bits again, 
 there's currently no nice way to deal with the problem.
 .PP
-.B Greyscale Scans
+.B Grey-scale Scans
 .PP
-Be aware that the scanner uses the green LEDs to read greyscale scans, meaning 
+Be aware that the scanner uses the green LEDs to read grey-scale scans, meaning 
 green coloured things will appear lighter than normal, and red and blue 
-coloured items will appear darker than normal.  For high-accuracy greyscale 
+coloured items will appear darker than normal.  For high-accuracy grey-scale 
 scans of colour items, it's best just to scan in colour and convert to 
-greyscale in graphics software such as the GIMP.
+grey-scale in graphics software such as the GIMP.
+.PP
+.B FB620P/FB320P Caveats
+.PP
+These models can not be reset in the same way as the others.  The windows driver
+doesn't know how to reset them either - when left with an inconsistent scanner, 
+it will start scanning half way down the page!
+.PP
+Aborting is known to work correctly on the FB*30P models, and is known to be
+broken on the FB*20P models.  The FB620P which I tested on simply returns 
+garbage after a scan has been aborted using the method we know.  
+Aborting is able to leave the scanner in a state where it can be shut down, 
+but not where another scan can be made.
+
 
 .SH "SEE ALSO"
 sane(7), sane-dll(5)

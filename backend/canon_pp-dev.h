@@ -125,6 +125,9 @@ typedef struct scanner_parameter_struct
 	/* Type of scanner ( 0 = *20P, 1 = [*30P|*40P] ) */
 	unsigned char type;
 
+	/* Are we aborting this scanner now */
+	unsigned char abort_now;
+
 } scanner_parameters;
 
 typedef struct scan_parameter_struct
@@ -164,7 +167,6 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 		int scanlines_left);
 
 int sanei_canon_pp_abort_scan(scanner_parameters *sp);
-void sanei_canon_pp_abort(void);
 
 /* Loads the gain offset values. Needs a new name. */
 int sanei_canon_pp_load_weights(const char *filename, scanner_parameters *sp);

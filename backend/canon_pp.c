@@ -1102,21 +1102,8 @@ sane_start (SANE_Handle h)
 	cs->lines_scanned = 0;
 	cs->bytes_sent = 0;
 
-	/*  init_scan doesn't return a value yet... but Simon might get keen
-	*  one day 
-	if (!(init_scan(&(cs->params), &(cs->scan))))
-	{
-	cs->scanning = SANE_TRUE;
-	return SANE_STATUS_GOOD;
-	}
-	else
-	{
-	cs->scanning = SANE_FALSE;
-	return SANE_STATUS_IO_ERROR;
-	}
-	*/
-
 	DBG(2, "<< sane_start\n");
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1150,14 +1137,14 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	if ((h == NULL) || (buf == NULL) || (lenp == NULL)) 
 	{
 		DBG(1, "sane_read: This frontend's passing me dodgy gear! "
-				"(h=%p, buf=%p, lenp=%p)\n",
-				h, buf, lenp);
+				"(h=%p, buf=%p, lenp=%p)\n", h, buf, lenp);
 		return SANE_STATUS_INVAL;
 	}
 
 	/* Now we have to see if we have some leftover from last time */
 
-	if (read_leftover != NULL) {
+	if (read_leftover != NULL) 
+	{
 		/* feed some more data in until we've run out - don't care 
 		 * whether or not we _think_ the scanner is scanning now, 
 		 * because we may still have data left over to send */
@@ -1188,38 +1175,25 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			return SANE_STATUS_GOOD;
 		}
 
-	} else {
-		/* fix potential memory leak if cancelling at the very end
-		 * of a scan */
-		if (lbuf != NULL) free(lbuf);
-		lbuf = NULL;
-	}
+	} 
 
-	/* Has the last scan ended? */
+
+	/* Has the last scan ended (other than by cancelling)? */
 	if (((unsigned)cs->scan.height <= (unsigned)cs->lines_scanned) 
-		|| !(cs->scanning))
+	    || (cs->sent_eof) || !(cs->scanning))
 	{
-		if (cs->cancelled)
-                {
-			return SANE_STATUS_CANCELLED;
-                }
-
-		if (cs->sent_eof)
-		{
-			/* It's over mate, get over it */
-			DBG(10, "sane_read: Already sent EOF!\n");
-			return SANE_STATUS_INVAL;
-		} else {
-			cs->sent_eof = SANE_TRUE;
-			cs->scanning = SANE_FALSE;
-			cs->lines_scanned = 0;
-			cs->bytes_sent = 0;
-			return SANE_STATUS_EOF;
-		}
+		cs->sent_eof = SANE_TRUE;
+		cs->scanning = SANE_FALSE;
+		cs->cancelled = SANE_FALSE;
+		cs->lines_scanned = 0;
+		cs->bytes_sent = 0;
+		read_leftover = NULL;
+		return SANE_STATUS_EOF;
 	}
 
-	/* At this point we have to read more data from the scanner */
-
+	/* At this point we have to read more data from the scanner - or the 
+	 * scan has been cancelled, which means we have to call read_segment
+	 * to leave the scanner consistant */
 
 	/* Decide how many lines we can fit into this buffer */
 	if (cs->vals[OPT_DEPTH] == 0)
@@ -1227,21 +1201,9 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	else
 		bpl = cs->scan.width * (cs->vals[OPT_COLOUR_MODE] ? 6 : 2);
 
-	/* We will have as many lines as possible, or the size of the scan.
-	 * Each pixel is 5/4 bytes per colour, so we multiply the buffer 
-	 * size by 4/5 to get the number of lines. */
-
         /* New way: scan a whole scanner buffer full, and return as much as 
          * the frontend wants.  It's faster and more reliable since the 
          * scanners crack the shits if we ask for too many small packets */
-#if 0
-	if ((int)maxlen > (BUF_MAX * 4 / 5))
-		max_buf = (BUF_MAX * 4 / 5);
-	else
-		max_buf = (int)maxlen;
-
-	lines = max_buf / (int)bpl;
-#endif
 	lines = (BUF_MAX * 4 / 5) / bpl;
 
 	if (lines > (cs->scan.height - cs->lines_scanned)) 
@@ -1276,23 +1238,30 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			(cs->params.id_string)+8);
 	DBG(10, "scan_params->: width=%d, height=%d, xoffset=%d, "
 			"yoffset=%d\n\txresolution=%d, yresolution=%d, "
-			"mode=%d\n",
+			"mode=%d, (lines=%d)\n",
 			cs->scan.width, cs->scan.height, 
 			cs->scan.xoffset, cs->scan.yoffset,
 			cs->scan.xresolution, cs->scan.yresolution,
-			cs->scan.mode
-	   );
-	DBG(10, "lines=%d\n",lines);
+			cs->scan.mode, lines);
 
 	DBG(2, ">> read_segment(%p, %p, %p, %d, %d, %d)\n",
 			&is, &(cs->params), &(cs->scan), lines,
 			cs->cal_valid, cs->scan.height - cs->lines_scanned);
-	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), 
-			&(cs->scan), lines, cs->cal_valid, 
+	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), &(cs->scan), 
+			lines, cs->cal_valid, 
 			cs->scan.height - cs->lines_scanned);
 	DBG(2, "<< %d read_segment\n", tmp);
 
 	if (tmp != 0) {
+		if (cs->cancelled)
+		{
+			DBG(10, "sane_read: cancelling.\n");
+			cs->sent_eof = SANE_TRUE;
+			cs->scanning = SANE_FALSE;
+			read_leftover = NULL;
+			sanei_canon_pp_abort_scan(&(cs->params));
+			return SANE_STATUS_CANCELLED;
+		}
 		DBG(1, "sane_read: WARNING: read_segment returned %d!\n", tmp);
 		return SANE_STATUS_IO_ERROR;
 	}
@@ -1386,31 +1355,22 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	void
 sane_cancel (SANE_Handle h)
 {
-	int tmp;
 	/* Note: assume handle is valid apart from NULLs */
 	CANONP_Scanner *cs = ((CANONP_Scanner *)h);
+
 	DBG(2, ">> sane_cancel (h=%p)\n", h);
 	if (h == NULL) return;
 
-	if (cs->scanning == SANE_FALSE) 
+	read_leftover = NULL;
+
+	if (!(cs->scanning)) 
 	{
-		/* ensure we don't try to send old data */
-		read_leftover = NULL;
+		DBG(2, "<< sane_cancel (not scanning)\n");
 		return;
 	}
 
-	cs->scanning = SANE_FALSE;
-	/* cs->sent_eof = SANE_TRUE; */
 	cs->cancelled = SANE_TRUE;
-
-	cs->lines_scanned = 0;
-	cs->bytes_sent = 0;
-	DBG(2, "sane_cancel: >> abort_scan\n");
-	tmp = sanei_canon_pp_abort_scan(&(cs->params));
-	DBG(2, "sane_cancel: << abort_scan\n");
-	if (tmp != 0) {
-		DBG(1, "sane_cancel: WARNING: abort_scan returned %d!", tmp);
-	}
+	cs->params.abort_now = 1;
 
 	DBG(2, "<< sane_cancel\n");
 }

@@ -104,7 +104,6 @@ static void DBG(int level, const char *format, ...)
 /*const int scanline_count = 6;*/
 static const char *header = "#CANONPP";
 static const int fileversion = 3;
-static int abort_now = 0;
 
 /* Internal functions */
 static unsigned long column_sum(image_segment *image, int x);
@@ -659,7 +658,8 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 
 	/* Allocate memory for dest image segment */
 
-	output_image->image_data = malloc(output_image->width * output_image->height * 
+	output_image->image_data = 
+		malloc(output_image->width * output_image->height * 
 				(scanp->mode ? 3 : 1) * 2);
 
 	if (output_image->image_data == NULL)
@@ -711,7 +711,7 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 
 	/* This is the only place we can abort safely - 
 	 * between reading one segment and requesting the next one. */
-	if (abort_now) goto error_out;
+	if (sp->abort_now) goto error_out;
 
 	if (scanlines_left >= (scanline_number * 2)) 
 	{
@@ -739,10 +739,11 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	return 0;	
 
 	error_out:
-	if (output_image && output_image->image_data) free(output_image->image_data);
+	if (output_image && output_image->image_data) 
+		free(output_image->image_data);
 	if (output_image) free(output_image);
 	if (input_buffer) free(input_buffer);
-	abort_now = 0;
+	sp->abort_now = 0;
 	return -1;
 }
 
@@ -970,7 +971,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	if (!(sp->type) ) scanline_count = 8;
 
 	/* Probably shouldn't have to abort *just* yet, but may as well check */
-	if (abort_now) return -1;
+	if (sp->abort_now) return -1;
 
 	DBG(40, "Calibrating %ix%i pixels calibration image "
 			"(%i bytes each scan).\n", 
@@ -1010,7 +1011,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		DBG(40, "  * Black scan number %d/%d.\n", readnum + 1, 
 				calibration_reads);
 
-		if (abort_now) return -1;
+		if (sp->abort_now) return -1;
 
 		if (send_command(sp->port, command_buffer, 10, 100000, 5000000))
 		{
@@ -1056,7 +1057,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 	DBG(40, "Step 2/3: Gamma tables...\n");
 	DBG(40, "  * Requesting creation of new of gamma tables...\n");
-	if (abort_now) return -1;
+	if (sp->abort_now) return -1;
 	if (send_command(sp->port, cmd_cleargamma, 10, 100000, 5000000))
 	{
 		DBG(1,"Error sending gamma command!\n");
@@ -1083,7 +1084,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	sanei_canon_pp_read(sp->port, 32, sp->gamma);
 	DBG(40, "done.\n");
 
-	if (abort_now) return -1;
+	if (sp->abort_now) return -1;
 
 	memcpy(command_buffer, cmd_calcolour, 10);
 
@@ -1103,7 +1104,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 					colours[colournum-1], readnum + 1,
 					calibration_reads);
 
-			if (abort_now) return -1;
+			if (sp->abort_now) return -1;
 			if (send_command(sp->port, command_buffer, 10,
 						100000, 5000000))
 			{
@@ -1146,7 +1147,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 	}
 
-	if (abort_now) return -1;
+	if (sp->abort_now) return -1;
 
 	/* cal_file == NUL indicates we want an in-memory scan only */
 	if (cal_file != NULL)
@@ -1288,11 +1289,6 @@ int sanei_canon_pp_abort_scan(scanner_parameters *sp)
 	sanei_canon_pp_write(sp->port, 10, cmd_abort);
 	sanei_canon_pp_check_status(sp->port);
 	return 0;
-}
-
-void sanei_canon_pp_abort(void)
-{
-	abort_now = 1;
 }
 
 /* adjust_gamma: Upload a gamma profile to the scanner */

@@ -31,7 +31,7 @@
  * The header files in the include/sane/ directory named sanei_*.h provide
  * function declarations and macros that can be used by every SANE backend.
  * Their implementations can be found in the sanei/ directory. The code aims
- * to be platform-independent to avoid lots of #ifdef code in the backends.
+ * to be platform-independent to avoid lots of \#ifdef code in the backends.
  * Please use the SANEI functions wherever possible.
  *
  * This documentation was created by the use of doxygen, the 

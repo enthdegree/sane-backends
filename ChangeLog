@@ -7,6 +7,9 @@
 	  GT68XX_FLAG_SE_2400. Fixed color order.Increased debug 
 	  level for setup_scan. Fixed CCD ocarse calibration.
 	* doc/descriptions/microtek.desc: Added Agfa Studiostar.
+	* doc/descriptions/unsupported.desc: Added Avigramm Minidoc,
+	  Medion MD 41260, and Nikon LS 50 ED. Removed Genius Colorpage
+	  Vivid III as it may work with the u12 backend.
 
 2004-03-27  Peter Kirchgessner <peter@kirchgessner.net>
 

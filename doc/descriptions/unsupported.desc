@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-03-25"		; version of backend
+:version "2004-03-28"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -73,6 +73,15 @@
 :comment "Same name, but different ids: vendor/product 0x05d8/0x4001 is not supported. The scanner with product id 0x4002 is supported by the gt68xx backend."
 
 ;********************************************************************************************
+
+:mfg "Avigramm"
+;:url "http://www.avision.com/"
+
+:model "Minidoc"
+:url "/unsupported/trust-combiscan-19200.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for details."
 
 ;********************************************************************************************
 
@@ -410,17 +419,11 @@
 :status :unsupported
 :comment "Not supported. No details known."
 
-:model "Colorpage Vivid III"
-:url "/unsupported/genius-colorpage-vivid-III.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Vendor/product: 0x07b3/0x0001. See link for details."
-
 :model "Colorpage Vivid 1200 XE"
 :url "/unsupported/genius-colorpage-vivid-1200EX.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported yet. May work with the gt68xx bacend in future. See link for details."
+:comment "Not supported yet. May work with the gt68xx backend in future. See link for details."
 
 
 ;********************************************************************************************
@@ -582,6 +585,12 @@
 
 :model "MD 40420"
 :url "/unsupported/tevion-md40420.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
+:model "MD 41260"
+:url "/unsupported/medion-md6190.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
@@ -841,6 +850,16 @@
 :status :unsupported
 :comment "Probably not supported. Same as Mustek 12000 P?. ASIC 1505."
 
+;********************************************************************************************
+
+:mfg "Nikon"
+:url "http://www.nikon.com/"
+
+:model "LS 50 ED"
+:interface "USB"
+:url "/unsupported/nikon-ls50-ed.html"
+:status :unsupported
+:comment "Most probably unsupported. See link for details."
 
 ;********************************************************************************************
 

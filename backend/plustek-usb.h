@@ -44,7 +44,10 @@ typedef int Bool;
 
 /*********************************** plustek_types.h!!! ************************/
 
+/* makes trouble with gcc3
 #define _SWAP(x,y)	(x)^=(y)^=(x)^=(y)
+*/
+#define _SWAP(x,y)	{(x)^=(y); (x)^=((y)^=(x));}
 
 #define _LOWORD(x)	((u_short)(x & 0xffff))
 #define _HIWORD(x)	((u_short)(x >> 16))

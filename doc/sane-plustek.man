@@ -1,11 +1,11 @@
-.TH sane-plustek 5 "30 December 2001"
+.TH sane-plustek 5 "24 January 2002"
 .IX sane-plustek
 .SH NAME
 sane-plustek
 .br
 SANE backend for Plustek parallel port and
 .br
-LM983[1/2] based USB flatbed scanners
+LM983[1/2/3] based USB flatbed scanners
 
 .SH DESCRIPTION
 The
@@ -22,6 +22,8 @@ pt_drv which currently can be downloaded from
 
 At present, the following scanners should work with this backend
 and the corresponding kernel module:
+.PP
+.B "PLUSTEK SCANNERS"
 .PP
 Parallelport Model:    ASIC: Properties:
 .br
@@ -123,7 +125,7 @@ BrightScan OpticPro         OpticPro P12
 .SH "USB SUPPORT"
 
 The Backend is able to support USB scanner based on the National
-Semiconductor chipset LM9831 and LM9832. The following tables
+Semiconductor chipset LM9831, LM9832 and LM9833. The following tables
 show various devices which are currently reported to work.
 .br
 
@@ -135,13 +137,13 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-OpticPro U12       LM9832  600x1200dpi 42bit 512Kb 0x0010
+OpticPro U12       LM9831  600x1200dpi 42bit 512Kb 0x0010
 .br
 OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
 .br
 OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
 .br
-OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0011
+OpticPro U24       LM9831 1200x2400dpi 42bit   2Mb 0x0011
 .br
 OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
 .PP
@@ -222,8 +224,43 @@ file
 See the plustek.conf file for examples.
 .PP
 
+.SH "CONFIGURATION"
+.PP
+The configuration of this backend can be divided into two sections:
+.br
+.PP
+.B "CONFIGURATION - parallel port scanner"
+.PP
+.br
+.B "CONFIGURATION - USB scanner"
+.PP
+.br
+Please make sure, that the configuration matches the real world,
+namely your configuration.
+.PP
+
 .SH "CONFIGURATION - PARALLEL PORT SCANNER"
 .PP
+Beside the kernel-module options, which are described below, you
+need to enable the parallel port device in the configuration file
+.PP
+.RS
+.I @CONFIGDIR@/plustek.conf
+.RE
+.PP
+For a proper setup, you will need at least two entries:
+
+.TP
+.I [parport]
+.TP
+.I device /dev/pt_drv
+.PP
+.I parport
+tells the backend, that the following devicename (here
+.I /dev/pt_drv
+) has to be interpreted as parallel port scanner device.
+.PP
+To have this device, you will need to setup the kernel module.
 As the driver is a loadable kernel module, it is configured
 by invoking insmod with the appropriate parameters or
 appending the options to the file
@@ -315,10 +352,15 @@ mov=m
 .br
        been detected) enables A3 scanning
 .br
+.I m
+=6 - OpticPro 4800P override (works if OP600
+.br
+       has been detected) swaps red/green color
+.br
 .RE
 .PP
 Sample entry for file
-.B /etc/modules.conf
+.B "/etc/modules.conf"
 :
 .br
 .I alias char-major-40 pt_drv
@@ -334,8 +376,7 @@ the different options
 .PP
 Remember to call depmod after changing /etc/conf.modules.
 .PP
-
-.SH "PARALLEL PORT MODES"
+.B "PARALLEL PORT MODES"
 .PP
 The current driver works best, when the parallel port
 has been set to EPP-mode. When detecting any other
@@ -370,11 +411,31 @@ two entries in the configuration file
 .I usb
 tells the backend, that the following devicename (here
 .I /dev/usbscanner
-) has to be used as USB scanner device. If vendor- and
+) has to be interpreted as USB scanner device. If vendor- and
 product-id has not been specified, the backend tries to
 detect this by its own.
 .PP
 See the plustek.conf file for examples.
+.PP
+.B Note:
+.br
+You have to make sure, that the USB subsystem is loaded
+correctly and the module
+.I scanner
+has been loaded too. To make this module recognize your
+scanner, you might have to add the following line to
+your
+.B "/etc/modules.conf"
+:
+.br
+.I options scanner vendor=0x7b3 product=0x17
+.PP
+.br
+If you're not sure about the vendor and product id of your
+device, simply load the USB subsystem and plug in your
+scanner. Then do a
+.I cat /proc/bus/usb/devices
+and look for the scanner.
 .PP
 
 .SH FILES
@@ -403,11 +464,15 @@ or directly to:
 .br
 .B Gerhard Jaeger <g.jaeger@earthling.net>
 .PP
-Additional info and hints can be obtained in our
+Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
 .B http://www.linuxhacker.org/cgi-bin/ezmlm-cgi/3
+.PP
+or directly from the projects' homepage at:
+.br
+.B http://home.t-online.de/home/g-jaeger/plustek.html
 .PP
 
 .SH "BUGS & RESTRICTIONS"
@@ -465,6 +530,20 @@ ASIC 96003/1 based models:
 .br
 * The scanquality of the A3I is poor
 .br
+.PP
+USB models:
+.br
+* Plusteks' model policy is somewhat inconsistent. This
+.br
+  means, they sell technical different devices under the
+.br
+  same product name. Therefore it is possible that some
+.br
+  devices like the UT12 or U12 won't work - please check
+.br
+  the model list above and compare the product-id to
+.br
+  the one your device has.
 
 
 

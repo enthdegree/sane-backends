@@ -515,6 +515,139 @@ pp_setmode( int fd, int mode )
 	_VAR_NOT_USED( fd );
 	_VAR_NOT_USED( mode );
 
+#if 0
+	/*
+	 *  when previously found the EPP mode, break right here
+	 */
+	if (( _PORT_EPP == ps->IO.portMode ) && (!(port_feature & PARPORT_MODE_PCECR)))
+ 		return _OK;
+
+ 	/* CHECK REMOVE: from here we should have SPP (Paranoia Code !) */
+	if (( _PORT_SPP != ps->IO.portMode ) && (!(port_feature & PARPORT_MODE_PCECR)))
+ 		return _OK;
+
+	DBG(DBG_LOW, "Trying faster mode...\n" );
+
+	/*
+	 * ECP mode usually has sub-modes of EPP and/or PS2.
+	 * First we try to set EPP
+	 */
+    if((port_feature & PARPORT_MODE_PCECR) &&
+									(port_feature & PARPORT_MODE_PCECPEPP)){
+
+        DBG(DBG_LOW, "Attempting to set EPP from ECP mode.\n" );
+
+        a = _INB_ECTL(ps);  				/* get current ECR				*/
+		ps->IO.lastPortMode = a;	     	/* save it for restoring later	*/
+        a = (a & 0x1F) | 0x80;  	     	/* set to EPP					*/
+        _OUTB_ECTL(ps, a);					/* write it back				*/
+		_DO_UDELAY(1);
+
+		/*
+		 * It is probably unnecessary to
+		 * do this check but it makes me feel better
+		 */
+        b = _INB_ECTL(ps);					/* check to see if port set */
+        if( a == b ) {
+            DBG( DBG_LOW, "Port is set to (ECP) EPP mode.\n" );
+            ps->IO.portMode = _PORT_EPP;
+			return _OK;
+
+        } else {
+            DBG( DBG_LOW, "Port could not be set to (ECP) EPP mode. "
+														"Using SPP mode.\n" );
+            _OUTB_ECTL(ps,(Byte)ps->IO.lastPortMode); 		/* restore */
+			_DO_UDELAY(1);
+		    ps->IO.portMode = _PORT_SPP;
+
+			/* go ahead and try with other settings...*/
+        }
+    }
+
+	/* If port cannot be set to EPP, try PS2 */
+    if((port_feature & PARPORT_MODE_PCECR) &&
+									(port_feature & PARPORT_MODE_PCECPPS2)) {
+
+        DBG(DBG_LOW, "Attempting to set PS2 from ECPPS2 mode.\n" );
+
+        a = _INB_ECTL(ps);  				/* get current ECR				*/
+		ps->IO.lastPortMode = a;	     	/* save it for restoring later 	*/
+
+		/* set to Fast Centronics/bi-directional/PS2 */
+        a = (a & 0x1F) | 0x20;
+        _OUTB_ECTL(ps,a);					/* write it back */
+		_DO_UDELAY(1);
+
+		/*
+		 * It is probably unnecessary to do this check
+		 * but it makes me feel better
+		 */
+        b = _INB_ECTL(ps);					/* check to see if port set */
+        if (a == b) {
+            DBG(DBG_LOW, "Port is set to (ECP) PS2 bidirectional mode.\n");
+            ps->IO.portMode = _PORT_BIDI;
+			return _OK;
+        } else {
+        	DBG(DBG_LOW, "Port could not be set to (ECP) PS2 mode. "
+														"Using SPP mode.\n");
+			a = ps->IO.lastPortMode & 0x1F;
+            _OUTB_ECTL(ps, a);					/* set ECP ctrl to SPP */
+			_DO_UDELAY(1);
+		    ps->IO.portMode = _PORT_SPP;
+
+			/* next mode, last attempt... */
+        }
+	}
+
+	/*
+	 * Some BIOS/cards have only a Bi-directional/PS2 mode (no EPP).
+	 * Make one last attemp to set to PS2 mode.
+	 */
+	if ( port_feature & PARPORT_MODE_PCPS2 ){
+
+		DBG(DBG_LOW, "Attempting to set PS2 mode.\n" );
+
+		a = _INB_CTRL(ps); 		    /* get current setting of control register*/
+		ps->IO.lastPortMode = a;	/* save it for restoring later            */
+		a = a | 0x20;  			    /* set bit 5 of control reg              */
+		_OUTB_CTRL(ps,a); 		/* set to Fast Centronics/bi-directional/PS2 */
+		_DO_UDELAY(1);
+		a = 0;
+
+		_OUTB_DATA(ps,0x55);
+		_DO_UDELAY(1);
+		if ((inb(ps->IO.portBase)) != 0x55)	/* read data */
+			a++;
+
+		_OUTB_DATA(ps,0xAA);
+		_DO_UDELAY(1);
+
+		if (_INB_DATA(ps) != 0xAA)   /* read data */
+			a++;
+
+		if( 2 == a ) {
+			DBG(DBG_LOW, "Port is set to PS2 bidirectional mode.\n");
+			ps->IO.portMode = _PORT_BIDI;
+			return _OK;
+
+		} else {
+			DBG(DBG_LOW, "Port could not be set to PS2 mode. "
+														"Using SPP mode.\n");
+            _OUTB_CTRL(ps,(Byte)ps->IO.lastPortMode);		/* restore */
+			_DO_UDELAY(1);
+			ps->IO.portMode = _PORT_SPP;
+		}
+	}
+
+	/* reaching this point, we're back in SPP mode and there's no need
+	 * to restore at shutdown...
+	 */
+	ps->IO.lastPortMode = 0xFFFF;
+#endif
+	return _OK;
+}
+	
+
 	return SANE_STATUS_GOOD;
 }
 
@@ -1125,9 +1258,11 @@ sanei_pp_setmode( int fd, int mode )
 	}
 
 	result = ieee1284_negotiate( pplist.portv[fd], mode );
-	if( E1284_OK != result ) {
-		DBG( 2, "sanei_pp_setmode failed\n" );
-		pp_libieee1284_errorstr( result );
+
+	/* negotiation might fails, but the port-mode should be set... */
+	if((E1284_OK != result) && (E1284_NEGFAILED != result)) {
+		DBG( 2, "sanei_pp_setmode failed: %s\n",
+		        pp_libieee1284_errorstr( result ));
 		return SANE_STATUS_INVAL;
 	}
 

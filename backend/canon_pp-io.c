@@ -269,9 +269,9 @@ int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 		   "No data" condition (I think). Otherwise,
 		   it may have run out of buffer.. keep reading*/
 		
-		if (count == 0) {
+		if (count < 0) {
 			DBG(10, "Couldn't read enough data (need %d more "
-					"of %d)\n", length, length+offset);
+					"of %d)\n", length+count,length+offset);
 			scanner_endtransfer(port);
 			return 1;
 		}

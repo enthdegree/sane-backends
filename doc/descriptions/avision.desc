@@ -80,7 +80,7 @@
 
 :model "AVA6"
 :interface "USB"
-:comment ""
+:comment "probably a non-CPU device"
 :status :untested
 
 :model "AV610CU Scancopier"
@@ -191,7 +191,7 @@
 :model "AVA3"
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
-:status :beta
+:status :basic
 
 :model "DS610CU"
 :interface "SCSI"

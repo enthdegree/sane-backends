@@ -1,4 +1,4 @@
-.TH sane 7 "09 May 2001"
+.TH sane 7 "13 May 2001"
 .IX sane
 
 .SH NAME
@@ -33,19 +33,24 @@ A
 .B meta backend
 provides some means to manage one or more other backends.
 
-.SH SANE STANDARD
+.SH SANE STANDARD AND WRITING BACKENDS
 The 
 .B SANE
 standard defines the application programming interface (API) that is used to
 communicate between frontends and backends. It can be found at
-@DOCDIR@/sane.tex and net.tex and on the SANE website:
-http://www.mostang.com/sane/html/ (HTML), or
+@DOCDIR@/sane.ps (if latex is installed on your system) and on the SANE
+website: http://www.mostang.com/sane/html/ (HTML), or
 http://www.mostang.com/sane/sane.ps (Postscript).
 .P
 There is some more information for programmers in
-@DOCDIR@/backend-writing.txt. Before a new backend or frontend project is started,
-have a look at @DOCDIR@/PROJECTS for projects that are planned or not yet included
-into the SANE distribution.
+@DOCDIR@/backend-writing.txt. Before a new backend or frontend project is
+started, have a look at @DOCDIR@/PROJECTS for projects that are planned or not
+yet included into the SANE distribution.
+.P
+Your help is always appreciated. Look at @DOCDIR@/TODO for things that should
+be done. Not only programmers are needed, but also reading and fixing the
+documentation and reporting bugs would be nice. Contact the SANE mailing list
+for details.
 
 .SH SOFTWARE PACKAGES
 The package 
@@ -333,8 +338,32 @@ SANE can't access the device files (e.g /dev/sga). Check the permissions.
 .TP
 *
 Your backend is not listed in @CONFIGDIR@/dll.conf (or commented out).
+.TP
+*
+There are older installations of SANE on your system. If you installed the
+SANE libraries in /usr/local/lib (default) you should check if there are
+older SANE libraries at /usr/lib. Remove them (rm -r /usr/lib/libsane*
+/usr/lib/sane).
+.TP
+*
+If you can use SANE with scanimage but not with other (graphical) frontends,
+check that /etc/ld.so.conf contains /usr/local/lib and does
+.B not
+contain /usr/local/lib/sane. See also the documentation of the frontends.
+
+.SH REPORTING BUGS
+If you think you found a bug in a backend, contact the author of your
+backend. Usually the email address can be found in the @DOCDIR@/AUTHORS
+file. If he isn't marked as `active maintainer´ you can also contact the SANE
+mailing list sane-devel (see http://www.mostang.com/sane/mail.html for
+details). You must be subscribed to the list, otherwise your mail won't be
+sent to the subscribers.
+.P
+If you want to report bugs concerning compilation, installation, porting, and
+documentation of SANE, you can also contact the author of this manual page:
+<henning@meier-geinitz.de>.
 
 .SH AUTHOR
-David Mosberger-Tang and many more (see @DOCDIR@/AUTHORS for details).  This
-man page was written by Henning Meier-Geinitz. Quite a lot of text was taken
-from the SANE standard, several man pages, and README files.
+David Mosberger-Tang and many many more (see @DOCDIR@/AUTHORS for details).
+This man page was written by Henning Meier-Geinitz. Quite a lot of text was
+taken from the SANE standard, several man pages, and README files.

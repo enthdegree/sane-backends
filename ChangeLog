@@ -8,6 +8,7 @@
 	  Siemens, Tamarack) and device types (film scanner, sheetfed scanner)
 	  to the SANE standard. Updated date.
 	* doc/Makefile.in: Remove sanei-html in make distclean.
+	* PROJECTS: Added Acer ScanWit 2720S.
 
 2002-02-16 Abel Deuring <a.deuring@satzbau-gmbh.de>:
 	* frontend/scanimage.c / part for the "-f" command line option:

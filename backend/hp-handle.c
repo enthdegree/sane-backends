@@ -67,6 +67,61 @@ extern int sanei_debug_hp; */
 #include "hp-scsi.h"
 #include "hp-scl.h"
 
+/* Do we really need threads ? */
+/* #define HAVE_OS2_H */
+#ifdef HAVE_OS2_H
+#define HP_USE_THREAD
+#endif
+
+/* Some tests with Linux-threads */
+/* #define HP_LINUX_THREAD_TEST */
+
+#ifdef HP_LINUX_THREAD_TEST
+#ifndef HP_USE_THREAD
+#define HP_USE_THREAD
+#endif
+#endif
+
+
+#ifdef HP_LINUX_THREAD_TEST
+#include <pthread.h>
+
+static int
+sanei_thread_begin( void (*start)(void *arg), void* arg_list)
+
+{pthread_t thread; 
+ int tcval = pthread_create (&thread, NULL, start, arg_list);
+
+ if (tcval != 0)
+ {
+   DBG(1, "pthread_create() failed with %d\n", tcval);
+   return -1;
+ }
+ DBG(1, "pthread_create() created thread %d\n", (int)thread);
+ return (int)thread;
+}
+
+static void
+sanei_thread_kill( int pid, int sig)
+{
+ DBG(1, "pthread_kill() will kill %d\n", (int)pid);
+ pthread_kill (pid, sig);
+}
+
+static int
+sanei_thread_waitpid( int pid, int *stat_loc, int UNUSEDARG options)
+{
+  if (stat_loc)
+    *stat_loc = 0;
+  return pid;
+}
+
+#else
+#ifdef HP_USE_THREAD
+#include "../include/sane/sanei_thread.h"
+#endif
+#endif
+
 struct hp_handle_s
 {
     HpData		data;
@@ -74,10 +129,16 @@ struct hp_handle_s
     SANE_Parameters	scan_params;
 
     pid_t		reader_pid;
+    int			child_forked; /* Flag if we used fork() or not */
     size_t		bytes_left;
-    int			pipefd;
+    int			pipe_read_fd;
 
     sig_atomic_t	cancelled;
+
+    /* These data are used by the child */
+    HpScsi      scsi;
+    HpProcessData procdata;
+    int			pipe_write_fd;
 };
 
 
@@ -87,40 +148,22 @@ hp_handle_isScanning (HpHandle this)
   return this->reader_pid != 0;
 }
 
-static SANE_Status
-hp_handle_startReader (HpHandle this, HpScsi scsi, HpProcessData *procdata)
+#ifdef HP_USE_THREAD
+/*
+ * reader thread: need a wrapper, because threads can have
+ * only one parameter.
+*/
+static void
+os2_reader_process (void *data)
 {
-  int	fds[2];
-  sigset_t 		sig_set, old_set;
+  sigset_t 		sig_set;
   struct SIGACTION	sa;
-  SANE_Status           status;
+  struct hp_handle_s *this = (struct hp_handle_s *) data;
+  SANE_Status status;
 
-  assert(this->reader_pid == 0);
-  this->cancelled = 0;
-
-  if (pipe(fds))
-      return SANE_STATUS_IO_ERROR;
-
-  sigfillset(&sig_set);
-  sigprocmask(SIG_BLOCK, &sig_set, &old_set);
-
-  if ((this->reader_pid = fork()) != 0)
-    {
-      sigprocmask(SIG_SETMASK, &old_set, 0);
-      close(fds[1]);
-
-      if (this->reader_pid == -1)
-	{
-	  close(fds[0]);
-	  return SANE_STATUS_IO_ERROR;
-	}
-
-      this->pipefd = fds[0];
-      DBG(1, "start_reader: reader process %d started\n", this->reader_pid);
-      return SANE_STATUS_GOOD;
-    }
-
-  close(fds[0]);
+  DBG (1, "os2_reader_process: thread started\n"
+   "  parameters: scsi = 0x%08lx, pipe_write_fd = %d\n",
+          (long) this->scsi, this->pipe_write_fd);
 
   memset(&sa, 0, sizeof(sa));
   sa.sa_handler = SIG_DFL;
@@ -128,9 +171,107 @@ hp_handle_startReader (HpHandle this, HpScsi scsi, HpProcessData *procdata)
   sigdelset(&sig_set, SIGTERM);
   sigprocmask(SIG_SETMASK, &sig_set, 0);
 
-  /* not closing fds[1] gives an infinite loop on Digital UNIX */
-  status = sanei_hp_scsi_pipeout(scsi,fds[1],procdata);
-  close (fds[1]);
+  DBG (1, "Starting sanei_hp_scsi_pipeout()\n");
+  status = sanei_hp_scsi_pipeout (this->scsi, this->pipe_write_fd,
+                                  &(this->procdata));
+  DBG (1, "sanei_hp_scsi_pipeout finished with %s\n", sane_strstatus (status));
+
+  close (this->pipe_write_fd);
+  this->pipe_write_fd = -1;
+  sanei_hp_scsi_destroy (this->scsi, 0);
+}
+#endif
+
+static SANE_Status
+hp_handle_startReader (HpHandle this, HpScsi scsi)
+{
+  int	fds[2];
+  sigset_t 		sig_set, old_set;
+  struct SIGACTION	sa;
+  SANE_Status           status;
+  HpProcessData        *procdata = &(this->procdata);
+
+  assert(this->reader_pid == 0);
+  this->cancelled = 0;
+  this->pipe_write_fd = this->pipe_read_fd = -1;
+
+  if (pipe(fds))
+      return SANE_STATUS_IO_ERROR;
+
+  sigfillset(&sig_set);
+  sigprocmask(SIG_BLOCK, &sig_set, &old_set);
+
+  this->scsi = scsi;
+  this->pipe_write_fd = fds[1];
+  this->pipe_read_fd = fds[0];
+
+  /* create reader routine as new process or thread */
+
+#ifndef HP_USE_THREAD
+  this->child_forked = 1;
+  this->reader_pid = fork ();
+#else
+  this->child_forked = 0;
+
+  DBG(3,"hp_handle_startReader: About to begin thread with\n");
+  DBG(3,"  parameters: scsi = 0x%08lx, pipe_write_fd = %d\n",
+          (long)this->scsi, this->pipe_write_fd);
+
+  this->reader_pid = sanei_thread_begin (os2_reader_process, (void *) this);
+
+  DBG(3,"  reader_pid = %d\n", (int)this->reader_pid);
+#endif
+
+  if (this->reader_pid != 0)
+    {
+      /* Here we are in the parent */
+      sigprocmask(SIG_SETMASK, &old_set, 0);
+
+      if ( this->child_forked )
+      { /* After fork(), parent must close writing end of pipe */
+        close (this->pipe_write_fd);
+        this->pipe_write_fd = -1;
+      }
+
+      if (this->reader_pid == -1)  /* Creating child failed ? Clean up pipe */
+	{
+          if ( !this->child_forked )
+          {
+            close (this->pipe_write_fd);
+            this->pipe_write_fd = -1;
+          }
+	  close (this->pipe_read_fd);
+          this->pipe_read_fd = -1;
+
+          DBG(1, "hp_handle_startReader: fork() failed\n");
+
+	  return SANE_STATUS_IO_ERROR;
+	}
+
+      DBG(1, "start_reader: reader process %d started\n", this->reader_pid);
+      return SANE_STATUS_GOOD;
+    }
+
+  if (!this->child_forked)
+  {
+    DBG(3, "Unexpected return from sanei_thread_begin()\n");
+  }
+
+  /* Here we are in a forked child. The thread will not come up to here. */
+  /* Forked child must close read end of pipe */
+  close (this->pipe_read_fd);
+  this->pipe_read_fd = -1;
+
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = SIG_DFL;
+  sigaction(SIGTERM, &sa, 0);
+  sigdelset(&sig_set, SIGTERM);
+  sigprocmask(SIG_SETMASK, &sig_set, 0);
+
+  /* not closing writing end of pipe gives an infinite loop on Digital UNIX */
+  status = sanei_hp_scsi_pipeout(scsi,this->pipe_write_fd,procdata);
+  close (this->pipe_write_fd);
+  this->pipe_write_fd = -1;
   DBG(3,"hp_handle_startReader: Exiting child (%s)\n",sane_strstatus(status));
   _exit(status);
 }
@@ -147,12 +288,22 @@ hp_handle_stopScan (HpHandle this)
     {
       int info;
       DBG(3, "hp_handle_stopScan: killing child (%d)\n", this->reader_pid);
-      kill(this->reader_pid, SIGTERM);
-      waitpid(this->reader_pid, &info, 0);
+      if (this->child_forked)
+      {
+        kill(this->reader_pid, SIGTERM);
+        waitpid(this->reader_pid, &info, 0);
+      }
+      else
+      {
+#ifdef HP_USE_THREAD
+        sanei_thread_kill (this->reader_pid, SIGTERM);
+        sanei_thread_waitpid(this->reader_pid, &info, 0);
+#endif
+      }
       DBG(1, "hp_handle_stopScan: child %s = %d\n",
 	  WIFEXITED(info) ? "exited, status" : "signalled, signal",
 	  WIFEXITED(info) ? WEXITSTATUS(info) : WTERMSIG(info));
-      close(this->pipefd);
+      close(this->pipe_read_fd);
       this->reader_pid = 0;
 
       if ( !FAILED( sanei_hp_scsi_new(&scsi, this->dev->sanedev.name)) )
@@ -386,7 +537,7 @@ sanei_hp_handle_startScan (HpHandle this)
   SANE_Status	status;
   HpScsi	scsi;
   HpScl         scl;
-  HpProcessData procdata;
+  HpProcessData *procdata = &(this->procdata);
   int           adfscan;
 
   /* FIXME: setup preview mode stuff? */
@@ -403,9 +554,9 @@ sanei_hp_handle_startScan (HpHandle this)
 
   if (!FAILED(status))
      status = hp_handle_uploadParameters(this, scsi,
-                                         &(procdata.bits_per_channel),
-                                         &(procdata.invert),
-                                         &(procdata.out8));
+                                         &(procdata->bits_per_channel),
+                                         &(procdata->invert),
+                                         &(procdata->out8));
 
   if (FAILED(status))
     {
@@ -413,9 +564,9 @@ sanei_hp_handle_startScan (HpHandle this)
       return status;
     }
 
-  procdata.mirror_vertical =
+  procdata->mirror_vertical =
      sanei_hp_optset_mirror_vert (this->dev->options, this->data, scsi);
-  DBG(1, "start: %s to mirror image vertically\n", procdata.mirror_vertical ?
+  DBG(1, "start: %s to mirror image vertically\n", procdata->mirror_vertical ?
          "Request" : "No request" );
 
   scl = sanei_hp_optset_scan_type (this->dev->options, this->data);
@@ -527,7 +678,7 @@ sanei_hp_handle_startScan (HpHandle this)
     }
   }
 
-  DBG(1, "start: %s to mirror image vertically\n", procdata.mirror_vertical ?
+  DBG(1, "start: %s to mirror image vertically\n", procdata->mirror_vertical ?
          "Request" : "No request" );
 
   this->bytes_left = ( this->scan_params.bytes_per_line
@@ -536,35 +687,37 @@ sanei_hp_handle_startScan (HpHandle this)
   DBG(1, "start: %d pixels per line, %d bytes per line, %d lines high\n",
       this->scan_params.pixels_per_line, this->scan_params.bytes_per_line,
       this->scan_params.lines);
-  procdata.bytes_per_line = (int)this->scan_params.bytes_per_line;
-  if (procdata.out8)
+  procdata->bytes_per_line = (int)this->scan_params.bytes_per_line;
+  if (procdata->out8)
   {
-    procdata.bytes_per_line *= 2;
+    procdata->bytes_per_line *= 2;
     DBG(1,"(scanner will send %d bytes per line, 8 bit output forced)\n",
-        procdata.bytes_per_line);
+        procdata->bytes_per_line);
   }
-  procdata.lines = this->scan_params.lines;
+  procdata->lines = this->scan_params.lines;
 
   /* Wait for front-panel button push ? */
   status = sanei_hp_optset_start_wait(this->dev->options, this->data);
 
   if (status)   /* Wait for front button push ? Start scan in reader process */
   {
-    procdata.startscan = scl;
+    procdata->startscan = scl;
     status = SANE_STATUS_GOOD;
   }
   else
   {
-    procdata.startscan = 0;
+    procdata->startscan = 0;
     status = sanei_hp_scl_startScan(scsi, scl);
   }
 
   if (!FAILED( status ))
   {
-      status = hp_handle_startReader(this, scsi, &procdata);
+      status = hp_handle_startReader(this, scsi);
   }
 
-  sanei_hp_scsi_destroy(scsi,0);
+  /* Close SCSI-connection in forked environment */
+  if (this->child_forked)
+    sanei_hp_scsi_destroy(scsi,0);
 
   return status;
 }
@@ -598,7 +751,7 @@ sanei_hp_handle_read (HpHandle this, void * buf, size_t *lengthp)
   if (*lengthp > this->bytes_left)
       *lengthp = this->bytes_left;
 
-  if ((nread = read(this->pipefd, buf, *lengthp)) < 0)
+  if ((nread = read(this->pipe_read_fd, buf, *lengthp)) < 0)
     {
       *lengthp = 0;
       if (errno == EAGAIN)
@@ -656,7 +809,12 @@ sanei_hp_handle_cancel (HpHandle this)
   {
      DBG(3,"sanei_hp_handle_cancel: send SIGTERM to child (%d)\n",
          this->reader_pid);
-     kill(this->reader_pid, SIGTERM);
+     if (this->child_forked)
+       kill(this->reader_pid, SIGTERM);
+#ifndef HP_USE_THREAD
+     else
+       sanei_thread_kill(this->reader_pid, SIGTERM);
+#endif
   }
 }
 
@@ -673,7 +831,7 @@ sanei_hp_handle_setNonblocking (HpHandle this, hp_bool_t non_blocking)
       return SANE_STATUS_CANCELLED;
     }
 
-  if (fcntl(this->pipefd, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
+  if (fcntl(this->pipe_read_fd, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
       return SANE_STATUS_IO_ERROR;
 
   return SANE_STATUS_GOOD;
@@ -692,6 +850,6 @@ sanei_hp_handle_getPipefd (HpHandle this, SANE_Int *fd)
       return SANE_STATUS_CANCELLED;
     }
 
-  *fd = this->pipefd;
+  *fd = this->pipe_read_fd;
   return SANE_STATUS_GOOD;
 }

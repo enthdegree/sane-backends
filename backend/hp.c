@@ -43,8 +43,11 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "1.01";
+static char *hp_backend_version = "1.02";
 /* Changes:
+
+   V 1.02, 02-Feb-2003, PK (peter@kirchgessner.net)
+      - add OS/2-support by Franz Bakan
 
    V 1.01, 06-Dec-2002, PK (peter@kirchgessner.net)
       - add option dumb-read to work around problems

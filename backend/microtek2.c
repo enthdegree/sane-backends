@@ -4,7 +4,7 @@
    microtek2.c 
 
    This file (C) 1998, 1999 Bernd Schroeder
-   modifications 2000 Karsten Festag
+   modifications 2000, 2001 Karsten Festag
 
    This file is part of the SANE package.
 
@@ -98,7 +98,8 @@ static Microtek2_Device *md_first_dev = NULL;        /* list of known devices */
 static Microtek2_Scanner *ms_first_handle = NULL;    /* list of open scanners */
 
 /* options that can be configured in the config file */
-static Config_Options md_options = { 1.0, "off", "off", "off", "off", "off"};
+static Config_Options md_options =
+                               { 1.0, "off", "off", "off", "off", "off", "off"};
 static Config_Temp *md_config_temp = NULL;
 static int md_dump = 0;                 /* from config file: */
                                         /* 1: inquiry + scanner attributes */
@@ -155,512 +156,6 @@ sane_close (SANE_Handle handle)
 }
 
 
-/*---------- sane_control_option() -------------------------------------------*/
-
-SANE_Status
-sane_control_option(SANE_Handle handle, SANE_Int option,
-                    SANE_Action action, void *value, SANE_Int *info)
-{
-    Microtek2_Scanner *ms = handle;
-    Microtek2_Device *md;
-    Microtek2_Option_Value *val;
-    SANE_Option_Descriptor *sod;
-    SANE_Status status;
-
-
-    md = ms->dev;
-    val = &ms->val[0];
-    sod = &ms->sod[0];
-
-    if ( ms->scanning )
-        return SANE_STATUS_DEVICE_BUSY;
-    
-    if ( option < 0 || option >= NUM_OPTIONS ) 
-      {
-        DBG(10, "sane_control_option: option %d invalid\n", option);
-        return SANE_STATUS_INVAL;
-      }
-    
-    if ( ! SANE_OPTION_IS_ACTIVE(ms->sod[option].cap) ) 
-      {
-        DBG(10, "sane_control_option: option %d not active\n", option);
-        return SANE_STATUS_INVAL;
-      }
-
-    if ( info )
-        *info = 0;
-
-    switch ( action ) 
-      {
-        case SANE_ACTION_GET_VALUE:
-          switch ( option ) 
-            {
-              /* word options */   
-              case OPT_BITDEPTH:
-              case OPT_RESOLUTION:
-              case OPT_X_RESOLUTION:
-              case OPT_Y_RESOLUTION:
-              case OPT_THRESHOLD:
-              case OPT_TL_X:
-              case OPT_TL_Y:
-              case OPT_BR_X:
-              case OPT_BR_Y:
-              case OPT_PREVIEW:
-              case OPT_BRIGHTNESS:
-              case OPT_CONTRAST:
-              case OPT_SHADOW:
-              case OPT_SHADOW_R:
-              case OPT_SHADOW_G:
-              case OPT_SHADOW_B:
-              case OPT_MIDTONE:
-              case OPT_MIDTONE_R:
-              case OPT_MIDTONE_G:
-              case OPT_MIDTONE_B:
-              case OPT_HIGHLIGHT:
-              case OPT_HIGHLIGHT_R:
-              case OPT_HIGHLIGHT_G:
-              case OPT_HIGHLIGHT_B:
-              case OPT_EXPOSURE:
-              case OPT_EXPOSURE_R:
-              case OPT_EXPOSURE_G:
-              case OPT_EXPOSURE_B:
-              case OPT_GAMMA_SCALAR:
-              case OPT_GAMMA_SCALAR_R:
-              case OPT_GAMMA_SCALAR_G:
-              case OPT_GAMMA_SCALAR_B:
-                *(SANE_Word *) value = val[option].w;
-                if (sod[option].type == SANE_TYPE_FIXED )
-                    DBG(50, "sane_control_option: opt=%d, act=%d, val=%f\n",
-                             option, action, SANE_UNFIX(val[option].w)); 
-                else
-                    DBG(50, "sane_control_option: opt=%d, act=%d, val=%d\n",
-                             option, action, val[option].w); 
-                return SANE_STATUS_GOOD;
-              
-              /* boolean options */
-              case OPT_RESOLUTION_BIND:
-              case OPT_DISABLE_BACKTRACK:
-              case OPT_CALIB_BACKEND:
-              case OPT_LIGHTLID35:
-              case OPT_GAMMA_BIND:
-              case OPT_AUTOADJUST:
-                *(SANE_Bool *) value = val[option].w;
-                DBG(50, "sane_control_option: opt=%d, act=%d, val=%d\n",
-                         option, action, val[option].w); 
-                return SANE_STATUS_GOOD;
-              
-              /* string options */ 
-              case OPT_SOURCE:
-              case OPT_MODE:
-              case OPT_HALFTONE:
-              case OPT_CHANNEL:
-              case OPT_GAMMA_MODE:
-                strcpy(value, val[option].s);
-                DBG(50, "sane_control_option: opt=%d, act=%d, val=%s\n",
-                         option, action, val[option].s); 
-                return SANE_STATUS_GOOD;
-              
-              /* word array options */
-              case OPT_GAMMA_CUSTOM:
-              case OPT_GAMMA_CUSTOM_R:
-              case OPT_GAMMA_CUSTOM_G:
-              case OPT_GAMMA_CUSTOM_B:
-                memcpy(value, val[option].wa, sod[option].size);
-                return SANE_STATUS_GOOD;
-
-              /* button options */
-              case OPT_TOGGLELAMP:
-                return SANE_STATUS_GOOD;
-
-              /* others */
-              case OPT_NUM_OPTS:
-                *(SANE_Word *) value = NUM_OPTIONS;
-                return SANE_STATUS_GOOD;
- 
-              default:
-                return SANE_STATUS_UNSUPPORTED;
-            }
-          /* NOTREACHED */
-          /* break; */
-
-        case SANE_ACTION_SET_VALUE:
-          if ( ! SANE_OPTION_IS_SETTABLE(sod[option].cap) )
-            {
-              DBG(10, "sane_control_option: trying to set unsettable option\n");
-              return SANE_STATUS_INVAL;
-            }
-
-          /* do not check OPT_BR_Y, xscanimage sometimes tries to set */
-          /* it to a too large value; bug in xscanimage ? */
-          if ( option != OPT_BR_Y )
-            {
-              status = sanei_constrain_value(ms->sod + option, value, info);
-              if (status != SANE_STATUS_GOOD)
-                {
-                  DBG(10, "sane_control_option: invalid option value\n");
-                  return status;
-                }
-            }
- 
-          switch ( sod[option].type )
-            {
-              case SANE_TYPE_BOOL:
-                DBG(50, "sane_control_option: option=%d, action=%d, value=%d\n",
-                         option, action, *(SANE_Int *) value);
-                if ( val[option].w == *(SANE_Bool *) value ) /* no change */
-                    return SANE_STATUS_GOOD;
-                val[option].w = *(SANE_Bool *) value;
-                break;
-              case SANE_TYPE_INT:
-                if ( sod[option].size == sizeof(SANE_Int) )
-                  {
-                    /* word option */
-                    DBG(50, "sane_control_option: option=%d, action=%d, "
-                            "value=%d\n", option, action, *(SANE_Int *) value);
-                    if ( val[option].w == *(SANE_Int *) value ) /* no change */
-                        return SANE_STATUS_GOOD;
-                    val[option].w = *(SANE_Int *) value;
-                  }
-                else
-                  {
-                    /* word array option */
-                    memcpy(val[option].wa, value, sod[option].size);
-                  } 
-                break;
-              case SANE_TYPE_FIXED:
-                DBG(50, "sane_control_option: option=%d, action=%d, value=%f\n",
-                         option, action, SANE_UNFIX( *(SANE_Fixed *) value));
-                if ( val[option].w == *(SANE_Fixed *) value ) /* no change */
-                    return SANE_STATUS_GOOD;
-                val[option].w = *(SANE_Fixed *) value;
-                break;
-              case SANE_TYPE_STRING:
-                DBG(50, "sane_control_option: option=%d, action=%d, value=%s\n",
-                         option, action, (SANE_String) value);
-                if ( strcmp(val[option].s, (SANE_String) value) == 0 )
-                    return SANE_STATUS_GOOD;         /* no change */
-                if ( val[option].s )
-                    free((void *) val[option].s);
-                val[option].s = strdup(value); 
-                if ( val[option].s == NULL ) 
-                  {
-                    DBG(1, "sane_control_option: strdup failed\n");
-                    return SANE_STATUS_NO_MEM;
-                  }
-                break;
-              case SANE_TYPE_BUTTON:
-                break;
-              default:
-                DBG(1, "sane_control_option: unknown type %d\n",
-                        sod[option].type);
-                break;
-            }
-
-          switch ( option ) 
-            {
-              case OPT_RESOLUTION:
-              case OPT_X_RESOLUTION:
-              case OPT_Y_RESOLUTION:
-              case OPT_TL_X:
-              case OPT_TL_Y:
-              case OPT_BR_X:
-              case OPT_BR_Y:
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_PARAMS;
-                    return SANE_STATUS_GOOD;
-              case OPT_DISABLE_BACKTRACK:
-              case OPT_CALIB_BACKEND:
-              case OPT_LIGHTLID35:
-              case OPT_PREVIEW:
-              case OPT_BRIGHTNESS:
-              case OPT_THRESHOLD:
-              case OPT_CONTRAST:
-              case OPT_EXPOSURE:
-              case OPT_EXPOSURE_R:
-              case OPT_EXPOSURE_G:
-              case OPT_EXPOSURE_B:
-              case OPT_GAMMA_SCALAR:
-              case OPT_GAMMA_SCALAR_R:
-              case OPT_GAMMA_SCALAR_G:
-              case OPT_GAMMA_SCALAR_B:
-              case OPT_GAMMA_CUSTOM:
-              case OPT_GAMMA_CUSTOM_R:
-              case OPT_GAMMA_CUSTOM_G:
-              case OPT_GAMMA_CUSTOM_B:
-              case OPT_HALFTONE:
-                return SANE_STATUS_GOOD;
-
-              case OPT_BITDEPTH:
-                /* If the bitdepth has changed we must change the size of */
-                /* the gamma table if the device does not support gamma */
-                /* tables. This will hopefully cause no trouble if the */
-                /* mode is one bit */
-                
-                if ( md->model_flags & MD_NO_GAMMA )
-                  {
-                    int max_gamma_value;
-                    int size;
-                    int color;
-                    int i;
-                    
-                    size = (int) pow(2.0, (double) val[OPT_BITDEPTH].w) - 1;
-                    max_gamma_value = size - 1;
-                    for ( color = 0; color < 4; color++ )
-                      {
-                        for ( i = 0; i < max_gamma_value; i++ )
-                            md->custom_gamma_table[color][i] = (SANE_Int) i;
-                      }       
-                    md->custom_gamma_range.max = (SANE_Int) max_gamma_value;
-                    sod[OPT_GAMMA_CUSTOM].size = size * sizeof (SANE_Int);
-                    sod[OPT_GAMMA_CUSTOM_R].size = size * sizeof (SANE_Int);
-                    sod[OPT_GAMMA_CUSTOM_G].size = size * sizeof (SANE_Int);
-                    sod[OPT_GAMMA_CUSTOM_B].size = size * sizeof (SANE_Int);
-
-                    if ( info )
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-
-                  }
-               
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_PARAMS;
-                    return SANE_STATUS_GOOD;
-              case OPT_SOURCE:
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-                if ( strcmp(val[option].s, MD_SOURCESTRING_FLATBED) == 0 )
-                    md->scan_source = MD_SOURCE_FLATBED;
-                else if ( strcmp(val[option].s, MD_SOURCESTRING_TMA) == 0 )
-                    md->scan_source = MD_SOURCE_TMA;
-                else if ( strcmp(val[option].s, MD_SOURCESTRING_ADF) == 0 )
-                    md->scan_source = MD_SOURCE_ADF;
-                else if ( strcmp(val[option].s, MD_SOURCESTRING_STRIPE) == 0 )
-                    md->scan_source = MD_SOURCE_STRIPE;
-                else if ( strcmp(val[option].s, MD_SOURCESTRING_SLIDE) == 0 )
-                    md->scan_source = MD_SOURCE_SLIDE;
-                else
-                  {
-                    DBG(1, "sane_control_option: unsupported option %s\n",
-                            val[option].s);
-                    return SANE_STATUS_UNSUPPORTED;
-                  }
- 
-                init_options(ms, md->scan_source);
-                return SANE_STATUS_GOOD;
-
-              case OPT_MODE:
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-
-                status = set_option_dependencies(sod, val);
-                                                 
-                /* Options with side effects need special treatment. They are */
-                /* reset, even if they were set by set_option_dependencies(): */
-                /* if we have more than one color depth activate this option */
-
-                if ( md->bitdepth_list[0] == 1 )
-                    sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;  
-                if ( strncmp(md->opts.auto_adjust, "off", 3) == 0 )
-                    sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE; 
-
-                if ( status != SANE_STATUS_GOOD )
-                    return status;
-                return SANE_STATUS_GOOD;
-
-              case OPT_CHANNEL:
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_OPTIONS;
-                if ( strcmp(val[option].s, MD_CHANNEL_MASTER) == 0 )
-                  {
-                    sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
-                  }
-                else if ( strcmp(val[option].s, MD_CHANNEL_RED) == 0 )
-                  {
-                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
-                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_R].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_R].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_R].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_R].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;   
-                  }
-                else if ( strcmp(val[option].s, MD_CHANNEL_GREEN) == 0 )
-                  {
-                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_G].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_G].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_G].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_G].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;   
-                  }
-                else if ( strcmp(val[option].s, MD_CHANNEL_BLUE) == 0 )
-                  {
-                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
-                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;   
-                    sod[OPT_SHADOW_B].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_MIDTONE_B].cap &= ~SANE_CAP_INACTIVE;           
-                    sod[OPT_HIGHLIGHT_B].cap &= ~SANE_CAP_INACTIVE;   
-                    sod[OPT_EXPOSURE_B].cap &= ~SANE_CAP_INACTIVE;   
-                  }
-                return SANE_STATUS_GOOD;
-              
-              case OPT_GAMMA_MODE:
-                restore_gamma_options(sod, val);
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_OPTIONS;
-                return SANE_STATUS_GOOD;
-
-              case OPT_GAMMA_BIND:
-                restore_gamma_options(sod, val);
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_OPTIONS;
-
-                return SANE_STATUS_GOOD;
-
-              case OPT_SHADOW:
-              case OPT_SHADOW_R:
-              case OPT_SHADOW_G:
-              case OPT_SHADOW_B:
-                if ( val[option].w >= val[option + 1].w )
-                  {
-                    val[option + 1].w = val[option].w + 1;
-                    if ( info )
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-                  }
-                if ( val[option + 1].w >= val[option + 2].w ) 
-                    val[option + 2].w = val[option + 1].w + 1;
-
-                return SANE_STATUS_GOOD;
-        
-              case OPT_MIDTONE:
-              case OPT_MIDTONE_R:
-              case OPT_MIDTONE_G:
-              case OPT_MIDTONE_B:
-                if ( val[option].w <= val[option - 1].w )
-                  {
-                    val[option - 1].w = val[option].w - 1;
-                    if ( info )
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-                  }
-                if ( val[option].w >= val[option + 1].w ) 
-                  {
-                    val[option + 1].w = val[option].w + 1;
-                    if ( info )
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-                  }
-
-                return SANE_STATUS_GOOD;
-        
-              case OPT_HIGHLIGHT:
-              case OPT_HIGHLIGHT_R:
-              case OPT_HIGHLIGHT_G:
-              case OPT_HIGHLIGHT_B:
-                if ( val[option].w <= val[option - 1].w )
-                  {
-                    val[option - 1].w = val[option].w - 1;
-                    if ( info )
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-                  }
-                if ( val[option - 1].w <= val[option - 2].w ) 
-                    val[option - 2].w = val[option - 1].w - 1;
-
-                return SANE_STATUS_GOOD;
-
-              case OPT_RESOLUTION_BIND:
-                if ( ms->val[option].w == SANE_FALSE )
-                  {
-                    ms->sod[OPT_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-                    ms->sod[OPT_X_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
-                    ms->sod[OPT_Y_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
-                  }
-                else
-                  {
-                    ms->sod[OPT_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
-                    ms->sod[OPT_X_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-                    ms->sod[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-                  }
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_OPTIONS;
-                return SANE_STATUS_GOOD;
-
-              case OPT_TOGGLELAMP:
-                status = scsi_read_system_status(md, -1);
-                if ( status != SANE_STATUS_GOOD )
-                    return SANE_STATUS_IO_ERROR;
-
-                md->status.flamp ^= 1;
-                status = scsi_send_system_status(md, -1);
-                if ( status != SANE_STATUS_GOOD )
-                    return SANE_STATUS_IO_ERROR;
-                return SANE_STATUS_GOOD;
-
-              case OPT_AUTOADJUST:
-                if ( info )
-                    *info |= SANE_INFO_RELOAD_OPTIONS;
- 
-                if ( ms->val[option].w == SANE_FALSE )
-                    ms->sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
-                else
-                    ms->sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-
-                return SANE_STATUS_GOOD;
-
-              default:
-                return SANE_STATUS_UNSUPPORTED;
-            }
-#if 0
-          break;
-#endif 
-        default:
-          DBG(1, "sane_control_option: Unsupported action %d\n", action);
-          return SANE_STATUS_UNSUPPORTED;
-      }
-}
-
-
 /*---------- sane_exit() -----------------------------------------------------*/
 
 void
@@ -675,7 +170,7 @@ sane_exit (void)
     while (ms_first_handle != NULL)
         sane_close(ms_first_handle);
     /* free up device list */
-    while (md_first_dev != NULL) 
+    while (md_first_dev != NULL)
       {
         next = md_first_dev->next;
 
@@ -795,25 +290,6 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 
     sd_list[index] = NULL;
     return SANE_STATUS_GOOD;
-}
-
-
-/*---------- sane_get_option_descriptor() ------------------------------------*/
-
-const SANE_Option_Descriptor *
-sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
-{
-    Microtek2_Scanner *ms = handle;
-
-    DBG(255, "sane_get_option_descriptor: handle=%p, opt=%d\n", handle, n);
-
-    if ( n < 0 || n > NUM_OPTIONS )
-      {
-        DBG(30, "sane_get_option_descriptor: invalid option %d\n", n);
-        return NULL;
-      }
-
-    return &ms->sod[n];
 }
 
 
@@ -1590,6 +1066,30 @@ check_option(const char *cp, Config_Options *co)
             DBG(30, "check_option: option value wrong: %s\n", cp);
           }
       }
+    else if ( strncmp(cp, "colorbalance-adjust", 19) == 0
+              && isspace(cp[19]) )
+      {
+        cp = sanei_config_skip_whitespace(cp + 19);
+        if ( strncmp(cp, "on", 2) == 0 )
+          {
+            cp = sanei_config_skip_whitespace(cp + 2);
+            co->colorbalance_adjust = "on";
+          }
+        else if ( strncmp(cp, "off", 3) == 0 )
+          {
+            cp = sanei_config_skip_whitespace(cp + 3);
+            co->colorbalance_adjust = "off";
+          }
+        else
+            co->colorbalance_adjust = "off";
+
+        if ( *cp )
+          {
+            /* something behind the option value or value wrong */
+            co->colorbalance_adjust = "off";
+            DBG(30, "check_option: option value wrong: %s\n", cp);
+          }
+      }
     else
         DBG(30, "check_option: invalid option in '%s'\n", cp);
 }
@@ -2104,43 +1604,43 @@ dump_attributes(Microtek2_Info *mi)
   DBG(1, "  Model Code%16s: 0x%02x\n"," ", mi->model_code);
   switch(mi->model_code)
     {
-      case 0x80: DBG(1, "%60s", "Redondo 2000XL / ArtixScan 2020\n"); break;
-      case 0x81: DBG(1, "%60s", "ScanMaker 4 / Aruba\n"); break;
-      case 0x82: DBG(1, "%60s", "Bali\n"); break;
-      case 0x83: DBG(1, "%60s", "Washington\n"); break;
-      case 0x84: DBG(1, "%60s", "Manhattan\n"); break;
-      case 0x85: DBG(1, "%60s", "ScanMaker V300 / Phantom parallel / TR3\n"); break;
-      case 0x86: DBG(1, "%60s", "CCP\n"); break;
-      case 0x87: DBG(1, "%60s", "Scanmaker V\n"); break;
-      case 0x88: DBG(1, "%60s", "Scanmaker VI\n"); break;
-      case 0x89: DBG(1, "%60s", "ScanMaker 6400XL / A3-400\n"); break;
-      case 0x8a: DBG(1, "%60s", "ScanMaker 9600XL / A3-600\n"); break;
-      case 0x8b: DBG(1, "%60s", "Watt\n"); break;
-      case 0x8c: DBG(1, "%60s", "ScanMaker V600 / TR6\n"); break;
-      case 0x8d: DBG(1, "%60s", "ScanMaker V310 / Tr3 10-bit\n"); break;
-      case 0x8e: DBG(1, "%60s", "CCB\n"); break;
-      case 0x8f: DBG(1, "%68s", "Sun Rise\n"); break;
-      case 0x90: DBG(1, "%60s", "ScanMaker E3+ 10-bit\n"); break;
-      case 0x91: DBG(1, "%60s", "ScanMaker X6 / Phantom 636\n"); break;
-      case 0x92: DBG(1, "%60s", "ScanMaker E3+ / Vobis Highscan\n"); break;
-      case 0x93: DBG(1, "%60s", "ScanMaker V310\n"); break;
-      case 0x94: DBG(1, "%60s", "SlimScan C3 / Phantom 330cx / 336cx\n"); break;
-      case 0x95: DBG(1, "%60s", "ArtixScan 1010\n"); break;
-      case 0x97: DBG(1, "%60s", "ScanMaker V636\n"); break;
-      case 0x98: DBG(1, "%60s", "ScanMaker X6EL\n"); break;
-      case 0x99: DBG(1, "%60s", "ScanMaker X6 / X6USB\n"); break;
-      case 0x9a: DBG(1, "%60s", "SlimScan C6 / Phantom 636cx\n"); break;
-      case 0x9d: DBG(1, "%60s", "AGFA DuoScan T1200\n"); break;
-      case 0xa0: DBG(1, "%60s", "SlimScan C3 / Phantom 336cx\n"); break;
-      case 0xac: DBG(1, "%60s", "ScanMaker V6UL\n"); break;
-      case 0xa3: DBG(1, "%60s", "ScanMaker V6USL\n"); break;
-      case 0xaf: DBG(1, "%60s", "SlimScan C3 / Phantom 336cx\n"); break;
-      case 0xb0: DBG(1, "%60s", "ScanMaker X12USL\n"); break;
-      case 0xb3: DBG(1, "%60s", "ScanMaker 3600\n"); break;
-      case 0xb4: DBG(1, "%60s", "ScanMaker 4700\n"); break;
-      case 0xb6: DBG(1, "%60s", "ScanMaker V6UPL\n"); break;
-      case 0xb8: DBG(1, "%60s", "ScanMaker 3700\n"); break;
-      default:   DBG(1, "%60s", "Unknown\n"); break;
+      case 0x80: DBG(1,  "Redondo 2000XL / ArtixScan 2020\n"); break;
+      case 0x81: DBG(1,  "ScanMaker 4 / Aruba\n"); break;
+      case 0x82: DBG(1,  "Bali\n"); break;
+      case 0x83: DBG(1,  "Washington\n"); break;
+      case 0x84: DBG(1,  "Manhattan\n"); break;
+      case 0x85: DBG(1,  "ScanMaker V300 / Phantom parallel / TR3\n"); break;
+      case 0x86: DBG(1,  "CCP\n"); break;
+      case 0x87: DBG(1,  "Scanmaker V\n"); break;
+      case 0x88: DBG(1,  "Scanmaker VI\n"); break;
+      case 0x89: DBG(1,  "ScanMaker 6400XL / A3-400\n"); break;
+      case 0x8a: DBG(1,  "ScanMaker 9600XL / A3-600\n"); break;
+      case 0x8b: DBG(1,  "Watt\n"); break;
+      case 0x8c: DBG(1,  "ScanMaker V600 / TR6\n"); break;
+      case 0x8d: DBG(1,  "ScanMaker V310 / Tr3 10-bit\n"); break;
+      case 0x8e: DBG(1,  "CCB\n"); break;
+      case 0x8f: DBG(1,  "Sun Rise\n"); break;
+      case 0x90: DBG(1,  "ScanMaker E3+ 10-bit\n"); break;
+      case 0x91: DBG(1,  "ScanMaker X6 / Phantom 636\n"); break;
+      case 0x92: DBG(1,  "ScanMaker E3+ / Vobis Highscan\n"); break;
+      case 0x93: DBG(1,  "ScanMaker V310\n"); break;
+      case 0x94: DBG(1,  "SlimScan C3 / Phantom 330cx / 336cx\n"); break;
+      case 0x95: DBG(1,  "ArtixScan 1010\n"); break;
+      case 0x97: DBG(1,  "ScanMaker V636\n"); break;
+      case 0x98: DBG(1,  "ScanMaker X6EL\n"); break;
+      case 0x99: DBG(1,  "ScanMaker X6 / X6USB\n"); break;
+      case 0x9a: DBG(1,  "SlimScan C6 / Phantom 636cx\n"); break;
+      case 0x9d: DBG(1,  "AGFA DuoScan T1200\n"); break;
+      case 0xa0: DBG(1,  "SlimScan C3 / Phantom 336cx\n"); break;
+      case 0xac: DBG(1,  "ScanMaker V6UL\n"); break;
+      case 0xa3: DBG(1,  "ScanMaker V6USL\n"); break;
+      case 0xaf: DBG(1,  "SlimScan C3 / Phantom 336cx\n"); break;
+      case 0xb0: DBG(1,  "ScanMaker X12USL\n"); break;
+      case 0xb3: DBG(1,  "ScanMaker 3600\n"); break;
+      case 0xb4: DBG(1,  "ScanMaker 4700\n"); break;
+      case 0xb6: DBG(1,  "ScanMaker V6UPL\n"); break;
+      case 0xb8: DBG(1,  "ScanMaker 3700\n"); break;
+      default:   DBG(1,  "Unknown\n"); break;
     }
   DBG(1, "  Device Type Code%10s: 0x%02x (%s),\n", " ",
                   mi->device_type,
@@ -2150,30 +1650,30 @@ dump_attributes(Microtek2_Info *mi)
   switch (mi->scanner_type)
     {
       case MI_TYPE_FLATBED:
-          DBG(1, "  Scanner type%33s%s", " ", " Flatbed scanner\n");
+          DBG(1, "  Scanner type%14s:%s", " ", " Flatbed scanner\n");
           break;
       case MI_TYPE_TRANSPARENCY:
-          DBG(1, "  Scanner type%33s%s", " ", " Transparency scanner\n");
+          DBG(1, "  Scanner type%14s:%s", " ", " Transparency scanner\n");
           break;
       case MI_TYPE_SHEEDFEED:
-          DBG(1, "  Scanner type%33s%s", " ", " Sheet feed scanner\n");
+          DBG(1, "  Scanner type%14s:%s", " ", " Sheet feed scanner\n");
           break;
       default:
-          DBG(1, "  Scanner type%33s%s", " ", " Unknown\n");
+          DBG(1, "  Scanner type%14s:%s", " ", " Unknown\n");
           break;
     }
 
   DBG(1, "  Supported options%9s: Automatic document feeder: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_ADF ? "Yes" : "No");
-  DBG(1, "%31sTransparency media adapter: %s\n",
+  DBG(1, "%30sTransparency media adapter: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_TMA ? "Yes" : "No");
-  DBG(1, "%31sAuto paper detecting: %s\n",
+  DBG(1, "%30sAuto paper detecting: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_ADP ? "Yes" : "No");
-  DBG(1, "%31sAdvanced picture system: %s\n",
+  DBG(1, "%30sAdvanced picture system: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_APS ? "Yes" : "No");
-  DBG(1, "%31sStripes: %s\n",
+  DBG(1, "%30sStripes: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_STRIPE ? "Yes" : "No");
-  DBG(1, "%31sSlides: %s\n",
+  DBG(1, "%30sSlides: %s\n",
 	          " ", mi->option_device & MI_OPTDEV_SLIDE ? "Yes" : "No");
   DBG(1, "  Scan button%15s: %s\n", " ", mi->scnbuttn ? "Yes" : "No"); 
          
@@ -2209,7 +1709,7 @@ dump_attributes(Microtek2_Info *mi)
   DBG(1, "  d/l of HT pattern%2s: %s\n",
                   " ", (mi->has_dnldptrn) ? "Yes" : "No");
   DBG(1, "  Builtin HT pattern%1s: %d\n", " ", mi->grain_slct);
-  
+
   if ( MI_LUTCAP_NONE(mi->lut_cap) ) 
       DBG(1, "  LUT capabilities   : None\n"); 
   if ( mi->lut_cap & MI_LUTCAP_256B )
@@ -2264,11 +1764,14 @@ dump_attributes(Microtek2_Info *mi)
 	  case MI_COLSEQ_BLUE:  DBG(1,"%34s%s\n", " ","B"); break;
         }
     }
-  DBG(1, "  Scanning direction%13s: ", " ");
-  if ( mi->direction & MI_DATSEQ_RTOL )
-      DBG(1, "Right to left\n");
+  if ( mi->new_image_status == SANE_TRUE )
+      DBG(1, "  Using new ReadImageStatus format\n");
   else
-      DBG(1, "Left to right\n");
+      DBG(1, "  Using old ReadImageStatus format\n");
+  if ( mi->direction & MI_DATSEQ_RTOL )
+      DBG(1, "  Scanning direction             : right to left\n");
+  else
+      DBG(1, "  Scanning direction             : left to right\n");
   DBG(1, "  CCD gap%24s: %d lines\n", " ", mi->ccd_gap);
   DBG(1, "  CCD pixels%21s: %d\n", " ", mi->ccd_pixels);
   DBG(1, "  Calib white stripe location%4s: %d\n",
@@ -2286,6 +1789,129 @@ dump_attributes(Microtek2_Info *mi)
 
   md_dump_clear = 0;
   return SANE_STATUS_GOOD;
+}
+
+/*---------- max_string_size() -----------------------------------------------*/
+
+static size_t
+max_string_size (const SANE_String_Const strings[])
+{
+  size_t size;
+  size_t max_size = 0;
+  int i;
+
+  for (i = 0; strings[i]; ++i) {
+    size = strlen(strings[i]) + 1; /* +1 because NUL counts as part of string */
+    if (size > max_size) max_size = size;
+  }
+  return max_size;
+}
+
+/*---------- parse_config_file() ---------------------------------------------*/
+
+static void
+parse_config_file(FILE *fp, Config_Temp **ct)
+{
+    /* builds a list of device names with associated options from the */
+    /* config file for later use, when building the list of devices. */
+    /* ct->device = NULL indicates global options (valid for all devices */
+
+    char s[PATH_MAX];
+    Config_Options global_opts;
+    Config_Temp *hct1;
+    Config_Temp *hct2;
+
+
+    DBG(30, "parse_config_file: fp=%p\n", fp);
+
+    *ct = hct1 = NULL;
+
+    /* first read global options and store them in global_opts */
+    /* initialize global_opts with default values */
+
+    global_opts = md_options;
+
+    while ( sanei_config_read(s, sizeof(s), fp) )
+      {
+        DBG(100, "parse_config_file: read line: %s\n", s);
+        if ( *s == '#' || *s == '\0' )  /* ignore empty lines and comments */
+            continue;
+
+        if ( strncmp( sanei_config_skip_whitespace(s), "option ", 7) == 0
+          || strncmp( sanei_config_skip_whitespace(s), "option\t", 7) == 0 )
+          {
+            DBG(100, "parse_config_file: found global option %s\n", s);
+            check_option(s, &global_opts);
+          }
+        else                /* it is considered a new device */
+            break;
+      }
+
+    if ( ferror(fp) || feof(fp) )
+      {
+        if ( ferror(fp) )
+            DBG(1, "parse_config_file: fread failed: errno=%d\n", errno);
+
+        return;
+      }
+
+    while ( ! feof(fp) && ! ferror(fp) )
+      {
+        if ( *s == '#' || *s == '\0' )  /* ignore empty lines and comments */
+          {
+            sanei_config_read(s, sizeof(s), fp);
+            continue;
+          }
+
+        if ( strncmp( sanei_config_skip_whitespace(s), "option ", 7) == 0
+          || strncmp( sanei_config_skip_whitespace(s), "option\t", 7) == 0 )
+          {
+            /* when we enter this loop for the first time we allocate */
+            /* memory, because the line surely contains a device name, */
+            /* so hct1 is always != NULL at this point */
+            DBG(100, "parse_config_file: found device option %s\n", s);
+            check_option(s, &hct1->opts);
+          }
+
+
+        else                /* it is considered a new device */
+          {
+            DBG(100, "parse_config_file: found device %s\n", s);
+            hct2 = (Config_Temp *) malloc(sizeof(Config_Temp));
+            if ( hct2 == NULL )
+              {
+                DBG(1, "parse_config_file: malloc() failed\n");
+                return;
+              }
+
+            if ( *ct == NULL )   /* first element */
+                *ct = hct1 = hct2;
+
+            hct1->next = hct2;
+            hct1 = hct2;
+
+            hct1->device = strdup(s);
+            hct1->opts = global_opts;
+            hct1->next = NULL;
+          }
+        sanei_config_read(s, sizeof(s), fp);
+      }
+    /* set filepointer to the beginning of the file */
+    fseek(fp, 0L, SEEK_SET);
+    return;
+}
+
+
+/*---------- signal_handler() ------------------------------------------------*/
+
+static RETSIGTYPE
+signal_handler (int signal)
+{
+  if ( signal == SIGTERM )
+    {
+      sanei_scsi_req_flush_all ();
+      _exit (SANE_STATUS_GOOD);
+    }
 }
 
 /*---------- init_options() --------------------------------------------------*/
@@ -2310,7 +1936,6 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     int i;
     static int first_call = 1;     /* indicates, whether option */
                                    /* descriptors must be initialized */
-
 
     DBG(30, "init_options: handle=%p, source=%d\n", ms, current_scan_source);
 
@@ -2383,7 +2008,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         ++i;
       }
 
-    if ( mi->scanmode & MI_HASMODE_HALFTONE ) 
+    if ( mi->scanmode & MI_HASMODE_HALFTONE )
       {
 	md->scanmode_list[i] = (SANE_String) MD_MODESTRING_HALFTONE;
         if ( ! (mi->scanmode & MI_HASMODE_COLOR )
@@ -2402,7 +2027,6 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         val[OPT_MODE].s = strdup(md->scanmode_list[i]);
     ++i;
     md->scanmode_list[i] = NULL;
-
 
     /* bitdepth */
     i = 0;
@@ -2436,18 +2060,18 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     md->halftone_mode_list[9] = (SANE_String) MD_HALFTONE9;
     md->halftone_mode_list[10] = (SANE_String) MD_HALFTONE10;
     md->halftone_mode_list[11] = (SANE_String) MD_HALFTONE11;
-    md->halftone_mode_list[12] = NULL;  
+    md->halftone_mode_list[12] = NULL;
     if ( val[OPT_HALFTONE].s )
         free((void *) val[OPT_HALFTONE].s);
     val[OPT_HALFTONE].s = strdup(md->halftone_mode_list[0]);
-    
+
     /* Resolution */
     md->x_res_range_dpi.min = SANE_FIX(10.0);
     md->x_res_range_dpi.max = SANE_FIX(mi->max_xresolution);
     md->x_res_range_dpi.quant = SANE_FIX(1.0);
     val[OPT_RESOLUTION].w = MIN(MD_RESOLUTION_DEFAULT, md->x_res_range_dpi.max);
-    val[OPT_X_RESOLUTION].w =
-                           MIN(MD_RESOLUTION_DEFAULT,md->x_res_range_dpi.max);
+    val[OPT_X_RESOLUTION].w = val[OPT_RESOLUTION].w;
+
     md->y_res_range_dpi.min = SANE_FIX(10.0);
     md->y_res_range_dpi.max = SANE_FIX(mi->max_yresolution);
     md->y_res_range_dpi.quant = SANE_FIX(1.0);
@@ -2458,12 +2082,12 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
     /* Geometry */
     md->x_range_mm.min = SANE_FIX(0.0);
-    md->x_range_mm.max = SANE_FIX((double) mi->geo_width 
+    md->x_range_mm.max = SANE_FIX((double) mi->geo_width
                                   / (double) mi->opt_resolution
                                   * MM_PER_INCH);
     md->x_range_mm.quant = SANE_FIX(0.0);
     md->y_range_mm.min = SANE_FIX(0.0);
-    md->y_range_mm.max = SANE_FIX((double) mi->geo_height 
+    md->y_range_mm.max = SANE_FIX((double) mi->geo_height
                                   / (double) mi->opt_resolution
                                   * MM_PER_INCH);
     md->y_range_mm.quant = SANE_FIX(0.0);
@@ -2482,7 +2106,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     i = 0;
     md->gammamode_list[i++] = (SANE_String) MD_GAMMAMODE_LINEAR;
     md->gammamode_list[i++] = (SANE_String) MD_GAMMAMODE_SCALAR;
-    md->gammamode_list[i++] = (SANE_String) MD_GAMMAMODE_CUSTOM; 
+    md->gammamode_list[i++] = (SANE_String) MD_GAMMAMODE_CUSTOM;
     if ( val[OPT_GAMMA_MODE].s )
         free((void *) val[OPT_GAMMA_MODE].s);
     val[OPT_GAMMA_MODE].s = strdup(md->gammamode_list[0]);
@@ -2522,7 +2146,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         /* if bind gamma == false */
         if ( md->custom_gamma_table[color] )
             free((void *) md->custom_gamma_table[color]);
-        md->custom_gamma_table[color] = 
+        md->custom_gamma_table[color] =
                               (SANE_Int *) malloc(tablesize * sizeof(SANE_Int));
         DBG(100, "init_options: md->custom_gamma_table[%d]=%p, malloc'd %d bytes\n",
             color, md->custom_gamma_table[color],(tablesize * sizeof(SANE_Int)));
@@ -2580,7 +2204,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     val[OPT_RESOLUTION_BIND].w = SANE_TRUE;
 
     /* enable/disable option for backtracking */
-    val[OPT_DISABLE_BACKTRACK].w = SANE_FALSE;
+    val[OPT_DISABLE_BACKTRACK].w = SANE_TRUE;
 
     /* enable/disable calibration by backend */
     val[OPT_CALIB_BACKEND].w = SANE_FALSE;
@@ -2591,12 +2215,17 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     /* auto adjustment of threshold during a lineart scan */
     val[OPT_AUTOADJUST].w = SANE_FALSE;
 
+    /* color balance (100% means no correction) */
+    val[OPT_BALANCE_R].w = SANE_FIX(100);
+    val[OPT_BALANCE_G].w = SANE_FIX(100);
+    val[OPT_BALANCE_B].w = SANE_FIX(100);
+
     if ( first_call )
       {
         first_call = 0;
 
         /* initialize option descriptors and ranges */
-       
+
         /* Percentage range for brightness, contrast */
         md->percentage_range.min = 0 << SANE_FIXED_SCALE_SHIFT;
         md->percentage_range.max = 200 << SANE_FIXED_SCALE_SHIFT;
@@ -2625,6 +2254,10 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         md->exposure_range.min = 0;
         md->exposure_range.max = 510;
         md->exposure_range.quant = 2;
+
+        md->balance_range.min = 0;
+        md->balance_range.max = 200 << SANE_FIXED_SCALE_SHIFT;
+        md->balance_range.quant = 1 << SANE_FIXED_SCALE_SHIFT;
 
         /* default for most options */
         for ( i = 0; i < NUM_OPTIONS; i++ )
@@ -2672,7 +2305,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_MODE].size = max_string_size(md->scanmode_list);
         sod[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
         sod[OPT_MODE].constraint.string_list = md->scanmode_list;
-   
+
         /* Bit depth */
         sod[OPT_BITDEPTH].name = SANE_NAME_BIT_DEPTH;
         sod[OPT_BITDEPTH].title = SANE_TITLE_BIT_DEPTH;
@@ -2685,7 +2318,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
             sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
         sod[OPT_BITDEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
         sod[OPT_BITDEPTH].constraint.word_list = md->bitdepth_list;
-   
+
         /* Halftone */
         sod[OPT_HALFTONE].name = SANE_NAME_HALFTONE;
         sod[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
@@ -2702,7 +2335,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
         sod[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_RESOLUTION].constraint.range = &md->x_res_range_dpi;
-    
+
         sod[OPT_X_RESOLUTION].name = "x-" SANE_NAME_SCAN_RESOLUTION;
         sod[OPT_X_RESOLUTION].title = "X-Resolution";
         sod[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
@@ -2725,9 +2358,10 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_PREVIEW].size = sizeof(SANE_Bool);
         sod[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
 
-        /* Geometry group, for scan area selection */ 
+        /* Geometry group, for scan area selection */
         sod[OPT_GEOMETRY_GROUP].title = "Geometry";
         sod[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_GEOMETRY_GROUP].desc = "";
         sod[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
         sod[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
@@ -2748,7 +2382,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
         sod[OPT_BR_X].unit = SANE_UNIT_MM;
         sod[OPT_BR_X].constraint.range = &md->x_range_mm;
-    
+
         sod[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
         sod[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
         sod[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
@@ -2757,9 +2391,11 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
 
         /* Enhancement group */
         sod[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
-        sod[OPT_ENHANCEMENT_GROUP].desc = "";
         sod[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+        sod[OPT_ENHANCEMENT_GROUP].desc = "";
         sod[OPT_ENHANCEMENT_GROUP].cap = 0;
+        sod[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
         sod[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
         sod[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
         sod[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
@@ -2844,7 +2480,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_GAMMA_CUSTOM].cap |= SANE_CAP_INACTIVE;
         sod[OPT_GAMMA_CUSTOM].size = option_size * sizeof (SANE_Int);
         sod[OPT_GAMMA_CUSTOM].constraint.range = &md->custom_gamma_range;
-    
+
         sod[OPT_GAMMA_CUSTOM_R].name = SANE_NAME_GAMMA_VECTOR_R;
         sod[OPT_GAMMA_CUSTOM_R].title = SANE_TITLE_GAMMA_VECTOR_R;
         sod[OPT_GAMMA_CUSTOM_R].desc = SANE_DESC_GAMMA_VECTOR_R;
@@ -2852,7 +2488,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_GAMMA_CUSTOM_R].cap |= SANE_CAP_INACTIVE;
         sod[OPT_GAMMA_CUSTOM_R].size = option_size * sizeof (SANE_Int);
         sod[OPT_GAMMA_CUSTOM_R].constraint.range = &md->custom_gamma_range;
-    
+
         sod[OPT_GAMMA_CUSTOM_G].name = SANE_NAME_GAMMA_VECTOR_G;
         sod[OPT_GAMMA_CUSTOM_G].title = SANE_TITLE_GAMMA_VECTOR_G;
         sod[OPT_GAMMA_CUSTOM_G].desc = SANE_DESC_GAMMA_VECTOR_G;
@@ -2860,7 +2496,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_GAMMA_CUSTOM_G].cap |= SANE_CAP_INACTIVE;
         sod[OPT_GAMMA_CUSTOM_G].size = option_size * sizeof (SANE_Int);
         sod[OPT_GAMMA_CUSTOM_G].constraint.range = &md->custom_gamma_range;
-    
+
         sod[OPT_GAMMA_CUSTOM_B].name = SANE_NAME_GAMMA_VECTOR_B;
         sod[OPT_GAMMA_CUSTOM_B].title = SANE_TITLE_GAMMA_VECTOR_B;
         sod[OPT_GAMMA_CUSTOM_B].desc = SANE_DESC_GAMMA_VECTOR_B;
@@ -3003,7 +2639,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_EXPOSURE_B].size = sizeof(SANE_Int);
         sod[OPT_EXPOSURE_B].constraint.range = &md->exposure_range;
 
-        /* The Scan Mode Group */
+        /* The Special Options Group */
         sod[OPT_SPECIAL].title = "Special options";
         sod[OPT_SPECIAL].type = SANE_TYPE_GROUP;
         sod[OPT_SPECIAL].desc = "";
@@ -3015,6 +2651,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_RESOLUTION_BIND].desc = SANE_DESC_RESOLUTION_BIND;
         sod[OPT_RESOLUTION_BIND].type = SANE_TYPE_BOOL;
         sod[OPT_RESOLUTION_BIND].size = sizeof(SANE_Bool);
+        sod[OPT_RESOLUTION_BIND].cap |= SANE_CAP_ADVANCED;
         sod[OPT_RESOLUTION_BIND].constraint_type = SANE_CONSTRAINT_NONE;
 
         /* enable/disable option for backtracking */
@@ -3061,125 +2698,773 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         if ( strncmp(md->opts.toggle_lamp, "off", 3) == 0 )
             sod[OPT_TOGGLELAMP].cap |= SANE_CAP_INACTIVE;
 
+        /* color balance */
+        sod[OPT_COLORBALANCE].title =  "Color balance";
+        sod[OPT_COLORBALANCE].type = SANE_TYPE_GROUP;
+        sod[OPT_COLORBALANCE].desc = "";
+        sod[OPT_COLORBALANCE].cap = SANE_CAP_ADVANCED;
+        sod[OPT_COLORBALANCE].constraint_type = SANE_CONSTRAINT_NONE;
+
+        sod[OPT_BALANCE_R].name = M_NAME_BALANCE_R;
+        sod[OPT_BALANCE_R].title = M_TITLE_BALANCE_R;
+        sod[OPT_BALANCE_R].desc = M_DESC_BALANCE_R;
+        sod[OPT_BALANCE_R].unit = SANE_UNIT_PERCENT;
+        sod[OPT_BALANCE_R].cap |= SANE_CAP_ADVANCED;
+        sod[OPT_BALANCE_R].constraint.range = &md->balance_range;
+        if ( strncmp(md->opts.colorbalance_adjust, "off", 3) == 0 )
+             sod[OPT_BALANCE_R].cap |= SANE_CAP_INACTIVE;
+
+        sod[OPT_BALANCE_G].name = M_NAME_BALANCE_G;
+        sod[OPT_BALANCE_G].title = M_TITLE_BALANCE_G;
+        sod[OPT_BALANCE_G].desc = M_DESC_BALANCE_G;
+        sod[OPT_BALANCE_G].unit = SANE_UNIT_PERCENT;
+        sod[OPT_BALANCE_G].cap |= SANE_CAP_ADVANCED;
+        sod[OPT_BALANCE_G].constraint.range = &md->balance_range;
+        if ( strncmp(md->opts.colorbalance_adjust, "off", 3) == 0 )
+             sod[OPT_BALANCE_G].cap |= SANE_CAP_INACTIVE;
+
+        sod[OPT_BALANCE_B].name = M_NAME_BALANCE_B;
+        sod[OPT_BALANCE_B].title = M_TITLE_BALANCE_B;
+        sod[OPT_BALANCE_B].desc = M_DESC_BALANCE_B;
+        sod[OPT_BALANCE_B].unit = SANE_UNIT_PERCENT;
+        sod[OPT_BALANCE_B].cap |= SANE_CAP_ADVANCED;
+        sod[OPT_BALANCE_B].constraint.range = &md->balance_range;
+        if ( strncmp(md->opts.colorbalance_adjust, "off", 3) == 0 )
+             sod[OPT_BALANCE_B].cap |= SANE_CAP_INACTIVE;
+
+        sod[OPT_BALANCE_FW].name = M_NAME_BALANCE_FW;
+        sod[OPT_BALANCE_FW].title = M_TITLE_BALANCE_FW;
+        sod[OPT_BALANCE_FW].desc = M_DESC_BALANCE_FW;
+        sod[OPT_BALANCE_FW].type = SANE_TYPE_BUTTON;
+        sod[OPT_BALANCE_FW].size = 0;
+        sod[OPT_BALANCE_FW].cap |= SANE_CAP_ADVANCED;
+        sod[OPT_BALANCE_FW].constraint_type = SANE_CONSTRAINT_NONE;
+        if ( strncmp(md->opts.colorbalance_adjust, "off", 3) == 0 )
+             sod[OPT_BALANCE_FW].cap |= SANE_CAP_INACTIVE;
       }
 
-    status = set_option_dependencies(sod, val);
+    status = set_option_dependencies(ms, sod, val);
     if ( status != SANE_STATUS_GOOD )
         return status;
 
     return SANE_STATUS_GOOD;
 }
 
-/*---------- max_string_size() -----------------------------------------------*/
+/*---------- set_option_dependencies() ---------------------------------------*/
 
-static size_t
-max_string_size (const SANE_String_Const strings[])
+static SANE_Status
+set_option_dependencies(Microtek2_Scanner *ms, SANE_Option_Descriptor *sod,
+                        Microtek2_Option_Value *val)
 {
-  size_t size;
-  size_t max_size = 0;
-  int i;
 
-  for (i = 0; strings[i]; ++i) {
-    size = strlen(strings[i]) + 1; /* +1 because NUL counts as part of string */
-    if (size > max_size) max_size = size;
-  }
-  return max_size;
+    Microtek2_Device *md;
+    md = ms->dev;
+
+    DBG(40, "set_option_dependencies: val=%p, sod=%p, mode=%s\n",
+             val, sod, val[OPT_MODE].s);
+
+    if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 )
+      {
+        /* activate brightness,..., deactivate halftone pattern */
+        /* and threshold */
+        sod[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_CHANNEL].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BITDEPTH].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
+        if ( ! ( strncmp(md->opts.colorbalance_adjust, "off", 3) == 0 ) )
+          {
+            sod[OPT_BALANCE_R].cap &= ~SANE_CAP_INACTIVE;
+            sod[OPT_BALANCE_G].cap &= ~SANE_CAP_INACTIVE;
+            sod[OPT_BALANCE_B].cap &= ~SANE_CAP_INACTIVE;
+            sod[OPT_BALANCE_FW].cap &= ~SANE_CAP_INACTIVE;
+          }
+        /* reset options values that are inactive to their default */
+        val[OPT_THRESHOLD].w = MD_THRESHOLD_DEFAULT;
+      }
+
+    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_GRAY) == 0 )
+      {
+        sod[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BITDEPTH].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_R].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_G].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_B].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_FW].cap |= SANE_CAP_INACTIVE;
+
+        /* reset options values that are inactive to their default */
+        if ( val[OPT_CHANNEL].s )
+            free((void *) val[OPT_CHANNEL].s);
+        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
+      }
+
+    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_HALFTONE) == 0 )
+      {
+        sod[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_R].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_G].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_B].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_FW].cap |= SANE_CAP_INACTIVE;
+
+        /* reset options values that are inactive to their default */
+        val[OPT_BRIGHTNESS].w = MD_BRIGHTNESS_DEFAULT;
+        val[OPT_CONTRAST].w = MD_CONTRAST_DEFAULT;
+        if ( val[OPT_CHANNEL].s )
+            free((void *) val[OPT_CHANNEL].s);
+        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
+        val[OPT_SHADOW].w = MD_SHADOW_DEFAULT;
+        val[OPT_MIDTONE].w = MD_MIDTONE_DEFAULT;
+        val[OPT_HIGHLIGHT].w = MD_HIGHLIGHT_DEFAULT;
+        val[OPT_EXPOSURE].w = MD_EXPOSURE_DEFAULT;
+        val[OPT_THRESHOLD].w = MD_THRESHOLD_DEFAULT;
+      }
+
+    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_LINEART) == 0 )
+      {
+        sod[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_AUTOADJUST].cap &= ~SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_R].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_G].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_B].cap |= SANE_CAP_INACTIVE;
+        sod[OPT_BALANCE_FW].cap |= SANE_CAP_INACTIVE;
+
+        /* reset options values that are inactive to their default */
+        val[OPT_BRIGHTNESS].w = MD_BRIGHTNESS_DEFAULT;
+        val[OPT_CONTRAST].w = MD_CONTRAST_DEFAULT;
+        if ( val[OPT_CHANNEL].s )
+            free((void *) val[OPT_CHANNEL].s);
+        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
+        val[OPT_SHADOW].w = MD_SHADOW_DEFAULT;
+        val[OPT_MIDTONE].w = MD_MIDTONE_DEFAULT;
+        val[OPT_HIGHLIGHT].w = MD_HIGHLIGHT_DEFAULT;
+        val[OPT_EXPOSURE].w = MD_EXPOSURE_DEFAULT;
+      }
+
+    else
+      {
+        DBG(1, "set_option_dependencies: unknown mode '%s'\n",
+                val[OPT_MODE].s );
+        return SANE_STATUS_INVAL;
+      }
+
+    /* these ones are always inactive if the mode changes */
+    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;
+    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
+
+    /* reset options values that are inactive to their default */
+    val[OPT_SHADOW_R].w = val[OPT_SHADOW_G].w = val[OPT_SHADOW_B].w
+            = MD_SHADOW_DEFAULT;
+    val[OPT_MIDTONE_R].w = val[OPT_MIDTONE_G].w = val[OPT_MIDTONE_B].w
+            = MD_MIDTONE_DEFAULT;
+    val[OPT_HIGHLIGHT_R].w = val[OPT_HIGHLIGHT_G].w = val[OPT_HIGHLIGHT_B].w
+            = MD_HIGHLIGHT_DEFAULT;
+    val[OPT_EXPOSURE_R].w = val[OPT_EXPOSURE_G].w = val[OPT_EXPOSURE_B].w
+            = MD_EXPOSURE_DEFAULT;
+
+    if ( SANE_OPTION_IS_SETTABLE(sod[OPT_GAMMA_MODE].cap) )
+      {
+        restore_gamma_options(sod, val);
+      }
+
+    return SANE_STATUS_GOOD;
 }
 
-/*---------- parse_config_file() ---------------------------------------------*/
+/*---------- sane_control_option() -------------------------------------------*/
 
-static void
-parse_config_file(FILE *fp, Config_Temp **ct)
+SANE_Status
+sane_control_option(SANE_Handle handle, SANE_Int option,
+                    SANE_Action action, void *value, SANE_Int *info)
 {
-    /* builds a list of device names with associated options from the */
-    /* config file for later use, when building the list of devices. */
-    /* ct->device = NULL indicates global options (valid for all devices */
+    Microtek2_Scanner *ms = handle;
+    Microtek2_Device *md;
+    Microtek2_Info *mi;
+    Microtek2_Option_Value *val;
+    SANE_Option_Descriptor *sod;
+    SANE_Status status;
 
-    char s[PATH_MAX];
-    Config_Options global_opts;
-    Config_Temp *hct1;
-    Config_Temp *hct2;
+    md = ms->dev;
+    val = &ms->val[0];
+    sod = &ms->sod[0];
+    mi = &md->info[md->scan_source];
 
+    if ( ms->scanning )
+        return SANE_STATUS_DEVICE_BUSY;
 
-    DBG(30, "parse_config_file: fp=%p\n", fp);
-
-    *ct = hct1 = NULL;
-
-    /* first read global options and store them in global_opts */
-    /* initialize global_opts with default values */
-
-    global_opts = md_options;
-
-    while ( sanei_config_read(s, sizeof(s), fp) )
+    if ( option < 0 || option >= NUM_OPTIONS )
       {
-        DBG(100, "parse_config_file: read line: %s\n", s);
-        if ( *s == '#' || *s == '\0' )  /* ignore empty lines and comments */
-            continue;
-
-        if ( strncmp( sanei_config_skip_whitespace(s), "option ", 7) == 0
-          || strncmp( sanei_config_skip_whitespace(s), "option\t", 7) == 0 )
-          {
-            DBG(100, "parse_config_file: found global option %s\n", s);
-            check_option(s, &global_opts);
-          }
-        else                /* it is considered a new device */
-            break;
+        DBG(10, "sane_control_option: option %d invalid\n", option);
+        return SANE_STATUS_INVAL;
       }
 
-    if ( ferror(fp) || feof(fp) )
+    if ( ! SANE_OPTION_IS_ACTIVE(ms->sod[option].cap) )
       {
-        if ( ferror(fp) )
-            DBG(1, "parse_config_file: fread failed: errno=%d\n", errno);
-
-        return;
+        DBG(10, "sane_control_option: option %d not active\n", option);
+        return SANE_STATUS_INVAL;
       }
 
-    while ( ! feof(fp) && ! ferror(fp) )
+    if ( info )
+        *info = 0;
+
+    switch ( action )
       {
-        if ( *s == '#' || *s == '\0' )  /* ignore empty lines and comments */
-          {
-            sanei_config_read(s, sizeof(s), fp);
-            continue;
-          }
+        case SANE_ACTION_GET_VALUE:
+          switch ( option )
+            {
+              /* word options */
+              case OPT_BITDEPTH:
+              case OPT_RESOLUTION:
+              case OPT_X_RESOLUTION:
+              case OPT_Y_RESOLUTION:
+              case OPT_THRESHOLD:
+              case OPT_TL_X:
+              case OPT_TL_Y:
+              case OPT_BR_X:
+              case OPT_BR_Y:
+              case OPT_PREVIEW:
+              case OPT_BRIGHTNESS:
+              case OPT_CONTRAST:
+              case OPT_SHADOW:
+              case OPT_SHADOW_R:
+              case OPT_SHADOW_G:
+              case OPT_SHADOW_B:
+              case OPT_MIDTONE:
+              case OPT_MIDTONE_R:
+              case OPT_MIDTONE_G:
+              case OPT_MIDTONE_B:
+              case OPT_HIGHLIGHT:
+              case OPT_HIGHLIGHT_R:
+              case OPT_HIGHLIGHT_G:
+              case OPT_HIGHLIGHT_B:
+              case OPT_EXPOSURE:
+              case OPT_EXPOSURE_R:
+              case OPT_EXPOSURE_G:
+              case OPT_EXPOSURE_B:
+              case OPT_GAMMA_SCALAR:
+              case OPT_GAMMA_SCALAR_R:
+              case OPT_GAMMA_SCALAR_G:
+              case OPT_GAMMA_SCALAR_B:
+              case OPT_BALANCE_R:
+              case OPT_BALANCE_G:
+              case OPT_BALANCE_B:
 
-        if ( strncmp( sanei_config_skip_whitespace(s), "option ", 7) == 0
-          || strncmp( sanei_config_skip_whitespace(s), "option\t", 7) == 0 )
-          {
-            /* when we enter this loop for the first time we allocate */
-            /* memory, because the line surely contains a device name, */
-            /* so hct1 is always != NULL at this point */
-            DBG(100, "parse_config_file: found device option %s\n", s);
-            check_option(s, &hct1->opts);
-          }
+                *(SANE_Word *) value = val[option].w;
+
+                if (sod[option].type == SANE_TYPE_FIXED )
+                    DBG(50, "sane_control_option: opt=%d, act=%d, val=%f\n",
+                             option, action, SANE_UNFIX(val[option].w));
+                else
+                    DBG(50, "sane_control_option: opt=%d, act=%d, val=%d\n",
+                             option, action, val[option].w);
+
+                return SANE_STATUS_GOOD;
+
+              /* boolean options */
+              case OPT_RESOLUTION_BIND:
+              case OPT_DISABLE_BACKTRACK:
+              case OPT_CALIB_BACKEND:
+              case OPT_LIGHTLID35:
+              case OPT_GAMMA_BIND:
+              case OPT_AUTOADJUST:
+                *(SANE_Bool *) value = val[option].w;
+                DBG(50, "sane_control_option: opt=%d, act=%d, val=%d\n",
+                         option, action, val[option].w);
+                return SANE_STATUS_GOOD;
+
+              /* string options */
+              case OPT_SOURCE:
+              case OPT_MODE:
+              case OPT_HALFTONE:
+              case OPT_CHANNEL:
+              case OPT_GAMMA_MODE:
+                strcpy(value, val[option].s);
+                DBG(50, "sane_control_option: opt=%d, act=%d, val=%s\n",
+                         option, action, val[option].s);
+                return SANE_STATUS_GOOD;
+
+              /* word array options */
+              case OPT_GAMMA_CUSTOM:
+              case OPT_GAMMA_CUSTOM_R:
+              case OPT_GAMMA_CUSTOM_G:
+              case OPT_GAMMA_CUSTOM_B:
+                memcpy(value, val[option].wa, sod[option].size);
+                return SANE_STATUS_GOOD;
+
+              /* button options */
+              case OPT_TOGGLELAMP:
+              case OPT_BALANCE_FW:
+                return SANE_STATUS_GOOD;
+
+              /* others */
+              case OPT_NUM_OPTS:
+                *(SANE_Word *) value = NUM_OPTIONS;
+                return SANE_STATUS_GOOD;
+
+              default:
+                return SANE_STATUS_UNSUPPORTED;
+            }
+          /* NOTREACHED */
+          /* break; */
+
+        case SANE_ACTION_SET_VALUE:
+          if ( ! SANE_OPTION_IS_SETTABLE(sod[option].cap) )
+            {
+              DBG(10, "sane_control_option: trying to set unsettable option\n");
+              return SANE_STATUS_INVAL;
+            }
+
+          /* do not check OPT_BR_Y, xscanimage sometimes tries to set */
+          /* it to a too large value; bug in xscanimage ? */
+          if ( option != OPT_BR_Y )
+            {
+              status = sanei_constrain_value(ms->sod + option, value, info);
+              if (status != SANE_STATUS_GOOD)
+                {
+                  DBG(10, "sane_control_option: invalid option value\n");
+                  return status;
+                }
+            }
+
+          switch ( sod[option].type )
+            {
+              case SANE_TYPE_BOOL:
+                DBG(50, "sane_control_option: option=%d, action=%d, value=%d\n",
+                         option, action, *(SANE_Int *) value);
+                if ( val[option].w == *(SANE_Bool *) value ) /* no change */
+                    return SANE_STATUS_GOOD;
+                val[option].w = *(SANE_Bool *) value;
+                break;
+
+              case SANE_TYPE_INT:
+                if ( sod[option].size == sizeof(SANE_Int) )
+                  {
+                    /* word option */
+                    DBG(50, "sane_control_option: option=%d, action=%d, "
+                            "value=%d\n", option, action, *(SANE_Int *) value);
+                    if ( val[option].w == *(SANE_Int *) value ) /* no change */
+                        return SANE_STATUS_GOOD;
+                    val[option].w = *(SANE_Int *) value;
+                  }
+                else
+                  {
+                    /* word array option */
+                    memcpy(val[option].wa, value, sod[option].size);
+                  }
+                break;
+
+              case SANE_TYPE_FIXED:
+                DBG(50, "sane_control_option: option=%d, action=%d, value=%f\n",
+                         option, action, SANE_UNFIX( *(SANE_Fixed *) value));
+                if ( val[option].w == *(SANE_Fixed *) value ) /* no change */
+                    return SANE_STATUS_GOOD;
+                val[option].w = *(SANE_Fixed *) value;
+                break;
+
+              case SANE_TYPE_STRING:
+                DBG(50, "sane_control_option: option=%d, action=%d, value=%s\n",
+                         option, action, (SANE_String) value);
+                if ( strcmp(val[option].s, (SANE_String) value) == 0 )
+                    return SANE_STATUS_GOOD;         /* no change */
+                if ( val[option].s )
+                    free((void *) val[option].s);
+                val[option].s = strdup(value);
+                if ( val[option].s == NULL )
+                  {
+                    DBG(1, "sane_control_option: strdup failed\n");
+                    return SANE_STATUS_NO_MEM;
+                  }
+                break;
+
+              case SANE_TYPE_BUTTON:
+                break;
+
+              default:
+                DBG(1, "sane_control_option: unknown type %d\n",
+                        sod[option].type);
+                break;
+            }
+
+          switch ( option )
+            {
+              case OPT_RESOLUTION:
+              case OPT_X_RESOLUTION:
+              case OPT_Y_RESOLUTION:
+              case OPT_TL_X:
+              case OPT_TL_Y:
+              case OPT_BR_X:
+              case OPT_BR_Y:
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_PARAMS;
+                    return SANE_STATUS_GOOD;
+              case OPT_DISABLE_BACKTRACK:
+              case OPT_CALIB_BACKEND:
+              case OPT_LIGHTLID35:
+              case OPT_PREVIEW:
+              case OPT_BRIGHTNESS:
+              case OPT_THRESHOLD:
+              case OPT_CONTRAST:
+              case OPT_EXPOSURE:
+              case OPT_EXPOSURE_R:
+              case OPT_EXPOSURE_G:
+              case OPT_EXPOSURE_B:
+              case OPT_GAMMA_SCALAR:
+              case OPT_GAMMA_SCALAR_R:
+              case OPT_GAMMA_SCALAR_G:
+              case OPT_GAMMA_SCALAR_B:
+              case OPT_GAMMA_CUSTOM:
+              case OPT_GAMMA_CUSTOM_R:
+              case OPT_GAMMA_CUSTOM_G:
+              case OPT_GAMMA_CUSTOM_B:
+              case OPT_HALFTONE:
+              case OPT_BALANCE_R:
+              case OPT_BALANCE_G:
+              case OPT_BALANCE_B:
+               return SANE_STATUS_GOOD;
+
+              case OPT_BITDEPTH:
+                /* If the bitdepth has changed we must change the size of */
+                /* the gamma table if the device does not support gamma */
+                /* tables. This will hopefully cause no trouble if the */
+                /* mode is one bit */
+
+                if ( md->model_flags & MD_NO_GAMMA )
+                  {
+                    int max_gamma_value;
+                    int size;
+                    int color;
+                    int i;
+
+                    size = (int) pow(2.0, (double) val[OPT_BITDEPTH].w) - 1;
+                    max_gamma_value = size - 1;
+                    for ( color = 0; color < 4; color++ )
+                      {
+                        for ( i = 0; i < max_gamma_value; i++ )
+                            md->custom_gamma_table[color][i] = (SANE_Int) i;
+                      }
+                    md->custom_gamma_range.max = (SANE_Int) max_gamma_value;
+                    sod[OPT_GAMMA_CUSTOM].size = size * sizeof (SANE_Int);
+                    sod[OPT_GAMMA_CUSTOM_R].size = size * sizeof (SANE_Int);
+                    sod[OPT_GAMMA_CUSTOM_G].size = size * sizeof (SANE_Int);
+                    sod[OPT_GAMMA_CUSTOM_B].size = size * sizeof (SANE_Int);
+
+                    if ( info )
+                        *info |= SANE_INFO_RELOAD_OPTIONS;
+
+                  }
+
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_PARAMS;
+                    return SANE_STATUS_GOOD;
+
+              case OPT_SOURCE:
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+                if ( strcmp(val[option].s, MD_SOURCESTRING_FLATBED) == 0 )
+                    md->scan_source = MD_SOURCE_FLATBED;
+                else if ( strcmp(val[option].s, MD_SOURCESTRING_TMA) == 0 )
+                    md->scan_source = MD_SOURCE_TMA;
+                else if ( strcmp(val[option].s, MD_SOURCESTRING_ADF) == 0 )
+                    md->scan_source = MD_SOURCE_ADF;
+                else if ( strcmp(val[option].s, MD_SOURCESTRING_STRIPE) == 0 )
+                    md->scan_source = MD_SOURCE_STRIPE;
+                else if ( strcmp(val[option].s, MD_SOURCESTRING_SLIDE) == 0 )
+                    md->scan_source = MD_SOURCE_SLIDE;
+                else
+                  {
+                    DBG(1, "sane_control_option: unsupported option %s\n",
+                            val[option].s);
+                    return SANE_STATUS_UNSUPPORTED;
+                  }
+
+                init_options(ms, md->scan_source);
+                return SANE_STATUS_GOOD;
+
+              case OPT_MODE:
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+
+                status = set_option_dependencies(ms, sod, val);
+
+                /* Options with side effects need special treatment. They are */
+                /* reset, even if they were set by set_option_dependencies(): */
+                /* if we have more than one color depth activate this option */
+
+                if ( md->bitdepth_list[0] == 1 )
+                    sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
+                if ( strncmp(md->opts.auto_adjust, "off", 3) == 0 )
+                    sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
+
+                if ( status != SANE_STATUS_GOOD )
+                    return status;
+                return SANE_STATUS_GOOD;
+
+              case OPT_CHANNEL:
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_OPTIONS;
+                if ( strcmp(val[option].s, MD_CHANNEL_MASTER) == 0 )
+                  {
+                    sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
+                  }
+                else if ( strcmp(val[option].s, MD_CHANNEL_RED) == 0 )
+                  {
+                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_R].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_R].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_R].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_R].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
+                  }
+                else if ( strcmp(val[option].s, MD_CHANNEL_GREEN) == 0 )
+                  {
+                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_G].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_G].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_G].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_G].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
+                  }
+                else if ( strcmp(val[option].s, MD_CHANNEL_BLUE) == 0 )
+                  {
+                    sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;
+                    sod[OPT_SHADOW_B].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_MIDTONE_B].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_HIGHLIGHT_B].cap &= ~SANE_CAP_INACTIVE;
+                    sod[OPT_EXPOSURE_B].cap &= ~SANE_CAP_INACTIVE;
+                  }
+                return SANE_STATUS_GOOD;
+
+              case OPT_GAMMA_MODE:
+                restore_gamma_options(sod, val);
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_OPTIONS;
+                return SANE_STATUS_GOOD;
+
+              case OPT_GAMMA_BIND:
+                restore_gamma_options(sod, val);
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_OPTIONS;
+
+                return SANE_STATUS_GOOD;
+
+              case OPT_SHADOW:
+              case OPT_SHADOW_R:
+              case OPT_SHADOW_G:
+              case OPT_SHADOW_B:
+                if ( val[option].w >= val[option + 1].w )
+                  {
+                    val[option + 1].w = val[option].w + 1;
+                    if ( info )
+                        *info |= SANE_INFO_RELOAD_OPTIONS;
+                  }
+                if ( val[option + 1].w >= val[option + 2].w )
+                    val[option + 2].w = val[option + 1].w + 1;
+
+                return SANE_STATUS_GOOD;
+
+              case OPT_MIDTONE:
+              case OPT_MIDTONE_R:
+              case OPT_MIDTONE_G:
+              case OPT_MIDTONE_B:
+                if ( val[option].w <= val[option - 1].w )
+                  {
+                    val[option - 1].w = val[option].w - 1;
+                    if ( info )
+                        *info |= SANE_INFO_RELOAD_OPTIONS;
+                  }
+                if ( val[option].w >= val[option + 1].w )
+                  {
+                    val[option + 1].w = val[option].w + 1;
+                    if ( info )
+                        *info |= SANE_INFO_RELOAD_OPTIONS;
+                  }
+
+                return SANE_STATUS_GOOD;
+
+              case OPT_HIGHLIGHT:
+              case OPT_HIGHLIGHT_R:
+              case OPT_HIGHLIGHT_G:
+              case OPT_HIGHLIGHT_B:
+                if ( val[option].w <= val[option - 1].w )
+                  {
+                    val[option - 1].w = val[option].w - 1;
+                    if ( info )
+                        *info |= SANE_INFO_RELOAD_OPTIONS;
+                  }
+                if ( val[option - 1].w <= val[option - 2].w )
+                    val[option - 2].w = val[option - 1].w - 1;
+
+                return SANE_STATUS_GOOD;
+
+              case OPT_RESOLUTION_BIND:
+                if ( ms->val[option].w == SANE_FALSE )
+                  {
+                    ms->sod[OPT_RESOLUTION].cap |= SANE_CAP_INACTIVE;
+                    ms->sod[OPT_X_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
+                    ms->sod[OPT_Y_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
+                  }
+                else
+                  {
+                    ms->sod[OPT_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
+                    ms->sod[OPT_X_RESOLUTION].cap |= SANE_CAP_INACTIVE;
+                    ms->sod[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
+                  }
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_OPTIONS;
+                return SANE_STATUS_GOOD;
+
+              case OPT_TOGGLELAMP:
+                status = scsi_read_system_status(md, -1);
+                if ( status != SANE_STATUS_GOOD )
+                    return SANE_STATUS_IO_ERROR;
+
+                md->status.flamp ^= 1;
+                status = scsi_send_system_status(md, -1);
+                if ( status != SANE_STATUS_GOOD )
+                    return SANE_STATUS_IO_ERROR;
+                return SANE_STATUS_GOOD;
+
+              case OPT_AUTOADJUST:
+                if ( info )
+                    *info |= SANE_INFO_RELOAD_OPTIONS;
+
+                if ( ms->val[option].w == SANE_FALSE )
+                    ms->sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+                else
+                    ms->sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+
+                return SANE_STATUS_GOOD;
+
+              case OPT_BALANCE_FW:
+                   val[OPT_BALANCE_R].w =
+                        SANE_FIX((u_int8_t)( (float)mi->balance[0] / 2.55 ) );
+                   val[OPT_BALANCE_G].w =
+                        SANE_FIX((u_int8_t)( (float)mi->balance[1] / 2.55 ) );
+                   val[OPT_BALANCE_B].w =
+                        SANE_FIX((u_int8_t)( (float)mi->balance[2] / 2.55 ) );
+                   if ( info )
+                       *info |= SANE_INFO_RELOAD_OPTIONS;
+
+                return SANE_STATUS_GOOD;
 
 
-        else                /* it is considered a new device */
-          {
-            DBG(100, "parse_config_file: found device %s\n", s);
-            hct2 = (Config_Temp *) malloc(sizeof(Config_Temp));
-            if ( hct2 == NULL )
-              {
-                DBG(1, "parse_config_file: malloc() failed\n");
-                return;
-              }
-
-            if ( *ct == NULL )   /* first element */
-                *ct = hct1 = hct2;
-
-            hct1->next = hct2;
-            hct1 = hct2;
-
-            hct1->device = strdup(s);
-            hct1->opts = global_opts;
-            hct1->next = NULL;
-          }
-        sanei_config_read(s, sizeof(s), fp);
+              default:
+                return SANE_STATUS_UNSUPPORTED;
+            }
+#if 0
+          break;
+#endif
+        default:
+          DBG(1, "sane_control_option: Unsupported action %d\n", action);
+          return SANE_STATUS_UNSUPPORTED;
       }
-    /* set filepointer to the beginning of the file */
-    fseek(fp, 0L, SEEK_SET);
-    return;
 }
 
+/*---------- sane_get_option_descriptor() ------------------------------------*/
+
+const SANE_Option_Descriptor *
+sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
+{
+    Microtek2_Scanner *ms = handle;
+
+    DBG(255, "sane_get_option_descriptor: handle=%p, opt=%d\n", handle, n);
+
+    if ( n < 0 || n > NUM_OPTIONS )
+      {
+        DBG(30, "sane_get_option_descriptor: invalid option %d\n", n);
+        return NULL;
+      }
+
+    return &ms->sod[n];
+}
 
 /*---------- restore_gamma_options() -----------------------------------------*/
 
@@ -3213,7 +3498,7 @@ restore_gamma_options(SANE_Option_Descriptor *sod, Microtek2_Option_Value *val)
         else if ( strcmp(val[OPT_GAMMA_MODE].s, MD_GAMMAMODE_SCALAR) == 0 )
           {
             sod[OPT_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
-            if ( val[OPT_GAMMA_BIND].w == SANE_TRUE ) 
+            if ( val[OPT_GAMMA_BIND].w == SANE_TRUE )
               {
                 sod[OPT_GAMMA_SCALAR].cap &= ~SANE_CAP_INACTIVE;
                 sod[OPT_GAMMA_SCALAR_R].cap |= SANE_CAP_INACTIVE;
@@ -3239,7 +3524,7 @@ restore_gamma_options(SANE_Option_Descriptor *sod, Microtek2_Option_Value *val)
         else if ( strcmp(val[OPT_GAMMA_MODE].s, MD_GAMMAMODE_CUSTOM) == 0 )
           {
             sod[OPT_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
-            if ( val[OPT_GAMMA_BIND].w == SANE_TRUE ) 
+            if ( val[OPT_GAMMA_BIND].w == SANE_TRUE )
               {
                 sod[OPT_GAMMA_CUSTOM].cap &= ~SANE_CAP_INACTIVE;
                 sod[OPT_GAMMA_CUSTOM_R].cap |= SANE_CAP_INACTIVE;
@@ -3309,158 +3594,8 @@ restore_gamma_options(SANE_Option_Descriptor *sod, Microtek2_Option_Value *val)
       }
     else
         DBG(1, "restore_gamma_options: unknown mode %s\n", val[OPT_MODE].s);
-    
-    return SANE_STATUS_GOOD;
-}
-
-/*---------- set_option_dependencies() ---------------------------------------*/
-
-static SANE_Status                
-set_option_dependencies(SANE_Option_Descriptor *sod,
-                        Microtek2_Option_Value *val)
-{
-
-    DBG(40, "set_option_dependencies: val=%p, sod=%p, mode=%s\n",
-             val, sod, val[OPT_MODE].s);
-
-
-    if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_COLOR) == 0 )
-      {
-        /* activate brightness,..., deactivate halftone pattern */
-        /* and threshold */
-        sod[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_CHANNEL].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_BITDEPTH].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
-
-        /* reset options values that are inactive to their default */
-        val[OPT_THRESHOLD].w = MD_THRESHOLD_DEFAULT;
-      } 
-    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_GRAY) == 0 )
-      {
-        sod[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_SHADOW].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_MIDTONE].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_HIGHLIGHT].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_BITDEPTH].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
-
-        /* reset options values that are inactive to their default */
-        if ( val[OPT_CHANNEL].s )
-            free((void *) val[OPT_CHANNEL].s);
-        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
-      }
-    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_HALFTONE) == 0 )
-      {
-        sod[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_AUTOADJUST].cap |= SANE_CAP_INACTIVE;
-
-        /* reset options values that are inactive to their default */
-        val[OPT_BRIGHTNESS].w = MD_BRIGHTNESS_DEFAULT;
-        val[OPT_CONTRAST].w = MD_CONTRAST_DEFAULT;
-        if ( val[OPT_CHANNEL].s )
-            free((void *) val[OPT_CHANNEL].s);
-        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
-        val[OPT_SHADOW].w = MD_SHADOW_DEFAULT;
-        val[OPT_MIDTONE].w = MD_MIDTONE_DEFAULT;
-        val[OPT_HIGHLIGHT].w = MD_HIGHLIGHT_DEFAULT;
-        val[OPT_EXPOSURE].w = MD_EXPOSURE_DEFAULT;
-        val[OPT_THRESHOLD].w = MD_THRESHOLD_DEFAULT;
-      }
-    else if ( strcmp(val[OPT_MODE].s, MD_MODESTRING_LINEART) == 0 )
-      {
-        sod[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_CHANNEL].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_SHADOW].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_MIDTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_HIGHLIGHT].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
-        sod[OPT_BITDEPTH].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_AUTOADJUST].cap &= ~SANE_CAP_INACTIVE;
-
-        /* reset options values that are inactive to their default */
-        val[OPT_BRIGHTNESS].w = MD_BRIGHTNESS_DEFAULT;
-        val[OPT_CONTRAST].w = MD_CONTRAST_DEFAULT;
-        if ( val[OPT_CHANNEL].s )
-            free((void *) val[OPT_CHANNEL].s);
-        val[OPT_CHANNEL].s = strdup((SANE_String) MD_CHANNEL_MASTER);
-        val[OPT_SHADOW].w = MD_SHADOW_DEFAULT;
-        val[OPT_MIDTONE].w = MD_MIDTONE_DEFAULT;
-        val[OPT_HIGHLIGHT].w = MD_HIGHLIGHT_DEFAULT;
-        val[OPT_EXPOSURE].w = MD_EXPOSURE_DEFAULT;
-      }
-    else
-      {
-        DBG(1, "set_option_dependencies: unknown mode '%s'\n", 
-                val[OPT_MODE].s );
-        return SANE_STATUS_INVAL;
-      }
-
- 
-    /* these ones are always inactive if the mode changes */
-    sod[OPT_SHADOW_R].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_SHADOW_G].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_SHADOW_B].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_MIDTONE_R].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_MIDTONE_G].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_MIDTONE_B].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_HIGHLIGHT_R].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_HIGHLIGHT_G].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_HIGHLIGHT_B].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_EXPOSURE_R].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_EXPOSURE_G].cap |= SANE_CAP_INACTIVE;
-    sod[OPT_EXPOSURE_B].cap |= SANE_CAP_INACTIVE;
-    val[OPT_SHADOW_R].w = val[OPT_SHADOW_G].w = val[OPT_SHADOW_B].w
-            = MD_SHADOW_DEFAULT;
-    val[OPT_MIDTONE_R].w = val[OPT_MIDTONE_G].w = val[OPT_MIDTONE_B].w
-            = MD_MIDTONE_DEFAULT;
-    val[OPT_HIGHLIGHT_R].w = val[OPT_HIGHLIGHT_G].w = val[OPT_HIGHLIGHT_B].w
-            = MD_HIGHLIGHT_DEFAULT;
-    val[OPT_EXPOSURE_R].w = val[OPT_EXPOSURE_G].w = val[OPT_EXPOSURE_B].w
-            = MD_EXPOSURE_DEFAULT;
-                
-    if ( SANE_OPTION_IS_SETTABLE(sod[OPT_GAMMA_MODE].cap) )
-      {
-        restore_gamma_options(sod, val);
-      }
 
     return SANE_STATUS_GOOD;
-}
-
-/*---------- signal_handler() ------------------------------------------------*/
-
-static RETSIGTYPE
-signal_handler (int signal)
-{
-  if ( signal == SIGTERM )
-    {
-      sanei_scsi_req_flush_all (); 
-      _exit (SANE_STATUS_GOOD);
-    }
 }
 
 
@@ -3550,7 +3685,7 @@ get_calib_params(Microtek2_Scanner *ms)
     ms->quality = 1;
     ms->fastscan = 0;
     ms->scan_source = 0;
-    ms->brightness_m = ms->brightness_r = ms->brightness_g = 
+    ms->brightness_m = ms->brightness_r = ms->brightness_g =
                        ms->brightness_b = 128;
     ms->exposure_m = ms->exposure_r = ms->exposure_g = ms->exposure_b = 0;
     ms->contrast_m = ms->contrast_r = ms->contrast_g = ms->contrast_b = 128;
@@ -3689,7 +3824,7 @@ get_scan_parameters(Microtek2_Scanner *ms)
         ms->fastscan = SANE_TRUE;
         ms->quality = SANE_FALSE;
       }
-    else 
+    else
       {
         ms->fastscan = SANE_FALSE;
         ms->quality = SANE_TRUE;
@@ -3698,33 +3833,39 @@ get_scan_parameters(Microtek2_Scanner *ms)
     ms->rawdat = 0;
 
     /* brightness, contrast, values 1,..,255 */
-    ms->brightness_m = (u_int8_t) (SANE_UNFIX(ms->val[OPT_BRIGHTNESS].w) 
+    ms->brightness_m = (u_int8_t) (SANE_UNFIX(ms->val[OPT_BRIGHTNESS].w)
                       / SANE_UNFIX(md->percentage_range.max) * 254.0) + 1;
     ms->brightness_r = ms->brightness_g = ms->brightness_b = ms->brightness_m;
 
-    ms->contrast_m = (u_int8_t) (SANE_UNFIX(ms->val[OPT_CONTRAST].w) 
+    ms->contrast_m = (u_int8_t) (SANE_UNFIX(ms->val[OPT_CONTRAST].w)
                     / SANE_UNFIX(md->percentage_range.max) * 254.0) + 1;
     ms->contrast_r = ms->contrast_g = ms->contrast_b = ms->contrast_m;
 
     /* shadow, midtone, highlight, exposure */
-    ms->shadow_m = (u_int8_t) ms->val[OPT_SHADOW].w;                
-    ms->shadow_r = (u_int8_t) ms->val[OPT_SHADOW_R].w;                
-    ms->shadow_g = (u_int8_t) ms->val[OPT_SHADOW_G].w;                
+    ms->shadow_m = (u_int8_t) ms->val[OPT_SHADOW].w;
+    ms->shadow_r = (u_int8_t) ms->val[OPT_SHADOW_R].w;
+    ms->shadow_g = (u_int8_t) ms->val[OPT_SHADOW_G].w;
     ms->shadow_b = (u_int8_t) ms->val[OPT_SHADOW_B].w;
-    ms->midtone_m = (u_int8_t) ms->val[OPT_MIDTONE].w;                
-    ms->midtone_r = (u_int8_t) ms->val[OPT_MIDTONE_R].w;                
-    ms->midtone_g = (u_int8_t) ms->val[OPT_MIDTONE_G].w;                
-    ms->midtone_b = (u_int8_t) ms->val[OPT_MIDTONE_B].w;                
-    ms->highlight_m = (u_int8_t) ms->val[OPT_HIGHLIGHT].w;     
-    ms->highlight_r = (u_int8_t) ms->val[OPT_HIGHLIGHT_R].w;     
-    ms->highlight_g = (u_int8_t) ms->val[OPT_HIGHLIGHT_G].w;     
+    ms->midtone_m = (u_int8_t) ms->val[OPT_MIDTONE].w;
+    ms->midtone_r = (u_int8_t) ms->val[OPT_MIDTONE_R].w;
+    ms->midtone_g = (u_int8_t) ms->val[OPT_MIDTONE_G].w;
+    ms->midtone_b = (u_int8_t) ms->val[OPT_MIDTONE_B].w;
+    ms->highlight_m = (u_int8_t) ms->val[OPT_HIGHLIGHT].w;
+    ms->highlight_r = (u_int8_t) ms->val[OPT_HIGHLIGHT_R].w;
+    ms->highlight_g = (u_int8_t) ms->val[OPT_HIGHLIGHT_G].w;
     ms->highlight_b = (u_int8_t) ms->val[OPT_HIGHLIGHT_B].w;
-    ms->exposure_m = (u_int8_t) (ms->val[OPT_EXPOSURE].w / 2);     
-    ms->exposure_r = (u_int8_t) (ms->val[OPT_EXPOSURE_R].w / 2);     
-    ms->exposure_g = (u_int8_t) (ms->val[OPT_EXPOSURE_G].w / 2);     
-    ms->exposure_b = (u_int8_t) (ms->val[OPT_EXPOSURE_B].w / 2);     
+    ms->exposure_m = (u_int8_t) (ms->val[OPT_EXPOSURE].w / 2);
+    ms->exposure_r = (u_int8_t) (ms->val[OPT_EXPOSURE_R].w / 2);
+    ms->exposure_g = (u_int8_t) (ms->val[OPT_EXPOSURE_G].w / 2);
+    ms->exposure_b = (u_int8_t) (ms->val[OPT_EXPOSURE_B].w / 2);
 
     ms->gamma_mode = strdup( (char *) ms->val[OPT_GAMMA_MODE].s);
+
+    ms->balance[0] = (u_int8_t) (SANE_UNFIX(ms->val[OPT_BALANCE_R].w));
+    ms->balance[1] = (u_int8_t) (SANE_UNFIX(ms->val[OPT_BALANCE_G].w));
+    ms->balance[2] = (u_int8_t) (SANE_UNFIX(ms->val[OPT_BALANCE_B].w));
+    DBG(255, "get_scan_parameters:ms->balance[0]=%d,[1]=%d,[2]=%d\n",
+               ms->balance[0], ms->balance[1], ms->balance[2]);
 
     return SANE_STATUS_GOOD;
 }
@@ -3732,9 +3873,9 @@ get_scan_parameters(Microtek2_Scanner *ms)
 /*---------- get_scan_mode_and_depth() ---------------------------------------*/
 
 static SANE_Status
-get_scan_mode_and_depth(Microtek2_Scanner *ms, 
-                        int *mode, 
-                        int *depth, 
+get_scan_mode_and_depth(Microtek2_Scanner *ms,
+                        int *mode,
+                        int *depth,
                         int *bits_per_pixel_in,
                         int *bits_per_pixel_out)
 {
@@ -4098,6 +4239,7 @@ scsi_read_attributes(Microtek2_Info *pmi, char *device, u_int8_t scan_source)
     RSA_FEPROM(mi->feprom, result);
     RSA_DATAFORMAT(mi->data_format, result);
     RSA_COLORSEQUENCE(mi->color_sequence, result);
+    RSA_NIS(mi->new_image_status, result);
     RSA_DATSEQ(mi->direction, result);
     RSA_CCDGAP(mi->ccd_gap, result);
     RSA_MAX_XRESOLUTION(mi->max_xresolution, result);
@@ -4397,35 +4539,68 @@ scsi_read_image(Microtek2_Scanner *ms, u_int8_t *buffer)
 static SANE_Status
 scsi_read_image_status(Microtek2_Scanner *ms)
 {
+    Microtek2_Device *md;
+    Microtek2_Info *mi;
     u_int8_t cmd[RIS_CMD_L];
     u_int8_t dummy;
+    size_t dummy_length;
     SANE_Status status;
     SANE_Bool endian_type;
 
+    md = ms->dev;
+    mi = &md->info[0];
+
     DBG(30, "scsi_read_image_status: ms=%p\n", ms);
-   
+
     ENDIAN_TYPE(endian_type)
     RIS_SET_CMD(cmd);
     RIS_SET_PCORMAC(cmd, endian_type);
     RIS_SET_COLOR(cmd, ms->current_read_color);
 
+/*    mi->new_image_status = SANE_TRUE;  */  /* for testing*/
+
+    if ( mi->new_image_status == SANE_TRUE )
+      {
+        DBG(30, "scsi_read_image_status: use new image status \n");
+        dummy_length = 1;
+        cmd[8] = 1;
+      }
+    else
+      {
+        DBG(30, "scsi_read_image_status: use old image status \n");
+        dummy_length = 0;
+        cmd[8] = 0;
+      }
+
     if ( md_dump >= 2 )
         dump_area2(cmd, sizeof(cmd), "readimagestatus");
 
-    status = sanei_scsi_cmd(ms->sfd, cmd, sizeof(cmd), &dummy, 0);
-    /* We say we are going to try to read 1 byte of data (as recommended
-       in the Microtek SCSI command documentation under "New Image Status")
-       so that dubious SCSI host adapters (like the one in at least some
-       Microtek X6 USB scanners) don't get wedged trying to do a zero
-       length read. However, we do not actually try to read this byte of
-       data, as that wedges the USB scanner as well.
-       IOW the SCSI command says we are going to read 1 byte, but in fact
-       we don't.
-     */
+    status = sanei_scsi_cmd(ms->sfd, cmd, sizeof(cmd), &dummy, &dummy_length);
+
+    if ( mi->new_image_status == SANE_TRUE )
+      {
+        if ( dummy == 0 )
+            status = SANE_STATUS_GOOD;
+        else
+            status = SANE_STATUS_DEVICE_BUSY;
+      }
+
+        /* For some (X6USB) scanner
+        We say we are going to try to read 1 byte of data (as recommended
+        in the Microtek SCSI command documentation under "New Image Status")
+        so that dubious SCSI host adapters (like the one in at least some
+        Microtek X6 USB scanners) don't get wedged trying to do a zero
+        length read. However, we do not actually try to read this byte of
+        data, as that wedges the USB scanner as well.
+        IOW the SCSI command says we are going to read 1 byte, but in fact
+        we don't: */
+        /*cmd[8] = 1;
+        status = sanei_scsi_cmd(ms->sfd, cmd, sizeof(cmd), &dummy, 0); */
+
 
     if ( status != SANE_STATUS_GOOD )
         DBG(1, "scsi_read_image_status: '%s'\n", sane_strstatus(status));
-   
+
     return status;
 }
 
@@ -4918,6 +5093,11 @@ sane_start(SANE_Handle handle)
         if ( status != SANE_STATUS_GOOD )
             goto cleanup;
 
+        if ( ms->val[OPT_CALIB_BACKEND].w == SANE_TRUE )
+            DBG(30, "sane_start: backend calibration on\n");
+        else
+            DBG(30, "sane_start: backend calibration off\n");
+
         if ( ( ms->val[OPT_CALIB_BACKEND].w == SANE_TRUE )
              && ! ( md->model_flags & MD_PHANTOM336CX_TYPE_SHADING )
              && ( md->shading_table_w == NULL ) )
@@ -5223,7 +5403,7 @@ static void
 write_shading_buf_pnm(Microtek2_Scanner *ms)
 {
   FILE *outfile;
-  int pixel, color, line, offset;
+  unsigned int pixel, color, line, offset;
   unsigned char  img_val_out;
   float img_val;
   int colseq[3]={2, 1, 0};
@@ -5234,10 +5414,10 @@ write_shading_buf_pnm(Microtek2_Scanner *ms)
   mi = &md->info[md->scan_source];
 
   outfile = fopen("shading_buf_w.pnm", "w");
-  fprintf(outfile, "P6\n#imagedata\n%d %d\n255\n", mi->geo_width, 18);
-  for ( line=0; line < 18; ++line )
+  fprintf(outfile, "P6\n#imagedata\n%d %d\n255\n", mi->geo_width, md->shading_length);
+  for ( line=0; line < md->shading_length; ++line )
     {
-      for ( pixel=0; pixel < mi->geo_width; ++pixel)
+      for ( pixel=0; pixel < (unsigned int) mi->geo_width; ++pixel)
         {
           for ( color=0; color < 3; ++color )
             {
@@ -5372,7 +5552,7 @@ condense_shading(Microtek2_Scanner *ms)
     int color, count, lfd_bit;
     int shad_bplc, shad_pixels;  /* bytes per line & color in shading image */
     int bit, flag;
-    int sh_offset, csh_offset;
+    u_int32_t sh_offset, csh_offset;
     int gray_filter_color = 1; /* which color of the shading is taken for gray*/
 
     md = ms->dev;
@@ -5404,6 +5584,7 @@ condense_shading(Microtek2_Scanner *ms)
     cond_length = ms->ppl * ms->lut_entry_size;
     if ( ms->mode == MS_MODE_COLOR )
         cond_length *= 3;
+/*    cond_length = ms->bpl; */
 
     if ( ms->condensed_shading_w )
       {
@@ -5472,6 +5653,14 @@ condense_shading(Microtek2_Scanner *ms)
                       csh_offset = color * ms->ppl + count;
                     else
                       csh_offset = count;
+
+                    if ( csh_offset > cond_length )
+                      {
+                        DBG(1, "condense_shading: wrong control bits data, " );
+                        DBG(1, "csh_offset (%d) > cond_length(%d)\n",
+                             csh_offset, cond_length );
+                        csh_offset = cond_length;
+                      }
 
                     if ( ms->lut_entry_size == 2 )
                       {
@@ -5663,25 +5852,28 @@ read_shading_image(Microtek2_Scanner *ms)
     get_calib_params(ms);
 
     status = scsi_send_system_status(md, ms->sfd);
-
     if ( status != SANE_STATUS_GOOD )
       {
-        DBG(1, "read_shading_image: send_system_status failed: '%s'\n",
-               sane_strstatus(status));
-        return status;
+         DBG(1, "read_shading_image: send_system_status failed: '%s'\n",
+                sane_strstatus(status));
+         return status;
       }
 
     status = scsi_set_window(ms, 1);
     if ( status != SANE_STATUS_GOOD )
-        return status;
+            return status;
 
     status = scsi_wait_for_image(ms);
     if ( status != SANE_STATUS_GOOD )
-        return status;
+            return status;
 
     status = scsi_read_image_info(ms);
     if ( status != SANE_STATUS_GOOD )
         return status;
+
+    status = scsi_read_system_status(md, ms->sfd);
+    if ( status != SANE_STATUS_GOOD )
+    return status;
 
     ms->shading_image = malloc(ms->bpl * ms->src_remaining_lines);
     DBG(100, "read shading image: ms->shading_image=%p, malloc'd %d bytes\n",
@@ -5703,13 +5895,13 @@ read_shading_image(Microtek2_Scanner *ms)
     while ( ms->src_remaining_lines > 0 )
       {
         lines_to_read = MIN(max_lines, ms->src_remaining_lines);
-        ms->src_buffer_size = lines_to_read * ms->bpl; 
+        ms->src_buffer_size = lines_to_read * ms->bpl;
         ms->transfer_length = ms->src_buffer_size;
 
         status = scsi_read_image(ms, buf);
         if ( status != SANE_STATUS_GOOD )
             return status;
-        
+
         ms->src_remaining_lines -= lines_to_read;
         buf += ms->src_buffer_size;
       }
@@ -5732,7 +5924,7 @@ read_shading_image(Microtek2_Scanner *ms)
         status =  shading_function(ms, md->shading_table_w);
         if ( status != SANE_STATUS_GOOD )
             return status;
-   
+
         ms->word = ms->lut_entry_size == 2 ? 1 : 0;
         ms->current_color = MS_COLOR_ALL;
         status = scsi_send_shading(ms,
@@ -5748,7 +5940,7 @@ read_shading_image(Microtek2_Scanner *ms)
     md->status.ncalib &= ~MD_NCALIB_ON;
 
     if ( md->model_flags & MD_PHANTOM_C6 )
-      { 
+      {
         md->status.stick &= ~MD_STICK_ON;
         md->status.reserved17 &= ~MD_RESERVED17_ON;
       }
@@ -5776,8 +5968,8 @@ static SANE_Status
 prepare_shading_data(Microtek2_Scanner *ms, u_int32_t lines, u_int8_t **data)
 {
   /* This function calculates one line of black or white shading data */
-  /* from the shading image. At the end we have one line, and the */
-  /* color sequence is R-G-B. */
+  /* from the shading image. At the end we have one line. The */
+  /* color sequence is unchanged. */
 
   Microtek2_Device *md;
   Microtek2_Info *mi;
@@ -6842,12 +7034,14 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     Microtek2_Device *md;
     Microtek2_Info *mi;
     u_int32_t pixel;
-    int color, i, gamma_by_backend, right_to_left;
+    int color, i, gamma_by_backend, right_to_left, scale1, scale2, bpp_in;
     float s_w, s_d;          /* shading byte from condensed_shading */
-    float pixel_to_frontend;       /* pixel value with shading applied */
-    float maxval, shading_factor;
+    float val, maxval, shading_factor;
+    u_int16_t val16 = 0;
+    u_int8_t val8 = 0;
     u_int8_t *from_effective;
-    u_int8_t *gamma[3]; 
+    u_int8_t *gamma[3];
+    float f[3];                            /* color balance factor */
 
     md = ms->dev;
     mi = &md->info[md->scan_source];
@@ -6857,6 +7051,9 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     s_w = maxval;
     s_d = 0.0;
     shading_factor = (float) pow(2.0, (double) (md->shading_depth - ms->depth) );
+    scale1 = 16 - ms->depth;
+    scale2 = 2 * ms->depth - 16;
+    bpp_in = ( ms->bits_per_pixel_in + 7 ) / 8; /* Bytes per pixel from scanner */
 
     if ( gamma_by_backend )
       {
@@ -6870,56 +7067,92 @@ segreg_copy_pixels(Microtek2_Scanner *ms)
     DBG(100, "segreg_copy_pixels: buffer 0x%p, right_to_left=%d, depth=%d\n",
                                   ms->buf.current_pos, right_to_left, ms->depth);
 
-    if (ms->depth == 8)
+    for (color = 0; color < 3; color++ )
+        f[color] = (float) ms->balance[color] / 100.0;
+
+    DBG(100, "segreg_copy_pixels: color balance:\n"
+             " ms->balance[R]=%d, ms->balance[G]=%d, ms->balance[B]=%d\n",
+             ms->balance[0], ms->balance[1], ms->balance[2]);
+
+    for ( pixel = 0; pixel < ms->ppl; pixel++ )
       {
-        for ( pixel = 0; pixel < ms->ppl; pixel++ )
-          {
-            for ( color = 0; color < 3; color++ )
-              {
-                if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
-                     && ( ms->condensed_shading_w != NULL ))
-                     /* apply shading by backend */
-                  {
-                    get_cshading_values(ms,
-                                        color,
-                                        pixel,
-                                        shading_factor,
-                                        right_to_left,
-                                        &s_d,
-                                        &s_w);
-                  }
-                else    /* no shading */
-                  {
-                    s_w = maxval;
-                    s_d = 0.0;
-                  }
-
-                if ( right_to_left )
-                   from_effective = ms->buf.current_pos[color]
-                                    + ms->ppl - 1 - pixel;
-                else
-                   from_effective = ms->buf.current_pos[color] + pixel;
-
-                pixel_to_frontend = ( *from_effective - s_d ) * maxval
-                                    / ( s_w - s_d );
-
-                pixel_to_frontend = MAX( 0.0, pixel_to_frontend );
-                pixel_to_frontend = MIN( maxval, pixel_to_frontend );
-
-                if ( gamma_by_backend )
-                   pixel_to_frontend = gamma[color][(int) pixel_to_frontend];
-              
-                fputc((unsigned char)pixel_to_frontend, ms->fp);
-              }
-          }
         for ( color = 0; color < 3; color++ )
-            ms->buf.current_pos[color] += ms->ppl;
+          {
+            if ( right_to_left )
+               from_effective = ms->buf.current_pos[color]
+                                + ( ms->ppl - 1 - pixel ) * bpp_in;
+            else
+               from_effective = ms->buf.current_pos[color]  +  pixel * bpp_in;
+
+            if ( ms->depth > 8 )
+                val = (float) *(u_int16_t *)from_effective;
+            else if ( ms->depth == 8 )
+                val = (float) *from_effective;
+            else
+            {
+              DBG(1, "segreg_copy_pixels: Unknown depth %d\n", ms->depth);
+              return SANE_STATUS_IO_ERROR;
+            }
+
+            if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
+                 && ( ms->condensed_shading_w != NULL ))
+                 /* apply shading by backend */
+              {
+                get_cshading_values(ms,
+                                    color,
+                                    pixel,
+                                    shading_factor,
+                                    right_to_left,
+                                    &s_d,
+                                    &s_w);
+
+
+                if ( s_w == s_d ) s_w = s_d + 1;
+                if ( val < s_d ) val = s_d;
+                val = maxval *( val - s_d ) / ( s_w - s_d );
+
+                val *= f[color];
+
+                /* if scanner doesn't support brightness, contrast */
+                if ( md->model_flags & MD_NO_ENHANCEMENTS )
+                  {
+                     val += ( ( ms->brightness_m - 128 ) * 2 );
+                     val = ( val - 128 ) * ( ms->contrast_m / 128 ) + 128;
+                  }
+
+                val = MAX( 0.0, val);
+                val = MIN( maxval, val );
+              }
+
+            val16 = (u_int16_t) val;
+            val8  = (u_int8_t)  val;
+
+            /* apply gamma correction if needed */
+            if ( gamma_by_backend )
+              {
+                if ( ms->depth > 8 )
+                  val16 = *((u_int16_t *) gamma[color] + val16);
+                else
+                  val8 = gamma[color][val8];
+              }
+
+            if ( ms->depth > 8 )
+              {
+                val16 = ( val16 << scale1 ) | ( val16 >> scale2 );
+                fwrite((void *) &val16, 2, 1, ms->fp);
+              }
+            else
+              {
+                fputc((unsigned char) val8, ms->fp);
+              }
+
+          }
       }
-    else /* depth > 8 */
+    for ( color = 0; color < 3; color++ )
       {
-        /* TBD */
-        DBG(1, "segreg_copy_pixels: depth > 8 bit still unsupported\n");
-        return SANE_STATUS_UNSUPPORTED;
+        ms->buf.current_pos[color] += ms->ppl;
+        if ( ms->depth > 8 )
+            ms->buf.current_pos[color] += ms->ppl;
       }
 
     return SANE_STATUS_GOOD;
@@ -7037,9 +7270,12 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
     }
 
   for (color = 0; color < 3; color++ )
-/*      if (mi->balance[color] != 0)
-          f[color] = (float)mi->balance[color] / 255.0;
-      else */ f[color] = (float) 1.0;
+      f[color] = (float)ms->balance[color] / 100.0;
+
+  DBG(100, "lplconcat_copy_pixels: color balance:\n"
+             " ms->balance[R]=%d, ms->balance[G]=%d, ms->balance[B]=%d\n",
+             ms->balance[0], ms->balance[1], ms->balance[2]);
+
 
   for ( pixel = 0; pixel < ms->ppl; pixel++ )
     {
@@ -7067,8 +7303,18 @@ lplconcat_copy_pixels(Microtek2_Scanner *ms,
                                   &s_w);
 
               if ( val < s_d ) val = s_d;
+              if ( s_w == s_d ) s_w = s_d + 1;
               val = ( maxval * ( val - s_d ) ) / (s_w - s_d);
-              val /= f[color];
+
+              val *= f[color]; /* apply color balance */
+
+              /* if scanner doesn't support brightness, contrast ... */
+              if ( md->model_flags & MD_NO_ENHANCEMENTS )
+                {
+                   val += ( ( ms->brightness_m - 128 ) * 2 );
+                   val = ( val - 128 ) * ( ms->contrast_m / 128 ) + 128;
+                }
+
               if ( val > maxval ) val = maxval;
               if ( val < 0.0 ) val = 0.0;
             }
@@ -7208,7 +7454,7 @@ gray_proc_data(Microtek2_Scanner *ms)
 
     gamma_by_backend =  md->model_flags & MD_NO_GAMMA ? 1 : 0;
     right_to_left = mi->direction & MI_DATSEQ_RTOL;
-    bpp = ms->bits_per_pixel_out / 8;
+    bpp = ( ms->bits_per_pixel_in + 7 ) / 8;
 
     if ( right_to_left == 1 )
       from = ms->buf.src_buf + ms->ppl * bpp - bpp;
@@ -7266,6 +7512,11 @@ gray_copy_pixels(Microtek2_Scanner *ms,
         if ( ms->depth > 8 ) step *= 2;
         for ( pixel = 0; pixel < ms->ppl; pixel++ )
           {
+            if ( ms->depth > 8 )
+                val = (float) *(u_int16_t *) from;
+            if ( ms->depth == 8 )
+                val = (float) *from;
+
             if ((md->model_flags & MD_READ_CONTROL_BIT) && ms->calib_backend
                  && ( ms->condensed_shading_w != NULL ))
                  /* apply shading by backend */
@@ -7277,22 +7528,12 @@ gray_copy_pixels(Microtek2_Scanner *ms,
                                     right_to_left,
                                     &s_d,
                                     &s_w);
-              }
-            else    /* no shading */
-              {
-                s_w = maxval;
-                s_d = 0.0;
-              }
 
-            if ( ms->depth > 8 )
-                val = (float) *(u_int16_t *) from;
-            if ( ms->depth == 8 )
-                val = (float) *from;
-
-            if ( val < s_d ) val = s_d;
-            val = ( val - s_d ) * maxval / (s_w - s_d );
-            val = MAX( 0.0, val );
-            val = MIN( maxval, val );
+                if ( val < s_d ) val = s_d;
+                val = ( val - s_d ) * maxval / (s_w - s_d );
+                val = MAX( 0.0, val );
+                val = MIN( maxval, val );
+              }
 
             if ( ms->depth > 8 )
               {

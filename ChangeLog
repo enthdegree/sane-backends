@@ -1,3 +1,21 @@
+2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in include/sane/config.h.in: Added check
+	  for inet_ntop().
+	* lib/inet_ntop.c lib/Makefile.in backend/Makefile.in: Added
+	  implementation of inet_ntop() for platforms withouth this
+	  function based on inet_ntoa.
+	* backend/saned.conf frontend/saned.c doc/saned.man: Changed access
+	  control (function check host). Now IP addresses are used for
+	  comparison, not host names as before. It's possible to put
+	  hostnames, FQDNs and IP addresses into saned.conf. Limitations:
+	  Only the first IP address in struct hostent is checked. IPv6 is
+	  untested. The change is based on a patch by Petter Reinholdtsen 
+	  <pere@hungry.com>.
+	  Removed isfdtype to avoid compilation problems.
+	  Added more debug output. Print function name in every DBG statement.
+	  Updated manual pages and saned.conf.
+
 2001-01-06  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Undefine TEST_IOCTL again, which was enabled

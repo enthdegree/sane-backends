@@ -1,3 +1,15 @@
+2001-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.c backend/microtek2.desc backend/microtek2.h
+	  doc/sane-microtek2.man: Updated microtek2 backend to build
+	  20011023 (from karsten.festag@t-online.de (Karsten Festag)).
+	  Bugfix for scsi_read_image_status - supports now the old and the
+	  new method. Improved backend-calibration supports brightness and
+	  contrast settings and color balancing. Enable 12 bit per color
+	  scanning with Scanmaker 9600XL (and other types that use the segreg
+	  pixel transfer format and support 12 bit, untested). 10 bit does not
+	  work yet. Make C6 USB work.
+
 2001-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
   * doc/sane-snapscan.man

@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 122
+#define BUILD 123
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -2809,6 +2809,7 @@ do_stop (Mustek_Scanner * s)
       struct timeval now;
       long int scan_time;
       long int scan_size;
+      pid_t pid;
 
       /* print scanning time */
       gettimeofday (&now, 0);
@@ -2831,10 +2832,14 @@ do_stop (Mustek_Scanner * s)
       /* ensure child knows it's time to stop: */
       DBG (5, "do_stop: terminating reader process\n");
       kill (s->reader_pid, SIGTERM);
-      waitpid (s->reader_pid, &exit_status, 0);
+      pid = waitpid (s->reader_pid, &exit_status, 0);
       DBG (5, "do_stop: reader process terminated: %s\n",
 	   sane_strstatus (status));
-      if (status != SANE_STATUS_CANCELLED && WIFEXITED (exit_status))
+      if (pid <= 0)
+	DBG (5, "do_stop: reader process already terminated (%s)\n",
+	     strerror (errno));
+      if (status != SANE_STATUS_CANCELLED && pid > 0
+	  && WIFEXITED (exit_status))
 	status = WEXITSTATUS (exit_status);
       s->reader_pid = 0;
     }

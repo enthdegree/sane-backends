@@ -81,6 +81,8 @@ typedef unsigned long int md5_uintptr;
 # define __P(x) ()
 #endif
 
+#define __md5_buffer md5_buffer
+
 /* Structure to save state of computation between the single steps.  */
 struct md5_ctx
 {

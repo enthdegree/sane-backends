@@ -6,6 +6,7 @@
 	* doc/descriptions-external/viceo.desc: Added Visioneer OneTouch 8600.
 	* doc/descriptions/unsupported.desc: Removed hp5400 series (now in
 	  hp5400.conf). Added Lexmark, Medion and Primax scanners.
+	* doc/descriptions/ma1509.desc: Added :new token.
 
 2003-02-26  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 

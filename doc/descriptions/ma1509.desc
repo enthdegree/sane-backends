@@ -11,6 +11,7 @@
 :backend "ma1509"		; name of backend
 :version "1.0-2"			; version of backend
 :status :alpha			; :alpha, :beta, :stable, :new
+:new :yes
 :manpage "sane-ma1509"		; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/ma1509-backend/"  ; backend's web page
 

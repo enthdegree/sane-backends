@@ -1,4 +1,4 @@
-TODO (2002-02-03)
+TODO (2002-02-12)
 
 ******** todo ********
 
@@ -85,11 +85,6 @@ backends
 
   * net: add IPv6 support.
 
-  * #include "../include/sane/config.h" should be the first include in every
-    file (see doc/sane-backend-writing.txt for the lalloca exception):
-    - umax_pp_low.c
-
-
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -119,7 +114,6 @@ doc
   * sane-backends.html should state more clearly which backends are included
     in the distribution.
 
-
 frontends
 ---------
   * saned:
@@ -146,7 +140,8 @@ sanei
 
   * Check if the device file has the right type before accessing it. E.g.
     check for major/minor numbers to avoid accessing a USB file as SCSI 
-    device.
+    device. This is finished for sanei_scsi.c/Linux. Patches for other
+    platforms are welcome.
 
 platform-specific
 -----------------
@@ -167,12 +162,8 @@ platform-specific
   * Fix shared lib problem with NetBSD. Starting scanimage results in:
     "Cannot open "../backend/.libs/libsane.so". However, scanadf works.
 
-  * Shared libs work with OpenBSD. However, they are named libsane.so.1.6
-    instead of 1.0.6. Is this correct?
-
   * Check if a new version of libtool can fix the above mentioned issues.
 
-  * Don't use -ansi for HPUX (see sane-devel).
 
 misc
 ----
@@ -193,6 +184,11 @@ misc
 
 
 ******** done ********
+* Shared libs work with OpenBSD. However, they are named libsane.so.1.6
+  instead of 1.0.6. Is this correct?
+* #include "../include/sane/config.h" should be the first include in every
+  file (see doc/sane-backend-writing.txt for the lalloca exception):
+* Don't use -ansi for HPUX (see sane-devel).
 * Don't use exit() in backends.
 * sanei_scsi: Check return values of req_wait and cmd in case of
   SCSI DEVICE BUSY. Better specification of the behaviour of sanei_scsi

@@ -75,7 +75,7 @@ AC_DEFUN(SANE_CHECK_PTAL,
 [
 	PTAL_TMP_HAVE_PTAL=no
 	AC_ARG_WITH(ptal,
-	  [  --with-ptal=DIR         specify the top-level PTAL directory 
+	  [  --with-ptal[=DIR]       specify the top-level PTAL directory 
                           [default=/usr/local]])
 	if test "$with_ptal" = "no" ; then
 		echo disabling PTAL
@@ -208,7 +208,7 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 
 	GPHOTO2_TMP_HAVE_GPHOTO2=no
 	AC_ARG_WITH(gphoto2,
-	  [  --with-gphoto2=DIR      specify the top-level GPHOTO2 directory 
+	  [  --with-gphoto2[=DIR]    specify the top-level GPHOTO2 directory 
                           [default=/usr/local]])
 
 
@@ -231,7 +231,7 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		LDFLAGS="${LDFLAGS} -L$with_gphoto2/lib -L$with_gphoto2/lib/gphoto2"
 
 		AC_CHECK_HEADERS(gphoto2-core.h,
-			AC_CHECK_LIB(gphoto2,gp_init,
+			AC_CHECK_LIB(gphoto2,gp_camera_init,
 				LDFLAGS="${LDFLAGS} -lgphoto2"
 				GPHOTO2_TMP_HAVE_GPHOTO2=yes))
 

@@ -1,3 +1,10 @@
+2000-12-07 Gerhard Jaeger <g.jaeger@earthling.net>
+	
+    * backend/plustek-share.h backend/plustek.h backend/plustek.c
+      removed warning conditions
+      fixed a bug that causes wrong frontend displays
+      fixed problem when driver returns error during read
+
 2000-12-05  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* NEWS: Updated backend versions. Added point about compilation fixes

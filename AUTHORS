@@ -31,6 +31,7 @@ Backends:
  gphoto2:       Peter Fales (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
+ hpsj5s:        Max Vorobiev (*)
  leo:           Frank Zago (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
@@ -139,6 +140,7 @@ Marian Eichholz <eichholz@computer.org>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
 Matthew Duggan <stauff1@users.sourceforge.net>
 Matthew Marjanovic <maddog@mir.com>
+Max Vorobiev <pcwizard@yandex.ru>
 Meino Christian Cramer <mccramer@s.netic.de>
 Michael Herder <crapsite@gmx.net>
 Michael K. Johnson <johnsonm@redhat.com>

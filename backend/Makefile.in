@@ -60,8 +60,8 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        canon630u @CANON_PP@ coolscan coolscan2 dc25 @DC210@ @DC240@ dmc epson \
-        fujitsu @GPHOTO2@ hp leo matsushita microtek microtek2 \
+        canon630u @CANON_PP@ coolscan coolscan2 dc25 @DC210@ @DC240@ dmc \
+	epson fujitsu @GPHOTO2@ hp hpsj5s leo matsushita microtek microtek2 \
         mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
         @PNM@ @QCAM@ ricoh s9036 sceptre sharp @SM3600@ @SNAPSCAN@ \
         sp15c st400 tamarack test teco1 umax umax_pp umax1220u @V4L@
@@ -94,7 +94,9 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   fujitsu.c fujitsu.conf fujitsu.h fujitsu-scsi.h \
   gphoto2.c gphoto2.conf gphoto2.h hp-accessor.c hp-accessor.h hp.c hp.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
-  hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO jinclude.h \
+  hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
+  hpsj5s.c hpsj5s.conf hpsj5s.h hpsj5s_int.h \
+  jinclude.h \
   leo.c leo.h leo.conf \
   lm9830.h \
   Makefile.in matsushita.c \

@@ -182,6 +182,9 @@ The SANE hp backend provides access to HP ScanJet scanners and OfficeJet
 multi-function peripherals (MFPs) which support SCL (Scanner Control Language
 by HP). See sane-hp(5) for details.
 .TP
+.B hpsj5s
+The SANE backend for the HP ScanJet 5S scanner. See sane-hpsj5s(5) for details.
+.TP
 .B leo
 This backend support the Across FS-1130, which is a re-badged LEO
 FS-1130 scanner. See sane-leo(5) for details.

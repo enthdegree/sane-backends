@@ -19,7 +19,7 @@
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
 #ifdef _AIX
-# include "../include/lalloca.h"		/* MUST come first for AIX! */
+# include "../include/lalloca.h"	/* MUST come first for AIX! */
 #endif
 
 #include "../include/sane/config.h"
@@ -170,8 +170,7 @@ auth_callback (SANE_String_Const resource,
 		      if (strchr (strchr (tmp, ':') + 1, ':') != NULL)
 			{
 
-			  if (
-			      (strncmp
+			  if ((strncmp
 			       (strchr (strchr (tmp, ':') + 1, ':') + 1,
 				resource, len) == 0)
 			      &&
@@ -184,8 +183,7 @@ auth_callback (SANE_String_Const resource,
 				  SANE_MAX_USERNAME_LEN)
 				{
 
-				  if (
-				      (strchr (strchr (tmp, ':') + 1, ':') -
+				  if ((strchr (strchr (tmp, ':') + 1, ':') -
 				       (strchr (tmp, ':') + 1)) <
 				      SANE_MAX_PASSWORD_LEN)
 				    {
@@ -291,8 +289,7 @@ sighandler (int signum)
 
   if (device)
     {
-      fprintf (stderr, "%s: received signal %d\n", prog_name,
-	       signum);
+      fprintf (stderr, "%s: received signal %d\n", prog_name, signum);
       if (first_time)
 	{
 	  first_time = SANE_FALSE;
@@ -302,7 +299,7 @@ sighandler (int signum)
       else
 	{
 	  fprintf (stderr, "%s: aborting\n", prog_name);
-	  _exit(0);
+	  _exit (0);
 	}
     }
 }
@@ -876,7 +873,7 @@ process_backend_option (SANE_Handle device, int optnum, const char *optarg)
       exit (1);
     }
 
-  if ((opt->cap & SANE_CAP_AUTOMATIC) && optarg && 
+  if ((opt->cap & SANE_CAP_AUTOMATIC) && optarg &&
       strncasecmp (optarg, "auto", 4) == 0)
     {
       status = sane_control_option (device, optnum, SANE_ACTION_SET_AUTO,
@@ -1192,17 +1189,17 @@ scan_it (void)
 		  break;
 		}
 	    }
-	  else /* ! must_buffer */
-  	    {
+	  else			/* ! must_buffer */
+	    {
 	      if ((output_format == OUTPUT_TIFF) || (parm.depth != 16))
 		fwrite (buffer, 1, len, stdout);
 	      else
-	        {
+		{
 #if !defined(WORDS_BIGENDIAN)
 		  int i, start = 0;
-		  
+
 		  /* check if we have saved one byte from the last sane_read */
-		  if (hang_over > -1) 
+		  if (hang_over > -1)
 		    {
 		      if (len > 0)
 			{
@@ -1217,13 +1214,13 @@ scan_it (void)
 		    {
 		      unsigned char LSB;
 		      LSB = buffer[i];
-		      buffer[i] = buffer[i+1];
-		      buffer[i+1] = LSB;
+		      buffer[i] = buffer[i + 1];
+		      buffer[i + 1] = LSB;
 		    }
 		  /* check if we have an odd number of bytes */
 		  if (((len - start) % 2) != 0)
 		    {
-		      hang_over = buffer [len - 1];
+		      hang_over = buffer[len - 1];
 		      len--;
 		    }
 #endif
@@ -1252,19 +1249,19 @@ scan_it (void)
 				 parm.lines, parm.depth, resolution_value);
       else
 	write_pnm_header (parm.format, image.width, image.height, parm.depth);
-      if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1) 
+      if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1)
 	  || (image.Bpp == 3))
 	fwrite (image.data, image.Bpp, image.height * image.width, stdout);
-      else /* image.Bpp == 2 or image.Bpp == 6 assumed */
-        {
+      else			/* image.Bpp == 2 or image.Bpp == 6 assumed */
+	{
 #if !defined(WORDS_BIGENDIAN)
 	  int i;
 	  for (i = 0; i < image.Bpp * image.height * image.width; i += 2)
 	    {
 	      unsigned char LSB;
 	      LSB = image.data[i];
-	      image.data[i] = image.data[i+1];
-	      image.data[i+1] = LSB;
+	      image.data[i] = image.data[i + 1];
+	      image.data[i + 1] = LSB;
 	    }
 #endif
 	  fwrite (image.data, image.Bpp, image.height * image.width, stdout);
@@ -1277,8 +1274,9 @@ cleanup:
     free (image.data);
 
 
-  expected_bytes = parm.bytes_per_line * parm.lines * 
-    ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY)?1:3);
+  expected_bytes = parm.bytes_per_line * parm.lines *
+    ((parm.format == SANE_FRAME_RGB
+      || parm.format == SANE_FRAME_GRAY) ? 1 : 3);
   if (parm.lines < 0)
     expected_bytes = 0;
   if (total_bytes > expected_bytes && expected_bytes != 0)
@@ -1429,11 +1427,11 @@ scanimage_exit (void)
 {
   if (device)
     {
-      if (verbose > 1) 
+      if (verbose > 1)
 	fprintf (stderr, "Closing device\n");
       sane_close (device);
     }
-  if (verbose > 1) 
+  if (verbose > 1)
     fprintf (stderr, "Calling sane_exit\n");
   sane_exit ();
 
@@ -1441,7 +1439,7 @@ scanimage_exit (void)
     free (all_options);
   if (option_number)
     free (option_number);
-  if (verbose > 1) 
+  if (verbose > 1)
     fprintf (stderr, "scanimage: finished\n");
 }
 
@@ -1486,7 +1484,6 @@ main (int argc, char **argv)
 	case ':':
 	case '?':
 	  break;		/* may be an option that we'll parse later on */
-
 	case 'd':
 	  devname = optarg;
 	  break;
@@ -1505,16 +1502,16 @@ main (int argc, char **argv)
 	  test = 1;
 	  break;
 	case OPTION_BATCH_INCREMENT:
-	  batch_increment = atoi(optarg);
+	  batch_increment = atoi (optarg);
 	  break;
 	case OPTION_BATCH_START_AT:
-	  batch_start_at = atoi(optarg);
+	  batch_start_at = atoi (optarg);
 	  break;
 	case OPTION_BATCH_DOUBLE:
 	  batch_increment = 2;
 	  break;
 	case OPTION_BATCH_COUNT:
-	  batch_count = atoi(optarg);
+	  batch_count = atoi (optarg);
 	  batch = 1;
 	  break;
 	case OPTION_FORMAT:
@@ -1539,97 +1536,98 @@ main (int argc, char **argv)
 		exit (1);
 	      }
 
-            if (ch == 'L')
-              {
-	        for (i = 0; device_list[i]; ++i)
-	          {
+	    if (ch == 'L')
+	      {
+		for (i = 0; device_list[i]; ++i)
+		  {
 		    printf ("device `%s' is a %s %s %s\n",
 			    device_list[i]->name, device_list[i]->vendor,
 			    device_list[i]->model, device_list[i]->type);
-	          }
+		  }
 	      }
-	    else 
+	    else
 	      {
-	        int i = 0, int_arg = 0;
-	        char *percent, *start, *fmt;
-	        const char *text_arg = 0;
-	        char cc, ftype;
-	        
-	        fmt = malloc(strlen(optarg)+1);
-	        if (fmt == 0)
-	          {
-	            fprintf(stderr, "%s: not enough memory\n", prog_name);
-	            exit(1);
-	          }
-	        
-	        for (i = 0; device_list[i]; ++i)
-	          {
-	            strcpy(fmt, optarg);
-	            start = fmt;
-	            while(*start && (percent = strchr(start, '%')) )
-	              {
-	                percent++;
-  	                if (*percent)
-	                  {
-	                    switch (*percent)
-	                      {
-	                        case 'd':
-	                          text_arg = device_list[i]->name;
-	                          ftype = *percent = 's';
-	                          break;
-	                        case 'v':
-	                          text_arg = device_list[i]->vendor;
-	                          ftype = *percent = 's';
-	                          break;
-	                        case 'm':
-	                          text_arg = device_list[i]->model;
-	                          ftype = *percent = 's';
-	                          break;
-	                        case 't':
-	                          text_arg = device_list[i]->type;
-	                          ftype = *percent = 's';
-	                          break;
-	                        case 'i':
-	                          int_arg = i;
-	                          ftype = 'i';
-	                          break;
-	                        case '%':
-	                          ftype = 0;
-	                          break;
-	                        default:
-	                          fprintf(stderr, "%s: unknown format specifier %%%c\n",
-					  prog_name, *percent);
-				  *percent = '%';
-				  ftype = 0;
-	                      }
-	                    percent++;
-	                    cc = *percent;
-	                    *percent = 0;
-	                    switch (ftype)
-	                      {
-	                        case 's':
-	                          printf(start, text_arg);
-	                          break;
-	                        case 'i':
-	                          printf(start, int_arg);
-	                          break;
-	                        case 0:
-	                          printf(start);
-	                          break;
-	                      }
-	                    *percent = cc;
-	                    start = percent;
-	                  }
-	                else
-	                  {
-	                    /* last char of the string is a '%', suppress it */
-	                    *start = 0;
-	                    break;
-	                  }
-	              }
-	            if (*start)
-	              printf(start);
-	          }
+		int i = 0, int_arg = 0;
+		char *percent, *start, *fmt;
+		const char *text_arg = 0;
+		char cc, ftype;
+
+		fmt = malloc (strlen (optarg) + 1);
+		if (fmt == 0)
+		  {
+		    fprintf (stderr, "%s: not enough memory\n", prog_name);
+		    exit (1);
+		  }
+
+		for (i = 0; device_list[i]; ++i)
+		  {
+		    strcpy (fmt, optarg);
+		    start = fmt;
+		    while (*start && (percent = strchr (start, '%')))
+		      {
+			percent++;
+			if (*percent)
+			  {
+			    switch (*percent)
+			      {
+			      case 'd':
+				text_arg = device_list[i]->name;
+				ftype = *percent = 's';
+				break;
+			      case 'v':
+				text_arg = device_list[i]->vendor;
+				ftype = *percent = 's';
+				break;
+			      case 'm':
+				text_arg = device_list[i]->model;
+				ftype = *percent = 's';
+				break;
+			      case 't':
+				text_arg = device_list[i]->type;
+				ftype = *percent = 's';
+				break;
+			      case 'i':
+				int_arg = i;
+				ftype = 'i';
+				break;
+			      case '%':
+				ftype = 0;
+				break;
+			      default:
+				fprintf (stderr,
+					 "%s: unknown format specifier %%%c\n",
+					 prog_name, *percent);
+				*percent = '%';
+				ftype = 0;
+			      }
+			    percent++;
+			    cc = *percent;
+			    *percent = 0;
+			    switch (ftype)
+			      {
+			      case 's':
+				printf (start, text_arg);
+				break;
+			      case 'i':
+				printf (start, int_arg);
+				break;
+			      case 0:
+				printf (start);
+				break;
+			      }
+			    *percent = cc;
+			    start = percent;
+			  }
+			else
+			  {
+			    /* last char of the string is a '%', suppress it */
+			    *start = 0;
+			    break;
+			  }
+		      }
+		    if (*start)
+		      printf (start);
+		  }
 	      }
 	    if (i == 0 && ch != 'f')
 	      printf ("\nNo scanners were identified. If you were expecting "
@@ -1645,9 +1643,9 @@ main (int argc, char **argv)
 
 	case 'V':
 	  printf ("scanimage (%s) %s; backend version %d.%d.%d\n", PACKAGE,
-		  VERSION, SANE_VERSION_MAJOR(version_code),
-		  SANE_VERSION_MINOR(version_code),
-		  SANE_VERSION_BUILD(version_code));
+		  VERSION, SANE_VERSION_MAJOR (version_code),
+		  SANE_VERSION_MINOR (version_code),
+		  SANE_VERSION_BUILD (version_code));
 	  exit (0);
 
 	default:
@@ -1678,8 +1676,7 @@ standard output.\n\
 -T, --test                 test backend thoroughly\n\
 -v, --verbose              give even more status messages\n\
 -V, --version              print version information\n\
-    --accept-md5-only      only accept authorization requests using md5\n",
-	    prog_name);
+    --accept-md5-only      only accept authorization requests using md5\n", prog_name);
 
   if (!devname)
     {
@@ -1785,7 +1782,7 @@ standard output.\n\
       }
 
       optind = 0;
-      opterr = 1;	      /* re-enable error printing and arg permutation */
+      opterr = 1;		/* re-enable error printing and arg permutation */
       while ((ch = getopt_long (argc, argv, full_optstring, all_options,
 				&index)) != EOF)
 	{
@@ -1793,7 +1790,7 @@ standard output.\n\
 	    {
 	    case ':':
 	    case '?':
-	      exit (1);	      /* error message is printed by getopt_long() */
+	      exit (1);		/* error message is printed by getopt_long() */
 
 	    case 'd':
 	    case 'h':
@@ -1825,6 +1822,13 @@ standard output.\n\
 	      process_backend_option (device, option_number[index], optarg);
 	      break;
 	    }
+	}
+      if (optind < argc)
+	{
+	  fprintf (stderr, "%s: argument without option: `%s'; ", prog_name,
+		   argv[argc - 1]);
+	  fprintf (stderr, "try %s --help\n", prog_name);
+	  exit (1);
 	}
 
       free (full_optstring);
@@ -1923,10 +1927,10 @@ List of available devices:", prog_name);
 	    format = "out%d.pnm";
 	}
 
-      if(batch) {
-        fprintf(stderr, "Scanning %d pages, incrementing by %d, numbering from %d\n",
-	    batch_count, batch_increment, batch_start_at);
-      }
+      if (batch)
+	fprintf (stderr,
+		 "Scanning %d pages, incrementing by %d, numbering from %d\n",
+		 batch_count, batch_increment, batch_start_at);
 
       do
 	{
@@ -1940,14 +1944,16 @@ List of available devices:", prog_name);
 	      return SANE_STATUS_ACCESS_DENIED;
 	    }
 
-	  if (batch) {
-	    fprintf(stderr, "Scanning page %d\n", n);
-	  }
+	  if (batch)
+	    {
+	      fprintf (stderr, "Scanning page %d\n", n);
+	    }
 	  status = scan_it ();
-	  if (batch) {
-	    fprintf (stderr, "Scanned page %d.", n);
-	    fprintf (stderr, " (scanner status = %d)\n", status);
-	  }
+	  if (batch)
+	    {
+	      fprintf (stderr, "Scanned page %d.", n);
+	      fprintf (stderr, " (scanner status = %d)\n", status);
+	    }
 
 	  switch (status)
 	    {
@@ -1966,8 +1972,9 @@ List of available devices:", prog_name);
 	    }			/* switch */
 	  n += batch_increment;
 	}
-      while ((batch && (batch_count==BATCH_COUNT_UNLIMITED || --batch_count))
-	      && SANE_STATUS_GOOD == status);
+      while ((batch
+	      && (batch_count == BATCH_COUNT_UNLIMITED || --batch_count))
+	     && SANE_STATUS_GOOD == status);
     }
   else
     status = test_it ();

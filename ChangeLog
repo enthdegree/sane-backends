@@ -1,3 +1,8 @@
+2000-11-19  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* backend/mustek_pp.[ch]: replaced #include "sane/.." by
+	  #include "../include/sane/.."
+
 2000-11-19  Peter Kirchgessner <peter@kirchgessner.net>
 
         * frontend/stiff.c: Fix problem with writing Tag bits per sample

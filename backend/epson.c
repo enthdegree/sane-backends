@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.18 - 2002-01-06"
-#define SANE_EPSON_BUILD	218
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.19 - 2002-01-18"
+#define SANE_EPSON_BUILD	219
 
 /*
    This file is part of the SANE package.
@@ -59,7 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
-
+   2002-01-18	Recognize GT-xxxx type scanners also when using the SCSI or IEEE-1394 interface
    2002-01-06   Disable TEST_IOCTL again, which was enabled by accident. Also
 		protect the ioctl portion with an #ifdef __linux__
    2002-01-05   Version 0.2.17
@@ -1804,7 +1804,8 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
 				&& strncmp( buf + 14, "SCANNER ", 8) != 0
 				&& strncmp( buf + 14, "Perfection", 10) != 0
 				&& strncmp( buf + 16, "Perfection", 10) != 0
-				&& strncmp( buf + 16, "Expression", 10) != 0))
+				&& strncmp( buf + 16, "Expression", 10) != 0
+				&& strncmp( buf + 16, "GT", 2) != 0 ))
 		{
 			DBG( 1, "attach: device doesn't look like an Epson scanner\n");
 			close_scanner( s);

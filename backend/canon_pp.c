@@ -50,12 +50,19 @@
 #include  <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
-#define VERSION "$Revision$"
 #define BACKEND_NAME canon_pp
 
 #define THREE_BITS 0xE0
 #define TWO_BITS 0xC0
 #define MM_PER_IN 25.4
+
+#ifndef NOSANE
+#include "../include/sane/config.h"
+#endif
+
+#ifndef VERSION
+#define VERSION "$Revision$"
+#endif
 
 #include  <string.h>
 #include  <math.h>
@@ -139,7 +146,8 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 	DBG_INIT();
 
 #if defined PACKAGE && defined VERSION
-	DBG(2, ">> sane_init(%p, %p): " PACKAGE " " VERSION "\n", vc, cb);
+	DBG(2, ">> sane_init(%p, %p): " PACKAGE " " VERSION "\n", 
+			(const void*)vc, (const void*)cb);
 #endif
 
 	if(vc)
@@ -228,8 +236,9 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 				while (s_tmp != NULL)
 				{
 					if (!strcmp(s_tmp->params.port->name,
-								tmp_port))
+								tmp_port+1))
 					{
+						*tmp_port = '\0';
 						s_tmp->weights_file = tmp_wf;
 						DBG(100, "sane_init: Parsed "
 								"cal.\n");
@@ -280,7 +289,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 
 				/* now work out which port it blongs to */
 
-				tmp_port = strstr(line+10, " ") + 1;
+				tmp_port = strstr(line+10, " ");
 
 				if (tmp_port == NULL)
 				{
@@ -441,7 +450,7 @@ sane_get_devices (const SANE_Device ***dl, SANE_Bool local)
 	CANONP_Scanner *dev;
 	int i;
 
-	DBG(2, ">> sane_get_devices (%p, %d)\n", dl, local);
+	DBG(2, ">> sane_get_devices (%p, %d)\n", (const void*)dl, local);
 
 	if (dl == NULL)
 	{
@@ -588,9 +597,11 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 
 	if (cs->weights_file != NULL)
 		DBG(2, "sane_open: >> load_weights(%s, %p)\n", 
-				cs->weights_file, &(cs->params));
+				cs->weights_file, 
+				(const void *)(&(cs->params)));
 	else
-		DBG(2, "sane_open: >> load_weights(NULL, %p)\n", &(cs->params));
+		DBG(2, "sane_open: >> load_weights(NULL, %p)\n", 
+				(const void *)(&(cs->params)));
 	tmp = sanei_canon_pp_load_weights(cs->weights_file, &(cs->params));
 	DBG(2, "sane_open: << %d load_weights\n", tmp);
 
@@ -691,7 +702,7 @@ sane_get_option_descriptor (SANE_Handle h, SANE_Int opt)
 	if (cs->opened == SANE_FALSE)
 	{
 		DBG(1,"sane_get_option_descriptor: That scanner (%p) ain't "
-				"open yet\n", cs);
+				"open yet\n", h);
 		return NULL;
 	}
 
@@ -716,8 +727,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 	int i = 0, tmp, maxresi;
 
 	DBG(2, ">> sane_control_option (h=%p, opt=%d, act=%d)\n",
-			h,opt,act);
-
+			h,opt,act); 
 	/* Do some sanity checks on the parameters 
 	 * note that val can be null for buttons */
 	if ((h == NULL) || ((val == NULL) && (opt != OPT_CAL)))   
@@ -725,7 +735,8 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 		 * frontends seem to like passing a null */
 	{
 		DBG(1,"sane_control_option: Frontend passed me a null! "
-				"(h=%p,val=%p,info=%p)\n",h,val,info);
+				"(h=%p,val=%p,info=%p)\n",h,
+				val,info);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -738,14 +749,14 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 	if (cs->opened == SANE_FALSE)
 	{
 		DBG(1,"sane_control_option: That scanner (%p) ain't "
-				"open yet\n", cs);
+				"open yet\n", h);
 		return SANE_STATUS_INVAL;
 	}
 
 	if (cs->scanning == SANE_TRUE)
 	{
 		DBG(1,"sane_control_option: That scanner (%p) is scanning!\n",
-				cs);
+				h);
 		return SANE_STATUS_DEVICE_BUSY;
 	}
 
@@ -833,13 +844,11 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					if ((cs->weights_file==NULL) ||
 							cs->cal_readonly
 					   )
-						DBG(2, ">> calibrate(%p, "
-								"NULL)\n", 
-								&(cs->params));
+						DBG(2, ">> calibrate(x, " 
+								"NULL)\n");
 					else
-						DBG(2, ">> calibrate(%p,"
+						DBG(2, ">> calibrate(x,"
 								"%s)\n",
-								&(cs->params), 
 								cs->weights_file);
 
 					if (cs->cal_readonly) tmp = 
@@ -911,7 +920,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	if (cs->opened == SANE_FALSE)
 	{
 		DBG(1,"sane_get_parameters: That scanner (%p) ain't "
-				"open yet\n", cs);
+				"open yet\n", h);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -1010,7 +1019,7 @@ sane_start (SANE_Handle h)
 	if (cs->opened == SANE_FALSE)
 	{
 		DBG(1,"sane_start: That scanner (%p) ain't "
-				"open yet\n", cs);
+				"open yet\n", h);
 		return SANE_STATUS_INVAL;
 	}
 
@@ -1088,7 +1097,7 @@ sane_start (SANE_Handle h)
 
 	cs->scan.mode = cs->vals[OPT_COLOUR_MODE];
 
-	DBG(10, ">> init_scan(%p, %p)\n", &(cs->params), &(cs->scan));
+	DBG(10, ">> init_scan()\n");
 	tmp = sanei_canon_pp_init_scan(&(cs->params), &(cs->scan));
 	DBG(10, "<< %d init_scan\n", tmp);
 
@@ -1129,7 +1138,8 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	static SANE_Byte *lbuf;
 	static unsigned int bytesleft;
 
-	DBG(2, ">> sane_read (h=%p, buf=%p, maxlen=%d)\n", h, buf, maxlen);
+	DBG(2, ">> sane_read (h=%p, buf=%p, maxlen=%d)\n", h, 
+			(const void *)buf, maxlen);
 
 	/* default to returning 0 - for errors */
 	*lenp = 0;
@@ -1244,9 +1254,9 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			cs->scan.xresolution, cs->scan.yresolution,
 			cs->scan.mode, lines);
 
-	DBG(2, ">> read_segment(%p, %p, %p, %d, %d, %d)\n",
-			&is, &(cs->params), &(cs->scan), lines,
-			cs->cal_valid, cs->scan.height - cs->lines_scanned);
+	DBG(2, ">> read_segment(x, x, x, %d, %d, %d)\n",
+			lines, cs->cal_valid, 
+			cs->scan.height - cs->lines_scanned);
 	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), &(cs->scan), 
 			lines, cs->cal_valid, 
 			cs->scan.height - cs->lines_scanned);
@@ -1394,7 +1404,7 @@ sane_close (SANE_Handle h)
 	if (cs->opened == SANE_FALSE)
 	{
 		DBG(1,"sane_close: That scanner (%p) ain't "
-				"open yet\n", cs);
+				"open yet\n", h);
 		return;
 	}
 
@@ -1710,7 +1720,8 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 	SANE_Status
 sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
 {
-	DBG(2, ">> sane_get_select_fd (%p, %p) (not supported)\n", h, fdp);
+	DBG(2, ">> sane_get_select_fd (%p, %p) (not supported)\n", h, 
+			(const void *)fdp);
 	DBG(2, "<< sane_get_select_fd\n");
 	return SANE_STATUS_UNSUPPORTED;
 }

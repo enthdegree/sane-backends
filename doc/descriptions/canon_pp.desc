@@ -10,7 +10,7 @@
 
 :backend "canon_pp"		; name of backend
 :manpage "sane-canon_pp"
-:version "0.32"			; version of backend
+:version "0.33"			; version of backend
 
 :url "http://canon-fb330p.sourceforge.net" ; backend home page
 

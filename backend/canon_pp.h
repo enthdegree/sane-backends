@@ -60,7 +60,10 @@
 #define DEBUG_NOT_STATIC
 #include "../include/sane/sanei_debug.h"
 
+#ifndef PACKAGE
 #define PACKAGE "Canon Parallel SANE Backend"
+#endif
+
 #define CMODE_COLOUR "Colour"
 #define CMODE_MONO "Mono"
 #define CANONP_CONFIG_FILE "canon_pp.conf"

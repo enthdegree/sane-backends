@@ -55,6 +55,10 @@
 #include <lalloca.h>
 #endif
 
+#ifndef NOSANE
+#include "../include/sane/config.h"
+#endif
+
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
@@ -81,7 +85,9 @@ static void DBG(int level, const char *format, ...)
 #else
 
 /* Definitions which only apply to SANE compiles */
+#ifndef VERSION
 #define VERSION "$Revision$"
+#endif
 
 #define DEBUG_DECLARE_ONLY
 #include "canon_pp.h"
@@ -1144,7 +1150,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		/* Header */
 		if (safe_write(outfile, header, strlen(header) + 1) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
-		if (safe_write(outfile, (char *)&fileversion, sizeof(int)) < 0)
+		if (safe_write(outfile, (const char *)&fileversion, sizeof(int)) < 0)
 			DBG(10, "Write error on calibration file %s", cal_file);
 
 		/* Data */

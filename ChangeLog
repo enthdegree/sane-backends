@@ -1,3 +1,10 @@
+2004-01-12  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp-dev.c backend/canon_pp-io.c backend/canon_pp.c
+	  backend/canon_pp.h: Fix various compile warnings (Bug #300407).
+	  Also fix bug in parsing config file.
+	* doc/descriptions/canon_pp.desc: Bump version number.
+
 2004-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: When generating HTML anchor names, make sure

@@ -1,0 +1,162 @@
+# Translation file for backend umax
+# language: french (fr)
+#
+# Copyright (C) 2002 Frank Zago
+#      Permission is granted to copy, distribute and/or modify this document
+#      under the terms of the GNU Free Documentation License, Version 1.1
+#      or any later version published by the Free Software Foundation;
+#      with no Invariant Sections, with no Front-Cover Texts, and with 
+#      no Back-Cover.
+#      A copy of the license is included in the section entitled "GNU
+#      Free Documentation License".
+
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-02-08 17:58-0600\n"
+"PO-Revision-Date: 2002-02-08 20:00-0600\n"
+"Last-Translator: Frank Zago <fzago at greshamstorage.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .tmp/umax.c:157
+msgid "Flatbed"
+msgstr "A plat / Opaque"
+
+#: .tmp/umax.c:158
+msgid "Transparency Adapter"
+msgstr "Transparent"
+
+#: .tmp/umax.c:159
+msgid "Automatic Document Feeder"
+msgstr "Chargeur automatique de document"
+
+#: .tmp/umax.c:161
+msgid "Lineart"
+msgstr "Trait"
+
+#: .tmp/umax.c:162
+msgid "Halftone"
+msgstr "Demi-ton"
+
+#: .tmp/umax.c:163
+msgid "Gray"
+msgstr "Gris"
+
+#: .tmp/umax.c:164
+msgid "Color Lineart"
+msgstr "Trait couleur"
+
+#: .tmp/umax.c:165
+msgid "Color Halftone"
+msgstr "Demi-ton couleur"
+
+#: .tmp/umax.c:166
+msgid "Color"
+msgstr "Couleur"
+
+#: .tmp/umax.c:210
+msgid "Use Image Composition"
+msgstr ""
+
+#: .tmp/umax.c:211
+msgid "Bi-level black and white (lineart mode)"
+msgstr ""
+
+#: .tmp/umax.c:212
+msgid "Dithered/halftone black & white (halftone mode)"
+msgstr ""
+
+#: .tmp/umax.c:213
+msgid "Multi-level black & white (grayscale mode)"
+msgstr ""
+
+#: .tmp/umax.c:214
+msgid "Multi-level RGB color (one pass color)"
+msgstr ""
+
+#: .tmp/umax.c:215
+msgid "Ignore calibration"
+msgstr ""
+
+#: .tmp/umax.c:4685
+msgid "Scan Mode"
+msgstr "Mode de numérisation"
+
+#: .tmp/umax.c:4807
+msgid "Geometry"
+msgstr "Aire de numérisation"
+
+#: .tmp/umax.c:4857
+msgid "Enhancement"
+msgstr ""
+
+#: .tmp/umax.c:5192
+msgid "Advanced"
+msgstr "Avancée"
+
+#: .tmp/umax.c:5352
+msgid "Disable pre focus"
+msgstr "Désactive le pre-focus"
+
+#: .tmp/umax.c:5353
+msgid "Do not calibrate focus"
+msgstr "Ne calibre pas le pre-focus"
+
+#: .tmp/umax.c:5364
+msgid "Manual pre focus"
+msgstr "Pre-focus manuel"
+
+#: .tmp/umax.c:5376
+msgid "Fix focus position"
+msgstr ""
+
+#: .tmp/umax.c:5388
+msgid "Lens calibration in doc position"
+msgstr ""
+
+#: .tmp/umax.c:5389
+msgid "Calibrate lens focus in document position"
+msgstr ""
+
+#: .tmp/umax.c:5400
+msgid "Holder focus position 0mm"
+msgstr ""
+
+#: .tmp/umax.c:5401
+msgid "Use 0mm holder focus position instead of 0.6mm"
+msgstr ""
+
+#: .tmp/umax.c:5414
+msgid "Lamp on"
+msgstr "Allumer la lampe"
+
+#: .tmp/umax.c:5415
+msgid "Turn on scanner lamp"
+msgstr "Allume la lampe du numériseur"
+
+#: .tmp/umax.c:5431
+msgid "Lamp off"
+msgstr "Eteindre la lampe"
+
+#: .tmp/umax.c:5432
+msgid "Turn off scanner lamp"
+msgstr "Eteint la lampe du numériseur"
+
+#: .tmp/umax.c:5448
+msgid "Lamp off at exit"
+msgstr "Eteindre la lampe à la sortie"
+
+#: .tmp/umax.c:5449
+msgid "Turn off lamp when program exits"
+msgstr "Eteindre la lampe à la sortie du programme"
+
+#: .tmp/umax.c:5463
+msgid "Calibration mode"
+msgstr "Mode de calibration"
+
+#: .tmp/umax.c:5464
+msgid "Define calibration mode"
+msgstr "Définit le mode de calibration"

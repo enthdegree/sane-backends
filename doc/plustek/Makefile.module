@@ -140,7 +140,7 @@ HDRS  = $(addprefix $(INC_DIR)/plustek-pp_, $(INCS))
 #
 # the header files we need from the backend
 #
-BACKINCS := plustek-share.h
+BACKINCS := plustek-pp.h
 BACKINCS := $(addprefix $(BACKEND)/, $(BACKINCS))
 
 group = "root"

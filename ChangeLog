@@ -1,6 +1,9 @@
 2002-12-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/onetouch8600.desc: Added (from PROJECTS).
+	* doc/descriptions/unsupported.desc: Added list of (known) scanners
+	  that are not supported by a SANE backend. There may be information
+	  about them or even a standaalone program to which the entries point.
 
 2002-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

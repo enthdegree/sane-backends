@@ -1,0 +1,169 @@
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "unsupported"		; name of backend
+:version "2002-12-30"		; version of backend
+;:status :stable			; :alpha, :beta, :stable, :new
+;:manpage "sane-mustek"		; name of manpage (if it exists)
+;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
+:comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
+
+:devicetype :scanner
+
+;********************************************************************************************
+
+:mfg "Canon"
+:url "http://www.canon.com/"
+
+:model "1210U"
+:url "http://sourceforge.net/projects/canonscanner/"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "1220U"
+:url "http://sourceforge.net/projects/canonscanner/"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available"
+
+;********************************************************************************************
+
+:mfg "Genius"
+:url "http://www.geniusnet.com.tw/"
+
+:model "Colorpage-Vivid+"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+;********************************************************************************************
+
+:mfg "Hewlett-Packard"			; name a manufacturer
+:url "http://www.hp.com/"
+
+:model "ScanJet 4470C"
+:url "http://reapoff.sourceforge.net/hpscanner/Default.htm"
+:interface "USB"
+:comment "Not supported. However, a stand-alone program is available."
+:status :unsupported
+
+:model "ScanJet 5400C"
+:url "http://home.kabelfoon.nl/~bertrik/hp5400/index.html"
+:interface "USB"
+:comment "Not supported. However, a stand-alone program is available."
+:status :unsupported
+
+:model "ScanJet 5470C"
+:url "http://home.kabelfoon.nl/~bertrik/hp5400/index.html"
+:interface "USB"
+:comment "Not supported. However, a stand-alone program is available."
+:status :unsupported
+
+;********************************************************************************************
+
+:mfg "Mustek"			; name a manufacturer
+:url "http://www.mustek.com/"
+:url "http://www.mustek.de/"
+:url "http://www.mustek.com.tw/"
+
+:model "BearPaw 2400 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
+:model "BearPaw 4800 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
+:model "BearPaw 1200 F"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
+;********************************************************************************************
+
+:mfg "Nework"
+
+:model "Scanny MM100"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+;********************************************************************************************
+
+:mfg "Primax"
+:url "http://www.primax.nl/"
+
+:model "Colorado Direct 300"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "Colorado Direct 600/30bit"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "Colorado Direct 9600"
+:url "http://home2.swipnet.se/~w-25069/pxscan.html"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "Colorado Direct 600"
+:url "http://home2.swipnet.se/~w-25069/pxscan.html"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "JEWEL 4800"
+:url "http://gkall.hobby.nl/notes2.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
+
+;********************************************************************************************
+
+:mfg "Relisys"
+:model "AVEC II S3"
+:url "http://gkall.hobby.nl/notes2.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. However, a patch for the teco2 backend and some information is available. Model VM3564."
+
+;********************************************************************************************
+
+:mfg "Storm"
+
+:model "Totalscan"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "ImageWave"
+:url "http://primax.sourceforge.net/"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+;********************************************************************************************
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.

@@ -193,7 +193,7 @@ AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit ioperm mkdir scsireq_enter sigprocmask \
     strdup strndup strftime strstr strsep strtod snprintf \
     cfmakeraw tcsendbreak usleep strcasecmp strncasecmp _portaccess \
-    getenv isfdtype vsyslog)
+    getenv isfdtype vsyslog inet_ntop)
 
 SANE_LINKER_RPATH
 

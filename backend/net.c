@@ -45,11 +45,11 @@
 #define NET_VERSION "1.0.2"
 
 #ifdef _AIX
-# include "lalloca.h"		/* MUST come first for AIX! */
+# include "../include/lalloca.h"	/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include "lalloca.h"
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -67,25 +67,26 @@
 #include <netinet/in.h>
 #include <netdb.h>		/* OS/2 needs this _after_ <netinet/in.h>, grrr... */
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_net.h"
-#include "sane/sanei_codec_bin.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_net.h"
+#include "../include/sane/sanei_codec_bin.h"
 #include "net.h"
 
 #define BACKEND_NAME    net
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX       1024
 #endif
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define NET_CONFIG_FILE "net.conf"
 
 static SANE_Auth_Callback auth_callback;
 static Net_Device *first_device;
 static Net_Scanner *first_handle;
+static const SANE_Device **devlist;
 static int saned_port;
 
 static SANE_Status
@@ -388,6 +389,7 @@ sane_exit (void)
 {
   Net_Scanner *handle, *next_handle;
   Net_Device *dev, *next_device;
+  int i;
 
   DBG (1, "sane_exit: exiting\n");
 
@@ -418,6 +420,9 @@ sane_exit (void)
         free(dev->name);
       free (dev);
     }
+  if (devlist)
+    for (i = 0; devlist[i]; ++i)
+      free ((void *) devlist[i]);
 }
 
 /* Note that a call to get_devices() implies that we'll have to
@@ -430,7 +435,6 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   static int devlist_size = 0, devlist_len = 0;
-  static const SANE_Device **devlist;
   static const SANE_Device *empty_devlist[1] = { 0 };
   SANE_Get_Devices_Reply reply;
   SANE_Status status;

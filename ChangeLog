@@ -1,3 +1,8 @@
+2000-12-16  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* TODO: removed entry about net.c seg-faulting when saned isn't
+	  loaded or timed-out
+
 2000-12-16  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* configure configure.in: Disable warnings by default for release.

@@ -1,4 +1,4 @@
-TODO (2002-07-14)
+TODO (2002-07-22)
 
 ******** todo ********
 
@@ -96,6 +96,7 @@ doc
       select() calls and sane_cancel.
     - Add some text about the meaning of bits in 1-bit modes.
     - Define, how to handle SANE_CAP_ADVANCED for groups.
+
   * desc files:
     - Don't use ":status :new"
       - canon630u
@@ -103,7 +104,6 @@ doc
       - gphoto2
     - Make sure, that the manufacturer (and model) names use the same spelling:
       - umax, plustek (Genius, KYE-Genius)
-      - microtek2, umax (Vobis, Vobis/Highscreen)
       - plustek, umax_pp, avision, hp, hpsj5s (Hewlett-Packard, HP)
     - Check URLs:
       - abaton (http://www.everex.com/)
@@ -116,23 +116,23 @@ doc
     - Mark scanners with ":status :untested" if they are untested by the author
       or users:
       - bh
+      - canon630u (add 636 as :untested (from manpage)?)
       - coolscan2 (LS 400 ED)
       - microtek (Scanmaker 600Z(S))
       - plustek
       - sharp (Maybe add JX-325 as :untested (from manpage)?)
-      - umax
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
       - mustek_pp
       - nec
       - plustek
-      - umax
       - umax1220u
       - umax_pp
 
     - Other problems/comments:
-      - bh (use backend comment instead of manufacturer comment)
+      - bh (use backend comment instead of manufacturer comment, don't use
+        model name for comments or status indication)
       - coolscan2 (LS-200 only mentioned in manpage?)
       - epson (if the support for the FilmScan 200 isn't that good, maybe
         its status should be beta or alpha)
@@ -192,6 +192,9 @@ platform-specific
 
   * Don't use "echo -e" in shell scripts. That's not supported by the original 
     sh (-->sane-config.in).
+
+  * Find out why USB on *BSD only works once (at least for Mustek scanners
+    and OHCI).
 
 misc
 ----

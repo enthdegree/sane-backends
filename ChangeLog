@@ -1,6 +1,7 @@
 2002-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated for sane-backends 1.0.7.
+	* TODO: Added point about sane-find-scanner.
 
 2002-01-25 Karl Heinz Kremer <khk@khk.net>
 

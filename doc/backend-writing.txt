@@ -157,6 +157,11 @@ TESTING
   as appropriate/necessary) as this will make sure that sane_read()
   always returns the correct amount of data etc.
 
+* You can also test a backend with tstbackend. tstbackend is not
+  compiled nor installed by default. To do that, cd into frontend and
+  edit the Makefile. Add "tstbackend" to BINPROGS. "tstbackend --help"
+  gives a short help.
+
 * Please test a backend not just with scanimage and xscanimage 
   (+ other frontends), but also with saned.  Based on past experience,
   it is often the case that remote scanning can uncover subtle bugs.

@@ -24,7 +24,7 @@ Backends:
  dc240:         Peter Fales (*)
  dll:           David Mosberger
  dmc:           David F. Skoll
- epson:         Karl Heinz Kremer(*)
+ epson:         Karl Heinz Kremer (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*)
  gphoto2:       Peter Fales (*)
  hp:            Peter Kirchgessner (*)
@@ -56,7 +56,7 @@ Backends:
                 Schwartz (*)
  sp15c:         Randolph Bentson
  st400:         Ingo Wilken (*)
- tamarack:      Roger Wolff
+ tamarack:      Rogier Wolff
  teco1:         Frank Zago (*)
  test:          Henning Meier-Geinitz (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
@@ -69,8 +69,11 @@ Backends:
 Frontends:
 
  jscanimage:    Jeff Freedman and Guido Muesch
- saned:		Andreas Beck and David Mosberger
- scanimage:	Andreas Beck, David Mosberger, Gordon Matzigkeit
+ saned:		    Andreas Beck and David Mosberger
+ scanimage:	    Andreas Beck, David Mosberger, Gordon Matzigkeit
+ tstbackend:    Frank Zago (*)
+
+(*) Current active maintainer(s).
 
 Sanei internal code:
 

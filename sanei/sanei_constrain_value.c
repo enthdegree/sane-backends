@@ -81,6 +81,8 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
         }
       }
 
+      w = *(SANE_Word *) value;
+
       if (range->quant)
 	{
 	  v = (w - range->min + range->quant/2) / range->quant;

@@ -1,6 +1,6 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4
+dnl aclocal.m4 generated automatically by aclocal 1.4-p5
 
-dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+dnl Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -238,7 +238,8 @@ AC_DEFUN(SANE_CHECK_GPHOTO2,
 		    "gphoto2 2.0beta4dev8" | \
 		    "gphoto2 2.0beta4dev9" | \
 		    "gphoto2 2.0beta5"* | \
-		    "gphoto2 2.0beta6"* \
+		    "gphoto2 2.0beta6"* | \
+		    "gphoto2 2.0.1"*  \
 		 ) 
 			CPPFLAGS="${CPPFLAGS} `gphoto2-config --cflags`"
 			GPHOTO2_LIBS="`gphoto2-config --libs`"
@@ -3789,7 +3790,7 @@ AC_DEFUN([AC_ISC_POSIX],
 # program @code{ansi2knr}, which comes with Ghostscript.
 # @end defmac
 
-AC_DEFUN(AM_PROG_CC_STDC,
+AC_DEFUN([AM_PROG_CC_STDC],
 [AC_REQUIRE([AC_PROG_CC])
 AC_BEFORE([$0], [AC_C_INLINE])
 AC_BEFORE([$0], [AC_C_CONST])

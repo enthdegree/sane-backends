@@ -1,4 +1,4 @@
-.TH sane-coolscan2 5 "03/05/2002"
+.TH sane-coolscan2 5 "22/08/2002"
 .IX sane-coolscan2
 .SH NAME
 sane-coolscan2 - SANE backend for Nikon Coolscan film scanners
@@ -11,7 +11,7 @@ backend should be considered
 .B beta-quality
 software. Most functions have been stable for a long time, but of 
 course new development can not and will not function properly from
-the very first day. Please report any strange behavior to the 
+the very first day. Please report any strange behaviour to the 
 maintainer of the backend.
 
 .PP
@@ -28,18 +28,9 @@ LS-2000                      SCSI
 .br
 LS-40 ED (Coolscan IV)       USB
 .br
-LS-8000 ED                   IEEE 1394
-.RE
-
-.PP
-The following scanners should work with this backend, but are unconfirmed:
-.PP
-.RS
-Model:                       Connection Type
-.br
----------------------------  -------------------
-.br
 LS-4000 ED                   IEEE 1394
+.br
+LS-8000 ED                   IEEE 1394
 .RE
 
 Please send mail to the backend author (andras@users.sourceforge.net) to
@@ -77,8 +68,8 @@ the backend is initialized (usually each time you start the frontend).
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
 with no options altered. The backend must not be restarted between the scans. 
-It will not therefore not work with scanimage, only
-with graphical frontends.
+If you use scanimage, perform a batch scan with batch-count=2 to obtain the
+IR information.
 .TP
 .I --depth <n>
 Here <n> can either be 8 or the maximum number of bits supported by the
@@ -101,6 +92,10 @@ Perform a pre-scan to calculate exposure values automatically.
 will maintain the white balance, while
 .I --ae
 will adjust each channel separately.
+.TP
+.I --exposure
+Multiply all exposure times with this value. This allows exposure
+correction without modifying white balance.
 .TP
 .I --eject
 Eject the film strip.
@@ -168,6 +163,11 @@ runs the frontend). In particular, if there is no film strip in the
 automatic film strip feeder when the backend is initialized, the frame option
 will not appear at all. Also, restarting the frontend after swapping film
 adapters is strongly recommended.
+
+Linux kernels prior to 2.4.19 had a patch that truncated INQUIRY data
+from IEEE 1394 scanners to 36 bytes, discarding vital information
+about the scanner. The IEEE 1394 models therefore only work with
+2.4.19 or later.
 
 No real bugs currently known, please report any to the backend maintainer
 or the SANE developers' email list.

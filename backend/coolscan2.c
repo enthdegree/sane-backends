@@ -1,7 +1,7 @@
 /* ========================================================================= */
 /*
    SANE - Scanner Access Now Easy.
-   coolscan2.c , version 0.1.6
+   coolscan2.c , version 0.1.7
 
    This file is part of the SANE package.
 
@@ -56,6 +56,8 @@
 /*
    Revision log:
 
+   0.1.7, 22/08/2002, andras: added exposure correction option
+                                and hack for LS-40 IR readout
    0.1.6, 14/06/2002, andras: types etc. fixed, fixes for LS-8000
    0.1.5, 26/04/2002, andras: lots of minor fixes related to saned
    0.1.4, 22/04/2002, andras: first version to be included in SANE CVS
@@ -93,7 +95,7 @@
 
 #define CS2_VERSION_MAJOR 0
 #define CS2_VERSION_MINOR 1
-#define CS2_REVISION 6
+#define CS2_REVISION 7
 #define CS2_CONFIG_FILE "coolscan2.conf"
 
 #define WSIZE (sizeof (SANE_Word))
@@ -175,6 +177,7 @@ typedef enum
 
   CS2_OPTION_DEPTH,
 
+  CS2_OPTION_EXPOSURE,
   CS2_OPTION_EXPOSURE_R,
   CS2_OPTION_EXPOSURE_G,
   CS2_OPTION_EXPOSURE_B,
@@ -253,7 +256,7 @@ typedef struct
     logical_width, logical_height;
   int odd_padding;
 
-  double exposure_r, exposure_g, exposure_b;
+  double exposure, exposure_r, exposure_g, exposure_b;
   unsigned long real_exposure[10];
 
   SANE_Bool focus_on_centre;
@@ -513,6 +516,26 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
 	      word_list[2] = s->maxbits;
 	      word_list[0] = 2;
 	      o.constraint.word_list = word_list;
+	    }
+	  break;
+	case CS2_OPTION_EXPOSURE:
+	  o.name = "exposure";
+	  o.title = "Exposure multiplier";
+	  o.desc = "Exposure multiplier for all channels";
+	  o.type = SANE_TYPE_FIXED;
+	  o.unit = SANE_UNIT_NONE;
+	  o.size = WSIZE;
+	  o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	  o.constraint_type = SANE_CONSTRAINT_RANGE;
+	  range = (SANE_Range *) cs2_xmalloc (sizeof (SANE_Range));
+	  if (!range)
+	    alloc_failed = 1;
+	  else
+	    {
+	      range->min = SANE_FIX (0.);
+	      range->max = SANE_FIX (10.);
+	      range->quant = SANE_FIX (0.1);
+	      o.constraint.range = range;
 	    }
 	  break;
 	case CS2_OPTION_EXPOSURE_R:
@@ -973,9 +996,10 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   s->focus = 0;
   s->focusx = 0;
   s->focusy = 0;
-  s->exposure_r = 240.;
-  s->exposure_g = 240.;
-  s->exposure_b = 200.;
+  s->exposure = 1.;
+  s->exposure_r = 1200.;
+  s->exposure_g = 1200.;
+  s->exposure_b = 1000.;
   s->infrared_stage = CS2_INFRARED_OFF;
   s->infrared_next = CS2_INFRARED_OFF;
   s->infrared_buf = NULL;
@@ -1047,6 +1071,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	  break;
 	case CS2_OPTION_PREVIEW:
 	  *(SANE_Word *) v = s->preview;
+	  break;
+	case CS2_OPTION_EXPOSURE:
+	  *(SANE_Word *) v = SANE_FIX (s->exposure);
 	  break;
 	case CS2_OPTION_EXPOSURE_R:
 	  *(SANE_Word *) v = SANE_FIX (s->exposure_r);
@@ -1195,6 +1222,9 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	case CS2_OPTION_PREVIEW:
 	  s->preview = *(SANE_Word *) v;
 	  break;
+	case CS2_OPTION_EXPOSURE:
+	  s->exposure = SANE_UNFIX (*(SANE_Word *) v);
+	  break;
 	case CS2_OPTION_EXPOSURE_R:
 	  s->exposure_r = SANE_UNFIX (*(SANE_Word *) v);
 	  break;
@@ -1305,6 +1335,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	  status = cs2_get_exposure (s);
 	  if (status)
 	    return status;
+	  s->exposure = 1.;
 	  s->exposure_r = s->real_exposure[1] / 100.;
 	  s->exposure_g = s->real_exposure[2] / 100.;
 	  s->exposure_b = s->real_exposure[3] / 100.;
@@ -1318,6 +1349,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action a, void *v,
 	  status = cs2_get_exposure (s);
 	  if (status)
 	    return status;
+	  s->exposure = 1.;
 	  s->exposure_r = s->real_exposure[1] / 100.;
 	  s->exposure_g = s->real_exposure[2] / 100.;
 	  s->exposure_b = s->real_exposure[3] / 100.;
@@ -1724,7 +1756,7 @@ cs2_open (const char *device, cs2_interface_t interface, cs2_t ** sp)
     s->type = CS2_TYPE_LS30;
   else if (!strncmp (s->product_string, "LS-40 ED        ", 16))
     s->type = CS2_TYPE_LS40;
-  else if (!strncmp (s->product_string, "LS-2000         ", 16))	/* XXXXXXX ????????? */
+  else if (!strncmp (s->product_string, "LS-2000         ", 16))
     s->type = CS2_TYPE_LS2000;
   else if (!strncmp (s->product_string, "LS-4000 ED      ", 16))
     s->type = CS2_TYPE_LS4000;
@@ -2524,7 +2556,7 @@ cs2_convert_options (cs2_t * s)
 
   s->odd_padding = 0;
   if ((s->bytes_per_pixel == 1) && (s->logical_width & 0x01)
-      && (s->type != CS2_TYPE_LS30))
+      && (s->type != CS2_TYPE_LS30) && (s->type != CS2_TYPE_LS2000))
     s->odd_padding = 1;
 
   if (s->focus_on_centre)
@@ -2540,9 +2572,9 @@ cs2_convert_options (cs2_t * s)
 	s->subframe / s->unit_mm;
     }
 
-  s->real_exposure[1] = s->exposure_r * 100.;
-  s->real_exposure[2] = s->exposure_g * 100.;
-  s->real_exposure[3] = s->exposure_b * 100.;
+  s->real_exposure[1] = s->exposure * s->exposure_r * 100.;
+  s->real_exposure[2] = s->exposure * s->exposure_g * 100.;
+  s->real_exposure[3] = s->exposure * s->exposure_b * 100.;
 
   for (i_colour = 0; i_colour < 3; i_colour++)
     if (s->real_exposure[cs2_colour_list[i_colour]] < 1)
@@ -2615,7 +2647,10 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
       cs2_scanner_ready (s, CS2_STATUS_READY);
 
       cs2_init_buffer (s);
-      cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 00");
+      if (s->type == CS2_TYPE_LS40)
+	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 80");
+      else
+	cs2_parse_cmd (s, "24 00 00 00 00 00 00 00 3a 00");
       cs2_parse_cmd (s, "00 00 00 00 00 00 00 32");
 
       cs2_pack_byte (s, cs2_colour_list[i_colour]);

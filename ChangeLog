@@ -2,6 +2,9 @@
 
 	* doc/sane-fujitsu.man doc/sane-tamarcak.man: Added newline at 
 	  the end to keep Solaris' sed happy.
+	* sanei/sanei_scsi.c: Set buffer size to 64 kB for 
+	  SOLARIS_USCSI_INTERFACE (reported by Ed Randall 
+	  <ed.randall@ingenotech.com>).
 
 2002-06-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -20,6 +20,10 @@ gnulocaledir = $(prefix)/share/locale
 top_srcdir = @top_srcdir@
 srcdir = @srcdir@
 
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -30,6 +34,13 @@ TMP_FILE_DIR = .tmp
 ALL_POTS =$(foreach be,$(ALL_BACKENDS),$(addprefix $(be),.pot))
 
 INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
+
+DISTFILES = Makefile.in README epson.de.po mustek.de.po \
+  mustek_usb.de.po umax.de.po
+
+.PHONY: all clean depend dist distclean install install-translations \
+  uninstall update-mo update-po update-pot
+
 .SUFFIXES: .po .mo
 
 .po.mo:
@@ -77,6 +88,7 @@ install-translations: update-mo
 
 install: $(INSTALL_TRANSLATIONS)
 
+# fixme
 uninstall:
 
 clean:
@@ -91,6 +103,10 @@ distclean: clean
 
 depend:
 
-.PHONY: all clean distclean depend install uninstall install-translations \
-        update-pot update-po update-mo
+dist: $(DISTFILES)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir)/po 2> /dev/null \
+	    || cp -p $$file $(distdir)/po ; \
+	done
+
 

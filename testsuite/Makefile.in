@@ -1,7 +1,46 @@
+VPATH = @srcdir@
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+top_builddir = ..
+
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+configdir = ${sysconfdir}/sane.d
+
+V_MAJOR = @V_MAJOR@
+V_MINOR = @V_MINOR@
+DLL_PRELOAD = @DLL_PRELOAD@
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+RANLIB = @RANLIB@
+
 SCANIMAGE = ../frontend/scanimage
 TESTFILE  = testfile.pnm
 DEVICE    = pnm:0
 OPTIONS   = --filename=$(TESTFILE)
+
+DISTFILES = Makefile.in README testfile.pnm 
+
+.PHONY: all dist test test.local 
 
 all: Makefile
 	@echo "Use 'make test' to run the tests."
@@ -25,3 +64,10 @@ test.local:
 Makefile: Makefile.in ../config.status
 	cd .. \
 	  && CONFIG_FILES=testsuite/Makefile CONFIG_HEADERS= /bin/sh ./config.status
+
+dist: $(DISTFILES)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir)/testsuite 2> /dev/null \
+	    || cp -p $$file $(distdir)/testsuite ; \
+	done
+

@@ -9,6 +9,10 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = ..
 
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
@@ -63,6 +67,13 @@ CLASSES = SaneDevice.class SaneOption.class SaneRange.class Sane.class \
 	SaneParameters.class ScanIt.class ImageCanvas.class \
 	ImageCanvasClient.class
 
+DISTFILES = ImageCanvas.java ImageCanvasClient.java Jscanimage.java \
+  Makefile.in README.JAVA Sane.c Sane.java SaneDevice.java \
+  SaneOption.java SaneParameters.java SaneRange.java ScanIt.java \
+  Test.java
+
+.PHONY: all clean dist distclean install uninstall
+
 .SUFFIXES: .c .o .h .la .lo .java .class
 
 .java.class:
@@ -84,10 +95,14 @@ libsanej.la: Sane.lo
 		-rpath $(libdir) -version-info \
 		$(V_MAJOR):$(V_MINOR):0 $(LIBSANE)
 
+Sane.lo: Sane.h
+
 clean:
 	rm -f *.class *.lo *.o *~ *.la *.bak
 	rm -f Sane.h
 	rm -rf .libs
+
+distclean: clean
 
 #	Install library.  Don't know where to install .class files yet.
 
@@ -98,4 +113,12 @@ install:
 	@$(LIBTOOL) $(MINST) --finish $(libdir)
 
 
-Sane.c: Sane.h
+# fixme
+uninstall:
+
+dist: $(DISTFILES)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir)/japi 2> /dev/null \
+	    || cp -p $$file $(distdir)/japi ; \
+	done
+

@@ -5,6 +5,10 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = ..
 
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
@@ -69,6 +73,54 @@ EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_config.lo
 LIBLIB_FUNCS = alloca getenv getopt getopt1 isfdtype sigprocmask snprintf \
         strdup strndup strsep usleep vsyslog inet_ntop
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
+
+DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \
+  agfafocus.c agfafocus.conf agfafocus.desc agfafocus.h apple.c \
+  apple.conf apple.desc apple.h artec.c artec.conf artec.desc artec.h \
+  as6e.c as6e.desc as6e.h avision.c avision.conf avision.desc \
+  avision.h bh.c bh.conf bh.desc bh.h canon-sane.c canon-scsi.c \
+  canon.c canon.conf canon.desc canon.h canon_pp.desc cderror.h \
+  cdjpeg.h coolscan-scsidef.h coolscan.c coolscan.conf coolscan.desc \
+  coolscan.h dc210.c dc210.conf dc210.desc dc210.h dc240.c dc240.conf \
+  dc240.desc dc240.h dc25.c dc25.conf dc25.desc dc25.h djpeg.README \
+  djpeg.c dll.aliases dll.c dll.conf dll.desc dmc.c dmc.conf dmc.desc \
+  dmc.h epson.c epson.conf epson.desc epson.h gphoto2.c gphoto2.conf \
+  gphoto2.desc gphoto2.h hp-accessor.c hp-accessor.h hp-device.c \
+  hp-device.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
+  hp-option.h hp-scl.c hp-scl.h hp-scsi.h hp.README hp.TODO hp.c \
+  hp.conf hp.desc hp.h hp4200.desc ibm.desc jinclude.h lhii.desc \
+  m3091.desc m3096g-scsi.h m3096g.c m3096g.conf m3096g.desc m3096g.h \
+  microtek.c microtek.conf microtek.desc microtek.h microtek2.c \
+  microtek2.conf microtek2.desc microtek2.h mustek.c mustek.conf \
+  mustek.desc mustek.h mustek_pp.c mustek_pp.conf mustek_pp.desc \
+  mustek_pp.h mustek_usb.c mustek_usb.conf mustek_usb.desc \
+  mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
+  mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf \
+  nec.desc nec.h net.c net.conf net.desc net.h pie-scsidef.h pie.c \
+  pie.conf pie.desc pint.c pint.desc pint.h plustek-devs.c \
+  plustek-pp.c plustek-share.h plustek-usb.c plustek-usb.h \
+  plustek-usbhw.c plustek-usbimg.c plustek-usbio.c plustek-usbmap.c \
+  plustek-usbscan.c plustek-usbshading.c plustek.c plustek.conf \
+  plustek.desc plustek.h pnm.c pnm.c-bad pnm.desc qcam.c qcam.conf \
+  qcam.desc qcam.h ricoh-scsi.c ricoh.c ricoh.conf ricoh.desc ricoh.h \
+  s9036.c s9036.conf s9036.desc s9036.h sane_strstatus.c saned.conf \
+  sharp.c sharp.conf sharp.desc sharp.h sm3600-color.c sm3600-gray.c \
+  sm3600-homerun.c sm3600-scanmtek.c sm3600-scantool.h \
+  sm3600-scanusb.c sm3600-scanutil.c sm3600.c sm3600.desc sm3600.h \
+  snapscan-scsi.c snapscan-sources.c snapscan-sources.h snapscan-usb.c \
+  snapscan-usb.h snapscan-utils.c snapscan.c snapscan.conf \
+  snapscan.desc snapscan.h sp15c-scsi.h sp15c.c sp15c.conf sp15c.desc \
+  sp15c.h st400.c st400.conf st400.desc st400.h stubs.c tamarack.c \
+  tamarack.conf tamarack.desc tamarack.h template.desc. umax-scanner.c \
+  umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
+  umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c \
+  umax.c umax.conf umax.desc umax.h umax1220u-common.c umax1220u.c \
+  umax1220u.conf umax1220u.desc umax_pp.c umax_pp.conf umax_pp.desc \
+  umax_pp.h umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h \
+  v4l-frequencies.h v4l-grab.h v4l.c v4l.conf v4l.desc v4l.h v4l2.desc
+
+
+.PHONY: all clean depend dist distclean install uninstall
 
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
@@ -308,4 +360,8 @@ clean:
 distclean: clean
 	rm -f Makefile libsane.so
 
-.PHONY: all install depend clean distclean uninstall
+dist: $(DISTFILES)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir)/backend 2> /dev/null \
+	    || cp -p $$file $(distdir)/backend ; \
+	done

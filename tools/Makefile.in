@@ -6,6 +6,10 @@ top_srcdir = @top_srcdir@
 top_builddir = ..
 subdir = tools
 
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
@@ -57,6 +61,11 @@ LIBSANEI = ../sanei/libsanei.a
 # Library routines that should be part of libc, but aren't on some systems:
 LIBLIB = ../lib/liblib.a
 
+DISTFILES = Makefile.in README libtool-get-dll-ext mustek600iin-off.c \
+  sane-config.in sane-desc.el sane-find-scanner.c umax_pp.c xerox
+
+.PHONY: all clean depend dist distclean install uninstall
+
 .c.o:
 	$(COMPILE) $<
 
@@ -100,4 +109,9 @@ clean:
 distclean: clean
 	rm -f Makefile $(DESTINATIONS) mustek600iin-off
 
-.PHONY: all install depend clean distclean uninstall
+dist: $(DISTFILES)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir)/tools 2> /dev/null \
+	    || cp -p $$file $(distdir)/tools ; \
+	done
+

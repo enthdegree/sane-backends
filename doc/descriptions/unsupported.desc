@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-01-09"		; version of backend
+:version "2004-01-11"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -901,16 +901,16 @@
 :comment "Uses RealTek chipset (RTL8801D)"
 
 :model "OpticPro S12"
-:url "http://www.genesyslogic.com/GL646.htm"
+:url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
-:comment "Uses the Genesys Logic GL646 chipset."
+:comment "Not supported yet. GL646. May be supported later, see link for details."
 
 :model "OpticPro ST12"
-:url "http://www.genesyslogic.com/GL646.htm"
+:url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
-:comment "Uses the Genesys Logic GL646 chipset."
+:comment "Not supported yet. GL646. May be supported later, see link for details."
 
 :model "OpticPro S24"
 :url "/unsupported/plustek-opticpro-st24.html"
@@ -1007,7 +1007,7 @@
 ;:url "/unsupported/"
 :interface "SCSI"
 :status :unsupported
-:comment "Probably not supported. No details yet. Originally maufactured by PFU?"
+:comment "Probably not supported. No details yet. Originally manufactured by PFU?"
 
 :model "X-Finity Ultra"
 ;:url "/unsupported/"

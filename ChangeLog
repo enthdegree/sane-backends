@@ -1,3 +1,10 @@
+2004-01-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: When generating HTML anchor names, make sure
+	  they are unique. Bug #300439.
+	* doc/descriptions/qcam.desc doc/descriptions/unsupported.desc:
+	  Fixed some broken links.
+
 2004-01-10  Julien BLACHE <jb@jblache.org>
 	* sanei/sanei_pa4s2.c: libieee1284 support for scsi_pp functions.
 	This is untested but should work.

@@ -1,3 +1,8 @@
+2000-12-04  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp.c, hp-handle.c, hp.desc
+          - fix problem with ADF support on 6350C (and maybe others)
+
 2000-12-04  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* removed usage of gettext, problem with -lintl should be solved:

@@ -1,4 +1,4 @@
-TODO (2001-04-16)
+TODO (2001-04-19)
 
 ******** todo ********
 
@@ -63,8 +63,6 @@ backends
 
   * qcam: Check file handling in /tmp.
   
-  * pnm: add more options for testing (e.g. arrays and read-only options)
-
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necessary).
 
@@ -82,10 +80,18 @@ backends
       - etc?
   * as6e: change :new status to :alpha, :beta, or :stable.
 
+  * epson: backend tries to detect usb scanners by default. This breaks with
+    non-epson scanners like the LM9831 bases Mustek Bearpaw 1200. The epson
+    backend freezes if such a scanner is plugged in. Try to make the test safe
+    or don't test without user interaction.
+
+  * add a contact address for each backend (in backend.desc).
+
 doc
 ---
-  * Add sane manpage
-     - versioning system
+  * Add sane manpage (this is work in progress: Henning Meier-Geinitz 
+                      <henning@meier-geinitz.de>)
+     - versioning system?
      - SANE API (maybe summary only?)
      - point to backends and other information?
 
@@ -109,7 +115,6 @@ frontends
 sanei
 -----
 
-  * sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
 
 misc
 ----
@@ -149,7 +154,9 @@ misc
   * Add USB support for sane-find-scanner.
 
 ******** done ********
-
+* pnm: add more options for testing (e.g. arrays and read-only options)
+* sanei_scsi.c: OS/2: struct param breaks compilation with --enable-warnings.
+  (probably fixed by testing for os2.h in configure).
 * Check all manpages for references to find-scanner (->sane-find-scanner).
 * net.c doesn't compile on Irix because socklen_t isn't known
 * Add new backends: bh http://www.martoneconsulting.com/sane-bh.html

@@ -1,3 +1,11 @@
+2000-12-31  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/mustek.CHANGES backend/mustek.c backend/mustek.desc 
+	  backend/mustek.h doc/sane-mustek.man:  Added calibration for Pro
+	  scanners and the SE 12000 SP Plus. Added option to use the full
+	  legal size of the Paragon 1200 LS scanner. Added fast preview for
+	  Pro scanners. Bug fixes. New version: 1.0-103.
+	
 2000-12-25  Karl Heinz Kremer <khk@khk.net
 
 	* backend/epson.*: Version 0.2.01

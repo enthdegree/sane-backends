@@ -82,6 +82,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -117,7 +118,7 @@
 static int num_devices;
 static Plustek_Device  *first_dev;
 static Plustek_Scanner *first_handle;
-
+static unsigned long    tsecs = 0;
 
 static ModeParam mode_params[] =
 {
@@ -226,6 +227,8 @@ static int drvopen( const char *dev_name )
 		return result;
     }
 
+	tsecs = 0;
+
 	return handle;
 }
 
@@ -239,6 +242,11 @@ static SANE_Status drvclose( int handle )
 	if( handle >= 0 ) {
 
 	    DBG( _DBG_INFO, "drvclose()\n" );
+
+		if( 0 != tsecs ) {
+			DBG( _DBG_INFO, "TIME END 1: %lus\n", time(NULL)-tsecs);
+		}
+
 		/*
 		 * don't check the return values, simply do it and close the driver
 		 */
@@ -399,6 +407,12 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 	}
 
 	drvclose( scanner->hw->fd );
+
+	if( tsecs != 0 ) {
+		DBG( _DBG_INFO, "TIME END 2: %lus\n", time(NULL)-tsecs);
+		tsecs = 0;
+	}
+
 	scanner->hw->fd = -1;
 
 	return SANE_STATUS_CANCELLED;
@@ -1432,6 +1446,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	}
 
 	s->scanning = SANE_TRUE;
+
+	tsecs = (unsigned long)time(NULL);
+	DBG( _DBG_INFO, "TIME START\n" );
 
 	/*
 	 * everything prepared, so start the child process and a pipe to communicate

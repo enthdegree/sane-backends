@@ -1,3 +1,7 @@
+2002-01-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sanei/sanei_usb.h: Made documentation doxygen compatible.
+
 2002-01-17  Peter Fales <peter@fales.com>
 	* backend/gphoto2.c, doc/sane-gphoto2.man
 	  Remove calls to exit()

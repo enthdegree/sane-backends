@@ -1,3 +1,8 @@
+2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c:
+	  Added quality calibration for Epson 2480 (implementd by Simon Munton)
+
 2004-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx_devices.c: Disabled stop_scan command for Mustek

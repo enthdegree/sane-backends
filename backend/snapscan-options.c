@@ -532,7 +532,6 @@ static void init_options (SnapScan_Scanner * ps)
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
         || (ps->pdev->model == SNAPSCANE52)
         || (ps->pdev->model == PERFECTION1670)
-        || (ps->pdev->model == PERFECTION2480)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
@@ -1515,6 +1514,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.19  2004/12/09 23:21:47  oliver-guest
+ * Added quality calibration for Epson 2480 (by Simon Munton)
+ *
  * Revision 1.18  2004/12/01 22:12:02  oliver-guest
  * Added support for Epson 1270
  *

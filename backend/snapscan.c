@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               41
+#define BUILD               42
 
 #define BACKEND_NAME snapscan
 
@@ -1594,6 +1594,17 @@ SANE_Status sane_start (SANE_Handle h)
     status = download_halftone_matrices(pss);
     CHECK_STATUS (status, me, "download_halftone_matrices");
 
+    if (pss->pdev->model == PERFECTION2480 && pss->val[OPT_QUALITY_CAL].b)
+    {
+        status = calibrate(pss);
+        if (status != SANE_STATUS_GOOD)
+        {
+            DBG (DL_MAJOR_ERROR, "%s: calibration failed.\n", me);
+            release_unit (pss);
+            return status;
+        }
+    }
+
     /* we must measure the data transfer rate between the host and the
        scanner, and the method varies depending on whether there is a
        ring buffer or not. */
@@ -1614,7 +1625,7 @@ SANE_Status sane_start (SANE_Handle h)
          pss->bytes_per_line/pss->ms_per_line);
 
 
-    if(pss->val[OPT_QUALITY_CAL].b)
+    if (pss->pdev->model != PERFECTION2480 && pss->val[OPT_QUALITY_CAL].b)
     {
         status = calibrate(pss);
         if (status != SANE_STATUS_GOOD)
@@ -1854,6 +1865,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.48  2004/12/09 23:21:48  oliver-guest
+ * Added quality calibration for Epson 2480 (by Simon Munton)
+ *
  * Revision 1.47  2004/12/01 22:49:14  oliver-guest
  * Fix for allocation of gamma tables by Simon Munton
  *

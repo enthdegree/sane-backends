@@ -595,6 +595,7 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTC_GAMMA 0x03
 #define DTC_SPEED 0x81
 #define DTC_CALIBRATION 0x82
+#define DTC_CALIBRATION_BLACK 0x89
 #define DTCQ_HALFTONE_BW8 0x00
 #define DTCQ_HALFTONE_COLOR8 0x01
 #define DTCQ_HALFTONE_BW16 0x80
@@ -1043,7 +1044,156 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
 }
 
 #define READ_CALIBRATION 0x82
+#define READ_CALIBRATION_BLACK 0x89
 #define NUM_CALIBRATION_LINES 16
+#define NUM_CALIBRATION_LINES_2480 48
+#define NUM_CALIBRATION_LINES_2480_BLACK 128
+
+#define PIXELS_PER_LINE_2480 10200
+
+static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
+{
+    u_char *buf, *pbuf;
+    int *bins;
+    static const char *me = "calibrate_2480";
+    int num_bins = PIXELS_PER_LINE_2480;
+    int i, j, k, loop_inc, tl;
+    int r, g, b;
+    size_t expected_read_bytes;
+    size_t read_bytes;
+    SANE_Status status;
+    int pass;
+    int cal_lines = NUM_CALIBRATION_LINES_2480;
+    int dtc = READ_CALIBRATION;
+
+    /* calculate number of bins depending on mode and resolution
+     * colour mode requires bins for each of rgb
+     * 2400 dpi doubles it because of second sensor line */
+    if (is_colour_mode(actual_mode(pss))) {
+        num_bins *= 3;
+    }
+    if (pss->res > 1200) {
+        num_bins *= 2;
+    }
+
+    /* allocate memory for bins, all the red, then green, then blue */
+    bins = (int *) malloc (num_bins * sizeof (int));
+    if (!bins) {
+        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating bins, %d bytes.", me, num_bins * sizeof (int));
+        return SANE_STATUS_NO_MEM;
+    }
+
+    /* allocate buffer for receive data */
+    expected_read_bytes = PIXELS_PER_LINE_2480 * 3 * 4;
+    buf = (u_char *) malloc (expected_read_bytes);
+    if (!buf) {
+        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, expected_read_bytes);
+        free (bins);
+        return SANE_STATUS_NO_MEM;
+    }
+
+    loop_inc = expected_read_bytes / num_bins;
+
+    /* do two passes, first pass does basic calibration, second does transparency adaptor if in use */
+    for (pass = 0; pass < 2; pass++) {
+        if (pass == 1) {
+            if (pss->source == SRC_TPO) {
+                /* pass 1 is for black level calibration of transparency adaptor */
+                cal_lines = NUM_CALIBRATION_LINES_2480_BLACK;
+                dtc = READ_CALIBRATION_BLACK;
+            } else
+                continue;
+        }
+
+        /* empty the bins */
+        for (i = 0; i < num_bins; i++)
+            bins[i] = 0;
+
+        for (i = 0; i < cal_lines; i += loop_inc) {
+            /* get the calibration data */
+            zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
+            pss->cmd[0] = READ;
+            pss->cmd[2] = dtc;
+            pss->cmd[5] = cal_lines;
+            if (cal_lines - i > loop_inc)
+                expected_read_bytes = loop_inc * num_bins;
+            else
+                expected_read_bytes = (cal_lines - i) * num_bins;
+
+            u_int_to_u_char3p (expected_read_bytes, pss->cmd + 6);
+            read_bytes = expected_read_bytes;
+
+            status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
+                         READ_LEN, buf, &read_bytes);
+            
+            if (status != SANE_STATUS_GOOD) {
+                DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n", me, "read_cal_2480", sane_strstatus(status));
+                free (bins);
+                free (buf);
+                return status;
+            }
+
+            if (read_bytes != expected_read_bytes) {
+                DBG (DL_MAJOR_ERROR, "%s: read %lu of %lu calibration data\n", me, (u_long) read_bytes, (u_long) expected_read_bytes);
+                free (bins);
+                free (buf);
+                return SANE_STATUS_IO_ERROR;
+            }
+
+            /* add calibration results into bins (TODO 16 bit scans have 2 bytes per bucket) */
+            pbuf = buf;
+            for (j = 0; j < expected_read_bytes / num_bins; j++) {
+              for (k = 0; k < num_bins; k++)
+                bins[k] += *pbuf++;
+            }
+        }
+
+        /* now make averages (TODO 16 bit scans needs divide by 64 too) */
+        for (k = 0; k < num_bins; k++)
+            bins[k] /= cal_lines;
+
+        /* now fill up result buffer */
+        r = g = b = 0;
+
+        /* create data to send back: start with r g b values, and follow with differences
+         * to previous value */
+        pbuf = pss->buf + SEND_LENGTH;
+        if (is_colour_mode(actual_mode(pss))) {
+            for (k = 0; k < num_bins / 3; k++) {
+                *pbuf++ = bins[k] - r;
+                r = bins[k];
+                *pbuf++ = bins[k + num_bins/3] - g;
+                g = bins[k + num_bins/3];
+                *pbuf++ = bins[k + 2*num_bins/3] - b;
+                b = bins[k + 2*num_bins/3];
+            }
+        } else {
+            for (k = 0; k < num_bins; k++) {
+                *pbuf++ = bins[k] - g;
+                g = bins[k];
+            }
+        }
+
+        /* send back the calibration data; round up transfer length (to match windows driver) */
+        zero_buf (pss->buf, SEND_LENGTH);
+        pss->buf[0] = SEND;
+        pss->buf[2] = dtc;
+        tl = (num_bins + 0xff) & ~0xff;
+        u_int_to_u_char3p (tl, pss->buf + 6);
+        status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->buf, SEND_LENGTH + tl,
+                                 NULL, NULL);
+        if (status != SANE_STATUS_GOOD) {
+            DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n", me, "send_cal_2480", sane_strstatus(status));
+            free (bins);
+            free (buf);
+            return status;
+        }
+    }
+
+    free (bins);
+    free (buf);
+    return SANE_STATUS_GOOD;
+}
 
 static SANE_Status read_calibration_data (SnapScan_Scanner *pss, void *buf, u_char num_lines)
 {
@@ -1081,6 +1231,10 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     SANE_Status status;
     int line_length = calibration_line_length(pss);
 
+    if (pss->pdev->model == PERFECTION2480) {
+        return calibrate_2480 (pss);
+    }
+      
     if ((pss->hconfig & HCFG_CAL_ALLOWED) && line_length) {
         int num_lines = pss->phys_buf_sz / line_length;
         if (num_lines > NUM_CALIBRATION_LINES)
@@ -1230,6 +1384,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.31  2004/12/09 23:21:48  oliver-guest
+ * Added quality calibration for Epson 2480 (by Simon Munton)
+ *
  * Revision 1.30  2004/12/01 22:12:03  oliver-guest
  * Added support for Epson 1270
  *

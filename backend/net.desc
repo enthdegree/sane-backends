@@ -2,7 +2,7 @@
 :version "1.0.3"
 :status :beta
 :manpage "sane-net"
-:url "mailto:jochen.eisinger@gmx.net"
+:url "http://home.nexgo.de/jochen.eisinger/saned/"
 
 :devicetype :meta
 :desc "Network access to saned servers"

@@ -169,5 +169,7 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .SH "SEE ALSO"
 sane(7), scanimage(1), xscanimage(1), xcam(1), sane\-dll(5), sane\-net(5),
 sane\-"backendname"(5)
+
+.I http://home.nexgo.de/jochen.eisinger/saned/
 .SH AUTHOR
 David Mosberger

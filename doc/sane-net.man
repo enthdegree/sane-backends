@@ -116,5 +116,7 @@ levels reduce verbosity.
 If saned has timed out, the net backend may loop with authorization requests.
 .SH "SEE ALSO"
 sane(7), saned(1), sane\-dll(5), scanimage(1)
+
+.I http://home.nexgo.de/jochen.eisinger/saned/
 .SH AUTHOR
 David Mosberger and Andreas Beck

@@ -1,3 +1,16 @@
+2004-08-04  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* AUTHORS: corrrection for teco2
+	* doc/descriptions/teco2.desc: url and status change
+	* doc/sane-teco2.man: update info
+	* backend/teco2.c: - added for the VM6575 a WHITE_LEVEL_R, _G an _B
+	  slider opion
+	  -changed for the VM656A and VM6575 and VM6586 the calibration part
+	  (subtract highest and lowest value and then divide).
+	  -default SANE_TECO_CAL_ALGO value is now 1 for the VM3564 and
+	  VM6575.
+	  - preview value is now 75 dpi for the VM6575
+	  
 2004-08-04  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 	* doc/umax/umax.FAQ: corrected bug about dtc3181e scsi controller
 

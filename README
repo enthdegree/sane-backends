@@ -106,9 +106,18 @@ configure options, there are the following SANE specific options:
 	details.
 
 --disable-translations
-        Disable installation of translated backend options. If you get
-        errors in the po/ directory during build, use this option.
-        See po/README for details.
+	Disable installation of translated backend options. If you get
+	errors in the po/ directory during build, use this option.
+	See po/README for details.
+
+--enable-locking
+	Means, that some backends will use a lockfile for allowing multiple
+	access to one scanner. This is useful, i.e. one frontend is scanning
+	the button status and another one will scan. The path to the lock
+	files is define by --localstatedir at the configure step and is 
+	$localstatedir/lock/sane. The default group is uucp and can be
+	changed by using --with-group=newgroup. If you do not want any
+	backend to use a lockfile, simply use --disable-locking.
 
 In addition to these configuration options, there are some more SANE-specific
 options and many standard-options.  To get a description of available options,

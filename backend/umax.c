@@ -2841,6 +2841,12 @@ static void umax_correct_inquiry(Umax_Device *dev, char *vendor, char *product, 
         dev->slow = 1;
       }
     }
+    else if (!strncmp(product, "UC630 ", 6))
+    {
+      DBG(DBG_warning,"setting up special options for %s\n", product);
+      DBG(DBG_warning," - reposition_scanner waits until move of scan head has finished\n");
+      dev->pause_after_reposition = 0;	    /* call wait_scanner */
+    }
     else if (!strncmp(product, "UC840 ", 6))
     {
       DBG(DBG_warning,"setting up special options for %s\n", product);

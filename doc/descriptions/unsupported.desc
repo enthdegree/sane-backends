@@ -993,6 +993,7 @@
 :model "OpticPro ST16"
 :url "/unsupported/plustek-opticpro-st16.html"
 :interface "USB"
+:status :unsupported
 :comment "Not supported yet. GL646. May be supported later."
 
 :model "OpticPro S24"

@@ -57,7 +57,7 @@ find out what maxout has to be. The default value is 255.
 >image.pnm
 
 .SH SEE ALSO
-.BR scanimage (7)
+.BR scanimage (1)
 
 .SH AUTHOR
 Oliver Rauch

@@ -1,3 +1,8 @@
+2003-02-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+
+        * backend/umax_pp_low.c: icc compile fixes, and
+	  EPP mode setting fix for direct hardware access
+
 2003-02-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.fr.po: Added more French translations (from Yann E.

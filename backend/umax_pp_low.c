@@ -71,15 +71,63 @@
 #include <linux/ppdev.h>
 #endif
 
-#ifdef HAVE_SYS_IO_H
+#if HAVE_SYS_IO_H && defined __GNUC__
 # include <sys/io.h>		/* GNU libc based Linux */
 #elif HAVE_ASM_IO_H && defined __i386__
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */
 #else
+#ifdef _ICC
+
+static inline unsigned char
+inb (unsigned int port)
+{
+  unsigned char ret;
+
+  __asm__ __volatile__ ("inb %1,%0":"=a" (ret):"d" ((u_int) port));
+  return ret;
+}
+
+static inline void
+outb (unsigned int port, unsigned char value)
+{
+  __asm__ __volatile__ ("outb %0,%1"::"a" (value), "d" ((u_int) port));
+}
+
+static inline void
+insb (unsigned int port, void *addr, unsigned long count)
+{
+  __asm__ __volatile__ ("rep ; insb":"=D" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
+}
+
+static inline void
+insl (unsigned int port, void *addr, unsigned long count)
+{
+  __asm__ __volatile__ ("rep ; insl":"=D" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
+}
+
+static inline void
+outsb (unsigned int port, const void *addr, unsigned long count)
+{
+  __asm__ __volatile__ ("rep ; outsb":"=S" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
+}
+
+static inline void
+outsw (unsigned int port, const void *addr, unsigned long count)
+{
+  __asm__ __volatile__ ("rep ; outsw":"=S" (addr), "=c" (count):"d" (port),
+			"0" (addr), "1" (count));
+}
+
+#else
 #ifdef ENABLE_PARPORT_DIRECTIO
+#warning "ENABLE_PARPORT_DIRECTIO overriden"
 #undef ENABLE_PARPORT_DIRECTIO
+#endif
 #endif
 #endif
 
@@ -402,7 +450,7 @@ int
 sanei_umax_pp_InitPort (int port, char *name)
 {
   int fd, ectr;
-  int found = 0, ecp = 0;
+  int found = 0, ecp = 1;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
 #endif
@@ -547,6 +595,7 @@ sanei_umax_pp_InitPort (int port, char *name)
 		  DBG (16,
 		       "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
 		       name);
+		  ecp = 0;
 		}
 
 
@@ -622,11 +671,6 @@ sanei_umax_pp_InitPort (int port, char *name)
       DBG (1, "iopl could not raise IO permission to level 3\n");
       return (0);
     }
-  mode = getuid ();
-  setreuid (mode, mode);
-  mode = getgid ();
-  setregid (mode, mode);
-#endif
 
   /* set up ECPEPP the hard way ... */
   /* frob_econtrol (port, 0xe0, 4 << 5);
@@ -641,6 +685,14 @@ sanei_umax_pp_InitPort (int port, char *name)
 	  Outb (ECPCONTROL, ectr);
 	}
     }
+
+  /* in case of suid, return to real user rights */
+  mode = getuid ();
+  setreuid (mode, mode);
+  mode = getgid ();
+  setregid (mode, mode);
+#endif
+
 
 
 #endif /* IO_SUPPORT_MISSING */
@@ -8149,7 +8201,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
       opsc53[7] = 0x2F;
       /* 00 seems to give better results ?     */
-      /* 80 some more gain, lamp power level ? */ 
+      /* 80 some more gain, lamp power level ? */
       /* 8x does not make much difference      */
       opsc04[6] = 0x8F;
       if (sanei_umax_pp_getastra () == 1600)

@@ -7,6 +7,8 @@
 
 	* po/sane-backends.fr.po: Added more French translations (from Yann E.
 	  MORIN <yann dot morin dot 1998 at anciens dot enib dot fr>).
+	* sanei/sanei_usb.c: usb_clear_halt should only be called in libusb
+	  mode.
 
 2003-02-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

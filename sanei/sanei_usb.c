@@ -763,7 +763,8 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
     {
       DBG (1, "sanei_usb_read_bulk: read failed: %s\n", strerror (errno));
 #ifdef HAVE_LIBUSB
-      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+      if (devices[dn].method == sanei_usb_method_libusb)
+	usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
 #endif
       *size = 0;
       return SANE_STATUS_IO_ERROR;
@@ -832,7 +833,8 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       DBG (1, "sanei_usb_write_bulk: write failed: %s\n", strerror (errno));
       *size = 0;
 #ifdef HAVE_LIBUSB
-      usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+      if (devices[dn].method == sanei_usb_method_libusb)
+	usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
 #endif
       return SANE_STATUS_IO_ERROR;
     }

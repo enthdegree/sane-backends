@@ -82,7 +82,7 @@ if test $# -gt 0; then
       echo "-L${libdir}"
       ;;
     --libs)
-      echo "-lsane"
+      echo "-lsane ${LIBS}"
       ;;
     --cflags)
       unique_cflags="-I${includedir}"

@@ -1,3 +1,7 @@
+2004-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS: Mattias Ellert has CVS write access now.
+
 2004-05-30  Peter Fales <peter@fales-lorenz.net>
 	* acinclude.m4, aclocal.m4, configure.in, configure
 	Use pkg-config rather than gphoto2-config to get gphoto

@@ -111,8 +111,8 @@ static const SANE_String_Const cmodes[] = { "Greyscale", "Colour", NULL };
 /* bit depths */
 static const SANE_String_Const depths[] = { "8", "12", NULL };
 /* resolutions */
-static const SANE_Int res330[] = {3, 75, 150, 300};
-static const SANE_Int res630[] = {4, 75, 150, 300, 600};
+static const SANE_Int res300[] = {3, 75, 150, 300};
+static const SANE_Int res600[] = {4, 75, 150, 300, 600};
 
 
 /*************************************************************************
@@ -571,9 +571,9 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	/* Resolution - determined by magic number */
 
 	if (cs->params.scanheadwidth == 2552)
-		cs->opt[OPT_RESOLUTION].constraint.word_list = res330;
+		cs->opt[OPT_RESOLUTION].constraint.word_list = res300;
 	else
-		cs->opt[OPT_RESOLUTION].constraint.word_list = res630;
+		cs->opt[OPT_RESOLUTION].constraint.word_list = res600;
 
 
 	/* TL-X */
@@ -593,7 +593,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 	/* BR-X */
 	if(!(tmp_range = malloc(sizeof(*tmp_range))))
 		return SANE_STATUS_NO_MEM;
-	(*tmp_range).min = 22;
+	(*tmp_range).min = 3;
 	(*tmp_range).max = 216;
 	cs->opt[OPT_BR_X].constraint.range = tmp_range;
 
@@ -714,7 +714,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 							depths[cs->vals[opt]]);
 					break;
 				case OPT_RESOLUTION:
-					*((int *)val) = res630[cs->vals[opt]];
+					*((int *)val) = res600[cs->vals[opt]];
 					break;
 				default:
 					*((int *)val) = cs->vals[opt];
@@ -736,13 +736,13 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 						constraint.word_list[0];
 
 					while ((cs->vals[opt] <= maxresi) && 
-							(res630[cs->vals[opt]]
+							(res600[cs->vals[opt]]
 							 < *((int *)val)))
 					{
 						cs->vals[opt] += 1;
 					}
 
-					if (res630[cs->vals[opt]] != 
+					if (res600[cs->vals[opt]] != 
 							*((int *)val))
 					{
 						if (info != NULL) *info |= 
@@ -866,9 +866,9 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 		return SANE_STATUS_INVAL;
 	}
 
-	/* We use 630 res list here because the 330 res list is just a shorter
+	/* We use 600 res list here because the 300 res list is just a shorter
 	 * version, so this will always work. */
-	res = res630[cs->vals[OPT_RESOLUTION]];
+	res = res600[cs->vals[OPT_RESOLUTION]];
 
 	/* 
 	 * These don't change whether we're scanning or not 
@@ -889,8 +889,8 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	/* x values have to be divisible by 4 (round down) */
 	params->pixels_per_line -= (params->pixels_per_line%4);
 
-        /* Can't scan nothing */
-        if (!(params->pixels_per_line)) params->pixels_per_line = 4;
+        /* Can't scan less than 64 */
+        if (params->pixels_per_line < 64) params->pixels_per_line = 64;
 
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
@@ -966,9 +966,9 @@ sane_start (SANE_Handle h)
 	}
 
 
-	/* We use 630 res list here because the 330 res list is just a shorter
+	/* We use 600 res list here because the 300 res list is just a shorter
 	 * version, so this will always work. */
-	res = res630[cs->vals[OPT_RESOLUTION]];
+	res = res600[cs->vals[OPT_RESOLUTION]];
 
 	/* Copy the options stored in the vals into the scaninfo */
 	cs->scan.width = ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) 
@@ -993,16 +993,18 @@ sane_start (SANE_Handle h)
 	cs->scan.width -= (cs->scan.width%4);
 	cs->scan.xoffset -= (cs->scan.xoffset%4);
 
-	/* Can't scan nothing */
-        if (!(cs->scan.width)) cs->scan.width = 4;
+	/* Can't scan less than 64 */
+        if (cs->scan.width < 64) cs->scan.width = 64;
 
 	max_width = cs->params.scanheadwidth / (max_res / res);
 
 	max_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) / 
                                         (max_res / res);
 
-        if(cs->scan.width > max_width) cs->scan.width = max_width;
-        if(cs->scan.height > max_height) cs->scan.height = max_height;
+        if (cs->scan.width > max_width) cs->scan.width = max_width;
+	if (cs->scan.width + cs->scan.xoffset > max_width) cs->scan.xoffset = 
+		max_width - cs->scan.width;
+        if (cs->scan.height > max_height) cs->scan.height = max_height;
 
 	/* We pass a value to init_scan which is the power of 2 that 75
 	 * is multiplied by for the resolution.  ie:
@@ -1355,7 +1357,7 @@ sane_cancel (SANE_Handle h)
 	cs->lines_scanned = 0;
 	cs->bytes_sent = 0;
 	DBG(2, "sane_cancel: >> abort_scan\n");
-	tmp = sanei_canon_pp_abort_scan(&(cs->params), &(cs->scan));
+	tmp = sanei_canon_pp_abort_scan(&(cs->params));
 	DBG(2, "sane_cancel: << abort_scan\n");
 	if (tmp != 0) {
 		DBG(1, "sane_cancel: WARNING: abort_scan returned %d!", tmp);

@@ -288,8 +288,11 @@ sanei_usb_init (void)
 	      kernel_get_vendor_product (fd, &vendor, &product);
 	      close (fd);
 	      devices[dn].devname = strdup (devname);
-	      if (!devices[dn].devname)
-		return;
+	      if (!devices[dn].devname) 
+	        {
+		  closedir (dir);
+		  return;
+	        }
 	      devices[dn].vendor = vendor;
 	      devices[dn].product = product;
 	      devices[dn].method = sanei_usb_method_scanner_driver;
@@ -298,9 +301,14 @@ sanei_usb_init (void)
 		   vendor, product, devname);
 	      dn++;
 	      if (dn >= MAX_DEVICES)
+	        {
+		  closedir (dir);
+		  return;
+	        }
 		return;
 	    }
 	}
+      closedir (dir);
     }
 
   /* Check for devices using libusb */

@@ -1,3 +1,8 @@
+2002-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/net.c doc/descriptions/net.desc: Fixed bug in sane_read that
+	  cause garbled data to be sent to the frontend. Fixed some long lines.
+
 2002-04-18  Marian Eichholz <eichholz@computer.org>
 	* backend/sm3600.c : compiles without warnings now.
 	* backend/sm3600.h : FakeCalibration prototype conditionalised, too.

@@ -13,7 +13,7 @@
 :version "1.0-5"                  ; version of backend
 :status :new                      ; :alpha, :beta, :stable, :new
 :manpage "sane-matsushita"        ; name of manpage
-:url "http://www.geocities.com/harikus2000/sane" ; backend's web page
+:url "http://fz.eryx.net/sane"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
 

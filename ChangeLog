@@ -1,3 +1,8 @@
+2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+	
+	* sanei/sanei_scsi.c: Fixed compilation issue for OS/2 in
+	  sanei_scsi_find_devices.
+	
 --- cvs snapshot-2001-05-30 ---
 
 2001-05-30 Marian Eichholz <marian@freenet-ag.de>

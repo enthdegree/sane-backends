@@ -1,3 +1,9 @@
+2004-10-04  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.h backend/hp.c backend/hp-scl.c:
+	  Fixed bug #300973 (renamed global function hp_init_openfd
+	  to sanei_hp_init_openfd
+
 2004-10-04  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Fixed bug #300963.

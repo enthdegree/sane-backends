@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-08-08"		; version of backend
+:version "2004-08-19"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1429,6 +1429,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. See Visioneer Onetouch 4400."
+
+:model "Strobe XP 100"
+:interface "USB"
+:url "/unsupported/visioneer-strobe-xp-100.html"
+:status :unsupported
+:comment "Not supported but may work in future. See link for details."
 
 ;********************************************************************************************
 

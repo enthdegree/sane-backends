@@ -152,8 +152,8 @@
 
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
-:status :untested
-:comment "Procuct id 0x021b"
+:status :minimal
+:comment "Procuct id 0x021b. Scans but images are garbled."
 
 :model "BearPaw 1200 TA"
 :interface "USB"

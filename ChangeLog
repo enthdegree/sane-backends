@@ -1,3 +1,8 @@
+2004-08-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/gt68xx.desc doc/descriptions/unsupported.desc:
+	  Updated.
+
 2004-08-18  Julien Blache <jb at jblache dot org>
 	* tools/hotplug/libsane.usermap: committed patch from Aurélien
 	Jarno adding USB IDs for Epson Stylus CX6400 (and doing

@@ -94,8 +94,6 @@ enum Avision_Option
   OPT_QCALIB,
   OPT_TRANS,             /* Transparency Mode */
   
-  OPT_CUSTOM_GAMMA,	 /* use custom gamma tables? */
-  
   OPT_GAMMA_VECTOR,      /* first must be grey */
   OPT_GAMMA_VECTOR_R,    /* then r g b vector */
   OPT_GAMMA_VECTOR_G,
@@ -293,13 +291,13 @@ typedef struct Avision_Scanner
 /* SCSI commands that the Avision scanners understand: */
 
 #define AVISION_SCSI_TEST_UNIT_READY        0x00
-#define AVISION_SCSI_INQUIRY		    0x12
-#define AVISION_SCSI_MODE_SELECT	    0x15 
-#define AVISION_SCSI_START_STOP		    0x1b
-#define AVISION_SCSI_SET_WINDOWS	    0x24
+#define AVISION_SCSI_INQUIRY                0x12
+#define AVISION_SCSI_MODE_SELECT            0x15 
+#define AVISION_SCSI_SCAN                   0x1b
+#define AVISION_SCSI_SET_WINDOW             0x24
 #define AVISION_SCSI_READ                   0x28
 #define AVISION_SCSI_SEND                   0x2a
-#define AVISION_SCSI_GET_DATA_STATUS	    0x34 
+#define AVISION_SCSI_GET_DATA_STATUS        0x34 
 
 /* The structures that you have to send to an avision to get it to
    do various stuff... */

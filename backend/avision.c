@@ -59,6 +59,13 @@
                 Avision INC for the documentation we got! ;-)
    
    ChangeLog:
+   2002-01-18: René Rebe
+         * removed sane_stop and fixed some names
+         * much more _just for fun_ cleanup work
+         * fixed sane_cancel to not hang - but cancel a scan
+         * introduced a disable-gamma-table option (removed the option stuff)
+         * added comments for the options into the avision.conf file
+   
    2002-01-17: René Rebe
          * fixed set_window to not call exit
    
@@ -86,6 +93,7 @@
          * merged test_light ();
    
    2001: René Rebe and Martin Jelínek
+         * started a real change-log
          * added force-a4 config option
          * added gamma-table support
          * added pretty inquiry data debug output
@@ -158,6 +166,7 @@ static int num_devices;
 static Avision_Device* first_dev;
 static Avision_Scanner* first_handle;
 
+static SANE_Bool disable_gamma_table = SANE_FALSE; /* disable the usage of a custom gamma-table */
 static SANE_Bool force_a4 = SANE_FALSE; /* force scanable areas to ISO(DIN) A4 */
 static SANE_Bool allow_usb = SANE_FALSE; /* allow USB scanners */
 
@@ -202,9 +211,9 @@ static const u_int8_t test_unit_ready[] =
     AVISION_SCSI_TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
-static const u_int8_t stop[] =
+static const u_int8_t scan[] =
   {
-    AVISION_SCSI_START_STOP, 0x00, 0x00, 0x00, 0x00, 0x00
+    AVISION_SCSI_SCAN, 0x00, 0x00, 0x00, 0x00, 0x00
   };
 
 static const u_int8_t get_status[] =
@@ -538,215 +547,6 @@ sense_handler (int fd, u_char* sense, void* arg)
 }
 
 static SANE_Status
-perform_calibration (Avision_Scanner *s)
-{
-  /* read stuff */
-  struct command_read rcmd;
-  size_t nbytes;
-  SANE_Status status;
-  
-  unsigned int i;
-  /* unsigned int color; */
-  
-  unsigned int CALIB_PIXELS_PER_LINE;
-  unsigned int CALIB_BYTES_PER_CHANNEL;
-  unsigned int CALIB_LINE_COUNT;
-  
-  SANE_Byte result [16];
-  SANE_Byte* data;
-  
-  /* send stuff */
-  struct command_send scmd;
-  unsigned char *cmd;  
-  
-  DBG (3, "test get calibration format.\n");
-
-  nbytes = sizeof (result);
-  
-  memset (&rcmd, 0x0, sizeof (rcmd));
-  rcmd.opc = AVISION_SCSI_READ;
-  
-  rcmd.datatypecode = 0x60; /* get calibration info */
-  /* rcmd.calibchn = 0; */
-  rcmd.datatypequal [0] = 0x0d;
-  rcmd.datatypequal [1] = 0x0a;
-  set_triple (rcmd.transferlen, nbytes);
-  
-  DBG (3, "read_data: bytes %d\n", nbytes);
-  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), result, &nbytes);
-  if (status != SANE_STATUS_GOOD || nbytes != sizeof (result)) {
-    DBG (1, "attach: inquiry failed (%s)\n", sane_strstatus (status));
-    return status;
-  }
-  
-  DBG (6, "RAW-Data:\n");
-  for (i=0; i<nbytes; i++) {
-    DBG (6, "result [%2d] %1d%1d%1d%1d%1d%1d%1d%1db %3oo %3dd %2xx\n", i, BIT(result[i],7), 
-         BIT(result[i],6), BIT(result[i],5), BIT(result[i],4), BIT(result[i],3), BIT(result[i],2),
-         BIT(result[i],1), BIT(result[i],0), result[i], result[i], result[i]);
-  }
-  DBG (3, "calib_info: [0-1]  pixels per line %d\n", (result[0]<<8)+result[1]);
-  DBG (3, "calib_info: [2]    bytes per channel %d\n", result[2]);
-  DBG (3, "calib_info: [3]    line count %d\n", result[3]);
-  
-  DBG (3, "calib_info: [4]   FLAG:%s%s%s\n",
-       result[4] == 1?" MUST_DO_CALIBRATION":"",
-       result[4] == 2?" SCAN_IMAGE_DOES_CALIBRATION":"",
-       result[4] == 3?" NEEDS_NO_CALIBRATION":"");
-  
-  
-  DBG (3, "calib_info: [5]    Ability1:%s%s%s%s%s%s%s%s\n",
-        BIT(result[5],7)?" NONE_PACKED":" PACKED",
-  	BIT(result[5],6)?" INTERPOLATED":"",
-  	BIT(result[5],5)?" SEND_REVERSED":"",
-  	BIT(result[5],4)?" PACKED_DATA":"",
-  	BIT(result[5],3)?" COLOR_CALIB":"",
-  	BIT(result[5],2)?" DARK_CALIB":"",
-  	BIT(result[5],1)?" NEEDS_WHITE_BLACK_SHADING_DATA":"",
-  	BIT(result[5],0)?" NEEDS_2_CALIBS":"");
-  
-  DBG (3, "calib_info: [6]    R gain: %d\n", result[6]);
-  DBG (3, "calib_info: [7]    G gain: %d\n", result[7]);
-  DBG (3, "calib_info: [8]    B gain: %d\n", result[8]);
-  
-  CALIB_PIXELS_PER_LINE = ( (result[0]<<8)+result[1] );
-  CALIB_BYTES_PER_CHANNEL = result[2];
-  CALIB_LINE_COUNT = result[3];
-  
-  /* try to get calibration data */
-  
-  nbytes = CALIB_PIXELS_PER_LINE * CALIB_BYTES_PER_CHANNEL * CALIB_LINE_COUNT; /* *3 for three channels does not work on an av630cs ?? */
-  
-  data = malloc (nbytes);
-  if (!data)
-    return SANE_STATUS_NO_MEM;
-  
-  memset (&rcmd, 0x0, sizeof (rcmd));
-  rcmd.opc = AVISION_SCSI_READ;
-  
-  rcmd.datatypecode = 0x62; /* 66: dark, 62: color data */
-  /* rcmd.calibchn = color; */
-  rcmd.datatypequal [0] = 0x0d;
-  rcmd.datatypequal [1] = 0x0a;
-  set_triple (rcmd.transferlen, nbytes);
-  
-  DBG (3, "read_data: %d bytes calibration data\n", nbytes);
-  
-  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), data, &nbytes);
-  if (status != SANE_STATUS_GOOD) {
-    DBG (1, "attach: calibration data read failed (%s)\n", sane_strstatus (status));
-    return status;
-  }
-  
-  DBG (10, "RAW-Calibration-Data (%d bytes):\n", nbytes);
-  for (i=0; i<nbytes; i++) {
-    DBG (10, "data [%2d] %3d\n", i, data[i]);
-  }
-  
-  /* sending some calibration data ... */
-  
-  nbytes = CALIB_PIXELS_PER_LINE * CALIB_BYTES_PER_CHANNEL * 3;
-  
-  memset (&scmd, 0x0, sizeof (scmd));
-  scmd.opc = AVISION_SCSI_SEND;
-  scmd.datatypecode = 0x82; /* send calibration data */
-  set_double (scmd.datatypequal, 0x12); /* send color-calib. data */
-  set_triple (scmd.transferlen, nbytes);
-  
-  cmd = malloc (sizeof (scmd) + nbytes);
-  if (!cmd)
-    return SANE_STATUS_NO_MEM;
-  
-  /* build cmd */
-  memset (cmd, 0x0, sizeof (scmd) + nbytes);
-  memcpy (cmd, &scmd, sizeof (scmd));
-  /*memcpy (cmd + sizeof (scmd), data, nbytes);*/
-  
-  DBG (3, "send_data: %d bytes (+header) calibration data\n", nbytes);
-  
-  /*for (i=0; i<nbytes; i++) {
-    DBG (3, "cmd [%2d] %2xh\n", i, cmd[i]);
-  }*/
-  
-  status = sanei_scsi_cmd (s->fd, cmd, sizeof (scmd) + nbytes, 0, 0);
-  if (status != SANE_STATUS_GOOD) {
-    DBG (1, "attach: send_data (%s)\n", sane_strstatus (status));
-    return status;
-  }
-
-  free (cmd);
-  free (data);
-  
-  return SANE_STATUS_GOOD;
-};
-
-static SANE_Status
-wait_4_light (Avision_Scanner *s)
-{
-  /* read stuff */
-  struct command_read rcmd;
-  char *light_status[] = { "off", "on", "warming up", "needs warm up test", 
-		           "light check error", "RESERVED" };
-  
-  size_t nbytes;
-  SANE_Status status;
-  SANE_Byte result;
-
-  nbytes = 1;
- 
-  memset (&rcmd, 0x0, sizeof (rcmd));
-  rcmd.opc = AVISION_SCSI_READ;
-
-  rcmd.datatypecode = 0xa0; /* get light status */
-  
-  DBG (3, "getting light status.\n");
-
-  rcmd.datatypequal [0] = 0x0d;
-  rcmd.datatypequal [1] = 0x0a;
-  set_triple (rcmd.transferlen, nbytes);
-  
-  DBG (3, "read_data: bytes %d\n", nbytes);
-  
-  do {
-    status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), &result, &nbytes);
-  
-    if (status != SANE_STATUS_GOOD || nbytes != sizeof (result)) {
-      DBG (1, "test_light: inquiry failed (%s)\n", sane_strstatus (status));
-      return status;
-    }
-    
-    DBG (1, "Light status: command is %d. Result is %s\n", status, light_status[(result>4)?5:result]);
-    if (result != 1) sleep (3);
-  } while (result !=1);
-  
-  return SANE_STATUS_GOOD;
-}
-
-
-static SANE_Status
-go_home (Avision_Scanner *s)
-{
-# if 0
-# define HOME_SIZE 10
-# else
-# define HOME_SIZE 6
-# endif
-  SANE_Byte cmd[HOME_SIZE];
-  SANE_Status status;
-  /* Only for film scanners? */
-  memset (cmd, 0x0, HOME_SIZE);
-# if 0
-  cmd[0] = 0x31; /* Object position */
-  cmd[2] = 0x02; /* for film scanners! Check adf's as well */
-# else
-  cmd[0] = 0x17; /* Release unit */
-# endif
-  status = sanei_scsi_cmd (s->fd, cmd, HOME_SIZE, 0, 0);
-  
-  return status;
-}
-
-static SANE_Status
 attach (const char* devname, Avision_Device** devp)
 {
   unsigned char result [INQ_LEN];
@@ -845,7 +645,7 @@ attach (const char* devname, Avision_Device** devp)
   if (!dev)
     return SANE_STATUS_NO_MEM;
   
-  memset (dev, 0x0, sizeof (*dev));
+  memset (dev, 0, sizeof (*dev));
   
   dev->sane.name   = strdup (devname);
   dev->sane.vendor = strdup (mfg);
@@ -1092,6 +892,149 @@ constrain_value (Avision_Scanner *s, SANE_Int option, void *value,
   return sanei_constrain_value (s->opt + option, value, info);
 }
 
+static SANE_Status
+perform_calibration (Avision_Scanner *s)
+{
+  /* read stuff */
+  struct command_read rcmd;
+  size_t nbytes;
+  SANE_Status status;
+  
+  unsigned int i;
+  /* unsigned int color; */
+  
+  unsigned int CALIB_PIXELS_PER_LINE;
+  unsigned int CALIB_BYTES_PER_CHANNEL;
+  unsigned int CALIB_LINE_COUNT;
+  
+  SANE_Byte result [16];
+  SANE_Byte* data;
+  
+  /* send stuff */
+  struct command_send scmd;
+  unsigned char *cmd;  
+  
+  DBG (3, "test get calibration format.\n");
+
+  nbytes = sizeof (result);
+  
+  memset (&rcmd, 0, sizeof (rcmd));
+  rcmd.opc = AVISION_SCSI_READ;
+  
+  rcmd.datatypecode = 0x60; /* get calibration info */
+  /* rcmd.calibchn = 0; */
+  rcmd.datatypequal [0] = 0x0d;
+  rcmd.datatypequal [1] = 0x0a;
+  set_triple (rcmd.transferlen, nbytes);
+  
+  DBG (3, "read_data: bytes %d\n", nbytes);
+  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), result, &nbytes);
+  if (status != SANE_STATUS_GOOD || nbytes != sizeof (result)) {
+    DBG (1, "attach: inquiry failed (%s)\n", sane_strstatus (status));
+    return status;
+  }
+  
+  DBG (6, "RAW-Data:\n");
+  for (i=0; i<nbytes; i++) {
+    DBG (6, "result [%2d] %1d%1d%1d%1d%1d%1d%1d%1db %3oo %3dd %2xx\n", i, BIT(result[i],7), 
+         BIT(result[i],6), BIT(result[i],5), BIT(result[i],4), BIT(result[i],3), BIT(result[i],2),
+         BIT(result[i],1), BIT(result[i],0), result[i], result[i], result[i]);
+  }
+  DBG (3, "calib_info: [0-1]  pixels per line %d\n", (result[0]<<8)+result[1]);
+  DBG (3, "calib_info: [2]    bytes per channel %d\n", result[2]);
+  DBG (3, "calib_info: [3]    line count %d\n", result[3]);
+  
+  DBG (3, "calib_info: [4]   FLAG:%s%s%s\n",
+       result[4] == 1?" MUST_DO_CALIBRATION":"",
+       result[4] == 2?" SCAN_IMAGE_DOES_CALIBRATION":"",
+       result[4] == 3?" NEEDS_NO_CALIBRATION":"");
+  
+  
+  DBG (3, "calib_info: [5]    Ability1:%s%s%s%s%s%s%s%s\n",
+        BIT(result[5],7)?" NONE_PACKED":" PACKED",
+  	BIT(result[5],6)?" INTERPOLATED":"",
+  	BIT(result[5],5)?" SEND_REVERSED":"",
+  	BIT(result[5],4)?" PACKED_DATA":"",
+  	BIT(result[5],3)?" COLOR_CALIB":"",
+  	BIT(result[5],2)?" DARK_CALIB":"",
+  	BIT(result[5],1)?" NEEDS_WHITE_BLACK_SHADING_DATA":"",
+  	BIT(result[5],0)?" NEEDS_2_CALIBS":"");
+  
+  DBG (3, "calib_info: [6]    R gain: %d\n", result[6]);
+  DBG (3, "calib_info: [7]    G gain: %d\n", result[7]);
+  DBG (3, "calib_info: [8]    B gain: %d\n", result[8]);
+  
+  CALIB_PIXELS_PER_LINE = ( (result[0]<<8)+result[1] );
+  CALIB_BYTES_PER_CHANNEL = result[2];
+  CALIB_LINE_COUNT = result[3];
+  
+  /* try to get calibration data */
+  
+  nbytes = CALIB_PIXELS_PER_LINE * CALIB_BYTES_PER_CHANNEL * CALIB_LINE_COUNT; /* *3 for three channels does not work on an av630cs ?? */
+  
+  data = malloc (nbytes);
+  if (!data)
+    return SANE_STATUS_NO_MEM;
+  
+  memset (&rcmd, 0, sizeof (rcmd));
+  rcmd.opc = AVISION_SCSI_READ;
+  
+  rcmd.datatypecode = 0x62; /* 66: dark, 62: color data */
+  /* rcmd.calibchn = color; */
+  rcmd.datatypequal [0] = 0x0d;
+  rcmd.datatypequal [1] = 0x0a;
+  set_triple (rcmd.transferlen, nbytes);
+  
+  DBG (3, "read_data: %d bytes calibration data\n", nbytes);
+  
+  status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), data, &nbytes);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "attach: calibration data read failed (%s)\n", sane_strstatus (status));
+    return status;
+  }
+  
+  DBG (10, "RAW-Calibration-Data (%d bytes):\n", nbytes);
+  for (i=0; i<nbytes; i++) {
+    DBG (10, "data [%2d] %3d\n", i, data[i]);
+  }
+  
+  /* sending some calibration data ... */
+  
+  nbytes = CALIB_PIXELS_PER_LINE * CALIB_BYTES_PER_CHANNEL * 3;
+  
+  memset (&scmd, 0, sizeof (scmd));
+  scmd.opc = AVISION_SCSI_SEND;
+  scmd.datatypecode = 0x82; /* send calibration data */
+  set_double (scmd.datatypequal, 0x12); /* send color-calib. data */
+  set_triple (scmd.transferlen, nbytes);
+  
+  cmd = malloc (sizeof (scmd) + nbytes);
+  if (!cmd)
+    return SANE_STATUS_NO_MEM;
+  
+  /* build cmd */
+  memset (cmd, 0, sizeof (scmd) + nbytes);
+  memcpy (cmd, &scmd, sizeof (scmd));
+  /*memcpy (cmd + sizeof (scmd), data, nbytes);*/
+  
+  DBG (3, "send_data: %d bytes (+header) calibration data\n", nbytes);
+  
+  /*for (i=0; i<nbytes; i++) {
+    DBG (3, "cmd [%2d] %2xh\n", i, cmd[i]);
+  }*/
+  
+  status = sanei_scsi_cmd (s->fd, cmd, sizeof (scmd) + nbytes, 0, 0);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "attach: send_data (%s)\n", sane_strstatus (status));
+    return status;
+  }
+
+  free (cmd);
+  free (data);
+  
+  return SANE_STATUS_GOOD;
+}
+
 /* next was taken from the GIMP and is a bit modifyed ... ;-)
  * original Copyright (C) 1995 Spencer Kimball and Peter Mattis
 */
@@ -1139,6 +1082,7 @@ brightness_contrast_func (double brightness, double contrast, double value)
   }
   return value;
 }
+
 static SANE_Status
 set_gamma (Avision_Scanner* s)
 {
@@ -1172,19 +1116,17 @@ set_gamma (Avision_Scanner* s)
   
   DBG (3, "brightness: %f, contrast: %f\n", brightness, contrast);
   
-  /* should we sent a custom gamma-table ?? 
-   * don't send anything if no - the scanner may not understand the gamma-table
-   */
-  if (s->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
+  /* should we sent a custom gamma-table ?? */
+  if (! disable_gamma_table)
     {
-      DBG (4, "use custom gamma-table\n");
+      DBG (4, "gamma-table is used\n");
       for (color = 0; color < 3; color++)
 	{
 	  cmd = malloc (sizeof (*cmd) );
 	  if (!cmd)
 	    return SANE_STATUS_NO_MEM;
 	  
-	  memset (cmd, 0x0, sizeof (*cmd) );
+	  memset (cmd, 0, sizeof (*cmd) );
 	  
 	  cmd->cmd.opc = AVISION_SCSI_SEND;
 	  cmd->cmd.datatypecode = 0x81; /* 0x81 for download gama table */
@@ -1220,7 +1162,8 @@ set_gamma (Avision_Scanner* s)
 		  }
 		} /*end switch */
 	      /* emulate brightness, contrast ...
-	       * taken from the GIMP source - I'll optimize it when it is known to work
+	       * taken from the GIMP source - I'll optimize it when it is
+	       * known to work
 	       */
 	      
 	      v1 /= 255;
@@ -1248,15 +1191,16 @@ set_gamma (Avision_Scanner* s)
 	  
 	  free (cmd);
 	}
-    } /* end if custom gamma*/
-  else /* no custom gamma */
+    } /* end if not disable_gamma_table */
+  else /* disable_gamma_table */
     {
-      DBG (4, "don't use custom gamma-table\n");
+      DBG (4, "gamma-table is disabled -> not used\n");
       status = SANE_STATUS_GOOD;
     }
   
   return status;
 }
+
 static SANE_Status
 set_window (Avision_Scanner* s)
 {
@@ -1271,10 +1215,10 @@ set_window (Avision_Scanner* s)
   DBG (3, "set_windows\n");
 
   /* wipe out anything */
-  memset (&cmd, 0x0, sizeof (cmd) );
+  memset (&cmd, 0, sizeof (cmd) );
 
   /* command setup */
-  cmd.cmd.opc = AVISION_SCSI_SET_WINDOWS;
+  cmd.cmd.opc = AVISION_SCSI_SET_WINDOW;
   set_triple (cmd.cmd.transferlen,
 	      sizeof (cmd.window_header) + sizeof (cmd.window_descriptor) );
   set_double (cmd.window_header.desclen, sizeof (cmd.window_descriptor) );
@@ -1379,14 +1323,93 @@ set_window (Avision_Scanner* s)
 }
 
 static SANE_Status
+reserve_unit (Avision_Scanner *s)
+{
+  char cmd[] =
+    {0x16, 0, 0, 0, 0, 0};
+  SANE_Status status;
+  
+  status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 0, 0);
+  return status;
+}
+
+static SANE_Status
+release_unit (Avision_Scanner *s)
+{
+  char cmd[] =
+    {0x17, 0, 0, 0, 0, 0};
+  SANE_Status status;
+  
+  status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), 0, 0);
+  return status;
+}
+
+static SANE_Status
+wait_4_light (Avision_Scanner *s)
+{
+  /* read stuff */
+  struct command_read rcmd;
+  char *light_status[] = { "off", "on", "warming up", "needs warm up test", 
+		           "light check error", "RESERVED" };
+  
+  size_t nbytes;
+  SANE_Status status;
+  SANE_Byte result;
+
+  nbytes = 1;
+ 
+  memset (&rcmd, 0, sizeof (rcmd));
+  rcmd.opc = AVISION_SCSI_READ;
+
+  rcmd.datatypecode = 0xa0; /* get light status */
+  
+  DBG (3, "getting light status.\n");
+
+  rcmd.datatypequal [0] = 0x0d;
+  rcmd.datatypequal [1] = 0x0a;
+  set_triple (rcmd.transferlen, nbytes);
+  
+  DBG (3, "read_data: bytes %d\n", nbytes);
+  
+  do {
+    status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), &result, &nbytes);
+  
+    if (status != SANE_STATUS_GOOD || nbytes != sizeof (result)) {
+      DBG (1, "test_light: inquiry failed (%s)\n", sane_strstatus (status));
+      return status;
+    }
+    
+    DBG (1, "Light status: command is %d. Result is %s\n", status, light_status[(result>4)?5:result]);
+    if (result != 1) sleep (3);
+  } while (result !=1);
+  
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+go_home (Avision_Scanner *s)
+{
+  SANE_Status status;
+  
+  /* for film scanners! Check adf's as well */
+  char cmd[] =
+    {0x32, 0, 0x02, 0, 0, 0};/* Object position */
+  
+  DBG (3, "go_home\n");
+  
+  status = sanei_scsi_cmd (s->fd, cmd, sizeof(cmd), 0, 0);
+  return status;
+}
+
+static SANE_Status
 start_scan (Avision_Scanner *s)
 {
   struct command_scan cmd;
     
   DBG (3, "start_scan\n");
 
-  memset (&cmd, 0x0, sizeof (cmd));
-  cmd.opc = AVISION_SCSI_START_STOP;
+  memset (&cmd, 0, sizeof (cmd));
+  cmd.opc = AVISION_SCSI_SCAN;
   cmd.transferlen = 1;
 
   if (s->val[OPT_PREVIEW].w == SANE_TRUE) {
@@ -1407,31 +1430,19 @@ start_scan (Avision_Scanner *s)
 }
 
 static SANE_Status
-stop_scan (Avision_Scanner *s)
-{ 
-  /* XXX I don't think a AVISION can stop in mid-scan. Just stop
-     sending it requests for data.... 
-  */
-  DBG (3, "stop_scan\n");
-
-  return sanei_scsi_cmd (s->fd, stop, sizeof (stop), 0, 0);
-}
-
-static SANE_Status
 do_eof (Avision_Scanner *s)
 {
-  int childstat;
-
+  int exit_status;
+  
   DBG (3, "do_eof\n");
-
-
+  
   if (s->pipe >= 0)
     {
       close (s->pipe);
       s->pipe = -1;
     }
-  wait (&childstat); /* added: mcc, without a wait()-call you will produce
-                        zombie childs */
+  wait (&exit_status); /* without a wait() call you will produce
+			  defunct childs */
 
   return SANE_STATUS_EOF;
 }
@@ -1439,12 +1450,11 @@ do_eof (Avision_Scanner *s)
 static SANE_Status
 do_cancel (Avision_Scanner *s)
 {
-
   DBG (3, "do_cancel\n");
 
   s->scanning = SANE_FALSE;
   
-  do_eof (s);
+  /* do_eof (s); needed? */
 
   if (s->reader_pid > 0)
     {
@@ -1458,7 +1468,9 @@ do_cancel (Avision_Scanner *s)
 
   if (s->fd >= 0)
     {
-      stop_scan (s);
+      /* release the device ? */
+      /* go_home (s); */
+      
       sanei_scsi_close (s->fd);
       s->fd = -1;
     }
@@ -1476,7 +1488,7 @@ read_data (Avision_Scanner* s, SANE_Byte* buf, int lines, int bpl)
   DBG (3, "read_data\n");
   
   nbytes = bpl * lines;
-  memset (&rcmd, 0x0, sizeof (rcmd));
+  memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
   rcmd.datatypecode = 0x00; /* read image data */
   rcmd.datatypequal [0] = 0x0d;
@@ -1498,8 +1510,8 @@ init_options (Avision_Scanner* s)
   
   DBG (3, "init_options\n");
   
-  memset (s->opt, 0x0, sizeof (s->opt));
-  memset (s->val, 0x0, sizeof (s->val));
+  memset (s->opt, 0, sizeof (s->opt));
+  memset (s->val, 0, sizeof (s->val));
 
   for (i = 0; i < NUM_OPTIONS; ++i) {
     s->opt[i].size = sizeof (SANE_Word);
@@ -1640,6 +1652,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
   s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
   s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_FIXED;
+  if (disable_gamma_table)
+    s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BRIGHTNESS].constraint.range = &percentage_range;
@@ -1650,6 +1664,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
   s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
   s->opt[OPT_CONTRAST].type = SANE_TYPE_FIXED;
+  if (disable_gamma_table)
+    s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_CONTRAST].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_CONTRAST].constraint.range = &percentage_range;
@@ -1671,22 +1687,13 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QCALIB].unit  = SANE_UNIT_NONE;
   s->val[OPT_QCALIB].w     = SANE_TRUE;
 
-  /* custom-gamma table */
-  s->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
-  s->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
-  s->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA " (Hint: When this option is " \
-    "disabled NO gamma-table will be send at all. The scanner will use the build in " \
-    " gamma-table or (if it got one already) use the last gamma-table it got.";
-  s->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  /* s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE; */
-  s->val[OPT_CUSTOM_GAMMA].w = SANE_TRUE;
-
   /* grayscale gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
   s->opt[OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
-  /* s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE; */
+  if (disable_gamma_table)
+    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAMMA_VECTOR].size = 256 * sizeof (SANE_Word);
   s->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1698,7 +1705,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
   s->opt[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
   s->opt[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
-  /* s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE; */
+  if (disable_gamma_table)
+    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAMMA_VECTOR_R].size = 256 * sizeof (SANE_Word);
   s->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1710,7 +1718,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
   s->opt[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
   s->opt[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
-  /* s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE; */
+  if (disable_gamma_table)
+    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAMMA_VECTOR_G].size = 256 * sizeof (SANE_Word);
   s->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1722,7 +1731,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
   s->opt[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
   s->opt[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
-  /* s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE; */
+  if (disable_gamma_table)
+    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAMMA_VECTOR_B].size = 256 * sizeof (SANE_Word);
   s->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1763,8 +1773,7 @@ reader_process (Avision_Scanner *s, int fd)
 
   bpl = s->params.bytes_per_line;
   /* the "/2" is a test if scanning gets a bit faster ... ?!? ;-) 
-     (see related discussions on sane-ml)
-  */
+     (see related discussions on sane-ml some years ago) */
   lines_per_buffer = sanei_scsi_max_request_size / bpl / 2;
   if (!lines_per_buffer)
     return 2;			/* resolution is too high */
@@ -1798,7 +1807,7 @@ reader_process (Avision_Scanner *s, int fd)
       } 
     else 
       {
-	/* in singlebit mode, the scanner returns 1 for black. ;-( --DM */
+	/* in singlebit mode, the scanner returns 1 for black. ;-( --EUR */
 	int i;
       
 	for (i = 0; i < lines_per_buffer * bpl; ++i)
@@ -1809,19 +1818,10 @@ reader_process (Avision_Scanner *s, int fd)
   }
   fclose (fp);
 
-  {
-    char cmd[] =
-      {0x17, 0, 0, 0, 0, 0};
-    SANE_Status status;
-       
-    status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), NULL, NULL);
-    if (status != SANE_STATUS_GOOD)
-      {
-	DBG (1, "release_unit failed\n");
-      }
-       
-  }
-
+  status = release_unit (s);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "release_unit failed\n");
+  
   return 0;
 }
 
@@ -1842,8 +1842,8 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
   FILE *fp;
   
   char line[PATH_MAX];
-  const char* cp;
-  char* word;
+  const char* cp = 0;
+  char* word = 0;
   int linenumber = 0;
   
   DBG (3, "sane_init\n");
@@ -1881,6 +1881,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  DBG(5, "sane_init: config file line %d: ignoring comment line\n",
 	      linenumber);
 	  free (word);
+	  word = 0;
 	  continue;
 	}
                     
@@ -1890,26 +1891,27 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  word = 0;
 	  cp = sanei_config_get_string (cp, &word);
 	  
+	  if (strcmp (word, "disable-gamma-table") == 0)
+	    {
+	      DBG(3, "sane_init: config file line %d: disable-gamma-table\n",
+		      linenumber);
+	      disable_gamma_table = SANE_TRUE;
+	    }
 	  if (strcmp (word, "force-a4") == 0)
 	    {
 	      DBG(3, "sane_init: config file line %d: enabling force-a4\n",
 		      linenumber);
 	      force_a4 = SANE_TRUE;
-	      
-	      if (word)
-		free (word);
-	      word = 0;
 	    }
 	  if (strcmp (word, "allow-usb") == 0)
 	    {
 	      DBG(3, "sane_init: config file line %d: enabling allow-usb\n",
 		      linenumber);
 	      allow_usb = SANE_TRUE;
-	      
-	      if (word)
-		free (word);
-	      word = 0;
 	    }
+	  if (word)
+	    free (word);
+	  word = 0;
 	}
       else
 	{
@@ -2001,7 +2003,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s = malloc (sizeof (*s));
   if (!s)
     return SANE_STATUS_NO_MEM;
-  memset (s, 0x0, sizeof (*s));
+  memset (s, 0, sizeof (*s));
   s->fd = -1;
   s->pipe = -1;
   s->hw = dev;
@@ -2112,8 +2114,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_QCALIB:
 	case OPT_TRANS:
 	  
-	case OPT_CUSTOM_GAMMA:
-	  
 	  *(SANE_Word*) val = s->val[option].w;
 	  return SANE_STATUS_GOOD;
 	  
@@ -2171,43 +2171,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		 
 	  /* options with side-effects: */
 	  
-	case OPT_CUSTOM_GAMMA:
-	  s->val[option].w = *(SANE_Word*) val;
-	  if (*(SANE_Word*) val)
-	    {
-	      s->mode = make_mode (s->val[OPT_MODE].s);
-	      
-	      /* the mode specific stuff */
-	      if (s->mode == TRUECOLOR)
-		{
-		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
-		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-		}
-	      else /* grey or binary */
-		{
-		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		}
-	      s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-	      s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-	    }
-	  else
-	    {
-	      s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-	      s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-	      s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-	      s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	      
-	      /* we have to set this inacitve, cause we use the gamma-table for it! */
-	      s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-	      s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-	    }
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-	  return SANE_STATUS_GOOD;
-	  
-	  
 	case OPT_MODE:
 	  {
 	    if (s->val[option].s)
@@ -2217,36 +2180,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    s->mode = make_mode (s->val[OPT_MODE].s);
 	    
 	    /* set to mode specific values */
-	    if (s->mode == TRUECOLOR)
-	      {
-		s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-	      }
-	    else /* grey or mono */
-	      {
-		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	      }
 	    
-	    s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-	    s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-	    
-	    /* overwrite if OPT_CUSTOM_GAMMA == false */
-	    if (!s->val[OPT_CUSTOM_GAMMA].w)
+	    /* the gamma table related */
+	    if (!disable_gamma_table)
 	      {
-		s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-		s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-		
-		/* we have to set this inacitve, cause we use the gamma-table for it! */
-		s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-		s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-	      }
+		if (s->mode == TRUECOLOR) {
+		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+		  s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+		  s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+		}
+		else /* grey or mono */
+		  {
+		    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+		  }
+	      }		
 	    if (info)
 	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 	    return SANE_STATUS_GOOD;
@@ -2255,7 +2206,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     }
   return SANE_STATUS_INVAL;
 }
-
 
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
@@ -2301,7 +2251,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
       s->params.pixels_per_line = s->avdimen.pixelnum;
       s->params.lines           = s->avdimen.linenum;
 
-      memset (&s->params, 0x0, sizeof (s->params));
+      memset (&s->params, 0, sizeof (s->params));
   
       if (s->avdimen.res > 0 && s->avdimen.wid > 0 && s->avdimen.len > 0) 
 	{
@@ -2392,17 +2342,10 @@ sane_start (SANE_Handle handle)
     }
   }
   
-  {  /*MCC*/
-    char cmd[] =
-      {0x16, 0, 0, 0, 0, 0};
-    SANE_Status status;
-    
-    status = sanei_scsi_cmd (s->fd, cmd, sizeof (cmd), NULL, NULL);
-    if (status != SANE_STATUS_GOOD)
-      {
-	DBG (1, "reserve_unit failed\n");
-      }
-  }
+  /* first reserve unit */
+  status = reserve_unit (s);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "reserve_unit failed\n");
   
   status = wait_ready (s->fd);
   if (status != SANE_STATUS_GOOD) {
@@ -2461,7 +2404,7 @@ sane_start (SANE_Handle handle)
       sigdelset (&ignore_set, SIGTERM);
       sigprocmask (SIG_SETMASK, &ignore_set, 0);
     
-      memset (&act, 0x0, sizeof (act));
+      memset (&act, 0, sizeof (act));
       sigaction (SIGTERM, &act, 0);
     
       /* don't use exit() since that would run the atexit() handlers... */
@@ -2505,7 +2448,7 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
   DBG (3, "sane_read:read %ld bytes\n", (long) nread);
 
   if (!s->scanning)
-    return do_cancel (s);
+    return SANE_STATUS_CANCELLED;
   
   if (nread < 0) {
     if (errno == EAGAIN) {
@@ -2517,13 +2460,14 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
   }
 
   *len = nread;
-
+  
+  /* if all data is passed through */
   if (nread == 0) {
+    s->scanning = SANE_FALSE;
     return do_eof (s);
   }
   return SANE_STATUS_GOOD;
 }
-
 
 void
 sane_cancel (SANE_Handle handle)
@@ -2531,10 +2475,9 @@ sane_cancel (SANE_Handle handle)
   Avision_Scanner* s = handle;
 
   DBG (3, "sane_cancel\n");
-
-  if (s->reader_pid > 0)
-    kill (s->reader_pid, SIGTERM);
-  s->scanning = SANE_FALSE;
+  
+  if (s->scanning)
+    do_cancel (s);
 }
 
 

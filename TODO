@@ -1,4 +1,4 @@
-TODO (2001-09-23)
+TODO (2001-09-30)
 
 ******** todo ********
 
@@ -40,6 +40,10 @@ backends
 
   * Check net/saned
      - add Jochen Eisinger's net.c and sanei_wire.c fixes/additions.
+     - saned seems to have problems checking the peer name of incoming
+       connections. This happens at least with glibc 2.2.4 if the
+       name in saned.conf is not fully qualified. See sane-devel
+       "saned.conf hostname format".
      - cancel doesn't work over the net at least with pnm and mustek.
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)

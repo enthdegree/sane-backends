@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 110
+#define BUILD 111
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -931,6 +931,9 @@ attach (SANE_String_Const devname, Mustek_Device **devp, SANE_Bool may_wait)
 	  /* Check for Trust scanners an print warning */
 	  if (strncmp ((SANE_String) result + 8, "Trust", 5) == 0)
 	    DBG(1, "attach: this is a real Trust scanner. It is not "
+		" supported by this backend.\n");
+	  if (strncmp ((SANE_String) result + 8, "Aashima", 7) == 0)
+	    DBG(1, "attach: this is an Aashima/Teco scanner. It is not "
 		" supported by this backend.\n");
 	  DBG(1, "attach: device %s doesn't look like a Mustek scanner\n", 
 	      devname);
@@ -2703,7 +2706,7 @@ start_scan (Mustek_Scanner *s)
       if (s->hw->flags & MUSTEK_FLAG_USE_BLOCK) 
 	{
 	  start[5] = 0x08; 
-	  DBG(1, "start_scan: using block mode\n");
+	  DBG(4, "start_scan: using block mode\n");
 	}
     }
     
@@ -2767,8 +2770,8 @@ do_stop (Mustek_Scanner *s)
       DBG(5, "do_stop: terminating reader process\n");
       kill (s->reader_pid, SIGTERM);
       waitpid (s->reader_pid, &exit_status, 0);
-      DBG(5, "do_stop: reader process terminated with status 0x%x\n",
-	  exit_status);
+      DBG(5, "do_stop: reader process terminated: %s\n",
+	  sane_strstatus (status));
       if (status != SANE_STATUS_CANCELLED && WIFEXITED(exit_status))
 	status = WEXITSTATUS(exit_status);
       s->reader_pid = 0;
@@ -2784,15 +2787,17 @@ do_stop (Mustek_Scanner *s)
 	  /* scsi_inquiry_wait_ready (s);
 	     return sanei_scsi_cmd (s->fd, scsi_test_unit_ready, 
 	     sizeof (scsi_test_unit_ready), 0, 0); */
-	  if (s->cancelled)
-	    return dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop), 
-			    0, 0);
+	  if (s->cancelled && 
+	      (s->total_bytes < s->params.lines * s->params.bytes_per_line))
+	    status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop), 
+			      0, 0);
 	}
       else if (s->hw->flags & MUSTEK_FLAG_THREE_PASS)
 	{
-	  if (s->cancelled)
-	    return dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop),
-			    0, 0);
+	  if (s->cancelled && 
+	      (s->total_bytes < s->params.lines * s->params.bytes_per_line))
+	    status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop),
+			      0, 0);
 	}
       else
 	status = dev_cmd (s, scsi_start_stop, sizeof (scsi_start_stop), 0, 0);
@@ -4706,6 +4711,17 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
                   DBG(1, "reader_process: failed to read data, status: %s, "
                       "buffer: %d\n", sane_strstatus (status),
                       buffernumber + 1);
+		  if (status == SANE_STATUS_NO_MEM)
+		    {
+		      DBG(1, "Probably the size of the kernel SCSI buffer is "
+			  "too small for the\n         selected buffersize "
+			  "in mustek.conf. Either decrease "
+			  "buffersize in\n         mustek.conf to e.g. 32, "
+			  "increase SG_BIG_BUF in kernel to 130560, "
+			  "or\n         use SANE_SG_BUFFERSIZE variable. "
+			  "See man sane-scsi and README for\n         "
+			  "details.\n");
+		    }
                   return status;
                 }
  

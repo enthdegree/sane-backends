@@ -1,5 +1,21 @@
 CHANGES for the SANE Mustek backend
 
+2001-07-18
+  * Released Mustek backend 1.0-111.
+
+2001-07-18
+
+  * Added warning about Aashima (Trust) scanners.
+  * Only call stop_scan if Scan was cancelled for Paragon scanners.
+
+2001-07-15
+
+  * Added message in reader_process that's printed when the kernel SCSI
+    buffer is too small for the selected buffer size.
+
+2001-07-11
+  * Released Mustek backend 1.0-110.
+
 2001-07-10
   * Added debug output for the total amount of data transfered to the
     frontend.

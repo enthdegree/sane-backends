@@ -15,6 +15,7 @@
 
 2001-06-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* backend/mustek.c: Added some debug messages.
 	* backend/net.c: Fixed yet another segfault. Added debug messages.
 	* frontend/scanimage.c doc/scanimage.man: Added more options for
 	  batch-scanning (patch from Caskey Dickson 

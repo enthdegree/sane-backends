@@ -1,3 +1,8 @@
+2001-10-30  Peter Fales <peter@fales.com>
+
+	* acinclude.m4 - Fix build failure due to renaming of gphoto2
+	  header files
+
 2001-10-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/apple.desc: Updated URL.

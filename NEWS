@@ -7,9 +7,10 @@ New with 1.0.14, released 2004-05-01:
   mustek_pp, mustek_usb, plustek, plustek_pp, sm3600, snapscan, teco1, teco2,
   u12, umax, umax_pp, v4l.
 * Added scripts for USB hotplugging (Linux)
-* Added Danish translation.
+* Added Danish translation. Updated other translations.
 * sane-find-scanner knows about more chipsets now.
-* Portability fixes (especially for MAcOS X, NetBSD, and OpenBSD).
+* Portability fixes (especially for MacOS X, NetBSD, OpenBSD, and OS/2).
+* Build system fixes.
 * Documentation updates.
 * Bugfixes.
 

@@ -117,7 +117,7 @@ DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \
   sp15c.h st400.c st400.conf st400.desc st400.h stubs.c tamarack.c \
   tamarack.conf tamarack.desc tamarack.h template.desc. umax-scanner.c \
   umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c \
-  umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c \
+  umax-uc1260.c umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c \
   umax.c umax.conf umax.desc umax.h umax1220u-common.c umax1220u.c \
   umax1220u.conf umax1220u.desc umax_pp.c umax_pp.conf umax_pp.desc \
   umax_pp.h umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h \
@@ -337,6 +337,8 @@ libsane-tamarack.la: ../sanei/sanei_scsi.lo
 libsane-umax.la: ../sanei/sanei_config2.lo
 libsane-umax.la: ../sanei/sanei_constrain_value.lo
 libsane-umax.la: ../sanei/sanei_scsi.lo
+libsane-umax.la: ../sanei/sanei_usb.lo
+libsane-umax.la: ../sanei/sanei_pv8630.lo
 libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 libsane-umax_pp.la: $(addsuffix .lo,$(EXTRA_umax_pp))
 libsane-umax_pp.la: ../sanei/sanei_constrain_value.lo

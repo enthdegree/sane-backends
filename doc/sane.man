@@ -1,4 +1,4 @@
-.TH sane 7 "16 May 2001"
+.TH sane 7 "11 Aug 2001"
 .IX sane
 
 .SH NAME
@@ -94,6 +94,8 @@ compiling and installing SANE.
 .TP
 .B SCSI configuration
 For information about various systems and SCSI controllers see sane-scsi(5).
+.B USB configuration
+For information about USB configuration see sane-usb(5).
 
 .SH FRONTENDS AND MISCELLANEOUS PROGRAMS
 .TP 2
@@ -106,8 +108,8 @@ network daemon that allows remote clients to access image acquisition devices
 available on the local host. See saned(1).
 .TP
 .B sane-find-scanner
-sane-find-scanner is a command-line tool to find SCSI scanners and determine
-their Unix device files. See sane-find-scanner(1).
+sane-find-scanner is a command-line tool to find SCSI and some USB scanners
+and determine their Unix device files. See sane-find-scanner(1).
 .P
 Also, have a look at the sane-frontends package (including xscanimage and xcam)
 and the frontend information page at
@@ -298,7 +300,8 @@ backend.  Hence it is probably a good idea to start with reading sane-dll(5).
 The top-level backend is determined by the libsane.* symlinks in
 @LIBDIR@.
 .P
-For SCSI scanners reading of sane-scsi(5) is recommended.
+For SCSI scanners reading of sane-scsi(5) is recommended. For USB scanners,
+sane-usb(5) may help.
 .P
 If you encounter any problems with getting your device(s) recognized, try
 setting the various environment variables that are available to assist in
@@ -315,10 +318,10 @@ If this works, you could try to acquire an image with:
 .IP
 scanimage -d mustek:/dev/scanner >t.pnm
 .PP
-If you are not sure what generic SCSI device your scanner is connected to, try
-the command sane-find-scanner.  Usually, It's sufficient to invoke the program
-without any arguments.  Invoking this command should produce output similar to
-this:
+If you are not sure what generic SCSI or USB device your scanner is connected
+to, try the command sane-find-scanner.  Usually, It's sufficient to invoke the
+program without any arguments.  Invoking this command should produce output
+similar to this:
 .IP
 $\ sane-find-scanner
 .IP

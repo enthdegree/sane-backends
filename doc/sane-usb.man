@@ -1,0 +1,98 @@
+.TH sane-scsi 5 "11 Aug 2001"
+.IX sane-usb
+.SH NAME
+sane-usb - USB configuration tips for SANE
+.SH DESCRIPTION
+This manual page contains tips and tricks on how to access scanners
+with a USB interface.
+.SH GENERAL INFO
+Sane-backends currently use three methods of communicating with USB scanners: 
+.TP 2
+- 
+Using libusb (a library for usb access). This is used by the sm3600 backend
+currently.
+.TP
+- 
+Access through sanei_usb, the SANE USB interface. Used by the mustek_usb
+backend.
+.TP
+- 
+Direct access to the USB device files to access kernel scanner drivers
+.PP
+This manual page describes the access of USB scanners over the sanei_usb
+interface. For point 1 and three of this list have a look at the backend's
+manual page for details.
+.PP
+Currently USB access is only tested for Linux. It may work on FreeBSD but it's
+not tested.
+.PP
+For scanners with a USB interface, it may be necessary to edit the
+appropriate backend configuration file before using SANE for the first time.
+For most systems, the configuration file should list the name of the USB
+device file that the scanner is connected to (e.g., under Linux,
+.B /dev/usb/scanner0
+or
+.B /dev/usbscanner0
+is such a USB device).  Do
+.I not
+create a symlink from
+.B /dev/scanner
+to the USB device because this link is used by the SCSI backends. The scanner
+may be confused if it receives SCSI commands.  For a detailed description of
+each backend's configuration file, please refer to the relevant backend manual
+page (e.g. sane-mustek_usb Mustek USB scanners).
+.PP
+For Linux, there is an alternate way of specifying scanner devices.  This
+alternate allows to identify scanners by the USB vendor and product numbers.
+The syntax for specifying a scanner in this way is:
+.PP
+.RS
+usb
+.I VENDOR PRODUCT
+.RE
+.PP
+where
+.I VENDOR
+is the USB vendor id, and
+.I PRODUCT
+is the USB product id of the scanner. Both ids are non-negative integer
+numbers in decimal or hexadecimal format. The correct values for these fields
+can be found by looking at the output of the command "cat
+/proc/bus/usb/devices/".  This is an example of a config file line:
+.PP
+.RS
+usb 0x055f 0x0006
+.RE
+.PP
+would have the effect that all USB devices in the system with a vendor id of
+0x55f and a product id of 0x0006 would be probed and recognized by the
+backend. The same config line in decimal format looks like this:
+.PP
+.RS
+usb 0x055f 0x0006
+.RE
+.PP
+When using a USB scanner, ensure that the access permission for the
+USB device is set appropriately.  We recommend to add a group
+"scanner" to /etc/group which contains all users that should have
+access to the scanner.  The permission of the device should then be
+set to allow group read and write access.  For example, if the scanner
+is at USB device
+.BR /dev/usb/scanner0 ,
+then the following two commands would set the permission correctly:
+.PP
+.RS
+$ chgrp scanner /dev/usb/scanner0
+.br
+$ chmod 660 /dev/usb/scanner0
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_SANEI_USB
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for the USB I/O
+subsystem.  E.g., a value of 128 requests all debug output to be
+printed.  Smaller levels reduce verbosity.
+.SH "SEE ALSO"
+sane(7), sane\-find\-scanner(1), sane\-"backendname"(5), sane-scsi(5)
+.SH AUTHOR
+Henning Meier-Geinitz. Some parts were copied from the sane-scsi manual page.

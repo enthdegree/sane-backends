@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have been never released.
 
+V 0.49-1 (2004-11-19)
+---------------------
+Improved multi-device capability
+
 V 0.48-10 (2004-10-30)
 ----------------------
 - Fixed a bug in buffer calculation for CIS devices

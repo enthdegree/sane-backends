@@ -1,3 +1,12 @@
+2001-05-13  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Removed check for '\n' before end of line
+          Free memory malloced in sane_get_devices() in sane_exit() again
+          Check first if the scanner does support the set film type
+          and set focus position before the GUI elements are displayed.
+          This caused problems with older (B4 level) scanners when a TPU
+          was connected.
+
 2001-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.man: Added path to sane.ps. Added comments about

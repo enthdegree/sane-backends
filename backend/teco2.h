@@ -322,6 +322,8 @@ struct scanners_supported
   char scsi_teco_name[12];	/* real name of the scanner */
   enum
   {
+    TECO_VM3564,  
+    TECO_VM356A,
     TECO_VM3575,
     TECO_VM6575,
     TECO_VM656A,

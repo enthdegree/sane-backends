@@ -8,7 +8,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some TECO SCSI flatbed scanners. This backend
 should be considered
-.B alpha-quality
+.B beta-quality
 software! TECO scanners are sold under
 various brands like Relisys, Piotech, TRUST. This backend may or
 may not support yours.
@@ -20,11 +20,25 @@ The scanners that should work with this backend are:
 .br
 ----------------------  --------------  -----------
 .br
-  Relisys Scorpio Super 3  VM3575         tested
-  Apollo Express 6         VM656A         tested
-  Scorpio Pro-S            VM6586         tested
+
+  Primax Jewel 4800        VM356A         tested
+  Primax Profi 19200       VM6586         tested
+  Primax Profi 9600        VM6575         tested
+  Relisys APOLLO Express 12   ?          untested
+  Relisys APOLLO Express 3 VM356A         tested
+  Relisys APOLLO Express 6 VM6565         tested
+  Relisys AVEC II S3       VM3564         tested
+  Relisys AVEC Super 3     VM3575         tested
+  Relisys SCORPIO Pro      VM6575         tested
+  Relisys SCORPIO Pro-S    VM6586         tested
+  Relisys SCORPIO Super 3  VM3575         tested
 
 .RE
+
+For all these scanners, black&white and grayscale mode work
+well. However, most of them do not support more than a handful of
+resolutions in color mode. See the backend home page (under AUTHOR)
+for the exact status of each scanner.
 
 Note that the untested scanner will not be directly supported. You
 should contact the author for that.
@@ -109,7 +123,8 @@ selected. The default is "no".
 
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/teco2.conf supports only one information: the device name to use (eg /dev/scanner).
+The configuration file @CONFIGDIR@/teco2.conf supports only one
+information: the device name to use (eg /dev/scanner).
 
 
 .SH FILES
@@ -147,10 +162,12 @@ Plenty. Parts of this backend are still under development.
 sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
-.SH AUTHOR
+.SH AUTHORS
 
 The package is actively maintained by Frank Zago.
     http://fz.eryx.net/sane/#teco2
+
+Gerard Klaver contributed a patch to support the VM3564 and VM356A.
 
 .SH CREDITS
 

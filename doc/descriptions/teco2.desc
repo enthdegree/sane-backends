@@ -10,7 +10,7 @@
 ;
 
 :backend "teco2"                  ; name of backend
-:version "1.0-3"                ; version of backend
+:version "1.0-4"                ; version of backend
 :status :beta                     ; :alpha, :beta, :stable
 :manpage "sane-teco2"
 :url "http://fz.eryx.net/sane/#teco2"   ; backend's web page
@@ -25,8 +25,18 @@
 :comment "sub model VM3575"
 :status :untested
 
+:model "AVEC II S3"
+:interface "SCSI"
+:comment :sub model VM3564"
+:status :alpha
+
 :model "SCORPIO Super 3"
 :comment "sub model VM3575"
+:interface "SCSI"
+:status :alpha
+
+:model "APOLLO Express 3"
+:comment "sub model VM356A"
 :interface "SCSI"
 :status :alpha
 

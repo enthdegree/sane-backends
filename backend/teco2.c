@@ -43,12 +43,14 @@
 
 /*
    $Id$
-   TECO scanner VM3575, VM6565, VM6575, VM6586
+   TECO scanner VM3575, VM6565, VM6575, VM6586, VM356A
+   Patch for VM356A Gerard Klaver v  2003/02/14
+   update 2003/03/19, traces, tests, Gerard Klaver, Michael Hoeller
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 3			/* 2002/08/28 */
+#define BUILD 4			/* 2003/04/18 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -153,12 +155,68 @@ static const SANE_Range threshold_range = {
 /* Gamma range */
 static const SANE_Range gamma_range = {
   0,				/* minimum */
-  255,				/* maximum */
+  255,				/* 255 maximum */
   0				/* quantization */
 };
 
 /*--------------------------------------------------------------------------*/
 
+static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
+
+  /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
+  {25, 1, 0, 2, 0, 0},
+  {40, 1, 0, 2, 0, 0},
+  {50, 1, 0, 2, 0, 1},
+  {60, 1, 0, 2, 1, 0},
+  {72, 1, 2, 0, 0, 1},
+  {75, 1, 0, 2, 1, 1},
+  {100, 2, 1, 0, 0, 1},
+  {120, 1, 0, 2, 1, 1},
+  {150, 1, 0, 2, 1, 2},
+  {160, 1, 0, 2, 1, 1},
+  {175, 1, 0, 2, 1, 1},
+  {180, 1, 0, 2, 1, 1},
+  {200, 2, 1, 0, 0, 1},
+  {225, 1, 0, 2, 1, 2},
+  {300, 1, 0, 2, 1, 2},
+  /* must be the last entry */
+  {0, 0, 0, 0, 0, 0}
+};
+
+/* Used for VM356A only */
+
+static const struct dpi_color_adjust vm356a_dpi_color_adjust[] = {
+  /*dpi, x, y, z, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
+  {25, 1, 0, 2, 0, 0},		/* ok */
+  {50, 1, 0, 2, 0, 1},
+  {75, 1, 0, 2, 1, 1},		/* ok */
+  {150, 1, 0, 2, 1, 2},		/* ok */
+  {160, 1, 0, 2, 1, 2},		/* ok */
+  {225, 1, 0, 2, 1, 2},		/* ok */
+  {300, 1, 0, 2, 1, 2},		/* ok */
+
+  {305, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {310, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {315, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {375, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {380, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {385, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {450, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {455, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {525, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+  {600, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
+
+/* text Michael Hoeller */
+  /* all increments by 5 from 20 to 600 are checked  */
+/* with 85, 165, 155 good picture but not colur setup works */
+/* with 65, 200 and 320 crashs the driver    */
+
+/*  {0, 1, 0, 2, 1, 1} general setup NOK for all dpi values */
+/*   150, 225 and 300 should be OK*/
+
+  /* must be the last entry */
+  {0, 0, 0, 0, 0, 0}
+};
 /* Used for the VM3575 only */
 
 static const struct dpi_color_adjust vm3575_dpi_color_adjust[] = {
@@ -224,6 +282,25 @@ static const struct dpi_color_adjust default_dpi_color_adjust[1] = {
 
 /* Define the supported scanners and their characteristics. */
 static const struct scanners_supported scanners[] = {
+
+  {6, "TECO VM3564",
+   TECO_VM3564,
+   "Relisys", "AVEC II S3",
+   {1, 600, 1},			/* resolution */
+   300, 600,			/* max x and Y resolution */
+   2550, 12,			/* calibration */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm3564_dpi_color_adjust},
+  {6, "TECO VM356A",
+   TECO_VM356A,
+   "Relisys", "APOLLO Express 3",
+   {1, 600, 1},			/* resolution */
+   300, 600,			/* max x and Y resolution */
+   2550, 12,			/* calibration */
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},
+   {SANE_FIX (0), SANE_FIX (11.7 * MM_PER_INCH), 0},
+   vm356a_dpi_color_adjust},
   {6, "TECO VM3575",
    TECO_VM3575,
    "Relisys", "SCORPIO Super 3",
@@ -494,6 +571,32 @@ teco_identify_scanner (Teco_Scanner * dev)
 #ifdef sim
   {
 #if 0
+    /* vm3564 */
+    unsigned char table[] = {
+      0x06, 0x00, 0x02, 0x02, 0x43, 0x00, 0x00, 0x10, 0x52, 0x45,
+      0x4c, 0x49, 0x53, 0x59, 0x53, 0x20, 0x41, 0x56, 0x45, 0x43,
+      0x20, 0x49, 0x49, 0x20, 0x53, 0x33, 0x20, 0x20, 0x20, 0x20,
+      0x20, 0x20, 0x31, 0x2e, 0x30, 0x37, 0x31, 0x2e, 0x30, 0x37,
+      0x00, 0x01, 0x54, 0x45, 0x43, 0x4f, 0x20, 0x56, 0x4d, 0x33,
+      0x35, 0x36, 0x34, 0x20, 0x00, 0x01, 0x01, 0x2c, 0x00, 0x01,
+      0x02, 0x58, 0x09, 0xf6, 0x0d, 0xaf, 0x01, 0x2c, 0x00, 0x08,
+      0x01, 0x00
+    };
+#endif
+#if 0
+    /* vm356A */
+    unsigned char table[] = {
+      0x06, 0x00, 0x02, 0x02, 0x43, 0x00, 0x00, 0x10, 0x50, 0x72,
+      0x69, 0x6d, 0x61, 0x78, 0x20, 0x20, 0x4a, 0x65, 0x77, 0x65,
+      0x6c, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+      0x20, 0x20, 0x31, 0x2e, 0x30, 0x30, 0x31, 0x2e, 0x30, 0x30,
+      0x00, 0x01, 0x54, 0x45, 0x43, 0x4f, 0x20, 0x56, 0x4d, 0x33,
+      0x35, 0x36, 0x41, 0x20, 0x00, 0x01, 0x01, 0x2c, 0x00, 0x01,
+      0x02, 0x58, 0x09, 0xf6, 0x0d, 0xaf, 0x01, 0x2c, 0x00, 0x08,
+      0x10, 0x00
+    };
+#endif
+#if 0
     /* vm3575 */
     unsigned char table[] = {
       0x06, 0x00, 0x02, 0x02, 0x43, 0x00, 0x00, 0x00, 0x20, 0x20,
@@ -553,13 +656,13 @@ teco_identify_scanner (Teco_Scanner * dev)
   hexdump (DBG_info2, "inquiry", dev->buffer, size);
 
   dev->scsi_type = dev->buffer[0] & 0x1f;
-  strncpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
+  memcpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
   dev->scsi_vendor[0x08] = 0;
-  strncpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
+  memcpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
   dev->scsi_product[0x10] = 0;
-  strncpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
+  memcpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
   dev->scsi_version[0x04] = 0;
-  strncpy (dev->scsi_teco_name, dev->buffer + 0x2A, 0x0B);
+  memcpy (dev->scsi_teco_name, dev->buffer + 0x2A, 0x0B);
   dev->scsi_teco_name[0x0B] = 0;
 
   DBG (DBG_info, "device is \"%s\" \"%s\" \"%s\" \"%s\"\n",
@@ -607,6 +710,8 @@ teco_set_window (Teco_Scanner * dev)
     case TECO_VM3575:
       size = 53;
       break;
+    case TECO_VM3564:
+    case TECO_VM356A:
     case TECO_VM656A:
     case TECO_VM6575:
     case TECO_VM6586:
@@ -878,12 +983,27 @@ teco_wait_for_data (Teco_Scanner * dev)
 
       hexdump (DBG_info2, "teco_wait_for_data return", dev->buffer, size);
 
-      if (dev->buffer[11] == 0x80)
+      switch (dev->def->tecoref)
 	{
-	  return SANE_STATUS_GOOD;
-	}
+	case TECO_VM3564:
+	case TECO_VM356A:
+	  if (dev->buffer[11] > 0x01)
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
 
-      sleep (1);
+	  sleep (1);
+	  break;
+	  /* For VM3575, VM6575, VM656A, VM6586 until otherwise default value is used */
+	default:
+	  if (dev->buffer[11] == 0x80)
+	    {
+	      return SANE_STATUS_GOOD;
+	    }
+
+	  sleep (1);
+	  break;
+	}
     }
 
   DBG (DBG_proc, "teco_wait_for_data: scanner not ready to send data (%d)\n",
@@ -909,8 +1029,28 @@ teco_do_calibration (Teco_Scanner * dev)
   size_t size;
   int i;
   int j;
+  int colbyte;
+  int colsub;
   int *tmp_buf;			/* hold the temporary calibration */
   size_t tmp_buf_size;
+
+  switch (dev->def->tecoref)
+    {
+    case TECO_VM3564:
+    case TECO_VM356A:
+      colbyte = 3;
+      colsub = 0x110;
+      break;
+    case TECO_VM3575:
+      colbyte = 6;
+      colsub = 0x1100;
+      break;
+      /* For VM6575, 656A, 6586 until otherwise default value is used */
+    default:
+      colbyte = 6;
+      colsub = 0x1000;
+      break;
+    }
 
   DBG (DBG_proc, "teco_do_calibration: enter\n");
 
@@ -944,7 +1084,8 @@ teco_do_calibration (Teco_Scanner * dev)
 	}
 
       /* Length of the scanner * 6 bytes */
-      size = dev->def->cal_length * 6;
+      /*  size = dev->def->cal_length * 6; */
+      size = dev->def->cal_length * colbyte;
       cdb.data[3] = (size >> 8) & 0xff;
       cdb.data[4] = (size >> 0) & 0xff;
 
@@ -975,12 +1116,26 @@ teco_do_calibration (Teco_Scanner * dev)
 
       for (j = 0; j < dev->def->cal_length; j++)
 	{
-	  tmp_buf[3 * j + 0] +=
-	    (dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
-	  tmp_buf[3 * j + 1] +=
-	    (dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
-	  tmp_buf[3 * j + 2] +=
-	    (dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	  switch (dev->def->tecoref)
+	    {
+	    case TECO_VM3575:
+	    case TECO_VM6575:
+	    case TECO_VM656A:
+	    case TECO_VM6586:
+	      tmp_buf[3 * j + 0] +=
+		(dev->buffer[6 * j + 1] << 8) + dev->buffer[6 * j + 0];
+	      tmp_buf[3 * j + 1] +=
+		(dev->buffer[6 * j + 3] << 8) + dev->buffer[6 * j + 2];
+	      tmp_buf[3 * j + 2] +=
+		(dev->buffer[6 * j + 5] << 8) + dev->buffer[6 * j + 4];
+	      break;
+	    case TECO_VM3564:
+	    case TECO_VM356A:
+	      tmp_buf[3 * j + 0] += dev->buffer[3 * j + 0];
+	      tmp_buf[3 * j + 1] += dev->buffer[3 * j + 1];
+	      tmp_buf[3 * j + 2] += dev->buffer[3 * j + 2];
+	      break;
+	    }
 	}
     }
 
@@ -991,7 +1146,11 @@ teco_do_calibration (Teco_Scanner * dev)
    * white values read. */
   for (j = 0; j < (3 * dev->def->cal_length); j++)
     {
-      tmp_buf[j] = 0x1000 - (tmp_buf[j] / dev->def->cal_lines);
+
+      tmp_buf[j] = colsub - (tmp_buf[j] / dev->def->cal_lines);
+
+      /* tmp_buf[j] = ( 4206639 * dev->def->cal_lines )/tmp_buf[j]; */
+/*   tmp_buf[j] = ( 14000 * dev->def->cal_lines )/tmp_buf[j]; */
     }
 
   /*hexdump (DBG_info2, "calibration after average:", tmp_buf, tmp_buf_size); */
@@ -999,20 +1158,37 @@ teco_do_calibration (Teco_Scanner * dev)
   /* Build the calibration line to send. */
   for (j = 0; j < dev->def->cal_length; j++)
     {
-      dev->buffer[6 * j + 0] =
-	(tmp_buf[0 * dev->def->cal_length + j] >> 0) & 0xff;
-      dev->buffer[6 * j + 1] =
-	(tmp_buf[0 * dev->def->cal_length + j] >> 8) & 0xff;
 
-      dev->buffer[6 * j + 2] =
-	(tmp_buf[1 * dev->def->cal_length + j] >> 0) & 0xff;
-      dev->buffer[6 * j + 3] =
-	(tmp_buf[1 * dev->def->cal_length + j] >> 8) & 0xff;
+      switch (dev->def->tecoref)
+	{
+	case TECO_VM3575:
+	case TECO_VM6575:
+	case TECO_VM656A:
+	case TECO_VM6586:
+	  dev->buffer[6 * j + 0] =
+	    (tmp_buf[0 * dev->def->cal_length + j] >> 0) & 0xff;
+	  dev->buffer[6 * j + 1] =
+	    (tmp_buf[0 * dev->def->cal_length + j] >> 8) & 0xff;
 
-      dev->buffer[6 * j + 4] =
-	(tmp_buf[2 * dev->def->cal_length + j] >> 0) & 0xff;
-      dev->buffer[6 * j + 5] =
-	(tmp_buf[2 * dev->def->cal_length + j] >> 8) & 0xff;
+	  dev->buffer[6 * j + 2] =
+	    (tmp_buf[1 * dev->def->cal_length + j] >> 0) & 0xff;
+	  dev->buffer[6 * j + 3] =
+	    (tmp_buf[1 * dev->def->cal_length + j] >> 8) & 0xff;
+
+	  dev->buffer[6 * j + 4] =
+	    (tmp_buf[2 * dev->def->cal_length + j] >> 0) & 0xff;
+	  dev->buffer[6 * j + 5] =
+	    (tmp_buf[2 * dev->def->cal_length + j] >> 8) & 0xff;
+	  break;
+	case TECO_VM3564:
+	case TECO_VM356A:
+	  dev->buffer[3 * j + 0] = (tmp_buf[3 * j + 0] >> 0) & 0xff;
+
+	  dev->buffer[3 * j + 1] = (tmp_buf[3 * j + 1] >> 0) & 0xff;
+
+	  dev->buffer[3 * j + 2] = (tmp_buf[3 * j + 2] >> 0) & 0xff;
+	  break;
+	}
     }
 
   free (tmp_buf);
@@ -1022,7 +1198,7 @@ teco_do_calibration (Teco_Scanner * dev)
    * one, except for the command. */
 
   cdb.data[0] = 0x0E;
-  size = dev->def->cal_length * 6;
+  size = dev->def->cal_length * colbyte;
 
   hexdump (DBG_info2, "CDB:", cdb.data, cdb.len);
   /*hexdump (DBG_info2, "calibration line sent:", dev->buffer, size); */
@@ -1040,6 +1216,30 @@ teco_do_calibration (Teco_Scanner * dev)
 
   return SANE_STATUS_GOOD;
 }
+
+      /*------------request sense command 03----------------*/
+static SANE_Status
+teco_request_sense (Teco_Scanner * dev)
+{
+  CDB cdb;
+  SANE_Status status;
+  size_t size;
+
+
+  MKSCSI_REQUEST_SENSE (cdb, size);
+  size = cdb.data[5];
+
+  hexdump (DBG_info2, "teco_request_sense: enter\n", cdb.data, cdb.len);
+
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    NULL, 0, dev->buffer, &size);
+
+  DBG (DBG_proc, "teco_request_sense: exit, status=%d\n", status);
+
+  return (status);
+}
+
+/*----------------------------------------------------------*/
 
 /* Send the gamma */
 static SANE_Status
@@ -1099,9 +1299,16 @@ teco_send_gamma (Teco_Scanner * dev)
     }
 
   hexdump (DBG_info2, "CDB:", cdb.data, cdb.len);
-  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
-			    &param, size, NULL, NULL);
-
+  switch (dev->def->tecoref)
+    {
+    case TECO_VM3564:
+    case TECO_VM356A:
+      status = 0;
+      break;
+    default:
+      status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+				&param, size, NULL, NULL);
+    }
   DBG (DBG_proc, "teco_send_gamma: exit, status=%d\n", status);
 
   return (status);
@@ -2260,7 +2467,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
 	  /* This the default resolution range, except for the
-	   * VM3575 and VM6586 in color mode. */
+	   * VM3575, VM3564, VM356A and VM6586 in color mode. */
 	  dev->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
 	  dev->opt[OPT_RESOLUTION].constraint.range = &dev->def->res_range;
 
@@ -2295,7 +2502,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 		}
 
-	      /* The VM3575 and VM6586 supports only a handful of resolution. Do that here.
+	      /* The VM3575, VM3564, VM356A and VM6586 supports only a handful of resolution. Do that here.
 	       * Ugly! */
 	      if (dev->resolutions_list != NULL)
 		{
@@ -2392,8 +2599,20 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
        * in the SET WINDOWS command. */
       if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
 	{
-	  dev->x_resolution = 50;
-	  dev->y_resolution = 50;
+	  /* for VM356A, no good 50 dpi scan possible */
+
+	  switch (dev->def->tecoref)
+	    {
+	    case TECO_VM356A:
+	      dev->x_resolution = 75;
+	      dev->y_resolution = 75;
+	      break;
+	      /* For VM3575, VM6575, VM656A, VM6586 etc until otherwise default value is used */
+	    default:
+	      dev->x_resolution = 50;
+	      dev->y_resolution = 50;
+	      break;
+	    }
 	  dev->x_tl = 0;
 	  dev->y_tl = 0;
 	  dev->x_br = mmToIlu (SANE_UNFIX (dev->def->x_range.max));
@@ -2594,6 +2813,22 @@ sane_start (SANE_Handle handle)
 	}
 #endif
 
+      switch (dev->def->tecoref)
+	{
+	case TECO_VM3564:
+	case TECO_VM356A:
+/*--------------request sense for  first time loop---*/
+	  status = teco_request_sense (dev);
+	  if (status)
+	    {
+	      teco_close (dev);
+	      return status;
+	    }
+	  break;
+	default:
+	  break;
+	}
+
       status = teco_send_gamma (dev);
       if (status)
 	{
@@ -2607,14 +2842,19 @@ sane_start (SANE_Handle handle)
 	  teco_close (dev);
 	  return status;
 	}
-
-      status = teco_send_vendor_06 (dev);
-      if (status)
+      switch (dev->def->tecoref)
 	{
-	  teco_close (dev);
-	  return status;
+	case TECO_VM3564:
+	case TECO_VM356A:
+	  break;
+	default:
+	  status = teco_send_vendor_06 (dev);
+	  if (status)
+	    {
+	      teco_close (dev);
+	      return status;
+	    }
 	}
-
       status = teco_scan (dev);
       if (status)
 	{

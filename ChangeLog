@@ -1,3 +1,9 @@
+2002-04-22  Frank Zago <fzago@greshamstorage.com>
+
+	* AUTHORS PROJECTS backend/Makefile.in backend/coolscan2.c
+	  backend/coolscan2.conf doc/descriptions/coolscan2.conf
+	  doc/sane.man: added coolscan2 backend
+
 2002-04-22  Abel Deuring <a.deuring@satzbau.gmbh.de>
 	* backend/sharp.c: fixed a compile problem for Dec Unix v4
           and probably other 64 bit platform.

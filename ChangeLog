@@ -17,6 +17,8 @@
 	* backend/mustek.c doc/descriptions/mustek.desc: Check return value
 	  of waitpid. Don't evaluate status of children if waitpid wasn't
 	  successful.
+	* TODO doc/backend-writing.txt: Add an entry about the return value
+	  of wait/waitpid.
 
 ---- FEATURE FREEZE FOR SANE 1.0.8 ---
 

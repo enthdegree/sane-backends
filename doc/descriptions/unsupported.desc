@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-23"		; version of backend
+:version "2003-12-25"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -362,6 +362,12 @@
 
 :mfg "Genius"
 :url "http://www.geniusnet.com.tw/"
+
+:model "ColorPage-EP"
+;:url "/unsupported/genius-colorpage-hr6x.html"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. No details known."
 
 :model "ColorPage HR6X Slim"
 :url "/unsupported/genius-colorpage-hr6x.html"
@@ -761,12 +767,6 @@
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
 :comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
-
-:model "Paragon 600 II ED/EP"
-:interface "Parport"
-:url "/unsupported/mustek-600IIep.html"
-:status :unsupported
-:comment "Not supported by SANE yet, but there is a stand-alone program and support will be added to the mustek backend."
 
 :model "ScanExpress 600 USB"
 :interface "USB"

@@ -12,6 +12,8 @@
 	  based on a patch from James Perry. Support for libiee1284 is
 	  missing until now. Closes bug #300143.
 	* AUTHORS: Added James Perry.
+	* doc/descriptions/unsupported.desc: Removed Mustek Paragon 600 II
+	  EP/ED. Added Genius Colorpage-EP.
 
 2003-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

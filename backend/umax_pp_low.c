@@ -375,6 +375,7 @@ int
 sanei_umax_pp_InitPort (int port)
 {
   int fd;
+  int found = 0;
 #if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
 #endif
@@ -383,7 +384,6 @@ sanei_umax_pp_InitPort (int port)
   char parport_name[16];
   int i;
   int addr;
-  int found = 0;
 #endif
 
   /* since this function must be called before */
@@ -7560,17 +7560,19 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
     case 1200:
       opsc53[6] = 0x60;
+      opsc53[8] = 0x5F;		/* test value */
       opsc53[8] = 0x5E;		/* old value */
       opsc53[8] = 0x5C;		/* new working value */
       opsc53[9] = 0x05;
       opsc53[14] = opsc53[14] & 0xF0;
       /*opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */
+      opsc53[14] = (opsc53[14] & 0xF0) | 0x0C;
       break;
 
     case 600:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x2F;		/* old value */
       opsc53[8] = 0x2E;		/* new working value */
+      opsc53[8] = 0x2F;		/* old value */
       opsc53[9] = 0x05;
       opsc53[14] = (opsc53[14] & 0xF0) | 0x04;
       break;

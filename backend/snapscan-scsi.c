@@ -952,14 +952,14 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
     u_char cmd[] = {SEND_DIAGNOSTIC, 0x04, 0, 0, 0, 0};    /* self-test */
     SANE_Status status;
 
-    if (pss->pdev->model == PRISA620S    /* GP added */
+    if (pss->pdev->model == PRISA620S
         ||
-        pss->pdev->model == VUEGO610S    /* SJU added */
-        ||
-        pss->pdev->model == SNAPSCAN1236)   
+	pss->pdev->model == VUEGO610S
+	||
+	pss->pdev->model == SNAPSCAN1236) 
     {
         return SANE_STATUS_GOOD;
-    }
+    } 
     DBG (DL_CALL_TRACE, "%s\n", me);
 
     status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
@@ -1177,8 +1177,8 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.13  2002/04/10 21:27:31  oliverschwartz
- * make bqelements static, don't send diagnostic cmd to Snapscan1236
+ * Revision 1.14  2002/04/10 21:45:52  oliverschwartz
+ * Removed illegal character / removed declaration of bqelements
  *
  * Revision 1.28  2002/04/10 21:01:02  oliverschwartz
  * Disable send_diagnostic() for 1236s

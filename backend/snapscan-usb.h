@@ -71,7 +71,6 @@ struct usb_busy_queue {
 };
 
 static struct usb_busy_queue *bqhead,*bqtail;
-extern int bqelements;
 static int enqueue_bq(int fd,const void *src, size_t src_size);
 static void dequeue_bq(void);
 static int is_queueable(const char *src);
@@ -85,8 +84,8 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 
 /*
  * $Log$
- * Revision 1.4  2001/12/17 22:51:50  oliverschwartz
- * Update to snapscan-20011212 (snapscan 1.4.3)
+ * Revision 1.5  2002/04/10 21:45:53  oliverschwartz
+ * Removed illegal character / removed declaration of bqelements
  *
  * Revision 1.10  2001/12/09 23:06:45  oliverschwartz
  * - use sense handler for USB if scanner reports CHECK_CONDITION

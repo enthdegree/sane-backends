@@ -60,7 +60,7 @@
 
 #ifdef HAVE_SYS_IO_H 
 # include <sys/io.h>		/* GNU libc based Linux */
-#elif HAVE_ASM_IO_H
+#elif HAVE_ASM_IO_H && defined __i386__
 # include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
 # include <sys/hw.h>		/* OS/2 */

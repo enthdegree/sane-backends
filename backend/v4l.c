@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1999 Juergen G. Schimmer
-   Updates and bugfixes (C) 2002, 2003 Henning Meier-Geinitz
+   Updates and bugfixes (C) 2002 - 2004 Henning Meier-Geinitz
 
    This file is part of the SANE package.
 
@@ -43,7 +43,7 @@
    This file implements a SANE backend for v4l-Devices.
 */
 
-#define BUILD 3
+#define BUILD 4
 
 #include "../include/sane/config.h"
 
@@ -93,7 +93,7 @@ static V4L_Scanner *first_handle;
 static char *buffer;
 
 static const SANE_String_Const mode_list[] = {
-  "Grey", "Color",
+  SANE_VALUE_SCAN_MODE_GRAY, SANE_VALUE_SCAN_MODE_COLOR,
   0
 };
 
@@ -807,7 +807,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->val[option].s = strdup (val);
 	  if (!s->val[option].s)
 	    return SANE_STATUS_NO_MEM;
-	  if (strcmp (s->val[option].s, "Grey") == 0)
+	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    s->pict.palette = VIDEO_PALETTE_GREY;
 	  else
 	    s->pict.palette = VIDEO_PALETTE_RGB24;

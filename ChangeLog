@@ -1,3 +1,7 @@
+2004-05-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/v4l.c: Used SANE_VALUE_SCAN_MODE_* constants.
+
 2004-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/sp15c.c: Fixed the fix of the sanei_thread fix 

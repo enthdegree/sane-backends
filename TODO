@@ -1,4 +1,4 @@
-TODO (2003-01-08)
+TODO (2003-01-10)
 
 ******** todo ********
 
@@ -22,7 +22,7 @@ backends
      - Fix comment header (wrong author, wrong description)
 
   * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
-    (if they are necessary). That's probably for SANE2. 
+    (if they are necessary). That's probably for SANE2.
 
   * v4l:
      - Geometry support is missing
@@ -50,7 +50,6 @@ backends
   * Make sure that USB backends don't depend on the kernel USB scanner
     driver but also work with libusb. The linux kernel scanner driver may be
     gone in Linux 2.6.0.
-    - plustek: will need some work to autodetect all supported scanners
 
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
     fujitsu or avision backends.
@@ -172,6 +171,7 @@ misc
     a segfault in Sane.c.
 
 ******** done ********
+* plustek: will need some work to autodetect all supported scanners (libusb)
 * Remove backend-specific .po files when they are no longer needed.
 * hp.desc, umax_pp.desc: Use "ScanJet number" instead of "HP ScanJet number"
   or "HP number" for better sorting of the lists

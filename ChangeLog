@@ -1,5 +1,10 @@
 2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
 
+	* TODO: Plustek backend now supports libusb, moved appropriate line
+	  to done section.
+
+2002-10-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
 	* doc/sane-plustek.man: update to reflect version change
 	* doc/descriptions/plustek.desc: Added some Canon entries, status updates
 	* backend/plustek.conf updated options

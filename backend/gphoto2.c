@@ -1,3 +1,19 @@
+/* Please note!  This is extremely alpha code, and is really intended as
+ * a "proof of concept" since I don't yet know whether it's going to 
+ * to be practical and/or possible to implement a the complete backend.
+ * The current implemenation uses the gphoto2 command as the interface
+ * to the camera - the longterm plan is access the cameras directly by
+ * linking with the gphoto2 libraries.  It's also been tested with only
+ * one camera model, the Kodak DC240 which happens to be the camera I
+ * have.  I'm very interested in learning what it would take to support
+ * more cameras.
+ *  
+ * However, having said that, I've already found it to be quite useful
+ * even in its current form - one reason is that gphoto2 provides access
+ * to the camera via USB which is not supported by the regular DC240 
+ * backend and is dramatically faster than the serial port.
+ */
+
 /***************************************************************************
  * _S_A_N_E - Scanner Access Now Easy.
 
@@ -285,14 +301,20 @@ static SANE_Parameters parms = {
   8,				/* Number of bits per sample. */
 };
 
+/* Linked list of file names in the current folder */
 static struct cam_dirlist *dir_head = NULL;
 
+/* Buffer to hold line currently being processed by sane_read */
 static SANE_Byte *linebuffer = NULL;
 static SANE_Int linebuffer_size = 0;
 static SANE_Int linebuffer_index = 0;
 
-static SANE_Byte tmpstr[256];
+/* gphoto2 command currently being executed */
+static SANE_Char cmdbuf[256];
+/* The pipe corresponding to cmdbuf */
 static FILE *cmdpipe;
+/* String read from cmdpipe */
+static SANE_Byte tmpstr[256];
 
 static SANE_Byte name_buf[60];
 
@@ -302,7 +324,6 @@ static SANE_Byte name_buf[60];
 static SANE_Int
 init_gphoto2 (void)
 {
-  SANE_Char cmdbuf[256];
   SANE_Int entries, n;
 
   DBG (1, "GPHOTO2 Backend 05/16/01\n");
@@ -404,14 +425,28 @@ get_info (void)
 static SANE_Int
 erase (void)
 {
-  return -1;
+  sprintf ((char *) cmdbuf,
+	   "%s --camera \"%s\" --port %s --folder %s/%s  --stdout -d %d",
+	   (char *) Gphoto2Path, (char *) Camera.camera_name,
+	   (char *) Camera.tty_name, (char *) TopFolder,
+	   (char *) folder_list[current_folder],
+	   Camera.current_picture_number);
+  cmdpipe = popen ((char *) cmdbuf, "r");
+  if (cmdpipe == NULL)
+    {
+      return -1;
+    }
+
+  fclose (cmdpipe);
+
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Int
 change_res (SANE_Byte res)
 {
 
-  return 0;
+  return (res - res);
 
 }
 
@@ -438,7 +473,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   if (!fp)
     {
       /* default to /dev/whatever instead of insisting on config file */
-      DBG (1, "%s:  missing config file '%s'\n", f, GPHOTO2_CONFIG_FILE);
+      DBG (1, "warning: %s:  missing config file '%s'\n", f,
+	   GPHOTO2_CONFIG_FILE);
     }
   else
     {
@@ -454,16 +490,90 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 	    continue;		/* ignore empty lines */
 	  if (strncmp (dev_name, "port=", 5) == 0)
 	    {
+	      SANE_Int n, entries;
+
 	      p = dev_name + 5;
 	      if (p)
 		Camera.tty_name = strdup (p);
 	      DBG (20, "Config file port=%s\n", Camera.tty_name);
+	      sprintf ((char *) cmdbuf, "%s -q --list-ports",
+		       (char *) Gphoto2Path);
+	      cmdpipe = popen ((char *) cmdbuf, "r");
+	      if (cmdpipe == NULL)
+		{
+		  return -1;
+		}
+	      fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe);
+	      n = sscanf ((char *) tmpstr, "%d", &entries);
+	      if (n == 0 || entries < 1)
+		{
+		  DBG (0, "%s: error: Can't list available ports\n", f);
+		  exit (1);
+		}
+	      for (n = 0; n < entries; n++)
+		{
+		  fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe);
+		  if (strchr (tmpstr, ' '))
+		    {
+		      *strchr (tmpstr, ' ') = '\0';
+		    }
+		  if (strcmp (Camera.tty_name, tmpstr) == 0)
+		    {
+		      break;
+		    }
+		}
+	      if (n == entries)
+		{
+		  DBG (0,
+		       "%s: error: %s is not a valid gphoto2 port.  Use \"gphoto2 --list-ports\" for list.\n",
+		       f, Camera.tty_name);
+		  exit (1);
+		}
+	      fclose (cmdpipe);
 	    }
 	  else if (strncmp (dev_name, "camera=", 7) == 0)
 	    {
+	      SANE_Int n, entries;
 	      Camera.camera_name = strdup (dev_name + 7);
 	      DBG (20, "Config file camera=%s\n", Camera.camera_name);
 	      sprintf (buf, "Image selection - %s", Camera.camera_name);
+
+	      sprintf ((char *) cmdbuf, "%s -q --list-cameras",
+		       (char *) Gphoto2Path);
+	      cmdpipe = popen ((char *) cmdbuf, "r");
+	      if (cmdpipe == NULL)
+		{
+		  return -1;
+		}
+	      fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe);
+	      n = sscanf ((char *) tmpstr, "%d", &entries);
+	      if (n == 0 || entries < 1)
+		{
+		  DBG (0, "%s: error: Can't list available cameras\n", f);
+		  return SANE_STATUS_INVAL;
+		}
+	      for (n = 0; n < entries; n++)
+		{
+		  fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe);
+		  if (strchr (tmpstr, '\n'))
+		    {
+		      *strchr (tmpstr, '\n') = '\0';
+		    }
+		  if (strcmp (Camera.camera_name, tmpstr) == 0)
+		    {
+		      break;
+		    }
+		}
+	      if (n == entries)
+		{
+		  DBG (0,
+		       "%s: error: %s is not a valid camera type.  Use \"gphoto2 --list-cameras\" for list.\n",
+		       f, Camera.camera_name);
+		  return SANE_STATUS_INVAL;
+		}
+
+	      fclose (cmdpipe);
+
 	      sod[GPHOTO2_OPT_IMAGE_SELECTION].title = strdup (buf);
 	    }
 	  else if (strcmp (dev_name, "dumpinquiry") == 0)
@@ -526,8 +636,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
   else
     {
       Camera.current_picture_number = 1;
+/* OLD:
       set_res (Camera.Pictures[Camera.current_picture_number - 1].low_res);
-    }
+*/
+	set_res( gphoto2_opt_lowres );  
+  }
 
   if (dumpinquiry)
     {
@@ -676,8 +789,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	   */
 	  if (Camera.pic_taken != 0)
 	    {
+/* OLD:
 	      set_res (Camera.
 		       Pictures[Camera.current_picture_number - 1].low_res);
+*/
+	      set_res (gphoto2_opt_lowres); 
 	    }
 	  break;
 
@@ -687,8 +803,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (Camera.pic_taken != 0)
 	    {
+/* OLD:
 	      set_res (Camera.
 		       Pictures[Camera.current_picture_number - 1].low_res);
+*/
+	      set_res (gphoto2_opt_lowres); 
 	    }
 	  break;
 
@@ -706,9 +825,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    {
 	      /* deactivate the resolution setting */
-	      sod[GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE;
-	      /* and activate the image number selector */
-	      sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
+	      /*  sod [GPHOTO2_OPT_LOWRES].cap |= SANE_CAP_INACTIVE; */
+	      /* and activate the image number selector, if there are 
+	       * pictures available */
+	      if (Camera.current_picture_number)
+		{
+		  sod[GPHOTO2_OPT_IMAGE_NUMBER].cap &= ~SANE_CAP_INACTIVE;
+		}
 	    }
 	  /* set params according to resolution settings */
 	  set_res (gphoto2_opt_lowres);
@@ -916,7 +1039,6 @@ sane_start (SANE_Handle handle)
 
   struct jpeg_error_mgr jerr;
   SANE_Int row_stride;
-  SANE_Char cmdbuf[256];
 
   DBG (127, "sane_start called\n");
   if (handle != MAGIC || !is_open ||
@@ -1064,8 +1186,11 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
 	      /* get the image's resolution */
+/* OLD:
 	      set_res (Camera.Pictures[Camera.current_picture_number - 1].
 		       low_res);
+*/
+	      set_res (gphoto2_opt_lowres); 
 	    }
 	  DBG (4, "Increment count to %d (total %d)\n",
 	       Camera.current_picture_number, Camera.pic_taken);
@@ -1202,7 +1327,6 @@ static SANE_Status
 snap_pic (void)
 {
   SANE_Bool found = SANE_FALSE;
-  SANE_Char cmdbuf[256];
   SANE_Char f[] = "snap_pic";
   SANE_Int linecount = 0;
 
@@ -1226,10 +1350,10 @@ snap_pic (void)
       return SANE_STATUS_INVAL;
     }
 
-  while (fgets ((char *) cmdbuf, sizeof (cmdbuf), cmdpipe)
+  while (fgets ((char *) tmpstr, sizeof (tmpstr), cmdpipe)
 	 && linecount++ < 100)
     {
-      if (strncmp (cmdbuf, "/DCIM/", 6) == 0)
+      if (strncmp (tmpstr, "/DCIM/", 6) == 0)
 	{
 	  found = SANE_TRUE;
 	}
@@ -1277,7 +1401,6 @@ static SANE_Int
 read_dir (SANE_String dir, SANE_Bool read_files)
 {
   SANE_Int retval = 0;
-  SANE_Byte buf[256];
   SANE_Int i, entries;
   SANE_Char f[] = "read_dir";
   struct cam_dirlist *e, *next;
@@ -1293,20 +1416,20 @@ read_dir (SANE_String dir, SANE_Bool read_files)
 
   if (read_files)
     {
-      sprintf ((char *) buf,
+      sprintf ((char *) cmdbuf,
 	       "%s --camera \"%s\" --port %s --folder %s --list-files --stdout",
 	       (char *) Gphoto2Path, (char *) Camera.camera_name,
 	       (char *) Camera.tty_name, dir);
     }
   else
     {
-      sprintf ((char *) buf,
+      sprintf ((char *) cmdbuf,
 	       "%s --camera \"%s\" --port %s --folder %s --list-folders -q",
 	       (char *) Gphoto2Path, (char *) Camera.camera_name,
 	       (char *) Camera.tty_name, dir);
     }
 
-  cmdpipe = popen ((char *) buf, "r");
+  cmdpipe = popen ((char *) cmdbuf, "r");
   if (cmdpipe == NULL)
     {
       DBG (0, "%s: error: couldn't open gphoto2", f);

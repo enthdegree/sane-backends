@@ -1,4 +1,4 @@
-TODO (2001-05-31)
+TODO (2001-06-02)
 
 ******** todo ********
 
@@ -65,11 +65,6 @@ backends
   * dc210 and jpeg stuff: move sanei_* functions to sanei/ (if they are 
     necessary).
 
-  * nec:
-     - Remove references to sharp backend (grep for "JX").
-     - Check for HAVE_SYS_SHM_H before including sys/shm.h and
-       disable shared memory support if necessary.
-
   * v4l: Problems (crash) with more than one video card. It looks like 
     the two different cards are identified as the same card.
 
@@ -86,7 +81,6 @@ backends
       - dmc
       - m3096
       - microtek
-      - nec
       - qcam
       - ricoh
       - s9036
@@ -129,6 +123,9 @@ frontends
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
 
+  * scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 
+    scanadf if necessary).
+
  [the remaining entries have been moved to the sane-frontends package]
 
 sanei
@@ -167,8 +164,6 @@ misc
   * Add USB support for sane-find-scanner.
 
   * check memory leaks (checked with purify and mtrace (from glibc)):
-    - sanei_scsi.c: line 1262
-    - most backends: sanei_get_devices?
 
   * Check AIX/gcc shared lib loading problem: When starting scanimage,
     only dll is loaded.
@@ -177,11 +172,16 @@ misc
        /tmp/sane-bin/lib/sane/libsane-umax.so.1 because:
        Symbol __eprintf (number 55) is not exported from dependent
        module scanimage.
-    This happens in all libraries.
+    This happens in most libraries. The reason is assert() e.g. in
+    sanei_scsci.c. As assert() is in libgcc.a it can't be linked at runtime.
 
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* nec:
+   - Remove references to sharp backend (grep for "JX").
+   - Check for HAVE_SYS_SHM_H before including sys/shm.h and
+     disable shared memory support if necessary.
 * lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
   should be removed (removing "\n" is already done in sanei_config_read).
   This ist just a fast grep. Check all backends!

@@ -12,6 +12,7 @@ Backends:
  agfafocus:	Karl Anders Øygard
  apple:		Milon Firikis
  artec:		Chris Pinkham (*)
+ as6e:          Eugene S. Weiss (*)
  avision:	Meino Christian Cramer, Rene Rebe(*)
  canon:		Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
  coolscan:	Didier Carlier, Andreas Rick (*)
@@ -80,6 +81,7 @@ David F. Skoll <dskoll@iname.com>
 David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 Didier Carlier <didier@sema.be>
+Eugene S. Weiss <yossarian@users.sourceforge.net>
 FUKUDA Kazuya <fukuda@avm.nhe.nec.co.jp>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Feico W. Dillema <dillema@acm.org>

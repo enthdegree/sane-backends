@@ -1,0 +1,33 @@
+.TH sane-as6e 5 "  November 19, 2000" "SANE Artec  AS6E Backend "
+
+.SH NAME
+sane-as6e \-SANE backend for using the Artec AS6E parallel port interface scanner.
+
+.SH DESCRIPTION
+The
+.B sane-as6e
+library implements a SANE (Scanner Access Now Easy) backend
+that provides access to Artec AS6E flatbed scanner.  
+.B It requires the as6edriver program in order to operate. 
+The as6edriver program is
+.B not
+included with the SANE package.  
+It can be found at 
+.B http://as6edriver.sourceforge.net
+.    See the as6edriver documentation for technical information.
+.PP
+
+.SH FILES
+.B as6edriver 
+-driver program that controls the scanner.
+
+.SH BUGS
+
+.SH SEE ALSO
+as6edriver(5)
+
+.SH AUTHOR
+Eugene S. Weiss
+
+.SH EMAIL-CONTACT
+yossarian@users.sourceforge.net

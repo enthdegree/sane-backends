@@ -8,10 +8,10 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 
-:backend "as6e"		; name of backend
-:version "(0.4.0)"		; version of backend
-:status :alpha			; :alpha, :beta, :stable, :new
-;:manpage "sane-as6e"		; name of manpage (if it exists)
+:backend "as6e"			; name of backend
+:version "0.4.2"		; version of backend
+:status :new			; :alpha, :beta, :stable, :new
+:manpage "sane-as6e"		; name of manpage (if it exists)
 :url "http://as6edriver.sourceforge.net/"
 
 :devicetype :scanner
@@ -21,7 +21,7 @@
 
 :model "AS6E"
 :interface "Parport"
-:comment "all modes working"
+:comment "Requires the program 'as6edriver' to run."
 
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

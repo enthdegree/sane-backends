@@ -105,6 +105,7 @@ below:
     AGFA SnapScan          sane-snapscan(5)
     Apple                  sane-apple(5)
     Artec                  sane-artec(5)
+    Artec AS6E parport     sane-as6e(5)
     Avision                sane-avision(5)
     Canon                  sane-canon(5)
     Nikon Coolscan         sane-coolscan(5)

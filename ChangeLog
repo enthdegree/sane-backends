@@ -1,3 +1,8 @@
+2001-05-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Removed pie from lists of bugs. Removed sane manual page.
+	  Added some context to the Tru64 problems.
+	
 2001-05-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore: Added sane.7.

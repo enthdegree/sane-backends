@@ -1,3 +1,7 @@
+2001-06-06  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c: OS/2 compile fixes
+
 2001-06-05  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* changed my email address in sane-backends.lsm

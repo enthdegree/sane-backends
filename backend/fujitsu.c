@@ -55,7 +55,7 @@
    Section 4 - generic private routines with a lot of model-specific code
    Section 5 - private routines for the M3091
    Section 6 - private routines for the M3096
-   Section 7 - private routines for the SP15C
+   Section 7 - private routines for the EVPD-capable scanners
    Section 8 - private routines for the M3092
    ...
 
@@ -98,6 +98,9 @@
       V 1.9 04-Jun-2003 
          - separated the 4120 and 4220 into another model (anoah@pfeiffer.edu)
          - color support for the 4x20 (anoah@pfeiffer.edu)
+      V 1.10 04-Jun-2003 
+         - removed SP15 code (anoah@pfeiffer.edu)
+         - sane_open actually opens the device you request (anoah@pfeiffer.edu)
 
    SANE FLOW DIAGRAM
 
@@ -572,14 +575,31 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 SANE_Status
 sane_open (SANE_String_Const name, SANE_Handle * handle)
 {
-  /** this is too simple to be right  - FIXME */
-  struct fujitsu *scanner = (struct fujitsu *) first_dev;
-  *handle = scanner;
-
-  DBG (10, "sane_open %s\n", name);
+  struct fujitsu *dev = NULL;
+  struct fujitsu *scanner = NULL;
+ 
+  if(name[0] == 0){
+    DBG (10, "sane_open: no device requested, using default\n");
+    scanner = (struct fujitsu *) first_dev;
+    DBG (10, "sane_open: device %s found\n", first_dev->sane.name);
+  }
+  else{
+    DBG (10, "sane_open: device %s requested\n", name);
+                                                                                
+    for (dev = first_dev; dev; dev = dev->next)
+      {
+        if (strcmp (dev->sane.name, name) == 0)
+          {
+            DBG (10, "sane_open: device %s found\n", name);
+            scanner = (struct fujitsu *) dev;
+          }
+      }
+  }
 
   if (!scanner)
     return SANE_STATUS_INVAL;
+
+  *handle = scanner;
 
   /*
    * Determine which SANE options are available with this scanner.
@@ -7403,23 +7423,9 @@ setMode3096 (struct fujitsu *scanner, int mode)
   return (SANE_STATUS_INVAL);
 }
 
-
 /*
- * @@ Section 7 - SP15C specific internal routines
+ * @@ Section 7 - EVPD specific internal routines
  */
-
-static void
-setDefaultsSP15 (struct fujitsu *scanner)
-{
-
-  setDefaults3096 (scanner);    /* todo: add real sp15 defaults */
-}
-
-static SANE_Status
-setModeSP15 (struct fujitsu *scanner, int mode)
-{
-  return setMode3096 (scanner, mode);   /* todo: what is different in the sp15? */
-}
 
 /*
  * @@ Section 8 - M3092 specific internal routines

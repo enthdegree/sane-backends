@@ -359,8 +359,6 @@ struct fujitsu
 #define MODEL_3091 1
 /** Fujitsu M3096 (400x400dpi grayscale, simplex, FB and optional ADF) */
 #define MODEL_3096 2
-/** Fujitsu ScanPartner 15C (....) */
-#define MODEL_SP15 3
 /** 3093 */
 #define MODEL_3093 4
 /** 4097 */
@@ -577,12 +575,10 @@ static int modelMatch (const char *product);
 static void setDefaults3091 (struct fujitsu *scanner);
 static void setDefaults3092 (struct fujitsu *scanner);
 static void setDefaults3096 (struct fujitsu *scanner);
-static void setDefaultsSP15 (struct fujitsu *scanner);
 
 static SANE_Status setMode3091 (struct fujitsu *scanner, int mode);
 static SANE_Status setMode3092 (struct fujitsu *scanner, int mode);
 static SANE_Status setMode3096 (struct fujitsu *scanner, int mode);
-static SANE_Status setModeSP15 (struct fujitsu *scanner, int mode);
 
 static void calculateDerivedValues (struct fujitsu *scanner);
 

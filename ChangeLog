@@ -1,3 +1,10 @@
+2003-06-06  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.h backend/fujitsu.c doc/descriptions/fujitsu.desc
+          path from anoah@pfeiffer.edu:
+	  remove SP15 code
+	  sane_open actually opens the device you request
+
 2003-06-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c doc/descriptions/gt68xx.desc

@@ -10,6 +10,12 @@
 	  changed status to "good". Avoid error message when closing
 	  scanner. Don't print max_white warning when debugging is not
 	  enabled.
+	* po/sane-backends.bg.po po/sane-backends.cs.po po/sane-backends.da.po
+	  po/sane-backends.de.po po/sane-backends.es.po po/sane-backends.fi.po
+	  po/sane-backends.fr.po po/sane-backends.it.po po/sane-backends.nl.po
+	  po/sane-backends.no.po po/sane-backends.pt.po po/sane-backends.ru.po
+	  po/sane-backends.sv.po tools/check-usb-chip.c: Recreated. Fixed
+	  some fuzzy texts and added some translations to .de.po.
 
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 

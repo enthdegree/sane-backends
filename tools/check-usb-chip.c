@@ -254,8 +254,6 @@ check_gt6816 (struct usb_device *dev)
       return 0;
     }
 
-
-
   /* Check endpoints */
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 2)
     {
@@ -334,11 +332,19 @@ check_gt6816 (struct usb_device *dev)
     usb_control_msg (handle, 0xc0, 0x01, 0x2013, 0x3f00, req, 64, TIMEOUT);
   if (result <= 0)
     {
-      if (verbose > 2)
-	printf ("    Couldn't send read control message (%s)\n",
-		strerror (errno));
-      finish_interface (handle);
-      return 0;
+      /* Before firmware upload, 64 bytes are returned. Some libusb
+	 implementations/operating systems can't seem to cope with short
+	 packets. */
+      result =
+	usb_control_msg (handle, 0xc0, 0x01, 0x2013, 0x3f00, req, 8, TIMEOUT);
+      if (result <= 0)
+	{
+	  if (verbose > 2)
+	    printf ("    Couldn't send read control message (%s)\n",
+		    strerror (errno));
+	  finish_interface (handle);
+	  return 0;
+	}
     }
 
   if (req[0] != 0)

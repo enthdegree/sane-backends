@@ -5,14 +5,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2004-10-06 14:59+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-10-11 21:43+0200\n"
 "PO-Revision-Date: 2002-10-28 12:13MSK\n"
 "Last-Translator: Vitaly Lipatov <lav@altlinux.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Report-Msgid-Bugs-To: \n"
 "X-Generator: KBabel 0.9.6\n"
 
 # original text: "Lineart"
@@ -40,10 +40,10 @@ msgstr "Цветной"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
 #: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/plustek.c:768
-#: .tmp/plustek_pp.c:792 .tmp/sceptre.c:753 .tmp/snapscan-options.c:507
-#: .tmp/teco1.c:1146 .tmp/teco2.c:1952 .tmp/teco3.c:971 .tmp/umax.c:5214
-#: .tmp/umax_pp.c:546
+#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:700
+#: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
+#: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
+#: .tmp/teco3.c:971 .tmp/umax.c:5214 .tmp/umax_pp.c:549
 msgid "Enhancement"
 msgstr "Дополнительно"
 
@@ -63,7 +63,7 @@ msgstr ""
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
 #: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
 #: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:497
+#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5164 .tmp/umax_pp.c:500
 msgid "Geometry"
 msgstr "Расположение"
 
@@ -327,9 +327,9 @@ msgstr "макс"
 
 #: .tmp/epson.c:2731 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
 #: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/plustek.c:637 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:276 .tmp/teco2.c:1876
-#: .tmp/test.c:293 .tmp/umax.c:5042
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:680 .tmp/plustek.c:637
+#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
+#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5042
 msgid "Scan Mode"
 msgstr "Режим сканирования"
 
@@ -579,7 +579,7 @@ msgstr ""
 
 #: .tmp/gt68xx.c:569
 msgid ""
-"Scan the complete scanning area including calibration strip. Be carefull. "
+"Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
 
@@ -850,7 +850,7 @@ msgstr ""
 msgid "Unload Document."
 msgstr ""
 
-#: .tmp/hp-option.h:97 .tmp/niash.c:491
+#: .tmp/hp-option.h:97 .tmp/niash.c:672
 #, fuzzy
 msgid "Calibrate"
 msgstr "Режим калибровки"
@@ -1504,24 +1504,24 @@ msgstr "Контрастность синего канала"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Управляет контрастностью синего канала полученного изображения."
 
-#: .tmp/niash.c:446
+#: .tmp/niash.c:627
 msgid "Image"
 msgstr ""
 
-#: .tmp/niash.c:474
+#: .tmp/niash.c:655
 msgid "Miscellaneous"
 msgstr ""
 
-#: .tmp/niash.c:481
+#: .tmp/niash.c:662
 msgid "Lamp status"
 msgstr ""
 
-#: .tmp/niash.c:482
+#: .tmp/niash.c:663
 #, fuzzy
 msgid "Switches the lamp on or off."
 msgstr "Включить/выключить лампу"
 
-#: .tmp/niash.c:492
+#: .tmp/niash.c:673
 msgid "Calibrates for black and white level."
 msgstr ""
 
@@ -2583,7 +2583,7 @@ msgid "Read limit"
 msgstr "Интенсивность красного"
 
 #: .tmp/test.c:456
-msgid "Limit the amount of data tranferred with each call to sane_read()."
+msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 
 #: .tmp/test.c:469
@@ -2879,6 +2879,14 @@ msgstr ""
 msgid "(1/1) Button test option. Prints some text..."
 msgstr ""
 
+#: .tmp/umax1220u.c:247 .tmp/umax.c:5800
+msgid "Lamp off"
+msgstr "Выключить лампу"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5801
+msgid "Turn off scanner lamp"
+msgstr "Выключить лампу сканера"
+
 # original text: "Lineart"
 #: .tmp/umax.c:189
 msgid "Color Lineart"
@@ -2946,21 +2954,13 @@ msgstr "Держать позицию фокуса на 0мм"
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Использовать фокус 0мм вместо 0.6мм"
 
-#: .tmp/umax.c:5783 .tmp/umax_pp.c:556
+#: .tmp/umax.c:5783 .tmp/umax_pp.c:559
 msgid "Lamp on"
 msgstr "Включить лампу"
 
 #: .tmp/umax.c:5784
 msgid "Turn on scanner lamp"
 msgstr "Включить лампу сканера"
-
-#: .tmp/umax.c:5800 .tmp/umax1220u.c:247
-msgid "Lamp off"
-msgstr "Выключить лампу"
-
-#: .tmp/umax.c:5801 .tmp/umax1220u.c:248
-msgid "Turn off scanner lamp"
-msgstr "Выключить лампу сканера"
 
 #: .tmp/umax.c:5873
 msgid "Calibration mode"
@@ -2971,112 +2971,112 @@ msgstr "Режим калибровки"
 msgid "Define calibration mode"
 msgstr "Задать режим калибровки"
 
-#: .tmp/umax_pp.c:557
+#: .tmp/umax_pp.c:560
 msgid "Sets lamp on/off"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:566
+#: .tmp/umax_pp.c:569
 msgid "UTA on"
 msgstr "включить UTA"
 
-#: .tmp/umax_pp.c:567
+#: .tmp/umax_pp.c:570
 msgid "Sets UTA on/off"
 msgstr "Включить/выключить UTA"
 
-#: .tmp/umax_pp.c:632
+#: .tmp/umax_pp.c:635
 #, fuzzy
 msgid "Gain"
 msgstr "Канал красного"
 
-#: .tmp/umax_pp.c:633
+#: .tmp/umax_pp.c:636
 #, fuzzy
 msgid "Color channels gain settings"
 msgstr "Настройки подсветки каналов цветов"
 
-#: .tmp/umax_pp.c:640
+#: .tmp/umax_pp.c:643
 msgid "Gray gain"
 msgstr "Интенсивность серого"
 
-#: .tmp/umax_pp.c:641
+#: .tmp/umax_pp.c:644
 #, fuzzy
 msgid "Sets gray channel gain"
 msgstr "Устанавливает подсветку серого канала"
 
-#: .tmp/umax_pp.c:652
+#: .tmp/umax_pp.c:655
 #, fuzzy
 msgid "Red gain"
 msgstr "Канал красного"
 
-#: .tmp/umax_pp.c:653
+#: .tmp/umax_pp.c:656
 #, fuzzy
 msgid "Sets red channel gain"
 msgstr "Устанавливает подсветку красного канала"
 
-#: .tmp/umax_pp.c:664
+#: .tmp/umax_pp.c:667
 #, fuzzy
 msgid "Green gain"
 msgstr "Канал зелёного"
 
-#: .tmp/umax_pp.c:665
+#: .tmp/umax_pp.c:668
 #, fuzzy
 msgid "Sets green channel gain"
 msgstr "Устанавливает подсветку зелёного канала"
 
-#: .tmp/umax_pp.c:676
+#: .tmp/umax_pp.c:679
 #, fuzzy
 msgid "Blue gain"
 msgstr "Канал синего"
 
-#: .tmp/umax_pp.c:677
+#: .tmp/umax_pp.c:680
 #, fuzzy
 msgid "Sets blue channel gain"
 msgstr "Устанавливает подсветку синего канала"
 
-#: .tmp/umax_pp.c:688
+#: .tmp/umax_pp.c:691
 msgid "Offset"
 msgstr ""
 
-#: .tmp/umax_pp.c:690
+#: .tmp/umax_pp.c:693
 #, fuzzy
 msgid "Color channels offset settings"
 msgstr "Настройки интенсивности цветовых каналов"
 
-#: .tmp/umax_pp.c:697
+#: .tmp/umax_pp.c:700
 #, fuzzy
 msgid "Gray offset"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:698
+#: .tmp/umax_pp.c:701
 #, fuzzy
 msgid "Sets gray channel offset"
 msgstr "Устанавливает интенсивность канала серого"
 
-#: .tmp/umax_pp.c:709
+#: .tmp/umax_pp.c:712
 #, fuzzy
 msgid "Red offset"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:710
+#: .tmp/umax_pp.c:713
 #, fuzzy
 msgid "Sets red channel offset"
 msgstr "Устанавливает интенсивность канала красного"
 
-#: .tmp/umax_pp.c:721
+#: .tmp/umax_pp.c:724
 #, fuzzy
 msgid "Green offset"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:722
+#: .tmp/umax_pp.c:725
 #, fuzzy
 msgid "Sets green channel offset"
 msgstr "Устанавливает интенсивность канала зелёного"
 
-#: .tmp/umax_pp.c:733
+#: .tmp/umax_pp.c:736
 #, fuzzy
 msgid "Blue offset"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:734
+#: .tmp/umax_pp.c:737
 #, fuzzy
 msgid "Sets blue channel offset"
 msgstr "Устанавливает интенсивность канала синего"

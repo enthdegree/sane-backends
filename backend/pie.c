@@ -43,6 +43,9 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+ * 17-9-2001 changed ADLIB to AdLib as the comparison is case sensitive and
+ * 	     the scanner returns AdLib
+ *
  * 7-5-2001 removed removal of '\n' after sanei_config_read()
  *	    free devlist allocated in sane_get_devices() on sane_exit()
  *
@@ -100,7 +103,7 @@
 #define DBG_sane_option 13
 #define DBG_dump	14
 
-#define BUILD 6
+#define BUILD 7
 
 #define PIE_CONFIG_FILE "pie.conf"
 #define MM_PER_INCH	 25.4
@@ -144,8 +147,8 @@ static char *scanner_str[] = {
   "PIE", "ScanMedia II",
   "PIE", "ScanAce 630S",
   "PIE", "ScanAce 636S",
-  "ADLIB", "JetScan 630",
-  "ADLIB", "JetScan 636PRO",
+  "AdLib", "JetScan 630",
+  "AdLib", "JetScan 636PRO",
   "END_OF_LIST"
 };
 

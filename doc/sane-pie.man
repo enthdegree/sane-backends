@@ -1,13 +1,13 @@
 .TH sane-pie 5 "7 Sept 2000"
 .IX sane-pie
 .SH NAME
-sane-pie - SANE backend for PIE and Devcom SCSI flatbed scanners
+sane-pie - SANE backend for PIE, Devcom and AdLib SCSI flatbed scanners
 
 .SH DESCRIPTION
 The
 .B sane-pie
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to PIE and Devcom SCSI flatbed scanners.
+provides access to PIE, Devcom and AdLib SCSI flatbed scanners.
 .br
 At present, the following scanners should work with this backend:
 .PP
@@ -45,7 +45,7 @@ ScanAce 630S            Untested
 .br
 ScanAce 636S            Untested
 .br
-JetScan 630             Untested
+JetScan 630             OK
 .br
 JetScan 636PRO          Untested
 .PP

@@ -1,4 +1,9 @@
+2000-12-03  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Fixed off-by-one in color reordering
+
 2000-12-02  Karl Heinz Kremer <khk@khk.net>
+
 	* backend/epson.*: Read information about optical resolution 
 	  and line distance from scanner instead of hardcoded values.
           Add support for color depth > 8 bits per channel. 

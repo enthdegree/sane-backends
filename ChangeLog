@@ -1,3 +1,8 @@
+2004-04-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added link to more info about
+	  Microtek ScanMaker 3630.
+
 2004-04-29  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.conf doc/descriptions/snapscan.desc

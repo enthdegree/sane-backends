@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-04-24"		; version of backend
+:version "2004-04-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -641,7 +641,7 @@
 :comment "Probably unsupported. Seems to be similar to the Microtek 330 CX and is detected by the microtek2 backend. Scanning doesn't seem to work however."
 
 :model "ScanMaker 3630"
-:url "http://sm3600.sourceforge.net/"
+:url "/unsupported/microtek-scanmaker-3630.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Doesn't seem to be compatible to 3600 series, see link."

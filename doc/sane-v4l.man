@@ -1,4 +1,4 @@
-.TH sane-v4l 5 "15 July 2000"
+.TH sane-v4l 5 "28 Aug 2002"
 .IX sane-v4l
 .SH NAME
 sane-v4l - SANE interface for Video for Linux API
@@ -9,7 +9,10 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides generic access to video cameras and similar equipment using
 the V4L (Video for Linux) API.
 .PP
-
+This is ALPHA software. Really! Important features are missing and there are
+lots of bugs. The code is currently only tested on a Linux 2.4 system with a
+Hauppauge WinTV video card.
+.PP
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
 .PP
@@ -74,17 +77,15 @@ environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 .SH AUTHOR
-Juergen G. Schimmer
-.PP
-Man page copied from the pint backend and edited by Henning 
-Meier-Geinitz.
+Juergen G. Schimmer, Henning Meier-Geinitz
 
 .SH BUGS:
-If more than one video card is present, a crash may occur.
+If more than one video card is present, a crash may occur. Frequency and geometry
+selection is missing.
 .br
 Send bug reports to the SANE mailing list: sane-devel@mostang.com.  You must
 be subscribed to the list to send mail. See
 http://www.mostang.com/sane/mail.html for details.
 
 .SH SEE ALSO
-sane(7).
+sane(7), xcam(1).

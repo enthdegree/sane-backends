@@ -9,6 +9,7 @@
 	  for searching USB devices ("usb vendor product").
 	* doc/sane-find-scanner.man tools/Makefile.in 
 	  tools/sane-find-scanner.c: Added USB support.
+	* doc/sane.man: Added information for USB scanners.
 	
 2001-08-05  Peter Fales <peter@fales.com>
 

@@ -10,7 +10,7 @@
 ;
 
 :backend "tevion9693usb"                        ; name of backend
-:version "0.0.3"                                ; version of backend
+;:version "0.0.3"                                ; version of backend
 :status :alpha                                  ; :alpha, :beta, :stable, :new
 ;:manpage                                        ; name of manpage (if it exists)
 :url "http://www.angelfire.com/linux/crapsite/" ; backend's web page
@@ -32,6 +32,7 @@
 :url "http://www.artecusa.com/"
 :model "E+ 48U"
 :interface "USB"
+:status :untested
 :comment "Untested, but apparently the same device like Tevion/Medion."
 
 

@@ -10,18 +10,18 @@
 ;
 
 :backend "lhii"	                  ; name of backend
-:version "(0.2)"                  ; version of backend
+;:version "0.2"                  ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 ; :manpage "sane-lhii"            ; name of manpage (if it exists)
 :url "mailto:bauer-h@web.de"      ; backend's web page
 
-:devicetype :scanner              ; start of a list of devices....
+:devicetype :api                  ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
                                   ;               :meta, :api
 
-:desc "Linux Drivers for Handheld Scanners" ; name a manufacturer
+:desc "Linux Drivers for Handheld Scanners"
 :url "http://www.willamowius.de/scanner.html"
-:interface "Proprietary"
+;:interface "Proprietary"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

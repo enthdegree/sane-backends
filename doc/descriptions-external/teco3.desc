@@ -10,9 +10,9 @@
 ;
 
 :backend "teco3"                  ; name of backend
-:version "1.0-0"                  ; version of backend
+;:version "1.0-0"                  ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
-:manpage "sane-teco3"             ; name of manpage (if it exists)
+;:manpage "sane-teco3"             ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco3"    ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....

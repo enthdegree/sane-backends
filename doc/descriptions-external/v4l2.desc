@@ -10,15 +10,10 @@
 ;
 
 :backend "v4l2"                   ; name of backend
-:version "(19991125)"             ; version of backend
+;:version "(19991125)"             ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 ;:manpage "sane-v4l2"             ; name of manpage (if it exists)
 :url "http://video.inodes.org/sane-v4l2/" ; backend's web page
-
-:devicetype :api                  ; start of a list of devices....
-                                  ; other types:  :stillcam, :vidcam,
-                                  ;               :meta, :api
-
 
 :devicetype :api                  ; specify a different type
 :desc "Interface to Video For Linux 2 API"    ; describe a non-hardware device

@@ -10,7 +10,7 @@
 ;
 
 :backend "hpoj"                   ; name of backend
-:version "(external)"             ; version of backend
+;:version "(external)"             ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :url "http://hpoj.sourceforge.net/" ; backend's web page
 

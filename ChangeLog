@@ -3,6 +3,7 @@
 	* TODO: Removed some entries about net/saned.
 	* doc/saned.man: Clear up that a FQDN must be used in 
 	  saned.conf and that localhost is allways granted acces.
+	* NEWS: Updated.
 
 2001-10-14 Jochen Eisinger <jochen.eisinger@gmx.de>
 

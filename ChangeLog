@@ -1,3 +1,7 @@
+2002-10-15  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.conf: Added comment for USB-scanner
+
 2002-10-14  Peter Fales <peter@fales-lorenz.net>
 
 	* backend/dc240.h,backend/dc240.c: Use portable code for camera

@@ -1,3 +1,8 @@
+2002-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/pnm.c doc/descriptions/pnm.desc: Check if option is settable
+	  when automatically setting it. New version: 1.0.7.
+
 2002-03-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane-scsi.man: Updated info about SCSI-Howto and some SCSI

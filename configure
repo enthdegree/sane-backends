@@ -3283,7 +3283,7 @@ fi # ac_cv_c_compiler_gnu
       LDFLAGS="$LDFLAGS -Wl,-brtl"
       ;;
     darwin*) #include frameworks
-      LDFLAGS="$LDFLAGS -framework CoreFoundation -framework IOKit"
+      LIBS="$LIBS -framework CoreFoundation -framework IOKit"
       ;;
   esac
 

@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Updates for Canon
 	  scanners. Added Spot scanners.
+	* aclocal.m4 acinclude.m4 configure: Fixed MacOS X build (patch
+	  from Mattias Ellert <mattias.ellert@tsl.uu.se>).
 
 2003-05-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

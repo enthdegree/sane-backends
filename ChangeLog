@@ -1,3 +1,7 @@
+2004-04-14  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.conf: Added "usb" entry for libusb
+
 2004-04-14  Rene Rebe <rene@rocklinux.org>
 
 	* backend/avision.h, backend/avision.c: the current development state,

@@ -3,6 +3,8 @@
 	* backend/gt68xx.c doc/sane-gt68xx.man
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
 	  Added Mustek ScanMagic 1200 UB Plus. Minor bugfix.
+	* doc/descriptions/unsupported.desc: Added UMAX Astra 4450 and
+	  Mustek BearPaw 2448 TA Pro. Updated Canon CanoScan 5000F.
 
 2003-08-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

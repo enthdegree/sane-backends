@@ -157,10 +157,11 @@
 :comment "Probably unsupported. See link."
 
 :model "CanoScan 5000F"
-;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
+:url "http://www.meier-geinitz.de/sane/misc/canon-5000f.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported, no details known. 2400x4800 dpi USB2. With transparency adapter"
+:comment "Probably unsupported. See link for details."
+
 :model "CanoScan 8000F"
 :url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
 :interface "USB"
@@ -575,6 +576,12 @@
 :comment "Not supported. See link for some information."
 :status :unsupported
 
+:model "BearPaw 2448 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-bearpaw-2448ta-pro.html"
+:interface "USB"
+:comment "Not supported. See link for some information."
+:status :unsupported
+
 :model "BearPaw 4800 TA Pro"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
 :interface "USB"
@@ -808,6 +815,12 @@
 
 :model "Astra 4400"
 :url "http://www.meier-geinitz.de/sane/misc/umax-astra-4400.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
+:model "Astra 4450"
+:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4450.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. See link for details."

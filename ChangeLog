@@ -1,3 +1,12 @@
+2001-01-17  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/mustek.c backend/mustek.desc backend/mustek.h
+	  backend/mustek.CHANGES doc/sane-mustek.man:
+	  Added 36 bit mode for Pro models. Removed support for "special"
+	  modes, used options instead. Code cleanup. Updated manpage
+	  concerning sane-find-scanner. New version: 1.0-104.
+	* configure: regenerated from configure.in.
+	
 2001-01-14  Petter Reinholdtsen <pere@td.org.uit.no>
 
 	* sanei/sanei_scsi.c: Make sure to initialize uninitialized

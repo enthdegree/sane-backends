@@ -4304,7 +4304,11 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);
   
   fp = sanei_config_open (AVISION_CONFIG_FILE);
-  if (fp > 0)
+  if (fp <= 0)
+    {
+      DBG(1, "sane_init: No config file present!\n");
+    }
+  else
     {
       /* first parse the config file */
       while (sanei_config_read  (line, sizeof (line), fp))

@@ -1,4 +1,10 @@
+2004-09-06  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Fixed bug #300913.
+	
 2004-09-05  Julien Blache <jb@jblache.org>
+
 	* More auth_callback() fixes, although they're not critical.
 
 2004-09-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -20,11 +26,13 @@
 	* frontend/.cvsignore: Added tstbackend.
 	
 2004-09-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c
 	  backend/snapscan.h backend/snapscan.conf doc/descriptions/snapscan.desc:
 	  Added support for Epson 2480
 
 2004-09-01  Julien Blache <jb@jblache.org>
+
 	* frontend/saned.c: auth_callback(): arrays are passed as
 	pointers, declaring parameters as arrays of fixed size is
 	useless. memset() the correct length, not sizeof(pointer).

@@ -1,4 +1,4 @@
-TODO (2001-09-30)
+TODO (2001-10-05)
 
 ******** todo ********
 
@@ -122,7 +122,6 @@ doc
              ftpdev.info.apple.com doesn't exist, DEBUG)
     - artec (BUGS)
     - mustek_pp (SEE ALSO, there is no sane-musteka4s2(5))
-    - plustek: (http://www.linuxhacker.org/listscgi-bin/ezmlm-cgi/3: not found!)
 
   * Check for formatting bugs in manual pages:
     - apple (The list of scanners doesn't look like a table)
@@ -138,7 +137,6 @@ doc
     - agfafocus
     - apple
     - bh
-    - hp
     - microtek
     - pint
     - st400
@@ -191,13 +189,11 @@ misc
 
   * check memory leaks (checked with purify and mtrace (from glibc)):
 
-  * Use #include "../include/assert.h" instead of #include <assert.h> to
-    avoid problem with shared libraries on AIX.
-
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
-
+* Use #include "../include/assert.h" instead of #include <assert.h> to
+  avoid problem with shared libraries on AIX.
 * scanimage: Maybe add ADF extensions from Caskey Dickson (or add them to 
   scanadf if necessary).
 * Add Mustek USB backend (1200UB, 1200CU, 1200CU Plus)

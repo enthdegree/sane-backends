@@ -668,7 +668,7 @@ get_filled_data_length (Teco_Scanner * dev, size_t * to_read)
 	{
 	case TECO_BW:
 	  dev->params.bytes_per_line = B16TOI (&dev->buffer[14]);
-	  dev->params.pixels_per_line = dev->params.bytes_per_line / 8;
+	  dev->params.pixels_per_line = dev->params.bytes_per_line * 8;
 	  break;
 
 	case TECO_GRAYSCALE:
@@ -1385,7 +1385,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   authorize = authorize;	/* silence gcc */
 
-  DBG (DBG_error, "This is sane-teco version %d.%d-%d\n", V_MAJOR,
+  DBG (DBG_error, "This is sane-teco1 version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
   DBG (DBG_error, "(C) 2002 by Frank Zago\n");
 

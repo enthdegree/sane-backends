@@ -43,8 +43,11 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.95";
+static char *hp_backend_version = "0.96";
 /* Changes:
+
+   V 0.96, 05-Aug-2001, PK (peter@kirchgessner.net)
+      - check USB device names
 
    V 0.95, 07-Jul-2001, PK (peter@kirchgessner.net)
       - add support for active XPA
@@ -324,6 +327,7 @@ hp_init_config (HpDeviceConfig *config)
     config->connect = HP_CONNECT_SCSI;
     config->use_scsi_request = 1;
     config->use_image_buffering = 0;
+    config->got_connect_type = 0;
   }
 }
 
@@ -607,31 +611,37 @@ hp_read_config (void)
             if (strcmp (arg2, "connect-scsi") == 0)
             {
               config->connect = HP_CONNECT_SCSI;
+              config->got_connect_type = 1;
             }
             else if (strcmp (arg2, "connect-device") == 0)
             {
               config->connect = HP_CONNECT_DEVICE;
+              config->got_connect_type = 1;
               config->use_scsi_request = 0;
             }
             else if (strcmp (arg2, "connect-pio") == 0)
             {
               config->connect = HP_CONNECT_PIO;
+              config->got_connect_type = 1;
               config->use_scsi_request = 0;
             }
             else if (strcmp (arg2, "connect-usb") == 0)
             {
               config->connect = HP_CONNECT_USB;
+              config->got_connect_type = 1;
               config->use_scsi_request = 0;
             }
             else if (strcmp (arg2, "connect-reserve") == 0)
             {
               config->connect = HP_CONNECT_RESERVE;
+              config->got_connect_type = 1;
               config->use_scsi_request = 0;
             }
             else if (strcmp (arg2, "connect-ptal") == 0)
             {
 #ifdef HAVE_PTAL
               config->connect = HP_CONNECT_PTAL;
+              config->got_connect_type = 1;
               config->use_scsi_request = 0;
 #else
               DBG(0,"hp_read_config: connect-ptal:\n");
@@ -655,12 +665,14 @@ hp_read_config (void)
           {
             if (is_df_config) /* Did we only read default configurations ? */
             {
-              is_df_config = 0;
-              config = &dev_config;
+              is_df_config = 0;  /* Stop reading default config */
+                          /* Initialize device config with default-config */
+              memcpy (&dev_config, &df_config, sizeof (dev_config));
+              config = &dev_config;   /* Start reading a device config */
             }
             if (cu_device[0] != '\0')  /* Did we work on a device ? */
             {
-              memcpy (hp_global_config_get (), &dev_config, sizeof (dev_config));
+              memcpy (hp_global_config_get (), &dev_config,sizeof (dev_config));
               DBG(1, "hp_read_config: attach %s\n", cu_device);
               sanei_config_attach_matching_devices (cu_device, hp_attach);
               cu_device[0] = '\0';
@@ -682,6 +694,8 @@ hp_read_config (void)
           cu_device[0] = '\0';
         }
       fclose (fp);
+      DBG(1, "hp_read_config: reset to default config\n");
+      memcpy (hp_global_config_get (), &df_config, sizeof (df_config));
     }
   else
     {

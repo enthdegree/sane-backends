@@ -598,23 +598,56 @@ HpConnect
 sanei_hp_get_connect (const char *devname)
 
 {const HpDeviceInfo *info;
+ HpConnect connect = HP_CONNECT_SCSI;
+ int got_connect_type = 0;
 
  info = sanei_hp_device_info_get (devname);
  if (!info)
  {
    DBG(1, "sanei_hp_get_connect: Could not get info for %s. Assume SCSI\n",
        devname);
-   return HP_CONNECT_SCSI;
+   connect = HP_CONNECT_SCSI;
  }
-
+ else
  if ( !(info->config_is_up) )
  {
    DBG(1, "sanei_hp_get_connect: Config not initialized for %s. Assume SCSI\n",
        devname);
-   return HP_CONNECT_SCSI;
+   connect = HP_CONNECT_SCSI;
+ }
+ else
+ {
+   connect = info->config.connect;
+   got_connect_type = info->config.got_connect_type;
  }
 
- return info->config.connect;
+ /* Beware of using a USB-device as a SCSI-device (not 100% perfect) */
+ if ((connect == HP_CONNECT_SCSI) && !got_connect_type)
+ {int maybe_usb;
+
+   maybe_usb = (   strstr (devname, "usb")
+                || strstr (devname, "uscanner")
+                || strstr (devname, "ugen"));
+   if (maybe_usb)
+   {static int print_warning = 1;
+
+     if (print_warning)
+     {
+       print_warning = 0;
+       DBG(1,"sanei_hp_get_connect: WARNING\n");
+       DBG(1,"  Device %s assumed to be SCSI, but device name\n",devname);
+       DBG(1,"  looks like USB. Will continue with USB.\n");
+       DBG(1,"  If you really want it as SCSI, add the following\n");
+       DBG(1,"  to your file .../etc/sane.d/hp.conf:\n");
+       DBG(1,"    %s\n", devname);
+       DBG(1,"      option connect-scsi\n");
+       DBG(1,"  The same warning applies to other device names containing\n");
+       DBG(1,"  \"usb\", \"uscanner\" or \"ugen\".\n");
+     }
+     connect = HP_CONNECT_DEVICE;
+   }
+ }
+ return connect;
 }
 
 HpConnect
@@ -1262,21 +1295,23 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
       hp_byte_t	cmd[6];
       hp_byte_t	data[HP_PIPEBUF];
   } 	buf[2], *req = NULL;
+
   int		reqs_completed = 0;
   int		reqs_issued = 0;
   char          *image_buf = 0;
   char          *read_buf = 0;
   const HpDeviceInfo *info;
   const char    *devname = sanei_hp_scsi_devicename (this);
-  int enable_requests = 1;
-  int enable_image_buffering = 0;
+  int           enable_requests = 1;
+  int           enable_image_buffering = 0;
   const unsigned char *map = NULL;
-  HpConnect     connect = HP_CONNECT_SCSI;
+  HpConnect     connect;
   PROCDATA_HANDLE *ph = NULL;
   size_t count = procdata->lines * procdata->bytes_per_line;
 
   RETURN_IF_FAIL( hp_scsi_flush(this) );
 
+  connect = sanei_hp_get_connect (devname);
   info = sanei_hp_device_info_get (devname);
 
   assert (info);
@@ -1285,7 +1320,6 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
   {
     enable_requests = info->config.use_scsi_request;
     enable_image_buffering = info->config.use_image_buffering;
-    connect = info->config.connect;
   }
   else
   {
@@ -1320,7 +1354,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
   {
     for (;;)
     {int val = 0;
- 
+
        if (signal_caught) goto quit;
        sanei_hp_scl_inquire (this, SCL_FRONT_BUTTON, &val, 0, 0);
        if (val) break;
@@ -1332,7 +1366,7 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
       DBG(1, "do_read: Error starting scan in reader process\n");
       goto quit;
     }
-  } 
+  }
   ph = process_data_init (procdata, map, outfd, enable_image_buffering);
 
   if ( ph == NULL )

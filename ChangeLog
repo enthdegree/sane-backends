@@ -1,3 +1,17 @@
+2004-04-14  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek_pp.c backend/plustek-pp_sysdep.h
+	  backend/plustek-pp_scan.h backend/plustek-pp_ptdrv.c
+	  backend/plustek-pp_misc.c: Fixed Kernel 2.6 compilation problems.
+	* doc/plustek/Makefile.kernel24 doc/plustek/Makefile.kernel26
+	  doc/plustek/MakeModule.sh: added to make kernel-module
+	  compilation easier.
+	* doc/plustek/BUILD doc/plustek/VERSION0
+	  doc/plustek/Plustek-PARPORT.txt doc/sane-plustek.man: update.
+	* backend/u12.c backend/u12-hw.c backend/u12-if.c: minor fixes.
+	* doc/u12/U12.changes doc/u12/U12.todo: update.
+	* doc/descriptions/u12.desc: added RevScan Orange R48Ti.
+	* sanei/sanei_thread.c: fixed some warning conditions.
+
 2004-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.da.po: Added Danish translation
@@ -49,12 +63,12 @@
 
 2004-04-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.c backend/snapscan-sources.c 
+	* backend/snapscan.c backend/snapscan-sources.c
 	  backend/snapscan.h backend/Makefile.in:
 	  Use sanei_thread functions instead of forking
 	* backend/snapscan-options.c: Change title and description
 	  for OPT_HIGHQUALITY to use existing i18n translations
-	* backend/snapscan-usb.c: Use urb counting 
+	* backend/snapscan-usb.c: Use urb counting
 	  (thanks to Jose Alberto Reguero)
 
 2004-04-06  Gerard Klaver   <gerard at gkall dot hobby dot nl>

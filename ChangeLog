@@ -1,5 +1,7 @@
 2001-05-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* sane-find-scanner.man sane-scsi.man scanimage.man: Added
+	  sane(7) to SEE ALSO.
 	* PROJECTS: Removed entry about Polaroid SprintScan 35LE (now in
 	  microtek).
 	* TODO: Removed umax from lists of backends with sane_get_devices

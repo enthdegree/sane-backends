@@ -114,7 +114,7 @@ static const SANE_Word resolutions_list[NUM_OF_RES + 1] = {
 };
 
 static const SANE_Word color_shift_list[NUM_OF_RES + 1] = {
-  NUM_OF_RES, 0, 0, 0, 0, 1, 1, 2, 0, 6, 8, 10, 12, 14, 15, 16
+  NUM_OF_RES, 0, 0, 0, 0, 1, 1, 2, 4, 6, 8, 10, 12, 14, 15, 16
 };
 
 /*--------------------------------------------------------------------------*/

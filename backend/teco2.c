@@ -211,9 +211,9 @@ static const struct dpi_color_adjust vm356a_dpi_color_adjust[] = {
   {600, 1, 0, 2, 1, 2},		/* ok, but wrong proportion */
 
 /* text Michael Hoeller */
-  /* all increments by 5 from 20 to 600 are checked  */
-/* with 85, 165, 155 good picture but not colur setup works */
-/* with 65, 200 and 320 crashs the driver    */
+/* all increments by 5 from 20 to 600 are checked  */
+/* with 85, 165, 155 good picture but not colour setup works */
+/* with 65, 200 and 320 crashes the driver    */
 
 /*  {0, 1, 0, 2, 1, 1} general setup NOK for all dpi values */
 /*   150, 225 and 300 should be OK*/
@@ -227,13 +227,16 @@ static const struct dpi_color_adjust vm3575_dpi_color_adjust[] = {
 
   {50, 2, 0, 1, 1, 1},
   {60, 2, 1, 0, 0, 2},
-  {75, 2, 0, 1, 1, 2},
   {100, 2, 1, 0, 0, 3},
   {120, 2, 0, 1, 1, 3},
   {150, 2, 0, 1, 1, 4},
-  {180, 2, 1, 0, 0, 4},
-  {225, 2, 0, 1, 0, 6},
+  {225, 2, 0, 1, 1, 6},
   {300, 2, 0, 1, 1, 8},
+
+  {375, 2, 0, 1, 1, 10},	/* ok, but wrong y proportion */
+  {450, 2, 0, 1, 1, 12},	/* ok, but wrong y proportion */
+  {525, 2, 0, 1, 1, 14},	/* ok, but wrong y proportion */
+  {600, 2, 0, 1, 1, 16},	/* ok, but wrong y proportion */
 
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
@@ -2740,7 +2743,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 	      int i;
 	      for (i = 0;
-		   dev->def->color_adjust[i].resolution != dev->x_resolution;
+		   dev->def->color_adjust[i].resolution != dev->y_resolution;
 		   i++);
 
 	      dev->color_adjust = &dev->def->color_adjust[i];

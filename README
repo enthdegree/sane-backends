@@ -47,7 +47,7 @@ functionality may be lost if they are not available:
 
         - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.
 
-        - libieee1284 (>=0.1.5): For the canon_pp and hpsj5s backends.
+        - libieee1284 (>=0.1.5): For some parallel port backends.
 
         - libgphoto2 (>=2.0): For the gphoto2 backend.
 

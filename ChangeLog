@@ -14,6 +14,7 @@
 	* AUTHORS: Added James Perry.
 	* doc/descriptions/unsupported.desc: Removed Mustek Paragon 600 II
 	  EP/ED. Added Genius Colorpage-EP.
+	* README: Updated concerning libieee1284.
 
 2003-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

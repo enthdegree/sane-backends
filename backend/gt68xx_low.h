@@ -134,6 +134,7 @@
 #define GT68XX_FLAG_MOTOR_HOME	 (1 << 1)	/* Use motor_home command (0x34) */
 #define GT68XX_FLAG_OFFSET_INV   (1 << 2)	/* Offset control is inverted */
 #define GT68XX_FLAG_UNTESTED     (1 << 3)	/* Print a warning for these scanners */
+#define GT68XX_FLAG_SE_2400      (1 << 4)	/* Special quirks for SE 2400USB */
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;

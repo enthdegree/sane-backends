@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-32"
+:version "1.0-35"
 :new :yes
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
@@ -78,13 +78,13 @@
 
 :model "OpticPro 1248U"
 :interface "USB"
-:status :alpha
-:comment "Works up to 600 dpi in gray mode, try disabling calibration"
+:status :beta
+:comment "Works up to 600 dpi"
 
 :model "OpticPro UT16B"
 :interface "USB"
 :status :untested
-:comment "Isn't detected yet mut may work some time in future. Testers welcome."
+:comment "Isn't detected yet but may work some time in future. Testers welcome."
 
 :mfg "Artec"
 :url "http://www.artecusa.com/"

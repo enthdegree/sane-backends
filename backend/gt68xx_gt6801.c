@@ -215,11 +215,20 @@ SANE_Status
 gt6801_lamp_control (GT68xx_Device * dev, SANE_Bool fb_lamp,
 		     SANE_Bool ta_lamp)
 {
-  /* this seems not to be supported by the scanner */
-  (void) dev;
-  (void) fb_lamp;
-  (void) ta_lamp;
+  if (!dev->model->is_cis)
+    {
+        GT68xx_Packet req;
 
+	memset (req, 0, sizeof (req));
+	req[0] = 0x25;
+	req[1] = 0x01;
+	req[2] = 0;
+	if (fb_lamp)
+	  req[2] |= 0x01;
+	if (ta_lamp)
+	  req[2] |= 0x02;
+	return gt68xx_device_req (dev, req, req);
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -282,9 +291,6 @@ gt6801_stop_scan (GT68xx_Device * dev)
   RIE (gt68xx_device_check_result (req, 0x42));
   return SANE_STATUS_GOOD;
 }
-
-/* 3.0 mm of calibration */
-#define CALIBRATION_HEIGHT 3.0
 
 SANE_Status
 gt6801_setup_scan (GT68xx_Device * dev,
@@ -359,7 +365,7 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	  y0 = model->y_offset_calib;
 	else
 	  y0 = 0;
-	ys = SANE_FIX (CALIBRATION_HEIGHT);	/* use 3 mm for calibration */
+	ys = SANE_FIX (CALIBRATION_HEIGHT);
 	xs = request->xs;
 	color = request->color;
 	break;
@@ -474,12 +480,13 @@ gt6801_setup_scan (GT68xx_Device * dev,
 
   bits_per_line = depth * scan_xs;
 
-  /*
-     if (xdpi != base_xdpi)
-     scan_xs -= 2;
-   */
   if (xdpi != base_xdpi)
-    abs_xs = (scan_xs - 2) * base_xdpi / xdpi;
+    {
+      if (dev->model->flags & GT68XX_FLAG_SE_2400)
+	abs_xs = (scan_xs - 1) * base_xdpi / xdpi;
+      else
+	abs_xs = (scan_xs - 2) * base_xdpi / xdpi;
+    }
   else
     abs_xs = scan_xs * base_xdpi / xdpi;
 
@@ -517,8 +524,10 @@ gt6801_setup_scan (GT68xx_Device * dev,
 	}
     }
 
-  if (color && line_mode)
-    scan_ys *= 3;
+  if (color)
+    if (line_mode || dev->model->flags & GT68XX_FLAG_SE_2400) /* ??? */
+      scan_ys *= 3;
+
 
   XDBG ((5, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
 

@@ -607,44 +607,44 @@ static GT68xx_Model mustek_scanexpress2400usb_model = {
 
   &mustek_gt6801_command_set,	/* Command set used by this scanner */
 
-  600,				/* maximum optical sensor resolution */
+  1200,				/* maximum optical sensor resolution */
   1200,				/* maximum motor resolution */
   1200,				/* base x-res used to calculate geometry */
-  600,				/* base y-res used to calculate geometry */
+  1200,				/* base y-res used to calculate geometry */
   1200,				/* if ydpi is equal or higher, use linemode */
   SANE_TRUE,			/* Use base_ydpi for all resolutions */
 
   {600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
   {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
-  {8, 0},			/* possible depths in gray mode */
-  {8, 0},			/* possible depths in color mode */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (15.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (25.0),		/* Start of scan area in mm (y) */
-  SANE_FIX (220.0),		/* Size of scan area in mm (x) */
-  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (5.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (12.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (224.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (7.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
-  SANE_FIX (100.9),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 16, 32,			/* RGB CCD Line-distance correction in pixel */
+  24, 12, 0,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
-  {0x16, 0x06, 0x16, 0x06, 0x16, 0x06},	/* Default offset/gain */
+  {0x12, 0x06, 0x0e, 0x03, 0x19, 0x25},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
-    /* only partly tested */
+  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_SE_2400	/* Which flags are needed for this scanner? */
+    /* only partly tested, from "Fan Dan" <dan_fancn@hotmail.com> */
 };
 
 static GT68xx_Model mustek_a3usb_model = {
@@ -769,7 +769,7 @@ static GT68xx_Model plustek_op1248u_model = {
   {12, 8, 0},			/* possible depths in gray mode */
   {12, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (5.6),		/* Start of scan area in mm  (x) */
+  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
   SANE_FIX (7.5),		/* Start of scan area in mm (y) */
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
@@ -788,12 +788,13 @@ static GT68xx_Model plustek_op1248u_model = {
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {31, 25, 31, 25, 31, 25},	/* Default offset/gain */
+  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  /* tested */
 };
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {

@@ -12,6 +12,18 @@
 	* backend/Makefile.in: Backends shouldn't be linked to sanei_config2 if
 	  they aren't also linked to sanei_scsi. sanei_config2 needs
 	  sanei_scsi.
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_gt6801.c
+	  backend/gt68xx_gt6816.c backend/gt68xx_high.c backend/gt68xx_high.h
+	  backend/gt68xx_low.h doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Updated ScanExpress 2400 USB values. Added
+	  implementation of gt6801 lamp control for CCD scanners. Added flag for
+	  SE 2400 USB, added some quirks in gt68xx_gt6801.c. Fixed gt68xx_gt6801
+	  -> lamp control. Adjusted Plustek 1248U geometry and afe values. CCD
+	  gross calibration changed: start with the default value from module
+	  struct. Is faster now for most cases. Only 2.5 mm of calibration for
+	  GT-6801 scanners. Added "afe" option for gt68xx.conf for selecting
+	  default afe values. Removed AFE and exposure SANE options. Added
+	  documentation for afe option in gt68xx.conf. New version: 1.0-35.
 
 2002-12-28  Karl Heinz Kremer <khk@khk.net>
 

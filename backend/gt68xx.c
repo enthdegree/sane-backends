@@ -48,11 +48,12 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 32
+#define BUILD 35
 #define MAX_DEBUG
 #define WARMUP_TIME 30
+#define CALIBRATION_HEIGHT 2.5
 
-#if 1
+#if 0
 #ifdef HAVE_SYS_SHM_H
 #define USE_FORK
 #define SHM_BUFFERS 10
@@ -185,6 +186,79 @@ max_string_size (const SANE_String_Const strings[])
 	max_size = size;
     }
   return max_size;
+}
+
+static SANE_Status
+get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters *afe)
+{
+  SANE_Char *word, *end;
+  int i;
+  
+  for (i = 0; i < 6; i++)
+    {
+      cp = sanei_config_get_string (cp, &word);
+      if (word && *word)
+	{
+	  long int long_value;
+	  errno = 0;
+	  long_value = strtol (word, &end, 0);
+
+	  if (end == word)
+	    {
+	      DBG (5, "get_afe_values: can't parse %d. parameter `%s'\n", 
+		   i + 1, word);
+	      free (word);
+	      word = 0;
+	      return SANE_STATUS_INVAL;
+	    }
+	  else if (errno)
+	    {
+	      DBG (5, "get_afe_values: can't parse %d. parameter `%s' "
+		   "(%s)\n", i + 1, word, strerror (errno));
+	      free (word);
+	      word = 0;
+	      return SANE_STATUS_INVAL;
+	    }
+	  else if (long_value < 0)
+	    {
+	      DBG (5, "get_afe_values: %d. parameter < 0 (%d)\n", i + 1, 
+		   (int) long_value);
+	      free (word);
+	      word = 0;
+	      return SANE_STATUS_INVAL;
+	    }
+	  else if (long_value > 0x3f)
+	    {
+	      DBG (5, "get_afe_values: %d. parameter > 0x3f (%d)\n", i + 1,
+		   (int) long_value);
+	      free (word);
+	      word = 0;
+	      return SANE_STATUS_INVAL;
+	    }
+	  else
+	    {
+	      DBG (5, "get_afe_values: %d. parameter set to 0x%02x\n", i + 1,
+		   (int) long_value);
+	      switch (i)
+		{
+		case 0: afe->r_offset = (SANE_Byte) long_value; break;
+		case 1: afe->r_pga = (SANE_Byte) long_value; break;
+		case 2: afe->g_offset = (SANE_Byte) long_value; break;
+		case 3: afe->g_pga = (SANE_Byte) long_value; break;
+		case 4: afe->b_offset = (SANE_Byte) long_value; break;
+		case 5: afe->b_pga = (SANE_Byte) long_value; break;
+		}
+	      free (word);
+	      word = 0;
+	    }
+	}
+      else
+	{
+	  DBG (5, "get_afe_values: option `afe' needs 6  parameters\n");
+	  return SANE_STATUS_INVAL;
+	}
+    }
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
@@ -506,111 +580,6 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
 
-  /* exposure time red */
-  s->opt[OPT_SCAN_EXPOS_TIME_R].name = SANE_NAME_SCAN_EXPOS_TIME_R;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].title = SANE_TITLE_SCAN_EXPOS_TIME_R;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].desc = SANE_DESC_SCAN_EXPOS_TIME_R;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].type = SANE_TYPE_INT;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].unit = SANE_UNIT_NONE;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_SCAN_EXPOS_TIME_R].constraint.range = &exposure_range;
-  s->val[OPT_SCAN_EXPOS_TIME_R].w = s->dev->exposure->r_time;
-  DISABLE (OPT_SCAN_EXPOS_TIME_R);
-
-  /* exposure time green */
-  s->opt[OPT_SCAN_EXPOS_TIME_G].name = SANE_NAME_SCAN_EXPOS_TIME_G;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].title = SANE_TITLE_SCAN_EXPOS_TIME_G;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].desc = SANE_DESC_SCAN_EXPOS_TIME_G;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].type = SANE_TYPE_INT;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].unit = SANE_UNIT_NONE;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_SCAN_EXPOS_TIME_G].constraint.range = &exposure_range;
-  s->val[OPT_SCAN_EXPOS_TIME_G].w = s->dev->exposure->g_time;
-  DISABLE (OPT_SCAN_EXPOS_TIME_G);
-
-  /* exposure time blue */
-  s->opt[OPT_SCAN_EXPOS_TIME_B].name = SANE_NAME_SCAN_EXPOS_TIME_B;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].title = SANE_TITLE_SCAN_EXPOS_TIME_B;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].desc = SANE_DESC_SCAN_EXPOS_TIME_B;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].type = SANE_TYPE_INT;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].unit = SANE_UNIT_NONE;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_SCAN_EXPOS_TIME_B].constraint.range = &exposure_range;
-  s->val[OPT_SCAN_EXPOS_TIME_B].w = s->dev->exposure->b_time;
-  DISABLE (OPT_SCAN_EXPOS_TIME_B);
-
-  /* offset red */
-  s->opt[OPT_OFFSET_R].name = "offset-r";
-  s->opt[OPT_OFFSET_R].title = SANE_I18N ("Offset red");
-  s->opt[OPT_OFFSET_R].desc = 
-    SANE_I18N ("Offset (brightness) of the red channel.");
-  s->opt[OPT_OFFSET_R].type = SANE_TYPE_INT;
-  s->opt[OPT_OFFSET_R].unit = SANE_UNIT_NONE;
-  s->opt[OPT_OFFSET_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_OFFSET_R].constraint.range = &offset_range;
-  s->val[OPT_OFFSET_R].w = s->dev->afe->r_offset;
-  DISABLE (OPT_OFFSET_R);
-
-  /* offset green */
-  s->opt[OPT_OFFSET_G].name = "offset-g";
-  s->opt[OPT_OFFSET_G].title = SANE_I18N ("Offset green");
-  s->opt[OPT_OFFSET_G].desc = 
-    SANE_I18N ("Offset (brightness) of the green (and gray) channel.");
-  s->opt[OPT_OFFSET_G].type = SANE_TYPE_INT;
-  s->opt[OPT_OFFSET_G].unit = SANE_UNIT_NONE;
-  s->opt[OPT_OFFSET_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_OFFSET_G].constraint.range = &offset_range;
-  s->val[OPT_OFFSET_G].w = s->dev->afe->g_offset;
-  DISABLE (OPT_OFFSET_G);
-
-  /* offset blue */
-  s->opt[OPT_OFFSET_B].name = "offset-b";
-  s->opt[OPT_OFFSET_B].title = SANE_I18N ("Offset blue");
-  s->opt[OPT_OFFSET_B].desc = 
-    SANE_I18N ("Offset (brightness) of the blue channel.");
-  s->opt[OPT_OFFSET_B].type = SANE_TYPE_INT;
-  s->opt[OPT_OFFSET_B].unit = SANE_UNIT_NONE;
-  s->opt[OPT_OFFSET_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_OFFSET_B].constraint.range = &offset_range;
-  s->val[OPT_OFFSET_B].w = s->dev->afe->b_offset;
-  DISABLE (OPT_OFFSET_B);
-
-  /* gain red */
-  s->opt[OPT_GAIN_R].name = "gain-r";
-  s->opt[OPT_GAIN_R].title = SANE_I18N ("Gain red");
-  s->opt[OPT_GAIN_R].desc = 
-    SANE_I18N ("Gain (contrast) of the red channel.");
-  s->opt[OPT_GAIN_R].type = SANE_TYPE_INT;
-  s->opt[OPT_GAIN_R].unit = SANE_UNIT_NONE;
-  s->opt[OPT_GAIN_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_GAIN_R].constraint.range = &offset_range;
-  s->val[OPT_GAIN_R].w = s->dev->afe->r_pga;
-  DISABLE (OPT_GAIN_R);
-
-  /* gain green */
-  s->opt[OPT_GAIN_G].name = "gain-g";
-  s->opt[OPT_GAIN_G].title = SANE_I18N ("Gain green");
-  s->opt[OPT_GAIN_G].desc = 
-    SANE_I18N ("Gain (contrast) of the green (and gray) channel.");
-  s->opt[OPT_GAIN_G].type = SANE_TYPE_INT;
-  s->opt[OPT_GAIN_G].unit = SANE_UNIT_NONE;
-  s->opt[OPT_GAIN_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_GAIN_G].constraint.range = &offset_range;
-  s->val[OPT_GAIN_G].w = s->dev->afe->g_pga;
-  DISABLE (OPT_GAIN_G);
-
-  /* gain blue */
-  s->opt[OPT_GAIN_B].name = "gain-b";
-  s->opt[OPT_GAIN_B].title = SANE_I18N ("Gain blue");
-  s->opt[OPT_GAIN_B].desc = 
-    SANE_I18N ("Gain (contrast) of the blue channel.");
-  s->opt[OPT_GAIN_B].type = SANE_TYPE_INT;
-  s->opt[OPT_GAIN_B].unit = SANE_UNIT_NONE;
-  s->opt[OPT_GAIN_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_GAIN_B].constraint.range = &offset_range;
-  s->val[OPT_GAIN_B].w = s->dev->afe->b_pga;
-  DISABLE (OPT_GAIN_B);
-
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
@@ -630,7 +599,6 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_GAMMA_VALUE].cap |= SANE_CAP_EMULATED;
   s->val[OPT_GAMMA_VALUE].w = s->dev->gamma_value;
   
-
   /* threshold */
   s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
   s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
@@ -987,7 +955,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    }
 	  else
 	    {
-	      DBG (5, "sane_init: option `firmware' needs a parameter\n");
+	      DBG (3, "sane_init: option `firmware' needs a parameter\n");
 	    }
 	}
       else if (strcmp (word, "vendor") == 0)
@@ -1011,7 +979,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    }
 	  else
 	    {
-	      DBG (5, "sane_init: option `vendor' needs a parameter\n");
+	      DBG (3, "sane_init: option `vendor' needs a parameter\n");
 	    }
 	}
       else if (strcmp (word, "model") == 0)
@@ -1034,7 +1002,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    }
 	  else
 	    {
-	      DBG (5, "sane_init: option `model' needs a parameter\n");
+	      DBG (3, "sane_init: option `model' needs a parameter\n");
 	    }
 	}
       else if (strcmp (word, "override") == 0)
@@ -1072,8 +1040,32 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    }
 	  else
 	    {
-	      DBG (5, "sane_init: option `override' needs a parameter\n");
+	      DBG (3, "sane_init: option `override' needs a parameter\n");
 	    }
+	}
+      else if (strcmp (word, "afe") == 0)
+	{
+	  GT68xx_AFE_Parameters afe;
+	  SANE_Status status;
+
+	  free (word);
+	  word = 0;
+	  
+	  status = get_afe_values (cp, &afe);
+	  if (status == SANE_STATUS_GOOD)
+	    {
+	      int i;
+	      for (i = 0; i < new_dev_len; i++)
+		{
+		  new_dev[i]->model->afe_params = afe;
+		  DBG (5, "sane_init: device %s: setting new afe values\n",
+		       new_dev[i]->model->name);
+		}
+	      if (i == 0)
+		DBG (5, "sane_init: can't set afe values, set device first\n");
+	    }
+	  else
+	    DBG (3, "sane_init: can't set afe values\n");
 	}
       else
 	{
@@ -1355,15 +1347,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_AUTO_WARMUP:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
-	case OPT_SCAN_EXPOS_TIME_R:
-	case OPT_SCAN_EXPOS_TIME_G:
-	case OPT_SCAN_EXPOS_TIME_B:
-	case OPT_OFFSET_R:
-	case OPT_OFFSET_G:
-	case OPT_OFFSET_B:
-	case OPT_GAIN_R:
-	case OPT_GAIN_G:
-	case OPT_GAIN_B:
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
@@ -1419,15 +1402,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_QUALITY_CAL:
 	case OPT_GAMMA_VALUE:
 	case OPT_THRESHOLD:
-	case OPT_SCAN_EXPOS_TIME_R:
-	case OPT_SCAN_EXPOS_TIME_G:
-	case OPT_SCAN_EXPOS_TIME_B:
-	case OPT_OFFSET_R:
-	case OPT_OFFSET_G:
-	case OPT_OFFSET_B:
-	case OPT_GAIN_R:
-	case OPT_GAIN_G:
-	case OPT_GAIN_B:
 	  s->val[option].w = *(SANE_Word *) val;
 	  break;
 	case OPT_SOURCE:
@@ -1484,29 +1458,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].w == SANE_TRUE)
 	    {
 	      ENABLE (OPT_COARSE_CAL_ONCE);
-	      DISABLE (OPT_SCAN_EXPOS_TIME_R);
-	      DISABLE (OPT_SCAN_EXPOS_TIME_G);
-	      DISABLE (OPT_SCAN_EXPOS_TIME_B);
-	      DISABLE (OPT_OFFSET_R);
-	      DISABLE (OPT_OFFSET_G);
-	      DISABLE (OPT_OFFSET_B);
-	      DISABLE (OPT_GAIN_R);
-	      DISABLE (OPT_GAIN_G);
-	      DISABLE (OPT_GAIN_B);
 	      s->first_scan = SANE_TRUE;
 	    }
 	  else
 	    {
 	      DISABLE (OPT_COARSE_CAL_ONCE);
-	      ENABLE (OPT_SCAN_EXPOS_TIME_R);
-	      ENABLE (OPT_SCAN_EXPOS_TIME_G);
-	      ENABLE (OPT_SCAN_EXPOS_TIME_B);
-	      ENABLE (OPT_OFFSET_R);
-	      ENABLE (OPT_OFFSET_G);
-	      ENABLE (OPT_OFFSET_B);
-	      ENABLE (OPT_GAIN_R);
-	      ENABLE (OPT_GAIN_G);
-	      ENABLE (OPT_GAIN_B);
 	    }
 	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
 	  break;
@@ -1579,20 +1535,6 @@ sane_start (SANE_Handle handle)
   else
     s->auto_afe = s->val[OPT_COARSE_CAL].w;
 
-  if (s->val[OPT_COARSE_CAL].w == SANE_FALSE)
-    {
-      s->dev->exposure->r_time = s->val[OPT_SCAN_EXPOS_TIME_R].w;
-      s->dev->exposure->g_time = s->val[OPT_SCAN_EXPOS_TIME_G].w;
-      s->dev->exposure->b_time = s->val[OPT_SCAN_EXPOS_TIME_B].w;
-
-      s->dev->afe->r_offset = s->val[OPT_OFFSET_R].w;
-      s->dev->afe->g_offset = s->val[OPT_OFFSET_G].w;
-      s->dev->afe->b_offset = s->val[OPT_OFFSET_B].w;
-      s->dev->afe->r_pga = s->val[OPT_GAIN_R].w;
-      s->dev->afe->g_pga = s->val[OPT_GAIN_G].w;
-      s->dev->afe->b_pga = s->val[OPT_GAIN_B].w;
-    }
-
   s->dev->gamma_value = s->val[OPT_GAMMA_VALUE].w;
   gamma_size = s->params.depth == 16 ? 65536 : 256;
   s->gamma_table = malloc (sizeof (SANE_Int) * gamma_size);
@@ -1634,8 +1576,8 @@ sane_start (SANE_Handle handle)
   s->line = 0;
   s->byte_count = s->reader->params.pixel_xs;
   s->total_bytes = 0;
-  s->scanning = SANE_TRUE;
   s->first_scan = SANE_FALSE;
+  s->scanning = SANE_TRUE;
   DBG (5, "sane_start: exit\n");
   return SANE_STATUS_GOOD;
 }

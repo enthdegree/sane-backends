@@ -1028,79 +1028,78 @@ gt68xx_afe_ccd_calc (GT68xx_Afe_Values * values, unsigned int *buffer)
 	   function_name, values->white, values->black));
 }
 
-static void
-gt68xx_afe_ccd_adjust_channel_offset (GT68xx_Afe_Values * values,
-				      unsigned int *buffer, SANE_Int off_dist,
-				      SANE_Byte * offset)
+static SANE_Bool
+gt68xx_afe_ccd_adjust_offset_gain (GT68xx_Afe_Values * values,  
+				   unsigned int *buffer, SANE_Byte * offset,
+				   SANE_Byte * pga)
 {
-  SANE_Int avg;
+  SANE_Int black_low = 3, black_high = 18;
+  SANE_Int white_low = 234, white_high = 252;
+  SANE_Bool done = SANE_TRUE;
 
   gt68xx_afe_ccd_calc (values, buffer);
-  avg = (values->white + values->black) / 2;
-  if (avg <= 122)
-    *offset -= (off_dist * values->offset_direction);
-  else if (avg >= 130)
-    *offset += (off_dist * values->offset_direction);
-  DBG (5, "Offset: white=%d, black=%d, avg=%d, offset=%d\n",
-       values->white, values->black, avg, *offset);
-}
 
-static int
-gt68xx_afe_ccd_adjust_channel_white (GT68xx_Afe_Values * values,
-				     unsigned int *buffer, SANE_Byte * offset,
-				     SANE_Byte * pga)
-{
-  int done = 0;
-
-  gt68xx_afe_ccd_calc (values, buffer);
-  if ((values->white - values->black) < 230)
+  if (values->white > white_high)
     {
-      if (values->white > 253)
-	(*offset) += values->offset_direction;
+      if (values->black > black_high)
+	*offset += values->offset_direction;
+      else if (values->black < black_low)
+	(*pga)--;
       else
+	{
+	  *offset += values->offset_direction;
+	  (*pga)--;
+	}
+      done = SANE_FALSE;
+      goto finish;
+    }
+  else if (values->white < white_low)
+    {
+      if (values->black < black_low)
+	*offset -= values->offset_direction;
+      else if (values->black > black_high)
 	(*pga)++;
+      else
+	{
+	  *offset -= values->offset_direction;
+	  (*pga)++;
+	}
+      done = SANE_FALSE;
+      goto finish;
     }
-  else
-    done = 1;
-  if ((values->white - values->black) > 240)
+  if (values->black > black_high)
     {
-      (*pga)--;
+      if (values->white > white_high)
+	*offset += values->offset_direction;
+      else if (values->white < white_low)
+	(*pga)++;
+      else
+	{
+	  *offset += values->offset_direction;
+	  (*pga)++;
+	}
+      done = SANE_FALSE;
+      goto finish;
     }
-  DBG (5, "White: white=%d, black=%d, diff=%d, offset=%d, pga=%d\n",
-       values->white, values->black, values->white - values->black, *offset,
-       *pga);
-
-  return done;
-}
-
-static int
-gt68xx_afe_ccd_adjust_channel_black (GT68xx_Afe_Values * values,
-				     unsigned int *buffer, SANE_Byte * offset,
-				     SANE_Byte * pga)
-{
-  int done = 0;
-
-  gt68xx_afe_ccd_calc (values, buffer);
-  if (values->black < 5)	/* too low */
+  else if (values->black < black_low)
     {
-      if (values->white > 250)
+      if (values->white < white_low)
+	*offset -= values->offset_direction;
+      else if (values->white > white_high)
 	(*pga)--;
       else
-	(*offset) -= values->offset_direction;
+	{
+	  *offset -= values->offset_direction;
+	  (*pga)--;
+	}
+      done = SANE_FALSE;
+      goto finish;
     }
-  else if (values->black < 15)	/* just right */
-    {
-      if (values->white > 250)
-	(*pga)--;
-      else
-	done = 1;
-    }
-  else
-    (*offset) += values->offset_direction;	/* too high */
-
-  DBG (5, "Black: white=%d, black=%d, offset=%d, pga=%d\n",
-       values->white, values->black, *offset, *pga);
+ finish:
+  DBG (5, "%swhite=%d, black=%d, offset=%d, gain=%d\n",
+       done ? "DONE: " : "", values->white, values->black, *offset, *pga);
   return done;
+
 }
 
 /** Select best AFE gain and offset parameters.
@@ -1127,12 +1126,8 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
   GT68xx_Afe_Values values;
   unsigned int *buffer_pointers[3];
   GT68xx_AFE_Parameters *afe = scanner->dev->afe;
-  SANE_Int off_dist = 32;
-  SANE_Int done;
+  SANE_Bool done;
   SANE_Int last_white = 0;
-
-  afe->r_pga = afe->g_pga = afe->b_pga = 0x00;
-  afe->r_offset = afe->g_offset = afe->b_offset = 0x20;
 
   values.offset_direction = 1;
   if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
@@ -1171,7 +1166,6 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
 	     function_name, sane_strstatus (status)));
       return status;
     }
-
   values.scan_dpi = params.xdpi;
   values.calwidth = params.pixel_xs;
   values.max_width =
@@ -1243,56 +1237,11 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
       last_white = values.total_white;
     }
 
-  for (i = 0; i < 6; i++)
-    {
-      /* set afe */
-      IF_DBG (gt68xx_afe_dump ("scan1", i, afe));
-
-      /* read line */
-      status =
-	gt68xx_scanner_start_scan_extended (scanner, &request,
-					    SA_CALIBRATE_ONE_LINE, &params);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  XDBG ((3, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-		 function_name, sane_strstatus (status)));
-	  return status;
-	}
-
-      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  XDBG ((3, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
-	  return status;
-	}
-
-      off_dist /= 2;
-
-      if (params.color)
-	{
-	  gt68xx_afe_ccd_adjust_channel_offset (&values, buffer_pointers[0],
-						off_dist, &afe->r_offset);
-	  gt68xx_afe_ccd_adjust_channel_offset (&values, buffer_pointers[1],
-						off_dist, &afe->g_offset);
-	  gt68xx_afe_ccd_adjust_channel_offset (&values, buffer_pointers[2],
-						off_dist, &afe->b_offset);
-	}
-      else
-	{
-	  gt68xx_afe_ccd_adjust_channel_offset (&values, buffer_pointers[0],
-						off_dist, &afe->g_offset);
-	}
-
-      gt68xx_scanner_stop_scan (scanner);
-    }				/* loop 6 times to do offsets */
-
+  i = 0;
   do
     {
       i++;
-      if (i == 48)
-	break;
-      IF_DBG (gt68xx_afe_dump ("scan2", i, afe));
+      IF_DBG (gt68xx_afe_dump ("scan", i, afe));
       /* read line */
       status = gt68xx_scanner_start_scan_extended (scanner, &request,
 						   SA_CALIBRATE_ONE_LINE,
@@ -1315,76 +1264,26 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
       if (params.color)
 	{
 	  done =
-	    gt68xx_afe_ccd_adjust_channel_white (&values, buffer_pointers[0],
+	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
 						 &afe->r_offset, &afe->r_pga);
 	  done &=
-	    gt68xx_afe_ccd_adjust_channel_white (&values, buffer_pointers[1],
+	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[1],
 						 &afe->g_offset, &afe->g_pga);
 	  done &=
-	    gt68xx_afe_ccd_adjust_channel_white (&values, buffer_pointers[2],
+	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[2],
 						 &afe->b_offset, &afe->b_pga);
 	}
       else
 	{
 	  done =
-	    gt68xx_afe_ccd_adjust_channel_white (&values, buffer_pointers[0],
+	    gt68xx_afe_ccd_adjust_offset_gain (&values, buffer_pointers[0],
 						 &afe->g_offset, &afe->g_pga);
 	}
 
       gt68xx_scanner_stop_scan (scanner);
     }
-  while (!done);
+  while (!done && i < 100);
 
-  /* Now loop for dark levels */
-  do
-    {
-      i++;
-      if (i == 68)
-	break;
-      IF_DBG (gt68xx_afe_dump ("scan3", i, afe));
-      /* read line */
-      status = gt68xx_scanner_start_scan_extended (scanner, &request,
-						   SA_CALIBRATE_ONE_LINE,
-						   &params);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  XDBG ((3, "%s: gt68xx_scanner_start_scan_extended failed: %s\n",
-		 function_name, sane_strstatus (status)));
-	  return status;
-	}
-
-      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  XDBG ((3, "%s: gt68xx_line_reader_read failed: %s\n",
-		 function_name, sane_strstatus (status)));
-	  return status;
-	}
-
-      if (params.color)
-	{
-	  done =
-	    gt68xx_afe_ccd_adjust_channel_black (&values, buffer_pointers[0],
-						 &afe->r_offset, &afe->r_pga);
-	  done &=
-	    gt68xx_afe_ccd_adjust_channel_black (&values, buffer_pointers[1],
-						 &afe->g_offset, &afe->g_pga);
-	  done &=
-	    gt68xx_afe_ccd_adjust_channel_black (&values, buffer_pointers[2],
-						 &afe->b_offset, &afe->b_pga);
-	}
-      else
-	{
-	  done =
-	    gt68xx_afe_ccd_adjust_channel_black (&values, buffer_pointers[0],
-						 &afe->g_offset, &afe->g_pga);
-	}
-
-      gt68xx_scanner_stop_scan (scanner);
-    }
-  while (!done);
-
-  IF_DBG (gt68xx_afe_dump ("final", i, afe));
   return status;
 }
 
@@ -1729,6 +1628,7 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   free (g_buffer);
   free (b_buffer);
   XDBG ((4, "%s: total_count: %d\n", function_name, total_count));
+
   return SANE_STATUS_GOOD;
 }
 

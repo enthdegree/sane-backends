@@ -1,5 +1,25 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-35 (2002-12-23)
+
+- Added "afe" option for gt68xx.conf for selecting default afe values.
+- Removed AFE and exposure SANE options.
+- Added documentation for afe option in gt68xx.conf.
+
+V 1.0-34 (2002-12-18)
+
+- fixed gt68xx_gt6801 -> lamp control.
+- adjusted Plustek 1248U geometry and afe values.
+- CCD gross calibration changed: start with the default value from module struct.
+  Is faster now for most cases.
+- Only 2.5 mm of calibration for GT-6801 scanners.
+
+V 1.0-33 (2002-12-10)
+
+- Updated ScanExpress 2400 USB values (from "Fan Dan" <dan_fancn@hotmail.com>).
+- Added implementation of gt6801 lamp control for CCD scanners.
+- Added flag for SE 2400 USB, added some quirks in gt68xx_gt6801.c.
+
 V 1.0-32 (2002-12-08)
 
 - "Coarse calibration for first scan only" is off by default now. As at least
@@ -22,7 +42,7 @@ V 1.0-31 (2002-11-21)
 
 - Changed 150 to 200 dpi for Mustek BearPaw 2400 TA.
 - Fixed warnings in gt68xx_low.c
-- Used DBG instead of XDBG ing gt68xx_low.c
+- Used DBG instead of XDBG in gt68xx_low.c
 - Minor manpage fixes. Added man page links to other backends.
 - gt68xx_low.h: Fixed __FUNCTION__ bug on non-gcc compilers.
 - Added more details about the BSDs in the manpage.

@@ -228,9 +228,6 @@ gt6816_stop_scan (GT68xx_Device * dev)
   return gt68xx_device_small_req (dev, req, req);
 }
 
-/* 3.0 mm of calibration */
-#define CALIBRATION_HEIGHT 3.0
-
 SANE_Status
 gt6816_setup_scan (GT68xx_Device * dev,
 		   GT68xx_Scan_Request * request,

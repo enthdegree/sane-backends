@@ -1,4 +1,4 @@
-2002-03-21
+2002-04-22
 
 Here are a few rules and tips that should help writing a
 SANE-conformant backend and including it into the SANE package:
@@ -20,7 +20,7 @@ GETTING STARTED
 * Once your program works basically, insert its functions into a basically
   empty SANE backend. You can get one by removing everything but the SANE
   includes and SANE API function definitions from an existing backend (e.g.
-  pnm.c).
+  test.c).
 
 * When you start writing code, please contact the SANE mailing list in
   order to add your backend to the PROJECTS file.
@@ -174,16 +174,18 @@ TESTING
   to this system, test compilation and running scanimage. If you don't have
   access to other platforms, ask sane-devel.
 
-* Please make sure that all global symbols exported from a SANE
-  backend start with the prefix "sane" or "sanei".  You can
-  verify this by running GNU "nm" on the static library.  For
-  example:
+* Please make sure that all global symbols exported from a SANE backend start
+  with the prefix "sane" or "sanei" to avoid clashes with exported symbols 
+  of other backends. Make sure, the sanei_* symbols are unique, e.g. by using
+  sanei_backendname_*.  Only export symbols that are absolutely necessary.
+  You can verify this by running GNU "nm" on the static library.  For example:
 
 	nm -g  backend/.libs/libsane-hp.a
 
-  would list all global symbols in the HP backend. "make libcheck"
-  in the sane-backends root directory will name all backend libraries,
-  that contain "illegal" sysmbols.
+  would list all global symbols in the HP backend. 
+  "./configure --disable-shared; make; make libcheck" in the sane-backends
+  root directory will name all backend libraries, that contain "illegal"
+  symbols.
 
 
 DOCUMENTATION
@@ -196,7 +198,7 @@ DOCUMENTATION
   lists of supported devices.
 
 * The .desc files are located in the directories "doc/descriptions" and
-  "doc/external/descriptions" (for included and external backends).
+  "doc/descriptions-external" (for included and external backends).
 
 * "template.desc." is a template for new .desc files. The format of the files
   in the two directories is very similar.  If you'd like to try parsing your
@@ -208,7 +210,7 @@ DOCUMENTATION
 * When your backend is included in the SANE distribution, add an entry to
   doc/sane.man, AUTHORS and sane-backends.lsm. The sane.man entry should point
   to your documentation (man-page, website, readme).  Also move your .desc
-  file from "doc/external-descriptions" to "doc/descriptions".
+  file from "doc/descriptions-external" to "doc/descriptions".
 
 * In your manual page (backend.man), use @LIBDIR@ and the other macros for
   path names to the libraries, config files and documentation. Don't use fixed

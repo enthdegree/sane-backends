@@ -1,3 +1,8 @@
+2002-01-17  Peter Fales <peter@fales.com>
+	* configure, acinclude.m4, aclocal.m4 - (Really) disable
+	  gphoto2 backend unless specifically requested by the user (using
+	  --with-gphoto2) and the right CVS version of gphoto2 is found
+
 2002-01-17  Rene Rebe <rene.rebe@gmx.net>
 
         * backend/avision.c removed to call exit in a debug case
@@ -7,13 +12,13 @@
 	* backend/plustek.c backend/plustek.h
 	  Fixed conditional compilation problem
 	  Updated localization strings
-    * doc/sane-plustek.man: Updated
-    * po/plustek.de.po: Updated
-    * doc/doxygen-sanei.conf: Added doxygen configuration file for
-      the sane libs
-    * include/sane/sanei.h include/sane/sanei_ab306.h
-      include/sane/sanei_lm983x.h sanei/sanei_lm983x.c:
-      Updated to support doxygen comments
+	* doc/sane-plustek.man: Updated
+	* po/plustek.de.po: Updated
+	* doc/doxygen-sanei.conf: Added doxygen configuration file for
+	  the sane libs
+	* include/sane/sanei.h include/sane/sanei_ab306.h
+	  include/sane/sanei_lm983x.h sanei/sanei_lm983x.c:
+	  Updated to support doxygen comments
 
 2002-01-17  Peter Fales <peter@fales.com>
 	* configure.in, configure, acinclude.m4, aclocal.m4 - Disable

@@ -1,3 +1,22 @@
+2003-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker
+	  5900.
+	* doc/descriptions/umax1220u.desc: Converted to new
+	  format (bug #300155). Commented out unsupported UMAX Astra 2200U
+	  to avoid confusion.
+	* doc/Makefile.in: Cleanup. Removed install target for
+	  mostang.com.
+	* doc/descriptions/microtek2.desc: Converted to new
+	  format (bug #300153). Commented out ScanMaker 9600XL (was
+	  mentioned twice?).
+	* doc/descriptions/hpsj5s.desc: Converted to new format (bug
+	  #300151). Added comment about only gray mode.
+	* doc/descriptions/fujitsu.desc: Converted to new format (bug
+	  #300150).
+	* doc/descriptions/canon630u.desc: Converted to new format (bug
+	  #300148).
+	
 2003-10-03  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Changed "status" information

@@ -78,11 +78,9 @@ doc
   * desc files:
     - Add keywords "vendor-id" and "product-id" for SCSI and USB ids.
     - umax: genius.kye.de times out?
-    - plustek: add Genius ColorPage HR6X EPP as supported
     - Change all description files to use the new status keyword:
       avision, canon, canon630u, epson, fujitsu,
-      hp, hpsj5s, microtek, microtek2,
-      plustek, sharp, umax1220u.
+      hp, hpsj5s, microtek, microtek2, sharp, umax1220u.
 
   * manpages:
     - html manpages have broken links to other man pages if link is wrapped at
@@ -186,6 +184,9 @@ misc
     http://www.mostang.com/pipermail/sane-devel/2003-July/019528.html
 
 ******** done ********
+* desc files:
+   - plustek: add Genius ColorPage HR6X EPP as supported
+   - Change all description files to use the new status keyword: plustek
 * avision: Add patch for using the --source option from priya
 * dc210, dc240, gphoto2, and jpeg stuff: move sanei_* functions to sanei/
 * scanimage: Check handling of short string-list options.

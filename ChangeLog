@@ -1,3 +1,8 @@
+2003-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descritpions/plustek.desc: Update to new keywords,
+	  added Genius Colorpage HR6X EPP
+	* TODO: moved Plustek topics to done section
+
 2003-08-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Plustek OpticSlim 1200.

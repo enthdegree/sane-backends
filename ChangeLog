@@ -1,3 +1,8 @@
+2001-05-14  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* frontend/scanimage.c tools/sane-find-scanner.c: Remove some
+	compiler warnings.
+
 2001-05-13  Peter Fales <peter@fales.com>
 	* backend/dc25.c: Remove DBG(0,...) line that was getting printed
 	  for non-dc25 users.

@@ -1,7 +1,12 @@
-Plustek.changes (2004-05-07) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes (2004-16-07) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
 Note: All other not mentioned builds have been never released.
+
+V 0.48-3 (2004-16-07)
+---------------------
+- improved autowarmup feature
+- improved speedup feature
 
 V 0.48-2 (2004-05-07)
 ---------------------

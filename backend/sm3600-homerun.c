@@ -207,6 +207,9 @@ DoCalibration
 
 ********************************************************************** */
 
+#define CALIB_START  200
+#define CALIB_LINES  8
+#define CALIB_GAP    10
 #define INST_ASSERT_CALIB() { if (this->nErrorState) \
   { free(pulSum); return ltError; } }
 
@@ -218,7 +221,7 @@ TState DoCalibration(TInstance *this)
   TState rc;
   if (this->calibration.bCalibrated)
     return SANE_STATUS_GOOD;
-  DoJog(this,220);
+  DoJog(this,CALIB_START);
   /* scan a gray line at 600 DPI */
   if (!this->calibration.achStripeY)
     {
@@ -228,9 +231,9 @@ TState DoCalibration(TInstance *this)
     }
   pulSum=calloc(MAX_PIXEL_PER_SCANLINE,sizeof(long));
   if (!pulSum) return SetError(this,SANE_STATUS_NO_MEM,"no memory for calib sum");
-  for (iLine=0; iLine<10; iLine++)
+  for (iLine=0; iLine<CALIB_LINES; iLine++)
     {
-      dprintf(DEBUG_CALIB,"calibrating %i...",iLine);
+      dprintf(DEBUG_CALIB,"calibrating %i...\n",iLine);
       RegWriteArray(this,R_ALL, 74, auchRegsSingleLine);
       INST_ASSERT_CALIB();
       RegWrite(this,R_CTL, 1, 0x59);    /* #2496[062.5] */
@@ -246,12 +249,13 @@ TState DoCalibration(TInstance *this)
       for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
 	pulSum[i]+=(long)this->calibration.achStripeY[i]*
 	  (long)this->calibration.achStripeY[i];
+      DoJog(this,CALIB_GAP);
     }
   for (i=0; i<MAX_PIXEL_PER_SCANLINE; i++)
-    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(pulSum[i]/10);
+    this->calibration.achStripeY[i]=(unsigned char)(int)sqrt(pulSum[i]/CALIB_LINES);
   free(pulSum);
       /* scan a color line at 600 DPI */
-  DoJog(this,-220-10);
+  DoJog(this,-CALIB_START-CALIB_LINES*CALIB_GAP);
   INST_ASSERT();
   this->calibration.bCalibrated=true;
   return SANE_STATUS_GOOD;

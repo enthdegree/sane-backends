@@ -2586,70 +2586,72 @@ attach_one_usb (SANE_String_Const devname)
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-	size_t len;
-	FILE *fp;
+  size_t len;
+  FILE *fp;
 
-	authorize = authorize;	/* get rid of compiler warning */
+  authorize = authorize;	/* get rid of compiler warning */
 
-	/* sanei_authorization(devicename, STRINGIFY(BACKEND_NAME), auth_callback); */
+  /* sanei_authorization(devicename, STRINGIFY(BACKEND_NAME), auth_callback); */
 
-	DBG_INIT ();
+  DBG_INIT ();
 #if defined PACKAGE && defined VERSION
-	DBG (2, "sane_init: " PACKAGE " " VERSION "\n");
+  DBG (2, "sane_init: " PACKAGE " " VERSION "\n");
 #endif
 
-	if (version_code != NULL)
-		*version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
+  if (version_code != NULL)
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANE_EPSON_BUILD);
 
-	sanei_usb_init ();
+  sanei_usb_init ();
 
-	/* default to /dev/scanner instead of insisting on config file */
-	if ((fp = sanei_config_open (EPSON_CONFIG_FILE))) {
-		char line[PATH_MAX];
+  /* default to /dev/scanner instead of insisting on config file */
+  if ((fp = sanei_config_open (EPSON_CONFIG_FILE)))
+  {
+    char line[PATH_MAX];
 
-		while (sanei_config_read (line, sizeof (line), fp)) {
-			int vendor, product;
+    while (sanei_config_read (line, sizeof (line), fp))
+    {
+      int vendor, product;
 
-			DBG (4, "sane_init, >%s<\n", line);
-			if (line[0] == '#')	/* ignore line comments */
-				continue;
-			len = strlen (line);
-			if (!len)
-				continue;		/* ignore empty lines */
+      DBG (4, "sane_init, >%s<\n", line);
+      if (line[0] == '#')	/* ignore line comments */
+	continue;
+      len = strlen (line);
+      if (!len)
+	continue;		/* ignore empty lines */
 
-			if (sscanf (line, "usb %i %i", &vendor, &product) == 2)
-				{
-					int numIds;
+      if (sscanf (line, "usb %i %i", &vendor, &product) == 2)
+      {
+	int numIds;
 
-					/* add the vendor and product IDs to the list of 
-					   known devices before we call the attach function */
-					numIds = sanei_epson_getNumberOfUSBProductIds ();
-					if (vendor != 0x4b8)
-						continue;		/* this is not an EPSON device */
+	/* add the vendor and product IDs to the list of 
+	   known devices before we call the attach function */
+	numIds = sanei_epson_getNumberOfUSBProductIds ();
+	if (vendor != 0x4b8)
+	  continue;		/* this is not an EPSON device */
 
-					sanei_epson_usb_product_ids[numIds - 1] = product;
-					sanei_usb_attach_matching_devices (line, attach_one_usb);
-				}
-			else if (strncmp (line, "usb", 3) == 0)
-				{
-					const char *dev_name;
-					/* remove the "usb" sub string */
-					dev_name = sanei_config_skip_whitespace (line + 3);
-					attach_one_usb (dev_name);
-				}
-			else
-				{
-					sanei_config_attach_matching_devices (line, attach_one);
-				}
-		}
-		fclose (fp);
-	}
+	sanei_epson_usb_product_ids[numIds - 1] = product;
+	sanei_usb_attach_matching_devices (line, attach_one_usb);
+      }
+      else if (strncmp (line, "usb", 3) == 0)
+      {
+	const char *dev_name;
+	/* remove the "usb" sub string */
+	dev_name = sanei_config_skip_whitespace (line + 3);
+	attach_one_usb (dev_name);
+      }
+      else
+      {
+	sanei_config_attach_matching_devices (line, attach_one);
+      }
+    }
+    fclose (fp);
+  }
 
-	/* read the option section and assign the connection type to the
-	   scanner structure - which we don't have at this time. So I have
-	   to come up with something :-) */
+  /* read the option section and assign the connection type to the
+     scanner structure - which we don't have at this time. So I have
+     to come up with something :-) */
 
-	return SANE_STATUS_GOOD;
+  return SANE_STATUS_GOOD;
 }
 
 /*

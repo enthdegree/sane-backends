@@ -1,3 +1,16 @@
+2001-12-17  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c    backend/snapscan.h
+	  backend/snapscan-usb.h     backend/snapscan-usb.c
+	  backend/snapscan-sources.h backend/snapscan-sources.c
+	  backend/snapscan.c         backend/snapscan.desc
+	  Update to snapscan-20011212 (snapscan backend 1.4.3):
+          - Use sense handler for USB scanners
+          - Correct color alignment for Snapscan 600
+          - Fix dither matrix computation
+          - Add support for Snapscan e26 and e52
+          - Guard for TL_X < BR_X and TL_Y < BR_Y
+
 2001-12-16  Peter Kirchgessner <peter@kirchgessner.net>
 	* frontend/stiff.c
 	  Add fillorder tag for b/w-TIFF-files

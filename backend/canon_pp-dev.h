@@ -152,7 +152,8 @@ int sanei_canon_pp_close_scanner(scanner_parameters *sp);
 int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp);
 
 int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp, 
-		scan_parameters *scanp, int scanline_count, int do_adjust);
+		scan_parameters *scanp, int scanline_count, int do_adjust,
+		int scanlines_left);
 
 int sanei_canon_pp_abort_scan(scanner_parameters *sp, scan_parameters *scanp);
 

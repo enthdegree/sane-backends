@@ -114,7 +114,11 @@ static SANE_Bool force_nibble = SANE_FALSE;
 /* Constants */
 
 /* Colour Modes */
-static const SANE_String_Const cmodes[] = { "Greyscale", "Colour", NULL };
+static const SANE_String_Const cmodes[] = { 
+	SANE_VALUE_SCAN_MODE_GRAY, 
+	SANE_VALUE_SCAN_MODE_COLOR, 
+	NULL };
+
 /* bit depths */
 static const SANE_String_Const depths[] = { "8", "12", NULL };
 /* resolutions */

@@ -1,3 +1,8 @@
+2004-05-05  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* include/sane/saneopts.h: Added SANE_VALUE_SCAN_MODE_* strings.
+	* backend/canon_pp.c: Used them.
+
 2004-05-01  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* tools/hotplug/libsane.usbmap: removed empty lines, latest

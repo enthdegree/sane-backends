@@ -384,4 +384,10 @@ SANE_I18N("Define lamp density for scan")
 #define SANE_DESC_SELECT_LAMP_DENSITY \
 SANE_I18N("Enable selection of lamp density")
 
+/* Typical values for stringlists (to keep the backends consistent) */
+
+#define SANE_VALUE_SCAN_MODE_COLOR		SANE_I18N("Color")
+#define SANE_VALUE_SCAN_MODE_GRAY		SANE_I18N("Gray")
+#define SANE_VALUE_SCAN_MODE_LINEART		SANE_I18N("Lineart")
+
 #endif /* saneopts_h */

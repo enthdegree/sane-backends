@@ -1,3 +1,7 @@
+2004-01-10  Oliver Rauch <oliver.rauch@rauch-domain.de>
+	* backend/umax backend/Makefile.in: repleaced fork routines by sanei_thread
+	* doc/umax/umax.CHANGES updated
+
 2004-01-12  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp-dev.c backend/canon_pp-io.c backend/canon_pp.c

@@ -1138,3 +1138,9 @@ build-40 -> build-41
 build-41 -> build-42
 --------------------
 
+  * replaced fork() routines by sanei_thread routines
+
+  * added call sanei_scsi_req_flush_all(); to do_cancel - in threaded case this is not done when reader_process is cancled
+
+  * in reader_process: marked freed scsi buffers as freed(NULL). This is necessary when reader_process is run as thread!
+

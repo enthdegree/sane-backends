@@ -131,10 +131,7 @@ in ADF mode this is done often:
 #include "sane/sanei_debug.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
-
-#ifdef HAVE_OS2_H
-# include "../include/sane/sanei_thread.h"
-#endif
+#include "sane/sanei_thread.h"
 
 #ifdef UMAX_ENABLE_USB
 # include "sane/sanei_usb.h"
@@ -4650,6 +4647,8 @@ static size_t max_string_size(SANE_String_Const strings[])
 
 static SANE_Status do_cancel(Umax_Scanner *scanner)
 {
+ int pid, status;
+
   DBG(DBG_sane_proc,"do_cancel\n");
 
   scanner->scanning = SANE_FALSE;
@@ -4657,10 +4656,20 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
   if (scanner->reader_pid > 0)
   {
     DBG(DBG_sane_info,"killing reader_process\n");
-    kill(scanner->reader_pid, SIGTERM);
-    waitpid(scanner->reader_pid, 0, 0);
+
+    sanei_thread_kill(scanner->reader_pid);
+    pid = sanei_thread_waitpid(scanner->reader_pid, &status);
+
+    if (pid < 0)
+    {
+      DBG(DBG_sane_info, "do_cancel: sanei_thread_waitpid failed, already terminated ? (%s)\n", strerror(errno));
+    }
+    else
+    {
+      DBG(DBG_sane_info, "do_cancel: reader_process terminated with status: %s\n", sane_strstatus(status));
+    }
+
     scanner->reader_pid = 0;
-    DBG(DBG_sane_info,"reader_process killed\n");
 
     if (scanner->device->pixelbuffer != NULL)					      /* pixelbuffer exists? */
     {
@@ -4669,7 +4678,9 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
     }
   }
 
-  if (scanner->device->sfd != -1)
+  sanei_scsi_req_flush_all(); /* flush SCSI queue, when we do not do this then sanei_scsi crashes next time */
+
+  if (scanner->device->sfd != -1) /* make sure we have a working filedescriptor */
   {
     umax_give_scanner(scanner->device); /* reposition and release scanner */
     DBG(DBG_sane_info,"closing scannerdevice filedescriptor\n");
@@ -4904,23 +4915,7 @@ static RETSIGTYPE reader_process_sigterm_handler(int signal)
 {
   DBG(DBG_sane_info,"reader_process: terminated by signal %d\n", signal);
 
-#ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
-/*  sanei_scsi_req_flush_all_extended(dev->sfd); */ /* XXX THIS SHOULD BE CHANGED XXX */
-  sanei_scsi_req_flush_all();								 /* flush SCSI queue */
-#else 
-  sanei_scsi_req_flush_all();								 /* flush SCSI queue */
-#endif
-
-#if 0
-  for (i = 1; i<dev->request_scsi_maxqueue; i++)
-  {
-    if (scanner->device->buffer[i])
-    {
-      DBG(DBG_info, "reader_process: freeing SCSI buffer[%d]\n", i);
-      free(scanner->device->buffer[i]);									     /* free buffer */
-    }
-  }
-#endif
+  sanei_scsi_req_flush_all(); /* flush SCSI queue */
 
   _exit (SANE_STATUS_GOOD);
 }
@@ -4929,15 +4924,31 @@ static RETSIGTYPE reader_process_sigterm_handler(int signal)
 /* ------------------------------------------------------------ READER PROCESS ----------------------------- */
 
 
-static int reader_process(Umax_Scanner *scanner)			      /* executed as a child process */
+static int reader_process(void *data) /* executed as a child process or as thread */
 {
+ Umax_Scanner *scanner = (Umax_Scanner *)data;
  FILE *fp;
  int status;
  unsigned int data_length;
  struct SIGACTION act;
  unsigned int i;
 
-  DBG(DBG_sane_proc,"reader_process started\n");
+  if (sanei_thread_is_forked())
+  {
+    DBG(DBG_sane_proc,"reader_process started (forked)\n");
+    close(scanner->pipe_read_fd);
+    scanner->pipe_read_fd = -1;
+
+    /* sanei_scsi crashes when the scsi commands are not flushed, done in reader_process_sigterm_handler */
+    memset(&act, 0, sizeof (act));						   /* define SIGTERM-handler */
+    act.sa_handler = reader_process_sigterm_handler;
+    sigaction(SIGTERM, &act, 0);
+  }
+  else
+  {
+    DBG(DBG_sane_proc,"reader_process started (as thread)\n");
+  }
+
 
   scanner->device->scsi_maxqueue = scanner->device->request_scsi_maxqueue;
 
@@ -4949,6 +4960,7 @@ static int reader_process(Umax_Scanner *scanner)			      /* executed as a child 
       {
         DBG(DBG_info, "reader_process: freeing SCSI buffer[%d]\n", i);
         free(scanner->device->buffer[i]);									     /* free buffer */
+        scanner->device->buffer[i] = NULL;
       }
     }
 
@@ -4965,10 +4977,6 @@ static int reader_process(Umax_Scanner *scanner)			      /* executed as a child 
       }
     }
   }
-
-  memset(&act, 0, sizeof (act));						   /* define SIGTERM-handler */
-  act.sa_handler = reader_process_sigterm_handler;
-  sigaction(SIGTERM, &act, 0);
 
   data_length = scanner->params.lines * scanner->params.bytes_per_line;
 
@@ -4989,6 +4997,7 @@ static int reader_process(Umax_Scanner *scanner)			      /* executed as a child 
     {
       DBG(DBG_info, "reader_process: freeing SCSI buffer[%d]\n", i);
       free(scanner->device->buffer[i]);									     /* free buffer */
+      scanner->device->buffer[i] = NULL;
     }
   }
   DBG(DBG_sane_info,"reader_process: finished reading data\n");
@@ -5978,6 +5987,8 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
   }
 
   frontend_authorize_callback = authorize; /* store frontend authorize callback */
+
+  sanei_thread_init(); /* must be called before any other sanei_thread call */
 
 #ifdef UMAX_ENABLE_USB
   sanei_usb_init();
@@ -7955,31 +7966,23 @@ SANE_Status sane_start(SANE_Handle handle)
   scanner->pipe_read_fd  = fds[0]; 
   scanner->pipe_write_fd = fds[1];
 
-#ifndef HAVE_OS2_H
-  scanner->reader_pid = fork();					     /* create reader routine as new process */
+  /* start reader_process, deponds on OS if fork() or threads are used */
+  scanner->reader_pid = sanei_thread_begin(reader_process, (void *) scanner);
 
-  if (scanner->reader_pid == 0)
-  {									/* reader_pid = 0 ===> child process */
-    sigset_t ignore_set;
-    struct SIGACTION act;
-
-    close(fds[0]); /* forked child process: close read end of pipe, reader_process only needs the write end */
-
-    sigfillset(&ignore_set);
-    sigdelset(&ignore_set, SIGTERM);
-    sigprocmask(SIG_SETMASK, &ignore_set, 0);
-
-    memset(&act, 0, sizeof (act));
-    sigaction (SIGTERM, &act, 0);
-
-    _exit(reader_process(scanner));   /* don't use exit() since that would run the atexit() handlers */
+  if (scanner->reader_pid < 0)
+  {
+    DBG(DBG_error, "ERROR: sanei_thread_begin failed (%s)\n", strerror(errno));
+    scanner->scanning = SANE_FALSE;
+    umax_give_scanner(scanner->device); /* reposition and release scanner */
+    umax_scsi_close(scanner->device);
+   return SANE_STATUS_NO_MEM; /* any other reason than no memory possible ? */
   }
 
-  close(fds[1]); /* when we use fork then we have to close the write end of the pipe here */
-#else /*  OS2 */
-  /* create reader routine as thread */
-  scanner->reader_pid = sanei_thread_begin(reader_process, (void *) scanner);
-#endif
+  if (sanei_thread_is_forked())
+  {
+    close(scanner->pipe_write_fd);
+    scanner->pipe_write_fd = -1;
+  }
 
  return SANE_STATUS_GOOD;
 }

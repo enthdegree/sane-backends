@@ -61,7 +61,7 @@ LIBSANEI = ../sanei/libsanei.a
 
 SCAN_OBJS = scanimage.o stiff.o
 
-DISTFILES = Makefile.in saned.c scanimage.c stiff.c stiff.h test.c 
+DISTFILES = Makefile.in saned.c scanimage.c stiff.c stiff.h test.c tstbackend.c
 
 .PHONY: all clean depend dist distclean install uninstall
 

@@ -326,7 +326,7 @@ init_dc240 (DC240 * camera)
   SANE_Int speed_index;
   SANE_Char buf[5], n;
 
-  DBG(1, "DC-240 Backend 05/16/01\n");
+  DBG (1, "DC-240 Backend 05/16/01\n");
 
   for (speed_index = 0; speed_index < NELEMS (speeds); speed_index++)
     {
@@ -1265,7 +1265,7 @@ sane_start (SANE_Handle handle)
       }
     DBG (9, "%s: pic to read is %d name is %s\n", f, n, e->name);
 
-    strcpy (&name_buf[1], e->name);
+    strcpy ((char *)&name_buf[1], e->name);
     for (i = 49; i <= 56; i++)
       {
 	name_buf[i] = 0xff;
@@ -1280,16 +1280,10 @@ sane_start (SANE_Handle handle)
     cinfo.err = jpeg_std_error (&jerr);
     jpeg_create_decompress (&cinfo);
 
-    cinfo.src = (struct jpeg_source_mgr *) (*cinfo.mem->alloc_small) (
-								      (j_common_ptr)
-								      & cinfo,
-								      JPOOL_PERMANENT,
-								      sizeof
-								      (my_source_mgr));
+    cinfo.src = (struct jpeg_source_mgr *) (*cinfo.mem->alloc_small) ((j_common_ptr) & cinfo, JPOOL_PERMANENT, sizeof (my_source_mgr));
     src = (my_src_ptr) cinfo.src;
 
-    src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) (
-							(j_common_ptr) &
+    src->buffer = (JOCTET *) (*cinfo.mem->alloc_small) ((j_common_ptr) &
 							cinfo,
 							JPOOL_PERMANENT,
 							1024 *
@@ -1360,7 +1354,7 @@ sane_read (SANE_Handle UNUSEDARG handle, SANE_Byte * data,
 	  Camera.current_picture_number = Camera.pic_taken;
 	  image_range.max--;
 
-	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	  myinfo |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 	  dir_delete ((SANE_String) & name_buf[1]);
 
 	}
@@ -1416,8 +1410,8 @@ sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
 static PictureInfo *
 get_pictures_info (void)
 {
-
   SANE_Char f[] = "get_pictures_info";
+  SANE_Int num_pictures;
   SANE_Int p;
   PictureInfo *pics;
 
@@ -1430,7 +1424,15 @@ get_pictures_info (void)
   /* PSF fixme: Eventually need to read dir names - for now
    * just assume 100DC240
    */
-  read_dir ("\\PCCARD\\DCIM\\100DC240\\*.*");
+  num_pictures = read_dir ("\\PCCARD\\DCIM\\100DC240\\*.*");
+  if (num_pictures != Camera.pic_taken)
+    {
+      DBG (2,
+	   "%s: warning: Number of pictures in directory (%d) doesn't match camera status table (%d).  Using directory count\n",
+	   f, num_pictures, Camera.pic_taken);
+      Camera.pic_taken = num_pictures;
+      image_range.max = num_pictures;
+    }
 
   if ((pics = (PictureInfo *) malloc (Camera.pic_taken *
 				      sizeof (PictureInfo))) == NULL)
@@ -1464,6 +1466,8 @@ get_picture_info (PictureInfo * pic, SANE_Int p)
 
   for (n = 0, e = dir_head; e && n < p; n++, e = e->next)
     ;
+
+  DBG (4, "Name is %s\n", e->name);
 
   read_info (e->name);
 
@@ -1563,6 +1567,7 @@ snap_pic (SANE_Int fd)
 static SANE_Int
 read_dir (SANE_String dir)
 {
+  SANE_Int retval = 0;
   SANE_Byte buf[256];
   SANE_Byte *next_buf;
   SANE_Int i, entries;
@@ -1582,11 +1587,11 @@ read_dir (SANE_String dir)
   if (send_pck (Camera.fd, read_dir_pck) == -1)
     {
       DBG (1, "%s: error: send_pck returned -1\n", f);
-      return SANE_STATUS_INVAL;
+      return -1;
     }
 
   buf[0] = 0x80;
-  strcpy (&buf[1], dir);
+  strcpy ((char *)&buf[1], dir);
   for (i = 49; i <= 56; i++)
     {
       buf[i] = 0xff;
@@ -1595,13 +1600,13 @@ read_dir (SANE_String dir)
   if (send_data (buf) == -1)
     {
       DBG (1, "%s: error: send_data returned -1\n", f);
-      return SANE_STATUS_INVAL;
+      return -1;
     }
 
   if (read_data (Camera.fd, (SANE_Byte *) & dir_buf, 256) == -1)
     {
       DBG (1, "%s: error: read_data returned -1\n", f);
-      return SANE_STATUS_INVAL;
+      return -1;
     }
 
   entries = (dir_buf.entries_msb << 8) + dir_buf.entries_lsb;
@@ -1611,7 +1616,7 @@ read_dir (SANE_String dir)
   if (entries > 1001)
     {
       DBG (1, "%s: error: more than 999 pictures not supported yet\n", f);
-      return SANE_STATUS_INVAL;
+      return -1;
     }
 
   /* Determine if it's time to read another 256 byte buffer from the camera */
@@ -1623,7 +1628,7 @@ read_dir (SANE_String dir)
       if (read_data (Camera.fd, next_buf, 256) == -1)
 	{
 	  DBG (1, "%s: error: read_data returned -1\n", f);
-	  return SANE_STATUS_INVAL;
+	  return -1;
 	}
       next_buf += 256;
     }
@@ -1647,6 +1652,7 @@ read_dir (SANE_String dir)
 	  DBG (1, "%s: error: failed to insert dir entry\n");
 	  return -1;
 	}
+      retval++;
     }
 
   if (end_of_data (Camera.fd) == -1)
@@ -1655,7 +1661,7 @@ read_dir (SANE_String dir)
       return -1;
     }
 
-  return 0;
+  return retval;
 }
 
 /*
@@ -1675,7 +1681,7 @@ read_info (SANE_String fname)
     }
 
   buf[0] = 0x80;
-  strcpy (&buf[1], fname);
+  strcpy ((char *)&buf[1], fname);
   for (i = 49; i <= 56; i++)
     {
       buf[i] = 0xff;

@@ -70,7 +70,7 @@ main (int argc, char **argv)
 
   i = 1;
   trace = 0;
-  sanei_umax_pp_setauto(1);
+  sanei_umax_pp_setauto (1);
   while (i < argc)
     {
       found = 0;
@@ -264,7 +264,7 @@ main (int argc, char **argv)
 	      return (0);
 	    }
 	  gain = strtol (argv[i], NULL, 16);
-	  sanei_umax_pp_setauto(0);
+	  sanei_umax_pp_setauto (0);
 	}
 
       if ((strcmp (argv[i], "-z") == 0)
@@ -351,7 +351,15 @@ main (int argc, char **argv)
       return (0);
     }
   if (trace)
-    printf ("UMAX 1220P scanning program version 2.6 starting ...\n");
+    {
+      printf ("UMAX 1220P scanning program version 2.8 starting ...\n");
+#ifdef HAVE_LINUX_PPDEV_H
+      printf ("ppdev character device built-in.\n");
+#endif
+#ifdef ENABLE_PARPORT_DIRECTIO
+      printf ("direct harware access built-in.\n");
+#endif
+    }
 
 
   /* scanning is the default behaviour */

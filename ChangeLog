@@ -1,3 +1,7 @@
+2003-01-24  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* doc/descriptions/mustek_pp.desc: added supported scanners
+
 2003-01-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from

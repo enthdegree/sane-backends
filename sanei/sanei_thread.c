@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2000 Yuri Dario
+   Copyright (C) 1998-2001 Yuri Dario
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -36,73 +36,59 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice.
+   If you do not wish that, delete this exception notice.  
+
+   Helper functions for the OS/2 port (using threads instead of forked
+   processes). Don't use them in the backends, they are used automatically by
+   macros.
 */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
 
 #ifdef HAVE_OS2_H
+
 #define INCL_DOSPROCESS
 #include <os2.h>
-#endif
 
-#include "sane/sanei_thread.h"
+#include <sane/sanei_thread.h>
 
 /*
  * starts a new thread or process
  * parameters:
- * start        address of reader function
- * arg_list     pointer to scanner data structure
+ * start	address of reader function
+ * arg_list	pointer to scanner data structure
  *
 */
 int
-sanei_thread_begin( void (*start)(void *arg),
-                    void *arg_list)
+sanei_thread_begin( void (*start)(void *arg), 
+                    void* arg_list)
 {
-#ifdef HAVE_OS2_H
    return _beginthread( start, NULL, 64*1024, arg_list);
-#else
-   return fork();
-#endif
 }
 
 int
 sanei_thread_kill( int pid, int sig)
 {
-#ifdef HAVE_OS2_H
    return DosKillThread( pid);
-#else
-   return kill( pid, sig);
-#endif
 }
 
 int
 sanei_thread_waitpid( int pid, int *stat_loc, int options)
 {
-#ifdef HAVE_OS2_H
    return pid; /* DosWaitThread( (TID*) &pid, DCWW_WAIT);*/
-#else
-   return waitpid( pid, stat_loc, options);
-#endif
 }
 
 int
 sanei_thread_wait( int *stat_loc)
 {
-#ifdef HAVE_OS2_H
    *stat_loc = 0;
    return -1;  /* return error because I don't know child pid */
-#else
-   return wait( stat_loc);
-#endif
 }
 
+#endif /* HAVE_OS2_H */

@@ -9,10 +9,9 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-09-18"		; version of backend
-:url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
+:version "2003-09-24"		; version of backend
+:url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
-;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
 
 :devicetype :scanner
@@ -24,7 +23,7 @@
 
 :model "1236 USB"
 :status :unsupported
-:url "http://www.meier-geinitz.de/sane/misc/artec_1236usb.html"
+:url "/unsupported/artec_1236usb.html"
 :interface "USB"
 :comment "Unsupported. Vendor/product 0x05d8/0x4001. Same id as one of the Artec Ultima 2000 scanners. More information (e.g. /proc/bus/usb/devices output) would be appreciated."
 
@@ -36,13 +35,13 @@
 
 :model "E+ Pro"
 :status :unsupported
-:url "http://www.meier-geinitz.de/sane/misc/artec_epluspro.html"
+:url "/unsupported/artec_epluspro.html"
 :interface "USB"
 :comment "Not supported. Vendor/product 0x05d8/0x4004. /proc/bus/usb/devices output is available. Chipset is GT6816. May work with the gt68xx backend after some work in the source code."
 
 :model "Ultima 2000 (0x4001)"
 :status :unsupported
-:url "http://www.meier-geinitz.de/sane/misc/artec-ultima-2000-2.html"
+:url "/unsupported/artec-ultima-2000-2.html"
 :interface "USB"
 :comment "Same name, but different ids: vendor/product 0x05d8/0x4001 is not supported. The scanner with product id 0x4002 is supported by the gt68xx backend."
 
@@ -52,13 +51,13 @@
 :url "http://www.avision.com/"
 
 :model "iVina FB1600"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.html"
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. GL646. Same as UMAX Astra 4500. A backend is currenly beeing developed."
 
 :model "iVina FB1800"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4700.html"
+:url "/unsupported/umax-astra-4700.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. GL660 + GL646. Same as UMAX Astra 4700. A backend is currenly beeing developed."
@@ -123,12 +122,13 @@
 
 :model "MFC 5100c"
 :status :unsupported
-:url "http://www.meier-geinitz.de/sane/misc/brother-mfc5100c.html"
+:url "/unsupported/brother-mfc5100c.html"
 :interface "Parport USB"
 :comment "Unsupported. Some information is available (see link). See also MFC 4600."
 
 :model "MFC 6800"
 :status :unsupported
+;*** broken
 :url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
 :interface "USB"
 :comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111. See also MFC 4600."
@@ -145,61 +145,61 @@
 :url "http://www.canon.com/"
 
 :model "CanoScan 3000"
-:url "http://www.meier-geinitz.de/sane/misc/canon-3000.html"
+:url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link."
 
 :model "CanoScan 3000F"
-:url "http://www.meier-geinitz.de/sane/misc/canon-3000.html"
+:url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link."
 
 :model "CanoScan 5000F"
-:url "http://www.meier-geinitz.de/sane/misc/canon-5000f.html"
+:url "/unsupported/canon-5000f.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
 :model "CanoScan 8000F"
-:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.html"
+:url "/unsupported/canon-8000f.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information. With transparency adapter."
 
 :model "CanoScan 9900F"
-:url "http://www.meier-geinitz.de/sane/misc/canon-9900f.html"
+:url "/unsupported/canon-9900f.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported, similar to 8000F. Vendor/product 0x04a9/0x2210. 3200x6400 dpi USB2. With transparency adapter."
 
 :model "CanoScan D646U"
-:url "http://www.meier-geinitz.de/sane/misc/canon-d646u.html"
+:url "/unsupported/canon-d646u.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. USB Vendor/product 0x04a9/0x220b.  See link for more information and test program."
 
 :model "CanoScan D660U"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/canon-d660u.html"
+:url "/unsupported/canon-d660u.html"
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x04a9/0x2208. See link for more information."
 
 :model "CanoScan D1250U2"
-:url "http://www.meier-geinitz.de/sane/misc/canon-d1250u2.html"
+:url "/unsupported/canon-d1250u2.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. However, someone started working on this scanner and some information is available (see link)."
 
 :model "CanoScan D2400UF"
-:url "http://www.meier-geinitz.de/sane/misc/canon-d2400uf.html"
+:url "/unsupported/canon-d2400uf.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. See link."
 
 :model "CanoScan FB620U"
-:url "http://www.meier-geinitz.de/sane/misc/canon-fb620u.html"
+:url "/unsupported/canon-fb620u.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported.  Vendor/product 0x4a9/0x2202. Some information is available."
@@ -211,7 +211,7 @@
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
 
 :model "FS4000"
-:url "http://www.meier-geinitz.de/sane/misc/canon-fs4000.html"
+:url "/unsupported/canon-fs4000.html"
 :interface "USB SCSI"
 :status :unsupported
 :comment "Not supported. USB Vendor/product 0x04a9/0x3042. See link for more details."
@@ -223,13 +223,13 @@
 :comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
 
 :model "CanoScan LiDE 50"
-:url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.html"
+:url "/unsupported/canon-lide-50.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported yet. Some information is available."
 
 :model "CanoScan LiDE 80"
-:url "http://www.meier-geinitz.de/sane/misc/canon-lide-80.html"
+:url "/unsupported/canon-lide-80.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported yet. Some information is available."
@@ -246,7 +246,7 @@
 :comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside:  75100512-00"
 
 :model "S4 100"
-:url "http://www.meier-geinitz.de/sane/misc/compaq-s4-100.html"
+:url "/unsupported/compaq-s4-100.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor=0x049f, Product=0x001a."
@@ -317,13 +317,13 @@
 :url "http://www.geniusnet.com.tw/"
 
 :model "ColorPage HR7X Slim"
-:url "http://www.meier-geinitz.de/sane/misc/genius-colorpage-hr7x.html"
+:url "/unsupported/genius-colorpage-hr7x.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x0458/0x2018. GL646? See link for more details."
 
 :model "Colorpage Vivid III"
-:url "http://www.meier-geinitz.de/sane/misc/genius-colorpage-vivid-III.html"
+:url "/unsupported/genius-colorpage-vivid-III.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x07b3/0x0001. See link for details."
@@ -335,43 +335,43 @@
 
 :model "Photo Scanner 1000"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-photo-1000.html"
+:url "/unsupported/hp-photo-1000.html"
 :status :unsupported
 :comment "Not supported by SANE. However, it's detected as mass storage device so just mounting it is reported to work. See link for devices data."
 
 :model "Photosmart 1200 Photo"
 :interface "USB"
-;:url "http://www.meier-geinitz.de/sane/misc/hp-photo-1000.html"
+;:url "/unsupported/hp-photo-1000.html"
 :status :unsupported
 :comment "Probably not supported by SANE. No details known. 10x15 cm. Maybe similar to Photo Scanner 1000?"
 
 :model "ScanJet 2300C"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.html"
+:url "/unsupported/hp-scanjet-2300c.html"
 :status :unsupported
 :comment "Unsupported.  See link for details."
 
 :model "ScanJet 2400C"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2400c.html"
+:url "/unsupported/hp-scanjet-2400c.html"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
 :model "ScanJet 3500c"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.html"
+:url "/unsupported/hp-scanjet-3500c.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Seems to use RealTek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2205. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3530c"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3530c.html"
+:url "/unsupported/hp-scanjet-3530c.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Chipset is Realtek RTS8801C2-6. Vendor/Product ID 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 
 :model "ScanJet 3570c"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3570c.html"
+:url "/unsupported/hp-scanjet-3570c.html"
 :status :unsupported
 :comment "Unsupported. Probably Realtek RTS8801C2-6, same ids as Scanjet 3530c. Has a TA. Vendor/product id 0x03F0/0x2005. See link and other Scanjet 35x0c entries."
 
@@ -383,30 +383,30 @@
 
 :model "ScanJet 3970c"
 :interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3970c.html"
+:url "/unsupported/hp-scanjet-3970c.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
 
 :model "ScanJet 4400C"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4470c.html"
+:url "/unsupported/hp-scanjet-4470c.html"
 :interface "USB"
 :comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
 :status :unsupported
 
 :model "ScanJet 4470C"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4470c.html"
+:url "/unsupported/hp-scanjet-4470c.html"
 :interface "USB"
 :comment "Not supported. However, a stand-alone program is available."
 :status :unsupported
 
 :model "ScanJet 4500C"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4500c.html"
+:url "/unsupported/hp-scanjet-4500c.html"
 :interface "USB"
 :comment "Not supported. Landscape scanner. Same as 5500C, but without ADF. Same ID as 5550c."
 :status :unsupported
 
 :model "ScanJet 4570C"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-4570c.html"
+:url "/unsupported/hp-scanjet-4570c.html"
 :interface "USB"
 :comment "Not supported. See link for details."
 :status :unsupported
@@ -418,7 +418,7 @@
 :status :unsupported
 
 :model "ScanJet 5550C"
-:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-5550c.html"
+:url "/unsupported/hp-scanjet-5550c.html"
 :interface "USB"
 :comment "Not supported. Same as 4570C, but with ADF. See link for details."
 :status :unsupported
@@ -458,7 +458,7 @@
 :url "http://www.lexmark.com/"
 
 :model "X83"
-:url "http://www.meier-geinitz.de/sane/misc/lexmark-x83.html"
+:url "/unsupported/lexmark-x83.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x043d/0x003d. GL640."
@@ -470,13 +470,13 @@
 :url "http://www.medion.de/"
 
 :model "MD 5345"
-:url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.html"
+:url "/unsupported/medion-MD5345.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
 
 :model "MD 6228"
-:url "http://www.meier-geinitz.de/sane/misc/medion-md6228.html"
+:url "/unsupported/medion-md6228.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Vendor/product 0x0461/0x0377. See link for details."
@@ -487,7 +487,7 @@
 :url "http://www.memorex.com/"
 
 :model "6142u"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.html"
+:url "/unsupported/visioneer-onetouch4400.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Same as Visioneer Onetouch 4400. See link for details."
@@ -510,43 +510,43 @@
 :comment "Unsupported. Doesn't seem to be compatible to 3600 series, see link."
 
 :model "ScanMaker 3800"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3800.html"
+:url "/unsupported/microtek-scanmaker-3800.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
 :model "ScanMaker 3830"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3830.html"
+:url "/unsupported/microtek-scanmaker-3830.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
 :model "ScanMaker 3840"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-3840.html"
+:url "/unsupported/microtek-scanmaker-3840.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
 :model "ScanMaker 4800"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-4800.html"
+:url "/unsupported/microtek-scanmaker-4800.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x05da/0x30cf. SQ Scan08? See link for more details."
 
 :model "ScanMaker 5600"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-5600.html"
+:url "/unsupported/microtek-scanmaker-5600.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
 :model "ScanMaker 6700"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanmaker-6700.html"
+:url "/unsupported/microtek-scanmaker-6700.html"
 :interface "USB IEEE-1394"
 :status :unsupported
 :comment "Unsupported. See link."
 
 :model "ScanPort 3000"
-:url "http://www.meier-geinitz.de/sane/misc/microtek-scanport-3000.html"
+:url "/unsupported/microtek-scanport-3000.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Realtek RTS8801B?. See link for details."
@@ -558,7 +558,7 @@
 :url "http://www.minolta.com/"
 
 :model "Dual Scan III"
-:url "http://www.meier-geinitz.de/sane/misc/minolta-dual-scan-III.html"
+:url "/unsupported/minolta-dual-scan-III.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. May work with vuescan. See link for details."
@@ -572,6 +572,7 @@
 
 :model "1800 A3 Pro-1"
 :interface "USB"
+;*** broken
 :url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
 :status :unsupported
 :comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
@@ -595,7 +596,7 @@
 :status :unsupported
 
 :model "BearPaw 2448 TA Pro"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-bearpaw-2448ta-pro.html"
+:url "/unsupported/mustek-bearpaw-2448ta-pro.html"
 :interface "USB"
 :comment "Not supported. See link for some information."
 :status :unsupported
@@ -614,7 +615,7 @@
 
 :model "Paragon 600 II ED/EP"
 :interface "Parport"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-600IIep.html"
+:url "/unsupported/mustek-600IIep.html"
 :status :unsupported
 :comment "Not supported by SANE yet, but there is a stand-alone program and support will be added to the mustek backend."
 
@@ -650,6 +651,7 @@
 
 :model "ScanMagic 9636P"
 :interface "Parport"
+;*** broken
 :url "http://www.mostang.com/pipermail/sane-devel/2003-May/018800.html"
 :status :unsupported
 :comment "Probably not supported. Same as Mustek 12000 P?. ASIC 1505."
@@ -662,7 +664,7 @@
 :comment "Pacific Image Electronics"
 
 :model "Primefilm 1800u"
-:url "http://www.meier-geinitz.de/sane/misc/pie-1800u.html"
+:url "/unsupported/pie-1800u.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x05e3/0x0120. See link for details."
@@ -728,7 +730,7 @@
 :comment "Probably unsupported. ASIC EICI 10440A. Vendor/product 0x461/0x346. May work with viceo backend(?), see link."
 
 :model "Primascan Colorado 2600u"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.html"
+:url "/unsupported/visioneer-onetouch4400.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Same as Visioneer Onetouch 4400. See link for details."
@@ -758,7 +760,7 @@
 :url "http://www.fida.com/"
 
 :model "Winscan Pro 2448U"
-:url "http://www.meier-geinitz.de/sane/misc/prolink-2448u.html"
+:url "/unsupported/prolink-2448u.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. Vendor=0x06dc product=0x0014. RealTek RTS8801."
@@ -777,7 +779,7 @@
 :mfg "Relisys"
 
 :model "Scorpio Ultra 3"
-:url "http://www.meier-geinitz.de/sane/misc/relisys-scorpio-ultra3.html"
+:url "/unsupported/relisys-scorpio-ultra3.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
@@ -788,7 +790,7 @@
 :comment "Spot seems have gone out of business."
 
 :model "Maxiscan A4"
-:url "http://www.el-profesor.net/spoonset"
+:url "http://www.el-profesor.net/spoonset/"
 :interface "proprietary"
 :status :unsupported
 :comment "Not supported until now. Work on a backend has started, see link for more information."
@@ -810,6 +812,7 @@
 :mfg "Syscan"
 
 :model "TravelScan 460/464"
+;*** broken
 :url "http://www.mostang.com/pipermail/sane-devel/2003-February/017787.html"
 :interface "USB"
 :status :unsupported
@@ -832,25 +835,25 @@
 :url "http://www.umax.com/"
 
 :model "Astra 4400"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4400.html"
+:url "/unsupported/umax-astra-4400.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
 :model "Astra 4450"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4450.html"
+:url "/unsupported/umax-astra-4450.html"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
 :model "Astra 4500"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.html"
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x0638/0x0a10. GL646. Same as Avision iVina FB1600. A backend is currenly beeing developed. See link for more details."
 
 :model "Astra 4700"
-:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4700.html"
+:url "/unsupported/umax-astra-4700.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. GL660 + GL646. Same as Avision iVina FB1800. A backend is currenly beeing developed. See link for more details."
@@ -879,55 +882,55 @@
 :comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details. Looks similar to Primascan Colorado 2600u."
 
 :model "Onetouch 4400"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.html"
+:url "/unsupported/visioneer-onetouch4400.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. E5 chipset? Vendor/product 0x0461/0x0347.See link for more details."
 
 :model "OneTouch 4800 USB"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4800.html"
+:url "/unsupported/visioneer-onetouch4800.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. Same as Microtek Scanport 3000. See link for details."
 
 :model "OneTouch 5300 USB"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5300.html"
+:url "/unsupported/visioneer-onetouch5300.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product ids 0x04a7/0x0226. Chipset is RTS8801B(?). See link for output of /proc/bus/usb/devices."
 
 :model "OneTouch 5800 USB"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch5800.html"
+:url "/unsupported/visioneer-onetouch5800.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. 48 bit scanner, doesn't work with viceo backend. RTS8801C. Vendor/product 0x04a7/0x0226."
 
 :model "Onetouch 8700"
-;:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.html"
+;:url "/unsupported/visioneer-onetouch8920.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Same as 8920 but without TA?"
 
 :model "Onetouch 8900"
-;:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.html"
+;:url "/unsupported/visioneer-onetouch8920.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Same as 8920 but without TA?"
 
 :model "Onetouch 8920"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch8920.html"
+:url "/unsupported/visioneer-onetouch8920.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices."
 
 :model "Onetouch 9020"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch9020.html"
+:url "/unsupported/visioneer-onetouch9020.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product: 0x04a7/0x022c."
 
 :model "Primascan Colorado 2600u"
-:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.html"
+:url "/unsupported/visioneer-onetouch4400.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. See Visioneer Onetouch 4400."
@@ -938,13 +941,13 @@
 :url "http://www.xerox.com/"
 
 :model "WorkCentre XK35c"
-:url "http://www.meier-geinitz.de/sane/misc/xerox-workcentre-xk35c.html"
+:url "/unsupported/xerox-workcentre-xk35c.html"
 :interface "USB Parport"
 :status :unsupported
 :comment "Not supported. See link for more details."
 
 :model "WorkCentre Pro 412"
-:url "http://www.meier-geinitz.de/sane/misc/xerox-workcentre-pro412.html"
+:url "/unsupported/xerox-workcentre-pro412.html"
 :interface "USB Parport"
 :status :unsupported
 :comment "Not supported. See link for more details."

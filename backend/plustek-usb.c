@@ -582,11 +582,9 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 	if( channel == _MAP_MASTER ) {
 	
 		for( i = 0; i < length; i++ ) {
-#ifndef _GENE_
 			a_bMap[i]            = (SANE_Byte)map[i];
 			a_bMap[length +i]    = (SANE_Byte)map[i];
 			a_bMap[(length*2)+i] = (SANE_Byte)map[i];
-#endif			
 		}			
 	
 	} else {
@@ -597,11 +595,9 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 		if( channel == _MAP_BLUE )
 			idx = 2;
 			
-#ifndef _GENE_
 		for( i = 0; i < length; i++ ) {
 			a_bMap[(length * idx)+i] = (SANE_Byte)map[i];
 		}			
-#endif		
 	}
 
 	return 0;

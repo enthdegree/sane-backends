@@ -738,7 +738,7 @@ TOGAIN:
 	return SANE_TRUE;
 }
 
-/** usb_GetNewOffset
+/** usb_GetNewOffset		
  *
  */
 static void usb_GetNewOffset( u_long *pdwSum, u_long *pdwDiff,
@@ -1194,8 +1194,7 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 					usleep(10 * 1000);
 				}
 
-				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwBytes *
-											m_ScanParam.Size.dwTotalBytes );
+				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwTotalBytes );
 
 				if( usb_ScanEnd( dev )) {
 					dwRead += m_ScanParam.Size.dwTotalBytes;
@@ -1595,6 +1594,12 @@ static int usb_DoCalibration( pPlustek_Device dev )
 			Gain_Reg.Green  = a_bRegs[0x3c];
 			Gain_Reg.Blue   = a_bRegs[0x3d];
 			Gain_NegHilight = Gain_Hilight;
+
+			DBG( _DBG_INFO, "MCLK      = %.3f\n", dMCLK );
+			DBG( _DBG_INFO, "GainRed   = %u\n", a_bRegs[0x3b] );
+			DBG( _DBG_INFO, "GainGreen = %u\n", a_bRegs[0x3c] );
+			DBG( _DBG_INFO, "GainBlue  = %u\n", a_bRegs[0x3d] );
+
 #if 0
 			if( !usb_ModuleMove( dev, MOVE_Backward,
 								 dev->usbDev.pSource->DataOrigin.y +
@@ -1610,8 +1615,8 @@ static int usb_DoCalibration( pPlustek_Device dev )
 			if(!usb_AdjustGain( dev, 1 ))
 				return _E_INTERNAL;
 				
-		/*	a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
-         */
+		    a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+         
 			DBG( _DBG_INFO, "Settings done, so start...\n" );
 			if( !usb_AdjustOffset(dev) || !usb_AdjustDarkShading(dev) ||
 										  !usb_AdjustWhiteShading(dev)) {

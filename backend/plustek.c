@@ -120,7 +120,7 @@
 #include "sane/sanei.h"
 #include "sane/saneopts.h"
 
-#define BACKEND_VERSION "0.44-9"
+#define BACKEND_VERSION "0.44-10"
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
@@ -238,7 +238,8 @@ static const SANE_String_Const ext_mode_list[] =
 {
 	SANE_I18N("Normal"),
 	SANE_I18N("Transparency"),
-	SANE_I18N("Negative"),
+/*	SANE_I18N("Negative"),TEMP. DISABLED ! */
+	"Negative",
 	NULL
 };
 

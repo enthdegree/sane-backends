@@ -1029,7 +1029,7 @@ static void usb_ResetRegisters( pPlustek_Device dev )
 	} else {
 		memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
 	}
-	DBG( _DBG_INFO, "MISC I/O after RESET: 0%02x, 0%02x, 0%02x\n",
+	DBG( _DBG_INFO, "MISC I/O after RESET: 0x%02x, 0x%02x, 0x%02x\n",
 								a_bRegs[0x59], a_bRegs[0x5a], a_bRegs[0x5b] );
 }
 

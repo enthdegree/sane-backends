@@ -1,3 +1,8 @@
+2004-06-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-usb.c: Don't use shared memory on OS/2 and
+	  when using pthreads.
+
 2004-06-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Added Mustek BearPaw 2448 Plus

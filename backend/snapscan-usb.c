@@ -73,8 +73,6 @@
 
 #include "snapscan-usb.h"
 #include "snapscan-mutex.c"
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
 /* Global variables */
 
@@ -478,6 +476,31 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
     return status;
 }
 
+#if defined USE_PTHREAD || defined HAVE_OS2_H
+static SANE_Status snapscani_usb_shm_init(void)
+{
+    unsigned int shm_size = sizeof(struct urb_counters_t);
+    urb_counters = (struct urb_counters_t*) malloc(shm_size);
+    if (urb_counters == NULL)
+    {
+        return SANE_STATUS_NO_MEM;
+    }
+    memset(urb_counters, 0, shm_size);
+    return SANE_STATUS_GOOD;
+        
+}
+
+static void snapscani_usb_shm_exit(void)
+{
+    if (urb_counters)
+    {
+        free ((void*)urb_counters);
+        urb_counters = NULL;
+    }
+}
+#else
+#include <sys/ipc.h>
+#include <sys/shm.h>
 static SANE_Status snapscani_usb_shm_init(void)
 {
     unsigned int shm_size = sizeof(struct urb_counters_t);
@@ -508,21 +531,24 @@ static SANE_Status snapscani_usb_shm_init(void)
         return SANE_STATUS_NO_MEM;
     }
     urb_counters = (struct urb_counters_t*) shm_area;
-    memset(urb_counters, 0, sizeof(struct urb_counters_t));
+    memset(urb_counters, 0, shm_size);
     return SANE_STATUS_GOOD;
 }
 
 static void snapscani_usb_shm_exit(void)
 {
-  if (urb_counters)
+    if (urb_counters)
     {
-      shmdt (urb_counters);
-      urb_counters = NULL;
+        shmdt (urb_counters);
+        urb_counters = NULL;
     }
 }
-
+#endif
 /*
  * $Log$
+ * Revision 1.17  2004/06/06 14:50:36  oliver-guest
+ * Use shared memory functions only when needed
+ *
  * Revision 1.16  2004/05/26 22:37:01  oliver-guest
  * Use shared memory for urb counters in snapscan backend
  *

@@ -138,11 +138,7 @@ int sanei_canon_pp_wake_scanner(struct parport *port)
 	if (readstatus(port) != READY)
 	{
 		DBG(40, "Scanner not ready. Attempting to reset...\n");
-		if (scanner_reset(port))
-		{
-			DBG(10, "Could not gracefully reset scanner.\n");
-			return 1;
-		}
+		scanner_reset(port);
 	}
 
 	do
@@ -168,12 +164,11 @@ int sanei_canon_pp_wake_scanner(struct parport *port)
 	   Reply 1 (S3 and S4 on, S5 and S7 off) */
 	outcont(port, 0, HOSTBUSY); /* C1 off */
 	/* Reply 2 */
-	if (expect(port, "Reply 2", 12, 0x1f, 1000000))
-		return 1;
+	expect(port, "Reply 2", 12, 0x1f, 800000);
 	outcont(port, HOSTBUSY, HOSTBUSY); /* C1 on */
-	if (expect(port, "Reply 3", 0x0b, 0x1f, 1000000))
-		return 1;
+	expect(port, "Reply 3", 0x0b, 0x1f, 800000);
 	outboth(port, 0, NSELECTIN | NINIT | HOSTCLK); /* Clear D, C3+, C1- */
+
 
 	return 0;
 }
@@ -358,21 +353,24 @@ int sanei_canon_pp_check_status(struct parport *port)
 	if (verbose)
 		DBG(10, "* Check Status:\n");
 
-	sanei_canon_pp_read(port, 2, data);
+	if (sanei_canon_pp_read(port, 2, data))
+		return -1;
 
 	status = data[0] | (data[1] << 8);
 
 	switch(status)
 	{
 		case 0x0606:
-			if (verbose)
-				DBG(10, "Ready - 0x0606\n");
+			if (verbose) DBG(10, "Ready - 0x0606\n");
 			return 0; 
 			break;
 		case 0x1414:
-			if (verbose)
-				DBG(10, "Busy - 0x1414\n"); 
+			if (verbose) DBG(10, "Busy - 0x1414\n"); 
 			return 1;
+			break;
+		case 0x0805:
+			if (verbose) DBG(10, "Resetting - 0x0805\n"); 
+			return 3;
 			break;
 		case 0x1515:
 			DBG(1, "!! Invalid Command - 0x1515\n");
@@ -482,7 +480,7 @@ static int scanner_reset(struct parport *port)
 		outboth(port, 0x04, 0x0d);
 
 		/* Specifically, we want this: 00111 on S */
-		if (expect(port, "Reset 2 response 1", 0x7, 0x1f, 100000))
+		if (expect(port, "Reset 2 response 1", 0x7, 0x1f, 500000))
 			return 1;
 
 		outcont(port, 0, HOSTCLK);
@@ -491,7 +489,7 @@ static int scanner_reset(struct parport *port)
 
 		/* All lines 1 */
 		if (expect(port, "Reset 2 response 2 (READY)", 
-					0x1f, 0x1f, 100000))
+					0x1f, 0x1f, 500000))
 			return 1;
 
 		outcont(port, 0, HOSTBUSY);
@@ -503,7 +501,7 @@ static int scanner_reset(struct parport *port)
 		outboth(port, 0x04, 0x0d);
 
 		/* Specifically, we want this: 00111 on S */
-		if (expect(port, "Reset 2 response 1", 0x7, 0x1f, 100000))
+		if (expect(port, "Reset 2 response 1", 0x7, 0x1f, 500000))
 			return 1; 
 
 		outcont(port, 0, HOSTCLK);
@@ -512,7 +510,7 @@ static int scanner_reset(struct parport *port)
 
 		/* All lines 1 */
 		if (expect(port, "Reset 2 response 2 (READY)", 
-					0x1f, 0x1f, 1000000))
+					0x1f, 0x1f, 500000))
 			return 1;
 
 		outcont(port, 0, HOSTBUSY);
@@ -549,21 +547,38 @@ static int expect(struct parport *port, const char *step, int s,
 int sanei_canon_pp_scanner_init(struct parport *port)
 {
 
+	int tries = 0;
+	int tmp = 0;
+
 	/* Put the scanner in nibble mode */
 	ieee_negotiation(port, 0x0);
 
 	/* No data to read yet - return to idle mode */
 	scanner_endtransfer(port);
 
-	/* Send Command 1 (unknown purpose) */
-	sanei_canon_pp_write(port, 10, command_1);
-
 	/* In Windows, this is always ECP (or an attempt at it) */
-	sanei_canon_pp_check_status(port);
-
-	/* Scanner status check */
 	sanei_canon_pp_write(port, 10, command_1);
-	sanei_canon_pp_check_status(port);
+	/* Note that we don't really mind what the status was as long as it 
+	 * wasn't a read error (returns -1) */
+	if (sanei_canon_pp_check_status(port) < 0)
+		return -1;
+
+	/* Try until it's ready */
+	sanei_canon_pp_write(port, 10, command_1);
+	while ((tries < 3) && (tmp = sanei_canon_pp_check_status(port)))
+	{
+		if (tmp < 0)
+			return -1;
+		DBG(10, "scanner_init: Giving the scanner a snooze "
+				"(sleeping for 4 seconds)\n");
+		usleep(4000000); 
+
+		tries++;
+
+		sanei_canon_pp_write(port, 10, command_1);
+	}
+
+	if (tries == 3) return 1;
 
 	return 0;
 }

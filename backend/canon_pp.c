@@ -291,8 +291,10 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		/* detect_mode suceeded, so the port is open.  This beholdens
 		 * us to call ieee1284_close in any of the remaining error
 		 * cases in this loop. */
-
+#if 0
 		tmp = sanei_canon_pp_detect(s_tmp->params.port);
+
+
 		if (tmp && (s_tmp->ieee1284_mode != M1284_NIBBLE))
 		{
 			/* A failure, try again in nibble mode... */
@@ -313,6 +315,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			continue;
 		}
 		
+#endif
 		/* all signs point to yes, try it out */
 		if (ieee1284_claim(s_tmp->params.port) != E1284_OK) {
 			DBG(10, "sane_init: Couldn't claim port %s.\n",
@@ -325,9 +328,22 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		DBG(2, "sane_init: >> initialise\n");
 		tmp = sanei_canon_pp_initialise(&(s_tmp->params));
 		DBG(2, "sane_init: << %d initialise\n", tmp);
+		/* put it back to sleep until we're ready to 
+		 * open for business again  */
+		sanei_canon_pp_sleep_scanner(s_tmp->params.port);
 		/* leave the port open but not claimed - this is regardless 
 		 * of the return value of initialise */
 		ieee1284_release(s_tmp->params.port);
+		if (tmp && (s_tmp->ieee1284_mode != M1284_NIBBLE))
+		{
+			/* A failure, try again in nibble mode... */
+			DBG(1, "sane_init: Failed on ECP mode, falling "
+					"back to nibble mode\n");
+
+			s_tmp->ieee1284_mode = M1284_NIBBLE;
+			sanei_canon_pp_set_ieee1284_mode(s_tmp->ieee1284_mode);
+			tmp = sanei_canon_pp_initialise(&(s_tmp->params));
+		}
 		if (tmp) {
 			DBG(10, "sane_init: Couldn't contact scanner on port "
 				"%s. Maybe it's not a scanner?\n",
@@ -349,6 +365,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 		}
 
 		/* Cocked, locked and ready to rock */
+
 		s_tmp->hw.model = s_tmp->params.name;
 		s_tmp->scanner_present = SANE_TRUE;
 	}
@@ -386,6 +403,7 @@ sane_get_devices (const SANE_Device ***dl, SANE_Bool local)
 	{
 		/* this has been called already */
 		*dl = devlist;
+		return SANE_STATUS_GOOD;
 	}
 	devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
 	if (devlist == NULL)
@@ -502,8 +520,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	/* Call whatever in simon's code starts the scanner and looks at 
-	 * its hairy bits - also sorts IEEE1284 stuff */
+	/* I put the scanner to sleep before, better wake it back up */
 
 	DBG(2, "sane_open: >> initialise\n");
 	tmp = sanei_canon_pp_initialise(&(cs->params));
@@ -515,6 +532,7 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 		DBG(1, "sane_open: Can't contact scanner.  Try power "
 				"cycling scanner, and unplug any "
 				"printers\n");
+		ieee1284_release(cs->params.port);
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -705,7 +723,8 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 			}
 			break;
 		case SANE_ACTION_SET_VALUE:
-			if (val != NULL) i = *((int *)val);
+			/* val has been checked for NULL if opt != OPT_CAL */
+			if (opt != OPT_CAL) i = *((int *)val);
 			if (info != NULL) *info = 0;
 			switch (opt) {
 				case OPT_NUM_OPTIONS:
@@ -726,8 +745,13 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 					if (cs->vals[opt] != i)
 					{
 						update_ranges(cs);
+						/* shouldn't have to reload
+						 * params too, but xsane
+						 * seems a bit buggy in that
+						 * respect.  it's ok for us
+						 * not to change them */
 						if (info != NULL) *info |= 
-							SANE_INFO_RELOAD_OPTIONS;
+							SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 					}
 					if (res630[cs->vals[opt]] != 
 							*((int *)val))
@@ -1413,9 +1437,11 @@ sane_exit (void)
 
 	first_dev = NULL;
 
-	/* FIXME: this creates a segfault in DLL code. */
-	/* freeing something it shouldn't perhaps? Leaving this disabled
-	 * leaves a small memory leak between init and exit */
+	/* FIXEDME: this creates a segfault in DLL code. */
+	/* freeing something it shouldn't perhaps? */
+	/* Turns out to be a bug in libieee1284 0.1.4 and only occurs on 2.2 
+	 * kernels - have sent mail to Tim Waugh, will leave commented out
+	 * until I receive a reply */
 	/* ieee1284_free_ports(&pl); */
 
 	DBG(2, "<< sane_exit\n");
@@ -1673,7 +1699,7 @@ static void update_ranges(CANONP_Scanner *cs)
 
 	new_width = cs->params.scanheadwidth / 
 		(max_res / res630[cs->vals[OPT_RESOLUTION]]);
-	new_height = (cs->params.scanheadwidth == 2552 ? 3508 : 8016) /
+	new_height = (cs->params.scanheadwidth == 2552 ? 3508 : 7016) /
 		(max_res / res630[cs->vals[OPT_RESOLUTION]]);
 
 	/* Max width has to be divisible by 4 */

@@ -30,6 +30,9 @@
 	  documentation fo umax1220u backend (patch from from Marcio Luis
 	  Teixeira <marciot@holly.colostate.edu>).
 	* AUTHORS: Added Marcio Luis Teixeira.
+	* TODO: Removed umax1220u project (now included in sane-backends).
+	  Added HP Scanjet 3300C / 3400C and 4300C project. Added entry about
+	  saned data port documentation. Removed saned race condition bug.
 
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

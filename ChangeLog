@@ -1,4 +1,8 @@
-2004-10-28  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-10-10  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/Makefile.in: fix niash dependencies
+
+2004-10-08  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c: 610P shading
 	  calibration improvements. 1220P offset and gain fixes.

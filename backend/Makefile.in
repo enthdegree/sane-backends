@@ -365,7 +365,6 @@ libsane-nec.la: ../sanei/sanei_scsi.lo
 libsane-net.la: ../sanei/sanei_codec_bin.lo
 libsane-net.la: ../sanei/sanei_net.lo
 libsane-net.la: ../sanei/sanei_wire.lo
-libsane-niash.la: ../sanei/sanei_config2.lo
 libsane-niash.la: ../sanei/sanei_constrain_value.lo
 libsane-niash.la: ../sanei/sanei_usb.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo

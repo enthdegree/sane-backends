@@ -1,4 +1,7 @@
 2003-02-23  Simon Munton <simon@munton.demon.co.uk>
+        * backend/pie.c: increment BUILD (was missed in last change)
+
+2003-02-23  Simon Munton <simon@munton.demon.co.uk>
         * backend/pie.c: fixed segmentation faults when sane_init/sane_exit is
 	  run more than once.
 

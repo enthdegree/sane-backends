@@ -109,7 +109,7 @@
 #define DBG_sane_option 13
 #define DBG_dump	14
 
-#define BUILD 8
+#define BUILD 9
 
 #define PIE_CONFIG_FILE "pie.conf"
 #define MM_PER_INCH	 25.4

@@ -1,4 +1,18 @@
 -*-Mode: outline-*-
+
+New with 1.0.4, released ????-??-??:
+
+* New backends: as6e, nec, pie.
+* Updated backends: avision (v0.2.1), epson (v0.1.35), hp (v0.88), mustek 
+  (v1.0-100), mustek_pp (v0.9-devel), plustek (v0.37), sharp (v0.32), umax 
+  (v1.0-21).
+* Moved frontends xscanimage and xcam to a new package (sane-frontends).
+* Added authentification with encrypted passwords.
+* Installation of shared libraries on AIX is supported now.
+* Better debug output on platforms not supporting vararg macros.
+* Better documentation about SANE devicenames.
+* Bugfixes.
+
 New with 1.0.3, released 2000-08-12:
 
 * New backends: mustek_pp, plustek, st400, v4l.

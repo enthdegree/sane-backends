@@ -4,10 +4,11 @@ New with 1.0.6, released 2001-??-??:
 
 * New backends: gphoto2 (backend for gphoto2 supported cameras), mustek_usb
   (for Mustek USB scanners 600CU, 1200CU(+), 1200UB).
-* Updated backends: dc240 (v 0.0), hp (0.95), mustek (v1.0-113), 
-  umax (1.0-28), umax_pp (1).
+* Updated backends: dc240 (v 0.0), hp (0.95), microtek2 (v 0.9-20010828), 
+  mustek (v1.0-113), pie (1.0-7), pnm (1.0-2), umax (1.0-28), umax_pp (1).
 * Added generic support for USB devices.
 * Added USB support to sane-find-scanner.
+* Code and documentation updates for HP UX compatibility.
 * Documentation updates.
 * Bugfixes.
 

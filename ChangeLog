@@ -2,6 +2,11 @@
 
 	* doc/sane.man: Added SEE ALSO section.
 	* backend/Makefile.in: Fixed warning for dll-preload.c.
+	* bakend/dll.c: Add casts to function calls. Without this fix, the
+	  dll backend didn't work on the m68k paltform because data and
+	  addresses are stored in differnt registers so the return values
+	  of the sane api functions were wrong. Patch from Dave Huang
+	  <khym@azeotrope.org>. Fixed some compilation warnings.
 
 2003-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.9"
+#define DLL_VERSION "1.0.10"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -121,10 +121,27 @@ enum SANE_Ops
   NUM_OPS
 };
 
+typedef SANE_Status (*op_init_t) (SANE_Int *, SANE_Auth_Callback);
+typedef void (*op_exit_t) (void);
+typedef SANE_Status (*op_get_devs_t) (const SANE_Device ***, SANE_Bool);
+typedef SANE_Status (*op_open_t) (SANE_String_Const, SANE_Handle *);
+typedef void (*op_close_t) (SANE_Handle);
+typedef const SANE_Option_Descriptor * (*op_get_option_desc_t) (SANE_Handle,
+    SANE_Int);
+typedef SANE_Status (*op_ctl_option_t) (SANE_Handle, SANE_Int, SANE_Action,
+    void *, SANE_Int *);
+typedef SANE_Status (*op_get_params_t) (SANE_Handle, SANE_Parameters *);
+typedef SANE_Status (*op_start_t) (SANE_Handle);
+typedef SANE_Status (*op_read_t) (SANE_Handle, SANE_Byte *, SANE_Int,
+    SANE_Int *);
+typedef void (*op_cancel_t) (SANE_Handle);
+typedef SANE_Status (*op_set_io_mode_t) (SANE_Handle, SANE_Bool);
+typedef SANE_Status (*op_get_select_fd_t) (SANE_Handle, SANE_Int *);
+
 struct backend
 {
   struct backend *next;
-  const char *name;
+  char *name;
   u_int permanent:1;		/* is the backend preloaded? */
   u_int loaded:1;		/* are the functions available? */
   u_int inited:1;		/* has the backend been initialized? */
@@ -134,20 +151,20 @@ struct backend
 
 #define BE_ENTRY(be,func)       sane_##be##_##func
 
-#define PRELOAD_DECL(name)                              \
-  extern void *BE_ENTRY(name,init) ();                  \
-  extern void *BE_ENTRY(name,exit) ();                  \
-  extern void *BE_ENTRY(name,get_devices) ();           \
-  extern void *BE_ENTRY(name,open) ();                  \
-  extern void *BE_ENTRY(name,close) ();                 \
-  extern void *BE_ENTRY(name,get_option_descriptor) (); \
-  extern void *BE_ENTRY(name,control_option) ();        \
-  extern void *BE_ENTRY(name,get_parameters) ();        \
-  extern void *BE_ENTRY(name,start) ();                 \
-  extern void *BE_ENTRY(name,read) ();                  \
-  extern void *BE_ENTRY(name,cancel) ();                \
-  extern void *BE_ENTRY(name,set_io_mode) ();           \
-  extern void *BE_ENTRY(name,get_select_fd) ();
+#define PRELOAD_DECL(name)                                                            \
+  extern void *BE_ENTRY(name,init) (SANE_Int *, SANE_Auth_Callback);                  \
+  extern void *BE_ENTRY(name,exit) (void);                  \
+  extern void *BE_ENTRY(name,get_devices) (const SANE_Device ***, SANE_Bool);           \
+  extern void *BE_ENTRY(name,open) (SANE_String_Const, SANE_Handle *);                  \
+  extern void *BE_ENTRY(name,close) (SANE_Handle);                 \
+  extern void *BE_ENTRY(name,get_option_descriptor) (SANE_Handle,  SANE_Int); \
+  extern void *BE_ENTRY(name,control_option) (SANE_Handle, SANE_Int, SANE_Action, void *, SANE_Int *);        \
+  extern void *BE_ENTRY(name,get_parameters) (SANE_Handle, SANE_Parameters *);        \
+  extern void *BE_ENTRY(name,start) (SANE_Handle);                 \
+  extern void *BE_ENTRY(name,read) (SANE_Handle, SANE_Byte *, SANE_Int, SANE_Int *);                  \
+  extern void *BE_ENTRY(name,cancel) (SANE_Handle);                \
+  extern void *BE_ENTRY(name,set_io_mode) (SANE_Handle, SANE_Bool);           \
+  extern void *BE_ENTRY(name,get_select_fd) (SANE_Handle, SANE_Int *);
 
 #define PRELOAD_DEFN(name)                      \
 {                                               \
@@ -192,7 +209,7 @@ struct alias
  * List of available devices, allocated by sane_get_devices, released
  * by sane_exit()
  */
-static const SANE_Device **devlist = NULL;
+static SANE_Device **devlist = NULL;
 static int devlist_size = 0, devlist_len = 0;
 
 static struct alias *first_alias;
@@ -481,7 +498,7 @@ init (struct backend *be)
 
   DBG (3, "init: initializing backend `%s'\n", be->name);
 
-  status = (long) (*be->op[OP_INIT]) (&version, auth_callback);
+  status = (*(op_init_t)be->op[OP_INIT]) (&version, auth_callback);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -698,7 +715,7 @@ sane_exit (void)
 	    {
 	      DBG (3, "sane_exit: calling backend `%s's exit function\n",
 		   be->name);
-	      (*be->op[OP_EXIT]) ();
+	      (*(op_exit_t)be->op[OP_EXIT]) ();
 	    }
 #ifdef HAVE_DLL
 
@@ -796,7 +813,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	if (init (be) != SANE_STATUS_GOOD)
 	  continue;
 
-      status = (long) (*be->op[OP_GET_DEVS]) (&be_list, local_only);
+      status = (*(op_get_devs_t)be->op[OP_GET_DEVS]) (&be_list, local_only);
       if (status != SANE_STATUS_GOOD || !be_list)
 	continue;
 
@@ -865,7 +882,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   ASSERT_SPACE (1);
   devlist[devlist_len++] = 0;
 
-  *device_list = devlist;
+  *device_list = (const SANE_Device **) devlist;
   DBG (3, "sane_get_devices: found %d devices\n", devlist_len - 1);
   return SANE_STATUS_GOOD;
 }
@@ -875,7 +892,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 {
   const char *be_name, *dev_name;
   struct meta_scanner *s;
-  SANE_Handle *handle;
+  SANE_Handle handle;
   struct backend *be;
   SANE_Status status;
   struct alias *alias;
@@ -938,7 +955,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 	return status;
     }
 
-  status = (long) (*be->op[OP_OPEN]) (dev_name, &handle);
+  status = (*(op_open_t)be->op[OP_OPEN]) (dev_name, &handle);
   if (status != SANE_STATUS_GOOD)
     return status;
 
@@ -960,7 +977,7 @@ sane_close (SANE_Handle handle)
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_close(handle=%p)\n", handle);
-  (*s->be->op[OP_CLOSE]) (s->handle);
+  (*(op_close_t)s->be->op[OP_CLOSE]) (s->handle);
   free (s);
 }
 
@@ -971,7 +988,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   DBG (3, "sane_get_option_descriptor(handle=%p,option=%d)\n", handle,
        option);
-  return (*s->be->op[OP_GET_OPTION_DESC]) (s->handle, option);
+  return (*(op_get_option_desc_t)s->be->op[OP_GET_OPTION_DESC]) (s->handle, option);
 }
 
 SANE_Status
@@ -983,7 +1000,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   DBG (3,
        "sane_control_option(handle=%p,option=%d,action=%d,value=%p,info=%p)\n",
        handle, option, action, value, info);
-  return (long) (*s->be->op[OP_CTL_OPTION]) (s->handle, option, action, value,
+  return (*(op_ctl_option_t)s->be->op[OP_CTL_OPTION]) (s->handle, option, action, value,
 					     info);
 }
 
@@ -993,7 +1010,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_get_parameters(handle=%p,params=%p)\n", handle, params);
-  return (long) (*s->be->op[OP_GET_PARAMS]) (s->handle, params);
+  return (*(op_get_params_t)s->be->op[OP_GET_PARAMS]) (s->handle, params);
 }
 
 SANE_Status
@@ -1002,7 +1019,7 @@ sane_start (SANE_Handle handle)
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_start(handle=%p)\n", handle);
-  return (long) (*s->be->op[OP_START]) (s->handle);
+  return (*(op_start_t)s->be->op[OP_START]) (s->handle);
 }
 
 SANE_Status
@@ -1013,7 +1030,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 
   DBG (3, "sane_read(handle=%p,data=%p,maxlen=%d,lenp=%p)\n",
        handle, data, max_length, length);
-  return (long) (*s->be->op[OP_READ]) (s->handle, data, max_length, length);
+  return (*(op_read_t)s->be->op[OP_READ]) (s->handle, data, max_length, length);
 }
 
 void
@@ -1022,7 +1039,7 @@ sane_cancel (SANE_Handle handle)
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_cancel(handle=%p)\n", handle);
-  (*s->be->op[OP_CANCEL]) (s->handle);
+  (*(op_cancel_t)s->be->op[OP_CANCEL]) (s->handle);
 }
 
 SANE_Status
@@ -1032,7 +1049,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 
   DBG (3, "sane_set_io_mode(handle=%p,nonblocking=%d)\n", handle,
        non_blocking);
-  return (long) (*s->be->op[OP_SET_IO_MODE]) (s->handle, non_blocking);
+  return (*(op_set_io_mode_t)s->be->op[OP_SET_IO_MODE]) (s->handle, non_blocking);
 }
 
 SANE_Status
@@ -1041,5 +1058,5 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
   struct meta_scanner *s = handle;
 
   DBG (3, "sane_get_select_fd(handle=%p,fdp=%p)\n", handle, fd);
-  return (long) (*s->be->op[OP_GET_SELECT_FD]) (s->handle, fd);
+  return (*(op_get_select_fd_t)s->be->op[OP_GET_SELECT_FD]) (s->handle, fd);
 }

@@ -1,3 +1,8 @@
+2003-10-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Pentax, Sicos, Syscan,
+	  and UMAX scanners.
+	
 2003-10-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx_low.c: Fixed compilation bug when debugging is

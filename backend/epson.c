@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.32 - 2002-12-28"
-#define SANE_EPSON_BUILD	232
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.33 - 2003-02-15"
+#define SANE_EPSON_BUILD	233
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2003-02-15	Fix problem with "usb <vendor> <product> syntax in config file
    2002-12-28	Added advanced option to display only short resolution list for 
    		displays that can not show the complete list.
    2002-11-23	Fixed problem with dropout color.
@@ -75,7 +76,8 @@
    2002-04-13	Check if scanner needs to be opened for the reset call.
 		(Thanks to Thomas Wenrich for pointing this out)
 		Added product IDs for Perfection 1650 and 2450
-   2002-01-18	Recognize GT-xxxx type scanners also when using the SCSI or IEEE-1394 interface
+   2002-01-18	Recognize GT-xxxx type scanners also when using the SCSI 
+   		or IEEE-1394 interface
    2002-01-06   Disable TEST_IOCTL again, which was enabled by accident. Also
 		protect the ioctl portion with an #ifdef __linux__
    2002-01-05   Version 0.2.17
@@ -1788,8 +1790,11 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 		if ((!isLibUSB) && (strlen(dev_name) == 0))
 		{
 			int i;
-			i = 0;
-			while (sanei_epson_usb_product_ids[i] != 0)
+			int numIds;
+
+			numIds = sanei_epson_getNumberOfUSBProductIds();
+
+			for (i = 0; i < numIds; i++)
 			{
 				product = sanei_epson_usb_product_ids[i];
 				vendor = 0x4b8;
@@ -1816,6 +1821,7 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 		if (sanei_usb_get_vendor_product (s->fd, &vendor, &product) == SANE_STATUS_GOOD) 
 		{
 			int i;			/* loop variable */
+			int numIds;
 			SANE_Bool is_valid;
 
 			/* check the vendor ID to see if we are dealing with an EPSON device */
@@ -1829,11 +1835,13 @@ attach(const char * dev_name, Epson_Device * * devp, int type)
 				return SANE_STATUS_INVAL;
 			}
 
-			i = 0;	/* start with the first element */
+			numIds = sanei_epson_getNumberOfUSBProductIds();
 			is_valid = SANE_FALSE;
+			i = 0;
 
-			/* check all known product IDs to verify that we know about the device */
-			while (sanei_epson_usb_product_ids[i] != 0 && !is_valid)
+			/* check all known product IDs to verify that we know 
+			   about the device */
+			while (i != numIds && !is_valid)
 			{
 				if (product == sanei_epson_usb_product_ids[i])
 					is_valid = SANE_TRUE;
@@ -2231,8 +2239,17 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 			if( !len)
 				continue;			/* ignore empty lines */
 
-			if (sscanf(line, "usb %d %d", &vendor, &product) == 2)
+			if (sscanf(line, "usb %i %i", &vendor, &product) == 2)
 			{
+				int numIds;
+
+				/* add the vendor and product IDs to the list of 
+				   known devices before we call the attach function */
+				numIds = sanei_epson_getNumberOfUSBProductIds();
+				if (vendor != 0x4b8)
+					continue;		/* this is not an EPSON device */
+
+				sanei_epson_usb_product_ids[numIds-1] = product;
 				sanei_usb_attach_matching_devices(line, attach_one_usb);
 			}
 			else if (strncmp(line, "usb", 3) == 0)

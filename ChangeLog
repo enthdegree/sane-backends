@@ -1,3 +1,8 @@
+2003-02-15  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c backend/epson_usb.[ch]: Fix problem with 
+	  "usb <vendor> <product> syntax in config file
+
 2003-02-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Updated Canon, Fujitsu, and

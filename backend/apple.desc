@@ -9,7 +9,7 @@
 :devicetype :scanner              ; start of a list of devices....
  
 :mfg "Apple"
-:url "ftp://ftpdev.info.apple.com/devworld/"	
+:url "http://developer.apple.com/"	
 :model "Apple Scanner"
 :interface "SCSI"
 :comment "4bit, 16 shades of gray"

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-08-21"		; version of backend
+:version "2003-09-12"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -349,13 +349,13 @@
 :interface "USB"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.html"
 :status :unsupported
-:comment "Unsupported. Vendor/product 0x03f0/0x0901. See link for devices output."
+:comment "Unsupported.  See link for details."
 
 :model "ScanJet 2400C"
 :interface "USB"
-;:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.html"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2400c.html"
 :status :unsupported
-:comment "Probably unsupported. No details known. 1200x1200 dpi."
+:comment "Probably unsupported. See link for details."
 
 :model "ScanJet 3500c"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.html"

@@ -1,6 +1,8 @@
 2003-09-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore sanei/.cvsignore: Added .libs. Sorted.
+	* doc/descriptions/unsupported.desc: Updated HP ScanJet 2300c
+	  and 2400c.
 
 2003-09-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,9 @@
+2002-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 aclocal.m4 configure configure.in: Added checks for
+	  libieee1284. Enable canon_pp backend if found. Patch from 
+	  "Matthew Duggan" <stauff@guarana.org>.
+
 2002-03-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/test.desc: Added description of the test 

@@ -10,9 +10,9 @@
 ;
 
 :backend "hp5400"		; name of backend
-;:version "(0.1)"			; version of backend
+:version "1.0-2"		; version of backend
 :status :alpha			; :alpha, :beta, :stable, :new
-;:manpage "sane-hp5400"		; name of manpage (if it exists)
+:manpage "sane-hp5400"		; name of manpage (if it exists)
 :url "http://sourceforge.net/projects/hp5400backend"  ; backend's web page
 :comment "HP5400 and HP5470 scanners. Prototype backend available"
 
@@ -23,18 +23,18 @@
 :mfg "Hewlett-Packard"		; name a manufacturer
 :url "http://www.hp.com"
 
-:model "ScanJet 5400"		; name models for above-specified mfg.
+:model "ScanJet 5400c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
 				; "SCSI", "USB", "Parport (EPP)",
 				; "Parport (SPP)", "Parport (ECP)",
 				; "Serial port" or "Propretiary".
 :status :alpha
 
-:model "ScanJet 5470"		; name models for above-specified mfg.
+:model "ScanJet 5470c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
 :status :alpha
 
-:model "ScanJet 5490"		; name models for above-specified mfg.
+:model "ScanJet 5490c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
 :status :untested
 

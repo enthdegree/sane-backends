@@ -406,7 +406,7 @@ umax_pp_get_sync (SANE_Int dpi)
       switch (dpi)
 	{
 	case 600:
-	  return 8;
+	  return 16;
 	case 300:
 	  return 8;
 	case 150:
@@ -2169,6 +2169,9 @@ sane_start (SANE_Handle handle)
     {
       delta = umax_pp_get_sync (dev->dpi);
       points = 2 * delta;
+      /* first lines are 'garbage' for 610P */
+      if(sanei_umax_pp_getastra()<1210)
+	      points*=2;
       DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
 	   dev->TopX,
 	   dev->TopY - points,
@@ -2198,7 +2201,7 @@ sane_start (SANE_Handle handle)
       /* to allow reordering, we must    */
       /* substract it from real scanning */
       /* zone                            */
-      dev->th -= 2 * delta;
+      dev->th -= points;
       DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
 	   dev->th);
     }
@@ -2227,8 +2230,6 @@ sane_start (SANE_Handle handle)
   if (rc != UMAX1220P_OK)
     {
       DBG (2, "sane_start: failure\n");
-      DEBUG ();
-
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -2237,6 +2238,22 @@ sane_start (SANE_Handle handle)
   dev->buflen = 0;
   dev->bufread = 0;
   dev->read = 0;
+
+  /* leading lines for 610P aren't complete in color mode */
+  /* and should be discarded				  */
+  if((sanei_umax_pp_getastra()<1210)&&(dev->color == UMAX_PP_MODE_COLOR))
+  {
+      rc =
+	sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
+			    0,
+			    dev->buf + UMAX_PP_RESERVE -
+			    2 * delta * dev->tw * dev->bpp);
+      if (rc != UMAX1220P_OK)
+	{
+	  DBG (2, "sane_start: first lines discarding failed\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
+  }
 
   /* in case of color, we have to preload blue and green */
   /* data to allow reordering while later read           */

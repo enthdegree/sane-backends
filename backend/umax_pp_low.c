@@ -826,10 +826,18 @@ sanei_parport_find_port (void)
 char **
 sanei_parport_find_device (void)
 {
-  char *devices[] = { "/dev/ppi0",
+  char *devices[] = { 
+    /* FreeBSD */
+    "/dev/ppi0",
     "/dev/ppi1",
     "/dev/ppi2",
     "/dev/ppi3",
+    /* linux ppdev with devfs */
+    "/dev/parports/0",
+    "/dev/parports/1",
+    "/dev/parports/2",
+    "/dev/parports/3",
+    /* linux ppdev */
     "/dev/parport0",
     "/dev/parport1",
     "/dev/parport2",
@@ -3603,15 +3611,20 @@ init005 (int arg)
 int
 putByte610p (int data)
 {
-  int status, control;
+  int status, control, j;
 
-  status = Inb (STATUS) & 0xF8;
+  j=0;
+  do {
+    status = Inb (STATUS) & 0xF8;
+    j++;
+  } while((j<20)&&(status & 0x08));
+
   if ((status != 0xC8) && (status != 0xC0))
     {
       DBG (0,
 	   "putByte610p failed, expected 0xC8 or 0xC0 got 0x%02X ! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      /* XXX STEF XXX return 0; */
+      return 0;
     }
   control = Inb (CONTROL) & 0x1F;	/* data forward */
   Outb (CONTROL, control);
@@ -4550,7 +4563,7 @@ retry:
 static int
 SPPsendWord610p (int *cmd)
 {
-  int i;
+  int i, j;
   int tmp, status;
 
 #ifdef HAVE_LINUX_PPDEV_H
@@ -4620,6 +4633,12 @@ SPPsendWord610p (int *cmd)
       return 0;
     }
   status = Inb (STATUS) & 0xF8;
+  j=0;
+  while((j<256)&&(status & 0x08))
+  {
+	  j++;
+	  status = Inb (STATUS) & 0xF8;
+  }
   if ((status != 0x80) && (status != 0xA0))
     {
       DBG (0, "SPPsendWord610p found 0x%X expected 0x80 or 0xA0 (%s:%d)\n",
@@ -10408,7 +10427,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
   int th, tw, bpp;
   int nb;
   int bx, by, delta;
-  int reserve, rc, remain;
+  int reserve, rc, remain, offset;
 
   /* colors don't come in sync, so we must increase y */
   /* to have extra lines to reorder datas             */
@@ -10457,13 +10476,20 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	delta = 0;
     }
 
+  /* in color mode, we need extra lines to reorder data */
   if (color >= RGB_MODE)
-    rc = sanei_umax_pp_startScan
-      (x, y - 2 * delta, width, height + 2 * delta, dpi, color, brightness,
-       contrast, &bpp, &tw, &th);
+  {
+	  if(sanei_umax_pp_getastra()<=610)
+		  offset=4 * delta;
+	  else
+		  offset=2 *delta;
+  }
   else
+	  offset=0;
+
     rc = sanei_umax_pp_startScan
-      (x, y, width, height, dpi, color, brightness, contrast, &bpp, &tw, &th);
+      (x, y - offset, width, height + offset, dpi, color, brightness,
+       contrast, &bpp, &tw, &th);
   if (rc == 1)
     {
       /* blocksize must be multiple of the number of bytes per line */
@@ -10472,22 +10498,33 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
       /* write data to file operation                               */
       /*blocksize=(2096100/bpl)*bpl; */
       bpl = bpp * tw;
-      hp = 16776960 / bpl;	/* 16 Mo buffer (!!) */
+      /*hp = 16776960 / bpl;*/	/* XXX STEF XXX 16 Mo buffer (!!) */
       hp = 2096100 / bpl;
       blocksize = hp * bpl;
       nb = 0;
-      read = 0;
+      somme = bpl * th;
+      DBG (8, "Getting buffer %d*%d*%d=%ld=0x%lX    (%s:%d)  \n", bpp, tw, th,
+	   somme, somme, __FILE__, __LINE__);
+
+      /* correct th to be usable scan height */
+      th-=offset;
 
       /* we need a 2 * delta lines reserve to reorder data */
       if (color >= RGB_MODE)
-	reserve = 3 * 2 * delta * tw;
+      {
+	reserve = 2 * delta * bpl;
+	if(sanei_umax_pp_getastra()<1210)
+		offset=reserve;
+	else
+		offset=0;
+      }
       else
+      {
 	reserve = 0;
+	offset=0;
+      }
 
       /* get scanned data */
-      somme = bpp * tw * th;
-      DBG (8, "Getting buffer %d*%d*%d=%ld=0x%lX    (%s:%d)  \n", bpp, tw, th,
-	   somme, somme, __FILE__, __LINE__);
 
       /* allocate memory */
       buffer = (unsigned char *) malloc (blocksize + reserve);
@@ -10511,15 +10548,51 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	  /* write pnm header */
 	  if (color >= RGB_MODE)
 	    fprintf (fout, "P6\n%d %d\n255\n", tw, th - 2 * delta);
+	    /*fprintf (fout, "P5\n%d %d\n255\n", tw, 3*th);*/
 	  else
 	    fprintf (fout, "P5\n%d %d\n255\n", tw, th);
 	}
+
+      /* read some line first until we got clean data */
+      read=0;
+      remain = 0;
+      while(read<offset)
+      {
+	  if (read==0)
+	    len = offset;
+	  else
+	    len = offset - read;
+	  len =
+	    sanei_umax_pp_readBlock (len, tw, dpi, 0, buffer+read);
+	  if (len == 0)
+	    {
+	      DBG (0,
+		   "sanei_umax_pp_readBlock failed, cancelling scan ...\n");
+	      gCancel = 1;
+	    }
+	  read+=len;
+      }
+
+      /* in color mode we have to fill the 'reserve' area 
+       * so that we can reorder data lines */
+      while((read-offset<reserve)&&(!gCancel))
+      {
+	  len = reserve - read + offset;
+	  len =
+	    sanei_umax_pp_readBlock (len, tw, dpi, 0, buffer+read-offset);
+	  if (len == 0)
+	    {
+	      DBG (0,
+		   "sanei_umax_pp_readBlock failed, cancelling scan ...\n");
+	      gCancel = 1;
+	    }
+	  read+=len;
+      }
 
       /* data reading loop */
 #ifdef HAVE_SYS_TIME_H
       gettimeofday (&td, NULL);
 #endif
-      remain = 0;
       while ((read < somme) && (!gCancel))
 	{
 	  /* 2096100 max */
@@ -10529,8 +10602,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	    len = somme - read;
 	  len =
 	    sanei_umax_pp_readBlock (len, tw, dpi, (len < blocksize),
-				     buffer + (read ==
-					       0 ? 0 : reserve) + remain);
+				     buffer + reserve + remain);
 	  if (len == 0)
 	    {
 	      DBG (0,
@@ -10557,12 +10629,14 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 		  switch (sanei_umax_pp_getastra ())
 		    {
 		    case 6100:
-		      fwrite (buffer, len, 1, fout);
+		      fwrite (buffer+reserve, hp*bpl, 1, fout);
 		      break;
 
 		    case 610:
-		      for (by = 0; by < hp - (read == 0 ? 2 * delta : 0);
-			   by++)
+		      /* first comes RED
+		       * then        BLUE
+		       * and finally GREEN */
+		      for (by = 0; by < hp ; by++)
 			{
 			  for (bx = 0; bx < tw; bx++)
 			    {
@@ -10582,7 +10656,10 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 			    }
 			}
 		      /* copy tail lines for next block */
-		      memcpy (buffer, buffer + 3 * by * tw, reserve + remain);
+		      /* memcpy (buffer, 
+		       *         (buffer + reserve) + (hp * bpl - reserve), 
+		       *         reserve + remain); */
+		      memcpy (buffer, buffer + hp * bpl, reserve + remain);
 		      break;
 		    case 1600:
 		      for (by = 0; by < hp; by++)
@@ -10998,21 +11075,34 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	switch (dpi)
 	  {
 	  case 600:
-	    y += 64;
+	    y += 0;
 	    break;
 	  case 300:
-	    y += 48;
+	    y += 0;
 	    break;
 	  case 150:
-	    y += 40;
+	    y += 0;
 	    break;
 	  case 75:
-	    y += 36;
+	    y += 0;
 	    break;
 	  }
       else
-	y += 48;
-      break;
+	switch (dpi)
+	  {
+	  case 600:
+	    y += 0;
+	    break;
+	  case 300:
+	    y += 0;
+	    break;
+	  case 150:
+	    y += 0;
+	    break;
+	  case 75:
+	    y += 0;
+	    break;
+	  }
     default:
       y += 8;
       break;

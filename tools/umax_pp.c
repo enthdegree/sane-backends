@@ -336,7 +336,7 @@ main (int argc, char **argv)
     }
   if (trace)
     {
-      printf ("UMAX 610P/1220P/2000P scanning program version 6.0 starting ...\n");
+      printf ("UMAX 610P/1220P/2000P scanning program version 6.1 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif
@@ -388,8 +388,7 @@ main (int argc, char **argv)
 	  printf ("checkModel() failed (%s:%d)\n", __FILE__, __LINE__);
 	  return 0;
 	}
-      if (trace)
-	printf ("UMAX Astra %dP detected \n", i);
+      printf ("UMAX Astra %dP detected \n", i);
 
       /* free scanner if a scan is planned */
       if (scan)

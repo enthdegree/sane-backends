@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 36
+#define BUILD 37
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -5785,7 +5785,7 @@ static SANE_Status init_options(Umax_Scanner *scanner)
   scanner->opt[OPT_BATCH_NEXT_TL_Y].unit  = SANE_UNIT_MM;
   scanner->opt[OPT_BATCH_NEXT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_BATCH_NEXT_TL_Y].constraint.range = &(scanner->device->y_range);
-  scanner->val[OPT_BATCH_NEXT_TL_Y].w     = 0; /* scanner->device->y_range.max; */
+  scanner->val[OPT_BATCH_NEXT_TL_Y].w     = 0xFFFF; /* mark value as not touched */
 
   if (scanner->device->inquiry_batch_scan == 0)
   {
@@ -7326,6 +7326,12 @@ SANE_Status sane_start(SANE_Handle handle)
                                            scanner->val[OPT_BATCH_SCAN_END].w );
     scanner->device->batch_end         = scanner->val[OPT_BATCH_SCAN_END].w;
     scanner->device->batch_next_tl_y   = SANE_UNFIX(scanner->val[OPT_BATCH_NEXT_TL_Y].w) * scanner->device->y_coordinate_base / MM_PER_INCH;
+
+    if (scanner->val[OPT_BATCH_NEXT_TL_Y].w == 0xFFFF)  /* option not set: use br_y => scanhead stops at end of batch area */
+    {
+      scanner->device->batch_next_tl_y = SANE_UNFIX(scanner->val[OPT_BR_Y].w) * scanner->device->y_coordinate_base / MM_PER_INCH;
+    }
+
     if ((scanner->device->batch_scan) && !scanner->val[OPT_BATCH_SCAN_START].w)
     {
       scanner->device->calibration = 9; /* no calibration - otherwise the scanhead will go into calibration position */
@@ -7599,6 +7605,7 @@ SANE_Status sane_start(SANE_Handle handle)
     DBG(DBG_sane_info,"calibration mode number = %d\n", scanner->device->calibration);
 
     DBG(DBG_sane_info,"batch scan              = %d\n", scanner->device->batch_scan);
+    DBG(DBG_sane_info,"batch end               = %d\n", scanner->device->batch_end);
     DBG(DBG_sane_info,"batch next top left y   = %d\n", scanner->device->batch_next_tl_y);
     DBG(DBG_sane_info,"quality calibration     = %d\n", scanner->device->quality);
     DBG(DBG_sane_info,"warm up                 = %d\n", scanner->device->warmup);

@@ -1,4 +1,9 @@
 2002-01-17  Peter Fales <peter@fales.com>
+	* backend/gphoto2.c, doc/sane-gphoto2.man
+	  Remove calls to exit()
+	  Support cameras which store all files in top-level directory
+
+2002-01-17  Peter Fales <peter@fales.com>
 	* configure, acinclude.m4, aclocal.m4 - (Really) disable
 	  gphoto2 backend unless specifically requested by the user (using
 	  --with-gphoto2) and the right CVS version of gphoto2 is found

@@ -1,7 +1,13 @@
+2002-07-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/sp15c.desc: Added missing slash in URL.
+
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Added status per model. Added quicklist for
 	  manufacturers. All manufacturer URLs are printed now. Code cleanup.
+	  Added status column for non-hardware devices. Fixed legends. Minor
+	  output fixes.
 	* backend/mustek.c doc/descriptions/mustek.desc
 	  doc/mustek/mustek.CHANGES: Increased width and height of Paragon
 	  800 and 600.

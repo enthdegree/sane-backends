@@ -1,4 +1,4 @@
-TODO (2001-05-29)
+TODO (2001-05-31)
 
 ******** todo ********
 
@@ -103,13 +103,6 @@ backends
 
   * add a contact address for each backend (in backend.desc).
 
-  * lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
-    should be removed (removing "\n" is already done in sanei_config_read).
-    This ist just a fast grep. Check all backends!
-    - bh
-    - m3096g
-    - sp15c
-
   * Don't export any other symbols than sane_* and sanei_*
     - coolscan
 
@@ -189,6 +182,9 @@ misc
   * Add installation procedure for translations of SANE backend's options.
 
 ******** done ********
+* lines like "if (config_line[len - 1] == '\n')" can cause segfaults and
+  should be removed (removing "\n" is already done in sanei_config_read).
+  This ist just a fast grep. Check all backends!
 * add additions/bug fixes to microtek2 from Karsten Festag
   <karsten.festag@t-online.de> (partially done)
 * include snapscan updates http://sourceforge.net/projects/snapscan

@@ -14,6 +14,9 @@
 	* backend/test.c doc/descriptions/test.desc: Check return value
 	  of waitpid. Don't evaluate status of children if waitpid wasn't
 	  successful.
+	* backend/mustek.c doc/descriptions/mustek.desc: Check return value
+	  of waitpid. Don't evaluate status of children if waitpid wasn't
+	  successful.
 
 ---- FEATURE FREEZE FOR SANE 1.0.8 ---
 

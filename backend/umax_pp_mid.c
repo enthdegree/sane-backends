@@ -41,6 +41,7 @@
    This file implements a SANE backend for Umax PP flatbed scanners.  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdio.h>
 #include "../include/sane/config.h"
@@ -74,6 +75,10 @@ lock_parport (void)
   fd = sanei_umax_pp_getparport ();
   if ((fd > 0) && (!locked))
     {
+      if (ioctl (sanei_umax_pp_getparport (), PPCLAIM))
+	{
+	  return (UMAX1220P_BUSY);
+	}
 #ifdef PPGETMODE
       if (ioctl (fd, PPGETMODE, &exmode))
 	exmode = IEEE1284_MODE_COMPAT;
@@ -83,10 +88,6 @@ lock_parport (void)
       mode = IEEE1284_MODE_EPP;
       ioctl (fd, PPNEGOT, &mode);
       ioctl (fd, PPSETMODE, &mode);
-      if (ioctl (sanei_umax_pp_getparport (), PPCLAIM))
-	{
-	  return (UMAX1220P_BUSY);
-	}
       locked = 1;
     }
 #else
@@ -306,6 +307,7 @@ sanei_umax_pp_cancel (void)
 
 int
 sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
+		     int autoset,
 		     int gain, int highlight, int *rbpp, int *rtw, int *rth)
 {
   int col = BW_MODE;
@@ -316,8 +318,14 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
   /* end session isn't done by cancel any more */
   sanei_umax_pp_EndSession ();
 
+  if (autoset)
+    sanei_umax_pp_setauto (1);
+  else
+    sanei_umax_pp_setauto (0);
+
   if (color)
     col = RGB_MODE;
+
   if (sanei_umax_pp_StartScan
       (x + 144, y, width, height, dpi, col, gain, highlight, rbpp, rtw,
        rth) != 1)

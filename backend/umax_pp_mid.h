@@ -146,8 +146,8 @@ extern int sanei_umax_pp_cancel (void);
    the width of scanned area expressed in pixels
 */
 extern int sanei_umax_pp_start (int x, int y, int width, int height, int dpi,
-				int color, int gain, int highlight, int *rbpp,
-				int *rtw, int *rth);
+				int color, int autoset, int gain,
+				int highlight, int *rbpp, int *rtw, int *rth);
 
 
 /* reads one block of data from scanner
@@ -171,6 +171,8 @@ extern int sanei_umax_pp_read (long len, int window, int dpi, int last,
 */
 extern int sanei_umax_pp_status (void);
 
+/* set auto calibration 0: no, else yes */
+extern void sanei_umax_pp_setauto (int mode);
 
 /* set umax astra model number */
 extern void sanei_umax_pp_setastra (int val);

@@ -14,7 +14,7 @@
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-mustek_pp"         ; name of manpage (if it exists)
                                   ; backend's web page
-:url "http://home.nexgo.de/jochen.eisinger/sane/"
+:url "http://www.penguin-breeder.org/?page=mustek_pp"
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

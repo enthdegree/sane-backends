@@ -495,7 +495,7 @@ Patches for CIS scanner
 
 .TP
 For latest bug fixes and information see
-.I http://home.nexgo.de/jochen.eisinger/sane/
+.I http://www.penguin-breeder.org/?page=mustek_pp
 
 .SH AUTHOR
 Jochen Eisinger <jochen.eisinger@gmx.net>

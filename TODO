@@ -103,6 +103,7 @@ frontends
        timeout. Otherwise turn on TCP keep alive (where available) and
        (maybe) check the connection from server side.
      - Add IPv6 support.
+     - Add support for IP ranges in saned.conf (like 10.0.0.0/8)
 
   * scanimage: Add i18n (NLS) support?
 

@@ -2,7 +2,7 @@
 :version "1.0.9"
 :status :beta
 :manpage "sane-net"
-:url "http://home.nexgo.de/jochen.eisinger/saned/"
+:url "http://www.penguin-breeder.org/?page=sane-net"
 
 :devicetype :meta
 :desc "Network access to saned servers"

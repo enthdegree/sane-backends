@@ -184,6 +184,6 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 sane(7), scanimage(1), xscanimage(1), xcam(1), sane\-dll(5), sane\-net(5),
 sane\-"backendname"(5)
 
-.I http://home.nexgo.de/jochen.eisinger/saned/
+.I http://www.penguin-breeder.org/?page=sane-net
 .SH AUTHOR
 David Mosberger

@@ -1,3 +1,14 @@
+2001-04-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.CHANGES backend/umax.CHANGES backend/umax.FAQ
+	  backend/umax.TODO: Moved to doc/mustek respectively doc/umax.
+	* doc/canon.CHANGES doc/canon.install2700F.txt doc/canon:
+	  Moved canon-specific documentation to doc/canon.
+	* doc/mustek: New subdirectory for mustek-specific documentation.
+	* doc/sane-umax*.html doc/sane-umax*.jpg doc/sane-umax-doc.tex
+	  doc/sane-umax-doc.dvi doc/umax: Moved all the umax-specific
+	  documentation to new subdirectory umax.
+
 2001-04-28  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp.desc, doc/sane-hp.man: Add support for new models

@@ -576,13 +576,19 @@
 
 ;********************************************************************************************
 
-:mfg "Logitec"
+:mfg "Logitech"
 
 :model "PageScan Color"
 ;:url "/unsupported/lexmark-x75.html"
 :interface "Parport"
 :status :unsupported
 :comment "Most probably unsupported."
+
+:model "PageScan USB"
+:url "/unsupported/logitech-pagescan-usb.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -1461,6 +1467,18 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported yet. See link for more details."
+
+
+;********************************************************************************************
+
+:mfg "Grandtek Scopecam"
+
+:model "8x30 Binocular & Digital Camera"
+:url "/unsupported/grandtech-scopecam.html"
+:interface "USB"
+:status :unsupported
+:comment "Not Supported yet. See link for more details."
+
 
 ;********************************************************************************************
 

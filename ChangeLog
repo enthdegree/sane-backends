@@ -17,6 +17,8 @@
 	  global variables explicitely. Mention ma1509.
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Initialize global
 	  variables in sane_init.
+	* TODO: Add ma1509 backend. Add segfault when running sane_init more
+	  than once. Removed sanei_usb interface issue.
 
 2003-02-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

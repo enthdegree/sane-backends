@@ -43,9 +43,66 @@
 #include <string.h>
 
 #include <sys/types.h>
+#include <stdlib.h>
 
 #include "sane/sane.h"
 #include "sane/sanei.h"
+
+SANE_Status
+sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
+{
+  const SANE_String_Const * string_list;
+  const SANE_Word * word_list;
+  int i;
+  const SANE_Range * range;
+  SANE_Word w, v;
+  SANE_Bool b;
+  size_t len;
+
+  switch (opt->constraint_type)
+    {
+    case SANE_CONSTRAINT_RANGE:
+      w = *(SANE_Word *) value;
+      range = opt->constraint.range;
+
+      if (w < range->min || w > range->max)
+	return SANE_STATUS_INVAL;
+
+      w = *(SANE_Word *) value;
+
+      if (range->quant)
+	{
+	  v = (w - range->min + range->quant/2) / range->quant;
+	  v = v * range->quant + range->min;
+	  if (v != w)
+	    return SANE_STATUS_INVAL;
+	}
+      break;
+
+    case SANE_CONSTRAINT_WORD_LIST:
+      w = *(SANE_Word *) value;
+      word_list = opt->constraint.word_list;
+      for (i = 1; w != word_list[i]; ++i)
+        if (i >= word_list[0])
+          return SANE_STATUS_INVAL;
+      break;
+
+    case SANE_CONSTRAINT_STRING_LIST:
+      string_list = opt->constraint.string_list;
+      len = strlen (value);
+
+      for (i = 0; string_list[i]; ++i)
+	if (strncmp (value, string_list[i], len) == 0
+	    && len == strlen (string_list[i]))
+	  return SANE_STATUS_GOOD;
+      return SANE_STATUS_INVAL;
+      
+    default:
+      break;
+    }
+  return SANE_STATUS_GOOD;
+}
+
 
 SANE_Status
 sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,

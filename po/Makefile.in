@@ -1,5 +1,6 @@
 # po/Makefile.in
 # See po/README for documentation.
+SHELL = /bin/sh
 all: check-mo
 
 # Create one line per backend with all files containing translatable text:

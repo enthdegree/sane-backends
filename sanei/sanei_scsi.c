@@ -195,8 +195,6 @@
 #  include <IOKit/scsi-commands/SCSICmds_INQUIRY_Definitions.h>
 #  include <IOKit/scsi-commands/SCSICommandOperationCodes.h>
 #  include <IOKit/scsi-commands/SCSITaskLib.h>
- CFDataRef CreateGUIDFromDevName (const char *devname);
- char *CreateDevNameFromGUID (CFDataRef dataDesc);
 # endif
 #elif defined (HAVE_WINDOWS_H)
 # define USE WIN32_INTERFACE
@@ -838,6 +836,10 @@ sanei_scsi_open (const char *dev, int *fdp,
   int fd, i;
 #if USE == LINUX_INTERFACE
   static int first_time = 1;
+#elif USE == MACOSX_INTERFACE  
+  UInt8 *guid;
+  int len;
+  u_int d;
 #endif
 
   cc = getenv ("SANE_SCSICMD_TIMEOUT");
@@ -1143,7 +1145,21 @@ sanei_scsi_open (const char *dev, int *fdp,
 #elif USE == MACOSX_INTERFACE
   {
 # ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
-    pdata = (void*) CreateGUIDFromDevName (dev);
+    len = strlen (dev);
+    if (len > 2 && len % 2 == 0 && dev [0] == '<' && dev [len - 1] == '>')
+      {
+	len = (len - 2) / 2;
+	guid = (UInt8 *) malloc (len);
+	for (i = 0; i < len; i++)
+	  {
+	    if (sscanf (&dev [2 * i + 1], "%02x", &d) != 1)
+	      break;
+	    guid [i] = d;
+	  }
+	if (i == len)
+	  pdata = (void *) CFDataCreate (kCFAllocatorDefault, guid, len);
+	free (guid);
+      }
 # endif
 # ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
     if ((pdata == NULL) &&
@@ -4859,7 +4875,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 # ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
 
-  SANE_Status
+  static SANE_Status
     sanei_scsi_cmd2_old_api (int fd,
 			     const void *cmd, size_t cmd_size,
 			     const void *src, size_t src_size,
@@ -5029,7 +5045,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
   }
 
 
-  void
+  static void
     sanei_scsi_find_devices_old_api (const char *findvendor,
 				     const char *findmodel,
 				     const char *findtype, int findbus,
@@ -5152,6 +5168,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 # ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 
+  static
   void CreateMatchingDictionaryForSTUC (SInt32 peripheralDeviceType,
 					const char *findvendor,
 					const char *findmodel,
@@ -5232,74 +5249,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     CFRelease (subDict);
   }
 
-  CFDataRef CreateGUIDFromDevName (const char *devname)
-  {
-    const char *p;
-    int L;
-    UInt8 *guid;
-    UInt8 *g;
-    int i, d;
-    CFDataRef dataDesc;
-
-    /* Decode a fake devname */
-
-    if (strncmp ("iokitscsi@<", devname, 11) != 0)
-      return NULL;
-
-    p = devname + 11;
-    L = strlen (p) - 1;
-
-    if ((L < 2) || ((L % 2) != 0))
-      return NULL;
-    L = L / 2;
-
-    /* Allocate a buffer for the GUID */
-
-    guid = (UInt8 *) malloc (L);
-    g = guid;
-
-    for (i = L; i > 0; i--, p += 2)
-      {
-	if (sscanf (p, "%02x", &d) != 1)
-	  return NULL;
-	*g++ = d & 0xff;
-      }
-
-    /* Create the CFData */
-
-    dataDesc = CFDataCreate (kCFAllocatorDefault, guid, L);
-    free (guid);
-
-    return dataDesc;
-  }
-
-  char *CreateDevNameFromGUID (CFDataRef dataDesc)
-  {
-    int L;
-    const char *p;
-    char *devname;
-    char *d;
-
-    if (dataDesc == NULL)
-      return NULL;
-
-    /* Create a fake device name */
-
-    L = CFDataGetLength (dataDesc);
-    p = CFDataGetBytePtr (dataDesc);
-    devname = (char *) malloc (13 + 2 * L);
-    d = devname + 11;
-
-    sprintf (devname, "iokitscsi@<");
-    for (; L > 0; L--, d += 2)
-      {
-	sprintf (d, "%02x", (*p++) & 0xff);
-      }
-    sprintf (d, ">");
-
-    return devname;
-  }
-
+  static
   void CreateDeviceInterfaceUsingSTUC (io_object_t scsiDevice,
 				       IOCFPlugInInterface ***
 				       thePlugInInterface,
@@ -5349,7 +5299,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     *theInterface = interface;
   }
 
-  SANE_Status
+  static SANE_Status
     ExecuteSCSITask (SCSITaskInterface ** task,
 		     const void *cmd, size_t cmd_size,
 		     const void *src, size_t src_size,
@@ -5452,7 +5402,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     return SANE_STATUS_GOOD;
   }
 
-  SANE_Status
+  static SANE_Status
     ExecuteCommandUsingSTUC (SCSITaskDeviceInterface ** interface,
 			     const void *cmd, size_t cmd_size,
 			     const void *src, size_t src_size,
@@ -5609,7 +5559,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     return returnValue;
   }
 
-  void
+  static void
     sanei_scsi_find_devices_stuc_api (const char *findvendor,
 				      const char *findmodel,
 				      const char *findtype, int findbus,
@@ -5625,6 +5575,11 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     io_object_t scsiDevice;
     CFDataRef GUIDRef;
     char *devname;
+    int len;
+    const unsigned char *p;
+    CFDictionaryRef protocolCharacteristics;
+    CFNumberRef scsiLunRef;
+    int scsilun;
 
     masterPort = NULL;
     ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
@@ -5671,24 +5626,50 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 	while ((scsiDevice = IOIteratorNext (iokIterator)))
 	  {
-	    /* Create a fake device name from the SCSITaskUserClient GUID */
-
-	    GUIDRef = IORegistryEntryCreateCFProperty
-	      (scsiDevice, CFSTR (kIOPropertySCSITaskUserClientInstanceGUID),
-	       NULL, 0);
-	    devname = CreateDevNameFromGUID (GUIDRef);
-	    CFRelease (GUIDRef);
-
-	    if (devname)
+	    scsilun = 0;
+            protocolCharacteristics = IORegistryEntryCreateCFProperty
+	      (scsiDevice, CFSTR ("Protocol Characteristics"), NULL, 0);
+	    if (protocolCharacteristics)
 	      {
-		DBG (1, "Found:%s\n", devname);
-		/* Attach to the device */
-		(*attach) (devname);
-		free (devname);
+		scsiLunRef = CFDictionaryGetValue
+		  (protocolCharacteristics,
+		   CFSTR ("SCSI Logical Unit Number"));
+		if (scsiLunRef)
+		  CFNumberGetValue (scsiLunRef, kCFNumberIntType, &scsilun);
+		CFRelease (protocolCharacteristics);
 	      }
-	    else
+
+	    if (findlun < 0 || findlun == scsilun)
 	      {
-		DBG (1, "Can't find SCSITaskUserClient GUID\n");
+		/* Create device name from the SCSITaskUserClient GUID */
+
+		GUIDRef = IORegistryEntryCreateCFProperty
+		  (scsiDevice,
+		   CFSTR (kIOPropertySCSITaskUserClientInstanceGUID),
+		   NULL, 0);
+
+		if (GUIDRef)
+		  {
+		    len = CFDataGetLength (GUIDRef);
+		    p = CFDataGetBytePtr (GUIDRef);
+
+		    devname = (char *) malloc (2 * len + 3);
+		    devname [0] = '<';
+		    for (i = 0; i < len; i++)
+		      sprintf (&devname [2 * i + 1], "%02x", p [i]);
+		    devname [2 * len + 1] = '>';
+		    devname [2 * len + 2] = NULL;
+
+		    CFRelease (GUIDRef);
+
+		    DBG (1, "Found: %s\n", devname);
+
+		    /* Attach to the device */
+		    (*attach) (devname);
+		    free (devname);
+		  }
+		else
+		  DBG (1, "Can't find SCSITaskUserClient GUID\n");
 	      }
 	  }
 	IOObjectRelease (iokIterator);

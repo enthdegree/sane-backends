@@ -1,3 +1,9 @@
+2004-06-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
+	* sanei/sanei_scsi.c, tools/sane-find-scanner.c
+	* SCSI scanners can now be selected by LUN on MacOS X
+	* sane-find-scanner now finds SCSI scanners on MacOS X
+	* making some sanei_scsi internal functions static
+
 2004-05-30  Peter Fales <peter@fales-lorenz.net>
 	* acinclude.m4, aclocal.m4, configure.in, configure
 	In addition to using pkg-config to find the gphoto2 library flags,

@@ -783,6 +783,32 @@ static char **build_scsi_dev_list()
 }
 #endif
 
+#if defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+    defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
+char **scsi_dev_list;
+int scsi_dev_list_index;
+
+static SANE_Status AddToSCSIDeviceList (const char *dev) {
+  if (scsi_dev_list_index < 99) {
+    scsi_dev_list [scsi_dev_list_index] = strdup (dev);
+    scsi_dev_list_index++;
+    return SANE_STATUS_GOOD;
+  }
+  else
+    return SANE_STATUS_NO_MEM;
+}
+
+static char **build_scsi_dev_list()
+{
+  scsi_dev_list_index = 0;
+  scsi_dev_list = malloc (100 * sizeof(char *));
+  sanei_scsi_find_devices (NULL, NULL, NULL, -1, -1, -1, -1,
+			   AddToSCSIDeviceList);
+  scsi_dev_list [scsi_dev_list_index] = NULL;
+  return scsi_dev_list;
+}
+#endif
+
 static int
 check_mustek_pp_device (void)
 {
@@ -1149,9 +1175,11 @@ main (int argc, char **argv)
 	0
       };
 
-#if defined (HAVE_WINDOWS_H)
+#if defined (HAVE_WINDOWS_H) || \
+    defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+    defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
    /* Build a list of valid of possible scanners found */
-   dev_list = build_scsi_dev_list();
+      dev_list = build_scsi_dev_list();
 #else
       dev_list = default_dev_list;
 #endif

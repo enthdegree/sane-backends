@@ -1,3 +1,10 @@
+2004-02-07  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* backend/mustek_pp_cis.c: cleaned up debug code
+	* backend/mustek_pp_decl.h, backend/mustek_pp_drivers.h: bumped
+	  version number.
+	* backend/mustek_pp.conf: fixed mistakes in examples
+
 2004-02-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/unsupported.desc: Added Genius Colorpage Vivid

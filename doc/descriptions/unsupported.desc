@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-09-28"		; version of backend
+:version "2003-09-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -128,14 +128,12 @@
 
 :model "MFC 6800"
 :status :unsupported
-;*** broken
-:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-February/006667.html"
 :interface "USB"
 :comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111. See also MFC 4600."
 
 :model "MFC 9160"
 :status :unsupported
-;:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
 :interface "USB Parport"
 :comment "Unsupported. Maybe it's similar to the other Brother MFCs?"
 
@@ -583,8 +581,7 @@
 
 :model "1800 A3 Pro-1"
 :interface "USB"
-;*** broken
-:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
 :comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
 
@@ -620,7 +617,7 @@
 
 :model "P 3600 A3 Pro"
 :interface "USB"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
 :comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
 
@@ -662,8 +659,7 @@
 
 :model "ScanMagic 9636P"
 :interface "Parport"
-;*** broken
-:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018800.html"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-May/007682.html"
 :status :unsupported
 :comment "Probably not supported. Same as Mustek 12000 P?. ASIC 1505."
 
@@ -828,8 +824,7 @@
 :mfg "Syscan"
 
 :model "TravelScan 460/464"
-;*** broken
-:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017787.html"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-February/006651.html"
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."

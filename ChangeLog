@@ -1,3 +1,8 @@
+2000-11-23  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c:  Display "Set Focus" control only for scanners that
+	  can actually handle the command.
+
 2000-11-22  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* changed configure and configure.in, removed test for sting.h/strings.h

@@ -1,3 +1,7 @@
+2002-01-25 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* frontend/scanimage.c: illegal placeholders in the -f format
+	  string are now replaced by "%%". (Bug found by Peter Fales)
+
 2002-01-25  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek-usb.h: changed according to avoid

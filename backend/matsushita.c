@@ -434,7 +434,7 @@ static const SANE_Device **devlist = NULL;
 
 /* Display a buffer in the log. */
 static void
-hexdump (int level, char *comment, unsigned char *p, int l)
+hexdump (int level, const char *comment, unsigned char *p, int l)
 {
   int i;
   char line[128];

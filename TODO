@@ -1,17 +1,14 @@
-TODO (2002-09-01)
+TODO (2002-09-11)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends (+ means: scheduled for version 1.0.9)
+  * Add new backends
     - hp4200 http://hp4200-backend.sourceforge.net/
-    - Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
-      IBM IdeaScan 2000 USB 
-      http://homepages.paradise.net.nz/stevenel/scanner/
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
-    
+
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage. This should NOT be done
     in sane_control_option, it should be possible to temporary set
@@ -94,25 +91,22 @@ doc
     - Add some text about the meaning of bits in 1-bit modes.
     - Define, how to handle SANE_CAP_ADVANCED for groups.
     - sane_start() can also return SANE_STATUS_INVAL
+    - sane_set_io_mode: SANE_STATUS_UNSUPPORTED should mean: "The backend does
+      not support the requested I/O mode.". Also explain in more detail that
+      this function must be called after sane_start.
+    - Add a well-known option that represents the status of buttons or some other
+      means to support buttons if this is possible before SANE2. Keep in mind
+      locking issues.
 
   * desc files:
     - Make sure, that the manufacturer (and model) names use the same spelling:
       - hpsj5s (Hewlett-Packard instead of HP)
-    - Check URLs:
-      - umax (http://www.heidelberg-cps.com/ , http://support.umax.com/ ,
-        http://www.umaxweb.com.tw/ )
-
-    - Mark scanners with ":status :untested" if they are untested by the author
-      or users:
-      - canon630u (add 636 as :untested (from manpage)?)
 
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
       - mustek_pp
 
-  * scanimage: 
-      - Add doku for --icc-profile
-      - Add link to gamma4scanimage
+  * sane-plustek.man: fix warnings on Debian systems ("sane-plustek contains a pointer loop")
 
 frontends
 ---------
@@ -128,8 +122,6 @@ frontends
   * scanimage: Check range of width and height. scanimage just uses the ranges
     from br-x and br-y but this is wrong for tl-x and tl-y != 0 and for
     SANE_UNIT_PIXEL.
-
-  * scanimage: add option to avoid scanning (for setting options only)
 
 sanei
 -----
@@ -188,6 +180,13 @@ misc
 
 
 ******** done ********
+* scanimage: add option to avoid scanning (for setting options only)
+* Mark scanners with ":status :untested" if they are untested by the author
+  or users:
+* scanimage: 
+    - Add doku for --icc-profile
+    - Add link to gamma4scanimage
+* sanei_scsi: Allow changing sg timeout e.g. by environment variables.
 * remove ptal support from configure and hp backend
 * tools/Makefile.in: -lm dependency doesn't work on OS/2.
 * Fix inclusion of saneopts.??.po in po/. Currently, the "" header is

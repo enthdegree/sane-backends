@@ -1,3 +1,7 @@
+2004-01-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Mustek BearPaw 4800TA Pro II.
+
 2004-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_scsi_pp.c: Use gettimeofday() instead of

@@ -134,7 +134,7 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
     {
       if (ioctl (fd, IOCTL_SCANNER_PRODUCT_OLD , &productID) == -1)
 	{
-	  DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of ds %d "
+	  DBG (3, "sanei_usb_get_vendor_product: ioctl (product) of fd %d "
 	       "failed: %s\n", fd, strerror (errno));
 	  /* just set the product ID to 0 */
 	  productID = 0;
@@ -151,8 +151,9 @@ sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
 
   if (!vendorID || !productID)
     {
-      DBG (3, "sanei_usb_get_vendor_product: fd %d: couldn't get "
-	   "vendor+product ids. ioctl unsupported?\n", fd);
+      DBG (3, "sanei_usb_get_vendor_product: fd %d: Your OS doesn't seem to "
+	   "support detection of vendor+product ids\n",
+	   fd);
 
       return SANE_STATUS_UNSUPPORTED;
     }

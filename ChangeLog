@@ -5,6 +5,7 @@
 	  Don't print tables when no suitable backend was found.
 	  More comments. Fixed some warnings. Code cleanup. 
 	* doc/Makefile.in: Added support for sane-desc.c.
+	* doc/backend-writing.txt: Updated concerning sane-desc.c.
 
 2013-07-15  Frank Zago  <fzago at austin dot rr dot com>
 

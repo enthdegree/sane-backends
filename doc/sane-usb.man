@@ -224,7 +224,7 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for the USB I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity. Values greater than 4 enable
-libusb debugging (if available). Example: export SANE_DEBUG_USB=4.
+libusb debugging (if available). Example: export SANE_DEBUG_SANEI_USB=4.
 
 .SH "SEE ALSO"
 .BR sane (7),

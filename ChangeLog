@@ -1,3 +1,7 @@
+2003-03-23  Rene Rebe <rene.rebe@gmx.net>
+
+	* doc/sane-usb.man fix typo
+
 2003-03-22  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
 
 	* backend/canon.c: Modified the option "eject after each scan" -

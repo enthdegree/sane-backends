@@ -4,6 +4,7 @@
 	* doc/descriptions/unsupported.desc: Added list of (known) scanners
 	  that are not supported by a SANE backend. There may be information
 	  about them or even a standaalone program to which the entries point.
+	* PROJECTS: Removed projects that are now in the .desc files.
 
 2002-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

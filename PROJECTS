@@ -5,6 +5,8 @@ in.  Before starting working on one of these projects, it may be a
 good idea to get in touch with the relevant people. Please also read
 the files AUTHORS and README for projects that are included into the
 SANE-package. For frontends, look at the sane-frontends package.
+For backends or stand-alone drivers, add a .desc file or add an entry
+to unsupported.desc.
 
 Status    description
 --------- ----------------------------------------------------------------
@@ -12,47 +14,6 @@ wanted    Somebody would like to have this feature but can't do it himself.
 planned   Only plans but no code yet.
 wip       Work in progress. There is (more or less) working code. For details,
           look at the web page or contact the author.
-
-Backends:
----------
-
-Acer ScanWit 2720S film scanner (backend, wip)
-Max Ushakov <ushakov@mccme.ru>
-ftp://mccme.ru/users/ushakov/scanwit
-
-Canon 1210U and 1220U USB scanner (stand-alone program, wip)
-http://sourceforge.net/projects/canonscanner/
-
-E3 and E4 USB chipset support (e.g. Genius Vivid Pro USB, Primax Colorado
-USB 19200, Visioneer OneTouch 7600+6100, IBM IdeaScan 2000 USB,
-LG Electronics Scanworks 600U) (backend, wip)
-http://viceo.orcon.net.nz
-
-Hewlett-Packard ScanJet 3300C / 3400C and 4300C "NIASH" (backend, wip)
-http://sourceforge.net/projects/hp3300backend
-
-Hewlett-Packard ScanJet 4470C based on RealTek RTS8891 
-(stand-alone program, wip)
-http://reapoff.sourceforge.net/hpscanner/
-
-Hewlett-Packard ScanJet 5400C / 5470C (test program, wip)
-http://home.kabelfoon.nl/~bertrik/hp5400/index.html
-
-IBM 2456 and Ricoh IS-410 support (backend, wip)
-http://www.meier-geinitz.de/sane/ibm-backend/
-
-Primax parallel port scanners (stand-alone program, wip)
-http://primax.sourceforge.net/
-
-Primax Jewel 4800 (aka Relisys AVEC II S3, model VM3564)
-(patch for teco2 backend, wip)
-http://gkall.hobby.nl/notes2.html
-
-Video for Linux 2 (backend, wip)
-http://sane-v4l2.inodes.org/
-
-Visioneer OneTouch 8600: viceo (backend, wip)
-http://www.littlecms.com/iphoto/otlinux.htm
 
 
 SANE on non-Unix platforms:

@@ -1,0 +1,13 @@
+Under AIX, you'll need the generic SCSI device driver gsc written by
+Matthew Jacob <mjacob@feral.com> (nice piece of work!). When you
+install this driver, copy the header file gscdds.h to /usr/include, as
+we look for it there. 
+Find this driver under:
+
+	ftp://ftp.feral.com/pub/aix/gsc.tar.gz
+	ftp://ftp.thp.Uni-Duisburg.DE/pub/source/gsc.tar.gz
+
+Compiling shared libraries doesn't work at the moment for AIX. To use
+static libraries, run "configure --disable-shared". If you have any
+suggestions on how to fix this please contact the SANE mailing list
+sane-devel@mostang.com.

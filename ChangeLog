@@ -6,6 +6,8 @@
  	  support for duplex-scanners m3093DG, m4097DG; constraint checking
 	  for m3093; support EVPD (virtual product data); support ADF paper
 	  size spezification.
+	* AUTHORS: Added Oliver Schirrmeister for m3096g, removed the active
+	  sign (*) from Randolph Bentson.
 
 2001-10-09  Peter Fales <peter@fales.com>
 

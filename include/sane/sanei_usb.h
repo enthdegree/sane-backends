@@ -27,6 +27,10 @@
  * detection and control messages aren't supported on these platforms.
  * - Access using libusb (where available). 
  *
+ * A general remark: Do not mix sanei_usb functions with "normal" file-related
+ * libc functions like open() or close.  The device numbers used in sanei_usb
+ * are not file descriptors.
+ *
  * @sa sanei_lm983x.h, sanei_pa4s2.h, sanei_pio.h, sanei_scsi.h, and <a 
  * href="http://www.mostang.com/sane/man/sane-usb.5.html">man sane-usb(5)</a>
  * for user-oriented documentation
@@ -41,7 +45,8 @@
 /* USB spec defines */
 #ifndef USB_CLASS_PER_INTERFACE
 /* Also defined in libusb */
-/* Device and/or interface class codes */
+/** @name Device and/or interface class codes */
+/* @{ */
 #define USB_CLASS_PER_INTERFACE         0x00
 #define USB_CLASS_AUDIO                 0x01
 #define USB_CLASS_COMM                  0x02
@@ -51,38 +56,44 @@
 #define USB_CLASS_HUB                   0x09
 #define USB_CLASS_DATA                  0x0a
 #define USB_CLASS_VENDOR_SPEC           0xff
+/* @} */
 
-/* USB descriptor types */
+/** @name USB descriptor types */
+/* @{ */
 #define USB_DT_DEVICE                   0x01
 #define USB_DT_CONFIG                   0x02
 #define USB_DT_STRING                   0x03
 #define USB_DT_INTERFACE                0x04
 #define USB_DT_ENDPOINT                 0x05
-
 #define USB_DT_HID                      0x21
 #define USB_DT_REPORT                   0x22
 #define USB_DT_PHYSICAL                 0x23
 #define USB_DT_HUB                      0x29
+/* @} */
 
-/* Descriptor sizes per descriptor type */
+/** @name Descriptor sizes per descriptor type */
+/* @{ */
 #define USB_DT_DEVICE_SIZE              18
 #define USB_DT_CONFIG_SIZE              9
 #define USB_DT_INTERFACE_SIZE           9
 #define USB_DT_ENDPOINT_SIZE            7
 #define USB_DT_ENDPOINT_AUDIO_SIZE      9
 #define USB_DT_HUB_NONVAR_SIZE          7
+/* @} */
 
-/* Endpoint descriptor values */
+/** @name Endpoint descriptors */
+/* @{ */
 #define USB_ENDPOINT_ADDRESS_MASK       0x0f
 #define USB_ENDPOINT_DIR_MASK           0x80
-
 #define USB_ENDPOINT_TYPE_MASK          0x03
 #define USB_ENDPOINT_TYPE_CONTROL       0
 #define USB_ENDPOINT_TYPE_ISOCHRONOUS   1
 #define USB_ENDPOINT_TYPE_BULK          2
 #define USB_ENDPOINT_TYPE_INTERRUPT     3
+/* @} */
 
-/* Standard requests */
+/** @name Standard requests */
+/* @{ */
 #define USB_REQ_GET_STATUS              0x00
 #define USB_REQ_CLEAR_FEATURE           0x01
 #define USB_REQ_SET_FEATURE             0x03
@@ -94,28 +105,38 @@
 #define USB_REQ_GET_INTERFACE           0x0A
 #define USB_REQ_SET_INTERFACE           0x0B
 #define USB_REQ_SYNCH_FRAME             0x0C
+/* @} */
 
-/* USB types */
+/** @name USB types */
+/* @{ */
 #define USB_TYPE_STANDARD               (0x00 << 5)
 #define USB_TYPE_CLASS                  (0x01 << 5)
 #define USB_TYPE_VENDOR                 (0x02 << 5)
 #define USB_TYPE_RESERVED               (0x03 << 5)
+/* @} */
 
-/* USB recipients */
+/** @name USB recipients */
+/* @{ */
 #define USB_RECIP_DEVICE                0x00
 #define USB_RECIP_INTERFACE             0x01
 #define USB_RECIP_ENDPOINT              0x02
 #define USB_RECIP_OTHER                 0x03
+/* @} */
 
 #endif /* not USB_CLASS_PER_INTERFACE */
 
 /* Not defined in libsub */
+/** @name USB Masks */
+/* @{ */
 #define USB_TYPE_MASK                   (0x03 << 5)
 #define USB_RECIP_MASK                  0x1f
+/* @} */
 
-/* USB directions */
+/** @name USB directions */
+/* @{ */
 #define USB_DIR_OUT                     0
 #define USB_DIR_IN                      0x80
+/* @} */
 
 /** Initialize sanei_usb.
  *
@@ -125,10 +146,11 @@ extern void sanei_usb_init (void);
 
 /** Get the vendor and product ids.
  *
- * Currently, only scanners supported by the Linux USB scanner module can be
- * found. The Linux version must be 2.4.8 or higher. 
+ * Currently, only libusb devices and scanners supported by the Linux USB 
+ * scanner module can be found.  For the latter method, the Linux version
+ * must be 2.4.8 or higher. 
  *
- * @param fd device file descriptor
+ * @param dn device number of an already sanei_usb_opened device
  * @param vendor vendor id
  * @param product product id
  *
@@ -137,7 +159,7 @@ extern void sanei_usb_init (void);
  * - SANE_STATUS_UNSUPPORTED - if the OS doesn't support detection of ids
  */
 extern SANE_Status
-sanei_usb_get_vendor_product (SANE_Int fd, SANE_Word * vendor,
+sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
 			      SANE_Word * product);
 
 /** Find devices that match given vendor and product ids.
@@ -157,11 +179,17 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
 
 /** Open a USB device.
  *
- * The device is opened by its filename devname and the file descriptor is
- * returned in fd on success.
+ * The device is opened by its name devname and the device number is
+ * returned in dn on success.  
  *
- * @param devname filename of the device file
- * @param fd device file descriptor
+ * Device names can be either device file names for direct access over
+ * kernel drivers (like /dev/usb/scanner) or libusb names. The libusb format
+ * looks like this: "libusb:bus-id:device-id". Bus-id and device-id are
+ * platform-dependent. An example could look like this: "libusb:001:002"
+ * (Linux).
+ *
+ * @param devname name of the device to open
+ * @param dn device number
  *
  * @return
  * - SANE_STATUS_GOOD - on success
@@ -169,20 +197,20 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
  *   permissions
  * - SANE_STATUS_INVAL - on every other error
  */
-extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * fd);
+extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * dn);
 
 /** Close a USB device.
  * 
- * @param fd file descriptor of the device
+ * @param dn device number
  */
-extern void sanei_usb_close (SANE_Int fd);
+extern void sanei_usb_close (SANE_Int dn);
 
 /** Initiate a bulk transfer read.
  *
  * Read up to size bytes from the device to buffer. After the read, size
  * contains the number of bytes actually read.
  *
- * @param fd file descriptor of the device
+ * @param dn device number
  * @param buffer buffer to store read data in
  * @param size size of the data
  *
@@ -194,14 +222,14 @@ extern void sanei_usb_close (SANE_Int fd);
  *
  */
 extern SANE_Status
-sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
+sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
 
 /** Initiate a bulk transfer write.
  *
  * Write up to size bytes from buffer to the device. After the write size
  * contains the number of bytes actually written.
  *
- * @param fd file descriptor of the device
+ * @param dn device number
  * @param buffer buffer to write to device
  * @param size size of the data
  *
@@ -211,25 +239,25 @@ sanei_usb_read_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
  * - SANE_STATUS_INVAL - on every other error
  */
 extern SANE_Status
-sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
+sanei_usb_write_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
 
 /** Send/receive a control message to/from a USB device.
  *
- * This function is only supported for Linux 2.4.13 and newer.
- * The arguments rtype, req, value, and index are passed directly to
- * usb_control_msg (see the <a href="http://www.linux-usb.org">Linux
- * USB project</a> and <a href="http://www.usb.org/developers/docs.html">
- * www.usb.org developers information</a> for documentation).
+ * This function is only supported for libusb devices and kernel acces with
+ * Linux 2.4.13 and newer.
+ * For a detailed explanation of the parameters, have a look at the USB
+ * specification at the <a href="http://www.usb.org/developers/docs.html">
+ * www.usb.org developers information page</a>.
  * 
- * @param fd file descriptor of the device file
- * @param data buffer to send/receive data
- * @param len length of data to send/receive
+ * @param dn device number
  * @param rtype specifies the characteristics of the request (e.g. data
  *    direction)
  * @param req actual request
  * @param value parameter specific to the request
  * @param index parameter specific to the request (often used to select
  *     endpoint)
+ * @param len length of data to send/receive
+ * @param data buffer to send/receive data
  *
  * @return
  * - SANE_STATUS_GOOD - on success
@@ -238,14 +266,15 @@ sanei_usb_write_bulk (SANE_Int fd, SANE_Byte * buffer, size_t * size);
  *   SANE.
  */
 extern SANE_Status
-sanei_usb_control_msg (SANE_Int fd, SANE_Int rtype, SANE_Int req,
+sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 		       SANE_Int value, SANE_Int index, SANE_Int len,
 		       SANE_Byte * data);
 
 /** Expand device name patterns into a list of devices.
  *
- * Apart from a normal device name (such as /dev/usb/scanner0), this
- * function currently supports USB device specifications of the form:
+ * Apart from a normal device name (such as /dev/usb/scanner0 or
+ * libusb:002:003), this function currently supports USB device
+ * specifications of the form:
  *
  *	usb VENDOR PRODUCT
  *

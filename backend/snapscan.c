@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               16
+#define BUILD               17
 
 #include "snapscan.h"
 
@@ -442,7 +442,7 @@ static SANE_Status snapscani_check_device(
              me,
              vendor,
              model,
-             "AGFA SnapScan 300, 310, 600, 1212, 1236, e20, e25, e26, "
+             "AGFA SnapScan 300, 310, 600, 1212, 1236, e10, e20, e25, e26, "
              "e40, e42, e50, e52 or e60\n"
              "Acer 300, 310, 610, 610+, "
              "620, 620+, 640, 1240, 3300, 4300 or 5300\n"
@@ -1753,8 +1753,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.25  2002/09/26 20:09:19  oliverschwartz
- * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ * Revision 1.26  2002/10/14 21:49:42  oliverschwartz
+ * SnapScan backend 1.4.17
+ *
+ * Revision 1.52  2002/10/12 10:40:48  oliverschwartz
+ * Added support for Snapscan e10
  *
  * Revision 1.51  2002/09/26 19:27:44  oliverschwartz
  * Version 1.4.16

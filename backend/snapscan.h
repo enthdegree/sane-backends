@@ -155,6 +155,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner25",    PRISA5000},
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
+    {"SNAPSCAN e10",        SNAPSCANE20},
     {"SNAPSCAN e20",        SNAPSCANE20},
     {"SNAPSCAN e25",        SNAPSCANE20},
     {"SNAPSCAN e26",        SNAPSCANE20},
@@ -365,8 +366,11 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.17  2002/09/26 20:09:20  oliverschwartz
- * SnapScan backend 1.4.16 (support for Acer/Benq 5000)
+ * Revision 1.18  2002/10/14 21:49:43  oliverschwartz
+ * SnapScan backend 1.4.17
+ *
+ * Revision 1.34  2002/10/12 10:40:48  oliverschwartz
+ * Added support for Snapscan e10
  *
  * Revision 1.33  2002/09/24 16:07:47  oliverschwartz
  * Added support for Benq 5000

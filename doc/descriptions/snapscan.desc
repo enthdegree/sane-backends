@@ -52,6 +52,10 @@
 :interface "USB"
 :status :stable
 
+:model "SnapScan e10"
+:interface "USB"
+:status :stable
+
 :model "SnapScan e20"
 :interface "USB"
 :status :stable
@@ -163,7 +167,16 @@
 :model "Scan@home Touch 1248 (USB)"
 :interface "USB"
 :status :stable
-:comment "Seems to be a repackaged Acer 3300."
+:comment "Seems to be a repackaged Benq 3300."
+
+:mfg "Mitsubishi"
+:url "http://www.mitsubishi.com"
+;------------------------------------------------------------------------------
+
+:model "Diamondview 648UT"
+:interface "USB"
+:status :stable
+:comment "Seems to be a repackaged Benq 320u."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

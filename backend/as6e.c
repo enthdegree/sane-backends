@@ -136,7 +136,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   DBG (3, "reading %d bytes, %d bytes in carryover buffer\n", max_len,
        s->scan_buffer_count);
 
-  if (s->image_counter >= s->bytes_to_read)
+  if ((unsigned int) s->image_counter >= s->bytes_to_read)
     {
       *len = 0;
       if (s->scanning)
@@ -618,7 +618,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   FILE *fp = NULL;
 
   DBG_INIT();
-  DBG (2, "sane_init\n");
+  DBG (2, "sane_init (authorize = %p)\n", authorize);
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 /*  fp = sanei_config_open (AS6E_CONFIG_FILE);*/
@@ -659,7 +659,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   AS6E_Device *dev;
   int i;
-  DBG (3, "sane_get_devices\n");
+  DBG (3, "sane_get_devices (local_only = %d)\n", local_only);
   if (devlist)
     free (devlist);
   devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
@@ -923,5 +923,6 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
+  DBG (2, "sane_get_select_fd( %p, %p )\n", handle, fd);
   return SANE_STATUS_UNSUPPORTED;
 }

@@ -5,6 +5,7 @@
 	* include/md5.h: Declare md5_buffer.
 	* sanei/sanei_constrain_value.c: Removed unnecessary variable.
 	* backend/agfafocus.c: Fixed some warnings.
+	* backend/as6e.c: Fixed some warnings.
 
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 

@@ -751,7 +751,7 @@ read_data (AgfaFocus_Scanner * s, SANE_Byte *buf, int lines, int bpl)
 
   SANE_Status status;
   size_t size;
-  int i;
+  unsigned int i;
 
   memset (&cmd, 0, sizeof (cmd));
 
@@ -768,7 +768,7 @@ read_data (AgfaFocus_Scanner * s, SANE_Byte *buf, int lines, int bpl)
       return SANE_STATUS_IO_ERROR;
     }
   
-  if (size != lines * bpl)
+  if (size != ((unsigned int) lines * bpl))
     {
       DBG (1, "sanei_scsi_cmd(): got %lu bytes, expected %d\n",
 	   (u_long) size, lines * bpl);
@@ -779,12 +779,14 @@ read_data (AgfaFocus_Scanner * s, SANE_Byte *buf, int lines, int bpl)
 
   /* Reverse: */
   if (s->bpp != 1)
-    if (s->bpp != 6)
-      for (i = 0; i < size; i++)
-	buf[i] = 255 - buf[i];
-    else
-      for (i = 0; i < size; i++)
-	buf[i] = 255 - ((buf[i] * 256.0f) / 64.0f);
+    {
+      if (s->bpp != 6)
+	for (i = 0; i < size; i++)
+	  buf[i] = 255 - buf[i];
+      else
+	for (i = 0; i < size; i++)
+	  buf[i] = 255 - ((buf[i] * 256.0f) / 64.0f);
+    }
 		  
   s->lines_available -= lines;
 

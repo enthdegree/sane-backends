@@ -1947,7 +1947,7 @@ sanei_scsi_req_enter2 (int fd,
                                       + sizeof (req->sgdata.cdb.hdr);
       memcpy (&req->sgdata.cdb.data, cmd, cmd_size);
       memcpy (&req->sgdata.cdb.data[cmd_size], src, src_size);
-      if (CDB_SIZE (*(u_char *) cmd) != cmd_size)
+      if (CDB_SIZE (*(const u_char *) cmd) != cmd_size)
         {
           if (ioctl(fd, SG_NEXT_CMD_LEN, &cmd_size))
             {
@@ -1982,7 +1982,7 @@ sanei_scsi_req_enter2 (int fd,
             }
           req->sgdata.sg3.hdr.dxfer_len = src_size;
           memcpy(&req->sgdata.sg3.data[MAX_CDB], src, src_size);
-          (const void*) req->sgdata.sg3.hdr.dxferp = &req->sgdata.sg3.data[MAX_CDB];
+          req->sgdata.sg3.hdr.dxferp = &req->sgdata.sg3.data[MAX_CDB];
         }
       else
         {
@@ -1996,7 +1996,7 @@ sanei_scsi_req_enter2 (int fd,
           cmd_size = MAX_CDB;
         }
       memcpy(req->sgdata.sg3.data, cmd, cmd_size);
-      (const void*) req->sgdata.sg3.hdr.cmdp = req->sgdata.sg3.data;
+      req->sgdata.sg3.hdr.cmdp = req->sgdata.sg3.data;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       req->sgdata.sg3.hdr.timeout = 1000 * sane_scsicmd_timeout;
 #ifdef ENABLE_SCSI_DIRECTIO
@@ -2106,16 +2106,16 @@ sanei_scsi_req_wait (void *id)
 
               /* check for errors, but let the sense_handler decide.... */
               if ( (req->sgdata.cdb.hdr.result != 0) ||
-                  (   (req->sgdata.cdb.hdr.sense_buffer[0] & 0x7f) != 0)
+		   ( ( (req->sgdata.cdb.hdr.sense_buffer[0] & 0x7f) != 0)
 #ifdef HAVE_SG_TARGET_STATUS
-                   /* this is messy... Sometimes it happens that we have
-                      a valid looking sense buffer, but the DRIVER_SENSE
-                      bit is not set. Moreover, we can check this only for
-                      not tooo old SG drivers
-                   */
-                   && (req->sgdata.cdb.hdr.driver_status & DRIVER_SENSE)
+		     /* this is messy... Sometimes it happens that we have
+			a valid looking sense buffer, but the DRIVER_SENSE
+			bit is not set. Moreover, we can check this only for
+			not tooo old SG drivers
+		     */
+		     && (req->sgdata.cdb.hdr.driver_status & DRIVER_SENSE)
 #endif
-                  )
+		     ))
                 {
                   SANEI_SCSI_Sense_Handler handler
                     = fd_info[req->fd].sense_handler;
@@ -4439,7 +4439,7 @@ SANE_Status sanei_scsi_req_enter (int fd,
                       const void *src, size_t src_size,
 		      void *dst, size_t * dst_size, void **idp)
 {
-  size_t cmd_size = CDB_SIZE (*(char *) src);
+  size_t cmd_size = CDB_SIZE (*(const char *) src);
   
   if (dst_size && *dst_size)
     assert(src_size == cmd_size);
@@ -4447,7 +4447,7 @@ SANE_Status sanei_scsi_req_enter (int fd,
     assert(src_size >= cmd_size);
 
   return sanei_scsi_req_enter2(fd,  src, cmd_size, 
-                               (char*) src + cmd_size, src_size - cmd_size, 
+                               (const char*) src + cmd_size, src_size - cmd_size, 
                                dst, dst_size, idp);
 }
 
@@ -4455,7 +4455,7 @@ SANE_Status
 sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
-  size_t cmd_size = CDB_SIZE (*(char *) src);
+  size_t cmd_size = CDB_SIZE (*(const char *) src);
   
   if (dst_size && *dst_size)
     assert(src_size == cmd_size);
@@ -4463,7 +4463,7 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
     assert(src_size >= cmd_size);
 
   return sanei_scsi_cmd2(fd,  src, cmd_size, 
-                             (char*) src + cmd_size, src_size - cmd_size, 
+                             (const char*) src + cmd_size, src_size - cmd_size, 
                              dst, dst_size);
 }
 

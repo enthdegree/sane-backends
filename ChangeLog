@@ -1,3 +1,8 @@
+2003-10-13  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_thread.c include/sane/sanei_thread.h: Fixed OS/2 compilation
+	* sanei/sanei_lm983x.c include/sane/sanei_lm983x.h: Copyright update
+
 2003-10-12  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_thread.[ch]: Improved OS/2 support

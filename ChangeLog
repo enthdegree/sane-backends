@@ -1,3 +1,13 @@
+2000-11-30  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
+
+	* changed sane-config.in again:
+	  sane-config --libs has to print all libs
+	  that the sane libs depend on.
+	  This is not needed for shared libs and that
+	  was the reason why I removed all libs but "-lsane".
+	  But when linking against static sane libs we need
+	  to know about all necessary libs.
+
 *************************  snapshot-2000-11-28  *******************************
 
 2000-11-28  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>

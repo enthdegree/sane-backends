@@ -3,7 +3,9 @@
 	  illegal memory access
 
 2001-05-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+	
+	* NEWS: Updated.
+	* PROJECTS: Removed umax_pp. Added Canon FB620S and FS2710 backend.
 	* TODO: Removed entry about umax_pp and comment about testing
 	  for existing sane installations and plustek memory access violation.
 	  Added Canon FB620S and FS2710 backend and entries about Tru64
@@ -57,7 +59,7 @@
 	* TODO: Added entries about possible segfaults and memory leaks.
 	  Added entry about AIX problems. Removed entry about installing
 	  documentation.
-	* PROJECTS: Added Canon Canon FB330P, FP630P.
+	* PROJECTS: Added Canon FB330P, FP630P.
 
 2001-04-30  Jochen Eisinger <jochen.eisinger@informatik.uni-freiburg.de>
 

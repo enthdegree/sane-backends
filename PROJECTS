@@ -28,10 +28,7 @@ USB 19200, Visioneer OneTouch 7600+6100, IBM IdeaScan 2000 USB,
 LG Electronics Scanworks 600U) (backend, wip)
 http://viceo.orcon.net.nz
 
-Hewlett-Packard ScanJet 2200c (stand-alone program, wip)
-http://scanjet2200c.sourceforge.net/
-
-Hewlett-Packard ScanJet 3300C / 3400C and 4300C (backend, wip)
+Hewlett-Packard ScanJet 3300C / 3400C and 4300C "NIASH" (backend, wip)
 http://sourceforge.net/projects/hp3300backend
 
 Hewlett-Packard ScanJet 4470C based on RealTek RTS8891 
@@ -56,7 +53,6 @@ http://sane-v4l2.inodes.org/
 
 Visioneer OneTouch 8600: viceo (backend, wip)
 http://www.littlecms.com/iphoto/otlinux.htm
-
 
 
 SANE on non-Unix platforms:

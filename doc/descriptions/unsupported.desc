@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-02-14"		; version of backend
+:version "2004-03-01"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -606,9 +606,9 @@
 :status :unsupported
 
 :model "ScanJet 8290C"
-;:url ""
+:url "/unsupported/hp-scanjet-8290.html"
 :interface "USB"
-:comment "Not supported. SCSI optional. Includes ADF and TA. Similar to 8200C? No further information."
+:comment "Not supported. See link for details."
 :status :unsupported
 
 ;********************************************************************************************
@@ -644,6 +644,16 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x043d/0x003d. GL640."
+
+;********************************************************************************************
+
+:mfg "Logitec"
+
+:model "PageScan Color"
+;:url "/unsupported/lexmark-x75.html"
+:interface "Parport"
+:status :unsupported
+:comment "Most probably unsupported."
 
 ;********************************************************************************************
 

@@ -50,6 +50,7 @@ Backends:
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
  nec:           Kazuya Fukuda
  net:           Andreas Beck and David Mosberger
+ niash:         Ullirch Sigwanz (*), Bertrik Sikken
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  plustek:       Gerhard Jaeger (*)
@@ -115,6 +116,7 @@ Andreas Nowack <nowack.andreas@gmx.de>
 Andreas Rick <andreas.rick@free.fr>
 Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
+Bertrik Sikken <bertrik@zonnet.nl>
 Brian J. Murrell <brian@interlinx.bc.ca>
 Chris Bagwell <cbagwell@users.sourceforge.net>
 Chris Pinkham <cpinkham@corp.infi.net>

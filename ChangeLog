@@ -4,6 +4,7 @@
 	  doesn't return SANE_STATUS_GOOD. Added SANE_STATUS_INVAL to
 	  return codes for sane_start. Description of sane_set_io_mode is
 	  more precise.
+	* sanei/sanei_usb.c: Really check for bulk_out ep when writing.
 
 2002-10-15  Peter Kirchgessner <peter@kirchgessner.net>
 

@@ -704,7 +704,7 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
   else if (devices[dn].method == sanei_usb_method_libusb)
 #ifdef HAVE_LIBUSB
     {
-      if (devices[dn].bulk_in_ep)
+      if (devices[dn].bulk_out_ep)
 	write_size = usb_bulk_write (devices[dn].libusb_handle,
 				     devices[dn].bulk_out_ep,
 				     (const char *) buffer,

@@ -1,4 +1,4 @@
-.TH sane-matsushita 5 "04 March 2002"
+.TH sane-matsushita 5 "April 21s, 2002"
 .IX sane-matsushita
 .SH NAME
 sane-matsushita - SANE backend for Panasonic KV-SS high speed scanners
@@ -143,4 +143,5 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 .SH AUTHOR
 
 The package is actively maintained by Frank Zago.
+    http://fz.eryx.net/sane/#matsushita
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-05-25"		; version of backend
+:version "2003-05-26"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -609,22 +609,22 @@
 :comment "Spot seems have gone out of business."
 
 :model "Maxiscan A4"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018730.html"
+:url "http://www.el-profesor.net/spoonset"
 :interface "proprietary"
 :status :unsupported
 :comment "Not supported until now. Work on a backend has started, see link for more information."
 
 :model "ScanTak 2c"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
-:interface "SCSI"
+:url "http://www.el-profesor.net/spoonset"
+:interface "proprietary"
 :status :unsupported
-:comment "Not supported. See link for more information."
+:comment "Not supported. Work on a backend has started, see link for more information."
 
 :model "ScanTak 3c"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-May/018749.html"
-:interface "SCSI"
+:url "http://www.el-profesor.net/spoonset"
+:interface "proprietary"
 :status :unsupported
-:comment "Not supported. See link for more information."
+:comment "Not supported. Work on a backend has started, see link for more information."
 
 ;********************************************************************************************
 

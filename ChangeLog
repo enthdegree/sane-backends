@@ -6,6 +6,7 @@
 	  compilation for MacOS X (hopefully).
 	* doc/Makefile.in: Add option -nodepage to man2html to avoid
 	  missing lines in the html output.
+	* doc/descriptions/unsupported.html: Added link for Spot scanners.
 
 2003-05-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

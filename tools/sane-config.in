@@ -82,10 +82,11 @@ if test $# -gt 0; then
       ;;
     --ldflags)
 
-      if test -z "$linker_rpath"; then
+      if test -z "$LINKER_RPATH"; then
         echo "-L${libdir}"
       else
-        echo "-L${libdir} ${linker_rpath}${libdir}"
+        echo "-L${libdir} ${LINKER_RPATH}${libdir}"
+      fi
       ;;
     --libs)
       echo "-lsane ${LIBS}"

@@ -2241,9 +2241,11 @@ sane_start( SANE_Handle handle )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld \n",
+	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesLine = %ld \n",
 	                      dev->scanning.dwFlag, dev->scanning.dwBytesLine );
-
+	DBG( _DBG_SANE_INIT, "Lines          = %d\n", s->params.lines);
+	DBG( _DBG_SANE_INIT, "Bytes per Line = %d\n", s->params.bytes_per_line );
+	DBG( _DBG_SANE_INIT, "Bitdepth       = %d\n", s->params.depth );
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-10"		; version of backend
+:version "2003-10-12"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -25,7 +25,7 @@
 :status :unsupported
 :url "/unsupported/artec_1236usb.html"
 :interface "USB"
-:comment "Unsupported. Vendor/product 0x05d8/0x4001. Same id as one of the Artec Ultima 2000 scanners. More information (e.g. /proc/bus/usb/devices output) would be appreciated."
+:comment "Unsupported. Vendor/product 0x05d8/0x4001. See link for details."
 
 :model "AM12e+"
 :status :unsupported
@@ -176,7 +176,7 @@
 :url "/unsupported/canon-d646u.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. USB Vendor/product 0x04a9/0x220b.  See link for more information and test program."
+:comment "Probably not supported. USB Vendor/product 0x04a9/0x220b. See link for more information and test program."
 
 :model "CanoScan D660U"
 :interface "USB"
@@ -200,7 +200,7 @@
 :url "/unsupported/canon-fb620u.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported.  Vendor/product 0x4a9/0x2202. Some information is available."
+:comment "Probably not supported. Vendor/product 0x4a9/0x2202. Some information is available."
 
 :model "CanoScan FB1210U"
 :url "http://sourceforge.net/projects/canonscanner/"
@@ -247,7 +247,7 @@
 ;:url ""
 :interface "USB"
 :status :unsupported
-:comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside:  75100512-00"
+:comment "Not supported. 2400x1200 dpi. Vendor=0x049f, Product=0x0021. One bulk-in, one bulk-out and one interrupt endpoint. Type-number: U0001-HB21, another type nr on the inside: 75100512-00"
 
 :model "S4 100"
 :url "/unsupported/compaq-s4-100.html"
@@ -370,7 +370,7 @@
 :interface "USB"
 :url "/unsupported/hp-scanjet-2300c.html"
 :status :unsupported
-:comment "Unsupported.  See link for details."
+:comment "Unsupported. See link for details."
 
 :model "ScanJet 2400C"
 :interface "USB"
@@ -506,6 +506,12 @@
 
 :mfg "Memorex"
 :url "http://www.memorex.com/"
+
+:model "6136u"
+:url "/unsupported/memorex-maxx-6136u.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported."
 
 :model "6142u"
 :url "/unsupported/visioneer-onetouch4400.html"
@@ -684,6 +690,17 @@
 
 ;********************************************************************************************
 
+:mfg "Optrox"
+;:url ""
+
+:model "PhotoMaker 3"
+;:url "/unsupported/"
+:interface "Parport"
+:status :unsupported
+:comment "Probably not supported."
+
+;********************************************************************************************
+
 :mfg "PIE"
 :url "http://www.scanace.com/"
 :comment "Pacific Image Electronics"
@@ -762,6 +779,12 @@
 
 :mfg "Primax"
 :url "http://www.primax.nl/"
+
+:model "Colorado 600U"
+:url "/unsupported/primax-colorado-600u.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Some information is available."
 
 :model "Colorado 2400U"
 :url "http://viceo.orcon.net.nz/"
@@ -857,6 +880,17 @@
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."
 
+;********************************************************************************************
+
+:mfg "TCE"
+:comment "Brasilian vendor."
+:url "http://www.tce.com.br/"
+
+:model "MK600U"
+:url "/unsupported/memorex-maxx-6136u.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Some information is available."
 ;********************************************************************************************
 
 :mfg "Trust"

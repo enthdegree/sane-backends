@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.0"
+#define SANE_DESC_VERSION "2.1"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -462,7 +462,7 @@ get_token (const char *str, char **string_const)
   if (start)
     *string_const = strndup (start, len);
   else
-    string_const = 0;
+    *string_const = NULL;
   return str;
 }
 
@@ -478,6 +478,12 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 
   cp = get_token (line, &word);
 
+  if (!word)
+    {
+      DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+      return SANE_STATUS_INVAL;
+    }
+
   if (strcmp (word, keyword_token) != 0)
     return SANE_STATUS_INVAL;
 
@@ -492,6 +498,11 @@ read_keyword (SANE_String line, SANE_String keyword_token,
       {
 	char *pos;
 	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
 	/* remove escaped quotations */
 	while ((pos = strstr (word, "\\\"")) != 0)
 	  *pos = ' ';
@@ -521,7 +532,7 @@ read_files (void)
   struct dirent *dir_entry;
   FILE *fp;
   char file_name[PATH_MAX];
-  SANE_Char line[PATH_MAX], *word;
+  SANE_Char line[4096], *word;
   SANE_String_Const cp;
   backend_entry *current_backend = 0;
   type_entry *current_type = 0;

@@ -2,7 +2,9 @@
 	
 	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES: 
 	  Added check for TL_X > BR_X or TL_Y > BR_Y. New version: 1.0-115.
-
+	* TODO: Added entry about TL_X < BR_X problems and semaphores for OS/2.
+	  Removed entry about BearPaw scanners.
+	
 2001-11-26 Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* backend/sharp.c: added an additional check to prevent OS/2 from
 	  define "#define USE_FORK"

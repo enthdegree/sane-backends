@@ -1,5 +1,8 @@
 2001-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
-
+	
+	* acinclude.m4 aclocal.m4 configure configure.in 
+	  include/sane/config.h.in: Fixed u_int* bug for Tru64 by
+	  including sys/bitypes.h.
 	* PROJECTS: Added hpoj project.
 
 2001-05-25 Jochen Eisinger <jochen.eisinger@gmx.net>

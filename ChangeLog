@@ -1,3 +1,7 @@
+2004-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Olivetti Job-Jet M400.
+
 2004-10-17  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Perfection 2480.
 

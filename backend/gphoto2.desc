@@ -1,0 +1,14 @@
+;gphoto2 backend .desc file by Peter S. Fales
+
+:backend "gphoto2"		; name of backend
+:version "0.0"                  ; version of backend
+:status :new                  	; :alpha, :beta, :stable, :new
+:manpage "sane-gphoto2"		; name of manpage (if it exists)
+:url "mailto:peter@fales.com"   ; backend's web page
+
+:devicetype :stillcam           ; start of a list of devices....
+ 
+:mfg "Various"
+:model "Various"
+:url "http://www.gphoto.org"
+:interface "Various"

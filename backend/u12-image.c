@@ -611,8 +611,10 @@ static SANE_Status u12image_SetupScanSettings( U12_Device *dev, ImgDef *img )
 			DBG( _DBG_INFO, "48Bit buffer request: "
 			     "len=%lu bytes, available=%lu\n", b, _SIZE_TOTAL_BUF_TPA );
 
-			if( b > _SIZE_TOTAL_BUF_TPA )
+			if( b > _SIZE_TOTAL_BUF_TPA ) {
+				DBG( _DBG_ERROR, "Not that much FIFO memory available!\n" );
 				return SANE_STATUS_NO_MEM;
+			}
 
 			dev->scan.p48BitBuf.pb = dev->bufs.b1.pReadBuf;
 		}

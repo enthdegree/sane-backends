@@ -339,6 +339,7 @@ static void u12io_RegisterToScanner( U12_Device *dev, SANE_Byte reg )
 
 		/* signal that to the ASIC */
 		outb_ctrl( dev->fd, _CTRL_SIGNAL_REGWRITE );
+		_DODELAY(20);
 		outb_ctrl( dev->fd, _CTRL_END_REGWRITE );
 	}
 }
@@ -400,7 +401,11 @@ static SANE_Byte u12io_DataFromRegister( U12_Device *dev, SANE_Byte reg )
  */
 static void u12io_CloseScanPath( U12_Device *dev )
 {
+	DBG( _DBG_INFO, "u12io_CloseScanPath()\n" );
+/* FIXME: Probaly not needed */
+#if 0
 	u12io_RegisterToScanner( dev, 0xff );
+#endif
 	u12io_RegisterToScanner( dev, REG_SWITCHBUS );
 
 	dev->mode = _PP_MODE_SPP;
@@ -412,7 +417,7 @@ static SANE_Bool u12io_OpenScanPath( U12_Device *dev )
 {
 	u_char tmp;
 
-	DBG( _DBG_IO, "u12io_OpenScanPath()\n" );
+	DBG( _DBG_INFO, "u12io_OpenScanPath()\n" );
 
 	u12io_SwitchToSPPMode( dev );
 
@@ -437,7 +442,7 @@ static SANE_Bool u12io_OpenScanPath( U12_Device *dev )
 		return SANE_TRUE;
 	}
 
-	DBG( _DBG_IO, "u12io_OpenScanPath() failed!\n" );
+	DBG( _DBG_ERROR, "u12io_OpenScanPath() failed!\n" );
 	return SANE_FALSE;
 }
 
@@ -576,9 +581,8 @@ static void u12io_SoftwareReset( U12_Device *dev )
  */
 static SANE_Bool u12io_IsConnected( U12_Device *dev )
 {
-	int       mode;
-	SANE_Byte tmp;
-	SANE_Byte buf[6];
+	int       c, mode;
+	SANE_Byte tmp, rb[6];
 
 	DBG( _DBG_INFO, "u12io_IsConnected()\n" );
 	tmp = inb_status( dev->fd );
@@ -591,33 +595,29 @@ static SANE_Bool u12io_IsConnected( U12_Device *dev )
 	if( tmp != ASIC_ID ) {
 
 		DBG( _DBG_INFO, "* Scanner is NOT connected!\n" );
-/* FIXME: really needed? */
-#if 1
-		if( dev->initialized ) {
 
-			tmp = inb_status( dev->fd );
-			DBG( _DBG_INFO, "* tmp3 = 0x%02x\n", tmp );
+		tmp = inb_status( dev->fd );
+		DBG( _DBG_INFO, "* tmp2 = 0x%02x\n", tmp );
 
-			gl640WriteReq( dev->fd, GL640_EPP_ADDR, REG_ASICID );
-			gl640ReadReq ( dev->fd, GL640_EPP_DATA_READ, &tmp );
-			DBG( _DBG_INFO, "* REG_ASICID = 0x%02x\n", tmp );
+		gl640WriteReq( dev->fd, GL640_EPP_ADDR, REG_ASICID );
+		gl640ReadReq ( dev->fd, GL640_EPP_DATA_READ, &tmp );
+		DBG( _DBG_INFO, "* REG_ASICID = 0x%02x\n", tmp );
+
+		if( tmp == 0x02 ) {
 
 			mode = dev->mode;
 			dev->mode = _PP_MODE_EPP;
-			u12io_DataToRegister( dev, REG_ADCADDR, 1 );
-			u12io_DataToRegister( dev, REG_ADCDATA, 0 );
-			u12io_DataToRegister( dev, REG_ADCSERIALOUT, 0 );
+			u12io_DataToRegister( dev, REG_ADCADDR, 0x01 );
+			u12io_DataToRegister( dev, REG_ADCDATA, 0x00 );
+			u12io_DataToRegister( dev, REG_ADCSERIALOUT, 0x00 );
 
-			buf[0] = REG_MODECONTROL;
-			buf[1] = 0x19;
-			buf[2] = REG_STEPCONTROL;
-			buf[3] = 0xff;
-			buf[4] = REG_MOTOR0CONTROL;
-			buf[5] = 0;
-			u12io_DataToRegs( dev, buf, 3 );
-			dev->mode = mode;
+			c = 0;
+			_SET_REG( rb, c, REG_MODECONTROL, 0x19 );
+			_SET_REG( rb, c, REG_STEPCONTROL, 0xff );
+			_SET_REG( rb, c, REG_MOTOR0CONTROL, 0 );
+			u12io_DataToRegs( dev, rb, c );
+			dev->mode = mode ;
 		}
-#endif
 		return SANE_FALSE;
 	} 
 

@@ -79,7 +79,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-3"
+#define BACKEND_VERSION "0.02-4"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -419,15 +419,9 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 		scanner->reader_pid = 0;
 		DBG( _DBG_PROC, "reader_process killed\n");
 
-#if 1
 		if( scanner->hw->fd >= 0 ) {
-			u12io_SoftwareReset( scanner->hw );
-#if 0
-			u12io_CloseScanPath( scanner->hw );
-			_DODELAY(250);
-#endif
+			u12hw_CancelSequence( scanner->hw );
 		}
-#endif
 	}
 
 	if( SANE_TRUE == closepipe ) {

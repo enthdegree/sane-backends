@@ -6,6 +6,7 @@
  * History:
  * - 0.01 - initial version
  * - 0.02 - cleanup
+ *        - added lampTimer stuff
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -218,6 +219,9 @@ static void u12hw_InitiateComponentModel( U12_Device *dev )
  */
 static SANE_Status u12hw_InitAsic( U12_Device *dev, SANE_Bool shading )
 {
+	SANE_Byte rb[6];
+	int       c;
+
 	DBG( _DBG_INFO, "u12hw_InitAsic(%d)\n", shading );
 
 	/* get DAC and motor stuff */
@@ -254,12 +258,19 @@ static SANE_Status u12hw_InitAsic( U12_Device *dev, SANE_Bool shading )
 		dev->regs.RD_Model1Control += _SCAN_GRAYTYPE;
 
 	DBG( _DBG_INFO, "* MotorDrvType = 0x%02x\n", dev->regs.RD_MotorDriverType); 
-	u12io_DataToRegister( dev, REG_MOTORDRVTYPE, dev->regs.RD_MotorDriverType);
-
-	u12io_DataToRegister( dev, REG_WAITSTATEINSERT, 4 );
-
 	DBG( _DBG_INFO, "* Model1Cntrl  = 0x%02x\n", dev->regs.RD_Model1Control );
+
+#if 0
+	u12io_DataToRegister( dev, REG_MOTORDRVTYPE, dev->regs.RD_MotorDriverType);
+	u12io_DataToRegister( dev, REG_WAITSTATEINSERT, 4 );
 	u12io_DataToRegister( dev, REG_MODEL1CONTROL, dev->regs.RD_Model1Control );
+#else
+	c = 0;
+	_SET_REG( rb, c, REG_MOTORDRVTYPE, dev->regs.RD_MotorDriverType);
+	_SET_REG( rb, c, REG_WAITSTATEINSERT, 4 );
+	_SET_REG( rb, c, REG_MODEL1CONTROL, dev->regs.RD_Model1Control );
+	u12io_DataToRegs( dev, rb, c );
+#endif
 
 	u12hw_ProgramCCD( dev );
 	DBG( _DBG_INFO, "u12hw_InitAsic done.\n" );
@@ -597,7 +608,7 @@ static SANE_Status u12hw_CheckDevice( U12_Device *dev )
 			return SANE_STATUS_IO_ERROR;
 	}
 #else
-	u12io_IsConnected( dev );
+/*	u12io_IsConnected( dev ); */
 	if( !u12io_OpenScanPath( dev ))
 		return SANE_STATUS_IO_ERROR;
 #endif
@@ -634,6 +645,52 @@ static SANE_Status u12hw_CheckDevice( U12_Device *dev )
 #endif
 }
 
+/* prototypes... */
+static void u12motor_PositionModuleToHome( U12_Device *);
+static void u12motor_ToHomePosition( U12_Device *, SANE_Bool );
+
+/**
+ */
+static void u12hw_CancelSequence( U12_Device *dev )
+{
+	int       c = 0;
+	SANE_Byte rb[6];
+	
+	DBG( _DBG_INFO, "u12hw_CancelSequence()\n" );
+
+	u12motor_PositionModuleToHome( dev );
+
+	u12motor_ToHomePosition( dev, SANE_TRUE );
+
+	u12io_DataToRegister( dev, REG_MOTOR0CONTROL, 0 );
+	u12io_DataToRegister( dev, REG_MODELCONTROL, 0x1a );
+
+	u12hw_PutToIdleMode( dev );
+	u12io_SoftwareReset( dev );
+
+	u12motor_PositionModuleToHome( dev );
+
+	u12io_DataToRegister( dev, REG_SCANCONTROL, 0x05 );
+	u12io_DataToRegister( dev, REG_MODELCONTROL, 0x1f );
+
+	u12hw_PutToIdleMode( dev );
+
+	u12io_DataToRegister( dev, REG_MODELCONTROL, 0x00 );
+
+	u12io_DataToRegister( dev, REG_ADCADDR, 0x01 );
+	u12io_DataToRegister( dev, REG_ADCDATA, 0x00 );
+	u12io_DataToRegister( dev, REG_ADCSERIALOUT, 0x00 );
+
+	_SET_REG( rb, c, REG_MODECONTROL, 0x19 );
+	_SET_REG( rb, c, REG_STEPCONTROL, 0xff );
+	_SET_REG( rb, c, REG_MOTOR0CONTROL, 0 );
+	u12io_DataToRegs( dev, rb, c );
+
+	u12io_CloseScanPath( dev );
+}
+
+/**
+ */
 static SANE_Status u12hw_WarmupLamp( U12_Device *dev )
 {
 	TimerDef timer;
@@ -653,6 +710,128 @@ static SANE_Status u12hw_WarmupLamp( U12_Device *dev )
 		DBG( _DBG_INFO, "* skipped\n" );
 	}
 	return SANE_STATUS_GOOD;
+}
+
+/* FIXME: replace!!! */
+static U12_Device *dev_xxx = NULL;
+
+/** ISR to switch lamp off after time has elapsed
+ */
+static void usb_LampTimerIrq( int sig )
+{
+	SANE_Byte tmp;
+	int handle = -1;
+
+	if( NULL == dev_xxx )
+		return;
+
+	_VAR_NOT_USED( sig );
+	DBG( _DBG_INFO, "*** LAMP OFF!!! ***\n" );
+
+	if( -1 == dev_xxx->fd ) {
+
+		if( SANE_STATUS_GOOD == sanei_usb_open(dev_xxx->sane.name, &handle)) {
+			dev_xxx->fd = handle;
+		}
+	}
+
+	if( -1 != dev_xxx->fd ) {
+
+		if( !u12io_IsConnected( dev_xxx )) {
+
+			if( u12io_OpenScanPath( dev_xxx )) {
+
+				/* some setup stuff... */
+				tmp = u12io_GetExtendedStatus( dev_xxx );
+				if( tmp & _REFLECTIONLAMP_ON ) {
+					DBG( _DBG_INFO, "* Normal lamp is ON\n" );
+				} else if( tmp & _TPALAMP_ON ) {
+					DBG( _DBG_INFO, "* TPA lamp is ON\n" );
+				}
+	
+				u12io_DataToRegister( dev_xxx, REG_SCANCONTROL, 0 );
+				u12io_CloseScanPath( dev_xxx );
+			}
+		}
+	}
+
+	if( -1 != handle ) {
+		dev_xxx->fd = -1;
+		sanei_usb_close( handle );
+	}
+}
+
+/**
+ */
+static void u12hw_StartLampTimer( U12_Device *dev )
+{
+#ifdef HAVE_SETITIMER
+	sigset_t         block, pause_mask;
+	struct sigaction s;
+	struct itimerval interval;
+
+	/* block SIGALRM */
+	sigemptyset( &block );
+	sigaddset  ( &block, SIGALRM );
+	sigprocmask( SIG_BLOCK, &block, &pause_mask );
+
+	/* setup handler */
+	sigemptyset( &s.sa_mask );
+	sigaddset  ( &s.sa_mask, SIGALRM );
+	s.sa_flags   = 0;
+	s.sa_handler = usb_LampTimerIrq;
+
+	if(	sigaction( SIGALRM, &s, NULL ) < 0 )
+		DBG( _DBG_ERROR, "Can't setup timer-irq handler\n" );
+
+	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
+
+	/*
+	 * define a one-shot timer
+	 */
+	interval.it_value.tv_usec    = 0;
+	interval.it_value.tv_sec     = dev->adj.lampOff;
+	interval.it_interval.tv_usec = 0;
+	interval.it_interval.tv_sec  = 0;
+
+	dev_xxx = dev;
+
+	if( 0 != dev->adj.lampOff ) {
+		setitimer( ITIMER_REAL, &interval, &dev->saveSettings );
+		DBG( _DBG_INFO, "Lamp-Timer started (using ITIMER)\n" );
+	}
+#else
+	dev_xxx = dev;
+
+	alarm( dev->usbDev.dwLampOnPeriod );
+	DBG( _DBG_INFO, "Lamp-Timer started (using ALARM)\n" );
+#endif
+}
+
+/**
+ */
+static void u12hw_StopLampTimer( U12_Device *dev )
+{
+#ifdef HAVE_SETITIMER
+	sigset_t block, pause_mask;
+
+	/* block SIGALRM */
+	sigemptyset( &block );
+	sigaddset  ( &block, SIGALRM );
+	sigprocmask( SIG_BLOCK, &block, &pause_mask );
+
+	if( 0 != dev->adj.lampOff )
+		setitimer( ITIMER_REAL, &dev->saveSettings, NULL );
+
+	dev_xxx = NULL;
+
+#else
+	_VAR_NOT_USED( dev );
+	dev_xxx = NULL;
+
+	alarm( 0 );
+#endif
+	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );
 }
 
 /* END U12-HW.C .............................................................*/

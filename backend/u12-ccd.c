@@ -1106,8 +1106,14 @@ static void u12ccd_InitCCDandDAC( U12_Device *dev, SANE_Bool shading )
 
 		DBG( _DBG_INFO, "* [0x%02x] = 0x%02x\n", dev->DACRegs[w].reg,
 		                                         dev->DACRegs[w].val );
+#if 0
 		u12io_DataRegisterToDAC( dev, dev->DACRegs[w].reg,
 		                              dev->DACRegs[w].val );
+#else
+		u12io_DataToRegister( dev, REG_ADCADDR, dev->DACRegs[w].reg );
+		u12io_DataToRegister( dev, REG_ADCDATA, dev->DACRegs[w].val );
+		u12io_DataToRegister( dev, REG_ADCSERIALOUT, dev->DACRegs[w].val );
+#endif
 	}
 	DBG( _DBG_INFO, "CCD & DAC init done.\n" );
 }

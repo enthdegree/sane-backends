@@ -173,8 +173,7 @@ static void u12if_shutdown( U12_Device *dev  )
 			u12io_DataToRegister(dev,REG_SCANCONTROL, dev->regs.RD_ScanControl );
 		}
 
-/*		u12io_SoftwareReset( dev );
-*/		u12io_CloseScanPath( dev );
+		u12io_CloseScanPath( dev );
 		dev->fd = -1;
 		sanei_usb_close( handle );
 	}
@@ -195,16 +194,7 @@ static void u12if_shutdown( U12_Device *dev  )
 static SANE_Bool u12if_IsDeviceSupported( U12_Device *dev )
 {
 	int i;
-#if 0
-	/* Plustek U12, UT12, U1212, U12B */
-	if( !strcmp( dev->usbId, "0x07B3-0x0001" ))
-		return SANE_TRUE;
 
-	/* Genius Colorpage Vivid III V2 */
-	if( !strcmp( dev->usbId, "0x0458-0x2004" )) {
-		return SANE_TRUE;
-	}
-#else
 	for( i = 0; NULL != u12Devices[i].name; i++ ) {
 
 		if( !strcmp( dev->usbId, u12Devices[i].vp )) {
@@ -212,7 +202,6 @@ static SANE_Bool u12if_IsDeviceSupported( U12_Device *dev )
 			return SANE_TRUE;
 		}
 	}
-#endif
 
 	return SANE_FALSE;
 }
@@ -497,6 +486,7 @@ static SANE_Status u12if_setScanEnv( U12_Device *dev, ImgDef *img )
 static SANE_Status u12if_startScan( U12_Device *dev )
 {
 	DBG( _DBG_INFO, "u12if_startScan()\n" );
+	u12hw_StopLampTimer( dev );
 	u12hw_SetGeneralRegister( dev );
 	u12hw_ControlLampOnOff( dev );
 	return SANE_STATUS_GOOD;
@@ -508,10 +498,13 @@ static SANE_Status u12if_stopScan( U12_Device *dev )
 {
 	DBG( _DBG_INFO, "u12if_stopScan()\n" );
 
-	u12motor_ToHomePosition( dev, SANE_FALSE );
 #if 0
+	u12motor_ToHomePosition( dev, SANE_FALSE );
+#else
+	u12motor_ToHomePosition( dev, SANE_TRUE );
 	u12io_SoftwareReset( dev );
 #endif
+	u12hw_StartLampTimer( dev );
 	dev->DataInf.dwAppLinesPerArea = 0;
 	dev->DataInf.dwScanFlag &= ~_SCANDEF_SCANNING;
 	return SANE_STATUS_GOOD;

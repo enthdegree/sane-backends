@@ -4,6 +4,7 @@
 	  sanei_scsi_flush_all_extended (Linux). Without this fix, especially
 	  long running commands and command queuing would cause memory
 	  corruption if the buffer was invalid after the flush command.
+	* doc/descriptions/abaton.desc: Removed link to everex (timeout).
 
 2003-03-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

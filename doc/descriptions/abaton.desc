@@ -7,7 +7,8 @@
 :devicetype :scanner
 
 :mfg "Abaton"
-:url "http://www.everex.com/"
+;:url "http://www.everex.com/"
+;dead?
 
 :model "Scan 300/GS"
 :interface "SCSI"

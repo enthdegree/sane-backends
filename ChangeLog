@@ -1,3 +1,7 @@
+2001-09-17  Tom Martone <tom@martoneconsulting.com>
+        * backend/bh.desc
+          changed status from :new to :beta
+
 2001-09-17  Simon Munton <simon@munton.demon.co.uk>
 	* backend/pie.c backend/pie.conf: Changed ADLIB to AdLib as this is
 	  what the scanner returns and the comparison is case sensitive

@@ -1,3 +1,8 @@
+2002-03-10 Abel Deuring <a.dering@satzbau-gmbh.de>
+	* configure.in, configure: Added a second test for
+	  HAVE_SG_TARGET_STATUS: check /usr/src/linux/include/scsi/sg.h;
+	  added conditionals so that this test is done only for Linux
+
 2002-03-10  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* doc/sane-plustek.man: Update

@@ -10,7 +10,11 @@
 	* include/sane/sanei.h sanei/Makefile.in sanei/load_values.c
 	  sanei/save_values.c: Removed load_values and save_values as they
 	  are only used in sane_frontends.
-
+	* backend/mustek.c backend/mustek_usb_low.c backend/mustek_usb_high.c
+	  backend/net.c doc/mustek/mustek.CHANGES
+	  doc/mustek_usb/mustek_usb.CHANGES sanei/sanei_usb.c: Fixed some
+	  DBG format warnings.
+	
 2002-02-13  Peter Fales <peter@fales.com>
 
 	* configure, acinclude.m4, aclocal.m4 - Another tweak to the

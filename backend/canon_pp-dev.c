@@ -58,6 +58,7 @@
 #endif
 
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 #include <malloc.h>
@@ -179,6 +180,54 @@ static unsigned char command_14[32] =
 	0x0f, 0xff, 0, 0 };
 #endif
 
+
+/* Misc functions =================================== */
+
+/*
+ * safe_write(): a small wrapper which ensures all the data is written in calls
+ * to write(), since the POSIX call doesn't ensure it. 
+ */
+int safe_write(int fd, const char *p, unsigned long len) {
+	int diff; 
+	unsigned long total = 0;
+
+	do {
+		diff = write(fd, p+total, len-total);
+		if (diff < 0) 
+		{
+			if (errno == EINTR) continue;
+			return -1;
+		}
+		total += diff;
+	} while (len > total);
+
+	return 0;
+
+}
+
+/* same dealie for read, except in the case of read the return of 0 bytes with 
+ * no INTR error indicates EOF */
+int safe_read(int fd, char *p, unsigned long len) {
+	int diff;
+	unsigned long total = 0;
+
+	do {
+		diff = read(fd, p+total, len-total);
+		if (diff <= 0) 
+		{
+			if (errno == EINTR) continue;
+			if (diff == 0) return -2;
+			return -1;
+
+		}
+		total += diff;
+	} while (len > total);
+
+	return 0;
+
+}
+
+
 /* Scan-related functions =================================== */
 
 int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
@@ -209,7 +258,7 @@ int sanei_canon_pp_init_scan(scanner_parameters *sp, scan_parameters *scanp)
 		command_b[45] = check8(command_b, 45);
 		sanei_canon_pp_write(sp->port, 46, command_b);
 	}
-	while (sanei_canon_pp_check_status(sp->port) == 1);
+	while (sanei_canon_pp_check_status(sp->port) != 0);
 
 	/* Ask the scanner about the buffer */
 	sanei_canon_pp_write(sp->port, 10, command_5);
@@ -398,28 +447,36 @@ int sanei_canon_pp_close_scanner(scanner_parameters *sp)
 /* Read the calibration information from file */
 int sanei_canon_pp_load_weights(const char *filename, scanner_parameters *sp)
 {
-	int filehandle;
+	int fd;
 	int cal_data_size = sp->scanheadwidth * sizeof(unsigned long);
 	int cal_file_size;
 
 	char buffer[10];
-	int temp;
+	int temp, ret;
 
 	/* Open file */
-	if ((filehandle = open(filename, O_RDONLY)) == -1)
+	if ((fd = open(filename, O_RDONLY)) == -1)
 		return -1;
 
 	/* Read header and check it's right */
-	temp = read(filehandle, buffer, strlen(header) + 1);
-	if ((temp == 0) || strcmp(buffer, header) != 0)
+	ret = safe_read(fd, buffer, strlen(header) + 1);
+	if ((ret < 0) || strcmp(buffer, header) != 0)
+	{
+		DBG(1,"Calibration file header is wrong, recalibrate please\n");
+		close(fd);
 		return -2;
+	}
 
 	/* Read and check file version (the calibrate file 
 	   format changes from time to time) */
-	read(filehandle, &temp, sizeof(int));
+	ret = safe_read(fd, (char *)&temp, sizeof(int));
 
-	if (temp != fileversion)
+	if ((ret < 0) || (temp != fileversion))
+	{
+		DBG(1,"Calibration file is wrong version, recalibrate please\n");
+		close(fd);
 		return -3;
+	}
 
 	/* Allocate memory for calibration values */
 	if (((sp->blueweight = (unsigned long *)malloc(cal_data_size)) == NULL)
@@ -432,24 +489,53 @@ int sanei_canon_pp_load_weights(const char *filename, scanner_parameters *sp)
 		return -4;
 
 	/* Read width of calibration data */
-	read(filehandle, &cal_file_size, sizeof(cal_file_size));
+	ret = safe_read(fd, (char *)&cal_file_size, sizeof(cal_file_size));
 
-	if (cal_file_size != sp->scanheadwidth)
+	if ((ret < 0) || (cal_file_size != sp->scanheadwidth))
 	{
-		close(filehandle);
+		DBG(1, "Calibration data doesn't match scanner, recalibrate?\n");
+		close(fd);
 		return -5;
 	}
 
 	/* Read calibration data */
-	read(filehandle, sp->blackweight, cal_data_size);
-	read(filehandle, sp->redweight, cal_data_size);
-	read(filehandle, sp->greenweight, cal_data_size);
-	read(filehandle, sp->blueweight, cal_data_size);
+	if (safe_read(fd, (char *)(sp->blackweight), cal_data_size) < 0)
+	{
+		DBG(1, "Error reading black calibration data, recalibrate?\n");
+		close(fd);
+		return -6;
+	}
+
+	if (safe_read(fd, (char *)sp->redweight, cal_data_size) < 0)
+	{
+		DBG(1, "Error reading red calibration data, recalibrate?\n");
+		close(fd);
+		return -7;
+	}
+
+	if (safe_read(fd, (char *)sp->greenweight, cal_data_size) < 0)
+	{
+		DBG(1, "Error reading green calibration data, recalibrate?\n");
+		close(fd);
+		return -8;
+	}
+
+	if (safe_read(fd, (char *)sp->blueweight, cal_data_size) < 0)
+	{
+		DBG(1, "Error reading blue calibration data, recalibrate?\n");
+		close(fd);
+		return -9;
+	}
 
 	/* Read white-balance/gamma data */
-	read(filehandle, &(sp->gamma), 32);
+	
+	if (safe_read(fd, (char *)&(sp->gamma), 32) < 0)
+	{
+		close(fd);
+		return -10;
+	}
 
-	close(filehandle);	
+	close(fd);	
 
 	return 0;
 }
@@ -522,12 +608,18 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	read_data_size = scanline_size * scanline_number;
 
 	/* Allocate output_image struct */
-	DBG(100, "read_segment: Allocate output_image struct\n");
+	/*DBG(100, "read_segment: Allocate output_image struct\n");*/
 	*dest = (image_segment *)malloc(sizeof(image_segment));
 	output_image = *dest;
+	if (dest == NULL)
+	{
+		DBG(10, "read_segment: Error: Not enough memory for scanner "
+				"input buffer\n");
+		return -1;
+	}
 
 	/* Allocate memory for input buffer */
-	DBG(100, "read_segment: Allocate input buffer\n");
+	/*DBG(100, "read_segment: Allocate input buffer\n");*/
 	if ((input_buffer = (unsigned char *)malloc(scanline_size * 
 					scanline_number)) == NULL)
 	{
@@ -540,7 +632,7 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	output_image->height = scanline_number;
 
 	/* Allocate memory for dest image segment */
-	DBG(100, "read_segment: Dest image segment\n");
+	/*DBG(100, "read_segment: Dest image segment\n");*/
 	output_image->image_data = (unsigned char *)
 		malloc(output_image->width * output_image->height * 3 * 2);
 
@@ -596,14 +688,14 @@ int sanei_canon_pp_read_segment(image_segment **dest, scanner_parameters *sp,
 	}
 	while (error);
 
-	DBG(100, "read_segment: Convert to RGB\n");
+	/*DBG(100, "read_segment: Convert to RGB\n");*/
 	/* Convert data */
 	convert_to_rgb(output_image, input_buffer, scanp->width, 
 			scanline_number, scanp->mode);
 
 	/* Adjust pixel readings according to calibration data */
 	if (do_adjust) {
-		DBG(100, "read_segment: Adjust output\n");
+		/*DBG(100, "read_segment: Adjust output\n");*/
 		adjust_output(output_image, scanp, sp);
 	}
 
@@ -804,7 +896,7 @@ static int adjust_output(image_segment *image, scan_parameters *scanp,
 			}
 		}
 	}
-	DBG(100, "Finished adjusting output\n");
+	/*DBG(100, "Finished adjusting output\n");*/
 	return 0;
 }
 
@@ -873,7 +965,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 			sanei_canon_pp_write(sp->port, 10, command_buffer);
 
-		} while (sanei_canon_pp_check_status(sp->port) == 1);
+		} while (sanei_canon_pp_check_status(sp->port) != 0);
 
 		/* Black reference data */
 		sanei_canon_pp_read(sp->port, scanline_size * scanline_count,
@@ -909,19 +1001,19 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 #endif
 
 	/* Some unknown commands */
-	DBG(40, "Sending Unknown request 1\n");
+	DBG(40, "Sending unknown request 1\n");
 	do
 	{
-		sanei_canon_pp_write(sp->port, 10, command_9);
+	        sanei_canon_pp_write(sp->port, 10, command_9);
 		usleep(200000);
-	} while (sanei_canon_pp_check_status(sp->port) == 1);
+	} while (sanei_canon_pp_check_status(sp->port) != 0);
 
-	DBG(40, "Sending Unknown request 2\n");
+	DBG(40, "Sending gamma calibration request (this will take a while)\n");
 	do
 	{
-		sanei_canon_pp_write(sp->port, 10, command_10);
+	        sanei_canon_pp_write(sp->port, 10, command_10);
 		usleep(200000);
-	} while (sanei_canon_pp_check_status(sp->port) == 1);
+	} while (sanei_canon_pp_check_status(sp->port) != 0);
 
 	DBG(40, "Reading white-balance/gamma data\n");
 	sanei_canon_pp_read(sp->port, 32, sp->gamma);
@@ -953,7 +1045,7 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 
 				sanei_canon_pp_write(sp->port, 10, 
 						command_buffer);
-			} while (sanei_canon_pp_check_status(sp->port) == 1);
+			} while (sanei_canon_pp_check_status(sp->port) != 0);
 
 			sanei_canon_pp_read(sp->port, scanline_size * 
 					scanline_count, databuf + 
@@ -994,29 +1086,29 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 		outfile = open(cal_file, O_WRONLY | O_TRUNC | O_CREAT, 0666);
 
 		/* Header */
-		if (write(outfile, header, strlen(header) + 1) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if (write(outfile, &fileversion, sizeof(int)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
+		if (safe_write(outfile, header, strlen(header) + 1) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)&fileversion, sizeof(int)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
 
 		/* Data */
-		if (write(outfile, &(sp->scanheadwidth), 
-					sizeof(sp->scanheadwidth)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if (write(outfile, sp->blackweight, sp->scanheadwidth * 
-					sizeof(long)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if(write(outfile, sp->redweight, sp->scanheadwidth * 
-					sizeof(long)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if(write(outfile, sp->greenweight, sp->scanheadwidth * 
-					sizeof(long)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if(write(outfile, sp->blueweight, sp->scanheadwidth * 
-					sizeof(long)) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
-		if(write(outfile, sp->gamma, 32) == -1)
-			DBG(10, "Write Error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)&(sp->scanheadwidth), 
+					sizeof(sp->scanheadwidth)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)(sp->blackweight), sp->scanheadwidth * 
+					sizeof(long)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)(sp->redweight), sp->scanheadwidth * 
+					sizeof(long)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)(sp->greenweight), sp->scanheadwidth * 
+					sizeof(long)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)(sp->blueweight), sp->scanheadwidth * 
+					sizeof(long)) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
+		if (safe_write(outfile, (char *)(sp->gamma), 32) < 0)
+			DBG(10, "Write error on calibration file %s", cal_file);
 
 		close(outfile);
 	}

@@ -1,3 +1,7 @@
+2004-04-23  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/sane-u12.man doc/plustek/Plustek-USB.changes: updates.
+
 2004-04-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c

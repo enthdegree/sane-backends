@@ -46,8 +46,22 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-niash.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
-.SH ENVIRONMENT
 
+.SH CAVEATS
+If you use a
+.br
+Hewlett-Packard Scanjet 3400c 
+or 
+.br
+Hewlett-Packard Scanjet 4300c 
+.br
+together with Linux kernel
+.B 2.6
+, kernel version 
+.B 2.6.8 
+or newer is necessary.
+
+.SH ENVIRONMENT
 .TP
 .B SANE_DEBUG_NIASH
 If the library was compiled with debug support enabled, this

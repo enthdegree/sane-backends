@@ -37,8 +37,13 @@
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice. 
+*/
 
-   This file implements an interface for the Mustek PP chipset A4S2 */
+/** @file sanei_pa4s2.h
+ * This file implements an interface for the Mustek PP chipset A4S2 
+ *
+ * @sa sanei_usb.h, sanei_ab306.h, sanei_lm983x.h, sanei_scsi.h, sanei_pio.h
+ */
 
 #ifndef sanei_pa4s2_h
 #define sanei_pa4s2_h
@@ -46,46 +51,119 @@
 #include <sys/types.h>
 #include <sane/sane.h>
 
-/* options to controll interface operations */
+/** @name Options to control interface operations */
+/* @{ */
 #define SANEI_PA4S2_OPT_DEFAULT		0	/* normal mode */
 #define SANEI_PA4S2_OPT_TRY_MODE_UNI	1	/* enable UNI protocoll */
 #define SANEI_PA4S2_OPT_ALT_LOCK	2	/* use alternative lock cmd */
+/* @} */
 
-/* 
-   opens *dev as pa4s2 device, possible values for *dev are "0x378",
-   "0x278" and "0x3BC"
+/** Open pa4s2 device 
+ *
+ * Opens *dev as pa4s2 device.
+ *
+ * @param dev IO port address ("0x378", "0x278", or "0x3BC")
+ * @param fd file descriptor
+ * 
+ * @return 
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if no scanner was found or the port number was wrong
+ * - SANE_STATUS_DEVICE_BUSY - if the device is already in use
+ * - SANE_STATUS_IO_ERROR - if the port couldn't be accessed
+ * 
  */
 extern SANE_Status sanei_pa4s2_open (const char *dev, int *fd);
 
-/* closes the device */
+/** Close pa4s2 device 
+ *
+ * @param fd file descriptor
+ */
 extern void sanei_pa4s2_close (int fd);
 
-/* 
-   sets/gets interface options. Options will be taken over, when set is
-   SANE_TRUE. These options should be set before the firt device is opened
+/** Set/get options
+ *
+ * Sets/gets interface options. Options will be taken over, when set is
+ * SANE_TRUE. These options should be set before the first device is opened
+ *
+ * @param options pointer to options
+ * @param set set (SANE_TRUE) or get (SANE_FALSE) options
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
  */
 extern SANE_Status sanei_pa4s2_options (u_int * options, int set);
 
-/*
-   enables/disables the device. possible values for enable are SANE_TRUE
-   and SANE_FALSE. When the device is disabled, the printer can accessed,
-   when it's enabled data can be read/written 
+/** Enables/disable device
+ *
+ * When the device is disabled, the printer can be accessed, when it's enabled
+ * data can be read/written.
+ *
+ * @param fd file descriptor
+ * @param enable enable (SANE_TRUE) or disable (SANE_FALSE) device
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
  */
 extern SANE_Status sanei_pa4s2_enable (int fd, int enable);
 
-/*
-   the function to read a register is split up in three parts, so a register
-   can be read more than once
+/** Select a register
+ *
+ * The function to read a register is split up in three parts, so a register
+ * can be read more than once.
+ *
+ * @param fd file descriptor
+ * @param reg register
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
+ *
+ * @sa sanei_pa4s2_readbyte(), sanei_pa4s2_readend()
  */
-
-/* selects a register */
 extern SANE_Status sanei_pa4s2_readbegin (int fd, u_char reg);
-/* reads a register */
+
+
+/** Read a register 
+ *
+ * The function to read a register is split up in three parts, so a register
+ * can be read more than once.
+ *
+ * @param fd file descriptor
+ * @param val pointer to value
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
+ *
+ * @sa sanei_pa4s2_readbegin(), sanei_pa4s2_readend()
+ */
 extern SANE_Status sanei_pa4s2_readbyte (int fd, u_char * val);
-/* terminates reading sequence */
+
+/** Terminate reading sequence 
+ *
+ * The function to read a register is split up in three parts, so a register
+ * can be read more than once.
+ *
+ * @param fd file descriptor
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
+ * @sa sanei_pa4s2_readbegin(), sanei_pa4s2_readbyte()
+ */
 extern SANE_Status sanei_pa4s2_readend (int fd);
 
-/* reads a register */
+/** Write a register
+ *
+ * @param fd file descriptor
+ * @param reg register
+ * @param val value to be written
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - if fd is invalid or device not in use
+ */
 extern SANE_Status sanei_pa4s2_writebyte (int fd, u_char reg, u_char val);
 
 

@@ -1,8 +1,13 @@
+2003-10-12  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_thread.[ch]: Improved OS/2 support
+	* backend/test.c: removed OS/2 section
+
 2003-10-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Memorex, TCE and Optrox
-	  scanners. 
-	
+	  scanners.
+
 2003-10-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon DR-2080C. Updated

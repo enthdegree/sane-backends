@@ -1,4 +1,4 @@
-.TH sane-net 5 "27 February 1999"
+.TH sane-net 5 "30 Nov 2000"
 .IX sane-net
 .SH NAME
 sane-net - SANE network backend
@@ -112,5 +112,8 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
+.SH BUGS
+Connections to localhost (e.g. net:localhost:pnm:0) result in segmentation
+faults sometimes. Increasing the debug level may help.
 .SH AUTHOR
 David Mosberger and Andreas Beck

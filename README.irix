@@ -1,8 +1,0 @@
-There seem to be problems with some versions of the jpeg library. If
-compilation errors in the jpeg support files occur, disable jpeg and
-the dc210 backend in configure: remove the line
-  LIBS="-ljpeg  $LIBS" 
-and change the line
-  DC210=dc210
-to
-  DC210=

@@ -3723,6 +3723,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			 int findbus, int findchannel, int findid, int findlun,
 			 SANE_Status (*attach) (const char *dev))
 {
+  DBG_INIT();
   DBG (1, "sanei_scsi_find_devices: not implemented for this platform\n");
 }
 

@@ -25,10 +25,12 @@ FUJITSU  M3093GX
 .br
 FUJITSU  M3093GD            
 .br
+FUJITSU  M4097
+.br
 FUJITSU  fi-4340C           
 .br
 FUJITSU  M3091DCd         BF21
-.RE
+.br
 FUJITSU  M3092DCd
 .RE
 .P
@@ -170,7 +172,6 @@ with credit to the unnamed author of the coolscan driver
 3091 driver: Frederik Ramm <frederik@remote.org>
 3093GD,fi-4340C, ipc and cmp options: Oliver Schirrmeister <oschirr@abm.de>
 3092 patch: Mario Goppold <mgoppold@tbzpariv.tcc-chemnitz.de>
-
 .SH LIMITATIONS
 Only tested with Linux 2.4 
 

@@ -21,7 +21,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "1.0"
+#define SANE_DESC_VERSION "1.1"
 
 #define MAN_PAGE_LINK "http://www.mostang.com/sane/man/%s.5.html"
 #define COLOR_ALPHA       "\"#B00000\""
@@ -2037,13 +2037,13 @@ html_backends_split_table (device_type dev_type)
 		    }		/* if (num_models) */
 		  mfg = mfg->next;
 		}		/* while (mfg) */
+	      printf ("</table>\n");
 	    }			/* if (type->type) */
-	  printf ("</table>\n");
 	  type = type->next;
 	}			/* while (type) */
       be = be->next;
     }				/* while (be) */
-  printf ("</table>\n");
+  /*  printf ("</table>\n");*/
 }
 
 /* Generate one table per manufacturer constructed of all backends */
@@ -2117,7 +2117,7 @@ html_mfgs_table (device_type dev_type)
 		    "href=\"%s\">%s</a></td>\n",
 		    model_record->url->name, model_record->name);
 	  else
-	    printf ("<td align=center>%s</td>\n", model_record->name);
+	    printf ("<tr><td align=center>%s</td>\n", model_record->name);
 
 	  if (model_record->interface)
 	    printf ("<td align=center>%s</td>\n", model_record->interface);

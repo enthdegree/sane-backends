@@ -1,3 +1,7 @@
+2003-04-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-desc.c: Fixed some HTML bugs.
+
 2003-04-14  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c, hp-option.c: Check pointers received in

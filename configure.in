@@ -170,6 +170,8 @@ AC_CHECK_LIB(usb, usb_open)
 
 SANE_CHECK_JPEG
 
+SANE_CHECK_GPHOTO2
+
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
 dnl to use them!
 if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
@@ -219,6 +221,18 @@ fi
 AC_SUBST(DC210)
 AC_SUBST(DC240)
 AC_SUBST(DJPEG)
+
+
+if test "${GPHOTO2_BIN}" != "gphoto2" \
+      -o "${sane_cv_use_libjpeg}" != "yes"; then
+  echo "disabling GPHOTO2 backend (failed to find gphoto2 or JPEG lib)"
+  GPHOTO2=
+else
+  echo "enabling GPHOTO2 backend"
+  GPHOTO2=gphoto2
+fi
+AC_SUBST(GPHOTO2)
+
 if test "${ac_cv_header_sys_scanio_h}" = "no"; then
   echo "disabling PINT backend"
   PINT=

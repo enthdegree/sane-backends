@@ -1,7 +1,13 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-48 (2003-07-25)
+
 * Added RevScan 19200i to manpage and .desc file.
 * Updated .desc file to new :status system.
+* Added Fujitsu 1200CUS to man page, .conf and .desc.
+* Changed .conf file to be more readable.
+* Added RevScan 19200i to .conf file.
+* Added Plustek U16B to .desc and .conf, updated UT16B.
 
 V 1.0-47 (2003-06-05)
 

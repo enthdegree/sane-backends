@@ -1,10 +1,104 @@
 :backend "gt68xx"
-:version "1.0-47"
+:version "1.0-48"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
 :devicetype :scanner
 
+; -----------------------------------------------------------------------------
+
+:mfg "Artec/Ultima"
+:url "http://www.artecusa.com/"
+
+:model "Ultima 2000"
+:status :good
+:interface "USB"
+:comment "Works, only product id 0x4002 is supported"
+
+:model "Ultima 2000 e+"
+:status :good
+:interface "USB"
+:comment "Works, only limited testing until now"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Boeder"
+:model "Sm@rtScan Slim Edition"
+:status :good
+:interface "USB"
+:comment "Similar to Artec Ultima 2000"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Fujitsu"
+:url "http://www.fujitsu.com/"
+
+:model "1200CUS"
+:status :basic
+:interface "USB"
+:comment "Works, but is slow. Maybe a Mustek BearPaw 2400 CU clone?"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Genius"
+:url "http://www.genius-kye.com/"
+
+:model "Colorpage Vivid3x"
+:status :good
+:interface "USB"
+:comment "Works but has limited testing"
+
+:model "Colorpage Vivid3xe"
+:status :basic
+:interface "USB"
+:comment "Works but has limited testing. Color problems? Reports are welcome."
+
+; -----------------------------------------------------------------------------
+
+:mfg "Lexmark"
+:url "http://www.lexmark.com/"
+:model "X70"
+:status :good
+:interface "USB"
+:comment "Works, some resolutions fail at 16 bit"
+
+:model "X73"
+:status :good
+:interface "USB"
+:comment "Works, some resolutions fail at 16 bit, same as X70"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Medion/Lifetec/Tevion/Cytron"
+:url "http://www.medion.com"
+:comment "Sold by Aldi and Tchibo."
+	  
+:model "MD 4394"
+:status :good
+:interface "USB"
+:comment "Product id 0x4002. If you have 0x4003, use artec_eplus48u backend."
+
+:model "MD/LT 9375"
+:status :untested
+:interface "USB"
+:comment "Untested, but is reported to have the same ids as the Artec Ultima 2000. Please test."
+
+:model "MD/LT 9385"
+:status :good
+:interface "USB"
+:comment "Similar to Artec Ultima 2000"
+
+:model "LT 9452"
+:status :good
+:interface "USB"
+:comment "Similar to Mustek ScanExpress 1200 UB Plus"
+
+:model "MD 9458"
+:status :good
+:interface "USB"
+:comment "Similar to Artec Ultima 2000 (e+?)"
+
+; -----------------------------------------------------------------------------
 
 :mfg "Mustek"
 :url "http://www.mustek.com/"
@@ -41,7 +135,7 @@
 :model "BearPaw 2400 CU"
 :interface "USB"
 :status :basic
-:comment "Works, but is slow""
+:comment "Works, but is slow"
 
 :model "BearPaw 2400 CU Plus"
 :interface "USB"
@@ -71,42 +165,7 @@
 :status :minimal
 :comment "Should be detected but may need some more work in the code. Testers welcome."
 
-
-:mfg "Plustek"
-:url "http://www.plustek.de/"
-:url "http://www.plustek.com/"
-
-:model "OpticPro 1248U"
-:interface "USB"
-:status :basic
-:comment "Works up to 600 dpi, but calibration is slow"
-
-:model "OpticPro UT16B"
-:interface "USB"
-:status :untested
-:comment "Isn't detected yet but may work some time in future. Testers welcome."
-
-
-:mfg "Artec/Ultima"
-:url "http://www.artecusa.com/"
-
-:model "Ultima 2000"
-:status :good
-:interface "USB"
-:comment "Works, only product id 0x4002 is supported"
-
-:model "Ultima 2000 e+"
-:status :good
-:interface "USB"
-:comment "Works, only limited testing until now"
-
-
-:mfg "Boeder"
-:model "Sm@rtScan Slim Edition"
-:status :good
-:interface "USB"
-:comment "Similar to Artec Ultima 2000"
-
+; -----------------------------------------------------------------------------
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
@@ -119,35 +178,38 @@
 :interface "USB"
 :comment "Similar to Mustek BearPaw 1200 Plus"
 
-:mfg "Medion/Lifetec/Tevion/Cytron"
-:url "http://www.medion.com"
-:comment "Sold by Aldi and Tchibo."
-	  
-:model "MD 4394"
-:status :good
-:interface "USB"
-:comment "Product id 0x4002. If you have 0x4003, use artec_eplus48u backend."
+; -----------------------------------------------------------------------------
 
-:model "MD/LT 9375"
+:mfg "Plustek"
+:url "http://www.plustek.de/"
+:url "http://www.plustek.com/"
+
+:model "OpticPro 1248U"
+:interface "USB"
+:status :basic
+:comment "Works up to 600 dpi, but calibration is slow"
+
+:model "OpticPro U16B"
+:interface "USB"
 :status :untested
-:interface "USB"
-:comment "Untested, but is reported to have the same ids as the Artec Ultima 2000. Please test."
+:comment "Should be detected but may not work. Please contact me if you own such a device."
 
-:model "MD/LT 9385"
+:model "OpticPro UT16B"
+:interface "USB"
+:status :untested
+:comment "Should be detected but may not work. Please contact me if you own such a device. Same as U16B but with a transparency adapter?"
+
+; -----------------------------------------------------------------------------
+
+:mfg "RevScan"
+;:url ""
+
+:model "19200i"
 :status :good
 :interface "USB"
-:comment "Similar to Artec Ultima 2000"
+:comment "Similar to Plustek OpticPro 1248U"
 
-:model "LT 9452"
-:status :good
-:interface "USB"
-:comment "Similar to Mustek ScanExpress 1200 UB Plus"
-
-:model "MD 9458"
-:status :good
-:interface "USB"
-:comment "Similar to Artec Ultima 2000 (e+?)"
-
+; -----------------------------------------------------------------------------
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
@@ -162,38 +224,4 @@
 :interface "USB"
 :comment "Works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 
-
-:mfg "Lexmark"
-:url "http://www.lexmark.com/"
-:model "X70"
-:status :good
-:interface "USB"
-:comment "Works, some resolutions fail at 16 bit"
-
-:model "X73"
-:status :good
-:interface "USB"
-:comment "Works, some resolutions fail at 16 bit, same as X70"
-
-
-:mfg "Genius"
-:url "http://www.genius-kye.com/"
-
-:model "Colorpage Vivid3x"
-:status :good
-:interface "USB"
-:comment "Works but has limited testing"
-
-:model "Colorpage Vivid3xe"
-:status :basic
-:interface "USB"
-:comment "Works but has limited testing. Color problems? Reports are welcome."
-
-:mfg "RevScan"
-;:url ""
-
-:model "19200i"
-:status :good
-:interface "USB"
-:comment "Similar to Plustek OpticPro 1248U"
-
+; -----------------------------------------------------------------------------

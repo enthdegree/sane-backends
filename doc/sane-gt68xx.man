@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "19 Jun 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "22 Jul 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -16,6 +16,8 @@ Artec Ultima 2000 (only product 0x4002)
 Artec Ultima 2000 e+
 .br
 Boeder SmartScan Slim Edition
+.br
+Fujitsu 1200CUS
 .br
 Genius Colorpage Vivid3x
 .br
@@ -150,7 +152,7 @@ is used for the Artec Ultima 2000, the Boeder SmartScan Slim Edition, the
 Medion/ Lifetec/ Tevion/ Cytron MD/LT 9385, the Medion/ Lifetec/ Tevion MD
 9458, and the Trust Flat Scan USB 19200.
 .B override "mustek-bearpaw-2400-cu"
-is necessary for the Mustek BearPaw 2400 CU. The
+is necessary for the Mustek BearPaw 2400 CU and the Fujitsu 1200CUS. The
 .B override
 option must be the first one after the 
 .B usb

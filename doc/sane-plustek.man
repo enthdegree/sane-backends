@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "28 September 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "27 October 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -178,11 +178,11 @@ entries in the configuration file
 .br
 .I @CONFIGDIR@/plustek.conf
 .TP
-.I [merlin-device] vendor-id product-id
+.I [usb] vendor-id product-id
 .TP
 .I device /dev/usbscanner
 .PP
-.I merlin-device
+.I [usb]
 tells the backend, that the following devicename (here
 .I /dev/usbscanner
 ) has to be interpreted as USB scanner device. If vendor- and

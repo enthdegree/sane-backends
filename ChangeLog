@@ -1,5 +1,10 @@
 2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
 
+        * configure configure.in include/sane/config.h.in:
+	  added detection of dev/ppbus/ppi.h
+
+2003-04-18   Stéphane Voltz  <svoltz@wanadoo.fr>
+
         * backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp.conf:
 	  added support for /dev/ppi0 on *BSD, and a
 	* backend/umax_pp.c: configuration parsing fix

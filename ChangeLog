@@ -1,16 +1,25 @@
+2000-12-05  Henning Meier-Geinitz <hmg@gmx.de>
+    
+	* TODO: Updated. Added point about plustek-share.h using c++ comment
+	  and reminder to check config.in.h. Removed entriy about as6e.c stat
+	  result check.
+	* backend/as6e.c backend/as63.h: Comitted patch from Eugene Weiss
+	  <eweiss@sas.upenn.edu>. Fixes: Use only DBG (no printfs). Check result
+	  of stat. Add GPL header.
+
 2000-12-05 Gerhard Jaeger <g.jaeger@earthling.net>
 	
-    * backend/plustek-share.h
-        cleanup
+	* backend/plustek-share.h
+	  cleanup
 
 2000-12-05  Peter Kirchgessner <peter@kirchgessner.net>
 
-    * backend/hp-handle.c
-      - Change SCL_UNLOAD to SCL_CHANGE_DOC (bug from copying code)
+	* backend/hp-handle.c
+	  - Change SCL_UNLOAD to SCL_CHANGE_DOC (bug from copying code)
 
 2000-12-04  Henning Meier-Geinitz <hmg@gmx.de>
 
-    * TODO: Updated. Added entries about as6e stat problems and addition to
+	* TODO: Updated. Added entries about as6e stat problems and addition to
 	  sanei_scsi.c from FreeBSD ports.
 	
 *************************  snapshot-2000-12-04  *******************************

@@ -25,6 +25,8 @@ GT-5000                      SCSI, parallel
 .br
 GT-6000                      parallel
 .br
+GT-6500                      SCSI (use only the line "scsi" in epson.conf)
+.br
 ActionScanner II             SCSI, parallel
 .br
 GT-7000                      SCSI
@@ -247,6 +249,9 @@ backend will use. Possible connection types are:
 This is the default, and if nothing else is specified the backend software will
 open a given path as SCSI device. More information about valid syntax for SCSI
 devices can be found in sane-scsi(5).
+.br
+Usually SCSI scanners are configured with a line "scsi EPSON" in this file. In 
+some cases it may be necessary to only use the string "scsi" (e.g. for the GT-6500).
 .TP
 .I PIO - Parallel Interface
 The parallel interface can be configured in two ways: An integer value starting

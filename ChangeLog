@@ -1,6 +1,8 @@
 2995-02-10  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added CX-3600 and 3650
+	  doc/sane-epson.man, backend/epson.conf: Added information about
+	  GT-6500 (bug #301100)
 
 2005-02-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

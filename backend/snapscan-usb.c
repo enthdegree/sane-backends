@@ -366,7 +366,7 @@ static int is_queueable(const char *src)
 }
 
 static struct usb_busy_queue *bqhead=NULL,*bqtail=NULL;
-int bqelements=0;
+static int bqelements=0;
 
 static int enqueue_bq(int fd,const void *src, size_t src_size)
 {
@@ -452,8 +452,11 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
- * Revision 1.8  2002/03/24 12:32:28  oliverschwartz
- * Snapscan backend version 1.4.9
+ * Revision 1.9  2002/04/10 21:27:31  oliverschwartz
+ * make bqelements static, don't send diagnostic cmd to Snapscan1236
+ *
+ * Revision 1.19  2002/04/10 21:00:33  oliverschwartz
+ * Make bqelements static
  *
  * Revision 1.18  2002/03/24 12:16:09  oliverschwartz
  * Better error report in usb_read

@@ -954,7 +954,9 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 
     if (pss->pdev->model == PRISA620S    /* GP added */
         ||
-        pss->pdev->model == VUEGO610S)    /* SJU added */
+        pss->pdev->model == VUEGO610S    /* SJU added */
+        ||
+        pss->pdev->model == SNAPSCAN1236)   
     {
         return SANE_STATUS_GOOD;
     }
@@ -1175,8 +1177,11 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.12  2002/03/24 12:32:26  oliverschwartz
- * Snapscan backend version 1.4.9
+ * Revision 1.13  2002/04/10 21:27:31  oliverschwartz
+ * make bqelements static, don't send diagnostic cmd to Snapscan1236
+ *
+ * Revision 1.28  2002/04/10 21:01:02  oliverschwartz
+ * Disable send_diagnostic() for 1236s
  *
  * Revision 1.27  2002/03/24 12:11:20  oliverschwartz
  * Get name of firmware file in sane_init

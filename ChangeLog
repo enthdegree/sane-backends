@@ -1,3 +1,8 @@
+2002-04-08  Rene Rebe <rene.rebe@gmx.net>
+
+        * backend/avision.h backend/avision.c backend/avision.conf: bug-
+	  fixes
+
 2002-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* include/sane/sanei_pa4s2.h include/sane/sanei_scsi.h: Added/adjusted
@@ -57,6 +62,7 @@
 	sane-backends/PROJECTS: added teco1 backend
 
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
+i
 	* doc/descriptions/avision.desc: fixed syntax
 
 2002-04-08  Henning Meier-Geinitz <henning@meier-geinitz.de>

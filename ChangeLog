@@ -1,6 +1,7 @@
 2005-01-16  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added IDs for RX-425 (from bug report #301114)
+	* doc/descriptsions/epson.desc: Added RX-425
 
 2005-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -181,3 +181,6 @@
 :interface "USB"
 :status :good
 
+:model "RX-425"
+:interface "USB"
+:status :good

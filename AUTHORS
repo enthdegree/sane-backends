@@ -29,7 +29,7 @@ Backends:
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer (*)
- fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister, 
+ fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and

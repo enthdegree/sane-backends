@@ -1,4 +1,4 @@
-PROJECTS (2001-10-08)
+PROJECTS (2001-10-19)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -26,6 +26,9 @@ http://members.dingoblue.net.au/~kinsei/scanner/
 Canon FB620S flatbed scanner and FS2710 film scanner
 ftp://stthd0.pc.uni-koeln.de/pub/canon-1.08.tar.gz
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+
+Coolscan2 backend: support for LS-40, LS-4000, and LS-8000 (wip)
+http://coolscan2.sourceforge.net/
 
 E3 USB chipset support (e.g. Genius Vivid Pro USB, Colorado USB 19200,
 Visioneer OneTouch 7600, IBM IdeaScan 2000 USB) (wip)

@@ -854,14 +854,17 @@ void sane_exit (void)
 {
     DBG (DL_CALL_TRACE, "sane_snapscan_exit\n");
 
-    if (NULL != get_devices_list)
+    if (get_devices_list)
         free (get_devices_list);
     get_devices_list = NULL;
 
     /* just for safety, reset things to known values */
     auth = NULL;
-    free_device_list(first_device);
-    first_device = NULL;
+
+    if (first_device) {
+        free_device_list(first_device);
+        first_device = NULL;
+    }
     n_devices = 0;
 }
 
@@ -1811,8 +1814,8 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.19  2002/03/24 12:32:30  oliverschwartz
- * Snapscan backend version 1.4.9
+ * Revision 1.20  2002/03/24 16:42:04  oliverschwartz
+ * Fix segfault in snapscan.c
  *
  * Revision 1.41  2002/03/24 12:12:36  oliverschwartz
  * - Moved option functions to snapscan-options.c

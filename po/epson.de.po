@@ -1,17 +1,16 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
+# Translation file for the SANE Epson backend.
+# Copyright (C) YEAR ....
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2002-01-07 21:54+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-01-19 19:47+0100\n"
+"PO-Revision-Date: 2002-01-19 21:02+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: .tmp/epson.c:520
@@ -98,15 +97,15 @@ msgstr "Übertrage Muster A"
 msgid "Download pattern B"
 msgstr "Übertrage Muster B"
 
-#: .tmp/epson.c:630 .tmp/epson.c:2623
+#: .tmp/epson.c:630 .tmp/epson.c:2624
 msgid "Red"
 msgstr "Rot"
 
-#: .tmp/epson.c:631 .tmp/epson.c:2619
+#: .tmp/epson.c:631 .tmp/epson.c:2620
 msgid "Green"
 msgstr "Grün"
 
-#: .tmp/epson.c:632 .tmp/epson.c:2627
+#: .tmp/epson.c:632 .tmp/epson.c:2628
 msgid "Blue"
 msgstr "Blau"
 
@@ -184,171 +183,171 @@ msgstr "A4"
 msgid "max"
 msgstr "maximal"
 
-#: .tmp/epson.c:2349
+#: .tmp/epson.c:2350
 msgid "Scan Mode"
 msgstr "Scan Modus"
 
-#: .tmp/epson.c:2382
+#: .tmp/epson.c:2383
 msgid "Selects the halftone."
 msgstr "Wählt den Halbton aus."
 
-#: .tmp/epson.c:2403
+#: .tmp/epson.c:2404
 msgid "Dropout"
 msgstr "Blindfarbe"
 
-#: .tmp/epson.c:2404
+#: .tmp/epson.c:2405
 msgid "Selects the dropout."
 msgstr "Wählt die Blindfarbe."
 
-#: .tmp/epson.c:2416
+#: .tmp/epson.c:2417
 msgid "Selects the brightness."
 msgstr "Wählt die Helligkeit."
 
-#: .tmp/epson.c:2430
+#: .tmp/epson.c:2431
 msgid "Sharpness"
 msgstr "Schärfe"
 
-#: .tmp/epson.c:2562
+#: .tmp/epson.c:2563
 msgid "Color correction"
 msgstr "Farbkorrektur"
 
-#: .tmp/epson.c:2563
+#: .tmp/epson.c:2564
 msgid "Sets the color correction table for the selected output device."
 msgstr "Setzt die Farbkorrekturtabelle für das ausgewählte Ausgabegerät"
 
-#: .tmp/epson.c:2602
+#: .tmp/epson.c:2603
 msgid "Color correction coefficients"
 msgstr "Farbkorrekturkoeffizienten"
 
-#: .tmp/epson.c:2603
+#: .tmp/epson.c:2604
 msgid "Matrix multiplication of RGB"
 msgstr ""
 
-#: .tmp/epson.c:2620
+#: .tmp/epson.c:2621
 msgid "Shift green to red"
 msgstr "Verschiebt Grün nach Rot"
 
-#: .tmp/epson.c:2621
+#: .tmp/epson.c:2622
 msgid "Shift green to blue"
 msgstr "Verschiebt Grün nach Blau"
 
-#: .tmp/epson.c:2622
+#: .tmp/epson.c:2623
 msgid "Shift red to green"
 msgstr "Verschiebt Rot nach Grün"
 
-#: .tmp/epson.c:2624
+#: .tmp/epson.c:2625
 msgid "Shift red to blue"
 msgstr "Verschiebt Rot nach Blau"
 
-#: .tmp/epson.c:2625
+#: .tmp/epson.c:2626
 msgid "Shift blue to green"
 msgstr "Verschiebt Blau nach Grün"
 
-#: .tmp/epson.c:2626
+#: .tmp/epson.c:2627
 msgid "Shift blue to red"
 msgstr "Verschiebt Blau nach Rot"
 
-#: .tmp/epson.c:2629
+#: .tmp/epson.c:2630
 msgid "Controls green level"
 msgstr "Kontrolliert den Grünanteil"
 
-#: .tmp/epson.c:2630
+#: .tmp/epson.c:2631
 msgid "Adds to red based on green level"
 msgstr ""
 
-#: .tmp/epson.c:2631
+#: .tmp/epson.c:2632
 msgid "Adds to blue based on green level"
 msgstr ""
 
-#: .tmp/epson.c:2632
+#: .tmp/epson.c:2633
 msgid "Adds to green based on red level"
 msgstr ""
 
-#: .tmp/epson.c:2633
+#: .tmp/epson.c:2634
 msgid "Controls red level"
 msgstr "Kontrolliert den Rotanteil"
 
-#: .tmp/epson.c:2634
+#: .tmp/epson.c:2635
 msgid "Adds to blue based on red level"
 msgstr ""
 
-#: .tmp/epson.c:2635
+#: .tmp/epson.c:2636
 msgid "Adds to green based on blue level"
 msgstr ""
 
-#: .tmp/epson.c:2636
+#: .tmp/epson.c:2637
 msgid "Adds to red based on blue level"
 msgstr ""
 
-#: .tmp/epson.c:2637
+#: .tmp/epson.c:2638
 msgid "Control blue level"
 msgstr "Kontrolliert den Blauanteil"
 
-#: .tmp/epson.c:2724
+#: .tmp/epson.c:2725
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: .tmp/epson.c:2732
+#: .tmp/epson.c:2733
 msgid "Mirror image"
 msgstr "Bild spiegeln"
 
-#: .tmp/epson.c:2733
+#: .tmp/epson.c:2734
 msgid "Mirror the image."
 msgstr "Das Bild spiegeln"
 
-#: .tmp/epson.c:2745 .tmp/epson.c:2757
+#: .tmp/epson.c:2746 .tmp/epson.c:2758
 msgid "Speed"
 msgstr "Geschwindigkeit"
 
-#: .tmp/epson.c:2769
+#: .tmp/epson.c:2770
 msgid "Auto area segmentation"
 msgstr "Automatische Auswahl des Scanbereichs"
 
-#: .tmp/epson.c:2782
+#: .tmp/epson.c:2783
 msgid "Zoom"
 msgstr "Vergrösserung"
 
-#: .tmp/epson.c:2783
+#: .tmp/epson.c:2784
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Definiert den Vergrösserungsfaktor, der vom Scanner benutzt wird"
 
-#: .tmp/epson.c:2811
+#: .tmp/epson.c:2812
 msgid "Geometry"
 msgstr "Geometrie"
 
-#: .tmp/epson.c:2862
+#: .tmp/epson.c:2863
 msgid "Quick format"
 msgstr "Schnellformat"
 
-#: .tmp/epson.c:2873
+#: .tmp/epson.c:2874
 msgid "Optional equipment"
 msgstr "Optionales Zubehör"
 
-#: .tmp/epson.c:2898
+#: .tmp/epson.c:2899
 msgid "Film type"
 msgstr "Filmtyp"
 
-#: .tmp/epson.c:2942
+#: .tmp/epson.c:2943
 msgid "Eject"
 msgstr "auswerfen"
 
-#: .tmp/epson.c:2943
+#: .tmp/epson.c:2944
 msgid "Eject the sheet in the ADF"
 msgstr "Wirft das Blatt aus dem automatischen Dokumenteinzug aus"
 
-#: .tmp/epson.c:2954
+#: .tmp/epson.c:2955
 msgid "Auto eject"
 msgstr "Automatischer Auswurf"
 
-#: .tmp/epson.c:2955
+#: .tmp/epson.c:2956
 msgid "Eject document after scanning"
 msgstr "Auswurf des Dokuments nach dem Scannen"
 
-#: .tmp/epson.c:2967
+#: .tmp/epson.c:2968
 msgid "Bay"
 msgstr "Schacht"
 
-#: .tmp/epson.c:2968
+#: .tmp/epson.c:2969
 msgid "select bay to scan"
 msgstr ""
 
@@ -378,575 +377,4 @@ msgstr ""
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
-msgstr ""
-
-#: .tmp/saneopts.h:105
-msgid "Number of options"
-msgstr "Anzahl der Optionen"
-
-#: .tmp/saneopts.h:106
-msgid "Preview"
-msgstr "Vorschau"
-
-#: .tmp/saneopts.h:107
-msgid "Force monochrome preview"
-msgstr ""
-
-#: .tmp/saneopts.h:108
-msgid "Bit depth"
-msgstr "Bittiefe"
-
-#: .tmp/saneopts.h:109
-msgid "Scan mode"
-msgstr "Scan Modus"
-
-#: .tmp/saneopts.h:110
-#, fuzzy
-msgid "Scan speed"
-msgstr "Geschwindigkeit"
-
-#: .tmp/saneopts.h:111
-msgid "Scan source"
-msgstr "Scanquelle"
-
-#: .tmp/saneopts.h:112
-msgid "Force backtracking"
-msgstr ""
-
-#: .tmp/saneopts.h:113
-msgid "Top-left x"
-msgstr "links"
-
-#: .tmp/saneopts.h:114
-msgid "Top-left y"
-msgstr "oben"
-
-#: .tmp/saneopts.h:115
-msgid "Bottom-right x"
-msgstr "rechts"
-
-#: .tmp/saneopts.h:116
-msgid "Bottom-right y"
-msgstr "unten"
-
-#: .tmp/saneopts.h:117
-msgid "Scan resolution"
-msgstr "Scanauflösung"
-
-#: .tmp/saneopts.h:118
-#, fuzzy
-msgid "X-resolution"
-msgstr "Scanauflösung"
-
-#: .tmp/saneopts.h:119
-#, fuzzy
-msgid "Y-resolution"
-msgstr "Scanauflösung"
-
-#: .tmp/saneopts.h:120
-msgid "Use custom gamma table"
-msgstr ""
-
-#: .tmp/saneopts.h:121
-msgid "Image intensity"
-msgstr "Bildintensität"
-
-#: .tmp/saneopts.h:122
-msgid "Red intensity"
-msgstr "Intensität Rot"
-
-#: .tmp/saneopts.h:123
-msgid "Green intensity"
-msgstr "Intensität Grün"
-
-#: .tmp/saneopts.h:124
-msgid "Blue intensity"
-msgstr "Intensität Blau"
-
-#: .tmp/saneopts.h:125
-msgid "Brightness"
-msgstr "Helligkeit"
-
-#: .tmp/saneopts.h:126
-#, fuzzy
-msgid "Contrast"
-msgstr "CRT Monitore"
-
-#: .tmp/saneopts.h:127
-msgid "Grain size"
-msgstr ""
-
-#: .tmp/saneopts.h:128
-msgid "Halftoning"
-msgstr "Halbton"
-
-#: .tmp/saneopts.h:129
-msgid "Black level"
-msgstr ""
-
-#: .tmp/saneopts.h:130
-msgid "White level"
-msgstr ""
-
-#: .tmp/saneopts.h:131
-msgid "Shadow"
-msgstr ""
-
-#: .tmp/saneopts.h:132
-msgid "Shadow for red"
-msgstr ""
-
-#: .tmp/saneopts.h:133
-#, fuzzy
-msgid "Shadow for green"
-msgstr "Verschiebt Rot nach Grün"
-
-#: .tmp/saneopts.h:134
-#, fuzzy
-msgid "Shadow for blue"
-msgstr "Verschiebt Rot nach Blau"
-
-#: .tmp/saneopts.h:135
-msgid "Highlight"
-msgstr ""
-
-#: .tmp/saneopts.h:136
-msgid "Highlight for red"
-msgstr ""
-
-#: .tmp/saneopts.h:137
-msgid "Highlight for green"
-msgstr ""
-
-#: .tmp/saneopts.h:138
-msgid "Highlight for blue"
-msgstr ""
-
-#: .tmp/saneopts.h:139
-msgid "Hue"
-msgstr ""
-
-#: .tmp/saneopts.h:140
-msgid "Saturation"
-msgstr ""
-
-#: .tmp/saneopts.h:141
-msgid "Filename"
-msgstr ""
-
-#: .tmp/saneopts.h:142
-#, fuzzy
-msgid "Halftone pattern size"
-msgstr "Halbton A (hart)"
-
-#: .tmp/saneopts.h:143
-#, fuzzy
-msgid "Halftone pattern"
-msgstr "Halbton A (hart)"
-
-#: .tmp/saneopts.h:144
-#, fuzzy
-msgid "Bind X and Y resolution"
-msgstr "Scanauflösung"
-
-#: .tmp/saneopts.h:145
-#, fuzzy
-msgid "Negative"
-msgstr "Filmnegativ"
-
-#: .tmp/saneopts.h:146
-msgid "Quality calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:147
-#, fuzzy
-msgid "Double Optical Resolution"
-msgstr "Scanauflösung"
-
-#: .tmp/saneopts.h:148
-msgid "Bind RGB"
-msgstr ""
-
-#: .tmp/saneopts.h:149
-msgid "Threshold"
-msgstr "Grenzwert"
-
-#: .tmp/saneopts.h:150
-#, fuzzy
-msgid "Analog gamma correction"
-msgstr "Gammakorrektur"
-
-#: .tmp/saneopts.h:151
-msgid "Analog gamma red"
-msgstr ""
-
-#: .tmp/saneopts.h:152
-msgid "Analog gamma green"
-msgstr ""
-
-#: .tmp/saneopts.h:153
-msgid "Analog gamma blue"
-msgstr ""
-
-#: .tmp/saneopts.h:154
-msgid "Bind analog gamma"
-msgstr ""
-
-#: .tmp/saneopts.h:155
-msgid "Smear"
-msgstr ""
-
-#: .tmp/saneopts.h:156
-msgid "10 bit-mode"
-msgstr ""
-
-#: .tmp/saneopts.h:157
-msgid "12 bit-mode"
-msgstr ""
-
-#: .tmp/saneopts.h:158
-msgid "Warmup lamp"
-msgstr ""
-
-#: .tmp/saneopts.h:159
-#, fuzzy
-msgid "Preview patch"
-msgstr "Vorschau"
-
-#: .tmp/saneopts.h:160
-msgid "Start-scan patch"
-msgstr ""
-
-#: .tmp/saneopts.h:161
-msgid "Cal. exposure-time"
-msgstr ""
-
-#: .tmp/saneopts.h:162
-msgid "Cal. exposure-time for red"
-msgstr ""
-
-#: .tmp/saneopts.h:163
-msgid "Cal. exposure-time for green"
-msgstr ""
-
-#: .tmp/saneopts.h:165
-msgid "Cal. exposure-time for blue"
-msgstr ""
-
-#: .tmp/saneopts.h:166
-#, fuzzy
-msgid "Scan exposure-time"
-msgstr "Scanquelle"
-
-#: .tmp/saneopts.h:167
-msgid "Scan exposure-time for red"
-msgstr ""
-
-#: .tmp/saneopts.h:168
-msgid "Scan exposure-time for green"
-msgstr ""
-
-#: .tmp/saneopts.h:170
-msgid "Scan exposure-time for blue"
-msgstr ""
-
-#: .tmp/saneopts.h:171
-msgid "Set exposure-time"
-msgstr ""
-
-#: .tmp/saneopts.h:172
-msgid "Cal. lamp density"
-msgstr ""
-
-#: .tmp/saneopts.h:173
-#, fuzzy
-msgid "Scan lamp density"
-msgstr "Scan Modus"
-
-#: .tmp/saneopts.h:174
-msgid "Set lamp density"
-msgstr ""
-
-#: .tmp/saneopts.h:178
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
-msgstr "Nicht veränderbare Einstellung, welche angibt wieviele Einstellungen ein spezieller Treiber unterstützt."
-
-#: .tmp/saneopts.h:182
-msgid "Request a preview-quality scan."
-msgstr "Erbitte Scan in Vorschauqualität"
-
-#: .tmp/saneopts.h:185
-msgid ""
-"Request that all previews are done in monochrome mode.  On a three-pass "
-"scanner this cuts down the number of passes to one and on a one-pass "
-"scanner, it reduces the memory requirements and scan-time of the preview."
-msgstr ""
-
-#: .tmp/saneopts.h:191
-msgid ""
-"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
-"multibit scans."
-msgstr "Anzahl der Bits pro Farbwert, typische Werte seind 1 für lineart- und 8 für multibit-Scans"
-
-#: .tmp/saneopts.h:195
-msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
-msgstr "Wählt den Scanmode (z.B. Lineart, Grau oder Farbe)"
-
-#: .tmp/saneopts.h:198
-msgid "Determines the speed at which the scan proceeds."
-msgstr ""
-
-#: .tmp/saneopts.h:201
-msgid "Selects the scan source (such as a document-feeder)."
-msgstr "Bestimmt die Scanquelle (wie Dokumenteneinzug)"
-
-#: .tmp/saneopts.h:204
-msgid "Controls whether backtracking is forced."
-msgstr ""
-
-#: .tmp/saneopts.h:207
-msgid "Top-left x position of scan area."
-msgstr "linke Kante des zu scannenden Bereichs"
-
-#: .tmp/saneopts.h:210
-msgid "Top-left y position of scan area."
-msgstr "Obere Kante des zu scannenden Bereichs"
-
-#: .tmp/saneopts.h:213
-msgid "Bottom-right x position of scan area."
-msgstr "rechte Kante des zu scannenden Bereichs"
-
-#: .tmp/saneopts.h:216
-msgid "Bottom-right y position of scan area."
-msgstr "untere Kante des zu scannenden Bereichs"
-
-#: .tmp/saneopts.h:219
-msgid "Sets the resolution of the scanned image."
-msgstr "Bestimmt die Auflösung des Bildes"
-
-#: .tmp/saneopts.h:222
-#, fuzzy
-msgid "Sets the horizontal resolution of the scanned image."
-msgstr "Bestimmt die Auflösung des Bildes"
-
-#: .tmp/saneopts.h:225
-#, fuzzy
-msgid "Sets the vertical resolution of the scanned image."
-msgstr "Bestimmt die Auflösung des Bildes"
-
-#: .tmp/saneopts.h:228
-msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr ""
-
-#: .tmp/saneopts.h:232
-msgid ""
-"Gamma-correction table.  In color mode this option equally affects the red, "
-"green, and blue channels simultaneously (i.e., it is an intensity gamma "
-"table)."
-msgstr "Gamma Tabelle"
-
-#: .tmp/saneopts.h:237
-msgid "Gamma-correction table for the red band."
-msgstr "Gamma Tabelle für rote Komponente"
-
-#: .tmp/saneopts.h:240
-msgid "Gamma-correction table for the green band."
-msgstr "Gamma Tabelle für grüne Komponente"
-
-#: .tmp/saneopts.h:243
-msgid "Gamma-correction table for the blue band."
-msgstr "Gamma Tabelle für blaue Komponente"
-
-#: .tmp/saneopts.h:246
-#, fuzzy
-msgid "Controls the brightness of the acquired image."
-msgstr "Bestimmt die Auflösung des Bildes"
-
-#: .tmp/saneopts.h:249
-#, fuzzy
-msgid "Controls the contrast of the acquired image."
-msgstr "Bestimmt die Auflösung des Bildes"
-
-#: .tmp/saneopts.h:252
-msgid ""
-"Selects the \"graininess\" of the acquired image.  Smaller values result in "
-"sharper images."
-msgstr ""
-
-#: .tmp/saneopts.h:256
-msgid "Selects whether the acquired image should be halftoned (dithered)."
-msgstr ""
-
-#: .tmp/saneopts.h:259 .tmp/saneopts.h:265
-msgid "Selects what radiance level should be considered \"black\"."
-msgstr ""
-
-#: .tmp/saneopts.h:262 .tmp/saneopts.h:274
-msgid "Selects what radiance level should be considered \"white\"."
-msgstr ""
-
-#: .tmp/saneopts.h:267
-msgid "Selects what red radiance level should be considered \"black\"."
-msgstr ""
-
-#: .tmp/saneopts.h:269
-msgid "Selects what green radiance level should be considered \"black\"."
-msgstr ""
-
-#: .tmp/saneopts.h:271
-msgid "Selects what blue radiance level should be considered \"black\"."
-msgstr ""
-
-#: .tmp/saneopts.h:276
-msgid "Selects what red radiance level should be considered \"full red\"."
-msgstr ""
-
-#: .tmp/saneopts.h:278
-msgid "Selects what green radiance level should be considered \"full green\"."
-msgstr ""
-
-#: .tmp/saneopts.h:281
-msgid "Selects what blue radiance level should be considered \"full blue\"."
-msgstr ""
-
-#: .tmp/saneopts.h:285
-msgid "Controls the \"hue\" (blue-level) of the acquired image."
-msgstr ""
-
-#: .tmp/saneopts.h:288
-msgid ""
-"The saturation level controls the amount of \"blooming\" that occurs when "
-"acquiring an image with a camera. Larger values cause more blooming."
-msgstr ""
-
-#: .tmp/saneopts.h:293
-msgid "The filename of the image to be loaded."
-msgstr ""
-
-#: .tmp/saneopts.h:296
-msgid ""
-"Sets the size of the halftoning (dithering) pattern used when scanning "
-"halftoned images."
-msgstr ""
-
-#: .tmp/saneopts.h:300
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
-msgstr ""
-
-#: .tmp/saneopts.h:304
-msgid "Use same values for X and Y resolution"
-msgstr ""
-
-#: .tmp/saneopts.h:306
-msgid "Swap black and white"
-msgstr ""
-
-#: .tmp/saneopts.h:308
-msgid "Do a quality white-calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:310
-msgid "Use lens that doubles optical resolution"
-msgstr ""
-
-#: .tmp/saneopts.h:312 .tmp/saneopts.h:324
-msgid "In RGB-mode use same values for each color"
-msgstr ""
-
-#: .tmp/saneopts.h:314
-msgid "Select minimum-brightness to get a white point"
-msgstr "Wähle die minimale Helligkeit, die als Weiß betrachtet werden soll"
-
-#: .tmp/saneopts.h:316
-#, fuzzy
-msgid "Analog gamma-correction"
-msgstr "Gammakorrektur"
-
-#: .tmp/saneopts.h:318
-#, fuzzy
-msgid "Analog gamma-correction for red"
-msgstr "Gamma Tabelle für rote Komponente"
-
-#: .tmp/saneopts.h:320
-#, fuzzy
-msgid "Analog gamma-correction for green"
-msgstr "Gamma Tabelle für grüne Komponente"
-
-#: .tmp/saneopts.h:322
-#, fuzzy
-msgid "Analog gamma-correction for blue"
-msgstr "Gamma Tabelle für blaue Komponente"
-
-#: .tmp/saneopts.h:326
-msgid "Don't care about image smearing problem"
-msgstr ""
-
-#: .tmp/saneopts.h:328
-msgid "Output with 10 bits instead of 8 bits"
-msgstr ""
-
-#: .tmp/saneopts.h:330
-msgid "Output with 12 bits instead of 8 bits"
-msgstr ""
-
-#: .tmp/saneopts.h:332
-msgid "Warmup lamp before scanning"
-msgstr ""
-
-#: .tmp/saneopts.h:334
-msgid "Set preview-bit in rgb-mode"
-msgstr ""
-
-#: .tmp/saneopts.h:336
-msgid "Use special start-scan bits"
-msgstr ""
-
-#: .tmp/saneopts.h:338
-msgid "Define exposure-time for calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:340
-msgid "Define exposure-time for red calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:342
-msgid "Define exposure-time for green calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:344
-msgid "Define exposure-time for blue calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:346
-msgid "Define exposure-time for scan"
-msgstr ""
-
-#: .tmp/saneopts.h:348
-msgid "Define exposure-time for red scan"
-msgstr ""
-
-#: .tmp/saneopts.h:350
-msgid "Define exposure-time for green scan"
-msgstr ""
-
-#: .tmp/saneopts.h:352
-msgid "Define exposure-time for blue scan"
-msgstr ""
-
-#: .tmp/saneopts.h:354
-msgid "Enable selection of exposure-time"
-msgstr ""
-
-#: .tmp/saneopts.h:356
-msgid "Define lamp density for calibration"
-msgstr ""
-
-#: .tmp/saneopts.h:358
-msgid "Define lamp density for scan"
-msgstr ""
-
-#: .tmp/saneopts.h:360
-msgid "Enable selection of lamp density"
 msgstr ""

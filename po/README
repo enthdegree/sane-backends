@@ -1,4 +1,4 @@
-2002-01-10
+2002-01-18
 
 This directory contains translations for the options of the SANE backends.
 They are only used if configure is called with option --enable-translations.
@@ -19,8 +19,13 @@ What do you need to do if you want to:
 
 - Add a new language to an existing backend
   * cd po ; make backend.lang.po-gen 
-  * Edit backend-lang.po, enter translations. Don't forget to edit the header.
-  * Edit Makefile.in, add backend.lang.po to DISTFILES.
+  * If no other backend uses this language, you must also create
+    saneopts.lang.po: make saneopts.lang.po-gen.
+  * Edit backend.lang.po, and saneopts.lang.po, enter translations. You only
+    need to enter the translations for texts actually used by your backend. 
+    Don't forget to edit the headers.
+  * Edit Makefile.in, add backend.lang.po (and saneopts.lang.po if it's not
+    yet there) to DISTFILES.
   * make ; make install
 
 - Add a translation for a backend that is not listed yet in Makefile.in
@@ -35,6 +40,7 @@ What do you need to do if you want to:
     translatable text. Also add backend.lang.po to DISTFILES.
   * ./configure --enable-translations
   * cd po ; make backend.lang.po-gen
+  * see above, if the language isn't used by other backends.
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
   * make ; make install
 

@@ -1,0 +1,562 @@
+# Translation file for common options from the file saneopts.h
+# Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+# Based on the translation file for the UMAX and Mustek backends
+msgid ""
+msgstr ""
+"Project-Id-Version: sane-backends 1.0.7\n"
+"POT-Creation-Date: 2002-01-18 22:49+0100\n"
+"PO-Revision-Date: 2002-01-19 20:46+0100\n"
+"Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .tmp/saneopts.h:105
+msgid "Number of options"
+msgstr "Anzahl der Optionen"
+
+#: .tmp/saneopts.h:106
+msgid "Preview"
+msgstr "Vorschau"
+
+#: .tmp/saneopts.h:107
+msgid "Force monochrome preview"
+msgstr "Vorschauscan in grau"
+
+#: .tmp/saneopts.h:108
+msgid "Bit depth"
+msgstr "Bittiefe"
+
+# Scanmodus
+#: .tmp/saneopts.h:109
+msgid "Scan mode"
+msgstr "Scanmodus"
+
+#: .tmp/saneopts.h:110
+msgid "Scan speed"
+msgstr "Scangeschwindigkeit"
+
+#: .tmp/saneopts.h:111
+msgid "Scan source"
+msgstr "Scanquelle"
+
+#: .tmp/saneopts.h:112
+msgid "Force backtracking"
+msgstr "Erzwinge Backtracking"
+
+#: .tmp/saneopts.h:113
+msgid "Top-left x"
+msgstr "Links"
+
+#: .tmp/saneopts.h:114
+msgid "Top-left y"
+msgstr "Oben"
+
+#: .tmp/saneopts.h:115
+msgid "Bottom-right x"
+msgstr "Rechts"
+
+#: .tmp/saneopts.h:116
+msgid "Bottom-right y"
+msgstr "Unten"
+
+#: .tmp/saneopts.h:117
+msgid "Scan resolution"
+msgstr "Scanauflösung"
+
+#: .tmp/saneopts.h:118
+msgid "X-resolution"
+msgstr "X-Auflösung"
+
+#: .tmp/saneopts.h:119
+msgid "Y-resolution"
+msgstr "Y-Auflösung"
+
+#: .tmp/saneopts.h:120
+msgid "Use custom gamma table"
+msgstr "Benutze scannerinterne Gammakorrektur"
+
+#: .tmp/saneopts.h:121
+msgid "Image intensity"
+msgstr "Bildintensität"
+
+#: .tmp/saneopts.h:122
+msgid "Red intensity"
+msgstr "Intensität Rot"
+
+#: .tmp/saneopts.h:123
+msgid "Green intensity"
+msgstr "Intensität Grün"
+
+#: .tmp/saneopts.h:124
+msgid "Blue intensity"
+msgstr "Intensität Blau"
+
+#: .tmp/saneopts.h:125
+msgid "Brightness"
+msgstr "Helligkeit"
+
+#: .tmp/saneopts.h:126
+msgid "Contrast"
+msgstr "Kontrast"
+
+#: .tmp/saneopts.h:127
+msgid "Grain size"
+msgstr "Korngröße"
+
+#: .tmp/saneopts.h:128
+msgid "Halftoning"
+msgstr "Halbtonmodus"
+
+#: .tmp/saneopts.h:129
+msgid "Black level"
+msgstr "Wert für Schwarz"
+
+#: .tmp/saneopts.h:130
+msgid "White level"
+msgstr "Wert für Weiß"
+
+#: .tmp/saneopts.h:131
+msgid "Shadow"
+msgstr "Schatten"
+
+#: .tmp/saneopts.h:132
+msgid "Shadow for red"
+msgstr "Schatten Rot"
+
+#: .tmp/saneopts.h:133
+msgid "Shadow for green"
+msgstr "Schatten Grün"
+
+#: .tmp/saneopts.h:134
+msgid "Shadow for blue"
+msgstr "Schatten Blau"
+
+#: .tmp/saneopts.h:135
+msgid "Highlight"
+msgstr "Licht"
+
+#: .tmp/saneopts.h:136
+msgid "Highlight for red"
+msgstr "Licht Rot"
+
+#: .tmp/saneopts.h:137
+msgid "Highlight for green"
+msgstr "Licht Grün"
+
+#: .tmp/saneopts.h:138
+msgid "Highlight for blue"
+msgstr "Licht Blau"
+
+#: .tmp/saneopts.h:139
+msgid "Hue"
+msgstr "Farbton"
+
+#: .tmp/saneopts.h:140
+msgid "Saturation"
+msgstr "Sättigung"
+
+#: .tmp/saneopts.h:141
+msgid "Filename"
+msgstr "Dateiname"
+
+#: .tmp/saneopts.h:142
+msgid "Halftone pattern size"
+msgstr "Größe der Halbton-Matrix"
+
+#: .tmp/saneopts.h:143
+msgid "Halftone pattern"
+msgstr "Halbton-Matrix"
+
+#: .tmp/saneopts.h:144
+msgid "Bind X and Y resolution"
+msgstr "Verbinde X- und Y-Auflösung"
+
+#: .tmp/saneopts.h:145
+msgid "Negative"
+msgstr "Negativ"
+
+#: .tmp/saneopts.h:146
+msgid "Quality calibration"
+msgstr "Qualitäts-Weißabgleich"
+
+#: .tmp/saneopts.h:147
+msgid "Double Optical Resolution"
+msgstr "Verdoppelte optische Auflösung"
+
+#: .tmp/saneopts.h:148
+msgid "Bind RGB"
+msgstr "Verbinde RGB"
+
+#: .tmp/saneopts.h:149
+msgid "Threshold"
+msgstr "Schwellwert"
+
+#: .tmp/saneopts.h:150
+msgid "Analog gamma correction"
+msgstr "Analoge Gammakorrektur"
+
+#: .tmp/saneopts.h:151
+msgid "Analog gamma red"
+msgstr "Analoger Gammawert Rot"
+
+#: .tmp/saneopts.h:152
+msgid "Analog gamma green"
+msgstr "Analoger Gammawert Grün"
+
+#: .tmp/saneopts.h:153
+msgid "Analog gamma blue"
+msgstr "Analoger Gammawert Blau"
+
+#: .tmp/saneopts.h:154
+msgid "Bind analog gamma"
+msgstr "Verbinde analoge Gammawerte"
+
+#: .tmp/saneopts.h:155
+msgid "Smear"
+msgstr "Schmieren"
+
+#: .tmp/saneopts.h:156
+msgid "10 bit-mode"
+msgstr "10-Bit-Modus"
+
+#: .tmp/saneopts.h:157
+msgid "12 bit-mode"
+msgstr "12-Bit-Modus"
+
+#: .tmp/saneopts.h:158
+msgid "Warmup lamp"
+msgstr "Lampe aufwärmen"
+
+#: .tmp/saneopts.h:159
+msgid "Preview patch"
+msgstr ""
+
+#: .tmp/saneopts.h:160
+msgid "Start-scan patch"
+msgstr ""
+
+#: .tmp/saneopts.h:161
+msgid "Cal. exposure-time"
+msgstr "Beleuchtungszeit zum Kalibrieren"
+
+#: .tmp/saneopts.h:162
+msgid "Cal. exposure-time for red"
+msgstr "Beleuchtungszeit zum Kalibrieren von Rot"
+
+#: .tmp/saneopts.h:163
+msgid "Cal. exposure-time for green"
+msgstr "Beleuchtungszeit zum Kalibrieren von Grün"
+
+#: .tmp/saneopts.h:165
+msgid "Cal. exposure-time for blue"
+msgstr "Beleuchtungszeit zum Kalibrieren von Blau"
+
+#: .tmp/saneopts.h:166
+msgid "Scan exposure-time"
+msgstr "Beleuchtungszeit zum Scannen"
+
+#: .tmp/saneopts.h:167
+msgid "Scan exposure-time for red"
+msgstr "Beleuchtungszeit zum Scannen von Rot"
+
+#: .tmp/saneopts.h:168
+msgid "Scan exposure-time for green"
+msgstr "Beleuchtungszeit zum Scannen von Grün"
+
+#: .tmp/saneopts.h:170
+msgid "Scan exposure-time for blue"
+msgstr "Beleuchtungszeit zum Scannen von Blau"
+
+#: .tmp/saneopts.h:171
+msgid "Set exposure-time"
+msgstr "Definiere Beleuchtungszeit"
+
+#: .tmp/saneopts.h:172
+msgid "Cal. lamp density"
+msgstr "Lichtwert für Kalibrierung"
+
+#: .tmp/saneopts.h:173
+msgid "Scan lamp density"
+msgstr "Lichtwert beim Scannen"
+
+#: .tmp/saneopts.h:174
+msgid "Set lamp density"
+msgstr "Definiere Lichtwert"
+
+#: .tmp/saneopts.h:178
+msgid ""
+"Read-only option that specifies how many options a specific devices supports."
+msgstr "Nur-Lese-Option, die angibt, wieviele Optionen ein bestimmtes Gerät unterstützt."
+
+#: .tmp/saneopts.h:182
+msgid "Request a preview-quality scan."
+msgstr "Fordere einen Scan in Vorschauqualität an."
+
+#: .tmp/saneopts.h:185
+msgid ""
+"Request that all previews are done in monochrome mode.  On a three-pass "
+"scanner this cuts down the number of passes to one and on a one-pass "
+"scanner, it reduces the memory requirements and scan-time of the preview."
+msgstr "Legt fest, dass alle Vorschauscans im Graustufenmodus durchgeführt werden. Bei einem Three-Pass-Scanner wird dadurch nur ein Pass benötigt, bei einem Single-Pass-Scanner wird der Speicherverbrauch und die Scanzeit verringert."
+
+#: .tmp/saneopts.h:191
+msgid ""
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
+"multibit scans."
+msgstr "Anzahl der Bits pro Farbwert, typische Werte sind 1 für Lineart- und 8 für Multibit-Scans"
+
+#: .tmp/saneopts.h:195
+msgid "Selects the scan mode (e.g., lineart,monochrome, or color)."
+msgstr "Wählt den Scanmodus aus (z.B. Strichzeichnung, Grau oder Farbe)."
+
+#: .tmp/saneopts.h:198
+msgid "Determines the speed at which the scan proceeds."
+msgstr "Legt die Scangeschwindigkeit fest."
+
+#: .tmp/saneopts.h:201
+msgid "Selects the scan source (such as a document-feeder)."
+msgstr "Legt die Scanquelle fest (wie z.B. Dokumenteneinzug)."
+
+#: .tmp/saneopts.h:204
+msgid "Controls whether backtracking is forced."
+msgstr "Legt fest, dass Backtracking verwendet wird."
+
+#: .tmp/saneopts.h:207
+msgid "Top-left x position of scan area."
+msgstr "Linke Kante des zu scannenden Bereichs."
+
+#: .tmp/saneopts.h:210
+msgid "Top-left y position of scan area."
+msgstr "Obere Kante des zu scannenden Bereichs."
+
+#: .tmp/saneopts.h:213
+msgid "Bottom-right x position of scan area."
+msgstr "Rechte Kante des zu scannenden Bereichs."
+
+#: .tmp/saneopts.h:216
+msgid "Bottom-right y position of scan area."
+msgstr "Untere Kante des zu scannenden Bereichs."
+
+#: .tmp/saneopts.h:219
+msgid "Sets the resolution of the scanned image."
+msgstr "Legt die Auflösung des Bildes fest."
+
+#: .tmp/saneopts.h:222
+msgid "Sets the horizontal resolution of the scanned image."
+msgstr "Bestimmt die horizontale Auflösung des Bildes."
+
+#: .tmp/saneopts.h:225
+msgid "Sets the vertical resolution of the scanned image."
+msgstr "Bestimmt die vertikale Auflösung des Bildes."
+
+#: .tmp/saneopts.h:228
+msgid "Determines whether a builtin or a custom gamma-table should be used."
+msgstr "Bestimmt ob die scannerinterne oder eine benutzerdefinierte Gammatabelle verwendet wird."
+
+#: .tmp/saneopts.h:232
+msgid ""
+"Gamma-correction table.  In color mode this option equally affects the red, "
+"green, and blue channels simultaneously (i.e., it is an intensity gamma "
+"table)."
+msgstr "Gammatabelle. Im Farbmodus wirkt sich diese Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also eine Helligkeits-Gammatabelle."
+
+#: .tmp/saneopts.h:237
+msgid "Gamma-correction table for the red band."
+msgstr "Gamma Tabelle für die rote Komponente."
+
+#: .tmp/saneopts.h:240
+msgid "Gamma-correction table for the green band."
+msgstr "Gamma Tabelle für die grüne Komponente."
+
+#: .tmp/saneopts.h:243
+msgid "Gamma-correction table for the blue band."
+msgstr "Gamma Tabelle für die blaue Komponente."
+
+#: .tmp/saneopts.h:246
+msgid "Controls the brightness of the acquired image."
+msgstr "Stellt die Helligkeit des Bildes ein."
+
+#: .tmp/saneopts.h:249
+msgid "Controls the contrast of the acquired image."
+msgstr "Stellt den Kontrast des Bildes ein."
+
+#: .tmp/saneopts.h:252
+msgid ""
+"Selects the \"graininess\" of the acquired image.  Smaller values result in "
+"sharper images."
+msgstr "Legt die \"Körnigkeit\" des gescannten Bildes fest. Kleinere Werte ergeben schärfere Bilder."
+
+#: .tmp/saneopts.h:256
+msgid "Selects whether the acquired image should be halftoned (dithered)."
+msgstr "Legt fest, ob das Bild im Halbtonmodus (Dithering) gescannt wird."
+
+#: .tmp/saneopts.h:259 .tmp/saneopts.h:265
+msgid "Selects what radiance level should be considered \"black\"."
+msgstr "Bestimmt, welcher Helligkeitswert als Schwarz angesehen werden soll."
+
+#: .tmp/saneopts.h:262 .tmp/saneopts.h:274
+msgid "Selects what radiance level should be considered \"white\"."
+msgstr "Bestimmt, welcher Helligkeitswert als Weiß angesehen werden soll."
+
+#: .tmp/saneopts.h:267
+msgid "Selects what red radiance level should be considered \"black\"."
+msgstr "Bestimmt, welcher Helligkeitswert der roten Komponente als Schwarz angesehen werden soll."
+
+#: .tmp/saneopts.h:269
+msgid "Selects what green radiance level should be considered \"black\"."
+msgstr "Bestimmt, welcher Helligkeitswert der grünen Komponente als Schwarz angesehen werden soll."
+
+#: .tmp/saneopts.h:271
+msgid "Selects what blue radiance level should be considered \"black\"."
+msgstr "Bestimmt, welcher Helligkeitswert der blauen Komponente als Schwarz angesehen werden soll."
+
+#: .tmp/saneopts.h:276
+msgid "Selects what red radiance level should be considered \"full red\"."
+msgstr "Bestimmt, welcher Helligkeitswert der roten Komponente als Weiß angesehen werden soll."
+
+#: .tmp/saneopts.h:278
+msgid "Selects what green radiance level should be considered \"full green\"."
+msgstr "Bestimmt, welcher Helligkeitswert der grünen Komponente als Weiß angesehen werden soll."
+
+#: .tmp/saneopts.h:281
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr "Bestimmt, welcher Helligkeitswert der blauen Komponente als Weiß angesehen werden soll."
+
+#: .tmp/saneopts.h:285
+msgid "Controls the \"hue\" (blue-level) of the acquired image."
+msgstr "Legt den Farbwert (Blauwert) des gescannten Bildes fest."
+
+#: .tmp/saneopts.h:288
+msgid ""
+"The saturation level controls the amount of \"blooming\" that occurs when "
+"acquiring an image with a camera. Larger values cause more blooming."
+msgstr ""
+
+#: .tmp/saneopts.h:293
+msgid "The filename of the image to be loaded."
+msgstr "Der Dateiname des zu ladenden Bildes."
+
+#: .tmp/saneopts.h:296
+msgid ""
+"Sets the size of the halftoning (dithering) pattern used when scanning "
+"halftoned images."
+msgstr "Legt die Größe der für den Scanvorgang verwendeten Halbtonmatrix fest."
+
+#: .tmp/saneopts.h:300
+msgid ""
+"Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgstr "Definiert die für den Scanvorgang zu verwendende Halbton-Matrix."
+
+#: .tmp/saneopts.h:304
+msgid "Use same values for X and Y resolution"
+msgstr "Benutze die gleichen Auflösungen für X und Y."
+
+#: .tmp/saneopts.h:306
+msgid "Swap black and white"
+msgstr "Invertiere die Farben, z.B. tausche Schwarz gegen Weiß."
+
+#: .tmp/saneopts.h:308
+msgid "Do a quality white-calibration"
+msgstr "Führe einen Qualitätsweißabgleich durch."
+
+#: .tmp/saneopts.h:310
+msgid "Use lens that doubles optical resolution"
+msgstr "Benutze die Linse, mit der die optische Auflösung verdoppelt wird."
+
+#: .tmp/saneopts.h:312 .tmp/saneopts.h:324
+msgid "In RGB-mode use same values for each color"
+msgstr "Benutze die gleichen Wert für alle Farben im RGB Modus."
+
+#: .tmp/saneopts.h:314
+msgid "Select minimum-brightness to get a white point"
+msgstr "Wähle die minimale Helligkeit, die als Weiß betrachtet werden soll."
+
+#: .tmp/saneopts.h:316
+msgid "Analog gamma-correction"
+msgstr "Analoge Gammakorrektur."
+
+#: .tmp/saneopts.h:318
+msgid "Analog gamma-correction for red"
+msgstr "Analoge Gammakorrektur für Rot."
+
+#: .tmp/saneopts.h:320
+msgid "Analog gamma-correction for green"
+msgstr "Analoge Gammakorrektur für Grün."
+
+#: .tmp/saneopts.h:322
+msgid "Analog gamma-correction for blue"
+msgstr "Analoge Gammakorrektur für Blau."
+
+#: .tmp/saneopts.h:326
+msgid "Don't care about image smearing problem"
+msgstr "Ignoriere das Problem des Bild-Verschmierens."
+
+#: .tmp/saneopts.h:328
+msgid "Output with 10 bits instead of 8 bits"
+msgstr ""
+
+#: .tmp/saneopts.h:330
+msgid "Output with 12 bits instead of 8 bits"
+msgstr ""
+
+#: .tmp/saneopts.h:332
+msgid "Warmup lamp before scanning"
+msgstr "Wärme die Lampe vor dem Scannen auf."
+
+#: .tmp/saneopts.h:334
+msgid "Set preview-bit in rgb-mode"
+msgstr "Setze das Vorschaubit im Farbmodus."
+
+#: .tmp/saneopts.h:336
+msgid "Use special start-scan bits"
+msgstr "Benutze besondere Einstellungen beim Start des Scans."
+
+#: .tmp/saneopts.h:338
+msgid "Define exposure-time for calibration"
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung."
+
+#: .tmp/saneopts.h:340
+msgid "Define exposure-time for red calibration"
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
+
+#: .tmp/saneopts.h:342
+msgid "Define exposure-time for green calibration"
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
+
+#: .tmp/saneopts.h:344
+msgid "Define exposure-time for blue calibration"
+msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
+
+#: .tmp/saneopts.h:346
+msgid "Define exposure-time for scan"
+msgstr "Bestimmt die Beleuchtungszeit für den Scan."
+
+#: .tmp/saneopts.h:348
+msgid "Define exposure-time for red scan"
+msgstr "Bestimmt die Beleuchtungszeit für den Scan der roten Komponente."
+
+#: .tmp/saneopts.h:350
+msgid "Define exposure-time for green scan"
+msgstr "Bestimmt die Beleuchtungszeit für den Scan der grünen Komponente."
+
+#: .tmp/saneopts.h:352
+msgid "Define exposure-time for blue scan"
+msgstr "Bestimmt die Beleuchtungszeit für den Scan der blauen Komponente."
+
+#: .tmp/saneopts.h:354
+msgid "Enable selection of exposure-time"
+msgstr "Ermögliche Einstellung der Beleuchtungszeiten."
+
+#: .tmp/saneopts.h:356
+msgid "Define lamp density for calibration"
+msgstr "Definiere die Lichtwerte beim Kalibrieren."
+
+#: .tmp/saneopts.h:358
+msgid "Define lamp density for scan"
+msgstr "Definiere die Lichtwerte beim Scannen."
+
+#: .tmp/saneopts.h:360
+msgid "Enable selection of lamp density"
+msgstr "Ermögliche Auswahl der Lichtwerte."

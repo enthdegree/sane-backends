@@ -54,10 +54,10 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec as6e avision bh canon \
-        coolscan dc25 @DC210@ @DC240@ dmc epson hp m3096g microtek microtek2 \
-	mustek mustek_pp nec @NET@ pie @PINT@ plustek @PNM@ @QCAM@ ricoh \
-	s9036 sharp @SM3600@ @SNAPSCAN@ sp15c st400 tamarack umax umax_pp \
-	@V4L@
+        coolscan dc25 @DC210@ @DC240@ dmc epson hp m3096g microtek \
+        microtek2 mustek mustek_pp mustek_usb nec @NET@ pie @PINT@ plustek \
+        @PNM@ @QCAM@ ricoh s9036 sharp @SM3600@ @SNAPSCAN@ sp15c st400 \
+        tamarack umax umax_pp mustek_usb @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -230,6 +230,8 @@ libsane-mustek.la: ../sanei/sanei_ab306.lo
 libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_config2.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
+libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo
+libsane-mustek_usb.la: ../sanei/sanei_usb.lo
 libsane-nec.la: ../sanei/sanei_config2.lo
 libsane-nec.la: ../sanei/sanei_constrain_value.lo
 libsane-nec.la: ../sanei/sanei_scsi.lo

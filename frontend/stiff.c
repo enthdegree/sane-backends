@@ -17,6 +17,7 @@
 
 /* Changes:
    2000-11-19, PK: Color TIFF-header: write 3 values for bits per sample
+   2001-12-16, PK: Write fill order tag for b/w-images
 */
 #ifdef _AIX
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
@@ -27,6 +28,8 @@
 
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
+
+#include "stiff.h"
 
 typedef struct {
     int tag, typ, nvals, val;
@@ -186,7 +189,7 @@ write_tiff_bw_header (FILE *fptr, int width, int height, int resolution)
     strip_bytecount = ((width+7)/8) * height;
 
     /* the following values must be known in advance */
-    ntags = 11;
+    ntags = 12;
     data_size = 0;
     if (resolution > 0)
     {
@@ -212,6 +215,8 @@ write_tiff_bw_header (FILE *fptr, int width, int height, int resolution)
     add_ifd_entry (ifd, 259, IFDE_TYP_SHORT, 1, 1);
     /* photometric interpretation */
     add_ifd_entry (ifd, 262, IFDE_TYP_SHORT, 1, 0);
+    /* fill order */
+    add_ifd_entry (ifd, 266, IFDE_TYP_SHORT, 1, 1);
     /* strip offset */
     add_ifd_entry (ifd, 273, IFDE_TYP_LONG, 1, strip_offset);
     /* orientation */

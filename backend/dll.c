@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.3"
+#define DLL_VERSION "1.0.4"
 
 #ifdef _AIX
 # include "lalloca.h"   /* MUST come first for AIX! */
@@ -263,7 +263,11 @@ load (struct backend *be)
 
 #if defined(HAVE_DLOPEN)
 # define PREFIX "libsane-"
-# define POSTFIX ".so.%u"
+# ifdef __hpux
+#   define POSTFIX ".sl.%u"
+# else
+#   define POSTFIX ".so.%u"
+# endif
   mode = getenv ("LD_BIND_NOW") ? RTLD_NOW : RTLD_LAZY;
 #elif defined(HAVE_SHL_LOAD)
 # define PREFIX "libsane-"

@@ -1,5 +1,6 @@
-2003-07-19  Oliver Rauch  <oliver.rauch@rauch-domain.de>
+2003-07-20  Oliver Rauch  <oliver.rauch@rauch-domain.de>
 
+	* backend/umax.c: changes for Umax UC630 3pass color scan
 	* doc/descriptopns/umax.desc: changed status
 
 2003-07-19  Frank Zago  <fzago at austin dot rr dot com>

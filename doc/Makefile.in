@@ -166,24 +166,45 @@ sane.ps: sane.ind
 sane-html: sane.ind
 	$(DLH) $(srcdir)/sane.tex
 
-sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc.el
-	cd $(top_srcdir)/doc/descriptions \
-	 && $(EMACS) -batch --load ../../tools/sane-desc.el \
-	      -f sane-desc-doit
-
-sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
-                             ../tools/sane-desc-ext.el
-	cd $(top_srcdir)/doc/descriptions-external \
-	 && $(EMACS) -batch --load ../../tools/sane-desc-ext.el \
-	      -f sane-desc-doit
-
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \
 	  echo "translating $${page} to $${page}.html..."; \
 	  cat $${page} | $(MAN2HTML) > $${page}.html; \
 	done
 
-html: sane-backends.html sane-backends-external.html html-man sane-html
+sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
+	@../tools/sane-desc -m html-backends-split -s descriptions \
+	 -i "The following table summarizes the backends/drivers distributed \
+	     with $(PACKAGE)-$(VERSION), and the hardware or software they \
+             support." -d 1 > sane-backends.html
+
+sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
+                             ../tools/sane-desc
+	@../tools/sane-desc -m html-backends-split -s descriptions-external \
+	   -i "The following table summarizes the backends/drivers that \
+	       have not yet been included in the SANE distribution, and the \
+	       hardware or software they support." \
+	   -t "SANE: External Backends (Drivers)" -d 1 \
+	   > sane-backends-external.html
+
+sane-mfgs.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
+	@../tools/sane-desc -m html-mfgs -s descriptions \
+	   -i "The following table summarizes the devices supported \
+	       by the $(PACKAGE)-$(VERSION)." \
+	   -d 1 > sane-mfgs.html
+
+sane-mfgs-external.html: $(wildcard descriptions-external/*.desc) \
+                             ../tools/sane-desc
+	@../tools/sane-desc -m html-mfgs -s descriptions-external \
+	   -i "The following table summarizes the devices that \
+	       are supported by external backends." \
+	   -t "SANE: Devices Supported by External Backends" -d 1 \
+	   > sane-mfgs-external.html
+
+html-pages: sane-backends.html sane-backends-external.html \
+	    sane-mfgs.html sane-mfgs-external.html
+
+html: html-pages html-man sane-html
 
 %.gz: %
 	gzip -f -c $^ >$@
@@ -223,6 +244,7 @@ distclean: clean
 	rm -f Makefile
 	rm -f *.lot *.lof *.ind *.gz
 	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html
+	rm -f sane-mfgs.html sane-mfgs-external.html
 	rm -f sane/*.html sane/*.gif
 	-rm -rf sane sanei-html
 	for manpage in $(MANPAGES) ; do \

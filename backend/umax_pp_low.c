@@ -1894,6 +1894,12 @@ EPPRead32Buffer (int size, unsigned char *dest)
 #endif
   int control;
 
+  if (GetEPPMode () == 8)
+    {
+      EPPReadBuffer (size, dest);
+      return;
+    }
+
 #ifdef HAVE_LINUX_PPDEV_H
   /* check we have ppdev working */
   fd = sanei_umax_pp_getparport ();
@@ -1964,6 +1970,13 @@ EPPWrite32Buffer (int size, unsigned char *source)
   int fd, mode, rc;
   unsigned char bval;
 #endif
+
+  if (GetEPPMode () == 8)
+    {
+      EPPWriteBuffer (size, source);
+      return;
+    }
+
   if ((size % 4) != 0)
     {
       DBG (0, "EPPWrite32Buffer: size %% 4 != 0!! (%s:%d)\n", __FILE__,
@@ -4763,7 +4776,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   /* we set 32 bits I/O mode first, then step back to */
   /* 8bits if tests fail                              */
   SetEPPMode (32);
-  for (i = 0; i < 10; i++)
+  for (i = 0; (i < 10) && (GetEPPMode () == 32); i++)
     {
       EPPRead32Buffer (0x400, dest);
       /* if 32 bit I/O work, we should have a buffer */
@@ -4776,6 +4789,8 @@ sanei_umax_pp_ProbeScanner (int recover)
 	      DBG (1, "Setting EPP I/O to 8 bits ... (%s:%d)\n", __FILE__,
 		   __LINE__);
 	      SetEPPMode (8);
+	      /* leave out current loop since an error was detected */
+	      break;
 	    }
 	}
       DBG (16, "Loop %d: EPPRead32Buffer(0x400) passed... (%s:%d)\n", i,
@@ -6337,12 +6352,14 @@ EvalGain (int sum, int count)
 
   /* after ~ 60 * 10 scans , it looks like 1 step is a 0.57% increase   */
   /* so we take the value and compute the percent increase to reach 250 */
-  /* no 255, because we want some room inaccuracy                       */
+  /* not 255, because we want some room for inaccuracy                  */
   /* pct=100-(value*100)/250                                            */
   /* then correction is pct/0.57                                        */
   avg = (float) (sum) / (float) (count);
   pct = 100.0 - (avg * 100.0) / 250.0;
   gn = (int) (pct / 0.57);
+
+  /* bound checking : there are sightings of >127 values being negative */
   if (gn < 0)
     gn = 0;
   else if (gn > 127)
@@ -7870,9 +7887,9 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
     {
     case 1200:
       opsc53[6] = 0x60;
-      opsc53[8] = 0x5E;	/* *WORKING* value */
-      opsc53[8] = 0x5F;	/* 5F gives wrong colors ? */
-      opsc53[8] = 0x58;	
+      opsc53[8] = 0x5E;		/* *WORKING* value */
+      opsc53[8] = 0x5F;		/* 5F gives wrong colors ? */
+      opsc53[8] = 0x58;
       opsc53[9] = 0x05;
       /* XXX test value XXX opsc53[14] = opsc53[14] & 0xF0;  ~ 0x08 -> scan AND move */
       /* XXX test value XXX opsc53[14] = (opsc53[14] & 0xF0) | 0x04;         -> 600 dpi ? */

@@ -10,7 +10,7 @@
 
 :backend "ibm"                 ; name of backend
 :url "http://www.meier-geinitz.de/sane/ibm-backend/"
-:version "(2001-10-08)"          ; version of backend
+:version "(2001-10-10)"          ; version of backend
 :status :alpha                 ; :alpha, :beta, :stable, :new
 ;
 ;:manpage "sane-ibm"            ; name of manpage (if it exists)
@@ -20,9 +20,6 @@
 :mfg "IBM"                         ; name a manufacturer
 :url "http://www.ibm.com/"
 
-:model "2456-001"                  ; name models for above-specified mfg.
-:interface "SCSI"
-;:comment "?"
 :model "2456"                  ; name models for above-specified mfg.
 :interface "SCSI"
 ;:comment "?"
@@ -31,3 +28,4 @@
 :model "IS-410"
 :interface "SCSI"
 :comment "Untested, please report!"
+

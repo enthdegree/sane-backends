@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 80"
+:version "Build: 99"
 ;status: alpha, beta, stable, new
 ;:status :stable
 
@@ -73,6 +73,16 @@
 :interface "SCSI"
 :status :untested
 
+:model "AV610"
+:interface "SCSI"
+:comment "test at CeBIT 2004 USB 2.0 problems with my laptop used"
+:status :basic
+
+:model "AVA6"
+:interface "USB"
+:comment ""
+:status :untested
+
 :model "AV610CU Scancopier"
 :interface "USB"
 :comment "1 pass, 600 dpi"
@@ -105,22 +115,22 @@
 
 :model "AV600U"
 :interface "USB"
-:comment "1 pass, 1200 dpi"
-:status :untested
+:comment "1 pass, 600 dpi"
+:status :good
 
 :model "AV600U Plus"
 :interface "USB"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV660S"
 :interface "USB"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV680S"
 :interface "USB"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV690U"
@@ -130,47 +140,47 @@
 
 :model "AV800S"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV810C"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV820"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV820C"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV820C Plus"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV830C"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV830C Plus"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV880"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV880C"
 :interface "SCSI"
-:comment "1 pass, 1200 dpi"
+:comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV8000S"
@@ -181,7 +191,12 @@
 :model "AVA3"
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
-:status :untested
+:status :beta
+
+:model "DS610CU"
+:interface "SCSI"
+:comment "1 pass, 600 dpi, A4 - works with gamma table disabled"
+:status :basic
 
 
 :mfg "Hewlett-Packard"
@@ -189,22 +204,22 @@
 
 :model "ScanJet 5300C"
 :interface "USB"
-:comment "1 pass, 1200 dpi - regularly tested"
+:comment "1 pass, 2400 dpi - regularly tested - some FW revisions have x-axis image scaling problems over 1200 dpi"
 :status :complete
 
 :model "ScanJet 5370C"
 :interface "USB"
-:comment "1 pass, 2400 dpi"
+:comment "1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi"
 :status :basic
 
 :model "ScanJet 7400c"
 :interface "USB"
-:comment "1 pass, 1200 dpi - dual USB/SCSI interface"
+:comment "1 pass, 2400 dpi - dual USB/SCSI interface"
 :status :good
 
 :model "ScanJet 7450c"
 :interface "USB"
-:comment "1 pass, 1200 dpi - dual USB/SCSI interface"
+:comment "1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested"
 :status :good
 
 :model "ScanJet 7490c"
@@ -212,14 +227,19 @@
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
 :status :good
 
+:model "ScanJet 8200"
+:interface "USB"
+:comment "1 pass, 4800 (?) dpi - USB 2.0 - not yet tested"
+:status :untested
+
 
 :mfg "Minolta"
 :url "http://www.minolta.com"
 
-:model "FS-V1"
+:model "Dimage Scan Dual II"
 :interface "USB"
 :comment "1 pass, film-scanner"
-:status :basic
+:status :good
 
 :model "Elite II"
 :interface "USB"

@@ -1,3 +1,8 @@
+2003-07-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* include/sane/sanei_thread.h include/sane/sanei_usb.h: Changed
+	  license to GPL + SANE exception.
+
 2003-07-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/mustek_pp.desc: Tag CCD scanners as unsupported

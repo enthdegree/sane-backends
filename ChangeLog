@@ -2,6 +2,8 @@
 
 	* acinclude.m4 aclocal.m4 configure: Included AC_PROG_LIBTOOL into
 	  acinclude.m4 to avoid trouble with newer versions of libtool.
+	* backend/niash.desc: New file for the niash backend (from Bertrik
+	  Sikken <bertrik@zonnet.nl>).
 
 2002-01-12  Peter Fales <peter@fales.com>
 

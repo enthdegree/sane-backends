@@ -1,3 +1,8 @@
+2003-07-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Minolta and Visioneer
+	  scanners. Updated Avision, Medion, and UMAX scanners.
+
 2003-07-29  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c: Reset globals in sane_exit.

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-07-20"		; version of backend
+:version "2003-07-29"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -55,13 +55,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Is reported to use GeneScan II GL646 chipset. Same as UMAX Astra 4500."
+:comment "Not supported. GL646. Same as UMAX Astra 4500. A backend is currenly beeing developed."
 
 :model "iVina FB1800"
-;:url ""
+:url "http://www.meier-geinitz.de/sane/misc/umax-astra-4700.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. No chipset information available. Same as UMAX Astra 4700."
+:comment "Not supported. GL660 + GL646. Same as UMAX Astra 4700. A backend is currenly beeing developed."
 
 :model "iVina FB2400"
 ;:url ""
@@ -442,7 +442,7 @@
 :url "http://www.meier-geinitz.de/sane/misc/lexmark-x83.txt"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. Vendor/product 0x043d/0x003d. It does use a firmware (in some sort of eeprom(?), at least it's not necesary tu upload it). Probably parport over USB. Seems to use PAL16R8 and GL640USB_40SOJ chips."
+:comment "Unsupported. Vendor/product 0x043d/0x003d. GL640."
 
 ;********************************************************************************************
 
@@ -454,13 +454,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD5345.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 6228. Maybe the same as Primax Slim-Line 1200."
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 6228. Maybe the same as Primax Slim-Line 1200. Maybe GL646 or GL640?"
 
 :model "MD 6228"
 :url "http://www.meier-geinitz.de/sane/misc/medion-MD6228.txt"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 5345. Maybe the same as Primax Slim-Line 1200."
+:comment "Probably unsupported. Vendor/product 0x0461/0x0377. The vendor id is Primax. Same as MD 5345. Maybe the same as Primax Slim-Line 1200. Maybe GL646 or GL640?"
 
 ;********************************************************************************************
 
@@ -514,6 +514,17 @@
 :status :unsupported
 :comment "Unsupported. Vendor/Product ids: 0x04a7/0x0224. Seems to use Realtek RTS8801B. Same as Visioneer OneTouch 4800. See link for details."
 
+
+;********************************************************************************************
+
+:mfg "Minolta"
+:url "http://www.minolta.com/"
+
+:model "Dual Scan III"
+:url "http://www.meier-geinitz.de/sane/misc/minolta-dual-scan-III.txt"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. May work with vuescan. See link for details."
 
 ;********************************************************************************************
 
@@ -782,13 +793,13 @@
 :url "http://www.meier-geinitz.de/sane/misc/umax-astra-4500.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product 0x0638/0x0a10. Is reported to use GeneScan II GL646 chipset. Same as Avision iVina FB1600."
+:comment "Not supported. Vendor/product 0x0638/0x0a10. GL646. Same as Avision iVina FB1600. A backend is currenly beeing developed. See link for more details."
 
 :model "Astra 4700"
 :url "http://www.meier-geinitz.de/sane/misc/umax-astra-4700.txt"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Same as Avision iVina FB1800. See link for more details."
+:comment "Not supported. GL660 + GL646. Same as Avision iVina FB1800. A backend is currenly beeing developed. See link for more details."
 
 :model "Astra 6700"
 ;:url ""
@@ -848,6 +859,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices."
+
+:model "Onetouch 9020"
+:url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch9020.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Vendor/product: 0x04a7/0x022c."
 
 :model "Primascan Colorado 2600u"
 :url "http://www.meier-geinitz.de/sane/misc/visioneer-onetouch4400.txt"

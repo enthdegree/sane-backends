@@ -221,7 +221,7 @@ getbitfield (unsigned char *pageaddr, int mask, int shift)
 /*--------------------------------------------------------------------------*/
 
 #define MAX_GAMMA_LENGTH 0x400	/* maximum number of value per color */
-#define GAMMA_LENGTH (dev->def->num_gamma_color) /* number of value per color */
+#define GAMMA_LENGTH (dev->def->num_gamma_color)	/* number of value per color */
 /*--------------------------------------------------------------------------*/
 
 enum Teco_Option
@@ -245,6 +245,7 @@ enum Teco_Option
   OPT_GAMMA_VECTOR_B,		/* Custom Blue Gamma table */
   OPT_GAMMA_VECTOR_GRAY,	/* Custom Grayscale Gamma table */
   OPT_DITHER,
+  OPT_THRESHOLD,
   OPT_PREVIEW,
 
   /* must come last: */
@@ -270,10 +271,10 @@ struct scanners_supported
   char scsi_teco_name[12];	/* real name of the scanner */
   enum
   {
-	TECO_VM3510,
-	TECO_VM3520,
-	TECO_VM353A,
-	TECO_VM4542
+    TECO_VM3510,
+    TECO_VM3520,
+    TECO_VM353A,
+    TECO_VM4542
   }
   tecoref;
   char *real_vendor;		/* brand on the box */
@@ -285,10 +286,10 @@ struct scanners_supported
   int y_resolution_max;		/* maximum Y dpi */
 
   int pass;			/* number of passes in color mode */
-	
-	size_t num_gamma_color; /* number of value per color */
 
-	int window_size;			/* size of the SCAN window */
+  size_t num_gamma_color;	/* number of value per color */
+
+  int window_size;		/* size of the SCAN window */
 
 };
 

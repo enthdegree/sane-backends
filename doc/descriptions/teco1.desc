@@ -10,7 +10,7 @@
 ;
 
 :backend "teco1"                  ; name of backend
-:version "1.0-7"                  ; version of backend
+:version "1.0-8"                  ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-teco1"             ; name of manpage (if it exists)
 :url "http://fz.eryx.net/sane/#teco"    ; backend's web page

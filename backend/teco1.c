@@ -48,7 +48,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 7			/* 2002/08/30 */
+#define BUILD 8			/* 2002/09/07 */
 #define BACKEND_NAME teco1
 #define TECO_CONFIG_FILE "teco1.conf"
 
@@ -136,6 +136,14 @@ static const int dither_val[] = {
   0x06,
   0x07,
   0x08
+};
+
+/*--------------------------------------------------------------------------*/
+
+static const SANE_Range threshold_range = {
+  0,				/* minimum */
+  255,				/* maximum */
+  0				/* quantization */
 };
 
 /*--------------------------------------------------------------------------*/
@@ -877,18 +885,43 @@ teco_send_gamma (Teco_Scanner * dev)
     }
   else
     {
-      /*
-       * Shift is 1 for GAMMA_LENGTH == 256
-       *  and 4 for GAMMA_LENGTH == 1024
-       */
-      int shift = GAMMA_LENGTH >> 8;
 
-      for (i = 0; i < GAMMA_LENGTH; i++)
+      if (dev->scan_mode == TECO_BW)
 	{
-	  param.gamma[0 * GAMMA_LENGTH + i] = i / shift;
-	  param.gamma[1 * GAMMA_LENGTH + i] = i / shift;
-	  param.gamma[2 * GAMMA_LENGTH + i] = i / shift;
-	  param.gamma[3 * GAMMA_LENGTH + i] = 0;
+
+	  int shift = GAMMA_LENGTH >> 8;
+	  /* Map threshold from a 0..255 scale to a
+	   * 0..GAMMA_LENGTH scale. */
+	  unsigned int threshold =
+	    dev->val[OPT_THRESHOLD].w * (GAMMA_LENGTH / 256);
+
+	  for (i = 0; i < GAMMA_LENGTH; i++)
+	    {
+	      param.gamma[0 * GAMMA_LENGTH + i] = 0;
+	      if (i < threshold)
+		param.gamma[1 * GAMMA_LENGTH + i] = 0;
+	      else
+		param.gamma[1 * GAMMA_LENGTH + i] = 255;
+	      param.gamma[2 * GAMMA_LENGTH + i] = 0;
+	      param.gamma[3 * GAMMA_LENGTH + i] = 0;
+	    }
+	}
+      else
+	{
+
+	  /*
+	   * Shift is 1 for GAMMA_LENGTH == 256
+	   *  and 4 for GAMMA_LENGTH == 1024
+	   */
+	  int shift = GAMMA_LENGTH >> 8;
+
+	  for (i = 0; i < GAMMA_LENGTH; i++)
+	    {
+	      param.gamma[0 * GAMMA_LENGTH + i] = i / shift;
+	      param.gamma[1 * GAMMA_LENGTH + i] = i / shift;
+	      param.gamma[2 * GAMMA_LENGTH + i] = i / shift;
+	      param.gamma[3 * GAMMA_LENGTH + i] = 0;
+	    }
 	}
     }
 
@@ -1166,6 +1199,18 @@ teco_init_options (Teco_Scanner * dev)
   dev->opt[OPT_GAMMA_VECTOR_GRAY].constraint_type = SANE_CONSTRAINT_RANGE;
   dev->opt[OPT_GAMMA_VECTOR_GRAY].constraint.range = &gamma_range;
   dev->val[OPT_GAMMA_VECTOR_GRAY].wa = dev->gamma_GRAY;
+
+  /* Threshold */
+  dev->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  dev->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  dev->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  dev->opt[OPT_THRESHOLD].size = sizeof (SANE_Int);
+  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+  dev->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  dev->opt[OPT_THRESHOLD].constraint.range = &threshold_range;
+  dev->val[OPT_THRESHOLD].w = 128;
 
   /* preview */
   dev->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
@@ -1624,6 +1669,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_TL_X:
 	case OPT_BR_X:
 	case OPT_CUSTOM_GAMMA:
+	case OPT_THRESHOLD:
 	case OPT_PREVIEW:
 	  *(SANE_Word *) val = dev->val[option].w;
 	  return SANE_STATUS_GOOD;
@@ -1679,6 +1725,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	  /* Numeric side-effect free options */
+	case OPT_THRESHOLD:
 	case OPT_PREVIEW:
 	  dev->val[option].w = *(SANE_Word *) val;
 	  return SANE_STATUS_GOOD;
@@ -1703,12 +1750,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 	  dev->opt[OPT_GAMMA_VECTOR_GRAY].cap |= SANE_CAP_INACTIVE;
+	  dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
 
 	  if (strcmp (dev->val[OPT_MODE].s, BLACK_WHITE_STR) == 0)
 	    {
 	      dev->depth = 8;
 	      dev->scan_mode = TECO_BW;
 	      dev->opt[OPT_DITHER].cap &= ~SANE_CAP_INACTIVE;
+	      dev->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  else if (strcmp (dev->val[OPT_MODE].s, GRAY_STR) == 0)
 	    {

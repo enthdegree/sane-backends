@@ -50,7 +50,7 @@
    SCSI-2 command set.
 
    (feedback to:  bernd@aquila.muc.de)
-   (              karsten.festag@t-online.de)
+   (              karsten.festag@gmx.de)
  ***************************************************************************/
 
 

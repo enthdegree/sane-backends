@@ -13,7 +13,7 @@
 :version "0.95"                   ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
-:url "http://home.t-online.de/home/karsten.festag/"
+:url "http://karstenfestag.gmxhome.de"
 
 :devicetype :scanner              ; start of a list of devices....
 

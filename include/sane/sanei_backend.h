@@ -18,13 +18,16 @@
 
 #ifndef __GLIBC__
 # ifndef u_int8_t
-#  define u_int8_t	unsigned char
+#  define u_int8_t      u_int8_t
+typedef unsigned char   u_int8_t;
 # endif
 # ifndef u_int16_t
-#  define u_int16_t	unsigned short
+#  define u_int16_t	u_int16_t
+typedef unsigned short  u_int16_t;
 # endif
 # ifndef u_int32_t
-#  define u_int32_t	unsigned int
+#  define u_int32_t	u_int32_t
+typedef unsigned int    u_int32_t;
 # endif
 #endif
 

@@ -45,6 +45,7 @@
 #include <stdio.h>
 
 extern FILE *sanei_config_open (const char *name);
+extern char *sanei_config_read (char *str, int n, FILE *stream);
 extern const char *sanei_config_skip_whitespace (const char *str);
 /* Scan a string constant from the string pointed to by STR and return
    a malloced copy of it in *STRING_CONST (it's the responsibility of

@@ -1,3 +1,9 @@
+2002-02-20  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp.c:  corrected few bugs
+	  due to changing default model to 'none'.
+	* tools/umax_pp.c: fixed compile problem
+
 2002-02-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* lib/inet_pton.c: Use u_int32_t instead of in in_addr_t which isn't

@@ -2,6 +2,8 @@
 
 	* acinclude.m4 config.guess config.sub configure ltmain.sh: Update
 	  to libtool 1.5.10.
+	* doc/descriptions/unsupported.desc: Added link to
+	  Microtek Filmscan 35. 
 
 2004-10-11  Oliver Schirrmeister (oschirr@abm.de)
 

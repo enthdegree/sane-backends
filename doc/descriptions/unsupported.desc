@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2004-10-06"		; version of backend
+:version "2004-10-11"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -713,10 +713,11 @@
 :status :unsupported
 :comment "Unsupported. Uses ALI M5611B."
 
-:model "Filmscan 35"
+:model "FilmScan 35"
+:url "/unsupported/microtek-filmscan-35.html"
 :interface "USB	"
 :status :unsupported
-:comment "Probably unsupported. No details available."
+:comment "Probably unsupported. See link for details."
 
 :model "ScanMaker 336 CX"
 ;:url ""

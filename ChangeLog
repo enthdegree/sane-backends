@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.8. End of code freeze ******
+
 2002-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/plustek-usbscan.c: Critical bugfix to avoid bumping the

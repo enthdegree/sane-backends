@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.06 - 2001-05-22"
-#define SANE_EPSON_BUILD	206
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.07 - 2001-05-25"
+#define SANE_EPSON_BUILD	207
 
 /*
    This file is part of the SANE package.
@@ -59,9 +59,16 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2001-05-25	Version 0.2.07
+		Allow more than 8 bit color depth even for preview mode 
+		since Xsane can handle this. Some code cleanup. 
+   2001-05-24   Removed ancient code that was used to determine the resolution
+		back when the backend still had a slider for the resolution
+		selection.
    2001-05-22   Version 0.2.06
-		Added sense_handler to support the GT-8000 scanner. Also added
-		experimental code to use USB scanner probing. Need kernel patch
+		Added sense_handler to support the GT-8000 scanner. Thanks to Matthias Trute
+		for figuring out the details.
+		Also added experimental code to use USB scanner probing. Need kernel patch
 		for this.
    2001-05-19   Version 0.2.05
 		fixed the year in the recent change log entries - I now that it's
@@ -216,7 +223,9 @@
 */
 
 
-/* DON'T CHANGE THE NEXT LINE !!! */
+/* #define TEST_IOCTL */
+
+/* DON'T CHANGE THE NEXT LINE ! */
 /* #undef FORCE_COLOR_SHUFFLE */
 
 
@@ -241,9 +250,17 @@
 #include  "sane/saneopts.h"
 #include  "sane/sanei_scsi.h"
 
-/*
- *  NOTE: try to isolate scsi stuff in own section.
- *
+#include  <sane/sanei_pio.h>
+#include  "epson.h"
+
+#define  BACKEND_NAME epson
+#include  <sane/sanei_backend.h>
+
+#include  <sane/sanei_config.h>
+
+/***************************************************************************
+ *  Try to isolate scsi stuff in own section.
+ ***************************************************************************
  */
 
 #define  TEST_UNIT_READY_COMMAND	0x00
@@ -252,11 +269,31 @@
 #define  INQUIRY_COMMAND		0x12
 #define  TYPE_PROCESSOR			0x03
 
+
+/*
+ * sense handler for the sanei_scsi_XXX comands
+ */
+static SANE_Status sense_handler (int scsi_fd, u_char *result, void *arg)
+{
+  /* to get rid of warnings */
+  scsi_fd = scsi_fd;
+  arg = arg;
+
+  if (result[0] && result[0]!=0x70)
+    {
+      DBG (0, "sense_handler() : sense code = 0x%02x\n", result[0]);
+      return SANE_STATUS_IO_ERROR;
+    }
+  else
+    {
+      return SANE_STATUS_GOOD;
+    }
+}
+
 /*
  *
  *
  */
-
 static SANE_Status inquiry ( int fd, int page_code, void * buf, size_t * buf_size) {
 	u_char cmd [ 6];
 	int status;
@@ -274,7 +311,6 @@ static SANE_Status inquiry ( int fd, int page_code, void * buf, size_t * buf_siz
  *
  *
  */
-
 static int scsi_read ( int fd, void * buf, size_t buf_size, SANE_Status * status) {
 	u_char cmd [ 6];
 
@@ -294,7 +330,6 @@ static int scsi_read ( int fd, void * buf, size_t buf_size, SANE_Status * status
  *
  *
  */
-
 static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status * status) {
 	u_char * cmd;
 
@@ -317,13 +352,6 @@ static int scsi_write ( int fd, const void * buf, size_t buf_size, SANE_Status *
  *
  */
 
-#include  <sane/sanei_pio.h>
-#include  "epson.h"
-
-#define  BACKEND_NAME	epson
-#include  <sane/sanei_backend.h>
-
-#include  <sane/sanei_config.h>
 #define  EPSON_CONFIG_FILE	"epson.conf"
 
 #ifndef  PATH_MAX
@@ -734,28 +762,6 @@ static const SANE_String_Const qf_list [ ] =
 
 static SANE_Word * bitDepthList = NULL;
 
-/* 
- * this is now stored in the s->hw->resolution_list field
-
-static SANE_Word * resolution_list = NULL;
-
- */
-
-
-
-static SANE_Status
-sense_handler (int scsi_fd, u_char *result, void *arg)
-{
-  if (result[0] && result[0]!=0x70)
-    {
-      DBG (0, "sense_handler() : sense code = 0x%02x\n", result[0]);
-      return SANE_STATUS_IO_ERROR;
-    }
-  else
-    {
-      return SANE_STATUS_GOOD;
-    }
-}
 
 
 /*
@@ -3197,68 +3203,6 @@ static void handle_depth_halftone( Epson_Scanner * s, SANE_Bool * reload)
     End of handle_depth_halftone.
 **/
 
-static void handle_resolution( Epson_Scanner * s,
-	SANE_Int option, void * value )
-
-{
-	int n, k = 0, f;
-	int min_d = s->hw->res_list[ s->hw->res_list_size - 1];
-	SANE_Int v = *(SANE_Word *) value;
-	SANE_Int best = v;
-	int * last = ( OPT_RESOLUTION == option) ?
-				&s->hw->last_res :
-				&s->hw->last_res_preview;
-
-/*
-    We don't assume the list is sorted.  Search the list of
-    resolutions, looking for the value closest to the one we want.
-*/
-
-	for( n = 0; n < s->hw->res_list_size; n++) {
-		int d = abs( v - s->hw->res_list[ n]);
-
-		if( d < min_d) {
-			min_d = d;
-			k = n;
-			best = s->hw->res_list[ n];
-		}
-	}
-
-/*
-    Problem: does not reach all values cause of scroll bar resolution.
-
-    If the requested resolution is not actually available, search
-    search the list of resolutions to see if the last resolution we
-    used is in the list.  If the last resolution is in the list, and
-    it is not near the to the closest possible value to the user's
-    request, then use the one next to the last one - taking into
-    account the direction the user appears to be going.  Or something
-    like that.  I did not write this code.
-*/
-
-	if( (v != best) && *last) {
-		for( f = 0; f < s->hw->res_list_size; f++)
-			if( *last == s->hw->res_list[ f])
-				break;
-
-		if( f != k && f != k - 1 && f != k + 1) {
-			if( k > f) {
-				best = s->hw->res_list[ f + 1];
-			} else if ( k < f) {
-				best = s->hw->res_list[ f - 1];
-			}
-		}
-	}
-
-	*last = best;
-	s->val[ option ].w = (SANE_Word) best;
-
-	DBG(3, "Selected resolution %d dpi\n", best);
-}
-
-/**
-    End of handle_resolution.
-**/
 
 static void handle_source( Epson_Scanner * s, SANE_Int optindex,
 	char * value )
@@ -3424,7 +3368,7 @@ static SANE_Status setvalue( SANE_Handle handle,
 		break;
 			
 	case OPT_RESOLUTION:
-		handle_resolution( s, option, value );
+		sval->w = *(( SANE_Word *) value);
 		reload = SANE_TRUE;
 		break;
 
@@ -3619,6 +3563,10 @@ SANE_Status sane_control_option ( SANE_Handle handle,
  * bytes and pixels per line, number of lines. This information is returned
  * in the SANE_Parameters structure.
  *
+ * Once a scan was started, this routine has to report the correct values, if
+ * it is called before the scan is actually started, the values are based on
+ * the current settings.
+ *
  */
 
 SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params) 
@@ -3671,28 +3619,35 @@ SANE_Status sane_get_parameters ( SANE_Handle handle, SANE_Parameters * params)
 	 * The default color depth is stored in mode_params.depth:
 	 */
 
-	/* there must be a better way to do this, but it works for now */
-
 	if (mode_params[s->val[OPT_MODE].w].depth == 1)
+	{
 		s->params.depth = 1;
+	}
 	else
+	{
 		s->params.depth = s->val[OPT_BIT_DEPTH].w;
+	}
 
 	if (s->params.depth > 8)
 	{
-		if (s->val[OPT_PREVIEW].w)	/* for preview the frontends can only handle 8 bits */
-			s->params.depth = 8;
-		else
-			s->params.depth = 16;	/* the frontends can only handle 8 or 16 bits for gray or color */
+		s->params.depth = 16;	/* 
+					 * The frontends can only handle 8 or 16 bits 
+					 * for gray or color - so if it's more than 8,
+					 * it gets automatically set to 16. This works
+					 * as long as EPSON does not come out with a
+					 * scanner that can handle more than 16 bits
+					 * per color channel.
+					 */
+
 	}
 
-	bytes_per_pixel = s->params.depth / 8;
+	bytes_per_pixel = s->params.depth / 8;	/* this works because it can only be set to 1, 8 or 16 */
 	if (s->params.depth % 8)	/* just in case ... */
 	{
 		bytes_per_pixel++;
 	}
 
-	/* pixels_per_line seems to be rounded to the next 8bit boundary */
+	/* pixels_per_line is rounded to the next 8bit boundary */
 	s->params.pixels_per_line = s->params.pixels_per_line & ~7;
 
 	s->params.last_frame = SANE_TRUE;
@@ -3838,22 +3793,9 @@ SANE_Status sane_start ( SANE_Handle handle)
 		}
 	}
 
-/*
- * Set the color depth. If a preview is requested, then always
- * scan in 8bit mode if grayscale or color mode was selected. We
- * are not testing for any of these modes, if preview is selected,
- * and the color depth was more than 8 bits, then we just reset it
- * to 8 bits.
- */
-
 	mparam = mode_params + s->val[ OPT_MODE].w;
-
-
-	if (s->val[OPT_PREVIEW].w && mparam->depth > 8)
-		status = set_data_format( s, 8);
-	else
-		status = set_data_format( s, mparam->depth);
-
+	DBG(1, "sane_start: Setting data format to %d bits\n", mparam->depth);
+	status = set_data_format( s, mparam->depth);
 
 	if( SANE_STATUS_GOOD != status) {
 		DBG( 1, "sane_start: set_data_format failed: %s\n", sane_strstatus( status));
@@ -3861,7 +3803,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 	}
 
 	/*
-	 * The byte sequence mode was introduced in B5, for B34 we need line sequence mode 
+	 * The byte sequence mode was introduced in B5, for B[34] we need line sequence mode 
 	 */
 
 	if( (s->hw->cmd->level[0] == 'D' || 
@@ -3882,7 +3824,6 @@ SANE_Status sane_start ( SANE_Handle handle)
 		DBG( 1, "sane_start: set_color_mode failed: %s\n", sane_strstatus( status));
 		return status;
 	}
-
 
 
 	if( s->hw->cmd->set_halftoning && SANE_OPTION_IS_ACTIVE( s->opt[ OPT_HALFTONE].cap) ) {
@@ -4106,7 +4047,7 @@ SANE_Status sane_start ( SANE_Handle handle)
 	 * Start line_distance lines earlier and add line_distance lines at the end
 	 *
 	 * Because the actual line_distance is not yet calculated we have to do this
-	 * first. !!!
+	 * first.
 	 */
 
 	s->hw->color_shuffle = SANE_FALSE;
@@ -4697,12 +4638,12 @@ START_READ:
 
 		/*
 		 * HACK !!!
-		 * The Perfection 1640 seems to have the R and G channels swapped. At
-		 * this time this is the only 14 bit scanner, so I'm using this information
-		 * to reverse the re-order rule.
-		 * This has to be checked again after new 14bit scanners are released !!!
-		 *
+		 * The Perfection 1640 seems to have the R and G channels swapped.
 		 * The GT-8700 is the Asian version of the Perfection1640.
+		 * If the scanner name is one of these, and the scan mode is
+		 * RGB and the maxDepth is set to 14 (this is just another
+		 * check to make sure that we are dealing with the correct
+		 * device) then swap the colors.
 		 */
 
 		needStrangeReorder = 
@@ -4714,7 +4655,7 @@ START_READ:
 			s->hw->maxDepth == 14;
 
 		if (needStrangeReorder)
-			reorder = !reorder;		/* !!! */
+			reorder = !reorder;
 
 		if (reorder)
 		{
@@ -4763,7 +4704,7 @@ START_READ:
 
 			status = color_shuffle(s, &new_length);
 
-			/* !!!
+			/* 
 			 * If no bytes are returned, check if the scanner is already done, if so, 
 			 * we'll probably just return, but if there is more data to process get
 			 * the next batch.

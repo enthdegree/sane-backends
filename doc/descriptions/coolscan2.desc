@@ -11,7 +11,7 @@
 
 :backend "coolscan2"
 :version "0.1.8"
-:status :beta
+:status :good
 :manpage "sane-coolscan2"
 :url "http://coolscan2.sourceforge.net/"
 

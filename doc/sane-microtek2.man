@@ -65,8 +65,7 @@ Scanport?  SQ300              Parport?
 Scanpaq    SQ2030             Parport
 .PP 
 Additional information can be found at
-.B www.mostang.com/sane/
-.
+.BR http://www.mostang.com/sane/ .
 If you own a Microtek scanner with SCSI-2 interface other than the ones 
 listed 
 above, it may or may not work with SANE! Because equal scanners are sold under 
@@ -144,8 +143,7 @@ or
 for example.
 .SH "CONFIGURATION"
 The configuration file for this backend resides in
-.I @CONFIGDIR@/microtek2.conf
-.
+.IR @CONFIGDIR@/microtek2.conf .
 Its contents is a list of device names that correspond to Microtek
 scanners with SCSI-2 interface. Empty lines and lines starting with 
 a hash mark (#) are ignored.
@@ -188,8 +186,8 @@ printed, too. If n=4 all scan data is additionally printed to stderr.
 .PP 
 The default is n=1.
 .PP 
-.I option strip-height <n>
-, where <n> is a floating point number, limits the amount of data that is
+.IR option\ strip-height\ <n> ,
+where <n> is a floating point number, limits the amount of data that is
 read from the scanner with one read command.
 The unit is inch and <n> defaults to 1.0, if this option is not set in the 
 configuration file. If less than <n> inch of data fit into the SCSI buffer, 

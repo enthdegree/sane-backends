@@ -1,3 +1,7 @@
+2002-10-09  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c: disable scanner protocol debug facility
+	 
 2002-10-08  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: force color channel re-order for GT-2200 scanner

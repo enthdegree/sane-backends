@@ -75,6 +75,13 @@ typedef enum
   optGroupImage,
   optGammaTable,		/* gamma table */
 
+  optGroupMode,
+  optMode,
+
+  optGroupEnhancement,
+  optThreshold,
+
+
   optLast,
 /* put temporarily disabled options here after optLast */
 
@@ -103,7 +110,9 @@ typedef struct
   THWParams HWParams;
 
   TDataPipe DataPipe;
-  int iLinesLeft;
+  int iLinesLeft;		/* lines to scan */
+  int iBytesLeft;		/* bytes to read */
+  int iPixelsPerLine;		/* pixels in one scan line */
 
   SANE_Int aGammaTable[4096];	/* a 12-to-8 bit color lookup table */
 
@@ -146,6 +155,144 @@ static const SANE_Range rangeXmm = { 0, 220, 1 };
 static const SANE_Range rangeYmm = { 0, 290, 1 };
 static const SANE_Int startUpGamma = SANE_FIX (1.6);
 
+static const char colorStr[] = { "Color" };
+static const char grayStr[] = { "Gray" };
+static const char lineartStr[] = { "Lineart" };
+
+#define DEPTH_LINEART  1
+#define DEPTH_GRAY     8
+#define DEPTH_COLOR    8
+
+#define BYTES_PER_PIXEL_GRAY   1
+#define BYTES_PER_PIXEL_COLOR  3
+
+#define BITS_PER_PIXEL_LINEART 1
+#define BITS_PER_PIXEL_GRAY    DEPTH_GRAY
+#define BITS_PER_PIXEL_COLOR   (DEPTH_COLOR*3)
+
+#define BITS_PER_BYTE  8
+#define BITS_PADDING   (BITS_PER_BYTE-1)
+
+#define MODE_COLOR   0
+#define MODE_GRAY    1
+#define MODE_LINEART 2
+
+static const SANE_Range rangeThreshold = {
+  0,
+  100,
+  1
+};
+
+static SANE_String_Const modeList[] = {
+  colorStr,
+  grayStr,
+  lineartStr,
+  NULL
+};
+
+static int
+_bytesPerLineLineart (int pixelsPerLine)
+{
+  return (pixelsPerLine * BITS_PER_PIXEL_LINEART +
+	  BITS_PADDING) / BITS_PER_BYTE;
+}
+
+static int
+_bytesPerLineGray (int pixelsPerLine)
+{
+  return (pixelsPerLine * BITS_PER_PIXEL_GRAY + BITS_PADDING) / BITS_PER_BYTE;
+}
+
+static int
+_bytesPerLineColor (int pixelsPerLine)
+{
+  return (pixelsPerLine * BITS_PER_PIXEL_COLOR +
+	  BITS_PADDING) / BITS_PER_BYTE;
+}
+
+
+static void
+_rgb2rgb (unsigned char *buffer, int pixels, int threshold)
+{
+  /* make the compiler content */
+  buffer = buffer;
+  pixels = pixels;
+  threshold = threshold;
+}
+
+
+static void
+_rgb2gray (unsigned char *buffer, int pixels, int threshold)
+{
+#define WEIGHT_R 27
+#define WEIGHT_G 54
+#define WEIGHT_B 19
+#define WEIGHT_W (WEIGHT_R + WEIGHT_G + WEIGHT_B)
+  static int aWeight[BYTES_PER_PIXEL_COLOR] =
+    { WEIGHT_R, WEIGHT_G, WEIGHT_B };
+  int nbyte = pixels * BYTES_PER_PIXEL_COLOR;
+  int acc = 0;
+  int x;
+
+  /* make the compiler content */
+  threshold = threshold;
+
+  for (x = 0; x < nbyte; ++x)
+    {
+      acc += aWeight[x % BYTES_PER_PIXEL_COLOR] * buffer[x];
+      if ((x + 1) % BYTES_PER_PIXEL_COLOR == 0)
+	{
+	  buffer[x / BYTES_PER_PIXEL_COLOR] =
+	    (unsigned char) (acc / WEIGHT_W);
+	  acc = 0;
+	}
+    }
+}
+
+
+static void
+_rgb2lineart (unsigned char *buffer, int pixels, int threshold)
+{
+  static const int aMask[BITS_PER_BYTE] = { 128, 64, 32, 16, 8, 4, 2, 1 };
+  unsigned char acc = 0;
+  int nx;
+  int x;
+  int thresh;
+  _rgb2gray (buffer, pixels, 0);
+  nx = ((pixels + BITS_PADDING) / BITS_PER_BYTE) * BITS_PER_BYTE;
+  thresh = 255 * threshold / rangeThreshold.max;
+  for (x = 0; x < nx; ++x)
+    {
+      if (x < pixels && buffer[x] < thresh)
+	{
+	  acc |= aMask[x % BITS_PER_BYTE];
+	}
+      if ((x + 1) % BITS_PER_BYTE == 0)
+	{
+	  buffer[x / BITS_PER_BYTE] = (unsigned char) (acc);
+	  acc = 0;
+	}
+    }
+}
+
+
+typedef struct tgModeParam
+{
+  SANE_Int depth;
+  SANE_Frame format;
+  int (*bytesPerLine) (int pixelsPerLine);
+  void (*adaptFormat) (unsigned char *rgbBuffer, int pixels, int threshold);
+
+} TModeParam;
+
+
+static const TModeParam modeParam[] = {
+  {DEPTH_COLOR, SANE_FRAME_RGB, _bytesPerLineColor, _rgb2rgb},
+  {DEPTH_GRAY, SANE_FRAME_GRAY, _bytesPerLineGray, _rgb2gray},
+  {DEPTH_LINEART, SANE_FRAME_GRAY, _bytesPerLineLineart, _rgb2lineart}
+};
+
+
 #define WARMUP_AFTERSTART    1	/* flag for 1st warm up */
 #define WARMUP_INSESSION     0
 #define WARMUP_TESTINTERVAL 15	/* test every 15sec */
@@ -153,18 +300,19 @@ static const SANE_Int startUpGamma = SANE_FIX (1.6);
 #define WARMUP_MAXTIME      90	/* after one and a half minute start latest */
 
 #define CAL_DEV_MAX         25
-/* maximum deviation of cal values in pecent
-  bewteen 2 tests */
+/* maximum deviation of cal values in percent between 2 tests */
 
 /* different warm up after start and after automatic off */
 static const int aiWarmUpTime[] = { WARMUP_TESTINTERVAL, WARMUP_TIME };
+
+
 
 /* returns 1, when the warm up time "iTime" has elasped */
 static int
 _TimeElapsed (struct timeval *start, struct timeval *now, int iTime)
 {
 
-  /* this is a bit strange, but can cope with overflows */
+  /* this is a bit strange, but can deal with overflows */
   if (start->tv_sec > now->tv_sec)
     return (start->tv_sec / 2 - now->tv_sec / 2 > iTime / 2);
   else
@@ -347,6 +495,39 @@ _SetAnalogGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
     }
 }
 
+
+static size_t
+_MaxStringSize (const SANE_String_Const strings[])
+{
+  size_t size, max_size = 0;
+  int i;
+
+  for (i = 0; strings[i]; ++i)
+    {
+      size = strlen (strings[i]) + 1;
+      if (size > max_size)
+	max_size = size;
+    }
+  return max_size;
+}
+
+
+static int
+_SetCap (SANE_Word * pCap, SANE_Word cap, int isSet)
+{
+  SANE_Word prevCap = *pCap;
+  if (isSet)
+    {
+      *pCap |= cap;
+    }
+  else
+    {
+      *pCap &= ~cap;
+    }
+  return *pCap != prevCap;
+}
+
+
 static void
 _InitOptions (TScanner * s)
 {
@@ -495,6 +676,45 @@ _InitOptions (TScanner * s)
 	  pDesc->size = 0;
 	  break;
 
+	case optGroupMode:
+	  pDesc->title = SANE_I18N ("Scan Mode");
+	  pDesc->desc = "";
+	  pDesc->type = SANE_TYPE_GROUP;
+	  break;
+
+	case optMode:
+	  /* scan mode */
+	  pDesc->name = SANE_NAME_SCAN_MODE;
+	  pDesc->title = SANE_TITLE_SCAN_MODE;
+	  pDesc->desc = SANE_DESC_SCAN_MODE;
+	  pDesc->type = SANE_TYPE_STRING;
+	  pDesc->size = _MaxStringSize (modeList);
+	  pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+	  pDesc->constraint.string_list = modeList;
+	  pDesc->cap =
+	    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_EMULATED;
+	  pVal->w = MODE_COLOR;
+	  break;
+
+	case optGroupEnhancement:
+	  pDesc->title = SANE_I18N ("Enhancement");
+	  pDesc->desc = "";
+	  pDesc->type = SANE_TYPE_GROUP;
+	  break;
+
+	case optThreshold:
+	  pDesc->name = SANE_NAME_THRESHOLD;
+	  pDesc->title = SANE_TITLE_THRESHOLD;
+	  pDesc->desc = SANE_DESC_THRESHOLD;
+	  pDesc->type = SANE_TYPE_INT;
+	  pDesc->unit = SANE_UNIT_NONE;
+	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+	  pDesc->constraint.range = &rangeThreshold;
+	  pDesc->cap =
+	    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE |
+	    SANE_CAP_EMULATED;
+	  pVal->w = 60;
+
 	default:
 	  DBG (DBG_ERR, "Uninitialised option %d\n", i);
 	  break;
@@ -542,6 +762,8 @@ _ReportDevice (TScannerModel * pModel, const char *pszDeviceName)
 
   return 0;
 }
+
+
 
 /*****************************************************************************/
 
@@ -735,6 +957,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optTLY:
 	case optBRX:
 	case optBRY:
+	case optThreshold:
 	  DBG (DBG_MSG,
 	       "sane_control_option: SANE_ACTION_GET_VALUE %d = %d\n", n,
 	       (int) s->aValues[n].w);
@@ -745,6 +968,12 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optGammaTable:
 	  DBG (DBG_MSG, "Reading gamma table\n");
 	  memcpy (pVal, s->aValues[n].wa, s->aOptions[n].size);
+	  break;
+
+	case optMode:
+	  DBG (DBG_MSG, "Reading scan mode %s\n",
+	       modeList[s->aValues[optMode].w]);
+	  strcpy ((char *) pVal, modeList[s->aValues[optMode].w]);
 	  break;
 
 	  /* Get options of type SANE_Bool */
@@ -777,13 +1006,14 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optCount:
 	  return SANE_STATUS_INVAL;
 
+	case optGamma:
 	case optDPI:
 	case optTLX:
 	case optTLY:
 	case optBRX:
 	case optBRY:
-	case optGamma:
 	  info |= SANE_INFO_RELOAD_PARAMS;
+	case optThreshold:
 	  status = sanei_constrain_value (&s->aOptions[n], pVal, &info);
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -839,6 +1069,40 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	    }
 	  break;
 
+	case optMode:
+	  {
+	    SANE_Word *pCap;
+	    int fCapChanged = 0;
+
+	    pCap = &s->aOptions[optThreshold].cap;
+
+	    if (strcmp ((char const *) pVal, colorStr) == 0)
+	      {
+		s->aValues[optMode].w = MODE_COLOR;
+		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 1);
+	      }
+	    if (strcmp ((char const *) pVal, grayStr) == 0)
+	      {
+		s->aValues[optMode].w = MODE_GRAY;
+		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 1);
+	      }
+	    if (strcmp ((char const *) pVal, lineartStr) == 0)
+	      {
+		s->aValues[optMode].w = MODE_LINEART;
+		fCapChanged = _SetCap (pCap, SANE_CAP_INACTIVE, 0);
+
+	      }
+	    info |= SANE_INFO_RELOAD_PARAMS;
+	    if (fCapChanged)
+	      {
+		info |= SANE_INFO_RELOAD_OPTIONS;
+	      }
+	    DBG (DBG_MSG, "setting scan mode: %s\n", (char const *) pVal);
+	  }
+	  break;
+
+
+
 	case optLamp:
 	  fVal = *(SANE_Bool *) pVal;
 	  DBG (DBG_MSG, "lamp %s\n", fVal ? "on" : "off");
@@ -876,10 +1140,14 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
 
 
+
+
 SANE_Status
 sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 {
   TScanner *s;
+  TModeParam const *pMode;
+
   DBG (DBG_MSG, "sane_get_parameters\n");
 
   s = (TScanner *) h;
@@ -896,20 +1164,24 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
       return SANE_STATUS_INVAL;	/* proper error code? */
     }
 
+
+  pMode = &modeParam[s->aValues[optMode].w];
+
   /* return the data */
-  p->format = SANE_FRAME_RGB;
+  p->format = pMode->format;
   p->last_frame = SANE_TRUE;
 
   p->lines = MM_TO_PIXEL (s->aValues[optBRY].w - s->aValues[optTLY].w,
 			  s->aValues[optDPI].w);
-  p->depth = 8;
+  p->depth = pMode->depth;
   p->pixels_per_line =
     MM_TO_PIXEL (s->aValues[optBRX].w - s->aValues[optTLX].w,
 		 s->aValues[optDPI].w);
-  p->bytes_per_line = p->pixels_per_line * 3;
+  p->bytes_per_line = pMode->bytesPerLine (p->pixels_per_line);
 
   return SANE_STATUS_GOOD;
 }
+
 
 /* get the scale don factor for a resolution that is 
   not supported by hardware */
@@ -994,7 +1266,9 @@ sane_start (SANE_Handle h)
 	MM_TO_PIXEL (s->aValues[optTLY].w + s->HWParams.iTopLeftY,
 		     s->aValues[optDPI].w * iScaleDown);
     }
-  s->DataPipe.iBytesLeft = 0;
+  s->iBytesLeft = 0;
+  s->iPixelsPerLine = par.pixels_per_line;
+
   /* hack */
   s->DataPipe.pabLineBuf = (unsigned char *) malloc (HW_PIXELS * 3);
   CircBufferInit (s->HWParams.iXferHandle, &s->DataPipe,
@@ -1013,10 +1287,13 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 {
   TScanner *s;
   TDataPipe *p;
+  TModeParam const *pMode;
 
   DBG (DBG_MSG, "sane_read: buf=%p, maxlen=%d, ", buf, maxlen);
 
   s = (TScanner *) h;
+
+  pMode = &modeParam[s->aValues[optMode].w];
 
   /* sane_read only allowed after sane_start */
   if (!s->fScanning)
@@ -1039,9 +1316,9 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   p = &s->DataPipe;
 
   /* anything left to read? */
-  if ((s->iLinesLeft == 0) && (p->iBytesLeft == 0))
+  if ((s->iLinesLeft == 0) && (s->iBytesLeft == 0))
     {
-      CircBufferExit (&s->DataPipe);
+      CircBufferExit (p);
       free (p->pabLineBuf);
       FinishScan (&s->HWParams);
       *len = 0;
@@ -1053,13 +1330,15 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     }
 
   /* time to read the next line? */
-  if (p->iBytesLeft == 0)
+  if (s->iBytesLeft == 0)
     {
       /* read a line from the transfer buffer */
       if (CircBufferGetLine (s->HWParams.iXferHandle, p, p->pabLineBuf,
 			     s->HWParams.iReversedHead))
 	{
-	  p->iBytesLeft = p->iSaneBytesPerLine;
+	  pMode->adaptFormat (p->pabLineBuf, s->iPixelsPerLine,
+			      s->aValues[optThreshold].w);
+	  s->iBytesLeft = pMode->bytesPerLine (s->iPixelsPerLine);
 	  s->iLinesLeft--;
 	}
       /* stop scanning further, when the read action fails
@@ -1080,9 +1359,11 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     }
 
   /* copy (part of) a line */
-  *len = MIN (maxlen, p->iBytesLeft);
-  memcpy (buf, &p->pabLineBuf[p->iSaneBytesPerLine - p->iBytesLeft], *len);
-  p->iBytesLeft -= *len;
+  *len = MIN (maxlen, s->iBytesLeft);
+  memcpy (buf,
+	  &p->pabLineBuf[pMode->bytesPerLine (s->iPixelsPerLine) -
+			 s->iBytesLeft], *len);
+  s->iBytesLeft -= *len;
 
   DBG (DBG_MSG, " read=%d\n", *len);
 

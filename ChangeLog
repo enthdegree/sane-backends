@@ -1,3 +1,10 @@
+2004-10-08  Ullrich Sigwanz <usigwanz@freesurf.ch>
+        * backend/niash.c: Added grayscale and lineart support
+        * backend/niash_core.c: corrected bug in line-weight in
+          function _UnScrambleLine
+        * doc/descriptions/niash.desc: changed status to complete
+          removed the color only comment
+  
 2004-10-06  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c backend/u12.c backend/plustek_pp.c: 
@@ -173,6 +180,7 @@
 
 	* More auth_callback() fixes, although they're not critical.
 
+>>>>>>> 1.2283
 2004-09-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Lexmark X1130, Dell

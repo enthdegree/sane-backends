@@ -932,7 +932,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, unsigned char *pabLine,
 			   &p->pabCircBuf[p->iGrnLine * p->iBytesPerLine],
 			   &p->pabCircBuf[p->iBluLine * p->iBytesPerLine],
 			   p->iWidth * p->iScaleDownDpi, iReversedHead,
-			   p->iScaleDownDpi, p->iScaleDownLpi);
+			   p->iScaleDownDpi, iLineCount);
 	}
 
       /* advance pointers */

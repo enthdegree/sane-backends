@@ -87,7 +87,6 @@ typedef struct
   int iRedLine, iGrnLine,	/* start indices for the color information */
     iBluLine;			/* in the circular buffer */
   unsigned char *pabLineBuf;	/* buffer used to pass data to SANE */
-  int iBytesLeft;		/* number of buffer line transfers */
 } TDataPipe;
 
 

@@ -445,12 +445,12 @@ print_option (SANE_Device * device, int opt_num, char short_name)
   if (opt->type == SANE_TYPE_STRING || opt->size == sizeof (SANE_Word))
     {
       /* print current option value */
-      fputs (" [", stdout);
       if (SANE_OPTION_IS_ACTIVE (opt->cap))
 	{
 	  void *val = alloca (opt->size);
 	  sane_control_option (device, opt_num, SANE_ACTION_GET_VALUE, val,
 			       0);
+	  fputs (" [", stdout);
 	  switch (opt->type)
 	    {
 	    case SANE_TYPE_BOOL:
@@ -472,11 +472,13 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	    default:
 	      break;
 	    }
+	  fputc (']', stdout);
 	}
-      else
-	fputs ("inactive", stdout);
-      fputc (']', stdout);
     }
+
+  if (!SANE_OPTION_IS_ACTIVE (opt->cap))
+    fputs (" [inactive]", stdout);
+
   fputs ("\n        ", stdout);
 
   switch (short_name)
@@ -931,7 +933,14 @@ process_backend_option (SANE_Handle device, int optnum, const char *optarg)
       break;
 
     case SANE_TYPE_STRING:
-      valuep = (void *) optarg;
+      valuep = malloc (opt->size);
+      if (!valuep)
+	{
+	  fprintf (stderr, "%s: out of memory\n", prog_name);
+	  exit (1);
+	}
+      strncpy (valuep, optarg, opt->size);
+      ((char *) valuep)[opt->size - 1] = 0;
       break;
 
     case SANE_TYPE_BUTTON:

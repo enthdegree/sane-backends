@@ -157,22 +157,9 @@ struct cam_dirent
 
 #ifdef __GNUC__
 #define UNUSEDARG __attribute__ ((unused))
-#define PACKED 	  __attribute__ ((packed))
 #else
 #define UNUSEDARG
-/* You need to figure out a way to ensure that there are no holes
- * in the following dir_buf structure - it has to match data read from
- * the camera.  gcc does this with __attribute__ ((packed))
- */
-#error
 #endif
-
-struct dir_buf
-{
-  SANE_Byte entries_msb PACKED;
-  SANE_Byte entries_lsb PACKED;
-  struct cam_dirent entry[1000] __attribute__ ((packed));
-};
 
 struct cam_dirlist
 {

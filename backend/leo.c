@@ -374,11 +374,11 @@ leo_identify_scanner (Leo_Scanner * dev)
     }
 
   dev->scsi_type = dev->buffer[0] & 0x1f;
-  strncpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
+  memcpy (dev->scsi_vendor, dev->buffer + 0x08, 0x08);
   dev->scsi_vendor[0x08] = 0;
-  strncpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
+  memcpy (dev->scsi_product, dev->buffer + 0x10, 0x010);
   dev->scsi_product[0x10] = 0;
-  strncpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
+  memcpy (dev->scsi_version, dev->buffer + 0x20, 0x04);
   dev->scsi_version[0x04] = 0;
 
   DBG (DBG_info, "device is \"%s\" \"%s\" \"%s\"\n",
@@ -570,8 +570,8 @@ leo_get_scan_size (Leo_Scanner * dev)
   if (size != 0x10)
     {
       DBG (DBG_error,
-	   "leo_get_scan_size: GET DATA BUFFER STATUS returned an invalid size (%d)\n",
-	   size);
+	   "leo_get_scan_size: GET DATA BUFFER STATUS returned an invalid size (%ld)\n",
+	   (long)size);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -628,8 +628,8 @@ get_filled_data_length (Leo_Scanner * dev, size_t * to_read)
   if (size != 0x10)
     {
       DBG (DBG_error,
-	   "get_filled_data_length: GET DATA BUFFER STATUS returned an invalid size (%d)\n",
-	   size);
+	   "get_filled_data_length: GET DATA BUFFER STATUS returned an invalid size (%ld)\n",
+	   (long)size);
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -1082,8 +1082,8 @@ leo_fill_image (Leo_Scanner * dev)
       dev->image_end += size;
       dev->real_bytes_left -= size;
 
-      DBG (DBG_info, "leo_fill_image: real bytes left = %d\n",
-	   dev->real_bytes_left);
+      DBG (DBG_info, "leo_fill_image: real bytes left = %ld\n",
+	   (long)dev->real_bytes_left);
     }
 
   return (SANE_STATUS_GOOD);	/* unreachable */
@@ -1560,8 +1560,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  if (strcmp (dev->val[OPT_MODE].s, BLACK_WHITE_STR) == 0)
 	    {
-	      int i;
-
 	      i = get_string_list_index (halftone_pattern_list,
 					 dev->val[OPT_HALFTONE_PATTERN].s);
 	      if (halftone_pattern_val[i] == NULL)
@@ -1906,7 +1904,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while ((buf_offset != max_len) && dev->bytes_left);
 
-  DBG (DBG_info, "sane_read: leave, bytes_left=%d\n", dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n", (long)dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }

@@ -29,30 +29,37 @@
 :model "ScanExpress 6000 P"
 :interface "Parport (EPP)"
 :comment "works"
+:status :alpha
 
 :model "ScanMagic 4800 P"
 :interface "Parport (EPP)"
 :comment "works"
+:status :alpha
 
 :model "ScanExpress 1200 ED Plus"
 :interface "Parport (EPP)"
 :comment "works partly"
+:status :alpha
 
 :model "ScanMagic 1200 ED Plus"
 :interface "Parport (EPP)"
 :comment "works partly"
+:status :alpha
 
 :model "ScanExpress 12000 P"
 :interface "Parport (EPP)"
 :comment "doesn't work yet"
+:status :unsupported
 
 :model "600 III EP Plus"
 :interface "Parport (SPP,EPP)"
 :comment "works"
+:status :alpha
 
 :model "ScanExpress 600 SEP"
 :interface "Parport (EPP)"
 :comment "works"
+:status :alpha
 
 :mfg "Medion"
 :url "http://www.medion.de/"
@@ -60,10 +67,12 @@
 :model "MD9848"
 :interface "Parport (SPP)"
 :comment "aka. ``Aldi Scanner'' - works"
+:status :alpha
 
 :model "MD985x"
 :interface "Parport (EPP)"
 :comment "aka. ``Aldi Scanner (new version)'' - CIS scanner doesn't work"
+:status :unsupported
 
 :mfg "Tevion"
 :url "http://www.medion.de/"
@@ -71,18 +80,21 @@
 :model "MD985x"
 :interface "Parport (EPP)"
 :comment "Tevion is Medion!"
+:status :unsupported
 
 :mfg "LifeTec"
 
 :model "LT9891"
 :interface "Parport (EPP)"
 :comment "CIS scanner - doesn't work"
+:status :unsupported
 
 :mfg "Fidelity Imaging Solutions Inc."
 
 :model "Gallery 4800"
 :interface "Parport (EPP)"
 :comment "works"
+:status :alpha
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

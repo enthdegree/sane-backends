@@ -1,3 +1,7 @@
+2002-10-08  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* po/plustek.de.po: Cleanup
+
 2002-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/saned.man doc/sane-net.man: Removed comment about saned port not

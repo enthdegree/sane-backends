@@ -1,3 +1,9 @@
+2002-02-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Link to functions in lib/ only
+	  if they are not available on the system. Use AC_PROG_LIBTOOL
+	  instead of the deprecated AM_PROG_LIBTOOL.
+
 2002-02-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* po/Makefile.in: Added snapscan.de.po to DISTFILES

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-10-18"		; version of backend
+:version "2003-10-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -281,7 +281,7 @@
 ;:url ""
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. Seems to neither use Epson nor Benq protocol. Details appreciated."
+:comment "Probably unsupported. Support is planned by the (external) epkowa backend. Seems to neither use Epson nor Benq protocol. Details appreciated."
 
 ;********************************************************************************************
 
@@ -413,18 +413,6 @@
 :url "/unsupported/hp-scanjet-3970c.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
-
-:model "ScanJet 4400C"
-:url "/unsupported/hp-scanjet-4470c.html"
-:interface "USB"
-:comment "Not supported. Seems to use the same chip as the 4470C. A stand-alone program for that scanner is available."
-:status :unsupported
-
-:model "ScanJet 4470C"
-:url "/unsupported/hp-scanjet-4470c.html"
-:interface "USB"
-:comment "Not supported. However, a stand-alone program is available."
-:status :unsupported
 
 :model "ScanJet 4500C"
 :url "/unsupported/hp-scanjet-4500c.html"
@@ -602,6 +590,12 @@
 :status :unsupported
 :comment "Unsupported. May work with vuescan. See link for details."
 
+:model "DiMAGE Scan Elite 5400"
+:url "/unsupported/minolta-dse-5400.html"
+:interface "USB IEEE-1394"
+:status :unsupported
+:comment "Probably unsupported. May work with vuescan. See link for details."
+
 ;********************************************************************************************
 
 :mfg "Mustek"			; name a manufacturer
@@ -758,17 +752,29 @@
 :status :unsupported
 :comment "Uses RealTek chipset (RTL8801D)"
 
-:model "OpticPro S12/ST12"
+:model "OpticPro S12"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
 
-:model "OpticPro S24/ST24"
+:model "OpticPro ST12"
 :url "http://www.genesyslogic.com/GL646.htm"
 :interface "USB"
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
+
+:model "OpticPro S24"
+:url "/unsupported/plustek-opticpro-st24.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported yet. May be supported later, see link for details."
+
+:model "OpticPro ST24"
+:url "/unsupported/plustek-opticpro-st24.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported yet. May be supported later, see link for details."
 
 :model "OpticPro U12/UT12"
 :interface "USB"

@@ -30,6 +30,7 @@
  *        - skipping warmup for CIS devices 
  * - 0.46 - fixed problem in usb_GetLampStatus for CIS devices, as we
  *          read back reg[0x29] to wrong position
+ *          made it compile without itimer definitions
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -71,8 +72,9 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
- 
+#ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
+#endif
 
 #define DEV_LampReflection      1
 #define DEV_LampTPA             2
@@ -1206,7 +1208,7 @@ static void usb_LampTimerIrq( int sig )
 	int handle = -1;
 
 	if( NULL == dev_xxx )
-		return;
+		return;                             
 
 	_VAR_NOT_USED( sig );
 	DBG( _DBG_INFO, "LAMP OFF!!!\n" );
@@ -1231,11 +1233,11 @@ static void usb_LampTimerIrq( int sig )
 }
 
 /** usb_StartLampTimer
- *
  */
 static void usb_StartLampTimer( pPlustek_Device dev )
 {
-	sigset_t 		 block, pause_mask;
+#ifdef HAVE_SETITIMER
+	sigset_t         block, pause_mask;
 	struct sigaction s;
 	struct itimerval interval;
 
@@ -1251,7 +1253,7 @@ static void usb_StartLampTimer( pPlustek_Device dev )
 	s.sa_handler = usb_LampTimerIrq;
 
 	if(	sigaction( SIGALRM, &s, NULL ) < 0 )
-		DBG( _DBG_ERROR, "Can´t setup timer-irq handler\n" );
+		DBG( _DBG_ERROR, "Can't setup timer-irq handler\n" );
 
 	sigprocmask( SIG_UNBLOCK, &block, &pause_mask );
 
@@ -1263,18 +1265,25 @@ static void usb_StartLampTimer( pPlustek_Device dev )
 	interval.it_interval.tv_usec = 0;
 	interval.it_interval.tv_sec  = 0;
 
-	dev_xxx = dev;	
-	
+	dev_xxx = dev;
+
 	if( 0 != dev->usbDev.dwLampOnPeriod ) {
 		setitimer( ITIMER_REAL, &interval, &dev->saveSettings );
 		DBG( _DBG_INFO, "Lamp-Timer started\n" );
-	}		
+	}
+#else
+	dev_xxx = dev;
+	
+	alarm( dev->usbDev.dwLampOnPeriod );
+	DBG( _DBG_INFO, "Lamp-Timer not available on this plattform\n" );
+#endif
 }
 
 /** usb_StopLampTimer
  */
 static void usb_StopLampTimer( pPlustek_Device dev )
 {
+#ifdef HAVE_SETITIMER
 	sigset_t block, pause_mask;
 
 	/* block SIGALRM */
@@ -1288,6 +1297,13 @@ static void usb_StopLampTimer( pPlustek_Device dev )
 	dev_xxx = NULL;
 
 	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );
+#else
+	_VAR_NOT_USED( dev );
+
+	dev_xxx = NULL;
+	
+	alarm( 0 );
+#endif
 }
 
 /**

@@ -111,11 +111,11 @@
  */
   
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "../include/lalloca.h"		/* MUST come first for AIX! */
 #endif
 
-#include "sane/config.h"
-#include <lalloca.h>
+#include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -128,24 +128,22 @@
 #include <time.h>
 #include <math.h>
 
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
 #include <sys/types.h>
 #include <sys/ioctl.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.46-3"
+#define BACKEND_VERSION "0.46-5"
 #define BACKEND_NAME	plustek
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_thread.h"
-
-/** might be used to disable all USB stuff - esp. for OS/2 */
-#ifndef HAVE_OS2_H
-# define _PLUSTEK_USB
-#endif
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_thread.h"
 
 #include "plustek-usb.h"
 #include "plustek.h"

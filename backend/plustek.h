@@ -334,7 +334,7 @@ typedef struct Plustek_Device
     struct ScanDef         scanning;         /* here we hold all stuff for   */
                                              /* the USB-scanner              */
 	struct DeviceDef       usbDev;
-#ifdef _PLUSTEK_USB
+#ifdef HAVE_SETITIMER
 	struct itimerval       saveSettings;     /* for lamp timer               */
 #endif
     /*

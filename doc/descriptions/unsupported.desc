@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-27"		; version of backend
+:version "2003-12-31"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -302,6 +302,18 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "GT-7400U"
+:url "/unsupported/epson-perfection1270.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
+:model "Perfection 1270"
+:url "/unsupported/epson-perfection1270.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "Perfection 3170"
 ;:url ""
 :interface "USB"
@@ -509,6 +521,12 @@
 
 :model "ScanJet 5500C"
 :url "/unsupported/hp-scanjet-5500c.html"
+:interface "USB"
+:comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 5530C Photosmart"
+:url "/unsupported/hp-scanjet-5530.html"
 :interface "USB"
 :comment "Not supported. See link for details."
 :status :unsupported

@@ -344,6 +344,9 @@
 /* Define if you have cfmakeraw() */
 #undef HAVE_CFMAKERAW
 
+/* Define if you have PTAL. */
+#undef HAVE_PTAL
+
 #ifndef HAVE_STRNCASECMP
   /* OS/2 needs this */
 # define strncasecmp(a, b, c) strnicmp(a, b, c)

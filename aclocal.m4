@@ -57,6 +57,43 @@ AC_DEFUN(SANE_V4L_VERSION,
   fi
 ])
 
+#
+# Checks for PTAL, needed for MFP support in HP backend.
+AC_DEFUN(SANE_CHECK_PTAL,
+[
+	PTAL_TMP_HAVE_PTAL=no
+	AC_ARG_WITH(ptal,
+	  [  --with-ptal=DIR         specify the top-level PTAL directory 
+                          [default=/usr/local]])
+	if test "$with_ptal" = "no" ; then
+		echo disabling PTAL
+	else
+		PTAL_OLD_CPPFLAGS=${CPPFLAGS}
+		PTAL_OLD_LDFLAGS=${LDFLAGS}
+
+		if test "$with_ptal" = "yes" ; then
+			with_ptal=/usr/local
+		fi
+		CPPFLAGS="${CPPFLAGS} -I$with_ptal/include"
+		LDFLAGS="${LDFLAGS} -L$with_ptal/lib"
+
+		AC_CHECK_HEADERS(ptal.h,
+			AC_CHECK_LIB(ptal,ptalInit,
+				AC_DEFINE(HAVE_PTAL)
+				LDFLAGS="${LDFLAGS} -lptal"
+				PTAL_TMP_HAVE_PTAL=yes))
+
+		if test "${PTAL_TMP_HAVE_PTAL}" != "yes" ; then
+			CPPFLAGS=${PTAL_OLD_CPPFLAGS}
+			LDFLAGS=${PTAL_OLD_LDFLAGS}
+		fi
+	fi
+
+	unset PTAL_TMP_HAVE_PTAL
+	unset PTAL_OLD_CPPFLAGS
+	unset PTAL_OLD_LDFLAGS
+])
+
 
 # serial 40 AC_PROG_LIBTOOL
 AC_DEFUN(AC_PROG_LIBTOOL,
@@ -104,12 +141,7 @@ AC_REQUIRE([AC_PROG_LN_S])dnl
 dnl
 
 # Check for any special flags to pass to ltconfig.
-#
-# the following will cause an existing older ltconfig to fail, so
-# we ignore this at the expense of the cache file... Checking this 
-# will just take longer ... bummer!
-#libtool_flags="--cache-file=$cache_file"
-#
+libtool_flags="--cache-file=$cache_file"
 test "$enable_shared" = no && libtool_flags="$libtool_flags --disable-shared"
 test "$enable_static" = no && libtool_flags="$libtool_flags --disable-static"
 test "$enable_fast_install" = no && libtool_flags="$libtool_flags --disable-fast-install"
@@ -151,7 +183,10 @@ case "$host" in
   SAVE_CFLAGS="$CFLAGS"
   CFLAGS="$CFLAGS -belf"
   AC_CACHE_CHECK([whether the C compiler needs -belf], lt_cv_cc_needs_belf,
-    [AC_TRY_LINK([],[],[lt_cv_cc_needs_belf=yes],[lt_cv_cc_needs_belf=no])])
+    [AC_LANG_SAVE
+     AC_LANG_C
+     AC_TRY_LINK([],[],[lt_cv_cc_needs_belf=yes],[lt_cv_cc_needs_belf=no])
+     AC_LANG_RESTORE])
   if test x"$lt_cv_cc_needs_belf" != x"yes"; then
     # this is probably gcc 2.8.0, egcs 1.0 or newer; no need for -belf
     CFLAGS="$SAVE_CFLAGS"

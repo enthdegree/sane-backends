@@ -84,11 +84,11 @@ backend:
 		  char *buf = alloca (n);
 		}
 
-* Use #include "sane/..." to inlude the sane header files instead
-  of #include <sane/...>. Otherwise problems with different installed
+* Use #include ".../include/sane/..." to inlude the sane header files
+  instead of #include <sane/...>. Otherwise problems with different installed
   SANE versions may occur.
 
-* Don't forget to #include "sane/config.h" in your backend before
+* Don't forget to #include ".../include/sane/config.h" in your backend before
   any other includes. If you use lalloca.h see above for the correct
   includes.
 

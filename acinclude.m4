@@ -44,3 +44,40 @@ AC_DEFUN(SANE_V4L_VERSION,
     )])
   fi
 ])
+
+#
+# Checks for PTAL, needed for MFP support in HP backend.
+AC_DEFUN(SANE_CHECK_PTAL,
+[
+	PTAL_TMP_HAVE_PTAL=no
+	AC_ARG_WITH(ptal,
+	  [  --with-ptal=DIR         specify the top-level PTAL directory 
+                          [default=/usr/local]])
+	if test "$with_ptal" = "no" ; then
+		echo disabling PTAL
+	else
+		PTAL_OLD_CPPFLAGS=${CPPFLAGS}
+		PTAL_OLD_LDFLAGS=${LDFLAGS}
+
+		if test "$with_ptal" = "yes" ; then
+			with_ptal=/usr/local
+		fi
+		CPPFLAGS="${CPPFLAGS} -I$with_ptal/include"
+		LDFLAGS="${LDFLAGS} -L$with_ptal/lib"
+
+		AC_CHECK_HEADERS(ptal.h,
+			AC_CHECK_LIB(ptal,ptalInit,
+				AC_DEFINE(HAVE_PTAL)
+				LDFLAGS="${LDFLAGS} -lptal"
+				PTAL_TMP_HAVE_PTAL=yes))
+
+		if test "${PTAL_TMP_HAVE_PTAL}" != "yes" ; then
+			CPPFLAGS=${PTAL_OLD_CPPFLAGS}
+			LDFLAGS=${PTAL_OLD_LDFLAGS}
+		fi
+	fi
+
+	unset PTAL_TMP_HAVE_PTAL
+	unset PTAL_OLD_CPPFLAGS
+	unset PTAL_OLD_LDFLAGS
+])

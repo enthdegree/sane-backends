@@ -1555,6 +1555,7 @@ main (int argc, char **argv)
 	                        default:
 	                          fprintf(stderr, "%s: unknown format specifier %%%c\n",
 					  prog_name, *percent);
+				  *percent = '%';
 	                      }
 	                    percent++;
 	                  }

@@ -1,7 +1,12 @@
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/hp5400_internal.c backend/canon630u-common.c
-	  backend/epson_scsi.c: Minor compilation fixes for MacOS X and OS/2.
+	  backend/epson_scsi.c: Minor compilation fixes for MacOS X and
+	  OS/2.
+	* backend/gt68xx.conf backend/gt68xx_devices.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
+	  Genius 3x as working scanner, removed testing flag. Added Artec
+	  2000 e+ to manpage. Added detection for the Plustek OpticPro U16B.
 
 2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

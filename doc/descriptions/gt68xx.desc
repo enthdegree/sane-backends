@@ -181,12 +181,12 @@
 :url "http://www.genius-kye.com/"
 
 :model "Colorpage Vivid3x"
-:status :untested
+:status :alpha
 :interface "USB"
-:comment "Similar to Vivid3xe. Untested but should work. Testers welcome."
+:comment "Works but has limited testing"
 
 :model "Colorpage Vivid3xe"
 :status :alpha
 :interface "USB"
-:comment "Should work, limited testing only. Testers welcome."
+:comment "Works but has limited testing. Color problems? Reports are welcome."
 

@@ -1,11 +1,11 @@
-2002-09-26
+2003-09-24
 
-This text summarizes some points to pay attention to when a new realease
+This text summarizes some points to pay attention to when a new release
 of sane-backends should is planned.
 
 Timetable (approximate periods):
 
-Day  0: Announcement of upcomming release on sane-devel including timetable
+Day  0: Announcement of upcoming release on sane-devel including timetable
 Day 14: Backend freeze (no new backends are allowed to enter the distribution)
 Day 21: Feature freeze (only bugfixes + documentation updates)
 Day 35: Code freeze (only fixes for bugs that can destroy hardware, can cause 
@@ -17,9 +17,9 @@ Before the release:
 
 * Make sure that config.guess and config.sub are up-to-date (get them from
   ftp://ftp.gnu.org/pub/gnu/config/).
-* configure.in: increase version number
-* configure.in: remove EXTRA version number
-* configure.in: set --disable-warnings as default
+* configure.in: increase version number (twice!)
+* configure.in: remove -cvs from textual version number
+* configure.in: set is_release=no
 * configure: recreate
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
@@ -32,18 +32,16 @@ Before the release:
 Making the release:
 
 * make tar.gz and sane-backends-x.y.z.lsm with "make sane-backends"
-* upload both to mostang.com
-* make sane-backends.html (in doc/) and upload to mostang.com
-* update SANE standard and man pages on mostang.com 
-  (look at `make install-mostang' for both)
-* check and update platforms page on mostang.com
-* write announcements on mostang.com and sane-devel, maybe others
+* upload both to the FTP server
+* update sane-backends.html and sane-mfgs.html on sane-project.org
+* update SANE standard and man pages on sane-project.org
+* check and update platforms page on sane-project.org
+* write announcements on sane-project.org and sane-devel, maybe others
   (e.g. freshmeat)
-* upload to mirrors that don't get the files automatically (sunsite
-  and tsx11)
+* upload to mirrors that don't get the files automatically (sunsite)
 
 After the release:
 
-* configure.in: set --enable-warnings as default
-* configure.in: add EXTRA version number (usually "-cvs")
+* configure.in: add -cvs suffix
+* configure.in: set is_release=no
 * configure: regenerate

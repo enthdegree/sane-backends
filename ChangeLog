@@ -1,3 +1,7 @@
+2001-01-21  Tom Martone <tom@martoneconsulting.com>
+
+        * backend/dll.conf: Added bh
+
 2001-01-21  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* AUTHORS: Added Tom Martone.

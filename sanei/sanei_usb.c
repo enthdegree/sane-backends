@@ -672,8 +672,10 @@ sanei_usb_close (SANE_Int dn)
     {
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
       usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
-      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_in_ep);
-      usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+      /* be careful, we don't know if we are in DATA0 stage now
+	 usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+	 usb_resetep(devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+      */
       usb_release_interface (devices[dn].libusb_handle, 
 			     devices[dn].interface_nr);
       usb_close (devices[dn].libusb_handle);

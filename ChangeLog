@@ -2,6 +2,8 @@
 
 	* po/sane-backends.pt.po: Even more Portuguese translations from
 	  Pedro Morais <morais@inocam.com>.
+	* sanei/sanei_usb.c: Comment out resetep at sane_close. This 
+	  function sets th USB data toggle only on the host side.
 
 2003-01-10  Gerhard Jaeger <gerhard@gjaeger.de>
 

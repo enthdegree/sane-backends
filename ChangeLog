@@ -1,3 +1,7 @@
+2001-01-08  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* configure.in: added help text for --enable-parport-directio
+
 2002-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added link to backend for HP Scanjet 3300C / 3400C

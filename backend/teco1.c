@@ -2026,7 +2026,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   handle = handle;		/* silence gcc */
   non_blocking = non_blocking;	/* silence gcc */
 
-  if (non_blocking == SANE_False) {
+  if (non_blocking == SANE_FALSE) {
 	  status = SANE_STATUS_GOOD;
   } else {
 	  status = SANE_STATUS_UNSUPPORTED;

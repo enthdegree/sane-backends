@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2003-01-09 00:37+0100\n"
+"POT-Creation-Date: 2003-01-09 01:56+0100\n"
 "PO-Revision-Date: 2002-11-30 10:13+0100\n"
 "Last-Translator: Dennis Björklund <db@zigo.dhs.org>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -39,10 +39,10 @@ msgid "Color"
 msgstr "Färg"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:869
-#: .tmp/matsushita.c:1149 .tmp/mustek.c:4255 .tmp/mustek_usb.c:353
-#: .tmp/plustek.c:880 .tmp/sceptre.c:753 .tmp/snapscan-options.c:401
-#: .tmp/teco1.c:1136 .tmp/teco2.c:1445 .tmp/teco3.c:971 .tmp/umax.c:5162
-#: .tmp/umax_pp.c:446
+#: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4255
+#: .tmp/mustek_usb.c:353 .tmp/plustek.c:880 .tmp/sceptre.c:753
+#: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
+#: .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:446
 msgid "Enhancement"
 msgstr ""
 
@@ -56,10 +56,11 @@ msgid "Set default values for enhancement controls."
 msgstr ""
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2810 .tmp/gt68xx.c:614
-#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/mustek.c:4207
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:834 .tmp/sceptre.c:705
-#: .tmp/snapscan-options.c:334 .tmp/teco1.c:1088 .tmp/teco2.c:1397
-#: .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112 .tmp/umax_pp.c:397
+#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
+#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:834
+#: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
+#: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
+#: .tmp/umax_pp.c:397
 msgid "Geometry"
 msgstr "Geometri"
 
@@ -298,9 +299,9 @@ msgid "max"
 msgstr "max"
 
 #: .tmp/epson.c:2341 .tmp/gt68xx.c:432 .tmp/matsushita.c:1044
-#: .tmp/mustek.c:4070 .tmp/mustek_usb.c:260 .tmp/plustek.c:739
-#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1369
-#: .tmp/test.c:291 .tmp/umax.c:4990
+#: .tmp/microtek2.h:609 .tmp/mustek.c:4070 .tmp/mustek_usb.c:260
+#: .tmp/plustek.c:739 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
+#: .tmp/teco2.c:1369 .tmp/test.c:291 .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Bildläsarläge"
 
@@ -756,6 +757,222 @@ msgstr ""
 
 #: .tmp/matsushita.h:234
 msgid "Physical size of the paper in the ADF"
+msgstr ""
+
+#: .tmp/microtek2.h:612
+msgid "Shadow, midtone, highlight, exposure time"
+msgstr ""
+
+#: .tmp/microtek2.h:614
+#, fuzzy
+msgid "Special options"
+msgstr "Antal inställningsvärden"
+
+#: .tmp/microtek2.h:615
+#, fuzzy
+msgid "Color balance"
+msgstr "Färgkorrigering"
+
+#: .tmp/microtek2.h:618
+#, fuzzy
+msgid "Disable backtracking"
+msgstr "Tvinga bakspårning"
+
+#: .tmp/microtek2.h:619
+msgid "If checked the scanner does not perform backtracking"
+msgstr ""
+
+#: .tmp/microtek2.h:623
+msgid "Toggle lamp of flatbed"
+msgstr ""
+
+#: .tmp/microtek2.h:624
+msgid "Toggles the lamp of the flatbed"
+msgstr ""
+
+#: .tmp/microtek2.h:627
+#, fuzzy
+msgid "Calibration by backend"
+msgstr "Kvalitetskalibrering"
+
+#: .tmp/microtek2.h:628
+msgid "If checked the color calibration before a scan is done by the backend"
+msgstr ""
+
+#: .tmp/microtek2.h:632
+msgid "Use the lightlid-35mm adapter"
+msgstr ""
+
+#: .tmp/microtek2.h:633
+msgid "This option turns off the lamp of the flatbed during a scan"
+msgstr ""
+
+#: .tmp/microtek2.h:637
+#, fuzzy
+msgid "Quality scan"
+msgstr "Kvalitetskalibrering"
+
+#: .tmp/microtek2.h:638
+msgid "Highest quality but lower speed"
+msgstr ""
+
+#: .tmp/microtek2.h:641
+msgid "Fast scan"
+msgstr ""
+
+#: .tmp/microtek2.h:642
+msgid "Highest speed but lower quality"
+msgstr ""
+
+#: .tmp/microtek2.h:645
+#, fuzzy
+msgid "Automatic adjustment of threshold"
+msgstr "Automatisk dokumentmatare"
+
+#: .tmp/microtek2.h:646
+msgid ""
+"If checked the backend automatically tries to determine an optimal value for "
+"the threshold."
+msgstr ""
+
+#: .tmp/microtek2.h:651
+#, fuzzy
+msgid "Gamma correction"
+msgstr "Gammakorrigering"
+
+#: .tmp/microtek2.h:652
+#, fuzzy
+msgid "Selects the gamma correction mode."
+msgstr "Välj rasterteknik."
+
+#: .tmp/microtek2.h:655
+#, fuzzy
+msgid "Bind gamma"
+msgstr "Koppla analog gamma"
+
+#: .tmp/microtek2.h:656
+#, fuzzy
+msgid "Use same gamma values for all colour channels."
+msgstr "Använd samma värde för både X och Y-upplösning."
+
+#: .tmp/microtek2.h:660
+msgid "Scalar gamma"
+msgstr ""
+
+#: .tmp/microtek2.h:661
+msgid "Selects a value for scalar gamma correction."
+msgstr ""
+
+#: .tmp/microtek2.h:665
+#, fuzzy
+msgid "Scalar gamma red"
+msgstr "Analog röd gamma"
+
+#: .tmp/microtek2.h:666
+msgid "Selects a value for scalar gamma correction (red channel)"
+msgstr ""
+
+#: .tmp/microtek2.h:670
+#, fuzzy
+msgid "Scalar gamma green"
+msgstr "Analog grön gamma"
+
+#: .tmp/microtek2.h:671
+msgid "Selects a value for scalar gamma correction (green channel)"
+msgstr ""
+
+#: .tmp/microtek2.h:675
+#, fuzzy
+msgid "Scalar gamma blue"
+msgstr "Analog blå gamma"
+
+#: .tmp/microtek2.h:676
+msgid "Selects a value for scalar gamma correction (blue channel)"
+msgstr ""
+
+#: .tmp/microtek2.h:680
+msgid "Channel"
+msgstr ""
+
+#: .tmp/microtek2.h:681
+msgid ""
+"Selects the colour band, \"Master\" means that all colours are affected."
+msgstr ""
+
+#: .tmp/microtek2.h:685
+msgid "Midtone"
+msgstr ""
+
+#: .tmp/microtek2.h:686
+#, fuzzy, c-format
+msgid "Selects which radiance level should be considered \"50 % gray\"."
+msgstr "Väljer strålglansnivå som skall tolkas som \"svart\"."
+
+#: .tmp/microtek2.h:690
+#, fuzzy
+msgid "Midtone for red"
+msgstr "Skugga för röd"
+
+#: .tmp/microtek2.h:691
+#, fuzzy
+msgid "Selects which radiance level should  be considered \"50 % red\"."
+msgstr "Väljer röd strålglansnivå som skall tolkas som \"helt röd\"."
+
+#: .tmp/microtek2.h:695
+#, fuzzy
+msgid "Midtone for green"
+msgstr "Skugga för grön"
+
+#: .tmp/microtek2.h:696
+#, fuzzy, c-format
+msgid "Selects which radiance level should be considered \"50 % green\"."
+msgstr "Väljer grön strålglansnivå som skall tolkas som \"helt grön\"."
+
+#: .tmp/microtek2.h:700
+#, fuzzy
+msgid "Midtone for blue"
+msgstr "Skugga för blå"
+
+#: .tmp/microtek2.h:701
+#, fuzzy
+msgid "Selects which radiance level should be considered \"50 % blue\"."
+msgstr "Väljer strålglansnivå som skall tolkas som \"svart\"."
+
+#: .tmp/microtek2.h:705
+msgid "Red balance"
+msgstr ""
+
+#: .tmp/microtek2.h:706
+#, c-format
+msgid "Balance factor for red. A value of 100% means no correction."
+msgstr ""
+
+#: .tmp/microtek2.h:710
+#, fuzzy
+msgid "Green balance"
+msgstr "Grön"
+
+#: .tmp/microtek2.h:711
+#, c-format
+msgid "Balance factor for green. A value of 100% means no correction."
+msgstr ""
+
+#: .tmp/microtek2.h:715
+#, fuzzy
+msgid "Blue balance"
+msgstr "Blå"
+
+#: .tmp/microtek2.h:716
+#, c-format
+msgid "Balance factor for blue. A value of 100% means no correction."
+msgstr ""
+
+#: .tmp/microtek2.h:720
+msgid "Firmware balance"
+msgstr ""
+
+#: .tmp/microtek2.h:721
+msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
 #: .tmp/mustek.c:125 .tmp/plustek.c:211 .tmp/plustek.c:221 .tmp/sceptre.h:298

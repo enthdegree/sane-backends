@@ -33,7 +33,8 @@
 	* backend/microtek2.c backend/microtek2.h:  Improved support for
 	  Scanmaker X12USL. Alpha support for Scanmaker 9800XL. Some bugfixes.
 	  (From Karsten Festag <karsten.festag@gmx.de>).
-
+	* po/sane-backends.de.po: Added translation for microtek2 backend.
+	  (From Karsten Festag <karsten.festag@gmx.de>).
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

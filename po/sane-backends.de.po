@@ -6,11 +6,12 @@
 # Michael Herder <crapsite@gmx.net>, 2002.
 # Oliver Rauch <Oliver.Rauch@Rauch-domain.de>, 2002.
 # Oliver Schwartz <Oliver.Schwartz@gmx.de>, 2002.
+# Karsten Festag <karsten.festag@gmx.de>, 2002.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.9\n"
-"POT-Creation-Date: 2003-01-09 00:37+0100\n"
-"PO-Revision-Date: 2002-12-05 10:10CET\n"
+"POT-Creation-Date: 2003-01-09 01:56+0100\n"
+"PO-Revision-Date: 2003-01-09 01:40+0100\n"
 "Last-Translator: Henning Meier-Geinitz <henning@meier-geinitz.de>\n"
 "Language-Team: Deutsch <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -38,10 +39,10 @@ msgid "Color"
 msgstr "Farbe"
 
 #: .tmp/artec_eplus48u.c:2809 .tmp/gt68xx.c:584 .tmp/leo.c:869
-#: .tmp/matsushita.c:1149 .tmp/mustek.c:4255 .tmp/mustek_usb.c:353
-#: .tmp/plustek.c:880 .tmp/sceptre.c:753 .tmp/snapscan-options.c:401
-#: .tmp/teco1.c:1136 .tmp/teco2.c:1445 .tmp/teco3.c:971 .tmp/umax.c:5162
-#: .tmp/umax_pp.c:446
+#: .tmp/matsushita.c:1149 .tmp/microtek2.h:611 .tmp/mustek.c:4255
+#: .tmp/mustek_usb.c:353 .tmp/plustek.c:880 .tmp/sceptre.c:753
+#: .tmp/snapscan-options.c:401 .tmp/teco1.c:1136 .tmp/teco2.c:1445
+#: .tmp/teco3.c:971 .tmp/umax.c:5162 .tmp/umax_pp.c:446
 msgid "Enhancement"
 msgstr "Farbverbesserung"
 
@@ -54,10 +55,11 @@ msgid "Set default values for enhancement controls."
 msgstr "Auf Voreinstellungen für Verbesserungen zurücksetzen."
 
 #: .tmp/artec_eplus48u.c:2888 .tmp/epson.c:2810 .tmp/gt68xx.c:614
-#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/mustek.c:4207
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:834 .tmp/sceptre.c:705
-#: .tmp/snapscan-options.c:334 .tmp/teco1.c:1088 .tmp/teco2.c:1397
-#: .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112 .tmp/umax_pp.c:397
+#: .tmp/leo.c:821 .tmp/matsushita.c:1095 .tmp/microtek2.h:610
+#: .tmp/mustek.c:4207 .tmp/mustek_usb.c:305 .tmp/plustek.c:834
+#: .tmp/sceptre.c:705 .tmp/snapscan-options.c:334 .tmp/teco1.c:1088
+#: .tmp/teco2.c:1397 .tmp/teco3.c:923 .tmp/test.c:616 .tmp/umax.c:5112
+#: .tmp/umax_pp.c:397
 msgid "Geometry"
 msgstr "Scanbereich"
 
@@ -304,9 +306,9 @@ msgid "max"
 msgstr "maximal"
 
 #: .tmp/epson.c:2341 .tmp/gt68xx.c:432 .tmp/matsushita.c:1044
-#: .tmp/mustek.c:4070 .tmp/mustek_usb.c:260 .tmp/plustek.c:739
-#: .tmp/sceptre.c:676 .tmp/snapscan-options.c:189 .tmp/teco2.c:1369
-#: .tmp/test.c:291 .tmp/umax.c:4990
+#: .tmp/microtek2.h:609 .tmp/mustek.c:4070 .tmp/mustek_usb.c:260
+#: .tmp/plustek.c:739 .tmp/sceptre.c:676 .tmp/snapscan-options.c:189
+#: .tmp/teco2.c:1369 .tmp/test.c:291 .tmp/umax.c:4990
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
@@ -784,6 +786,211 @@ msgstr ""
 #: .tmp/matsushita.h:234
 msgid "Physical size of the paper in the ADF"
 msgstr ""
+
+#: .tmp/microtek2.h:612
+msgid "Shadow, midtone, highlight, exposure time"
+msgstr "Lichtwerte"
+
+#: .tmp/microtek2.h:614
+msgid "Special options"
+msgstr "Spezialoptionen"
+
+#: .tmp/microtek2.h:615
+msgid "Color balance"
+msgstr "Farbbalance"
+
+#: .tmp/microtek2.h:618
+msgid "Disable backtracking"
+msgstr "kein Backtracking"
+
+#: .tmp/microtek2.h:619
+msgid "If checked the scanner does not perform backtracking"
+msgstr ""
+"wenn aktiviert, erfolgt kein Rücklauf des Scankopfes während der "
+"Datenübertragung"
+
+#: .tmp/microtek2.h:623
+msgid "Toggle lamp of flatbed"
+msgstr "Lampe ein/ausschalten"
+
+#: .tmp/microtek2.h:624
+msgid "Toggles the lamp of the flatbed"
+msgstr "Schaltet die Lampe des Flachbettscanners ein bzw. aus"
+
+#: .tmp/microtek2.h:627
+msgid "Calibration by backend"
+msgstr "Software - Kalibrierung"
+
+#: .tmp/microtek2.h:628
+msgid "If checked the color calibration before a scan is done by the backend"
+msgstr ""
+"einige Scanner benötigen eine Kalibrierung durch die Software, sonst "
+"entstehen senkrechte Streifen im Bild"
+
+#: .tmp/microtek2.h:632
+msgid "Use the lightlid-35mm adapter"
+msgstr "Benutzung des LIGHTLID 35"
+
+#: .tmp/microtek2.h:633
+msgid "This option turns off the lamp of the flatbed during a scan"
+msgstr ""
+"Bei der Benutzung des LIGHTLID 35 Durchlichtadapters wird während des Scans "
+"die Flachbett - Lampe ausgeschaltet um besseren Kontrast zu erreichen"
+
+#: .tmp/microtek2.h:637
+msgid "Quality scan"
+msgstr "Hohe Qualität"
+
+#: .tmp/microtek2.h:638
+msgid "Highest quality but lower speed"
+msgstr "Hohe Qualität bei geringer Geschwindigkeit"
+
+#: .tmp/microtek2.h:641
+msgid "Fast scan"
+msgstr "Hohe Geschwindigkeit"
+
+#: .tmp/microtek2.h:642
+msgid "Highest speed but lower quality"
+msgstr "Hohe Geschwindigkeit bei geringerer Qualität"
+
+#: .tmp/microtek2.h:645
+msgid "Automatic adjustment of threshold"
+msgstr "Automatische schwarz/weiß - Schwelle"
+
+#: .tmp/microtek2.h:646
+msgid ""
+"If checked the backend automatically tries to determine an optimal value for "
+"the threshold."
+msgstr ""
+"Bei einem Strichzeichnungsscan versucht die Software einen optimalen Wert "
+"für die schwarz/weiß- Schwelle zu bestimmen"
+
+#: .tmp/microtek2.h:651
+msgid "Gamma correction"
+msgstr "Gamma - Modus"
+
+#: .tmp/microtek2.h:652
+msgid "Selects the gamma correction mode."
+msgstr "Modus der Gamma - Korrektur"
+
+#: .tmp/microtek2.h:655
+msgid "Bind gamma"
+msgstr "gemeinsames Gamma"
+
+#: .tmp/microtek2.h:656
+msgid "Use same gamma values for all colour channels."
+msgstr "alle Farben benutzen dieselbe Gamma - Korrektur"
+
+#: .tmp/microtek2.h:660
+msgid "Scalar gamma"
+msgstr "Gamma - Zahlenwert"
+
+#: .tmp/microtek2.h:661
+msgid "Selects a value for scalar gamma correction."
+msgstr "Gibt einen Gamma - Zahlenwert an"
+
+#: .tmp/microtek2.h:665
+msgid "Scalar gamma red"
+msgstr "Gamma - Wert für Rot"
+
+#: .tmp/microtek2.h:666
+msgid "Selects a value for scalar gamma correction (red channel)"
+msgstr "Gamma - Wert für Rot"
+
+#: .tmp/microtek2.h:670
+msgid "Scalar gamma green"
+msgstr "Gamma - Wert für Grün"
+
+#: .tmp/microtek2.h:671
+msgid "Selects a value for scalar gamma correction (green channel)"
+msgstr "Gamma - Wert für Grün"
+
+#: .tmp/microtek2.h:675
+msgid "Scalar gamma blue"
+msgstr "Gamma - Wert für Blau"
+
+#: .tmp/microtek2.h:676
+msgid "Selects a value for scalar gamma correction (blue channel)"
+msgstr "Gamma - Wert für Blau"
+
+#: .tmp/microtek2.h:680
+msgid "Channel"
+msgstr "Farbkanal"
+
+#: .tmp/microtek2.h:681
+msgid ""
+"Selects the colour band, \"Master\" means that all colours are affected."
+msgstr ""
+"Wählt den Farbkanal; \"Master\" bedeutet, dass alle Farben beeinflusst werden"
+
+#: .tmp/microtek2.h:685
+msgid "Midtone"
+msgstr "Mittelgrauwert"
+
+#: .tmp/microtek2.h:686
+#, c-format
+msgid "Selects which radiance level should be considered \"50 % gray\"."
+msgstr "Bestimmt, welcher Helligkeitswert als 50% Grau angenommen wird"
+
+#: .tmp/microtek2.h:690
+msgid "Midtone for red"
+msgstr "Mittelwert für Rot"
+
+#: .tmp/microtek2.h:691
+msgid "Selects which radiance level should  be considered \"50 % red\"."
+msgstr "Bestimmt, welcher Helligkeitswert als 50% Rot angenommen wird"
+
+#: .tmp/microtek2.h:695
+msgid "Midtone for green"
+msgstr "Mittelwert für Grün"
+
+#: .tmp/microtek2.h:696
+#, c-format
+msgid "Selects which radiance level should be considered \"50 % green\"."
+msgstr "Bestimmt, welcher Helligkeitswert als 50% Grün angenommen wird"
+
+#: .tmp/microtek2.h:700
+msgid "Midtone for blue"
+msgstr "Mittelwert für Blau"
+
+#: .tmp/microtek2.h:701
+msgid "Selects which radiance level should be considered \"50 % blue\"."
+msgstr "Bestimmt, welcher Helligkeitswert als 50% Blau angenommen wird"
+
+#: .tmp/microtek2.h:705
+msgid "Red balance"
+msgstr "Rot - Balance"
+
+#: .tmp/microtek2.h:706
+#, c-format
+msgid "Balance factor for red. A value of 100% means no correction."
+msgstr "Farbbalance-Faktor für Rot: 100% bedeutet keine Farbkorrektur"
+
+#: .tmp/microtek2.h:710
+msgid "Green balance"
+msgstr "Grün - Balance"
+
+#: .tmp/microtek2.h:711
+#, c-format
+msgid "Balance factor for green. A value of 100% means no correction."
+msgstr "Farbbalance-Faktor für Grün: 100% bedeutet keine Farbkorrektur"
+
+#: .tmp/microtek2.h:715
+msgid "Blue balance"
+msgstr "Blau - Balance"
+
+#: .tmp/microtek2.h:716
+#, c-format
+msgid "Balance factor for blue. A value of 100% means no correction."
+msgstr "Farbbalance-Faktor für Blau: 100% bedeutet keine Farbkorrektur"
+
+#: .tmp/microtek2.h:720
+msgid "Firmware balance"
+msgstr "Standard - Balance"
+
+#: .tmp/microtek2.h:721
+msgid "Sets the color balance values to the firmware provided values."
+msgstr "Setzt die Farbbalance auf die vom Hersteller vorgegebenen Werte"
 
 # original text: "Halftone"
 #: .tmp/mustek.c:125 .tmp/plustek.c:211 .tmp/plustek.c:221 .tmp/sceptre.h:298
@@ -2401,39 +2608,3 @@ msgstr "Setzt die Grünkanalbelichtung"
 #: .tmp/umax_pp.c:637
 msgid "Sets blue channel highlight"
 msgstr "Setzt die Blaukanalbelichtung"
-
-#~ msgid "Offset red"
-#~ msgstr "Versatz rot"
-
-#~ msgid "Offset (brightness) of the red channel."
-#~ msgstr "Versatz (Helligkeit) des roten Kanals."
-
-#~ msgid "Offset green"
-#~ msgstr "Versatz grün"
-
-#~ msgid "Offset (brightness) of the green (and gray) channel."
-#~ msgstr "Versatz (Helligkeit) des grünen (und grauen) Kanals."
-
-#~ msgid "Offset blue"
-#~ msgstr "Versatz blau"
-
-#~ msgid "Offset (brightness) of the blue channel."
-#~ msgstr "Versatz (Helligkeit) des blauen Kanals."
-
-#~ msgid "Gain red"
-#~ msgstr "Gewinn rot"
-
-#~ msgid "Gain (contrast) of the red channel."
-#~ msgstr "Gewinn (Kontrast) des roten Kanals."
-
-#~ msgid "Gain green"
-#~ msgstr "Gewinn grün"
-
-#~ msgid "Gain (contrast) of the green (and gray) channel."
-#~ msgstr "Gewinn (Kontarast) des grünen (und grauen) Kanals."
-
-#~ msgid "Gain blue"
-#~ msgstr "Gewinn blau"
-
-#~ msgid "Gain (contrast) of the blue channel."
-#~ msgstr "Gewinn (Kontrast) des blauen Kanals."

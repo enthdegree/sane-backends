@@ -95,18 +95,16 @@
       V 1.8, 28-Mar-2003 (oschirr@abm.de)
          - fi-4120C support (anoah@pfeiffer.edu)
          - display information about gamma in vital_product_data
-      V 1.9 04-Jun-2003 
-         - separated the 4120 and 4220 into another model (anoah@pfeiffer.edu)
-         - color support for the 4x20 (anoah@pfeiffer.edu)
-      V 1.10 04-Jun-2003 
-         - removed SP15 code (anoah@pfeiffer.edu)
-         - sane_open actually opens the device you request (anoah@pfeiffer.edu)
-      V 1.11 11-Jun-2003
+      V 1.9 04-Jun-2003 (anoah@pfeiffer.edu)
+         - separated the 4120 and 4220 into another model
+         - color support for the 4x20
+      V 1.10 04-Jun-2003 (anoah@pfeiffer.edu)
+         - removed SP15 code
+         - sane_open actually opens the device you request
+      V 1.11 11-Jun-2003 (anoah@pfeiffer.edu)
          - fixed bug in that code when a scanner is disconnected 
-            (anoah@pfeiffer.edu)
-      V 1.12 06-Oct-2003
+      V 1.12 06-Oct-2003 (anoah@pfeiffer.edu)
          - added code to support color modes of more recent scanners
-            (anoah@pfeiffer.edu)
       V 1.13 07-Nov-2003 (oschirr@abm.de)
 	 - Bugfix. If a scanner returned a color image
 	   in format rr...r gg.g bb...b the reader process crashed.

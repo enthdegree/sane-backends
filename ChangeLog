@@ -4,6 +4,8 @@
 	  doc/descriptions-external/hp_rts88xx.desc: Moved HP 35xx
 	  scanners to hp_rts88x backend. Updated status settings and URL
 	  (from johanneshub@foni.net).
+	* doc/descriptions-external/brother.desc: Seems to work in version
+	  0.0.12 at least for one scanner.
 
 2004-10-27  Ullrich Sigwanz <usigwanz@freesurf.ch>
 

@@ -27,6 +27,11 @@
 :status :good
 :comment "OK"
 
+:model "Astra 1600U"
+:interface "USB"
+:status :minimal
+:comment "Is reported to be the same as the 2000U. Sort of scans, but colors all messed up."
+
 :model "Astra 2000U"
 :interface "USB"
 :status :minimal

@@ -1,3 +1,8 @@
+2000-11-18  Jochen Eisinger <jochen.eisinger@gmx.net>
+
+	* doc/sane-mustek_pp.man backend/mustek_pp.*: updated mustek_pp
+	  backend to version 0.9-devel
+
 2000-11-15  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* PROJECTS: Added entry about Visioneer OneTouch 8600.

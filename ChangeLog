@@ -1,3 +1,8 @@
+2002-03-16  Gerhard Jaeger  <g.jaeger@earthling.net>
+
+	* backend/plustek.[ch]: fixed a bug, that causes segfaulting the backend
+	  when using the USB autodetection stuff 
+
 2002-03-15  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c:  fixed 1200 dpi mode

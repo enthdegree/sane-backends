@@ -1,3 +1,16 @@
+2000-11-26  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* AUTHORS: Added Karsten Festag as maintainer of microtek2.
+	* backend/mustek.* doc/sane-mustek.man: Update to Mustek backend
+	  1.0-100. Added option fast-preview that tries to use the fastest
+	  mode available for preview. This is supported for the 3-pass
+	  scanners (was option "preview in gray") and some of the
+	  ScanExpress scanners (6000 SP, 12000 SP Plus). Use #include 
+	  "../include/sane/...". Put option force-wait into mustek.conf
+	  (disabled). Removed block mode for Paragon 6000 SP and 8000 SP. 
+	  Code cleanup. More debug output. Details in backend/mustek.CHANGES.
+	* doc/.cvsignore: Added sane-as6e.5 and sane-nec.5.
+	
 2000-11-26  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp.desc, doc/sane-hp.man

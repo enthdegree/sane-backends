@@ -1,3 +1,7 @@
+2003-01-12  Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* backend/sharp.*: fixed a segfault, when the SCAN command returned
+          an error; optional "relaxed" handling of transparency unit errors.
+
 2003-01-12  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Removed the unsupported stuff

@@ -96,11 +96,13 @@
    with the sanei_scsi.c under Linux and/or with the Linux's SG driver,
    or your suspect problems with command queueing
 */
+#if 0
 #define QUEUEDEBUG
 #define DEBUG
 #ifdef DEBUG
 #include <unistd.h>
 #include <sys/time.h>
+#endif
 #endif
 
 /* USE_FORK: fork a special reader process
@@ -368,13 +370,13 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                 return SANE_STATUS_IO_ERROR;
               case 0x29:
                 DBG(10, "note: reset occured\n");
-                return SANE_STATUS_IO_ERROR;
+                return SANE_STATUS_GOOD;
               case 0x2a:
                 DBG(10, "note: mode parameter change\n");
-                return SANE_STATUS_IO_ERROR;
+                return SANE_STATUS_GOOD;
               case 0x37:
                 DBG(10, "note: rounded parameter\n");
-                return SANE_STATUS_IO_ERROR;
+                return SANE_STATUS_GOOD;
               case 0x39:
                 DBG(10, "error: saving parameter not supported\n");
                 return SANE_STATUS_IO_ERROR;
@@ -406,14 +408,14 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                         {
                           case 0:
                             DBG(1, "Scanner not ready: ADF cover open\n");
-                            if (sdat->complain_on_adf_error)
+                            if (sdat->complain_on_errors & COMPLAIN_ON_ADF_ERROR)
                               return SANE_STATUS_COVER_OPEN;
                             else
                               return SANE_STATUS_GOOD;
                           case 1:
                             DBG(1, "Scanner not ready: ADF maintenance "
                                    "cover open\n");
-                            if (sdat->complain_on_adf_error)
+                            if (sdat->complain_on_errors & COMPLAIN_ON_ADF_ERROR)
                               return SANE_STATUS_COVER_OPEN;
                             else
                               return SANE_STATUS_GOOD;
@@ -427,15 +429,17 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                         {
                           case 0:
                             DBG(1, "Scanner not ready: FSU cover open\n");
-                            if (sdat->complain_on_adf_error)
+                            if (sdat->complain_on_errors & COMPLAIN_ON_FSU_ERROR)
                               return SANE_STATUS_COVER_OPEN;
                             else
                               return SANE_STATUS_GOOD;
                           case 1:
                             DBG(1, "Scanner not ready: FSU light dispersion "
                                    "error\n");
-                            if (sdat->complain_on_adf_error)
-                              return SANE_STATUS_IO_ERROR;
+                            if (sdat->complain_on_errors & COMPLAIN_ON_FSU_ERROR)
+                              {
+                                return SANE_STATUS_IO_ERROR;
+                              }
                             else
                               return SANE_STATUS_GOOD;
                           default:
@@ -451,7 +455,7 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                   {
                     case 0x3a:
                       DBG(1, "ADF is empty\n");
-                            if (sdat->complain_on_adf_error)
+                            if (sdat->complain_on_errors & COMPLAIN_ON_ADF_ERROR)
                               return SANE_STATUS_NO_DOCS;
                             else
                               return SANE_STATUS_GOOD;
@@ -459,7 +463,7 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                       DBG(1, "ADF paper jam\n"
                              "Open and close the maintenance cover to clear "
                              "this error\n");
-                            if (sdat->complain_on_adf_error)
+                            if (sdat->complain_on_errors & COMPLAIN_ON_ADF_ERROR)
                               return SANE_STATUS_JAMMED;
                             else
                               return SANE_STATUS_GOOD;
@@ -491,7 +495,7 @@ sense_handler(int fd, u_char *sense_buffer, void *s)
                   {
                     case 0x29:
                       DBG(5, "unit attention: reset occured\n");
-                      return SANE_STATUS_IO_ERROR;
+                      return SANE_STATUS_GOOD;
                     case 0x2a:
                       DBG(5, "unit attention: parameter changed by "
                              "another initiator\n");
@@ -1298,7 +1302,7 @@ attach (const char *devnam, SHARP_Device ** devp)
     }
 
   sensedat.model = unknown;
-  sensedat.complain_on_adf_error = 0;
+  sensedat.complain_on_errors = 0;
   DBG (3, "attach: opening %s\n", devnam);
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
   {
@@ -1789,7 +1793,7 @@ init_string_option(SHARP_Scanner *s, SANE_String_Const name,
 static SANE_Status
 init_options (SHARP_Scanner * s)
 {
-  int i, default_source;
+  int i, default_source, sourcename_index;
   SANE_Word scalar;
   DBG (10, "<< init_options ");
 
@@ -1849,7 +1853,7 @@ init_options (SHARP_Scanner * s)
     s->opt[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
 
   i = 0;
-  default_source = -1;
+  default_source = s->dev->info.default_scan_mode;
 
 #ifdef ALLOW_AUTO_SELECT_ADF
   /* The JX330, but nut not the JX250 supports auto selection of ADF/FSU: */
@@ -1858,18 +1862,35 @@ init_options (SHARP_Scanner * s)
 #endif
   if (s->dev->info.adf_fsu_installed & HAVE_ADF)
     {
+      if (default_source == -1)
+        default_source = SCAN_WITH_ADF;
+      if (default_source == SCAN_WITH_ADF)
+        sourcename_index = i;
       s->dev->info.scansources[i++] = use_adf;
-      default_source = SCAN_WITH_ADF;
+    }
+  else 
+    {
+      if (default_source == SCAN_WITH_ADF)
+        default_source = SCAN_SIMPLE;
     }
   if (s->dev->info.adf_fsu_installed & HAVE_FSU)
     {
-      s->dev->info.scansources[i++] = use_fsu;
-      if (default_source < 0)
+      if (default_source == -1)
         default_source = SCAN_WITH_FSU;
+      if (default_source == SCAN_WITH_FSU)
+        sourcename_index = i;
+      s->dev->info.scansources[i++] = use_fsu;
     }
+  else
+    {
+      if (default_source == SCAN_WITH_FSU)
+        default_source = SCAN_SIMPLE;
+    }
+  if (default_source < 0)
+    default_source = SCAN_SIMPLE;
+  if (default_source == SCAN_SIMPLE)
+    sourcename_index = i;
   s->dev->info.scansources[i++] = use_simple;
-    if (default_source < 0)
-      default_source = SCAN_SIMPLE;
   s->dev->info.scansources[i] = 0;
   
 #if 0
@@ -1885,7 +1906,7 @@ init_options (SHARP_Scanner * s)
 
   init_string_option(s, SANE_NAME_SCAN_SOURCE, SANE_TITLE_SCAN_SOURCE,
     SANE_DESC_SCAN_SOURCE, (SANE_String_Const*)s->dev->info.scansources,
-    OPT_SCANSOURCE, 0);
+    OPT_SCANSOURCE, sourcename_index);
 
   if (i < 2)
     s->opt[OPT_SCANSOURCE].cap |= SANE_CAP_INACTIVE;
@@ -2308,6 +2329,9 @@ attach_and_list(const char *devnam)
 static int buffers[2] = {DEFAULT_BUFFERS, DEFAULT_BUFFERS};
 static int bufsize[2] = {DEFAULT_BUFSIZE, DEFAULT_BUFSIZE};
 static int queued_reads[2] = {DEFAULT_QUEUED_READS, DEFAULT_QUEUED_READS};
+static int stop_on_fsu_error[2] = {COMPLAIN_ON_FSU_ERROR | COMPLAIN_ON_ADF_ERROR,
+                                   COMPLAIN_ON_FSU_ERROR | COMPLAIN_ON_ADF_ERROR};
+static int default_scan_mode[2] = {-1, -1}; 
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
@@ -2353,6 +2377,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
         dp->info.buffers = 2;
       dp->info.wanted_bufsize = DEFAULT_BUFSIZE;
       dp->info.queued_reads = DEFAULT_QUEUED_READS;
+      dp->info.complain_on_errors = COMPLAIN_ON_ADF_ERROR | COMPLAIN_ON_FSU_ERROR;
+      dp->info.default_scan_mode = -1;
       return SANE_STATUS_GOOD;
     }
 
@@ -2418,6 +2444,42 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
                       else 
                         queued_reads[opt_index] = i;
                     }
+                  else if (strcmp(word, "stop_on_fsu_error") == 0)
+                    {
+                      free(word);
+                      word = 0;
+                      sanei_config_get_string(lp, &word);
+                      i = strtol(word, &end, 0);
+                      if (word == end)
+                        {
+                          DBG(1, "error in config file, line %i: number expected:\n",
+                              linecount);
+                          DBG(1, "%s\n", line);
+                        }
+                      else 
+                        stop_on_fsu_error[opt_index] 
+                          = i ? COMPLAIN_ON_FSU_ERROR : 0;
+                    }
+                  else if (strcmp(word, "default_scan_source") == 0)
+                    {
+                      free(word);
+                      word = 0;
+                      sanei_config_get_string(lp, &word);
+                      if (strcmp(word, "auto") == 0)
+                        default_scan_mode[opt_index] = -1;
+                      else if (strcmp(word, "fsu") == 0)
+                        default_scan_mode[opt_index] = SCAN_WITH_FSU;
+                      else if (strcmp(word, "adf") == 0)
+                        default_scan_mode[opt_index] = SCAN_WITH_ADF;
+                      else if (strcmp(word, "flatbed") == 0)
+                        default_scan_mode[opt_index] = SCAN_SIMPLE;
+                      else
+                        {
+                          DBG(1, "error in config file, line %i: number expected:\n",
+                              linecount);
+                          DBG(1, "%s\n", line);
+                        }
+                    }
                   else
                     {
                       DBG(1, "error in config file, line %i: unknown option\n",
@@ -2441,6 +2503,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
                         new_devs->dev->info.queued_reads = queued_reads[1];
                       else
                         new_devs->dev->info.queued_reads = 0;
+                      new_devs->dev->info.complain_on_errors = stop_on_fsu_error[1];
+                      new_devs->dev->info.default_scan_mode = default_scan_mode[1];
                       np = new_devs->next;
                       new_devs->next = new_dev_pool;
                       new_dev_pool = new_devs;
@@ -2452,6 +2516,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
                   buffers[1] = buffers[0];
                   bufsize[1] = bufsize[0];
                   queued_reads[1] = queued_reads[0];
+                  stop_on_fsu_error[1] = stop_on_fsu_error[0];
+                  default_scan_mode[1] = default_scan_mode[0];
                   opt_index = 1;
                 }
             }
@@ -2473,6 +2539,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
         new_devs->dev->info.queued_reads = queued_reads[1];
       else
         new_devs->dev->info.queued_reads = 0;
+      new_devs->dev->info.complain_on_errors = stop_on_fsu_error[1];
+      new_devs->dev->info.default_scan_mode = default_scan_mode[1];
       if (line[strlen(line)-1] == '\n')
         line[strlen(line)-1] = 0;
       np = new_devs->next;
@@ -3241,7 +3309,8 @@ sane_start (SANE_Handle handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-s->dev->sensedat.complain_on_adf_error = 1;
+  s->dev->sensedat.complain_on_errors 
+    = COMPLAIN_ON_ADF_ERROR | s->dev->info.complain_on_errors;
 
 #ifdef HAVE_SANEI_SCSI_OPEN_EXTENDED
   s->dev->info.bufsize = s->dev->info.wanted_bufsize;
@@ -3784,10 +3853,7 @@ s->dev->sensedat.complain_on_adf_error = 1;
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "start of scan failed: %s\n", sane_strstatus (status));
-      sanei_scsi_close (s->fd);
-      s->fd = -1;
-      s->busy = SANE_FALSE;
-      s->cancel = SANE_FALSE;
+      do_cancel(s);
       return (status);
     }
 

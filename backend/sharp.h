@@ -194,9 +194,18 @@ typedef struct SHARP_Info
     size_t bufsize;
     int wanted_bufsize;
     size_t queued_reads;
+    int complain_on_errors;
+    /* default scan mode: 
+      -1 -> "automatic": Use the ADF, if installed, 
+              else use the FSU, if installed.
+      or: SCAN_ADF, SCAN_FSU, SCAN_SIMPLE
+    */
+    int default_scan_mode;
   }
 SHARP_Info;
 
+#define COMPLAIN_ON_FSU_ERROR 2
+#define COMPLAIN_ON_ADF_ERROR 1
 typedef struct SHARP_Sense_Data
   {
     SHARP_Model model;
@@ -205,7 +214,7 @@ typedef struct SHARP_Sense_Data
        a frontend might refuse to start, if the scanner returns
        these errors.
     */
-    int complain_on_adf_error;
+    int complain_on_errors;
     /* Linux returns only 16 bytes of sense data... */
     u_char sb[16]; 
   }

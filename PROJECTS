@@ -1,4 +1,4 @@
-PROJECTS (2001-09-17)
+PROJECTS (2001-10-08)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -35,43 +35,11 @@ Fujitsu M3091DCd support (wip)
 Frederik Ramm <frederik@remote.org>
 http://www.remote.org/frederik/projects/software/sane/
 
-Gphoto2 support (wip):  Provide a "meta-backend" that can support some or
-all of the digital cameras supported by the gphoto2 project.  Testers
-wanted. Peter S. Fales <peter@fales.com> (Currently includes: 
-Agfa ePhoto 1280, Agfa ePhoto 1680, Agfa ePhoto 307, Agfa ePhoto 780, 
-Agfa ePhoto 780C, Apple QuickTake 200, Barbie, Canon DIGITAL IXUS v, 
-Canon Digital IXUS, Canon Digital IXUS 300, Canon EOS D30, 
-Canon IXY DIGITAL, Canon IXY DIGITAL 300, Canon PowerShot A10, 
-Canon PowerShot A20, Canon PowerShot A5, Canon PowerShot A5 Zoom, 
-Canon PowerShot A50, Canon PowerShot G1, Canon PowerShot Pro70, 
-Canon PowerShot Pro90 SI, Canon PowerShot S10, Canon PowerShot S100, 
-Canon PowerShot S110, Canon PowerShot S20, Canon PowerShot S300, 
-Chinon ES-1000, Epson PhotoPC 3000z, Epson PhotoPC 500, Epson PhotoPC 550, 
-Epson PhotoPC 600, Epson PhotoPC 700, Epson PhotoPC 800, HP PhotoSmart C20,
-HP PhotoSmart C200, HP PhotoSmart C30, Hot Wheels, Kodak DC120, Kodak DC220, 
-Kodak DC240, Kodak DC260, Kodak DC265, Kodak DC280, Kodak DC290,
-Kodak DC3200, Kodak DC3400, Kodak DC5000, Konica Q-EZ, Konica Q-M100,
-Konica Q-M100V, Konica Q-M200, Minolta Dimage V, Mustek VDC-3500, 
-Nick Click, Nikon CoolPix 100, Nikon CoolPix 300, Nikon CoolPix 600, 
-Nikon CoolPix 700, Nikon CoolPix 800, Nikon CoolPix 880, Nikon CoolPix 900, 
-Nikon CoolPix 900S, Nikon CoolPix 910, Nikon CoolPix 950, Nikon CoolPix 950S, 
-Nikon CoolPix 990, Olympus C-1000L, Olympus C-1400L, Olympus C-1400XL, 
-Olympus C-2000Z, Olympus C-2020Z, Olympus C-2040Z, Olympus C-2100UZ, 
-Olympus C-2500Z, Olympus C-3000Z, Olympus C-3030Z, Olympus C-400, 
-Olympus C-400L, Olympus C-410, Olympus C-410L, Olympus C-420, Olympus C-420L, 
-Olympus C-800, Olympus C-800L, Olympus C-820, Olympus C-820L, Olympus C-830L,
-Olympus C-840L, Olympus C-900 Zoom, Olympus C-900L Zoom, Olympus D-100Z, 
-Olympus D-200L, Olympus D-220L, Olympus D-300L, Olympus D-320L, 
-Olympus D-330R, Olympus D-340L, Olympus D-340R, Olympus D-360L, 
-Olympus D-400L Zoom, Olympus D-450Z, Olympus D-460Z, Olympus D-500L, 
-Olympus D-600L, Olympus D-600XL, Olympus D-620L, Panasonic Coolshot NV-DCF5E,
-Panasonic DC1000, Panasonic DC1580, Panasonic PV-L859, Polaroid PDC 640, 
-Relisys Dimera 3500, STV0680, Sanyo DSC-X300, Sanyo DSC-X350, Sanyo VPC-G200, 
-Sanyo VPC-G200EX, Sanyo VPC-G210, Sanyo VPC-G250, Sierra Imaging SD640, 
-Sony DSC-F1, WWF)
-
 Handheld scanner support: e.g. for Mustek CG-6000 (wip)
 ftp://www.cs.ubishops.ca/pub/lhii/
+
+IBM 2456 and Ricoh IS-410 support (wip)
+http://www.meier-geinitz.de/sane/ibm-backend/
 
 m3096g updates (wip)
 http://www.abm.de/sane/

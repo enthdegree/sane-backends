@@ -3611,7 +3611,7 @@ putByte610p (int data)
       DBG (0,
 	   "putByte610p failed, expected 0xC8 or 0xC0 got 0x%02X ! (%s:%d)\n",
 	   status, __FILE__, __LINE__);
-      return 0;
+      /* XXX STEF XXX return 0; */
     }
   control = Inb (CONTROL) & 0x1F;	/* data forward */
   Outb (CONTROL, control);
@@ -3794,7 +3794,7 @@ disconnect610p (void)
   Outb (CONTROL, 0x04);
   for (i = 0; i < 41; i++)
     {
-      control = Inb (CONTROL);
+      control = Inb (CONTROL) & 0x3F;
       if (control != 0x04)
 	{
 	  DBG (0, "disconnect610p failed (idx %d=%02X)! (%s:%d)\n",
@@ -3820,7 +3820,7 @@ connect610p (void)
   Outb (DATA, 0xAA);
   Outb (CONTROL, 0x0E);
   control = Inb (CONTROL);	/* 0x0E expected */
-  control = Inb (CONTROL);
+  control = Inb (CONTROL) & 0x3F;
   if (control != 0x0E)
     {
       DBG (0, "connect610p control=%02X, expected 0x0E (%s:%d)\n", control,
@@ -3830,7 +3830,7 @@ connect610p (void)
   Outb (DATA, 0x00);
   Outb (CONTROL, 0x0C);
   control = Inb (CONTROL);	/* 0x0C expected */
-  control = Inb (CONTROL);
+  control = Inb (CONTROL) & 0x3F;
   if (control != 0x0C)
     {
       DBG (0, "connect610p control=%02X, expected 0x0C (%s:%d)\n", control,
@@ -3840,7 +3840,7 @@ connect610p (void)
   Outb (DATA, 0x55);
   Outb (CONTROL, 0x0E);
   control = Inb (CONTROL);	/* 0x0E expected */
-  control = Inb (CONTROL);
+  control = Inb (CONTROL) & 0x3F;
   if (control != 0x0E)
     {
       DBG (0, "connect610p control=%02X, expected 0x0E (%s:%d)\n", control,
@@ -3850,7 +3850,7 @@ connect610p (void)
   Outb (DATA, 0xFF);
   Outb (CONTROL, 0x0C);
   control = Inb (CONTROL);	/* 0x0C expected */
-  control = Inb (CONTROL);
+  control = Inb (CONTROL) & 0x3F;
   if (control != 0x0C)
     {
       DBG (0, "connect610p control=%02X, expected 0x0C (%s:%d)\n", control,
@@ -3859,7 +3859,7 @@ connect610p (void)
 
   Outb (CONTROL, 0x04);
   control = Inb (CONTROL);	/* 0x04 expected */
-  control = Inb (CONTROL);
+  control = Inb (CONTROL) & 0x3F;
   if (control != 0x04)
     {
       DBG (0, "connect610p control=%02X, expected 0x04 (%s:%d)\n", control,
@@ -5270,7 +5270,7 @@ retry:
 static int
 sendData610p (int *cmd, int len)
 {
-  int i, status;
+  int i, status, j;
 
   i = 0;
   status = 0xC8;
@@ -5289,6 +5289,12 @@ sendData610p (int *cmd, int len)
       status = putByte610p (cmd[i]);
       i++;
     }
+  j=0;
+  while((status & 0x08)&&(j<256))
+  {
+  	status=getStatus610p();
+	j++;
+  }
   if ((status != 0xC0) && (status != 0xD0))
     {
       DBG (0,
@@ -7851,15 +7857,8 @@ epilogue (void)
 static int
 cmdGet610p (int cmd, int len, int *val)
 {
-/* connect();
-   sync();
-   sendLength(00,00,22,88);
-   getStatus()=C0; (48)
-   receiveData(00,00,00,AA,CC,EE,FF,FF);
-   getStatus()=C0; (48)
-   disconnect(); */
   int word[5];
-  int i, status;
+  int i, j, status;
 
   if ((cmd == 8) && (len > 0x23))
     len = 0x22;
@@ -7894,6 +7893,12 @@ cmdGet610p (int cmd, int len, int *val)
     }
   status = getStatus610p ();
   scannerStatus = status;
+  j=0;
+  while((j<256)&&(status & 0x08))
+  {
+  	status = getStatus610p ();
+  	j++;
+  }
   if (status != 0xC0)
     {
       DBG (0, "Found 0x%02X expected 0xC0  (%s:%d)\n", status, __FILE__,
@@ -7930,7 +7935,7 @@ static int
 cmdSet610p (int cmd, int len, int *val)
 {
   int word[5];
-  int i, status;
+  int i, j, status;
 
   if ((cmd == 8) && (len > 0x23))
     {
@@ -7969,11 +7974,17 @@ cmdSet610p (int cmd, int len, int *val)
     }
   status = getStatus610p ();
   scannerStatus = status;
+  j=0;
+  while((j<256)&&(status & 0x08))
+  {
+  	status = getStatus610p ();
+  	j++;
+  }
   if (status != 0xC0)
     {
       DBG (1, "Found 0x%X expected 0xC0  (%s:%d)\n", status, __FILE__,
 	   __LINE__);
-      return 0;
+      /* return 0;*/
     }
   disconnect610p ();
   return 1;
@@ -8172,9 +8183,6 @@ cmdSetGet (int cmd, int len, int *val)
       epilogue ();
       return 0;
     }
-
-  /* wait a littlle to let the scanner time to think */
-  usleep(20000);
 
   /* then we receive */
   if (cmdGet (cmd, len, tampon) == 0)
@@ -10432,7 +10440,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	  switch (dpi)
 	    {
 	    case 600:
-	      delta = 8;
+	      delta = 16;
 	      break;
 	    case 300:
 	      delta = 8;
@@ -10525,7 +10533,8 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 					       0 ? 0 : reserve) + remain);
 	  if (len == 0)
 	    {
-	      DBG (0, "sanei_umax_pp_readBlock failed, cancelling scan ...\n");
+	      DBG (0,
+		   "sanei_umax_pp_readBlock failed, cancelling scan ...\n");
 	      gCancel = 1;
 	    }
 
@@ -10858,40 +10867,41 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
   if (sanei_umax_pp_getastra () < 1220)
     {
 
-  if (sanei_umax_pp_getauto ())
-    {
-      if (offsetCalibration (color, &dcRed, &dcGreen, &dcBlue) == 0)
+      if (sanei_umax_pp_getauto ())
 	{
-	  DBG (0, "offsetCalibration failed !!! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      DBG (16, "offsetCalibration(%d=>%d,%d,%d) passed ... (%s:%d)\n",
-	   color, dcRed, dcGreen, dcBlue, __FILE__, __LINE__);
-      MOVE (-69, PRECISION_OFF, NULL);
+	  if (offsetCalibration (color, &dcRed, &dcGreen, &dcBlue) == 0)
+	    {
+	      DBG (0, "offsetCalibration failed !!! (%s:%d)\n", __FILE__,
+		   __LINE__);
+	      return 0;
+	    }
+	  DBG (16, "offsetCalibration(%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	       color, dcRed, dcGreen, dcBlue, __FILE__, __LINE__);
+	  MOVE (-69, PRECISION_OFF, NULL);
 
-      if (coarseGainCalibration
-	  (color, dcRed, dcGreen, dcBlue, &vgaRed, &vgaGreen, &vgaBlue) == 0)
-	{
-	  DBG (0, "coarseGainCalibration failed !!! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
+	  if (coarseGainCalibration
+	      (color, dcRed, dcGreen, dcBlue, &vgaRed, &vgaGreen,
+	       &vgaBlue) == 0)
+	    {
+	      DBG (0, "coarseGainCalibration failed !!! (%s:%d)\n", __FILE__,
+		   __LINE__);
+	      return 0;
+	    }
+	  DBG (16,
+	       "coarseGainCalibration(%d,%d,%d,%d=>%d,%d,%d) passed ... (%s:%d)\n",
+	       color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
+	       __FILE__, __LINE__);
 	}
-      DBG (16,
-	   "coarseGainCalibration(%d,%d,%d,%d=>%d,%d,%d) passed ... (%s:%d)\n",
-	   color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, __FILE__,
-	   __LINE__);
-    }
-    else
-    {
-      dcBlue = contrast % 16;
-      dcGreen = (contrast / 16) % 16;
-      dcRed = contrast / 256;
-      vgaBlue = brightness % 16;
-      vgaRed = (brightness / 16) % 16;
-      vgaGreen = brightness / 256;
-    }
-    MOVE (-31, PRECISION_OFF, NULL);
+      else
+	{
+	  dcBlue = contrast % 16;
+	  dcGreen = (contrast / 16) % 16;
+	  dcRed = contrast / 256;
+	  vgaBlue = brightness % 16;
+	  vgaRed = (brightness / 16) % 16;
+	  vgaGreen = brightness / 256;
+	}
+      MOVE (-31, PRECISION_OFF, NULL);
 
       /* ccd calibration */
       if (shadingCalibration
@@ -10985,22 +10995,21 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
     {
     case 610:
       if (color >= RGB_MODE)
-	      switch(dpi)
-	      {
-		  case 600:
-		  case 300:
-			  y+=48;
-			  break;
-		  case 150:
-			  y+=40;
-			  break;
-		  case 75:
-			  y+=36;
-			  break;
-		  default:
-		    y += 64;
-		    break;
-	      }
+	switch (dpi)
+	  {
+	  case 600:
+	    y += 64;
+	    break;
+	  case 300:
+	    y += 48;
+	    break;
+	  case 150:
+	    y += 40;
+	    break;
+	  case 75:
+	    y += 36;
+	    break;
+	  }
       else
 	y += 48;
       break;
@@ -11077,8 +11086,8 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	  motor[6] = 0xC0;
 	  motor[7] = 0x2F;
 	  motor[14] = motor[14] & 0xF0;
-	  if (color >= RGB_MODE)
-	    motor[14] |= 0x04;
+	  /* if (color >= RGB_MODE)
+	     motor[14] |= 0x04; XXX STEF XXX */
 	}
       else
 	{
@@ -11718,9 +11727,9 @@ offsetCalibration (int color, int *offRed, int *offGreen, int *offBlue)
       w = 40;
     }
 
-      *offRed = 0;
+  *offRed = 0;
   *offGreen = 0;
-      *offBlue = 0;
+  *offBlue = 0;
 
   /* first color channel: used both in color and b&w modes */
   /* offset to the max */
@@ -12126,25 +12135,28 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   int sum, i;
   float avg, coeff;
   unsigned char *data = NULL;
+  int top,bottom;
 
   TRACE (16, "entering shadingCalibration ...\n");
   if (sanei_umax_pp_getastra () < 1220)
     {
       len = 0x22;
       w = 2550;
-      x = 94;
       y = 10;
       dpi = 300;
       h = 90;
+      top=18;
+      bottom=12;
     }
   else
     {
       len = 0x24;
       w = 5100;
-      x = 180;
       y = 10;
       dpi = 600;
       h = 67;
+      top=18;
+      bottom=12;
     }
 
   data = (unsigned char *) malloc (w * h * 3);
@@ -12156,7 +12168,8 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
     }
 
   /* prepare scan command */
-  encodeWX (w, x, dpi, color, ccd, 7650);
+  x = sanei_umax_pp_getLeft ();
+  encodeWX (w, x, dpi, color, ccd, 3 * w);
   encodeHY (h, y, motor);
   encodeDC (dcRed, dcGreen, dcBlue, motor);
   encodeVGA (vgaRed, vgaGreen, vgaBlue, motor);
@@ -12200,27 +12213,34 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   /* debug image files */
   /* data is in R B G order */
   if (DBG_LEVEL > 128)
-    {
-      DumpNB (w * 3, h, data, NULL);
-      DumpNB (w, h * 3, data, NULL);
-    }
+    DumpNB (w * 3, h, data, NULL);
 
   for (x = 0; x < w; x++)
     {
       for (i = 0; i < 3; i++)
 	{
 	  sum = 0;
-	  for (y = 8; y < h - 8; y++)
+	  for (y = top; y < h - bottom; y++)
 	    sum += data[(y * 3 + i) * w + x];
-	  avg = ((float) (sum)) / ((float) (h - 16));
-	  coeff = (256.0 * (256.0 / avg - 1.0)) / 1.95 + 0.5;
+	  avg = ((float) (sum)) / ((float) (h - (top+bottom)));
+	  if (DBG_LEVEL > 128)
+	    {
+	      for (y = 0; y < top; y++)
+		data[(y * 3 + i) * w + x] = avg;
+	      for (y = h-bottom; y < h; y++)
+		data[(y * 3 + i) * w + x] = avg;
+	    }
+	  /*coeff = (256.0 * (255.0 / avg - 1.0)) / 1.95;*/
+	  coeff = 256.0 * (255.0 / avg - 1.0);
 	  /* prevent overflow */
 	  if (coeff > 127)
 	    coeff = 127;
 	  calibration[x + i * w] = coeff;
-	  /*calibration[x + i * w] = evalGain (sum, h - 16); */
 	}
     }
+
+      if (DBG_LEVEL > 128)
+	DumpNB (w * 3, h, data, NULL);
 
   free (data);
   TRACE (16, "shadingCalibration end ...\n");

@@ -1,3 +1,8 @@
+2004-05-10  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c : fixed 300x600 dpi scans, direct
+          hardware access and timing issues for 610P
+
 2004-05-06  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* tools/hotplug/libusbscanner: latest hotplug doesn't set

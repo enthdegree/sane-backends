@@ -1,7 +1,8 @@
 2003-04-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* lib/getopt.c: Removed #include again, breaks compilation on OS/2.
-	
+	* lib/getopt.c: Removed #include again, breaks compilation on
+	  OS/2.
+	* config.guess config.sub: New upstream versions.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

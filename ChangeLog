@@ -1,3 +1,31 @@
+2003-09-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Changed links to point to
+	  sane-project.org.
+	* TODO: Removed. Please use the bug tracking system at
+	  http://www.sane-project.org/bugs.html instead.
+	* README README:os2 configure configure.in: Updated contact
+	  information (website, mailing lists, bug tracker). Minor fixes.
+	* backend/mustek.c: Fixed sane-devel address.
+	* doc/backend-writing.txt doc/releases.txt: Updated contact
+	  information. Spelling fixes. Minor updates.
+	* doc/sane.man: Updated contact information. Removed contributing
+	  section (now on homepage). Spelling fixes, general updates.
+	* sane-abaton.man sane-agfafocus.man sane-apple.man sane-bh.man  
+	  sane-dc210.man sane-dc240.man sane-dc25.man sane-gphoto2.man  
+	  sane-hp.man sane-microtek2.man sane-microtek.man  
+	  sane-mustek.man sane-mustek_pp.man sane-pint.man  
+	  sane-st400.man sane-usb.man sane-v4l.man: Updated links to
+	  sane-devel and SANE homepage.
+	* sane.tex: Changed homepage and sane-devel-request address.
+	* doc/Makefile.in: Added README.windows.
+	* doc/canon/canon.install2700F.txt: Updated links.
+	* include/sane/sanei.h include/sane/sanei_usb.h: Updated links.
+	* tools/sane-desc.c: Changed links to sane-project.org. Mentioned bug
+	  tracker. Added contact link. Removed link to special USB and
+	  Parport lists (now on static web pages).
+	* tools/sane-config.in: Updated links.
+
 2003-09-24  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/sane.man, AUTHORS: added plustek_pp information

@@ -172,6 +172,7 @@ typedef struct TDevice {
   struct usb_device     *pdev;
   TModel                 model;
   SANE_Device            sane;
+  char			*szSaneName;
 } TDevice;
 
 #endif
@@ -310,7 +311,10 @@ __SM3600EXPORT__ TState StartScanGray(TInstance *this);
 __SM3600EXPORT__ TState StartScanColor(TInstance *this);
 
 /* sm3600-homerun.c */
+#ifdef INSANE_VERSION
 __SM3600EXPORT__ TState FakeCalibration(TInstance *this);
+#endif
+
 __SM3600EXPORT__ TState DoOriginate(TInstance *this, TBool bStepOut);
 __SM3600EXPORT__ TState DoJog(TInstance *this,int nDistance);
 

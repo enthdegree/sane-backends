@@ -336,7 +336,8 @@ RegisterSaneDev (struct usb_device *pdevUSB, TModel model, char *szName){
     return SANE_STATUS_NO_MEM;
 
   memset (q, 0, sizeof (*q)); /* clear every field */
-  q->sane.name   = strdup (szName);
+  q->szSaneName  = strdup (szName);
+  q->sane.name   = (SANE_String_Const) q->szSaneName;
   q->sane.vendor = "Microtek";
   q->sane.model  = "ScanMaker 3600";
   q->sane.type   = "flatbed scanner";
@@ -421,7 +422,7 @@ sane_exit (void)
   for (dev = pdevFirst; dev; dev = pNext)
     {
       pNext = dev->pNext;
-      free (dev->sane.name);
+      free (dev->szSaneName);
       free (dev);
     }
   if (devlist) free(devlist);

@@ -52,6 +52,7 @@ extern int sanei_debug_hp;*/
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -374,6 +375,18 @@ sanei_hp_scsi_new (HpScsi * newp, const char * devname)
       return status;
     }
 
+  {char vendor[9], model[17], rev[5];
+   memset (vendor, 0, sizeof (vendor));
+   memset (model, 0, sizeof (model));
+   memset (rev, 0, sizeof (rev));
+   memcpy (vendor, new->inq_data + 8, 8);
+   memcpy (model, new->inq_data + 16, 16);
+   memcpy (rev, new->inq_data + 32, 4);
+
+   DBG(3, "vendor=%s, model=%s, rev=%s\n", vendor, model, rev);
+  }
+
+
   DBG(3, "scsi_new: sending TEST_UNIT_READY\n");
   status = sanei_scsi_cmd(new->fd, tur_cmd, 6, 0, 0);
   if (FAILED(status))
@@ -650,6 +663,50 @@ hp_scsi_scl(HpScsi this, HpScl scl, int val)
   return hp_scsi_flush(this);
 }
 
+/* Read it bytewise */
+static SANE_Status
+hp_scsi_read_slow (HpScsi this, void * dest, size_t *len)
+{static hp_byte_t read_cmd[6] = { 0x08, 0, 0, 0, 0, 0 };
+ size_t leftover = *len;
+ SANE_Status status = SANE_STATUS_GOOD;
+ unsigned char *start_dest = (unsigned char *)dest;
+ unsigned char *next_dest = start_dest;
+
+ DBG(16, "hp_scsi_read_slow: Start reading %d bytes bytewise\n", (int)*len);
+
+ while (leftover > 0)  /* Until we got all the bytes */
+ {size_t one = 1;
+
+   read_cmd[2] = 0;
+   read_cmd[3] = 0;
+   read_cmd[4] = 1;   /* Read one byte */
+
+   status = sanei_scsi_cmd (this->fd, read_cmd, sizeof(read_cmd),
+                            next_dest, &one);
+   if ((status != SANE_STATUS_GOOD) || (one != 1))
+   {
+     DBG(250,"hp_scsi_read_slow: Reading byte %d: status=%s, len=%d\n",
+         (int)(next_dest-start_dest), sane_strstatus(status), (int)one);
+   }
+
+   if (status != SANE_STATUS_GOOD) break;  /* Finish on error */
+
+   next_dest++;
+   leftover--;
+ }
+
+ *len = next_dest-start_dest; /* This is the number of bytes we got */
+
+ DBG(16, "hp_scsi_read_slow: Got %d bytes\n", (int)*len);
+
+ if ((status != SANE_STATUS_GOOD) && (*len > 0))
+ {
+   DBG(16, "We got some data. Ignore the error \"%s\"\n",
+       sane_strstatus(status));
+   status = SANE_STATUS_GOOD;
+ }
+ return status;
+}
 
 /* The OfficeJets tend to return inquiry responses containing array
  * data in two packets.  The added "isResponse" parameter tells
@@ -660,19 +717,34 @@ static SANE_Status
 hp_scsi_read (HpScsi this, void * dest, size_t *len, int isResponse)
 {
   HpConnect connect;
-  static hp_byte_t read_cmd[6] = { 0x08, 0, 0, 0, 0, 0 };
 
   RETURN_IF_FAIL( hp_scsi_flush(this) );
 
-  read_cmd[2] = *len >> 16;
-  read_cmd[3] = *len >> 8;
-  read_cmd[4] = *len;
-
   connect = sanei_hp_scsi_get_connect (this);
   if (connect == HP_CONNECT_SCSI)
-  {
-    RETURN_IF_FAIL( sanei_scsi_cmd (this->fd, read_cmd,
-				  sizeof(read_cmd), dest, len) );
+  {int read_bytewise = 0;
+
+    if (*len <= 32)   /* Is it a candidate for reading bytewise ? */
+    {const HpDeviceInfo *info;
+
+      info = sanei_hp_device_info_get (sanei_hp_scsi_devicename (this));
+      if ((info != NULL) && (info->config_is_up) && info->config.dumb_read)
+        read_bytewise = 1;
+    }
+
+    if ( ! read_bytewise )
+    {static hp_byte_t read_cmd[6] = { 0x08, 0, 0, 0, 0, 0 };
+      read_cmd[2] = *len >> 16;
+      read_cmd[3] = *len >> 8;
+      read_cmd[4] = *len;
+
+      RETURN_IF_FAIL( sanei_scsi_cmd (this->fd, read_cmd,
+                                      sizeof(read_cmd), dest, len) );
+    }
+    else
+    {
+      RETURN_IF_FAIL (hp_scsi_read_slow (this, dest, len));
+    }
   }
   else
   {

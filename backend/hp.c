@@ -43,8 +43,12 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "1.00";
+static char *hp_backend_version = "1.01";
 /* Changes:
+
+   V 1.01, 06-Dec-2002, PK (peter@kirchgessner.net)
+      - add option dumb-read to work around problems
+        with BusLogic SCSI driver (error during device I/O)
 
    V 1.00, 17-Nov-2002, PK (peter@kirchgessner.net)
       - add libusb support
@@ -328,6 +332,7 @@ hp_init_config (HpDeviceConfig *config)
     config->use_scsi_request = 1;
     config->use_image_buffering = 0;
     config->got_connect_type = 0;
+    config->dumb_read = 0;
   }
 }
 
@@ -676,6 +681,10 @@ hp_read_config (void)
             else if (strcmp (arg2, "enable-image-buffering") == 0)
             {
               config->use_image_buffering = 1;
+            }
+            else if (strcmp (arg2, "dumb-read") == 0)
+            {
+              config->dumb_read = 1;
             }
             else
             {

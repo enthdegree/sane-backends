@@ -117,6 +117,7 @@ typedef struct
   hp_bool_t got_connect_type;
   hp_bool_t use_scsi_request;
   hp_bool_t use_image_buffering;
+  hp_bool_t dumb_read;
 } HpDeviceConfig;
 
 #define HP_SCL_INQID_MIN   10306

@@ -1,3 +1,11 @@
+2001-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/umax_pp.c backend/umax_pp.h backend/umax_pp_low.c
+	  backend/umax_pp_low.h backend/umax_pp_mid.c backend/umax_pp_mid.h
+	  backend/umax_pp.conf backend/umax_pp.desc backend/Makefile.in 
+	  dll.conf: Added umax_pp backend (patch from Stéphane Voltz 
+	  <svoltz@wanadoo.fr>).
+
 2001-05-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Don't use -ansi for Solaris. On some

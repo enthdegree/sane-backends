@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.42"                 ; version of backend
+:version "0.43"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -29,99 +29,105 @@
 ;name models for above-specified mfg.
 :model "OpticPro 4800P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 4830P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 600P/6000P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 4831P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 9630P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 9630PL"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=1"
+:status :stable
+:comment "use driver-switch mov=1"
 
 :model "OpticPro 9600P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 1236P"
 :interface "Parport (SPP, EPP)"
-:comment "OK - reported as OpticPro 12000P/96000P"
+:status :stable
+:comment "reported as OpticPro 12000P/96000P"
 
 :model "OpticPro 12000P/96000P"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 9636P"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=4"
+:status :stable
+:comment "use driver-switch mov=4"
 
 :model "OpticPro 9636P+/Turbo"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=3"
+:status :stable
+:comment "use driver-switch mov=3"
 
 :model "OpticPro 9636T"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro 12000T"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro AI3"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=5"
+:status :stable
+:comment "use driver-switch mov=5"
 
 :model "OpticPro P8"
 :interface "Parport"
-:comment "Not tested."
+:status :untested
 
 :model "OpticPro P12"
 :interface "Parport (SPP, EPP)"
-:comment "OK"
+:status :stable
 
 :model "OpticPro PT12"
 :interface "Parport (SPP, EPP)"
-:comment "OK."
+:status :stable
 
 :model "OpticPro 19200S"
 :interface "SCSI"
+:status :unsupported
 :comment "rebadged Artec AM12S (supported by Artec Backend)"
 
 :model "OpticPro 1212U"
 :interface "USB"
-:comment "not supported."
+:status :unsupported
 
 :model "OpticPro U12"
 :interface "USB"
-:comment "OK."
+:status :stable
 
 :model "OpticPro UT12"
 :interface "USB"
-:comment "OK."
+:status :stable
 
 :model "OpticPro UT16"
 :interface "USB"
-:comment "OK."
+:status :stable
 
 :model "OpticPro U24"
 :interface "USB"
-:comment "OK."
+:status :stable
 
 :model "OpticPro UT24"
 :interface "USB"
-:comment "OK."
+:status :stable
 
 
 :mfg "Primax"                  ; name of manufacturer
@@ -130,46 +136,54 @@
 ;name models for above-specified mfg.
 :model "Colorado 4800"
 :interface "Parport (SPP, EPP)"
-:comment "Not tested, (same as OP4800P)"
+:status :untested
+:comment "same as OpticPro 4800P"
 
 :model "Compact 4800 Direct"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=2"
+:status :stable
+:comment "use driver-switch mov=2"
 
 :model "Compact 4800 Direct-30"
 :interface "Parport (SPP, EPP)"
-:comment "Not tested, (same as OP4830P)"
+:status :untested
+:comment "same as OpticPro 4830P"
 
 :model "Compact 9600 Direct-30"
 :interface "Parport (SPP, EPP)"
-:comment "OK - (same as OP9630P)"
+:status :stable
+:comment "same as OpticPro 9630P"
 
 :mfg "Aries"                  ; name of manufacturer
 
 :model "Scan-It Pro 4800"
 :interface "Parport (SPP, EPP)"
-:comment "OK - use driver-switch mov=2"
+:status :stable
+:comment "use driver-switch mov=2"
 
-:mfg "KYE - Genius"           ; name of manufacturer
+:mfg "Genius"           ; name of manufacturer
 :url "http://www.geniusnet.com.tw/"
 
 :model "Colorpage Vivid III V2"
 :interface "Parport (SPP, EPP)"
-:comment "OK - Reported as PT12"
+:status :stable
+:comment "Reported as PT12"
 
 :model "Colorpage Vivid Pro II Film"
 :interface "Parport (SPP, EPP)"
-:comment "OK - Reported as OP9636T/12000T"
+:status :stable
+:comment "Reported as OP9636T/12000T"
 
 :model "Colorpage HR6 V2"
 :interface "USB"
-:comment "OK"
+:status :stable
 
 :mfg "BrightScan"
 
 :model "BrighScan OpticPro"
 :interface "Parport (SPP, EPP)"
-:comment "OK - Reported as P12"
+:status :stable
+:comment "Reported as P12"
 
 :mfg "Mustek"                  ; name of manufacturer
 :url "http://www.mustek.com/"
@@ -177,39 +191,43 @@
 ;name models for above-specified mfg.
 :model "BearPaw 1200"
 :interface "USB"
-:comment "Mostly OK"
+:status :stable
 
 :model "BearPaw 2400"
 :interface "USB"
+:status :stable
 :comment "Mostly OK"
 
 :mfg "Hewlett-Packard"                  ; name of manufacturer
 :url "http://www.hp.com/"
 
-:model "HP ScanJet 2100C"
+:model "ScanJet 2100C"
 :interface "USB"
-:comment "Mostly OK"
+:status :stable
 
-:model "HP ScanJet 2200C"
+:model "ScanJet 2200C"
 :interface "USB"
-:comment "Mostly OK"
+:status :stable
 
 :mfg "Epson"                  ; name of manufacturer
 :url "http://www.epson.com/"
 
 :model "Perfection 1250"
 :interface "USB"
+:status :stable
 :comment "Mostly OK"
 
 :model "Perfection 1250Photo"
 :interface "USB"
-:comment "Mostly OK - TPU not supported"
+:status :stable
+:comment "Mostly OK - use enableTPA"
 
 :mfg "Umax"                  ; name of manufacturer
 :url "http://www.umax.com/"
 
 :model "UMAX 3400"
 :interface "USB"
+:status :stable
 :comment "Mostly OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

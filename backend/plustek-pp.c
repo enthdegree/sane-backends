@@ -16,6 +16,7 @@
  * 0.41 - added _PTDRV_ADJUST call
  * 0.42 - added setmap function
  *        fixed the stopscan problem, that causes a crash in the kernel module
+ * 0.43 - no changes
  *
  *.............................................................................
  *

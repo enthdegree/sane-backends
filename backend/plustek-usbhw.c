@@ -14,6 +14,7 @@
  * 0.42 - added warmup stuff
  *        added UMAX 3400 stuff
  *        fixed problem with minimum wait time...
+ * 0.43 - added usb_switchLamp for non-Plustek devices
  *
  *.............................................................................
  *
@@ -71,8 +72,28 @@ static SANE_Bool fModuleFirstHome;  /* HEINER: this has to be initialized */
 static SANE_Bool fLastScanIsAdf;
 static u_char    a_bRegs[0x80];
 
-/*.............................................................................
- *
+
+/** usb_GetMotorSet
+ * according to the model, the function returns the address of
+ * the corresponding entry of the Motor table
+ */
+static pClkMotorDef usb_GetMotorSet( eModelDef model )
+{
+	int i;
+
+	for( i = 0; i < MODEL_LAST; i++ ) {
+		if( model == Motors[i].motorModel ) {
+			return &(Motors[i]);
+		}
+	}
+
+	return NULL;
+}
+
+/** switch motor on or off
+ * @param handle - handle to open USB device
+ * @param fOn    - SANE_TRUE means motor on, SANE_FALSE means motor off
+ * @return always SANE_TRUE
  */
 static SANE_Bool usb_MotorOn( int handle, SANE_Bool fOn )
 {
@@ -168,11 +189,12 @@ static SANE_Bool usb_SensorPaper( int handle )
 static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 								 u_char bAction, u_long dwStep )
 {
-	SANE_Status res;
-	u_char      bReg2, reg7;
-	u_short     wFastFeedStepSize;
-	double      dMaxMoveSpeed;
-	pHWDef      hw = &dev->usbDev.HwSetting;
+	SANE_Status  res;
+	u_char       bReg2, reg7, mclk_div;
+	u_short      wFastFeedStepSize;
+	double       dMaxMoveSpeed;
+	pClkMotorDef clk;
+	pHWDef       hw = &dev->usbDev.HwSetting;
 
 	/* Check if LM9831 is ready for setting command */
 	if( bAction != MOVE_ToPaperSensor   &&
@@ -235,8 +257,13 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 		dMaxMoveSpeed = hw->dMaxMoveSpeed;
 	}
 
+	clk = usb_GetMotorSet( hw->motorModel );
+
+	mclk_div = clk->mclk_fast;
+
 	wFastFeedStepSize = (u_short)(dwCrystalFrequency /
-						(6UL * 8UL * 1 * dMaxMoveSpeed * 4 * hw->wMotorDpi));
+						((u_long)mclk_div * 8UL * 1 *
+						dMaxMoveSpeed * 4 * hw->wMotorDpi));
 
 	a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
 	a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
@@ -253,7 +280,7 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
 	 */
 
 	/* MCLK divider = 6 */
-	if( !usbio_WriteReg(dev->fd, 0x08, 0x0A))
+	if( !usbio_WriteReg(dev->fd, 0x08, (mclk_div-1)*2 /*0x0A*/))
 		return SANE_FALSE;
 
 	/* 8 bits/pixel, HDPI divider = 12 */
@@ -361,6 +388,7 @@ static SANE_Bool usb_ModuleMove( pPlustek_Device dev,
  */
 static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 {
+	u_char    mclk_div;
 	u_char    value;
 	pDCapsDef scaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
@@ -381,7 +409,7 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 
 	if( fModuleFirstHome ) {
 		fModuleFirstHome = SANE_FALSE;
-		if( hw->ScannerModel != MODEL_Tokyo600 )
+		if( hw->motorModel != MODEL_Tokyo600 )
 			usb_ModuleMove( dev, MOVE_Forward, hw->wMotorDpi / 2);
 	}
 
@@ -390,7 +418,7 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 
 		u_short wFastFeedStepSize;
 
-		if( hw->ScannerModel == MODEL_Tokyo600 ) {
+		if( hw->motorModel == MODEL_Tokyo600 ) {
 			usbio_WriteReg( dev->fd, 0x07, 0 );
 		} else 	{
 				
@@ -399,58 +427,82 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 			usleep(200*1000);
 		}
 		
-		/* Compute fast feed step size, use equation 3 and equation 8 */
-		wFastFeedStepSize = (u_short)(dwCrystalFrequency / (6UL * 8UL * 1 *
+		if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
+
+			pClkMotorDef clk;
+
+			clk = usb_GetMotorSet( hw->motorModel );
+
+			a_bRegs[0x56] = clk->pwm_fast;
+			a_bRegs[0x57] = clk->pwm_duty_fast;
+			mclk_div      = clk->mclk_fast;
+
+		} else {
+
+			mclk_div = 6;
+
+			if( scaps->OpticDpi.x == 1200 || scaps->bPCB == 2) {
+				switch( hw->motorModel ) {
+
+				case MODEL_KaoHsiung:
+				case MODEL_HuaLien:
+				default:
+					a_bRegs[0x56] = 1;
+					a_bRegs[0x57] = 63;
+					break;
+				}
+			} else { /* if(Device.Caps.OpticDpi.x == 600) */
+
+				switch( hw->motorModel ) {
+
+				case MODEL_Tokyo600:
+					a_bRegs[0x56] = 4;
+					a_bRegs[0x57] = 4;	/* 2; */
+					break;
+				case MODEL_HuaLien:
+					if( dev->caps.dwFlag & SFLAG_ADF ) {
+						a_bRegs[0x56] = 64;	/* 32; */
+						a_bRegs[0x57] = 4;	/* 16; */
+					} else {
+						a_bRegs[0x56] = 32;
+						a_bRegs[0x57] = 16;
+					}
+					break;
+				
+				case MODEL_KaoHsiung:
+				default:
+					a_bRegs[0x56] = 64;
+					a_bRegs[0x57] = 20;
+					break;
+				}
+			}
+		}
+
+		/* Compute fast feed step size, use equation 3 and equation 8
+		 * assumptions: MCLK = 6, Lineratemode (CM=1)
+		 */
+		wFastFeedStepSize = (u_short)(dwCrystalFrequency / (mclk_div * 8 * 1 *
 									  hw->dMaxMotorSpeed * 4 * hw->wMotorDpi));
 		a_bRegs[0x48] = (u_char)(wFastFeedStepSize >> 8);
 		a_bRegs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
 		a_bRegs[0x4a] = 0;
 		a_bRegs[0x4b] = 0;
 
-		if( scaps->OpticDpi.x == 1200 || scaps->bPCB == 2) {
-			switch( hw->ScannerModel ) {
-
-			case MODEL_KaoHsiung:
-			case MODEL_HuaLien:
-			default:
-				a_bRegs[0x56] = 1;
-				a_bRegs[0x57] = 63;
-				break;
-			}
-		} else { /* if(Device.Caps.OpticDpi.x == 600) */
-
-			switch( hw->ScannerModel ) {
-
-			case MODEL_Tokyo600:
-				a_bRegs[0x56] = 4;
-				a_bRegs[0x57] = 4;	/* 2; */
-				break;
-			case MODEL_HuaLien:
-				if( dev->caps.dwFlag & SFLAG_ADF ) {
-					a_bRegs[0x56] = 64;	/* 32; */
-					a_bRegs[0x57] = 4;	/* 16; */
-				} else {
-					a_bRegs[0x56] = 32;
-					a_bRegs[0x57] = 16;
-				}
-				break;
-				
-			case MODEL_KaoHsiung:
-			default:
-				a_bRegs[0x56] = 64;
-				a_bRegs[0x57] = 20;
-				break;
-			}
-		}
-
 		a_bRegs[0x45] |= 0x10;
+
+		DBG( _DBG_INFO, "MOTOR-Settings: PWM=0x%02x, PWM_DUTY=0x%02x 0x%02x\n",
+								a_bRegs[0x56], a_bRegs[0x57], a_bRegs[0x45] );
 
 		/* The setting for chassis moving is:
 		 * MCLK divider = 6, 8 bits/pixel, HDPI divider = 12,
 		 * no integration time adjustment and 1 channel grayscale
 	 	 */
 		/* MCLK divider = 6 */
-		if( !usbio_WriteReg(dev->fd, 0x08, 0x0A))
+		value = (u_char)((mclk_div-1) * 2);
+
+		DBG( _DBG_INFO, "MCLK_FFW = %u --> 0x%02x\n", mclk_div, value );
+
+		if( !usbio_WriteReg(dev->fd, 0x08, value))
 			return SANE_FALSE;
 
 		/* 8 bits/pixel, HDPI divider = 12 */
@@ -473,14 +525,14 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 
 		usbio_WriteReg(dev->fd, 0x0a, 0);
 
-		if( hw->ScannerModel == MODEL_HuaLien && scaps->OpticDpi.x == 600 )
+		if( hw->motorModel == MODEL_HuaLien && scaps->OpticDpi.x == 600 )
 			usleep(100 * 1000);
 
 		if( !usbio_WriteReg(dev->fd, 0x07, 2))
 			return SANE_FALSE;
 		
 #if 0
-		if(Device.HwSetting.ScannerModel == MODEL_Tokyo600)
+		if(Device.HwSetting.motorModel == MODEL_Tokyo600)
 		{
 			DWORD	dwSpeedUp = GetTickCount () + 250;
 			
@@ -537,12 +589,13 @@ static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 	pDCapsDef sCaps = &dev->usbDev.Caps;
 	pHWDef    hw    = &dev->usbDev.HwSetting;
 
-	if( hw->ScannerModel == MODEL_NOPLUSTEK )
+	if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 		return SANE_TRUE;
+	}
 	
 	if( fADF ) {
 
-		if( sCaps->bCCD == 4 ) {
+		if( sCaps->bCCD == kNEC3778 ) {
 		
 			hw->wMotorDpi      = 300;
 			hw->dMaxMotorSpeed = 1.5;
@@ -553,7 +606,7 @@ static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 		
 	} else {
 	
-		if( sCaps->bCCD == 4 ) {
+		if( sCaps->bCCD == kNEC3778 ) {
 			
 			hw->wMotorDpi      = 600;
 			hw->dMaxMotorSpeed = 1.1;
@@ -571,7 +624,46 @@ static SANE_Bool usb_MotorSelect( pPlustek_Device dev, SANE_Bool fADF )
 	return SANE_TRUE;
 }
 
-/**
+/** according to the flag field, we return the register and
+ * it's maks to turn on/off the lamp.
+ * @param flag - field to check
+ * @param reg  - pointer to a var to receive the register value
+ * @param msk  - pointer to a var to receive the mask value
+ * @return Nothing
+ */
+static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
+{
+	if( _MIO6 == ( _MIO6 & flag )) {
+		*reg = 0x5b;
+		*msk = 0x80;
+
+   	} else if( _MIO5 == ( _MIO5 & flag )) {
+		*reg = 0x5b;
+		*msk = 0x08;
+
+   	} else if( _MIO4 == ( _MIO4 & flag )) {
+		*reg = 0x5a;
+		*msk = 0x80;
+
+   	} else if( _MIO3 == ( _MIO3 & flag )) {
+		*reg = 0x5a;
+		*msk = 0x08;
+   	
+    } else if( _MIO2 == ( _MIO2 & flag )) {
+		*reg = 0x59;
+		*msk = 0x80;
+
+   	} else if( _MIO1 == ( _MIO1 & flag )) {
+		*reg = 0x59;
+		*msk = 0x08;
+
+   	} else {
+       *reg = 0;
+       *msk = 0;
+	}
+}
+
+/** usb_Get
  * This function returns the current lamp in use.
  * For non Plustek devices, it always returns DEV_LampReflection.
  * @param dev  - pointer to our device structure,
@@ -585,6 +677,7 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 	int    iLampStatus = 0;
 	pHWDef hw          = &dev->usbDev.HwSetting;
 	pDCapsDef sc       = &dev->usbDev.Caps;
+	SANE_Byte reg, msk, val;
 
 
 	if( NULL == hw ) {
@@ -592,10 +685,26 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 		return -1;
 	}	
 	
-	if((_WAF_MISC_IO6_LAMP == (_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) ||
- 	   (_WAF_MISC_IO3_LAMP == (_WAF_MISC_IO3_LAMP & sc->workaroundFlag))) {
+ 	/* do we use the misc I/O pins for switchwing the lamp ? */
+	if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 			
-		iLampStatus |= DEV_LampReflection;
+		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
+
+		/* check if the lamp is on */
+		usbio_ReadReg( dev->fd, reg, &val );
+		DBG( _DBG_INFO, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n", reg, val, msk );
+		if( val & msk )
+			iLampStatus |= DEV_LampReflection;
+
+   		/* if the device supports a TPA, we check this here */
+  		if( sc->wFlags & DEVCAPSFLAG_TPA ) {
+
+			usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+			usbio_ReadReg( dev->fd, reg, &val );
+			DBG( _DBG_INFO, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n",reg,val,msk);
+			if( val & msk )
+				iLampStatus |= DEV_LampTPA;
+		}
 	
 	} else {
 	
@@ -603,26 +712,64 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 
 		if((a_bRegs[0x29] & 3) == 1) {
 
-			if((a_bRegs[0x2e] * 256 + a_bRegs[0x2f]) > hw->wLineEnd )
+/* HEINER: BETTER define register to check ! */
+
+			if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 				iLampStatus |= DEV_LampReflection;
 
-			if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
-				iLampStatus |= DEV_LampTPA;
-		}				
+            } else {
+
+				if((a_bRegs[0x2e] * 256 + a_bRegs[0x2f]) > hw->wLineEnd )
+					iLampStatus |= DEV_LampReflection;
+
+				if((a_bRegs[0x36] * 256 + a_bRegs[0x37]) > hw->wLineEnd )
+					iLampStatus |= DEV_LampTPA;
+			}				
+		}
 	}
 
 	DBG( _DBG_INFO, "LAMP-STATUS: 0x%08x\n", iLampStatus );
 	return iLampStatus;
 }
 
-/*.............................................................................
+/** usb_switchLamp
+ * used for all devices that use some misc I/O pins to switch the lamp
+ */
+static SANE_Bool usb_switchLamp( pPlustek_Device dev, SANE_Bool on )
+{
+	SANE_Byte reg, msk;
+    pScanDef  scanning = &dev->scanning;
+	pDCapsDef sc       = &dev->usbDev.Caps;
+
+	if((scanning->sParam.bSource == SOURCE_Negative) ||
+	   (scanning->sParam.bSource == SOURCE_Transparency))
+		usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+	else
+		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
+
+ 	if( 0 == reg )
+    	return SANE_FALSE; /* no need to switch something */
+
+	if( on )
+		a_bRegs[reg] |= msk;
+  	else
+		a_bRegs[reg] &= ~msk;
+
+	DBG( _DBG_INFO, "Switch Lamp: %u, regs[0x%02x] = 0x%02x\n",
+													on, reg, a_bRegs[reg] );
+    usbio_WriteReg( dev->fd, reg, a_bRegs[reg] );
+
+    return SANE_TRUE;
+}
+
+/** usb_LedOn
  *
  */
-static void usb_LedOn(  pPlustek_Device dev, SANE_Bool fOn )
+static void usb_LedOn( pPlustek_Device dev, SANE_Bool fOn )
 {
 	u_char value;
 
-	if( dev->usbDev.HwSetting.ScannerModel != MODEL_HuaLien )
+	if( dev->usbDev.HwSetting.motorModel != MODEL_HuaLien )
 		return;
 
 	value = a_bRegs[0x0d];
@@ -639,14 +786,14 @@ static void usb_LedOn(  pPlustek_Device dev, SANE_Bool fOn )
 	}
 }
 
-/*.............................................................................
+/** usb_LampOn
  *
  */
 static SANE_Bool usb_LampOn( pPlustek_Device dev,
 							 SANE_Bool fOn, SANE_Bool fResetTimer )
 {
-    pScanDef       scanning    = &dev->scanning;
 	pDCapsDef      sc          = &dev->usbDev.Caps;
+    pScanDef       scanning    = &dev->scanning;
 	pHWDef         hw          = &dev->usbDev.HwSetting;
 	int            iLampStatus = usb_GetLampStatus( dev );
 	int            lampId      = -1;
@@ -678,23 +825,9 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 
 			memset( &a_bRegs[0x29], 0, (0x37-0x29+1));
 			
-			/*
-			 * EPSON specific stuff
-			 */
 			a_bRegs[0x29] = hw->bReg_0x29;
-			
-			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
 
-				a_bRegs[0x5b] = 0x94;
-	            usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
-			
- 			} else if(_WAF_MISC_IO3_LAMP ==
-								   (_WAF_MISC_IO3_LAMP & sc->workaroundFlag)) {
- 				
- 				a_bRegs[0x5a] |= 0x08;
- 				usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
- 				
-			} else {
+			if( !usb_switchLamp(dev, SANE_TRUE )) {
 
 				if( lampId == DEV_LampReflection ) {
 					a_bRegs[0x2e] = 16383 / 256;
@@ -706,8 +839,8 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 					a_bRegs[0x37] = 16383 % 256;
 				}
 			}				
-			
-			if( hw->ScannerModel == MODEL_NOPLUSTEK ) {
+
+			if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 			
 				a_bRegs[0x2c] = hw->red_lamp_on / 256;
 				a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
@@ -727,7 +860,7 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 			
 			sanei_lm983x_write( dev->fd, 0x29,
 								&a_bRegs[0x29], 0x37-0x29+1, SANE_TRUE );
-								
+
 			if( lampId != dev->usbDev.currentLamp ) {
 			
 				dev->usbDev.currentLamp = lampId;
@@ -751,23 +884,7 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 		
 			memset( &a_bRegs[0x29], 0, 0x37-0x29+1 );
 
-			a_bRegs[0x29] = hw->bReg_0x29;
-			
-			/*
-			 * EPSON specific stuff
-			 */
-			if(_WAF_MISC_IO6_LAMP==(_WAF_MISC_IO6_LAMP & sc->workaroundFlag)) {
-
-				a_bRegs[0x5b] = 0x14;
-	            usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
-			
- 			} else if( _WAF_MISC_IO3_LAMP ==
-	 							   (_WAF_MISC_IO3_LAMP & sc->workaroundFlag)) {
-	 								
- 				a_bRegs[0x5a] &= ~0x08;
- 				usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
-			
-			} else {
+			if( !usb_switchLamp(dev, SANE_FALSE )) {
 			
 				if( iStatusChange & DEV_LampReflection ) {
 					a_bRegs[0x2e] = 16383 / 256;
@@ -780,7 +897,7 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
 				}					
 			}
 			
-			if( hw->ScannerModel == MODEL_NOPLUSTEK ) {
+			if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 			
 				a_bRegs[0x2c] = hw->red_lamp_on / 256;
 				a_bRegs[0x2d] = hw->red_lamp_on & 0xFF;
@@ -832,6 +949,7 @@ static void usb_ResetRegisters(  pPlustek_Device dev )
 {
 	pHWDef hw = &dev->usbDev.HwSetting;
 
+	DBG( _DBG_INFO, "RESETTING REGISTERS\n" );
 	memset( a_bRegs, 0, sizeof(a_bRegs));
 
 	memcpy( a_bRegs+0x0b, &hw->bSensorConfiguration, 4 );
@@ -848,7 +966,7 @@ static void usb_ResetRegisters(  pPlustek_Device dev )
 	memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
 }
 
-/*.............................................................................
+/** usb_ModuleStatus
  *
  */
 static SANE_Bool usb_ModuleStatus( pPlustek_Device dev )
@@ -856,8 +974,9 @@ static SANE_Bool usb_ModuleStatus( pPlustek_Device dev )
 	u_char value;
 	pHWDef hw = &dev->usbDev.HwSetting;
 
+/* HEINER: Maybe needed to avoid recalibration!!! */
 #if 0
-	if(Calibration.fCalibrated)
+	if( dev->scanning.fCalibrated )
 		return SANE_TRUE;
 #endif
 
@@ -910,6 +1029,9 @@ static void usb_LampTimerIrq( int sig )
 	    	dev_xxx->fd = handle;
 		}		
 	}
+
+	/* needs to be recalibrated */
+	dev_xxx->scanning.fCalibrated = SANE_FALSE;
 	
 	if( -1 != dev_xxx->fd )
 		usb_LampOn( dev_xxx, SANE_FALSE, SANE_FALSE );
@@ -920,7 +1042,7 @@ static void usb_LampTimerIrq( int sig )
 	}
 }
 
-/*.............................................................................
+/** usb_StartLampTimer
  *
  */
 static void usb_StartLampTimer( pPlustek_Device dev )
@@ -961,7 +1083,7 @@ static void usb_StartLampTimer( pPlustek_Device dev )
 	}		
 }
 
-/*.............................................................................
+/** usb_StopLampTimer
  *
  */
 static void usb_StopLampTimer( pPlustek_Device dev )

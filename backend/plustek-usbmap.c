@@ -11,6 +11,7 @@
  * 0.40 - starting version of the USB support
  * 0.41 - fixed brightness problem for lineart mode
  * 0.42 - removed preset of linear gamma tables
+ * 0.43 - no changes
  *
  *.............................................................................
  *
@@ -171,7 +172,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		} else {
 			fInverse = 0;
 		}
-		
+
 		if( /*scanning->dwFlag & SCANFLAG_Pseudo48 && */
 			scanning->sParam.bSource == SOURCE_Negative ) {
 			fInverse ^= 1;
@@ -181,7 +182,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 									!(scanning->dwFlag & SCANFLAG_Pseudo48)) {
 			fInverse ^= 1;
 		}	
-		
+
 		if( fInverse ) {
 		
 			u_char  map[_MAP_SIZE];

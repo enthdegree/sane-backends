@@ -1,34 +1,35 @@
+# translation of saneopts.es.po to Castellano
 # Translation file for common options from the file saneopts.h
 # Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
 # Based on the translation file for the UMAX and Mustek backends
+# Gustavo D. Vranjes <gvranjes@abaconet.com.ar>, 2002
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.7\n"
+"Project-Id-Version: saneopts.es\n"
 "POT-Creation-Date: 2002-01-18 22:49+0100\n"
-"PO-Revision-Date: 2002-03-05 01:45GMT\n"
+"PO-Revision-Date: 2002-06-06 22:24GMT\n"
 "Last-Translator: Gustavo D. Vranjes <gvranjes@abaconet.com.ar>\n"
 "Language-Team: Castellano <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=ISO-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 0.9.5\n"
+"X-Generator: KBabel 1.0beta1\n"
 
 #: .tmp/saneopts.h:105
 msgid "Number of options"
 msgstr "Número de opciones"
 
 #: .tmp/saneopts.h:106
-
 msgid "Preview"
 msgstr "Previsualizar"
 
 #: .tmp/saneopts.h:107
 msgid "Force monochrome preview"
-msgstr ""
+msgstr "Forzar vista previa monocroma"
 
 #: .tmp/saneopts.h:108
 msgid "Bit depth"
-msgstr ""
+msgstr "Profundidad de bit"
 
 # Scanmodus
 #: .tmp/saneopts.h:109
@@ -45,7 +46,7 @@ msgstr "Fuente de Escaneo"
 
 #: .tmp/saneopts.h:112
 msgid "Force backtracking"
-msgstr ""
+msgstr "Forzar backtracking"
 
 #: .tmp/saneopts.h:113
 msgid "Top-left x"
@@ -100,17 +101,16 @@ msgid "Brightness"
 msgstr "Brillo"
 
 #: .tmp/saneopts.h:126
-
 msgid "Contrast"
 msgstr "Contraste"
 
 #: .tmp/saneopts.h:127
 msgid "Grain size"
-msgstr ""
+msgstr "Tamaño del grano"
 
 #: .tmp/saneopts.h:128
 msgid "Halftoning"
-msgstr ""
+msgstr "Mediostonos"
 
 #: .tmp/saneopts.h:129
 msgid "Black level"
@@ -121,7 +121,6 @@ msgid "White level"
 msgstr "Nivel de Blanco"
 
 #: .tmp/saneopts.h:131
-
 msgid "Shadow"
 msgstr "Sombra"
 
@@ -154,22 +153,18 @@ msgid "Highlight for blue"
 msgstr "Resaltado para azul"
 
 #: .tmp/saneopts.h:139
-
 msgid "Hue"
 msgstr "Tono"
 
 #: .tmp/saneopts.h:140
-
 msgid "Saturation"
 msgstr "Saturación"
 
 #: .tmp/saneopts.h:141
-
 msgid "Filename"
 msgstr "Nombre de archivo"
 
 #: .tmp/saneopts.h:142
-
 msgid "Halftone pattern size"
 msgstr "Medida del patrón de mediotono"
 
@@ -182,7 +177,6 @@ msgid "Bind X and Y resolution"
 msgstr "Enlazar resoluciones X e Y"
 
 #: .tmp/saneopts.h:145
-
 msgid "Negative"
 msgstr "Negativo"
 
@@ -192,11 +186,11 @@ msgstr "Calibración de calidad"
 
 #: .tmp/saneopts.h:147
 msgid "Double Optical Resolution"
-msgstr ""
+msgstr "Doble Resolución Óptica"
 
 #: .tmp/saneopts.h:148
 msgid "Bind RGB"
-msgstr ""
+msgstr "Enlazar RGB"
 
 #: .tmp/saneopts.h:149
 msgid "Threshold"
@@ -204,39 +198,39 @@ msgstr "Umbral"
 
 #: .tmp/saneopts.h:150
 msgid "Analog gamma correction"
-msgstr ""
+msgstr "Corrección de gamma analógica"
 
 #: .tmp/saneopts.h:151
 msgid "Analog gamma red"
-msgstr ""
+msgstr "Gamma analógico rojo"
 
 #: .tmp/saneopts.h:152
 msgid "Analog gamma green"
-msgstr ""
+msgstr "Gamma analógico verde"
 
 #: .tmp/saneopts.h:153
 msgid "Analog gamma blue"
-msgstr ""
+msgstr "Gamma analógico azul"
 
 #: .tmp/saneopts.h:154
 msgid "Bind analog gamma"
-msgstr ""
+msgstr "Enlazar gamma analógico"
 
 #: .tmp/saneopts.h:155
 msgid "Smear"
-msgstr ""
+msgstr "Tiznar"
 
 #: .tmp/saneopts.h:156
 msgid "10 bit-mode"
-msgstr ""
+msgstr "Modo de 10 bits"
 
 #: .tmp/saneopts.h:157
 msgid "12 bit-mode"
-msgstr ""
+msgstr "Modo de 12 bits"
 
 #: .tmp/saneopts.h:158
 msgid "Warmup lamp"
-msgstr ""
+msgstr "Lámpara de calentamiento"
 
 #: .tmp/saneopts.h:159
 msgid "Preview patch"
@@ -569,7 +563,7 @@ msgstr "Definir tiempo de exposición para escaneo de azul"
 
 #: .tmp/saneopts.h:354
 msgid "Enable selection of exposure-time"
-msgstr ""
+msgstr "Establecer selección del tiempo de exposición"
 
 #: .tmp/saneopts.h:356
 msgid "Define lamp density for calibration"
@@ -581,5 +575,5 @@ msgstr "Definir densidad de la lámpara para escanear"
 
 #: .tmp/saneopts.h:360
 msgid "Enable selection of lamp density"
-msgstr ""
+msgstr "Establecer selección de la densidad de la lámpara"
 

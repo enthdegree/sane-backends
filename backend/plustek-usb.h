@@ -14,6 +14,8 @@
  * 0.42 - added MODEL_NOPLUSTEK
  *        replaced fLM9831 by chip (valid entries: _LM9831, _LM9832, _LM9833)
  *        added _WAF_MISC_IO3_LAMP for UMAX 3400
+ * 0.43 - added _WAF_MISC_IOx_LAMP (x=1,2,4,5)
+ *        added CLKDef
  *
  *.............................................................................
  *
@@ -126,15 +128,6 @@ typedef enum _CHIPSET
 	_LM9833
 } eChipDef;
 
-typedef enum
-{
-	MODEL_KaoHsiung,
-	MODEL_HuaLien,
-	MODEL_Tokyo600,
-	MODEL_NOPLUSTEK
-} eModelDef;
-
-
 /* ScanParam.bCalibration */
 enum _SHADINGID
 {
@@ -178,9 +171,40 @@ enum _WORKAROUNDS
 {
 	_WAF_NONE               = 0x00000000,   /* no fix anywhere needed        */
 	_WAF_BSHIFT7_BUG		= 0x00000001,	/* to fix U12 bug in 14bit mode  */
-	_WAF_MISC_IO6_LAMP      = 0x00000002,   /* to make EPSON1250 lamp work   */
-	_WAF_MISC_IO3_LAMP      = 0x00000004    /* to make Umax 3400 lamp work   */
+	_WAF_MISC_IO_LAMPS      = 0x00000002,   /* special lamp switching        */
+	_WAF_BLACKFINE          = 0x00000004    /* use black calibration strip   */
 };
+
+enum _LAMPS
+{
+	_NO_MIO = 0,
+	_MIO1   = 0x0001,
+	_MIO2   = 0x0002,
+	_MIO3   = 0x0004,
+	_MIO4   = 0x0008,
+	_MIO5   = 0x0010,
+	_MIO6   = 0x0020
+};
+
+#define _TPA(flag)          ((u_long)(flag << 16))
+#define _HAS_TPA(flag)		(flag & 0xFFFF0000)
+#define _GET_TPALAMP(flag)	(flag >> 16)
+
+/* motor types */
+typedef enum
+{
+	MODEL_KaoHsiung = 0,
+	MODEL_HuaLien,
+	MODEL_Tokyo600,
+	MODEL_NOPLUSTEK_600,  /* for 600 dpi models  */
+	MODEL_NOPLUSTEK_1200, /* for 1200 dpi models */
+	MODEL_MUSTEK600,      /* for BearPaw 1200    */
+	MODEL_MUSTEK1200,     /* for BearPaw 2400    */
+	MODEL_HP,             /* for HP2x00          */
+	MODEL_LAST
+} eModelDef;
+
+#define _IS_PLUSTEKMOTOR(x) (x<=MODEL_Tokyo600)
 
 /* Generic usage */
 enum _CHANNEL
@@ -255,6 +279,7 @@ typedef struct DevCaps
 	u_char		bPCB;			/* PCB ID                                    */
 	u_long		workaroundFlag;	/* Flag to allow special work arounds, see   */
 	                            /* _WORKAROUNDS                              */
+	u_long      lamp;           /* for lamp: loword: normal, hiword: tpa     */
 
 } DCapsDef, *pDCapsDef;
 
@@ -331,8 +356,8 @@ typedef struct HWDefault
 	u_char				bReg_0x5d;
 	u_char				bReg_0x5e;
 	
-	eChipDef            chip;           /* chiptype          */
-    eModelDef			ScannerModel; 	/* to identify Model */
+	eChipDef            chip;           /* chiptype               */
+    eModelDef			motorModel; 	/* to identify used motor */
 
 } HWDef, *pHWDef;
 
@@ -354,11 +379,7 @@ typedef struct DeviceDef
 	u_long	    dwTicksLampOn;   /* The ticks when lamp turns on             */
 	u_long	    dwLampOnPeriod;  /* How many seconds to keep lamp on         */
 	SANE_Bool	bLampOffOnEnd;   /* switch lamp off on end or keep cur. state*/
-/* HEINER: REMOVE */	
 	int		    currentLamp;	 /* The lamp ID                              */
-#if 0	
-	u_char	    bLastColor;	     /* The last color channel comes from CCD    */
-#endif	
 	u_char	    bStepsToReverse; /* reg 0x50, this value is from registry    */
 	u_long      dwBufferSize;    /*                                          */
 
@@ -434,7 +455,7 @@ typedef struct
 
 struct Plustek_Device;
 
-/*
+/**
  *
  */
 typedef struct ScanDef
@@ -489,6 +510,49 @@ typedef struct ScanDef
 	u_char				bLinesToSkip;
 
 } ScanDef, *pScanDef;
+
+
+#define _MAX_CLK	10
+
+/**
+ *
+ */
+typedef struct
+{
+	u_char pwm;
+	u_char pwm_duty;
+
+} MDef, *pMDef;
+
+/**
+ * array used to get motor-settings and mclk-settings
+ */
+static int dpi_ranges[] = {	75,100,150,200,300,400,600,800,1200,2400 };
+
+/**
+ *
+ */
+typedef struct {
+
+	eModelDef motorModel;
+
+	u_char pwm_fast;
+	u_char pwm_duty_fast;
+	u_char mclk_fast;
+
+    /*
+     * here we define some ranges for better supporting
+     * non-Plustek devices with it's different hardware
+     * we can set the MCLK and the motor PWM stuff for color
+     * and gray modes
+     *    0    1     2     3     4     5     6      7     8      9
+     * <= 75 <=100 <=150 <=200 <=300 <=400 <=600 <= 800 <=1200 <=2400DPI
+     */
+	MDef   motor_sets[_MAX_CLK];
+	double color_mclk[_MAX_CLK];
+	double gray_mclk[_MAX_CLK];
+
+} ClkMotorDef, *pClkMotorDef;
 
 #endif	/* guard __PLUSTEK_USB_H__ */
 

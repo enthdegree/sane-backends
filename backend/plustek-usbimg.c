@@ -12,6 +12,7 @@
  * 0.40 - starting version of the USB support
  * 0.41 - fixed the 14bit problem for LM9831 devices
  * 0.42 - no changes
+ * 0.43 - no changes
  *
  *.............................................................................
  *

@@ -15,6 +15,7 @@
  *        added setmap function
  *        changed detection stuff, so we first check whether
  *        the vendor and product Ids match with the ones in our list
+ * 0.43 - cleanup
  *
  *.............................................................................
  *
@@ -132,6 +133,13 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 			break;
 		}
 	}
+
+	if( vendor == 0x04B8 ) {
+		if( dev->adj.enableTpa ) {
+			DBG( _DBG_INFO, "Enabled TPA for EPSON\n" );
+  			dev->usbDev.Caps.wFlags |= DEVCAPSFLAG_TPA;
+     	}
+    }
 
 	dev->usbDev.currentLamp = usb_GetLampStatus( dev );
 	
@@ -373,13 +381,14 @@ static int usbDev_open( const char *dev_name, void *misc )
 		return -1;
     }
 
-#if 0
+#if 1
 	dev->fd = handle;
-    usbio_ResetLM983x( dev );
+    usbio_ResetLM983x ( dev );
+	usb_IsScannerReady( dev );
 	dev->fd = -1;
-#endif	
-
+#else	
 	sanei_lm983x_reset( handle );
+#endif
 
 	/*
 	 * Plustek uses the misc IO 1/2 to get the PCB ID
@@ -469,8 +478,8 @@ static int usbDev_getCaps( Plustek_Device *dev )
     return 0;
 }
 
-/*.............................................................................
- *
+/** usbDev_getLensInfo
+ * set the info for the scan-area.
  */
 static int usbDev_getLensInfo( Plustek_Device *dev, pLensInfo lens )
 {
@@ -499,30 +508,15 @@ static int usbDev_getLensInfo( Plustek_Device *dev, pLensInfo lens )
 	lens->rDpiY.wMax 	  = (dev->usbDev.Caps.OpticDpi.x *16);
 	lens->rDpiY.wPhyMax   = (dev->usbDev.Caps.OpticDpi.x * 2);
 
-    return 0;
-}
+	lens->rDpiY.wMin      = dev->usbDev.Caps.Normal.MinDpi.y;
 
-/*
- * HEINER: workaround - remove it!!!!
- */
-static ImgDef xxx;
-
-/*.............................................................................
- * HEINER: No function, should be removed from backend and driver as well
- */
-static int usbDev_putImgInfo( Plustek_Device *dev, pImgDef img )
-{
-	DBG( _DBG_INFO, "usbDev_putImgInfo()\n" );
-
-    _VAR_NOT_USED(dev);
-
-	memcpy( &xxx, img, sizeof(ImgDef));
+	DBG( _DBG_INFO, "wMAX=%u, WPHYMAX=%u\n", lens->rDpiY.wMax, lens->rDpiY.wPhyMax );
 
     return 0;
 }
 
-/*.............................................................................
- *
+/** usbDev_getCropInfo
+ * function to set the image relevant stuff
  */
 static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 {
@@ -531,8 +525,6 @@ static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
 	DBG( _DBG_INFO, "usbDev_getCropInfo()\n" );
 
     _VAR_NOT_USED(dev);
-
-	memcpy( &ci->ImgDef, &xxx, sizeof(ImgDef));
 
 	usb_GetImageInfo( &ci->ImgDef, &size );
 
@@ -627,6 +619,13 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
     dev->scanning.dwFlag = si->ImgDef.dwFlag & (SCANFLAG_bgr | SCANFLAG_BottomUp | SCANFLAG_Invert |
 		    								    SCANFLAG_DWORDBoundary | SCANFLAG_RightAlign |
     								   SCANFLAG_StillModule | SCANDEF_Adf | SCANDEF_ContinuousScan);
+
+	if( !(SCANDEF_QualityScan & si->ImgDef.dwFlag)) {
+		DBG( _DBG_INFO, "Preview Mode set!\n" );
+	} else {
+		DBG( _DBG_INFO, "Preview Mode NOT set!\n" );
+		dev->scanning.dwFlag |= SCANDEF_QualityScan;
+	}
 
     dev->scanning.sParam.siThreshold = si->siBrightness;
     dev->scanning.sParam.brightness  = si->siBrightness;
@@ -736,18 +735,28 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 
 	DBG( _DBG_INFO, "usbDev_startScan()\n" );
 
+/* HEINER: PReview currently not working correctly */
+#if 0
+	if( scanning->dwFlag & SCANDEF_QualityScan )
+		a_bRegs[0x0a] = 0;
+	else
+		a_bRegs[0x0a] = 1;
+#endif
 	a_bRegs[0x0a] = 0;
+
 
 	/* Allocate shading buffer */
 	if((dev->scanning.dwFlag & SCANDEF_Adf) &&
 	   (dev->scanning.dwFlag & SCANDEF_ContinuousScan)) {
 		dev->scanning.fCalibrated = SANE_TRUE;
 	} else {
+
 		dev->scanning.fCalibrated = SANE_FALSE;
 		iSkipLinesForADF = 0;
 	}
 
-	scanning->sParam.PhyDpi.x = usb_SetAsicDpiX( dev, scanning->sParam.UserDpi.x );
+	scanning->sParam.PhyDpi.x = usb_SetAsicDpiX(dev,scanning->sParam.UserDpi.x);
+	scanning->sParam.PhyDpi.y = usb_SetAsicDpiY(dev,scanning->sParam.UserDpi.y);
 	scanning->pScanBuffer = (u_char*)malloc( dev->usbDev.dwBufferSize );
 
 	if( NULL != scanning->pScanBuffer ) {
@@ -774,11 +783,9 @@ static int usbDev_readImage( struct Plustek_Device *dev,
                              SANE_Byte *buf, unsigned long data_length )
 {
     int            result, lines;
-	u_long         dw;
-    struct timeval t;
+    u_long         dw;
     pScanDef       scanning = &dev->scanning;
 	pDCapsDef      scaps    = &dev->usbDev.Caps;
-	pHWDef         hw       = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_INFO, "usbDev_readImage()\n" );
 
@@ -787,23 +794,6 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	 */
 	usb_ModuleStatus( dev );
 	
-	/*
-	 * wait until warmup period has been elapsed
-	 */
-	DBG(_DBG_INFO,"Warmup: Waiting %lu seconds\n",dev->usbDev.dwWarmup );
-	
-	do {
-		gettimeofday( &t, NULL);	
-		
-		dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
-		
-		if( usb_IsEscPressed()) {
-			DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
-			return 0;
-		}
-		
-	} while( dw < dev->usbDev.dwWarmup );
-
     result = usb_DoCalibration( dev );
     if( SANE_TRUE != result ) {
 		DBG( _DBG_INFO, "calibration failed!!!\n" );
@@ -811,7 +801,6 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	}
 
 	DBG( _DBG_INFO, "calibration done.\n" );
-
 	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {
 
 		usleep( 10 * 1000 );
@@ -893,23 +882,13 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 					break;
 					
 				case SENSORORDER_bgr:
-					if( hw->ScannerModel == MODEL_Tokyo600 ) {
-						scanning->Red.pb   = scanning->pbScanBufBegin;
-						scanning->Green.pb = scanning->pbScanBufBegin +
-							                 scanning->dwLinesDiscard *
-                                             scanning->sParam.Size.dwPhyBytes;
-						scanning->Blue.pb  = scanning->pbScanBufBegin +
-							                 scanning->dwLinesDiscard *
+					scanning->Blue.pb  = scanning->pbScanBufBegin;
+					scanning->Green.pb = scanning->pbScanBufBegin +
+						                 scanning->dwLinesDiscard *
+                                         scanning->sParam.Size.dwPhyBytes;
+					scanning->Red.pb   = scanning->pbScanBufBegin +
+						                 scanning->dwLinesDiscard *
                                         scanning->sParam.Size.dwPhyBytes * 2UL;
-					} else {
-						scanning->Blue.pb  = scanning->pbScanBufBegin;
-						scanning->Green.pb = scanning->pbScanBufBegin +
-							                 scanning->dwLinesDiscard *
-                                             scanning->sParam.Size.dwPhyBytes;
-						scanning->Red.pb   = scanning->pbScanBufBegin +
-							                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes * 2UL;
-					}
 				}
 
 				/* double it for last channel */
@@ -950,8 +929,8 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	
 			return _E_INTERNAL;
 		}
-
-		scanning->dwFlag |= SCANFLAG_Scanning;
+		
+  		scanning->dwFlag |= SCANFLAG_Scanning;
 
 		if( scanning->sParam.UserDpi.y != scanning->sParam.PhyDpi.y ) {
 		
@@ -1007,7 +986,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	DBG(_DBG_INFO,"dwBytesLine      = %lu\n",scanning->dwBytesLine  );
 
 	scanning->pbGetDataBuf = scanning->pbScanBufBegin;
-	
+
 	lines = usb_ReadData( dev  );
 	if( 0 == lines )
 		return _E_DATAREAD;

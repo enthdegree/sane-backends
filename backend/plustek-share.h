@@ -22,6 +22,7 @@
  * 0.42 - added FLAG_CUSTOM_GAMMA and _MAP_ definitions
  *        changed IOCTL interface to allow downloadable MAPS
  *        added error codes
+ * 0.43 - added tpa entry for AdjDef
  *
  *.............................................................................
  *
@@ -234,6 +235,7 @@ typedef struct {
 	int     lampOff;
 	int     lampOffOnEnd;
 	int     warmup;
+	int     enableTpa;
 
 	OffsDef pos; 	/* for adjusting normal scan area       */
 	OffsDef tpa; 	/* for adjusting transparency scan area */

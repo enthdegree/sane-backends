@@ -49,6 +49,7 @@
  *        fixed a bug that causes segfault when using the autodetection for USB
  *        devices
  *        added OS/2 switch to disable the USB stuff for OS/2
+ * 0.43 - added support for PREVIEW flag
  *
  *.............................................................................
  *
@@ -140,6 +141,7 @@
 #define _DBG_INFO       5
 #define _DBG_PROC       7
 #define _DBG_SANE_INIT 10
+#define _DBG_INFO2     13
 #define _DBG_READ      15
 
 /*****************************************************************************/
@@ -593,7 +595,9 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
  */
 static SANE_Status limitResolution( Plustek_Device *dev )
 {
-	dev->dpi_range.min = _DEF_DPI;
+	dev->dpi_range.min = /*lens.rDpiY.wMin; */ _DEF_DPI;
+ 	if( dev->dpi_range.min < _DEF_DPI )
+		dev->dpi_range.min = _DEF_DPI;
 
 	/*
 	 * CHANGE: limit resolution to max. physical available one
@@ -803,6 +807,13 @@ static SANE_Status init_options( Plustek_Scanner *s )
   	s->opt[OPT_CUSTOM_GAMMA].desc  = SANE_DESC_CUSTOM_GAMMA;
   	s->opt[OPT_CUSTOM_GAMMA].type  = SANE_TYPE_BOOL;
   	s->val[OPT_CUSTOM_GAMMA].w     = SANE_FALSE;
+
+	/* preview */
+	s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
+	s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
+	s->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
+	s->opt[OPT_PREVIEW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+	s->val[OPT_PREVIEW].w = 0;
 
 	/* "Geometry" group: */
 	s->opt[OPT_GEOMETRY_GROUP].name  = "geometry-group";
@@ -1151,7 +1162,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 		dev->getCaps     = usbDev_getCaps;
 		dev->getLensInfo = usbDev_getLensInfo;
 		dev->getCropInfo = usbDev_getCropInfo;
-		dev->putImgInfo  = usbDev_putImgInfo;
+		dev->putImgInfo  = NULL;
 		dev->setScanEnv  = usbDev_setScanEnv;
 		dev->startScan   = usbDev_startScan;
      	dev->stopScan    = usbDev_stopScan;
@@ -1349,8 +1360,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "warmup",    _INT, &config.adj.warmup,      &ival);
 			decodeVal( str, "lampOff",   _INT, &config.adj.lampOff,     &ival);
 			decodeVal( str, "lOffOnEnd", _INT, &config.adj.lampOffOnEnd,&ival);
-
+			
 			ival = 0;
+   			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival );
 			decodeVal( str, "posOffX", _INT, &config.adj.pos.x, &ival );
 			decodeVal( str, "posOffY", _INT, &config.adj.pos.y, &ival );
 
@@ -1626,6 +1638,7 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 
 		case SANE_ACTION_GET_VALUE:
 			switch (option) {
+			case OPT_PREVIEW:
 			case OPT_NUM_OPTS:
 			case OPT_RESOLUTION:
 			case OPT_TL_X:
@@ -1706,6 +1719,8 @@ SANE_Status sane_control_option( SANE_Handle handle, SANE_Int option,
 	    		    break;
 
 		      	}
+
+				case OPT_PREVIEW:
     			case OPT_TL_X:
 	    		case OPT_TL_Y:
 		    	case OPT_BR_X:
@@ -2112,11 +2127,18 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	sinfo.ImgDef.wLens = s->hw->caps.wLens;
 
-	result = s->hw->putImgInfo( s->hw, &sinfo.ImgDef );
-	if( result < 0 ) {
-		DBG( _DBG_ERROR, "dev->putImgInfo failed(%d)\n", result );
-		s->hw->close( s->hw );
-		return SANE_STATUS_IO_ERROR;
+	/* only for parallel-port devices */
+	if( s->hw->putImgInfo ) {
+		result = s->hw->putImgInfo( s->hw, &sinfo.ImgDef );
+		if( result < 0 ) {
+			DBG( _DBG_ERROR, "dev->putImgInfo failed(%d)\n", result );
+			s->hw->close( s->hw );
+			return SANE_STATUS_IO_ERROR;
+		}
+	} else {
+
+		memcpy( &(crop.ImgDef), &sinfo.ImgDef, sizeof(ImgDef));
+
 	}
 
 	result = s->hw->getCropInfo( s->hw, &crop );
@@ -2133,6 +2155,12 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	/* build a SCANINFO block and get ready to scan it */
 	sinfo.ImgDef.dwFlag |= (SCANDEF_BuildBwMap | SCANDEF_QualityScan);
+
+	/* remove that for preview scans (USB only) */
+	if( _ASIC_IS_USB == s->hw->caps.AsicID ) {
+		if( s->val[OPT_PREVIEW].w )
+			sinfo.ImgDef.dwFlag &= (~SCANDEF_QualityScan);
+	}
 
     /* set adjustments for brightness and contrast */
 	sinfo.siBrightness = s->val[OPT_BRIGHTNESS].w;

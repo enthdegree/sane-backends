@@ -35,6 +35,7 @@
  * 0.42 - added custom gamma tables
  *        changed usbId to static array
  *		  added _MAX_ID_LEN
+ * 0.43 - no changes
  *
  *.............................................................................
  *
@@ -127,6 +128,7 @@ enum {
     OPT_MODE,
 	OPT_EXT_MODE,
     OPT_RESOLUTION,
+    OPT_PREVIEW,
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,
     OPT_TL_Y,

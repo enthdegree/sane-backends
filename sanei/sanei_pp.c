@@ -59,6 +59,8 @@
 
 #define BACKEND_NAME sanei_pp
 
+#define _TEST_LOOPS 1000
+
 #ifndef _VAR_NOT_USED
 # define _VAR_NOT_USED(x)	((x)=(x))
 #endif
@@ -73,7 +75,16 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+#ifdef HAVE_LIMITS_H
+# include <limits.h>
+#else
+# ifndef ULONG_MAX
+#  define ULONG_MAX 4294967295UL
+# endif
+#endif
 #if defined (ENABLE_PARPORT_DIRECTIO)
 # undef HAVE_LIBIEEE1284
 # if defined(HAVE_SYS_IO_H)
@@ -135,6 +146,7 @@ inb( u_long port )
 
 /** our global init flag... */
 static int first_time = SANE_TRUE;
+static unsigned long pp_thresh = 0;
 
 #if (defined (HAVE_IOPERM) || defined (HAVE_LIBIEEE1284)) && !defined (IO_SUPPORT_MISSING)
 
@@ -510,6 +522,77 @@ no_ecp:
 }
 #endif
 
+static unsigned long
+pp_time_diff( struct timeval *start, struct timeval *end )
+{
+	double s, e, r;
+
+	s = (double)start->tv_sec * 1000000.0 + (double)start->tv_usec;
+	e = (double)end->tv_sec   * 1000000.0 + (double)end->tv_usec;
+	r = (e - s);
+
+	if( r <= (double)ULONG_MAX )
+		return (unsigned long)r;
+
+	return 0;
+}
+
+/**
+ */
+static unsigned long
+pp_calculate_thresh( void )
+{
+	unsigned long  i, r;
+	struct timeval start, end, deadline;
+
+	gettimeofday( &start, NULL);
+
+	for( i = _TEST_LOOPS; i; i-- ) {
+
+		gettimeofday( &deadline, NULL );
+		deadline.tv_usec += 10;
+		deadline.tv_sec  += deadline.tv_usec / 1000000;
+		deadline.tv_usec %= 1000000;
+	}
+
+	gettimeofday( &end, NULL);
+
+	r = pp_time_diff( &start, &end );
+	return (r/_TEST_LOOPS);
+}
+
+/**
+ */
+static void
+pp_calibrate_delay( void )
+{
+	unsigned long  r, i;
+	struct timeval start, end;
+
+    for( i = 0; i < 5; i++ ) {
+
+		pp_thresh = pp_calculate_thresh();
+		gettimeofday( &start, NULL);
+
+		for( i = _TEST_LOOPS; i; i-- ) {
+			sanei_pp_udelay( 1 );
+		}
+		gettimeofday( &end, NULL);
+
+		r = pp_time_diff( &start, &end );
+
+		DBG( 4, "pp_calibrate_delay: Delay expected: "
+				"%u, real %lu, pp_thresh=%lu\n", _TEST_LOOPS, r, pp_thresh );
+
+		if( r >= _TEST_LOOPS ) {
+			return;
+		}
+	}
+
+	DBG( 4, "pp_calibrate_delay: pp_thresh set to 0\n" );
+	pp_thresh = 0;
+}
+
 static SANE_Status
 pp_init( void )
 {
@@ -573,21 +656,15 @@ pp_init( void )
 static int
 pp_open( const char *dev, SANE_Status * status )
 {
-	int i, result;
+	int i;
 #if !defined (HAVE_LIBIEEE1284)
 	u_long base;
+#else
+	int result;
 #endif
   
 	DBG( 4, "pp_open: trying to attach dev `%s`\n", dev );
 
-	result = pp_init();
-	if( result != SANE_STATUS_GOOD ) {
-
-		DBG( 1, "pp_open: failed to initialize\n" );
-		*status = result;
-		return -1;
-	}
-  
 #if !defined (HAVE_LIBIEEE1284)
 {
 	char *end;
@@ -740,6 +817,22 @@ pp_close( int fd, SANE_Status *status )
 }
 
 /** exported functions **/
+
+SANE_Status
+sanei_pp_init( void )
+{
+	SANE_Status result;
+	
+	DBG_INIT();
+
+	result = pp_init();
+	if( result != SANE_STATUS_GOOD ) {
+		return result;
+	}
+
+	pp_calibrate_delay();
+	return SANE_STATUS_GOOD;
+}
 
 SANE_Status
 sanei_pp_open( const char *dev, int *fd )
@@ -993,6 +1086,25 @@ sanei_pp_getmode( int fd, int *mode )
     return SANE_STATUS_GOOD;
 }
 
+void
+sanei_pp_udelay( unsigned long usec )
+{
+	struct timeval now, deadline;
+
+	if( usec <= pp_thresh )
+		return;
+
+	gettimeofday( &deadline, NULL );
+	deadline.tv_usec += usec;
+	deadline.tv_sec  += deadline.tv_usec / 1000000;
+	deadline.tv_usec %= 1000000;
+
+	do {
+		gettimeofday( &now, NULL );
+	} while ((now.tv_sec < deadline.tv_sec) ||
+		(now.tv_sec == deadline.tv_sec && now.tv_usec < deadline.tv_usec));
+}
+
 #else /* !HAVE_IOPERM */
 
 SANE_Status
@@ -1105,4 +1217,10 @@ sanei_pp_getmode( int fd, int *mode )
 	return SANE_STATUS_INVAL;
 }
 
+void
+sanei_pp_udelay( unsigned long usec )
+{
+	_VAR_NOT_USED( usesc );
+	DBG( 2, "sanei_pp_udelay: not supported\n" );
+}
 #endif /* !HAVE_IOPERM */

@@ -58,6 +58,12 @@ enum sanei_pp_mode {
 	SANEI_PP_MODE_ECP  = (1<<8)
 };
 
+/** Initialize sanei_pp.
+ *
+ * This function must be called before any other sanei_pp function.
+ */
+extern SANE_Status sanei_pp_init( void );
+
 /**
  * Function to open a parport device. 
  *
@@ -114,5 +120,14 @@ extern SANE_Byte sanei_pp_inb_data( int fd );
 extern SANE_Byte sanei_pp_inb_stat( int fd );
 extern SANE_Byte sanei_pp_inb_ctrl( int fd );
 extern SANE_Byte sanei_pp_inb_epp ( int fd );
+
+/** function to delay execution for some micro-seconds.
+ *  Please not, that the accuracy highly depends on your system architechture
+ *  and the time to delay. It is internally implemented as system calls to
+ *  gettimeofday().
+ *
+ * @param usec - number of micro-seconds to delay
+ */
+extern void sanei_pp_udelay( unsigned long usec );
 
 #endif

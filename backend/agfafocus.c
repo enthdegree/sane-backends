@@ -235,6 +235,9 @@ test_ready (int fd)
 static SANE_Status
 sense_handler (int scsi_fd, u_char *result, void *arg)
 {
+  scsi_fd = scsi_fd;			/* silence gcc */
+  arg = arg;					/* silence gcc */
+
   if (result[0])
     {
       DBG (0, "sense_handler() : sense code = %02x\n", result[0]);
@@ -249,6 +252,8 @@ sense_handler (int scsi_fd, u_char *result, void *arg)
 static SANE_Status
 stop_scan (int fd)
 {
+  fd = fd;						/* silence gcc */
+
   /* XXX don't know how to stop the scanner. To be tested ! */
 #if 0
   const Byte scsi_rewind[] =
@@ -1271,6 +1276,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   size_t len;
   FILE *fp;
 
+  authorize = authorize;		/* silence gcc */
+
   DBG_INIT ();
 
   if (version_code)
@@ -1319,6 +1326,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   static const SANE_Device **devlist = 0;
   AgfaFocus_Device *dev;
   int i;
+
+  local_only = local_only;		/* silence gcc */
 
   if (devlist)
     free (devlist);

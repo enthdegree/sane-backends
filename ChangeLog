@@ -1,3 +1,9 @@
+2001-06-03  Peter Fales <peter@fales.com>
+
+	* backend/dc240.c - Batch scanning of multiple images with scanimage
+	  was failing if subsequent images have a different size than
+	  from the first image.
+
 2001-06-03  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/sane-epson.man: Updated documentation

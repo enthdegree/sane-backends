@@ -1,10 +1,14 @@
+2003-05-27  Frank Zago  <fzago at austin dot rr dot com>
+
+	* PROJECTS: Changed entry for win32 SANE project.
+
 2003-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/unsupported.html: Added link for Umax astra 4700.
 
 2003-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* configure configure.in: Don't disable IPv& if poll is not
+	* configure configure.in: Don't disable IPv6 if poll is not
 	  found.
 	* frontend/saned.c: Use u_int_* instead of uint_*. That fixes
 	  compilation for MacOS X (hopefully).

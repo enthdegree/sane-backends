@@ -189,12 +189,6 @@ sanei_authorize (const char *resource,
   while (sanei_config_read (line, 1024, passwd_file))
     {
 
-      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\n'))
-	line[strlen (line) - 1] = '\n';
-
-      if ((strlen (line) > 0) && (line[strlen (line) - 1] == '\r'))
-	line[strlen (line) - 1] = '\r';
-
       if (strchr (line, ':') != NULL)
 	{
 	  if (strchr (strchr (line, ':') + 1, ':') != NULL)

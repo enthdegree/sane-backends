@@ -2,6 +2,9 @@
 
 	* PROJECTS: Added link to backend for HP Scanjet 3300C / 3400C
 	  and 4300C scanners.
+	* po/Makefile.in po/README: Added basic support for translating
+	  option descriptions and titles of SANE backends. This is really
+	  alpha!
 
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

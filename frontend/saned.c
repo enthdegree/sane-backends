@@ -480,7 +480,7 @@ check_v4_in_range (struct sockaddr_in *sin, char *base_ip, char *netmask)
   int cidr;
   int i, err;
   char *end;
-  in_addr_t mask; 
+  u_int32_t mask; 
   struct sockaddr_in *base;
   struct addrinfo hints;
   struct addrinfo *res;

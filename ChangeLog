@@ -1,3 +1,8 @@
+2003-10-22  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: replaced in_addr_t mask; by u_int32_t mask; in
+	check_v4_in_range(). in_addr_t doesn't seem to exist on OS/2, and
+	it's nothing more than an unsigned 32 bits integer.
+
 2003-10-22  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* configure configure.in include/sane/config.in.h: added checks for iopl

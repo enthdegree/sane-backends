@@ -44,7 +44,7 @@ DISTFILES = AUTHORS COPYING ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
   README.hp-ux README.linux README.netbsd \
   README.openbsd README.os2 README.solaris README.unixware2 README.unixware7 \
   README.windows \
-  TODO acinclude.m4 aclocal.m4 config.guess config.sub configure \
+  acinclude.m4 aclocal.m4 config.guess config.sub configure \
   configure.in install-sh ltmain.sh mkinstalldirs \
   sane-backends.lsm
 

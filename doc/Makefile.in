@@ -58,7 +58,7 @@ READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.beos README.darwin README.freebsd \
 	  README.djpeg \
           README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
-          README.solaris README.unixware2 README.unixware7 TODO
+          README.solaris README.unixware2 README.unixware7 
 DOCS    = backend-writing.txt sane.ps sane.dvi
 BACKDIRS= canon leo matsushita mustek mustek_usb plustek umax sceptre teco gt68xx
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@

@@ -8,6 +8,8 @@
 	* backend/plustek-pp.*: changed file headers and copyright info
 	  applied some minor fixes
 	* doc/unsupported.desc: Added Plustek OpticPro S28 and S48
+	* Makefile.in doc/Makefile.in:
+	  removed TODO, as this file does no longer exist
 
 2003-09-23  Frank Zago  <fzago at austin dot rr dot com>
 

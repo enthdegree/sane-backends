@@ -186,6 +186,7 @@ typedef long long TimerDef, *pTimerDef;
  * and the communication stuff
  */
 #include "plustek-share.h"
+#include "plustek-pp.h"
 
 /*.............................................................................
  * WARNING: don't move the following headers above the previous defines !!!!!!!

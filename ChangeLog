@@ -1,3 +1,7 @@
+2001-05-07  Peter Fales <peter@fales.com>
+	* backend/dc25.[ch]: Cleaned up compiler warnings and fixed (very
+	  minor) memory leak.
+
 2001-05-07  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 	* applied a patch by Douglas Gilbert to sanei_scsi.c
           it solves the Problem that the scanner is not

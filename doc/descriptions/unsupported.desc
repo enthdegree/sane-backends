@@ -1086,12 +1086,17 @@
 :status :unsupported
 :comment "No further information available."
 
-:model "OpticBook 2000"
+:model "OpticWorks 2000"
+:interface "Parport"
+:status :unsupported
+:comment "Multifunction device. No further information available."
+
+:model "OpticBook 3600"
 :interface "USB"
 :status :unsupported
 :comment "Bookscanner. No further information available."
 
-:model "OpticBook 7200"
+:model "OpticFilm 7200"
 :interface "USB"
 :status :unsupported
 :comment "Filmscanner. No further information available."

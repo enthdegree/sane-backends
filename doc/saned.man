@@ -1,4 +1,4 @@
-.TH saned 1 "07 Apr 2002"
+.TH saned 1 "30 May 2002"
 .IX saned
 .SH NAME
 saned - SANE network daemon
@@ -81,7 +81,7 @@ and use a line of the following form in
 instead:
 .PP
 .RS
-sane stream tcp nowait saned.saned /usr/sbin/tcpd saned
+sane stream tcp nowait saned.saned /usr/sbin/tcpd @SBINDIR@/saned
 .RE
 .PP
 Note that both examples assume that there is a

@@ -1,3 +1,10 @@
+2004-03-27  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* backend/hp.c, hp-scl.c, hp.h, doc/sane-hp.man,
+	  doc-descriptions/hp.desc: Fix problem with USB-connections
+	  on Linux 2.6.x. Add environment SANE_HP_KEPPOPEN... and
+	  don't close connections for USB.
+
 2004-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Tevion MD 40420. Moved

@@ -1,3 +1,9 @@
+2001-10-07  Peter Fales <peter@fales.com>
+
+	* backend/gphoto2.desc: Cleaned up syntax errors
+	  doc/sane.man:  Added gphoto2 backend to digital camera section
+	  AUTHORS:  Added gphoto2 backend/author
+
 2001-10-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf backend/mustek_usb.desc

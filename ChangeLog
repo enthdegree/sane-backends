@@ -1,5 +1,11 @@
+2003-05-27  Frank Zago  <fzago at austin dot rr dot com>
+
+	* backend/teco2.c: fixed a bug regarding color shifting above X
+	  max resolution. Added more working resolutions for the VM3575.
+
 2003-06-05  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
-	* hp5400 backend : synchronized sourceforge CVS with SANE CVS, details below
+	* hp5400 backend : synchronized sourceforge CVS with SANE CVS,
+	  details below
 	  added :
 	   backend/hp5400_debug.c
 	   backend/hp5400_debug.h
@@ -11,9 +17,9 @@
 	   backend/hp5400.h
 	   backend/hp5400_internal.c
 	   backend/hp5400_sanei.c
-	   backend/hp5400_xfer.h
-	   	to compile and run (on linux 2.4.21) as SANE backend and in the
-		corresponding hp5400backend sourceforge project
+	   backend/hp5400_xfer.h	
+	   	to compile and run (on linux 2.4.21) as SANE backend and
+		in the corresponding hp5400backend sourceforge project
 
 2003-06-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

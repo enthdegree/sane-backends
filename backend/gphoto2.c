@@ -385,6 +385,17 @@ init_gphoto2 (void)
       return SANE_STATUS_INVAL;
     }
 
+  if (camera)
+    {
+      /*
+       * We get here if re-initializing the camera:  either because
+       * the user clicked the "re-establish" button, or we need to 
+       * recalculate the number of photos after taking a picture.  
+       * We must release the old camera before starting over. 
+       */
+      CHECK_RET (gp_camera_unref (camera));
+    }
+
   CHECK_RET (gp_camera_new (&camera));
 
   CHECK_RET (gp_abilities_list_new (&al));
@@ -450,7 +461,7 @@ init_gphoto2 (void)
       sod[GPHOTO2_OPT_SNAP].cap |= SANE_CAP_INACTIVE;
     }
 
-  if (!(abilities.operations & GP_OPERATION_CAPTURE_PREVIEW))
+  if (!(abilities.file_operations & GP_FILE_OPERATION_PREVIEW))
     {
       DBG (20, "Camera does not support image preview\n");
       sod[GPHOTO2_OPT_THUMBS].cap |= SANE_CAP_INACTIVE;
@@ -1574,6 +1585,16 @@ snap_pic (void)
     {
       DBG (1, "%s: Failed to set resolution\n", f);
       return SANE_STATUS_INVAL;
+    }
+
+  /* 
+   * This is needed when the camera has no files and the first picture
+   * is taken.  I guess it's because a folder needs to be created and
+   * the filesystem doesn't know about it.
+   */
+  if (Cam_data.pic_taken == 0)
+    {
+      gp_filesystem_reset (camera->fs);
     }
 
   CHECK_RET (gp_camera_capture (camera, GP_CAPTURE_IMAGE, &path, NULL));

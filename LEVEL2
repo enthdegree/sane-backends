@@ -1,4 +1,4 @@
-Sun Sep 17 20:42:20 CEST 2000
+Tue Nov  7 20:30:51 CET 2000
 
 Here are some ideas under discussion for the next major revision of
 the SANE API:
@@ -19,6 +19,9 @@ the SANE API:
 
  o add support for buttons etc. on the scanner/camera
 
+ o add support for sending messages from the backend to the frontend
+   (e.g. for warm up time)
+
  o Change of the version number system (the current standard version
    system is not really used in the SANE distribution).
 
@@ -31,8 +34,5 @@ the SANE API:
    Some way of indicating the number of channels possible, and some
    details (wavelength, bandwidth, ...)
 
- o 0 is white for sane in lineart and halftone, however, 0 is black for
-   the other modes. Possible reason: pnm data format. The SANE standard
-   doesn't talk about this. Should we change this for lineart/halftone?
 
 see sane-devel archive for more ideas

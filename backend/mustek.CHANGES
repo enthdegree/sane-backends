@@ -1,5 +1,47 @@
 CHANGES for the SANE Mustek backend
 
+2000-11-05
+  * Added support for TAIV for SE 12000 SP. Lamp is turned off while
+    scanning (seems to work for firmware >= 2.00)
+  * Adjusted transparency adapter support for all ScanExpress scanners.
+    The 12000 A3 SP can only do A4 beacuse I don't have the right TA.
+  * don't use u_int* types in mustek.h because the definitions for these 
+    types are not included
+
+2000-11-04
+  * SE scanners can now scan 75, 100, 150, 200, 250, 300, 400, 500, 600,
+    900 and 1200 dpi in color mode (the 1200 dpi models). These are fixed 
+    resolutions, a resolution >= the wanted resolution is selected. This
+    makes preview and some resolutions faster than before (at least for
+    some scanners), because lower resolutions can be used.
+  * Minimum scan resolution is 60 dpi in gray and lineart and 75 dpi in 
+    color mode for the SE scanners now.
+  
+2000-10-29
+  * Fixed a bug concerning block LD. Paragon 1 and 2 were exchanged.
+  * Paragon 12000SP color mode works now without garbage at the end
+  * Fixed Paragon 1200 SP Pro color mode > 600 dpi (rounding problem)
+  * Temporarily disabled 48 bit color mode for release
+
+2000-10-25
+  * Detect support for TA IV (transparency adapter for ScanExpress scanners)
+  * TA IV supported now; lamp is turned off at least for SE 1200 SP Plus
+    scanners
+  * Adjusted scan area for TA: SE 12000SP Plus
+  * Simplify enlarge x
+  * Set tl-y to 0 for all ScanExpress scanners
+  * First attempt to support 48 bits color mode (SE 12000 SP Plus)
+
+2000-10-22
+  * Detect SE 12000 SP Plus properly
+  * Cover sensor only checked for SE models that support this feature
+
+2000-10-21
+  * Removed MAX_BLOCKSIZE macro (not used anymore).
+
+2000-10-03
+  * Released backend version 1.0-98.
+  
 2000-10-03
   * Fixed segmentation fault in sane_init (else statement was missing). 
     Thanks to Oliver Rauch who spotted this problem.
@@ -48,7 +90,7 @@ CHANGES for the SANE Mustek backend
   * Paragon 6000CX uses pixel unit now (MSF-06000CZ).
   * Option "force backtracking" is enabled by default now
   * Option "scan speed" is set to "fastest" by default now
-  * Add option "force-warn" (for mustek.conf). If enabled, wait for scan
+  * Add option "force-wait" (for mustek.conf). If enabled, wait for scan
     head to return to start position after scan.
   * Make DBG output in sane_control_option() more readable
   * Better error handling and debug output in sane_get_option_descriptor()
@@ -100,7 +142,7 @@ CHANGES for the SANE Mustek backend
     !MUSTEK_FLAG_SINGLE_PASS).
   * Added flags for Paragon series I and II (MUSTEK_PLAG_PARAGON_1 and
     MUSTEK_PLAG_PARAGON_2).
-  * distinguish between three-pass, Paragon series 1, Paragon series 2,
+  * Distinguish between three-pass, Paragon series 1, Paragon series 2,
     ScanExpress, Pro and N type scanners.
   * Added support for scanning the whole image in one block without
     backtracking for the Paragon series II scanners.

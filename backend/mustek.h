@@ -55,12 +55,13 @@
 #define MUSTEK_FLAG_PARAGON_1   (1 << 1)   /* Paragon series I scanner */
 #define MUSTEK_FLAG_PARAGON_2   (1 << 2)   /* Paragon series II (A4) scanner */
 #define MUSTEK_FLAG_SE		(1 << 3)   /* ScanExpress scanner */
-#define MUSTEK_FLAG_PRO         (1 << 4)   /* Professional series scanner */
-#define MUSTEK_FLAG_N		(1 << 5)   /* N-type scanner (non SCSI) */
+#define MUSTEK_FLAG_SE_PLUS    	(1 << 4)   /* ScanExpress Plus scanner */
+#define MUSTEK_FLAG_PRO         (1 << 5)   /* Professional series scanner */
+#define MUSTEK_FLAG_N		(1 << 6)   /* N-type scanner (non SCSI) */
 /* additional equipment */
-#define MUSTEK_FLAG_ADF		(1 << 6)   /* automatic document feeder */
-#define MUSTEK_FLAG_ADF_READY	(1 << 7)   /* paper present */
-#define MUSTEK_FLAG_TA		(1 << 8)   /* transparency adapter */
+#define MUSTEK_FLAG_ADF		(1 << 7)   /* automatic document feeder */
+#define MUSTEK_FLAG_ADF_READY	(1 << 8)   /* paper present */
+#define MUSTEK_FLAG_TA		(1 << 9)   /* transparency adapter */
 /* line-distance correction */
 #define MUSTEK_FLAG_LD_NONE	(1 << 10)  /* no line-distance corr */
 #define MUSTEK_FLAG_LD_BLOCK    (1 << 11)  /* blockwise LD corr */
@@ -72,6 +73,7 @@
 #define MUSTEK_FLAG_USE_EIGHTS	(1 << 16)  /* use 1/8" lengths */
 #define MUSTEK_FLAG_FORCE_GAMMA (1 << 17)  /* force gamma table upload */
 #define MUSTEK_FLAG_ENLARGE_X   (1 << 18)  /* need to enlarge x-res */
+#define MUSTEK_FLAG_COVER_SENSOR (1 << 19) /* scanner can detect open cover */
 
 /* source values: */
 #define MUSTEK_SOURCE_FLATBED	0
@@ -84,6 +86,7 @@
 #define MUSTEK_MODE_COLOR	(1 << 2)	/* color 24 bits / pixel */
 #define MUSTEK_MODE_HALFTONE	(1 << 3)	/* use dithering */
 #define MUSTEK_MODE_GRAY_FAST   (1 << 4)        /* Pro series fast grayscale */
+#define MUSTEK_MODE_COLOR_48    (1 << 5)        /* color 48 bits / pixel */
 
 enum Mustek_Option
   {
@@ -156,7 +159,7 @@ typedef struct Mustek_Device
       {
         int bytes;
         int lines;
-	u_int8_t *buffer;
+	unsigned char *buffer;
       }
     cal;    
     /* current and maximum buffer size used by the backend */
@@ -166,13 +169,16 @@ typedef struct Mustek_Device
     /* maximum size scanned in one block and corresponding lines */
     int max_block_buffer_size;
     int lines_per_block;
-    u_int8_t *block_buffer;
+    unsigned char *block_buffer;
 
     /* firmware format: 0 = old, MUSTEK at pos 8; 1 = new, MUSTEK at
        pos 36 */
     int firmware_format;
     /* firmware revision system: 0 = old, x.yz; 1 = new, Vxyz */
     int firmware_revision_system;
+    /* For SE scanners: which resolutions are allowed in color mode */
+
+    const unsigned int *resolution_list;
   }
 Mustek_Device;
 

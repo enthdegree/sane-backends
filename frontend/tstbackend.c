@@ -190,7 +190,7 @@ static void guards_set(void *ptr, size_t size)
 	*p = GUARD2;
 }
 
-/* Check that the guards have not been tampered. */
+/* Check that the guards have not been tampered with. */
 static void guards_check(void *ptr, size_t size)
 {
 	SANE_Word *p;
@@ -1196,6 +1196,11 @@ static void test_scan(SANE_Handle device)
 			  "sane_set_io_mode with SANE_TRUE returned an invalid status (%s)", 
 			  sane_strstatus (status));
 
+		/* Put the backend back into blocking mode. */
+		status = sane_set_io_mode (device, SANE_FALSE);
+		check(ERR, (status == SANE_STATUS_GOOD),
+			  "sane_set_io_mode with SANE_FALSE must return SANE_STATUS_GOOD");
+
 		/* Test sane_get_select_fd */
 		fd = 0x76575;				/* won't exists */
 		status = sane_get_select_fd(device, &fd);
@@ -1206,7 +1211,7 @@ static void test_scan(SANE_Handle device)
 		if (status == SANE_STATUS_GOOD) {
 			check(ERR, (fd != 0x76575),
 				  "sane_get_select_fd didn't set the fd although it should have");
-			check(ERR, (fd < 0),
+			check(ERR, (fd >= 0),
 				  "sane_get_select_fd returned an invalid fd");
 		}
 	

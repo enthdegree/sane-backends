@@ -24,7 +24,7 @@ backends
     - Relisys Scorpio Super 3 SCSI II
       Mark Plowman <mplowman@wxs.nl>
     - Linux Handscanner Ioctl Interface scanner by Harald
-      Bauer <hbauer@online.de>
+      Bauer <bauer-h@web.de>
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
     - Mustek 1200 UB backend

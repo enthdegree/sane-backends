@@ -78,9 +78,10 @@ build-time.
 Libusb can only access your scanner if it's not claimed by the kernel scanner
 driver. If you want to use libusb, unload the kernel driver (e.g. rmmod
 scanner under Linux) or disable the driver when compiling a new kernel. For
-Linux, your kernel needs support for the USB filesystem (usbfs) and that
-filesystem must be mounted. That's done automatically, if /etc/fstab contains
-a line like this:
+Linux, your kernel needs support for the USB filesystem (usbfs). For kernels
+older than 2.4.19, replace "usbfs" with "usbdevfs" because the name has
+changed. This filesystem must be mounted. That's done automatically at boot
+time, if /etc/fstab contains a line like this:
 .PP
 .RS
 none /proc/bus/usb usbfs defaults  0  0

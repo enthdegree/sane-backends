@@ -1,6 +1,7 @@
 2003-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated list of backends.
+	* doc/sane-usb.man: Added remark about old name of usbfs.
 
 2003-01-13  Jochen Eisinger <jochen.eisinger@gmx.de>
 

@@ -1230,7 +1230,7 @@ static SetDef Settings[] =
 	 * Have a look at the Hw0x0400_0x1000_0 or Hw0x07B3_0x0017_0 for further
 	 * description
 	 *
-	 * The fouth entry is simply the name of the device, which will be
+	 * The fourth entry is simply the name of the device, which will be
 	 * displayed by the frontend
 	 */
     { NULL, NULL, NULL, NULL }  /* last entry, never remove... */

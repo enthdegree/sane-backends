@@ -59,6 +59,8 @@
 #define DEV_LampPositive        4
 #define DEV_LampNegative        5
 
+#define _MSECS(tv) ((tv.tv_sec*1000)+(tv.tv_usec/1000))
+
 /* HEINER: check the tick counts 'cause 1 tick on NT is about 10ms */
 
 static u_long dwCrystalFrequency = 48000000UL;
@@ -87,37 +89,36 @@ static Bool usb_MotorOn( int handle, Bool fOn )
  */
 static Bool usb_IsScannerReady( pPlustek_Device dev )
 {
-	u_char value;
+	u_char         value;
+	double 		   len;	
+	long           timeout;
+    struct timeval t;
 
-#if 1	
- 	_UIO( usbio_ReadReg( dev->fd, 7, &value));
+	/* time in ms = 1000*scanner length in inches/max step speed/in */
+	len = (dev->usbDev.Caps.Normal.Size.y/(double)_MEASURE_BASE) + 5;
+	len = (1000.0 * len)/dev->usbDev.HwSetting.dMaxMoveSpeed;
+	
+	gettimeofday( &t, NULL);	
+	timeout = _MSECS(t) + len;
 
-	if( value == 0 )
-		_UIO( usbio_ResetLM983x( dev ));
-
-	if(value == 0 || value >= 0x20) {
-
-		if( usbio_WriteReg( dev->fd, 0x07, 0 )) {
-			return SANE_TRUE;
-		}
-	}
-
-#else
-  SANE_Word delay;
-
-	for( delay = 0; delay < 300; delay++ ) {
+	do {	
 		_UIO( usbio_ReadReg( dev->fd, 7, &value));
 
-      	if( value == 0 )
+		if( value == 0 )
 			return SANE_TRUE;
 
-      	if (value >= 8)
-      		_UIO( usbio_WriteReg( dev->fd, 0x07, 0 ));
-      		
-		usleep( 100000 );
-    }
-#endif
+		if( value == 3 || value >= 0x20) {
 
+			if( !usbio_WriteReg( dev->fd, 0x07, 0 )) {
+				DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
+				return SANE_FALSE;
+			}	
+		}
+	
+		gettimeofday( &t, NULL);	
+		
+	} while( _MSECS(t) < timeout );		
+	
 	DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
 	return SANE_FALSE;
 }

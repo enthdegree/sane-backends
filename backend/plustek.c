@@ -628,7 +628,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_NUM_OPTS].w 	   = NUM_OPTIONS;
 
 	/* "Scan Mode" group: */
-	s->opt[OPT_MODE_GROUP].name  = "Scanmode-group";
+	s->opt[OPT_MODE_GROUP].name  = "scanmode-group";
 	s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
 	s->opt[OPT_MODE_GROUP].desc  = "";
 	s->opt[OPT_MODE_GROUP].type  = SANE_TYPE_GROUP;
@@ -708,8 +708,8 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
 
 	/* "Geometry" group: */
+	s->opt[OPT_GEOMETRY_GROUP].name  = "geometry-group";
 	s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
-	s->opt[OPT_GEOMETRY_GROUP].name  = "Geometry Group";
 	s->opt[OPT_GEOMETRY_GROUP].desc  = "";
 	s->opt[OPT_GEOMETRY_GROUP].type  = SANE_TYPE_GROUP;
 	s->opt[OPT_GEOMETRY_GROUP].cap   = SANE_CAP_ADVANCED;

@@ -1037,14 +1037,21 @@ static Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
 	DBG( _DBG_INFO, "usb_IsDataAvailableInDRAM()\n" );
 
 	gettimeofday( &t, NULL);	
-
-/*    dwTicks =  t.tv_sec * 1e6 + t.tv_usec + 30000UL; */
 	dwTicks = t.tv_sec + 30;
 
 	for(;;)	{
 
 		_UIO( sanei_lm983x_read( dev->fd, 0x01, a_bBand, 3, SANE_FALSE ));
 
+		gettimeofday( &t, NULL);	
+	    if( t.tv_sec > dwTicks )
+			break;
+
+		if( usb_IsEscPressed()) {
+			DBG(_DBG_INFO,"usb_IsDataAvailableInDRAM() - Cancel detected...\n");
+			return SANE_FALSE;
+		}
+			
 		/* It is not stable for read */
 		if((a_bBand[0] != a_bBand[1]) && (a_bBand[1] != a_bBand[2]))
 			continue;
@@ -1060,44 +1067,7 @@ static Bool usb_IsDataAvailableInDRAM( pPlustek_Device dev )
 			DBG( _DBG_INFO, "Data is available\n" );
 			return SANE_TRUE;
 		}
-		else
-			continue;
-
-		gettimeofday( &t, NULL);	
-/*	    if((t.tv_sec * 1e6 + t.tv_usec) > dwTicks ) */
-	    if( t.tv_sec > dwTicks )
-			break;
 	}
-
-#if 0
-	DWORD dw, dwTimeout = GetTickCount ();
-
-	/* Polling register 0x01 to see if there is available data */
-	BYTE a_bBand [3];
-
-	while ((dw = (GetTickCount() - dwTimeout)) < 30000UL) {
-
-		if( DriverUSB.BulkIn (0x01, a_bBand, 3, FALSE))	{
-
-			/* It is not stable for read */
-			if ((a_bBand [0] != a_bBand [1]) && (a_bBand [1] != a_bBand [2]))
-				continue;
-
-			if (a_bBand [0] > m_bOldScanData) {
-
-				if(m_pParam->bSource != SOURCE_Reflection)
-					Sleep (30 * a_bRegs[0x08] * Device.Caps.OpticDpi.x / 600);
-				else
-					Sleep (20 * a_bRegs[0x08] * Device.Caps.OpticDpi.x / 600);
-
-				return SANE_TRUE;
-			}
-			else
-				continue;
-		}
-		break;
-	}
-#endif
 
 	DBG( _DBG_INFO, "NO Data available\n" );
 	return SANE_FALSE;

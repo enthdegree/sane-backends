@@ -68,24 +68,45 @@
 #define usbio_ReadReg(fd, reg, value) \
   sanei_lm983x_read (fd, reg, value, 1, 0)
 
-/*.............................................................................
+/**
+ * function to read the contents of a LM983x register and regarding some
+ * extra stuff, like flushing register 2 when writing register 0x58, etc
  *
+ * @param handle -
+ * @param reg    -
+ * @param value  -
+ * @return
  */
 static Bool usbio_WriteReg( SANE_Int handle, SANE_Byte reg, SANE_Byte value )
 {
+	int       i;
 	SANE_Byte data;
 
-	_UIO( sanei_lm983x_write_byte( handle, reg, value));
+	/* retry loop... */
+	for( i = 0; i < 100; i++ ) {
 
-	/* Flush register 0x02 when register 0x58 is written */
-	if( 0x58 == reg ) {
+		_UIO( sanei_lm983x_write_byte( handle, reg, value ));
+	
+		/* Flush register 0x02 when register 0x58 is written */
+ 		if( 0x58 == reg ) {
 
-		_UIO( usbio_ReadReg( handle, 2, &data ));
-
-		_UIO( usbio_ReadReg( handle, 2, &data ));
+			_UIO( usbio_ReadReg( handle, 2, &data ));
+			_UIO( usbio_ReadReg( handle, 2, &data ));
+ 		
+ 		}
+ 		
+		if( reg != 7 ) 	
+			return SANE_TRUE;
+			
+		/* verify register 7 */
+		_UIO( usbio_ReadReg( handle, 7, &data ));
+	
+		if( data == value ) {
+			return SANE_TRUE;
+		}
 	}
 
-	return SANE_TRUE;
+	return SANE_FALSE;
 }
 
 /*.............................................................................

@@ -9,6 +9,6 @@
 :devicetype :stillcam           ; start of a list of devices....
  
 :mfg "Kodak"
-:url "http://www.kodak.com/US/en/digital/cameras/DCSGateway.shtml"
+:url "http://www.kodak.com/global/en/service/digCam/dc210/dc210.shtml"
 :model "DC210"
 :interface "Serial port"

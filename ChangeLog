@@ -7,6 +7,8 @@
 	* frontend/saned.c: DNS queries for remote hosts are only done if
 	  necessary. It's now possible to use "+" without hosts/DNS entries
 	  for the connecting host.
+	* TODO: Removed entries for config.h, OpenBSD shared libs, and -ansi 
+	  on HP-UX. Updated device type entry.
 
 2002-02-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

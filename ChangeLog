@@ -9,6 +9,9 @@
 	  three_pass options need SANE_INFO_RELOAD_PARAMETERS. All options
 	  have a symbolic name now. Removed bogus translation from po. New
 	  version: 1.0.3.
+	* frontend/saned.c: Check that the IP addresses of the peer are the
+	  same for control and data connections. Exit, if this is not the
+	  case. Changed some debug levels.
 
 2002-01-10  Tom Martone <tom@martoneconsulting.com>
         * backend/bh.c

@@ -38,7 +38,7 @@ SUBDIRS	= include lib sanei backend frontend tools doc po
 DISTFILES = AUTHORS COPYING ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
   ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 \
   ChangeLog-1.0.6 ChangeLog-1.0.7 ChangeLog-1.0.8 ChangeLog-1.0.9 \
-  ChangeLog-1.0.10 LICENSE Makefile.in NEWS \
+  ChangeLog-1.0.10 ChangeLog-1.0.12 LICENSE Makefile.in NEWS \
   PROBLEMS PROJECTS README README.aix README.beos README.darwin \
   README.freebsd \
   README.hp-ux README.linux README.netbsd \

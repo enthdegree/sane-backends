@@ -13,6 +13,7 @@
 	  Use sane-desc.c instead.
 	* configure configure.in tools/.cvsignore tools/Makefile.in
 	  tools/README: Removed references to sane-desc.el.
+	* Makefile.in: Added ChangeLog-1.0.12 to DISTFILES.
 
 2003-06-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

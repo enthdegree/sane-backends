@@ -5,6 +5,9 @@
 	  frontends. Mention that libusb is necessary for some backends.
 	  Mention more operating systems. Added contact section (mostly
 	  copying from sane(7)). Minor formatting updates.
+	* README.freebsd: Automatic SCSI detection does work, so this part
+	  was removed. libusb is necessary for some backends. Some parport
+	  scanners seem to work.
 
 2003-04-18  Frank Zago  <fzago at austin dot rr dot com>
 

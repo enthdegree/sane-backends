@@ -369,6 +369,8 @@ qc_unlock (QC_Device *q)
 
     sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
     unlink (lockfile);
+    close (q->lock_fd);
+    q->lock_fd = -1;
   }
 #endif
   return SANE_STATUS_GOOD;

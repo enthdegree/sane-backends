@@ -1,3 +1,8 @@
+2001-02-09  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* backend/dll.c backend/v4l.c: Get rid of small memory leak when
+	using 'scanimage -L'.
+
 2001-02-10  Tom Martone <tom@martoneconsulting.com>
 
         * backend/bh.c backend/bh.h doc/sane-bh.man

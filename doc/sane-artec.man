@@ -44,10 +44,13 @@ are available from the backend homepage:
 
 .SH CONFIGURATION
 
-The contents of the F<artec.conf> file are a list of device names that
+The contents of the
+.I artec.conf
+file are a list of device names that
 correspond to Artec scanners.  Empty lines and lines starting with a
-hash mark (#) are ignored.  See L<sane-scsi(5)> on details of what
-constitutes a valid device name.
+hash mark (#) are ignored.  See
+.I sane-scsi(5)
+on details of what constitutes a valid device name.
 .br
 Sample file:
 .br

@@ -1,3 +1,7 @@
+2003-01-07  Peter Kirchgessner <peter@kirchgessner.net>
+
+	* doc/descriptions/hp.desc: Change HP ScanJet to ScanJet
+
 2003-01-07   Stéphane Voltz  <svoltz@wanadoo.fr>
 
         * doc/sane-umax_pp.man: updates and fixes

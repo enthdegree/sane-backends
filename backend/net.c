@@ -42,10 +42,10 @@
 
 /* Please increase version number with every change 
    (don't forget to update net.desc) */
-#define NET_VERSION "1.0.4"
+#define NET_VERSION "1.0.5"
 
 #ifdef _AIX
-# include "../include/lalloca.h"	/* MUST come first for AIX! */
+# include "../include/lalloca.h" /* MUST come first for AIX! */
 #endif
 
 #include "../include/sane/config.h"
@@ -58,14 +58,14 @@
 #include <string.h>
 #include <unistd.h>
 #ifdef HAVE_LIBC_H
-# include <libc.h>		/* NeXTStep/OpenStep */
+# include <libc.h> /* NeXTStep/OpenStep */
 #endif
 
 #include <sys/time.h>
 #include <sys/types.h>
 
 #include <netinet/in.h>
-#include <netdb.h>		/* OS/2 needs this _after_ <netinet/in.h>, grrr... */
+#include <netdb.h> /* OS/2 needs this _after_ <netinet/in.h>, grrr... */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -91,13 +91,15 @@ static int saned_port;
 static int client_big_endian; /* 1 == big endian; 0 == little endian */
 static int server_big_endian; /* 1 == big endian; 0 == little endian */
 static int depth; /* bits per pixel */
-static int hang_over; /*-1 == no hangover; otherwise cast value to unsigned char */
+static int hang_over; /* -1 == no hangover; otherwise cast value to 
+                         unsigned char */
 
 static SANE_Status
 add_device (const char *name, Net_Device ** ndp)
 {
   struct hostent *he;
   Net_Device *nd;
+  struct sockaddr_in *sin;
 
   DBG (1, "add_device: adding backend %s\n", name);
 
@@ -117,18 +119,23 @@ add_device (const char *name, Net_Device ** ndp)
 
   nd = malloc (sizeof (*nd));
   if (!nd)
-    return SANE_STATUS_NO_MEM;
+    {
+      DBG (1, "add_device: not enough memory for Net_Device struct\n");
+      return SANE_STATUS_NO_MEM;
+    }
 
   memset (nd, 0, sizeof (*nd));
   nd->name = strdup (name);
   if (!nd->name)
-    return SANE_STATUS_NO_MEM;
-  nd->addr.sa_family = he->h_addrtype;
-  if (nd->addr.sa_family == AF_INET)
     {
-      struct sockaddr_in *sin = (struct sockaddr_in *) &nd->addr;
-      memcpy (&sin->sin_addr, he->h_addr_list[0], he->h_length);
+      DBG (1, "add_device: not enough memory to duplicate name\n");
+      free (nd);
+      return SANE_STATUS_NO_MEM;
     }
+  nd->addr.sa_family = he->h_addrtype;
+
+  sin = (struct sockaddr_in *) &nd->addr;
+  memcpy (&sin->sin_addr, he->h_addr_list[0], he->h_length);
 
   nd->ctl = -1;
   nd->next = first_device;
@@ -151,6 +158,8 @@ connect_dev (Net_Device * dev)
   int on = 1;
   int level = -1;
 #endif
+
+  DBG (2, "connect_dev: trying to connect to %s\n", dev->name);
 
   if (dev->addr.sa_family != AF_INET)
     {
@@ -176,6 +185,7 @@ connect_dev (Net_Device * dev)
       dev->ctl = -1;
       return SANE_STATUS_IO_ERROR;
     }
+  DBG (3, "connect_dev: connection succeeded\n");
 
 #ifdef TCP_NODELAY
 # ifdef SOL_TCP
@@ -198,6 +208,7 @@ connect_dev (Net_Device * dev)
 	 strerror (errno));
 #endif /* !TCP_NODELAY */
 
+  DBG (2, "connect_dev: sanei_w_init\n");
   sanei_w_init (&dev->wire, sanei_codec_bin_init);
   dev->wire.io.fd = dev->ctl;
   dev->wire.io.read = read;
@@ -207,6 +218,8 @@ connect_dev (Net_Device * dev)
   req.version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR,
 					SANEI_NET_PROTOCOL_VERSION);
   req.username = getlogin ();
+  DBG (2, "connect_dev: net_init (user=%s, local version=%d.%d.%d)\n",
+       req.username, V_MAJOR, V_MINOR, SANEI_NET_PROTOCOL_VERSION);
   sanei_w_call (&dev->wire, SANE_NET_INIT,
 		(WireCodecFunc) sanei_w_init_req, &req,
 		(WireCodecFunc) sanei_w_init_reply, &reply);
@@ -220,9 +233,17 @@ connect_dev (Net_Device * dev)
 
   status = reply.status;
   version_code = reply.version_code;
-
+  DBG (2, "connect_dev: freeing init reply (status=%s, remote "
+       "version=%d.%d.%d)\n", sane_strstatus (status),
+       SANE_VERSION_MAJOR (version_code),
+       SANE_VERSION_MINOR (version_code), SANE_VERSION_BUILD (version_code));
   sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_init_reply, &reply);
 
+  if (status != 0)
+    {
+      DBG (1, "connect_dev: access to %s denied\n", dev->name);
+      goto fail;
+    }
   if (SANE_VERSION_MAJOR (version_code) != V_MAJOR)
     {
       DBG (1, "connect_dev: major version mismatch: got %d, expected %d\n",
@@ -238,9 +259,11 @@ connect_dev (Net_Device * dev)
       goto fail;
     }
   dev->wire.version = SANE_VERSION_BUILD (version_code);
+  DBG (4, "connect_dev: done\n");
   return SANE_STATUS_GOOD;
 
 fail:
+  DBG (2, "connect_dev: closing connection to %s\n", dev->name);
   close (dev->ctl);
   dev->ctl = -1;
   return SANE_STATUS_IO_ERROR;
@@ -249,32 +272,46 @@ fail:
 static SANE_Status
 fetch_options (Net_Scanner * s)
 {
-  DBG(3, "fetch_options\n");
+  DBG (3, "fetch_options: %p\n", s);
 
   if (s->opt.num_options)
     {
+      DBG (2, "fetch_options: %d option descriptors cached... freeing\n",
+	   s->opt.num_options);
       sanei_w_set_dir (&s->hw->wire, WIRE_FREE);
       s->hw->wire.status = 0;
       sanei_w_option_descriptor_array (&s->hw->wire, &s->opt);
       if (s->hw->wire.status)
-	return SANE_STATUS_IO_ERROR;
+	{
+	  DBG (1, "fetch_options: failed to free old list (%s)\n",
+	       strerror (s->hw->wire.status));
+	  return SANE_STATUS_IO_ERROR;
+	}
     }
+  DBG (3, "fetch_options: get_option_descriptors\n");
   sanei_w_call (&s->hw->wire, SANE_NET_GET_OPTION_DESCRIPTORS,
 		(WireCodecFunc) sanei_w_word, &s->handle,
 		(WireCodecFunc) sanei_w_option_descriptor_array, &s->opt);
   if (s->hw->wire.status)
-    return SANE_STATUS_IO_ERROR;
+    {
+      DBG (1, "fetch_options: failed to get option descriptors (%s)\n",
+	   strerror (s->hw->wire.status));
+      return SANE_STATUS_IO_ERROR;
+    }
 
   s->options_valid = 1;
+  DBG (3, "fetch_options: %d options fetched\n", s->opt.num_options);
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 do_cancel (Net_Scanner * s)
 {
+  DBG (2, "do_cancel: %p\n", s);
   s->hw->auth_active = 0;
   if (s->data >= 0)
     {
+      DBG (3, "do_cancel: closing data pipe\n");
       close (s->data);
       s->data = -1;
     }
@@ -289,31 +326,42 @@ do_authorization (Net_Device * dev, SANE_String resource)
   SANE_Char password[SANE_MAX_PASSWORD_LEN];
   char *net_resource;
 
+  DBG (2, "do_authorization: dev=%p resource=%s\n", dev, resource);
+
   dev->auth_active = 1;
 
   memset (&req, 0, sizeof (req));
+  memset (username, 0, sizeof (SANE_Char) * SANE_MAX_USERNAME_LEN);
+  memset (password, 0, sizeof (SANE_Char) * SANE_MAX_PASSWORD_LEN);
 
   net_resource = malloc (strlen (resource) + 6 + strlen (dev->name));
 
   if (net_resource != NULL)
-    sprintf (net_resource, "net:%s:%s", dev->name, resource);
-  else
     {
-      SANE_Word ack;
-
-      DBG (1, "do_authorization: not enough memory\n");
-      req.resource = resource;
-      sanei_w_call (&dev->wire, SANE_NET_AUTHORIZE,
-		    (WireCodecFunc) sanei_w_authorization_req, &req,
-		    (WireCodecFunc) sanei_w_word, &ack);
-
-      return;
+      sprintf (net_resource, "net:%s:%s", dev->name, resource);
+      if (auth_callback)
+	{
+	  DBG (2, "do_authorization: invoking auth_callback, resource = %s\n",
+	       net_resource);
+	  (*auth_callback) (net_resource, username, password);
+	}
+      else
+	DBG (1, "do_authorization: no auth_callback present\n");
+      free (net_resource);
     }
-
-  if (auth_callback)
-    (*auth_callback) (net_resource, username, password);
-
-  free (net_resource);
+  else /* Is this necessary? If we don't have these few bytes we will get
+	  in trouble later anyway */
+    {
+      DBG (1, "do_authorization: not enough memory for net_resource\n");
+      if (auth_callback)
+	{
+	  DBG (2, "do_authorization: invoking auth_callback, resource = %s\n",
+	       resource);
+	  (*auth_callback) (resource, username, password);
+	}
+      else
+	DBG (1, "do_authorization: no auth_callback present\n");
+    }
 
   if (dev->auth_active)
     {
@@ -322,34 +370,30 @@ do_authorization (Net_Device * dev, SANE_String resource)
       req.resource = resource;
       req.username = username;
       req.password = password;
+      DBG (2, "do_authorization: relaying authentication data\n");
       sanei_w_call (&dev->wire, SANE_NET_AUTHORIZE,
 		    (WireCodecFunc) sanei_w_authorization_req, &req,
 		    (WireCodecFunc) sanei_w_word, &ack);
     }
+  else
+    DBG (1, "do_authorization: auth_active is false... strange\n");
 }
 
-SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char device_name[PATH_MAX];
   struct servent *serv;
   const char *env;
   size_t len;
   FILE *fp;
-
-  /* determine (client) machine byte order */
   short ns = 0x1234;
   unsigned char *p = (unsigned char *)(&ns);
-  if(*p == 0x12)
-  {
-    client_big_endian = 1;
-    DBG(1,"Client has big endian byte order");
-  }
-  else
-  {
-    client_big_endian = 0;
-    DBG(1,"Client has little endian byte order");
-  }
+
   DBG_INIT ();
+
+  DBG (2, "sane_init: authorize = %p, version_code = %p\n", authorize,
+       version_code);
 
   auth_callback = authorize;
 
@@ -360,13 +404,29 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (SANE_DLL_V_MAJOR, SANE_DLL_V_MINOR,
 				       SANE_DLL_V_BUILD);
 
-  DBG(1, "sane_init: SANE net backend version %s from %s\n", NET_VERSION,
-      PACKAGE_VERSION);
+  DBG (1, "sane_init: SANE net backend version %s from %s\n", NET_VERSION,
+       PACKAGE_VERSION);
 
+  /* determine (client) machine byte order */
+  if (*p == 0x12)
+    {
+      client_big_endian = 1;
+      DBG (3, "sane_init: Client has big endian byte order\n");
+    }
+  else
+    {
+      client_big_endian = 0;
+      DBG (3, "sane_init: Client has little endian byte order\n");
+    }
+
+  DBG (2, "sane_init: determining sane service port\n");
   serv = getservbyname ("sane", "tcp");
 
   if (serv)
-    saned_port = serv->s_port;
+    {
+      DBG (2, "sane_init: found port %d\n", ntohs (serv->s_port));
+      saned_port = serv->s_port;
+    }
   else
     {
       saned_port = htons (6566);
@@ -374,6 +434,7 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	   "port %d\n", strerror (errno), ntohs (saned_port));
     }
 
+  DBG (2, "sane_init: searching for config file\n");
   fp = sanei_config_open (NET_CONFIG_FILE);
   if (fp)
     {
@@ -386,25 +447,37 @@ SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (!len)
 	    continue;		/* ignore empty lines */
 
+	  DBG (2, "sane_init: trying to add %s\n", device_name);
 	  add_device (device_name, 0);
-
 	}
+
       fclose (fp);
+      DBG (2, "sane_init: done reading config\n");
     }
   else
-    DBG(1, "sane_init: could not open config file (%s): %s\n", NET_CONFIG_FILE,
-	strerror (errno));
+    DBG (1, "sane_init: could not open config file (%s): %s\n",
+	 NET_CONFIG_FILE, strerror (errno));
 
+  DBG (2, "sane_init: evaluating environment variable SANE_NET_HOSTS\n");
   env = getenv ("SANE_NET_HOSTS");
   if (env)
     {
       char *copy, *next, *host;
-      copy = strdup (env);
-      next = copy;
-      while ((host = strsep (&next, ":")))
-	add_device (host, 0);
-      free (copy);
+      if ((copy = strdup (env)) != NULL)
+	{
+	  next = copy;
+	  while ((host = strsep (&next, ":")))
+	    {
+	      DBG (2, "sane_init: trying to add %s\n", host);
+	      add_device (host, 0);
+	    }
+	  free (copy);
+	}
+      else
+	DBG (1, "sane_init: not enough memory to duplicate "
+	     "environment variable\n");
     }
+  DBG (2, "sane_init: done\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -437,11 +510,11 @@ sane_exit (void)
 	  sanei_w_call (&dev->wire, SANE_NET_EXIT,
 			(WireCodecFunc) sanei_w_void, 0,
 			(WireCodecFunc) sanei_w_void, 0);
-          sanei_w_exit (&dev->wire);
+	  sanei_w_exit (&dev->wire);
 	  close (dev->ctl);
 	}
       if (dev->name)
-        free((void *) dev->name);
+	free ((void *) dev->name);
       free (dev);
     }
   if (devlist)
@@ -488,11 +561,14 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
         else                                                               \
           devlist = malloc (devlist_size * sizeof (devlist[0]));           \
         if (!devlist)                                                      \
-          return SANE_STATUS_NO_MEM;                                       \
+          {                                                                \
+             DBG (1, "sane_get_devices: not enough memory\n");	           \
+             return SANE_STATUS_NO_MEM;                                    \
+          }                                                                \
       }                                                                    \
   }
 
-  DBG(3, "sane_get_devices: local_only = %d\n", local_only);
+  DBG (3, "sane_get_devices: local_only = %d\n", local_only);
 
   if (local_only)
     {
@@ -559,18 +635,40 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 	  len = strlen (dev->name) + 1 + strlen (reply.device_list[i]->name);
 	  mem = malloc (sizeof (*dev) + len + 1);
 	  if (!mem)
-	    return SANE_STATUS_NO_MEM;
-
+	    {
+	      DBG (1, "sane_get_devices: not enough free memory\n");
+	      sanei_w_free (&dev->wire,
+			    (WireCodecFunc) sanei_w_get_devices_reply,
+			    &reply);
+	      return SANE_STATUS_NO_MEM;
+	    }
 	  full_name = mem + sizeof (*dev);
 	  strcpy (full_name, dev->name);
 	  strcat (full_name, ":");
 	  strcat (full_name, reply.device_list[i]->name);
+	  DBG (3, "sane_get_devices: got %s\n", full_name);
 
 	  rdev = (SANE_Device *) mem;
 	  rdev->name = full_name;
 	  rdev->vendor = strdup (reply.device_list[i]->vendor);
 	  rdev->model = strdup (reply.device_list[i]->model);
 	  rdev->type = strdup (reply.device_list[i]->type);
+
+	  if ((!rdev->vendor) || (!rdev->model) || (!rdev->type))
+	    {
+	      DBG (1, "sane_get_devices: not enough free memory\n");
+	      if (rdev->vendor)
+		free (rdev->vendor);
+	      if (rdev->model)
+		free (rdev->model);
+	      if (rdev->type)
+		free (rdev->type);
+	      free (rdev);
+	      sanei_w_free (&dev->wire,
+			    (WireCodecFunc) sanei_w_get_devices_reply,
+			    &reply);
+	      return SANE_STATUS_NO_MEM;
+	    }
 
 	  devlist[devlist_len++] = rdev;
 	}
@@ -584,11 +682,12 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   devlist[devlist_len++] = 0;
 
   *device_list = devlist;
-  DBG (2, "sane_get_devices: finished\n");
+  DBG (2, "sane_get_devices: finished (%d devices)\n", devlist_len - 1);
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
+SANE_Status
+sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 {
   SANE_Open_Reply reply;
   const char *dev_name;
@@ -606,10 +705,20 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
     {
 #ifdef strndupa
       nd_name = strndupa (full_name, dev_name - full_name);
+      if (!nd_name)
+	{
+	  DBG (1, "sane_open: not enough free memory\n");
+	  return SANE_STATUS_NO_MEM;
+	}
 #else
       char *tmp;
 
       tmp = alloca (dev_name - full_name + 1);
+      if (!tmp)
+	{
+	  DBG (1, "sane_open: not enough free memory\n");
+	  return SANE_STATUS_NO_MEM;
+	}
       memcpy (tmp, full_name, dev_name - full_name);
       tmp[dev_name - full_name] = '\0';
       nd_name = tmp;
@@ -624,13 +733,18 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       nd_name = (char *) full_name;
       dev_name = "";
     }
+  DBG (2, "sane_open: host = %s, device = %s\n", nd_name, dev_name);
 
   if (!nd_name[0])
-    /* Unlike other backends, we never allow an empty backend-name.
-       Otherwise, it's possible that sane_open("") will result in
-       endless looping (consider the case where NET is the first
-       backend...) */
-    return SANE_STATUS_INVAL;
+    {
+      /* Unlike other backends, we never allow an empty backend-name.
+         Otherwise, it's possible that sane_open("") will result in
+         endless looping (consider the case where NET is the first
+         backend...) */
+
+      DBG (1, "sane_open: empty backend name is not allowed\n");
+      return SANE_STATUS_INVAL;
+    }
   else
     for (dev = first_device; dev; dev = dev->next)
       if (strcmp (dev->name, nd_name) == 0)
@@ -638,18 +752,30 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
   if (!dev)
     {
+      DBG (1,
+	   "sane_open: device %s not found, trying to register it anyway\n");
       status = add_device (nd_name, &dev);
       if (status != SANE_STATUS_GOOD)
-	return status;
+	{
+	  DBG (1, "sane_open: could not open device\n");
+	  return status;
+	}
     }
+  else
+    DBG (2, "sane_open: device found in list\n");
 
   if (dev->ctl < 0)
     {
+      DBG (2, "sane_open: device not connected yet...\n");
       status = connect_dev (dev);
       if (status != SANE_STATUS_GOOD)
-	return status;
+	{
+	  DBG (1, "sane_open: could not connect to device\n");
+	  return status;
+	}
     }
 
+  DBG (3, "sane_open: net_open\n");
   sanei_w_call (&dev->wire, SANE_NET_OPEN,
 		(WireCodecFunc) sanei_w_string, &dev_name,
 		(WireCodecFunc) sanei_w_open_reply, &reply);
@@ -668,6 +794,7 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
       if (need_auth)
 	{
+	  DBG (3, "sane_open: authorization required\n");
 	  do_authorization (dev, reply.resource_to_authorize);
 
 	  sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply,
@@ -683,7 +810,10 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 	sanei_w_free (&dev->wire, (WireCodecFunc) sanei_w_open_reply, &reply);
 
       if (need_auth && !dev->auth_active)
-	return SANE_STATUS_CANCELLED;
+	{
+	  DBG (2, "sane_open: open cancelled\n");
+	  return SANE_STATUS_CANCELLED;
+	}
 
       if (status != SANE_STATUS_GOOD)
 	{
@@ -695,7 +825,10 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
 
   s = malloc (sizeof (*s));
   if (!s)
-    return SANE_STATUS_NO_MEM;
+    {
+      DBG (1, "sane_open: not enough free memory\n");
+      return SANE_STATUS_NO_MEM;
+    }
 
   memset (s, 0, sizeof (*s));
   s->hw = dev;
@@ -704,7 +837,7 @@ SANE_Status sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   s->next = first_handle;
   first_handle = s;
   *meta_handle = s;
-
+  DBG (3, "sane_open: success\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -714,7 +847,7 @@ sane_close (SANE_Handle handle)
   Net_Scanner *prev, *s;
   SANE_Word ack;
 
-  DBG(3, "sane_close: handle %p\n", handle);
+  DBG (3, "sane_close: handle %p\n", handle);
 
   prev = 0;
   for (s = first_handle; s; s = s->next)
@@ -735,20 +868,26 @@ sane_close (SANE_Handle handle)
 
   if (s->opt.num_options)
     {
+      DBG (2, "sane_close: removing cached option descriptors\n");
       sanei_w_set_dir (&s->hw->wire, WIRE_FREE);
       s->hw->wire.status = 0;
       sanei_w_option_descriptor_array (&s->hw->wire, &s->opt);
       if (s->hw->wire.status)
-	DBG(1, "sane_close: couldn't free sanei_w_option_descriptor_array "
-	    "(%s)\n", sane_strstatus (s->hw->wire.status));
-	}
+	DBG (1, "sane_close: couldn't free sanei_w_option_descriptor_array "
+	     "(%s)\n", sane_strstatus (s->hw->wire.status));
+    }
 
+  DBG (2, "sane_close: net_close\n");
   sanei_w_call (&s->hw->wire, SANE_NET_CLOSE,
 		(WireCodecFunc) sanei_w_word, &s->handle,
 		(WireCodecFunc) sanei_w_word, &ack);
   if (s->data >= 0)
-    close (s->data);
+    {
+      DBG (2, "sane_close: closing data pipe\n");
+      close (s->data);
+    }
   free (s);
+  DBG (2, "sane_close: done\n");
 }
 
 const SANE_Option_Descriptor *
@@ -757,17 +896,25 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   Net_Scanner *s = handle;
   SANE_Status status;
 
-  DBG(3, "sane_get_option_descriptor: option %d\n", option);
+  DBG (3, "sane_get_option_descriptor: option %d\n", option);
 
   if (!s->options_valid)
     {
+      DBG (3, "sane_get_option_descripter: getting option descriptors\n");
       status = fetch_options (s);
       if (status != SANE_STATUS_GOOD)
-	return 0;
+	{
+	  DBG (1, "sane_get_option_descriptor: fetch_options failed (%s)\n",
+	       sane_strstatus (status));
+	  return 0;
+	}
     }
 
   if (((SANE_Word) option >= s->opt.num_options) || (option < 0))
-    return 0;
+    {
+      DBG (2, "sane_get_option_descriptor: invalid option number\n");
+      return 0;
+    }
   return s->opt.desc[option];
 }
 
@@ -782,16 +929,25 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   size_t value_size;
   int need_auth;
 
-  DBG(3, "sane_control_option: option %d, action %d\n", option, action);
+  DBG (3, "sane_control_option: option %d, action %d\n", option, action);
 
   if (!s->options_valid)
     {
+      DBG (3, "sane_control_option: getting option descriptors\n");
       status = fetch_options (s);
       if (status != SANE_STATUS_GOOD)
-	return status;
+	{
+	  DBG (1, "sane_control_option: fetch_options failed (%s)\n",
+	       sane_strstatus (status));
+
+	  return status;
+	}
     }
   if (((SANE_Word) option >= s->opt.num_options) || (option < 0))
-    return SANE_STATUS_INVAL;
+    {
+      DBG (1, "sane_control_option: invalid option number\n");
+      return SANE_STATUS_INVAL;
+    }
 
   switch (s->opt.desc[option]->type)
     {
@@ -801,9 +957,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
          GROUP is IGNORED.  */
       value_size = 0;
       break;
-    case SANE_TYPE_STRING: /* strings can be smaller than size */
+    case SANE_TYPE_STRING:	/* strings can be smaller than size */
       value_size = s->opt.desc[option]->size;
-      if ((action == SANE_ACTION_SET_VALUE) 
+      if ((action == SANE_ACTION_SET_VALUE)
 	  && (((SANE_Int) strlen ((SANE_String) value) + 1)
 	      < s->opt.desc[option]->size))
 	value_size = strlen ((SANE_String) value) + 1;
@@ -824,6 +980,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   req.value_size = value_size;
   req.value = value;
 
+  DBG (3, "sane_control_option: remote control option\n");
   sanei_w_call (&s->hw->wire, SANE_NET_CONTROL_OPTION,
 		(WireCodecFunc) sanei_w_control_option_req, &req,
 		(WireCodecFunc) sanei_w_control_option_reply, &reply);
@@ -834,6 +991,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
+	  DBG (3, "sane_control_option: auth required\n");
 	  do_authorization (s->hw, reply.resource_to_authorize);
 	  sanei_w_free (&s->hw->wire,
 			(WireCodecFunc) sanei_w_control_option_reply, &reply);
@@ -866,20 +1024,26 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	return SANE_STATUS_CANCELLED;
     }
   while (need_auth);
+  DBG (2, "sane_control_option: done\n");
   return status;
 }
 
-SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Net_Scanner *s = handle;
   SANE_Get_Parameters_Reply reply;
   SANE_Status status;
 
-  DBG(3, "sane_get_parameters\n");
+  DBG (3, "sane_get_parameters\n");
 
   if (!params)
-    return SANE_STATUS_INVAL;
+    {
+      DBG (1, "sane_get_parameters: parameter params not supplied\n");
+      return SANE_STATUS_INVAL;
+    }
 
+  DBG (3, "sane_get_parameters: remote get parameters\n");
   sanei_w_call (&s->hw->wire, SANE_NET_GET_PARAMETERS,
 		(WireCodecFunc) sanei_w_word, &s->handle,
 		(WireCodecFunc) sanei_w_get_parameters_reply, &reply);
@@ -890,10 +1054,13 @@ SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   sanei_w_free (&s->hw->wire,
 		(WireCodecFunc) sanei_w_get_parameters_reply, &reply);
 
+  DBG (3, "sane_get_parameters: returned status %s\n",
+       sane_strstatus (status));
   return status;
 }
 
-SANE_Status sane_start (SANE_Handle handle)
+SANE_Status
+sane_start (SANE_Handle handle)
 {
   Net_Scanner *s = handle;
   SANE_Start_Reply reply;
@@ -901,15 +1068,18 @@ SANE_Status sane_start (SANE_Handle handle)
   SANE_Status status;
   int fd, need_auth;
   socklen_t len;
-  short port;			/* Internet-specific */
+  u_int16_t port;			/* Internet-specific */
 
 
-  DBG(3, "sane_start\n");
+  DBG (3, "sane_start\n");
 
   hang_over = -1;
 
   if (s->data >= 0)
-    return SANE_STATUS_INVAL;
+    {
+      DBG (2, "sane_start: data pipe already exists\n");
+      return SANE_STATUS_INVAL;
+    }
 
   /* Do this ahead of time so in case anything fails, we can
      recover gracefully (without hanging our server).  */
@@ -927,6 +1097,7 @@ SANE_Status sane_start (SANE_Handle handle)
       return SANE_STATUS_IO_ERROR;
     }
 
+  DBG (3, "sane_start: remote start\n");
   sanei_w_call (&s->hw->wire, SANE_NET_START,
 		(WireCodecFunc) sanei_w_word, &s->handle,
 		(WireCodecFunc) sanei_w_start_reply, &reply);
@@ -935,19 +1106,20 @@ SANE_Status sane_start (SANE_Handle handle)
 
       status = reply.status;
       port = reply.port;
-      if(reply.byte_order == 0x1234)
-      {
-        server_big_endian = 0;
-        DBG(1,"Server has little endian byte order");
-      }
+      if (reply.byte_order == 0x1234)
+	{
+	  server_big_endian = 0;
+	  DBG (1, "sane_start: server has little endian byte order\n");
+	}
       else
-      {
-        server_big_endian = 1;
-        DBG(1,"Server has big endian byte order");
-      }
+	{
+	  server_big_endian = 1;
+	  DBG (1, "sane_start: server has big endian byte order\n");
+	}
       need_auth = (reply.resource_to_authorize != 0);
       if (need_auth)
 	{
+	  DBG (3, "sane_start: auth required\n");
 	  do_authorization (s->hw, reply.resource_to_authorize);
 
 	  sanei_w_free (&s->hw->wire,
@@ -966,12 +1138,14 @@ SANE_Status sane_start (SANE_Handle handle)
 
       if (status != SANE_STATUS_GOOD)
 	{
+	  DBG (1, "sane_start: remote start failed (%s)\n",
+	       sane_strstatus (status));
 	  close (fd);
 	  return status;
 	}
     }
   while (need_auth);
-
+  DBG (3, "sane_start: remote start finished, data at port %hu\n", port);
   sin.sin_port = htons (port);
 
   if (connect (fd, (struct sockaddr *) &sin, len) < 0)
@@ -984,6 +1158,7 @@ SANE_Status sane_start (SANE_Handle handle)
   s->data = fd;
   s->reclen_buf_offset = 0;
   s->bytes_remaining = 0;
+  DBG (3, "sane_start: done (%s)\n", sane_strstatus (status));
   return status;
 }
 
@@ -993,37 +1168,55 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 {
   Net_Scanner *s = handle;
   ssize_t nread;
-  unsigned long cnt;
-  unsigned char swap_buf;
-  DBG(3, "sane_read: max_length = %d\n", max_length);
+  SANE_Int cnt;
+  SANE_Byte swap_buf;
 
-  if (s->data < 0)
-    return SANE_STATUS_CANCELLED;
+  DBG (3, "sane_read: max_length = %d\n", max_length);
+
+  if (!length)
+    {
+      DBG (1, "sane_read: length == NULL\n");
+      return SANE_STATUS_INVAL;
+    }
 
   *length = 0;
 
   if (s->data < 0)
-    return SANE_STATUS_INVAL;
+    {
+      DBG (1, "sane_read: data pipe doesn't exist, scan cancelled?\n");
+      return SANE_STATUS_CANCELLED;
+    }
 
   if (s->bytes_remaining == 0)
     {
       /* boy, is this painful or what? */
 
+      DBG (4, "sane_read: reading paket length\n");
       nread = read (s->data, s->reclen_buf + s->reclen_buf_offset,
 		    4 - s->reclen_buf_offset);
       if (nread < 0)
 	{
+	  DBG (3, "sane_read: read failed (%s)\n", strerror (errno));
 	  if (errno == EAGAIN)
-	    return SANE_STATUS_GOOD;
+	    {
+	      DBG (3, "sane_read: try again later\n");
+	      return SANE_STATUS_GOOD;
+	    }
 	  else
 	    {
+	      DBG (1, "sane_read: cancelling read\n");
 	      do_cancel (s);
 	      return SANE_STATUS_IO_ERROR;
 	    }
 	}
+      DBG (4, "sane_read: read %d bytes, %d from 4 total\n", nread,
+	   s->reclen_buf_offset);
       s->reclen_buf_offset += nread;
       if (s->reclen_buf_offset < 4)
-	return SANE_STATUS_GOOD;
+	{
+	  DBG (4, "sane_read: enough for now\n");
+	  return SANE_STATUS_GOOD;
+	}
 
       s->reclen_buf_offset = 0;
       s->bytes_remaining = (((u_long) s->reclen_buf[0] << 24)
@@ -1036,12 +1229,19 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	{
 	  char ch;
 
+	  DBG (2, "sane_read: received error signal\n");
+
 	  /* turn off non-blocking I/O (s->data will be closed anyhow): */
 	  fcntl (s->data, F_SETFL, 0);
 
 	  /* read the status byte: */
 	  if (read (s->data, &ch, sizeof (ch)) != 1)
-	    ch = SANE_STATUS_IO_ERROR;
+	    {
+	      DBG (1, "sane_read: failed to read error code\n");
+	      ch = SANE_STATUS_IO_ERROR;
+	    }
+	  DBG (1, "sane_read: error code %s\n",
+	       sane_strstatus ((SANE_Status) ch));
 	  do_cancel (s);
 	  return (SANE_Status) ch;
 	}
@@ -1049,79 +1249,96 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 
   if (max_length > (SANE_Int) s->bytes_remaining)
     max_length = s->bytes_remaining;
-  /* XXX How do we handle endian problems */
-  /*If we are scanning with 16bit/pixel, we must be sure to scan complete pixels.
-    Otherwise it's  impossible to swap the bytes, since we don't have access to the
-    previous data if sane_read is called the next time. Therefore we check, whether
-    an odd number ob bytes was read. If this is true, the last byte is stored in
-    hang_over and length is decreased by 1.*/
 
-  /*Check whether we are scanning with a depth of 16bit/pixel and whether server and
-    client have different byte order. If this is true, then it's neccessary to check
-    whether there's a hang_over from a previous call to sane_read.*/
-  if((depth == 16) && (server_big_endian != client_big_endian))
-  {
-    DBG(1,"client/server have different byte order; check for hang_over");
-    if(hang_over > -1)
+  /* If we are scanning with 16 bits/pixel, we must be sure to scan complete
+     pixels. Otherwise it's impossible to swap the bytes, since we don't have
+     access to the previous data if sane_read is called the next
+     time. Therefore we check, whether an odd number ob bytes was read. If
+     this is true, the last byte is stored in hang_over and length is
+     decreased by 1.
+  */
+
+  /* Check whether we are scanning with a depth of 16 bits/pixel and whether
+     server and client have different byte order. If this is true, then it's
+     neccessary to check whether there's a hang_over from a previous call to
+     sane_read.
+  */
+
+  if ((depth == 16) && (server_big_endian != client_big_endian))
     {
-      DBG(1,"hang_over from previous call to sane_read()");
-      /* hang_over from previous call to sane_read; apply it now*/
-      *(data) = (unsigned char) hang_over;
-      nread = read (s->data, data+1, max_length-1);
+      DBG (4, "sane_read: client/server have different byte order\n");
+      
+      if (hang_over > -1)
+	{
+	  DBG (4, "sane_read: hang_over from previous call to sane_read()\n");
+	  *(data) = (unsigned char) hang_over;
+	  DBG (4, "sane_read: reading image data now\n");
+	  nread = read (s->data, data + 1, max_length - 1);
+	}
+      else
+	{
+	  DBG (4, "sane_read: no hang_over from previous call to "
+	       "sane_read()\n");
+	  DBG (4, "sane_read: reading image data now\n");
+	  nread = read (s->data, data, max_length);
+	}
     }
-    else
+  else
     {
-      DBG(1,"no hang_over from previous call to sane_read()");
-      /*no hang_over*/
+      DBG (4, "sane_read: reading image data now\n");
       nread = read (s->data, data, max_length);
     }
-  }
-  else
-    nread = read (s->data, data, max_length);
+
   if (nread < 0)
     {
+      DBG (2, "sane_read: error code %s\n", strerror (errno));
       if (errno == EAGAIN)
 	return SANE_STATUS_GOOD;
       else
 	{
+	  DBG (1, "sane_read: cancelling scan\n");
 	  do_cancel (s);
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
-  /*Check whether we are scanning with a depth of 16bit/pixel and whether server and
-    client have different byte order. If this is true, then it's neccessary to check
-    whether read returned an odd number. If an odd  number has been returned, we must save the
-    last byte.*/
-  if((depth == 16) && (server_big_endian != client_big_endian))
-  {
-    DBG(1,"client/server have different byte order; must swap");
-    s->bytes_remaining -= nread;
-    if(0 != nread % 2)
+
+  /* Check whether we are scanning with a depth of 16 bits/pixel and whether
+     server and client have different byte order. If this is true, then it's
+     neccessary to check whether read returned an odd number. If an odd number
+     has been returned, we must save the last byte.
+  */
+  if ((depth == 16) && (server_big_endian != client_big_endian))
     {
-      DBG(1,"client/server have different byte order; store hang_over");
-      /*nread is odd; decrease length and store hang_over*/
-      *length = nread - 1;
-      hang_over = *(data + nread);
+      DBG (1,"sane_read: client/server have different byte order; "
+	   "must swap\n");
+      s->bytes_remaining -= nread;
+      if (0 != nread % 2)
+	{
+	  DBG (1, "sane_read: number of bytes read is odd; store hang_over\n");
+	  *length = nread - 1;
+	  hang_over = *(data + nread);
+	}
+      else
+	{
+	  *length = nread;
+	  hang_over = -1;
+	}
+      /* Finally step through the buffer and swap bytes */
+      for (cnt = 0; cnt < *length - 1; cnt += 2)
+	{
+	  swap_buf = *(data +cnt);
+	  *(data + cnt) = *(data + cnt + 1);
+	  *(data + cnt + 1) = swap_buf;
+	}
     }
-    else
-    {
-      /*nread is even; no hang_over*/
-      *length = nread;
-      hang_over = -1;
-    }
-    /*Finally step through the buffer and swap bytes*/
-    for(cnt = 0;cnt < *length - 1;cnt += 2)
-    {
-       swap_buf = *(data +cnt);
-       *(data + cnt) = *(data +cnt + 1);
-       *(data + cnt + 1) = swap_buf;
-    }
-  }
   else
-  {
-    s->bytes_remaining -= nread;
-    *length = nread;
-  }
+    {
+      s->bytes_remaining -= nread;
+      *length = nread;
+    }
+  DBG (3, "sane_read: %d bytes read, %d remaining\n", nread,
+       s->bytes_remaining);
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1131,37 +1348,50 @@ sane_cancel (SANE_Handle handle)
   Net_Scanner *s = handle;
   SANE_Word ack;
 
-  DBG(3, "sane_cancel\n");
+  DBG (3, "sane_cancel: sending net_cancel\n");
 
   sanei_w_call (&s->hw->wire, SANE_NET_CANCEL,
 		(WireCodecFunc) sanei_w_word, &s->handle,
 		(WireCodecFunc) sanei_w_word, &ack);
   do_cancel (s);
+  DBG (4, "sane_cancel: done\n");
 }
 
-SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status
+sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Net_Scanner *s = handle;
 
-  DBG(3, "sane_set_io_mode: non_blocking = %d\n", non_blocking);
+  DBG (3, "sane_set_io_mode: non_blocking = %d\n", non_blocking);
   if (s->data < 0)
-    return SANE_STATUS_INVAL;
+    {
+      DBG (1, "sane_set_io_mode: pipe doesn't exist\n");
+      return SANE_STATUS_INVAL;
+    }
 
   if (fcntl (s->data, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
-    return SANE_STATUS_IO_ERROR;
+    {
+      DBG (1, "sane_set_io_mode: fcntl failed (%s)\n", strerror (errno));
+      return SANE_STATUS_IO_ERROR;
+    }
 
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+SANE_Status
+sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   Net_Scanner *s = handle;
 
-  DBG(3, "sane_get_select_fd: *fd = %d\n", *fd);
+  DBG (3, "sane_get_select_fd\n");
 
   if (s->data < 0)
-    return SANE_STATUS_INVAL;
+    {
+      DBG (1, "sane_get_select_fd: pipe doesn't exist\n");
+      return SANE_STATUS_INVAL;
+    }
 
   *fd = s->data;
+  DBG (3, "sane_get_select_fd: done; *fd = %d\n", *fd);
   return SANE_STATUS_GOOD;
 }

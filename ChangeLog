@@ -1,3 +1,7 @@
+2002-07-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_usb.c: Made libusb_timeout static.
+
 2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c: Now always uses as much scanner buffer as

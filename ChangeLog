@@ -1,3 +1,8 @@
+2002-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/scanimage.c: Fixed scanimage SANE_CAP_AUTOMATIC bug 
+	  (from David Paschal <paschal@rcsis.com>).
+
 2002-04-26  Peter Fales <peter@fales-lorenz.net>
 
 	* backend/dc240.c backend/gphoto2.c:  Various minor bug fixes for

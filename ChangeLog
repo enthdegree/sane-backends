@@ -1,3 +1,8 @@
+2003-12-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added some scanners.
+	* doc/sane-mustek_pp_ccd.man: Removed (now again in mustek_pp backend).
+
 2003-12-15  Oliver Schirrmeister <oschirr@abm.de>
 	* backends/fujitsu.[hc]:
          - Bugfix: set default threshold range to 0..255 There is a problem

@@ -98,6 +98,7 @@ distclean: clean distclean-recursive
 	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile config.cache config.status libtool *.tar.gz 
 	rm -f sane-backends-*.lsm
+	rm -f $(distdir).tar.gz.md5
 	rm -f japi/Makefile testsuite/Makefile
 	rm -f $(addprefix japi/,$(DISTCLEAN_FILES))
 	rm -f $(addprefix testsuite/,$(DISTCLEAN_FILES))
@@ -131,7 +132,10 @@ dist: $(DISTFILES)
 
 $(PACKAGE)-$(VERSION).tar.gz: dist
 
-sane-backends: dist lsm
+md5: dist
+	md5sum $(distdir).tar.gz > $(distdir).tar.gz.md5
+
+sane-backends: dist lsm md5
 
 etags:
 	etags */*.[ch] */*/*.h

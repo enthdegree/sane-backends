@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added Epson CX6400. Removed
 	  Packard Bell Diamond 1200. Updated HP ScanJet 8200.
+	* Makefile.in doc/descriptions/releases.txt: Generate md5 hash
+	  when making the a release.
 
 2003-11-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

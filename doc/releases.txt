@@ -1,4 +1,4 @@
-2003-11-23
+2003-11-26
 
 This text summarizes some points to pay attention to when a new release
 of sane-backends should is planned.
@@ -31,13 +31,13 @@ Before the release:
 
 Making the release:
 
-* make tar.gz and sane-backends-x.y.z.lsm with "make sane-backends"
-* upload both to the FTP server
+* make tar.gz, sane-backends-x.y.z.lsm, and .md5sum with "make sane-backends"
+* upload these files together with the .diff to the FTP server
 * update sane-backends.html and sane-mfgs.html on sane-project.org
 * update SANE standard and man pages on sane-project.org
 * check and update platforms page on sane-project.org
 * write announcements on sane-project.org and sane-devel, maybe others
-  (e.g. freshmeat)
+  (e.g. freshmeat), include the md5 hash
 * upload to mirrors that don't get the files automatically (sunsite)
 
 After the release:

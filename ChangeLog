@@ -12,6 +12,8 @@
 
 	* configure configure.in: Version is 1.0.7-cvs. Enable warnings by
 	  default. Don't use "-ansi" for HPUX.
+	* sanei/sanei_thread.c: Make sure that waitpid returns something
+	  usefull on OS/2. Avoids the "Unknown SANE status code 128" errors.
 
 ******  Release of sane-backends 1.0.7. End of code freeze ******
 

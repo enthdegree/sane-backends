@@ -1,3 +1,8 @@
+2000-12-05  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp-handle.c
+          - Change SCL_UNLOAD to SCL_CHANGE_DOC (bug from copying code)
+
 2000-12-04  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Updated. Added entries about as6e stat problems and addition to

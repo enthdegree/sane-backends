@@ -1,3 +1,8 @@
+2002-03-08 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* backend/Makfile.in: added missing depenencies for
+	  new umax backends
+
 2002-03-08  Henning Meier-Geinitz <henning@meier-geinitz.d>
 
 	* doc/sane.tex: Added "multi-function peripheral" to list of types in

@@ -1,3 +1,8 @@
+2004-08-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon LiDE35.
+	* sanei/sanei_usb.c: Fixed memory leak.
+
 2004-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Epson 2580 and Nikon
@@ -18,7 +23,6 @@
 	  backend/umax_pp_mid.c backend/umax_pp_mid.h doc/sane-umax_pp.man:
 	  rename 'contrast' to 'offset' and 'highlight' to 'gain'. Translations
 	  will need to be updated. Beginning of 610/1220P codepath merge.
-
 
 2004-08-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

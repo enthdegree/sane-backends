@@ -4,6 +4,7 @@
 	* TODO: Removed hp4200 link. Added hp5400 GPL/SANE issue. Added
 	  avision hpusbscsi documentation issue. Removed scanimage/OS/2
 	  problem.
+	* doc/sane-mustek.man: Added some more details for SCSI adapters.
 
 2003-04-23  Frank Zago  <fzago at austin dot rr dot com>
 

@@ -243,6 +243,11 @@ option linedistance-fix
 .RE
 
 .SH "SCSI ADAPTER TIPS"
+.PP
+You need a SCSI adapter for the SCSI scanners. Even if the connector is the
+same as that of parallel port scanners, connecting it to the computers
+parallel port will NOT work.
+.PP
 Mustek SCSI scanners are typically delivered with an ISA SCSI adapter.
 Unfortunately, that adapter is not worth much since it is not
 interrupt driven.  It is (sometimes) possible to get the supplied card
@@ -261,18 +266,18 @@ protocol, it is recommended to install a separate (cheap) SCSI
 controller for Mustek scanners.  For example, ncr810 based cards are
 known to work fine and cost as little as fifty US dollars.
 .PP
-For Mustek scanners, it is typically necessary to configure the
-low-level SCSI driver to disable synchronous transfers, tagged command
+For Mustek scanners, it is typically necessary to configure the low-level SCSI
+driver to disable synchronous transfers (sync negotiation), tagged command
 queuing, and target disconnects.  See
 .BR sane-scsi (5)
-for driver and platform-specific information.
+for driver- and platform-specific information.
 .PP
 The ScanExpress models have sometimes trouble with high resolution
 color mode. If you encounter sporadic corrupted images (parts duplicated
 or shifted horizontally) kill all other applications before scanning
 and (if sufficient memory is available) disable swapping. 
 .PP
-Details on how to get the Mustek SCSI adpaters and other cards running can be
+Details on how to get the Mustek SCSI adapters and other cards running can be
 found at
 .IR http://www.meier-geinitz.de/sane/mustek-backend/#SCSI .
 

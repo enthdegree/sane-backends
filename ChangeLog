@@ -1,5 +1,15 @@
 2002-01-12  Gerhard Jaeger <g.jaeger@earthling.net>
 
+    * doc/sane-plustek.man: Update
+    * backend/plustek-devs.c backend/plustek-usb.c backend/plustek-usbhw.c
+      backend/plustek-usbio.c backend/plustek-usbscan.c 
+      backend/plustek-usbshading.c backend/plustek.c:
+      Updated to reflect the current feedback upon the code and
+      added some minor fixes
+    * backend/plustek.desc: Added Mustek and HP entry
+
+2002-01-12  Gerhard Jaeger <g.jaeger@earthling.net>
+
     * include/sane/sanei_lm983x.h sanei/sanei_lm983x.c:
       added sanei_lm983x_init(), updated comments and fixed the u_long
     * AUTHORS: Added myself to the list of sanei authors.

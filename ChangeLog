@@ -1,4 +1,9 @@
-2002-10-01  Matthew Duggan <stauff1@users.sourceforge.net>
+2002-09-30 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
+
+	* doc/descriptions/umax.desc: removed remark that Astra 2200U via USB
+	  only works on linux (because need of USB control messages)
+
+2002-09-30  Matthew Duggan <stauff1@users.sourceforge.net>
 	* backend/canon_pp.c backend/canon_pp-dev.c backend/canon_pp-dev.h:  
 	  Finally fixed cancelling, which I broke some time ago in the quest 
 	  for speed.  FB620P still doesn't abort nicely (firmware bug?).

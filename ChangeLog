@@ -1,3 +1,8 @@
+2002-09-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.beos Makefile.in doc/Makefile.in: Added BeOS platform
+	  information. Updated Makefiles concerning READMEs.
+
 2002-09-11 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* doc/descriptions/umax.desc: corrected some urls

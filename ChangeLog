@@ -1,3 +1,10 @@
+2001-09-16  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_mid.c
+	  tools/umax_pp.c:
+	  change ppdev support to compile and run on linux kernel 
+	  prior to 2.4.5
+
 2001-09-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.desc

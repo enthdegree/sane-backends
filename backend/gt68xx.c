@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 54
+#define BUILD 56
 #define MAX_DEBUG
 #define WARMUP_TIME 30
 #define CALIBRATION_HEIGHT 2.5
@@ -278,7 +278,7 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
   if (s->val[OPT_FULL_SCAN].w == SANE_TRUE)
     {
       scan_request->x0 -= s->dev->model->x_offset;
-      scan_request->y0 -= s->dev->model->y_offset;
+      scan_request->y0 -= (s->dev->model->y_offset - s->dev->model->y_offset_calib);
       scan_request->xs += s->dev->model->x_offset;
       scan_request->ys += s->dev->model->y_offset;
     }
@@ -478,7 +478,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
   s->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_LAMP_ON].w = SANE_FALSE;
-  if (s->dev->model->is_cis)
+  if (s->dev->model->is_cis && !(s->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
     DISABLE (OPT_LAMP_ON);
 
   /* bit depth */
@@ -533,7 +533,7 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
   s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
-  if (s->dev->model->is_cis || !debug_options)
+  if ((s->dev->model->is_cis && !(s->dev->model->flags & GT68XX_FLAG_CIS_LAMP)) || !debug_options)
     DISABLE (OPT_AUTO_WARMUP);
 
   /* full scan */

@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    AFE offset/gain setting by David Stevenson <david.stevenson@zoom.co.uk>
-   Copyright (C) 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -781,7 +781,7 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
       return status;
     }
 
-  if (!scanner->dev->model->is_cis)
+  if (!scanner->dev->model->is_cis || (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
     usleep (500000);
   status = gt68xx_scanner_start_scan_extended (scanner, &req, SA_CALIBRATE,
 					       &params);
@@ -967,7 +967,7 @@ static void
 gt68xx_afe_exposure_dump (SANE_String_Const phase, int i,
 			  GT68xx_Exposure_Parameters * exposure)
 {
-  XDBG ((5, "set exposure %s %2d: RGB exposure time: %02x %02x %02x\n",
+  XDBG ((3, "set exposure %s %2d: RGB exposure time: %02x %02x %02x\n",
 	 phase, i, exposure->r_time, exposure->g_time, exposure->b_time));
 }
 #endif /* not NDEBUG */
@@ -1359,6 +1359,7 @@ gt68xx_afe_cis_calc_black (GT68xx_Afe_Values * values,
   SANE_Int end_black;
   SANE_Int i, j;
   SANE_Int min_black = 255;
+  SANE_Int average = 0;
 
   start_black = 0;
   end_black = values->calwidth;
@@ -1370,11 +1371,14 @@ gt68xx_afe_cis_calc_black (GT68xx_Afe_Values * values,
       for (j = 0; j < values->callines; j++)
 	avg_black += (*(black_buffer + i + j * values->calwidth) >> 8);
       avg_black /= values->callines;
+      average += avg_black;
       if (avg_black < min_black)
 	min_black = avg_black;
     }
   values->black = min_black;
-  XDBG ((5, "%s: min_black=%02x\n", function_name, values->black));
+  average /= (end_black - start_black);
+  XDBG ((4, "%s: min_black=0x%02x, average_black=0x%02x\n", function_name, values->black,
+	 average));
 }
 
 static void
@@ -1388,19 +1392,25 @@ gt68xx_afe_cis_calc_white (GT68xx_Afe_Values * values,
 
   start_white = 0;
   end_white = values->calwidth;
+  values->total_white = 0;
 
   /* find max average white value */
   for (i = start_white; i < end_white; ++i)
     {
       SANE_Int avg_white = 0;
       for (j = 0; j < values->callines; j++)
-	avg_white += (*(white_buffer + i + j * values->calwidth) >> 8);
+	{
+	  avg_white += (*(white_buffer + i + j * values->calwidth) >> 8);
+	  values->total_white += (*(white_buffer + i + j * values->calwidth));
+	}
       avg_white /= values->callines;
       if (avg_white > max_white)
 	max_white = avg_white;
     }
   values->white = max_white;
-  XDBG ((5, "%s: max_white=%02x\n", function_name, values->white));
+  values->total_white /= (values->callines * (end_white - start_white));
+  XDBG ((4, "%s: max_white=0x%02x, average_white=0x%02x\n", function_name, values->white,
+	 values->total_white >> 8));
 }
 
 static SANE_Bool
@@ -1417,18 +1427,18 @@ gt68xx_afe_cis_adjust_offset (GT68xx_Afe_Values * values,
       offs = (values->offset_direction * (low - values->black) / 4);
       if (offs == 0)
 	offs = values->offset_direction;
-      DBG (5, "black = %d (too low) --> offs = %d\n", values->black, offs);
+      DBG (4, "black = %d (too low) --> offs = %d\n", values->black, offs);
     }
   else if (values->black > high)
     {
       offs = -(values->offset_direction * (values->black - high) / 7);
       if (offs == 0)
 	offs = -values->offset_direction;
-      DBG (5, "black = %d (too high) --> offs = %d\n", values->black, offs);
+      DBG (4, "black = %d (too high) --> offs = %d\n", values->black, offs);
     }
   else
     {
-      DBG (5, "black = %d (ok)\n", values->black);
+      DBG (4, "black = %d (ok)\n", values->black);
     }
 
   if (offs == 0)
@@ -1455,16 +1465,16 @@ gt68xx_afe_cis_adjust_gain (GT68xx_Afe_Values * values,
   if (values->white < white_low)
     {
       g += 1;
-      DBG (5, "white = %d (too low) --> gain += 1\n", values->white);
+      DBG (4, "white = %d (too low) --> gain += 1\n", values->white);
     }
   else if (values->white > white_high)
     {
       g -= 1;
-      DBG (5, "white = %d (too high) --> gain -= 1\n", values->white);
+      DBG (4, "white = %d (too high) --> gain -= 1\n", values->white);
     }
   else
     {
-      DBG (5, "white = %d (ok)\n", values->white);
+      DBG (4, "white = %d (ok)\n", values->white);
     }
   if (g < 0)
     g = 0;
@@ -1486,20 +1496,20 @@ gt68xx_afe_cis_adjust_exposure (GT68xx_Afe_Values * values,
   if (values->white < border)
     {
       *exposure_time += ((border - values->white) * 2);
-      DBG (5, "white = %d (too low) --> += %d\n",
+      DBG (4, "white = %d (too low) --> += %d\n",
 	   values->white, ((border - values->white) * 2));
       return SANE_FALSE;
     }
   else if (values->white > border + 10)
     {
       *exposure_time -= ((values->white - (border + 10)) * 2);
-      DBG (5, "white = %d (too high) --> -= %d\n",
+      DBG (4, "white = %d (too high) --> -= %d\n",
 	   values->white, ((values->white - (border + 10)) * 2));
       return SANE_FALSE;
     }
   else
     {
-      DBG (5, "white = %d (ok)\n", values->white);
+      DBG (4, "white = %d (ok)\n", values->white);
     }
   return SANE_TRUE;
 }
@@ -1619,6 +1629,49 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   if (!r_buffer || !g_buffer || !b_buffer)
     return SANE_STATUS_NO_MEM;
 
+  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
+    {
+      GT68xx_Afe_Values lamp_values = values;
+      SANE_Int last_white = -21;
+      SANE_Word i;
+      
+      lamp_values.callines = 1;
+      
+      /* loop waiting for lamp to give stable brightness */
+      for (i = 0; i < 80; i++)
+	{
+	  usleep (200000);
+	  if (i == 10)
+	    DBG (0, "Please wait for lamp warm-up\n");
+	  
+	  /* read line */
+	  RIE (gt68xx_afe_cis_read_lines (&lamp_values, scanner, SANE_TRUE, SANE_FALSE,
+					  r_buffer, g_buffer, b_buffer));
+	  
+	  gt68xx_afe_cis_calc_white (&lamp_values, r_buffer);
+	  
+	  XDBG ((4, "%s: check lamp stable: this white = 0x%04X, last white =0x%04X\n",
+		 function_name, lamp_values.total_white, last_white));
+	  
+	  if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
+	    {
+	      if (lamp_values.total_white <= (last_white + 20))
+		break;		/* lamp is warmed up */
+	    }
+	  else
+	    {			/* insist on 30 seconds */
+	      struct timeval now;
+	      int secs;
+	      
+	      gettimeofday (&now, 0);
+	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+	      if (secs >= WARMUP_TIME)
+		break;
+	    }
+	  last_white = lamp_values.total_white;
+	}
+    }
+
   total_count = 0;
   do
     {
@@ -1664,6 +1717,9 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
     }
   while (total_count < 100 && !done);
 
+  if (total_count >= 100)
+    XDBG ((0, "%s: setting AFE reached limit\n", function_name));
+
   IF_DBG (gt68xx_afe_dump ("final", total_count, afe));
 
   /* Exposure time */
@@ -1685,6 +1741,9 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
       total_count++;
     }
   while (!done && exposure_count < 10);
+
+  if (exposure_count >= 10)
+    XDBG ((0, "%s: setting exposure reached limit\n", function_name));
 
   free (r_buffer);
   free (g_buffer);

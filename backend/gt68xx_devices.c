@@ -315,8 +315,8 @@ static GT68xx_Model mustek_2448taplus_model = {
   1200,				/* if ydpi is equal or higher, use linemode */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {1200, 600, 300, 100, 50, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 100, 50, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 100, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 100, 0},	/* possible y-resolutions */
   {16, 12, 8, 0},			/* possible depths in gray mode */
   {16, 12, 8, 0},		/* possible depths in color mode */
 
@@ -765,12 +765,12 @@ static GT68xx_Model mustek_a3usb_model = {
   {12, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (6.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (14.0),		/* Start of scan area in mm (y) */
-  SANE_FIX (297.0),		/* Size of scan area in mm (x) */
-  SANE_FIX (431.0),		/* Size of scan area in mm (y) */
+  SANE_FIX (10.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (433.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (5.0),		/* Start of white strip in mm (y) */
-  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+  SANE_FIX (2.4),		/* Start of white strip in mm (y) */
+  SANE_FIX (4.3),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
@@ -783,14 +783,15 @@ static GT68xx_Model mustek_a3usb_model = {
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
-  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x14, 0x05, 0x12, 0x05, 0x17, 0x0c},	/* Default offset/gain */
+  {0x255, 0x255, 0x255},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
-  SANE_FALSE,			/* Is this a CIS scanner? */
-  0				/* Which flags are needed for this scanner? */
-    /* Tested by Pedro Morais <morais@inocam.com>, changes to CCD by hmg, white
-       strip/black mark untested, line distance must be set up */
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_CIS_LAMP /* Which flags are needed for this scanner? */
+    /* Tested by some people. This scanner is a bit strange as it uses a CIS sensor
+       but it also has a lamp. So the lamp needs to be heated but CIS mode must be
+       used for scanning. */
 };
 
 static GT68xx_Model lexmark_x73_model = {
@@ -1080,14 +1081,14 @@ static GT68xx_Model genius_vivid4xe_model  = {
   0, 8, 16,                     /* RGB CCD Line-distance correction in pixel */
   0,                            /* CCD distcance for CCD with 6 lines) */
 
-  COLOR_ORDER_BGR,              /* Order of the CCD/CIS colors */
+  COLOR_ORDER_RGB,              /* Order of the CCD/CIS colors */
   {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b}, /* Default offset/gain */
   {0x157, 0x157, 0x157},        /* Default exposure parameters */
   SANE_FIX (2.0),               /* Default gamma value */
 
   SANE_FALSE,                   /* Is this a CIS scanner? */
   GT68XX_FLAG_OFFSET_INV /* Which flags are needed for this scanner? */
-  /* mostly untested, based on the Genius Vivid3x */
+  /* tested a bit */
 };
 
 static GT68xx_Model genius_vivid3xe_model  = {
@@ -1137,6 +1138,55 @@ static GT68xx_Model genius_vivid3xe_model  = {
   SANE_FALSE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_OFFSET_INV /* Which flags are needed for this scanner? */
   /* mostly untested, based on the Genius Vivid3x */
+};
+
+static GT68xx_Model genius_vivid1200ex_model  = {
+  "genius-colorpage-vivid-1200-ex",  /* Name */
+  "Genius",                     /* Device vendor string */
+  "Colorpage Vivid 1200 EX",         /* Device model name */
+  "ccd548.fw",                  /* Name of the firmware file */
+  SANE_FALSE,                   /* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,  /* Command set used by this scanner */
+
+  600,                          /* maximum optical sensor resolution */
+  600,                          /* maximum motor resolution */
+  600,                          /* base x-res used to calculate geometry */
+  600,                          /* base y-res used to calculate geometry */
+  50,                           /* if ydpi is equal or higher, use linemode */
+  SANE_TRUE,                    /* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 0},       /* possible x-resolutions */
+  {600, 300, 150, 75, 0},       /* possible y-resolutions */
+  {12, 8, 0},                   /* possible depths in gray mode */
+  {12, 8, 0},                   /* possible depths in color mode */
+
+  SANE_FIX (3.5),               /* Start of scan area in mm  (x) */
+  SANE_FIX (7.5),               /* Start of scan area in mm (y) */
+  SANE_FIX (218.0),             /* Size of scan area in mm (x) */
+  SANE_FIX (299.0),             /* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in mm (y) */
+  SANE_FIX (1.0),               /* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),             /* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),             /* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in TA mode in mm (y) */
+
+  0, 8, 16,                     /* RGB CCD Line-distance correction in pixel */
+  0,                            /* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,              /* Order of the CCD/CIS colors */
+  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b}, /* Default offset/gain */
+  {0x157, 0x157, 0x157},        /* Default exposure parameters */
+  SANE_FIX (2.0),               /* Default gamma value */
+
+  SANE_FALSE,                   /* Is this a CIS scanner? */
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_UNTESTED /* Which flags are needed for this scanner? */
+  /* untested */
 };
 
 static GT68xx_Model plustek_opticslim1200_model = {
@@ -1249,7 +1299,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x05d8, 0x4002, &mustek_2400cu_model},	/* manual override */
   {0x05d8, 0x4002, &mustek_scanexpress2400usb_model}, /* manual override */
   {0x055f, 0x0210, &mustek_a3usb_model},
-  {0x05d8, 0x021a, &mustek_2448taplus_model},
+  {0x055f, 0x021a, &mustek_2448taplus_model},
   {0x043d, 0x002d, &lexmark_x73_model},
   {0x07b3, 0x0400, &plustek_op1248u_model},
   {0x07b3, 0x0401, &plustek_op1248u_model}, /* Same scanner, different id? */
@@ -1258,8 +1308,10 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},
   {0x0458, 0x2011, &genius_vivid3x_model},
+  {0x0458, 0x2014, &plustek_u16b_model},
   {0x0458, 0x2017, &genius_vivid3xe_model},
   {0x0458, 0x201a, &genius_vivid4xe_model},
   {0x0458, 0x201b, &genius_vivid4x_model},
+  {0x0458, 0x201f, &genius_vivid1200ex_model},
   {0, 0, NULL}
 };

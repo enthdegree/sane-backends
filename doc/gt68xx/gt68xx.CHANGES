@@ -1,5 +1,19 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-56 (2004-03-19)
+
+* Genius Vivid 4xe now has color order RGB.
+* Removed 50 dpi for Mustek BearPaw 2448 as that resolution doesn't work.
+* Make sure that the lamp of the Mustek A3 USB gets warmed up. It's a CIS
+  scanner with a lamp. That code is untested.
+* Full scan starts scanning from the start position of the white strip now.
+
+V 1.0-55 (2004-03-06)
+
+* Added detection for Genius Vivid 1200 EX.
+* Fixed product id of Mustek BearPaw 2448 TA Plus.
+* Other minor updates.
+ 
 V 1.0-54 (2004-02-10)
 
 * Added basic support for Plustek OpticSlim 2400. Thanks to Radoslaw Grzanka and

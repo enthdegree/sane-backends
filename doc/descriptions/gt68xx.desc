@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-54"
+:version "1.0-56"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -58,6 +58,11 @@
 :interface "USB"
 ;:comment ""
 
+:model "Colorpage Vivid4"
+:status :untested
+:interface "USB"
+:comment "Should be detected but may not work. Similar to Plustek U16B?"
+
 :model "Colorpage Vivid4x"
 :status :basic
 :interface "USB"
@@ -67,6 +72,11 @@
 :status :basic
 :interface "USB"
 :comment "Should work but has limited testing. Please contact me if you own such a device."
+
+:model "Colorpage Vivid 1200 EX"
+:status :untested
+:interface "USB"
+:comment "Should be detected but may not work."
 
 ; -----------------------------------------------------------------------------
 
@@ -173,20 +183,26 @@
 :status :good
 :comment "Transparency adapter supported"
 
-:model "BearPaw 2448 TA Plus"
+:model "BearPaw 2448 CS Plus"
 :interface "USB"
 :status :minimal
 :comment "Very limited testing. Images don't seem to be ok. Please contact me if you own such a device."
 
+:model "BearPaw 2448 TA Plus"
+:interface "USB"
+:status :minimal
+:comment "With transparency adapter. Very limited testing. Images don't seem to be ok. Please contact me if you own such a device."
+
+
 :model "Plug-n-Scan 2400 MT"
 :interface "USB"
-:status :untested
-:comment "Same as BearPaw 2400 TA Plus? May work. Please test and tell me the result."
+:status :good
+:comment "Works but is slow in high resolutions. Same as BearPaw 2400 TA Plus."
 
 :model "Plug-n-Scan 2400 M"
 :interface "USB"
-:status :untested
-:comment "Same as BearPaw 2400 TA Plus? May work. Please test and tell me the result."
+:status :good
+:comment "Works but is slow in high resolutions. Same as BearPaw 2400 CS Plus."
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
@@ -239,8 +255,13 @@
 
 :model "OpticPro U16B"
 :interface "USB"
-:status :untested
-:comment "Should be detected but may not work. Please contact me if you own such a device."
+:status :minimal
+:comment "Is detected but images look strange."
+
+:model "OpticPro U16B+"
+:interface "USB"
+:status :minimal
+:comment "Is detected but images look strange. Same scanner as U16B?"
 
 :model "OpticPro UT16B"
 :interface "USB"

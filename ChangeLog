@@ -1,3 +1,16 @@
+2004-03-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c backend/gt68xx_low.h doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Genius
+	  Vivid 4xe now has color order RGB. Removed 50 dpi for Mustek
+	  BearPaw 2448 as that resolution doesn't work. Make sure that the
+	  lamp of the Mustek A3 USB gets warmed up. It's a CIS scanner with
+	  a lamp. That code is untested. Full scan starts scanning from the
+	  start position of the white strip now. Added detection for Genius
+	  Vivid 1200 EX. Fixed product id of Mustek BearPaw 2448 TA
+	  Plus. Other minor updates.
+
 2004-03-15  Oliver Rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax: bugfix for sense_handler and do_calibration
 

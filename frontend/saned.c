@@ -862,22 +862,27 @@ process_request (Wire * w)
 	if (strlen(resource) == 0) {
 
 	  const SANE_Device **device_list;
-	  
+
+	  DBG(DBG_DBG, "process_request: (open) strlen(resource) == 0\n");
 	  free (resource);
 
 	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != 
 	      SANE_STATUS_GOOD) 
 	    {
+	      DBG(DBG_ERR, "process_request: (open) sane_get_devices failed\n");
 	      memset (&reply, 0, sizeof (reply));
 	      reply.status = i;
 	      sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	      break;
 	    }
 
 	  if ((device_list == NULL) || (device_list[0] == NULL)) 
 	    {
+	      DBG(DBG_ERR, "process_request: (open) device_list[0] == 0\n");
 	      memset (&reply, 0, sizeof (reply));
 	      reply.status = SANE_STATUS_INVAL;
 	      sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	      break;
 	    }
 
 	  resource = strdup (device_list[0]->name);

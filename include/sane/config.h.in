@@ -100,6 +100,9 @@
 /* Define if struct flock is available */
 #undef HAVE_STRUCT_FLOCK
 
+/* Define if union semun is available */
+#undef HAVE_UNION_SEMUN
+
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 

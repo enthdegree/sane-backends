@@ -55,8 +55,8 @@
 
 #include "snapscan-usb.h"
 
-/* the following code is taken from the manpage of semctl(2) */
-#if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)
+/* check for union semun */
+#if defined(HAVE_UNION_SEMUN)
 /* union semun is defined by including <sys/sem.h> */
 #else
 /* according to X/OPEN we have to define it ourselves */
@@ -447,6 +447,11 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
 
 /*
  * $Log$
+ * Revision 1.7  2002/01/27 18:24:47  hmg
+ * Only define union semun if not already defined in <sys/sem.h>. Fixes
+ * compilation bugs on Irix and FreeBSD.
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
  * Revision 1.6  2002/01/15 20:16:55  oliverschwartz
  * Added workaround for bug in semctl() on PPC; backend version 1.4.5
  *

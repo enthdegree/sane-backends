@@ -122,7 +122,7 @@ AC_MSG_CHECKING([for struct flock in fcntl.h])
 AC_EGREP_HEADER([struct flock], fcntl.h, [AC_MSG_RESULT(yes) ;
                 AC_DEFINE(HAVE_STRUCT_FLOCK, 1,
                 [Define if struct flock is available.])], AC_MSG_RESULT(no))
- 
+
 if test "$ac_cv_header_sys_scsiio_h" = "yes" \
      -a "$ac_cv_header_scsi_h" = "yes";
 then
@@ -140,6 +140,14 @@ AC_TRY_COMPILE([
 ],[socklen_t len],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
 [Define socklen_t as \`int\' if necessary.])])
+
+AC_MSG_CHECKING([for union semun in <sys/sem.h>])
+AC_TRY_COMPILE([
+#include <sys/sem.h>
+],[union semun test_semun],[AC_MSG_RESULT(yes);
+AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
+AC_MSG_RESULT(no))
+
 
 SANE_V4L_VERSION
 

@@ -226,6 +226,9 @@ local_thread( void *arg )
 
 	status = ltd->func( ltd->func_data );
 
+	/* so sanei_thread_get_status() will work correctly... */
+	ltd->status = status;
+
 	DBG( 2, "func() done - status = %d\n", status );
 
 	/* return the status, so pthread_join is able to get it*/
@@ -359,7 +362,7 @@ sanei_thread_waitpid( int pid, int *status )
 
 	DBG(2, "sanei_thread_waitpid() - %d\n", (int)pid);
 #ifdef USE_PTHREAD
-	result = pthread_join((pthread_t)pid, (void*)&ls );
+	result = pthread_join((pthread_t)pid, (void**)&ls );
 
 	if( 0 == result ) {
 		if( PTHREAD_CANCELED == ls ) {

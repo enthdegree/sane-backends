@@ -6,6 +6,7 @@
 	  doc/Makefile.in doc/sane.man: Added hpsj5s backend for the
 	  Hewlett-Packard ScanJet 5S parport scanner (from Max Vorobiev
 	  <pcwizard@zelmail.ru>).
+	* PROJECTS: Removed hpsj5s.
 
 2002-05-29  Frank Zago  <fzago at austin dot rr dot com>
 

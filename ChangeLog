@@ -1,5 +1,7 @@
 2001-02-22  Petter Reinholdtsen <pere@td.org.uit.no>
 
+	* TODO: List memleak problem for sane_get_devices().
+
 	* configure.in include/sane/config.h.in: Really move definition of
 	SCSIBUFFERSIZE from CFLAGS to config.h.
 

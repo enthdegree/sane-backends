@@ -1,3 +1,8 @@
+2001-04-28  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp.desc, doc/sane-hp.man: Add support for new models
+          through PTAL-library
+
 2001-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/agfafogus.c: Moved PATH_MAX after sanei_backend.h include

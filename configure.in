@@ -11,7 +11,7 @@ is_release=no
 dnl ***********************************************************************
 
 AC_CONFIG_HEADERS([include/sane/config.h])
-AC_PREREQ(2.50)dnl		dnl Minimum Autoconf version required.
+AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.
 AC_ARG_PROGRAM
 
 PACKAGE=AC_PACKAGE_NAME
@@ -45,10 +45,15 @@ AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 AC_PATH_PROG(MSGFMT, msgfmt$EXEEXT, no)
 AC_PATH_PROG(XGETTEXT, xgettext$EXEEXT, no)
 AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
+AC_PATH_PROG(LATEX, latex$EXEEXT, no)
+AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
+AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
 AC_SUBST(MSGFMT)
 AC_SUBST(XGETTEXT)
 AC_SUBST(MSGMERGE)
-
+AC_SUBST(LATEX)
+AC_SUBST(DVIPS)
+AC_SUBST(MAKEINDEX)
 dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************
@@ -101,7 +106,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
     sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
-    dev/ppbus/ppi.h usb.h sys/bitypes.h sys/sem.h sys/poll.h)
+    dev/ppbus/ppi.h usb.h sys/bitypes.h sys/sem.h sys/poll.h IOKit/IOKitLib.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 SANE_V4L_VERSION
@@ -425,6 +430,12 @@ AC_ARG_ENABLE(local-backends,
 )
 AC_SUBST(SELECTED_BACKENDS)
 
+if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
+  USE_LATEX="yes"
+else
+  USE_LATEX="no"
+fi
+AC_SUBST(USE_LATEX)
 
 dnl ***********************************************************************
 dnl Write output files

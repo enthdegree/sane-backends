@@ -12,6 +12,9 @@
 	* config.guess config.sub: New upstream versions.
 	* acinclude.m4 aclocal.m4 configure ltmain.sh: New libtool
 	  upstream realease: 1.5.
+	* acinclude.m4 aclocal.m4 configure configure.in: Added support
+	  for -framework option and check for IOKit for MacOS X. Check for
+	  latex tools. Minimum autoconf version is 2.54.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

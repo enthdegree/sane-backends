@@ -123,6 +123,9 @@ AC_DEFUN([SANE_SET_LDFLAGS],
     aix*) #enable .so libraries, disable archives
       LDFLAGS="$LDFLAGS -Wl,-brtl"
       ;;
+    darwin*) #include frameworks
+      LDFLAGS="$LDFLAGS -framework CoreFoundation -framework IOKit"
+      ;;
   esac
 ])
 

@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               40
+#define BUILD               41
 
 #define BACKEND_NAME snapscan
 
@@ -176,6 +176,7 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
     case PRISA5000:
         pos_factor = 600;
         break;
+    case PERFECTION1270:
     case PERFECTION1670:
         pos_factor = 800;
         break;
@@ -1261,11 +1262,17 @@ static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char d
     SANE_Status status = SANE_STATUS_GOOD;
     status = send (pss, dtc, dtcq);
     CHECK_STATUS (status, me, "send");
-    if ((pss->pdev->model == PERFECTION1670) || (pss->pdev->model == PERFECTION2480))
+    switch (pss->pdev->model)
     {
-        /* Epson Perfection 1670 needs an extra invitation */
-        status = send (pss, dtc, dtcq);
-        CHECK_STATUS (status, me, "send");
+        case PERFECTION1270:
+        case PERFECTION1670:
+        case PERFECTION2480:
+            /* Some epson scanners need the gamma table twice */
+            status = send (pss, dtc, dtcq);
+            CHECK_STATUS (status, me, "2nd send");
+            break;
+        default:
+            break;
     }
     return status;
 }
@@ -1567,13 +1574,7 @@ SANE_Status sane_start (SANE_Handle h)
 
     status = download_gamma_tables(pss);
     CHECK_STATUS (status, me, "download_gamma_tables");
-    if ((pss->pdev->model == PERFECTION1670) || (pss->pdev->model == PERFECTION2480))
-    {
-        /* Epson Perfections needs the gamma table twice */
-        status = download_gamma_tables(pss);
-        CHECK_STATUS (status, me, "download_gamma_tables (2nd try)");
-    }
-
+    
     status = download_halftone_matrices(pss);
     CHECK_STATUS (status, me, "download_halftone_matrices");
 
@@ -1837,6 +1838,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.46  2004/12/01 22:12:03  oliver-guest
+ * Added support for Epson 1270
+ *
  * Revision 1.45  2004/10/03 17:34:36  hmg-guest
  * 64 bit platform fixes (bug #300799).
  *

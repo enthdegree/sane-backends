@@ -502,6 +502,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->bpp = 8;
     switch (pss->pdev->model)
     {
+    case PERFECTION1270:
     case PERFECTION1670:
     case PERFECTION2480:
         pss->bpp = 14;
@@ -765,6 +766,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         case PRISA5000:
             pos_factor = (pss->res > 600) ?  1200 : 600;
             break;
+        case PERFECTION1270:
         case PERFECTION1670:
             pos_factor = (pss->res > 800) ?  1600 : 800;
             break;
@@ -1172,6 +1174,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 bufLength = ftell(fd);
                 fseek(fd, 0, SEEK_SET);
                 break;
+            case PERFECTION1270:
             case PERFECTION1670:
 	    case PERFECTION2480:
                 /* Epson firmware files contain an info block which
@@ -1227,6 +1230,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.30  2004/12/01 22:12:03  oliver-guest
+ * Added support for Epson 1270
+ *
  * Revision 1.29  2004/10/03 17:34:36  hmg-guest
  * 64 bit platform fixes (bug #300799).
  *

@@ -1,3 +1,9 @@
+2004-11-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h backend/snapscan.c backend/snapscan-scsi.c 
+	  backend/snapscan-options.c doc/descriptions/snapscan.desc: 
+	  Added support for Epson Perfection 1270
+
 2004-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/umax1220u.desc doc/descriptions/unsupported.desc

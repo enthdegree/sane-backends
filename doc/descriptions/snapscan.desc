@@ -234,6 +234,10 @@
 :interface "USB"
 :status :good
 
+:model "Perfection 1270"
+:interface "USB"
+:status :good
+
 :model "Perfection 1670"
 :interface "USB"
 :status :good

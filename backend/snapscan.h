@@ -100,6 +100,7 @@ typedef enum
     PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
     PRISA5300,          /* Acer ScanPrisa 5300 - 1200 DPI */
     PERFECTION660,      /* Epson Perfection 660 - 1200 DPI */
+    PERFECTION1270,     /* Epson Perfection 1270 - 1600 DPI */
     PERFECTION1670,     /* Epson Perfection 1670 - 1600 DPI */
     PERFECTION2480,
     ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
@@ -135,6 +136,7 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA5300,      "Acer5300"},
     {ARCUS1200,      "Arcus1200"},
     {PERFECTION660,  "Perfection 660"},
+    {PERFECTION1270, "Perfection 1270"},
     {PERFECTION1670, "Perfection 1670"},
     {PERFECTION2480, "Perfection 2480"}
 };
@@ -214,6 +216,7 @@ static char *vendors[] =
 #define USB_PRODUCT_PRISA320 0x2022
 /* Epson product IDs */
 #define USB_PRODUCT_PERFECTION660  0x0114
+#define USB_PRODUCT_PERFECTION1270 0x0120
 #define USB_PRODUCT_PERFECTION1670 0x011f
 #define USB_PRODUCT_PERFECTION2480 0x0121
 
@@ -238,6 +241,7 @@ static struct SnapScan_USB_Model_desc usb_scanners[] =
     {USB_VENDOR_ACER, USB_PRODUCT_PRISA310, PRISA310},  /* Acer 310U */
     {USB_VENDOR_ACER, USB_PRODUCT_PRISA320, PRISA310},  /* Acer 320U */
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION660, PERFECTION660}, /* Epson Perfection 660 */
+    {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION1270, PERFECTION1270}, /* Epson Perfection 1270 */
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION1670, PERFECTION1670}, /* Epson Perfection 1670 */
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION2480, PERFECTION2480} /* Epson Perfection 2480 */
 };
@@ -400,6 +404,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.31  2004/12/01 22:12:04  oliver-guest
+ * Added support for Epson 1270
+ *
  * Revision 1.30  2004/09/02 20:59:12  oliver-guest
  * Added support for Epson 2480
  *

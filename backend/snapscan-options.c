@@ -244,6 +244,7 @@ static void init_options (SnapScan_Scanner * ps)
         x_range_tpo = x_range_tpo_e50;
         y_range_tpo = y_range_tpo_e50;
         break;
+    case PERFECTION1270:
     case PERFECTION1670:
         x_range_tpo = x_range_tpo_1670;
         y_range_tpo = y_range_tpo_1670;
@@ -335,7 +336,13 @@ static void init_options (SnapScan_Scanner * ps)
         SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
     po[OPT_HIGHQUALITY].constraint_type = SANE_CONSTRAINT_NONE;
     ps->highquality = DEFAULT_HIGHQUALITY;
-
+    if (ps->pdev->model == PERFECTION1270)
+    {
+        po[OPT_HIGHQUALITY].cap |= SANE_CAP_INACTIVE;
+        ps->val[OPT_QUALITY_CAL].b = SANE_TRUE;
+        ps->highquality=SANE_TRUE;
+    }
+    
     po[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
     po[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
     po[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
@@ -1508,6 +1515,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.18  2004/12/01 22:12:02  oliver-guest
+ * Added support for Epson 1270
+ *
  * Revision 1.17  2004/09/02 20:59:11  oliver-guest
  * Added support for Epson 2480
  *

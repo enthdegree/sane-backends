@@ -1,4 +1,7 @@
-Fri Apr  3 00:45:55 1998
+2002-06-11
+
+Currently, only SCSI scanners are supported on Solaris.  The following text
+describes, how to use a SCSI scanner.
 
 You need a generic SCSI driver to run SANE on Solaris.  There are at
 least three such drivers: the scg driver by Joerg Schillig, the

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
- 
+
    Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
@@ -2525,6 +2525,8 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
         ||
         pss->pdev->model == VUEGO310S
         ||
+        pss->pdev->model == SNAPSCANE20
+        ||
         pss->pdev->model == SNAPSCANE50
         ||
         pss->pdev->model == SNAPSCAN1236)
@@ -3087,8 +3089,11 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.7  2001/10/10 07:30:06  oliverschwartz
- * fix compiler warnings
+ * Revision 1.8  2001/10/12 21:19:14  oliverschwartz
+ * update to snapscan-20011012
+ *
+ * Revision 1.24  2001/10/11 14:02:10  oliverschwartz
+ * Distinguish between e20/e25 and e40/e50
  *
  * Revision 1.23  2001/10/09 22:34:23  oliverschwartz
  * fix compiler warnings

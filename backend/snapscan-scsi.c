@@ -797,10 +797,6 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        &&
        pss->pdev->model != SNAPSCAN310
        &&
-       pss->pdev->model != SNAPSCAN1236
-       &&
-       pss->pdev->model != SNAPSCANE50
-       &&
        pss->pdev->model != VUEGO310S
        &&
        pss->pdev->model != VUEGO610S)
@@ -1153,8 +1149,14 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.6  2001/10/10 07:30:04  oliverschwartz
- * fix compiler warnings
+ * Revision 1.7  2001/10/12 21:19:13  oliverschwartz
+ * update to snapscan-20011012
+ *
+ * Revision 1.20  2001/10/12 20:54:04  oliverschwartz
+ * enable gamma correction for Snapscan 1236, e20 and e50 scanners
+ *
+ * Revision 1.19  2001/10/11 14:02:10  oliverschwartz
+ * Distinguish between e20/e25 and e40/e50
  *
  * Revision 1.18  2001/10/09 22:34:23  oliverschwartz
  * fix compiler warnings

@@ -82,7 +82,8 @@ typedef enum
     SNAPSCAN600,        /* the SnapScan 600 */
     SNAPSCAN1236,       /* the SnapScan 1236 */
     SNAPSCAN1212U,
-    SNAPSCANE50,        /* SnapScan e20/e40/e50 */
+    SNAPSCANE20,        /* SnapScan e20/e25, 600 DPI */
+    SNAPSCANE50,        /* SnapScan e40/e50, 1200 DPI */
     ACER300F,
     VUEGO310S,          /* Vuego-Version of SnapScan 310 WG changed */
     VUEGO610S,          /* Vuego 610S and 610plus SJU changed */
@@ -117,9 +118,10 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner24",    PRISA5300},
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
-    {"SNAPSCAN e20",        SNAPSCANE50},
-    {"SNAPSCAN e50",        SNAPSCANE50},
+    {"SNAPSCAN e20",        SNAPSCANE20},
+    {"SNAPSCAN e25",        SNAPSCANE20},
     {"SNAPSCAN e40",        SNAPSCANE50},
+    {"SNAPSCAN e50",        SNAPSCANE50},
     {"SNAPSCAN 1236",       SNAPSCAN1236},
     {"SNAPSCAN 1236U",      SNAPSCAN1236},
     {"SNAPSCAN 300",        SNAPSCAN300},
@@ -310,8 +312,14 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.5  2001/10/09 09:45:21  oliverschwartz
- * update snapscan to snapshot 20011008
+ * Revision 1.6  2001/10/12 21:19:16  oliverschwartz
+ * update to snapscan-20011012
+ *
+ * Revision 1.19  2001/10/11 14:02:10  oliverschwartz
+ * Distinguish between e20/e25 and e40/e50
+ *
+ * Revision 1.18  2001/10/10 10:11:10  oliverschwartz
+ * Add support for Snapscan e25 thanks to Rodolphe Suescun
  *
  * Revision 1.17  2001/10/08 18:22:02  oliverschwartz
  * - Disable quality calibration for Acer Vuego 310F

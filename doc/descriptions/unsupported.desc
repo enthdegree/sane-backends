@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-02-06"		; version of backend
+:version "2005-02-20"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -487,12 +487,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for details."
-
-:model "ColorPage-Vivid Pro II"
-:status :unsupported
-:interface "Parport (EPP)"
-:url "http://sourceforge.net/projects/geniusvp2/"
-:comment "No SANE backend yet but a stand-alone driver exists. See link for details. Similar to Primax Colorado Direct 9600 but with E1 ASIC"
 
 ;********************************************************************************************
 
@@ -1592,11 +1586,17 @@
 :status :unsupported
 :comment "Not supported. Same as 8700 and 8900 but includes a TA. Uses a Primax ID. Chipset is RTS8801C. See link for output of /proc/bus/usb/devices."
 
+:model "Onetouch 9000"
+:url "/unsupported/visioneer-onetouch9020.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "Onetouch 9020"
 :url "/unsupported/visioneer-onetouch9020.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. Vendor/product: 0x04a7/0x022c."
+:comment "Not supported. See link for details."
 
 :model "Onetouch Pro 8800"
 :url "/unsupported/visioneer-onetouch8820.html"

@@ -40,7 +40,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 4
+#define BUILD 5
 
 #include "../include/sane/config.h"
 
@@ -591,14 +591,28 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       handle, option, action, value, info);
 
   if (handle != MAGIC || !is_open)
-    return SANE_STATUS_INVAL;	/* Unknown handle ... */
+    {
+      DBG(1, "sane_control_option: unknown handle or not open\n");
+      return SANE_STATUS_INVAL;	/* Unknown handle ... */
+    }
 
   if (option < 0 || option >= NELEMS(sod))
-    return SANE_STATUS_INVAL;	/* Unknown option ... */
+    {
+      DBG(1, "sane_control_option: option %d < 0 or >= number of options\n",
+	  option);
+      return SANE_STATUS_INVAL;	/* Unknown option ... */
+    }
+
+  if (!SANE_OPTION_IS_ACTIVE (sod[option].cap))
+    {
+      DBG(4, "sane_control_option: option is inactive\n");
+      return SANE_STATUS_INVAL;
+    }
 
   switch (action)
     {
     case SANE_ACTION_SET_AUTO:
+      
       status = sanei_constrain_value (sod + option, (void*)&v, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;
@@ -613,6 +627,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
       break;
     case SANE_ACTION_SET_VALUE:
+      if (!SANE_OPTION_IS_SETTABLE (sod[option].cap))
+	{
+	  DBG(4, "sane_control_option: option is not setable\n");
+	  return SANE_STATUS_INVAL;
+	}
       status = sanei_constrain_value (sod + option, value, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;

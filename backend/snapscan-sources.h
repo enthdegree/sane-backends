@@ -2,7 +2,7 @@
  
    Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -87,6 +87,21 @@ static SANE_Status Source_init (Source *pself,
 
 /*
  * $Log$
+ * Revision 1.3  2001/05/26 12:47:31  hmg
+ * Updated snapscan backend to version 1.2 (from
+ * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
+ * Revision 1.3  2001/03/17 22:53:21  sable
+ * Applying Mikael Magnusson patch concerning Gamma correction
+ * Support for 1212U_2
+ *
+ * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
+ * Imported from snapscan-11282000.tar.gz
+ *
+ * Revision 1.2  2000/10/13 03:50:27  cbagwell
+ * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ *
  * Revision 1.2  2000/08/12 15:09:35  pere
  * Merge devel (v1.0.3) into head branch.
  *

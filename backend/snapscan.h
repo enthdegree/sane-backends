@@ -1,8 +1,9 @@
 /* sane - Scanner Access Now Easy.
  
-   Copyright (C) 1997, 1998, 1999  Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 1999, 2001  Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson
+   and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -67,11 +68,21 @@
 
 typedef enum
 {
+  UNKNOWN_BUS,
+  SCSI,
+  USB
+} SnapScan_Bus;
+
+typedef enum
+{
     UNKNOWN,
     SNAPSCAN300,		/* the original SnapScan or SnapScan 300 */
     SNAPSCAN310,		/* the SnapScan 310 */
     SNAPSCAN600,		/* the SnapScan 600 */
     SNAPSCAN1236S,		/* the SnapScan 1236s */
+    SNAPSCAN1212U,
+    SNAPSCANE50,		/* SnapScan e20/e40/e50 */
+    ACER300F,
     VUEGO310S,			/* Vuego-Version of SnapScan 310 WG changed */
     VUEGO610S,			/* Vuego 610S and 610plus SJU changed */
     PRISA620S			/* Prisa-Version of SnapScan 600 GP added */
@@ -90,10 +101,19 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner_9",	PRISA620S},
     {"FlatbedScanner13",	PRISA620S},
     {"FlatbedScanner16",	PRISA620S},
+    {"FlatbedScanner18",	PRISA620S},
+    {"FlatbedScanner19",        PRISA620S},        /* Acer ScanPrisa 1240UT */
+    {"FlatbedScanner20",	PRISA620S},
+    {"SNAPSCAN 1212U",          SNAPSCAN1212U},
+    {"SNAPSCAN 1212U_2",        SNAPSCAN1212U},
+    {"SNAPSCAN e20",            SNAPSCANE50},
+    {"SNAPSCAN e50",          	SNAPSCANE50},
+    {"SNAPSCAN e40",          	SNAPSCANE50},
     {"SNAPSCAN 1236",		SNAPSCAN1236S},
     {"SNAPSCAN 310",		SNAPSCAN310},
     {"SNAPSCAN 600",		SNAPSCAN600},
     {"SnapScan",		SNAPSCAN300},
+    {"ACERSCAN_A4____1",	ACER300F},
 };
 #define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
 
@@ -101,35 +121,45 @@ static char *vendors[] =
 {
     /* SCSI Vendor name */
     "AGFA",
-    "COLOR"
+    "COLOR",
+    "ACERPER"
 };
 #define known_vendors ((int) (sizeof(vendors)/sizeof(vendors[0])))
 
 typedef enum
 {
     OPT_COUNT = 0,		/* option count */
+    OPT_MODE_GROUP,		/* scan mode group */
     OPT_SCANRES,		/* scan resolution */
     OPT_PREVIEW,		/* preview mode toggle */
     OPT_MODE,			/* scan mode */
     OPT_PREVIEW_MODE,		/* preview mode */
     OPT_SOURCE,			/* scan source (flatbed / TPO) */
+    OPT_GEOMETRY_GROUP,		/* geometry group */
     OPT_TLX,			/* top left x */
     OPT_TLY,			/* top left y */
     OPT_BRX,			/* bottom right x */
     OPT_BRY,			/* bottom right y */
     OPT_PREDEF_WINDOW,		/* predefined window configuration */
+    OPT_ENHANCEMENT_GROUP,	/* enhancement group */
+    OPT_QUALITY_CAL,		/* quality calibration */
     OPT_HALFTONE,		/* halftone flag */
     OPT_HALFTONE_PATTERN,	/* halftone matrix */
+    OPT_CUSTOM_GAMMA,		/* use custom gamma tables */
+    OPT_GAMMA_BIND,
     OPT_GAMMA_GS,		/* gamma correction (greyscale) */
     OPT_GAMMA_R,		/* gamma correction (red) */
     OPT_GAMMA_G,		/* gamma correction (green) */
     OPT_GAMMA_B,		/* gamma correction (blue) */
+    OPT_GAMMA_VECTOR_GS,	/* gamma correction vector (greyscale) */
+    OPT_GAMMA_VECTOR_R,		/* gamma correction vector (red) */
+    OPT_GAMMA_VECTOR_G,		/* gamma correction vector (green) */
+    OPT_GAMMA_VECTOR_B,		/* gamma correction vector (blue) */
     OPT_NEGATIVE,		/* swap black and white */
     OPT_THRESHOLD,		/* threshold for line art */
-#ifdef INOPERATIVE
     OPT_BRIGHTNESS,		/* brightness */
     OPT_CONTRAST,		/* contrast */
-#endif
+    OPT_ADVANCED_GROUP,		/* advanced group */
     OPT_RGB_LPR,		/* lines per scsi read (RGB) */
     OPT_GS_LPR,			/* lines per scsi read (GS) */
     OPT_SCSI_CMDS,		/* a group */
@@ -139,6 +169,15 @@ typedef enum
     OPT_REL_UNIT,		/* release unit command (button) */
     NUM_OPTS			/* dummy (gives number of options) */
 } SnapScan_Options;
+
+typedef union
+  {
+    SANE_Bool b;
+    SANE_Word w;
+    SANE_Word *wa;              /* word array */
+    SANE_String s;
+  }
+Option_Value;
 
 typedef enum
 {
@@ -169,6 +208,7 @@ typedef struct snapscan_device
     SANE_Range x_range;		/* x dimension of scan area */
     SANE_Range y_range;		/* y dimension of scan area */
     SnapScan_Model model;	/* type of scanner */
+    SnapScan_Bus bus;           /* bus of the device usb/scsi */
     u_char *depths;		/* bit depth table */
     struct snapscan_device *pnext;
 }
@@ -218,6 +258,7 @@ struct snapscan_scanner
 
     SANE_Option_Descriptor
     options[NUM_OPTS];		/* the option descriptors */
+    Option_Value val[NUM_OPTS];
     /* the options themselves... */
     SANE_Int res;		/* resolution */
     SANE_Bool preview;		/* preview mode toggle */
@@ -228,15 +269,19 @@ struct snapscan_scanner
     SANE_Fixed tly;		/* window top left y */
     SANE_Fixed brx;		/* window bottom right x */
     SANE_Fixed bry;		/* window bottom right y */
-#ifdef INOPERATIVE
     int bright;			/* brightness */
     int contrast;		/* contrast */
-#endif
     SANE_String predef_window;	/* predefined window name */
     SANE_Fixed gamma_gs;	/* gamma correction value (greyscale) */
     SANE_Fixed gamma_r;		/* gamma correction value (red) */
     SANE_Fixed gamma_g;		/* gamma correction value (green) */
     SANE_Fixed gamma_b;		/* gamma correction value (blue) */
+    SANE_Int *gamma_tables;	/* gamma correction vectors */
+    SANE_Int *gamma_table_gs;	/* gamma correction vector (greyscale) */
+    SANE_Int *gamma_table_r;	/* gamma correction vector (red) */
+    SANE_Int *gamma_table_g;	/* gamma correction vector (green) */
+    SANE_Int *gamma_table_b;	/* gamma correction vector (blue) */
+    int gamma_length;		/* length of gamma vectors */
     SANE_Bool halftone;		/* halftone toggle */
     SANE_String dither_matrix;	/* the halftone dither matrix */
     SANE_Bool negative;		/* swap black and white */
@@ -249,6 +294,45 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.4  2001/05/26 12:47:34  hmg
+ * Updated snapscan backend to version 1.2 (from
+ * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
+ * Revision 1.11  2001/04/10 12:38:21  sable
+ * Adding e20 support thanks to Steffen Hübner
+ *
+ * Revision 1.10  2001/04/10 11:04:31  sable
+ * Adding support for snapscan e40 an e50 thanks to Giuseppe Tanzilli
+ *
+ * Revision 1.9  2001/03/17 22:53:21  sable
+ * Applying Mikael Magnusson patch concerning Gamma correction
+ * Support for 1212U_2
+ *
+ * Revision 1.3  2001/03/04 16:51:29  mikael
+ * Added Scan Mode, Geometry, Enhancement and Advanced groups. Added Quality Calibration, Analog Gamma Bind, Custom Gamma and Gamma Vector GS,R,G,B options. Added SNAPSCAN 1212U_2.
+ *
+ * Revision 1.2  2001/02/16 18:32:28  mikael
+ * impl calibration, signed position, increased buffer size
+ *
+ * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
+ * Imported from snapscan-11282000.tar.gz
+ *
+ * Revision 1.8  2000/11/10 01:01:59  sable
+ * USB (kind of) autodetection
+ *
+ * Revision 1.7  2000/11/01 01:26:43  sable
+ * Support for 1212U
+ *
+ * Revision 1.6  2000/10/28 14:06:35  sable
+ * Add support for Acer300f
+ *
+ * Revision 1.5  2000/10/15 17:54:58  cbagwell
+ * Adding USB files for optional USB compiles.
+ *
+ * Revision 1.4  2000/10/13 03:50:27  cbagwell
+ * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ *
  * Revision 1.3  2000/08/12 15:09:37  pere
  * Merge devel (v1.0.3) into head branch.
  *

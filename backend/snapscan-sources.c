@@ -2,7 +2,7 @@
  
    Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -116,6 +116,8 @@ static SANE_Status SCSISource_get (Source *pself,
     SCSISource *ps = (SCSISource *) pself;
     SANE_Status status = SANE_STATUS_GOOD;
     SANE_Int remaining = *plen;
+    static SANE_Int warned_expected_bytes = 0;
+
     while (remaining > 0
            &&
            pself->remaining(pself) > 0
@@ -137,6 +139,37 @@ static SANE_Status SCSISource_get (Source *pself,
 		             + (ps->time.tv_usec - oldtime.tv_usec)/1000.0;
                 ps->pss->expected_read_bytes =
                     ((int) (msecs/ps->pss->ms_per_line))*ps->pss->bytes_per_line;
+
+ 		if(ps->pss->pdev->model == ACER300F
+		   ||
+		   ps->pss->pdev->model == SNAPSCAN310
+		   ||
+		   ps->pss->pdev->model == PRISA620S
+		   ||
+		   ps->pss->pdev->model == SNAPSCAN1212U
+		   ||
+		   ps->pss->pdev->model == SNAPSCAN1236S
+		   ||
+		   ps->pss->pdev->model == SNAPSCANE50
+		   ||
+		   ps->pss->pdev->model == VUEGO310S
+		   ||
+		   ps->pss->pdev->model == VUEGO610S)
+ 		  {
+ 		    ps->pss->expected_read_bytes = (size_t) ps->absolute_max;
+ 		  }
+		if (ps->pss->expected_read_bytes == 0)
+		{
+		    if (!warned_expected_bytes)
+		    {
+			warned_expected_bytes++;
+
+                        DBG (DL_MAJOR_ERROR,
+	                     "%s: Hung up because expected bytes is 0.  Please report!",
+                             __FUNCTION__);
+		    }
+
+		}
             }
             else
             {
@@ -306,6 +339,7 @@ static SANE_Status BufSource_get (Source *pself,
     BufSource *ps = (BufSource *) pself;
     SANE_Status status = SANE_STATUS_GOOD;
     SANE_Int to_move = MIN(*plen, pself->remaining(pself));
+
     if (to_move == 0)
     {
         status = SANE_STATUS_EOF;
@@ -653,9 +687,32 @@ typedef struct
 static SANE_Int RGBRouter_remaining (Source *pself)
 {
     RGBRouter *ps = (RGBRouter *) pself;
+    SANE_Int remaining;
+
     if (ps->cb_start < 0)
-    	return (TxSource_remaining(pself) - ps->cb_size + ps->cb_line_size);
-    return (TxSource_remaining(pself) + ps->cb_line_size - ps->pos);
+	 remaining = (TxSource_remaining(pself) - ps->cb_size + ps->cb_line_size); 
+    else
+        remaining = (TxSource_remaining(pself) + ps->cb_line_size - ps->pos);
+
+    if (remaining < 0)
+    {
+	/* We are in big trouble.  Someone is using the RBGRouter routines
+	 * to find out how much is remaining.  There is a case were not
+	 * enough data has been read yet to fill the circular buffer.
+	 * Until it is filled then no one should be accessing it or
+	 * checking how much is remaining (in current implemntation).
+	 * FIXME: For now, there is some code (measure_transfer_rate) that
+	 * will do this at times and setting remaining = 1 allows some
+	 * scans to squeak by.
+	 */
+	remaining = 1;
+        DBG (DL_MAJOR_ERROR,
+	     "%s: Computed a negative size for circular buffer!  Forcing to size of 1 to keep going\n",
+             __FUNCTION__);
+
+    }
+
+    return (remaining);
 }
 
 static SANE_Status RGBRouter_get (Source *pself,
@@ -676,7 +733,7 @@ static SANE_Status RGBRouter_get (Source *pself,
         if (ps->pos >= ps->cb_line_size)
         {
             /* Try to get more data */
-            SANE_Int ndata = (ps->cb_start < 0)  ?  ps->cb_size  :  ps->cb_line_size;
+	    SANE_Int ndata = (ps->cb_start < 0)  ?  ps->cb_size  :  (ps->cb_line_size - ps->cb_start%ps->cb_line_size);
 	    SANE_Int start = (ps->cb_start < 0)  ?  0  :  ps->cb_start;
             SANE_Int ndata2;
 	    SANE_Int ndata3;
@@ -688,6 +745,10 @@ static SANE_Status RGBRouter_get (Source *pself,
             	status = TxSource_get (pself, ps->cbuf + start + ndata3, &ndata2);
             	if (status != SANE_STATUS_GOOD  ||  ndata2 == 0)
 		{
+		    DBG (DL_MINOR_ERROR,
+			 "TxSource_get failed status:%d, ndata:%d, ndata2:%d ndata3:%d\n", status, ndata, ndata2, ndata3);
+		    ps->cb_start = (start + ndata3)%ps->cb_size;
+	    
 		    *plen -= remaining;
 		    return status;
 		}
@@ -904,6 +965,58 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.4  2001/05/26 12:47:31  hmg
+ * Updated snapscan backend to version 1.2 (from
+ * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
+ * Revision 1.11  2001/04/13 13:12:18  oliverschwartz
+ * use absolute_max as expected_read_bytes for PRISA620S
+ *
+ * Revision 1.10  2001/04/10 11:04:31  sable
+ * Adding support for snapscan e40 an e50 thanks to Giuseppe Tanzilli
+ *
+ * Revision 1.9  2001/03/17 22:53:21  sable
+ * Applying Mikael Magnusson patch concerning Gamma correction
+ * Support for 1212U_2
+ *
+ * Revision 1.3  2001/03/04 16:53:21  mikael
+ * Reading absolute max from SNAPSCAN 1212U
+ *
+ * Revision 1.2  2001/02/16 18:32:28  mikael
+ * impl calibration, signed position, increased buffer size
+ *
+ * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
+ * Imported from snapscan-11282000.tar.gz
+ *
+ * Revision 1.8  2000/11/28 03:55:07  cbagwell
+ * Reverting a fix to RGBRouter_remaining to original fix.  This allows
+ * most scanners to scan at 600 dpi by ignoring insufficent data in
+ * the RGB circular buffer and always returning size = 1 in those cases.
+ * This should probably be fixed at a higher level.
+ *
+ * Revision 1.7  2000/11/20 01:02:42  cbagwell
+ * Updates so that USB will continue reading when it receives an EAGAIN error.
+ * Also, changed RGBRouter_remaining to not be able to return a negative
+ * value.
+ *
+ * Revision 1.6  2000/11/04 01:53:58  cbagwell
+ * Commiting some needed USB updates.  Added extra test logic to detect
+ * bad bytes_expected values.  Just to help debug faster on scanners
+ * that tickle the bug.
+ *
+ * Revision 1.5  2000/10/30 22:32:20  sable
+ * Support for vuego310s vuego610s and 1236s
+ *
+ * Revision 1.4  2000/10/28 14:16:10  sable
+ * Bug correction for SnapScan310
+ *
+ * Revision 1.3  2000/10/28 14:06:35  sable
+ * Add support for Acer300f
+ *
+ * Revision 1.2  2000/10/13 03:50:27  cbagwell
+ * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ *
  * Revision 1.3  2000/08/12 15:09:35  pere
  * Merge devel (v1.0.3) into head branch.
  *

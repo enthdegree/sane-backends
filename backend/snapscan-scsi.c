@@ -1,8 +1,9 @@
 /* sane - Scanner Access Now Easy.
  
-   Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson
+   and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -51,8 +52,7 @@
 
 /* scanner scsi commands */
 
-/* Remove comment from following line to use USB instead of SCSI */
-/* #include "snapscan-usb.h" */
+#include "snapscan-usb.h"
 
 /* a sensible sense handler, courtesy of Franck;
    the last argument is expected to be a pointer to the associated
@@ -65,12 +65,8 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
     char *sense_str = NULL, *as_str = NULL;
     SANE_Status status = SANE_STATUS_GOOD;
 
-    DBG (DL_CALL_TRACE,
-    	 "%s(%ld, %p, %p)\n",
-	 me,
-	 (long) scsi_fd,
-         (void *) result,
-	 (void *) arg);
+    DBG (DL_CALL_TRACE, "%s(%ld, %p, %p)\n", me, (long) scsi_fd,
+         (void *) result, (void *) arg);
 
     sense = result[2] & 0x0f;
     asc = result[12];
@@ -158,10 +154,16 @@ static SANE_Status open_scanner (SnapScan_Scanner *pss)
     DBG (DL_CALL_TRACE, "open_scanner\n");
     if (!pss->opens)
     {
-        status = sanei_scsi_open (pss->devname,
-	                          &(pss->fd),
-                                  sense_handler,
-				  (void *) pss);
+      if(pss->pdev->bus == SCSI)
+	{
+	  status = sanei_scsi_open (pss->devname, &(pss->fd),
+				    sense_handler, (void *) pss);
+	}
+      else
+	{
+	  status = snapscani_usb_open (pss->devname, &(pss->fd),
+				   sense_handler, (void *) pss);
+	}
     }
     else
     {
@@ -177,11 +179,36 @@ static void close_scanner (SnapScan_Scanner *pss)
 {
     DBG (DL_CALL_TRACE, "close_scanner\n");
     if (pss->opens)
-    {
+      {
         pss->opens--;
         if (!pss->opens)
-            sanei_scsi_close (pss->fd);
+	  {
+	    if(pss->pdev->bus == SCSI)
+	      {
+		sanei_scsi_close (pss->fd);
+	      }
+	    else if(pss->pdev->bus == USB)
+	      {
+		snapscani_usb_close (pss->fd);
+	      }
+	  }
+      }
+}
+
+static SANE_Status snapscan_cmd(SnapScan_Bus bus, int fd, const void *src,
+				size_t src_size, void *dst, size_t * dst_size)
+{
+  SANE_Status status;
+  DBG (DL_CALL_TRACE, "snapscan_cmd\n");
+  if(bus == USB)
+    {
+      status = snapscani_usb_cmd(fd, src, src_size, dst, dst_size);
     }
+  else
+    {
+      status = sanei_scsi_cmd(fd, src, src_size, dst, dst_size);
+    }
+  return status;
 }
 
 /* SCSI commands */
@@ -196,7 +223,6 @@ static void close_scanner (SnapScan_Scanner *pss)
 #define RELEASE_UNIT           0x17
 #define SEND_DIAGNOSTIC        0x1D
 #define GET_DATA_BUFFER_STATUS 0x34
-
 
 #define SCAN_LEN 6
 #define READ_LEN 10
@@ -294,7 +320,7 @@ static void check_range (int *v, SANE_Range r)
    must point to character buffers of size at least 8 and 17
    respectively */
 
-static SANE_Status mini_inquiry (int fd, char *vendor, char *model)
+static SANE_Status mini_inquiry (SnapScan_Bus bus, int fd, char *vendor, char *model)
 {
     static const char *me = "mini_inquiry";
     size_t read_bytes;
@@ -305,8 +331,8 @@ static SANE_Status mini_inquiry (int fd, char *vendor, char *model)
     read_bytes = 36;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    status = snapscan_cmd (bus, fd, cmd, sizeof (cmd), data, &read_bytes);
+    CHECK_STATUS (status, me, "snapscan_cmd");
 
     memcpy (vendor, data + 8, 7);
     vendor[7] = 0;
@@ -331,12 +357,13 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->cmd[4] = INQUIRY_RET_LEN;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (pss->fd,
-                             pss->cmd,
-                             INQUIRY_LEN,
-                             pss->buf,
-			     &pss->read_bytes);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    status = snapscan_cmd (pss->pdev->bus,
+			   pss->fd,
+			   pss->cmd,
+			   INQUIRY_LEN,
+			   pss->buf,
+			   &pss->read_bytes);
+    CHECK_STATUS (status, me, "snapscan_cmd");
 
     /* record current parameters */
 
@@ -370,6 +397,8 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case SNAPSCAN310:
     case SNAPSCAN600:
     case SNAPSCAN1236S:
+    case SNAPSCAN1212U:
+    case SNAPSCANE50:
     case VUEGO310S:		/* WG changed */
     case VUEGO610S:		/* SJU changed */
     case PRISA620S:		/* GP added */
@@ -432,14 +461,8 @@ static SANE_Status test_unit_ready (SnapScan_Scanner *pss)
     SANE_Status status;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (pss->fd, cmd, sizeof (cmd), NULL, NULL);
-    if (status != SANE_STATUS_GOOD)
-    {
-        DBG (DL_MAJOR_ERROR,
-	     "%s: scsi command error: %s\n",
-             me,
-	     sane_strstatus (status));
-    }
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -450,7 +473,7 @@ static void reserve_unit (SnapScan_Scanner *pss)
     SANE_Status status;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (pss->fd, cmd, sizeof (cmd), NULL, NULL);
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
     if (status != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR,
@@ -467,7 +490,7 @@ static void release_unit (SnapScan_Scanner *pss)
     SANE_Status status;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (pss->fd, cmd, sizeof (cmd), NULL, NULL);
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
     if (status != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR,
@@ -480,6 +503,7 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTC_HALFTONE 0x02
 #define DTC_GAMMA 0x03
 #define DTC_SPEED 0x81
+#define DTC_CALIBRATION 0x82
 #define DTCQ_HALFTONE_BW8 0x00
 #define DTCQ_HALFTONE_COLOR8 0x01
 #define DTCQ_HALFTONE_BW16 0x80
@@ -550,6 +574,9 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
     case DTC_SPEED:		/* static transfer speed */
         tl = 2;
         break;
+    case DTC_CALIBRATION:
+	tl = calibration_line_length(pss);
+	break;
     default:
         DBG (DL_MAJOR_ERROR, "%s: unsupported data type code 0x%x\n",
              me, (unsigned) dtc);
@@ -562,9 +589,9 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
     pss->buf[7] = (tl >> 8) & 0xff;
     pss->buf[8] = tl & 0xff;
 
-    status = sanei_scsi_cmd (pss->fd, pss->buf, SEND_LENGTH + tl,
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->buf, SEND_LENGTH + tl,
                              NULL, NULL);
-    CHECK_STATUS (status, me, "sane_scsi_cmd");
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -636,15 +663,15 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     check_range(&(pss->brx), pss->pdev->x_range);  
     check_range(&(pss->bry), pss->pdev->y_range);  
     {
-        unsigned tlxp =
-            (unsigned) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tlx));
-        unsigned tlyp =
-            (unsigned) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tly));
-        unsigned brxp =
-            (unsigned) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->brx));
-        unsigned bryp =
-            (unsigned) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->bry));
-        unsigned tmp;
+        int tlxp =
+            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tlx));
+        int tlyp =
+            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->tly));
+        int brxp =
+            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->brx));
+        int bryp =
+            (int) (pss->actual_res*IN_PER_MM*SANE_UNFIX(pss->bry));
+        int tmp;
 
         /* we don't guard against brx < tlx and bry < tly in the options */
         if (brxp < tlxp)
@@ -667,16 +694,10 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
         u_int_to_u_char4p (MAX (((unsigned) (bryp - tlyp)), 75),
                            pc + SET_WINDOW_P_LENGTH);
     }
-#ifdef INOPERATIVE
-    pc[SET_WINDOW_P_BRIGHTNESS] =
-        (u_char) (255.0*((pss->bright + 100) / 200.0));
-#endif
+    pc[SET_WINDOW_P_BRIGHTNESS] = 128;
     pc[SET_WINDOW_P_THRESHOLD] =
         (u_char) (255.0*(pss->threshold / 100.0));
-#ifdef INOPERATIVE
-    pc[SET_WINDOW_P_CONTRAST] =
-        (u_char) (255.0*((pss->contrast + 100) / 200.0));
-#endif
+    pc[SET_WINDOW_P_CONTRAST] = 128;
     {
         SnapScan_Mode mode = pss->mode;
         u_char bpp;
@@ -725,8 +746,21 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     u_short_to_u_charp (0x0000, pc + SET_WINDOW_P_BIT_ORDERING);	/* used? */
     pc[SET_WINDOW_P_COMPRESSION_TYPE] = 0;	/* none */
     pc[SET_WINDOW_P_COMPRESSION_ARG] = 0;	/* none applicable */
-    pc[SET_WINDOW_P_DEBUG_MODE] = 2;		/* use full 128k buffer */
-    pc[SET_WINDOW_P_GAMMA_NO] = 0x01;		/* downloaded table */
+    if(pss->pdev->model != ACER300F
+       &&
+       pss->pdev->model != SNAPSCAN310
+       &&
+       pss->pdev->model != SNAPSCAN1236S
+       &&
+       pss->pdev->model != SNAPSCANE50
+       &&
+       pss->pdev->model != VUEGO310S
+       &&
+       pss->pdev->model != VUEGO610S)
+      {
+	pc[SET_WINDOW_P_DEBUG_MODE] = 2;		/* use full 128k buffer */
+	pc[SET_WINDOW_P_GAMMA_NO] = 0x01;		/* downloaded table */
+      }
     source = 0x20;
     if (pss->preview) 
 	source |= 0x40; 
@@ -738,12 +772,9 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_GREEN_UNDER_COLOR] = 0xff;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-
-    status = sanei_scsi_cmd (pss->fd,
-                             pss->cmd,
-                             SET_WINDOW_TOTAL_LEN,
-                             NULL, NULL);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
+			   SET_WINDOW_TOTAL_LEN, NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -755,11 +786,8 @@ static SANE_Status scan (SnapScan_Scanner *pss)
     DBG (DL_CALL_TRACE, "%s\n", me);
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = SCAN;
-
-    DBG (DL_CALL_TRACE, "%s\n", me);
-
-    status = sanei_scsi_cmd (pss->fd, pss->cmd, SCAN_LEN, NULL, NULL);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd, SCAN_LEN, NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -782,12 +810,9 @@ static SANE_Status scsi_read (SnapScan_Scanner *pss, u_char read_type)
 
     pss->read_bytes = pss->expected_read_bytes;
 
-    status = sanei_scsi_cmd (pss->fd,
-                             pss->cmd,
-			     READ_LEN,
-                             pss->buf,
-			     &pss->read_bytes);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
+			     READ_LEN, pss->buf, &pss->read_bytes);
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -802,13 +827,12 @@ static SANE_Status request_sense (SnapScan_Scanner *pss)
     read_bytes = 20;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
-    status = sanei_scsi_cmd (pss->fd, cmd, sizeof (cmd), data, &read_bytes);
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd),
+			   data, &read_bytes);
     if (status != SANE_STATUS_GOOD)
     {
-        DBG (DL_MAJOR_ERROR,
-	     "%s: scsi command error: %s\n",
-             me,
-	     sane_strstatus (status));
+        DBG (DL_MAJOR_ERROR, "%s: scsi command error: %s\n",
+             me, sane_strstatus (status));
     }
     else
     {
@@ -816,7 +840,6 @@ static SANE_Status request_sense (SnapScan_Scanner *pss)
     }
     return status;
 }
-
 
 static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
 {
@@ -832,14 +855,8 @@ static SANE_Status send_diagnostic (SnapScan_Scanner *pss)
     }
     DBG (DL_CALL_TRACE, "%s\n", me);
 
-    status = sanei_scsi_cmd (pss->fd, cmd, sizeof (cmd), NULL, NULL);
-    if (status != SANE_STATUS_GOOD)
-    {
-        DBG (DL_MAJOR_ERROR,
-	     "%s: scsi command error: %s\n",
-             me,
-	     sane_strstatus (status));
-    }
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, cmd, sizeof (cmd), NULL, NULL);
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -870,12 +887,12 @@ static SANE_Status get_data_buffer_status (SnapScan_Scanner *pss, int wait)
         pss->cmd[1] = 0x01;
     u_short_to_u_charp (DESCRIPTOR_LENGTH, pss->cmd + 7);
 
-    status = sanei_scsi_cmd (pss->fd,
+    status = snapscan_cmd (pss->pdev->bus, pss->fd,
                              pss->cmd,
 			     GET_DATA_BUFFER_STATUS_LEN,
                              pss->buf,
 			     &pss->read_bytes);
-    CHECK_STATUS (status, me, "sanei_scsi_cmd");
+    CHECK_STATUS (status, me, "snapscan_cmd");
     return status;
 }
 
@@ -905,8 +922,7 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
                     int delay = pss->asi1 + 1;
                     DBG (DL_INFO,
 		         "%s: scanner warming up. Waiting %ld seconds.\n",
-                         me,
-			 (long) delay);
+                         me, (long) delay);
                     sleep (delay);
                 }
                 break;
@@ -926,8 +942,127 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
     return status;
 }
 
+#define READ_CALIBRATION 0x82
+#define NUM_CALIBRATION_LINES 16
+
+static SANE_Status read_calibration_data (SnapScan_Scanner *pss, void *buf, u_char num_lines)
+{
+    static const char *me = "read_calibration_data";
+    SANE_Status status;
+    size_t expected_read_bytes = num_lines * calibration_line_length(pss);
+    size_t read_bytes;
+
+    DBG (DL_CALL_TRACE, "%s\n", me);
+    zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
+    pss->cmd[0] = READ;
+    pss->cmd[2] = READ_CALIBRATION;
+    pss->cmd[5] = num_lines;
+    u_int_to_u_char3p (expected_read_bytes, pss->cmd + 6);
+    read_bytes = expected_read_bytes;
+
+    status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
+			     READ_LEN, buf, &read_bytes);
+    CHECK_STATUS (status, me, "snapscan_cmd");
+
+    if(read_bytes != expected_read_bytes) {
+	DBG (DL_MAJOR_ERROR, "%s: read %d of %d calibration data\n", me, read_bytes, expected_read_bytes);
+	return SANE_STATUS_IO_ERROR;
+    }
+
+    return SANE_STATUS_GOOD;
+}
+
+static SANE_Status calibrate (SnapScan_Scanner *pss)
+{
+    int r;
+    int c;
+    u_char *buf;
+    static const char *me = "calibrate";
+    SANE_Status status;
+    int line_length = calibration_line_length(pss);
+
+    buf = (u_char *) malloc(NUM_CALIBRATION_LINES * line_length);
+    if (!buf)
+    {
+        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, NUM_CALIBRATION_LINES * line_length);
+        return SANE_STATUS_NO_MEM;
+    }
+
+    DBG (DL_MAJOR_ERROR, "%s: reading calibration data\n", me);
+    status = read_calibration_data(pss, buf, NUM_CALIBRATION_LINES);
+    CHECK_STATUS(status, me, "read_calibration_data");
+
+/*    status = test_unit_ready (pss);
+      CHECK_STATUS(status, me, "test unit ready");*/
+
+    for(c=0; c < line_length; c++) {
+	u_int sum = 0;
+	for(r=0; r < NUM_CALIBRATION_LINES; r++) {
+	    sum += buf[c + r * line_length];
+	}
+	pss->buf[c + SEND_LENGTH] = sum / NUM_CALIBRATION_LINES;
+    }
+
+    status = send (pss, DTC_CALIBRATION, 1);
+    CHECK_STATUS(status, me, "send calibration");
+
+/*    status = test_unit_ready (pss);
+      CHECK_STATUS(status, me, "test unit ready");*/
+
+    return SANE_STATUS_GOOD;
+}
+
 /*
  * $Log$
+ * Revision 1.4  2001/05/26 12:47:30  hmg
+ * Updated snapscan backend to version 1.2 (from
+ * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
+ * Revision 1.12  2001/04/10 13:00:31  sable
+ * Moving sanei_usb_* to snapscani_usb*
+ *
+ * Revision 1.11  2001/04/10 11:04:31  sable
+ * Adding support for snapscan e40 an e50 thanks to Giuseppe Tanzilli
+ *
+ * Revision 1.10  2001/03/17 22:53:21  sable
+ * Applying Mikael Magnusson patch concerning Gamma correction
+ * Support for 1212U_2
+ *
+ * Revision 1.3  2001/03/04 16:37:57  mikael
+ * Remove brightness and contrast settings in window.
+ *
+ * Revision 1.2  2001/02/16 18:32:28  mikael
+ * impl calibration, signed position, increased buffer size
+ *
+ * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
+ * Imported from snapscan-11282000.tar.gz
+ *
+ * Revision 1.9  2000/11/10 01:01:59  sable
+ * USB (kind of) autodetection
+ *
+ * Revision 1.8  2000/11/01 01:26:43  sable
+ * Support for 1212U
+ *
+ * Revision 1.7  2000/10/30 22:32:20  sable
+ * Support for vuego310s vuego610s and 1236s
+ *
+ * Revision 1.6  2000/10/29 22:44:55  sable
+ * Bug correction for 1236s
+ *
+ * Revision 1.5  2000/10/28 14:16:10  sable
+ * Bug correction for SnapScan310
+ *
+ * Revision 1.4  2000/10/28 14:06:35  sable
+ * Add support for Acer300f
+ *
+ * Revision 1.3  2000/10/15 19:52:06  cbagwell
+ * Changed USB support to a 1 line modification instead of multi-file
+ * changes.
+ *
+ * Revision 1.2  2000/10/13 03:50:27  cbagwell
+ * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ *
  * Revision 1.3  2000/08/12 15:09:34  pere
  * Merge devel (v1.0.3) into head branch.
  *

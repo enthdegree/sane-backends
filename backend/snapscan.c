@@ -1,8 +1,9 @@
 /* sane - Scanner Access Now Easy.
  
-   Copyright (C) 1997, 1998 Franck Schnefra, Michel Roelofs,
+   Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
-   Petter Reinholdtsen, Gary Plewa, and Kevin Charter
+   Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson
+   and Kevin Charter
  
    This file is part of the SANE package.
  
@@ -49,7 +50,7 @@
 /* $Id$
    SANE SnapScan backend */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -66,9 +67,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_scsi.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_scsi.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024
@@ -82,17 +83,18 @@
 
 #define BACKEND_NAME snapscan
 
-#include "sane/sanei_backend.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/saneopts.h"
 
 #define MIN(x,y) ((x)<(y) ? (x) : (y))
 #define MAX(x,y) ((x)>(y) ? (x) : (y))
+#define LIMIT(x,min,max) MIN(MAX(x, min), max)
 
 #ifdef INOPERATIVE
 #define P_200_TO_255(per) SANE_UNFIX(255.0*((per + 100)/200.0))
 #endif
 
-#include "sane/sanei_config.h"
+#include "../include/sane/sanei_config.h"
 #define SNAPSCAN_CONFIG_FILE "snapscan.conf"
 
 /* debug levels */
@@ -129,16 +131,15 @@ if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n"
 #define DEFAULT_RES  		300
 #define DEFAULT_PREVIEW 	SANE_FALSE
 
-#ifdef INOPERATIVE
 #define DEFAULT_BRIGHTNESS	0
-#define AUTO_BRIGHTNESS		-100
 #define DEFAULT_CONTRAST	0
-#define AUTO_CONTRAST		-100
-#endif
 #define DEFAULT_GAMMA		SANE_FIX(1.8)
 #define DEFAULT_HALFTONE	SANE_FALSE
 #define DEFAULT_NEGATIVE	SANE_FALSE
 #define DEFAULT_THRESHOLD	50
+#define DEFAULT_QUALITY 	SANE_TRUE
+#define DEFAULT_CUSTOM_GAMMA	SANE_FALSE
+#define DEFAULT_GAMMA_BIND	SANE_FALSE
 
 
 static SANE_Int def_rgb_lpr = 4;
@@ -147,15 +148,15 @@ static SANE_Int def_gs_lpr = 12;
 /* ranges */
 static const SANE_Range x_range_fb =
 {
-    SANE_FIX (0.0), SANE_FIX (215.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (216.0), SANE_FIX (1.0)
 };	/* mm */
 static const SANE_Range y_range_fb =
 {
-    SANE_FIX (0.0), SANE_FIX (290.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (297.0), SANE_FIX (1.0)
 };	/* mm */
 static const SANE_Range x_range_tpo =
 {
-    SANE_FIX (0.0), SANE_FIX (130.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (129.0), SANE_FIX (1.0)
 };	/* mm */
 static const SANE_Range y_range_tpo =
 {
@@ -165,19 +166,28 @@ static const SANE_Range gamma_range =
 {
     SANE_FIX (0.0), SANE_FIX (4.0), SANE_FIX (0.1)
 };
+static const SANE_Range gamma_vrange =
+{
+    0, 255, 1
+};
 static const SANE_Range lpr_range =
 {
     1, 50, 1
 };
 
-#ifdef INOPERATIVE
-static const SANE_Range percent_range =
+static const SANE_Range brightness_range =
 {
-    -100 << SANE_FIXED_SCALE_SHIFT,
-    100 << SANE_FIXED_SCALE_SHIFT,
+    -400 << SANE_FIXED_SCALE_SHIFT,
+    400 << SANE_FIXED_SCALE_SHIFT,
     1 << SANE_FIXED_SCALE_SHIFT
 };
-#endif
+
+static const SANE_Range contrast_range =
+{
+    -100 << SANE_FIXED_SCALE_SHIFT,
+    400 << SANE_FIXED_SCALE_SHIFT,
+    1 << SANE_FIXED_SCALE_SHIFT
+};
 
 static const SANE_Range positive_percent_range =
 {
@@ -185,6 +195,9 @@ static const SANE_Range positive_percent_range =
     100 << SANE_FIXED_SCALE_SHIFT,
     1 << SANE_FIXED_SCALE_SHIFT
 };
+
+/* predefined preview mode name */                                             
+static char md_auto[] = "Auto";                                                
 
 /* predefined scan mode names */
 static char md_colour[] = "Colour";
@@ -228,16 +241,86 @@ static u_char depths8[MD_NUM_MODES] =	{8, 1, 8, 1};
 static u_char depths10[MD_NUM_MODES] =	{10, 1, 10, 1};
 static u_char depths12[MD_NUM_MODES] =	{12, 1, 12, 1};
 
-/* external routines */
+static void gamma_n (double gamma, int brightness, int contrast,
+		     u_char *buf, int length);
+static void gamma_to_sane (int length, u_char *in, SANE_Int *out);
 
-#include "snapscan-utils.c"
+static inline SnapScan_Mode actual_mode (SnapScan_Scanner *pss)
+{
+    if (pss->preview == SANE_TRUE)
+        return pss->preview_mode;
+    return pss->mode;
+}
+
+static inline int is_colour_mode (SnapScan_Mode m)
+{
+    return (m == MD_COLOUR) || (m == MD_BILEVELCOLOUR);
+}
+
+static inline int calibration_line_length(SnapScan_Scanner *pss)
+{
+    int pixel_length = pss->actual_res * 8.5;
+
+    if(is_colour_mode(actual_mode(pss))) {
+	return 3 * pixel_length;
+    } else {
+	return pixel_length;
+    }
+}
+
+/* external routines */
 #include "snapscan-scsi.c"
 #include "snapscan-sources.c"
+#include "snapscan-usb.c"
 
-/* Remove comment from following line to enable USB instead of SCSI */
-/* #include "snapscan-usb.c" */
 
 static size_t max_string_size(SANE_String_Const strings[]);
+
+/* Initialize gamma tables */
+static SANE_Status init_gamma(SnapScan_Scanner * ps)
+{
+    u_char *gamma;
+    int bpp = (ps->hconfig & HCFG_ADC) ? 10 : 8;
+
+    ps->gamma_length = 1 << bpp;
+
+    ps->gamma_tables =
+	(SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
+
+    gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char));
+
+    if (!ps->gamma_tables || !gamma)
+    {
+	if (ps->gamma_tables)
+	    free (ps->gamma_tables);
+
+	if (gamma)
+	    free (gamma);
+
+        return SANE_STATUS_NO_MEM;
+    }
+
+    ps->gamma_table_gs = &ps->gamma_tables[0 * ps->gamma_length];
+    ps->gamma_table_r = &ps->gamma_tables[1 * ps->gamma_length];
+    ps->gamma_table_g = &ps->gamma_tables[2 * ps->gamma_length];
+    ps->gamma_table_b = &ps->gamma_tables[3 * ps->gamma_length];
+    
+    /* Default tables */
+    gamma_n (ps->gamma_gs, ps->bright, ps->contrast, gamma, bpp);
+    gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_gs);
+
+    gamma_n (ps->gamma_r, ps->bright, ps->contrast, gamma, bpp);
+    gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_r);
+
+    gamma_n (ps->gamma_g, ps->bright, ps->contrast, gamma, bpp);
+    gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_g);
+
+    gamma_n (ps->gamma_b, ps->bright, ps->contrast, gamma, bpp);
+    gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_b);
+
+    free (gamma);
+    return SANE_STATUS_GOOD;
+}
 
 /* init_options -- initialize the option set for a scanner; expects the
    scanner structure's hardware configuration byte (hconfig) to be valid.
@@ -257,10 +340,16 @@ static void init_options (SnapScan_Scanner * ps)
         {11, 75, 100, 150, 200, 300, 400, 600, 1200, 2400, 4800, 9600};
     static SANE_Word resolutions_620[] =
         {12, 75, 100, 150, 200, 300, 400, 600, 1200, 2400, 4800, 9600, 19200};
+    static SANE_Word resolutions_e50[] =
+        {9, 75, 100, 150, 200, 300, 400, 600, 1200, 2400}; /* 2400 and above, still  not work */
     static SANE_String_Const names_300[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_310[] =
         {md_colour, md_greyscale, md_lineart, NULL};
+    static SANE_String_Const preview_names_300[] =
+        {md_auto, md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
+    static SANE_String_Const preview_names_310[] =
+        {md_auto, md_colour, md_greyscale, md_lineart, NULL};
     SANE_Option_Descriptor *po = ps->options;
 
     po[OPT_COUNT].name = SANE_NAME_NUM_OPTIONS;
@@ -276,6 +365,12 @@ static void init_options (SnapScan_Scanner * ps)
         po[OPT_COUNT].constraint_type = SANE_CONSTRAINT_RANGE;
         po[OPT_COUNT].constraint.range = &count_range;
     }
+
+    po[OPT_MODE_GROUP].title = "Scan Mode";
+    po[OPT_MODE_GROUP].desc = "";
+    po[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
+    po[OPT_MODE_GROUP].cap = 0;
+    po[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_SCANRES].name = SANE_NAME_SCAN_RESOLUTION;
     po[OPT_SCANRES].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -295,6 +390,10 @@ static void init_options (SnapScan_Scanner * ps)
 
     case VUEGO610S:		/* SJU added */
         po[OPT_SCANRES].constraint.word_list = resolutions_610;
+        break;
+
+    case SNAPSCANE50:
+        po[OPT_SCANRES].constraint.word_list = resolutions_e50;
         break;
 
     case PRISA620S:		/* GP added */
@@ -321,17 +420,15 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
     ps->preview = DEFAULT_PREVIEW;
 
-#ifdef INOPERATIVE
     po[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
     po[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
     po[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
     po[OPT_BRIGHTNESS].type = SANE_TYPE_FIXED;
     po[OPT_BRIGHTNESS].unit = SANE_UNIT_PERCENT;
     po[OPT_BRIGHTNESS].size = sizeof (int);
-    po[OPT_BRIGHTNESS].cap =
-        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
+    po[OPT_BRIGHTNESS].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     po[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
-    po[OPT_BRIGHTNESS].constraint.range = &percent_range;
+    po[OPT_BRIGHTNESS].constraint.range = &brightness_range;
     ps->bright = DEFAULT_BRIGHTNESS;
 
     po[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
@@ -340,12 +437,10 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_CONTRAST].type = SANE_TYPE_FIXED;
     po[OPT_CONTRAST].unit = SANE_UNIT_PERCENT;
     po[OPT_CONTRAST].size = sizeof (int);
-    po[OPT_CONTRAST].cap =
-        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC;
+    po[OPT_CONTRAST].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     po[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
-    po[OPT_CONTRAST].constraint.range = &percent_range;
+    po[OPT_CONTRAST].constraint.range = &contrast_range;
     ps->contrast = DEFAULT_CONTRAST;
-#endif
 
     po[OPT_MODE].name = SANE_NAME_SCAN_MODE;
     po[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
@@ -360,6 +455,8 @@ static void init_options (SnapScan_Scanner * ps)
     case SNAPSCAN310:
     case SNAPSCAN600:
     case SNAPSCAN1236S:
+    case SNAPSCAN1212U:
+    case SNAPSCANE50:
     case VUEGO310S:		/* WG changed */
         po[OPT_MODE].constraint.string_list = names_310;
         break;
@@ -388,18 +485,20 @@ static void init_options (SnapScan_Scanner * ps)
     case SNAPSCAN310:
     case SNAPSCAN600:
     case SNAPSCAN1236S:
+    case SNAPSCAN1212U:
+    case SNAPSCANE50:
     case VUEGO310S:		/* WG changed */
-        po[OPT_PREVIEW_MODE].constraint.string_list = names_310;
+        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_310;
         break;
 
     case VUEGO610S:		/* SJU added */
     case PRISA620S:		/* GP added */
     default:
-        po[OPT_PREVIEW_MODE].constraint.string_list = names_300;
+        po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_300;
         break;
     }
-    ps->preview_mode_s = md_greyscale;
-    ps->preview_mode = MD_GREYSCALE;
+    ps->preview_mode_s = md_auto;
+    ps->preview_mode = ps->mode;
 
     /* source */
     po[OPT_SOURCE].name  = SANE_NAME_SCAN_SOURCE;
@@ -424,6 +523,12 @@ static void init_options (SnapScan_Scanner * ps)
 	ps->source = SRC_FLATBED;
 	ps->source_s = (SANE_Char *) strdup(source_list[0]);
     }
+
+    po[OPT_GEOMETRY_GROUP].title = "Geometry";
+    po[OPT_GEOMETRY_GROUP].desc = "";
+    po[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+    po[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+    po[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     po[OPT_TLX].name = SANE_NAME_SCAN_TL_X;
     po[OPT_TLX].title = SANE_TITLE_SCAN_TL_X;
@@ -486,6 +591,32 @@ static void init_options (SnapScan_Scanner * ps)
     }
     ps->predef_window = pdw_none;
 
+    po[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+    po[OPT_ENHANCEMENT_GROUP].desc = "";
+    po[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+    po[OPT_ENHANCEMENT_GROUP].cap = 0;
+    po[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+    po[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
+    po[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
+    po[OPT_QUALITY_CAL].desc = SANE_DESC_QUALITY_CAL;
+    po[OPT_QUALITY_CAL].type = SANE_TYPE_BOOL;
+    po[OPT_QUALITY_CAL].unit = SANE_UNIT_NONE;
+    po[OPT_QUALITY_CAL].size = sizeof (SANE_Bool);
+    po[OPT_QUALITY_CAL].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_QUALITY_CAL].constraint_type = SANE_CONSTRAINT_NONE;
+    ps->val[OPT_QUALITY_CAL].b = DEFAULT_QUALITY;
+
+    po[OPT_GAMMA_BIND].name = SANE_NAME_ANALOG_GAMMA_BIND;
+    po[OPT_GAMMA_BIND].title = SANE_TITLE_ANALOG_GAMMA_BIND;
+    po[OPT_GAMMA_BIND].desc = SANE_DESC_ANALOG_GAMMA_BIND;
+    po[OPT_GAMMA_BIND].type = SANE_TYPE_BOOL;
+    po[OPT_GAMMA_BIND].unit = SANE_UNIT_NONE;
+    po[OPT_GAMMA_BIND].size = sizeof (SANE_Bool);
+    po[OPT_GAMMA_BIND].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_GAMMA_BIND].constraint_type = SANE_CONSTRAINT_NONE;
+    ps->val[OPT_GAMMA_BIND].b = DEFAULT_GAMMA_BIND;
+
     po[OPT_GAMMA_GS].name = SANE_NAME_ANALOG_GAMMA;
     po[OPT_GAMMA_GS].title = SANE_TITLE_ANALOG_GAMMA;
     po[OPT_GAMMA_GS].desc = SANE_DESC_ANALOG_GAMMA;
@@ -493,7 +624,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_GS].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_GS].size = sizeof (SANE_Word);
     po[OPT_GAMMA_GS].cap =
-        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+        SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     po[OPT_GAMMA_GS].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_GS].constraint.range = &gamma_range;
     ps->gamma_gs = DEFAULT_GAMMA;
@@ -504,7 +635,8 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_R].type = SANE_TYPE_FIXED;
     po[OPT_GAMMA_R].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_R].size = sizeof (SANE_Word);
-    po[OPT_GAMMA_R].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_GAMMA_R].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_R].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_R].constraint.range = &gamma_range;
     ps->gamma_r = DEFAULT_GAMMA;
@@ -515,7 +647,8 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_G].type = SANE_TYPE_FIXED;
     po[OPT_GAMMA_G].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_G].size = sizeof (SANE_Word);
-    po[OPT_GAMMA_G].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_GAMMA_G].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_G].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_G].constraint.range = &gamma_range;
     ps->gamma_g = DEFAULT_GAMMA;
@@ -526,10 +659,68 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GAMMA_B].type = SANE_TYPE_FIXED;
     po[OPT_GAMMA_B].unit = SANE_UNIT_NONE;
     po[OPT_GAMMA_B].size = sizeof (SANE_Word);
-    po[OPT_GAMMA_B].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    po[OPT_GAMMA_B].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
     po[OPT_GAMMA_B].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GAMMA_B].constraint.range = &gamma_range;
     ps->gamma_b = DEFAULT_GAMMA;
+
+    po[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
+    po[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
+    po[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
+    po[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
+    po[OPT_CUSTOM_GAMMA].unit = SANE_UNIT_NONE;
+    po[OPT_CUSTOM_GAMMA].size = sizeof (SANE_Bool);
+    po[OPT_CUSTOM_GAMMA].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    ps->val[OPT_CUSTOM_GAMMA].b = DEFAULT_CUSTOM_GAMMA;
+
+    po[OPT_GAMMA_VECTOR_GS].name = SANE_NAME_GAMMA_VECTOR;
+    po[OPT_GAMMA_VECTOR_GS].title = SANE_TITLE_GAMMA_VECTOR;
+    po[OPT_GAMMA_VECTOR_GS].desc = SANE_DESC_GAMMA_VECTOR;
+    po[OPT_GAMMA_VECTOR_GS].type = SANE_TYPE_INT;
+    po[OPT_GAMMA_VECTOR_GS].unit = SANE_UNIT_NONE;
+    po[OPT_GAMMA_VECTOR_GS].size = ps->gamma_length * sizeof (SANE_Word);
+    po[OPT_GAMMA_VECTOR_GS].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+    po[OPT_GAMMA_VECTOR_GS].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_GAMMA_VECTOR_GS].constraint.range = &gamma_vrange;
+    ps->val[OPT_GAMMA_VECTOR_GS].wa = ps->gamma_table_gs;
+
+    po[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
+    po[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
+    po[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
+    po[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
+    po[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
+    po[OPT_GAMMA_VECTOR_R].size = ps->gamma_length * sizeof (SANE_Word);
+    po[OPT_GAMMA_VECTOR_R].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+    po[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_vrange;
+    ps->val[OPT_GAMMA_VECTOR_R].wa = ps->gamma_table_r;
+
+    po[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
+    po[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
+    po[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
+    po[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
+    po[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
+    po[OPT_GAMMA_VECTOR_G].size = ps->gamma_length * sizeof (SANE_Word);
+    po[OPT_GAMMA_VECTOR_G].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+    po[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_vrange;
+    ps->val[OPT_GAMMA_VECTOR_G].wa = ps->gamma_table_g;
+
+    po[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
+    po[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
+    po[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
+    po[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
+    po[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
+    po[OPT_GAMMA_VECTOR_B].size = ps->gamma_length * sizeof (SANE_Word);
+    po[OPT_GAMMA_VECTOR_B].cap =
+	SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+    po[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
+    po[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_vrange;
+    ps->val[OPT_GAMMA_VECTOR_B].wa = ps->gamma_table_b;
 
     po[OPT_HALFTONE].name = SANE_NAME_HALFTONE;
     po[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
@@ -613,6 +804,12 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_THRESHOLD].constraint.range = &positive_percent_range;
     ps->threshold = DEFAULT_THRESHOLD;
 
+    po[OPT_ADVANCED_GROUP].title = "Advanced";
+    po[OPT_ADVANCED_GROUP].desc = "";
+    po[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
+    po[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
+    po[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
     po[OPT_RGB_LPR].name = "rgb-lpr";
     po[OPT_RGB_LPR].title = "Colour lines per read";
     po[OPT_RGB_LPR].desc = lpr_desc;
@@ -642,6 +839,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_SCSI_CMDS].name = "scsi-cmds";
     po[OPT_SCSI_CMDS].title = "SCSI commands (for debugging)";
     po[OPT_SCSI_CMDS].type = SANE_TYPE_GROUP;
+    po[OPT_SCSI_CMDS].cap = SANE_CAP_ADVANCED;
 
     po[OPT_INQUIRY].name = "do-inquiry";
     po[OPT_INQUIRY].title = "Inquiry";
@@ -697,14 +895,37 @@ static size_t max_string_size (SANE_String_Const strings[])
 }
 
 /* gamma table computation */
-
-static void gamma_8 (double gamma, u_char *buf)
+static void gamma_n (double gamma, int brightness, int contrast,
+		      u_char *buf, int bpp)
 {
     int i;
     double i_gamma = 1.0/gamma;
+    int length = 1 << bpp;
+    int max = length - 1;
+    double mid = max / 2.0;
 
-    for (i = 0;  i < 256;  i++)
-        buf[i] = (u_char) (255*pow ((double) i/255, i_gamma) + 0.5);
+    for (i = 0;  i < length;  i++)
+    {
+	double val = (i - mid) * (1.0 + contrast / 100.0)
+	    + (1.0 + brightness / 100.0) * mid;
+	val = LIMIT(val, 0, max);
+        buf[i] =
+	    (u_char) LIMIT(255*pow ((double) val/max, i_gamma) + 0.5, 0, 255);
+    }
+}
+
+static void gamma_from_sane (int length, SANE_Int *in, u_char *out)
+{
+    int i;
+    for (i = 0; i < length; i++)
+	out[i] = (u_char) LIMIT(in[i], 0, 255);
+}
+
+static void gamma_to_sane (int length, u_char *in, SANE_Int *out)
+{
+    int i;
+    for (i = 0; i < length; i++)
+	out[i] = in[i];
 }
 
 /* dispersed-dot dither matrices; this is discussed in Foley, Van Dam,
@@ -784,6 +1005,7 @@ static SANE_Status add_device (SANE_String_Const name)
     SANE_Status status;
     SnapScan_Device *pd;
     SnapScan_Model model_num = UNKNOWN;
+    SnapScan_Bus bus_type = UNKNOWN_BUS;
     int i;
     int supported_vendor = 0;
     char vendor[8];
@@ -797,25 +1019,57 @@ static SANE_Status add_device (SANE_String_Const name)
 
     vendor[0] = model[0] = '\0';
 
-    status = sanei_scsi_open (name, &fd, sense_handler, NULL);
-    if (status != SANE_STATUS_GOOD)
-    {
-        DBG (DL_MAJOR_ERROR,
-             "%s: error opening device %s: %s\n",
-             me,
-             name,
-             sane_strstatus (status));
-        return status;
-    }
+    if(strstr (name, "usb"))
+      {
+	DBG (DL_VERBOSE, "%s: Detected (kind of) an USB device\n", me);
+
+	bus_type = USB;
+
+	status = snapscani_usb_open (name, &fd, sense_handler, NULL);
+	if (status != SANE_STATUS_GOOD)
+	  {
+	    DBG (DL_MAJOR_ERROR,
+		 "%s: error opening device %s: %s\n",
+		 me,
+		 name,
+		 sane_strstatus (status));
+	    return status;
+	  }
+      }
+    else
+      {
+	DBG (DL_VERBOSE, "%s: Detected (kind of) a SCSI device\n", me);
+	bus_type = SCSI;
+
+	status = sanei_scsi_open (name, &fd, sense_handler, NULL);
+	if (status != SANE_STATUS_GOOD)
+	  {
+	    DBG (DL_MAJOR_ERROR,
+		 "%s: error opening device %s: %s\n",
+		 me,
+		 name,
+		 sane_strstatus (status));
+	    return status;
+	  }
+      }
 
     /* check that the device is legitimate */
-    if ((status = mini_inquiry (fd, vendor, model)) != SANE_STATUS_GOOD)
+    if ((status = mini_inquiry (bus_type, fd, vendor, model)) != SANE_STATUS_GOOD)
     {
         DBG (DL_MAJOR_ERROR,
              "%s: mini_inquiry failed with %s.\n",
              me,
              sane_strstatus (status));
-        sanei_scsi_close (fd);
+
+	if(bus_type == SCSI)
+	  {
+	    sanei_scsi_close (fd);
+	  }
+	else if(bus_type == USB)
+	  {
+	    snapscani_usb_close (fd);
+	  }
+
         return status;
     }
 
@@ -854,13 +1108,29 @@ static SANE_Status add_device (SANE_String_Const name)
              vendor,
              model,
              "AGFA SnapScan 300, 310, 600 or 1236s, "
-             "Acer VUEGO 310S, 610S, or 610plus, "
+             "Acer VUEGO 300, 310S, 610S, or 610plus, "
              "Acer PRISA model 620S");
-        sanei_scsi_close (fd);
+
+	if(bus_type == SCSI)
+	  {
+	    sanei_scsi_close (fd);
+	  }
+	else if(bus_type == USB)
+	  {
+	    snapscani_usb_close (fd);
+	  }
+
         return SANE_STATUS_INVAL;
     }
 
-    sanei_scsi_close (fd);
+    if(bus_type == SCSI)
+      {
+	sanei_scsi_close (fd);
+      }
+    else if(bus_type == USB)
+      {
+	snapscani_usb_close (fd);
+      }
 
     pd = (SnapScan_Device *) malloc (sizeof (SnapScan_Device));
     if (!pd)
@@ -872,6 +1142,7 @@ static SANE_Status add_device (SANE_String_Const name)
     pd->dev.vendor = strdup (vendor);
     pd->dev.model = strdup (model);
     pd->dev.type = strdup (SNAPSCAN_TYPE);
+    pd->bus = bus_type;
     pd->model = model_num;
     switch (model_num)
     {
@@ -1092,7 +1363,7 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
 
     /* create and initialize the scanner structure */
 
-    *h = (SnapScan_Scanner *) malloc (sizeof (SnapScan_Scanner));
+    *h = (SnapScan_Scanner *) calloc (sizeof (SnapScan_Scanner), 1);
     if (!*h)
     {
         DBG (DL_MAJOR_ERROR,
@@ -1203,9 +1474,21 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             free (pss);
             return status;
         }
-
         close_scanner (pss);
+
+	status = init_gamma (pss);
+        if (status != SANE_STATUS_GOOD)
+        {
+            DBG (DL_MAJOR_ERROR,
+	         "%s: error in init_gamma: %s\n",
+                 me,
+		 sane_strstatus (status));
+            free (pss);
+            return status;
+        }
+
         init_options (pss);
+
         pss->state = ST_IDLE;
     }
 
@@ -1228,6 +1511,7 @@ void sane_close (SANE_Handle h)
     close_scanner (pss);
     close (pss->tfd);
     free (pss->tmpfname);
+    free (pss->gamma_tables);
     free (pss);
 }
 
@@ -1242,6 +1526,77 @@ const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle h,
     if (n < NUM_OPTS)
         return ((SnapScan_Scanner *) h)->options + n;
     return NULL;
+}
+
+/* Activates or deactivates options depending on mode  */
+static void control_options(SnapScan_Scanner *pss)
+{
+    /* first deactivate all options */
+    pss->options[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_BIND].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_VECTOR_GS].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+    pss->options[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+
+    if ((pss->mode == MD_COLOUR) ||
+	((pss->mode == MD_BILEVELCOLOUR) && (pss->hconfig & HCFG_HT) &&
+	 pss->halftone))
+    {
+	pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+	pss->options[OPT_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
+	if (pss->val[OPT_CUSTOM_GAMMA].b)
+	{
+	    if (pss->val[OPT_GAMMA_BIND].b)
+	    {
+		pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	    else
+	    {
+		pss->options[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+		pss->options[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+		pss->options[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	}
+	else
+	{
+	    pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+	    pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+	    if (pss->val[OPT_GAMMA_BIND].b)
+	    {
+		pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	    else
+	    {
+		pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
+		pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
+		pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	}
+    }
+    else if ((pss->mode == MD_GREYSCALE) ||
+	     ((pss->mode == MD_LINEART) && (pss->hconfig & HCFG_HT) &&
+	      pss->halftone))
+    {
+	pss->options[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+
+	if (pss->val[OPT_CUSTOM_GAMMA].b)
+	{
+	    pss->options[OPT_GAMMA_VECTOR_GS].cap &= ~SANE_CAP_INACTIVE;
+	}
+	else
+	{
+	    pss->options[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+	    pss->options[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+	    pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
+	}
+    }
 }
 
 SANE_Status sane_control_option (SANE_Handle h,
@@ -1313,14 +1668,12 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_BRY:
             *(SANE_Fixed *) v = pss->bry;
             break;
-#ifdef INOPERATIVE
         case OPT_BRIGHTNESS:
             *(SANE_Int *) v = pss->bright << SANE_FIXED_SCALE_SHIFT;
             break;
         case OPT_CONTRAST:
             *(SANE_Int *) v = pss->contrast << SANE_FIXED_SCALE_SHIFT;
             break;
-#endif
         case OPT_PREDEF_WINDOW:
             DBG (DL_VERBOSE,
 	         "%s: writing \"%s\" to location %p\n",
@@ -1341,6 +1694,18 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GAMMA_B:
             *(SANE_Fixed *) v = pss->gamma_b;
             break;
+	case OPT_CUSTOM_GAMMA:
+	case OPT_GAMMA_BIND:
+	case OPT_QUALITY_CAL:
+            *(SANE_Bool *) v = pss->val[n].b;
+            break;
+
+	case OPT_GAMMA_VECTOR_GS:
+	case OPT_GAMMA_VECTOR_R:
+	case OPT_GAMMA_VECTOR_G:
+	case OPT_GAMMA_VECTOR_B:
+	    memcpy (v, pss->val[n].wa, pss->options[n].size);
+	    break;
         case OPT_HALFTONE:
             *(SANE_Bool *) v = pss->halftone;
             break;
@@ -1394,10 +1759,8 @@ SANE_Status sane_control_option (SANE_Handle h,
                 {
                     pss->mode_s = md_colour;
                     pss->mode = MD_COLOUR;
-                    pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
+                    if (pss->preview_mode_s == md_auto)
+                      pss->preview_mode = MD_COLOUR;
                     pss->options[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
                     pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
                     pss->options[OPT_NEGATIVE].cap |= SANE_CAP_INACTIVE;
@@ -1410,22 +1773,17 @@ SANE_Status sane_control_option (SANE_Handle h,
                     int ht_cap = pss->hconfig & HCFG_HT;
                     pss->mode_s = md_bilevelcolour;
                     pss->mode = MD_BILEVELCOLOUR;
-                    pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
+                    if (pss->preview_mode_s == md_auto)
+                      pss->preview_mode = MD_BILEVELCOLOUR;
                     if (ht_cap)
                         pss->options[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
                     if (ht_cap && pss->halftone)
                     {
-                        pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
-                        pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
-                        pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
                         pss->options[OPT_HALFTONE_PATTERN].cap &=
                             ~SANE_CAP_INACTIVE;
                     }
                     else
                     {
-                        pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
-                        pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
-                        pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
                         pss->options[OPT_HALFTONE_PATTERN].cap |=
                             SANE_CAP_INACTIVE;
                     }
@@ -1438,10 +1796,8 @@ SANE_Status sane_control_option (SANE_Handle h,
                 {
                     pss->mode_s = md_greyscale;
                     pss->mode = MD_GREYSCALE;
-                    pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
+                    if (pss->preview_mode_s == md_auto)
+                      pss->preview_mode = MD_GREYSCALE;
                     pss->options[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
                     pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
                     pss->options[OPT_NEGATIVE].cap |= SANE_CAP_INACTIVE;
@@ -1454,25 +1810,22 @@ SANE_Status sane_control_option (SANE_Handle h,
                     int ht_cap = pss->hconfig & HCFG_HT;
                     pss->mode_s = md_lineart;
                     pss->mode = MD_LINEART;
+                    if (pss->preview_mode_s == md_auto)
+                      pss->preview_mode = MD_LINEART;
                     if (ht_cap)
                         pss->options[OPT_HALFTONE].cap &= ~SANE_CAP_INACTIVE;
                     if (ht_cap && pss->halftone)
                     {
-                        pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
                         pss->options[OPT_HALFTONE_PATTERN].cap &=
                             ~SANE_CAP_INACTIVE;
                         pss->options[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
                     }
                     else
                     {
-                        pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
                         pss->options[OPT_HALFTONE_PATTERN].cap |=
                             SANE_CAP_INACTIVE;
                         pss->options[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
                     }
-                    pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
                     pss->options[OPT_NEGATIVE].cap &= ~SANE_CAP_INACTIVE;
                     pss->options[OPT_GS_LPR].cap &= ~SANE_CAP_INACTIVE;
                     pss->options[OPT_RGB_LPR].cap |= SANE_CAP_INACTIVE;
@@ -1486,13 +1839,19 @@ SANE_Status sane_control_option (SANE_Handle h,
 			 s);
                 }
             }
+	    control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
             break;
         case OPT_PREVIEW_MODE:
             {
                 char *s = (SANE_String) v;
-                if (strcmp (s, md_colour) == 0)
+                if (strcmp (s, md_auto) == 0)
+		{
+		  pss->preview_mode_s = md_auto;
+		  pss->preview_mode = pss->mode;
+		}
+                else if (strcmp (s, md_colour) == 0)
                 {
                     pss->preview_mode_s = md_colour;
                     pss->preview_mode = MD_COLOUR;
@@ -1530,10 +1889,12 @@ SANE_Status sane_control_option (SANE_Handle h,
 	        pss->source = SRC_FLATBED;
                 pss->pdev->x_range.max = x_range_fb.max;
                 pss->pdev->y_range.max = y_range_fb.max;
+		/*
                 if (pss->brx > pss->pdev->x_range.max)
                     pss->brx = pss->pdev->x_range.max;
                 if (pss->bry > pss->pdev->y_range.max)
                     pss->bry = pss->pdev->y_range.max;
+		*/
  	    }
 	    else if (strcmp(v, src_tpo) == 0)
 	    {
@@ -1549,11 +1910,17 @@ SANE_Status sane_control_option (SANE_Handle h,
 		     me,
 		     (char *) v);
 	    }
+ 	    /* Adjust actual range values to new max values */
+ 	    if (pss->brx > pss->pdev->x_range.max)
+	      pss->brx = pss->pdev->x_range.max;
+	    if (pss->bry > pss->pdev->y_range.max)
+	      pss->bry = pss->pdev->y_range.max;
+	    pss->predef_window = pdw_none;
 	    if (pss->source_s)
 	        free (pss->source_s);
 	    pss->source_s = (SANE_Char *) strdup(v);
             if (i)
-	    	*i |= SANE_INFO_RELOAD_PARAMS + SANE_INFO_RELOAD_OPTIONS;
+	    	*i = SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	    break;
 	case OPT_TLX:
             pss->tlx = *(SANE_Fixed *) v;
@@ -1579,7 +1946,6 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
-#ifdef INOPERATIVE
         case OPT_BRIGHTNESS:
             pss->bright = *(SANE_Int *) v >> SANE_FIXED_SCALE_SHIFT;
             if (i)
@@ -1590,7 +1956,6 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i = 0;
             break;
-#endif
         case OPT_PREDEF_WINDOW:
             {
                 char *s = (SANE_String) v;
@@ -1655,6 +2020,34 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i = 0;
             break;
+	case OPT_QUALITY_CAL:
+	    pss->val[n].b = *(SANE_Bool *)v;
+	    if (i)
+		*i = 0;
+	    break;
+
+	case OPT_CUSTOM_GAMMA:
+	case OPT_GAMMA_BIND:
+	{
+	    SANE_Bool b = *(SANE_Bool *) v;
+	    if (b == pss->val[n].b) { break; }
+	    pss->val[n].b = b;
+	    control_options (pss);
+	    if (i)
+	    {
+		*i |= SANE_INFO_RELOAD_OPTIONS;
+	    }
+	    break;
+	}
+
+	case OPT_GAMMA_VECTOR_GS:
+	case OPT_GAMMA_VECTOR_R:
+	case OPT_GAMMA_VECTOR_G:
+	case OPT_GAMMA_VECTOR_B:
+	    memcpy(pss->val[n].wa, v, pss->options[n].size);
+	    if (i)
+		*i = 0;
+	    break;
         case OPT_HALFTONE:
             pss->halftone = *(SANE_Bool *) v;
             if (pss->halftone)
@@ -1662,16 +2055,8 @@ SANE_Status sane_control_option (SANE_Handle h,
                 switch (pss->mode)
                 {
                 case MD_BILEVELCOLOUR:
-                    pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
                     break;
                 case MD_LINEART:
-                    pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
-                    pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
                     pss->options[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
                     break;
                 default:
@@ -1681,14 +2066,11 @@ SANE_Status sane_control_option (SANE_Handle h,
             }
             else
             {
-                pss->options[OPT_GAMMA_R].cap |= SANE_CAP_INACTIVE;
-                pss->options[OPT_GAMMA_G].cap |= SANE_CAP_INACTIVE;
-                pss->options[OPT_GAMMA_B].cap |= SANE_CAP_INACTIVE;
-                pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
                 pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
                 if (pss->mode == MD_LINEART)
                     pss->options[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
             }
+	    control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -1841,16 +2223,13 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_MODE:
             pss->mode_s = md_colour;
             pss->mode = MD_COLOUR;
-            pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
-            pss->options[OPT_GAMMA_R].cap &= ~SANE_CAP_INACTIVE;
-            pss->options[OPT_GAMMA_G].cap &= ~SANE_CAP_INACTIVE;
-            pss->options[OPT_GAMMA_B].cap &= ~SANE_CAP_INACTIVE;
             pss->options[OPT_HALFTONE].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_NEGATIVE].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_GS_LPR].cap |= SANE_CAP_INACTIVE;
             pss->options[OPT_RGB_LPR].cap &= ~SANE_CAP_INACTIVE;
+	    control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -1885,18 +2264,6 @@ SANE_Status sane_control_option (SANE_Handle h,
             if (i)
                 *i = SANE_INFO_RELOAD_PARAMS;
             break;
-#ifdef INOPERATIVE
-        case OPT_BRIGHTNESS:
-            pss->bright = AUTO_BRIGHTNESS;
-            if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
-            break;
-        case OPT_CONTRAST:
-            pss->contrast = AUTO_CONTRAST;
-            if (i)
-                *i = SANE_INFO_RELOAD_PARAMS;
-            break;
-#endif
         case OPT_GAMMA_GS:
             pss->gamma_gs = DEFAULT_GAMMA;
             if (i)
@@ -1921,14 +2288,13 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->halftone = DEFAULT_HALFTONE;
             if (pss->halftone)
             {
-                pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
                 pss->options[OPT_HALFTONE_PATTERN].cap &= ~SANE_CAP_INACTIVE;
             }
             else
             {
-                pss->options[OPT_GAMMA_GS].cap |= SANE_CAP_INACTIVE;
                 pss->options[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
             }
+	    control_options (pss);
             if (i)
                 *i = SANE_INFO_RELOAD_OPTIONS;
             break;
@@ -2126,7 +2492,19 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
 
     if (pss->pdev->model == PRISA620S	/* GP added - blocking mode only */
         ||
-	pss->pdev->model == VUEGO610S)	/* SJU added */
+	pss->pdev->model == VUEGO610S	/* SJU added */
+	||
+	pss->pdev->model == ACER300F    /* Seb added */
+	||
+	pss->pdev->model == SNAPSCAN310 /* Seb added */
+	||
+	pss->pdev->model == VUEGO310S  /* Seb added */
+	||
+	pss->pdev->model == VUEGO610S /* Seb added */
+	||
+	pss->pdev->model == SNAPSCANE50
+	||
+	pss->pdev->model == SNAPSCAN1236S) /* Seb added */
     {
         status = SANE_STATUS_UNSUPPORTED;
     }
@@ -2180,8 +2558,13 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
     float gamma_gs = SANE_UNFIX (pss->gamma_gs);
     float gamma_r = SANE_UNFIX (pss->gamma_r);
     float gamma_g = SANE_UNFIX (pss->gamma_g);
-    float gamma_b = SANE_UNFIX (pss->gamma_r);
+    float gamma_b = SANE_UNFIX (pss->gamma_b);
     SnapScan_Mode mode = actual_mode (pss);
+    int dtcq_gamma_gray;
+    int dtcq_gamma_red;
+    int dtcq_gamma_green;
+    int dtcq_gamma_blue;
+    int bpp = (pss->hconfig & HCFG_ADC) ? 10 : 8;
 
     switch (mode)
     {
@@ -2204,26 +2587,116 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         break;
     }
 
-
-    if (is_colour_mode(mode))
+    if (bpp == 10)
     {
-        gamma_8 (gamma_r, pss->buf + SEND_LENGTH);
-        status = send (pss, DTC_GAMMA, DTCQ_GAMMA_RED8);
-        CHECK_STATUS (status, me, "send");
-
-        gamma_8 (gamma_g, pss->buf + SEND_LENGTH);
-        status = send (pss, DTC_GAMMA, DTCQ_GAMMA_GREEN8);
-        CHECK_STATUS (status, me, "send");
-
-        gamma_8 (gamma_b, pss->buf + SEND_LENGTH);
-        status = send (pss, DTC_GAMMA, DTCQ_GAMMA_BLUE8);
-        CHECK_STATUS (status, me, "send");
+	dtcq_gamma_gray = DTCQ_GAMMA_GRAY10;
+	dtcq_gamma_red = DTCQ_GAMMA_RED10;
+	dtcq_gamma_green = DTCQ_GAMMA_GREEN10;
+	dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
     }
     else
     {
-        gamma_8 (gamma_gs, pss->buf + SEND_LENGTH);
-        status = send (pss, DTC_GAMMA, DTCQ_GAMMA_GRAY8);
-        CHECK_STATUS (status, me, "send");
+	dtcq_gamma_gray = DTCQ_GAMMA_GRAY8;
+	dtcq_gamma_red = DTCQ_GAMMA_RED8;
+	dtcq_gamma_green = DTCQ_GAMMA_GREEN8;
+	dtcq_gamma_blue = DTCQ_GAMMA_BLUE8;
+    }
+
+    if (is_colour_mode(mode))
+    {
+	if (pss->val[OPT_CUSTOM_GAMMA].b)
+	{
+	    if (pss->val[OPT_GAMMA_BIND].b)
+	    {
+		/* Use greyscale gamma for all rgb channels */
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+		CHECK_STATUS (status, me, "send");
+
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+		CHECK_STATUS (status, me, "send");
+
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+		CHECK_STATUS (status, me, "send");
+	    }
+	    else
+	    {
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_r,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+		CHECK_STATUS (status, me, "send");
+		
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_g,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+		CHECK_STATUS (status, me, "send");
+		
+		gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
+				 pss->buf + SEND_LENGTH);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+		CHECK_STATUS (status, me, "send");
+	    }
+	}
+	else
+	{
+	    if (pss->val[OPT_GAMMA_BIND].b)
+	    {
+		/* Use greyscale gamma for all rgb channels */
+		gamma_n (gamma_gs, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+		CHECK_STATUS (status, me, "send");
+
+		gamma_n (gamma_gs, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+		CHECK_STATUS (status, me, "send");
+
+		gamma_n (gamma_gs, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+		CHECK_STATUS (status, me, "send");
+	    }
+	    else
+	    {
+		gamma_n (gamma_r, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_red);
+		CHECK_STATUS (status, me, "send");
+
+		gamma_n (gamma_g, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_green);
+		CHECK_STATUS (status, me, "send");
+		
+		gamma_n (gamma_b, pss->bright, pss->contrast,
+			 pss->buf + SEND_LENGTH, bpp);
+		status = send (pss, DTC_GAMMA, dtcq_gamma_blue);
+		CHECK_STATUS (status, me, "send");
+	    }
+	}
+    }
+    else
+    {
+	if(pss->val[OPT_CUSTOM_GAMMA].b)
+	{
+	    gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
+			     pss->buf + SEND_LENGTH);
+	    status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+	    CHECK_STATUS (status, me, "send");
+	}
+	else
+	{
+	    gamma_n (gamma_gs, pss->bright, pss->contrast,
+		     pss->buf + SEND_LENGTH, bpp);
+	    status = send (pss, DTC_GAMMA, dtcq_gamma_gray);
+	    CHECK_STATUS (status, me, "send");
+	}
     }
     return status;
 }
@@ -2285,7 +2758,7 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
     static char me[] = "measure_transfer_rate";
     SANE_Status status = SANE_STATUS_GOOD;
 
-    if (pss->hconfig & 0x10)
+    if (pss->hconfig & HCFG_RB)
     {
         /* We have a ring buffer. We simulate one round of a read-store
            cycle on the size of buffer we will be using. For this read only,
@@ -2380,6 +2853,14 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
         DBG (DL_VERBOSE, "%s: read %ld bytes.\n", me, (long) pss->read_bytes);
     }
 
+    pss->expected_read_bytes = 0;
+    status = scsi_read (pss, READ_TRANSTIME);
+    if (status != SANE_STATUS_GOOD)
+    {
+	DBG (DL_MAJOR_ERROR, "%s: test read failed.\n", me);
+	return status;
+    }
+
     DBG (DL_VERBOSE, "%s: successfully calibrated transfer rate.\n", me);
     return status;
 }
@@ -2441,6 +2922,18 @@ SANE_Status sane_start (SANE_Handle h)
     pss->state = ST_SCAN_INIT;
 
     reserve_unit(pss);
+
+    if(pss->val[OPT_QUALITY_CAL].b)
+    {
+	status = calibrate(pss);
+	if (status != SANE_STATUS_GOOD)
+	{
+	    DBG (DL_MAJOR_ERROR, "%s: calibration failed.\n", me);
+	    release_unit (pss);
+	    return status;
+	}
+    }
+
     status = scan(pss);
     if (status != SANE_STATUS_GOOD)
     {
@@ -2632,6 +3125,58 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.4  2001/05/26 12:47:32  hmg
+ * Updated snapscan backend to version 1.2 (from
+ * Sebastien Sable <Sebastien.Sable@snv.jussieu.fr>).
+ * Henning Meier-Geinitz <henning@meier-geinitz.de>
+ *
+ * Revision 1.14  2001/04/10 13:33:06  sable
+ * Transparency adapter bug and xsane crash corrections thanks to Oliver Schwartz
+ *
+ * Revision 1.13  2001/04/10 13:00:31  sable
+ * Moving sanei_usb_* to snapscani_usb*
+ *
+ * Revision 1.12  2001/04/10 11:04:31  sable
+ * Adding support for snapscan e40 an e50 thanks to Giuseppe Tanzilli
+ *
+ * Revision 1.11  2001/03/17 22:53:21  sable
+ * Applying Mikael Magnusson patch concerning Gamma correction
+ * Support for 1212U_2
+ *
+ * Revision 1.4  2001/03/04 16:50:53  mikael
+ * Added Scan Mode, Geometry, Enhancement and Advanced groups. Implemented brightness and contrast controls with gamma tables. Added Quality Calibration, Analog Gamma Bind, Custom Gamma and Gamma Vector GS,R,G,B options.
+ *
+ * Revision 1.3  2001/02/16 18:32:28  mikael
+ * impl calibration, signed position, increased buffer size
+ *
+ * Revision 1.2  2001/02/10 18:18:29  mikael
+ * Extended x and y ranges
+ *
+ * Revision 1.1.1.1  2001/02/10 17:09:29  mikael
+ * Imported from snapscan-11282000.tar.gz
+ *
+ * Revision 1.10  2000/11/10 01:01:59  sable
+ * USB (kind of) autodetection
+ *
+ * Revision 1.9  2000/11/01 01:26:43  sable
+ * Support for 1212U
+ *
+ * Revision 1.8  2000/10/30 22:31:13  sable
+ * Auto preview mode
+ *
+ * Revision 1.7  2000/10/28 14:16:10  sable
+ * Bug correction for SnapScan310
+ *
+ * Revision 1.6  2000/10/28 14:06:35  sable
+ * Add support for Acer300f
+ *
+ * Revision 1.5  2000/10/15 19:52:06  cbagwell
+ * Changed USB support to a 1 line modification instead of multi-file
+ * changes.
+ *
+ * Revision 1.4  2000/10/13 03:50:27  cbagwell
+ * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ *
  * Revision 1.3  2000/08/12 15:09:35  pere
  * Merge devel (v1.0.3) into head branch.
  *

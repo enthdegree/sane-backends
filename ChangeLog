@@ -1,3 +1,12 @@
+2003-10-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx_low.c: Fixed compilation bug when debugging is
+	  disabled.
+	* backend/test.c doc/descriptions/test.desc: Fixed cancelling when
+	  threads are used. Only SIGPIPE is blocked now. Sleep indefinetly
+	  after the reader_process has finished. Minor fixes of debug
+	  messages.
+
 2003-10-13  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_thread.c include/sane/sanei_thread.h: Fixed OS/2 compilation

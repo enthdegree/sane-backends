@@ -1,4 +1,4 @@
-Plustek-USB.txt (2003-24-09) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2003-27-11) Gerhard Jäger <gerhard@gjaeger.de>
 ================================================================
 
 NOTE:
@@ -38,8 +38,9 @@ MUSTEK
 BearPaw vendor ID: 0x0400 (They use the NationalSemiconductors ID!!!)
 
 Product ID       Device-description and status	
-0x1000           BearPaw 1200 - working
-0x1001           BearPaw 2400 - mostly working
+0x1000           BearPaw 1200 (LM9831) - working
+0x1001           BearPaw 1200 (LM9832) - not tested
+0x1001           BearPaw 2400 (LM9832) - mostly working
     	
 KYE (Genius)
 ============
@@ -362,20 +363,21 @@ See the list at the end of the file how this works...
 Thanx guys for helping:
 -----------------------
 
-Henning Meier-Geinitz henning@meier-geinitz.de	for Mustek Bearpaw testing, ideas and patches
-Stefan Nilsen         stefan.nilsen@telia.com   for HP2200c testing and patches
-Kev Green             kyrian@ore.org            for Documentation, UT12 testing and RPMS.
-Holger Bischof        bischof@cs.tu-berlin.de   for OpticPro U12 testing
-Abhijit Sovakar       a.sovakar@gmx.de          for OpticPro UT24 testing
-Peter Koellner		  peter@mezzo.net           for OpticPro U24 testing
-Gene Heskett          gene_heskett@iolinc.net   for EPSON 1250 testing and patches
-Tasnim Ahmed          tasnim_ahmed@yahoo.com    for KYE Colorpage HR6 testing
-Reinhard Max          max@suse.de               for EPSON 1250 testing and patches
-Allan N. Hessenflow   allan@kallisti.com        for UMAX 3400 testing and patches
-Craig Smoothey        craig@smoothey.org        for HP2100c testing and patches
-Till Kamppeter        till.kamppeter@gmx.net    for EPSON1260 testing
+Henning Meier-Geinitz  henning@meier-geinitz.de  for Mustek Bearpaw testing, ideas and patches
+Stefan Nilsen          stefan.nilsen@telia.com   for HP2200c testing and patches
+Kev Green              kyrian@ore.org            for Documentation, UT12 testing and RPMS.
+Holger Bischof         bischof@cs.tu-berlin.de   for OpticPro U12 testing
+Abhijit Sovakar        a.sovakar@gmx.de          for OpticPro UT24 testing
+Peter Koellner         peter@mezzo.net           for OpticPro U24 testing
+Gene Heskett           gene_heskett@iolinc.net   for EPSON 1250 testing and patches
+Tasnim Ahmed           tasnim_ahmed@yahoo.com    for KYE Colorpage HR6 testing
+Reinhard Max           max@suse.de               for EPSON 1250 testing and patches
+Allan N. Hessenflow    allan@kallisti.com        for UMAX 3400 testing and patches
+Craig Smoothey         craig@smoothey.org        for HP2100c testing and patches
+Till Kamppeter         till.kamppeter@gmx.net    for EPSON1260 testing
+Christopher Montgomery monty@xiph.org            for CanoScan calibration works
 
-
+and a lot of other guys not named here...
 
 
 Some equations which are used to calculate some stuff

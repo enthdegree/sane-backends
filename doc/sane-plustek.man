@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "27 October 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "27 November 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -20,7 +20,7 @@ Semiconductor chipsets LM9831, LM9832 and LM9833. The following tables
 show various devices which are currently reported to work. If your
 Plustek scanner has another Product ID, then the device is
 .B NOT
-supported, as it contains an unsupported ASIC inside.
+supported, as it contains an unsupported ASIC.
 .br
 
 Vendor Plustek - ID: 0x07B3
@@ -90,7 +90,11 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 BearPaw 1200       LM9831  600x1200dpi 42bit 512Kb 0x1000
 .br
+BearPaw 1200       LM9832  600x1200dpi 42bit 512Kb 0x1001*
+.br
 BearPaw 2400       LM9832 1200x2400dpi 42bit   2Mb 0x1001
+.br
+* see also description for model override switch below!
 .PP
 
 Vendor UMAX - ID: 0x1606
@@ -161,7 +165,7 @@ and is supported by the
 backend.
 .br
 Only the National Semiconductor LM983[1/2/] based devices of Plustek
-are supported by this driver. Older versions of the U12, the UT12,
+are supported by this backend. Older versions of the U12, the UT12,
 the U1212 and U1248 (GrandTech chipset) are not supported.
 .PP
 Model    Chipset    backend
@@ -171,6 +175,9 @@ Model    Chipset    backend
 U1248    GrandTech  gt68xx
 .br
 UT16B    GrandTech  gt68xx
+.br
+For a more complete and up to date list see:
+.B http://www.sane-project.org/sane-supported-devices.html
 
 .SH "CONFIGURATION"
 To use your scanner with this backend, you need at least two
@@ -212,6 +219,23 @@ option lOffonEnd b
 .I b
 specifies the behaviour when closing the backend, 1 --> switch
 lamps off, 0 --> do not change lamp status
+.RE
+.PP
+option mov m
+.RS
+.I m
+is the model override switch. It works only with Mustek
+BearPaw devices.
+.br
+.br
+m/PID |    0x1000    |    0x1001
+.br
+------+--------------+--------------
+.br
+  0   | BearPaw 1200 | BearPaw 2400
+.br
+  1   |  no function | BearPaw 1200
+.br
 .RE
 .PP
 option invertNegatives b
@@ -327,25 +351,10 @@ See the plustek.conf file for examples.
 .B Note:
 .br
 You have to make sure, that the USB subsystem is loaded
-correctly and the module
-.I scanner
-has been loaded too. To make this module recognize your
-scanner, you might have to add the following line to
-your
-.B "/etc/modules.conf"
-:
-.br
-.I options scanner vendor=0x7b3 product=0x17
-.PP
-.br
-If you're not sure about the vendor and product id of your
-device, simply load the USB subsystem and plug in your
-scanner. Then do a
-.I cat /proc/bus/usb/devices
-and look for the scanner.
-.br
-Alternatively, the backend is able to access your scanner via
-libusb. You might use
+correctly and you have access to the device-node. For
+more details see
+.B sane-usb (5)
+manpage. You might use
 .B sane-find-scanner
 to check that you have access to your device.
 .PP
@@ -353,7 +362,6 @@ to check that you have access to your device.
 .br
 If there's no configuration file, the backend defaults to
 .B device auto
-. So it
 
 .SH FILES
 .TP
@@ -412,7 +420,7 @@ For problem reports it should be enough the set the verbosity to
 .br
   so scaling is necesary, because the sensor only delivers
 .br
-  600dpi but the motor is capable to perform 800dpi steps.
+  600dpi but the motor is capable to perform 1200dpi steps.
 .br
 * Plusteks' model policy is somewhat inconsistent. This
 .br

@@ -4,6 +4,9 @@
 	* doc/descriptions/template.desc. 
 	  doc/descriptions-external/template.desc.: Updated according to 
 	  descriptions.txt.
+	* doc/sane-gt68xx.man, doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Added RevScan 19200i. Updated
+	  device status entries.
 
 2003-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,5 +1,4 @@
 :backend "gt68xx"
-:status :beta
 :version "1.0-47"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
@@ -14,62 +13,62 @@
 
 :model "BearPaw 1200 CS"
 :interface "USB"
-:status :beta
+:status :good
 
 :model "BearPaw 1200 CU"
 :interface "USB"
-:status :beta
+:status :good
 
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
-:status :beta
+:status :good
 
 :model "BearPaw 1200 TA"
 :interface "USB"
-:status :beta
+:status :good
 :comment "Transparency adapter supported"
 
 :model "BearPaw 2400 CS"
 :interface "USB"
 :status :untested
-:comment "probably works, reports are welcome"
+:comment "Probably works, reports are welcome"
 
 :model "BearPaw 2400 CS Plus"
 :interface "USB"
-:status :beta
-:comment "works, problems with 12/16 bit modes?"
+:status :good
+:comment "Works, problems with 12/16 bit modes?"
 
 :model "BearPaw 2400 CU"
 :interface "USB"
-:status :alpha
-:comment "works, but is slow""
+:status :basic
+:comment "Works, but is slow""
 
 :model "BearPaw 2400 CU Plus"
 :interface "USB"
-:status :beta
+:status :good
 
 :model "BearPaw 2400 TA"
 :interface "USB"
-:status :beta
+:status :good
 :comment "Transparency adapter supported"
 
 :model "BearPaw 2400 TA Plus"
 :interface "USB"
-:status :beta
+:status :good
 :comment "Transparency adapter supported"
 
 :model "ScanExpress 1200 UB Plus"
 :interface "USB"
-:status :beta
+:status :good
 
 :model "ScanExpress A3 USB"
 :interface "USB"
-:status :alpha
-:comment "Calibration may be wrong. Please contact me if you have such a device."
+:status :good
+:comment "Should work. I've only few reports so please contact me, if you own such a device and tell me, if you find any problems"
 
 :model "ScanExpress 2400 USB"
 :interface "USB"
-:status :untested
+:status :minimal
 :comment "Should be detected but may need some more work in the code. Testers welcome."
 
 
@@ -79,8 +78,8 @@
 
 :model "OpticPro 1248U"
 :interface "USB"
-:status :beta
-:comment "Works up to 600 dpi"
+:status :basic
+:comment "Works up to 600 dpi, but calibration is slow"
 
 :model "OpticPro UT16B"
 :interface "USB"
@@ -92,40 +91,40 @@
 :url "http://www.artecusa.com/"
 
 :model "Ultima 2000"
-:status :beta
+:status :good
 :interface "USB"
-:comment "works, only product id 0x4002 is supported"
+:comment "Works, only product id 0x4002 is supported"
 
 :model "Ultima 2000 e+"
-:status :alpha
+:status :good
 :interface "USB"
-:comment "works, only limited testing until now"
+:comment "Works, only limited testing until now"
 
 
 :mfg "Boeder"
 :model "Sm@rtScan Slim Edition"
-:status :beta
+:status :good
 :interface "USB"
-:comment "similar to Artec Ultima 2000"
+:comment "Similar to Artec Ultima 2000"
 
 
 :mfg "Packard Bell"
 :model "Diamond 1200"
-:status :beta
+:status :good
 :interface "USB"
-:comment "similar to Mustek BearPaw 1200 (Plus)"
+:comment "Similar to Mustek BearPaw 1200 (Plus)"
 
 :model "Diamond 1200 Plus"
-:status :beta
+:status :good
 :interface "USB"
-:comment "similar to Mustek BearPaw 1200 Plus"
+:comment "Similar to Mustek BearPaw 1200 Plus"
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
 :comment "Sold by Aldi and Tchibo."
 	  
 :model "MD 4394"
-:status :beta
+:status :good
 :interface "USB"
 :comment "Product id 0x4002. If you have 0x4003, use artec_eplus48u backend."
 
@@ -135,17 +134,17 @@
 :comment "Untested, but is reported to have the same ids as the Artec Ultima 2000. Please test."
 
 :model "MD/LT 9385"
-:status :beta
+:status :good
 :interface "USB"
 :comment "Similar to Artec Ultima 2000"
 
 :model "LT 9452"
-:status :beta
+:status :good
 :interface "USB"
 :comment "Similar to Mustek ScanExpress 1200 UB Plus"
 
 :model "MD 9458"
-:status :beta
+:status :good
 :interface "USB"
 :comment "Similar to Artec Ultima 2000 (e+?)"
 
@@ -154,39 +153,47 @@
 :url "http://www.trust-site.com"
 
 :model "Flat Scan USB 19200"
-:status :beta
+:status :good
 :interface "USB"
 :comment "Similar to Artec Ultima 2000"
 
 :model "Compact Scan USB 19200"
-:status :beta
+:status :good
 :interface "USB"
-:comment "works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
+:comment "Works, if you have vendor id 0x055f and product id 0x0006, use the mustek_usb backend instead, similar to Mustek ScanExpress 1200 UB (Plus)"
 
 
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
 :model "X70"
-:status :beta
+:status :good
 :interface "USB"
-:comment "works, some resolutions fail at 16 bit"
+:comment "Works, some resolutions fail at 16 bit"
 
 :model "X73"
-:status :beta
+:status :good
 :interface "USB"
-:comment "works, some resolutions fail at 16 bit, same as X70"
+:comment "Works, some resolutions fail at 16 bit, same as X70"
 
 
 :mfg "Genius"
 :url "http://www.genius-kye.com/"
 
 :model "Colorpage Vivid3x"
-:status :alpha
+:status :good
 :interface "USB"
 :comment "Works but has limited testing"
 
 :model "Colorpage Vivid3xe"
-:status :alpha
+:status :basic
 :interface "USB"
 :comment "Works but has limited testing. Color problems? Reports are welcome."
+
+:mfg "RevScan"
+;:url ""
+
+:model "19200i"
+:status :good
+:interface "USB"
+:comment "Similar to Plustek OpticPro 1248U"
 

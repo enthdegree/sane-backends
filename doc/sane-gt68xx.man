@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "15 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "19 Jun 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -54,6 +54,8 @@ Mustek ScanExpress 2400 USB
 Packard Bell Diamond 1200 (Plus)
 .br
 Plustek OpticPro 1248U
+.br
+RevScan 19200i
 .br
 Trust Compact Scan USB 19200
 .br

@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "13 Apr 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-scsi 5 "05 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-scsi
 .SH NAME
 sane-scsi \- SCSI adapter tips for scanners
@@ -221,9 +221,8 @@ list isn't complete, usually any SCSI adapter supported by Linux should work.
 .RS
 .TP
 Acard/Advance SCSI adapters
-Some versions of the kernel driver (atp870u.c) cut the inquiry information.
-Therefore the scanner can't be detected correctly. See 
-http://www.meier-geinitz.de/sane/trouble.html#acard for a solution.
+Some old versions of the kernel driver (atp870u.c) cut the inquiry information.
+Therefore the scanner couldn't be detected correctly. Use a current kernel.
 .TP
 Adaptec AHA-1505/AHA-1542/AHA-2940
 Reported to work fine with Linux since v2.0. If you encounter kernel freezes

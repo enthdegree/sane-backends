@@ -1,4 +1,13 @@
 2000-12-05  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* NEWS: Updated backend versions. Added point about compilation fixes
+	  on Irix and FreeBSD.
+	* backend/mustek.c backend/mustek.desc backend/mustek.CHANGES:
+	  Fixed problem with lamp control of SE scanners and reduced
+	  length of scan area for Paragon 1200 SP PRO. Removed warning for
+	  this scanner. Increased version number.
+	
+2000-12-05  Henning Meier-Geinitz <hmg@gmx.de>
     
 	* TODO: Updated. Added point about plustek-share.h using c++ comment
 	  and reminder to check config.in.h. Removed entriy about as6e.c stat

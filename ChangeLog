@@ -19,6 +19,7 @@
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
 	* sanei/sanei_scsi.c: Added SCSI support for MacOS X (from
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+	* include/sane/config.h.in: Added test for IOKit.
 
 2003-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

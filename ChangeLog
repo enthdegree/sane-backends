@@ -3,6 +3,8 @@
 	* po/Makefile.in: Use awk to filter out duplicate .po file headers.
 	* po/umax_pp.de.po po/umax_pp.fr.po: Avoided including duplicate
 	  msgids. Made sure that header is not marked fuzzy.
+	* Makefile.in doc/Makefile.in japi/Makefile.in tools/Makefile.in:
+	  Minor DISTFILES and distclean updates.
 
 2002-07-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

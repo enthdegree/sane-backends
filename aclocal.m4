@@ -20,6 +20,7 @@ dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_V4L_VERSION
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
+dnl   SANE_CHECK_PTHREAD
 dnl   JAPHAR_GREP_CFLAGS(flag, cmd_if_missing, cmd_if_present)
 dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
@@ -234,6 +235,14 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
   fi
 ])
 
+#
+# Checks for pthread support
+AC_DEFUN([SANE_CHECK_PTHREAD],
+[
+  AC_CHECK_HEADER(pthread.h, [
+   LIBS="${LIBS} -lpthread"
+  ])
+])
 
 #
 # Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 

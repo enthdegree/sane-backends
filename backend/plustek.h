@@ -43,6 +43,7 @@
  * - 0.46 - flag initialized is now used as device index
  *        - added calFile to Plustek_Device
  *        - removed _OPT_HALFTONE
+ *        - added pthread support
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -367,24 +368,25 @@ typedef union
 
 typedef struct Plustek_Scanner
 {
-    struct Plustek_Scanner *next;
-    pid_t 					reader_pid;		/* process id of reader          */
-    SANE_Status             exit_code;      /* status of the reader process  */
-    int 					pipe;			/* pipe to reader process        */
-	unsigned long			bytes_read;		/* number of bytes currently read*/
-    pPlustek_Device 		hw;				/* pointer to current device     */
-    Option_Value 			val[NUM_OPTIONS];
-    SANE_Byte 			   *buf;            /* the image buffer              */
-    SANE_Bool 				scanning;       /* TRUE during scan-process      */
-    SANE_Parameters 		params;         /* for keeping the parameter     */
-	
-	/************************** gamma tables *********************************/
-	
-	SANE_Word	gamma_table[4][4096];
-	SANE_Range	gamma_range;
-	int 		gamma_length;
+	struct Plustek_Scanner *next;
+	pid_t                   reader_pid;     /* process id of reader          */
+	SANE_Bool               child_forked;   /* use fork or pthreads */
+	SANE_Status             exit_code;      /* status of the reader process  */
+	int                     pipe;           /* pipe to reader process        */
+	unsigned long           bytes_read;     /* number of bytes currently read*/
+	pPlustek_Device         hw;             /* pointer to current device     */
+	Option_Value            val[NUM_OPTIONS];
+	SANE_Byte              *buf;            /* the image buffer              */
+	SANE_Bool               scanning;       /* TRUE during scan-process      */
+	SANE_Parameters         params;         /* for keeping the parameter     */
 
-    SANE_Option_Descriptor	opt[NUM_OPTIONS];
+    /************************** gamma tables *********************************/
+
+	SANE_Word   gamma_table[4][4096];
+	SANE_Range  gamma_range;
+	int         gamma_length;
+
+	SANE_Option_Descriptor opt[NUM_OPTIONS];
 
 } Plustek_Scanner, *pPlustek_Scanner;
 

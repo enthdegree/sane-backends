@@ -733,7 +733,7 @@ _LOC void MiscRestorePort( pScanData ps )
 
     DBG(DBG_LOW,"MiscRestorePort()\n");
 
-	/* don´t restore if not necessary */
+	/* don't restore if not necessary */
 	if( 0xFFFF == ps->IO.lastPortMode ) {
 	    DBG(DBG_LOW,"- no need to restore portmode !\n");
 		return;

@@ -1,3 +1,15 @@
+2003-10-05  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* aclocal.m4 configure configure.in: added checks for pthread.h and
+	  added linker option -lpthread if pthread.h is found
+	* include/sane/config.in.h: added HAVE_PTHREAD_H
+	* sanei/sanei_thread.c include/sane/sanei_thread.h: added pthread_
+	  functions to library, so every backend is able to use either fork or
+      pthread for its reader-process - see plustek backend for example
+	* backend/plustek.h backend/plustek.c: added sanei_thread stuff to support
+	  threading on MacOS X
+	* backend/plustek_pp*: some cleanup
+
 2003-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.h backend/test.c include/sane/saneopts.h:
@@ -57,7 +69,7 @@
 	  #300150).
 	* doc/descriptions/canon630u.desc: Converted to new format (bug
 	  #300148).
-	
+
 2003-10-03  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Changed "status" information

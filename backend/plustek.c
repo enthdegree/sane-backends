@@ -63,6 +63,7 @@
  *        - added altCalibration option
  *        - removed parallelport support --> new backend: plustek_pp
  *        - cleanup
+ *        - added pthread support
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -140,6 +141,15 @@
 #define BACKEND_NAME	plustek
 #include "sane/sanei_backend.h"
 #include "sane/sanei_config.h"
+
+/*we're using this possibility only on MacOS X... */
+#if defined HAVE_PTHREAD_H && defined HAVE_IOKIT_IOKITLIB_H
+#define _PLUSTEK_USE_THREAD
+#endif
+
+#ifdef _PLUSTEK_USE_THREAD
+#include "sane/sanei_thread.h"
+#endif
 
 /** might be used to disable all USB stuff - esp. for OS/2 */
 #ifndef HAVE_OS2_H
@@ -420,7 +430,7 @@ static RETSIGTYPE sigalarm_handler( int signo )
 /** executed as a child process
  * read the data from the driver and send them to the parent process
  */
-static int reader_process( Plustek_Scanner *scanner, int pipe_fd )		
+static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 {
 	int              line;
 	unsigned char   *buf;
@@ -490,6 +500,33 @@ static int reader_process( Plustek_Scanner *scanner, int pipe_fd )
 	return SANE_STATUS_GOOD;
 }
 
+#ifdef _PLUSTEK_USE_THREAD
+/*
+ * reader thread: need a wrapper, because threads can have
+ * only one parameter.
+*/
+static void reader_thread( void *data )
+{
+	Plustek_Scanner *s = (Plustek_Scanner *)data;
+	sigset_t         ignore_set;
+	struct SIGACTION act;
+	int              status;
+
+	DBG( _DBG_SANE_INIT, "reader_thread...\n" );
+
+	sigfillset ( &ignore_set );
+	sigdelset  ( &ignore_set, SIGTERM );
+	sigprocmask( SIG_SETMASK, &ignore_set, 0 );
+
+	memset   ( &act, 0, sizeof (act));
+	sigaction( SIGTERM, &act, 0 );
+
+	status = reader_process( s, s->pipe );
+
+	DBG( _DBG_SANE_INIT, "reader process done, status = %i\n", status );
+}
+#endif
+
 /** stop the current scan process
  */
 static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
@@ -512,20 +549,34 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 		act.sa_handler = sigalarm_handler;
 		sigaction( SIGALRM, &act, 0 );
-	
-		/* kill our child process and wait until done */
-		kill( scanner->reader_pid, SIGUSR1 );
 
-		/* give'em 10 seconds 'til done...*/			
-		alarm(10);					
-		res = waitpid( scanner->reader_pid, 0, 0 );
-		alarm(0);					
+		/* kill our child process and wait until done */
+		if( scanner->child_forked ) {
+			kill( scanner->reader_pid, SIGUSR1 );
+
+			/* give'em 10 seconds 'til done...*/
+			alarm(10);
+			res = waitpid( scanner->reader_pid, 0, 0 );
+			
+		} else {
+#ifdef _PLUSTEK_USE_THREAD
+			sanei_thread_kill( scanner->reader_pid, SIGUSR1 );
+			alarm(10);
+			res = sanei_thread_waitpid( scanner->reader_pid, 0, 0);
+#else
+			res = scanner->reader_pid;
+#endif
+		}
+		alarm(0);
 		
 		if( res != scanner->reader_pid ) {
 			DBG( _DBG_PROC,"waitpid() failed !\n");
+#ifdef _PLUSTEK_USE_THREAD
+			sanei_thread_kill( scanner->reader_pid, SIGKILL );
+#else
 			kill( scanner->reader_pid, SIGKILL );
-		}			
-
+#endif
+		}
 		scanner->reader_pid = 0;
 		DBG( _DBG_PROC,"reader_process killed\n");
 	}
@@ -1193,6 +1244,9 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	sanei_usb_init();
 	sanei_lm983x_init();
 #endif	
+#ifdef _PLUSTEK_USE_THREAD
+	sanei_thread_init();
+#endif
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "Plustek backend V"BACKEND_VERSION", part of "
@@ -1207,7 +1261,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	first_handle = NULL;
 	num_devices  = 0;
 
-	/* initialize the configuration structure */
+	/* initialize the configuration structure */                
 	init_config_struct( &config );
 
 	if( version_code != NULL )
@@ -2020,8 +2074,14 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	/* create reader routine as new process */
 	s->bytes_read = 0;
-  	s->reader_pid = fork();			
-
+#ifdef _PLUSTEK_USE_THREAD
+	s->child_forked = SANE_FALSE;
+	s->pipe         = fds[1];
+	s->reader_pid   = sanei_thread_begin( reader_thread, s );
+#else
+	s->child_forked = SANE_TRUE;
+  	s->reader_pid = fork();
+#endif
 	cancelRead = SANE_FALSE;
 	
 	if( s->reader_pid < 0 ) {
@@ -2032,9 +2092,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	}
 
 	/* reader_pid = 0 ===> child process */		
-	if( 0 == s->reader_pid ) {									
+	if( 0 == s->reader_pid ) {
 
-		sigset_t 		 ignore_set;
+		sigset_t         ignore_set;
 		struct SIGACTION act;
 
 		DBG( _DBG_SANE_INIT, "reader process...\n" );
@@ -2058,7 +2118,9 @@ SANE_Status sane_start( SANE_Handle handle )
 
 	signal( SIGCHLD, sig_chldhandler );
 
-	close(fds[1]);
+	if( s->child_forked )
+		close(fds[1]);
+		
 	s->pipe = fds[0];
 
 	DBG( _DBG_SANE_INIT, "sane_start done\n" );

@@ -169,6 +169,9 @@
 /* Define to 1 if you have the `poll' function. */
 #undef HAVE_POLL
 
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
+
 /* Define to 1 if you have the `scsireq_enter' function. */
 #undef HAVE_SCSIREQ_ENTER
 

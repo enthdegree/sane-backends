@@ -65,6 +65,8 @@
 /** @name Internal functions 
  * @{
  */
+extern void sanei_thread_init( void );
+ 
 /** <b>Do not use in backends</b>
  *
  * Wrapper for @c fork. 
@@ -96,9 +98,9 @@ extern int sanei_thread_wait( int *stat_loc);
  * argument. Add a function to you backend with this name and let it call your
  * own reader process. See mustek.c for an example.
  */
+#ifdef HAVE_OS2_H
 static void os2_reader_process( void* data);
 
-#ifdef HAVE_OS2_H
 #define fork() 			sanei_thread_begin( os2_reader_process)
 #define kill( a, b)		sanei_thread_kill( a,b)
 #define waitpid( a, b, c)	sanei_thread_waitpid( a, b, c)

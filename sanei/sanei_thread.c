@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1998-2001 Yuri Dario
+   Copyright (C) 2003 Gerhard Jaeger
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -41,6 +42,8 @@
    Helper functions for the OS/2 port (using threads instead of forked
    processes). Don't use them in the backends, they are used automatically by
    macros.
+
+   Added pthread support (as found in hp-handle.c) - Gerhard Jaeger
 */
 
 #include "../include/sane/config.h"
@@ -94,3 +97,58 @@ sanei_thread_wait( int *stat_loc)
 }
 
 #endif /* HAVE_OS2_H */
+
+#ifdef HAVE_PTHREAD_H
+
+#include <pthread.h>
+#include <sane/sanei_thread.h>
+
+#define BACKEND_NAME	sanei_thread   /**< the name of this module for dbg  */
+
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_debug.h"
+
+void
+sanei_thread_init( void )
+{
+	DBG_INIT();
+}
+
+int
+sanei_thread_begin( void (*start)(void *arg), void* arg_list )
+
+{
+	int       hd;
+	pthread_t thread;
+
+	hd = pthread_create( &thread, NULL, start, arg_list );
+
+	if ( hd != 0 ) {
+		DBG(1, "pthread_create() failed with %d\n", hd );
+		return -1;
+	}
+
+	DBG( 2, "pthread_create() created thread %d\n", (int)thread );
+
+	return (int)thread;
+}
+
+int
+sanei_thread_kill( int pid, int sig)
+{
+	DBG(2, "pthread_kill() will kill %d\n", (int)pid);
+	return pthread_kill((pthread_t)pid, sig );
+}
+
+int
+sanei_thread_waitpid( int pid, int *stat_loc, int options )
+{
+	if (stat_loc)
+		*stat_loc = 0;
+
+	if( 0 == pthread_join((pthread_t)pid, (void*)stat_loc ))
+		pthread_detach((pthread_t)pid );
+	return pid;
+}
+
+#endif /* HAVE_PTHREAD_H */

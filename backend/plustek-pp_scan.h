@@ -175,7 +175,7 @@ typedef long long TimerDef, *pTimerDef;
  */
 #ifndef __KERNEL__
 #define _DO_UDELAY(usecs)	{ int i; for( i = usecs; i--; ) outb(0x80,0); } 
-#define _DODELAY(msecs)		{ int i; for( i = msecs; i--; ) _DO_UDELAY(1); }
+#define _DODELAY(msecs)		{ int i; for( i = msecs; i--; ) _DO_UDELAY(1000); }
 #else
 #define _DO_UDELAY(usecs)	udelay(usecs)
 #define _DODELAY(msecs)		mdelay(msecs)

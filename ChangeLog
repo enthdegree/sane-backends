@@ -1,3 +1,8 @@
+2002-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/hpsj5s.desc: Used "Hewlett-Packard" instead
+	  of "HP".
+
 2002-09-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/gt68xx.desc: Updated Mustek

@@ -1,5 +1,94 @@
 CHANGES for the SANE Mustek backend
 
+2000-09-24
+  * Added RGB brightness and contrast for 3pass scanners
+  * Brightness and contrast is +-100% for 3pass scanners now
+
+2000-09-23
+  * Paragon 12000CX uses pixel unit now.
+  * Paragon 6000CX uses pixel unit now (MSF-06000CZ).
+  * Option "force backtracking" is enabled by default now
+  * Option "scan speed" is set to "fastest" by default now
+  * Add option "force-warn" (for mustek.conf). If enabled, wait for scan
+    head to return to start position after scan.
+  * Make DBG output in sane_control_option() more readable
+  * Better error handling and debug output in sane_get_option_descriptor()
+  * Changed Halftone handling, removed grain size
+
+2000-09-22
+  * Paragon 12000SP 1.06 uses LD_NORMAL now.
+
+2000-09-19
+  * Return sane_status_cancelled in sane_read if last scan was cancelled.
+
+2000-09-18
+  * Changed speed_code to use values between 1...5 for 3pass scanners.
+    I don't know yet if these are correct for the other scanners, too.
+  * Don't do a stop scan for 3pass scanners (only when cancelling).
+  * Set bit 0 of first byte of area_and_windows for gray + color.
+  * Paragon 6000CX uses pixel unit now (MFS-06000CX).
+  * Pixel unit for 3pass scanners is now supported
+
+2000-09-17
+  * changed maximum y range of MFS-800 II SP to 288 mm because of
+    a report of scanner touching the end.
+
+2000-09-10
+  * added some testing (result != null and arg !=0) in sense_handler
+    (found by Martin Blasczyk)
+
+2000-08-20
+  * Paragon series II is also using blockmode now.
+  * Removed warning from mustek.c.
+  * Fixed (maybe) problem in scsi_sense_wait_ready and added more
+    debug output.
+
+2000-08-18
+  * added new option blocksize to mustek.conf
+  * 800 II SP works now in new block mode (get_image_status is needed
+    before each block)
+
+2000-08-17
+  * Removed some warnings from sanei_ab306.c.
+
+2000-08-16
+  * Fixed some bugs in fix_linedistance_block. Paragon 600 models seem to
+    work now. 800 II SP freezes, however.
+  * Fixed segmentation fault for the 600 II N in ld correction code.
+
+2000-08-15
+  * Changed handling of three pass scanners (MUSTEK_FLAG_THREE_PASS instead of
+    !MUSTEK_FLAG_SINGLE_PASS).
+  * Added flags for Paragon series I and II (MUSTEK_PLAG_PARAGON_1 and
+    MUSTEK_PLAG_PARAGON_2).
+  * distinguish between three-pass, Paragon series 1, Paragon series 2,
+    ScanExpress, Pro and N type scanners.
+  * Added support for scanning the whole image in one block without
+    backtracking for the Paragon series II scanners.
+  * Added fix_linedistance_block: like linedistance_normal but broken
+    up into several SCSI buffers.
+
+2000-08-14
+  * Changed again linedistance correction for the Paragon 12000 SP 1.11.
+    This seems to be a never ending story.
+  * Set the minimum dpi value to 30. Some scanners (e.g. the MFS 8000SP
+    v 2.04) block the SCSI bus with lower resolutions.
+
+2000-08-12
+  * Added support for Paragon 1200 SP Pro.
+  * Added support for ScanExpress A3 SP.
+  * Removed detection for " C12" and " C04" (don't seem to exist).
+  * Changed SCSI read request scheme. Now two requests with half of the
+    maximum SCSI buffer size are entered. Standard buffer size is 128 kB,
+    so the buffer sent to the scanner is 64 kB for all types of scanners.
+  * sane_read now reads more than 4096 bytes from pipe (if available).
+
+2000-08-12
+  * SANE 1.0.3 released (including Mustek backend 1.0.96).
+
+2000-07-31
+  * Released backend version 1.0-96.
+
 2000-07-30
   * Fixed bug concerning inquiry of 3-pass scanners. ASCII values > 127
     weren't interpreted correctly (char instead of unsigned char).

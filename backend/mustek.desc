@@ -9,7 +9,7 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-96"		; version of backend
+:version "1.0-97"		; version of backend
 :status :beta			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://hmg.home.pages.de/sane/"
@@ -55,6 +55,12 @@
 :interface "SCSI"
 :model "ScanMagic 9636S Plus"
 :interface "SCSI"
+:model "ScanExpress A3 SP"
+:interface "SCSI"
+:comment "Please test!"
+:model "Paragon 1200 SP Pro"
+:interface "SCSI"
+:comment "Please test!"
 :model "Paragon 1200 A3 Pro"
 :interface "SCSI"
 :comment "Please test!"

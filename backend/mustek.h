@@ -46,27 +46,33 @@
 #ifndef mustek_h
 #define mustek_h
 
+#include "sane/config.h"
 #include <sys/types.h>
 
-/* flag values: */
-#define MUSTEK_FLAG_SINGLE_PASS	(1 << 0)   /* single-pass scanner? */
-#define MUSTEK_FLAG_ADF		(1 << 1)   /* automatic document feeder */
-#define MUSTEK_FLAG_ADF_READY	(1 << 2)   /* paper present */
-#define MUSTEK_FLAG_TA		(1 << 3)   /* transparency adapter */
-#define MUSTEK_FLAG_USE_EIGHTS	(1 << 4)   /* use 1/8" lengths */
-#define MUSTEK_FLAG_LD_FIX	(1 << 5)   /* need line-distance fix? */
-#define MUSTEK_FLAG_LD_MFS	(1 << 6)   /* MFS line-distance corr? */
-#define MUSTEK_FLAG_LD_NONE	(1 << 7)   /* no line-distance corr */
-#define MUSTEK_FLAG_LD_N1	(1 << 8)   /* LD corr for N-type v1 */
-#define MUSTEK_FLAG_LD_N2	(1 << 9)   /* LD corr for N-type v2 */
-#define MUSTEK_FLAG_LINEART_FIX	(1 << 10)  /* lineart fix/hack */
-#define MUSTEK_FLAG_N		(1 << 11)  /* N-type scanner (non SCSI) */
-#define MUSTEK_FLAG_SE		(1 << 12)  /* ScanExpress model */
-#define MUSTEK_FLAG_DOUBLE_RES  (1 << 13)  /* MSF-06000CZ res. encoding */
-#define MUSTEK_FLAG_FORCE_GAMMA (1 << 14)  /* force gamma table upload */
-#define MUSTEK_FLAG_ENLARGE_X   (1 << 15)  /* need to enlarge x-res */
-#define MUSTEK_FLAG_PRO         (1 << 16)  /* Professional series model */
-
+/* flag values */
+/* scanner types */
+#define MUSTEK_FLAG_THREE_PASS	(1 << 0)   /* three pass scanner */
+#define MUSTEK_FLAG_PARAGON_1   (1 << 1)   /* Paragon series I scanner */
+#define MUSTEK_FLAG_PARAGON_2   (1 << 2)   /* Paragon series II (A4) scanner */
+#define MUSTEK_FLAG_SE		(1 << 3)   /* ScanExpress scanner */
+#define MUSTEK_FLAG_PRO         (1 << 4)   /* Professional series scanner */
+#define MUSTEK_FLAG_N		(1 << 5)   /* N-type scanner (non SCSI) */
+/* additional equipment */
+#define MUSTEK_FLAG_ADF		(1 << 6)   /* automatic document feeder */
+#define MUSTEK_FLAG_ADF_READY	(1 << 7)   /* paper present */
+#define MUSTEK_FLAG_TA		(1 << 8)   /* transparency adapter */
+/* line-distance correction */
+#define MUSTEK_FLAG_LD_MFS	(1 << 9)   /* MFS line-distance corr */
+#define MUSTEK_FLAG_LD_NONE	(1 << 10)  /* no line-distance corr */
+#define MUSTEK_FLAG_LD_BLOCK    (1 << 11)  /* blockwise LD corr */
+#define MUSTEK_FLAG_LD_N1	(1 << 12)  /* LD corr for N-type v1 */
+#define MUSTEK_FLAG_LD_N2	(1 << 13)  /* LD corr for N-type v2 */
+/* manual fixes */
+#define MUSTEK_FLAG_LD_FIX	(1 << 14)  /* need line-distance fix? */
+#define MUSTEK_FLAG_LINEART_FIX	(1 << 15)  /* lineart fix/hack */
+#define MUSTEK_FLAG_USE_EIGHTS	(1 << 16)  /* use 1/8" lengths */
+#define MUSTEK_FLAG_FORCE_GAMMA (1 << 17)  /* force gamma table upload */
+#define MUSTEK_FLAG_ENLARGE_X   (1 << 18)  /* need to enlarge x-res */
 
 /* source values: */
 #define MUSTEK_SOURCE_FLATBED	0
@@ -100,9 +106,14 @@ enum Mustek_Option
     OPT_BR_Y,			/* bottom-right y */
 
     OPT_ENHANCEMENT_GROUP,
-    OPT_GRAIN_SIZE,
     OPT_BRIGHTNESS,
+    OPT_BRIGHTNESS_R,
+    OPT_BRIGHTNESS_G,
+    OPT_BRIGHTNESS_B,
     OPT_CONTRAST,
+    OPT_CONTRAST_R,
+    OPT_CONTRAST_G,
+    OPT_CONTRAST_B,
     OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
     /* The gamma vectors MUST appear in the order gray, red, green,
        blue.  */
@@ -129,6 +140,7 @@ Option_Value;
 typedef struct Mustek_Device
   {
     struct Mustek_Device *next;
+    SANE_String name;
     SANE_Device sane;
     SANE_Range dpi_range;
     SANE_Range x_range;
@@ -146,12 +158,18 @@ typedef struct Mustek_Device
       {
         int bytes;
         int lines;
-	unsigned char *buffer;
+	u_int8_t *buffer;
       }
     cal;    
-    /* current and maximum buffer size of the scanner */
+    /* current and maximum buffer size used by the backend */
+    /* the buffer sent to the scanner is actually half of this size */
     int buffer_size;
     int max_buffer_size;
+    /* maximum size scanned in one block and corresponding lines */
+    int max_block_buffer_size;
+    int lines_per_block;
+    u_int8_t *block_buffer;
+
     /* firmware format: 0 = old, MUSTEK at pos 8; 1 = new, MUSTEK at
        pos 36 */
     int firmware_format;
@@ -169,6 +187,8 @@ typedef struct Mustek_Scanner
     Option_Value val[NUM_OPTIONS];
     SANE_Int gamma_table[4][256];
     SANE_Int halftone_pattern[64];
+    SANE_Bool custom_halftone_pattern;
+    SANE_Int halftone_pattern_type;
 
     int scanning;
     int cancelled;

@@ -9,9 +9,8 @@ backends
     + Coolscan2 backend: support for LS-40, LS-4000, and LS-8000
       http://coolscan2.sourceforge.net/
    (+)hp4200 http://hp4200-backend.sourceforge.net/
-   (+)Relisys Scorpio Super 3 SCSI II
-      Mark Plowman <sane-devel@plowman.xs4all.nl>
-      http://www.xs4all.nl/~plowman/
+   (+)Relisys Scorpio Super 3 - VM3575 (wip)
+      http://fz.eryx.net/sane/#teco2
    (+)Genius Vivid Pro USB, Colorado USB 19200, Visioneer OneTouch 7600 
       IBM IdeaScan 2000 USB 
       http://homepages.paradise.net.nz/stevenel/scanner/

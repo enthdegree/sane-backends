@@ -320,8 +320,12 @@ execute_auto_focus_FS2710 (int fd, int mode, int AE, int count)
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = 0xe0;
   cmd[1] = mode;
-  cmd[2] =  AE;
-  cmd[4] = (char) (28 * ((int) (count/28.5)) - 12);
+  cmd[2] = AE;
+#if 0
+  cmd[4] = (char) count;		/* seems to work, but may be unsafe */
+#else					/* The Canon software uses this: */
+  cmd[4] = (char) (28 * ((int) (count/28.5)) + 16);
+#endif
   status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), NULL, 0, NULL, NULL);
 
   DBG (7, "<< execute auto focus2710\n");

@@ -1,3 +1,10 @@
+2001-09-03  Stéphane Voltz  <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp_mid.c
+	  backend/umax_pp_mid.h backend/umax_pp.c tools/umax_pp.c:
+	  Make use of ppdev char device when available, so that
+	  the backend does not require root priviledges anymore.
+
 2001-08-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/Makefile.in: Added sanei_usb dependency.

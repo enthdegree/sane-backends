@@ -8,7 +8,8 @@
 	  backend/u12-io.c backend/u12-map.c backend/u12-motor.c:
 	  initial checkin.
 	* backend/dll.conf: added u12 backend.
-	* doc/sane-u12.man doc/Makefile.in: added man-page for u12 backend.
+	* doc/sane-u12.man: initial checkin.
+	* doc/sane.man doc/Makefile.in: added man-page for u12 backend.
 	* doc/descriptions/u12.desc: added descitpion for u12 backend.
 	* doc/descriptions/unsupported.desc: removed Plustek OpticPro U12, UT12,
 	  1212U, Genius Colorpage Vivid III, as they should be supported now.

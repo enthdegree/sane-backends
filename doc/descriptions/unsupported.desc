@@ -394,12 +394,6 @@
 :status :unsupported
 :comment "Probably unsupported. May work with snapscan backend after some modification. See link for details."
 
-:model "Perfection 2580"
-:url "/unsupported/epson-perfection-2480-photo.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
 ;********************************************************************************************
 
 :mfg "E-Lux"

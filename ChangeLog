@@ -1,3 +1,8 @@
+2004-09-27  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/unsupported.desc doc/descriptions/snapscan.desc:
+	  Changed entry for Epson 2580 (should work with SnapScan backend).
+
 2004-09-21  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: fixed Plustek entries.

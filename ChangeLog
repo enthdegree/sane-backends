@@ -1,3 +1,14 @@
+************************  Release of sane-backends 1.0.4 **********************
+
+2000-12-22  Henning Meier-Geinitz <hmg@gmx.de>
+	
+        * configure configure.in: Changed version to 1.0.4 and package to 
+	  sane-backend (from Oliver Rauch <Oliver.Rauch@Wolfsburg.DE).
+        * sane.lsm Removed (renamed to sane-backends.lsm).
+	* sane-backends.lsm New file. Package name is sane-backends instead 
+	  of sane and added additional maintainer: Oliver Rauch (from
+	  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE).
+
 2000-12-17  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* TODO: Some points about OS/2 compilation problems.

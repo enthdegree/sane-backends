@@ -1,11 +1,12 @@
 -*-Mode: outline-*-
-New with 1.0.10, released 2003-02-??:
+New with 1.0.10, released 2003-02-01:
 
 * New backends: artec_eplus48u (Artec E+ 48U, Tevion/Medion MD 9693, Medion
   MD 9705, Trust Easy Webscan 19200), gt68xx (Artec Ultima 2000, some Mustek
   BearPaws and other GT6801/GT6816 based scanners).
 * Updated backends: avision, canon, canon_pp, dc210, dc240, dc25, dll, epson,
-  gphoto2, hp, hpsj5s, microtek2, mustek, plustek, snapscan, test, umax, umax_pp.
+  gphoto2, hp, hpsj5s, microtek2, mustek, mustek_pp, plustek, sharp, snapscan,
+  test, umax, umax_pp.
 * Improved SCSI and USB handling.
 * Portability fixes (especially for MacOS X, OS/2, Tru64).
 * New translation system. All backends have translations for the standard

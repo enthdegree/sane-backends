@@ -1,3 +1,7 @@
+2003-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Updated list of backends.
+
 2003-01-13  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* backend/mustek_pp*, backend/Makefile: merged all mustek_pp

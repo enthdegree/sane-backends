@@ -50,28 +50,66 @@
 #include <sys/types.h>
 #include <sane/sane.h>
 
+/** some modes, we'd like to see/use... */
+enum sanei_pp_mode {
+	SANEI_PP_MODE_SPP  = (1<<1),
+	SANEI_PP_MODE_BIDI = (1<<2),
+	SANEI_PP_MODE_EPP  = (1<<4),
+	SANEI_PP_MODE_ECP  = (1<<8)
+};
+
 /**
+ * Function to open a parport device. 
+ *
+ * @param dev -
+ * @param fd  -
+ * @return
  */
 extern SANE_Status sanei_pp_open( const char *dev, int *fd );
 
 /**
+ * Function to close a previously opened parport device.
+ *
+ * @param fd - handle of the device to close
  */
 extern void sanei_pp_close( int fd );
 
 /**
+ * Function to claim a parport device
+ *
+ * @param fd - handle of the device to claim
+ * @return 
  */
 extern SANE_Status sanei_pp_claim( int fd );
 
 /**
+ * Function to release a previously claimed device
+ *
+ * @param fd - handle of the device to release
+ * @return
  */
 extern SANE_Status sanei_pp_release( int fd );
 
 /**
+ * @param fd   -
+ * @param mode -
+ * @return
+ */
+extern SANE_Status sanei_pp_getmode( int fd, int *mode );
+
+/**
+ * @param fd  -
+ * @param val -
+ * @return
  */
 extern SANE_Status sanei_pp_outb_data( int fd, SANE_Byte val );
 extern SANE_Status sanei_pp_outb_ctrl( int fd, SANE_Byte val );
 extern SANE_Status sanei_pp_outb_addr( int fd, SANE_Byte val );
 
+/**
+ * @param fd -
+ * @return
+ */
 extern SANE_Byte sanei_pp_inb_data( int fd );
 extern SANE_Byte sanei_pp_inb_stat( int fd );
 extern SANE_Byte sanei_pp_inb_ctrl( int fd );

@@ -1,3 +1,16 @@
+2002-07-13  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c         backend/snapscan.h 
+	  backend/snapscan-options.c backend/snapscan-usb.c
+	  backend/snapscan-scsi.c    backend/snapscan.conf:  
+	  Snapscan backend version 1.4.15
+	  - Improve support for Acer / Benq 5300
+	  - use usb_sanei_read_bulk() and usb_sanei_write_bulk()
+	  - correct scan area for e52 with TPO	  
+	* doc/description/snapscan.desc: 
+	  - Adapted file to new syntax
+	  - Mark most scanners as "stable"
+
 2002-07-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-desc.c: Added backends mode with splitted tables.

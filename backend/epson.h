@@ -51,12 +51,35 @@
    If you do not wish that, delete this exception notice.  */
 
 #ifndef epson_h
-#define epson_h 1
+#define epson_h
 
+#include <sys/ioctl.h>
 
+#include <sys/types.h>
+
+/* some string constants that are used in the config file */
 
 #define SANE_EPSON_CONFIG_USB "usb"
 #define SANE_EPSON_CONFIG_PIO "pio"
+
+/* for experimental IOCTL support */
+#ifdef TEST_IOCTL
+#define IOCTL_SCANNER_VENDOR _IOR('u', 0xa0, int)
+#define IOCTL_SCANNER_PRODUCT _IOR('u', 0xa1, int)
+
+#define SANE_EPSON_VENDOR_ID (0x4b8)
+#define PRODUCT_PERFECTION_636 (0x101)
+#define PRODUCT_PERFECTION_610 (0x103)
+#define PRODUCT_PERFECTION_640 (0x10c)
+#define PRODUCT_PERFECTION_1200 (0x104)
+#define PRODUCT_PERFECTION_1240 (0x10b)
+#define PRODUCT_STYLUS_SCAN_2500 (0x106)
+#define PRODUCT_PERFECTION_1640 (0x10a)
+#define PRODUCT_EXPRESSION_1600 (0x107)
+#define PRODUCT_EXPRESSION_1680 (0x10e)
+#endif
+
+/* string constants for GUI elements that are not defined SANE-wide */
 
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
 #define SANE_TITLE_GAMMA_CORRECTION SANE_I18N("Gamma Correction")
@@ -91,24 +114,24 @@ typedef struct {
 	unsigned char	set_halftoning;
 	unsigned char	set_color_correction;
 	unsigned char	initialize_scanner;
-	unsigned char	set_speed;				/* B4 upper */
+	unsigned char	set_speed;				/* B4 and later */
 	unsigned char	set_lcount;
-	unsigned char	mirror_image;				/* B5 upper */
-	unsigned char	set_gamma_table;			/* B4 upper */
-	unsigned char	set_outline_emphasis;			/* B4 upper */
-	unsigned char	set_dither;				/* B4 upper */
-	unsigned char	set_color_correction_coefficients;	/* B3 upper */
-	unsigned char	request_extension_status;		/* EXT */
-	unsigned char	control_an_extension;			/* EXT */
-	unsigned char	eject;					/* EXT */
+	unsigned char	mirror_image;				/* B5 and later */
+	unsigned char	set_gamma_table;			/* B4 and later */
+	unsigned char	set_outline_emphasis;			/* B4 and later */
+	unsigned char	set_dither;				/* B4 and later */
+	unsigned char	set_color_correction_coefficients;	/* B3 and later */
+	unsigned char	request_extension_status;		/* for extension control */
+	unsigned char	control_an_extension;			/* for extension control */
+	unsigned char	eject;					/* for extension control */
 	unsigned char	request_push_button_status;
 	unsigned char	control_auto_area_segmentation;
-	unsigned char	set_film_type;				/* EXT */
-	unsigned char	set_exposure_time;			/* F5 */
-	unsigned char	set_bay;				/* F5 */
+	unsigned char	set_film_type;				/* for extension control */
+	unsigned char	set_exposure_time;			/* F5 only */
+	unsigned char	set_bay;				/* F5 only */
 	unsigned char	set_threshold;
-	unsigned char	set_focus_position;			/* B8 */
-	unsigned char	request_focus_position;			/* B8 */
+	unsigned char	set_focus_position;			/* B8 only */
+	unsigned char	request_focus_position;			/* B8 only */
 } EpsonCmdRec, * EpsonCmd;
 
 enum
@@ -133,6 +156,7 @@ enum
 		, OPT_GAMMA_VECTOR_R
 		, OPT_GAMMA_VECTOR_G
 		, OPT_GAMMA_VECTOR_B
+    , OPT_WAIT_FOR_BUTTON
 	, OPT_CCT_GROUP
 		, OPT_CCT_1
 		, OPT_CCT_2
@@ -159,7 +183,6 @@ enum
 		, OPT_FOCUS
 		, OPT_BAY
 		, OPT_EJECT
-    , OPT_WAIT_FOR_BUTTON
 	, NUM_OPTIONS
 	};
 
@@ -236,6 +259,8 @@ struct Epson_Device {
   SANE_Bool need_double_vertical;
   SANE_Bool need_color_reorder;
 
+  SANE_Bool wait_for_button;  /* do we have to wait until the scanner button is pressed? */
+
 	EpsonCmd cmd;
 };
 
@@ -271,8 +296,7 @@ struct Epson_Scanner {
 	SANE_Int line_distance;		/* current line distance */
 	SANE_Int current_output_line;	/* line counter when color shuffling */
 	SANE_Int lines_written;		/* debug variable */
-  SANE_Bool wait_for_button;  /* do we have to wait until the scanner button is pressed? */
-};	
+};
 
 typedef struct Epson_Scanner Epson_Scanner;
 

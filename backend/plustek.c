@@ -145,7 +145,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.48-1"
+#define BACKEND_VERSION "0.48-2"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -2237,7 +2237,7 @@ sane_start( SANE_Handle handle )
     }
 
 	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesPerLine = %ld \n",
-						dev->scanning.dwFlag, dev->scanning.dwBytesLine );
+	                      dev->scanning.dwFlag, dev->scanning.dwBytesLine );
 
 	s->buf = realloc( s->buf, (s->params.lines) * s->params.bytes_per_line );
 	if( NULL == s->buf ) {

@@ -8,6 +8,9 @@
 	* README.openbsd: Updated for libusb.
 	* README: Added section about libraries like libiee1284 and libusb.
 	* doc/doxygen-sanei.conf: Updated version number.
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Used dn (device number)
+	  instead of fd (file descriptor) to avoid confusion. Updated doxygen
+	  documentation.
 
 2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
 

@@ -197,7 +197,7 @@ sanei_thread_sendsig( int pid, int sig )
 static void
 thread_exit_handler( int signo )
 {
-	DBG( 2, "signal caught, calling pthread_exit now...\n" );
+	DBG( 2, "signal(%i) caught, calling pthread_exit now...\n", signo );
 	pthread_exit( PTHREAD_CANCELED );
 }
 #endif
@@ -207,7 +207,6 @@ static void*
 local_thread( void *arg )
 {
 	static int     status;
-	int            old;
 	pThreadDataDef ltd = (pThreadDataDef)arg;
 
 #if defined (__APPLE__) && defined (__MACH__)
@@ -218,6 +217,8 @@ local_thread( void *arg )
 	act.sa_handler = thread_exit_handler;
 	sigaction( SIGUSR2, &act, 0 );
 #else
+	int old;
+
 	pthread_setcancelstate( PTHREAD_CANCEL_ENABLE, &old );
 	pthread_setcanceltype ( PTHREAD_CANCEL_ASYNCHRONOUS, &old );
 #endif
@@ -362,7 +363,7 @@ sanei_thread_waitpid( int pid, int *status )
 
 	DBG(2, "sanei_thread_waitpid() - %d\n", (int)pid);
 #ifdef USE_PTHREAD
-	result = pthread_join((pthread_t)pid, (void**)&ls );
+	result = pthread_join((pthread_t)pid, (void*)&ls );
 
 	if( 0 == result ) {
 		if( PTHREAD_CANCELED == ls ) {

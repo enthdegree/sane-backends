@@ -278,7 +278,7 @@ scsi_sense_wait_ready (Mustek_Scanner *s)
       len = sizeof (sense_buffer);
 
       DBG(5, "scsi_sense_wait_ready: command size = %d, sense size = %ld\n", 
-	  sizeof (scsi_request_sense), len);
+	  sizeof (scsi_request_sense), (long int) len);
       status = sanei_scsi_cmd (s->fd, scsi_request_sense, 
 			       sizeof (scsi_request_sense), sense_buffer, 
 			       &len);
@@ -585,7 +585,8 @@ dev_cmd (Mustek_Scanner * s, const void * src, size_t src_size,
 	}
     }
 
-  DBG(5, "dev_cmd: finished: dst_size=%ld\n", dst_size ? *dst_size : 0);
+  DBG(5, "dev_cmd: finished: dst_size=%ld\n", 
+      (long int) (dst_size ? *dst_size : 0));
   return status;
 }
 
@@ -3116,7 +3117,7 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
   res = s->resolution_code;
   half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
 
-  DBG(5, "get_window: resolution: %d dpi (hardware: %d dpi)\n",
+  DBG(5, "get_window: resolution: %ld dpi (hardware: %d dpi)\n",
       res, s->ld.peak_res);
 
   len = sizeof (result);
@@ -4699,7 +4700,7 @@ reader_process (Mustek_Scanner *s, SANE_Int fd)
   bstat[0].command = malloc (2 * 10);
   if (!bstat[0].command)
     {
-      DBG(1, "reader_process: failed to malloc %ld bytes for command buffer\n",
+      DBG(1, "reader_process: failed to malloc %d bytes for command buffer\n",
 	  2 * 10);
       return SANE_STATUS_NO_MEM;
     }

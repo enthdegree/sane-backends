@@ -1,4 +1,4 @@
-2001-10-31  Peter Fales <peter@fales.com>
+2001-11-06  Peter Fales <peter@fales.com>
 
 	* dc240.c - fix a bug that causes the backend's internal directory
 	  to get out of sync with the camera directory when a file is deleted

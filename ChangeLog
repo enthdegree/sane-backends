@@ -1,3 +1,6 @@
+---- CODE FREEZE FOR SANE 1.0.8 ---
+--- snapshot 1.0.8-pre1
+
 2002-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_scsi.c: Fixed sanei_scsi_cmd2() for OPENSTEP (from 

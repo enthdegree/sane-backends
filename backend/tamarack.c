@@ -364,7 +364,7 @@ scan_area_and_windows (Tamarack_Scanner *s)
     break;
   default:
     DBG(1, "Invalid mode. %d\n", s->mode);
-    exit (1);
+    return SANE_STATUS_INVAL;
   }
   DBG(1, "bright, thresh, contrast = %d(%5.1f), %d, %d(%5.1f)\n", 
       dwp.wdb.brightness, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w),

@@ -1,3 +1,8 @@
+2001-09-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/mustek.c backend/mustek.desc doc/mustek/mustek.CHANGES:
+	  Fixed problem with gamma correction. New version: 1.0-113.
+
 2001-09-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek_usb.c backend/mustek_usb.conf

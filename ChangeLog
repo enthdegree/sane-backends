@@ -1,6 +1,13 @@
 2002-03-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/hpoj.desc: New file (from David Paschal <paschal@rcsis.com>).
+	* backend/mustek_usb.c backend/mustek_usb.desc backend/mustek_usb.h
+ 	  backend/mustek_usb_high.c backend/mustek_usb_high.h
+	  backend/mustek_usb_low.c backend/mustek_usb_low.h
+	  backend/mustek_usb_mid.c doc/mustek_usb/mustek_usb.CHANGES: Fixed
+	  segfault when opening device again after closing and possible
+	  segfault when name="". Type for option 0 must be set to
+	  SANE_TYPE_INT explicitely. Updated GPL/SANE headers.
 
 2002-03-17  Peter Fales <peter@fales.com>
 

@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "26 Aug 2001"
+.TH sane-mustek 5 "13 Sep 2001"
 .IX sane-mustek_usb
 .SH NAME
 sane-mustek_usb - SANE backend for Mustek USB flatbed scanners
@@ -27,10 +27,10 @@ More details can be found on the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/ .
 .PP
 This backend is based on the 1200ub backend provided by Mustek. It was
-modified to fit into the SANE distribution, some bugs were fixed, and support
-for the 600 CU was added.
+modified to fit into the SANE distribution, some bugs were fixed, support
+for the 600 CU was added, and some features added.
 .PP
-Beware! This is ALPHA software. It currently only works on Linux. It doesn't
+This is BETA software. It currently only works on Linux. It doesn't
 work on FreeBSD for unknown reasons. Other systems are untested. See BUGS for
 more information.
 .PP
@@ -91,7 +91,11 @@ usb 0x055f 0x0001
 .br
 option 600cu
 .RE
-
+.PP
+The first line is ignored. The second line tries to autodetect a scanner with
+vendor id 0x055f and product id 0x0001 (Mustek 1200 CU). The third line tells
+the backend to attach to /dev/usb/scanner0 and the fourth line specifies that
+/dev/usb/scanner 0 is a Mustek 600 CU.
 .SH FILES
 .TP
 .I @CONFIGDIR@/mustek_usb.conf
@@ -149,11 +153,11 @@ sane(7), sane-usb(5), sane\-mustek(5), sane\-mustek_pp(5)
 .SH AUTHOR
 Tom Wang (Mustek), Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+
 .SH BUGS
-This is ALPHA software. That means it's far from feature-complete and has lots
-of bugs. The support for the 600 CU is limited to 300, 150, 100 and 50
-dpi. Brightness and contrast options don't work in every mode.
-More detailed bug information is available at the Mustek backend
-homepage
+This is BETA software. That means that it may contain bugs. More detailed bug
+information is available at the Mustek backend homepage
 .IR http://www.meier-geinitz.de/sane/ .
 See also the CHANGES and TODO files.
+Please contact me if you find a bug or missing feature:
+<henning@meier-geinitz.de>

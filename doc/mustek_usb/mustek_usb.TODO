@@ -1,8 +1,10 @@
-2001-09-06
+2001-09-13
 
-* support more scanners
-* don't use a resolution list
-* allow 1200/600 dpi for y-resolution
-* remove/replace _word variables from usb_low
-* Check if gamma support is possible
-* Is is_invert usefull?
+* Support more scanners
+  - 1200 USB
+  - 600 USB
+* Add support for non-Linux OS
+  - why it doesn't work on FreeBSD? Maybe the open/close thing doesn't work?
+* Remove/replace _word variables from usb_low
+* Check if low resolutions can be made faster.
+* Check fixmes.

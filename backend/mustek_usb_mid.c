@@ -264,7 +264,7 @@ usb_mid_c600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c600_prepare_rgb_600_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_c600_prepare_rgb: unmatched DPI\n");
+      DBG (3, "usb_mid_c600_prepare_rgb: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -300,7 +300,7 @@ usb_mid_c600_prepare_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c600_prepare_mono_600_dpi (chip);
       break;
     default:
-      DBG (6, "usb_mid_c600_prepare_mono: unmatched DPI\n");
+      DBG (6, "usb_mid_c600_prepare_mono: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -526,7 +526,7 @@ usb_mid_c300600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c300600_prepare_rgb_600_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_c300600_prepare_rgb: unmatched DPI?\n");
+      DBG (3, "usb_mid_c300600_prepare_rgb: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -560,7 +560,7 @@ usb_mid_c300600_prepare_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c300600_prepare_mono_600_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_c300600_prepare_mono: unmatched DPI?\n");
+      DBG (3, "usb_mid_c300600_prepare_mono: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -714,7 +714,7 @@ usb_mid_c300_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c300_prepare_rgb_300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_c300_prepare_rgb: unmatched DPI?\n");
+      DBG (3, "usb_mid_c300_prepare_rgb: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -743,7 +743,7 @@ usb_mid_c300_prepare_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_c300_prepare_mono_300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_c300_prepare_mono: unmatched DPI?\n");
+      DBG (3, "usb_mid_c300_prepare_mono: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -785,7 +785,7 @@ usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi)
 	       chip, dpi);
 	  return SANE_TRUE;
 	default:
-	  DBG (3, "usb_mid_sensor_is600_mode: unmatched DPI?\n");
+	  DBG (3, "usb_mid_sensor_is600_mode: unmatched dpi: %d\n", dpi);
 	  return SANE_FALSE;
 	  break;
 	}
@@ -821,10 +821,44 @@ usb_mid_sensor_prepare_mono (ma1017 * chip, SANE_Word dpi)
   return SANE_STATUS_INVAL;
 }
 
+static SANE_Status
+usb_mid_sensor_get_dpi (ma1017 *chip, SANE_Word wanted_dpi, SANE_Word *dpi)
+{
+  SANE_Word *dpi_list;
+  SANE_Word i;
+
+  if (!dpi)
+    return SANE_STATUS_INVAL;
+
+  DBG (5, "usb_mid_sensor_get_dpi: chip->sensor=%d\n", chip->sensor); 
+
+  if (chip->sensor == ST_CANON300)
+    dpi_list = usb_mid_c300_optical_x_dpi;
+  else if (chip->sensor == ST_CANON300600)
+    dpi_list = usb_mid_c300600_optical_x_dpi;
+  else if (chip->sensor == ST_CANON600)
+    dpi_list = usb_mid_c600_optical_x_dpi;
+  else
+    return SANE_STATUS_INVAL;
+
+  for (i = 0; dpi_list[i] != 0; i++)
+    {
+      if (wanted_dpi > dpi_list[i])
+	break;
+    }
+  if (i)
+    i--;
+  *dpi = dpi_list[i];
+  DBG (5, "usb_mid_sensor_get_dpi: wanted %d dpi, got %d dpi\n", wanted_dpi, 
+       *dpi);
+  return SANE_STATUS_GOOD;
+}
+
+
 /* ---------------1200 dpi motor function declarations --------------------- */
 
 static SANE_Word usb_mid_motor1200_optical_dpi[] =
-{ 1200, 600, 400, 300, 240, 200, 150, 120, 100, 75, 60, 50, 0 };
+{ 1200, 600, 400, 300, 200, 150, 100, 50, 0 };
 
 SANE_Status
 usb_mid_motor1200_prepare_rgb_1200_dpi (ma1017 * chip)
@@ -1348,7 +1382,7 @@ usb_mid_motor1200_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor1200_prepare_rgb_50_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor1200_prepare_rgb: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor1200_prepare_rgb: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1392,7 +1426,7 @@ usb_mid_motor1200_prepare_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor1200_prepare_mono_50_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor1200_prepare_mono_: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor1200_prepare_mono_: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1426,7 +1460,8 @@ usb_mid_motor1200_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor1200_prepare_rgb_bi_full_x2300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor1200_prepare_calibrate_rgb: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor1200_prepare_calibrate_rgb: unmatched dpi: "
+	   "%d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1460,7 +1495,8 @@ usb_mid_motor1200_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor1200_prepare_mono_bi_full_x2300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor1200_prepare_calibrate_mono: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor1200_prepare_calibrate_mono: unmatched dpi: %d\n",
+	   dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1562,7 +1598,7 @@ usb_mid_motor1200_rgb_capability (SANE_Word dpi)
     case 50:
       return 10048;
     default:
-      DBG (3, "usb_mid_motor1200_rgb_capability: unmatched DPI?\n");
+      DBG (3, "usb_mid_motor1200_rgb_capability: unmatched dpi: %d\n", dpi);
       return 0;
     }
 }
@@ -1587,7 +1623,7 @@ usb_mid_motor1200_mono_capability (SANE_Word dpi)
     case 50:
       return 10048;
     default:
-      DBG (3, "usb_mid_motor1200_mono_capability: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor1200_mono_capability: unmatched dpi: %d\n", dpi);
       return 0;
     }
 }
@@ -1596,7 +1632,7 @@ usb_mid_motor1200_mono_capability (SANE_Word dpi)
 
 
 static SANE_Word usb_mid_motor600_optical_dpi[] =
-{ 600, 300, 200, 150, 120, 100, 75, 60, 50, 0 };
+{ 600, 300, 200, 150, 100, 50, 0 };
 
 
 SANE_Status
@@ -1940,7 +1976,7 @@ usb_mid_motor600_prepare_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor600_prepare_rgb_50_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_rgb: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor600_prepare_rgb: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -1972,7 +2008,7 @@ usb_mid_motor600_prepare_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor600_prepare_mono_50_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_mono_: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor600_prepare_mono_: unmatched dpi: %d\n", dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -2002,7 +2038,8 @@ usb_mid_motor600_prepare_calibrate_rgb (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor600_prepare_rgb_bi_full_300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_calibrate_rgb: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor600_prepare_calibrate_rgb: unmatched dpi: %d\n", 
+	   dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -2032,7 +2069,8 @@ usb_mid_motor600_prepare_calibrate_mono (ma1017 * chip, SANE_Word dpi)
       return usb_mid_motor600_prepare_mono_bi_full_300_dpi (chip);
       break;
     default:
-      DBG (3, "usb_mid_motor600_prepare_calibrate_mono: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor600_prepare_calibrate_mono: unmatched dpi: %d\n",
+	   dpi);
       return SANE_STATUS_INVAL;
       break;
     }
@@ -2088,7 +2126,7 @@ usb_mid_motor600_prepare_home (ma1017 * chip)
   SANE_Status status;
   
   DBG (6, "usb_mid_motor600_prepare_home: start\n");
-  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_FALSE));
+  RIE(usb_low_set_motor_movement (chip, SANE_FALSE, SANE_TRUE, SANE_TRUE));
   /* Make it in 600dpi */
   RIE(usb_low_set_io_3 (chip, SANE_TRUE)); /* (IO3) ? High power : Low power */
   RIE(usb_low_move_motor_home (chip, SANE_TRUE, SANE_TRUE));
@@ -2129,7 +2167,7 @@ usb_mid_motor600_rgb_capability (SANE_Word dpi)
     case 50:
       return 9000;
     default:
-      DBG (3, "usb_mid_motor600_rgb_capability: unmatched DPI?\n");
+      DBG (3, "usb_mid_motor600_rgb_capability: unmatched dpi: %d\n", dpi);
       return 0;
     }
 }
@@ -2150,7 +2188,7 @@ usb_mid_motor600_mono_capability (SANE_Word dpi)
     case 50:
       return 9000;
     default:
-      DBG (3, "usb_mid_motor600_mono_capability: unmatched dpi?\n");
+      DBG (3, "usb_mid_motor600_mono_capability: unmatched dpi: %d\n", dpi);
       return 0;
     }
 }
@@ -2238,6 +2276,34 @@ usb_mid_motor_mono_capability (ma1017 * chip, SANE_Word dpi)
 }
 
 
+static SANE_Status
+usb_mid_motor_get_dpi (ma1017 *chip, SANE_Word wanted_dpi, SANE_Word *dpi)
+{
+  SANE_Word *dpi_list;
+  SANE_Word i;
+
+  if (!dpi)
+    return SANE_STATUS_INVAL;
+
+  if (chip->motor == MT_600)
+    dpi_list = usb_mid_motor600_optical_dpi;
+  else if (chip->motor == MT_1200)
+    dpi_list = usb_mid_motor1200_optical_dpi;
+  else
+    return SANE_STATUS_INVAL;
+
+  for (i = 0; dpi_list[i] != 0; i++)
+    {
+      if (wanted_dpi > dpi_list[i])
+	break;
+    }
+  if (i)
+    i--;
+  *dpi = dpi_list[i];
+  DBG (5, "usb_mid_motor_get_dpi: wanted %d dpi, got %d dpi\n", wanted_dpi, 
+       *dpi);
+  return SANE_STATUS_GOOD;
+}
 /* ----------------------------- frontend ------------------------------- */
 
 SANE_Status

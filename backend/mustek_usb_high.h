@@ -96,31 +96,6 @@ typedef enum Colormode
 } 
 Colormode;
 
-typedef struct Target_Image
-{
-  SANE_Bool is_optimal_speed;
-  Colormode color_mode;
-  SANE_Word dpi;
-  SANE_Word x;
-  SANE_Word y;
-  SANE_Word width;
-  SANE_Word height;
-} 
-Target_Image;
-
-typedef struct Suggest_Setting
-{
-  Colormode scan_mode;
-  SANE_Word x_dpi;
-  SANE_Word y_dpi;
-  SANE_Word x;
-  SANE_Word y;
-  SANE_Word width;
-  SANE_Word height;
-  SANE_Word bytes_per_row;
-} 
-Suggest_Setting;
-
 typedef enum Signal_State
 {
   SS_UNKNOWN=0,
@@ -172,15 +147,20 @@ enum Mustek_Usb_Option
   OPT_RESOLUTION,
   OPT_PREVIEW,
   
-  OPT_GEOMETRY_GROUP,
+  OPT_GEOMETRY_GROUP, /* 5 */
   OPT_TL_X,			/* top-left x */
   OPT_TL_Y,			/* top-left y */
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
   
-  OPT_ENHANCEMENT_GROUP,
+  OPT_ENHANCEMENT_GROUP, /* 10 */
   OPT_BRIGHTNESS,
-  OPT_CONTRAST,
+  OPT_CUSTOM_GAMMA,
+  OPT_GAMMA_VECTOR,
+  OPT_GAMMA_VECTOR_R,
+  OPT_GAMMA_VECTOR_G,
+  OPT_GAMMA_VECTOR_B,
+
   /* must come last: */
   NUM_OPTIONS
 };
@@ -207,13 +187,28 @@ typedef struct Mustek_Usb_Device
 
   ma1017 * chip; /* registers of the scanner controller chip */
 
+  Colormode scan_mode;
+  SANE_Word x_dpi;
+  SANE_Word y_dpi;
+  SANE_Word x;
+  SANE_Word y;
+  SANE_Word width;
+  SANE_Word height;
+  SANE_Word bytes_per_row;
+  SANE_Word bpp;
+
   SANE_Byte *scan_buffer;
   SANE_Byte *scan_buffer_start;
   size_t scan_buffer_len;
 
+  SANE_Byte *temp_buffer;
+  SANE_Byte *temp_buffer_start;
+  size_t temp_buffer_len;
+
+  SANE_Word line_switch;
+  SANE_Word line_offset;
+
   SANE_Bool is_cis_detected;
-  Suggest_Setting suggest;
-  SANE_Word mapping_table[256];
 
   SANE_Word init_bytes_per_strip;
   SANE_Word adjust_length_300;
@@ -281,11 +276,6 @@ typedef struct Mustek_Usb_Device
   SANE_Bool is_opened;
   SANE_Bool is_prepared;
   SANE_Word expose_time;
-  SANE_Word width;
-  SANE_Word x_dpi;
-  SANE_Word y_dpi;
-  Colormode scan_mode;
-  SANE_Word bytes_per_row;
   SANE_Word dummy;
   SANE_Word bytes_per_strip;
   SANE_Byte *image_buffer;
@@ -344,11 +334,11 @@ typedef struct Mustek_Usb_Scanner
   
   SANE_Int channels;
   
-  /* scan window in inches: top left x+y and bottom right x+y */
+  /* scan window in inches: top left x+y and width+height */
   double tl_x;
   double tl_y;
-  double br_x;
-  double br_y;
+  double width;
+  double height;
   /* scan window in dots (at current resolution): 
      top left x+y and width+height */
   SANE_Int tl_x_dots;
@@ -356,11 +346,22 @@ typedef struct Mustek_Usb_Scanner
   SANE_Int width_dots;
   SANE_Int height_dots;
 
+  SANE_Word bpp;
+
   SANE_Bool scanning;
-  SANE_Bool aborted_by_user;
   SANE_Parameters params;
   SANE_Word read_rows;
-
+  SANE_Word red_gamma_table[256];
+  SANE_Word green_gamma_table[256];
+  SANE_Word blue_gamma_table[256];
+  SANE_Word gray_gamma_table[256];
+  SANE_Word linear_gamma_table[256];
+  SANE_Word *red_table;
+  SANE_Word *green_table;
+  SANE_Word *blue_table;
+  SANE_Word *gray_table;
+  SANE_Word total_bytes;
+  SANE_Word total_lines;
   /* scanner dependent/low-level state: */
   Mustek_Usb_Device *hw;
 }
@@ -464,9 +465,9 @@ static SANE_Status
 usb_high_scan_reset (Mustek_Usb_Device * dev);
 
 static SANE_Status
-usb_high_scan_suggest_parameters (Mustek_Usb_Device * dev,
-				  Target_Image *target,
-				  Suggest_Setting *suggest);
+usb_high_scan_suggest_parameters (Mustek_Usb_Device * dev, SANE_Word dpi,
+				  SANE_Word x, SANE_Word y, SANE_Word width,
+				  SANE_Word height, Colormode color_mode);
 static SANE_Status 
 usb_high_scan_detect_sensor (Mustek_Usb_Device *dev);
 
@@ -584,12 +585,12 @@ static SANE_Status
 usb_high_scan_prepare_mono_8 (Mustek_Usb_Device * dev);
 
 static SANE_Status
-usb_high_scan_Get_rgb_24_bit_line (Mustek_Usb_Device * dev,
+usb_high_scan_get_rgb_24_bit_line (Mustek_Usb_Device * dev,
 				   SANE_Byte * line,
 				   SANE_Bool is_order_invert);
 
 static SANE_Status
-usb_high_scan_Get_mono_8_bit_line (Mustek_Usb_Device * dev,
+usb_high_scan_get_mono_8_bit_line (Mustek_Usb_Device * dev,
 				   SANE_Byte * line,
 				   SANE_Bool is_order_invert);
 

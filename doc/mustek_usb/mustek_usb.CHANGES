@@ -1,5 +1,39 @@
 CHANGES for the SANE Mustek USB backend
 
+2001-09-13
+  * Release of version 1.0-6.
+
+2001-09-13
+  * Added check for negative width and height.
+  * Changed status to NEW (internaly: beta).
+  * Added check for too high gamma values (xscanimage is buggy).
+  * Return SANE_STATUS_CANCELLED in sane_read if scan was cancelled.
+  * Updated manual page.
+
+2001-09-12
+  * Added support for fitting lines (recalculation of resolution) for
+    color mode
+  * Added support for fitting lines (recalculation of resolution) for
+    lineart mode
+  * Better debug output for unmatched dpi in mustek_usb_mid.
+  * Changed default mode to "gray".
+  * Added gamma table support (software) for color + gray, stayed with
+    brightness for lineart.
+  * Added output of total bytes scanned (+ check).
+  * Decreased maximum width and height to avoid freezing the scanner.
+  * Added check for unknown options in mustek_usb.
+  * Code cleanup in mustek_usb, mustek_usb_high.
+  * Added SANE_I18N macro.
+
+2001-09-11
+  * Added support for idependent x and y resolution.
+  * Changed option resolution to constraint_range.
+  * Increased motor speed when returning back home for 600 dpi motor.
+  * Increased resolution to 1200 dpi for 1200CU, 1200CU Plus and 1200 UB.
+  * Increased resolution to 600 dpi for 600CU.
+  * Added support for fitting lines (recalculation of resolution) for
+    gray mode
+
 2001-09-10
   * Release of version 1.0-5.
 

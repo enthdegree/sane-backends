@@ -194,7 +194,7 @@ usb_mid_c300_prepare_mono_50_dpi (ma1017 * chip);
 
 /* --------------------- sensor function declarations -------------------- */
 
-SANE_Bool
+static SANE_Bool
 usb_mid_sensor_is600_mode (ma1017 * chip, SANE_Word dpi);
 
 static SANE_Status
@@ -202,6 +202,9 @@ usb_mid_sensor_prepare_rgb (ma1017 * chip, SANE_Word dpi);
 
 static SANE_Status
 usb_mid_sensor_prepare_mono (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_sensor_get_dpi (ma1017 *chip, SANE_Word wanted_dpi, SANE_Word *dpi);
 
 /* ------------------- motor 1200 function declarations ------------------ */
 
@@ -403,6 +406,9 @@ usb_mid_motor_rgb_capability (ma1017 * chip, SANE_Word dpi);
 
 static SANE_Word
 usb_mid_motor_mono_capability (ma1017 * chip, SANE_Word dpi);
+
+static SANE_Status
+usb_mid_motor_get_dpi (ma1017 *chip, SANE_Word wanted_dpi, SANE_Word *dpi);
 
 /* --------------------- frontend function declarations ------------------- */
 

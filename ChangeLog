@@ -1,3 +1,10 @@
+2003-09-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/microtek.desc: Used new :status scheme. Added
+	  Vobis Highscreen Realscan and Genius Colorpage-SP2.
+	* doc/descriptions/unsupported.desc: Added HP, Microtek and UMAX
+	  scanners.
+
 2003-09-18  Stéphane Voltz <svoltz@wanadoo.fr>
 
 	* backend/sane-umax_pp.c: fix default port address handling

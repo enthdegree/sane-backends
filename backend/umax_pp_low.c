@@ -1241,34 +1241,6 @@ sanei_umax_pp_setauto (int autoset)
   gAutoSettings = autoset;
 }
 
-static void dump_port(void)
-{
-  unsigned char r;
-  r = Inb (DATA);
-  DBG(0,"DATA=0x%02X\n",r);
-  r = Inb (STATUS);
-  DBG(0,"STATUS=0x%02X\n",r);
-  r = Inb (CONTROL);
-  DBG(0,"CONTROL=0x%02X\n",r);
-}
-
-static int
-clear_epp_timeout (void)
-{
-  unsigned char r;
-  r = Inb (STATUS);
-  if (!(r & 0x01))
-    return 1;
-
-  /* To clear timeout some chips require double read */
-  r = Inb (STATUS);
-  r = Inb (STATUS);
-  Outb (STATUS, r | 0x01);	/* Some reset by writing 1 */
-  Outb (STATUS, r & 0xfe);	/* Others by writing 0 */
-  r = Inb (STATUS);
-  return !(r & 0x01);
-}
-
 
 static int
 NibbleRead (void)
@@ -5182,21 +5154,7 @@ sanei_umax_pp_ProbeScanner (int recover)
   Init002 (0);
   DBG (16, "Init002(0) passed... (%s:%d)\n", __FILE__, __LINE__);
 
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
-  DBG (16, "clearing timeout ... (%s:%d)\n", __FILE__, __LINE__);
-  clear_epp_timeout ();
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
   REGISTERWRITE (0x0A, 0);
-  /*clear_epp_timeout(); */
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
-  DBG (16, "clearing timeout ... (%s:%d)\n", __FILE__, __LINE__);
-  clear_epp_timeout ();
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
- 
 
   /* catch any failure to read back data in EPP mode */
   reg = RegisterRead (0x0A);
@@ -5233,24 +5191,10 @@ sanei_umax_pp_ProbeScanner (int recover)
       DBG (16, "RegisterRead(0x0A)=0x00 passed... (%s:%d)\n", __FILE__,
 	   __LINE__);
     }
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
-  DBG (16, "clearing timeout ... (%s:%d)\n", __FILE__, __LINE__);
-  clear_epp_timeout();
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
   RegisterWrite (0x0A, 0xFF);
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
-  DBG (16, "clearing timeout ... (%s:%d)\n", __FILE__, __LINE__);
-  clear_epp_timeout();
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
   DBG (16, "RegisterWrite(0x%X,0x%X) passed...   (%s:%d)\n", 0x0A, 0xFF,
        __FILE__, __LINE__);
   REGISTERREAD (0x0A, 0xFF);
-  DBG (16, "dumping port state ... (%s:%d)\n", __FILE__, __LINE__);
-  dump_port ();
   for (i = 1; i < 256; i++)
     {
       REGISTERWRITE (0x0A, i);

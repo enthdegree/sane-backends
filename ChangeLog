@@ -1,5 +1,6 @@
 2001-05-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* TODO: Added entries about possible segfaults and memory leaks.
 	* PROJECTS: Added Canon Canon FB330P, FP630P.
 
 2001-04-30  Jochen Eisinger <jochen.eisinger@informatik.uni-freiburg.de>

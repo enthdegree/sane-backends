@@ -1,3 +1,8 @@
+2002-08-22  Andras Major <andras@users.sourceforge.net>
+
+	* backend/coolscan2.c doc/descriptions/coolscan2.desc
+	  doc/sane-coolscan2.man: updated to 0.1.7.
+
 2002-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/.cvsignore: Added gamma4scanimage.1

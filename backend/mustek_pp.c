@@ -1126,7 +1126,7 @@ calibrate_device_101x (Mustek_PP_Device * dev)
 
       dev->voltages[0] = 0x32;
       dev->voltages[1] = 0x32;
-      dev->voltages[3] = 0x32;
+      dev->voltages[2] = 0x32;
       dev->params.pixels_per_line = saved_ppl;
 
       config_ccd (dev);

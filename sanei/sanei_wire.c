@@ -88,7 +88,7 @@ sanei_w_space (Wire *w, size_t howmuch)
 	    return;
 	  
 	  if (left_over)
-	    memcpy (w->buffer.start, w->buffer.curr, left_over);
+	    memmove (w->buffer.start, w->buffer.curr, left_over);
 	  w->buffer.curr = w->buffer.start;
 	  w->buffer.end = w->buffer.start + left_over;
 

@@ -14,6 +14,8 @@
 	* doc/.cvsignore doc/Makefile.in doc/sane.man: Adjusted for fujitsu
 	  and sp15c manpages.
 	* AUTHORS: Updated for fujitsu backend.
+	* doc/descriptions-external/m3091.desc doc/descriptions/m3096g.desc:
+	  Removed, now in doc/descriptions/fujitsu.desc.
 
 2002-04-15  Marian Eichholz <eichholz@computer.org>
 	* sm3600 imported from sm3600.sf.net

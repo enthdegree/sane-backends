@@ -167,4 +167,7 @@ int sanei_canon_pp_adjust_gamma(scanner_parameters *sp);
 /* Detect if a scanner is present on a given port */
 int sanei_canon_pp_detect(struct parport *port);
 
+/* Put a scanner to sleep */
+int sanei_canon_pp_sleep_scanner(struct parport *port);
+
 #endif

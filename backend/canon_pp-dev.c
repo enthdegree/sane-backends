@@ -105,7 +105,7 @@ static unsigned long column_sum(image_segment *image, int x, int colournum);
 static int adjust_output(image_segment *image, scan_parameters *scanp, 
 		scanner_parameters *scannerp);
 static int check8(unsigned char *p, int s);
-static int sleep_scanner(struct parport *port);
+/*static int sleep_scanner(struct parport *port);*/
 /* Converts from weird scanner format -> sequential data */
 static void convdata(unsigned char *srcbuffer, unsigned char *dstbuffer, 
 		int width, int mode);
@@ -276,11 +276,14 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 		return 1;
 	}
 
-	/* Give it a tenth of a second to prepare */
-	usleep(100000); 
-
 	/* This block of code does something unknown but necessary */
-	sanei_canon_pp_scanner_init(sp->port);
+	DBG(20, "initialise: >> scanner_init\n");
+	if (sanei_canon_pp_scanner_init(sp->port))
+	{
+		DBG(10, "initialise: Could not init scanner.\n");
+		return 1;
+	}
+	DBG(20, "initialise: << scanner_init\n");
 
 	/* Read Device ID */
 	sanei_canon_pp_write(sp->port, 10, command_2);
@@ -314,14 +317,14 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 		strcpy(sp->name, "FB630P");
 		sp->natural_xresolution = 3;
 		sp->natural_yresolution = 3;
-		sp->scanbedlength = 8016;
+		sp->scanbedlength = 7016;
 	}
 	else if (strncmp(&(sp->id_string[8]), ID_N640P, sizeof(ID_N640P)) == 0)
 	{
 		strcpy(sp->name, "N640P");
 		sp->natural_xresolution = 3;	
 		sp->natural_yresolution = 3;	
-		sp->scanbedlength = 8016;
+		sp->scanbedlength = 7016;
 	}
 	else if (strncmp(&(sp->id_string[8]), ID_N340P, sizeof(ID_N340P)) == 0)
 	{
@@ -338,7 +341,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 			strcpy(sp->name, "Unknown 600dpi");
 			sp->natural_xresolution = 3; 
 			sp->natural_yresolution = 3;	
-			sp->scanbedlength = 8016;
+			sp->scanbedlength = 7016;
 		}
 		else if (sp->scanheadwidth == 2552) 
 		{
@@ -354,7 +357,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 			strcpy(sp->name, "Unknown (600dpi?)");
 			sp->natural_xresolution = 3; 
 			sp->natural_yresolution = 3;	
-			sp->scanbedlength = 8016;			
+			sp->scanbedlength = 7016;			
 		}
 	}
 
@@ -365,7 +368,7 @@ int sanei_canon_pp_initialise(scanner_parameters *sp)
 int sanei_canon_pp_close_scanner(scanner_parameters *sp)
 {
 	/* Put scanner in transparent mode */	
-	sleep_scanner(sp->port);
+	sanei_canon_pp_sleep_scanner(sp->port);
 
 	/* Free memory (with purchase of memory of equal or greater value) */
 	if (sp->blackweight != NULL) 
@@ -760,10 +763,12 @@ static int adjust_output(image_segment *image, scan_parameters *scanp,
 							pixel_address + 1));
 
 				result = result >> 6; /* Range now = 0-1023 */
+					/*
 				if (scanline == 10)
 					DBG(200, "adjust_output: Initial pixel"
 							" value: %ld\n", 
 							result);
+							*/
 				result *= 54;         /* Range now = 0-54k */
 
 				/* Clip to dark and light values */
@@ -781,11 +786,13 @@ static int adjust_output(image_segment *image, scan_parameters *scanp,
 					temp = 65535;
 				if (scanline == 10)
 				{
+					/*
 					DBG(200, "adjust_output: %d: base = "
 							"%lu, result %lu (%lu "
 							"- %lu)\n", pixelnum, 
 							result, temp, lo, hi);
-														}			
+							*/
+				}			
 					result = temp;
 
 					/* Store the value back where it came 
@@ -905,15 +912,15 @@ int sanei_canon_pp_calibrate(scanner_parameters *sp, char *cal_file)
 	DBG(40, "Sending Unknown request 1\n");
 	do
 	{
-		usleep(100000);
 		sanei_canon_pp_write(sp->port, 10, command_9);
+		usleep(200000);
 	} while (sanei_canon_pp_check_status(sp->port) == 1);
 
 	DBG(40, "Sending Unknown request 2\n");
 	do
 	{
-		usleep(100000);
 		sanei_canon_pp_write(sp->port, 10, command_10);
+		usleep(200000);
 	} while (sanei_canon_pp_check_status(sp->port) == 1);
 
 	DBG(40, "Reading white-balance/gamma data\n");
@@ -1163,7 +1170,7 @@ int sanei_canon_pp_adjust_gamma(scanner_parameters *sp)
 	return 0;
 }
 
-static int sleep_scanner(struct parport *port)
+int sanei_canon_pp_sleep_scanner(struct parport *port)
 {
 	/* *SCANEND Command - puts scanner to sleep */
 	sanei_canon_pp_write(port, 10, command_7);
@@ -1203,7 +1210,10 @@ int sanei_canon_pp_detect(struct parport *port)
 		ieee1284_release(port);
 		return 3;
 	}
-	/* sanei_canon_pp_sleep_scanner(port); */
+
+	/* Goodo, sleep (snaps fingers) */
+	sanei_canon_pp_sleep_scanner(port);
+
 	ieee1284_release(port);
 	/* ieee1284_close(port); */
 

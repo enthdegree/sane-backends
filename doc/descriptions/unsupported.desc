@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-03-02"		; version of backend
+:version "2003-03-13"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:status :stable			; :alpha, :beta, :stable, :new
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
@@ -72,20 +72,37 @@
 
 ;********************************************************************************************
 
+:mfg "Boeder"
+;:url ""
+
+:model "Sm@rtScan Office"
+:status :unsupported
+;:url ""
+:interface "Parport USB"
+:comment "Unsupported. Vendor/product 0x5cb, 0x1483. According to linux-usb.org that's the same ids as Trust Trust CombiScan 19200. The vendor is PowerVision Technologies, Inc. Maybe also a PV8630 as in the UMAX 1200U?"
+
+;********************************************************************************************
+
 :mfg "Brother"
 :url "http://www.brother.com/"
 
 :model "MFC 4600"
 :status :unsupported
-:url "http://www.mostang.com/pipermail/sane-devel/2001-August/011438.html"
+:url "http://sourceforge.net/projects/brother-mfc"
 :interface "Parport USB"
-:comment "Unsupported. Some information is available (see link)."
+:comment "Unsupported. However there is a project to support this scanner/printer/fax combination. See link."
+
+:model "MFC 5100c"
+:status :unsupported
+:url "http://www.meier-geinitz.de/sane/misc/brother-mfc5100c.txt"
+:interface "Parport USB"
+:comment "Unsupported. Some information is available (see link). See also MFC 4600."
 
 :model "MFC 6800"
 :status :unsupported
 :url "http://www.mostang.com/pipermail/sane-devel/2003-February/017785.html"
 :interface "USB"
-:comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111."
+:comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111. See also MFC 4600."
 
 ;********************************************************************************************
 
@@ -115,11 +132,11 @@
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
 
-:model "FS4000US"
-;:url ""
+:model "FS4000"
+:url "http://www.meier-geinitz.de/sane/misc/canon-fs4000.txt"
 :interface "USB SCSI"
 :status :unsupported
-:comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan."
+:comment "Not supported. USB Vendor/product 0x04a9/0x3042. May work with Vuescan (SCSI only)? Maybe SCSI over USB."
 
 
 ;********************************************************************************************
@@ -186,6 +203,12 @@
 
 :mfg "Hewlett-Packard"			; name a manufacturer
 :url "http://www.hp.com/"
+
+:model "Photo Scanner 1000"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/hp-photo-1000.txt"
+:status :unsupported
+:comment "Not supported by SANE. However, it's detected as mass storage device so just mounting it may work. See link for devices data."
 
 :model "ScanJet 2300C"
 :interface "USB"
@@ -419,6 +442,17 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Some information is available. May work with the Plustek backend in future."
+
+;********************************************************************************************
+
+:mfg "Trust"
+:url "http://www.trust-site.com"
+
+:model "CombiScan 19200"
+:status :unsupported
+;:url ""
+:interface "Parport USB"
+:comment "Unsupported. Vendor/product 0x5cb, 0x1483 according to linux-usb.org. Same ids as Boeder Sm@rtScan Office. The vendor is PowerVision Technologies, Inc. Maybe also a PV8630 as in the UMAX 1200U?"
 
 ;********************************************************************************************
 

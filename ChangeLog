@@ -6,6 +6,8 @@
 	  .desc and manpage. New flag to avoid running stop_scan before doing
 	  a scan. The Windows firmware of the BearPaw 1200 CU Plus doesn't
 	  seem to like that.
+	* doc/descriptions/unsupported.desc: Added some Boeder, Brother, HP and
+	  Trust scanners.
 
 2003-03-10  Oliver Schirrmeister <oschirr@abm.de>
 

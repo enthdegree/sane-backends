@@ -1,9 +1,9 @@
 :backend "gt68xx"
 :status :alpha
-:version "1.0-11"
+:version "1.0-17"
 ;:manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
-:comment "Only the USB scanners mentioned below are supported. For other BearPaws, look at the Plustek backend."
+:comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek backend."
 :devicetype :scanner
 
 :mfg "Mustek"
@@ -11,40 +11,60 @@
 :url "http://www.mustek.com.tw/"
 :url "http://www.mustek.de/"
 
-:model "ScanExpress 1200 UB Plus"
+:model "BearPaw 1200 CS"
 :interface "USB"
-:comment "Similar results as the BearPaw 1200 CU"
 :status :alpha
+:comment "is detected, should work, comments are welcome"
 
 :model "BearPaw 1200 CU"
 :interface "USB"
-:comment "All resolutions supported at 8 bit/pixel"
+:comment "works"
 :status :alpha
+
+:model "BearPaw 1200 CU Plus"
+:interface "USB"
+:comment "should work, comments are welcome"
+:status :untested
 
 :model "BearPaw 1200 TA"
 :interface "USB"
 :status :alpha
-:comment "All resolutions supported at 8 bit/pixel, top margin wrong?"
+:comment "works with minor bugs, TA works"
 
-:model "BearPaw 1200 TA"
+:model "BearPaw 2400 CS"
 :interface "USB"
-:status :alpha
-:comment "Images are completely black?"
+:status :untested
+:comment "maybe works, reports are welcome"
+
+:model "BearPaw 2400 CS Plus"
+:interface "USB"
+:status :untested
+:comment "maybe works, reports are welcome"
 
 :model "BearPaw 2400 CU"
 :interface "USB"
-:status :untested
-:comment "Testers welcome"
+:status :alpha
+:comment "scans, but with wrong resolution/double images, be careful""
+
+:model "BearPaw 2400 CU Plus"
+:interface "USB"
+:status :alpha
+:comment "works"
 
 :model "BearPaw 2400 TA"
 :interface "USB"
 :status :alpha
-:comment "At least color 300 dpi works"
+:comment "works with minor bugs"
 
 :model "BearPaw 2400 TA Plus"
 :interface "USB"
 :status :alpha
-:comment "Similar to the BearPaw 2400 TA"
+:comment "works"
+
+:model "ScanExpress 1200 UB Plus"
+:interface "USB"
+:comment "works"
+:status :alpha
 
 :mfg "Plustek"
 :url "http://www.plustek.de/"
@@ -73,7 +93,7 @@
 :model "Diamond 1200"
 :status :alpha
 :interface "USB"
-:comment "Seems to scan black images(?). Contact author if you own such a model"
+:comment "works (similar to Mustek BearPaw 1200 Plus)"
 
 :mfg "Tchibo"
 :model "Cytron ?"
@@ -84,17 +104,29 @@
 :mfg "Lifetec"
 :comment "Sold by Aldi"
 :model "LT 9452"
-:status :untested
+:status :alpha
 :interface "USB"
-:comment "Contact author if you own such a model"
+:comment "works"
 :model "LT 9385"
 :status :untested
 :interface "USB"
 :comment "Contact author if you own such a model"
 
 :mfg "Trust"
+:url "http://www.trust-site.com"
 :model "Flat Scan USB 19200"
 :status :untested
 :interface "USB"
 :comment "Contact author if you own such a model"
 
+:mfg "Lexmark"
+:url "http://www.lexmark.com/"
+:model "X70"
+:status :alpha
+:interface "USB"
+:comment "works up to 600 dpi"
+
+:model "X73"
+:status :untested
+:interface "USB"
+:comment "maybe works like the X70, contact author if you own such a model"

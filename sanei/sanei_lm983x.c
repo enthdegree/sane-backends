@@ -73,48 +73,18 @@
 
 /******************************* the functions *******************************/
 
-/**
- * function to initialize this library, currently only enables the debugging
- * functionality
- */
 void
 sanei_lm983x_init( void )
 {
 	DBG_INIT();
 }
 
-/**
- * function to write one data byte to a specific LM983x register
- *
- * @param fd    - device file descriptor
- * @param reg   - number of register
- * @param value - byte value to be written
- *
- * @return SANE_STATUS_GOOD     - on success
- *         SANE_STATUS_IO_ERROR - system write function failed
- *         SANE_STATUS_INVAL    - register out of range
- */
 SANE_Status
 sanei_lm983x_write_byte( SANE_Int fd, SANE_Byte reg, SANE_Byte value )
 {
     return sanei_lm983x_write( fd, reg, &value, 1, SANE_FALSE );
 }
 
-/**
- * function to write one or more data bytes to one ore more specific LM983x
- * registers.
- *
- * @param fd        - device file descriptor
- * @param reg       - number of start-register
- * @param buffer    - buffer to be written
- * @param len       - number of bytes to be written
- * @param increment - SANE_TRUE enables the autoincrement of the register
- *                    value during the write cylce, SANE_FALSE disables this
- *
- * @return SANE_STATUS_GOOD     - on success
- *         SANE_STATUS_IO_ERROR - system read function failed
- *         SANE_STATUS_INVAL    - register out of range or len field was 0
- */
 SANE_Status
 sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
 		    		SANE_Byte *buffer, SANE_Word len, SANE_Bool increment )
@@ -174,22 +144,6 @@ sanei_lm983x_write( SANE_Int fd, SANE_Byte reg,
 	return SANE_STATUS_GOOD;
 }
 
-/**
- * function to read one or more data bytes from one ore more specific LM983x
- * registers.
- *
- * @param fd        - device file descriptor
- * @param reg       - number of start-register
- * @param buffer    - buffer to receive the data
- * @param len       - number of bytes to receive
- * @param increment - SANE_TRUE enables the autoincrement of the register
- *                    value during the read cylce, SANE_FALSE disables this
- *
- * @return SANE_STATUS_GOOD     - on success
- *         SANE_STATUS_IO_ERROR - system read function failed
- *         SANE_STATUS_INVAL    - register out of range
- *         SANE_STATUS_EOF      - if nothing can't be read
- */
 SANE_Status
 sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
                    SANE_Byte *buffer, SANE_Word len, SANE_Bool increment )
@@ -270,13 +224,6 @@ sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 	return SANE_STATUS_GOOD;
 }
 
-/**
- * function to reset the LM983x chips
- *
- * @param fd    - device file descriptor
- * @return SANE_TRUE  - reset successfuly done
- *         SANE_FALSE - reset failed
- */
 SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 {
 	SANE_Byte cmd_buffer[_CMD_BYTE_CNT];

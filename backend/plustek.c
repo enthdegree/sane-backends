@@ -628,7 +628,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_NUM_OPTS].w 	   = NUM_OPTIONS;
 
 	/* "Scan Mode" group: */
-	s->opt[OPT_MODE_GROUP].name  = "Scan Mode group";
+	s->opt[OPT_MODE_GROUP].name  = "Scanmode-group";
 	s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
 	s->opt[OPT_MODE_GROUP].desc  = "";
 	s->opt[OPT_MODE_GROUP].type  = SANE_TYPE_GROUP;
@@ -658,7 +658,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	/* scan source */
 	s->opt[OPT_EXT_MODE].name  = SANE_NAME_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].title = SANE_TITLE_SCAN_SOURCE;
-	s->opt[OPT_EXT_MODE].desc  = PLUSTEK_DESC_SCAN_SOURCE;
+	s->opt[OPT_EXT_MODE].desc  = SANE_DESC_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].type  = SANE_TYPE_STRING;
 	s->opt[OPT_EXT_MODE].size  = 32;
 	s->opt[OPT_EXT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -666,9 +666,9 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_EXT_MODE].w = 0; /* Normal */
 	
 	/* halftone */
-	s->opt[OPT_HALFTONE].name  = SANE_NAME_HALFTONE;
+	s->opt[OPT_HALFTONE].name  = SANE_NAME_HALFTONE_PATTERN;
 	s->opt[OPT_HALFTONE].title = SANE_TITLE_HALFTONE;
-	s->opt[OPT_HALFTONE].desc  = SANE_I18N("Selects the halftone.");
+	s->opt[OPT_HALFTONE].desc  = SANE_DESC_HALFTONE_PATTERN;
 	s->opt[OPT_HALFTONE].type  = SANE_TYPE_STRING;
 	s->opt[OPT_HALFTONE].size  = 32;
 	s->opt[OPT_HALFTONE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -679,7 +679,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	/* brightness */
 	s->opt[OPT_BRIGHTNESS].name  = SANE_NAME_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-	s->opt[OPT_BRIGHTNESS].desc  = SANE_I18N("Selects the brightness.");
+	s->opt[OPT_BRIGHTNESS].desc  = SANE_DESC_BRIGHTNESS;
 	s->opt[OPT_BRIGHTNESS].type  = SANE_TYPE_FIXED;
 	s->opt[OPT_BRIGHTNESS].unit  = SANE_UNIT_PERCENT;
 	s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -983,7 +983,7 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 #else
 		free( dev->name );
 		free( dev );
-		DBG( _DBG_ERROR, "Portmode %u not supported\n", pt );
+		DBG( _DBG_ERROR, "Portmode %u not supported\n", cnf->porttype );
 		return SANE_STATUS_INVAL;
 #endif
 	}
@@ -1026,9 +1026,11 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	DBG( _DBG_INFO, "Scanner information:\n" );
     if( dev->caps.Model == MODEL_OP_USB ) {
 
+#ifdef _PLUSTEK_USB
 	    if( NULL != dev->usbDev.ModelStr )
 	    	dev->sane.model = dev->usbDev.ModelStr;
 		else	    	
+#endif		
 	    	dev->sane.model = ModelStr[MODEL_OP_USB];
 
     } else if( dev->caps.Model < MODEL_OP_USB ) {
@@ -1104,9 +1106,11 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	FILE    *fp;
 
 	DBG_INIT();
-	
+
+#ifdef _PLUSTEK_USB
 	sanei_usb_init();
 	sanei_lm983x_init();
+#endif	
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_SANE_INIT, "sane_init: " PACKAGE " " VERSION "\n");

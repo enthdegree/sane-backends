@@ -147,12 +147,6 @@ typedef enum {
 	NUM_PORTTYPES
 } PORTTYPE;
 
-/*
- * our own decription for some options
- */
-#define PLUSTEK_DESC_SCAN_SOURCE \
-SANE_I18N("Selects the picture mode.")
-
 typedef struct Plustek_Device
 {
 	struct Plustek_Device *next;             /* pointer to next dev in list  */

@@ -365,7 +365,7 @@ two entries in the configuration file
 .TP
 .I [usb] vendor-id product-id
 .TP
-.I /dev/usbscanner
+.I device /dev/usbscanner
 .PP
 .I usb
 tells the backend, that the following devicename (here

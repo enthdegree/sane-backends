@@ -44,10 +44,6 @@ msgstr "Normal"
 msgid "Transparency"
 msgstr "Durchlicht"
 
-#: .tmp/plustek.c:241
-#msgid "Negative"
-#msgstr ""
-
 #: .tmp/plustek.c:247
 msgid "Dithermap 1"
 msgstr "Halbtonmuster 1"

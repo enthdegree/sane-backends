@@ -1,3 +1,26 @@
+2002-03-06  Frank Zago <fzago@greshamstorage.com>
+
+	* po/Makefile.in doc/sane.man doc/Makefile.in backend/matsushita.desc
+	  backend/dll.conf backend/Makefile.in sane-backends.lsm AUTHORS
+	  po/matsushita.fr.po doc/matsushita/matsushita.txt 
+	  doc/matsushita/matsushita10_trc.txt 
+	  doc/matsushita/matsushita11_trc.txt 
+	  doc/matsushita/matsushita12_trc.txt 
+	  doc/matsushita/matsushita13_trc.txt 
+	  doc/matsushita/matsushita14_trc.txt 
+	  doc/matsushita/matsushita1_trc.txt 
+	  doc/matsushita/matsushita2_trc.txt 
+	  doc/matsushita/matsushita3_trc.txt 
+	  doc/matsushita/matsushita4_trc.txt 
+	  doc/matsushita/matsushita5_trc.txt 
+	  doc/matsushita/matsushita6_trc.txt 
+	  doc/matsushita/matsushita7_trc.txt 
+	  doc/matsushita/matsushita8_trc.txt 
+	  doc/matsushita/matsushita9_trc.txt doc/sane-matsushita.man 
+	  backend/matsushita.h backend/matsushita.conf 
+	  backend/matsushita.c: Addition of the Matsushita / Panasonic backend
+	* doc/.cvsignore: added sane-matsushita.5
+
 2002-03-03  Frank Zago <fzago@greshamstorage.com>
 
 	* doc/.cvsignore: added sane-sceptre.5

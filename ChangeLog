@@ -1,3 +1,8 @@
+2004-07-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/epkowa.desc: Added Epson Perfection
+	  3170 Photo as it's reported to work with that backend.
+
 2004-07-16  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/plustek/Makefile.module doc/plustek/BUILD 
 	  doc/plustek/VERSION0 doc/plustek/VERSION1: Removed, no longer needed.

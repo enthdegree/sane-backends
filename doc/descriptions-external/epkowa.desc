@@ -122,3 +122,7 @@
 :interface "USB IEEE-1394"
 :status :complete
 
+:model "Perfection 3170 PHOTO"
+:interface "USB"
+:status :complete
+

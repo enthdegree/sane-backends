@@ -1,6 +1,15 @@
+2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c    backend/snapscan-sources.c
+	  backend/snapscan-sources.h backend/snapscan-usb.c
+	  backend/snapscan-usb.h     backend/snapscan.c
+	  backend/snapscan.conf      backend/snapscan.desc
+	  backend/snapscan.h
+	  Update to snapscan-20011008
+
 2001-10-08  Peter Fales <peter@fales.com>
 
-	* backend/gphoto2.desc: Another try at getting a format that 
+	* backend/gphoto2.desc: Another try at getting a format that
 	  generates the right web page.
 
 2001-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>

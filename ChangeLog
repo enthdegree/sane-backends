@@ -1,5 +1,18 @@
 2000-12-31  Henning Meier-Geinitz <hmg@gmx.de>
 
+	* tools/find-scanner.c: Removed. Now called sane-find-scanner.
+	* tools/sane-find-scanner: New file (was find-scanner).
+	* tools/.cvsignore tools/Makefile.in tools/README: Updated because
+	  of name change. sane-find-scanner is installed now.
+	* README README.linux: Updated because of sane-find-scanner.
+	* frontend/scanimage.man: Updated because of sane-find-scanner.
+	* doc/sane-find-scanner.man: New file.
+	* doc/.cvsignore doc/Makefile.in: Added sane-find-scanner(1).
+	* TODO: Updated concerning sane-find-scanner. Added entry about
+	  qcam /tmp file handling. Some spelling corrections.
+
+2000-12-31  Henning Meier-Geinitz <hmg@gmx.de>
+
 	* backend/mustek.CHANGES backend/mustek.c backend/mustek.desc 
 	  backend/mustek.h doc/sane-mustek.man:  Added calibration for Pro
 	  scanners and the SE 12000 SP Plus. Added option to use the full

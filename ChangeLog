@@ -8,6 +8,8 @@
 	  doc/gt68xx/gt68xx.CHANGES: Added Genius 3x as working scanner,
 	  removed testing flag. Added Artec 2000 e+ to manpage. Added
 	  detection for the Plustek OpticPro U16B.
+	* doc/descriptions/unsupported.desc: Added more information for
+	  the HP Scanjet 2300c.
 
 2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

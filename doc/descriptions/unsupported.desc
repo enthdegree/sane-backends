@@ -241,8 +241,9 @@
 
 :model "ScanJet 2300C"
 :interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet2300c.txt"
 :status :unsupported
-:comment "Unsupported. Vendor/product  0x03f0/0x0901. No chipset information is available until now."
+:comment "Unsupported. Vendor/product 0x03f0/0x0901. See link for devices output."
 
 :model "ScanJet 3500c"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.txt"

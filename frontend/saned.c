@@ -335,7 +335,7 @@ check_host (int fd)
 
   if (gethostname (hostname, sizeof (hostname)) < 0)
     {
-      DBG (1, "gethostname: %s\n", strerror (errno));
+      DBG (1, "gethostname failed: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
 
@@ -343,14 +343,14 @@ check_host (int fd)
   len = sizeof (sin);
   if (getpeername (fd, (struct sockaddr *) &sin, (socklen_t *) &len) < 0)
     {
-      DBG (1, "getpeername: %s\n", strerror (errno));
+      DBG (1, "getpeername failed: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
   he = gethostbyaddr ((const char *) &sin.sin_addr,
 		      sizeof (sin.sin_addr), sin.sin_family);
   if (!he)
     {
-      DBG (1, "gethostbyaddr: %s\n", strerror (errno));
+      DBG (1, "gethostbyaddr failed: %s\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
 
@@ -359,27 +359,41 @@ check_host (int fd)
   /* always allow access from local host: */
 
   if (IN_LOOPBACK (ntohl (sin.sin_addr.s_addr)))
-    return SANE_STATUS_GOOD;
+    {
+      DBG (1, "host is local (IN_LOOPBACK): access accepted\n");
+      return SANE_STATUS_GOOD;
+    }
 
   if (strcasecmp (hostname, he->h_name) == 0)
-    return SANE_STATUS_GOOD;
+    {
+      DBG (1, "host is local (name == local hostname): access accepted\n");
+      return SANE_STATUS_GOOD;
+    }
 
   /* check alias list: */
   for (i = 0; he->h_aliases[i]; ++i)
     if (strcasecmp (hostname, he->h_aliases[i]) == 0)
-      return SANE_STATUS_GOOD;
+      {
+	DBG (1, "host is local (alias == local hostname): access accepted\n");
+	return SANE_STATUS_GOOD;
+      }
 
   /* must be a remote host: check contents of PATH_NET_CONFIG or
      /etc/hosts.equiv if former doesn't exist: */
 
   for (j = 0; j < NELEMS (config_file_names); ++j)
     {
+      DBG (1, "opening config file: %s\n", config_file_names[j]);
       if (config_file_names[j][0] == '/')
 	fp = fopen (config_file_names[j], "r");
       else
 	fp = sanei_config_open (config_file_names[j]);
       if (!fp)
-	continue;
+	{
+	  DBG (3, "can't open config file: %s (%s)\n", config_file_names[j],
+	       strerror (errno));
+	  continue;
+	}
 
       while (!access_ok && sanei_config_read (rhost, sizeof (rhost), fp))
 	{
@@ -392,14 +406,20 @@ check_host (int fd)
 	  if (!len)
 	    continue;		/* ignore empty lines */
 
+	  DBG (3, "config file host name entry: %s\n", rhost);
+
 	  if (strcasecmp (rhost, he->h_name) == 0 || strcmp (rhost, "+") == 0)
 	    access_ok = 1;
+	  DBG (3, "peer name: %s\n", he->h_name);
 	  for (i = 0; he->h_aliases[i]; ++i)
-	    if (strcasecmp (rhost, he->h_aliases[i]) == 0)
-	      {
-		access_ok = 1;
-		break;
-	      }
+	    {
+	      DBG (3, "peer name alias: %s\n", he->h_aliases[i]);
+	      if (strcasecmp (rhost, he->h_aliases[i]) == 0)
+		{
+		  access_ok = 1;
+		  break;
+		}
+	    }
 	}
       fclose (fp);
       if (access_ok)
@@ -751,21 +771,19 @@ process_request (Wire * w)
 	  free (resource);
 
 	  if ((i = sane_get_devices (&device_list, SANE_TRUE)) != 
-	      SANE_STATUS_GOOD) {
+	      SANE_STATUS_GOOD) 
+	    {
+	      memset (&reply, 0, sizeof (reply));
+	      reply.status = i;
+	      sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	    }
 
-	    memset (&reply, 0, sizeof (reply));
-	    reply.status = i;
-	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
-		  
-	  }
-
-	  if ((device_list == NULL) || (device_list[0] == NULL)) {
-		  
-	    memset (&reply, 0, sizeof (reply));
-	    reply.status = SANE_STATUS_INVAL;
-	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
-
-	  }
+	  if ((device_list == NULL) || (device_list[0] == NULL)) 
+	    {
+	      memset (&reply, 0, sizeof (reply));
+	      reply.status = SANE_STATUS_INVAL;
+	      sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
+	    }
 
 	  resource = strdup (device_list[0]->name);
 	  
@@ -988,8 +1006,11 @@ main (int argc, char *argv[])
       short port;
 
       debug = 1;
+
       if (argv[1][2])
 	debug = atoi (argv[1] + 2);
+
+      DBG (1, "starting debug mode (level %d)\n", debug);
 
       memset (&sin, 0, sizeof (sin));
 
@@ -999,9 +1020,9 @@ main (int argc, char *argv[])
       else
 	{
 	  port = htons (6566);
-	  fprintf (stderr, "%s: could not find `sane' service (%s)\n"
-		   "%s: using default port %d\n", prog_name, strerror (errno),
-		   prog_name, ntohs (port));
+	  DBG (1, "%s: could not find `sane' service (%s)\n"
+	       "%s: using default port %d\n", prog_name, strerror (errno),
+	       prog_name, ntohs (port));
 	}
       sin.sin_family = AF_INET;
       sin.sin_addr.s_addr = INADDR_ANY;
@@ -1015,18 +1036,18 @@ main (int argc, char *argv[])
 
       if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
 	{
-	  perror ("bind");
+	  DBG (1, "bind failed: %s", strerror (errno));
 	  exit (1);
 	}
       if (listen (fd, 1) < 0)
 	{
-	  perror ("listen");
+	  DBG (1, "listen failed: %s", strerror (errno));
 	  exit (1);
 	}
       wire.io.fd = accept (fd, 0, 0);
       if (wire.io.fd < 0)
 	{
-	  perror ("accept");
+	  DBG (1, "accept failed: %s", strerror (errno));
 	  exit (1);
 	}
       close (fd);

@@ -3,7 +3,7 @@
 	* tools/sane-find-scanner.c: Added support for scanning whole
 	  directories for SCSI and USB device files.  Moved SCSI and USB
 	  detection routines to their own functions.  Renamed functions
-	  related to SCSI for clarity.
+	  related to SCSI for clarity. Fixed indentation.
 
 2002-06-21  Max Vorobiev <pcwizard@yandex.ru>
 

@@ -1,3 +1,8 @@
+2004-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* snapscan-sources.c: First implementation of deinterlacer for epson
+	  scanners at high resolutions (thanks to Brad Johnson)
+
 2004-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Updated version. Enabled compilation

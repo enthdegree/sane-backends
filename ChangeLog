@@ -3,7 +3,9 @@
 	* backend/Makefile.in: Added workaround for GNU make 3.79. This version
 	  of make insisted on at least one argument for "basename" which broke
 	  compilation.
-
+	* doc/descriptions/leo.desc doc/descriptions/teco1.desc: Changed
+	  status to ":new" for release.
+		
 2002-05-25  Andras Major <andras@users.sourceforge.net>
 
 	* doc/descriptions/coolscan2.desc: changed status to :new.

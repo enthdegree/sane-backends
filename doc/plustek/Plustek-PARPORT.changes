@@ -133,7 +133,7 @@ Version 0.43-3 07/14/2004
 
 Version 0.43-4 07/15/2004
     1.0 DevFS support for kernel 2.6
-    2.0 Removed floating point operations (Thanx to)
+    2.0 Removed floating point operations (Thanx to Rafal Rzepecki)
     3.0 More cleanup work
     4.0 bumped up build number
 

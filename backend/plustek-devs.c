@@ -607,7 +607,7 @@ static DCapsDef Cap0x1606_0x0160_0 =
  */
 static DCapsDef Cap0x04A9_0x2206_0 =
 {
- 	{{ 0, 90}, 35,  5, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+ 	{{ 0, 90}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -616,16 +616,16 @@ static DCapsDef Cap0x04A9_0x2206_0 =
  	SENSORORDER_rgb,
  	8,			        /* sensor distance                         */
  	1,		      	    /* number of buttons                       */
- 	kNEC8861,           /* use default settings during calibration */
+ 	kCIS650,            /* use default settings during calibration */
  	0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
 };
 
 /* Canon N1220U
  */
 static DCapsDef Cap0x04A9_0x2207_0 =
 {
-	{{ 0, 85}, 35,  5, {2550, 3508}, {75, 75}, COLOR_BW },
+	{{ 0, 85}, 35, 10, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -634,16 +634,16 @@ static DCapsDef Cap0x04A9_0x2207_0 =
     SENSORORDER_rgb,
     16,                 /* sensor distance                         */
     1,                  /* number of buttons                       */
-    kNEC8861,           /* use default settings during calibration */
+    kCIS650,            /* use default settings during calibration */
     0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
 };
 
 /* Canon N670U/N676U/LiDE20
  */
 static DCapsDef Cap0x04A9_0x220D_0 =
 {
- 	{{ 0, 100}, 35,  5, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+ 	{{ 0, 110}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
  	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -652,16 +652,16 @@ static DCapsDef Cap0x04A9_0x220D_0 =
  	SENSORORDER_rgb,
  	8,			        /* sensor distance                         */
  	3,		      	    /* number of buttons                       */
- 	kNEC8861,           /* use default settings during calibration */
+ 	kCIS670,            
  	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
 };
 
 /* Canon N1240U
  */
 static DCapsDef Cap0x04A9_0x220E_0 =
 {
-	{{ 0, 100}, 35,  5, {2550, 3508}, {75, 75}, COLOR_BW },
+	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}, COLOR_BW },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
     {{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -670,9 +670,9 @@ static DCapsDef Cap0x04A9_0x220E_0 =
     SENSORORDER_rgb,
     16,                 /* sensor distance                         */
     3,                  /* number of buttons                       */
-    kNEC8861,           /* use default settings during calibration */
+    kCIS1240,           /* use default settings during calibration */
     0,                  /* not used here...                        */
-    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+    _WAF_MISC_IO_LAMPS | _WAF_BLACKFINE | _WAF_FIX_OFS, _NO_MIO
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -1921,7 +1921,7 @@ static HWDef Hw0x04A9_0x2207_0 =
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
 	{ 3,  0,     0, 23, 3937,  0,    0 },
-	{ 2, 23, 12000, 23, 5500, 23, 3900 },
+	{ 2, 23, 14000, 23, 7500, 23, 5900 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -1988,9 +1988,7 @@ static HWDef Hw0x04A9_0x220D_0 =
 	2,      /* bReg 0x29 illumination mode (runtime)          */
 
 	{ 3,  0,    0, 23, 1800,  0,    0 },
-/*	{ 2, 23, 3562, 23, 3315, 23, 2676 },
- */
-	{ 2, 23, 16383, 23, 16383, 23, 16383 },
+	{ 2, 23, 3800, 23, 3300, 23, 2700 },
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2057,8 +2055,13 @@ static HWDef Hw0x04A9_0x220E_0 =
 
     0x00,   /* bReg 0x27 color mode                           */
     2,      /* bReg 0x29 illumination mode                    */
-	{ 3,  0,     0, 23, 3937,  0,    0 },
-	{ 2, 23, 12000, 23, 5500, 23, 3900 },
+#if 1    
+    { 3,  0,     0, 23, 3937,  0,    0 },
+    { 2, 23, 13000, 23, 6500, 23, 4900 },
+#else	
+	{ 3,  0,     0, 23, 16383,  0,     0 },
+	{ 2, 23, 16383, 23, 16383, 23, 16383 },
+#endif
 
     1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
     0,      /* bOpticBlackStart (reg 0x1c)                    */

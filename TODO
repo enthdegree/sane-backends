@@ -76,7 +76,6 @@ doc
       "perfectly, mostly, partially, unsupported, untested" (from linuxprinting.org).
       That explains how much the scanner can do instead of the release status of 
       a scanner (alpha/beta...).
-    - plustek:  check status of Umax 3450 USB scanner (same as 3400?)
     - umax: genius.kye.de times out?
 
   * manpages:

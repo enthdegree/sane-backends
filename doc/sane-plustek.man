@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "10 January 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "18 May 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for Plustek parallel port and
@@ -209,9 +209,20 @@ USB Model:         ASIC:  Properties:              Prod-ID
 .br
 ----------------------------------------------------------
 .br
-UMAX 3400/2420     LM9832  600x1200dpi 42bit 512Kb 0x0060
+UMAX 3400/3450     LM9832  600x1200dpi 42bit 512Kb 0x0060
 .br
 UMAX 5400          LM9832 1200x2400dpi 42bit 512Kb 0x0160
+.PP
+
+Vendor COMPAQ - ID: 0x049F
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+S4-100             LM9832  600x1200dpi 42bit 512Kb 0x001A
 .PP
 
 Vendor Epson - ID: 0x04B8

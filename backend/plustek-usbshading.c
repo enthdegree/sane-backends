@@ -19,7 +19,7 @@
  *        - added dump of shading data
  * - 0.45 - added coarse calibration for CIS devices
  *        - added _WAF_SKIP_FINE to skip the results of fine calibration
- *        - CanoScan fixes
+ *        - CanoScan fixes and fine-tuning
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -69,8 +69,8 @@
 #define _MAX_SHAD       0x4000
 #define _SHADING_BUF	(_MAX_SHAD*3)	 /**< max size of the shading buffer */
 
-#define _CIS_GAIN	1
-#define _CIS_OFFS   4
+#define _CIS_GAIN	0
+#define _CIS_OFFS	6
 
 static u_short a_wWhiteShading[_SHADING_BUF] = {0};
 static u_short a_wDarkShading[_SHADING_BUF]  = {0};
@@ -331,6 +331,55 @@ static void usb_GetSoftwareOffsetGain( pPlustek_Device dev )
 		DBG( _DBG_INFO2, "kNEC8861 adjustments\n" );
 		break;
 
+	case kCIS650:
+		DBG( _DBG_INFO2, "kCIS650 adjustments\n" );
+		pParam->swGain[0] = 1160;
+		pParam->swGain[1] = 1160;
+		pParam->swGain[2] = 1160;
+		break;
+
+	case kCIS670:
+		DBG( _DBG_INFO2, "kCIS670 adjustments\n" );
+		if(pParam->bDataType == SCANDATATYPE_Color) {
+			pParam->swOffset[0] = -2650;
+			pParam->swOffset[1] = -2800;
+			pParam->swOffset[2] = -2850;
+
+			pParam->swGain[0] = 1150;
+			pParam->swGain[1] = 1150;
+			pParam->swGain[2] = 1150;
+		} else {
+			pParam->swOffset[0] = -1500;
+			pParam->swOffset[1] = -1500;
+			pParam->swOffset[2] = -1500;
+			
+			pParam->swGain[0] = 900;
+			pParam->swGain[1] = 900;
+			pParam->swGain[2] = 900;
+		}
+		break;
+
+	case kCIS1240:
+		DBG( _DBG_INFO2, "kCIS1240 adjustments\n" );
+		if(pParam->bDataType == SCANDATATYPE_Color) {
+			pParam->swOffset[0] = -1650;
+			pParam->swOffset[1] = -1500;
+			pParam->swOffset[2] = -1500;
+
+			pParam->swGain[0] = 1010;
+			pParam->swGain[1] = 1050;
+			pParam->swGain[2] = 1030;
+		} else {
+			pParam->swOffset[0] = -1000;
+			pParam->swOffset[1] = -1000;
+			pParam->swOffset[2] = -1000;
+
+			pParam->swGain[0] = 1100;
+			pParam->swGain[1] = 1100;
+			pParam->swGain[2] = 1100;
+		}	
+		break;
+		
 	case kNEC3799:
 		DBG( _DBG_INFO2, "kNEC3799 adjustments\n" );
 		if( sCaps->bPCB == 2 ) {
@@ -644,7 +693,7 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 	bMaxITA = 0xff;
 
 	DBG( _DBG_INFO2, "usb_AdjustGain()\n" );
-	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+	if( scaps->workaroundFlag & _WAF_FIX_GAIN ) {
 		a_bRegs[0x3b] =
 		a_bRegs[0x3c] =
 		a_bRegs[0x3d] = _CIS_GAIN;
@@ -1106,13 +1155,14 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 	u_long        dw, dwPixels;
     u_long        dwDiff[3], dwSum[3];
 
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pDCapsDef scaps = &dev->usbDev.Caps;
+	pHWDef    hw    = &dev->usbDev.HwSetting;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
 
 	DBG( _DBG_INFO2, "usb_AdjustOffset()\n" );
-	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+	if( scaps->workaroundFlag & _WAF_FIX_OFS ) {
 		a_bRegs[0x38] =
 		a_bRegs[0x39] =
 		a_bRegs[0x3a] = _CIS_OFFS;
@@ -1295,11 +1345,20 @@ static void usb_GetDarkShading( pPlustek_Device dev, u_short *pwDest,
 	if( scaps->workaroundFlag & _WAF_BLACKFINE )
 	{
 		u_short w;
+		int     wtmp;
 
 		/* here we use the source  buffer + a static offset */
 		for (dw = 0; dw < dwPixels; dw++, pSrce += dwAdd)
 		{
-			w = (u_short)((int)_PHILO2WORD(pSrce) + iOffset);
+			wtmp = ((int)_PHILO2WORD(pSrce) + iOffset);
+            if( wtmp < 0 )
+            	wtmp = 0;
+
+			if( wtmp > 0xffff )
+				wtmp = 0xffff;
+				             
+            w = (u_short)wtmp;
+			
 			pwDest[dw] = _LOBYTE(w) * 256 + _HIBYTE(w);
 		}
 	}
@@ -2003,7 +2062,7 @@ static int usb_DoCalibration( pPlustek_Device dev )
 
 	/* Go to shading position
      */
-	if( !(hw->bReg_0x26 & _ONE_CH_COLOR)) {
+	if( !(scaps->workaroundFlag & (_WAF_FIX_GAIN & _WAF_FIX_OFS))) {
      
 		DBG( _DBG_INFO, "goto shading position\n" );
 

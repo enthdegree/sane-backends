@@ -1,3 +1,11 @@
+2003-05-18  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/sane-plustek.man: Update.
+	* backend/plustek-devs.c backend/plustek-usbshading.c
+	  backend/plustek-usb.h:
+	  Fixed critical bug in CIS device calibration and settings which causes
+	  the CanoScan 650, 1220 and 1240 not to work anymore
+	* TODO: removed line "check status of Umax 3450...".
+
 ---- CODE FREEZE FOR SANE 1.0.12 ---
 -- snapshot 1.0.12-pre2
 

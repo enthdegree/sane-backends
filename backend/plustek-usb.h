@@ -19,10 +19,11 @@
  *        - added CLKDef
  * - 0.44 - added vendor and product ID to struct DeviceDef
  *        - added _WAF_BYPASS_CALIBRATION
- *		  - added _WAF_INV_NEGATIVE_MAP
+ *        - added _WAF_INV_NEGATIVE_MAP
  * - 0.45 - added _WAF_SKIP_FINE for skipping fine calibration
- *          added _WAF_SKIP_WHITEFINE for skipping fine white calibration
- *          added MCLK setting for 16 bit modes
+ *        - added _WAF_SKIP_WHITEFINE for skipping fine white calibration
+ *        - added MCLK setting for 16 bit modes
+ *        - added _WAF_FIX_GAIN and _WAF_FIX_OFS
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -74,6 +75,9 @@
 #define	kNEC8861	3
 #define	kNEC3778	4
 #define	kNECSLIM	5
+#define	kCIS650     6
+#define	kCIS670     7
+#define	kCIS1240    8
 
 /*********************************** plustek_types.h!!! ************************/
 
@@ -209,7 +213,9 @@ enum _WORKAROUNDS
 	_WAF_BYPASS_CALIBRATION = 0x00000008, /* no calibration,use linear gamma */
 	_WAF_INV_NEGATIVE_MAP   = 0x00000010, /* the backend does the neg. stuff */
 	_WAF_SKIP_FINE          = 0x00000020, /* skip the fine calbration        */
-	_WAF_SKIP_WHITEFINE     = 0x00000040  /* skip the fine white calbration  */
+	_WAF_SKIP_WHITEFINE     = 0x00000040, /* skip the fine white calbration  */
+	_WAF_FIX_GAIN           = 0x00000080, /* use fixed gain for coarse cal.  */
+	_WAF_FIX_OFS            = 0x00000100  /* use fixed offset for coarse cal.*/
 };
 
 /** for lamps connected to the misc I/O pins*/

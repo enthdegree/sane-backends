@@ -1,5 +1,12 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-45 (2003-04-11)
+
+- Updated Mustek BearPaw 1200 CU Plus white strip value.
+- Set Mustek ScanExpress A3 USB to CCD. Black mark may be still wrong.
+- Minor formatting changes in the manpage.
+- Decreased ScanExpress A3 USB status to alpha because of CIS/CCD change.
+
 V 1.0-44 (2003-03-13)
 
 - Added Packard Bell Diamond 1200 Plus to .desc and manpage.

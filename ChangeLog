@@ -1,3 +1,12 @@
+2003-04-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Updated
+	  Mustek BearPaw 1200 CU Plus white strip value. Set Mustek
+	  ScanExpress A3 USB to CCD. Black mark may be still wrong. Minor
+	  formatting changes in the manpage.  Decreased ScanExpress A3 USB
+	  status to alpha because of CIS/CCD change.
+	
 2003-04-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/test.c backend/test.h doc/descriptions/test.desc: Added

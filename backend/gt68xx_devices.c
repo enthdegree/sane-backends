@@ -337,7 +337,7 @@ static GT68xx_Model mustek_1200cuplus_model = {
   SANE_FIX (217.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (5.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (9.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -357,7 +357,7 @@ static GT68xx_Model mustek_1200cuplus_model = {
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
-    /* Everything untested */
+    /* Tested by Hamersky Robert r.hamersky at utanet.at */
 };
 
 static GT68xx_Model mustek_2400cuplus_model = {
@@ -701,9 +701,10 @@ static GT68xx_Model mustek_a3usb_model = {
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
-  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a CIS scanner? */
   0				/* Which flags are needed for this scanner? */
-    /* Tested by Pedro Morais <morais@inocam.com> */
+    /* Tested by Pedro Morais <morais@inocam.com>, changes to CCD by hmg, white
+       strip/black mark untested */
 };
 
 static GT68xx_Model lexmark_x73_model = {

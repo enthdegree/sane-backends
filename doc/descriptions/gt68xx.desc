@@ -1,6 +1,6 @@
 :backend "gt68xx"
 :status :beta
-:version "1.0-44"
+:version "1.0-45"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -64,8 +64,8 @@
 
 :model "ScanExpress A3 USB"
 :interface "USB"
-:status :beta
-;:comment ""
+:status :alpha
+:comment "Calibration may be wrong. Please contact me if you have such a device."
 
 :model "ScanExpress 2400 USB"
 :interface "USB"
@@ -97,9 +97,9 @@
 :comment "works, only product id 0x4002 is supported"
 
 :model "Ultima 2000 e+"
-:status :untested
+:status :alpha
 :interface "USB"
-:comment "Testers welcome"
+:comment "works, only limited testing until now"
 
 
 :mfg "Boeder"

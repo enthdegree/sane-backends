@@ -95,10 +95,10 @@
 /*.............................................................................
  * driver properties
  */
-#define _DRV_NAME		"pt_drv"	/* driver's name		 */
-#define	_MAX_PTDEVS 	 4			/* support for 4 devices */
-#define	_MAX_BTNS 		 6			/* support for 6 buttons */
-#define _PTDRV_MAJOR	40			/* our major number		 */
+#define _DRV_NAME        "pt_drv"   /**< driver's name         */
+#define	_MAX_PTDEVS      4          /**< support for 4 devices */
+#define	_MAX_BTNS        6          /**< support for 6 buttons */
+#define _PTDRV_MAJOR    40          /**< our major number      */
 
 /*.............................................................................
  * for port operations

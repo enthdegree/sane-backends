@@ -109,13 +109,13 @@
 
 /*************************** some local vars *********************************/
 
-static int  port_feature;
-static long randomnum = 1;
+static int  port_feature = 0;
+static long randomnum    = 1;
 
 #ifdef __KERNEL__
 static int portIsClaimed[_MAX_PTDEVS] = { [0 ... (_MAX_PTDEVS-1)] = 0 };
 
-MODELSTR;	/* is a static char array (see plustek-share.h) */
+MODELSTR;	/**< a static char array (see plustek-pp.h) */
 
 #else
 static int portIsClaimed[_MAX_PTDEVS] = { 0, 0, 0, 0 };
@@ -269,28 +269,29 @@ static int miscSetFastMode( pScanData ps )
         } else {
         	DBG(DBG_LOW, "Port could not be set to (ECP) PS2 mode. "
 														"Using SPP mode.\n");
-            _OUTB_ECTL(ps,ps->IO.lastPortMode);	/* restore */
+			a = ps->IO.lastPortMode & 0x1F;
+            _OUTB_ECTL(ps, a);					/* set ECP ctrl to SPP */
 			_DO_UDELAY(1);
 		    ps->IO.portMode = _PORT_SPP;
 
 			/* next mode, last attempt... */
         }
-    }
+	}
 
 	/*
 	 * Some BIOS/cards have only a Bi-directional/PS2 mode (no EPP).
 	 * Make one last attemp to set to PS2 mode.
 	 */
-    if ( port_feature & PARPORT_MODE_PCPS2 ){
+	if ( port_feature & PARPORT_MODE_PCPS2 ){
 
-        DBG(DBG_LOW, "Attempting to set PS2 mode.\n" );
+		DBG(DBG_LOW, "Attempting to set PS2 mode.\n" );
 
-        a = _INB_CTRL(ps); 		    /* get current setting of control register*/
+		a = _INB_CTRL(ps); 		    /* get current setting of control register*/
 		ps->IO.lastPortMode = a;	/* save it for restoring later            */
-        a = a | 0x20;  			    /* set bit 5 of control reg              */
+		a = a | 0x20;  			    /* set bit 5 of control reg              */
 		_OUTB_CTRL(ps,a); 		/* set to Fast Centronics/bi-directional/PS2 */
 		_DO_UDELAY(1);
-        a = 0;
+		a = 0;
 
 		_OUTB_DATA(ps,0x55);
 		_DO_UDELAY(1);
@@ -303,23 +304,22 @@ static int miscSetFastMode( pScanData ps )
 		if (_INB_DATA(ps) != 0xAA)   /* read data */
 			a++;
 
-        if (2 == a) {
-            DBG(DBG_LOW, "Port is set to PS2 bidirectional mode.\n");
-            ps->IO.portMode = _PORT_BIDI;
+		if( 2 == a ) {
+			DBG(DBG_LOW, "Port is set to PS2 bidirectional mode.\n");
+			ps->IO.portMode = _PORT_BIDI;
 			return _OK;
-        }
-        else {
-            DBG(DBG_LOW, "Port could not be set to PS2 mode. "
+			
+		} else {
+			DBG(DBG_LOW, "Port could not be set to PS2 mode. "
 														"Using SPP mode.\n");
             _OUTB_CTRL(ps,(Byte)ps->IO.lastPortMode);		/* restore */
 			_DO_UDELAY(1);
-            ps->IO.portMode = _PORT_SPP;
-        }
-    }
+			ps->IO.portMode = _PORT_SPP;
+		}
+	}
 
-	/*
-	 * reaching this point, we're back in SPP mode and there's no need
- 	 * to restore at shutdown...
+	/* reaching this point, we're back in SPP mode and there's no need
+	 * to restore at shutdown...
 	 */
 	ps->IO.lastPortMode = 0xFFFF;
 
@@ -499,37 +499,40 @@ _LOC int MiscInitPorts( pScanData ps, int port )
 	if( NULL == ps )
 		return _E_NULLPTR;
 
-	if( SANE_STATUS_GOOD != sanei_pp_getmode( ps->pardev, &mode )) {
+	if( SANE_STATUS_GOOD != sanei_pp_getmodes( ps->pardev, &mode )) {
 		DBG(DBG_HIGH, "Cannot get port mode!\n" );
 		return _E_NO_PORT;
 	}
 
 	if( mode & SANEI_PP_MODE_SPP ) {
-		DBG(DBG_LOW, "Setting SPP-mode\n" );
+		DBG( DBG_LOW, "Setting SPP-mode\n" );
 		ps->IO.portMode = _PORT_SPP;
 	}
 	if( mode & SANEI_PP_MODE_BIDI ) {
-		DBG(DBG_LOW, "Setting PS/2-mode\n" );
+		DBG( DBG_LOW, "Setting PS/2-mode\n" );
 		ps->IO.portMode = _PORT_BIDI;
 	}
 	if( mode & SANEI_PP_MODE_EPP ) {
-		DBG(DBG_LOW, "Setting EPP-mode\n" );
+		DBG( DBG_LOW, "Setting EPP-mode\n" );
 		ps->IO.portMode = _PORT_EPP;
 	}
 	if( mode & SANEI_PP_MODE_ECP ) {
-		DBG(DBG_HIGH, "ECP detected --> not supported\n" );
+		DBG( DBG_HIGH, "ECP detected --> not supported\n" );
 		return _E_NOSUPP;
 	}
 
-	DBG(DBG_HIGH, "SPP mode used (WORKAROUND)!!!\n" );
-	ps->IO.portMode = _PORT_SPP;
+	if( sanei_pp_uses_directio()) {
+		DBG( DBG_LOW, "We're using direct I/O\n" );
+	} else {
+		DBG( DBG_LOW, "We're using libIEEE1284 I/O\n" );
+	}
 
 	_VAR_NOT_USED( port );
 #endif
 	return _OK;
 }
 
-/** here we restore the port
+/** Function to restore the port
  */
 _LOC void MiscRestorePort( pScanData ps )
 {
@@ -548,7 +551,7 @@ _LOC void MiscRestorePort( pScanData ps )
 
     /*Restore Port-Mode*/
 #ifdef __KERNEL__
-	if (port_feature & PARPORT_MODE_PCECR ){
+	if( port_feature & PARPORT_MODE_PCECR ){
 		_OUTB_ECTL( ps, (Byte)ps->IO.lastPortMode );
 		_DO_UDELAY(1);
     } else {
@@ -556,13 +559,15 @@ _LOC void MiscRestorePort( pScanData ps )
 		_DO_UDELAY(1);
     }
 #else
-    if (port_feature & PPA_PROBE_ECR ){
+    if( port_feature & PPA_PROBE_ECR ){
 		_OUTB_ECTL(ps,ps->IO.lastPortMode);
     }
 #endif
 }
 
-/** starts a timer
+/** Initializes a timer.
+ * @param timer - pointer to the timer to start
+ * @param us    - timeout value in micro-seconds
  */
 _LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
 {
@@ -574,10 +579,14 @@ _LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
 	gettimeofday(&start_time, NULL);	
 #endif
 
-    *timer =  start_time.tv_sec * 1e6 + start_time.tv_usec + us;
+    *timer = start_time.tv_sec * 1e6 + start_time.tv_usec + us;
 }
 
-/** checks for timeout
+/** Checks if a timer has been expired or not. In Kernel-mode, the scheduler
+ *  will also be triggered, if the timer has not been expired.
+ * @param timer - pointer to the timer to check
+ * @return Function returns _E_TIMEOUT when the timer has been expired,
+ *         otherwise _OK;
  */
 _LOC _INL int MiscCheckTimer( pTimerDef timer )
 {
@@ -602,7 +611,10 @@ _LOC _INL int MiscCheckTimer( pTimerDef timer )
 	}
 }
 
-/** checks the function pointers
+/** Checks the function pointers
+ * @param ps - pointer to the scanner data structure.
+ * @return Function returns _TRUE if everything is okay and _FALSE if a NULL
+ *         ptr has been detected.
  */
 #ifdef DEBUG
 _LOC Bool MiscAllPointersSet( pScanData ps )
@@ -624,6 +636,8 @@ _LOC Bool MiscAllPointersSet( pScanData ps )
 #endif
 
 /** registers this driver to use port "portAddr" (KERNEL-Mode only)
+ * @param ps       - pointer to the scanner data structure.
+ * @param portAddr -
  */
 _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 {
@@ -642,8 +656,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 		return _E_PORTSEARCH;
 	}
 
-	/*
-	 * go through the list
+	/* go through the list
 	 */
 	for( ps->pp = NULL; NULL != pp; ) {
 
@@ -679,7 +692,7 @@ _LOC int MiscRegisterPort( pScanData ps, int portAddr )
 	return _OK;
 }
 
-/** unregisters the port from driver (KERNEL-Mode only)
+/** unregisters the port from driver 
  */
 _LOC void MiscUnregisterPort( pScanData ps )
 {
@@ -693,26 +706,29 @@ _LOC void MiscUnregisterPort( pScanData ps )
 #endif
 }
 
-/** try to claim the port (KERNEL-Mode only)
+/** Try to claim the port
+ * @param ps - pointer to the scanner data structure.
+ * @return Function returns _OK on success, otherwise _E_BUSY.
  */
 _LOC int MiscClaimPort( pScanData ps )
 {
-#ifdef __KERNEL__
 	if( 0 == portIsClaimed[ps->devno] ) {
 
 		DBG( DBG_HIGH, "Try to claim the parport\n" );
-		if( 0 != parport_claim( ps->pardev ))
-			return _E_BUSY;
-	}
+#ifdef __KERNEL__
+		if( 0 != parport_claim( ps->pardev )) {
 #else
-	sanei_pp_claim( ps->pardev );
+		if( SANE_STATUS_GOOD != sanei_pp_claim( ps->pardev )) {
 #endif
+			return _E_BUSY;
+		}
+	}
 	portIsClaimed[ps->devno]++;
-
 	return _OK;
 }
 
-/** release previously claimed port (KERNEL-Mode only)
+/** Release previously claimed port
+ * @param ps - pointer to the scanner data structure
  */
 _LOC void MiscReleasePort( pScanData ps )
 {
@@ -730,8 +746,8 @@ _LOC void MiscReleasePort( pScanData ps )
 	}
 }
 
-/*.............................................................................
- * get random number
+/** Get random number
+ * @return a random number.
  */
 _LOC Long MiscLongRand( void )
 {
@@ -740,8 +756,9 @@ _LOC Long MiscLongRand( void )
 	return randomnum;
 }
 
-/*.............................................................................
- * according to the id, the function returns a pointer to the model name
+/** According to the id, the function returns a pointer to the model name
+ * @param id - internal id of the various scanner models.
+ * @return a pointer to the model-string.
  */
 _LOC const char *MiscGetModelName( UShort id )
 {

@@ -915,29 +915,28 @@ static int ptdrvShutdown( pScanData ps )
 
 	DBG( DBG_HIGH, "cleanup device %u\n", devno );
 
-    if( _NO_BASE != ps->sCaps.wIOBase ) {
+	if( _NO_BASE != ps->sCaps.wIOBase ) {
 
-    	ptdrvStopLampTimer( ps );
+		ptdrvStopLampTimer( ps );
 
-    	if( _OK == MiscClaimPort(ps)) {
+		if( _OK == MiscClaimPort(ps)) {
 
-       		ps->PutToIdleMode( ps );
+			ps->PutToIdleMode( ps );
 
-        	if( 0 != ps->lOffonEnd ) {
-               	if( _IS_ASIC98(ps->sCaps.AsicID)) {
+			if( 0 != ps->lOffonEnd ) {
+				if( _IS_ASIC98(ps->sCaps.AsicID)) {
 		            ps->AsicReg.RD_ScanControl &= ~_SCAN_LAMPS_ON;
-       			} else {
-        			ps->AsicReg.RD_ScanControl &= ~_SCAN_LAMP_ON;
+				} else {
+					ps->AsicReg.RD_ScanControl &= ~_SCAN_LAMP_ON;
 	        	}
-		        IOCmdRegisterToScanner( ps, ps->RegScanControl,
+				IOCmdRegisterToScanner( ps, ps->RegScanControl,
 											  ps->AsicReg.RD_ScanControl );
-       		}
-    	}
-	    MiscReleasePort( ps );
-    }
+			}
+		}
+		MiscReleasePort( ps );
+	}
 
-	/*
-	 * unregister the driver
+	/* unregister the driver
 	 */
 	MiscUnregisterPort( ps );
 

@@ -75,13 +75,14 @@
 
 /*************************** local functions *********************************/
 
-/*.............................................................................
- * as the name says...
+/** as the name says...
  */
 static void detectResetPort( pScanData ps )
 {
     UChar control;
 
+    DBG( DBG_HIGH, "ResetPort()\n" );
+    
 	control = _INB_CTRL( ps );
 	_DO_UDELAY( 2 );
 
@@ -92,9 +93,8 @@ static void detectResetPort( pScanData ps )
 	_DO_UDELAY( 2 );
 }
 
-/*.............................................................................
- * Check will the status port changed between printer/scanner path changed?
- * Write out data and read in to compare
+/** Check: will the status port changed between printer/scanner path changed?
+ *  Write out data and read in to compare
  */
 static int detectScannerConnection( pScanData ps )
 {
@@ -205,15 +205,13 @@ static int detectScannerConnection( pScanData ps )
     return retval;
 }
 
-/*.............................................................................
- * we need some memory...
+/** we need some memory...
  */
 static int detectSetupBuffers( pScanData ps )
 {
 	DBG( DBG_LOW, "*** setupBuffers ***\n" );
 
-    /*
-     * bad news ?
+    /* bad news ?
      */
     if ( 0 == ps->TotalBufferRequire ) {
 
@@ -325,8 +323,7 @@ static int detectSetupBuffers( pScanData ps )
     return _OK;
 }
 
-/*.............................................................................
- * model 48xx detection or any other model using the 96001/3 ASIC
+/** model 48xx detection or any other model using the 96001/3 ASIC
  */
 static int detectP48xx( pScanData ps )
 {
@@ -346,8 +343,7 @@ static int detectP48xx( pScanData ps )
 	return detectScannerConnection( ps );
 }
 
-/*.............................................................................
- * ASIC 98003 model detection
+/** ASIC 98003 model detection
  */
 static int detectAsic98003( pScanData ps )
 {
@@ -369,8 +365,7 @@ static int detectAsic98003( pScanData ps )
 	return detectScannerConnection( ps );
 }
 
-/*.............................................................................
- * ASIC 98001 model detection
+/** ASIC 98001 model detection
  */
 static int detectAsic98001( pScanData ps )
 {
@@ -404,8 +399,7 @@ static int detectAsic98001( pScanData ps )
 
 /************************ exported functions *********************************/
 
-/*.............................................................................
- * here we try to find the scanner, depending on the mode
+/** here we try to find the scanner, depending on the mode
  */
 _LOC int DetectScanner( pScanData ps, int mode )
 {
@@ -422,15 +416,13 @@ _LOC int DetectScanner( pScanData ps, int mode )
 		return _E_INTERNAL;
 	}
 
-	/*
- 	 * autodetection ?
+	/* autodetection ?
 	 */
 	if( 0 == mode ) {
 
 		DBG( DBG_HIGH, "Starting Scanner-Autodetection\n" );
 
-		/*
-		 * try to find a 48xx Scanner 
+		/* try to find a 48xx Scanner 
 		 * (or even a scanner based on the 96001/3) ASIC
 		 */
 		result = detectP48xx( ps );
@@ -439,8 +431,7 @@ _LOC int DetectScanner( pScanData ps, int mode )
 
         	DBG( DBG_LOW, "************* ASIC9800x *************\n" );
 
-            /*
-             * get the ASIC ID by using the OpenScanPath stuff from Asic9600x based
+            /* get the ASIC ID by using the OpenScanPath stuff from Asic9600x based
              * models - only difference: change the ReadHigh/ReadLow signals before
              */
         	ps->CtrlReadHighNibble = _CTRL_GENSIGNAL+_CTRL_AUTOLF+_CTRL_STROBE;

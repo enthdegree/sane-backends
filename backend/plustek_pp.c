@@ -87,7 +87,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.01-4"
+#define BACKEND_VERSION "0.01-5"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -125,7 +125,7 @@ MODELSTR;
 
 /* needed to statisfy the module code ... */
 #define _PTDRV_V0	0
-#define _PTDRV_V1	42
+#define _PTDRV_V1	44
 
 /* I know this is in general no good idea, but it works */
 # include "plustek-pp_io.c"

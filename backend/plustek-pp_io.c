@@ -216,8 +216,7 @@ static UChar ioDataFromSPPSlowest( pScanData ps )
     return bData;
 }
 
-/*.............................................................................
- *  Using buffer I/O to read data from EPP Data Port
+/**  Using buffered I/O to read data from EPP Data Port
  */
 static Bool fnEPPRead( pScanData ps, pUChar pBuffer, ULong ulSize )
 {
@@ -225,15 +224,31 @@ static Bool fnEPPRead( pScanData ps, pUChar pBuffer, ULong ulSize )
 
 	if( _IS_ASIC98(ps->sCaps.AsicID)) {
 
+#ifndef __KERNEL__
+		if( sanei_pp_uses_directio()) {
+			_OUTB_CTRL( ps, (_CTRL_GENSIGNAL + _CTRL_DIRECTION));
+			_DO_UDELAY( 1 );
+		} else {
+			sanei_pp_set_datadir( ps->pardev, SANEI_PP_DATAIN );
+		}
+#else
 		_OUTB_CTRL( ps, (_CTRL_GENSIGNAL + _CTRL_DIRECTION));
-        _DO_UDELAY( 1 );
-
+		_DO_UDELAY( 1 );
+#endif
 		for( i = 0; i < ulSize; i++ )
 			pBuffer[i] = _INB_EPPDATA( ps );
 
-	   	_OUTB_CTRL( ps, _CTRL_GENSIGNAL );
-        _DO_UDELAY( 1 );
-
+#ifndef __KERNEL__
+		if( sanei_pp_uses_directio()) {
+			_OUTB_CTRL( ps, _CTRL_GENSIGNAL );
+			_DO_UDELAY( 1 );
+		} else {
+			sanei_pp_set_datadir( ps->pardev, SANEI_PP_DATAOUT );
+		}
+#else
+		_OUTB_CTRL( ps, _CTRL_GENSIGNAL );
+		_DO_UDELAY( 1 );
+#endif
 	} else {
 
 		for( i = 0; i < ulSize; i++ )
@@ -616,8 +631,7 @@ static void ioSPPWrite( pScanData ps, pUChar pBuffer, ULong size )
 	DBG( DBG_IO , "... done.\n" );
 }
 
-/*.............................................................................
- *
+/** set the scanner to "read" data mode
  */
 static void ioEnterReadMode( pScanData ps )
 {
@@ -930,29 +944,28 @@ _LOC void IOSoftwareReset( pScanData ps )
     ps->CloseScanPath( ps );
 }
 
-/*.............................................................................
- * Read specific length data from scanner and the method depends on the
- * mode defined in registry.
+/** Read specific length data from scanner and the method depends on the
+ *  mode defined in registry.
  */
 _LOC void IOReadScannerImageData( pScanData ps, pUChar pBuf, ULong size )
 {
-    if( _ASIC_IS_98003 != ps->sCaps.AsicID )
-        ps->OpenScanPath( ps);
+	if( _ASIC_IS_98003 != ps->sCaps.AsicID )
+		ps->OpenScanPath( ps);
 
-    if( _IS_ASIC98( ps->sCaps.AsicID))
-        IODataToRegister(ps, ps->RegModeControl, ps->AsicReg.RD_ModeControl );
+	if( _IS_ASIC98( ps->sCaps.AsicID))
+		IODataToRegister( ps, ps->RegModeControl, ps->AsicReg.RD_ModeControl );
 
-    /* enter read mode */
-    ioEnterReadMode( ps );
+	/* enter read mode */
+	ioEnterReadMode( ps );
 
 	/* call corresponding read proc */
-    ps->Device.ReadData( ps, pBuf, size );
+	ps->Device.ReadData( ps, pBuf, size );
 
-    /* Clear EPP/ECP read mode by simplely close scanner path and re-open it */
-    ps->CloseScanPath( ps );
+	/* Clear EPP/ECP read mode by simply close scanner path and re-open it */
+	ps->CloseScanPath( ps );
 
-    if( _ASIC_IS_98003 == ps->sCaps.AsicID )
-        ps->OpenScanPath( ps );
+	if( _ASIC_IS_98003 == ps->sCaps.AsicID )
+		ps->OpenScanPath( ps );
 }
 
 #ifdef __KERNEL__

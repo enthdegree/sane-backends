@@ -1,3 +1,9 @@
+2002-06-29  Matthew Duggan <stauff1@users.sourceforge.net>
+
+	* backend/canon_pp.c: Workaround for ppdev bug on <= Linux 2.4.19rc1.
+	* backend/canon_pp-io.c: Fixed reading on hardware with small buffers.
+	* doc/descriptions/canon_pp.desc: Status changed from new to alpha.
+
 2002-06-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: For HP-UX, check the complete 

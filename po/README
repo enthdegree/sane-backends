@@ -1,15 +1,16 @@
-2002-01-18
+2002-01-24
 
 This directory contains translations for the options of the SANE backends.
 They are only used if configure is called with option --enable-translations.
-You will nee GNU gettext: xgettext, msgfmt and msgmerge. Currently these
-translations are only used by XSane.
+You will need GNU gettext: xgettext, msgfmt and msgmerge. The translations
+are used at least by the frontend XSane.
 
 What do you need to do if you want to:
 
 - Just read the description of SANE options in your language
-  * Use XSane, read the documentation and set LANG to your favorite
-    setting (e.g. de_DE for German in Germany).
+  * Use XSane or your favourite backend that supports translations, read the
+    documentation and set LANG to your local setting (e.g. de_DE for German
+    language in Germany).
 
 - Update existing translations when the source code has changed
   * cd po ; make
@@ -44,9 +45,21 @@ What do you need to do if you want to:
   * Edit backend-lang.po, enter translations. Don't forget to edit the header.
   * make ; make install
 
+- Add support in your frontend:
+  * The Makefile installs files called "sane-backend.mo" in the directory
+    "$(prefix)/share/locale/lang/LC_MESSAGES/", e.g.:
+    "/usr/local/share/locale/de/LC_MESSAGES/sane-umax.mo". For every backend
+    and every language exactly one .mo file is installed, if the
+    correspondent .po file is available.
+  * As mentioned above, GNU gettext is used. 
+  * With other NLS implementations, converting the mo files may work.
+
 Bugs:
 - This is the first attempt to support translations. It's probably very buggy
-  and nearly untested.
-- Lot's of ugly tricks and asumptions in Makefile.in
+  and is not very well tested.
+- Documentation is not complete.
+- I'm not sure if all the functions in Makefile.in work with older versions
+  of make.
+- I used sed to also include macros into *.pot.
 - All well known options are added to *.lang.po even if they are not used
   in the backend.

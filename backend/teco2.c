@@ -2826,12 +2826,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		case TECO_VM656A:
 		case TECO_VM6575:
-		case TECO_VM6586:
 		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_GRAY].cap &=
+			~SANE_CAP_INACTIVE;
+		    }
+		  break;
+		case TECO_VM656A:
+		case TECO_VM6586:
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {
@@ -2856,12 +2863,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
 		  break;
 		case TECO_VM3575:
-		case TECO_VM656A:
 		case TECO_VM6575:
-		case TECO_VM6586:
 		  dev->opt[OPT_WHITE_LEVEL_R].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_WHITE_LEVEL_G].cap &= ~SANE_CAP_INACTIVE;
 		  dev->opt[OPT_WHITE_LEVEL_B].cap &= ~SANE_CAP_INACTIVE;
+		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		  if (dev->val[OPT_CUSTOM_GAMMA].w)
+		    {
+		      dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+		      dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+		    }
+		  break;
+		case TECO_VM656A:
+		case TECO_VM6586:
 		  dev->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 		  if (dev->val[OPT_CUSTOM_GAMMA].w)
 		    {

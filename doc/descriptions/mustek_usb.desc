@@ -1,5 +1,5 @@
 :backend "mustek_usb"
-:version "1.0-16"
+:version "1.0-17"
 :manpage "sane-mustek_usb"
 :url "http://www.meier-geinitz.de/sane/mustek_usb-backend/"
 :comment "Only the USB scanners mentioned below are supported. For BearPaws, look at the Plustek, MA-1509, and gt68xx backends."

@@ -1,5 +1,11 @@
 CHANGES for the SANE Mustek backend
 
+2003-09-21
+  * Released Mustek backend 1.0-133
+
+2003-09-21
+  * Fixed check for single quotation marks.
+
 2003-03-07
   * Released Mustek backend 1.0-132
 

@@ -1,14 +1,14 @@
 -*-Mode: outline-*-
 
-New with 1.0.5, released 2001-??-??:
+New with 1.0.5, released 2001-07-01:
 
 * New backends: bh (Bell+Howell Copiscan II series), dc240 (Kodak DC240
   Digital Camera), sm3600 (Microtek ScanMaker 3600), umax_pp (Umax paralell
   port scanners).
-* Updated backends: artec (v0.5.16), dll (v1.0.3), epson (v0.2.07), hp (v0.94),
-  microtek (v0.12.3), microtek2(v0.9), mustek (v1.0-107), nec (v0.12),
-  net (v1.0.3), plustek (v0.39), pnm (v1.0.1), snapscan (v1.2),
-  tamarack (v0.5), umax (v1.0-26).
+* Updated backends: artec (v0.5.16), dc25 (v1.2), dll (v1.0.3),
+  epson (v0.2.08), hp (v0.94), microtek (v0.12.3), microtek2(v0.9),
+  mustek (v1.0-107), nec (v0.12), net (v1.0.3), plustek (v0.39), pnm (v1.0.1),
+  snapscan (v1.2), tamarack (v0.5), umax (v1.0-28).
 * Fixed security bug in saned.c that allowed access to scanner without
   password.
 * pnm isn't installed by default anymore due to security risks

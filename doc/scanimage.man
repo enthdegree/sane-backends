@@ -14,6 +14,11 @@ scanimage - scan an image
 .RB [ -T | --test ]
 .RB [ -v | --verbose ]
 .RB [ -V | --version ]
+.RB [ --batch[=FORMAT] ]
+.RB [ --batch-start=# ]
+.RB [ --batch-count=# ]
+.RB [ --batch-increment=# ]
+.RB [ --batch-double ]
 .RI [ device-specific-options ]
 .SH DESCRIPTION
 .B scanimage
@@ -120,6 +125,33 @@ the SANE distribution that it came with and the version of the backend
 that it loads. Usually that's the dll backend. If more information about
 the version numbers of the backends are necessary, the DEBUG variable for
 the dll backend can be used. Example: SANE_DEBUG_DLL=3 scanimage -L.
+
+The
+.B --batch*
+options provide the features for scanning documents using document
+feeders.  
+.B --batch[=FORMAT]
+is used to specify the format of the filename that each page will be
+written to.  Each page is written out to a single file.  If the FORMAT
+is not specified, the default of out%d.tif will be used.  
+FORMAT is given as a printf style string with one integer
+parameter.  
+.B --batch-start=#
+selects the page number to start naming files with. If this option is not
+given, the counter will start at 0.
+.B --batch-count=#
+specifies the number of pages to attempt to scan.  If not given, 
+scanimage will continue scanning until the scanner returns a state
+other than OK.  Not all scanners with document feeders signal when the
+ADF is empty, use this command to work around them.
+With 
+.B --batch-increment=#
+you can change the amount that the number in the filename is incremented
+by.  Generally this is used when you are scanning double-sided documents
+on a single-sided document feeder.  A specific command is provided to
+aid this:
+.B --batch-double
+will automatically set the increment to 2.
 
 As you might imagine, much of the power of
 .B scanimage
@@ -284,7 +316,7 @@ to 127 characters.
 sane(7), xscanimage(1), xcam(1), xsane(1), sane\-dll(5), sane\-net(5), 
 sane-"backendname"(5)
 .SH AUTHOR
-David Mosberger, Andreas Beck, and Gordon Matzigkeit
+David Mosberger, Andreas Beck, Gordon Matzigkeit and Caskey Dickson
 .SH BUGS
 For vector options, the help output currently has no indication as to
 how many elements a vector-value should have.

@@ -65,6 +65,12 @@ Image;
 
 #define OPTION_FORMAT   1001
 #define OPTION_MD5	1002
+#define OPTION_BATCH_COUNT	1003
+#define OPTION_BATCH_START_AT	1004
+#define OPTION_BATCH_DOUBLE	1005
+#define OPTION_BATCH_INCREMENT	1006
+
+#define BATCH_COUNT_UNLIMITED -1
 
 static struct option basic_options[] = {
   {"device-name", required_argument, NULL, 'd'},
@@ -74,6 +80,10 @@ static struct option basic_options[] = {
   {"test", no_argument, NULL, 'T'},
   {"version", no_argument, NULL, 'V'},
   {"batch", optional_argument, NULL, 'b'},
+  {"batch-count", required_argument, NULL, OPTION_BATCH_COUNT},
+  {"batch-start", required_argument, NULL, OPTION_BATCH_START_AT},
+  {"batch-double", no_argument, NULL, OPTION_BATCH_DOUBLE},
+  {"batch-increment", required_argument, NULL, OPTION_BATCH_INCREMENT},
   {"format", required_argument, NULL, OPTION_FORMAT},
   {"accept-md5-only", no_argument, NULL, OPTION_MD5},
   {0, 0, NULL, 0}
@@ -1358,6 +1368,9 @@ main (int argc, char **argv)
   const char *defdevname = 0;
   const char *format = 0;
   int batch = 0;
+  int batch_count = BATCH_COUNT_UNLIMITED;
+  int batch_start_at = 1;
+  int batch_increment = 1;
   SANE_Status status;
   char *full_optstring;
   SANE_Int version_code;
@@ -1390,6 +1403,7 @@ main (int argc, char **argv)
 	  devname = optarg;
 	  break;
 	case 'b':
+	  /* This may have already been set by the batch-count flag */
 	  batch = 1;
 	  format = optarg;
 	  break;
@@ -1401,6 +1415,19 @@ main (int argc, char **argv)
 	  break;
 	case 'T':
 	  test = 1;
+	  break;
+	case OPTION_BATCH_INCREMENT:
+	  batch_increment = atoi(optarg);
+	  break;
+	case OPTION_BATCH_START_AT:
+	  batch_start_at = atoi(optarg);
+	  break;
+	case OPTION_BATCH_DOUBLE:
+	  batch_increment = 2;
+	  break;
+	case OPTION_BATCH_COUNT:
+	  batch_count = atoi(optarg);
+	  batch = 1;
 	  break;
 	case OPTION_FORMAT:
 	  if (strcmp (optarg, "tiff") == 0)
@@ -1459,7 +1486,13 @@ main (int argc, char **argv)
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
 \n\
--b, --batch=FORMAT         working in batch mode\n\
+-b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.tif´ by\n\
+                           default\n\
+    --batch-start=#        page number to start naming files with\n\
+    --batch-count=#        how many pages to scan in batch mode\n\
+    --batch-increment=#    increase number in filename by an amount of #\n\
+    --batch-double         increment page number by two for 2sided originals\n\
+                           being scanned in a single sided scanner\n\
     --format=pnm|tiff      file format of output file\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
 -h, --help                 display this help message and exit\n\
@@ -1467,7 +1500,8 @@ standard output.\n\
 -T, --test                 test backend thoroughly\n\
 -v, --verbose              give even more status messages\n\
 -V, --version              print version information\n\
-    --accept-md5-only      only accept authorization requests using md5\n", prog_name);
+    --accept-md5-only      only accept authorization requests using md5\n",
+	    prog_name);
 
   if (!devname)
     {
@@ -1702,10 +1736,15 @@ List of available devices:", prog_name);
 
   if (test == 0)
     {
-      int n = 1;
+      int n = batch_start_at;
 
       if (batch && NULL == format)
 	format = "out%d.pnm";
+
+      if(batch) {
+        fprintf(stderr, "Scanning %d pages, incrementing by %d, numbering from %d\n",
+	    batch_count, batch_increment, batch_start_at);
+      }
 
       do
 	{
@@ -1719,9 +1758,14 @@ List of available devices:", prog_name);
 	      return SANE_STATUS_ACCESS_DENIED;
 	    }
 
+	  if (batch) {
+	    fprintf(stderr, "Scanning page %d\n", n);
+	  }
 	  status = scan_it ();
-	  if (batch)
-	    fprintf (stderr, "status = %d\n", status);
+	  if (batch) {
+	    fprintf (stderr, "Scanned page %d.", batch_count);
+	    fprintf (stderr, " (scanner status = %d)\n", status);
+	  }
 
 	  switch (status)
 	    {
@@ -1738,9 +1782,10 @@ List of available devices:", prog_name);
 		}
 	      break;
 	    }			/* switch */
-	  n++;
+	  n += batch_increment;
 	}
-      while (batch && SANE_STATUS_GOOD == status);
+      while ((batch && (batch_count==BATCH_COUNT_UNLIMITED || --batch_count))
+	      && SANE_STATUS_GOOD == status);
     }
   else
     status = test_it ();

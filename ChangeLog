@@ -1,3 +1,7 @@
+2002-04-22  Abel Deuring <a.deuring@satzbau.gmbh.de>
+	* backend/sharp.c: fixed a compile problem for Dec Unix v4
+          and probably other 64 bit platform.
+
 2002-04-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/backend-writing.txt: More details for the exported symbols

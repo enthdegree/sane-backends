@@ -6,6 +6,8 @@
 	  pages.
 	* configure configure.in README: Use only shared libraries by default.
 	  Fixed file patterns for distclean targets.
+	* doc/Makefile.in: Remove backup etc. files also in subdirs when
+	  using make distclean.
 	
 2002-03-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

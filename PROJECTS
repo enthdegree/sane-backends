@@ -56,11 +56,9 @@ http://hp4200-backend.sourceforge.net/
 Mustek BearPaw USB scanner (wip)
 Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
 
-Mustek 1200 CU USB scanner (planned)
-Daniel Münch <aris.to@gmx.de>
-
-Mustek 1200 UB USB scanner (wip)
-ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
+Mustek USB backend for 1200UB, 1200CU, 1200CU Plus (wip)
+Henning Meier-Geinitz <henning@meier-geinitz.de> et. al.
+http://www.meier-geinitz.de/sane/
 
 Primax parallel port scanners (wip)
 http://primax.sourceforge.net/

@@ -16,7 +16,7 @@ Keywords:       camera, scanner, Abaton, Agfa, Apple, Artec, Avision, Canon,
 Author:         David.Mosberger@acm.org (David Mosberger-Tang)
                 (see AUTHORS for complete list)
 Maintained-by:  David.Mosberger@acm.org (David Mosberger-Tang)
-                Oliver.Rauch@wolfsburg.de (Oliver Rauch)
+                Oliver.Rauch@rauch-domain.de (Oliver Rauch)
 Primary-site:   ftp.mostang.com /pub/sane
                 _T_S_ kB sane-backends-_VERSION_.tar.gz
                 _L_S_ kB sane-backends-_VERSION_.lsm

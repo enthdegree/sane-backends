@@ -266,6 +266,8 @@ int sanei_scsi_max_request_size = MAX_DATA;
 #endif
 #ifndef SG_GET_SCSI_ID
 #define SG_GET_SCSI_ID 0x2276
+#else
+#define SG_GET_SCSI_ID_FOUND
 #endif
 #ifndef SG_GET_VERSION_NUM
 #define SG_GET_VERSION_NUM 0x2282
@@ -2258,7 +2260,7 @@ lx_mk_devicename(int guess_devnum, char *name, size_t name_len)
 static int   /* Returns 1 for match, else 0 */
 lx_chk_id(int dev_fd, int host, int channel, int id, int lun)
 {
-#ifdef SG_GET_SCSI_ID
+#ifdef SG_GET_SCSI_ID_FOUND
   struct sg_scsi_id ssid;
 
   if ((ioctl(dev_fd, SG_GET_SCSI_ID, &ssid) >= 0))

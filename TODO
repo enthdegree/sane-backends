@@ -1,4 +1,4 @@
-TODO (2002-01-11)
+TODO (2002-01-19)
 
 ******** todo ********
 
@@ -29,11 +29,12 @@ backends
   * Update backends
     - Combine all the Fujitsu backends into one single backend
     
-  * Check all backends which use fork/kill for the kill (-1,...) bug
-    first found in the microtek2 backend.
-
   * All backends should check for TL_X < BR_X and TL_Y < BR_Y to
     avoid segfaults or even scanner damage.
+
+  * Don't use exit() in backends.
+    - (v4l)
+    - tamarack
 
   * Use DBG(...) instead of fprintf(stderr, ...) or printf
      - microtek
@@ -83,31 +84,24 @@ backends
 
   * avision: line 1393: word isn't freed sometimes (maybe if  cp == line?)
 
-  * Fix missing or wrong links to backend homepages (*.desc). If a homepage
-    doesn't exist, add a contact address (where available).
-    - abaton (404)
-    - agfafocus
-    - apple
-    - avision (404)
-    - dmc
-    - m3096g (DNS timeout)
-    - pint
-    - qcam
-    - ricoh
-    - s9036
-    - sp15c (DNS timeout)
-    - tamarack
-    - v4l (403)
-
   * net: add IPv6 support.
 
 doc
 ---
-  * Documentation for sanei API
-    - any ideas for this?
-    - Options:
-      - Doxygen, <URL:http://www.stack.nl/~dimitri/doxygen/>
-      - ROBODoc, <URL:http://www.xs4all.nl/~rfsber/Robo/>
+  * Add doxygen documentation for the remaining sanei files:
+    - sanei_auth.c
+    - sanei_codec*
+    - sanei_config.c
+    - sanei_config2.c
+    - sanei_constrain_value.c
+    - sanei_init_debug.c
+    - sanei_net.c
+    - sanei_pa4s2.c
+    - sanei_pio.c
+    - sanei_pv8630.c
+    - sanei_scsi.c
+    - sanei_thread.c
+    - sanei_wire.c
 
   * sane.tex: Define the return values for sane_init?  Define the
     consequences if sane_init doesn't return SANE_STATUS_GOOD.
@@ -176,6 +170,11 @@ misc
 
 
 ******** done ********
+* Documentation for sanei API
+* Fix missing or wrong links to backend homepages (*.desc). If a homepage
+  doesn't exist, add a contact address (where available).
+* Check all backends which use fork/kill for the kill (-1,...) bug
+  first found in the microtek2 backend.
 * Add support for qt NLS (msg2qm) if possible without too much hassle.
 * Add new backend primax http://primax.sourceforge.net/ (won't be ever a
   real sane backend)

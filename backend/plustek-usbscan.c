@@ -12,6 +12,7 @@
  * 0.41 - minor fixes
  * 0.42 - added some stuff for CIS devices
  * 0.43 - no changes
+ * 0.44 - added CIS specific settings and calculations
  *
  *.............................................................................
  *
@@ -241,6 +242,7 @@ static u_short usb_SetAsicDpiY( pPlustek_Device dev, u_short ydpi )
 		}
 	}
 
+	DBG( _DBG_INFO2, "YDPI=%u, MinDPIY=%u\n", wDpi, wMinDpi );
 	return wDpi;
 }
 
@@ -266,7 +268,15 @@ static void usb_SetColorAndBits( pPlustek_Device dev, pScanParam pParam )
 	switch( pParam->bDataType ) {
 		case SCANDATATYPE_Color:
 			m_bCM = 3;
-			a_bRegs[0x26] = 0;
+			a_bRegs[0x26] = hw->bReg_0x26 & 0x7;
+
+			/* if set to one channel color, we select the blue channel
+             * as input source, this is the default, but I don't know
+             * what happens, if we deselect this
+             */
+			if( a_bRegs[0x26] & _ONE_CH_COLOR )
+				a_bRegs[0x26] |= (_BLUE_CH | 0x01);
+
 			memcpy( &a_bRegs[0x0f], hw->bReg_0x0f_Color, 10 );
 			break;
 
@@ -432,7 +442,7 @@ static void usb_GetScanRect( pPlustek_Device dev, pScanParam pParam )
 	a_bRegs[0x4b] = _LOBYTE( pParam->Origin.y );
 }
 
-/*.............................................................................
+/** calculate default phase difference DPD
  *
  */
 static void usb_GetDPD( pPlustek_Device dev  )
@@ -469,6 +479,11 @@ static void usb_GetDPD( pPlustek_Device dev  )
 					 (m_wLineLength * m_bLineRateColor);
 		dpd = m_wLineLength * m_bLineRateColor - dpd;
 	}
+
+	DBG( _DBG_INFO2, "DPD =%u, step size=%u, steps2rev=%u\n", dpd, st, strev );
+	DBG( _DBG_INFO2, "llen=%u, lineRateColor=%u, qtcnt=%u, hfcnt=%u\n",
+						m_wLineLength, m_bLineRateColor, qtcnt, hfcnt );
+
 	a_bRegs[0x51] |= (u_char)((dpd >> 16) & 0x03);
 	a_bRegs[0x52] = (u_char)(dpd >> 8);
 	a_bRegs[0x53] = (u_char)(dpd & 0xFF);
@@ -529,6 +544,8 @@ static double usb_GetMCLKDivider( pPlustek_Device dev, pScanParam pParam )
 		a_bRegs[0x46] = _HIBYTE(m_wStepSize);
 		a_bRegs[0x47] = _LOBYTE(m_wStepSize);
 
+		DBG( _DBG_INFO2, "Stepsize = %u, 0x46=0x%02x 0x47=0x%02x\n",
+						  m_wStepSize, a_bRegs[0x46], a_bRegs[0x47] );
 	    usb_GetDPD( dev );
 	}
 	
@@ -831,6 +848,9 @@ static void usb_GetStepSize( pPlustek_Device dev, pScanParam pParam )
 
 	a_bRegs[0x46] = _HIBYTE( m_wStepSize );
 	a_bRegs[0x47] = _LOBYTE( m_wStepSize );
+
+	DBG( _DBG_INFO2, "Stepsize = %u, 0x46=0x%02x 0x47=0x%02x\n",
+					  m_wStepSize, a_bRegs[0x46], a_bRegs[0x47] );
 }
 
 /*.............................................................................
@@ -875,8 +895,9 @@ static void usb_GetLineLength( pPlustek_Device dev )
 
 	ctmode = (a_bRegs[0x0b] >> 3) & 3;	 /* cis tr timing mode */
 
-	/* always, we just support 3 color pixel and 1 channel gray */
-	m_bLineRateColor = 1;					
+	m_bLineRateColor = 1;	
+	if (afeop == 1 || afeop == 5) /* if 3 channel line or 1 channel mode b */
+		m_bLineRateColor = 3;	
 
 	/* according to turbo/preview mode to set value */
 	if( tpsel == 0 ) {
@@ -896,7 +917,6 @@ static void usb_GetLineLength( pPlustek_Device dev )
 	if( ctmode == 2 )   /* CIS mode scanner */
 	    b = 3;
 	
-
 	tr = m_bLineRateColor * (hw->wLineEnd + tp * (b + 3 - ntr));
 
 	if( tradj == 0 ) {
@@ -932,6 +952,9 @@ static void usb_GetLineLength( pPlustek_Device dev )
 		tr *= m_bLineRateColor;
 	}
 	m_wLineLength = tr / m_bLineRateColor;
+
+	DBG( _DBG_INFO2, "LineLength=%d, LineRateColor=%u\n",
+						m_wLineLength, m_bLineRateColor );
 }
 
 /** usb_GetMotorParam
@@ -1074,8 +1097,15 @@ static void usb_GetMotorParam( pPlustek_Device dev, pScanParam pParam )
  */
 static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 {
-	int    coeffsize;
+	int    coeffsize, scaler;
 	pHWDef hw = &dev->usbDev.HwSetting;
+
+	scaler = 1;
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+   		if( pParam->bDataType == SCANDATATYPE_Color ) {
+			scaler = 3;
+		}
+	}
 
 	/* compute size of coefficient ram */
 	coeffsize = 4 + 16 + 16;	/* gamma and shading and offset */
@@ -1092,12 +1122,15 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 	 * for 2Mb   this will be 1832
 	 */
 	m_dwPauseLimit = (u_long)(hw->wDRAMSize - (u_long)(coeffsize));
-	m_dwPauseLimit -= (pParam->Size.dwPhyBytes / 1024 + 1);
+	m_dwPauseLimit -= ((pParam->Size.dwPhyBytes*scaler) / 1024 + 1);
 
 	/* If not reversing, take into account the steps to reverse */
 	if( a_bRegs[0x50] == 0 )
 		m_dwPauseLimit -= ((a_bRegs[0x54] & 7) *
-							pParam->Size.dwPhyBytes + 1023) / 1024;
+							(pParam->Size.dwPhyBytes * scaler) + 1023) / 1024;
+
+	DBG( _DBG_INFO, "PL=%lu, coeffsize=%u, scaler=%u\n",
+										m_dwPauseLimit, coeffsize, scaler );
 
 	m_dwPauseLimit = usb_max( usb_min(m_dwPauseLimit,
 						(u_long)ceil(pParam->Size.dwTotalBytes / 1024.0)), 2);
@@ -1111,10 +1144,9 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 	} else
 		a_bRegs[0x4e] = 1;
 
-/* original code:
- *	a_bRegs[0x4f] = 1;
- */
-/*	a_bRegs[0x4f] = a_bRegs[0x4e] - 1;*/
+	/*
+	 * resume, when buffer is 2/8 kbytes full (512k/2M memory)
+	 */
 	a_bRegs[0x4f] = 1;
 
 	DBG( _DBG_INFO, "PauseLimit = %lu, [0x4e] = 0x%02x, [0x4f] = 0x%02x\n",
@@ -1127,6 +1159,7 @@ static void usb_GetPauseLimit( pPlustek_Device dev, pScanParam pParam )
 static void usb_GetScanLinesAndSize( pPlustek_Device dev, pScanParam pParam )
 {
 	pDCapsDef sCaps = &dev->usbDev.Caps;
+	pHWDef    hw    = &dev->usbDev.HwSetting;
 
 	pParam->Size.dwPhyLines = (u_long)ceil((double) pParam->Size.dwLines *
 										pParam->PhyDpi.y / pParam->UserDpi.y);
@@ -1142,6 +1175,14 @@ static void usb_GetScanLinesAndSize( pPlustek_Device dev, pScanParam pParam )
 		dev->scanning.bLineDistance = 0;
 
 	pParam->Size.dwTotalBytes = pParam->Size.dwPhyBytes * pParam->Size.dwPhyLines;
+
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+
+		if( pParam->bDataType == SCANDATATYPE_Color ) {
+		
+			pParam->Size.dwTotalBytes *= 3;
+		}
+	}
 }
 
 /** function to preset/reset the merlin registers
@@ -1190,7 +1231,7 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 				else
 					a_bRegs[0x54] = (a_bRegs[0x54] & ~7) | 5;	/* 4; */
 			} else {
-				a_bRegs[0x50] = dev->usbDev.bStepsToReverse;
+				a_bRegs[0x50] = hw->bStepsToReverse;
 				a_bRegs[0x51] = hw->bReg_0x51;
 				a_bRegs[0x54] &= ~7;
 			}
@@ -1198,7 +1239,7 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 			a_bRegs[0x50] = 0;
 	} else {
 		if( pParam->bCalibration == PARAM_Scan )
-			a_bRegs[0x50] = dev->usbDev.bStepsToReverse;
+			a_bRegs[0x50] = hw->bStepsToReverse;
 		else
 			a_bRegs[0x50] = 0;
 	}
@@ -1208,10 +1249,11 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 
 	/* Initiate variables */
 
-	/* Get variables for calculation algorithms */
+	/* Get variables from calculation algorithms */
 	if(!(pParam->bCalibration == PARAM_Scan &&
          pParam->bSource == SOURCE_ADF && fLastScanIsAdf )) {
 
+		DBG( _DBG_INFO2, "Scan calculations...\n" );
 		usb_GetLineLength ( dev );
 		usb_GetStepSize   ( dev, pParam );
 		usb_GetDPD        ( dev );
@@ -1261,7 +1303,7 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 	}
 
 	/* Reset LM983x's state machine before setting register values */
-	if( !usbio_WriteReg( dev->fd, 0x18, 24 ))
+	if( !usbio_WriteReg( dev->fd, 0x18, 0x18 ))
 		return SANE_FALSE;
 
 	usleep(200 * 1000);	/* Need to delay at least xxx microseconds */
@@ -1277,18 +1319,39 @@ static SANE_Bool usb_SetScanParameters( pPlustek_Device dev, pScanParam pParam )
 	/* Set register values */
 	memset( &a_bRegs[0x03], 0, 3 );
 	memset( &a_bRegs[0x5C], 0, 0x7F-0x5C+1 );
-	
+
 	/* 0x08 - 0x5E */
-	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x5E - 0x08+1, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x08, &a_bRegs[0x08], 0x5a - 0x08+1, SANE_TRUE));
 
 	/* 0x03 - 0x05 */
 	_UIO(sanei_lm983x_write( dev->fd, 0x03, &a_bRegs[0x03], 3, SANE_TRUE));
 
+	/* special setting for CANON... */
+	if( dev->usbDev.vendor == 0x4a9 )
+		a_bRegs[0x70] = 0x73;
+
 	/* 0x5C - 0x7F */
-	_UIO(sanei_lm983x_write( dev->fd, 0x5C, &a_bRegs[0x5C], 0x7F - 0x5C +1, SANE_TRUE));
+	_UIO(sanei_lm983x_write( dev->fd, 0x5c, &a_bRegs[0x5c], 0x7f - 0x5c +1, SANE_TRUE));
+
+	usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
+	usbio_WriteReg( dev->fd, 0x5b, a_bRegs[0x5b] );
 
 	if( !usbio_WriteReg( dev->fd, 0x07, 0 ))
 		return SANE_FALSE;
+
+	/* special procedure for CANON... */
+	if( dev->usbDev.vendor == 0x4a9 ) {
+
+		SANE_Byte tmp;
+
+		usbio_WriteReg( dev->fd, 0x5b, 0x11 );
+		usbio_WriteReg( dev->fd, 0x5b, 0x91 );
+		usbio_ReadReg ( dev->fd, 0x5a, &tmp );
+		usbio_WriteReg( dev->fd, 0x5a, 0x14 );
+
+		usbio_WriteReg( dev->fd, 0x59, a_bRegs[0x59] );
+		usbio_WriteReg( dev->fd, 0x5a, a_bRegs[0x5a] );
+	}
 
 	DBG( _DBG_INFO, "usb_SetScanParameters() done.\n" );
 
@@ -1363,6 +1426,9 @@ static SANE_Bool usb_ScanBegin( pPlustek_Device dev, SANE_Bool fAutoPark )
 
 	m_bOldScanData = 0;						/* No data at all  */
 	m_fStart = m_fFirst = SANE_TRUE;		/* Prepare to read */
+
+	DBG( _DBG_INFO2, "Register Dump before reading data:\n" );
+	dumpregs( dev->fd, NULL );
 
 	return SANE_TRUE;
 }
@@ -1459,7 +1525,7 @@ static SANE_Bool usb_ScanReadImage( pPlustek_Device dev,
 	static u_long dwBytes = 0;
 	SANE_Status res;
 
-	DBG( _DBG_READ, "usb_ScanReadImage()\n" );
+	DBG( _DBG_READ, "usb_ScanReadImage(%lu)\n", dwSize );
 
 	if( m_fFirst ) {
 
@@ -1523,8 +1589,9 @@ static SANE_Bool usb_ScanReadImage( pPlustek_Device dev,
 
 	DBG( _DBG_READ, "usb_ScanReadImage() done, result: %d\n", res );
 
-	if( SANE_STATUS_GOOD == res )
+	if( SANE_STATUS_GOOD == res ) {
 		return SANE_TRUE;
+	}
 
 	DBG( _DBG_ERROR, "usb_ScanReadImage() failed\n" );
 	
@@ -1568,8 +1635,11 @@ static void usb_GetImageInfo( pImgDef pInfo, pWinInfo pSize )
 /*.............................................................................
  *
  */
-static void usb_SaveImageInfo( pImgDef pInfo, pScanParam pParam )
+static void usb_SaveImageInfo( pPlustek_Device dev, pImgDef pInfo )
 {
+	pHWDef     hw     = &dev->usbDev.HwSetting;
+	pScanParam pParam = &dev->scanning.sParam;
+
 	DBG( _DBG_INFO, "usb_SaveImageInfo()\n" );
 
 	/* Dpi & Origins */
@@ -1584,10 +1654,16 @@ static void usb_SaveImageInfo( pImgDef pInfo, pScanParam pParam )
 
 		case COLOR_TRUE48:
 			pParam->bBitDepth = 16;
+			/* fall through... */
 			
 		case COLOR_TRUE24:
 			pParam->bDataType = SCANDATATYPE_Color;
-			pParam->bChannels = 3;
+
+			/* AFE operation: one or 3 channels ! */
+			if( hw->bReg_0x26 & _ONE_CH_COLOR )
+				pParam->bChannels = 1;
+			else
+				pParam->bChannels = 3;
 			break;
 
 		case COLOR_GRAY16:

@@ -16,6 +16,7 @@
  *        changed detection stuff, so we first check whether
  *        the vendor and product Ids match with the ones in our list
  * 0.43 - cleanup
+ * 0.44 - changes to integration CIS based devices
  *
  *.............................................................................
  *
@@ -113,9 +114,8 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	 * the following you normally get from the registry...
 	 * 30 and 8 are for a UT12
 	 */
-	bMaxITA                     = 0;     /* Maximum integration time adjust */
-    dev->usbDev.bStepsToReverse = 30;
-    dev->usbDev.dwBufferSize    = 8 * 1024 * 1024; /*min val is 4MB!!!*/
+	bMaxITA                  = 0;     /* Maximum integration time adjust */
+    dev->usbDev.dwBufferSize = 8 * 1024 * 1024; /*min val is 4MB!!!*/
 		
 	dev->usbDev.ModelStr = Settings[idx].pModelString;
 
@@ -142,9 +142,10 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
     }
 
 	dev->usbDev.currentLamp = usb_GetLampStatus( dev );
-	
+
 	usb_ResetRegisters( dev );
     usbio_ResetLM983x ( dev );
+	usb_IsScannerReady( dev );
 
 	sParam.bBitDepth     = 8;
 	sParam.bCalibration  = PARAM_Scan;
@@ -369,7 +370,6 @@ static int usbDev_open( const char *dev_name, void *misc )
 		return -1;
      }
 	
-	
     if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
 		sanei_usb_close( handle );
         return -1;
@@ -389,6 +389,9 @@ static int usbDev_open( const char *dev_name, void *misc )
 #else	
 	sanei_lm983x_reset( handle );
 #endif
+
+	dev->usbDev.vendor  = vendor;
+	dev->usbDev.product = product;
 
 	/*
 	 * Plustek uses the misc IO 1/2 to get the PCB ID
@@ -612,7 +615,7 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 		}
 	}
 
-    usb_SaveImageInfo( &si->ImgDef, &dev->scanning.sParam );
+    usb_SaveImageInfo( dev, &si->ImgDef );
     usb_GetImageInfo ( &si->ImgDef, &dev->scanning.sParam.Size );
 
     /* Flags */
@@ -782,10 +785,11 @@ static int usbDev_startScan( Plustek_Device *dev, pStartScan start )
 static int usbDev_readImage( struct Plustek_Device *dev,
                              SANE_Byte *buf, unsigned long data_length )
 {
-    int            result, lines;
-    u_long         dw;
-    pScanDef       scanning = &dev->scanning;
-	pDCapsDef      scaps    = &dev->usbDev.Caps;
+    int       result, lines;
+    u_long    dw, scaler;
+    pScanDef  scanning = &dev->scanning;
+	pDCapsDef scaps    = &dev->usbDev.Caps;
+	pHWDef    hw       = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_INFO, "usbDev_readImage()\n" );
 
@@ -793,7 +797,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	 * to it's home position if necessary...
 	 */
 	usb_ModuleStatus( dev );
-	
+
     result = usb_DoCalibration( dev );
     if( SANE_TRUE != result ) {
 		DBG( _DBG_INFO, "calibration failed!!!\n" );
@@ -801,12 +805,20 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	}
 
 	DBG( _DBG_INFO, "calibration done.\n" );
+
+	scaler = 1;
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+   		if( pParam->bDataType == SCANDATATYPE_Color ) {
+			scaler = 3;
+		}
+	}
+
 	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {
 
 		usleep( 10 * 1000 );
 
 		if( usb_SetScanParameters( dev, &scanning->sParam )) {
-
+/* what if error !!!*/
 			scanning->pbScanBufBegin = scanning->pScanBuffer;
 
 			if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
@@ -815,14 +827,17 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 				scanning->dwLinesScanBuf = 32;
 
 			scanning->dwBytesScanBuf     = scanning->dwLinesScanBuf *
-										   scanning->sParam.Size.dwPhyBytes;
+										   scanning->sParam.Size.dwPhyBytes *
+										   scaler;
+
 			scanning->dwNumberOfScanBufs = dev->usbDev.dwBufferSize /
 										   scanning->dwBytesScanBuf;
 			scanning->dwLinesPerScanBufs = scanning->dwNumberOfScanBufs *
 										   scanning->dwLinesScanBuf;
 			scanning->pbScanBufEnd       = scanning->pbScanBufBegin +
 										   scanning->dwLinesPerScanBufs *
-										   scanning->sParam.Size.dwPhyBytes;
+										   scanning->sParam.Size.dwPhyBytes *
+										   scaler;
 
 			if( scanning->sParam.bChannels == 3 ) {
 
@@ -911,8 +926,19 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 				}
 
 			} else {
+
+				/* this might be simple gray operation or AFE 1 channel op */
 				scanning->dwLinesDiscard = 0;
 				scanning->Green.pb       = scanning->pbScanBufBegin;
+
+				if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+
+					scanning->Red.pb   = scanning->pbScanBufBegin;
+					scanning->Green.pb = scanning->pbScanBufBegin +
+										 (scanning->sParam.Size.dwPhyBytes );
+					scanning->Blue.pb  = scanning->pbScanBufBegin +
+										 (scanning->sParam.Size.dwPhyBytes )* 2UL;
+        		}
 			}
 		}
 
@@ -950,8 +976,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
      * as the SANE stuff already forked the driver to read data, I think
      * we should only read data by using a function...
      */
-/* HEINER: CHECK THIS!!! */
-	scanning->dwLinesUser = scanning->sParam.Size.dwLines; /*lpCB->dwIn /  scanning->dwBytesLine*/;
+	scanning->dwLinesUser = scanning->sParam.Size.dwLines; 
 	if( !scanning->dwLinesUser )
 		return _E_BUFFER_TOO_SMALL;
 
@@ -976,6 +1001,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 	DBG(_DBG_INFO,"NumberOfScanBufs = %lu\n",scanning->dwNumberOfScanBufs);
 	DBG(_DBG_INFO,"LinesPerScanBufs = %lu\n",scanning->dwLinesPerScanBufs);
 	DBG(_DBG_INFO,"dwPhyBytes       = %lu\n",scanning->sParam.Size.dwPhyBytes);
+	DBG(_DBG_INFO,"dwPhyPixels      = %lu\n",scanning->sParam.Size.dwPhyPixels);
 	DBG(_DBG_INFO,"dwTotalBytes     = %lu\n",scanning->sParam.Size.dwTotalBytes);
 	DBG(_DBG_INFO,"dwPixels         = %lu\n",scanning->sParam.Size.dwPixels);
 	DBG(_DBG_INFO,"dwValidPixels    = %lu\n",scanning->sParam.Size.dwValidPixels);
@@ -987,6 +1013,8 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 
 	scanning->pbGetDataBuf = scanning->pbScanBufBegin;
 
+	dumpPic( "plustek-pic.raw", NULL, 0 );
+
 	lines = usb_ReadData( dev  );
 	if( 0 == lines )
 		return _E_DATAREAD;
@@ -995,6 +1023,8 @@ static int usbDev_readImage( struct Plustek_Device *dev,
      * all settings done, so go ahead and read the data
      */
 	for( dw = 0; scanning->dwLinesUser; ) {
+
+		int wrap = 0;
 
 		if( usb_IsEscPressed()) {
 			DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
@@ -1029,25 +1059,50 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 		/* Adjust get buffer pointers */
 		if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
 
-			scanning->Red.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Red.pb >= scanning->pbScanBufEnd )
+			scanning->Red.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+			if( scanning->Red.pb >= scanning->pbScanBufEnd ) {
 				scanning->Red.pb = scanning->pbScanBufBegin +
 								   scanning->dwRedShift;
+				wrap = 1;
+			}
 
-			scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Green.pb >= scanning->pbScanBufEnd )
+			scanning->Green.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+			if( scanning->Green.pb >= scanning->pbScanBufEnd ) {
 				scanning->Green.pb = scanning->pbScanBufBegin +
 									 scanning->dwGreenShift;
+				wrap = 1;
+			}
 
-			scanning->Blue.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Blue.pb >= scanning->pbScanBufEnd )
+			scanning->Blue.pb += (scanning->sParam.Size.dwPhyBytes * scaler);
+			if( scanning->Blue.pb >= scanning->pbScanBufEnd ) {
 				scanning->Blue.pb = scanning->pbScanBufBegin +
 									scanning->dwBlueShift;
+				wrap = 1;
+			}
 		} else {
 			scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
 			if( scanning->Green.pb >= scanning->pbScanBufEnd )
 				scanning->Green.pb = scanning->pbScanBufBegin +
 									 scanning->dwGreenShift;
+		}
+
+		/*
+		 * on any wrap-around of the get pointers in one channel mode
+         * we have to reset them
+		 */
+		if( wrap ) {
+
+			if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+
+   				if( pParam->bDataType == SCANDATATYPE_Color ) {
+
+					scanning->Red.pb   = scanning->pbScanBufBegin;
+					scanning->Green.pb = scanning->pbScanBufBegin +
+										 (scanning->sParam.Size.dwPhyBytes );
+					scanning->Blue.pb  = scanning->pbScanBufBegin +
+										 (scanning->sParam.Size.dwPhyBytes )* 2UL;
+				}
+			}
 		}
 
 		/*
@@ -1067,7 +1122,7 @@ static int usbDev_readImage( struct Plustek_Device *dev,
 							 (dw * scanning->dwBytesLine), dw, data_length );
 	usb_ScanEnd( dev );
 
-    return data_length; /* (dw * scanning->dwBytesLine);*/
+    return data_length; 
 }
 
 /* END PLUSTEK-USB.C ........................................................*/

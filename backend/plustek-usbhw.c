@@ -15,6 +15,9 @@
  *        added UMAX 3400 stuff
  *        fixed problem with minimum wait time...
  * 0.43 - added usb_switchLamp for non-Plustek devices
+ * 0.44 - added bStepsToReverse and active Pixelstart values
+ *        to resetRegister function
+ *        modified getLampStatus function for CIS devices
  *
  *.............................................................................
  *
@@ -490,8 +493,11 @@ static SANE_Bool usb_ModuleToHome( pPlustek_Device dev, SANE_Bool fWait )
 
 		a_bRegs[0x45] |= 0x10;
 
-		DBG( _DBG_INFO, "MOTOR-Settings: PWM=0x%02x, PWM_DUTY=0x%02x 0x%02x\n",
-								a_bRegs[0x56], a_bRegs[0x57], a_bRegs[0x45] );
+		DBG( _DBG_INFO, "MOTOR: "
+						"PWM=0x%02x, PWM_DUTY=0x%02x 0x45=0x%02x "
+                        "0x48=0x%02x, 0x49=0x%02x\n",
+						a_bRegs[0x56], a_bRegs[0x57],
+						a_bRegs[0x45], a_bRegs[0x48], a_bRegs[0x49] );
 
 		/* The setting for chassis moving is:
 		 * MCLK divider = 6, 8 bits/pixel, HDPI divider = 12,
@@ -690,20 +696,31 @@ static int usb_GetLampStatus( pPlustek_Device dev )
 			
 		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
 
-		/* check if the lamp is on */
-		usbio_ReadReg( dev->fd, reg, &val );
-		DBG( _DBG_INFO, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n", reg, val, msk );
-		if( val & msk )
-			iLampStatus |= DEV_LampReflection;
+		if( 0 == reg ) {
 
-   		/* if the device supports a TPA, we check this here */
-  		if( sc->wFlags & DEVCAPSFLAG_TPA ) {
+			usbio_ReadReg( dev->fd, 0x29, &a_bRegs[0x29] );
 
-			usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+			if( a_bRegs[0x29] & 3)
+				iLampStatus |= DEV_LampReflection;
+		} else {
+
+			/* check if the lamp is on */
 			usbio_ReadReg( dev->fd, reg, &val );
+
 			DBG( _DBG_INFO, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n",reg,val,msk);
 			if( val & msk )
-				iLampStatus |= DEV_LampTPA;
+				iLampStatus |= DEV_LampReflection;
+
+   			/* if the device supports a TPA, we check this here */
+	  		if( sc->wFlags & DEVCAPSFLAG_TPA ) {
+
+				usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+				usbio_ReadReg( dev->fd, reg, &val );
+				DBG( _DBG_INFO, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n",
+																reg,val,msk);
+				if( val & msk )
+					iLampStatus |= DEV_LampTPA;
+			}
 		}
 	
 	} else {
@@ -938,6 +955,7 @@ static SANE_Bool usb_LampOn( pPlustek_Device dev,
  * 0x20 - 0x21 - Line End<br>
  * 0x45        - Stepper Motor Mode<br>
  * 0x4c - 0x4d - Full Steps to Scan after PAPER SENSE 2 trips<br>
+ * 0x50        - Steps to reverse when buffer is full<br>
  * 0x51        - Acceleration Profile<br>
  * 0x54 - 0x5e - Motor Settings, Paper-Sense Settings and Misc I/O<br>
  *
@@ -956,11 +974,14 @@ static void usb_ResetRegisters(  pPlustek_Device dev )
 	memcpy( a_bRegs+0x0f, &hw->bReg_0x0f_Color, 10 );
 	a_bRegs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
 	a_bRegs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
+	a_bRegs[0x1e] = _HIBYTE( hw->wActivePixelsStart );
+	a_bRegs[0x1f] = _LOBYTE( hw->wActivePixelsStart );
 	a_bRegs[0x20] = _HIBYTE( hw->wLineEnd );
 	a_bRegs[0x21] = _LOBYTE( hw->wLineEnd );
 	a_bRegs[0x45] = hw->bReg_0x45;
 	a_bRegs[0x4c] = _HIBYTE( hw->wStepsAfterPaperSensor2 );
 	a_bRegs[0x4d] = _LOBYTE( hw->wStepsAfterPaperSensor2 );
+	a_bRegs[0x50] = hw->bStepsToReverse;
 	a_bRegs[0x51] = hw->bReg_0x51;
 
 	memcpy( a_bRegs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );

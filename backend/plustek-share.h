@@ -23,6 +23,7 @@
  *        changed IOCTL interface to allow downloadable MAPS
  *        added error codes
  * 0.43 - added tpa entry for AdjDef
+ * 0.44 - no changes
  *
  *.............................................................................
  *

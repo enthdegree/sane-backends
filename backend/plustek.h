@@ -36,6 +36,7 @@
  *        changed usbId to static array
  *		  added _MAX_ID_LEN
  * 0.43 - no changes
+ * 0.44 - no changes
  *
  *.............................................................................
  *

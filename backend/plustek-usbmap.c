@@ -12,6 +12,7 @@
  * 0.41 - fixed brightness problem for lineart mode
  * 0.42 - removed preset of linear gamma tables
  * 0.43 - no changes
+ * 0.44 - no changes
  *
  *.............................................................................
  *

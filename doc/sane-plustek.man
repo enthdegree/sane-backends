@@ -1,12 +1,8 @@
-.TH sane-plustek 5 "25 March 2002"
+.TH sane-plustek 5 "27 September 2002"
 .IX sane-plustek
 .SH NAME
-sane-plustek
-.br
-SANE backend for Plustek parallel port and
-.br
+sane-plustek \- SANE backend for Plustek parallel port and
 LM983[1/2/3] based USB flatbed scanners
-
 .SH DESCRIPTION
 The
 .B sane-plustek
@@ -196,6 +192,19 @@ USB Model:         ASIC:  Properties:              Prod-ID
 ----------------------------------------------------------
 .br
 UMAX 3400          LM9832 1200x2400dpi 42bit   2Mb 0x0060
+.PP
+
+Vendor CANON - ID: 0x04A9
+.br
+----------------------------------------------------------
+.br
+USB Model:         ASIC:  Properties:              Prod-ID
+.br
+----------------------------------------------------------
+.br
+CanoScan N650/656U LM9832 1200x2400dpi 42bit 512Kb 0x2206
+.br
+CanoScan N670/676U LM9832 1200x2400dpi 42bit 512Kb 0x220D
 .PP
 
 .SH "OTHER PLUSTEK SCANNERS"

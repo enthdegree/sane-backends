@@ -16,6 +16,8 @@
  *        added _WAF_MISC_IO3_LAMP for UMAX 3400
  * 0.43 - added _WAF_MISC_IOx_LAMP (x=1,2,4,5)
  *        added CLKDef
+ * 0.44 - added vendor and product ID to struct DeviceDef
+ *        added _WAF_BYPASS_CALIBRATION
  *
  *.............................................................................
  *
@@ -169,10 +171,11 @@ enum _DEVCAPSFLAG
 
 enum _WORKAROUNDS
 {
-	_WAF_NONE               = 0x00000000,   /* no fix anywhere needed        */
-	_WAF_BSHIFT7_BUG		= 0x00000001,	/* to fix U12 bug in 14bit mode  */
-	_WAF_MISC_IO_LAMPS      = 0x00000002,   /* special lamp switching        */
-	_WAF_BLACKFINE          = 0x00000004    /* use black calibration strip   */
+	_WAF_NONE               = 0x00000000, /* no fix anywhere needed          */
+	_WAF_BSHIFT7_BUG		= 0x00000001, /* to fix U12 bug in 14bit mode    */
+	_WAF_MISC_IO_LAMPS      = 0x00000002, /* special lamp switching          */
+	_WAF_BLACKFINE          = 0x00000004, /* use black calibration strip     */
+	_WAF_BYPASS_CALIBRATION = 0x00000008  /* no calibration,use linear gamma */
 };
 
 enum _LAMPS
@@ -196,11 +199,12 @@ typedef enum
 	MODEL_KaoHsiung = 0,
 	MODEL_HuaLien,
 	MODEL_Tokyo600,
-	MODEL_NOPLUSTEK_600,  /* for 600 dpi models  */
-	MODEL_NOPLUSTEK_1200, /* for 1200 dpi models */
-	MODEL_MUSTEK600,      /* for BearPaw 1200    */
-	MODEL_MUSTEK1200,     /* for BearPaw 2400    */
-	MODEL_HP,             /* for HP2x00          */
+	MODEL_NOPLUSTEK_600,  /* for 600 dpi models   */
+	MODEL_NOPLUSTEK_1200, /* for 1200 dpi models  */
+	MODEL_MUSTEK600,      /* for BearPaw 1200     */
+	MODEL_MUSTEK1200,     /* for BearPaw 2400     */
+	MODEL_HP,             /* for HP2x00           */
+	MODEL_CANON1200,      /* for Canon N670U/676U */
 	MODEL_LAST
 } eModelDef;
 
@@ -343,6 +347,7 @@ typedef struct HWDefault
 	/* Misc */
 	u_char				bReg_0x45;
 	u_short				wStepsAfterPaperSensor2;/* 0x4c & 0x4d */
+	u_char              bStepsToReverse;        /* 0x50        */
 	u_char				bReg_0x51;
 	u_char				bReg_0x54;
 	u_char				bReg_0x55;
@@ -367,6 +372,8 @@ typedef struct HWDefault
 typedef struct DeviceDef
 {
 	char*       ModelStr;        /* pointer to our model string              */
+	int         vendor;          /* vendor ID                                */
+	int         product;         /* product ID                               */
 	DCapsDef    Caps;			 /* pointer to the attribute of current dev  */
 	HWDef       HwSetting;	     /* Pointer to the characteristics of device */
 	pSrcAttrDef pSource;		 /* Scanning src, it's equal to Caps.Normal  */
@@ -380,7 +387,6 @@ typedef struct DeviceDef
 	u_long	    dwLampOnPeriod;  /* How many seconds to keep lamp on         */
 	SANE_Bool	bLampOffOnEnd;   /* switch lamp off on end or keep cur. state*/
 	int		    currentLamp;	 /* The lamp ID                              */
-	u_char	    bStepsToReverse; /* reg 0x50, this value is from registry    */
 	u_long      dwBufferSize;    /*                                          */
 
 } DeviceDef, *pDeviceDef;

@@ -50,6 +50,7 @@
  *        devices
  *        added OS/2 switch to disable the USB stuff for OS/2
  * 0.43 - added support for PREVIEW flag
+ * 0.44 - added _DBG_DUMP debug level
  *
  *.............................................................................
  *
@@ -142,7 +143,8 @@
 #define _DBG_PROC       7
 #define _DBG_SANE_INIT 10
 #define _DBG_INFO2     13
-#define _DBG_READ      15
+#define _DBG_DUMP      20
+#define _DBG_READ      25
 
 /*****************************************************************************/
 

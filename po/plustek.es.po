@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2002-01-17 22:00+0100\n"
+"POT-Creation-Date: 2002-09-02 20:00+0200\n"
 "PO-Revision-Date: 2002-03-03 01:20GMT\n"
 "Last-Translator: Gustavo D. Vranjes <gvranjes@abaconet.com.ar>\n"
 "Language-Team: Castellano <es@li.org>\n"
@@ -13,67 +13,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 0.9.5\n"
 
-#: .tmp/plustek.c:194 .tmp/plustek.c:204 .tmp/plustek.c:214
-
+#: .tmp/plustek.c:206 .tmp/plustek.c:216 .tmp/plustek.c:226
 msgid "Binary"
 msgstr "Binario"
 
-#: .tmp/plustek.c:195 .tmp/plustek.c:205
+#: .tmp/plustek.c:207 .tmp/plustek.c:217
 msgid "Halftone"
 msgstr "Mediotono"
 
-#: .tmp/plustek.c:196 .tmp/plustek.c:206 .tmp/plustek.c:215
-
+#: .tmp/plustek.c:208 .tmp/plustek.c:218 .tmp/plustek.c:227
 msgid "Gray"
 msgstr "Gris"
 
-#: .tmp/plustek.c:197 .tmp/plustek.c:207 .tmp/plustek.c:216
-
+#: .tmp/plustek.c:209 .tmp/plustek.c:219 .tmp/plustek.c:228
 msgid "Color"
 msgstr "Color"
 
-#: .tmp/plustek.c:208
+#: .tmp/plustek.c:220
 msgid "Color36"
 msgstr "Color36"
 
-#: .tmp/plustek.c:217
+#: .tmp/plustek.c:229
 msgid "Color42"
 msgstr "Color42"
 
-#: .tmp/plustek.c:223
-
+#: .tmp/plustek.c:235
 msgid "Normal"
 msgstr "Normal"
 
-#: .tmp/plustek.c:224
-
+#: .tmp/plustek.c:236
 msgid "Transparency"
 msgstr "Transparencia"
 
-#: .tmp/plustek.c:225 .tmp/saneopts.h:145
+#: .tmp/plustek.c:237
 msgid "Negative"
 msgstr "Negativo"
 
-#: .tmp/plustek.c:231
+#: .tmp/plustek.c:243
 msgid "Dithermap 1"
 msgstr "Mapa de entramado 1"
 
-#: .tmp/plustek.c:232
+#: .tmp/plustek.c:244
 msgid "Dithermap 2"
 msgstr "Mapa de entramado 2"
 
-#: .tmp/plustek.c:233
+#: .tmp/plustek.c:245
 msgid "Randomize"
 msgstr "Aleatorio"
 
-#: .tmp/plustek.c:632
+#: .tmp/plustek.c:725
 msgid "Scan Mode"
 msgstr "Modo de Escaneo"
 
-#: .tmp/plustek.c:711
+#: .tmp/plustek.c:820
 msgid "Geometry"
 msgstr "Geometría"
 
+#: .tmp/plustek.c:866
 msgid "Enhancement"
 msgstr "Mejora"
-

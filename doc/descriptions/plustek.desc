@@ -10,7 +10,7 @@
 ;
 
 :backend "plustek"              ; name of backend
-:version "0.43"                 ; version of backend
+:version "0.44"                 ; version of backend
 :status :stable                 ; :alpha, :beta, :stable, :new
 :manpage "sane-plustek"         ; name of manpage (if it exists)
 
@@ -229,6 +229,19 @@
 :interface "USB"
 :status :stable
 :comment "Mostly OK"
+
+:mfg "Canon"                    ; name a manufacturer
+:url "http://www.canon.com/"
+
+:model "CanoScan N650U/N656U"
+:interface "USB"
+:status :stable
+:comment "8-bit Color mode only"
+
+:model "CanoScan N670U/N676U" 
+:interface "USB"
+:status :stable
+:comment "8-bit Color mode only"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

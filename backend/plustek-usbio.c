@@ -11,6 +11,9 @@
  * 0.40 - starting version of the USB support
  * 0.41 - moved some functions to a sane library (sanei_lm983x.c)
  * 0.42 - no changes
+ * 0.43 - no changes
+ * 0.44 - added dump registers and dumpPic functions
+ *        beautyfied output of ASIC detection
  *
  *.............................................................................
  *
@@ -70,6 +73,104 @@
   sanei_lm983x_read (fd, reg, value, 1, 0)
 
 /**
+ *
+ */
+static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
+{
+	FILE *fp;
+
+	if( DBG_LEVEL < _DBG_DUMP )
+		return;
+
+	if( NULL == buffer )
+		fp = fopen( name, "w+b" ); 	
+	else
+		fp = fopen( name, "a+b" ); 	
+
+	if( NULL == fp ) {
+		DBG( _DBG_DUMP, "Can not open file '%s'\n", name );
+		return;
+	}
+
+	fwrite( buffer, 1, len, fp );
+    fclose( fp );
+}
+
+/**
+ * dump the LM983x registers
+ */
+static void dumpregs( int fd, SANE_Byte *cmp )
+{
+	char      buf[256], b2[10];
+    SANE_Byte regs[0x80];
+	int       i;
+
+	if( DBG_LEVEL < _DBG_INFO2 )
+		return;
+
+	buf[0] = '\0';
+
+	usbio_ReadReg(fd, 0x01, &regs[0x01]);
+	usbio_ReadReg(fd, 0x02, &regs[0x02]);
+	usbio_ReadReg(fd, 0x03, &regs[0x03]);
+	usbio_ReadReg(fd, 0x04, &regs[0x04]);
+	usbio_ReadReg(fd, 0x07, &regs[0x07]);
+
+	sanei_lm983x_read( fd, 0x08, &regs[0x8], 0x80-0x8, SANE_TRUE );
+
+	for( i = 0x0; i < 0x80; i++ ) {
+
+    	if((i%16) ==0 ) {
+
+			if( buf[0] )
+				DBG( _DBG_INFO2, "%s\n", buf );
+			sprintf( buf, "0x%02x:", i );
+		}
+
+		if((i%8)==0)
+			strcat( buf, " ");
+
+		/* the dataport read returns with "0 Bytes read", of course. */
+    	if((i == 0) || (i == 5) || (i == 6))
+      		strcat( buf, "XX ");
+    	else {
+
+	    	sprintf( b2, "%02x ", regs[i]);
+			strcat( buf, b2 );
+		}
+
+	}
+	DBG( _DBG_INFO2, "%s\n", buf );
+
+	if( cmp ) {
+
+		DBG( _DBG_INFO2, "Internal setting:\n" );
+		for( i = 0x0; i < 0x80; i++ ) {
+
+    		if((i%16) ==0 ) {
+
+				if( buf[0] )
+					DBG( _DBG_INFO2, "%s\n", buf );
+				sprintf( buf, "0x%02x:", i );
+			}
+
+			if((i%8)==0)
+				strcat( buf, " ");
+
+	    	if((i == 0) || (i == 5) || (i == 6))
+    	  		strcat( buf, "XX ");
+    		else {
+
+	    		sprintf( b2, "%02x ", cmp[i]);
+				strcat( buf, b2 );
+			}
+
+		}
+		DBG( _DBG_INFO2, "%s\n", buf );
+	}
+}
+
+/**
  * function to read the contents of a LM983x register and regarding some
  * extra stuff, like flushing register 2 when writing register 0x58, etc
  *
@@ -116,7 +217,9 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
  */
 static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 {
-	SANE_Byte value;
+	char        buf[256];
+	SANE_Byte   value;
+	SANE_Status res;
 
 	DBG( _DBG_INFO, "usbio_DetectLM983x\n");
 
@@ -130,21 +233,24 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 	if (version)
 		*version = value;
 
-	DBG( _DBG_INFO, "usbio_DetectLM983x: found " );
+	res = SANE_STATUS_GOOD;
+
+	sprintf( buf, "usbio_DetectLM983x: found " );
 
 	switch((SANE_Int)value ) {
 		
-		case 4:	 DBG( _DBG_INFO, "LM9832/3\n" ); break;
-		case 3:	 DBG( _DBG_INFO, "LM9831\n" );   break;
-		case 2:	 DBG( _DBG_INFO, "LM9830 --> unsupported!!!\n" );
-				 return SANE_STATUS_INVAL;
+		case 4:	 strcat( buf, "LM9832/3" ); break;
+		case 3:	 strcat( buf, "LM9831" );   break;
+		case 2:	 strcat( buf, "LM9830 --> unsupported!!!" );
+				 res =  SANE_STATUS_INVAL;
 				 break;
-		default: DBG( _DBG_INFO, "Unknown chip v%d\n", value );
-				 return SANE_STATUS_INVAL;
+		default: DBG( _DBG_INFO, "Unknown chip v%d", value );
+				 res = SANE_STATUS_INVAL;
 				 break;
 	}
-  	
-	return SANE_STATUS_GOOD;
+
+	DBG( _DBG_INFO, "%s\n", buf );  	
+	return res;
 }
 
 /*.............................................................................

@@ -17,6 +17,7 @@
  * 0.42 - added setmap function
  *        fixed the stopscan problem, that causes a crash in the kernel module
  * 0.43 - no changes
+ * 0.44 - no changes
  *
  *.............................................................................
  *

@@ -13,6 +13,7 @@
  * 0.41 - fixed the 14bit problem for LM9831 devices
  * 0.42 - no changes
  * 0.43 - no changes
+ * 0.44 - added CIS parts and dumpPic function
  *
  *.............................................................................
  *
@@ -205,6 +206,7 @@ static void usb_AverageColorByte( struct Plustek_Device *dev )
 	if((scanning->sParam.bSource == SOURCE_Negative ||
 		scanning->sParam.bSource == SOURCE_Transparency) &&
 											scanning->sParam.PhyDpi.x > 800) {
+
 		for (dw = 0; dw < (scanning->sParam.Size.dwPhyPixels - 1); dw++)
 		{
 			scanning->Red.pcb[dw].a_bColor[0] =
@@ -399,7 +401,7 @@ static void usb_ColorScaleGray( struct Plustek_Device *dev )
 }
 
 /*.............................................................................
- * here we copy and scale from scanner world to user word...
+ * here we copy and scale from scanner world to user world...
  */
 static void usb_ColorScale8( struct Plustek_Device *dev )
 {
@@ -435,6 +437,46 @@ static void usb_ColorScale8( struct Plustek_Device *dev )
 									
 			scanning->UserBuf.pb_rgb[dwPixels].Blue =
 									scanning->Blue.pcb[dwBitsPut].a_bColor[0];
+			
+			dwPixels = dwPixels + iNext;
+			ddax    += izoom;
+			dw--;
+		}
+	} 			
+}
+
+static void usb_ColorScale8_2( struct Plustek_Device *dev )
+{
+	int      izoom, ddax;
+	u_long   dw;
+    pScanDef scanning = &dev->scanning;
+
+	dw = scanning->sParam.Size.dwPixels;
+
+	if( scanning->sParam.bSource == SOURCE_ADF ) {
+		iNext    = -1;
+		dwPixels = scanning->sParam.Size.dwPixels - 1;
+	} else {
+		iNext    = 1;
+		dwPixels = 0;
+	}
+
+	izoom = usb_GetScaler( scanning );			
+
+	for( dwBitsPut = 0, ddax = 0; dw; dwBitsPut++ ) {
+
+		ddax -= _SCALER;
+
+		while((ddax < 0) && (dw > 0)) {
+
+			scanning->UserBuf.pb_rgb[dwPixels].Red =
+												scanning->Red.pb[dwBitsPut];
+									
+			scanning->UserBuf.pb_rgb[dwPixels].Green =
+												scanning->Green.pb[dwBitsPut];
+									
+			scanning->UserBuf.pb_rgb[dwPixels].Blue =
+												scanning->Blue.pb[dwBitsPut];
 			
 			dwPixels = dwPixels + iNext;
 			ddax    += izoom;
@@ -599,7 +641,32 @@ static void usb_ColorDuplicate8( struct Plustek_Device *dev )
 	}
 }
 
-/*.............................................................................
+/**
+ * reorder from rgb line to rgb pixel (CIS scanner)
+ */
+static void usb_ColorDuplicate8_2( struct Plustek_Device *dev )
+{
+	u_long   dw;
+    pScanDef scanning = &dev->scanning;
+
+	if( scanning->sParam.bSource == SOURCE_ADF ) {
+		iNext    = -1;
+		dwPixels = scanning->sParam.Size.dwPixels - 1;
+	} else {
+		iNext    = 1;
+		dwPixels = 0;
+	}
+
+	for( dw = 0; dw < scanning->sParam.Size.dwPixels;
+										dw++, dwPixels = dwPixels + iNext ) {
+										
+		scanning->UserBuf.pb_rgb[dwPixels].Red   = (u_char)scanning->Red.pb[dw];
+		scanning->UserBuf.pb_rgb[dwPixels].Green = (u_char)scanning->Green.pb[dw];
+		scanning->UserBuf.pb_rgb[dwPixels].Blue  = (u_char)scanning->Blue.pb[dw];
+	}
+}
+
+/**
  *
  */
 static void usb_ColorDuplicate16( struct Plustek_Device *dev )
@@ -632,6 +699,54 @@ static void usb_ColorDuplicate16( struct Plustek_Device *dev )
 			scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(scanning->Red.pcw[dw].HiLo[0]);
 			scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(scanning->Green.pcw[dw].HiLo[0]);
 			scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(scanning->Blue.pcw[dw].HiLo[0]);
+		}
+	}
+}
+
+/**
+ *
+ */
+static void usb_ColorDuplicate16_2( struct Plustek_Device *dev )
+{
+	HiLoDef  tmp;
+	u_long   dw;
+    pScanDef scanning = &dev->scanning;
+
+	usb_AverageColorWord( dev );
+
+	if( scanning->sParam.bSource == SOURCE_ADF ) {
+		iNext    = -1;
+		dwPixels = scanning->sParam.Size.dwPixels - 1;
+	} else {
+		iNext    = 1;
+		dwPixels = 0;
+	}
+
+	if( scanning->dwFlag & SCANFLAG_RightAlign ) {
+
+		for (dw = 0; dw < scanning->sParam.Size.dwPixels; dw++, dwPixels = dwPixels + iNext)
+		{
+			tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp) >> 2;
+
+			tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp) >> 2;
+
+			tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp) >> 2;
+		}
+	} else {
+
+		for (dw = 0; dw < scanning->sParam.Size.dwPixels; dw++, dwPixels = dwPixels + iNext)
+		{
+			tmp = *((pHiLoDef)&scanning->Red.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Red = _HILO2WORD(tmp);
+
+			tmp = *((pHiLoDef)&scanning->Green.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Green = _HILO2WORD(tmp);
+
+			tmp = *((pHiLoDef)&scanning->Blue.pw[dw]);
+			scanning->UserBuf.pw_rgb[dwPixels].Blue = _HILO2WORD(tmp);
 		}
 	}
 }
@@ -998,12 +1113,13 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 {
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef sc       = &dev->usbDev.Caps;
+	pHWDef    hw       = &dev->usbDev.HwSetting;
 
     bShift = 0;
 
 	if( scanning->sParam.UserDpi.x != scanning->sParam.PhyDpi.x ) {
 
-		/* Pixels scaling... */
+		/* Pixel scaling... */
 		switch( scanning->sParam.bDataType ) {
 
 			case SCANDATATYPE_Color:
@@ -1020,8 +1136,14 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 					DBG( _DBG_INFO, "ImageProc is: ColorScaleGray\n" );
 					
 				} else {
-					scanning->pfnProcess = usb_ColorScale8;
-					DBG( _DBG_INFO, "ImageProc is: ColorScale8\n" );
+
+					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+						scanning->pfnProcess = usb_ColorScale8_2;
+						DBG( _DBG_INFO, "ImageProc is: ColorScale8_2\n" );
+					} else {
+						scanning->pfnProcess = usb_ColorScale8;
+						DBG( _DBG_INFO, "ImageProc is: ColorScale8\n" );
+					}
 				}	
 				break;
 
@@ -1054,8 +1176,13 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 
 			case SCANDATATYPE_Color:
 				if (scanning->sParam.bBitDepth > 8) {
-					scanning->pfnProcess = usb_ColorDuplicate16;
-					DBG( _DBG_INFO, "ImageProc is: ColorDuplicate16\n" );
+					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+						scanning->pfnProcess = usb_ColorDuplicate16_2;
+						DBG( _DBG_INFO, "ImageProc is: ColorDuplicate16_2\n" );
+					} else {
+						scanning->pfnProcess = usb_ColorDuplicate16;
+						DBG( _DBG_INFO, "ImageProc is: ColorDuplicate16\n" );
+					}
 				} else if (scanning->dwFlag & SCANFLAG_Pseudo48) {
 					scanning->pfnProcess = usb_ColorDuplicatePseudo16;
 					DBG( _DBG_INFO, "ImageProc is: ColorDuplicatePseudo16\n" );
@@ -1063,8 +1190,13 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
 					scanning->pfnProcess = usb_ColorDuplicateGray;
 					DBG( _DBG_INFO, "ImageProc is: ColorDuplicateGray\n" );
 				} else {
-					scanning->pfnProcess = usb_ColorDuplicate8;
-					DBG( _DBG_INFO, "ImageProc is: ColorDuplicate8\n" );
+					if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+						scanning->pfnProcess = usb_ColorDuplicate8_2;
+						DBG( _DBG_INFO, "ImageProc is: ColorDuplicate8_2\n" );
+					} else {
+						scanning->pfnProcess = usb_ColorDuplicate8;
+						DBG( _DBG_INFO, "ImageProc is: ColorDuplicate8\n" );
+					}
 				}	
 				break;
 
@@ -1118,11 +1250,21 @@ static void usb_GetImageProc( struct Plustek_Device *dev )
  */
 static SANE_Int usb_ReadData( struct Plustek_Device *dev )
 {
-	u_long   dw, dwRet, dwBytes;
+	u_long   dw, dwRet, dwBytes, dwAdjust;
     pScanDef scanning = &dev->scanning;
 	pHWDef   hw       = &dev->usbDev.HwSetting;
 
+
 	DBG( _DBG_READ, "usb_ReadData()\n" );
+
+	dwAdjust = 1;
+
+	/* for 1 channel color, we have to adjust the phybytes... */
+	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+		if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
+			dwAdjust = 3;
+		}
+	}
 
 	while( scanning->sParam.Size.dwTotalBytes ) {
 	
@@ -1140,10 +1282,10 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
 
    		if(!scanning->sParam.Size.dwTotalBytes && dw < (m_dwPauseLimit * 1024))
    		{
-   			if(!(a_bRegs[0x4E] = (u_char)ceil(dw / (4 * hw->wDRAMSize))))
+   			if(!(a_bRegs[0x4e] = (u_char)ceil(dw / (4 * hw->wDRAMSize))))
    				a_bRegs[0x4e] = 1;
    				
-   			a_bRegs[0x4F] = 0;
+   			a_bRegs[0x4f] = 0;
 				
    			sanei_lm983x_write( dev->fd, 0x4e, &a_bRegs[0x4e], 2, SANE_TRUE );
    		}
@@ -1151,8 +1293,9 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    		while( scanning->bLinesToSkip ) {
 			
    			DBG( _DBG_READ, "Skipping %u lines\n", scanning->bLinesToSkip );
-   		
+
    			dwBytes = scanning->bLinesToSkip*scanning->sParam.Size.dwPhyBytes;
+			dwBytes *= dwAdjust;
 				
    			if (dwBytes > scanning->dwBytesScanBuf) {
 				
@@ -1166,13 +1309,15 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    		}
 		
    	    if( usb_ScanReadImage( dev, scanning->pbGetDataBuf, dw )) {
+
+			dumpPic( "plustek-pic.raw", scanning->pbGetDataBuf, dw );
 		
    	    	if( scanning->dwLinesDiscard ) {
 
 	   			DBG( _DBG_READ, "Discarding %lu lines\n",
 			   										scanning->dwLinesDiscard );
    	    	   	    	
-   	    		dwRet = dw / scanning->sParam.Size.dwPhyBytes;
+   	    		dwRet = dw / (scanning->sParam.Size.dwPhyBytes * dwAdjust);
    	    		
    	    		if (scanning->dwLinesDiscard > dwRet) {
    	    			scanning->dwLinesDiscard -= dwRet;
@@ -1182,7 +1327,8 @@ static SANE_Int usb_ReadData( struct Plustek_Device *dev )
    	    			scanning->dwLinesDiscard = 0;
    	    		}
    	    	} else {
-   	    		dwRet = dw / scanning->sParam.Size.dwPhyBytes;
+
+   	    		dwRet = dw / (scanning->sParam.Size.dwPhyBytes * dwAdjust);
    	    	}	
 
    			scanning->pbGetDataBuf += scanning->dwBytesScanBuf;

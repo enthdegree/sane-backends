@@ -226,9 +226,9 @@ sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
 
 SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 {
-	SANE_Byte cmd_buffer[_CMD_BYTE_CNT];
-	SANE_Byte tmp;
-	SANE_Int  i;
+	SANE_Status res;
+	SANE_Byte   tmp;
+	SANE_Int    i;
 
    	DBG( 15, "sanei_lm983x_reset()\n" );
 
@@ -241,42 +241,29 @@ SANE_Bool sanei_lm983x_reset( SANE_Int fd )
 		 * Write the command bytes for a register read
 		 * without increment
 		 */
-		cmd_buffer[0] = 0x01;
-		cmd_buffer[1] = 7;    /* command/status register */
-		cmd_buffer[2] = 0;
-		cmd_buffer[3] = 1;
+		if( SANE_STATUS_GOOD != sanei_lm983x_read_byte( fd, 0x07, &tmp ))
+			continue;
 
-		if( _CMD_BYTE_CNT == write( fd, cmd_buffer, _CMD_BYTE_CNT )) {
-		
-			/* Then read the register in question */
-			unsigned long cbBytes = 1;
-			
-			if( read( fd, &tmp, cbBytes )) {
-			
-				if( tmp & 0x20 ) {
-				
-					SANE_Byte wrt_buffer[_CMD_BYTE_CNT + 1];
-					
-					/* Write the command bytes for a register read
-					 * without increment
-					 */
-					wrt_buffer[0] = 0x00;
-					wrt_buffer[1] = 7;
-					wrt_buffer[2] = 0;
-					wrt_buffer[3] = 1;
-					wrt_buffer[4] = 0; /* <--- The data for the register */
-					                   /* should this be 0x20????        */
+		if( tmp & 0x20 ) {
 
-					/* We will attempt to reset it but we really don't do
-					 * anything if this fails
-					 */
-					if( write( fd, wrt_buffer, _CMD_BYTE_CNT + 1)) {
-						DBG( 15, "Resetting the LM983x done\n" );
-						return SANE_TRUE;
-					}	
-				}
-			}
-		}	
+			res = sanei_lm983x_write_byte( fd, 0x07, 0 );
+
+			/* We will attempt to reset it but we really don't do
+			 * anything if this fails
+			 */
+			if( res == SANE_STATUS_GOOD ) {
+				DBG( 15, "Resetting the LM983x already done\n" );
+				return SANE_TRUE;
+			}	
+		} else {
+
+			res = sanei_lm983x_write_byte( fd, 0x07, 0x20 );
+
+			if( res == SANE_STATUS_GOOD ) {
+				DBG( 15, "Resetting the LM983x done\n" );
+				return SANE_TRUE;
+			}	
+		}
 	}
 	return SANE_FALSE;
 }

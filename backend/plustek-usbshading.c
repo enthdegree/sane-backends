@@ -13,6 +13,8 @@
  *      - added workaround stuff for EPSON1250
  * 0.42 - added workaround stuff for UMAX 3400
  * 0.43 - added call to usb_switchLamp before reading dark data
+ * 0.44 - added more debug output and bypass calibration
+ *        added dump of shading data
  *
  *.............................................................................
  *
@@ -426,6 +428,8 @@ static u_char usb_GetNewGain( u_short wMax )
  */
 static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 {
+	char      tmp[40];
+	int       i;
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
@@ -437,6 +441,8 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 		return SANE_FALSE;
 
 	bMaxITA = 0xff;
+
+	DBG( _DBG_INFO2, "usb_AdjustGain()\n" );
 
 	/*
      * define the strip to scan for coarse calibration
@@ -450,6 +456,7 @@ static SANE_Bool usb_AdjustGain( pPlustek_Device dev, int fNegative )
 													300UL / scaps->OpticDpi.x);
 	m_ScanParam.bCalibration  = PARAM_Gain;
 
+	i = 0;
 TOGAIN:
 	m_ScanParam.dMCLK = dMCLK;
 
@@ -471,7 +478,7 @@ TOGAIN:
 		dw = t.tv_sec - dev->usbDev.dwTicksLampOn;
 		
 		if( usb_IsEscPressed()) {
-			DBG( _DBG_INFO, "ReadImage() - Cancel detected...\n" );
+			DBG( _DBG_INFO, "adjustGain() - Cancel detected...\n" );
 			return 0;
 		}
 		
@@ -483,6 +490,11 @@ TOGAIN:
 		DBG( _DBG_ERROR, "usb_AdjustGain() failed\n" );
 		return SANE_FALSE;
 	}
+
+	sprintf( tmp, "coarse-gain-%u.raw", i++ );
+
+	dumpPic( tmp, NULL, 0 );
+	dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
 		
 	usb_Swap((u_short *)pScanBuffer, m_ScanParam.Size.dwPhyBytes );
 
@@ -627,6 +639,10 @@ TOGAIN:
 			a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = usb_GetNewGain(w);
 		}
 	}
+	DBG( _DBG_INFO2, "REG[0x3b] = %u\n", a_bRegs[0x3b] );
+	DBG( _DBG_INFO2, "REG[0x3c] = %u\n", a_bRegs[0x3c] );
+	DBG( _DBG_INFO2, "REG[0x3d] = %u\n", a_bRegs[0x3d] );
+	DBG( _DBG_INFO2, "usb_AdjustGain() done.\n" );
 
 	return SANE_TRUE;
 }
@@ -679,9 +695,11 @@ static void usb_GetNewOffset( u_long *pdwSum, u_long *pdwDiff, char *pcOffset,
  */
 static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 {
+	char   tmp[40];
 	char   cAdjust = 16;
 	char   cOffset[3];
 	u_char bExpect[3];
+	int    i;
 	u_long dw, dwPixels;
     u_long dwDiff[3], dwSum[3];
 
@@ -689,6 +707,8 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
+
+	DBG( _DBG_INFO2, "usb_AdjustOffset()\n" );
 
 	m_ScanParam.Size.dwLines = 1;				/* for gain */
 	dwPixels = (u_long)(hw->bOpticBlackEnd - hw->bOpticBlackStart );
@@ -706,11 +726,17 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 
 	a_bRegs[0x38] = a_bRegs [0x39] = a_bRegs [0x3a] = 0;
 
+	if( 0 == dwPixels ) {
+		DBG( _DBG_ERROR, "OpticBlackEnd = OpticBlackStart!!!\n" );
+		return SANE_FALSE;
+	}
+
 	if( !usb_SetScanParameters( dev, &m_ScanParam )) {
 		DBG( _DBG_ERROR, "usb_AdjustOffset() failed\n" );
 		return SANE_FALSE;
 	}
 		
+	i = 0;
 	while( cAdjust ) {
 
 		/*
@@ -722,6 +748,11 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 			DBG( _DBG_ERROR, "usb_AdjustOffset() failed\n" );
 			return SANE_FALSE;
 		}
+
+		sprintf( tmp, "coarse-off-%u.raw", i++ );
+
+		dumpPic( tmp, NULL, 0 );
+		dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
 
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 
@@ -764,6 +795,11 @@ static SANE_Bool usb_AdjustOffset( pPlustek_Device dev )
 	} else {
 		a_bRegs[0x38] = a_bRegs[0x39] = a_bRegs[0x3a] = bExpect[0];	
 	}
+
+	DBG( _DBG_INFO2, "REG[0x38] = %u\n", a_bRegs[0x38] );
+	DBG( _DBG_INFO2, "REG[0x39] = %u\n", a_bRegs[0x39] );
+	DBG( _DBG_INFO2, "REG[0x3a] = %u\n", a_bRegs[0x3a] );
+	DBG( _DBG_INFO2, "usb_AdjustOffset() done.\n" );
 
 	return SANE_TRUE;
 }
@@ -858,6 +894,7 @@ static void usb_GetDarkShading( pPlustek_Device dev, u_short *pwDest,
  */
 static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
 {
+	char      tmp[40];
     pScanDef  scanning = &dev->scanning;
 	pDCapsDef scaps    = &dev->usbDev.Caps;
 	pHWDef    hw       = &dev->usbDev.HwSetting;
@@ -928,6 +965,12 @@ static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
 		return SANE_FALSE;
 	}	
 
+	sprintf( tmp, "fine-black.raw" );
+
+	dumpPic( tmp, NULL, 0 );
+	dumpPic( tmp, pScanBuffer, m_ScanParam.Size.dwPhyBytes );
+
+
 	usleep(500 * 1000);			/* Warm up lamp again */
 
 	if (m_ScanParam.bDataType == SCANDATATYPE_Color)
@@ -966,6 +1009,7 @@ static SANE_Bool usb_AdjustDarkShading( pPlustek_Device dev )
  */
 static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 {
+	char         tmp[40];
     pScanDef     scanning = &dev->scanning;
 	pDCapsDef    scaps    = &dev->usbDev.Caps;
 	pHWDef       hw       = &dev->usbDev.HwSetting;
@@ -1025,9 +1069,12 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 		m_ScanParam.Size.dwLines = dwShadingLines;	/* SHADING_Lines */
 	}
 
+	sprintf( tmp, "fine-white.raw" );
+	dumpPic( tmp, NULL, 0 );
+
 
 	for( dw = dwShadingLines /*SHADING_Lines*/,
-		 dwRead = 0; dw; dw -= m_ScanParam.Size.dwLines ) {
+							 dwRead = 0; dw; dw -= m_ScanParam.Size.dwLines ) {
 
 		if( usb_SetScanParameters( dev, &m_ScanParam) &&
 			usb_ScanBegin( dev, SANE_FALSE )) {
@@ -1044,6 +1091,8 @@ static SANE_Bool usb_AdjustWhiteShading( pPlustek_Device dev )
 					/* Delay for white shading hold for 9831-1200 scanner */
 					usleep(10 * 1000);	
 				}
+
+				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwPhyBytes );
 
 				if( usb_ScanEnd( dev )) {
 					dwRead += m_ScanParam.Size.dwTotalBytes;
@@ -1433,6 +1482,22 @@ static int usb_DoCalibration( pPlustek_Device dev )
 
 	DBG( _DBG_INFO, "shading position reached\n" );
 
+	/*
+	 * this won't work for Plustek devices!!!
+	 */
+	if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+
+		DBG( _DBG_INFO, "--> BYPASS\n" );
+		a_bRegs[0x38] = a_bRegs[0x39] = a_bRegs[0x3a] = 1;
+		a_bRegs[0x3b] = a_bRegs[0x3c] = a_bRegs[0x3d] = 1;
+		a_bRegs[0x45] |= 0x10;
+		usb_SetMCLK( dev );
+
+	    dumpregs( dev->fd, a_bRegs );
+		DBG( _DBG_INFO, "<-- BYPASS\n" );
+		return SANE_TRUE;
+	}
+
 	switch( scanning->sParam.bSource ) {
 
 		case SOURCE_Negative:
@@ -1730,7 +1795,10 @@ static int usb_DoCalibration( pPlustek_Device dev )
  */
 static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	pDCapsDef scaps = &dev->usbDev.Caps;
+	pHWDef    hw    = &dev->usbDev.HwSetting;
+
+	DBG( _DBG_INFO2, "usb_DownloadShadingData(%u)\n", bJobID );
 
 	switch( bJobID ) {
 
@@ -1766,6 +1834,28 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 
 		case PARAM_Scan:
 			{
+				if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
+
+					DBG( _DBG_INFO, "--> BYPASS\n" );
+
+					/* set RAM configuration AND
+        		     * Bypass Multiplier
+		             * CFG Register 0x40/0x41 for Multiplier Coefficient Source
+        		     * CFG Register 0x3e/0x3f for Offset Coefficient Source
+		             */
+					a_bRegs[0x03] = 0;
+					a_bRegs[0x40] = 0x40;
+					a_bRegs[0x41] = 0x00;
+					a_bRegs[0x42] = (u_char)((hw->wDRAMSize > 512)? 0x61:0x21);
+
+					if( !usbio_WriteReg( dev->fd, 0x03, a_bRegs[0x03]))
+						return SANE_FALSE;
+
+					_UIO(sanei_lm983x_write( dev->fd, 0x40,
+											 &a_bRegs[0x40], 3, SANE_TRUE));
+					break;
+				}
+
 				if( _LM9831 != hw->chip )
 					m_dwPixels = m_ScanParam.Size.dwPhyPixels;
 
@@ -1802,7 +1892,7 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 				}
 				
 				/* set RAM configuration AND
-                 * Gain = Multiplier Coefficient/16384
+	             * Gain = Multiplier Coefficient/16384
                  * External DRAM for Multiplier Coefficient Source
                  * External DRAM for Offset Coefficient Source
                  */
@@ -1814,14 +1904,14 @@ static SANE_Bool usb_DownloadShadingData( pPlustek_Device dev, u_char bJobID )
 			break;
 
 		default:
-			/* for coarse calibration and "black fine"*/
+			/* for coarse calibration and "black fine" */
 			a_bRegs[0x3e] = 0;
 			a_bRegs[0x3f] = 0;
 			a_bRegs[0x40] = 0x40;
 			a_bRegs[0x41] = 0x00;
 
 			/* set RAM configuration AND
-             * Bypass Multiplier
+             * GAIN = Multiplier Coefficient/16384
              * CFG Register 0x40/0x41 for Multiplier Coefficient Source
              * CFG Register 0x3e/0x3f for Offset Coefficient Source
              */

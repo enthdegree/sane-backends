@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "10 Dec 2000"
+.TH sane-scsi 5 "24 May 2001"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -262,6 +262,6 @@ environment variable controls the debug level for the generic SCSI I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity.
 .SH "SEE ALSO"
-sane-"backendname"(5)
+sane(7), sane-find-scanner(1), sane-"backendname"(5)
 .SH AUTHOR
 David Mosberger

@@ -37,7 +37,7 @@ device file.
 .br
 Look for a scanner (only) at /dev/scanner and print the result.
 .SH "SEE ALSO"
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane-"backendname"(5)
+sane(7), sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane-"backendname"(5)
 .SH AUTHOR
 Oliver Rauch and others. Manual page by Henning Meier-Geinitz.
 .SH BUGS

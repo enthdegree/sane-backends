@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD                5
+#define BUILD                6
 
 #include "snapscan.h"
 
@@ -149,33 +149,33 @@ static SANE_Int def_gs_lpr = 12;
 /* ranges */
 static const SANE_Range x_range_fb =
 {
-    SANE_FIX (0.0), SANE_FIX (216.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (216.0), 0
 };        /* mm */
 static const SANE_Range y_range_fb =
 {
-    SANE_FIX (0.0), SANE_FIX (297.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (297.0), 0
 };        /* mm */
 static const SANE_Range x_range_tpo_default =
 {
-    SANE_FIX (0.0), SANE_FIX (129.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (129.0), 0
 };        /* mm */
 static const SANE_Range y_range_tpo_default =
 {
-    SANE_FIX (0.0), SANE_FIX (180.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (180.0), 0
 };        /* mm */
 static const SANE_Range x_range_tpo_1236 =
 {
-    SANE_FIX (0.0), SANE_FIX (203.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (203.0), 0
 };        /* mm */
 static const SANE_Range y_range_tpo_1236 =
 {
-    SANE_FIX (0.0), SANE_FIX (254.0), SANE_FIX (1.0)
+    SANE_FIX (0.0), SANE_FIX (254.0), 0
 };        /* mm */
 static SANE_Range x_range_tpo;
 static SANE_Range y_range_tpo;
 static const SANE_Range gamma_range =
 {
-    SANE_FIX (0.0), SANE_FIX (4.0), SANE_FIX (0.1)
+    SANE_FIX (0.0), SANE_FIX (4.0), 0
 };
 static const SANE_Range gamma_vrange =
 {
@@ -3100,8 +3100,8 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.15  2002/01/15 20:16:55  oliverschwartz
- * Added workaround for bug in semctl() on PPC; backend version 1.4.5
+ * Revision 1.16  2002/01/22 19:25:42  oliverschwartz
+ * Fix minor bugs in snapscan backend
  *
  * Revision 1.38  2002/01/14 21:11:56  oliverschwartz
  * Add workaround for bug semctl() call in libc for PPC

@@ -150,6 +150,12 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg)
             status = SANE_STATUS_EOF;
         }
         break;
+    case 0x0b:
+        /* Aborted command */
+        sense_str = "Aborted Command.";
+        DBG (DL_MINOR_INFO, "%s: %s\n", me, sense_str);
+        status = SANE_STATUS_IO_ERROR;
+        break;
     default:
         DBG (DL_MINOR_ERROR, "%s: no handling for sense %x.\n", me, sense);
         break;
@@ -1175,8 +1181,8 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
- * Revision 1.9  2001/12/17 22:51:49  oliverschwartz
- * Update to snapscan-20011212 (snapscan 1.4.3)
+ * Revision 1.10  2002/01/22 19:25:41  oliverschwartz
+ * Fix minor bugs in snapscan backend
  *
  * Revision 1.25  2001/12/12 19:44:59  oliverschwartz
  * Clean up CVS log

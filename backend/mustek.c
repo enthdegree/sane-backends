@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 118
+#define BUILD 119
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -585,8 +585,8 @@ dev_cmd (Mustek_Scanner * s, const void * src, size_t src_size,
 	}
     }
 
-  DBG(5, "dev_cmd: finished: dst_size=%ld\n", 
-      (long int) (dst_size ? *dst_size : 0));
+  DBG(5, "dev_cmd: finished: dst_size=%ld, status=%s\n", 
+      (long int) (dst_size ? *dst_size : 0), sane_strstatus(status));
   return status;
 }
 
@@ -4007,6 +4007,7 @@ init_options (Mustek_Scanner *s)
       s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
 
+  s->opt[OPT_NUM_OPTS].name = "";
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -4018,6 +4019,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].cap = 0;
+  s->opt[OPT_MODE_GROUP].size = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
@@ -4154,6 +4156,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
   s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* top-left x */
@@ -4201,6 +4204,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* brightness */
@@ -4402,7 +4406,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_HALFTONE_PATTERN].title = SANE_TITLE_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].desc = SANE_DESC_HALFTONE_PATTERN;
   s->opt[OPT_HALFTONE_PATTERN].type = SANE_TYPE_INT;
-  s->opt[OPT_HALFTONE_PATTERN].size = 0;
+  s->opt[OPT_HALFTONE_PATTERN].size = 4;
   s->opt[OPT_HALFTONE_PATTERN].cap |= SANE_CAP_INACTIVE;
   s->opt[OPT_HALFTONE_PATTERN].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_HALFTONE_PATTERN].constraint.range = &u8_range;
@@ -5354,6 +5358,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s->pipe = -1;
   s->hw = dev;
   s->ld.ld_line = 0;
+  s->halftone_pattern = malloc (8 * 8 * sizeof (SANE_Int));
+  if (!s->halftone_pattern)
+    return SANE_STATUS_NO_MEM;
   init_options (s);
 
   /* insert newly opened handle into list of open handles: */
@@ -5400,7 +5407,8 @@ sane_close (SANE_Handle handle)
     free (s->val[OPT_SOURCE].s);
   if (s->val[OPT_HALFTONE_DIMENSION].s)
     free (s->val[OPT_HALFTONE_DIMENSION].s);
-
+  if (s->halftone_pattern)
+    free (s->halftone_pattern);
   if (prev)
     prev->next = s->next;
   else
@@ -5478,7 +5486,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   if (s->scanning)
     {
-      DBG(4, "sane_control_option: don't use wile scanning (option %s)\n",
+      DBG(4, "sane_control_option: don't use while scanning (option %s)\n",
 	  s->opt[option].name);
       return SANE_STATUS_DEVICE_BUSY;
     }

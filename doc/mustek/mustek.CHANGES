@@ -1,5 +1,19 @@
 CHANGES for the SANE Mustek backend
 
+2002-03-20:
+  * Released Mustek backend 1.0-119.
+
+2002-03-20:
+  * Fix halftone pattern handling. The buffer was way too small.
+
+2002-03-19:
+  * Option 0 has an empty name.
+
+2002-03-18:
+  * Better debug output for dev_cmd.
+  * Set size for group options to 0.
+  * Set size of halftone pattern to non 0.
+
 2002-02-14:
   * Fixed some problems with wrong formats in DBG statements.
 

@@ -1,3 +1,7 @@
+2004-11-13  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Epson Stylus Photo RX500,
+	Epson Stylus Photo RX600 and Minolta Scan Dual II.
+
 2004-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* snapscan-sources.c: First implementation of deinterlacer for epson

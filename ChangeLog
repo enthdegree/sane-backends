@@ -1,3 +1,6 @@
+2002-11-23  Max Vorobiev <pcwizard@yandex.ru>
+	* backend/hpsj5s.c: Removed default port probing.
+	
 2002-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.man: Formatting fixes. Updates some backend entries and

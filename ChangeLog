@@ -4,6 +4,8 @@
 	  doc/descriptions/coolscan.desc doc/descriptions/nec.desc
 	  doc/descriptions/sm3600.desc doc/descriptions/st400.desc:
 	  Converted to use new :status values.
+	* doc/descriptions/unsupported.desc: Sorted (more or less)
+	  alphabetically. Added some Canon and Hewlett-Packard scanners.
 
 2003-07-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-07-10"		; version of backend
+:version "2003-07-18"		; version of backend
 :url "http://www.meier-geinitz.de/sane/misc/unsupported.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 ;:url "http://www.meier-geinitz.de/sane/mustek-backend/"
@@ -28,17 +28,17 @@
 :interface "USB"
 :comment "Unsupported. Vendor/product 0x05d8/0x4001. Same id as one of the Artec Ultima 2000 scanners. More information (e.g. /proc/bus/usb/devices output) would be appreciated."
 
-:model "E+ Pro"
-:status :unsupported
-:url "http://www.meier-geinitz.de/sane/misc/artec_epluspro.txt"
-:interface "USB"
-:comment "Not supported. Vendor/product 0x05d8/0x4004. /proc/bus/usb/devices output is available. Chipset is GT6816. May work with the gt68xx backend after some work in the source code."
-
 :model "AM12e+"
 :status :unsupported
 ;:url ""
 :interface "Parport"
 :comment "Unsupported. Chipset unknown. Maybe similar to SCSI version or as6e?"
+
+:model "E+ Pro"
+:status :unsupported
+:url "http://www.meier-geinitz.de/sane/misc/artec_epluspro.txt"
+:interface "USB"
+:comment "Not supported. Vendor/product 0x05d8/0x4004. /proc/bus/usb/devices output is available. Chipset is GT6816. May work with the gt68xx backend after some work in the source code."
 
 :model "Ultima 2000 (0x4001)"
 :status :unsupported
@@ -144,6 +144,34 @@
 :mfg "Canon"
 :url "http://www.canon.com/"
 
+:model "CanoScan 3000"
+;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported, no details known. 1200x2400dpi USB2"
+
+:model "CanoScan 3000F"
+;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported, no details known. 1200x2400dpi USB2. Same as 3000, but with transparency adapter (?)"
+
+:model "CanoScan 5000F"
+;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported, no details known. 2400x4800 dpi USB2. With transparency adapter"
+:model "CanoScan 8000F"
+:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information. With transparency adapter."
+
+:model "CanoScan 9900F"
+;:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported, no details known. 3200x6400 dpi USB2. With transparency adapter"
 :model "CanoScan D646U"
 :url "http://www.meier-geinitz.de/sane/misc/canon-d646u.txt"
 :interface "USB"
@@ -168,12 +196,6 @@
 :status :unsupported
 :comment "Not supported. See link."
 
-:model "LiDE 50"
-:url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
-:interface "USB"
-:status :unsupported
-:comment "Probably not supported. Chipset probably Genesys. Some information is available."
-
 :model "CanoScan FB620U"
 :url "http://www.meier-geinitz.de/sane/misc/canon-fb620u.txt"
 :interface "USB"
@@ -185,12 +207,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
-
-:model "CanoScan 8000F"
-:url "http://www.meier-geinitz.de/sane/misc/canon-8000f.txt"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information."
 
 :model "FS4000"
 :url "http://www.meier-geinitz.de/sane/misc/canon-fs4000.txt"
@@ -204,6 +220,11 @@
 :status :unsupported
 :comment "Probably not supported. This scanner is used in a number of Canon portable printers (BJC-80 for one). No further information available."
 
+:model "CanoScan LiDE 50"
+:url "http://www.meier-geinitz.de/sane/misc/canon-lide-50.txt"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. Chipset probably Genesys. Some information is available."
 
 ;********************************************************************************************
 
@@ -304,11 +325,23 @@
 :status :unsupported
 :comment "Not supported by SANE. However, it's detected as mass storage device so just mounting it is reported to work. See link for devices data."
 
+:model "Photosmart 1200 Photo"
+:interface "USB"
+;:url "http://www.meier-geinitz.de/sane/misc/hp-photo-1000.txt"
+:status :unsupported
+:comment "Probably not supported by SANE. No details known. 10x15 cm. Maybe similar to Photo Scanner 1000?"
+
 :model "ScanJet 2300C"
 :interface "USB"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.txt"
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x03f0/0x0901. See link for devices output."
+
+:model "ScanJet 2400C"
+:interface "USB"
+;:url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-2300c.txt"
+:status :unsupported
+:comment "Probably unsupported. No details known. 1200x1200 dpi."
 
 :model "ScanJet 3500c"
 :url "http://www.meier-geinitz.de/sane/misc/hp-scanjet-3500c.txt"
@@ -488,6 +521,24 @@
 :url "http://www.mustek.de/"
 :url "http://www.mustek.com.tw/"
 
+:model "1800 A3 Pro-1"
+:interface "USB"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
+:status :unsupported
+:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
+
+:model "2400 M"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "BearPaw 1248CU"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
 :model "BearPaw 2400 TA Pro"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
 :interface "USB"
@@ -500,23 +551,17 @@
 :comment "Not supported. See link for some information."
 :status :unsupported
 
-:model "1800 A3 Pro-1"
-:interface "USB"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
-:status :unsupported
-:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
-
 :model "P 3600 A3 Pro"
 :interface "USB"
 :url "http://www.mostang.com/pipermail/sane-devel/2003-April/018456.html"
 :status :unsupported
 :comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
 
-:model "ScanExpress CardSmart"
-:interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:model "Paragon 600 II ED/EP"
+:interface "Parport"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
 :status :unsupported
-:comment "Probably unsupported. USB business card scanner. Maybe works as USB storage device?"
+:comment "Not supported. SCSI over Parport."
 
 :model "ScanExpress 600 USB"
 :interface "USB"
@@ -536,29 +581,17 @@
 :status :unsupported
 :comment "Unsupported. Vendor/Product 0x055f/0x0007."
 
-:model "BearPaw 1248CU"
-:interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:status :unsupported
-:comment "Probably unsupported. No details known."
-
-:model "2400 M"
-:interface "USB"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
-:status :unsupported
-:comment "Probably unsupported. No details known."
-
 :model "ScanExpress 12000 P"
 :url "http://penguin-breeder.org/?page=mustek_pp"
 :interface "Parport"
 :status :unsupported
 :comment "Not supported. Asic 1505/05."
 
-:model "Paragon 600 II ED/EP"
-:interface "Parport"
-:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html"
+:model "ScanExpress CardSmart"
+:interface "USB"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
 :status :unsupported
-:comment "Not supported. SCSI over Parport."
+:comment "Probably unsupported. USB business card scanner. Maybe works as USB storage device?"
 
 :model "ScanMagic 9636P"
 :interface "Parport"
@@ -590,11 +623,6 @@
 :status :unsupported
 :comment "Vendor/product: 0x07b3/0x0001. Same ids as early U12/UT12 models, maybe the same chip?"
 
-:model "OpticPro U12/UT12"
-:interface "USB"
-:status :unsupported
-:comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend. The older models seem to use a P98003 parallel port ASIC and a GenesysLogic parport-over USB brigde. The P98003 is also used by the P12 and PT12 models."
-
 :model "OpticPro A3U"
 :interface "USB"
 :status :unsupported
@@ -617,29 +645,21 @@
 :status :unsupported
 :comment "Uses the Genesys Logic GL646 chipset."
 
+:model "OpticPro U12/UT12"
+:interface "USB"
+:status :unsupported
+:comment "All devices using product ID 0x0001 are not supported, for others see Plustek backend. The older models seem to use a P98003 parallel port ASIC and a GenesysLogic parport-over USB brigde. The P98003 is also used by the P12 and PT12 models."
+
 :model "Spectra ADF"
 ;:url ""
 :interface "Proprietary"
 :status :unsupported
 :comment "Unsupported. Uses proprietary ISA card that also provides power and is labelled GPS-1 PAGE-A from Taiwan. Other labels on the scanner include ADF Color Scanner and SF600AS. Maybe the same as the IBM ADF Color Scanner?"
 
-
 ;********************************************************************************************
 
 :mfg "Primax"
 :url "http://www.primax.nl/"
-
-:model "Colorado Direct 9600"
-:url "http://home2.swipnet.se/~w-25069/pxscan.html"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
-
-:model "Colorado Direct 600"
-:url "http://home2.swipnet.se/~w-25069/pxscan.html"
-:interface "Parport"
-:status :unsupported
-:comment "Not supported. However, a stand-alone program is available."
 
 :model "Colorado 2400U"
 :url "http://viceo.orcon.net.nz/"
@@ -652,6 +672,18 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See Visioneer Primascan Onetouch 4800."
+
+:model "Colorado Direct 600"
+:url "http://home2.swipnet.se/~w-25069/pxscan.html"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
+
+:model "Colorado Direct 9600"
+:url "http://home2.swipnet.se/~w-25069/pxscan.html"
+:interface "Parport"
+:status :unsupported
+:comment "Not supported. However, a stand-alone program is available."
 
 :model "Slim-Line 1200"
 ;:url ""
@@ -692,16 +724,6 @@
 
 ;********************************************************************************************
 
-:mfg "Syscan"
-
-:model "TravelScan 460/464"
-:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017787.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. Some information is available. May work with the Plustek backend in future."
-
-;********************************************************************************************
-
 :mfg "Spot Technology"
 :comment "Spot seems have gone out of business."
 
@@ -722,6 +744,16 @@
 :interface "proprietary"
 :status :unsupported
 :comment "Not supported. Work on a backend has started, see link for more information."
+
+;********************************************************************************************
+
+:mfg "Syscan"
+
+:model "TravelScan 460/464"
+:url "http://www.mostang.com/pipermail/sane-devel/2003-February/017787.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. Some information is available. May work with the Plustek backend in future."
 
 ;********************************************************************************************
 

@@ -1,3 +1,13 @@
+2000-11-24  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* AUTHORS: Removed authors of xscanimage and xcam (now in 
+	  sane-frontends).
+	* README.unixware2, README.unixware7: X-frontends are no longer
+	  included. Removed comments and sourcecode of "rev" (not supported/used
+	  in backends/Makefile anymore).
+	* sane.lsm: X-frontends are no longer included. Used blanks instead of
+	  tabs.
+	
 2000-11-24  Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 
 	* changed configure.in, configure frontend/Makefile.in

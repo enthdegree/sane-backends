@@ -1,3 +1,12 @@
+2000-11-13  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* Makefile.in: Install sane.h and saneopts.h only.
+	* PROJECTS: Removed sane-pie.
+	* TODO: Removed sane-pie. Added possible portability problem for
+	  artec. Removed entry about installed headers. Added entry about
+	  gettext and libdl.
+	* doc/.cvsignore: Added sane-pie.5.
+
 2000-11-13  Simon Munton <simon@munton.demon.co.uk>
 
 	* backend/pie.c backend/pie-scsidef.c backend/pie.conf backend/pie.desc

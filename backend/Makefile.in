@@ -72,7 +72,7 @@ CONFIGS = $(addsuffix .conf,$(ALL_BACKENDS)) saned.conf
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_config.lo
 
 # With libtool-1.0, we have to mention each library object explicitly... ;-(
-LIBLIB_FUNCS = $(basename @LIBOBJS@ @ALLOCA@ getopt.o getopt1.o md5.o)
+LIBLIB_FUNCS = $(basename @LIBOBJS@ @ALLOCA@)
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
 DISTFILES = Makefile.in abaton.c abaton.conf abaton.desc abaton.h \

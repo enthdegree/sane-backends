@@ -52,7 +52,7 @@
 :interface "USB"
 :status :complete
 
-:model Perfection 1200S"
+:model "Perfection 1200S"
 :interface "SCSI"
 :status :complete
 
@@ -82,7 +82,8 @@
 
 :model "Perfection 1260 PHOTO"
 :interface "USB"
-:status :complete
+:status :basic
+:comment "The transparency unit doesn't work currently."
 
 :model "Perfection 1640SU"
 :interface "SCSI USB"
@@ -103,6 +104,11 @@
 :model "Perfection 1660 PHOTO"
 :interface "USB"
 :status :complete
+
+:model "Perfection 1670"
+:interface "USB"
+:status :unsupported
+:comment "Is not and will not be supported by the epkowa backend. May be supported by the SnapScan backend later."
 
 :model "Perfection 2400 PHOTO"
 :interface "USB"

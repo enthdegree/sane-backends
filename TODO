@@ -1,4 +1,4 @@
-TODO (2002-09-16)
+TODO (2002-09-18)
 
 ******** todo ********
 
@@ -101,9 +101,6 @@ doc
       locking issues.
 
   * desc files:
-    - Make sure, that the manufacturer (and model) names use the same spelling:
-      - hpsj5s (Hewlett-Packard instead of HP)
-
     - Remove unsupported scanners from the list or at least mark them with
       ":status :unsupported":
       - mustek_pp

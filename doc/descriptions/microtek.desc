@@ -74,6 +74,10 @@
   :model "StudioScan IIsi"
     :interface "SCSI"
     :status :good
+  :model "Studiostar"
+    :interface "SCSI"
+    :status :minimal
+    :comment "Is detected but scans are very dark"
   :model "DuoScan"
     :interface "SCSI"
     :status :basic

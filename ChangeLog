@@ -6,6 +6,7 @@
 	  doc/gt68xx/gt68xx.CHANGES: Plustek U16B: Added 
 	  GT68XX_FLAG_SE_2400. Fixed color order.Increased debug 
 	  level for setup_scan. Fixed CCD ocarse calibration.
+	* doc/descriptions/microtek.desc: Added Agfa Studiostar.
 
 2004-03-27  Peter Kirchgessner <peter@kirchgessner.net>
 

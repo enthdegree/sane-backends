@@ -1,10 +1,38 @@
-2002-01-08
+2002-01-10
 
-When you start writing a backend, please contact the SANE mailing list in
-order to add your backend to the PROJECTS file.
+Here are a few rules and tips that should help writing a
+SANE-conformant backend and including it into the SANE package:
 
-Here are a few rules that should help writing a SANE-conformant
-backend and including it into the SANE package:
+
+GETTING STARTED
+---------------
+
+* You will need information about the protocol the scanner (or other image
+  application device) is using. The easiest way is to ask the manufacturer
+  about it. You should mention that the code will be open-source, however.
+
+* Read the SANE standard.
+
+* One approach is to write a stand-alone scanning program first. Debugging
+  this program is usually easier than using the SANE libraries. However, keep
+  in mind what you learned from the SANE standard.
+
+* Once your program works basically, insert its functions into a basically
+  empty SANE backend. You can get one by removing everything but the SANE
+  includes and SANE API function definitions from an existing backend (e.g.
+  pnm.c).
+
+* When you start writing code, please contact the SANE mailing list in
+  order to add your backend to the PROJECTS file.
+
+* Keep other users informed about what you did and want to do. This way no
+  work is done twice and you may get volunteers for coding or testing.
+  Set up a website or at least write to sane-devel.
+
+* When you have a working backend but you don't want to have it included
+  in the SANE distribution yet, at least the .desc file can be included
+  (see below for details). So people will find a link to your backend at
+  the SANE webpage.
 
 
 PROGRAMMING
@@ -29,6 +57,8 @@ PROGRAMMING
   separated by white space.  For example,
   "this is an awfully long string" can be written as "this is an "
   "awfully long string".
+
+* Use only ANSI C for your backend.
 
 * Please do not depend on compiler specific features or, if you do, make
   the dependency conditional so other compilers will still be able to
@@ -106,6 +136,12 @@ PROGRAMMING
 * Don't use exit() in your backend. You will exit the whole program, not only
   your backend.
 
+* Please try to avoid compilation warnings. At least with "--disable-warnings"
+  there shouldn't be warnings when compiling backends. It's not necessary to
+  fix every "unused parameter" warning but take care that no warnings pointing
+  to really existing problems or abiguities are missed. Some programming
+  techniques generating warnings on gcc may lead to errors on other systems.
+
 * To support translation of SANE options, please mark the descriptions (desc)
   and title of options with SANE_I18N(). See po/README for details.
 
@@ -124,6 +160,10 @@ TESTING
   scanning---you can use one and the same machine to test a backend via saned
   (just be sure to enable the "net" backend in dll.conf and follow the
   steps described in saned(1)).
+
+* Please test on every available platform/os. Even if no scanner is attached
+  to this system, test compilation and running scanimage. If you don't have
+  access to other platforms, ask sane-devel.
 
 * Please make sure that all global symbols exported from a SANE
   backend start with the prefix "sane" or "sanei".  You can
@@ -165,6 +205,8 @@ DOCUMENTATION
   in this directory. If you only have a manual page a subdirectory isn't
   necessary.
 
+* Please keep your manpages and .desc files up-to-date especially regarding
+  version numbers.
 
 INCLUDING INTO CVS
 ------------------

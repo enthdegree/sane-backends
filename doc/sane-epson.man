@@ -45,6 +45,10 @@ Perfection 1240              USB, SCSI
 .br
 Perfection 1640              USB, SCSI
 .br
+Perfection 1650              USB
+.br
+Perfection 2450              USB
+.br
 Expression 636 / GT-9500     SCSI
 .br
 Expression 1600              USB, SCSI, IEEE-1394

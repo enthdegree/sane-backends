@@ -1,6 +1,8 @@
 2002-07-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/sp15c.desc: Added missing slash in URL.
+	* doc/descriptions/fujitsu.desc: Changed status to :beta. Added
+	  some URLs.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

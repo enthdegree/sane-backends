@@ -1,3 +1,14 @@
+2002-07-25  Frank Zago  <fzago at austin dot rr dot com>
+
+	* doc/sane.man doc/teco/teco3.txt doc/.cvsignore
+	  doc/sane-teco3.man doc/Makefile.in
+	  doc/descriptions-external/teco3.desc doc/descriptions/teco3.desc
+	  backend/teco3.c backend/teco3.h backend/teco3.conf
+	  backend/Makefile.in sane-backends/TODO sane-backends/AUTHORS
+	  backend/dll.conf: teco3 integration
+	* sane-backends/Makefile.in: added an etags rule to create an
+	  emacs tag file
+
 2002-07-25  Matthew Duggan <stauff1@users.sourceforge.net>
 
 	* backend/canon_pp.c: Now uses mm instead of pixel measurements, better
@@ -8,7 +19,7 @@
 
 2002-07-24  Frank Zago  <fzago at austin dot rr dot com>
 
-	* Added a SUBMITTING CHECKLIST
+	* doc/backend-writing.txt: Added a SUBMITTING CHECKLIST section.
 
 2002-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

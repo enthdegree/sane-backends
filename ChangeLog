@@ -1,3 +1,7 @@
+2003-06-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Removed saned issues.
+
 2003-06-05  Jochen Eisinger <jochen.eisinger@gmx.de>
 
 	* include/sane/sanei_pa4s2.h, sanei/sanei_pa4s2.c: New sanei_pa4s2

@@ -1,4 +1,4 @@
-TODO (2003-05-22)
+TODO (2003-06-06)
 
 ******** todo ********
 
@@ -48,7 +48,7 @@ backends
       type mismatch; empty declarations), see sane-devel.
 
   * Check if sp15c backend (Fujitsu ScanPartner 15C) can be included in
-    fujitsu or avision backends. Latest feedback point to the avision backend.
+    the avision backend.
 
   * artec
     - Fix email address of Chris Pinkham. cpinkham@infi.net bounces.
@@ -133,7 +133,6 @@ sanei
     - some scanners seem to provide more than one bulk-in endpoint(?) 
 
 
-
 platform-specific
 -----------------
 
@@ -163,18 +162,17 @@ misc
     a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
     topic.
 
-  * In configure, print a list of backends that's build.
+  * In configure, print a list of backends that are build.
 
   * There is a misterious problem with string list options that occurs
     with (at least) the epson backend, saned and xsane. See
     http://www.mostang.com/pipermail/sane-devel/2003-May/018755.html.
 
-  * Remove test for poll in configure.
-
-  * use u_int32_t instead of uint32_t in saned.c.
 
 
 ******** done ********
+* Remove test for poll in configure.
+* use u_int32_t instead of uint32_t in saned.c.
 * plustek:  check status of Umax 3450 USB scanner (same as 3400?)
 * avision: mention that hpusbscsi is no longer necessary.
 * avision: don't crash if there is no config file.

@@ -12,7 +12,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.7\n"
-"POT-Creation-Date: 2003-01-09 00:27+0100\n"
+"POT-Creation-Date: 2003-01-09 00:37+0100\n"
 "PO-Revision-Date: 2002-02-08 20:00-0600\n"
 "Last-Translator: Frank Zago <fzago at austin dot rr dot com>\n"
 "Language-Team: \n"

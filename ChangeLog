@@ -23,6 +23,9 @@
 	  po/umax.fr.po po/umax_pp.de.po po/umax_pp.fr.po po/umax_pp.ru.po
 	  po/umax.ru.po: Remove per-backend translations. The translations
 	  are now in the per-language sane-backends.??.po files.
+	* po/saneopts.de.po po/saneopts.es.po po/saneopts.fr.po po/saneopts.ru.po
+	  po/saneopts.sv.po: Remove global saneopts translations. The translations
+	  are now in the per-language sane-backends.??.po files.
 
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 

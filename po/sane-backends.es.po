@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: saneopts.es\n"
-"POT-Creation-Date: 2003-01-09 00:27+0100\n"
+"POT-Creation-Date: 2003-01-09 00:37+0100\n"
 "PO-Revision-Date: 2002-06-06 22:24GMT\n"
 "Last-Translator: Gustavo D. Vranjes <gvranjes@abaconet.com.ar>\n"
 "Language-Team: Castellano <es@li.org>\n"

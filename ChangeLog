@@ -19,6 +19,13 @@
 	* backend/umax: bugfix for DOR mode, sane-umax-build-43
 	* doc/umax/umax.CHANGES updated
 
+2004-02-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc: Added basic support for Plustek
+	  OpticSlim 2400. Fixed calibration debug output.
+
 2004-02-07  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.h, backend/epson_usb.h: Increase timeout for lamp warmup

@@ -1,5 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0-54 (2004-02-10)
+
+* Added basic support for Plustek OpticSlim 2400. Thanks to Radoslaw Grzanka and
+  Detlef Gausepohl for providing details and testing.
+* Fixed calibration debug output.
+
 V 1.0-53 (2004-01-19)
 
 * Debug options are only enabled if the debug level is 1 and higher. This may

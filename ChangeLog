@@ -2,6 +2,6 @@
 
 	* configure configure.in: Warnings enabled again. Added -cvs to
 	  version.
-
+	* Makefile.in: Added Changelog-1.0.14 to DISTFILES.
 
 Older entries can be found in ChangeLog-1.0.14.

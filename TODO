@@ -1,4 +1,4 @@
-TODO (2000-12-07)
+TODO (2000-12-17)
 
 ******** todo ********
 
@@ -28,7 +28,10 @@ backends
 
   * check net/saned
      - net backend segfaults sometimes when connected to localhost. Enabling
-       debug output sometimes prevents segfaults.
+       debug output sometimes prevents segfaults. Cause of the problem:
+       Copying SANE_TYPE_STRINGs up to their maximum size in 
+       SANE_Option_Descriptor (strings may be shorter then size).
+     - sometimes saned+net freezes right after a scan
      - don't just ignore the byte-order for the image data (needed to
        support depths > 8 bits/channel)
 

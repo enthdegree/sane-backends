@@ -1,3 +1,5 @@
+---- BACKEND FREEZE FOR SANE 1.0.13 ---
+
 2003-10-24  Peter Kirchgessner <peter@kirchgessner.net>
 	* backend/hp.c, backend/hp-handle.c, backend/Makefile.in:
 	  second check-in: use new sanei_thread-interface for hp-backend

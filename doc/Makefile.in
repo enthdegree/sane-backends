@@ -30,7 +30,7 @@ LN_S = @LN_S@
 
 @SET_MAKE@
 
-SECT1	= saned.1 scanimage.1 xscanimage.1 xcam.1
+SECT1	= saned.1 scanimage.1
 SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-dc25.5 sane-dmc.5 sane-epson.5 sane-hp.5 sane-microtek.5 \
           sane-microtek2.5 sane-mustek.5 sane-nec.5 sane-net.5 sane-pie.5 \

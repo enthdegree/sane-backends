@@ -1,4 +1,4 @@
-.TH sane 7 "2 Apr 2002"
+.TH sane 7 "7 Apr 2002"
 .IX sane
 
 .SH NAME
@@ -152,6 +152,10 @@ scanners. See sane-bh(5) for details.
 .B canon
 The canon backend supports the CanoScan 300, CanoScan 600, and CanoScan
 2700F SCSI flatbed scanners. See sane-canon(5) for details.
+.TP
+.B canon630u
+The canon630u backend supports the CanoScan 630u and 636u USB scanners.  See
+sane-canon630u(5) for details.
 .TP
 .B canon_pp
 The canon_pp backend supports the CanoScan FB330P, FB630P, N340P and N640P

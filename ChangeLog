@@ -1,3 +1,9 @@
+2004-05-30  Peter Fales <peter@fales-lorenz.net>
+	* acinclude.m4, aclocal.m4, configure.in, configure
+	In addition to using pkg-config to find the gphoto2 library flags,
+	we should check to see whether it's actually possible to link
+	a program using those flags.
+
 2004-06-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/gt68xx/gt68xx.TODO: New file. Lots of bugs and missing

@@ -377,8 +377,13 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 				CPPFLAGS="${CPPFLAGS} `pkg-config --cflags libgphoto2`"
 				GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
 				SANE_EXTRACT_LDFLAGS(LDFLAGS, GPHOTO2_LIBS)
+
+			 	saved_LIBS="${LIBS}"
 				LIBS="${LIBS} ${GPHOTO2_LIBS}"
-				HAVE_GPHOTO2=true
+				# Make sure we an really use the library
+				AC_CHECK_FUNCS(gp_camera_init,HAVE_GPHOTO2=true, 
+					[ LIBS="${saved_LIBS}"
+					HAVE_GPHOTO2=false ])
 			else
 				HAVE_GPHOTO2=false
 			fi

@@ -312,7 +312,7 @@ else
 
   if test "${HAVE_GPHOTO2}" != "true" \
         -o "${sane_cv_use_libjpeg}" != "yes"; then
-    echo "*** disabling GPHOTO2 backend (not requested, or failed to find gphoto2-config or JPEG library) (${HAVE_GPHOTO2})"
+    echo "*** disabling GPHOTO2 backend (not requested, or failed to find required libraries)"
   else
     BACKENDS="${BACKENDS} gphoto2"
   fi

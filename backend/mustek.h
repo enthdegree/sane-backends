@@ -124,6 +124,12 @@
 #define MUSTEK_SCSI_LOOKUP_TABLE	0x55
 
 /* Convenience macros */
+#if defined(MIN)
+#undef MIN
+#endif
+#if defined(MAX)
+#undef MAX
+#endif
 #define MIN(a,b)	((a) < (b) ? (a) : (b))
 #define MAX(a,b)	((a) > (b) ? (a) : (b))
 /* Copy values to memory ('L' = little endian, 'B' = big endian */

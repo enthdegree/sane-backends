@@ -1,3 +1,8 @@
+2002-10-24  Peter Fales  <peter@fales-lorenz.net>
+
+	* backend/gphoto2.c: Improve checks for values specified in config
+	  file and generate errors when invalid values are specified.
+
 2002-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Warnings enabled again. Used extra version

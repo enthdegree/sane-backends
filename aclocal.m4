@@ -95,13 +95,12 @@ AC_DEFUN(SANE_CHECK_PTAL,
 ])
 
 #
-# Checks for jpeg library >= v6B (61), needed for DC210 backend.
-# Henning Meier Geinitz
+# Checks for jpeg library >= v6B (61), needed for DC210 and DC240 backends.
 AC_DEFUN(SANE_CHECK_JPEG,
 [
-  AC_CHECK_LIB(jpeg,jpeg_start_decompress,
+  AC_CHECK_LIB(jpeg,jpeg_start_decompress, 
   [
-    AC_CHECK_HEADER(jconfig.h,
+    AC_CHECK_HEADER(jconfig.h, 
     [
       AC_MSG_CHECKING([for jpeglib - version >= 61 (6a)])
       AC_EGREP_CPP(sane_correct_jpeg_lib_version_found,
@@ -110,7 +109,7 @@ AC_DEFUN(SANE_CHECK_JPEG,
         #if JPEG_LIB_VERSION >= 61
           sane_correct_jpeg_lib_version_found
         #endif
-      ],[sane_cv_use_libjpeg="yes"; LIBS="${LIBS} -ljpeg";
+      ],[sane_cv_use_libjpeg="yes"; LIBS="${LIBS} -ljpeg"; 
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)

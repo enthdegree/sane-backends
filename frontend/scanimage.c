@@ -1420,7 +1420,7 @@ main (int argc, char **argv)
 	      printf ("\nNo scanners were identified. If you were expecting "
 		      "something different,\ncheck that the scanner is plugged "
 		      "in, turned on and detected by the\nsane-find-scanner tool "
-		      "(if appropriate). Please read the documentation which came\n"
+		      "(if appropriate). Please read the documentation\nwhich came "
 		      "with this software (README, FAQ, manpages).\n");
 	    if (defdevname)
 	      printf ("default device is `%s'\n", defdevname);

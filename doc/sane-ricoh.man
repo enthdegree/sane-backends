@@ -27,10 +27,8 @@ Where
 is the path-name for the special device that corresponds to a
 SCSI scanner. The special device name must be a generic SCSI device or a
 symlink to such a device.  The program 
-.IR find-scanner 
-helps to find out the correct device. It can be found in the
-.IR tools
-directory of the SANE distribution. Under Linux, such a device name
+.IR sane-find-scanner 
+helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sga
 or

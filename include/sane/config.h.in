@@ -58,6 +58,9 @@
 /* Define to `long' if <sys/types.h> doesn't define.  */
 #undef ssize_t
 
+/* Define socklen_t as `int' if necessary.  */
+#undef socklen_t
+
 /* Define to `int' if <sys/types.h> doesn't define.  */
 #undef pid_t
 

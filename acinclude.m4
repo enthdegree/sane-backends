@@ -83,7 +83,7 @@ AC_DEFUN(SANE_CHECK_PTAL,
 ])
 
 #
-# Checks for jpeg library >= v6B (61), needed for DC210 backend.
+# Checks for jpeg library >= v6B (61), needed for DC210 and DC240 backends.
 AC_DEFUN(SANE_CHECK_JPEG,
 [
   AC_CHECK_LIB(jpeg,jpeg_start_decompress, 

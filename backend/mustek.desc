@@ -9,8 +9,8 @@
 ;
 
 :backend "mustek"		; name of backend
-:version "1.0-105"		; version of backend
-:status :beta			; :alpha, :beta, :stable, :new
+:version "1.0-106"		; version of backend
+:status :stable			; :alpha, :beta, :stable, :new
 :manpage "sane-mustek"		; name of manpage (if it exists)
 :url "http://hmg.home.pages.de/sane/"
 

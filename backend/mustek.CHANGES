@@ -1,5 +1,20 @@
 CHANGES for the SANE Mustek backend
 
+2001-04-08
+  * Backend status is "stable" now. Hopefully this doesn't mean that new
+    bugs show up now :-)
+
+2001-04-01
+  * Added detection of the Pro models TA (at least the 1200SP Pro).
+  * Added warning about real (not relabeled) Trust scanners.
+
+2001-03-31
+  * Removed comment about brightness and contrast in the description strings
+    because you can't read them anyway in color mode (at least with xsane).
+
+2001-03-31
+  * Released Mustek backend 1.0-105
+
 2001-03-31
   * Removed compilation warning in gamma_correction.
   * Fixed handling of tlx and brx when scanning with ADF (bug found by

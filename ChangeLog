@@ -1,3 +1,8 @@
+2001-05-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/backend-writing.txt: Added entries about SANE_I18N() and
+	  documentation directories.
+
 2001-05-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS README: Updated concerning umax_pp.

@@ -95,6 +95,10 @@
 #define BACKEND_NAME	gphoto2
 #include "sane/sanei_backend.h"
 
+/* PSF 1/12/02 - gphoto2.h does a #include of config.h.  We don't have
+ * config.h by that name (we call it sane/config.h), so the #undef of 
+ * HAVE_CONFIG_H will cause it to skip that.
+ */
 #undef HAVE_CONFIG_H
 #include "gphoto2.h"
 
@@ -438,8 +442,7 @@ init_gphoto2 (void)
 
   if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
-      DBG (0, "Camera does not support image capture\n");
-      return SANE_STATUS_INVAL;
+      DBG (0, "warning: does not support image capture\n");
     }
 
   for (n = 0; abilities.speed[n]; n++)

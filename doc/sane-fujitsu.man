@@ -1,57 +1,158 @@
-.TH sane-fujitsu 5 "10 Oct 2001"
+.TH sane-fujitsu 5 "17 Apr 2002"
 .IX sane-fujitsu
 .IX sane-fcpa
 .IX sane-m3096g
-.IX sane-sp15c
 
 .SH NAME
-sane-m3096g, sane-sp15c - SANE backends for Fujitsu flatbed scanners
+sane-fujitsu - SANE backend for Fujitsu flatbed scanners
 
 .SH DESCRIPTION
 The
-.B sane-m3096g
-and
-.B sane-sp15c
-libraries implement SANE (Scanner Access Now Easy) backends which
-provide access to Fujitsu flatbed scanners.
+.B sane-fujitsu
+library implements a SANE (Scanner Access Now Easy) backend which
+provides access to Fujitsu flatbed scanners.
 At present, the following
-scanners are known to work with these backends:
+scanners are known to work with this backend:
 .PP
 .RS
-Vendor:  Model:           Rev:
+Vendor:  Model:           Rev:  
 .br
 -------- ---------------- -----
 .br
 FUJITSU  M3096Gm          02  
 .br
-FCPA     ScanPartner 15C  1.01
+FUJITSU  M3093GX            
+.br
+FUJITSU  M3093GD            
+.br
+FUJITSU  fi-4340C           
+.br
+FUJITSU  M3091DCd         BF21
 .RE
 .P
-The M3096G driver supports
-lineart (1-bit), halftone (1-bit),
-and grayscale (8-bit) scanning.
+The driver supports lineart, halftone, grayscale, and color
+scanning depending on hardware capabiliites.
 
-The ScanPartner 15C driver supports
-lineart (1-bit), halftone (1-bit),
-grayscale (4-bit and 8-bit),
-and color (3 x 8-bit) scanning.
+The "Fujitsu" driver is a first attempt at integrating support
+for all Fujitsu scanners - previously available as different
+single drivers - in one driver. At present, the M3091DCd
+is working (lineart, halftone, 8-bit grayscale and 24-bit color,
+simplex and duplex), and the driver should also support the
+M3096 as the M3096g driver code has been incorporated.
+This driver supersedes the old "m3091"/"fujitsu" drivers and
+the old "m3096g" driver.
 
 Other scanners in these families may work.
 The ScanPartner 15C seems to be a repackaging
-of the ScanPartner 600C.
+of the ScanPartner 600C, but I don't know if it works.
+Look at the sp15c backend for this scanner.
 Perusal of the M3096GX/M3093GX/M3093DG manual
 suggests the M3096G driver offers access to a
 subset of the new scanners.
 People are encouraged to try these driver with the other scanners
 and to contact the author with test results.
 
+.SH DUPLEX MODE
+The M3091 driver supports duplex scanning. To the front-end, a duplex
+scan looks very much like scanning two separate pages from the document
+feeder, i.e. the SANE front-end receives two images instead of one.
+Front-ends which are not capable of dealing with that - e.g. the
+command-line tool scanimage - cannot be used for duplex scanning.
+If you want to do duplex scans from the command line, get Tom 
+Martone's scanadf program from 
+http://www.martoneconsulting.com/sane-scanadf.html.
+
 .SH CONFIGURATION
 A modest effort has been made to expose the standard options to the API.
 This allows frontends such as xscanimage to set scanning region,
 resolution, bit-depth (and color), and enable the automatic document feeder.
+.br
+The "Fujitsu" driver supports the following options:
+.br
+mode m
+.RS
+.I m 
+may be one of "Color", "Lineart", "Halftone", or "Gray", dependent on the
+scanner model. It is advisable to specify this option first when using
+command line tools, as the validity of some of the other options depends
+on the mode setting.
+.RE
+.PP
+x, y
+.RS
+Scan width and height
+.RE
+.PP
+pagewidth, pageheight
+.RS
+Page size; when using the ADF, the driver will assume that a page of the
+given width is centered
+.RE
+.PP
+resolution, y-resolution
+.RS
+Controls scan resolution. Permissible values dependent on model and scan mode;
+setting --resolution also sets --y-resolution but not vice versa. This makes
+it possible to set the 3091's maximum resolution of 300x600dpi.
+.RE
+.PP
+brightness b
+.RS
+Only supported for M3096
+.RE
+.PP
+treshold t
+.RS
+Only supported for M3096
+.RE
+.PP
+duplex d
+.RS
+.I d
+may be "front", "back", or "both" and denotes which sides of the page
+are to be scanned (duplex scanner only for example 3091, 3093Gd).
+.RE
+.PP
+lampcolor c
+.RS
+.I c
+may be "red", "green", "blue", or "default" - the lamp color to be used
+when doing graysacale or b/w scans on the M3091.
+.RE
+.PP
+blueoffset, greenoffset
+.RS
+Color justification options for the M3091; anything other than +1/-1 will
+probably distort the image. Should be left alone unless your scanner is
+buggy.
+.RE
+.PP
+swapfile
+.RS
+boolean option for the M3091. Only affects duplex scans. If set, a swap
+file will be used for storing the rear side of a document as it is scanned;
+otherwise the whole page will be kept in memory.
+.RE
+
+.br
+
+You may specify the line "forceModel=xxx"
+in the configuration file to make the driver treat your scanner as an
+"xxx" scanner (currently supported: 3096, 3091). Use this if you have
+another scanner that is not automatically detected as being compatible.
+
+.br
+
+The only other configuration option supported is "scsi-buf-size=xxx",
+allowing you to set the SCSI buffer size to something other than the
+compiled-in default. Especially with the M3091 scanner, some users
+had the problem that the scanner would "hang" mid-page, and this can
+often be alleviated by using "scsi-buf-size=32768".
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7),
+sane\-scsi(5),
+sane\-sp15c(5)
 .br
 Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
 .br
@@ -60,31 +161,18 @@ Fujitsu M3096G OEM Manual, part number 50FH5028E-05
 Fujitsu M3096GX/M3093GX/M3093DG OEM Manual, part number C150-E015...03
 
 .SH AUTHOR
-Randolph Bentson
+3096/SP15 drivers: Randolph Bentson
 <bentson@holmsjoen.com>,
-and Oliver Schirrmeister <oschirr@abm.de>,
 with credit to the unnamed author of the coolscan driver
+.br
+3091 driver: Frederik Ramm <frederik@remote.org>
+3093GD,fi-4340C, ipc and cmp options: Oliver Schirrmeister <oschirr@abm.de>
 
 .SH LIMITATIONS
-Testing limited to a Linux 2.2.5 kernel
-.br
-Can't quite get the scan page/minute performance in ADF modes.
-This may be due to limited system buffer size.
+Only tested with Linux 2.4 
 
 .SH BUGS
 I'm sure there are plenty, and not too well hidden,
 but I haven't seen them yet.
-.br
-Both scanners claim to have separate control
-of resolution in X and Y directions.
-I confess I haven't tested this yet.
-I have found that xsane doesn't even display this capability.
-.br
-Threshold settings on the SP15C don't seem to
-affect the results of lineart mode scans.
-.br
-It might be possible to merge these two drivers without much effort
-since the SP15C driver was derived from the M3096G driver.
-They were split so as to keep the second driver development from breaking
-the working first driver.
-Watch this space for changes.
+I don't know if the ScanPartner 15C still works, because I'm not able
+to test it.

@@ -65,7 +65,7 @@ static void DBG(int level, const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	vfprintf(stderr, format, args);
+	if (level < 50) vfprintf(stderr, format, args);
 	va_end(args);
 }
 #else
@@ -88,12 +88,8 @@ static void DBG(int level, const char *format, ...)
    */
 static int ieee_mode = M1284_NIBBLE;
 
-static const int verbose = 0; 
-static const int dump_packets = 0;
-/* This is just for the time being. We need a way to turn on 
-   and off status messages so that wait loops involving sending 
-   commands don't obscure the program's status log. */
-
+/* For super-verbose debugging */
+/* #define DUMP_PACKETS 0; */
 
 /* Unknown command 1 */
 static unsigned char command_1[10] = { 0xec, 0x20, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -176,22 +172,21 @@ int sanei_canon_pp_wake_scanner(struct parport *port)
 
 int sanei_canon_pp_write(struct parport *port, int length, unsigned char *data)
 {
+
+#ifdef DUMP_PACKETS
 	ssize_t count;
 
-	if (dump_packets)
+	DBG(10,"Sent: ");
+	for (count = 0; count < length; count++)
 	{
-		DBG(10,"Sent: ");
-		for (count = 0; count < length; count++)
-		{
-			DBG(10,"%02x ", data[count]);
-			if (count % 20 == 19)
-				DBG(10,"\n      ");
-		}	
-		if (count % 20 != 19) DBG(10,"\n");
-	}
+		DBG(10,"%02x ", data[count]);
+		if (count % 20 == 19)
+			DBG(10,"\n      ");
+	}	
+	if (count % 20 != 19) DBG(10,"\n");
+#endif
 
-	if (verbose) 
-		DBG(10, "NEW Send Command (length %i):\n", length);
+	DBG(100, "NEW Send Command (length %i):\n", length);
 	if (ieee_mode == M1284_ECP)
 		ieee_negotiation(port, ieee_mode);
 
@@ -216,8 +211,7 @@ int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 {
 	int count, offset;
 
-	if (verbose)
-		DBG(10, "NEW read_data (%i bytes):\n", length);
+	DBG(200, "NEW read_data (%i bytes):\n", length);
 	ieee_negotiation(port, ieee_mode);
 
 	/* This is special; Nibble mode needs a little 
@@ -282,25 +276,24 @@ int sanei_canon_pp_read(struct parport *port, int length, unsigned char *data)
 
 	}
 
-	if (dump_packets)
+#ifdef DUMP_PACKETS
+	if (length <= 60)
 	{
-		if (length <= 60)
+		DBG(10,"Read: ");
+		for (count = 0; count < length; count++)
 		{
-			DBG(10,"Read: ");
-			for (count = 0; count < length; count++)
-			{
-				DBG(10,"%02x ", data[count]);
-				if (count % 20 == 19)
-					DBG(10,"\n      ");
-			}	
+			DBG(10,"%02x ", data[count]);
+			if (count % 20 == 19)
+				DBG(10,"\n      ");
+		}	
 
-			if (count % 20 != 19) DBG(10,"\n");
+		if (count % 20 != 19) DBG(10,"\n");
 		}
-		else
-		{
-			DBG(10,"Read: %i bytes\n", length);
-		}			
-	}
+	else
+	{
+		DBG(10,"Read: %i bytes\n", length);
+	}			
+#endif
 
 	scanner_endtransfer(port);	
 	return 0;
@@ -317,13 +310,11 @@ static int ieee_negotiation(struct parport *port, int e)
 {
 	int temp;
 
-	if (verbose)
-		DBG(10, "IEEE Negotiation (mode %i)\n", e);
+	DBG(200, "IEEE Negotiation (mode %i)\n", e);
 
 	temp = ieee1284_negotiate(port, e);
 
-	if (verbose)
-		DBG(10, "result: %i)\n", temp);
+	DBG(200, "(result: %i)\n", temp);
 
 	return temp;
 }
@@ -332,8 +323,7 @@ static int ieee_transfer(struct parport *port, int length, unsigned char *data)
 {
 	int result = 0;
 
-	if (verbose)
-		DBG(10, "IEEE transfer (%i bytes)\n", length);
+	DBG(200, "IEEE transfer (%i bytes)\n", length);
 
 	switch (ieee_mode) 
 	{
@@ -355,8 +345,7 @@ int sanei_canon_pp_check_status(struct parport *port)
 	int status;
 	unsigned char data[2];
 
-	if (verbose)
-		DBG(10, "* Check Status:\n");
+	DBG(200, "* Check Status:\n");
 
 	if (sanei_canon_pp_read(port, 2, data))
 		return -1;
@@ -366,15 +355,15 @@ int sanei_canon_pp_check_status(struct parport *port)
 	switch(status)
 	{
 		case 0x0606:
-			if (verbose) DBG(10, "Ready - 0x0606\n");
+			DBG(200, "Ready - 0x0606\n");
 			return 0; 
 			break;
 		case 0x1414:
-			if (verbose) DBG(10, "Busy - 0x1414\n"); 
+			DBG(200, "Busy - 0x1414\n"); 
 			return 1;
 			break;
 		case 0x0805:
-			if (verbose) DBG(10, "Resetting - 0x0805\n"); 
+			DBG(200, "Resetting - 0x0805\n"); 
 			return 3;
 			break;
 		case 0x1515:
@@ -390,8 +379,7 @@ int sanei_canon_pp_check_status(struct parport *port)
 /* This is a subfunction of scanner_readdata() */
 static int scanner_endtransfer(struct parport *port)
 {
-	if (verbose)
-		DBG(40, ">> IEEE Terminate\n");
+	DBG(200, ">> IEEE Terminate\n");
 	ieee1284_terminate(port);
 	return 0;
 }

@@ -58,6 +58,7 @@
 #define MM_PER_IN 25.4
 
 #include  <string.h>
+#include  <math.h>
 #include  <unistd.h>
 #include  <sys/stat.h>
 #include  <sys/types.h>
@@ -405,9 +406,9 @@ sane_get_devices (const SANE_Device ***dl, SANE_Bool local)
 		*dl = devlist;
 		return SANE_STATUS_GOOD;
 	}
-	devlist = malloc ((num_devices + 1) * sizeof (devlist[0]));
+	devlist = malloc((num_devices + 1) * sizeof(*devlist));
 	if (devlist == NULL)
-		return (SANE_STATUS_NO_MEM);
+		return SANE_STATUS_NO_MEM;
 
 	i = 0;
 	for (dev = first_dev; dev != NULL; dev = dev->next)
@@ -576,28 +577,28 @@ sane_open (SANE_String_Const name, SANE_Handle *h)
 
 
 	/* TL-X */
-	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
+	if(!(tmp_range = malloc(sizeof(*tmp_range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 0;
 	(*tmp_range).max = 215;
 	cs->opt[OPT_TL_X].constraint.range = tmp_range;
 
 	/* TL-Y */
-	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
+	if(!(tmp_range = malloc(sizeof(*tmp_range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 0;
 	(*tmp_range).max = 296;
 	cs->opt[OPT_TL_Y].constraint.range = tmp_range;
 
 	/* BR-X */
-	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
+	if(!(tmp_range = malloc(sizeof(*tmp_range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 22;
 	(*tmp_range).max = 216;
 	cs->opt[OPT_BR_X].constraint.range = tmp_range;
 
 	/* BR-Y */
-	if(!(tmp_range = (SANE_Range *)malloc(sizeof(SANE_Range))))
+	if(!(tmp_range = malloc(sizeof(*tmp_range))))
 		return SANE_STATUS_NO_MEM;
 	(*tmp_range).min = 1;
 	(*tmp_range).max = 297;
@@ -854,7 +855,6 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 {
 	int res, max_width, max_height, max_res;
         CANONP_Scanner *cs = ((CANONP_Scanner *)h);
-	SANE_Int total_lines = 0;
 	DBG(2, ">> sane_get_parameters (h=%p, params=%p)\n", h, params);
 
 	if (h == NULL) return SANE_STATUS_INVAL;
@@ -879,7 +879,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 	/* Copy the options stored in the vals into the scaninfo */
 	params->pixels_per_line = 
                 ((cs->vals[OPT_BR_X] - cs->vals[OPT_TL_X]) * res) / MM_PER_IN;
-	total_lines = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
+	params->lines = ((cs->vals[OPT_BR_Y] - cs->vals[OPT_TL_Y]) * res) 
                 / MM_PER_IN;
 
 	/* FIXME: Magic numbers ahead! */
@@ -899,7 +899,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 
         if(params->pixels_per_line > max_width) 
                 params->pixels_per_line = max_width;
-        if(total_lines > max_height) total_lines = max_height;
+        if(params->lines > max_height) params->lines = max_height;
 
 
 	params->depth = cs->vals[OPT_DEPTH] ? 16 : 8;
@@ -923,41 +923,18 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters *params)
 		params->lines = 0;
 	} 
 
-	/* Always assume next packet will be the last 
-	 * - frontends seem to like it that way */
+	/* Always the "last frame" */
 	params->last_frame = SANE_TRUE;
 
-	switch (cs->vals[OPT_COLOUR_MODE]) 
-	{
-		case 0: /* Grey */
-			params->bytes_per_line = 
-				params->pixels_per_line * (params->depth/8);
-			break;
-		case 1: /* Colour */
-			params->bytes_per_line = 
-				params->pixels_per_line * (params->depth/8) * 3;
-			break;
-		default:
-			/* shouldn't happen */
-			break;
-	}
-
-        if (cs->bytes_sent > 0)
-	        /* we want to round up the number of lines still to come */
-                params->lines = total_lines - 
-                        ceilf((float)(cs->bytes_sent) / 
-                                (float)(params->bytes_per_line));
-        else
-                params->lines = total_lines;
+	params->bytes_per_line = params->pixels_per_line * (params->depth/8) *
+		(cs->vals[OPT_COLOUR_MODE] ? 3 : 1);
 
 	DBG(10, "get_params: bytes_per_line=%d, pixels_per_line=%d, lines=%d\n"
-                "max_res=%d, res=%d, max_height=%d, total_lines=%d\n"
-                "br_y=%d, tl_y=%d, mm_per_in=%f\n",
+                "max_res=%d, res=%d, max_height=%d, br_y=%d, tl_y=%d, "
+		"mm_per_in=%f\n",
                 params->bytes_per_line, params->pixels_per_line, params->lines,
-                max_res, res, max_height, total_lines,
-                cs->vals[OPT_BR_Y], cs->vals[OPT_TL_Y], MM_PER_IN);
-
-	/* FIXME: Do we need to account for the scanner's max buffer here? */
+                max_res, res, max_height, cs->vals[OPT_BR_Y], 
+		cs->vals[OPT_TL_Y], MM_PER_IN);
 
 	DBG(2, "<< sane_get_parameters\n");
 	return SANE_STATUS_GOOD;
@@ -1133,7 +1110,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 		/* feed some more data in until we've run out - don't care 
 		 * whether or not we _think_ the scanner is scanning now, 
 		 * because we may still have data left over to send */
-		DBG(100, "sane_read: didn't send it all last time\n");
+		DBG(200, "sane_read: didn't send it all last time\n");
 
 		/* Now feed it some data from lbuf */
 		if (bytesleft <= (unsigned int)maxlen)
@@ -1248,7 +1225,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 			(cs->params.id_string)+8);
 	DBG(10, "scan_params->: width=%d, height=%d, xoffset=%d, "
 			"yoffset=%d\n\txresolution=%d, yresolution=%d, "
-			"mode=%d\n\n",
+			"mode=%d\n",
 			cs->scan.width, cs->scan.height, 
 			cs->scan.xoffset, cs->scan.yoffset,
 			cs->scan.xresolution, cs->scan.yresolution,
@@ -1256,10 +1233,12 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	   );
 	DBG(10, "lines=%d\n",lines);
 
-	DBG(2, ">> read_segment(%p, %p, %p, %d)\n",
-			&is, &(cs->params), &(cs->scan), lines);
+	DBG(2, ">> read_segment(%p, %p, %p, %d, %d, %d)\n",
+			&is, &(cs->params), &(cs->scan), lines,
+			cs->cal_valid, cs->scan.height - cs->lines_scanned);
 	tmp = sanei_canon_pp_read_segment(&is, &(cs->params), 
-			&(cs->scan), lines, cs->cal_valid);
+			&(cs->scan), lines, cs->cal_valid, 
+			cs->scan.height - cs->lines_scanned);
 	DBG(2, "<< %d read_segment\n", tmp);
 
 	if (tmp != 0) {
@@ -1272,65 +1251,41 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 	cs->lines_scanned += lines;
 
 	/* translate data out of buffer */
-	if (cs->vals[OPT_COLOUR_MODE] == 0)
+	if (cs->vals[OPT_DEPTH] == 0)
 	{
-		/* fudge because simon's code is slack and returns greyscale as
-		 * RGB data, just with the same stuff in R,G,B. */
-		DBG(10, "sane_read: Initialising FUDGE engine 1.0\n");
-		if (cs->vals[OPT_DEPTH] == 0)
+		/* 8bpp */
+		for(i = 0; i < bytes; i++)
 		{
-			/* 8bpp */
-			for(i = 0; i < bytes * 3; i += 3)
+			charptr = lbuf + i;
+			if (cs->vals[OPT_COLOUR_MODE])
 			{
-				*((char *)lbuf + i/3) = 
-					*((char *)(is->image_data) + (i*2));
+				if (i % 3 == 0) charptr += 2;
+				if (i % 3 == 2) charptr -= 2;
 			}
-		}
-		else
-		{
-			/* 16bpp */
-			for(i = 0; i < (bytes/2) * 3; i += 3)
-			{
-				/* Convert bigendian data to the local system */
-				*((short *)lbuf + i/3) = MAKE_SHORT(
-						*((char *)(is->image_data) 
-							+ (i*2)),
-						*((char *)(is->image_data) 
-							+ (i*2)+1)
-						);
-			}
+			*charptr = *((char *)(is->image_data) + (i*2));
 		}
 	}
 	else
 	{
-		if (cs->vals[OPT_DEPTH] == 0)
+		/* 16bpp */
+		for(i = 0; i < (bytes/2); i++)
 		{
-			/* 8bpp */
-			for(i = 0; i < bytes; i++)
+			shortptr = ((short *)lbuf + i);
+			if (cs->vals[OPT_COLOUR_MODE])
 			{
-				charptr = lbuf + i;
-				if (i % 3 == 0) charptr += 2;
-				if (i % 3 == 2) charptr -= 2;
-				*(charptr) = 
-					*((char *)(is->image_data) + (i*2));
-			}
-		}
-		else
-		{
-			/* 16bpp */
-			for(i = 0; i < (bytes/2); i++)
-			{
-				shortptr = ((short *)lbuf + i);
 				if (i % 3 == 0) shortptr += 2;
 				if (i % 3 == 2) shortptr -= 2;
-				*shortptr = MAKE_SHORT(
-						*((char *)(is->image_data) +
-							(i*2)),
-						*((char *)(is->image_data) +
-							(i*2)+1));
 			}
+			*shortptr = MAKE_SHORT(
+					*((char *)(is->image_data) + (i*2)),
+					*((char *)(is->image_data) + (i*2)+1)
+					);
 		}
 	}
+
+	/* Free data structures allocated in read_segment */
+	free(is->image_data);
+	free(is);
 
 	/* Now feed it some data from lbuf */
 	if (bytes <= (unsigned int)maxlen)
@@ -1577,15 +1532,15 @@ static SANE_Status init_device(struct parport *pp)
 
 	DBG(2, ">> init_device\n");
 
-	cs = malloc (sizeof (CANONP_Scanner));
+	cs = malloc(sizeof(*cs));
 	if (cs == NULL)
 	{
 		return SANE_STATUS_NO_MEM;
 	}
-	memset (cs, 0, sizeof (CANONP_Scanner));
+	memset(cs, 0, sizeof(*cs));
 
 #if 0
-	if ((cs->params.port = malloc(sizeof(*pp))) == NULL) 
+	if ((cs->params.port = malloc(sizeof(*(cs->params.port)))) == NULL) 
 		return SANE_STATUS_NO_MEM;
 
 	memcpy(cs->params.port, pp, sizeof(*pp));
@@ -1839,7 +1794,7 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 		cs->weights_file = tmp;
 	}
 
-	if ((f_stat = malloc(sizeof(struct stat))) == NULL)
+	if ((f_stat = malloc(sizeof(*f_stat))) == NULL)
 		return SANE_STATUS_NO_MEM;
 
 	if(stat(cs->weights_file, f_stat))
@@ -1859,8 +1814,6 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 	}
 	else
 	{
-		free(f_stat);
-		f_stat = NULL;
 
 		/* No error returned.. Check read/writability */
 		i = open(cs->weights_file, O_RDWR | O_APPEND);
@@ -1895,6 +1848,9 @@ static SANE_Status fix_weights_file(CANONP_Scanner *cs)
 			close(i);
 		}
 	}
+
+	/* cleanup */
+	free(f_stat);
 
 	return SANE_STATUS_GOOD;
 }

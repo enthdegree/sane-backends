@@ -42,9 +42,9 @@ This backend expects device names of the form presented by libieee1284.  These n
 
 On Linux 2.4 kernels this will be of the form 
 .I "parport0"
-or older (2.2) kernels may produce names like 
+or older (2.2 and before) kernels may produce names like 
 .IR "0x378"
-or simply 
+(the base address of your port) or simply 
 .IR "0"
 depending on your module configuration.  Check the contents of 
 .I /proc/parport
@@ -144,10 +144,10 @@ anti-aliasing filter.  Again, it seems to be implemeneted entirely in
 software, so GIMP is your best bet for now.
 .TP
 .B Gamma Tables
-This is under investigation, but for now only a simple gamma profile will be 
-loaded.
+This is under investigation, but for now only a simple gamma profile (ie: the
+one returned during calibration) will be loaded.
 .PP
-.B Other Notes
+.B Communication Problems
 .PP
 ECP mode in libieee1284 doesn't always work properly, even with new hardware.  
 We beleive that this is a ppdev problem.  If you change the configuration file
@@ -175,6 +175,14 @@ movement for a start/stop event is greater than 1/600 inches.  I've never
 tried the windows driver so I'm not sure how (or if) it works around 
 this problem, but as we don't know how to rewind the scanner head to do these
 bits again, there's currently no nice way to deal with the problem.
+.PP
+.B Greyscale Scans
+.PP
+Be aware that the scanner uses the green LEDs to read greyscale scans, 
+meaning green coloured things will appear lighter than normal, and red
+and blue coloured items will appear darker than normal.  For high-accuracy
+greyscale scans of colour items, it's best just to scan in colour and convert
+to greyscale in graphics software such as the GIMP.
 
 .SH "SEE ALSO"
 sane(7), sane-dll(5)

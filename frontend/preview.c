@@ -542,6 +542,8 @@ input_available (gpointer data, gint source, GdkInputCondition cond)
 		display_image (p);
 	      else
 		{
+		  gdk_input_remove (p->input_tag);
+		  p->input_tag = -1;
 		  scan_start (p);
 		  break;
 		}

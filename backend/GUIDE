@@ -84,6 +84,25 @@ backend:
 		  char *buf = alloca (n);
 		}
 
+* Use #include "sane/..." to inlude the sane header files instead
+  of #include <sane/...>. Otherwise problems with different installed
+  SANE versions may occur.
+
+* Don't forget to #include "sane/config.h" in your backend before
+  any other includes. If you use lalloca.h see above for the correct
+  includes.
+
+* Please use sanei functions whenever possible (e.g. 
+  sanei_config_read()). This makes porting to other os/platforms much
+  easier.
+
+* Don't use any #pragma directives---they're completely
+  compiler-dependent.
+
+* Do make sure that your code is byte-order independent.  This is
+  particularly important for networking-related code and when dealing
+  with non-textual data files.
+
 * Even if you haven't written a man-page for your backend yet, you
   *must* create a .desc file which describes it.  Anytime you submit
   source code for your backend, you should include an update to the
@@ -93,9 +112,6 @@ backend:
   to try parsing your creation to recreate the sane-backends webpage,
   look at "sane-desc.el" in the tools/ directory.
 
-* Don't use any #pragma directives---they're completely
-  compiler-dependent.
-
-* Do make sure that your code is byte-order independent.  This is
-  particularly important for networking-related code and when dealing
-  with non-textual data files.
+* When your backend is included in the SANE distribution, add an entry
+  to README and sane.lsm. The README entry should point to your 
+  documentation (man-page, website, readme).

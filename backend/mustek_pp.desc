@@ -1,0 +1,68 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "mustek_pp"              ; name of backend
+:version "6"                      ; version of backend
+:status :alpha                    ; :alpha, :beta, :stable, :new
+:manpage "sane-mustek_pp"         ; name of manpage (if it exists)
+                                  ; backend's web page
+:url "http://home.germany.net/freestyle/sane/"
+
+:devicetype :scanner              ; start of a list of devices....
+                                  ; other types:  :stillcam, :vidcam,
+                                  ;               :meta, :api
+
+:mfg "Mustek"                     ; name a manufacturer
+:url "http://www.mustek.com/"
+
+; These scanners are known to have an A4S2 chipset. What scanners work
+; isn't actually known. Also the interfaces are only guesed
+
+:model "ScanExpress 6000 P"
+:interface "Parport (EPP)"
+:comment "works"
+
+:model "ScanMagic 4800 P"
+:interface "Parport (EPP)"
+:comment "works"
+
+:model "ScanExpress 1200 ED Plus"
+:interface "Parport (EPP)"
+:comment "doesn't work yet"
+
+:model "ScanMagic 1200 ED Plus"
+:interface "Parport (EPP)"
+:comment "doesn't work yet"
+
+:model "ScanExpress 12000 P"
+:interface "Parport (EPP)"
+:comment "doesn't work"
+
+:model "600 III EP Plus"
+:interface "Parport (SPP,EPP)"
+:comment "works"
+
+:model "ScanExpress 600 SEP"
+:interface "Parport (EPP)"
+:comment "works"
+
+:mfg "Medion"
+:url "http://www.medion.de/"
+
+:model "MD9848"
+:interface "Parport (SPP)"
+:comment "aka. ``Aldi Scanner'' - works"
+
+; :comment and :url specifiers are optional after :mfg, :model, :desc,
+;  and at the top-level.
+
+
+

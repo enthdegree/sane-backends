@@ -42,7 +42,7 @@
 
 #include <stdio.h>
 
-#include <sane/sane.h>
+#include "sane/sane.h"
 
 SANE_String_Const
 sane_strstatus (SANE_Status status)

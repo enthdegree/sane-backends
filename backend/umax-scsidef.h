@@ -253,7 +253,7 @@ static scsiblk inquiry = { inquiryC, sizeof(inquiryC) };
 #define get_inquiry_fw_support_color(in)			getbitfield(in + 0x62, 1, 1)
 #define get_inquiry_analog_gamma(in)				getbitfield(in + 0x62, 1, 2)
 #define get_inquiry_xy_coordinate_base(in)			getbitfield(in + 0x62, 1, 3)
-#define get_inquiry_0x62_bit4(in)				getbitfield(in + 0x62, 1, 4)
+#define get_inquiry_lineart_order(in)				getbitfield(in + 0x62, 1, 4)
 #define get_inquiry_0x62_bit5(in)				getbitfield(in + 0x62, 1, 5)
 #define get_inquiry_0x62_bit6(in)				getbitfield(in + 0x62, 1, 6)
 #define get_inquiry_0x62_bit7(in)				getbitfield(in + 0x62, 1, 7)

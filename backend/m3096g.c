@@ -46,8 +46,40 @@ static const char RCSid[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
- * Revision 1.2  2000/03/05 13:55:06  pere
- * Merged main branch with current DEVEL_1_9.
+ * Revision 1.3  2000/08/12 15:09:17  pere
+ * Merge devel (v1.0.3) into head branch.
+ *
+ * Revision 1.1.2.6  2000/07/30 11:16:01  hmg
+ * 2000-07-30  Henning Meier-Geinitz <hmg@gmx.de>
+ *
+ * 	* backend/mustek.*: Update to Mustek backend 1.0-95. Changed from
+ * 	  wait() to waitpid() and removed unused code.
+ * 	* configure configure.in backend/m3096g.c backend/sp15c.c: Reverted
+ * 	  the V_REV patch. V_REV should not be used in backends.
+ *
+ * Revision 1.1.2.5  2000/07/29 21:38:12  hmg
+ * 2000-07-29  Henning Meier-Geinitz <hmg@gmx.de>
+ *
+ * 	* backend/sp15.c backend/m3096g.c: Replace fgets with
+ * 	  sanei_config_read, return V_REV as part of version_code string
+ * 	  (patch from Randolph Bentson).
+ *
+ * Revision 1.1.2.4  2000/07/25 21:47:33  hmg
+ * 2000-07-25  Henning Meier-Geinitz <hmg@gmx.de>
+ *
+ * 	* backend/snapscan.c: Use DBG(0, ...) instead of fprintf (stderr, ...).
+ * 	* backend/abaton.c backend/agfafocus.c backend/apple.c backend/dc210.c
+ *  	  backend/dll.c backend/dmc.c backend/microtek2.c backend/pint.c
+ * 	  backend/qcam.c backend/ricoh.c backend/s9036.c backend/snapscan.c
+ * 	  backend/tamarack.c: Use sanei_config_read instead of fgets.
+ * 	* backend/dc210.c backend/microtek.c backend/pnm.c: Added
+ * 	  #include <sane/config.h>.
+ * 	* backend/dc25.c backend/m3096.c  backend/sp15.c
+ *  	  backend/st400.c: Moved #include <sane/config.h> to the beginning.
+ * 	* AUTHORS: Changed agfa to agfafocus.
+ *
+ * Revision 1.1.2.3  2000/03/14 17:47:07  abel
+ * new version of the Sharp backend added.
  *
  * Revision 1.1.2.2  2000/01/26 03:51:46  pere
  * Updated backends sp15c (v1.12) and m3096g (v1.11).
@@ -111,6 +143,8 @@ static const char RCSid[] = "$Header$";
 
 /* ------------------------------------------------------------------------- */
 
+#include "sane/config.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -123,7 +157,6 @@ static const char RCSid[] = "$Header$";
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "sane/config.h"
 #include "sane/sanei_backend.h"
 #include "sane/sanei_scsi.h"
 #include "sane/saneopts.h"
@@ -210,7 +243,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;
     }
 
-  while (fgets (dev_name, sizeof (dev_name), fp))
+  while (sanei_config_read (dev_name, sizeof (dev_name), fp))
     {
       if (dev_name[0] == '#')
         continue;

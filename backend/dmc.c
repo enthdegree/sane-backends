@@ -46,26 +46,26 @@
 
 /* $Id$ */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 
-#include <sane/sane.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
-#include <dmc.h>
+#include "sane/sane.h"
+#include "sane/saneopts.h"
+#include "sane/sanei_scsi.h"
+#include "dmc.h"
 
 #define BACKEND_NAME	dmc
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
 
-#include <sane/sanei_config.h>
+#include "sane/sanei_config.h"
 #define DMC_CONFIG_FILE "dmc.conf"
 
 /* A linked-list of attached devices and handles */
@@ -821,14 +821,11 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 	return SANE_STATUS_GOOD;
     }
 
-    while (fgets (dev_name, sizeof (dev_name), fp)) {
+    while (sanei_config_read (dev_name, sizeof (dev_name), fp)) {
 	if (dev_name[0] == '#')	{	/* ignore line comments */
 	    continue;
 	}
 	len = strlen (dev_name);
-	if (dev_name[len - 1] == '\n') {
-	    dev_name[--len] = '\0';
-	}
 
 	if (!len) continue;			/* ignore empty lines */
 

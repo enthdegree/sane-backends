@@ -140,6 +140,14 @@
 # define SANE_DESC_UPDATE "Update options."
 #endif
 
+#ifndef SANE_NAME_BUTTON_WAIT
+# define SANE_NAME_BUTTON_WAIT   "button-wait"
+# define SANE_TITLE_BUTTON_WAIT  "Front button wait"
+# define SANE_DESC_BUTTON_WAIT   "Wait to scan for front-panel button push."
+# define HP_BUTTON_WAIT_NO       0
+# define HP_BUTTON_WAIT_YES      1
+#endif
+
 /* Some test stuff to see what undocumented SCL-commands do */
 # define SANE_NAME_10470 "10470"
 # define SANE_TITLE_10470 "10470"
@@ -243,6 +251,7 @@ enum hp_scanmode_e sanei_hp_optset_scanmode (HpOptSet this, HpData data);
 int sanei_hp_optset_data_width (HpOptSet this, HpData data);
 hp_bool_t sanei_hp_optset_isImmediate (HpOptSet this, int optnum);
 hp_bool_t sanei_hp_optset_mirror_vert (HpOptSet this, HpData data, HpScsi scsi);
+hp_bool_t sanei_hp_optset_start_wait(HpOptSet this, HpData data, HpScsi scsi);
 HpScl sanei_hp_optset_scan_type (HpOptSet this, HpData data);
 const SANE_Option_Descriptor * sanei_hp_optset_saneoption (HpOptSet this,
                                HpData data, int optnum);

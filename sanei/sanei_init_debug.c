@@ -38,76 +38,91 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <stdarg.h>
+#include <sys/syslog.h>
+#ifdef HAVE_OS2_H
+#include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#include <sys/stat.h>
 
-#ifdef __EMX__
+#ifdef HAVE_OS2_H
 # define INCL_DOS
 # include <os2.h>
 #endif
 
-#include <sane/sanei_debug.h>
+#define BACKEND_NAME sanei_debug
+#include "sane/sanei_debug.h"
 
-#ifndef HAVE_VARARG_MACROS
-  static int max_level = 0;
-#endif
+static int global_max_level = 0;
+
 
 void
 sanei_init_debug (const char * backend, int * var)
 {
   char ch, buf[256] = "SANE_DEBUG_";
   const char * val;
-  int i;
+  unsigned int i;
 
   *var = 0;
 
   for (i = 11; (ch = backend[i - 11]) != 0; ++i)
     {
       if (i >= sizeof (buf) - 1)
-	break;
+        break;
       buf[i] = toupper(ch);
     }
   buf[i] = '\0';
 
-#ifdef __EMX__
-  if (DosScanEnv (buf, &val))
-    val = 0;
-#else
   val = getenv (buf);
-#endif
 
   if (!val)
     return;
 
   *var = atoi (val);
 
-#ifndef HAVE_VARARG_MACROS
-  if (*var > max_level)
-    max_level = *var;
-#endif  
+  if (*var > global_max_level)
+    global_max_level = *var;
 
-  fprintf (stderr, "[sanei_init_debug]: Setting debug level of %s to %d.\n",
-	   backend, *var);
+  DBG (0, "Setting debug level of %s to %d.\n", backend, *var);
 }
 
-#ifndef HAVE_VARARG_MACROS
-
-#include <stdarg.h>
+static void
+debug_msg (int level, int max_level, const char *fmt, va_list ap)
+{
+  if (max_level >= level)
+    {
+      if ( 1 == isfdtype(fileno(stderr), S_IFSOCK) )
+        vsyslog(LOG_DEBUG, fmt, ap);
+      else
+        vfprintf (stderr, fmt, ap);
+    }
+}
 
 void
 sanei_debug (int level, const char *fmt, ...)
 {
   va_list ap;
-
-  if (max_level >= level)
-    {
-      va_start (ap, fmt);
-      vfprintf (stderr, fmt, ap);
-      va_end (ap);
-    }
+  va_start (ap, fmt);
+  debug_msg (level, global_max_level, fmt, ap);
+  va_end (ap);
 }
 
-#endif /* !HAVE_VARARG_MACROS */
+void
+sanei_debug_max (int level, int max_level, const char *fmt, ...)
+{
+  va_list ap;
+  va_start (ap, fmt);
+  debug_msg (level, max_level, fmt, ap);
+  va_end (ap);
+}

@@ -1,0 +1,86 @@
+.TH sane-canon 5 "27 July 2000"
+.IX sane-canon
+.SH NAME
+sane-canon - SANE backend for Canon flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-canon
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to the following Canon flatbed scanners:
+.PP
+.RS
+CanoScan 300
+.br
+CanoScan 600
+.br
+CanoScan 2700F                                                          
+.br
+.RE
+.PP
+No parallel port and USB scanners are supported and there are no plans to
+support them in the future.
+.PP
+IMPORTANT: this is alpha code. Don't expect this to work
+correctly. Many functions are missing, others contain errors. In some
+cases, your computer might even hang. It cannot be excluded (although
+I consider it extremely unprobable) that your scanner will be
+damaged.
+.PP
+That said, TESTERS ARE WELCOME. Send your bug reports and comments to
+Manuel Panea <mpd@rzg.mpg.de>.
+.PP
+
+.SH TIPS
+.PP
+When scanning either slides or negatives, I found that I must set the
+gamma value to something about 2.2 to 2.4 (I set the same value for all
+three red, green, blue). Also, for slides, using "Auto Exposure" helps
+a lot.
+.PP
+The "Auto Exposure" function for slides makes the scanner do a first
+pass on the film to determine the Highlight and Shadow point
+values. The "Auto Focus" function triggers yet another pass to
+determine the focus value. After that, the real scanning pass takes
+place. The "Auto Exposure" function is not available for negatives yet.
+.PP
+Even after "Auto Focus", the image I get is often a bit too
+blurred. I found that using the GIMP to do a
+"Filter->Enhance->Sharpen" at about 40 to 60 improves the image
+quite a bit. In fact, I find it so good that I might implement a
+sharpen filter into the backend in the future.                                
+.PP
+The "native" scanner resolutions of the 2700F are the integer
+sub-multiples of 2720 dpi, i.e. 1360, 680, 340 and 170. You can scan
+at any other resolution, but you will notice that the image has
+noticeably more jaggies that when using one of the "native"
+resolutions.                                                                  
+.PP
+.SH FILES
+.TP
+.I @LIBDIR@/libsane-canon.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-canon.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_CANON
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output. 
+
+Example: 
+export SANE_DEBUG_CANON=4
+
+.SH "SEE ALSO"
+sane\-scsi(5)
+.br
+http://www.rzg.mpg.de/~mpd/sane/
+.br
+doc/canon.install2700F.txt (installation of a CanoScan 2700F
+.br
+.SH AUTHOR
+Helmut Koeberle, Manuel Panea, and Markus Mertinat
+.br
+Man page by Henning Meier-Geinitz (mostly based on canon.README)

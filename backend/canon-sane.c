@@ -23,13 +23,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     size_t len;
 
     /* read config file */
-    while (fgets (line, sizeof (line), fp))
+    while (sanei_config_read (line, sizeof (line), fp))
     {
       if (line[0] == '#')		/* ignore line comments */
 	continue;
       len = strlen (line);
-      if (line[len - 1] == '\n')
-	line[--len] = '\0';
   
       if (!len)
 	continue;			/* ignore empty lines */
@@ -593,7 +591,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       }
       s->opt[OPT_TPU_PN].cap ^= SANE_CAP_INACTIVE;
       s->opt[OPT_TPU_DCM].cap ^= SANE_CAP_INACTIVE;
-      *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      if (info)
+	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       return SANE_STATUS_GOOD;
       
     case OPT_TPU_DCM:
@@ -616,7 +615,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         s->opt[OPT_TPU_FILMTYPE].cap &= ~SANE_CAP_INACTIVE;
       }
       else s->hw->tpu.ControlMode = 0;
-      *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      if (info)
+	*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       return SANE_STATUS_GOOD;
       
     case OPT_TPU_FILMTYPE:

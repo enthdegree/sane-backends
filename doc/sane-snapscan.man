@@ -1,0 +1,90 @@
+.TH sane-snapscan 5 "27 July 2000"
+.IX sane-snapscan
+.SH NAME
+sane-snapscan - SANE backend for AGFA SnapScan flatbed scanners
+.SH DESCRIPTION
+The
+.B sane-snapscan
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to AGFA SnapScan flatbed scanners. At present, the
+following scanners are supported from this backend: AGFA SnapScan 300,
+310s, 600, and 1236s, and close compatibles like the Vuego 310s (with
+varying success).
+.PP
+
+.SH "DEVICE NAMES"
+This backend expects device names of the form:
+.PP
+.RS
+.I special
+.RE
+.PP
+Where
+.I special
+is either the path-name for the special device that corresponds to a
+SCSI scanner. For SCSI
+scanners, the special device name must be a generic SCSI device or a
+symlink to such a device.  Under Linux, such a device name could be
+.I /dev/sga
+or
+.IR /dev/sge ,
+for example.  See sane-scsi(5) for details.
+
+.SH CONFIGURATION
+The contents of the
+.I snapscan.conf
+file is a list of device names that correspond to SnapScan
+scanners.  Empty lines and lines starting with a hash mark (#) are
+ignored.  See sane-scsi(5) on details of what constitutes a valid
+device name.
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/snapscan.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP
+.I @LIBDIR@/libsane-snapscan.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-snapscan.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_SNAPSCAN
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 255 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+
+
+.SH BUGS
+Man page doesn't provide much information yet.
+
+.SH "SEE ALSO"
+sane\-scsi(5)
+.br
+http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html
+
+.SH AUTHOR
+Kevin Charter, Franck Schneider, and Michel Roelofs
+.br
+Man page by Henning Meier-Geinitz (mostly based on the web page and 
+source code)
+

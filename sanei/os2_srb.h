@@ -154,5 +154,3 @@ struct SRB {
 #define SK_VolOvfl      0x0D;   /* Volume Overflow */
 #define SK_MisComp      0x0E;   /* Miscompare */
 #define SK_Reserved     0x0F;   /* Reserved */
-
-

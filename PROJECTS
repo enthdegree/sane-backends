@@ -1,52 +1,96 @@
-Sun Feb 28 19:17:53 1999
+Sat Aug  5 17:57:45 CEST 2000
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
-good idea to get in touch with the relevant people.  (A status of
-"wip" means that it is work-in-progress.)
+good idea to get in touch with the relevant people. Please also read
+the files AUTHORS and README for projects that are included into the
+SANE-package.
 
-Frontend:  Status: Contact:
----------- ------- ----------------------------------------
-xcam	   wip	   David Mosberger
-xscanimage wip	   Tristan Tarrant & David Mosberger
-xsane	   wip	   Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
-jscan	   wip	   (Java-based frontend to allow accessing
-		    scanners through web pages, etc)
-		   Jeff Freedman <jsf@hevanet.com>
-		   Guido Muesch <odiug@faho.rwth-aachen.de>
+Status    description
+--------- ----------------------------------------------------------------
+wanted    Somebody would like to have this feature but can't do it himself.
+planned   Only plans but no code yet.
+wip       Work in progress. There is (more or less) working code. For details,
+          look at the web page or contact the author.
 
-Backend:   Status: Contact:				    available hw:
---------   ------- ---------------------------------------- -------------
-Primax	   planned http://thor.prohosting.com/~chrordig/Primax/
-Polaroid   wip	   Dick Bruijn <dick@wau.mis.ah.nl>	    Polaroid SprintScan
-							    35 LE
-Artec      wip     Chris Pinkham <cpinkham@infi.net>        Artec AT3
-Apple	   wip	   Milon Firikis <milonf@ariadne-t.gr>	    AppleScanner
-Coolscan   wip	   Didier Carlier <carlierd@acm.org>	    Nikon Coolscan II
-DC25	   wip	   Peter Fales <psfales@earthling.net>	    Kodak DC25
-DMC	   wip	   David Skoll <dskoll@chipworks.com>	    Polaroid Digital
-							    Microscope Camera
-EpsPhoto   wanted  Jeff Tranter <tranter@software.Mitel.COM>PhotoPC500 (want)
-Kodak	   wanted  John Kodis <kodis@kodis.jagunet.com>	    Kodak DS-20 (want)
-autoadj	   planned David Mosberger
-		   (Autobrightness/contrast for cameras etc.)
-Logitech   planned Erik Troan <ewt@redhat.com>		    ???
-Plustek	   planned Antal Novak <afn@weevil.net>
-SnapScan   wip	   Kevin Charter <charter@cs.ualberta.ca>   Agfa SnapScan
-		   Franck Schneider <schnefra@hol.fr>
-		   Michel Roelofs <michelr@stack.nl>
-Canon	   wip     Helmut Koeberle <helmut.koeberle@bytec.de> Canoscan 600
-		   Manuel Panea <mpd@rzg.mpg.de>	    Canon 2700F
-		   http://www.rzg.mpg.de/~mpd/private/sane-canon.html
-Epson	   wip	   Kazuhiro Sasayama <kaz@hypercore.co.jp>  GT-5000
-		   David L. Sifry <david@sifry.com>	    1200C
-		   Valentin Hilbig <tino@tino.augsburg.net> GT6000
-sgivl      wip     Erik Nygren <nygren@mit.edu>             SGI IndyCam
-Microtek   wip	   Matthew Marjanovic <maddog@mir.com>	    ScanMaker E6
-MicrotekII wip	   Bernd Schroeder <bernd@aquila.muc.de>    ScanMaker 630
-ePhoto	   wip (?) Matthew K. Gray <mkgray@mit.edu> [prop]  ePhoto
-HP	   wip	   See http://www.kirchgessner.net/
 
-Misc:		 Status: Contact:
----------------- ------- --------
-OS/2 support	 wip	 Jeff Freedman <jsf@hevanet.com>
+Frontends:
+----------
+
+sanecgi: web interface to all SANE-compatible scanners (wip)
+http://www.boutell.com/sanecgi/
+
+scanadf: a command-line frontend that offers additional capabilities that are
+         suited towards document scanners with automatic document feeders (wip)
+http://www.martoneconsulting.com/sane-scanadf.html
+
+xsane  (wip)
+http://www.wolfsburg.de/~rauch/sane/sane-xsane.html
+
+
+Backends:
+---------
+
+Artec AS6E (wip)
+http://as6edriver.sourceforge.net/
+
+Autobrightness/contrast for cameras etc. (planned?)
+David Mosberger
+
+Bell and Howell Copiscan (wip)
+http://www.martoneconsulting.com/sane-bh.html
+
+ePhoto (wip?)
+Matthew K. Gray <mkgray@mit.edu>
+ 
+EpsPhoto: for PhotoPC500 (wanted?)
+Jeff Tranter <tranter@software.Mitel.COM>
+
+Handheld scanner support: e.g. for Mustek CG-6000 (wip)
+ftp://www.cs.ubishops.ca/pub/lhii/
+
+HP USB backend for HP 4200 (wip)
+http://hp4200-backend.sourceforge.net/
+
+Mustek USB scanner: BearPaw 1200, ScanExpress 1200 CU, USB, UB (planned)
+Henning Meier-Geinitz <hmg@gmx.de>
+
+NEC PC-IN500/4C support (wip)
+<fukuda@pjs.nevt.nec.co.jp>
+
+Polaroid SprintScan 35 LE (wip)
+Dick Bruijn <dick@wau.mis.ah.nl>
+							
+Primax parallel port scanners (wip)
+http://primax.sourceforge.net/
+
+SGI IndyCam (wip?)
+Erik Nygren <nygren@mit.edu>
+
+Video for Linux 2 (wip)
+http://sane-v4l2.inodes.org/
+
+
+SANE on non-Unix platforms:
+----------------------------
+
+BeOS port (wip)
+http://www.intuiware.com/Products/BeSANE/index.html
+
+OS/2 support (wip)
+http://www.quasarbbs.com/yuri/sane2.html
+
+win32 port of SANE (planned)
+Oliver Rauch <oliver.rauch@Wolfsburg.DE>
+
+
+Misc:
+-----
+
+WinSANE: Win32 TWAIN DLL to interface with scanners supported by SANE over the network
+         There are two different projects. (wip)
+http://www.sunshinecomputing.com/winsane/
+http://integramicro.com/winsane
+
+TWAIN interface for xsane-win32 (planned)
+Oliver Rauch <oliver.rauch@Wolfsburg.DE>

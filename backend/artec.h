@@ -141,6 +141,7 @@ ARTEC_Option;
 #define ARTEC_FLAG_PIXEL_AVERAGING      0x00100000 /* supports pixel avg-ing */
 #define ARTEC_FLAG_ADF                  0x00200000 /* auto document feeder */
 #define ARTEC_FLAG_OPT_BRIGHTNESS       0x00400000 /* supports set brightness */
+#define ARTEC_FLAG_MBPP_NEGATIVE        0x00800000 /* can negate > 1bpp modes */
 
 typedef enum
   {
@@ -254,14 +255,14 @@ typedef struct ARTEC_Scanner
     int scanning;
     SANE_Parameters params;
     size_t bytes_to_read;
-    size_t line_offset;
+    SANE_Int line_offset;
 
     /* scan parameters */
     char *mode;
-    int x_resolution;
-    int y_resolution;
-    int tl_x;
-    int tl_y;
+    SANE_Int x_resolution;
+    SANE_Int y_resolution;
+    SANE_Int tl_x;
+    SANE_Int tl_y;
 
     /* info for 1-pass vs. 3-pass */
     int this_pass;

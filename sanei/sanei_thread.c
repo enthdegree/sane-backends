@@ -39,10 +39,13 @@
    If you do not wish that, delete this exception notice.
 */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -52,17 +55,17 @@
 #include <os2.h>
 #endif
 
-#include <sane/sanei_thread.h>
+#include "sane/sanei_thread.h"
 
 /*
  * starts a new thread or process
  * parameters:
- * start	address of reader function
- * arg_list	pointer to scanner data structure
+ * start        address of reader function
+ * arg_list     pointer to scanner data structure
  *
 */
 int
-sanei_thread_begin( void (*start)(void *arg), 
+sanei_thread_begin( void (*start)(void *arg),
                     void *arg_list)
 {
 #ifdef HAVE_OS2_H

@@ -44,7 +44,7 @@
 
 #define STUBS
 extern int sanei_debug_hp;
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <assert.h>
 #include <string.h>
@@ -55,12 +55,6 @@ extern int sanei_debug_hp;
 #include "hp-option.h"
 #include "hp-accessor.h"
 #include "hp-device.h"
-
-#if (defined(__IBMC__) || defined(__IBMCPP__))
-#ifndef _AIX
-#define inline /* */
-#endif
-#endif
 
 #define DATA_SIZE_INCREMENT	(1024)
 
@@ -122,7 +116,7 @@ hp_data_alloc (HpData this, size_t sz)
   return offset;
 }
 
-static inline void *
+static void *
 hp_data_data (HpData this, size_t offset)
 {
   assert(offset < this->length);
@@ -562,7 +556,7 @@ sanei_hp_accessor_vector_maxval (HpAccessorVector this)
   return this->fmax;
 }
 
-static inline unsigned short
+static unsigned short
 _v_get (HpAccessorVector this, const unsigned char * data)
 {
   unsigned short val;
@@ -579,7 +573,7 @@ _v_get (HpAccessorVector this, const unsigned char * data)
   return val & this->mask;
 }
 
-static inline void
+static void
 _v_set (HpAccessorVector this, unsigned char * data, unsigned short val)
 {
   val &= this->mask;
@@ -846,7 +840,7 @@ hp_accessor_geometry_set (HpAccessor _this, HpData data, void * _valp)
   return sanei_hp_accessor_set(this->this, data, valp);
 }
 
-static inline int
+static int
 _to_devpixels (SANE_Fixed val_mm, SANE_Fixed mm_per_pix)
 {
   assert(val_mm >= 0);

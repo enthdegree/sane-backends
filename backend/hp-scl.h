@@ -136,6 +136,8 @@
 
 #define SCL_AUTO_SPEED		HP_SCL_PARAMETER(1040)
 
+#define SCL_FRONT_BUTTON        HP_SCL_PARAMETER(1044)
+
 #define SCL_PRELOADED		HP_SCL_PARAMETER(1045)
 
 /* The following is not documented */

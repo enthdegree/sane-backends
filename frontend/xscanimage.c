@@ -562,6 +562,8 @@ input_available (gpointer data, gint source, GdkInputCondition cond)
 	    {
 	      if (!scan_win.param.last_frame)
 		{
+		  gdk_input_remove (scan_win.input_tag);
+		  scan_win.input_tag = -1;
 		  scan_start ();
 		  break;
 		}

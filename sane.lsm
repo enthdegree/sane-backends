@@ -1,20 +1,22 @@
 Begin3
 Title:          SANE
-Version:        1.0.1
-Entered-date:   11APR1999
+Version:        _VERSION_
+Entered-date:   _DATE_
 Description:    SANE (Scanner Access Now Easy) is a universal scanner
 		interface and comes complete with documentation and several
 		frontends and backends.
-Keywords:       camera, scanner, Abaton, Apple, Agfa, Artec, Canon, Epson,
-		HP, Kodak DC25 & DC210, Microtek, Mustek, Nikon CoolScan,
-		Polaroid Digital Microscope Camera, PINT, Connectix QuickCam,
-		Ricoh, Siemens, Tamarack, UMAX, network server & client,
-		Java API & client
+Keywords:       camera, scanner, Abaton, Agfa, Apple, Artec, Avision, Canon,
+                Epson, Fujitsu, HP, Kodak DC25 & DC210, Microtek, Mustek,
+                Nikon CoolScan,	Polaroid Digital Microscope Camera, PINT,
+                Plustek, Connectix QuickCam, Ricoh, Sharp, Siemens, Tamarack,
+                UMAX, Video for Linux, network server & client, 
+                Java API & client
 Author:         David.Mosberger@acm.org (David Mosberger-Tang)
 		(see AUTHORS for complete list)
 Maintained-by:  David.Mosberger@acm.org (David Mosberger-Tang)
 Primary-site:   ftp.mostang.com /pub/sane
-		970kB sane-1.0.1.tar.gz
+		_T_S_ kB sane-_VERSION_.tar.gz
+		_L_S_ kB sane-_VERSION_.lsm
 Alternate-site: tsx-11.mit.edu /pub/linux/packages/sane
 		sunsite.unc.edu /pub/Linux/apps/graphics/capture
 		gd.tuwien.ac.at /hci/sane/

@@ -38,13 +38,13 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <errno.h>
 #include <stdlib.h>
 
-#include <sane/sane.h>
-#include <sane/sanei_net.h>
+#include "sane/sane.h"
+#include "sane/sanei_net.h"
 
 void
 sanei_w_init_req (Wire *w, SANE_Init_Req *req)

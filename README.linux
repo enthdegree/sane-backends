@@ -1,0 +1,61 @@
+Information about SCSI scanners:
+================================
+
+Under Linux, your kernel must have generic SCSI support (sg) as well as a
+driver for your SCSI adapter. You may want to increase the SCSI buffer size
+to increase scan speed. Details on all of the above can be found in
+sane-scsi(5).
+
+If your SCSI and sg driver are build as moduls you will need to load them
+with modprobe:
+
+# modprobe your-driver-name
+# modprobe sg
+
+You may find error messages in /var/log/messages. Look at the documentation
+for your SCSI driver. Maybe you need to add options like the io port.
+
+Now the SCSI adapter and your scanner should be visible at /proc/scsi/scsi.
+Example:
+
+# cat /proc/scsi/scsi
+Host: scsi0 Channel: 00 Id: 06 Lun: 00
+  Vendor: SCANNER  Model:                  Rev: 2.02
+  Type:   Scanner                          ANSI SCSI revision: 01 CCS 
+
+In this case the real vendor and scanner name are not shown (Mustek
+Scannexpress 12000SP) but SANE will detect it nevertheless.
+
+If your scanner is supported by SANE, scanimage -L will list it now:
+
+# scanimage -L
+device mustek:/dev/scanner' is a Mustek ScanExpress 12000SP flatbed scanner 
+
+If this doesn't work you may have to add the right SCSI generic device name
+to the configuration file. This should be documented in the man page for
+your backend. To find out about the right SCSI device use tools/find-scanner:
+
+# tools/find-scanner
+find-scanner: found scanner "SCANNER  2.02" at device /dev/scanner
+find-scanner: found scanner "SCANNER  2.02" at device /dev/sg0
+find-scanner: found scanner "SCANNER  2.02" at device /dev/sga 
+
+It may help to set a soft link /dev/scanner to the respective device.
+
+If you need more information on the Linux SCSI subsystem, look at
+http://www.torque.net/scsi/linux_scsi_24/index.html. Although this
+documentation is about the 2.4 kernels, large parts are also valid for
+older kernels. One important exception is the section on "Device Names
+in devfs".
+
+Adaptec 1542 SCSI adapter:
+Using buffer sizes of more than 32768 bytes with the aha1542 driver can
+lead to kernel panic. To avoid this, set --enable-scsibuffersize or
+SANE_SG_BUFFERSIZE to 32768, or download and install the SG driver
+2.1.37 or newer from http://www.torque.net/sg.           
+
+idescsi
+The Linux kernel "Emulation of a SCSI host adapter for IDE ATAPI
+devices" (idescsi) is reported to cause problems in connection with
+SANE. If your scanner isn't found or you encounter segmentation faults
+try to disable idescsi.

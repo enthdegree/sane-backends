@@ -146,6 +146,13 @@ typedef struct
 
 HpDeviceInfo *sanei_hp_device_info_get (const char *dev_name);
 
+/* hp-scl.c */
+#if INT_MAX > 30000
+typedef	int HpScl;
+#else
+typedef long int HpScl;
+#endif
+
 typedef struct
 {
   int lines;
@@ -153,14 +160,8 @@ typedef struct
   int bits_per_channel;
   hp_bool_t mirror_vertical;
   hp_bool_t invert;
+  HpScl startscan;
 } HpProcessData;
-
-/* hp-scl.c */
-#if INT_MAX > 30000
-typedef	int HpScl;
-#else
-typedef long int HpScl;
-#endif
 
 /* hp-option.c */
 typedef const SANE_Option_Descriptor *		HpSaneOption;

@@ -59,7 +59,7 @@
 # include <lalloca.h>	/* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
+#include "sane/config.h"
 #include <lalloca.h>
 
 #include <stdlib.h>
@@ -69,9 +69,9 @@
 # include <libc.h>	/* NeXTStep/OpenStep */
 #endif
 
-#include <sane/sane.h>
-#include <sane/sanei_wire.h>
-#include <sane/sanei_codec_ascii.h>
+#include "sane/sane.h"
+#include "sane/sanei_wire.h"
+#include "sane/sanei_codec_ascii.h"
 
 #define BITS_PER_LONG	(8*sizeof (u_long))
 

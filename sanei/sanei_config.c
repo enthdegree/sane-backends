@@ -40,7 +40,7 @@
 
    This file provides generic configuration support.  */
 
-#include  <sane/config.h>
+#include  "sane/config.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -49,11 +49,11 @@
 
 #include <sys/param.h>
 
-#include <sane/sanei.h>
-#include <sane/sanei_config.h>
+#include "sane/sanei.h"
+#include "sane/sanei_config.h"
 
 #define BACKEND_NAME	sanei_config
-#include <sane/sanei_debug.h>
+#include "sane/sanei_debug.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024

@@ -13,7 +13,7 @@
 :backend "SnapScan"               ; name of backend
 :version "0.7"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
-;:manpage "sane-template"          ; name of manpage (if it exists)
+:manpage "sane-snapscan"          ; name of manpage (if it exists)
 :url "http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -23,23 +23,36 @@
 :mfg "AGFA"                   ; name a manufacturer
 :url "http://www.agfa.com/"
 :model "SnapScan 300"                  ; name models for above-specified mfg.
+:interface "SCSI"
 :comment "Only 8 bits/sample at present."
 :model "SnapScan 310"
+:interface "SCSI"
 :comment "Ditto"
 :model "SnapScan 600"
+:interface "SCSI"
 :comment "Ditto"
 :model "SnapScan 1236s"
+:interface "SCSI"
 :comment "Ditto. Have no specific programming info yet."
 :mfg "Vuego"
 :model "310s"
+:interface "SCSI"
 :comment "Close SnapScan 310 compatible."
 :mfg "Acer"
 :model "310s"
+:interface "SCSI"
 :comment "Same thing as the Vuego 310s."
+:model "610s"
+:interface "SCSI"
+:model "610plus"
+:interface "SCSI"
+:comment "Seems to be a close SnapScan 310/600 compatible."
 :model "Prisa 620s"
+:interface "SCSI"
 :comment "Seems to be a close SnapScan 310/600 compatible."
 :mfg "Guillemot International"
 :model "Maxi Scan A4 Deluxe (SCSI)"
+:interface "SCSI"
 :comment "May be a repackaged Vuego 310s or SnapScan 310s."
 ;:devicetype :api                  ; specify a different type
 ;:desc "Interface to FrObYz API"   ; describe a non-hardware device

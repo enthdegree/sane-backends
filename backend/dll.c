@@ -43,11 +43,11 @@
    dynamic linking to load backends on demand.  */
 
 #ifdef _AIX
-# include <lalloca.h>	/* MUST come first for AIX! */
+# include "lalloca.h"   /* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
-#include <lalloca.h>
+#include "sane/config.h"
+#include "lalloca.h"
 
 #include <errno.h>
 #include <limits.h>
@@ -63,10 +63,10 @@
      not support RTLD_LAZY at all.  Hence, unless defined, we define
      both macros as 1 to play it safe.  */
 # ifndef RTLD_NOW
-#  define RTLD_NOW	1
+#  define RTLD_NOW      1
 # endif
 # ifndef RTLD_LAZY
-#  define RTLD_LAZY	1
+#  define RTLD_LAZY     1
 # endif
 # define HAVE_DLL
 #endif
@@ -79,17 +79,17 @@
 
 #include <sys/types.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
 
 #define BACKEND_NAME dll
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #ifndef PATH_MAX
-# define PATH_MAX	1024
+# define PATH_MAX       1024
 #endif
 
-#include <sane/sanei_config.h>
+#include "sane/sanei_config.h"
 #define DLL_CONFIG_FILE "dll.conf"
 #define DLL_ALIASES_FILE "dll.aliases"
 
@@ -115,52 +115,52 @@ struct backend
   {
     struct backend *next;
     const char *name;
-    u_int permanent : 1;	/* is the backend preloaded? */
-    u_int loaded : 1;		/* are the functions available? */
-    u_int inited : 1;		/* has the backend been initialized? */
-    void *handle;		/* handle returned by dlopen() */
+    u_int permanent : 1;        /* is the backend preloaded? */
+    u_int loaded : 1;           /* are the functions available? */
+    u_int inited : 1;           /* has the backend been initialized? */
+    void *handle;               /* handle returned by dlopen() */
     void *(*op[NUM_OPS]) ();
   };
 
-#define BE_ENTRY(be,func)	sane_##be##_##func
+#define BE_ENTRY(be,func)       sane_##be##_##func
 
-#define PRELOAD_DECL(name)				\
-  extern void *BE_ENTRY(name,init) ();			\
-  extern void *BE_ENTRY(name,exit) ();			\
-  extern void *BE_ENTRY(name,get_devices) ();		\
-  extern void *BE_ENTRY(name,open) ();			\
-  extern void *BE_ENTRY(name,close) ();			\
-  extern void *BE_ENTRY(name,get_option_descriptor) ();	\
-  extern void *BE_ENTRY(name,control_option) ();	\
-  extern void *BE_ENTRY(name,get_parameters) ();	\
-  extern void *BE_ENTRY(name,start) ();			\
-  extern void *BE_ENTRY(name,read) ();			\
-  extern void *BE_ENTRY(name,cancel) ();		\
-  extern void *BE_ENTRY(name,set_io_mode) ();		\
+#define PRELOAD_DECL(name)                              \
+  extern void *BE_ENTRY(name,init) ();                  \
+  extern void *BE_ENTRY(name,exit) ();                  \
+  extern void *BE_ENTRY(name,get_devices) ();           \
+  extern void *BE_ENTRY(name,open) ();                  \
+  extern void *BE_ENTRY(name,close) ();                 \
+  extern void *BE_ENTRY(name,get_option_descriptor) (); \
+  extern void *BE_ENTRY(name,control_option) ();        \
+  extern void *BE_ENTRY(name,get_parameters) ();        \
+  extern void *BE_ENTRY(name,start) ();                 \
+  extern void *BE_ENTRY(name,read) ();                  \
+  extern void *BE_ENTRY(name,cancel) ();                \
+  extern void *BE_ENTRY(name,set_io_mode) ();           \
   extern void *BE_ENTRY(name,get_select_fd) ();
 
-#define PRELOAD_DEFN(name)			\
-{						\
-  0 /* next */, #name,				\
-  1 /* permanent */,				\
-  1 /* loaded */,				\
-  0 /* inited */,				\
-  0 /* handle */,				\
-  {						\
-    BE_ENTRY(name,init),			\
-    BE_ENTRY(name,exit),			\
-    BE_ENTRY(name,get_devices),			\
-    BE_ENTRY(name,open),			\
-    BE_ENTRY(name,close),			\
-    BE_ENTRY(name,get_option_descriptor),	\
-    BE_ENTRY(name,control_option),		\
-    BE_ENTRY(name,get_parameters),		\
-    BE_ENTRY(name,start),			\
-    BE_ENTRY(name,read),			\
-    BE_ENTRY(name,cancel),			\
-    BE_ENTRY(name,set_io_mode),			\
-    BE_ENTRY(name,get_select_fd)		\
-  }						\
+#define PRELOAD_DEFN(name)                      \
+{                                               \
+  0 /* next */, #name,                          \
+  1 /* permanent */,                            \
+  1 /* loaded */,                               \
+  0 /* inited */,                               \
+  0 /* handle */,                               \
+  {                                             \
+    BE_ENTRY(name,init),                        \
+    BE_ENTRY(name,exit),                        \
+    BE_ENTRY(name,get_devices),                 \
+    BE_ENTRY(name,open),                        \
+    BE_ENTRY(name,close),                       \
+    BE_ENTRY(name,get_option_descriptor),       \
+    BE_ENTRY(name,control_option),              \
+    BE_ENTRY(name,get_parameters),              \
+    BE_ENTRY(name,start),                       \
+    BE_ENTRY(name,read),                        \
+    BE_ENTRY(name,cancel),                      \
+    BE_ENTRY(name,set_io_mode),                 \
+    BE_ENTRY(name,get_select_fd)                \
+  }                                             \
 }
 
 #include "dll-preload.c"
@@ -206,18 +206,18 @@ add_backend (const char *name, struct backend **bep)
   for (prev = 0, be = first_backend; be; prev = be, be = be->next)
     if (strcmp (be->name, name) == 0)
       {
-	DBG(1, "...already there\n");
-	/* move to front so we preserve order that we'd get with
+        DBG(1, "...already there\n");
+        /* move to front so we preserve order that we'd get with
            dynamic loading: */
-	if (prev)
-	  {
-	    prev->next = be->next;
-	    be->next = first_backend;
-	    first_backend = be;
-	  }
-	if (bep)
-	  *bep = be;
-	return SANE_STATUS_GOOD;
+        if (prev)
+          {
+            prev->next = be->next;
+            be->next = first_backend;
+            first_backend = be;
+          }
+        if (bep)
+          *bep = be;
+        return SANE_STATUS_GOOD;
       }
 
   be = calloc (1, sizeof (*be));
@@ -269,26 +269,26 @@ load (struct backend *be)
   while (dir)
     {
       snprintf (libname, sizeof (libname), "%s/"PREFIX"%s"POSTFIX,
-		dir, be->name, V_MAJOR);
+                dir, be->name, V_MAJOR);
       fp = fopen (libname, "r");
       if (fp)
-	break;
+        break;
 
       if (!path)
-	{
-	  path = getenv ("LD_LIBRARY_PATH");
-	  if (!path)
-	    {
-	      path = getenv ("SHLIB_PATH");	/* for HP-UX */
-	      if (!path)
-		path = getenv ("LIBPATH");	/* for AIX */
-	    }
-	  if (!path)
-	    break;
+        {
+          path = getenv ("LD_LIBRARY_PATH");
+          if (!path)
+            {
+              path = getenv ("SHLIB_PATH");     /* for HP-UX */
+              if (!path)
+                path = getenv ("LIBPATH");      /* for AIX */
+            }
+          if (!path)
+            break;
 
-	  path = strdup (path);
-	  src = path;
-	}
+          path = strdup (path);
+          src = path;
+        }
       dir = strsep (&src, ":");
     }
   if (path)
@@ -296,7 +296,7 @@ load (struct backend *be)
   if (!fp)
     {
       DBG(2, "load: couldn't find %s (%s)\n",
-	  libname, strerror (errno));
+          libname, strerror (errno));
       return SANE_STATUS_INVAL;
     }
   DBG(2, "dlopen()ing `%s'\n", libname);
@@ -335,22 +335,22 @@ load (struct backend *be)
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
       if (op)
-	be->op[i] = op;
+        be->op[i] = op;
       else
-	{
-	  /* Try again, with an underscore prepended. */
+        {
+          /* Try again, with an underscore prepended. */
 #ifdef HAVE_DLOPEN
-	  op = (void *(*)()) dlsym (be->handle, funcname);
+          op = (void *(*)()) dlsym (be->handle, funcname);
 #elif defined(HAVE_SHL_LOAD)
-	  shl_findsym (be->handle, funcname, TYPE_UNDEFINED, &op);
+          shl_findsym (be->handle, funcname, TYPE_UNDEFINED, &op);
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
-	  if (op)
-	    be->op[i] = op;
-	}
+          if (op)
+            be->op[i] = op;
+        }
       if (NULL == op)
-	DBG(2, "unable to find %s\n", funcname);
+        DBG(2, "unable to find %s\n", funcname);
     }
 
   return SANE_STATUS_GOOD;
@@ -374,7 +374,7 @@ init (struct backend *be)
     {
       status = load (be);
       if (status != SANE_STATUS_GOOD)
-	return status;
+        return status;
     }
 
   DBG(3, "init: initializing backend `%s'\n", be->name);
@@ -423,16 +423,16 @@ add_alias (char *line)
     {
       newname = sanei_config_skip_whitespace(line);
       if( !*newname )
-	return;
+        return;
       if( *newname == '\"' )
-	{
-	  ++newname;
-	  newend = strchr(newname, '\"');
-	}
+        {
+          ++newname;
+          newend = strchr(newname, '\"');
+        }
       else
-	  newend = strpbrk(newname, " \t");
+          newend = strpbrk(newname, " \t");
       if( !newend )
-	return;
+        return;
 
       newlen = newend - newname;
       line = (char*)(newend+1);
@@ -450,22 +450,22 @@ add_alias (char *line)
     {
       alias->oldname = malloc(oldlen + newlen + 2);
       if( alias->oldname )
-	{
-	  strncpy(alias->oldname, oldname, oldlen);
-	  alias->oldname[oldlen] = '\0';
-	  if( cmd == CMD_ALIAS )
-	    {
-	      alias->newname = alias->oldname + oldlen + 1;
-	      strncpy(alias->newname, newname, newlen);
-	      alias->newname[newlen] = '\0';
-	    }
-	  else
-	      alias->newname = NULL;
+        {
+          strncpy(alias->oldname, oldname, oldlen);
+          alias->oldname[oldlen] = '\0';
+          if( cmd == CMD_ALIAS )
+            {
+              alias->newname = alias->oldname + oldlen + 1;
+              strncpy(alias->newname, newname, newlen);
+              alias->newname[newlen] = '\0';
+            }
+          else
+              alias->newname = NULL;
 
-	  alias->next = first_alias;
-	  first_alias = alias;
-	  return;
-	}
+          alias->next = first_alias;
+          first_alias = alias;
+          return;
+        }
       free(alias);
     }
   return;
@@ -488,7 +488,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   for (i = 0; i < NELEMS(preloaded_backends); ++i)
     {
       if (!preloaded_backends[i].name)
-	continue;
+        continue;
       preloaded_backends[i].next = first_backend;
       first_backend = &preloaded_backends[i];
     }
@@ -498,18 +498,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   fp = sanei_config_open (DLL_CONFIG_FILE);
   if (!fp)
-    return SANE_STATUS_GOOD;	/* don't insist on config file */
+    return SANE_STATUS_GOOD;    /* don't insist on config file */
 
-  while (fgets (backend_name, sizeof (backend_name), fp))
+  while (sanei_config_read (backend_name, sizeof (backend_name), fp))
     {
-      if (backend_name[0] == '#')	/* ignore line comments */
-	continue;
+      if (backend_name[0] == '#')       /* ignore line comments */
+        continue;
       len = strlen (backend_name);
       if (backend_name[len - 1] == '\n')
-	backend_name[--len] = '\0';
+        backend_name[--len] = '\0';
 
       if (!len)
-	continue;		/* ignore empty lines */
+        continue;               /* ignore empty lines */
 
       add_backend (backend_name, 0);
     }
@@ -517,18 +517,16 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   fp = sanei_config_open (DLL_ALIASES_FILE);
   if (!fp)
-    return SANE_STATUS_GOOD;	/* don't insist on aliases file */
+    return SANE_STATUS_GOOD;    /* don't insist on aliases file */
 
-  while (fgets (backend_name, sizeof (backend_name), fp))
+  while (sanei_config_read (backend_name, sizeof (backend_name), fp))
     {
-      if (backend_name[0] == '#')	/* ignore line comments */
-	continue;
+      if (backend_name[0] == '#')       /* ignore line comments */
+        continue;
       len = strlen (backend_name);
-      if (backend_name[len - 1] == '\n')
-	backend_name[--len] = '\0';
 
       if (!len)
-	continue;		/* ignore empty lines */
+        continue;               /* ignore empty lines */
 
       add_alias (backend_name);
     }
@@ -548,29 +546,29 @@ sane_exit (void)
     {
       next = be->next;
       if (be->loaded)
-	{
-	  DBG(2, "calling backend `%s's exit function\n", be->name);
-	  (*be->op[OP_EXIT]) ();
+        {
+          DBG(2, "calling backend `%s's exit function\n", be->name);
+          (*be->op[OP_EXIT]) ();
 #ifdef HAVE_DLL
 
 #ifdef HAVE_DLOPEN
-	  if (be->handle)
-	    dlclose (be->handle);
+          if (be->handle)
+            dlclose (be->handle);
 #elif defined(HAVE_SHL_LOAD)
-	  if (be->handle)
-	    shl_unload(be->handle);
+          if (be->handle)
+            shl_unload(be->handle);
 #else
 # error "Tried to compile unsupported DLL."
 #endif /* HAVE_DLOPEN */
 
 #endif /* HAVE_DLL */
-	}
+        }
       if (!be->permanent)
-	{
-	  if (be->name)
-	    free ((void *) be->name);
-	  free (be);
-	}
+        {
+          if (be->name)
+            free ((void *) be->name);
+          free (be);
+        }
     }
   first_backend = 0;
 
@@ -598,18 +596,18 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   char *full_name;
   int i, num_devs;
   size_t len;
-#define ASSERT_SPACE(n)							   \
-  {									   \
-    if (devlist_len + (n) > devlist_size)				   \
-      {									   \
-	devlist_size += (n) + 15;					   \
-	if (devlist)							   \
-	  devlist = realloc (devlist, devlist_size * sizeof (devlist[0])); \
-	else								   \
-	  devlist = malloc (devlist_size * sizeof (devlist[0]));	   \
-	if (!devlist)							   \
-	  return SANE_STATUS_NO_MEM;					   \
-      }									   \
+#define ASSERT_SPACE(n)                                                    \
+  {                                                                        \
+    if (devlist_len + (n) > devlist_size)                                  \
+      {                                                                    \
+        devlist_size += (n) + 15;                                          \
+        if (devlist)                                                       \
+          devlist = realloc (devlist, devlist_size * sizeof (devlist[0])); \
+        else                                                               \
+          devlist = malloc (devlist_size * sizeof (devlist[0]));           \
+        if (!devlist)                                                      \
+          return SANE_STATUS_NO_MEM;                                       \
+      }                                                                    \
   }
 
   if (devlist)
@@ -620,12 +618,12 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   for (be = first_backend; be; be = be->next)
     {
       if (!be->inited)
-	if (init (be) != SANE_STATUS_GOOD)
-	  continue;
+        if (init (be) != SANE_STATUS_GOOD)
+          continue;
 
       status = (long) (*be->op[OP_GET_DEVS]) (&be_list, local_only);
       if (status != SANE_STATUS_GOOD || !be_list)
-	continue;
+        continue;
 
       /* count the number of devices for this backend: */
       for (num_devs = 0; be_list[num_devs]; ++num_devs);
@@ -633,59 +631,59 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       ASSERT_SPACE (num_devs);
 
       for (i = 0; i < num_devs; ++i)
-	{
-	  SANE_Device *dev;
-	  char *mem;
-	  struct alias *alias;
+        {
+          SANE_Device *dev;
+          char *mem;
+          struct alias *alias;
 
-	  for(alias = first_alias; alias != NULL; alias = alias->next)
-	    {
-	      len = strlen(be->name);
-	      if( strlen(alias->oldname) <= len )
-		  continue;
-	      if( strncmp(alias->oldname, be->name, len) == 0 
-		  && alias->oldname[len] == ':'
-		  && strcmp(&alias->oldname[len+1], be_list[i]->name) == 0 )
-		break;
-	    }
+          for(alias = first_alias; alias != NULL; alias = alias->next)
+            {
+              len = strlen(be->name);
+              if( strlen(alias->oldname) <= len )
+                  continue;
+              if( strncmp(alias->oldname, be->name, len) == 0
+                  && alias->oldname[len] == ':'
+                  && strcmp(&alias->oldname[len+1], be_list[i]->name) == 0 )
+                break;
+            }
 
-	  if( alias )
-	    {
-	      if( !alias->newname )   /* hidden device */
-		continue;
+          if( alias )
+            {
+              if( !alias->newname )   /* hidden device */
+                continue;
 
-	      len = strlen(alias->newname);
-	      mem = malloc(sizeof(*dev) + len + 1);
-	      if( !mem )
-		return SANE_STATUS_NO_MEM;
+              len = strlen(alias->newname);
+              mem = malloc(sizeof(*dev) + len + 1);
+              if( !mem )
+                return SANE_STATUS_NO_MEM;
 
-	      full_name = mem + sizeof(*dev);
-	      strcpy(full_name, alias->newname);
-	    }
-	  else
-	    {
-	      /* create a new device entry with a device name that is the
-		 sum of the backend name a colon and the backend's device
-		 name: */
-	      len = strlen (be->name) + 1 + strlen (be_list[i]->name);
-	      mem = malloc (sizeof (*dev) + len + 1);
-	      if (!mem)
-		return SANE_STATUS_NO_MEM;
+              full_name = mem + sizeof(*dev);
+              strcpy(full_name, alias->newname);
+            }
+          else
+            {
+              /* create a new device entry with a device name that is the
+                 sum of the backend name a colon and the backend's device
+                 name: */
+              len = strlen (be->name) + 1 + strlen (be_list[i]->name);
+              mem = malloc (sizeof (*dev) + len + 1);
+              if (!mem)
+                return SANE_STATUS_NO_MEM;
 
-	      full_name = mem + sizeof (*dev);
-	      strcpy (full_name, be->name);
-	      strcat (full_name, ":");
-	      strcat (full_name, be_list[i]->name);
-	    }
+              full_name = mem + sizeof (*dev);
+              strcpy (full_name, be->name);
+              strcat (full_name, ":");
+              strcat (full_name, be_list[i]->name);
+            }
 
-	  dev = (SANE_Device *) mem;
-	  dev->name = full_name;
-	  dev->vendor = be_list[i]->vendor;
-	  dev->model = be_list[i]->model;
-	  dev->type = be_list[i]->type;
+          dev = (SANE_Device *) mem;
+          dev->name = full_name;
+          dev->vendor = be_list[i]->vendor;
+          dev->model = be_list[i]->model;
+          dev->type = be_list[i]->type;
 
-	  devlist[devlist_len++] = dev;
-	}
+          devlist[devlist_len++] = dev;
+        }
     }
 
   /* terminate device list with NULL entry: */
@@ -709,12 +707,12 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   for( alias = first_alias; alias != NULL; alias = alias->next )
     {
       if( !alias->newname )
-	continue;
+        continue;
       if( strcmp(alias->newname, full_name) == 0 )
-	{
-	  full_name = alias->oldname;
-	  break;
-	}
+        {
+          full_name = alias->oldname;
+          break;
+        }
     }
 
   dev_name = strchr (full_name, ':');
@@ -730,7 +728,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       tmp[dev_name - full_name] = '\0';
       be_name = tmp;
 #endif
-      ++dev_name;		/* skip colon */
+      ++dev_name;               /* skip colon */
     }
   else
     {
@@ -746,20 +744,20 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   else
     for (be = first_backend; be; be = be->next)
       if (strcmp (be->name, be_name) == 0)
-	break;
+        break;
 
   if (!be)
     {
       status = add_backend (be_name, &be);
       if (status != SANE_STATUS_GOOD)
-	return status;
+        return status;
     }
 
   if (!be->inited)
     {
       status = init (be);
       if (status != SANE_STATUS_GOOD)
-	return status;
+        return status;
     }
 
   status = (long) (*be->op[OP_OPEN]) (dev_name, &handle);
@@ -798,14 +796,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *value, SANE_Word * info)
+                     SANE_Action action, void *value, SANE_Word * info)
 {
   struct meta_scanner *s = handle;
 
   DBG(3, "control_option(handle=%p,option=%d,action=%d,value=%p,info=%p)\n",
       handle, option, action, value, info);
   return (long) (*s->be->op[OP_CTL_OPTION]) (s->handle, option, action,
-					     value, info);
+                                             value, info);
 }
 
 SANE_Status
@@ -828,7 +826,7 @@ sane_start (SANE_Handle handle)
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-	   SANE_Int * length)
+           SANE_Int * length)
 {
   struct meta_scanner *s = handle;
 

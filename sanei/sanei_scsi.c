@@ -44,7 +44,7 @@
 # include <lalloca.h>		/* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
+#include "sane/config.h"
 #include <lalloca.h>
 
 #include <assert.h>
@@ -175,12 +175,12 @@
 # define USE STUBBED_INTERFACE
 #endif
 
-#include <sane/sanei.h>
-#include <sane/sanei_config.h>
-#include <sane/sanei_scsi.h>
+#include "sane/sanei.h"
+#include "sane/sanei_config.h"
+#include "sane/sanei_scsi.h"
 
 #define BACKEND_NAME	sanei_scsi
-#include <sane/sanei_debug.h>
+#include "sane/sanei_debug.h"
 
 #if USE == DECUNIX_INTERFACE
 static int cam_fd = -1;		/* used for SCSI CAM based interfaces */
@@ -243,6 +243,9 @@ int sanei_scsi_max_request_size = MAX_DATA;
 #endif
 #ifndef SG_GET_VERSION_NUM
 #define SG_GET_VERSION_NUM 0x2282
+#endif
+#ifndef SG_NEXT_CMD_LEN
+#define SG_NEXT_CMD_LEN 0x2283
 #endif
 
 #ifndef SCSIBUFFERSIZE
@@ -733,7 +736,7 @@ sanei_scsi_open (const char *dev, int *fdp,
   char *real_dev = 0;
   void *pdata = 0;
   int fd;
-#ifdef __linux__
+#if USE == LINUX_INTERFACE
   static int first_time = 1;
 #endif
 
@@ -1185,12 +1188,12 @@ sanei_scsi_open (const char *dev, int *fdp,
         DBG(1, "sanei_scsi_open: SG driver can change buffer size at run time\n");
         if (fdpa->sg_queue_max > 1)
           DBG(1, "sanei_scsi_open: low level command queueing enabled\n");
-        #ifdef SG_IO
+#ifdef SG_IO
         if (sg_version >= 30000)
           {
             DBG(1, "sanei_scsi_open: using new SG header structure\n");
           }
-        #endif
+#endif
       }
   }
 #endif /* LINUX_INTERFACE */
@@ -1424,7 +1427,9 @@ sanei_scsi_req_flush_all (void)
 
 
 SANE_Status
-sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
+sanei_scsi_req_enter2 (int fd, 
+                      const void *cmd, size_t cmd_size,
+                      const void *src, size_t src_size,
 		      void *dst, size_t * dst_size, void **idp)
 {
   SANEI_SCSI_Sense_Handler handler;
@@ -1435,12 +1440,13 @@ sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
   static void *buf_ptr;
 
   if (dst_size)
-    DBG (1, "sanei_scsi_req_enter: (fd=%x, src=%p, src_size=%x, "
-	 "dst=%p, dst_size=%x, *idp=%p)\n",
-	 fd, src, src_size, dst, *dst_size, idp);
+    DBG (1, "sanei_scsi_req_enter2: (fd=%x, cmd=%p, cmd_size=%x, "
+	 "src=%p, src_size=%x, dst=%p, dst_size=%x, *idp=%p)\n",
+	 fd, cmd, cmd_size, src, src_size, dst, *dst_size, idp);
   else
-    DBG (1, "sanei_scsi_req_enter: (fd=%x, src=%p, src_size=%x, "
-	 "dst=%p, dst_size=NULL, *idp=%p)\n", fd, src, src_size, dst, idp);
+    DBG (1, "sanei_scsi_req_enter2: (fd=%x, cmd=%p, cmd_size=%x, "
+	 "src=%p, src_size=%x, dst=%p, dst_size=NULL, *idp=%p)\n", 
+	 fd, src, src_size, dst, idp);
 
   /* Lock the command structure */
   if (!mutex_$lock (&com->CommandLock, mutex_$wait_forever))
@@ -1452,16 +1458,16 @@ sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
   /* Fill in the command structure */
   com->opcode = Enter;
   com->fd = fd;
-  com->cdb_size = CDB_SIZE (*(u_char *) src);
+  com->cdb_size = cmd_size;
   if (dst_size)
     com->dst_size = *dst_size;
-  memcpy (&com->cdb, src, com->cdb_size);
+  memcpy (&com->cdb, cmd, com->cdb_size);
 
   /* figure out if this is a read or a write */
   if (dst_size && *dst_size)
     {
       /* dest buffer specified, must be a read */
-      assert (com->cdb_size == src_size);
+      /* assert (com->cdb_size == src_size); */
       com->direction = scsi_read;
       buf_ptr = dst;
       com->buf_size = *dst_size;
@@ -1469,10 +1475,10 @@ sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
   else
     {
       /* no dest buffer, must be a write */
-      assert (com->cdb_size <= src_size);
+      /* assert (com->cdb_size <= src_size); */
       com->direction = scsi_write;
-      buf_ptr = (char *) src + com->cdb_size;
-      com->buf_size = src_size - com->cdb_size;
+      buf_ptr = (char *) src;
+      com->buf_size = src_size;
       if (com->buf_size)
 	memcpy (fd_info[fd].pdata, buf_ptr, com->buf_size);
     }
@@ -1567,14 +1573,16 @@ sanei_scsi_req_wait (void *id)
 
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   SANE_Status status;
   void *id;
 
-  DBG (1, "sanei_scsi_cmd: (fd=%d)\n", fd);
-  status = sanei_scsi_req_enter (fd, src, src_size, dst, dst_size, &id);
+  DBG (1, "sanei_scsi_cmd2: (fd=%d)\n", fd);
+  status = sanei_scsi_req_enter2 (fd, cmd, cmd_size, src, src_size, dst, dst_size, &id);
   if (status != SANE_STATUS_GOOD)
     return status;
   return sanei_scsi_req_wait (id);
@@ -1791,7 +1799,9 @@ sanei_scsi_req_flush_all ()
 }
 
 SANE_Status
-sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
+sanei_scsi_req_enter2 (int fd, 
+                      const void *cmd, size_t cmd_size,
+                      const void *src, size_t src_size,
 		      void *dst, size_t * dst_size, void **idp)
 {
   struct req *req;
@@ -1837,39 +1847,46 @@ sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
 #endif
       memset (&req->sgdata.cdb.hdr, 0, sizeof (req->sgdata.cdb.hdr));
       req->sgdata.cdb.hdr.pack_id = pack_id++;
-      req->sgdata.cdb.hdr.pack_len = src_size + sizeof (req->sgdata.cdb.hdr);
+      req->sgdata.cdb.hdr.pack_len = cmd_size + src_size 
+                                     + sizeof (req->sgdata.cdb.hdr);
       req->sgdata.cdb.hdr.reply_len = (dst_size ? *dst_size : 0)
                                       + sizeof (req->sgdata.cdb.hdr);
-      memcpy (&req->sgdata.cdb.data, src, src_size);
+      memcpy (&req->sgdata.cdb.data, cmd, cmd_size);
+      memcpy (&req->sgdata.cdb.data[cmd_size], src, src_size);
+      if (CDB_SIZE (*(u_char *) cmd) != cmd_size)
+        {
+          if (ioctl(fd, SG_NEXT_CMD_LEN, &cmd_size))
+            {
+              DBG(1, "sanei_scsi_req_enter2: ioctl to set command length failed\n");
+            }
+        }
 #ifdef SG_IO
     }
   else
     {
       memset (&req->sgdata.sg3.hdr, 0, sizeof (req->sgdata.sg3.hdr));
       req->sgdata.sg3.hdr.interface_id = 'S';
-      req->sgdata.sg3.hdr.cmd_len = CDB_SIZE (*(u_char *) src);
+      req->sgdata.sg3.hdr.cmd_len = cmd_size;
       req->sgdata.sg3.hdr.iovec_count = 0;
       req->sgdata.sg3.hdr.mx_sb_len = SENSE_MAX;
       /* read or write? */
       if (dst_size && *dst_size)
         {
-          assert (req->sgdata.sg3.hdr.cmd_len == src_size);
           req->sgdata.sg3.hdr.dxfer_direction = SG_DXFER_FROM_DEV;
           req->sgdata.sg3.hdr.dxfer_len = *dst_size;
           req->sgdata.sg3.hdr.dxferp = dst;
         }
-      else if (req->sgdata.sg3.hdr.cmd_len < src_size)
+      else if (src_size)
         {
           req->sgdata.sg3.hdr.dxfer_direction = SG_DXFER_TO_DEV;
-          req->sgdata.sg3.hdr.dxfer_len = src_size - req->sgdata.sg3.hdr.cmd_len;
-          req->sgdata.sg3.hdr.dxferp = ((char*) src) + req->sgdata.sg3.hdr.cmd_len;
+          req->sgdata.sg3.hdr.dxfer_len = src_size;
+          (const void*) req->sgdata.sg3.hdr.dxferp = src;
         }
       else
         {
-          assert (req->sgdata.sg3.hdr.cmd_len == src_size);
           req->sgdata.sg3.hdr.dxfer_direction = SG_DXFER_NONE;
         }
-      (const void*) req->sgdata.sg3.hdr.cmdp = src;
+      (const void*) req->sgdata.sg3.hdr.cmdp = cmd;
       req->sgdata.sg3.hdr.sbp = &(req->sgdata.sg3.sense_buffer[0]);
       /* 10 seconds should be ok even for slow scanners */
       req->sgdata.sg3.hdr.timeout = 10000;
@@ -2053,13 +2070,15 @@ sanei_scsi_req_wait (void *id)
 }
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   SANE_Status status;
   void *id;
 
-  status = sanei_scsi_req_enter (fd, src, src_size, dst, dst_size, &id);
+  status = sanei_scsi_req_enter2 (fd, cmd, cmd_size, src, src_size, dst, dst_size, &id);
   if (status != SANE_STATUS_GOOD)
     return status;
   return sanei_scsi_req_wait (id);
@@ -2237,33 +2256,45 @@ scsireq_enter (int fd, scsireq_t * hdr)
 #endif /* !HAVE_SCSIREQ_ENTER */
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
-  size_t cdb_size;
+  /* xxx obsolete: size_t cdb_size;
+  */
   scsireq_t hdr;
   int result;
 
+/* xxx obsolete: 
   cdb_size = CDB_SIZE (*(u_char *) src);
+*/
 
   memset (&hdr, 0, sizeof (hdr));
-  memcpy (hdr.cmd, src, cdb_size);
+  memcpy (hdr.cmd, cmd, cmd_size);
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete: assert (cdb_size == src_size);
+      */
       hdr.flags = SCCMD_READ;
       hdr.databuf = dst;
       hdr.datalen = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
+      /* xxx obsolete: assert (cdb_size <= src_size);
+      */
       hdr.flags = SCCMD_WRITE;
-      hdr.databuf = (char *) src + cdb_size;
+      /* The old variant:
+        hdr.databuf = (char *) src + cdb_size;
+        hdr.datalen = src_size;
+        xxxxxx huh? Shouldn´t the above line have been src_size - cdb_size)
+      */
+      hdr.databuf = (char *) src;
       hdr.datalen = src_size;
     }
   hdr.timeout = 60000;		/* 1 minute timeout */
-  hdr.cmdlen = cdb_size;
+  hdr.cmdlen = cmd_size;
   hdr.senselen = sizeof (hdr.sense);
 
   result = scsireq_enter (fd, &hdr);
@@ -2303,10 +2334,13 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 #endif /* USE == BSD_INTERFACE */
 
 #if USE == FREEBSD_CAM_INTERFACE
-SANE_Status sanei_scsi_cmd(int fd, const void *src, size_t src_size,
+SANE_Status sanei_scsi_cmd2(int fd, 
+                           const void *cmd, size_t cmd_size,
+                           const void *src, size_t src_size,
 			   void *dst, size_t * dst_size) {
 
-   size_t 		cdb_size; 
+   /* xxx obsolete size_t 		cdb_size; 
+   */
    struct cam_device	*dev;
    union ccb		*ccb;
    int			rv;
@@ -2319,27 +2353,29 @@ SANE_Status sanei_scsi_cmd(int fd, const void *src, size_t src_size,
       return SANE_STATUS_INVAL;
    }
 
-   cdb_size = CDB_SIZE (*(u_char *) src);
+   /* xxx obsolete: cdb_size = CDB_SIZE (*(u_char *) src);
+   */
    dev = cam_devices[fd];
    ccb = cam_getccb(dev);
     
    /* Build the CCB */
    bzero(&(&ccb->ccb_h)[1], sizeof(struct ccb_scsiio));
-   bcopy(src, &ccb->csio.cdb_io.cdb_bytes, cdb_size);
+   bcopy(cmd, &ccb->csio.cdb_io.cdb_bytes, cmd_size);
 
    /*
     * Set the data direction flags.
     */
    if(dst_size && *dst_size) {
-      assert (cdb_size == src_size);
+      /* xxx obsolete: assert (cdb_size == src_size);
+      */
       ccb_flags = CAM_DIR_IN;
       data_buf = ((char*)(dst));
       data_len = *dst_size;
    }
-   else if(src_size > cdb_size) {
+   else if(src_size > 0) {
       ccb_flags = CAM_DIR_OUT;
-      data_buf = ((char*)(src + cdb_size));
-      data_len = src_size - cdb_size;
+      data_buf = ((char*)(src));
+      data_len = src_size;
    }
    else {
       ccb_flags = CAM_DIR_NONE;
@@ -2355,7 +2391,7 @@ SANE_Status sanei_scsi_cmd(int fd, const void *src, size_t src_size,
 		 /* data_ptr */ (u_int8_t *)data_buf,
 		 /* dxfer_len */ data_len,
 		 /* sense_len */ SSD_FULL_SIZE,
-		 /* cdb_len */ cdb_size,
+		 /* cdb_len */ cmd_size,
 		 /* timeout */ 60 * 1000);
 
    /* Run the command */
@@ -2395,30 +2431,35 @@ SANE_Status sanei_scsi_cmd(int fd, const void *src, size_t src_size,
 #if USE == HPUX_INTERFACE
 /* XXX untested code! */
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   struct sctl_io hdr;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+     cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   memset (&hdr, 0, sizeof (hdr));
-  memcpy (hdr.cdb, src, src_size);
+  memcpy (hdr.cdb, cmd, cmd_size);
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       hdr.flags = SCTL_READ;
       hdr.data = dst;
       hdr.data_length = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
-      hdr.data = (char *) src + cdb_size;
-      hdr.data_length = src_size - cdb_size;
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
+      hdr.data = (char *) src;
+      hdr.data_length = src_size;
     }
-  hdr.cdb_length = cdb_size;
+  hdr.cdb_length = cmd_size;
   hdr.max_msecs = 60000;	/* 1 minute timeout */
   if (ioctl (fd, SIOC_IO, &hdr) < 0)
     {
@@ -2442,29 +2483,34 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 
 #if USE == OPENSTEP_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   struct scsi_req hdr;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+     cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   memset (&hdr, 0, sizeof (hdr));
-  memcpy (&hdr.sr_cdb, src, cdb_size);
+  memcpy (&hdr.sr_cdb, cmd, cmd_size);
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       hdr.sr_dma_dir = SR_DMA_RD;
       hdr.sr_addr = dst;
       hdr.sr_dma_max = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
       hdr.sr_dma_dir = SR_DMA_WR;
-      hdr.sr_addr = (char *) src + cdb_size;
-      hdr.sr_dma_max = src_size - cdb_size;
+      hdr.sr_addr = (char *) src;
+      hdr.sr_dma_max = src_size;
     }
   hdr.sr_ioto = 60;		/* I/O timeout in seconds */
 
@@ -2489,15 +2535,18 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 
 #if USE == DECUNIX_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   u_char sense[64];
   UAGT_CAM_CCB hdr;
   CCB_SCSIIO ccb;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+     cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   memset (&ccb, 0, sizeof (ccb));
   ccb.cam_ch.my_addr = (CCB_HEADER *) & ccb;
@@ -2510,24 +2559,26 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       ccb.cam_ch.cam_flags |= CAM_DIR_IN;
       ccb.cam_data_ptr = (u_char *) dst;
       ccb.cam_dxfer_len = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
-      if (cdb_size == src_size)
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
+      if (0 == src_size)
 	ccb.cam_ch.cam_flags |= CAM_DIR_NONE;
       else
 	ccb.cam_ch.cam_flags |= CAM_DIR_OUT;
-      ccb.cam_data_ptr = (u_char *) src + cdb_size;
-      ccb.cam_dxfer_len = src_size - cdb_size;
+      ccb.cam_data_ptr = (u_char *) src;
+      ccb.cam_dxfer_len = src_size;
     }
   ccb.cam_timeout = 60;		/* set timeout in seconds */
-  ccb.cam_cdb_len = cdb_size;
-  memcpy (&ccb.cam_cdb_io.cam_cdb_bytes[0], src, cdb_size);
+  ccb.cam_cdb_len = cmd_size;
+  memcpy (&ccb.cam_cdb_io.cam_cdb_bytes[0], cmd, cmd_size);
 
   memset (&hdr, 0, sizeof (hdr));
   hdr.uagt_ccb = (CCB_HEADER *) & ccb;
@@ -2566,13 +2617,16 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 
 #if USE == SCO_OS5_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   static u_char sense_buffer[256];
   struct scsicmd2 sc2;
   struct scsicmd *sc;
-  int cdb_size;
+  /* xxx obsolete int cdb_size;
+  */
   int opcode;
   int i;
 
@@ -2584,7 +2638,8 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
   sc2.sense_len = sizeof (sense_buffer);
   sc2.sense_ptr = sense_buffer;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
   if (dst_size && *dst_size)
     {
       sc->is_write = 0;
@@ -2593,12 +2648,12 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
     }
   else
     {
-      sc->data_len = src_size - cdb_size;
-      sc->data_ptr = (char *) src + cdb_size;
+      sc->data_len = src_size;
+      sc->data_ptr = (char *) src;
       sc->is_write = 1;
     }
-  memcpy (sc->cdb, src, cdb_size);
-  sc->cdb_len = cdb_size;
+  memcpy (sc->cdb, cmd, cmd_size);
+  sc->cdb_len = cmd_size;
 
   /* Send the command down via the "pass-through" interface */
   if (ioctl (fd, SCSIUSERCMD2, &sc2) < 0)
@@ -2635,7 +2690,9 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
  *
  */
 SANE_Status
-sanei_scsi_cmd (int fd, const void * src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void * cmd, size_t cmd_size,
+                const void * src, size_t src_size,
 		void * dst, size_t * dst_size)
 {
   struct sb sb, *sb_ptr; /* Command block and pointer */
@@ -2645,36 +2702,38 @@ sanei_scsi_cmd (int fd, const void * src, size_t src_size,
   char sense[32]; /* for call of sens req */
   char cmd[16]; /* global for right alignment */
   char * cp;
-  size_t cdb_size;
+
+  /* xxx obsolete size_t cdb_size;
 
   cdb_size = CDB_SIZE (*(u_char *) src);
+  */
   memset (&cmd, 0, 16);
   sb_ptr = &sb;
   sb_ptr->sb_type = ISCB_TYPE;
-  cp = (char *) src;
-  DBG(1, "cdb_size = %d src = {0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x ...}\n", cdb_size,
+  cp = (char *) cmd;
+  DBG(1, "cdb_size = %d src = {0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x,0x%x ...}\n", cmd_size,
       cp[0],cp[1],cp[2],cp[3],cp[4],cp[5],cp[6],cp[7],cp[8],cp[9]);
-  switch (cdb_size)
+  switch (cmd_size)
     {
     default:
       return SANE_STATUS_IO_ERROR;
     case 6:
       scs = (struct scs *) cmd;
-      memcpy(SCS_AD(scs),src,SCS_SZ);
+      memcpy(SCS_AD(scs),cmd,SCS_SZ);
       scs->ss_lun = 0;
       sb_ptr->SCB.sc_cmdpt = SCS_AD(scs);
       sb_ptr->SCB.sc_cmdsz = SCS_SZ;
       break;
     case 10:
       scm = (struct scm *) cmd;
-      memcpy(SCM_AD(scm),src,SCM_SZ);
+      memcpy(SCM_AD(scm),cmd,SCM_SZ);
       scm->sm_lun = 0;
       sb_ptr->SCB.sc_cmdpt = SCM_AD(scm);
       sb_ptr->SCB.sc_cmdsz = SCM_SZ;
       break;
     case 12:
       scv = (struct scv *) cmd;
-      memcpy(SCV_AD(scv),src,SCV_SZ);
+      memcpy(SCV_AD(scv),cmd,SCV_SZ);
       scv->sv_lun = 0;
       sb_ptr->SCB.sc_cmdpt = SCV_AD(scv);
       sb_ptr->SCB.sc_cmdsz = SCV_SZ;
@@ -2682,17 +2741,17 @@ sanei_scsi_cmd (int fd, const void * src, size_t src_size,
     }
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      assert (0 == src_size);
       sb_ptr->SCB.sc_mode = SCB_READ;
       sb_ptr->SCB.sc_datapt = dst;
       sb_ptr->SCB.sc_datasz = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
+      assert (0 <= src_size);
       sb_ptr->SCB.sc_mode = SCB_WRITE;
-      sb_ptr->SCB.sc_datapt = (char *) src + cdb_size;
-      if ( (sb_ptr->SCB.sc_datasz = src_size - cdb_size) > 0 ) {
+      sb_ptr->SCB.sc_datapt = (char *) src;
+      if ( (sb_ptr->SCB.sc_datasz = src_size) > 0 ) {
 	sb_ptr->SCB.sc_mode = SCB_WRITE;
       } else {
 	/* also use READ mode if the backends have write with length 0 */
@@ -2705,7 +2764,7 @@ sanei_scsi_cmd (int fd, const void * src, size_t src_size,
   {
     /* do read write by normal read or write system calls */
     /* the driver will lock process in momory and do optimized transfer */
-    cp = (char *) src;
+    cp = (char *) cmd;
     switch (*cp)
       {
       case 0x0: /* test unit ready */
@@ -2768,36 +2827,43 @@ sanei_scsi_cmd (int fd, const void * src, size_t src_size,
 #endif /* USE == SYSVR4_INTERFACE */
 #if USE == SCO_UW71_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   static u_char sense_buffer[24];
   struct scb cmdblk;
   time_t elapsed;
   uint_t compcode, status;
-  int cdb_size, mode;
+  /* xxx obsolete int cdb_size, mode;
+  */
+  int mode;
   int i;
 
   if (fd < 0)
     return SANE_STATUS_IO_ERROR;
 
-  cmdblk.sc_cmdpt = (caddr_t) src;
-  cdb_size = CDB_SIZE (*(u_char *) src);
-  cmdblk.sc_cmdsz = cdb_size;
+  cmdblk.sc_cmdpt = (caddr_t) cmd;
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
+  cmdblk.sc_cmdsz = cmd_size;
   cmdblk.sc_time = 60000; /* 60 secs */
 
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       cmdblk.sc_datapt = (caddr_t) dst;
       cmdblk.sc_datasz = *dst_size;
       mode = SCB_READ;
     }
   else
     {
-      assert (cdb_size <= src_size);
-      cmdblk.sc_datapt = (char *) src + cdb_size;
-      cmdblk.sc_datasz = src_size - cdb_size;
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
+      cmdblk.sc_datapt = (char *) src;
+      cmdblk.sc_datasz = src_size;
       mode = SCB_WRITE;
     }
 
@@ -2972,7 +3038,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 /* XXX untested code! */
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   ULONG rc;			/* Returns. */
@@ -2980,10 +3048,11 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
   unsigned long cbParam;
   SRB srb;			/* SCSI Request Block */
   ULONG count = 0;		/* For semaphore. */
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
+  */
 
   memset ((char *) &srb, 0, sizeof (srb));	/* Okay, I'm paranoid. */
-  cdb_size = CDB_SIZE (*(u_char *) src);	/* Size of command block. */
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);*/ /* Size of command block. */
   srb.cmd = SRB_Command;	/* execute SCSI cmd */
   srb.ha_num = fd_info[fd].bus;	/* host adapter number */
   srb.u.cmd.target = fd_info[fd].target;	/* Target SCSI ID */
@@ -2993,27 +3062,29 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
     {
       /* Reading. */
       assert (*dst_size <= sanei_scsi_max_request_size);
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       srb.u.cmd.data_len = *dst_size;
       srb.flags |= SRB_Read;
     }
   else
     {
       /* Writing. */
-      srb.u.cmd.data_len = src_size - cdb_size;
-      assert (cdb_size <= src_size);
+      srb.u.cmd.data_len = src_size;
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
       assert (srb.u.cmd.data_len <= sanei_scsi_max_request_size);
       if (srb.u.cmd.data_len)
 	srb.flags |= SRB_Write;
       else
 	srb.flags |= SRB_NoTransfer;
-      memcpy (aspi_buf, (char *) src + cdb_size, srb.u.cmd.data_len);
+      memcpy (aspi_buf, (char *) src, srb.u.cmd.data_len);
     }
   srb.u.cmd.sense_len = 16;	/* length of sense buffer */
   srb.u.cmd.data_ptr = NULL;	/* pointer to data buffer already registered */
   srb.u.cmd.link_ptr = NULL;	/* pointer to next SRB */
-  srb.u.cmd.cdb_len = cdb_size;	/* SCSI command length */
-  memcpy (&srb.u.cmd.cdb_st[0], (char *) src, cdb_size);
+  srb.u.cmd.cdb_len = cmd_size;	/* SCSI command length */
+  memcpy (&srb.u.cmd.cdb_st[0], (char *) cmd, cmd_size);
 
   /* Do the command. */
   rc = DosDevIOCtl (driver_handle, 0x92, 0x02, (void *) &srb,
@@ -3038,7 +3109,7 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
       && fd_info[fd].sense_handler != 0)
     {
       SANEI_SCSI_Sense_Handler s_handler = fd_info[fd].sense_handler;
-      return (*s_handler) (fd, &srb.u.cmd.cdb_st[cdb_size],
+      return (*s_handler) (fd, &srb.u.cmd.cdb_st[cmd_size],
 			   fd_info[fd].sense_handler_arg);
     }
   if (srb.status != SRB_Done ||
@@ -3055,7 +3126,9 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 
 #if USE == STUBBED_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   return SANE_STATUS_UNSUPPORTED;
@@ -3067,11 +3140,13 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 #define WE_HAVE_FIND_DEVICES
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   dsreq_t scsi_req;			/* SCSI request */
-  size_t  cdb_size;			/* Size of SCSI command */
+  /* xxx obsolete size_t  cdb_size; */	/* Size of SCSI command */
   static u_char	*cmdbuf = NULL,		/* Command buffer */
 		*sensebuf = NULL,	/* Request sense buffer */
 		*databuf  = NULL;	/* Data buffer */
@@ -3094,9 +3169,10 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
   /*
    * Build the SCSI request...
    */
-  cdb_size = CDB_SIZE (*(u_char *) src);
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
-  DBG(1, "sanei_scsi_cmd: cdb_size = %d\n", cdb_size);
+  DBG(1, "sanei_scsi_cmd: cmd_size = %d\n", cmd_size);
 
   if (dst != NULL)
     {
@@ -3106,7 +3182,7 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
       scsi_req.ds_flags    = DSRQ_READ | DSRQ_SENSE;
       scsi_req.ds_time     = 120 * 1000;
       scsi_req.ds_cmdbuf   = (caddr_t) cmdbuf;
-      scsi_req.ds_cmdlen   = cdb_size;
+      scsi_req.ds_cmdlen   = cmd_size;
       scsi_req.ds_databuf  = (caddr_t) databuf;
       scsi_req.ds_datalen  = *dst_size;
       scsi_req.ds_sensebuf = (caddr_t) sensebuf;
@@ -3115,7 +3191,7 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
       /*
        * Copy command to cmdbuf to assure 32-bit alignment.
        */
-      memcpy(cmdbuf, src, cdb_size);
+      memcpy(cmdbuf, cmd, cmd_size);
     }
   else
     {
@@ -3125,17 +3201,17 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
       scsi_req.ds_flags    = DSRQ_WRITE | DSRQ_SENSE;
       scsi_req.ds_time     = 120 * 1000;
       scsi_req.ds_cmdbuf   = (caddr_t) cmdbuf;
-      scsi_req.ds_cmdlen   = cdb_size;
+      scsi_req.ds_cmdlen   = cmd_size;
       scsi_req.ds_databuf  = (caddr_t) databuf;
-      scsi_req.ds_datalen  = src_size - cdb_size;
+      scsi_req.ds_datalen  = src_size;
       scsi_req.ds_sensebuf = (caddr_t) sensebuf;
       scsi_req.ds_senselen = sizeof (sensebuf);
 
       /*
        * Copy command and data to local buffers to ensure 32-bit alignment...
        */
-      memcpy (cmdbuf, (u_char *) src, cdb_size);
-      memcpy (databuf, (u_char *) src + cdb_size, src_size - cdb_size);
+      memcpy (cmdbuf, (u_char *) cmd, cmd_size);
+      memcpy (databuf, (u_char *) src, src_size);
     }
 
   /*
@@ -3306,32 +3382,38 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 #if USE == AIX_GSC_INTERFACE
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   scmd_t scmd;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
+  */
   char sense_buf[32];
   char status;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   memset (&scmd, 0, sizeof (scmd));
   if (dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       scmd.rw = 1;
       scmd.data_buf = dst;
       scmd.datalen = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
-      scmd.data_buf = (char *) src + cdb_size;
-      scmd.datalen = src_size - cdb_size;
+      /* assert (cdb_size <= src_size);
+      */
+      scmd.data_buf = (char *) src;
+      scmd.datalen = src_size;
     }
-  scmd.cdb = (char *) src;
-  scmd.cdblen = cdb_size;
+  scmd.cdb = (char *) cmd;
+  scmd.cdblen = cmd_size;
   scmd.timeval = 60;		/* 1 minute timeout */
   scmd.sense_buf = sense_buf;
   scmd.senselen = sizeof (sense_buf);
@@ -3372,19 +3454,23 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 #endif
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
   struct user_scsi us;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
+  */
   char sensebf[CCS_SENSE_LEN];
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   /* first put the user scsi structure together.  */
   memset (&us, 0, sizeof (us));
-  us.us_cdbp = (caddr_t) src;
-  us.us_cdblen = cdb_size;
+  us.us_cdbp = (caddr_t) cmd;
+  us.us_cdblen = cmd_size;
   us.us_sensep = sensebf;
   us.us_senselen = CCS_SENSE_LEN;
   if (dst && dst_size && *dst_size)
@@ -3395,8 +3481,8 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
     }
   else
     {
-      us.us_bufp = (caddr_t) src + cdb_size;
-      us.us_buflen = src_size - cdb_size;
+      us.us_bufp = (caddr_t) src;
+      us.us_buflen = src_size;
       us.us_flags = USER_SCSI_WRITE;
     }
   /* now run it */
@@ -3440,36 +3526,42 @@ sanei_scsi_cmd (int fd, const void *src, size_t src_size,
 static int d_errs = 100;
 
 static SANE_Status
-scsi_cmd (int fd, const void *src, size_t src_size,
+scsi_cmd (int fd, 
+          const void *cmd, size_t cmd_size,
+          const void *src, size_t src_size,
 	  void *dst, size_t * dst_size, int probing)
 {
   struct scg_cmd scmd;
-  size_t cdb_size;
+  /* xxx obsolete size_t cdb_size;
+  */
   SANEI_SCSI_Sense_Handler handler;
 
-  cdb_size = CDB_SIZE (*(u_char *) src);
+  /* xxx obsolete cdb_size = CDB_SIZE (*(u_char *) src);
+  */
 
   memset (&scmd, 0, sizeof (scmd));
   scmd.flags = DEF_SCG_FLG | (probing ? SCG_SILENT : 0);
   if (dst && dst_size && *dst_size)
     {
-      assert (cdb_size == src_size);
+      /* xxx obsolete assert (cdb_size == src_size);
+      */
       scmd.flags |= SCG_RECV_DATA;
       scmd.addr = dst;
       scmd.size = *dst_size;
     }
   else
     {
-      assert (cdb_size <= src_size);
-      scmd.addr = (caddr_t) src + cdb_size;
-      scmd.size = src_size - cdb_size;
+      /* xxx obsolete assert (cdb_size <= src_size);
+      */
+      scmd.addr = (caddr_t) src;
+      scmd.size = src_size;
     }
-  scmd.cdb_len = cdb_size;
+  scmd.cdb_len = cmd_size;
   scmd.sense_len = CCS_SENSE_LEN;
   scmd.target = fd_info[fd].target;
   /* use 2 second timeout when probing, 60 seconds otherwise: */
   scmd.timeout = probing ? 2 : DEF_TIMEOUT;
-  memcpy (&scmd.cdb.g0_cdb.cmd, src, cdb_size);
+  memcpy (&scmd.cdb.g0_cdb.cmd, cmd, cmd_size);
   scmd.cdb.cmd_cdb[1] |= fd_info[fd].lun << 5;
   if (ioctl (fd, SCGIO_CMD, &scmd) < 0)
     return SANE_STATUS_IO_ERROR;
@@ -3537,10 +3629,12 @@ scsi_cmd (int fd, const void *src, size_t src_size,
 }
 
 SANE_Status
-sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+sanei_scsi_cmd2 (int fd, 
+                const void *cmd, size_t cmd_size,
+                const void *src, size_t src_size,
 		void *dst, size_t * dst_size)
 {
-  return scsi_cmd (fd, src, src_size, dst, dst_size, 0);
+  return scsi_cmd (fd, cmd, cmd_size, src, src_size, dst, dst_size, 0);
 }
 
 static int
@@ -3550,7 +3644,8 @@ unit_ready (int fd)
   {0, 0, 0, 0, 0, 0};
   int status;
 
-  status = scsi_cmd (fd, test_unit_ready, sizeof (test_unit_ready), 0, 0, 1);
+  status = scsi_cmd (fd, test_unit_ready, sizeof (test_unit_ready), 
+                     0, 0, 0, 0, 1);
   return (status == SANE_STATUS_GOOD);
 }
 
@@ -3559,10 +3654,12 @@ unit_ready (int fd)
 #ifndef WE_HAVE_ASYNC_SCSI
 
 SANE_Status
-sanei_scsi_req_enter (int fd, const void *src, size_t src_size,
+
+sanei_scsi_req_enter2 (int fd, const void *cmd, size_t cmd_size,
+                      const void *src, size_t src_size,
 		      void *dst, size_t * dst_size, void **idp)
 {
-  return sanei_scsi_cmd (fd, src, src_size, dst, dst_size);
+  return sanei_scsi_cmd2 (fd, cmd, cmd_size, src, src_size, dst, dst_size);
 }
 
 SANE_Status
@@ -3576,7 +3673,46 @@ sanei_scsi_req_flush_all (void)
 {
 }
 
+void
+sanei_scsi_req_flush_all_extended (int fd)
+{
+}
+
 #endif /* WE_HAVE_ASYNC_SCSI */
+
+SANE_Status sanei_scsi_req_enter (int fd,
+                      const void *src, size_t src_size,
+		      void *dst, size_t * dst_size, void **idp)
+{
+  size_t cmd_size = CDB_SIZE (*(char *) src);
+  
+  if (dst_size && *dst_size)
+    assert(src_size == cmd_size);
+  else
+    assert(src_size >= cmd_size);
+
+  return sanei_scsi_req_enter2(fd,  src, cmd_size, 
+                               (char*) src + cmd_size, src_size - cmd_size, 
+                               dst, dst_size, idp);
+}
+
+SANE_Status
+sanei_scsi_cmd (int fd, const void *src, size_t src_size,
+		void *dst, size_t * dst_size)
+{
+  size_t cmd_size = CDB_SIZE (*(char *) src);
+  
+  if (dst_size && *dst_size)
+    assert(src_size == cmd_size);
+  else
+    assert(src_size >= cmd_size);
+
+  return sanei_scsi_cmd2(fd,  src, cmd_size, 
+                             (char*) src + cmd_size, src_size - cmd_size, 
+                             dst, dst_size);
+}
+
+
 
 #ifndef WE_HAVE_FIND_DEVICES
 

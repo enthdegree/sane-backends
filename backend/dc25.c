@@ -89,6 +89,8 @@
 
  ***************************************************************************/
 
+#include "sane/config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -96,13 +98,12 @@
 #include <fcntl.h>
 #include <limits.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
-#include <sane/config.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/saneopts.h"
 
 #define BACKEND_NAME	dc25
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #include "dc25.h"
 
@@ -1710,13 +1711,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		DBG (1, "sane_init:  missing config file '%s'\n",DC25_CONFIG_FILE);
 	}
 	else {  
-		while (fgets (dev_name, sizeof (dev_name), fp)) {
+		while (sanei_config_read (dev_name, sizeof (dev_name), fp)) {
 			dev_name[sizeof (dev_name)-1]='\0';
 			DBG (20, "sane_init:  config- %s", dev_name);
 
 			if (dev_name[0] == '#') continue;	/* ignore line comments */
 			len = strlen (dev_name);
-			if (dev_name[len - 1] == '\n') dev_name[--len] = '\0';
 			if (!len) continue;			/* ignore empty lines */
 			if ( strncmp(dev_name,"port=",5) == 0 ) {
 				p=strchr (dev_name,'/');
@@ -1774,12 +1774,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}
 
 	if ( dumpinquiry) {
-		fprintf (stderr,"\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
-		fprintf (stderr,"Model...........: DC%x\n", dc20_info->model);
-		fprintf (stderr,"Firmware version: %d.%d\n", dc20_info->ver_major, dc20_info->ver_minor);
-		fprintf (stderr,"Pictures........: %d/%d\n", dc20_info->pic_taken, dc20_info->pic_taken + dc20_info->pic_left);
-		fprintf (stderr,"Resolution......: %s\n", dc20_info->flags.low_res ? "low" : "high");
-		fprintf (stderr,"Battery state...: %s\n", dc20_info->flags.low_batt ? "low" : "good");
+		DBG(0,"\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
+		DBG(0,"Model...........: DC%x\n", dc20_info->model);
+		DBG(0,"Firmware version: %d.%d\n", dc20_info->ver_major, dc20_info->ver_minor);
+		DBG(0,"Pictures........: %d/%d\n", dc20_info->pic_taken, dc20_info->pic_taken + dc20_info->pic_left);
+		DBG(0,"Resolution......: %s\n", dc20_info->flags.low_res ? "low" : "high");
+		DBG(0,"Battery state...: %s\n", dc20_info->flags.low_batt ? "low" : "good");
 	}
 	
 	if ( CameraInfo.pic_taken == 0 ) {

@@ -57,7 +57,9 @@ enum Coolscan_Option
     OPT_RESOLUTION,
     OPT_PREVIEW_RESOLUTION,
     OPT_TYPE,
+    OPT_BIT_DEPTH,
     OPT_PRESCAN,
+    OPT_PRESCAN_NOW,
 
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,			/* top-left x */
@@ -92,11 +94,12 @@ enum Coolscan_Option
 
     OPT_ADVANCED_GROUP,
     OPT_PREVIEW,		/* preview */
+    OPT_AUTOFOCUS,		/* autofocus */
+    OPT_IRED_RED,
     OPT_GAMMA_VECTOR,
     OPT_GAMMA_VECTOR_R,
     OPT_GAMMA_VECTOR_G,
     OPT_GAMMA_VECTOR_B,
-
 
     /* must come last: */
     NUM_OPTIONS
@@ -110,6 +113,15 @@ typedef union
     SANE_String s;
   }
 Option_Value;
+
+typedef struct Image_Pos
+{ int start;           /* start position of image on film strip */
+  int end;             /* end position of image on film strip */
+  int offset           /* always 0 */;
+  int height;          /* image height always 2591 */  
+} Image_Pos_t;
+
+
 
 
 typedef struct Coolscan
@@ -128,8 +140,9 @@ typedef struct Coolscan
     SANE_Range y_range;
 
 /*--------------------------*/
-    /* buffer used for scsi-transfer */
+    /* buffer used for scsi-transfer and writing*/
     unsigned char *buffer;
+    unsigned char *obuffer;
     unsigned int row_bufsize;
 
     char *devicename;		/* name of the scanner device */
@@ -166,7 +179,8 @@ typedef struct Coolscan
     int brx;			/* Right edge in ILU. */
     int bry;			/* Bottom edge in ILU. */
 
-    int bits_per_pixel;		/* bits per pixel (8) */
+    int bits_per_color;		/* bits per color (8/10/12) */
+    int bits_per_pixel;		/* bits per pixel (24/30/40) */
     int negative;		/* Negative/positive object */
     int dropoutcolor;		/* Which color to scan when gray */
     int transfermode;		/**/
@@ -187,9 +201,20 @@ typedef struct Coolscan
     int shift_B;
     int set_auto;		/* 0 or 1, don't know what it is */
     int preview;		/* 1 if preview */
+    int autofocus;		/* when to do autofocus */
+#define AF_NEVER            0x00
+#define AF_PREVIEW          0x01
+#define AF_SCAN             0x02
+#define AF_PREANDSCAN       0x03
+
     int colormode;		/* GREYSCALE or RGB  */
-#define GREYSCALE           3
-#define RGB                 6
+    int colormode_p;		/* GREYSCALE or RGB for preview */
+#define GREYSCALE           0x01
+#define RGB                 0x07
+#define IRED                0x08
+#define RGBI                0x0f
+
+    int low_byte_first;         /* 1 if little-endian - 0 if big-endian */
 
     /* Internal information */
     int adbits;			/* Number of A/D bits [8 or 12] */
@@ -238,10 +263,17 @@ typedef struct Coolscan
     int prescan;		/* */
     int rgb_control;		/* */
     int gamma_bind;		/* TRUE -> RGB */
-    SANE_Word gamma[2048];	/* gamma value for RGB */
-    SANE_Word gamma_r[2048];	/* gamma value for red */
-    SANE_Word gamma_g[2048];	/* gamma value for green */
-    SANE_Word gamma_b[2048];	/* gamma value for blue */
+    int lutlength;              /* length of gamma table */
+    int max_lut_val;            /* maximum value in lut */
+    SANE_Word gamma[4096];	/* gamma value for RGB */
+    SANE_Word gamma_r[4096];	/* gamma value for red */
+    SANE_Word gamma_g[4096];	/* gamma value for green */
+    SANE_Word gamma_b[4096];	/* gamma value for blue */
+
+    int luti[4096];	        /* lut value for infrared */
+    int lutr[4096];	        /* lut value for red */
+    int lutg[4096];	        /* lut value for green */
+    int lutb[4096];	        /* lut value for blue */
 
     char *gamma_file_r;		/* file for gamma download */
     char *gamma_file_g;		/* file for gamma download */
@@ -250,6 +282,18 @@ typedef struct Coolscan
     int analog_gamma_r;		/* analog gamma red and grey */
     int analog_gamma_g;		/* analog gamma green */
     int analog_gamma_b;		/* analog gamma blue */
+
+    /* Infrared correction values */    
+    int ired_red;
+    int ired_green;
+    int ired_blue;
+
+    int feeder;                 /* type of feeder used */
+    int numima;                 /* number of images on film strip */
+    int posima;                 /* current image */
+    Image_Pos_t ipos[6];        /* positions for 6 images */
+#define  STRIP_FEEDER 1
+#define  MOUNT_FEEDER 2
   }
 Coolscan_t;
 
@@ -274,10 +318,14 @@ static char *scanner_str[] =
 {
   "COOLSCAN II ",
   "LS-1000 ",
+  "COOLSCANIII ",
+  "LS-2000 ",
 };
 
-#define known_scanners 2
+#define known_scanners 4
 
-
+/* Comment this line if you havn't patched sane.h to include
+  SANE_FRAME_RGBA */
+/* #define HAS_IRED 1 */
 
 #endif /* coolscan-sane_h */

@@ -52,8 +52,9 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 @SET_MAKE@
 
 PRELOADABLE_BACKENDS = abaton agfafocus apple artec avision canon coolscan \
-	dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek @NET@ \
-	@PINT@ pnm @QCAM@ ricoh s9036 sharp snapscan sp15c tamarack umax
+	dc25 @DC210@ dmc epson hp m3096g microtek microtek2 mustek mustek_pp \
+	@NET@ @PINT@ plustek pnm @QCAM@ ricoh s9036 sharp snapscan sp15c \
+	st400 tamarack umax @V4L@
 ALL_BACKENDS = $(PRELOADABLE_BACKENDS) dll
 
 LIBS = $(addprefix libsane-,$(addsuffix .la,$(ALL_BACKENDS)))
@@ -62,7 +63,8 @@ CONFIGS = $(addsuffix .conf,$(ALL_BACKENDS)) saned.conf
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_config.lo
 
 # With libtool-1.0, we have to mention each library object explicitly... ;-(
-LIBLIB_FUNCS = alloca getopt getopt1 snprintf strndup strsep strndup usleep
+LIBLIB_FUNCS = alloca getenv getopt getopt1 isfdtype sigprocmask snprintf \
+        strdup strndup strsep usleep vsyslog
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
@@ -95,7 +97,7 @@ install:
 	done
 	@$(LIBTOOL) $(MINST) --finish $(libsanedir)
 	@# Assume the dll name without any versions is last
-	@dllend=`grep library_names= libsane-dll.la |rev|cut -d" " -f1|rev|sed 's/libsane-dll.//'|cut -d\' -f1`; \
+	@dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
 	list="$(ALL_BACKENDS)"; cd $(libsanedir) && for be in $$list; do \
 	  file=libsane-$${be}.$$dllend.$(V_MAJOR); \
 	  lib=`grep dlname= libsane-$${be}.la | cut -f2 -d"'"`; \
@@ -104,7 +106,7 @@ install:
 	  fi; \
 	done
 	@# Assume the dll name without any versions is last
-	@dllend=`grep library_names= libsane-dll.la |rev|cut -f1 -d" "|rev|sed 's/libsane-dll.//'|cut -f1 -d\'`; \
+	@dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
 	rm -f $(libdir)/libsane.a $(libdir)/libsane.$$dllend \
 		$(libdir)/libsane.$$dllend.$(V_MAJOR)*; \
 	$(LN_S) sane/libsane-dll.a $(libdir)/libsane.a; \
@@ -210,10 +212,15 @@ libsane-mustek.la: ../sanei/sanei_config2.lo
 libsane-mustek.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek.la: ../sanei/sanei_scsi.lo
 libsane-mustek.la: ../sanei/sanei_ab306.lo
+libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
+libsane-mustek_pp.la: ../sanei/sanei_config2.lo
+libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-net.la: ../sanei/sanei_codec_bin.lo
 libsane-net.la: ../sanei/sanei_net.lo
 libsane-net.la: ../sanei/sanei_wire.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo
+libsane-plustek.la: ../sanei/sanei_config2.lo
+libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-pnm.la: ../sanei/sanei_constrain_value.lo
 libsane-qcam.la: ../sanei/sanei_constrain_value.lo
 libsane-ricoh.la: ../sanei/sanei_config2.lo
@@ -231,12 +238,16 @@ libsane-snapscan.la: ../sanei/sanei_scsi.lo
 libsane-sp15c.la: ../sanei/sanei_config2.lo
 libsane-sp15c.la: ../sanei/sanei_constrain_value.lo
 libsane-sp15c.la: ../sanei/sanei_scsi.lo
+libsane-st400c.la: ../sanei/sanei_config2.lo
+libsane-st400c.la: ../sanei/sanei_constrain_value.lo
+libsane-st400c.la: ../sanei/sanei_scsi.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo
 libsane-umax.la: ../sanei/sanei_config2.lo
 libsane-umax.la: ../sanei/sanei_constrain_value.lo
 libsane-umax.la: ../sanei/sanei_scsi.lo
+libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 
 ifneq ($(DLL_PRELOAD),)
 # need to make dll dependent on all sanei files:
@@ -249,6 +260,7 @@ libsane-dll.la libsane.la: ../sanei/sanei_scsi.lo
 libsane-dll.la libsane.la: ../sanei/sanei_wire.lo
 libsane-dll.la libsane.la: ../sanei/sanei_ab306.lo
 libsane-dll.la libsane.la: ../sanei/sanei_pio.lo
+libsane-dll.la libsane.la: ../sanei/sanei_pa4s2.lo
 endif
 
 depend:

@@ -10,7 +10,7 @@
 ;
 
 :backend "hp"                     ; name of backend
-:version "0.86"                   ; version of backend
+:version "0.88"                   ; version of backend
 :status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-hp"                ; name of manpage (if it exists)
 :url "http://www.kirchgessner.net/" ; backend's web page
@@ -22,25 +22,44 @@
 :mfg "HP"                         ; name a manufacturer
 :url "http://www.hp.com/"
 :model "HP ScanJet Plus"           ; name models for above-specified mfg.
+:interface "Propietary"
+:comment "Driver for HP parallel interface card required"
 :model "HP ScanJet IIc"
+:interface "SCSI"
 :model "HP ScanJet IIp"
+:interface "SCSI"
 :model "HP ScanJet IIcx"
+:interface "SCSI"
 :model "HP ScanJet 3c"
+:interface "SCSI"
 :model "HP ScanJet 3p"
+:interface "SCSI"
 :model "HP ScanJet 4c"
+:interface "SCSI"
 :model "HP ScanJet 4p"
+:interface "SCSI"
 :model "HP ScanJet 4100C"
+:interface "USB"
 :model "HP ScanJet 5p"
+:interface "SCSI"
 :model "HP ScanJet 5100C"
+:interface "Parport"
+:comment "Requires ppscsi driver and epst module"
 :model "HP ScanJet 5200C"
+:interface "Parport USB"
+:comment "Parallel interface requires ppscsi driver and epst module"
 :model "HP ScanJet 6100C"
+:interface "SCSI"
 :model "HP ScanJet 6200C"
+:interface "SCSI USB"
 :model "HP ScanJet 6250C"
+:interface "SCSI USB"
 :model "HP ScanJet 6300C"
+:interface "SCSI USB"
 :model "HP ScanJet 6350C"
+:interface "SCSI USB"
 :model "HP PhotoSmart PhotoScanner"
-:comment "Parallel port HP ScanJet 5100C/5200C require ppSCSI driver. See http://www.torque.net/parport/ppscsi.html (under development)"
-:comment "USB on HP ScanJet 4100C/5200C/6200C/6300C require USB driver. See http://www.jump.net/~dnelson/linux/usb (under development)"
+:interface "SCSI"
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.
 

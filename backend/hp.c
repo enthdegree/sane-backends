@@ -43,9 +43,20 @@
    HP Scanner Control Language (SCL).
 */
 
-static char *hp_backend_version = "0.86";
+static char *hp_backend_version = "0.88";
 /* Changes:
 
+   V 0.88, 25-Jul-2000, PK:
+      - remove inlines
+   V 0.88, 20-Jul-2000, PK:
+      - Use sanei_config_read()
+      - dont write chars < 32 to DBG
+   V 0.88, 09-Jul-2000, PK:
+      - Add front button support by Chris S. Cowles, Houston, Texas,
+        c_cowles@ieee.org
+   V 0.87, 28-Jun-2000, PK:
+      - ADF-support for ScanJet IIp
+      - Return error SANE_STATUS_NO_DOCS if no paper in ADF
    V 0.86, 12-Feb-2000, PK:
       - fix gcc warnings
       - fix problems with bitdepths > 8
@@ -139,26 +150,20 @@ static char *hp_backend_version = "0.86";
 
 #define VERSIO                                8
 
-#include <sane/config.h>
+#include "sane/config.h"
 #include "hp.h"
 
 #include <string.h>
 /* #include <sys/types.h> */
 /* #include <sane/sane.h> */
-#include <sane/sanei_config.h>
-#include <sane/sanei_backend.h>
+#include "sane/sanei_config.h"
+#include "sane/sanei_backend.h"
 /* #include <sane/sanei_debug.h> */
 #include "hp-device.h"
 #include "hp-handle.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
-#endif
-
-#if (defined(__IBMC__) || defined(__IBMCPP__))
-#ifndef _AIX
-#define inline /* */
-#endif
 #endif
 
 #ifndef NDEBUG
@@ -409,13 +414,13 @@ hp_device_list_remove (HpDeviceList * list, HpDevice dev)
   return SANE_STATUS_GOOD;
 }
 
-static inline SANE_Status
+static SANE_Status
 hp_handle_list_add (HpDeviceList * list, HpHandle h)
 {
   return hp_device_list_add(list, (HpDevice)h);
 }
 
-static inline SANE_Status
+static SANE_Status
 hp_handle_list_remove (HpDeviceList * list, HpHandle h)
 {
   return hp_device_list_remove(list, (HpDevice)h);
@@ -529,7 +534,7 @@ hp_read_config (void)
 
   if ((fp = sanei_config_open(HP_CONFIG_FILE)) != 0)
     {
-      while (fgets(buf, sizeof(buf), fp))
+      while (sanei_config_read(buf, sizeof(buf), fp))
 	{
 	  char *dev_name;
 

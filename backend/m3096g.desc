@@ -22,4 +22,5 @@
 :mfg "Fujitsu"  ; name a manufacturer
 :url "http://www.fujitsu.com/scanners.html"
 :model "M3096G"                  ; name models for above-specified mfg.
+:interface "SCSI"
 

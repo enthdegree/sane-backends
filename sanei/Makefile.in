@@ -44,12 +44,13 @@ MLINK	= --mode=link
 LIBSANEI_OBJS = sanei_ab306.o sanei_constrain_value.o sanei_init_debug.o \
 	sanei_net.o sanei_wire.o sanei_codec_ascii.o sanei_codec_bin.o \
 	sanei_save_values.o sanei_load_values.o \
-	sanei_scsi.o sanei_config.o sanei_config2.o sanei_pio.o
+	sanei_scsi.o sanei_config.o sanei_config2.o sanei_pio.o sanei_pa4s2.o
 
 LIBSANEI_LTOBJS = sanei_ab306.lo sanei_constrain_value.lo sanei_init_debug.lo \
 	sanei_net.lo sanei_wire.lo sanei_codec_ascii.lo sanei_codec_bin.lo \
 	sanei_save_values.lo sanei_load_values.lo \
-	sanei_scsi.lo sanei_config.lo sanei_config2.lo sanei_pio.lo
+	sanei_scsi.lo sanei_config.lo sanei_config2.lo sanei_pio.lo \
+	sanei_pa4s2.lo
 
 TARGETS = libsanei.a
 TESTPROGRAMS = test_wire

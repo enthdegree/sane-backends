@@ -86,8 +86,36 @@ extern SANE_Status sanei_scsi_open_extended (
 
    NOTE: Some systems may not support multiple outstanding commands.
    On such systems, enter() may block.  In other words, it is not
-   proper to assume that enter() is a non-blocking routine.  */
+   proper to assume that enter() is a non-blocking routine.  
+
+   src points to a buffer which contains the SCSI command followed
+   by data to be written to the device (if any)
+*/
 extern SANE_Status sanei_scsi_req_enter (int fd,
+					 const void * src, size_t src_size,
+					 void * dst, size_t * dst_size,
+					 void **idp);
+
+/* Same as above, but with separate buffers for the SCSI command and
+   for the data to be sent to the device.
+
+   With sanei_scsi_req_enter, the length of te SCSI command block must be
+   guessed. While that works in most cases, Canon scanners for example
+   use the vendor specific commands 0xd4, 0xd5 and 0xd6. The Canon 
+   scanners want to get 6 byte command blocks for these commands, 
+   but sanei_scsi_req_enter and sanei_scsi_cmd send 12 bytes. 
+
+   cmd:      pointer to SCSI command
+   cmd_size: size of the command
+   src:      pointer to the buffer with data to be sent rto the scanner
+   src_size: size of that buffer
+   dst, dst_size, idp: see above
+   
+   If dst_size and *dst_size are non-zero, a "read command" (ie,
+   data transfer from the device to the host) is assumed.
+*/
+extern SANE_Status sanei_scsi_req_enter2 (int fd,
+					 const void * cmd, size_t cmd_size,
 					 const void * src, size_t src_size,
 					 void * dst, size_t * dst_size,
 					 void **idp);
@@ -98,6 +126,11 @@ extern SANE_Status sanei_scsi_req_wait (void *id);
 /* This is a convenience function that is equivalent to a pair of
    enter()/wait() calls.  */
 extern SANE_Status sanei_scsi_cmd (int fd,
+				   const void * src, size_t src_size,
+				   void * dst, size_t * dst_size);
+
+extern SANE_Status sanei_scsi_cmd2 (int fd,
+				   const void * cmd, size_t cmd_size,
 				   const void * src, size_t src_size,
 				   void * dst, size_t * dst_size);
 

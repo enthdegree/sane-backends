@@ -1,7 +1,7 @@
 #ifndef SG_ERR_H
 #define SG_ERR_H
 #include <linux/../scsi/scsi.h> /* cope with silly includes */
-#include <linux/../scsi/sg.h>
+#include <sg.h>
 
 /* Feel free to copy and modify this GPL-ed code into your applications. */
 

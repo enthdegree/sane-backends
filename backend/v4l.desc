@@ -10,9 +10,9 @@
 ;
 
 :backend "v4l"                    ; name of backend
-:version "(0.1)"                    ; version of backend
+:version "0.1"                    ; version of backend
 :status :alpha                    ; :alpha, :beta, :stable, :new
-;:manpage "sane-v4l"          ; name of manpage (if it exists)
+:manpage "sane-v4l"               ; name of manpage (if it exists)
 :url "http://www.franken.de/users/solid/" ; backend's web page
 
 :devicetype :api                  ; start of a list of devices....
@@ -20,7 +20,6 @@
                                   ;               :meta, :api
 
 
-:devicetype :api                  ; specify a different type
 :desc "Interface to Video For Linux API"      ; describe a non-hardware device
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

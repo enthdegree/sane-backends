@@ -1,55 +1,57 @@
 /* sane - Scanner Access Now Easy.
-
+ 
    Copyright (C) 1997, 1998, 1999  Franck Schnefra, Michel Roelofs,
    Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
    Petter Reinholdtsen, Gary Plewa, and Kevin Charter
-
+ 
    This file is part of the SANE package.
-
+ 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
    published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
-
+ 
    This program is distributed in the hope that it will be useful, but
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    General Public License for more details.
-
+ 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
-
+ 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
-
+ 
    The exception is that, if you link a SANE library with other files
    to produce an executable, this does not by itself cause the
    resulting executable to be covered by the GNU General Public
    License.  Your use of that executable is in no way restricted on
    account of linking the SANE library code into it.
-
+ 
    This exception does not, however, invalidate any other reasons why
    the executable file might be covered by the GNU General Public
    License.
-
+ 
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-
+ 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
-
-   This file implements a backend for the AGFA SnapScan flatbed
-   scanner. */
+ 
+   This file is a component of the implementation of a backend for many
+   of the the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
 
 /* $Id$
    SANE SnapScan backend */
 
 #ifndef snapscan_h
 #define snapscan_h
+
+#define UNREFERENCED_PARAMETER(x)           ((void) x)
 
 /* snapscan device field values */
 
@@ -58,50 +60,59 @@
 /*#define	INOPERATIVE*/
 #define TMP_FILE_PREFIX "/var/tmp/snapscan"
 
+/* Define the colour channel order in arrays */
+#define R_CHAN	0
+#define G_CHAN	1
+#define B_CHAN	2
+
 typedef enum
 {
-  UNKNOWN,
-  SNAPSCAN300,			/* the original SnapScan or SnapScan 300 */
-  SNAPSCAN310,			/* the SnapScan 310 */
-  SNAPSCAN600,			/* the SnapScan 600 */
-  SNAPSCAN1236S,		/* the SnapScan 1236s */
-  VUEGO310S,			/* Vuego-Version of SnapScan 310 WG changed */
-  PRISA620S			/* Prisa-Version of SnapScan 600 GP added */ 
+    UNKNOWN,
+    SNAPSCAN300,		/* the original SnapScan or SnapScan 300 */
+    SNAPSCAN310,		/* the SnapScan 310 */
+    SNAPSCAN600,		/* the SnapScan 600 */
+    SNAPSCAN1236S,		/* the SnapScan 1236s */
+    VUEGO310S,			/* Vuego-Version of SnapScan 310 WG changed */
+    VUEGO610S,			/* Vuego 610S and 610plus SJU changed */
+    PRISA620S			/* Prisa-Version of SnapScan 600 GP added */
 } SnapScan_Model;
-
 struct SnapScan_Model_desc
 {
-  char *scsi_name;
-  SnapScan_Model id;
+    char *scsi_name;
+    SnapScan_Model id;
 };
 
 static struct SnapScan_Model_desc scanners[] =
 {
-  /* SCSI model name -> enum value */
-  { "FlatbedScanner_4",	VUEGO310S },
-  { "FlatbedScanner_9", PRISA620S },
-  { "SNAPSCAN 1236",	SNAPSCAN1236S },
-  { "SNAPSCAN 310",	SNAPSCAN310 },
-  { "SNAPSCAN 600",	SNAPSCAN600 },
-  { "SnapScan",		SNAPSCAN300 },
+    /* SCSI model name -> enum value */
+    {"FlatbedScanner_2",	VUEGO610S},
+    {"FlatbedScanner_4",	VUEGO310S},
+    {"FlatbedScanner_9",	PRISA620S},
+    {"FlatbedScanner13",	PRISA620S},
+    {"FlatbedScanner16",	PRISA620S},
+    {"SNAPSCAN 1236",		SNAPSCAN1236S},
+    {"SNAPSCAN 310",		SNAPSCAN310},
+    {"SNAPSCAN 600",		SNAPSCAN600},
+    {"SnapScan",		SNAPSCAN300},
 };
-#define known_scanners (sizeof(scanners)/sizeof(scanners[0]))
+#define known_scanners ((int) (sizeof(scanners)/sizeof(scanners[0])))
 
 static char *vendors[] =
 {
-  /* SCSI Vendor name */
-  "AGFA",
-  "COLOR"
+    /* SCSI Vendor name */
+    "AGFA",
+    "COLOR"
 };
-#define known_vendors (sizeof(vendors)/sizeof(vendors[0]))
+#define known_vendors ((int) (sizeof(vendors)/sizeof(vendors[0])))
 
 typedef enum
-  {
+{
     OPT_COUNT = 0,		/* option count */
     OPT_SCANRES,		/* scan resolution */
     OPT_PREVIEW,		/* preview mode toggle */
     OPT_MODE,			/* scan mode */
     OPT_PREVIEW_MODE,		/* preview mode */
+    OPT_SOURCE,			/* scan source (flatbed / TPO) */
     OPT_TLX,			/* top left x */
     OPT_TLY,			/* top left y */
     OPT_BRX,			/* bottom right x */
@@ -127,32 +138,41 @@ typedef enum
     OPT_REQ_SENSE,		/* request sense command (button) */
     OPT_REL_UNIT,		/* release unit command (button) */
     NUM_OPTS			/* dummy (gives number of options) */
-  } SnapScan_Options;
+} SnapScan_Options;
 
 typedef enum
 {
-  MD_COLOUR = 0,		/* full colour */
-  MD_BILEVELCOLOUR,		/* 1-bit per channel colour */
-  MD_GREYSCALE,			/* grey scale */
-  MD_LINEART,			/* black and white */
-  MD_NUM_MODES
+    MD_COLOUR = 0,		/* full colour */
+    MD_BILEVELCOLOUR,		/* 1-bit per channel colour */
+    MD_GREYSCALE,		/* grey scale */
+    MD_LINEART,			/* black and white */
+    MD_NUM_MODES
 } SnapScan_Mode;
 
 typedef enum
-  {
+{
+    SRC_FLATBED = 0,		/* Flatbed (normal) */
+    SRC_TPO			/* Transparency unit */
+} SnapScan_Source;
+
+typedef enum
+{
     ST_IDLE,			/* between scans */
     ST_SCAN_INIT,		/* scan initialization */
     ST_SCANNING,		/* actively scanning data */
     ST_CANCEL_INIT		/* cancellation begun */
-  } SnapScan_State;
+} SnapScan_State;
 
 typedef struct snapscan_device
-  {
+{
     SANE_Device dev;
-    SnapScan_Model model;	/* type of AGFA scanner */
+    SANE_Range x_range;		/* x dimension of scan area */
+    SANE_Range y_range;		/* y dimension of scan area */
+    SnapScan_Model model;	/* type of scanner */
     u_char *depths;		/* bit depth table */
     struct snapscan_device *pnext;
-  } SnapScan_Device;
+}
+SnapScan_Device;
 
 #define MAX_SCSI_CMD_LEN 256	/* not that large */
 #define SCANNER_BUF_SZ 31744
@@ -162,7 +182,7 @@ typedef struct snapscan_scanner SnapScan_Scanner;
 #include <snapscan-sources.h>
 
 struct snapscan_scanner
-  {
+{
     SANE_String devname;	/* the scsi device name */
     SnapScan_Device *pdev;	/* the device */
     int fd;			/* scsi file descriptor */
@@ -174,6 +194,7 @@ struct snapscan_scanner
     pid_t child;		/* child reader process pid */
     SnapScan_Mode mode;		/* mode */
     SnapScan_Mode preview_mode;	/* preview mode */
+    SnapScan_Source source;	/* scanning source */
     SnapScan_State state;	/* scanner state */
     u_char cmd[MAX_SCSI_CMD_LEN];	/* scsi command buffer */
     u_char buf[SCANNER_BUF_SZ];	/* data buffer */
@@ -192,22 +213,7 @@ struct snapscan_scanner
     char *as_str;		/* additional sense string */
     u_char asi1;		/* first additional sense info byte */
     u_char asi2;		/* second additional sense info byte */
-#ifdef OBSOLETE
-    struct
-    {				/* RGB ring buffer for 310/600 model */
-	SANE_Byte *data;	/* buffer data */
-	SANE_Int line_in;	/* virtual position */
-	SANE_Int pixel_pos;
-	SANE_Int line_out;	/* read lines */
-	SANE_Byte g_offset;	/* green offset */
-	SANE_Byte b_offset;	/* blue offset */
-	SANE_Byte r_offset;	/* red offset */
-    } rgb_buf;
-#else
-    SANE_Byte g_offset;		/* green chroma offset */
-    SANE_Byte b_offset;		/* blue chroma offset */
-    SANE_Byte r_offset;		/* red chroma offset */
-#endif
+    SANE_Byte chroma_offset[3];	/* chroma offsets */
     Source *psrc;		/* data source */
 
     SANE_Option_Descriptor
@@ -216,6 +222,7 @@ struct snapscan_scanner
     SANE_Int res;		/* resolution */
     SANE_Bool preview;		/* preview mode toggle */
     SANE_String mode_s;		/* scanning mode */
+    SANE_String source_s;	/* scanning source */
     SANE_String preview_mode_s;	/* scanning mode for preview */
     SANE_Fixed tlx;		/* window top left x */
     SANE_Fixed tly;		/* window top left y */
@@ -236,12 +243,21 @@ struct snapscan_scanner
     SANE_Int threshold;		/* threshold for line art */
     SANE_Int rgb_lpr;		/* lines per scsi read (RGB) */
     SANE_Int gs_lpr;		/* lines per scsi read (greyscale) */
-  };
+};
 
 #endif
 
 /*
  * $Log$
+ * Revision 1.3  2000/08/12 15:09:37  pere
+ * Merge devel (v1.0.3) into head branch.
+ *
+ * Revision 1.1.1.1.2.2  2000/07/13 04:47:50  pere
+ * New snapscan backend version dated 20000514 from Steve Underwood.
+ *
+ * Revision 1.2.1  2000/05/14 13:30:20  coppice
+ * Some reformatting a minor tidying.
+ *
  * Revision 1.2  2000/03/05 13:55:21  pere
  * Merged main branch with current DEVEL_1_9.
  *

@@ -44,7 +44,7 @@
 
 #define STUBS
 extern int sanei_debug_hp;
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>

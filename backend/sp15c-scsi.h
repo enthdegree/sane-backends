@@ -49,8 +49,11 @@ static const char RCSid_sh[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
- * Revision 1.2  2000/03/05 13:55:21  pere
- * Merged main branch with current DEVEL_1_9.
+ * Revision 1.3  2000/08/12 15:09:37  pere
+ * Merge devel (v1.0.3) into head branch.
+ *
+ * Revision 1.1.2.4  2000/03/14 17:47:12  abel
+ * new version of the Sharp backend added.
  *
  * Revision 1.1.2.3  2000/02/14 14:20:19  pere
  * Make lint_catcher static to avoid link problems with duplicate symbols.

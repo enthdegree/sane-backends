@@ -24,6 +24,9 @@
 # the same distribution terms that you use for the rest of that program.
 
 # changes:
+# 2000-07-27 by Henning Meier-Geinitz <hmg@gmx.de>
+# added underscore to sed expression (libsane-mustek_pp needs this)
+#        soname=`echo $soname | sed -e "s/libsane-[A-Za-z_]*/libsane/g"` 
 # 20.11.99 by Oliver Rauch <Oliver.Rauch@Wolfsburg.DE> :
 # changes variable soname, from "libsane-backendname.*" to "libsane.*":
 # moved 23 lines up:
@@ -1712,7 +1715,7 @@ compiler."
 	none) ;;
 
 	irix)
-	  major=`expr $current - $age + 1`
+	  major=`expr $current - $age`
 	  versuffix="$major.$revision"
 	  verstring="sgi$major.$revision"
 
@@ -2169,7 +2172,7 @@ EOF
         # added by oliver rauch:
         # must stand at this point because dlname has to be unchanged
         # removes "-backendname" from the soname of the backend libs
-        soname=`echo $soname | sed -e "s/libsane-[A-Za-z0-9]*/libsane/g"`
+        soname=`echo $soname | sed -e "s/libsane-[A-Za-z0-9_]*/libsane/g"`
 
 	# Do each of the archive commands.
 	if test -n "$export_symbols" && test -n "$archive_expsym_cmds"; then

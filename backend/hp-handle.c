@@ -44,7 +44,7 @@
 
 #define STUBS
 extern int sanei_debug_hp;
-#include <sane/config.h>
+#include "sane/config.h"
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -58,19 +58,13 @@ extern int sanei_debug_hp;
 
 #include "hp.h"
 
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #include "hp-device.h"
 #include "hp-option.h"
 #include "hp-accessor.h"
 #include "hp-scsi.h"
 #include "hp-scl.h"
-
-#if (defined(__IBMC__) || defined(__IBMCPP__))
-#ifndef _AIX
-#define inline /* */
-#endif
-#endif
 
 struct hp_handle_s
 {
@@ -86,7 +80,7 @@ struct hp_handle_s
 };
 
 
-static inline hp_bool_t
+static hp_bool_t
 hp_handle_isScanning (HpHandle this)
 {
   return this->reader_pid != 0;
@@ -121,7 +115,7 @@ hp_handle_startReader (HpHandle this, HpScsi scsi, HpProcessData *procdata)
 	}
 
       this->pipefd = fds[0];
-      DBG(1, "start_reader: reader proces %d started\n", this->reader_pid);
+      DBG(1, "start_reader: reader process %d started\n", this->reader_pid);
       return SANE_STATUS_GOOD;
     }
 
@@ -331,6 +325,7 @@ sanei_hp_handle_startScan (HpHandle this)
   HpScsi	scsi;
   HpScl         scl;
   HpProcessData procdata;
+  int           adfscan;
 
   /* FIXME: setup preview mode stuff? */
 
@@ -358,6 +353,40 @@ sanei_hp_handle_startScan (HpHandle this)
          "Request" : "No request" );
 
   scl = sanei_hp_optset_scan_type (this->dev->options, this->data);
+  adfscan = (scl ==  SCL_ADF_SCAN);
+
+  /* For ADF scan we should check if there is paper available */
+  if ( adfscan )
+  {int adfstat = 0;
+   int minval, maxval;
+
+    /* HP ScanJet IIp does not support commands ADF scan window */
+    /* and unload document. We have to use the usual scan window. */
+    if ( sanei_hp_device_support_get (this->dev->sanedev.name,
+                                      SCL_UNLOAD, &minval, &maxval)
+           != SANE_STATUS_GOOD )
+    {
+
+      DBG(1, "start: Request for ADF scan without support of unload doc.\n");
+      DBG(1, "       Seems to be a IIp. Use standard scan window command.\n");
+
+      scl = SCL_START_SCAN;
+    }
+
+    /* Check if the ADF is ready */
+    if (  sanei_hp_scl_inquire(scsi, SCL_ADF_READY, &adfstat, 0, 0)
+            != SANE_STATUS_GOOD )
+    {
+      DBG(1, "start: Error checking if ADF is ready\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+    if ( adfstat != 1 )
+    {
+      DBG(1, "start: ADF scan requested without paper. Finished.\n");
+      return SANE_STATUS_NO_DOCS;
+    }
+  }
 
   DBG(1, "start: %s to mirror image vertically\n", procdata.mirror_vertical ?
          "Request" : "No request" );
@@ -371,7 +400,19 @@ sanei_hp_handle_startScan (HpHandle this)
   procdata.bytes_per_line = (int)this->scan_params.bytes_per_line;
   procdata.lines = this->scan_params.lines;
 
-  status = sanei_hp_scl_startScan(scsi, scl);
+  /* Wait for front-panel button push ? */
+  status = sanei_hp_optset_start_wait(this->dev->options, this->data, scsi);
+
+  if (status)   /* Wait for front button push ? Start scan in reader process */
+  {
+    procdata.startscan = scl;
+    status = SANE_STATUS_GOOD;
+  }
+  else
+  {
+    procdata.startscan = 0;
+    status = sanei_hp_scl_startScan(scsi, scl);
+  }
 
   if (!FAILED( status ))
   {

@@ -88,7 +88,7 @@
  - sane_exit() : terminate use of backend, free devicename and device-struture
 */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <limits.h>
 #include <stdlib.h>
@@ -96,19 +96,19 @@
 #include <string.h>
 #include <math.h>
 
-#include <sane/sane.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
-#include <canon.h>
+#include "sane/sane.h"
+#include "sane/saneopts.h"
+#include "sane/sanei_scsi.h"
+#include "canon.h"
 
 #define BACKEND_NAME canon
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX	1024
 #endif
 
-#include <sane/sanei_config.h>
+#include "sane/sanei_config.h"
 #define CANON_CONFIG_FILE "canon.conf"
 
 #define MM_PER_INCH	 25.4

@@ -49,10 +49,10 @@
     debug levels.
  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #define BACKEND_NAME sanei_pio
-#include <sane/sanei_backend.h>		/* pick up compatibility defs */
+#include "sane/sanei_backend.h"		/* pick up compatibility defs */
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -85,9 +85,9 @@ inb (u_long port)
 # define IO_SUPPORT_MISSING
 #endif
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/sanei_pio.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/sanei_pio.h"
 
 #if defined (HAVE_IOPERM) && !defined (IO_SUPPORT_MISSING)
 
@@ -102,7 +102,7 @@ inb (u_long port)
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <sane/saneopts.h>
+#include "sane/saneopts.h"
 
 #define PORT_DEV	"/dev/port"
 

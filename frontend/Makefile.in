@@ -56,7 +56,7 @@ LIBLIB = ../lib/liblib.a
 LIBSANE = ../backend/libsane.la
 LIBSANEI = ../sanei/libsanei.a
 
-SCAN_OBJS = scanimage.o
+SCAN_OBJS = scanimage.o stiff.o
 XSCAN_OBJS = xscanimage.o progress.o preview.o preferences.o gtkglue.o
 XCAM_OBJS = xcam.o preferences.o gtkglue.o
 

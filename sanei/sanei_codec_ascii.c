@@ -38,16 +38,16 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <sane/sane.h>
-#include <sane/sanei_wire.h>
-#include <sane/sanei_codec_ascii.h>
+#include "sane/sane.h"
+#include "sane/sanei_wire.h"
+#include "sane/sanei_codec_ascii.h"
 
 static const char *hexdigit = "0123456789abcdef";
 

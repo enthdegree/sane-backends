@@ -232,6 +232,7 @@ typedef struct Umax_Device
   /* data defined by inquiry */
   int			inquiry_len;					   /* length of inquiry return block */
   int			inquiry_wdb_len;				/* length of window descriptor block */
+  int			inquiry_vidmem;			     			     /* size of video memory */
   int			inquiry_optical_res;			     		       /* optical resolution */
   int			inquiry_x_res;						     /* maximum x-resolution */
   int			inquiry_y_res;						     /* maximum y-resolution */
@@ -293,6 +294,7 @@ typedef struct Umax_Device
   int			inquiry_reverse;				      /* 1 = 1 bit reverse supported */
   int			inquiry_reverse_multi;				  /* 1 = multi bit reverse supported */
   int			inquiry_analog_gamma;				       /* 1 = analog gamma supported */
+  int			inquiry_lineart_order;				     /* 1 = LSB first, 0 = MSB first */
   int			inquiry_gamma_dwload;				     /* 1 = gamma download supported */
   int			inquiry_gamma_DCF;				      /* gamma download curve format */
 
@@ -315,9 +317,9 @@ typedef struct Umax_Device
   int			inquiry_fb_uta_color_arrangement;		    /* line arrangement for fb & uta */
   int			inquiry_adf_color_arrangement;				 /* line arrangement for adf */
 
-  int			relevant_optical_res;			     		       /* optical resolution */
-  int			relevant_max_x_res;					     /* maximum x-resolution */
-  int			relevant_max_y_res;					     /* maximum y-resolution */
+  unsigned int		relevant_optical_res;			     		       /* optical resolution */
+  unsigned int		relevant_max_x_res;					     /* maximum x-resolution */
+  unsigned int		relevant_max_y_res;					     /* maximum y-resolution */
 
   /* selected data */
 
@@ -410,6 +412,7 @@ typedef struct Umax_Device
   int			button_pressed;				   /* scan-button on scanner is pressed => 1 */
 
   int			calibration_area;		      /* define calibration area if no area is given */
+  int                   calibration_width_offset;  /* some scanners do calibrate with some additional pixels */
   int			pause_for_color_calibration;	/* pause between start_scan and do_calibration in ms */
   int			pause_for_gray_calibration;	/* pause between start_scan and do_calibration in ms */
   int			pause_after_calibration;	 /* pause between do_calibration and read data in ms */
@@ -436,9 +439,9 @@ typedef struct Umax_Scanner
   SANE_Int			*gamma_table[4];
   SANE_Int			halftone_pattern[64];
   SANE_Range			gamma_range;
-  int				gamma_length;
+  unsigned int			gamma_length;
   SANE_Range			output_range;
-  int				output_bytes;
+  unsigned int			output_bytes;
   SANE_Range			exposure_time_range;
 
   int				scanning;

@@ -83,11 +83,11 @@ DBG levels:
 #include <apollo/pfm.h>
 #include <apollo/scsi.h>
 
-#include <sane/config.h>
+#include "sane/config.h"
 
-#include <sane/sanei_scsi.h>
+#include "sane/sanei_scsi.h"
 
-#include <sane/sanei_debug.h>
+#include "sane/sanei_debug.h"
 
 #include "sanei_DomainOS.h"
 

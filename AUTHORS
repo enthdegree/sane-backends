@@ -9,12 +9,12 @@ Java API:
 Backends:
 
  abaton:	David Huggins-Daines
- agfa:		Karl Anders Øygard
+ agfafocus:	Karl Anders Øygard
  apple:		Milon Firikis
  artec:		Chris Pinkham (*)
  avision:	Meino Christian Cramer, Rene Rebe(*)
  canon:		Helmut Koeberle, Manuel Panea (*), and Markus Mertinat
- coolscan:	Didier Carlier
+ coolscan:	Didier Carlier, Andreas Rick (*)
  dc25:		Peter Fales (*)
  dc210:		Brian J. Murrell
  dll:		David Mosberger
@@ -25,10 +25,13 @@ Backends:
  m3096g:	Randolph Bentson (*)
  microtek:	Matthew Marjanovic (*)
  microtek2:	Bernd Schroeder (*)
- mustek:	Andreas Bolsch, David Mosberger and Andreas Czechanowski
+ mustek:	Andreas Bolsch, David Mosberger, Andreas Czechanowski and
+		Henning Meier-Geinitz (*)
+ mustek_pp:     Jochen Eisinger (*)
  net:		Andreas Beck and David Mosberger
  pnm:		Andreas Beck, Gordon Matzigkeit, and David Mosberger
  pint:		Gordon Matzigkeit
+ plustek:	Rick Bronson, Gerhard Jaeger (*)
  qcam:		Scott Laird (original driver), David Mosberger (SANE backend),
 		despeckling filter by Patrick Reynolds,
 		B&W fixes by Andrew Kuchling
@@ -37,24 +40,35 @@ Backends:
  sharp:		FUKUDA Kazuya (*) and Abel Deuring (*)
  snapscan:	Kevin Charter, Franck Schneider, and Michel Roelofs
  sp15c:		Randolph Bentson (*)
+ st400:     Ingo Wilken (*)
  tamarack:	Roger Wolff
  umax:		Oliver Rauch (*) and Michael K. Johnson
+ v4l:           Juergen G. Schimmer
 
 (*) Current active maintainer(s).
 
 Frontends:
 
+ jscanimage:    Jeff Freedman and Guido Muesch
  saned:		Andreas Beck and David Mosberger
  scanimage:	Andreas Beck, David Mosberger, Gordon Matzigkeit
  xcam:		David Mosberger
  xscanimage:	Tristan Tarrant, Andreas Beck, and David Mosberger
 
-email addresses:
+Please also read the file PROJECTS for projects that are planned or
+not yet included into the SANE distribution.
+
+CVS repository maintainer:
+
+  Petter Reinholdtsen
+
+Email addresses:
 
 Abel Deuring <a.deuring@satzbau-gmbh.de>
 Andreas Beck <becka@sunserver1.rz.uni-duesseldorf.de>
 Andreas Bolsch <ab@maths.nott.ac.uk>
 Andreas Czechanowski <m075@ins.uni-stuttgart.de>
+Andreas Rick <andreas.rick@free.fr>
 Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
 Brian J. Murrell <brian@interlinx.bc.ca>
@@ -66,12 +80,18 @@ David Huggins-Daines <bn711@freenet.carleton.ca>
 David Mosberger <David.Mosberger@acm.org>
 Didier Carlier <didier@sema.be>
 FUKUDA Kazuya <fukuda@avm.nhe.nec.co.jp>
+Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
+Gerhard Jaeger <g.jaeger@earthling.net>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
+Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
+Henning Meier-Geinitz <hmg@gmx.de>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
+Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 Jeff Freedman <jsf@hevanet.com>
+Jochen Eisinger <jochen.eisinger@gmx.net>
 Karl Anders Øygard <karlo@opera.no>
 Karl Heinz Kremer <khk@khk.net>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
@@ -87,6 +107,7 @@ Oliver Rauch <Oliver.Rauch@Wolfsburg.DE>
 Patrick Reynolds <patrickr@virginia.edu>
 Peter Fales <psfales@earthling.net>
 Peter Kirchgessner <peter@kirchgessner.net>
+Petter Reinholdtsen <pere@td.org.uit.no>
 Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene.rebe@myokay.net>
 Roger Wolff <R.E.Wolff@BitWizard.nl>

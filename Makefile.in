@@ -5,6 +5,9 @@ srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 top_builddir = .
 
+PACKAGE = @PACKAGE@
+VERSION = @VERSION@
+
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
@@ -30,12 +33,21 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h sanei.h \
 	sanei_backend.h sanei_codec_ascii.h sanei_codec_bin.h sanei_debug.h \
 	sanei_net.h sanei_scsi.h sanei_wire.h saneopts.h) \
-	include/sane/config.h
+	include/sane/config.h include/sane/sanei_pa4s2.h
 
 SUBDIRS	= lib sanei backend frontend doc tools
 
 all: all-recursive
 
+$(PACKAGE)-$(VERSION).lsm: $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE).lsm
+	( cat $(PACKAGE).lsm | \
+	 sed -e "s|_DATE_|`date +%d%b%y`|g" \
+	  -e "s|_VERSION_|$(VERSION)|g" \
+	  -e "s|_T_S_|`find $(PACKAGE)-$(VERSION).tar.gz -printf \"%3k\"`|g"\
+	  -e "s|_L_S_|`find $(PACKAGE).lsm -printf "%3k"`|g" > \
+	     $(PACKAGE)-$(VERSION).lsm \
+	)
+lsm: $(PACKAGE)-$(VERSION).lsm
 
 install: install-recursive
 	$(MKDIR) $(includedir)/sane

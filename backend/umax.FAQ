@@ -30,7 +30,8 @@ A: UMAX published their SCSI-protocol for scanners. However they
 
 Q: I get a black area at the top of the image. What's wrong?
 
-A: This is a problem with some scsi-drivers.
+A: This is a problem of some scsi-drivers.
+   Update the driver for your scsi-adapter or update the operating system/kernel.
 
    For advansys-scsi-cards update to a new kernel which includes at least
    the driver version 3.1E of the advansys-scsi-driver. Take a look at:
@@ -45,7 +46,7 @@ A: The cards that come with the umax scanners are very simple cards.
    I suggest not to use this cards.
 
    If you really want to try:
-   the UDS-IS11 is a DTC3181E-card based on the NCR5380-chip.
+   the UDS-IS11 ISA-card is a DTC3181E-card based on the NCR5380-chip.
    On linux you may have the chance to get it work with the recent
    g_NCR5380-driver. The card does not have IRQ/DMA.
 
@@ -60,13 +61,15 @@ A: The cards that come with the umax scanners are very simple cards.
 
    (Thanks to Colin Brough and Hans Schaefer for that tip)
 
+   As fat as I know the PCI card is not supported by linux.
+
 -------------------------------------------------------------------------------
 
 Q: I use linux with a NCR/Symbios logic SCSI-Controller, sane does not work
    right.
 
 A: There are two differen drivers in the linux Kernel/modules.
-   Use the BSD-driver (ncr53c8xx)!
+   Use the BSD-driver ncr53c8xx or sym53c8xx.
 
 -------------------------------------------------------------------------------
 

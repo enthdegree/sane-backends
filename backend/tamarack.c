@@ -37,7 +37,7 @@
  */
 
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -51,12 +51,12 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_config.h>
-#include <tamarack.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/saneopts.h"
+#include "sane/sanei_scsi.h"
+#include "sane/sanei_config.h"
+#include "tamarack.h"
 
 /* For timeval... */
 #ifdef DEBUG
@@ -65,7 +65,7 @@
 
 
 #define BACKEND_NAME	tamarack
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -363,13 +363,13 @@ scan_area_and_windows (Tamarack_Scanner *s)
     dwp.wdb.image_comp = 2;
     break;
   default:
-    fprintf (stderr,"Invalid mode. %d\n", s->mode);
+    DBG(1, "Invalid mode. %d\n", s->mode);
     exit (1);
   }
-  printf ("bright, thresh, contrast = %d(%5.1f), %d, %d(%5.1f)\n", 
-	  dwp.wdb.brightness, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w),
-	  dwp.wdb.thresh    ,
-	  dwp.wdb.contrast  , SANE_UNFIX (s->val[OPT_CONTRAST].w));
+  DBG(1, "bright, thresh, contrast = %d(%5.1f), %d, %d(%5.1f)\n", 
+      dwp.wdb.brightness, SANE_UNFIX (s->val[OPT_BRIGHTNESS].w),
+      dwp.wdb.thresh    ,
+      dwp.wdb.contrast  , SANE_UNFIX (s->val[OPT_CONTRAST].w));
 
   set_double (dwp.wdb.halftone, 1); /* XXX What does this do again ? */
   dwp.wdb.pad_type   = 3;           /* This is the only usable pad-type. */
@@ -535,7 +535,7 @@ get_image_status (Tamarack_Scanner *s)
   }
 
 
-  printf ("get_image_status: bytes_per_line=%d, lines=%d\n",
+  DBG(1, "get_image_status: bytes_per_line=%d, lines=%d\n",
       s->params.bytes_per_line, s->params.lines);
   return SANE_STATUS_GOOD;
 }
@@ -558,7 +558,7 @@ read_data (Tamarack_Scanner *s, SANE_Byte *buf, int lines, int bpl)
   set_triple (cmd.len,nbytes);
 
 #ifdef DEBUG
-  if (verbose) printf ("Doing read_data... \n");
+  if (verbose) DBG (1, "Doing read_data... \n");
   gettimeofday (&tv_start,NULL);
 #endif
 
@@ -568,9 +568,10 @@ read_data (Tamarack_Scanner *s, SANE_Byte *buf, int lines, int bpl)
   gettimeofday (&tv_end,NULL);
   dt =  tv_end.tv_usec - tv_start.tv_usec +
        (tv_end.tv_sec  - tv_start.tv_sec) * 1000000;
-  if (verbose) printf ("Read took %d.%06d seconds.",dt/1000000,dt%1000000);
+  if (verbose) DBG(1, "Read took %d.%06d seconds.",
+		   dt/1000000,dt%1000000);
   dt = 1000000 * nbytes / dt;
-  if (verbose) printf ("which is %d.%03d bytes per second.\n",dt,0);
+  if (verbose) DBG(1, "which is %d.%03d bytes per second.\n",dt,0);
 #endif
   return status;
 }
@@ -893,12 +894,10 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
     return SANE_STATUS_GOOD;
   }
 
-  while (fgets (dev_name, sizeof (dev_name), fp)) {
+  while (sanei_config_read (dev_name, sizeof (dev_name), fp)) {
     if (dev_name[0] == '#')		/* ignore line comments */
       continue;
     len = strlen (dev_name);
-    if (dev_name[len - 1] == '\n')
-      dev_name[--len] = '\0';
     
     if (!len)
       continue;			/* ignore empty lines */
@@ -1019,7 +1018,7 @@ sane_close (SANE_Handle handle)
   if (prev)
     prev->next = s->next;
   else
-    first_handle = s;
+    first_handle = s->next;
 
   free (handle);
 }
@@ -1245,7 +1244,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
     height = SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w);
     dpi    = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
     s->mode = make_mode (s->val[OPT_MODE].s);
-    printf ("got mode '%s' -> %d.\n", s->val[OPT_MODE].s, s->mode);
+    DBG(1, "got mode '%s' -> %d.\n", s->val[OPT_MODE].s, s->mode);
     /* make best-effort guess at what parameters will look like once
        scanning starts.  */
     if (dpi > 0.0 && width > 0.0 && height > 0.0) {
@@ -1278,10 +1277,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
   if (params)
     *params = s->params;
 
-  printf ("Got parameters: format:%d, ppl: %d, bpl:%d, depth:%d, last %d pass %d\n", 
-	  s->params.format, s->params.pixels_per_line, 
-	  s->params.bytes_per_line, s->params.depth, 
-	  s->params.last_frame, s->pass);
+  DBG(1, "Got parameters: format:%d, ppl: %d, bpl:%d, depth:%d, "
+	   "last %d pass %d\n", 
+	   s->params.format, s->params.pixels_per_line, 
+	   s->params.bytes_per_line, s->params.depth, 
+	   s->params.last_frame, s->pass);
   return SANE_STATUS_GOOD;
 }
 

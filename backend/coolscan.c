@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------- */
 /* sane - Scanner Access Now Easy.
-   coolscan.c , version .4
+   coolscan.c , version  0.4.3
 
    This file is part of the SANE package.
 
@@ -35,7 +35,7 @@
    If you submit changes to SANE to the maintainers to be included in
    a subsequent release, you agree by submitting the changes that
    those changes may be distributed with this exception intact.
-
+   
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
@@ -65,13 +65,14 @@
  */
 
 #ifdef _AIX
-# include <lalloca.h>		/* MUST come first for AIX! */
+# include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
 #include "sane/config.h"
-#include <lalloca.h>
+#include "lalloca.h"
 
 #include <errno.h>
+#include <math.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
@@ -89,7 +90,7 @@
 #include "sane/sanei_scsi.h"
 #include "sane/sanei_debug.h"
 
-#include <sane/sanei_config.h>
+#include "sane/sanei_config.h"
 #define COOLSCAN_CONFIG_FILE "coolscan.conf"
 #include "sane/sanei_backend.h"
 
@@ -109,12 +110,15 @@ static const SANE_Int resolution_list[] =
   192, 180, 168, 158, 150, 142, 135, 128, 122, 117, 112, 108
 };
 
+
 #define coolscan_do_scsi_open(dev, fd, handler) sanei_scsi_open(dev, fd, handler)
 #define coolscan_do_scsi_close(fd)              sanei_scsi_close(fd)
 
 #define	COOLSCAN_MAX_RETRY	25
 
 
+static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg);
+static int coolscan_check_values (Coolscan_t * s);
 static int get_internal_info (Coolscan_t *);
 static void coolscan_get_inquiry_values (Coolscan_t *);
 static void hexdump (int level, char *comment, unsigned char *p, int l);
@@ -179,11 +183,17 @@ request_sense_parse (char *sensed_data)
 	     sense, asc, ascq);
 	ret = SANE_STATUS_DEVICE_BUSY;
       }
+      else if ((0x3A == asc) && (0x00 == ascq))
+	{
+	  DBG (1, "\t%d/%d/%d: No Diapo inserted\n", sense, asc, ascq);
+          ret = SANE_STATUS_GOOD;
+	}
       else if ((0x60 == asc) && (0x00 == ascq))
 	DBG (1, "\t%d/%d/%d: Lamp Failure\n", sense, asc, ascq);
       else
 	{
 	  DBG (1, "\tUnknown - Sense=%d, ASC=%d, ASCQ=%d\n", sense, asc, ascq);
+          ret = SANE_STATUS_GOOD;
 	}
       break;
 
@@ -337,10 +347,10 @@ coolscan_grab_scanner (Coolscan_t * s)
 
 static int
 resDivToVal (int res_div)
-{
+{ 
   if (res_div < 1 || res_div > resolution_list[0])
-    {
-      DBG (1, "Invalid resolution divisor\n");
+    { 
+      DBG (1, "Invalid resolution divisor %d \n", res_div);
       return 2700;
     }
   else
@@ -378,6 +388,7 @@ static unsigned char mode_select[] =
   0, 0, 0, 8,
   0, 0, 0, 0, 0, 0, 0, 1,
   3, 6, 0, 0, 0xA, 0x8C, 0, 0};
+
 static int
 select_MUD (Coolscan_t * s)
 {
@@ -385,9 +396,39 @@ select_MUD (Coolscan_t * s)
 }
 
 static int
+coolscan_autofocus_LS30 (Coolscan_t * s)
+{
+  int x, y;
+
+  wait_scanner(s);
+  memcpy(s->buffer, autofocusLS30.cmd, autofocusLS30.size);
+  memcpy(s->buffer+ autofocusLS30.size, autofocuspos, 9);
+
+  x = s->xmaxpix - (s->brx + s->tlx) / 2;
+  y = (s->bry + s->tly) / 2;
+
+  DBG (10, "Attempting AutoFocus at x=%d, y=%d\n", x, y);
+
+  do_scsi_cmd (s->sfd, s->buffer,
+	       autofocusLS30.size  + 9, NULL, 0);
+  /* Trashes when used in combination with scsi-driver AM53C974.o  */
+  do_scsi_cmd (s->sfd, command_c1.cmd,
+	       command_c1.size, NULL, 0);
+  
+  DBG (10, "\tWaiting end of Autofocus\n");
+  wait_scanner (s);
+  DBG (10, "AutoFocused.\n");
+  return 0;
+}
+
+static int
 coolscan_autofocus (Coolscan_t * s)
 {
   int x, y;
+
+  if(s->LS>=2)
+    { return coolscan_autofocus_LS30(s);
+    }
 
   wait_scanner(s);
   memcpy(s->buffer, autofocus.cmd, autofocus.size);
@@ -404,11 +445,14 @@ coolscan_autofocus (Coolscan_t * s)
   do_scsi_cmd (s->sfd, s->buffer,
 	       autofocus.size  + AF_Point_length, NULL, 0);
 
+  sleep(5);		 	/* autofocus takes a minimum of 5 sec. */
+
   DBG (10, "\tWaiting end of Autofocus\n");
   wait_scanner (s);
   DBG (10, "AutoFocused.\n");
   return 0;
 }
+
 /*
    static int
    coolscan_abort_scan (Coolscan_t * s)
@@ -498,13 +542,12 @@ coolscan_give_scanner (Coolscan_t * s)
 
 
 static int
-coolscan_set_window_param (Coolscan_t * s, int prescan)
+coolscan_set_window_param_LS20 (Coolscan_t * s, int prescan)
 {
   unsigned char buffer_r[max_WDB_size];
   int ret;
 
   wait_scanner (s);
-  DBG (10, "set_window_param\n");
   memset (buffer_r, '\0', max_WDB_size);	/* clear buffer */
   memcpy (buffer_r, window_descriptor_block.cmd,
 	  window_descriptor_block.size);	/* copy preset data */
@@ -619,7 +662,7 @@ coolscan_set_window_param (Coolscan_t * s, int prescan)
       set_WD_shift_G (buffer_r, s->shift_G);
       set_WD_shift_B (buffer_r, s->shift_B);
 
-
+ 
       /* FIXME: LUT-[RGB] */
       /* FIXME: stop on/off */
     }
@@ -629,7 +672,7 @@ coolscan_set_window_param (Coolscan_t * s, int prescan)
   DBG (10, "\twindow width=%d, MUD=%d, brx=%d\n",
        s->brx - s->tlx, s->MUD, s->brx);
   DBG (10, "\tcolormode=%d, bits per pixel=%d\n",
-       s->colormode, s->bits_per_pixel);
+       s->colormode, s->bits_per_color);
   DBG (10, "\tnegative=%d, dropoutcolor=%d, preview=%d, transfermode=%d, gammasel=%d\n",
        s->negative, s->dropoutcolor, s->preview, s->transfermode,
        s->gammaselection);
@@ -656,12 +699,233 @@ coolscan_set_window_param (Coolscan_t * s, int prescan)
   return ret;
 }
 
+static int
+coolscan_set_window_param_LS30 (Coolscan_t * s, int wid, int prescan)
+{
+  unsigned char buffer_r[max_WDB_size];
+  int ret;
+
+  wait_scanner (s);
+  memset (buffer_r, '\0', max_WDB_size);	/* clear buffer */
+  memcpy (buffer_r, window_descriptor_block_LS30.cmd,
+	  window_descriptor_block_LS30.size);	/* copy preset data */
+
+  set_WD_wid (buffer_r, wid);          	/* window identifier */
+  set_WD_auto (buffer_r, s->set_auto);	/* 0 or 1: don't know what it is */
+
+  /* geometry */
+  set_WD_Xres (buffer_r, resDivToVal (s->x_nres));	/* x resolution in dpi */
+  set_WD_Yres (buffer_r, resDivToVal (s->y_nres));	/* y resolution in dpi */
+
+  if (prescan)
+    {
+      set_WD_scanmode_LS30 (buffer_r, WD_Prescan);
+      set_WD_Xres (buffer_r, resDivToVal (1));	/* x res. in dpi */
+      set_WD_Yres (buffer_r, resDivToVal (1));	/* y res. in dpi */
+      buffer_r[0x29]=0x81;
+      buffer_r[0x2a]=0x04;
+      buffer_r[0x2b]=0x02;
+      buffer_r[0x2c]=0x01;
+      buffer_r[0x2d]=0xff;
+      buffer_r[0x30]=0x00;
+      buffer_r[0x31]=0x00;
+      buffer_r[0x32]=0x00;
+      buffer_r[0x33]=0x00;
+      set_WD_width (buffer_r,(2592));
+      set_WD_length (buffer_r,(3894));
+    }
+  else
+    {
+      set_WD_scanmode_LS30 (buffer_r, WD_Scan);
+
+      /* the coolscan LS-30 uses the upper left corner 
+	 as the origin of coordinates */
+      /* xmax and ymax are given in 1200 dpi */
+      set_WD_ULX (buffer_r, s->tlx);
+      set_WD_ULY (buffer_r, s->tly);	/* upper_edge y */
+      set_WD_width (buffer_r, (s->brx - s->tlx+1));
+      set_WD_length (buffer_r, (s->bry - s->tly+1));
+
+      /* BTC */
+      if (s->brightness == 128)
+	{
+	  buffer_r[0x32]=0x00;
+	}
+      else
+	{
+	  buffer_r[0x32]=s->brightness;	/* brightness */
+	}
+
+      if (s->contrast == 128)
+	{
+	  buffer_r[0x33]=0x00;
+	}
+      else
+	{
+	  buffer_r[0x33]=s->contrast;	/* contrast */
+	}
+
+      /* scanmode */
+      if (s->colormode == GREYSCALE)
+	set_WD_composition (buffer_r, WD_comp_grey);	/* GRAY composition */
+      else
+	set_WD_composition (buffer_r, WD_comp_rgb_full);	/* RGB composition */
+
+      set_WD_composition (buffer_r, WD_comp_rgb_full);  /* allways RGB composition */
+
+      /* Bits per pixel */
+      set_WD_bitsperpixel(buffer_r, s->bits_per_color);
+
+      buffer_r[0x29]=0x81;
+      buffer_r[0x2a]=0x01;
+      buffer_r[0x2b]=0x02;
+      buffer_r[0x2c]=0x01;
+      buffer_r[0x2d]=0xff;
+      buffer_r[0x30]=0x00;
+
+    }
+    set_WD_negative_LS30(buffer_r, s->negative);	/* Negative/positive slide */
+
+    switch(wid)
+    { case 1:  set_gain_LS30(buffer_r,(s->exposure_R*s->pretv_r)/50);	
+                 break;
+      case 2:  set_gain_LS30(buffer_r,(s->exposure_G*s->pretv_g)/50);	
+                 break;
+      case 3:  set_gain_LS30(buffer_r,(s->exposure_B*s->pretv_b)/50);	
+                 break;
+    }
+
+  DBG (10, "\texpo_r=%d, expo_g=%d, expob=%d\n",
+       s->exposure_R, s->exposure_G, s->exposure_B);
+  DBG (10, "\tpre_r=%d, pre_g=%d, preb=%d\n",
+       s->pretv_r, s->pretv_g, s->pretv_b);
+  DBG (10, "\tx_nres=%d, y_nres=%d, upper left-x=%d, upper left-y=%d\n",
+       s->x_nres, s->y_nres, s->tlx, s->tly);
+  DBG (10, "\twindow width=%d, MUD=%d, brx=%d\n",
+       s->brx - s->tlx, s->MUD, s->brx);
+  DBG (10, "\tcolormode=%d, bits per pixel=%d\n",
+       s->colormode, s->bits_per_color);
+  DBG (10, "\tnegative=%d, dropoutcolor=%d, preview=%d, transfermode=%d, gammasel=%d\n",
+       s->negative, s->dropoutcolor, s->preview, s->transfermode,
+       s->gammaselection);
+
+  /* prepare SCSI-BUFFER */
+  memcpy (s->buffer, set_window.cmd, set_window.size);	/* SET-WINDOW cmd */
+  memcpy ((s->buffer + set_window.size),	/* add WPDB */
+	  window_parameter_data_block.cmd,
+	  window_parameter_data_block.size);
+  set_WPDB_wdblen ((s->buffer + set_window.size), used_WDB_size_LS30);	/* set WD_len */
+  memcpy (s->buffer + set_window.size + window_parameter_data_block.size,
+	  buffer_r, window_descriptor_block_LS30.size);
+
+  hexdump (15, "Window set", buffer_r, s->wdb_len);
+
+  set_SW_xferlen (s->buffer, (window_parameter_data_block.size +
+			      window_descriptor_block_LS30.size));
+
+  ret = do_scsi_cmd (s->sfd, s->buffer, set_window.size +
+		     window_parameter_data_block.size +
+		     window_descriptor_block_LS30.size,
+		     NULL, 0);
+  DBG (10, "window set.\n");
+  return ret;
+}
+
+static int
+coolscan_set_window_param (Coolscan_t * s, int prescan)
+{
+  int ret;
+  ret=0;
+  DBG (10, "set_window_param\n");
+  
+  if(s->LS<2)                   /* distinquish between old and new scanners */
+  { ret=coolscan_set_window_param_LS20 (s,prescan);
+  }
+  else
+  {  do_scsi_cmd (s->sfd,commande1.cmd,commande1.size,s->buffer,0x0d);
+     wait_scanner (s);
+     wait_scanner (s);
+     coolscan_set_window_param_LS30(s,1,prescan);
+     ret=coolscan_set_window_param_LS30(s,2,prescan);
+     ret=coolscan_set_window_param_LS30(s,3,prescan);     
+     if(s->colormode&0x08)
+     { ret=coolscan_set_window_param_LS30(s,9,prescan);
+     }
+  }
+  return ret;
+}
+
+
 /* 
  * The only purpose of get_window is debugging. None of the return parameters
  * is currently used. 
  */
 static int
-coolscan_get_window_param (Coolscan_t * s)
+coolscan_get_window_param_LS30 (Coolscan_t * s, int wid,int prescanok)
+{
+  int translen;
+  unsigned char *buf;
+
+  DBG (10, "GET_WINDOW_PARAM\n");
+  /*  wait_scanner (s); */
+
+  translen = window_parameter_data_block.size + window_descriptor_block_LS30.size;
+
+  /* prepare SCSI-BUFFER */
+  memset (s->buffer, '\0', max_WDB_size);	/* clear buffer */
+
+  set_SW_xferlen (get_window.cmd, translen);	/* Transfer length */
+  get_window.cmd[5]= wid;                     	/* window identifier */
+
+  hexdump (15, "Get window cmd", get_window.cmd, get_window.size);
+  do_scsi_cmd (s->sfd, get_window.cmd, get_window.size,
+		     s->buffer, translen);
+
+  buf = s->buffer + window_parameter_data_block.size;
+  hexdump (10, "Window get", buf, 117);
+
+  s->brightness = buf[0x32];	/* brightness */
+  s->contrast = buf[0x33];	/* contrast */
+  DBG (10, "\tbrightness=%d, contrast=%d\n", s->brightness, s->contrast);
+
+  /* Useful? */
+  s->bits_per_color = get_WD_bitsperpixel (buf);	/* bits/pixel (8) */
+
+  DBG (10, "\tcolormode=%d, bits per pixel=%d\n",
+       s->colormode, s->bits_per_color);
+
+  if(prescanok)
+  { switch(wid)
+    { case 1: s->pretv_r = get_gain_LS30(buf);	
+              break;
+      case 2: s->pretv_g = get_gain_LS30(buf);	
+              break;
+      case 3: s->pretv_b = get_gain_LS30(buf);	
+            break;
+    }
+  }
+
+  /* Should this one be set at all, here? */
+  s->transfermode = get_WD_transfermode (buf);
+
+  s->gammaselection = get_WD_gammaselection (buf);	/* monitor/linear */
+  DBG (10, "\tpre_r=%d, pre_g=%d, preb=%d\n",
+       s->pretv_r, s->pretv_g, s->pretv_b);
+
+  DBG (5, "\tnegative=%d, dropoutcolor=%d, preview=%d, transfermode=%d, gammasel=%d\n",
+       s->negative, s->dropoutcolor, s->preview, s->transfermode,
+       s->gammaselection);
+
+  DBG (10, "get_window_param - return\n");
+  return 0;
+}
+
+/* 
+ * The only purpose of get_window is debugging. None of the return parameters
+ * is currently used. 
+ */
+static int
+coolscan_get_window_param_LS20 (Coolscan_t * s)
 {
   int translen;
   unsigned char *buf;
@@ -694,10 +958,10 @@ coolscan_get_window_param (Coolscan_t * s)
     s->colormode = RGB;
 
   /* Useful? */
-  s->bits_per_pixel = get_WD_bitsperpixel (buf);	/* bits/pixel (8) */
+  s->bits_per_color = get_WD_bitsperpixel (buf);	/* bits/pixel (8) */
 
   DBG (10, "\tcolormode=%d, bits per pixel=%d\n",
-       s->colormode, s->bits_per_pixel);
+       s->colormode, s->bits_per_color);
 
 
   s->dropoutcolor = get_WD_dropoutcolor (buf);	/* Which color to scan with when grayscale scan */
@@ -718,14 +982,95 @@ coolscan_get_window_param (Coolscan_t * s)
   return 0;
 }
 
+/* 
+ * The only purpose of get_window is debugging. None of the return parameters
+ * is currently used. 
+ */
+static int
+coolscan_get_window_param (Coolscan_t * s, int prescanok)
+{
+  int ret;
+  DBG (10, "get_window_param\n");
+
+  ret=0;  
+  if(s->LS<2)                   /* distinquish between old and new scanners */
+  { ret=coolscan_get_window_param_LS20 (s);
+  }
+  else
+  {  
+     ret=coolscan_get_window_param_LS30(s,1,prescanok);
+     ret=coolscan_get_window_param_LS30(s,2,prescanok);
+     ret=coolscan_get_window_param_LS30(s,3,prescanok);
+     if(s->colormode&0x08)
+     { ret=coolscan_get_window_param_LS30(s,9,prescanok);
+     }
+  }
+  return ret;
+}
+
+static int
+coolscan_start_scanLS30 (Coolscan_t * s)
+{ int channels;
+  DBG (10, "starting scan\n");
+
+  channels=1;
+  memcpy (s->buffer, scan.cmd, scan.size);
+  switch(s->colormode)
+    {  case RGB:
+       case GREYSCALE:	 
+	       channels=s->buffer[4]=0x03; /* window 1 */
+               s->buffer[6]=0x01; /* window 1 */
+	       s->buffer[7]=0x02; /* window 2 */
+	       s->buffer[8]=0x03; /* window 3 */  
+	       
+              break;      
+       case RGBI:
+	       channels=s->buffer[4]=0x04; /* window 1 */
+               s->buffer[6]=0x01; /* window 1 */
+	       s->buffer[7]=0x02; /* window 2 */
+	       s->buffer[8]=0x03; /* window 3 */  
+	       s->buffer[9]=0x09; /* window 3 */  
+              break; 
+       case IRED:
+	       channels=s->buffer[4]=0x01; /* window 1 */
+	       s->buffer[8]=0x09; /* window 3 */  
+              break; 
+    }
+
+  return do_scsi_cmd (s->sfd, s->buffer, scan.size+channels, NULL, 0);
+}
+
+static int
+coolscan_start_scan (Coolscan_t * s)
+{
+  DBG (10, "starting scan\n");
+  if(s->LS>=2)
+    { return coolscan_start_scanLS30(s);
+    }
+  return do_scsi_cmd (s->sfd, scan.cmd, scan.size, NULL, 0);
+}
+
+
 static int
 prescan (Coolscan_t * s)
 {
   int ret;
 
   DBG (10, "Starting prescan...\n");
-  coolscan_set_window_param (s, 1);
-  ret = do_scsi_cmd (s->sfd, scan.cmd, scan.size, NULL, 0);
+  if(s->LS<2)
+  {  coolscan_set_window_param (s, 1);
+  }
+  else
+  { 
+     do_scsi_cmd (s->sfd,commande1.cmd,commande1.size,s->buffer,0x0d);
+     wait_scanner (s);
+     wait_scanner (s);
+     coolscan_set_window_param_LS30 (s,1,1);
+     coolscan_set_window_param_LS30 (s,2,1);
+     coolscan_set_window_param_LS30 (s,3,1);
+  
+  }
+  ret = coolscan_start_scan(s);
 
   sleep(8);			/* prescan takes a minimum of 10 sec. */
   wait_scanner (s);
@@ -733,36 +1078,136 @@ prescan (Coolscan_t * s)
   return ret;
 }
 
-static int
-coolscan_start_scan (Coolscan_t * s)
+SANE_Status
+do_prescan_now (Coolscan_t * scanner)
 {
-  DBG (10, "starting scan\n");
-  return do_scsi_cmd (s->sfd, scan.cmd, scan.size, NULL, 0);
+
+  DBG (10, "do_prescan_now \n");
+  if (scanner->scanning == SANE_TRUE)
+    return SANE_STATUS_DEVICE_BUSY;
+
+  if (scanner->sfd < 0)
+    {				/* first call */
+      if (sanei_scsi_open (scanner->sane.name,
+			   &(scanner->sfd),
+			   sense_handler, 0) != SANE_STATUS_GOOD)
+	{
+	  DBG (1, "do_prescan_now: open of %s failed:\n",
+	       scanner->sane.name);
+	  return SANE_STATUS_INVAL;
+	}
+    }
+  scanner->scanning = SANE_TRUE;
+
+
+  if (coolscan_check_values (scanner) != 0)
+    {				/* Verify values */
+      DBG (1, "ERROR: invalid scan-values\n");
+      scanner->scanning = SANE_FALSE;
+      coolscan_give_scanner (scanner);
+      sanei_scsi_close (scanner->sfd);
+      scanner->sfd = -1;
+      return SANE_STATUS_INVAL;
+    }
+
+  if (coolscan_grab_scanner (scanner))
+    {
+      sanei_scsi_close (scanner->sfd);
+      scanner->sfd = -1;
+      DBG (5, "WARNING: unable to reserve scanner: device busy\n");
+      scanner->scanning = SANE_FALSE;
+      return SANE_STATUS_DEVICE_BUSY;
+    }
+
+  prescan (scanner);  
+  if(scanner->LS<2)
+    {	get_internal_info(scanner);
+    }
+  coolscan_get_window_param (scanner,1);
+  scanner->scanning = SANE_FALSE;
+  coolscan_give_scanner (scanner);
+  return SANE_STATUS_GOOD;
 }
+
 
 static int
 send_one_LUT (Coolscan_t * s, SANE_Word * LUT, int reg)
 {
   int i;
+  short lutval;
+  short bytesperval;
   unsigned char *gamma, *gamma_p;
+  unsigned short *gamma_s;
 
   DBG (10, "send LUT\n");
 
-  set_S_datatype_code (send.cmd, R_user_reg_gamma);
-  set_S_xfer_length (send.cmd, 2048);
+  if(s->LS<2)
+  { set_S_datatype_code (send.cmd, R_user_reg_gamma);
+    bytesperval=1;
+  }
+  else
+  {
+    send.cmd[0x02]=3;
+    send.cmd[0x05]=1;
+    bytesperval=2;
+  }
+
+  set_S_xfer_length (send.cmd, s->lutlength*bytesperval);
   set_S_datatype_qual_upper (send.cmd, reg);
 
-  gamma = alloca (send.size + 2048);
+  gamma = alloca (send.size + s->lutlength*2);
   memcpy (gamma, send.cmd, send.size);
-  gamma_p = &gamma[send.size];
-  for (i = 0; i < 2048; i++)
+  if(s->LS<2)  
+  { gamma_p = &gamma[send.size];
+    for (i = 0; i < s->lutlength; i++)
     {
       if (LUT[i] > 255)
 	LUT[i] = 255;		/* broken gtk */
       *gamma_p++ = (unsigned char) LUT[i];
     }
-
-  return do_scsi_cmd (s->sfd, gamma, send.size + 2048, NULL, 0);
+  }
+  else if(s->LS==2)  
+  { gamma_s = (unsigned short*)( &gamma[send.size]);
+    for (i = 0; i < s->lutlength; i++)
+    {
+       if(s->negative)
+       {
+         lutval=(unsigned short)(LUT[(s->lutlength-i)]);  
+       }
+       else    
+       {
+	 lutval=(unsigned short)(LUT[i]);      
+       }     
+       if (LUT[i] >= s->max_lut_val)
+       LUT[i] = s->max_lut_val-1;	          	/* broken gtk */
+       if(s->low_byte_first)                                /* if on little endian machine: */
+       {
+         lutval=((lutval&0x00ff)<<8)+((lutval&0xff00)>>8); /* inverse byteorder */       
+       }
+       *gamma_s++ = lutval;   
+    }
+  }
+  else if(s->LS==3)  
+  { gamma_s = (unsigned short*)( &gamma[send.size]);
+    for (i = 0; i < s->lutlength; i++)
+    {
+       if(s->negative)
+       {
+         lutval=(unsigned short)(LUT[s->lutlength-i]);  
+       }
+       else    
+       {
+	 lutval=(unsigned short)(LUT[i]);      
+       }     
+       if (LUT[i] >= s->max_lut_val)
+       LUT[i] = s->max_lut_val-1;	          	    /* broken gtk */
+       if(s->low_byte_first)                                /* if on little endian machine: */
+       {  lutval=((lutval&0x00ff)<<8)+((lutval&0xff00)>>8); /* inverse byteorder */ 
+       }
+       *gamma_s++ = lutval;   
+    }
+  }
+  return do_scsi_cmd (s->sfd, gamma, send.size + s->lutlength*bytesperval, NULL, 0);
 }
 
 
@@ -773,27 +1218,39 @@ send_LUT (Coolscan_t * s)
   if (s->gamma_bind)
     {
       send_one_LUT (s, s->gamma, S_DQ_Reg1);
+      if(s->LS>=2)
+	{      send_one_LUT (s, s->gamma, S_DQ_Reg2);
+	       send_one_LUT (s, s->gamma, S_DQ_Reg3);
+               if(s->colormode&0x08)
+	       { send_one_LUT (s, s->gamma, S_DQ_Reg9);
+	       }   
+
+	}
     }
   else
     {
       send_one_LUT (s, s->gamma_r, S_DQ_Reg1);
       send_one_LUT (s, s->gamma_g, S_DQ_Reg2);
       send_one_LUT (s, s->gamma_b, S_DQ_Reg3);
+      if(s->colormode&0x08)
+      { send_one_LUT (s, s->gamma_r, S_DQ_Reg9);
+      }   
     }
   return 0;
 }
 
 
 static int
-coolscan_read_data_block (Coolscan_t * s, unsigned int length)
+coolscan_read_data_block (Coolscan_t * s, unsigned int datatype, unsigned int length)
 {
   int r;
 
-  DBG (10, "read_data_block (length = %d)\n", length);
+  DBG (10, "read_data_block (type= %x length = %d)\n",datatype,length);
   /*wait_scanner(s); */
 
-  set_R_datatype_code (sread.cmd, R_datatype_imagedata);
-  set_R_datatype_qual_upper (sread.cmd, R_DQ_none);
+  set_R_datatype_code (sread.cmd, datatype);
+  sread.cmd[4]=00;
+  sread.cmd[5]=00;
   set_R_xfer_length (sread.cmd, length);
 
   r = do_scsi_cmd (s->sfd, sread.cmd, sread.size, s->buffer, length);
@@ -894,7 +1351,12 @@ static int
 pixels_per_line (Coolscan_t * s)
 {
   int pic_dot;
-  pic_dot = (s->brx - s->tlx + s->x_nres) / s->x_nres;
+  if(s->LS<2)
+  {  pic_dot = (s->brx - s->tlx + s->x_nres) / s->x_nres; 
+  }
+  else
+  { pic_dot = (s->brx - s->tlx + 1) / s->x_nres; 
+  }
   DBG (10, "pic_dot=%d\n", pic_dot);
   return pic_dot;
 }
@@ -903,25 +1365,66 @@ static int
 lines_per_scan (Coolscan_t * s)
 {
   int pic_line;
-  pic_line = (s->bry - s->tly + s->y_nres) / s->y_nres;
-  /*pic_line = (( s->bry - s->tly + 1.0 )  / s->y_nres) + 0.9999; */
+  if(s->LS<2)
+  { pic_line = (s->bry - s->tly + s->y_nres) / s->y_nres; 
+  }
+  else
+  { pic_line = (( s->bry - s->tly + 1.0 )  / s->y_nres); 
+  }
   DBG (10, "pic_line=%d\n", pic_line);
   return pic_line;
 }
 
 static int
-bytes_per_line (Coolscan_t * s)
-{
-  return (s->colormode == GREYSCALE) ?
-    pixels_per_line (s) :
-    pixels_per_line (s) * 3;
+scan_bytes_per_line (Coolscan_t * s)
+{ int bpl;
+  switch(s->colormode)
+    {  case RGB:
+       case GREYSCALE:
+              bpl=pixels_per_line (s) * 3;
+              if(s->bits_per_color>8) bpl=bpl*2;
+              return bpl;
+              break;      
+       case RGBI:
+       case IRED:
+              bpl=pixels_per_line (s) * 4;
+              if(s->bits_per_color>8) bpl=bpl*2;
+              return bpl;
+              break; 
+    }
+    return 0;
 }
+
+static int
+write_bytes_per_line (Coolscan_t * s)
+{ int bpl;
+  switch(s->colormode)
+    {  case RGB:
+              bpl=pixels_per_line (s) * 3;
+              if(s->bits_per_color>8) bpl=bpl*2;
+              return bpl;
+              break;      
+       case RGBI:
+              bpl=pixels_per_line (s) * 4;
+              if(s->bits_per_color>8) bpl=bpl*2;
+              return bpl;
+              break; 
+       case IRED:
+       case GREYSCALE:
+              bpl= pixels_per_line (s) ;
+              if(s->bits_per_color>8) bpl=bpl*2;
+              return bpl;
+              break; 
+    }
+    return 0;
+}
+
 
 static void
 coolscan_trim_rowbufsize (Coolscan_t * s)
 {
   int row_len;
-  row_len = bytes_per_line (s);
+  row_len = scan_bytes_per_line (s);
   s->row_bufsize = (s->row_bufsize < row_len) ? s->row_bufsize
     : s->row_bufsize - (s->row_bufsize % row_len);
   DBG (10, "trim_bufsize to %d\n", s->row_bufsize);
@@ -944,8 +1447,153 @@ coolscan_check_values (Coolscan_t * s)
   return (0);
 }
 
+/* test_little_endian */
+
+static SANE_Bool coolscan_test_little_endian()
+{ SANE_Int testvalue = 255;
+  unsigned char *firstbyte = (char *) &testvalue;
+
+  if (*firstbyte == 255)
+  { return SANE_TRUE;
+  }
+  return SANE_FALSE;
+}
+
 static int
-get_internal_info (Coolscan_t * s)
+get_inquiery_part_LS30 (Coolscan_t * s, unsigned char part)
+{ 
+  int size;
+  int ret;
+
+  /* Get length of reponse */
+  inquiry.cmd[1]=0x01;
+  inquiry.cmd[2]=part;
+  size=4;
+  set_inquiry_return_size (inquiry.cmd, size);
+  ret = do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
+		     s->buffer, size);
+  size=get_inquiry_length(s->buffer); 
+  size+=4;
+  /* then get inquiry with actual size */
+  set_inquiry_return_size (inquiry.cmd, size);
+  ret = do_scsi_cmd (s->sfd, inquiry.cmd, inquiry.size,
+		     s->buffer, size);
+  return size;
+}
+
+static int
+coolscan_read_var_data_block (Coolscan_t * s,int datatype)
+{
+  int r;
+  int size;
+
+  DBG (10, "read_data_block (type= %x)\n",datatype);
+  /*wait_scanner(s); */
+
+  sread.cmd[2]=datatype;
+  sread.cmd[4]=00;
+  sread.cmd[5]=03;
+  size=6;
+  set_R_xfer_length (sread.cmd, size);
+  r = do_scsi_cmd (s->sfd, sread.cmd, sread.size,
+		     s->buffer, size);
+  size=s->buffer[5]; 
+  set_R_xfer_length (sread.cmd, size);
+  r = do_scsi_cmd (s->sfd, sread.cmd, sread.size,
+		     s->buffer, size);
+  return ((r != 0) ? -1 : size);
+}
+
+static int
+get_inquiery_LS30 (Coolscan_t * s)
+{ 
+  unsigned char part;
+  unsigned char parts[5];
+  int size;
+  int i;
+
+  /* Get vector of inquiery parts */
+  size=get_inquiery_part_LS30(s, (unsigned char) 0);
+  /* Get the parts of inquiery */  
+  for(i=0;i<5;i++)
+  { parts[i]=((unsigned char *)s->buffer)[4+11+i];
+  }
+  for(i=0;i<5;i++)
+  { part=parts[i];
+    size=get_inquiery_part_LS30 (s, part);
+    switch(part)
+    {  case 0x0c1:/* max size and resolution */                   
+                    s->adbits = 8;
+                    s->outputbits = 8;
+		    s->maxres = getnbyte(s->buffer+0x12,2)-1;
+		    s->xmaxpix = getnbyte(s->buffer+0x53,2)-1;
+		    s->ymaxpix = getnbyte(s->buffer+0x3c,2)-1;
+                  break;
+       case 0x0d1:
+                  break;
+       case 0x0e1:
+                  break;
+       case 0x0f0:
+                  break;
+       case 0x0f8:
+                  break;
+    }  
+  }
+
+  /* get windows */
+  coolscan_get_window_param_LS30 (s,0,0);
+   s->xmax = get_WD_width(s->buffer);
+   s->ymax = get_WD_length(s->buffer);
+  coolscan_get_window_param_LS30 (s,1,0);
+  coolscan_get_window_param_LS30 (s,2,0);
+  coolscan_get_window_param_LS30 (s,3,0);
+  coolscan_get_window_param_LS30 (s,4,0);
+  coolscan_get_window_param_LS30 (s,9,0);
+
+  s->analoggamma = 0;
+  return 1;
+}
+
+static int
+get_feeder_type_LS30 (Coolscan_t * s)
+{ 
+  int size;
+  unsigned char *ptr;
+  int ima;
+
+  /* find out about Film-strip-feeder or Mount-Feeder */
+  size=get_inquiery_part_LS30(s, (unsigned char) 1);
+  if(strncmp(s->buffer+5,"Strip",5)==0)
+  { s->feeder=STRIP_FEEDER;
+    s->autofeeder = 1;
+  }
+  if(strncmp(s->buffer+5,"Mount",5)==0)
+  { s->feeder=MOUNT_FEEDER;
+  }
+  /* find out about Film-strip-feeder positions*/
+  if(s->feeder==STRIP_FEEDER)
+  { size=coolscan_read_var_data_block (s,(int)0x88);
+    if(size>=4)
+    { s->numima=s->buffer[3];
+      if(s->numima>6) s->numima=6; /* limit to 6 images for now */
+      if(s->numima>(size-4)/16) s->numima=(size-4)/16;
+      ptr=s->buffer+4;
+      for(ima=0;ima<s->numima;ima++)
+      {  s->ipos[ima].start=getnbyte(ptr,4);
+         s->ipos[ima].offset=getnbyte(ptr+4,4);
+         s->ipos[ima].end=getnbyte(ptr+8,4);
+         s->ipos[ima].height=getnbyte(ptr+12,4);
+	 ptr+=16;
+      }
+    }
+    s->posima=0;
+  }
+  return 1;
+}
+
+
+static int
+get_internal_info_LS20 (Coolscan_t * s)
 {
   int ret;
 
@@ -1029,6 +1677,22 @@ get_internal_info (Coolscan_t * s)
   return ret;
 }
 
+static int
+get_internal_info (Coolscan_t * s)
+{
+  int ret;
+
+  DBG (10, "get_internal_info\n");
+  
+  if(s->LS<2)                   /* distinquish between old and new scanners */
+  { ret=get_internal_info_LS20 (s);
+  }
+  else
+  { ret=get_inquiery_LS30 (s);
+  }
+  return ret;
+}
+
 static void
 coolscan_get_inquiry_values (Coolscan_t * s)
 {
@@ -1057,18 +1721,26 @@ coolscan_get_inquiry_values (Coolscan_t * s)
 static void
 coolscan_initialize_values (Coolscan_t * s)
 {
-  int i, j;
+  int i;
   DBG (10, "initialize_values\n");
   /* Initialize us structure */
-
-  select_MUD (s);		/* must be before mode_sense */
-  coolscan_mode_sense (s);	/* Obtain MUD (Measurement Unit Divisor) */
-  get_internal_info (s);	/* MUST be called first. */
+  if(s->LS<2)                   /* LS-20 or LS-10000 */
+  {  select_MUD (s);		/* must be before mode_sense - not for LS-30*/
+     coolscan_mode_sense (s);	/* Obtain MUD (Measurement Unit Divisor) */
+     get_internal_info (s);	/* MUST be called first. */
+     s->wdb_len = 117;
+  }
+  if(s->LS>=2)                  /* LS-30 */
+  {
+    get_inquiery_LS30(s);	/* Info about scanner*/ 
+    select_MUD (s);		/* must be before mode_sense */
+    get_feeder_type_LS30(s);
+    s->wdb_len = 117;
+  }
 
   s->cont = 0;			/* do not continue if scanner is unknown */
   s->verbose = 2;		/* 1=verbose,2=very verbose */
 
-  s->wdb_len = 117;
 
   s->x_nres = s->y_nres = 2;	/* 2 => 1350 dpi */
   s->x_p_nres = s->y_p_nres = 9;	/* 9 => 300 dpi */
@@ -1081,6 +1753,7 @@ coolscan_initialize_values (Coolscan_t * s)
   s->set_auto = 0;		/* Always 0 on Nikon LS-{100|2}0 */
   s->preview = 0;		/* 1 for preview */
   s->colormode = RGB;		/* GREYSCALE or RGB */
+  s->colormode_p = RGB;		/* GREYSCALE or RGB for preview*/
   s->asf = 0;			/* 1 if asf shall be used */
   s->gammaselection = WD_Linear;
 
@@ -1097,24 +1770,54 @@ coolscan_initialize_values (Coolscan_t * s)
   s->exposure_G = 50;
   s->exposure_B = 50;
 
+  s->pretv_r=40000;
+  s->pretv_g=40000;  
+  s->pretv_b=40000;
+
   s->shift_R = 128;
   s->shift_G = 128;
   s->shift_B = 128;
 
+  s->ired_red=60;
+  s->ired_green=1;
+  s->ired_blue=1;
+
   s->prescan = 1;
+  s->bits_per_color = 8;
   s->rgb_control = 0;
   s->gamma_bind = 1;
-  for (i = 0; i < 256; i++)
-    {
-      for (j = 0; j < 8; j++)
-	{
-	  s->gamma[8 * i + j] = i;
-	  s->gamma_r[8 * i + j] = i;
-	  s->gamma_g[8 * i + j] = i;
-	  s->gamma_b[8 * i + j] = i;
-	}
-    }
+  switch(s->LS)
+  {  case 0:s->lutlength=2048;
+            s->max_lut_val=256;
+            break;
+     case 1:s->lutlength=512;
+            s->max_lut_val=512;
+            break;
+     case 2:s->lutlength=1024;
+            s->max_lut_val=1024;
+            break;
+     case 3:s->lutlength=4096;
+            s->max_lut_val=4096;
+            break;
+  }
+  for (i = 0; i < s->lutlength; i++)
+  {
+     s->gamma[i] =((short)((((double)i)/s->lutlength)*s->max_lut_val));
+     s->gamma_r[i] = s->gamma[i];
+     s->gamma_g[i] = s->gamma[i];
+     s->gamma_b[i] = s->gamma[i];
+  } 
 
+  if (coolscan_test_little_endian() == SANE_TRUE)
+  {
+    s->low_byte_first = 1;					        /* in 2 byte mode send lowbyte first */
+    DBG(10,"backend runs on little endian machine\n");
+  }
+  else
+  {
+    s->low_byte_first = 0;					       /* in 2 byte mode send highbyte first */
+    DBG(10,"backend runs on big endian machine\n");
+  }
 }
 
 static void
@@ -1183,20 +1886,70 @@ static SANE_String_Const type_list[] =
 
 static const char colorStr[] = "Color";
 static const char grayStr[] = "Gray";
-static SANE_String_Const scan_mode_list[] =
+static const char rgbiStr[] = "RGBI";
+static const char iredStr[] = "Infrared";
+
+static SANE_String_Const scan_mode_list_LS20[] =
 {
   colorStr,
   grayStr,
   NULL
 };
 
+static SANE_String_Const scan_mode_list_LS30[] =
+{
+  colorStr,
+  grayStr,
+#ifdef HAS_IRED	     
+  rgbiStr,
+#endif /* HAS_IRED */
+  NULL
+};
+
+static SANE_Int bit_depth_list[9];
+
+static const char neverStr[] = "never";
+static const char previewStr[] = "before preview";
+static const char scanStr[] = "before scan";
+static const char preandscanStr[] = "before preview and scan";
+static SANE_String_Const autofocus_mode_list[] =
+{
+  neverStr,
+  previewStr,
+  scanStr,
+  preandscanStr,
+  NULL
+};
+
 static SANE_String_Const source_list[4] =
 {NULL, NULL, NULL, NULL};
 
-static const SANE_Range gamma_range =
+static const SANE_Range gamma_range_8 = 
 {
   0,				/* minimum */
   255,				/* maximum */
+  1				/* quantization */
+};
+
+
+static const SANE_Range gamma_range_9 = 
+{
+  0,				/* minimum */
+  511,				/* maximum */
+  1				/* quantization */
+};
+
+static const SANE_Range gamma_range_10 = 
+{
+  0,				/* minimum */
+  1023,				/* maximum */
+  1				/* quantization */
+};
+
+static const SANE_Range gamma_range_12 = 
+{
+  0,				/* minimum */
+  4096,				/* maximum */
   1				/* quantization */
 };
 
@@ -1240,7 +1993,7 @@ static const SANE_Range percentage_range_100 =
 {
   0 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
   100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-  0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
+  1 << SANE_FIXED_SCALE_SHIFT	/* quantization */
 };
 
 static int num_devices;
@@ -1346,6 +2099,9 @@ attach_scanner (const char *devicename, Coolscan_t ** devp)
 /*  if ((dev->buffer = malloc (sanei_scsi_max_request_size)) == NULL)*/
     return SANE_STATUS_NO_MEM;
 
+  if ((dev->obuffer = malloc (dev->row_bufsize)) == NULL)
+    return SANE_STATUS_NO_MEM;
+
   dev->devicename = strdup (devicename);
   dev->sfd = sfd;
 
@@ -1414,13 +2170,378 @@ sigterm_handler (int signal)
   _exit (SANE_STATUS_GOOD);
 }
 
+
+typedef struct Color_correct_s
+{ int sum;           /* number of pixels summed so far */
+  double sumr;          /* sum of red pixel values*/
+  double sumi;          /* sum of infrared pixel values*/
+  double sumri;         /* sum of red*ired pixel values*/
+  double sumii;         /* sum of ired*ired pixel values*/
+  double sumrr;         /* sum of ired*ired pixel values*/
+  int  mr;         /* factor between red and ired values (*256) */ 
+  int  br;         /* offset of ired values */ 
+} ColorCorrect;
+
+/* --------------------------------------------------------------- 
+
+  function:   RGBIfix
+
+  taks:       Correct the infrared channel
+      
+  import:     unsigned char * rgbimat - RGBI - matrix from scanner
+              int size - number of pixels to correct
+	      int *lutr - lookup table for red correction
+	      int *lutg - lookup table for red correction
+	      int *lutb - lookup table for red correction
+	      int *lutr - lookup table for red correction
+
+  export:     unsigned char * orgbimat - RGBI - corrected matrix
+                  
+  written by: Andreas RICK   19.6.1999
+                           
+  ----------------------------------------------------------------*/
+
+int Calc_fix_LUT(Coolscan_t * s)
+{ int uselutr,uselutg,uselutb,useluti;    
+/*  static int irmulr= -34*25; */
+   int irmulr= -64*25;
+   int irmulg= -1*25;
+   int irmulb= -0*25;
+   int irmuli= 256*25;
+   int div;
+   int i;
+
+    irmulr=s->ired_red*(25);
+    irmulg=s->ired_green*(25);
+    irmulb=s->ired_blue*(25);
+    irmuli=25*256;
+  
+  if(s->LS==2) /* TODO: right conversion factors for 10 and 12 bit */
+    { div=4;
+    }
+  else  if(s->LS==3) 
+    { div=16;
+    }
+  else
+    { return 0;
+    }
+
+  memset(s->lutr, 0,256*4);
+  memset(s->lutg, 0,256*4);
+  memset(s->lutb, 0,256*4);
+  memset(s->luti, 0,256*4);
+
+  for(i=0;i<s->lutlength;i++)
+  {  if(s->gamma_bind)
+     { uselutr=uselutg=uselutb=useluti=s->gamma[i]/div;
+     }
+     else
+     { uselutr=s->gamma_r[i]/div;
+       uselutg=s->gamma_g[i]/div;
+       uselutb=s->gamma_b[i]/div;
+       useluti=s->gamma_r[i]/div;
+     }
+     s->lutr[uselutr]=(int)(irmulr*pow((double)i,(double)0.333333)); 
+     s->lutg[uselutg]=(int)(irmulg*pow((double)i,(double)0.333333)); 
+     s->lutb[uselutb]=(int)(irmulb*pow((double)i,(double)0.333333)); 
+     s->luti[useluti]=(int)(irmuli*pow((double)i,(double)0.333333)); 
+     if(uselutr<255)
+     { if(s->lutr[uselutr+1]==0) s->lutr[uselutr+1]=s->lutr[uselutr];
+     }
+     if(uselutg<255)
+     { if(s->lutg[uselutg+1]==0) s->lutg[uselutg+1]=s->lutg[uselutg];
+     }
+     if(uselutb<255)
+     { if(s->lutb[uselutb+1]==0) s->lutb[uselutb+1]=s->lutb[uselutb];
+     }
+     if(useluti<255)
+     { if(s->luti[useluti+1]==0) s->luti[useluti+1]=s->luti[useluti];
+     }
+  }
+  /* DEBUG
+  for(i=0;i<255;i++)
+  { fprintf(stderr,"%d %d %d %d\n"
+	    ,s->lutr[i],s->lutg[i],s->lutb[i],s->luti[i]);
+  }
+  */
+  return 1;
+}
+
+
+
+/* --------------------------------------------------------------- 
+
+  function:   RGBIfix
+
+  taks:       Correct the infrared channel
+      
+  import:     unsigned char * rgbimat - RGBI - matrix from scanner
+              int size - number of pixels to correct
+	      int *lutr - lookup table for red correction
+	      int *lutg - lookup table for red correction
+	      int *lutb - lookup table for red correction
+	      int *lutr - lookup table for red correction
+
+  export:     unsigned char * orgbimat - RGBI - corrected matrix
+                  
+  written by: Andreas RICK   19.6.1999
+                           
+  ----------------------------------------------------------------*/
+
+int RGBIfix(Coolscan_t * scanner,
+	    unsigned char* rgbimat,
+	    unsigned char* orgbimat, 	   
+	    int size,
+	    int *lutr,
+	    int *lutg,
+	    int *lutb,
+	    int *luti)
+	    
+{  unsigned char *pr,*pg,*pb,*pi;
+   unsigned char *opr,*opg,*opb,*opi;
+
+   int r,g,b,i;
+   int ii;
+   int x;
+   for(x=0;x<size;x++)
+   {
+        pr=rgbimat+x*4;
+	pg=pr+1; 
+	pb=pg+1;
+	pi=pb+1;	
+        opr=orgbimat+x*4;
+	opg=opr+1; 
+	opb=opg+1;
+	opi=opb+1;
+	r=lutr[(*pr)];
+	g=lutg[(*pg)];
+	b=lutb[(*pb)];	
+	i=luti[(*pi)];	
+	ii= i-r-g-b;
+	(*opr)=(*pr);
+	(*opg)=(*pg);
+	(*opb)=(*pb);	
+	if(ii<0)ii=0;
+	if(ii>255*256)ii=255*256;
+	if(scanner->negative)
+	{
+	    (*opi)=(unsigned char)(255-(ii>>8));	
+	}
+	else
+	{
+	  (*opi)=(unsigned char)(ii>>8);	
+	}
+   }
+   return 1;
+};
+
+/* --------------------------------------------------------------- 
+
+  function:   RGBIfix16
+
+  taks:       Correct the infrared channel for 16 bit images
+              (doesn't do anything for now)
+      
+  import:     unsigned char * rgbimat - RGBI - matrix from scanner
+              int size - number of pixels to correct
+	      int *lutr - lookup table for red correction
+	      int *lutg - lookup table for red correction
+	      int *lutb - lookup table for red correction
+	      int *lutr - lookup table for red correction
+
+  export:     unsigned char * orgbimat - RGBI - corrected matrix
+                  
+  written by: Andreas RICK   19.6.1999
+                           
+  ----------------------------------------------------------------*/
+
+int RGBIfix16(Coolscan_t * scanner,
+	      unsigned short* rgbimat,
+	      unsigned short* orgbimat, 	   
+	      int size,
+	      int *lutr,
+	      int *lutg,
+	      int *lutb,
+	      int *luti)
+	    
+{  unsigned short *pr,*pg,*pb,*pi;
+   unsigned short *opr,*opg,*opb,*opi;
+
+   int r,g,b,i;
+   int ii;
+   int x;
+   for(x=0;x<size;x++)
+   {
+        pr=rgbimat+x*4;
+	pg=pr+1; 
+	pb=pg+1;
+	pi=pb+1;	
+        opr=orgbimat+x*4;
+	opg=opr+1; 
+	opb=opg+1;
+	opi=opb+1;
+	(*opr)=(((*pr)&0x00ff)<<8)+(((*pr)&0xff00)>>8); 
+      	(*opg)=(((*pg)&0x00ff)<<8)+(((*pg)&0xff00)>>8); 
+	(*opb)=(((*pb)&0x00ff)<<8)+(((*pb)&0xff00)>>8); 	
+	(*opi)=(((*pi)&0x00ff)<<8)+(((*pi)&0xff00)>>8); 
+   }
+   return 1;
+};
+
+
+/* --------------------------------------------------------------- 
+
+  function:   rgb2g
+
+  taks:       Convert RGB data to grey
+      
+  import:     unsigned char * rgbimat - RGB - matrix from scanner
+              int size - size of input data (num pixel)
+
+  export:     unsigned char * gomat - Grey matrix
+                  
+  written by: Andreas RICK   13.7.1999
+                           
+  ----------------------------------------------------------------*/
+#define RtoG ((int)(0.27*256))
+#define GtoG ((int)(0.54*256))
+#define BtoG ((int)(0.19*256))
+
+int rgb2g(unsigned char* rgbimat,unsigned char* gomat, 	   
+	  int size)
+	    
+{  unsigned char *pr,*pg,*pb;
+   unsigned char *opg;
+
+   int g;
+   int x;
+   for(x=0;x<size;x++)
+   {
+        pr=rgbimat+x*3;
+	pg=pr+1; 
+	pb=pg+1;
+        opg=gomat+x;
+	g= RtoG*(*pr) + GtoG*(*pg) + BtoG*(*pb);
+	(*opg)=(unsigned char)(g>>8);	
+   }
+   return 1;
+};
+
+
+/* --------------------------------------------------------------- 
+
+  function:   RGBIfix1
+
+  taks:       Correct the infrared channel.
+              The input image data is the output of scaning
+	      with LUT. To calculate the original values
+	      the lutr and luti is applied.
+	      The infrared values is corrected by:
+
+	      Ir=mr*lutr(r)+luti(i)
+      
+  import:     unsigned char * rgbimat - RGBI - matrix from scanner
+              int size - number of pixels to correct
+ 	      ColorCorrect *cc,
+	      int *lutr - lookup table for red correction
+	      int *luti - lookup table for ired correction
+
+  export:     unsigned char * orgbimat - RGBI - corrected matrix
+                  
+  written by: Andreas RICK   3.7.1999
+                           
+  ----------------------------------------------------------------*/
+
+int RGBIfix1(unsigned char* rgbimat,unsigned char* orgbimat, 	   
+	    int size,
+	    int *lutr,
+	    int *lutg,
+	    int *lutb,
+	    int *luti)
+	    
+{  unsigned char *pr,*pg,*pb,*pi;
+   unsigned char *opr,*opg,*opb,*opi;
+   ColorCorrect cc;
+   int r,i;
+   static int thresi=100;
+   int ii;
+   int x;
+   /* calculate regression between r and ir */
+   cc.sum=0;
+   cc.sumr=cc.sumii=cc.sumrr=cc.sumi=cc.sumri=0.0;
+   for(x=0;x<size;x++)
+   {    pr=rgbimat+x*4;
+	pi=pr+3;	
+	r=lutr[(*pr)];
+	i=luti[(*pi)];
+	/*	r=(*pr);
+		i=(*pi); */
+	if((*pi)>thresi)
+        { cc.sum++;
+          cc.sumr+=r;
+          cc.sumii+=(i*i);
+          cc.sumrr+=(r*r);
+          cc.sumi+=i;
+          cc.sumri+=(i*r);
+	}
+   }
+   if((cc.sumii!=0)&&(cc.sum!=0))
+   { double dn,dz,dm;
+     dz=(cc.sumri-cc.sumr*cc.sumi/cc.sum);
+     dn=(cc.sumrr-cc.sumr*cc.sumr/cc.sum);
+     DBG (2, "Reg:dz:%e dn:%e\n",dz,dn);
+     if(dn!=0)
+     {  dm=(dz/dn);
+        cc.mr=(int)(dm*1024);
+     }
+     else
+     { cc.mr=0;
+       dm=0;
+     }
+     cc.br=(int)((cc.sumi-dm*cc.sumr)/cc.sum);
+   }
+   else
+   { cc.mr=0;
+   }
+   DBG (2, "Regression: size:%d I=%d/1024*R b:%d s:%d sr:%e si:%e sii:%e sri:%e  srr:%e\n",
+	size,cc.mr,cc.br,cc.sum,cc.sumr,cc.sumi,cc.sumii,cc.sumri,cc.sumrr);
+   for(x=0;x<size;x++)
+   {
+
+        pr=rgbimat+x*4;
+	pg=pr+1; 
+	pb=pg+1;
+	pi=pb+1;	
+        opr=orgbimat+x*4;
+	opg=opr+1; 
+	opb=opg+1;
+	opi=opb+1;
+	r=lutr[(*pr)];
+	i=luti[(*pi)];
+	/*	r=(*pr);
+		i=(*pi); */
+	ii= ((i-((r*cc.mr)>>10)-cc.br)>>2) +128;
+	(*opr)=(*pr);
+	(*opg)=(*pg);
+	(*opb)=(*pb);	
+	if(ii<0) ii=0;
+	if(ii>255) ii=255;
+	(*opi)=(unsigned char)(ii);	
+   }
+   return 1;
+};
+
+
 /* This function is executed as a child process. */
 static int
 reader_process (Coolscan_t * scanner, int pipe_fd)
 {
   int status;
+  int i;
+  unsigned char h;
   unsigned int data_left;
   unsigned int data_to_read;
+  unsigned int data_to_write;
   FILE *fp;
   sigset_t sigterm_set;
   struct SIGACTION act;
@@ -1443,9 +2564,9 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
 
   DBG (10, "reader_process: starting to READ data\n");
 
-  data_left = bytes_per_line (scanner) *
+  data_left = scan_bytes_per_line (scanner) *
     lines_per_scan (scanner);
-
+  
   /*scanner->row_bufsize = sanei_scsi_max_request_size;*/
   coolscan_trim_rowbufsize (scanner);	/* trim bufsize */
 
@@ -1461,7 +2582,10 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
       data_to_read = (data_left < scanner->row_bufsize) ?
 	data_left : scanner->row_bufsize;
 
-      status = coolscan_read_data_block (scanner, data_to_read);
+      data_to_write=data_to_read;
+
+      status = coolscan_read_data_block (scanner
+					 ,R_datatype_imagedata,data_to_read);
       if (status == 0)
 	{
 	  continue;
@@ -1474,7 +2598,7 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
 	}
     
       if (scanner->LS == 1) {	/* mirror image for LS-1000 */
-	  bpl = bytes_per_line(scanner);
+	  bpl = scan_bytes_per_line(scanner);
 	  linesPerBuf = data_to_read / bpl;
 	  
 	  for (line = 0, lineOffset = 0; line < linesPerBuf; 
@@ -1507,11 +2631,41 @@ reader_process (Coolscan_t * scanner, int pipe_fd)
 		  }
 	      }
 	  }	  
+      }    
+      if(scanner->colormode==RGBI) 
+      {  /* Correct Infrared Channel */
+	if(scanner->bits_per_color>8)
+	{
+	  RGBIfix16(scanner,scanner->buffer,scanner->obuffer,
+		 data_to_read/8,scanner->lutr,
+		 scanner->lutg,scanner->lutb,scanner->luti);
+	}
+	else
+	{
+	  RGBIfix(scanner,scanner->buffer,scanner->obuffer,
+		 data_to_read/4,scanner->lutr,
+		 scanner->lutg,scanner->lutb,scanner->luti);
+	}
       }
-      
-      fwrite (scanner->buffer, 1, data_to_read, fp);
-      fflush (fp);
-
+      else if((scanner->colormode==GREYSCALE)&&(scanner->LS>=2))
+      {  /* Convert to Grey */
+	 data_to_write/=3;
+	 rgb2g(scanner->buffer,scanner->obuffer,data_to_write);
+      }
+      else
+      { /* or just copy */
+	memcpy (scanner->obuffer, scanner->buffer,data_to_read);
+      }     
+      if((!scanner->low_byte_first)&&(scanner->bits_per_color>8))
+	{  for(i=0;i<data_to_write;i++) /* inverse byteorder */        
+           { h=scanner->obuffer[i];
+             scanner->obuffer[i]=scanner->obuffer[i+1];
+	     i++;
+  	     scanner->obuffer[i]=h;
+	   }
+	}
+      fwrite (scanner->obuffer, 1, data_to_write, fp);
+      fflush (fp);      
       data_left -= data_to_read;
       DBG (10, "reader_process: buffer of %d bytes read; %d bytes to go\n",
 	   data_to_read, data_left);
@@ -1529,6 +2683,7 @@ static SANE_Status
 init_options (Coolscan_t * scanner)
 {
   int i;
+  int bit_depths;
 
   DBG (10, "init_options\n");
 
@@ -1556,9 +2711,16 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
   scanner->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
   scanner->opt[OPT_MODE].type = SANE_TYPE_STRING;
-  scanner->opt[OPT_MODE].size = max_string_size (scan_mode_list);
-  scanner->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  scanner->opt[OPT_MODE].constraint.string_list = scan_mode_list;
+  if(scanner->LS<2)
+  { scanner->opt[OPT_MODE].size = max_string_size (scan_mode_list_LS20);
+    scanner->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    scanner->opt[OPT_MODE].constraint.string_list = scan_mode_list_LS20;
+  }
+  else
+  { scanner->opt[OPT_MODE].size = max_string_size (scan_mode_list_LS30);
+    scanner->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    scanner->opt[OPT_MODE].constraint.string_list = scan_mode_list_LS30;
+  }
 
   /* source */
   source_list[0] = "Slide";
@@ -1594,6 +2756,39 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_PRESCAN].type = SANE_TYPE_BOOL;
   scanner->opt[OPT_PRESCAN].unit = SANE_UNIT_NONE;
 
+  scanner->opt[OPT_PRESCAN_NOW].name = "prescan now";
+  scanner->opt[OPT_PRESCAN_NOW].title = "Prescan now";
+  scanner->opt[OPT_PRESCAN_NOW].desc =
+    "Perform a prescan now";
+  scanner->opt[OPT_PRESCAN_NOW].type = SANE_TYPE_BUTTON;
+  scanner->opt[OPT_PRESCAN_NOW].unit = SANE_UNIT_NONE;
+  scanner->opt[OPT_PRESCAN_NOW].size = 0;
+  scanner->opt[OPT_PRESCAN_NOW].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  scanner->opt[OPT_PRESCAN_NOW].constraint_type = SANE_CONSTRAINT_NONE;
+  scanner->opt[OPT_PRESCAN_NOW].constraint.string_list = 0;
+
+ /* bit depth */
+  
+  bit_depths=0;
+  bit_depth_list[++bit_depths] = 8;
+  if (scanner->LS==2)
+  {
+    bit_depth_list[++bit_depths] = 10;
+  }
+  if (scanner->LS==3)
+  {
+    bit_depth_list[++bit_depths] = 12;
+  }
+
+  bit_depth_list[0] = bit_depths;
+
+  scanner->opt[OPT_BIT_DEPTH].name  = SANE_NAME_BIT_DEPTH;
+  scanner->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
+  scanner->opt[OPT_BIT_DEPTH].desc  = SANE_DESC_BIT_DEPTH;
+  scanner->opt[OPT_BIT_DEPTH].type  = SANE_TYPE_INT;
+  scanner->opt[OPT_BIT_DEPTH].unit  = SANE_UNIT_BIT;
+  scanner->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  scanner->opt[OPT_BIT_DEPTH].constraint.word_list = bit_depth_list;
 
   /* resolution */
   scanner->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
@@ -1681,7 +2876,7 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_ANALOG_GAMMA].unit = SANE_UNIT_NONE;
   if (!scanner->analoggamma)
     {
-      scanner->opt[OPT_SOURCE].cap = SANE_CAP_INACTIVE;
+      scanner->opt[OPT_ANALOG_GAMMA].cap = SANE_CAP_INACTIVE;
     }
 
   scanner->opt[OPT_AVERAGING].name = "averaging";
@@ -1697,6 +2892,11 @@ init_options (Coolscan_t * scanner)
     "toggles brightness/contrast control over individual colours";
   scanner->opt[OPT_RGB_CONTROL].type = SANE_TYPE_BOOL;
   scanner->opt[OPT_RGB_CONTROL].unit = SANE_UNIT_NONE;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_RGB_CONTROL].cap |= SANE_CAP_INACTIVE;
+  }
+
+
 
   /* brightness */
   scanner->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
@@ -1706,6 +2906,10 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_BRIGHTNESS].constraint.range = &brightness_range;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+  }
+
 
   scanner->opt[OPT_R_BRIGHTNESS].name = "red-brightness";
   scanner->opt[OPT_R_BRIGHTNESS].title = "Red brightness";
@@ -1742,6 +2946,10 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_CONTRAST].constraint.range = &contrast_range;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+  }
+
 
   scanner->opt[OPT_R_CONTRAST].name = "red-contrast";
   scanner->opt[OPT_R_CONTRAST].title = "Red contrast";
@@ -1779,7 +2987,6 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_EXPOSURE].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_EXPOSURE].constraint.range = &exposure_range;
 
-
   scanner->opt[OPT_R_EXPOSURE].name = "red-exposure";
   scanner->opt[OPT_R_EXPOSURE].title = "Red exposure";
   scanner->opt[OPT_R_EXPOSURE].desc = "";
@@ -1806,6 +3013,12 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_B_EXPOSURE].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_B_EXPOSURE].constraint.range = &exposure_range;
   scanner->opt[OPT_B_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_R_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+     scanner->opt[OPT_G_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+     scanner->opt[OPT_B_EXPOSURE].cap &= ~SANE_CAP_INACTIVE;
+     scanner->opt[OPT_EXPOSURE].cap |= SANE_CAP_INACTIVE;
+  }
 
   scanner->opt[OPT_R_SHIFT].name = "red-shift";
   scanner->opt[OPT_R_SHIFT].title = "Red shift";
@@ -1814,6 +3027,10 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_R_SHIFT].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_R_SHIFT].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_R_SHIFT].constraint.range = &shift_range;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_R_SHIFT].cap |= SANE_CAP_INACTIVE;
+  }
+
 
   scanner->opt[OPT_G_SHIFT].name = "green-shift";
   scanner->opt[OPT_G_SHIFT].title = "Green shift";
@@ -1822,6 +3039,10 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_G_SHIFT].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_G_SHIFT].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_G_SHIFT].constraint.range = &shift_range;
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_G_SHIFT].cap |= SANE_CAP_INACTIVE;
+  }
+
 
   scanner->opt[OPT_B_SHIFT].name = "blue-shift";
   scanner->opt[OPT_B_SHIFT].title = "Blue shift";
@@ -1830,21 +3051,40 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_B_SHIFT].unit = SANE_UNIT_NONE;
   scanner->opt[OPT_B_SHIFT].constraint_type = SANE_CONSTRAINT_RANGE;
   scanner->opt[OPT_B_SHIFT].constraint.range = &shift_range;
-
+  if(scanner->LS>=2)
+  {  scanner->opt[OPT_B_SHIFT].cap |= SANE_CAP_INACTIVE;
+  }
 
   /* R+G+B gamma vector */
   scanner->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
   scanner->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
   scanner->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
   scanner->opt[OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
-  if (scanner->LS != 0)
+  if (scanner->LS == 1)
     {
       scanner->opt[OPT_GAMMA_VECTOR].cap = SANE_CAP_INACTIVE;
     }
   scanner->opt[OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR].size = 2048 * sizeof (SANE_Word);
+  switch(scanner->LS)
+  {  case 0:
+           scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &gamma_range_8;
+           scanner->lutlength=2048;
+           break;
+     case 1:
+           scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &gamma_range_9;
+           scanner->lutlength=512;
+           break;
+     case 2:
+           scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &gamma_range_10;
+           scanner->lutlength=1024;
+           break;
+     case 3:
+           scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &gamma_range_12;
+           scanner->lutlength=4096;
+           break;
+  }
+  scanner->opt[OPT_GAMMA_VECTOR].size = scanner->lutlength * sizeof (SANE_Word);
   scanner->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &gamma_range;
 
   /* red gamma vector */
   scanner->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
@@ -1853,9 +3093,26 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
   scanner->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
   scanner->opt[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_R].size = 2048 * sizeof (SANE_Word);
+  switch(scanner->LS)
+  {  case 0:
+           scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_range_8;
+           scanner->lutlength=2048;
+           break;
+     case 1:
+           scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_range_9;
+           scanner->lutlength=512;
+           break;
+     case 2:
+           scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_range_10;
+           scanner->lutlength=1024;
+           break;
+     case 3:
+           scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_range_12;
+           scanner->lutlength=4096;
+           break;
+  }
+  scanner->opt[OPT_GAMMA_VECTOR_R].size = scanner->lutlength * sizeof (SANE_Word);
   scanner->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &gamma_range;
 
   /* green gamma vector */
   scanner->opt[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
@@ -1864,9 +3121,26 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
   scanner->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
   scanner->opt[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_G].size = 2048 * sizeof (SANE_Word);
+  switch(scanner->LS)
+  {  case 0:
+           scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_range_8;
+           scanner->lutlength=2048;
+           break;
+     case 1:
+           scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_range_9;
+           scanner->lutlength=512;
+           break;
+     case 2:
+           scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_range_10;
+           scanner->lutlength=1024;
+           break;
+     case 3:
+           scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_range_12;
+           scanner->lutlength=4096;
+           break;
+  }
+  scanner->opt[OPT_GAMMA_VECTOR_G].size = scanner->lutlength * sizeof (SANE_Word);
   scanner->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &gamma_range;
 
   /* blue gamma vector */
   scanner->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
@@ -1875,9 +3149,27 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
   scanner->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
   scanner->opt[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_B].size = 2048 * sizeof (SANE_Word);
+  switch(scanner->LS)
+  {  case 0:
+           scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_range_8;
+           scanner->lutlength=2048;
+           break;
+     case 1:
+           scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_range_9;
+           scanner->lutlength=512;
+           break;
+     case 2:
+           scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_range_10;
+           scanner->lutlength=1024;
+           break;
+     case 3:
+           scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_range_12;
+           scanner->lutlength=4096;
+           break;
+  }
+  scanner->opt[OPT_GAMMA_VECTOR_B].size = scanner->lutlength * sizeof (SANE_Word);
   scanner->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &gamma_range;
+
 
   /* ------------------------------ */
 
@@ -1893,6 +3185,30 @@ init_options (Coolscan_t * scanner)
   scanner->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
   scanner->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
   scanner->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
+
+  /* Autofocus */
+  scanner->opt[OPT_AUTOFOCUS].name = "Autofocus";
+  scanner->opt[OPT_AUTOFOCUS].title ="Autofocus";
+  scanner->opt[OPT_AUTOFOCUS].desc = "When to do autofocussing";
+  scanner->opt[OPT_AUTOFOCUS].type = SANE_TYPE_STRING;
+  scanner->opt[OPT_AUTOFOCUS].size = max_string_size (autofocus_mode_list);
+  scanner->opt[OPT_AUTOFOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  scanner->opt[OPT_AUTOFOCUS].constraint.string_list = autofocus_mode_list;
+
+  scanner->opt[OPT_IRED_RED].name = "IRED cor. red";
+  scanner->opt[OPT_IRED_RED].title ="IRED cor. red";
+  scanner->opt[OPT_IRED_RED].desc = "Correction of infrared from red";
+  scanner->opt[OPT_IRED_RED].type = SANE_TYPE_INT;
+  scanner->opt[OPT_IRED_RED].unit = SANE_UNIT_NONE;
+  scanner->opt[OPT_IRED_RED].constraint_type = SANE_CONSTRAINT_RANGE;
+  scanner->opt[OPT_IRED_RED].constraint.range = &gamma_range_8;
+  scanner->opt[OPT_IRED_RED].cap |= SANE_CAP_ADVANCED;
+  if(scanner->LS<2)
+  {  scanner->opt[OPT_IRED_RED].cap |= SANE_CAP_INACTIVE;
+  }
+
+
+
   /*  scanner->opt[OPT_PREVIEW].cap   = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT; */
   return SANE_STATUS_GOOD;
 }
@@ -1917,15 +3233,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_GOOD;
     }
 
-  while (fgets (dev_name, sizeof (dev_name), fp))
+  while (sanei_config_read (dev_name, sizeof (dev_name), fp))
     {
       if (dev_name[0] == '#')
 	continue;		/* ignore line comments */
       len = strlen (dev_name);
-      if (dev_name[len - 1] == '\n')
-	{
-	  dev_name[--len] = '\0';
-	}
 
       if (!len)
 	continue;		/* ignore empty lines */
@@ -1949,6 +3261,7 @@ sane_exit (void)
       next = dev->next;
       free (dev->devicename);
       free (dev->buffer);
+      free (dev->obuffer);
       free (dev);
     }
 }
@@ -2049,7 +3362,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 /*
    static void
-   worddump (char *comment, SANE_Word * p, int l)
+   worddump(char *comment, SANE_Word * p, int l)
    {
    int i;
    char line[128];
@@ -2124,6 +3437,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *(SANE_Word *) val = scanner->preview;
 	  return SANE_STATUS_GOOD;
 
+	case OPT_AUTOFOCUS:
+	  switch(scanner->autofocus)
+	    {  case AF_NEVER: strcpy (val,neverStr);
+  	                 break;
+	       case AF_PREVIEW:strcpy (val,previewStr);
+  	                 break;             
+               case AF_SCAN:if(scanner->LS>=2) strcpy (val,scanStr);
+  	                 break;             
+	       case AF_PREANDSCAN:if(scanner->LS>=2) strcpy (val,preandscanStr);
+  	                 break;             
+	    }
+	  return SANE_STATUS_GOOD;
+
 	case OPT_NUM_OPTS:
 	  *(SANE_Word *) val = NUM_OPTIONS;
 	  return SANE_STATUS_GOOD;
@@ -2134,6 +3460,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case OPT_PREVIEW_RESOLUTION:
 	  *(SANE_Word *) val = resDivToVal (scanner->x_p_nres);
+	  return SANE_STATUS_GOOD;
+
+	case OPT_BIT_DEPTH:
+	  *(SANE_Word *) val = scanner->bits_per_color;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_CONTRAST:
@@ -2195,15 +3525,31 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_B_SHIFT:
 	  *(SANE_Word *) val = scanner->shift_B - 128;
 	  return SANE_STATUS_GOOD;
+
+
+	case OPT_IRED_RED:
+	  *(SANE_Word *) val = scanner->ired_red;
+	  return SANE_STATUS_GOOD;
+
 	  /* string options: */
 	case OPT_TYPE:
 	  strcpy (val, ((scanner->negative) ? negativeStr : positiveStr));
 	  return SANE_STATUS_GOOD;
 
 	case OPT_MODE:
-	  strcpy (val, ((scanner->colormode == RGB) ?
-			colorStr : grayStr));
-	  if (info)
+	  switch(scanner->colormode)
+	    {  case RGB: strcpy (val,colorStr);
+  	                 break;
+	       case GREYSCALE:strcpy (val,grayStr);
+  	                 break;             
+               case RGBI:if(scanner->LS>=2) strcpy (val,rgbiStr);
+		         else strcpy (val,colorStr);
+  	                 break;             
+	       case IRED:if(scanner->LS>=2) strcpy (val,iredStr); 
+	                 else strcpy (val,grayStr);
+  	                 break;             
+	    }
+ 	    if (info)
 	    {
 	      *info |= SANE_INFO_RELOAD_PARAMS;
 	    }
@@ -2212,6 +3558,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case OPT_PRESCAN:
 	  *(SANE_Word *) val = (scanner->prescan) ? SANE_TRUE : SANE_FALSE;
+	  return SANE_STATUS_GOOD;
+
+	case OPT_PRESCAN_NOW:	 
 	  return SANE_STATUS_GOOD;
 
 	case OPT_RGB_CONTROL:
@@ -2278,7 +3627,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	{
 	case OPT_GAMMA_BIND:
 	  scanner->gamma_bind = (*(SANE_Word *) val == SANE_TRUE);
-	  if (scanner->LS == 0)
+	  if (scanner->LS != 1)
 	    {
 	      if (scanner->gamma_bind)
 		{
@@ -2315,6 +3664,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_PRESCAN:
 	  scanner->prescan = (*(SANE_Word *) val == SANE_TRUE);
 	  return SANE_STATUS_GOOD;
+
+	case OPT_PRESCAN_NOW:
+	   do_prescan_now(scanner);  
+	  return SANE_STATUS_GOOD;
+
+	case OPT_BIT_DEPTH:
+	   scanner->bits_per_color=(*(SANE_Word *)val);
+ 	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS;
+	  return SANE_STATUS_GOOD;
+
 
 	case OPT_RGB_CONTROL:
 	  scanner->rgb_control = (*(SANE_Word *) val == SANE_TRUE);
@@ -2424,6 +3784,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  scanner->preview = *(SANE_Word *) val;
 	  return SANE_STATUS_GOOD;
 
+	case OPT_AUTOFOCUS:
+	  if(strcmp(val,neverStr)==0) 
+	    {    scanner->autofocus=AF_NEVER;
+	    }
+	  if(strcmp(val,previewStr)==0)  
+	    {    scanner->autofocus=AF_PREVIEW;
+	    }
+	  if(strcmp(val,scanStr)==0)  
+	    {    scanner->autofocus=AF_SCAN;
+	    }
+	  if(strcmp(val,preandscanStr)==0)  
+	    {    scanner->autofocus=AF_PREANDSCAN;;
+	    }
+	  return SANE_STATUS_GOOD;
+
 	case OPT_CONTRAST:
 	  scanner->contrast = *(SANE_Word *) val + 128;
 	  return SANE_STATUS_GOOD;
@@ -2475,6 +3850,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  scanner->shift_B = *(SANE_Word *) val + 128;
 	  return SANE_STATUS_GOOD;
 
+	case OPT_IRED_RED:
+	  scanner->ired_red= *(SANE_Word *) val; 
+	  return SANE_STATUS_GOOD;
+
 	case OPT_SOURCE:
 	  scanner->asf = (strcmp (val, "Automatic...") == 0);
 	  return SANE_STATUS_GOOD;
@@ -2487,8 +3866,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  return SANE_STATUS_GOOD;
 	case OPT_MODE:
-	  scanner->colormode = (strcmp (val, colorStr) == 0) ?
-	    RGB : GREYSCALE;
+	  if(strcmp(val,colorStr)==0) 
+	    {    scanner->colormode=RGB;
+	         scanner->colormode_p=RGB;
+	    }
+	  if(strcmp(val,grayStr)==0)  
+	    {    scanner->colormode=GREYSCALE;
+	         scanner->colormode_p=GREYSCALE;
+	    }
+	  if(strcmp(val,rgbiStr)==0)
+	    {    scanner->colormode=RGBI;
+	         scanner->colormode_p=RGB;
+	    }
+	  if(strcmp(val,iredStr)==0) 
+	    {    scanner->colormode=IRED;
+	         scanner->colormode_p=GREYSCALE;
+	    }
 	  if (info)
 	    {
 	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
@@ -2496,22 +3889,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	case OPT_GAMMA_VECTOR:
-
-
-	  /*worddump("Gamma table", val, 2048); */
 	  memcpy (scanner->gamma, val, scanner->opt[option].size);
+	  if(scanner->LS>2)  Calc_fix_LUT(scanner);
 	  return SANE_STATUS_GOOD;
 
 	case OPT_GAMMA_VECTOR_R:
 	  memcpy (scanner->gamma_r, val, scanner->opt[option].size);
+	  if(scanner->LS>2)  Calc_fix_LUT(scanner);
 	  return SANE_STATUS_GOOD;
 
 	case OPT_GAMMA_VECTOR_G:
 	  memcpy (scanner->gamma_g, val, scanner->opt[option].size);
+	  if(scanner->LS>2)  Calc_fix_LUT(scanner);
 	  return SANE_STATUS_GOOD;
 
 	case OPT_GAMMA_VECTOR_B:
 	  memcpy (scanner->gamma_b, val, scanner->opt[option].size);
+	  if(scanner->LS>2)  Calc_fix_LUT(scanner);
 	  return SANE_STATUS_GOOD;
 
 	}			/* switch */
@@ -2525,13 +3919,24 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   Coolscan_t *scanner = handle;
 
   DBG (10, "sane_get_parameters");
-  params->format = (scanner->colormode == RGB) ?
-    SANE_FRAME_RGB : SANE_FRAME_GRAY;
+  switch(scanner->colormode)
+    {  case RGB:
+              params->format =  SANE_FRAME_RGB;
+              break;
+#ifdef HAS_IRED
+       case RGBI:
+              params->format =  SANE_FRAME_RGBA; 
+              break; 
+#endif /* HAS_RGBI */
+       case GREYSCALE:
+              params->format =  SANE_FRAME_GRAY;
+              break;
+    }
 
-  params->depth = 8;
+  params->depth = scanner->bits_per_color>8?16:8;
   params->pixels_per_line = pixels_per_line (scanner);
   params->lines = lines_per_scan (scanner);
-  params->bytes_per_line = bytes_per_line (scanner);
+  params->bytes_per_line = write_bytes_per_line (scanner);
   params->last_frame = 1;
   return SANE_STATUS_GOOD;
 }
@@ -2541,7 +3946,7 @@ swap_res (Coolscan_t * s)
   if (s->preview)
     {
       /* swap preview/scan resolutions */
-      int xres, yres;
+      int xres, yres, cmode;
       xres = s->x_nres;
       yres = s->y_nres;
       s->x_nres = s->x_p_nres;
@@ -2549,6 +3954,9 @@ swap_res (Coolscan_t * s)
 
       s->x_p_nres = xres;
       s->y_p_nres = yres;
+      cmode=s->colormode;
+      s->colormode=s->colormode_p;
+      s->colormode_p=cmode;
     }
   return 0;
 }
@@ -2600,28 +4008,46 @@ sane_start (SANE_Handle handle)
 
   swap_res (scanner);
   if (!scanner->preview)
-    coolscan_autofocus (scanner);
+  { if(scanner->autofocus & 0x02)
+    {  coolscan_autofocus (scanner);
+    }
+  }
   else
-    {
+    { 
+      if(scanner->autofocus & 0x01)
+      {  coolscan_autofocus (scanner);
+      }
       if (scanner->prescan) {
-	prescan (scanner);
-	get_internal_info(scanner);
+	prescan (scanner);  
+	if(scanner->LS<2)
+        {	get_internal_info(scanner);
+	}
+        coolscan_get_window_param (scanner,1);
       }
     }
   /*read_LUT(scanner); */
-  send_LUT (scanner);
-  coolscan_set_window_param (scanner, 0);
-  coolscan_get_window_param (scanner);
+  if(scanner->LS<2)
+  {  send_LUT (scanner);
+     coolscan_set_window_param (scanner, 0);
+     coolscan_get_window_param (scanner,0);
+     coolscan_start_scan (scanner);
+  }
+  else
+  {  coolscan_set_window_param (scanner, 0);
+     send_LUT (scanner);
+     Calc_fix_LUT(scanner);
+     coolscan_start_scan (scanner);
+     wait_scanner (scanner);
+     coolscan_get_window_param (scanner,0);
+  }
 
-  DBG (10, "bytes per line        = %d\n", bytes_per_line (scanner));
+  DBG (10, "bytes per line        = %d\n", scan_bytes_per_line (scanner));
   DBG (10, "pixels_per_line       = %d\n", pixels_per_line (scanner));
   DBG (10, "lines                 = %d\n", lines_per_scan (scanner));
   DBG (10, "negative              = %d\n", scanner->negative);
   DBG (10, "brightness (halftone) = %d\n", scanner->brightness);
   DBG (10, "contrast   (halftone) = %d\n", scanner->contrast);
   DBG (10, "fast preview function = %d\n", scanner->preview);
-
-  coolscan_start_scan (scanner);
 
   /* create a pipe, fds[0]=read-fd, fds[1]=write-fd */
   if (pipe (fds) < 0)

@@ -8,18 +8,21 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 
-:backend "musteka4s2"		; name of backend
-:version "(0.3)"		; version of backend
-:status :beta			; :alpha, :beta, :stable, :new
-:manpage "sane-musteka4s2"	; name of manpage (if it exists)
-:url "http://www.i2k.com/~jeffd/a4s2/"	; backend's web page
+:backend "as6e"		; name of backend
+:version "(0.4.0)"		; version of backend
+:status :alpha			; :alpha, :beta, :stable, :new
+;:manpage "sane-as6e"		; name of manpage (if it exists)
+:url "http://as6edriver.sourceforge.net/"
 
 :devicetype :scanner
 
-:mfg "Mustek"			; name a manufacturer
-:url "http://www.mustek.com/"
-:model "MFS-600IIIP"		; name models for above-specified mfg.
-:comment "Mustek 600 III EP Plus"
+:mfg "Artec/Ultima"			; name a manufacturer
+:url "http://www.artecusa.com/"
+
+:model "AS6E"
+:interface "Parport"
+:comment "all modes working"
+
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

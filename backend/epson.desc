@@ -10,8 +10,8 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.1.15"                  ; version of backend
-:status :alpha                    ; :alpha, :beta, :stable, :new
+:version "0.1.33"                 ; version of backend
+:status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.khk.net/"        ; backend's web page
 
@@ -21,29 +21,64 @@
 
 :mfg "Epson"                      ; name a manufacturer
 :url "http://www.epson.com/"
+
 :model "GT-5000"                  ; name models for above-specified mfg.
-:comment "parallel interface"
-:model "GT-6000"
-:comment "parallel interface"
+:interface "Parport"
+
 :model "Actionscanner II"
-:comment "parallel interface"
+:comment "US version of GT-5000"
+:interface "Parport"
+
+:model "GT-6000"
+:interface "Parport"
+
+:model "ES-300C"
+:comment "US version of GT-6000"
+:interface "Parport"
+
+:model "GT-5500"
+:interface "SCSI"
+
+:model "GT-6500"
+:interface "Parport"
+
+:model "ES-600C"
+:comment "US version of GT-6500"
+:interface "Parport"
+
+:model "ES-1200C"
+:comment "US version of GT-9000"
+:interface "Parport"
+
 :model "GT-7000"
+:interface "SCSI"
+
 :model "Perfection 636S"
+:comment "US version of GT-7000"
+:interface "SCSI"
+
 :model "Perfection 636U"
-:comment "USB Interface"
+:interface "USB"
+
+:model "Perfection 610"
+:interface "USB"
+
 :model "Perfection 1200S"
+:interface "SCSI"
+
 :model "Perfection 1200U"
-:comment "USB Interface"
+:interface "USB"
+
+:model "Perfection 1200Photo"
+:comment "with TPU"
+:interface "USB"
+
 :model "Expression 636"
+:interface "SCSI"
+
+:model "Expression 800"
+:interface "SCSI"
+
 :model "FilmScan 200"
+:interface "SCSI"
 :comment "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.cu.uk/scanner/</A>"
-
-
-
-
-
-
-
-
-
-

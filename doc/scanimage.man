@@ -1,4 +1,4 @@
-.TH scanimage 1 "4 March 1998"
+.TH scanimage 1 "29 April 2000"
 .IX scanimage
 .SH NAME
 scanimage - scan an image
@@ -6,6 +6,8 @@ scanimage - scan an image
 .B scanimage
 .RB [ -d | --device-name
 .IR dev ]
+.RB [ --format
+.IR format ]
 .RB [ -h | --help ]
 .RB [ -L | --list-devices ]
 .RB [ -T | --test ]
@@ -21,7 +23,7 @@ command-line options.  After command-line processing,
 normally proceeds to acquire an image.  The image data is written to
 standard output in one of the PNM (portable aNyMaP) formats (PBM for
 black-and-white images, PGM for grayscale images, and PPM for color
-images).
+images) or in TIFF (black-and-white, grayscale or color).
 .B scanimage
 accesses image acquisition devices through the SANE (Scanner Access
 Now Easy) interface and can thus support any device for which there
@@ -38,7 +40,25 @@ available devices can be obtained with the
 .B --list-devices
 option (see below).  If no device-name is specified explicitly,
 .B scanimage
+reads a device-name from the environment variable
+.BR SANE_DEFAULT_DEVICE .
+If this variable is not set, 
+.B scanimage
 will attempt to open the first available device.
+.PP
+The
+.B --format 
+.I format
+selects how image data is written to standard output.
+.I format
+can be
+.B pnm
+or
+.B
+tiff
+to select file format PNM or TIFF. If
+.B --format
+is not used, PNM is written.
 .PP
 The
 .B -h
@@ -228,6 +248,10 @@ filename
 .BR /tmp/input.ppm .
 .RE
 
+.SH ENVIRONMENT
+.TP
+.B SANE_DEFAULT_DEVICE
+The default device-name.
 .SH FILES
 .TP
 .I @CONFIGDIR@

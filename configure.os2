@@ -1,7 +1,7 @@
-#!sh
+#!\bin\sh.exe
 #
 #	Notes:	Set CPP to your path to cpp.exe.
 #
 LN_S=cp \
-LIBS=-lsyslog \
+LIBS=-lsocket \
 configure --sysconfdir=. --program-suffix=.exe --disable-dynamic --without-x

@@ -10,7 +10,7 @@
 ;
 
 :backend "artec"                  ; name of backend
-:version "0.5.13"                 ; version of backend
+:version "0.5.14"                 ; version of backend
 :status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-artec"             ; name of manpage (if it exists)
 :url "http://www4.infi.net/~cpinkham/sane/sane-artec-doc.html" ; backend's web page
@@ -23,30 +23,40 @@
 :url "http://www.artecusa.com/"
 ;; name models for above-specified mfg.
 :model "AT3"
+:interface "SCSI"
 :comment "all modes working"
 :model "A6000C"
+:interface "SCSI"
 :comment "all modes working"
 :model "A6000C PLUS"
+:interface "SCSI"
 :comment "f/w <= v1.92 alpha, f/w >= v1.93 OK"
 :model "AT6"
+:interface "SCSI"
 :comment "Unknown - please try"
 :model "AT12"
+:interface "SCSI"
 :comment "all modes working"
 :model "AM12S"
+:interface "SCSI"
 :comment "all modes working"
 :model "parallel models"
+:interface "Parport"
 :comment "Unsupported, see <a href='http://as6edriver.sourceforge.net/'>http://as6edriver.sourceforge.net</a>"
 :model "USB models"
+:interface "USB"
 :comment "Unsupported."
 
 :mfg "BlackWidow"
 :url "http://www.blackwidow.co.uk/"
 :model "BW4800SP"
+:interface "SCSI"
 :comment "rebadged Artec AT3"
 
 :mfg "Plustek"
 :url "http://www.plustek.com/"
 :model "OpticPro 19200S"
+:interface "SCSI"
 :comment "rebadged Artec AM12S"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

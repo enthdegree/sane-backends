@@ -26,6 +26,8 @@ Vendor	Product id:
 Sharp	JX-610
 .br
 Sharp	JX-250
+.br
+Sharp	JX-350
 .RE
 .PP
 The following scanners are detected by the backend, but not tested:
@@ -141,8 +143,9 @@ Possible values:
 .br
 .B 2.2
 .RE
-The default value is 2.2. (The JX-250 has no built in gamma correction; for
-this scanner, a gamma table is downloaded to the scanner by the backend.)
+The default value is 2.2. (The JX-250 and JX-350 have no built in gamma 
+correction; for these scanner, a gamma table is downloaded to the scanner 
+by the backend.)
 
 .B Gamma Table
 (parameter 
@@ -175,7 +178,7 @@ in pixel per inch (parameter
 for scanimage). Selects the resolution of the scanned image. Allowed values:
 .RS
 .B 30..600
-(JX-330 and JX-610) resp. 
+(JX-330, JX-350 and JX-610) resp. 
 .B 30..400
 (JX-250)
 .RE
@@ -184,7 +187,7 @@ The default value is 150.
 .B Scan Window
 
 The possible settings depend on the scanner model and, for the
-JX-250, also on the usage of the automatic document feeder resp. the
+JX-250 and the JX-350, also on the usage of the automatic document feeder resp. the
 transparency adapter. Please refer to the values allowed by xscanimage, or
 xsane. With scanimage, enter one of the following commands:
 
@@ -221,8 +224,8 @@ for scanimage);
 .B Edge emphasis
 (parameter
 .B --Edge emphasis
-for scanimage). This option is not available for the JX-250. Possible 
-settings:
+for scanimage). This option is not available for the JX-250 and the JX-350. 
+Possible settings:
 .RS
 .B None
 .br

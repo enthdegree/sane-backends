@@ -1,4 +1,4 @@
-#include <sane/config.h>
+#include "sane/config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,11 +6,11 @@
 
 #include <sys/fcntl.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/sanei_wire.h>
-#include <sane/sanei_codec_ascii.h>
-#include <sane/sanei_codec_bin.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/sanei_wire.h"
+#include "sane/sanei_codec_ascii.h"
+#include "sane/sanei_codec_bin.h"
 
 static Wire w;
 

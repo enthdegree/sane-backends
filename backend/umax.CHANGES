@@ -710,3 +710,56 @@ build-17 -> build-18
 
     * scsi buffer is only reallocated when size has changed
 
+
+build-18 -> build-19
+--------------------
+
+    * added UMAX PowerLook III as supported scanner
+
+    * added EPSON Perfection600 as supported scanner (is a Astra 1200S)
+
+    * type of option 0 (Option numbers) is set to SANE_TYPE_INT now (undefined before)
+
+    * removed bug that mixed 12 bit and 14/16 bit gamma table when 14 or 16 bit are supported
+      and changed value range of grey custom gamma table:
+      - maximum output value is 255 for 8 bits/pixel
+      - maximum output value is 65535 for 9-16 bits/pixel
+      the custom gamma table does work now with 9-16 bits/pixel output mode
+
+    * added routine that reverses bit order in lineart mode when scanner sends LSB first in lineart
+
+
+build-19 -> build-20
+--------------------
+
+    * added variable calibration_width_offset, Mirage D-16L offset of 308 is defined there
+      and added offset of 28 for PowerLook III
+
+    * umax_do_calibration: guessed calibration data vaules use 2 bytes/color if scanner
+      supports gamma input bit depth supports 2 bytes/color
+
+    * calibration by driver now does work for PowerLook III
+
+    * added function umax_set_rgb_bind() that sets the sensitivity of some options
+      that make available different settings for RGB. This function now is called
+      when scanmode is selected.
+
+    * changed some int to unsigned int
+
+    * made dev->pause_after_reposition = -1; as default, so as default sane-umax does not wait
+      any more while the scanhead is moving back - this may break the support of some scanners
+      so it may have to be changed (dev->pause_after_reposition = 0;) for some scanners.
+      reported to work for:
+      - Supervista S12
+      - PowerLook III
+      - Astra 2200
+
+
+build-20 -> build-21
+--------------------
+
+    * Added Linotype "JADE" as supported scanner
+
+    * Removed bug in sane_close that caused segfault when
+      sane_close was called twice with the same scanner handle
+

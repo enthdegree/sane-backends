@@ -67,11 +67,11 @@
    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 
 #ifdef _AIX
-# include <lalloca.h>	/* MUST come first for AIX! */
+# include "lalloca.h"	/* MUST come first for AIX! */
 #endif
 
-#include <sane/config.h>
-#include <lalloca.h>
+#include "sane/config.h"
+#include "lalloca.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -88,20 +88,20 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/saneopts.h"
 
-#include <qcam.h>
+#include "qcam.h"
 
 #define BACKEND_NAME qcam
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
 #endif
 
-#include <sane/sanei_config.h>
+#include "sane/sanei_config.h"
 #define QCAM_CONFIG_FILE "qcam.conf"
 
 /* status bits */
@@ -1399,13 +1399,11 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
       return SANE_STATUS_INVAL;
     }
 
-  while (fgets (dev_name, sizeof (dev_name), fp))
+  while (sanei_config_read (dev_name, sizeof (dev_name), fp))
     {
       if (dev_name[0] == '#')		/* ignore line comments */
 	continue;
       len = strlen (dev_name);
-      if (dev_name[len - 1] == '\n')
-	dev_name[--len] = '\0';
 
       if (!len)
 	continue;			/* ignore empty lines */
@@ -1555,7 +1553,7 @@ sane_close (SANE_Handle handle)
   if (prev)
     prev->next = s->next;
   else
-    first_handle = s;
+    first_handle = s->next;
 
   if (s->scanning)
     sane_cancel (handle);

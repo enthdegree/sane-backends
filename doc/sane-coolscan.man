@@ -1,0 +1,94 @@
+.TH sane-coolscan 5 "4 July 2000"
+.IX sane-coolscan
+
+.SH NAME
+
+sane-coolscan - SANE backend for Nikon film-scanners
+
+.SH ABOUT THIS FILE
+
+This file is a short descripton of the coolscan-backend for sane! 
+
+.SH DESCRIPTION
+
+The
+.B sane-coolscan
+library implements a SANE backend that provides the interface to the following Nikon Coolscan Film scanners: Nikon LS20, LS30, LS1000, LS2000.
+
+.B Even though the backand has worked for a number of people, there are still some problems, especially in combination with some SCSI card/drivers (AHA-1505/aha152x.o) and the autofocus command. You should consider this backend 'alpha' and be carefull when using it the first time.
+
+.SH CONFIGURATION
+
+The configuration file for this backend resides in 
+	/usr/local/etc/sane.d/coolscan.conf. 
+
+Its contents is a list of device names that correspond to Nikon Coolscan scanners. Empty lines
+and lines starting with a hash mark (#) are ignored. A sample configuration file is
+shown below: 
+
+ #scsi Vendor Model Type 
+ scsi Nikon * Scanner 
+ /dev/scanner 
+
+The special device name must be a generic SCSI device or a symlink to such a device.
+To find out to which device your scanner is assigned and how you have to set the
+permissions of that device, have a look at sane-scsi. 
+
+.SH SCSI ADAPTER TIPS
+
+Some SCSI-adapters and low-level SCSI drivers do not work correctly with this backend and the
+Coolscan scanners. These systems hang when the autofocus command is send to the Scanner.
+To see a list of which card/driver combinations work or dont work have a look at:
+http://andreas.rick.free.fr/sane/autofocus.html.
+
+
+
+.SH FILES
+
+The backend configuration file:
+ /usr/local/etc/sane.d/coolscan.conf
+
+The static library implementing this backend:
+ /usr/local/lib/sane/libsane-coolscan.a
+
+The shared library implementing this backend :
+ /usr/local/lib/sane/libsane-coolscan.so
+ (present on systems that support dynamic loading)
+
+.SH ENVIRONMENT
+
+.B SANE_DEBUG_COOLSCAN
+ If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend. E.g., a value of 128
+requests all debug output to be printed. Smaller levels reduce verbosity:
+SANE_DEBUG_COOLSCAN values
+
+Examples:
+ on bash:
+ export SANE_DEBUG_COOLSCAN=8
+ on csh
+ setenv SANE_DEBUG_COOLSCAN 8
+
+.SH BUGS
+
+ The autofocus command does not work with some SCSI card/driver combinations
+ The gamma table is not implemented for the LS1000 yet.
+ The dust-removal is not working yet
+
+.SH SEE ALSO
+
+ http://andreas.rick.free.fr/sane/ The homepage of this backend
+ http://www.sema.be/coolscan/  The original version of the coolscan backend by Didier
+ sane-scsi(5)
+
+.SH THANKS TO
+
+ Didier Carlier - For writing the original Coolscan backend (without it I would not have started this) 
+ Oliver.Rauch - For adapting xsane so quickly to the infrared stuff.
+ All the other people working on SANE.
+
+.SH AUTHOR
+Andreas Rick
+
+.SH EMAIL-CONTACT
+andreas.rick@free.fr

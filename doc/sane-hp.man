@@ -1,4 +1,4 @@
-.TH sane-hp 5 "12-February 2000"
+.TH sane-hp 5 "09-July 2000"
 .IX sane-hp
 .SH NAME
 sane-hp - SANE backend for HP ScanJet scanners
@@ -82,7 +82,9 @@ for example. For the Hp ScanJet Plus the special device name must be the device
 that corresponds to the parallel interface card that was shipped with the
 scanner. That is
 .I /dev/hpscan
-A special driver is required for this card. See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details.
+A special driver is required for this card.
+See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details. If the link
+does not work, try ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners.
 .SH CONFIGURATION
 The contents of the
 .I hp.conf
@@ -182,7 +184,7 @@ and 24 bit color.
 .TP
 .B Automatic Document Feeder (ADF)
 For use of the ADF with xscanimage(1), first place paper in the ADF and
-then change option scantype to 'ADF'. Press 'change document'
+then change option scan source to 'ADF'. Press 'change document'
 to load a sheet. Then press 'scan' to start a scan. 
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended

@@ -1,0 +1,282 @@
+.TH sane-plustek 5 "22 July 2000"
+.IX sane-plustek
+.SH NAME
+sane-plustek - SANE backend for Plustek parallel port flatbed scanners
+
+.SH DESCRIPTION
+The
+.B sane-plustek
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to Plustek parallel port flatbed scanners. The backend
+needs the kernel module pt_drv which currently can be downloaded from
+.br
+.B http://home.t-online.de/home/g-jaeger/plustek.html
+.br
+At present, the following scanners should work with this backend:
+.PP
+Model:                 ASIC: Properties:
+.br
+---------------------- ----- ------------------------
+.br
+OpticPro 12000P Turbo  98001 600x1200 dpi 36bit 512Kb
+.br
+OpticPro 9636T/12000T  98001 600x1200 dpi 36bit 512Kb
+.br
+OpticPro 9636P+/Turbo  98001 600x1200 dpi 36bit 512Kb
+.br
+OpticPro 9636P         98001 600x1200 dpi 36bit 512Kb
+.br
+OpticPro 12000P/96000P 96003 600x1200 dpi 36bit 128Kb
+.br
+OpticPro 9630P/FBIV    96003 600x1200 dpi 30bit 128Kb
+.br
+OpticPro 9630PL (14")  96003 600x1200 dpi 30bit 128Kb
+.br
+OpticPro 600P/6000P    96003  300x600 dpi 30bit  32Kb
+.br
+OpticPro 4831P         96003  300x600 dpi 30bit  32Kb
+.br
+OpticPro 4830P/FBIII   96003  300x600 dpi 30bit  32Kb
+.br
+OpticPro 4800P/FBII    96001  300x600 dpi 24bit  32Kb
+.br
+.PP
+
+.SH "OTHER PLUSTEK SCANNERS"
+
+This driver only supports the parallelport scanners from Plustek.
+It is not planned to support the USB devices (OP 1212U, U12, UT12).
+
+The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
+and is supported by the
+.B Artec
+backend.
+
+ASIC 98003 based models (OpticPro P8, P12 and PT12) are currently
+not supported.
+.PP
+
+.SH "PRIMAX SCANNERS"
+
+There are some scanners sold by Primax, but they are in fact
+Plustek devices. These scanners are also supported.
+The following table will show the relationship:
+.PP
+Model:                      Plustek Model:  Remarks:
+.br
+--------------------------- --------------  ------------
+.br
+Colorado 4800               OpticPro 4800   not tested
+.br
+Colorado 4800 Direct        OpticPro 600    mov=2
+.br
+Colorado 4800 Direct 30Bit  OpticPro 4830   not tested
+.br
+Colorado 9600 Direct 30Bit  OpticPro 9630   not tested
+.PP
+
+.SH "DEVICE NAMES"
+This backend expects a device called:
+.PP
+.RS
+.I /dev/pt_drv
+.RE
+This device is currently not part of the SANE distribution. It has to
+be downloaded from:
+.br
+.B http://home.t-online.de/home/g-jaeger/plustek.html
+.br
+See the INSTALL file there for a proper setup. Currently only Linux
+is supported by this driver (Kernel 2.2.x and higher).
+.PP
+
+.SH CONFIGURATION
+.PP
+As the driver is a loadable kernel module, it is configured
+by invoking insmod with the approriate parameters or
+appending the options to the file
+.B /etc/conf.modules
+.PP
+.B
+The Options:
+.br
+lampoff=lll
+.RS
+The value
+.I lll
+tells the driver, after how many seconds to
+switch-off the lamp(s). The default value is 180.
+0 will disable this feature.
+.br
+.B HINT:
+Do not use a value that is too small, because often
+switching on/off the lamps will reduce their lifetime.
+.RE
+.PP
+port=ppp
+.RS
+.I ppp
+specifies the port base address, where the scanner
+is connected to. The default value is 0x378 which
+normaly is standard.
+.RE
+.PP
+warmup=www
+.RS
+.I www
+specifies the time in seconds, how long a lamp has to be on,
+until the driver will start to scan. The default value is 30.
+.RE
+.PP
+lOffonEnd=e
+.RS
+.I e
+specifies the behaviour when unloading the driver, 1 --> switch
+lamps off, 0 --> do not change lamp status
+.RE
+.PP
+mov=m
+.RS
+.I m
+=0 - default: no override
+.br
+.I m
+=1 - OpticPro 9630PL override (works if OP9630
+.br
+       has been detected) forces legal size (14")
+.br
+.I m
+=2 - Primax 4800Direct override (works if OP600
+.br
+       has been detected) swaps red/green color
+.br
+.I m
+=3 - OpticPro 9636 override (works if OP9636 has
+.br
+       been detected) disables backends
+.br
+       transparency/negativ capabilities
+.br
+.RE
+.PP
+Sample entry for file
+.B /etc/conf.modules
+:
+.br
+.I alias char-major-40 pt_drv
+.br
+.I post-install pt_drv modprobe -k parport
+.br
+.I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0
+.PP
+
+.SH "PARALLEL PORT MODES"
+.PP
+The current driver works best, when the parallel port
+has been set to EPP-mode. When detecting any other
+mode such as ECP or PS/2 the driver tries to set to a
+faster, supported mode. If this fails, it will use the
+SPP mode, as this mode should work with all Linux supported
+parallel ports.
+.PP
+Former Plustek scanner models (4830, 9630) supplied a
+ISA parallel port adapter card. This card is
+.BR not
+supported by the driver.
+.PP
+The ASIC 96001/3 based models have sometimes trouble with
+high resolution modes. If you encounter sporadic corrupted
+images (parts duplicated or shifted horizontally) kill all
+other applications before scanning and (if sufficient
+memory available) disable swapping.
+.PP
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/plustek.conf
+The backend configuration file
+.TP
+.I @LIBDIR@/libsane-plustek.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-plustek.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.TP
+.I /lib/modules/<Kernel-Version>/misc/pt_drv.o
+The Linux Kernelmodule.
+.PP
+
+.SH "CONTACT AND BUG-REPORTS"
+.PP
+Please send any information and bug-reports to:
+.br
+.B Gerhard Jaeger <g.jaeger@earthling.net>
+.PP
+
+.SH "BUGS & RESTRICTIONS"
+.PP
+* The Color36/48-modes are not tested
+.br
+* The Halftoning works, but the quality is poor
+.br
+* Printers (especially HP models) will start to
+.br
+  print during scanning. This in fact is a problem
+.br
+  to other printers too, using bidirectional protocol
+.br
+  (see www.plustek.com (TAIWAN) page for further details)
+.br
+* The driver does not support these manic scalings up
+.br
+  to 16 times the physical resolution. The only scaling
+.br
+  is done on resolutions between the physical resolution
+.br
+  of the CDD-sensor and the stepper motor i.e. you have a
+.br
+  600x1200 dpi scanner and you are scanning using 800dpi,
+.br
+  so scaling is necesary, because the sensor only delivers
+.br
+  600dpi but the motor is capable to perform 800dpi steps.
+.PP
+ASIC 98001 based models:
+.br
+* The 300dpi transparency and negative mode does not work
+.br
+  correctly.
+.br
+* The gray mode for transparency and negative sources will
+.br
+  not work correctly.
+.br
+* There is currently no way to distinguish a model with
+.br
+  and without transpareny unit.
+.br
+* The scanned images seem to be too dark (P9636T)
+.PP
+ASIC 96003/1 based models:
+.br
+* On low-end systems and under heavy system load, the
+.br
+  driver will loosing data, this might causes the sensor
+.br
+  to hit the scan-bed.
+.br
+* The scanspeed on 600x1200 dpi models is slow.
+.br
+* The scan area of 600dpi 96003 based models will be
+.br
+  limited by the driver in binary mode for resolutions
+.br
+  below 100 dpi to avoid moving the sensor against the
+.br
+  bed.
+.br
+
+
+
+

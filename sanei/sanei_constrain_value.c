@@ -38,12 +38,13 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
+#include "sane/config.h"
+
 #include <string.h>
 
 #include <sys/types.h>
 
-#include <sane/sane.h>
-#include <sane/config.h>
+#include "sane/sane.h"
 
 SANE_Status
 sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,

@@ -160,12 +160,13 @@ SHARP_rdr_ctl;
 
 typedef enum 
   {
-    /* JX250, JX330, JX610 are used as array indices, so the corresponding
-       numbers should start at 0
+    /* JX250, JX330, JX350, JX610 are used as array indices, so the
+       corresponding numbers should start at 0
     */
     unknown = -1,
     JX250,
     JX330,
+    JX350,
     JX610
   }
 SHARP_Model;

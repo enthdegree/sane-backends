@@ -41,7 +41,7 @@
    This file implements the Mustek-proprietary SCSI-over-parallel-port
    interface.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
@@ -74,9 +74,9 @@ inb (u_long port)
 # define IO_SUPPORT_MISSING
 #endif
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/sanei_ab306.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/sanei_ab306.h"
 
 #if defined(HAVE_IOPERM) && !defined(IO_SUPPORT_MISSING)
 
@@ -91,10 +91,10 @@ inb (u_long port)
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <sane/saneopts.h>
+#include "sane/saneopts.h"
 
 #define BACKEND_NAME sanei_ab306
-#include <sane/sanei_debug.h>
+#include "sane/sanei_debug.h"
 
 #define PORT_DEV	"/dev/port"
 #define AB306_CIO	0x379		/* control i/o port */

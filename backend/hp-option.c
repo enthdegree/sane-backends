@@ -54,7 +54,7 @@
 */
 #define STUBS
 extern int sanei_debug_hp;
-#include <sane/config.h>
+#include "sane/config.h"
 #include <lalloca.h>
 
 #include <stdio.h>
@@ -67,8 +67,8 @@ extern int sanei_debug_hp;
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
-#include <sane/saneopts.h>
-#include <sane/sanei.h>
+#include "sane/saneopts.h"
+#include "sane/sanei.h"
 #include "hp.h"
 #include "hp-option.h"
 #include "hp-accessor.h"
@@ -76,12 +76,6 @@ extern int sanei_debug_hp;
 #include "hp-scl.h"
 #include "hp-device.h"
 
-
-#if (defined(__IBMC__) || defined(__IBMCPP__))
-#ifndef _AIX
-#define inline /* */
-#endif
-#endif
 
 /* FIXME: descriptors should be static? */
 
@@ -132,7 +126,7 @@ struct hp_option_descriptor_s
     SANE_Unit		unit;
     SANE_Int		cap;
 
-    enum hp_device_compat_e requires;   /* model dependant support flags */
+    enum hp_device_compat_e requires;   /* model dependent support flags */
 
     /* probe for option support */
     SANE_Status	(*probe)    (_HpOption this, HpScsi scsi, HpOptSet optset,
@@ -306,13 +300,13 @@ _cenable_notcolor (HpChoice this, HpOptSet optset, HpData data,
 /*
  * class HpAccessorOptd
  */
-static inline HpAccessorOptd
+static HpAccessorOptd
 hp_accessor_optd_new (HpData data)
 {
   return sanei_hp_accessor_new(data, sizeof(SANE_Option_Descriptor));
 }
 
-static inline _HpSaneOption
+static _HpSaneOption
 hp_accessor_optd_data (HpAccessorOptd this, HpData data)
 {
   return sanei__hp_accessor_data(this, data);
@@ -468,7 +462,7 @@ hp_option_get (HpOption this, HpData data, void * valp)
   return sanei_hp_accessor_get(this->data_acsr, data, valp);
 }
 
-static inline hp_bool_t
+static hp_bool_t
 _values_are_equal (HpOption this, HpData data,
 		   const void * val1, const void * val2)
 {
@@ -701,7 +695,7 @@ _set_range (HpOption opt, HpData data,
   return SANE_STATUS_GOOD;
 }
 
-static inline void
+static void
 _set_size (HpOption opt, HpData data, SANE_Int size)
 {
   _hp_option_saneoption(opt, data)->size = size;
@@ -1222,6 +1216,29 @@ _probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
        sanei_hp_accessor_choice_maxsize((HpAccessorChoice)this->data_acsr));
   return SANE_STATUS_GOOD;
 }
+
+
+static SANE_Status _probe_front_button(_HpOption this, HpScsi scsi,
+                                      HpOptSet optset, HpData data)
+{
+  int val = 0;
+  const HpDeviceInfo *info =
+         sanei_hp_device_info_get(sanei_hp_scsi_devicename(scsi));
+
+  if ( sanei_hp_scl_inquire(scsi, SCL_FRONT_BUTTON, &val, 0, 0)
+        != SANE_STATUS_GOOD )
+    return SANE_STATUS_UNSUPPORTED;
+
+  _set_size(this, data, sizeof(SANE_Bool));
+
+  if ( !(this->data_acsr = sanei_hp_accessor_bool_new(data)) )
+    return SANE_STATUS_NO_MEM;
+
+  sanei_hp_accessor_setint(this->data_acsr, data, 0);
+
+  return SANE_STATUS_GOOD;
+}
+
 
 static SANE_Status
 _probe_geometry (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
@@ -2891,6 +2908,27 @@ static const struct hp_option_descriptor_s MIRROR_VERT[1] = {{
     0, 0, 0, 0, 0, 0, 0, 0, 0, _mirror_vert_choices
 }};
 
+static const struct hp_option_descriptor_s BUTTON_WAIT[1] =
+{
+  {
+    SCANNER_OPTION(BUTTON_WAIT, BOOL, NONE),
+    NO_REQUIRES,            /* enum hp_device_compat_e requires */
+    _probe_front_button,    /* SANE_Status (*probe)() */
+    0,                      /* SANE_Status (*program)() */
+    0,                      /* hp_bool_t (*enable)() */
+    0,                      /* hp_bool_t has_global_effect */
+    0,                      /* hp_bool_t affects_scan_params */
+    0,                      /* hp_bool_t program_immediate */
+    0,                      /* hp_bool_t suppress_for_scan */
+    0,                      /* hp_bool_t may_change */
+    0,                      /* HpScl scl_command */
+    0,                      /* int minval */
+    0,                      /* int maxval */
+    0,                      /* int startval */
+    0                       /* HpChoice choices */
+  }
+};
+
 #ifdef HP_EXPERIMENTAL
 
 static const struct hp_choice_s _range_choices[] = {
@@ -2971,7 +3009,7 @@ static HpOptionDescriptor hp_options[] = {
     HALFTONE_PATTERN_8x8, HORIZONTAL_DITHER_8x8,
 
     SCAN_SPEED, SMOOTHING, MEDIA, PS_EXPOSURE_TIME, BIT_DEPTH,
-    SCAN_SOURCE, UNLOAD_AFTER_SCAN,
+    SCAN_SOURCE, BUTTON_WAIT, UNLOAD_AFTER_SCAN,
     CHANGE_DOC, UNLOAD, CALIBRATE,
 
     GEOMETRY_GROUP,
@@ -3105,6 +3143,19 @@ sanei_hp_optset_mirror_vert (HpOptSet this, HpData data, HpScsi scsi)
       mirror = HP_MIRROR_VERT_ON;
   }
   return mirror == HP_MIRROR_VERT_ON;
+}
+
+hp_bool_t sanei_hp_optset_start_wait(HpOptSet this, HpData data, HpScsi scsi)
+{
+  HpOption mode;
+  int wait, sec_dir;
+
+  if ((mode = hp_optset_get(this, BUTTON_WAIT)) == 0)
+    return(0);
+
+  wait = hp_option_getint(mode, data);
+
+  return(wait);
 }
 
 HpScl

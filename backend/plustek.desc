@@ -9,24 +9,110 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 
-:backend "plustek"		; name of backend
-:version "(0.27)"		; version of backend
-:status :beta			; :alpha, :beta, :stable, :new
-;;:manpage "sane-umax"		; name of manpage (if it exists)
-:url "http://www.efn.org/~rick/plustek/"	; backend's web page
+:backend "plustek"              ; name of backend
+:version "0.36"                 ; version of backend
+:status :stable                 ; :alpha, :beta, :stable, :new
+:manpage "sane-plustek"         ; name of manpage (if it exists)
 
-:devicetype :scanner              ; start of a list of devices....
-                                  ; other types:  :stillcam, :vidcam,
-                                  ;               :meta, :api
+; backend's web page
+:url "http://home.t-online.de/home/g-jaeger/plustek.html"	
 
-:mfg "Plustek"			; name a manufacturer
+:devicetype :scanner            ; start of a list of devices....
+                                ; other types:  :stillcam, :vidcam,
+                                ;               :meta, :api
+
+
+:mfg "Plustek"                  ; name of manufacturer
 :url "http://www.plustek.com/"
-:model "Plustek 4830"		; name models for above-specified mfg.
+
+;name models for above-specified mfg.
+:model "OpticPro 4800P"
+:interface "Parport (SPP, EPP)"
 :comment "OK"
-:model "Plustek 9630"
-:comment "Doesn't work"
-:model "Plustek OpticPro 600"
-:comment "Doesn't work"
+
+:model "OpticPro 4830P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 600P/6000P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 4831P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9630P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9630PL"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=1"
+
+:model "OpticPro 12000P/96000P"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9636P"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, but should work."
+
+:model "OpticPro 9636P+/Turbo"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 9636T"
+:interface "Parport (SPP, EPP)"
+:comment "OK"
+
+:model "OpticPro 12000T"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, but should work."
+
+:model "OpticPro AI3"
+:interface "Parport"
+:comment "Not supported."
+
+:model "OpticPro P8"
+:interface "Parport"
+:comment "Not supported."
+
+:model "OpticPro P12"
+:interface "Parport"
+:comment "Not supported."
+
+:model "OpticPro PT12"
+:interface "Parport"
+:comment "Not supported."
+
+:model "OpticPro 19200S"
+:interface "SCSI"
+:comment "rebadged Artec AM12S (supported by Artec Backend)"
+
+:model "OpticPro 1212U/U12/UT12"
+:interface "USB"
+:comment "Not supported."
+
+:mfg "Primax"                  ; name of manufacturer
+:url "http://www.primax.nl/"
+
+;name models for above-specified mfg.
+:model "Colorado 4800"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, (same as OP4800P)"
+
+:model "Compact 4800 Direct"
+:interface "Parport (SPP, EPP)"
+:comment "OK - use driver-switch mov=2"
+
+:model "Compact 4800 Direct-30"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, (same as OP4830P)"
+
+:model "Compact 9600 Direct-30"
+:interface "Parport (SPP, EPP)"
+:comment "Not tested, (same as OP9630P)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

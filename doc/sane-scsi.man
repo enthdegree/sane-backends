@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "13 May 1998"
+.TH sane-scsi 5 "26 July 2000"
 .IX sane-scsi
 .SH NAME
 sane-scsi - SCSI adapter tips for scanners
@@ -151,7 +151,10 @@ the kernel (or the SCSI generic module) and the SCSI backends.
 From SG driver version 2.0 on, the maximum buffer size can
 be changed at program run time, and the restriction to 127 kB is also
 removed. This driver version is part of the Linux kernels from version 
-2.2.7 on. If larger buffers are reasonable for your scanner, set the
+2.2.7 on. If the new SG driver is available some backends
+(e.g. sane-umax, sane-mustek, sane-sharp) automatically request larger
+scsi buffers. If a backend does not automatically request a larger
+scsi buffer, set the
 environment variable
 .B SANE_SG_BUFFERSIZE
 to the desired buffer size in bytes. It is not recommended to use more 

@@ -21,6 +21,7 @@
 
 :desc "Linux Drivers for Handheld Scanners" ; name a manufacturer
 :url "http://www.willamowius.de/scanner.html"
+:interface "Proprietary"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

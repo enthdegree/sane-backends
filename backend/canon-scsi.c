@@ -320,7 +320,7 @@ set_adf_mode (int fd, u_char priority)
   cmd[0] = 0xd4;
   cmd[4] = 0x01;
 
-  status = sanei_scsi_cmd (fd, cmd, 6, 0, 0);
+  status = sanei_scsi_cmd2 (fd, cmd, 6, 0, 0, 0, 0);
   if (status == SANE_STATUS_GOOD)
   {
     status = sanei_scsi_cmd (fd, &priority, 1, 0, 0);
@@ -356,7 +356,7 @@ get_scan_mode (int fd, u_char page, void *buf, size_t *buf_size)
   }
 
   DBG (31, "get scan mode: cmd[4]='0x%0X'\n", cmd[4]);
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd2 (fd, cmd, sizeof (cmd), 0, 0, buf, buf_size);
 
   DBG (31, "<< get scan mode\n");
   return (status);
@@ -386,7 +386,7 @@ define_scan_mode (int fd, u_char page, void *data)
   cmdlen = (page == TRANSPARENCY_UNIT) ? 18 :
     (page == SCAN_CONTROL_CONDITIONS)  ? 26 : 34;
 
-  status = sanei_scsi_cmd (fd, cmd, cmdlen, 0, 0);
+  status = sanei_scsi_cmd2 (fd, cmd, 6, &cmd[10], cmdlen-6, 0, 0);
   DBG (31, "<< define scan mode\n");
   return (status);
 }
@@ -461,7 +461,7 @@ set_density_curve (int fd, int component, void *buf, size_t *buf_size)
   {
     cmd[i+10] = ((u_char *)buf)[i];
   }
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), buf, buf_size);
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
 
   DBG (31, "<< set_density_curve\n");
   return (status);

@@ -1,4 +1,4 @@
-Last update: Sun Apr  4 09:34:30 1999
+Last update: Sun Jul 30 22:24:27 CEST 2000
 
 - Compiling SANE aborts with error "virtual memory exhausted" on Slackware
   linux with gcc. What goes wrong?
@@ -11,7 +11,7 @@ Last update: Sun Apr  4 09:34:30 1999
 	make CFLAGS="-g -Wall"
 
 - Avoiding damage on Mustek flatbed scanners
-	The Mustek flatbed scanners have no protection against exceeding
+	Most Mustek flatbed scanners have no protection against exceeding
 	the physical scan area height.  That is, if a scan is attempted with
 	a height that exceeds the height of the scan surface, the scanner
 	begins making loud noises and the scan mechanism may be damaged.
@@ -25,13 +25,12 @@ Last update: Sun Apr  4 09:34:30 1999
 	soon as it starts making noises).  Once you know the proper height,
 	mail the following information to sane-devel@mostang.com:
 
-		- scanner name (label on the front of the scanner)
-		- scanner model (SCSI ID)
-		- firmware revision
+		- scanner name (labels on the front and back of the scanner)
+                - debug logfile
 
-	The last two items can be determined with a command of the form:
+	To get the debug logfile enter the following:
 
-		SANE_DEBUG_MUSTEK=3 scanimage -h -d mustek >/dev/null
+		SANE_DEBUG_MUSTEK=5 scanimage -L 2>logfile.txt
 
 	The current list of Mustek scanners that are known to work
 	properly can be found in man-page sane-mustek(5).

@@ -1,4 +1,4 @@
-.TH sane-umax 5 "16 November 1998"
+.TH sane-umax 5 "23 June 2000"
 .IX sane-umax
 
 .SH NAME
@@ -7,15 +7,15 @@ sane-umax - SANE backend for UMAX scanners
 
 .SH ABOUT THIS FILE
 
-This file only is a short descripton of the umax-backend for sane! For detailled informations take a look at
-sane-umax-doc.dvi or sane-umax-doc.html!
+This file only is a short descripton of the umax-backend for sane! For detailled information take a look at
+sane-umax-doc.html (it is included in the sane source directory and in the xsane online help)!
 
 .SH DESCRIPTION
 
 The
 .B sane-umax
 library implements a SANE backend that provides acces to several UMAX-SCSI-scanners and some Linotye Hell SCSI-scanners,
-parallel- and USB-scanners are not supported!
+parallel- and USB-scanners are not (and propably will never be) supported!
 
 .B I suggest you hold one hand on the power-button of the scanner while you try the first scans!
 
@@ -24,7 +24,7 @@ parallel- and USB-scanners are not supported!
 The configuration file for this backend resides in 
 	/usr/local/etc/sane.d/umax.conf. 
 
-Its contents is a list of device names that correspond to UMAX scanners. Empty lines
+Its contents is a list of device names that correspond to UMAX and UMAX compatible scanners. Empty lines
 and lines starting with a hash mark (#) are ignored. A sample configuration file is
 shown below: 
 
@@ -40,15 +40,20 @@ permissions of that device, have a look at sane-scsi.
 
 .SH SCSI ADAPTER TIPS
 
-The SCSI-adapters that are shipped with some Umax-scanners are not supported by Linux
-and most other platforms, so you typically need to purchase another SCSI-adapter that
-is supported by your platform. See the relevant hardware FAQs and HOWTOs for your
+The ISA-SCSI-adapters that are shipped with some Umax-scanners are not supported very
+well by Linux (I suggest not to use it), the PCI-SCSI-adapters that come with some
+Umax-scanners are not supported at all (as far as I know). On other platforms these
+SCSI-adapters are not supported. So you typically need to purchase another SCSI-adapter
+that is supported by your platform. See the relevant hardware FAQs and HOWTOs for your
 platform for more information. 
 
 The UMAX-scanners do block the scsi-bus for a few seconds while scanning. It is not
 necessary to connect the scanner to its own SCSI-adapter. But if you need short
-response time for your SCSI-harddisk (e.g. if your computer is a file-server), I
-suggest you use an own SCSI-adapter for your UMAX-scanner. 
+response time for your SCSI-harddisk (e.g. if your computer is a file-server) or
+other scsi devices, I suggest you use an own SCSI-adapter for your UMAX-scanner.
+
+If you have any problems with your Umax scanner, check your scsi chain
+(cable length, termination, ...).
 
 See also: sane-scsi(5)
 

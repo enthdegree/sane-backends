@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "24 October 1998"
+.TH sane-mustek 5 "24 Jul 2000"
 .IX sane-mustek
 .SH NAME
 sane-mustek - SANE backend for Mustek flatbed scanners
@@ -6,40 +6,46 @@ sane-mustek - SANE backend for Mustek flatbed scanners
 The
 .B sane-mustek
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to Mustek flatbed scanners.  At present, the following
-scanners are known to work with this backend:
+provides access to Mustek (and some relabeled Trust) flatbed scanners.
+At present, the following scanners are known to work more or less with
+this backend:
 .PP
 .RS
-Model:      Product id: Firmware revision: Type:
+Paragon MFS-6000CX
 .br
------------ ----------- ------------------ -----
+Paragon MFS-12000CX
 .br
-MFC-600S    MFC-06000CZ v1.01 (and higher) 1-pass
+Paragon MFC-600S, 600 II CD, ScanMagic 600 II SP 
 .br
-MFC-600CD   MFC-06000CZ v2.03 (and higher) 1-pass
+Paragon MFC-800S, 800 II SP
 .br
-MFS-6000CX  MSF-06000CX v2.71 (and higher) 3-pass
+Paragon MFS-6000SP
 .br
-MSF-6000SP  MSF-06000SP v3.12 (and higher) 1-pass
+Paragon MFS-8000SP
 .br
-MFS-8000SP  MFS-08000SP v2.05 (lineart drops lines?) 1-pass
+Paragon MFS-1200SP, MFS-12000SP
 .br
-MFC-800S    MFC-08000CZ v1.06 [color fails] 1-pass
+ScanExpress 6000SP
 .br
-MFS-1200SP  MSF-12000SP v1.00 (and higher) 1-pass
+ScanExpress 12000SP, 12000SP Plus, Paragon 1200 III SP, ScanMagic 9636S, 9636S Plus
 .br
-MFS-1200SP  MFS-12000SP v1.02 [color fails?] 1-pass
+Paragon 1200 A3 Pro
 .br
-MFS-1200SP  MFS-12000SP v1.07 1-pass
+Paragon 600 II N
 .br
-MFS-12000CX MFS-12000CX v2.71 (and higher) 3-pass
+Trust Imagery 1200 SP
 .br
-SE-6000SP   C03 S10IDW    ?   1-pass
+Trust Imagery 4800 SP
 .br
-SE-12000SP  C06 S12IDW  v1.01 1-pass 		
+Trust SCSI Connect 19200
+.br
 .RE
 .PP
-Don't mix up MFS and ScanExpress models! They're completely different.
+More details can be found on the Mustek backend homepage 
+.IR http://hmg.home.pages.de/sane/.
+.PP
+Don't mix up MFS (Paragon), Pro and ScanExpress models! They're
+completely different. Check the exact model name!
 .PP
 Note that most of the above scanners come with a SCSI interface.  The
 only non-SCSI scanner that has some support at this point is the 600
@@ -47,12 +53,29 @@ II N scanner which comes with its own parallel port adapter (i.e., it
 does
 .I not
 attach to the printer port).  More info on how to use the 600 II N can
-be found below in section PARALLEL PORT SCANNERS.
+be found below in section PARAGON 600 II N. Other parallel port
+scanners are not supported by this backend but you may be successful
+using the Mustek parallel port backend (mustek_pp). USB scanners are
+not supported by this backend by now.
 .PP
-If you own a Mustek scanner other than the ones listed above that
-works with this backend, please let us know by sending the scanner's
-model name, SCSI id, and firmware revision to
+Mustek scanners have no protection against exceeding the physical scan
+area height.  That is, if a scan is attempted with a height that
+exceeds the height of the scan surface, the scanner begins making loud
+noises and the scan mechanism may be damaged.  Thus, if you hear such
+a noise, IMMEDIATELY turn off the scanner. This shouldn't happen if
+your scanner is in the list of known scanners. There is more
+information in the
+.IR PROBLEMS
+file.
+.PP
+If you own a Mustek (or Trust) scanner other than the ones listed
+above that works with this backend, please let us know by sending the
+scanner's exact model name (look at the front and back of the scanner)
+and a debug output to
 .IR sane\-devel@mostang.com .
+You can get the debug output by setting the environment variable
+SANE_DEBUG_MUSTEK to 5 and showing the list of available scanners with
+scanimage \-L . Please send all of it to the mailing list.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -64,10 +87,15 @@ This backend expects device names of the form:
 Where
 .I special
 is either the path-name for the special device that corresponds to a
-SCSI scanner or the port number at which a parallel-port scanner can
-be found (see section PARALLEL PORT SCANNERS below).  For SCSI
+SCSI scanner or the port number at which the 600 II N can
+be found (see section PARAGON 600 II N below).  For SCSI
 scanners, the special device name must be a generic SCSI device or a
-symlink to such a device.  Under Linux, such a device name could be
+symlink to such a device.  The program 
+.IR find-scanner 
+helps to find out the correct device. It can be found in the
+.IR tools
+directory of the SANE distribution. Under Linux, such a device name
+could be
 .I /dev/sga
 or
 .IR /dev/sge ,
@@ -80,15 +108,17 @@ scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  See sane-scsi(5) on details of what constitutes a valid
 device name.
 .PP
-The three options supported are
+The four options supported are
 .BR linedistance-fix ,
 .BR lineart-fix ,
+.BR buffersize ,
 and
 .BR strip-height .
 Options come in two flavors: global and positional ones.  Global
 options apply to all devices managed by the backend whereas positional
 options apply just to the most recently mentioned device.  Note that
 this means that the order in which the options appear matters!
+
 Option
 .B linedistance-fix
 is positional and works around a problem that occurs with some SCSI
@@ -103,6 +133,15 @@ is positional and works around a timing problem that seems to exist
 with certain MFS-12000SP scanners.  The problem manifests itself in
 dropped lines when scanning in lineart mode.  Turning on this option
 should fix the problem but may slow down scanning a bit.
+
+Option
+.B buffersize
+is a positional option that overrides the default values set for scan 
+buffers. The buffer size is specified in kilobytes. The default value
+depends on the scanner type. Note that some ScanExpress scanners don't
+like buffer sizes above 64 kb. If your sg driver can't set SCSI buffer
+sizes at runtime you may have to change that value, too. See sane-scsi(5)
+for details.
 
 Finally,
 .B strip-height
@@ -122,14 +161,17 @@ SCSI timeouts.
 A sample configuration file is shown below:
 .PP
 .RS
-# limit strip height of /dev/scanner to 1.5 inches:
+# limit strip height of all scanners to 1.5 inches:
 .br
 option strip-height 1.5
 .br
 
 .br
 /dev/scanner    # first Mustek scanner
-
+.br
+  # 1 MB buffer for /dev/scanner:
+.br
+  option buffersize 1024
 .br
 /dev/sge        # second Mustek scanner
 .br
@@ -144,8 +186,8 @@ option strip-height 1.5
 Mustek SCSI scanners are typically delivered with an ISA SCSI adapter.
 Unfortunately, that adapter is not worth much since it is not
 interrupt driven.  It is (sometimes) possible to get the supplied card
-to work, but without interrupt line, scanning will put so much load on
-the system, that it becomes almost unusable for other tasks.
+to work, but without interrupt line, scanning will be very slow and put
+so much load on the system, that it becomes almost unusable for other tasks.
 .PP
 If you already have a working SCSI controller in your system, you
 should consider that Mustek scanners do not support the SCSI-2
@@ -167,26 +209,37 @@ platform-specific information.
 The ScanExpress models have sometimes trouble with high resolution
 color mode. If you encounter sporadic corrupted images (parts duplicated
 or shifted horizontally) kill all other applications before scanning
-and (if sufficient merory available) disable swapping. 
-.SH PARALLEL PORT SCANNERS
-This backend has very preliminary support for the Paragon 600 II N
-parallel port scanner.  Note that this scanner comes with its own ISA
-card that implements a funky parallel port (in other words, the
-scanner does not connected to the printer parallel port).  The code
-present in this release has NOT been tested, so proceed at your own
-risk!  Be prepared to pull the scanner cable on short notice in case
-the situation grows dangerous and/or noisy.
+and (if sufficient memory is available) disable swapping. 
+
+.SH PARAGON 600 II N
+This backend has support for the Paragon 600 II N parallel port
+scanner.  Note that this scanner comes with its own ISA card that
+implements a funky parallel port (in other words, the scanner does not
+connected to the printer parallel port).
 .PP
-A parallel port scanner can be configured by listing the port number
+This scanner can be configured by listing the port number
 of the adapter in the mustek.conf file.  Valid port numbers are 0x26b,
 0x2ab, 0x2eb, 0x22b, 0x32b, 0x36b, 0x3ab, 0x3eb.  Pick one that
-doesn't conflict with the other hardware in your computer.
+doesn't conflict with the other hardware in your computer. Put only
+one number on a single line. Example:
+
+.IR 0x3eb
+
 .PP
-Note that for parallel port scanners root privileges are required to
-access the I/O ports.  Thus, either make frontends such as
-scanimage(1) and xscanimage(1) setuid root (generally not recommend
-for saftey reasons) or, alternatively, access this backend through the
-network daemon saned(1).
+Note that for this scanner root privileges are required to access the
+I/O ports.  Thus, either make frontends such as scanimage(1) and
+xscanimage(1) setuid root (generally not recommended for safety
+reasons) or, alternatively, access this backend through the network
+daemon saned(1). On systems which support this feature, the scanner
+can be accessed through
+.IR /dev/port.
+Don't forget to adjust the permissions for /dev/port. At least with
+recent Linux kernels root privileges are necessary for /dev/port access,
+too.
+.PP
+If your images have horizontal stripes in color mode, check option
+linedistance-fix (see above). Apply this option for a scanner with
+firmware version 2.x and disable it for version 1.x. 
 .PP
 Also note that after a while of no activity, some scanners themself (not
 the SANE backend) turns off their CCFL lamps. This shutdown is not always
@@ -227,20 +280,35 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .TP
 .B SANE_DEBUG_MUSTEK
 If the library was compiled with debug support enabled, this
-environment variable controls the debug level for this backend.  E.g.,
-a value of 128 requests all debug output to be printed.  Smaller
-levels reduce verbosity.
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output. 
+
+.nf                                                                            
+Value  Descsription
+0      no output
+1      print fatal errors
+2      print important messages
+3      print non-fatal errors and less important messages
+4      print all but debugging messages
+5      print everything
+
+Example: 
+export SANE_DEBUG_MUSTEK=4
+
 .SH "SEE ALSO"
 sane\-scsi(5)
 .SH AUTHOR
-David Mosberger and Andreas Czechanowski, SE extensions Andreas Bolsch
+David Mosberger and Andreas Czechanowski, SE extensions Andreas
+Bolsch, bug fixes and Pro series extension Henning Meier-Geinitz
 .SH BUGS
-Transparency adapter and automatic document feeder support is severly
-lacking (due to absence of equipment to test this with).
+Scanning with the SCSI adapters supplied by Mustek is very slow at
+high resolutions and wide scanareas. 
 
-There seems to be a performance bug that makes scanning on (some)
-three-pass scanner slower than necessary. High resolution with
-ScanExpress is rather slow, they suffer from a very small internal
-buffer.
+Only 1, 8 and 24 bit modes are supported.
 
+Some scanners (e.g. Paragon 1200 A3 Pro) need more testing.
+
+More detailed bug information is available at the Mustek backend
+homepage
+.IR http://hmg.home.pages.de/sane/ .
 

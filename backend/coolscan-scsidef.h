@@ -1,3 +1,4 @@
+
 /* ------------------------------------------------------------------------- */
 
 /* coolscan-scsidef.h: scsi-definiton header file for COOLSCAN scanner driver.
@@ -130,8 +131,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes) \
 #define WRITE_BUFFER            0x3b
 #define READ_BUFFER	        0x3c
 #define SABORT			0xc0
+#define COMMAND_C1		0xc1
 #define AUTO_FOCUS		0xc2
 #define UNIT_MOVE		0xe0
+
 
 /* ==================================================================== */
 
@@ -139,7 +142,6 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes) \
 #define STD_WDB_LEN 0x28
 
 /* ==================================================================== */
-
 /* SCSI commands */
 
 typedef struct
@@ -166,6 +168,7 @@ static scsiblk inquiry =
 #define get_inquiry_response_format(in)         getbitfield(in + 0x03, 0x07, 0)
 #define IN_recognized                         0x02
 #define get_inquiry_additional_length(in)       in[0x04]
+#define get_inquiry_length(in)                  in[0x03]
 #define set_inquiry_length(out,n)               out[0x04]=n-5
 
 #define get_inquiry_vendor(in, buf)             strncpy(buf, in + 0x08, 0x08)
@@ -177,7 +180,6 @@ static scsiblk inquiry =
 /*
    static unsigned char mode_selectC[] = {
    MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00    
-   };
 
    static scsiblk mode_select = { mode_selectC,sizeof(mode_selectC) };
  */
@@ -249,6 +251,7 @@ static unsigned char get_windowC[] =
   0x00,				/* control byte */
 };
 #define set_GW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
+#define set_WindowID_wid(sb, val) sb[5] = val
 
 static scsiblk get_window =
 {get_windowC, sizeof (get_windowC)};
@@ -332,8 +335,7 @@ static unsigned char window_descriptor_blockC[] =
 #define     WD_comp_grey          0x02
 #define     WD_comp_gray          0x02
 #define     WD_comp_rgb_full      0x05
-  0x08,				/* 0x1a */
-				/* Bits/Pixel */
+  0x08,				/* 0x1a */				/* Bits/Pixel */
 #define set_WD_bitsperpixel(sb, val) sb[0x1a] = val
 #define get_WD_bitsperpixel(sb)	sb[0x1a]
 #define WD_bits_8    0x08
@@ -509,10 +511,81 @@ static unsigned char window_descriptor_blockC[] =
 
 };
 
-
 static scsiblk window_descriptor_block =
 {
   window_descriptor_blockC, sizeof (window_descriptor_blockC)
+};
+
+
+
+/* LS-30 has different window-descriptor ! 
+ */
+
+static unsigned char window_descriptor_blockC_LS30[] =
+{
+
+#define used_WDB_size_LS30 0x32
+
+  0x00,				/* 0x00 */
+				/* Window Identifier */
+#define WD_wid_0 0x00		/* Only one supported */
+#define WD_wid_1 0x01		
+#define WD_wid_2 0x02		
+#define WD_wid_3 0x03		
+#define WD_wid_4 0x04		
+#define WD_wid_9 0x09	
+  0x00,			        /* reserved, AUTO */
+
+  0x00, 0x00,			/* 0x02 */
+				/* X Resolution in dpi */
+
+  0x00, 0x00,			/* 0x04 */
+				/* Y Resolution in dpi */
+
+  0x00, 0x00, 0x00, 0x00,	/* 0x06 */
+  /* Upper Left X in 2700pt/inch */
+  0x00, 0x00, 0x00, 0x00,	/* 0x0a */
+  /* Upper Left Y in 2700pt/inch */
+  0x00, 0x00, 0x00, 0x00,	/* 0x0e */
+  /* Width 1200pt/inch */
+  0x00, 0x00, 0x00, 0x00,	/* 0x12 */
+  /* Length 1200pt/inch */
+  0x00,				/* 0x16 */
+  /* Brightness */
+  0x00,				/* 0x17 */
+				/* Reserved */
+  0x00,				/* 0x18 */
+				/* Contrast */
+  0x05,				/* 0x19 */
+				/* Image Mode */
+  0x08,				/* 0x1a */
+				/* Bits/Pixel */
+#define WD_bits_10    0x0a
+  0, 0, 0, 0, 0,		/* 0x1b */
+   /* Reserved */
+  0, 0, 0, 0, 0, 0, 0, 0, 0,    /* 0x20 */
+  0,  		               	/* 0x29 */
+   /* Negative/positive prevue/scan */
+#define set_WD_negative_LS30(sb, val) setbitfield(sb + 0x29, 0x1, 0, (val?0:1))
+#define get_WD_negative_LS30(sb) getbitfield(sb + 0x29, 0x1, 0)
+  /* scan mode */
+#define set_WD_scanmode_LS30(sb, val) setbitfield(sb + 0x29, 0x3, 0, val)
+#define get_WD_scanmode_LS30(sb) getbitfield(sb + 0x29, 0x3, 0)
+
+  0x04,                          /* 0x2a */
+  0x02,                          /* 0x2b */
+  0x01,                          /* 0x2c */
+  0xff,                          /* 0x2d */
+  0,0,                           /* 0x2e */
+  0,0,                           /* 0x30 */
+#define set_gain_LS30(sb, val) putnbyte(sb + 0x2e, val, 4)
+#define get_gain_LS30(sb) getnbyte(sb + 0x2e, 4)
+};
+
+
+static scsiblk window_descriptor_block_LS30 =
+{
+  window_descriptor_blockC, sizeof (window_descriptor_blockC_LS30)
 };
 
 /* ==================================================================== */
@@ -523,6 +596,7 @@ static scsiblk window_descriptor_block =
 		                 window_parameter_data_block.size + \
 		                 ( window_descriptor_block.size * (n - 1) ) )
 #define set_WPDB_wdbnum(sb,n) set_WPDB_wdblen(sb,window_descriptor_block.size*n)
+
 
 
 /* ==================================================================== */
@@ -559,13 +633,16 @@ static unsigned char sreadC[] =
 
 static scsiblk sread =
 {sreadC, sizeof (sreadC)};
+#define set_R_data1_code(sb, val) sb[0x01] = val
 #define set_R_datatype_code(sb, val) sb[0x02] = val
 #define R_datatype_imagedata		0x00
-#define R_EX_datatype_LUT			0x01	/* Experiment code */
+#define R_EX_datatype_LUT		0x01	/* Experiment code */
+#define R_image_positions		0x88
 #define R_EX_datatype_shading_data	0xa0	/* Experiment code */
-#define R_user_reg_gamma			0xc0
+#define R_user_reg_gamma		0xc0
 #define R_device_internal_info		0xe0
 #define set_R_datatype_qual_upper(sb, val) sb[0x04] = val
+#define set_R_datatype_qual_lower(sb, val) sb[0x05] = val
 #define R_DQ_none	0x00
 #define R_DQ_Rcomp	0x06
 #define R_DQ_Gcomp	0x07
@@ -641,6 +718,7 @@ static scsiblk send =
 #define S_DQ_Reg1	0x01
 #define S_DQ_Reg2	0x02
 #define S_DQ_Reg3	0x03
+#define S_DQ_Reg9	0x09
 #define set_S_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
 
 /*
@@ -684,6 +762,51 @@ static unsigned char autofocusC[] =
 
 static scsiblk autofocus =
 {autofocusC, sizeof (autofocusC)};
+
+/* ==================================================================== */
+
+static unsigned char command_c1_C[] =
+{
+  0xc1, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,	       /*  */
+  0x00, 0x00			       /* transfer length*/
+};
+static scsiblk command_c1 =
+{command_c1_C, sizeof (command_c1_C)};
+/* ==================================================================== */
+
+static unsigned char autofocusLS30C[] =
+{
+  0xe0, 0x00, 0xa0, 0x00,
+  0x00, 0x00, 0x00, 0x00,	       /*  */
+  0x09, 0x00			       /* transfer length*/
+};
+
+static unsigned char autofocuspos[] =
+{
+  0x00, 
+  0x00, 0x00, 0x05, 0x10,              /* x-position */
+  0x00, 0x00, 0x07, 0x9b,	       /* y-position */
+};
+
+#define set_AF_transferlength(b, val)  b[0x04] = (unsigned char)val
+#define get_AF_transferlength(b)  ((int)b[0x04] & 0xff)
+#define set_AF_XPoint(b, val) putnbyte(b+0x06, val, 4)
+#define set_AF_YPoint(b, val) putnbyte(b+0x0a, val, 4)
+#define AF_Point_length		8
+
+static scsiblk autofocusLS30 =
+{autofocusLS30C, sizeof (autofocusLS30C)};
+/* ==================================================================== */
+
+static unsigned char commande1C[] =
+{
+  0xe1, 0x00, 0xc1, 0x00,
+  0x00, 0x00, 0x00, 0x00,	       /*  */
+  0x0d, 0x00			       /* transfer length*/
+};
+static scsiblk commande1 =
+{commande1C, sizeof (commande1C)};
 
 /* ==================================================================== */
 /*

@@ -8,5 +8,5 @@ KNOWN BUGS:
 
 	* pixel count in x-direction is sometimes wrong if xres > 600dpi (Vista S12)
 
-        * first scan with Astra 2400S gives wrong colors
+        * first scan with Astra 2400S produces wrong colors
 

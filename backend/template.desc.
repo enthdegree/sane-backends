@@ -22,12 +22,18 @@
 :mfg "TemPlate"                   ; name a manufacturer
 :url "http://www.template.com/"
 :model "Templ Z"                  ; name models for above-specified mfg.
+:interface "SCSI"                 ; interface type of the device:
+                                  ; "SCSI", "USB", "Parport (EPP)",
+                                  ; "Parport (SPP)", "Parport (ECP)",
+                                  ; "Serial port" or "Propretiary".
 :model "Templ ZS"
+:interface "USB"
 :model "Templ ZQ"
 
 :mfg "ArmorPlate"                 ; another manufacturer...
 :url "http://www.armorplate.com/"
 :model "AmplScan II"
+:interface "SCSI"
 :comment "AmplScan *II*, not AmplScan!"
 
 :devicetype :api                  ; specify a different type

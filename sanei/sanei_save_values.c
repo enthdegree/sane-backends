@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -47,9 +47,9 @@
 # include <libc.h>	/* NeXTStep/OpenStep */
 #endif
 
-#include <sane/sane.h>
-#include <sane/sanei_wire.h>
-#include <sane/sanei_codec_ascii.h>
+#include "sane/sane.h"
+#include "sane/sanei_wire.h"
+#include "sane/sanei_codec_ascii.h"
 
 int
 sanei_save_values (int fd, SANE_Handle device)

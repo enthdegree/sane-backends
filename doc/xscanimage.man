@@ -1,4 +1,4 @@
-.TH xscanimage 1 "13 May 1998"
+.TH xscanimage 1 "11 Aug 2000"
 .IX xscanimage
 .SH NAME
 xscanimage - scan an image
@@ -7,9 +7,7 @@ xscanimage - scan an image
 .RB [ --display
 .IR d ]
 .RB [ --no-xshm ]
-.RB [ --[no-]show-events ]
 .RB [ --sync ]
-.RB [ --debug-level
 .IR n ]
 .RI [ devicename ]
 .SH DESCRIPTION
@@ -33,7 +31,8 @@ explicit devicename argument,
 .B xscanimage
 presents a dialog listing all known and available devices.  To access
 an available device that is not known to the system, the devicename
-must be specified explicitly.
+must be specified explicitly. The format of devicename is
+backendname:devicefile (eg umax:/dev/sga).
 .SH RUNNING UNDER THE GIMP
 To run
 .B xscanimage
@@ -42,11 +41,13 @@ under the
 simply copy it to one of the
 .BR gimp (1)
 plug-ins directories.  If you want to conserve disk-space, you can
-create a symlink instead.  For example, the command
+create a symlink instead.  For example, for gimp-1.0.x the command
 .PP
-.RS
 ln -s @BINDIR@/xscanimage ~/.gimp/plug-ins/
-.RE
+.PP
+and for gimp-1.1.x the command
+.PP
+ln -s @BINDIR@/xscanimage ~/.gimp-1.1/plug-ins/
 .PP
 adds a symlink for the
 .B xscanimage
@@ -93,13 +94,6 @@ servers.  Unless your X11 server dies when running this program, there
 is no need or advantage to specify this flag.
 .PP
 The
-.B --show-events
-flag requests the display of X11 events.  This is for
-debugging only.  Flag
-.B --no-show-events
-turns off the display of X11 events.
-.PP
-The
 .B --sync
 flag requests a synchronous connection with the X11 server.  This is for
 debugging purposes only.
@@ -135,8 +129,7 @@ over the visual aspects of the user-interface.
 This file serves the same purpose as the system-wide style file.  If
 present, it takes precedence over the system wide style file.
 .SH "SEE ALSO"
-gimp(1), scanimage(1), sane\-dll(5), sane\-dmc(5), sane\-epson(5),
-sane\-hp(5), sane\-microtek(5), sane\-mustek(5), sane\-net(5), sane\-pnm(5),
-sane\-pint(5), sane\-qcam(5), sane\-umax(5)
+gimp(1), scanimage(1), sane-scsi(5), sane\-dll(5), sane\-net(5),
+sane\-"backendname"(5)
 .SH AUTHOR
 Tristan Tarrant, Andreas Beck, and David Mosberger

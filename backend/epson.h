@@ -61,11 +61,13 @@
 #define SANE_NAME_GAMMA_CORRECTION "gamma-correction"
 #define SANE_TITLE_GAMMA_CORRECTION "Gamma Correction"
 #define SANE_DESC_GAMMA_CORRECTION "Selectes the gamma correction value from a list of pre-defined devices or the user defined table, which can be downloaded to the scanner"
+#define LINES_SHUFFLE_MAX	(17)
 
 typedef struct {
 	unsigned char * level;
 
 	unsigned char	request_identity;
+	unsigned char	request_identity2;		/* new request identity command for Dx command level */
 	unsigned char	request_status;
 	unsigned char	request_condition;
 	unsigned char	set_color_mode;
@@ -87,14 +89,15 @@ typedef struct {
 	unsigned char	set_outline_emphasis;			/* B4 upper */
 	unsigned char	set_dither;				/* B4 upper */
 	unsigned char	set_color_correction_coefficients;	/* B3 upper */
-	unsigned char	request_extention_status;		/* EXT */
-	unsigned char	control_an_extention;			/* EXT */
+	unsigned char	request_extension_status;		/* EXT */
+	unsigned char	control_an_extension;			/* EXT */
 	unsigned char	eject;					/* EXT */
 	unsigned char	request_push_button_status;
 	unsigned char	control_auto_area_segmentation;
 	unsigned char	set_film_type;				/* EXT */
 	unsigned char	set_exposure_time;			/* F5 */
 	unsigned char	set_bay;				/* F5 */
+	unsigned char	set_threshold;
 } EpsonCmdRec, * EpsonCmd;
 
 enum
@@ -108,10 +111,12 @@ enum
 		, OPT_GAMMA_CORRECTION
 		, OPT_COLOR_CORRECTION
 		, OPT_RESOLUTION
+		, OPT_THRESHOLD
 	, OPT_ADVANCED_GROUP
 		, OPT_MIRROR
 		, OPT_SPEED
 		, OPT_AAS
+		, OPT_ZOOM
 		, OPT_GAMMA_VECTOR
 		, OPT_GAMMA_VECTOR_R
 		, OPT_GAMMA_VECTOR_G
@@ -151,7 +156,34 @@ typedef enum {				/* hardware connection to the scanner */
 	SANE_EPSON_USB			/* USB interface */
 } Epson_Connection_Type;
 
+
+typedef struct
+{
+	u_short	opt_resolution;
+	u_char	sensor;
+	u_char	scan_order;
+	u_char	line_dist1;	
+	u_char	line_dist2;	
+
+	u_short	main_res1;
+	u_short	main_res2;
+	u_short	main_res3;
+	u_short	main_res4;
+	u_short	main_res5;
+	u_short	main_res6;
+	u_short	main_res7;
+
+	u_short sub_res1;
+	u_short sub_res2;
+	u_short sub_res3;
+	u_short sub_res4;
+	u_short sub_res5;
+	u_short sub_res6;
+} Epson_Identity2;
+
+
 struct Epson_Device {
+        struct Epson_Device *next;
 	SANE_Device sane;
 	SANE_Int level;
 	SANE_Range dpi_range;
@@ -174,10 +206,16 @@ struct Epson_Device {
 	SANE_Int last_res;		/* last selected resolution */
 	SANE_Int last_res_preview;	/* last selected preview resolution */
 
+	SANE_Word *resolution_list;	/* for display purposes we store a second copy */
+
 	SANE_Bool extension;		/* extension is installed */
 	SANE_Bool use_extension;	/* use the installed extension */
 	SANE_Bool TPU;			/* TPU is installed */
 	SANE_Bool ADF;			/* ADF is installed */
+	SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
+
+	SANE_Int  optical_res;		/* optical resolution */
+	SANE_Int  max_line_distance;
 
 	EpsonCmd cmd;
 };
@@ -190,7 +228,10 @@ typedef union {
 	SANE_String s;
 } Option_Value;
 
+
+
 struct Epson_Scanner {
+	struct Epson_Scanner	*next;
 	int fd;
 	Epson_Device * hw;
 	SANE_Option_Descriptor opt [ NUM_OPTIONS];
@@ -200,8 +241,16 @@ struct Epson_Scanner {
 	SANE_Bool eof;
 	SANE_Byte * buf, * end, * ptr;
 	SANE_Bool canceling;
+	SANE_Bool invert_image;
 	SANE_Word gamma_table [ 4] [ 256];
-};
+	SANE_Int retry_count;
+	SANE_Byte *line_buffer[LINES_SHUFFLE_MAX];	
+					/* buffer lines for color shuffling */
+	SANE_Int color_shuffle_line;	/* current line number for color shuffling */
+	SANE_Int line_distance;		/* current line distance */
+	SANE_Int current_output_line;	/* line counter when color shuffling */
+	SANE_Int lines_written;		/* debug variable */
+};	
 
 typedef struct Epson_Scanner Epson_Scanner;
 

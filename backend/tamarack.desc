@@ -11,17 +11,19 @@
 :version "0.5"                 ; version of backend
 :status :beta                  ; :alpha, :beta, :stable, :new
 ;
-; Sorry, no manpage yet. Anybody want to write one?
-;:manpage "sane-tamarack"              ; name of manpage (if it exists)
+:manpage "sane-tamarack"             ; name of manpage (if it exists)
 
 :devicetype :scanner
 
 :mfg "Tamarack"                        ; name a manufacturer
 :url "http://www.tamarack.net/"
 :model "Artiscan 6000C"                ; name models for above-specified mfg.
+:interface "SCSI"
 :comment "3 pass, 300 DPI"
 :model "Artiscan 8000C"                ; name models for above-specified mfg.
+:interface "SCSI"
 :comment "3 pass, 400 DPI"
 :model "Artiscan 12000C"               ; name models for above-specified mfg.
+:interface "SCSI"
 :comment "3 pass, 600 DPI"
 

@@ -42,10 +42,12 @@ MLINK	= --mode=link
 
 @SET_MAKE@
 
-LIBLIB_OBJS	= alloca.o getopt.o getopt1.o sigprocmask.o strndup.o \
-		  strdup.o strsep.o snprintf.o usleep.o
-LIBLIB_LTOBJS	= alloca.lo getopt.lo getopt1.lo sigprocmask.lo strndup.lo \
-		  strdup.lo strsep.lo snprintf.lo usleep.lo
+LIBLIB_OBJS     = alloca.o getopt.o getopt1.o sigprocmask.o strndup.o \
+                  strdup.o strsep.o snprintf.o usleep.o getenv.o \
+                  isfdtype.o vsyslog.o
+LIBLIB_LTOBJS   = alloca.lo getopt.lo getopt1.lo sigprocmask.lo strndup.lo \
+                  strdup.lo strsep.lo snprintf.lo usleep.lo getenv.lo \
+                  isfdtype.lo vsyslog.lo
 
 TARGETS = $(LIBLIB_OBJS)
 TARGETS = liblib.a

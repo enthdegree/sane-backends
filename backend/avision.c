@@ -1,9 +1,9 @@
 /*******************************************************************************
  * SANE - Scanner Access Now Easy.
 
-   avision.h 
+   avision.c
 
-   This file (C) 1999 Meino Christian Cramer and Rene Rebe
+   This file (C) 1999, 2000 Meino Christian Cramer and Rene Rebe
 
    This file is part of the SANE package.
 
@@ -46,7 +46,9 @@
 
    (feedback to:  mccramer@s.netic.de and rene.rebe@myokay.net)
 
-   Very much thanks to Avision INC for the documentation we got! ;-)
+   Very much thanks to:
+     Avision INC for the documentation we got! ;-)
+     Gunter Wagner for some fixes and the transparency option
 
 ********************************************************************************/
 
@@ -99,7 +101,6 @@ static const SANE_String_Const mode_list[] =
 };
 
 /* avision_res will be overwritten in init_options() !!! */
-
 
 static const SANE_Range u8_range =
   {
@@ -202,7 +203,6 @@ sense_handler (int fd, u_char *sense, void *arg)
     
     int i;
     
-    
     SANE_Status status;
     
     SANE_Bool ASC_switch;
@@ -223,7 +223,7 @@ sense_handler (int fd, u_char *sense, void *arg)
     
     for (i = 0; i < 21; i++)
 	{
-	    printf("%d:[%x]\n", i, sense[i]); 
+	    DBG(1, "%d:[%x]\n", i, sense[i]);
 	}
     
     if (sense[VALID_BYTE] & VALID)
@@ -240,7 +240,6 @@ sense_handler (int fd, u_char *sense, void *arg)
 			DBG (5, "SENSE: AVISION SPECIFIC ERROR CODE\n" );
 			break;
 		    }
-		    
 		}
 	    
 	    switch (sense[SENSEKEY_BYTE] & SENSEKEY_MASK)
@@ -674,16 +673,22 @@ scan_area_and_windows (Avision_Scanner *s)
      */
     if( s->val[OPT_QSCAN].w == SANE_TRUE )
 	{
-	    dwp.wdb.bitset2  |= (0x1 << 4); /* Q_SCAN  ON */
+	    dwp.wdb.bitset2  |= AV_QSCAN_ON; /* Q_SCAN  ON */
 	}
 
     /* quality calibration option switch
      */
     if( s->val[OPT_QCALIB].w == SANE_TRUE )
 	{
-	    dwp.wdb.bitset2  |= 0x01 << 3;  /* Q_CALIB ON */
+	    dwp.wdb.bitset2  |= AV_QCALIB_ON;  /* Q_CALIB ON */
 	}
-
+    /* transparency switch
+     */
+    if( s->val[OPT_TRANS].w == SANE_TRUE )
+        {
+            dwp.wdb.bitset2 |= AV_TRANS_ON; /* Set to transparency mode */
+        }
+    
     /* fixed value
      */
     dwp.wdb.pad_type       = 3;
@@ -691,11 +696,11 @@ scan_area_and_windows (Avision_Scanner *s)
     dwp.wdb.paralen        = 9;
 
     /* currently also fixed
-     */
+       (and unsopported by all Avision scanner I know ...)
+    */
     dwp.wdb.highlight      = 0xFF;
     dwp.wdb.shadow         = 0x00;
-
-
+    
     /* mode dependant settings
      */
     switch (s->mode) {
@@ -722,6 +727,7 @@ scan_area_and_windows (Avision_Scanner *s)
 	dwp.wdb.bpp = 8;
 	dwp.wdb.image_comp = 2;
 	dwp.wdb.bitset1        &= 0xC7;
+	/*dwp.wdb.bitset1        |= 0x30; *//* thanks Gunter */
 	break;
 
     case TRUECOLOR:
@@ -730,7 +736,7 @@ scan_area_and_windows (Avision_Scanner *s)
 	break;
 
     default:
-	fprintf (stderr,"Invalid mode. %d\n", s->mode);
+	DBG(3, "Invalid mode. %d\n", s->mode);
 	exit (1);
     }
 
@@ -842,11 +848,6 @@ read_data (Avision_Scanner *s, SANE_Byte *buf, int lines, int bpl)
   size_t nbytes;
   SANE_Status status;
 
-#ifdef DEBUG
-  int dt;
-  struct timeval tv_start,tv_end;
-#endif
-
   DBG(3, "read_data\n" );
 
   nbytes = bpl * lines;
@@ -855,24 +856,11 @@ read_data (Avision_Scanner *s, SANE_Byte *buf, int lines, int bpl)
   set_triple (rcmd.transferlen,nbytes);
   rcmd.datatypequal[0]=0x0d;
   rcmd.datatypequal[1]=0x0a;
-
-#ifdef DEBUG
-  if (verbose) printf ("Doing read_data...call for %u bytes/",nbytes);
-  gettimeofday (&tv_start,NULL);
-#endif
-
+  
   DBG(3, "read_data: bytes %d\n", nbytes );
 
   status = sanei_scsi_cmd (s->fd, &rcmd, sizeof (rcmd), buf, &nbytes);
-
-#ifdef DEBUG
-  gettimeofday (&tv_end,NULL);
-  dt =  tv_end.tv_usec - tv_start.tv_usec +
-       (tv_end.tv_sec  - tv_start.tv_sec) * 1000000;
-  if (verbose) printf ("Read took %d.%06d seconds.",dt/1000000,dt%1000000);
-  dt = 1000000 * nbytes / dt;
-  if (verbose) printf ("which is %d.%03d bytes per second.\n",dt,0);
-#endif
+  
   return status;
 }
 
@@ -936,7 +924,6 @@ init_options (Avision_Scanner *s)
   s->val[OPT_PREVIEW].w = 0;
 
   /* speed option */
-
   s->hw->speed_range.min = (SANE_Int)0;
   s->hw->speed_range.max = (SANE_Int)4;
   s->hw->speed_range.quant = (SANE_Int)1;
@@ -1004,14 +991,12 @@ init_options (Avision_Scanner *s)
   s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* transparency adapter. */
-  /*
   s->opt[OPT_TRANS].name = "transparency";
   s->opt[OPT_TRANS].title = "transparency";
-  s->opt[OPT_TRANS].desc = "Turn on the transparency adapter.";
+  s->opt[OPT_TRANS].desc = "Switch transparency mode on.";
   s->opt[OPT_TRANS].type = SANE_TYPE_BOOL;
   s->opt[OPT_TRANS].unit = SANE_UNIT_NONE;
   s->val[OPT_TRANS].w = SANE_FALSE;
-  */
   
   /* brightness */
   s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
@@ -1056,7 +1041,7 @@ init_options (Avision_Scanner *s)
   s->opt[OPT_QSCAN].unit   = SANE_UNIT_NONE;
   s->val[OPT_QSCAN].w      = SANE_TRUE;
 
-  /* Quality Scan */
+  /* Quality Calibration */
   s->opt[OPT_QCALIB].name  = SANE_NAME_QUALITY_CAL;
   s->opt[OPT_QCALIB].title = SANE_TITLE_QUALITY_CAL;
   s->opt[OPT_QCALIB].desc  = SANE_DESC_QUALITY_CAL;
@@ -1121,6 +1106,7 @@ init_options (Avision_Scanner *s)
   s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
   s->val[OPT_GAMMA_VECTOR_B].wa = &s->gamma_table[3][0];
 #endif
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1154,8 +1140,10 @@ reader_process (Avision_Scanner *s, int fd)
           return 1;
 
      bpl = s->params.bytes_per_line;
-
-     lines_per_buffer = sanei_scsi_max_request_size / bpl;
+     /* the "/2" is a test if scanning gets a bit faster ... ?!? ;-) 
+	(see related discussions on sane-ml)
+      */
+     lines_per_buffer = sanei_scsi_max_request_size / bpl / 2;
      if (!lines_per_buffer)
           return 2;			/* resolution is too high */
 
@@ -1169,10 +1157,10 @@ reader_process (Avision_Scanner *s, int fd)
      data = malloc (lines_per_buffer * bpl);
 
      for (s->line = 0; s->line < s->params.lines; s->line += lines_per_buffer) {
-          if (s->line + lines_per_buffer > s->params.lines)
-               /* do the last few lines: */
-               lines_per_buffer = s->params.lines - s->line;
-
+	 if (s->line + lines_per_buffer > s->params.lines)
+	     /* do the last few lines: */
+	     lines_per_buffer = s->params.lines - s->line;
+	 
           sigprocmask (SIG_BLOCK, &sigterm_set, 0);
           status = read_data (s, data, lines_per_buffer, bpl);
           sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
@@ -1245,18 +1233,19 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
     return SANE_STATUS_GOOD;
   }
 
-  while (fgets (dev_name, sizeof (dev_name), fp)) {
-    if (dev_name[0] == '#')		/* ignore line comments */
-      continue;
-    len = strlen (dev_name);
-    if (dev_name[len - 1] == '\n')
-      dev_name[--len] = '\0';
-    
-    if (!len)
-      continue;			/* ignore empty lines */
-    
-    sanei_config_attach_matching_devices (dev_name, attach_one);
-  }
+  while (sanei_config_read  (dev_name, sizeof (dev_name), fp) ) 
+      {
+	  if (dev_name[0] == '#')		/* ignore line comments */
+	      continue;
+	  len = strlen (dev_name);
+	  if (dev_name[len - 1] == '\n')
+	      dev_name[--len] = '\0';
+	  
+	  if (!len)
+	      continue;			/* ignore empty lines */
+	  
+	  sanei_config_attach_matching_devices (dev_name, attach_one);
+      }
   fclose (fp);
   return SANE_STATUS_GOOD;
 }
@@ -1382,7 +1371,7 @@ sane_close (SANE_Handle handle)
   if (prev)
     prev->next = s->next;
   else
-    first_handle = s;
+    first_handle = s->next;
 
   free (handle);
 }
@@ -1404,184 +1393,186 @@ SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int *info)
 {
-     Avision_Scanner *s = handle;
-     SANE_Status status;
-     SANE_Word cap;
+    Avision_Scanner *s = handle;
+    SANE_Status status;
+    SANE_Word cap;
 
-     DBG(3, "sane_control_option\n" );
+    DBG(3, "sane_control_option\n" );
 
-     if (info)
-          *info = 0;
+    if (info)
+	*info = 0;
 
-     if (s->scanning)
-          return SANE_STATUS_DEVICE_BUSY;
+    if (s->scanning)
+	return SANE_STATUS_DEVICE_BUSY;
 
-     if (option >= NUM_OPTIONS)
-          return SANE_STATUS_INVAL;
+    if (option >= NUM_OPTIONS)
+	return SANE_STATUS_INVAL;
 
-     cap = s->opt[option].cap;
+    cap = s->opt[option].cap;
 
-     if (!SANE_OPTION_IS_ACTIVE (cap))
-          return SANE_STATUS_INVAL;
+    if (!SANE_OPTION_IS_ACTIVE (cap))
+	return SANE_STATUS_INVAL;
 
-     if (action == SANE_ACTION_GET_VALUE) {
-          switch (option) {
-               /* word options: */
-              case OPT_PREVIEW:
-              
-              case OPT_RESOLUTION:
-              case OPT_SPEED:
-              case OPT_TL_X:
-              case OPT_TL_Y:
-              case OPT_BR_X:
-              case OPT_BR_Y:
-              case OPT_NUM_OPTS:
-              
-              case OPT_BRIGHTNESS:
-              case OPT_CONTRAST:
-              case OPT_THRESHOLD:
-              case OPT_QSCAN:    
-              case OPT_QCALIB:   
+    if (action == SANE_ACTION_GET_VALUE) {
+	switch (option) {
+	    /* word options: */
+	case OPT_PREVIEW:
+	     
+	case OPT_RESOLUTION:
+	case OPT_SPEED:
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	case OPT_NUM_OPTS:
+	     
+	case OPT_BRIGHTNESS:
+	case OPT_CONTRAST:
+	case OPT_THRESHOLD:
+	case OPT_QSCAN:    
+	case OPT_QCALIB:
+	case OPT_TRANS:
 #if 0
-              case OPT_CUSTOM_GAMMA:
+	case OPT_CUSTOM_GAMMA:
 #endif
-                   *(SANE_Word *) val = s->val[option].w;
-                   return SANE_STATUS_GOOD;
-
+	    *(SANE_Word *) val = s->val[option].w;
+	    return SANE_STATUS_GOOD;
+	     
 #if 0
-                   /* word-array options: */
-              case OPT_GAMMA_VECTOR:
-              case OPT_GAMMA_VECTOR_R:
-              case OPT_GAMMA_VECTOR_G:
-              case OPT_GAMMA_VECTOR_B:
-                   memcpy (val, s->val[option].wa, s->opt[option].size);
-                   return SANE_STATUS_GOOD;
+	    /* word-array options: */
+	case OPT_GAMMA_VECTOR:
+	case OPT_GAMMA_VECTOR_R:
+	case OPT_GAMMA_VECTOR_G:
+	case OPT_GAMMA_VECTOR_B:
+	    memcpy (val, s->val[option].wa, s->opt[option].size);
+	    return SANE_STATUS_GOOD;
 #endif
-
-                   /* string options: */
-              case OPT_MODE:
-                   strcpy (val, s->val[option].s);
-                   return SANE_STATUS_GOOD;
-          }
-     } else if (action == SANE_ACTION_SET_VALUE) {
-          if (!SANE_OPTION_IS_SETTABLE (cap))
-               return SANE_STATUS_INVAL;
-
-          status = constrain_value (s, option, val, info);
-          if (status != SANE_STATUS_GOOD)
-               return status;
-    
-          switch (option)
-          {
-               /* (mostly) side-effect-free word options: */
-              case OPT_RESOLUTION:
-              case OPT_SPEED:
-              case OPT_TL_X:
-              case OPT_TL_Y:
-              case OPT_BR_X:
-              case OPT_BR_Y:
-                   if (info)
-                        *info |= SANE_INFO_RELOAD_PARAMS;
-                   /* fall through */
-              case OPT_PREVIEW:
-              
-              case OPT_BRIGHTNESS:
-              case OPT_CONTRAST:
-              case OPT_THRESHOLD:
-              
-              case OPT_QSCAN:    
-              case OPT_QCALIB:   
-                   s->val[option].w = *(SANE_Word *) val;
-                   return SANE_STATUS_GOOD;
-
+	     
+	    /* string options: */
+	case OPT_MODE:
+	    strcpy (val, s->val[option].s);
+	    return SANE_STATUS_GOOD;
+	}
+    } else if (action == SANE_ACTION_SET_VALUE) {
+	if (!SANE_OPTION_IS_SETTABLE (cap))
+	    return SANE_STATUS_INVAL;
+	 
+	status = constrain_value (s, option, val, info);
+	if (status != SANE_STATUS_GOOD)
+	    return status;
+	 
+	switch (option)
+	    {
+		/* (mostly) side-effect-free word options: */
+	    case OPT_RESOLUTION:
+	    case OPT_SPEED:
+	    case OPT_TL_X:
+	    case OPT_TL_Y:
+	    case OPT_BR_X:
+	    case OPT_BR_Y:
+		if (info)
+		    *info |= SANE_INFO_RELOAD_PARAMS;
+		/* fall through */
+	    case OPT_PREVIEW:
+		 
+	    case OPT_BRIGHTNESS:
+	    case OPT_CONTRAST:
+	    case OPT_THRESHOLD:
+		 
+	    case OPT_QSCAN:    
+	    case OPT_QCALIB:
+	    case OPT_TRANS:
+		s->val[option].w = *(SANE_Word *) val;
+		return SANE_STATUS_GOOD;
+		
 #if 0
-                   /* side-effect-free word-array options: */
-              case OPT_GAMMA_VECTOR:
-              case OPT_GAMMA_VECTOR_R:
-              case OPT_GAMMA_VECTOR_G:
-              case OPT_GAMMA_VECTOR_B:
-                   memcpy (s->val[option].wa, val, s->opt[option].size);
-                   return SANE_STATUS_GOOD;
-
-                   /* options with side-effects: */
-
-              case OPT_CUSTOM_GAMMA:
-                   w = *(SANE_Word *) val;
-                   if (w == s->val[OPT_CUSTOM_GAMMA].w)
-                        return SANE_STATUS_GOOD;		/* no change */
-
-                   s->val[OPT_CUSTOM_GAMMA].w = w;
-                   if (w) {
-                        s->mode = make_mode (s->val[OPT_MODE].s);
-
-                        if (s->mode == GREYSCALE) {
-                             s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-                        } else if (s->mode == TRUECOLOR) {
-                             s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-                        }
-                   } else {
-                        s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
-                        s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-                        s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-                        s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-                   }
-                   if (info)
-                        *info |= SANE_INFO_RELOAD_OPTIONS;
-                   return SANE_STATUS_GOOD;
+		/* side-effect-free word-array options: */
+	    case OPT_GAMMA_VECTOR:
+	    case OPT_GAMMA_VECTOR_R:
+	    case OPT_GAMMA_VECTOR_G:
+	    case OPT_GAMMA_VECTOR_B:
+		memcpy (s->val[option].wa, val, s->opt[option].size);
+		return SANE_STATUS_GOOD;
+		 
+		/* options with side-effects: */
+		 
+	    case OPT_CUSTOM_GAMMA:
+		w = *(SANE_Word *) val;
+		if (w == s->val[OPT_CUSTOM_GAMMA].w)
+		    return SANE_STATUS_GOOD;		/* no change */
+		 
+		s->val[OPT_CUSTOM_GAMMA].w = w;
+		if (w) {
+		    s->mode = make_mode (s->val[OPT_MODE].s);
+		     
+		    if (s->mode == GREYSCALE) {
+			s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+		    } else if (s->mode == TRUECOLOR) {
+			s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+			s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+			s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+			s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+		    }
+		} else {
+		    s->opt[OPT_GAMMA_VECTOR].cap   |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+		}
+		if (info)
+		    *info |= SANE_INFO_RELOAD_OPTIONS;
+		return SANE_STATUS_GOOD;
 #endif
-
-              case OPT_MODE:
-              {
-                   if (s->val[option].s)
-                        free (s->val[option].s);
-                   s->val[option].s = strdup (val);
-
-                   s->mode = make_mode (s->val[OPT_MODE].s);
-
-                   if (info)
-                        *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-
-                   s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+		 
+	    case OPT_MODE:
+		{
+		    if (s->val[option].s)
+			free (s->val[option].s);
+		    s->val[option].s = strdup (val);
+		     
+		    s->mode = make_mode (s->val[OPT_MODE].s);
+		     
+		    if (info)
+			*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+		     
+		    s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
 #if 0
-                   s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-                   s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+		    s->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
 #endif
-
-
-                   if (strcmp (val, "Thresholded") == 0) 
-                        s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
-                   else {
-                        s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-                        s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-                   }
+		     
+		     
+		    if (strcmp (val, "Thresholded") == 0) 
+			s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
+		    else {
+			s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+			s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+		    }
 #if 0
-                   if (!binary)
-                        s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-
-                   if (s->val[OPT_CUSTOM_GAMMA].w) {
-                        if (strcmp (val, "Gray") == 0)
-                             s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-                        else if (strcmp (val, "Color") == 0) {
-                             s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-                             s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-                        }
-                   }
+		    if (!binary)
+			s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
+		     
+		    if (s->val[OPT_CUSTOM_GAMMA].w) {
+			if (strcmp (val, "Gray") == 0)
+			    s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+			else if (strcmp (val, "Color") == 0) {
+			    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
+			    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+			    s->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+			    s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+			}
+		    }
 #endif
-                   return SANE_STATUS_GOOD;
-              }
-          }
-     }
-     return SANE_STATUS_INVAL;
+		    return SANE_STATUS_GOOD;
+		}
+	    }
+    }
+    return SANE_STATUS_INVAL;
 }
 
 
@@ -1863,7 +1854,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 SANE_Status
 sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
 {
-  Avision_Scanner *s = handle;
+    Avision_Scanner *s = handle;
 
   DBG(3, "sane_get_select_fd\n" );
 

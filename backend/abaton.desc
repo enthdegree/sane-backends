@@ -9,6 +9,8 @@
 :mfg "Abaton"
 :url "http://www.everex.com/"
 :model "Scan 300/GS"
+:interface "SCSI"
 :comment "All known modes and functions supported"
 :model "Scan 300/S"
+:interface "SCSI"
 :comment "Untested, use with caution"

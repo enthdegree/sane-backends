@@ -3,7 +3,7 @@
 
    avision.h 
 
-   This file (C) 1999 Meino Christian Cramer and Rene Rebe
+   This file (C) 1999, 2000  Meino Christian Cramer and Rene Rebe
 
    This file is part of the SANE package.
 
@@ -46,7 +46,9 @@
 
    (feedback to:  mccramer@s.netic.de and rene.rebe@myokay.net)
 
-   Very much thanks to Avision INC for the documentation we got! ;-)
+   Very much thanks to:
+     Avision INC for the documentation we got! ;-)
+     Gunter Wagner for some fixes and the transparency option
 
    *****************************************************************************/
 
@@ -59,12 +61,12 @@
 enum Avision_Option
 {
     OPT_NUM_OPTS = 0,
-
+    
     OPT_MODE_GROUP,
     OPT_MODE,
-    #define OPT_MODE_DEFAULT 3
+#define OPT_MODE_DEFAULT 3
     OPT_RESOLUTION,
-    #define OPT_RESOLUTION_DEFAULT 300
+#define OPT_RESOLUTION_DEFAULT 300
     OPT_SPEED,
     OPT_PREVIEW,
    
@@ -80,6 +82,7 @@ enum Avision_Option
     OPT_THRESHOLD,
     OPT_QSCAN,
     OPT_QCALIB,
+    OPT_TRANS,                  /* Transparency Mode */
 #if 0
     OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
     /* The gamma vectors MUST appear in the order gray, red, green,
@@ -158,11 +161,11 @@ typedef struct Avision_Scanner
     Avision_Device *hw;
 } Avision_Scanner;
 
+#define AV_ADF_ON     0x80
 
-#define AV_ADF_ON    0x80
-#define AV_DOUBLE_ON 0x40
-#define AV_TRANS_ON  0x20
-
+#define AV_QSCAN_ON   0x10
+#define AV_QCALIB_ON  0x08
+#define AV_TRANS_ON   0x80
 #define AV_INVERSE_ON 0x20
 
 #define THRESHOLDED 0

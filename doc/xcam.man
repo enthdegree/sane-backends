@@ -1,0 +1,24 @@
+.TH xcam 1 "24 Jun 2000"
+.IX xcam
+.SH NAME
+xcam - a graphical camera frontend for SANE
+.SH SYNOPSIS
+.B xcam
+
+.SH DESCRIPTION
+Should be straightforward to use.  Just be sure to use a very recent
+version of GTK.
+
+.SH FILES
+.TP
+.I $HOME/.sane/xcam/devicename.rc
+For each device, there is one rc-file that holds the saved settings
+for that particular device.  Normally, this file should not be
+manipulated directly.  Instead, the user should use the
+.B xcam
+interface to select appropriate values and then save the device
+settings using the "Preferences->Save as default settings" menubar entry.
+.SH "SEE ALSO"
+xscanimage(1), scanimage(1), sane\-dll(5) and the backend manpages
+.SH AUTHOR
+David Mosberger-Tang

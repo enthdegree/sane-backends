@@ -55,7 +55,9 @@
 
 #define MICROTEK_MAJOR 0
 #define MICROTEK_MINOR 12
-#define MICROTEK_PATCH 0
+#define MICROTEK_PATCH 1
+
+#include "sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -65,14 +67,14 @@
 
 #include <math.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/sanei_config.h>
-#include <sane/sanei_scsi.h>
-#include <sane/saneopts.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/sanei_config.h"
+#include "sane/sanei_scsi.h"
+#include "sane/saneopts.h"
 
 #define BACKEND_NAME microtek
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #include "microtek.h"
 
@@ -1652,6 +1654,13 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   mi->bit_formats                = (SANE_Byte)(result[74] & 0x0F);
   mi->extra_cap                  = (SANE_Byte)(result[75] & 0x07);
 
+  /* XXXXXX a quick hack to disable any [pre/real]cal stuff for
+     anything but an E6... */
+  if (!((mi->model_code == 0x66) || (mi->model_code == 0x63))) {
+    mi->extra_cap &= ~MI_EXCAP_DIS_RECAL;
+    DBG(4, "parse_inquiry:  Not an E6 -- pretend recal cannot be disabled.\n");
+  }
+
   /* The E2 lies... */
   if (mi->model_code == 0x64) {
     DBG(4, "parse_inquiry:  The E2 lies about it's 3-pass heritage.\n");
@@ -1956,7 +1965,9 @@ id_microtek(u_int8_t *result, char **model_string)
     }
     if (forcewarn) {
       /* force debugging on, to encourage user to send in a report */
+#ifndef NDEBUG
       DBG_LEVEL = 1;
+#endif
       fprintf(stderr, "\n\n\n");
       fprintf(stderr, "========== Congratulations! ==========\n");
       fprintf(stderr, "Your scanner appears to be supported  \n");
@@ -2878,7 +2889,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
     attach_scanner("/dev/scanner", 0);
     return SANE_STATUS_GOOD;
   }
-  while (fgets(dev_name, sizeof (dev_name), fp)) {
+  while (sanei_config_read(dev_name, sizeof (dev_name), fp)) {
     DBG(23, "sane_init:  config- %s", dev_name);
     if (dev_name[0] == '#') continue;	/* ignore comments */
     if (!(strncmp("noprecal", dev_name, 8))) {
@@ -2894,7 +2905,6 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
       continue;
     }
     len = strlen (dev_name);
-    if (dev_name[len - 1] == '\n') dev_name[--len] = '\0';
     if (!len) continue;			/* ignore empty lines */
     sanei_config_attach_matching_devices (dev_name, attach_one);
     }

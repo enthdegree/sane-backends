@@ -44,7 +44,7 @@
 
 #define STUBS
 extern int sanei_debug_hp;
-#include <sane/config.h>
+#include "sane/config.h"
 #include <lalloca.h>		/* Must be first */
 
 #ifdef HAVE_UNISTD_H
@@ -58,22 +58,16 @@ extern int sanei_debug_hp;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sane/sanei_scsi.h>
-#include <sane/sanei_pio.h>
+#include "sane/sanei_scsi.h"
+#include "sane/sanei_pio.h"
 
 #include "hp.h"
 
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #include "hp-option.h"
 #include "hp-scsi.h"
 #include "hp-scl.h"
-
-#if (defined(__IBMC__) || defined(__IBMCPP__))
-#ifndef _AIX
-#define inline /* */
-#endif
-#endif
 
 #define HP_SCSI_INQ_LEN		(36)
 #define HP_SCSI_CMD_LEN		(6)
@@ -483,7 +477,7 @@ hp_scsi_flush (HpScsi this)
     return hp_nonscsi_write (this, this->buf+HP_SCSI_CMD_LEN, len, connect);
 }
 
-static inline size_t
+static size_t
 hp_scsi_room (HpScsi this)
 {
   return this->buf + HP_SCSI_BUFSIZ - this->bufp;
@@ -1069,6 +1063,24 @@ sanei_hp_scsi_pipeout (HpScsi this, int outfd, HpProcessData *procdata)
   signal_caught = 0;
   sigprocmask(SIG_UNBLOCK, &sig_set, 0);
 
+  /* Wait for front button push ? */
+  if ( procdata->startscan )
+  {
+    for (;;)
+    {int val = 0;
+ 
+       if (signal_caught) goto quit;
+       sanei_hp_scl_inquire (this, SCL_FRONT_BUTTON, &val, 0, 0);
+       if (val) break;
+       usleep ((unsigned long)333*1000); /* Wait 1/3 second */
+    }
+    status = sanei_hp_scl_startScan (this, procdata->startscan);
+    if (status != SANE_STATUS_GOOD )
+    {
+      DBG(1, "do_read: Error starting scan in reader process\n");
+      goto quit;
+    }
+  } 
   ph = process_data_init (procdata, map, outfd, enable_image_buffering);
 
   if ( ph == NULL )
@@ -1269,8 +1281,7 @@ _hp_scl_inq (HpScsi scsi, HpScl scl, HpScl inq_cmnd,
 
   if (buf[0] == 'N')
     {				/* null response */
-      DBG(3, "scl_inq: parameter '%c' (%d) unsupported\n",
-	  SCL_PARAM_CHAR(scl), SCL_INQ_ID(scl));
+      DBG(3, "scl_inq: parameter %d unsupported\n", SCL_INQ_ID(scl));
       return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -1349,8 +1360,7 @@ sanei_hp_scl_upload_binary (HpScsi scsi, HpScl scl, size_t *lengthhp,
 
   if (buf[0] == 'N')
     {				/* null response */
-      DBG(1, "scl_upload_binary: parameter '%c' (%d) unsupported\n",
-	  SCL_PARAM_CHAR(scl), SCL_INQ_ID(scl));
+      DBG(1, "scl_upload_binary: parameter %d unsupported\n", SCL_INQ_ID(scl));
       return SANE_STATUS_UNSUPPORTED;
     }
 

@@ -40,16 +40,16 @@
 
    This file provides generic configuration support.  */
 
-#include <sane/config.h>
+#include "sane/config.h"
 
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <sane/sanei.h>
-#include <sane/sanei_config.h>
-#include <sane/sanei_scsi.h>
+#include "sane/sanei.h"
+#include "sane/sanei_config.h"
+#include "sane/sanei_scsi.h"
 
 /* This logically belongs to sanei_config.c but not every backend that
    uses sanei_config() wants to depend on this function.  */

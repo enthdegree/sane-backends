@@ -57,21 +57,23 @@
 
  ***************************************************************************/
 
+#include "sane/config.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <cdjpeg.h>
+#include "cdjpeg.h"
 #include <sys/ioctl.h>
 
-#include <sane/sane.h>
-#include <sane/sanei.h>
-#include <sane/saneopts.h>
+#include "sane/sane.h"
+#include "sane/sanei.h"
+#include "sane/saneopts.h"
 
 #define BACKEND_NAME	dc210
-#include <sane/sanei_backend.h>
+#include "sane/sanei_backend.h"
 
 #include "dc210.h"
 
@@ -631,20 +633,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (!fp)
     {
       /* default to /dev/whatever instead of insisting on config file */
-      DBG (1, "%s:  missing config file '%s'\n", DC210_CONFIG_FILE, f);
+      DBG (1, "%s:  missing config file '%s'\n", f, DC210_CONFIG_FILE);
     }
   else
     {
-      while (fgets (dev_name, sizeof (dev_name), fp))
+      while (sanei_config_read (dev_name, sizeof (dev_name), fp))
 	{
 	  dev_name[sizeof (dev_name) - 1] = '\0';
-	  DBG (20, "%s:  config- %s", dev_name, f);
+	  DBG (20, "%s:  config- %s\n", f, dev_name);
 
 	  if (dev_name[0] == '#')
-	    continue;		/* ignore line comments */
+	      continue;		/* ignore line comments */
 	  len = strlen (dev_name);
-	  if (dev_name[len - 1] == '\n')
-	    dev_name[--len] = '\0';
 	  if (!len)
 	    continue;		/* ignore empty lines */
 	  if (strncmp (dev_name, "port=", 5) == 0)
@@ -755,15 +755,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   if (dumpinquiry)
     {
-      fprintf (stderr, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
-      fprintf (stderr, "Model...........: DC%x\n", Camera.model);
-      fprintf (stderr, "Firmware version: %d.%d\n", Camera.ver_major,
+      DBG (0, "\nCamera information:\n~~~~~~~~~~~~~~~~~\n\n");
+      DBG (0, "Model...........: DC%x\n", Camera.model);
+      DBG (0, "Firmware version: %d.%d\n", Camera.ver_major,
 	       Camera.ver_minor);
-      fprintf (stderr, "Pictures........: %d/%d\n", Camera.pic_taken,
+      DBG (0, "Pictures........: %d/%d\n", Camera.pic_taken,
 	       Camera.pic_taken + Camera.pic_left);
-      fprintf (stderr, "Resolution......: %s\n",
+      DBG (0, "Resolution......: %s\n",
 	       Camera.flags.low_res ? "low" : "high");
-      fprintf (stderr, "Battery state...: %s\n",
+      DBG (0, "Battery state...: %s\n",
 	       Camera.flags.low_batt ? "low" : "good");
     }
 

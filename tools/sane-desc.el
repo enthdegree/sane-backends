@@ -68,7 +68,7 @@ the print name of the status, the color to use, and a description.")
 (defvar sane-desc-home-url "http://www.mostang.com/sane/"
   "URL for the SANE homepage.")
 
-(defvar sane-desc-sane-logo "http://www.mostang.com/sane/sane.gif"
+(defvar sane-desc-sane-logo "http://www.mostang.com/sane/sane.png"
   "URL for SANE logo.")
 
 (defvar sane-desc-backend-html-bgcolor "FFFFFF"
@@ -83,6 +83,14 @@ the print name of the status, the color to use, and a description.")
 (defvar sane-desc-manpage-url-format 
   "http://www.mostang.com/sane/man/%s.5.html"
   "Format used for creating URL's for on-line manpages.")
+
+(defvar sane-desc-additional-links 
+  "<p>There are special tables for <a 
+href=\"http://www.buzzard.org.uk/jonathan/scanners.html\">parallel port</a>
+and <a href=\"http://www.buzzard.org.uk/jonathan/scanners-usb.html\">USB</a> 
+scanners from <a href=\"mailto:jonathan@buzzard.org.uk\">Jonathan Buzzard</a>.
+"
+  "Links to additional sources of information near the top of the page.")
 
 
 
@@ -135,6 +143,7 @@ the print name of the status, the color to use, and a description.")
 		(:desc . nil)
 		(:mfg . nil)
 		(:url . nil)
+		(:interface . nil)
 		(:comment . nil))))
 
 
@@ -265,6 +274,13 @@ and devices.")
 		(sane-desc-putval latest :comment comment)
 	      (error "Assign :comment %s to what?" comment)
 	      )))
+	 ;; ... :interface
+	 ((eq token :interface)
+	  (let ((interface (read pbuff)))
+	    (if latest
+		(sane-desc-putval latest :interface interface)
+	      (error "Assign :interface %s to what?" interface)
+	      )))
 	 ;; What could possibly be left???
 	 (t (error "Unknown token during parse: %s" token))
 	 ))
@@ -341,6 +357,8 @@ SANE, and the hardware or software they support.
 Please consult the manpages and the author-supplied webpages for more
 detailed (and usually important) information concerning each backend.
 
+%s
+
 <p>If you have new information or corrections, please send e-mail
 to <a href=\"mailto:%s\">%s</a>.
 
@@ -354,6 +372,7 @@ to <a href=\"mailto:%s\">%s</a>.
 	       sane-desc-backend-html-bgcolor
 	       sane-desc-sane-logo
 	       sane-desc-backend-html-title
+	       sane-desc-additional-links
 	       sane-desc-email-address
 	       sane-desc-email-address)
       ;; Write the table (w/ legend)...
@@ -391,12 +410,13 @@ This page was lasted updated on %s
   <th align=center rowspan=2>Backend</th>
   <th align=center rowspan=2>Version</th>
   <th align=center rowspan=2>Status</th>
-  <th align=center colspan=3>Supported Devices</th>
+  <th align=center colspan=4>Supported Devices</th>
   <th align=center rowspan=2>Manual Page</th>
 </tr>
 <tr bgcolor=%s>
   <th align=center>Manufacturer</th>
   <th align=center>Model</th>
+  <th align=center>Interface</th>
   <th align=center>Comment</th>
 </tr>
 
@@ -542,6 +562,10 @@ This page was lasted updated on %s
       (sane-desc-pformat buff "<td>")
       (sane-desc-pformat-name-with-url buff (sane-desc-getval dev :desc) (sane-desc-getval dev :url)))
     )
+  (sane-desc-pformat buff "</td>\n")
+  (if (sane-desc-getval dev :interface)
+      (sane-desc-pformat buff "<td>%s</td>\n" (sane-desc-getval dev :interface))
+    (sane-desc-pformat buff "<td>&nbsp;</td>\n"))
   (sane-desc-pformat buff "</td>\n")
   (if (sane-desc-getval dev :comment)
       (sane-desc-pformat buff "<td>%s</td>\n" (sane-desc-getval dev :comment))

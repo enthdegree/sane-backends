@@ -3,6 +3,8 @@
 	* TODO: Removed entries about kill(-1,...), wrong .desc links,
 	  sanei documentation, added entries about exit(), and sanei
 	  doxygen documentation.
+	* backend/mustek.c doc/mustek/mustek.CHANGES: Fixed some option
+	  name issues.
 
 2002-01-18  Karl Heinz Kremer <khk@khk.net>
 

@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2003 Rene Rebe (sanei_read_int)
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    This file is part of the SANE package.
@@ -82,6 +83,8 @@ typedef struct
   SANE_Int product;
   SANE_Int bulk_in_ep;
   SANE_Int bulk_out_ep;
+  SANE_Int int_in_ep;
+  SANE_Int int_out_ep;
   SANE_Int interface_nr;
 #ifdef HAVE_LIBUSB
   usb_dev_handle *libusb_handle;
@@ -612,8 +615,53 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  direction = endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 	  transfer_type = endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
 
-	  if (transfer_type != USB_ENDPOINT_TYPE_BULK)
+	  /* save the endpoints we need later */
+	  if (transfer_type == USB_ENDPOINT_TYPE_INTERRUPT)
+	  {
+	    DBG (5, "sanei_usb_open: found interupt-%s endpoint (address %d)\n",
+	         direction ? "in" : "out", address);
+	    if (direction)	/* in */
 	    {
+	      if (devices[devcount].int_in_ep)
+		DBG (3, "sanei_usb_open: we already have a int-in endpoint "
+		     "(address: %d), ignoring the new one\n",
+		     devices[devcount].int_in_ep);
+	      else
+		devices[devcount].int_in_ep = endpoint->bEndpointAddress;
+	    }
+	    else
+	      if (devices[devcount].int_out_ep)
+		DBG (3, "sanei_usb_open: we already have a int-out endpoint "
+		     "(address: %d), ignoring the new one\n",
+		     devices[devcount].int_out_ep);
+	      else
+		devices[devcount].int_out_ep = endpoint->bEndpointAddress;
+	  }
+	  else if (transfer_type == USB_ENDPOINT_TYPE_BULK)
+	  {
+	    DBG (5, "sanei_usb_open: found bulk-%s endpoint (address %d)\n",
+	         direction ? "in" : "out", address);
+	    if (direction)	/* in */
+	      {
+		if (devices[devcount].bulk_in_ep)
+		  DBG (3, "sanei_usb_open: we already have a bulk-in endpoint "
+		       "(address: %d), ignoring the new one\n",
+		       devices[devcount].bulk_in_ep);
+		else
+		  devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
+	      }
+	    else
+	      {
+	        if (devices[devcount].bulk_out_ep)
+		  DBG (3, "sanei_usb_open: we already have a bulk-out endpoint "
+		       "(address: %d), ignoring the new one\n",
+		       devices[devcount].bulk_out_ep);
+	        else
+		  devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
+	      }
+	    }
+	  /* ignore currently unsupported endpoints */
+	  else {
 	      DBG (5, "sanei_usb_open: ignoring %s-%s endpoint "
 		   "(address: %d)\n",
 		   transfer_type == USB_ENDPOINT_TYPE_CONTROL ? "control" :
@@ -621,26 +669,6 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		   ? "isochronous" : "interrupt",
 		   direction ? "in" : "out", address);
 	      continue;
-	    }
-	  DBG (5, "sanei_usb_open: found bulk-%s endpoint (address %d)\n",
-	       direction ? "in" : "out", address);
-	  if (direction)	/* in */
-	    {
-	      if (devices[devcount].bulk_in_ep)
-		DBG (3, "sanei_usb_open: we already have a bulk-in endpoint "
-		     "(address: %d), ignoring the new one\n",
-		     devices[devcount].bulk_in_ep);
-	      else
-		devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
-	    }
-	  else
-	    {
-	      if (devices[devcount].bulk_out_ep)
-		DBG (3, "sanei_usb_open: we already have a bulk-out endpoint "
-		     "(address: %d), ignoring the new one\n",
-		     devices[devcount].bulk_out_ep);
-	      else
-		devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
 	    }
 	}
 #else /* not HAVE_LIBUSB */
@@ -918,4 +946,74 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 	   devices[dn].method);
       return SANE_STATUS_UNSUPPORTED;
     }
+}
+
+SANE_Status
+sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
+{
+  ssize_t read_size = 0;
+
+  if (!size)
+    {
+      DBG (1, "sanei_usb_read_int: size == NULL\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (dn >= MAX_DEVICES || dn < 0)
+    {
+      DBG (1, "sanei_usb_read_int: dn >= MAX_DEVICES || dn < 0\n");
+      return SANE_STATUS_INVAL;
+    }
+  if (devices[dn].method == sanei_usb_method_scanner_driver) {
+     DBG (1, "sanei_usb_read_int: access method %d not implemented\n",
+	   devices[dn].method);
+     return SANE_STATUS_INVAL;
+  }
+  else if (devices[dn].method == sanei_usb_method_libusb)
+#ifdef HAVE_LIBUSB
+    {
+      if (devices[dn].int_in_ep)
+	read_size = usb_bulk_read (devices[dn].libusb_handle,
+				   devices[dn].int_in_ep, (char *) buffer,
+				   (int) *size, libusb_timeout);
+      else
+	{
+	  DBG (1, "sanei_usb_read_int: can't read without an int "
+	       "endpoint\n");
+	  return SANE_STATUS_INVAL;
+	}
+    }
+#else /* not HAVE_LIBUSB */
+    {
+      DBG (1, "sanei_usb_read_int: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_LIBUSB */
+  else
+    {
+      DBG (1, "sanei_usb_read_int: access method %d not implemented\n",
+	   devices[dn].method);
+      return SANE_STATUS_INVAL;
+    }
+
+  if (read_size < 0)
+    {
+      DBG (1, "sanei_usb_read_int: read failed: %s\n", strerror (errno));
+#ifdef HAVE_LIBUSB
+      if (devices[dn].method == sanei_usb_method_libusb)
+	usb_clear_halt (devices[dn].libusb_handle, devices[dn].int_in_ep);
+#endif
+      *size = 0;
+      return SANE_STATUS_IO_ERROR;
+    }
+  if (read_size == 0)
+    {
+      DBG (3, "sanei_usb_read_int: read returned EOF\n");
+      *size = 0;
+      return SANE_STATUS_EOF;
+    }
+  DBG (5, "sanei_usb_read_int: wanted %lu bytes, got %ld bytes\n",
+       (unsigned long) *size, (unsigned long) read_size);
+  *size = read_size;
+  return SANE_STATUS_GOOD;
 }

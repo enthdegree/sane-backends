@@ -1,3 +1,9 @@
+
+2003-03-24  Rene Rebe <rene.rebe@gmx.net>
+
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: support for
+	  interrupt endpoint reads
+
 2003-03-23  Rene Rebe <rene.rebe@gmx.net>
 
 	* doc/sane-usb.man fix typo

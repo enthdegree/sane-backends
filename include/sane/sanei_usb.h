@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2003 Rene Rebe (sanei_read_int)
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
    This file is part of the SANE package.
 
@@ -269,6 +270,25 @@ extern SANE_Status
 sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 		       SANE_Int value, SANE_Int index, SANE_Int len,
 		       SANE_Byte * data);
+
+/** Initiate a interrupt transfer read.
+ *
+ * Read up to size bytes from the interrupt endpoint from the device to
+ * buffer. After the read, size contains the number of bytes actually read.
+ *
+ * @param dn device number
+ * @param buffer buffer to store read data in
+ * @param size size of the data
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+extern SANE_Status
+sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size);
 
 /** Expand device name patterns into a list of devices.
  *

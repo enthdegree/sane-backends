@@ -919,6 +919,8 @@ sanei_pa4s2_devices()
   int n;
   char **devices;
 
+  TEST_DBG_INIT();
+
   DBG (4, "sanei_pa4s2_devices: invoked\n");
 
   if ((n = pa4s2_init(&status)) != 0)
@@ -937,7 +939,9 @@ sanei_pa4s2_devices()
       return calloc(1, sizeof(char *));
     }
 
-  memcpy(devices, pplist.portv, sizeof(char *) * pplist.portc);
+  for (n=0; n<pplist.portc; n++)
+    devices[n] = pplist.portv[n]->name;
+
 #else
 
   if ((devices = calloc((NELEMS (port) + 1), sizeof(char *))) == NULL)

@@ -23916,7 +23916,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
     BACKENDS="abaton agfafocus apple artec as6e avision bh canon \
           canon630u coolscan coolscan2 dc25 dmc \
           epson fujitsu gt68xx hp leo matsushita microtek \
-          microtek2 mustek mustek_pp mustek_pp_ccd mustek_usb nec pie plustek \
+          microtek2 mustek mustek_pp mustek_usb nec pie plustek \
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
           artec_eplus48u ma1509 ibm hp5400"

@@ -1,4 +1,4 @@
-.TH sane-mustek_pp 5 "February 20 2002"
+.TH sane-mustek_pp 5 "November 17 2003"
 .IX sane-mustek_pp
 .SH NAME
 sane-mustek_pp - SANE backend for Mustek parallel port flatbed scanners
@@ -14,20 +14,13 @@ There are 2 classes of Mustek parallel port scanners: regular
 .B CIS 
 (contact image sensor) scanners.
 
-Previous versions of this backend only supported CCD type scanners. Patches 
-for CIS type scanners were available, but simultaneous support for both 
-types was not possible. The current version of the driver enables both types
-to co-exist. The CIS drivers have been ported to it already, and work
-is going on to port the CCD drivers too. Currently there is no CCD support however. For CCD
-scanners, use the
-.BR sane-mustek_pp_ccd(5)
-backend.
-
+The current version of this backend supports both CCD type scanners and
+CIS type scanners.
 
 The following scanners might work with this backend:
 
 .TP
-.BR "CCD scanners" " (currently not hooked up yet, use mustek_pp_ccd backend)"
+.BR "CCD scanners" 
 .PP
 .RS
 Model:               ASIC ID:  CCD Type:  works:
@@ -38,9 +31,9 @@ SE 6000 P            1013      00          yes
 .br
 SM 4800 P            1013/1015 04/01       yes
 .br
-SE 1200 ED Plus      1015      01          partly
+SE 1200 ED Plus      1015      01          no
 .br
-SM 1200 ED Plus      1015      01          partly
+SM 1200 ED Plus      1015      01          no
 .br
 SE 12000 P           1505      05          no
 .br
@@ -179,6 +172,10 @@ parallel port, this port is named lp0 regardless of the base address. However,
 this backend requires the base address of your port. If you are not sure which
 port your scanner is connected to, have a look at your /etc/conf.modules,
 /etc/modules.conf and/or /proc/ioports.
+
+If you are unsure which port to use, you can use the magic value
+.BR * 
+to probe for your scanner.
 .PP
 .HP
 .B <driver>
@@ -189,6 +186,8 @@ is the driver to use for this device. Currently available drivers are:
 .BR cis1200 "  : for 1200 CP & OEM versions"
 .br  
 .BR cis1200+ " : for 1200 CP+ & OEM versions"
+.br
+.BR ccd300 " : for 600 IIIE P & OEM version"
 .IP
 .B Choosing  the  wrong  driver  can  damage  your scanner!
 .br
@@ -213,6 +212,8 @@ Examples:
 scanner "LifeTec 9350" 0x378 cis1200
 .PP
 scanner Mustek_600CP 0x378 cis600
+.PP
+scanner Mustek_600IIIEP * ccd300
 .RE
 
 
@@ -291,7 +292,31 @@ Example:  option slow_skip
 .B CCD driver options
 .RS 4
 .HP
-To be defined. 
+.B top <value>
+Number of scanlines to skip to the start of the scan area. The number can
+be any positive integer. Values known to me are 47 and 56.
+.br
+Default value: 47
+.br
+Minimum:       0
+.br
+Maximum:       none
+.br
+.PP
+Example:  option top 56
+.HP
+.B waitbank <value>
+The number of usecs to wait for a bank change. You should not touch this
+value actually. May be any positive integer
+.br
+Default value: 700
+.br
+Minimum:       0
+.br
+Maximum:       none
+.br
+.PP
+Example:  option waitbank 700
 .PP
 .RE
 
@@ -340,6 +365,20 @@ scanner "Mustek 1200CP plus" 0x278 cis1200+
    option bw 130
 .br
    option top_skip 0.2
+   
+#
+.br
+# A Mustek 600 III EPP on port parport0
+.br
+#
+.br
+scanner "Mustek 600 III EPP" parport0 ccd300
+
+   # Some calibration options (examples!).
+.br
+   option bw 130
+.br
+   option top 56
 .RE
 
 .SH FILES
@@ -429,11 +468,11 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-mustek_pp_ccd(5), sane\-mustek(5), sane\-net(5), saned(1)
+sane(7), sane\-mustek(5), sane\-net(5), saned(1)
 
 .TP
 For latest bug fixes and information see
-.I http://www.penguin-breeder.org/?page=mustek_pp
+.I http://www.penguin-breeder.org/sane/mustek_pp/
 
 .TP
 For the latest CIS driver versions, see
@@ -450,14 +489,6 @@ Too many... please send bug reports to
 (note that you have to subscribe first to the list before you can send
 emails... see http://www.sane\-project.org/mailing\-lists.html)
 .PP
-.RS
-* 1013 support isn't bullet proofed
-.br
-* 1505 support isn't even present
-.br
-* 1015 only works for CCD type 00 & 01 (01 only bw/grayscale)
-.RE
-
 
 .SH BUG REPORTS
 If something doesn't work, please contact us (Jochen for the CCD scanners,

@@ -80,6 +80,8 @@
 #include "../include/sane/sanei_config.h"
 #define MUSTEK_PP_CONFIG_FILE "mustek_pp.conf"
 
+#include "../include/sane/sanei_pa4s2.h"
+
 #include "mustek_pp.h"
 #include "mustek_pp_drivers.h"
 
@@ -92,8 +94,8 @@
 
 /* if you change the source, please set MUSTEK_PP_STATE to "devel". Do *not*
  * change the MUSTEK_PP_BUILD. */
-#define MUSTEK_PP_BUILD	12
-#define MUSTEK_PP_STATE	"alpha"
+#define MUSTEK_PP_BUILD	13
+#define MUSTEK_PP_STATE	"beta"
 
 
 /* auth callback... since basic user authentication is done by saned, this
@@ -620,36 +622,54 @@ static void
 attach_device(SANE_String *driver, SANE_String *name, 
               SANE_String *port, SANE_String *option_ta)
 {
-   int found = 0, driver_no;
+  int found = 0, driver_no, port_no;
+  char **ports;
 
-   for (driver_no=0 ; driver_no<MUSTEK_PP_NUM_DRIVERS ; driver_no++)
-     {
-       if (strcasecmp (Mustek_pp_Drivers[driver_no].driver, *driver) == 0)
-	 {
-	   Mustek_pp_Drivers[driver_no].init (
-	     (*option_ta == 0 ? CAP_NOTHING : CAP_TA),
-	     *port, *name, sane_attach);
-	   found = 1;
-	   break;
-	 }
-     }
+  if (!strcmp (*port, "*"))
+    {
+      ports = sanei_pa4s2_devices();
+      DBG (3, "sanei_init: auto probing port\n");
+    }
+  else
+    {
+      ports = malloc (sizeof(char *) * 2);
+      ports[0] = *port;
+      ports[1] = NULL;
+    }
 
-   if (found == 0)
-     {
-       DBG (1, "sane_init: invalid driver name %s\n", *driver);
-     }
+  for (port_no=0; ports[port_no] != NULL; port_no++)
+    {
+      for (driver_no=0 ; driver_no<MUSTEK_PP_NUM_DRIVERS ; driver_no++)
+        {
+          if (strcasecmp (Mustek_pp_Drivers[driver_no].driver, *driver) == 0)
+   	     {
+   	       Mustek_pp_Drivers[driver_no].init (
+   	         (*option_ta == 0 ? CAP_NOTHING : CAP_TA),
+   	         ports[port_no], *name, sane_attach);
+   	       found = 1;
+   	       break;
+   	     }
+        }
+    }
 
-   free (*name);
-   free (*port);
-   free (*driver);
-   if (*option_ta)
-     free (*option_ta);
-   *name = *port = *driver = *option_ta = 0;
-   
-   /* In case of a successful initialization, the configuration options
-      should have been transfered to the device, but this function can
-      deal with that. */
-   free_cfg_options(&numcfgoptions, &cfgoptions);
+  free (ports);
+
+  if (found == 0)
+    {
+      DBG (1, "sane_init: invalid driver name ``%s''\n", *driver);
+    }
+
+  free (*name);
+  free (*port);
+  free (*driver);
+  if (*option_ta)
+    free (*option_ta);
+  *name = *port = *driver = *option_ta = 0;
+  
+  /* In case of a successful initialization, the configuration options
+     should have been transfered to the device, but this function can
+     deal with that. */
+  free_cfg_options(&numcfgoptions, &cfgoptions);
 }
    
 /* sane_init:
@@ -702,21 +722,28 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (fp == NULL)
     {
       char driver_name[64];
+      char **devices = sanei_pa4s2_devices();
+      int device_no;
 	
       DBG (2, "sane_init: could not open configuration file\n");
       
-      for (driver_no=0 ; driver_no<MUSTEK_PP_NUM_DRIVERS ; driver_no++)
-	{
-	  Mustek_pp_Drivers[driver_no].init(CAP_NOTHING, "0x378",
-		    Mustek_pp_Drivers[driver_no].driver, sane_attach);
+      for (device_no = 0; devices[device_no] != NULL; device_no++)
+        {
+	  DBG (3, "sane_init: trying ``%s''\n", devices[device_no]);
+          for (driver_no=0 ; driver_no<MUSTEK_PP_NUM_DRIVERS ; driver_no++)
+	    {
+	      Mustek_pp_Drivers[driver_no].init(CAP_NOTHING, devices[device_no],
+	  	        Mustek_pp_Drivers[driver_no].driver, sane_attach);
 
-	  snprintf (driver_name, 64, "%s-ta",
-		Mustek_pp_Drivers[driver_no].driver);
+	      snprintf (driver_name, 64, "%s-ta",
+		    Mustek_pp_Drivers[driver_no].driver);
 
-	  Mustek_pp_Drivers[driver_no].init(CAP_TA, "0x378",
-		    driver_name, sane_attach);
+	      Mustek_pp_Drivers[driver_no].init(CAP_TA, devices[device_no],
+		        driver_name, sane_attach);
+	    }
 	}
 
+      free (devices);
       return SANE_STATUS_GOOD;
     }
 

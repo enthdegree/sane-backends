@@ -84,7 +84,7 @@ debug_drv_capabilities(SANE_Int info __UNUSED__, SANE_String *model,
 {
 
 	*model = strdup("debugger");
-	*vendor = strdup("Jochen Eisinger");
+	*vendor = strdup("mustek_pp");
 	*type = strdup("software emulated");
 	*maxres = 300;
 	*minres = 50;

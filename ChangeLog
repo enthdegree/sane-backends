@@ -1,3 +1,9 @@
+2003-02-28  Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
+
+	* backend/canon-sane.c: Adjusted to use the new sanei_constrain_value
+	  function; made some cosmetic changes to reduce the number of compiler
+	  warnings
+
 2003-02-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c  backend/gt68xx.conf backend/gt68xx_devices.c

@@ -27,10 +27,13 @@ Parallel port and USB scanners are not supported by this backend; see
 the manual pages for sane-canon_pp and sane-canon630u for further
 information.
 .PP
-IMPORTANT: this is alpha code. Don't expect this to work
-correctly. Some functions are missing, others contain errors. In some
-cases your computer might even hang. It cannot be excluded (although
-I consider it extremely unlikely) that your scanner will be damaged.
+IMPORTANT: This is beta code. We tested the code on the scanners listed
+above, using the computers and operating systems available to us, but we
+cannot guarantee that the backend will work smoothly with future operating
+systems, SCSI adapters, SANE frontend programs, or Canon scanners not
+contained in the list above. In some cases your computer might even hang.
+It cannot be excluded (although we consider it extremely unlikely) that your
+scanner will be damaged.
 .PP
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
 Manuel Panea <mpd@rzg.mpg.de>; for questions concerning the FB620 and
@@ -43,7 +46,7 @@ FS2710S Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>.
 Scanning either slides or negatives has been found to require rather
 large gamma corrections of about 2.2 to 2.4 (same value for red, green, 
 and blue). It is recommended to use the automatic exposure controls
-of the front end xsane for best results.
+of the frontend xsane for best results.
 .PP
 The "Auto Focus" function triggers a special pass to determine the focus
 value. After that, the real scanning pass takes place.

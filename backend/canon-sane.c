@@ -1,5 +1,3 @@
-/**************************************************************************/
-
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
@@ -490,8 +488,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	return (SANE_STATUS_INVAL);
 
-      status = sanei_constrain_value2 (s->opt + option, val, info,
-	       SANEI_CONSTRAIN_CLIP | SANEI_CONSTRAIN_ROUND);
+      status = sanei_constrain_value (s->opt + option, val, info);
 
       if (status != SANE_STATUS_GOOD)
 	return status;
@@ -1850,8 +1847,8 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
-  int i, c;
-  size_t nread, nread2;
+  int c;
+  size_t i, nread, nread2;
   u_char *p, b;
 
   DBG (21, ">> sane_read\n");
@@ -2077,7 +2074,7 @@ SANE_Int * len)
     + (dbuf[22] << 8) + dbuf[23]);
   DBG (5, "Filled Data Buffer=%d\n", (dbuf[24] << 24) + (dbuf[25] << 16)
     + (dbuf[26] << 8) + dbuf[27]);
-  DBG (5, "temp file position:%i\n", lseek(s->tmpfile, 0, SEEK_CUR));
+  DBG (5, "temp file position:%u\n", lseek(s->tmpfile, 0, SEEK_CUR));
   DBG (5, "<< GET DATA STATUS\n");
 
   *len = 0;
@@ -2115,7 +2112,8 @@ SANE_Int * len)
 
 /**** save the primary scan data to tmpfile ****/
 
-     if (s->bytes_to_read > s->params.bytes_per_line * s->params.lines / 2)
+     if ((SANE_Int) s->bytes_to_read > s->params.bytes_per_line
+       * s->params.lines / 2)
        {
          remain = nread;
          nwritten = 0;
@@ -2135,11 +2133,13 @@ SANE_Int * len)
 
         s->bytes_to_read -= nread;
 
-        if (s->bytes_to_read <= s->params.bytes_per_line * s->params.lines / 2)
+        if ((SANE_Int) s->bytes_to_read <= s->params.bytes_per_line
+	  * s->params.lines / 2)
           {
-            if (s->bytes_to_read < s->params.bytes_per_line * s->params.lines / 2)
+            if ((SANE_Int) s->bytes_to_read < s->params.bytes_per_line
+	      * s->params.lines / 2)
               {
-               DBG(1, "warning: read more data for the primary scan than expected\n");
+                DBG(1, "warning: read more data for the primary scan than expected\n");
               }
 
            lseek (s->tmpfile, 0L, SEEK_SET);
@@ -2193,7 +2193,7 @@ SANE_Int * len)
       if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
        {
         maxpix = pixel_per_line / 2;
-        for (pix = 0; pix < maxpix; pix++)
+        for (pix = 0; (int) pix < maxpix; pix++)
          {
            s->outbuffer[6 * pix] = secondimage[3 * pix];
            s->outbuffer[6 * pix + 1] = secondimage[3 * pix + 1];
@@ -2214,10 +2214,12 @@ SANE_Int * len)
       else /* for lineart mode */
        {
         maxpix = byte_per_line / 2;
-        for (byte = 0; byte < maxpix; byte++)
+        for (byte = 0; (int) byte < maxpix; byte++)
          {
-	  s->outbuffer[2 * byte] = primaryHigh[firstimage[byte]] | secondaryHigh[secondimage[byte]];
-	  s->outbuffer[2 * byte + 1] = primaryLow[firstimage[byte]] | secondaryLow[secondimage[byte]];
+	  s->outbuffer[2 * byte] = primaryHigh[firstimage[byte]]
+	    | secondaryHigh[secondimage[byte]];
+	  s->outbuffer[2 * byte + 1] = primaryLow[firstimage[byte]]
+	    | secondaryLow[secondimage[byte]];
 /*
           inmask = 128;
           outmask = 128;
@@ -2347,147 +2349,3 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 }
 
 /**************************************************************************/
-
-/* This is a modified version of sanei/sanei_constrain_value.c :
-   In contrast to the original, this function can round option values
-   to the nearest permitted value instead of simply returning an error
-   message.
-*/
-
-SANE_Status
-sanei_constrain_value2 (const SANE_Option_Descriptor * opt, void * value,
-		       SANE_Word * info, int flags)
-{
-  const SANE_String_Const * string_list;
-  const SANE_Word * word_list;
-  int i, num_matches, match, k;
-  const SANE_Range * range;
-  SANE_Word w, v, vh;
-  SANE_Bool b;
-  size_t len;
-
-  switch (opt->constraint_type)
-    {
-    case SANE_CONSTRAINT_RANGE:
-      w = *(SANE_Word *) value;
-      range = opt->constraint.range;
-
-      if (w < range->min)
-	{
-	  if (flags & SANEI_CONSTRAIN_CLIP)
-	    {
-	      *(SANE_Word *) value = range->min;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	    }
-	  else
-	      return (SANE_STATUS_INVAL);
-	}
-
-      if (w > range->max)
-	{
-	  if (flags & SANEI_CONSTRAIN_CLIP)
-	    {
-	      *(SANE_Word *) value = range->max;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	    }
-	  else
-	      return (SANE_STATUS_INVAL);
-        }
-
-      w = *(SANE_Word *) value;
-      if (range->quant)
-	{
-	  v = (w - range->min + range->quant/2) / range->quant;
-	  v = v * range->quant + range->min;
-	  if (v != w)
-	    {
-	      *(SANE_Word *) value = v;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	    }
-	}
-      break;
-
-    case SANE_CONSTRAINT_WORD_LIST:
-      w = *(SANE_Word *) value;
-      word_list = opt->constraint.word_list;
-      if (flags & SANEI_CONSTRAIN_ROUND)
-	{
-	  for (i = 1, k = 1, v = abs(w - word_list[1]); i <= word_list[0]; i++)
-	    {
-	      if ((vh = abs(w - word_list[i])) < v)
-		{
-		  v = vh;
-		  k = i;
-		}
-	    }
-	  if (w != word_list[k])
-	    {
-	      *(SANE_Word *) value = word_list[k];
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	    }
-	}
-      else
-	{
-	  for (i = 1; w != word_list[i]; ++i)
-	    {
-	      if (i >= word_list[0])
-		return SANE_STATUS_INVAL;
-	    }
-	}
-      break;
-
-    case SANE_CONSTRAINT_STRING_LIST:
-      /* Matching algorithm: take the longest unique match ignoring
-	 case.  If there is an exact match, it is admissible even if
-	 the same string is a prefix of a longer option name. */
-      string_list = opt->constraint.string_list;
-      len = strlen (value);
-
-      /* count how many matches of length LEN characters we have: */
-      num_matches = 0;
-      match = -1;
-      for (i = 0; string_list[i]; ++i)
-	if (strncasecmp (value, string_list[i], len) == 0
-	    && len <= strlen (string_list[i]))
-	  {
-	    match = i;
-	    if (len == strlen (string_list[i]))
-	      {
-		/* exact match... */
-		if (strcmp (value, string_list[i]) != 0)
-		  /* ...but case differs */
-		  strcpy (value, string_list[match]);
-		return SANE_STATUS_GOOD;
-	      }
-	    ++num_matches;
-	  }
-
-      if (num_matches > 1)
-	return SANE_STATUS_INVAL;
-      else if (num_matches == 1)
-	{
-	  strcpy (value, string_list[match]);
-	  return SANE_STATUS_GOOD;
-	}
-      return SANE_STATUS_INVAL;
-      
-    case SANE_CONSTRAINT_NONE:
-      switch (opt->type)
-	{
-	case SANE_TYPE_BOOL:
-	  b = *(SANE_Bool *) value;
-	  if (b != SANE_TRUE && b != SANE_FALSE)
-	    return SANE_STATUS_INVAL;
-	  break;
-	default:
-	  break;
-	}
-    default:
-      break;
-    }
-  return SANE_STATUS_GOOD;
-}

@@ -95,14 +95,10 @@
 #define TPU_STAT_INACTIVE	1
 #define TPU_STAT_ACTIVE		2
 
-#define SANEI_CONSTRAIN_STRICT	0	/* for sanei_constrain_value2() */
-#define SANEI_CONSTRAIN_CLIP	1
-#define SANEI_CONSTRAIN_ROUND	2
-
 #define CS3_600  0		/* CanoScan 300/600 */
 #define CS2700   1		/* CanoScan 2700F */
 #define FB620    2		/* CanoScan FB620S */
-#define FS2710   3		/* CanoScan FS2710 */
+#define FS2710   3		/* CanoScan FS2710S */
 #define FB1200   4		/* CanoScan FB1200S */
 
 #ifndef MAX
@@ -331,7 +327,7 @@ typedef struct CANON_Scanner
   size_t bytes_to_read;
   int scanning;
 
-  u_char gamma_map[4][4096];	/* for FS2710: */
+  u_char gamma_map[4][4096];	/* for FS2710S: */
   int colour;			/* index to gamma_map */
   int auxbuf_len;		/* size of auxiliary buffer */
   u_char *auxbuf;

@@ -339,7 +339,7 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
       sense = result[2] & 0x0f;		/* extract the sense key */
       if (result[7] > 3)		/* additional sense code available? */
 	{
-	  asc = result[12] << 8 + result[13];	/* 12: additional sense code */
+	  asc = (result[12] << 8) + result[13];	/* 12: additional sense code */
 	}					/* 13: a.s.c. qualifier */
       else
 	asc = 0xffff;

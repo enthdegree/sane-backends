@@ -1,3 +1,7 @@
+2001-10-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* TODO: Removed entries about hp and plustek backends.
+	
 2001-10-04  Peter Kirchgessner <peter@kirchgessner.net>
 
         * backend/hp-accessor.c hp-device.c hp-handle.c hp-hpmem.c

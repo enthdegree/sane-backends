@@ -1,3 +1,7 @@
+2000-11-21 Abel Deuring <a.deuring@satzbau-gmbh.de>
+	* backend/sharp.c, backend/sharp.desc, doc/sharp.man: Support
+	  for JX320 added	
+
 2000-11-21  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* AUTHORS: Added FUKUDA Kazuya for the nec Backend. Used spaces instead 
@@ -47,6 +51,7 @@
 	  SANE interface for user authorization using MD5 digest
 	* lib/Makefile.in sanei/Makefile.in: updated Makefiles
 
+>>>>>>> 1.53
 2000-11-19  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Removed one debug output statement.

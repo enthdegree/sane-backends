@@ -1,4 +1,104 @@
 -*-Mode: outline-*-
+
+New with 1.0.7, released 2002-02-04:
+
+* New backend: umax1220u (for UMAX Astra 1220U and 2000U scanners).
+* Updated backends: avision (v 1.0.15), dc240 (v 0.0), dc25 (v 1.2),
+  dll (v 1.0.5), epson (v 1.0.219), gphoto2 (v 0.0), microtek2 (v 0.95),
+  mustek (1.0.118), mustek_usb (v 1.0.10), plustek (v 0.41), pnm (v 1.0.4),
+  sharp (v 0.32), snapscan (v 1.4.7), st400 (v 1.6), umax (v 1.0-32), 
+  umax_pp (v 1.0.6).
+* Added support for translating backend options.
+* Added support for USB control messages and lm983x and pv6830 chipsets.
+* Better documentation of internal functions (sanei).
+* Fixed several security issues with temporary files.
+* Fixed several issues in the networking code.
+* Portability fixes (especially for OS/2, FreeBSD, and OpenBSD).
+* Scanimage fixes concerning TIFF output and signal handling.
+* Documentation updates.
+* Bugfixes.
+
+New with 1.0.6, released 2001-11-05:
+
+* New backends: gphoto2 (backend for gphoto2 supported cameras), mustek_usb
+  (for Mustek USB scanners 600CU, 1200CU(+), 1200UB).
+* Updated backends: dc240 (v 0.0), epson (v 0.2.12), hp (0.95), 
+  m3096g (v 1.11), microtek2 (v 0.95), mustek (v1.0-113), net (v 1.0.5),
+  pie (1.0-7), pnm (1.0-2), snapscan (v 1.4.0), umax (1.0-31), umax_pp (1).
+* Added generic support for USB devices.
+* Added USB support to sane-find-scanner.
+* Code and documentation updates for HP UX compatibility.
+* Documentation updates.
+* Bugfixes.
+
+New with 1.0.5, released 2001-07-01:
+
+* New backends: bh (Bell+Howell Copiscan II series), dc240 (Kodak DC240
+  Digital Camera), sm3600 (Microtek ScanMaker 3600), umax_pp (Umax paralell
+  port scanners).
+* Updated backends: artec (v0.5.16), dc25 (v1.2), dll (v1.0.3),
+  epson (v0.2.08), hp (v0.94), microtek (v0.12.3), microtek2(v0.9),
+  mustek (v1.0-107), nec (v0.12), net (v1.0.3), plustek (v0.39), pnm (v1.0.1),
+  snapscan (v1.2), tamarack (v0.5), umax (v1.0-28).
+* Fixed security bug in saned.c that allowed access to scanner without
+  password.
+* pnm isn't installed by default anymore due to security risks
+* Linux-part of sanei_scsi.c was updated concerning buffersizes, devfs, and
+  kernel 2.4. More debug output.
+* sanei_scsi_find_devices works on FreeBSD now.
+* Added support for Solaris sgen SCSI driver.
+* find-scanner was renamed to sane-find-scanner and is installed now. Further
+  more it has a man page now.
+* There is a testsuite for sane, but only one test is implemented yet.
+* Better output about versions of backends and frontends.
+* There is a man page for SANE now (sane(7)).
+* Install all available documentation.
+* Bugfixes.
+
+
+New with 1.0.4, released 2000-12-21:
+
+* New backends: as6e, nec, pie.
+* Updated backends: artec (v0.5.15), avision (v0.2.1), epson (v0.1.39),
+  hp (v0.93), mustek (v1.0-102), mustek_pp (v0.9-devel), plustek (v0.38),
+  sharp (v0.32), umax (v1.0-21).
+* Moved frontends xscanimage and xcam to a new package (sane-frontends).
+* Added authentification with encrypted passwords.
+* Installation of shared libraries on AIX is supported now.
+* Fixed compilation bugs on Irix and FreeBSD.
+* Better debug output on platforms not supporting vararg macros.
+* Better documentation about SANE devicenames.
+* Bugfixes.
+
+New with 1.0.3, released 2000-08-12:
+
+* New backends: mustek_pp, plustek, st400, v4l.
+* Updated backends: Artec (v0.5.14), Coolscan (v0.4.3), Epson (v0.1.33),
+  HP (v0.88), Mustek (v1.0-96), Sharp (v0.31), UMAX (v1.0-21).
+* Removed backend info sagitta.desc due to lack of interest.
+* Installing no longer depends on 'rev'.
+* Added and structured documentation.
+* Every backend has a man page now.
+* Debug messages are now sent to syslog if stderr is a socket.
+* New 16 bit support to scanimage.
+* Bugfixes.
+
+New with 1.0.2, released 2000-03-06:
+* Aliased and hidden backend support.
+* Port to UnixWare 2.x and UnixWare 7.
+* New script 'sane-config' to help frontend developers.
+* Added Ricoh IS50 support.
+* Updated backends: Artec (v0.5.13), CANON (v991108), DC-25 (1.2), HP
+  (v0.86), Microtek (0.12.0), Microtek2 (v0.8), UMAX (v1.0-build-18),
+  Epson (v0.1.15), Sharp (v0.30), sp15c (1.12) and m3096g (1.11).
+* Automatic document feeder support for scanimage.
+* New backend for Avision AV 630 CS.
+* New Linux SCSI Generic driver.
+* Upgraded to libtool 1.3.4
+* GIMP compatibility patch.
+* OS/2 patches.
+* Bugfixes.
+
 New with 1.01:
 
 * Miscellaneous

@@ -16,8 +16,8 @@
 
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.11 - 2001-10-19"
-#define SANE_EPSON_BUILD	211
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.12 - 2001-10-28"
+#define SANE_EPSON_BUILD	212
 
 /*
    This file is part of the SANE package.
@@ -59,6 +59,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2001-10-28   Fixed bug with 1650 recognition
    2001-06-09   Version 0.2.09
 		Changed debug level for sense handler from 0 to 2
    2001-05-25	Version 0.2.07
@@ -1914,7 +1915,7 @@ static SANE_Status attach ( const char * dev_name, Epson_Device * * devp) {
  * is the vertical range is smaller than the horizontal range.
  */
 
-  if ((dev->x_range->max - dev->x_range->min) > (dev->y_range->max - dev->y_range->max))
+  if ((dev->x_range->max - dev->x_range->min) > (dev->y_range->max - dev->y_range->min))
   {
     dev->y_range->max += (dev->y_range->max - dev->y_range->min);
     dev->need_double_vertical = SANE_TRUE;

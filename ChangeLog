@@ -1,4 +1,7 @@
 2004-01-14  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/u12.c: Fixed preview bug.
+
+2004-01-14  Gerhard Jaeger <gerhard@gjaeger.de>
 	* descriptions/u12.desc: fixed wrong man-page reference, status updates.
 	* backend/u12.c backend/u12.h backend/u12-hwdef.h backend/u12-scanner.h
 	  backend/u12-*.c: bump up version, fixed device autodetection and corrupted

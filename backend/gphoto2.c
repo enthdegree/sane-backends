@@ -327,7 +327,7 @@ static SANE_Char cmdbuf[256];
 /* Structures used by gphoto2 API */
 static CameraAbilities abilities;
 static CameraFile *data_file;
-static const char *data_ptr;
+static const unsigned char *data_ptr;
 static unsigned long data_file_total_size, data_file_current_index;
 
 static SANE_Int hack_fd;
@@ -1436,9 +1436,10 @@ sane_start (SANE_Handle handle)
     }
 
   CHECK_RET (gp_file_get_data_and_size
-	     (data_file, &data_ptr, &data_file_total_size));
+	     (data_file, (const char **)&data_ptr, &data_file_total_size));
 
-  converter_init ();
+  if ( converter_init (handle) != SANE_STATUS_GOOD )
+    return SANE_STATUS_INVAL;
 
   /* Check if a linebuffer has been allocated.  If we had one 
    * previously, free it up and allocate one for (possibly) new
@@ -1561,7 +1562,7 @@ sane_set_io_mode (SANE_Handle UNUSEDARG handle, SANE_Bool
  * sane_get_select_fd() - From SANE API
  */
 SANE_Status
-sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int * UNUSEDARG fd)
+sane_get_select_fd (SANE_Handle UNUSEDARG handle, SANE_Int UNUSEDARG *  fd)
 {
   return SANE_STATUS_UNSUPPORTED;
 }
@@ -1931,14 +1932,21 @@ converter_scan_complete (void)
  *	Currently assumes jpeg, but this is where we would put the 
  *	switch to handle other image types.
  */
-static void
-converter_init (void)
+static SANE_Status
+converter_init (SANE_Handle handle)
 {
   SANE_Int row_stride;
   struct jpeg_error_mgr jerr;
   my_src_ptr src;
 
   data_file_current_index = 0;
+
+  /* Basic check to see if this is really a jpeg file */
+  if ( data_ptr[0] != 0xff || data_ptr[1] != 0xd8 ) {
+    sane_cancel(handle);
+exit(1);
+    return SANE_STATUS_INVAL;
+  }
 
   cinfo.err = jpeg_std_error (&jerr);
   jpeg_create_decompress (&cinfo);
@@ -1974,4 +1982,6 @@ converter_init (void)
 
   linebuffer_size = 0;
   linebuffer_index = 0;
+
+  return(SANE_STATUS_GOOD);
 }

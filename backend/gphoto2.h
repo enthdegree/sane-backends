@@ -197,4 +197,4 @@ static SANE_Int converter_fill_buffer (void);
 
 static SANE_Bool converter_scan_complete (void);
 
-static void converter_init (void);
+static static SANE_Status converter_init (SANE_Handle handle);

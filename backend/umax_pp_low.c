@@ -2466,6 +2466,8 @@ PausedReadData (int size, unsigned char *dest)
   int tmp;
   int read;
 
+  EPPREGISTERWRITE (0x0E, 0x0D);
+  EPPREGISTERWRITE (0x0F, 0x00);
   reg = EPPRegisterRead (0x19) & 0xF8;
   if ((reg != 0xC0) && (reg != 0xD0))
     {
@@ -2474,7 +2476,7 @@ PausedReadData (int size, unsigned char *dest)
       return (0);
     }
   EPPREGISTERREAD (0x0C, 0x04);
-  EPPREGISTERWRITE (0x0C, 0x44);
+  EPPREGISTERWRITE (0x0C, 0x44);	/* sets data direction ? */
   EPPRead32Buffer (0x0, dest);
   read = PausedReadBuffer (size, dest);
   if (read < size)
@@ -2687,8 +2689,69 @@ FoncSendWord (int *cmd)
 }
 
 
+int
+CmdSetDataBuffer (int *data)
+{
+  int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };	/* 34 bytes write on channel 8 */
+  int cmd2[] =
+    { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
+      0x00, 0x20, 0x02, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, -1 };
+  int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write on channel 4 (data) */
+  int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read on channel 4 (data) */
+  int i;
+  unsigned char dest[2048];
 
+  /* CmdSet(8,34,cmd2), but without prologue/epilogue */
+  /* set block length to 34 bytes on 'channel 8' */
+  SendWord (cmd1);
+  DBG (16, "SendWord(cmd1) passed (%s:%d) \n", __FILE__, __LINE__);
 
+  /* SendData */
+  SendData (cmd2, 0x22);
+  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
+
+  if (DBG_LEVEL >= 128)
+    {
+      Bloc8Decode (cmd2);
+    }
+
+  /* set block length to 2048, write on 'channel 4' */
+  SendWord (cmd3);
+  DBG (16, "SendWord(cmd3) passed (%s:%d) \n", __FILE__, __LINE__);
+
+  if (SendData (data, 2048) == 0)
+    {
+      DBG (0, "SendData(data,%d) failed (%s:%d)\n", 2048, __FILE__, __LINE__);
+      return (0);
+    }
+  TRACE (16, "SendData(data,2048) passed ...");
+
+  /* read back all data sent to 'channel 4' */
+  SendWord (cmd4);
+  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
+
+  if (PausedReadData (2048, dest) == 0)
+    {
+      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
+
+  /* dest should hold the same datas than donnees */
+  for (i = 0; i < 2047; i++)
+    {
+      if (data[i] != (int) (dest[i]))
+	{
+	  DBG
+	    (0,
+	     "Warning data read back differs: expected %02X found dest[%d]=%02X ! (%s:%d)\n",
+	     data[i], i, dest[i], __FILE__, __LINE__);
+	}
+    }
+  return (1);
+}
 
 
 
@@ -2952,27 +3015,21 @@ sanei_umax_pp_InitScanner (int recover)
     {				/* homing needed, readcmd[34] should be 0x48 */
       int op01[17] =
 	{ 0x01, 0x00, 0x32, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x17, 0x05, 0x00,
-	0x00, 0x00, 0x80, 0xE4, 0x00, -1
-      };
+	  0x00, 0x00, 0x80, 0xE4, 0x00, -1 };
       int op05[17] =
 	{ 0x01, 0x00, 0x01, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x13, 0x05, 0x00,
-	0x00, 0x00, 0x80, 0xF0, 0x00, -1
-      };
+	  0x00, 0x00, 0x80, 0xF0, 0x00, -1 };
       int op02[37] =
 	{ 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40,
-	0x01, 0x00, 0x20, 0x02, 0x00, 0x16, 0x00, 0x70, 0x9F, 0x06, 0x00,
-	0x00, 0xF6, 0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
-	0x0B, 0x1A, 0x00, -1
-      };
+	  0x01, 0x00, 0x20, 0x02, 0x00, 0x16, 0x00, 0x70, 0x9F, 0x06, 0x00,
+	  0x00, 0xF6, 0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
+	  0x0B, 0x1A, 0x00, -1 };
       int op04[37] =
 	{ 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1,
-	0x80, 0x00, 0x20, 0x02, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03,
-	0x00, 0x00, 0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
-	0x0B, 0x1A, 0x00, -1
-      };
+	  0x80, 0x00, 0x20, 0x02, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03,
+	  0x00, 0x00, 0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF,
+	  0x0B, 0x1A, 0x00, -1 };
       int op03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0xFF, 0xFF, -1 };
-
-
 
       CMDSYNC (0xC2);
       CMDSETGET (0x02, 16, op01);
@@ -3628,23 +3685,14 @@ Probe610P (int recover)
 int
 sanei_umax_pp_ProbeScanner (int recover)
 {
-  int tmp, i, j, k;
+  int tmp, i, j;
   int reg;
-  int read;
   unsigned char *dest = NULL;
-  int donnees[2049];
+  int initbuf[2049];
+  int voidbuf[2049];
   int val;
   int zero[5] = { 0, 0, 0, 0, -1 };
   int model;
-  int cmd1[] = { 0x00, 0x00, 0x22, 0x88, -1 };
-  int cmd2[] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-    0x00, 0x03, 0xC1, 0x80, 0x00, 0x20, 0x02, 0x00,
-    0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x10, -1
-  };
-  int cmd3[] = { 0x00, 0x08, 0x00, 0x84, -1 };	/* 2048 bytes size write */
-  int cmd4[] = { 0x00, 0x08, 0x00, 0xC4, -1 };	/* 2048 bytes size read */
 
   /* save and set CONTROL */
   tmp = (Inb (CONTROL)) & 0x1F;
@@ -3952,10 +4000,12 @@ sanei_umax_pp_ProbeScanner (int recover)
       if (reg == 0xFF)
 	{
 	  /* EPP mode not set */
-	  DBG(0, "\n*** It appears that EPP data transfer doesn't work      ***");
-	  DBG(0, "*** Please read EPP MODE ONLY section in sane-umax_pp.5 ***\n");
+	  DBG (0,
+	       "\n*** It appears that EPP data transfer doesn't work    ***");
+	  DBG (0,
+	       "*** Please read SETTING EPP section in sane-umax_pp.5 ***\n");
 	}
-      return(0);
+      return (0);
     }
   else
     {
@@ -4348,510 +4398,83 @@ sanei_umax_pp_ProbeScanner (int recover)
   reg = EPPRegisterRead (0x19) & 0xC8;
   /* if reg=E8 or D8 , we have a 'messed' scanner */
 
-  for (k = 0; k < 1; k++)
+  /* 4 tranform buffers + 'void' are sent: 1 B&W, and 3 RGB ? */
+  memset (initbuf, 0x00, 2048 * sizeof (int));
+  memset (voidbuf, 0x00, 2048 * sizeof (int));
+
+  initbuf[512] = 0xFF;
+  initbuf[513] = 0xAA;
+  initbuf[514] = 0x55;
+
+  for (j = 0; j < 4; j++)
     {
-      /* is SendLength 34 bytes */
-      SendWord (cmd1);
-
-      DBG (16, "SendWord(cmd1) passed (%s:%d) \n", __FILE__, __LINE__);
-      /* SendData */
-      SendData (cmd2, 0x22);
-      DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
-
-      /* is SendLength 2048 bytes */
-      SendWord (cmd3);
-      DBG (16, "SendWord(cmd3) passed (%s:%d) \n", __FILE__, __LINE__);
-
-      /* fill buffer ? */
-      memset (donnees, 0x00, 2048 * sizeof (int));
-      donnees[512] = 0xFF;
-      donnees[513] = 0xAA;
-      donnees[514] = 0x55;
-      if (SendData (donnees, 2048) == 0)
+      for (i = 0; i < 256; i++)
 	{
-	  DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
+	  voidbuf[512 * j + 2 * i] = i;
+	  voidbuf[512 * j + 2 * i] = 0xFF - i;
+	}
+    }
+
+  /* one pass (B&W ?) */
+  if (CmdSetDataBuffer (initbuf) != 1)
+    {
+      DBG (0, "CmdSetDataBuffer(initbuf) failed ! (%s:%d) \n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "CmdSetDataBuffer(initbuf) passed... (%s:%d)\n", __FILE__,
+       __LINE__);
+  if (CmdSetDataBuffer (voidbuf) != 1)
+    {
+      DBG (0, "CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n", __FILE__,
+	   __LINE__);
+      return (0);
+    }
+  DBG (16, "CmdSetDataBuffer(voidbuf) passed... (%s:%d)\n", __FILE__,
+       __LINE__);
+
+  /* everything above the FF 55 AA tag is 'void' */
+  /* it seems that the buffer is reused and only the beginning is initalized */
+  for (i = 515; i < 2048; i++)
+    initbuf[i] = voidbuf[i];
+
+  /* three pass (RGB ?) */
+  for (i = 0; i < 3; i++)
+    {
+      if (CmdSetDataBuffer (initbuf) != 1)
+	{
+	  DBG (0, "CmdSetDataBuffer(initbuf) failed ! (%s:%d) \n", __FILE__,
 	       __LINE__);
 	  return (0);
 	}
-      TRACE (16, "SendData(donnees,2048) passed ...");
-
-
-      SendWord (cmd4);
-      DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-      EPPREGISTERWRITE (0x0E, 0x0D);
-      EPPREGISTERWRITE (0x0F, 0x00);
-
-
-      reg = EPPRegisterRead (0x19) & 0xF8;
-      if ((reg != 0xD0) && (reg != 0xC0))
-	{
-	  DBG (0, "Expected reg19=0xD0 or 0xC0, got 0x%02X! (%s:%d)\n", reg,
-	       __FILE__, __LINE__);
-	  DBG (0, "Going on .....\n");
-	}
-      EPPREGISTERREAD (0x0C, 0x04);
-      EPPREGISTERWRITE (0x0C, 0x44);
-      EPPRead32Buffer (0x0, dest);
-      read = PausedReadBuffer (2048, dest);
-      DBG (16, "PausedReadBuffer(2048,dest)=%d passed (%s:%d)\n", read,
+      DBG (16, "Loop %d: CmdSetDataBuffer(initbuf) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
-      EPPREGISTERWRITE (0x0E, 0x0D);
-      EPPREGISTERWRITE (0x0F, 0x00);
-
-
-      /* dest should hold the same datas than donnees */
-      for (i = 0; i < 2047; i++)
+      if (CmdSetDataBuffer (voidbuf) != 1)
 	{
-	  if (donnees[i] != (int) (dest[i]))
-	    {
-	      DBG
-		(0,
-		 "Warning data read back differs: expected %02X found dest[%d]=%02X ! (%s:%d)\n",
-		 donnees[i], i, dest[i], __FILE__, __LINE__);
-	    }
-	}
-
-
-
-      if (SendWord (cmd1) == 0)
-	{
-	  DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
+	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n",
+	       __FILE__, __LINE__);
 	  return (0);
 	}
-      DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-      SendData (cmd2, 0x22);
-      DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
-
-
-      if (SendWord (cmd3) == 0)
-	{
-	  DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-	  return (0);
-	}
-      DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-
-      /* send buffer 2048 bytes wide */
-      for (j = 0; j < 4; j++)
-	{
-	  for (i = 0; i < 256; i++)
-	    {
-	      donnees[512 * j + 2 * i] = i;
-	      donnees[512 * j + 2 * i] = 0xFF - i;
-	    }
-	}
-
-      if (SendData (donnees, 2048) == 0)
-	{
-	  DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	       __LINE__);
-	  return (0);
-	}
-      TRACE (16, "SendData(donnees,2048) passed ...");
-      SendWord (cmd4);
-      DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-      EPPREGISTERWRITE (0x0E, 0x0D);
-      EPPREGISTERWRITE (0x0F, 0x00);
-
-
-
-      if (PausedReadData (2048, dest) == 0)
-	{
-	  DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return (0);
-	}
-      DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__,
-	   __LINE__);
     }
 
 
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
-
-  if (SendWord (cmd3) == 0)
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  i = 0;
-  while (i < 512)
-    {
-      donnees[i] = 0x00;
-      i++;
-    }
-  donnees[i] = 0xFF;
-  i++;
-  donnees[i] = 0xAA;
-  i++;
-  donnees[i] = 0x55;
-  i++;
-  donnees[i] = 0xFE;
-  i++;
-
-  for (i = 2; i < 256; i++)
-    {
-      donnees[512 + 2 * i] = i;
-      donnees[512 + 2 * i + 1] = 0xFF - i;
-    }
-  for (j = 0; j < 2; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[1024 + 512 * j + 2 * i] = i;
-	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
-	}
-    }
-
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-
-  SendWord (cmd4);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
-  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-  /* write 2048 bytes: 4 * 512 bytes */
-  for (j = 0; j < 4; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[j * 512 + 2 * i] = i;
-	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
-	}
-    }
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  return (1);			/* OK */
-
-  SendWord (cmd4);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
-
-  if (SendWord (cmd3) == 0)
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  i = 0;
-  while (i < 512)
-    {
-      donnees[i] = 0x00;
-      i++;
-    }
-  donnees[i] = 0xFF;
-  i++;
-  donnees[i] = 0xAA;
-  i++;
-  donnees[i] = 0x55;
-  i++;
-  donnees[i] = 0xFE;
-  i++;
-
-  for (i = 2; i < 256; i++)
-    {
-      donnees[512 + 2 * i] = i;
-      donnees[512 + 2 * i + 1] = 0xFF - i;
-    }
-  for (j = 0; j < 2; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[1024 + 512 * j + 2 * i] = i;
-	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
-	}
-    }
-
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  SendWord (cmd4);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
-  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-  /* write 2048 bytes: 4 * 512 bytes */
-  for (j = 0; j < 4; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[j * 512 + 2 * i] = i;
-	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
-	}
-    }
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  return (1);			/* OK */
-
-  SendWord (cmd4);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2) passed (%s:%d) \n", __FILE__, __LINE__);
-
-  if (SendWord (cmd3) == 0)
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  i = 0;
-  while (i < 512)
-    {
-      donnees[i] = 0x00;
-      i++;
-    }
-  donnees[i] = 0xFF;
-  i++;
-  donnees[i] = 0xAA;
-  i++;
-  donnees[i] = 0x55;
-  i++;
-  donnees[i] = 0xFE;
-  i++;
-
-  for (i = 2; i < 256; i++)
-    {
-      donnees[512 + 2 * i] = i;
-      donnees[512 + 2 * i + 1] = 0xFF - i;
-    }
-  for (j = 0; j < 2; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[1024 + 512 * j + 2 * i] = i;
-	  donnees[1024 + 512 * j + 2 * i + 1] = 0xFF - i;
-	}
-    }
-
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  SendWord (cmd4);
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-  DBG (16, "SendWord(cmd4) passed (%s:%d) \n", __FILE__, __LINE__);
-
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-  if (SendWord (cmd1) == 0)
-    {
-      DBG (0, "SendWord(cmd1) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd1) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  SendData (cmd2, 0x22);
-  DBG (16, "SendData(cmd2,0x22) passed (%s:%d) \n", __FILE__, __LINE__);
-  if (SendWord (cmd3) == 0)	/* write 2048 to channel 4 */
-    {
-      DBG (0, "SendWord(cmd3) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd3) passed (%s:%d)\n", __FILE__, __LINE__);
-  /* write 2048 bytes: 4 * 512 bytes */
-  for (j = 0; j < 4; j++)
-    {
-      for (i = 0; i < 256; i++)
-	{
-	  donnees[j * 512 + 2 * i] = i;
-	  donnees[j * 512 + 2 * i + 1] = 0xFF - i;
-	}
-    }
-  if (SendData (donnees, 2048) == 0)
-    {
-      DBG (0, "SendData(donnees,%d) failed (%s:%d)\n", 2048, __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  TRACE (16, "SendData(donnees,2048) passed ...");
-
-  return (1);			/* OK */
-
-
-
-  /* we re read the buffer to ensure it has been correctly loaded */
-  if (SendWord (cmd4) == 0)
-    {
-      DBG (0, "SendWord(cmd4) failed (%s:%d)\n", __FILE__, __LINE__);
-      return (0);
-    }
-  DBG (16, "SendWord(cmd4) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-  EPPREGISTERWRITE (0x0E, 0x0D);
-  EPPREGISTERWRITE (0x0F, 0x00);
-
-
-  if (PausedReadData (2048, dest) == 0)
-    {
-      DBG (16, "PausedReadData(2048,dest) failed (%s:%d)\n", __FILE__,
-	   __LINE__);
-      return (0);
-    }
-  DBG (16, "PausedReadData(2048,dest) passed (%s:%d)\n", __FILE__, __LINE__);
-
-
-
+  /* memory size testing ? */
+  /* load 150 Ko in scanner */
   EPPREGISTERWRITE (0x1A, 0x00);
   EPPREGISTERWRITE (0x1A, 0x0C);
   EPPREGISTERWRITE (0x1A, 0x00);
   EPPREGISTERWRITE (0x1A, 0x0C);
-  EPPREGISTERWRITE (0x0A, 0x11);
+
+  EPPREGISTERWRITE (0x0A, 0x11); /* start */
   for (i = 0; i < 150; i++)
     {
       EPPWrite32Buffer (0x400, dest);
       DBG (16, "Loop %d: EPPWrite32Buffer(0x400,dest) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
     }
-  EPPREGISTERWRITE (0x0A, 0x18);
+  EPPREGISTERWRITE (0x0A, 0x18); /* end */
+
+  /* read them back */
   EPPREGISTERWRITE (0x0A, 0x11);	/*start transfert */
   for (i = 0; i < 150; i++)
     {
@@ -4859,11 +4482,11 @@ sanei_umax_pp_ProbeScanner (int recover)
       DBG (16, "Loop %d: EPPRead32Buffer(0x400,dest) passed... (%s:%d)\n", i,
 	   __FILE__, __LINE__);
     }
-
-  /* this bloc is almost CmdSync(0x0) */
   EPPREGISTERWRITE (0x0A, 0x18);	/*end transfer */
 
 
+
+  /* almost CmdSync(0x00) which halts any pending operation */
   if (Fonc001 () != 1)
     {
       DBG (0, "Fonc001() failed ! (%s:%d) \n", __FILE__, __LINE__);
@@ -4880,7 +4503,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 
 
   /* end transport init */
-  /* now high level protocol begins */
+  /* now high level (connected) protocol begins */
   val = sanei_umax_pp_InitScanner (recover);
   if (val == 0)
     {
@@ -5805,7 +5428,7 @@ Bloc2Decode (int *op)
   else
     color = 0;
 
-
+  /* op[6]=0x60 at 600 and 1200 dpi */
   if ((op[8] == 0x17) && (op[9] != 0x05))
     dpi = 150;
   if ((op[8] == 0x17) && (op[9] == 0x05))
@@ -6156,15 +5779,14 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 static int
 Move (int distance, int precision, unsigned char *buffer)
 {
-  int header[17] = { 0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F,
-    0x2F, 0x01, 0x00, 0x00, 0x00, 0x80, 0xA4, 0x00, -1
-  };
-  int body[37] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
-    0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
-    0xDF, 0x13, 0x1A, 0x00, -1
-  };
+  int header[17] =
+    { 0x01, 0x00, 0x00, 0x20, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x01, 0x00, 0x00,
+      0x00, 0x80, 0xA4, 0x00, -1 };
+  int body[37] =
+    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0xF6, 0x79, 0xBF, 0x01, 0x00, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+      -1 };
   int end[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int steps, len;
   unsigned char tmp[0x200];
@@ -6307,15 +5929,14 @@ MoveToOrigin (void)
   unsigned char buffer[54000];
   float edge;
   int val, delta;
-  int header[17] = { 0xB4, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F,
-    0x2F, 0x05, 0x00, 0x00, 0x00, 0x80, 0xA4, 0x00, -1
-  };
-  int body[37] = { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C,
-    0x00, 0x04, 0x40, 0x01, 0x00, 0x00, 0x04, 0x00,
-    0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
-    0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68,
-    0xDF, 0x13, 0x1A, 0x00, -1
-  };
+  int header[17] =
+    { 0xB4, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x05, 0x00, 0x00,
+      0x00, 0x80, 0xA4, 0x00, -1 };
+  int body[37] =
+    { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0xFB, 0xC4, 0xE5, 0x06, 0x00, 0x00, 0x60,
+      0x4D, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+      -1 };
   int end[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc03[9] = { 0x00, 0x00, 0x00, 0xAA, 0xCC, 0xEE, 0x80, 0xFF, -1 };
 
@@ -6409,35 +6030,28 @@ WarmUp (int color, int *gain)
   int opsc10[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x08, 0x00, -1 };
   int opsc18[17] =
     { 0x01, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x88, 0x08,
-    0x00, 0x80, 0xA4, 0x00, -1
-  };
+      0x00, 0x80, 0xA4, 0x00, -1 };
   int opsc38[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0x18, 0x10, 0x03, 0x06, 0x00, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0x18, 0x10, 0x03, 0x06, 0x00, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+      -1 };
   int opsc39[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00,
-    0x6E, 0x41, 0x20, 0x24, 0x06, 0x00, 0x00, 0x00, 0x46, 0xA0, 0x00, 0x8B,
-    0x49, 0x2A, 0xE9, 0x68,
-    0xDF, 0x13, 0x1A, 0x00, -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x20, 0x24, 0x06, 0x00, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+      -1 };
   int opsc40[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x60, 0x4F, 0x06, 0x00, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0x41, 0x60, 0x4F, 0x06, 0x00, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
+      -1 };
   int opsc51[17] =
     { 0x09, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0xA5, 0x09,
-    0x00, 0x40, 0xA4, 0x00, -1
-  };
+      0x00, 0x40, 0xA4, 0x00, -1 };
   int opsc48[17] =
     { 0x09, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x2F, 0x00, 0x00, 0x00,
-    0x00, 0x40, 0xA4, 0x00, -1
-  };
+      0x00, 0x40, 0xA4, 0x00, -1 };
   float offsetX, offsetY, offsetZ;
   float avgX, avgY, avgZ;
 
@@ -6790,14 +6404,12 @@ sanei_umax_pp_Park (void)
 {
   int header[17] =
     { 0x01, 0x00, 0x01, 0x70, 0x00, 0x00, 0x60, 0x2F, 0x13, 0x05, 0x00, 0x00,
-    0x00, 0x80, 0xF0, 0x00, -1
-  };
+      0x00, 0x80, 0xF0, 0x00, -1 };
   int body[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-    0x00, 0x00, 0x04, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x1B, 0x1A, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x16, 0x80, 0x15, 0x78, 0x03, 0x03, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x1B, 0x1A, 0x00,
+      -1 };
   int status = 0x90;
 
   CMDSYNC (0x00);
@@ -6822,20 +6434,17 @@ GammaCalibration (int color, int dpi, int gain, int highlight, int width,
 {
   int opsc32[17] =
     { 0x4A, 0x00, 0x00, 0x70, 0x00, 0x00, 0x60, 0x00, 0x17, 0x05, 0xA5, 0x08,
-    0x00, 0x00, 0xAC, 0x00, -1
-  };
+      0x00, 0x00, 0xAC, 0x00, -1 };
   int opsc41[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xC4,
-    0x5C, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1B, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xC4,
+      0x5C, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1B, 0x00,
+      -1 };
   int opscnb[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x04, 0x40, 0x01,
-    0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xEC,
-    0x54, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x6E, 0x90, 0xD0, 0x47, 0x06, 0x00, 0x00, 0xEC,
+      0x54, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x93, 0x1A, 0x00,
+      -1 };
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc02[9] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, -1 };
   int size;
@@ -7210,20 +6819,17 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   int opsc04[9] = { 0x06, 0xF4, 0xFF, 0x81, 0x1B, 0x00, 0x00, 0x00, -1 };
   int opsc53[17] =
     { 0xA4, 0x80, 0x07, 0x50, 0xEC, 0x03, 0x00, 0x2F, 0x17, 0x07, 0x84, 0x08,
-    0x00, 0x00, 0xAC, 0x00, -1
-  };
+      0x00, 0x00, 0xAC, 0x00, -1 };
   int opsc35[37] =
     { 0x00, 0x00, 0x04, 0x00, 0x02, 0x00, 0x00, 0x0C, 0x00, 0x03, 0xC1, 0x80,
-    0x00, 0x00, 0x04, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
-    0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
-    -1
-  };
+      0x00, 0x00, 0x04, 0x00, 0x16, 0x41, 0xE0, 0xAC, 0x03, 0x03, 0x00, 0x00,
+      0x46, 0xA0, 0x00, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x13, 0x1A, 0x00,
+      -1 };
   int opscan[37] =
     { 0x00, 0x00, 0xB0, 0x4F, 0xD8, 0xE7, 0xFA, 0x10, 0xEF, 0xC4, 0x3C, 0x71,
-    0x0F, 0x00, 0x04, 0x00, 0x6E, 0x61, 0xA1, 0x24, 0xC4, 0x7E, 0x00, 0xAE,
-    0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
-    -1
-  };
+      0x0F, 0x00, 0x04, 0x00, 0x6E, 0x61, 0xA1, 0x24, 0xC4, 0x7E, 0x00, 0xAE,
+      0x41, 0xA0, 0x0A, 0x8B, 0x49, 0x2A, 0xE9, 0x68, 0xDF, 0x33, 0x1A, 0x00,
+      -1 };
 
   DBG (8, "StartScan(%d,%d,%d,%d,%d,%d,%X);\n", x, y, width, height, dpi,
        color, gain);
@@ -7577,6 +7183,8 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   /*opsc53[13] = 0x10;           blue bit */
   /* with cmd 01, may be use to do 3 pass scanning ? */
   /* bits 0 to 3 seem related to sharpness */
+
+
   CMDSETGET (2, 0x10, opsc53);
   CMDSETGET (8, 0x24, opscan);
   CMDSETGET (1, 0x08, opsc04);

@@ -3,9 +3,9 @@
 New with 1.0.4, released ????-??-??:
 
 * New backends: as6e, nec, pie.
-* Updated backends: artec (v0.5.15), avision (v0.2.1), epson (v0.1.38), hp (v0.99),
-  mustek (v1.0-101), mustek_pp (v0.9-devel), plustek (v0.38), sharp (v0.32), umax 
-  (v1.0-21).
+* Updated backends: artec (v0.5.15), avision (v0.2.1), epson (v0.1.39),
+  hp (v0.93), mustek (v1.0-102), mustek_pp (v0.9-devel), plustek (v0.38),
+  sharp (v0.32), umax (v1.0-21).
 * Moved frontends xscanimage and xcam to a new package (sane-frontends).
 * Added authentification with encrypted passwords.
 * Installation of shared libraries on AIX is supported now.

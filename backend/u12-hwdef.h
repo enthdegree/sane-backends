@@ -1,7 +1,7 @@
 /** @file u12-hwdef.h
  *  @brief Definitions for the ASIC.
  *
- * Copyright (c) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (c) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.01 - initial version

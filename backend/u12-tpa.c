@@ -2,8 +2,7 @@
  * @brief Here we find some adjustments according to the scan source.
  *
  * based on sources acquired from Plustek Inc.
- * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.01 - initial version

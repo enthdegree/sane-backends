@@ -3,7 +3,7 @@
  *         the GeneSys Logic GL640 parallel-port to USB bridge.
  *
  * Based on source aquired from Plustek<br>
- * Copyright (c) 2003 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (c) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.01 - initial version

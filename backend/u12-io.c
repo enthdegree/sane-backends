@@ -1,7 +1,7 @@
 /** @file u12-io.c
  *  @brief The I/O functions to the U12 backend stuff.
  *
- * Copyright (c) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (c) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  * GeneSys Logic I/O stuff derived from canon630u-common.c which has
  * been written by Nathan Rutman <nathan@gordian.com>
  *

@@ -1,7 +1,7 @@
 /* @file u12_map.c
  * @brief functions to create and manipulate gamma lookup tables.
  *
- * Copyright (C) 2003 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.01 - initial version

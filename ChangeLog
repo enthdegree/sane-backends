@@ -4,6 +4,8 @@
 	  Update to libtool 1.4.2. Included local changes: use soname "libsane"
 	  for all os but AIX. Use "normal" shared libs (.so) instead of archives
 	  on AIX. Use 1 instead of 2 as major number with Irix.
+	* Makefile.in ltconfig: Removed ltconfig as it is no longer used by 
+	  libtool.
 
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
 

@@ -5,6 +5,8 @@
 	* configure: Regenerated from configure.in.
 	* doc/sane-usb.man: Mentioned control messages, usbfs, and more
 	  methods for permission adjustment.
+	* configure configure.in include/sane/config.h.in: Added define
+	  for strcasecmp on OS/2.
 
 2002-07-06  Max Vorobiev <pcwizard@yandex.ru>
 

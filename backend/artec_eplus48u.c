@@ -132,6 +132,8 @@ static char vendor_string[PATH_MAX];
 static char model_string[PATH_MAX];
 
 static SANE_Bool cancelRead;
+static int isEPro;
+static int eProMult;
 static SANE_Auth_Callback auth = NULL;
 static double gamma_master_default = 1.7;
 static double gamma_r_default = 1.0;
@@ -160,11 +162,6 @@ static SANE_Word resbit_list[] = {
   6,
   50, 100, 200, 300, 600, 1200
 };
-/*static SANE_Word resbit_list[] =
-{
-  6,
-  1200,600,300,200,100,50
-};*/
 
 static SANE_Range brightness_contrast_range = {
   -127,
@@ -201,6 +198,10 @@ static SANE_Word bitdepth_list[] = {
   2, 8, 16
 };
 
+static SANE_Word bitdepth_list2[] = {
+  1, 8
+};
+
 static Artec48U_Exposure_Parameters exp_params;
 static Artec48U_Exposure_Parameters default_exp_params =
   { 0x009f, 0x0109, 0x00cb };
@@ -216,11 +217,11 @@ download_firmware_file (Artec48U_Device * chip)
   int size = -1;
   FILE *f;
 
-  DBG (2, "Try to open firmware file: \"%s\"\n", chip->firmware_path);
+  XDBG ((2, "Try to open firmware file: \"%s\"\n", chip->firmware_path));
   f = fopen (chip->firmware_path, "rb");
   if (!f)
     {
-      DBG (2, "Cannot open firmware file \"%s\"\n", firmwarePath);
+      XDBG ((2, "Cannot open firmware file \"%s\"\n", firmwarePath));
       status = SANE_STATUS_INVAL;
     }
 
@@ -231,19 +232,19 @@ download_firmware_file (Artec48U_Device * chip)
       fseek (f, 0, SEEK_SET);
       if (size == -1)
 	{
-	  DBG (2, "Error getting size of firmware file \"%s\"\n",
-	       chip->firmware_path);
+	  XDBG ((2, "Error getting size of firmware file \"%s\"\n",
+	       chip->firmware_path));
 	  status = SANE_STATUS_INVAL;
 	}
     }
 
   if (status == SANE_STATUS_GOOD)
     {
-      DBG (3, "firmware size: %d\n", size);
+      XDBG ((3, "firmware size: %d\n", size));
       buf = (SANE_Byte *) malloc (size);
       if (!buf)
 	{
-	  DBG (2, "Cannot allocate %d bytes for firmware\n", size);
+	  XDBG ((2, "Cannot allocate %d bytes for firmware\n", size));
 	  status = SANE_STATUS_NO_MEM;
 	}
     }
@@ -253,8 +254,8 @@ download_firmware_file (Artec48U_Device * chip)
       int bytes_read = fread (buf, 1, size, f);
       if (bytes_read != size)
 	{
-	  DBG (2, "Problem reading firmware file \"%s\"\n",
-	       chip->firmware_path);
+	  XDBG ((2, "Problem reading firmware file \"%s\"\n",
+	       chip->firmware_path));
 	  status = SANE_STATUS_INVAL;
 	}
     }
@@ -267,7 +268,7 @@ download_firmware_file (Artec48U_Device * chip)
       status = artec48u_download_firmware (chip, buf, size);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (2, "Firmware download failed\n");
+	  XDBG ((2, "Firmware download failed\n"));
 	}
     }
 
@@ -279,20 +280,21 @@ download_firmware_file (Artec48U_Device * chip)
 static SANE_Status
 init_calibrator (Artec48U_Scanner * s)
 {
-  s->shading_buffer_w = (unsigned char *) malloc (30720);
-  s->shading_buffer_b = (unsigned char *) malloc (30720);
+  XDBG ((2, "Init calibrator size %d\n",30720 * s->dev->epro_mult));
+  s->shading_buffer_w = (unsigned char *) malloc (30720 * s->dev->epro_mult); /*epro*/
+  s->shading_buffer_b = (unsigned char *) malloc (30720 * s->dev->epro_mult); /*epro*/
   s->shading_buffer_white[0] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult * sizeof(unsigned int));/*epro*/
   s->shading_buffer_black[0] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult * sizeof (unsigned int));/*epro*/
   s->shading_buffer_white[1] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult * sizeof (unsigned int));/*epro*/
   s->shading_buffer_black[1] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult *  sizeof (unsigned int));/*epro*/
   s->shading_buffer_white[2] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult *  sizeof (unsigned int));/*epro*/
   s->shading_buffer_black[2] =
-    (unsigned int *) malloc (5120 * sizeof (unsigned int));
+    (unsigned int *) malloc (5120 * s->dev->epro_mult *  sizeof (unsigned int));/*epro*/
 
   if (!s->shading_buffer_w || !s->shading_buffer_b
       || !s->shading_buffer_white[0] || !s->shading_buffer_black[0]
@@ -323,9 +325,9 @@ init_calibrator (Artec48U_Scanner * s)
 static void
 init_shading_buffer (Artec48U_Scanner * s)
 {
-  int i, j;
+  unsigned int i, j;
 
-  for (i = 0; i < 5120; i++)
+  for (i = 0; i < 5120 * s->dev->epro_mult; i++) /*epro*/
     {
       for (j = 0; j < 3; j++)
 	{
@@ -337,9 +339,9 @@ init_shading_buffer (Artec48U_Scanner * s)
 static void
 add_to_shading_buffer (Artec48U_Scanner * s, unsigned int **buffer_pointers)
 {
-  int i, j;
+  unsigned int i, j;
 
-  for (i = 0; i < 5120; i++)
+  for (i = 0; i < 5120 * s->dev->epro_mult; i++)  /*epro*/
     {
       for (j = 0; j < 3; j++)
 	{
@@ -369,7 +371,7 @@ finish_shading_buffer (Artec48U_Scanner * s, SANE_Bool white)
       div = s->dev->shading_lines_b;
     }
 
-  for (i = 0; i < 5120; i++)
+  for (i = 0; i < 5120 * s->dev->epro_mult; i++) /*epro*/
     {
       for (j = 0; j < 3; j++)
 	{
@@ -384,7 +386,7 @@ finish_shading_buffer (Artec48U_Scanner * s, SANE_Bool white)
   max_g = 0;
   max_b = 0;
 
-  for (c = 0; c < 30720 - 5; c += 6)
+  for (c = 0; c < (30720 * s->dev->epro_mult) - 5; c += 6) /*epro*/
     {
       i = (int) shading_buffer[c] + ((int) shading_buffer[c + 1] << 8);
       max_r += i;
@@ -409,7 +411,7 @@ finish_exposure_buffer (Artec48U_Scanner * s, int *avg_r, int *avg_g,
   shading_buffer = s->shading_buffer_w;
   div = s->dev->shading_lines_w;
 
-  for (i = 0; i < 5120; i++)
+  for (i = 0; i < 5120 * s->dev->epro_mult; i++) /*epro*/
     {
       for (j = 0; j < 3; j++)
 	{
@@ -423,7 +425,7 @@ finish_exposure_buffer (Artec48U_Scanner * s, int *avg_r, int *avg_g,
   max_r = 0;
   max_g = 0;
   max_b = 0;
-  for (c = 0; c < 30720 - 5; c += 6)
+  for (c = 0; c < (30720 * s->dev->epro_mult) - 5; c += 6) /*epro*/
     {
       i = (int) shading_buffer[c] + ((int) shading_buffer[c + 1] << 8);
       if (i > max_r)
@@ -454,7 +456,7 @@ finish_offset_buffer (Artec48U_Scanner * s, int *avg_r, int *avg_g,
   shading_buffer = s->shading_buffer_b;
   div = s->dev->shading_lines_b;
 
-  for (i = 0; i < 5120; i++)
+  for (i = 0; i < 5120 * s->dev->epro_mult; i++) /*epro*/
     {
       for (j = 0; j < 3; j++)
 	{
@@ -468,7 +470,7 @@ finish_offset_buffer (Artec48U_Scanner * s, int *avg_r, int *avg_g,
   min_r = 65535;
   min_g = 65535;
   min_b = 65535;
-  for (c = 0; c < 30720 - 5; c += 6)
+  for (c = 0; c < (30720 * s->dev->epro_mult) - 5; c += 6) /*epro*/
     {
       i = (int) shading_buffer[c] + ((int) shading_buffer[c + 1] << 8);
       if (i < min_r)
@@ -516,8 +518,7 @@ copy_scan_line (Artec48U_Scanner * s)
   int value;
   int value1;
   int value2;
-
-  if (s->reader->params.ydpi == 1200)
+  if ((s->reader->params.ydpi == 1200) && (s->dev->is_epro == 0)) /*epro*/
     interpolate = 1;
   cnt = 0;
   if (s->params.color)
@@ -746,11 +747,11 @@ attach (const char *dev_name, Artec48U_Device ** devp)
   SANE_Status status;
   Artec48U_Device *dev;
 
-  DBG (1, "attach (%s, %p)\n", dev_name, (void *) devp);
+  XDBG ((1, "attach (%s, %p)\n", dev_name, (void *) devp));
 
   if (!dev_name)
     {
-      DBG (1, "attach: devname == NULL\n");
+      XDBG ((1, "attach: devname == NULL\n"));
       return SANE_STATUS_INVAL;
     }
   /* already attached ? */
@@ -760,15 +761,16 @@ attach (const char *dev_name, Artec48U_Device ** devp)
 	{
 	  if (devp)
 	    *devp = dev;
-	  DBG (3, "attach: device %s already attached\n", dev_name);
+	  XDBG ((3, "attach: device %s already attached\n", dev_name));
 	  return SANE_STATUS_GOOD;
 	}
     }
-  DBG (3, "attach: device %s NOT attached\n", dev_name);
+  XDBG ((3, "attach: device %s NOT attached\n", dev_name));
   /* allocate some memory for the device */
   artec48u_device_new (&dev);
   if (NULL == dev)
     return SANE_STATUS_NO_MEM;
+
   dev->fd = -1;
   dev->name = strdup (dev_name);
   dev->sane.name = strdup (dev_name);
@@ -778,7 +780,7 @@ attach (const char *dev_name, Artec48U_Device ** devp)
   status = artec48u_device_open (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "Could not open device!!\n");
+      XDBG ((3, "Could not open device!!\n"));
       artec48u_device_free (dev);
       return status;
     }
@@ -788,11 +790,26 @@ attach (const char *dev_name, Artec48U_Device ** devp)
 
   /* assign all the stuff we need fo this device... */
   dev->sane.vendor = strdup (vendor_string);
-  DBG (3, "attach: setting vendor string: %s\n", vendor_string);
+  XDBG ((3, "attach: setting vendor string: %s\n", vendor_string));
   dev->sane.model = strdup (model_string);
-  DBG (3, "attach: setting model string: %s\n", model_string);
+  XDBG ((3, "attach: setting model string: %s\n", model_string));
   dev->sane.type = "USB flatbed scanner";
   dev->firmware_path = strdup (firmwarePath);
+
+  dev->epro_mult = eProMult;
+  dev->is_epro = isEPro;
+  XDBG ((1, "attach eProMult %d\n", eProMult));
+  XDBG ((1, "attach isEPro %d\n", isEPro));
+  dev->optical_xdpi = 600 * dev->epro_mult; /*epro*/
+  dev->optical_ydpi = 1200 * dev->epro_mult; /*epro*/
+  dev->base_ydpi = 600 * dev->epro_mult; /*epro*/
+  dev->xdpi_offset = 0;		/* in optical_xdpi units */
+  dev->ydpi_offset = 280 * dev->epro_mult;	/* in optical_ydpi units */
+  dev->x_size = 5120 * dev->epro_mult; /*epro*/  /* in optical_xdpi units */
+  dev->y_size = 14100 * dev->epro_mult; /*epro*/  /* in optical_ydpi units */
+  dev->shading_offset = 10 * dev->epro_mult;
+  dev->shading_lines_b = 70 * dev->epro_mult;
+  dev->shading_lines_w = 70 * dev->epro_mult;
 
   dev->gamma_master = gamma_master_default;
   dev->gamma_r = gamma_r_default;
@@ -811,16 +828,6 @@ attach (const char *dev_name, Artec48U_Device ** devp)
   dev->exp_params.g_time = exp_params.g_time;
   dev->exp_params.b_time = exp_params.b_time;
 
-  dev->optical_xdpi = 600;
-  dev->optical_ydpi = 1200;
-  dev->base_ydpi = 600;
-  dev->xdpi_offset = 0;		/* in optical_xdpi units */
-  dev->ydpi_offset = 280;	/* in optical_ydpi units */
-  dev->x_size = 5120;		/* in optical_xdpi units */
-  dev->y_size = 14100;		/* in optical_ydpi units */
-  dev->shading_offset = 10;
-  dev->shading_lines_b = 70;
-  dev->shading_lines_w = 70;
 
   ++num_devices;
   dev->next = first_dev;
@@ -871,7 +878,7 @@ decodeVal (char *src, char *opt, int what, void *result, void *def)
       /* on success, compare wiht the given one */
       if (0 == strcmp (tmp, opt))
 	{
-	  DBG (1, "Decoding option >%s<\n", opt);
+	  XDBG ((1, "Decoding option >%s<\n", opt));
 	  if (_INT == what)
 	    {
 	      /* assign the default value for this option... */
@@ -964,7 +971,7 @@ decodeDevName (char *src, char *dest)
       name = (const char *) &src[strlen ("device")];
       name = sanei_config_skip_whitespace (name);
 
-      DBG (1, "Decoding device name >%s<\n", name);
+      XDBG ((1, "Decoding device name >%s<\n", name));
 
       if (*name)
 	{
@@ -1075,9 +1082,9 @@ artec48u_download_firmware (Artec48U_Device * dev,
 	return status;
       if (memcmp (block, check_buf, block_size) != 0)
 	{
-	  DBG (3,
+	  XDBG ((3,
 	       "artec48u_device_download_firmware: mismatch at block 0x%0x\n",
-	       addr);
+	       addr));
 	  return SANE_STATUS_IO_ERROR;
 	}
     }
@@ -1160,18 +1167,19 @@ artec48u_setup_scan (Artec48U_Scanner * s,
   SANE_Int abs_x0, abs_y0, abs_xs, abs_ys, base_xdpi, base_ydpi;
   SANE_Int scan_xs, scan_ys, scan_bpl;
   SANE_Int bits_per_line;
-  SANE_Byte color_mode_code, backtrack;
+  SANE_Byte color_mode_code;
 
   /*If we scan a black line, we use these exposure values */
   Artec48U_Exposure_Parameters exp_params_black = { 4, 4, 4 };
 
-  DBG (6, "%s: enter\n", function_name);
+  XDBG ((6, "%s: enter\n", function_name));
+  XDBG ((1,"setup scan is_epro %d\n",s->dev->is_epro));
+  XDBG ((1,"setup scan epro_mult %d\n",s->dev->epro_mult));
 
   xdpi = request->xdpi;
   ydpi = request->ydpi;
   color = request->color;
   depth = request->depth;
-  backtrack = 0;
 
   switch (action)
     {
@@ -1182,10 +1190,10 @@ artec48u_setup_scan (Artec48U_Scanner * s,
 	pixel_y0 = s->dev->shading_offset;
 	pixel_ys = s->dev->shading_lines_w;
 	pixel_x0 = 0;
-	pixel_xs = 5120;
-	xdpi = ydpi = 600;
+	pixel_xs = 5120 * s->dev->epro_mult; /*epro*/
+	xdpi = ydpi = 600 * s->dev->epro_mult; /*epro*/
 	color = SANE_TRUE;
-	depth = 16;
+	depth = 8;
 	break;
       }
     case SA_CALIBRATE_SCAN_OFFSET_1:
@@ -1194,8 +1202,8 @@ artec48u_setup_scan (Artec48U_Scanner * s,
 	pixel_y0 = s->dev->shading_offset;
 	pixel_ys = s->dev->shading_lines_b;
 	pixel_x0 = 0;
-	pixel_xs = 5120;
-	xdpi = ydpi = 600;
+	pixel_xs = 5120 * s->dev->epro_mult; /*epro*/
+	xdpi = ydpi = 600 * s->dev->epro_mult; /*epro*/
 	color = SANE_TRUE;
 	depth = 8;
 	break;
@@ -1206,8 +1214,8 @@ artec48u_setup_scan (Artec48U_Scanner * s,
 	pixel_y0 = s->dev->shading_offset;
 	pixel_ys = s->dev->shading_lines_w;
 	pixel_x0 = 0;
-	pixel_xs = 5120;
-	xdpi = ydpi = 600;
+	pixel_xs = 5120 * s->dev->epro_mult; /*epro*/
+	xdpi = ydpi = 600 * s->dev->epro_mult; /*epro*/
 	color = SANE_TRUE;
 	depth = 8;
 	break;
@@ -1217,20 +1225,20 @@ artec48u_setup_scan (Artec48U_Scanner * s,
 	pixel_y0 = s->dev->shading_offset;
 	pixel_ys = s->dev->shading_lines_w;
 	pixel_x0 = 0;
-	pixel_xs = 5120;
-	xdpi = ydpi = 600;
+	pixel_xs = 5120 * s->dev->epro_mult; /*epro*/
+	xdpi = ydpi = 600 * s->dev->epro_mult; /*epro*/
 	color = SANE_TRUE;
-	depth = 16;
+	depth = 8;
 	break;
       }
     case SA_SCAN:
       {
 	SANE_Fixed x0 = request->x0 + s->dev->xdpi_offset;
 	SANE_Fixed y0;
-	if (ydpi == 1200)
+	/*epro*/
+	if ((ydpi == 1200) && (s->dev->is_epro == 0))
 	  xdpi = 600;
 	y0 = request->y0 + s->dev->ydpi_offset;
-	backtrack = 0x00;
 	pixel_ys = SANE_UNFIX (request->ys) * ydpi / MM_PER_INCH + 0.5;
 	pixel_x0 = SANE_UNFIX (x0) * xdpi / MM_PER_INCH + 0.5;
 	pixel_y0 = SANE_UNFIX (y0) * ydpi / MM_PER_INCH + 0.5;
@@ -1239,18 +1247,17 @@ artec48u_setup_scan (Artec48U_Scanner * s,
       }
 
     default:
-      DBG (6, "%s: invalid action=%d\n", function_name, (int) action);
+      XDBG ((6, "%s: invalid action=%d\n", function_name, (int) action));
       return SANE_STATUS_INVAL;
     }
 
-  DBG (6, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi);
-  DBG (6, "%s: color=%s, depth=%d\n", function_name,
-       color ? "TRUE" : "FALSE", depth);
-  DBG (6, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
-       pixel_x0, pixel_y0);
-  DBG (6, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
-       pixel_xs, pixel_ys);
-  DBG (6, "%s: backtrack=%d\n", function_name, backtrack);
+  XDBG ((6, "%s: xdpi=%d, ydpi=%d\n", function_name, xdpi, ydpi));
+  XDBG ((6, "%s: color=%s, depth=%d\n", function_name,
+       color ? "TRUE" : "FALSE", depth));
+  XDBG ((6, "%s: pixel_x0=%d, pixel_y0=%d\n", function_name,
+       pixel_x0, pixel_y0));
+  XDBG ((6, "%s: pixel_xs=%d, pixel_ys=%d\n", function_name,
+       pixel_xs, pixel_ys));
 
   switch (depth)
     {
@@ -1263,15 +1270,15 @@ artec48u_setup_scan (Artec48U_Scanner * s,
       break;
 
     default:
-      DBG (6, "%s: unsupported depth=%d\n", function_name, depth);
+      XDBG ((6, "%s: unsupported depth=%d\n", function_name, depth));
       return SANE_STATUS_UNSUPPORTED;
     }
 
   base_xdpi = s->dev->optical_xdpi;
   base_ydpi = s->dev->base_ydpi;
 
-  DBG (6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
-       base_xdpi, base_ydpi);
+  XDBG ((6, "%s: base_xdpi=%d, base_ydpi=%d\n", function_name,
+       base_xdpi, base_ydpi));
 
   abs_x0 = pixel_x0 * base_xdpi / xdpi;
   abs_y0 = pixel_y0 * base_ydpi / ydpi;
@@ -1281,41 +1288,41 @@ artec48u_setup_scan (Artec48U_Scanner * s,
   pixel_align = 32;		/* best case for depth = 16 */
   while ((depth * pixel_align) % (64 * 8) != 0)
     pixel_align *= 2;
-  DBG (6, "%s: pixel_align=%d\n", function_name, pixel_align);
+  XDBG ((6, "%s: pixel_align=%d\n", function_name, pixel_align));
 
   if (pixel_xs % pixel_align == 0)
     scan_xs = pixel_xs;
   else
     scan_xs = (pixel_xs / pixel_align + 1) * pixel_align;
   scan_ys = pixel_ys;
-  DBG (6, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys);
+  XDBG ((6, "%s: scan_xs=%d, scan_ys=%d\n", function_name, scan_xs, scan_ys));
 
   abs_xs = scan_xs * base_xdpi / xdpi;
   abs_ys = scan_ys * base_ydpi / ydpi;
-  DBG (6, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys);
+  XDBG ((6, "%s: abs_xs=%d, abs_ys=%d\n", function_name, abs_xs, abs_ys));
 
   bits_per_line = depth * scan_xs;
   if (bits_per_line % 8)	/* impossible */
     {
-      DBG (1, "%s: BUG: unaligned bits_per_line=%d\n", function_name,
-	   bits_per_line);
+      XDBG ((1, "%s: BUG: unaligned bits_per_line=%d\n", function_name,
+	   bits_per_line));
       return SANE_STATUS_INVAL;
     }
   scan_bpl = bits_per_line / 8;
 
   if (scan_bpl % 64)		/* impossible */
     {
-      DBG (1, "%s: BUG: unaligned scan_bpl=%d\n", function_name, scan_bpl);
+      XDBG ((1, "%s: BUG: unaligned scan_bpl=%d\n", function_name, scan_bpl));
       return SANE_STATUS_INVAL;
     }
 
   if (scan_bpl > 15600)
     {
-      DBG (6, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl);
+      XDBG ((6, "%s: scan_bpl=%d, too large\n", function_name, scan_bpl));
       return SANE_STATUS_INVAL;
     }
 
-  DBG (6, "%s: scan_bpl=%d\n", function_name, scan_bpl);
+  XDBG ((6, "%s: scan_bpl=%d\n", function_name, scan_bpl));
 
   if (!calculate_only)
     {
@@ -1339,7 +1346,7 @@ artec48u_setup_scan (Artec48U_Scanner * s,
 	  break;
 
 	default:
-	  DBG (6, "%s: invalid action=%d\n", function_name, (int) action);
+	  XDBG ((6, "%s: invalid action=%d\n", function_name, (int) action));
 	  return SANE_STATUS_INVAL;
 	}
 
@@ -1359,28 +1366,8 @@ artec48u_setup_scan (Artec48U_Scanner * s,
       req[0x0b] = 0x60;
       req[0x0c] = LOBYTE (xdpi);
       req[0x0d] = HIBYTE (xdpi);
-      if (action == SA_SCAN)
-	{
-	  if (ydpi == 1200)
-	    req[0x0e] = 0x15;
-	  else
-	    req[0x0e] = 0xf0;
-	}
-      else if (action == SA_CALIBRATE_SCAN_BLACK)
-	{
-	  req[0x0e] = 0xe0;
-	}
-      else
-	{
-	  req[0x0e] = 0xf0;
-	}
+      req[0x0e] = 0x12;
       req[0x0f] = 0x00;
-      if (ydpi == 1200)
-	req[0x0f] = 0x00;
-      if (action != SA_SCAN)
-	{
-	  req[0x0f] = 0x00;
-	}
       req[0x10] = LOBYTE (scan_bpl);
       req[0x11] = HIBYTE (scan_bpl);
       req[0x12] = LOBYTE (scan_ys);
@@ -1394,8 +1381,8 @@ artec48u_setup_scan (Artec48U_Scanner * s,
       status = artec48u_device_req (s->dev, req, req);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (3, "%s: setup request failed: %s\n", function_name,
-	       sane_strstatus (status));
+	  XDBG ((3, "%s: setup request failed: %s\n", function_name,
+	       sane_strstatus (status)));
 	  return status;
 	}
 
@@ -1430,7 +1417,7 @@ artec48u_setup_scan (Artec48U_Scanner * s,
   params->scan_ys = scan_ys;
   params->scan_bpl = scan_bpl;
 
-  DBG (6, "%s: leave: ok\n", function_name);
+  XDBG ((6, "%s: leave: ok\n", function_name));
   return SANE_STATUS_GOOD;
 }
 
@@ -1476,7 +1463,7 @@ artec48u_device_new (Artec48U_Device ** dev_return)
 {
   DECLARE_FUNCTION_NAME ("artec48u_device_new") Artec48U_Device *dev;
 
-  DBG (7, "%s: enter\n", function_name);
+  XDBG ((7, "%s: enter\n", function_name));
   if (!dev_return)
     return SANE_STATUS_INVAL;
 
@@ -1484,8 +1471,8 @@ artec48u_device_new (Artec48U_Device ** dev_return)
 
   if (!dev)
     {
-      DBG (3, "%s: couldn't malloc %d bytes for device\n",
-	   function_name, sizeof (Artec48U_Device));
+      XDBG ((3, "%s: couldn't malloc %d bytes for device\n",
+	   function_name, sizeof (Artec48U_Device)));
       *dev_return = 0;
       return SANE_STATUS_NO_MEM;
     }
@@ -1499,7 +1486,7 @@ artec48u_device_new (Artec48U_Device ** dev_return)
   dev->read_buffer = NULL;
   dev->requested_buffer_size = 32768;
 
-  DBG (7, "%s: leave: ok\n", function_name);
+  XDBG ((7, "%s: leave: ok\n", function_name));
   return SANE_STATUS_GOOD;
 }
 
@@ -1507,7 +1494,7 @@ static SANE_Status
 artec48u_device_free (Artec48U_Device * dev)
 {
   DECLARE_FUNCTION_NAME ("artec48u_device_free")
-    DBG (7, "%s: enter: dev=%p\n", function_name, (void *) dev);
+    XDBG ((7, "%s: enter: dev=%p\n", function_name, (void *) dev));
   if (dev)
     {
       if (dev->active)
@@ -1516,40 +1503,41 @@ artec48u_device_free (Artec48U_Device * dev)
       if (dev->fd != -1)
 	artec48u_device_close (dev);
 
-      DBG (7, "%s: freeing dev\n", function_name);
+      XDBG ((7, "%s: freeing dev\n", function_name));
       free (dev);
     }
-  DBG (7, "%s: leave: ok\n", function_name);
+  XDBG ((7, "%s: leave: ok\n", function_name));
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
 artec48u_device_open (Artec48U_Device * dev)
 {
-  DECLARE_FUNCTION_NAME ("artec48u_device_open") SANE_Status status;
+  DECLARE_FUNCTION_NAME ("artec48u_device_open")
+  SANE_Status status;
   SANE_Int fd;
 
-  DBG (7, "%s: enter: dev=%p\n", function_name, (void *) dev);
+  XDBG ((7, "%s: enter: dev=%p\n", function_name, (void *) dev));
 
   CHECK_DEV_NOT_NULL (dev, function_name);
 
   if (dev->fd != -1)
     {
-      DBG (3, "%s: device already open\n", function_name);
+      XDBG ((3, "%s: device already open\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
   status = sanei_usb_open (dev->sane.name, &fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: sanei_usb_open failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: sanei_usb_open failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
   dev->fd = fd;
 
-  DBG (7, "%s: leave: ok\n", function_name);
+  XDBG ((7, "%s: leave: ok\n", function_name));
   return SANE_STATUS_GOOD;
 }
 
@@ -1557,7 +1545,7 @@ static SANE_Status
 artec48u_device_close (Artec48U_Device * dev)
 {
   DECLARE_FUNCTION_NAME ("artec48u_device_close")
-    DBG (7, "%s: enter: dev=%p\n", function_name, (void *) dev);
+    XDBG ((7, "%s: enter: dev=%p\n", function_name, (void *) dev));
 
   CHECK_DEV_OPEN (dev, function_name);
 
@@ -1567,7 +1555,7 @@ artec48u_device_close (Artec48U_Device * dev)
   sanei_usb_close (dev->fd);
   dev->fd = -1;
 
-  DBG (7, "%s: leave: ok\n", function_name);
+  XDBG ((7, "%s: leave: ok\n", function_name));
   return SANE_STATUS_GOOD;
 }
 
@@ -1579,11 +1567,11 @@ artec48u_device_activate (Artec48U_Device * dev)
 
   if (dev->active)
     {
-      DBG (3, "%s: device already active\n", function_name);
+      XDBG ((3, "%s: device already active\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
-  DBG (7, "%s: model \"%s\"\n", function_name, dev->sane.model);
+  XDBG ((7, "%s: model \"%s\"\n", function_name, dev->sane.model));
 
   dev->xdpi_offset = SANE_FIX (dev->xdpi_offset *
 			       MM_PER_INCH / dev->optical_xdpi);
@@ -1616,10 +1604,11 @@ artec48u_device_memory_write (Artec48U_Device * dev,
 			      SANE_Word addr,
 			      SANE_Word size, SANE_Byte * data)
 {
-  DECLARE_FUNCTION_NAME ("artec48u_device_memory_write") SANE_Status status;
+  DECLARE_FUNCTION_NAME ("artec48u_device_memory_write")
+  SANE_Status status;
 
-  DBG (8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
-       function_name, (void *) dev, addr, size, (void *) data);
+  XDBG ((8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
+       function_name, (void *) dev, addr, size, (void *) data));
   CHECK_DEV_ACTIVE (dev, function_name);
 
   status = sanei_usb_control_msg (dev->fd, 0x40, 0x01,
@@ -1627,8 +1616,8 @@ artec48u_device_memory_write (Artec48U_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: sanei_usb_control_msg failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: sanei_usb_control_msg failed: %s\n",
+	   function_name, sane_strstatus (status)));
     }
 
   return status;
@@ -1638,10 +1627,11 @@ static SANE_Status
 artec48u_device_memory_read (Artec48U_Device * dev,
 			     SANE_Word addr, SANE_Word size, SANE_Byte * data)
 {
-  DECLARE_FUNCTION_NAME ("artec48u_device_memory_read") SANE_Status status;
+  DECLARE_FUNCTION_NAME ("artec48u_device_memory_read")
+  SANE_Status status;
 
-  DBG (8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
-       function_name, (void *) dev, addr, size, data);
+  XDBG ((8, "%s: dev=%p, addr=0x%x, size=0x%x, data=%p\n",
+       function_name, (void *) dev, addr, size, data));
   CHECK_DEV_ACTIVE (dev, function_name);
 
   status = sanei_usb_control_msg (dev->fd, 0xc0, 0x01,
@@ -1649,8 +1639,8 @@ artec48u_device_memory_read (Artec48U_Device * dev,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: sanei_usb_control_msg failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: sanei_usb_control_msg failed: %s\n",
+	   function_name, sane_strstatus (status)));
     }
 
   return status;
@@ -1662,9 +1652,10 @@ artec48u_device_generic_req (Artec48U_Device * dev,
 			     SANE_Word res_value, SANE_Word res_index,
 			     Artec48U_Packet cmd, Artec48U_Packet res)
 {
-  DECLARE_FUNCTION_NAME ("artec48u_device_generic_req") SANE_Status status;
+  DECLARE_FUNCTION_NAME ("artec48u_device_generic_req")
+  SANE_Status status;
 
-  DBG (7, "%s: command=0x%02x\n", function_name, cmd[0]);
+  XDBG ((7, "%s: command=0x%02x\n", function_name, cmd[0]));
   CHECK_DEV_ACTIVE (dev, function_name);
 
   status = sanei_usb_control_msg (dev->fd,
@@ -1672,8 +1663,8 @@ artec48u_device_generic_req (Artec48U_Device * dev,
 				  ARTEC48U_PACKET_SIZE, cmd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: writing command failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: writing command failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
@@ -1684,8 +1675,8 @@ artec48u_device_generic_req (Artec48U_Device * dev,
 				  ARTEC48U_PACKET_SIZE, res);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: reading response failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: reading response failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
   return status;
@@ -1723,22 +1714,23 @@ static SANE_Status
 artec48u_device_read_raw (Artec48U_Device * dev, SANE_Byte * buffer,
 			  size_t * size)
 {
-  DECLARE_FUNCTION_NAME ("artec48u_device_read_raw") SANE_Status status;
+  DECLARE_FUNCTION_NAME ("artec48u_device_read_raw")
+  SANE_Status status;
 
   CHECK_DEV_ACTIVE (dev, function_name);
 
-  DBG (7, "%s: enter: size=0x%lx\n", function_name, (unsigned long) *size);
+  XDBG ((7, "%s: enter: size=0x%lx\n", function_name, (unsigned long) *size));
 
   status = sanei_usb_read_bulk (dev->fd, buffer, size);
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: bulk read failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: bulk read failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
-  DBG (7, "%s: leave: size=0x%lx\n", function_name, (unsigned long) *size);
+  XDBG ((7, "%s: leave: size=0x%lx\n", function_name, (unsigned long) *size));
 
   return SANE_STATUS_GOOD;
 }
@@ -1752,7 +1744,7 @@ artec48u_device_set_read_buffer_size (Artec48U_Device * dev,
 
   if (dev->read_active)
     {
-      DBG (3, "%s: BUG: read already active\n", function_name);
+      XDBG ((3, "%s: BUG: read already active\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
@@ -1763,7 +1755,7 @@ artec48u_device_set_read_buffer_size (Artec48U_Device * dev,
       return SANE_STATUS_GOOD;
     }
 
-  DBG (3, "%s: bad buffer size\n", function_name);
+  XDBG ((3, "%s: bad buffer size\n", function_name));
   return SANE_STATUS_INVAL;
 }
 
@@ -1775,15 +1767,15 @@ artec48u_device_read_prepare (Artec48U_Device * dev, size_t expected_count)
 
   if (dev->read_active)
     {
-      DBG (3, "%s: read already active\n", function_name);
+      XDBG ((3, "%s: read already active\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
   dev->read_buffer = (SANE_Byte *) malloc (dev->requested_buffer_size);
   if (!dev->read_buffer)
     {
-      DBG (3, "%s: not enough memory for the read buffer (%lu bytes)\n",
-	   function_name, (unsigned long) dev->requested_buffer_size);
+      XDBG ((3, "%s: not enough memory for the read buffer (%lu bytes)\n",
+	   function_name, (unsigned long) dev->requested_buffer_size));
       return SANE_STATUS_NO_MEM;
     }
 
@@ -1797,14 +1789,14 @@ artec48u_device_read_prepare (Artec48U_Device * dev, size_t expected_count)
 static RETSIGTYPE
 reader_process_sigterm_handler (int signal)
 {
-  DBG (1, "reader_process: terminated by signal %d\n", signal);
+  XDBG ((1, "reader_process: terminated by signal %d\n", signal));
   _exit (SANE_STATUS_GOOD);
 }
 
 static RETSIGTYPE
 usb_reader_process_sigterm_handler (int signal)
 {
-  DBG (1, "reader_process (usb): terminated by signal %d\n", signal);
+  XDBG ((1, "reader_process (usb): terminated by signal %d\n", signal));
   cancelRead = SANE_TRUE;
 }
 
@@ -1829,7 +1821,7 @@ artec48u_device_read (Artec48U_Device * dev, SANE_Byte * buffer,
 
   if (!dev->read_active)
     {
-      DBG (3, "%s: read not active\n", function_name);
+      XDBG ((3, "%s: read not active\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
@@ -1847,7 +1839,7 @@ artec48u_device_read (Artec48U_Device * dev, SANE_Byte * buffer,
 					     &raw_block_size);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (3, "%s: read failed\n", function_name);
+	      XDBG ((3, "%s: read failed\n", function_name));
 	      return status;
 	    }
 	  dev->read_pos = 0;
@@ -1885,12 +1877,12 @@ artec48u_device_read_finish (Artec48U_Device * dev)
 
   if (!dev->read_active)
     {
-      DBG (3, "%s: read not active\n", function_name);
+      XDBG ((3, "%s: read not active\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
-  DBG (7, "%s: read_bytes_left = %ld\n",
-       function_name, (long) dev->read_bytes_left);
+  XDBG ((7, "%s: read_bytes_left = %ld\n",
+       function_name, (long) dev->read_bytes_left));
 
   free (dev->read_buffer);
   dev->read_buffer = NULL;
@@ -1910,8 +1902,8 @@ artec48u_delay_buffer_init (Artec48U_Delay_Buffer * delay,
 
   if (pixels_per_line <= 0)
     {
-      DBG (3, "%s: BUG: pixels_per_line=%d\n",
-	   function_name, pixels_per_line);
+      XDBG ((3, "%s: BUG: pixels_per_line=%d\n",
+	   function_name, pixels_per_line));
       return SANE_STATUS_INVAL;
     }
 
@@ -1924,7 +1916,7 @@ artec48u_delay_buffer_init (Artec48U_Delay_Buffer * delay,
   delay->mem_block = (SANE_Byte *) malloc (bytes_per_line * line_count);
   if (!delay->mem_block)
     {
-      DBG (3, "%s: no memory for delay block\n", function_name);
+      XDBG ((3, "%s: no memory for delay block\n", function_name));
       return SANE_STATUS_NO_MEM;
     }
 
@@ -1933,7 +1925,7 @@ artec48u_delay_buffer_init (Artec48U_Delay_Buffer * delay,
   if (!delay->lines)
     {
       free (delay->mem_block);
-      DBG (3, "%s: no memory for delay line pointers\n", function_name);
+      XDBG ((3, "%s: no memory for delay line pointers\n", function_name));
       return SANE_STATUS_NO_MEM;
     }
 
@@ -1976,7 +1968,7 @@ artec48u_delay_buffer_done (Artec48U_Delay_Buffer * delay)
 static inline void
 unpack_8_mono (SANE_Byte * src, unsigned int *dst, SANE_Int pixels_per_line)
 {
-  DBG (3, "unpack_8_mono\n");
+  XDBG ((3, "unpack_8_mono\n"));
   for (; pixels_per_line > 0; ++src, ++dst, --pixels_per_line)
     {
       *dst = (((unsigned int) *src) << 8) | *src;
@@ -1987,7 +1979,7 @@ static inline void
 unpack_16_le_mono (SANE_Byte * src, unsigned int *dst,
 		   SANE_Int pixels_per_line)
 {
-  DBG (3, "unpack_16_le_mono\n");
+  XDBG ((3, "unpack_16_le_mono\n"));
   for (; pixels_per_line > 0; src += 2, dst++, --pixels_per_line)
     {
       *dst = (((unsigned int) src[1]) << 8) | src[0];
@@ -2001,7 +1993,7 @@ line_read_gray_8 (Artec48U_Line_Reader * reader,
   SANE_Status status;
   size_t size;
   unsigned int *buffer;
-  DBG (3, "line_read_gray_8\n");
+  XDBG ((3, "line_read_gray_8\n"));
 
   size = reader->params.scan_bpl;
   status = artec48u_device_read (reader->dev, reader->pixel_buffer, &size);
@@ -2023,7 +2015,7 @@ line_read_gray_16 (Artec48U_Line_Reader * reader,
   size_t size;
   unsigned int *buffer;
 
-  DBG (3, "line_read_gray_16\n");
+  XDBG ((3, "line_read_gray_16\n"));
   size = reader->params.scan_bpl;
   status = artec48u_device_read (reader->dev, reader->pixel_buffer, &size);
   if (status != SANE_STATUS_GOOD)
@@ -2044,7 +2036,7 @@ line_read_bgr_8_line_mode (Artec48U_Line_Reader * reader,
   size_t size;
   SANE_Int pixels_per_line;
   SANE_Byte *pixel_buffer = reader->pixel_buffer;
-  DBG (3, "line_read_bgr_8_line_mode\n");
+  XDBG ((3, "line_read_bgr_8_line_mode\n"));
 
   size = reader->params.scan_bpl * 3;
   status = artec48u_device_read (reader->dev, pixel_buffer, &size);
@@ -2081,7 +2073,7 @@ line_read_bgr_16_line_mode (Artec48U_Line_Reader * reader,
   SANE_Int pixels_per_line;
   SANE_Byte *pixel_buffer = reader->pixel_buffer;
 
-  DBG (3, "line_read_bgr_16_line_mode\n");
+  XDBG ((3, "line_read_bgr_16_line_mode\n"));
   size = reader->params.scan_bpl * 3;
   status = artec48u_device_read (reader->dev, pixel_buffer, &size);
   if (status != SANE_STATUS_GOOD)
@@ -2186,22 +2178,22 @@ artec48u_line_reader_new (Artec48U_Device * dev,
   SANE_Int image_size;
   SANE_Int scan_bpl_full;
 
-  DBG (6, "%s: enter\n", function_name);
-  DBG (6, "%s: enter params xdpi: %i\n", function_name, params->xdpi);
-  DBG (6, "%s: enter params ydpi: %i\n", function_name, params->ydpi);
-  DBG (6, "%s: enter params depth: %i\n", function_name, params->depth);
-  DBG (6, "%s: enter params color: %i\n", function_name, params->color);
-  DBG (6, "%s: enter params pixel_xs: %i\n", function_name, params->pixel_xs);
-  DBG (6, "%s: enter params pixel_ys: %i\n", function_name, params->pixel_ys);
-  DBG (6, "%s: enter params scan_xs: %i\n", function_name, params->scan_xs);
-  DBG (6, "%s: enter params scan_ys: %i\n", function_name, params->scan_ys);
-  DBG (6, "%s: enter params scan_bpl: %i\n", function_name, params->scan_bpl);
+  XDBG ((6, "%s: enter\n", function_name));
+  XDBG ((6, "%s: enter params xdpi: %i\n", function_name, params->xdpi));
+  XDBG ((6, "%s: enter params ydpi: %i\n", function_name, params->ydpi));
+  XDBG ((6, "%s: enter params depth: %i\n", function_name, params->depth));
+  XDBG ((6, "%s: enter params color: %i\n", function_name, params->color));
+  XDBG ((6, "%s: enter params pixel_xs: %i\n", function_name, params->pixel_xs));
+  XDBG ((6, "%s: enter params pixel_ys: %i\n", function_name, params->pixel_ys));
+  XDBG ((6, "%s: enter params scan_xs: %i\n", function_name, params->scan_xs));
+  XDBG ((6, "%s: enter params scan_ys: %i\n", function_name, params->scan_ys));
+  XDBG ((6, "%s: enter params scan_bpl: %i\n", function_name, params->scan_bpl));
   *reader_return = NULL;
 
   reader = (Artec48U_Line_Reader *) malloc (sizeof (Artec48U_Line_Reader));
   if (!reader)
     {
-      DBG (3, "%s: cannot allocate Artec48U_Line_Reader\n", function_name);
+      XDBG ((3, "%s: cannot allocate Artec48U_Line_Reader\n", function_name));
       return SANE_STATUS_NO_MEM;
     }
   memset (reader, 0, sizeof (Artec48U_Line_Reader));
@@ -2216,8 +2208,8 @@ artec48u_line_reader_new (Artec48U_Device * dev,
   status = artec48u_line_reader_init_delays (reader);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: cannot allocate line buffers: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: cannot allocate line buffers: %s\n",
+	   function_name, sane_strstatus (status)));
       free (reader);
       return status;
     }
@@ -2226,7 +2218,7 @@ artec48u_line_reader_new (Artec48U_Device * dev,
 
   if (!reader->params.color)
     {
-      DBG (2, "!reader->params.color\n");
+      XDBG ((2, "!reader->params.color\n"));
       if (reader->params.depth == 8)
 	reader->read = line_read_gray_8;
       else if (reader->params.depth == 16)
@@ -2234,23 +2226,23 @@ artec48u_line_reader_new (Artec48U_Device * dev,
     }
   else
     {
-      DBG (2, "reader line mode\n");
+      XDBG ((2, "reader line mode\n"));
       if (reader->params.depth == 8)
 	{
-	  DBG (2, "depth 8\n");
+	  XDBG ((2, "depth 8\n"));
 	  reader->read = line_read_bgr_8_line_mode;
 	}
       else if (reader->params.depth == 16)
 	{
-	  DBG (2, "depth 16\n");
+	  XDBG ((2, "depth 16\n"));
 	  reader->read = line_read_bgr_16_line_mode;
 	}
     }
 
   if (reader->read == NULL)
     {
-      DBG (3, "%s: unsupported bit depth (%d)\n",
-	   function_name, reader->params.depth);
+      XDBG ((3, "%s: unsupported bit depth (%d)\n",
+	   function_name, reader->params.depth));
       artec48u_line_reader_free_delays (reader);
       free (reader);
       return SANE_STATUS_UNSUPPORTED;
@@ -2263,7 +2255,7 @@ artec48u_line_reader_new (Artec48U_Device * dev,
   reader->pixel_buffer = malloc (scan_bpl_full);
   if (!reader->pixel_buffer)
     {
-      DBG (3, "%s: cannot allocate pixel buffer\n", function_name);
+      XDBG ((3, "%s: cannot allocate pixel buffer\n", function_name));
       artec48u_line_reader_free_delays (reader);
       free (reader);
       return SANE_STATUS_NO_MEM;
@@ -2276,15 +2268,15 @@ artec48u_line_reader_new (Artec48U_Device * dev,
   status = artec48u_device_read_prepare (reader->dev, image_size);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: artec48u_device_read_prepare failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: artec48u_device_read_prepare failed: %s\n",
+	   function_name, sane_strstatus (status)));
       free (reader->pixel_buffer);
       artec48u_line_reader_free_delays (reader);
       free (reader);
       return status;
     }
 
-  DBG (6, "%s: leave: ok\n", function_name);
+  XDBG ((6, "%s: leave: ok\n", function_name));
   *reader_return = reader;
   return SANE_STATUS_GOOD;
 }
@@ -2294,7 +2286,7 @@ artec48u_line_reader_free (Artec48U_Line_Reader * reader)
 {
   DECLARE_FUNCTION_NAME ("artec48u_line_reader_free") SANE_Status status;
 
-  DBG (6, "%s: enter\n", function_name);
+  XDBG ((6, "%s: enter\n", function_name));
 
   if (!reader)
     {
@@ -2311,14 +2303,14 @@ artec48u_line_reader_free (Artec48U_Line_Reader * reader)
   status = artec48u_device_read_finish (reader->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "%s: artec48u_device_read_finish failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((3, "%s: artec48u_device_read_finish failed: %s\n",
+	   function_name, sane_strstatus (status)));
     }
 
   if (reader)
     free (reader);
 
-  DBG (6, "%s: leave\n", function_name);
+  XDBG ((6, "%s: leave\n", function_name));
   return status;
 }
 
@@ -2340,7 +2332,7 @@ artec48u_scanner_new (Artec48U_Device * dev,
   s = (Artec48U_Scanner *) malloc (sizeof (Artec48U_Scanner));
   if (!s)
     {
-      DBG (5, "%s: no memory for Artec48U_Scanner\n", function_name);
+      XDBG ((5, "%s: no memory for Artec48U_Scanner\n", function_name));
       return SANE_STATUS_NO_MEM;
     }
   s->dev = dev;
@@ -2376,8 +2368,8 @@ artec48u_scanner_read_line (Artec48U_Scanner * s,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (5, "%s: artec48u_line_reader_read failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((5, "%s: artec48u_line_reader_read failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
   if (shading != SANE_TRUE)
@@ -2444,7 +2436,7 @@ artec48u_scanner_free (Artec48U_Scanner * s)
 {
   DECLARE_FUNCTION_NAME ("artec48u_scanner_free") if (!s)
     {
-      DBG (5, "%s: scanner==NULL\n", function_name);
+      XDBG ((5, "%s: scanner==NULL\n", function_name));
       return SANE_STATUS_INVAL;
     }
 
@@ -2484,16 +2476,16 @@ artec48u_scanner_internal_start_scan (Artec48U_Scanner * s)
   status = artec48u_wait_for_positioning (s->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_scanner_wait_for_positioning error: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_scanner_wait_for_positioning error: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
   status = artec48u_generic_start_scan (s->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_device_start_scan error: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_device_start_scan error: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
@@ -2502,8 +2494,8 @@ artec48u_scanner_internal_start_scan (Artec48U_Scanner * s)
       status = artec48u_generic_read_scanned_data (s->dev, &ready);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (2, "%s: artec48u_device_read_scanned_data error: %s\n",
-	       function_name, sane_strstatus (status));
+	  XDBG ((2, "%s: artec48u_device_read_scanned_data error: %s\n",
+	       function_name, sane_strstatus (status)));
 	  return status;
 	}
       if (ready)
@@ -2513,15 +2505,15 @@ artec48u_scanner_internal_start_scan (Artec48U_Scanner * s)
 
   if (!ready)
     {
-      DBG (2, "%s: scanner still not ready - giving up\n", function_name);
+      XDBG ((2, "%s: scanner still not ready - giving up\n", function_name));
       return SANE_STATUS_DEVICE_BUSY;
     }
 
   status = artec48u_device_read_start (s->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_device_read_start error: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_device_read_start error: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
@@ -2540,8 +2532,8 @@ artec48u_scanner_start_scan_extended (Artec48U_Scanner * s,
   status = artec48u_wait_for_positioning (s->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_scanner_wait_for_positioning error: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_scanner_wait_for_positioning error: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
@@ -2549,15 +2541,15 @@ artec48u_scanner_start_scan_extended (Artec48U_Scanner * s,
     status = artec48u_setup_scan (s, request, action, SANE_FALSE, params);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_device_setup_scan failed: %s\n", function_name,
-	   sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_device_setup_scan failed: %s\n", function_name,
+	   sane_strstatus (status)));
       return status;
     }
   status = artec48u_line_reader_new (s->dev, params, &s->reader);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_line_reader_new failed: %s\n", function_name,
-	   sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_line_reader_new failed: %s\n", function_name,
+	   sane_strstatus (status)));
       return status;
     }
 
@@ -2565,8 +2557,8 @@ artec48u_scanner_start_scan_extended (Artec48U_Scanner * s,
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "%s: artec48u_scanner_internal_start_scan failed: %s\n",
-	   function_name, sane_strstatus (status));
+      XDBG ((2, "%s: artec48u_scanner_internal_start_scan failed: %s\n",
+	   function_name, sane_strstatus (status)));
       return status;
     }
 
@@ -2585,7 +2577,7 @@ artec48u_scanner_start_scan (Artec48U_Scanner * s,
 static SANE_Status
 artec48u_scanner_stop_scan (Artec48U_Scanner * s)
 {
-  DBG (1, "artec48u_scanner_stop_scan begin: \n");
+  XDBG ((1, "artec48u_scanner_stop_scan begin: \n"));
   artec48u_line_reader_free (s->reader);
   s->reader = NULL;
 
@@ -2684,8 +2676,13 @@ artec48u_calculate_shading_buffer (Artec48U_Scanner * s, int start, int end,
       bpp = 12;
       break;
     case 600:
-    case 1200:
       bpp = 6;
+      break;
+    case 1200:
+      if(s->dev->is_epro == 0)
+        bpp = 6;
+      else
+        bpp = 3;
     }
 
   for (i = start * bpp; i < end * bpp; i += bpp)
@@ -2736,9 +2733,9 @@ init_options (Artec48U_Scanner * s)
 {
   int i;
 
-  DBG (5, "init_options: scanner %p\n", (void *) s);
-  DBG (5, "init_options: start\n");
-  DBG (5, "init_options: num options %i\n", NUM_OPTIONS);
+  XDBG ((5, "init_options: scanner %p\n", (void *) s));
+  XDBG ((5, "init_options: start\n"));
+  XDBG ((5, "init_options: num options %i\n", NUM_OPTIONS));
 
   memset (s->val, 0, sizeof (s->val));
   memset (s->opt, 0, sizeof (s->opt));
@@ -3118,8 +3115,8 @@ calibrate_scanner (SANE_Handle handle)
 	  finish_offset_buffer (s, &avg_black[0], &avg_black[1],
 				&avg_black[2]);
 	  s->scanning = SANE_FALSE;
-	  DBG (1, "avg_r: %i, avg_g: %i, avg_b: %i\n", avg_black[0],
-	       avg_black[1], avg_black[2]);
+	  XDBG ((1, "avg_r: %i, avg_g: %i, avg_b: %i\n", avg_black[0],
+	       avg_black[1], avg_black[2]));
 	  /*adjust offset */
 	  for (c = 0; c < 3; c++)
 	    {
@@ -3129,13 +3126,13 @@ calibrate_scanner (SANE_Handle handle)
 		    {
 		      s->dev->afe_params.r_offset -= 1;
 		      finish = 0;
-		      DBG (1, "adjust offset r: -1\n");
+		      XDBG ((1, "adjust offset r: -1\n"));
 		    }
 		  else if (avg_black[c] > BLACK_MAX)
 		    {
 		      s->dev->afe_params.r_offset += 1;
 		      finish = 0;
-		      DBG (1, "adjust offset r: +1\n");
+		      XDBG ((1, "adjust offset r: +1\n"));
 		    }
 		}
 	      if (c == 1)
@@ -3144,13 +3141,13 @@ calibrate_scanner (SANE_Handle handle)
 		    {
 		      s->dev->afe_params.g_offset -= 1;
 		      finish = 0;
-		      DBG (1, "adjust offset g: -1\n");
+		      XDBG ((1, "adjust offset g: -1\n"));
 		    }
 		  else if (avg_black[c] > BLACK_MAX)
 		    {
 		      s->dev->afe_params.g_offset += 1;
 		      finish = 0;
-		      DBG (1, "adjust offset g: +1\n");
+		      XDBG ((1, "adjust offset g: +1\n"));
 		    }
 		}
 	      if (c == 2)
@@ -3159,13 +3156,13 @@ calibrate_scanner (SANE_Handle handle)
 		    {
 		      s->dev->afe_params.b_offset -= 1;
 		      finish = 0;
-		      DBG (1, "adjust offset b: -1\n");
+		      XDBG ((1, "adjust offset b: -1\n"));
 		    }
 		  else if (avg_black[c] > BLACK_MAX)
 		    {
 		      s->dev->afe_params.b_offset += 1;
 		      finish = 0;
-		      DBG (1, "adjust offset b: +1\n");
+		      XDBG ((1, "adjust offset b: +1\n"));
 		    }
 		}
 	    }
@@ -3198,8 +3195,8 @@ calibrate_scanner (SANE_Handle handle)
 	  finish_exposure_buffer (s, &avg_white[0], &avg_white[1],
 				  &avg_white[2]);
 	  s->scanning = SANE_FALSE;
-	  DBG (1, "avg_r: %i, avg_g: %i, avg_b: %i\n", avg_white[0],
-	       avg_white[1], avg_white[2]);
+	  XDBG ((1, "avg_r: %i, avg_g: %i, avg_b: %i\n", avg_white[0],
+	       avg_white[1], avg_white[2]));
 	  for (c = 0; c < 3; c++)
 	    {
 	      if (c == 0)
@@ -3213,7 +3210,7 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.r_time += exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure r: ++\n");
+		      XDBG ((1, "adjust exposure r: ++\n"));
 		    }
 		  else if (avg_white[c] > WHITE_MAX)
 		    {
@@ -3224,7 +3221,7 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.r_time -= exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure r: --\n");
+		      XDBG ((1, "adjust exposure r: --\n"));
 		    }
 		}
 	      else if (c == 1)
@@ -3238,7 +3235,7 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.g_time += exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure g: ++\n");
+		      XDBG ((1, "adjust exposure g: ++\n"));
 		    }
 		  else if (avg_white[c] > WHITE_MAX)
 		    {
@@ -3249,7 +3246,7 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.g_time -= exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure g: --\n");
+		      XDBG ((1, "adjust exposure g: --\n"));
 		    }
 		}
 	      else if (c == 2)
@@ -3263,7 +3260,7 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.b_time += exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure b: ++\n");
+		      XDBG ((1, "adjust exposure b: ++\n"));
 		    }
 		  else if (avg_white[c] > WHITE_MAX)
 		    {
@@ -3274,29 +3271,29 @@ calibrate_scanner (SANE_Handle handle)
 			exp_off = 1;
 		      s->dev->exp_params.b_time -= exp_off;
 		      finish = 0;
-		      DBG (1, "adjust exposure b: --\n");
+		      XDBG ((1, "adjust exposure b: --\n"));
 		    }
 		}
 	    }
 
-	  DBG (1, "time_r: %x, time_g: %x, time_b: %x\n",
+	  XDBG ((1, "time_r: %x, time_g: %x, time_b: %x\n",
 	       s->dev->exp_params.r_time, s->dev->exp_params.g_time,
-	       s->dev->exp_params.b_time);
-	  DBG (1, "offset_r: %x, offset_g: %x, offset_b: %x\n",
+	       s->dev->exp_params.b_time));
+	  XDBG ((1, "offset_r: %x, offset_g: %x, offset_b: %x\n",
 	       s->dev->afe_params.r_offset, s->dev->afe_params.g_offset,
-	       s->dev->afe_params.b_offset);
+	       s->dev->afe_params.b_offset));
 	  ++noloop;
 	  if (noloop > 10)
 	    break;
 	}
     }
 
-  DBG (1, "option redOffset 0x%x\n", s->dev->afe_params.r_offset);
-  DBG (1, "option greenOffset 0x%x\n", s->dev->afe_params.g_offset);
-  DBG (1, "option blueOffset 0x%x\n", s->dev->afe_params.b_offset);
-  DBG (1, "option redExposure 0x%x\n", s->dev->exp_params.r_time);
-  DBG (1, "option greenExposure 0x%x\n", s->dev->exp_params.g_time);
-  DBG (1, "option blueExposure 0x%x\n", s->dev->exp_params.b_time);
+  XDBG ((1, "option redOffset 0x%x\n", s->dev->afe_params.r_offset));
+  XDBG ((1, "option greenOffset 0x%x\n", s->dev->afe_params.g_offset));
+  XDBG ((1, "option blueOffset 0x%x\n", s->dev->afe_params.b_offset));
+  XDBG ((1, "option redExposure 0x%x\n", s->dev->exp_params.r_time));
+  XDBG ((1, "option greenExposure 0x%x\n", s->dev->exp_params.g_time));
+  XDBG ((1, "option blueExposure 0x%x\n", s->dev->exp_params.b_time));
 
   s->dev->artec_48u_afe_params.r_offset = s->dev->afe_params.r_offset;
   s->dev->artec_48u_afe_params.g_offset = s->dev->afe_params.g_offset;
@@ -3370,7 +3367,7 @@ close_pipe (Artec48U_Scanner * s)
 {
   if (s->pipe >= 0)
     {
-      DBG (1, "close_pipe\n");
+      XDBG ((1, "close_pipe\n"));
       close (s->pipe);
       s->pipe = -1;
     }
@@ -3380,7 +3377,7 @@ static RETSIGTYPE
 sigalarm_handler (int signal)
 {
   int dummy;			/*Henning doesn't like warnings :-) */
-  DBG (1, "ALARM!!!\n");
+  XDBG ((1, "ALARM!!!\n"));
   dummy = signal;
   cancelRead = SANE_TRUE;
 }
@@ -3388,7 +3385,7 @@ sigalarm_handler (int signal)
 static void
 sig_chldhandler (int signo)
 {
-  DBG (1, "Child is down (signal=%d)\n", signo);
+  XDBG ((1, "Child is down (signal=%d)\n", signo));
 }
 
 static SANE_Status
@@ -3400,42 +3397,42 @@ reader_process (Artec48U_Scanner * s, SANE_Int fd)
 
   cancelRead = SANE_FALSE;
   if (sigemptyset (&(act.sa_mask)) < 0)
-    DBG (2, "(child) reader_process: sigemptyset() failed\n");
+    XDBG ((2, "(child) reader_process: sigemptyset() failed\n"));
   act.sa_flags = 0;
 
   act.sa_handler = reader_process_sigterm_handler;
   if (sigaction (SIGTERM, &act, 0) < 0)
-    DBG (2, "(child) reader_process: sigaction(SIGTERM,...) failed\n");
+    XDBG ((2, "(child) reader_process: sigaction(SIGTERM,...) failed\n"));
 
   act.sa_handler = usb_reader_process_sigterm_handler;
   if (sigaction (SIGUSR1, &act, 0) < 0)
-    DBG (2, "(child) reader_process: sigaction(SIGUSR1,...) failed\n");
+    XDBG ((2, "(child) reader_process: sigaction(SIGUSR1,...) failed\n"));
 
 
-  DBG (2, "(child) reader_process: s=%p, fd=%d\n", (void *) s, fd);
+  XDBG ((2, "(child) reader_process: s=%p, fd=%d\n", (void *) s, fd));
 
   /*read line by line into buffer */
   /*copy buffer pointers to line_buffer */
-  DBG (2, "(child) reader_process: byte_cnt %d\n", (int) s->byte_cnt);
+  XDBG ((2, "(child) reader_process: byte_cnt %d\n", (int) s->byte_cnt));
   s->eof = SANE_FALSE;
   while (s->lines_to_read > 0)
     {
       if (cancelRead == SANE_TRUE)
 	{
-	  DBG (2, "(child) reader_process: cancelRead == SANE_TRUE\n");
+	  XDBG ((2, "(child) reader_process: cancelRead == SANE_TRUE\n"));
 	  s->scanning = SANE_FALSE;
 	  s->eof = SANE_FALSE;
 	  return SANE_STATUS_CANCELLED;
 	}
       if (s->scanning != SANE_TRUE)
 	{
-	  DBG (2, "(child) reader_process: scanning != SANE_TRUE\n");
+	  XDBG ((2, "(child) reader_process: scanning != SANE_TRUE\n"));
 	  return SANE_STATUS_CANCELLED;
 	}
       status = artec48u_scanner_read_line (s, s->buffer_pointers, SANE_TRUE);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (2, "(child) reader_process: scanner_read_line failed\n");
+	  XDBG ((2, "(child) reader_process: scanner_read_line failed\n"));
 	  return SANE_STATUS_IO_ERROR;
 	}
       copy_scan_line (s);
@@ -3445,13 +3442,13 @@ reader_process (Artec48U_Scanner * s, SANE_Int fd)
 
       if (bytes_written < 0)
 	{
-	  DBG (2, "(child) reader_process: write returned %s\n",
-	       strerror (errno));
+	  XDBG ((2, "(child) reader_process: write returned %s\n",
+	       strerror (errno)));
 	  s->eof = SANE_FALSE;
 	  return SANE_STATUS_IO_ERROR;
 	}
 
-      DBG (2, "(child) reader_process: lines to read %i\n", s->lines_to_read);
+      XDBG ((2, "(child) reader_process: lines to read %i\n", s->lines_to_read));
     }
   s->eof = SANE_TRUE;
   return SANE_STATUS_GOOD;
@@ -3462,14 +3459,14 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 {
   struct SIGACTION act;
   pid_t res;
-  DBG (1, "do_cancel\n");
+  XDBG ((1, "do_cancel\n"));
 
   s->scanning = SANE_FALSE;
 
   if (s->reader_pid > 0)
     {
       /*parent */
-      DBG (1, "killing reader_process\n");
+      XDBG ((1, "killing reader_process\n"));
       /* tell the driver to stop scanning */
       sigemptyset (&(act.sa_mask));
       act.sa_flags = 0;
@@ -3477,38 +3474,38 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
       act.sa_handler = sigalarm_handler;
 
       if (sigaction (SIGALRM, &act, 0) == -1)
-	DBG (1, "sigaction() failed !\n");
+	XDBG ((1, "sigaction() failed !\n"));
 
       /* kill our child process and wait until done */
       alarm (10);
       if (kill (s->reader_pid, SIGKILL) < 0)
-	DBG (1, "kill() failed !\n");
+	XDBG ((1, "kill() failed !\n"));
       res = waitpid (s->reader_pid, 0, 0);
       alarm (0);
 
       if (res != s->reader_pid)
 	{
-	  DBG (1, "waitpid() failed !\n");
+	  XDBG ((1, "waitpid() failed !\n"));
 	}
       s->reader_pid = 0;
-      DBG (1, "reader_process killed\n");
+      XDBG ((1, "reader_process killed\n"));
     }
   if (SANE_TRUE == closepipe)
     {
       close_pipe (s);
-      DBG (1, "pipe closed\n");
+      XDBG ((1, "pipe closed\n"));
     }
   artec48u_scanner_stop_scan (s);
   artec48u_carriage_home (s->dev);
   if (s->line_buffer)
     {
-      DBG (2, "freeing line_buffer\n");
+      XDBG ((2, "freeing line_buffer\n"));
       free (s->line_buffer);
       s->line_buffer = NULL;
     }
   if (s->lineart_buffer)
     {
-      DBG (2, "freeing lineart_buffer\n");
+      XDBG ((2, "freeing lineart_buffer\n"));
       free (s->lineart_buffer);
       s->lineart_buffer = NULL;
     }
@@ -3523,8 +3520,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   Artec48U_Device *dev;
   SANE_Int dev_num;
 
-  DBG (5, "sane_get_devices: start: local_only = %s\n",
-       local_only == SANE_TRUE ? "true" : "false");
+  XDBG ((5, "sane_get_devices: start: local_only = %s\n",
+       local_only == SANE_TRUE ? "true" : "false"));
 
   if (devlist)
     free (devlist);
@@ -3537,9 +3534,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   for (dev = first_dev; dev_num < num_devices; dev = dev->next)
     {
       devlist[dev_num] = &dev->sane;
-      DBG (3, "sane_get_devices: name %s\n", dev->sane.name);
-      DBG (3, "sane_get_devices: vendor %s\n", dev->sane.vendor);
-      DBG (3, "sane_get_devices: model %s\n", dev->sane.model);
+      XDBG ((3, "sane_get_devices: name %s\n", dev->sane.name));
+      XDBG ((3, "sane_get_devices: vendor %s\n", dev->sane.vendor));
+      XDBG ((3, "sane_get_devices: model %s\n", dev->sane.model));
       ++dev_num;
     }
   devlist[dev_num] = 0;
@@ -3547,7 +3544,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   *device_list = devlist;
 
-  DBG (5, "sane_get_devices: exit\n");
+  XDBG ((5, "sane_get_devices: exit\n"));
 
   return SANE_STATUS_GOOD;
 }
@@ -3565,16 +3562,16 @@ getReaderProcessExitCode (Artec48U_Scanner * s)
       res = waitpid (s->reader_pid, &status, WNOHANG);
       if (res == s->reader_pid)
 	{
-	  DBG (2, "res=%i, status=%i\n", res, status);
+	  XDBG ((2, "res=%i, status=%i\n", res, status));
 	  if (WIFEXITED (status))
 	    {
 	      s->exit_code = WEXITSTATUS (status);
-	      DBG (2, "Child WEXITSTATUS = %d\n", s->exit_code);
+	      XDBG ((2, "Child WEXITSTATUS = %d\n", s->exit_code));
 	    }
 	  else
 	    {
 	      s->exit_code = SANE_STATUS_GOOD;
-	      DBG (2, "Child termination okay\n");
+	      XDBG ((2, "Child termination okay\n"));
 	    }
 	  return SANE_TRUE;
 	}
@@ -3591,6 +3588,7 @@ load_calibration_data (Artec48U_Scanner * s)
   char path[PATH_MAX];
   char filename[PATH_MAX];
 
+  s->calibrated = SANE_FALSE;
   path[0] = 0;
   if (strlen (getenv ("HOME")) < (PATH_MAX - 1))
     strcat (path, getenv ("HOME"));
@@ -3608,18 +3606,18 @@ load_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48ushading_black");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to read black shading file: \"%s\"\n", filename);
+  XDBG ((1, "Try to read black shading file: \"%s\"\n", filename));
 
   f = fopen (filename, "rb");
   if (!f)
     return SANE_STATUS_INVAL;
 
   /*read values */
-  cnt = fread (s->shading_buffer_b, sizeof (unsigned char), 30720, f);
-  if (cnt != 30720)
+  cnt = fread (s->shading_buffer_b, sizeof (unsigned char), 30720*s->dev->epro_mult, f); /*epro*/
+  if (cnt != (30720*s->dev->epro_mult)) /*epro*/
     {
       fclose (f);
-      DBG (1, "Could not load black shading file\n");
+      XDBG ((1, "Could not load black shading file\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3630,16 +3628,16 @@ load_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48ushading_white");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to read white shading file: \"%s\"\n", filename);
+  XDBG ((1, "Try to read white shading file: \"%s\"\n", filename));
   f = fopen (filename, "rb");
   if (!f)
     return SANE_STATUS_INVAL;
   /*read values */
-  cnt = fread (s->shading_buffer_w, sizeof (unsigned char), 30720, f);
-  if (cnt != 30720)
+  cnt = fread (s->shading_buffer_w, sizeof (unsigned char), 30720*s->dev->epro_mult, f);/*epro*/
+  if (cnt != (30720*s->dev->epro_mult)) /*epro*/
     {
       fclose (f);
-      DBG (1, "Could not load white shading file\n");
+      XDBG ((1, "Could not load white shading file\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3650,7 +3648,7 @@ load_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48uoffset");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to read offset file: \"%s\"\n", filename);
+  XDBG ((1, "Try to read offset file: \"%s\"\n", filename));
   f = fopen (filename, "rb");
   if (!f)
     return SANE_STATUS_INVAL;
@@ -3661,7 +3659,7 @@ load_calibration_data (Artec48U_Scanner * s)
   if (cnt != 1)
     {
       fclose (f);
-      DBG (1, "Could not load offset file\n");
+      XDBG ((1, "Could not load offset file\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3672,7 +3670,7 @@ load_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48uexposure");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to read exposure file: \"%s\"\n", filename);
+  XDBG ((1, "Try to read exposure file: \"%s\"\n", filename));
   f = fopen (filename, "rb");
   if (!f)
     return SANE_STATUS_INVAL;
@@ -3683,7 +3681,7 @@ load_calibration_data (Artec48U_Scanner * s)
   if (cnt != 1)
     {
       fclose (f);
-      DBG (1, "Could not load exposure file\n");
+      XDBG ((1, "Could not load exposure file\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3718,23 +3716,23 @@ save_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48ushading_black");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to save black shading file: \"%s\"\n", filename);
+  XDBG ((1, "Try to save black shading file: \"%s\"\n", filename));
   f = fopen (filename, "w");
   if (!f)
     {
-      DBG (1, "Could not save artec48ushading_black\n");
+      XDBG ((1, "Could not save artec48ushading_black\n"));
       return SANE_STATUS_INVAL;
     }
   if (chmod (filename, mode) != 0)
     return SANE_STATUS_INVAL;
 
   /*read values */
-  cnt = fwrite (s->shading_buffer_b, sizeof (unsigned char), 30720, f);
-  DBG (1, "Wrote %i bytes to black shading buffer \n", cnt);
-  if (cnt != 30720)
+  cnt = fwrite (s->shading_buffer_b, sizeof (unsigned char), 30720*s->dev->epro_mult, f); /*epro*/
+  XDBG ((1, "Wrote %i bytes to black shading buffer \n", cnt));
+  if (cnt != (30720*s->dev->epro_mult))/*epro*/
     {
       fclose (f);
-      DBG (1, "Could not write black shading buffer\n");
+      XDBG ((1, "Could not write black shading buffer\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3745,18 +3743,18 @@ save_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48ushading_white");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to save white shading file: \"%s\"\n", filename);
+  XDBG ((1, "Try to save white shading file: \"%s\"\n", filename));
   f = fopen (filename, "w");
   if (!f)
     return SANE_STATUS_INVAL;
   if (chmod (filename, mode) != 0)
     return SANE_STATUS_INVAL;
   /*read values */
-  cnt = fwrite (s->shading_buffer_w, sizeof (unsigned char), 30720, f);
-  if (cnt != 30720)
+  cnt = fwrite (s->shading_buffer_w, sizeof (unsigned char), 30720*s->dev->epro_mult, f);/*epro*/
+  if (cnt != (30720*s->dev->epro_mult)) /*epro*/
     {
       fclose (f);
-      DBG (1, "Could not write white shading buffer\n");
+      XDBG ((1, "Could not write white shading buffer\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3767,7 +3765,7 @@ save_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48uoffset");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to write offset file: \"%s\"\n", filename);
+  XDBG ((1, "Try to write offset file: \"%s\"\n", filename));
   f = fopen (filename, "w");
   if (!f)
     return SANE_STATUS_INVAL;
@@ -3780,7 +3778,7 @@ save_calibration_data (Artec48U_Scanner * s)
   if (cnt != 1)
     {
       fclose (f);
-      DBG (1, "Could not write afe values\n");
+      XDBG ((1, "Could not write afe values\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3791,7 +3789,7 @@ save_calibration_data (Artec48U_Scanner * s)
     strcat (filename, "artec48uexposure");
   else
     return SANE_STATUS_INVAL;
-  DBG (1, "Try to write exposure file: \"%s\"\n", filename);
+  XDBG ((1, "Try to write exposure file: \"%s\"\n", filename));
   f = fopen (filename, "w");
   if (!f)
     return SANE_STATUS_INVAL;
@@ -3804,7 +3802,7 @@ save_calibration_data (Artec48U_Scanner * s)
   if (cnt != 1)
     {
       fclose (f);
-      DBG (1, "Could not write exposure values\n");
+      XDBG ((1, "Could not write exposure values\n"));
       return SANE_STATUS_INVAL;
     }
   fclose (f);
@@ -3820,7 +3818,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   if (!devicename)
     return SANE_STATUS_INVAL;
-  DBG (2, "sane_open: devicename = \"%s\"\n", devicename);
+  XDBG ((2, "sane_open: devicename = \"%s\"\n", devicename));
 
 
   if (devicename[0])
@@ -3829,8 +3827,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	{
 	  if (strcmp (dev->sane.name, devicename) == 0)
 	    {
-	      DBG (2, "sane_open: found matching device %s\n",
-		   dev->sane.name);
+	      XDBG ((2, "sane_open: found matching device %s\n",
+		   dev->sane.name));
 	      break;
 	    }
 	}
@@ -3838,34 +3836,35 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	{
 	  status = attach (devicename, &dev);
 	  if (status != SANE_STATUS_GOOD)
-	    DBG (2, "sane_open: attach failed %s\n", devicename);
+	    XDBG ((2, "sane_open: attach failed %s\n", devicename));
 	}
     }
   else
     {
       /* empty devicename -> use first device */
-      DBG (2, "sane_open: empty devicename\n");
+      XDBG ((2, "sane_open: empty devicename\n"));
       dev = first_dev;
     }
   if (!dev)
     return SANE_STATUS_INVAL;
-  DBG (2, "sane_open: try to open %s\n", dev->sane.name);
+
   status = artec48u_device_open (dev);
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "could not open device\n");
+      XDBG ((3, "could not open device\n"));
       return status;
     }
-  DBG (2, "sane_open: opening device `%s', handle = %p\n", dev->sane.name,
-       (void *) dev);
+  XDBG ((2, "sane_open: opening device `%s', handle = %p\n", dev->sane.name,
+       (void *) dev));
 
-  DBG (1, "sane_open - %s\n", dev->sane.name);
+  XDBG ((1, "sane_open - %s\n", dev->sane.name));
+  XDBG ((2, "sane_open: try to open %s\n", dev->sane.name));
 
   status = artec48u_device_activate (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "could not activate device\n");
+      XDBG ((3, "could not activate device\n"));
       return status;
     }
   /* We do not check anymore, whether the firmware is already loaded */
@@ -3874,7 +3873,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   status = download_firmware_file (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "download_firmware_file failed\n");
+      XDBG ((3, "download_firmware_file failed\n"));
       return status;
     }
   /* If a scan is interrupted without sending stop_scan, bad things happen.
@@ -3903,7 +3902,7 @@ sane_close (SANE_Handle handle)
 {
   Artec48U_Scanner *prev, *s;
 
-  DBG (5, "sane_close: start\n");
+  XDBG ((5, "sane_close: start\n"));
 
   /* remove handle from list of open handles: */
   prev = 0;
@@ -3915,12 +3914,12 @@ sane_close (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG (5, "close: invalid handle %p\n", handle);
+      XDBG ((5, "close: invalid handle %p\n", handle));
       return;
     }
   artec48u_device_close (s->dev);
   artec48u_scanner_free (s);
-  DBG (5, "sane_close: exit\n");
+  XDBG ((5, "sane_close: exit\n"));
 }
 
 const SANE_Option_Descriptor *
@@ -3930,8 +3929,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
-  DBG (5, "sane_get_option_descriptor: option = %s (%d)\n",
-       s->opt[option].name, option);
+  XDBG ((5, "sane_get_option_descriptor: option = %s (%d)\n",
+       s->opt[option].name, option));
   return s->opt + option;
 }
 
@@ -3944,8 +3943,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Int button_state;
 #endif
   SANE_Status status;
-  DBG (8, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-       (void *) handle, option, action, (void *) value, (void *) info);
+  XDBG ((8, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
+       (void *) handle, option, action, (void *) value, (void *) info));
 
   if (info)
     *info = 0;
@@ -3972,8 +3971,29 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
       switch (option)
 	{
-	  /* fall through */
 	case OPT_RESOLUTION:
+          if(s->dev->is_epro != 0)
+	  {
+            if((s->val[option].w == 1200) && (*(SANE_Word *) value < 1200))
+            {
+              s->opt[OPT_BIT_DEPTH].constraint.word_list = bitdepth_list;
+	      *info |= SANE_INFO_RELOAD_OPTIONS;
+            }
+            else if((s->val[option].w < 1200) && (*(SANE_Word *) value == 1200))
+            {
+              s->opt[OPT_BIT_DEPTH].constraint.word_list = bitdepth_list2;
+              if(s->val[OPT_BIT_DEPTH].w > 8)
+                s->val[OPT_BIT_DEPTH].w = 8;
+	      *info |= SANE_INFO_RELOAD_OPTIONS;
+            }
+	  }
+	  s->val[option].w = *(SANE_Word *) value;
+	  if (info)
+	  {
+            *info |= SANE_INFO_RELOAD_PARAMS;
+          }
+	  break;
+        /* fall through */
 	case OPT_BIT_DEPTH:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -4103,8 +4123,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   int brx;
   int bry;
   int tmp;
-  DBG (2, "sane_get_params: string %s\n", str);
-  DBG (2, "sane_get_params: enter\n");
+  XDBG ((2, "sane_get_params: string %s\n", str));
+  XDBG ((2, "sane_get_params: enter\n"));
+
   tlx = s->val[OPT_TL_X].w;
   tly = s->val[OPT_TL_Y].w;
   brx = s->val[OPT_BR_X].w;
@@ -4141,8 +4162,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   s->request.ys = bry - tly;	    /**< Height */
   s->request.xdpi = resx;      /**< Horizontal resolution */
   s->request.ydpi = resx;      /**< Vertical resolution */
-  if (resx == 1200)
-    s->request.xdpi = 600;	/**< Vertical resolution */
+  /*epro*/
+  if ((resx == 1200) && (s->dev->is_epro == 0))
+    s->request.xdpi = 600;/**< Vertical resolution */
 
   status = artec48u_setup_scan (s, &(s->request), SA_SCAN,
 				SANE_TRUE, &(s->params));
@@ -4169,7 +4191,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->params.lineart = SANE_TRUE;
 	}
     }
-  if (resx == 1200)
+  if ((resx == 1200) && (s->dev->is_epro == 0))
     {
       if (params->depth == 1)
 	params->bytes_per_line = (s->params.pixel_xs * 2 + 7) / 8;
@@ -4180,7 +4202,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     params->bytes_per_line *= 2;
   params->last_frame = SANE_TRUE;
   params->pixels_per_line = s->params.pixel_xs;
-  if (resx == 1200)
+  if ((resx == 1200) && (s->dev->is_epro == 0))
     params->pixels_per_line *= 2;
   params->lines = s->params.pixel_ys;
   return SANE_STATUS_GOOD;
@@ -4203,7 +4225,7 @@ sane_start (SANE_Handle handle)
 
   if ((s->calibrated != SANE_TRUE) || (s->val[OPT_CALIBRATE].w == SANE_TRUE))
     {
-      DBG (1, "Must calibrate scanner\n");
+      XDBG ((1, "Must calibrate scanner\n"));
       status = calibrate_scanner (s);
       if (status != SANE_STATUS_GOOD)
 	return status;
@@ -4231,7 +4253,7 @@ sane_start (SANE_Handle handle)
   /*If resolution is 1200 dpi and we are scanning in lineart mode,
      then we also allocate a lineart_buffer, which can hold a complete scan line
      in 8 bit/gray. This makes interpolation easier. */
-  if (s->params.ydpi == 1200)
+  if ((s->params.ydpi == 1200) && (s->dev->is_epro == 0))
     {
       if (s->request.color == SANE_TRUE)
 	{
@@ -4260,13 +4282,13 @@ sane_start (SANE_Handle handle)
   if (pipe (fds) < 0)
     {
       s->scanning = SANE_FALSE;
-      DBG (2, "sane_start: pipe failed (%s)\n", strerror (errno));
+      XDBG ((2, "sane_start: pipe failed (%s)\n", strerror (errno)));
       return SANE_STATUS_IO_ERROR;
     }
   status = artec48u_scanner_start_scan (s, &s->request, &s->params);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "sane_start: could not start scan\n");
+      XDBG ((2, "sane_start: could not start scan\n"));
       return status;
     }
   s->reader_pid = fork ();
@@ -4276,7 +4298,7 @@ sane_start (SANE_Handle handle)
       sigset_t ignore_set;
       struct SIGACTION act;
 
-      DBG (1, "reader process...\n");
+      XDBG ((1, "reader process...\n"));
 
       close (fds[0]);
 
@@ -4291,7 +4313,7 @@ sane_start (SANE_Handle handle)
 
       status = reader_process (s, fds[1]);
 
-      DBG (1, "reader process done, status = %i\n", status);
+      XDBG ((1, "reader process done, status = %i\n", status));
 
       /* don't use exit() since that would run the atexit() handlers */
       _exit (status);
@@ -4299,7 +4321,7 @@ sane_start (SANE_Handle handle)
   else if (s->reader_pid < 0)
     {
       s->scanning = SANE_FALSE;
-      DBG (2, "sane_start: fork failed (%s)\n", strerror (errno));
+      XDBG ((2, "sane_start: fork failed (%s)\n", strerror (errno)));
       return SANE_STATUS_NO_MEM;
     }
   signal (SIGCHLD, sig_chldhandler);
@@ -4307,7 +4329,7 @@ sane_start (SANE_Handle handle)
   close (fds[1]);
   s->pipe = fds[0];
 
-  DBG (1, "sane_start done\n");
+  XDBG ((1, "sane_start done\n"));
 
   return SANE_STATUS_GOOD;	/* parent */
 }
@@ -4323,7 +4345,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   /* here we read all data from the driver... */
   nread = read (s->pipe, data, max_length);
-  DBG (3, "sane_read - read %ld bytes\n", (long) nread);
+  XDBG ((3, "sane_read - read %ld bytes\n", (long) nread));
   if (cancelRead == SANE_TRUE)
     {
       return do_cancel (s, SANE_TRUE);
@@ -4347,7 +4369,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	}
       else
 	{
-	  DBG (4, "ERROR: errno=%d\n", errno);
+	  XDBG ((4, "ERROR: errno=%d\n", errno));
 	  do_cancel (s, SANE_TRUE);
 	  return SANE_STATUS_IO_ERROR;
 	}
@@ -4378,7 +4400,7 @@ void
 sane_cancel (SANE_Handle handle)
 {
   Artec48U_Scanner *s = handle;
-  DBG (2, "sane_cancel: handle = %p\n", handle);
+  XDBG ((2, "sane_cancel: handle = %p\n", handle));
   if (s->scanning)
     do_cancel (s, SANE_FALSE);
 }
@@ -4388,27 +4410,27 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Artec48U_Scanner *s = (Artec48U_Scanner *) handle;
 
-  DBG (1, "sane_set_io_mode: non_blocking=%d\n", non_blocking);
+  XDBG ((1, "sane_set_io_mode: non_blocking=%d\n", non_blocking));
 
   if (!s->scanning)
     {
-      DBG (4, "ERROR: not scanning !\n");
+      XDBG ((4, "ERROR: not scanning !\n"));
       return SANE_STATUS_INVAL;
     }
 
   if (-1 == s->pipe)
     {
-      DBG (4, "ERROR: not supported !\n");
+      XDBG ((4, "ERROR: not supported !\n"));
       return SANE_STATUS_UNSUPPORTED;
     }
 
   if (fcntl (s->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
     {
-      DBG (4, "ERROR: can´t set to non-blocking mode !\n");
+      XDBG ((4, "ERROR: can?t set to non-blocking mode !\n"));
       return SANE_STATUS_IO_ERROR;
     }
 
-  DBG (1, "sane_set_io_mode done\n");
+  XDBG ((1, "sane_set_io_mode done\n"));
   return SANE_STATUS_GOOD;
 }
 
@@ -4417,17 +4439,17 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   Artec48U_Scanner *s = (Artec48U_Scanner *) handle;
 
-  DBG (1, "sane_get_select_fd\n");
+  XDBG ((1, "sane_get_select_fd\n"));
 
   if (!s->scanning)
     {
-      DBG (4, "ERROR: not scanning !\n");
+      XDBG ((4, "ERROR: not scanning !\n"));
       return SANE_STATUS_INVAL;
     }
 
   *fd = s->pipe;
 
-  DBG (1, "sane_get_select_fd done\n");
+  XDBG ((1, "sane_get_select_fd done\n"));
   return SANE_STATUS_GOOD;
 }
 
@@ -4444,9 +4466,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   double gamma_r = 1.0;
   double gamma_g = 1.0;
   double gamma_b = 1.0;
+  int epro_default = 0;
 
   DBG_INIT ();
-
+  eProMult = 1;
+  isEPro = 0;
   temp[0] = 0;
   strcpy (vendor_string, "Artec");
   strcpy (model_string, "E+ 48U");
@@ -4470,7 +4494,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   while (sanei_config_read (str, sizeof (str), fp))
     {
-      DBG (1, "sane_init, >%s<\n", str);
+      XDBG ((1, "sane_init, >%s<\n", str));
       /* ignore line comments */
       if (str[0] == '#')
 	continue;
@@ -4481,6 +4505,17 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       /* check for options */
       if (0 == strncmp (str, "option", 6))
 	{
+	  if(decodeVal (str,"ePlusPro",_INT, &isEPro,&epro_default) == SANE_TRUE)
+	  {
+            eProMult = 1;
+            if(isEPro != 0)
+            {
+              eProMult = 2;
+              XDBG ((3, "Is Artec E Pro\n"));
+            }
+            else
+              XDBG ((3, "Is Artec E+ 48U\n"));
+          }
 	  decodeVal (str, "masterGamma", _FLOAT, &gamma_master_default,
 		     &gamma_m);
 	  decodeVal (str, "redGamma", _FLOAT, &gamma_r_default, &gamma_r);
@@ -4511,9 +4546,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	{
 	  if (temp[0] != 0)
 	    {
-	      DBG (3, "trying to attach: %s\n", temp);
-	      DBG (3, "      vendor: %s\n", vendor_string);
-	      DBG (3, "      model: %s\n", model_string);
+	      XDBG ((3, "trying to attach: %s\n", temp));
+	      XDBG ((3, "      vendor: %s\n", vendor_string));
+	      XDBG ((3, "      model: %s\n", model_string));
 	      sanei_usb_attach_matching_devices (temp, attach_one_device);
 	    }
 	  /*save config line in temp */
@@ -4532,19 +4567,19 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       else
 	{
 	  /* ignore other stuff... */
-	  DBG (1, "ignoring >%s<\n", str);
+	  XDBG ((1, "ignoring >%s<\n", str));
 	}
     }
   if (temp[0] != 0)
     {
-      DBG (3, "trying to attach: %s\n", temp);
-      DBG (3, "      vendor: %s\n", vendor_string);
-      DBG (3, "      model: %s\n", model_string);
+      XDBG ((3, "trying to attach: %s\n", temp));
+      XDBG ((3, "      vendor: %s\n", vendor_string));
+      XDBG ((3, "      model: %s\n", model_string));
       sanei_usb_attach_matching_devices (temp, attach_one_device);
       temp[0] = 0;
     }
-  fclose (fp);
 
+  fclose (fp);
   return SANE_STATUS_GOOD;
 }
 
@@ -4553,7 +4588,7 @@ sane_exit (void)
 {
   Artec48U_Device *dev, *next;
 
-  DBG (5, "sane_exit: start\n");
+  XDBG ((5, "sane_exit: start\n"));
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;
@@ -4561,6 +4596,6 @@ sane_exit (void)
       artec48u_device_close (dev);
       artec48u_device_free (dev);
     }
-  DBG (5, "sane_exit: exit\n");
+  XDBG ((5, "sane_exit: exit\n"));
   return;
 }

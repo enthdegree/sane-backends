@@ -63,3 +63,10 @@
 :status :good
 :interface "USB"
 :comment "Different product id: 0x4009"
+
+:mfg "Artec/Ultima"
+:url "http://www.artecusa.com/"
+:model "E+ Pro"
+:status :minimal
+:interface "USB"
+:comment "Experimental! Different product id: 0x4004. Please report your results!"

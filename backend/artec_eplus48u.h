@@ -172,6 +172,8 @@ struct Artec48U_Device
   size_t read_pos;
   size_t read_bytes_in_buffer;
   size_t read_bytes_left;
+  unsigned int is_epro;
+  unsigned int epro_mult;
 };
 
 /** Scan parameters for artec48u_device_setup_scan().
@@ -259,6 +261,16 @@ struct Artec48U_Line_Reader
 			 unsigned int **buffer_pointers_return);
 };
 
+#ifndef SANE_OPTION
+typedef union
+{
+  SANE_Word w;
+  SANE_Word *wa;		/* word array */
+  SANE_String s;
+}
+Option_Value;
+#endif
+
 struct Artec48U_Scanner
 {
   Artec48U_Scanner *next;
@@ -282,7 +294,7 @@ struct Artec48U_Scanner
   SANE_Byte *line_buffer;
   SANE_Byte *lineart_buffer;
   SANE_Word lines_to_read;
-  unsigned int temp_shading_buffer[3][5120];
+  unsigned int temp_shading_buffer[3][10240]; /*epro*/
   unsigned int *buffer_pointers[3];
   unsigned char *shading_buffer_w;
   unsigned char *shading_buffer_b;

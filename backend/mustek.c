@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000 Henning Meier-Geinitz
+   2000, 2001 Henning Meier-Geinitz.
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 103
+#define BUILD 104
 /**************************************************************************/
 
 #include "sane/config.h"
@@ -116,26 +116,15 @@ static SANE_String_Const mode_list_paragon[] =
     "Lineart", "Halftone", "Gray", "Color",
     0
   };
-static SANE_String_Const mode_list_pro[] =
-  {
-    "Lineart", "Gray", "Gray fast", "Color",
-    0
-  };
 static SANE_String_Const mode_list_se[] =
   {
     "Lineart", "Gray", "Color",
     0
   };
-/*
-static SANE_String_Const mode_list_se_plus[] =
+
+static SANE_String_Const bit_depth_list_pro[] =
   {
-    "Lineart", "Gray", "Color", "Color 48 bit",
-    0
-  };
-*/
-static SANE_String_Const mode_list_se_plus[] =
-  {
-    "Lineart", "Gray", "Color",
+    "8", "12",
     0
   };
 
@@ -243,6 +232,17 @@ static const SANE_Byte scsi_lookup_table[] =
 /* prototypes */
 static SANE_Status area_and_windows (Mustek_Scanner *s);
 static SANE_Status inquiry (Mustek_Scanner *s);
+
+/* Test if this machine is little endian (from coolscan.c) */
+static SANE_Bool little_endian(void)
+{
+  SANE_Int testvalue = 255;
+  u_int8_t *firstbyte = (u_int8_t *) &testvalue;
+
+  if (*firstbyte == 255)
+    return SANE_TRUE;
+  return SANE_FALSE;
+}
 
 /* Used for Pro series. First value seems to be always 85, second one varies.
    First bit of second value clear == device ready (?) */
@@ -609,8 +609,6 @@ dev_read_req_enter (Mustek_Scanner *s, SANE_Byte *buf, SANE_Int lines,
 	  SANE_Byte readlines[10];
 	  if (s->mode & MUSTEK_MODE_COLOR)
 	    lines *= 3;
-	  else if (s->mode & MUSTEK_MODE_COLOR_48)
-	    lines *= 6;
 	    
 	  memset (readlines, 0, sizeof (readlines));
 	  readlines[0] = MUSTEK_SCSI_READ_DATA;
@@ -1807,11 +1805,6 @@ set_window_se (Mustek_Scanner *s, SANE_Int lamp)
       *cp++ = 0x05;			/* actually not used!		*/
       *cp++ = 24;			/* 24 bits/pixel in color mode	*/
     }
-  else if (s->mode & MUSTEK_MODE_COLOR_48)
-    {
-      *cp++ = 0x05;			/* actually not used!		*/
-      *cp++ = 48;			/* 48 bits/pixel in color mode	*/
-    }
   else if (s->mode & MUSTEK_MODE_GRAY)
     {
       *cp++ = 0x02;   			/* actually not used!		*/
@@ -1846,7 +1839,7 @@ set_window_pro (Mustek_Scanner *s)
 
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = MUSTEK_SCSI_SET_WINDOW;
-  cmd[8] = 0x0a;
+  cmd[8] = 0x09;
   cp = cmd + sizeof (scsi_set_window);	/* skip command block		*/
 
   *cp++ = 0; /* what's this? */
@@ -1857,7 +1850,8 @@ set_window_pro (Mustek_Scanner *s)
   STORE16L(cp, SANE_UNFIX (s->val[OPT_TL_Y].w) * pixels_per_mm + 0.5);
   STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_X].w) * pixels_per_mm + 0.5);
   STORE16L(cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5);
-  *cp++ = 0x14; /* what's this? */
+
+  /**cp++ = 0x14;*/ /* what's this? */
   DBG(5, "set_window_pro\n");      
 
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);
@@ -1998,7 +1992,9 @@ calibration_pro (Mustek_Scanner *s)
 {
   SANE_Status status;
   
-  if (s->val[OPT_QUALITY_CAL].w)
+  if (s->val[OPT_QUALITY_CAL].w && (!s->val[OPT_FAST_GRAY_MODE].w) &&
+      !((s->mode & MUSTEK_MODE_COLOR) &&
+	(strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)))
     DBG(4, "calibration_pro: doing calibration\n");
   else
     return SANE_STATUS_GOOD;
@@ -2049,7 +2045,7 @@ get_calibration_lines_se (Mustek_Scanner *s)
       bytes_per_color = s->hw->cal.bytes;
     }
 
-  DBG(4, "read_calibration_lines_se: reading %d lines (% bytes per color)\n",
+  DBG(4, "get_calibration_lines_se: reading %d lines (%d bytes per color)\n",
       lines, bytes_per_color);
   memset (cmd, 0, sizeof (cmd));
   cmd[0] = MUSTEK_SCSI_READ_DATA;
@@ -2162,6 +2158,7 @@ calibration_se (Mustek_Scanner *s)
   status = get_calibration_lines_se (s);
   if (status != SANE_STATUS_GOOD)
     return status;
+
   if (s->mode == MUSTEK_MODE_GRAY)
     status = send_calibration_lines_se (s, 0);
   else
@@ -2192,8 +2189,7 @@ send_gamma_table_se (Mustek_Scanner *s)
   gamma[0] = MUSTEK_SCSI_SEND_DATA;
   gamma[2] = 0x03;			/* indicates gamma table */
 
-  if ((s->mode & MUSTEK_MODE_GRAY) || (s->mode & MUSTEK_MODE_COLOR)
-      || (s->mode & MUSTEK_MODE_COLOR_48))
+  if ((s->mode & MUSTEK_MODE_GRAY) || (s->mode & MUSTEK_MODE_COLOR))
     {
       if (s->hw->gamma_length + sizeof (scsi_send_data) > sizeof (gamma))
         return SANE_STATUS_NO_MEM;
@@ -2201,8 +2197,7 @@ send_gamma_table_se (Mustek_Scanner *s)
       gamma[8] = (s->hw->gamma_length >> 0) & 0xff;
 
       factor = s->hw->gamma_length / 256;
-      color = (s->mode & MUSTEK_MODE_COLOR 
-	       || s->mode & MUSTEK_MODE_COLOR_48) ? 1 : 0;
+      color = (s->mode & MUSTEK_MODE_COLOR) ? 1 : 0;
 
       do 
         {
@@ -2407,19 +2402,28 @@ mode_select_pro (Mustek_Scanner *s)
   mode[4] = 0x0d;
 
   if (s->mode & MUSTEK_MODE_COLOR)
-    mode[6] = 0x60;
+    {
+      if (strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)
+	mode[6] = 0xE0;
+      else
+	mode[6] = 0x60;
+    }
   else if (s->mode & MUSTEK_MODE_GRAY)
-    mode[6] = 0x40;  
-  else if (s->mode & MUSTEK_MODE_GRAY_FAST)
-    mode[6] = 0x20; 
+    {
+      if (s->val[OPT_FAST_GRAY_MODE].w)
+	mode[6] = 0x20; 
+      else
+	mode[6] = 0x40;  
+    }
   else
     mode[6] = 0x00; /* lineart */
 
   mode[11] = 0x00;  /* what's this? */
-  mode[16] = 0x41;  /* what's this? */
   cp = mode + 17;
   STORE16L(cp, s->resolution_code);
 
+  DBG(5, "mode_select_pro: resolution_code=%d (0x%x), mode=0x%x\n",
+      s->resolution_code, s->resolution_code, mode[6]);
   return dev_cmd (s, mode, 6 + mode[4], 0, 0);
 }
 
@@ -2488,10 +2492,17 @@ gamma_correction (Mustek_Scanner *s, SANE_Int color_code)
       bytes_per_channel = 4096;
       len = bytes_per_channel;
       if (s->mode == MUSTEK_MODE_COLOR)
-	gamma[9] = (color_code << 6); /* color */
-      else if ((s->mode == MUSTEK_MODE_GRAY) 
-	    || (s->mode == MUSTEK_MODE_GRAY_FAST))
-	gamma[9] = 0x80; /* grayscale */
+	{
+	  gamma[9] = (color_code << 6); /* color */
+	  if (strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)
+	    gamma[2] = 0x7f; /* medium brightness */
+	}
+      else if (s->mode == MUSTEK_MODE_GRAY) 
+	{
+	  gamma[9] = 0x80; /* grayscale */
+	  if (s->val[OPT_FAST_GRAY_MODE].w)
+	    gamma[2] = 0x7f; /* medium brightness */
+	}
       else /* lineart */
 	{
 	  gamma[2] = 128 - 127 * SANE_UNFIX(s->val[OPT_BRIGHTNESS].w) / 100.0; 
@@ -2919,6 +2930,9 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
   res = s->resolution_code;
   half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
 
+  DBG(5, "get_window: resolution: %d dpi (hardware: %d dpi)\n",
+      res, s->ld.peak_res);
+
   len = sizeof (result);
   status = dev_cmd (s, scsi_get_window, sizeof (scsi_get_window), result, 
 		    &len);
@@ -2933,17 +2947,16 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
   s->hw->cal.lines = (result[10] << 24) | (result[11] << 16) |
 		     (result[12] <<  8) | (result[13] <<  0);
 
-  DBG(4, "get_window: calib_bytes=%d, calib_lines=%d\n",
+  DBG(4, "get_window: calibration bpl=%d, lines=%d\n",
       s->hw->cal.bytes, s->hw->cal.lines);
 
   s->hw->bpl = (result[14] << 24) | (result[15] << 16) |
 	       (result[16] <<  8) | result[17];  
-  if (s->mode & MUSTEK_MODE_COLOR_48)
-    s->hw->bpl *= 2;
+
   s->hw->lines = (result[18] << 24) | (result[19] << 16) | 
 		 (result[20] <<  8) | result[21];
 
-  DBG(4, "get_window: bytes_per_line=%d, lines=%d\n",
+  DBG(4, "get_window: scan bpl=%d, lines=%d\n",
       s->hw->bpl, s->hw->lines);
      
   if ((s->hw->cal.bytes == 0) || (s->hw->cal.lines == 0) 
@@ -2957,7 +2970,7 @@ get_window (Mustek_Scanner *s, SANE_Int *bpl, SANE_Int *lines,
   s->hw->gamma_length = 1 << result[26];
   DBG(4, "get_window: gamma length=%d\n",  s->hw->gamma_length);    
 
-  if ((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_COLOR_48))
+  if (s->mode & MUSTEK_MODE_COLOR)
     {
       s->ld.buf[0] = NULL;
       for (color = 0; color < 3; ++color)
@@ -3482,32 +3495,105 @@ fix_line_distance_pro (Mustek_Scanner *s, SANE_Int num_lines, SANE_Int bpl,
   SANE_Byte *out_addr, *in_addr;
   SANE_Int res, half_res, y, x_out, x_in;
 
+  
   res = SANE_UNFIX (s->val[OPT_RESOLUTION].w);
   half_res = SANE_UNFIX (s->hw->dpi_range.max) / 2;
 
   DBG(5, "fix_line_distance_pro: res=%d; halfres=%d; num_lines=%d; bpl=%d\n",
       res, half_res, num_lines, bpl);
   
-  /* need to enlarge x-resolution? */
-  if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) && (res > half_res))
+  if (strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)
     {
-      DBG(5, "fix_line_distance_pro: res > half_res --> need to enlarge x\n");
-
-      for (y = 0; y < num_lines; y++)
+      if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) && (res > half_res))
 	{
-	  for (x_out = 0; x_out < s->params.pixels_per_line; x_out++)
-	    {
-	      x_in = x_out * bpl / s->params.bytes_per_line;
-	      out_addr = out + y * s->params.bytes_per_line + x_out * 3;
-	      in_addr = raw + y * bpl + x_in * 3;	
-	      *(out_addr) = *(in_addr);
-	      *(out_addr + 1) = *(in_addr + 1);
-	      *(out_addr + 2) = *(in_addr + 2);
-	    }
+	  /*12 bit, need to enlarge x-resolution */
+	  DBG(5, "fix_line_distance_pro: res > half_res --> need to "
+	      "enlarge x\n");
+	  if (little_endian ())
+	    for (y = 0; y < num_lines; y++)
+	      {
+		for (x_out = 0; x_out < s->params.pixels_per_line; x_out++)
+		  {
+		    x_in = x_out * bpl / s->params.bytes_per_line / 2;
+		    x_in *= 2;
+		    out_addr = out + y * s->params.bytes_per_line + x_out * 6;
+		    in_addr = raw + y * bpl + x_in * 6;
+		    *(out_addr) = *(in_addr) << 4;
+		    *(out_addr + 1) = (*(in_addr) >> 4) + 
+		      (*(in_addr + 1) << 4);
+		    *(out_addr + 2) = *(in_addr + 2) << 4;
+		    *(out_addr + 3) = (*(in_addr + 2) >> 4) + 
+		      (*(in_addr + 3) << 4);
+		    *(out_addr + 4) = *(in_addr + 4) << 4;
+		    *(out_addr + 5) = (*(in_addr + 4) >> 4) + 
+		      (*(in_addr + 5) << 4);
+		}
+	      }
+	  else /* big endian */
+	    for (y = 0; y < num_lines; y++)
+	      {
+		for (x_out = 0; x_out < s->params.pixels_per_line; x_out++)
+		  {
+		    x_in = x_out * bpl / s->params.bytes_per_line / 2;
+		    out_addr = out + y * s->params.bytes_per_line + x_out * 6;
+		    in_addr = raw + y * bpl + x_in * 6;
+		    *(out_addr) = (*(in_addr) >> 4) + 
+		      (*(in_addr + 1) << 4);
+		    *(out_addr + 1) = *(in_addr) << 4;
+		    *(out_addr + 2) = (*(in_addr + 2) >> 4) + 
+		      (*(in_addr + 3) << 4);
+		    *(out_addr + 3) = *(in_addr + 2) << 4;
+		    *(out_addr + 4) = (*(in_addr + 4) >> 4) + 
+		      (*(in_addr + 5) << 4);
+		    *(out_addr + 5) = *(in_addr + 4) << 4;
+		}
+	      }
+	}
+      else /* 12 bit, no need to enlarge x */
+	{
+	  SANE_Word pixel;
+
+	  if (little_endian ())
+	    for (pixel = 0; pixel < (num_lines * bpl / 2); pixel++)
+	      {
+		*(out + pixel * 2) = *(raw + pixel * 2) << 4;
+		*(out + pixel * 2 + 1) = (*(raw + pixel * 2) >> 4) + 
+		  (*(raw + pixel * 2 + 1) << 4);
+	      }
+	  else /* big endian */
+	    for (pixel = 0; pixel < (num_lines * bpl / 2); pixel++)
+	      {
+		*(out + pixel * 2) = (*(raw + pixel * 2) >> 4) + 
+		  (*(raw + pixel * 2 + 1) << 4);
+		*(out + pixel * 2 + 1) = *(raw + pixel * 2) << 4;
+	      }
+
 	}
     }
-  else
-    memcpy (out, raw, num_lines * bpl);
+  else /* 8 bit */
+    {
+      /* need to enlarge x-resolution? */
+      if ((s->hw->flags & MUSTEK_FLAG_ENLARGE_X) && (res > half_res))
+	{
+	  DBG(5, "fix_line_distance_pro: res > half_res --> need to "
+	      "enlarge x\n");
+	  
+	  for (y = 0; y < num_lines; y++)
+	    {
+	      for (x_out = 0; x_out < s->params.pixels_per_line; x_out++)
+		{
+		  x_in = x_out * bpl / s->params.bytes_per_line;
+		  out_addr = out + y * s->params.bytes_per_line + x_out * 3;
+		  in_addr = raw + y * bpl + x_in * 3;	
+		  *(out_addr) = *(in_addr);
+		  *(out_addr + 1) = *(in_addr + 1);
+		  *(out_addr + 2) = *(in_addr + 2);
+		}
+	    }
+	}
+      else
+	memcpy (out, raw, num_lines * bpl);
+    }
   return;
 }
 
@@ -3693,27 +3779,11 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
   s->opt[OPT_MODE].type = SANE_TYPE_STRING;
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  if (s->hw->flags & MUSTEK_FLAG_SE_PLUS)
-    {
-      s->opt[OPT_MODE].size = max_string_size (mode_list_se_plus);
-      s->opt[OPT_MODE].constraint.string_list = mode_list_se_plus;
-      s->val[OPT_MODE].s = strdup (mode_list_se_plus[1]);
-      if (!s->val[OPT_MODE].s) 
-	return SANE_STATUS_NO_MEM;
-    }
-  else if (s->hw->flags & MUSTEK_FLAG_SE)
+  if (s->hw->flags & MUSTEK_FLAG_SE)
     {
       s->opt[OPT_MODE].size = max_string_size (mode_list_se);
       s->opt[OPT_MODE].constraint.string_list = mode_list_se;
       s->val[OPT_MODE].s = strdup (mode_list_se[1]);
-      if (!s->val[OPT_MODE].s) 
-	return SANE_STATUS_NO_MEM;
-    }
-  else if (s->hw->flags & MUSTEK_FLAG_PRO)
-    {
-      s->opt[OPT_MODE].size = max_string_size (mode_list_pro);
-      s->opt[OPT_MODE].constraint.string_list = mode_list_pro;
-      s->val[OPT_MODE].s = strdup (mode_list_pro[1]);
       if (!s->val[OPT_MODE].s) 
 	return SANE_STATUS_NO_MEM;
     }
@@ -3726,6 +3796,20 @@ init_options (Mustek_Scanner *s)
 	return SANE_STATUS_NO_MEM;
     }
 
+  /* fast gray mode (pro models) */
+  s->opt[OPT_FAST_GRAY_MODE].name = "fast-gray-mode";
+  s->opt[OPT_FAST_GRAY_MODE].title = "Fast gray mode";
+  s->opt[OPT_FAST_GRAY_MODE].desc = "Scan in fast gray mode (lower "
+    "quality).";
+  s->opt[OPT_FAST_GRAY_MODE].type = SANE_TYPE_BOOL;
+  s->val[OPT_FAST_GRAY_MODE].w = SANE_FALSE;
+  s->opt[OPT_FAST_GRAY_MODE].cap |= SANE_CAP_INACTIVE;
+  if (s->hw->flags & MUSTEK_FLAG_PRO)
+    {
+      /* Only Pro models support fast gray mode */
+      s->opt[OPT_FAST_GRAY_MODE].cap &= ~SANE_CAP_INACTIVE;
+    }
+
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -3736,6 +3820,19 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_RESOLUTION].constraint.range = &s->hw->dpi_range;
   s->val[OPT_RESOLUTION].w = MAX(SANE_FIX(72), s->hw->dpi_range.min);
 
+  /* bit depth */
+  s->opt[OPT_BIT_DEPTH].name = SANE_NAME_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].desc = SANE_DESC_BIT_DEPTH;
+  s->opt[OPT_BIT_DEPTH].type = SANE_TYPE_STRING;
+  s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_BIT_DEPTH].size = max_string_size (bit_depth_list_pro);
+  s->opt[OPT_BIT_DEPTH].constraint.string_list = bit_depth_list_pro;
+  s->val[OPT_BIT_DEPTH].s = strdup (bit_depth_list_pro[0]);
+  if (!s->val[OPT_BIT_DEPTH].s) 
+    return SANE_STATUS_NO_MEM;
+  
   /* speed */
   s->opt[OPT_SPEED].name = SANE_NAME_SCAN_SPEED;
   s->opt[OPT_SPEED].title = SANE_TITLE_SCAN_SPEED;
@@ -3747,6 +3844,11 @@ init_options (Mustek_Scanner *s)
   s->val[OPT_SPEED].s = strdup (speed_list[4]);
   if (!s->val[OPT_SPEED].s) 
     return SANE_STATUS_NO_MEM;
+  if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
+    {
+      /* Speed only supported by 3-pass scanners */
+      s->opt[OPT_SPEED].cap |= SANE_CAP_INACTIVE;
+    }
 
   /* source */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -4020,6 +4122,11 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_QUALITY_CAL].type = SANE_TYPE_BOOL;
   s->val[OPT_QUALITY_CAL].w = SANE_FALSE;
   s->opt[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
+  if ((s->hw->flags & MUSTEK_FLAG_PRO) || (s->hw->flags & MUSTEK_FLAG_SE_PLUS))
+    {
+      /* Only Pro and SE Plus models support calibration */
+      s->opt[OPT_QUALITY_CAL].cap &= ~SANE_CAP_INACTIVE;
+    }
 
   /* halftone dimension */
   s->opt[OPT_HALFTONE_DIMENSION].name = SANE_NAME_HALFTONE_DIMENSION;
@@ -4045,17 +4152,7 @@ init_options (Mustek_Scanner *s)
   s->opt[OPT_HALFTONE_PATTERN].constraint.range = &u8_range;
   s->val[OPT_HALFTONE_PATTERN].wa = s->halftone_pattern;
 
-  if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
-    {
-      /* Speed only supported by 3-pass scanners */
-      s->opt[OPT_SPEED].cap |= SANE_CAP_INACTIVE;
-    }
 
-  if ((s->hw->flags & MUSTEK_FLAG_PRO) || (s->hw->flags & MUSTEK_FLAG_SE_PLUS))
-    {
-      /* Pro and SE Plus models support calibration */
-      s->opt[OPT_QUALITY_CAL].cap &= ~SANE_CAP_INACTIVE;
-    }
 
   return SANE_STATUS_GOOD;
 }
@@ -4087,7 +4184,7 @@ output_data (Mustek_Scanner *s, FILE *fp,
       data, lines_per_buffer, bpl, extra);
 
   /* convert to pixel-interleaved format: */
-  if (((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_COLOR_48))
+  if ((s->mode & MUSTEK_MODE_COLOR) 
       && !(s->hw->flags & MUSTEK_FLAG_THREE_PASS)) 
     {
       num_lines = lines_per_buffer;
@@ -4192,8 +4289,7 @@ output_data (Mustek_Scanner *s, FILE *fp,
 
 	      while (enlarged_x < s->params.pixels_per_line)
 		{
-		  if ((s->mode & MUSTEK_MODE_GRAY) 
-		      || (s->mode & MUSTEK_MODE_GRAY_FAST))
+		  if (s->mode & MUSTEK_MODE_GRAY)
 		    {
 		      fputc (*(data + y * bpl + x), fp);
 		      res_counter += half_res;
@@ -5087,6 +5183,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_PREVIEW:
 	case OPT_FAST_PREVIEW:
 	case OPT_RESOLUTION:
+	case OPT_FAST_GRAY_MODE:
 	case OPT_TL_X:
 	case OPT_TL_Y:
 	case OPT_BR_X:
@@ -5118,6 +5215,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_SPEED:
 	case OPT_SOURCE:
 	case OPT_MODE:
+	case OPT_BIT_DEPTH:
 	case OPT_HALFTONE_DIMENSION:
 	  strcpy (val, s->val[option].s);
 	  return SANE_STATUS_GOOD;
@@ -5153,6 +5251,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  /* fall through */
 	case OPT_PREVIEW:
 	case OPT_FAST_PREVIEW:
+	case OPT_FAST_GRAY_MODE:
 	case OPT_BRIGHTNESS:
 	case OPT_BRIGHTNESS_R:
 	case OPT_BRIGHTNESS_G:
@@ -5184,8 +5283,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	  return SANE_STATUS_GOOD;
 
-	  /* options with side-effects: */
+	  /* side-effect-free string list options: */
+	case OPT_BIT_DEPTH:
+	  {
+	    SANE_Char *old_val = s->val[option].s;
 
+	    if (old_val)
+	      {
+		if (strcmp (old_val, val) == 0)
+		  return SANE_STATUS_GOOD;		/* no change */
+		free (old_val);
+	      }
+	    s->val[option].s = strdup (val);
+	    if (!s->val[option].s) 
+	      return SANE_STATUS_NO_MEM;
+	    return SANE_STATUS_GOOD;
+	  }
+
+	  /* options with side-effects: */
 	case OPT_CUSTOM_GAMMA:
 	  w = *(SANE_Word *) val;
 
@@ -5200,11 +5315,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      SANE_String_Const mode = s->val[OPT_MODE].s;
 
-	      if ((strcmp (mode, "Gray") == 0) 
-		  || (strcmp (mode, "Gray fast") == 0))
+	      if (strcmp (mode, "Gray") == 0) 
 		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if ((strcmp (mode, "Color") == 0) 
-		       || (strcmp (mode, "Color 48 bit") == 0))
+	      else if (strcmp (mode, "Color") == 0) 
 		{
 		  s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -5311,14 +5424,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		    s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
 		  }
 	      }
+	    else if (s->hw->flags & MUSTEK_FLAG_PRO)
+	      {
+		if (strcmp (s->val[OPT_MODE].s, "Gray") == 0)
+		  s->opt[OPT_FAST_GRAY_MODE].cap &= ~SANE_CAP_INACTIVE;
+		else
+		  s->opt[OPT_FAST_GRAY_MODE].cap |= SANE_CAP_INACTIVE;
+		if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+		  s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
+		else
+		  s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+	      }
+	    else if (s->hw->flags & MUSTEK_FLAG_SE_PLUS)
+	      {
+		if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+		  s->opt[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
+		else
+		  s->opt[OPT_BIT_DEPTH].cap |= SANE_CAP_INACTIVE;
+	      }
 
 	    if (s->val[OPT_CUSTOM_GAMMA].w)
 	      {
-		if ((strcmp (val, "Gray") == 0) 
-		    || (strcmp (val, "Gray fast") == 0))
+		if (strcmp (val, "Gray") == 0) 
 		  s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		else if ((strcmp (val, "Color") == 0)
-			 || (strcmp (val, "Color 48 bit") == 0))
+		else if (strcmp (val, "Color") == 0)
 		  {
 		    s->opt[OPT_GAMMA_VECTOR].cap   &= ~SANE_CAP_INACTIVE;
 		    s->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
@@ -5428,12 +5557,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 	  s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->params.depth = 8;
 	}
-      else if (strcmp (mode, "Gray fast") == 0)
-	{
-	  s->params.format = SANE_FRAME_GRAY;
-	  s->params.bytes_per_line = s->params.pixels_per_line;
-	  s->params.depth = 8;
-	}
       else
 	{
 	  /* it's one of the color modes... */
@@ -5446,17 +5569,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 	    }
 	  else /* 1-pass */
 	    {
-	      s->params.format = SANE_FRAME_RGB;
-	      if (strcmp (mode, "Color") == 0)
-		{
-		  s->params.bytes_per_line = 3 * s->params.pixels_per_line;
-		  s->params.depth = 8;
-		}
-	      else
+	      if (strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)
 		{
 		  s->params.bytes_per_line = 6 * s->params.pixels_per_line;
 		  s->params.depth = 16;
 		}
+	      else
+		{
+		  s->params.bytes_per_line = 3 * s->params.pixels_per_line;
+		  s->params.depth = 8;
+		}
+	      s->params.format = SANE_FRAME_RGB;
 	    }
 	}
     }
@@ -5513,15 +5636,16 @@ sane_start (SANE_Handle handle)
 	s->mode = MUSTEK_MODE_HALFTONE;
       else if (strcmp (mode, "Gray") == 0)
 	s->mode = MUSTEK_MODE_GRAY;
-      else if (strcmp (mode, "Gray fast") == 0)
-	s->mode = MUSTEK_MODE_GRAY_FAST;
       else if (strcmp (mode, "Color") == 0)
 	s->mode = MUSTEK_MODE_COLOR;
-      else if (strcmp (mode, "Color 48 bit") == 0)
-	s->mode = MUSTEK_MODE_COLOR_48;
 
+      /* scanner dependant specials */
+      if (s->hw->flags && MUSTEK_FLAG_PRO)
+	{
+	  
+	}
       s->one_pass_color_scan = SANE_FALSE;
-      if (((s->mode & MUSTEK_MODE_COLOR) || (s->mode & MUSTEK_MODE_COLOR_48)) 
+      if ((s->mode & MUSTEK_MODE_COLOR) 
 	  && !(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
 	{
 	  s->one_pass_color_scan = SANE_TRUE;
@@ -5609,6 +5733,9 @@ sane_start (SANE_Handle handle)
 
       s->scanning = SANE_TRUE;
       s->cancelled = SANE_FALSE;
+
+      dev_wait_ready (s);
+
       status = get_window (s, &s->params.bytes_per_line,
 			      &s->params.lines, &s->params.pixels_per_line);
       if (status != SANE_STATUS_GOOD)
@@ -5630,7 +5757,6 @@ sane_start (SANE_Handle handle)
       if (status != SANE_STATUS_GOOD) 
 	goto stop_scanner_and_return;
     }
-
 
   else if (s->hw->flags & MUSTEK_FLAG_PRO)
     {       
@@ -5734,10 +5860,13 @@ sane_start (SANE_Handle handle)
     }
 
   s->params.pixels_per_line = s->params.bytes_per_line;
-  if (s->mode & MUSTEK_MODE_COLOR_48)
-    s->params.pixels_per_line /= 2;
   if (s->one_pass_color_scan)
-    s->params.pixels_per_line /= 3;
+    {
+      if (strcmp(s->val[OPT_BIT_DEPTH].s, "12") == 0)
+	s->params.pixels_per_line /= 6;
+      else
+	s->params.pixels_per_line /= 3;
+    }
   else if ((s->mode & MUSTEK_MODE_LINEART) 
 	   || (s->mode & MUSTEK_MODE_HALFTONE))
     s->params.pixels_per_line *= 8;

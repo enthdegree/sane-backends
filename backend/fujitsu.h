@@ -268,8 +268,10 @@ struct fujitsu
   /* Operational values (contain internal status information etc.)         */
   /* --------------------------------------------------------------------- */
 
-  int default_pipe;             /* Pipe between reader process and backend.  */
-  int duplex_pipe;              /* Additional pipe for duplex scans.         */
+  int default_pipe_r;           /* Pipe between reader process and backend.  */
+  int default_pipe_w;           /* Pipe between reader process and backend.  */
+  int duplex_pipe_r;            /* Additional pipe for duplex scans.         */
+  int duplex_pipe_w;            /* Additional pipe for duplex scans.         */
   int reader_pid;               /* Process ID of the reader process.         */
 
   int reverse;                  /* Whether to reverse the image. Not user    */
@@ -529,7 +531,7 @@ static size_t maxStringSize (const SANE_String_Const strings[]);
 
 static int start_scan (struct fujitsu *s);
 
-static int reader_process (struct fujitsu *scanner, int fd1, int fd2);
+static int reader_process (void *scanner);
 
 static unsigned int reader3091ColorDuplex (struct fujitsu *scanner, FILE * fd,
                                            FILE * fd2);

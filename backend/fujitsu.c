@@ -167,7 +167,6 @@
 #include <time.h>
 
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #ifdef HAVE_LIBC_H
 # include <libc.h>              /* NeXTStep/OpenStep */
@@ -178,6 +177,7 @@
 #include "sane/sanei_usb.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_config.h"
+#include "sane/sanei_thread.h"
 
 #include "fujitsu-scsi.h"
 #include "fujitsu.h"
@@ -380,7 +380,8 @@ static int scsiBuffer = 64 * 1024;
 
 /* flaming hack to get USB scanners
    working without timeouts under linux */
-static unsigned int cmd_count = 0;
+static unsigned int r_cmd_count = 0;
+static unsigned int w_cmd_count = 0;
 
 /*
  * required for compressed data transfer. sense_handler has to tell
@@ -432,6 +433,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (10, "sane_init\n");
 
   sanei_usb_init();
+  sanei_thread_init();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -2023,9 +2025,9 @@ sane_start (SANE_Handle handle)
            */
           int exit_status;
           DBG (10, "sane_start: waiting for reader to terminate...\n");
-          while (wait (&exit_status) != scanner->reader_pid);
+          sanei_thread_waitpid (scanner->reader_pid, &exit_status);
           DBG (10, "sane_start: reader process has terminated.\n");
-          lseek (scanner->duplex_pipe, 0, SEEK_SET);
+          lseek (scanner->duplex_pipe_r, 0, SEEK_SET);
         }
 
       scanner->object_count = 2;
@@ -2175,41 +2177,27 @@ sane_start (SANE_Handle handle)
     }
 
   ret = SANE_STATUS_GOOD;
-  scanner->reader_pid = fork();
-  if (scanner->reader_pid == 0)
-    {
-      /* reader_pid = 0 ===> child process */
-      sigset_t ignore_set;
-      struct SIGACTION act;
 
-      close (defaultFds[0]);
-      if (duplexFds[0] != -1)
-        close (duplexFds[0]);
+  scanner->default_pipe_r = defaultFds[0];
+  scanner->default_pipe_w = defaultFds[1];
+  scanner->duplex_pipe_r = (tempFile != -1) ? tempFile : duplexFds[0];
+  scanner->duplex_pipe_w = (tempFile != -1) ? tempFile : duplexFds[1];
 
-      sigfillset (&ignore_set);
-      sigdelset (&ignore_set, SIGTERM);
-      sigprocmask (SIG_SETMASK, &ignore_set, 0);
+  scanner->reader_pid = sanei_thread_begin (reader_process, scanner);
 
-      memset (&act, 0, sizeof (act));
-      sigaction (SIGTERM, &act, 0);
-
-      /* don't use exit() since that would run the atexit() handlers... */
-      _exit (reader_process
-             (scanner, defaultFds[1],
-              (tempFile != -1) ? tempFile : duplexFds[1]));
-    } 
-  else if (scanner->reader_pid == -1) 
+  if (scanner->reader_pid == -1) 
     {
       DBG(MSG_ERR, "cannot fork reader process.\n");
       DBG(MSG_ERR, "%s", strerror(errno));
       ret = SANE_STATUS_IO_ERROR;
-
     }
-  close (defaultFds[1]);
-  if (duplexFds[1] != -1)
-    close (duplexFds[1]);
-  scanner->default_pipe = defaultFds[0];
-  scanner->duplex_pipe = (tempFile != -1) ? tempFile : duplexFds[0];
+
+  if (sanei_thread_is_forked())
+    {
+      close (scanner->default_pipe_w);
+      if (scanner->duplex_pipe_w != -1)
+        close (scanner->duplex_pipe_w);
+    }
 
   if (ret == SANE_STATUS_GOOD) 
     {
@@ -2315,10 +2303,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   switch (scanner->object_count)
     {
     case 1:
-      source = scanner->default_pipe;   /* this is always a pipe */
+      source = scanner->default_pipe_r;   /* this is always a pipe */
       break;
     case 2:
-      source = scanner->duplex_pipe;    /* this may be a pipe or a file */
+      source = scanner->duplex_pipe_r;    /* this may be a pipe or a file */
       break;
     default:
       return do_cancel (scanner);
@@ -3077,6 +3065,13 @@ do_scsi_cmd (int fd, unsigned char *cmd,
 
 /**
  * Sends a USB command to the device.
+ * the fi-4x20 appear to have a firmware bug
+ * that prevents them from resetting the data0/1
+ * toggle on both bulk endpoints.
+ * so, this function is splits the commands into
+ * 64 byte chunks to enable us to count packets
+ * this is terrible for performance.
+ * FIXME: find a better way
  */
 static int
 do_usb_cmd (int fd, unsigned char *cmd,
@@ -3093,8 +3088,6 @@ do_usb_cmd (int fd, unsigned char *cmd,
 
 retry:
     hexdump (IO_CMD, "<cmd<", cmd, cmd_len);
-
-    cmd_count++;
 
     if (cmd_len > 0) op_code = ((int)cmd[0]) & 0xff;
 
@@ -3115,14 +3108,17 @@ retry:
 
     for (j = 0; j < i;) {
         cnt = i-j;
-            /* First URB has to be 31 bytes. */
-            /* All other URBs must be 64 bytes (max) per URB. */
+
+        /* First URB has to be 31 bytes. */
+        /* All other URBs must be 64 bytes (max) per URB. */
         if ( (j == 0) && (cnt > 31) ) cnt = 31; else if (cnt > 64) cnt = 64;
         hexdump (IO_CMD, "*** URB going out:", &buf[j], cnt);
         DBG (10, "try to write %u bytes\n", cnt);
         ret = sanei_usb_write_bulk(fd, &buf[j], &cnt);
         DBG (10, "wrote %u bytes\n", cnt);
         if (ret != SANE_STATUS_GOOD) break;
+
+        w_cmd_count++;
         j += cnt;
     }
     if (ret != SANE_STATUS_GOOD) {
@@ -3136,6 +3132,12 @@ retry:
                 cnt = (size_t)(req_out_len-ol);
                 DBG (10, "try to read %u bytes\n", cnt);
                 ret = sanei_usb_read_bulk(fd, &out[ol], &cnt);
+
+                /*flaming hack, count packets to fix data0/1 toggle issues*/
+                r_cmd_count += (cnt/64);
+                if(cnt % 64)
+                    r_cmd_count++;
+
                 DBG (10, "read %u bytes\n", cnt);
                 if (cnt > 0) {
                     hexdump (IO_CMD, "*** Data read:", &out[ol], cnt);
@@ -3145,12 +3147,13 @@ retry:
                 }
 /*                if (ret != SANE_STATUS_GOOD) break;*/
                 ol += cnt;
-            }
-/*        }*/
+/*                }*/
+        }
 
         DBG(10, "*** Try to read CSW\n");
         cnt = 13;
         sanei_usb_read_bulk(fd, buf, &cnt);
+        r_cmd_count++;
         hexdump (IO_CMD, "*** Read CSW", buf, cnt);
 
 	status_byte = ((int)buf[9]) & 0xff;
@@ -3163,7 +3166,7 @@ retry:
 	     ret,
 	     req_out_len,
 	     ol);
-       }    
+       }
     }
 
         /* Auto-retry failed data reads, in case the scanner is busy. */
@@ -3326,11 +3329,22 @@ free_scanner (struct fujitsu *s)
 
   /* flaming hack cause some usb scanners (fi-4x20) fail 
      to work properly on next connection if an odd number
-      of commands are sent to the scanner. */
-  if(s->connection == SANE_FUJITSU_USB && cmd_count % 2){
-    ret = get_hardware_status(s);
-    if (ret)
-      return ret;
+      of commands are sent to the scanner on either endpoint */
+  if(s->connection == SANE_FUJITSU_USB){
+    /* if read counter is odd */
+    if(r_cmd_count % 2){
+      ret = do_cmd (s->connection, s->sfd, test_unit_readyB.cmd,
+                    test_unit_readyB.size, 0, 0, NULL);
+      if (ret)
+        return ret;
+    }
+
+    /* if write is odd */
+    if(w_cmd_count % 2 && !r_cmd_count % 2){
+      ret = get_hardware_status(s);
+      if (ret)
+        return ret;
+    }
   }
 
   DBG (10, "free_scanner: ok\n");
@@ -3513,10 +3527,10 @@ do_cancel (struct fujitsu *scanner)
 
   if (scanner->object_count != 0)
     {
-      close (scanner->default_pipe);
+      close (scanner->default_pipe_r);
       if (scanner->duplex_mode == DUPLEX_BOTH)
         {
-          close (scanner->duplex_pipe);
+          close (scanner->duplex_pipe_r);
         }
     }
 
@@ -3531,10 +3545,10 @@ do_cancel (struct fujitsu *scanner)
        * has already terminated and been waited for - for example, 
        * in the duplex-with-tempfile scenario.
        */
-      if (kill (scanner->reader_pid, SIGTERM) == 0)
+      if (sanei_thread_kill (scanner->reader_pid) == 0)
         {
-          while (wait (&exit_status) != scanner->reader_pid)
-            DBG (50, "wait for scanner to stop\n");
+          DBG (50, "wait for scanner to stop\n");
+          sanei_thread_waitpid (scanner->reader_pid, &exit_status);
         }
       scanner->reader_pid = 0;
     }
@@ -5035,27 +5049,42 @@ calculateDerivedValues (struct fujitsu *scanner)
  * This function is executed as a child process.
  */
 static int
-reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
+reader_process (void *s)
 {
   FILE *fp1, *fp2;
+  sigset_t ignore_set;
   sigset_t sigterm_set;
   struct SIGACTION act;
   time_t start_time, end_time;
   unsigned int total_data_size = 0;
 
+  struct fujitsu *scanner = (struct fujitsu *) s;
+
   (void) time (&start_time);
 
   DBG (10, "reader_process started\n");
 
+  if (sanei_thread_is_forked())
+    {
+      close (scanner->default_pipe_r);
+      if (scanner->duplex_pipe_r != -1)
+        close (scanner->duplex_pipe_r);
+    }
+
+  sigfillset (&ignore_set);
+  sigdelset (&ignore_set, SIGTERM);
+  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+
   sigemptyset (&sigterm_set);
   sigaddset (&sigterm_set, SIGTERM);
+
   memset (&act, 0, sizeof (act));
 #ifdef _POSIX_SOURCE
   act.sa_handler = sigtermHandler;
 #endif
   sigaction (SIGTERM, &act, 0);
 
-  fp1 = fdopen (pipe_fd, "w");
+  fp1 = fdopen (scanner->default_pipe_w, "w");
   if (!fp1)
     {
       DBG (MSG_ERR, "reader_process: couldn't open pipe!\n");
@@ -5063,7 +5092,7 @@ reader_process (struct fujitsu *scanner, int pipe_fd, int duplex_pipeFd)
     }
   if (scanner->duplex_mode == DUPLEX_BOTH)
     {
-      fp2 = fdopen (duplex_pipeFd, "w");
+      fp2 = fdopen (scanner->duplex_pipe_w, "w");
       if (!fp2)
         {
           DBG (MSG_ERR, "reader_process: couldn't open pipe!\n");

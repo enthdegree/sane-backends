@@ -19,7 +19,7 @@ library implements a SANE backend that provides the interface to the following N
 .SH CONFIGURATION
 
 The configuration file for this backend resides in 
-	/usr/local/etc/sane.d/coolscan.conf. 
+@CONFIGDIR@/coolscan.conf. 
 
 Its contents is a list of device names that correspond to Nikon Coolscan scanners. Empty lines
 and lines starting with a hash mark (#) are ignored. A sample configuration file is
@@ -45,13 +45,13 @@ http://andreas.rick.free.fr/sane/autofocus.html.
 .SH FILES
 
 The backend configuration file:
- /usr/local/etc/sane.d/coolscan.conf
+ @CONFIGDIR@/coolscan.conf. 
 
 The static library implementing this backend:
- /usr/local/lib/sane/libsane-coolscan.a
+ @LIBDIR@/sane/libsane-coolscan.a
 
-The shared library implementing this backend :
- /usr/local/lib/sane/libsane-coolscan.so
+The shared library implementing this backend:
+ @LIBDIR@/sane/libsane-coolscan.so
  (present on systems that support dynamic loading)
 
 .SH ENVIRONMENT

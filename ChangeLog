@@ -1,3 +1,9 @@
+2004-10-28  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp.c backend/umax_pp_low.c: 610P shading
+	  calibration improvements. 1220P offset and gain fixes.
+	  Code cleanups.
+
 2004-10-08  Ullrich Sigwanz <usigwanz@freesurf.ch>
         * backend/niash.c: Added grayscale and lineart support
         * backend/niash_core.c: corrected bug in line-weight in

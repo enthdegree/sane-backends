@@ -412,11 +412,14 @@ umax_pp_get_sync (SANE_Int dpi)
 	case 600:
 	  return 16;
 	case 300:
-	  return 8;
+	  return 8;	/* 8 double-checked*/
 	case 150:
+	  /* wrong: 2, 3, 5
+	   * double-checked : 4
+	   */
 	  return 4;
 	default:
-	  return 2;
+	  return 2;	/* 2 double-checked */
 	}
     }
 }
@@ -2124,11 +2127,11 @@ sane_start (SANE_Handle handle)
 				dev->dpi,
 				2,
 				autoset,
-				(dev->red_gain << 8) +
-				(dev->green_gain << 4) +
+				(dev->red_gain << 8) |
+				(dev->green_gain << 4) |
 				dev->blue_gain,
-				(dev->red_offset << 8) +
-				(dev->green_offset << 4) +
+				(dev->red_offset << 8) |
+				(dev->green_offset << 4) |
 				dev->blue_offset, &(dev->bpp), &(dev->tw),
 				&(dev->th));
       /* we enlarged the scanning zone   */

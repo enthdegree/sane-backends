@@ -345,7 +345,7 @@ typedef struct Sceptre_Scanner
   int depth;			/* depth per color */
   int halftone_param;		/* haltone number, valid for SCEPTRE_HALFTONE */
 
-  int bytes_left;		/* number of bytes promised to backend
+  size_t bytes_left;		/* number of bytes promised to backend
 				   * left to read. */
 
   int color_shift;		/* for color scan: number of lines to

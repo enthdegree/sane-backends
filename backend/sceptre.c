@@ -49,7 +49,7 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 7			/* 2002-03-02 */
+#define BUILD 8			/* 2002-03-07 */
 #define BACKEND_NAME sceptre
 #define SCEPTRE_CONFIG_FILE "sceptre.conf"
 
@@ -1556,6 +1556,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   if (!(dev->scanning))
     {
+      /* Prepare the parameters for the caller. */
+      memset (&dev->params, 0, sizeof (SANE_Parameters));
 
       if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
 	{
@@ -1629,9 +1631,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  break;
 	}
 
-      /* Prepare the parameters for the caller. */
-      memset (&dev->params, 0, sizeof (SANE_Parameters));
-
       /* this scanner does only one pass */
       dev->params.last_frame = SANE_TRUE;
       dev->params.depth = dev->depth;
@@ -1677,8 +1676,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 		}
 	    }
 
-	  dev->params.bytes_per_line =
-	    dev->params.pixels_per_line * (dev->depth / 8);
+	  dev->params.bytes_per_line = dev->params.pixels_per_line;
+	  if (dev->scan_mode == SCEPTRE_COLOR)
+	    dev->params.bytes_per_line *= 3;
 
 	  /* lines number rounding rules:
 	   *   2n + [0.0 .. 2.0[  -> round to 2n
@@ -1825,13 +1825,17 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   /* 
    * Try to read the maximum number of bytes.
    *
-   * The windows driver reads no more than 0xffff byte, I've tried 
+   * The windows driver reads no more than 0xffff bytes, I've tried 
    * some bigger values, but the scanner is losing data!!!
    */
-  size = data_left;
+  size = dev->bytes_left;
   if (size > dev->buffer_size)
     {
       size = dev->buffer_size;
+    }
+  if (size > data_left)
+    {
+      size = data_left;
     }
 
   /* If it is a preview, read only what we have been asked
@@ -1878,7 +1882,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  /* Still got some data. Send it. */
 	  if (size > (size_t) max_len)
 	    size = max_len;
-	  if (size > (size_t) dev->bytes_left)
+	  if (size > dev->bytes_left)
 	    size = dev->bytes_left;
 
 	  memcpy (buf, dev->image + dev->image_begin, size);

@@ -1,4 +1,4 @@
-TODO (2000-12-31)
+TODO (2001-01-09)
 
 ******** todo ********
 
@@ -17,6 +17,10 @@ backends
       Bauer <hbauer@online.de>
     - viceo (Visioneer OneTouch 8600)
       http://www.abaforum.es/martim/bird/otlinux.htm
+    - Mustek 1200 UB backend
+      ftp://ftp.mustek.com.tw/pub/driver/1200UB/Linux/
+    - bearpaw (Mustek BearPaw)
+      Henning Meier-Geinitz <hmg@gmx.de>
 
   * Update backends
     - add additions/bug fixes to microtek2 from Karsten Festag

@@ -10,7 +10,7 @@
 ;
 
 :backend "matsushita"             ; name of backend
-:version "1.0-6"                  ; version of backend
+:version "1.0-7"                  ; version of backend
 :manpage "sane-matsushita"        ; name of manpage
 :url "http://www.zago.net/sane"    ; backend's web page
 
@@ -41,7 +41,7 @@
 
 :model "KV-SS55EX"
 :interface "SCSI"
-:status :untested
+:status :good
 
 :model "KV-SS850"
 :interface "SCSI"
@@ -50,6 +50,18 @@
 :model "KV-SS855"
 :interface "SCSI"
 :status :untested
+
+:model "KV-S2025C"
+:interface "SCSI"
+:status :minimal
+
+:model "KV-S2045C"
+:interface "SCSI"
+:status :minimal
+
+:model "KV-S2065L"
+:interface "SCSI"
+:status :good
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2002 Frank Zago (fzago at austin dot rr dot com)
+   Copyright (C) 2002, 2004 Frank Zago (fzago at austin dot rr dot com)
    Copyright (C) 2002 Other SANE contributors
    
    This file is part of the SANE package.
@@ -45,14 +45,14 @@
 /*
    $Id$
    Matsushita/Panasonic KV-SS25, KV-SS50, KV-SS55, KV-SS50EX, 
-                        KV-SS55EX, KV-SS850, KV-SS855 SCSI scanner.
+                        KV-SS55EX, KV-SS850, KV-SS855 SCSI scanners.
 
    This backend may support more Panasonic scanners.
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 6			/* 2002-03-13 */
+#define BUILD 7			/* 2004-02-11 */
 #define BACKEND_NAME matsushita
 #define MATSUSHITA_CONFIG_FILE "matsushita.conf"
 
@@ -380,17 +380,17 @@ static const struct scanners_supported scanners[] = {
 
   /* Panasonic KV-SS55EX */
   {
-   0x06, "K.M.E.  ", "KV-SS55EX       ",	/* TO FIX */
+   0x06, "K.M.E.  ", "KV-SS55EX       ",
    {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},	/* x range 0 to 215.9 mm */
-   {SANE_FIX (0), SANE_FIX (17 * MM_PER_INCH), 0},	/* y range 0 to 355.6 mm */
+   {SANE_FIX (0), SANE_FIX (17 * MM_PER_INCH), 0},	/* y range 0 to 431.8 mm */
    {1, 255, 1},			/* brightness range */
-   {1, 255, 1},			/* contrast range, TO FIX */
+   {1, 255, 1},			/* contrast range */
    scan_mode_list_3,
-   resolutions_list_300, resolutions_rounds_300,	/* TO FIX */
+   resolutions_list_300, resolutions_rounds_300,
    image_emphasis_list_5, image_emphasis_val_5,
-   MAT_CAP_DUPLEX | MAT_CAP_CONTRAST | MAT_CAP_AUTOMATIC_THRESHOLD |
-   MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA | MAT_CAP_NOISE_REDUCTION |
-   MAT_CAP_PAPER_DETECT | MAT_CAP_MIRROR_IMAGE},
+   MAT_CAP_DUPLEX | MAT_CAP_CONTRAST |
+   MAT_CAP_AUTOMATIC_THRESHOLD | MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA |
+   MAT_CAP_NOISE_REDUCTION},
 
   /* Panasonic KV-SS850 */
   {
@@ -418,7 +418,49 @@ static const struct scanners_supported scanners[] = {
    image_emphasis_list_5, image_emphasis_val_5,
    MAT_CAP_DUPLEX | MAT_CAP_CONTRAST | MAT_CAP_AUTOMATIC_THRESHOLD |
    MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA | MAT_CAP_NOISE_REDUCTION |
-   MAT_CAP_PAPER_DETECT | MAT_CAP_DETECT_DOUBLE_FEED | MAT_CAP_MANUAL_FEED}
+   MAT_CAP_PAPER_DETECT | MAT_CAP_DETECT_DOUBLE_FEED | MAT_CAP_MANUAL_FEED},
+
+  /* Panasonic KV-S2065L */
+  {
+   0x06, "K.M.E.  ", "KV-S2065L       ",
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},	/* x range 0 to 215.9 mm */
+   {SANE_FIX (0), SANE_FIX (17 * MM_PER_INCH), 0},	/* y range 0 to 431.8 mm */
+   {1, 255, 1},			/* brightness range */
+   {1, 255, 1},			/* contrast range */
+   scan_mode_list_3,
+   resolutions_list_300, resolutions_rounds_300,
+   image_emphasis_list_5, image_emphasis_val_5,
+   MAT_CAP_DUPLEX | MAT_CAP_CONTRAST |
+   MAT_CAP_AUTOMATIC_THRESHOLD | MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA |
+   MAT_CAP_NOISE_REDUCTION},
+
+  /* Panasonic KV-S2025C */
+  {
+   0x06, "K.M.E.  ", "KV-S2025C       ",
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},	/* x range 0 to 215.9 mm */
+   {SANE_FIX (0), SANE_FIX (17 * MM_PER_INCH), 0},	/* y range 0 to 431.8 mm */
+   {1, 255, 1},			/* brightness range */
+   {1, 255, 1},			/* contrast range */
+   scan_mode_list_3,
+   resolutions_list_300, resolutions_rounds_300,
+   image_emphasis_list_5, image_emphasis_val_5,
+   MAT_CAP_DUPLEX | MAT_CAP_CONTRAST |
+   MAT_CAP_AUTOMATIC_THRESHOLD | MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA |
+   MAT_CAP_NOISE_REDUCTION},
+
+  /* Panasonic KV-S2045C */
+  {
+   0x06, "K.M.E.  ", "KV-S2045C       ",
+   {SANE_FIX (0), SANE_FIX (8.5 * MM_PER_INCH), 0},	/* x range 0 to 215.9 mm */
+   {SANE_FIX (0), SANE_FIX (17 * MM_PER_INCH), 0},	/* y range 0 to 431.8 mm */
+   {1, 255, 1},			/* brightness range */
+   {1, 255, 1},			/* contrast range */
+   scan_mode_list_3,
+   resolutions_list_300, resolutions_rounds_300,
+   image_emphasis_list_5, image_emphasis_val_5,
+   MAT_CAP_DUPLEX | MAT_CAP_CONTRAST |
+   MAT_CAP_AUTOMATIC_THRESHOLD | MAT_CAP_WHITE_LEVEL | MAT_CAP_GAMMA |
+   MAT_CAP_NOISE_REDUCTION}
 };
 
 

@@ -1,4 +1,4 @@
-.TH sane-matsushita 5 "April 21s, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-matsushita 5 "February 11th, 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-matsushita
 .SH NAME
 sane-matsushita \- SANE backend for Panasonic KV-SS high speed scanners
@@ -17,10 +17,16 @@ backend:
 .br
 --------------
 .br
-   KV-SS 25
-   KV-SS 25D
+   KV-SS25
+   KV-SS25D
+   KV-SS55EX (*)
+   KV-S2025C (*)
+   KV-S2045C (*)
+   KV-S2065L (*)
 .RE
 .PP
+(*) WARNING: None of the advanced options of these scanners are available (ie no color, no high resolution, no automatic cropping). Basically, the driver does no more than what it does for the KV-SS25. I don't have access to such scanners, and thus cannot add these options.
+
 Other Panasonic high speed scanners may or may not work with that backend.
 
 Valid command line options and their syntax can be listed by using 
@@ -57,7 +63,7 @@ options accordingly. It does not need to be the real size of the paper.
 .B -l -t -x -y 
 control the scan area: -l sets the top left x coordinate, -t the top
 left y coordinate, -x selects the width and -y the height of the scan
-aea. All parameters are specified in milimeters. It is possible to use
+area. All parameters are specified in millimeters. It is possible to use
 the option
 .I --paper-size
 instead.
@@ -95,7 +101,7 @@ options set the gamma curve. It is only valid for Gray modes, and is not availab
 
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/matsushita.conf supports the device name to use (eg /dev/scanner) and the scsi option to autodetect the scanners supported.
+The configuration file @CONFIGDIR@/matsushita.conf supports the device name to use (eg /dev/scanner) and the SCSI option to auto-detect the scanners supported.
 
 
 .SH FILES
@@ -120,7 +126,7 @@ levels reduce verbosity.
 .SH LIMITATIONS
 .TP
 .B Memory in the KV-SS 25
-The KV-SS 25 has not enough internal memory to scan a whole A4 page in duplex mode at high densities. The frontend will return a memory error in that case. Apparently, the KV-SS 25D has not that problem.
+The KV-SS 25 has not enough internal memory to scan a whole A4 page in duplex mode at high resolution. The frontend will return a memory error in that case. Apparently, the KV-SS 25D has not that problem.
 .TP
 .B Pattern and gamma downloading
 The scanner, with the proper firmware, can download a halftone pattern
@@ -128,7 +134,7 @@ and a gamma table. This is not implemented.
 .TP
 .B Sub-areas
 The scanner can support up to 3 sub-areas on each side to define some
-more precise enhancment options. This is not implemented.
+more precise enhancement options. This is not implemented.
 .TP
 .B Duplex mode
 The backend does not support the setting of different options for each side. The scan will occur with the same options (halftone pattern, brightness, image emphasis) for both sides.

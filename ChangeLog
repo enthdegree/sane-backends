@@ -1,3 +1,9 @@
+2004-02-11  Frank Zago  <fzago at austin dot rr dot com>
+	* backend/matsushita.c backend/matsushita.conf
+	  doc/sane-matsushita.man doc/descriptions/matsushita.desc: added
+	  partial support for models KV-SS55EX, KV-S2025C, KV-S2045C and
+	  KV-S2065L.
+
 2004-02-08  Karl Heinz Kremer <khk@khk.net>
 	* backend/epson*.[ch]: Reformat source code to get rid of different coding styles
 	  used over the years (and by different authors). 

@@ -108,6 +108,7 @@ byte_order;
 static const char *default_username = "saned-user";
 static char hostname[MAXHOSTNAMELEN];
 static char *remote_hostname;
+static struct in_addr remote_address;
 
 #ifndef _PATH_HEQUIV
 # define _PATH_HEQUIV   "/etc/hosts.equiv"
@@ -368,6 +369,8 @@ check_host (int fd)
     }
   DBG (DBG_WARN, "check_host: access by remote host: %s\n", 
        inet_ntoa (sin.sin_addr));
+  /* Save remote address for check of data connection */
+  memcpy (&remote_address, &sin.sin_addr, sizeof (remote_address));
 
   /* Always allow access from local host. Do it here to avoid DNS lookups. */
   if (IN_LOOPBACK (ntohl (sin.sin_addr.s_addr)))
@@ -639,7 +642,7 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 
   reply->port = ntohs (sin.sin_port);
 
-  DBG (DBG_DBG, "start_scan: using port %d for data\n", reply->port);
+  DBG (DBG_MSG, "start_scan: using port %d for data\n", reply->port);
 
   reply->status = sane_start (be_handle);
   if (reply->status == SANE_STATUS_GOOD)
@@ -1051,8 +1054,42 @@ process_request (Wire * w)
 
 	if (reply.status == SANE_STATUS_GOOD)
 	  {
-	    data_fd = accept (fd, 0, 0);      /* XXX may want to verify peer */
+	    struct sockaddr_in sin;
+	    int len;
+
+	    DBG (DBG_MSG, "process_request: waiting for data connection\n");
+	    data_fd = accept (fd, 0, 0);
 	    close (fd);
+
+	    /* Get address of remote host */
+	    len = sizeof (sin);
+	    if (getpeername (data_fd, (struct sockaddr *) &sin, 
+			     (socklen_t *) &len) < 0)
+	      {
+		DBG (DBG_ERR, "process_request: getpeername failed: %s\n",
+		     strerror (errno));
+		return;
+	      }
+
+	    if (memcmp (&remote_address, &sin.sin_addr,
+			sizeof (remote_address)) != 0)
+	      {
+		DBG (DBG_ERR, 
+		     "process_request: access to data port from %s\n",
+		     inet_ntoa (sin.sin_addr));
+		DBG (DBG_ERR, 
+		     "process_request: however, only %s is authorized\n",
+		     inet_ntoa (remote_address));
+		DBG (DBG_ERR, 
+		     "process_request: configuration problem or attack?\n");
+		close (data_fd);
+		data_fd = -1;
+		quit (0);
+	      }
+	    else
+	      DBG (DBG_MSG, "process_request: access to data port from %s\n",
+		   inet_ntoa (sin.sin_addr));
+
 	    if (data_fd < 0)
 	      {
 		sane_cancel (handle[h].handle);
@@ -1142,7 +1179,7 @@ main (int argc, char *argv[])
       if (serv)
 	{
 	  port = serv->s_port;
-	  DBG (DBG_DBG, "main: port is %d\n", ntohs (port));
+	  DBG (DBG_MSG, "main: port is %d\n", ntohs (port));
 	}
       else
 	{
@@ -1175,7 +1212,7 @@ main (int argc, char *argv[])
 	  DBG (DBG_ERR, "main: listen failed: %s", strerror (errno));
 	  exit (1);
 	}
-      DBG (DBG_DBG, "main: accept ()\n");
+      DBG (DBG_MSG, "main: waiting for control connection\n");
       wire.io.fd = accept (fd, 0, 0);
       if (wire.io.fd < 0)
 	{

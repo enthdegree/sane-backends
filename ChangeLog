@@ -1,3 +1,6 @@
+2003-05-05 Oliver Rauch <Oliver.Rauch@XSane.org>
+	* backend/umax.c: solved bug that broke compilation for OS2
+
 2003-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.fr.po: Updates for the French translation from

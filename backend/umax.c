@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 39
+#define BUILD 40
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -7966,7 +7966,7 @@ SANE_Status sane_start(SANE_Handle handle)
   close(fds[1]); /* when we use fork then we have to close the write end of the pipe here */
 #else /*  OS2 */
   /* create reader routine as thread */
-  scanner->reader_pid = sanei_thread_begin(sane_umax_os2_reader_process, (void *) scanner);
+  scanner->reader_pid = sanei_thread_begin(reader_process, (void *) scanner);
 #endif
 
  return SANE_STATUS_GOOD;

@@ -1,3 +1,21 @@
+2003-09-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Fixed links to messages in
+	  the mailing list archive.
+	* configure configure.in doc/Makefile.in doc/doxygen-sanei.conf
+	  doc/doxygen-sanei.conf.in: Automatically update the version
+	  number of SANE in the doxygen documentation.
+	* doc/backend-writing.txt doc/sane.man: Updated links to sanei
+	  documentation.
+	* doc/.cvsignore include/sane/sanei.h include/sane/sanei_scsi.h: 
+	  Minor fixes for sanei documentation.
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Added detection of Genius Vivid 4x.
+	  It won't work out-of-the-box, however. CCD coarse calib
+	  shouldn't run into an endless loop anymore. Plustek 1248U 
+	  is much faster now.
+
 2003-09-30  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: removed OpticSlim entry

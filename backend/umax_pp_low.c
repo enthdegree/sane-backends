@@ -442,7 +442,9 @@ sanei_umax_pp_InitPort (int port)
   int spp_status;
   int spp_control;
   int spp_data;
+#if ((defined HAVE_IOPERM)||(defined HAVE_LINUX_PPDEV_H))
   int mode;
+#endif
 #ifdef HAVE_LINUX_PPDEV_H
   char parport_name[16];
   int i, found;
@@ -498,7 +500,7 @@ sanei_umax_pp_InitPort (int port)
   if (errno == EACCES)
     {
       /* /dev/io exist but process hasn't the right permission */
-      DBG (1, "ioperm could not gain access to 0x%X\n", port);
+      DBG (1, "/dev/io could not gain access to 0x%X\n", port);
       return (0);
     }
   if ((errno == ENXIO) || (errno == ENOENT))
@@ -516,20 +518,20 @@ sanei_umax_pp_InitPort (int port)
 
   /* this ensures that the port is in the expected idle state */
   /* only useful when doing effective hardware access         */
-  spp_data = inb (DATA);
-  spp_status = inb (STATUS);
-  spp_control = inb (CONTROL);
+  spp_data = Inb (DATA);
+  spp_status = Inb (STATUS);
+  spp_control = Inb (CONTROL);
   DBG (128, "START STATE:\n");
   DBG (128, "\tport   =0x%02X\n", port);
   DBG (128, "\tdata   =0x%02X\n", spp_data);
   DBG (128, "\tstatus =0x%02X\n", spp_status);
   DBG (128, "\tcontrol=0x%02X\n", spp_control);
   if (spp_data != 0x04)
-    outb (0x04, DATA);
+    Outb (0x04, DATA);
   if (spp_control != 0xCC)
     {
       spp_control = spp_control & 0x1F;
-      outb (0x0C, CONTROL);
+      Outb (0x0C, CONTROL);
     }
 #endif
 
@@ -674,7 +676,7 @@ Inb (int port)
   int res = 0xFF;
 #ifndef IO_SUPPORT_MISSING
 #ifdef HAVE_SYS_HW_H
-  res = _inbp8 (port) & 0xFF;
+  res = _inp8 (port) & 0xFF;
 #else
   res = inb (port) & 0xFF;
 #endif

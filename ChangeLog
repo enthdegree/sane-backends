@@ -1,3 +1,9 @@
+2002-04-09  Petter Reinholdtsen <pere@td.org.uit.no>
+
+	* sanei/sanei_pv8630.c (sanei_pv8630_bulkwrite): Avoid warning on
+	  Solaris. Correct type of second argument to sanei_usb_write_bulk()
+	  from (char*) to (SANE_Byte*).
+
 2002-04-08  Frank Zago <fzago@greshamstorage.com>
 
 	* backend/teco1.c backend/teco1.conf backend/teco1.h

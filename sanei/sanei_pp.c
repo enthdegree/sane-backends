@@ -120,9 +120,11 @@ inb( u_long port )
 }
 # endif
 #elif defined(HAVE_LIBIEEE1284)
-#  include <ieee1284.h>
+# include <ieee1284.h>
 #else
-# warning "No I/O support for this architecture!"
+# if defined(__GNUC__)
+#  warning "No I/O support for this architecture!"
+# endif
 # define IO_SUPPORT_MISSING
 #endif
 

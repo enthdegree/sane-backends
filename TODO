@@ -1,4 +1,4 @@
-TODO (2000-11-08)
+TODO (2000-11-12)
 
 ******** todo ********
 
@@ -23,6 +23,8 @@ backends
       http://www.abaforum.es/martim/bird/otlinux.htm
     - addition to hp backend (support for SCL-based HP OfficeJets)
       http://hpoj.sourceforge.net
+    - add additions/bug fixes to microtek2 from Karsten Festag
+      <karsten.festag@t-online.de>
 
   * use DBG(...) instead of fprintf(stderr, ...)
      - microtek
@@ -34,7 +36,7 @@ backends
   * check net/saned
      - net backend segfaults if saned isn't started
      - don't just ignore the byte-order for the image data (needed to
-      support depths > 8 bits/channel)
+       support depths > 8 bits/channel)
 
   * qcam: implement auto mode for brightness and black-level (don't
     just advertise it!) Actually, implement an auto "backend" instead
@@ -62,48 +64,15 @@ doc
 
 frontends
 ---------
-  * Remove frontends (at least xscanimage/xcam) from distribution. Create
-    new package for frontends. 
-
-  * add new frondends (possibly to frontend package) (?)
-     - scanadf
-
-  * add possibility to use external filters to xscanimage/xsane (?)
-
-  * xscanimage/xcam: support depths > 8 bits/channel
-
-  * xscanimage: provide both scale and textentry for ranges (make new widget)
-
-  * xcam: provide access to option doc strings
-
-  * xscanimage: scanning of images whose heights is not known a priori is not
-    supported yet; this is going to be important for handheld scanners. At
-    least the frontend shouldn't crash or produce invalid pnm files when
-    it gets a length of -1.
-
-  * xcam: add dithering and support for SANE depths other than 8 bit (test
-    with Mustek backend, for example)
-
-  * xcam: add recording feature (e.g., GIF, JPG, or MPEG)
+  * Remove frontends (at least xscanimage/xcam) from distribution. 
 
   * dll: Rewrite to use libtool ltdl library
-
-  * For 3-pass scanners, xscanimage doesn't update the scan progress
-    bar properly between scans; the scanner seems to be faster than 
-    xscanimage can write to disk (problem: seek for every byte). This
-    doesn't happen as GIMP-plugin. It doesn't happen in blocking mode
-    either.
 
   * Add a check in the frontends if the backend delivers more data than
     it announced by sane_get_parameters to avoid segfaults with bad 
     backends?
 
-  * Adapt xscanimage to new GIMP API. Try to make it backwards compatible
-    with old GIMP versions if possible. Maybe two source/header files
-    for compatibility with old API?
-
-  * xcam: if the user quits xcam by the window manager, the process isn't
-    killed, only the window is closed
+  [the remaining entries have been moved to the sane-frontends package]
 
 sanei
 -----
@@ -151,15 +120,14 @@ misc
     - install sane-uninstall script. Advantage: uninstall possible
       without sourcecode
 
-  * configure --without-x doesn't work (doesn't matter when frontends
-    are removed from package)
-
   * use #include "../include/sane..." instead of #include <sane...>
 
   * use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
 ******** done ********
-
+* configure --without-x doesn't work (doesn't matter when frontends
+  are removed from package)
+* Create new package for frontends. 
 * 0 is white for sane in lineart and halftone, however, 0 is black for
   the other modes. Possible reason: pnm data format. The SANE standard
   doesn't talk about this (added point to SANE standard)

@@ -198,6 +198,11 @@
 :interface "USB"
 :status :unsupported
 
+:model "OpticPro ST48"
+:url "/unsupported/plustek-opticpro-st48.html"
+:interface "USB"
+:status :unsupported
+
 :mfg "Primax"
 :url "http://www.primax.nl/"
 

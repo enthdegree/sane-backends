@@ -106,6 +106,7 @@ typedef struct Umax_PP_Descriptor
   SANE_Device sane;
 
   SANE_String port;
+  SANE_String ppdevice;
 
   SANE_Int max_res;
   SANE_Int max_h_size;

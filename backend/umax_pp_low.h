@@ -46,7 +46,7 @@
 /*****************************************************************************/
 /*                 set port to 'idle state' and get iopl                     */
 /*****************************************************************************/
-extern int sanei_umax_pp_InitPort (int port);
+extern int sanei_umax_pp_InitPort (int port, char *name);
 
 
 

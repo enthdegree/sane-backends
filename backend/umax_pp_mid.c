@@ -169,7 +169,16 @@ sanei_umax_pp_model (int port, int *model)
       unlock_parport ();
       return (UMAX1220P_TRANSPORT_FAILED);
     }
-  rc = sanei_umax_pp_CheckModel ();
+
+  /* check model only, and if only none given in conf file */
+  if (!sanei_umax_pp_getastra ())
+    {
+      rc = sanei_umax_pp_CheckModel ();
+    }
+  else
+    {
+      rc = sanei_umax_pp_getastra ();
+    }
   sanei_umax_pp_EndSession ();
   unlock_parport ();
   if (rc < 610)
@@ -186,14 +195,22 @@ sanei_umax_pp_model (int port, int *model)
 }
 
 int
-sanei_umax_pp_attach (int port)
+sanei_umax_pp_attach (int port, char *name)
 {
   int recover = 0;
 
   /* set up port */
-  DBG (3, "sanei_umax_pp_attach\n");
+  if (name == NULL)
+    {
+      DBG (3, "sanei_umax_pp_attach(%d,NULL)\n", port);
+    }
+  else
+    {
+      DBG (3, "sanei_umax_pp_attach(%d,%s)\n", port, name);
+    }
+
   sanei_umax_pp_setport (port);
-  if (sanei_umax_pp_InitPort (port) != 1)
+  if (sanei_umax_pp_InitPort (port, name) != 1)
     return (UMAX1220P_PROBE_FAILED);
 
   /* init port locks the port, so we flag that */
@@ -228,14 +245,17 @@ sanei_umax_pp_attach (int port)
 
 
 int
-sanei_umax_pp_open (int port)
+sanei_umax_pp_open (int port, char *name)
 {
   int rc;
   int recover = 0;
 
   /* set up port */
   DBG (3, "sanei_umax_pp_open\n");
-  sanei_umax_pp_setport (port);
+
+  if (name == NULL)
+    sanei_umax_pp_setport (port);
+
   if (lock_parport () == UMAX1220P_BUSY)
     return (UMAX1220P_BUSY);
 

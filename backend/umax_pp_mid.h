@@ -66,12 +66,15 @@
  initialize transport layer
  probe scanner
 
+ if name is null, direct I/O is attempted to address given in port
+ else ppdev is tried using the given name as device
+
  on success returns UMAX1220P_OK,
  else one of the error above.
 
 */
 
-extern int sanei_umax_pp_attach (int port);
+extern int sanei_umax_pp_attach (int port, char *name);
 
 /*
  recognizes 1220P from 2000P
@@ -104,9 +107,12 @@ extern int sanei_umax_pp_lamp (int on);
  on succes returns UMAX1220P_OK,
  else one of the error above.
 
+ port: addr when doing direc I/O
+ name: ppdev character device name
+
 */
 
-extern int sanei_umax_pp_open (int port);
+extern int sanei_umax_pp_open (int port,char *name);
 
 
 

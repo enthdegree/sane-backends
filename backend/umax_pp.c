@@ -69,6 +69,7 @@
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
 
 #include "umax_pp_mid.h"
 #include "umax_pp.h"
@@ -113,8 +114,8 @@ static const SANE_Device **devarray = NULL;
 static Umax_PP_Device *first_dev = NULL;
 
 
-/* 1 Meg scan buffer */
-static long int buf_size = 2024 * 1024;
+/* 2 Meg scan buffer */
+static long int buf_size = 2048 * 1024;
 
 
 static int red_gain = 0;
@@ -166,7 +167,10 @@ static const SANE_Range u8_range = {
 
 #define UMAX_PP_DEFAULT_PORT		0x378
 
-
+/*
+ * devname may be either an hardware address for direct I/O (0x378 for instance)
+ * or the device name used by ppdev on linux systems        (/dev/parport0 )
+ */
 
 
 static SANE_Status
@@ -175,24 +179,44 @@ attach (const char *devname)
   Umax_PP_Descriptor *dev;
   int i;
   SANE_Status status = SANE_STATUS_GOOD;
-  int ret, prt, mdl;
+  int ret, prt = 0, mdl;
   char model[32];
+  char name[64];
 
+  memset (name, 0, 64);
 
-  if ((strlen (devname) < 3) || (strlen (devname) > 8))
+  if ((strlen (devname) < 3))
     return SANE_STATUS_INVAL;
 
-  if ((devname[0] == '0') && ((devname[1] == 'x') || (devname[1] == 'X')))
-    prt = strtol (devname + 2, NULL, 16);
+  /* if the name begins with a slash, it's a device, else it's an addr */
+  if ((devname[0] == '/'))
+    {
+      strncpy (name, devname, 64);
+    }
   else
-    prt = atoi (devname);
+    {
+      if ((devname[0] == '0') && ((devname[1] == 'x') || (devname[1] == 'X')))
+	prt = strtol (devname + 2, NULL, 16);
+      else
+	prt = atoi (devname);
+    }
 
 
   for (i = 0; i < num_devices; i++)
-    if (strcmp (devlist[i].port, devname) == 0)
-      return SANE_STATUS_GOOD;
+    {
+      if (devname[0] == '/')
+	{
+	  if (strcmp (devlist[i].ppdevice, devname) == 0)
+	    return SANE_STATUS_GOOD;
+	}
+      else
+	{
+	  if (strcmp (devlist[i].port, devname) == 0)
+	    return SANE_STATUS_GOOD;
+	}
+    }
 
-  ret = sanei_umax_pp_attach (prt);
+  ret = sanei_umax_pp_attach (prt, name);
   switch (ret)
     {
     case UMAX1220P_OK:
@@ -202,11 +226,11 @@ attach (const char *devname)
       status = SANE_STATUS_DEVICE_BUSY;
       break;
     case UMAX1220P_TRANSPORT_FAILED:
-      DBG (1, "attach: failed to init transport layer on port %s\n", devname);
+      DBG (1, "attach: failed to init transport layer on %s\n", devname);
       status = SANE_STATUS_IO_ERROR;
       break;
     case UMAX1220P_PROBE_FAILED:
-      DBG (1, "attach: failed to probe scanner on port %s\n", devname);
+      DBG (1, "attach: failed to probe scanner on %s\n", devname);
       status = SANE_STATUS_IO_ERROR;
       break;
     }
@@ -226,14 +250,14 @@ attach (const char *devname)
       ret = sanei_umax_pp_model (prt, &mdl);
       if (ret != UMAX1220P_OK)
 	{
-	  DBG (1, "attach: waiting for busy scanner on port %s\n", devname);
+	  DBG (1, "attach: waiting for busy scanner on %s\n", devname);
 	}
     }
   while (ret == UMAX1220P_BUSY);
 
   if (ret != UMAX1220P_OK)
     {
-      DBG (1, "attach: failed to recognize scanner model on port %s\n",
+      DBG (1, "attach: failed to recognize scanner model on %s\n",
 	   devname);
       return SANE_STATUS_IO_ERROR;
     }
@@ -264,7 +288,10 @@ attach (const char *devname)
   dev->sane.vendor = strdup ("UMAX");
   dev->sane.type = "flatbed scanner";
 
-  dev->port = strdup (devname);
+  if (devname[0] == '/')
+    dev->ppdevice = strdup (devname);
+  else
+    dev->port = strdup (devname);
   dev->buf_size = buf_size;
 
   if (mdl > 610)
@@ -601,8 +628,7 @@ init_options (Umax_PP_Device * dev)
 
 
 
-SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char dev_name[512];
   const char *cp;
@@ -650,6 +676,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       if (strncmp (cp, "option", 6) == 0 && isspace (cp[6]))
 	{
 
+	  DBG (3, "init: evaluating option <%s>\n", cp);
 	  cp += 7;
 	  cp = sanei_config_skip_whitespace (cp);
 
@@ -684,12 +711,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  devlist[0].buf_size = val;
 		}
 	    }
-	  else if (strncmp (cp, "astra", 6) == 0)
+	  else if (strncmp (cp, "astra", 5) == 0)
 	    {
 	      char *end;
 	      long int val;
 
-	      cp += 7;
+	      cp += 6;
 
 	      errno = 0;
 	      val = strtol (cp, &end, 0);
@@ -978,13 +1005,13 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle * handle)
+SANE_Status sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Umax_PP_Device *dev;
   Umax_PP_Descriptor *desc;
   int i, j;
-  int rc, prt;
+  int rc, prt = 0;
+  char *name = NULL;
 
   DBG (3, "open: device `%s'\n", devicename);
 
@@ -1008,14 +1035,21 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
       desc = &devlist[i];
 
-      if ((devlist[i].port[0] == '0')
-	  && ((devlist[i].port[1] == 'x') || (devlist[i].port[1] == 'X')))
-	prt = strtol (devlist[i].port + 2, NULL, 16);
+      if (devlist[i].ppdevice[0] == '/')
+	{
+	  name = devlist[i].ppdevice;
+	}
       else
-	prt = atoi (devlist[i].port);
-      DBG (64, "open: devlist[i].port='%s' -> port=0x%X\n", devlist[i].port,
-	   prt);
-      rc = sanei_umax_pp_open (prt);
+	{
+	  if ((devlist[i].port[0] == '0')
+	      && ((devlist[i].port[1] == 'x') || (devlist[i].port[1] == 'X')))
+	    prt = strtol (devlist[i].port + 2, NULL, 16);
+	  else
+	    prt = atoi (devlist[i].port);
+	  DBG (64, "open: devlist[i].port='%s' -> port=0x%X\n",
+	       devlist[i].port, prt);
+	}
+      rc = sanei_umax_pp_open (prt, name);
     }
   else
     {
@@ -1029,22 +1063,44 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (3, "open: trying default device %s, port=%s\n",
 	   devlist[0].sane.name, devlist[0].port);
 
-      rc = sanei_umax_pp_open (atoi (devlist[0].port));
+      rc = sanei_umax_pp_open (atoi (devlist[0].port), NULL);
 
       desc = &devlist[0];
     }
   switch (rc)
     {
     case UMAX1220P_TRANSPORT_FAILED:
-      DBG (1, "failed to init transport layer on port 0x%03X\n",
-	   atoi (desc->port));
+      if (name == NULL)
+	{
+	  DBG (1, "failed to init transport layer on port 0x%03X\n",
+	       atoi (desc->port));
+	}
+      else
+	{
+	  DBG (1, "failed to init transport layer on device %s\n", name);
+	}
       return SANE_STATUS_IO_ERROR;
+
     case UMAX1220P_SCANNER_FAILED:
-      DBG (1, "failed to initialize scanner on port 0x%03X\n",
-	   atoi (desc->port));
+      if (name == NULL)
+	{
+	  DBG (1, "failed to initialize scanner on port 0x%03X\n",
+	       atoi (desc->port));
+	}
+      else
+	{
+	  DBG (1, "failed to initialize scanner on device %s\n", name);
+	}
       return SANE_STATUS_IO_ERROR;
     case UMAX1220P_BUSY:
-      DBG (1, "busy scanner on port 0x%03X\n", atoi (desc->port));
+      if (name == NULL)
+	{
+	  DBG (1, "busy scanner on port 0x%03X\n", atoi (desc->port));
+	}
+      else
+	{
+	  DBG (1, "busy scanner on device %s\n", name);
+	}
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -1238,7 +1294,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  DBG (6, "control_option: option <%s>, action ... ", dev->opt[option].name,
+  DBG (6, "control_option: option <%s>, action ... %d", dev->opt[option].name,
        action);
 
   if (action == SANE_ACTION_GET_VALUE)
@@ -1665,8 +1721,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 
-SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+SANE_Status sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   Umax_PP_Device *dev = handle;
   int dpi, remain;
@@ -1821,8 +1876,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 
-SANE_Status
-sane_start (SANE_Handle handle)
+SANE_Status sane_start (SANE_Handle handle)
 {
   Umax_PP_Device *dev = handle;
   int rc, autoset;
@@ -1898,8 +1952,8 @@ sane_start (SANE_Handle handle)
 	   dev->TopX,
 	   dev->TopY,
 	   dev->BottomX - dev->TopX,
-	   dev->BottomY - dev->TopY, dev->dpi, dev->green_gain << 4,
-	   dev->BottomY - dev->TopY, dev->dpi, dev->green_highlight << 4);
+	   dev->BottomY - dev->TopY, dev->dpi, dev->gray_gain << 4,
+	   dev->gray_highlight << 4);
       rc = sanei_umax_pp_start (dev->TopX,
 				dev->TopY,
 				dev->BottomX - dev->TopX,
@@ -1997,7 +2051,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       /* re order data into RGB */
       if (dev->color == UMAX_PP_MODE_COLOR)
 	{
-	  DBG (64, "sane_read: reordering %d bytes of data (lines=%d)\n",
+	  DBG (64, "sane_read: reordering %ld bytes of data (lines=%d)\n",
 	       length, nl);
 	  lbuf = (SANE_Byte *) malloc (dev->bufsize);
 	  if (lbuf == NULL)
@@ -2007,16 +2061,34 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	      return SANE_STATUS_NO_MEM;
 	    }
 	  /* this loop will be optimized when everything else will be working */
-	  for (y = 0; y < nl; y++)
+	  if (sanei_umax_pp_getastra () == 1600)
 	    {
-	      for (x = 0; x < dev->tw; x++)
+	      for (y = 0; y < nl; y++)
 		{
-		  lbuf[x * dev->bpp + y * ll] =
-		    dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
-		  lbuf[x * dev->bpp + y * ll + 1] =
-		    dev->buf[dev->bufread + x + y * ll + dev->tw];
-		  lbuf[x * dev->bpp + y * ll + 2] =
-		    dev->buf[dev->bufread + x + y * ll];
+		  for (x = 0; x < dev->tw; x++)
+		    {
+		      lbuf[x * dev->bpp + y * ll] =
+			dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
+		      lbuf[x * dev->bpp + y * ll + 1] =
+			dev->buf[dev->bufread + x + y * ll];
+		      lbuf[x * dev->bpp + y * ll + 2] =
+			dev->buf[dev->bufread + x + y * ll + dev->tw];
+		    }
+		}
+	    }
+	  else
+	    {
+	      for (y = 0; y < nl; y++)
+		{
+		  for (x = 0; x < dev->tw; x++)
+		    {
+		      lbuf[x * dev->bpp + y * ll] =
+			dev->buf[dev->bufread + x + y * ll + 2 * dev->tw];
+		      lbuf[x * dev->bpp + y * ll + 1] =
+			dev->buf[dev->bufread + x + y * ll + dev->tw];
+		      lbuf[x * dev->bpp + y * ll + 2] =
+			dev->buf[dev->bufread + x + y * ll];
+		    }
 		}
 	    }
 	  /* avoids memcopy */
@@ -2037,7 +2109,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = length;
   dev->bufread += length;
   dev->read += length;
-  DBG (64, "sane_read %d bytes read\n", length);
+  DBG (64, "sane_read %ld bytes read\n", length);
 
   return SANE_STATUS_GOOD;
 
@@ -2081,8 +2153,7 @@ sane_cancel (SANE_Handle handle)
     }
 }
 
-SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+SANE_Status sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   DBG (129, "unused arg: handle = %p, non_blocking = %d\n",
        handle, (int) non_blocking);
@@ -2092,11 +2163,10 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
   return SANE_STATUS_UNSUPPORTED;
 }
 
-SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+SANE_Status sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
 
-  DBG (129, "unused arg: handle = %p, fd = %p\n", handle, fd);
+  DBG (129, "unused arg: handle = %p, fd = %p\n", handle, (void *)fd);
 
   DBG (2, "get_select_fd: not supported\n");
 

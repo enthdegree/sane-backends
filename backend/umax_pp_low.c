@@ -399,7 +399,7 @@ sanei_parport_info (int number, int *addr)
 
 
 int
-sanei_umax_pp_InitPort (int port)
+sanei_umax_pp_InitPort (int port, char *name)
 {
   int fd;
   int found = 0;
@@ -408,9 +408,6 @@ sanei_umax_pp_InitPort (int port)
 #endif
 #ifdef HAVE_LINUX_PPDEV_H
   char strmodes[160];
-  char parport_name[16];
-  int i;
-  int addr;
 #endif
 
   /* since this function must be called before */
@@ -427,151 +424,146 @@ sanei_umax_pp_InitPort (int port)
 
 
 #ifdef HAVE_LINUX_PPDEV_H
-  /* ppdev opening and configuration                               */
-  /* we start with /dev/parport0 and go through all /dev/parportx  */
-  /* until we find the right one                                   */
-  i = 0;
-  found = 0;
-  sprintf (parport_name, "/dev/parport%d", i);
-  fd = open (parport_name, O_RDWR | O_NOCTTY);
-  while ((fd != -1) && (!found))
+  if (name != NULL)
     {
-      /* claim port */
-      if (ioctl (fd, PPCLAIM))
+      if (strlen (name) > 3)
 	{
-	  DBG (1, "umax_pp: cannot claim port '%s'\n", parport_name);
-	}
-      else
-	{
-	  /* we check if parport does EPP or ECP */
-#ifdef PPGETMODES
-	  if (ioctl (fd, PPGETMODES, &mode))
+	  /* ppdev opening and configuration                               */
+	  found = 0;
+	  fd = open (name, O_RDWR | O_NOCTTY);
+	  if (fd < 0)
 	    {
-	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
-		   parport_name);
+	      switch (errno)
+		{
+		case ENOENT:
+		  DBG (1, "umax_pp: '%s' does not exist \n", name);
+		  break;
+		case EACCES:
+		  DBG (1,
+		       "umax_pp: current user has not R/W permissions on '%s' \n",
+		       name);
+		  break;
+		}
+	      return (0);
+
+	    }
+	  /* claim port */
+	  if (ioctl (fd, PPCLAIM))
+	    {
+	      DBG (1, "umax_pp: cannot claim port '%s'\n", name);
 	    }
 	  else
 	    {
-	      sprintf (strmodes, "\n");
-	      if (mode & PARPORT_MODE_PCSPP)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n", strmodes);
-	      if (mode & PARPORT_MODE_TRISTATE)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_TRISTATE\n", strmodes);
-	      if (mode & PARPORT_MODE_EPP)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
-	      if (mode & PARPORT_MODE_ECP)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n", strmodes);
-	      if (mode & PARPORT_MODE_COMPAT)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n", strmodes);
-	      if (mode & PARPORT_MODE_DMA)
-		sprintf (strmodes, "%s\t\tPARPORT_MODE_DMA\n", strmodes);
-	      DBG (32, "parport modes: %X\n", mode);
-	      DBG (32, "parport modes: %s\n", strmodes);
-	      if (!(mode & PARPORT_MODE_EPP) && !(mode & PARPORT_MODE_ECP))
+	      /* we check if parport does EPP or ECP */
+#ifdef PPGETMODES
+	      if (ioctl (fd, PPGETMODES, &mode))
 		{
-		  DBG (1,
-		       "port 0x%X does not have EPP or ECP, giving up ...\n",
-		       port);
-		  mode = IEEE1284_MODE_COMPAT;
-		  ioctl (fd, PPSETMODE, &mode);
-		  ioctl (fd, PPRELEASE);
-		  close (fd);
-		  return (0);
+		  DBG (16,
+		       "umax_pp: ppdev couldn't gave modes for port '%s'\n",
+		       name);
 		}
-	    }
+	      else
+		{
+		  sprintf (strmodes, "\n");
+		  if (mode & PARPORT_MODE_PCSPP)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n",
+			     strmodes);
+		  if (mode & PARPORT_MODE_TRISTATE)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_TRISTATE\n",
+			     strmodes);
+		  if (mode & PARPORT_MODE_EPP)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
+		  if (mode & PARPORT_MODE_ECP)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n", strmodes);
+		  if (mode & PARPORT_MODE_COMPAT)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n",
+			     strmodes);
+		  if (mode & PARPORT_MODE_DMA)
+		    sprintf (strmodes, "%s\t\tPARPORT_MODE_DMA\n", strmodes);
+		  DBG (32, "parport modes: %X\n", mode);
+		  DBG (32, "parport modes: %s\n", strmodes);
+		  if (!(mode & PARPORT_MODE_EPP)
+		      && !(mode & PARPORT_MODE_ECP))
+		    {
+		      DBG (1,
+			   "port 0x%X does not have EPP or ECP, giving up ...\n",
+			   port);
+		      mode = IEEE1284_MODE_COMPAT;
+		      ioctl (fd, PPSETMODE, &mode);
+		      ioctl (fd, PPRELEASE);
+		      close (fd);
+		      return (0);
+		    }
+		}
 
 #else
-	  DBG (16,
-	       "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
+	      DBG (16,
+		   "umax_pp: ppdev used to build SANE doesn't have PPGETMODES.\n");
 #endif
-	  /* prefered mode is EPP */
-	  mode = IEEE1284_MODE_EPP;
-	  mode = ioctl (fd, PPNEGOT, &mode);
-	  if (mode)
-	    {
-	      DBG (16,
-		   "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s'\n",
-		   parport_name);
-	    }
-	  if (ioctl (fd, PPSETMODE, &mode))
-	    {
-	      DBG (16,
-		   "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_EPP for '%s'\n",
-		   parport_name);
-
-	      mode = IEEE1284_MODE_ECP;
+	      /* prefered mode is EPP */
+	      mode = IEEE1284_MODE_EPP;
+	      mode = ioctl (fd, PPNEGOT, &mode);
+	      if (mode)
+		{
+		  DBG (16,
+		       "umax_pp: ppdev couldn't negociate mode IEEE1284_MODE_EPP for '%s'\n",
+		       name);
+		}
 	      if (ioctl (fd, PPSETMODE, &mode))
 		{
 		  DBG (16,
-		       "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_ECP for '%s'\n",
-		       parport_name);
-		  DBG (1,
-		       "port 0x%X can't be set to EPP or ECP, giving up ...\n",
-		       port);
+		       "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_EPP for '%s'\n",
+		       name);
 
-		  mode = IEEE1284_MODE_COMPAT;
-		  ioctl (fd, PPSETMODE, &mode);
-		  ioctl (fd, PPRELEASE);
-		  close (fd);
-		  return (0);
+		  mode = IEEE1284_MODE_ECP;
+		  if (ioctl (fd, PPSETMODE, &mode))
+		    {
+		      DBG (16,
+			   "umax_pp: ppdev couldn't set mode to IEEE1284_MODE_ECP for '%s'\n",
+			   name);
+		      DBG (1,
+			   "port 0x%X can't be set to EPP or ECP, giving up ...\n",
+			   port);
+
+		      mode = IEEE1284_MODE_COMPAT;
+		      ioctl (fd, PPSETMODE, &mode);
+		      ioctl (fd, PPRELEASE);
+		      close (fd);
+		      return (0);
+		    }
+		  else
+		    {
+		      DBG (16,
+			   "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
+			   name);
+		    }
 		}
 	      else
 		{
 		  DBG (16,
-		       "umax_pp: mode set to PARPORT_MODE_ECP for '%s'\n",
-		       parport_name);
+		       "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
+		       name);
 		}
+
+
+	      /* allways start in compat mode (for probe) */
+	      mode = IEEE1284_MODE_COMPAT;
+	      ioctl (fd, PPSETMODE, &mode);
+	      found = 1;
+
+	    }
+
+	  if (!found)
+	    {
+	      DBG (1, "device %s does not fit ...\n",name);
 	    }
 	  else
 	    {
-	      DBG (16,
-		   "umax_pp: mode set to PARPORT_MODE_EPP for '%s'\n",
-		   parport_name);
-	    }
-
-
-	  /* find the base addr of ppdev */
-	  if (sanei_parport_info (i, &addr))
-	    {
-	      if (gPort == addr)
-		{
-		  found = 1;
-		  DBG (1, "Using /proc info\n");
-		}
-	    }
-
-	  /* allways start in compat mode (for probe) */
-	  mode = IEEE1284_MODE_COMPAT;
-	  ioctl (fd, PPSETMODE, &mode);
-
-	  /* release port */
-	  if (!found)
-	    {
-	      ioctl (fd, PPRELEASE);
+	      DBG (1, "Using %s ...\n", name);
+	      sanei_umax_pp_setparport (fd);
+	      return (1);
 	    }
 	}
-
-
-
-      /* next parport */
-      if (!found)
-	{
-	  close (fd);
-	  i++;
-	  sprintf (parport_name, "/dev/parport%d", i);
-	  fd = open (parport_name, O_RDONLY | O_NOCTTY);
-	}
-    }
-
-  if (!found)
-    {
-      DBG (1, "no relevant /dev/parportx found...\n");
-    }
-  else
-    {
-      DBG (1, "Using /dev/parport%d ...\n", i);
-      sanei_umax_pp_setparport (fd);
-      return (1);
     }
 #endif /* HAVE_LINUX_PPDEV_H */
 
@@ -836,7 +828,7 @@ Outsw (int port, unsigned char *source, int size)
 static int scannerStatus = 0;
 static int epp32 = 1;
 static int model = 0x15;
-static int astra = 1220;
+static int astra = 0;
 
 int
 sanei_umax_pp_ScannerStatus (void)
@@ -2533,6 +2525,8 @@ SendWord (int *cmd)
 /******************************************************************************/
 /* RingScanner: returns 1 if scanner present, else 0                          */
 /******************************************************************************/
+#define UMAX_PP_PAUSE 100
+
 static int
 RingScanner (void)
 {
@@ -2557,29 +2551,29 @@ RingScanner (void)
 
   /* send ring string */
   Outb (DATA, 0x22);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0x22);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0xAA);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0xAA);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0x55);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0x55);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0x00);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0x00);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0xFF);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   Outb (DATA, 0xFF);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
 
   /* OK ? */
   status = Inb (STATUS);
-  usleep (1000);
+  usleep (UMAX_PP_PAUSE);
   if ((status & 0xB8) != 0xB8)
     {
       DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__, __LINE__);
@@ -2590,11 +2584,11 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x87);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       Outb (DATA, 0x87);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       status = Inb (STATUS);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       if ((status & 0xB8) != 0x18)
 	{
 	  DBG (1, "status %d doesn't match! %s:%d\n", status, __FILE__,
@@ -2607,9 +2601,9 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x78);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       Outb (DATA, 0x78);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       status = Inb (STATUS);
       if ((status & 0x30) != 0x30)
 	{
@@ -2623,13 +2617,13 @@ RingScanner (void)
   if (ret)
     {
       Outb (DATA, 0x08);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       Outb (DATA, 0x08);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       Outb (DATA, 0xFF);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
       Outb (DATA, 0xFF);
-      usleep (1000);
+      usleep (UMAX_PP_PAUSE);
     }
 
   /* restore state */
@@ -4164,7 +4158,8 @@ Probe610P (int recover)
   recover = 0;			/* quit compiler quiet .. */
 
   /* make sure we won't try 1220/200P later */
-  sanei_umax_pp_setastra (610);
+  if(!sanei_umax_pp_getastra())
+  	sanei_umax_pp_setastra (610);
   if (!Test610P (0x87))
     {
       DBG (1, "Ring610P(0x87) failed (%s:%d)\n", __FILE__, __LINE__);
@@ -4997,7 +4992,7 @@ sanei_umax_pp_ProbeScanner (int recover)
 	   __FILE__, __LINE__);
       if (CmdSetDataBuffer (voidbuf) != 1)
 	{
-	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n",
+	  DBG (0, "Loop %d: CmdSetDataBuffer(voidbuf) failed ! (%s:%d) \n",i,
 	       __FILE__, __LINE__);
 	  return (0);
 	}
@@ -6159,12 +6154,12 @@ DumpRVB (int width, int height, unsigned char *data, char *name)
       sprintf (titre, "%s", name);
     }
   fic = fopen (titre, "wb");
-  fprintf (fic, "P6\n%d %d\n255\n", width, height);
   if (fic == NULL)
     {
       DBG (0, "could not open %s for writing\n", titre);
       return;
     }
+  fprintf (fic, "P6\n%d %d\n255\n", width, height);
   for (y = 0; y < height; y++)
     {
       for (x = 0; x < width; x++)
@@ -6218,7 +6213,7 @@ EvalGain (int sum, int count)
 {
   int gn;
 
-  /* 19000 is a little to bright */
+  /* 19000 is a little too bright */
   gn = (int) ((double) (18500 * count) / sum - 100 + 0.5);
   if (gn < 0)
     gn = 0;
@@ -6606,6 +6601,7 @@ MoveToOrigin (void)
   if ((edge <= 30) && (sanei_umax_pp_getastra () != 1600))
     {
       DBG (2, "MoveToOrigin() detected a 1600P");
+  if(!sanei_umax_pp_getastra())
       sanei_umax_pp_setastra (1600);
     }
   edge = EdgePosition (300, 180, buffer);
@@ -7285,8 +7281,8 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
       /* write data to file operation                               */
       /*blocksize=(2096100/bpl)*bpl; */
       bpl = bpp * tw;
+      hp = 16776960 / bpl;	/* 16 Mo buffer (!!) */
       hp = 2096100 / bpl;
-      hp = 16776960 / bpl;
       blocksize = hp * bpl;
       nb = 0;
       read = 0;
@@ -7345,7 +7341,6 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	  DBG (8, "Read %ld bytes out of %ld ...\n", read, somme);
 	  DBG (8, "Read %d blocks ... \n", nb);
 
-
 	  /* write partial buffer to file */
 	  if (len)
 	    {
@@ -7386,6 +7381,11 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 
 #ifdef HAVE_SYS_TIME_H
       gettimeofday (&tf, NULL);
+
+      /* scan time are high enough to forget about usec */
+      elapsed = tf.tv_sec - td.tv_sec;
+      DBG (8, "%ld bytes transfered in %f seconds ( %.2f Kb/s)\n", somme,
+	   elapsed, (somme / elapsed) / 1024.0);
 #endif
 
       /* release ressources */
@@ -7393,13 +7393,6 @@ sanei_umax_pp_Scan (int x, int y, int width, int height, int dpi, int color,
 	fclose (fout);
       free (dest);
       free (buffer);
-
-      /* scan time are high enough to forget about usec */
-#ifdef HAVE_SYS_TIME_H
-      elapsed = tf.tv_sec - td.tv_sec;
-      DBG (8, "%ld bytes transfered in %f seconds ( %.2f Kb/s)\n", somme,
-	   elapsed, (somme / elapsed) / 1024.0);
-#endif
 
 
       /* park head */
@@ -8039,6 +8032,7 @@ sanei_umax_pp_CheckModel (void)
   /* if data has turned into 0, we have a 2000P       */
   if (dest[1] == 0x00)
     {
+  if(!sanei_umax_pp_getastra())
       sanei_umax_pp_setastra (2000);
       err = 2000;
     }

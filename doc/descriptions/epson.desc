@@ -112,9 +112,16 @@
 :interface "USB"
 :status :stable
 
-:model "Perfection 2450"
-:comment "IEEE-1394 is not supported"
+:model "Perfection 1660"
 :interface "USB"
+:status :stable
+
+:model "Perfection 2400"
+:interface "USB"
+:status :stable
+
+:model "Perfection 2450"
+:interface "USB IEEE-1394"
 :status :stable
 
 :model "Expression 636"

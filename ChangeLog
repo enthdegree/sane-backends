@@ -1,3 +1,7 @@
+2003-04-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.netbsd: Some additions concerning uscanner driver.
+
 2003-04-23  Frank Zago  <fzago at austin dot rr dot com>
 
 	* backend/teco2.c backend/teco2.h doc/sane-teco2.man

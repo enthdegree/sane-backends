@@ -1,3 +1,16 @@
+2001-01-20  Tom Martone <tom@martoneconsulting.com>
+
+	* backend/bh.c backend/bh.conf backend/bh.h doc/sane-bh.man
+	  Added new backend Bell and Howell Copiscan scanners
+	* backend/bh.desc
+	  Updated version from (0.1) to 1.0-4
+	  Referenced manpage
+	* backend/Makefile.in
+	  Added bh to PRELOADABLE_BACKENDS
+	  Added libsane-bh.la dependencies
+	* doc/Makefile.in
+	  Added sane-bh.5 to SECT5
+
 2001-01-17  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* backend/mustek.c backend/mustek.desc backend/mustek.h

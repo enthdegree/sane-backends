@@ -1,5 +1,10 @@
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
+	* backend/snapscan.c: Applied fix for allocation of gamma tables
+	  (thanks to Simon Munton)
+
+2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
 	* doc/descriptions/unsupported.desc: removed Epson Perfection 1270
 
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>

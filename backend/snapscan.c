@@ -214,10 +214,9 @@ static const SANE_Device **get_devices_list = NULL;
 #include "snapscan-options.c"
 
 /* Initialize gamma tables */
-static SANE_Status init_gamma(SnapScan_Scanner * ps)
+static SANE_Status alloc_gamma_tables(SnapScan_Scanner * ps)
 {
-    static const char me[] = "init_gamma";
-    u_char *gamma;
+    static const char me[] = "alloc_gamma_tables";
 
     ps->gamma_length = 1 << ps->bpp;
     DBG (DL_MINOR_INFO, "%s: using 4*%d bytes for gamma table\n",
@@ -227,16 +226,8 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_tables =
         (SANE_Int *) malloc(4 * ps->gamma_length * sizeof(SANE_Int));
 
-    gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char));
-
-    if (!ps->gamma_tables || !gamma)
+    if (!ps->gamma_tables)
     {
-        if (ps->gamma_tables)
-            free (ps->gamma_tables);
-
-        if (gamma)
-            free (gamma);
-
         return SANE_STATUS_NO_MEM;
     }
 
@@ -244,6 +235,20 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_table_r = &ps->gamma_tables[1 * ps->gamma_length];
     ps->gamma_table_g = &ps->gamma_tables[2 * ps->gamma_length];
     ps->gamma_table_b = &ps->gamma_tables[3 * ps->gamma_length];
+
+    return SANE_STATUS_GOOD;
+}
+
+static SANE_Status init_gamma(SnapScan_Scanner * ps)
+{
+    u_char *gamma;
+
+    gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char));
+
+    if (!gamma)
+    {
+        return SANE_STATUS_NO_MEM;
+    }
 
     /* Default tables */
     gamma_n (SANE_UNFIX(ps->gamma_gs), ps->bright, ps->contrast, gamma, ps->bpp);
@@ -970,6 +975,17 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             }
         }
         close_scanner(pss);
+
+        status = alloc_gamma_tables (pss);
+        if (status != SANE_STATUS_GOOD)
+        {
+            DBG (DL_MAJOR_ERROR,
+                 "%s: error in alloc_gamma_tables: %s\n",
+                 me,
+                 sane_strstatus (status));
+            free (pss);
+            return status;
+        }
 
         init_options (pss);
         status = init_gamma (pss);
@@ -1838,6 +1854,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.47  2004/12/01 22:49:14  oliver-guest
+ * Fix for allocation of gamma tables by Simon Munton
+ *
  * Revision 1.46  2004/12/01 22:12:03  oliver-guest
  * Added support for Epson 1270
  *

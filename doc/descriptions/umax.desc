@@ -295,6 +295,11 @@
 :status :untested
 :comment "support disabled until tested - please contact author"
 
+:model "Opal2"
+:interface "SCSI"
+:status :good
+:comment "OK; SCSI-ID=LinoHell OPAL2"
+
 :model "Opal Ultra"
 :interface "SCSI"
 :status :untested

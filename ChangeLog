@@ -1,3 +1,8 @@
+2004-10-01  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
+
+	* backend/umax-scanner.c, umax.conf and umax.desc:
+	  added "LinoHell", "OPAL2 " as supported device
+
 2004-09-28  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.sv.po: Updated Swedish translation file

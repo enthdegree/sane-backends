@@ -2,7 +2,7 @@
 
 /* umax-scanner.c: scanner-definiton file for UMAX scanner driver.
   
-   (C) 1997-2002 Oliver Rauch
+   (C) 1997-2004 Oliver Rauch
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -111,7 +111,6 @@ static char *scanner_str[] =
   "UMAX ",	"PowerLook 3000 ",
   "UMAX ",	"Gemini D-16 ",
   "UMAX ",      "PS-2400X ", /* same as LinoHell SAPHIR */
-/*  "Color",	"FilmScanner____1", */ /* UMAX Powerlook 270 */
   "LinoHell",	"JADE ",   /* is a Supervista S-12 */
   "LinoHell",	"Office ", /* is a Supervista S-12 */
   "LinoHell",	"Office2 ",
@@ -121,6 +120,7 @@ static char *scanner_str[] =
 /*  "LinoHell",	"SAPHIR4 ", */
   "Linotype",	"SAPHIR4 ", /* Linotype-Hell Saphir Ultra II */
 /*  "LinoHell",	"OPAL ", */
+  "LinoHell",	"OPAL2 ", /* looks like a UMAX Mirage II */
   "HDM ",	"LS4H1S ", /* Linoscan 1400 */
   "Nikon ",	"AX-110 ", /* is a Vista S6E */
   "Nikon ",	"AX-210 ", /* is a Supervista S12 */

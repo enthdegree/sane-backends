@@ -2,6 +2,9 @@
 
 	* TODO: Removed entry about @LIBDIR@ and @CONFIGDIR@ in man pages.
 	  Added Entry about sanei_scsi return values and timeout.
+	* backend/microtek2.desc backend/microtek2.h doc/sane-microtek2.man:
+	  Increased version number to 0.95. Updated man page. Patch from
+	  karsten.festag@t-online.de (Karsten Festag).
 
 2001-10-27 Peter Kirchgessner <peter@kirchgessner.net>
 

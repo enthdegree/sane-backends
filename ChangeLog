@@ -1,3 +1,12 @@
+2000-11-26  Peter Kirchgessner <peter@kirchgessner.net>
+
+        * backend/hp.desc, doc/sane-hp.man
+          Add descriptions for PTAL support
+
+        * backend/hp.c
+          If PTAL-support requested, write warning about unsupported PTAL
+          with DBG(0,...  instead of DBG(1,...
+
 2000-11-25  Henning Meier-Geinitz <hmg@gmx.de>
 
 	* configure configure.in acinclude.m4 aclocal.m4 

@@ -4,6 +4,10 @@
 
 2001-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* include/lassert.h sanei/sanei_scsi.c: Use local assert.h file to
+	  fix problems with AIX and shared libraries.
+	* frontend/test.c: Changed order of headers to get test.c compiling
+	  on OS/2.
 	* frontend/.cvsignore: Added test.
 	* frontend/saned.c: Increase timeout to one hour.
 	* backend/coolscan.c: Declared all internal functions static.

@@ -361,7 +361,7 @@ sanei_thread_waitpid( int pid, int *status )
 
 	stat = 0;
 
-	DBG(2, "sanei_thread_waitpid() - %d\n", (int)pid);
+	DBG(2, "sanei_thread_waitpid() - %d\n", pid);
 #ifdef USE_PTHREAD
 	result = pthread_join((pthread_t)pid, (void*)&ls );
 
@@ -375,6 +375,11 @@ sanei_thread_waitpid( int pid, int *status )
 		DBG(2, "* result = %d (%p)\n", stat, (void*)status );
 		result = pid;
 	}
+	/* call detach in any case to make sure that the thread resources 
+	 * will be freed, when the thread has terminated
+	 */
+	DBG(2, "* detaching thread(%d)\n", pid );
+	pthread_detach((pthread_t)pid);
 	if (status)
 		*status = stat;
 

@@ -620,6 +620,12 @@ static int
 shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
 static int
+shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
+static int
+shadingCalibration1220p (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration);
+static int
 leftShadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 			int vgaRed, int vgaGreen, int vgaBlue,
 			int *calibration);
@@ -1641,8 +1647,8 @@ Outsw (int port, unsigned char *source, int size)
 /* and published it through an easy interface              */
 /* will turn it into a struct when 610P code will be done  */
 static int scannerStatus = 0;
-static time_t gTime = 0 ;
-static time_t gDelay = 0 ;
+static time_t gTime = 0;
+static time_t gDelay = 0;
 static int epp32 = 1;
 static int gMode = 0;
 static int gprobed = 0;
@@ -1675,20 +1681,20 @@ sanei_umax_pp_UTA (void)
 int
 sanei_umax_pp_scannerStatus (void)
 {
-struct timeval tv;
+  struct timeval tv;
 
   /* the 610P ASIC needs some time to settle down after probe */
-  if((gTime>0)&&(gDelay>0))
-  {
-  	gettimeofday(&tv,NULL);
-	/* delay elapsed ?*/
-	if(tv.tv_sec-gTime<gDelay)
-		/* still waiting */
-  		return ASIC_BIT;
-	/* wait finished */
-	gDelay=0;
-	gTime=0;
-  }
+  if ((gTime > 0) && (gDelay > 0))
+    {
+      gettimeofday (&tv, NULL);
+      /* delay elapsed ? */
+      if (tv.tv_sec - gTime < gDelay)
+	/* still waiting */
+	return ASIC_BIT;
+      /* wait finished */
+      gDelay = 0;
+      gTime = 0;
+    }
 
   /* 0x07 variant returns status with bit 0 or 1 allways set to 1 */
   /* so we mask it out                                            */
@@ -5857,10 +5863,10 @@ initScanner610p (int recover)
   rc = inquire ();
 
   /* get time to handle settle time delay */
-  gettimeofday(&tv,NULL);
-  gTime=tv.tv_sec;
+  gettimeofday (&tv, NULL);
+  gTime = tv.tv_sec;
   /* default delay */
-  gDelay=5;
+  gDelay = 5;
 
   if (rc == 0)
     {
@@ -5870,7 +5876,7 @@ initScanner610p (int recover)
   if (rc == 2)
     {
       /* same value used by windows driver */
-      gDelay=45;
+      gDelay = 45;
       DBG (1, "inquire() signals re-homing needed ... (%s:%d) \n",
 	   __FILE__, __LINE__);
       first = 1;
@@ -10314,7 +10320,7 @@ colorCalibration (int color, int dpi, int brightness, int contrast, int width,
       opsc32[13] = 0x03;
     }
 
-
+  /* 1220P/2000P shading calibration */
   if (color < RGB_MODE)
     {
       opsc32[0] -= 4;
@@ -11000,7 +11006,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
 	}
       MOVE (-31, PRECISION_OFF, NULL);
 
-      /* ccd calibration */
+      /* ccd calibration is allways done */
       if (shadingCalibration
 	  (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
 	   calibration) == 0)
@@ -12198,6 +12204,20 @@ coarseGainCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 }
 
 /*
+ * build CCD correction: a white area below the top is scanned without
+ * correction, and the data are used to compute the coefficents needed
+ * to correct the light/CCD variations
+ */
+static int
+shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+{
+  if (sanei_umax_pp_getastra () < 1220)
+  	return shadingCalibration610p (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, calibration) ;
+  return shadingCalibration1220p (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue, calibration) ;
+}
+
+/*
  * computes PGA offset for each pixel of the ccd.
  * We scan a white area with PGA=0 and computes the
  * offset to push the result in the correctable range
@@ -12205,7 +12225,7 @@ coarseGainCalibration (int color, int dcRed, int dcGreen, int dcBlue,
  * On failure, returns 0.
  */
 static int
-shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
+shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
 {
   int motor[17] = {
@@ -12245,9 +12265,7 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   unsigned char *data = NULL;
   int top, bottom;
 
-  TRACE (16, "entering shadingCalibration ...\n");
-  if (sanei_umax_pp_getastra () < 1220)
-    {
+  TRACE (16, "entering shadingCalibration610p ...\n");
       len = 0x22;
       w = 2550;
       y = 10;
@@ -12255,17 +12273,6 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
       h = 90;
       top = 8;
       bottom = 8;
-    }
-  else
-    {
-      len = 0x24;
-      w = 5100;
-      y = 10;
-      dpi = 600;
-      h = 67;
-      top = 8;
-      bottom = 8;
-    }
 
   /* gray scanning handling */
   if (color < RGB_MODE)
@@ -12280,10 +12287,11 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   data = (unsigned char *) malloc (w * h * bpp);
   if (data == NULL)
     {
-      DBG (0, "shadingCalibration: failed to allocate memory (%s:%d)\n",
+      DBG (0, "shadingCalibration610p: failed to allocate memory (%s:%d)\n",
 	   __FILE__, __LINE__);
       return 0;
     }
+   memset(data,0x00,w*h*bpp);
 
   /* prepare scan command */
   x = sanei_umax_pp_getLeft ();
@@ -12313,7 +12321,7 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
     h = h - y - 6;
   size = w * bpp * h;
 
-  DBG (128, "shadingCalibration: trying to read 0x%06X bytes ... (%s:%d)\n",
+  DBG (128, "shadingCalibration610p: trying to read 0x%06X bytes ... (%s:%d)\n",
        size, __FILE__, __LINE__);
   /* since we know that each scan line matches CCD width, we signals
    * that data reading doens't need to sync on each byte, but at each
@@ -12329,24 +12337,25 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
   if (DBG_LEVEL > 128)
     DumpNB (w * bpp, h, data, NULL);
 
+  /* zeroes all shading coefficients first */
+  memset (calibration, 0x00, 3 * w * sizeof (int));
+
   /* in gray scans, we have only green component (i=3) */
   if (color < RGB_MODE)
     {
-      /* zeroes unused shading coefficients */
-      memset (calibration, 0x00, 2 * w);
 
       /* build green only coefficients */
       for (x = 4; x < w; x++)
 	{
 	  sum = 0;
 	  for (y = top; y < h - bottom; y++)
-	    sum += data[y * w + x];
+		sum += data[(y * bpp) * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
-	  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
-	  if(coeff<0)
-	  	coeff=0;
-	  if(coeff>255)
-	  	coeff=255;
+	  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.50;
+	  if (coeff < 0)
+	    coeff = 0;
+	  if (coeff > 255)
+	    coeff = 255;
 	  calibration[x + 2 * w - 4] = (int) (coeff + 0.5);
 	}
     }
@@ -12367,16 +12376,16 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
 		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.80;
 		  break;
 		case 1:	/* BLUE */
-		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+		  coeff = (256.0 * (250.0 / avg - 1.0)) / 2.10;
 		  break;
 		case 2:	/* GREEN */
-		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.70;
+		  coeff = (256.0 * (250.0 / avg - 1.0)) / 1.50;
 		  break;
 		}
-	  if(coeff<0)
-	  	coeff=0;
-	  if(coeff>255)
-	  	coeff=255;
+	      if (coeff < 0)
+		coeff = 0;
+	      if (coeff > 255)
+		coeff = 255;
 	      calibration[x + i * w - 4] = (int) (coeff + 0.5);
 	    }
 	  /* 100 in coeffs -> +104 on picture */
@@ -12398,8 +12407,15 @@ shadingCalibration (int color, int dcRed, int dcGreen, int dcBlue,
     }
 
   free (data);
-  TRACE (16, "shadingCalibration end ...\n");
+  TRACE (16, "shadingCalibration610p end ...\n");
   return 1;
+}
+
+static int
+shadingCalibration1220p (int color, int dcRed, int dcGreen, int dcBlue,
+		    int vgaRed, int vgaGreen, int vgaBlue, int *calibration)
+{
+	return 1;
 }
 
 /*

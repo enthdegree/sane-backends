@@ -378,7 +378,7 @@ main (int argc, char **argv)
   if (trace)
     {
       printf
-	("UMAX 610P/1220P/2000P scanning program version 6.2 starting ...\n");
+	("UMAX 610P/1220P/2000P scanning program version 6.3 starting ...\n");
 #ifdef HAVE_LINUX_PPDEV_H
       printf ("ppdev character device built-in.\n");
 #endif

@@ -1,3 +1,9 @@
+2004-07-21  Stéphane Voltz <svoltz@wanadoo.fr>
+
+	* backend/umax_pp_low.c backend/umax_pp.c tools/umax_pp.c:
+	  fixed a 610P initialization bug that shown up when changing from color
+	  to grey mode. Changed version numbers.
+
 2004-07-18  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added CX-5400, RX-500 and RX-600; updated version 

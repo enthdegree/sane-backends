@@ -46,7 +46,7 @@
    then evolved in its own thing                                       
    
    support for the 610P has been made possible thank to an hardware donation
-   by William Stuart
+   from William Stuart
    */
 
 
@@ -106,7 +106,7 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	15
+#define UMAX_PP_BUILD	603
 #define UMAX_PP_STATE	"dev"
 
 static int num_devices = 0;

@@ -1,3 +1,7 @@
+2002-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.os2: Updated URL of Franz Bakan's web site.
+
 2001-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/scanimage.c: Fixed endless loop in sighandler.

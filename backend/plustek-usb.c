@@ -383,9 +383,8 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 	SANE_Int handle;
 
 	DBG( _DBG_INFO, "Shutdown called (dev->fd=%d, %s)\n",
-													dev->fd, dev->sane.name );
+	                dev->fd, dev->sane.name );
 	if( NULL == dev->usbDev.ModelStr ) {
-	
 		DBG( _DBG_INFO, "Function ignored!\n" );
 		return;
 	}
@@ -479,6 +478,7 @@ static void
 usbGetList( DevList **devs )
 {
 	int        i;
+	SANE_Bool  il;
 	SANE_Word  v, p;
 	DevList   *tmp;
 
@@ -487,6 +487,22 @@ usbGetList( DevList **devs )
 
 		v = strtol( &(Settings[i].pIDString)[0], 0, 0 );
 		p = strtol( &(Settings[i].pIDString)[7], 0, 0 );
+
+		/* check if this vendor- and product-ID has already been added, needed
+		 * for Plustek devices - here on product-ID is used for more than one
+		 * device type...
+		 */
+		il = SANE_FALSE;
+		for( tmp = *devs; tmp ; tmp = tmp->next ) {
+			if( tmp->device_id == p && tmp->vendor_id == v ) {
+				il = SANE_TRUE;
+				break;
+			}
+		} 
+		if( il ) {
+			DBG( _DBG_INFO2, "Already in list: 0x%04x-0x%04x\n", v, p );
+			continue;
+		}
 
 		/* get the last entry... */
 		tmp = getLast(*devs);

@@ -6,6 +6,11 @@
 	  on AIX. Use 1 instead of 2 as major number with Irix.
 	* Makefile.in ltconfig: Removed ltconfig as it is no longer used by 
 	  libtool.
+	* TODO: More status indicators for backends to include. Removed
+	  entry about the grand Fujitsu reunification. Updated entry about the 
+	  DBG warnings. Removed entry about splitted sane-backends.html. 
+	  Removed entries about libtool problems. Added entry about plustek on
+	  OS/2 problem.
 
 2002-03-24  Oliver Schwartz <oliver.schwartz@gmx.de>
 

@@ -861,7 +861,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
        pss->pdev->model != PRISA610
     ) {
         pc[SET_WINDOW_P_DEBUG_MODE] = 2;        /* use full 128k buffer */
-        if ((pss->mode != MD_LINEART) && (pss->val[OPT_CUSTOM_GAMMA].b))
+        if (pss->mode != MD_LINEART)
         {
             pc[SET_WINDOW_P_GAMMA_NO] = 0x01;   /* downloaded gamma table */
         }
@@ -1222,6 +1222,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.27  2004/04/02 20:19:24  oliver-guest
+ * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ *
  * Revision 1.26  2003/11/07 23:26:49  oliver-guest
  * Final bugfixes for bascic support of Epson 1670
  *

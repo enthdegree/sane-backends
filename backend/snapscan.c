@@ -78,7 +78,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               35
+#define BUILD               36
 
 #define BACKEND_NAME snapscan
 
@@ -234,16 +234,16 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     ps->gamma_table_b = &ps->gamma_tables[3 * ps->gamma_length];
 
     /* Default tables */
-    gamma_n (ps->gamma_gs, ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_gs), ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_gs);
 
-    gamma_n (ps->gamma_r, ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_r), ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_r);
 
-    gamma_n (ps->gamma_g, ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_g), ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_g);
 
-    gamma_n (ps->gamma_b, ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_b), ps->bright, ps->contrast, gamma, ps->bpp);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_b);
 
     free (gamma);
@@ -949,6 +949,7 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         }
         close_scanner(pss);
 
+        init_options (pss);
         status = init_gamma (pss);
         if (status != SANE_STATUS_GOOD)
         {
@@ -960,7 +961,6 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             return status;
         }
 
-        init_options (pss);
         pss->state = ST_IDLE;
     }
 
@@ -1227,10 +1227,10 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
 {
     static char me[] = "download_gamma_tables";
     SANE_Status status = SANE_STATUS_GOOD;
-    float gamma_gs = SANE_UNFIX (pss->gamma_gs);
-    float gamma_r = SANE_UNFIX (pss->gamma_r);
-    float gamma_g = SANE_UNFIX (pss->gamma_g);
-    float gamma_b = SANE_UNFIX (pss->gamma_b);
+    double gamma_gs = SANE_UNFIX (pss->gamma_gs);
+    double gamma_r = SANE_UNFIX (pss->gamma_r);
+    double gamma_g = SANE_UNFIX (pss->gamma_g);
+    double gamma_b = SANE_UNFIX (pss->gamma_b);
     SnapScan_Mode mode = actual_mode (pss);
     int dtcq_gamma_gray;
     int dtcq_gamma_red;
@@ -1520,6 +1520,12 @@ SANE_Status sane_start (SANE_Handle h)
 
     status = download_gamma_tables(pss);
     CHECK_STATUS (status, me, "download_gamma_tables");
+    if (pss->pdev->model == PERFECTION1670)
+    {
+        /* Epson Perfections needs the gamma table twice */
+        status = download_gamma_tables(pss);
+        CHECK_STATUS (status, me, "download_gamma_tables (2nd try)");
+    }
 
     status = download_halftone_matrices(pss);
     CHECK_STATUS (status, me, "download_halftone_matrices");
@@ -1762,6 +1768,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.38  2004/04/02 20:19:24  oliver-guest
+ * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ *
  * Revision 1.37  2003/11/27 23:11:32  oliver-guest
  * Send gamma table twice for Epson Perfection 1670
  *

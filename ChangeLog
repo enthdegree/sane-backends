@@ -1,3 +1,8 @@
+2004-04-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* snapscan.c snapscan-options.c snapscan-scsi.c:
+	  Various bugfixes for gamma correction (Thanks to Robert Tsien)
+
 2004-04-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated for sane-backends 1.0.14.

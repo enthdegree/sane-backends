@@ -190,6 +190,8 @@ static const SANE_Range positive_percent_range =
     1 << SANE_FIXED_SCALE_SHIFT
 };
 
+static void control_options(SnapScan_Scanner *pss);
+
 /* init_options -- initialize the option set for a scanner; expects the
    scanner structure's hardware configuration byte (hconfig) to be valid.
 
@@ -738,6 +740,7 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_GS_LPR].constraint_type = SANE_CONSTRAINT_RANGE;
     po[OPT_GS_LPR].constraint.range = &lpr_range;
     ps->gs_lpr = def_gs_lpr;
+    control_options(ps);
 }
 
 const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle h,
@@ -1001,7 +1004,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
         case OPT_HIGHQUALITY:
-            pss->preview = *(SANE_Bool *) v;
+            pss->highquality = *(SANE_Bool *) v;
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
@@ -1485,6 +1488,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.15  2004/04/02 20:19:23  oliver-guest
+ * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ *
  * Revision 1.14  2004/02/01 13:32:26  oliver-guest
  * Fixed resolutions for Epson 1670
  *

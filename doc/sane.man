@@ -1,4 +1,4 @@
-.TH sane 7 "24 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "30 Sept 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -556,7 +556,7 @@ Most of the internal
 routines
 .RB ( sanei )
 are documented using doxygen:
-.IR http://sanei.meier-geinitz.de/ .
+.IR http://www.sane-project.org/sanei/ .
 Before a new backend or frontend project is started, have a look at
 .I @DOCDIR@/PROJECTS
 for projects that are planned or not yet included into the

@@ -5,6 +5,8 @@
 	  some URLs.
 	* frontend/Makefile.in: Use LIBS = @LIBS@ to make sure that 
 	  -lsyslog and -lsocket are linked for OS/2.
+	* doc/descriptions/abaton.desc: Added :status :untested for 
+	  Scan 300/S.
 
 2002-07-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

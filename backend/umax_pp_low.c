@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -52,13 +53,14 @@
 #include "../include/sane/sanei_debug.h"
 #include <errno.h>
 
+
 #ifdef HAVE_LINUX_PPDEV_H
 #include <sys/ioctl.h>
 #include <linux/parport.h>
 #include <linux/ppdev.h>
 #endif
 
-#ifdef HAVE_SYS_IO_H 
+#ifdef HAVE_SYS_IO_H
 # include <sys/io.h>		/* GNU libc based Linux */
 #elif HAVE_ASM_IO_H && defined __i386__
 # include <asm/io.h>		/* older Linux */
@@ -70,7 +72,7 @@
 #endif
 #endif
 
-/* we need either direct io or ppdev to function */
+/* we need either direct io or ppdev */
 #if ! defined ENABLE_DIRECTIO && ! defined HAVE_LINUX_PPDEV_H
 #define IO_SUPPORT_MISSING
 #endif
@@ -6197,11 +6199,12 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 			int *data)
 {
   int p, i, l;
-  int sum, gn;
+  int sum, gn, count;
+  float coeff = 102.547;
 
 
   memset (data, 0, (3 * 5100 + 768 + 3) * sizeof (int));
-
+  /* 102.547 */
 
   /* 0 -> 5099 */
   for (i = 0; i < width; i++)
@@ -6210,9 +6213,16 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	{
 	  /* compute average */
 	  sum = 0;
+	  count = 0;
 	  for (l = 0; l < 66; l++)
-	    sum += source[i + l * 5100 * 3];
-	  gn = (int) (((double) (250 * l) / sum - 0.984) * 102.547 + 0.5);
+	    {
+	      if (source[i + l * 5100 * 3] > 30)
+		{
+		  sum += source[i + l * 5100 * 3];
+		  count++;
+		}
+	    }
+	  gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
 	  if (gn < 0)
 	    gn = 0;
 	  else if (gn > 255)
@@ -6230,9 +6240,16 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
     {
       /* compute average */
       sum = 0;
+      count = 0;
       for (l = 0; l < 66; l++)
-	sum += source[i + l * 5100 * 3 + 5100];
-      gn = (int) (((double) (250 * l) / sum - 0.984) * 102.547 + 0.5);
+	{
+	  if (source[i + l * 5100 * 3 + 5100] > 30)
+	    {
+	      sum += source[i + l * 5100 * 3 + 5100];
+	      count++;
+	    }
+	}
+      gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
       if (gn < 0)
 	gn = 0;
       else if (gn > 255)
@@ -6249,9 +6266,16 @@ ComputeCalibrationData (int color, int dpi, int width, unsigned char *source,
 	{
 	  /* compute average */
 	  sum = 0;
+	  count = 0;
 	  for (l = 0; l < 66; l++)
-	    sum += source[i + l * 5100 * 3 + 5100 * 2];
-	  gn = (int) (((double) (250 * l) / sum - 0.984) * 102.547 + 0.5);
+	    {
+	      if (source[i + l * 5100 * 3 + 5100 * 2] > 30)
+		{
+		  sum += source[i + l * 5100 * 3 + 5100 * 2];
+		  count++;
+		}
+	    }
+	  gn = (int) (((double) (250 * count) / sum - 0.984) * coeff + 0.5);
 	  if (gn < 0)
 	    gn = 0;
 	  else if (gn > 255)
@@ -7029,7 +7053,7 @@ sanei_umax_pp_Park (void)
 
 /* calibrates CCD: returns 1 on success, 0 on failure */
 static int
-GammaCalibration (int color, int dpi, int gain, int highlight, int width,
+ColorCalibration (int color, int dpi, int gain, int highlight, int width,
 		  int *calibration)
 {
   int opsc32[17] =
@@ -7076,9 +7100,14 @@ GammaCalibration (int color, int dpi, int gain, int highlight, int width,
   CMDSYNC (0x00);
 
   /* get calibration data */
-  opsc32[10] = gain / 16;
-  opsc32[11] = ((highlight / 16) & 0xF0) | (gain % 16);
-  opsc32[12] = highlight % 256;
+  /*opsc32[10] = gain / 16;
+     opsc32[11] = ((highlight / 16) & 0xF0) | (gain % 16);
+     opsc32[12] = highlight % 256; */
+  /* add there behaviour based on manual/auto setting */
+  /* fixed limit for manual settings */
+  opsc32[10] = 0x77;
+  opsc32[11] = 0x07;
+  opsc32[12] = 0x00;
   if (sanei_umax_pp_getastra () == 1600)
     {
       opsc32[13] = 0x03;
@@ -7151,7 +7180,7 @@ GammaCalibration (int color, int dpi, int gain, int highlight, int width,
 	}
     }
   ComputeCalibrationData (color, dpi, width, buffer, calibration);
-  DBG (1, "Gamma calibration done ...\n");
+  DBG (1, "Color calibration done ...\n");
   return (1);
 }
 
@@ -7527,7 +7556,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   for (i = 0; i < 256; i++)
     {
       dest[i * 2] = i;
-      dest[i * 2 + 1] = 0x00;
+      dest[i * 2 + 1] = 0;
     }
   CMDSETGET (0x08, 36, opsc35);
   CMDSYNC (0xC2);
@@ -7553,7 +7582,7 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   for (i = 0; i < 256; i++)
     {
       if ((dest[2 * i] != i)
-	  || ((dest[2 * i + 1] != 0xFF) && (dest[2 * i + 1] != 0x00)))
+	  || ((dest[2 * i + 1] != 0x04) && (dest[2 * i + 1] != 0x00)))
 	{
 	  DBG
 	    (0,
@@ -7629,12 +7658,12 @@ sanei_umax_pp_StartScan (int x, int y, int width, int height, int dpi,
   tw = (width * xdpi) / 600;
 
   /* do gamma calibration */
-  if (GammaCalibration (color, dpi, gain, highlight, width, calibration) == 0)
+  if (ColorCalibration (color, dpi, gain, highlight, width, calibration) == 0)
     {
       DBG (0, "Gamma calibration failed !!! (%s:%d)\n", __FILE__, __LINE__);
       return (0);
     }
-  TRACE (16, "GammaCalibration() passed ...")
+  TRACE (16, "ColorCalibration() passed ...")
     /* it is faster to move at low resolution, then scan */
     /* than scan & move at high resolution               */
     distance = 0;

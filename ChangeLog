@@ -1,3 +1,9 @@
+2002-04-08  Rene Rebe <rene.rebe@gmx.net>
+	* backend/avision.c backend/avision.h backend/avision.desc
+	  doc/sane-avision.man: updated to Avision backend build 25. More
+	  stable for HP usb scanners, suport for Misubishi scanners and
+	  various cleanups.
+
 2002-04-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/canon_pp.c backend/canon_pp-dev.c backend/canon_pp-io.c

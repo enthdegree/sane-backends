@@ -2,6 +2,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Corex and Relisys
 	  scanners. Updated Canon and HP scanners.
+	* doc/descriptions-external/primax.desc: Fixed typo.
 
 2003-07-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 

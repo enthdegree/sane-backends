@@ -14,7 +14,7 @@ currently.
 .TP
 -
 Access through sanei_usb, the SANE USB interface. Used by the mustek_usb,
-plustek, snapscan, and umax1220u backends.
+plustek, snapscan, umax1220u, and coolscan2 backends.
 .TP
 - 
 Direct access to the USB device files to access kernel scanner drivers. Used

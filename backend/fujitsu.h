@@ -133,6 +133,7 @@ struct fujitsu
   /* when scanning duplex                   */
 
   int can_read_alternate;       /* duplex transfer mode front/back/front/back... */
+  int read_mode;                /* constants READ_MODE_* and funcs convert_* */
   int has_adf;                  /* true if an ADF has been detected.       */
   int has_fb;
   int duplex_present;           /* true if a duplex unit has been detected. */
@@ -411,6 +412,11 @@ struct fujitsu
 #define mmToIlu(mm) ((mm) / length_quant)
 #define iluToMm(ilu) ((ilu) * length_quant)
 #define FUJITSU_CONFIG_FILE "fujitsu.conf"
+#define READ_MODE_PASS 1
+#define READ_MODE_RRGGBB 2
+#define READ_MODE_3091RGB 3
+#define READ_MODE_BGR 4
+
 
 #define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) * 1200 / MM_PER_INCH
 #define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX(number * MM_PER_INCH / 1200)
@@ -529,6 +535,10 @@ static unsigned int reader3091GrayDuplex (struct fujitsu *scanner, FILE * fd,
                                           FILE * fd2);
 static unsigned int reader3092ColorDuplex (struct fujitsu *scanner, FILE * fd,
                                           FILE * fd2);
+static void convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
+
+static void convert_rrggbb_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
+
 static unsigned int reader3092ColorSimplex (struct fujitsu *scanner,
                                            FILE * fd);
 static unsigned int reader3092GrayDuplex (struct fujitsu *scanner, FILE * fd,
@@ -537,21 +547,13 @@ static unsigned int reader_gray_duplex_sequential (struct fujitsu *scanner,
                                                    FILE * fd, FILE * fd2);
 static unsigned int reader_gray_duplex_alternate (struct fujitsu *scanner,
                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
+
+static unsigned int reader_duplex_sequential (struct fujitsu *scanner,
                                                    FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
+static unsigned int reader_duplex_alternate (struct fujitsu *scanner,
                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
-static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
-                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
-                                                  FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
-static unsigned int reader_bgr_duplex_sequential (struct fujitsu *scanner,
-                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_duplex_alternate (struct fujitsu *scanner,
-                                                  FILE * fd, FILE * fd2);
-static unsigned int reader_bgr_simplex (struct fujitsu *scanner, FILE * fd, int i_window_id);
+static unsigned int reader_simplex (struct fujitsu *scanner, FILE * fd, 
+					int i_window_id);
 
 static unsigned int reader_generic_passthrough (struct fujitsu *scanner,
                                                 FILE * fd, int i_window_id);

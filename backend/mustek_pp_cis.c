@@ -2142,9 +2142,28 @@ static SANE_Status cis_attach(SANE_String_Const port,
 
    if (status != SANE_STATUS_GOOD)
    {
+      SANE_Status altStatus;
+      SANE_String_Const altPort;
+      
       DBG (2, "cis_attach: couldn't attach to `%s' (%s)\n", port,
            sane_strstatus (status));
-      return status;
+      
+      /* Make migration to libieee1284 painless for users that used 
+         direct io in the past */
+           if (strcmp(port, "0x378") == 0) altPort = "parport0";
+      else if (strcmp(port, "0x278") == 0) altPort = "parport1";
+      else if (strcmp(port, "0x3BC") == 0) altPort = "parport2";
+      else return status;
+      
+      DBG (2, "cis_attach: trying alternative port name: %s\n", altPort);
+      
+      altStatus = sanei_pa4s2_open (altPort, &fd);
+      if (altStatus != SANE_STATUS_GOOD)
+      {
+           DBG (2, "cis_attach: couldn't attach to alternative port `%s' "
+              "(%s)\n", altPort, sane_strstatus (altStatus));
+           return status; /* Return original status, not alternative status */
+      }
    }
    
    M1015_START_LL;
@@ -2257,9 +2276,32 @@ SANE_Status cis_drv_open (SANE_String port, SANE_Int caps, SANE_Int *fd)
    status = sanei_pa4s2_open (port, fd);
 
    if (status != SANE_STATUS_GOOD)
-      DBG (2, "cis_drv_open: open failed (%s)\n", sane_strstatus (status));
+   {
+      SANE_Status altStatus;
+      SANE_String_Const altPort;
+      
+      DBG (2, "cis_attach: couldn't attach to `%s' (%s)\n", port,
+           sane_strstatus (status));
+      
+      /* Make migration to libieee1284 painless for users that used 
+         direct io in the past */
+           if (strcmp(port, "0x378") == 0) altPort = "parport0";
+      else if (strcmp(port, "0x278") == 0) altPort = "parport1";
+      else if (strcmp(port, "0x3BC") == 0) altPort = "parport2";
+      else return status;
+      
+      DBG (2, "cis_attach: trying alternative port name: %s\n", altPort);
+      
+      altStatus = sanei_pa4s2_open (altPort, fd);
+      if (altStatus != SANE_STATUS_GOOD)
+      {
+           DBG (2, "cis_attach: couldn't attach to alternative port `%s' "
+              "(%s)\n", altPort, sane_strstatus (altStatus));
+           return status; /* Return original status, not alternative status */
+      }
+   }
 
-   return status;
+   return SANE_STATUS_GOOD;
 }
 
 /******************************************************************************

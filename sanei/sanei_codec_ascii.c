@@ -45,9 +45,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sane/sane.h"
-#include "sane/sanei_wire.h"
-#include "sane/sanei_codec_ascii.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_wire.h"
+#include "../include/sane/sanei_codec_ascii.h"
 
 static const char *hexdigit = "0123456789abcdef";
 

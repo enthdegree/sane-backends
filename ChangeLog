@@ -1,3 +1,17 @@
+2002-04-30  Jochen Eisinger <jochen.eisinger@gmx.de>
+
+	* doc/saned.man doc/sane-net.man doc/descriptions/net.desc:
+	  Updated URL of the sane-net homepage to
+	  http://www.penguin-breeder.org/?page=sane-net
+
+	* doc/sane-mustek_pp.man doc/descriptions/mustek_pp.desc:
+	  Updated URL of the mustek_pp homepage to
+	  http://www.penguin-breeder.org/?page=mustek_pp
+
+	* TODO:
+	  Added entry to saned section:
+     	  - Add support for IP ranges in saned.conf (like 10.0.0.0/8)
+	  
 2002-04-28  Frank Zago <fzago@greshamstorage.com>
 
 	* tools/Makefile.in tools/sane-find-scanner.c: bug fixes, better

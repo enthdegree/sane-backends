@@ -11,7 +11,6 @@
 :backend "canon_pp"		; name of backend
 :manpage "sane-canon_pp"
 :version "0.32"			; version of backend
-:status :alpha			; :alpha, :beta, :stable, :new
 
 :url "http://canon-fb330p.sourceforge.net" ; backend home page
 
@@ -32,31 +31,32 @@
 
 :model "CanoScan FB320P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :alpha
+:status :basic
 :comment "Newly added support"
 
 :model "CanoScan FB620P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :alpha
+:status :basic
 :comment "Newly added support"
 
 :model "CanoScan FB330P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :beta
+:status :good
 
 :model "CanoScan FB630P"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :beta
+:status :good
 
 :model "CanoScan N340P"		; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :beta
+:status :good
 
 :model "CanoScan N640P"		; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :beta
+:status :good
 
 :model "CanoScan N640P ex"	; name models for above-specified mfg.
 :interface "Parport (ECP)"
-:status :beta
+:status :good
 :comment "Just an N640P in a different box?"
+

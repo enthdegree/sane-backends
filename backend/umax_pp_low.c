@@ -552,45 +552,34 @@ sanei_umax_pp_InitPort (int port)
 	}
       else
 	{
-	  /* me check if parport is does ECP */
-	  mode = IEEE1284_MODE_ECP;
-	  if (ioctl (fd, PPSETMODE, &mode))
+	  /* we check if parport is does ECP */
+	  if (ioctl (fd, PPGETMODES, &mode))
 	    {
-	      DBG (16, "umax_pp: port '%s' hasn't ECP\n", parport_name);
-	    }
-	  else
-	    {
-	      DBG (16, "umax_pp: port '%s' does ECP\n", parport_name);
-	      DBG (16, "umax_pp: initializing ECPEPP\n");
-	      /* set up ECPEPP the hard way ... */
-	      /* frob_econtrol (port, 0xe0, 4 << 5);
-	         unsigned char ectr = inb (ECONTROL (pb));
-	         outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
-	      ectr = Inb (ECPCONTROL);
-	      ectr = (ectr & ~(0xE0)) ^ (4 << 5);
-	      Outb (ECPCONTROL, ectr);
-
-	    }
-
-	  /* we try to set EPP 1.7 first */
-	  mode = IEEE1284_MODE_EPPSL;
-	  if (ioctl (fd, PPSETMODE, &mode))
-	    {
-	      DBG (16, "umax_pp: cannot set port '%s' to EPP 1.7\n",
+	      DBG (16, "umax_pp: ppdev couldn't gave modes for port '%s'\n",
 		   parport_name);
-	      /* we try EPP */
-	      mode = IEEE1284_MODE_EPP;
-	      if (ioctl (fd, PPSETMODE, &mode))
-		{
-		  DBG (1, "umax_pp: cannot set port '%s' to EPP\n",
-		       parport_name);
-		  DBG (1,
-		       "umax_pp: blindly going on, but failure is expected...\n");
-		}
 	    }
 	  else
 	    {
-	      DBG (1, "Using EPP 1.7\n");
+	      DBG (32, "parport modes: %X\n", mode);
+	      if (mode & PARPORT_MODE_ECP)
+		{
+		  DBG (16, "umax_pp: initializing ECPEPP\n");
+		  /* set up ECPEPP the hard way ... */
+		  /* frob_econtrol (port, 0xe0, 4 << 5);
+		     unsigned char ectr = inb (ECONTROL (pb));
+		     outb ((ectr & ~m) ^ v, ECONTROL (pb));     */
+		  ectr = Inb (ECPCONTROL);
+		  ectr = (ectr & ~(0xE0)) ^ (4 << 5);
+		  Outb (ECPCONTROL, ectr);
+
+		}
+	      if (!(mode & PARPORT_MODE_ECP) && !(mode & PARPORT_MODE_ECP))
+		{
+		  DBG (1,
+		       "port 0x%X does not have EPP or ECP, giving up ...\n",
+		       port);
+		  return (0);
+		}
 	    }
 
 	  /* write to DATA via direct io and read DATA via parport */

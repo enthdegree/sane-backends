@@ -1,3 +1,31 @@
+2000-09-24  Henning Meier-Geinitz <hmg@gmx.de>
+
+	* backend/mustek.*: Update to Mustek backend 1.0-97. This is a
+       	  development version and is only tested for three-pass scanners.
+  	  Added support for Paragon 1200 SP Pro and ScanExpress A3 SP.
+  	  Removed detection of " C04" and " C12" (don't seem to exist).
+  	  Changed SCSI request scheme. Sane_read can read more than 4096
+ 	  bytes from pipe. Minimum dpi is 30 now. Fixed LD correction for
+ 	  Paragon 1200SP 1.06 and 1.11.  Read SCSI buffer into big block and
+ 	  do LD after that for Paragon one-pass scanners. New option
+ 	  "blocksize" in mustek.conf. Better detection of the scanner type
+ 	  (three-pass, Paragon I, ...). Fixed possible segmentation faults
+ 	  in Paragon 600 II N LD code, scsi_sense_wait_ready and
+ 	  sense_handler. Decreased maximum scan size of Paragon 800 II
+ 	  SP. For three-pass scanners: fixed stop_scan and speed code, scan
+ 	  area is in pixels now, added RGB brightness and contrast, use
+ 	  +-100% for brightness and contrast. Return SANE_STATUS_CANCELLED
+ 	  when scan was cancelled. Option "force backtracking" is enabled by
+ 	  default, "scan speed" is set to "fastest". Added option
+ 	  "force-warn" for mustek.conf.  Rewrote halftone mode. Better error
+ 	  handling and more debug output.
+	* TODO: Clarified point about image data polarity. Moved point about
+	  xscanimage not updating the progress bar for 3pass scanners to
+	  frontend section. Removed umax entry in "frontends". Removed entry
+	  about alpha channel (was added to LEVEL2 file).
+	* LEVEL2: Add point about image data polarity.
+	* frontend/scanimage.c: Removed some warnings.
+	
 2000-09-19  Gerhard Jaeger <g.jaeger@earthling.net>
 
 	* backend/plustek.desc doc/sane-plustek.man:

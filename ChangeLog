@@ -1,3 +1,8 @@
+2002-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* PROJECTS: Added link to backend for HP Scanjet 3300C / 3400C
+	  and 4300C scanners.
+
 2002-01-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in include/sane/config.h.in: Added check

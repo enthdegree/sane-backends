@@ -1,3 +1,8 @@
+2002-05-06  Andras Major <andras@users.sourceforge.net>
+
+	* doc/sane.man: coolscan2 entry updated.
+	* doc/sane-usb.man: added coolscan2 to sanei_usb users' list.
+
 2002-05-05  Frank Zago  <fzago@greshamstorage.com>
 
 	* backend/umax-usb.c backend/teco1.c backend/matsushita.c

@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.8  2004/05/29 10:27:47  hmg-guest
+ * Fixed the fix of the sanei_thread fix (from Mattias Ellert).
+ *
  * Revision 1.7  2004/05/28 18:52:53  hmg-guest
  * Fixed sanei_thread fix (bug #300634, by Mattias Ellert).
  *
@@ -831,7 +834,7 @@ sane_start (SANE_Handle handle)
   scanner->reader_pipe = fds[1];
   scanner->reader_pid = sanei_thread_begin (reader_process, (void *) scanner);
 
-  if (sanei_thread_is_forked)
+  if (sanei_thread_is_forked ())
     close (scanner->reader_pipe);
 
   DBG (10, "sane_start: ok\n");
@@ -1938,7 +1941,8 @@ reader_process (void *data)
 
   DBG (10, "reader_process started\n");
 
-  if (sanei_thread_is_forked) close (scanner->pipe);
+  if (sanei_thread_is_forked ()) 
+    close (scanner->pipe);
 
   sigfillset (&ignore_set);
   sigdelset (&ignore_set, SIGTERM);

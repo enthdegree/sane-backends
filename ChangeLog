@@ -1,3 +1,8 @@
+2002-03-19  Frank Zago <fzago@greshamstorage.com>
+
+	* matsushita backend: updates and fixes.
+	* sceptre backend: updates and fixes.
+
 2002-03-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* TODO: Marked backends that really should be included. Clearified

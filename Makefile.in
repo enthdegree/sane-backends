@@ -7,6 +7,7 @@ top_builddir = .
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
+distdir = $(PACKAGE)-$(VERSION)
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -30,10 +31,18 @@ INSTALL_DATA = @INSTALL_DATA@
 
 @SET_MAKE@
 
-INSTALLED_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,sane.h \
-	saneopts.h)
+SUBDIRS	= include lib sanei backend frontend doc tools po
 
-SUBDIRS	= lib sanei backend frontend doc tools po
+DISTFILES = AUTHORS COPYING ChangeLog LEVEL2 LICENSE Makefile.in NEWS \
+  PROBLEMS PROJECTS README README.aix README.hp-ux README.linux \
+  README.openbsd README.os2 README.solaris README.unixware2 README.unixware7 \
+  TODO acinclude.m4 aclocal.m4 config.guess config.sub configure \
+  configure.in configure.os2 install-sh ltconfig ltmain.sh mkinstalldirs \
+  sane-backends.lsm
+
+.PHONY: all all-recursive clean clean-recursive depend \
+  depend-recursive dist install install-recursive libcheck lsm \
+  sane-backends sort-cvsignore uninstall uninstall-recursive
 
 all: all-recursive
 
@@ -41,21 +50,16 @@ $(PACKAGE)-$(VERSION).lsm: $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE).lsm
 	( cat $(PACKAGE).lsm | \
 	 sed -e "s|_DATE_|`date +%d%b%y`|g" \
 	  -e "s|_VERSION_|$(VERSION)|g" \
-	  -e "s|_T_S_|`find $(PACKAGE)-$(VERSION).tar.gz -printf \"%3k\"`|g"\
-	  -e "s|_L_S_|`find $(PACKAGE).lsm -printf "%3k"`|g" > \
+	  -e "s|_T_S_|`find $(PACKAGE)-$(VERSION).tar.gz -printf \"%4k\"`|g"\
+	  -e "s|_L_S_|`find $(PACKAGE).lsm -printf "%4k"`|g" > \
 	     $(PACKAGE)-$(VERSION).lsm \
 	)
+
 lsm: $(PACKAGE)-$(VERSION).lsm
 
 install: install-recursive
-	$(MKDIR) $(includedir)/sane
-	@list="$(INSTALLED_INCLUDES)"; for file in $$list; do \
-	  echo installing $${file} in $(includedir)/sane...; \
-	  $(INSTALL_DATA) $${file} $(includedir)/sane || exit 1; \
-	done
 
 uninstall: uninstall-recursive
-	rm -rf $(includedir)/sane
 
 #
 # Keep the .cvsignore files sorted, and use this target to do it.
@@ -83,9 +87,10 @@ libcheck:
 clean: clean-recursive
 
 distclean: clean distclean-recursive
-	rm -f *~ include/*~ include/sane/*~ *.log *.bak libtool
-	rm -f include/sane/config.h Makefile config.cache config.status
+	rm -f *~ *.log *.bak libtool
+	rm -f Makefile config.cache config.status
 	rm -f japi/Makefile
+	rm -rf $(distdir)
 
 depend: depend-recursive
 
@@ -98,6 +103,20 @@ depend-recursive uninstall-recursive:
 	   || case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
 	done && test -z "$$fail"
 
-.PHONY: all clean depend \
-	all-recursive install-recursive clean-recursive depend-recursive \
-	uninstall-recursive
+dist: $(DISTFILES)
+	rm -fr $(distdir)
+	$(MKDIR) $(distdir)
+	for file in $(DISTFILES); do \
+	  ln $$file $(distdir) 2>/dev/null || cp -p $$file $(distdir); \
+	done
+	for subdir in $(SUBDIRS) japi testsuite ; do \
+	  mkdir $(distdir)/$$subdir || exit 1; \
+	  chmod 777 $(distdir)/$$subdir; \
+	  (cd $$subdir && $(MAKE) $@) || exit 1; \
+	done
+	tar chzf $(distdir).tar.gz $(distdir)
+	rm -fr $(distdir)
+
+$(PACKAGE)-$(VERSION).tar.gz: dist
+
+sane-backends: dist lsm

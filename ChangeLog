@@ -1,3 +1,5 @@
+-- snapshot 1.0.13-pre2
+
 2003-11-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Epson Perfection
@@ -60,7 +62,7 @@
 	  backends.
 
 ---- FEATURE FREEZE FOR SANE 1.0.13 ---
--- snapshot 1.0.12-pre2
+-- snapshot 1.0.13-pre1
 
 2003-11-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

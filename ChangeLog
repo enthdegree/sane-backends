@@ -1,3 +1,7 @@
+2002-12-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/onetouch8600.desc: Added (from PROJECTS).
+
 2002-12-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: Removed configure.os2.

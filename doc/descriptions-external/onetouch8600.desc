@@ -1,0 +1,24 @@
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "onetouch8600"                 ; name of backend
+:url "http://www.littlecms.com/iphoto/otlinux.htm"
+:status :alpha                 ; :alpha, :beta, :stable, :new
+
+:devicetype :scanner
+
+:mfg "Visioneer"                         ; name a manufacturer
+;:url ""
+
+:model "OneTouch 8600"                  ; name models for above-specified mfg.
+:interface "USB"
+:status :alpha
+;:comment "?"
+

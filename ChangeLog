@@ -1,5 +1,9 @@
 2001-05-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
-	
+
+	* lib/alloca.c lib(getnev.c lib/getopt.c lib/getopt1.c
+	  lib/isfdtype.c lib/md5.c lib sigprocmask.c lib/snprintf.c lib
+	  strdup.c lib strndup.c lib strsep.c lib usleep.c lib/vsyslog.c:
+	  Used #include "../include/sane/config.h".
 	* sanei/sanei_scsi.c: Fixed compilation issue for OS/2 in
 	  sanei_scsi_find_devices.
 	

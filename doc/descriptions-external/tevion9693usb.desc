@@ -1,0 +1,38 @@
+;
+; SANE Backend specification file
+;
+; It's basically emacs-lisp --- so ";" indicates comment to end of line.
+; All syntactic elements are keyword tokens, followed by a string or
+;  keyword argument, as specified.
+;
+; ":backend" *must* be specified.
+; All other information is optional (but what good is the file without it?).
+;
+
+:backend "tevion9693usb"                        ; name of backend
+:version "0.0.3"                                ; version of backend
+:status :alpha                                  ; :alpha, :beta, :stable, :new
+;:manpage                                        ; name of manpage (if it exists)
+:url "http://www.angelfire.com/linux/crapsite/" ; backend's web page
+
+:devicetype :scanner                            ; start of a list of devices....
+
+:mfg "Tevion"                                   ; name a manufacturer
+:model "MD9693"                                 ; name models for above-specified mfg.
+:interface "USB"                                ; interface type of the device:
+:comment "CIS scanner based on the GT6816 chip (Aldi scanner)."
+
+:mfg "Medion"                                   ; another manufacturer...
+:url "http://www.medion.de/"
+:model "MD9705"
+:interface "USB"
+:comment "Apparently the same device like the Tevion."
+
+:mfg "Artec"                                    ; another manufacturer...
+:url "http://www.artecusa.com/"
+:model "E+ 48U"
+:interface "USB"
+:comment "Untested, but apparently the same device like Tevion/Medion."
+
+
+

@@ -33,7 +33,8 @@ Backends:
  mustek_pp:     Jochen Eisinger (*)
  nec:           FUKUDA Kazuya (*)
  net:           Andreas Beck and David Mosberger
- pnm:           Andreas Beck, Gordon Matzigkeit, and David Mosberger
+ pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
+                Herder (*), and Henning Meier-Geinitz (*)
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  plustek:       Rick Bronson, Gerhard Jaeger (*)
@@ -91,7 +92,7 @@ Gerhard Jaeger <g.jaeger@earthling.net>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
 Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
-Henning Meier-Geinitz <hmg@gmx.de>
+Henning Meier-Geinitz <henning@meier-geinitz.de>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 Jeff Freedman <jsf@hevanet.com>
@@ -105,6 +106,7 @@ Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
 Matthew Marjanovic <maddog@mir.com>
 Meino Christian Cramer <mccramer@s.netic.de>
+Michael Herder <crapsite@gmx.net>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>

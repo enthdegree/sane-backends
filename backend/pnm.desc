@@ -1,6 +1,8 @@
 :backend "pnm"
+:version "1.0.1"
 :status :beta
 :manpage "sane-pnm"
+:url "mailto:henning@meier-geinitz.de"
 
 :devicetype :api
 :desc "Reads PNM files"

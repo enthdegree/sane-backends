@@ -1,5 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 Andreas Beck
+   Copyright (C) 2000, 2001 Michael Herder <crapsite@gmx.net>
+   Copyright (C) 2001 Henning Meier-Geinitz <henning@meier-geinitz.de>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,7 +40,9 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#define BUILD 1
+
+#include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -46,12 +50,12 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #define BACKEND_NAME	pnm
-#include "sane/sanei_backend.h"
+#include "../include/sane/sanei_backend.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX	1024
@@ -60,155 +64,376 @@
 #define MAGIC	(void *)0xab730324
 
 static int is_open = 0;
+static int rgb_comp = 0;
 static int three_pass = 0;
 static int hand_scanner = 0;
 static int pass = 0;
 static char filename[PATH_MAX] = "/tmp/input.ppm";
+static SANE_Word status_none = SANE_TRUE;
+static SANE_Word status_eof = SANE_FALSE;
+static SANE_Word status_jammed = SANE_FALSE;
+static SANE_Word status_nodocs = SANE_FALSE;
+static SANE_Word status_coveropen = SANE_FALSE;
+static SANE_Word status_ioerror = SANE_FALSE;
+static SANE_Word status_nomem = SANE_FALSE;
+static SANE_Word status_accessdenied = SANE_FALSE;
+static SANE_Word test_option = 0;
+
 static SANE_Fixed bright = 0;
+static SANE_Word res = 75;
 static SANE_Fixed contr = 0;
 static SANE_Bool gray = SANE_FALSE;
+static SANE_Bool usegamma = SANE_FALSE;
+static SANE_Word gamma [4][256];
 static enum
-  {
-    ppm_bitmap,
-    ppm_greyscale,
-    ppm_color
-  }
+{
+  ppm_bitmap,
+  ppm_greyscale,
+  ppm_color
+}
 ppm_type = ppm_color;
 static FILE *infile = NULL;
-
+static const SANE_Word resbit_list[] =
+{
+  17,
+  75, 90, 100, 120, 135, 150, 165, 180, 195,
+  200, 210, 225, 240, 255, 270, 285, 300
+};
 static const SANE_Range percentage_range =
+{
+  -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
+  100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
+     0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
+};
+static const SANE_Range gamma_range =
+{
+  0 ,	/* minimum */
+  255 ,	/* maximum */
+  0	/* quantization */
+};
+static SANE_Option_Descriptor sod[] =
+{
   {
-    -100 << SANE_FIXED_SCALE_SHIFT,	/* minimum */
-     100 << SANE_FIXED_SCALE_SHIFT,	/* maximum */
-       0 << SANE_FIXED_SCALE_SHIFT	/* quantization */
-  };
-
-static const SANE_Option_Descriptor sod[] =
+    SANE_NAME_NUM_OPTIONS,
+    SANE_TITLE_NUM_OPTIONS,
+    SANE_DESC_NUM_OPTIONS,
+    SANE_TYPE_INT,
+    SANE_UNIT_NONE,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
   {
-    {
-      SANE_NAME_NUM_OPTIONS,
-      SANE_TITLE_NUM_OPTIONS,
-      SANE_DESC_NUM_OPTIONS,
-      SANE_TYPE_INT,
-      SANE_UNIT_NONE,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      "",
-      "Source Selection",
-      "Selection of the file to load.",
-      SANE_TYPE_GROUP,
-      SANE_UNIT_NONE,
-      0,
-      0,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      SANE_NAME_FILE,
-      SANE_TITLE_FILE,
-      SANE_DESC_FILE,
-      SANE_TYPE_STRING,
-      SANE_UNIT_NONE,
-      sizeof (filename),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      "",
-      "Image Enhancement",
-      "A few controls to enhance image while loading",
-      SANE_TYPE_GROUP,
-      SANE_UNIT_NONE,
-      0,
-      0,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      SANE_NAME_BRIGHTNESS,
-      SANE_TITLE_BRIGHTNESS,
-      SANE_DESC_BRIGHTNESS,
-      SANE_TYPE_FIXED,
-      SANE_UNIT_PERCENT,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_RANGE,
-      {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
-    },
-    {
-      SANE_NAME_CONTRAST,
-      SANE_TITLE_CONTRAST,
-      SANE_DESC_CONTRAST,
-      SANE_TYPE_FIXED,
-      SANE_UNIT_PERCENT,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_RANGE,
-      {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
-    },
-    {
-      "grayify",
-      "Grayify",
-      "Load the image as grayscale.",
-      SANE_TYPE_BOOL,
-      SANE_UNIT_NONE,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      "three-pass",
-      "Three-Pass Simulation",
-      "Simulate a three-pass scanner by returning 3 separate frames.  "
-      "For kicks, it returns green, then blue, then red.",
-      SANE_TYPE_BOOL,
-      SANE_UNIT_NONE,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      "hand-scanner",
-      "Hand-Scanner Simulation",
-      "Simulate a hand-scanner.  Hand-scanners often do not know the image "
-      "height a priori.  Instead, they return a height of -1.  Setting this "
-      "option allows to test whether a frontend can handle this correctly.",
-      SANE_TYPE_BOOL,
-      SANE_UNIT_NONE,
-      sizeof (SANE_Word),
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    },
-    {
-      "default-enhancements",
-      "Defaults",
-      "Set default values for enhancement controls (brightness & contrast).",
-      SANE_TYPE_BUTTON,
-      SANE_UNIT_NONE,
-      0,
-      SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
-      SANE_CONSTRAINT_NONE,
-      {NULL}
-    }
-  };
+    "",
+    "Source Selection",
+    "Selection of the file to load.",
+    SANE_TYPE_GROUP,
+    SANE_UNIT_NONE,
+    0,
+    0,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    SANE_NAME_FILE,
+    SANE_TITLE_FILE,
+    SANE_DESC_FILE,
+    SANE_TYPE_STRING,
+    SANE_UNIT_NONE,
+    sizeof (filename),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    /* resolution */
+    SANE_NAME_SCAN_RESOLUTION,
+    SANE_TITLE_SCAN_RESOLUTION,
+    SANE_DESC_SCAN_RESOLUTION,
+    SANE_TYPE_INT,
+    SANE_UNIT_DPI,
+    sizeof(SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_AUTOMATIC,
+    SANE_CONSTRAINT_WORD_LIST,
+    {(SANE_String_Const *)resbit_list}	
+  },
+  {
+    "",
+    "Image Enhancement",
+    "A few controls to enhance image while loading",
+    SANE_TYPE_GROUP,
+    SANE_UNIT_NONE,
+    0,
+    0,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    SANE_NAME_BRIGHTNESS,
+    SANE_TITLE_BRIGHTNESS,
+    SANE_DESC_BRIGHTNESS,
+    SANE_TYPE_FIXED,
+    SANE_UNIT_PERCENT,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
+  },
+  {
+    SANE_NAME_CONTRAST,
+    SANE_TITLE_CONTRAST,
+    SANE_DESC_CONTRAST,
+    SANE_TYPE_FIXED,
+    SANE_UNIT_PERCENT,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &percentage_range}	/* this is ANSI conformant! */
+  },
+  {
+    "grayify",
+    "Grayify",
+    "Load the image as grayscale.",
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "three-pass",
+    "Three-Pass Simulation",
+    "Simulate a three-pass scanner by returning 3 separate frames.  "
+    "For kicks, it returns green, then blue, then red.",
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "hand-scanner",
+    "Hand-Scanner Simulation",
+    "Simulate a hand-scanner.  Hand-scanners often do not know the image "
+    "height a priori.  Instead, they return a height of -1.  Setting this "
+    "option allows to test whether a frontend can handle this correctly.",
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "default-enhancements",
+    "Defaults",
+    "Set default values for enhancement controls (brightness & contrast).",
+    SANE_TYPE_BUTTON,
+    SANE_UNIT_NONE,
+    0,
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "test option",
+    "Read only test-option",
+    "Let's see whether frontends can treat this right" ,
+    SANE_TYPE_INT,
+    SANE_UNIT_PERCENT,
+    sizeof (SANE_Word),
+    SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "",
+    "Gamma tables",
+    "Selection of custom gamma tables.",
+    SANE_TYPE_GROUP,
+    SANE_UNIT_NONE,
+    0,
+    0,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {/* custom-gamma table */
+    SANE_NAME_CUSTOM_GAMMA,
+    SANE_TITLE_CUSTOM_GAMMA	,
+    SANE_DESC_CUSTOM_GAMMA,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Word),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  { /* grayscale gamma vector */
+    SANE_NAME_GAMMA_VECTOR,
+    SANE_TITLE_GAMMA_VECTOR,
+    SANE_DESC_GAMMA_VECTOR,
+    SANE_TYPE_INT,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Word)*256,
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &gamma_range}
+  },
+  { /* red gamma vector */
+    SANE_NAME_GAMMA_VECTOR_R,
+    SANE_TITLE_GAMMA_VECTOR_R,
+    SANE_DESC_GAMMA_VECTOR_R,
+    SANE_TYPE_INT,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Word)*256,
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &gamma_range}
+  },
+  { /* green gamma vector */
+    SANE_NAME_GAMMA_VECTOR_G,
+    SANE_TITLE_GAMMA_VECTOR_G,
+    SANE_DESC_GAMMA_VECTOR_G,
+    SANE_TYPE_INT,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Word)*256,
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &gamma_range}
+  },
+  { /* blue gamma vector */
+    SANE_NAME_GAMMA_VECTOR_B,
+    SANE_TITLE_GAMMA_VECTOR_B,
+    SANE_DESC_GAMMA_VECTOR_B,
+    SANE_TYPE_INT,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Word)*256,
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE,
+    SANE_CONSTRAINT_RANGE,
+    {(SANE_String_Const *) &gamma_range}
+  },
+  {
+    "",
+    "Status Code Simulation",
+    "Forces the backend to return a specific status code after a call "
+    "to sane_read(). This can be used to test whether a frontend is able"
+    "to treat the status codes correctly.",
+    SANE_TYPE_GROUP,
+    SANE_UNIT_NONE,
+    0,
+    SANE_CAP_ADVANCED,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status",
+    "Do not force status code",
+    "Do not force the backend to return a status code.",
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-eof",
+    "Return SANE_STATUS_EOF",
+    "Force the backend to return the status code SANE_STATUS_EOF after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-jammed",
+    "Return SANE_STATUS_JAMMED",
+    "Force the backend to return the status code SANE_STATUS_JAMMED after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-nodocs",
+    "Return SANE_STATUS_NO_DOCS",
+    "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-coveropen",
+    "Return SANE_STATUS_COVER_OPEN",
+    "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-ioerror",
+    "Return SANE_STATUS_IO_ERROR",
+    "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-nomem",
+    "Return SANE_STATUS_NO_MEM",
+    "Force the backend to return the status code SANE_STATUS_NO_MEM after "
+    "sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  },
+  {
+    "status-accessdenied",
+    "Return SANE_STATUS_ACCESS_DENIED",
+    "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
+    "after sane_read() has been called." ,
+    SANE_TYPE_BOOL,
+    SANE_UNIT_NONE,
+    sizeof(SANE_Bool),
+    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT,
+    SANE_CONSTRAINT_NONE,
+    {NULL}
+  }
+};
 
 static SANE_Parameters parms =
-  {
-    SANE_FRAME_RGB,
-    0,
-    0,				/* Number of bytes returned per scan line: */
-    0,				/* Number of pixels per scan line.  */
-    0,				/* Number of lines for the current scan.  */
-    8,				/* Number of bits per sample. */
-  };
+{
+  SANE_FRAME_RGB,
+  0,
+  0,				/* Number of bytes returned per scan line: */
+  0,				/* Number of pixels per scan line.  */
+  0,				/* Number of lines for the current scan.  */
+  8,				/* Number of bits per sample. */
+};
 
 /* This library is a demo implementation of a SANE backend.  It
    implements a virtual device, a PNM file-filter. */
@@ -216,10 +441,14 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   DBG_INIT();
+
   DBG(2, "sane_init: version_code %s 0, authorize %s 0\n",
       version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!="); 
+  DBG(1, "sane_init: SANE pnm backend version %d.%d.%d from %s\n", 
+      V_MAJOR, V_MINOR, BUILD, PACKAGE_VERSION);
+
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
   return SANE_STATUS_GOOD;
 }
 
@@ -227,6 +456,7 @@ void
 sane_exit (void)
 {
   DBG(2, "sane_exit\n");
+  return;
 }
 
 /* Device select/open/close */
@@ -277,12 +507,19 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	break;
   if (i >= NELEMS(dev))
     return SANE_STATUS_INVAL;
-
+  
   if (is_open)
     return SANE_STATUS_DEVICE_BUSY;
-
+  
   is_open = 1;
   *handle = MAGIC;
+  for(i=0;i<256;i++)
+    {
+      gamma[0][i] = i;
+      gamma[1][i] = i;
+      gamma[2][i] = i;
+      gamma[3][i] = i;
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -312,6 +549,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 {
   SANE_Int myinfo = 0;
   SANE_Status status;
+  int v;
+  v = 75;
 
   DBG(2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
       handle, option, action, value, info);
@@ -324,78 +563,319 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   switch (action)
     {
+    case SANE_ACTION_SET_AUTO:
+      status = sanei_constrain_value (sod + option, (void*)&v, &myinfo);
+      if (status != SANE_STATUS_GOOD)
+	return status;
+      switch (option)
+	{
+	case 3:
+	  res = 75;
+	  myinfo |= SANE_INFO_RELOAD_PARAMS;
+	  break;
+	default:
+	  return SANE_STATUS_INVAL;
+	}
+      break;
     case SANE_ACTION_SET_VALUE:
       status = sanei_constrain_value (sod + option, value, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	return status;
-
-      switch (option)
-	{
-	case 2:
-	  if ((strlen (value) + 1) > sizeof (filename))
-	    return SANE_STATUS_NO_MEM;
-	  strcpy (filename, value);
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case 4:
-	  bright = *(SANE_Word *) value;
-	  break;
-	case 5:
-	  contr = *(SANE_Word *) value;
-	  break;
-	case 6:
-	  gray = !!*(SANE_Word *) value;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case 7:
-	  three_pass = !!*(SANE_Word *) value;
-	  break;
-	case 8:
-	  hand_scanner = !!*(SANE_Word *) value;
-	  break;
-	case 9:
-	  bright = contr = 0;
-	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	  break;
-	default:
-	  return SANE_STATUS_INVAL;
-	}
-      break;
-
-    case SANE_ACTION_GET_VALUE:
-      switch (option)
-	{
-	case 0:
-	  *(SANE_Word *) value = NELEMS(sod);
-	  break;
-	case 2:
-	  strcpy (value, filename);
-	  break;
-	case 4:
-	  *(SANE_Word *) value = bright;
-	  break;
-	case 5:
-	  *(SANE_Word *) value = contr;
-	  break;
-	case 6:
-	  *(SANE_Word *) value = gray;
-	  break;
-	case 7:
-	  *(SANE_Word *) value = three_pass;
-	  break;
-	case 8:
-	  *(SANE_Word *) value = hand_scanner;
-	  break;
-	case 9:
-	  break;
-	default:
-	  return SANE_STATUS_INVAL;
-	}
-      break;
-
-    case SANE_ACTION_SET_AUTO:
-      return SANE_STATUS_UNSUPPORTED;	/* We are DUMB */
-    }
+    switch (option)
+      {
+      case 2:
+	if ((strlen (value) + 1) > sizeof (filename))
+	  return SANE_STATUS_NO_MEM;
+	strcpy (filename, value);
+	myinfo |= SANE_INFO_RELOAD_PARAMS;
+	break;
+      case 3:
+	res = *(SANE_Word *) value;
+	break;
+      case 5:
+	bright = *(SANE_Word *) value;
+	break;
+      case 6:
+	contr = *(SANE_Word *) value;
+	break;
+      case 7:
+	gray = !!*(SANE_Word *) value;
+        if (usegamma)
+	  {
+	    if (gray)
+	      {
+		sod[14].cap &= ~SANE_CAP_INACTIVE;
+		sod[15].cap |= SANE_CAP_INACTIVE;
+		sod[16].cap |= SANE_CAP_INACTIVE;
+		sod[17].cap |= SANE_CAP_INACTIVE;
+	      }
+	    else
+	      {
+		sod[14].cap |= SANE_CAP_INACTIVE;
+		sod[15].cap &= ~SANE_CAP_INACTIVE;
+		sod[16].cap &= ~SANE_CAP_INACTIVE;
+		sod[17].cap &= ~SANE_CAP_INACTIVE;
+	      }
+	  }
+        else
+	  {
+	    sod[14].cap |= SANE_CAP_INACTIVE;
+	    sod[15].cap |= SANE_CAP_INACTIVE;
+	    sod[16].cap |= SANE_CAP_INACTIVE;
+	    sod[17].cap |= SANE_CAP_INACTIVE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 8:
+	three_pass = !!*(SANE_Word *) value;
+	break;
+      case 9:
+	hand_scanner = !!*(SANE_Word *) value;
+	break;
+      case 10:
+	bright = contr = 0;
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+    /*gamma stuff*/
+      case 13:/*usegamma*/
+	usegamma = *(SANE_Word *) value;
+	/*activate/deactivate gamma*/
+	if(usegamma)
+	  {
+	    test_option = 100;
+	    if(gray)
+	      {
+		sod[14].cap &= ~SANE_CAP_INACTIVE;
+		sod[15].cap |= SANE_CAP_INACTIVE;
+		sod[16].cap |= SANE_CAP_INACTIVE;
+		sod[17].cap |= SANE_CAP_INACTIVE;
+	      }
+	    else
+	      {
+		sod[14].cap |= SANE_CAP_INACTIVE;
+		sod[15].cap &= ~SANE_CAP_INACTIVE;
+		sod[16].cap &= ~SANE_CAP_INACTIVE;
+		sod[17].cap &= ~SANE_CAP_INACTIVE;
+	      }
+	  }
+	else
+	  {
+	    test_option = 0;
+	    sod[14].cap |= SANE_CAP_INACTIVE;
+	    sod[15].cap |= SANE_CAP_INACTIVE;
+	    sod[16].cap |= SANE_CAP_INACTIVE;
+	    sod[17].cap |= SANE_CAP_INACTIVE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 14:
+	memcpy(&gamma[0][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 15:
+	memcpy(&gamma[1][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 16:
+	memcpy(&gamma[2][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 17:
+	memcpy(&gamma[3][0], (SANE_Word *) value, 256*sizeof(SANE_Word));
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+	/*status*/
+      case 19:
+	status_none = *(SANE_Word *) value;
+	if (status_none)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 20:
+	status_eof = *(SANE_Word *) value;
+	if(status_eof)
+	  {
+	    status_none = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 21:
+	status_jammed = *(SANE_Word *) value;
+	if (status_jammed)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 22:
+	status_nodocs = *(SANE_Word *) value;
+	if (status_nodocs)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 23:
+	status_coveropen = *(SANE_Word *) value;
+	if (status_coveropen)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 24:
+	status_ioerror = *(SANE_Word *) value;
+	if (status_ioerror)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 25:
+	status_nomem = *(SANE_Word *) value;
+	if (status_nomem)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	    status_accessdenied = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      case 26:
+	status_accessdenied = *(SANE_Word *) value;
+	if (status_accessdenied)
+	  {
+	    status_eof = SANE_FALSE;
+	    status_jammed = SANE_FALSE;
+	    status_nodocs = SANE_FALSE;
+	    status_coveropen = SANE_FALSE;
+	    status_ioerror = SANE_FALSE;
+	    status_nomem = SANE_FALSE;
+	    status_none = SANE_FALSE;
+	  }
+	myinfo |= SANE_INFO_RELOAD_OPTIONS;
+	break;
+      default:
+	return SANE_STATUS_INVAL;
+      }
+    break;
+  case SANE_ACTION_GET_VALUE:
+    switch (option)
+      {
+      case 0:
+	*(SANE_Word *) value = NELEMS(sod);
+	break;
+      case 2:
+	strcpy (value, filename);
+	break;
+      case 3:
+	*(SANE_Word *) value = res;
+	break;
+      case 5:
+	*(SANE_Word *) value = bright;
+	break;
+      case 6:
+	*(SANE_Word *) value = contr;
+	break;
+      case 7:
+	*(SANE_Word *) value = gray;
+	break;
+      case 8:
+	*(SANE_Word *) value = three_pass;
+	break;
+      case 9:
+	*(SANE_Word *) value = hand_scanner;
+	break;
+      case 11:
+	*(SANE_Word *) value = test_option;
+	break;
+      case 13:
+	*(SANE_Word *) value = usegamma;
+	break;
+      case 14:
+	memcpy((SANE_Word *) value, &gamma[0][0], 256*sizeof(SANE_Word));
+	break;
+      case 15:
+	memcpy((SANE_Word *) value, &gamma[1][0], 256*sizeof(SANE_Word));
+	break;
+      case 16:
+	memcpy((SANE_Word *) value, &gamma[2][0], 256*sizeof(SANE_Word));
+	break;
+      case 17:
+	memcpy((SANE_Word *) value, &gamma[3][0], 256*sizeof(SANE_Word));
+	break;
+	/*status*/
+      case 19:
+	*(SANE_Word *) value = status_none;
+	break;
+      case 20:
+	*(SANE_Word *) value = status_eof;
+	break;
+      case 21:
+	*(SANE_Word *) value = status_jammed;
+	break;
+      case 22:
+	*(SANE_Word *) value = status_nodocs;
+	break;
+      case 23:
+	*(SANE_Word *) value = status_coveropen;
+	break;
+      case 24:
+	*(SANE_Word *) value = status_ioerror;
+	break;
+      case 25:
+	*(SANE_Word *) value = status_nomem;
+	break;
+      case 26:
+	*(SANE_Word *) value = status_accessdenied;
+	break;
+      default:
+	return SANE_STATUS_INVAL;
+      }
+    break;
+  }
   if (info)
     *info = myinfo;
   return SANE_STATUS_GOOD;
@@ -416,6 +896,7 @@ getparmfromfile (void)
   int x, y;
   char buf[1024];
 
+  parms.depth = 8;
   parms.bytes_per_line = parms.pixels_per_line = parms.lines = 0;
   if ((fn = fopen (filename, "rb")) == NULL)
     {
@@ -470,7 +951,7 @@ getparmfromfile (void)
   else
     {
       if (three_pass)
-	{
+  	{
 	  parms.format = SANE_FRAME_RED + (pass + 1) % 3;
 	  parms.last_frame = (pass >= 2);
 	}
@@ -489,6 +970,7 @@ sane_get_parameters (SANE_Handle handle,
 		     SANE_Parameters * params)
 {
   int rc = SANE_STATUS_GOOD;
+
   DBG(2, "sane_get_parameters\n");
   if (handle != MAGIC || !is_open)
     rc = SANE_STATUS_INVAL;	/* Unknown handle ... */
@@ -503,18 +985,19 @@ sane_start (SANE_Handle handle)
 {
   char buf[1024];
   int nlines;
-  
+
   DBG(2, "sane_start\n");
+  rgb_comp = 0;
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
 
   if (infile != NULL)
-    {
-      fclose (infile);
-      infile = NULL;
-      if (!three_pass || ++pass >= 3)
-	return SANE_STATUS_EOF;
-    }
+  {
+    fclose (infile);
+    infile = NULL;
+    if (!three_pass || ++pass >= 3)
+	     return SANE_STATUS_EOF;
+  }
 
   if (getparmfromfile ())
     return SANE_STATUS_INVAL;
@@ -528,12 +1011,12 @@ sane_start (SANE_Handle handle)
   /* Skip the header (only two lines for a bitmap). */
   nlines = (ppm_type == ppm_bitmap) ? 1 : 0;
   while (nlines < 3)
-    {
-      /* Skip comments. */
-      get_line (buf, sizeof (buf), infile);
-      if (*buf != '#')
-	nlines++;
-    }
+  {
+    /* Skip comments. */
+    get_line (buf, sizeof (buf), infile);
+    if (*buf != '#')
+     	nlines++;
+  }
 
   return SANE_STATUS_GOOD;
 }
@@ -552,7 +1035,15 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
       max_length, rgbleftover[0], rgbleftover[1], rgbleftover[2]);
   if (handle != MAGIC || !is_open || !infile || !data || !length)
     return SANE_STATUS_INVAL;	/* Unknown handle or no file to read... */
-    
+
+  if(status_jammed == SANE_TRUE) return SANE_STATUS_JAMMED;
+  if(status_eof == SANE_TRUE) return SANE_STATUS_EOF;
+  if(status_nodocs == SANE_TRUE) return SANE_STATUS_NO_DOCS;
+  if(status_coveropen == SANE_TRUE) return SANE_STATUS_COVER_OPEN;
+  if(status_ioerror == SANE_TRUE) return SANE_STATUS_IO_ERROR;
+  if(status_nomem == SANE_TRUE) return SANE_STATUS_NO_MEM;
+  if(status_accessdenied == SANE_TRUE) return SANE_STATUS_ACCESS_DENIED;
+
   if (feof (infile))
     return SANE_STATUS_EOF;
 
@@ -560,7 +1051,6 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   if (ppm_type == ppm_color && (gray || three_pass))
     {
       SANE_Byte *p, *q, *rgbend;
-
       if (rgbbuf == 0 || rgblength < 3 * max_length)
 	{
 	  /* Allocate a new rgbbuf. */
@@ -571,17 +1061,17 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	    return SANE_STATUS_NO_MEM;
 	}
       else rgblength = 3 * max_length;
-
+      
       /* Copy any leftovers into the buffer. */
       q = rgbbuf;
       p = rgbleftover + 1;
       while (p - rgbleftover <= rgbleftover[0])
 	*q++ = *p++;
-
+      
       /* Slurp in the RGB buffer. */
       len = fread (q, 1, rgblength - rgbleftover[0], infile);
       rgbend = rgbbuf + len;
-
+      
       q = data;
       if (gray)
 	{
@@ -595,36 +1085,81 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 	  for (p = (rgbbuf + (pass + 1) % 3); p < rgbend; p += 3)
 	    *q++ = *p;
 	}
-
+      
       /* Save any leftovers in the array. */
       rgbleftover[0] = len % 3;
       p = rgbbuf + (len - rgbleftover[0]);
       q = rgbleftover + 1;
       while (p < rgbend)
 	*q++ = *p++;
-
+      
       len /= 3;
     }
   else
     /* Suck in as much of the file as possible, since it's already in the
        correct format. */
     len = fread (data, 1, max_length, infile);
-
+  
   if (parms.depth == 8)
-    /* Do the transformations ... DEMO ONLY ! THIS MAKES NO SENSE ! */
-    for (x = 0; x < len; x++)
-      {
-	hlp = *((unsigned char *) data + x) - 128;
-	hlp *= (contr + (100 << SANE_FIXED_SCALE_SHIFT));
-	hlp /= 100 << SANE_FIXED_SCALE_SHIFT;
-	hlp += (bright >> SANE_FIXED_SCALE_SHIFT) + 128;
-	if (hlp < 0)
-	  hlp = 0;
-	if (hlp > 255)
-	  hlp = 255;
-	*(data + x) = hlp;
-      }
-
+    {
+      /* Do the transformations ... DEMO ONLY ! THIS MAKES NO SENSE ! */
+      for(x = 0; x < len; x++)
+	{
+	  hlp = *((unsigned char *) data + x) - 128;
+	  hlp *= (contr + (100 << SANE_FIXED_SCALE_SHIFT));
+	  hlp /= 100 << SANE_FIXED_SCALE_SHIFT;
+	  hlp += (bright >> SANE_FIXED_SCALE_SHIFT) + 128;
+	  if (hlp < 0)
+	    hlp = 0;
+	  if (hlp > 255)
+	    hlp = 255;
+	  *(data + x) = hlp;
+	}
+      /*gamma*/
+      if(usegamma)
+	{
+	  unsigned char uc;
+	  if(gray)
+	    {
+	      for(x = 0; x < len; x++)
+		{
+		  uc = *((unsigned char *) data + x);
+		  uc = gamma[0][uc];
+		  *(data + x) = uc;
+		}
+	    }
+	  else
+	    {
+	      for(x = 0; x < len; x++)
+		{
+		  if(parms.format == SANE_FRAME_RGB)
+		    {
+		      uc = *((unsigned char *) (data + x));
+		      uc = (unsigned char)gamma[rgb_comp + 1][(int)uc];
+		      *((unsigned char *)data + x) = uc;
+		      rgb_comp += 1;
+		      if(rgb_comp>2) rgb_comp = 0;
+		    }
+		  else
+		    {
+		      int f=0;
+		      if(parms.format == SANE_FRAME_RED)
+			f = 1;
+		      if(parms.format == SANE_FRAME_GREEN)
+			f = 2;
+		      if(parms.format == SANE_FRAME_BLUE)
+			f = 3;
+		      if(f)
+			{
+			  uc = *((unsigned char *) (data + x));
+			  uc = (unsigned char)gamma[f][(int)uc];
+			  *((unsigned char *)data + x) = uc;
+			}
+		    }
+		}
+	    }
+	}
+    }
   *length = len;
   return SANE_STATUS_GOOD;
 }
@@ -639,6 +1174,7 @@ sane_cancel (SANE_Handle handle)
       fclose (infile);
       infile = NULL;
     }
+  return;
 }
 
 SANE_Status

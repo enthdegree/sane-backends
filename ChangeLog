@@ -2,6 +2,11 @@
 
 	* backend/pnm.c doc/descriptions/pnm.desc: Check if option is settable
 	  when automatically setting it. New version: 1.0.7.
+	* backend/Makefile.in doc/Makefile.in frontend/Makefile.in 
+	  include/Makefile.in po/Makefile.in tools/Makefile.in:
+	  Support for variable DESTDIR. If set, all files are installed to that
+	  location. Also print the filename of the installed file, not only the
+	  path. Both changes are mostly for package creators/maintainers.
 
 2002-03-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,8 @@
+2001-10-21  Peter Kirchgessner <peter@kirchgessner.net>
+
+  * backend/hp.desc, doc/sane-hp.man
+    Add support for OfficeJet PSC 900 series
+
 2001-10-20  Karl Heinz Kremer <khk@khk.net>
 
   * backend/epson.[ch]: Fix for older Perfection 1650 scanners - 

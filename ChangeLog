@@ -1,3 +1,8 @@
+2003-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/hpsj5s.desc doc/descriptions-external/hp4200.desc:
+	  Use uniform model names for HP scanners.
+
 2003-01-07  Peter Fales  <peter@fales-lorenz.net>
 
         * TODO:  Marked dc210/dc240 items as "done"

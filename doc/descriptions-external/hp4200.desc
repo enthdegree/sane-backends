@@ -21,7 +21,7 @@
 
 :mfg "Hewlett-Packard"                         ; name a manufacturer
 :url "http://www.hp.com/"
-:model "HP4200"                   ; name models for above-specified mfg.
+:model "ScanJet 4200c"                   ; name models for above-specified mfg.
 :interface "USB"
 :comment "8bpp, 150/300/600 dpi only, and scanned image needs postprocessing"
 

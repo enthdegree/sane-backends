@@ -21,7 +21,7 @@
 
 :mfg "Hewlett-Packard"                         ; name a manufacturer
 :url "http://www.hp.com/"
-:model "HP ScanJet 5s"           ; name models for above-specified mfg.
+:model "ScanJet 5s"           ; name models for above-specified mfg.
 :interface "Parport (EPP)"
 :comment "Requires libieee1284 library"
 

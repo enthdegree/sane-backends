@@ -1,3 +1,8 @@
+2003-10-10  Peter Fales <peter@fales-lorenz.net>
+	* backend/gphoto2.c backend/gphoto2.h: Try to handle the case where
+	  the camera has a corrupt file that can't be decoded as a JPEG
+	  image.
+
 2003-10-01  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* doc/sane-mustek_pp.man, doc/descriptions/mustek_pp.desc:

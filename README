@@ -1,5 +1,20 @@
 How to configure, build, and install SANE.
 
+Introduction:
+=============
+SANE stands for Scanner Access Now Easy.
+This package contains the SANE libraries (this means backends and
+network scanning parts) and the command line frontend scanimage.
+You always find the most recent verion of SANE on:
+http://www.mostang.com/sane
+
+There are different graphical frontends available for SANE.
+XSane is available on http://www.wolfsburg.de/~rauch/sane-xsane.html
+The graphical frontends that have been included into the sane package up to
+version sane-1.0.3 (xscanimage and xcam) have been put into an own package
+sane-frontends-1.0.x, this package is available on http://www.mostang.com/sane
+
+
 Quick install:
 ==============
 

@@ -1,3 +1,7 @@
+2002-07-24  Frank Zago  <fzago at austin dot rr dot com>
+
+	* Added a SUBMITTING CHECKLIST
+
 2002-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/stiff.c: Fixed 16 bit tiff output.

@@ -1,3 +1,5 @@
+******  Release of sane-backends 1.0.10. End of code freeze ******
+
 2003-02-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Artec AM12e+.

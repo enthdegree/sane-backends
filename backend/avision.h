@@ -41,14 +41,14 @@
 
    *****************************************************************************
 
-   This file implements a SANE backend for the Avision AV 630CS scanner with
-   SCSI-2 command set.
+   This file implements a SANE backend for the Avision AV 630CS (and other ...)
+   scanner with SCSI-2 command set.
 
    (feedback to:  mccramer@s.netic.de and rene.rebe@myokay.net)
 
    Very much thanks to:
      Avision INC for the documentation we got! ;-)
-     Gunter Wagner for some fixes and the transparency option
+     Gunter Wagner for some fixes and the transparency option.
 
    *****************************************************************************/
 
@@ -57,108 +57,101 @@
 
 #include <sys/types.h>
 
-
 enum Avision_Option
 {
-    OPT_NUM_OPTS = 0,
-    
-    OPT_MODE_GROUP,
-    OPT_MODE,
+  OPT_NUM_OPTS = 0,      /* must come first */
+  
+  OPT_MODE_GROUP,
+  OPT_MODE,
 #define OPT_MODE_DEFAULT 3
-    OPT_RESOLUTION,
+  OPT_RESOLUTION,
 #define OPT_RESOLUTION_DEFAULT 300
-    OPT_SPEED,
-    OPT_PREVIEW,
-   
-    OPT_GEOMETRY_GROUP,
-    OPT_TL_X,			/* top-left x */
-    OPT_TL_Y,			/* top-left y */
-    OPT_BR_X,			/* bottom-right x */
-    OPT_BR_Y,			/* bottom-right y */
-
-    OPT_ENHANCEMENT_GROUP,
-    OPT_BRIGHTNESS,
-    OPT_CONTRAST,
-    OPT_THRESHOLD,
-    OPT_QSCAN,
-    OPT_QCALIB,
-    OPT_TRANS,                  /* Transparency Mode */
-#if 0
-    OPT_CUSTOM_GAMMA,		/* use custom gamma tables? */
-    /* The gamma vectors MUST appear in the order gray, red, green,
-       blue.  */
-    OPT_GAMMA_VECTOR,
-    OPT_GAMMA_VECTOR_R,
-    OPT_GAMMA_VECTOR_G,
-    OPT_GAMMA_VECTOR_B,
-
-    OPT_HALFTONE_DIMENSION,
-    OPT_HALFTONE_PATTERN,
-#endif
-
-    /* must come last: */
-    NUM_OPTIONS
+  OPT_SPEED,
+  OPT_PREVIEW,
+  
+  OPT_GEOMETRY_GROUP,
+  OPT_TL_X,	         /* top-left x */
+  OPT_TL_Y,	         /* top-left y */
+  OPT_BR_X,	         /* bottom-right x */
+  OPT_BR_Y,		 /* bottom-right y */
+  
+  OPT_ENHANCEMENT_GROUP,
+  OPT_BRIGHTNESS,
+  OPT_CONTRAST,
+  OPT_THRESHOLD,
+  OPT_QSCAN,
+  OPT_QCALIB,
+  OPT_TRANS,             /* Transparency Mode */
+  
+  OPT_CUSTOM_GAMMA,	 /* use custom gamma tables? */
+  
+  OPT_GAMMA_VECTOR,      /* first must be grey */
+  OPT_GAMMA_VECTOR_R,    /* then r g b vector */
+  OPT_GAMMA_VECTOR_G,
+  OPT_GAMMA_VECTOR_B,
+  
+  NUM_OPTIONS            /* must come last */
 };
 
 
 typedef union
 {
-    SANE_Word w;
-    SANE_Word *wa;		/* word array */
-    SANE_String s;
+  SANE_Word w;
+  SANE_Word *wa;	 /* word array */
+  SANE_String s;
 } Option_Value;
 
-typedef struct Avision_Dimensions
+typedef struct
 {
-    long tlx;
-    long tly;
-    long brx;
-    long bry;
-    long wid;
-    long len;
-    long pixelnum;
-    long linenum;
-    int resx;
-    int rexy;
-    int res;
+  long tlx;
+  long tly;
+  long brx;
+  long bry;
+  long wid;
+  long len;
+  long pixelnum;
+  long linenum;
+  int resx;
+  int rexy;
+  int res;
 } Avision_Dimensions;
 
-typedef struct Avision_Device
+typedef struct
 {
-    struct Avision_Device *next;
-    SANE_Device sane;
-    SANE_Range dpi_range;
-    SANE_Range x_range;
-    SANE_Range y_range;
-    SANE_Range speed_range;
-    unsigned flags;
+  struct Avision_Device* next;
+  SANE_Device sane;
+  SANE_Range dpi_range;
+  SANE_Range x_range;
+  SANE_Range y_range;
+  SANE_Range speed_range;
+  unsigned flags;
 } Avision_Device;
 
-typedef struct Avision_Scanner
+typedef struct
 {
-    /* all the state needed to define a scan request: */
-    struct Avision_Scanner *next;
-    
-    SANE_Option_Descriptor opt[NUM_OPTIONS];
-    Option_Value val[NUM_OPTIONS];
-    SANE_Int gamma_table[4][256];
-    
-    int scanning;
-    int pass;			/* pass number */
-    int line;			/* current line number */
-    SANE_Parameters params;
-    
-    /* Parsed option values and variables that are valid only during
-       actual scanning: */
-    int mode;
-    Avision_Dimensions avdimen;  /* Used for internal calculationg */
-    
-    int fd;			/* SCSI filedescriptor */
-    pid_t reader_pid;		/* process id of reader */
-    int pipe;			/* pipe to reader process */
-    
-    /* scanner dependent/low-level state: */
-    Avision_Device *hw;
+  /* all the state needed to define a scan request: */
+  struct Avision_Scanner *next;
+  
+  SANE_Option_Descriptor opt [NUM_OPTIONS];
+  Option_Value val [NUM_OPTIONS];
+  SANE_Int gamma_table [4][256];
+  
+  int scanning;
+  int pass;			/* pass number */
+  int line;			/* current line number */
+  SANE_Parameters params;
+  
+  /* Parsed option values and variables that are valid only during
+     actual scanning: */
+  int mode;
+  Avision_Dimensions avdimen;  /* Used for internal calculationg */
+  
+  int fd;			/* SCSI filedescriptor */
+  pid_t reader_pid;		/* process id of reader */
+  int pipe;			/* pipe to reader process */
+  
+  /* scanner dependent/low-level state: */
+  Avision_Device *hw;
 } Avision_Scanner;
 
 #define AV_ADF_ON     0x80
@@ -265,105 +258,119 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_INQUIRY		    0x12
 #define AVISION_SCSI_MODE_SELECT	    0x15 
 #define AVISION_SCSI_START_STOP		    0x1b
-#define AVISION_SCSI_AREA_AND_WINDOWS	    0x24
-#define AVISION_SCSI_READ_SCANNED_DATA	    0x28
+#define AVISION_SCSI_SET_WINDOWS	    0x24
+#define AVISION_SCSI_READ                   0x28
+#define AVISION_SCSI_SEND                   0x2a
 #define AVISION_SCSI_GET_DATA_STATUS	    0x34 
 
-/* The structures that you have to send to the avision to get it to
+/* The structures that you have to send to an avision to get it to
    do various stuff... */
 
-struct win_desc_header {
-    unsigned char pad0[6];
-    unsigned char wpll[2];
-};
-
-struct win_desc_block {
-     unsigned char winid;
-     unsigned char pad0;
-     unsigned char xres[2];
-     unsigned char yres[2];
-     unsigned char ulx[4];
-     unsigned char uly[4];
-     unsigned char width[4];  
-     unsigned char length[4];
-     unsigned char brightness;
-     unsigned char thresh;
-     unsigned char contrast;
-     unsigned char image_comp;
-     unsigned char bpp;
-     unsigned char halftone[2];
-     unsigned char pad_type;
-     unsigned char bitordering[2];
-     unsigned char compr_type;
-     unsigned char compr_arg;
-     unsigned char pad4[6];
-     unsigned char vendor_specid;
-     unsigned char paralen;
-     unsigned char bitset1;
-     unsigned char highlight;
-     unsigned char shadow;
-     unsigned char linewidth[2];
-     unsigned char linecount[2];
-     unsigned char bitset2;
-     unsigned char pad5;
-#if 1
-     unsigned char r_exposure_time[2];
-     unsigned char g_exposure_time[2];
-     unsigned char b_exposure_time[2];
-#endif
-    
-};
-
-struct command_header {
+struct command_header
+{
   unsigned char opc;
-  unsigned char pad0[3];  
+  unsigned char pad0 [3];
   unsigned char len;
   unsigned char pad1;
 };
 
-struct command_header_10 {
-    unsigned char opc;
-    unsigned char pad0[5];  
-    unsigned char len[3];
-    unsigned char pad1;
+struct command_set_window
+{
+  unsigned char opc;
+  unsigned char reserved0 [5];
+  unsigned char transferlen [3];
+  unsigned char control;
 };
 
-struct command_read {
-    unsigned char opc;
-    unsigned char bitset1;
-    unsigned char datatypecode;
-    unsigned char calibchn;  
-    unsigned char datatypequal[2];
-    unsigned char transferlen[3];     
-    unsigned char pad0;
+struct command_read
+{
+  unsigned char opc;
+  unsigned char bitset1;
+  unsigned char datatypecode;
+  unsigned char calibchn;  
+  unsigned char datatypequal [2];
+  unsigned char transferlen [3];     
+  unsigned char control;
 };
 
-struct command_scan {
-    unsigned char opc;
-    unsigned char pad0[3];  
-    unsigned char transferlen;
-    unsigned char bitset1;
+struct command_scan
+{
+  unsigned char opc;
+  unsigned char pad0 [3];
+  unsigned char transferlen;
+  unsigned char bitset1;
 };
 
-struct def_win_par {
-    struct command_header_10 dwph;
-    struct win_desc_header wdh;
-    struct win_desc_block wdb;
+struct command_send
+{
+  unsigned char opc;
+  unsigned char bitset1;
+  unsigned char datatypecode;
+  unsigned char reserved0;  
+  unsigned char datatypequal [2];
+  unsigned char transferlen [3];     
+  unsigned char reserved1;
 };
 
-struct page_header{
-    char pad0[4];
-    char code;
-    char length;
+
+struct command_set_window_window_header
+{
+  unsigned char reserved0 [6];
+  unsigned char desclen [2];
 };
 
-struct avision_page {
-    char gamma;
-    char thresh;
-    char masks;
-    char delay;
-    char features;
-    char pad0;
+struct command_set_window_window_descriptor
+{
+  unsigned char winid;
+  unsigned char pad0;
+  unsigned char xres [2];
+  unsigned char yres [2];
+  unsigned char ulx [4];
+  unsigned char uly [4];
+  unsigned char width [4];  
+  unsigned char length [4];
+  unsigned char brightness;
+  unsigned char thresh;
+  unsigned char contrast;
+  unsigned char image_comp;
+  unsigned char bpp;
+  unsigned char halftone [2];
+  unsigned char pad_type;
+  unsigned char bitordering [2];
+  unsigned char compr_type;
+  unsigned char compr_arg;
+  unsigned char pad4 [6];
+  unsigned char vendor_specid;
+  unsigned char paralen;
+  unsigned char bitset1;
+  unsigned char highlight;
+  unsigned char shadow;
+  unsigned char linewidth [2];
+  unsigned char linecount [2];
+  unsigned char bitset2;
+  unsigned char pad5;
+#if 1
+  unsigned char r_exposure_time [2];
+  unsigned char g_exposure_time [2];
+  unsigned char b_exposure_time [2];
+#endif
+};
+
+struct page_header
+{
+  char pad0 [4];
+  char code;
+  char length;
+};
+
+struct avision_page
+{
+  char gamma;
+  char thresh;
+  char masks;
+  char delay;
+  char features;
+  char pad0;
 };
 
 

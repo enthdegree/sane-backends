@@ -4,6 +4,7 @@
 	  fixes.
 	* doc/descriptions-external/sm3840.desc: Added new external
 	  backend sm3840.
+	* doc/descriptions-external/brother.desc: Updated status.
 	   
 2005-02-04  Gerhard Jaeger <gerhard@gjaeger.de>
 

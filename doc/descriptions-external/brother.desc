@@ -64,11 +64,9 @@
 :comment "No report yet."
 
 :model "DCP-8045D"
-:status :untested
+:status :good
 :interface "USB"
 ;:url ""  ; model's URL
-:comment "No report yet."
-
 
 :model "FAX1800C"
 :status :untested

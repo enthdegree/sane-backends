@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "05 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-scsi 5 "07 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-scsi
 .SH NAME
 sane-scsi \- SCSI adapter tips for scanners
@@ -21,11 +21,14 @@ to the generic SCSI device that the scanner is connected to.  In this
 case, the configuration file simply lists the line
 .BR /dev/scanner .
 For a detailed description of each backend's configuration file,
-please refer to the relevant backend manual page (e.g., sane\-epson(5)
-for Epson scanners, sane\-hp(5) for HP scanners, etc.).
+please refer to the relevant backend manual page (e.g., 
+.BR sane-epson (5)
+for Epson scanners, 
+.BR sane-hp (5)
+for HP scanners, etc.).
 .PP
-For Linux, there is an alternate way of specifying scanner devices.  This
-alternate way is based on /proc/scsi/scsi and allows to identify scanners by
+For some operating systems (e.g. Linux and OS/2), there is an alternate way of
+specifying scanner devices.  This alternate way allows to identify scanners by
 the SCSI vendor and model string and/or by the SCSI device address (consisting
 of bus number, channel number, id, and logical unit number).  The syntax for
 specifying a scanner in this way is:
@@ -49,18 +52,17 @@ is the SCSI channel number,
 .I ID
 is the SCSI id, and
 .I LUN
-is the logical unit number of the scanner device.  The first two
-fields are strings which must be enclosed in double-quotes if they
-contain any whitespace.  The remaining four fields are non-negative
-integer numbers.  The correct values for these fields can be found by
-looking at the output of the command "cat /proc/scsi/scsi".  To
-simplify configuration, a field's value can be replaced with an
-asterisk symbol (``*'').  An asterisk has the effect that any value is
-allowed for that particular field.  This can have the effect that a
-single scsi-line matches multiple devices.  When this happens, each
-matching device will be probed by the backend one by one and
-registered if the backend thinks it is a compatible device.  For
-example, the line
+is the logical unit number of the scanner device.  The first two fields are
+strings which must be enclosed in double-quotes if they contain any
+whitespace.  The remaining four fields are non-negative integer numbers.  The
+correct values for these fields can be found by using operating system
+specific tools, e.g. for Linux by looking at the output of the command "cat
+/proc/scsi/scsi".  To simplify configuration, a field's value can be replaced
+with an asterisk symbol (``*'').  An asterisk has the effect that any value is
+allowed for that particular field.  This can have the effect that a single
+scsi-line matches multiple devices.  When this happens, each matching device
+will be probed by the backend one by one and registered if the backend thinks
+it is a compatible device.  For example, the line
 .PP
 .RS
 scsi MUSTEK MFS-06000CX Scanner 0 00 03 00 
@@ -308,6 +310,10 @@ sets the timeout value for SCSI commands in seconds. Overriding the default
 value of 120 seconds should only be necessary for very slow scanners.
 
 .SH "SEE ALSO"
-sane(7), sane\-find\-scanner(1), sane\-"backendname"(5), sane\-usb(5)
+.BR sane (7),
+.BR sane-find-scanner (1),
+.BR sane-"backendname" (5),
+.BR sane-usb (5)
+
 .SH AUTHOR
 David Mosberger

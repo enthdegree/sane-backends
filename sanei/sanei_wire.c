@@ -211,8 +211,9 @@ sanei_w_array (Wire * w, SANE_Word * len_ptr, void **v,
 	      || (w->allocated_memory + len * element_size) > MAX_MEM)
 	    {
 	      DBG (0, "sanei_w_array: DECODE: maximum amount of allocated memory "
-		   "exceeded (limit: %u, new allocation: %u, total: %u bytes)\n",
-		   MAX_MEM, len * element_size, MAX_MEM + len * element_size);
+		   "exceeded (limit: %u, new allocation: %lu, total: %lu bytes)\n",
+			   MAX_MEM, (unsigned long)(len * element_size),
+			   (unsigned long)(MAX_MEM + len * element_size));
 	      w->status = ENOMEM;
 	      return;
 	    }
@@ -289,8 +290,9 @@ sanei_w_ptr (Wire * w, void **v, WireCodecFunc w_value, size_t value_size)
 	  if (value_size > MAX_MEM)
 	    {
 	      DBG (0, "sanei_w_ptr: DECODE: maximum amount of allocated memory "
-		   "exceeded (limit: %u, new allocation: %u, total: %u bytes)\n",
-		   MAX_MEM, value_size, (w->allocated_memory + value_size));
+		   "exceeded (limit: %u, new allocation: %lu, total: %lu bytes)\n",
+		   MAX_MEM, (unsigned long)value_size, 
+			   (unsigned long)(w->allocated_memory + value_size));
 	      w->status = ENOMEM;
 	      return;
 	    }

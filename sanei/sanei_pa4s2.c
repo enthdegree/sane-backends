@@ -1089,8 +1089,8 @@ sanei_pa4s2_scsi_pp_reg_select (int fd, int reg)
   DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at port '%s'\n",
        (int) reg, pplist.portv[fd]->name);
 #else
-  DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at 0x%03x\n",
-       (int) reg, port[fd].base);
+  DBG (6, "sanei_pa4s2_scsi_pp_reg_select: selecting register %u at 0x%03lx\n",
+       (int) reg, (u_long)port[fd].base);
 #endif
 
   outbyte0 (fd, reg | 0x58);

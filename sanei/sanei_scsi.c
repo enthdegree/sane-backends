@@ -1928,8 +1928,8 @@ issue (struct req *req)
 	    {
 	      if (rp->running)
 		{
-		  DBG (1, "sanei_scsi.issue: bad write (errno=%i) %s %i\n",
-		       errno, strerror (errno), nwritten);
+		  DBG (1, "sanei_scsi.issue: bad write (errno=%i) %s %li\n",
+		       errno, strerror (errno), (long)nwritten);
 		  rp->done = 1;
 		  if (errno == ENOMEM)
 		    {
@@ -2107,8 +2107,8 @@ issue (struct req *req)
 	      {
 		DBG (1,
 		     "sanei_scsi_req_enter2 warning: truncating write data "
-		     "from requested %i bytes to allowed %i bytes\n",
-		     src_size, fdp->buffersize);
+		     "from requested %li bytes to allowed %li bytes\n",
+		     (long)src_size, (long)fdp->buffersize);
 		src_size = fdp->buffersize;
 	      }
 	    req->sgdata.sg3.hdr.dxfer_len = src_size;
@@ -2122,8 +2122,8 @@ issue (struct req *req)
 	if (cmd_size > MAX_CDB)
 	  {
 	    DBG (1, "sanei_scsi_req_enter2 warning: truncating write data "
-		 "from requested %i bytes to allowed %i bytes\n",
-		 cmd_size, MAX_CDB);
+		 "from requested %li bytes to allowed %i bytes\n",
+		 (long)cmd_size, MAX_CDB);
 	    cmd_size = MAX_CDB;
 	  }
 	memcpy (req->sgdata.sg3.data, cmd, cmd_size);

@@ -1,7 +1,8 @@
 2002-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* PROJECTS: Added link to backend for HP Scanjet 3300C / 3400C
-	  and 4300C scanners.
+	  and 4300C scanners. Removed umax1220u project (now included in
+	  sane-backends).
 	* po/Makefile.in po/README: Added basic support for translating
 	  option descriptions and titles of SANE backends. This is really
 	  alpha!

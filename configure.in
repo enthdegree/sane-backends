@@ -8,7 +8,7 @@ AC_ARG_PROGRAM
 V_MAJOR=1
 V_MINOR=0
 V_REV=8
-V_EXTRA=-pre1
+V_EXTRA=
 
 PACKAGE=sane-backends
 VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}${V_EXTRA}
@@ -85,7 +85,7 @@ if test "${ac_cv_prog_gcc}" = "yes"; then
         done
       fi
     ],
-    [if true; then # release (false) or development (true)
+    [if false; then # release (false) or development (true)
        # Warnings enabled by default (development)
        for flag in $WARN_CFLAGS; do
          JAPHAR_GREP_CFLAGS($flag, [ CFLAGS="$CFLAGS $flag" ])

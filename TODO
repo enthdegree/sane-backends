@@ -1,4 +1,4 @@
-TODO (2003-04-11)
+TODO (2003-04-17)
 
 ******** todo ********
 
@@ -9,7 +9,6 @@ backends
       http://sourceforge.net/projects/hp3300backend
     - Hewlett-Packard 4200c
       http://hp4200-backend.sourceforge.net/
-      http://www.linuxprinting.org/till/tmp/sane-backends-1.0.9-hp4200-0.3.patch.bz2
       http://fz.eryx.net/sane/#hp4200
 
   * qcam:
@@ -62,6 +61,8 @@ backends
     - microtek
     - umax
 
+  * hp5400: Use GPL + SANE addition license.
+
 doc
 ---
   * Add doxygen documentation for the remaining sanei files:
@@ -78,6 +79,7 @@ doc
     - html manpages have broken links to other man pages if link is wrapped at
       the end of the line (e.g. sane-pint points to pint.5.html). Escaping the
       "-" with a backslash seems to work.
+    - avision: mention that hpusbscsi is no longer necessary.
 
 frontends
 ---------
@@ -143,8 +145,6 @@ platform-specific
   * OS/2 issues: 
     - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
     - Add support for semaphores also for OS/2 (currently used in snapscan).
-    - Check why scanimag ecrashes with current CVS:
-      http://www.mostang.com/pipermail/sane-devel/2003-March/018363.html
 
   * icc on ia32 + ia64:
     - fix sys/io.h problems (see README.linux)
@@ -168,6 +168,8 @@ misc
 
 
 ******** done ********
+* Check why scanimag ecrashes with current CVS:
+  http://www.mostang.com/pipermail/sane-devel/2003-March/018363.html
 * Check licence issues with getopt*.c and md5.c. These files are GPLed, so
   if they are used in backends, their SANE exception will be void.
 * mustek_pp: Check that global variables are initialized propperly.

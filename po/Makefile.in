@@ -1,0 +1,96 @@
+# Enter additional backends and backend files with translatable
+# text here
+
+ALL_BACKENDS = epson mustek mustek_usb umax
+
+all:
+
+epson.pot:  ../backend/epson.c ../backend/epson.h 
+mustek.pot: ../backend/mustek.c
+mustek_usb.pot: ../backend/mustek_usb.c
+umax.pot: ../backend/umax.c
+
+# end of configuration
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+datadir = @datadir@
+localedir = $(datadir)/locale
+gnulocaledir = $(prefix)/share/locale
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+
+MKDIR = $(top_srcdir)/mkinstalldirs
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+
+OPTS = ../include/sane/saneopts.h
+TMP_FILE_DIR = .tmp
+ALL_POTS =$(foreach be,$(ALL_BACKENDS),$(addprefix $(be),.pot))
+
+INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
+.SUFFIXES: .po .mo
+
+.po.mo:
+	msgfmt -o $@ $<
+
+%.pot: $(OPTS)
+	@rm -rf $(TMP_FILE_DIR)
+	@mkdir $(TMP_FILE_DIR) && \
+	 for file in $^ ; do \
+	   echo parsing $${file} ; \
+	   sed < $${file} -e 's/#define//g' \
+             > $(TMP_FILE_DIR)/`basename $${file}` ; \
+	 done && \
+	 xgettext -d$* -kSANE_I18N $(TMP_FILE_DIR)/*.* && \
+	 mv $*.po $*.pot
+
+update-pot: $(ALL_POTS)
+
+update-po: $(ALL_POTS)
+	@pots="$(subst .pot,,$^)" ; \
+	for po_file in *.po  ; do \
+	  backend=`echo "$${po_file}" | sed -e "s/\..*$$//"` && \
+	  echo updating $${po_file} from $${backend}.pot && \
+	  cp $${po_file} $${po_file}.old && \
+	  msgmerge $${po_file}.old $${backend}.pot -o $${po_file} && \
+	  rm $${po_file}.old ; \
+	done
+
+update-mo: 
+	@for po_file in *.po ; do \
+	  mo_file=`echo $${po_file} | sed -e "s/\.po$$/.mo/"` ; \
+	  $(MAKE) $${mo_file} ; \
+	done
+
+install-translations: update-mo
+	@for mo_file in *.mo ; do \
+	  lang=`echo $${mo_file} | sed -e "s/\.mo$$//" -e "s/^.*\.//" ` ; \
+	  backend=`echo $${mo_file} | sed -e "s/\..*$$//"` ; \
+          dir=$(gnulocaledir)/$${lang}/LC_MESSAGES ; \
+	  echo installing sane-$${backend}.mo from $${mo_file} in $${dir} ; \
+	  $(MKDIR) $${dir} ; \
+	  $(INSTALL_DATA) $${mo_file} $${dir}/sane-$${backend}.mo ; \
+	done
+
+
+install: $(INSTALL_TRANSLATIONS)
+
+uninstall:
+
+clean:
+	rm -f *.mo
+	rm -f *.old
+
+distclean: clean
+	rm -f Makefile
+	rm -f *~
+	rm -f *.pot
+	rm -rf $(TMP_FILE_DIR)
+
+depend:
+
+.PHONY: all clean distclean depend install uninstall install-translations \
+        update-pot update-po update-mo
+

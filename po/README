@@ -1,0 +1,44 @@
+2002-01-07
+
+This directory contains translations for the options of the SANE backends.
+They are only used if configure is called with option --enable-translations.
+Currently these translations are only used by XSane.
+
+What do you need to do if you want to:
+
+- Just read the description of SANE options in your language
+  * Use XSane, read the documentation and set LANG to your favorite
+    setting (e.g. de_DE for German in Germany).
+
+- Update existing translations when the source code has changed
+  * cd po ; make update-po
+  * Edit backend.lang.po, add/change translations. 
+  * make
+
+- Add a new language
+  * cd po ; make update-pot
+  * cp backend.pot backend.lang.pot
+  * Edit backend-lang.po, enter translations. Don't forget to edit the header.
+  * make update-mo ; make install
+
+- Add a translation for a backend that is not listed yet in Makefile.in
+  * Edit your sources and add SANE_I18N to the appropriate strings. Mark the
+    descriptions (desc) and titles of options with SANE_I18N(). Do the same
+    for string lists used in options. The name of options must NOT be marked.
+    Do NOT mark macros. Especially you don't need to mark standard option
+    strings like SANE_TITLE_NUM_OPTIONS as this is already done in saneopts.h.
+    Example: s->opt[5].title = SANE_I18N("Enhancement");
+  * Edit Makefile.in. Add your backend to ALL_BACKENDS and ass a line
+    "backend.pot: yourfiles" where yourfiles is a list of all your files 
+    containing translatable text.
+  * configure --enable-translations
+  * cd po ; make update-pot
+  * cp backend.pot backend.lang.pot
+  * Edit backend-lang.po, enter translations. Don't forget to edit the header.
+  * make update-mo ; make install
+
+Bugs:
+- This is the first attempt to support translations. It's probably very buggy
+  and nearly untested.
+- Lot's of ugly tricks and asumptions in Makefile.in
+- Documentation isn't finished

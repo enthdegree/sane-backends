@@ -5,6 +5,8 @@
 	  Don't remove files/dirs that doesn't exist. Remove the html
 	  manpages in distclean. Fixed spelling mistake in .PHONY.
 	* TODO: Added entries about possible segfaults and memory leaks.
+	  Added entry about AIX problems. Removed entry about installing
+	  documentation.
 	* PROJECTS: Added Canon Canon FB330P, FP630P.
 
 2001-04-30  Jochen Eisinger <jochen.eisinger@informatik.uni-freiburg.de>

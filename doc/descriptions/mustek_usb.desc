@@ -17,9 +17,9 @@
 :model "1200 UB"
 :interface "USB"
 :comment "Only 1200 UB is supported, NOT UB Plus!"
-:model "1200 USB"
-:interface "USB"
-
+;:model "1200 USB"
+;:interface "USB"
+;:comment "CCD not yet supported"
 :mfg "Trust"
 :url "http://www.trust-site.com"
 :model "Compact Scan USB 19200"

@@ -1117,7 +1117,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (gphoto2_opt_snap)
 	    {
 	      /* activate the resolution setting */
+/* Until we figure out how to do this 
 	      sod[GPHOTO2_OPT_LOWRES].cap &= ~SANE_CAP_INACTIVE;
+*/
 	      /* and de-activate the image number selector */
 	      sod[GPHOTO2_OPT_IMAGE_NUMBER].cap |= SANE_CAP_INACTIVE;
 	    }

@@ -10,7 +10,7 @@
 ;
 
 :backend "epson"                  ; name of backend
-:version "0.1.35"                 ; version of backend
+:version "0.1.36"                 ; version of backend
 :status :beta                     ; :alpha, :beta, :stable, :new
 :manpage "sane-epson"             ; name of manpage (if it exists)
 :url "http://www.freecolormanagement.com/sane"        ; backend's web page
@@ -72,6 +72,9 @@
 :model "Perfection 1200Photo"
 :comment "with TPU"
 :interface "USB"
+
+:model "Perfection 1240"
+:interface "SCSI USB"
 
 :model "Expression 636"
 :interface "SCSI"

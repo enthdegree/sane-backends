@@ -222,6 +222,7 @@ struct Epson_Device {
 	SANE_Bool ADF;			/* ADF is installed */
 	SANE_Bool focusSupport;		/* does this scanner have support for "set focus position" ? */
 	SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
+	SANE_Int  maxDepth;		/* max. color depth */
 
 	SANE_Int  optical_res;		/* optical resolution */
 	SANE_Int  max_line_distance;

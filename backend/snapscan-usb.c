@@ -73,14 +73,21 @@
 
 #include "snapscan-usb.h"
 #include "snapscan-mutex.c"
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 /* Global variables */
 
 static snapscan_mutex_t sem_id;
 static sense_handler_type usb_sense_handler;
 static void* usb_pss;
-static unsigned long read_urbs = 0;
-static unsigned long write_urbs = 0;
+
+struct urb_counters_t {
+    unsigned long read_urbs;
+    unsigned long write_urbs;
+};
+
+static struct urb_counters_t* urb_counters = NULL;
 
 /* Forward declarations */
 static SANE_Status usb_request_sense(SnapScan_Scanner *pss);
@@ -160,8 +167,8 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
     }
     usb_sense_handler=sense_handler;
     usb_pss = pss;
-    read_urbs = 0;
-    write_urbs = 0;    
+    urb_counters->read_urbs = 0;
+    urb_counters->write_urbs = 0;    
     return sanei_usb_open(dev, fdp);
 }
 
@@ -170,14 +177,14 @@ static void snapscani_usb_close(int fd) {
     static const char me[] = "snapscani_usb_close";
 
     DBG (DL_CALL_TRACE, "%s(%d)\n", me, fd);
-    DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", read_urbs, write_urbs);
-    if ((read_urbs & 0x01) && (write_urbs & 0x01))
+    DBG (DL_DATA_TRACE,"1st read %ld write %ld\n", urb_counters->read_urbs, urb_counters->write_urbs);
+    if ((urb_counters->read_urbs & 0x01) && (urb_counters->write_urbs & 0x01))
     {
         char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
 
         usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
     }
-    else if (read_urbs & 0x01)
+    else if (urb_counters->read_urbs & 0x01)
     {
         size_t read_bytes;
         char cmd[] = {TEST_UNIT_READY, 0, 0, 0, 0, 0};
@@ -188,7 +195,7 @@ static void snapscani_usb_close(int fd) {
         snapscani_usb_cmd (fd, cmd2, sizeof (cmd2), data, &read_bytes);
         usb_cmd (fd, cmd, sizeof (cmd), NULL, 0);
     }
-    else if (write_urbs & 0x01)
+    else if (urb_counters->write_urbs & 0x01)
     {
         size_t read_bytes;
         char cmd[] = {INQUIRY, 0, 0, 0, 120, 0};
@@ -197,9 +204,9 @@ static void snapscani_usb_close(int fd) {
         read_bytes = 120;
         usb_cmd (fd, cmd, sizeof (cmd), data, &read_bytes);
     }
-    DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", read_urbs, write_urbs);
-    read_urbs = 0;
-    write_urbs = 0;
+    DBG (DL_DATA_TRACE,"2nd read %ld write %ld\n", urb_counters->read_urbs, urb_counters->write_urbs);
+    urb_counters->read_urbs = 0;
+    urb_counters->write_urbs = 0;
     snapscani_mutex_close(&sem_id);
     sanei_usb_close(fd);
 }
@@ -255,7 +262,7 @@ static SANE_Status usb_write(int fd, const void *buf, size_t n) {
         DBG (DL_MAJOR_ERROR, "%s Only %d bytes written\n",me,bytes_written);
         status = SANE_STATUS_IO_ERROR;
     }
-    write_urbs += (bytes_written + 7) / 8;
+    urb_counters->write_urbs += (bytes_written + 7) / 8;
     DBG (DL_DATA_TRACE, "Written %d bytes\n", bytes_written);
     return status;
 }
@@ -271,7 +278,7 @@ static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
         DBG (DL_MAJOR_ERROR, "%s Only %d bytes read\n",me,bytes_read);
         status = SANE_STATUS_IO_ERROR;
     }
-    read_urbs += ((63 + bytes_read) / 64); 
+    urb_counters->read_urbs += ((63 + bytes_read) / 64); 
     DBG(DL_DATA_TRACE, "%s: reading: %s\n",me,usb_debug_data(dbgmsg,buf,n));
     DBG(DL_DATA_TRACE, "Read %d bytes\n", bytes_read);
     return status;
@@ -471,8 +478,54 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
     return status;
 }
 
+static SANE_Status snapscani_usb_shm_init(void)
+{
+    unsigned int shm_size = sizeof(struct urb_counters_t);
+    void* shm_area = NULL;
+    int shm_id = shmget (IPC_PRIVATE, shm_size, IPC_CREAT | SHM_R | SHM_W);
+    if (shm_id == -1)
+    {
+        DBG (DL_MAJOR_ERROR, "snapscani_usb_shm_init: cannot create shared memory segment: %s\n",
+            strerror (errno));
+        return SANE_STATUS_NO_MEM;
+    }
+    
+    shm_area = shmat (shm_id, NULL, 0);
+    if (shm_area == (void *) -1)
+    {
+        DBG (DL_MAJOR_ERROR, "snapscani_usb_shm_init: cannot attach to shared memory segment: %s\n",
+            strerror (errno));
+        shmctl (shm_id, IPC_RMID, NULL);
+        return SANE_STATUS_NO_MEM;
+    }
+    
+    if (shmctl (shm_id, IPC_RMID, NULL) == -1)
+    {
+        DBG (DL_MAJOR_ERROR, "snapscani_usb_shm_init: cannot remove shared memory segment id: %s\n",
+            strerror (errno));
+        shmdt (shm_area);
+        shmctl (shm_id, IPC_RMID, NULL);
+        return SANE_STATUS_NO_MEM;
+    }
+    urb_counters = (struct urb_counters_t*) shm_area;
+    memset(urb_counters, 0, sizeof(struct urb_counters_t));
+    return SANE_STATUS_GOOD;
+}
+
+static void snapscani_usb_shm_exit(void)
+{
+  if (urb_counters)
+    {
+      shmdt (urb_counters);
+      urb_counters = NULL;
+    }
+}
+
 /*
  * $Log$
+ * Revision 1.16  2004/05/26 22:37:01  oliver-guest
+ * Use shared memory for urb counters in snapscan backend
+ *
  * Revision 1.15  2004/04/09 11:59:02  oliver-guest
  * Fixes for pthread implementation
  *

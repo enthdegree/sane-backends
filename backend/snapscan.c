@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               37
+#define BUILD               38
 
 #define BACKEND_NAME snapscan
 
@@ -556,6 +556,11 @@ static SANE_Status add_usb_device (SANE_String_Const full_name) {
 
     DBG (DL_VERBOSE, "%s: Detected (kind of) an USB device\n", me);
     bus_type = USB;
+    status = snapscani_usb_shm_init();
+    if (status != SANE_STATUS_GOOD)
+    {
+        return status; 
+    }
     status = snapscani_usb_open (name, &fd, sense_handler, NULL);
     if (status != SANE_STATUS_GOOD)
     {
@@ -591,6 +596,8 @@ static SANE_Status add_usb_device (SANE_String_Const full_name) {
         status = snapscani_check_device(fd, bus_type, vendor, model, &model_num);
         snapscani_usb_close(fd);
     }
+    /* deinit shared memory, will be initialized again in open_scanner */
+    snapscani_usb_shm_exit();     
     if (status == SANE_STATUS_GOOD) {
         status = snapscani_init_device_structure(
             &pd,
@@ -674,7 +681,6 @@ SANE_Status sane_init (SANE_Int *version_code,
 
     sanei_usb_init();
     sanei_thread_init();
-
     /* build a device structure */
     fp = sanei_config_open (SNAPSCAN_CONFIG_FILE);
     if (!fp)
@@ -740,7 +746,6 @@ SANE_Status sane_init (SANE_Int *version_code,
         for (i = 0;  i < 64;  i++)
             D8[i] = (u_char) (4 * D8[i] + 2);
     }
-
     return SANE_STATUS_GOOD;
 }
 
@@ -875,7 +880,11 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
                  me,
                  (void *) pss);
         }
-
+        status = snapscani_usb_shm_init();
+        if (status != SANE_STATUS_GOOD)
+        {
+            return status;
+        }
         status = open_scanner (pss);
         if (status != SANE_STATUS_GOOD)
         {
@@ -968,7 +977,6 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
 
         pss->state = ST_IDLE;
     }
-
     return SANE_STATUS_GOOD;
 }
 
@@ -986,6 +994,7 @@ void sane_close (SANE_Handle h)
         break;
     }
     close_scanner (pss);
+    snapscani_usb_shm_exit();
     free (pss->gamma_tables);
     free (pss->buf);
     free (pss);
@@ -1821,6 +1830,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.41  2004/05/26 22:37:01  oliver-guest
+ * Use shared memory for urb counters in snapscan backend
+ *
  * Revision 1.40  2004/04/09 11:59:02  oliver-guest
  * Fixes for pthread implementation
  *

@@ -11,6 +11,8 @@
 	  warnings by default.
 	* doc/descriptions/microtek2.desc: Updated (From Karsten Festag 
 	  <karsten.festag@gmx.de>).
+	* po/Makefile.in po/sane-backends.pt.po: Added Portuguese translation 
+	  for the gt68xx backend (from Pedro Morais <morais@inocam.com>).
 
 2003-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

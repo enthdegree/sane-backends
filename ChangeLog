@@ -1,5 +1,9 @@
 2002-04-21  Frank Zago <fzago@greshamstorage.com>
 
+	* backend/teco1.c doc/descriptions/teco1.desc: updates.
+
+2002-04-21  Frank Zago <fzago@greshamstorage.com>
+
 	* backend/sceptre.c doc/descriptions/sceptre.desc: updates.
 
 2002-04-21  Frank Zago <fzago@greshamstorage.com>

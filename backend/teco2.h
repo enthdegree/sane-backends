@@ -347,12 +347,6 @@ struct scanners_supported
 
 /*--------------------------------------------------------------------------*/
 
-#define BLACK_WHITE_STR		SANE_I18N("Black & White")
-#define GRAYSCALE_STR		SANE_I18N("Grayscale")
-#define COLOR_STR			SANE_I18N("Color")
-
-/*--------------------------------------------------------------------------*/
-
 /* Define a scanner occurence. */
 typedef struct Teco_Scanner
 {

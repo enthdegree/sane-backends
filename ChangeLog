@@ -1,3 +1,8 @@
+2004-08-05  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* backend/teco2.c backend/teco2.h: changed to SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,
+	* backend/teco2.c: changed use of %d to %ld (when bytes values are displayed)
+
 2004-08-04  Julien Blache <jb at jblache dot org>
 	* tools/hotplug/libsane.usermap: added HP ScanJet 5300C.
 
@@ -13,7 +18,7 @@
 	  -default SANE_TECO_CAL_ALGO value is now 1 for the VM3564 and
 	  VM6575.
 	  - preview value is now 75 dpi for the VM6575
-	  
+
 2004-08-04  Oliver Rauch <Oliver.Rauch@Rauch-DOmain.DE>
 	* doc/umax/umax.FAQ: corrected bug about dtc3181e scsi controller
 

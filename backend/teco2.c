@@ -49,14 +49,21 @@
    update 2003/03/19, traces, tests VM356A Gerard Klaver, Michael Hoeller
    update 2003/07/19, white level calibration, color modes VM3564, VM356A, VM3575
                       Gerard Klaver, Michael Hoeller
-   update 2004/01/15, white level , red, green, and blue calibration for the 
+   update 2004/01/15, white level , red, green, and blue calibration and
+		      leave out highest and lowest value and then divide
                       VM3564, VM356A and VM3575: Gerard Klaver
-   update 2004/04/10  red, green and blue calibration for the VM6575
+   update 2004/08/04, white level, red, green and blue calibration for the VM6575
+                      changed default SANE_TECO_CAL_ALGO to 1 for VM3564 and VM6575
+		      preview value changed to 75 dpi for VM6575
+		      leave out highest and lowest value and then divide
+		      VM656A, VM6586
+   update 2004/08/05, use of SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,
+                      changed use of %d to %ld (when bytes values are displayed)
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 7			/* 2004/08/03 */
+#define BUILD 7			/* 2004/08/05 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -103,9 +110,9 @@ static int raw_output = 0;
 
 /* Lists of possible scan modes. */
 static SANE_String_Const scan_mode_list[] = {
-  BLACK_WHITE_STR,
-  GRAYSCALE_STR,
-  COLOR_STR,
+	SANE_VALUE_SCAN_MODE_LINEART,
+	SANE_VALUE_SCAN_MODE_GRAY,
+	SANE_VALUE_SCAN_MODE_COLOR,
   NULL
 };
 
@@ -1244,8 +1251,8 @@ teco_do_calibration (Teco_Scanner * dev)
   
   if ((tmp_buf == NULL) || (tmp_min_buf == NULL) || (tmp_max_buf == NULL))
     {
-      DBG (DBG_proc, "teco_do_calibration: not enough memory (%d bytes)\n",
-	   tmp_buf_size);
+      DBG (DBG_proc, "teco_do_calibration: not enough memory (%ld bytes)\n",
+	   (long) tmp_buf_size);
       return (SANE_STATUS_NO_MEM);
     }
 
@@ -2410,8 +2417,8 @@ teco_fill_image (Teco_Scanner * dev)
 	  return status;
 	}
 
-      DBG (DBG_info, "teco_fill_image: real bytes left = %d\n",
-	   dev->real_bytes_left);
+      DBG (DBG_info, "teco_fill_image: real bytes left = %ld\n",
+	  (long) dev->real_bytes_left);
 
       if (dev->scan_mode == TECO_COLOR &&
 	  dev->def->tecoref != TECO_VM656A && raw_output == 0)
@@ -2512,7 +2519,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (DBG_error, "This is sane-teco2 version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
-  DBG (DBG_error, "(C) 2002 by Frank Zago\n");
+  DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2004 by Gerard Klaver\n");
 
   if (version_code)
     {
@@ -2804,7 +2811,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  dev->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_RANGE;
 	  dev->opt[OPT_RESOLUTION].constraint.range = &dev->def->res_range;
 
-	  if (strcmp (dev->val[OPT_MODE].s, BLACK_WHITE_STR) == 0)
+	  if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
 	    {
 	      dev->scan_mode = TECO_BW;
 	      dev->depth = 8;
@@ -2812,7 +2819,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      dev->opt[OPT_FILTER_COLOR].cap &= ~SANE_CAP_INACTIVE;
 	      dev->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
 	    }
-	  else if (strcmp (dev->val[OPT_MODE].s, GRAYSCALE_STR) == 0)
+	  else if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
 	    {
 	      dev->scan_mode = TECO_GRAYSCALE;
 	      dev->depth = 8;
@@ -2849,7 +2856,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      dev->opt[OPT_FILTER_COLOR].cap &= ~SANE_CAP_INACTIVE;
 	    }
-	  else if (strcmp (dev->val[OPT_MODE].s, COLOR_STR) == 0)
+	  else if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 	    {
 	      dev->scan_mode = TECO_COLOR;
 	      dev->depth = 8;
@@ -3333,7 +3340,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
     }
   while ((buf_offset != max_len) && dev->bytes_left);
 
-  DBG (DBG_info, "sane_read: leave, bytes_left=%d\n", dev->bytes_left);
+  DBG (DBG_info, "sane_read: leave, bytes_left=%ld\n", (long) dev->bytes_left);
 
   return SANE_STATUS_GOOD;
 }

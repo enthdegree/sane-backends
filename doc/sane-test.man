@@ -1,0 +1,85 @@
+.TH sane-test 5 "9 Apr 2002"
+.IX sane-test
+.SH NAME
+sane-test - SANE backend for testing frontends
+.SH DESCRIPTION
+The
+.B sane-test
+library implements a SANE (Scanner Access Now Easy) backend that allows
+testing the SANE installation and SANE frontends.  It provides access to a
+(nearly) unlimited number of virtual devices. There is no support for
+real scanners or cameras. However, the backend simulates scanning and setting
+options.
+.PP
+The idea is not only to find bugs in frontends but also to show all
+capabilities of SANE. Therefore 
+.B sane-test
+implements functions and options that are not (or seldomly) found in other
+backends. 
+.PP
+The backend is commented out in @CONFIGDIR@/dll.conf, so either the comment
+sign must be removed or the backend must be called explicitely. E.g. 
+`scanimage -d test' or `xscanimage test'.
+
+.SH SANE OPTIONS
+The options should be self-explanatory. Have a look at their descriptions.
+If a description is too vague, please contact me. Just some comments: The
+combination of color and 1-bit mode is quite obscure (8 colors) but allowed
+in the SANE standard. However, the meaning of bits is not defined. Currently
+1 = high intensity and 0 = low intensity is used.
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/test.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below). The initial values of most of the basic SANE options can be configured
+in this file. A template containing all the default values is provided
+together with this backend. One of the more interesting values may be
+.BR number_of_devices . 
+It can be used to check the frontend's ability to show a long list of devices.
+The config values concerning resolution and geometry can be usefull to test
+the handling of big file sizes.
+
+.TP
+.I @LIBDIR@/libsane-test.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-test.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP
+.B SANE_DEBUG_TEST
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output. 
+
+Example: 
+export SANE_DEBUG_TEST=4
+
+.SH "SEE ALSO"
+sane(7), 
+.IR http://www.meier-geinitz.de/sane/test-backend/
+
+
+.SH AUTHOR
+Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+.SH BUGS
+- config file values aren't tested for correctness
+- man page hasn't been completed yet

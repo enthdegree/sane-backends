@@ -1,4 +1,4 @@
-.TH sane 7 "7 Apr 2002"
+.TH sane 7 "13 Apr 2002"
 .IX sane
 
 .SH NAME
@@ -252,7 +252,8 @@ The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
 sane-tamarack(5) for details.
 .TP
 .B teco1
-The SANE teco1 backend supports some TECO scanners, usually sold under the RELISYS name. See sane-teco1(5) for details.
+The SANE teco1 backend supports some TECO scanners, usually sold under the
+RELISYS name. See sane-teco1(5) for details.
 .TP
 .B umax
 The sane-umax backend provides access to several UMAX-SCSI-scanners and some
@@ -273,19 +274,19 @@ http://www.mostang.com/sane/sane-backends.html and the list of projects in
 
 .SH BACKENDS FOR DIGITAL CAMERAS
 .TP 2
-.B sane-dc210
+.B dc210
 Backend for Kodak DC210 Digital Camera. See sane-dc210(5).
 .TP
-.B sane-dc240
+.B dc240
 Backend for Kodak DC240 Digital Camera. See sane-dc240(5).
 .TP
-.B sane-dc25
+.B dc25
 Backend for Kodak DC20/DC25 Digital Cameras. See sane-dc25(5).
 .TP
-.B sane-dmc
+.B dmc
 Backend for the Polaroid Digital Microscope Camera. See sane-dmc(5).
 .TP
-.B sane-gphoto2
+.B gphoto2
 Backend for digital cameras supported by the gphoto2 library package.  (See
 http://www.gphoto.org for more information and a list of supported
 cameras.)   Gphoto2 supports over 140 different camera models.
@@ -293,7 +294,7 @@ However, please note that more development and testing is needed before
 all of these cameras will be supported by SANE backend.  See
 sane-gphoto2(5).
 .TP
-.B sane-qcam
+.B qcam
 Backend for Connectix QuickCam cameras. See sane-qcam(5).
 .P
 Also, have a look at the backend information page at
@@ -302,26 +303,30 @@ http://www.mostang.com/sane/sane-backends.html and the list of projects in
 
 .SH MISCELLANEOUS BACKENDS
 .TP 2
-.B sane-dll
+.B dll
 The sane-dll library implements a SANE backend that provides access to an
 arbitrary number of other SANE backends by dynamic loading. See sane-dll(5).
 .TP
-.B sane-net
+.B net
 The 
 .B SANE
 network daemon saned provides access to scanners located on different
 computers in connection with the net backend. See sane-net(5) and saned(1).
 .TP
-.B sane-pnm
+.B pnm
 PNM image reader pseudo-backend. The purpose of this backend is primarily to
 aid in debugging of SANE frontends. See sane-pnm(5).
 .TP
-.B sane-pint
+.B pint
 Backend for scanners that use the PINT (Pint Is Not Twain) device driver.  The
 PINT driver is being actively developed on the OpenBSD platform, and has been
-ported to a few other *nix-like operating systems. See sane-pint(5),
+ported to a few other *nix-like operating systems. See sane-pint(5).
 .TP
-.B sane-v4l
+.B test
+The SANE test backend is for testing frontends and the SANE installation.
+It provides test pictures and various test options. See sane-test(5).
+.TP
+.B v4l
 The sane-v4l library implements a
 .B SANE
 backend that provides generic access to video cameras and similar equipment

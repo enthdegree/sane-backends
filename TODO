@@ -1,10 +1,10 @@
-TODO (2003-04-27)
+TODO (2003-05-04)
 
 ******** todo ********
 
 backends
 --------
-  * Add new backends (+ means scheduled for SANE 1.0.12)
+  * Add new backends (+ means scheduled for SANE 1.0.13)
     - Hewlett-Packard ScanJet 3300C / 3400C and 4300C (wip)
       http://sourceforge.net/projects/hp3300backend
     - Hewlett-Packard 4200c
@@ -59,7 +59,7 @@ backends
     must be either initialized in sane_init or reset in sane_exit.
     At least these backends segfault:
     - microtek
-    - umax
+    - hp5400
 
   * hp5400: Use GPL + SANE addition license.
 
@@ -130,23 +130,17 @@ sanei
   * sanei_usb:
     - some scanners seem to provide more than one bulk-in endpoint(?) 
 
-  * sanei_scsi: Add patches for MacOS X support from Mattias Ellert
-  <mattias.ellert@tsl.uu.se>.
 
 
 platform-specific
 -----------------
 
   * Fix MacOS X issues: 
-    - Add support in sanei_scsi.c.
-    - Find out why libusb doesn't work propperly. Seems to work with some
-      scanners, however.
     - More docu in README.darwin.
     - sm3600 is reported to crash with MacOS X. Actually, the crash is in
       libusb::usb_find_devices().
   
   * OS/2 issues: 
-    - Add $EXEEXT or sed expression to Makefiles to get the .exe extension?
     - Add support for semaphores also for OS/2 (currently used in snapscan).
 
   * icc on ia32 + ia64:
@@ -167,10 +161,11 @@ misc
     a segfault in Sane.c. Silvio Vogt <blackhol at web.de> is working on this
     topic.
 
-  * Update Dutch translation from Martin Kho (see sane-devel).
-
 
 ******** done ********
+* Update Dutch translation from Martin Kho (see sane-devel).
+* sanei_scsi: Add patches for MacOS X support from Mattias Ellert
+  <mattias.ellert@tsl.uu.se>.
 * Check why scanimag ecrashes with current CVS:
   http://www.mostang.com/pipermail/sane-devel/2003-March/018363.html
 * Check licence issues with getopt*.c and md5.c. These files are GPLed, so

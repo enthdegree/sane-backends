@@ -1,3 +1,11 @@
+2003-05-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/saned.c: Added implementation of poll() for systems
+	  that don't provide it (patch from Julien BLACHE
+	  <jb@jblache.org>).
+	* TODO: Removed obsololete entries.
+	* NEWS: Updated for 1.0.12.
+
 2003-05-04 Oliver Rauch <Oliver.Rauch@XSane.org>
 
 	* backend/umax.c  umax.h

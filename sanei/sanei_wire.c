@@ -84,7 +84,7 @@ sanei_w_space (Wire *w, size_t howmuch)
 	case WIRE_DECODE:
 	  left_over = w->buffer.end - w->buffer.curr;
 
-	  if ((signed)leftover < 0)
+	  if ((signed)left_over < 0)
 	    return;
 	  
 	  if (left_over)

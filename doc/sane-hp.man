@@ -1,4 +1,4 @@
-.TH sane-hp 5 "06 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-hp 5 "09 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hp
 .SH NAME
 sane-hp \- SANE backend for HP ScanJet scanners
@@ -213,6 +213,16 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
+.TP
+.B SANE_HOME_HP
+Only used for OS/2 and along with use of HP PhotoSmart PhotoScanner.
+Must be set to the directory where the directory .sane is located. 
+Is used to save and read the calibration file.
+.TP
+.B SANE_HP_RDREDO
+Specifies number of retries for read operation before returning an EOF error.
+Only supported for non-SCSI devices. Default: 1 retry. Time between retries
+is 0.1 seconds.
 
 .SH BUGS
 .TP

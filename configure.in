@@ -223,7 +223,7 @@ AC_SUBST(DC240)
 AC_SUBST(DJPEG)
 
 
-if test "${GPHOTO2_BIN}" != "gphoto2" \
+if test "${HAVE_GPHOTO2}" != "gphoto2" \
       -o "${sane_cv_use_libjpeg}" != "yes"; then
   echo "disabling GPHOTO2 backend (failed to find gphoto2 or JPEG lib)"
   GPHOTO2=

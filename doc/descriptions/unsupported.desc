@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2003-12-14"		; version of backend
+:version "2003-12-15"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -93,6 +93,12 @@
 :comment "Unsupported. No details about the protocol known."
 
 :model "620pt"
+:status :unsupported
+;:url ""
+:interface "Parport"
+:comment "Unsupported. No details about the protocol known."
+
+:model "640p"
 :status :unsupported
 ;:url ""
 :interface "Parport"
@@ -619,6 +625,12 @@
 
 :model "ScanMaker 3840"
 :url "/unsupported/microtek-scanmaker-3840.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
+:model "ScanMaker 4700"
+:url "/unsupported/microtek-scanmaker-4700.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. See link for more details."
@@ -1228,6 +1240,11 @@
 :comment "Not supported. Vendor/product: 0x04a7/0x022c."
 
 :model "PaperPort 3100b"
+:interface "Parport"
+:status :unsupported
+:comment "Most probably not supported. More details would be appreciated."
+
+:model "PaperPort 6100"
 :interface "Parport"
 :status :unsupported
 :comment "Most probably not supported. More details would be appreciated."

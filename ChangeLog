@@ -2,6 +2,9 @@
 
 	* tools/sane-desc.c: Added status per model. Added quicklist for
 	  manufacturers. All manufacturer URLs are printed now. Code cleanup.
+	* backend/mustek.c doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Increased width and height of Paragon
+	  800 and 600.
 
 2002-07-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

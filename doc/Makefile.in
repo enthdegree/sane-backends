@@ -192,6 +192,9 @@ install-mostang: html sane.ps sane.ps.gz
 	@echo Installing sane-backends.html in $(WWW_PATH)...
 	$(MKDIR) $(WWW_PATH)
 	$(INSTALL_DATA) sane-backends.html $(WWW_PATH)/sane-backends.html
+	@echo Installing sane-backends-external.html in $(WWW_PATH)...
+	$(INSTALL_DATA) sane-backends-external.html \
+          $(WWW_PATH)/sane-backends.html
 	@echo Installing SANE standard \(html\) in $(WWW_PATH)/html/...
 	$(MKDIR) $(WWW_PATH)/html/
 	for html in sane/* ; do \

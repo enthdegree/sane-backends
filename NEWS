@@ -1,5 +1,22 @@
 -*-Mode: outline-*-
 
+New with 1.0.9, released 2002-??-??:
+
+* New backends: hpsj5s (Hewlett-Packard ScanJet 5S parport scanner),
+  teco3 (some TECO SCSI flatbed scanners, model VM3552).
+* Updated backends: avision, canon_pp, coolscan2, epson, hp, microtek, mustek,
+  mustek_usb, pie, plustek, snapscan, teco1, test, umax_pp, v4l.
+* sane-find-scanner finds more scanners and has more verbosity options now.
+* New tool to create gamma tables (gamma4scanimage).
+* Support for ICC profiles for scanimage.
+* USB scanner should work on all systems supported by libusb now.
+* Portability fixes (especially for big-endian sytems, Irix, OpenStep, OS/2,
+  Solaris).
+* New and updated translations for various backends.
+* New system for generating lists of manufacturers/backends.
+* Various Documentation updates.
+* Bugfixes.
+
 New with 1.0.8, released 2002-05-27:
 
 * New backends: canon_pp (Canon parport scanners), canon630u (CanoScan 630u 

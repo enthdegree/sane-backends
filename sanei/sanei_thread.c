@@ -165,7 +165,7 @@ local_thread( void *arg )
  * star  address of reader function
  * args  pointer to scanner data structure
  *
-*/
+ */
 int
 sanei_thread_begin( int (*func)(void *args), void* args )
 {
@@ -214,6 +214,8 @@ sanei_thread_sendsig( int pid, int sig )
 # define PTHREAD_CANCELED ((void *) -1)
 #endif
 
+/**
+ */
 static void*
 local_thread( void *arg )
 {
@@ -231,6 +233,26 @@ local_thread( void *arg )
 
 	/* return the status, so pthread_join is able to get it*/
 	pthread_exit((void*)&status );
+}
+
+/**
+ */
+static void
+restore_sigpipe( void )
+{
+	struct sigaction act;
+
+	if( sigaction( SIGPIPE, NULL, &act ) == 0 ) {
+
+		if( act.sa_handler == SIG_IGN ) {
+			sigemptyset( &act.sa_mask );
+			act.sa_flags   = 0;
+			act.sa_handler = SIG_DFL;
+			
+			DBG( 2, "restoring SIGPIPE to SIG_DFL\n" );
+			sigaction( SIGPIPE, &act, NULL );
+		}
+	}
 }
 
 #else /* the process stuff */
@@ -264,11 +286,25 @@ sanei_thread_begin( int (func)(void *args), void* args )
 {
 	int       pid;
 #ifdef USE_PTHREAD
+	struct sigaction act;
 	pthread_t thread;
+
+	/* if signal handler for SIGPIPE is SIG_DFL, replace by SIG_IGN */
+	if( sigaction( SIGPIPE, NULL, &act ) == 0 ) {
+
+		if( act.sa_handler == SIG_DFL ) {
+			sigemptyset( &act.sa_mask );
+			act.sa_flags   = 0;
+			act.sa_handler = SIG_IGN;
+
+			DBG( 2, "setting SIGPIPE to SIG_IGN\n" );
+			sigaction( SIGPIPE, &act, NULL );
+		}
+	}
 
     td.func      = func;
     td.func_data = args;
-	
+
 	pid = pthread_create( &thread, NULL, local_thread, &td );
 
 	if ( pid != 0 ) {
@@ -328,9 +364,6 @@ sanei_thread_waitpid( int pid, int *status )
 	result = pthread_join((pthread_t)pid, (void*)&ls );
 
 	if( 0 == result ) {
-		DBG(2, "* detaching thread\n" );
-		pthread_detach((pthread_t)pid );
-
 		if( PTHREAD_CANCELED == ls ) {
 			DBG(2, "* thread has been canceled!\n" );
 			stat = SANE_STATUS_GOOD;
@@ -341,6 +374,8 @@ sanei_thread_waitpid( int pid, int *status )
 	}
 	if (status)
 		*status = stat;
+
+	restore_sigpipe();
 		
 	/* should return pid */
 	return pid;

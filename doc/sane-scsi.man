@@ -1,4 +1,4 @@
-.TH sane-scsi 5 "07 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-scsi 5 "28 Oct 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-scsi
 .SH NAME
 sane-scsi \- SCSI adapter tips for scanners
@@ -128,8 +128,9 @@ REGISTER ^sg4 PERMISSIONS root.scanner 0660
 .RE
 .PP
 .SH FREEBSD INFO
-Auto-configuration using the "scsi *" lines in the config files doesn't seem
-to work. Set a link
+Auto-configuration using the "scsi *" lines in the config files only works if
+the user running the frontend has read/write acces to /dev/xpt0. Instead, you
+can also set a link
 .I /dev/scanner
 to the appropriate /dev/uk device.
 .RS

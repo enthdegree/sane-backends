@@ -71,15 +71,6 @@
 
 static const char *dir_list;
 
-/* Search configuration file FILENAME along directory list DIR_LIST
-   and return file pointer if such a file exists.  FILENAME should be
-   a filename with extension (such as "mustek.conf").
-
-	1st: SANE_CONFIG_DIR environment variable.
-	2nd: PATH_SANE_CONFIG_DIR set during configuration.
-	3rd: Current directory.
-   Output: File pointer, or NULL if not found.  */
-
 FILE *
 sanei_config_open (const char *filename)
 {
@@ -173,11 +164,6 @@ sanei_config_get_string (const char *str, char **string_const)
   return str;
 }
 
-/*
- * Read a string from configuration file.
- * Strips all unwanted chars.  Use this instead of fgets() to remove
- * line ending chars on all known platforms.
- */
 char *
 sanei_config_read (char *str, int n, FILE *stream)
 {

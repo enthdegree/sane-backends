@@ -1,3 +1,7 @@
+2002-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* config.sub config.guess: Updated to current versions.
+	
 2002-09-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/snapscan.desc backend/snapscan.c backend/snapscan.h

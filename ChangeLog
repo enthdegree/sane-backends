@@ -1,3 +1,9 @@
+2003-08-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
+	  Added Mustek ScanMagic 1200 UB Plus. Minor bugfix.
+
 2003-08-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.it.po: Added Italien translation

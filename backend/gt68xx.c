@@ -755,7 +755,7 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
     }
 
   dev->file_name = strdup (devname);
-  if (!dev)
+  if (!dev->file_name)
     return SANE_STATUS_NO_MEM;
   DBG (2, "attach: found %s flatbed scanner %s at %s\n", dev->model->vendor,
        dev->model->model, dev->file_name);

@@ -165,6 +165,11 @@
 :status :minimal
 :comment "Should be detected but may need some more work in the code. Testers welcome."
 
+:model "ScanMagic 1200 UB Plus"
+:interface "USB"
+:status :good
+:comment "Same as ScanExpress 1200 UB Plus"
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Packard Bell"

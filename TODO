@@ -61,8 +61,6 @@ doc
 
 frontends
 ---------
-  * Remove frontends (at least xscanimage/xcam) from distribution. 
-
   * dll: Rewrite to use libtool ltdl library
 
   * Add a check in the frontends if the backend delivers more data than
@@ -77,13 +75,6 @@ sanei
 misc
 ----
   * update libtool versioning system
-    - -version-info is used but with the current version number system 
-      -release should be used.
-    - look for AIX problems (overwriting shared libs with eachother
-      because all libs are named libsane.so.1)
-    - look for Irix/cc problems (program searches for libsane.so.2 instead
-      of libsane.so.1). This was fixed by a "bad hack" which should be 
-      reverted .
     - in /usr/local/lib/libsane.la "installed=no" is set, isn't 
       "installed=yes" the correct entry?
        
@@ -121,17 +112,26 @@ misc
 
   * use #include "../include/lalloca.h" instead of #include <lalloca.h>
 
-  * getopt.c and umax.c seem to use gettext? Can cause crash if frontends
-    are linked to libintl, too.
-
-  * libdl is used in dll backend but -ldl is not added to LDFLAGS?
-
   * Add test for PTAL to acinclude.m4/configure.in
 
-  * use strchr() instead of index() in sanei_auth, scanimage, saned, and
-    mustek_pp to avoid problems when icluding strings.h or string.h.
+  * use strchr() instead of index() in mustek_pp to avoid problems when
+    icluding strings.h or string.h.
 
 ******** done ********
+* Libtool: 
+  - -version-info is used but with the current version number system 
+    -release should be used. (We should not change the version syntax
+     within an existing sane-standard, so we leave this)
+  - look for AIX problems (overwriting shared libs with eachother
+    because all libs are named libsane.so.1) (solved)
+  - look for Irix/cc problems (program searches for libsane.so.2 instead
+    of libsane.so.1). (Patch works for existing sane standard)
+* getopt.c and umax.c seem to use gettext? Can cause crash if frontends
+  are linked to libintl, too.
+* libdl is used in dll backend but -ldl is not added to LDFLAGS?
+* use strchr() instead of index() in sanei_auth, scanimage, saned
+  to avoid problems when icluding strings.h or string.h.
+* Remove frontends (at least xscanimage/xcam) from distribution. 
 * build on AIX does only work for static libraries. The shared libraries
   seem to overwrite each other.
 * add sanei_authorize (function for all backends)

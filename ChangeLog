@@ -1,3 +1,8 @@
+2003-10-27  Gerhard Jaeger <gerhard@gjaeger.de>
+	* sanei/lib/sanei_pp.c: Fixed OS/2 compilation problems.
+	* doc/descriptions/plustek_pp.desc:
+	  Updated status of Primax Compact 4800 Direct 30bit.
+
 2003-10-26  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* configure.in configure include/sanei/config.in.h:

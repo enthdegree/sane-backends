@@ -11,6 +11,9 @@
 	* backend/sharp.desc: Added link to sane-sharp manual page.
 	* doc/sane_mustek_pp.man: Removed link to sane-musteka4s2 (doesn't
 	  exist).
+	* doc/sane-abaton.man doc/sane-agfafocus.man doc/sane-apple.man
+	  doc/sane-bh.man doc/sane-microtek.man doc/sane-pint.man
+	  doc/sane-st400.man: Added link to mostang.com mailing list page.
 
 2001-10-09  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

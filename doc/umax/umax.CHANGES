@@ -930,3 +930,13 @@ build-25 -> build-26
    * added some options for Powerlook 3000 - still is not completly supported
 
     
+build-26 -> build-27
+--------------------
+
+   * added Linotype Saphir4 as supported scanner (is a Powerlook III)
+
+   * increased length of vendor, product and version by 1 to make sure the
+     string always ends with '\0'
+
+   * changed default minimum scsi buffer size from 64KB to 32 KB
+

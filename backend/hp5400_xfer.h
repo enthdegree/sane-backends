@@ -53,21 +53,21 @@
 
 #include <stdio.h>
 
-int hp5400_open (const char *filename);
-void hp5400_close (int iHandle);
+HP5400_SANE_STATIC int hp5400_open (const char *filename);
+HP5400_SANE_STATIC void hp5400_close (int iHandle);
 
-int hp5400_command_verify (int iHandle, int iCmd);
-int hp5400_command_read (int iHandle, int iCmd, int iLen, void *pbData);
-int hp5400_command_read_noverify (int iHandle, int iCmd, int iLen,
-					 void *pbData);
-int hp5400_command_write (int iHandle, int iCmd, int iLen, void *pbData);
-void hp5400_command_write_noverify (int fd, int iValue, void *pabData,
-					   int iSize);
-int hp5400_bulk_read (int iHandle, size_t size, int block, FILE * file);
-int hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
-				   void *buffer, int len);
-int hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,
-				      int len, int block, char *data);
-int hp5400_isOn (int iHandle);
+HP5400_SANE_STATIC int hp5400_command_verify (int iHandle, int iCmd);
+HP5400_SANE_STATIC int hp5400_command_read (int iHandle, int iCmd, int iLen, void *pbData);
+HP5400_SANE_STATIC int hp5400_command_read_noverify (int iHandle, int iCmd, int iLen,
+						     void *pbData);
+HP5400_SANE_STATIC int hp5400_command_write (int iHandle, int iCmd, int iLen, void *pbData);
+HP5400_SANE_STATIC void hp5400_command_write_noverify (int fd, int iValue, void *pabData,
+						       int iSize);
+HP5400_SANE_STATIC int hp5400_bulk_read (int iHandle, size_t size, int block, FILE * file);
+HP5400_SANE_STATIC int hp5400_bulk_read_block (int iHandle, int iCmd, void *cmd, int cmdlen,
+					       void *buffer, int len);
+HP5400_SANE_STATIC int hp5400_bulk_command_write (int iHandle, int iCmd, void *cmd, int cmdlen,
+						  int len, int block, char *data);
+HP5400_SANE_STATIC int hp5400_isOn (int iHandle);
 
 #endif

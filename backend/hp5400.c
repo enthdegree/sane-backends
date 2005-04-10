@@ -53,8 +53,8 @@
 
 #include "../include/sane/config.h"
 
-#include "hp5400.h"
 #include "hp5400_debug.h"
+#include "hp5400.h"
 
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"

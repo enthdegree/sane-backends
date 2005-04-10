@@ -117,7 +117,7 @@ _UsbReadControl (int fd, int iValue, int iIndex, void *pabData, int iSize)
 }
 
 
-int
+HP5400_SANE_STATIC int
 hp5400_open (const char *filename)
 {
   int fd, iVendor, iProduct;

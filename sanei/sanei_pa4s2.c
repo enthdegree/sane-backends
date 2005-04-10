@@ -1253,6 +1253,14 @@ sanei_pa4s2_open (const char *dev, int *fd)
 
 	}
 
+      if ((port[*fd].mode == PA4S2_MODE_EPP) &&
+      ((sanei_pa4s2_interface_options & SANEI_PA4S2_OPT_NO_EPP) == 1))
+	{
+	  DBG (3, "sanei_pa4s2_open: skipping mode EPP\n");
+	  break;
+	}
+
+
       DBG (5, "sanei_pa4s2_open: trying mode %u\n", port[*fd].mode);
 
       sanei_pa4s2_enable (*fd, SANE_TRUE);
@@ -1867,7 +1875,7 @@ sanei_pa4s2_options (u_int * options, int set)
   if ((set != SANE_TRUE) && (set != SANE_FALSE))
     DBG (2, "sanei_pa4s2_options: value of set is invalid\n");
 
-  if ((set == SANE_TRUE) && (*options > 3))
+  if ((set == SANE_TRUE) && (*options > 7))
     DBG (2, "sanei_pa4s2_options: value of *options is invalid\n");
 
   if (set == SANE_TRUE)

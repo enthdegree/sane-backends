@@ -110,14 +110,19 @@ protocol is still unknown (eg., SE 12000 P).
 .PP
 Some scanners work faster when 
 .B EPP/ECP
-is enabled in the BIOS.
+is enabled in the BIOS. EPP mode however may lead to hard-locks on some Linux
+systems. If that is the case for you, you can either disable ECP/EPP in your
+BIOS or disable it in the backend itself (see GLOBAL OPTIONS).
 .PP
-Note that the backend needs to run as root. To allow user access to the scanner
-run the backend through the network interface (See saned(8) and sane\-net(5)). Note also that the backend
+Note that the backend needs to run as root or has to have appropriate access
+rights to /dev/parport* if libieee1284 support is compiled in. To allow user 
+access to the scanner run the backend through the network interface (See 
+saned(8) and sane\-net(5)). Note also that the backend
 .I does not
 support
 .I parport sharing ,
-i.e. if you try printing while scanning, your computer may crash. This backend
+i.e. if you try printing while scanning, your computer may crash. To enable
+parport sharing, you have to enable libieee1284 at compile time. This backend
 also conflicts with the
 .I sane\-musteka4s2
 backend. You can only enable one of them in your dll.conf. However, you have
@@ -383,6 +388,29 @@ scanner "Mustek 600 III EPP" parport0 ccd300
    option bw 130
 .br
    option top 56
+.RE
+
+.SH GLOBAL OPTIONS
+.PP
+You can control the overall behaviour of the mustek_pp backend by global
+options which preceed any scanner definition in the mustek_pp.conf file.
+.br
+Currently, there is only one global option:
+
+.TP
+.B Global options
+.RS 4
+.PP
+.HP
+.B no_epp
+Disable parallel port mode EPP: works around a known bug in the Linux parport
+code. Enable this option, if the backend hangs when trying to access the
+parallel port in EPP mode.
+.br
+Default value: use EPP
+.PP
+Example:  option no_epp
+.PP
 .RE
 
 .SH FILES

@@ -894,13 +894,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
           char *optname, *optval = 0;
           Mustek_pp_config_option *tmpoptions;
 
-          if (!name)
-	    {
-	      DBG (1, "sane_init: parse error in line %d: unexpected "
-                      " ``option''\n", line);
-	      continue;
-	    }
-
           config_line_ptr += 6;         
           config_line_ptr = sanei_config_skip_whitespace (config_line_ptr);
           if (!*config_line_ptr)
@@ -941,6 +934,36 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
                  free (optval);
 	      continue;
 	    }
+
+	  if (!strcmp (optname, "no_epp"))
+	    {
+	      u_int pa4s2_options;
+	      if (name)
+		DBG (2, "sane_init: global option found in local scope, "
+			"executing anyway\n");
+	      free (optname);
+	      if (optval)
+	        {
+	          DBG (1, "sane_init: unexpected value for option no_epp\n");
+	          free (optval);
+	          continue;
+	        }
+	      DBG (3, "sane_init: disabling mode EPP\n");
+	      sanei_pa4s2_options (&pa4s2_options, SANE_FALSE);
+	      pa4s2_options |= SANEI_PA4S2_OPT_NO_EPP;
+	      sanei_pa4s2_options (&pa4s2_options, SANE_TRUE);
+	      continue;
+	    }
+	  else if (!name)
+	    {
+	      DBG (1, "sane_init: parse error in line %d: unexpected "
+                      " ``option''\n", line);
+	      free (optname);
+	      if (optval) 
+                 free (optval);
+	      continue;
+	    }
+
 
           /* Extend the (global) array of options */
           tmpoptions = realloc(cfgoptions, 

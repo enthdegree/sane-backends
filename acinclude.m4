@@ -295,7 +295,10 @@ AC_DEFUN([SANE_CHECK_LOCKING],
     chgrp $LOCKPATH_GROUP sanetest.file || lasterror=$?
     rm -f sanetest.file
     if test ! -z $lasterror; then
-      AC_MSG_ERROR([Group $LOCKPATH_GROUP not exist on this system, either create it or use an existing.])
+      AC_MSG_WARN([Group $LOCKPATH_GROUP does not exist on this system.])
+      AC_MSG_WARN([Locking feature will be disabled.])
+      use_locking=no
+      INSTALL_LOCKPATH=
     fi
   else
     INSTALL_LOCKPATH=

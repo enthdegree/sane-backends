@@ -488,7 +488,7 @@ echo "Documentation: `eval eval echo ${docdir}`"
 if eval "test x$INSTALL_LOCKPATH = xinstall-lockpath" ; then
   echo "Lockfiles:     `eval eval echo ${localstatedir}/lock/sane`"
 else
-  echo "Lockfiles:"
+  echo "Lockfiles:     Feature is disabled!"
 fi
 echo "-> Network parameters:"
 if test "${SANED}" = "saned" ; then

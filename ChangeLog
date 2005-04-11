@@ -1,4 +1,11 @@
+2005-04-11  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* acinclude.m4, configure.in, configure: the locking feature will
+	  now be disabled, when the selected group could not be set.
+	  The configuration script should not fail any longer.
+
 2005-04-10  Julien Blache <jb@jblache.org>
+
 	* backend/hp5400_xfer.h, backend/hp5400_sanei.c, backend/hp5400.c:
 	  make non-SANE-standard functions static.
 

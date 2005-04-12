@@ -355,6 +355,7 @@ been detected) enables A3 scanning
 .IR m " = 6"
 OpticPro 4800P override (works if OP600
 has been detected) swaps red/green color
+.TP
 .IR m " = 7"
 Primax 4800Direct 30bit override (works if
 OP4830 has been detected)

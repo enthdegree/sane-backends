@@ -18,19 +18,21 @@ For other scanners, it may or may not work.
 .PP
 The backend has the following known problems:
 .RS
-- ColorLineart mode is not supported.
+\- ColorLineart mode is not supported.
 .br
-- device name is fixed to /dev/scanner
+\- device name is fixed to /dev/scanner
 .RE
 .PP
 At present,
 the following scanners are known to work with this backend.
 .RS
+.ft CR
+.nf
 Vendor Product id
-.br
 ------ -----------
-.br
 NEC    PC-IN500/4C
+.fi
+.ft R
 .RE
 
 .SH FILES

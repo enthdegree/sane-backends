@@ -19,15 +19,17 @@ library implements a SANE backend that provides the interface to the following N
 .SH CONFIGURATION
 
 The configuration file for this backend resides in 
-@CONFIGDIR@/coolscan.conf. 
+.IR @CONFIGDIR@/coolscan.conf .
 
 Its contents is a list of device names that correspond to Nikon Coolscan scanners. Empty lines
 and lines starting with a hash mark (#) are ignored. A sample configuration file is
 shown below: 
 
+.nf
  #scsi Vendor Model Type 
  scsi Nikon * Scanner 
  /dev/scanner 
+.fi
 
 The special device name must be a generic SCSI device or a symlink to such a device.
 To find out to which device your scanner is assigned and how you have to set the
@@ -44,47 +46,63 @@ http://andreas.rick.free.fr/sane/autofocus.html.
 
 .SH FILES
 
+.TP
 The backend configuration file:
- @CONFIGDIR@/coolscan.conf. 
-
+.I @CONFIGDIR@/coolscan.conf
+.TP
 The static library implementing this backend:
- @LIBDIR@/libsane-coolscan.a
-
+.I @LIBDIR@/libsane-coolscan.a
+.TP
 The shared library implementing this backend:
- @LIBDIR@/libsane-coolscan.so
- (present on systems that support dynamic loading)
+.I @LIBDIR@/libsane-coolscan.so
+(present on systems that support dynamic loading)
 
 .SH ENVIRONMENT
 
+.TP
 .B SANE_DEBUG_COOLSCAN
- If the library was compiled with debug support enabled, this environment
+If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity:
 SANE_DEBUG_COOLSCAN values
 
 Examples:
- on bash:
- export SANE_DEBUG_COOLSCAN=8
- on csh
- setenv SANE_DEBUG_COOLSCAN 8
+
+on bash:
+.br
+export SANE_DEBUG_COOLSCAN=8
+
+on csh:
+.br
+setenv SANE_DEBUG_COOLSCAN 8
 
 .SH BUGS
 
- The autofocus command does not work with some SCSI card/driver combinations
- The gamma table is not implemented for the LS1000 yet.
- The dust-removal is not working yet
+The autofocus command does not work with some SCSI card/driver combinations
+.PP
+The gamma table is not implemented for the LS1000 yet.
+.PP
+The dust-removal is not working yet
 
 .SH SEE ALSO
 
- http://andreas.rick.free.fr/sane/ The homepage of this backend
- http://www.sema.be/coolscan/  The original version of the coolscan backend by Didier
- sane(7), sane\-scsi(5)
+.TP
+.I http://andreas.rick.free.fr/sane/
+The homepage of this backend
+.TP
+.I http://www.sema.be/coolscan/
+The original version of the coolscan backend by Didier
+.PP
+sane(7), sane\-scsi(5)
 
 .SH THANKS TO
 
- Didier Carlier - For writing the original Coolscan backend (without it I would not have started this) 
- Oliver.Rauch - For adapting xsane so quickly to the infrared stuff.
- All the other people working on SANE.
+.PP
+Didier Carlier \- For writing the original Coolscan backend (without it I would not have started this)
+.PP
+Oliver Rauch \- For adapting xsane so quickly to the infrared stuff.
+.PP
+All the other people working on SANE.
 
 .SH AUTHOR
 Andreas Rick

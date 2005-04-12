@@ -14,13 +14,14 @@ software! LEO scanners were also sold under the Across Technologies brand.
 The scanners that should work with this backend are:
 .PP
 .RS
+.ft CR
+.nf
    Vendor Model           status
-.br
 ----------------------  -----------
-.br
   Across FS-1130          tested
   Leo S3                  tested
-
+.fi
+.ft R
 .RE
 
 The options the backend supports can either be selected through
@@ -151,5 +152,6 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH AUTHOR
 
+.TP
 The package is actively maintained by Frank Zago.
-    http://www.zago.net/sane/#leo
+.I http://www.zago.net/sane/#leo

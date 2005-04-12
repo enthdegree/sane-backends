@@ -132,7 +132,8 @@ SANE_DEBUG_ARTEC values
 
 .ft CR
 .nf
- Number  Remark
+Number  Remark
+\ 
  0       print important errors
  1       print errors
  2       print sense
@@ -147,12 +148,12 @@ SANE_DEBUG_ARTEC values
  11      print called sane-procedures
  12      print sane infos
  13      print sane option-control messages
-
+\ 
  50      print verbose data/debug messages
-
+\ 
  == 100  print software RGB calibration data
  == 101  print raw data from scanner to artec.data.raw file
-
+\ 
  == 128  print out all messages
 .fi
 .ft R

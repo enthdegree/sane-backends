@@ -16,10 +16,10 @@ may not support yours.
 The scanners that should work with this backend are:
 .PP
 .RS
+.ft CR
+.nf
    Vendor Model           TECO model      status
-.br
 ----------------------  --------------  -----------
-.br
   Relisys AVEC 2400        VM3520        tested  
   Relisys AVEC 2412        VM3520+       tested
   Relisys AVEC 4800        VM4530        untested  
@@ -39,6 +39,8 @@ The scanners that should work with this backend are:
   Dextra  DF-4830T         VM4542        untested
   Dextra  DF-1200T+        VM3530+       untested
   Dextra  DF-9624          VM6530+       untested
+.fi
+.ft R
 .RE
 
 Note that the untested scanner will not be directly supported. You
@@ -185,9 +187,9 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR
-
+.TP
 The package is actively maintained by Frank Zago.
-    http://www.zago.net/sane/#teco
+.I http://www.zago.net/sane/#teco
 
 .SH CREDITS
 

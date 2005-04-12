@@ -21,32 +21,31 @@ If your Plustek scanner has another Product ID, then the device is
 supported by this backend.
 .br
 
-Vendor Plustek - ID: 0x07B3
+Vendor Plustek \- ID: 0x07B3
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 Model:                   Vendor-ID:       Product-ID:
-.br
 ----------------------------------------------------------
-.br
 OpticPro U12             0x07B3           0x0001
-.br
 OpticPro U1212           0x07B3           0x0001
-.br
 OpticPro UT12            0x07B3           0x0001
+.fi
+.ft R
 .PP
 
 Vendor KYE/Genius
 .br
+.ft CR
+.nf
 --------------------------------------------------------
-.br
 USB Model:               Vendor-ID:       Product-ID:
-.br
 --------------------------------------------------------
-.br
 ColorPage Vivid III USB  0x07B3           0x0001
-.br
 ColorPage HR6 V1         0x0458           0x2004
+.fi
+.ft R
 .PP
 
 .SH "CONFIGURATION"
@@ -66,7 +65,7 @@ tells the backend, that the following devicename (here
 product-id has not been specified, the backend tries to
 detect this by its own. If device ist set to
 .I auto
- then the next matching device is used.
+then the next matching device is used.
 .PP
 .B
 The Options:
@@ -179,8 +178,7 @@ before calling your favorite scan-frontend (i.e. xscanimage).
 The value controls the verbosity of the backend.
 
 .SH "KNOWN BUGS & RESTRICTIONS"
-* The driver is in alpha state, so please don't expect too
-  much!!!
-.br
+* The driver is in alpha state, so please don't expect too much!!!
+.PP
 * When using libusb, it might be, that the backend hangs. 
-  In that case, reconnect the scanner.
+In that case, reconnect the scanner.

@@ -364,7 +364,7 @@ for details.
 .B sceptre
 The sceptre backend provides access to the Sceptre S1200 flatbed scanner. See
 .BR sane\-sceptre (5)
- for details.
+for details.
 .TP
 .B sharp
 The SANE sharp backend supports Sharp SCSI scanners. See

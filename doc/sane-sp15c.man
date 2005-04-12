@@ -12,11 +12,13 @@ At present, the following
 scanner is known to work with these backend:
 .PP
 .RS
+.ft CR
+.nf
 Vendor:  Model:           Rev:
-.br
 -------- ---------------- -----
-.br
 FCPA     ScanPartner 15C  1.01
+.fi
+.ft R
 .RE
 .P
 

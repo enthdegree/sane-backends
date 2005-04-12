@@ -20,74 +20,78 @@ It is fully big-endian aware and in every-day use on PowerPC and SPARC
 systems.
 
 .B I suggest you hold one hand on the power-button of the scanner while
-you try the first scans - especially with film-scanners!
+you try the first scans \- especially with film-scanners!
 
 .SH CONFIGURATION
 
 The configuration file for this backend resides in 
-	@CONFIGDIR@/avision.conf. 
+.IR @CONFIGDIR@/avision.conf .
 
 Its contents is a list of device names that correspond to Avision and Avision
 compatible scanners and backend-options. Empty lines and lines starting with
 a hash mark (#) are ignored. A sample configuration file is shown below: 
 
+.nf
  # this is a comment
-  
+\ 
  option force-a4
  option force-a3
  option disable-gamma-table
  option disable-calibration
  option one-calib-only
  option old-calibration
- 
+\ 
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi AVISION
  scsi HP
  scsi /dev/scanner
  usb 0x03f0 0x0701
- 
- - force-a4:
-   Forces the backend to overwrite the scanable area
-   returned by the scanner to ISO A4. Scanner that are
-   known to return bogus data are marked in the backend
-   so if you need this option please report this to the
-   backend maintainer. USE WITH CARE!
+.fi
 
- - force-a3:
-   Forces the backend to overwrite the scanable area
-   returned by the scanner to ISO A3. Scanner that are
-   known to return bogus data are marked in the backend
-   so if you need this option please report this to the
-   backend maintainer. USE WITH CARE!
- 
- - disable-gamma-table:
-   Disables the usage of the scanner's gamma-table. You
-   might try this if your scans hang or only produces
-   random garbage.
- 
- - disable-calibration:
-   Disables the scanner's color calibration. You
-   might try this if your scans hang or only produces
-   random garbage.
- 
- - one-calib-only:
-   When this option is enabled, the backend will only
-   perform a calibration when the backend is initialized
-   and not before each scan. This might extend the life
-   of the CCD, but does not work reliable with the newer
-   USB scanners (they hang sometimes or return garbage
-   image data). So this option should be used with care.
- 
- - old-calibration:
-   This enables the use of the old calibration code for
-   testing purposes.
- 
- Note: Any option above modifies the default code-flow
-       for your scanner. The options should only be used
-       when you encounter problems with the default be-
-       haviour of the backend. Please report the need of
-       options to the backend-author so the backend can
-       be fixed as soon as possible.
+.TP
+force-a4:
+Forces the backend to overwrite the scanable area
+returned by the scanner to ISO A4. Scanner that are
+known to return bogus data are marked in the backend
+so if you need this option please report this to the
+backend maintainer. USE WITH CARE!
+.TP
+force-a3:
+Forces the backend to overwrite the scanable area
+returned by the scanner to ISO A3. Scanner that are
+known to return bogus data are marked in the backend
+so if you need this option please report this to the
+backend maintainer. USE WITH CARE!
+.TP
+disable-gamma-table:
+Disables the usage of the scanner's gamma-table. You
+might try this if your scans hang or only produces
+random garbage.
+.TP
+disable-calibration:
+Disables the scanner's color calibration. You
+might try this if your scans hang or only produces
+random garbage.
+.TP
+one-calib-only:
+When this option is enabled, the backend will only
+perform a calibration when the backend is initialized
+and not before each scan. This might extend the life
+of the CCD, but does not work reliable with the newer
+USB scanners (they hang sometimes or return garbage
+image data). So this option should be used with care.
+.TP
+old-calibration:
+This enables the use of the old calibration code for
+testing purposes.
+.TP
+Note:
+Any option above modifies the default code-flow
+for your scanner. The options should only be used
+when you encounter problems with the default be-
+haviour of the backend. Please report the need of
+options to the backend-author so the backend can
+be fixed as soon as possible.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -95,7 +99,7 @@ This backend expects device names of the form:
 .RS
 .I scsi scsi-spec
 
-.I usb usb-sec
+.I usb usb-spec
 .RE
 .PP
 Where
@@ -105,13 +109,14 @@ corresponds to a SCSI scanner. The special device name must be a generic
 SCSI device or a symlink to such a device, for example on Linux "/dev/sga"
 or "/dev/sg0". The device ID is the ID returned by the scanner, for example
 "HP" or "AVISION". See sane-scsi(5) for details.
-
- Note: Since the backend now includes native USB access,
-       it is no longer needed - even considered obsolete -
-       to access USB scanner via the SCSI emulation (named
-       hpusbscsi on Linux) for Avision USB devices such as
-       the HP 53xx, HP 74xx or Minolta film-scanners.
-
+.TP
+Note:
+Since the backend now includes native USB access,
+it is no longer needed \- even considered obsolete \-
+to access USB scanner via the SCSI emulation (named
+hpusbscsi on Linux) for Avision USB devices such as
+the HP 53xx, HP 74xx or Minolta film-scanners.
+.PP
 .I usb-spec
 is the USB device name, the vendor/product ID pair or the name used by
 libusb corresponding to the USB scanner. For example "0x03f0 0x0701" or

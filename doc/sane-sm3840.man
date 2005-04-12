@@ -19,13 +19,14 @@ At present, the following
 scanners are known positively to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Vendor     Product ID:     Remark:
-.br
 --------   --------------  -----------
-.br
 Microtek   ScanMaker 3840  All modes OK
-.br
 Microtek   ScanMaker 4800  All modes OK
+.fi
+.ft R
 .RE
 .PP
 If you own a Microtek scanner with the SCAN08 chip other than the ones

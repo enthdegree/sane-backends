@@ -17,54 +17,34 @@ maintainer of the backend.
 At present, the following scanners are known to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Model:                       Connection Type
-.br
 ---------------------------  -------------------
-.br
 GT-5000                      SCSI, parallel
-.br
 GT-6000                      parallel
-.br
 GT-6500                      SCSI (use only the line "scsi" in epson.conf)
-.br
 ActionScanner II             SCSI, parallel
-.br
 GT-7000                      SCSI
-.br
 Perfection 636               SCSI
-.br
 Perfection 636U              USB
-.br
 Perfection 610               USB
-.br
 Perfection 640               USB
-.br
 Perfection 1200S             SCSI
-.br
 Perfection 1200U             USB
-.br
 Perfection 1240              USB, SCSI
-.br
 Perfection 1640              USB, SCSI
-.br
 Perfection 1650              USB
-.br
 Perfection 1660              USB
-.br
 Perfection 2400              USB
-.br
 Perfection 2450              USB, IEEE-1394
-.br
 Expression 636 / GT-9500     SCSI
-.br
 Expression 1600              USB, SCSI, IEEE-1394
-.br
 Expression 1680              USB, SCSI, IEEE-1394
-.br
 CX-3200                      USB
-.br
 CX-5200                      USB
-.br
+.fi
+.ft R
 and many more. The official list is on the Sane web site.
 .RE
 
@@ -253,7 +233,7 @@ devices can be found in sane-scsi(5).
 Usually SCSI scanners are configured with a line "scsi EPSON" in this file. In 
 some cases it may be necessary to only use the string "scsi" (e.g. for the GT-6500).
 .TP
-.I PIO - Parallel Interface
+.I PIO \- Parallel Interface
 The parallel interface can be configured in two ways: An integer value starting
 at the beginning of a line will be interpreted as the IO address of the parallel
 port. To make it clearer that a configured IO address is a parallel port the 

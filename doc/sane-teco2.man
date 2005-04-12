@@ -16,11 +16,10 @@ This backend may or may not support yours.
 The scanners that should work with this backend are:
 .PP
 .RS
+.ft CR
+.nf
    Vendor Model           TECO model       status
-.br
 ----------------------  --------------  -----------
-.br
-
   Mustek ScanMagic 4830S   VM3575        untested
   Primax Jewel 4800        VM356A         good
   Primax Profi 9600        VM6575         basic
@@ -33,7 +32,8 @@ The scanners that should work with this backend are:
   Relisys SCORPIO Pro      VM6575         good
   Relisys SCORPIO Pro-S    VM6586        untested
   Relisys SCORPIO Super 3  VM3575         good
-
+.fi
+.ft R
 .RE
 
 For all these scanners, lineart and gray mode work
@@ -199,11 +199,12 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHORS
-
-Frank Zago   http://www.zago.net/sane/#teco2
-
+.TP
+Frank Zago
+.I http://www.zago.net/sane/#teco2
+.TP
 The package is actively maintained by Gerard Klaver.
-             http://gkall.hobby.nl/teco2.html
+.I http://gkall.hobby.nl/teco2.html
 
 
 

@@ -81,7 +81,7 @@ Option
 .IR cal-file 
 .IR [port-name]
 defines which calibration file to use on a per-port basis.  If you only have 
-one parport, the port-name argument may be omitted - but be careful as this 
+one parport, the port-name argument may be omitted \- but be careful as this 
 will cause problems on multi-scanner systems.  You may have as many of these
 lines as you like, as long as each has a unique port name.  The tilde (`~') 
 character is acceptable and will be expanded to the value of the HOME 
@@ -92,7 +92,7 @@ Option
 .IR <AUTO|FB620P|FB630P>
 .IR [portname]
 defines which initialisation (wake-up) mode to use on a per-port basis.  
-If you only have one parport, the portname argument may be omitted - but 
+If you only have one parport, the portname argument may be omitted \- but 
 be careful as this may cause problems on multi-scanner systems.  
 You may have as many of these lines as you like, as long as each has a unique 
 port name.  The valid initialisation modes are FB620P (which strobes 10101010 
@@ -208,7 +208,7 @@ grey-scale in graphics software such as the GIMP.
 .B FB620P/FB320P Caveats
 .PP
 These models can not be reset in the same way as the others.  The windows driver
-doesn't know how to reset them either - when left with an inconsistent scanner, 
+doesn't know how to reset them either \- when left with an inconsistent scanner, 
 it will start scanning half way down the page!
 .PP
 Aborting is known to work correctly on the FB*30P models, and is known to be

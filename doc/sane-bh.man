@@ -270,16 +270,16 @@ Sets the compression mode of the scanner.  Determines the type of data
 returned from the scanner.  Values are:
 .RS
 .B none
-- uncompressed data - delivered in a SANE_FRAME_GRAY frame
+\- uncompressed data \- delivered in a SANE_FRAME_GRAY frame
 .br
 .B g31d
-- CCITT G3 1 dimension (MH) - delivered in a SANE_FRAME_G31D frame
+\- CCITT G3 1 dimension (MH) \- delivered in a SANE_FRAME_G31D frame
 .br
 .B g32d
-- CCITT G3 2 dimensions (MR, K=4) - delivered in a SANE_FRAME_G32D frame
+\- CCITT G3 2 dimensions (MR, K=4) \- delivered in a SANE_FRAME_G32D frame
 .br
 .B g42d
-- CCITT G4 (MMR) - delivered in a SANE_FRAME_G42D frame
+\- CCITT G4 (MMR) \- delivered in a SANE_FRAME_G42D frame
 .br
 NOTE: The use of g31d, g32d, and g42d compression values causes the backend
 to generate optional frame formats which may not be supported by all SANE
@@ -477,34 +477,34 @@ The following functioncodes are available:
 .RS
 .br
 .B front
-- generate an image for the front page section
+\- generate an image for the front page section
 .br 
 .B back
-- generate an image for the back page section
+\- generate an image for the back page section
 .br
 .B frontbar
-- perform barcode search in front page section
+\- perform barcode search in front page section
 .br 
 .B backbar
-- perform barcode search in back page section
+\- perform barcode search in back page section
 .br
 .B frontpatch
-- perform patchcode search in front page section
+\- perform patchcode search in front page section
 .br 
 .B backpatch
-- perform patchcode search in back page section
+\- perform patchcode search in back page section
 .br
 .B none
-- use no image compression
+\- use no image compression
 .br 
 .B g31d
-- use Group 3 1 dimension image compression
+\- use Group 3 1 dimension image compression
 .br 
 .B g32d
-- use Group 3 2 dimensions image compression
+\- use Group 3 2 dimensions image compression
 .br 
 .B g42d
-- use Group 4 2 dimensions image compression
+\- use Group 4 2 dimensions image compression
 .br
 .RE
 .PP

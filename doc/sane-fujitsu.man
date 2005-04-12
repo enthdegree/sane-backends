@@ -15,33 +15,28 @@ At present, the following
 scanners are known to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Vendor:  Model:           Rev:  
-.br
 -------- ---------------- -----
-.br
 FUJITSU  M3096Gm          02  
-.br
 FUJITSU  M3093GX            
-.br
 FUJITSU  M3093GD            
-.br
 FUJITSU  M4097
-.br
 FUJITSU  fi-4220C           
-.br
 FUJITSU  fi-4340C           
-.br
 FUJITSU  M3091DCd         BF21
-.br
 FUJITSU  M3092DCd
+.fi
+.ft R
 .RE
 .P
 The driver supports lineart, halftone, grayscale, and color
 (3091 and 3092) scanning depending on hardware capabiliites.
 
 The "Fujitsu" driver is a first attempt at integrating support
-for all Fujitsu scanners - previously available as different
-single drivers - in one driver. At present, the M3091DCd
+for all Fujitsu scanners \- previously available as different
+single drivers \- in one driver. At present, the M3091DCd
 is working (lineart, halftone, 8-bit grayscale and 24-bit color,
 simplex and duplex), and the driver should also support the
 M3096 as the M3096g driver code has been incorporated.
@@ -62,8 +57,8 @@ and to contact the author with test results.
 The M3091 driver supports duplex scanning. To the front-end, a duplex
 scan looks very much like scanning two separate pages from the document
 feeder, i.e. the SANE front-end receives two images instead of one.
-Front-ends which are not capable of dealing with that - e.g. the
-command-line tool scanimage - cannot be used for duplex scanning.
+Front-ends which are not capable of dealing with that \- e.g. the
+command-line tool scanimage \- cannot be used for duplex scanning.
 If you want to do duplex scans from the command line, get Tom 
 Martone's scanadf program from 
 http://www.martoneconsulting.com/sane-scanadf.html.
@@ -122,7 +117,7 @@ are to be scanned (duplex scanner only for example 3091, 3093Gd).
 lampcolor c
 .RS
 .I c
-may be "red", "green", "blue", or "default" - the lamp color to be used
+may be "red", "green", "blue", or "default" \- the lamp color to be used
 when doing graysacale or b/w scans on the M3091.
 .RE
 .PP

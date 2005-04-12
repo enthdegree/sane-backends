@@ -71,9 +71,13 @@ scsi MUSTEK MFS-06000CX Scanner 0 00 03 00
 would attach the Mustek SCSI scanner with the following /proc/scsi/scsi entry:
 .PP
 .RS 2
+.ft CR
+.nf
 Host: scsi0 Channel: 00 Id: 03 Lun: 00
   Vendor: MUSTEK   Model: MFS-06000CX Rev: 4.04
   Type:   Scanner  ANSI SCSI revision: 0
+.fi
+.ft R
 .RE
 .PP
 Usually it's sufficient to use vendor and model strings only or even only the

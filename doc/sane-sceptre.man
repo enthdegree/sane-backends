@@ -15,11 +15,13 @@ backend or to the SANE mailing list.
 At present, only one scanner is known to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Model                        Connection Type
-.br
 ---------------------------  -------------------
-.br
 Sceptre VividScan S1200      SCSI
+.fi
+.ft R
 .RE
 
 The make of this scanner is KINPO, so other scanners from that manufacturer may also work (eg. the S600).
@@ -145,5 +147,6 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH AUTHOR
 
+.TP
 The package is actively maintained by Frank Zago.
-    http://www.zago.net/sane/#sceptre
+.I http://www.zago.net/sane/#sceptre

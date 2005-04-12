@@ -11,47 +11,31 @@ Control Language by HP).  The following
 scanners are known positively to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Model:         Product id:     Interface:
-.br
 ----------     -----------     ----------
-.br
 ScanJet Plus   C9195A          HP Parallel Interface Card
-.br
 ScanJet IIc    C1750A 3226     SCSI
-.br
 ScanJet IIcx   C2500A 3332     SCSI
-.br
 ScanJet IIp    C1790A          SCSI
-.br
 ScanJet 3C     C2520A 3503     SCSI
-.br
 ScanJet 3P     C2570A 3406     SCSI
-.br
 ScanJet 4C     C2520A          SCSI
-.br
 ScanJet 4P     C1130A 3540     SCSI
-.br
 ScanJet 4100C  C6290A          USB
-.br
 ScanJet 5P     C5110A          SCSI
-.br
 ScanJet 5100C  C5190A          parallel port
-.br
 ScanJet 5200C  C7190A 3846     parallel port/USB
-.br
 ScanJet 6100C  C2520A 3644     SCSI
-.br
 ScanJet 6200C  C6270A 3828     SCSI/USB
-.br
 ScanJet 6250C  C6270A 3828     SCSI/USB
-.br
 ScanJet 6300C  C7670A          SCSI/USB
-.br
 ScanJet 6350C  C7670A          SCSI/USB
-.br
 ScanJet 6390C  C7670A          SCSI/USB
-.br
 PhotoSmart     C5100A R029,R030,R032    SCSI
+.fi
+.ft R
 .RE
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
@@ -159,7 +143,7 @@ problems may occur with certain SCSI-to-USB convertors or Buslogic SCSI cards.
 The option should not be used for SCSI devices which are working correctly.
 Otherwise startup of frontends and changing parameters might be slower.
 .PP
-  A sample configuration file is shown below:
+A sample configuration file is shown below:
 .PP
 .RS
 /dev/scanner
@@ -167,8 +151,9 @@ Otherwise startup of frontends and changing parameters might be slower.
 # this is a comment
 .br
 /dev/hpscan
-.br
-  option connect-device
+.RS 2
+option connect-device
+.RE
 .RE
 .PP
 /dev/scanner is typically a symlink to the actual SCSI scanner device.

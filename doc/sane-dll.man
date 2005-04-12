@@ -142,13 +142,16 @@ environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity. 
 
-.nf                                                                            
+.ft CR
+.nf
 Value  Description
 0      print severe errors only
 1      print normal errors and important messages
 2      print normal messages
 3      print debugging messages
 4      print everything
+.fi
+.ft R
 
 Example: 
 export SANE_DEBUG_DLL=3

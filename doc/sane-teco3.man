@@ -14,7 +14,10 @@ various brands like RELYSIS, PIOTECH, TRUST. This backend may or
 may not support yours.
 .PP
 The scanners that should work with this backend are:
-
+.PP
+.RS
+.ft CR
+.nf
   Vendor Model                 TECO model   status
   ---------------------------  ----------  ----------
   Relisys Scorpio                VM3552     tested
@@ -23,6 +26,9 @@ The scanners that should work with this backend are:
   Trust Imagery 2400 SP          VM3552     tested
   Trust Imagery 4800 SP+         VM3552     tested
   Trust Imagery 9600 SP          VM3552     untested
+.fi
+.ft R
+.RE
 
 The TECO VM number can usually be found at the back of the
 scanner. It is also part of the FCC ID. 
@@ -143,6 +149,6 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR
-
+.TP
 The package is actively maintained by Frank Zago.
-    http://www.zago.net/sane/#teco3
+.I http://www.zago.net/sane/#teco3

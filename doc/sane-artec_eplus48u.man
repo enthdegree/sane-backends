@@ -24,7 +24,7 @@ VendorID: 0x05d8
 .br
 ProductID: 0x4003
 .PP
- The Trust Easy Webscan 19200 is an exception. It's ProductID is 0x4006 .
+The Trust Easy Webscan 19200 is an exception. It's ProductID is 0x4006.
 .PP
 More details can be found on
 .IR http://www.angelfire.com/linux/crapsite/ .

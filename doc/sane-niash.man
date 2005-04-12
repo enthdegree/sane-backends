@@ -12,22 +12,21 @@ implements a SANE (Scanner Access Now Easy) backend that
 provides access to NIASH chipset based scanners. This backend will try to support
 the following models:
 
+.ft CR
+.nf
 MANUFACTURER:    MODEL:          USB ID:
-.br
 ---------------  --------------  ---------
-.br
 Agfa             Snapscan Touch  06BD-0100 (1)(a)
-.br
 Hewlett-Packard  Scanjet 3300c   03F0-0205 (1)(a)(b)
-.br
 Hewlett-Packard  Scanjet 3400c   03F0-0405 (2)(b)
-.br
 Hewlett-Packard  Scanjet 4300c   03F0-0305 (2)(a)
+.fi
+.ft R
 .PP
 .br
-ASIC: (1) - NIASH00012/00013/00014 / (2) - NIASH00019
+ASIC: (1) \- NIASH00012/00013/00014 / (2) \- NIASH00019
 .br
-ANALOG FRONT-END: (a) - ESIC ES8100QA / (b) - WM8143-12
+ANALOG FRONT-END: (a) \- ESIC ES8100QA / (b) \- WM8143-12
 .br
 
 .SH CONFIGURATION

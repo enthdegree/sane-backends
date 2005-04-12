@@ -44,7 +44,7 @@ recommended that you set your parallel port to EPP in BIOS with the current
 version of this 
 backend. You can leave it to ECP or ECP+EPP, but in this case you may not use
 ppdev but only direct hardware access if you have to use ECP.  ECPEPP will only
- work if you use a 2.4 or 2.6 kernel with ppdev character device support.
+work if you use a 2.4 or 2.6 kernel with ppdev character device support.
 .PP 
 This backend does support parport sharing only 
 .I 
@@ -70,52 +70,38 @@ Where
 \fBvalue\fR is : 
 
 .RS
-value         description.br 
-.br 
-\-\-\-\-\-\-\-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-.br 
-auto          autodetect all parallel ports and probe
-.br 
-              them for scanner
-.br 
-safe\-auto     autodetect all parallel ports and probe
-.br 
-              them for scanner, but does not try direct
-.br 
-              hardware access
-.br 
-/dev/ppi0     uses *BSD ppi device, depending on the
-.br 
-              number of available parallel port, you
-.br 
-              have to use /dev/ppi1, /dev/ppi2, ...
-.br 
-/dev/parport0 uses linux ppdev device, depending on the
-.br 
-              number of available parallel port, you
-.br 
-              have to use /dev/parport1, /dev/parport2, ...
-.br 
-0x378         does direct hardware access on the given
-.br 
-              address. Usual values are 0x378, 0x278, 0x3BC
-.br 
-              In this case, you have to run the scanner as 
-.br 
-              root (*BSD and linux), or with 'IOPL=yes' on
-.br 
-              OS/2
-.br 
+.TP
+auto
+autodetect all parallel ports and probe
+them for scanner
+.TP
+safe\-auto
+autodetect all parallel ports and probe
+them for scanner, but does not try direct
+hardware access
+.TP
+/dev/ppi0
+uses *BSD ppi device, depending on the
+number of available parallel port, you
+have to use /dev/ppi1, /dev/ppi2, ...
+.TP
+/dev/parport0
+uses linux ppdev device, depending on the
+number of available parallel port, you
+have to use /dev/parport1, /dev/parport2, ...
+.TP
+0x378
+does direct hardware access on the given
+address. Usual values are 0x378, 0x278, 0x3BC
+In this case, you have to run the scanner as 
+root (*BSD and linux), or with 'IOPL=yes' on
+OS/2
 .PP 
 .RE
 \fBNOTE:\fR in all cases, you must have sufficient priviledges
-.br 
 to get access to the chosen device or address. Depending on the
-.br 
 security settings, devices may not be available for all users.
-.br  
 You have to change permissions on the dev/ppi* or /dev/parport* devices. 
-.br 
 .PP 
 .RE
 You can rename any device using the
@@ -237,23 +223,19 @@ levels reduce verbosity.
 
 .PP 
 .RS
+.ft CR
+.nf
 level   debug output
-.br 
 \-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-.br 
  0       nothing
-.br 
  1       errors
-.br 
  2       warnings & minor errors
-.br 
  3       additional information
-.br 
  4       debug information
-.br 
  5       code flow (not supported yet)
-.br 
  6       special debug information
+.fi
+.ft R
 .RE
 .PP 
 .TP 
@@ -264,21 +246,18 @@ million lines of debug output.
 
 .PP 
 .RS
+.ft CR
+.nf
 level   debug output
-.br 
 \-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-.br 
  0       nothing
-.br 
  1       errors
-.br 
  8       command blocks
-.br 
  16      detailed code flow
-.br 
  32      dump datafiles      
-.br 
  255     everything
+.fi
+.ft R
 .RE
 .PP 
  

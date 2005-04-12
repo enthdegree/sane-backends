@@ -362,7 +362,8 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  Higher
 debug levels increase the verbosity of the output. 
 
-.nf                                                                            
+.ft CR
+.nf
 Value  Description
 0      no output
 1      print fatal errors
@@ -370,6 +371,8 @@ Value  Description
 3      print non-fatal errors and less important messages
 4      print all but debugging messages
 5      print everything
+.fi
+.ft R
 
 Example: 
 export SANE_DEBUG_MUSTEK=4

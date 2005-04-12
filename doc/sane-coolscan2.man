@@ -18,19 +18,17 @@ maintainer of the backend.
 At present, the following scanners are known to work with this backend:
 .PP
 .RS
+.ft CR
+.nf
 Model:                       Connection Type
-.br
 ---------------------------  -------------------
-.br
 LS-30 (Coolscan III)         SCSI
-.br
 LS-2000                      SCSI
-.br
 LS-40 ED (Coolscan IV)       USB
-.br
 LS-4000 ED                   IEEE 1394
-.br
 LS-8000 ED                   IEEE 1394
+.fi
+.ft R
 .RE
 
 Please send mail to the backend author (andras@users.sourceforge.net) to

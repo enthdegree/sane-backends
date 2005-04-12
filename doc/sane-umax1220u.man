@@ -26,52 +26,55 @@ Stephane's backend support the 2000P, the parallel port sibling
 to the 2000U. It may be possible to use ideas and code from 
 Stephane's backend to add complete support for the 2000U to
 this backend. Since I do not have access to an Astra 2000U, I
-do not plan to work on this -- any volunteers?
+do not plan to work on this \- any volunteers?
 
 .SH CONFIGURATION
 
-The configuration file for this backend resides in 
-	@CONFIGDIR@/umax1220u.conf. 
+The configuration file for this backend resides in
+.IR @CONFIGDIR@/umax1220u.conf .
 
 Its contents is a list of device names that correspond to UMAX Astra 1220U scanners.
 Empty lines and lines starting with a hash mark (#) are ignored. A sample
 configuration file is shown below: 
 
+.nf
  #usb vendor product
  usb 0x1606 0x0010
  # Device list for non-linux systems
  /dev/scanner 
  /dev/usb/scanner0
+.fi
 
 When driving a Astra 2000U, use the product number 0x0030. See sane-usb(5) for
 information on how to set the access permissions on the usb device files.
 
 .SH FILES
 
+.TP
 The backend configuration file:
- @CONFIGDIR@/umax1220u.conf
-
+.I @CONFIGDIR@/umax1220u.conf
+.TP
 The static library implementing this backend:
- @LIBDIR@/libsane-umax1220u.a
-
-The shared library implementing this backend :
- @LIBDIR@/libsane-umax1220u.so
- (present on systems that support dynamic loading)
+.I @LIBDIR@/libsane-umax1220u.a
+.TP
+The shared library implementing this backend:
+.I @LIBDIR@/libsane-umax1220u.so
+(present on systems that support dynamic loading)
 
 .SH ENVIRONMENT
 
+.TP
 .B SANE_DEBUG_UMAX1220U
- If the library was compiled with debug support enabled, this environment
+If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity:
 
 SANE_DEBUG_UMAX1220U values
 
-.DS
-.sp 
 .ft CR
 .nf
- Number  Remark
+Number  Remark
+\ 
  1       print failures
  2       print information
  3       print high-level function calls
@@ -80,9 +83,12 @@ SANE_DEBUG_UMAX1220U values
  10      print mid-level function checkpoints
  80      print protocol-level function entry
  90      print protocol-level function exit
+.fi
+.ft R
 
+.TP
 Example:
-  export SANE_DEBUG_UMAX1220U=10
+export SANE_DEBUG_UMAX1220U=10
 
 .SH KNOWN BUGS
 

@@ -1,7 +1,7 @@
 .TH sane-mustek_pp 5 "November 17 2003"
 .IX sane-mustek_pp
 .SH NAME
-sane-mustek_pp - SANE backend for Mustek parallel port flatbed scanners
+sane-mustek_pp \- SANE backend for Mustek parallel port flatbed scanners
 .SH DESCRIPTION
 The
 .B sane-mustek_pp
@@ -23,70 +23,50 @@ The following scanners might work with this backend:
 .BR "CCD scanners" 
 .PP
 .RS
+.ft CR
+.nf
 Model:               ASIC ID:  CCD Type:  works:
-.br
 -------------------- --------- ---------- -------
-.br
 SE 6000 P            1013      00          yes
-.br
 SM 4800 P            1013/1015 04/01       yes
-.br
 SE 1200 ED Plus      1015      01          no
-.br
 SM 1200 ED Plus      1015      01          no
-.br
 SE 12000 P           1505      05          no
-.br
 600 III EP Plus      1013/1015 00/01       yes
-.br
 SE 600 SEP           1013      ??          yes
-.br
 600 II EP            ????      ??          no
-.br
 MD9848               1015      00          yes
-.br
 Gallery 4800         ????      ??          yes
-.br
 Viviscan Compact II  1013      00          yes
-.br
+.fi
+.ft R
 .RE
 .PP
 .B CIS scanners
 .PP
 .RS
+.ft CR
+.nf
 Model:                 ASIC ID:   works:
-.br
 ---------------------  ---------  -------
-.br
 Mustek 600 CP & 96 CP  1015        yes (*)
-.br
 Mustek 1200 CP         1015        yes
-.br
 Mustek 1200 CP+        1015        yes
 
 OEM versions           Original   works 
-.br
 ---------------------  ---------  ----------
-.br
 Medion/LifeTec/Tevion
-.br
    MD/LT 9350/9351     1200 CP     yes
-.br 
    MD/LT 9850/9851     1200 CP     maybe (**)
-.br 
    MD/LT 9858          1200 CP     probably
-.br
    MD/LT 9890/9891     1200 CP     yes
-.br
 Targa 
-.br
    Funline TS12EP      1200 CP     yes
-.br
    Funline TS6EP        600 CP     yes
-.br
 Trust  
-.br
    Easy Connect 9600+   600 CP     yes
+.fi
+.ft R
 .RE
 
 .PP
@@ -120,7 +100,7 @@ access to the scanner run the backend through the network interface (See
 saned(8) and sane\-net(5)). Note also that the backend
 .I does not
 support
-.I parport sharing ,
+.IR "parport sharing" ,
 i.e. if you try printing while scanning, your computer may crash. To enable
 parport sharing, you have to enable libieee1284 at compile time. This backend
 also conflicts with the
@@ -192,7 +172,7 @@ is the driver to use for this device. Currently available drivers are:
 .br  
 .BR cis1200+ " : for 1200 CP+ & OEM versions"
 .br
-.BR ccd300 " : for 600 IIIE P & OEM version"
+.BR ccd300 "   : for 600 IIIE P & OEM version"
 .IP
 .B Choosing  the  wrong  driver  can  damage  your scanner!
 .br
@@ -281,7 +261,7 @@ Minimum:      -5.0
 Maximum:       5.0
 .br
 .PP
-Example:  option top_skip -2.5
+Example:  option top_adjust -2.5
 .HP
 .B slow_skip
 Turns fast skipping to the start of the scan region off. When the region to
@@ -341,11 +321,13 @@ A sample configuration file is shown below:
 .br
 scanner "LifeTec 9350" 0x378 cis1200
 
-   # Some calibration options (examples!).
+.RS 3
+# Some calibration options (examples!).
 .br
-   option bw 127
+option bw 127
 .br
-   option top_skip -0.8
+option top_skip -0.8
+.RE
 
 #
 .br
@@ -355,11 +337,13 @@ scanner "LifeTec 9350" 0x378 cis1200
 .br
 scanner "Mustek 600CP" 0x3BC cis600
 
-   # Some calibration options (examples!).
+.RS 3
+# Some calibration options (examples!).
 .br
-   option bw 120
+option bw 120
 .br
-   option top_skip 1.2
+option top_skip 1.2
+.RE
 
 #
 .br
@@ -369,12 +353,14 @@ scanner "Mustek 600CP" 0x3BC cis600
 .br
 scanner "Mustek 1200CP plus" 0x278 cis1200+
 
-   # Some calibration options (examples!).
+.RS 3
+# Some calibration options (examples!).
 .br
-   option bw 130
+option bw 130
 .br
-   option top_skip 0.2
-   
+option top_skip 0.2
+.RE
+
 #
 .br
 # A Mustek 600 III EPP on port parport0
@@ -383,11 +369,13 @@ scanner "Mustek 1200CP plus" 0x278 cis1200+
 .br
 scanner "Mustek 600 III EPP" parport0 ccd300
 
-   # Some calibration options (examples!).
+.RS 3
+# Some calibration options (examples!).
 .br
-   option bw 130
+option bw 130
 .br
-   option top 56
+option top 56
+.RE
 .RE
 
 .SH GLOBAL OPTIONS
@@ -451,23 +439,19 @@ levels reduce verbosity.
 
 .PP
 .RS
+.ft CR
+.nf
 level   debug output
-.br
 ------- ------------------------------
-.br
  0       nothing
-.br
  1       errors
-.br
  2       warnings & minor errors
-.br
  3       additional information
-.br
  4       debug information
-.br
  5       code flow (not supported yet)
-.br
  6       special debug information
+.fi
+.ft R
 .RE
 .PP
 .TP
@@ -478,23 +462,19 @@ million lines of debug output.
 
 .PP
 .RS
+.ft CR
+.nf
 level   debug output
-.br
 ------- -------------------------------
-.br
  0       nothing
-.br
  1       errors
-.br
  2       warnings
-.br
  3       things nice to know
-.br
  4       code flow
-.br
  5       detailed code flow
-.br
  6       everything
+.fi
+.ft R
 .RE
 .PP
  

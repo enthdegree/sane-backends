@@ -19,30 +19,29 @@ At present,
 the following scanners are known to work with this backend.
 .RS
 .PP
+.ft CR
+.nf
 Vendor  Product id:
-.br
 -----   -----------
-.br
 Sharp   JX-610
-.br
 Sharp   JX-250
-.br
 Sharp   JX-320
-.br
 Sharp   JX-330
-.br
 Sharp   JX-350
+.fi
+.ft R
 .RE
 .PP
 The following scanners are detected by the backend, but not tested:
 .PP
 .RS
+.ft CR
+.nf
 Vendor  Product id:
-.br
 -----   -----------
-.br
 Sharp   JX-325
-
+.fi
+.ft R
 .RE
 .SH DEVICE NAMES
 This backend expects device names of the form:
@@ -388,11 +387,11 @@ stops.
 Stops of the carriage can be caused by the following reasons:
 .PP
 .RS
-- too much "traffic" on the SCSI bus
+\- too much "traffic" on the SCSI bus
 .br
-- slow responses by the backend to the scanner,
+\- slow responses by the backend to the scanner,
 .br
-- a program which processes the data aquired by the backend too slow.
+\- a program which processes the data aquired by the backend too slow.
 .PP
 .RE
 Too much "traffic" on the SCSI bus: This happens for example, if hard disks

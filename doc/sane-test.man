@@ -315,4 +315,4 @@ sane(7),
 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 .SH BUGS
-- config file values aren't tested for correctness
+\- config file values aren't tested for correctness

@@ -23,140 +23,124 @@ Plustek scanner has another Product ID, then the device is
 supported by this backend.
 .br
 
-Vendor Plustek - ID: 0x07B3
+Vendor Plustek \- ID: 0x07B3
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 OpticPro U12       LM9831  600x1200dpi 42bit 512Kb 0x0010
-.br
 OpticPro UT12      LM9831  600x1200dpi 42bit 512Kb 0x0013
-.br
 OpticPro UT12      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
 OpticPro UT16      LM9832  600x1200dpi 42bit 512Kb 0x0017
-.br
 OpticPro U24       LM9831 1200x2400dpi 42bit   2Mb 0x0011
-.br
 OpticPro U24       LM9832 1200x2400dpi 42bit   2Mb 0x0015
-.br
 OpticPro UT24      LM9832 1200x2400dpi 42bit   2Mb 0x0017
+.fi
+.ft R
 .PP
 
-Vendor KYE/Genius - ID: 0x0458
+Vendor KYE/Genius \- ID: 0x0458
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2007
-.br
 Colorpage HR6 V2   LM9832  600x1200dpi 42bit 512Kb 0x2008
-.br
 Colorpage HR6A     LM9832  600x1200dpi 42bit 512Kb 0x2009
-.br
 Colorpage HR7      LM9832  600x1200dpi 42bit 512Kb 0x2013
-.br
 Colorpage HR7LE    LM9832  600x1200dpi 42bit 512Kb 0x2015
-.br
 Colorpage HR6X     LM9832  600x1200dpi 42bit 512Kb 0x2016
+.fi
+.ft R
 .PP
 
-Vendor Hewlett-Packard - ID: 0x03F0
+Vendor Hewlett-Packard \- ID: 0x03F0
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 ScanJet 2100C      LM9831  600x1200dpi 42bit 512Kb 0x0505
-.br
 ScanJet 2200C      LM9832  600x1200dpi 42bit 512Kb 0x0605
+.fi
+.ft R
 .PP
 
-Vendor Mustek - ID: 0x0400
+Vendor Mustek \- ID: 0x0400
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 BearPaw 1200       LM9831  600x1200dpi 42bit 512Kb 0x1000
-.br
 BearPaw 1200       LM9832  600x1200dpi 42bit 512Kb 0x1001*
-.br
 BearPaw 2400       LM9832 1200x2400dpi 42bit   2Mb 0x1001
-.br
+.fi
+.ft R
 * see also description for model override switch below!
 .PP
 
-Vendor UMAX - ID: 0x1606
+Vendor UMAX \- ID: 0x1606
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 UMAX 3400          LM9832  600x1200dpi 42bit 512Kb 0x0050
-.br
 UMAX 3400/3450     LM9832  600x1200dpi 42bit 512Kb 0x0060
-.br
 UMAX 5400          LM9832 1200x2400dpi 42bit 512Kb 0x0160
+.fi
+.ft R
 .PP
 
-Vendor COMPAQ - ID: 0x049F
+Vendor COMPAQ \- ID: 0x049F
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 S4-100             LM9832  600x1200dpi 42bit 512Kb 0x001A
+.fi
+.ft R
 .PP
 
-Vendor Epson - ID: 0x04B8
+Vendor Epson \- ID: 0x04B8
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 Perfection 1250    LM9832 1200x2400dpi 42bit 512Kb 0x010F
-.br
 Perfection 1260    LM9832 1200x2400dpi 42bit 512Kb 0x011D
+.fi
+.ft R
 .PP
 
-Vendor CANON - ID: 0x04A9
+Vendor CANON \- ID: 0x04A9
 .br
+.ft CR
+.nf
 ----------------------------------------------------------
-.br
 USB Model:         ASIC:  Properties:              Prod-ID
-.br
 ----------------------------------------------------------
-.br
 CanoScan N650/656U LM9832  600x1200dpi 42bit 512Kb 0x2206
-.br
 CanoScan N1220U    LM9832 1200x2400dpi 42bit 512Kb 0x2207
-.br
 CanoScan D660U     LM9832  600x1200dpi 42bit 512Kb 0x2208
-.br
 CanoScan N670/676U LM9833  600x1200dpi 48bit 512Kb 0x220D
-.br
 CanoScan N1240U    LM9833 1200x2400dpi 48bit 512Kb 0x220E
-.br
 CanoScan LIDE20    LM9833  600x1200dpi 48bit 512Kb 0x220D
-.br
 CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
+.fi
+.ft R
 
 .SH "OTHER PLUSTEK SCANNERS"
 For parallelport device support see the
@@ -172,24 +156,19 @@ Only the National Semiconductor LM983[1/2/] based devices of Plustek
 are supported by this backend. Older versions of the U12, the UT12,
 the U1212 and U1248 (GrandTech chipset) are not supported.
 .PP
+.ft CR
+.nf
 Model             Chipset    backend
-.br
 ------------------------------------
-.br
 U1248             GrandTech  gt68xx
-.br
 UT16B             GrandTech  gt68xx
-.br
 OpticSlim 1200    GrandTech  gt68xx
-.br
 OpticSlim 2400    GrandTech  gt68xx
-.br
 U12                P98003     u12
-.br
 UT12               P98003     u12
-.br
 1212U              P98003     u12
-.br
+.fi
+.ft R
 For a more complete and up to date list see:
 .B http://www.sane-project.org/sane-supported-devices.html
 
@@ -247,14 +226,14 @@ is the model override switch. It works only with Mustek
 BearPaw devices.
 .br
 .br
+.ft CR
+.nf
 m/PID |    0x1000    |    0x1001
-.br
 ------+--------------+--------------
-.br
   0   | BearPaw 1200 | BearPaw 2400
-.br
   1   |  no function | BearPaw 1200
-.br
+.fi
+.ft R
 .RE
 .PP
 option invertNegatives b
@@ -275,9 +254,7 @@ option altCalibration b
 .RS
 .I b
 0 --> use standard calibration routines,
-1 --> use alternate calibration (only non Plustek
-.br
-      devices, standard for CIS devices)
+1 --> use alternate calibration (only non Plustek devices, standard for CIS devices)
 .RE
 .PP
 option skipFine b
@@ -464,32 +441,22 @@ For problem reports it should be enough the set the verbosity to
 13.
 
 .SH "KNOWN BUGS & RESTRICTIONS"
+
+.PP
 * The driver does not support these manic scalings up
-.br
-  to 16 times the physical resolution. The only scaling
-.br
-  is done on resolutions between the physical resolution
-.br
-  of the CDD-sensor and the stepper motor i.e. you have a
-.br
-  600x1200 dpi scanner and you are scanning using 800dpi,
-.br
-  so scaling is necesary, because the sensor only delivers
-.br
-  600dpi but the motor is capable to perform 1200dpi 
-.br
-  steps.
-.br
+to 16 times the physical resolution. The only scaling
+is done on resolutions between the physical resolution
+of the CDD-sensor and the stepper motor i.e. you have a
+600x1200 dpi scanner and you are scanning using 800dpi,
+so scaling is necesary, because the sensor only delivers
+600dpi but the motor is capable to perform 1200dpi 
+steps.
+.PP
 * Plusteks' model policy is somewhat inconsistent. This
-.br
-  means, they sell technical different devices under the
-.br
-  same product name. Therefore it is possible that some
-.br
-  devices like the UT12 or U12 won't work - please check
-.br
-  the model list above and compare the product-id to
-.br
-  the one your device has.
-.br
+means, they sell technical different devices under the
+same product name. Therefore it is possible that some
+devices like the UT12 or U12 won't work \- please check
+the model list above and compare the product-id to
+the one your device has.
+.PP
 * Negative/Slide scanning quality is poor.

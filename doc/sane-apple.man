@@ -10,13 +10,14 @@ provides access to Apple flatbed scanners. At present, the following
 scanners are supported from this backend:
 .PP
 .br
+.ft CR
+.nf
 --------------- ----- ------------------ ------
-.br
 AppleScanner    4bit  16 Shades of Gray
-.br
 OneScanner      8bit  256 Shades of Gray
-.br
 ColorOneScanner 24bit RGB color          3-pass
+.fi
+.ft R
 
 .PP
 If you own a Apple scanner other than the ones listed above that
@@ -198,21 +199,21 @@ fonts in the X server, or virtual screens.
 I am quoting David Myers Here...
 
 >> OS: FreeBSD 2.2.6
-
+.br
 >> CC: egcs-1.02
-
+.br
 >Just wanted to follow up on this...  I recently changed my SCSI card from
-
+.br
 >the Adaptec 2940UW to a dual-channel Symbios 786 chipset.  When I started up
-
+.br
 >SANE with your driver, I managed to scan line art drawings okay, but Gray16
-
+.br
 >scans led to a stream of SCSI error messages on the console, ultimately
-
+.br
 >hanging with a message saying the scanner wasn't releasing the SCSI bus.
-
+.br
 >This may be that the Symbios is simply less tolerant of ancient
-
+.br
 >hardware, or may be bugs in your driver or in SANE itself...
 
 .SH DEBUG
@@ -247,7 +248,7 @@ and
 .B Scan
 Make scan possible for all models in all supported modes.
 .TP
-.B Missing Functionality.
+.B Missing Functionality
 
 .SH "SEE ALSO"
 sane(7), sane\-scsi(5)

@@ -13,16 +13,18 @@ At present, the following scanners are known to work with this
 backend:
 .PP
 .RS
+.ft CR
+.nf
   Product id
-.br
 --------------
-.br
    KV-SS25
    KV-SS25D
    KV-SS55EX (*)
    KV-S2025C (*)
    KV-S2045C (*)
    KV-S2065L (*)
+.fi
+.ft R
 .RE
 .PP
 (*) WARNING: None of the advanced options of these scanners are available (ie no color, no high resolution, no automatic cropping). Basically, the driver does no more than what it does for the KV-SS25. I don't have access to such scanners, and thus cannot add these options.
@@ -162,6 +164,6 @@ sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 .SH AUTHOR
 
+.TP
 The package is actively maintained by Frank Zago.
-    http://www.zago.net/sane/#matsushita
-
+.I http://www.zago.net/sane/#matsushita

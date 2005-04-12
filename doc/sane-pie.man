@@ -11,43 +11,29 @@ provides access to PIE, Devcom and AdLib SCSI flatbed scanners.
 .br
 At present, the following scanners should work with this backend:
 .PP
+.ft CR
+.nf
 Model:                  Status
-.br
 ----------------------  ------
-.br
 Devcom 9636PRO          OK
-.br
 Devcom 9636S            Untested
-.br
 Devcom 9630S            Untested
-.br
 ScanAce 1236S           Untested
-.br
 ScanAce 1230S           Untested
-.br
 ScanAce II              Untested
-.br
 ScanAce III             OK
-.br
 ScanAce Plus            Untested
-.br
 ScanAce II Plus         Untested
-.br
 ScanAce III Plus        Untested
-.br
 ScanAce V               Untested
-.br
 ScanAce ScanMedia       Untested
-.br
 ScanAce ScanMedia II    Untested
-.br
 ScanAce 630S            Untested
-.br
 ScanAce 636S            Untested
-.br
 JetScan 630             OK
-.br
 JetScan 636PRO          Untested
+.fi
+.ft R
 .PP
 
 .SH FILES

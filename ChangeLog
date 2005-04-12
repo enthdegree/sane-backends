@@ -1,3 +1,18 @@
+2005-04-12  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* Various man page fixes: sane-agfafocus.man, sane-apple.man,
+	  sane-artec.man, sane-artec_eplus48u.man, sane-avision.man,
+	  sane-bh.man, sane-canon_pp.man, sane-coolscan.man,
+	  sane-coolscan2.man, sane-dll.man, sane-epson.man, sane-fujitsu.man,
+	  sane-hp.man, sane-leo.man, sane-matsushita.man, sane-microtek2.man,
+	  sane-mustek.man, sane-mustek_pp.man, sane-mustek_usb.man,
+	  sane-nec.man, sane-niash.man, sane-pie.man, sane-plustek.man,
+	  sane-plustek_pp.man, sane-sceptre.man, sane-scsi.man, sane-sharp.man,
+	  sane-sm3600.man, sane-sm3840.man, sane-sp15c.man, sane-teco1.man,
+	  sane-teco2.man, sane-teco3.man, sane-test.man, sane-u12.man,
+	  sane-umax.man, sane-umax1220u.man, sane-umax_pp.man, sane.man,
+	  saned.man
+
 2005-04-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* acinclude.m4, configure.in, configure: the locking feature will

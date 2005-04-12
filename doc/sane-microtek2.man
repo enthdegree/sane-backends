@@ -85,13 +85,13 @@ possibly make your scanner work.
 .br
 How to create the logfile?
 .TP
-- put the line
+\- put the line
 .br
 "option dump 2" into your
 .I microtek2.conf
- file or change the existing "option dump" to "2"
+file or change the existing "option dump" to "2"
 .TP
-- in a terminal (bash) type
+\- in a terminal (bash) type
 .br
 "export SANE_DEBUG_MICROTEK2=30" and then
 .br
@@ -138,8 +138,8 @@ or
 for example.
 .SH "CONFIGURATION"
 The configuration file for this backend resides in
-.I @CONFIGDIR@/microtek2.conf
-.
+.IR @CONFIGDIR@/microtek2.conf .
+
 Its contents is a list of device names that correspond to Microtek
 scanners with SCSI-2 interface. Empty lines and lines starting with
 a hash mark (#) are ignored.

@@ -44,6 +44,9 @@
 
 /*
    $Log$
+   Revision 1.13  2005/04/13 12:50:07  ellert-guest
+   Add missing SANE_I18N, Regenerate .po files accordingly, Update Swedish translations
+
    Revision 1.12  2003/10/09 19:32:50  kig-guest
    Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
 
@@ -2907,7 +2910,7 @@ static const struct hp_option_descriptor_s NUM_OPTIONS[1] = {{
 }};
 
 static const struct hp_option_descriptor_s SCAN_MODE_GROUP[1] = {{
-    OPTION_GROUP("Scan Mode"),
+    OPTION_GROUP(SANE_I18N("Scan Mode")),
     0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 
@@ -2946,7 +2949,7 @@ static const struct hp_option_descriptor_s DEVPIX_RESOLUTION[1] = {{
 }};
 
 static const struct hp_option_descriptor_s ENHANCEMENT_GROUP[1] = {{
-    OPTION_GROUP("Enhancement"),
+    OPTION_GROUP(SANE_I18N("Enhancement")),
     0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 static const struct hp_option_descriptor_s BRIGHTNESS[1] = {{
@@ -2977,7 +2980,7 @@ static const struct hp_option_descriptor_s AUTO_THRESHOLD[1] = {{
 }};
 
 static const struct hp_option_descriptor_s ADVANCED_GROUP[1] = {{
-    ADVANCED_GROUP("Advanced Options"),
+    ADVANCED_GROUP(SANE_I18N("Advanced Options")),
     0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 /* FIXME: make this a choice? (BW or RGB custom) */
@@ -3290,7 +3293,7 @@ static const struct hp_option_descriptor_s CALIBRATE[1] = {{
 }};
 
 static const struct hp_option_descriptor_s GEOMETRY_GROUP[1] = {{
-    ADVANCED_GROUP("Geometry"),
+    ADVANCED_GROUP(SANE_I18N("Geometry")),
     0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 static const struct hp_option_descriptor_s SCAN_TL_X[1] = {{
@@ -3407,7 +3410,7 @@ static const struct hp_choice_s _range_choices[] = {
     { 0, 0, 0, 0, 0 }
 };
 static const struct hp_option_descriptor_s EXPERIMENT_GROUP[1] = {{
-    ADVANCED_GROUP("Experiment")
+    ADVANCED_GROUP(SANE_I18N("Experiment"))
     0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* for gcc-s sake */
 }};
 static const struct hp_option_descriptor_s PROBE_10470[1] = {{

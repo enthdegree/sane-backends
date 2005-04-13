@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.nl\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-21 22:17+0200\n"
-"PO-Revision-Date: 2004-10-21 13:17+0200\n"
+"POT-Creation-Date: 2005-04-13 07:24+0200\n"
+"PO-Revision-Date: 2005-04-13 09:11+0200\n"
 "Last-Translator: Martin Kho <mkho@xs4all.nl>\n"
 "Language-Team: Nederlands\n"
 "MIME-Version: 1.0\n"
@@ -28,7 +28,7 @@ msgstr "Lijntekening"
 msgid "Grayscale"
 msgstr "Grijstrap"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:483 .tmp/hp-option.c:2926
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/hp-option.c:2926
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
@@ -36,12 +36,12 @@ msgstr "Grijstrap"
 msgid "Color"
 msgstr "Kleur"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/leo.c:873
-#: .tmp/ma1509.c:597 .tmp/matsushita.c:1191 .tmp/microtek2.h:602
-#: .tmp/mustek.c:4382 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:768 .tmp/plustek_pp.c:792 .tmp/sceptre.c:753
-#: .tmp/snapscan-options.c:507 .tmp/teco1.c:1146 .tmp/teco2.c:1952
-#: .tmp/teco3.c:971 .tmp/umax.c:5224 .tmp/umax_pp.c:549
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/hp-option.c:2949
+#: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
+#: .tmp/microtek2.h:602 .tmp/mustek.c:4382 .tmp/mustek_usb.c:353
+#: .tmp/niash.c:756 .tmp/plustek.c:771 .tmp/plustek_pp.c:792
+#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:514 .tmp/teco1.c:1143
+#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:549
 msgid "Enhancement"
 msgstr "Kleurverbetering"
 
@@ -53,12 +53,13 @@ msgstr "Standaardinstellingen"
 msgid "Set default values for enhancement controls."
 msgstr "Kies standaard waarden om verbeter opties te krijgen."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3217 .tmp/gt68xx.c:708
-#: .tmp/leo.c:825 .tmp/ma1509.c:549 .tmp/matsushita.c:1137
-#: .tmp/microtek2.h:601 .tmp/mustek.c:4334 .tmp/mustek_usb.c:305
-#: .tmp/plustek.c:722 .tmp/plustek_pp.c:746 .tmp/sceptre.c:705
-#: .tmp/snapscan-options.c:440 .tmp/teco1.c:1098 .tmp/teco2.c:1904
-#: .tmp/teco3.c:923 .tmp/test.c:618 .tmp/umax.c:5174 .tmp/umax_pp.c:500
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/gt68xx.c:682
+#: .tmp/hp-option.c:3293 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4334
+#: .tmp/mustek_usb.c:305 .tmp/plustek.c:725 .tmp/plustek_pp.c:746
+#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:447 .tmp/teco1.c:1095
+#: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
+#: .tmp/umax_pp.c:500
 msgid "Geometry"
 msgstr "Geometrie"
 
@@ -137,366 +138,366 @@ msgstr "Gammacorrectie"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Kiest de gamma gecorrigeerde overdrachtskromme"
 
-#: .tmp/epson.c:481
+#: .tmp/epson.c:484
 msgid "Binary"
 msgstr "Binair (zwart/wit)"
 
-#: .tmp/epson.c:482 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/epson.c:485 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
 msgstr "Grijs"
 
-#: .tmp/epson.c:488
+#: .tmp/epson.c:491
 #, fuzzy
 msgid "Simplex"
 msgstr "Dubbelzijdig"
 
-#: .tmp/epson.c:489 .tmp/matsushita.h:219
+#: .tmp/epson.c:492 .tmp/matsushita.h:219
 msgid "Duplex"
 msgstr "Dubbelzijdig"
 
-#: .tmp/epson.c:498 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
+#: .tmp/epson.c:501 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
 #: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr "Flatbed"
 
-#: .tmp/epson.c:499
+#: .tmp/epson.c:502
 msgid "Transparency Unit"
 msgstr "Filmeenheid"
 
-#: .tmp/epson.c:500 .tmp/mustek.c:152 .tmp/umax.c:184
+#: .tmp/epson.c:503 .tmp/mustek.c:152 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr "Automatische documenten doorvoer"
 
-#: .tmp/epson.c:520
+#: .tmp/epson.c:523
 msgid "Positive Film"
 msgstr "Dia"
 
-#: .tmp/epson.c:521
+#: .tmp/epson.c:524
 msgid "Negative Film"
 msgstr "Negatief"
 
-#: .tmp/epson.c:526
+#: .tmp/epson.c:529
 msgid "Focus on glass"
 msgstr "Focus op het glas"
 
-#: .tmp/epson.c:527
+#: .tmp/epson.c:530
 msgid "Focus 2.5mm above glass"
 msgstr "Focus 2.5mm boven het glas"
 
-#: .tmp/epson.c:553 .tmp/epson.c:561 .tmp/epson.c:573 .tmp/epson.c:595
+#: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576 .tmp/epson.c:598
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
 msgid "None"
 msgstr "Geen"
 
-#: .tmp/epson.c:554 .tmp/epson.c:562 .tmp/epson.c:574
+#: .tmp/epson.c:557 .tmp/epson.c:565 .tmp/epson.c:577
 msgid "Halftone A (Hard Tone)"
 msgstr "Halftoon A (hard)"
 
-#: .tmp/epson.c:555 .tmp/epson.c:563 .tmp/epson.c:575
+#: .tmp/epson.c:558 .tmp/epson.c:566 .tmp/epson.c:578
 msgid "Halftone B (Soft Tone)"
 msgstr "Halftoon B (zacht)"
 
-#: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576
+#: .tmp/epson.c:559 .tmp/epson.c:567 .tmp/epson.c:579
 msgid "Halftone C (Net Screen)"
 msgstr "Halftoon C"
 
-#: .tmp/epson.c:565 .tmp/epson.c:577
+#: .tmp/epson.c:568 .tmp/epson.c:580
 msgid "Dither A (4x4 Bayer)"
 msgstr "Dither A (4x4 Bayer)"
 
-#: .tmp/epson.c:566 .tmp/epson.c:578
+#: .tmp/epson.c:569 .tmp/epson.c:581
 msgid "Dither B (4x4 Spiral)"
 msgstr "Dither B (4x4 Spiraalvorm)"
 
-#: .tmp/epson.c:567 .tmp/epson.c:579
+#: .tmp/epson.c:570 .tmp/epson.c:582
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Dither C (4x4 Net Screen)"
 
-#: .tmp/epson.c:568 .tmp/epson.c:580
+#: .tmp/epson.c:571 .tmp/epson.c:583
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Dither D (8x4 Net Screen)"
 
-#: .tmp/epson.c:581
+#: .tmp/epson.c:584
 msgid "Text Enhanced Technology"
 msgstr "Tekstverbeteringstechnologie"
 
-#: .tmp/epson.c:582
+#: .tmp/epson.c:585
 msgid "Download pattern A"
 msgstr "Download patroon A"
 
-#: .tmp/epson.c:583
+#: .tmp/epson.c:586
 msgid "Download pattern B"
 msgstr "Download patroon B"
 
-#: .tmp/epson.c:596 .tmp/epson.c:3015 .tmp/hp-option.c:3089
+#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3089
 msgid "Red"
 msgstr "Rood"
 
-#: .tmp/epson.c:597 .tmp/epson.c:3011 .tmp/hp-option.c:3090
+#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3090
 msgid "Green"
 msgstr "Groen"
 
-#: .tmp/epson.c:598 .tmp/epson.c:3019 .tmp/hp-option.c:3091
+#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3091
 msgid "Blue"
 msgstr "Blauw"
 
-#: .tmp/epson.c:628
+#: .tmp/epson.c:631
 msgid "No Correction"
 msgstr "Geen correctie"
 
-#: .tmp/epson.c:629 .tmp/epson.c:654
+#: .tmp/epson.c:632 .tmp/epson.c:657
 msgid "User defined"
 msgstr "Door gebruiker gedefinieerd"
 
-#: .tmp/epson.c:630
+#: .tmp/epson.c:633
 msgid "Impact-dot printers"
 msgstr "Matrixprinters"
 
-#: .tmp/epson.c:631
+#: .tmp/epson.c:634
 msgid "Thermal printers"
 msgstr "Thermische printers"
 
-#: .tmp/epson.c:632
+#: .tmp/epson.c:635
 msgid "Ink-jet printers"
 msgstr "Inktjet printers"
 
-#: .tmp/epson.c:633
+#: .tmp/epson.c:636
 msgid "CRT monitors"
 msgstr "CRT Monitoren"
 
-#: .tmp/epson.c:653 .tmp/hp-option.c:3222 .tmp/test.c:138
+#: .tmp/epson.c:656 .tmp/hp-option.c:3222 .tmp/test.c:138
 msgid "Default"
 msgstr "Standaardinstelling"
 
-#: .tmp/epson.c:655
+#: .tmp/epson.c:658
 msgid "High density printing"
 msgstr "Afdrukken op hoge kwaliteit"
 
-#: .tmp/epson.c:656
+#: .tmp/epson.c:659
 msgid "Low density printing"
 msgstr "Afdrukken op lage kwaliteit"
 
-#: .tmp/epson.c:657
+#: .tmp/epson.c:660
 msgid "High contrast printing"
 msgstr "Afdrukken met hoog contrast"
 
-#: .tmp/epson.c:675
+#: .tmp/epson.c:678
 msgid "User defined (Gamma=1.0)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.0)"
 
-#: .tmp/epson.c:676
+#: .tmp/epson.c:679
 msgid "User defined (Gamma=1.8)"
 msgstr "Door gebruiker gedefinieerd (Gamma=1.8)"
 
-#: .tmp/epson.c:746
+#: .tmp/epson.c:757
 msgid "CD"
 msgstr "CD"
 
-#: .tmp/epson.c:747
+#: .tmp/epson.c:758
 msgid "A5 portrait"
 msgstr "A5 staand"
 
-#: .tmp/epson.c:748
+#: .tmp/epson.c:759
 msgid "A5 landscape"
 msgstr "A5 liggend"
 
-#: .tmp/epson.c:749
+#: .tmp/epson.c:760
 msgid "Letter"
 msgstr "Letter"
 
-#: .tmp/epson.c:750
+#: .tmp/epson.c:761
 msgid "A4"
 msgstr "A4"
 
-#: .tmp/epson.c:751
+#: .tmp/epson.c:762
 msgid "Max"
 msgstr "Maximaal"
 
-#: .tmp/epson.c:2732 .tmp/gt68xx.c:442 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1086 .tmp/microtek2.h:600 .tmp/mustek.c:4197
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:637
-#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:676 .tmp/snapscan-options.c:276
-#: .tmp/teco2.c:1876 .tmp/test.c:293 .tmp/umax.c:5052
+#: .tmp/epson.c:2782 .tmp/gt68xx.c:442 .tmp/hp-option.c:2910 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:600 .tmp/mustek.c:4197
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:640
+#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:277
+#: .tmp/teco2.c:1875 .tmp/test.c:293 .tmp/umax.c:5052
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: .tmp/epson.c:2764
+#: .tmp/epson.c:2814
 msgid "Selects the halftone."
 msgstr "Kiest halftoon."
 
-#: .tmp/epson.c:2786
+#: .tmp/epson.c:2836
 msgid "Dropout"
 msgstr "Kleuronderdrukken"
 
-#: .tmp/epson.c:2787
+#: .tmp/epson.c:2837
 msgid "Selects the dropout."
 msgstr "Kiest kleuronderdrukken."
 
-#: .tmp/epson.c:2799
+#: .tmp/epson.c:2849
 msgid "Selects the brightness."
 msgstr "Kiest helderheid."
 
-#: .tmp/epson.c:2814
+#: .tmp/epson.c:2864
 msgid "Sharpness"
 msgstr "Scherpte"
 
-#: .tmp/epson.c:2950
+#: .tmp/epson.c:3000
 msgid "Color correction"
 msgstr "Kleurcorrectie"
 
-#: .tmp/epson.c:2953
+#: .tmp/epson.c:3003
 msgid "Sets the color correction table for the selected output device."
 msgstr "Stelt de kleurcorrectietabel in voor het gekozen uitvoerapparaat."
 
-#: .tmp/epson.c:2994
+#: .tmp/epson.c:3044
 msgid "Color correction coefficients"
 msgstr "Kleurcorrectiecoëfficiënten"
 
-#: .tmp/epson.c:2995
+#: .tmp/epson.c:3045
 msgid "Matrix multiplication of RGB"
 msgstr "Matrix vermenigvuldiging van RGB"
 
-#: .tmp/epson.c:3012
+#: .tmp/epson.c:3062
 msgid "Shift green to red"
 msgstr "Verschuift groen naar rood"
 
-#: .tmp/epson.c:3013
+#: .tmp/epson.c:3063
 msgid "Shift green to blue"
 msgstr "Verschuift groen naar blauw"
 
-#: .tmp/epson.c:3014
+#: .tmp/epson.c:3064
 msgid "Shift red to green"
 msgstr "Verschuift rood naar groen"
 
-#: .tmp/epson.c:3016
+#: .tmp/epson.c:3066
 msgid "Shift red to blue"
 msgstr "Verschuift rood naar blauw"
 
-#: .tmp/epson.c:3017
+#: .tmp/epson.c:3067
 msgid "Shift blue to green"
 msgstr "Verschuift blauw naar groen"
 
-#: .tmp/epson.c:3018
+#: .tmp/epson.c:3068
 msgid "Shift blue to red"
 msgstr "Verschuift blauw naar rood"
 
-#: .tmp/epson.c:3021
+#: .tmp/epson.c:3071
 msgid "Controls green level"
 msgstr "Regelt de groeninstelling"
 
-#: .tmp/epson.c:3022
+#: .tmp/epson.c:3072
 msgid "Adds to red based on green level"
 msgstr "Verhoogt rood op basis van het groenniveau"
 
-#: .tmp/epson.c:3023
+#: .tmp/epson.c:3073
 msgid "Adds to blue based on green level"
 msgstr "Verhoogt blauw op basis van het groenniveau"
 
-#: .tmp/epson.c:3024
+#: .tmp/epson.c:3074
 msgid "Adds to green based on red level"
 msgstr "Verhoogt groen op basis van het roodniveau"
 
-#: .tmp/epson.c:3025
+#: .tmp/epson.c:3075
 msgid "Controls red level"
 msgstr "Regelt het roodniveau"
 
-#: .tmp/epson.c:3026
+#: .tmp/epson.c:3076
 msgid "Adds to blue based on red level"
 msgstr "Verhoogt blauw op basis van het roodniveau"
 
-#: .tmp/epson.c:3027
+#: .tmp/epson.c:3077
 msgid "Adds to green based on blue level"
 msgstr "Verhoogt groen op basis van het blauwniveau"
 
-#: .tmp/epson.c:3028
+#: .tmp/epson.c:3078
 msgid "Adds to red based on blue level"
 msgstr "Verhoogt rood op basis van het blauwniveau"
 
-#: .tmp/epson.c:3029
+#: .tmp/epson.c:3079
 msgid "Controls blue level"
 msgstr "Regelt het blauwniveau"
 
-#: .tmp/epson.c:3116 .tmp/snapscan-options.c:731 .tmp/umax.c:5563
+#: .tmp/epson.c:3166 .tmp/snapscan-options.c:737 .tmp/umax.c:5563
 msgid "Advanced"
 msgstr "Gevorderd"
 
-#: .tmp/epson.c:3124
+#: .tmp/epson.c:3174
 msgid "Mirror image"
 msgstr "Beeld spiegelen"
 
-#: .tmp/epson.c:3125
+#: .tmp/epson.c:3175
 msgid "Mirror the image."
 msgstr "Het beeld spiegelen"
 
-#: .tmp/epson.c:3151
+#: .tmp/epson.c:3201
 msgid "Speed"
 msgstr "Snelheid"
 
-#: .tmp/epson.c:3164
+#: .tmp/epson.c:3214
 msgid "Auto area segmentation"
 msgstr "Automatische keuze van het scanbereik"
 
-#: .tmp/epson.c:3177
+#: .tmp/epson.c:3227
 msgid "Short resolution list"
 msgstr "Korte oplossingenlijst"
 
-#: .tmp/epson.c:3179
+#: .tmp/epson.c:3229
 msgid "Display short resolution list"
 msgstr "Toon korte oplossingenlijst"
 
-#: .tmp/epson.c:3186
+#: .tmp/epson.c:3236
 msgid "Zoom"
 msgstr "Vergroten"
 
-#: .tmp/epson.c:3188
+#: .tmp/epson.c:3238
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Definieert de vergrotingsfactor die de scanner zal gebruiken"
 
-#: .tmp/epson.c:3268
+#: .tmp/epson.c:3318
 msgid "Quick format"
 msgstr "Snelle opmaak"
 
-#: .tmp/epson.c:3279
+#: .tmp/epson.c:3329
 msgid "Optional equipment"
 msgstr "Optioneel hulpstuk"
 
-#: .tmp/epson.c:3305
+#: .tmp/epson.c:3355
 msgid "Film type"
 msgstr "Filmtype"
 
-#: .tmp/epson.c:3350
+#: .tmp/epson.c:3400
 msgid "Eject"
 msgstr "Uitwerpen"
 
-#: .tmp/epson.c:3351
+#: .tmp/epson.c:3401
 msgid "Eject the sheet in the ADF"
 msgstr "Werpt het papier in de ADF uit"
 
-#: .tmp/epson.c:3363
+#: .tmp/epson.c:3413
 msgid "Auto eject"
 msgstr "Automatische uitworp"
 
-#: .tmp/epson.c:3364
+#: .tmp/epson.c:3414
 msgid "Eject document after scanning"
 msgstr "Werpt het document uit na het scannen"
 
-#: .tmp/epson.c:3376
+#: .tmp/epson.c:3426
 msgid "ADF Mode"
 msgstr ""
 
-#: .tmp/epson.c:3378
+#: .tmp/epson.c:3428
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 
-#: .tmp/epson.c:3392
+#: .tmp/epson.c:3442
 msgid "Bay"
 msgstr "Bak"
 
-#: .tmp/epson.c:3393
+#: .tmp/epson.c:3443
 msgid "Select bay to scan"
 msgstr "Kies de bak om te scannen"
 
@@ -631,35 +632,16 @@ msgstr "Gammawaarde"
 msgid "Sets the gamma value of all channels."
 msgstr "Stelt de gammawaarde voor alle kanalen in."
 
-#: .tmp/gt68xx.c:684
-msgid "Gain correction"
-msgstr "Correctie van het bereik"
-
-#: .tmp/gt68xx.c:686
-msgid ""
-"This value is added to the internal gain value. Use for extremely light or "
-"dark images."
-msgstr ""
-"Deze waarde wordt toegevoegd aan het interne bereik. Alleen voor extreem "
-"lichte of donkere beelden gebruiken."
-
-#: .tmp/gt68xx.c:697
-msgid "Offset correction"
-msgstr "Correctie van de offset"
-
-#: .tmp/gt68xx.c:699
-msgid ""
-"This value is added to the internal offset value. Use for extremely light or "
-"dark images."
-msgstr ""
-"Deze waarde wordt toegevoegd aan de interne waarde van de offset. Alleen "
-"voor extreem lichte of donkere beelden gebruiken."
-
 #: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
 msgid "Halftone"
 msgstr "Halftoon"
+
+#: .tmp/hp-option.c:2980
+#, fuzzy
+msgid "Advanced Options"
+msgstr "Opties bijwerken"
 
 #: .tmp/hp-option.c:3037
 msgid "Coarse"
@@ -714,7 +696,7 @@ msgid "Slow"
 msgstr "Langzaam"
 
 #: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:217 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:141 .tmp/plustek.c:220 .tmp/plustek_pp.c:200
 msgid "Normal"
 msgstr "Normaal"
 
@@ -754,7 +736,7 @@ msgstr "Dia"
 msgid "Film-strip"
 msgstr "Filmstrook"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:219 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3231 .tmp/plustek.c:222 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
 msgid "Negative"
 msgstr "Negatief"
@@ -774,6 +756,11 @@ msgstr "Aan"
 #: .tmp/hp-option.c:3324 .tmp/hp-option.c:3337
 msgid "Conditional"
 msgstr "Voorwaardelijk"
+
+#: .tmp/hp-option.c:3410
+#, fuzzy
+msgid "Experiment"
+msgstr "Belichtingstijd"
 
 #: .tmp/hp-option.h:60
 msgid "Sharpening"
@@ -949,7 +936,7 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 Vertikale lijn"
 
-#: .tmp/leo.c:783 .tmp/saneopts.h:138
+#: .tmp/leo.c:781 .tmp/saneopts.h:138
 msgid "Scan mode"
 msgstr "Scanmodus"
 
@@ -1010,7 +997,7 @@ msgstr "Gelijkmatig"
 msgid "Low"
 msgstr "Laag"
 
-#: .tmp/matsushita.c:215 .tmp/matsushita.c:230 .tmp/matsushita.c:1298
+#: .tmp/matsushita.c:215 .tmp/matsushita.c:230 .tmp/matsushita.c:1296
 msgid "Medium"
 msgstr "Gemiddeld"
 
@@ -1030,23 +1017,23 @@ msgstr "Eén pagina"
 msgid "All pages"
 msgstr "Alle pagina's"
 
-#: .tmp/matsushita.c:1036
+#: .tmp/matsushita.c:1034
 msgid "sheetfed scanner"
 msgstr "Doorvoerscanner"
 
-#: .tmp/matsushita.c:1128
+#: .tmp/matsushita.c:1126
 msgid "Feeder mode"
 msgstr "Doorvoermodus"
 
-#: .tmp/matsushita.c:1129
+#: .tmp/matsushita.c:1127
 msgid "Sets the feeding mode"
 msgstr "Stelt de doorvoermodus in"
 
-#: .tmp/matsushita.c:1226
+#: .tmp/matsushita.c:1224
 msgid "Automatic threshold"
 msgstr "Automatische drempelwaarde"
 
-#: .tmp/matsushita.c:1229
+#: .tmp/matsushita.c:1227
 msgid ""
 "Automatically sets brightness, contrast, white level, gamma, noise reduction "
 "and image emphasis"
@@ -1054,23 +1041,23 @@ msgstr ""
 "Stelt helderheid, contrast, witwaarde, gamma, ruisonderdrukking en "
 "beeldverbetering in"
 
-#: .tmp/matsushita.c:1277
+#: .tmp/matsushita.c:1275
 msgid "Noise reduction"
 msgstr "Ruisonderdrukking"
 
-#: .tmp/matsushita.c:1279
+#: .tmp/matsushita.c:1277
 msgid "Reduce the isolated dot noise"
 msgstr "Vermindert de ruis van afzonderlijke punten"
 
-#: .tmp/matsushita.c:1290
+#: .tmp/matsushita.c:1288
 msgid "Image emphasis"
 msgstr "Beeldverbetering"
 
-#: .tmp/matsushita.c:1291
+#: .tmp/matsushita.c:1289
 msgid "Sets the image emphasis"
 msgstr "Stelt beeldverbetering in"
 
-#: .tmp/matsushita.c:1302 .tmp/matsushita.c:1303
+#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
 msgid "Gamma"
 msgstr "Gamma"
 
@@ -1146,11 +1133,11 @@ msgstr ""
 "Bij gebruik van het \"lightlid-35mm\" diahulpstuk wordt tijdens het scannen "
 "de flatbedlamp uitgeschakeld om een beter contrast te krijgen"
 
-#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:329
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:330
 msgid "Quality scan"
 msgstr "Hoge kwaliteit"
 
-#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:330
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:331
 msgid "Highest quality but lower speed"
 msgstr "Hoogste kwaliteit, maar met een lagere snelheid"
 
@@ -1467,128 +1454,128 @@ msgstr "Schakelt de lamp aan/uit."
 msgid "Calibrates for black and white level."
 msgstr ""
 
-#: .tmp/plustek.c:218 .tmp/plustek_pp.c:201
+#: .tmp/plustek.c:221 .tmp/plustek_pp.c:201
 msgid "Transparency"
 msgstr "Diapositief"
 
-#: .tmp/plustek.c:832
+#: .tmp/plustek.c:835
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:839
+#: .tmp/plustek.c:842
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:840
+#: .tmp/plustek.c:843
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:845
+#: .tmp/plustek.c:848
 #, fuzzy
 msgid "Calibration data cache"
 msgstr "Kalibreermodus"
 
-#: .tmp/plustek.c:846
+#: .tmp/plustek.c:849
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:857
+#: .tmp/plustek.c:860
 #, fuzzy
 msgid "Warmup-time"
 msgstr "Lamp opwarmen"
 
-#: .tmp/plustek.c:858
+#: .tmp/plustek.c:861
 #, fuzzy
 msgid "Warmup-time in seconds."
 msgstr "Lamp opwarmen"
 
-#: .tmp/plustek.c:865
+#: .tmp/plustek.c:868
 #, fuzzy
 msgid "Lampoff-time"
 msgstr "Lamp uit"
 
-#: .tmp/plustek.c:866
+#: .tmp/plustek.c:869
 #, fuzzy
 msgid "Lampoff-time in seconds."
 msgstr "Lamp opwarmen"
 
-#: .tmp/plustek.c:874
+#: .tmp/plustek.c:877
 #, fuzzy
 msgid "Analog frontend"
 msgstr "Analoge gammawaarde rood"
 
-#: .tmp/plustek.c:880 .tmp/umax_pp.c:655
+#: .tmp/plustek.c:883 .tmp/umax_pp.c:655
 msgid "Red gain"
 msgstr "Roodbereik"
 
-#: .tmp/plustek.c:881
+#: .tmp/plustek.c:884
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:888 .tmp/umax_pp.c:712
+#: .tmp/plustek.c:891 .tmp/umax_pp.c:712
 msgid "Red offset"
 msgstr "Roodoffset"
 
-#: .tmp/plustek.c:889
+#: .tmp/plustek.c:892
 msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:896 .tmp/umax_pp.c:667
+#: .tmp/plustek.c:899 .tmp/umax_pp.c:667
 msgid "Green gain"
 msgstr "Groenbereik"
 
-#: .tmp/plustek.c:897
+#: .tmp/plustek.c:900
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:904 .tmp/umax_pp.c:724
+#: .tmp/plustek.c:907 .tmp/umax_pp.c:724
 msgid "Green offset"
 msgstr "Groenoffset"
 
-#: .tmp/plustek.c:905
+#: .tmp/plustek.c:908
 msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:912 .tmp/umax_pp.c:679
+#: .tmp/plustek.c:915 .tmp/umax_pp.c:679
 msgid "Blue gain"
 msgstr "Blauwbereik"
 
-#: .tmp/plustek.c:913
+#: .tmp/plustek.c:916
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:920 .tmp/umax_pp.c:736
+#: .tmp/plustek.c:923 .tmp/umax_pp.c:736
 msgid "Blue offset"
 msgstr "Blauwoffset"
 
-#: .tmp/plustek.c:921
+#: .tmp/plustek.c:924
 msgid "Blue offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:928
+#: .tmp/plustek.c:931
 #, fuzzy
 msgid "Red lamp off"
 msgstr "Schakelt de lamp aan/uit"
 
-#: .tmp/plustek.c:929
+#: .tmp/plustek.c:932
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:936
+#: .tmp/plustek.c:939
 #, fuzzy
 msgid "Green lamp off"
 msgstr "Schakelt de lamp aan/uit"
 
-#: .tmp/plustek.c:937
+#: .tmp/plustek.c:940
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:944
+#: .tmp/plustek.c:947
 #, fuzzy
 msgid "Blue lamp off"
 msgstr "Schakelt de lamp aan/uit"
 
-#: .tmp/plustek.c:945
+#: .tmp/plustek.c:948
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
@@ -2332,7 +2319,7 @@ msgstr "Schakelt de keuze van de lichthoeveelheid in"
 msgid "Turn off lamp when program exits"
 msgstr "Schakel de lamp uit als het programma wordt verlaten"
 
-#: .tmp/sceptre.c:596 .tmp/teco2.c:1826
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1825
 msgid "flatbed scanner"
 msgstr "Flatbed scanner"
 
@@ -2380,11 +2367,11 @@ msgstr ""
 "reageert op invoer van de gebruiker en kan het gehele systeem onbruikbaar "
 "worden."
 
-#: .tmp/snapscan-options.c:383
+#: .tmp/snapscan-options.c:390
 msgid "Preview mode"
 msgstr "Voorbeeldmodus"
 
-#: .tmp/snapscan-options.c:385
+#: .tmp/snapscan-options.c:392
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
@@ -2392,25 +2379,25 @@ msgstr ""
 "Kiest de scanmodus voor alle voorbeeldscans. Grijstrap voorbeeldscans geven "
 "meestal de beste combinatie van snelheid en detail."
 
-#: .tmp/snapscan-options.c:491
+#: .tmp/snapscan-options.c:498
 msgid "Predefined settings"
 msgstr "Voorgedefinieerde instellingen"
 
-#: .tmp/snapscan-options.c:493
+#: .tmp/snapscan-options.c:500
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr "Biedt standaard scanoppervlaktes voor foto's, afdrukken enzovoort."
 
-#: .tmp/snapscan-options.c:738
+#: .tmp/snapscan-options.c:744
 msgid "Colour lines per read"
 msgstr "Kleurlijnen per leesopdracht"
 
-#: .tmp/snapscan-options.c:750
+#: .tmp/snapscan-options.c:756
 msgid "Greyscale lines per read"
 msgstr "Grijstraplijnen per leesopdracht"
 
-#: .tmp/teco1.c:1155 .tmp/teco1.c:1156 .tmp/teco2.c:1961 .tmp/teco2.c:1962
-#: .tmp/teco3.c:980 .tmp/teco3.c:981
+#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
+#: .tmp/teco3.c:977 .tmp/teco3.c:978
 msgid "Dither"
 msgstr "Dither"
 

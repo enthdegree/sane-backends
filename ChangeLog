@@ -1,3 +1,9 @@
+2005-04-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/hp-option.c: Add missing SANE_I18N
+	* po/sane-backends.*.po: Regenerate .po files accordingly
+	* po/sane-backends.sv.po: Update Swedish translations
+
 2005-04-12  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* Various man page fixes: sane-agfafocus.man, sane-apple.man,

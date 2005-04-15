@@ -1,3 +1,24 @@
+2005-04-15 Gerard Klaver <gerard at gkall dot hobby dot nl>
+        
+	* sanei/sanei_usb.c More debug info for control and isochronous mode
+	  Detection added for endpoints for  configurations, interface and
+	  altsetting numbers > 0
+	  Routine added for changing configuration, interface or altsetting
+	  number
+	  sanei_usb_set_configuration
+	  sanei_usb_claim_interface
+	  sanei_usb_release_interface
+	  sanei_usb_set_altinterface
+	* include/sane/sanei_usb.h headers and text added for
+	  sanei_usb_set_configuration
+	  sanei_usb_claim_interface
+	  sanei_usb_release_interface
+	  sanei_usb_set_altinterface
+        * frontend/scanimage.c added -B option buf size
+	  split up printf command to remove warning ISO C89
+	  patch for bugreport 300160, ranges for width and height are wrong
+	* doc/scanimage.man added text -B option buf size
+	
 2005-04-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/hp-option.c: Add missing SANE_I18N

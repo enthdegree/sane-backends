@@ -82,6 +82,7 @@ static struct option basic_options[] = {
   {"verbose", no_argument, NULL, 'v'},
   {"test", no_argument, NULL, 'T'},
   {"version", no_argument, NULL, 'V'},
+  {"buffer_size", no_argument, NULL, 'B'},
   {"batch", optional_argument, NULL, 'b'},
   {"batch-count", required_argument, NULL, OPTION_BATCH_COUNT},
   {"batch-start", required_argument, NULL, OPTION_BATCH_START_AT},
@@ -98,7 +99,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hi:Lf:nvVTb"
+#define BASE_OPTSTRING	"d:hi:Lf:nvBVTb"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -122,10 +123,19 @@ static const char *icc_profile = NULL;
 static void fetch_options (SANE_Device * device);
 static void scanimage_exit (void);
 
+static SANE_Word tl_x = 0;
+static SANE_Word tl_y = 0;
+static SANE_Word br_x = 0;
+static SANE_Word br_y = 0;
+static SANE_Word w_x = 0;
+static SANE_Word h_y = 0;
+static SANE_Byte *buffer;
+static size_t buffer_size;
+
+
 static void
 auth_callback (SANE_String_Const resource,
-	       SANE_Char *username,
-	       SANE_Char *password)
+	       SANE_Char * username, SANE_Char * password)
 {
   char tmp[3 + 128 + SANE_MAX_USERNAME_LEN + SANE_MAX_PASSWORD_LEN], *wipe;
   unsigned char md5digest[16];
@@ -345,6 +355,7 @@ print_option (SANE_Device * device, int opt_num, char short_name)
   const SANE_Option_Descriptor *opt;
   SANE_Bool not_first = SANE_FALSE;
   int i, column;
+  SANE_Word maxwindow = 0;
 
   opt = sane_get_option_descriptor (device, opt_num);
 
@@ -393,8 +404,25 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	case SANE_CONSTRAINT_RANGE:
 	  if (opt->type == SANE_TYPE_INT)
 	    {
-	      printf ("%d..%d",
-		      opt->constraint.range->min, opt->constraint.range->max);
+	      if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+		{
+
+		  maxwindow = (opt->constraint.range->max) - tl_x;
+
+		  printf ("%d..%d", opt->constraint.range->min, maxwindow);
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+		{
+		  maxwindow = (opt->constraint.range->max) - tl_y;
+
+		  printf ("%d..%d", opt->constraint.range->min, maxwindow);
+		}
+	      else
+		{
+		  printf ("%d..%d",
+			  opt->constraint.range->min,
+			  opt->constraint.range->max);
+		}
 	      print_unit (opt->unit);
 	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
@@ -403,9 +431,29 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	    }
 	  else
 	    {
-	      printf ("%g..%g",
-		      SANE_UNFIX (opt->constraint.range->min),
-		      SANE_UNFIX (opt->constraint.range->max));
+	      if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+		{
+		  maxwindow = (opt->constraint.range->max) - tl_x;
+
+		  printf ("%g..%g",
+			  SANE_UNFIX (opt->constraint.range->min),
+			  SANE_UNFIX (maxwindow));
+
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+		{
+		  maxwindow = (opt->constraint.range->max) - tl_y;
+
+		  printf ("%g..%g",
+			  SANE_UNFIX (opt->constraint.range->min),
+			  SANE_UNFIX (maxwindow));
+		}
+	      else
+		{
+		  printf ("%g..%g",
+			  SANE_UNFIX (opt->constraint.range->min),
+			  SANE_UNFIX (opt->constraint.range->max));
+		}
 	      print_unit (opt->unit);
 	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
 		fputs (",...", stdout);
@@ -460,11 +508,59 @@ print_option (SANE_Device * device, int opt_num, char short_name)
 	      break;
 
 	    case SANE_TYPE_INT:
-	      printf ("%d", *(SANE_Int *) val);
+	      if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
+		{
+		  tl_x = (*(SANE_Fixed *) val);
+		  printf ("%d", tl_x);
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
+		{
+		  tl_y = (*(SANE_Fixed *) val);
+		  printf ("%d", tl_y);
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+		{
+		  br_x = (*(SANE_Fixed *) val);
+		  w_x = br_x - tl_x;
+		  printf ("%d", w_x);
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+		{
+		  br_y = (*(SANE_Fixed *) val);
+		  h_y = br_y - tl_y;
+		  printf ("%d", h_y);
+		}
+	      else
+		printf ("%d", *(SANE_Int *) val);
 	      break;
 
 	    case SANE_TYPE_FIXED:
-	      printf ("%g", SANE_UNFIX (*(SANE_Fixed *) val));
+
+	      if (strcmp (opt->name, SANE_NAME_SCAN_TL_X) == 0)
+		{
+		  tl_x = (*(SANE_Fixed *) val);
+		  printf ("%g", SANE_UNFIX (tl_x));
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_TL_Y) == 0)
+		{
+		  tl_y = (*(SANE_Fixed *) val);
+		  printf ("%g", SANE_UNFIX (tl_y));
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_X) == 0)
+		{
+		  br_x = (*(SANE_Fixed *) val);
+		  w_x = br_x - tl_x;
+		  printf ("%g", SANE_UNFIX (w_x));
+		}
+	      else if (strcmp (opt->name, SANE_NAME_SCAN_BR_Y) == 0)
+		{
+		  br_y = (*(SANE_Fixed *) val);
+		  h_y = br_y - tl_y;
+		  printf ("%g", SANE_UNFIX (h_y));
+		}
+	      else
+		printf ("%g", SANE_UNFIX (*(SANE_Fixed *) val));
+
 	      break;
 
 	    case SANE_TYPE_STRING:
@@ -1020,7 +1116,7 @@ static SANE_Status
 scan_it (void)
 {
   int i, len, first_frame = 1, offset = 0, must_buffer = 0;
-  SANE_Byte buffer[32 * 1024], min = 0xff, max = 0;
+  SANE_Byte min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
   Image image = { 0, 0, 0, 0, 0, 0 };
@@ -1029,6 +1125,8 @@ scan_it (void)
   };
   SANE_Word total_bytes = 0, expected_bytes;
   SANE_Int hang_over = -1;
+
+  buffer = malloc (buffer_size);
 
   do
     {
@@ -1094,7 +1192,8 @@ scan_it (void)
 		  if (output_format == OUTPUT_TIFF)
 		    sanei_write_tiff_header (parm.format,
 					     parm.pixels_per_line, parm.lines,
-					     parm.depth, resolution_value, icc_profile);
+					     parm.depth, resolution_value,
+					     icc_profile);
 		  else
 		    write_pnm_header (parm.format, parm.pixels_per_line,
 				      parm.lines, parm.depth);
@@ -1141,7 +1240,7 @@ scan_it (void)
 
       while (1)
 	{
-	  status = sane_read (device, buffer, sizeof (buffer), &len);
+	  status = sane_read (device, buffer, buffer_size, &len);
 	  total_bytes += (SANE_Word) len;
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -1261,7 +1360,8 @@ scan_it (void)
       image.height = image.y;
       if (output_format == OUTPUT_TIFF)
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
-				 parm.lines, parm.depth, resolution_value, icc_profile);
+				 parm.lines, parm.depth, resolution_value,
+				 icc_profile);
       else
 	write_pnm_header (parm.format, image.width, image.height, parm.depth);
       if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1)
@@ -1481,6 +1581,8 @@ main (int argc, char **argv)
 
   atexit (scanimage_exit);
 
+  buffer_size = (32 * 1024);	/* default size */
+
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
     ++prog_name;
@@ -1513,11 +1615,14 @@ main (int argc, char **argv)
 	case 'h':
 	  help = 1;
 	  break;
-        case 'i': /* icc profile */
-          icc_profile = optarg;
-          break;
+	case 'i':		/* icc profile */
+	  icc_profile = optarg;
+	  break;
 	case 'v':
 	  ++verbose;
+	  break;
+	case 'B':
+	  buffer_size = (1024 * 1024);
 	  break;
 	case 'T':
 	  test = 1;
@@ -1526,8 +1631,8 @@ main (int argc, char **argv)
 	  dont_scan = 1;
 	  break;
 	case OPTION_BATCH_PROMPT:
-          batch_prompt = 1;
-          break;
+	  batch_prompt = 1;
+	  break;
 	case OPTION_BATCH_INCREMENT:
 	  batch_increment = atoi (optarg);
 	  break;
@@ -1688,25 +1793,29 @@ standard output.\n\
 \n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
     --format=pnm|tiff      file format of output file\n\
--i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n\
+-i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
+  printf ("\
 -L, --list-devices         show available scanner devices\n\
 -f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
                            can be specified: %%d (device name), %%v (vendor),\n\
                            %%m (model), %%t (type), and %%i (index number)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
-                           `out%%d.tif' by default depending on --format\n\
+                           `out%%d.tif' by default depending on --format\n");
+  printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
     --batch-increment=#    increase number in filename by an amount of #\n\
     --batch-double         increment page number by two for 2sided originals\n\
                            being scanned in a single sided scanner\n\
     --batch-prompt         ask for pressing a key before scanning a page\n\
-    --accept-md5-only      only accept authorization requests using md5\n\
+    --accept-md5-only      only accept authorization requests using md5\n");
+  printf ("\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -h, --help                 display this help message and exit\n\
 -v, --verbose              give even more status messages\n\
--V, --version              print version information\n", prog_name);
+-B, --buffer-size          change default input buffersize\n\
+-V, --version              print version information\n");
 
   if (!devname)
     {
@@ -1827,6 +1936,7 @@ standard output.\n\
 	    case 'v':
 	    case 'V':
 	    case 'T':
+	    case 'B':
 	      /* previously handled options */
 	      break;
 
@@ -1866,11 +1976,15 @@ standard output.\n\
 	if (window[index])
 	  {
 	    SANE_Word val, pos;
+	    pos = 0;
 
+	    val = window_val[index] - 1;
 	    if (window[index + 2])
-	      sane_control_option (device, window[index + 2],
-				   SANE_ACTION_GET_VALUE, &pos, 0);
-	    val = pos + window_val[index] - 1;
+	      {
+		sane_control_option (device, window[index + 2],
+				     SANE_ACTION_GET_VALUE, &pos, 0);
+		val = pos + window_val[index] - 1;
+	      }
 	    set_option (device, window[index], &val);
 	  }
       if (help)
@@ -1980,20 +2094,22 @@ List of available devices:", prog_name);
 	  if (batch)
 	    {
 	      if (batch_prompt)
-                {
-                  fprintf (stderr, "Place document no. %d on the scanner.\n", n);
-                  fprintf (stderr, "Press <RETURN> to continue.\n");
-                  fprintf (stderr, "Press Ctrl + D to terminate.\n");
-                  readbuf2=fgets(readbuf, 2, stdin);
+		{
+		  fprintf (stderr, "Place document no. %d on the scanner.\n",
+			   n);
+		  fprintf (stderr, "Press <RETURN> to continue.\n");
+		  fprintf (stderr, "Press Ctrl + D to terminate.\n");
+		  readbuf2 = fgets (readbuf, 2, stdin);
 
 		  if (readbuf2 == NULL)
 		    {
-		      fprintf (stderr, "Batch terminated, %d pages scanned\n", (n - batch_increment));
+		      fprintf (stderr, "Batch terminated, %d pages scanned\n",
+			       (n - batch_increment));
 		      fclose (stdout);
 		      unlink (path);
-		      break; /* get out of this loop */
+		      break;	/* get out of this loop */
 		    }
-                }
+		}
 	      fprintf (stderr, "Scanning page %d\n", n);
 	    }
 	  status = scan_it ();

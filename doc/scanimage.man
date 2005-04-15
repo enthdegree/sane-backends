@@ -1,4 +1,4 @@
-.TH scanimage 1 "22 Feb 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "15 April 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -27,6 +27,7 @@ scanimage \- scan an image
 .RB [ \-T | \-\-test ]
 .RB [ \-h | \-\-help ]
 .RB [ \-v | \-\-verbose ]
+.RB [ \-B | \-\-buffersize ]
 .RB [ \-V | \-\-version ]
 .RI [ device-specific-options ]
 .SH DESCRIPTION
@@ -227,6 +228,14 @@ options increase the verbosity of the operation of
 .B scanimage.
 The option may be specified repeatedly, each time increasing the verbosity
 level.
+.PP
+The
+.B \-B
+or
+.B \-\-buffersize
+option changes the input buffersize that
+.B scanimage
+uses from default 32*1024 to 1024*1024 kbytes.
 .PP
 The
 .B \-V

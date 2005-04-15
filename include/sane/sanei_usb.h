@@ -158,7 +158,7 @@
 
 /** @name USB directions */
 /* @{ */
-#define USB_DIR_OUT                     0
+#define USB_DIR_OUT                     0x00
 #define USB_DIR_IN                      0x80
 /* @} */
 
@@ -310,6 +310,7 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
  * - SANE_STATUS_INVAL - on every other error
  *
  */
+
 extern SANE_Status
 sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size);
 
@@ -333,4 +334,77 @@ extern void
 sanei_usb_attach_matching_devices (const char *name,
 				   SANE_Status (*attach) (const char *dev));
 
+/** Initiate set configuration.
+ *
+ * Change set configuration
+ *
+ * @param dn device number
+ * @param configuration, configuration nummber
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration);
+
+/** Initiate claim interface.
+ *
+ * Change claim interface
+ *
+ * @param dn device number
+ * @param interface, interface nummber
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface);
+
+/** Initiate release interface.
+ *
+ * Change release interface
+ *
+ * @param dn device number
+ * @param interface, interface nummber
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_usb_release_interface (SANE_Int dn, SANE_Int interface);
+
+/** Initiate a set altinterface.
+ *
+ * Change set alternate
+ *
+ * @param dn device number
+ * @param alternate, alternate nummber
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_EOF - if zero bytes have been read
+ * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate);
+
+/*------------------------------------------------------*/
 #endif /* sanei_usb_h */

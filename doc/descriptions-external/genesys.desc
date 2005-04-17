@@ -253,4 +253,11 @@
 :interface "USB"
 :status :unsupported
 
+:mfg "Xerox"
+:url "http://www.xerox.com/"
+:model "2400 Onetouch"
+:url "/unsupported/xerox-2400-onetouch.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for more details."
 

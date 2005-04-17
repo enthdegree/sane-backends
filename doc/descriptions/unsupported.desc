@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-03-16"		; version of backend
+:version "2005-04-11"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -571,6 +571,12 @@
 :comment "Not supported. See link for details."
 :status :unsupported
 
+:model "ScanJet 5590"
+:url "/unsupported/hp-scanjet-5590.html"
+:interface "USB"
+:comment "Not supported. See link for details."
+:status :unsupported
+
 ;********************************************************************************************
 
 :mfg "IBM"
@@ -652,6 +658,12 @@
 :status :unsupported
 :comment "Unsupported."
 
+:model "X5250"
+:url "/unsupported/lexmark-x5250.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported."
+
 ;********************************************************************************************
 
 :mfg "Logitech"
@@ -726,6 +738,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported. Same as Visioneer Onetouch 4400. See link for details."
+
+:model "MaxxScan 6122"
+:url "/unsupported/trust-combiscan-19200.html"
+:interface "USB Parport"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "SCF 9612P"
 :url "/unsupported/memorex-scf-9612p.html"
@@ -843,6 +861,12 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "ScanMaker 6100"
+:url "/unsupported/microtek-scanmaker-6100.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
 :model "ScanMaker 6700"
 :url "/unsupported/microtek-scanmaker-6700.html"
 :interface "USB IEEE-1394"
@@ -902,6 +926,12 @@
 :interface "USB IEEE-1394"
 :status :unsupported
 :comment "Probably unsupported. May work with vuescan. See link for details."
+
+:model "DiMAGE Scan Multi Pro"
+:url "/unsupported/minolta-dimage-scan-multi-pro.html"
+:interface "IEEE-1394"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -1202,6 +1232,12 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program is available."
 
+:model "Colorado USB 9600"
+:url "/unsupported/primax-colorado-usb-9600.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "OneTouch 5300"
 ;:url ""
 :interface "Parport"
@@ -1406,6 +1442,17 @@
 
 ;********************************************************************************************
 
+:mfg "Tiny"
+;:url ""
+
+:model "FU661E"
+:url "/unsupported/visioneer-onetouch4400.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+;********************************************************************************************
+
 :mfg "Trust"
 :url "http://www.trust-site.com"
 
@@ -1547,6 +1594,12 @@
 :status :unsupported
 :comment "Unsupported. 48 bit scanner, doesn't work with viceo backend. RTS8801C. Vendor/product 0x04a7/0x0226."
 
+:model "OneTouch 6600"
+:url "/unsupported/visioneer-onetouch6600.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "OneTouch 8100"
 :url "/unsupported/visioneer-onetouch8100.html"
 :interface "USB"
@@ -1628,12 +1681,6 @@
 
 :mfg "Xerox"
 :url "http://www.xerox.com/"
-
-:model "2400 Onetouch"
-:url "/unsupported/xerox-2400-onetouch.html"
-:interface "USB"
-:status :unsupported
-:comment "Not supported. See link for more details."
 
 :model "DocuImage 620S"
 :url "/unsupported/xerox-docuimage-620s.html"

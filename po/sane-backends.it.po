@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-04-13 07:24+0200\n"
-"PO-Revision-Date: 2005-04-13 09:10+0200\n"
+"PO-Revision-Date: 2005-04-17 20:02+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -645,9 +645,8 @@ msgid "Halftone"
 msgstr "Mezzi toni"
 
 #: .tmp/hp-option.c:2980
-#, fuzzy
 msgid "Advanced Options"
-msgstr "Opzioni di aggiornamento"
+msgstr "Opzioni avanzate"
 
 #: .tmp/hp-option.c:3037
 msgid "Coarse"
@@ -766,9 +765,8 @@ msgid "Conditional"
 msgstr "Condizionale"
 
 #: .tmp/hp-option.c:3410
-#, fuzzy
 msgid "Experiment"
-msgstr "Tempo di esposizione"
+msgstr "Esperimento"
 
 #: .tmp/hp-option.h:60
 msgid "Sharpening"

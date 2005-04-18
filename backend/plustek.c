@@ -148,7 +148,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-2"
+#define BACKEND_VERSION "0.49-3"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -166,8 +166,8 @@
 #define _DBG_PROC       7
 #define _DBG_SANE_INIT 10
 #define _DBG_INFO2     15
-#define _DBG_DREGS     20        
-#define _DBG_DPIC      25        
+#define _DBG_DREGS     20
+#define _DBG_DPIC      25
 #define _DBG_READ      30
 
 /*****************************************************************************/

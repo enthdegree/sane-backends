@@ -1,11 +1,17 @@
-2005-03-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+2005-04-18  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-usbhw.c, backend/plustek-usbscan.c: Fixed
+	  problem, that has been reported in conjunction with backtracking
+	  and sensor-speedup option.
+
+2005-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/genesys.desc: Added and updated
 	  several scanners.
 
 2005-04-15 Gerard Klaver <gerard at gkall dot hobby dot nl>
-        
+
 	* sanei/sanei_usb.c More debug info for control and isochronous mode
 	  Detection added for endpoints for  configurations, interface and
 	  altsetting numbers > 0

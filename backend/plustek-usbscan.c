@@ -1348,7 +1348,8 @@ static SANE_Bool usb_ScanReadImage( Plustek_Device *dev,
                                     void *pBuf, u_long dwSize )
 {
 	static u_long dwBytes = 0;
-	SANE_Status res;
+	u_char       *regs = dev->usbDev.a_bRegs;
+	SANE_Status   res;
 
 	DBG( _DBG_READ, "usb_ScanReadImage(%lu)\n", dwSize );
 
@@ -1361,7 +1362,10 @@ static SANE_Bool usb_ScanReadImage( Plustek_Device *dev,
 		if (!usb_IsDataAvailableInDRAM( dev )) {
 			DBG( _DBG_ERROR, "Nothing to read...\n" );
 			return SANE_FALSE;
-		}			
+		}
+
+		/* restore the fast forward stepsize...*/
+		sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 2, SANE_TRUE);
 	}
 /* HEINER: ADF */
 #if 0

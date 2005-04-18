@@ -41,6 +41,7 @@
  *        - added usb_FillLampRegs() - sets also PWMDutyCylce now
  *        - added UMAX3450 TPA autodetection
  * - 0.49 - a_bRegs is now part of the device structure
+ *        - fixed problem in backtracking, when speedup is enabled
  * .                                        
  * <hr>
  * This file is part of the SANE package.
@@ -238,6 +239,7 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 {
 	SANE_Bool      retval;
 	u_char         value, mclk_div, mch;
+	u_char         r[2];
 	u_short        ffs, step, min_ffs;
 	long           dwTicks;
 	double         maxf, fac, speed;
@@ -321,9 +323,9 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 				if((int)fac > 25 )
 					usleep( 150 * 1000 );
 
-				regs[0x48] = (u_char)(ffs >> 8);
-				regs[0x49] = (u_char)(ffs & 0xFF);
-				sanei_lm983x_write(dev->fd, 0x48, &regs[0x48], 2, SANE_TRUE);
+				r[0] = (u_char)(ffs >> 8);
+				r[1] = (u_char)(ffs & 0xFF);
+				sanei_lm983x_write(dev->fd, 0x48, r, 2, SANE_TRUE);
 				if(ffs == min_ffs )
 					ffs = 0;
 			} else {

@@ -3,6 +3,8 @@
 	* backend/plustek-usbhw.c, backend/plustek-usbscan.c: Fixed
 	  problem, that has been reported in conjunction with backtracking
 	  and sensor-speedup option.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
 
 2005-04-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

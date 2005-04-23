@@ -1,3 +1,7 @@
+2005-04-23  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Genius ColorPage Vivid3xe
+	(0458/2017), from Ramiro Aceves through Debian BTS.
+
 2005-04-18  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-usbhw.c, backend/plustek-usbscan.c: Fixed

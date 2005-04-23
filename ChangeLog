@@ -1,4 +1,5 @@
 2005-04-23  Julien Blache <jb@jblache.org>
+	* LICENSE: Add an FAQ section.
 	* tools/hotplug/libsane.usermap: Added Genius ColorPage Vivid3xe
 	(0458/2017), from Ramiro Aceves through Debian BTS.
 

@@ -31,6 +31,12 @@
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
+:model "Colorado 2200 USB"
+:interface "USB"
+:status :untested
+:comment "Untested. See link for details. Linux 2.4 only, needs a kernel patch."
+:url "/untested/primax-colorado-2200-usb.html"
+
 :mfg "Visioneer"
 
 :model "OneTouch 6100"

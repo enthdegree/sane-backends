@@ -4,6 +4,8 @@
 	  (bug #301512).
 	* doc/descriptions/mustek.desc: Added Mustek TwainScan II SP (bug
 	  #301217). 
+	* doc/descriptions-external/viceo.desc: Added Primax Colorado 2200
+	  USB.
 	
 2005-04-23  Julien Blache <jb@jblache.org>
 	* LICENSE: Add an FAQ section.

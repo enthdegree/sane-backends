@@ -1,3 +1,8 @@
+2005-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/hotplug/libsane.usermap: Fixed Minolta Scan Dual III entry
+	  (bug #301512).
+	
 2005-04-23  Julien Blache <jb@jblache.org>
 	* LICENSE: Add an FAQ section.
 	* tools/hotplug/libsane.usermap: Added Genius ColorPage Vivid3xe

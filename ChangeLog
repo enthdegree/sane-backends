@@ -6,6 +6,7 @@
 	  #301217). 
 	* doc/descriptions-external/viceo.desc: Added Primax Colorado 2200
 	  USB.
+	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP110.
 	
 2005-04-23  Julien Blache <jb@jblache.org>
 	* LICENSE: Add an FAQ section.

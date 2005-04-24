@@ -53,6 +53,10 @@
 :interface "SCSI"
 :status :complete
 
+:model "TwainScan II SP"
+:interface "SCSI"
+:status :complete
+
 :model "Paragon MFC-800S"
 :interface "SCSI"
 :status :complete

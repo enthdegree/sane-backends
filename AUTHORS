@@ -48,7 +48,7 @@ Backends:
                 Henning Meier-Geinitz (*), and James Perry.
  mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
  mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
- nec:           Kazuya Fukuda
+ nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
  pie:           Simon Munton (*)
@@ -63,7 +63,7 @@ Backends:
  ricoh:         Feico W. Dillema
  s9036:         Ingo Schneider
  sceptre:       Frank Zago (*)
- sharp:         Kazuya Fukuda and Abel Deuring (*)
+ sharp:         Kazuya Fukuda (*) and Abel Deuring (*)
  sm3600:        Marian Eichholz (*) and Glenn Ramsey
  sm3840:        Earle F. Philhower III
  snapscan:      Kevin Charter, Franck Schneider, Michel Roelofs, Sebastien

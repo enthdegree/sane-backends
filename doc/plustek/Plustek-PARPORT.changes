@@ -141,3 +141,7 @@ Version 0.43-5 10/06/2004
     1.0 Change some scanmode definitions to match the SANE predefined
         ones
 
+Version 0.43-6 04/25/2005
+    1.0 Removed inline stuff from kernel module code, as GCC3.4 will
+        make some trouble
+

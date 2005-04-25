@@ -216,6 +216,11 @@ static inline u_char inb_eppdata(int fd)
 	return val;
 }
 
+static inline void outb_eppdata(int fd, u_char val)
+{
+	ieee1284_epp_write_data(pplist.portv[fd], 0, (const char *)&val, 1);
+}
+
 #define outb_data(fd,val) ieee1284_write_data(pplist.portv[fd], val)
 #define outb_ctrl(fd,val) ieee1284_write_control(pplist.portv[fd], \
                                                    (val) ^ C1284_INVERTED)
@@ -231,10 +236,11 @@ static inline void outb_addr(int fd, u_char val)
 #define inb_ctrl(fd)    inb(port[fd].base + 2)
 #define inb_eppdata(fd) inb(port[fd].base + 4)
 
-#define outb_data(fd,val) outb(val, port[fd].base)
-#define outb_stat(fd,val) outb(val, port[fd].base + 1)
-#define outb_ctrl(fd,val) outb(val, port[fd].base + 2)
-#define outb_addr(fd,val) outb(val, port[fd].base + 3)
+#define outb_data(fd,val)    outb(val, port[fd].base)
+#define outb_stat(fd,val)    outb(val, port[fd].base + 1)
+#define outb_ctrl(fd,val)    outb(val, port[fd].base + 2)
+#define outb_addr(fd,val)    outb(val, port[fd].base + 3)
+#define outb_eppdata(fd,val) outb(val, port[fd].base + 4)
 
 #ifdef HAVE_IOPL
 # define _SET_IOPL()        iopl(3)
@@ -1087,6 +1093,25 @@ sanei_pp_outb_addr( int fd, SANE_Byte val )
     }
 #endif
     outb_addr( fd, val );
+	return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+sanei_pp_outb_epp( int fd, SANE_Byte val )
+{
+#ifdef _PARANOIA
+	DBG( 4, "sanei_pp_outb_epp: called for fd %d\n", fd );
+
+#if defined(HAVE_LIBIEEE1284)
+	if ((fd < 0) || (fd >= pplist.portc)) {
+#else
+	if ((fd < 0) || (fd >= NELEMS (port))) {
+#endif
+		DBG( 2, "sanei_pp_outb_epp: invalid fd %d\n", fd );
+		return SANE_STATUS_INVAL;
+    }
+#endif
+    outb_eppdata( fd, val );
 	return SANE_STATUS_GOOD;
 }
 

@@ -140,7 +140,7 @@ extern SANE_Status sanei_pp_getmodes( int fd, int *mode );
  */
 extern SANE_Status sanei_pp_setmode( int fd, int mode );
 
-/** Write data to ports (spp-data, ctrl and epp-address)
+/** Write data to ports (spp-data, ctrl, epp-address and epp-data)
  *
  * @param fd  - handle of device to which shall be written to.
  * @param val - data to write.
@@ -149,6 +149,7 @@ extern SANE_Status sanei_pp_setmode( int fd, int mode );
 extern SANE_Status sanei_pp_outb_data( int fd, SANE_Byte val );
 extern SANE_Status sanei_pp_outb_ctrl( int fd, SANE_Byte val );
 extern SANE_Status sanei_pp_outb_addr( int fd, SANE_Byte val );
+extern SANE_Status sanei_pp_outb_epp ( int fd, SANE_Byte val );
 
 /** Read data from ports (spp-data, status, ctrl and epp-data)
  * @param fd - handle of device who should be read from.

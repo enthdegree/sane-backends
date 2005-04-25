@@ -377,7 +377,7 @@ static void ioRestoreParallelMode( pScanData ps )
 
 /** try to connect to scanner (ASIC 9600x and 98001)
  */
-_LOC _INL void ioP98001EstablishScannerConnection( pScanData ps, ULong delTime )
+_LOC void ioP98001EstablishScannerConnection( pScanData ps, ULong delTime )
 {
 	_OUTB_DATA( ps, _ID_TO_PRINTER );
     _DO_UDELAY( delTime );

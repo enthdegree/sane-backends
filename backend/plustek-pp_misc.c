@@ -601,7 +601,7 @@ _LOC void MiscRestorePort( pScanData ps )
  * @param timer - pointer to the timer to start
  * @param us    - timeout value in micro-seconds
  */
-_LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
+_LOC void MiscStartTimer( pTimerDef timer , unsigned long us)
 {
     struct timeval start_time;
 
@@ -620,7 +620,7 @@ _LOC _INL void MiscStartTimer( pTimerDef timer , unsigned long us)
  * @return Function returns _E_TIMEOUT when the timer has been expired,
  *         otherwise _OK;
  */
-_LOC _INL int MiscCheckTimer( pTimerDef timer )
+_LOC int MiscCheckTimer( pTimerDef timer )
 {
     struct timeval current_time;
 

@@ -1,3 +1,13 @@
+2005-04-25  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* include/sane/sanei_pp.h, sanei/sanei_pp.c: Added outb_eppdata
+	  functionality (thanks to Anderson Lizardo).
+	* backend/plustek-pp_procs.h, backend/plustek-pp_io.c,
+	  backend/plustek-pp_misc.c: Fixed compilation problem for kernel
+	  module with gcc-3.4 compiler.
+	* doc/plustek/Plustek-PARPORT.changes: Update.
+	* backend/plustek-pp.c: Bumped build number.
+
 2005-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Fixed Minolta Scan Dual III entry

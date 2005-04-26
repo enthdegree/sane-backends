@@ -1,3 +1,7 @@
+2005-04-26  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Epson Stylus CX3650
+	(04b8/080e), from Daniel Sobe.
+
 2005-04-25  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* include/sane/sanei_pp.h, sanei/sanei_pp.c: Added outb_eppdata

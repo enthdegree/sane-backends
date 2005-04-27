@@ -1,4 +1,9 @@
+2005-04-27  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/plustek.desc: Added UMAX Astranet ia101.
+
 2005-04-26  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug/libsane.usermap: Added Epson Stylus CX3650
 	(04b8/080e), from Daniel Sobe.
 
@@ -24,6 +29,7 @@
 	* AUTHORS: Marked Kazuya Fukuda as active.
 	
 2005-04-23  Julien Blache <jb@jblache.org>
+
 	* LICENSE: Add an FAQ section.
 	* tools/hotplug/libsane.usermap: Added Genius ColorPage Vivid3xe
 	(0458/2017), from Ramiro Aceves through Debian BTS.
@@ -440,6 +446,7 @@
 	  rr dot com>.
 
 2004-11-13  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug/libsane.usermap: Added Epson Stylus Photo RX500,
 	Epson Stylus Photo RX600 and Minolta Scan Dual II.
 

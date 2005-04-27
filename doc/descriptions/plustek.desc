@@ -124,6 +124,11 @@
 :status :complete
 :comment "there are some UMAX 3400 outside the U.S. which are not supported, as they use another chipset than the LM983x"
 
+:model "UMAX Astranet ia101"
+:interface "USB"
+:status :complete
+:comment "seems to be a renamed UMAX 3400"
+
 :model "UMAX 3450"
 :interface "USB"
 :status :complete

@@ -178,7 +178,9 @@ attach (const char *devname, V4L_Device ** devp)
   if (!dev->sane.name)
     return SANE_STATUS_NO_MEM;
   dev->sane.vendor = "Noname";
-  dev->sane.model = capability.name;
+  dev->sane.model = strdup (capability.name);
+  if (!dev->sane.model)
+    return SANE_STATUS_NO_MEM;
   dev->sane.type = "virtual device";
 
   ++num_devices;
@@ -466,6 +468,7 @@ sane_exit (void)
     {
       next = dev->next;
       free ((void *) dev->sane.name);
+      free ((void *) dev->sane.model);
       free (dev);
     }
 

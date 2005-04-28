@@ -1,3 +1,8 @@
+2005-04-28  Julien Blache <jb@jblache.org>
+	* backend/v4l.c: duplicate capability.name in attach() so that
+	each device is listed with its actual name, not with the name of
+	the last discovered device. Reported by Andreas Hartmann.
+
 2005-04-28  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* frontend/scanimage.c: Added missing braces

@@ -1786,7 +1786,8 @@ main (int argc, char **argv)
     }
 
   if (help)
-    printf ("Usage: %s [OPTION]...\n\
+    {
+      printf ("Usage: %s [OPTION]...\n\
 \n\
 Start image acquisition on a scanner device and write PNM image data to\n\
 standard output.\n\
@@ -1794,14 +1795,14 @@ standard output.\n\
 -d, --device-name=DEVICE   use a given scanner device (e.g. hp:/dev/scanner)\n\
     --format=pnm|tiff      file format of output file\n\
 -i, --icc-profile=PROFILE  include this ICC profile into TIFF file\n", prog_name);
-  printf ("\
+      printf ("\
 -L, --list-devices         show available scanner devices\n\
 -f, --formatted-device-list=FORMAT similar to -L, but the FORMAT of the output\n\
                            can be specified: %%d (device name), %%v (vendor),\n\
                            %%m (model), %%t (type), and %%i (index number)\n\
 -b, --batch[=FORMAT]       working in batch mode, FORMAT is `out%%d.pnm' or\n\
                            `out%%d.tif' by default depending on --format\n");
-  printf ("\
+      printf ("\
     --batch-start=#        page number to start naming files with\n\
     --batch-count=#        how many pages to scan in batch mode\n\
     --batch-increment=#    increase number in filename by an amount of #\n\
@@ -1809,13 +1810,14 @@ standard output.\n\
                            being scanned in a single sided scanner\n\
     --batch-prompt         ask for pressing a key before scanning a page\n\
     --accept-md5-only      only accept authorization requests using md5\n");
-  printf ("\
+      printf ("\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -h, --help                 display this help message and exit\n\
 -v, --verbose              give even more status messages\n\
 -B, --buffer-size          change default input buffersize\n\
 -V, --version              print version information\n");
+    }
 
   if (!devname)
     {

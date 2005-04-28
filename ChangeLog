@@ -1,3 +1,7 @@
+2005-04-28  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* frontend/scanimage.c: Added missing braces
+
 2005-04-27  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Added UMAX Astranet ia101.
@@ -64,7 +68,7 @@
 	  sanei_usb_claim_interface
 	  sanei_usb_release_interface
 	  sanei_usb_set_altinterface
-        * frontend/scanimage.c added -B option buf size
+	* frontend/scanimage.c added -B option buf size
 	  split up printf command to remove warning ISO C89
 	  patch for bugreport 300160, ranges for width and height are wrong
 	* doc/scanimage.man added text -B option buf size

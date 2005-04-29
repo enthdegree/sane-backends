@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-04-24"		; version of backend
+:version "2005-04-29"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -162,35 +162,11 @@
 :mfg "Brother"
 :url "http://www.brother.com/"
 
-:model "DCP 8020"
-:status :unsupported
-:url "/unsupported/brother-dcp-8020.html"
-:interface "USB"
-:comment "Unsupported. See link for details."
-
 :model "MFC 4600"
 :status :unsupported
 :url "http://sourceforge.net/projects/brother-mfc"
 :interface "Parport USB"
 :comment "Unsupported. However there is a project to support this scanner/printer/fax combination. See link."
-
-:model "MFC 5100c"
-:status :unsupported
-:url "/unsupported/brother-mfc5100c.html"
-:interface "Parport USB"
-:comment "Unsupported. Some information is available (see link). See also MFC 4600."
-
-:model "MFC 6800"
-:status :unsupported
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-February/006667.html"
-:interface "USB"
-:comment "Unsupported. A backend is under development (see link). Vendor/product 0x04f9/0x0111. See also MFC 4600."
-
-:model "MFC 9160"
-:status :unsupported
-:url "/unsupported/brother-mfc9160c.html"
-:interface "USB Parport"
-:comment "Unsupported. Maybe it's similar to the other Brother MFCs?"
 
 ;********************************************************************************************
 

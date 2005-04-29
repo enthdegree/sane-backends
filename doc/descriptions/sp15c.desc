@@ -22,6 +22,10 @@
 :url "http://www.fcpa.fujitsu.com/products/scanners/"
 :url "http://www.fujitsu.com/"
 
-:model "SP15C"                  ; name models for above-specified mfg.
+:model "ScanPartner 15C"                  ; name models for above-specified mfg.
+:interface "SCSI"
+:status :good
+
+:model "ScanPartner 600C"                  ; name models for above-specified mfg.
 :interface "SCSI"
 :status :good

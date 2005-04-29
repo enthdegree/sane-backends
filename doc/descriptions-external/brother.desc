@@ -15,7 +15,7 @@
 ;:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
-:url "http://solutions.brother.com/Library/sol/printer/linux/sane_drivers.html" ; backend's web page
+:url "http://solutions.brother.com/linux/sol/printer/linux/sane_drivers.html" ; backend's web page
 :comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE." 
                                   ; comment about the backend
 

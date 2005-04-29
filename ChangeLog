@@ -2,6 +2,9 @@
 
 	* doc/descriptions/sp15c.desc: Added ScanPartner 600C (bug
 	  #301528). 
+	* doc/descriptions/unsupported.desc: Removed several Brother
+	  scanner which are supported by the brother backend now.
+	* doc/descriptions-external/brother.desc: Fixed link.
 
 2005-04-28  Julien Blache <jb@jblache.org>
 	* backend/v4l.c: duplicate capability.name in attach() so that

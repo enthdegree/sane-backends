@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang and Andreas Czechanowski,
    1998 Andreas Bolsch for extension to ScanExpress models version 0.6,
-   2000-2004 Henning Meier-Geinitz,
+   2000-2005 Henning Meier-Geinitz,
    2003 James Perry (600 EP).
    
    This file is part of the SANE package.
@@ -48,7 +48,7 @@
 
 /**************************************************************************/
 /* Mustek backend version                                                 */
-#define BUILD 137
+#define BUILD 138
 /**************************************************************************/
 
 #include "../include/sane/config.h"
@@ -114,6 +114,8 @@ static SANE_Int new_dev_len;
 
 /* Number of entries alloced for new_dev */
 static SANE_Int new_dev_alloced;
+
+static SANE_Int lamp_off_time = 60;
 
 /* Used for line-distance correction: */
 static const SANE_Int color_seq[] = {
@@ -2105,7 +2107,7 @@ set_window_pro (Mustek_Scanner * s)
   STORE16L (cp, SANE_UNFIX (s->val[OPT_BR_Y].w) * pixels_per_mm + 0.5);
 
   if (strcmp (s->hw->sane.model, "1200 SP PRO") != 0)
-    *cp++ = 0x3c;		/* Only needed for A3 Pro, 60 minutes until lamp-off */
+    *cp++ = lamp_off_time;		/* Only needed for A3 Pro, default: 60 minutes until lamp-off */
   DBG (5, "set_window_pro\n");
 
   return dev_cmd (s, cmd, (cp - cmd), 0, 0);
@@ -4330,6 +4332,27 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
   s->val[OPT_FAST_PREVIEW].w = SANE_FALSE;
 
+  /* lamp off time*/
+  s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
+  s->opt[OPT_LAMP_OFF_TIME].title = SANE_I18N ("Lamp off time (minutes)");
+  s->opt[OPT_LAMP_OFF_TIME].desc = SANE_I18N ("Set the time (in minutes) after "
+					      "which the lamp is shut off.");
+  s->opt[OPT_LAMP_OFF_TIME].type = SANE_TYPE_INT;
+  if (strcmp (s->hw->sane.model, "1200 A3 PRO") != 0)
+    s->opt[OPT_LAMP_OFF_TIME].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_LAMP_OFF_TIME].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_LAMP_OFF_TIME].constraint.range = &u8_range;
+  s->val[OPT_LAMP_OFF_TIME].w = 60;
+
+  /* shut lamp off */
+  s->opt[OPT_LAMP_OFF_BUTTON].name = "lamp-off";
+  s->opt[OPT_LAMP_OFF_BUTTON].title = SANE_I18N ("Turn lamp off");
+  s->opt[OPT_LAMP_OFF_BUTTON].desc = SANE_I18N ("Turns the lamp off immediately.");
+  s->opt[OPT_LAMP_OFF_BUTTON].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_LAMP_OFF_BUTTON].cap = SANE_CAP_SOFT_SELECT;
+  if (strcmp (s->hw->sane.model, "1200 A3 PRO") != 0)
+    s->opt[OPT_LAMP_OFF_BUTTON].cap |= SANE_CAP_INACTIVE;
+
   /* "Geometry" group: */
   s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
   s->opt[OPT_GEOMETRY_GROUP].desc = "";
@@ -5725,7 +5748,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DBG (1, "sane_control_option: handle is null!\n");
       return SANE_STATUS_INVAL;
     }
-  if (!val)
+
+  if (s->opt[option].type != SANE_TYPE_BUTTON && !val)
     {
       DBG (1, "sane_control_option: val is null!\n");
       return SANE_STATUS_INVAL;
@@ -5785,6 +5809,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST_B:
 	case OPT_CUSTOM_GAMMA:
 	case OPT_QUALITY_CAL:
+	case OPT_LAMP_OFF_TIME:
 	  *(SANE_Word *) val = s->val[option].w;
 	  return SANE_STATUS_GOOD;
 
@@ -5826,6 +5851,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
       switch (option)
 	{
+	case OPT_LAMP_OFF_BUTTON:
+	  {
+	    SANE_Int old_time = lamp_off_time;
+	    SANE_Status status;
+
+	    status = dev_open (s->hw->sane.name, s, sense_handler);
+	    if (status != SANE_STATUS_GOOD)
+	      return status;
+	    lamp_off_time = 0;
+	    set_window_pro (s);
+	    lamp_off_time = old_time;
+	    dev_close (s);
+	    return SANE_STATUS_GOOD;
+	  }
 	  /* (mostly) side-effect-free word options: */
 	case OPT_RESOLUTION:
 	case OPT_TL_X:
@@ -5847,6 +5886,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST_G:
 	case OPT_CONTRAST_B:
 	case OPT_QUALITY_CAL:
+	case OPT_LAMP_OFF_TIME:
 	  s->val[option].w = *(SANE_Word *) val;
 	  return SANE_STATUS_GOOD;
 

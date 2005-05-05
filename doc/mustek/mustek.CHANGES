@@ -1,5 +1,10 @@
 CHANGES for the SANE Mustek backend
 
+2005-05-05:
+  * Released Mustek backend 1.0-138
+  * Added options to set the time after which the lamp of the A3 Pro is shut
+    off and to shut it off immediately.
+
 2004-06-08
   * Released Mustek backend 1.0-137
   * Reduced scan area of Mustek Paragon 1200 A3 Pro. Removed warning message.

@@ -1,6 +1,10 @@
 2005-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Dell 922.
+	* backend/mustek.c backend/mustek.h doc/descriptions/mustek.desc
+	  doc/mustek/mustek.CHANGES: Added options to set the time after
+	  which the lamp of the A3 Pro is shut off and to shut it off
+	  immediately.
 	
 2005-05-02  Peter Fales  <peter@fales-lorenz.net>
 	* backend/gphoto2.c: Fix core dump when no port is specified in 

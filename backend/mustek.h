@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1996, 1997 David Mosberger-Tang, 1998 Andreas Bolsch for
    extension to ScanExpress models version 0.5,
-   2000 - 2002 Henning Meier-Geinitz.
+   2000 - 2005 Henning Meier-Geinitz.
    This file is part of the SANE package.
    
    This program is free software; you can redistribute it and/or
@@ -172,7 +172,8 @@ enum Mustek_Option
   OPT_SOURCE,
   OPT_PREVIEW,
   OPT_FAST_PREVIEW,
-
+  OPT_LAMP_OFF_TIME,
+  OPT_LAMP_OFF_BUTTON,
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,			/* top-left x */
   OPT_TL_Y,			/* top-left y */

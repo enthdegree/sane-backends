@@ -833,12 +833,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
       fclose (fp);
     }
 
-  dev[0].name = strdup (Cam_data.port);
-
   DBG (3, "sane_init: about to init_gphoto2\n");
 
   if (init_gphoto2 () != SANE_STATUS_GOOD)
     return SANE_STATUS_INVAL;
+
+  dev[0].name = strdup (Cam_data.port);
 
   DBG (3, "sane_init: about to get_info\n");
   if (get_info () != SANE_STATUS_GOOD)

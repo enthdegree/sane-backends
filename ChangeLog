@@ -1,3 +1,7 @@
+2005-05-02  Peter Fales  <peter@fales-lorenz.net>
+	* backend/gphoto2.c: Fix core dump when no port is specified in 
+	  the gphoto2 config  file.  (bug #301552)
+
 2005-04-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/sp15c.desc: Added ScanPartner 600C (bug

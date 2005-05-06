@@ -1,3 +1,8 @@
+2005-05-06 Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* backend/qcam.c -indent -gnu, bugreport 300128 free (devlist) added,
+	  DEBUG output added and some small fixes.
+	
 2005-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Dell 922.

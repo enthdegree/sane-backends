@@ -67,7 +67,7 @@
    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 
 #ifdef _AIX
-# include "lalloca.h"	/* MUST come first for AIX! */
+# include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
 #include "sane/config.h"
@@ -128,87 +128,79 @@
 #define BiDir		(   1 << 5)
 
 static int num_devices;
-static QC_Device * first_dev;
-static QC_Scanner * first_handle;
+static QC_Device *first_dev;
+static QC_Scanner *first_handle;
 
-static const SANE_String_Const resolution_list[] =
-  {
-    "Low",	/* million-mode */
-    "High",	/* billion-mode */
-    0
-  };
+static const SANE_String_Const resolution_list[] = {
+  "Low",			/* million-mode */
+  "High",			/* billion-mode */
+  0
+};
 
-static const SANE_Int mono_depth_list[] =
-  {
-    2,				/* # of elements */
-    4, 6
-  };
+static const SANE_Int mono_depth_list[] = {
+  2,				/* # of elements */
+  4, 6
+};
 
-static const SANE_Int color_depth_list[] =
-  {
-    /*2*/ 1,			/* # of elements */
-    /*16,*/ 24			/* "thousand" mode not implemented yet */
-  };
+static const SANE_Int color_depth_list[] = {
+  /*2 */ 1,
+  /* # of elements */
+  /*16, */ 24
+    /* "thousand" mode not implemented yet */
+};
 
-static const SANE_Int xfer_scale_list[] =
-  {
-    3,				/* # of elements */
-    1, 2, 4
-  };
+static const SANE_Int xfer_scale_list[] = {
+  3,				/* # of elements */
+  1, 2, 4
+};
 
-static const SANE_Range u8_range =
-  {
-    /* min, max, quantization */
-    0, 255, 0
-  };
+static const SANE_Range u8_range = {
+  /* min, max, quantization */
+  0, 255, 0
+};
 
-static const SANE_Range brightness_range =
-  {
-    /* min, max, quantization */
-    0, 254, 0			/* 255 is bulb mode! */
-  };
+static const SANE_Range brightness_range = {
+  /* min, max, quantization */
+  0, 254, 0			/* 255 is bulb mode! */
+};
 
-static const SANE_Range x_range[] =
-  {
-    /* min, max, quantization */
-    {0, 338, 2}, /* million mode */
-    {0, 676, 4}, /* billion mode */
-  };
+static const SANE_Range x_range[] = {
+  /* min, max, quantization */
+  {0, 338, 2},			/* million mode */
+  {0, 676, 4},			/* billion mode */
+};
 
-static const SANE_Range odd_x_range[] =
-  {
-    /* min, max, quantization */
-    {1, 339, 2}, /* million mode */
-    {3, 683, 4}, /* billion mode */
-  };
+static const SANE_Range odd_x_range[] = {
+  /* min, max, quantization */
+  {1, 339, 2},			/* million mode */
+  {3, 683, 4},			/* billion mode */
+};
 
-static const SANE_Range y_range[] =
-  {
-    /* min, max, quantization */
-    {0,	249, 1}, /* million mode */
-    {0,	498, 2}, /* billion mode */
-  };
+static const SANE_Range y_range[] = {
+  /* min, max, quantization */
+  {0, 249, 1},			/* million mode */
+  {0, 498, 2},			/* billion mode */
+};
 
-static const SANE_Range odd_y_range[] =
-  {
-    /* min, max, quantization */
-    {0,	249, 1}, /* million mode */
-    {1,	499, 2}, /* billion mode */
-  };
+static const SANE_Range odd_y_range[] = {
+  /* min, max, quantization */
+  {0, 249, 1},			/* million mode */
+  {1, 499, 2},			/* billion mode */
+};
 
-static const SANE_Range bw_x_range = {0, 334, 2};
-static const SANE_Range odd_bw_x_range = {1, 335, 2};
-static const SANE_Range bw_y_range = {0, 241, 1}; 
-static const SANE_Range odd_bw_y_range = {1, 242, 1}; 
+static const SANE_Range bw_x_range = { 0, 334, 2 };
+static const SANE_Range odd_bw_x_range = { 1, 335, 2 };
+static const SANE_Range bw_y_range = { 0, 241, 1 };
+static const SANE_Range odd_bw_y_range = { 1, 242, 1 };
 
 #if defined(__linux__) || defined (HAVE_SYS_HW_H)
 
 #ifdef HAVE_SYS_IO_H
-# include <sys/io.h>	/* GNU libc based Linux */
+# include <sys/io.h>		/* GNU libc based Linux */
 #elif HAVE_ASM_IO_H
-# include <asm/io.h>	/* older Linux */
+# include <asm/io.h>		/* older Linux */
 #elif HAVE_SYS_HW_H
-# include <sys/hw.h>	/* OS/2 */
+# include <sys/hw.h>		/* OS/2 */
 #endif
 
 #define read_lpdata(d)		inb ((d)->port)
@@ -233,7 +225,7 @@ enable_ports (QC_Device * q)
 }
 
 static SANE_Status
-disable_ports (QC_Device *q)
+disable_ports (QC_Device * q)
 {
   if (ioperm (q->port, 3, 0) < 0)
     return SANE_STATUS_INVAL;
@@ -278,18 +270,18 @@ qc_lock_wait (QC_Device * q, int wait)
 
 #ifndef HAVE_STRUCT_FLOCK
   struct flock
-  {    	
-    off_t   l_start;
-    off_t   l_len;
-    pid_t   l_pid;
-    short   l_type;
-    short   l_whence;
+  {
+    off_t l_start;
+    off_t l_len;
+    pid_t l_pid;
+    short l_type;
+    short l_whence;
   };
 #endif /* !HAVE_STRUCT_FLOCK */
   struct flock sfl;
 #endif
 
-  DBG(3, "qc_lock_wait: acquiring lock for 0x%x\n", q->port);
+  DBG (3, "qc_lock_wait: acquiring lock for 0x%x\n", q->port);
 
 #ifdef F_SETLK
   memset (&sfl, 0, sizeof (sfl));
@@ -300,13 +292,11 @@ qc_lock_wait (QC_Device * q, int wait)
       char lockfile[128];
 
       sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
-      q->lock_fd = open (lockfile,
-			 O_WRONLY | O_CREAT | O_EXCL
-			 , 0666);
+      q->lock_fd = open (lockfile, O_WRONLY | O_CREAT | O_EXCL, 0666);
       if (q->lock_fd < 0)
 	{
-	  DBG(1, "qc_lock_wait: failed to open %s (%s)\n",
-	      lockfile, strerror (errno));
+	  DBG (1, "qc_lock_wait: failed to open %s (%s)\n",
+	       lockfile, strerror (errno));
 	  return SANE_STATUS_INVAL;
 	}
 
@@ -316,71 +306,77 @@ qc_lock_wait (QC_Device * q, int wait)
   sfl.l_type = F_WRLCK;
   if (fcntl (q->lock_fd, wait ? F_SETLKW : F_SETLK, &sfl) != 0)
     {
-      DBG(1, "qc_lock_wait: failed to acquire lock (%s)\n",
-	  strerror (errno));
+      DBG (1, "qc_lock_wait: failed to acquire lock (%s)\n",
+	   strerror (errno));
       return SANE_STATUS_INVAL;
     }
 #endif
 
-  DBG(3, "qc_lock_wait: got lock for 0x%x\n", q->port);
+  DBG (3, "qc_lock_wait: got lock for 0x%x\n", q->port);
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
-qc_unlock (QC_Device *q)
+qc_unlock (QC_Device * q)
 {
+  SANE_Status status;
   char lockfile[128];
 #ifdef F_SETLK
 #ifndef HAVE_STRUCT_FLOCK
   struct flock
-  {    	
-    off_t   l_start;
-    off_t   l_len;
-    pid_t   l_pid;
-    short   l_type;
-    short   l_whence;
+  {
+    off_t l_start;
+    off_t l_len;
+    pid_t l_pid;
+    short l_type;
+    short l_whence;
   };
 #endif /* !HAVE_STRUCT_FLOCK */
   struct flock sfl;
 #endif
 
-  DBG(3, "qc_lock_wait: releasing lock for 0x%x\n", q->port);
+  DBG (3, "qc_unlock: releasing lock for 0x%x\n", q->port);
 
 #ifdef F_SETLK
   memset (&sfl, 0, sizeof (sfl));
 #endif
-
   if (q->lock_fd < 0)
-    return SANE_STATUS_INVAL;		 /* port was not locked */
-
+    {
+      DBG (3, "qc_unlock; port was not locked\n");
+      return SANE_STATUS_INVAL;
+    }
   /* clear the exclusive lock */
+
 #ifdef F_SETLK
   sfl.l_type = F_UNLCK;
+
   if (fcntl (q->lock_fd, F_SETLK, &sfl) != 0)
     {
-      DBG(1, "qc_lock_wait: failed to release lock (%s)\n",
-	  strerror (errno));
+      DBG (3, "qc_unlock: failed to release lock (%s)\n", strerror (errno));
       return SANE_STATUS_INVAL;
     }
 #endif
   sprintf (lockfile, "/tmp/LOCK.qcam.0x%x", q->port);
+  DBG (1, "qc_unlock: /tmp/LOCK.qcam.0x%x\n", q->port);
   unlink (lockfile);
   close (q->lock_fd);
   q->lock_fd = -1;
-  return SANE_STATUS_GOOD;
+  DBG (1, "qc_unlock: exit\n");
+  status = SANE_STATUS_GOOD;
+  return status;
 }
 
 static SANE_Status
-qc_lock (QC_Device *q)
+qc_lock (QC_Device * q)
 {
-   return qc_lock_wait (q, 1);
+  return qc_lock_wait (q, 1);
 }
 
 /* Busy-waits for a handshake signal from the QuickCam.  Almost all
    communication with the camera requires handshaking.  This is why
    qcam is a CPU hog.  */
 static int
-qc_waithand (QC_Device *q, int val)
+qc_waithand (QC_Device * q, int val)
 {
   int status;
 
@@ -393,18 +389,20 @@ qc_waithand (QC_Device *q, int val)
    CamRdy1 (bit 3 of status register).  It also returns the last value
    read, since this data is useful.  */
 static unsigned int
-qc_waithand2 (QC_Device *q, int val)
+qc_waithand2 (QC_Device * q, int val)
 {
   unsigned int status;
 
-  do {
-    status = read_lpdata (q);
-  } while ((status & CamRdy2) != (unsigned int) val);
+  do
+    {
+      status = read_lpdata (q);
+    }
+  while ((status & CamRdy2) != (unsigned int) val);
   return status;
 }
 
 static unsigned int
-qc_send (QC_Device *q, unsigned int byte)
+qc_send (QC_Device * q, unsigned int byte)
 {
   unsigned int echo;
   int n1, n2;
@@ -424,25 +422,25 @@ qc_send (QC_Device *q, unsigned int byte)
 #ifndef NDEBUG
   if (echo != byte)
     {
-      DBG(1, "qc_send: sent 0x%02x, camera echoed 0x%02x\n", byte, echo);
+      DBG (1, "qc_send: sent 0x%02x, camera echoed 0x%02x\n", byte, echo);
       n2 = read_lpstatus (q);
       echo = (n1 & 0xf0) | ((n2 & 0xf0) >> 4);
       if (echo != byte)
-	DBG(1, "qc_send: (re-read does not help)\n");
+	DBG (1, "qc_send: (re-read does not help)\n");
       else
-	DBG(1, "qc_send: (fixed on re-read)\n");
+	DBG (1, "qc_send: (fixed on re-read)\n");
     }
 #endif
   return echo;
 }
 
 static int
-qc_readparam (QC_Device *q)
+qc_readparam (QC_Device * q)
 {
   int n1, n2;
   int cmd;
 
-  write_lpcontrol (q, Autofeed | Reset_N);		/* clear PCAck */
+  write_lpcontrol (q, Autofeed | Reset_N);	/* clear PCAck */
   n1 = qc_waithand (q, CamRdy1);
 
   write_lpcontrol (q, Autofeed | Reset_N | PCAck);	/* set PCAck */
@@ -453,18 +451,18 @@ qc_readparam (QC_Device *q)
 }
 
 static unsigned int
-qc_getstatus (QC_Device *q)
+qc_getstatus (QC_Device * q)
 {
   unsigned int status;
 
   qc_send (q, QC_SEND_STATUS);
   status = qc_readparam (q);
-  DBG(3, "qc_getstatus: status=0x%02x\n", status);
+  DBG (3, "qc_getstatus: status=0x%02x\n", status);
   return status;
 }
 
 static void
-qc_setscanmode (QC_Scanner *s, u_int *modep)
+qc_setscanmode (QC_Scanner * s, u_int * modep)
 {
   QC_Device *q = s->hw;
   u_int mode = 0;
@@ -473,28 +471,43 @@ qc_setscanmode (QC_Scanner *s, u_int *modep)
     {
       switch (s->val[OPT_XFER_SCALE].w)
 	{
-	case 1: mode = 0; break;
-	case 2: mode = 4; break;
-	case 4: mode = 8; break;
+	case 1:
+	  mode = 0;
+	  break;
+	case 2:
+	  mode = 4;
+	  break;
+	case 4:
+	  mode = 8;
+	  break;
 	}
       switch (s->val[OPT_DEPTH].w)
 	{
-	case  4: break;
-	case  6: mode +=  2; break;
+	case 4:
+	  break;
+	case 6:
+	  mode += 2;
+	  break;
 	}
     }
   else
     {
       switch (s->val[OPT_XFER_SCALE].w)
 	{
-	case 1: mode = 0; break;
-	case 2: mode = 2; break;
-	case 4: mode = 4; break;
+	case 1:
+	  mode = 0;
+	  break;
+	case 2:
+	  mode = 2;
+	  break;
+	case 4:
+	  mode = 4;
+	  break;
 	}
       if (s->resolution == QC_RES_LOW)
-	mode |= 0x18;	/* millions mode */
+	mode |= 0x18;		/* millions mode */
       else
-	mode |= 0x10;	/* billions mode */
+	mode |= 0x10;		/* billions mode */
     }
   if (s->val[OPT_TEST].w)
     mode |= 0x40;		/* test mode */
@@ -502,7 +515,7 @@ qc_setscanmode (QC_Scanner *s, u_int *modep)
   if (q->port_mode == QC_BIDIR)
     mode |= 1;
 
-  DBG(2, "scanmode (before increment): 0x%x\n", mode);
+  DBG (2, "scanmode (before increment): 0x%x\n", mode);
 
   if (q->version == QC_COLOR)
     ++mode;
@@ -515,9 +528,9 @@ qc_setscanmode (QC_Scanner *s, u_int *modep)
    either 1, 3 or 6.  On failure, 0 is returned.  If buffer is 0, the
    internal state-machine is reset.  */
 static size_t
-qc_readbytes (QC_Scanner *s, unsigned char buffer[])
+qc_readbytes (QC_Scanner * s, unsigned char buffer[])
 {
-  QC_Device * q = s->hw;
+  QC_Device *q = s->hw;
   unsigned int hi, lo;
   unsigned int hi2, lo2;
   size_t bytes = 0;
@@ -525,7 +538,7 @@ qc_readbytes (QC_Scanner *s, unsigned char buffer[])
   if (!buffer)
     {
       s->readbytes_state = 0;
-      return 0; 
+      return 0;
     }
 
   switch (q->port_mode)
@@ -543,7 +556,7 @@ qc_readbytes (QC_Scanner *s, unsigned char buffer[])
       if (q->version == QC_COLOR)
 	{
 	  /* is Nibble3 inverted for color quickcams only? */
-	  hi  ^= 0x10;
+	  hi ^= 0x10;
 	  hi2 ^= 0x10;
 	}
       switch (s->val[OPT_DEPTH].w)
@@ -575,11 +588,11 @@ qc_readbytes (QC_Scanner *s, unsigned char buffer[])
 	}
       break;
 
-    case QC_UNIDIR:  /* Unidirectional Port */
+    case QC_UNIDIR:		/* Unidirectional Port */
       write_lpcontrol (q, Autofeed | Reset_N);
       lo = (qc_waithand (q, CamRdy1) & 0xf0) >> 4;
       write_lpcontrol (q, Autofeed | Reset_N | PCAck);
-      hi = (qc_waithand (q,0) & 0xf0) >> 4;
+      hi = (qc_waithand (q, 0) & 0xf0) >> 4;
 
       if (q->version == QC_COLOR)
 	{
@@ -615,14 +628,14 @@ qc_readbytes (QC_Scanner *s, unsigned char buffer[])
 
 	    case 2:
 	      buffer[0] = ((lo & 0xc) >> 2) | s->saved_bits;
-	      buffer[1] = ((lo & 3) << 4)  | hi;
+	      buffer[1] = ((lo & 3) << 4) | hi;
 	      s->readbytes_state = 0;
 	      bytes = 2;
 	      break;
 
 	    default:
-	      DBG(1, "qc_readbytes: bad unidir 6-bit stat %d\n",
-		  s->readbytes_state);
+	      DBG (1, "qc_readbytes: bad unidir 6-bit stat %d\n",
+		   s->readbytes_state);
 	      break;
 	    }
 	  break;
@@ -633,21 +646,21 @@ qc_readbytes (QC_Scanner *s, unsigned char buffer[])
 	  break;
 
 	default:
-	  DBG(1, "qc_readbytes: bad unidir bit depth %d\n",
-	      s->val[OPT_DEPTH].w);
+	  DBG (1, "qc_readbytes: bad unidir bit depth %d\n",
+	       s->val[OPT_DEPTH].w);
 	  break;
 	}
       break;
 
     default:
-      DBG(1, "qc_readbytes: bad port_mode %d\n", q->port_mode);
+      DBG (1, "qc_readbytes: bad port_mode %d\n", q->port_mode);
       break;
     }
   return bytes;
 }
 
 static void
-qc_reset (QC_Device *q)
+qc_reset (QC_Device * q)
 {
   write_lpcontrol (q, Strobe | Autofeed | Reset_N | PCAck);
   qc_wait (q);
@@ -670,14 +683,14 @@ static jmp_buf env;
 static void
 sighandler (int signal)
 {
-  DBG(3, "sighandler: got signal %d\n", signal);
+  DBG (3, "sighandler: got signal %d\n", signal);
   longjmp (env, 1);
 }
 
 /* Original despeckling code by Patrick Reynolds <patrickr@virginia.edu> */
 
 static void
-despeckle (int width, int height, SANE_Byte *in, SANE_Byte *out)
+despeckle (int width, int height, SANE_Byte * in, SANE_Byte * out)
 {
   long x, i;
   /* The light-check threshold.  Higher numbers remove more lights but
@@ -690,33 +703,36 @@ despeckle (int width, int height, SANE_Byte *in, SANE_Byte *out)
 # define B	in[i*3+2]
 # define pR	in[i*3-3]
 # define pG	in[i*3-2]
-# define pB	in[i*3-1] 
+# define pB	in[i*3-1]
 # define nR	in[i*3+3]
-# define nG	in[i*3+4] 
+# define nG	in[i*3+4]
 # define nB	in[i*3+5]
 
-  DBG(1, "despeckle: width=%d, height=%d\n", width, height);
+  DBG (1, "despeckle: width=%d, height=%d\n", width, height);
 
-  for (x = i = 0; i < width*height; ++i)
+  for (x = i = 0; i < width * height; ++i)
     {
-      if (x == 0 || x == width -1)
-	memcpy (&out[i*3], &in[i*3], 3);
+      if (x == 0 || x == width - 1)
+	memcpy (&out[i * 3], &in[i * 3], 3);
       else
 	{
-	  if (R - (G+B)/2 > NO_LIGHTS + ((pR - (pG+pB)/2) + (nR - (nG+nB)/2)))
-	    out[i*3] = (pR+nR)/2;
+	  if (R - (G + B) / 2 >
+	      NO_LIGHTS + ((pR - (pG + pB) / 2) + (nR - (nG + nB) / 2)))
+	    out[i * 3] = (pR + nR) / 2;
 	  else
-	    out[i*3] = R;
+	    out[i * 3] = R;
 
-	  if (G - (R+B)/2 > NO_LIGHTS + ((pG - (pR+pB)/2) + (nG - (nR+nB)/2)))
-	    out[i*3+1] = (pG+nG)/2;
+	  if (G - (R + B) / 2 >
+	      NO_LIGHTS + ((pG - (pR + pB) / 2) + (nG - (nR + nB) / 2)))
+	    out[i * 3 + 1] = (pG + nG) / 2;
 	  else
-	    out[i*3+1] = G;
+	    out[i * 3 + 1] = G;
 
-	  if (B - (G+R)/2 > NO_LIGHTS + ((pB - (pG+pR)/2) + (nB - (nG+nR)/2)))
-	    out[i*3+2] = (pB+nB)/2;
+	  if (B - (G + R) / 2 >
+	      NO_LIGHTS + ((pB - (pG + pR) / 2) + (nB - (nG + nR) / 2)))
+	    out[i * 3 + 2] = (pB + nB) / 2;
 	  else
-	    out[i*3+2] = B;
+	    out[i * 3 + 2] = B;
 	}
       if (++x >= width)
 	x = 0;
@@ -731,61 +747,63 @@ despeckle (int width, int height, SANE_Byte *in, SANE_Byte *out)
 # undef nG
 # undef nB
 }
- 
+
 static void
-despeckle32 (int width, int height, SANE_Byte *in, SANE_Byte *out)
+despeckle32 (int width, int height, SANE_Byte * in, SANE_Byte * out)
 {
   long x, i;
   /* macros to make the code a little more readable, p=previous, n=next */
 # define B	in[i*4]
 # define Ga	in[i*4 + 1]
-# define Gb	in[i*4 + 1] /* ignore Gb and use Ga instead---Gb is weird */
+# define Gb	in[i*4 + 1]	/* ignore Gb and use Ga instead---Gb is weird */
 # define R	in[i*4 + 3]
 # define pB	in[i*4 - 4]
 # define pGa	in[i*4 - 3]
-# define pGb	in[i*4 - 1] /* ignore Gb and use Ga instead---Gb is weird */
+# define pGb	in[i*4 - 1]	/* ignore Gb and use Ga instead---Gb is weird */
 # define pR	in[i*4 - 1]
 # define nB	in[i*4 + 4]
 # define nGa	in[i*4 + 5]
-# define nGb	in[i*4 + 5] /* ignore Gb and use Ga instead---Gb is weird */
+# define nGb	in[i*4 + 5]	/* ignore Gb and use Ga instead---Gb is weird */
 # define nR	in[i*4 + 7]
 
-  DBG(1, "despeckle32: width=%d, height=%d\n", width, height);
+  DBG (1, "despeckle32: width=%d, height=%d\n", width, height);
 
-  for (x = i = 0; i < width*height; ++i)
+  for (x = i = 0; i < width * height; ++i)
     {
       if (x == 0 || x == width - 1)
-	memcpy (&out[i*4], &in[i*4], 4);
+	memcpy (&out[i * 4], &in[i * 4], 4);
       else
 	{
 	  if (x >= width - 2)
 	    /* the last red pixel seems to be black at all times, use
-               R instead: */
+	       R instead: */
 	    nR = R;
 
-	  if (R - ((Ga+Gb)/2+B)/2 > NO_LIGHTS + ((pR - ((pGa+pGb)/2+pB)/2) +
-						 (nR - ((nGa+nGb)/2+nB)/2)))
-	    out[i*4+3] = (pR+nR)/2;
+	  if (R - ((Ga + Gb) / 2 + B) / 2 >
+	      NO_LIGHTS + ((pR - ((pGa + pGb) / 2 + pB) / 2) +
+			   (nR - ((nGa + nGb) / 2 + nB) / 2)))
+	    out[i * 4 + 3] = (pR + nR) / 2;
 	  else
-	    out[i*4+3] = R;
+	    out[i * 4 + 3] = R;
 
-	  if (Ga - (R+B)/2 > NO_LIGHTS + ((pGa - (pR+pB)/2) +
-					  (nGa - (nR+nB)/2)))
-	    out[i*4+1] = (pGa+nGa)/2;
+	  if (Ga - (R + B) / 2 > NO_LIGHTS + ((pGa - (pR + pB) / 2) +
+					      (nGa - (nR + nB) / 2)))
+	    out[i * 4 + 1] = (pGa + nGa) / 2;
 	  else
-	    out[i*4+1] = Ga;
+	    out[i * 4 + 1] = Ga;
 
-	  if (Gb - (R+B)/2 > NO_LIGHTS + ((pGb - (pR+pB)/2) +
-					  (nGb - (nR+nB)/2)))
-	    out[i*4+2] = (pGb+nGb)/2;
+	  if (Gb - (R + B) / 2 > NO_LIGHTS + ((pGb - (pR + pB) / 2) +
+					      (nGb - (nR + nB) / 2)))
+	    out[i * 4 + 2] = (pGb + nGb) / 2;
 	  else
-	    out[i*4+2] = Gb;
+	    out[i * 4 + 2] = Gb;
 
-	  if (B - ((Ga+Gb)/2+R)/2 > NO_LIGHTS + ((pB - ((pGa+pGb)/2+pR)/2) +
-						 (nB - ((nGa+nGb)/2+nR)/2)))
-	    out[i*4+0] = (pB+nB)/2;
+	  if (B - ((Ga + Gb) / 2 + R) / 2 >
+	      NO_LIGHTS + ((pB - ((pGa + pGb) / 2 + pR) / 2) +
+			   (nB - ((nGa + nGb) / 2 + nR) / 2)))
+	    out[i * 4 + 0] = (pB + nB) / 2;
 	  else
-	    out[i*4+0] = B;
+	    out[i * 4 + 0] = B;
 	}
       if (++x >= width)
 	x = 0;
@@ -805,7 +823,7 @@ despeckle32 (int width, int height, SANE_Byte *in, SANE_Byte *out)
 }
 
 static int
-reader_process (QC_Scanner *s, int in_fd, int out_fd)
+reader_process (QC_Scanner * s, int in_fd, int out_fd)
 {
   static SANE_Byte *buffer = 0, *extra = 0;
   static size_t buffer_size = 0;
@@ -815,6 +833,8 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
   int width, height;
   SANE_Byte *src;
   FILE *ofp;
+
+  DBG (5, "reader_process: enter\n");
 
   enable_ports (q);
 
@@ -829,15 +849,15 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	  char ch;
 
 	  /* acknowledge the signal: */
-	  DBG(1, "reader_process: sending signal ACK\n");
+	  DBG (1, "reader_process: sending signal ACK\n");
 	  fwrite (&ch, 1, 1, ofp);
-	  fflush (ofp);			/* force everything out the pipe */
+	  fflush (ofp);		/* force everything out the pipe */
 	  continue;
 	}
       signal (SIGINT, sighandler);
 
       /* the main process gets us started by writing a size_t giving
-	 the number of bytes we should expect: */
+         the number of bytes we should expect: */
       if (read (in_fd, &req, sizeof (req)) != sizeof (req))
 	{
 	  perror ("read");
@@ -845,17 +865,18 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	}
       num_bytes = req.num_bytes;
 
-      DBG(3, "reader_process: got request for %lu bytes\n",
-	  (u_long) num_bytes);
+      DBG (3, "reader_process: got request for %lu bytes\n",
+	   (u_long) num_bytes);
 
       /* Don't do this in sane_start() since there may be a long
-	 timespan between it and the first sane_read(), which would
-	 result in poor images.  */
+         timespan between it and the first sane_read(), which would
+         result in poor images.  */
       qc_send (q, QC_SEND_VIDEO_FRAME);
       qc_send (q, req.mode);
 
       if (req.despeckle
-	  && (!extra || buffer_size < num_bytes || buffer_size >= 2*num_bytes))
+	  && (!extra || buffer_size < num_bytes
+	      || buffer_size >= 2 * num_bytes))
 	{
 	  if (extra)
 	    extra = realloc (extra, num_bytes);
@@ -863,12 +884,13 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	    extra = malloc (num_bytes);
 	  if (!extra)
 	    {
-	      DBG(1, "reader_process: malloc(%ld) failed\n", (long) num_bytes);
+	      DBG (1, "reader_process: malloc(%ld) failed\n",
+		   (long) num_bytes);
 	      exit (1);
 	    }
 	}
 
-      if (buffer_size < num_bytes || buffer_size >= 2*num_bytes)
+      if (buffer_size < num_bytes || buffer_size >= 2 * num_bytes)
 	{
 	  if (buffer)
 	    buffer = realloc (buffer, num_bytes);
@@ -876,7 +898,8 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	    buffer = malloc (num_bytes);
 	  if (!buffer)
 	    {
-	      DBG(1, "reader_process: malloc(%ld) failed\n", (long) num_bytes);
+	      DBG (1, "reader_process: malloc(%ld) failed\n",
+		   (long) num_bytes);
 	      exit (1);
 	    }
 	  buffer_size = num_bytes;
@@ -887,7 +910,7 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	  /* turn port into input port */
 	  write_lpcontrol (q, Autofeed | Reset_N | PCAck | BiDir);
 	  usleep (3);
-	  write_lpcontrol (q, Autofeed | Reset_N |	   BiDir);
+	  write_lpcontrol (q, Autofeed | Reset_N | BiDir);
 	  qc_waithand (q, CamRdy1);
 	  write_lpcontrol (q, Autofeed | Reset_N | PCAck | BiDir);
 	  qc_waithand (q, 0);
@@ -907,17 +930,17 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	    {
 	    case 4:
 	      invert = 16;
-	      shift  =  4;
+	      shift = 4;
 	      break;
 
 	    case 6:
 	      invert = 63;
-	      shift  =  2;
+	      shift = 2;
 	      break;
 
 	    default:
-	      DBG(1, "reader_process: unexpected depth %d\n",
-		  s->val[OPT_DEPTH].w);
+	      DBG (1, "reader_process: unexpected depth %d\n",
+		   s->val[OPT_DEPTH].w);
 	      return 1;
 	    }
 
@@ -931,13 +954,13 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 		  val = buffer[len + i];
 		  if (val > 0 || invert != 16)
 		    val = invert - val;
-		  buffer[len + i] = (val << shift) | (val >> (8 - 2*shift));
+		  buffer[len + i] = (val << shift) | (val >> (8 - 2 * shift));
 		}
 	    }
-	  qc_readbytes (s, 0); /* reset state machine */
+	  qc_readbytes (s, 0);	/* reset state machine */
 	}
       /* we're done reading this frame: */
-      DBG(2, "reader_process: frame complete\n");
+      DBG (2, "reader_process: frame complete\n");
 
       if (q->port_mode == QC_BIDIR)
 	{
@@ -961,7 +984,7 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 
 	  if (req.despeckle)
 	    {
-	      despeckle32 (width/2, req.params.lines/2, buffer, extra);
+	      despeckle32 (width / 2, req.params.lines / 2, buffer, extra);
 	      src = extra;
 	    }
 
@@ -975,7 +998,9 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 		{
 		  int red1, green1, blue1, green2, blue2;
 
-		  blue1 = src[0]; green1 = src[1]; red1 = src[3];
+		  blue1 = src[0];
+		  green1 = src[1];
+		  red1 = src[3];
 		  if (x >= width - 2)
 		    {
 		      red1 = src[-1];	/* last red seems to be missing */
@@ -989,8 +1014,12 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 		    }
 		  src += 4;
 
-		  buf[0] = red1; buf[1] = green1; buf[2] = blue1;
-		  buf[3] = red1; buf[4] = green2; buf[5] = blue2;
+		  buf[0] = red1;
+		  buf[1] = green1;
+		  buf[2] = blue1;
+		  buf[3] = red1;
+		  buf[4] = green2;
+		  buf[5] = blue2;
 		  if (fwrite (buf, 1, 6, ofp) != 6)
 		    {
 		      perror ("fwrite: short write");
@@ -1000,7 +1029,7 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	      if (++y >= height)
 		break;
 
-	      src -= 2*width;	/* 4 bytes/pixel -> 2 pixels of 3 bytes each */
+	      src -= 2 * width;	/* 4 bytes/pixel -> 2 pixels of 3 bytes each */
 
 	      /* odd line */
 	      for (x = 0; x < width; x += 2)
@@ -1012,25 +1041,29 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 		    red1 = src[-1];	/* last red seems to be missing */
 		  else
 		    red1 = src[3];
-		  yoff = 2*width;
+		  yoff = 2 * width;
 		  if (y >= height - 1)
 		    yoff = 0;
 		  green3 = src[yoff + 1];
-		  blue3  = src[yoff + 0];
+		  blue3 = src[yoff + 0];
 		  if (x >= width - 2)
 		    {
-		      blue4  = blue3;
+		      blue4 = blue3;
 		      green4 = green3;
 		    }
 		  else
 		    {
-		      blue4  = src[yoff + 4];
+		      blue4 = src[yoff + 4];
 		      green4 = src[yoff + 5];
 		    }
 		  src += 4;
 
-		  buf[0] = red1; buf[1] = green3; buf[2] = blue3;
-		  buf[3] = red1; buf[4] = green4; buf[5] = blue4;
+		  buf[0] = red1;
+		  buf[1] = green3;
+		  buf[2] = blue3;
+		  buf[3] = red1;
+		  buf[4] = green4;
+		  buf[5] = blue4;
 		  if (fwrite (buf, 1, 6, ofp) != 6)
 		    {
 		      perror ("fwrite: short write");
@@ -1058,18 +1091,20 @@ reader_process (QC_Scanner *s, int in_fd, int out_fd)
 	}
       fflush (ofp);
     }
-  assert (SANE_FALSE);	/* not reached */
+  assert (SANE_FALSE);		/* not reached */
+  DBG (5, "reader_process: exit\n");
   return 1;
 }
 
 static SANE_Status
-attach (const char *devname, QC_Device **devp)
+attach (const char *devname, QC_Device ** devp)
 {
   int i, n1, n2, s1, s2, cmd, port, force_unidir;
-  SANE_Status result;
-  QC_Device * q;
+  SANE_Status result, status;
+  QC_Device *q;
   char *endp;
 
+  DBG (3, "attach: enter\n");
   errno = 0;
   force_unidir = 0;
   if (devname[0] == 'u')
@@ -1080,7 +1115,7 @@ attach (const char *devname, QC_Device **devp)
   port = strtol (devname, &endp, 0);
   if (endp == devname || errno == ERANGE)
     {
-      DBG(1, "attach: invalid port address `%s'\n", devname);
+      DBG (1, "attach: invalid port address `%s'\n", devname);
       return SANE_STATUS_INVAL;
     }
 
@@ -1103,7 +1138,7 @@ attach (const char *devname, QC_Device **devp)
   result = enable_ports (q);
   if (result != SANE_STATUS_GOOD)
     {
-      DBG(1, "attach: cannot enable ports (%s)\n", strerror (errno));
+      DBG (1, "attach: cannot enable ports (%s)\n", strerror (errno));
       free (q);
       return SANE_STATUS_INVAL;
     }
@@ -1121,7 +1156,7 @@ attach (const char *devname, QC_Device **devp)
   for (i = 0; (i < 1000) && !(s1 = (n1 = read_lpstatus (q)) & CamRdy1); i++);
   if (!s1)
     {
-      DBG(2, "attach: failed to get CamRdy1 at port 0x%x\n", q->port);
+      DBG (2, "attach: failed to get CamRdy1 at port 0x%x\n", q->port);
       goto unlock_and_fail;
     }
 
@@ -1131,15 +1166,15 @@ attach (const char *devname, QC_Device **devp)
   for (i = 0; (i < 1000) && (s2 = (n2 = read_lpstatus (q)) & CamRdy1); i++);
   if (s2)
     {
-      DBG(2, "attach: CamRdy1 failed to clear at port 0x%x\n", q->port);
+      DBG (2, "attach: CamRdy1 failed to clear at port 0x%x\n", q->port);
       goto unlock_and_fail;
     }
 
   cmd = (n1 & 0xf0) | ((n2 & 0xf0) >> 4);
- 
+
   if (cmd != QC_SEND_VERSION)
     {
-      DBG(2, "attach: got 0x%02x instead of 0x%02x\n", cmd, QC_SEND_VERSION);
+      DBG (2, "attach: got 0x%02x instead of 0x%02x\n", cmd, QC_SEND_VERSION);
       goto unlock_and_fail;
     }
 
@@ -1164,20 +1199,24 @@ attach (const char *devname, QC_Device **devp)
       qc_send (q, QC_SET_BLACK);
       qc_send (q, 0);
 
-      DBG(3, "attach: resetting black_level\n");
+      DBG (3, "attach: resetting black_level\n");
 
       /* wait for set black level command to finish: */
       while (qc_getstatus (q) & (CameraNotReady | BlackBalanceInProgress))
 	usleep (10000);
     }
 
-  qc_unlock (q);
-
-  q->sane.name   = strdup (devname);
+  status = qc_unlock (q);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "attach: status qc_unlock NOK\n");
+      /* status = SANE_STATUS_GOOD;  */
+    }
+  q->sane.name = strdup (devname);
   q->sane.vendor = "Connectix";
-  q->sane.model  =
+  q->sane.model =
     (q->version == QC_COLOR) ? "Color QuickCam" : "B&W QuickCam";
-  q->sane.type   = "video camera";
+  q->sane.type = "video camera";
 
   ++num_devices;
   q->next = first_dev;
@@ -1185,19 +1224,30 @@ attach (const char *devname, QC_Device **devp)
 
   if (devp)
     *devp = q;
-  return SANE_STATUS_GOOD;
+  DBG (3, "attach: exit status OK\n");
+  status = SANE_STATUS_GOOD;
+  return status;
+
 
 unlock_and_fail:
-  qc_unlock (q);
+  status = qc_unlock (q);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "attach: unlock_and_fail status qc_unlock NOK\n");
+    }
   free (q);
-  return SANE_STATUS_INVAL;
+  DBG (3, "attach: exit status NOK\n");
+  status = SANE_STATUS_INVAL;
+  return status;
 }
 
 static SANE_Status
-init_options (QC_Scanner *s)
+init_options (QC_Scanner * s)
 {
   int i;
 
+  DBG (3, "init_options: enter\n");
+  
   memset (s->opt, 0, sizeof (s->opt));
   memset (s->val, 0, sizeof (s->val));
 
@@ -1241,7 +1291,7 @@ init_options (QC_Scanner *s)
   s->opt[OPT_DEPTH].unit = SANE_UNIT_BIT;
   s->opt[OPT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
   s->opt[OPT_DEPTH].constraint.word_list = color_depth_list;
-  s->val[OPT_DEPTH].w = color_depth_list[NELEMS(color_depth_list) - 1];
+  s->val[OPT_DEPTH].w = color_depth_list[NELEMS (color_depth_list) - 1];
 
   /* test */
   s->opt[OPT_TEST].name = "test-image";
@@ -1395,19 +1445,22 @@ init_options (QC_Scanner *s)
   s->opt[OPT_SATURATION].constraint.range = &u8_range;
   s->val[OPT_SATURATION].w = 100;
 
+  DBG (3, "init_options: exit\n");
+  
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  char dev_name[PATH_MAX], * str;
+  char dev_name[PATH_MAX], *str;
   size_t len;
   FILE *fp;
+  authorize = authorize;	/* silence compilation warnings */
 
-  authorize = authorize; /* silence compilation warnings */
+  DBG_INIT ();
 
-  DBG_INIT();
+  DBG (1, "sane_init: enter\n");
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
@@ -1415,18 +1468,18 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
   fp = sanei_config_open (QCAM_CONFIG_FILE);
   if (!fp)
     {
-      DBG(1, "sane_init: file `%s' not accessible\n", QCAM_CONFIG_FILE);
+      DBG (1, "sane_init: file `%s' not accessible\n", QCAM_CONFIG_FILE);
       return SANE_STATUS_INVAL;
     }
 
   while (sanei_config_read (dev_name, sizeof (dev_name), fp))
     {
-      if (dev_name[0] == '#')		/* ignore line comments */
+      if (dev_name[0] == '#')	/* ignore line comments */
 	continue;
       len = strlen (dev_name);
 
       if (!len)
-	continue;			/* ignore empty lines */
+	continue;		/* ignore empty lines */
 
       for (str = dev_name; *str && !isspace (*str) && *str != '#'; ++str);
       *str = '\0';
@@ -1434,6 +1487,8 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
       attach (dev_name, 0);
     }
   fclose (fp);
+
+  DBG (1, "sane_init: exit\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -1441,7 +1496,10 @@ void
 sane_exit (void)
 {
   QC_Device *dev, *next;
-
+  static const SANE_Device **devlist;
+  
+  DBG (5, "sane_exit: enter\n");
+  
   for (dev = first_dev; dev; dev = next)
     {
       next = dev->next;
@@ -1449,16 +1507,23 @@ sane_exit (void)
       disable_ports (dev);
       free (dev);
     }
+  if (devlist) {
+	  free (devlist);
+          devlist = NULL;
+  }		  
+  DBG (5, "sane_exit: exit\n");
 }
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  static const SANE_Device ** devlist = 0;
+  static const SANE_Device **devlist = 0;
   QC_Device *dev;
   int i;
 
-  local_only = local_only;  /* silence compilation warnings */
+  DBG (5, "sane_get_devices: enter\n");
+
+  local_only = local_only;	/* silence compilation warnings */
 
   if (devlist)
     free (devlist);
@@ -1473,18 +1538,20 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   devlist[i++] = 0;
 
   *device_list = devlist;
+  
+  DBG (5, "sane_get_devices: exit\n");
+  
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_open (SANE_String_Const devicename, SANE_Handle *handle)
+sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   SANE_Status status;
   QC_Device *dev;
   QC_Scanner *s;
 
-  DBG(4, "open(%s)\n", devicename);
-
+  DBG (5, "sane_open: enter: (devicename = %s)\n", devicename);
   if (devicename[0])
     {
       status = attach (devicename, &dev);
@@ -1520,9 +1587,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   else
     {
       /* Black level, Hue and Saturation are things the b&w cameras
-	 know nothing about.  Despeckle might be useful, but this code
-	 seems to work for color cameras only right now. The framesize
-	 seems to work better in these ranges.  */
+         know nothing about.  Despeckle might be useful, but this code
+         seems to work for color cameras only right now. The framesize
+         seems to work better in these ranges.  */
       s->opt[OPT_DESPECKLE].cap |= SANE_CAP_INACTIVE;
       s->opt[OPT_BLACK_LEVEL].cap |= SANE_CAP_INACTIVE;
       s->opt[OPT_HUE].cap |= SANE_CAP_INACTIVE;
@@ -1531,7 +1598,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
       s->opt[OPT_TEST].cap |= SANE_CAP_INACTIVE;
 
       s->opt[OPT_DEPTH].constraint.word_list = mono_depth_list;
-      s->val[OPT_DEPTH].w = mono_depth_list[NELEMS(mono_depth_list) - 1];
+      s->val[OPT_DEPTH].w = mono_depth_list[NELEMS (mono_depth_list) - 1];
       s->opt[OPT_TL_X].constraint.range = &bw_x_range;
       s->val[OPT_TL_X].w = 14;
       s->opt[OPT_TL_Y].constraint.range = &bw_y_range;
@@ -1551,6 +1618,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   first_handle = s;
 
   *handle = s;
+
+  DBG (5, "sane_open: exit\n");
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1559,6 +1629,8 @@ sane_close (SANE_Handle handle)
 {
   QC_Scanner *prev, *s;
 
+  DBG (5, "sane_close: enter\n");
+  
   /* remove handle from list of open handles: */
   prev = 0;
   for (s = first_handle; s; s = s->next)
@@ -1569,8 +1641,8 @@ sane_close (SANE_Handle handle)
     }
   if (!s)
     {
-      DBG(1, "sane_close: bad handle %p\n", handle);
-      return;		/* oops, not a handle we know about */
+      DBG (1, "sane_close: bad handle %p\n", handle);
+      return;			/* oops, not a handle we know about */
     }
   if (prev)
     prev->next = s->next;
@@ -1594,6 +1666,9 @@ sane_close (SANE_Handle handle)
     close (s->read_fd);
 
   free (s);
+  
+  DBG (5, "sane_close: exit\n");
+	  
 }
 
 const SANE_Option_Descriptor *
@@ -1601,14 +1676,19 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
   QC_Scanner *s = handle;
 
+  DBG (5, "sane_get_option_descriptor: enter\n");
+  
   if ((unsigned) option >= NUM_OPTIONS)
     return 0;
+
+  DBG (5, "sane_get_option_descriptor: exit\n");
+
   return s->opt + option;
 }
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *val, SANE_Int *info)
+		     SANE_Action action, void *val, SANE_Int * info)
 {
   QC_Scanner *s = handle;
   QC_Resolution old_res;
@@ -1617,6 +1697,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   char *old_val;
   int i;
 
+  DBG (5, "sane_control_option: enter\n");
+  
   if (info)
     *info = 0;
 
@@ -1657,7 +1739,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_GOOD;
 
 	default:
-	  DBG(1, "control_option: option %d unknown\n", option);
+	  DBG (1, "control_option: option %d unknown\n", option);
 	}
     }
   else if (action == SANE_ACTION_SET_VALUE)
@@ -1706,7 +1788,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  old_val = s->val[OPT_RESOLUTION].s;
 
 	  if (strcmp (old_val, val) != 0)
-	    return SANE_STATUS_GOOD;			/* no change */
+	    return SANE_STATUS_GOOD;	/* no change */
 
 	  if (info)
 	    {
@@ -1744,15 +1826,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 
 	  if (!(s->user_corner & 0x4))
-	      s->val[OPT_BR_X].w = odd_x_range[s->resolution].max;
+	    s->val[OPT_BR_X].w = odd_x_range[s->resolution].max;
 	  if (!(s->user_corner & 0x8))
-	      s->val[OPT_BR_Y].w = odd_y_range[s->resolution].max - 4;
+	    s->val[OPT_BR_Y].w = odd_y_range[s->resolution].max - 4;
 
 	  /* make sure the affected options have valid values: */
 	  for (i = OPT_TL_X; i <= OPT_BR_Y; ++i)
 	    if (s->val[i].w > s->opt[i].constraint.range->max)
 	      s->val[i].w = s->opt[i].constraint.range->max;
 
+          DBG (5, "sane_control_option: exit\n");
 	  return SANE_STATUS_GOOD;
 	}
     }
@@ -1762,27 +1845,32 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	{
 	case OPT_BRIGHTNESS:
 	  /* not implemented yet */
+          DBG (5, "sane_control_option: exit\n");
 	  return SANE_STATUS_GOOD;
 
 	default:
 	  break;
 	}
     }
+
+  DBG (5, "sane_control_option: NOK exit\n");
   return SANE_STATUS_INVAL;
 }
 
 SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   QC_Scanner *s = handle;
   QC_Device *q = s->hw;
   int xfer_scale;
-  size_t Bpp = 3;	/* # of bytes per pixel */
+  size_t Bpp = 3;		/* # of bytes per pixel */
 
+  DBG (5, "sane_get_parameters: enter\n");
+  
   if (!s->scanning)
     {
       /* Only compute new parameters when not scanning---allows
-	 changing width/height etc while scan is in progress.  */
+         changing width/height etc while scan is in progress.  */
       xfer_scale = s->val[OPT_XFER_SCALE].w;
 
       s->params.format = SANE_FRAME_RGB;
@@ -1810,6 +1898,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
   if (params)
     *params = s->params;
 
+  DBG (5, "sane_get_parameters: exit\n");
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1821,17 +1911,19 @@ sane_start (SANE_Handle handle)
   QC_Device *q = s->hw;
   QC_Scan_Request req;
 
+  DBG (5, "sane_start: enter\n");
+  
   if (s->scanning)
     return SANE_STATUS_DEVICE_BUSY;
 
   if (s->reader_pid < 0)
     {
-      int p2c_pipe[2];	/* parent->child pipe */
-      int c2p_pipe[2];	/* child->parent pipe */
+      int p2c_pipe[2];		/* parent->child pipe */
+      int c2p_pipe[2];		/* child->parent pipe */
 
       if (pipe (p2c_pipe) < 0 || pipe (c2p_pipe) < 0)
 	{
-	  DBG(3, "start: failed to create pipes\n");
+	  DBG (3, "start: failed to create pipes\n");
 	  return SANE_STATUS_IO_ERROR;
 	}
 
@@ -1847,12 +1939,12 @@ sane_start (SANE_Handle handle)
 	}
       close (p2c_pipe[0]);
       close (c2p_pipe[1]);
-      s->to_child   = p2c_pipe[1];
+      s->to_child = p2c_pipe[1];
       s->from_child = c2p_pipe[0];
     }
 
   s->read_fd = dup (s->from_child);
-  sane_get_parameters (s, 0);		/* ensure uptodate parameters */
+  sane_get_parameters (s, 0);	/* ensure uptodate parameters */
 
   qc_lock (q);
   s->holding_lock = SANE_TRUE;
@@ -1867,9 +1959,9 @@ sane_start (SANE_Handle handle)
 	usleep (10000);
 
       /* Only send black_level if necessary; this optimization may
-	 fail if two applications access the camera in an interleaved
-	 fashion; but the black-level command is slow enough that it
-	 cannot be issued for every image acquisition.  */
+         fail if two applications access the camera in an interleaved
+         fashion; but the black-level command is slow enough that it
+         cannot be issued for every image acquisition.  */
       if (s->value_changed & (1 << OPT_BLACK_LEVEL))
 	{
 	  s->value_changed &= ~(1 << OPT_BLACK_LEVEL);
@@ -1877,7 +1969,7 @@ sane_start (SANE_Handle handle)
 	  qc_send (q, QC_SET_BLACK);
 	  qc_send (q, s->val[OPT_BLACK_LEVEL].w);
 
-	  DBG(3, "start: black_level=%d\n", s->val[OPT_BLACK_LEVEL].w);
+	  DBG (3, "start: black_level=%d\n", s->val[OPT_BLACK_LEVEL].w);
 
 	  /* wait for set black level command to finish: */
 	  while (qc_getstatus (q) & (CameraNotReady | BlackBalanceInProgress))
@@ -1917,14 +2009,14 @@ sane_start (SANE_Handle handle)
       qc_send (q, s->val[OPT_BRIGHTNESS].w);
     }
 
-  width  = s->params.pixels_per_line;
+  width = s->params.pixels_per_line;
   height = s->params.lines;
   if (s->resolution == QC_RES_HIGH)
     {
-      width  /= 2;	/* the expansion occurs through oversampling */
-      height /= 2;	/* we acquire only half the lines that we generate */
+      width /= 2;		/* the expansion occurs through oversampling */
+      height /= 2;		/* we acquire only half the lines that we generate */
     }
-  undecimated_width  = width *  s->val[OPT_XFER_SCALE].w;
+  undecimated_width = width * s->val[OPT_XFER_SCALE].w;
   undecimated_height = height * s->val[OPT_XFER_SCALE].w;
 
   s->num_bytes = 0;
@@ -1944,31 +2036,31 @@ sane_start (SANE_Handle handle)
 
       if (q->port_mode == QC_UNIDIR && s->val[OPT_DEPTH].w == 6)
 	{
-	  val  = undecimated_width;
+	  val = undecimated_width;
 	  val2 = s->val[OPT_XFER_SCALE].w * 4;
 	}
       else
 	{
-	  val  = undecimated_width * s->val[OPT_DEPTH].w;
+	  val = undecimated_width * s->val[OPT_DEPTH].w;
 	  val2 =
 	    ((q->port_mode == QC_BIDIR) ? 24 : 8) * s->val[OPT_XFER_SCALE].w;
 	}
       val = (val + val2 - 1) / val2;
       qc_send (q, QC_SET_NUM_H);
       qc_send (q, val);
-  }
+    }
 
   left = s->val[OPT_TL_X].w / 2;
-  top  = s->val[OPT_TL_Y].w;
+  top = s->val[OPT_TL_Y].w;
   if (s->resolution == QC_RES_HIGH)
     {
       left /= 2;
-      top  /= 2;
+      top /= 2;
     }
 
-  DBG(3, "sane_start: top=%d, left=%d, white=%d, bright=%d, contr=%d\n",
-      top, left, s->val[OPT_WHITE_LEVEL].w, s->val[OPT_BRIGHTNESS].w,
-      s->val[OPT_CONTRAST].w);
+  DBG (3, "sane_start: top=%d, left=%d, white=%d, bright=%d, contr=%d\n",
+       top, left, s->val[OPT_WHITE_LEVEL].w, s->val[OPT_BRIGHTNESS].w,
+       s->val[OPT_CONTRAST].w);
 
   qc_send (q, QC_SET_LEFT);
   qc_send (q, left);
@@ -1983,10 +2075,10 @@ sane_start (SANE_Handle handle)
       qc_send (q, s->val[OPT_WHITE_LEVEL].w);
     }
 
-  DBG(2, "start: %s %d lines of %d pixels each (%ld bytes) => %dx%d\n",
-      (q->port_mode == QC_BIDIR) ? "bidir" : "unidir",
-      height, width, (long) s->bytes_per_frame,
-      s->params.pixels_per_line, s->params.lines);
+  DBG (2, "start: %s %d lines of %d pixels each (%ld bytes) => %dx%d\n",
+       (q->port_mode == QC_BIDIR) ? "bidir" : "unidir",
+       height, width, (long) s->bytes_per_frame,
+       s->params.pixels_per_line, s->params.lines);
 
   /* send scan request to reader process: */
   qc_setscanmode (s, &req.mode);
@@ -2005,18 +2097,24 @@ sane_start (SANE_Handle handle)
 
   s->scanning = SANE_TRUE;
   s->deliver_eof = 0;
+
+  DBG (5, "sane_start: exit\n");
+  
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
-	   SANE_Int *lenp)
+sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
+	   SANE_Int * lenp)
 {
+  SANE_Status status;
   QC_Scanner *s = handle;
   QC_Device *q = s->hw;
   ssize_t nread;
   size_t len;
 
+  DBG (5, "sane_read: enter\n");
+  
   *lenp = 0;
 
   if (s->deliver_eof)
@@ -2032,24 +2130,26 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   if (s->num_bytes + len > s->bytes_per_frame)
     len = s->bytes_per_frame - s->num_bytes;
 
-  DBG(8, "read(buf=%p,num_bytes=%ld,max_len=%d,len=%ld)\n",
-      buf, (long) s->num_bytes, max_len, (long) len);
+  DBG (8, "read(buf=%p,num_bytes=%ld,max_len=%d,len=%ld)\n",
+       buf, (long) s->num_bytes, max_len, (long) len);
 
   nread = read (s->read_fd, buf, len);
   if (nread <= 0)
     {
       if (nread == 0 || errno == EAGAIN)
 	{
-	  DBG(3, "read: no more data available\n");
+	  DBG (3, "read: no more data available\n");
 	  return SANE_STATUS_GOOD;
 	}
-      DBG(3, "read: short read (%s)\n", strerror (errno));
+      DBG (3, "read: short read (%s)\n", strerror (errno));
       return SANE_STATUS_IO_ERROR;
     }
 
   if (nread > 0 && s->holding_lock)
     {
-      qc_unlock (q);			/* now we can unlock the camera */
+      status = qc_unlock (q);	/* now we can unlock the camera */
+      if (status != SANE_STATUS_GOOD)
+	      DBG(3, "sane_read: qc_unlock error\n");
       s->holding_lock = SANE_FALSE;
     }
 
@@ -2065,7 +2165,7 @@ sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   if (lenp)
     *lenp = nread;
 
-  DBG(8, "read: got %d bytes\n", *lenp);
+  DBG (5, "sane_read: exit, read got %d bytes\n", *lenp);
   return SANE_STATUS_GOOD;
 }
 
@@ -2074,7 +2174,10 @@ sane_cancel (SANE_Handle handle)
 {
   QC_Scanner *s = handle;
   SANE_Bool was_scanning;
+  SANE_Status status;
 
+  DBG (5, "sane_cancel: enter\n");
+  
   was_scanning = s->scanning;
   s->scanning = SANE_FALSE;
   s->deliver_eof = 0;
@@ -2090,7 +2193,7 @@ sane_cancel (SANE_Handle handle)
       ssize_t nread;
       int flags;
 
-      DBG(1, "cancel: cancelling read request\n");
+      DBG (1, "cancel: cancelling read request\n");
 
       kill (s->reader_pid, SIGINT);	/* tell reader to stop reading */
 
@@ -2111,20 +2214,23 @@ sane_cancel (SANE_Handle handle)
 	  nread = read (s->from_child, buf, sizeof (buf));
 	}
       while (nread > 0);
-     
+
       /* now restore non-blocking i/o flag: */
       fcntl (s->from_child, F_SETFL, flags & O_NONBLOCK);
 
       waitpid (s->reader_pid, 0, 0);
       s->reader_pid = 0;
 
-      DBG(1, "cancel: cancellation completed\n");
+      DBG (1, "cancel: cancellation completed\n");
     }
   if (s->holding_lock)
     {
-      qc_unlock (s->hw);
+      status = qc_unlock (s->hw);
+      if (status != SANE_STATUS_GOOD)
+	      DBG(3, "sane_cancel: qc_unlock error\n");
       s->holding_lock = SANE_FALSE;
     }
+  DBG (5, "sane_cancel: exit\n");
 }
 
 SANE_Status
@@ -2132,22 +2238,27 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   QC_Scanner *s = handle;
 
+  DBG (5, "sane_set_io_mode: enter\n");
+  
   if (!s->scanning)
     return SANE_STATUS_INVAL;
 
   if (fcntl (s->read_fd, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
     return SANE_STATUS_IO_ERROR;
+  DBG (5, "sane_set_io_mode: exit\n");
   return SANE_STATUS_GOOD;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int *fd)
+sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
 {
   QC_Scanner *s = handle;
 
+  DBG (5, "sane_get_select_fd: enter\n");
   if (!s->scanning)
     return SANE_STATUS_INVAL;
 
   *fd = s->read_fd;
+  DBG (5, "sane_get_select_fd: exit\n");
   return SANE_STATUS_GOOD;
 }

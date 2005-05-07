@@ -1,3 +1,7 @@
+2005-05-07 Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Microtek ScanMaker 3700
+	(05da/40cb). From Ian Beckwith.
+
 2005-05-06 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* backend/qcam.c -indent -gnu, bugreport 300128 free (devlist) added,

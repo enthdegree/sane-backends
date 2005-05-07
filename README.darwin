@@ -31,23 +31,14 @@ list. At least the Epson Perfection 1640SU and the CANON IX-06015C (CanoScan
 
 USB-scanners:
 -------------
-Work with libusb. Very limited testing until now. Try "sane-find-scanner -v -v"
-and report success or failure to the SANE mailing list. At least the following
-scanners are known to work: UMAX Astra 1220U and 2000U, Epson Perfection 1640SU
-and 2450 Photo.
+Work with libusb. Try "sane-find-scanner -v -v" and report success or
+failure to the SANE mailing list. At least the following scanners are
+known to work: UMAX Astra 1220U and 2000U, Epson Perfection 1640SU and
+2450 Photo.
 
-There are some known problems with libusb:
-
-- Older libusb versions return the wrong number of bytes written. Most backends
-  will return an error and won't work. Update your version of libusb.
-
-- Set configuration doesn't reclaim the interface. This is important for the
-  sm3600 backend.
-
-- Libusb sets only the completion timeouts, but not the no data timeouts.
-
-A patch for these problems is available at
-https://sourceforge.net/tracker/?group_id=1674 request ID 1044204
+Use libusb version 0.1.11 or later (or a cvs checkout from 2005-04-25
+or later). If you use earlier versions the libusb code needs to be
+patched.
 
 Parport-scanners:
 -----------------
@@ -55,3 +46,4 @@ I don't have any information about these. Please contact me or the SANE mailing
 list if you succeeded in using one of these.
 
 2003-12-26 Henning Meier-Geinitz <henning@meier-geinitz.de>
+2005-05-07 Mattias Ellert <mattias.ellert@tsl.uu.se>

@@ -1,3 +1,8 @@
+2005-05-07  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* README.darwin: updated the section about libusb, since all known
+	bugs have now been fixed in the libusb CVS.
+
 2005-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c

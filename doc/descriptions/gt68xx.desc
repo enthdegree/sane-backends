@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-67"
+:version "1.0-68"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -216,7 +216,7 @@
 :model "ScanExpress 1248 UB"
 :interface "USB"
 :status :basic
-:comment "Woeks but image quality is not perfect yet (stripes). Please contact me if you want to help fixing that."
+:comment "Works but image quality is not perfect yet (stripes). Please contact me if you want to help fixing that."
 
 :model "ScanExpress A3 USB"
 :interface "USB"
@@ -245,7 +245,12 @@
 :model "Diamond 1200 Plus"
 :status :good
 :interface "USB"
-:comment "Similar to Mustek BearPaw 1200 Plus"
+:comment "Product id 0x021c. Similar to Mustek BearPaw 1200 Plus"
+
+:model "Diamond 1200 Plus"
+:status :minimal
+:interface "USB"
+:comment "Product id 0x021b: Still doesn't work correctly. Similar to Mustek BearPaw 1200 Plus"
 
 :model "Diamond 2450"
 :status :good
@@ -281,9 +286,8 @@
 
 :model "OpticSlim 2400"
 :interface "USB"
-:status :basic
-:comment "Calibration doesn't seem to work correctly on all scanners yet. Needs more testing. Please tell me how well this scanner works."
-
+:status :good
+:comment "Works up to 1200 dpi."
 ; -----------------------------------------------------------------------------
 
 :mfg "RevScan"

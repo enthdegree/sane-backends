@@ -3,14 +3,10 @@ General:
 - some sort of fixed lookup-table is necessary to compensate for the non-linear
   CCD/CIS behaviour. A gamma value is not good enough. Or maybe line calibration
   can be used for that?
-- should backtracking be disabled in high resolutions? add a minimum res?
-  check if disabling at >= 1/2 max res is ok
 - Scanning on *BSD works only once for all scanners but 2448. firmware 
   upload sometimes works more than once
-- remove gain/offset options when everything works
 - check how many shm buffers are acually used
 - update German translation
-- debug options -> advanced
 - check fast preview
 - check calib for first scan only
 - setup exposure start per scanner (?)
@@ -21,7 +17,9 @@ General:
 - Check autobandwidth
 - check several get scanner info functions
 - check exposure (start + stop)?
-- check misc control (motor settings?)
+- Some Plustek scanners are advertised with e.g. 1200x2400 but the maximum
+  vertical resolution seems to be limited to the horizontal one. Check if
+  that's really the case.
 
 CCD:
 ----
@@ -84,3 +82,6 @@ Mustek ScanExpress A3 USB
 Mustek ScanExpress 2400 USB
 - make it work
 
+Plustek OpticSlim 2400
+- only upto 1200 dpi vertical works
+- only 8 and 12 bit work, 16 doesn't (check Windows)

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 67
+#define BUILD 68
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -91,6 +91,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <math.h>
+#include <dirent.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -853,45 +854,91 @@ download_firmware_file (GT68xx_Device * dev)
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte *buf = NULL;
   int size = -1;
-  SANE_Char filename[PATH_MAX];
+  SANE_Char filename[PATH_MAX], dirname[PATH_MAX], basename[PATH_MAX];
   FILE *f;
 
   if (strncmp (dev->model->firmware_name, PATH_SEP, 1) != 0)
     {
+      /* probably filename only */
       snprintf (filename, PATH_MAX, "%s%s%s%s%s%s%s",
 		STRINGIFY (PATH_SANE_DATA_DIR),
 		PATH_SEP, "sane", PATH_SEP, "gt68xx", PATH_SEP,
 		dev->model->firmware_name);
+      snprintf (dirname, PATH_MAX, "%s%s%s%s%s",
+		STRINGIFY (PATH_SANE_DATA_DIR),
+		PATH_SEP, "sane", PATH_SEP, "gt68xx");
+      strncpy (basename, dev->model->firmware_name, PATH_MAX);
     }
-  else				/* absolute path */
-    strncpy (filename, dev->model->firmware_name, PATH_MAX);
+  else
+    {
+      /* absolute path */
+      char * pos;
+      strncpy (filename, dev->model->firmware_name, PATH_MAX);
+      strncpy (dirname, dev->model->firmware_name, PATH_MAX);
+      pos = strrchr (dirname, PATH_SEP[0]);
+      if (pos)
+	pos[0] = '\0';
+      strncpy (basename, pos + 1, PATH_MAX);
+    }
 
-
-  /* Check both mixed and lower case */
+  /* first, try to open with exact case */
   DBG (5, "download_firmware: trying %s\n", filename);
   f = fopen (filename, "rb");
   if (!f)
     {
-      SANE_Char filename_lower[PATH_MAX];
-      unsigned int i;
+      /* and now any case */
+      DIR * dir;
+      struct dirent *direntry;
 
       DBG (5,
 	   "download_firmware_file: Couldn't open firmware file `%s': %s\n",
 	   filename, strerror (errno));
 
-      for (i = 0; i <= strlen (filename); i++)
-	filename_lower[i] = tolower (filename[i]);
-
-      DBG (5, "download_firmware: trying %s\n", filename_lower);
-      f = fopen (filename_lower, "rb");
-      if (!f)
+      dir = opendir (dirname);
+      if (!dir)
 	{
-	  DBG (5,
-	       "download_firmware_file: Couldn't open firmware file `%s': %s\n",
-	       filename, strerror (errno));
-	  DBG (0, "Couldn't open firmware file (neither `%s' nor `%s'): %s\n",
-	       filename, filename_lower, strerror (errno));
+	  DBG (5, "download_firmware: couldn't open directory `%s': %s\n", 
+	       dirname, strerror (errno));
 	  status = SANE_STATUS_INVAL;
+	}
+      if (status == SANE_STATUS_GOOD)
+	{	
+	  do
+	    {
+	      direntry = readdir (dir);
+	      if (direntry && (strncasecmp (direntry->d_name, basename, PATH_MAX) == 0))
+		{
+		  snprintf (filename, PATH_MAX, "%s%s%s",
+			    dirname, PATH_SEP, direntry->d_name);
+		  DBG (5, "download_firmware: trying %s\n", filename);
+		  break;
+		}
+	    }
+	  while (direntry != 0);
+	  if (direntry == 0)
+	    {
+	      DBG (5, "download_firmware: file `%s' not found\n", filename);
+	      status = SANE_STATUS_INVAL;
+	    }
+	  closedir (dir);
+	}
+      if (status == SANE_STATUS_GOOD)
+	{
+	  DBG (5, "download_firmware: trying %s\n", filename);
+	  f = fopen (filename, "rb");
+	  if (!f)
+	    {
+	      DBG (5,
+		   "download_firmware_file: Couldn't open firmware file `%s': %s\n",
+		   filename, strerror (errno));
+	      status = SANE_STATUS_INVAL;
+	    }
+	}
+
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (0, "Couldn't open firmware file (`%s'): %s\n",
+	       filename, strerror (errno));
 	}
     }
 

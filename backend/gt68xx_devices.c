@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -1394,14 +1394,14 @@ static GT68xx_Model plustek_opticslim2400_model = {
   1200,   			/* if ydpi is equal or higher, disable backtracking */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
-  {16, 8, 0},			/* possible depths in gray mode */
-  {16, 8, 0},			/* possible depths in color mode */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
   SANE_FIX (9.5),		/* Start of scan area in mm (y) */
-  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (217.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
@@ -1423,9 +1423,10 @@ static GT68xx_Model plustek_opticslim2400_model = {
   SANE_FIX (2.0),			/* Default gamma value */
 
   SANE_TRUE,				/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED
+  0
+/* By Detlef Gausepohl <detlef@psych.rwth-aachen.de>. Fixed and tested by hmg. 
+   2400 dpi y doesn't seem to work? */
 };
-/* By Detlef Gausepohl <detlef at sunrise.psycho.rwth-aachen.de> */
 
 static GT68xx_Model visioneer_onetouch_7300_model = {
   "visioneer-onetouch-7300",	/* Name */

@@ -1,5 +1,13 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.68 (2005-05-07)
+
+* GT68XX_FLAG_NO_STOP is needed for BearPaw 2448 TA Plus.
+* Plustek OpticSlim 2400: Fixed list of resolutions. That fixed the
+  preview. Removed "untested" warning. Adjusted scan area.
+* Updated gt68xx.TODO.
+* Find firmwares independent of capitalization (bug #301580).
+
 V 1.0.67 (2004-11-14)
 
 * Fixed test to move home sensor at the start of scan.

@@ -1,3 +1,12 @@
+2005-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES
+	  doc/gt68xx/gt68xx.TODO: Plustek OpticSlim 2400: Fixed list of
+	  resolutions. That fixed the preview. Removed "untested"
+	  warning. Adjusted scan area.  Updated gt68xx.TODO.  Find firmwares
+	  independent of capitalization (bug #301580).
+
 2005-05-07 Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Microtek ScanMaker 3700
 	(05da/40cb). From Ian Beckwith.

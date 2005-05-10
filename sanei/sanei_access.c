@@ -58,6 +58,10 @@
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_access.h"
 
+#ifndef PATH_MAX
+# define PATH_MAX	1024
+#endif
+
 #define PID_BUFSIZE  50
 
 #define PROCESS_SELF  0

@@ -1,7 +1,12 @@
+2005-05-10  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_access.c: Added PATH_MAX, in case it's not defined 
+	  by any header (i.e. OS/2).
+
 2005-05-07  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* README.darwin: updated the section about libusb, since all known
-	bugs have now been fixed in the libusb CVS.
+	  bugs have now been fixed in the libusb CVS.
 
 2005-05-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -13,6 +18,7 @@
 	  independent of capitalization (bug #301580).
 
 2005-05-07 Julien Blache <jb@jblache.org>
+
 	* tools/hotplug/libsane.usermap: Added Microtek ScanMaker 3700
 	(05da/40cb). From Ian Beckwith.
 
@@ -30,6 +36,7 @@
 	  immediately.
 	
 2005-05-02  Peter Fales  <peter@fales-lorenz.net>
+
 	* backend/gphoto2.c: Fix core dump when no port is specified in 
 	  the gphoto2 config  file.  (bug #301552)
 
@@ -42,6 +49,7 @@
 	* doc/descriptions-external/brother.desc: Fixed link.
 
 2005-04-28  Julien Blache <jb@jblache.org>
+
 	* backend/v4l.c: duplicate capability.name in attach() so that
 	each device is listed with its actual name, not with the name of
 	the last discovered device. Reported by Andreas Hartmann.
@@ -183,7 +191,7 @@
 	  Also added linking of sanei_access to the plustek backend.
 	* include/Makefile.in: Added sane/sanei_access.h.
 	* sanei/Makefile.in: Added sanei_access.c.
-	* include/sane/sanei_access.h sanei/sanei_access.h: Initial checkin.
+	* include/sane/sanei_access.h sanei/sanei_access.c: Initial checkin.
 
 2005-03-31 Julien Blache <jb@jblache.org>
 

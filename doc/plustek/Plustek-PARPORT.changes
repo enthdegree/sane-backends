@@ -145,3 +145,5 @@ Version 0.43-6 04/25/2005
     1.0 Removed inline stuff from kernel module code, as GCC3.4 will
         make some trouble
 
+Version 0.43-7 05/11/2005
+    1.0 Fixed timer issues in user-space (Thanx to Rod Roark)

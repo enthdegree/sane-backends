@@ -1,3 +1,9 @@
+2005-05-11  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-pp_misc.c: Applied patch (see bug #301605).
+	* doc/plustek/Plustek-PARPORT.changes: Update.
+	* backend/plustek-pp.c: Bumped build number.
+
 2005-05-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_access.c: Added PATH_MAX, in case it's not defined 

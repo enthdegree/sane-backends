@@ -1,3 +1,7 @@
+2005-05-13  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Epson Stylus RX620
+	(04b8/0811). From Mike Talbot.
+
 2005-05-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-pp_misc.c: Applied patch (see bug #301605).

@@ -108,7 +108,7 @@ umax_pp: umax_pp.o ../backend/umax_pp_low.o
 	@$(LIBTOOL) $(MLINK) $(LINK) umax_pp.o ../backend/umax_pp_low.o \
 	   $(LIBSANEI) $(LIBLIB) $(LIBS)
 sane-desc: sane-desc.o
-	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB) $(LIBS)
+	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI)
 
 depend:
 	makedepend $(INCLUDES) *.c

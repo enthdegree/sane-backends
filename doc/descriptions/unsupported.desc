@@ -1101,6 +1101,70 @@
 
 ;********************************************************************************************
 
+:mfg "Panasonic"
+
+:model "KV-SS905C"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S2026C"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S2046C"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S2055W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S2055L"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S2065W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S3065CW"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S3065CL"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S3085"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S3105C"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S6040W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S6045W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S6050W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S6055W"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+:model "KV-S7065C"
+:status :unsupported
+:comment "might be supported by matsushita backend."
+
+;********************************************************************************************
+
 :mfg "Pentax"
 
 :model "DSmobile USB"

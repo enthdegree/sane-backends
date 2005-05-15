@@ -1,3 +1,10 @@
+2005-05-15  frank  <sane at zago net>
+
+	* tools/Makefile.in: remove superflous libraries for sane-desc 
+	* doc/descriptions/matsushita.desc: changed some scanner status from
+	  good to minimal
+	* doc/descriptions/unsupported.desc: added a few Panasonic scanners.
+
 2005-05-13  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Stylus RX620
 	(04b8/0811). From Mike Talbot.

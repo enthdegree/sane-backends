@@ -41,7 +41,8 @@
 
 :model "KV-SS55EX"
 :interface "SCSI"
-:status :good
+:status :minimal
+:comment "no color, no high resolution, no automatic cropping"
 
 :model "KV-SS850"
 :interface "SCSI"
@@ -54,14 +55,17 @@
 :model "KV-S2025C"
 :interface "SCSI"
 :status :minimal
+:comment "no color, no high resolution, no automatic cropping"
 
 :model "KV-S2045C"
 :interface "SCSI"
 :status :minimal
+:comment "no color, no high resolution, no automatic cropping"
 
 :model "KV-S2065L"
 :interface "SCSI"
-:status :good
+:status :minimal
+:comment "no color, no high resolution, no automatic cropping"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

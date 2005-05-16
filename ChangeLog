@@ -1,6 +1,8 @@
 2005-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/backend-writing.txt: Minor updates and line-wrap fixes.
+	* doc/descriptions/unsupported.desc: Added Kodak i30 and Minolta
+	  Dual Scan IV. Updated link to Konica Minolta website.
 
 2005-05-15  frank  <sane at zago net>
 

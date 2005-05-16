@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-05-05"		; version of backend
+:version "2005-05-14"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -581,6 +581,12 @@
 :mfg "Kodak"
 :url "http://www.kodak.com"
 
+:model "i30"
+:url "/unsupported/kodak-i30.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "Snapshot Photo Scanner 1"
 ;:url ""
 :interface "Parport"
@@ -900,14 +906,20 @@
 
 ;********************************************************************************************
 
-:mfg "Minolta"
-:url "http://www.minolta.com/"
+:mfg "Konica Minolta"
+:url "http://www.konicaminolta.com/"
 
 :model "Dual Scan III"
 :url "/unsupported/minolta-dual-scan-III.html"
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. May work with vuescan. See link for details."
+
+:model "Dual Scan IV"
+:url "/unsupported/minolta-dual-scan-IV.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Works with vuescan. See link for details."
 
 :model "DiMAGE Scan Elite 5400"
 :url "/unsupported/minolta-dse-5400.html"

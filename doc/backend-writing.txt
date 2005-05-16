@@ -1,4 +1,4 @@
-2003-09-30
+2005-05-16
 
 Here are a few rules and tips that should help writing a
 SANE-conforming backend and including it into the SANE package:
@@ -29,7 +29,9 @@ GETTING STARTED
 
 * Keep other users informed about what you did and want to do. This way no
   work is done twice and you may get volunteers for coding or testing.
-  Set up a website or at least write to sane-devel.
+  Set up a website or at least write to sane-devel. If you have a website,
+  a link to it can be included in the .desc file and users looking for that
+  scanner will find it on the SANE website.
 
 * When you have a working backend but you don't want to have it included
   in the SANE distribution yet, at least the .desc file can be included
@@ -60,7 +62,8 @@ PROGRAMMING
   "this is an awfully long string" can be written as "this is an "
   "awfully long string".
 
-* Use only ANSI C for your backend.
+* Use only ANSI C for your backend. C99 is not supported by the compilers of
+  some older platforms so please avoid using its features.
 
 * Please do not depend on compiler specific features or, if you do, make
   the dependency conditional so other compilers will still be able to
@@ -104,8 +107,8 @@ PROGRAMMING
   SANE versions may occur. Also this makes clear that the local files are used.
 
 * Don't forget to #include ".../include/sane/config.h" in your backend before
-  any other includes. If you use lalloca.h see above for the correct
-  includes.
+  any other includes. This must be done for any .c file that generates its own
+  object file. If you use lalloca.h see above for the correct includes.
 
 * Include sanei_backend.h after the other includes.
 
@@ -278,7 +281,8 @@ In sane-backends/doc/
 * Add an entry for the man page in sane.man
 * Add the man page file in doc/Makefile.in
 * Move the description file from descriptions-external/ to doc/descriptions/
-* Check that the description file is correct: "cd doc; make html-pages" and check the html pages result with a browser.
+* Check that the description file is correct: "cd doc; make html-pages" and
+  check the html pages result with a browser.
 * Check that the backend version is the same in the source and in the
   description file.
 

@@ -1,3 +1,7 @@
+2005-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/backend-writing.txt: Minor updates and line-wrap fixes.
+
 2005-05-15  frank  <sane at zago net>
 
 	* tools/Makefile.in: remove superflous libraries for sane-desc 

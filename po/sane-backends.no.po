@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-04-13 07:24+0200\n"
+"POT-Creation-Date: 2005-05-16 15:04+0200\n"
 "PO-Revision-Date: 2004-10-21 13:31+0200\n"
 "Last-Translator: Sigurd Stordal <polarbear42@phreaker.net>\n"
 "Language-Team: \n"
@@ -13,29 +13,29 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2923 .tmp/ma1509.c:101
-#: .tmp/mustek.c:125 .tmp/mustek.c:130 .tmp/mustek_usb.c:270
+#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
+#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
 #: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
 #: .tmp/umax.c:186 .tmp/umax_pp.c:137
 msgid "Lineart"
 msgstr "Strektegning"
 
-#: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2925 .tmp/leo.h:261
+#: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2928 .tmp/leo.h:261
 #: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:137
 msgid "Grayscale"
 msgstr "Gråskala"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/hp-option.c:2926
-#: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:126 .tmp/mustek.c:130
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/hp-option.c:2929
+#: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128 .tmp/mustek.c:132
 #: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
 #: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
 #: .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 msgid "Color"
 msgstr "Farge"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:652 .tmp/hp-option.c:2949
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:656 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
-#: .tmp/microtek2.h:602 .tmp/mustek.c:4382 .tmp/mustek_usb.c:353
+#: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
 #: .tmp/niash.c:756 .tmp/plustek.c:771 .tmp/plustek_pp.c:792
 #: .tmp/sceptre.c:750 .tmp/snapscan-options.c:514 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:549
@@ -50,9 +50,9 @@ msgstr "Standard"
 msgid "Set default values for enhancement controls."
 msgstr "Velg standard verdier for kontroll av forbedring"
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/gt68xx.c:682
-#: .tmp/hp-option.c:3293 .tmp/leo.c:823 .tmp/ma1509.c:549
-#: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4334
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/gt68xx.c:687
+#: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
 #: .tmp/mustek_usb.c:305 .tmp/plustek.c:725 .tmp/plustek_pp.c:746
 #: .tmp/sceptre.c:702 .tmp/snapscan-options.c:447 .tmp/teco1.c:1095
 #: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
@@ -135,7 +135,7 @@ msgstr "Velger den gamma korrigerte overførsels kurven"
 msgid "Binary"
 msgstr "Binær"
 
-#: .tmp/epson.c:485 .tmp/ma1509.c:101 .tmp/mustek.c:125 .tmp/mustek.c:130
+#: .tmp/epson.c:485 .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
 #: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
 #: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
 msgid "Gray"
@@ -149,8 +149,8 @@ msgstr ""
 msgid "Duplex"
 msgstr ""
 
-#: .tmp/epson.c:501 .tmp/gt68xx.c:141 .tmp/ma1509.c:106 .tmp/mustek.c:148
-#: .tmp/mustek.c:152 .tmp/mustek.c:156 .tmp/snapscan-options.c:81
+#: .tmp/epson.c:501 .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:150
+#: .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/snapscan-options.c:81
 #: .tmp/umax.c:182
 msgid "Flatbed"
 msgstr ""
@@ -159,7 +159,7 @@ msgstr ""
 msgid "Transparency Unit"
 msgstr ""
 
-#: .tmp/epson.c:503 .tmp/mustek.c:152 .tmp/umax.c:184
+#: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/umax.c:184
 msgid "Automatic Document Feeder"
 msgstr ""
 
@@ -225,15 +225,15 @@ msgstr "Last ned mønster A"
 msgid "Download pattern B"
 msgstr "Last ned mønster B"
 
-#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3089
+#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3092
 msgid "Red"
 msgstr "Rød"
 
-#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3090
+#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3093
 msgid "Green"
 msgstr "Grønn"
 
-#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3091
+#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3094
 msgid "Blue"
 msgstr "Blå"
 
@@ -261,7 +261,7 @@ msgstr "Blekkskrivere"
 msgid "CRT monitors"
 msgstr ""
 
-#: .tmp/epson.c:656 .tmp/hp-option.c:3222 .tmp/test.c:138
+#: .tmp/epson.c:656 .tmp/hp-option.c:3225 .tmp/test.c:138
 msgid "Default"
 msgstr "Standard"
 
@@ -309,8 +309,8 @@ msgstr ""
 msgid "Max"
 msgstr "Maks"
 
-#: .tmp/epson.c:2782 .tmp/gt68xx.c:442 .tmp/hp-option.c:2910 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1084 .tmp/microtek2.h:600 .tmp/mustek.c:4197
+#: .tmp/epson.c:2782 .tmp/gt68xx.c:456 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:600 .tmp/mustek.c:4199
 #: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:640
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:277
 #: .tmp/teco2.c:1875 .tmp/test.c:293 .tmp/umax.c:5052
@@ -519,221 +519,211 @@ msgstr ""
 "Etter at kommandoen for skan er sendt, vent til skannerens knapp ertrykket "
 "før skanings prossesen startes."
 
-#: .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:156
+#: .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
 msgid "Transparency Adapter"
 msgstr ""
 
-#: .tmp/gt68xx.c:461
+#: .tmp/gt68xx.c:475
 msgid "Gray mode color"
 msgstr ""
 
-#: .tmp/gt68xx.c:462
+#: .tmp/gt68xx.c:477
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
 
-#: .tmp/gt68xx.c:543
+#: .tmp/gt68xx.c:558
 msgid "Debugging Options"
 msgstr ""
 
-#: .tmp/gt68xx.c:554
+#: .tmp/gt68xx.c:569
 msgid "Automatic warmup"
 msgstr "Automatisk oppvarming"
 
-#: .tmp/gt68xx.c:556
+#: .tmp/gt68xx.c:571
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
 msgstr ""
 
-#: .tmp/gt68xx.c:567
+#: .tmp/gt68xx.c:583
 msgid "Full scan"
 msgstr "Full skan"
 
-#: .tmp/gt68xx.c:569
+#: .tmp/gt68xx.c:585
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
 
-#: .tmp/gt68xx.c:580
+#: .tmp/gt68xx.c:596
 msgid "Coarse calibration"
 msgstr "Grov kalibrering"
 
-#: .tmp/gt68xx.c:582
+#: .tmp/gt68xx.c:598
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
 "disabled, options for setting the analog frontend parameters manually are "
 "provided. This option is enabled by default. For testing only."
 msgstr ""
 
-#: .tmp/gt68xx.c:596
+#: .tmp/gt68xx.c:612
 msgid "Coarse calibration for first scan only"
 msgstr "Grov kalibrering kun for første skan"
 
-#: .tmp/gt68xx.c:598
+#: .tmp/gt68xx.c:614
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
 "and can save scanning time. If the image brightness is different with each "
 "scan, disable this option. For testing only."
 msgstr ""
 
-#: .tmp/gt68xx.c:622 .tmp/mustek.c:4326
-msgid "Fast preview"
-msgstr "Rask forvisning"
-
-#: .tmp/gt68xx.c:624 .tmp/mustek.c:4327
-msgid ""
-"Request that all previews are done in the fastest (low-quality) mode. This "
-"may be a non-color mode or a low resolution mode."
-msgstr ""
-
-#: .tmp/gt68xx.c:634
+#: .tmp/gt68xx.c:638
 msgid "Backtrack lines"
 msgstr ""
 
-#: .tmp/gt68xx.c:636
+#: .tmp/gt68xx.c:640
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
 "happens when the scanner scans faster than the computer can receive the "
 "data. Low values cause faster scans but increase the risk of omitting lines."
 msgstr ""
 
-#: .tmp/gt68xx.c:661
+#: .tmp/gt68xx.c:665
 msgid "Gamma value"
 msgstr "Gammaverdi"
 
-#: .tmp/gt68xx.c:662
+#: .tmp/gt68xx.c:667
 msgid "Sets the gamma value of all channels."
 msgstr ""
 
-#: .tmp/hp-option.c:2924 .tmp/mustek.c:125 .tmp/plustek_pp.c:182
+#: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
 msgid "Halftone"
 msgstr ""
 
-#: .tmp/hp-option.c:2980
+#: .tmp/hp-option.c:2983
 #, fuzzy
 msgid "Advanced Options"
 msgstr "Spesielle valg"
 
-#: .tmp/hp-option.c:3037
+#: .tmp/hp-option.c:3040
 msgid "Coarse"
 msgstr "Grov"
 
-#: .tmp/hp-option.c:3038
+#: .tmp/hp-option.c:3041
 msgid "Fine"
 msgstr "Fin"
 
-#: .tmp/hp-option.c:3039
+#: .tmp/hp-option.c:3042
 msgid "Bayer"
 msgstr ""
 
-#: .tmp/hp-option.c:3040
+#: .tmp/hp-option.c:3043
 msgid "Vertical"
 msgstr ""
 
-#: .tmp/hp-option.c:3041
+#: .tmp/hp-option.c:3044
 msgid "Horizontal"
 msgstr ""
 
-#: .tmp/hp-option.c:3042 .tmp/hp-option.c:3093
+#: .tmp/hp-option.c:3045 .tmp/hp-option.c:3096
 msgid "Custom"
 msgstr "Valgfri"
 
-#: .tmp/hp-option.c:3083 .tmp/hp-option.c:3139 .tmp/hp-option.c:3154
+#: .tmp/hp-option.c:3086 .tmp/hp-option.c:3142 .tmp/hp-option.c:3157
 msgid "Auto"
 msgstr "Automatisk"
 
-#: .tmp/hp-option.c:3084
+#: .tmp/hp-option.c:3087
 msgid "NTSC RGB"
 msgstr ""
 
-#: .tmp/hp-option.c:3085
+#: .tmp/hp-option.c:3088
 msgid "XPA RGB"
 msgstr ""
 
-#: .tmp/hp-option.c:3086
+#: .tmp/hp-option.c:3089
 msgid "Pass-through"
 msgstr ""
 
-#: .tmp/hp-option.c:3087
+#: .tmp/hp-option.c:3090
 msgid "NTSC Gray"
 msgstr "NTSC-grå"
 
-#: .tmp/hp-option.c:3088
+#: .tmp/hp-option.c:3091
 msgid "XPA Gray"
 msgstr "XPA-grå"
 
-#: .tmp/hp-option.c:3140
+#: .tmp/hp-option.c:3143
 msgid "Slow"
 msgstr "Treig"
 
-#: .tmp/hp-option.c:3141 .tmp/hp-option.c:3248 .tmp/matsushita.c:244
-#: .tmp/mustek.c:141 .tmp/plustek.c:220 .tmp/plustek_pp.c:200
+#: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
+#: .tmp/mustek.c:143 .tmp/plustek.c:220 .tmp/plustek_pp.c:200
 msgid "Normal"
 msgstr ""
 
-#: .tmp/hp-option.c:3142
+#: .tmp/hp-option.c:3145
 msgid "Fast"
 msgstr "Rask"
 
-#: .tmp/hp-option.c:3143
+#: .tmp/hp-option.c:3146
 msgid "Extra Fast"
 msgstr ""
 
-#: .tmp/hp-option.c:3155 .tmp/hp-option.c:3322 .tmp/hp-option.c:3335
+#: .tmp/hp-option.c:3158 .tmp/hp-option.c:3325 .tmp/hp-option.c:3338
 msgid "Off"
 msgstr ""
 
-#: .tmp/hp-option.c:3156
+#: .tmp/hp-option.c:3159
 msgid "2-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3157
+#: .tmp/hp-option.c:3160
 msgid "4-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3158
+#: .tmp/hp-option.c:3161
 msgid "8-pixel"
 msgstr ""
 
-#: .tmp/hp-option.c:3169
+#: .tmp/hp-option.c:3172
 msgid "Print"
 msgstr ""
 
-#: .tmp/hp-option.c:3170
+#: .tmp/hp-option.c:3173
 msgid "Slide"
 msgstr ""
 
-#: .tmp/hp-option.c:3171
+#: .tmp/hp-option.c:3174
 #, fuzzy
 msgid "Film-strip"
 msgstr "Filmtype"
 
-#: .tmp/hp-option.c:3231 .tmp/plustek.c:222 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3234 .tmp/plustek.c:222 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
 msgid "Negative"
 msgstr "Negativ"
 
-#: .tmp/hp-option.c:3249
+#: .tmp/hp-option.c:3252
 msgid "ADF"
 msgstr ""
 
-#: .tmp/hp-option.c:3250
+#: .tmp/hp-option.c:3253
 msgid "XPA"
 msgstr ""
 
-#: .tmp/hp-option.c:3323 .tmp/hp-option.c:3336
+#: .tmp/hp-option.c:3326 .tmp/hp-option.c:3339
 msgid "On"
 msgstr ""
 
-#: .tmp/hp-option.c:3324 .tmp/hp-option.c:3337
+#: .tmp/hp-option.c:3327 .tmp/hp-option.c:3340
 msgid "Conditional"
 msgstr ""
 
-#: .tmp/hp-option.c:3410
+#: .tmp/hp-option.c:3413
 msgid "Experiment"
 msgstr ""
 
@@ -1258,148 +1248,176 @@ msgstr ""
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 
-#: .tmp/mustek.c:141
+#: .tmp/mustek.c:143
 msgid "Slowest"
 msgstr "Treigest"
 
-#: .tmp/mustek.c:141
+#: .tmp/mustek.c:143
 msgid "Slower"
 msgstr "Treigere"
 
-#: .tmp/mustek.c:142
+#: .tmp/mustek.c:144
 msgid "Faster"
 msgstr "Raskere"
 
-#: .tmp/mustek.c:142
+#: .tmp/mustek.c:144
 msgid "Fastest"
 msgstr "Raskest"
 
-#: .tmp/mustek.c:169
+#: .tmp/mustek.c:171
 msgid "8x8 coarse"
 msgstr "8x8 grov"
 
-#: .tmp/mustek.c:169
+#: .tmp/mustek.c:171
 msgid "8x8 normal"
 msgstr ""
 
-#: .tmp/mustek.c:169
+#: .tmp/mustek.c:171
 msgid "8x8 fine"
 msgstr "8x8 fin"
 
-#: .tmp/mustek.c:170
+#: .tmp/mustek.c:172
 msgid "8x8 very fine"
 msgstr "8x8 veldig fin"
 
-#: .tmp/mustek.c:170
+#: .tmp/mustek.c:172
 msgid "6x6 normal"
 msgstr ""
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 msgid "5x5 coarse"
 msgstr "5x5 grov"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 msgid "5x5 fine"
 msgstr "5x5 fin"
 
-#: .tmp/mustek.c:171
+#: .tmp/mustek.c:173
 msgid "4x4 coarse"
 msgstr "4x4 grov"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 msgid "4x4 normal"
 msgstr ""
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 msgid "4x4 fine"
 msgstr "4x4 fin"
 
-#: .tmp/mustek.c:172
+#: .tmp/mustek.c:174
 msgid "3x3 normal"
 msgstr ""
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 msgid "2x2 normal"
 msgstr ""
 
-#: .tmp/mustek.c:173
+#: .tmp/mustek.c:175
 msgid "8x8 custom"
 msgstr "8x8 valgfri"
 
-#: .tmp/mustek.c:174
+#: .tmp/mustek.c:176
 msgid "6x6 custom"
 msgstr "6x6 valgfri"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 msgid "5x5 custom"
 msgstr "5x5 valgfri"
 
-#: .tmp/mustek.c:175
+#: .tmp/mustek.c:177
 msgid "4x4 custom"
 msgstr "4x4 valgfri"
 
-#: .tmp/mustek.c:176
+#: .tmp/mustek.c:178
 msgid "3x3 custom"
 msgstr "3x3 valgfri"
 
-#: .tmp/mustek.c:177
+#: .tmp/mustek.c:179
 msgid "2x2 custom"
 msgstr "2x2 valgfri"
 
-#: .tmp/mustek.c:4229
+#: .tmp/mustek.c:4231
 msgid "Fast gray mode"
 msgstr ""
 
-#: .tmp/mustek.c:4230
+#: .tmp/mustek.c:4232
 msgid "Scan in fast gray mode (lower quality)."
 msgstr ""
 
-#: .tmp/mustek.c:4404
+#: .tmp/mustek.c:4328
+msgid "Fast preview"
+msgstr "Rask forvisning"
+
+#: .tmp/mustek.c:4329
+msgid ""
+"Request that all previews are done in the fastest (low-quality) mode. This "
+"may be a non-color mode or a low resolution mode."
+msgstr ""
+
+#: .tmp/mustek.c:4337
+#, fuzzy
+msgid "Lamp off time (minutes)"
+msgstr "Varmopp lampe"
+
+#: .tmp/mustek.c:4338
+msgid "Set the time (in minutes) after which the lamp is shut off."
+msgstr ""
+
+#: .tmp/mustek.c:4349
+#, fuzzy
+msgid "Turn lamp off"
+msgstr "Lampe av"
+
+#: .tmp/mustek.c:4350
+msgid "Turns the lamp off immediately."
+msgstr ""
+
+#: .tmp/mustek.c:4427
 msgid "Red brightness"
 msgstr ""
 
-#: .tmp/mustek.c:4405
+#: .tmp/mustek.c:4428
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr ""
 
-#: .tmp/mustek.c:4417
+#: .tmp/mustek.c:4440
 #, fuzzy
 msgid "Green brightness"
 msgstr "Grønnbalanse"
 
-#: .tmp/mustek.c:4418
+#: .tmp/mustek.c:4441
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr ""
 
-#: .tmp/mustek.c:4430
+#: .tmp/mustek.c:4453
 msgid "Blue brightness"
 msgstr ""
 
-#: .tmp/mustek.c:4431
+#: .tmp/mustek.c:4454
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr ""
 
-#: .tmp/mustek.c:4456
+#: .tmp/mustek.c:4479
 msgid "Contrast red channel"
 msgstr "Kontrast rødkanal"
 
-#: .tmp/mustek.c:4457
+#: .tmp/mustek.c:4480
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr ""
 
-#: .tmp/mustek.c:4469
+#: .tmp/mustek.c:4492
 msgid "Contrast green channel"
 msgstr "Kontrast grønnkanal"
 
-#: .tmp/mustek.c:4470
+#: .tmp/mustek.c:4493
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr ""
 
-#: .tmp/mustek.c:4482
+#: .tmp/mustek.c:4505
 msgid "Contrast blue channel"
 msgstr "Kontrast blåkanal"
 
-#: .tmp/mustek.c:4483
+#: .tmp/mustek.c:4506
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr ""
 

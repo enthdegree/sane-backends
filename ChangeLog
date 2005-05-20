@@ -17,6 +17,14 @@
 	  preview". By default for preview mode 8 bits/pixel are used.  
 	  Fixed indentation.  Full scan really scans from y=0 on gt6816
 	  scanners now.
+	* po/sane-backends.bg.po po/sane-backends.cs.po
+	  po/sane-backends.da.po po/sane-backends.de.po
+	  po/sane-backends.es.po po/sane-backends.fi.po
+	  po/sane-backends.fr.po po/sane-backends.it.po
+	  po/sane-backends.nl.po po/sane-backends.no.po
+	  po/sane-backends.pl.po po/sane-backends.pt.po
+	  po/sane-backends.ru.po po/sane-backends.sv.po: Regenerated
+	  translation files. Updated German translation.
 
 2005-05-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

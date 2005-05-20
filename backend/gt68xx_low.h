@@ -110,6 +110,9 @@
 #define GT68XX_FLAG_CIS_LAMP        (1 << 6)	/* CIS sensor with lamp */
 #define GT68XX_FLAG_NO_POWER_STATUS (1 << 7)	/* get_power_status_doesn't work */
 #define GT68XX_FLAG_NO_LINEMODE     (1 << 8)	/* Linemode does not work with this scanner */
+#define GT68XX_FLAG_SCAN_FROM_HOME  (1 << 9)	/* Move home after calibration */
+#define GT68XX_FLAG_USE_OPTICAL_X   (1 << 10)	/* Use optical xdpi for 50 dpi and below */
+#define GT68XX_FLAG_ALWAYS_LINEMODE (1 << 11)	/* Linemode must be used for any resolution */
 
 
 /* Forward typedefs */
@@ -419,27 +422,26 @@ struct GT68xx_Model
 
   GT68xx_Command_Set *command_set;
 
-  SANE_Int optical_xdpi;	/* maximum resolution in x-direction */	      
-  SANE_Int optical_ydpi;	/* maximum resolution in y-direction */	      
-  SANE_Int base_xdpi;		/* x-resolution used to calculate geometry */ 
-  SANE_Int base_ydpi;		/* y-resolution used to calculate geometry */ 
-  SANE_Int ydpi_force_line_mode;/* if ydpi is equal or higher, use linemode */
-  SANE_Int ydpi_no_backtrack;   /* if ydpi is equal or higher, disable backtracking */
+  SANE_Int optical_xdpi;	/* maximum resolution in x-direction */
+  SANE_Int optical_ydpi;	/* maximum resolution in y-direction */
+  SANE_Int base_xdpi;		/* x-resolution used to calculate geometry */
+  SANE_Int base_ydpi;		/* y-resolution used to calculate geometry */
+  SANE_Int ydpi_no_backtrack;	/* if ydpi is equal or higher, disable backtracking */
   SANE_Bool constant_ydpi;	/* Use base_ydpi for all resolutions        */
 
-  SANE_Int xdpi_values[MAX_RESOLUTIONS]; /* possible x resolutions */	 
-  SANE_Int ydpi_values[MAX_RESOLUTIONS]; /* possible y resolutions */	 
-  SANE_Int bpp_gray_values[MAX_DPI]; /* possible depths in gray mode */	 
-  SANE_Int bpp_color_values[MAX_DPI]; /* possible depths in color mode */
+  SANE_Int xdpi_values[MAX_RESOLUTIONS];	/* possible x resolutions */
+  SANE_Int ydpi_values[MAX_RESOLUTIONS];	/* possible y resolutions */
+  SANE_Int bpp_gray_values[MAX_DPI];	/* possible depths in gray mode */
+  SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
 
-  SANE_Fixed x_offset;		/* Start of scan area in mm */		
-  SANE_Fixed y_offset;		/* Start of scan area in mm */		
-  SANE_Fixed x_size;		/* Size of scan area in mm */		
-  SANE_Fixed y_size;		/* Size of scan area in mm */		
-				                                        
-  SANE_Fixed y_offset_calib;	/* Start of white strip in mm */	
-  SANE_Fixed x_offset_mark;	/* Start of black mark in mm */		
-				                                        
+  SANE_Fixed x_offset;		/* Start of scan area in mm */
+  SANE_Fixed y_offset;		/* Start of scan area in mm */
+  SANE_Fixed x_size;		/* Size of scan area in mm */
+  SANE_Fixed y_size;		/* Size of scan area in mm */
+
+  SANE_Fixed y_offset_calib;	/* Start of white strip in mm */
+  SANE_Fixed x_offset_mark;	/* Start of black mark in mm */
+
   SANE_Fixed x_offset_ta;	/* Start of scan area in TA mode in mm */
   SANE_Fixed y_offset_ta;	/* Start of scan area in TA mode in mm */
   SANE_Fixed x_size_ta;		/* Size of scan area in TA mode in mm */
@@ -448,17 +450,17 @@ struct GT68xx_Model
   SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */
 
   /* Line-distance correction (in pixel at optical_ydpi) for CCD scanners */
-  SANE_Int ld_shift_r; /* red */
-  SANE_Int ld_shift_g; /* green */
-  SANE_Int ld_shift_b; /* blue */
-  SANE_Int ld_shift_double; /* distance between two CCD lines of one color
-			       (only applicable for CCD with 6 lines) */
+  SANE_Int ld_shift_r;		/* red */
+  SANE_Int ld_shift_g;		/* green */
+  SANE_Int ld_shift_b;		/* blue */
+  SANE_Int ld_shift_double;	/* distance between two CCD lines of one color
+				   (only applicable for CCD with 6 lines) */
 
-  GT68xx_Color_Order line_mode_color_order; /* Order of the CCD/CIS colors */
+  GT68xx_Color_Order line_mode_color_order;	/* Order of the CCD/CIS colors */
 
-  GT68xx_AFE_Parameters afe_params; /* Default offset/gain */
-  GT68xx_Exposure_Parameters exposure; /* Default exposure parameters */
-  SANE_Fixed default_gamma_value; /* Default gamma value */
+  GT68xx_AFE_Parameters afe_params;	/* Default offset/gain */
+  GT68xx_Exposure_Parameters exposure;	/* Default exposure parameters */
+  SANE_Fixed default_gamma_value;	/* Default gamma value */
 
   SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
 
@@ -529,7 +531,7 @@ struct GT68xx_Scan_Request
   SANE_Bool lamp;	/**< Lamp on/off */
   SANE_Bool calculate;	/**< Don't scan, only calculate parameters */
   SANE_Bool use_ta;	/**< Use the tansparency adapter */
-  SANE_Bool backtrack;  /**< Enable backtracking */
+  SANE_Bool backtrack;	/**< Enable backtracking */
   SANE_Bool backtrack_lines;  /**< How many lines to backtrack */
 };
 

@@ -1,5 +1,19 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.69 (2005-05-20)
+
+* Mustek BearPaw 1200 CU Plus model 0x21b works now. Fixed firmware and offset
+  settings. Calibration is not completely ok yet, however.
+* Code cleanup for setup_scan (only one function for all chipsets).
+* Simplified line mode/pixel mode setting
+* Updated TODO.
+* Mustek BearPaw 2448 TA Plus is now only "basic". Too much trouble for
+  "good".
+* Removed option "fast preview". By default for preview mode 8 bits/pixel
+  are used.
+* Fixed indentation.
+* Full scan really scans from y=0 on gt6816 scanners now.
+
 V 1.0.68 (2005-05-07)
 
 * GT68XX_FLAG_NO_STOP is needed for BearPaw 2448 TA Plus.

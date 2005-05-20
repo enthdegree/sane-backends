@@ -5,21 +5,15 @@ General:
   can be used for that?
 - Scanning on *BSD works only once for all scanners but 2448. firmware 
   upload sometimes works more than once
-- check how many shm buffers are acually used
-- update German translation
-- check fast preview
-- check calib for first scan only
-- setup exposure start per scanner (?)
-- reformat source code (indent -gnu)
-- Can gt6801/gt6816-specific code be simplified?
-- check all the manual hacks in setup_scan
-- gt6816: really bpl*3 in line mode? Not for 2448.
 - Check autobandwidth
 - check several get scanner info functions
 - check exposure (start + stop)?
 - Some Plustek scanners are advertised with e.g. 1200x2400 but the maximum
   vertical resolution seems to be limited to the horizontal one. Check if
   that's really the case.
+- The first scan (or preview) sometimes seem to start at a wrong x-position 
+  (plustek 1248, calibration disabled).
+
 
 CCD:
 ----
@@ -29,10 +23,14 @@ CCD:
     fine calib is ok
     coarse calib has an extremely high gain
 
+Mustek ScanExpress 1248 UB
+- Bad vertical stripes
+
 Mustek BearPaw 2400 TA Plus:
 - some lines at the beginning of each image have wrong colors (linedistance?)
   This seems to happen with other scanners, too.
 - 600 dpi no backtrack, 1200, 2400 dpi backtrack (gray), check with windows for color
+- 600 dpi 12 bit seems to work in pixel mode only (but long lines are too big!)
 
 Mustek BearPaw 1200 TA:
 - similar color problem as 2400 TA Plus, doesn't always happen?
@@ -47,6 +45,10 @@ Mustek BearPaw 2448 TA Plus:
 - no backtrack >= 600 dpi (also gray!)
 - don't move before and after scan
 - check jpeg output
+
+Plustek U16B:
+- 600 dpi 16 bit is limited to about half the size of the scan area because
+  only pixel mode works and 16k is the maximum buffer size.
 
 CIS:
 ----
@@ -64,6 +66,10 @@ Mustek BearPaw 1200 CU
 - bright strip on left side? Also visible without white calibration. Check exposure.
 - check with windows
 - 600 dpi no backtrack
+
+Mustek BearPaw 1200 CU Plus
+- vertical lines
+- image is redish
 
 Mustek BearPaw 2400 CU Plus
 - first offset is ok!
@@ -85,3 +91,4 @@ Mustek ScanExpress 2400 USB
 Plustek OpticSlim 2400
 - only upto 1200 dpi vertical works
 - only 8 and 12 bit work, 16 doesn't (check Windows)
+

@@ -62,6 +62,10 @@ gt68xx_generic_set_exposure_time (GT68xx_Device * dev,
 				  GT68xx_Exposure_Parameters * params);
 static SANE_Status gt68xx_generic_get_id (GT68xx_Device * dev);
 
-#endif /* not GT68XX_GENERIC_H */
+static SANE_Status
+gt68xx_generic_setup_scan (GT68xx_Device * dev,
+			   GT68xx_Scan_Request * request,
+			   GT68xx_Scan_Action action,
+			   GT68xx_Scan_Parameters * params);
 
-/* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */
+#endif /* not GT68XX_GENERIC_H */

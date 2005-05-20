@@ -67,10 +67,4 @@ static SANE_Status gt6816_carriage_home (GT68xx_Device * dev);
 
 static SANE_Status gt6816_stop_scan (GT68xx_Device * dev);
 
-static SANE_Status
-gt6816_setup_scan (GT68xx_Device * dev,
-		   GT68xx_Scan_Request * request,
-		   GT68xx_Scan_Action action,
-		   GT68xx_Scan_Parameters * params);
-
 #endif /* not GT68XX_GT6816_H */

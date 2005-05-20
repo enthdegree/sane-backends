@@ -59,7 +59,7 @@ gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
   if (pixels_per_line <= 0)
     {
       DBG (3, "gt68xx_delay_buffer_init: BUG: pixels_per_line=%d\n",
-	     pixels_per_line);
+	   pixels_per_line);
       return SANE_STATUS_INVAL;
     }
 
@@ -90,7 +90,8 @@ gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
   if (!delay->lines)
     {
       free (delay->mem_block);
-      DBG (3, "gt68xx_delay_buffer_init: no memory for delay line pointers\n");
+      DBG (3,
+	   "gt68xx_delay_buffer_init: no memory for delay line pointers\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -1003,7 +1004,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (3, "gt68xx_line_reader_new: cannot allocate line buffers: %s\n",
-	     sane_strstatus (status));
+	   sane_strstatus (status));
       free (reader);
       return status;
     }
@@ -1101,7 +1102,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   if (reader->read == NULL)
     {
       DBG (3, "gt68xx_line_reader_new: unsupported bit depth (%d)\n",
-	     reader->params.depth);
+	   reader->params.depth);
       gt68xx_line_reader_free_delays (reader);
       free (reader);
       return SANE_STATUS_UNSUPPORTED;
@@ -1128,7 +1129,8 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
   status = gt68xx_device_read_prepare (reader->dev, image_size, final_scan);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "gt68xx_line_reader_new: gt68xx_device_read_prepare failed: %s\n",
+      DBG (3,
+	   "gt68xx_line_reader_new: gt68xx_device_read_prepare failed: %s\n",
 	   sane_strstatus (status));
       free (reader->pixel_buffer);
       gt68xx_line_reader_free_delays (reader);
@@ -1159,8 +1161,9 @@ gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
   status = gt68xx_device_read_finish (reader->dev);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (3, "gt68xx_line_reader_free: gt68xx_device_read_finish failed: %s\n",
-	     sane_strstatus (status));
+      DBG (3,
+	   "gt68xx_line_reader_free: gt68xx_device_read_finish failed: %s\n",
+	   sane_strstatus (status));
     }
 
   free (reader);

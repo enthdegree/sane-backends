@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 68
+#define BUILD 69
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -208,11 +208,11 @@ max_string_size (const SANE_String_Const strings[])
 }
 
 static SANE_Status
-get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters *afe)
+get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters * afe)
 {
   SANE_Char *word, *end;
   int i;
-  
+
   for (i = 0; i < 6; i++)
     {
       cp = sanei_config_get_string (cp, &word);
@@ -224,7 +224,7 @@ get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters *afe)
 
 	  if (end == word)
 	    {
-	      DBG (5, "get_afe_values: can't parse %d. parameter `%s'\n", 
+	      DBG (5, "get_afe_values: can't parse %d. parameter `%s'\n",
 		   i + 1, word);
 	      free (word);
 	      word = 0;
@@ -240,7 +240,7 @@ get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters *afe)
 	    }
 	  else if (long_value < 0)
 	    {
-	      DBG (5, "get_afe_values: %d. parameter < 0 (%d)\n", i + 1, 
+	      DBG (5, "get_afe_values: %d. parameter < 0 (%d)\n", i + 1,
 		   (int) long_value);
 	      free (word);
 	      word = 0;
@@ -260,12 +260,24 @@ get_afe_values (SANE_String_Const cp, GT68xx_AFE_Parameters *afe)
 		   (int) long_value);
 	      switch (i)
 		{
-		case 0: afe->r_offset = (SANE_Byte) long_value; break;
-		case 1: afe->r_pga = (SANE_Byte) long_value; break;
-		case 2: afe->g_offset = (SANE_Byte) long_value; break;
-		case 3: afe->g_pga = (SANE_Byte) long_value; break;
-		case 4: afe->b_offset = (SANE_Byte) long_value; break;
-		case 5: afe->b_pga = (SANE_Byte) long_value; break;
+		case 0:
+		  afe->r_offset = (SANE_Byte) long_value;
+		  break;
+		case 1:
+		  afe->r_pga = (SANE_Byte) long_value;
+		  break;
+		case 2:
+		  afe->g_offset = (SANE_Byte) long_value;
+		  break;
+		case 3:
+		  afe->g_pga = (SANE_Byte) long_value;
+		  break;
+		case 4:
+		  afe->b_offset = (SANE_Byte) long_value;
+		  break;
+		case 5:
+		  afe->b_pga = (SANE_Byte) long_value;
+		  break;
 		}
 	      free (word);
 	      word = 0;
@@ -306,7 +318,7 @@ setup_scan_request (GT68xx_Scanner * s, GT68xx_Scan_Request * scan_request)
     scan_request->xdpi = s->dev->model->optical_xdpi;
   scan_request->ydpi = s->val[OPT_RESOLUTION].w;
 
-  if (IS_ACTIVE (OPT_BIT_DEPTH) && (!s->val[OPT_PREVIEW].w || !s->val[OPT_FAST_PREVIEW].w))
+  if (IS_ACTIVE (OPT_BIT_DEPTH) && !s->val[OPT_PREVIEW].w)
     scan_request->depth = s->val[OPT_BIT_DEPTH].w;
   else
     scan_request->depth = 8;
@@ -354,7 +366,8 @@ calc_parameters (GT68xx_Scanner * s)
   val = s->val[OPT_MODE].s;
 
   s->params.last_frame = SANE_TRUE;
-  if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0 || strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
+  if (strcmp (val, SANE_VALUE_SCAN_MODE_GRAY) == 0
+      || strcmp (val, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.format = SANE_FRAME_GRAY;
   else				/* Color */
     s->params.format = SANE_FRAME_RGB;
@@ -460,8 +473,9 @@ init_options (GT68xx_Scanner * s)
   /* scan mode */
   s->opt[OPT_GRAY_MODE_COLOR].name = "gray-mode-color";
   s->opt[OPT_GRAY_MODE_COLOR].title = SANE_I18N ("Gray mode color");
-  s->opt[OPT_GRAY_MODE_COLOR].desc = SANE_I18N ("Selects which scan color is used "
-						"gray mode (default: green).");
+  s->opt[OPT_GRAY_MODE_COLOR].desc =
+    SANE_I18N ("Selects which scan color is used "
+	       "gray mode (default: green).");
   s->opt[OPT_GRAY_MODE_COLOR].type = SANE_TYPE_STRING;
   s->opt[OPT_GRAY_MODE_COLOR].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_GRAY_MODE_COLOR].size = max_string_size (gray_mode_list);
@@ -553,20 +567,21 @@ init_options (GT68xx_Scanner * s)
   /* auto warmup */
   s->opt[OPT_AUTO_WARMUP].name = "auto-warmup";
   s->opt[OPT_AUTO_WARMUP].title = SANE_I18N ("Automatic warmup");
-  s->opt[OPT_AUTO_WARMUP].desc = 
+  s->opt[OPT_AUTO_WARMUP].desc =
     SANE_I18N ("Warm-up until the lamp's brightness is constant "
 	       "instead of insisting on 60 seconds warm-up time.");
   s->opt[OPT_AUTO_WARMUP].type = SANE_TYPE_BOOL;
   s->opt[OPT_AUTO_WARMUP].unit = SANE_UNIT_NONE;
   s->opt[OPT_AUTO_WARMUP].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_AUTO_WARMUP].w = SANE_TRUE;
-  if ((s->dev->model->is_cis && !(s->dev->model->flags & GT68XX_FLAG_CIS_LAMP)) || !debug_options)
+  if ((s->dev->model->is_cis
+       && !(s->dev->model->flags & GT68XX_FLAG_CIS_LAMP)) || !debug_options)
     DISABLE (OPT_AUTO_WARMUP);
 
   /* full scan */
   s->opt[OPT_FULL_SCAN].name = "full-scan";
   s->opt[OPT_FULL_SCAN].title = SANE_I18N ("Full scan");
-  s->opt[OPT_FULL_SCAN].desc = 
+  s->opt[OPT_FULL_SCAN].desc =
     SANE_I18N ("Scan the complete scanning area including calibration strip. "
 	       "Be careful. Don't select the full height. For testing only.");
   s->opt[OPT_FULL_SCAN].type = SANE_TYPE_BOOL;
@@ -593,7 +608,7 @@ init_options (GT68xx_Scanner * s)
 
   /* coarse calibration only once */
   s->opt[OPT_COARSE_CAL_ONCE].name = "coarse-calibration-once";
-  s->opt[OPT_COARSE_CAL_ONCE].title = 
+  s->opt[OPT_COARSE_CAL_ONCE].title =
     SANE_I18N ("Coarse calibration for first scan only");
   s->opt[OPT_COARSE_CAL_ONCE].desc =
     SANE_I18N ("Coarse calibration is only done for the first scan. Works "
@@ -618,22 +633,10 @@ init_options (GT68xx_Scanner * s)
   if (!debug_options)
     DISABLE (OPT_QUALITY_CAL);
 
-  /* fast preview */
-  s->opt[OPT_FAST_PREVIEW].name = "fast-preview";
-  s->opt[OPT_FAST_PREVIEW].title = SANE_I18N ("Fast preview");
-  s->opt[OPT_FAST_PREVIEW].desc =
-    SANE_I18N ("Request that all previews are done in the fastest "
-	       "(low-quality) mode. This may be a non-color mode or a low "
-	       "resolution mode.");
-  s->opt[OPT_FAST_PREVIEW].type = SANE_TYPE_BOOL;
-  s->val[OPT_FAST_PREVIEW].w = SANE_TRUE;
-  if (!debug_options)
-    DISABLE (OPT_FAST_PREVIEW);
-
   /* backtrack lines */
   s->opt[OPT_BACKTRACK_LINES].name = "backtrack-lines";
-  s->opt[OPT_BACKTRACK_LINES].title = SANE_I18N("Backtrack lines");
-  s->opt[OPT_BACKTRACK_LINES].desc = 
+  s->opt[OPT_BACKTRACK_LINES].title = SANE_I18N ("Backtrack lines");
+  s->opt[OPT_BACKTRACK_LINES].desc =
     SANE_I18N ("Number of lines the scan slider moves back when backtracking "
 	       "occurs. That happens when the scanner scans faster than the "
 	       "computer can receive the data. Low values cause faster scans "
@@ -660,14 +663,15 @@ init_options (GT68xx_Scanner * s)
   /* internal gamma value */
   s->opt[OPT_GAMMA_VALUE].name = "gamma-value";
   s->opt[OPT_GAMMA_VALUE].title = SANE_I18N ("Gamma value");
-  s->opt[OPT_GAMMA_VALUE].desc = SANE_I18N ("Sets the gamma value of all channels.");
+  s->opt[OPT_GAMMA_VALUE].desc =
+    SANE_I18N ("Sets the gamma value of all channels.");
   s->opt[OPT_GAMMA_VALUE].type = SANE_TYPE_FIXED;
   s->opt[OPT_GAMMA_VALUE].unit = SANE_UNIT_NONE;
   s->opt[OPT_GAMMA_VALUE].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_GAMMA_VALUE].constraint.range = &gamma_range;
   s->opt[OPT_GAMMA_VALUE].cap |= SANE_CAP_EMULATED;
   s->val[OPT_GAMMA_VALUE].w = s->dev->gamma_value;
-  
+
   /* threshold */
   s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
   s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
@@ -779,14 +783,17 @@ attach (SANE_String_Const devname, GT68xx_Device ** devp, SANE_Bool may_wait)
 
   if (!gt68xx_device_is_configured (dev))
     {
-      GT68xx_Model * model;
-      DBG (2, "attach: Warning: device `%s' is not listed in device table\n", devname);
-      DBG (2, "attach: If you have manually added it, use override in gt68xx.conf\n");
+      GT68xx_Model *model;
+      DBG (2, "attach: Warning: device `%s' is not listed in device table\n",
+	   devname);
+      DBG (2,
+	   "attach: If you have manually added it, use override in gt68xx.conf\n");
       gt68xx_device_get_model ("unknown-scanner", &model);
       status = gt68xx_device_set_model (dev, model);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (4, "attach: couldn't set model: %s\n", sane_strstatus (status));
+	  DBG (4, "attach: couldn't set model: %s\n",
+	       sane_strstatus (status));
 	  gt68xx_device_free (dev);
 	  if (devp)
 	    *devp = 0;
@@ -872,7 +879,7 @@ download_firmware_file (GT68xx_Device * dev)
   else
     {
       /* absolute path */
-      char * pos;
+      char *pos;
       strncpy (filename, dev->model->firmware_name, PATH_MAX);
       strncpy (dirname, dev->model->firmware_name, PATH_MAX);
       pos = strrchr (dirname, PATH_SEP[0]);
@@ -887,7 +894,7 @@ download_firmware_file (GT68xx_Device * dev)
   if (!f)
     {
       /* and now any case */
-      DIR * dir;
+      DIR *dir;
       struct dirent *direntry;
 
       DBG (5,
@@ -897,20 +904,21 @@ download_firmware_file (GT68xx_Device * dev)
       dir = opendir (dirname);
       if (!dir)
 	{
-	  DBG (5, "download_firmware: couldn't open directory `%s': %s\n", 
+	  DBG (5, "download_firmware: couldn't open directory `%s': %s\n",
 	       dirname, strerror (errno));
 	  status = SANE_STATUS_INVAL;
 	}
       if (status == SANE_STATUS_GOOD)
-	{	
+	{
 	  do
 	    {
 	      direntry = readdir (dir);
-	      if (direntry && (strncasecmp (direntry->d_name, basename, PATH_MAX) == 0))
+	      if (direntry
+		  && (strncasecmp (direntry->d_name, basename, PATH_MAX) ==
+		      0))
 		{
 		  snprintf (filename, PATH_MAX, "%s%s%s",
 			    dirname, PATH_SEP, direntry->d_name);
-		  DBG (5, "download_firmware: trying %s\n", filename);
 		  break;
 		}
 	    }
@@ -1034,7 +1042,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       debug_options = SANE_TRUE;
     }
 #endif
-    
+
   fp = sanei_config_open (GT68XX_CONFIG_FILE);
   if (!fp)
     {
@@ -1189,7 +1197,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	  free (word);
 	  word = 0;
-	  
+
 	  status = get_afe_values (cp, &afe);
 	  if (status == SANE_STATUS_GOOD)
 	    {
@@ -1201,7 +1209,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		       new_dev[i]->model->name);
 		}
 	      if (i == 0)
-		DBG (5, "sane_init: can't set afe values, set device first\n");
+		DBG (5,
+		     "sane_init: can't set afe values, set device first\n");
 	    }
 	  else
 	    DBG (3, "sane_init: can't set afe values\n");
@@ -1344,19 +1353,23 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (dev->manual_selection)
     {
       DBG (0, "WARNING: You have manually added the ids of your scanner \n");
-      DBG (0, "         to gt68xx.conf. Please use an appropriate override \n");
-      DBG (0, "         for your scanner. Use extreme care and switch off \n");
-      DBG (0, "         the scanner immediately if you hear unusual noise. \n");
+      DBG (0,
+	   "         to gt68xx.conf. Please use an appropriate override \n");
+      DBG (0,
+	   "         for your scanner. Use extreme care and switch off \n");
+      DBG (0,
+	   "         the scanner immediately if you hear unusual noise. \n");
       DBG (0, "         Please report any success to \n");
       DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner, ids, settings etc.\n");
-      
+
       if (strcmp (dev->model->name, "unknown-scanner") == 0)
 	{
 	  GT68xx_USB_Device_Entry *entry;
 
-	  DBG (0, "ERROR: You haven't chosen an override in gt68xx.conf. Please use \n");
+	  DBG (0,
+	       "ERROR: You haven't chosen an override in gt68xx.conf. Please use \n");
 	  DBG (0, "       one of the following: \n");
 
 	  for (entry = gt68xx_usb_device_list; entry->model; ++entry)
@@ -1377,14 +1390,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     DBG (3, "sane_open: firmware already loaded, skipping load\n");
   else
     RIE (download_firmware_file (dev));
-  /*  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded));*/
+  /*  RIE (gt68xx_device_check_firmware (dev, &firmware_loaded)); */
   if (!firmware_loaded)
     {
       DBG (1, "sane_open: firmware still not loaded? Proceeding anyway\n");
       /* return SANE_STATUS_IO_ERROR; */
     }
 #else
-    RIE (download_firmware_file (dev));
+  RIE (download_firmware_file (dev));
 #endif
 
   RIE (gt68xx_device_get_id (dev));
@@ -1524,7 +1537,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_COARSE_CAL:
 	case OPT_COARSE_CAL_ONCE:
 	case OPT_QUALITY_CAL:
-	case OPT_FAST_PREVIEW:
 	case OPT_BACKTRACK:
 	case OPT_BACKTRACK_LINES:
 	case OPT_PREVIEW:
@@ -1571,7 +1583,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_RESOLUTION:
 	case OPT_BIT_DEPTH:
 	case OPT_FULL_SCAN:
-	case OPT_FAST_PREVIEW:
 	case OPT_PREVIEW:
 	case OPT_TL_X:
 	case OPT_TL_Y:
@@ -1752,7 +1763,7 @@ sane_start (SANE_Handle handle)
     s->dev->gray_mode_color = 0x02;
   else
     s->dev->gray_mode_color = 0x03;
-    
+
   setup_scan_request (s, &scan_request);
   if (!s->first_scan && s->val[OPT_COARSE_CAL_ONCE].w == SANE_TRUE)
     s->auto_afe = SANE_FALSE;
@@ -1770,15 +1781,15 @@ sane_start (SANE_Handle handle)
     }
   for (i = 0; i < gamma_size; i++)
     {
-      s->gamma_table [i] = 
+      s->gamma_table[i] =
 	(gamma_size - 1) * pow (((double) i + 1) / (gamma_size),
-			  1.0 / SANE_UNFIX(s->dev->gamma_value)) + 0.5;
-      if (s->gamma_table [i] > (gamma_size - 1))
-	s->gamma_table [i] = (gamma_size - 1);
-      if (s->gamma_table [i] < 0) 
-	s->gamma_table [i] = 0;
+				1.0 / SANE_UNFIX (s->dev->gamma_value)) + 0.5;
+      if (s->gamma_table[i] > (gamma_size - 1))
+	s->gamma_table[i] = (gamma_size - 1);
+      if (s->gamma_table[i] < 0)
+	s->gamma_table[i] = 0;
 #if 0
-      printf ("%d %d\n", i, s->gamma_table [i]);
+      printf ("%d %d\n", i, s->gamma_table[i]);
 #endif
     }
 
@@ -1800,7 +1811,7 @@ sane_start (SANE_Handle handle)
       else
 	scan_request.backtrack = SANE_TRUE;
     }
-    
+
   if (scan_request.backtrack)
     scan_request.backtrack_lines = s->val[OPT_BACKTRACK_LINES].w;
   else
@@ -1917,9 +1928,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    for (i = 0; i < s->reader->pixels_per_line; i++)
 	      {
 		if (s->reader->params.depth > 8)
-		  buffer_pointers[color][i] = s->gamma_table[buffer_pointers[color][i]];
+		  buffer_pointers[color][i] =
+		    s->gamma_table[buffer_pointers[color][i]];
 		else
-		  buffer_pointers[color][i] = 
+		  buffer_pointers[color][i] =
 		    (s->gamma_table[buffer_pointers[color][i] >> 8] << 8) +
 		    (s->gamma_table[buffer_pointers[color][i] >> 8]);
 	      }
@@ -1992,8 +2004,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 		s->byte_count++;
 #ifdef DEBUG_BRIGHTNESS
 	      s->average_white += buf[*len];
-	      s->max_white = (buf[*len] > s->max_white) ? buf[*len] : s->max_white;
-	      s->min_black = (buf[*len] < s->min_black) ? buf[*len] : s->min_black;
+	      s->max_white =
+		(buf[*len] > s->max_white) ? buf[*len] : s->max_white;
+	      s->min_black =
+		(buf[*len] < s->min_black) ? buf[*len] : s->min_black;
 #endif
 	    }
 	}
@@ -2065,7 +2079,8 @@ sane_cancel (SANE_Handle handle)
 	       "sane_cancel: scan finished, scanned %d bytes in %d seconds\n",
 	       s->total_bytes, secs);
 #ifdef DEBUG_BRIGHTNESS
-	  DBG (1, "sane_cancel: average white: %d, max_white=%d, min_black=%d\n",
+	  DBG (1,
+	       "sane_cancel: average white: %d, max_white=%d, min_black=%d\n",
 	       s->average_white / s->total_bytes, s->max_white, s->min_black);
 #endif
 

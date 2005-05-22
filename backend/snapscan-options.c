@@ -220,7 +220,7 @@ static void init_options (SnapScan_Scanner * ps)
     static SANE_Word resolutions_1600[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600};
     static SANE_Word resolutions_2400[] =
-        {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
+        {9, 50, 75, 100, 150, 200, 300, 400, 600, 1200};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -1514,6 +1514,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.20  2005/05/22 11:50:24  oliver-guest
+ * Disabled 2400 DPI for Epson 2480
+ *
  * Revision 1.19  2004/12/09 23:21:47  oliver-guest
  * Added quality calibration for Epson 2480 (by Simon Munton)
  *

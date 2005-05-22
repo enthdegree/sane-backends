@@ -1,3 +1,9 @@
+2005-05-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c:
+	  Disabled 2400 DPI for Epson 2480 due to user report of
+	  broken scanner
+
 2005-05-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c
@@ -523,7 +529,7 @@
 	* doc/plustek/Plustek-USB.changes: Update.
 	* doc/descriptions/plustek.desc: Updated release number.
 
-2004-04-15  Stéphane Voltz <svoltz@wanadoo.fr>
+2004-04-15  Stï¿½hane Voltz <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: non i386 linux compilation fix,
           1220P gray levels scan hang fix, 1220P color calibration tuning.

@@ -927,6 +927,12 @@
 :status :unsupported
 :comment "Probably unsupported. May work with vuescan. See link for details."
 
+:model "DiMAGE Scan Elite 5400 2"
+:url "/unsupported/minolta-dse-5400-2.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "DiMAGE Scan Multi Pro"
 :url "/unsupported/minolta-dimage-scan-multi-pro.html"
 :interface "IEEE-1394"
@@ -1000,7 +1006,7 @@
 :comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
 
 :model "Paragon 800 II EP"
-:interface "USB"
+:interface "Parport"
 ;:url ""
 :status :unsupported
 :comment "Not supported. Maybe similar to 600 II EP (SCSI_over-parport)? In this case it could be supported by the mustek SCSI backend."

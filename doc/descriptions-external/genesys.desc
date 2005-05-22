@@ -13,7 +13,6 @@
 ;:version "0.0"                    ; version of backend
 ;:manpage "sane-genesys"           ; name of manpage (if it exists)
 :url "http://www.meier-geinitz.de/sane/genesys-backend/" ; backend's web page
-:comment "This backend does not exist yet!"
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -157,7 +156,7 @@
 :model "MD 6471"
 :url "/unsupported/medion-md6228.html"
 :interface "USB"
-:status :unsupported
+:status :basic
 
 
 :mfg "Plustek"

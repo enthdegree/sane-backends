@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added Konica Minolta Dimage
 	  5400 2. Fixed bus type for Mustek 800 II EP.
+	* doc/descriptions-external/genesys.desc: Changed status of Medion
+	  MD 6471 to "basic".
 
 2005-05-22  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

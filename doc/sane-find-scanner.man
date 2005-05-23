@@ -80,10 +80,10 @@ Be quiet. Print only the devices, no comments.
 Probe parallel port scanners.
 .TP 8
 .B \-f
-Force opening all explicitely given devices as SCSI and USB devices. That's
+Force opening all explicitly given devices as SCSI and USB devices. That's
 useful if 
 .B sane-find-scanner
-is wrong in determing the device type.
+is wrong in determining the device type.
 .TP 8
 .B \-F filename
 filename is a file that contains USB descriptors in the format of
@@ -91,7 +91,7 @@ filename is a file that contains USB descriptors in the format of
 .B sane-find-scanner
 tries to identify the chipset(s) of all USB scanners found in such a file. This
 option is useful for developers when the output of "cat /proc/bus/usb/devices"
-is avaliable but the scanner itsself isn't.
+is available but the scanner itsself isn't.
 .TP 8
 .B devname
 Test device file "devname". No other devices are checked if devname is given.

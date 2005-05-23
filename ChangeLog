@@ -1,3 +1,7 @@
+2005-05-23  Julien Blache <jb@jblache.org>
+	* doc/sane-find-scanner.man, doc/gamma4scanimage.man: spelling
+	fixes from A Costa.
+
 2005-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Konica Minolta Dimage

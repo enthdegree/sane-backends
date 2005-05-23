@@ -30,7 +30,7 @@ is a floating point value, neutral value is 1.0, if the value is larger than
 1.0 then the image gets brighter.
 .PP
 .BR shadow
-defines the minmum input value that is necessary to create an output value
+defines the minimum input value that is necessary to create an output value
 larger than zero.  shadow has to be in the range [0..maxin]. Its default value
 is 0.
 .PP

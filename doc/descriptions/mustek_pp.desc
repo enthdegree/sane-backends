@@ -140,5 +140,12 @@
 :status :good
 :comment "300 dpi CCD scanner"
 
+:mfg "Network"
+
+:model "Easy Plus 30 Bit"
+:interface "Parport (EPP)"
+:status :good
+:comment "300 dpi CCD scanner"
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

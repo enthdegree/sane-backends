@@ -1,3 +1,7 @@
+2005-05-25  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* doc/descriptions/mustek_pp.desc: added scanner
+
 2005-05-23  Julien Blache <jb@jblache.org>
 	* doc/sane-find-scanner.man, doc/gamma4scanimage.man: spelling
 	fixes from A Costa.

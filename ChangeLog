@@ -1,3 +1,9 @@
+2005-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/net.tex: Mention RPC codes explicitely and explain what request and
+	  reply means. based on patch from Johannes Berg
+	  <johannes@sipsolutions.net>. 
+
 2005-05-25  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* doc/descriptions/mustek_pp.desc: added scanner

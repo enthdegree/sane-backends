@@ -140,9 +140,16 @@ greatly simplifies the network protocol.
 The SANE network protocol is a client/server-style remote procedure
 call (RPC) protocol.  This means that all activity is initiated by the
 client side (the network backend)---a server is restricted to
-answering request by the client.
+answering requests sent by the client.
+
+The data transferred from the client to the server is comprised of the RPC code
+(as a \code{SANE\_WORD}), followed by arguments defined in the {\bf request}
+column below.  The format of the server's answer is given in the {\bf reply}
+column.
 
 \subsection{\code{\defn{SANE\_NET\_INIT}}}
+
+RPC Code: 0
 
 This RPC establishes a connection to a particular SANE network daemon.
 It must be the first call in a SANE network session.  The parameter
@@ -181,6 +188,8 @@ version code.
 
 \subsection{\code{\defn{SANE\_NET\_GET\_DEVICES}}}
 
+RPC Code: 1
+
 This RPC is used to obtain the list of devices accessible by the SANE
 daemon.
 \begin{center}
@@ -199,6 +208,8 @@ argument is a pointer to a \code{NULL}-terminated array of
 \code{SANE\_Device} pointers.
 
 \subsection{\code{\defn{SANE\_NET\_OPEN}}}
+
+RPC Code: 2
 
 This RPC is used to open a connection to a remote SANE device.
 \begin{center}
@@ -224,6 +235,8 @@ authorize a resource).
 
 \subsection{\code{\defn{SANE\_NET\_CLOSE}}}
 
+RPC Code: 3
+
 This RPC is used to close a connection to a remote SANE device.
 \begin{center}
 \begin{tabular}{ll}
@@ -239,6 +252,8 @@ ensure proper synchronization (without it, a net client would not be
 able to determine when the RPC has completed).
 
 \subsection{\code{\defn{SANE\_NET\_GET\_OPTION\_DESCRIPTORS}}}
+
+RPC Code: 4
 
 This RPC is used to obtain {\em all\/} the option descriptors for a
 remote SANE device.
@@ -266,6 +281,8 @@ struct Option_Descriptor_Array
 
 
 \subsection{\code{\defn{SANE\_NET\_CONTROL\_OPTION}}}
+
+RPC Code: 5
 
 This RPC is used to control (inquire, set, or set to automatic) a
 specific option of a remote SANE device.
@@ -318,6 +335,8 @@ RPC.
 
 \subsection{\code{\defn{SANE\_NET\_GET\_PARAMETERS}}}
 
+RPC Code: 6
+
 This RPC is used to obtain the scan parameters of a remote SANE
 device.
 \begin{center}
@@ -336,6 +355,8 @@ remainder of the reply has undefined values.  The argument
 \code{params} is used to return the scan parameters.
 
 \subsection{\code{\defn{SANE\_NET\_START}}}
+
+RPC Code: 7
 
 This RPC is used to start image acquisition (scanning).
 \begin{center}
@@ -387,6 +408,8 @@ protocol.
 
 \subsection{\code{\defn{SANE\_NET\_CANCEL}}}
 
+RPC Code: 8
+
 This RPC is used to cancel the current operation of a remote SANE
 device.
 \begin{center}
@@ -404,6 +427,8 @@ able to determine when the RPC has completed).
 
 \subsection{\code{\defn{SANE\_NET\_AUTHORIZE}}}\label{sec:authorization}
 \index{network authorization}
+
+RPC Code: 9
 
 This RPC is used to pass authorization data from the net client to the
 net server.
@@ -440,6 +465,8 @@ fail with \code{SANE\_STATUS\_ACCESS\_DENIED}.
 
 
 \subsection{\code{\defn{SANE\_NET\_EXIT}}}
+
+RPC Code: 10
 
 This RPC is used to disconnect a net client from a net server.  There
 are no request or reply arguments in this call.  As a result of this

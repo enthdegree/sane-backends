@@ -1,3 +1,8 @@
+2005-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Avision DS310F. Added link
+	  for the UMAX Astra 4000.
+	
 2005-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/net.tex doc/sane.tex: Mention RPC codes explicitely and

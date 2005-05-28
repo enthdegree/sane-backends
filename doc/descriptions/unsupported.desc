@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-05-14"		; version of backend
+:version "2005-05-28"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -97,6 +97,11 @@
 
 :mfg "Avision"
 :url "http://www.avision.com/"
+
+:model "DS310F"
+:interface "Parport"
+:status :unsupported
+:comment "Probably not supported. Scanner/printer/copier combination."
 
 :model "iVina FB2400"
 ;:url ""
@@ -1563,8 +1568,9 @@
 
 :model "Astra 4000"
 :interface "USB"
+:url "/unsupported/umax-astra-4000.html"
 :status :unsupported
-:comment "Probably not supported, no details known."
+:comment "Not supported. See link for details."
 
 :model "Astra 4400"
 :url "/unsupported/umax-astra-4400.html"

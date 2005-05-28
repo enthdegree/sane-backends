@@ -472,6 +472,7 @@
 
 :model "ColorPage-Slim 1200 USB2"
 :interface "USB"
+:url "/unsupported/genius-colorpage-slim-1200-usb2.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
 

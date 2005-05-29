@@ -2,6 +2,9 @@
 
 	* doc/descriptions-external/samsung.desc: Status of Samsung
 	  SCX-4100 is "good" asit's reported to work.
+	* doc/sane-usb.man doc/sane.man: Updated, mostly concerning kernel
+	  scanner driver (deprecated). Minor fixes.
+
 
 2005-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

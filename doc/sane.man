@@ -1,4 +1,4 @@
-.TH sane 7 "20 Feb 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "29 May 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -52,9 +52,9 @@ Both packages can be downloaded from the
 .B SANE
 homepage 
 .RI ( http://www.sane\-project.org/ ).
-Information about other frontends and backends can be found on the frontend
-page
-.RI ( http://www.sane\-project.org/sane\-frontends.html ).
+Information about other frontends and backends can also be found on the
+.B SANE
+homepage.
 
 .SH "GENERAL INFORMATION"
 The following sections provide short descriptions and links to more
@@ -91,11 +91,11 @@ current development version and a search engine:
 The lists are also installed on your system at @DOCDIR@/.
 .TP
 .B SANE mailing list
-There is a mailing list for the purpose of discussing the SANE standard and
-its implementations: sane-devel.  Despite its name, the list is not only
-intended for developers, but also for users. Since this is currently the only
-mailing list devoted to SANE, it's perfectly OK to ask questions that are not
-strictly related to SANE development. How to subscribe and unsubscribe:
+There is a mailing list for the purpose of discussing the SANE standard and its
+implementations: sane-devel.  Despite its name, the list is not only intended
+for developers, but also for users. There are also some more lists for special
+topics, however, for users, sane-devel is the right list. How to subscribe and
+unsubscribe:
 .IR http://www.sane\-project.org/mailing\-lists.html .
 .TP
 .B SANE IRC channel
@@ -105,7 +105,9 @@ network (irc.freenode.net). It's for discussing
 problems, talking about development and general 
 .B SANE
 related chatting. Before asking for help, please read the other documentation
-mentioned in this manual page.
+mentioned in this manual page. The channel's topic is also used for
+announcements of problems with SANE infrastructure (mailing lists, web server,
+etc.).
 .TP
 .B Compiling and installing SANE
 Look at
@@ -714,7 +716,7 @@ See also the documentation of the frontends.
 .PP
 
 .SH "HOW CAN YOU HELP SANE"
-We appreciate any help we can get. Please have alook at our web page about
+We appreciate any help we can get. Please have a look at our web page about
 contributing to 
 .BR SANE :
 .I http://www.sane\-project.org/contrib.html

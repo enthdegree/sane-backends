@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 69
+#define BUILD 70
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -156,11 +156,6 @@ static SANE_Range y_range = {
   SANE_FIX (0.0)		/* quantization */
 };
 
-static const SANE_Range exposure_range = {
-  0,				/* minimum */
-  511,				/* maximum */
-  1				/* quantization */
-};
 
 static const SANE_Range offset_range = {
   -63,				/* minimum */

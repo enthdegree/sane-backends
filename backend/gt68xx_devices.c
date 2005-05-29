@@ -497,9 +497,9 @@ static GT68xx_Model mustek_1200cuplus2_model = {
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {0x16, 0x02, 0x16, 0x02, 0x16, 0x01},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x19, 0x03, 0x1b, 0x05, 0x19, 0x03},	/* Default offset/gain */
+  {0xb0, 0xb0, 0xb0},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
@@ -532,7 +532,7 @@ static GT68xx_Model mustek_2400cuplus_model = {
   SANE_FIX (217.0),		/* Size of scan area in mm (x) */
   SANE_FIX (300.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (5.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (4.0),		/* Start of white strip in mm (y) */
   SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
@@ -546,9 +546,9 @@ static GT68xx_Model mustek_2400cuplus_model = {
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {0x1a, 0x16, 0x15, 0x08, 0x0e, 0x02},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x15, 0x08, 0x12, 0x05, 0x12, 0x05},	/* Default offset/gain */
+  {0x2a0, 0x1ab, 0x10d},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   0				/* Which flags are needed for this scanner? */
@@ -599,7 +599,7 @@ static GT68xx_Model mustek_1200cu_model = {
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
   {0x13, 0x04, 0x15, 0x06, 0x0f, 0x02},	/* Default offset/gain */
-  {0x123, 0x137, 0x116},	/* Default exposure parameters */
+  {0x150, 0x150, 0x150},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
@@ -677,8 +677,8 @@ static GT68xx_Model mustek_scanexpress1248ub_model = {
   {16, 12, 8, 0},		/* possible depths in gray mode */
   {16, 12, 8, 0},		/* possible depths in color mode */
 
-  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (13.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (4.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (14.5),		/* Start of scan area in mm (y) */
   SANE_FIX (217.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
@@ -696,13 +696,13 @@ static GT68xx_Model mustek_scanexpress1248ub_model = {
   0,				/* CCD distcance for CCD with 6 lines) */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {0x14, 0x07, 0x14, 0x07, 0x14, 0x07},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x1e, 0x08, 0x21, 0x0d, 0x1b, 0x05},	/* Default offset/gain */
+  {0x50, 0x50, 0x50},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
-    /* Completely untested, seems to use gt6816 CIS, details unknown */
+    /* tested by hmg */
 };
 
 
@@ -895,7 +895,7 @@ static GT68xx_Model mustek_a3usb_model = {
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
   {0x14, 0x05, 0x12, 0x05, 0x17, 0x0c},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   GT68XX_FLAG_CIS_LAMP | GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
@@ -1205,8 +1205,8 @@ static GT68xx_Model genius_vivid4x_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE | GT68XX_FLAG_UNTESTED	/* Which flags are needed for this scanner? */
-    /* Mostly untested, copied from 3x, some values from Claudio Filho <filhocf@openoffice.org> */
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE	/* Which flags are needed for this scanner? */
+    /* Is reported to work, copied from 3x, some values from Claudio Filho <filhocf@openoffice.org> */
 };
 
 static GT68xx_Model genius_vivid4xe_model = {
@@ -1317,19 +1317,19 @@ static GT68xx_Model genius_vivid1200xe_model = {
   &mustek_gt6816_command_set,	/* Command set used by this scanner */
 
   600,				/* maximum optical sensor resolution */
-  600,				/* maximum motor resolution */
+  1200,				/* maximum motor resolution */
   600,				/* base x-res used to calculate geometry */
   600,				/* base y-res used to calculate geometry */
   1200,				/* if ydpi is equal or higher, disable backtracking */
   SANE_TRUE,			/* Use base_ydpi for all resolutions */
 
-  {600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {600, 300, 200, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 200, 100, 50, 0},	/* possible y-resolutions */
   {12, 8, 0},			/* possible depths in gray mode */
   {12, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (4.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.5),		/* Start of scan area in mm (y) */
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
@@ -1343,17 +1343,17 @@ static GT68xx_Model genius_vivid1200xe_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
   0,				/* CCD distcance for CCD with 6 lines) */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
-  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x18, 0x1c, 0x16, 0x12, 0x18, 0x1c},	/* Default offset/gain */
   {0x157, 0x157, 0x157},	/* Default exposure parameters */
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE | GT68XX_FLAG_UNTESTED	/* Which flags are needed for this scanner? */
-    /* untested */
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE	/* Which flags are needed for this scanner? */
+    /* Tested by hmg */
 };
 
 static GT68xx_Model plustek_opticslim1200_model = {
@@ -1445,13 +1445,12 @@ static GT68xx_Model plustek_opticslim2400_model = {
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
   {0x15, 0x09, 0x18, 0x11, 0x16, 0x0c},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x300, 0x300, 0x300},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   0
-/* By Detlef Gausepohl <detlef@psych.rwth-aachen.de>. Fixed and tested by hmg. 
-   2400 dpi y doesn't seem to work? */
+/* By Detlef Gausepohl <detlef@psych.rwth-aachen.de>. Fixed and tested by hmg. */
 };
 
 static GT68xx_Model visioneer_onetouch_7300_model = {
@@ -1499,7 +1498,7 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_UNTESTED
+  0
 };
 
 /* Untested. Based on Plustek OpticPro 2400. */

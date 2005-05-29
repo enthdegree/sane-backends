@@ -1,9 +1,12 @@
+gt68xx.TODO -*-text-*-
+
 General:
 --------
-- some sort of fixed lookup-table is necessary to compensate for the non-linear
-  CCD/CIS behaviour. A gamma value is not good enough. Or maybe line calibration
-  can be used for that?
-- Scanning on *BSD works only once for all scanners but 2448. firmware 
+
+- some sort of fixed lookup-table may be necessary to compensate for the
+  non-linear CCD/CIS behaviour. A gamma value is not good enough. Or maybe line
+  calibration  can be used for that?
+- Scanning on *BSD works only once for all scanners but 2448. Firmware 
   upload sometimes works more than once
 - Check autobandwidth
 - check several get scanner info functions
@@ -23,13 +26,11 @@ CCD:
     fine calib is ok
     coarse calib has an extremely high gain
 
-Mustek ScanExpress 1248 UB
-- Bad vertical stripes
-
 Mustek BearPaw 2400 TA Plus:
 - some lines at the beginning of each image have wrong colors (linedistance?)
   This seems to happen with other scanners, too.
-- 600 dpi no backtrack, 1200, 2400 dpi backtrack (gray), check with windows for color
+- 600 dpi no backtrack, 1200, 2400 dpi backtrack (gray), check with windows for
+  color
 - 600 dpi 12 bit seems to work in pixel mode only (but long lines are too big!)
 
 Mustek BearPaw 1200 TA:
@@ -50,45 +51,46 @@ Plustek U16B:
 - 600 dpi 16 bit is limited to about half the size of the scan area because
   only pixel mode works and 16k is the maximum buffer size.
 
+Genius ColorPage Vivid 1200XE
+- 16 bit per color is advertized but this mode doesn't seem to work
+  (only 36 bit)?
+- 1200x1200 and 1200x2400 dpi doesn't seem to work despite being advertized
+- Y-positining varies slightly with resolution (some mm)
+
 CIS:
 ----
 
-- first offset always 0?
-- use factor in line calib to reduce bluish look?
-- calib: like CCD black+white at the same time?
-- exposure is done in windows always after gain (algo?)
-- exposure sometimes is endless?
-- coarse + fine calib in color mode
+- It may be necessary to do an additional exposure calibration before the
+  offset/gain calibration to compensate for different intensities of the
+  colored leds. Especially for the Mustek 2400 CU Plus.
+- Changing exposure doesn't seem to have any effect during calibration
+  sometimes while it has an effect on the final image?
 
 Mustek BearPaw 1200 CU
-- still vertical lines sometimes (esp. white)?
-- image is bluish
-- bright strip on left side? Also visible without white calibration. Check exposure.
-- check with windows
-- 600 dpi no backtrack
+- ok
 
-Mustek BearPaw 1200 CU Plus
-- vertical lines
-- image is redish
+Mustek BearPaw 1200 CU Plus (0x021b)
+- ok, but similar exposure problems as 2400 CU Plus
 
 Mustek BearPaw 2400 CU Plus
-- first offset is ok!
-- exposure limit is easily reached
-- exp start: 0a (fixed)
-- exp stop starts at 2ce
-- exp runs in the wrong direction (not repr.)?
-- win: optimization is active!
-- also small white vert. strip at the left
-- check backtrack limit (1200?)
+- ok, but exposure setting may need to be done automatically if the intensity
+  of the colors varies for different scanners.
+- calibration/exposure has sometimes sharp jumps in intensity. Reason is
+  unknown.
 
 Mustek ScanExpress A3 USB
 - still slight vert. stripes
 - why is line distance setup necessary? Is there a better setting than 0,5,5?
+- exposure is not done automatically, check logfiles
 
-Mustek ScanExpress 2400 USB
-- make it work
+Mustek ScanExpress 1248 UB
+ok
 
 Plustek OpticSlim 2400
 - only upto 1200 dpi vertical works
 - only 8 and 12 bit work, 16 doesn't (check Windows)
+- exposure is extermely high and seems to have similar problems as with other
+  CIS scanners
 
+Mustek ScanExpress 2400 USB
+- make it work (nobody seems to have this device)

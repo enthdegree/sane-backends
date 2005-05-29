@@ -523,19 +523,6 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
 	  return status;
 	}
     }
-  DBG (5,
-       "gt68xx_start_scan_extended: afe: %02X %02X  %02X %02X  %02X %02X\n",
-       afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
-       afe.b_pga);
-
-  if (action == SA_SCAN)
-    {
-
-      DBG (5, "gt68xx_start_scan_extended: using afe: "
-	   "%02X %02X  %02X %02X  %02X %02X\n",
-	   afe.r_offset, afe.r_pga, afe.g_offset, afe.g_pga, afe.b_offset,
-	   afe.b_pga);
-    }
 
   status = gt68xx_device_set_afe (scanner->dev, &afe);
   if (status != SANE_STATUS_GOOD)
@@ -880,6 +867,7 @@ gt68xx_scanner_start_scan (GT68xx_Scanner * scanner,
     }
   if (!scanner->dev->model->is_cis)
     sleep (2);
+
   return gt68xx_scanner_start_scan_extended (scanner, request, SA_SCAN,
 					     params);
 }
@@ -1596,8 +1584,8 @@ finish:
   *old_gain = *gain;
   *old_offset = *offset;
 
-  DBG (4, "%5s white=%3d, black=%3d, offset=%2d, gain=%2d, old offs=%2d, "
-       "old gain=%2d, total_white=%5d %s\n", color_name, values->white,
+  DBG (4, "%5s white=%3d, black=%3d, offset=0x%02X, gain=0x%02X, old offs=0x%02X, "
+       "old gain=0x%02X, total_white=%5d %s\n", color_name, values->white,
        values->black, o, g, *offset, *gain, values->total_white,
        done ? "DONE " : "");
 
@@ -1615,16 +1603,16 @@ gt68xx_afe_cis_adjust_exposure (SANE_String_Const color_name,
 				SANE_Int * exposure_time)
 {
   SANE_Int exposure_change = 0;
-  gt68xx_afe_cis_calc_white (values, white_buffer);
 
+  gt68xx_afe_cis_calc_white (values, white_buffer);
 
   if (values->white < border)
     {
       exposure_change = ((border - values->white) * 1);
       (*exposure_time) += exposure_change;
       DBG (4,
-	   "%5s: white = %3d (exposure too low) --> exposure += %d (=0x%03x)\n",
-	   color_name, values->white, exposure_change, *exposure_time);
+	   "%5s: white = %3d, total_white=%5d (exposure too low) --> exposure += %d (=0x%03x)\n",
+	   color_name, values->white, values->total_white, exposure_change, *exposure_time);
       return SANE_FALSE;
     }
   else if (values->white > border + 5)
@@ -1632,14 +1620,14 @@ gt68xx_afe_cis_adjust_exposure (SANE_String_Const color_name,
       exposure_change = -((values->white - (border + 5)) * 1);
       (*exposure_time) += exposure_change;
       DBG (4,
-	   "%5s: white = %3d (exposure too high) --> exposure -= %d (=0x%03x)\n",
-	   color_name, values->white, exposure_change, *exposure_time);
+	   "%5s: white = %3d, total_white=%5d (exposure too high) --> exposure -= %d (=0x%03x)\n",
+	   color_name, values->white, values->total_white, exposure_change, *exposure_time);
       return SANE_FALSE;
     }
   else
     {
-      DBG (4, "%5s: white = %3d (exposure ok=0x%03x)\n",
-	   color_name, values->white, *exposure_time);
+      DBG (4, "%5s: white = %3d, total_white=%5d (exposure ok=0x%03x)\n",
+	   color_name, values->white, values->total_white, *exposure_time);
     }
   return SANE_TRUE;
 }
@@ -1702,8 +1690,8 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
   values->scan_dpi = params.xdpi;
   values->calwidth = params.pixel_xs;
   values->callines = params.pixel_ys;
-  values->coarse_black = 5;
-  values->coarse_white = 242;
+  values->coarse_black = 2;
+  values->coarse_white = 253;
 
   if (r_buffer && g_buffer && b_buffer)
     for (line = 0; line < values->callines; line++)
@@ -1753,6 +1741,10 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 
   memset (&old_afe, 255, sizeof (old_afe));
 
+  /* Start with the preset exposure settings */
+  memcpy (scanner->dev->exposure, &scanner->dev->model->exposure,
+	  sizeof (*scanner->dev->exposure));
+
   RIE (gt68xx_afe_cis_read_lines (&values, scanner, SANE_FALSE, SANE_FALSE,
 				  r_gbuffer, g_gbuffer, b_gbuffer));
 
@@ -1773,7 +1765,6 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
     return SANE_STATUS_NO_MEM;
 
   total_count = 0;
-  exposure->r_time = exposure->g_time = exposure->b_time = 0x157;
   red_done = green_done = blue_done = SANE_FALSE;
   old_afe.r_offset = old_afe.g_offset = old_afe.b_offset = 255;
   old_afe.r_pga = old_afe.g_pga = old_afe.b_pga = 255;
@@ -1812,7 +1803,7 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   /* Exposure time */
   exposure_count = 0;
   red_done = green_done = blue_done = SANE_FALSE;
-  /*exposure->r_time = exposure->g_time = exposure->b_time = 0x150; */
+
   do
     {
       /* read white line */
@@ -1820,20 +1811,20 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
 				      r_gbuffer, g_gbuffer, b_gbuffer));
       if (!red_done)
 	red_done =
-	  gt68xx_afe_cis_adjust_exposure ("red", &values, r_gbuffer, 240,
+	  gt68xx_afe_cis_adjust_exposure ("red", &values, r_gbuffer, 248,
 					  &exposure->r_time);
       if (!green_done)
 	green_done =
-	  gt68xx_afe_cis_adjust_exposure ("green", &values, g_gbuffer, 240,
+	  gt68xx_afe_cis_adjust_exposure ("green", &values, g_gbuffer, 248,
 					  &exposure->g_time);
       if (!blue_done)
 	blue_done =
-	  gt68xx_afe_cis_adjust_exposure ("blue", &values, b_gbuffer, 240,
+	  gt68xx_afe_cis_adjust_exposure ("blue", &values, b_gbuffer, 248,
 					  &exposure->b_time);
       exposure_count++;
       total_count++;
     }
-  while ((!red_done || !green_done || !blue_done) && exposure_count < 30);
+  while ((!red_done || !green_done || !blue_done) && exposure_count < 50);
 
   if (!red_done || !green_done || !blue_done)
     DBG (0, "gt68xx_afe_cis_auto: setting exposure reached limit\n");

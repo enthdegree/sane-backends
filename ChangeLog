@@ -4,7 +4,23 @@
 	  SCX-4100 is "good" asit's reported to work.
 	* doc/sane-usb.man doc/sane.man: Updated, mostly concerning kernel
 	  scanner driver (deprecated). Minor fixes.
-
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
+	  backend/gt68xx_low.h doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES
+	  doc/gt68xx/gt68xx.TODO:
+	  Start exposure with the settings from the scanner entry. CIS
+	  Calibration and exposure uses a broader spectrum now. Expsoure
+	  limit is increased to 50 loops. Genius Vivid 4x is reported to
+	  work so the UNTESTED label is removed now. Visioneer 7300 is
+	  reported to work so the UNTESTED label is removed now. Genius
+	  ColorPage Vivid 1200XE: Removed UNTESTED label. Fixed
+	  resolutions. Adjusted margins. Fixed color order. Fixed
+	  linedistance. Adjusted AFE. Mustek ScanExpress 1248 UB: Fixed
+	  margins. Adjusted AFE. Adjusted exposure. Adjusted
+	  gamma. Changed status to "complete". Mustek BearPaw 2400 CU
+	  Plus: Adsusted exposure and AFE parameters. Hopefully stripes
+	  and similar trouble are gone now. Mustek BearPaw 1200 CU:
+	  Increased exposure to avoid vertical lines. Updated manual page.
 
 2005-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

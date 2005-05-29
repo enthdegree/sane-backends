@@ -1,5 +1,22 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.70 (2005-05-29)
+
+* Start exposure with the settings from the scanner entry.
+* CIS Calibration and exposure uses a broader spectrum now.
+* Expsoure limit is increased to 50 loops.
+* Genius Vivid 4x is reported to work so the UNTESTED label is removed now.
+* Visioneer 7300 is reported to work so the UNTESTED label is removed now.
+* Genius ColorPage Vivid 1200XE: Removed UNTESTED label. Fixed
+  resolutions. Adjusted margins. Fixed color order. Fixed linedistance.
+  Adjusted AFE.
+* Mustek ScanExpress 1248 UB: Fixed margins. Adjusted AFE. Adjusted
+  exposure. Adjusted gamma. Changed status to "complete".
+* Mustek BearPaw 2400 CU Plus: Adsusted exposure and AFE parameters. Hopefully
+  stripes and similar trouble are gone now.
+* Mustek BearPaw 1200 CU: Increased exposure to avoid vertical lines.
+* Updated manual page.
+
 V 1.0.69 (2005-05-20)
 
 * Mustek BearPaw 1200 CU Plus model 0x21b works now. Fixed firmware and offset

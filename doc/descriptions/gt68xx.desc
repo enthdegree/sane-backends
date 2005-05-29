@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-69"
+:version "1.0-70"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -74,9 +74,9 @@
 :comment "Should work but has limited testing. Please contact me if you own such a device."
 
 :model "Colorpage Vivid 1200 XE"
-:status :minimal
+:status :good
 :interface "USB"
-:comment "Gray and lineart works. Preview doesn't work."
+;:comment ""
 
 ; -----------------------------------------------------------------------------
 
@@ -153,7 +153,7 @@
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
 :status :good
-:comment "Procuct id 0x021b. Works."
+:comment "Procuct id 0x021b."
 
 :model "BearPaw 1200 TA"
 :interface "USB"
@@ -215,8 +215,7 @@
 
 :model "ScanExpress 1248 UB"
 :interface "USB"
-:status :basic
-:comment "Works but image quality is not perfect yet (stripes). Please contact me if you want to help fixing that."
+:status :complete
 
 :model "ScanExpress A3 USB"
 :interface "USB"

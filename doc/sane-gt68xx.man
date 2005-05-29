@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "2 Oct 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "29 May 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -7,117 +7,20 @@ The
 .B sane-gt68xx
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Grandtech GT-6801 and GT-6816
-chips.  At present, the following scanners are known to work with this
-backend:
-.PP
-.RS
-Artec Ultima 2000 (only product 0x4002)
-.br
-Artec Ultima 2000 e+
-.br
-Boeder SmartScan Slim Edition
-.br
-Fujitsu 1200CUS
-.br
-Genius Colorpage Vivid3x
-.br
-Genius Colorpage Vivid3 V2
-.br
-Genius Colorpage Vivid3xe
-.br
-Genius Colorpage Vivid4
-.br
-Genius Colorpage Vivid4x
-.br
-Genius Colorpage Vivid4xe
-.br
-Genius Colorpage Vivid 1200 xe
-.br
-Googlegear 2000
-.br
-Lexmark X70
-.br
-Lexmark X73
-.br
-Medion/Lifetec/Tevion MD 4395
-.br
-Medion/Lifetec/Tevion/Cytron MD/LT 9385
-.br
-Medion/Lifetec/Tevion LT 9452
-.br
-Medion/Lifetec/Tevion MD 9458
-.br
-Mustek BearPaw 1200 CS
-.br
-Mustek BearPaw 1200 CU (Plus)
-.br
-Mustek BearPaw 1200 TA
-.br
-Mustek BearPaw 2400 CS (Plus)
-.br
-Mustek BearPaw 2400 CU (Plus)
-.br
-Mustek BearPaw 2400 TA (Plus)
-.br
-Mustek BearPaw 2448 CS Plus
-.br
-Mustek BearPaw 2448 TA Plus
-.br
-Mustek Plug-n-Scan 2400 M
-.br
-Plug-n-Scan 2400 MT
-.br
-Mustek ScanExpress A3 USB
-.br
-Mustek ScanExpress 1200 UB Plus
-.br
-Mustek ScanExpress 1248 UB
-.br
-Mustek ScanExpress 2400 USB
-.br
-Mustek ScanMagic 1200 UB Plus
-.br
-Packard Bell Diamond 1200 (Plus)
-.br
-Packard Bell Diamond 2450
-.br
-Plustek OpticPro 1248U
-.br
-Plustek OpticPro U16B (+)
-.br
-Plustek OpticPro UT16B (+)
-.br
-Plustek OpticSlim 1200
-.br
-Plustek OpticSlim 2400
-.br
-RevScan 19200i
-.br
-Trust Compact Scan USB 19200
-.br
-Trust Flat Scan USB 19200
-.br
-Trust 240TH Easy Webscan Gold
-.RE
-.PP
-More details can be found on the gt68xx backend homepage
+chips.  A list of supported scanners can be found on the gt68xx backend
+homepage: 
 .IR http://www.meier-geinitz.de/sane/gt68xx/ .
-.PP
-The Artec E+ 48U and its clones are supported by the artec_eplus48u backend, see
-.BR sane\-artec_eplus48u (5)
-for details.
 .PP
 This is BETA software. Especially if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
 the scan area.
 .PP
-If you own a scanner other than the ones listed above that works with this
+If you own a scanner other than the ones listed on the gt68xx homepage that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
-.IR /proc/bus/usb/devices ,
 .I sane-find-scanner
 or syslog) to me. Even if the scanner's name is only slightly different from
-the models mentioned above, please let me know.
+the models already listed as supported, please let me know.
 .PP
 If you own a scanner that isn't detected by the gt68xx backend but has a GT-6801
 or GT-6816 chipset, you can try to add it to the backend. Have a look at the
@@ -125,18 +28,12 @@ following web page:
 .I http://www.meier-geinitz.de/sane/gt68xx-backend/adding.html
 .PP
 .SH KERNEL ISSUES
-If libusb-0.1.6 or later is installed, this section can be skipped. The
-scanner should be found by sane-find-scanner without further actions. For
-setting permissions and general USB information looks at
+Please use libusb-0.1.6 or later. Without libusb or with older libusb versions
+all kinds of trouble can be expected. The scanner should be found by
+sane-find-scanner without further actions. For setting permissions and general
+USB information looks at
 .BR sane\-usb (5).
 .PP
-The scanners based on the GT-6816 (Mustek BearPaw TA and BearPaw Plus models,
-the Packard Bell and the Lexmark scanner) need a Linux kernel 2.4.12 or newer.
-Recent 2.2 kernels may also work, but I haven't tested them. Older kernels or
-other operating systems won't work. Use libusb instead.
-.PP
-The scanners based on the GT-6801 (all other scanners) need Linux kernel
-2.4.21 or newer. Older kernels will not work.
 
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing
@@ -145,10 +42,10 @@ software that will be uploaded to the scanner's memory. It's usually named
 .IR PS1fw.usb .
 It comes on the installation CD that was provided by the manufacturer, but it
 may be packaged together with the installation program in an .exe file. For
-Mustek scanners, the file can be dowloaded from the gt68xx backend
-homepage. For other scanners, check the CD for .usb files. If everything else
-fails, you must install the Windows driver and get the firmware from there
-(usually in the 
+Mustek scanners, the file can be dowloaded from the gt68xx backend homepage. For
+other scanners, check the CD for .usb files. If you only find *.cab files, try
+cabextract to unpack. If everything else fails, you must install the Windows
+driver and get the firmware from there (usually in the
 .I windows/system
 or
 .I system32

@@ -1,3 +1,8 @@
+2005-05-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/samsung.desc: Status of Samsung
+	  SCX-4100 is "good" asit's reported to work.
+
 2005-05-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Avision DS310F. Added link

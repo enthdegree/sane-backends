@@ -32,8 +32,8 @@
 
 :model "SCX-4100"
 :interface "USB"
-:status :untested
-:comment "No information received about supported status"
+:status :good
+:comment "Is reported to work."
 
 :model "SCX-4216F"
 :interface "USB"

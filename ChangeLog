@@ -3,7 +3,8 @@
 	* doc/descriptions/unsupported.desc: Added Genius ColorPage-SF600.
 	* doc/descriptions-external/brother2.desc: New. Listed scanners
 	  supported by the new external brother2 backend.
-
+	* doc/descriptions-external/brother.desc: Fixed comments.
+	  
 2005-05-30  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added CX-4600

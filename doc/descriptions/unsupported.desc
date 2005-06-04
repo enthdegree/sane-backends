@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-05-28"		; version of backend
+:version "2005-06-04"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -182,13 +182,13 @@
 :url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link."
+:comment "Unsupported. See link."
 
 :model "CanoScan 3000F"
 :url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link."
+:comment "Unsupported. See link."
 
 :model "CanoScan 3200F"
 :url "/unsupported/canon-3200f.html"
@@ -206,7 +206,7 @@
 :url "/unsupported/canon-5000f.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. See link for details."
+:comment "Unsupported. See link for details."
 
 :model "CanoScan 5200F"
 :url "/unsupported/canon-5200f.html"
@@ -473,6 +473,12 @@
 :model "ColorPage-Slim 1200 USB2"
 :interface "USB"
 :url "/unsupported/genius-colorpage-slim-1200-usb2.html"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "ColorPage-SF600"
+:interface "USB"
+:url "/unsupported/genius-colorpage-sf600.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
 

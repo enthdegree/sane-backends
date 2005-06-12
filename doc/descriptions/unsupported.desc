@@ -262,6 +262,12 @@
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
 
+:model "CanoScan LiDE 500F"
+:url "/unsupported/canon-canoscan-lide-500f.html"
+:interface "USB"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "DR-2080C"
 ;:url "/unsupported/canon-d2400uf.html"
 :interface "USB SCSI"

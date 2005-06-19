@@ -1,5 +1,11 @@
 2005-06-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
+	* doc/descriptions/unsupported.desc: Removed Samsung SCX-4216F
+	  (supported by samsung backend). Dell 1600n has also network
+	  connection. 
+
+2005-06-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
 	* doc/descriptions/unsupported.desc: Added Canon CanoScan LiDE
 	  500F. 
 	

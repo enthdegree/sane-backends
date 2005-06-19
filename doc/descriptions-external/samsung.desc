@@ -11,7 +11,7 @@
 
 :backend "samsung"                 ; name of backend
 ;:version "(external)"             ; version of backend
-:url "http://www.samsung.com/"     ; backend's web page
+:url "http://product.samsung.com/cgi-bin/nabc/support/b2c_support_product_results.jsp"     ; backend's web page
 :comment "See the website for the latest release."
 
 
@@ -26,19 +26,46 @@
 
 ; name models for above-specified mfg.
 :model "SCX-4016"
-:interface "USB"
+:interface "Parport USB"
 :status :untested
 :comment "No information received about supported status"
 
 :model "SCX-4100"
-:interface "USB"
+:interface "Parport USB"
 :status :good
 :comment "Is reported to work."
 
 :model "SCX-4216F"
-:interface "USB"
+:interface "Parport USB"
 :status :untested
 :comment "No information received about supported status"
+
+:model "SCX-4720F"
+:interface "Parport USB"
+:status :untested
+:comment "No information received about supported status"
+
+:model "SCX-6220"
+:interface "Parport USB"
+:status :untested
+:comment "No information received about supported status"
+
+:model "SCX-6320F"
+:interface "Parport USB"
+:status :untested
+:comment "No information received about supported status"
+
+:model "SF-565P"
+:interface "Parport USB"
+:status :untested
+:comment "No information received about supported status"
+
+:model "SF-755P"
+:interface "Parport USB"
+:status :untested
+:comment "No information received about supported status"
+
+
 
 :model "For models not mentioned, check their website"
 :interface "USB"

@@ -7,6 +7,8 @@
 	  comment. 
 	* doc/descriptions-external/samsung.desc: Added several models,
 	  updated others.
+	* doc/descriptions.txt: Added "Ethernet" to list of possible
+	  interfaces. 
 	
 2005-06-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

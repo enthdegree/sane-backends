@@ -76,10 +76,10 @@ Example: `:model "Perfection 636S"'
 
 `:interface' defines how the device is connected to the computer. Its string
 argument can be one or more of "SCSI", "USB", "Parport", "Serial port",
-"IEEE-1394", "JetDirect", or "Proprietary". If neither one fits, please contact
-the SANE mailing list for advice. The "Parport" entries can be amended by
-"(SPP)", "(ECP)" and/or "(EPP)". The `:interface' keyword refers to the
-previous `:model', is optional and should be used only once per model.
+"IEEE-1394", "JetDirect", "Ethernet", or "Proprietary". If neither one fits,
+please contact the SANE mailing list for advice. The "Parport" entries can be
+amended by "(SPP)", "(ECP)" and/or "(EPP)". The `:interface' keyword refers to
+the previous `:model', is optional and should be used only once per model.
 Example: `:interface "SCSI USB IEEE-1394"'
 
 The keyword `:status' is an indication of the level of support for the model.

@@ -235,7 +235,6 @@
 :model "MFC-890"
 :status :good
 :interface "USB"
-:comment "No report yet."
 
 :model "MFC-9030"
 :status :untested

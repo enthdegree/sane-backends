@@ -148,7 +148,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-3"
+#define BACKEND_VERSION "0.49-4"
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -1471,7 +1471,8 @@ sane_exit( void )
 	if( devlist )
 		free( devlist );
 
-	for( tmp = usbDevs;  tmp; tmp = usbDevs->next ) {
+	while( usbDevs ) {
+		tmp = usbDevs->next;
 		free( usbDevs );
 		usbDevs = tmp;
 	}

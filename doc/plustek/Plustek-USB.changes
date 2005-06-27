@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.49-4 (2005-06-27)
+---------------------
+Fixed "double free" problem during sane_exit.
+
 V 0.49-3 (2005-04-18)
 ---------------------
 Fixed backtracking problem, when sensor-speedup is active.

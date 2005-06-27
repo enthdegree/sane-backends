@@ -109,6 +109,12 @@
 :status :unsupported
 :comment "Not supported. No chipset information available. Same as UMAX Astra 6700."
 
+:model "iVina 1600"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
 ;********************************************************************************************
 
 :mfg "Benq (Acer)"
@@ -261,6 +267,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
+
+:model "CanoScan LiDE 50"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
 
 :model "CanoScan LiDE 500F"
 :url "/unsupported/canon-canoscan-lide-500f.html"
@@ -546,6 +558,18 @@
 :url "/unsupported/hp-photosmart-s20xi.html"
 :status :unsupported
 :comment "Not supported yet by SANE, but a backend is under development. See link for details."
+
+:model "ScanJet 2400c"
+:interface "USB"
+;:url ""
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
+:model "ScanJet 3670c"
+:interface "USB"
+;:url ""
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
 
 :model "ScanJet 3770"
 :interface "USB"
@@ -1258,6 +1282,11 @@
 :status :unsupported
 :comment "Probably LM983x based."
 
+:model "OpticPro ST24"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
 :model "OpticPro ST64"
 :interface "USB"
 :status :unsupported
@@ -1586,6 +1615,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported. See link for details."
+
+:model "Astra 4500"
+;:url ""
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
 
 :model "Astra 4600"
 :interface "USB"

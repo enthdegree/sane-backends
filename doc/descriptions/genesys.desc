@@ -1,0 +1,35 @@
+:backend "genesys"
+:version "1.0"
+:manpage "sane-genesys"
+:comment "Only the USB scanners mentioned below are currently supported."
+:devicetype :scanner
+
+; -----------------------------------------------------------------------------
+
+:mfg "Medion"
+:url "http://www.medion.com/"
+
+:model "MD5345"
+:status :good
+:interface "USB"
+:comment "Has a Primax USB ID"
+
+:model "MD6228"
+:status :good
+:interface "USB"
+:comment "Has a Primax USB ID. Same as MD5345"
+
+:model "MD6471"
+:status :complete
+:interface "USB"
+:comment "Has a Primax USB ID. Same as MD5345"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Hewlett-Packard"
+:model "HP2300C"
+:status :complete
+:interface "USB"
+:comment "600x1200 dpi max"
+
+; -----------------------------------------------------------------------------

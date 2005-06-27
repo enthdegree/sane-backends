@@ -52,7 +52,7 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-teco1.5 sane-teco2.5 sane-teco3.5 sane-test.5 sane-sp15c.5 \
           sane-coolscan2.5 sane-hpsj5s.5 sane-gt68xx.5 sane-artec_eplus48u.5 \
           sane-ma1509.5 sane-ibm.5 sane-hp5400.5 sane-plustek_pp.5 sane-u12.5 \
-	  sane-niash.5 sane-sm3840.5
+	  sane-niash.5 sane-sm3840.5 sane-genesys.5
 SECT7   = sane.7
 SECT8	= saned.8
 MANPAGES = $(SECT1) $(SECT5) $(SECT7) $(SECT8)

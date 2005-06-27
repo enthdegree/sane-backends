@@ -103,6 +103,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   gt68xx_low.c gt68xx_low.h gt68xx_devices.c gt68xx_generic.c \
   gt68xx_generic.h gt68xx_shm_channel.c gt68xx_shm_channel.c \
   gt68xx_shm_channel.h gt68xx.conf \
+  genesys.c genesys.h genesys_gl646.c genesys_low.h \
+  genesys.conf genesys_devices.c genesys_gl841.c \
   hp-accessor.c hp-accessor.h hp.c hp.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
@@ -262,6 +264,7 @@ libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
 # additional dependencies
 
 EXTRA_canon_pp = canon_pp-io canon_pp-dev
+EXTRA_genesys = genesys_gl646 genesys_gl841
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
@@ -331,6 +334,9 @@ libsane-fujitsu.la: ../sanei/sanei_scsi.lo
 libsane-fujitsu.la: ../sanei/sanei_usb.lo
 libsane-fujitsu.la: ../sanei/sanei_thread.lo
 libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
+libsane-genesys.la: ../sanei/sanei_constrain_value.lo
+libsane-genesys.la: ../sanei/sanei_usb.lo
+libsane-genesys.la: $(addsuffix .lo,$(EXTRA_genesys))
 libsane-gt68xx.la: ../sanei/sanei_constrain_value.lo
 libsane-gt68xx.la: ../sanei/sanei_usb.lo
 libsane-hp.la: ../sanei/sanei_config2.lo
@@ -478,6 +484,7 @@ endif
 
 depend:
 	makedepend $(INCLUDES) *.c
+	makedepend -a -o.lo $(INCLUDES) *.c
 
 clean:
 	rm -f *.lo *.o *.la libsane.la dll-preload.c

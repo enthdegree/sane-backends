@@ -1,0 +1,125 @@
+.\" .IX sane-genesys
+.TH "sane-genesys" "5" "3 June 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.SH "NAME"
+sane\-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
+.SH "DESCRIPTION"
+The
+.B sane\-genesys
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to USB flatbed scanners based on the Genesys GL646 and GL841 chips.
+At present, the following scanners are known to work with this backend:
+.PP 
+.RS
+Medion MD6228
+.br 
+Medion MD6274
+.br 
+Hewlett\-Packard HP2300C
+.RE
+
+.PP 
+This is BETA software. Especially if you test new or untested scanners, keep
+your hand at the scanner's plug and unplug it, if the head bumps at the end of
+the scan area.
+.PP 
+If you own a scanner other than the ones listed above that works with this
+backend, please let me know this by sending the scanner's exact model name and
+the USB vendor and device ids (e.g. from
+.I /proc/bus/usb/devices ,
+.I sane\-find\-scanner
+or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
+ slightly different from the models mentioned above, please let me know.
+.PP 
+If you own a scanner that isn't detected by the genesys backend but has a GL646
+or GL841 chipset, you can try to add it to the backend. Currently, there are no GL841
+based scanner functionnal.
+.PP 
+.SH "SYSTEM ISSUES"
+This backend needs libusb\-0.1.6 or later installed, and hasn't tested in other
+configuration than a linux kernel 2.6.9 or higher. However, it should work any
+system with libusb where the SANE package can be compiled. For
+setting permissions and general USB information looks at
+.BR sane\-usb (5).
+
+
+.SH "CONFIGURATION"
+The contents of the
+.I genesys.conf
+file is a list of usb lines containing vendor and product ids that correspond
+to USB scanners. The file can also contain option lines.  Empty lines and
+lines starting with a hash mark (#) are ignored.  The scanners are
+autodetected by
+.B usb vendor_id product_id
+statements which are already included into
+.I genesys.conf .
+"vendor_id" and "product_id" are hexadecimal numbers that identfy the
+scanner. 
+.PP 
+
+.SH "FILES"
+.TP 
+.I @CONFIGDIR@/genesys.conf
+The backend configuration file (see also description of
+.B SANE_CONFIG_DIR
+below).
+.TP 
+.I @LIBDIR@/libsane\-genesys.a
+The static library implementing this backend.
+.TP 
+.I @LIBDIR@/libsane\-genesys.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH "ENVIRONMENT"
+.TP 
+.B SANE_CONFIG_DIR
+This environment variable specifies the list of directories that may
+contain the configuration file.  Under UNIX, the directories are
+separated by a colon (`:'), under OS/2, they are separated by a
+semi\-colon (`;').  If this variable is not set, the configuration file
+is searched in two default directories: first, the current working
+directory (".") and then in @CONFIGDIR@.  If the value of the
+environment variable ends with the directory separator character, then
+the default directories are searched after the explicitly specified
+directories.  For example, setting
+.B SANE_CONFIG_DIR
+to "/tmp/config:" would result in directories "tmp/config", ".", and
+"@CONFIGDIR@" being searched (in this order).
+.TP 
+.B SANE_DEBUG_GENESYS
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend.  Higher debug levels
+increase the verbosity of the output. If the debug level is set to 1 or higher,
+some debug options become available that are normally hidden. Handle them with
+care. This will print messages related to core genesys functions.
+.B SANE_DEBUG_GENESYS_GL646
+This environment variable controls the debug level for the specific GL646 code
+part.
+
+
+
+Example (full and highly verbose output): 
+export SANE_DEBUG_GENESYS=255
+export SANE_DEBUG_GENESYS_GL646=255
+
+.SH "SEE ALSO"
+.BR sane (7),
+.BR sane\-usb (5)
+.br 
+
+
+.SH "AUTHOR"
+Oliver Rauch
+.br 
+Henning Meier\-Geinitz <henning@meier\-geinitz.de>
+.br 
+Gerhard Jaeger <gerhard@gjaeger.de>
+.br 
+Stéphane Voltz <svoltz@numericable.fr>
+.br 
+Philipp Schmid <philipp8288@web.de>
+.br 
+
+.SH "BUGS"
+Support for buttons is missing.
+.PP 
+

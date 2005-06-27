@@ -1,3 +1,8 @@
+2005-06-27  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek.c: Fixed "double free" problem in sane_exit.
+	* doc/plustek/Plustek-USB.changes: Update.
+
 2005-06-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.sv.po: Update Swedish translation

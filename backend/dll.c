@@ -378,9 +378,9 @@ load (struct backend *be)
 
   while (dir)
     {
-#ifdef HAVE_OS2_H   /* only max 8.3 names possible for dlls on OS/2 */
-      snprintf (libname, sizeof (libname), "%s/" PREFIX "%.2s%.6s" POSTFIX,
-		dir, be->name, strlen(be->name)>8 ? (be->name)+strlen(be->name)-6 :
+#ifdef HAVE_OS2_H   /* only max 7.3 names work with dlopen() for DLLs on OS/2 */
+      snprintf (libname, sizeof (libname), "%s/" PREFIX "%.2s%.5s" POSTFIX,
+		dir, be->name, strlen(be->name)>7 ? (be->name)+strlen(be->name)-5 :
                                             (be->name)+2, V_MAJOR);
 #else
       snprintf (libname, sizeof (libname), "%s/" PREFIX "%s" POSTFIX,

@@ -1,6 +1,6 @@
 /* REXX */
 /* Convert backend-DLL-filenames according to 8.3 naming convention     */
-/* necessary for DLLs on OS/2                 (C) Franz Bakan  2004     */
+/* necessary for DLLs on OS/2            (C) Franz Bakan  2004,2005     */
 /*                                                                      */
 /* This file is part of the SANE package.                               */
 /*                                                                      */ 
@@ -25,8 +25,8 @@ CALL SysLoadFuncs
 rc = SysFileTree('\usr\lib\sane\libsane-*.dll',dlls,O)
 DO i=1 TO dlls.0
   PARSE VALUE dlls.i WITH front 'libsane-' backend '.dll'
-  IF length(backend) > 8 THEN
-    COPY dlls.i front||LEFT(backend,2)||RIGHT(backend,6,' ')||'.dll'
+  IF length(backend) > 7 THEN
+    COPY dlls.i front||LEFT(backend,2)||RIGHT(backend,5,' ')||'.dll'
   ELSE
      IF length(backend) > 0 THEN COPY dlls.i front||backend||'.dll'
   DEL dlls.i

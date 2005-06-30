@@ -1,3 +1,9 @@
+2005-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* tools/RenSaneDlls.cmd backend/dll.c: Fixed OS/2 restriction for 
+	  dlopening DLLs on OS/2, as it only works for 7.3 filenames for 
+	  some reason (patches by Franz Bakan <fbakan@gmx.net>.
+
 2005-06-27  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek.c: Fixed "double free" problem in sane_exit.
@@ -23,7 +29,7 @@
 2005-06-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon CanoScan LiDE
-	  500F. 
+	  500F.
 	
 2005-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -31,7 +37,7 @@
 	* doc/descriptions-external/brother2.desc: New. Listed scanners
 	  supported by the new external brother2 backend.
 	* doc/descriptions-external/brother.desc: Fixed comments.
-	  
+
 2005-05-30  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added CX-4600
@@ -78,7 +84,7 @@
 
 2005-05-23  Julien Blache <jb@jblache.org>
 	* doc/sane-find-scanner.man, doc/gamma4scanimage.man: spelling
-	fixes from A Costa.
+	  fixes from A Costa.
 
 2005-05-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -136,7 +142,7 @@
 
 2005-05-13  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Stylus RX620
-	(04b8/0811). From Mike Talbot.
+	  (04b8/0811). From Mike Talbot.
 
 2005-05-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -166,7 +172,7 @@
 2005-05-07 Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libsane.usermap: Added Microtek ScanMaker 3700
-	(05da/40cb). From Ian Beckwith.
+	  (05da/40cb). From Ian Beckwith.
 
 2005-05-06 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
@@ -197,8 +203,8 @@
 2005-04-28  Julien Blache <jb@jblache.org>
 
 	* backend/v4l.c: duplicate capability.name in attach() so that
-	each device is listed with its actual name, not with the name of
-	the last discovered device. Reported by Andreas Hartmann.
+	  each device is listed with its actual name, not with the name of
+	  the last discovered device. Reported by Andreas Hartmann.
 
 2005-04-28  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
@@ -211,7 +217,7 @@
 2005-04-26  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus CX3650
-	(04b8/080e), from Daniel Sobe.
+	  (04b8/080e), from Daniel Sobe.
 
 2005-04-25  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -238,7 +244,7 @@
 
 	* LICENSE: Add an FAQ section.
 	* tools/hotplug/libsane.usermap: Added Genius ColorPage Vivid3xe
-	(0458/2017), from Ramiro Aceves through Debian BTS.
+	  (0458/2017), from Ramiro Aceves through Debian BTS.
 
 2005-04-18  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -381,12 +387,12 @@
 2005-03-02  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug-ng/libsane.hotplug: allow for several spaces
-	between fields in the db file.
+	  between fields in the db file.
 
 2005-02-28  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug-ng/libsane.hotplug: replace \t by [[:space:]] when
-	grepping for the device in the db file.
+	  grepping for the device in the db file.
 
 2005-02-21  Julien Blache <jb@jblache.org>
 
@@ -492,8 +498,8 @@
 2005-01-12  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libusbscanner: use sysfs to get the device number,
-	instead of guessing (it ended up being wrong in a number of
-	cases...). Fix from Ubuntu, transmitted by Martin Pitt.
+	  instead of guessing (it ended up being wrong in a number of
+	  cases...). Fix from Ubuntu, transmitted by Martin Pitt.
 
 2005-01-12  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -519,8 +525,8 @@
 
 2004-12-29  Julien Blache <jb@jblache.org>
 	* tools/sane-find-scanner.c: Added a hint about switching the
-	scanner on and connecting it to the computer before doing
-	anything.
+	  scanner on and connecting it to the computer before doing
+	  anything.
 
 2004-12-26  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
@@ -561,7 +567,7 @@
 
 2004-12-04  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Epson Perfection 4870
-	Photo, vendor 0x04b8 product 0x0128.
+	  Photo, vendor 0x04b8 product 0x0128.
 
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
@@ -639,12 +645,15 @@
 
 2004-11-13  Frank Zago <fzago at austin dot rr dot com>
 
-	* include/sane/sanei_backend.h: Added compiler attribute __unused__ for unused variables/functions.
+	* include/sane/sanei_backend.h: Added compiler attribute __unused__ 
+	  for unused variables/functions.
 
 	* backend/leo.c backend/teco3.c backend/matsushita.c
 	  backend/sceptre.c backend/teco1.c: use __unused__
-	* sanei/sanei_wire.c sanei/sanei_pa4s2.c sanei/sanei_scsi.c: fixes for 64 bits platforms.
-	* backend/sp15c-scsi.h backend/sp15c.h backend/dc210.c backend/dc210.h: fixes some warnings.
+	* sanei/sanei_wire.c sanei/sanei_pa4s2.c sanei/sanei_scsi.c: 
+	  fixes for 64 bits platforms.
+	* backend/sp15c-scsi.h backend/sp15c.h backend/dc210.c backend/dc210.h:
+	  fixes some warnings.
 	
 2004-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -654,7 +663,7 @@
 2004-11-13  Julien Blache <jb@jblache.org>
 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus Photo RX500,
-	Epson Stylus Photo RX600 and Minolta Scan Dual II.
+	  Epson Stylus Photo RX600 and Minolta Scan Dual II.
 
 2004-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

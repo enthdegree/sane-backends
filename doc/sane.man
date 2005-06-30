@@ -244,6 +244,13 @@ fi-4340 SCSI scanners. See
 .BR sane\-fujitsu (5)
 for details.
 .TP
+.B genesys
+The genesys backend provides support for scanners based on the Genesys Logic
+GL646 and GL841 chips like the Medion 6471 and Hewlett-Packard 2300c.
+Support for GL841 based scanners is far from being complete. See
+.BR sane\-genesys (5)
+for details.
+.TP
 .B gt68xx
 The gt68xx backend provides support for scanners based on the Grandtech
 GT-6801 and GT-6816 chips like the Artec Ultima 2000 and several Mustek

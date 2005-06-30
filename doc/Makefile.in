@@ -103,7 +103,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-teco1.man sane-teco2.man sane-teco3.man sane-test.man sane-sp15c.man \
   sane-hpsj5s.man gamma4scanimage.man sane-gt68xx.man sane-artec_eplus48u.man \
   sane-ma1509.man sane-ibm.man sane-hp5400.man sane-plustek_pp.man \
-  sane-u12.man sane-niash.man sane-sm3840.man
+  sane-u12.man sane-niash.man sane-sm3840.man sane-genesys.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   sane-html uninstall

@@ -1,8 +1,22 @@
+2005-06-30  Stéphane Voltz <stefdev@modulonet.fr>
+
+	* configure.in AUTHORS backend/dll.conf doc/sane.man doc/Makefile.in 
+	  po/Makefile.in : Fixed forgotten modifications when adding the
+	  genesys backend
+
 2005-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* tools/RenSaneDlls.cmd backend/dll.c: Fixed OS/2 restriction for 
 	  dlopening DLLs on OS/2, as it only works for 7.3 filenames for 
 	  some reason (patches by Franz Bakan <fbakan@gmx.net>.
+
+2005-06-27  Stéphane Voltz <stefdev@modulonet.fr>
+
+	* configure doc/sane-genesys.man doc/sane-genesys.man doc/Makefile.in
+	  doc/descriptions/genesys.desc doc/descriptions/unsupported.desc
+	  backend/genesys_low.h backend/genesys_devices.c
+	  backend/genesys_gl841.c backend/genesys_gl646.c backend/genesys.h
+	  backend/genesys.conf backend/genesys.c backend/Makefile.in
 
 2005-06-27  Gerhard Jaeger <gerhard@gjaeger.de>
 

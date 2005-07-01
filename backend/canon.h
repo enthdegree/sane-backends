@@ -57,16 +57,6 @@
 
 #include <sys/types.h>
 
-#define NO_FOCUS     0
-#define AUTO_FOCUS   1
-#define MANUAL_FOCUS 2
-
-#define NO_AUTO_SCAN_SPEED 0
-#define AUTO_SCAN_SPEED    1
-
-#define NO_AUTO_EXPOSURE 0
-#define AUTO_EXPOSURE    1
-
 #define AUTO_DOC_FEEDER_UNIT            0x01
 #define TRANSPARENCY_UNIT               0x02
 #define TRANSPARENCY_UNIT_FB1200        0x03

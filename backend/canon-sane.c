@@ -151,9 +151,7 @@ sane_open (SANE_String_Const devnam, SANE_Handle * handle)
 	}
     }
   else
-    {
-      dev = first_dev;
-    }
+    dev = first_dev;
 
   if (!dev)
     {
@@ -244,12 +242,10 @@ sane_close (SANE_Handle handle)
 
   DBG (1, ">> sane_close\n");
 
-  if (s->val[OPT_EJECT_BEFOREEXIT].w == SANE_TRUE)
+  if (s->val[OPT_EJECT_BEFOREEXIT].w)
     {
       if (s->fd == -1)
-	{
-	  sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s->hw);
-	}
+	sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s->hw);
       status = medium_position (s->fd);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -262,9 +258,7 @@ sane_close (SANE_Handle handle)
     }
 
   if (s->fd != -1)
-    {
-      sanei_scsi_close (s->fd);
-    }
+    sanei_scsi_close (s->fd);
 
   if (s->inbuffer)
     free (s->inbuffer);		/* modification for FB620S */
@@ -418,12 +412,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      get_density_curve_fs2710 (s, gamma_component, gbuf, &buf_size);
 
 	  neg = (s->hw->info.is_filmscanner) ?
-	    strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s) :
-	    s->val[OPT_HNEGATIVE].w;
+	    strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s)
+	    : s->val[OPT_HNEGATIVE].w;
 
 	  for (i = 0; i < 256; i++)
 	    {
-	      if (neg == SANE_FALSE)
+	      if (!neg)
 		s->gamma_table[option - OPT_GAMMA_VECTOR][i] =
 		  (SANE_Int) gbuf[i];
 	      else
@@ -531,10 +525,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].w = *(SANE_Word *) val;
 
 	      if (info)
-		{
-		  *info |= SANE_INFO_RELOAD_OPTIONS;
-		}
-	      if (s->val[option].w == SANE_FALSE)
+		*info |= SANE_INFO_RELOAD_OPTIONS;
+	      if (!s->val[option].w)
 		{		/* don't bind */
 		  s->opt[OPT_Y_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_X_RESOLUTION].title =
@@ -561,12 +553,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].w = *(SANE_Word *) val;
 
 	      if (info)
+		*info |= SANE_INFO_RELOAD_OPTIONS;
+	      if (!s->val[option].w)	/* use complete range */
 		{
-		  *info |= SANE_INFO_RELOAD_OPTIONS;
-		}
-	      if (s->val[option].w == SANE_FALSE)
-		{
-		  /* use complete range */
 		  s->opt[OPT_X_RESOLUTION].constraint_type =
 		    SANE_CONSTRAINT_RANGE;
 		  s->opt[OPT_X_RESOLUTION].constraint.range =
@@ -576,9 +565,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  s->opt[OPT_Y_RESOLUTION].constraint.range =
 		    &s->hw->info.yres_range;
 		}
-	      else
+	      else			/* use only hardware resolutions */
 		{
-		  /* use only hardware resolutions */
 		  s->opt[OPT_X_RESOLUTION].constraint_type =
 		    SANE_CONSTRAINT_WORD_LIST;
 		  s->opt[OPT_X_RESOLUTION].constraint.word_list =
@@ -594,9 +582,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		    {
 		      if (s->val[OPT_X_RESOLUTION].w >=
 			  s->xres_word_list[iPos + 1])
-			{
-			  xres = s->xres_word_list[iPos + 1];
-			}
+			xres = s->xres_word_list[iPos + 1];
 		    }
 		  s->val[OPT_X_RESOLUTION].w = xres;
 
@@ -605,9 +591,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		    {
 		      if (s->val[OPT_Y_RESOLUTION].w >=
 			  s->yres_word_list[iPos + 1])
-			{
-			  yres = s->yres_word_list[iPos + 1];
-			}
+			yres = s->yres_word_list[iPos + 1];
 		    }
 		  s->val[OPT_Y_RESOLUTION].w = yres;
 		}
@@ -620,10 +604,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->val[option].w = *(SANE_Word *) val;
 
 	      if (info)
-		{
-		  *info |= SANE_INFO_RELOAD_OPTIONS;
-		}
-	      if (s->val[option].w == SANE_FALSE)
+		*info |= SANE_INFO_RELOAD_OPTIONS;
+	      if (!s->val[option].w)
 		{		/* don't bind */
 		  s->opt[OPT_HILITE_R].cap &= ~SANE_CAP_INACTIVE;
 		  s->opt[OPT_SHADOW_R].cap &= ~SANE_CAP_INACTIVE;
@@ -674,24 +656,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return (SANE_STATUS_GOOD);
 
 	case OPT_FLATBED_ONLY:
-	  switch (action)
-	    {
-	    case SANE_ACTION_SET_VALUE:
-	      s->val[option].w = *(SANE_Word *) val;
-	      if (s->hw->adf.Status != ADF_STAT_NONE && s->val[option].w == SANE_TRUE)	/* switch on */
-		{
-		  s->hw->adf.Priority |= 0x03;	/* flatbed mode */
-		  s->hw->adf.Feeder &= 0x00;	/* no autofeed mode (default) */
-		  s->hw->adf.Status = ADF_STAT_DISABLED;
-		  s->val[option].w = SANE_TRUE;
-		}		/* if it isn't connected, don't bother fixing */
-	      break;
-	    case SANE_ACTION_GET_VALUE:
-	      val = &s->val[option].w;
-	      break;
-	    default:
-	      break;
-	    }
+	  s->val[option].w = *(SANE_Word *) val;
+	  if (s->hw->adf.Status != ADF_STAT_NONE && s->val[option].w )
+	    {					/* switch on */
+	      s->hw->adf.Priority |= 0x03;	/* flatbed mode */
+	      s->hw->adf.Feeder &= 0x00;	/* autofeed off (default) */
+	      s->hw->adf.Status = ADF_STAT_DISABLED;
+	      s->val[option].w = SANE_TRUE;
+	    }		/* if it isn't connected, don't bother fixing */
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TPU_ON:
@@ -714,7 +686,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->opt[OPT_TPU_PN].cap ^= SANE_CAP_INACTIVE;
 	  s->opt[OPT_TPU_DCM].cap ^= SANE_CAP_INACTIVE;
           if (info)
-     	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TPU_DCM:
@@ -739,7 +711,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else
 	    s->hw->tpu.ControlMode = 0;
           if (info)
-	  *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TPU_FILMTYPE:
@@ -779,7 +751,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	      /* Enable "custom gamma" and "brightness & contrast" */
 	      s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
-	      if (s->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
+	      if (s->val[OPT_CUSTOM_GAMMA].w)
 		{
 		  if (!strcmp (val, "Color") || !strcmp (val, "Fine color"))
 		    {
@@ -831,15 +803,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->opt[OPT_NEGATIVE_TYPE].cap &= ~SANE_CAP_INACTIVE;
 	      if (SANE_OPTION_IS_SETTABLE(s->opt[OPT_SCANNING_SPEED].cap))
 		s->opt[OPT_SCANNING_SPEED].cap &= ~SANE_CAP_INACTIVE;
-	      s->opt[OPT_AE].cap |= SANE_CAP_INACTIVE;
 	    }
 	  else
 	    {
 	      s->RIF = 1;
 	      s->opt[OPT_NEGATIVE_TYPE].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_SCANNING_SPEED].cap |= SANE_CAP_INACTIVE;
-	      if (s->hw->info.can_autoexpose)
-		s->opt[OPT_AE].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  return (SANE_STATUS_GOOD);
 
@@ -880,9 +849,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      sanei_scsi_close (s->fd);
 	    }
 	  else
-	    {
-	      DBG (1, "calibration: cannot open device file\n");
-	    }
+	    DBG (1, "calibration: cannot open device file\n");
 	  s->fd = -1;
 	  return status;
 
@@ -901,14 +868,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		    return (status);
 		  }
 		DBG (21, "SEND DIAGNOSTIC result: %s\n",
-		     sane_strstatus (status));
+		  sane_strstatus (status));
 		sanei_scsi_close (s->fd);
 	      }
 	    }
 	  else
-	    {
-	      DBG (1, "send diagnostic: cannot open device file\n");
-	    }
+	    DBG (1, "send diagnostic: cannot open device file\n");
 	  s->fd = -1;
 	  return status;
 
@@ -917,17 +882,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (status == SANE_STATUS_GOOD)
 	    {
 	      time (&(s->time1));
-	      DBG (11, "time0 = %ld\n", (u_long) s->time0);
-	      DBG (11, "time1 = %ld\n", (u_long) s->time1);
+	      DBG (11, "time0 = %ld\n", s->time0);
+	      DBG (11, "time1 = %ld\n", s->time1);
 	      dtime = (s->time1) - (s->time0);
-	      DBG (11, "dtime = %ld\n", (u_long) dtime);
+	      DBG (11, "dtime = %ld\n", dtime);
 
 	      DBG (11, "switch_preview = %d\n", s->switch_preview);
 	      if (s->switch_preview == 0)
 		{
-		  rt =
-		    sqrt (15 * 15 * (SANE_UNFIX (s->val[OPT_BR_Y].w)) / 297) +
-		    0.5;
+		  rt = sqrt (15 * 15 * (SANE_UNFIX (s->val[OPT_BR_Y].w))
+		    / 297) + 0.5;
 		  rt = rt + 2;
 		}
 	      else
@@ -935,7 +899,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	      DBG (11, "SANE_UNFIX(s->val[OPT_BR_Y].w) = %f\n",
 		   SANE_UNFIX (s->val[OPT_BR_Y].w));
-	      DBG (11, "rt = %ld\n", (u_long) rt);
+	      DBG (11, "rt = %ld\n", rt);
 
 	      if (dtime < rt)
 		{
@@ -959,9 +923,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      }
 	    }
 	  else
-	    {
-	      DBG (1, "reset scanner: cannot open device file\n");
-	    }
+	    DBG (1, "reset scanner: cannot open device file\n");
 	  s->fd = -1;
 	  return status;
 
@@ -1002,7 +964,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		       || !strcmp (mode, "Fine color"))
 		{
 		  s->opt[OPT_CUSTOM_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
-		  if (s->val[OPT_CUSTOM_GAMMA_BIND].w == SANE_TRUE)
+		  if (s->val[OPT_CUSTOM_GAMMA_BIND].w)
 		    {
 		      s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
 		      s->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
@@ -1082,7 +1044,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 /**************************************************************************/
 
 SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 {
   CANON_Scanner *s = handle;
   DBG (1, ">> sane_get_parameters\n");
@@ -1101,11 +1063,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
       xres = s->val[OPT_X_RESOLUTION].w;
       yres = s->val[OPT_Y_RESOLUTION].w;
-      if ((s->val[OPT_RESOLUTION_BIND].w == SANE_TRUE)
-	  || (s->val[OPT_PREVIEW].w == SANE_TRUE))
-	{
-	  yres = xres;
-	}
+      if (s->val[OPT_RESOLUTION_BIND].w || s->val[OPT_PREVIEW].w)
+	yres = xres;
 
       /* make best-effort guess at what parameters will look like once
          scanning starts.  */
@@ -1122,7 +1081,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	}
 
       mode = s->val[OPT_MODE].s;
-      if (strcmp (mode, "Lineart") == 0 || strcmp (mode, "Halftone") == 0)
+      if (!strcmp (mode, "Lineart") || !strcmp (mode, "Halftone"))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line / 8;
@@ -1130,14 +1089,13 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	  s->params.depth = 1;
 	}
-      else if (strcmp (mode, "Gray") == 0)
+      else if (!strcmp (mode, "Gray"))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->params.depth = 8;
 	}
-      else if (strcmp (mode, "Color") == 0
-	       || strcmp (mode, "Fine color") == 0)
+      else if (!strcmp (mode, "Color") || !strcmp (mode, "Fine color"))
 	{
 	  s->params.format = SANE_FRAME_RGB;
 	  s->params.bytes_per_line = 3 * s->params.pixels_per_line;
@@ -1152,10 +1110,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       s->params.last_frame = SANE_TRUE;
     }
 
-  DBG (11,
-       "sane_get_parameters: xres='%d', yres='%d', pixels_per_line='%d', bytes_per_line='%d', lines='%d'\n",
-       s->xres, s->yres, s->params.pixels_per_line, s->params.bytes_per_line,
-       s->params.lines);
+  DBG (11, "sane_get_parameters: xres='%d', yres='%d', pixels_per_line='%d', "
+    "bytes_per_line='%d', lines='%d'\n", s->xres, s->yres,
+    s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines);
 
   if (params)
     *params = s->params;
@@ -1174,7 +1131,7 @@ sane_start (SANE_Handle handle)
   CANON_Scanner *s = handle;
   SANE_Status status;
   u_char wbuf[72], dbuf[28], ebuf[72];
-  u_char cbuf[2];		/* modification for FB620S */
+  u_char cbuf[2];			/* modification for FB620S */
   size_t buf_size, i;
 
   char tmpfilename[] = "/tmp/canon.XXXXXX"; /* for FB1200S */
@@ -1186,38 +1143,38 @@ sane_start (SANE_Handle handle)
 
 /******* making a tempfile for 1200 dpi scanning of FB1200S ******/
   if (s->hw->info.model == FB1200)
-   {
-     thistmpfile = strdup(tmpfilename);
+    {
+      thistmpfile = strdup(tmpfilename);
 
-    if (thistmpfile != NULL)
-     {
-     if (mktemp(thistmpfile) == 0)
-      {
-       DBG(1, "mktemp(thistmpfile) is failed\n");
-       return (SANE_STATUS_INVAL);
-      }
-     }
-    else
-     {
-       DBG(1, "strdup(thistmpfile) is failed\n");
-       return (SANE_STATUS_INVAL);
-     }
+      if (thistmpfile != NULL)
+        {
+          if (mktemp(thistmpfile) == 0)
+            {  
+              DBG(1, "mktemp(thistmpfile) is failed\n");
+              return (SANE_STATUS_INVAL);
+	    }
+	}
+      else
+        {
+	  DBG(1, "strdup(thistmpfile) is failed\n");
+	  return (SANE_STATUS_INVAL);
+	}
 
-    s->tmpfile = open(thistmpfile, O_RDWR | O_CREAT | O_EXCL, 0600);
+      s->tmpfile = open(thistmpfile, O_RDWR | O_CREAT | O_EXCL, 0600);
 
-     if (s->tmpfile == -1)
-      {
-       DBG(1, "error opening temp file %s\n", thistmpfile);
-       DBG(1, "errno: %i; %s\n", errno, strerror(errno));
-       errno = 0;
-       return (SANE_STATUS_INVAL);
-      }
+      if (s->tmpfile == -1)
+	{
+	  DBG(1, "error opening temp file %s\n", thistmpfile);
+	  DBG(1, "errno: %i; %s\n", errno, strerror(errno));
+	  errno = 0;
+	  return (SANE_STATUS_INVAL);
+	}
       DBG(1, " ****** tmpfile is opened ****** \n");
 
-    unlink(thistmpfile);
-    free (thistmpfile);
-    DBG(1, "free thistmpfile\n");
-   }
+      unlink(thistmpfile);
+      free (thistmpfile);
+      DBG(1, "free thistmpfile\n");
+    }
 /******************************************************************/
 
   s->scanning = SANE_FALSE;
@@ -1260,28 +1217,26 @@ sane_start (SANE_Handle handle)
   status = sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler, s->hw);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (1, "open of %s failed: %s\n",
-	   s->hw->sane.name, sane_strstatus (status));
+      DBG (1, "open of %s failed: %s\n", s->hw->sane.name,
+	sane_strstatus (status));
       return (status);
     }
 
+#if 0				/* code moved after define_scan() calls */
   /* Do focus, but not for the preview */
   if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FOCUS_GROUP].cap)
-    && (s->val[OPT_PREVIEW].w == SANE_FALSE) && (s->AF_NOW == SANE_TRUE))
+    && !s->val[OPT_PREVIEW].w && s->AF_NOW)
     {
       if ((status = do_focus (s)) != SANE_STATUS_GOOD) return (status);
-      if (s->val[OPT_AF_ONCE].w == SANE_TRUE)
-	{
-	  s->AF_NOW = SANE_FALSE;
-	}
+      if (s->val[OPT_AF_ONCE].w) s->AF_NOW = SANE_FALSE;
     }
+#endif
 
-  if (s->val[OPT_CUSTOM_GAMMA].w == 1)
+  if (s->val[OPT_CUSTOM_GAMMA].w)
     {
       if ((status = do_gamma (s)) != SANE_STATUS_GOOD) return (status);
     }
 
-#if 1
   DBG (3, "attach: sending GET SCAN MODE for scan control conditions\n");
   memset (ebuf, 0, sizeof (ebuf));
   buf_size = 20;
@@ -1294,9 +1249,7 @@ sane_start (SANE_Handle handle)
       return (SANE_STATUS_INVAL);
     }
   for (i = 0; i < buf_size; i++)
-    {
-      DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, ebuf[i]);
-    }
+    DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
 
   if (s->hw->adf.Status != ADF_STAT_NONE)
     {
@@ -1312,22 +1265,15 @@ sane_start (SANE_Handle handle)
 	  return (SANE_STATUS_INVAL);
 	}
       for (i = 0; i < buf_size; i++)
-	{
-	  DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, ebuf[i]);
-	}
+	DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
     }
-#endif
-
 
   mode_str = s->val[OPT_MODE].s;
   s->xres = s->val[OPT_X_RESOLUTION].w;
   s->yres = s->val[OPT_Y_RESOLUTION].w;
 
-  if ((s->val[OPT_RESOLUTION_BIND].w == SANE_TRUE)
-      || (s->val[OPT_PREVIEW].w == SANE_TRUE))
-    {
+  if (s->val[OPT_RESOLUTION_BIND].w || s->val[OPT_PREVIEW].w)
       s->yres = s->xres;
-    }
 
   s->ulx = SANE_UNFIX (s->val[OPT_TL_X].w) * s->hw->info.mud / MM_PER_INCH;
   s->uly = SANE_UNFIX (s->val[OPT_TL_Y].w) * s->hw->info.mud / MM_PER_INCH;
@@ -1341,15 +1287,10 @@ sane_start (SANE_Handle handle)
 
   if (s->hw->info.model != CS2700 && s->hw->info.model != FS2710)
     {
-      if ((strcmp (mode_str, "Lineart") == 0) ||
-	  (strcmp (mode_str, "Halftone") == 0))
-	{
-	  s->RIF = s->val[OPT_HNEGATIVE].w;
-	}
+      if (!strcmp (mode_str, "Lineart") || !strcmp (mode_str, "Halftone"))
+	s->RIF = s->val[OPT_HNEGATIVE].w;
       else
-	{
-	  s->RIF = !s->val[OPT_HNEGATIVE].w;
-	}
+	s->RIF = !s->val[OPT_HNEGATIVE].w;
     }
 
   s->brightness = s->val[OPT_BRIGHTNESS].w;
@@ -1357,15 +1298,13 @@ sane_start (SANE_Handle handle)
   s->threshold = s->val[OPT_THRESHOLD].w;
   s->bpp = s->params.depth;
 
-
   s->GRC = s->val[OPT_CUSTOM_GAMMA].w;
   s->Mirror = s->val[OPT_MIRROR].w;
   s->AE = s->val[OPT_AE].w;
 
-
   s->HiliteG = s->val[OPT_HILITE_G].w;
   s->ShadowG = s->val[OPT_SHADOW_G].w;
-  if (s->val[OPT_BIND_HILO].w == SANE_TRUE)
+  if (s->val[OPT_BIND_HILO].w)
     {
       s->HiliteR = s->val[OPT_HILITE_G].w;
       s->ShadowR = s->val[OPT_SHADOW_G].w;
@@ -1380,28 +1319,27 @@ sane_start (SANE_Handle handle)
       s->ShadowB = s->val[OPT_SHADOW_B].w;
     }
 
-  if (strcmp (mode_str, "Lineart") == 0)
+  if (!strcmp (mode_str, "Lineart"))
     {
       mode = 4;
       s->image_composition = 0;
     }
-  else if (strcmp (mode_str, "Halftone") == 0)
+  else if (!strcmp (mode_str, "Halftone"))
     {
       mode = 4;
       s->image_composition = 1;
     }
-  else if (strcmp (mode_str, "Gray") == 0)
+  else if (!strcmp (mode_str, "Gray"))
     {
       mode = 5;
       s->image_composition = 2;
     }
-  else if (strcmp (mode_str, "Color") == 0 ||
-	   strcmp (mode_str, "Fine color") == 0)
+  else if (!strcmp (mode_str, "Color") || !strcmp (mode_str, "Fine color"))
     {
       mode = 6;
       s->image_composition = 5;
     }
-  else if (strcmp (mode_str, "Raw") == 0)
+  else if (!strcmp (mode_str, "Raw"))
     {
       mode = 6;
       s->image_composition = 5;
@@ -1440,13 +1378,13 @@ sane_start (SANE_Handle handle)
   wbuf[33] = s->image_composition;
   wbuf[34] = (s->hw->info.model == FS2710) ? 12 : s->bpp;
   wbuf[36] = 1;
-  wbuf[37] = (1 << 7) + 0x3;
+  wbuf[37] = (1 << 7) + 0x03;
   wbuf[50] = (s->GRC << 3) | (s->Mirror << 2);
-  /* For preview, don't set AE, so that scanning speed is normal */
-  if (s->val[OPT_PREVIEW].w == SANE_FALSE)
-    {
-      wbuf[50] |= s->AE;
-    }
+#if 1
+   wbuf[50] |= s->AE;	/* AE also for preview; needed by frontend controls */
+#else
+  if (!s->val[OPT_PREVIEW].w) wbuf[50] |= s->AE; /* AE not during preview */
+#endif
   wbuf[54] = 2;
   wbuf[57] = 1;
   wbuf[58] = 1;
@@ -1457,11 +1395,10 @@ sane_start (SANE_Handle handle)
   wbuf[70] = s->HiliteB;
   wbuf[71] = s->ShadowB;
 
-  DBG (7, "RIF=%d, GRC=%d, Mirror=%d, AE=%d\n",
-       s->RIF, s->GRC, s->Mirror, s->AE);
-  DBG (7, "HR=%d, SR=%d, HG=%d, SG=%d, HB=%d, SB=%d\n",
-       s->HiliteR, s->ShadowR,
-       s->HiliteG, s->ShadowG, s->HiliteB, s->ShadowB);
+  DBG (7, "RIF=%d, GRC=%d, Mirror=%d, AE=%d, Speed=%d\n", s->RIF, s->GRC,
+    s->Mirror, s->AE, s->scanning_speed);
+  DBG (7, "HR=%d, SR=%d, HG=%d, SG=%d, HB=%d, SB=%d\n", s->HiliteR,
+    s->ShadowR, s->HiliteG, s->ShadowG, s->HiliteB, s->ShadowB);
 
   if (s->hw->info.model == FB620)	/* modification for FB620S */
     {
@@ -1474,7 +1411,11 @@ sane_start (SANE_Handle handle)
     }
   else if (s->hw->info.model == FB1200)	/* modification for FB1200S */
     {
-/*    wbuf[34] = (((600 < s->val[OPT_X_RESOLUTION].w) || (600 < s->val[OPT_Y_RESOLUTION].w)) && (strcmp (s->val[OPT_MODE].s, "Lineart") != 0)) ? 12 : s->bpp; */
+#if 0
+      wbuf[34] = (((600 < s->val[OPT_X_RESOLUTION].w)
+	|| (600 < s->val[OPT_Y_RESOLUTION].w))
+	&& (strcmp (s->val[OPT_MODE].s, "Lineart") != 0)) ? 12 : s->bpp;
+#endif
       wbuf[36] = 0;
       wbuf[37] = (s->RIF << 7) + 0x3;
       wbuf[50] = (1 << 4) | (s->GRC << 3);
@@ -1516,11 +1457,10 @@ sane_start (SANE_Handle handle)
   DBG (5, "Highlight Blue=%d\n", wbuf[70]);
   DBG (5, "Shadow Blue=%d\n", wbuf[71]);
 
-  if (s->hw->tpu.Status == TPU_STAT_ACTIVE)
+  if (s->hw->tpu.Status == TPU_STAT_ACTIVE || s->hw->info.is_filmscanner)
     {
-      DBG (3,
-	   "sane_start: sending DEFINE SCAN MODE for transparency unit, \
-NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
+      DBG (3, "sane_start: sending DEFINE SCAN MODE for transparency unit, "
+	"NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
       memset (wbuf, 0, sizeof (wbuf));
       wbuf[0] = 0x02;
       wbuf[1] = 6;
@@ -1540,43 +1480,36 @@ NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
 	}
     }
 
-#if 1
-  DBG (3,
-       "sane_start: sending DEFINE SCAN MODE for scan control conditions\n");
+  DBG (3, "sane_start: sending DEFINE SCAN MODE for scan control "
+    "conditions\n");
   memset (wbuf, 0, sizeof (wbuf));
+  wbuf[0] = 0x20;
   if (s->hw->info.model == FB1200)
     {
-      wbuf[0] = 0x20;
       wbuf[1] = 17;
       wbuf[16] = 3;
       wbuf[17] = 8;
       wbuf[18] = (1 << 7) | (1 << 3);
 
-      DBG (3,
-       "sane_start: sending DEFINE SCAN MODE for scan control conditions of FB1200\n");
+      DBG (3, "sane_start: sending DEFINE SCAN MODE for scan control "
+	"conditions of FB1200\n");
       status = define_scan_mode (s->fd, SCAN_CONTROL_CON_FB1200, wbuf);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "define scan mode failed: %s\n", sane_strstatus (status));
-          return (status);
-        }
     }
   else
     {
-      wbuf[0] = 0x20;
       wbuf[1] = 14;
-      wbuf[15] = (s->hw->info.model == FB620 && strcmp (mode_str, "Fine color")
-      == 0 && s->val[OPT_PREVIEW].w == SANE_FALSE) ? 1 << 3 : 0;
-
       /* For preview use always normal speed: */
-      if (s->val[OPT_PREVIEW].w == SANE_FALSE)
-        wbuf[11] = s->scanning_speed;
+      if (!s->val[OPT_PREVIEW].w && s->hw->info.is_filmscanner)
+	wbuf[11] = s->scanning_speed;
+      wbuf[15] = (s->hw->info.model == FB620
+	&& !strcmp (mode_str, "Fine color")
+	&& !s->val[OPT_PREVIEW].w) ? 1 << 3 : 0;
       status = define_scan_mode (s->fd, SCAN_CONTROL_CONDITIONS, wbuf);
-      if (status != SANE_STATUS_GOOD)
-        {
-          DBG (1, "define scan mode failed: %s\n", sane_strstatus (status));
-          return (status);
-        }
+    }
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "define scan mode failed: %s\n", sane_strstatus (status));
+      return (status);
     }
 
   DBG (3, "sane_start: sending GET SCAN MODE for scan control conditions\n");
@@ -1585,19 +1518,24 @@ NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
   status = get_scan_mode (s->fd, SCAN_CONTROL_CONDITIONS, ebuf, &buf_size);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (1,
-	   "sane_start: GET SCAN MODE for scan control conditions failed\n");
+      DBG (1, "sane_start: GET SCAN MODE for scan control conditions "
+	"failed\n");
       sanei_scsi_close (s->fd);
       return (SANE_STATUS_INVAL);
     }
   for (i = 0; i < buf_size; i++)
+    DBG (3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
+
+  /* Focus, but not for previews or negatives with speed control */
+  if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FOCUS_GROUP].cap)
+    && !s->val[OPT_PREVIEW].w && s->AF_NOW
+    && (s->RIF || s->AE || s->scanning_speed == 0))
     {
-      DBG (3, "scan mode byte[%lu] = %d\n", (u_long) i, ebuf[i]);
+      if ((status = do_focus (s)) != SANE_STATUS_GOOD) return (status);
+      if (s->val[OPT_AF_ONCE].w) s->AF_NOW = SANE_FALSE;
     }
-#endif
 
-/* ============= modification for FB620S ============= */
-
+  /* ============= modification for FB620S ============= */
   DBG (3, "TEST_UNIT_READY\n");
   status = test_unit_ready (s->fd);
   if (status != SANE_STATUS_GOOD)
@@ -1645,9 +1583,8 @@ NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
 	  status = get_calibration_status (s->fd, cbuf, &buf_size);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (1,
-		   "after calibration: GET_CALIBRATION_STATUS failed: %s\n",
-		   sane_strstatus (status));
+	      DBG (1, "after calibration: GET_CALIBRATION_STATUS failed: %s\n",
+		sane_strstatus (status));
 	      sanei_scsi_close (s->fd);
 	      s->fd = -1;
 	      return (status);
@@ -1689,35 +1626,35 @@ NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
 
   if (s->hw->info.model == FB1200)
     {
-      if (s->bytes_to_read != (((size_t)dbuf[9] << 16) + ((size_t)dbuf[10] << 8)
-      + (size_t)dbuf[11]))
+      if (s->bytes_to_read != (((size_t) dbuf[9] << 16)
+      + ((size_t) dbuf[10] << 8) + (size_t) dbuf[11]))
 	{
 	  s->params.bytes_per_line = (((size_t) dbuf[12] << 24)
-	  + ((size_t) dbuf[13] << 16) + ((size_t) dbuf[14] << 8)
-	  + (size_t)dbuf[15]);
+	    + ((size_t) dbuf[13] << 16) + ((size_t) dbuf[14] << 8)
+	    + (size_t)dbuf[15]);
 	  s->params.lines = (((size_t) dbuf[16] << 24)
-	  + ((size_t) dbuf[17] << 16) + ((size_t) dbuf[18] << 8)
-	  + (size_t) dbuf[19]);
+	    + ((size_t) dbuf[17] << 16) + ((size_t) dbuf[18] << 8)
+	    + (size_t) dbuf[19]);
 	  s->bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
 	  mode_str = s->val[OPT_MODE].s;
-	  if (strcmp (mode_str, "Lineart") == 0)
+	  if (!strcmp (mode_str, "Lineart"))
 	    {
 	      if (((600 < s->val[OPT_X_RESOLUTION].w)
-	      || (600 < s->val[OPT_Y_RESOLUTION].w)))
+		|| (600 < s->val[OPT_Y_RESOLUTION].w)))
 		{
 		  s->params.bytes_per_line *= 2;
 		  s->params.lines /= 2;
 		}
 	      s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	    }
-	  else if (strcmp (mode_str, "Gray") == 0)
+	  else if (!strcmp (mode_str, "Gray"))
 	      s->params.pixels_per_line = s->params.bytes_per_line;
-	  else if (strcmp (mode_str, "Color") == 0
-	  || strcmp (mode_str, "Fine color") == 0)
+	  else if (!strcmp (mode_str, "Color")
+	    || !strcmp (mode_str, "Fine color"))
 	      s->params.pixels_per_line = s->params.bytes_per_line / 3;
 	  else
-	      s->params.pixels_per_line = s->params.bytes_per_line / 6;
+	    s->params.pixels_per_line = s->params.bytes_per_line / 6;
 	}
     }
 
@@ -1741,8 +1678,8 @@ NP=%d, Negative film type=%d\n", !s->RIF, s->negative_filmtype);
 /**************************************************************************/
 
 static SANE_Status
-sane_read_direct (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-		  SANE_Int * len)
+sane_read_direct (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
+		  SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -1753,19 +1690,17 @@ sane_read_direct (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = 0;
   nread = max_len;
 
-  DBG (21, "   sane_read: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
   if (s->bytes_to_read == 0)
     {
       do_cancel (s);
       return (SANE_STATUS_EOF);
     }
 
-  if (!s->scanning)
-    return (do_cancel (s));
+  if (!s->scanning) return (do_cancel (s));
 
-  if (nread > s->bytes_to_read)
-    nread = s->bytes_to_read;
+  if (nread > s->bytes_to_read) nread = s->bytes_to_read;
   status = read_data (s->fd, buf, &nread);
   if (status != SANE_STATUS_GOOD)
     {
@@ -1775,8 +1710,8 @@ sane_read_direct (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = nread;
   s->bytes_to_read -= nread;
 
-  DBG (21, "   sane_read: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
   DBG (21, "<< sane_read\n");
   return (SANE_STATUS_GOOD);
 }
@@ -1784,8 +1719,8 @@ sane_read_direct (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 /**************************************************************************/
 
 static SANE_Status
-read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-	     SANE_Int * len)
+read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
+	     SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -1798,19 +1733,17 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = 0;
   nread = max_len;
 
-  DBG (21, "   sane_read: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
 
-  if (nread > s->bytes_to_read)
-    nread = s->bytes_to_read;
+  if (nread > s->bytes_to_read) nread = s->bytes_to_read;
   if (s->bytes_to_read == 0)
     {
       do_cancel (s);
       return (SANE_STATUS_EOF);
     }
 
-  if (!s->scanning)
-    return (do_cancel (s));
+  if (!s->scanning) return (do_cancel (s));
 
   /* We must receive 2 bytes per pixel and colour. In raw mode we
      must swap the bytes (for compatibility with xsane) and pass
@@ -1818,25 +1751,22 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
      so we must set up an intermediate buffer which is twice as large
      as buf, and then map this buffer to buf. */
 
-  if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
+  if (!strcmp (s->val[OPT_MODE].s, "Color"))
     {
       if (max_len > s->auxbuf_len)
-	{			/* extend buffer? */
-	  if (s->auxbuf_len > 0)
-	    free (s->auxbuf);
+	{				/* extend buffer? */
+	  if (s->auxbuf_len > 0) free (s->auxbuf);
 	  s->auxbuf_len = max_len;
 	  if ((s->auxbuf = (u_char *) malloc (2 * max_len)) == NULL)
 	    {
 	      DBG (1, "sane_read buffer size insufficient\n");
 	      do_cancel (s);
 	      return SANE_STATUS_NO_MEM;
-	      /*exit(1); */
 	    }
 	}
 
       nread2 = 2 * nread;
-      if ((status =
-	   read_data (s->fd, s->auxbuf, &nread2)) != SANE_STATUS_GOOD)
+      if ((status = read_data (s->fd, s->auxbuf, &nread2)) != SANE_STATUS_GOOD)
 	{
 	  do_cancel (s);
 	  return (SANE_STATUS_IO_ERROR);
@@ -1847,8 +1777,7 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  c = *p++ >> 4;
 	  c |= *p++ << 4;
 	  *buf++ = s->gamma_map[s->colour++][c];
-	  if (s->colour > 3)
-	    s->colour = 1;	/* cycle through RGB */
+	  if (s->colour > 3) s->colour = 1;	/* cycle through RGB */
 	}
     }
   else
@@ -1868,8 +1797,8 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   *len = nread;
   s->bytes_to_read -= nread;
 
-  DBG (21, "   sane_read: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
   DBG (21, "<< sane_read\n");
   return (SANE_STATUS_GOOD);
 }
@@ -1878,8 +1807,8 @@ read_fs2710 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 /* modification for FB620S */
 
 static SANE_Status
-read_fb620 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-	    SANE_Int * len)
+read_fb620 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
+	    SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -1891,8 +1820,8 @@ read_fb620 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
   *len = 0;
 
-  DBG (21, "   read_fb620: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   read_fb620: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
 
   if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {
@@ -1985,8 +1914,8 @@ read_fb620 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 /* modification for FB1200S */
 
 static SANE_Status
-read_fb1200 (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-SANE_Int * len)
+read_fb1200 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
+SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -2016,13 +1945,13 @@ SANE_Int * len)
     + (dbuf[22] << 8) + dbuf[23]);
   DBG (5, "Filled Data Buffer=%d\n", (dbuf[24] << 24) + (dbuf[25] << 16)
     + (dbuf[26] << 8) + dbuf[27]);
-  DBG (5, "temp file position:%lu\n", (u_long) lseek(s->tmpfile, 0, SEEK_CUR));
+  DBG (5, "temp file position:%u\n", lseek(s->tmpfile, 0, SEEK_CUR));
   DBG (5, "<< GET DATA STATUS\n");
 
   *len = 0;
 
-  DBG (21, "   read_fb1200: nread=%lu, bytes_to_read=%lu\n", (u_long) nread,
-       (u_long) s->bytes_to_read);
+  DBG (21, "   read_fb1200: nread=%d, bytes_to_read=%d\n", nread,
+       s->bytes_to_read);
 
   if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {
@@ -2052,150 +1981,150 @@ SANE_Int * len)
 	  return (SANE_STATUS_IO_ERROR);
 	}
 
-/**** save the primary scan data to tmpfile ****/
+      /**** save the primary scan data to tmpfile ****/
 
-     if ((SANE_Int) s->bytes_to_read > s->params.bytes_per_line
-       * s->params.lines / 2)
-       {
-         remain = nread;
-         nwritten = 0;
-         while (remain)
-          {
-           errno = 0;
-           wres = write (s->tmpfile, &s->inbuffer[nwritten], remain);
-           if (wres == -1)
-            {
-             DBG(1, "error write tmp file: %i, %s\n", errno, strerror(errno));
-             do_cancel(s);
-             return (SANE_STATUS_NO_MEM);
-            }
-           remain -= wres;
-           nwritten += wres;
-          }
+      if ((SANE_Int) s->bytes_to_read > s->params.bytes_per_line
+	* s->params.lines / 2)
+	{
+	  remain = nread;
+	  nwritten = 0;
+	  while (remain)
+	    {
+	      errno = 0;
+	      wres = write (s->tmpfile, &s->inbuffer[nwritten], remain);
+	      if (wres == -1)
+		{
+		  DBG(1, "error write tmp file: %i, %s\n", errno,
+		    strerror(errno));
+		  do_cancel(s);
+		  return (SANE_STATUS_NO_MEM);
+		}
+	      remain -= wres;
+	      nwritten += wres;
+	    }
 
-        s->bytes_to_read -= nread;
+	  s->bytes_to_read -= nread;
 
-        if ((SANE_Int) s->bytes_to_read <= s->params.bytes_per_line
-	  * s->params.lines / 2)
-          {
-            if ((SANE_Int) s->bytes_to_read < s->params.bytes_per_line
-	      * s->params.lines / 2)
-              {
-                DBG(1, "warning: read more data for the primary scan than expected\n");
-              }
+	  if ((SANE_Int) s->bytes_to_read <= s->params.bytes_per_line
+	    * s->params.lines / 2)
+	    {
+	      if ((SANE_Int) s->bytes_to_read < s->params.bytes_per_line
+		* s->params.lines / 2)
+		DBG(1, "warning: read more data for the primary scan "
+		  "than expected\n");
 
-           lseek (s->tmpfile, 0L, SEEK_SET);
-           *len = 0;
-           *buf = 0;
-           return (SANE_STATUS_GOOD);
-         }
+	      lseek (s->tmpfile, 0L, SEEK_SET);
+	      *len = 0;
+	      *buf = 0;
+	      return (SANE_STATUS_GOOD);
+	    }
 
-        DBG(1, "writing: the primary data to tmp file\n");
-        *len = 0;
-        *buf = 0;
-        return (SANE_STATUS_GOOD);
-      }
-/** the primary scan data from tmpfile and the secondary scan data are mreged **/
+	  DBG(1, "writing: the primary data to tmp file\n");
+	  *len = 0;
+	  *buf = 0;
+	  return (SANE_STATUS_GOOD);
+	}
+      /** the primary scan data from tmpfile and the secondary scan data
+	  are merged **/
 
       s->buf_used = s->params.bytes_per_line;
       byte_per_line = s->params.bytes_per_line;
       pixel_per_line = s->params.pixels_per_line;
 
 
-/** read an entire scan line from the primary scan **/
+      /** read an entire scan line from the primary scan **/
 
       remain = nread;
       pos = 0;
       firstimage = &(s->inbuffer[byte_per_line/2]);
 
       while (remain > 0)
-       {
-        nremain = (remain < SSIZE_MAX)? remain: SSIZE_MAX;
-        errno = 0;
-        readres = read (s->tmpfile, &(firstimage[pos]), nremain);
-        if (readres == -1)
-         {
-          DBG(1, "error reading tmp file: %i %s\n", errno, strerror(errno));
-          do_cancel(s);
-          return (SANE_STATUS_IO_ERROR);
-         }
-        if (readres == 0)
-         {
-          DBG(1, "0 byte read from temp file. premature EOF?\n");
-          return (SANE_STATUS_INVAL);
-         /* perhaps an error return? */
-         }
-         DBG(1, "reading: the primary data from tmp file\n");
-         remain -= readres;
-         pos += readres;
-       }
+	{
+	  nremain = (remain < SSIZE_MAX)? remain: SSIZE_MAX;
+	  errno = 0;
+	  readres = read (s->tmpfile, &(firstimage[pos]), nremain);
+	  if (readres == -1)
+	    {
+	      DBG(1, "error reading tmp file: %i %s\n", errno,
+		strerror(errno));
+	      do_cancel(s);
+	      return (SANE_STATUS_IO_ERROR);
+	    }
+	  if (readres == 0)
+	    {
+	      DBG(1, "0 byte read from temp file. premature EOF?\n");
+	      return (SANE_STATUS_INVAL);
+	      /* perhaps an error return? */
+	    }
+	  DBG(1, "reading: the primary data from tmp file\n");
+	  remain -= readres;
+	  pos += readres;
+	}
 
       secondimage = s->inbuffer;
 
-      if (strcmp (s->val[OPT_MODE].s, "Color") == 0)
-       {
-        maxpix = pixel_per_line / 2;
-        for (pix = 0; (int) pix < maxpix; pix++)
-         {
-           s->outbuffer[6 * pix] = secondimage[3 * pix];
-           s->outbuffer[6 * pix + 1] = secondimage[3 * pix + 1];
-           s->outbuffer[6 * pix + 2] = secondimage[3 * pix + 2];
-           s->outbuffer[6 * pix + 3] = firstimage[3 * pix];
-           s->outbuffer[6 * pix + 4] = firstimage[3 * pix + 1];
-           s->outbuffer[6 * pix + 5] = firstimage[3 * pix + 2];
-	 }
-       }
-      else if (strcmp (s->val[OPT_MODE].s, "Gray") == 0)
-       {
-        for (pix = 0; pix < pixel_per_line / 2; pix++)
-         {
-           s->outbuffer[2 * pix] = secondimage[pix];
-           s->outbuffer[2 * pix + 1] = firstimage[pix];
-	 }
-       }
+      if (!strcmp (s->val[OPT_MODE].s, "Color"))
+	{
+	  maxpix = pixel_per_line / 2;
+	  for (pix = 0; (int) pix < maxpix; pix++)
+	    {
+	      s->outbuffer[6 * pix] = secondimage[3 * pix];
+	      s->outbuffer[6 * pix + 1] = secondimage[3 * pix + 1];
+	      s->outbuffer[6 * pix + 2] = secondimage[3 * pix + 2];
+	      s->outbuffer[6 * pix + 3] = firstimage[3 * pix];
+	      s->outbuffer[6 * pix + 4] = firstimage[3 * pix + 1];
+	      s->outbuffer[6 * pix + 5] = firstimage[3 * pix + 2];
+	    }
+	}
+      else if (!strcmp (s->val[OPT_MODE].s, "Gray"))
+	{
+	  for (pix = 0; pix < pixel_per_line / 2; pix++)
+	    {
+	      s->outbuffer[2 * pix] = secondimage[pix];
+	      s->outbuffer[2 * pix + 1] = firstimage[pix];
+	    }
+	}
       else /* for lineart mode */
-       {
-        maxpix = byte_per_line / 2;
-        for (byte = 0; (int) byte < maxpix; byte++)
-         {
-	  s->outbuffer[2 * byte] = primaryHigh[firstimage[byte]]
-	    | secondaryHigh[secondimage[byte]];
-	  s->outbuffer[2 * byte + 1] = primaryLow[firstimage[byte]]
-	    | secondaryLow[secondimage[byte]];
-/*
-          inmask = 128;
-          outmask = 128;
-          outbyte = 0;
-          for (bit = 0; bit < 4; bit++)
-           {
-            if (inmask == (secondimage[byte] & inmask))
-              outbyte = outbyte | outmask;
-            outmask = outmask >> 1;
-            if (inmask == (firstimage[byte] & inmask))
-              outbyte = outbyte | outmask;
-            outmask = outmask >> 1;
+	{
+	  maxpix = byte_per_line / 2;
+	  for (byte = 0; (int) byte < maxpix; byte++)
+	    {
+	      s->outbuffer[2 * byte] = primaryHigh[firstimage[byte]]
+		| secondaryHigh[secondimage[byte]];
+	      s->outbuffer[2 * byte + 1] = primaryLow[firstimage[byte]]
+		| secondaryLow[secondimage[byte]];
+#if 0
+	      inmask = 128;
+	      outmask = 128;
+	      outbyte = 0;
+	      for (bit = 0; bit < 4; bit++)
+		{
+		  if (inmask == (secondimage[byte] & inmask))
+		    outbyte = outbyte | outmask;
+		  outmask = outmask >> 1;
+		  if (inmask == (firstimage[byte] & inmask))
+		    outbyte = outbyte | outmask;
+		  outmask = outmask >> 1;
+		  inmask = inmask >> 1;
+		}
+	      s->outbuffer[2 * byte] = outbyte;
 
-            inmask = inmask >> 1;
-           }
-          s->outbuffer[2 * byte] = outbyte;
-
-          outmask = 128;
-          outbyte = 0;
-          for (bit = 0; bit < 4; bit++)
-           {
-            if (inmask == (secondimage[byte] & inmask))
-              outbyte = outbyte | outmask;
-            outmask = outmask >> 1;
-            if (inmask == (firstimage[byte] & inmask))
-              outbyte = outbyte | outmask;
-            outmask = outmask >> 1;
-
-            inmask = inmask >> 1;
-           }
-          s->outbuffer[2 * byte + 1] = outbyte;
-*/
-         }
-       }
+	      outmask = 128;
+	      outbyte = 0;
+	      for (bit = 0; bit < 4; bit++)
+		{
+		  if (inmask == (secondimage[byte] & inmask))
+		    outbyte = outbyte | outmask;
+		  outmask = outmask >> 1;
+		  if (inmask == (firstimage[byte] & inmask))
+		    outbyte = outbyte | outmask;
+		  outmask = outmask >> 1;
+		  inmask = inmask >> 1;
+		}
+	      s->outbuffer[2 * byte + 1] = outbyte;
+#endif
+	    }
+	}
 
       s->buf_pos = 0;
       s->bytes_to_read -= nread;
@@ -2217,8 +2146,8 @@ SANE_Int * len)
 
 /**************************************************************************/
 SANE_Status
-sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-	   SANE_Int * len)
+sane_read (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
+	   SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
@@ -2227,7 +2156,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   else if (s->hw->info.model == FS2710)
     status = read_fs2710 (handle, buf, max_len, len);
   else if (s->hw->info.model == FB1200 && ((600 < s->val[OPT_X_RESOLUTION].w)
-  || (600 < s->val[OPT_Y_RESOLUTION].w)))
+    || (600 < s->val[OPT_Y_RESOLUTION].w)))
     status = read_fb1200 (handle, buf, max_len, len);
   else
     status = sane_read_direct (handle, buf, max_len, len);
@@ -2236,7 +2165,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   else
     time (&(s->time0));
 
-  DBG (11, "sane_read: time0 = %ld\n", (u_long) s->time0);
+  DBG (11, "sane_read: time0 = %ld\n", s->time0);
   s->switch_preview = s->val[OPT_PREVIEW].w;
   return (status);
 }

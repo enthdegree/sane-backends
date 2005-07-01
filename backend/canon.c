@@ -4,9 +4,9 @@
    Modified by Manuel Panea <Manuel.Panea@rzg.mpg.de>
    and Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
    FB620 and FB1200 support by Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>
-   FS2710 support by Ulrich Deiters <ukd@xenon.pc.uni-koeln.de>
+   FS2710 support by Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
-   backend version: 1.12
+   backend version: 1.13e
 
    This file is part of the SANE package.
 
@@ -166,13 +166,12 @@ static const SANE_String_Const page_list[] = {
 };
 
 static const SANE_String_Const filmtype_list[] = {
-  "Negatives",
-  "Slides",
+  "Negatives", "Slides",
   0
 };
 
 static const SANE_String_Const negative_filmtype_list[] = {
-  "Film type 0", "Film type 1", "Film type 2", "Film type 3",
+  "Kodak", "Fuji", "Agfa", "Konica",
   0
 };
 
@@ -242,9 +241,7 @@ get_tpu_stat (int fd, CANON_Device * dev)
     }
 
   for (i = 0; i < buf_size; i++)
-    {
-      DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, tbuf[i]);
-    }
+    DBG (3, "scan mode control byte[%d] = %d\n", i, tbuf[i]);
   dev->tpu.Status = (tbuf[2 + 4 + 5] >> 7) ?
     TPU_STAT_INACTIVE : TPU_STAT_NONE;
   if (dev->tpu.Status == SANE_TRUE)	/* TPU available */
@@ -289,9 +286,7 @@ get_adf_stat (int fd, CANON_Device * dev)
     }
 
   for (i = 0; i < buf_size; i++)
-    {
-      DBG (3, "scan mode control byte[%lu] = %d\n", (u_long) i, abuf[i]);
-    }
+    DBG (3, "scan mode control byte[%d] = %d\n", i, abuf[i]);
 
   dev->adf.Status = (abuf[ADF_Status] & ADF_NOT_PRESENT) ?
     ADF_STAT_NONE : ADF_STAT_INACTIVE;
@@ -327,12 +322,13 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
   SANE_Status status;
 
   DBG (1, ">> sense_handler\n");
-  DBG (11, "%s(%ld, %p, %p)\n", me, (long) scsi_fd,
-       (void *) result, (void *) arg);
-  DBG (11, "sense buffer: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x \
-%02x %02x %02x %02x %02x %02x\n", result[0], result[1], result[2], result[3],
-  result[4], result[5], result[6], result[7], result[8], result[9], result[10],
-  result[11], result[12], result[13], result[14], result[15]);
+  DBG (11, "%s(%ld, %p, %p)\n", me, (long) scsi_fd, (void *) result,
+    (void *) arg);
+  DBG (11, "sense buffer: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x "
+    "%02x %02x %02x %02x %02x %02x\n", result[0], result[1], result[2],
+    result[3], result[4], result[5], result[6], result[7], result[8],
+    result[9], result[10], result[11], result[12], result[13], result[14],
+    result[15]);
 
   if (dev && dev->info.is_scsi2)
     {
@@ -565,7 +561,7 @@ do_gamma (CANON_Scanner * s)
          scanner's monochrome gamma component                    */
       for (j = 0; j < 256; j++)
 	{
-	  if (neg == SANE_FALSE)
+	  if (!neg)
 	    {
 	      gbuf[j] = (u_char) s->gamma_table[0][j];
 	      DBG (22, "set_density %d: gbuf[%d] = [%d]\n", 0, j, gbuf[j]);
@@ -578,8 +574,7 @@ do_gamma (CANON_Scanner * s)
 	    }
 	}
       if ((status = set_density_curve (s->fd, 0, gbuf, &buf_size,
-				       transfer_data_type)) !=
-	  SANE_STATUS_GOOD)
+	transfer_data_type)) != SANE_STATUS_GOOD)
 	{
 	  DBG (7, "SET_DENSITY_CURVE\n");
 	  sanei_scsi_close (s->fd);
@@ -593,14 +588,13 @@ do_gamma (CANON_Scanner * s)
          for all 3 colors red, green, blue */
       for (i = 1; i < 4; i++)
 	{
-	  from = (s->val[OPT_CUSTOM_GAMMA_BIND].w == SANE_TRUE) ? 0 : i;
+	  from = (s->val[OPT_CUSTOM_GAMMA_BIND].w) ? 0 : i;
 	  for (j = 0; j < 256; j++)
 	    {
-	      if (neg == SANE_FALSE)
+	      if (!neg)
 		{
 		  gbuf[j] = (u_char) s->gamma_table[from][j];
-		  DBG (22, "set_density %d: gbuf[%d] = [%d]\n", i, j,
-		       gbuf[j]);
+		  DBG (22, "set_density %d: gbuf[%d] = [%d]\n", i, j, gbuf[j]);
 		}
 	      else
 		{
@@ -614,8 +608,7 @@ do_gamma (CANON_Scanner * s)
 	  else
 	    {
 	      if ((status = set_density_curve (s->fd, i, gbuf, &buf_size,
-					       transfer_data_type)) !=
-		  SANE_STATUS_GOOD)
+		transfer_data_type)) != SANE_STATUS_GOOD)
 		{
 		  DBG (7, "SET_DENSITY_CURVE\n");
 		  sanei_scsi_close (s->fd);
@@ -646,10 +639,9 @@ attach (const char *devnam, CANON_Device ** devp)
 
   for (dev = first_dev; dev; dev = dev->next)
     {
-      if (strcmp (dev->sane.name, devnam) == 0)
+      if (!strcmp (dev->sane.name, devnam))
 	{
-	  if (devp)
-	    *devp = dev;
+	  if (devp) *devp = dev;
 	  return (SANE_STATUS_GOOD);
 	}
     }
@@ -742,10 +734,8 @@ attach (const char *devnam, CANON_Device ** devp)
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
     }
-  for (i=0; i<buf_size; i++)
-    {
-      DBG(3, "scan mode trans byte[%d] = %d\n", i, ebuf[i]);
-    }
+  for (i = 0; i < buf_size; i++)
+    DBG(3, "scan mode trans byte[%d] = %d\n", i, ebuf[i]);
 #endif
 
   DBG (3, "attach: sending GET SCAN MODE for scan control conditions\n");
@@ -760,7 +750,7 @@ attach (const char *devnam, CANON_Device ** devp)
     }
   for (i = 0; i < buf_size; i++)
     {
-      DBG (3, "scan mode byte[%lu] = %d\n", (u_long) i, ebuf[i]);
+      DBG (3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
     }
 
   DBG (3, "attach: sending (extended) INQUIRY\n");
@@ -788,9 +778,7 @@ attach (const char *devnam, CANON_Device ** devp)
       return (SANE_STATUS_INVAL);
     }
   for (i = 0; i < buf_size; i++)
-    {
-      DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
-    }
+    DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
 #endif
 
 #if 0
@@ -804,12 +792,9 @@ attach (const char *devnam, CANON_Device ** devp)
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
     }
-  for (i=0; i<buf_size; i++)
-    {
+  for (i = 0; i < buf_size; i++)
     DBG(3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
-  }
 #endif
-
 
   DBG (3, "attach: sending MODE SENSE\n");
   memset (mbuf, 0, sizeof (mbuf));
@@ -863,7 +848,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->adf.Status = ADF_STAT_NONE;
       dev->tpu.Status = TPU_STAT_NONE;
       dev->info.can_focus = SANE_TRUE;
-      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_TRUE;
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
@@ -878,7 +863,7 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->adf.Status = ADF_STAT_NONE;
       dev->tpu.Status = TPU_STAT_NONE;
       dev->info.can_focus = SANE_TRUE;
-      dev->info.can_autoexpose = SANE_FALSE;
+      dev->info.can_autoexpose = SANE_TRUE;
       dev->info.can_calibrate = SANE_FALSE;
       dev->info.can_eject = SANE_TRUE;
       dev->info.can_mirror = SANE_TRUE;
@@ -905,8 +890,8 @@ attach (const char *devnam, CANON_Device ** devp)
     {
       dev->info.model = FB1200;
       dev->sane.type = "flatbed scanner";
-      dev->adf.Status = ADF_STAT_ACTIVE;
-      dev->tpu.Status = TPU_STAT_NONE;
+      dev->adf.Status = ADF_STAT_INACTIVE;
+      dev->tpu.Status = TPU_STAT_INACTIVE;
       dev->info.can_focus = SANE_FALSE;
       dev->info.can_autoexpose = SANE_FALSE;
       dev->info.can_calibrate = SANE_FALSE;
@@ -920,8 +905,8 @@ attach (const char *devnam, CANON_Device ** devp)
     {
       dev->info.model = CS3_600;
       dev->sane.type = "flatbed scanner";
-      dev->adf.Status = ADF_STAT_ACTIVE;
-      dev->tpu.Status = TPU_STAT_ACTIVE;
+      dev->adf.Status = ADF_STAT_INACTIVE;
+      dev->tpu.Status = TPU_STAT_INACTIVE;
       dev->info.can_focus = SANE_FALSE;
       dev->info.can_autoexpose = SANE_FALSE;
       dev->info.can_calibrate = SANE_FALSE;
@@ -1059,8 +1044,8 @@ do_cancel (CANON_Scanner * s)
 
   if (s->fd >= 0)
     {
-      if (s->val[OPT_EJECT_AFTERSCAN].w && ! (s->val[OPT_PREVIEW].w
-      && s->hw->info.is_filmscanner))
+      if (s->val[OPT_EJECT_AFTERSCAN].w && !(s->val[OPT_PREVIEW].w
+	&& s->hw->info.is_filmscanner))
 	{
 	  DBG (3, "do_cancel: sending MEDIUM POSITION\n");
 	  status = medium_position (s->fd);
@@ -1088,7 +1073,7 @@ do_cancel (CANON_Scanner * s)
 	  s->reset_flag = 0;
 	  DBG (21, "do_cancel: reset_flag = %d\n", s->reset_flag);
 	  s->time0 = -1;
-	  DBG (21, "time0 = %ld\n", (u_long) s->time0);
+	  DBG (21, "time0 = %ld\n", s->time0);
 	}
 
       if (s->hw->info.model == FB1200)
@@ -1193,8 +1178,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_NEGATIVE_TYPE].size = max_string_size (negative_filmtype_list);
   s->opt[OPT_NEGATIVE_TYPE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_NEGATIVE_TYPE].constraint.string_list = negative_filmtype_list;
-  s->opt[OPT_NEGATIVE_TYPE].cap |=
-    (s->hw->info.is_filmscanner) ? 0 : SANE_CAP_INACTIVE;
+  s->opt[OPT_NEGATIVE_TYPE].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_NEGATIVE_TYPE].s = strdup (negative_filmtype_list[0]);
 
   /* Scanning speed */
@@ -1210,6 +1194,7 @@ init_options (CANON_Scanner * s)
   if (s->hw->info.model != CS2700)
     s->opt[OPT_SCANNING_SPEED].cap &= ~SANE_CAP_SOFT_SELECT;
   s->val[OPT_SCANNING_SPEED].s = strdup (scanning_speed_list[0]);
+
 
   /* "Resolution" group: */
   s->opt[OPT_RESOLUTION_GROUP].title = "Scan Resolution";
@@ -1253,10 +1238,8 @@ init_options (CANON_Scanner * s)
 
       /* go to minimum resolution by dividing by 2 */
       while (iRes >= s->hw->info.xres_range.min)
-	{
-	  iRes /= 2;
-	}
-      /* fill array upto maximum resolution */
+	iRes /= 2;
+      /* fill array up to maximum resolution */
       while (iRes < s->hw->info.xres_range.max)
 	{
 	  iRes *= 2;
@@ -1264,7 +1247,6 @@ init_options (CANON_Scanner * s)
 	}
       s->xres_word_list[0] = iCnt;
       s->val[OPT_X_RESOLUTION].w = s->xres_word_list[2];
-
     }
   else
     {
@@ -1293,10 +1275,8 @@ init_options (CANON_Scanner * s)
 
       /* go to minimum resolution by dividing by 2 */
       while (iRes >= s->hw->info.yres_range.min)
-	{
-	  iRes /= 2;
-	}
-      /* fill array upto maximum resolution */
+	iRes /= 2;
+      /* fill array up to maximum resolution */
       while (iRes < s->hw->info.yres_range.max)
 	{
 	  iRes *= 2;
@@ -1341,7 +1321,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_FOCUS].name = "focus";
   s->opt[OPT_FOCUS].title = "Manual focus position";
   s->opt[OPT_FOCUS].desc =
-    "Set the optical system's focus position by hand. The default position is 128.";
+    "Set the optical system's focus position by hand (default: 128).";
   s->opt[OPT_FOCUS].type = SANE_TYPE_INT;
   s->opt[OPT_FOCUS].unit = SANE_UNIT_NONE;
   s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1433,7 +1413,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_HILITE_R].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_HILITE_R].w = 255;
 
-  /* shadow    point for red   */
+  /* shadow point for red   */
   s->opt[OPT_SHADOW_R].name = SANE_NAME_SHADOW_R;
   s->opt[OPT_SHADOW_R].title = SANE_TITLE_SHADOW_R;
   s->opt[OPT_SHADOW_R].desc = SANE_DESC_SHADOW_R;
@@ -1454,7 +1434,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_HILITE_G].constraint.range = &s->hw->info.HiliteG_range;
   s->val[OPT_HILITE_G].w = 255;
 
-  /* shadow    point for green */
+  /* shadow point for green */
   s->opt[OPT_SHADOW_G].name = SANE_NAME_SHADOW;
   s->opt[OPT_SHADOW_G].title = SANE_TITLE_SHADOW;
   s->opt[OPT_SHADOW_G].desc = SANE_DESC_SHADOW;
@@ -1475,7 +1455,7 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_HILITE_B].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_HILITE_B].w = 255;
 
-  /* shadow    point for blue  */
+  /* shadow point for blue  */
   s->opt[OPT_SHADOW_B].name = SANE_NAME_SHADOW_B;
   s->opt[OPT_SHADOW_B].title = SANE_TITLE_SHADOW_B;
   s->opt[OPT_SHADOW_B].desc = SANE_DESC_SHADOW_B;
@@ -1828,29 +1808,9 @@ do_focus (CANON_Scanner * s)
     }
   DBG (3, "focus point before autofocus : %d\n", ebuf[3]);
 
-  if (s->val[OPT_AF].w == SANE_TRUE)	/* autofocus */
-    {
-      if (s->hw->info.model == FS2710)
-	status = execute_auto_focus_FS2710 (s->fd, AUTO_FOCUS,
-		 NO_AUTO_EXPOSURE, 128);
-      else
-	status = execute_auto_focus (s->fd, AUTO_FOCUS,
-		 (s->scanning_speed == 0) ? AUTO_SCAN_SPEED
-		 : NO_AUTO_SCAN_SPEED,
-		 (s->AE == 0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE, 0);
-    }
-  else					/* manual focus */
-    {
-      if (s->hw->info.model == FS2710)
-	status = execute_auto_focus_FS2710 (s->fd, MANUAL_FOCUS,
-		 NO_AUTO_EXPOSURE, s->val[OPT_FOCUS].w);
-      else
-	status = execute_auto_focus (s->fd, MANUAL_FOCUS,
-		 (s->scanning_speed == 0) ? AUTO_SCAN_SPEED
-		 : NO_AUTO_SCAN_SPEED,
-		 (s->AE == 0) ? NO_AUTO_EXPOSURE : AUTO_EXPOSURE,
-		 s->val[OPT_FOCUS].w);
-    }
+  status = execute_auto_focus (s->fd, s->val[OPT_AF].w,
+    (s->scanning_speed == 0 && !s->RIF && s->hw->info.model == CS2700),
+    (int) s->AE, s->val[OPT_FOCUS].w);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (7, "execute_auto_focus failed\n");

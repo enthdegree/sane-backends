@@ -1,3 +1,8 @@
+2005-07-01  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
+
+	* restored the actual version of the Canon-SCSI backend
+	  (backend/canon.c, canon-sane.c canon-scsi.c canon.h)
+
 2005-06-30  Stéphane Voltz <stefdev@modulonet.fr>
 
 	* configure.in AUTHORS backend/dll.conf doc/sane.man doc/Makefile.in 

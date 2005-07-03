@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-06-11"		; version of backend
+:version "2005-07-03"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -110,10 +110,17 @@
 :comment "Not supported. No chipset information available. Same as UMAX Astra 6700."
 
 :model "iVina 1600"
-;:url ""
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
-:comment "GL646 based, to be added to genesys backend"
+:comment "GL646 based, to be added to genesys backend. Same as UMAX Astra 4500."
+
+:model "iVina FB1800"
+:url "/unsupported/umax-astra-4700.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646/GL660 based. Same as UMAX Astra 4700."
+
 
 ;********************************************************************************************
 
@@ -188,13 +195,19 @@
 :url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. See link."
+:comment "GL660+GL646 based."
+
+:model "CanoScan 3000ex"
+:url "/unsupported/canon-3000.html"
+:interface "USB"
+:status :unsupported
+:comment "GL660+GL646 based."
 
 :model "CanoScan 3000F"
 :url "/unsupported/canon-3000.html"
 :interface "USB"
 :status :unsupported
-:comment "Unsupported. See link."
+:comment "GL660+GL646 based."
 
 :model "CanoScan 3200F"
 :url "/unsupported/canon-3200f.html"
@@ -225,6 +238,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. USB Vendor/product 0x04a9/0x220f. See link for more information. With transparency adapter."
+
+:model "CanoScan 8400F"
+:url "/unsupported/canon-8400f.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
 
 :model "CanoScan 9900F"
 :url "/unsupported/canon-9900f.html"
@@ -268,8 +287,26 @@
 :status :unsupported
 :comment "Not supported. Vendor/product 0x4a9/0x2205. However, a stand-alone program for FreeBSD is available."
 
+:model "CanoScan LiDE 35"
+:url "/unsupported/canon-lide-50.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend. Same as LiDE 50."
+
+:model "CanoScan LiDE 40"
+:url "/unsupported/canon-lide-50.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend. Same as LiDE 50."
+
 :model "CanoScan LiDE 50"
-;:url ""
+:url "/unsupported/canon-lide-50.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+:model "CanoScan LiDE 80"
+:url "/unsupported/canon-lide-80.html"
 :interface "USB"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
@@ -278,7 +315,7 @@
 :url "/unsupported/canon-canoscan-lide-500f.html"
 :interface "USB"
 :status :unsupported
-:comment "Not supported. See link for details."
+:comment "GL841 based, to be added to genesys backend"
 
 :model "DR-2080C"
 ;:url "/unsupported/canon-d2400uf.html"
@@ -494,6 +531,24 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
+:model "ColorPage HR6X Slim"
+:url "/unsupported/genius-colorpage-hr6x.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
+:model "ColorPage HR7X"
+:url "/unsupported/genius-colorpage-hr7x.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
+:model "ColorPage HR8"
+:url "/unsupported/genius-colorpage-hr8.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
 :model "ColorPage-SF600"
 :interface "USB"
 :url "/unsupported/genius-colorpage-sf600.html"
@@ -560,16 +615,22 @@
 :comment "Not supported yet by SANE, but a backend is under development. See link for details."
 
 :model "ScanJet 2400c"
+:url "/unsupported/hp-scanjet-2400c.html"
 :interface "USB"
-;:url ""
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
 
 :model "ScanJet 3670c"
 :interface "USB"
-;:url ""
+:url "/unsupported/hp-scanjet-3670c.html"
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
+
+:model "ScanJet 3690c"
+:url "/unsupported/hp-scanjet-3690.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably GL646_HP based, maybe can be added to genesys backend"
 
 :model "ScanJet 3770"
 :interface "USB"
@@ -589,6 +650,18 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
+:model "ScanJet 4500C"
+:url "/unsupported/hp-scanjet-4500c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend "
+:status :unsupported
+
+:model "ScanJet 4570C"
+:url "/unsupported/hp-scanjet-4570c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend "
+:status :unsupported
+
 :model "ScanJet 4600"
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
@@ -599,6 +672,24 @@
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 5500C"
+:url "/unsupported/hp-scanjet-5500c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
+:status :unsupported
+
+:model "ScanJet 5530C Photosmart"
+:url "/unsupported/hp-scanjet-5530.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
+:status :unsupported
+
+:model "ScanJet 5550C"
+:url "/unsupported/hp-scanjet-5550c.html"
+:interface "USB"
+:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
 :status :unsupported
 
 :model "ScanJet 5590"
@@ -1267,6 +1358,18 @@
 :url "http://www.plustek.de/"
 :url "http://www.plustek.com/"
 
+:model "OpticBook 3600"
+:interface "USB"
+:url "/unsupported/plustek-opticbook-3600.html"
+:status :unsupported
+:comment "GL842 based (similar to GL841?), maybe ca be added to genesys backend. Bookscanner."
+
+:model "OpticFilm 7200"
+:url "/unsupported/plustek-opticfilm-7200.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
 :model "OpticPro A3U"
 :interface "USB"
 :status :unsupported
@@ -1277,20 +1380,68 @@
 :status :unsupported
 :comment "Uses RealTek chipset (RTL8801D)"
 
+:model "OpticPro S12"
+:url "/unsupported/plustek-opticpro-st12.html"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro ST12"
+:url "/unsupported/plustek-opticpro-st12.html"
+:interface "USB"
+:status :unsupported
+
+:model "OpticPro ST16"
+:url "/unsupported/plustek-opticpro-st16.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
 :model "OpticPro UA18"
 :interface "USB"
 :status :unsupported
 :comment "Probably LM983x based."
 
-:model "OpticPro ST24"
+:model "OpticPro S24"
+:url "/unsupported/plustek-opticpro-st24.html"
 :interface "USB"
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
+
+:model "OpticPro ST24"
+:url "/unsupported/plustek-opticpro-st24.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
+:model "OpticPro S28"
+:interface "USB"
+:url "/unsupported/plustek-opticpro-s28.html"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+:model "OpticPro ST28"
+:url "/unsupported/plustek-opticpro-s28.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+:model "OpticPro ST48"
+:url "/unsupported/plustek-opticpro-st48.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
 
 :model "OpticPro ST64"
 :interface "USB"
 :status :unsupported
 :comment "No further information available."
+
+:model "OpticSlim 2420"
+:url "/unsupported/plustek-opticslim-2420.html"
+:interface "USB"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
 
 :model "OpticSlim M12"
 :interface "USB"
@@ -1361,6 +1512,11 @@
 :status :unsupported
 :comment "Not supported."
 
+:model "Slim-Line 1200"
+:url "/unsupported/medion-md6228.html"
+:interface "USB"
+:status :unsupported
+:comment "Maybe GL646."
 
 ;********************************************************************************************
 
@@ -1398,7 +1554,7 @@
 :interface "USB IEEE-1394"
 :url "/unsupported/reflecta-digitdia-3600.html"
 :status :unsupported
-:comment "Probably unsupported. Film scanner that can scan directly from the magazine."
+:comment "GL841 based, to be added to genesys backend. Film scanner that can scan directly from the magazine."
 
 :model "iScan 1800"
 :interface "USB"
@@ -1617,15 +1773,21 @@
 :comment "Probably not supported. See link for details."
 
 :model "Astra 4500"
-;:url ""
+:url "/unsupported/umax-astra-4500.html"
 :interface "USB"
 :status :unsupported
-:comment "GL646 based, to be added to genesys backend"
+:comment "GL646 based, to be added to genesys backend. Avision iVina FB1600 clone"
 
 :model "Astra 4600"
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported, no details known."
+
+:model "Astra 4700"
+:url "/unsupported/umax-astra-4700.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646/GL660 based. Avision iVina FB1800 clone."
 
 :model "Astra 6700"
 ;:url ""
@@ -1714,6 +1876,12 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
+:model "Onetouch 7100"
+:url "/unsupported/visioneer-onetouch7100.html"
+:interface "USB"
+:status :unsupported
+:comment "GL646 based, to be added to genesys backend"
+
 :model "OneTouch 8100"
 :url "/unsupported/visioneer-onetouch8100.html"
 :interface "USB"
@@ -1795,6 +1963,12 @@
 
 :mfg "Xerox"
 :url "http://www.xerox.com/"
+
+:model "2400 Onetouch"
+:url "/unsupported/xerox-2400-onetouch.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably GL646_HP based, maybe can be added to genesys backend"
 
 :model "DocuImage 620S"
 :url "/unsupported/xerox-docuimage-620s.html"

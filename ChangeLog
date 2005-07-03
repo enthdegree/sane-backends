@@ -5,7 +5,12 @@
 	  <jb@jblache.org>. 
 	* doc/descriptions/genesys.desc: Used
 	  "Medion/Lifetec/Tevion/Cytron" as manufacturer as in the other
-	  backends. Used "ScanJet 2300C" as model name as in other backends.
+	  backends. Used "ScanJet 2300C" as model name as in other
+	  backends.
+	* doc/descriptions/unsupported.desc: Added links to scanners with
+	  GL646 and GL841 chipsets. Moved all unsupported scanners from
+	  doc/descriptions-external/genesys.desc to unsupported.desc. Minor
+	  fixes for other scanners.
 
 2005-07-01  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 

@@ -357,7 +357,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 {
   struct usb_bus    *pbus;
   struct usb_device *pdev;
-  int                iBus,rc;
+  int                iBus;
 
   DBG_INIT();
 
@@ -374,11 +374,12 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
   pdevFirst=NULL;
 
   usb_init();
-  rc=usb_find_busses();
-  if (rc)
-    return SANE_STATUS_GOOD;
+  usb_find_busses();
+  if (!usb_busses)
+    return SANE_STATUS_IO_ERROR;
+
   usb_find_devices();
-  if (!usb_busses) return SANE_STATUS_IO_ERROR;
+
   iBus=0;
   DBG(DEBUG_INFO,"starting bus scan\n");
   for (pbus = usb_busses; pbus; pbus = pbus->next)

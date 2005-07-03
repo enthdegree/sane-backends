@@ -1,3 +1,9 @@
+2005-07-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/sm3600.c: Don't check the result of
+	  usb_find_busses(). Based on patch from Julien BLACHE
+	  <jb@jblache.org>. 
+
 2005-07-01  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
 	* restored the actual version of the Canon-SCSI backend

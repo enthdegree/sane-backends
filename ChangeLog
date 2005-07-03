@@ -14,6 +14,7 @@
 	* doc/descriptions-external/genesys.desc: Removed. Scanners have
 	  been moved to doc/descriptions/genesys.desc and
 	  doc/descriptions/unsupported.desc.
+	* doc/sane-genesys.man: Typo/formatting fixes.
 
 2005-07-01  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 

@@ -1,5 +1,5 @@
 .\" .IX sane-genesys
-.TH "sane-genesys" "5" "3 June 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-genesys" "5" "3 July 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH "NAME"
 sane\-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
 .SH "DESCRIPTION"
@@ -28,17 +28,17 @@ the USB vendor and device ids (e.g. from
 .I /proc/bus/usb/devices ,
 .I sane\-find\-scanner
 or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
- slightly different from the models mentioned above, please let me know.
+slightly different from the models mentioned above, please let me know.
 .PP 
 If you own a scanner that isn't detected by the genesys backend but has a GL646
-or GL841 chipset, you can try to add it to the backend. Currently, there are no GL841
-based scanner functionnal.
+or GL841 chipset, you can try to add it to the backend. Currently, support for GL841
+scanners is not implemented.
 .PP 
 .SH "SYSTEM ISSUES"
 This backend needs libusb\-0.1.6 or later installed, and hasn't tested in other
 configuration than a linux kernel 2.6.9 or higher. However, it should work any
 system with libusb where the SANE package can be compiled. For
-setting permissions and general USB information looks at
+setting permissions and general USB information look at
 .BR sane\-usb (5).
 
 

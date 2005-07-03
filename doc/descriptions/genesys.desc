@@ -6,8 +6,9 @@
 
 ; -----------------------------------------------------------------------------
 
-:mfg "Medion"
+:mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com/"
+:url "http://www.medion.de/"
 
 :model "MD5345"
 :status :good
@@ -27,7 +28,9 @@
 ; -----------------------------------------------------------------------------
 
 :mfg "Hewlett-Packard"
-:model "HP2300C"
+:url "http://www.hp.com/"
+
+:model "ScanJet 2300C"
 :status :complete
 :interface "USB"
 :comment "600x1200 dpi max"

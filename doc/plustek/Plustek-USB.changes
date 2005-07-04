@@ -3,6 +3,12 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.49-5 (2005-07-04)
+---------------------
+Added IPC between reader-process and parent process to
+be pepared for sharing calibration info.
+Added button support for backend
+
 V 0.49-4 (2005-06-27)
 ---------------------
 Fixed "double free" problem during sane_exit.

@@ -1,3 +1,7 @@
+2005-07-04  ULrich Deiters <ulrich.deiters@uni-koeln.de>
+
+	* inserted a definition for SSIZE_MAX in backend/canon.h
+
 2005-07-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/sm3600.c: Don't check the result of

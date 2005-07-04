@@ -97,6 +97,9 @@
 #ifndef MIN
 #define MIN(A,B)	(((A) < (B))? (A) : (B))
 #endif
+#ifndef SSIZE_MAX
+#define SSIZE_MAX LONG_MAX
+#endif
 
 typedef struct
 {

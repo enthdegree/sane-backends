@@ -1,3 +1,14 @@
+2005-07-04  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.[ch] backend/plustek-usbscan.c 
+	  backend/plustek-usbshading.c backend/plustek-usbdevs.c
+	  backend/plustek-usbdevs.c backend/plustek-usbimg.c
+	  backend/plustek-usbmap.c backend/plustek-usbhw.c
+	  backend/plustek-usbcal.c backend/plustek-usb.[ch]:
+	  Added button support, did some cleanup, added IPC between
+	  reader- and parent-process.
+
 2005-07-04  ULrich Deiters <ulrich.deiters@uni-koeln.de>
 
 	* inserted a definition for SSIZE_MAX in backend/canon.h

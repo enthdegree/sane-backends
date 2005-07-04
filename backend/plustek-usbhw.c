@@ -42,7 +42,8 @@
  *        - added UMAX3450 TPA autodetection
  * - 0.49 - a_bRegs is now part of the device structure
  *        - fixed problem in backtracking, when speedup is enabled
- * .                                        
+ *        - added usb_UpdateButtonStatus()
+ * .
  * <hr>
  * This file is part of the SANE package.
  *
@@ -94,8 +95,6 @@
 #define DEV_LampNegative        5
 
 /* HEINER: check the tick counts 'cause 1 tick on NT is about 10ms */
-
-static u_long dwCrystalFrequency = 48000000UL;
 
 /** the NatSemi 983x is a big endian chip, and the line protocol data all
  *  arrives big-endian.  This determines if we need to swap to host-order
@@ -258,33 +257,31 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 
 	/* calculate the current speed */
 	ffs   = regs[0x48] * 256 + regs[0x49];
-	speed = ((double)dwCrystalFrequency) /(double)((u_long)mclk_div * 32UL * 
+	speed = ((double)CRYSTAL_FREQ) /(double)((u_long)mclk_div * 32UL *
 	                                (u_long)mch * (u_long)ffs * hw->wMotorDpi);
-
-	DBG( _DBG_INFO2, ">>>> CURRENT MCLK_DIV= %u\n", mclk_div );
-	DBG( _DBG_INFO2, ">>>> MCH             = %u\n", mch ); 
-	DBG( _DBG_INFO2, ">>>> FFS             = %u\n", ffs ); 
-	DBG( _DBG_INFO2, ">>>> HIGH-SPEED      = %.3f (%.3f)\n", 
-	                  speed, hw->dHighSpeed); 
 
 	/* disabled ? */
 	if((hw->dHighSpeed == 0.0) || (dev->adj.disableSpeedup != 0)) {
-		DBG( _DBG_INFO2, " * Speedup disabled or not available!\n" );
 		min_ffs = 0xffff;
 		maxf    = 0.0;
 		if( !stay )
 			return SANE_TRUE;
 
 	} else {
-		min_ffs = (u_short)(dwCrystalFrequency /((u_long)mclk_div * 32UL * 
+		min_ffs = (u_short)(CRYSTAL_FREQ /((u_long)mclk_div * 32UL *
 		                   (u_long)mch * hw->dHighSpeed * hw->wMotorDpi));
 		maxf = (ffs - min_ffs)/4;
 		if( maxf > 100.0 )
 			maxf = 100.0;
 		if( maxf < 5.0 )
 			maxf = 5.0;
-	} 
-	DBG( _DBG_INFO2, ">>>> MIN_FFS         = %u (%.3f)\n", min_ffs, maxf); 
+		DBG( _DBG_INFO2, ">>>> CURRENT MCLK_DIV = %u\n", mclk_div );
+		DBG( _DBG_INFO2, ">>>> MCH              = %u\n", mch ); 
+		DBG( _DBG_INFO2, ">>>> FFS              = %u\n", ffs ); 
+		DBG( _DBG_INFO2, ">>>> HIGH-SPEED       = %.3f (%.3f)\n", 
+		                  speed, hw->dHighSpeed); 
+		DBG( _DBG_INFO2, ">>>> MIN_FFS          = %u (%.3f)\n", min_ffs, maxf);
+	}
 
 	gettimeofday( &start_time, NULL );
     dwTicks = start_time.tv_sec + to;
@@ -418,7 +415,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 
 	mclk_div = clk->mclk_fast;
 
-	wFastFeedStepSize = (u_short)(dwCrystalFrequency /
+	wFastFeedStepSize = (u_short)(CRYSTAL_FREQ /
 	                    ((u_long)mclk_div * 8UL * 1 *
 	                    dMaxMoveSpeed * 4 * hw->wMotorDpi));
 
@@ -633,7 +630,7 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 		/* Compute fast feed step size, use equation 3 and equation 8
 		 * assumptions: MCLK = 6, Lineratemode (CM=1)
 		 */
-		wFastFeedStepSize = (u_short)(dwCrystalFrequency / (mclk_div * 8 * 1 *
+		wFastFeedStepSize = (u_short)(CRYSTAL_FREQ / (mclk_div * 8 * 1 *
 		                              hw->dMaxMotorSpeed * 4 * hw->wMotorDpi));
 		regs[0x48] = (u_char)(wFastFeedStepSize >> 8);
 		regs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
@@ -702,7 +699,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 				if (!value)
 					return TRUE;
 			}
-			wFastFeedStepSize = (WORD)(dwCrystalFrequency / (6UL * 8UL * 1 * Device.HwSetting.dMaxMotorSpeed * 4 *
+			wFastFeedStepSize = (WORD)(CRYSTAL_FREQ / 
+			    (6UL * 8UL * 1 * Device.HwSetting.dMaxMotorSpeed * 4 *
 				Device.HwSetting.wMotorDpi) * 60 / 78);	
 			regs[0x48] = (u_char)(wFastFeedStepSize >> 8);
 			regs[0x49] = (u_char)(wFastFeedStepSize & 0xFF);
@@ -1520,7 +1518,7 @@ static SANE_Bool usb_HasTPA( Plustek_Device *dev )
 			return SANE_TRUE;
 		} else
 			DBG( _DBG_INFO, "EPSON-TPA NOT detected\n" );
-	
+
 		if( dev->adj.enableTpa ) {
 			DBG( _DBG_INFO, "EPSON-TPA usage forced\n" );
 			return SANE_TRUE;
@@ -1557,4 +1555,75 @@ static SANE_Bool usb_HasTPA( Plustek_Device *dev )
 	return SANE_FALSE;
 }
 
+/** function for reading the button states
+ */
+static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
+{
+	u_char          mio[3];
+	SANE_Byte       val, mask;
+	int             i, j, bc;
+	int             handle = -1;
+	SANE_Status     status;
+	Plustek_Device *dev = s->hw;
+
+	if (dev->usbDev.Caps.bButtons == 0)
+		return SANE_FALSE;
+
+	status = sanei_access_lock( dev->sane.name, 3 );
+	if( SANE_STATUS_GOOD != status ) 
+		return SANE_FALSE;
+
+	if( -1 == dev->fd ) {
+
+		status = sanei_usb_open(dev->sane.name, &handle);
+		if( SANE_STATUS_GOOD != status ) {
+			sanei_access_unlock( dev->sane.name );
+			return SANE_FALSE;
+		}
+		dev->fd = handle;
+	}
+
+	/* we have to check all 6 misc I/O ports for input configuration*/
+	mio[0] = dev->usbDev.HwSetting.bReg_0x59;
+	mio[1] = dev->usbDev.HwSetting.bReg_0x5a;
+	mio[2] = dev->usbDev.HwSetting.bReg_0x5b;
+	
+	usbio_ReadReg( dev->fd, 0x07, &val );
+	if( val == 0 ) {
+
+		/* first read clears the status... */
+		usbio_ReadReg( dev->fd, 0x02, &val );
+		val >>= 2;
+		bc    = 0; 
+
+		for( i = 0; i < 3; i++ ) {
+	
+			DBG( _DBG_INFO2, "Checking MISC IO[%u]=0x%02x\n", i, mio[i] );
+			mask = 0x01;
+
+			for( j = 0; j < 2; j++ ) {
+
+				if((mio[i] & mask) == 0) {
+					DBG( _DBG_INFO2, "* port %u configured as input,"
+					     " status: %s (%u)\n", (i*2)+j+1, 
+						 ((val & 1)?"PRESSED":"RELEASED"), (OPT_BUTTON_0 + bc));
+					s->val[OPT_BUTTON_0 + bc].w = val & 1; 
+					bc++;
+				}
+				val  >>= 1;
+				mask <<= 4;
+			}
+		}
+	} else {
+		DBG( _DBG_INFO2, "Scanner NOT idle: 0x%02x\n", val );
+	}
+
+	if( -1 != handle ) {
+		dev->fd = -1;
+		sanei_usb_close( handle );
+	}
+
+	sanei_access_unlock( dev->sane.name );
+	return SANE_TRUE;
+}
 /* END PLUSTEK-USBHW.C ......................................................*/

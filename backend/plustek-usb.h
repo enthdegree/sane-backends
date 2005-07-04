@@ -35,6 +35,8 @@
  *        - added dHighSpeed to struct HwDefault
  * - 0.49 - added a_bRegs, fModFirstHome and fLastScanIsAdf
  *          to struct DeviceDef
+ *        - added CRYSTAL_FREQ
+ *        - added IPCDef
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -91,6 +93,9 @@
 #define kCIS1220    8
 #define kCIS1240    9
 #define kEPSON     10
+
+/** 48MHz Quartz */
+#define CRYSTAL_FREQ 48000000UL
 
 /*********************************** plustek_types.h!!! ************************/
 
@@ -535,7 +540,6 @@ typedef struct
 	double  dMCLK;        /**< for positive & negative & Adf               */
 	short   brightness;
 	short   contrast;
-	short   siThreshold;  /**< only for B/W output                         */
 	u_char  bSource;      /**< Reflection/Positive/Negative/Adf(SOURCE_xxx)*/
 	u_char  bDataType;    /**< Bw, Gray or Color (see _SCANDATATYPE)       */
 	u_char  bBitDepth;    /**< 1/8/14                                      */
@@ -642,6 +646,15 @@ typedef struct {
 	double gray_mclk_16[_MAX_CLK];  /**< MCLK settings for gray (16bit) scan */
 
 } ClkMotorDef, *pClkMotorDef;
+
+/** for transferring some info between child and parent after calibration
+ */
+#define _MAX_SHAD       0x4000
+#define _SHADING_BUF    (_MAX_SHAD*3)    /**< max size of the shading buffer */
+
+typedef struct {
+	u_long  transferRate;
+} IPCDef;
 
 #endif /* guard __PLUSTEK_USB_H__ */
 

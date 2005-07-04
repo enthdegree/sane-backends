@@ -53,6 +53,8 @@
  *        - removed function pointer
  *        - added OPT_BIT_DEPTH
  * - 0.49 - added typedef struct DevList
+ *        - added button stuff
+ *        - added transferRate to struct Plustek_Device
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -109,6 +111,7 @@
 
 #define _MEASURE_BASE       300UL
 #define _DEF_DPI            50
+#define DEFAULT_RATE        1000000
 
 /** the default image size
  */
@@ -227,6 +230,13 @@ enum {
 	OPT_OVR_RED_LOFF,
 	OPT_OVR_GREEN_LOFF,
 	OPT_OVR_BLUE_LOFF,
+	OPT_BUTTON_GROUP,
+	OPT_BUTTON_0,         
+	OPT_BUTTON_1,
+	OPT_BUTTON_2,
+	OPT_BUTTON_3,
+	OPT_BUTTON_4,
+	OPT_BUTTON_LAST = OPT_BUTTON_4,
 	NUM_OPTIONS
 };
 
@@ -323,6 +333,7 @@ typedef struct Plustek_Device
 	int                    fd;               /* device handle                */
 	char                  *name;             /* (to avoid compiler warnings!)*/
 	char                  *calFile;          /* for saving calibration data  */
+	unsigned long          transferRate;     /* detected USB-Speed in Bytes/s*/
 	SANE_Device            sane;             /* info struct                  */
 	SANE_Int               max_x;            /* max XY-extension of the scan-*/
 	SANE_Int               max_y;            /* area                         */
@@ -364,10 +375,11 @@ typedef struct Plustek_Scanner
 	int                     r_pipe;         /* pipe to reader process        */
 	int                     w_pipe;         /* pipe from reader process      */
 	unsigned long           bytes_read;     /* number of bytes currently read*/
-	pPlustek_Device         hw;             /* pointer to current device     */
+	Plustek_Device         *hw;             /* pointer to current device     */
 	Option_Value            val[NUM_OPTIONS];
 	SANE_Byte              *buf;            /* the image buffer              */
 	SANE_Bool               scanning;       /* TRUE during scan-process      */
+	SANE_Bool               ipc_read_done;  /* TRUE after ipc has been red   */
 	SANE_Parameters         params;         /* for keeping the parameter     */
 
 	/************************** gamma tables *********************************/

@@ -87,7 +87,7 @@ typedef struct {
 	int	  id;
 	char *desc;
 } TabDef, *pTabDef;
-  
+
 /** to allow different vendors...
  */
 static TabDef usbVendors[] = {
@@ -192,7 +192,8 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	}
 
 	usb_CheckAndCopyAdjs( dev );
-	DBG( _DBG_INFO, "Device WAF: 0x%08lx\n", dev->usbDev.Caps.workaroundFlag );
+	DBG( _DBG_INFO, "Device WAF  : 0x%08lx\n", dev->usbDev.Caps.workaroundFlag );
+	DBG( _DBG_INFO, "Transferrate: %lu Bytes/s\n", dev->transferRate );
 
 	/* adjust data origin
 	 */
@@ -269,7 +270,6 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	sParam.bSource       = SOURCE_Reflection;
 	sParam.Origin.x      = 0;
 	sParam.Origin.y      = 0;
-	sParam.siThreshold   = 0;
 	sParam.UserDpi.x     = 150;
 	sParam.UserDpi.y     = 150;
 	sParam.dMCLK         = 4;
@@ -536,18 +536,19 @@ usbGetList( DevList **devs )
 
 /**
  */
-static int usbDev_open( Plustek_Device *dev, DevList *devs )
+static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 {
-	char       dn[512];
-	char       devStr[50];
-	int        result;
-	int        i;
-	int        lc;
-	SANE_Int   handle;
-	SANE_Byte  version;
-	SANE_Word  vendor, product;
-	SANE_Bool  was_empty;
-	DevList   *tmp;
+	char        dn[512];
+	char        devStr[50];
+	int         result;
+	int         i;
+	int         lc;
+	SANE_Int    handle;
+	SANE_Byte   version;
+	SANE_Word   vendor, product;
+	SANE_Bool   was_empty;
+	SANE_Status status;
+	DevList    *tmp;
 
 	DBG( _DBG_INFO, "usbDev_open(%s,%s) - %p\n", 
 	    dev->name, dev->usbId, (void*)devs );
@@ -591,8 +592,19 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 			return -1;
 		}
 
-		if( SANE_STATUS_GOOD != sanei_usb_open( dn, &handle ))
+		status = sanei_access_lock( dn, 5 );
+		if( SANE_STATUS_GOOD != status ) {
+			DBG( _DBG_ERROR, "sanei_access_lock failed: %d\n", status );
 			return -1;
+		}
+
+		status = sanei_usb_open( dn, &handle );
+		if( SANE_STATUS_GOOD != status ) {
+			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n", 
+			     strerror(errno), errno);
+			sanei_access_unlock( dev->sane.name );
+			return -1;
+		}
 
 		/* replace the old devname, so we are able to have multiple
 		 * auto-detected devices
@@ -603,10 +615,21 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 
 	} else {
 
-		if( SANE_STATUS_GOOD != sanei_usb_open( dev->name, &handle ))
-    		return -1;
+		status = sanei_access_lock( dev->sane.name, 5 );
+		if( SANE_STATUS_GOOD != status ) {
+			DBG( _DBG_ERROR, "sanei_access_lock failed: %d\n", status );
+			return -1;
+		}
+
+		status = sanei_usb_open( dev->name, &handle );
+		if( SANE_STATUS_GOOD != status ) {
+			DBG( _DBG_ERROR, "sanei_usb_open failed: %s (%d)\n", 
+			     strerror(errno), errno);
+			sanei_access_unlock( dev->sane.name );
+			return -1;
+		}
 	}
-	
+
 	was_empty = SANE_FALSE;
 
 	result = sanei_usb_get_vendor_product( handle, &vendor, &product );
@@ -623,8 +646,9 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 				DBG( _DBG_ERROR, "Specified Vendor and Product ID "
 								 "doesn't match with the ones\n"
 								 "in the config file\n" );
+				sanei_access_unlock( dev->sane.name );
 				sanei_usb_close( handle );
-		        return -1;
+				return -1;
 			}
 		} else {
 			sprintf( dev->usbId, "0x%04X-0x%04X", vendor, product );
@@ -636,15 +660,16 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 		DBG( _DBG_INFO, "Can't get vendor & product ID from driver...\n" );
 
 		/* if the ioctl stuff is not supported by the kernel and we have
-         * nothing specified, we have to give up...
-         */
+		 * nothing specified, we have to give up...
+		 */
 		if( dev->usbId[0] == '\0' ) {
 			DBG( _DBG_ERROR, "Cannot autodetect Vendor an Product ID, "
 							 "please specify in config file.\n" );
+			sanei_access_unlock( dev->sane.name );
 			sanei_usb_close( handle );
 	        return -1;
 		}
-		
+
 		vendor  = strtol( &dev->usbId[0], 0, 0 );
 		product = strtol( &dev->usbId[7], 0, 0 );
 		DBG( _DBG_INFO, "... using the specified: "
@@ -655,18 +680,22 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 	 */
 	if( !usb_IsDeviceInList( dev->usbId )) {
 		DBG( _DBG_ERROR, "Device >%s<, is not supported!\n", dev->usbId );
+		sanei_access_unlock( dev->sane.name );
 		sanei_usb_close( handle );
 		return -1;
 	}
 
-	if( SANE_STATUS_GOOD != usbio_DetectLM983x( handle, &version )) {
+	status = usbio_DetectLM983x( handle, &version );
+	if( SANE_STATUS_GOOD != status ) {
 		sanei_usb_close( handle );
+		sanei_access_unlock( dev->sane.name );
 		return -1;
 	}
 
 	if ((version < 3) || (version > 4)) {
 		DBG( _DBG_ERROR, "This is not a LM9831 or LM9832 chip based scanner.\n" );
 		sanei_usb_close( handle );
+		sanei_access_unlock( dev->sane.name );
 		return -1;
 	}
 
@@ -693,8 +722,11 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 		if( was_empty )
 			dev->usbId[0] = '\0';
 
-		if( handle >= 0 )
+		if( handle >= 0 ) {
+			if( !keep_lock )
+				sanei_access_unlock( dev->sane.name );
 			return handle;	
+		}
 		
 	} else {
 
@@ -723,11 +755,14 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs )
 			if( 0 == strncmp( Settings[i].pIDString, devStr, lc )) {
 				DBG( _DBG_INFO, "Device description for >%s< found.\n", devStr );
 				usb_initDev( dev, i, handle, vendor );
+				if( !keep_lock )
+					sanei_access_unlock( dev->sane.name );
 			    return handle;
 			}
 		}
 	}
 
+	sanei_access_unlock( dev->sane.name );
 	sanei_usb_close( handle );
 	DBG( _DBG_ERROR, "No matching device found >%s<\n", devStr );
 	return -1;
@@ -887,7 +922,6 @@ static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
 		dev->scanning.dwFlag |= SCANDEF_QualityScan;
 	}
 
-	dev->scanning.sParam.siThreshold = si->siBrightness;
 	dev->scanning.sParam.brightness  = si->siBrightness;
 	dev->scanning.sParam.contrast    = si->siContrast;
 
@@ -1000,47 +1034,41 @@ static int usbDev_stopScan( Plustek_Device *dev )
  */
 static int usbDev_startScan( Plustek_Device *dev )
 {
-	pScanDef   scanning = &dev->scanning;
-	static int iSkipLinesForADF = 0;
-
+	ScanDef *scan = &dev->scanning;
 	DBG( _DBG_INFO, "usbDev_startScan()\n" );
 
 /* HEINER: Preview currently not working correctly */
 #if 0
-	if( scanning->dwFlag & SCANDEF_QualityScan )
+	if( scan->dwFlag & SCANDEF_QualityScan )
 		dev->usbDev.a_bRegs[0x0a] = 0;
 	else
 		dev->usbDev.a_bRegs[0x0a] = 1;
 #endif
 	dev->usbDev.a_bRegs[0x0a] = 0;
 
-	/* Allocate shading buffer */
-	if((dev->scanning.dwFlag & SCANDEF_Adf) &&
-		(dev->scanning.dwFlag & SCANDEF_ContinuousScan)) {
-		dev->scanning.fCalibrated = SANE_TRUE;
+	if((scan->dwFlag & SCANDEF_Adf) && (scan->dwFlag & SCANDEF_ContinuousScan)) {
+		scan->fCalibrated = SANE_TRUE;
 	} else {
-
-		dev->scanning.fCalibrated = SANE_FALSE;
-		iSkipLinesForADF = 0;
+		scan->fCalibrated = SANE_FALSE;
 	}
 
-	scanning->sParam.PhyDpi.x = usb_SetAsicDpiX(dev,scanning->sParam.UserDpi.x);
-	scanning->sParam.PhyDpi.y = usb_SetAsicDpiY(dev,scanning->sParam.UserDpi.y);
-	scanning->pScanBuffer = (u_char*)malloc( _SCANBUF_SIZE );
+	scan->sParam.PhyDpi.x = usb_SetAsicDpiX(dev,scan->sParam.UserDpi.x);
+	scan->sParam.PhyDpi.y = usb_SetAsicDpiY(dev,scan->sParam.UserDpi.y);
 
-	if( NULL != scanning->pScanBuffer ) {
+	/* Allocate shading/scan buffer */
+	scan->pScanBuffer = (u_char*)malloc( _SCANBUF_SIZE );
 
-		scanning->dwFlag |= SCANFLAG_StartScan;
-		usb_LampOn( dev, SANE_TRUE, SANE_TRUE );
+	if( scan->pScanBuffer == NULL )
+		return _E_ALLOC;
 
-		m_fStart    = m_fFirst = SANE_TRUE;
-		m_fAutoPark =
-				(scanning->dwFlag & SCANFLAG_StillModule)?SANE_FALSE:SANE_TRUE;
-		
-		usb_StopLampTimer( dev );
-		return 0;
-	}
-	return _E_ALLOC;
+	scan->dwFlag |= SCANFLAG_StartScan;
+	usb_LampOn( dev, SANE_TRUE, SANE_TRUE );
+
+	m_fStart    = m_fFirst = SANE_TRUE;
+	m_fAutoPark = (scan->dwFlag&SCANFLAG_StillModule)?SANE_FALSE:SANE_TRUE;
+
+	usb_StopLampTimer( dev );
+	return 0;
 }
 
 /**
@@ -1052,9 +1080,9 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 {
 	int       result;
 	SANE_Bool use_alt_cal = SANE_FALSE;
-	pScanDef  scanning    = &dev->scanning;
-	pDCapsDef scaps       = &dev->usbDev.Caps;
-	pHWDef    hw          = &dev->usbDev.HwSetting;
+	ScanDef  *scan        = &dev->scanning;
+	DCapsDef *scaps       = &dev->usbDev.Caps;
+	HWDef    *hw          = &dev->usbDev.HwSetting;
 
 	DBG( _DBG_INFO, "usbDev_PrepareScan()\n" );
 
@@ -1096,17 +1124,16 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 	DBG( _DBG_INFO, "calibration done.\n" );
 
-	if( !( scanning->dwFlag & SCANFLAG_Scanning )) {
+	if( !( scan->dwFlag & SCANFLAG_Scanning )) {
 
 		usleep( 10 * 1000 );
 
-		if( !usb_SetScanParameters( dev, &scanning->sParam )) {
+		if( !usb_SetScanParameters( dev, &scan->sParam )) {
 			DBG( _DBG_ERROR, "Setting Scan Parameters failed!\n" );
 			return 0;
 		}
 
-		/*
-		 * if we bypass the calibration step, we wait on lamp warmup here...
+		/* if we bypass the calibration step, we wait on lamp warmup here...
 		 */
 		if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
     		if( !usb_Wait4Warmup( dev )) {
@@ -1115,211 +1142,189 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 			}
 		}
 
-		scanning->pbScanBufBegin = scanning->pScanBuffer;
+		scan->pbScanBufBegin = scan->pScanBuffer;
 
 		if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
-			scanning->dwLinesScanBuf = 8;
+			scan->dwLinesScanBuf = 8;
 		else
-			scanning->dwLinesScanBuf = 32;
+			scan->dwLinesScanBuf = 32;
 
-		/* gives faster feedback to the frontend ! */
-		scanning->dwLinesScanBuf = 2;
+		scan->dwBytesScanBuf     = scan->dwLinesScanBuf *
+		                           scan->sParam.Size.dwPhyBytes;
 
-		scanning->dwBytesScanBuf     = scanning->dwLinesScanBuf *
-									   scanning->sParam.Size.dwPhyBytes;
-
-		scanning->dwNumberOfScanBufs = _SCANBUF_SIZE /
-									   scanning->dwBytesScanBuf;
-		scanning->dwLinesPerScanBufs = scanning->dwNumberOfScanBufs *
-									   scanning->dwLinesScanBuf;
-		scanning->pbScanBufEnd       = scanning->pbScanBufBegin +
-									   scanning->dwLinesPerScanBufs *
-									   scanning->sParam.Size.dwPhyBytes;
-		scanning->dwRedShift   = 0;
-		scanning->dwBlueShift  = 0;
-		scanning->dwGreenShift = 0;
+		scan->dwNumberOfScanBufs = _SCANBUF_SIZE / scan->dwBytesScanBuf;
+		scan->dwLinesPerScanBufs = scan->dwNumberOfScanBufs *
+		                           scan->dwLinesScanBuf;
+		scan->pbScanBufEnd       = scan->pbScanBufBegin +
+		                           scan->dwLinesPerScanBufs *
+		                           scan->sParam.Size.dwPhyBytes;
+		scan->dwRedShift   = 0;
+		scan->dwBlueShift  = 0;
+		scan->dwGreenShift = 0;
 
 		/* CCD scanner */
-		if( scanning->sParam.bChannels == 3 ) {
+		if( scan->sParam.bChannels == 3 ) {
 
-			scanning->dwLinesDiscard = (u_long)scaps->bSensorDistance *
-			                     scanning->sParam.PhyDpi.y / scaps->OpticDpi.y;
+			scan->dwLinesDiscard = (u_long)scaps->bSensorDistance *
+			                       scan->sParam.PhyDpi.y / scaps->OpticDpi.y;
 
 			switch( scaps->bSensorOrder ) {
 
 			case SENSORORDER_rgb:
-				scanning->Red.pb   = scanning->pbScanBufBegin;
-				scanning->Green.pb = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes;
-				scanning->Blue.pb  = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes * 2UL;
+				scan->Red.pb   = scan->pbScanBufBegin;
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Blue.pb  = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes * 2UL;
 				break;
 
 			case SENSORORDER_rbg:
-				scanning->Red.pb   = scanning->pbScanBufBegin;
-				scanning->Blue.pb  = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes;
-				scanning->Green.pb = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes * 2UL;
+				scan->Red.pb   = scan->pbScanBufBegin;
+				scan->Blue.pb  = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes * 2UL;
 				break;
 
 			case SENSORORDER_gbr:
-				scanning->Green.pb = scanning->pbScanBufBegin;
-				scanning->Blue.pb  = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes;
-				scanning->Red.pb   = scanning->pbScanBufBegin +
-				                     scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes * 2UL;
+				scan->Green.pb = scan->pbScanBufBegin;
+				scan->Blue.pb  = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Red.pb   = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes * 2UL;
 				break;
 
 			case SENSORORDER_grb:
-				scanning->Green.pb = scanning->pbScanBufBegin;
-				scanning->Red.pb   = scanning->pbScanBufBegin +
-					                 scanning->dwLinesDiscard *
-				                     scanning->sParam.Size.dwPhyBytes;
-   				scanning->Blue.pb  = scanning->pbScanBufBegin +
-   					                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes * 2UL;
-   				break;
+				scan->Green.pb = scan->pbScanBufBegin;
+				scan->Red.pb   = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Blue.pb  = scan->pbScanBufBegin + scan->dwLinesDiscard *
+                                 scan->sParam.Size.dwPhyBytes * 2UL;
+				break;
 
-   			case SENSORORDER_brg:
-   				scanning->Blue.pb  = scanning->pbScanBufBegin;
-   				scanning->Red.pb   = scanning->pbScanBufBegin +
-   					                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes;
-   				scanning->Green.pb = scanning->pbScanBufBegin +
-   					                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes * 2UL;
-   				break;
+			case SENSORORDER_brg:
+				scan->Blue.pb  = scan->pbScanBufBegin;
+				scan->Red.pb   = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes * 2UL;
+				break;
 
-   			case SENSORORDER_bgr:
-   				scanning->Blue.pb  = scanning->pbScanBufBegin;
-   				scanning->Green.pb = scanning->pbScanBufBegin +
-   					                 scanning->dwLinesDiscard *
-                                        scanning->sParam.Size.dwPhyBytes;
-   				scanning->Red.pb   = scanning->pbScanBufBegin +
-   					                 scanning->dwLinesDiscard *
-                                       scanning->sParam.Size.dwPhyBytes * 2UL;
-   			}
+			case SENSORORDER_bgr:
+				scan->Blue.pb  = scan->pbScanBufBegin;
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes;
+				scan->Red.pb   = scan->pbScanBufBegin + scan->dwLinesDiscard *
+				                 scan->sParam.Size.dwPhyBytes * 2UL;
+			}
 
-   			/* double it for last channel */
-   			scanning->dwLinesDiscard <<= 1;
-   			scanning->dwGreenShift = (7UL+scanning->sParam.bBitDepth) >> 3;
-   			scanning->Green.pb += scanning->dwGreenShift;
-   			scanning->Blue.pb  += (scanning->dwGreenShift * 2);
+			/* double it for last channel */
+			scan->dwLinesDiscard <<= 1;
+			scan->dwGreenShift = (7UL+scan->sParam.bBitDepth) >> 3;
+			scan->Green.pb += scan->dwGreenShift;
+			scan->Blue.pb  += (scan->dwGreenShift * 2);
 
-   			if( scanning->dwFlag & SCANFLAG_bgr) {
+			if( scan->dwFlag & SCANFLAG_bgr) {
 
-   				u_char *pb = scanning->Blue.pb;
+				u_char *pb = scan->Blue.pb;
 
-   				scanning->Blue.pb = scanning->Red.pb;
-   				scanning->Red.pb  = pb;
-   				scanning->dwBlueShift = 0;
-   				scanning->dwRedShift  = scanning->dwGreenShift << 1;
-   			} else {
-   				scanning->dwRedShift  = 0;
-   				scanning->dwBlueShift = scanning->dwGreenShift << 1;
-   			}
+				scan->Blue.pb = scan->Red.pb;
+				scan->Red.pb  = pb;
+				scan->dwBlueShift = 0;
+				scan->dwRedShift  = scan->dwGreenShift << 1;
+			} else {
+				scan->dwRedShift  = 0;
+				scan->dwBlueShift = scan->dwGreenShift << 1;
+			}
 
-   		} else {
+		} else {
 
-   			/* this might be simple gray operation or AFE 1 channel op */
-   			scanning->dwLinesDiscard = 0;
-   			scanning->Green.pb       = scanning->pbScanBufBegin;
+			/* this might be a simple gray operation or AFE 1 channel op */
+			scan->dwLinesDiscard = 0;
+			scan->Green.pb       = scan->pbScanBufBegin;
 
-   			if(( scanning->sParam.bDataType == SCANDATATYPE_Color ) &&
-   			   ( hw->bReg_0x26 & _ONE_CH_COLOR )) {
+			if(( scan->sParam.bDataType == SCANDATATYPE_Color ) &&
+			   ( hw->bReg_0x26 & _ONE_CH_COLOR )) {
 
-            	u_long len = scanning->sParam.Size.dwPhyBytes / 3;
+				u_long len = scan->sParam.Size.dwPhyBytes / 3;
 
-   				scanning->Red.pb   = scanning->pbScanBufBegin;
-   				scanning->Green.pb = scanning->pbScanBufBegin + len;
-   				scanning->Blue.pb  = scanning->pbScanBufBegin + len * 2UL;
-       		}
-   		}
+				scan->Red.pb   = scan->pbScanBufBegin;
+				scan->Green.pb = scan->pbScanBufBegin + len;
+				scan->Blue.pb  = scan->pbScanBufBegin + len * 2UL;
+			}
+		}
 
 		/* set a funtion to process the RAW data... */
 		usb_GetImageProc( dev );
 
-		scanning->bLinesToSkip = (u_char)(scanning->sParam.PhyDpi.y / 50);
-		if( scanning->sParam.bSource == SOURCE_ADF )
-			scanning->dwFlag |= SCANFLAG_StillModule;
+		scan->bLinesToSkip = (u_char)(scan->sParam.PhyDpi.y / 50);
+		if( scan->sParam.bSource == SOURCE_ADF )
+			scan->dwFlag |= SCANFLAG_StillModule;
 
-		DBG( _DBG_INFO, "* scanning->dwFlag=0x%08lx\n", scanning->dwFlag );
+		DBG( _DBG_INFO, "* scan->dwFlag=0x%08lx\n", scan->dwFlag );
 
 		if( !usb_ScanBegin( dev,
-			(scanning->dwFlag&SCANFLAG_StillModule) ? SANE_FALSE:SANE_TRUE)) {
+			(scan->dwFlag&SCANFLAG_StillModule) ? SANE_FALSE:SANE_TRUE)) {
 	
 			return _E_INTERNAL;
 		}
 		
-  		scanning->dwFlag |= SCANFLAG_Scanning;
+		scan->dwFlag |= SCANFLAG_Scanning;
 
-		if( scanning->sParam.UserDpi.y != scanning->sParam.PhyDpi.y ) {
+		if( scan->sParam.UserDpi.y != scan->sParam.PhyDpi.y ) {
 		
-			if( scanning->sParam.UserDpi.y < scanning->sParam.PhyDpi.y ) {
+			if( scan->sParam.UserDpi.y < scan->sParam.PhyDpi.y ) {
 			
-				scanning->wSumY = scanning->sParam.PhyDpi.y -
-								  scanning->sParam.UserDpi.y;
-				scanning->dwFlag |= SCANFLAG_SampleY;
+				scan->wSumY = scan->sParam.PhyDpi.y - scan->sParam.UserDpi.y;
+				scan->dwFlag |= SCANFLAG_SampleY;
 				DBG( _DBG_INFO, "SampleY Flag set (%u != %u, wSumY=%u)\n",
-								scanning->sParam.UserDpi.y,
-								scanning->sParam.PhyDpi.y, scanning->wSumY );
+				  scan->sParam.UserDpi.y, scan->sParam.PhyDpi.y, scan->wSumY );
 			}
 		}
 	}
 
-	dumpPicInit( &scanning->sParam, "plustek-pic.raw" );
-	
+	dumpPicInit( &scan->sParam, "plustek-pic.raw" );
+
 	/* here the NT driver uses an extra reading thread...
-     * as the SANE stuff already forked the driver to read data, I think
-     * we should only read data by using a function...
+	 * as the SANE stuff already forked the driver to read data, I think
+	 * we should only read data by using a function...
      */
-	scanning->dwLinesUser = scanning->sParam.Size.dwLines; 
-	if( !scanning->dwLinesUser )
+	scan->dwLinesUser = scan->sParam.Size.dwLines; 
+	if( !scan->dwLinesUser )
 		return _E_BUFFER_TOO_SMALL;
 
-	if( !scanning->sParam.Size.dwLines )
-		return _E_NODATA;
-	
-	if( scanning->sParam.Size.dwLines < scanning->dwLinesUser )
-		scanning->dwLinesUser = scanning->sParam.Size.dwLines;
+	if( scan->sParam.Size.dwLines < scan->dwLinesUser )
+		scan->dwLinesUser = scan->sParam.Size.dwLines;
 
-	scanning->sParam.Size.dwLines -= scanning->dwLinesUser;
-	if( scanning->dwFlag & SCANFLAG_BottomUp )
-		scanning->UserBuf.pb = buf + (scanning->dwLinesUser - 1) *
-		                                    scanning->dwBytesLine;
+	scan->sParam.Size.dwLines -= scan->dwLinesUser;
+	if( scan->dwFlag & SCANFLAG_BottomUp )
+		scan->UserBuf.pb = buf + (scan->dwLinesUser - 1) * scan->dwBytesLine;
 	else
-		scanning->UserBuf.pb = buf;
+		scan->UserBuf.pb = buf;
 
 	DBG(_DBG_INFO,"Reading the data now!\n" );
-	DBG(_DBG_INFO,"PhyDpi.x         = %u\n", scanning->sParam.PhyDpi.x  );	
-	DBG(_DBG_INFO,"PhyDpi.y         = %u\n", scanning->sParam.PhyDpi.y  );	
-	DBG(_DBG_INFO,"UserDpi.x        = %u\n", scanning->sParam.UserDpi.x );	
-	DBG(_DBG_INFO,"UserDpi.y        = %u\n", scanning->sParam.UserDpi.y );	
-	DBG(_DBG_INFO,"NumberOfScanBufs = %lu\n",scanning->dwNumberOfScanBufs);
-	DBG(_DBG_INFO,"LinesPerScanBufs = %lu\n",scanning->dwLinesPerScanBufs);
-	DBG(_DBG_INFO,"dwPhyBytes       = %lu\n",scanning->sParam.Size.dwPhyBytes);
-	DBG(_DBG_INFO,"dwPhyPixels      = %lu\n",scanning->sParam.Size.dwPhyPixels);
-	DBG(_DBG_INFO,"dwTotalBytes     = %lu\n",scanning->sParam.Size.dwTotalBytes);
-	DBG(_DBG_INFO,"dwPixels         = %lu\n",scanning->sParam.Size.dwPixels);
-	DBG(_DBG_INFO,"dwBytes          = %lu\n",scanning->sParam.Size.dwBytes);
-	DBG(_DBG_INFO,"dwValidPixels    = %lu\n",scanning->sParam.Size.dwValidPixels);
-	DBG(_DBG_INFO,"dwBytesScanBuf   = %lu\n",scanning->dwBytesScanBuf );
-	DBG(_DBG_INFO,"dwLinesDiscard   = %lu\n",scanning->dwLinesDiscard );
-	DBG(_DBG_INFO,"dwLinesToSkip    = %u\n", scanning->bLinesToSkip );
-	DBG(_DBG_INFO,"dwLinesUser      = %lu\n",scanning->dwLinesUser  );
-	DBG(_DBG_INFO,"dwBytesLine      = %lu\n",scanning->dwBytesLine  );
+	DBG(_DBG_INFO,"PhyDpi.x         = %u\n", scan->sParam.PhyDpi.x  );	
+	DBG(_DBG_INFO,"PhyDpi.y         = %u\n", scan->sParam.PhyDpi.y  );	
+	DBG(_DBG_INFO,"UserDpi.x        = %u\n", scan->sParam.UserDpi.x );	
+	DBG(_DBG_INFO,"UserDpi.y        = %u\n", scan->sParam.UserDpi.y );	
+	DBG(_DBG_INFO,"NumberOfScanBufs = %lu\n",scan->dwNumberOfScanBufs);
+	DBG(_DBG_INFO,"LinesPerScanBufs = %lu\n",scan->dwLinesPerScanBufs);
+	DBG(_DBG_INFO,"dwPhyBytes       = %lu\n",scan->sParam.Size.dwPhyBytes);
+	DBG(_DBG_INFO,"dwPhyPixels      = %lu\n",scan->sParam.Size.dwPhyPixels);
+	DBG(_DBG_INFO,"dwTotalBytes     = %lu\n",scan->sParam.Size.dwTotalBytes);
+	DBG(_DBG_INFO,"dwPixels         = %lu\n",scan->sParam.Size.dwPixels);
+	DBG(_DBG_INFO,"dwBytes          = %lu\n",scan->sParam.Size.dwBytes);
+	DBG(_DBG_INFO,"dwValidPixels    = %lu\n",scan->sParam.Size.dwValidPixels);
+	DBG(_DBG_INFO,"dwBytesScanBuf   = %lu\n",scan->dwBytesScanBuf );
+	DBG(_DBG_INFO,"dwLinesDiscard   = %lu\n",scan->dwLinesDiscard );
+	DBG(_DBG_INFO,"dwLinesToSkip    = %u\n", scan->bLinesToSkip );
+	DBG(_DBG_INFO,"dwLinesUser      = %lu\n",scan->dwLinesUser  );
+	DBG(_DBG_INFO,"dwBytesLine      = %lu\n",scan->dwBytesLine  );
 
-	scanning->pbGetDataBuf = scanning->pbScanBufBegin;
+	scan->pbGetDataBuf = scan->pbScanBufBegin;
 
-	scanning->dwLinesToProcess = usb_ReadData( dev  );
-	if( 0 == scanning->dwLinesToProcess )
+	scan->dwLinesToProcess = usb_ReadData( dev  );
+	if( 0 == scan->dwLinesToProcess )
 		return _E_DATAREAD;
 
 	return 0;
@@ -1329,76 +1334,72 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
  */
 static int usbDev_ReadLine( Plustek_Device *dev )
 {
-	int       wrap;
-	u_long    cur;
-	pScanDef  scanning = &dev->scanning;
-	pHWDef    hw       = &dev->usbDev.HwSetting;
+	int      wrap;
+	u_long   cur;
+	ScanDef *scan = &dev->scanning;
+	HWDef   *hw   = &dev->usbDev.HwSetting;
 
-	cur = scanning->dwLinesUser;
+	cur = scan->dwLinesUser;
 
 	/* we stay within this sample loop until one line has been processed for
 	 * the user...
 	 */
-	while( cur == scanning->dwLinesUser ) {
+	while( cur == scan->dwLinesUser ) {
 
 		if( usb_IsEscPressed()) {
 			DBG( _DBG_INFO, "readLine() - Cancel detected...\n" );
 			return _E_ABORT;
 		}
 
-		if( !(scanning->dwFlag & SCANFLAG_SampleY))	{
+		if( !(scan->dwFlag & SCANFLAG_SampleY))	{
 
-			scanning->pfnProcess( dev );
+			scan->pfnProcess( dev );
 
 			/* Adjust user buffer pointer */
-			scanning->UserBuf.pb += scanning->lBufAdjust;
-			scanning->dwLinesUser--;
+			scan->UserBuf.pb += scan->lBufAdjust;
+			scan->dwLinesUser--;
 
 		} else {
 
-			scanning->wSumY += scanning->sParam.UserDpi.y;
+			scan->wSumY += scan->sParam.UserDpi.y;
 
-			if( scanning->wSumY >= scanning->sParam.PhyDpi.y ) {
-				scanning->wSumY -= scanning->sParam.PhyDpi.y;
+			if( scan->wSumY >= scan->sParam.PhyDpi.y ) {
+				scan->wSumY -= scan->sParam.PhyDpi.y;
 
-				scanning->pfnProcess( dev );
+				scan->pfnProcess( dev );
 
 				/* Adjust user buffer pointer */
-				scanning->UserBuf.pb += scanning->lBufAdjust;
-				scanning->dwLinesUser--;
+				scan->UserBuf.pb += scan->lBufAdjust;
+				scan->dwLinesUser--;
 			}
 		}
 
 		/* Adjust get buffer pointers */
 		wrap = 0;
 
-		if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
+		if( scan->sParam.bDataType == SCANDATATYPE_Color ) {
 
-			scanning->Red.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Red.pb >= scanning->pbScanBufEnd ) {
-				scanning->Red.pb = scanning->pbScanBufBegin +
-								   scanning->dwRedShift;
+			scan->Red.pb += scan->sParam.Size.dwPhyBytes;
+			if( scan->Red.pb >= scan->pbScanBufEnd ) {
+				scan->Red.pb = scan->pbScanBufBegin + scan->dwRedShift;
 				wrap = 1;
 			}
 
-			scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Green.pb >= scanning->pbScanBufEnd ) {
-				scanning->Green.pb = scanning->pbScanBufBegin +
-									 scanning->dwGreenShift;
+			scan->Green.pb += scan->sParam.Size.dwPhyBytes;
+			if( scan->Green.pb >= scan->pbScanBufEnd ) {
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwGreenShift;
 				wrap = 1;
 			}
 
-			scanning->Blue.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Blue.pb >= scanning->pbScanBufEnd ) {
-				scanning->Blue.pb = scanning->pbScanBufBegin +
-									scanning->dwBlueShift;
+			scan->Blue.pb += scan->sParam.Size.dwPhyBytes;
+			if( scan->Blue.pb >= scan->pbScanBufEnd ) {
+				scan->Blue.pb = scan->pbScanBufBegin + scan->dwBlueShift;
 				wrap = 1;
 			}
 		} else {
-			scanning->Green.pb += scanning->sParam.Size.dwPhyBytes;
-			if( scanning->Green.pb >= scanning->pbScanBufEnd )
-				scanning->Green.pb = scanning->pbScanBufBegin +
-									 scanning->dwGreenShift;
+			scan->Green.pb += scan->sParam.Size.dwPhyBytes;
+			if( scan->Green.pb >= scan->pbScanBufEnd )
+				scan->Green.pb = scan->pbScanBufBegin + scan->dwGreenShift;
 		}
 
 		/* on any wrap-around of the get pointers in one channel mode
@@ -1406,27 +1407,27 @@ static int usbDev_ReadLine( Plustek_Device *dev )
 		 */
 		if( wrap ) {
 
-			u_long len = scanning->sParam.Size.dwPhyBytes;
+			u_long len = scan->sParam.Size.dwPhyBytes;
 
 			if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-				if(scanning->sParam.bDataType == SCANDATATYPE_Color) {
+				if(scan->sParam.bDataType == SCANDATATYPE_Color) {
 					len /= 3;
 				}
-				scanning->Red.pb   = scanning->pbScanBufBegin;
-				scanning->Green.pb = scanning->pbScanBufBegin + len;
-				scanning->Blue.pb  = scanning->pbScanBufBegin + len * 2UL;
+				scan->Red.pb   = scan->pbScanBufBegin;
+				scan->Green.pb = scan->pbScanBufBegin + len;
+				scan->Blue.pb  = scan->pbScanBufBegin + len * 2UL;
 			}
 		}
 
 		/* line processed, check if we have to get more...
 		 */
-		scanning->dwLinesToProcess--;
+		scan->dwLinesToProcess--;
 
-		if( 0 == scanning->dwLinesToProcess ) {
+		if( 0 == scan->dwLinesToProcess ) {
 
-			scanning->dwLinesToProcess = usb_ReadData( dev );
-			if( 0 == scanning->dwLinesToProcess ) {
+			scan->dwLinesToProcess = usb_ReadData( dev );
+			if( 0 == scan->dwLinesToProcess ) {
 
 				if( usb_IsEscPressed())
 					return _E_ABORT;

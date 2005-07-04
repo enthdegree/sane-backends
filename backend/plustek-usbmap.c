@@ -19,7 +19,7 @@
  * - 0.46 - no changes
  * - 0.47 - cleanup work
  * - 0.48 - added support for binary from color scans
- * - 0.49 - no changes
+ * - 0.49 - changed usb_MapDownload
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -62,15 +62,15 @@
  * <hr>
  */
 
-#define _MAP_SIZE		4096U
+#define _MAP_SIZE 4096
 
 static SANE_Byte a_bMap[_MAP_SIZE * 3];
 
 /** adjust acording to brightness and contrast
  */
-static void usb_MapAdjust( pPlustek_Device dev )
+static void usb_MapAdjust( Plustek_Device *dev )
 {
-	u_long i, tabLen;
+	int    i, tabLen;
 	double b, c, tmp;
 	
 	tabLen = _MAP_SIZE;
@@ -113,13 +113,13 @@ static void usb_MapAdjust( pPlustek_Device dev )
 
 /**
  */
-static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
+static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 {
 	pScanDef  scanning = &dev->scanning;
 	pDCapsDef sc       = &dev->usbDev.Caps;
 
-	int       color, maxColor;
-	int       i, iThreshold;
+	int       color;
+	int       i, threshold;
 	SANE_Byte value;
 	SANE_Bool fInverse = 0;
 	
@@ -137,22 +137,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 	/* we download all the time all three color maps, as we run
 	 * into trouble elsewhere on CanoScan models using gray mode
 	 */
-#if 0
-	if( bDataType == SCANDATATYPE_Color ) {
-		color    = 0;
-		maxColor = 3;
-	} else {
-		color    = 1;
-		maxColor = 2;
-	}
-#else
-	_VAR_NOT_USED( bDataType );
-
-	color    = 0;
-	maxColor = 3;
-#endif
-
-	for( ; color < maxColor; color++) {
+	for( color = 0; color < 3; color++) {
 	
 		/* select color */
 		value = (color << 2)+2;
@@ -166,21 +151,21 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 		if((scanning->sParam.bDataType == SCANDATATYPE_BW) ||
 		   (scanning->fGrayFromColor > 7 )) {
 
-			iThreshold = (int)((double)scanning->sParam.siThreshold *
+			threshold = (int)((double)scanning->sParam.brightness *
 			                                (_MAP_SIZE/200.0)) + (_MAP_SIZE/2);
-			iThreshold = _MAP_SIZE - iThreshold;
-			if(iThreshold < 0)
-				iThreshold = 0;
-			if(iThreshold > (int)_MAP_SIZE)
-				iThreshold = _MAP_SIZE;
+			threshold = _MAP_SIZE - threshold;
+			if(threshold < 0)
+				threshold = 0;
+			if(threshold > (int)_MAP_SIZE)
+				threshold = _MAP_SIZE;
 	
-			DBG(_DBG_INFO, "* Threshold is at %u siThresh=%i\n",
-								iThreshold, scanning->sParam.siThreshold );
+			DBG(_DBG_INFO, "* Threshold is at %u brightness=%i\n",
+			               threshold, scanning->sParam.brightness );
 
-			for(i = 0; i < iThreshold; i++)
+			for(i = 0; i < threshold; i++)
 				a_bMap[color*_MAP_SIZE + i] = 0;
 				
-			for(i = iThreshold; i < (int)_MAP_SIZE; i++)
+			for(i = threshold; i < _MAP_SIZE; i++)
 				a_bMap[color*_MAP_SIZE + i] = 255;
 
 			fInverse = 1;
@@ -202,7 +187,7 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			
 			DBG( _DBG_INFO, "* Inverting Map\n" );
 			
-			for( i = 0; i < (int)_MAP_SIZE; i++, pMap++ )
+			for( i = 0; i < _MAP_SIZE; i++, pMap++ )
 				map[i] = ~*pMap;
 			
 			sanei_lm983x_write( dev->fd,  0x06, map, _MAP_SIZE, SANE_FALSE );
@@ -211,12 +196,11 @@ static SANE_Bool usb_MapDownload( pPlustek_Device dev, u_char bDataType )
 			DBG( _DBG_INFO, "* downloading map %u...\n", color );
 			sanei_lm983x_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
 								 _MAP_SIZE, SANE_FALSE );
-		}								
+		}
 	
 	} /* for each color */
 
 	DBG( _DBG_INFO, "usb_MapDownload() done.\n" );
-	
 	return SANE_TRUE;
 }
 

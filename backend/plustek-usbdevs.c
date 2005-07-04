@@ -575,7 +575,7 @@ static DCapsDef Cap0x04B8_0x010F =
 static DCapsDef Cap0x1606_0x0060 =
 {
 	/* Normal */
-	{{   0, 105 },   0, -1, {2550, 3508}, { 100, 100 }, COLOR_BW     },
+	{{  30, 105 },  15, -1, {2550, 3508}, { 100, 100 }, COLOR_BW     },
 	/* Positive */
 	{{ 700, 760 }, 650, -1, {1200, 1500}, { 150, 150 }, COLOR_TRUE24 },
 	/* Negative */
@@ -684,7 +684,7 @@ static DCapsDef Cap0x04A9_0x220D =
 	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
 };
 
-/* Canon N1240U
+/* Canon N1240U/LiDE30
  */
 static DCapsDef Cap0x04A9_0x220E =
 {
@@ -1865,7 +1865,7 @@ static HWDef Hw0x1606_0x0060 =
 
 	0x44,   /* misc io12 (reg 0x59)                      */
 	0x45,   /* misc io34 (reg 0x5a)                      */
-	0x7c,   /* misc io56 (reg 0x5b)                      */
+	0x74,   /* misc io56 (reg 0x5b)                      */
 	0,      /* test mode ADC Output CODE MSB (reg 0x5c)  */
 	0,      /* test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* test mode (reg 0x5e)                      */
@@ -2103,7 +2103,7 @@ static HWDef Hw0x04A9_0x2208 =
 	_GREEN_CH,
 	0,      /* bReg 0x27 color mode                           */
 	1,      /* bReg 0x29 illumination mode                    */
-    
+
 	/* illumination mode settings (not used for CCD devices)  */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
@@ -2113,7 +2113,7 @@ static HWDef Hw0x04A9_0x2208 =
 	33,     /* bOpticBlackEnd (reg 0x1d)                      */
 	64,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
 	5440,   /* wLineEnd (reg 0x20 + 0x21)                     */
-    
+
 	16383,  /* red lamp on    (reg 0x2c + 0x2d)               */
 	1,      /* red lamp off   (reg 0x2e + 0x2f)               */
 	0,      /* green lamp on  (reg 0x30 + 0x31)               */
@@ -2144,139 +2144,139 @@ static HWDef Hw0x04A9_0x2208 =
 /** Canon 670/676/LiDE20 */
 static HWDef Hw0x04A9_0x220D =
 {
-    0.86,   /* dMaxMotorSpeed (Max_Speed)                     */
-    0.243,  /* dMaxMoveSpeed (Max_Speed)                      */
+	0.86,   /* dMaxMotorSpeed (Max_Speed)                     */
+	0.243,  /* dMaxMoveSpeed (Max_Speed)                      */
 	0.0,    /* dHighSpeed                                     */
-    100,    /* dIntegrationTimeLowLamp                        */
-    100,    /* dIntegrationTimeHighLamp                       */
-    1200,   /* wMotorDpi (Full step DPI)                      */
-    512,    /* wRAMSize (KB)                                  */
-    3.75,   /* dMinIntegrationTimeLowres (ms)                 */
-    5.75,   /* dMinIntegrationTimeHighres (ms)                */
-       0,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
-       0,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+	100,    /* dIntegrationTimeLowLamp                        */
+	100,    /* dIntegrationTimeHighLamp                       */
+	1200,   /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	3.75,   /* dMinIntegrationTimeLowres (ms)                 */
+	5.75,   /* dMinIntegrationTimeHighres (ms)                */
+	   0,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	   0,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
 
-    0x15,   /* bSensorConfiguration (0x0b)                    */
-    0x4c,   /* sensor control settings (reg 0x0c)             */
-    0x2f,   /* sensor control settings (reg 0x0d)             */
-    0x00,   /* sensor control settings (reg 0x0e)             */
+	0x15,   /* bSensorConfiguration (0x0b)                    */
+	0x4c,   /* sensor control settings (reg 0x0c)             */
+	0x2f,   /* sensor control settings (reg 0x0d)             */
+	0x00,   /* sensor control settings (reg 0x0e)             */
 
-    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-            /* mono (reg 0x0f to 0x18)                        */
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+	        /* mono (reg 0x0f to 0x18)                        */
 
-    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-            /* color (reg 0x0f to 0x18)                       */
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+	        /* color (reg 0x0f to 0x18)                       */
 
-    (_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
+	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
-    0x00,   /* bReg 0x27 color mode                           */
-    2,      /* bReg 0x29 illumination mode (runtime)          */
+	0x00,   /* bReg 0x27 color mode                           */
+	2,      /* bReg 0x29 illumination mode (runtime)          */
 
-    { 3,  0,    0, 23, 1800,  0,    0 },
-    { 2, 23, 3800, 23, 3300, 23, 2700 },
+	{ 3,  0,    0, 23, 1800,  0,    0 },
+	{ 2, 23, 3800, 23, 3300, 23, 2700 },
 
-    1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
-    0,      /* bOpticBlackStart (reg 0x1c)                    */
-    0,      /* bOpticBlackEnd (reg 0x1d)                      */
-    75,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-    6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
+	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	0,      /* bOpticBlackStart (reg 0x1c)                    */
+	0,      /* bOpticBlackEnd (reg 0x1d)                      */
+	75,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
 
-    23,  	/* red lamp on    (reg 0x2c + 0x2d)               */
-    3800,   /* red lamp off   (reg 0x2e + 0x2f)               */
-    23,  	/* green lamp on  (reg 0x30 + 0x31)               */
-    3300,   /* green lamp off (reg 0x32 + 0x33)               */
-    23,  	/* blue lamp on   (reg 0x34 + 0x35)               */
-    2700,   /* blue lamp off  (reg 0x36 + 0x37)               */
+	23,     /* red lamp on    (reg 0x2c + 0x2d)               */
+	3800,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	23,     /* green lamp on  (reg 0x30 + 0x31)               */
+	3300,   /* green lamp off (reg 0x32 + 0x33)               */
+	23,     /* blue lamp on   (reg 0x34 + 0x35)               */
+	2700,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
-    3,      /* stepper motor control (reg 0x45)               */
-    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
-    0x3f,   /* steps to reverse when buffer is full reg 0x50) */
-    0xfc,   /* acceleration profile (reg 0x51)                */
-    0,      /* lines to process (reg 0x54)                    */
-    0x0f,   /* kickstart (reg 0x55)                           */
-    0x08,   /* pwm freq (reg 0x56)                            */
-    0x1f,   /* pwm duty cycle (reg 0x57)                      */
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+	0x3f,   /* steps to reverse when buffer is full reg 0x50) */
+	0xfc,   /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0x0f,   /* kickstart (reg 0x55)                           */
+	0x08,   /* pwm freq (reg 0x56)                            */
+	0x1f,   /* pwm duty cycle (reg 0x57)                      */
 
-    0x04,   /* Paper sense (reg 0x58)                         */
+	0x04,   /* Paper sense (reg 0x58)                         */
 
-    0x66,   /* misc io12 (reg 0x59)                           */
-    0x16,   /* misc io34 (reg 0x5a)                           */
-    0x91,   /* misc io56 (reg 0x5b)                           */
-    0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
-    0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
-    0,      /* test mode (reg 0x5e)                           */
-    _LM9833,
-    MODEL_CANON600,
-    2.0
+	0x66,   /* misc io12 (reg 0x59)                           */
+	0x16,   /* misc io34 (reg 0x5a)                           */
+	0x91,   /* misc io56 (reg 0x5b)                           */
+	0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9833,
+	MODEL_CANON600,
+	2.0
 };
 
-/** Canon N1240U */
+/** Canon N1240U/LiDE30 */
 static HWDef Hw0x04A9_0x220E =
 {
-    0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
-    0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
+	0.30,   /* dMaxMoveSpeed (Max_Speed)                      */
 	0.0,    /* dHighSpeed                                     */
-    100,    /* wIntegrationTimeLowLamp                        */
-    100,    /* wIntegrationTimeHighLamp                       */
-    1200,   /* wMotorDpi (Full step DPI)                      */
-    512,    /* wRAMSize (KB)                                  */
-    3.75,   /* dMinIntegrationTimeLowres (ms)                 */
-    5.75,   /* dMinIntegrationTimeHighres (ms)                */
-       0,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
-       0,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+	100,    /* wIntegrationTimeLowLamp                        */
+	100,    /* wIntegrationTimeHighLamp                       */
+	1200,   /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	3.75,   /* dMinIntegrationTimeLowres (ms)                 */
+	5.75,   /* dMinIntegrationTimeHighres (ms)                */
+	   0,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	   0,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
 
-    0x15,   /* bSensorConfiguration (0x0b)                    */
-    0x4c,   /* sensor control settings (reg 0x0c)             */
-    0x2f,   /* sensor control settings (reg 0x0d)             */
-    0x00,   /* sensor control settings (reg 0x0e)             */
+	0x15,   /* bSensorConfiguration (0x0b)                    */
+	0x4c,   /* sensor control settings (reg 0x0c)             */
+	0x2f,   /* sensor control settings (reg 0x0d)             */
+	0x00,   /* sensor control settings (reg 0x0e)             */
 
-    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-            /* mono (reg 0x0f to 0x18)                        */
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+	       /* mono (reg 0x0f to 0x18)                        */
 
-    {0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-            /* color (reg 0x0f to 0x18)                       */
+	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
+	      /* color (reg 0x0f to 0x18)                       */
 
-    (_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
+	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
-    0x00,   /* bReg 0x27 color mode                           */
-    2,      /* bReg 0x29 illumination mode                    */
-    
-    { 3,  0,     0, 23,  4000,  0,    0 },
-    { 2, 23, 16383, 23,  6500, 23, 4900 },
-    
-    1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
-    0,      /* bOpticBlackStart (reg 0x1c)                    */
-    0,      /* bOpticBlackEnd (reg 0x1d)                      */
-    52,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
-    10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
+	0x00,   /* bReg 0x27 color mode                           */
+	2,      /* bReg 0x29 illumination mode                    */
 
-    23,     /* red lamp on    (reg 0x2c + 0x2d)               */
-    16383,  /* red lamp off   (reg 0x2e + 0x2f)               */
-    23,     /* green lamp on  (reg 0x30 + 0x31)               */
-    6500,   /* green lamp off (reg 0x32 + 0x33)               */
-    23,     /* blue lamp on   (reg 0x34 + 0x35)               */
-    4900,   /* blue lamp off  (reg 0x36 + 0x37)               */
+	{ 3,  0,     0, 23,  4000,  0,    0 },
+	{ 2, 23, 16383, 23,  6500, 23, 4900 },
 
-    3,      /* stepper motor control (reg 0x45)               */
-    0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
-    0x20,   /* steps to reverse when buffer is full reg 0x50) */
-    0xfc,   /* acceleration profile (reg 0x51)                */
-    0,      /* lines to process (reg 0x54)                    */
-    0x0f,   /* kickstart (reg 0x55)                           */
-    0x08,   /* pwm freq (reg 0x56)                            */
-    0x1f,   /* pwm duty cycle (reg 0x57)                      */
+	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	0,      /* bOpticBlackStart (reg 0x1c)                    */
+	0,      /* bOpticBlackEnd (reg 0x1d)                      */
+	52,     /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	10586,  /* wLineEnd (reg 0x20 + 0x21)                     */
 
-    0x04,   /* Paper sense (reg 0x58)                         */
+	23,     /* red lamp on    (reg 0x2c + 0x2d)               */
+	16383,  /* red lamp off   (reg 0x2e + 0x2f)               */
+	23,     /* green lamp on  (reg 0x30 + 0x31)               */
+	6500,   /* green lamp off (reg 0x32 + 0x33)               */
+	23,     /* blue lamp on   (reg 0x34 + 0x35)               */
+	4900,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
-    0x66,   /* misc io12 (reg 0x59)                           */
-    0x16,   /* misc io34 (reg 0x5a)                           */
-    0x91,   /* misc io56 (reg 0x5b)                           */
-    0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
-    0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
-    0,      /* test mode (reg 0x5e)                           */
-    _LM9833,
-    MODEL_CANON1200,
-    2.0
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+	0x20,   /* steps to reverse when buffer is full reg 0x50) */
+	0xfc,   /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0x0f,   /* kickstart (reg 0x55)                           */
+	0x08,   /* pwm freq (reg 0x56)                            */
+	0x1f,   /* pwm duty cycle (reg 0x57)                      */
+
+	0x04,   /* Paper sense (reg 0x58)                         */
+
+	0x66,   /* misc io12 (reg 0x59)                           */
+	0x16,   /* misc io34 (reg 0x5a)                           */
+	0x91,   /* misc io56 (reg 0x5b)                           */
+	0x01,   /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9833,
+	MODEL_CANON1200,
+	2.0
 };
 
 /******************** all available combinations *****************************/

@@ -73,6 +73,8 @@
  *          split scanmode and bit-depth
  * - 0.49 - improved multi-device capability
  *        - tweaked some device settings
+ *        - added button support
+ *        - moved AFE stuff to enhanced options
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -148,8 +150,10 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-4"
+#define BACKEND_VERSION "0.49-5"
+
 #define BACKEND_NAME    plustek
+#include "../include/sane/sanei_access.h"
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_thread.h"
@@ -305,6 +309,7 @@ drvclose( Plustek_Device *dev )
 		/* don't check the return values, simply do it */
 		usbDev_stopScan( dev );
 		usbDev_close   ( dev );
+		sanei_access_unlock( dev->sane.name );
 	}
 	dev->fd = -1;
 
@@ -405,6 +410,10 @@ static int reader_process( void *args )
 	struct SIGACTION act;
 	sigset_t         ignore_set;
 	Plustek_Scanner *scanner = (Plustek_Scanner *)args;
+#ifdef USE_IPC
+	IPCDef           ipc;
+	Plustek_Device  *dev = scanner->hw;
+#endif
 
 	if( sanei_thread_is_forked()) {
 		DBG( _DBG_PROC, "reader_process started (forked)\n" );
@@ -447,10 +456,22 @@ static int reader_process( void *args )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	/* here we read all data from the driver... */
+	/* prepare for scanning: speed-test, warmup, calibration */
 	buf    = scanner->buf;
 	status = usbDev_Prepare( scanner->hw, buf );
 
+#ifdef USE_IPC
+	/* prepare IPC structure */
+	memset( &ipc, 0, sizeof(ipc));
+	ipc.transferRate = DEFAULT_RATE;
+
+	if( dev->transferRate > 0 && dev->transferRate != DEFAULT_RATE )
+		ipc.transferRate = dev->transferRate;
+
+	/* write ipc back to parent in any case... */
+	write( scanner->w_pipe, &ipc, sizeof(ipc));
+#endif
+	/* on success, we read all data from the driver... */
 	if( 0 == status ) {
 
 		for( line = 0; line < scanner->params.lines; line++ ) {
@@ -471,7 +492,7 @@ static int reader_process( void *args )
 	scanner->w_pipe = -1;
 
 	if((int)status < 0 ) {
-		DBG( _DBG_ERROR, "read failed, status = %i, errno %i\n",
+		DBG( _DBG_ERROR,"reader_process: read failed, status = %i, errno %i\n",
                                                           (int)status, lerrn );
 		if( _E_ABORT == (int)status )
 			return SANE_STATUS_CANCELLED;
@@ -527,6 +548,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 			sanei_thread_sendsig( scanner->reader_pid, SIGKILL );
 #endif
 		}
+
 		scanner->reader_pid = 0;
 		DBG( _DBG_PROC,"reader_process killed\n");
 #ifndef HAVE_SETITIMER
@@ -580,8 +602,8 @@ static SANE_Status initGammaSettings( Plustek_Scanner *s )
 		for( j = 0; j < s->gamma_length; j++ ) {
 
 			val = (s->gamma_range.max *
-			            pow((double) j / ((double)s->gamma_length - 1.0),
-			            1.0 / gamma ));
+			       pow((double)j / (double)(s->gamma_length-1.0),
+			       1.0 / gamma ));
 
 			if( val > s->gamma_range.max )
 				val = s->gamma_range.max;
@@ -636,7 +658,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_NUM_OPTS].w 	   = NUM_OPTIONS;
 
 	/* "Scan Mode" group: */
-	s->opt[OPT_MODE_GROUP].name  = "scanmode-group";
 	s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan Mode");
 	s->opt[OPT_MODE_GROUP].desc  = "";
 	s->opt[OPT_MODE_GROUP].type  = SANE_TYPE_GROUP;
@@ -721,7 +742,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_PREVIEW].w     = 0;
 
 	/* "Geometry" group: */
-	s->opt[OPT_GEOMETRY_GROUP].name  = "geometry-group";
 	s->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N("Geometry");
 	s->opt[OPT_GEOMETRY_GROUP].desc  = "";
 	s->opt[OPT_GEOMETRY_GROUP].type  = SANE_TYPE_GROUP;
@@ -831,7 +851,6 @@ static SANE_Status init_options( Plustek_Scanner *s )
 		s->opt[OPT_EXT_MODE].cap |= SANE_CAP_INACTIVE;
 
 	/* "Device settings" group: */
-	s->opt[OPT_DEVICE_GROUP].name  = "device-settings";
 	s->opt[OPT_DEVICE_GROUP].title = SANE_I18N("Device-Settings");
 	s->opt[OPT_DEVICE_GROUP].desc  = "";
 	s->opt[OPT_DEVICE_GROUP].type  = SANE_TYPE_GROUP;
@@ -873,11 +892,10 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->val[OPT_LAMPOFF_TIMER].w     = adj->lampOff;
 
 	/* "Analog Frontend" group*/
-	s->opt[OPT_AFE_GROUP].name  = "afe-group";
 	s->opt[OPT_AFE_GROUP].title = SANE_I18N("Analog frontend");
 	s->opt[OPT_AFE_GROUP].desc  = "";
 	s->opt[OPT_AFE_GROUP].type  = SANE_TYPE_GROUP;
-	s->opt[OPT_AFE_GROUP].cap   = 0;
+	s->opt[OPT_AFE_GROUP].cap   = SANE_CAP_ADVANCED;
 	
 	s->opt[OPT_OVR_REDGAIN].name  = "red-gain";
 	s->opt[OPT_OVR_REDGAIN].title = SANE_I18N("Red gain");
@@ -958,6 +976,31 @@ static SANE_Status init_options( Plustek_Scanner *s )
 		s->opt[OPT_OVR_BLUE_LOFF].cap  |= SANE_CAP_INACTIVE;
 	}
 
+	/* "Button" group*/
+	s->opt[OPT_BUTTON_GROUP].title = SANE_I18N("Buttons");
+	s->opt[OPT_BUTTON_GROUP].desc  = "";
+	s->opt[OPT_BUTTON_GROUP].type  = SANE_TYPE_GROUP;
+	s->opt[OPT_BUTTON_GROUP].cap   = SANE_CAP_ADVANCED;
+
+	/* scanner buttons */
+	for( i = OPT_BUTTON_0; i <= OPT_BUTTON_LAST; i++ ) {
+		s->opt[i].name  = "button";
+		s->opt[i].title = SANE_I18N("Scanner button");
+		s->opt[i].desc  = SANE_I18N("This options reflects the front pannel "
+		                            "scanner button pressed by the user.");
+		s->opt[i].type = SANE_TYPE_BOOL;
+		s->opt[i].cap  = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+		if (i - OPT_BUTTON_0 >= dev->usbDev.Caps.bButtons )
+			s->opt[i].cap |= SANE_CAP_INACTIVE;
+      
+		s->opt[i].unit = SANE_UNIT_NONE;
+		s->opt[i].size = sizeof (SANE_Word);
+		s->opt[i].constraint_type = SANE_CONSTRAINT_RANGE;
+		s->opt[i].constraint.range = 0;
+		s->val[i].w = SANE_FALSE;
+	}
+
+	usb_UpdateButtonStatus( s );
 	return SANE_STATUS_GOOD;
 }
 
@@ -1153,6 +1196,7 @@ static SANE_Status attach( const char *dev_name,
 	dev->sane.vendor  = "Plustek";
 	dev->initialized  = -1;                  /* will be used as index too */
 	dev->calFile      = NULL;
+	dev->transferRate = DEFAULT_RATE;
 
 	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
 
@@ -1176,7 +1220,7 @@ static SANE_Status attach( const char *dev_name,
 #endif
 
 	/* go ahead and open the scanner device */
-	handle = usbDev_open( dev, usbDevs );
+	handle = usbDev_open( dev, usbDevs, SANE_FALSE );
 	if( handle < 0 ) {
 		DBG( _DBG_ERROR,"open failed: %d\n", handle );
 		return SANE_STATUS_IO_ERROR;
@@ -1205,8 +1249,8 @@ static SANE_Status attach( const char *dev_name,
 	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag  );
 
-	dev->max_x = dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
-	dev->max_y = dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
+	dev->max_x = SANE_FIX(dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE);
+	dev->max_y = SANE_FIX(dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE);
 
 	/* calculate the size of the resolution list +
 	 * one more to avoid a buffer overflow, then allocate it...
@@ -1216,7 +1260,7 @@ static SANE_Status attach( const char *dev_name,
 	                 sizeof (SANE_Int));  
 
 	if (NULL == dev->res_list) {
-		DBG( _DBG_ERROR, "alloc fail, resolution problem\n" );
+		DBG( _DBG_ERROR, "calloc failed: %s\n", strerror(errno));
 		usbDev_close(dev);
 		return SANE_STATUS_INVAL;
 	}
@@ -1229,10 +1273,10 @@ static SANE_Status attach( const char *dev_name,
 	}
 
 	/* set the limits */
-	dev->dpi_range.min   = _DEF_DPI;
-	dev->dpi_range.max   = dev->usbDev.Caps.OpticDpi.x * 2;
-	dev->x_range.max     = SANE_FIX(dev->max_x);
-	dev->y_range.max     = SANE_FIX(dev->max_y);
+	dev->dpi_range.min = _DEF_DPI;
+	dev->dpi_range.max = dev->usbDev.Caps.OpticDpi.x * 2;
+	dev->x_range.max   = SANE_FIX(dev->max_x);
+	dev->y_range.max   = SANE_FIX(dev->max_y);
 
 	dev->fd = handle;
 	drvclose( dev );
@@ -1296,6 +1340,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	sanei_lm983x_init();
 #endif	
 	sanei_thread_init();
+	sanei_access_init(STRINGIFY(BACKEND_NAME));
 
 #if defined PACKAGE && defined VERSION
 	DBG( _DBG_INFO, "Plustek backend V"BACKEND_VERSION", part of "
@@ -1328,7 +1373,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 	}
 
 	while( sanei_config_read( str, sizeof(str), fp)) {
-		
+
 		DBG( _DBG_SANE_INIT, ">%s<\n", str );
 		if( str[0] == '#')		/* ignore line comments */
 			continue;
@@ -1342,7 +1387,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 			int    ival;
 			double dval;
-		
+
 			ival = -1;
 			decodeVal( str, "warmup",    _INT, &config.adj.warmup,      &ival);
 			decodeVal( str, "lampOff",   _INT, &config.adj.lampOff,     &ival);
@@ -1359,7 +1404,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeVal( str, "red_lampoff",   _INT, &config.adj.rlampoff,&ival);
 			decodeVal( str, "green_lampoff", _INT, &config.adj.glampoff,&ival);
 			decodeVal( str, "blue_lampoff",  _INT, &config.adj.blampoff,&ival);
-			
+
 			ival = 0;
 			decodeVal( str, "enableTPA", _INT, &config.adj.enableTpa, &ival);
 			decodeVal( str, "cacheCalData",
@@ -1397,9 +1442,9 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 
 		/* check for sections: */
 		} else if( 0 == strncmp( str, _SECTION, strlen(_SECTION))) {
-		
+
 		    char *tmp;
-		
+
 		    /* new section, try and attach previous device */
 		    if( config.devName[0] != '\0' ) {
 				attach( config.devName, &config, 0 );
@@ -1409,7 +1454,7 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 					                   " ignored!\n" );
 				 }
 			}
-		
+
 			/* re-initialize the configuration structure */
 			init_config_struct( &config );
 		
@@ -1417,12 +1462,12 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 			decodeUsbIDs( str, &tmp );
 		
 			DBG( _DBG_SANE_INIT, "... next device\n" );
-			continue;				
+			continue;
 
 		} else if( SANE_TRUE == decodeDevName( str, config.devName )) {
 			continue;
 		}
-		
+
 		/* ignore other stuff... */
 		DBG( _DBG_SANE_INIT, "ignoring >%s<\n", str );
 	}
@@ -1497,15 +1542,15 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only )
 
 	/* already called, so cleanup */
 	if( devlist )
-    	free( devlist );
+		free( devlist );
 
 	devlist = malloc((num_devices + 1) * sizeof (devlist[0]));
 	if ( NULL == devlist )
-    	return SANE_STATUS_NO_MEM;
+		return SANE_STATUS_NO_MEM;
 
 	i = 0;
 	for (dev = first_dev; i < num_devices; dev = dev->next)
-    	devlist[i++] = &dev->sane;
+		devlist[i++] = &dev->sane;
 	devlist[i++] = 0;
 
 	*device_list = devlist;
@@ -1520,20 +1565,20 @@ sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	SANE_Status      status;
 	Plustek_Device  *dev;
 	Plustek_Scanner *s;
-    CnfDef           config;
+	CnfDef           config;
 
 	DBG( _DBG_SANE_INIT, "sane_open - %s\n", devicename );
 
 	if( devicename[0] ) {
-    	for( dev = first_dev; dev; dev = dev->next ) {
+		for( dev = first_dev; dev; dev = dev->next ) {
 			if( strcmp( dev->sane.name, devicename ) == 0 )
 				break;
-        }
+		}
 
 		if( !dev ) {
 
 			memset( &config, 0, sizeof(CnfDef));
-			
+
 			status = attach( devicename, &config, &dev );
 			if( SANE_STATUS_GOOD != status )
 				return status;
@@ -1544,11 +1589,11 @@ sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	}
 
 	if( !dev )
-    	return SANE_STATUS_INVAL;
+		return SANE_STATUS_INVAL;
 
 	s = malloc (sizeof (*s));
 	if( NULL == s )
-    	return SANE_STATUS_NO_MEM;
+		return SANE_STATUS_NO_MEM;
 
 	memset(s, 0, sizeof (*s));
 	s->r_pipe   = -1;
@@ -1561,9 +1606,8 @@ sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 	/* insert newly opened handle into list of open handles: */
 	s->next      = first_handle;
 	first_handle = s;
+	*handle      = s;
 
-	*handle = s;
-	
 	return SANE_STATUS_GOOD;
 }
 
@@ -1670,6 +1714,18 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_LAMPOFF_TIMER:
 			case OPT_WARMUPTIME:
 				*(SANE_Word *)value = s->val[option].w;
+				break;
+
+			case OPT_BUTTON_0:
+				usb_UpdateButtonStatus( s );
+			case OPT_BUTTON_1:
+			case OPT_BUTTON_2:
+			case OPT_BUTTON_3:
+			case OPT_BUTTON_4:
+				/* copy the button state */
+				*(SANE_Word*)value = s->val[option].w;
+				/* clear the button state */
+				s->val[option].w = SANE_FALSE;
 				break;
 
 			case OPT_CONTRAST:
@@ -2129,9 +2185,9 @@ sane_start( SANE_Handle handle )
 
 	/* open the driver and get some information about the scanner
 	 */
-	dev->fd = usbDev_open( dev, NULL );
+	dev->fd = usbDev_open( dev, NULL, SANE_TRUE );
 	if( dev->fd < 0 ) {
-		DBG( _DBG_ERROR,"sane_start: open failed: %d\n", errno );
+		DBG( _DBG_ERROR, "sane_start: open failed: %d\n", errno);
 
 		if( errno == EBUSY )
 			return SANE_STATUS_DEVICE_BUSY;
@@ -2142,6 +2198,7 @@ sane_start( SANE_Handle handle )
 	result = usbDev_getCaps( dev );
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "usbDev_getCaps() failed(%d)\n", result);
+		sanei_access_unlock( dev->sane.name );
 		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}
@@ -2207,6 +2264,7 @@ sane_start( SANE_Handle handle )
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "usbDev_getCropInfo() failed(%d)\n", result );
 		usbDev_close( dev );
+		sanei_access_unlock( dev->sane.name );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -2235,6 +2293,7 @@ sane_start( SANE_Handle handle )
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "usbDev_setScanEnv() failed(%d)\n", result );
 		usbDev_close( dev );
+		sanei_access_unlock( dev->sane.name );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -2253,6 +2312,7 @@ sane_start( SANE_Handle handle )
 	if( result < 0 ) {
 		DBG( _DBG_ERROR, "usbDev_startScan() failed(%d)\n", result );
 		usbDev_close( dev );
+		sanei_access_unlock( dev->sane.name );
 		return SANE_STATUS_IO_ERROR;
 	}
 
@@ -2265,6 +2325,7 @@ sane_start( SANE_Handle handle )
 	if( NULL == s->buf ) {
 		DBG( _DBG_ERROR, "realloc failed\n" );
 		usbDev_close( dev );
+		sanei_access_unlock( dev->sane.name );
 		return SANE_STATUS_NO_MEM;
 	}
 
@@ -2285,10 +2346,11 @@ sane_start( SANE_Handle handle )
 	}
 
 	/* create reader routine as new process */
-	s->bytes_read = 0;
-	s->r_pipe     = fds[0];
-	s->w_pipe     = fds[1];
-	s->reader_pid = sanei_thread_begin( reader_process, s );
+	s->bytes_read    = 0;
+	s->r_pipe        = fds[0];
+	s->w_pipe        = fds[1];
+	s->ipc_read_done = SANE_FALSE;
+	s->reader_pid    = sanei_thread_begin( reader_process, s );
 
 	cancelRead = SANE_FALSE;
 	
@@ -2318,8 +2380,42 @@ sane_read( SANE_Handle handle, SANE_Byte *data,
 {
 	Plustek_Scanner *s = (Plustek_Scanner*)handle;
 	ssize_t          nread;
+#ifdef USE_IPC
+	static	 IPCDef       ipc;
+	unsigned char        *buf;
+	static unsigned long  c = 0;
+#endif
 
 	*length = 0;
+
+#ifdef USE_IPC
+	/* first try and read IPC... */
+	if( !s->ipc_read_done ) {
+
+		buf = (unsigned char*)&ipc;
+		for( c = 0; c < sizeof(ipc); ) {
+			nread = read( s->r_pipe, buf, sizeof(ipc));
+			if( nread < 0 ) {
+				if( EAGAIN != errno ) {
+					do_cancel( s, SANE_TRUE );
+					return SANE_STATUS_IO_ERROR;
+				} else {
+					return SANE_STATUS_GOOD;
+				}
+			} else {
+				c   += nread;
+				buf += nread;
+				if( c == sizeof(ipc)) {
+					s->ipc_read_done = SANE_TRUE;
+					break;
+				}
+			}
+		}
+		s->hw->transferRate = ipc.transferRate;
+		DBG( _DBG_INFO, "IPC: Transferrate = %lu Bytes/s\n", 
+		     ipc.transferRate );
+	}
+#endif
 
 	/* here we read all data from the driver... */
 	nread = read( s->r_pipe, data, max_length );

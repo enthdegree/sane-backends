@@ -1,128 +1,744 @@
-;
-; SANE Backend specification file
-;
-; It's basically emacs-lisp --- so ";" indicates comment to end of line.
-; All syntactic elements are keyword tokens, followed by a string or
-;  keyword argument, as specified.
-;
-; ":backend" *must* be specified.
-; All other information is optional (but what good is the file without it?).
-;
+;;;  epkowa.desc			-*- emacs-lisp -*- (eh, sort of)
+;;;  Copyright (C) 2004  Olaf Meeuwissen
+;;;
+;;;  This file is part of the "Image Scan!" documentation.
+;;;
+;;;  The "Image Scan!" documentation is free software.
+;;;  You can redistribute it and/or modify it under the terms of the GNU
+;;;  General Public License as published by the Free Software Foundation;
+;;;  either version 2 of the License or at your option any later version.
+;;;
+;;;  This program is distributed in the hope that it will be useful, but
+;;;  WITHOUT ANY WARRANTY;  without even the implied warranty of FITNESS
+;;;  FOR A PARTICULAR PURPOSE or MERCHANTABILITY.
+;;;  See the GNU General Public License for more details.
+;;;
+;;;  You should have received a verbatim copy of the GNU General Public
+;;;  License along with this program; if not, write to:
+;;;
+;;;      Free Software Foundation, Inc.
+;;;      59 Temple Place, Suite 330
+;;;      Boston, MA  02111-1307  USA
 
-:backend "epkowa"                 ; name of backend
-:version "1.5.2"                  ; version of backend
-;:manpage "sane-epkowa"            ; name of manpage (if it exists)
-:url "http://www.epkowa.co.jp/english/linux_e/lsd_e.html"  ; backend's web page
-:comment "This backend is not included in the sane-backends distribution because it uses code that is not open-source."
+;;;  This list of devices was compiled from the following sources:
+;;;
+;;;  * iscan-1.12.0/README
+;;;  * iscan-1.12.0/README.ja
+;;;  * iscan-1.12.0/doc/sane-epkowa.man
+;;;  * iscan-1.12.0/backend/epkowa_usb.c
+;;;  * sane-backends-1.0.12/backend/epson_usb.c
+;;;  * sane-backends-1.0.12/doc/descriptions/epson.desc
+;;;  * http://www.freecolormanagement.com/sane/supported.html
+;;;  * http://www.sane-project.org/lists/sane-mfgs-cvs.html#Z-EPSON
+;;;  * http://www.epsondevelopers.com/
+;;;  * http://www.epson.com/	(several representative countries)
+;;;  * http://www.i-love-epson.co.jp/
 
+
+;;  Backend data.
+;;
+:backend "epkowa"
+:version "1.12.0"
+:status  :stable
+:manpage "sane-epkowa"
+:url     "http://www.epkowa.co.jp/english/linux_e/dl_scan.html"
+
+:comment "Based on the epson backend of sane-backends-1.0.12."
+
+; AFAIK, all devices listed on the sane-epkowa.man page have been
+; tested by EPSON AVASYS Corporation but _only_ for SCSI and USB
+; interfaces.  The IEEE1394 and parallel interfaces have never been
+; tested.  These models have all been marked :complete (even though
+; some are not really quite :complete).  All other devices have, in
+; principle, been marked as :unsupported.
+; Devices supported by the epson backend (as of version 1.0.12 of
+; sane-backends) as well as overseas versions of supported models
+; have been marked :untested.
+
+;;  Device and manufacturer information.
+;;
 :devicetype :scanner
+:mfg        "EPSON"
+:url        "http://www.epson.com/"
+:comment    ""
 
-:mfg "Epson"
-:url "http://www.epson.com/"
+; SEIKO EPSON Corporation's marketing division divides the world in
+; Japan and several overseas regions.  The same scanner is marketed
+; under different names in the various regions.  I have assumed the
+; Japan-centric point of view that the scanner names for the models
+; marketed in Japan are "canonical".  All the other model names are
+; considered overseas.
 
-:model "Expression 1600"
-:interface "SCSI USB IEEE-1394"
-:status :complete
+; I have marked the models for which I have been able to download a
+; product specification with an indication of the site.
+;
+;   JP	= http://www.i-love-epson.co.jp/	(in Japanese)
+;
+; All command specs were downloaded from www.epsondevelopers.com.
 
-:model "Expression 1640XL"
-:interface "SCSI USB IEEE-1394"
-:status :complete
 
-:model "Expression 1680"
-:interface "SCSI USB IEEE-1394"
-:status :complete
+;;  List of EPSON scanners and all-in-ones.
+;;
 
-:model "GT-10000"
-:interface "SCSI IEEE-1394"
-:status :complete
+:model     "Actionscanner II"
+:interface "parallel"
+:status    :untested			; :beta
+:comment   "overseas version of the GT-5000"
 
-:model "GT-10000+"
-:interface "SCSI IEEE-1394"
-:status :complete
-
-:model "GT-30000"
-:interface "SCSI IEEE-1394"
-:status :complete
-
-:model "Perfection 610"
+:model     "CC-500L"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :unsupported
+:comment   "all-in-one"
 
-:model "Perfection 640U"
+:model     "CC-550L"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :unsupported
+:comment   "all-in-one"
 
-:model "Perfection 1200S"
+:model     "CC-570L"			; product spec (JP)
+:interface "USB"
+:status    :untested
+:comment   "all-in-one"
+
+:model     "CC-600PX"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "CC-700"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+:comment   "all-in-one"
+
+:model     "ES-300C"
+:interface "SCSI parallel"
+:status    :untested			; :beta
+:comment   "overseas version of the GT-6000"
+
+:model     "ES-600C"
+:interface "parallel"
+:status    :untested			; :beta
+:comment   "overseas version of the GT-5400"
+
+:model     "ES-800C"
 :interface "SCSI"
-:status :complete
+:status    :unsupported
+:comment   "overseas version of the GT-8000"
 
-:model "Perfection 1200U"
-:interface "USB"
-:status :complete
+:model     "ES-1000C"
+:status    :unsupported
+:comment   "overseas version of the GT-8500"
 
-:model "Perfection 1200U PHOTO"
-:interface "USB"
-:status :complete
+:model     "ES-1200C"
+:interface "parallel"
+:status    :untested			; :beta
+:comment   "overseas version of the GT-9000"
 
-:model "Perfection 1240U"
-:interface "USB"
-:status :complete
-
-:model "Perfection 1250"
-:interface "USB"
-:status :complete
-
-:model "Perfection 1250 PHOTO"
-:interface "USB"
-:status :complete
-
-:model "Perfection 1260"
-:interface "USB"
-:status :complete
-
-:model "Perfection 1260 PHOTO"
-:interface "USB"
-:status :basic
-:comment "The transparency unit doesn't work currently."
-
-:model "Perfection 1640SU"
+:model     "ES-2000"			; product spec (JP)
 :interface "SCSI USB"
-:status :complete
+:status    :complete
+:comment   "IEEE1394 untested"
 
-:model "Perfection 1640SU PHOTO"
+:model     "ES-2200"			; product spec (JP)
 :interface "SCSI USB"
-:status :complete
+:status    :complete
+:comment   "IEEE1394 untested"
 
-:model "Perfection 1650"
+:model     "ES-6000"			; product spec (JP)
+:interface "SCSI"
+:status    :complete
+
+:model     "ES-6000H"			; product spec (JP)
+:interface "SCSI"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "ES-6000HS"			; product spec (JP)
+:interface "SCSI"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "ES-7000H"			; product spec (JP)
+:interface "SCSI USB"
+:status    :complete
+:comment   "IEEE1394 untested; 100Base-TX/10Base-T unsupported"
+
+:model     "ES-8000"
+:interface "SCSI"
+:status    :untested
+
+:model     "ES-8500"			; product spec (JP)
+:interface "SCSI USB"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "ES-9000H"			; product spec (JP)
+:interface "SCSI"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "ES-10000G"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :complete
+:comment   "IEEE1394 untested<br>100Base-TX/10Base-T unsupported"
 
-:model "Perfection 1650 PHOTO"
+:model     "Expression 636"
+:interface "SCSI"
+:status    :untested			; :stable
+:comment   "overseas version of the GT-9500"
+
+:model     "Expression 800"		; command spec
+:interface "SCSI"
+:status    :untested			; :stable
+:comment   "overseas version of the GT-9600"
+
+:model     "Expression 836XL"		; command spec
+:interface "SCSI"
+:status    :untested
+:comment   "overseas version of the ES-8000"
+
+:model     "Expression 1600"		; command spec
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the ES-2000<br>IEEE1394 untested"
+
+:model     "Expression 1640XL"		; command spec
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the ES-8500<br>IEEE1394 untested"
+
+:model     "Expression 1680"		; command spec
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the ES-2200<br>IEEE1394 untested"
+
+:model     "Expression 10000XL"		; command spec
 :interface "USB"
-:status :complete
+:status    :complete
+:comment   "overseas version of the ES-10000G<br>IEEE1394 untested; 100Base-TX/10Base-T unsupported"
 
-:model "Perfection 1660 PHOTO"
+:model     "F-3200"			; product spec (JP)
+:interface "USB IEEE1394"
+:status    :unsupported
+:comment   "Film scanner"
+
+:model     "FilmScan 200"
+:interface "SCSI"
+:status    :unsupported
+:comment   "A better backend for the FilmScan 200 can be found at <A HREF=\"http://www.vjet.demon.co.uk/scanner/\">http://www.vjet.demon.co.uk/scanner/</A>."
+
+:model     "GT-4000"
+:status    :untested
+
+:model     "GT-5000"
+:interface "parallel"
+:status    :untested			; :beta
+
+:model     "GT-5400"
+:interface "parallel"
+:status    :untested			; :beta
+
+:model     "GT-5500"
+:interface "SCSI"
+:status    :untested			; :beta
+
+:model     "GT-6000"
+:interface "SCSI Parport"
+:status    :untested			; :beta
+
+:model     "GT-6500"
+:interface "parallel"
+:status    :untested			; :beta
+:comment   "overseas version of the GT-5400"
+
+:model     "GT-6600U"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :complete
 
-:model "Perfection 1670"
+:model     "GT-6700U"			; product spec (JP)
 :interface "USB"
-:status :unsupported
-:comment "Is not and will not be supported by the epkowa backend. Use the SnapScan backend instead."
+:status    :complete
 
-:model "Perfection 2400 PHOTO"
+:model     "GT-7000S"
+:interface "SCSI"
+:status    :untested			; :stable
+
+:model     "GT-7000U"
 :interface "USB"
-:status :complete
+:status    :untested			; :stable
 
-:model "Perfection 2450 PHOTO"
+:model     "GT-7200U"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :complete
+:comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
 
-:model "Perfection 3200 PHOTO"
-:interface "USB IEEE-1394"
-:status :complete
-
-:model "Perfection 3170 PHOTO"
+:model     "GT-7300U"			; product spec (JP)
 :interface "USB"
-:status :complete
+:status    :complete
+:comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
 
+:model     "GT-7400U"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+:comment   "may be supported by the snapscan backend"
+
+:model     "GT-7600S"			; product spec (JP)
+:interface "SCSI"
+:status    :complete
+:comment   "SCSI version of the GT-7600U"
+
+:model     "GT-7600U"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "USB version of the GT-7600S"
+
+:model     "GT-7600UF"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "GT-7600U with TPU option bundled"
+
+:model     "GT-7700U"			; product spec (JP)
+:interface "USB"
+:status    :complete
+
+:model     "GT-8000"
+:interface "SCSI"
+:status    :untested			; :beta
+
+:model     "GT-8200U"			; product spec (JP)
+:interface "USB"
+:status    :complete
+
+:model     "GT-8200UF"			; product spec (JP)
+:interface "USB"
+:status    :complete
+
+:model     "GT-8300UF"			; product spec (JP)
+:interface "USB"
+:status    :complete
+
+:model     "GT-8400UF"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+
+:model     "GT-8500"
+:status    :untested
+
+:model     "GT-8700"			; product spec (JP)
+:interface "SCSI USB"
+:status    :complete
+
+:model     "GT-8700F"			; product spec (JP)
+:interface "SCSI USB"
+:status    :complete
+:comment   "GT-8700U with TPU option bundled"
+
+:model     "GT-9000"
+:interface "parallel"
+:status    :untested			; :beta
+
+:model     "GT-9300UF"			; product spec (JP)
+:interface "USB"
+:status    :complete
+
+:model     "GT-9400UF"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "requires a DFSG non-free module"
+
+:model     "GT-9500"
+:interface "SCSI"
+:status    :untested			; :stable
+
+:model     "GT-9600"
+:interface "SCSI"
+:status    :untested			; :stable
+
+:model     "GT-9700F"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "GT-9800F"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "GT-10000"
+:interface "SCSI"
+:status    :complete
+:comment   "overseas version of the ES-6000"
+
+:model     "GT-10000+"			; command spec
+:interface "SCSI"
+:status    :complete
+:comment   "overseas version of the ES-6000H<br>IEEE1394 untested"
+
+:model     "GT-12000"
+:interface "SCSI"
+:status    :untested
+:comment   "overseas version of the ES-8000"
+
+:model     "GT-15000"			; command spec
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the ES-7000H<br>IEEE1394 untested"
+
+:model     "GT-30000"			; command spec
+:interface "SCSI"
+:status    :complete
+:comment   "overseas version of the ES-9000H<br>IEEE1394 untested"
+
+:model     "GT-F500"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+
+:model     "GT-F550"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+
+:model     "GT-F600"			; product spec (JP)
+:interface "USB"
+:status    :good
+:comment   "only scans up to 2400dpi"
+
+:model     "GT-X700"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "IEEE1394 untested"
+
+:model     "GT-X800"			; product spec (JP)
+:interface "USB IEEE1394"
+:status    :unsupported
+
+:model     "LP-7900CS"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-7000H"
+
+:model     "LP-9000CCH"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "LP-9000CCS"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-7000H"
+
+:model     "LP-9000CFH"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "LP-9500CCS"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-7000H"
+
+:model     "LP-9500CFH"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "LP-9500CH2"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "LP-9800CCH"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "LP-9800CCS"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-7000H"
+
+:model     "LP-9800CFH"
+:status    :untested
+:comment   "business all-in-one; scanner is a ES-9000H"
+
+:model     "PM-A700"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "PM-A850"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "PM-A870"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "PM-A900"			; product spec (JP)
+:interface "USB"
+:status    :unsupported
+:comment   "all-in-one"
+
+:model     "PX-A550"			; product spec (JP)
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Perfection 600"
+:interface "SCSI"
+:status    :unsupported
+:comment   "rebadged UMAX Astra 1200S<br>supported by the umax backend"
+
+:model     "Perfection 610"		; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-6600U"
+
+:model     "Perfection 636S"
+:interface "SCSI"
+:status    :untested			; :stable
+:comment   "overseas version of the GT-7000S"
+
+:model     "Perfection 636U"		; command spec
+:interface "USB"
+:status    :untested			; :stable
+:comment   "overseas version of the GT-7000U"
+
+:model     "Perfection 640U"		; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-6700U"
+
+:model     "Perfection 660"
+:interface "USB"
+:status    :unsupported
+:comment   "supported by the snapscan backend"
+
+:model     "Perfection 1200S"		; command spec
+:interface "SCSI"
+:status    :complete
+:comment   "overseas version of the GT-7600S"
+
+:model     "Perfection 1200U"		; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-7600U"
+
+:model     "Perfection 1200U PHOTO"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-7600UF"
+
+:model     "Perfection 1240U"		; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-7700U"
+
+:model     "Perfection 1250"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-7200U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+
+:model     "Perfection 1250 PHOTO"
+:interface "USB"
+:status    :complete
+:comment   "Perfection 1250 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+
+:model     "Perfection 1260"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-7300U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+
+:model     "Perfection 1260 PHOTO"
+:interface "USB"
+:status    :complete
+:comment   "Perfection 1260 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+
+:model     "Perfection 1270"
+:interface "USB"
+:status    :unsupported
+:comment   "may be supported by the snapscan backend"
+
+:model     "Perfection 1640SU"		; command spec
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the GT-8700"
+
+:model     "Perfection 1640SU PHOTO"
+:interface "SCSI USB"
+:status    :complete
+:comment   "overseas version of the GT-8700F"
+
+:model     "Perfection 1650"		; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-8200U"
+
+:model     "Perfection 1650 PHOTO"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-8200UF"
+
+:model     "Perfection 1660 PHOTO"	; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-8300UF"
+
+:model     "Perfection 1670"
+:interface "USB"
+:status    :unsupported
+:comment   "supported by the snapscan backend"
+
+:model     "Perfection 2400 PHOTO"	; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-9300UF"
+
+:model     "Perfection 2450 PHOTO"	; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-9700F<br>IEEE1394 untested"
+
+:model     "Perfection 2480 PHOTO"
+:interface "USB"
+:status    :unsupported
+:comment   "supported by the snapscan backend"
+
+:model     "Perfection 2580 PHOTO"
+:interface "USB"
+:status    :unsupported
+:comment   "supported by the snapscan backend"
+
+:model     "Perfection 3170 PHOTO"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-9400UF<br>requires a DFSG non-free module"
+
+:model     "Perfection 3200 PHOTO"	; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-9800F<br>IEEE1394 untested"
+
+:model     "Perfection 4180 PHOTO"
+:interface "USB"
+:status    :good
+:comment   "only scans up to 2400dpi"
+
+:model     "Perfection 4870 PHOTO"	; command spec
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the GT-X700<br>IEEE1394 untested"
+
+:model     "Stylus CX1500"		; Australia
+:interface "USB"
+:status    :unsupported
+:comment   "all-in-one"
+
+:model     "Stylus CX3100"
+:interface "USB"
+:status    :untested			; :alpha
+:comment   "overseas version of the CC-570<br>all-in-one"
+
+:model     "Stylus CX3200"
+:interface "USB"
+:status    :untested			; :alpha
+:comment   "overseas version of the CC-570<br>all-in-one"
+
+:model     "Stylus CX3500"		; Australia
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX3600"		; UK
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX3650"		; France
+:interface "USB"
+:status    :unsupported
+:comment   "all-in-one"
+
+:model     "Stylus CX4500"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX4600"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX5100"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the CC-600PX<br>all-in-one"
+
+:model     "Stylus CX5200"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the CC-600PX<br>all-in-one"
+
+:model     "Stylus CX5300"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the CC-600PX<br>all-in-one"
+
+:model     "Stylus CX5400"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the CC-600PX<br>all-in-one"
+
+:model     "Stylus CX6300"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX6400"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX6500"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX6600"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX420"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX425"		; France
+:interface "USB"
+:status    :unsupported
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX430"		; Australia
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX500"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX510"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX600"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the PM-A850<br>all-in-one"
+
+:model     "Stylus Photo RX610"
+:interface "USB"
+:status    :complete
+:comment   "overseas version of the PM-A850<br>all-in-one"
+
+:model     "Stylus Scan 2000"
+:status    :unsupported
+
+:model     "Stylus Scan 2500"
+:interface "USB"
+:status    :untested

@@ -39,7 +39,6 @@
 ;;
 :backend "epkowa"
 :version "1.12.0"
-:status  :stable
 :manpage "sane-epkowa"
 :url     "http://www.epkowa.co.jp/english/linux_e/dl_scan.html"
 

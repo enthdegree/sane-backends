@@ -1,3 +1,8 @@
+2005-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions-external/epkowa.desc: Updated according to
+	  the info provided by  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>
+
 2005-07-04  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

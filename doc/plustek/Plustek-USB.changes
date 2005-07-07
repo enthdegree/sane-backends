@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.49-6 (2005-07-07)
+---------------------
+Bugfix release - calibration and segfault :(
+
 V 0.49-5 (2005-07-04)
 ---------------------
 Added IPC between reader-process and parent process to

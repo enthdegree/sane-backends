@@ -1,3 +1,9 @@
+2005-07-07  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Fixed scanarea calculation.
+	* backend/plustek-usbshading.c: Fixed fine-white calibration.
+
 2005-07-05  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions-external/epkowa.desc: Updated according to

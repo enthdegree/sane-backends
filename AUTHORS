@@ -73,7 +73,7 @@ Backends:
  st400:         Ingo Wilken
  tamarack:      Rogier Wolff
  teco1:         Frank Zago (*)
- teco2:         Frank Zago (*), Gerard Klaver (*)
+ teco2:         Frank Zago, Gerard Klaver (*)
  teco3:         Frank Zago (*)
  test:          Henning Meier-Geinitz (*)
  u12:           Gerhard Jaeger (*)
@@ -138,7 +138,7 @@ Eddy De Greef <eddy_de_greef at tiscali dot be>
 Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
-Frank Zago <fzago at austin dot rr dot com>
+Frank Zago <sane at zago dot net>
 Frederik Ramm <frederik@remote.org>
 Gerard Klaver <gerard at gkall dot hobby dot nl>
 Gerhard Jaeger <gerhard@gjaeger.de>

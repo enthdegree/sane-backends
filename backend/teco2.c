@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2002-2003 Frank Zago (fzago at austin dot rr dot com)
+   Copyright (C) 2002-2003 Frank Zago (sane at zago dot net)
    Copyright (C) 2003-2005 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.

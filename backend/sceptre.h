@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2002 Frank Zago (fzago at austin dot rr dot com)
+   Copyright (C) 2002 Frank Zago (sane at zago dot net)
 
    This file is part of the SANE package.
 

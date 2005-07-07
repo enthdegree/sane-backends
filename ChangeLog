@@ -1,3 +1,11 @@
+2005-07-07  Frank Zago
+
+	* AUTHORS backend/leo.c backend/leo.h backend/matsushita.c
+	  backend/matsushita.h backend/sceptre.c backend/sceptre.h
+	  backend/teco1.c backend/teco1.h backend/teco2.c backend/teco2.h
+	  backend/teco3.c backend/teco3.h frontend/tstbackend.c: new
+	  email address.
+	
 2005-07-07  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

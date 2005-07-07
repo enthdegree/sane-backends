@@ -1654,7 +1654,7 @@ static SANE_Bool usb_AdjustDarkShading( Plustek_Device *dev )
 
 /** function to remove the brightest values out of each row
  * @param dev           - the almighty device structure.
- * @param sp            - is a pointer to the scanparam structure used for 
+ * @param sp            - is a pointer to the scanparam structure used for
  *                        scanning the shading lines.
  * @param hilight       - defines the number of values to skip.
  * @param shading_lines - defines the overall number of shading lines.
@@ -1663,7 +1663,7 @@ static void usb_CalSortHighlight( Plustek_Device *dev, ScanParam *sp,
                                   u_long hilight, u_long shading_lines )
 {
     ScanDef      *scan = &dev->scanning;
-	u_short       wR, wG, wB;
+	u_short       r, g, b;
 	u_long        lines, w, x;
 	RGBUShortDef *pw, *rgb;
 
@@ -1672,30 +1672,33 @@ static void usb_CalSortHighlight( Plustek_Device *dev, ScanParam *sp,
 
 	rgb = (RGBUShortDef*)scan->pScanBuffer;
 
+	/* do it for all relevant lines */
 	for( lines = hilight,  rgb = rgb + sp->Size.dwPhyPixels * lines;
 	     lines < shading_lines; lines++, rgb += sp->Size.dwPhyPixels ) {
 
+		/* scan the complete line */
 		for( x = 0; x < sp->Size.dwPhyPixels; x++ ) {
 
+			/* reference is the first scanline */
 			pw = (RGBUShortDef*)scan->pScanBuffer;
-			wR = rgb[x].Red;
-			wG = rgb[x].Green;
-			wB = rgb[x].Blue;
+			r = rgb[x].Red;
+			g = rgb[x].Green;
+			b = rgb[x].Blue;
 
 			for( w = 0; w < hilight; w++, pw += sp->Size.dwPhyPixels ) {
 
-				if( wR > pw[x].Red )
-					_SWAP( wR, pw[x].Red );
+				if( r > pw[x].Red )
+					_SWAP( r, pw[x].Red );
 
-				if( wG > pw[x].Green )
-					_SWAP( wG, pw[x].Green );
+				if( g > pw[x].Green )
+					_SWAP( g, pw[x].Green );
 
-				if( wB > pw[x].Blue )
-					_SWAP( wB, pw[x].Blue );
+				if( b > pw[x].Blue )
+					_SWAP( b, pw[x].Blue );
 			}
-			rgb[x].Red   = wR;
-			rgb[x].Green = wG;
-			rgb[x].Blue  = wB;
+			rgb[x].Red   = r;
+			rgb[x].Green = g;
+			rgb[x].Blue  = b;
 		}
 	}
 }
@@ -1725,8 +1728,8 @@ static void usb_CalSortShadow( Plustek_Device *dev, ScanParam *sp,
 
 		for (x = 0; x < sp->Size.dwPhyPixels; x++) {
 
-			pw = (RGBUShortDef*)scan->pScanBuffer + (shading_lines - shadow) *
-			                                         sp->Size.dwPhyPixels;
+			pw = ((RGBUShortDef*)scan->pScanBuffer) + (shading_lines - shadow) *
+			                                           sp->Size.dwPhyPixels;
 			r = rgb[x].Red;
 			g = rgb[x].Green;
 			b = rgb[x].Blue;
@@ -1755,8 +1758,8 @@ static void usb_procHighlightAndShadow( Plustek_Device *dev, ScanParam *sp,
 	RGBUShortDef *rgb;
 
 	pr = (u_long*)(scan->pScanBuffer + sp->Size.dwPhyBytes * shading_lines);
-	pg = pr + sp->Size.dwPhyBytes;
-	pb = pg + sp->Size.dwPhyBytes;
+	pg = pr + sp->Size.dwPhyPixels;
+	pb = pg + sp->Size.dwPhyPixels;
 
 	memset(pr, 0, sp->Size.dwPhyPixels * 4UL * 3UL);
 
@@ -1766,17 +1769,19 @@ static void usb_procHighlightAndShadow( Plustek_Device *dev, ScanParam *sp,
 	/* Sort shadow */
 	usb_CalSortShadow(dev, sp, hilight, shadow, shading_lines);
 
-	rgb = (RGBUShortDef*)scan->pScanBuffer;
+	rgb  = (RGBUShortDef*)scan->pScanBuffer;
+	rgb += sp->Size.dwPhyPixels * hilight;
 
 	/* Sum */
-	for( lines = hilight,  rgb = rgb + sp->Size.dwPhyPixels * lines;
-	     lines < shading_lines-shadow; lines++, rgb += sp->Size.dwPhyPixels ) {
+	for( lines = hilight; lines < (shading_lines-shadow); lines++ ) {
 
 		for( x = 0; x < sp->Size.dwPhyPixels; x++ ) {
 			pr[x] += rgb[x].Red;
 			pg[x] += rgb[x].Green;
 			pb[x] += rgb[x].Blue;
 		}
+
+		rgb += sp->Size.dwPhyPixels;
 	}
 }
 
@@ -1787,10 +1792,10 @@ static void usb_procHighlightAndShadow( Plustek_Device *dev, ScanParam *sp,
 static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 {
 	char          tmp[40];
-	ScanDef      *scanning = &dev->scanning;
-	DCapsDef     *scaps    = &dev->usbDev.Caps;
-	HWDef        *hw       = &dev->usbDev.HwSetting;
-	u_char       *pBuf     = scanning->pScanBuffer;
+	ScanDef      *scan  = &dev->scanning;
+	DCapsDef     *scaps = &dev->usbDev.Caps;
+	HWDef        *hw    = &dev->usbDev.HwSetting;
+	u_char       *pBuf  = scan->pScanBuffer;
 	u_long        dw, dwLines, dwRead;
 	u_long        shading_lines;
 	MonoWordDef  *pValue;
@@ -1807,8 +1812,8 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	DBG( _DBG_INFO, "#########################\n" );
 	DBG( _DBG_INFO, "usb_AdjustWhiteShading()\n" );
 	
-	m_pAvColor = (pRGBUShortDef)scanning->pScanBuffer;
-	m_pAvMono  = (u_short*)scanning->pScanBuffer;
+	m_pAvColor = (RGBUShortDef*)scan->pScanBuffer;
+	m_pAvMono  = (u_short*)scan->pScanBuffer;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
@@ -1822,7 +1827,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	hilight = 4;
 	shadow  = 4;
 
-	m_ScanParam           = scanning->sParam;
+	m_ScanParam           = scan->sParam;
 	m_ScanParam.Origin.y  = 0;
 	m_ScanParam.bBitDepth = 16;
 
@@ -1860,8 +1865,8 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 			m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 			m_ScanParam.Size.dwBytes *= 3;
 		}
-		m_dwPixels = scanning->sParam.Size.dwPixels * m_ScanParam.UserDpi.x / 
-		             scanning->sParam.UserDpi.x;
+		m_dwPixels = scan->sParam.Size.dwPixels * m_ScanParam.UserDpi.x / 
+		             scan->sParam.UserDpi.x;
 
 		dw = (u_long)(hw->wDRAMSize - DRAM_UsedByAsic16BitMode) * 1024UL;
 		m_ScanParam.Size.dwLines = shading_lines;
@@ -1972,7 +1977,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		u_short *pwDest = (u_short*)pBuf;
 		pHiLoDef pwSrce = (pHiLoDef)pBuf;
 
-		pwSrce  += ((u_long)(scanning->sParam.Origin.x-m_ScanParam.Origin.x) /
+		pwSrce  += ((u_long)(scan->sParam.Origin.x-m_ScanParam.Origin.x) /
 		           (u_short)m_dHDPIDivider) *
 		                   (scaps->OpticDpi.x / 300UL) * m_ScanParam.bChannels;
 
@@ -2021,7 +2026,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		}
 	}
 
-	if( scanning->sParam.bDataType == SCANDATATYPE_Color ) {
+	if( scan->sParam.bDataType == SCANDATATYPE_Color ) {
 
 		usb_procHighlightAndShadow(dev, &m_ScanParam, hilight, shadow, shading_lines);
 
@@ -2029,14 +2034,14 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		pdw    = (u_long*)m_pSum;
 
 		/* Software gain */
-		if( scanning->sParam.bSource != SOURCE_Negative ) {
+		if( scan->sParam.bSource != SOURCE_Negative ) {
 
 			for( i = 0; i < 3; i++ ) {
 
 				for( dw = m_ScanParam.Size.dwPhyPixels;
 												dw; dw--, pValue++, pdw++) {
 					*pdw = *pdw * 1000 / ((shading_lines - hilight - shadow) *
-					                               scanning->sParam.swGain[i]);
+					                               scan->sParam.swGain[i]);
 					if(*pdw > 65535U)
 						pValue->Mono = 65535U;
 					else
@@ -2112,12 +2117,12 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 
 		/* Software gain */
 		pValue = (pMonoWordDef)a_wWhiteShading;
-		if( scanning->sParam.bSource != SOURCE_Negative ) {
+		if( scan->sParam.bSource != SOURCE_Negative ) {
 
 			for( dw = 0; dw < m_ScanParam.Size.dwPhyPixels; dw++) {
 				
 				pdw[dw] = pdw[dw] * 1000 /((shading_lines-hilight-shadow) *
-				                                 scanning->sParam.swGain[1]);
+				                                 scan->sParam.swGain[1]);
 				if( pdw[dw] > 65535U )
 					pValue[dw].Mono = 65535;
 				else
@@ -2145,7 +2150,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		}
 	}
 	usb_line_statistics( "White", a_wWhiteShading, m_ScanParam.Size.dwPhyPixels,
-                          scanning->sParam.bDataType == SCANDATATYPE_Color?1:0);
+                          scan->sParam.bDataType == SCANDATATYPE_Color?1:0);
 	return SANE_TRUE;
 }
 

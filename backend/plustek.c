@@ -150,7 +150,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-5"
+#define BACKEND_VERSION "0.49-6"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -1249,8 +1249,8 @@ static SANE_Status attach( const char *dev_name,
 	DBG( _DBG_INFO, "Model  : %s\n",      dev->sane.model   );
 	DBG( _DBG_INFO, "Flags  : 0x%08lx\n", dev->caps.dwFlag  );
 
-	dev->max_x = SANE_FIX(dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE);
-	dev->max_y = SANE_FIX(dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE);
+	dev->max_x = dev->caps.wMaxExtentX*MM_PER_INCH/_MEASURE_BASE;
+	dev->max_y = dev->caps.wMaxExtentY*MM_PER_INCH/_MEASURE_BASE;
 
 	/* calculate the size of the resolution list +
 	 * one more to avoid a buffer overflow, then allocate it...

@@ -217,7 +217,12 @@ if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp, strnicmp, [Define for OS/2 only])
   AC_DEFINE(strcasecmp, stricmp, [Define for OS/2 only])
 fi
-
+dnl On OS/2, libc knows getopt
+AH_BOTTOM([
+#ifdef __INNOTEK_LIBC__
+#define ELIDE_CODE 1
+#endif
+])
 dnl ***********************************************************************
 dnl checks for system services
 dnl ***********************************************************************

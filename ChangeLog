@@ -11,6 +11,9 @@
 	  sure that no errors occur because xgettext/xmsgfmt think that
 	  "%" is a C format string. Regenerated all po files. 
 
+	* configure configure.in include/sane/config.h.in: Make sure that
+	  getopt is not built on OS/2 (from Franz Bakan <fbakan@gmx.net>).
+
 2005-07-07  Frank Zago
 
 	* AUTHORS backend/leo.c backend/leo.h backend/matsushita.c

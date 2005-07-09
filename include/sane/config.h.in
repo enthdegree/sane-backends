@@ -559,3 +559,9 @@ unsigned int usleep (unsigned int useconds);
 void vsyslog(int priority, const char *format, va_list args);
 #endif
 
+
+
+#ifdef __INNOTEK_LIBC__
+#define ELIDE_CODE 1
+#endif
+

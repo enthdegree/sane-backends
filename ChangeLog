@@ -1,3 +1,16 @@
+2005-07-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/Makefile.in po/sane-backends.bg.po po/sane-backends.cs.po
+	  po/sane-backends.da.po po/sane-backends.de.po
+	  po/sane-backends.es.po po/sane-backends.fi.po
+	  po/sane-backends.fr.po po/sane-backends.it.po
+	  po/sane-backends.nl.po po/sane-backends.no.po
+	  po/sane-backends.pl.po po/sane-backends.pt.po
+	  po/sane-backends.ru.po po/sane-backends.sv.po: Updated Danish
+	  translation (from Mogens Jaeger <mogensjaeger@get2net.dk>). Made
+	  sure that no errors occur because xgettext/xmsgfmt think that
+	  "%" is a C format string. Regenerated all po files. 
+
 2005-07-07  Frank Zago
 
 	* AUTHORS backend/leo.c backend/leo.h backend/matsushita.c

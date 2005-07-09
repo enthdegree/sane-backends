@@ -80,7 +80,7 @@ sane-backends.pot: $(SRC_FILES)
 	   sed < $${file} -e 's/#define//g' \
 	     > $(TMP_FILE_DIR)/`basename $${file}` ; \
 	 done
-	@$(XGETTEXT) -dsane-backends -kSANE_I18N $(TMP_FILE_DIR)/*.*
+	@$(XGETTEXT) -dsane-backends -kSANE_I18N --flag=SANE_I18N:1:no-c-format $(TMP_FILE_DIR)/*.*
 	@mv sane-backends.po sane-backends.pot
 
 update: sane-backends.pot

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-26 06:35+0200\n"
+"POT-Creation-Date: 2005-07-09 14:41+0200\n"
 "PO-Revision-Date: 2005-06-26 06:38+0200\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -19,62 +19,72 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
-#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
+#: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
+#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
 #: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
 #: .tmp/umax.c:186 .tmp/umax_pp.c:137
+#, no-c-format
 msgid "Lineart"
 msgstr "Streckteckning"
 
 #: .tmp/artec_eplus48u.c:155 .tmp/hp-option.c:2928 .tmp/leo.h:261
 #: .tmp/teco1.h:292 .tmp/teco3.h:295 .tmp/umax_pp.c:137
+#, no-c-format
 msgid "Grayscale"
 msgstr "Gråskala"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/hp-option.c:2929
-#: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128 .tmp/mustek.c:132
-#: .tmp/mustek_usb.c:268 .tmp/saneopts.h:393 .tmp/sceptre.h:292
-#: .tmp/snapscan-options.c:75 .tmp/teco1.h:293 .tmp/teco3.h:296
-#: .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
+#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
+#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:75 .tmp/teco1.h:293
+#: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#, no-c-format
 msgid "Color"
 msgstr "Färg"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:651 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
 #: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
-#: .tmp/niash.c:756 .tmp/plustek.c:771 .tmp/plustek_pp.c:792
+#: .tmp/niash.c:756 .tmp/plustek.c:791 .tmp/plustek_pp.c:792
 #: .tmp/sceptre.c:750 .tmp/snapscan-options.c:514 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:549
+#, no-c-format
 msgid "Enhancement"
 msgstr "Förbättring"
 
 #: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:276
+#, no-c-format
 msgid "Defaults"
 msgstr "Standardvärden"
 
 #: .tmp/artec_eplus48u.c:2876
+#, no-c-format
 msgid "Set default values for enhancement controls."
 msgstr "Använd standardvärden för förbättringsinställningar."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/gt68xx.c:682
-#: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3961
+#: .tmp/gt68xx.c:682 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:725 .tmp/plustek_pp.c:746
+#: .tmp/mustek_usb.c:305 .tmp/plustek.c:745 .tmp/plustek_pp.c:746
 #: .tmp/sceptre.c:702 .tmp/snapscan-options.c:447 .tmp/teco1.c:1095
 #: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:500
+#, no-c-format
 msgid "Geometry"
 msgstr "Geometri"
 
 #: .tmp/artec_eplus48u.c:2932
+#, no-c-format
 msgid "Calibration"
 msgstr "Kalibrering"
 
 #: .tmp/artec_eplus48u.c:2941
+#, no-c-format
 msgid "Calibrate before next scan"
 msgstr "Kalibrera före nästa inläsning"
 
 #: .tmp/artec_eplus48u.c:2943
+#, no-c-format
 msgid ""
 "If enabled, the device will be calibrated before the next scan. Otherwise, "
 "calibration is performed only before the first start."
@@ -83,10 +93,12 @@ msgstr ""
 "inläsning. Annars utförs kalibrering endast före första inläsningen."
 
 #: .tmp/artec_eplus48u.c:2954
+#, no-c-format
 msgid "Only perform shading-correction"
 msgstr "Utför endast skuggkorrigering"
 
 #: .tmp/artec_eplus48u.c:2956
+#, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. The "
 "default values for gain, offset and exposure time, either build-in or from "
@@ -97,413 +109,515 @@ msgstr ""
 "eller från konfigureringsfilen, kommer att användas."
 
 #: .tmp/artec_eplus48u.c:2967
+#, no-c-format
 msgid "Button state"
 msgstr "Knappläge"
 
 #: .tmp/avision.h:539
+#, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Bildruta att läsa in"
 
 #: .tmp/avision.h:540
+#, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Väljer numret på den bildruta som ska läsas in"
 
 #: .tmp/canon630u.c:158
+#, no-c-format
 msgid "Calibrate Scanner"
 msgstr "Kalibrera bildläsaren"
 
 #: .tmp/canon630u.c:159
+#, no-c-format
 msgid "Force scanner calibration before scan"
 msgstr "Utför bildläsarkalibrering före inläsning"
 
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
+#, no-c-format
 msgid "Grayscale scan"
 msgstr "Gråskaleinläsning"
 
 #: .tmp/canon630u.c:259 .tmp/umax1220u.c:208
+#, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Gör en gråskaleinläsning i stället för en färginläsning"
 
 #: .tmp/canon630u.c:305
+#, no-c-format
 msgid "Analog Gain"
 msgstr "Analog förstärkning"
 
 #: .tmp/canon630u.c:306
+#, no-c-format
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Öka eller minska CCD-sensorns analoga förstärkning"
 
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
+#, no-c-format
 msgid "Gamma Correction"
 msgstr "Gammakorrigering"
 
 #: .tmp/canon630u.c:347
+#, no-c-format
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Väljer gammakorrigerad överföringskurva"
 
 #: .tmp/epson.c:484
+#, no-c-format
 msgid "Binary"
 msgstr "Binär"
 
-#: .tmp/epson.c:485 .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
-#: .tmp/mustek_usb.c:269 .tmp/saneopts.h:394 .tmp/sceptre.h:291
-#: .tmp/snapscan-options.c:77 .tmp/test.c:122 .tmp/umax.c:188
+#: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
+#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:77 .tmp/test.c:122
+#: .tmp/umax.c:188
+#, no-c-format
 msgid "Gray"
 msgstr "Grå"
 
 #: .tmp/epson.c:491
+#, no-c-format
 msgid "Simplex"
 msgstr "Enkelsidigt"
 
 #: .tmp/epson.c:492 .tmp/matsushita.h:219
+#, no-c-format
 msgid "Duplex"
 msgstr "Dubbelsidigt"
 
-#: .tmp/epson.c:501 .tmp/gt68xx.c:142 .tmp/ma1509.c:106 .tmp/mustek.c:150
-#: .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/snapscan-options.c:81
-#: .tmp/umax.c:182
+#: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
+#: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
+#: .tmp/snapscan-options.c:81 .tmp/umax.c:182
+#, no-c-format
 msgid "Flatbed"
 msgstr "Flatbädd"
 
 #: .tmp/epson.c:502
+#, no-c-format
 msgid "Transparency Unit"
 msgstr "Skrivfilmsenhet"
 
 #: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/umax.c:184
+#, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Automatisk dokumentmatare"
 
 #: .tmp/epson.c:523
+#, no-c-format
 msgid "Positive Film"
 msgstr "Positiv film"
 
 #: .tmp/epson.c:524
+#, no-c-format
 msgid "Negative Film"
 msgstr "Negativ film"
 
 #: .tmp/epson.c:529
+#, no-c-format
 msgid "Focus on glass"
 msgstr "Fokusera på glaset"
 
 #: .tmp/epson.c:530
+#, no-c-format
 msgid "Focus 2.5mm above glass"
 msgstr "Fokusera 2,5 mm ovanför glaset"
 
 #: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576 .tmp/epson.c:598
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
 #: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
+#, no-c-format
 msgid "None"
 msgstr "Inget"
 
 #: .tmp/epson.c:557 .tmp/epson.c:565 .tmp/epson.c:577
+#, no-c-format
 msgid "Halftone A (Hard Tone)"
 msgstr "Raster A (hårt)"
 
 #: .tmp/epson.c:558 .tmp/epson.c:566 .tmp/epson.c:578
+#, no-c-format
 msgid "Halftone B (Soft Tone)"
 msgstr "Raster B (mjukt)"
 
 #: .tmp/epson.c:559 .tmp/epson.c:567 .tmp/epson.c:579
+#, no-c-format
 msgid "Halftone C (Net Screen)"
 msgstr "Raster C (nätskärm)"
 
 #: .tmp/epson.c:568 .tmp/epson.c:580
+#, no-c-format
 msgid "Dither A (4x4 Bayer)"
 msgstr "Gitter A (4x4 Bayer)"
 
 #: .tmp/epson.c:569 .tmp/epson.c:581
+#, no-c-format
 msgid "Dither B (4x4 Spiral)"
 msgstr "Gitter B (4x4 spiral)"
 
 #: .tmp/epson.c:570 .tmp/epson.c:582
+#, no-c-format
 msgid "Dither C (4x4 Net Screen)"
 msgstr "Gitter C (4x4 nätskärm)"
 
 #: .tmp/epson.c:571 .tmp/epson.c:583
+#, no-c-format
 msgid "Dither D (8x4 Net Screen)"
 msgstr "Gitter D (8x4 nätskärm)"
 
 #: .tmp/epson.c:584
+#, no-c-format
 msgid "Text Enhanced Technology"
 msgstr "Textförbättringsteknik"
 
 #: .tmp/epson.c:585
+#, no-c-format
 msgid "Download pattern A"
 msgstr "Nedladdat mönster A"
 
 #: .tmp/epson.c:586
+#, no-c-format
 msgid "Download pattern B"
 msgstr "Nedladdat mönster B"
 
 #: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3092
+#, no-c-format
 msgid "Red"
 msgstr "Röd"
 
 #: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3093
+#, no-c-format
 msgid "Green"
 msgstr "Grön"
 
 #: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3094
+#, no-c-format
 msgid "Blue"
 msgstr "Blå"
 
 #: .tmp/epson.c:631
+#, no-c-format
 msgid "No Correction"
 msgstr "Ingen korrigering"
 
 #: .tmp/epson.c:632 .tmp/epson.c:657
+#, no-c-format
 msgid "User defined"
 msgstr "Användardefinierat"
 
 #: .tmp/epson.c:633
+#, no-c-format
 msgid "Impact-dot printers"
 msgstr "Matrisskrivare"
 
 #: .tmp/epson.c:634
+#, no-c-format
 msgid "Thermal printers"
 msgstr "Termoskrivare"
 
 #: .tmp/epson.c:635
+#, no-c-format
 msgid "Ink-jet printers"
 msgstr "Bläckstråleskrivare"
 
 #: .tmp/epson.c:636
+#, no-c-format
 msgid "CRT monitors"
 msgstr "Bildskärmar (CRT)"
 
 #: .tmp/epson.c:656 .tmp/hp-option.c:3225 .tmp/test.c:138
+#, no-c-format
 msgid "Default"
 msgstr "Standard"
 
 #: .tmp/epson.c:658
+#, no-c-format
 msgid "High density printing"
 msgstr "Utskrift med hög densitet"
 
 #: .tmp/epson.c:659
+#, no-c-format
 msgid "Low density printing"
 msgstr "Utskrift med låg densitet"
 
 #: .tmp/epson.c:660
+#, no-c-format
 msgid "High contrast printing"
 msgstr "Utskrift med hög kontrast"
 
 #: .tmp/epson.c:678
+#, no-c-format
 msgid "User defined (Gamma=1.0)"
 msgstr "Användardefinierat (gamma=1,0)"
 
 #: .tmp/epson.c:679
+#, no-c-format
 msgid "User defined (Gamma=1.8)"
 msgstr "Användardefinierat (gamma=1,8)"
 
 #: .tmp/epson.c:757
+#, no-c-format
 msgid "CD"
 msgstr "CD"
 
 #: .tmp/epson.c:758
+#, no-c-format
 msgid "A5 portrait"
 msgstr "A5 stående"
 
 #: .tmp/epson.c:759
+#, no-c-format
 msgid "A5 landscape"
 msgstr "A5 liggande"
 
 #: .tmp/epson.c:760
+#, no-c-format
 msgid "Letter"
 msgstr "US-Letter"
 
 #: .tmp/epson.c:761
+#, no-c-format
 msgid "A4"
 msgstr "A4"
 
 #: .tmp/epson.c:762
+#, no-c-format
 msgid "Max"
 msgstr "Max"
 
-#: .tmp/epson.c:2782 .tmp/gt68xx.c:451 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
-#: .tmp/matsushita.c:1084 .tmp/microtek2.h:600 .tmp/mustek.c:4199
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:640
-#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:277
-#: .tmp/teco2.c:1875 .tmp/test.c:293 .tmp/umax.c:5052
+#: .tmp/epson.c:2782 .tmp/genesys.c:3890 .tmp/gt68xx.c:451
+#: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
+#: .tmp/microtek2.h:600 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
+#: .tmp/niash.c:736 .tmp/plustek.c:661 .tmp/plustek_pp.c:657
+#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:277 .tmp/teco2.c:1875
+#: .tmp/test.c:293 .tmp/umax.c:5052
+#, no-c-format
 msgid "Scan Mode"
 msgstr "Bildläsarläge"
 
 #: .tmp/epson.c:2814
+#, no-c-format
 msgid "Selects the halftone."
 msgstr "Väljer raster."
 
 #: .tmp/epson.c:2836
+#, no-c-format
 msgid "Dropout"
 msgstr "Blindfärg"
 
 #: .tmp/epson.c:2837
+#, no-c-format
 msgid "Selects the dropout."
 msgstr "Väljer blindfärg."
 
 #: .tmp/epson.c:2849
+#, no-c-format
 msgid "Selects the brightness."
 msgstr "Väljer ljusstyrka."
 
 #: .tmp/epson.c:2864
+#, no-c-format
 msgid "Sharpness"
 msgstr "Skärpa"
 
 #: .tmp/epson.c:3000
+#, no-c-format
 msgid "Color correction"
 msgstr "Färgkorrigering"
 
 #: .tmp/epson.c:3003
+#, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr "Ställer in färgkorrigeringstabellen för den valda utdataenheten."
 
 #: .tmp/epson.c:3044
+#, no-c-format
 msgid "Color correction coefficients"
 msgstr "Färgkorrigeringskoefficienter"
 
 #: .tmp/epson.c:3045
+#, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Matrismultiplikation av RGB"
 
 #: .tmp/epson.c:3062
+#, no-c-format
 msgid "Shift green to red"
 msgstr "Skifta grön till röd"
 
 #: .tmp/epson.c:3063
+#, no-c-format
 msgid "Shift green to blue"
 msgstr "Skifta grön till blå"
 
 #: .tmp/epson.c:3064
+#, no-c-format
 msgid "Shift red to green"
 msgstr "Skifta röd till grön"
 
 #: .tmp/epson.c:3066
+#, no-c-format
 msgid "Shift red to blue"
 msgstr "Skifta röd till blå"
 
 #: .tmp/epson.c:3067
+#, no-c-format
 msgid "Shift blue to green"
 msgstr "Skifta blå till grön"
 
 #: .tmp/epson.c:3068
+#, no-c-format
 msgid "Shift blue to red"
 msgstr "Skifta blå till röd"
 
 #: .tmp/epson.c:3071
+#, no-c-format
 msgid "Controls green level"
 msgstr "Bestämmer grönnivån"
 
 #: .tmp/epson.c:3072
+#, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Lägger till till rött beroende på grönnivån"
 
 #: .tmp/epson.c:3073
+#, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Lägger till till blått beroende på grönnivån"
 
 #: .tmp/epson.c:3074
+#, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Lägger till till grönt beroende på rödnivån"
 
 #: .tmp/epson.c:3075
+#, no-c-format
 msgid "Controls red level"
 msgstr "Bestämmer rödnivån"
 
 #: .tmp/epson.c:3076
+#, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Lägger till till blått beroende på rödnivån"
 
 #: .tmp/epson.c:3077
+#, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Lägger till till grönt beroende på blånivån"
 
 #: .tmp/epson.c:3078
+#, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Lägger till till rött beroende på blånivån"
 
 #: .tmp/epson.c:3079
+#, no-c-format
 msgid "Controls blue level"
 msgstr "Bestämmer blånivån"
 
 #: .tmp/epson.c:3166 .tmp/snapscan-options.c:737 .tmp/umax.c:5563
+#, no-c-format
 msgid "Advanced"
 msgstr "Avancerat"
 
 #: .tmp/epson.c:3174
+#, no-c-format
 msgid "Mirror image"
 msgstr "Spegla bild"
 
 #: .tmp/epson.c:3175
+#, no-c-format
 msgid "Mirror the image."
 msgstr "Spegla bilden."
 
 #: .tmp/epson.c:3201
+#, no-c-format
 msgid "Speed"
 msgstr "Hastighet"
 
 #: .tmp/epson.c:3214
+#, no-c-format
 msgid "Auto area segmentation"
 msgstr "Automatisk ytuppdelning"
 
 #: .tmp/epson.c:3227
+#, no-c-format
 msgid "Short resolution list"
 msgstr "Kort lista med upplösningar"
 
 #: .tmp/epson.c:3229
+#, no-c-format
 msgid "Display short resolution list"
 msgstr "Visa en kort lista med upplösningar"
 
 #: .tmp/epson.c:3236
+#, no-c-format
 msgid "Zoom"
 msgstr "Zoom"
 
 #: .tmp/epson.c:3238
+#, no-c-format
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Anger zoom-faktorn som bildläsaren kommer att använda"
 
 #: .tmp/epson.c:3318
+#, no-c-format
 msgid "Quick format"
 msgstr "Snabbformatera"
 
 #: .tmp/epson.c:3329
+#, no-c-format
 msgid "Optional equipment"
 msgstr "Tillvalsutrustning"
 
 #: .tmp/epson.c:3355
+#, no-c-format
 msgid "Film type"
 msgstr "Filmtyp"
 
 #: .tmp/epson.c:3400
+#, no-c-format
 msgid "Eject"
 msgstr "Mata ut"
 
 #: .tmp/epson.c:3401
+#, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Mata ut bladet i dokumentmataren"
 
 #: .tmp/epson.c:3413
+#, no-c-format
 msgid "Auto eject"
 msgstr "Mata ut automatiskt"
 
 #: .tmp/epson.c:3414
+#, no-c-format
 msgid "Eject document after scanning"
 msgstr "Mata ut dokument efter inläsning"
 
 #: .tmp/epson.c:3426
+#, no-c-format
 msgid "ADF Mode"
 msgstr "Dokumentmatarläge"
 
 #: .tmp/epson.c:3428
+#, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 "Väljer läge för den automatiska dokumentmataren (enkelsidigt/dubbelsidigt)"
 
 #: .tmp/epson.c:3442
+#, no-c-format
 msgid "Bay"
 msgstr "Fack"
 
 #: .tmp/epson.c:3443
+#, no-c-format
 msgid "Select bay to scan"
 msgstr "Välj fack att läsa in från"
 
 #: .tmp/epson.h:69
+#, no-c-format
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
@@ -512,19 +626,23 @@ msgstr ""
 "en användardefinierad tabell som kan laddas ner till bildläsaren"
 
 #: .tmp/epson.h:72
+#, no-c-format
 msgid "Focus Position"
 msgstr "Fokuseringspunkt"
 
 #: .tmp/epson.h:73
+#, no-c-format
 msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
 "Ställer in fokuseringspunkten antingen på glaset eller 2,5 mm ovanför glaset"
 
 #: .tmp/epson.h:75
+#, no-c-format
 msgid "Wait for Button"
 msgstr "Vänta på knapp"
 
 #: .tmp/epson.h:76
+#, no-c-format
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
@@ -532,28 +650,51 @@ msgstr ""
 "Efter att ha skickat inläsningskommandot, vänta tills knappen på läsaren "
 "trycks in för att starta inläsningen."
 
-#: .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
+#: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
+#, no-c-format
 msgid "Transparency Adapter"
 msgstr "Skrivfilmsadapter"
 
+#: .tmp/genesys.c:4012
+#, fuzzy, no-c-format
+msgid "Extras"
+msgstr "Extra snabb"
+
+#: .tmp/genesys.c:4021
+#, fuzzy, no-c-format
+msgid "Lamp off time"
+msgstr "Lampavstängningstid"
+
+#: .tmp/genesys.c:4024
+#, no-c-format
+msgid ""
+"The lamp will be turned off after the given time (in minutes). A value of 0 "
+"means, that the lamp won't be turned off."
+msgstr ""
+
 #: .tmp/gt68xx.c:470
+#, no-c-format
 msgid "Gray mode color"
 msgstr "Grålägesfärg"
 
 #: .tmp/gt68xx.c:472
+#, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr "Väljer vilken inläsningsfärg som används i gråläge (förval: grönt)."
 
 #: .tmp/gt68xx.c:553
+#, no-c-format
 msgid "Debugging Options"
 msgstr "Debuggningsinställningar"
 
 #: .tmp/gt68xx.c:564
+#, no-c-format
 msgid "Automatic warmup"
 msgstr "Automatisk uppvärmning"
 
 #: .tmp/gt68xx.c:566
+#, no-c-format
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
@@ -562,10 +703,12 @@ msgstr ""
 "60 sekunders uppvärmningstid."
 
 #: .tmp/gt68xx.c:578
+#, no-c-format
 msgid "Full scan"
 msgstr "Fullständig inläsning"
 
 #: .tmp/gt68xx.c:580
+#, no-c-format
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
@@ -574,10 +717,12 @@ msgstr ""
 "inte för stor höjd. Endast för test."
 
 #: .tmp/gt68xx.c:591
+#, no-c-format
 msgid "Coarse calibration"
 msgstr "Grovkalibrering"
 
 #: .tmp/gt68xx.c:593
+#, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
 "disabled, options for setting the analog frontend parameters manually are "
@@ -588,10 +733,12 @@ msgstr ""
 "Denna inställning är förvald som standard. Endast för test."
 
 #: .tmp/gt68xx.c:607
+#, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Grovkalibrering endast för första inläsningen"
 
 #: .tmp/gt68xx.c:609
+#, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
 "and can save scanning time. If the image brightness is different with each "
@@ -602,10 +749,12 @@ msgstr ""
 "ljusstyrka är olika för varje inläsning. Endast för test."
 
 #: .tmp/gt68xx.c:633
+#, no-c-format
 msgid "Backtrack lines"
 msgstr "Bakspårningslinjer"
 
 #: .tmp/gt68xx.c:635
+#, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
 "happens when the scanner scans faster than the computer can receive the "
@@ -616,213 +765,263 @@ msgstr ""
 "värden ger snabbare inläsningar men ökar risken för att utelämna linjer."
 
 #: .tmp/gt68xx.c:660
+#, no-c-format
 msgid "Gamma value"
 msgstr "Gammavärde"
 
 #: .tmp/gt68xx.c:662
+#, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Ställer in gammavärdet för alla kanaler."
 
 #: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
 #: .tmp/umax.c:187
+#, no-c-format
 msgid "Halftone"
 msgstr "Raster"
 
 #: .tmp/hp-option.c:2983
+#, no-c-format
 msgid "Advanced Options"
 msgstr "Avancerade inställningar"
 
 #: .tmp/hp-option.c:3040
+#, no-c-format
 msgid "Coarse"
 msgstr "Grovt"
 
 #: .tmp/hp-option.c:3041
+#, no-c-format
 msgid "Fine"
 msgstr "Fint"
 
 #: .tmp/hp-option.c:3042
+#, no-c-format
 msgid "Bayer"
 msgstr "Bayer"
 
 #: .tmp/hp-option.c:3043
+#, no-c-format
 msgid "Vertical"
 msgstr "Lodrätt"
 
 #: .tmp/hp-option.c:3044
+#, no-c-format
 msgid "Horizontal"
 msgstr "Vågrätt"
 
 #: .tmp/hp-option.c:3045 .tmp/hp-option.c:3096
+#, no-c-format
 msgid "Custom"
 msgstr "Användardefinierat"
 
 #: .tmp/hp-option.c:3086 .tmp/hp-option.c:3142 .tmp/hp-option.c:3157
+#, no-c-format
 msgid "Auto"
 msgstr "Automatiskt"
 
 #: .tmp/hp-option.c:3087
+#, no-c-format
 msgid "NTSC RGB"
 msgstr "NTSC-RGB"
 
 #: .tmp/hp-option.c:3088
+#, no-c-format
 msgid "XPA RGB"
 msgstr "XPA-RGB"
 
 #: .tmp/hp-option.c:3089
+#, no-c-format
 msgid "Pass-through"
 msgstr "Oförändrat"
 
 #: .tmp/hp-option.c:3090
+#, no-c-format
 msgid "NTSC Gray"
 msgstr "NTSC-grå"
 
 #: .tmp/hp-option.c:3091
+#, no-c-format
 msgid "XPA Gray"
 msgstr "XPA-grå"
 
 #: .tmp/hp-option.c:3143
+#, no-c-format
 msgid "Slow"
 msgstr "Långsam"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:220 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:143 .tmp/plustek.c:224 .tmp/plustek_pp.c:200
+#, no-c-format
 msgid "Normal"
 msgstr "Normal"
 
 #: .tmp/hp-option.c:3145
+#, no-c-format
 msgid "Fast"
 msgstr "Snabb"
 
 #: .tmp/hp-option.c:3146
+#, no-c-format
 msgid "Extra Fast"
 msgstr "Extra snabb"
 
 #: .tmp/hp-option.c:3158 .tmp/hp-option.c:3325 .tmp/hp-option.c:3338
+#, no-c-format
 msgid "Off"
 msgstr "Av"
 
 #: .tmp/hp-option.c:3159
+#, no-c-format
 msgid "2-pixel"
 msgstr "2 pixlar"
 
 #: .tmp/hp-option.c:3160
+#, no-c-format
 msgid "4-pixel"
 msgstr "4 pixlar"
 
 #: .tmp/hp-option.c:3161
+#, no-c-format
 msgid "8-pixel"
 msgstr "8 pixlar"
 
 #: .tmp/hp-option.c:3172
+#, no-c-format
 msgid "Print"
 msgstr "Fotografi"
 
 #: .tmp/hp-option.c:3173
+#, no-c-format
 msgid "Slide"
 msgstr "Diapositiv"
 
 #: .tmp/hp-option.c:3174
+#, no-c-format
 msgid "Film-strip"
 msgstr "Filmremsa"
 
-#: .tmp/hp-option.c:3234 .tmp/plustek.c:222 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3234 .tmp/plustek.c:226 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
+#, no-c-format
 msgid "Negative"
 msgstr "Negativ"
 
 #: .tmp/hp-option.c:3252
+#, no-c-format
 msgid "ADF"
 msgstr "Automatisk dokumentmatare"
 
 #: .tmp/hp-option.c:3253
+#, no-c-format
 msgid "XPA"
 msgstr "XPA"
 
 #: .tmp/hp-option.c:3326 .tmp/hp-option.c:3339
+#, no-c-format
 msgid "On"
 msgstr "På"
 
 #: .tmp/hp-option.c:3327 .tmp/hp-option.c:3340
+#, no-c-format
 msgid "Conditional"
 msgstr "Villkorlig"
 
 #: .tmp/hp-option.c:3413
+#, no-c-format
 msgid "Experiment"
 msgstr "Experiment"
 
 #: .tmp/hp-option.h:60
+#, no-c-format
 msgid "Sharpening"
 msgstr "Skärpa"
 
 #: .tmp/hp-option.h:61
+#, no-c-format
 msgid "Set sharpening value."
 msgstr "Ställer in skärpevärdet."
 
 #: .tmp/hp-option.h:66
+#, no-c-format
 msgid "Auto Threshold"
 msgstr "Automatiskt tröskelvärde"
 
 #: .tmp/hp-option.h:68
+#, no-c-format
 msgid "Enable automatic determination of threshold for line-art scans."
 msgstr ""
 "Möjliggör automatisk bestämning av tröskelvärde för "
 "streckteckningsinläsningar."
 
 #: .tmp/hp-option.h:73
+#, no-c-format
 msgid "Smoothing"
 msgstr "Utjämning"
 
 #: .tmp/hp-option.h:74
+#, no-c-format
 msgid "Select smoothing filter."
 msgstr "Välj utjämningsfilter."
 
 #: .tmp/hp-option.h:79
+#, no-c-format
 msgid "Unload media after scan"
 msgstr "Mata ut media efter inläsning"
 
 #: .tmp/hp-option.h:80
+#, no-c-format
 msgid "Unloads the media after a scan."
 msgstr "Matar ut media efter en inläsning."
 
 #: .tmp/hp-option.h:85
+#, no-c-format
 msgid "Change document"
 msgstr "Byt dokument"
 
 #: .tmp/hp-option.h:86
+#, no-c-format
 msgid "Change Document."
 msgstr "Byt dokument."
 
 #: .tmp/hp-option.h:91
+#, no-c-format
 msgid "Unload"
 msgstr "Mata ut"
 
 #: .tmp/hp-option.h:92
+#, no-c-format
 msgid "Unload Document."
 msgstr "Mata ut dokument."
 
 #: .tmp/hp-option.h:97 .tmp/niash.c:728
+#, no-c-format
 msgid "Calibrate"
 msgstr "Kalibrera"
 
 #: .tmp/hp-option.h:98
+#, no-c-format
 msgid "Start calibration process."
 msgstr "Påbörja kalibreringsprocessen."
 
 #: .tmp/hp-option.h:103
+#, no-c-format
 msgid "Media"
 msgstr "Media"
 
 #: .tmp/hp-option.h:104
+#, no-c-format
 msgid "Set type of media."
 msgstr "Välj mediatyp."
 
 #: .tmp/hp-option.h:109
+#, no-c-format
 msgid "Exposure time"
 msgstr "Exponeringstid"
 
 #: .tmp/hp-option.h:111
-#, c-format
+#, no-c-format
 msgid ""
 "A longer exposure time lets the scanner collect more light. Suggested use is "
 "175% for prints, 150% for normal slides and \"Negative\" for negative film. "
@@ -833,191 +1032,238 @@ msgstr ""
 "negativ film. För mörka (underexponerade) bilder kan du öka detta värde."
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
+#, no-c-format
 msgid "Color Matrix"
 msgstr "Färgmatris"
 
 #: .tmp/hp-option.h:121
+#, no-c-format
 msgid "Set the scanners color matrix."
 msgstr "Ställer in bildläsarens färgmatris."
 
 #: .tmp/hp-option.h:127
+#, no-c-format
 msgid "Custom color matrix."
 msgstr "Användardefinierad färgmatris."
 
 #: .tmp/hp-option.h:132
+#, no-c-format
 msgid "Mono Color Matrix"
 msgstr "Enfärgsmatris"
 
 #: .tmp/hp-option.h:133
+#, no-c-format
 msgid "Custom color matrix for grayscale scans."
 msgstr "Användardefinierad färgmatris för gråskaleinläsningar."
 
 #: .tmp/hp-option.h:138
+#, no-c-format
 msgid "Mirror horizontal"
 msgstr "Spegla vågrätt"
 
 #: .tmp/hp-option.h:139
+#, no-c-format
 msgid "Mirror image horizontally."
 msgstr "Spegla bilden vågrätt."
 
 #: .tmp/hp-option.h:144
+#, no-c-format
 msgid "Mirror vertical"
 msgstr "Spegla lodrätt"
 
 #: .tmp/hp-option.h:145
+#, no-c-format
 msgid "Mirror image vertically."
 msgstr "Spegla bilden lodrätt."
 
 #: .tmp/hp-option.h:150
+#, no-c-format
 msgid "Update options"
 msgstr "Uppdatera inställningsvärden"
 
 #: .tmp/hp-option.h:151
+#, no-c-format
 msgid "Update options."
 msgstr "Uppdatera inställningsvärden."
 
 #: .tmp/hp-option.h:156
+#, no-c-format
 msgid "8 bit output"
 msgstr "8 bitars utdata"
 
 #: .tmp/hp-option.h:158
+#, no-c-format
 msgid "Use bit depth greater eight internally, but output only eight bits."
 msgstr "Använd ett bitdjup större än 8 internt, men ge endast 8 bitars utdata."
 
 #: .tmp/hp-option.h:164
+#, no-c-format
 msgid "Front button wait"
 msgstr "Invänta knapptryck"
 
 #: .tmp/hp-option.h:165
+#, no-c-format
 msgid "Wait to scan for front-panel button push."
 msgstr ""
 "Vänta med inläsningen tills dess att knappen på frontpanelen trycks in."
 
 #: .tmp/hp-option.h:172
+#, no-c-format
 msgid "Shut off lamp"
 msgstr "Slå av lampan"
 
 #: .tmp/hp-option.h:173
+#, no-c-format
 msgid "Shut off scanner lamp."
 msgstr "Slå av bildläsarlampan."
 
 #: .tmp/leo.c:110
+#, no-c-format
 msgid "Diamond"
 msgstr "Diamant"
 
 #: .tmp/leo.c:111
+#, no-c-format
 msgid "8x8 Coarse Fatting"
 msgstr "8x8 grov förtjockning"
 
 #: .tmp/leo.c:112
+#, no-c-format
 msgid "8x8 Fine Fatting"
 msgstr "8x8 fin förtjockning"
 
 #: .tmp/leo.c:113
+#, no-c-format
 msgid "8x8 Bayer"
 msgstr "8x8 Bayer"
 
 #: .tmp/leo.c:114
+#, no-c-format
 msgid "8x8 Vertical Line"
 msgstr "8x8 lodrät linje"
 
 #: .tmp/leo.c:781 .tmp/saneopts.h:138
+#, no-c-format
 msgid "Scan mode"
 msgstr "Bildläsarläge"
 
 #: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:291 .tmp/teco3.h:294
+#, no-c-format
 msgid "Black & White"
 msgstr "Svart-vit"
 
 #: .tmp/matsushita.c:139
+#, no-c-format
 msgid "Bayer Dither 16"
 msgstr "Bayergitter 16"
 
 #: .tmp/matsushita.c:140
+#, no-c-format
 msgid "Bayer Dither 64"
 msgstr "Bayergitter 64"
 
 #: .tmp/matsushita.c:141
+#, no-c-format
 msgid "Halftone Dot 32"
 msgstr "Rasterpunkt 32"
 
 #: .tmp/matsushita.c:142
+#, no-c-format
 msgid "Halftone Dot 64"
 msgstr "Rasterpunkt 64"
 
 #: .tmp/matsushita.c:143
+#, no-c-format
 msgid "Error Diffusion"
 msgstr "Feldiffusion"
 
 #: .tmp/matsushita.c:160
+#, no-c-format
 msgid "Mode 1"
 msgstr "Läge 1"
 
 #: .tmp/matsushita.c:161
+#, no-c-format
 msgid "Mode 2"
 msgstr "Läge 2"
 
 #: .tmp/matsushita.c:162
+#, no-c-format
 msgid "Mode 3"
 msgstr "Läge 3"
 
 #: .tmp/matsushita.c:176
+#, no-c-format
 msgid "From white stick"
 msgstr "Från kalibreringsraden"
 
 #: .tmp/matsushita.c:177
+#, no-c-format
 msgid "From paper"
 msgstr "Från papper"
 
 #: .tmp/matsushita.c:178
+#, no-c-format
 msgid "Automatic"
 msgstr "Automatiskt"
 
 #: .tmp/matsushita.c:212
+#, no-c-format
 msgid "Smooth"
 msgstr "Jämn"
 
 #: .tmp/matsushita.c:214 .tmp/matsushita.c:229
+#, no-c-format
 msgid "Low"
 msgstr "Låg"
 
 #: .tmp/matsushita.c:215 .tmp/matsushita.c:230 .tmp/matsushita.c:1296
+#, no-c-format
 msgid "Medium"
 msgstr "Medel"
 
 #: .tmp/matsushita.c:216 .tmp/matsushita.c:231
+#, no-c-format
 msgid "High"
 msgstr "Hög"
 
 #: .tmp/matsushita.c:245
+#, no-c-format
 msgid "CRT"
 msgstr "Bildskärm"
 
 #: .tmp/matsushita.c:257
+#, no-c-format
 msgid "One page"
 msgstr "En sida"
 
 #: .tmp/matsushita.c:258
+#, no-c-format
 msgid "All pages"
 msgstr "Alla sidor"
 
 #: .tmp/matsushita.c:1034
+#, no-c-format
 msgid "sheetfed scanner"
 msgstr "arkmatad bildläsare"
 
 #: .tmp/matsushita.c:1126
+#, no-c-format
 msgid "Feeder mode"
 msgstr "Dokumentmatarläge"
 
 #: .tmp/matsushita.c:1127
+#, no-c-format
 msgid "Sets the feeding mode"
 msgstr "Ställer in dokumentmatarläge"
 
 #: .tmp/matsushita.c:1224
+#, no-c-format
 msgid "Automatic threshold"
 msgstr "Automatiskt tröskelvärde"
 
 #: .tmp/matsushita.c:1227
+#, no-c-format
 msgid ""
 "Automatically sets brightness, contrast, white level, gamma, noise reduction "
 "and image emphasis"
@@ -1026,117 +1272,145 @@ msgstr ""
 "automatiskt"
 
 #: .tmp/matsushita.c:1275
+#, no-c-format
 msgid "Noise reduction"
 msgstr "Brusreducering"
 
 #: .tmp/matsushita.c:1277
+#, no-c-format
 msgid "Reduce the isolated dot noise"
 msgstr "Minska bruset från isolerade punkter"
 
 #: .tmp/matsushita.c:1288
+#, no-c-format
 msgid "Image emphasis"
 msgstr "Bildton"
 
 #: .tmp/matsushita.c:1289
+#, no-c-format
 msgid "Sets the image emphasis"
 msgstr "Ställer in bildton"
 
 #: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
+#, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
 
 #: .tmp/matsushita.h:210
+#, no-c-format
 msgid "Grayscale 4 bits"
 msgstr "4 bitars gråskala"
 
 #: .tmp/matsushita.h:211
+#, no-c-format
 msgid "Grayscale 8 bits"
 msgstr "8 bitars gråskala"
 
 #: .tmp/matsushita.h:220
+#, no-c-format
 msgid "Paper size"
 msgstr "Pappersstorlek"
 
 #: .tmp/matsushita.h:221 .tmp/matsushita.h:228
+#, no-c-format
 msgid "Automatic separation"
 msgstr "Automatisk separering"
 
 #: .tmp/matsushita.h:224
+#, no-c-format
 msgid "Enable Duplex (Dual-Sided) Scanning"
 msgstr "Sätt på dubbelsidig inläsning"
 
 #: .tmp/matsushita.h:226
+#, no-c-format
 msgid "Physical size of the paper in the ADF"
 msgstr "Verklig storlek på papperet i den automatiska dokumentmataren"
 
 #: .tmp/microtek2.h:603
+#, no-c-format
 msgid "Shadow, midtone, highlight, exposure time"
 msgstr "Skugga, mittvärde, belysning, exponeringstid"
 
 #: .tmp/microtek2.h:605
+#, no-c-format
 msgid "Special options"
 msgstr "Specialinställningar"
 
 #: .tmp/microtek2.h:606
+#, no-c-format
 msgid "Color balance"
 msgstr "Färgbalans"
 
 #: .tmp/microtek2.h:609
+#, no-c-format
 msgid "Disable backtracking"
 msgstr "Stäng av bakspårning"
 
 #: .tmp/microtek2.h:610
+#, no-c-format
 msgid "If checked the scanner does not perform backtracking"
 msgstr "Om denna inställning är vald utför bildläsaren ingen bakspårning"
 
 #: .tmp/microtek2.h:614
+#, no-c-format
 msgid "Toggle lamp of flatbed"
 msgstr "Slå av eller på lampan"
 
 #: .tmp/microtek2.h:615
+#, no-c-format
 msgid "Toggles the lamp of the flatbed"
 msgstr "Slår av eller på flatbäddsbildläsarens lampa"
 
 #: .tmp/microtek2.h:618
+#, no-c-format
 msgid "Calibration by backend"
 msgstr "Bakplanskalibrering"
 
 #: .tmp/microtek2.h:619
+#, no-c-format
 msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Om denna inställning är vald utförs färgkalibreringen före en inläsning av "
 "bakplanet"
 
 #: .tmp/microtek2.h:623
+#, no-c-format
 msgid "Use the lightlid-35mm adapter"
 msgstr "Använd lightlid-35 mm-adaptern"
 
 #: .tmp/microtek2.h:624
+#, no-c-format
 msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr ""
 "Denna inställning slår av lampan på flatbäddsbildläsaren under en inläsning"
 
 #: .tmp/microtek2.h:628 .tmp/snapscan-options.c:330
+#, no-c-format
 msgid "Quality scan"
 msgstr "Kvalitetsinläsning"
 
 #: .tmp/microtek2.h:629 .tmp/snapscan-options.c:331
+#, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "Högsta kvalitet men lägre hastighet"
 
 #: .tmp/microtek2.h:632
+#, no-c-format
 msgid "Fast scan"
 msgstr "Snabbinläsning"
 
 #: .tmp/microtek2.h:633
+#, no-c-format
 msgid "Highest speed but lower quality"
 msgstr "Högsta hastighet men lägre kvalitet"
 
 #: .tmp/microtek2.h:636
+#, no-c-format
 msgid "Automatic adjustment of threshold"
 msgstr "Automatisk inställning av tröskelvärde"
 
 #: .tmp/microtek2.h:637
+#, no-c-format
 msgid ""
 "If checked the backend automatically tries to determine an optimal value for "
 "the threshold."
@@ -1145,234 +1419,285 @@ msgstr ""
 "optimalt tröskelvärde."
 
 #: .tmp/microtek2.h:642
+#, no-c-format
 msgid "Gamma correction"
 msgstr "Gammakorrigering"
 
 #: .tmp/microtek2.h:643
+#, no-c-format
 msgid "Selects the gamma correction mode."
 msgstr "Väljer gammakorrigeringsläge."
 
 #: .tmp/microtek2.h:646
+#, no-c-format
 msgid "Bind gamma"
 msgstr "Koppla gamma"
 
 #: .tmp/microtek2.h:647
+#, no-c-format
 msgid "Use same gamma values for all colour channels."
 msgstr "Använd samma gammavärde för alla färgkanaler."
 
 #: .tmp/microtek2.h:651
+#, no-c-format
 msgid "Scalar gamma"
 msgstr "Skalärt gamma"
 
 #: .tmp/microtek2.h:652
+#, no-c-format
 msgid "Selects a value for scalar gamma correction."
 msgstr "Väljer värde för skalär gammakorrigering."
 
 #: .tmp/microtek2.h:656
+#, no-c-format
 msgid "Scalar gamma red"
 msgstr "Skalärt gamma rött"
 
 #: .tmp/microtek2.h:657
+#, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
 msgstr "Väljer värde för skalär gammakorrigering (röd kanal)"
 
 #: .tmp/microtek2.h:661
+#, no-c-format
 msgid "Scalar gamma green"
 msgstr "Skalärt gamma grönt"
 
 #: .tmp/microtek2.h:662
+#, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
 msgstr "Väljer värde för skalär gammakorrigering (grön kanal)"
 
 #: .tmp/microtek2.h:666
+#, no-c-format
 msgid "Scalar gamma blue"
 msgstr "Skalärt gamma blått"
 
 #: .tmp/microtek2.h:667
+#, no-c-format
 msgid "Selects a value for scalar gamma correction (blue channel)"
 msgstr "Väljer värde för skalär gammakorrigering (blå kanal)"
 
 #: .tmp/microtek2.h:671
+#, no-c-format
 msgid "Channel"
 msgstr "Kanal"
 
 #: .tmp/microtek2.h:672
+#, no-c-format
 msgid ""
 "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr "Väljer färgkanal, \"Master\" betyder att alla färgkanaler påverkas."
 
 #: .tmp/microtek2.h:676
+#, no-c-format
 msgid "Midtone"
 msgstr "Mittvärde"
 
 #: .tmp/microtek2.h:677
-#, c-format
+#, no-c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% grå\"."
 
 #: .tmp/microtek2.h:681
+#, no-c-format
 msgid "Midtone for red"
 msgstr "Mittvärde för rött"
 
 #: .tmp/microtek2.h:682
+#, no-c-format
 msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% röd\"."
 
 #: .tmp/microtek2.h:686
+#, no-c-format
 msgid "Midtone for green"
 msgstr "Mittvärde för grönt"
 
 #: .tmp/microtek2.h:687
-#, c-format
+#, no-c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% grön\"."
 
 #: .tmp/microtek2.h:691
+#, no-c-format
 msgid "Midtone for blue"
 msgstr "Mittvärde för blått"
 
 #: .tmp/microtek2.h:692
+#, no-c-format
 msgid "Selects which radiance level should be considered \"50 % blue\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"50% blå\"."
 
 #: .tmp/microtek2.h:696
+#, no-c-format
 msgid "Red balance"
 msgstr "Röd färgbalans"
 
 #: .tmp/microtek2.h:697
-#, c-format
+#, no-c-format
 msgid "Balance factor for red. A value of 100% means no correction."
 msgstr "Balanseringsfaktor för rött. 100% betyder ingen korrigering."
 
 #: .tmp/microtek2.h:701
+#, no-c-format
 msgid "Green balance"
 msgstr "Grön färgbalans"
 
 #: .tmp/microtek2.h:702
-#, c-format
+#, no-c-format
 msgid "Balance factor for green. A value of 100% means no correction."
 msgstr "Balanseringsfaktor för grönt. 100% betyder ingen korrigering."
 
 #: .tmp/microtek2.h:706
+#, no-c-format
 msgid "Blue balance"
 msgstr "Blå färgbalans"
 
 #: .tmp/microtek2.h:707
-#, c-format
+#, no-c-format
 msgid "Balance factor for blue. A value of 100% means no correction."
 msgstr "Balanseringsfaktor för blått. 100% betyder ingen korrigering."
 
 #: .tmp/microtek2.h:711
+#, no-c-format
 msgid "Firmware balance"
 msgstr "Färgbalans från fast programvara"
 
 #: .tmp/microtek2.h:712
+#, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
 msgstr ""
 "Ställer in färgbalansvärdena till de värden som ges från den fasta "
 "programvaran."
 
 #: .tmp/mustek.c:143
+#, no-c-format
 msgid "Slowest"
 msgstr "Långsammast"
 
 #: .tmp/mustek.c:143
+#, no-c-format
 msgid "Slower"
 msgstr "Långsammare"
 
 #: .tmp/mustek.c:144
+#, no-c-format
 msgid "Faster"
 msgstr "Snabbare"
 
 #: .tmp/mustek.c:144
+#, no-c-format
 msgid "Fastest"
 msgstr "Snabbast"
 
 #: .tmp/mustek.c:171
+#, no-c-format
 msgid "8x8 coarse"
 msgstr "8x8 grovt"
 
 #: .tmp/mustek.c:171
+#, no-c-format
 msgid "8x8 normal"
 msgstr "8x8 normalt"
 
 #: .tmp/mustek.c:171
+#, no-c-format
 msgid "8x8 fine"
 msgstr "8x8 fint"
 
 #: .tmp/mustek.c:172
+#, no-c-format
 msgid "8x8 very fine"
 msgstr "8x8 mycket fint"
 
 #: .tmp/mustek.c:172
+#, no-c-format
 msgid "6x6 normal"
 msgstr "6x6 normalt"
 
 #: .tmp/mustek.c:173
+#, no-c-format
 msgid "5x5 coarse"
 msgstr "5x5 grovt"
 
 #: .tmp/mustek.c:173
+#, no-c-format
 msgid "5x5 fine"
 msgstr "5x5 fint"
 
 #: .tmp/mustek.c:173
+#, no-c-format
 msgid "4x4 coarse"
 msgstr "4x4 grovt"
 
 #: .tmp/mustek.c:174
+#, no-c-format
 msgid "4x4 normal"
 msgstr "4x4 normalt"
 
 #: .tmp/mustek.c:174
+#, no-c-format
 msgid "4x4 fine"
 msgstr "4x4 fint"
 
 #: .tmp/mustek.c:174
+#, no-c-format
 msgid "3x3 normal"
 msgstr "3x3 normalt"
 
 #: .tmp/mustek.c:175
+#, no-c-format
 msgid "2x2 normal"
 msgstr "2x2 normalt"
 
 #: .tmp/mustek.c:175
+#, no-c-format
 msgid "8x8 custom"
 msgstr "8x8 användardefinierat"
 
 #: .tmp/mustek.c:176
+#, no-c-format
 msgid "6x6 custom"
 msgstr "6x6 användardefinierat"
 
 #: .tmp/mustek.c:177
+#, no-c-format
 msgid "5x5 custom"
 msgstr "5x5 användardefinierat"
 
 #: .tmp/mustek.c:177
+#, no-c-format
 msgid "4x4 custom"
 msgstr "4x4 användardefinierat"
 
 #: .tmp/mustek.c:178
+#, no-c-format
 msgid "3x3 custom"
 msgstr "3x3 användardefinierat"
 
 #: .tmp/mustek.c:179
+#, no-c-format
 msgid "2x2 custom"
 msgstr "2x2 användardefinierat"
 
 #: .tmp/mustek.c:4231
+#, no-c-format
 msgid "Fast gray mode"
 msgstr "Snabbt gråskaleläge"
 
 #: .tmp/mustek.c:4232
+#, no-c-format
 msgid "Scan in fast gray mode (lower quality)."
 msgstr "Läs in i snabbt gråskaleläge (lägre kvalitet)."
 
 #: .tmp/mustek.c:4328
+#, no-c-format
 msgid "Fast preview"
 msgstr "Snabb förhandsgranskning"
 
 #: .tmp/mustek.c:4329
+#, no-c-format
 msgid ""
 "Request that all previews are done in the fastest (low-quality) mode. This "
 "may be a non-color mode or a low resolution mode."
@@ -1381,242 +1706,318 @@ msgstr ""
 "läget. Detta kan vara en icke-färginläsning eller en lågupplösningsinläsning."
 
 #: .tmp/mustek.c:4337
+#, no-c-format
 msgid "Lamp off time (minutes)"
 msgstr "Lampavstängningstid (minuter)"
 
 #: .tmp/mustek.c:4338
+#, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
 msgstr "Ställer in tiden (i minuter) efter vilken lampan stängs av."
 
 #: .tmp/mustek.c:4349
+#, no-c-format
 msgid "Turn lamp off"
 msgstr "Stäng av lampan"
 
 #: .tmp/mustek.c:4350
+#, no-c-format
 msgid "Turns the lamp off immediately."
 msgstr "Stänger av lampan omedelbart."
 
 #: .tmp/mustek.c:4427
+#, no-c-format
 msgid "Red brightness"
 msgstr "Röd ljusstyrka"
 
 #: .tmp/mustek.c:4428
+#, no-c-format
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr "Bestämmer ljusstyrkan för den röda kanalen i den inlästa bilden."
 
 #: .tmp/mustek.c:4440
+#, no-c-format
 msgid "Green brightness"
 msgstr "Grön ljusstyrka"
 
 #: .tmp/mustek.c:4441
+#, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr "Bestämmer ljusstyrkan för den gröna kanalen i den inlästa bilden."
 
 #: .tmp/mustek.c:4453
+#, no-c-format
 msgid "Blue brightness"
 msgstr "Blå ljusstyrka"
 
 #: .tmp/mustek.c:4454
+#, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr "Bestämmer ljusstyrkan för den blå kanalen i den inlästa bilden."
 
 #: .tmp/mustek.c:4479
+#, no-c-format
 msgid "Contrast red channel"
 msgstr "Kontrast röd kanal"
 
 #: .tmp/mustek.c:4480
+#, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr "Bestämmer kontrasten för den röda kanalen i den inlästa bilden."
 
 #: .tmp/mustek.c:4492
+#, no-c-format
 msgid "Contrast green channel"
 msgstr "Kontrast grön kanal"
 
 #: .tmp/mustek.c:4493
+#, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr "Bestämmer kontrasten för den gröna kanalen i den inlästa bilden."
 
 #: .tmp/mustek.c:4505
+#, no-c-format
 msgid "Contrast blue channel"
 msgstr "Kontrast blå kanal"
 
 #: .tmp/mustek.c:4506
+#, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Bestämmer kontrasten för den blå kanalen i den inlästa bilden."
 
 #: .tmp/niash.c:683
+#, no-c-format
 msgid "Image"
 msgstr "Bild"
 
 #: .tmp/niash.c:711
+#, no-c-format
 msgid "Miscellaneous"
 msgstr "Diverse"
 
 #: .tmp/niash.c:718
+#, no-c-format
 msgid "Lamp status"
 msgstr "Lampstatus"
 
 #: .tmp/niash.c:719
+#, no-c-format
 msgid "Switches the lamp on or off."
 msgstr "Sätter på eller av lampan."
 
 #: .tmp/niash.c:729
+#, no-c-format
 msgid "Calibrates for black and white level."
 msgstr "Kalibrerar för svart- och vitnivå"
 
-#: .tmp/plustek.c:221 .tmp/plustek_pp.c:201
+#: .tmp/plustek.c:225 .tmp/plustek_pp.c:201
+#, no-c-format
 msgid "Transparency"
 msgstr "Skrivfilm"
 
-#: .tmp/plustek.c:835
+#: .tmp/plustek.c:854
+#, no-c-format
 msgid "Device-Settings"
 msgstr "Enhetsinställningar"
 
-#: .tmp/plustek.c:842
+#: .tmp/plustek.c:861
+#, no-c-format
 msgid "Lampswitch"
 msgstr "Lampströmbrytare"
 
-#: .tmp/plustek.c:843
+#: .tmp/plustek.c:862
+#, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Slår av/på lamp(an/orna) manuellt."
 
-#: .tmp/plustek.c:848
+#: .tmp/plustek.c:867
+#, no-c-format
 msgid "Calibration data cache"
 msgstr "Kalibreringsdatacache"
 
-#: .tmp/plustek.c:849
+#: .tmp/plustek.c:868
+#, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Aktiverar eller avaktiverar kaliberingsdatacache."
 
-#: .tmp/plustek.c:860
+#: .tmp/plustek.c:879
+#, no-c-format
 msgid "Warmup-time"
 msgstr "Uppvärmningstid"
 
-#: .tmp/plustek.c:861
+#: .tmp/plustek.c:880
+#, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Uppvärmningstid i sekunder."
 
-#: .tmp/plustek.c:868
+#: .tmp/plustek.c:887
+#, no-c-format
 msgid "Lampoff-time"
 msgstr "Lampavstängningstid"
 
-#: .tmp/plustek.c:869
+#: .tmp/plustek.c:888
+#, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Lampavstängningstid i sekunder."
 
-#: .tmp/plustek.c:877
+#: .tmp/plustek.c:895
+#, no-c-format
 msgid "Analog frontend"
 msgstr "Analogt framplan"
 
-#: .tmp/plustek.c:883 .tmp/umax_pp.c:655
+#: .tmp/plustek.c:901 .tmp/umax_pp.c:655
+#, no-c-format
 msgid "Red gain"
 msgstr "Röd förstärkning"
 
-#: .tmp/plustek.c:884
+#: .tmp/plustek.c:902
+#, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Det analoga framplanets rödförstärkningsvärde"
 
-#: .tmp/plustek.c:891 .tmp/umax_pp.c:712
+#: .tmp/plustek.c:909 .tmp/umax_pp.c:712
+#, no-c-format
 msgid "Red offset"
 msgstr "Röd offset"
 
-#: .tmp/plustek.c:892
+#: .tmp/plustek.c:910
+#, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Det analoga framplanets rödoffsetvärde"
 
-#: .tmp/plustek.c:899 .tmp/umax_pp.c:667
+#: .tmp/plustek.c:917 .tmp/umax_pp.c:667
+#, no-c-format
 msgid "Green gain"
 msgstr "Grön förstärkning"
 
-#: .tmp/plustek.c:900
+#: .tmp/plustek.c:918
+#, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Det analoga framplanets grönförstärkningsvärde"
 
-#: .tmp/plustek.c:907 .tmp/umax_pp.c:724
+#: .tmp/plustek.c:925 .tmp/umax_pp.c:724
+#, no-c-format
 msgid "Green offset"
 msgstr "Grön offset"
 
-#: .tmp/plustek.c:908
+#: .tmp/plustek.c:926
+#, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Det analoga framplanets grönoffsetvärde"
 
-#: .tmp/plustek.c:915 .tmp/umax_pp.c:679
+#: .tmp/plustek.c:933 .tmp/umax_pp.c:679
+#, no-c-format
 msgid "Blue gain"
 msgstr "Blå förstärkning"
 
-#: .tmp/plustek.c:916
+#: .tmp/plustek.c:934
+#, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Det analoga framplanets blåförstärkningsvärde"
 
-#: .tmp/plustek.c:923 .tmp/umax_pp.c:736
+#: .tmp/plustek.c:941 .tmp/umax_pp.c:736
+#, no-c-format
 msgid "Blue offset"
 msgstr "Blå offset"
 
-#: .tmp/plustek.c:924
+#: .tmp/plustek.c:942
+#, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Det analoga framplanets blåoffsetsvärde"
 
-#: .tmp/plustek.c:931
+#: .tmp/plustek.c:949
+#, no-c-format
 msgid "Red lamp off"
 msgstr "Röd lampa av"
 
-#: .tmp/plustek.c:932
+#: .tmp/plustek.c:950
+#, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Definierar röd-lampa-av-parameter"
 
-#: .tmp/plustek.c:939
+#: .tmp/plustek.c:957
+#, no-c-format
 msgid "Green lamp off"
 msgstr "Grön lampa av"
 
-#: .tmp/plustek.c:940
+#: .tmp/plustek.c:958
+#, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Definierar grön-lampa-av-parameter"
 
-#: .tmp/plustek.c:947
+#: .tmp/plustek.c:965
+#, no-c-format
 msgid "Blue lamp off"
 msgstr "Blå lampa av"
 
-#: .tmp/plustek.c:948
+#: .tmp/plustek.c:966
+#, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Definierar blå-lampa-av-parameter"
 
+#: .tmp/plustek.c:980
+#, fuzzy, no-c-format
+msgid "Buttons"
+msgstr "Knappläge"
+
+#: .tmp/plustek.c:988
+#, fuzzy, no-c-format
+msgid "Scanner button"
+msgstr "Handbildläsarsimulering"
+
+#: .tmp/plustek.c:989
+#, no-c-format
+msgid ""
+"This options reflects the front pannel scanner button pressed by the user."
+msgstr ""
+
 #: .tmp/plustek_pp.c:194
+#, no-c-format
 msgid "Color36"
 msgstr "Färg 36"
 
 #: .tmp/plustek_pp.c:208
+#, no-c-format
 msgid "Dithermap 1"
 msgstr "Gitterkarta 1"
 
 #: .tmp/plustek_pp.c:209
+#, no-c-format
 msgid "Dithermap 2"
 msgstr "Gitterkarta 2"
 
 #: .tmp/plustek_pp.c:210
+#, no-c-format
 msgid "Randomize"
 msgstr "Slumpvist"
 
 #: .tmp/pnm.c:162
+#, no-c-format
 msgid "Source Selection"
 msgstr "Val av bildkälla"
 
 #: .tmp/pnm.c:199
+#, no-c-format
 msgid "Image Enhancement"
 msgstr "Bildförbättring"
 
 #: .tmp/pnm.c:235
+#, no-c-format
 msgid "Grayify"
 msgstr "Gör grå"
 
 #: .tmp/pnm.c:236
+#, no-c-format
 msgid "Load the image as grayscale."
 msgstr "Läs in bilden som gråskala"
 
 #: .tmp/pnm.c:247
+#, no-c-format
 msgid "Three-Pass Simulation"
 msgstr "Trepassimulering"
 
 #: .tmp/pnm.c:249
+#, no-c-format
 msgid ""
 "Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it "
 "returns green, then blue, then red."
@@ -1625,10 +2026,12 @@ msgstr ""
 "att retas returnerar den först grönt, sedan blått och sist rött."
 
 #: .tmp/pnm.c:261
+#, no-c-format
 msgid "Hand-Scanner Simulation"
 msgstr "Handbildläsarsimulering"
 
 #: .tmp/pnm.c:262
+#, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners often do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
@@ -1639,40 +2042,49 @@ msgstr ""
 "vald kan man testa om ett framplan kan hantera detta på rätt sätt."
 
 #: .tmp/pnm.c:277
+#, no-c-format
 msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Använd standardvärden för förbättringsinställningar (ljusstyrka och "
 "kontrast)."
 
 #: .tmp/pnm.c:289
+#, no-c-format
 msgid "Read only test-option"
 msgstr "Skrivskyddad testinställning"
 
 #: .tmp/pnm.c:290
+#, no-c-format
 msgid "Let's see whether frontends can treat this right"
 msgstr "Låt oss se om framplan kan hantera detta"
 
 #: .tmp/pnm.c:301
+#, no-c-format
 msgid "Gamma Tables"
 msgstr "Gammatabeller"
 
 #: .tmp/pnm.c:373
+#, no-c-format
 msgid "Status Code Simulation"
 msgstr "Statuskodsimulering"
 
 #: .tmp/pnm.c:385
+#, no-c-format
 msgid "Do not force status code"
 msgstr "Framtvinga inte statuskod"
 
 #: .tmp/pnm.c:386
+#, no-c-format
 msgid "Do not force the backend to return a status code."
 msgstr "Tvinga inte bakplanet att returnera en statuskod."
 
 #: .tmp/pnm.c:397
+#, no-c-format
 msgid "Return SANE_STATUS_EOF"
 msgstr "Returnera SANE_STATUS_EOF"
 
 #: .tmp/pnm.c:398
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_EOF after sane_read"
 "() has been called."
@@ -1681,10 +2093,12 @@ msgstr ""
 "sane_read() har anropats."
 
 #: .tmp/pnm.c:410
+#, no-c-format
 msgid "Return SANE_STATUS_JAMMED"
 msgstr "Returnera SANE_STATUS_JAMMED"
 
 #: .tmp/pnm.c:412
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_JAMMED after "
 "sane_read() has been called."
@@ -1693,10 +2107,12 @@ msgstr ""
 "sane_read() har anropats."
 
 #: .tmp/pnm.c:424
+#, no-c-format
 msgid "Return SANE_STATUS_NO_DOCS"
 msgstr "Returnera SANE_STATUS_NO_DOCS"
 
 #: .tmp/pnm.c:425
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_DOCS after "
 "sane_read() has been called."
@@ -1705,10 +2121,12 @@ msgstr ""
 "sane_read() har anropats."
 
 #: .tmp/pnm.c:437
+#, no-c-format
 msgid "Return SANE_STATUS_COVER_OPEN"
 msgstr "Returnera SANE_STATUS_COVER_OPEN"
 
 #: .tmp/pnm.c:438
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_COVER_OPEN after "
 "sane_read() has been called."
@@ -1717,10 +2135,12 @@ msgstr ""
 "att sane_read() har anropats."
 
 #: .tmp/pnm.c:450
+#, no-c-format
 msgid "Return SANE_STATUS_IO_ERROR"
 msgstr "Returnera SANE_STATUS_IO_ERROR"
 
 #: .tmp/pnm.c:451
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_IO_ERROR after "
 "sane_read() has been called."
@@ -1729,10 +2149,12 @@ msgstr ""
 "att sane_read() har anropats."
 
 #: .tmp/pnm.c:463
+#, no-c-format
 msgid "Return SANE_STATUS_NO_MEM"
 msgstr "Returnera SANE_STATUS_NO_MEM"
 
 #: .tmp/pnm.c:465
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_NO_MEM after "
 "sane_read() has been called."
@@ -1741,10 +2163,12 @@ msgstr ""
 "sane_read() har anropats."
 
 #: .tmp/pnm.c:477
+#, no-c-format
 msgid "Return SANE_STATUS_ACCESS_DENIED"
 msgstr "Returnera SANE_STATUS_ACCESS_DENIED"
 
 #: .tmp/pnm.c:478
+#, no-c-format
 msgid ""
 "Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after "
 "sane_read() has been called."
@@ -1753,276 +2177,344 @@ msgstr ""
 "det att sane_read() har anropats."
 
 #: .tmp/saneopts.h:134
+#, no-c-format
 msgid "Number of options"
 msgstr "Antal inställningsvärden"
 
 #: .tmp/saneopts.h:135
+#, no-c-format
 msgid "Preview"
 msgstr "Förhandsgranskning"
 
 #: .tmp/saneopts.h:136
+#, no-c-format
 msgid "Force monochrome preview"
 msgstr "Använd monokrom förhandsgranskning"
 
 #: .tmp/saneopts.h:137
+#, no-c-format
 msgid "Bit depth"
 msgstr "Bitdjup"
 
 #: .tmp/saneopts.h:139
+#, no-c-format
 msgid "Scan speed"
 msgstr "Hastighet"
 
 #: .tmp/saneopts.h:140
+#, no-c-format
 msgid "Scan source"
 msgstr "Bildläsarkälla"
 
 #: .tmp/saneopts.h:141
+#, no-c-format
 msgid "Force backtracking"
 msgstr "Använd bakspårning"
 
 #: .tmp/saneopts.h:142
+#, no-c-format
 msgid "Top-left x"
 msgstr "Vänster"
 
 #: .tmp/saneopts.h:143
+#, no-c-format
 msgid "Top-left y"
 msgstr "Övre"
 
 #: .tmp/saneopts.h:144
+#, no-c-format
 msgid "Bottom-right x"
 msgstr "Höger"
 
 #: .tmp/saneopts.h:145
+#, no-c-format
 msgid "Bottom-right y"
 msgstr "Nedre"
 
 #: .tmp/saneopts.h:146
+#, no-c-format
 msgid "Scan resolution"
 msgstr "Upplösning"
 
 #: .tmp/saneopts.h:147
+#, no-c-format
 msgid "X-resolution"
 msgstr "X-upplösning"
 
 #: .tmp/saneopts.h:148
+#, no-c-format
 msgid "Y-resolution"
 msgstr "Y-upplösning"
 
 #: .tmp/saneopts.h:149
+#, no-c-format
 msgid "Use custom gamma table"
 msgstr "Använd användardefinierad gammatabell"
 
 #: .tmp/saneopts.h:150
+#, no-c-format
 msgid "Image intensity"
 msgstr "Bildintensitet"
 
 #: .tmp/saneopts.h:151
+#, no-c-format
 msgid "Red intensity"
 msgstr "Röd intensitet"
 
 #: .tmp/saneopts.h:152
+#, no-c-format
 msgid "Green intensity"
 msgstr "Grön intensitet"
 
 #: .tmp/saneopts.h:153
+#, no-c-format
 msgid "Blue intensity"
 msgstr "Blå intensitet"
 
 #: .tmp/saneopts.h:154
+#, no-c-format
 msgid "Brightness"
 msgstr "Ljusstyrka"
 
 #: .tmp/saneopts.h:155
+#, no-c-format
 msgid "Contrast"
 msgstr "Kontrast"
 
 #: .tmp/saneopts.h:156
+#, no-c-format
 msgid "Grain size"
 msgstr "Kornstorlek"
 
 #: .tmp/saneopts.h:157
+#, no-c-format
 msgid "Halftoning"
 msgstr "Rastrering"
 
 #: .tmp/saneopts.h:158
+#, no-c-format
 msgid "Black level"
 msgstr "Svartnivå"
 
 #: .tmp/saneopts.h:159
+#, no-c-format
 msgid "White level"
 msgstr "Vitnivå"
 
 #: .tmp/saneopts.h:160
+#, no-c-format
 msgid "White level for red"
 msgstr "Vitninå för rött"
 
 #: .tmp/saneopts.h:161
+#, no-c-format
 msgid "White level for green"
 msgstr "Vitnivå för grönt"
 
 #: .tmp/saneopts.h:162
+#, no-c-format
 msgid "White level for blue"
 msgstr "Vitnivå för blått"
 
 #: .tmp/saneopts.h:163
+#, no-c-format
 msgid "Shadow"
 msgstr "Skugga"
 
 #: .tmp/saneopts.h:164
+#, no-c-format
 msgid "Shadow for red"
 msgstr "Skugga för rött"
 
 #: .tmp/saneopts.h:165
+#, no-c-format
 msgid "Shadow for green"
 msgstr "Skugga för grönt"
 
 #: .tmp/saneopts.h:166
+#, no-c-format
 msgid "Shadow for blue"
 msgstr "Skugga för blått"
 
 #: .tmp/saneopts.h:167
+#, no-c-format
 msgid "Highlight"
 msgstr "Belysning"
 
 #: .tmp/saneopts.h:168
+#, no-c-format
 msgid "Highlight for red"
 msgstr "Belysning för rött"
 
 #: .tmp/saneopts.h:169
+#, no-c-format
 msgid "Highlight for green"
 msgstr "Belysning för grönt"
 
 #: .tmp/saneopts.h:170
+#, no-c-format
 msgid "Highlight for blue"
 msgstr "Belysning för blått"
 
 #: .tmp/saneopts.h:171
+#, no-c-format
 msgid "Hue"
 msgstr "Nyans"
 
 #: .tmp/saneopts.h:172
+#, no-c-format
 msgid "Saturation"
 msgstr "Mättnad"
 
 #: .tmp/saneopts.h:173
+#, no-c-format
 msgid "Filename"
 msgstr "Filnamn"
 
 #: .tmp/saneopts.h:174
+#, no-c-format
 msgid "Halftone pattern size"
 msgstr "Rastermönstersstorlek"
 
 #: .tmp/saneopts.h:175
+#, no-c-format
 msgid "Halftone pattern"
 msgstr "Rastermönster"
 
 #: .tmp/saneopts.h:176
+#, no-c-format
 msgid "Bind X and Y resolution"
 msgstr "Koppla X- och Y-upplösning"
 
 #: .tmp/saneopts.h:178
+#, no-c-format
 msgid "Quality calibration"
 msgstr "Kvalitetskalibrering"
 
 #: .tmp/saneopts.h:179
+#, no-c-format
 msgid "Double Optical Resolution"
 msgstr "Dubbel optisk upplösning"
 
 #: .tmp/saneopts.h:180
+#, no-c-format
 msgid "Bind RGB"
 msgstr "Koppla RGB"
 
 #: .tmp/saneopts.h:181
+#, no-c-format
 msgid "Threshold"
 msgstr "Tröskelvärde"
 
 #: .tmp/saneopts.h:182
+#, no-c-format
 msgid "Analog gamma correction"
 msgstr "Analog gammakorrigering"
 
 #: .tmp/saneopts.h:183
+#, no-c-format
 msgid "Analog gamma red"
 msgstr "Analogt gamma rött"
 
 #: .tmp/saneopts.h:184
+#, no-c-format
 msgid "Analog gamma green"
 msgstr "Analogt gamma grönt"
 
 #: .tmp/saneopts.h:185
+#, no-c-format
 msgid "Analog gamma blue"
 msgstr "Analogt gamma blått"
 
 #: .tmp/saneopts.h:186
+#, no-c-format
 msgid "Bind analog gamma"
 msgstr "Koppla analogt gamma"
 
 #: .tmp/saneopts.h:187
+#, no-c-format
 msgid "Warmup lamp"
 msgstr "Värm upp lampa"
 
 #: .tmp/saneopts.h:188
+#, no-c-format
 msgid "Cal. exposure-time"
 msgstr "Kalibreringsexponeringstid"
 
 #: .tmp/saneopts.h:189
+#, no-c-format
 msgid "Cal. exposure-time for red"
 msgstr "Kalibreringsexponeringstid för rött"
 
 #: .tmp/saneopts.h:190
+#, no-c-format
 msgid "Cal. exposure-time for green"
 msgstr "Kalibreringsexponeringstid för grönt"
 
 #: .tmp/saneopts.h:192
+#, no-c-format
 msgid "Cal. exposure-time for blue"
 msgstr "Kalibreringsexponeringstid för blått"
 
 #: .tmp/saneopts.h:193
+#, no-c-format
 msgid "Scan exposure-time"
 msgstr "Inläsningsexponeringstid"
 
 #: .tmp/saneopts.h:194
+#, no-c-format
 msgid "Scan exposure-time for red"
 msgstr "Inläsningsexponeringstid för rött"
 
 #: .tmp/saneopts.h:195
+#, no-c-format
 msgid "Scan exposure-time for green"
 msgstr "Inläsningsexponeringstid för grönt"
 
 #: .tmp/saneopts.h:197
+#, no-c-format
 msgid "Scan exposure-time for blue"
 msgstr "Inläsningsexponeringstid för blått"
 
 #: .tmp/saneopts.h:198
+#, no-c-format
 msgid "Set exposure-time"
 msgstr "Ställ in exponeringstid"
 
 #: .tmp/saneopts.h:199
+#, no-c-format
 msgid "Cal. lamp density"
 msgstr "Kalibreringslampdensitet"
 
 #: .tmp/saneopts.h:200
+#, no-c-format
 msgid "Scan lamp density"
 msgstr "Inläsningslampdensitet"
 
 #: .tmp/saneopts.h:201
+#, no-c-format
 msgid "Set lamp density"
 msgstr "Ställ in lampdensitet"
 
 #: .tmp/saneopts.h:202 .tmp/umax.c:5827
+#, no-c-format
 msgid "Lamp off at exit"
 msgstr "Lampa av vid avslut"
 
 #: .tmp/saneopts.h:206
+#, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Skrivskyddat värde som anger hur många parametrar en specifik enhet stödjer."
 
 #: .tmp/saneopts.h:210
+#, no-c-format
 msgid "Request a preview-quality scan."
 msgstr "Begär en inläsning i förhandsgranskningskvalitet."
 
 #: .tmp/saneopts.h:213
+#, no-c-format
 msgid ""
 "Request that all previews are done in monochrome mode.  On a three-pass "
 "scanner this cuts down the number of passes to one and on a one-pass "
@@ -2033,6 +2525,7 @@ msgstr ""
 "så reduceras både minnesåtgång och inläsningstid för en förhandsgranskning."
 
 #: .tmp/saneopts.h:219
+#, no-c-format
 msgid ""
 "Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
 "multibit scans."
@@ -2041,56 +2534,69 @@ msgstr ""
 "för flerbitinläsningar."
 
 #: .tmp/saneopts.h:223
+#, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
 msgstr "Väljer inläsningsläge (t.ex. streckteckning, monokrom eller färg)."
 
 #: .tmp/saneopts.h:226
+#, no-c-format
 msgid "Determines the speed at which the scan proceeds."
 msgstr "Bestämmer hastigheten med vilken inläsningen sker."
 
 #: .tmp/saneopts.h:229
+#, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
 msgstr "Väljer inläsningskälla (som t.ex. en dokumentmatare)."
 
 #: .tmp/saneopts.h:232
+#, no-c-format
 msgid "Controls whether backtracking is forced."
 msgstr "Bestämmer ifall bakspårning används."
 
 #: .tmp/saneopts.h:235
+#, no-c-format
 msgid "Top-left x position of scan area."
 msgstr "Vänster kant av inläsningsytan."
 
 #: .tmp/saneopts.h:238
+#, no-c-format
 msgid "Top-left y position of scan area."
 msgstr "Övre kant av inläsningsytan."
 
 #: .tmp/saneopts.h:241
+#, no-c-format
 msgid "Bottom-right x position of scan area."
 msgstr "Höger kant av inläsningsytan."
 
 #: .tmp/saneopts.h:244
+#, no-c-format
 msgid "Bottom-right y position of scan area."
 msgstr "Nedre kant av inläsningsytan."
 
 #: .tmp/saneopts.h:247
+#, no-c-format
 msgid "Sets the resolution of the scanned image."
 msgstr "Ställer in upplösningen på den inlästa bilden."
 
 #: .tmp/saneopts.h:250
+#, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
 msgstr "Ställer in den horisontella upplösningen på den inlästa bilden."
 
 #: .tmp/saneopts.h:253
+#, no-c-format
 msgid "Sets the vertical resolution of the scanned image."
 msgstr "Ställer in den vertikala upplösningen på den inlästa bilden."
 
 #: .tmp/saneopts.h:256
+#, no-c-format
 msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
 "Bestämmer ifall en inbyggd eller användardefinierad gammatabell skall "
 "användas."
 
 #: .tmp/saneopts.h:260
+#, no-c-format
 msgid ""
 "Gamma-correction table.  In color mode this option equally affects the red, "
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
@@ -2100,26 +2606,32 @@ msgstr ""
 "gröna och blå kanalerna samtidigt (dvs det är en intensitetsgammatabell)."
 
 #: .tmp/saneopts.h:265
+#, no-c-format
 msgid "Gamma-correction table for the red band."
 msgstr "Gammakorrigeringstabell för den röda kanalen."
 
 #: .tmp/saneopts.h:268
+#, no-c-format
 msgid "Gamma-correction table for the green band."
 msgstr "Gammakorrigeringstabell för den gröna kanalen."
 
 #: .tmp/saneopts.h:271
+#, no-c-format
 msgid "Gamma-correction table for the blue band."
 msgstr "Gammakorrigeringstabell för den blå kanalen."
 
 #: .tmp/saneopts.h:274
+#, no-c-format
 msgid "Controls the brightness of the acquired image."
 msgstr "Bestämmer ljusstyrkan för den inlästa bilden."
 
 #: .tmp/saneopts.h:277
+#, no-c-format
 msgid "Controls the contrast of the acquired image."
 msgstr "Bestämmer kontrasten för den inlästa bilden."
 
 #: .tmp/saneopts.h:280
+#, no-c-format
 msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result in "
 "sharper images."
@@ -2128,58 +2640,72 @@ msgstr ""
 "bilder."
 
 #: .tmp/saneopts.h:284
+#, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr "Väljer ifall den inlästa bilden skall rasteras (gittras)."
 
 #: .tmp/saneopts.h:287 .tmp/saneopts.h:302
+#, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:290 .tmp/saneopts.h:311
+#, no-c-format
 msgid "Selects what radiance level should be considered \"white\"."
 msgstr "Väljer vilken strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:293
+#, no-c-format
 msgid "Selects what red radiance level should be considered \"white\"."
 msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:296
+#, no-c-format
 msgid "Selects what green radiance level should be considered \"white\"."
 msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:299
+#, no-c-format
 msgid "Selects what blue radiance level should be considered \"white\"."
 msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"vit\"."
 
 #: .tmp/saneopts.h:304
+#, no-c-format
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:306
+#, no-c-format
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:308
+#, no-c-format
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"svart\"."
 
 #: .tmp/saneopts.h:313
+#, no-c-format
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr "Väljer vilken röd strålglansnivå som skall tolkas som \"helt röd\"."
 
 #: .tmp/saneopts.h:315
+#, no-c-format
 msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr "Väljer vilken grön strålglansnivå som skall tolkas som \"helt grön\"."
 
 #: .tmp/saneopts.h:318
+#, no-c-format
 msgid "Selects what blue radiance level should be considered \"full blue\"."
 msgstr "Väljer vilken blå strålglansnivå som skall tolkas som \"helt blå\"."
 
 #: .tmp/saneopts.h:322
+#, no-c-format
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
 msgstr "Bestämmer \"nyansen\" (blånivån) på den inhämtade bilden."
 
 #: .tmp/saneopts.h:325
+#, no-c-format
 msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs when "
 "acquiring an image with a camera. Larger values cause more blooming."
@@ -2188,10 +2714,12 @@ msgstr ""
 "en bild med kamera. Större värden ger mer blomning."
 
 #: .tmp/saneopts.h:330
+#, no-c-format
 msgid "The filename of the image to be loaded."
 msgstr "Filnamnet på bilden som skall läsas."
 
 #: .tmp/saneopts.h:333
+#, no-c-format
 msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
@@ -2200,139 +2728,173 @@ msgstr ""
 "av rastrerade bilder."
 
 #: .tmp/saneopts.h:337
+#, no-c-format
 msgid ""
 "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Anger rastermönster (gitter) för inläsning av rastrerade bilder."
 
 #: .tmp/saneopts.h:341
+#, no-c-format
 msgid "Use same values for X and Y resolution"
 msgstr "Använd samma värde för både X- och Y-upplösning"
 
 #: .tmp/saneopts.h:343
+#, no-c-format
 msgid "Swap black and white"
 msgstr "Kasta om svart och vit"
 
 #: .tmp/saneopts.h:345
+#, no-c-format
 msgid "Do a quality white-calibration"
 msgstr "Utför en kvalitetsvitkalibrering"
 
 #: .tmp/saneopts.h:347
+#, no-c-format
 msgid "Use lens that doubles optical resolution"
 msgstr "Använd lins som dubblar den optiska upplösningen"
 
 #: .tmp/saneopts.h:349 .tmp/saneopts.h:361
+#, no-c-format
 msgid "In RGB-mode use same values for each color"
 msgstr "Använd samma värden för varje färg i RGB-läge"
 
 #: .tmp/saneopts.h:351
+#, no-c-format
 msgid "Select minimum-brightness to get a white point"
 msgstr "Välj minsta ljusstyrkan för att få en vitpunkt"
 
 #: .tmp/saneopts.h:353
+#, no-c-format
 msgid "Analog gamma-correction"
 msgstr "Analog gammakorrigering"
 
 #: .tmp/saneopts.h:355
+#, no-c-format
 msgid "Analog gamma-correction for red"
 msgstr "Analog gammakorrigering för rött"
 
 #: .tmp/saneopts.h:357
+#, no-c-format
 msgid "Analog gamma-correction for green"
 msgstr "Analog gammakorrigering för grönt"
 
 #: .tmp/saneopts.h:359
+#, no-c-format
 msgid "Analog gamma-correction for blue"
 msgstr "Analog gammakorrigering för blått"
 
 #: .tmp/saneopts.h:363
+#, no-c-format
 msgid "Warmup lamp before scanning"
 msgstr "Värm upp lampan innan inläsning"
 
 #: .tmp/saneopts.h:365
+#, no-c-format
 msgid "Define exposure-time for calibration"
 msgstr "Ange exponeringstid för kalibrering"
 
 #: .tmp/saneopts.h:367
+#, no-c-format
 msgid "Define exposure-time for red calibration"
 msgstr "Ange exponeringstid för röd kalibrering"
 
 #: .tmp/saneopts.h:369
+#, no-c-format
 msgid "Define exposure-time for green calibration"
 msgstr "Ange exponeringstid för grön kalibrering"
 
 #: .tmp/saneopts.h:371
+#, no-c-format
 msgid "Define exposure-time for blue calibration"
 msgstr "Ange exponeringstid för blå kalibrering"
 
 #: .tmp/saneopts.h:373
+#, no-c-format
 msgid "Define exposure-time for scan"
 msgstr "Ange exponeringstid för inläsning"
 
 #: .tmp/saneopts.h:375
+#, no-c-format
 msgid "Define exposure-time for red scan"
 msgstr "Ange exponeringstid för röd inläsning"
 
 #: .tmp/saneopts.h:377
+#, no-c-format
 msgid "Define exposure-time for green scan"
 msgstr "Ange exponeringstid för grön inläsning"
 
 #: .tmp/saneopts.h:379
+#, no-c-format
 msgid "Define exposure-time for blue scan"
 msgstr "Ange exponeringstid för blå inläsning"
 
 #: .tmp/saneopts.h:381
+#, no-c-format
 msgid "Enable selection of exposure-time"
 msgstr "Möjliggör val av exponeringstid"
 
 #: .tmp/saneopts.h:383
+#, no-c-format
 msgid "Define lamp density for calibration"
 msgstr "Ange lampdensitet för kalibrering"
 
 #: .tmp/saneopts.h:385
+#, no-c-format
 msgid "Define lamp density for scan"
 msgstr "Ange lampdensitet för inläsning"
 
 #: .tmp/saneopts.h:387
+#, no-c-format
 msgid "Enable selection of lamp density"
 msgstr "Möjliggör val av lampdensitet"
 
 #: .tmp/saneopts.h:389 .tmp/umax.c:5828
+#, no-c-format
 msgid "Turn off lamp when program exits"
 msgstr "Slå av lampan när programmet avslutas"
 
 #: .tmp/sceptre.c:593 .tmp/teco2.c:1825
+#, no-c-format
 msgid "flatbed scanner"
 msgstr "flatbäddsbildläsare"
 
 #: .tmp/snapscan-options.c:83
+#, no-c-format
 msgid "Document Feeder"
 msgstr "Dokumentmatare"
 
 #: .tmp/snapscan-options.c:87
+#, no-c-format
 msgid "6x4 (inch)"
 msgstr "6x4 (tum)"
 
 #: .tmp/snapscan-options.c:88
+#, no-c-format
 msgid "8x10 (inch)"
 msgstr "8x10 (tum)"
 
 #: .tmp/snapscan-options.c:89
+#, no-c-format
 msgid "8.5x11 (inch)"
 msgstr "8,5x11 (tum)"
 
 #: .tmp/snapscan-options.c:92
+#, no-c-format
 msgid "Halftoning Unsupported"
 msgstr "Rastrering stöds inte"
 
 #: .tmp/snapscan-options.c:93
+#, no-c-format
 msgid "DispersedDot8x8"
 msgstr "Upplöst punkt 8x8"
 
 #: .tmp/snapscan-options.c:94
+#, no-c-format
 msgid "DispersedDot16x16"
 msgstr "Upplöst punkt 16x16"
 
 #: .tmp/snapscan-options.c:98
+#, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
 "allows you to tune the speed at which data is read from the scanner during "
@@ -2348,10 +2910,12 @@ msgstr ""
 "gå ned."
 
 #: .tmp/snapscan-options.c:390
+#, no-c-format
 msgid "Preview mode"
 msgstr "Förhandsgranskningsläge"
 
 #: .tmp/snapscan-options.c:392
+#, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
@@ -2360,53 +2924,65 @@ msgstr ""
 "bästa kombinationen av hastighet och detaljrikedom."
 
 #: .tmp/snapscan-options.c:498
+#, no-c-format
 msgid "Predefined settings"
 msgstr "Fördefinierade inställningar"
 
 #: .tmp/snapscan-options.c:500
+#, no-c-format
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 "Ger standardinläsningsytor för fotografier, tryckta sidor och liknande."
 
 #: .tmp/snapscan-options.c:744
+#, no-c-format
 msgid "Colour lines per read"
 msgstr "Färglinjer per inläsning"
 
 #: .tmp/snapscan-options.c:756
+#, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Gråskalelinjer per inläsning"
 
 #: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
 #: .tmp/teco3.c:977 .tmp/teco3.c:978
+#, no-c-format
 msgid "Dither"
 msgstr "Gitter"
 
 #: .tmp/test.c:132
+#, no-c-format
 msgid "Solid black"
 msgstr "Helsvart"
 
 #: .tmp/test.c:132
+#, no-c-format
 msgid "Solid white"
 msgstr "Helvit"
 
 #: .tmp/test.c:133
+#, no-c-format
 msgid "Color pattern"
 msgstr "Färgmönster"
 
 #: .tmp/test.c:133
+#, no-c-format
 msgid "Grid"
 msgstr "Rutnät"
 
 #: .tmp/test.c:158 .tmp/test.c:166
+#, no-c-format
 msgid "First entry"
 msgstr "Första punkten"
 
 #: .tmp/test.c:158 .tmp/test.c:166
+#, no-c-format
 msgid "Second entry"
 msgstr "Andra punkten"
 
 #: .tmp/test.c:160
+#, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
 "display it"
@@ -2415,10 +2991,12 @@ msgstr ""
 "hur det skall visa den"
 
 #: .tmp/test.c:335
+#, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Handbildläsarsimulering"
 
 #: .tmp/test.c:336
+#, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
@@ -2431,31 +3009,38 @@ msgstr ""
 "inställning ger också en fast bredd på 11 cm."
 
 #: .tmp/test.c:353
+#, no-c-format
 msgid "Three-pass simulation"
 msgstr "Trepassimulering"
 
 #: .tmp/test.c:354
+#, no-c-format
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr "Simulera en trepassbildläsare. I färgläge överförs tre bildrutor."
 
 #: .tmp/test.c:369
+#, no-c-format
 msgid "Set the order of frames"
 msgstr "Ställ in ordningen för bildrutorna"
 
 #: .tmp/test.c:370
+#, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Ställ in ordningen för bildrutorna i trepass-färgläge."
 
 #: .tmp/test.c:402
+#, no-c-format
 msgid "Special Options"
 msgstr "Specialinställningar"
 
 #: .tmp/test.c:415
+#, no-c-format
 msgid "Select the test picture"
 msgstr "Välj testbild"
 
 #: .tmp/test.c:417
+#, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
 "Solid black: fills the whole scan with black.\n"
@@ -2470,10 +3055,12 @@ msgstr ""
 "Rutnät: ritar ett svart-vitt rutnät med en bredd och höjd på 10 mm per ruta."
 
 #: .tmp/test.c:438
+#, no-c-format
 msgid "Invert endianness"
 msgstr "Invertera endianness"
 
 #: .tmp/test.c:439
+#, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option can "
 "be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
@@ -2484,44 +3071,54 @@ msgstr ""
 "framplanet använder rätt endianness."
 
 #: .tmp/test.c:455
+#, no-c-format
 msgid "Read limit"
 msgstr "Läsbegränsning"
 
 #: .tmp/test.c:456
+#, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr "Begränsa mängden data som överförs vid varje anrop till sane_read()."
 
 #: .tmp/test.c:469
+#, no-c-format
 msgid "Size of read-limit"
 msgstr "Storlek på läsbegränsning"
 
 #: .tmp/test.c:470
+#, no-c-format
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "Den (största) mängd data som överförs vid varje anrop till sane_read()."
 
 #: .tmp/test.c:485
+#, no-c-format
 msgid "Read delay"
 msgstr "Läsfördröjning"
 
 #: .tmp/test.c:486
+#, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Fördröj överföringen av data."
 
 #: .tmp/test.c:498
+#, no-c-format
 msgid "Duration of read-delay"
 msgstr "Längd på läsfördröjning"
 
 #: .tmp/test.c:499
+#, no-c-format
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
 msgstr "Längden på fördröjningen efter varje databuffer som överförts."
 
 #: .tmp/test.c:514
+#, no-c-format
 msgid "Return-value of sane_read"
 msgstr "Returvärde för sane_read"
 
 #: .tmp/test.c:516
+#, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal handling "
 "for scanning. All other status codes are for testing how the frontend "
@@ -2532,18 +3129,22 @@ msgstr ""
 "hanterar dem."
 
 #: .tmp/test.c:533
+#, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Pixelförlust per rad"
 
 #: .tmp/test.c:535
+#, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Antal pixlar som kastas i slutet av varje rad."
 
 #: .tmp/test.c:548
+#, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Oklara parametrar"
 
 #: .tmp/test.c:549
+#, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
 "before sane_start()."
@@ -2552,18 +3153,22 @@ msgstr ""
 "sane_start()."
 
 #: .tmp/test.c:562
+#, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Använd icke-blockerande IO"
 
 #: .tmp/test.c:563
+#, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr "Använd icke-blockerande IO för sane_read() om det stöds av framplanet."
 
 #: .tmp/test.c:576
+#, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Erbjud en select file descriptor"
 
 #: .tmp/test.c:577
+#, no-c-format
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
@@ -2571,10 +3176,12 @@ msgstr ""
 "returnera data."
 
 #: .tmp/test.c:590
+#, no-c-format
 msgid "Enable test options"
 msgstr "Aktivera testinställningar"
 
 #: .tmp/test.c:591
+#, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of frontends to "
 "view and modify all the different SANE option types."
@@ -2583,22 +3190,27 @@ msgstr ""
 "framplan att visa och ändra de olika typerna av SANE-inställningar."
 
 #: .tmp/test.c:605
+#, no-c-format
 msgid "Print options"
 msgstr "Skriv ut inställningar"
 
 #: .tmp/test.c:606
+#, no-c-format
 msgid "Print a list of all options."
 msgstr "Skriv ut en lista med alla inställningar."
 
 #: .tmp/test.c:683
+#, no-c-format
 msgid "Bool test options"
 msgstr "Booleska testinställningar"
 
 #: .tmp/test.c:696
+#, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Boolesk mjukvaruvald mjukvarudetekterad"
 
 #: .tmp/test.c:698
+#, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and advanced) "
 "capabilities. That's just a normal bool option."
@@ -2607,10 +3219,12 @@ msgstr ""
 "(och avancerad). Detta är en normal Boolesk inställning."
 
 #: .tmp/test.c:714
+#, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Boolesk hårdvaruvald mjukvarudetekterad"
 
 #: .tmp/test.c:716
+#, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and advanced) "
 "capabilities. That means the option can't be set by the frontend but by the "
@@ -2622,10 +3236,12 @@ msgstr ""
 "enheten)."
 
 #: .tmp/test.c:733
+#, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Boolesk hårdvaruvald"
 
 #: .tmp/test.c:734
+#, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
 "That means the option can't be set by the frontend but by the user (e.g. by "
@@ -2637,10 +3253,12 @@ msgstr ""
 "kan läsas av framplanet."
 
 #: .tmp/test.c:752
+#, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Boolesk mjukvarudetekterad"
 
 #: .tmp/test.c:753
+#, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
@@ -2649,10 +3267,12 @@ msgstr ""
 "Detta betyder att inställningen är skrivskyddad."
 
 #: .tmp/test.c:769
+#, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Boolesk mjukvaruvald mjukvarudetekterad emulerad"
 
 #: .tmp/test.c:770
+#, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
 "advanced) capabilities."
@@ -2661,10 +3281,12 @@ msgstr ""
 "emulerad (och avancerad)."
 
 #: .tmp/test.c:786
+#, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Boolesk mjukvaruvald mjukvarudetekterad automatisk"
 
 #: .tmp/test.c:787
+#, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic (and "
 "advanced) capabilities. This option can be automatically set by the backend."
@@ -2674,22 +3296,27 @@ msgstr ""
 "bakplanet."
 
 #: .tmp/test.c:804
+#, no-c-format
 msgid "Int test options"
 msgstr "Heltalsinställningar"
 
 #: .tmp/test.c:817
+#, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Heltal"
 
 #: .tmp/test.c:818
+#, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Heltalstestinställning utan enhet och utan villkor."
 
 #: .tmp/test.c:833
+#, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Heltal intervallvillkor"
 
 #: .tmp/test.c:834
+#, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum is "
 "4, maximum 192, and quant is 2."
@@ -2698,27 +3325,33 @@ msgstr ""
 "Minimum är 4, maximum 192 och steglängden är 2."
 
 #: .tmp/test.c:850
+#, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Heltal listvillkor"
 
 #: .tmp/test.c:851
+#, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr "(3/6) Heltalstestinställning med enheten bitar och ett listvillkor."
 
 #: .tmp/test.c:866
+#, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Heltalsvektor"
 
 #: .tmp/test.c:867
+#, no-c-format
 msgid ""
 "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr "(4/6) Heltalsvektorstestinställning med enheten mm utan villkor."
 
 #: .tmp/test.c:882
+#, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Heltalsvektor intervallvillkor"
 
 #: .tmp/test.c:883
+#, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
@@ -2727,10 +3360,12 @@ msgstr ""
 "intervallvillkor. Minimum är 4, maximum 192 och steglängden är 2."
 
 #: .tmp/test.c:900
+#, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Heltalsvektor listvillkor"
 
 #: .tmp/test.c:901
+#, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
@@ -2738,22 +3373,27 @@ msgstr ""
 "(6/6) Heltalsvektorstestinställning med enheten procent och listvillkor."
 
 #: .tmp/test.c:917
+#, no-c-format
 msgid "Fixed test options"
 msgstr "Bråktalstestinställningar"
 
 #: .tmp/test.c:930
+#, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Bråktal"
 
 #: .tmp/test.c:931
+#, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Bråktalstestinställning utan enhet och utan villkor."
 
 #: .tmp/test.c:946
+#, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Bråktal intervallvillkor"
 
 #: .tmp/test.c:947
+#, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
@@ -2763,38 +3403,47 @@ msgstr ""
 "är 2.0."
 
 #: .tmp/test.c:963
+#, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Bråktal listvillkor"
 
 #: .tmp/test.c:964
+#, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr "(3/3) Bråktalstestinställning utan enhet med listvillkor."
 
 #: .tmp/test.c:979
+#, no-c-format
 msgid "String test options"
 msgstr "Strängtestinställningar"
 
 #: .tmp/test.c:992
+#, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) Sträng"
 
 #: .tmp/test.c:993
+#, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) Strängtestinställning utan villkor."
 
 #: .tmp/test.c:1010
+#, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) Sträng stränglistevillkor"
 
 #: .tmp/test.c:1011
+#, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) Strängtestinställning med stränglistevillkor."
 
 #: .tmp/test.c:1030
+#, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) Sträng stränglistevillkor (lång lista)"
 
 #: .tmp/test.c:1031
+#, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
@@ -2803,169 +3452,211 @@ msgstr ""
 "punkter..."
 
 #: .tmp/test.c:1051
+#, no-c-format
 msgid "Button test options"
 msgstr "Knapptestinställningar"
 
 #: .tmp/test.c:1064
+#, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Knapp"
 
 #: .tmp/test.c:1065
+#, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Knapptestinställning. Skriver ut lite text..."
 
 #: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+#, no-c-format
 msgid "Lamp off"
 msgstr "Lampa av"
 
 #: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+#, no-c-format
 msgid "Turn off scanner lamp"
 msgstr "Slå av bildläsarlampan"
 
 #: .tmp/umax.c:189
+#, no-c-format
 msgid "Color Lineart"
 msgstr "Färgstreckteckning"
 
 #: .tmp/umax.c:190
+#, no-c-format
 msgid "Color Halftone"
 msgstr "Färgraster"
 
 #: .tmp/umax.c:236
+#, no-c-format
 msgid "Use Image Composition"
 msgstr "Använd bildkomponering"
 
 #: .tmp/umax.c:237
+#, no-c-format
 msgid "Bi-level black and white (lineart mode)"
 msgstr "Tvånivå-svart-vit (streckteckningsläge)"
 
 #: .tmp/umax.c:238
+#, no-c-format
 msgid "Dithered/halftone black & white (halftone mode)"
 msgstr "Gittrad/rastrerad svart-vit (rasterläge)"
 
 #: .tmp/umax.c:239
+#, no-c-format
 msgid "Multi-level black & white (grayscale mode)"
 msgstr "Flernivå-svart-vit (gråskaleläge)"
 
 #: .tmp/umax.c:240
+#, no-c-format
 msgid "Multi-level RGB color (one pass color)"
 msgstr "Flernivå-RGB-färg (enpass-färg)"
 
 #: .tmp/umax.c:241
+#, no-c-format
 msgid "Ignore calibration"
 msgstr "Ignorera kalibrering"
 
 #: .tmp/umax.c:5731
+#, no-c-format
 msgid "Disable pre focus"
 msgstr "Stäng av förfokusering"
 
 #: .tmp/umax.c:5732
+#, no-c-format
 msgid "Do not calibrate focus"
 msgstr "Kalibrera inte fokus"
 
 #: .tmp/umax.c:5743
+#, no-c-format
 msgid "Manual pre focus"
 msgstr "Manuell förfokusering"
 
 #: .tmp/umax.c:5755
+#, no-c-format
 msgid "Fix focus position"
 msgstr "Fast fokuseringsläge"
 
 #: .tmp/umax.c:5767
+#, no-c-format
 msgid "Lens calibration in doc position"
 msgstr "Kalibrera linsen i dokumentets läge"
 
 #: .tmp/umax.c:5768
+#, no-c-format
 msgid "Calibrate lens focus in document position"
 msgstr "Kalibrera linsens fokus i dokumentets läge"
 
 #: .tmp/umax.c:5779
+#, no-c-format
 msgid "Holder focus position 0mm"
 msgstr "Hållarens fokuseringsläge 0 mm"
 
 #: .tmp/umax.c:5780
+#, no-c-format
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Använd 0 mm i stället för 0,6 mm för hållarens fokuseringsläge"
 
 #: .tmp/umax.c:5793 .tmp/umax_pp.c:559
+#, no-c-format
 msgid "Lamp on"
 msgstr "Lampa på"
 
 #: .tmp/umax.c:5794
+#, no-c-format
 msgid "Turn on scanner lamp"
 msgstr "Slå på bildläsarlampan"
 
 #: .tmp/umax.c:5883
+#, no-c-format
 msgid "Calibration mode"
 msgstr "Kalibreringsläge"
 
 #: .tmp/umax.c:5884
+#, no-c-format
 msgid "Define calibration mode"
 msgstr "Definiera kalibreringsläge"
 
 #: .tmp/umax_pp.c:560
+#, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Sätt på/av lampan"
 
 #: .tmp/umax_pp.c:569
+#, no-c-format
 msgid "UTA on"
 msgstr "UTA på"
 
 #: .tmp/umax_pp.c:570
+#, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Sätter på/av UTA"
 
 #: .tmp/umax_pp.c:635
+#, no-c-format
 msgid "Gain"
 msgstr "Förstärking"
 
 #: .tmp/umax_pp.c:636
+#, no-c-format
 msgid "Color channels gain settings"
 msgstr "Inställningar för färgkanalernas förstärkning"
 
 #: .tmp/umax_pp.c:643
+#, no-c-format
 msgid "Gray gain"
 msgstr "Grå förstärkning"
 
 #: .tmp/umax_pp.c:644
+#, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Ställer in den grå kanalens förstärkning"
 
 #: .tmp/umax_pp.c:656
+#, no-c-format
 msgid "Sets red channel gain"
 msgstr "Ställer in den röda kanalens förstärkning"
 
 #: .tmp/umax_pp.c:668
+#, no-c-format
 msgid "Sets green channel gain"
 msgstr "Ställer in den gröna kanalens förstärkning"
 
 #: .tmp/umax_pp.c:680
+#, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Ställer in den blå kanalens förstärkning"
 
 #: .tmp/umax_pp.c:691
+#, no-c-format
 msgid "Offset"
 msgstr "Offset"
 
 #: .tmp/umax_pp.c:693
+#, no-c-format
 msgid "Color channels offset settings"
 msgstr "Inställningar för färgkanalernas offset"
 
 #: .tmp/umax_pp.c:700
+#, no-c-format
 msgid "Gray offset"
 msgstr "Grå offset"
 
 #: .tmp/umax_pp.c:701
+#, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Ställer in den grå kanalens offset"
 
 #: .tmp/umax_pp.c:713
+#, no-c-format
 msgid "Sets red channel offset"
 msgstr "Ställer in den röda kanalens offset"
 
 #: .tmp/umax_pp.c:725
+#, no-c-format
 msgid "Sets green channel offset"
 msgstr "Ställer in den gröna kanalens offset"
 
 #: .tmp/umax_pp.c:737
+#, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Ställer in den blå kanalens offset"

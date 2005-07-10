@@ -880,7 +880,7 @@ static GT68xx_Model mustek_a3usb_model = {
   SANE_FIX (433.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (2.4),		/* Start of white strip in mm (y) */
-  SANE_FIX (4.6),		/* Start of black mark in mm (x) */
+  SANE_FIX (0),			/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
@@ -898,11 +898,10 @@ static GT68xx_Model mustek_a3usb_model = {
   SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_CIS_LAMP | GT68XX_FLAG_OFFSET_INV	/* Which flags are needed for this scanner? */
+  GT68XX_FLAG_CIS_LAMP 		/* Which flags are needed for this scanner? */
     /* Tested by hmg. This scanner is a bit strange as it uses a CIS sensor but
-       it also has a lamp. So the lamp needs to be heated and CCD calibration
-       needs to be used but CIS mode must be used for scanning. There is no TA
-       for that scanner */
+       it also has a lamp. So the lamp needs to be heated but CIS mode must be
+       used for scanning and calibration. There is no TA for that scanner */
 };
 
 static GT68xx_Model lexmark_x73_model = {
@@ -1469,10 +1468,10 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
   1200,				/* if ydpi is equal or higher, disable backtracking */
   SANE_FALSE,			/* Use base_ydpi for all resolutions */
 
-  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
-  {1200, 1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
-  {16, 8, 0},			/* possible depths in gray mode */
-  {16, 8, 0},			/* possible depths in color mode */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 100, 50, 0},	/* possible y-resolutions */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
   SANE_FIX (9.5),		/* Start of scan area in mm (y) */
@@ -1494,14 +1493,14 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
   {0x15, 0x09, 0x18, 0x11, 0x16, 0x0c},	/* Default offset/gain */
-  {0x157, 0x157, 0x157},	/* Default exposure parameters */
-  SANE_FIX (2.0),		/* Default gamma value */
+  {0x80, 0x80, 0x80},	/* Default exposure parameters */
+  SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
   0
 };
 
-/* Untested. Based on Plustek OpticPro 2400. */
+/* Tested by Jason Novek. Based on Plustek OpticSlim 2400. */
 
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {

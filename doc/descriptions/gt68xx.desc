@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-70"
+:version "1.0-71"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -249,7 +249,7 @@
 :model "Diamond 1200 Plus"
 :status :good
 :interface "USB"
-:comment "Product id 0x021b. Untested but should work. Similar to Mustek BearPaw 1200 Plus"
+:comment "Product id 0x021b. Similar to Mustek BearPaw 1200 Plus"
 
 :model "Diamond 2450"
 :status :good
@@ -324,7 +324,7 @@
 
 :model "OneTouch 7300"
 :interface "USB"
-:status :basic
-:comment "Works but may need some fine tuning concerning calibration."
+:status :good
+:comment "Works upto 1200 dpi and 12 bits/color."
 
 ; -----------------------------------------------------------------------------

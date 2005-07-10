@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    AFE offset/gain setting by David Stevenson <david.stevenson@zoom.co.uk>
-   Copyright (C) 2002 - 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -654,8 +654,7 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
 
   if (scanner->auto_afe)
     {
-      if (scanner->dev->model->is_cis
-	  && !(scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
+      if (scanner->dev->model->is_cis)
 	status = gt68xx_afe_cis_auto (scanner);
       else
 	status = gt68xx_afe_ccd_auto (scanner, request);
@@ -1137,6 +1136,97 @@ finish:
   return done;
 }
 
+/* Wait for lamp to give stable brightness */
+static SANE_Status
+gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner, 
+			 GT68xx_Scan_Parameters * params,
+			 GT68xx_Scan_Request *request,
+			 unsigned int *buffer_pointers[3],
+			 GT68xx_Afe_Values *values,
+			 SANE_Bool dont_move)
+{
+  int i;
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Int last_white = 0;
+  SANE_Int first = SANE_TRUE;
+
+  for (i = 0; i < 80; i++)
+    {
+      usleep (200000);
+      if (i == 10)
+	DBG (0, "Please wait for lamp warm-up\n");
+
+      if (!first && dont_move)
+	{
+	  request->mbs = SANE_FALSE;
+	  request->mds = SANE_FALSE;
+	}
+      first = SANE_FALSE;
+
+      /* read line */
+      status = gt68xx_scanner_start_scan_extended (scanner, request,
+						   SA_CALIBRATE_ONE_LINE,
+						   params);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (3,
+	       "gt68xx_wait_lamp_stable: gt68xx_scanner_start_scan_extended "
+	       "failed: %s\n", sane_strstatus (status));
+	  return status;
+	}
+      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (3, "gt68xx_wait_lamp_stable: gt68xx_line_reader_read failed: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      gt68xx_scanner_stop_scan (scanner);
+
+      gt68xx_afe_ccd_calc (values, buffer_pointers[0]);
+
+      DBG (4,
+	   "gt68xx_wait_lamp_stable: this white = %d, last white = %d\n",
+	   values->total_white, last_white);
+
+
+      if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
+	{
+	  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
+	    {
+	      /* insist on at least 10 seconds */
+	      struct timeval now;
+	      int secs;
+
+	      gettimeofday (&now, 0);
+	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+	      if (secs >= 10 && (values->total_white <= (last_white + 20))
+		  && values->total_white != 0)
+		break;
+	    }
+	  else
+	    {
+	      if ((values->total_white <= (last_white + 20))
+		  && values->total_white != 0)
+		break;		/* lamp is warmed up */
+	    }
+	}
+      else
+	{			/* insist on 60 seconds */
+	  struct timeval now;
+	  int secs;
+
+	  gettimeofday (&now, 0);
+	  secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+	  if (secs >= WARMUP_TIME)
+	    break;
+	}
+      last_white = values->total_white;
+    }
+  DBG (3, "gt68xx_wait_lamp_stable: Lamp is stable\n");
+  return status;
+}
+
 /** Select best AFE gain and offset parameters.
  *
  * This function must be called before the main scan to choose the best values
@@ -1164,7 +1254,6 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
   SANE_Bool gray_done = SANE_FALSE;
   SANE_Bool red_done = SANE_FALSE, green_done = SANE_FALSE, blue_done =
     SANE_FALSE;
-  SANE_Int last_white = 0;
 
   values.offset_direction = 1;
   if (scanner->dev->model->flags & GT68XX_FLAG_OFFSET_INV)
@@ -1232,72 +1321,14 @@ gt68xx_afe_ccd_auto (GT68xx_Scanner * scanner,
     }
   gt68xx_scanner_stop_scan (scanner);
 
-  /* loop waiting for lamp to give stable brightness */
-  for (i = 0; i < 80; i++)
+  status = gt68xx_wait_lamp_stable (scanner, &params, &request, buffer_pointers,
+				    &values, SANE_FALSE);
+
+  if (status != SANE_STATUS_GOOD)
     {
-      usleep (200000);
-      if (i == 10)
-	DBG (0, "Please wait for lamp warm-up\n");
-
-      /* read line */
-      status = gt68xx_scanner_start_scan_extended (scanner, &request,
-						   SA_CALIBRATE_ONE_LINE,
-						   &params);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (3,
-	       "gt68xx_afe_ccd_auto: gt68xx_scanner_start_scan_extended lamp brightness "
-	       "failed: %s\n", sane_strstatus (status));
-	  return status;
-	}
-      status = gt68xx_line_reader_read (scanner->reader, buffer_pointers);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (3, "gt68xx_afe_ccd_auto: gt68xx_line_reader_read failed: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      gt68xx_scanner_stop_scan (scanner);
-
-      gt68xx_afe_ccd_calc (&values, buffer_pointers[0]);
-
-      DBG (4,
-	   "gt68xx_afe_ccd_auto: check lamp stable: this white = %d, last white = %d\n",
-	   values.total_white, last_white);
-
-
-      if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
-	{
-	  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
-	    {
-	      /* insist on at least 10 seconds */
-	      struct timeval now;
-	      int secs;
-
-	      gettimeofday (&now, 0);
-	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
-	      if (secs >= 10 && (values.total_white <= (last_white + 20))
-		  && values.total_white != 0)
-		break;
-	    }
-	  else
-	    {
-	      if ((values.total_white <= (last_white + 20))
-		  && values.total_white != 0)
-		break;		/* lamp is warmed up */
-	    }
-	}
-      else
-	{			/* insist on 60 seconds */
-	  struct timeval now;
-	  int secs;
-
-	  gettimeofday (&now, 0);
-	  secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
-	  if (secs >= WARMUP_TIME)
-	    break;
-	}
-      last_white = values.total_white;
+      DBG (1, "gt68xx_afe_ccd_auto: gt68xx_wait_lamp_stable failed %s\n",
+	   sane_strstatus (status));
+      return status;
     }
 
   i = 0;
@@ -1677,6 +1708,30 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
       return SANE_STATUS_GOOD;
     }
 
+  if (first && (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
+    {
+      if (request.use_ta)
+	{
+	  gt68xx_device_lamp_control (scanner->dev, SANE_FALSE, SANE_TRUE);
+	  request.lamp = SANE_FALSE;
+	}
+      else
+	{
+	  gt68xx_device_lamp_control (scanner->dev, SANE_TRUE, SANE_FALSE);
+	  request.lamp = SANE_TRUE;
+	}
+      status = gt68xx_wait_lamp_stable (scanner, &params, &request,
+					buffer_pointers, values, SANE_TRUE);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (1, "gt68xx_afe_cis_read_lines: gt68xx_wait_lamp_stable failed %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      request.mbs = SANE_FALSE;
+      request.mds = SANE_FALSE;
+    }
+
   status =
     gt68xx_scanner_start_scan_extended (scanner, &request,
 					SA_CALIBRATE_ONE_LINE, &params);
@@ -1803,7 +1858,6 @@ gt68xx_afe_cis_auto (GT68xx_Scanner * scanner)
   /* Exposure time */
   exposure_count = 0;
   red_done = green_done = blue_done = SANE_FALSE;
-
   do
     {
       /* read white line */

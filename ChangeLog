@@ -1,3 +1,15 @@
+2005-07-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+	
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  backend/gt68xx_generic.c backend/gt68xx_high.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES
+	  doc/gt68xx/gt68xx.TODO: Changed resolution from 75 to 100 dpi
+	  and changed 16 bit/color to 12 based on a user report for the
+	  Visioneer OneTouch 7300. Updated .desc. Moved check for stable
+	  lamp to its own function. Mustek ScanExpress A3 USB: Use CIS
+	  calibration. Use lamp warmup. Fixed CCD on GT6801 scanning (color
+	  scanning was broken due to a change in motormode_2. 
+
 2005-07-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/Makefile.in po/sane-backends.bg.po po/sane-backends.cs.po

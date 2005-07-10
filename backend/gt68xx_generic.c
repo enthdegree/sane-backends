@@ -463,18 +463,18 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
     {
       line_mode = SANE_FALSE;
       DBG (6,
-	   "gt6801_setup_scan: using pixel mode (GT68XX_FLAG_NO_LINEMODE)\n");
+	   "gt68xx_generic_setup_scan: using pixel mode (GT68XX_FLAG_NO_LINEMODE)\n");
     }
   else if (model->is_cis)
     {
       line_mode = SANE_TRUE;
-      DBG (6, "gt6801_setup_scan: using line mode (CIS)\n");
+      DBG (6, "gt68xx_generic_setup_scan: using line mode (CIS)\n");
     }
   else if (model->flags & GT68XX_FLAG_ALWAYS_LINEMODE)
     {
       line_mode = SANE_TRUE;
       DBG (6,
-	   "gt6801_setup_scan: using line mode (GT68XX_FLAG_ALWAYS_LINEMODE)\n");
+	   "gt68xx_generic_setup_scan: using line mode (GT68XX_FLAG_ALWAYS_LINEMODE)\n");
     }
   else
     {
@@ -550,7 +550,7 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
 	       "that combination of resolution, dpi and width\n");
 	  return SANE_STATUS_NO_MEM;
 	}
-      DBG (6, "gt6801_setup_scan: backtrack=%d\n", backtrack);
+      DBG (6, "gt68xx_generic_setup_scan: backtrack=%d\n", backtrack);
 
       motor_mode_1 = (request->mbs ? 0 : 1) << 1;
       motor_mode_1 |= (request->mds ? 0 : 1) << 2;
@@ -560,7 +560,8 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
       motor_mode_2 = (request->lamp ? 0 : 1) << 0;
       motor_mode_2 |= (line_mode ? 0 : 1) << 2;
 
-      if (action != SA_SCAN)
+      if ((action != SA_SCAN) 
+	  && (strcmp (dev->model->command_set->name, "mustek-gt6816") == 0))
 	motor_mode_2 |= 1 << 3;
 
       DBG (6,

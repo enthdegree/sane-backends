@@ -47,6 +47,9 @@ Mustek BearPaw 2448 TA Plus:
 - don't move before and after scan
 - check jpeg output
 
+Plustek 1248U:
+- Linedistance seems to have problems in the first few and the last lines
+
 Plustek U16B:
 - 600 dpi 16 bit is limited to about half the size of the scan area because
   only pixel mode works and 16k is the maximum buffer size.
@@ -80,8 +83,8 @@ Mustek BearPaw 2400 CU Plus
 
 Mustek ScanExpress A3 USB
 - still slight vert. stripes
-- why is line distance setup necessary? Is there a better setting than 0,5,5?
-- exposure is not done automatically, check logfiles
+- why is line distance setup necessary?
+- exposure doesn't seem to have any effect
 
 Mustek ScanExpress 1248 UB
 ok
@@ -89,8 +92,11 @@ ok
 Plustek OpticSlim 2400
 - only upto 1200 dpi vertical works
 - only 8 and 12 bit work, 16 doesn't (check Windows)
-- exposure is extermely high and seems to have similar problems as with other
-  CIS scanners
+- exposure is extremely high and seems to have similar problems as with other
+  CIS scanners (reaches limit also)
 
 Mustek ScanExpress 2400 USB
 - make it work (nobody seems to have this device)
+
+Visioneer OneTouch 7300
+- 16 bit doesn't seem to work despite beeing advertized

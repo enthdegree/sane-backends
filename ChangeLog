@@ -2,6 +2,8 @@
 
 	* backend/sp15c.c: Better 4->8 bit depth expansion algorithm (from 
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+	* sanei/sanei_usb.c: Fixed comment (we still use 30 seconds USB
+	  timeout by default).
 
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

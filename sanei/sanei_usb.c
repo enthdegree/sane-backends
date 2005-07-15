@@ -108,7 +108,7 @@ device_list_type;
 static device_list_type devices[MAX_DEVICES];
 
 #ifdef HAVE_LIBUSB
-static int libusb_timeout = 30 * 1000;	/* 5 seconds  was 30 * 1000 */
+static int libusb_timeout = 30 * 1000;	/* 30 seconds */
 #endif /* HAVE_LIBUSB */
 
 #if defined (__linux__)

@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2003 Rene Rebe (sanei_read_int)
+   Copyright (C) 2003 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2001 - 2003 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    This file is part of the SANE package.
@@ -108,7 +108,7 @@ device_list_type;
 static device_list_type devices[MAX_DEVICES];
 
 #ifdef HAVE_LIBUSB
-static int libusb_timeout = 30 * 1000;	/* 30 seconds */
+static int libusb_timeout = 30 * 1000;	/* 5 seconds  was 30 * 1000 */
 #endif /* HAVE_LIBUSB */
 
 #if defined (__linux__)
@@ -911,6 +911,16 @@ sanei_usb_close (SANE_Int dn)
 #endif
   devices[dn].open = SANE_FALSE;
   return;
+}
+
+void
+sanei_usb_set_timeout (SANE_Int timeout)
+{
+#ifdef HAVE_LIBUSB
+  libusb_timeout = timeout;
+#else
+  DBG (1, "sanei_usb_close: libusb support missing\n");
+#endif /* HAVE_LIBUSB */
 }
 
 SANE_Status

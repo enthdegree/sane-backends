@@ -1,3 +1,9 @@
+
+2005-07-15  Rene Rebe <rene@exactcode.de>
+
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Added support to set
+	  the USB timeout.
+
 2005-07-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* backend/gt68xx.c backend/gt68xx_devices.c

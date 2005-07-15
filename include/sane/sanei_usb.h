@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2003 Rene Rebe (sanei_read_int)
+   Copyright (C) 2003, 2005 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
    This file is part of the SANE package.
 
@@ -228,6 +228,13 @@ extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * dn);
  * @param dn device number
  */
 extern void sanei_usb_close (SANE_Int dn);
+
+/** Set the libusb timeout for bulk and interrupt reads.
+ * 
+ * @param timeout the new timeout in ms
+ */
+#define HAVE_SANEI_USB_SET_TIMEOUT
+extern void sanei_usb_set_timeout (SANE_Int timeout);
 
 /** Initiate a bulk transfer read.
  *

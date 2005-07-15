@@ -45,6 +45,10 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.11  2005/07/15 18:12:49  hmg-guest
+ * Better 4->8 bit depth expansion algorithm (from Mattias Ellert
+ * <mattias.ellert@tsl.uu.se>).
+ *
  * Revision 1.10  2004/10/06 15:59:40  hmg-guest
  * Don't eject medium twice after each page.
  *
@@ -2024,8 +2028,8 @@ reader_process (void *data)
           dst = &scanner->buffer[data_to_read * 2 - 1];
           for (i = 0; i < data_to_read; i++)
             {
-              *dst-- = (*src << 4) & 0xf0;
-              *dst-- = (*src--) & 0xf0;
+              *dst-- = ((*src << 4) & 0xf0) + ((*src)        & 0x0f);
+              *dst-- = ((*src)      & 0xf0) + ((*src-- >> 4) & 0x0f);
             }
           data_to_read *= 2;
         }

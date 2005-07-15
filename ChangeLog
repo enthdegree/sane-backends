@@ -1,3 +1,8 @@
+2005-07-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/sp15c.c: Better 4->8 bit depth expansion algorithm (from 
+	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
+
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc:
@@ -8,7 +13,8 @@
 	* backend/avision.h, backend/avision.c, doc/sane-avision.man,
 	  doc/descriptions/avision.desc: updated the Avision backend with the
 	  latest off-site maintained version: fixed segmentation faults for
-	  some modes, many many new devices, two different duplex modes are		  supported, vast speedup of multi page batch scans, buttons as well
+	  some modes, many many new devices, two different duplex modes
+	  are supported, vast speedup of multi page batch scans, buttons as well
 	  a 7-segment LED readout and some quirks for old scanners not filling
 	  all fields
 

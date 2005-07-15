@@ -4,6 +4,25 @@
 	  Mattias Ellert <mattias.ellert@tsl.uu.se>).
 	* sanei/sanei_usb.c: Fixed comment (we still use 30 seconds USB
 	  timeout by default).
+	* README.zeta configure configure.in Makefile.in backend/Makefile.in
+	  backend/artec_eplus48u.h backend/dll.c backend/plustek-pp_scan.h
+	  doc/Makefile.in frontend/saned.c include/sane/config.h.in
+	  po/Makefile.in sanei/sanei_config.c sanei/sanei_config2.c
+	  sanei/sanei_init_debug.c sanei/sanei_pio.c sanei/sanei_thread.c
+	  sanei/sanei_usb.c: Changes to support SANE on ZETA. Not all
+	  patches have been applied yet, but it's a start. The backends
+	  are not installed as shared libs but as add-ons, which are shared libs
+	  but in a specific folder in [/system|~]/config/add-ons/ named SANE/.
+	  The install target has been changed to account for this,
+	  Some files don't exist in BeOS/ZETA (ipc.h, ...).
+	  Bbackend function names get a prefix, I suppose to avoid namespace clashes.
+	  Though we do have a libdl to implement dl_open, the native way is prefered.
+	  Added a --with-docdir= configure arg.
+	  BeOS has a broken get[name|addr]info() from bind. This is fixed in ZETA R1.
+	  libtool needs -no-undefined. Various VPATH fixes.
+	  Check for <be/drivers/USB_scanner.h>, but not used yet.
+	  No S_IFSOCK (sockets are fds to /dev/net/api). Stub pio code, untested.
+	  Patch from François Revol <revol@free.fr>.
 
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

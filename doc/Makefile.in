@@ -25,7 +25,7 @@ mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
 configdir = ${sysconfdir}/sane.d
-docdir=$(prefix)/doc/sane-@VERSION@
+docdir = @docdir@
 
 MKDIR = $(top_srcdir)/mkinstalldirs
 INSTALL = @INSTALL@
@@ -60,7 +60,7 @@ READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           PROJECTS README README.aix README.beos README.darwin README.freebsd \
 	  README.djpeg \
           README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
-          README.solaris README.unixware2 README.unixware7 README.windows
+          README.solaris README.unixware2 README.unixware7 README.windows README.zeta
 DOCS    = backend-writing.txt sane.ps sane.dvi
 BACKDIRS= canon leo matsushita mustek mustek_usb plustek u12 umax sceptre teco gt68xx niash
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@
@@ -204,14 +204,14 @@ html-man: $(MANPAGES)
 	cd ../tools ; $(MAKE) sane-desc
 
 sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
-	@../tools/sane-desc -m html-backends-split -s descriptions \
+	@../tools/sane-desc -m html-backends-split -s ${srcdir}/descriptions \
 	 -i "The following table summarizes the backends/drivers distributed \
 	     with $(PACKAGE)-$(VERSION), and the hardware or software they \
              support." -d 1 > sane-backends.html
 
 sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
                              ../tools/sane-desc
-	@../tools/sane-desc -m html-backends-split -s descriptions-external \
+	@../tools/sane-desc -m html-backends-split -s ${srcdir}/descriptions-external \
 	   -i "The following table summarizes the backends/drivers that \
 	       have not yet been included in the SANE distribution, and the \
 	       hardware or software they support." \
@@ -219,14 +219,14 @@ sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
 	   > sane-backends-external.html
 
 sane-mfgs.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
-	@../tools/sane-desc -m html-mfgs -s descriptions \
+	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions \
 	   -i "The following table summarizes the devices supported \
 	       by $(PACKAGE)-$(VERSION)." \
 	   -d 1 > sane-mfgs.html
 
 sane-mfgs-external.html: $(wildcard descriptions-external/*.desc) \
                              ../tools/sane-desc
-	@../tools/sane-desc -m html-mfgs -s descriptions-external \
+	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions-external \
 	   -i "The following table summarizes the devices that \
 	       are supported by external backends." \
 	   -t "SANE: Devices Supported by External Backends" -d 1 \

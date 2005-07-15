@@ -47,6 +47,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __BEOS__
+#include <dirent.h>
+#include <unistd.h>
+#include <drivers/USB_scanner.h>
+#endif
+
 #include "sane/sanei.h"
 #include "sane/sanei_config.h"
 #include "sane/sanei_scsi.h"

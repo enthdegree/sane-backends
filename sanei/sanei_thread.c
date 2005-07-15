@@ -64,7 +64,11 @@
 # define INCL_DOSPROCESS
 # include <os2.h>
 #endif
-#if !defined USE_PTHREAD && !defined HAVE_OS2_H
+#ifdef __BEOS__
+# undef USE_PTHREAD /* force */
+# include <kernel/OS.h>
+#endif
+#if !defined USE_PTHREAD && !defined HAVE_OS2_H && !defined __BEOS__
 # include <sys/wait.h>
 #endif
 #if defined USE_PTHREAD
@@ -105,7 +109,7 @@ sanei_thread_init( void )
 SANE_Bool
 sanei_thread_is_forked( void )
 {
-#if defined USE_PTHREAD || defined HAVE_OS2_H
+#if defined USE_PTHREAD || defined HAVE_OS2_H || defined __BEOS__
 	return SANE_FALSE;
 #else
 	return SANE_TRUE;
@@ -182,7 +186,69 @@ sanei_thread_sendsig( int pid, int sig )
 	return 0;
 }
 
-#else /* HAVE_OS2_H */
+#elif defined __BEOS__
+
+static int32
+local_thread( void *arg )
+{
+	pThreadDataDef ltd = (pThreadDataDef)arg;
+
+	DBG( 2, "thread started, calling func() now...\n" );
+	ltd->status = ltd->func( ltd->func_data );
+
+	DBG( 2, "func() done - status = %d\n", ltd->status );
+	return ltd->status;
+}
+
+/*
+ * starts a new thread or process
+ * parameters:
+ * star  address of reader function
+ * args  pointer to scanner data structure
+ *
+ */
+int
+sanei_thread_begin( int (*func)(void *args), void* args )
+{
+	int           pid;
+
+	td.func      = func;
+	td.func_data = args;
+
+	pid = spawn_thread( local_thread, "sane thread (yes they can be)", B_NORMAL_PRIORITY, (void*)&td );
+	if ( pid < B_OK ) {
+		DBG( 1, "spawn_thread() failed\n" );
+		return -1;
+	}
+	if ( resume_thread(pid) < B_OK ) {
+		DBG( 1, "resume_thread() failed\n" );
+		return -1;
+	}
+   
+	DBG( 2, "spawn_thread() created thread %d\n", pid );
+	return pid;
+}
+
+int
+sanei_thread_waitpid( int pid, int *status )
+{
+  int32 st;
+  if ( wait_for_thread(pid, &st) < B_OK )
+    return -1;
+  if ( status )
+    *status = (int)st;
+  return pid;
+}
+
+int
+sanei_thread_sendsig( int pid, int sig )
+{
+	if (sig == SIGKILL)
+		sig = SIGKILLTHR;
+	return kill(pid, sig);
+}
+
+#else /* HAVE_OS2_H, __BEOS__ */
 
 #ifdef USE_PTHREAD
 
@@ -404,7 +470,7 @@ sanei_thread_waitpid( int pid, int *status )
 SANE_Status
 sanei_thread_get_status( int pid )
 {
-#if defined USE_PTHREAD || defined HAVE_OS2_H
+#if defined USE_PTHREAD || defined HAVE_OS2_H || defined __BEOS__
 	_VAR_NOT_USED( pid );
 
 	return td.status;

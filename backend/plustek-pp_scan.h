@@ -72,7 +72,11 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <sys/time.h>
-# include <sys/signal.h>
+# ifdef HAVE_SYS_SIGNAL_H
+#  include <sys/signal.h>
+# else
+#  include <signal.h>
+# endif
 # include <sys/ioctl.h>
 # ifdef HAVE_SYS_IO_H
 #  include <sys/io.h>

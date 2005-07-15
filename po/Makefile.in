@@ -37,6 +37,7 @@ localedir = $(datadir)/locale
 gnulocaledir = $(prefix)/share/locale
 top_srcdir = @top_srcdir@
 srcdir = @srcdir@
+VPATH = @srcdir@
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@

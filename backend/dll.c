@@ -50,6 +50,13 @@
 # include "lalloca.h"		/* MUST come first for AIX! */
 #endif
 
+#ifdef __BEOS__
+#include <kernel/OS.h>
+#include <storage/FindDirectory.h>
+#include <kernel/image.h>
+#include <posix/dirent.h>
+#endif
+
 #include "sane/config.h"
 #include "lalloca.h"
 
@@ -199,7 +206,9 @@ struct backend
   }                                             \
 }
 
+#ifndef __BEOS__
 #include "dll-preload.c"
+#endif
 
 struct meta_scanner
 {
@@ -224,11 +233,20 @@ static int devlist_size = 0, devlist_len = 0;
 static struct alias *first_alias;
 static SANE_Auth_Callback auth_callback;
 static struct backend *first_backend;
+
+#ifndef __BEOS__
 static const char *op_name[] = {
   "init", "exit", "get_devices", "open", "close", "get_option_descriptor",
   "control_option", "get_parameters", "start", "read", "cancel",
   "set_io_mode", "get_select_fd"
 };
+#else
+static const char *op_name[] = {
+  "sane_init", "sane_exit", "sane_get_devices", "sane_open", "sane_close", "sane_get_option_descriptor",
+  "sane_control_option", "sane_get_parameters", "sane_start", "sane_read", "sane_cancel",
+  "sane_set_io_mode", "sane_get_select_fd"
+};
+#endif /* __BEOS__ */
 
 static void *
 op_unsupported (void)
@@ -298,6 +316,57 @@ dyld_get_error_str ()
 }
 #endif
 
+#ifdef __BEOS__
+#include <FindDirectory.h>
+
+static SANE_Status
+load (struct backend *be)
+{
+	// use BeOS kernel function to load scanner addons from ~/config/add-ons/SANE/
+	char path[PATH_MAX];
+	image_id id = -1;
+	int i, w;
+	directory_which which[3] = { B_USER_ADDONS_DIRECTORY, B_COMMON_ADDONS_DIRECTORY, B_BEOS_ADDONS_DIRECTORY };
+	
+	// look for config files in SANE/conf
+	for (w = 0; (w < 3) && (id < 0) && (find_directory(which[w],0,true,path,PATH_MAX) == 0); w++)
+	{
+		strcat(path,"/SANE/");
+		strcat(path,be->name);
+		DBG(1, "loading backend %s\n", be->name);
+
+		/* initialize all ops to "unsupported" so we can "use" the backend
+     	   even if the stuff later in this function fails */
+		be->loaded = 1;
+		be->handle = 0;
+		for (i = 0; i < NUM_OPS; ++i) be->op[i] = op_unsupported;
+  		DBG(2, "dlopen()ing `%s'\n", path);
+		id=load_add_on(path);
+		if (id < 0)
+		{
+			continue; /* try next path */
+		}
+    	be->handle=(void *)id;
+	    	
+		for (i = 0; i < NUM_OPS; ++i)
+    	{
+      		void *(*op) ();
+      		op = NULL;
+	      	/* Look for the symbol */
+			if ((get_image_symbol(id, op_name[i],B_SYMBOL_TYPE_TEXT,(void **)&op) < 0) || !op)
+			    DBG(2, "unable to find %s\n", op_name[i]);
+      		else be->op[i]=op;
+      	}
+    }
+	if (id < 0)
+   	{
+		DBG(2, "load: couldn't find %s\n",path);
+     	return SANE_STATUS_INVAL;
+   	}
+  return SANE_STATUS_GOOD;
+}
+
+#else
 static SANE_Status
 load (struct backend *be)
 {
@@ -505,6 +574,7 @@ load (struct backend *be)
   return SANE_STATUS_UNSUPPORTED;
 #endif /* HAVE_DLL */
 }
+#endif /* __BEOS__ */
 
 static SANE_Status
 init (struct backend *be)
@@ -545,6 +615,7 @@ init (struct backend *be)
 static void
 add_alias (const char *line_param)
 {
+#ifndef __BEOS__
   const char *command;
   enum
   { CMD_ALIAS, CMD_HIDE }
@@ -628,17 +699,26 @@ add_alias (const char *line_param)
       free (alias);
     }
   return;
+#endif
 }
 
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
+#ifndef __BEOS__
   char config_line[PATH_MAX];
   char *backend_name;
   size_t len;
   FILE *fp;
   int i;
+#else
+  DIR *dir;
+  struct dirent *dirent;
+  char path[1024];
+  directory_which which[3] = { B_USER_ADDONS_DIRECTORY, B_COMMON_ADDONS_DIRECTORY, B_BEOS_ADDONS_DIRECTORY };
+  int i;
+#endif	
 
   DBG_INIT ();
 
@@ -647,6 +727,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (1, "sane_init: SANE dll backend version %s from %s\n", DLL_VERSION,
        PACKAGE_STRING);
 
+#ifndef __BEOS__
   /* chain preloaded backends together: */
   for (i = 0; i < NELEMS (preloaded_backends); ++i)
     {
@@ -718,6 +799,28 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       add_alias (config_line);
     }
   fclose (fp);
+
+#else  
+	// no ugly config files, just get scanners from their ~/config/add-ons/SANE
+	// look for drivers
+	for (i = 0; i < 3; i++)
+	{
+		if (find_directory(which[i],0,true,path,1024) < B_OK)
+			continue;
+		strcat(path,"/SANE/");
+		dir=opendir(path);
+		if(!dir) continue; 
+
+		while((dirent=readdir(dir)))
+		{
+			if((strcmp(dirent->d_name,".")==0) || (strcmp(dirent->d_name,"..")==0)) continue;
+			if((strcmp(dirent->d_name,"dll")==0)) continue;
+			add_backend(dirent->d_name,0); 
+		}
+		closedir(dir);
+	}
+#endif /* __BEOS__ */
+
   return SANE_STATUS_GOOD;
 }
 
@@ -740,6 +843,10 @@ sane_exit (void)
 		   be->name);
 	      (*(op_exit_t)be->op[OP_EXIT]) ();
 	    }
+#ifdef __BEOS__
+			// use BeOS kernel functions to unload add-ons
+			if(be->handle) unload_add_on((image_id)be->handle);	
+#else
 #ifdef HAVE_DLL
 
 #ifdef HAVE_DLOPEN
@@ -760,6 +867,7 @@ sane_exit (void)
 #endif /* HAVE_DLOPEN */
 
 #endif /* HAVE_DLL */
+#endif /* __BEOS__ */
 	}
       if (!be->permanent)
 	{

@@ -100,6 +100,7 @@ sanei_debug_msg
 	
   if (max_level >= level)
     {
+#ifdef S_IFSOCK
       if ( 1 == isfdtype(fileno(stderr), S_IFSOCK) )
 	{
 	  msg = (char *)malloc (sizeof(char) * (strlen(be) + strlen(fmt) + 4));
@@ -116,6 +117,7 @@ sanei_debug_msg
 	    }
 	}
       else
+#endif
 	{
 	  fprintf (stderr, "[%s] ", be);
           vfprintf (stderr, fmt, ap);

@@ -138,6 +138,9 @@ struct ctrlmsg_ioctl
   void *data;
 }
 cmsg;
+#elif defined(__BEOS__)
+#include <drivers/USB_scanner.h>
+#include <kernel/OS.h>
 #endif /* __linux__ */
 
 static SANE_Bool inited = SANE_FALSE;
@@ -202,7 +205,20 @@ kernel_get_vendor_product (int fd, int *vendorID, int *productID)
 	DBG (3, "sanei_usb_get_vendor_product: ioctl (product) "
 	     "of device %d failed: %s\n", fd, strerror (errno));
     }
-#endif /* defined (__linux__) */
+#elif defined(__BEOS__)
+  {
+    uint16 vendor, product;
+    if (ioctl (fd, B_SCANNER_IOCTL_VENDOR, &vendor) != B_OK)
+      DBG (3, "kernel_get_vendor_product: ioctl (vendor) "
+	   "of device %d failed: %s\n", fd, strerror (errno));
+    if (ioctl (fd, B_SCANNER_IOCTL_PRODUCT, &product) != B_OK)
+      DBG (3, "sanei_usb_get_vendor_product: ioctl (product) "
+	   "of device %d failed: %s\n", fd, strerror (errno));
+    /* copy from 16 to 32 bit value */
+    *vendorID = vendor;
+    *productID = product;
+  }
+#endif /* defined (__linux__), defined(__BEOS__) */
   /* put more os-dependant stuff ... */
 }
 
@@ -216,6 +232,8 @@ sanei_usb_init (void)
     "/dev/usb/", "scanner",
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined (__OpenBSD__)
     "/dev/", "uscanner",
+#elif defined(__BEOS__)
+    "/dev/scanner/usb/", "",
 #endif
     0, 0
   };
@@ -272,6 +290,10 @@ sanei_usb_init (void)
 
       while ((dir_entry = readdir (dir)) != 0)
 	{
+	  /* skip standard dir entries */
+	  if (strcmp (dir_entry->d_name, ".") == 0 || strcmp (dir_entry->d_name, "..") == 0)
+	  	continue;
+	  		
 	  if (strncmp (base_name, dir_entry->d_name, strlen (base_name)) == 0)
 	    {
 	      if (strlen (dir_name) + strlen (dir_entry->d_name) + 1 >
@@ -1101,6 +1123,26 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
       if ((rtype & 0x80) && debug_level > 10)
 	print_buffer (data, len);
       return SANE_STATUS_GOOD;
+#elif defined(__BEOS__)
+      struct usb_scanner_ioctl_ctrlmsg c;
+
+      c.req.request_type = rtype;
+      c.req.request = req;
+      c.req.value = value;
+      c.req.index = index;
+      c.req.length = len;
+      c.data = data;
+
+      if (ioctl (devices[dn].fd, B_SCANNER_IOCTL_CTRLMSG, &c) < 0)
+	{
+	  DBG (5, "sanei_usb_control_msg: SCANNER_IOCTL_CTRLMSG error - %s\n",
+	       strerror (errno));
+	  return SANE_STATUS_IO_ERROR;
+	}
+	if ((rtype & 0x80) && debug_level > 10)
+		print_buffer (data, len);
+	
+	return SANE_STATUS_GOOD;
 #else /* not __linux__ */
       DBG (5, "sanei_usb_control_msg: not supported on this OS\n");
       return SANE_STATUS_UNSUPPORTED;

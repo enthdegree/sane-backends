@@ -43,6 +43,12 @@
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
 
+/* Define to 1 if you have the <be/drivers/USB_scanner.h> header file. */
+#undef HAVE_BE_DRIVERS_USB_SCANNER_H
+
+/* Define to 1 if you have the <be/kernel/OS.h> header file. */
+#undef HAVE_BE_KERNEL_OS_H
+
 /* Define to 1 if you have the <bsd/dev/scsireg.h> header file. */
 #undef HAVE_BSD_DEV_SCSIREG_H
 
@@ -140,20 +146,11 @@
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
 
-/* Define to 1 if you have the `nsl' library (-lnsl). */
-#undef HAVE_LIBNSL
-
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
 /* Define to 1 if you have the `scsi' library (-lscsi). */
 #undef HAVE_LIBSCSI
-
-/* Define to 1 if you have the `socket' library (-lsocket). */
-#undef HAVE_LIBSOCKET
-
-/* Define to 1 if you have the `syslog' library (-lsyslog). */
-#undef HAVE_LIBSYSLOG
 
 /* Define to 1 if you have the `usb' library (-lusb). */
 #undef HAVE_LIBUSB
@@ -287,6 +284,9 @@
 /* Define to 1 if you have the <sys/io.h> header file. */
 #undef HAVE_SYS_IO_H
 
+/* Define to 1 if you have the <sys/ipc.h> header file. */
+#undef HAVE_SYS_IPC_H
+
 /* Define to 1 if you have the <sys/passthrudef.h> header file. */
 #undef HAVE_SYS_PASSTHRUDEF_H
 
@@ -325,6 +325,9 @@
 
 /* Define to 1 if you have the <sys/shm.h> header file. */
 #undef HAVE_SYS_SHM_H
+
+/* Define to 1 if you have the <sys/signal.h> header file. */
+#undef HAVE_SYS_SIGNAL_H
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
 #undef HAVE_SYS_SOCKET_H

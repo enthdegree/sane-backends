@@ -30,7 +30,7 @@
 
 #include "../include/sane/config.h"
 #include "../include/lalloca.h"
-#include "../include/sys/types.h"
+#include <sys/types.h>
 
 #if defined(HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define SANED_USES_AF_INDEP

@@ -72,6 +72,10 @@
 
 #define DEFAULT_DIRS	"." DIR_SEP STRINGIFY(PATH_SANE_CONFIG_DIR)
 
+#ifdef __BEOS__
+#include <FindDirectory.h>
+#endif
+
 static const char *dir_list;
 
 FILE *
@@ -87,6 +91,18 @@ sanei_config_open (const char *filename)
       DBG_INIT();
 
       dir_list = getenv ("SANE_CONFIG_DIR");
+#ifdef __BEOS__
+      /* ~/config/settings/SANE takes precedence over /etc/sane.d/ */
+      if (!dir_list)
+	{
+	  if (find_directory(B_USER_SETTINGS_DIRECTORY, 0, true, result, PATH_MAX) == B_OK)
+	    {
+	      strcat(result,"/SANE");
+	      strcat(result,DIR_SEP); /* do append the default ones */
+	      dir_list = result;
+	    }
+	}
+#endif
       if (dir_list)
 	{
 	  len = strlen (dir_list);

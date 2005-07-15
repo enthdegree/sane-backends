@@ -5,7 +5,9 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 #include <sys/types.h>
+#ifdef HAVE_SYS_IPC_H
 #include <sys/ipc.h>
+#endif
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>

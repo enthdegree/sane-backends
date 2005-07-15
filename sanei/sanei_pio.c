@@ -524,6 +524,45 @@ sanei_pio_write (int fd, const u_char * buf, int n)
 
 #else /* !HAVE_IOPERM */
 
+#ifdef __BEOS__
+
+#include <fcntl.h>
+
+SANE_Status
+sanei_pio_open (const char *dev, int *fdp)
+{
+	int fp;
+	
+	// open internal parallel port
+	fp=open("/dev/parallel/parallel1",O_RDWR);
+  
+  	*fdp=fp;
+  	if(fp<0) return SANE_STATUS_INVAL;
+  	return(SANE_STATUS_GOOD);
+}
+
+
+void 
+sanei_pio_close (int fd)
+{
+	close(fd);
+	return;
+}
+
+int 
+sanei_pio_read (int fd, u_char * buf, int n)
+{
+	return(read(fd,buf,n));
+}
+
+int 
+sanei_pio_write (int fd, const u_char * buf, int n)
+{
+  	return(write(fd,buf,n));
+}
+
+#else /* !__BEOS__ */
+
 SANE_Status
 sanei_pio_open (const char *dev, int *fdp)
 {
@@ -549,5 +588,6 @@ sanei_pio_write (int fd, const u_char * buf, int n)
 {
   return -1;
 }
+#endif /* __BEOS__ */
 
 #endif /* !HAVE_IOPERM */

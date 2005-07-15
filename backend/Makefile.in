@@ -26,6 +26,7 @@ mandir = @mandir@
 includedir = @includedir@
 oldincludedir = /usr/include
 configdir = ${sysconfdir}/sane.d
+BEOS_ADDONDIR = @BEOS_ADDONDIR@
 
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
@@ -213,8 +214,12 @@ install: $(INSTALL_LOCKPATH)
 #	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
 #	  (cd ..; if test -f sane/$$n ; then $(LN_S) sane/$$n $$nn; fi; ); \
 #	done || exit 1
+
+install-libsane:
 	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la \
           $(DESTDIR)$(libdir)/libsane.la
+
+install-becfg:
 	@list="$(CONFIGS)"; for cfg in $$list; do \
 	  if test ! -r $(srcdir)/$${cfg}; then continue; fi; \
 	  if test -f $(DESTDIR)$(configdir)/$${cfg}; then \

@@ -33,6 +33,17 @@ AC_SUBST(NUMBER_VERSION)
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST 
 
+dnl no bloody way to have a decent --docdir...
+AC_ARG_WITH(docdir, 
+  AC_HELP_STRING([--with-docdir=DIR],
+                 [documentation @<:@PREFIX/doc/sane-VERSION@:>@]),
+[
+  docdir="${withval}"
+  AC_SUBST([docdir])dnl
+], [
+  AC_SUBST([docdir],         ['${prefix}/doc/sane-${VERSION}'])dnl
+])
+
 dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
@@ -86,9 +97,9 @@ AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
 dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
 dnl to use them!
 if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
-    AC_CHECK_LIB(nsl, gethostbyaddr)
-    AC_CHECK_LIB(socket, socket)
-    AC_CHECK_LIB(syslog, syslog)            # OS/2 needs this
+    AC_SEARCH_LIBS(gethostbyaddr, nsl bind)
+    AC_SEARCH_LIBS(socket, socket)
+    AC_SEARCH_LIBS(syslog, syslog be)            # OS/2 needs -lsyslog, BeOS needs -lbe
 fi
 SANE_CHECK_JPEG
 SANE_CHECK_IEEE1284
@@ -103,7 +114,7 @@ dnl Checks for header files.
 dnl ***********************************************************************
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
-    sys/time.h sys/shm.h \
+    sys/time.h sys/shm.h sys/ipc.h sys/signal.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
     bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h io/cam/cam.h \
     camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
@@ -111,7 +122,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
     IOKit/cdb/IOSCSILib.h IOKit/scsi-commands/SCSICommandOperationCodes.h \
-    windows.h limits.h sys/ioctl.h asm/types.h)
+    windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 SANE_CHECK_MISSING_HEADERS
 
@@ -204,6 +215,11 @@ AC_C_INLINE
 dnl ***********************************************************************
 dnl Checks for library functions
 dnl ***********************************************************************
+if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
+    dnl those are known to be broken in BeOS (BONE)
+    ac_cv_func_getaddrinfo=no
+    ac_cv_func_getnameinfo=no
+fi
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm mkdir \
@@ -270,7 +286,8 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 dnl Windows/Cygwin needs this, else the library creation fails
-if test "$ac_cv_header_windows_h" = "yes" ; then
+dnl BeOS also needs this (why isnt it the default anyway ???)
+if test "$ac_cv_header_windows_h" = "yes" -o "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
   LIBTOOL_LINK_EXTRA=-no-undefined
   AC_SUBST(LIBTOOL_LINK_EXTRA)
 fi
@@ -384,7 +401,7 @@ else
   else
     BACKENDS="${BACKENDS} sm3600"
   fi
- fi
+fi
 fi
 
 AC_SUBST(BACKENDS)
@@ -399,6 +416,16 @@ else
   DLL_PRELOAD=""
 fi
 AC_SUBST(DLL_PRELOAD)
+
+dnl in BeOS, backends are not installed in lib/sane, but add-ons/SANE/
+dnl we account for both installing in /boot/beos and ~/config
+dnl faster than: if test "`uname`" = "BeOS" -o "`uname`" = "Zeta" ; then
+if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
+  BEOS_ADDONDIR="${libdir}/../add-ons/SANE"
+  AC_SUBST(BEOS_ADDONDIR)
+  BE_INSTALL_FLAVOR=-beos
+  AC_SUBST(BE_INSTALL_FLAVOR)
+fi
 
 
 AC_ARG_ENABLE(scsibuffersize, 

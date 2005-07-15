@@ -1,3 +1,7 @@
+2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/snapscan.desc:
+	  updated comments for Epson 1670, 2480 and 2580
 
 2005-07-15  Rene Rebe <rene@exactcode.de>
 
@@ -99,7 +103,7 @@
 	* restored the actual version of the Canon-SCSI backend
 	  (backend/canon.c, canon-sane.c canon-scsi.c canon.h)
 
-2005-06-30  Stéphane Voltz <stefdev@modulonet.fr>
+2005-06-30  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* configure.in AUTHORS backend/dll.conf doc/sane.man doc/Makefile.in 
 	  po/Makefile.in : Fixed forgotten modifications when adding the
@@ -111,7 +115,7 @@
 	  dlopening DLLs on OS/2, as it only works for 7.3 filenames for 
 	  some reason (patches by Franz Bakan <fbakan@gmx.net>.
 
-2005-06-27  Stéphane Voltz <stefdev@modulonet.fr>
+2005-06-27  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* configure doc/sane-genesys.man doc/sane-genesys.man doc/Makefile.in
 	  doc/descriptions/genesys.desc doc/descriptions/unsupported.desc

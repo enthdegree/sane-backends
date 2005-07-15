@@ -1,6 +1,15 @@
 
 2005-07-15  Rene Rebe <rene@exactcode.de>
 
+	* backend/avision.h, backend/avision.c, doc/sane-avision.man,
+	  doc/descriptions/avision.desc: updated the Avision backend with the
+	  latest off-site maintained version: fixed segmentation faults for
+	  some modes, many many new devices, two different duplex modes are		  supported, vast speedup of multi page batch scans, buttons as well
+	  a 7-segment LED readout and some quirks for old scanners not filling
+	  all fields
+
+2005-07-15  Rene Rebe <rene@exactcode.de>
+
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: Added support to set
 	  the USB timeout.
 

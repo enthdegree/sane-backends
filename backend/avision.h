@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * SANE - Scanner Access Now Easy.
 
@@ -40,7 +41,7 @@
    *****************************************************************************
 
    This backend is based upon the Tamarack backend and adapted to the Avision
-   scanners by René Rebe and Meino Cramer.
+   scanners by Renebe and Meino Cramer.
    
    Check the avision.c file for detailed copyright and change-log
    information.
@@ -52,6 +53,10 @@
 
 #include <sys/types.h>
 
+#ifndef PATH_MAX
+# define PATH_MAX 1024
+#endif
+
 typedef enum Avision_ConnectionType {
   AV_SCSI,
   AV_USB
@@ -59,9 +64,15 @@ typedef enum Avision_ConnectionType {
 
 /* information needed for device access */
 typedef struct Avision_Connection {
-  Avision_ConnectionType logical_connection;
+  Avision_ConnectionType connection_type;
   int scsi_fd;			/* SCSI filedescriptor */
   SANE_Int usb_dn;		/* USB (libusb or scanner.c) device number */
+  enum {
+    AVISION_USB_UNTESTED_STATUS, /* status type untested */
+    AVISION_USB_INT_STATUS,      /* interrupt endp. (USB 1.x device) status */
+    AVISION_USB_BULK_STATUS      /* bulk endp. (USB 2.0 device) status */
+  } usb_status;
+  
 } Avision_Connection;
 
 typedef struct Avision_HWEntry {
@@ -74,46 +85,47 @@ typedef struct Avision_HWEntry {
   const char* real_mfg;
   const char* real_model;
   
-  /* the one of the device - not what we see via the OS' kernel */
-  Avision_ConnectionType physical_connection; /* ReneR: OBSOLETE? */
-  
-  enum {AV_FLATBED,
-	AV_FILM,
-	AV_SHEETFEED
-  } scanner_type;
-  
   /* feature overwrites */
   enum {
     /* force no calibration */
     AV_NO_CALIB = (1),
     
-    /* force the special C5 calibration */
-    AV_C5_CALIB = (1<<1),
-    
     /* force all in one command calibration */
-    AV_ONE_CALIB_CMD = (1<<2),
+    AV_ONE_CALIB_CMD = (1<<1),
     
     /* no gamma table */
-    AV_NO_GAMMA = (1<<3),
+    AV_NO_GAMMA = (1<<2),
     
     /* light check is bogus */
-    AV_LIGHT_CHECK_BOGUS = (1<<4),
+    AV_LIGHT_CHECK_BOGUS = (1<<3),
     
     /* do not use line packing even if line_difference */
-    AV_NO_LINE_DIFFERENCE = (1<<5),
+    AV_NO_LINE_DIFFERENCE = (1<<4),
     
-    /* if the scan area needs to be forced - for to A3 */
-    AV_FORCE_A3 = (1<<6),
+    /* if the scan area needs to be forced to A3 */
+    AV_FORCE_A3 = (1<<5),
     
-    /* limit the available resolutions */
-    AV_RES_HACK = (1<<7),
+    /* if the scan area and resolution needs to be forced for films */
+    AV_FORCE_FILM = (1<<6),
     
     /* some (?) USB devices like firmware */
-    AV_FIRMWARE = (1<<8),
+    AV_FIRMWARE = (1<<7),
     
+    /* is film scanner - no detection yet */
+    AV_FILMSCANNER = (1<<8),
+
     /* fujitsu adaption */
-    AV_FUJITSU = (1<<9)
+    AV_FUJITSU = (1<<9),
+
+    /* gray calibration data has to be uploaded on the blue channel ... ? */
+    AV_GRAY_CALIB_BLUE = (1<<10),
     
+    /* Interrupt endpoint button readout (so far AV220) */
+    AV_INT_BUTTON = (1<<11),
+
+    /* send acceleration table ... */
+    AV_ACCEL_TABLE = (1<<12)
+
     /* maybe more ...*/
   } feature_type;
     
@@ -122,18 +134,22 @@ typedef struct Avision_HWEntry {
 typedef enum {
   AV_ASIC_Cx = 0,
   AV_ASIC_C1 = 1,
+  AV_ASIC_W1 = 2,
   AV_ASIC_C2 = 3,
   AV_ASIC_C5 = 5,
   AV_ASIC_C6 = 6,
-  AV_ASIC_OA980 = 128
+  AV_ASIC_OA980 = 128,
+  AV_ASIC_OA982 = 129
 } asic_type;
 
 typedef enum {
   AV_THRESHOLDED,
   AV_DITHERED,
-  AV_GRAYSCALE,
-  AV_TRUECOLOR,
+  AV_GRAYSCALE,       /* all gray needs to be before color for is_color() */
+  AV_GRAYSCALE12,
   AV_GRAYSCALE16,
+  AV_TRUECOLOR,
+  AV_TRUECOLOR12,
   AV_TRUECOLOR16,
   AV_COLOR_MODE_LAST
 } color_mode;
@@ -142,8 +158,17 @@ typedef enum {
   AV_NORMAL,
   AV_TRANSPARENT,
   AV_ADF,
+  AV_ADF_REAR,
+  AV_ADF_DUPLEX,
   AV_SOURCE_MODE_LAST
 } source_mode;
+
+typedef enum {
+  AV_NORMAL_DIM,
+  AV_TRANSPARENT_DIM,
+  AV_ADF_DIM,
+  AV_SOURCE_MODE_DIM_LAST
+} source_mode_dim;
 
 enum Avision_Option
 {
@@ -175,6 +200,19 @@ enum Avision_Option
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
   
+  /* too bad the SANE API does not allow bool vectors ... */
+  OPT_BUTTON_0,           /* scanner button pressed */
+  OPT_BUTTON_1,
+  OPT_BUTTON_2,
+  OPT_BUTTON_3,
+  OPT_BUTTON_4,
+  OPT_BUTTON_5,
+  OPT_BUTTON_6,
+  OPT_BUTTON_7,
+  OPT_BUTTON_LAST = OPT_BUTTON_7,
+
+  OPT_MESSAGE,
+  
   OPT_FRAME,             /* Film holder control */
   
   NUM_OPTIONS            /* must come last */
@@ -194,6 +232,9 @@ typedef struct Avision_Dimensions
   
   /* in pixels */
   int line_difference;
+
+  /* interlaced duplex scan */
+  SANE_Bool interlaced_duplex;
   
 } Avision_Dimensions;
 
@@ -202,7 +243,7 @@ typedef struct Avision_Device
 {
   struct Avision_Device* next;
   SANE_Device sane;
-  Avision_ConnectionType logical_connection;
+  Avision_Connection connection;
   
   /* structs used to store config options */
   SANE_Range dpi_range;
@@ -212,7 +253,11 @@ typedef struct Avision_Device
 
   asic_type inquiry_asic_type;
   SANE_Bool inquiry_new_protocol;
+  SANE_Bool inquiry_light_box;
   SANE_Bool inquiry_adf;
+  SANE_Bool inquiry_duplex;
+  SANE_Bool inquiry_duplex_interlaced;
+  SANE_Bool inquiry_duplex_mode_two;
   SANE_Bool inquiry_detect_accessories;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
@@ -224,22 +269,29 @@ typedef struct Avision_Device
   SANE_Bool inquiry_adf_bgr_order;
   SANE_Bool inquiry_light_detect;
   SANE_Bool inquiry_light_control;
+  SANE_Bool inquiry_button_control;
   int       inquiry_max_shading_target;
+  int       inquiry_buttons;
+  
+  enum {AV_FLATBED,
+	AV_FILM,
+	AV_SHEETFEED
+  } scanner_type;
   
   /* the list of available color modes */
-  SANE_String_Const color_list[AV_COLOR_MODE_LAST];
+  SANE_String_Const color_list[AV_COLOR_MODE_LAST + 1];
   color_mode color_list_num[AV_COLOR_MODE_LAST];
   color_mode color_list_default;
   
   /* the list of available source modes */
-  SANE_String_Const source_list[AV_SOURCE_MODE_LAST];
+  SANE_String_Const source_list[AV_SOURCE_MODE_LAST + 1];
   source_mode source_list_num[AV_SOURCE_MODE_LAST];
   
   int inquiry_optical_res;        /* in dpi */
   int inquiry_max_res;            /* in dpi */
   
-  double inquiry_x_ranges  [AV_SOURCE_MODE_LAST]; /* in mm */
-  double inquiry_y_ranges  [AV_SOURCE_MODE_LAST]; /* in mm */
+  double inquiry_x_ranges  [AV_SOURCE_MODE_DIM_LAST]; /* in mm */
+  double inquiry_y_ranges  [AV_SOURCE_MODE_DIM_LAST]; /* in mm */
   
   int inquiry_color_boundary;
   int inquiry_gray_boundary;
@@ -255,10 +307,6 @@ typedef struct Avision_Device
   /* additional information - read delayed until sane_open() */
   
   SANE_Bool additional_probe;
-  
-  /* accessories */
-  SANE_Bool acc_light_box;
-  SANE_Bool acc_adf;
   
   /* film scanner atributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
@@ -292,9 +340,16 @@ typedef struct Avision_Scanner
   SANE_Bool scanning;           /* scan in progress */
   SANE_Parameters params;       /* scan window */
   Avision_Dimensions avdimen;   /* scan window - detailed internals */
-
+  
+  u_int32_t param_cksum;        /* checksum of scan parameters */
+  
+  /* Internal data for duplex scans */
+  char duplex_rear_fname [PATH_MAX];
+  SANE_Bool duplex_rear_valid;
+  
   color_mode c_mode;
   source_mode source_mode;
+  source_mode_dim source_mode_dim;
   
   /* Avision HW Access Connection (SCSI/USB abstraction) */
   Avision_Connection av_con;
@@ -309,12 +364,10 @@ typedef struct Avision_Scanner
 /* Some Avision driver internal defines */
 #define AV_WINID 0
 
-/* SCSI error codes */
-#define AVISION_SCSI_GOOD                   0x00
-#define AVISION_SCSI_CONDITION_GOOD         0x02
-#define AVISION_SCSI_INTERMEDIATE_GOOD      0x08
-#define AVISION_SCSI_UNKNOWN_GOOD           0x09
-#define AVISION_SCSI_INTERMEDIATE_C_GOOD    0x0a
+/* Avision SCSI over USB error codes */
+#define AVISION_USB_GOOD                    0x00
+#define AVISION_USB_REQUEST_SENSE           0x02
+#define AVISION_USB_BUSY                    0x08
 
 /* SCSI commands that the Avision scanners understand: */
 
@@ -414,8 +467,9 @@ typedef struct command_set_window_window
     u_int8_t bitordering [2];
     u_int8_t compr_type;
     u_int8_t compr_arg;
-    u_int8_t reserved1 [6];
-    
+    u_int8_t paper_length[2];
+    u_int8_t reserved1 [4];
+
     /* Avision specific parameters */
     u_int8_t vendor_specific;
     u_int8_t paralen; /* bytes following after this byte */
@@ -428,7 +482,7 @@ typedef struct command_set_window_window
     u_int8_t line_width [2];
     u_int8_t line_count [2];
     
-    /* this is quite version / model sepecific */
+    /* the tail is quite version and model sepecific */
     union {
       struct {
 	u_int8_t bitset2;
@@ -448,7 +502,7 @@ typedef struct command_set_window_window
 	u_int8_t auto_focus;
 	u_int8_t line_width_msb;
 	u_int8_t line_count_msb;
-	u_int8_t edge_threshold;
+	u_int8_t edge_threshold; /* background lines? */
       } normal;
       
       struct {
@@ -500,6 +554,17 @@ typedef struct calibration_format
   u_int8_t channels;
 } calibration_format;
 
+typedef struct acceleration_info 
+{
+  u_int16_t accel_step_count;
+  u_int16_t stable_step_count;
+  u_int32_t table_units;
+  u_int32_t base_units;
+  u_int16_t start_speed;
+  u_int16_t target_speed;
+  u_int8_t ability;
+  u_int8_t table_count;
+} acceleration_info;
 
 /* set/get SCSI highended (big-endian) variables. Declare them as an array
  * of chars endianness-safe, int-size safe ... */
@@ -533,10 +598,30 @@ typedef struct calibration_format
 #define BIT(n, p) ((n & (1 << p)) ? 1 : 0)
 
 #define SET_BIT(n, p) (n |= (1 << p))
+#define CLEAR_BIT(n, p) (n &= ~(1 << p))
 
 /* These should be in saneopts.h */
 #define SANE_NAME_FRAME "frame"
 #define SANE_TITLE_FRAME SANE_I18N("Number of the frame to scan")
 #define SANE_DESC_FRAME  SANE_I18N("Selects the number of the frame to scan")
+
+#define SANE_NAME_DUPLEX "duplex"
+#define SANE_TITLE_DUPLEX SANE_I18N("Duplex scan")
+#define SANE_DESC_DUPLEX SANE_I18N("Duplex scan provide a scan of the front and back side of the document")
+
+#ifdef AVISION_ENHANCED_SANE
+#warning "Compiled Avision backend will violate the SANE standard"
+/* Some Avision SANE extensions */
+typedef enum
+{
+  SANE_STATUS_LAMP_WARMING = SANE_STATUS_ACCESS_DENIED + 1	/* lamp is warming up */
+}
+SANE_Avision_Status;
+
+/* public API extension */
+
+extern SANE_Status ENTRY(media_check) (SANE_Handle handle);
+
+#endif
 
 #endif /* avision_h */

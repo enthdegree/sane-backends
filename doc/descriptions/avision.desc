@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 99"
+:version "Build: 167"
 ;status: alpha, beta, stable, new
 ;:status :stable
 
@@ -41,12 +41,27 @@
 :interface "SCSI"
 :status :untested
 
+:model "AV120"
+:interface "USB"
+:comment "sheetfed scanner"
+:status :basic
+
 :model "AV210"
 :interface "USB"
 :comment "sheetfed scanner"
-:status :untested
+:status :basic
+
+:model "AV210-2"
+:interface "USB"
+:comment "sheetfed scanner"
+:status :basic
 
 :model "AV220"
+:interface "USB"
+:comment "duplex! sheetfed scanner"
+:status :complete
+
+:model "AV220-C2"
 :interface "USB"
 :comment "duplex! sheetfed scanner"
 :status :untested
@@ -76,18 +91,18 @@
 :status :untested
 
 :model "AV610"
-:interface "SCSI"
-:status :basic
+:interface "USB"
+:status :good
 
 :model "AVA6"
 :interface "USB"
 :comment "probably a CPU-less device"
 :status :untested
 
-:model "AV610CU Scancopier"
+:model "DS610CU Scancopier"
 :interface "USB"
-:comment "1 pass, 600 dpi"
-:status :untested
+:comment "1 pass, 600 dpi, A4"
+:status :good
 
 :model "AV620CS"
 :interface "SCSI"
@@ -125,17 +140,17 @@
 :status :untested
 
 :model "AV660S"
-:interface "USB"
+:interface "SCSI"
 :comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV680S"
-:interface "USB"
+:interface "SCSI"
 :comment "1 pass, ??? dpi"
 :status :untested
 
 :model "AV690U"
-:interface "USB"
+:interface "SCSI"
 :comment "1 pass, 2400 dpi"
 :status :untested
 
@@ -157,7 +172,7 @@
 :model "AV820C"
 :interface "SCSI"
 :comment "1 pass, ??? dpi"
-:status :untested
+:status :good
 
 :model "AV820C Plus"
 :interface "SCSI"
@@ -184,19 +199,34 @@
 :comment "1 pass, ??? dpi"
 :status :untested
 
+:model "AV3200C"
+:interface "SCSI"
+:comment "1 pass, ??? dpi"
+:status :complete
+
+:model "AV3800C"
+:interface "SCSI"
+:comment "1 pass, ??? dpi"
+:status :good
+
 :model "AV8000S"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi, A3 - regularly tested"
 :status :complete
 
+:model "AV8300"
+:interface "USB"
+:comment "1 pass, 1200 dpi, A3 - duplex!"
+:status :complete
+
+:model "AV8350"
+:interface "USB"
+:comment "1 pass, 1200 dpi, A3 - duplex!"
+:status :complete
+
 :model "AVA3"
 :interface "SCSI"
 :comment "1 pass, 600 dpi, A3"
-:status :basic
-
-:model "DS610CU"
-:interface "SCSI"
-:comment "1 pass, 600 dpi, A4 - works with gamma table disabled"
 :status :basic
 
 
@@ -231,21 +261,25 @@
 :model "ScanJet 8200"
 :interface "USB"
 :comment "1 pass, 4800 (?) dpi - USB 2.0"
-:status :untested
+:status :good
 
 :model "ScanJet 8250"
 :interface "USB"
 :comment "1 pass, 4800 (?) dpi - USB 2.0"
-:status :untested
+:status :good
 
 :model "ScanJet 8290"
 :interface "USB"
-:comment "1 pass, 4800 (?) dpi - USB 2.0"
-:status :untested
+:comment "1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far"
+:status :good
 
 
 :mfg "Minolta"
 :url "http://www.minolta.com"
+
+:model "Dimage Scan Dual I"
+:interface "SCSI"
+:status :basic
 
 :model "Dimage Scan Dual II"
 :interface "USB"
@@ -256,6 +290,22 @@
 :interface "USB"
 :comment "1 pass, film-scanner"
 :status :untested
+
+:model "Dimage Scan Dual III"
+:interface "USB"
+:comment "1 pass, film-scanner"
+:status :basic
+
+
+:mfg "Minolta-QMS"
+
+:model "SC-110"
+:interface "USB"
+:status :untested
+
+:model "SC-215"
+:interface "USB"
+:status :good
 
 
 :mfg "Mitsubishi"
@@ -278,7 +328,7 @@
 
 
 :mfg "Fujitsu"
-:url "http://www.fujitsu.com/"
+:url "http://www.fujitsu.com"
 
 :model "ScanPartner"
 :interface "SCSI"
@@ -314,5 +364,47 @@
 
 :model "ScanStation"
 :interface "SCSI"
+:status :untested
+
+
+:mfg "Kodak"
+:url "http://www.kodak.com"
+
+:model "i30"
+:interface "SCSI"
+:status :untested
+
+:model "i40"
+:interface "SCSI"
+:status :untested
+
+:model "i50"
+:interface "SCSI"
+:status :untested
+
+:model "i60"
+:interface "SCSI"
+:status :untested
+
+:model "i80"
+:interface "SCSI"
+:status :untested
+
+
+:mfg "iVina"
+
+:model "1200U"
+:interface "USB"
+:status :untested
+
+
+:mfg "Xerox"
+
+:model "DocuMate252"
+:interface "USB"
+:status :untested
+
+:model "DocuMate262"
+:interface "USB"
 :status :untested
 

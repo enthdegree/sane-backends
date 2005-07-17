@@ -1,5 +1,5 @@
 -*-Mode: outline-*-
-New with 1.0.16, released 2005-??-??:
+New with 1.0.16, released 2005-08-07:
 
 * New backends: genesys, sm3840
 * Updated backends: avision, canon, coolscan, epson, gphoto2, gt68xx, mustek,
@@ -8,8 +8,8 @@ New with 1.0.16, released 2005-??-??:
 * Added sanei_access to allow locking of SANE devices.
 * Hotplug updates.
 * scanimage updates.
-* Portability fixes (especially for OS/2, 64bit platforms).
-* Added Polish translation. Updated other translations.
+* Portability fixes (especially for OS/2, 64bit platforms, BeOS+ZETA).
+* Added Polish translation. Updated other translations. Fixed format strings.
 * Documentation updates.
 * Bugfixes.
 

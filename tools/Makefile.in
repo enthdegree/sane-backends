@@ -67,7 +67,7 @@ DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
 	mustek600iin-off.c sane-config.in sane-desc.c check-usb-chip.c \
 	sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
 
-SUBDIRS = hotplug
+SUBDIRS = hotplug hotplug-ng
 
 .PHONY: all clean depend dist distclean install uninstall
 

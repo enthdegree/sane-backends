@@ -158,8 +158,8 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c \
   umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c v4l.c \
   v4l.conf v4l-frequencies.h v4l.h \
-  sm3840.c sm3840_lib.c sm3840_params.h sm3840_scan.c sm3840.h \
-  sm3840_lib.h sm3840-s.c
+  sm3840.conf sm3840.c sm3840_lib.c sm3840_params.h sm3840_scan.c sm3840.h \
+  sm3840_lib.h
 
 
 

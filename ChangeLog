@@ -1,3 +1,5 @@
+---- FEATURE FREEZE FOR SANE 1.0.16 ---
+
 2005-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in backend/Makefile.in tools/Makefile.in: Make sure

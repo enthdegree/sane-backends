@@ -1,7 +1,9 @@
 2005-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in backend/Makefile.in tools/Makefile.in: Make sure
-	  that all the necessary files will be in the distribution .tar.gz file.
+	  that all the necessary files will be in the distribution .tar.gz
+	  file.
+	* sanei/sanei_scsi.c: Removed "const" to make gcc on OS/2 happy.
 
 2005-07-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

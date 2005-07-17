@@ -3790,7 +3790,7 @@ issue (struct req *req)
     const char *string;
     FILE *proc_fp;
     char *end;
-    const struct
+    struct
     {
       const char *name;
       size_t name_len;

@@ -1079,7 +1079,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
     /* allocate memory for bins, all the red, then green, then blue */
     bins = (int *) malloc (num_bins * sizeof (int));
     if (!bins) {
-        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating bins, %d bytes.", me, num_bins * sizeof (int));
+        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating bins, %ld bytes.", me, (u_long)num_bins * sizeof (int));
         return SANE_STATUS_NO_MEM;
     }
 
@@ -1087,7 +1087,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
     expected_read_bytes = PIXELS_PER_LINE_2480 * 3 * 4;
     buf = (u_char *) malloc (expected_read_bytes);
     if (!buf) {
-        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %d bytes.", me, expected_read_bytes);
+        DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %ld bytes.", me, (u_long)expected_read_bytes);
         free (bins);
         return SANE_STATUS_NO_MEM;
     }
@@ -1384,6 +1384,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.32  2005/07/18 17:37:37  oliver-guest
+ * ZETA changes for SnapScan backend
+ *
  * Revision 1.31  2004/12/09 23:21:48  oliver-guest
  * Added quality calibration for Epson 2480 (by Simon Munton)
  *
@@ -1470,7 +1473,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * - Guard against TL_X < BR_X and TL_Y < BR_Y
  *
  * Revision 1.21  2001/10/21 08:49:37  oliverschwartz
- * correct number of scan lines for calibration thanks to Mikko Työläjärvi
+ * correct number of scan lines for calibration thanks to Mikko Tyï¿½ï¿½ï¿½vi
  *
  * Revision 1.20  2001/10/12 20:54:04  oliverschwartz
  * enable gamma correction for Snapscan 1236, e20 and e50 scanners

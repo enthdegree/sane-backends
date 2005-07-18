@@ -39,7 +39,35 @@
   whether to permit this exception to apply to your modifications.
   If you do not wish that, delete this exception notice.*/
   
-#if defined USE_PTHREAD || defined HAVE_OS2_H
+#if defined __BEOS__
+
+#include <OS.h>
+#define snapscan_mutex_t sem_id
+
+static int snapscani_mutex_open(snapscan_mutex_t* a_sem, const char* dev UNUSEDARG)
+{
+    *a_sem = create_sem(1, "snapscan_mutex");
+    return 1;
+}
+
+static void snapscani_mutex_close(snapscan_mutex_t* a_sem)
+{
+    delete_sem(*a_sem);
+}
+
+static void snapscani_mutex_lock(snapscan_mutex_t* a_sem)
+{
+    acquire_sem(*a_sem);
+}
+
+static void snapscani_mutex_unlock(snapscan_mutex_t* a_sem)
+{
+    release_sem(*a_sem);
+}
+
+
+
+#elif defined USE_PTHREAD || defined HAVE_OS2_H
 
 #include <pthread.h>
 #define snapscan_mutex_t pthread_mutex_t

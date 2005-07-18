@@ -1,3 +1,9 @@
+2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-mutex.c backend/snapscan-usb.c: Changes to support 
+	  SANE on ZETA.
+	* backend/snapscan-scsi.c: Fix compiler warnings.
+
 ---- FEATURE FREEZE FOR SANE 1.0.16 ---
 
 2005-07-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -32,7 +38,7 @@
 	  libtool needs -no-undefined. Various VPATH fixes.
 	  Check for <be/drivers/USB_scanner.h>, but not used yet.
 	  No S_IFSOCK (sockets are fds to /dev/net/api). Stub pio code, untested.
-	  Patch from François Revol <revol@free.fr>.
+	  Patch from Franï¿½is Revol <revol@free.fr>.
 
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

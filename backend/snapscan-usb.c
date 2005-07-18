@@ -76,7 +76,7 @@
 
 /* Global variables */
 
-static snapscan_mutex_t sem_id;
+static snapscan_mutex_t snapscan_mutex;
 static sense_handler_type usb_sense_handler;
 static void* usb_pss;
 
@@ -139,11 +139,11 @@ static SANE_Status atomic_usb_cmd(int fd, const void *src, size_t src_size,
     sigprocmask(SIG_BLOCK, &all, &oldset);
 
     /* Make sure we are alone */
-    snapscani_mutex_lock(&sem_id);
+    snapscani_mutex_lock(&snapscan_mutex);
 
     status = usb_cmd(fd,src,src_size,dst,dst_size);
 
-    snapscani_mutex_unlock(&sem_id);
+    snapscani_mutex_unlock(&snapscan_mutex);
 
     /* Now it is ok to be killed */
     sigprocmask(SIG_SETMASK, &oldset, NULL);
@@ -159,7 +159,7 @@ static SANE_Status snapscani_usb_open(const char *dev, int *fdp,
 
     DBG (DL_CALL_TRACE, "%s(%s)\n", me, dev);
 
-    if(!snapscani_mutex_open(&sem_id, dev)) {
+    if(!snapscani_mutex_open(&snapscan_mutex, dev)) {
         DBG (DL_MAJOR_ERROR, "%s: Can't get semaphore\n", me);
         return SANE_STATUS_INVAL;
     }
@@ -223,7 +223,7 @@ static void snapscani_usb_close(int fd) {
     }
     urb_counters->read_urbs = 0;
     urb_counters->write_urbs = 0;
-    snapscani_mutex_close(&sem_id);
+    snapscani_mutex_close(&snapscan_mutex);
     sanei_usb_close(fd);
 }
 
@@ -493,7 +493,7 @@ static SANE_Status usb_request_sense(SnapScan_Scanner *pss) {
     return status;
 }
 
-#if defined USE_PTHREAD || defined HAVE_OS2_H
+#if defined USE_PTHREAD || defined HAVE_OS2_H || defined __BEOS__
 static SANE_Status snapscani_usb_shm_init(void)
 {
     unsigned int shm_size = sizeof(struct urb_counters_t);
@@ -563,6 +563,9 @@ static void snapscani_usb_shm_exit(void)
 #endif
 /*
  * $Log$
+ * Revision 1.20  2005/07/18 17:37:37  oliver-guest
+ * ZETA changes for SnapScan backend
+ *
  * Revision 1.19  2004/10/03 17:34:36  hmg-guest
  * 64 bit platform fixes (bug #300799).
  *

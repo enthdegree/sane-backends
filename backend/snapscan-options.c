@@ -161,7 +161,7 @@ static const SANE_Range x_range_tpo_2480 =
 };        /* mm */
 static const SANE_Range y_range_tpo_2480 =
 {
-    SANE_FIX (0.0), SANE_FIX (125.0), 0
+    SANE_FIX (0.0), SANE_FIX (80.0), 0
 };        /* mm */
 
 static SANE_Range x_range_tpo;
@@ -220,7 +220,7 @@ static void init_options (SnapScan_Scanner * ps)
     static SANE_Word resolutions_1600[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600};
     static SANE_Word resolutions_2400[] =
-        {9, 50, 75, 100, 150, 200, 300, 400, 600, 1200};
+        {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -1514,6 +1514,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.21  2005/07/20 21:37:29  oliver-guest
+ * Changed TPO scanning area for 2480/2580, reenabled 2400 DPI for 2480/2580
+ *
  * Revision 1.20  2005/05/22 11:50:24  oliver-guest
  * Disabled 2400 DPI for Epson 2480
  *

@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.49-7 (2005-07-21)
+---------------------
+Bugfix release - fixed lampsettings for CIS calibration
+
 V 0.49-6 (2005-07-07)
 ---------------------
 Bugfix release - calibration and segfault :(

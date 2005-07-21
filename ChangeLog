@@ -1,3 +1,9 @@
+2005-07-21  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbcal.c: Fixed lampsettings for CIS devices.
+
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c: Change TPO range for Epson 2480/2580 to 

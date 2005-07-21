@@ -38,8 +38,9 @@
  *         - fixed problem in cano_AdjustLightsource(), so that it won't
  *           stop too early.
  * - 0.48  - cleanup
- * - 0.49 - a_bRegs is now part of the device structure
- * 
+ * - 0.49  - a_bRegs is now part of the device structure
+ *         - fixed lampsetting in cano_AdjustLightsource()
+ *
  * This file is part of the SANE package.
  *
  * This program is free software; you can redistribute it and/or
@@ -178,15 +179,15 @@ static int cano_LampOnAfterCalibration( Plustek_Device *dev )
 static int cano_adjLampSetting( u_short *min,
                                 u_short *max, u_short *off, u_short val )
 {
-	u_long newoff  = *off;
+	u_long newoff = *off;
 
 	/* perfect value, no need to adjust
-	 * val ¤ [53440..61440] is perfect
-	 */  
-	if((val < (IDEAL_GainNormal-6000)) && (val > (IDEAL_GainNormal-8000)))
+	 * val ¤ [53440..59440] is perfect
+	 */
+	if((val < (IDEAL_GainNormal-2000)) && (val > (IDEAL_GainNormal-8000)))
 		return 0;
 
-	if(val > (IDEAL_GainNormal-6000)) {
+	if(val >= (IDEAL_GainNormal-2000)) {
 
 		DBG(_DBG_INFO2, "* TOO BRIGHT --> reduce\n" );
 		*max   = newoff;
@@ -207,13 +208,12 @@ static int cano_adjLampSetting( u_short *min,
 		if( *off > 0x3FFF ) {
 			DBG( _DBG_INFO, "* lamp off limited (0x%04x --> 0x3FFF)\n", *off);
 			*off = 0x3FFF;
-			return 0;
+			return 10;
 		}
 	}
-
 	if((*min+1) >= *max )
 		return 0;
-		
+
 	return 1;
 }
 
@@ -282,6 +282,11 @@ static int cano_AdjustLightsource( Plustek_Device *dev )
 		return SANE_TRUE;
 	}
 
+	/* we probably should preset gain to some reasonably good value */
+#if 0
+	for( i=0x3b; i<0x3e; i++ )
+		dev->usbDev.a_bRegs[i] = 0x0a;
+#endif
 	for( i = 0; ; i++ ) {
 
 		m_ScanParam.dMCLK = dMCLK;
@@ -383,9 +388,32 @@ static int cano_AdjustLightsource( Plustek_Device *dev )
 		res_g = cano_adjLampSetting( &min_rgb.Green, &max_rgb.Green,
 		                             &hw->green_lamp_off, tmp_rgb.Green );
 
+		/* need to be set in any case! */
+		usb_AdjustLamps(dev);
+
 		/* nothing adjusted, so stop here */
 		if((res_r == 0) && (res_g == 0) && (res_b == 0))
 			break;
+
+		/* no need to adjust more, we have already reached the limit
+		 * without tweaking the gain.
+		 */
+		if((res_r == 10) && (res_g == 10) && (res_b == 10))
+			break;
+
+		/* we raise the gain for channel, that have been limited */
+		if( res_r == 10 ) {
+			if( dev->usbDev.a_bRegs[0x3b] < 0x0b)
+				dev->usbDev.a_bRegs[0x3b]++;
+		}
+		if( res_g == 10 ) {
+			if( dev->usbDev.a_bRegs[0x3c] < 0x0b)
+				dev->usbDev.a_bRegs[0x3c]++;
+		}
+		if( res_b == 10 ) {
+			if( dev->usbDev.a_bRegs[0x3d] < 0x0b)
+				dev->usbDev.a_bRegs[0x3d]++;
+		}
 
 		/* now decide what to do:
 		 * if we were too bright, we have to rerun the loop in any
@@ -402,8 +430,6 @@ static int cano_AdjustLightsource( Plustek_Device *dev )
 			sleep( 1 );
 #endif
 		}
-
-		usb_AdjustLamps(dev);
 	}
 
 	DBG( _DBG_INFO, "* red_lamp_on    = %u\n", hw->red_lamp_on  );
@@ -596,11 +622,8 @@ static SANE_Bool cano_AdjustGain( Plustek_Device *dev )
 		DBG( _DBG_INFO2, "REG[0x3b] = %u\n", dev->usbDev.a_bRegs[0x3b] );
 		DBG( _DBG_INFO2, "REG[0x3c] = %u\n", dev->usbDev.a_bRegs[0x3c] );
 		DBG( _DBG_INFO2, "REG[0x3d] = %u\n", dev->usbDev.a_bRegs[0x3d] );
-  
 	}
-  
 	DBG( _DBG_INFO, "cano_AdjustGain() done.\n" );
-
 	return SANE_TRUE;
 }
 
@@ -619,7 +642,7 @@ static int cano_GetNewOffset( Plustek_Device *dev, u_long *val, int channel,
 		if( low[channel]+1 >= high[channel] )
 			return 0;
 		return 1;
-		
+
 	} else if ( val[channel]>=2048 ) {
 		high[channel]=now[channel];
 		now[channel]=(now[channel]+low[channel])/2;
@@ -796,12 +819,11 @@ static int cano_AdjustOffset( Plustek_Device *dev )
 	    dev->usbDev.a_bRegs[0x39] = now[1];	
 		dev->usbDev.a_bRegs[0x3a] = now[2];
 	} else {
-    
-		dev->usbDev.a_bRegs[0x38] = 
-		dev->usbDev.a_bRegs[0x39] = 
+		dev->usbDev.a_bRegs[0x38] =
+		dev->usbDev.a_bRegs[0x39] =
 		dev->usbDev.a_bRegs[0x3a] = now[0];
 	}
-  
+
 	DBG( _DBG_INFO, "cano_AdjustOffset() done.\n" );
 	return SANE_TRUE;
 }

@@ -1,4 +1,4 @@
-2005-07-21  Gerhard Jaeger <gerhard@gjaeger.de>
+2005-07-21  Gerhard Jaeger <gerhard@gjaeger.de> 
 
 	* doc/plustek/Plustek-USB.changes: Update.
 	* backend/plustek.c: Bumped build number.

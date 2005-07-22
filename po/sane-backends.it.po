@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-09 14:41+0200\n"
-"PO-Revision-Date: 2005-04-17 20:02+0200\n"
+"POT-Creation-Date: 2005-07-22 10:58+0200\n"
+"PO-Revision-Date: 2005-07-22 11:03+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -109,15 +109,25 @@ msgstr ""
 msgid "Button state"
 msgstr "Stato del pulsante"
 
-#: .tmp/avision.h:539
+#: .tmp/avision.h:605
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Numero di fotogrammi da acquisire"
 
-#: .tmp/avision.h:540
+#: .tmp/avision.h:606
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Selezionare il numero di fotogrammi da acquisire"
+
+#: .tmp/avision.h:609
+#, no-c-format
+msgid "Duplex scan"
+msgstr "Scansione Duplex"
+
+#: .tmp/avision.h:610
+#, no-c-format
+msgid "Duplex scan provide a scan of the front and back side of the document"
+msgstr "La scansione duplex è quella di entrambi i lati del documento"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -653,12 +663,12 @@ msgid "Transparency Adapter"
 msgstr "Adattatore per trasparenza"
 
 #: .tmp/genesys.c:4012
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Extras"
-msgstr "Extra veloce"
+msgstr "Extra"
 
 #: .tmp/genesys.c:4021
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time"
 msgstr "Durata spegnimento lampada"
 
@@ -667,7 +677,7 @@ msgstr "Durata spegnimento lampada"
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr ""
+msgstr "La lampada verrà spenta allo scadere del tempo impostato (in minuti). Il valore 0 indica che la lampada non deve mai essere spenta."
 
 #: .tmp/gt68xx.c:470
 #, no-c-format
@@ -1714,24 +1724,24 @@ msgstr ""
 "risoluzione."
 
 #: .tmp/mustek.c:4337
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time (minutes)"
-msgstr "Durata in secondi dello spegnimento della lampada."
+msgstr "Durata in minuti dello spegnimento della lampada."
 
 #: .tmp/mustek.c:4338
 #, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
-msgstr ""
+msgstr "Imposta il ritardo (in minuti) dopo il quale spegnere la lampada."
 
 #: .tmp/mustek.c:4349
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Turn lamp off"
-msgstr "Lampada verde spenta"
+msgstr "Spegne la lampada"
 
 #: .tmp/mustek.c:4350
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Turns the lamp off immediately."
-msgstr "Commuta lo stato della lampada dello scanner (accesa/spenta)"
+msgstr "Spegne subito la lampada."
 
 #: .tmp/mustek.c:4427
 #, no-c-format
@@ -1964,20 +1974,20 @@ msgid "Defines blue lamp off parameter"
 msgstr "Imposta il parametro spegnimento lampada blu"
 
 #: .tmp/plustek.c:980
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buttons"
-msgstr "Stato del pulsante"
+msgstr "Pulsanti"
 
 #: .tmp/plustek.c:988
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner button"
-msgstr "Simulazione di uno scanner manuale"
+msgstr "Pulsanti dello scanner."
 
 #: .tmp/plustek.c:989
 #, no-c-format
 msgid ""
 "This options reflects the front pannel scanner button pressed by the user."
-msgstr ""
+msgstr "Queste opzioni riportano la pressione manuale dei pulsanti sul pannello anteriore dello scanner."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format

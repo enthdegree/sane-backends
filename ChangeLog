@@ -1,3 +1,7 @@
+2005-07-22  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added HP ScanJet 7400C (0x03f0,
+	0x0801), from Thomas Nadolny.
+
 2005-07-21  Gerhard Jaeger <gerhard@gjaeger.de> 
 
 	* doc/plustek/Plustek-USB.changes: Update.

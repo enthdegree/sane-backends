@@ -1,3 +1,8 @@
+2005-07-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother2.desc: Brother DCP 7025 is
+	  reported to work (bug #301960).
+
 2005-07-22  Giuseppe Sacco <eppesuig@debian.org>
 
 	* italian translation update

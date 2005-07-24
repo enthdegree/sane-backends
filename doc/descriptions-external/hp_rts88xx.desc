@@ -21,17 +21,3 @@
 :status :basic
 :comment "grayscale 300DPI only, XPA/bed mode"
 
-:model "HP3500C"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
-
-:model "HP3530C"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
-
-:model "HP3570C"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."

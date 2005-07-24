@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/brother2.desc: Brother DCP 7025 is
 	  reported to work (bug #301960).
+	* doc/descriptions-external/hp_rts88xx.desc: Moved unsupported
+	  devices to unsupported.desc.
 
 2005-07-22  Giuseppe Sacco <eppesuig@debian.org>
 

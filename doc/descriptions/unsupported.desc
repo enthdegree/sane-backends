@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-07-03"		; version of backend
+:version "2005-07-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -620,6 +620,24 @@
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
 
+:model "HP3500C"
+:url "http://hp44x0backend.sourceforge.net"
+:interface "USB"
+:status :unsupported
+:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
+
+:model "HP3530C"
+:url "http://hp44x0backend.sourceforge.net"
+:interface "USB"
+:status :unsupported
+:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
+
+:model "HP3570C"
+:url "http://hp44x0backend.sourceforge.net"
+:interface "USB"
+:status :unsupported
+:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
+
 :model "ScanJet 3670c"
 :interface "USB"
 :url "/unsupported/hp-scanjet-3670c.html"
@@ -631,12 +649,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably GL646_HP based, maybe can be added to genesys backend"
-
-:model "ScanJet 3770"
-:interface "USB"
-:url "/unsupported/hp-scanjet-3770.html"
-:status :unsupported
-:comment "Unsupported. See link for details."
 
 :model "ScanJet 3970c"
 :interface "USB"
@@ -744,6 +756,12 @@
 :comment "Unsupported. See link for details."
 
 :model "X75"
+:url "/unsupported/lexmark-x75.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "X75 PrinTrio"
 :url "/unsupported/lexmark-x75.html"
 :interface "USB"
 :status :unsupported

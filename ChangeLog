@@ -7,7 +7,10 @@
 	* doc/descriptions-external/hp3770.desc
 	  doc/descriptions-external/hp8200.desc: Added external hp3770 and
 	  hp8200 backends.
-
+	* doc/descriptions/unsupported.desc: Added unsupported scanners
+	  from hp_rts88xx.desc. Removed HP ScanJet 3770 (now in hp3770
+	  backend). Added Lexmark X75 PrinTrio.
+	
 2005-07-22  Giuseppe Sacco <eppesuig@debian.org>
 
 	* italian translation update

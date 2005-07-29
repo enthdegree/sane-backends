@@ -1,4 +1,8 @@
 2005-07-29  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added various Epson IDs from Olaf
+	Meeuwissen; reodered some misplaced Epson entries.
+
+2005-07-29  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added Visioneer OneTouch 7300
 	(0x0444,0x0211), from Derek J Frye.
 

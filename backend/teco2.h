@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Frank Zago (sane at zago dot net)
+   Copyright (C) 2003-2005 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
 
@@ -47,17 +48,17 @@
 
 /* Commands supported by the scanner. */
 #define SCSI_TEST_UNIT_READY			0x00
-#define SCSI_REQUEST_SENSE				0x03
-#define SCSI_VENDOR_06					0x06
-#define SCSI_VENDOR_09					0x09
-#define SCSI_VENDOR_0C					0x0C
-#define SCSI_VENDOR_0E					0x0E
-#define SCSI_INQUIRY					0x12
-#define SCSI_SCAN						0x1b
-#define SCSI_VENDOR_1C					0x1C
-#define SCSI_SET_WINDOW					0x24
-#define SCSI_SEND_10					0x2a
-#define SCSI_READ_10					0x28
+#define SCSI_REQUEST_SENSE			0x03
+#define SCSI_VENDOR_06				0x06
+#define SCSI_VENDOR_09				0x09
+#define SCSI_VENDOR_0C				0x0C
+#define SCSI_VENDOR_0E				0x0E
+#define SCSI_INQUIRY				0x12
+#define SCSI_SCAN				0x1b
+#define SCSI_VENDOR_1C				0x1C
+#define SCSI_SET_WINDOW				0x24
+#define SCSI_SEND_10				0x2a
+#define SCSI_READ_10				0x28
 #define SCSI_OBJECT_POSITION			0x31
 #define SCSI_GET_DATA_BUFFER_STATUS		0x34
 

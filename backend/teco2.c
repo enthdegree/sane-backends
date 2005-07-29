@@ -60,11 +60,12 @@
    update 2004/08/05, use of SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,
                       changed use of %d to %ld (when bytes values are displayed)
    update 2005/03/04, use of __unused__
+   update 2005/07/29. Removed using teco_request_sense (dev) routine for VM3564
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 8			/* 2005/03/04 */
+#define BUILD 9			/* 2005/07/29 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -205,17 +206,16 @@ static const SANE_Range gamma_range = {
 static const struct dpi_color_adjust vm3564_dpi_color_adjust[] = {
 
   /*dpi, color sequence R G or B, 0 (-) or 1 (+) color skewing, lines skewing */
-  {25, 1, 0, 2, 0, 0},		/* Not tested */
-  {50, 1, 2, 0, 0, 1},		/* Not tested */
-  {75, 1, 0, 2, 1, 1},		/* Not tested */
-  {150, 1, 0, 2, 1, 2},		/* Not tested */
-  {160, 1, 0, 2, 1, 2},		/* Not tested */
-  {225, 1, 0, 2, 1, 3},		/* Not tested */
-  {300, 1, 0, 2, 1, 4},		/* Not tested */
-  {375, 1, 0, 2, 1, 5},		/* Not tested */
-  {450, 1, 0, 2, 1, 6},		/* Not tested */
-  {525, 1, 0, 2, 1, 7},		/* Not tested */
-  {600, 1, 0, 2, 1, 8},		/* Not tested */
+  {25, 1, 0, 2, 0, 0},
+  {50, 1, 2, 0, 0, 1},
+  {75, 1, 0, 2, 1, 1},
+  {150, 1, 0, 2, 1, 2},
+  {225, 1, 0, 2, 1, 3},
+  {300, 1, 0, 2, 1, 4},
+  {375, 1, 0, 2, 1, 5},
+  {450, 1, 0, 2, 1, 6},
+  {525, 1, 0, 2, 1, 7},
+  {600, 1, 0, 2, 1, 8},
   /* must be the last entry */
   {0, 0, 0, 0, 0, 0}
 };
@@ -3202,7 +3202,7 @@ sane_start (SANE_Handle handle)
 
       switch (dev->def->tecoref)
 	{
-	case TECO_VM3564:
+	/* case TECO_VM3564: not for VM3564 */
 	case TECO_VM356A:
 /*--------------request sense for  first time loop---*/
 	  status = teco_request_sense (dev);

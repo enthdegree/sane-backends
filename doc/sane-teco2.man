@@ -1,4 +1,4 @@
-.TH sane-teco2 5 "04 March 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-teco2 5 "29 July 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-teco2
 .SH NAME
 sane-teco2 \- SANE backend for TECO / RELISYS scanners
@@ -27,7 +27,7 @@ The scanners that should work with this backend are:
   Relisys APOLLO Express 3 VM356A         basic
   Relisys APOLLO Express 6 VM6565         good
   Relisys APOLLO Express 12   ?          untested
-  Relisys AVEC II S3       VM3564         basic
+  Relisys AVEC II S3       VM3564         good
   Relisys AVEC Super 3     VM3575         basic
   Relisys SCORPIO Pro      VM6575         good
   Relisys SCORPIO Pro-S    VM6586        untested
@@ -89,7 +89,8 @@ resolutions listed.
 
 All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in 
 a wrong proportion for the scan. The proportion can be adjusted with 
-the following command: convert -geometry (dpi/max_xdpi * 100%)x100% 
+the following imagemagick command: 
+convert -geometry (dpi/max_xdpi * 100%)x100% 
 max_xdpi is for the vm3575 constant with 300 dpi      
 e.g. 600dpi adjust with: convert -geometry 200%x100%  
 
@@ -178,7 +179,7 @@ reduce verbosity.
 Either 0 or 1. Selects the algorithm for the calibration. A
 value of 1 seems to give better scans on the VM356A, VM3575.
 Feedback on it is welcome.
-For VM356A, VM3575, VM6575 default 1.
+For VM3564, VM356A, VM3575, VM6575 default 1.
 For other supported types default 0.
 
 
@@ -223,4 +224,6 @@ Nicolas Peyresaubes for providing the first SCSI traces from a VM656A and for hi
 .TP
 Dave Parker for testing the support for the VM6575.
 .TP
-Michael Hoeller for his testing the VM356A.
+Michael Hoeller for testing the support for the VM356A.
+.TP
+Christoph.Hoeffner for testing the support for the VM3564 (Relisys AVEC II S3 firmware 1.09).

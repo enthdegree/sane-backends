@@ -1,3 +1,7 @@
+2005-07-29  Julien Blache <jb@jblache.org>
+	* tools/hotplug/libsane.usermap: Added Visioneer OneTouch 7300
+	(0x0444,0x0211), from Derek J Frye.
+
 2005-07-25  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions-external/epkowa.desc: Updated according to

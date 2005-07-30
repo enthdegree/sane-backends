@@ -292,9 +292,9 @@ AC_DEFUN([SANE_CHECK_LOCKING],
     # check if the group does exist
     lasterror=""
     touch sanetest.file
-    chgrp $LOCKPATH_GROUP sanetest.file || lasterror=$?
+    chgrp $LOCKPATH_GROUP sanetest.file 2>/dev/null || lasterror=$?
     rm -f sanetest.file
-    if test ! -z $lasterror; then
+    if test ! -z "$lasterror"; then
       AC_MSG_WARN([Group $LOCKPATH_GROUP does not exist on this system.])
       AC_MSG_WARN([Locking feature will be disabled.])
       use_locking=no

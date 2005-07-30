@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added Xerox Workcentre
 	  470cx. Added link for Canon DR-2080C.
+	* backend/Makefile.in: libsane and documentation is installed
+	  correctly again.
 
 2005-07-29  Gerard Klaver <gerard at gkall dot hobby dot nl>
 

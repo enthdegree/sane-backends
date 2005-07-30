@@ -186,10 +186,9 @@ libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 
 all:	$(LIBS) libsane.la
 
-install-lockpath:
-	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(localstatesanedir)
+install: $(INSTALL_LOCKPATH) install-be@BE_INSTALL_FLAVOR@ install-libsane install-becfg
 
-install: $(INSTALL_LOCKPATH)
+install-be:
 	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir)
 	@list="$(LIBS)"; for be in $$list; do \
 	  echo installing $${be} in $(libsanedir)/$${be}...; \
@@ -215,6 +214,14 @@ install: $(INSTALL_LOCKPATH)
 #	  (cd ..; if test -f sane/$$n ; then $(LN_S) sane/$$n $$nn; fi; ); \
 #	done || exit 1
 
+# need to counter libtool madness here...
+install-be-beos:
+	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(BEOS_ADDONDIR)
+	@list="$(ALL_BACKENDS)"; for be in $$list; do \
+	  echo installing $${be} in $(BEOS_ADDONDIR)/$${be}...; \
+	  cp -p .libs/libsane-$${be}.so $(DESTDIR)$(BEOS_ADDONDIR)/$${be} || exit 1; \
+	done
+
 install-libsane:
 	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la \
           $(DESTDIR)$(libdir)/libsane.la
@@ -233,6 +240,9 @@ install-becfg:
 	for dir in $(FIRMWARE_DIRS) ; do \
 	   $(MKDIR) $(DESTDIR)$(datadir)/sane/$${dir} ; \
 	 done
+
+install-lockpath:
+	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(localstatesanedir)
 
 uninstall:
 	rm -rf $(libsanedir) $(configdir) $(localstatesanedir)

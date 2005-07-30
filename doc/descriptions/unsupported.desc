@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-07-24"		; version of backend
+:version "2005-07-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -318,7 +318,7 @@
 :comment "GL841 based, to be added to genesys backend"
 
 :model "DR-2080C"
-;:url "/unsupported/canon-d2400uf.html"
+:url "/unsupported/canon-dr2080c.html"
 :interface "USB SCSI"
 :status :unsupported
 :comment "Probably not supported. Pass-trough (ADF) scanner."
@@ -1991,6 +1991,12 @@
 :model "DocuImage 620S"
 :url "/unsupported/xerox-docuimage-620s.html"
 :interface "SCSI"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "WorkCentre 470cx"
+:url "/unsupported/xerox-workcentre-470cx.html"
+:interface "Parport"
 :status :unsupported
 :comment "Not supported. See link for more details."
 

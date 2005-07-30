@@ -23,15 +23,20 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x126,			/* ES-7000 / GT-15000 */
   0x128,			/* GT-X700 / Perfection 4870 */
   0x129,			/* ES-10000 / Expression 10000XL */
-  0x801,			/* CC-600 / CX-5[1234]00 */
-  0x802,			/* CC-570 / CX-3[12]00 */
-  0x805,			/* CX-6400 */
-  0x806,			/* PM-A850 / RX600 */
-  0x807,			/* RX-500 */
-  0x808,			/* CX-5400 */
-  0x80d,			/* CX-4600 */
-  0x80e,			/* CX-3650 */
-  0x80f,			/* RX-425 */
+  0x12a,			/* GT-X800 / Perfection 4990 */
+  0x801,			/* CC-600  / Stylus CX5100/CX5200/CX5300/CX5400 */
+  0x802,			/* CC-570  / Stylus CX3100/CX3200 */
+  0x805,			/*         / Stylus CX6300/CX6400/CX6500/CX6600 */
+  0x806,			/* PM-A850 / Stylus Photo RX600/RX610 */
+  0x807,			/*         / Stylus Photo RX500/RX510 */
+  0x808,			/*         / Stylus CX5400 */
+  0x80d,			/*         / Stylus CX4500/CX4600 */
+  0x80e,			/* PX-A550 / Stylus CX3500/CX3600/CX3650 */
+  0x80f,			/*         / Stylus Photo RX420/RX425/RX430 */
+  0x810,			/* PM-A900 / Stylus Photo RX700 */
+  0x811,			/* PM-A870 / Stylus Photo RX620/RX630 */
+  0x814,			/* PM-A700 */
+  0x815,			/* LP-A500 / AcuLaser CX11 */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */
 };

@@ -3,7 +3,8 @@ New with 1.0.16, released 2005-08-07:
 
 * New backends: genesys, sm3840
 * Updated backends: avision, canon, coolscan, epson, gphoto2, gt68xx, mustek,
-  mustek_pp, niash, plustek, plustek_pp, qcam, sm3600, snapscan, umax_pp, v4l.
+  mustek_pp, niash, plustek, plustek_pp, qcam, sm3600, snapscan, teco2,
+  umax_pp, v4l.
 * More functionality/fixes for sanei_usb and sanei_pp. 
 * Added sanei_access to allow locking of SANE devices.
 * Hotplug updates.

@@ -1,3 +1,5 @@
+---- CODE FREEZE FOR SANE 1.0.16 --- 
+
 2005-07-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Disabled compilation warnings.

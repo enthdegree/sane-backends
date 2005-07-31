@@ -1,3 +1,7 @@
+2005-07-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Disabled compilation warnings.
+
 2005-07-30  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Applied Olaf Meuwissen's patch to add

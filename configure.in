@@ -7,7 +7,7 @@ AC_INIT([sane-backends],[1.0.15-cvs],[sane-devel@lists.alioth.debian.org])
 V_MAJOR=1
 V_MINOR=0
 V_REV=15
-is_release=no
+is_release=yes
 dnl ***********************************************************************
 
 AC_CONFIG_HEADERS([include/sane/config.h])

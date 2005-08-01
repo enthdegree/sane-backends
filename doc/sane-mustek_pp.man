@@ -487,8 +487,8 @@ For latest bug fixes and information see
 .I http://www.penguin-breeder.org/sane/mustek_pp/
 
 .TP
-For the latest CIS driver versions, see
-.I http://home.tiscalinet.be/EddyDeGreef/
+For additional information on the CIS driver, see
+.I http://home.tiscali.be/eddy_de_greef/
 
 .SH AUTHORS
 Jochen Eisinger <jochen.eisinger@gmx.net> 

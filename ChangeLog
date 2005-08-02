@@ -1,3 +1,8 @@
+2005-08-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.da.po: Updated Danish translation (from
+	  Mogens Jaeger <mogensjaeger@get2net.dk).
+
 2005-08-02  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.sv.po: Update Swedish translation

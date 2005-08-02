@@ -3,7 +3,7 @@
 # Mogens Jaeger <mogensjaeger@get2net.dk>, 2004.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.15\n"
+"Project-Id-Version: sane-backends 1.0.16\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-07-09 14:41+0200\n"
 "PO-Revision-Date: 2005-07-04 03:22+0100\n"
@@ -59,7 +59,7 @@ msgstr "Standard"
 #: .tmp/artec_eplus48u.c:2876
 #, no-c-format
 msgid "Set default values for enhancement controls."
-msgstr "Anvend standardværdier for forbedrings kontroller."
+msgstr "Anvend standardværdier for forbedringskontroller."
 
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3961
 #: .tmp/gt68xx.c:682 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
@@ -80,7 +80,7 @@ msgstr "Kalibrering"
 #: .tmp/artec_eplus48u.c:2941
 #, no-c-format
 msgid "Calibrate before next scan"
-msgstr "Kalibrer før næste skanning"
+msgstr "Kalibrér før næste skanning"
 
 #: .tmp/artec_eplus48u.c:2943
 #, no-c-format
@@ -94,7 +94,7 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:2954
 #, no-c-format
 msgid "Only perform shading-correction"
-msgstr "Udfør kun skygge-korrektion"
+msgstr "Udfør kun skyggekorrektion"
 
 #: .tmp/artec_eplus48u.c:2956
 #, no-c-format
@@ -103,8 +103,8 @@ msgid ""
 "default values for gain, offset and exposure time, either build-in or from "
 "the configuration file, are used."
 msgstr ""
-"Hvis aktiveret, bliver der kun gennemført skygge korrektion under "
-"kalibreringen. Standard værdierne for forstærkning, forskydning og "
+"Hvis aktiveret, bliver der kun gennemført skyggekorrektion under "
+"kalibreringen. Standardværdierne for forstærkning, forskydning og "
 "eksponeringstid, enten indbygget eller fra konfigurationsfilen, bliver brugt."
 
 #: .tmp/artec_eplus48u.c:2967
@@ -125,7 +125,7 @@ msgstr "Vælger nummeret på det billede der skal skannes"
 #: .tmp/canon630u.c:158
 #, no-c-format
 msgid "Calibrate Scanner"
-msgstr "Kalibrer skanner"
+msgstr "Kalibrér skanner"
 
 #: .tmp/canon630u.c:159
 #, no-c-format
@@ -135,12 +135,12 @@ msgstr "Gennemtving kalibrering før skanning"
 #: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
 #, no-c-format
 msgid "Grayscale scan"
-msgstr "Gråskala skanning"
+msgstr "Gråskalaskanning"
 
 #: .tmp/canon630u.c:259 .tmp/umax1220u.c:208
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
-msgstr "Udfør en gråskala skanning fremfor en farve skanning"
+msgstr "Udfør en gråskalaskanning fremfor en farveskanning"
 
 #: .tmp/canon630u.c:305
 #, no-c-format
@@ -155,12 +155,12 @@ msgstr "Forøg eller formindsk CCD sensorens analoge forstærkning"
 #: .tmp/canon630u.c:346 .tmp/epson.h:68
 #, no-c-format
 msgid "Gamma Correction"
-msgstr "Gamma korrektion"
+msgstr "Gammakorrektion"
 
 #: .tmp/canon630u.c:347
 #, no-c-format
 msgid "Selects the gamma corrected transfer curve"
-msgstr "Vælger gamma korrigeret overførings kurve"
+msgstr "Vælger gammakorrigeret overføringskurve"
 
 #: .tmp/epson.c:484
 #, no-c-format
@@ -195,7 +195,7 @@ msgstr "Flatbed"
 #: .tmp/epson.c:502
 #, no-c-format
 msgid "Transparency Unit"
-msgstr "Film enhed"
+msgstr "Filmenhed"
 
 #: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/umax.c:184
 #, no-c-format
@@ -215,12 +215,12 @@ msgstr "Negativ film"
 #: .tmp/epson.c:529
 #, no-c-format
 msgid "Focus on glass"
-msgstr "Fokuser på glaspladen"
+msgstr "Fokusér på glaspladen"
 
 #: .tmp/epson.c:530
 #, no-c-format
 msgid "Focus 2.5mm above glass"
-msgstr "Fokuser 2,5 mm over glaspladen"
+msgstr "Fokusér 2,5 mm over glaspladen"
 
 #: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576 .tmp/epson.c:598
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
@@ -267,7 +267,7 @@ msgstr "Dithering D (8x4 net/skærm)"
 #: .tmp/epson.c:584
 #, no-c-format
 msgid "Text Enhanced Technology"
-msgstr "Tekst forbedrings teknologi"
+msgstr "Tekstforbedringsteknologi"
 
 #: .tmp/epson.c:585
 #, no-c-format
@@ -302,7 +302,7 @@ msgstr "Ingen korrektion"
 #: .tmp/epson.c:632 .tmp/epson.c:657
 #, no-c-format
 msgid "User defined"
-msgstr "Bruger defineret"
+msgstr "Brugerdefineret"
 
 #: .tmp/epson.c:633
 #, no-c-format
@@ -347,12 +347,12 @@ msgstr "Udskrift med høj kontrast"
 #: .tmp/epson.c:678
 #, no-c-format
 msgid "User defined (Gamma=1.0)"
-msgstr "Bruger defineret (gamma=1,0)"
+msgstr "Brugerdefineret (gamma=1,0)"
 
 #: .tmp/epson.c:679
 #, no-c-format
 msgid "User defined (Gamma=1.8)"
-msgstr "Bruger defineret (gamma=1,8)"
+msgstr "Brugerdefineret (gamma=1,8)"
 
 #: .tmp/epson.c:757
 #, no-c-format
@@ -407,12 +407,12 @@ msgstr "Udfald"
 #: .tmp/epson.c:2837
 #, no-c-format
 msgid "Selects the dropout."
-msgstr "Vælger udfald."
+msgstr "Vælger udfaldet."
 
 #: .tmp/epson.c:2849
 #, no-c-format
 msgid "Selects the brightness."
-msgstr "Vælger lyshed"
+msgstr "Vælger lyshed."
 
 #: .tmp/epson.c:2864
 #, no-c-format
@@ -422,17 +422,17 @@ msgstr "Skarphed"
 #: .tmp/epson.c:3000
 #, no-c-format
 msgid "Color correction"
-msgstr "Farve korrektion"
+msgstr "Farvekorrektion"
 
 #: .tmp/epson.c:3003
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
-msgstr "Fastsætter farve korrektions tabellen for den valgte uddata enhed."
+msgstr "Fastsætter farvekorrektiontabellen for den valgte uddataenhed."
 
 #: .tmp/epson.c:3044
 #, no-c-format
 msgid "Color correction coefficients"
-msgstr "Farve korrektions koefficienter"
+msgstr "Farvekorrektionskoefficienter"
 
 #: .tmp/epson.c:3045
 #, no-c-format
@@ -537,12 +537,12 @@ msgstr "Hastighed"
 #: .tmp/epson.c:3214
 #, no-c-format
 msgid "Auto area segmentation"
-msgstr "Automatisk område opdeling"
+msgstr "Automatisk områdeopdeling"
 
 #: .tmp/epson.c:3227
 #, no-c-format
 msgid "Short resolution list"
-msgstr "Kort opløsnings liste"
+msgstr "Kort opløsningsliste"
 
 #: .tmp/epson.c:3229
 #, no-c-format
@@ -557,7 +557,7 @@ msgstr "Forstørrelse"
 #: .tmp/epson.c:3238
 #, no-c-format
 msgid "Defines the zoom factor the scanner will use"
-msgstr "Angiver zoom-faktoren som skanneren skal bruge"
+msgstr "Angiver zoomfaktoren som skanneren skal bruge"
 
 #: .tmp/epson.c:3318
 #, no-c-format
@@ -567,12 +567,12 @@ msgstr "Hurtig format"
 #: .tmp/epson.c:3329
 #, no-c-format
 msgid "Optional equipment"
-msgstr "Tilvalgs udstyr"
+msgstr "Tilvalgsudstyr"
 
 #: .tmp/epson.c:3355
 #, no-c-format
 msgid "Film type"
-msgstr "Film type"
+msgstr "Filmtype"
 
 #: .tmp/epson.c:3400
 #, no-c-format
@@ -620,13 +620,13 @@ msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or the "
 "user defined table, which can be downloaded to the scanner"
 msgstr ""
-"Vælger gamma korrektions værdi fra en liste med foruddefinerede enheder "
+"Vælger gammakorrektionsværdi fra en liste med foruddefinerede enheder "
 "eller en brugerdefineret tabel, som kan hentes til skanneren"
 
 #: .tmp/epson.h:72
 #, no-c-format
 msgid "Focus Position"
-msgstr "Fokuserings punkt"
+msgstr "Fokuseringspunkt"
 
 #: .tmp/epson.h:73
 #, no-c-format
@@ -644,31 +644,31 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"Når skan kommando er sendt, starter skanningen først når der er trykket på "
+"Når skankommando er sendt, starter skanningen først når der er trykket på "
 "knappen på skanneren."
 
 #: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
-msgstr "Film adapter"
+msgstr "Filmadapter"
 
 #: .tmp/genesys.c:4012
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Extras"
-msgstr "Meget hurtig"
+msgstr "Ekstra"
 
 #: .tmp/genesys.c:4021
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time"
-msgstr "Sluk lampe tid"
+msgstr "Sluk-lampe tid"
 
 #: .tmp/genesys.c:4024
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr ""
+msgstr "Lampen bliver slukket efter den angivne tid (i minutter). Værdien 0 bevirker, at lampen ikke bliver slukket."
 
 #: .tmp/gt68xx.c:470
 #, no-c-format
@@ -678,13 +678,12 @@ msgstr "Farve ved gråtone tilstand"
 #: .tmp/gt68xx.c:472
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
-msgstr ""
-"Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
+msgstr "Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
 
 #: .tmp/gt68xx.c:553
 #, no-c-format
 msgid "Debugging Options"
-msgstr "Fejlsøgnings indstillinger"
+msgstr "Fejlsøgningsindstillinger"
 
 #: .tmp/gt68xx.c:564
 #, no-c-format
@@ -698,7 +697,7 @@ msgid ""
 "seconds warm-up time."
 msgstr ""
 "Varm op indtil lampens lyshed er konstant, i stedet for at insistere på 60 "
-"sekunders opvarmnings tid."
+"sekunders opvarmningstid."
 
 #: .tmp/gt68xx.c:578
 #, no-c-format
@@ -711,13 +710,13 @@ msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
-"Skan hele skannings arealet inklsive kalibrations striben. Vær forsigtig. "
+"Skan hele skanningsarealet inklsive kalibreringsstriben. Vær forsigtig. "
 "Vælg ikke fuld højde. Kun til test formål."
 
 #: .tmp/gt68xx.c:591
 #, no-c-format
 msgid "Coarse calibration"
-msgstr "Grov kalibrering"
+msgstr "Grovkalibrering"
 
 #: .tmp/gt68xx.c:593
 #, no-c-format
@@ -726,14 +725,14 @@ msgid ""
 "disabled, options for setting the analog frontend parameters manually are "
 "provided. This option is enabled by default. For testing only."
 msgstr ""
-"Indstil forstærkning og forskydning før skanning automatisk. Hvis dette er "
-"fravalgt, kan de analoge brugerflade parametre manuelt indstilles. Denne "
+"Indstil forstærkning og forskydning for skanning automatisk. Hvis dette er "
+"fravalgt, kan de analoge brugerfladeparametre manuelt indstilles. Denne "
 "indstilling er forvalgt. Kun til testformål."
 
 #: .tmp/gt68xx.c:607
 #, no-c-format
 msgid "Coarse calibration for first scan only"
-msgstr "Grov kalibrering kun for første skan."
+msgstr "Grovkalibrering kun for første skan."
 
 #: .tmp/gt68xx.c:609
 #, no-c-format
@@ -742,8 +741,8 @@ msgid ""
 "and can save scanning time. If the image brightness is different with each "
 "scan, disable this option. For testing only."
 msgstr ""
-"Grov kalibrering udføres kun for første skanning. Virker med de fleste "
-"skannere og kan spare skannings tid. Hvis billedets lyshed er forskellig for "
+"Grovkalibrering udføres kun for første skanning. Virker med de fleste "
+"skannere og kan spare skanningstid. Hvis billedets lyshed er forskellig for "
 "hvert skan, fravælg denne indstilling. Kun til testformål."
 
 #: .tmp/gt68xx.c:633
@@ -950,8 +949,7 @@ msgstr "Automatisk tærskelværdi"
 #: .tmp/hp-option.h:68
 #, no-c-format
 msgid "Enable automatic determination of threshold for line-art scans."
-msgstr ""
-"Aktiver automatisk fastsættelse af tærskelværdi for stregtegnings skanninger."
+msgstr "Aktiver automatisk fastsættelse af tærskelværdi for stregtegningsskanninger."
 
 #: .tmp/hp-option.h:73
 #, no-c-format
@@ -961,7 +959,7 @@ msgstr "Udglatning"
 #: .tmp/hp-option.h:74
 #, no-c-format
 msgid "Select smoothing filter."
-msgstr "Vælg udglatnings filter."
+msgstr "Vælg udglatningsfilter."
 
 #: .tmp/hp-option.h:79
 #, no-c-format
@@ -1001,7 +999,7 @@ msgstr "Kalibrering"
 #: .tmp/hp-option.h:98
 #, no-c-format
 msgid "Start calibration process."
-msgstr "Begynd kalibrerings processen."
+msgstr "Begynd kalibreringsprocessen."
 
 #: .tmp/hp-option.h:103
 #, no-c-format
@@ -1011,12 +1009,12 @@ msgstr "Medie"
 #: .tmp/hp-option.h:104
 #, no-c-format
 msgid "Set type of media."
-msgstr "Vælg medie type."
+msgstr "Vælg medietype."
 
 #: .tmp/hp-option.h:109
 #, no-c-format
 msgid "Exposure time"
-msgstr "Eksponerings tid"
+msgstr "Eksponeringstid"
 
 #: .tmp/hp-option.h:111
 #, no-c-format
@@ -1026,8 +1024,8 @@ msgid ""
 "For dark (underexposed) images you can increase this value."
 msgstr ""
 "En længere eksponeringstid lader skanneren indsamle mere lys. Anbefalet brug "
-"er 175% for papirbilleder, 159% for diapositiver og \"Negativ\" for "
-"negativer. For mørke (undereksponerede) billeder, kan denne værdi øges."
+"er 175% for papirbilleder, 150% for diapositiver og \"Negativ\" for "
+"negativer. Ved mørke (undereksponerede) billeder, kan denne værdi øges."
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
 #, no-c-format
@@ -1052,7 +1050,7 @@ msgstr "En farve matrix"
 #: .tmp/hp-option.h:133
 #, no-c-format
 msgid "Custom color matrix for grayscale scans."
-msgstr "Tilpasset farve matrix for gråtone skanning."
+msgstr "Tilpasset farve matrix for gråtoneskanning."
 
 #: .tmp/hp-option.h:138
 #, no-c-format
@@ -1077,12 +1075,12 @@ msgstr "Spejlvend billedet lodret."
 #: .tmp/hp-option.h:150
 #, no-c-format
 msgid "Update options"
-msgstr "Opdater indstillinger"
+msgstr "Opdatér indstillinger"
 
 #: .tmp/hp-option.h:151
 #, no-c-format
 msgid "Update options."
-msgstr "Opdater indstillinger."
+msgstr "Opdatér indstillinger."
 
 #: .tmp/hp-option.h:156
 #, no-c-format
@@ -1097,12 +1095,12 @@ msgstr "Brug bit dybde større end 8 internt, men uddata kun 8 bit."
 #: .tmp/hp-option.h:164
 #, no-c-format
 msgid "Front button wait"
-msgstr "Vent på front knap"
+msgstr "Vent på frontknap"
 
 #: .tmp/hp-option.h:165
 #, no-c-format
 msgid "Wait to scan for front-panel button push."
-msgstr "Vent med at begynde skanning, til front knappen trykkes."
+msgstr "Vent med at begynde skanning, til frontknappen trykkes."
 
 #: .tmp/hp-option.h:172
 #, no-c-format
@@ -1137,12 +1135,12 @@ msgstr "8x8 Bayer"
 #: .tmp/leo.c:114
 #, no-c-format
 msgid "8x8 Vertical Line"
-msgstr "8x8 lodret linje"
+msgstr "8x8 lodret linie"
 
 #: .tmp/leo.c:781 .tmp/saneopts.h:138
 #, no-c-format
 msgid "Scan mode"
-msgstr "Skanner tilstand"
+msgstr "Skannertilstand"
 
 #: .tmp/leo.h:260 .tmp/matsushita.h:209 .tmp/teco1.h:291 .tmp/teco3.h:294
 #, no-c-format
@@ -1172,7 +1170,7 @@ msgstr "Halvtone punkt 64"
 #: .tmp/matsushita.c:143
 #, no-c-format
 msgid "Error Diffusion"
-msgstr "Fejl spredning"
+msgstr "Fejlspredning"
 
 #: .tmp/matsushita.c:160
 #, no-c-format
@@ -1192,7 +1190,7 @@ msgstr "Tilstand 3"
 #: .tmp/matsushita.c:176
 #, no-c-format
 msgid "From white stick"
-msgstr "Fra kalibrerings striber"
+msgstr "Fra kalibreringsstriber"
 
 #: .tmp/matsushita.c:177
 #, no-c-format
@@ -1252,7 +1250,7 @@ msgstr "Arkføder tilstand"
 #: .tmp/matsushita.c:1127
 #, no-c-format
 msgid "Sets the feeding mode"
-msgstr "Fastætter fødnings tilstanden"
+msgstr "Fastætter fødningstilstanden"
 
 #: .tmp/matsushita.c:1224
 #, no-c-format
@@ -1266,7 +1264,7 @@ msgid ""
 "and image emphasis"
 msgstr ""
 "Automatisk indstilling af lyshed, kontrast, hvid balance, gamma, "
-"støjreduktion og billede betoning"
+"støjreduktion og billedbetoning"
 
 #: .tmp/matsushita.c:1275
 #, no-c-format
@@ -1281,12 +1279,12 @@ msgstr "Reducer støj fra enkelt punkter"
 #: .tmp/matsushita.c:1288
 #, no-c-format
 msgid "Image emphasis"
-msgstr "Billede betoning"
+msgstr "Billedbetoning"
 
 #: .tmp/matsushita.c:1289
 #, no-c-format
 msgid "Sets the image emphasis"
-msgstr "Fastsætter billede betoning"
+msgstr "Fastsætter billedbetoning"
 
 #: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
 #, no-c-format
@@ -1306,7 +1304,7 @@ msgstr "8 bit gråskala"
 #: .tmp/matsushita.h:220
 #, no-c-format
 msgid "Paper size"
-msgstr "Papir størrelse"
+msgstr "Papirstørrelse"
 
 #: .tmp/matsushita.h:221 .tmp/matsushita.h:228
 #, no-c-format
@@ -1316,7 +1314,7 @@ msgstr "Automatisk separering"
 #: .tmp/matsushita.h:224
 #, no-c-format
 msgid "Enable Duplex (Dual-Sided) Scanning"
-msgstr "Aktiver Duplex (dobbelt-sidet) skanning"
+msgstr "Aktiver Duplex (dobbeltsidet) skanning"
 
 #: .tmp/matsushita.h:226
 #, no-c-format
@@ -1331,12 +1329,12 @@ msgstr "Skygge, mellemtone, højlys, eksponeringstid"
 #: .tmp/microtek2.h:605
 #, no-c-format
 msgid "Special options"
-msgstr "Special indstillinger"
+msgstr "Specialindstillinger"
 
 #: .tmp/microtek2.h:606
 #, no-c-format
 msgid "Color balance"
-msgstr "Farve balance"
+msgstr "Farvebalance"
 
 #: .tmp/microtek2.h:609
 #, no-c-format
@@ -1366,7 +1364,7 @@ msgstr "Kalibrering ved bagende"
 #: .tmp/microtek2.h:619
 #, no-c-format
 msgid "If checked the color calibration before a scan is done by the backend"
-msgstr "Hvis valgt, udføres farve kalibreringen før et skan af bagenden"
+msgstr "Hvis valgt, udføres farvekalibreringen før et skan af bagenden"
 
 #: .tmp/microtek2.h:623
 #, no-c-format
@@ -1415,12 +1413,12 @@ msgstr ""
 #: .tmp/microtek2.h:642
 #, no-c-format
 msgid "Gamma correction"
-msgstr "Gamma korrektion"
+msgstr "Gammakorrektion"
 
 #: .tmp/microtek2.h:643
 #, no-c-format
 msgid "Selects the gamma correction mode."
-msgstr "Vælger gamma korrektions tilstand."
+msgstr "Vælger gammakorrektionstilstand."
 
 #: .tmp/microtek2.h:646
 #, no-c-format
@@ -1430,7 +1428,7 @@ msgstr "Fælles gamma"
 #: .tmp/microtek2.h:647
 #, no-c-format
 msgid "Use same gamma values for all colour channels."
-msgstr "Anvend samme gammaværdi for alle farve kanaler."
+msgstr "Anvend samme gammaværdi for alle farvekanaler."
 
 #: .tmp/microtek2.h:651
 #, no-c-format
@@ -1440,7 +1438,7 @@ msgstr "Skalær gamma"
 #: .tmp/microtek2.h:652
 #, no-c-format
 msgid "Selects a value for scalar gamma correction."
-msgstr "Vælger værdi for skalær gamma korrektion."
+msgstr "Vælger værdi for skalær gammakorrektion."
 
 #: .tmp/microtek2.h:656
 #, no-c-format
@@ -1450,7 +1448,7 @@ msgstr "Skalær gamma rød"
 #: .tmp/microtek2.h:657
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
-msgstr "Vælger værdi for skalær gamma korrektion (rød kanal)"
+msgstr "Vælger værdi for skalær gammakorrektion (rød kanal)"
 
 #: .tmp/microtek2.h:661
 #, no-c-format
@@ -1460,7 +1458,7 @@ msgstr "Skalær gamma grøn"
 #: .tmp/microtek2.h:662
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
-msgstr "Vælger værdi for skalær gamma korrektion (grøn kanal)"
+msgstr "Vælger værdi for skalær gammakorrektion (grøn kanal)"
 
 #: .tmp/microtek2.h:666
 #, no-c-format
@@ -1470,7 +1468,7 @@ msgstr "Skalær gamma blå"
 #: .tmp/microtek2.h:667
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (blue channel)"
-msgstr "Vælger værdi for skalær gamma korrektion (blå kanal)"
+msgstr "Vælger værdi for skalær gammakorrektion (blå kanal)"
 
 #: .tmp/microtek2.h:671
 #, no-c-format
@@ -1479,8 +1477,7 @@ msgstr "Kanal"
 
 #: .tmp/microtek2.h:672
 #, no-c-format
-msgid ""
-"Selects the colour band, \"Master\" means that all colours are affected."
+msgid "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr "Vælger farvekanal, \"Master\" betyder at alle farvekanaler påvirkes."
 
 #: .tmp/microtek2.h:676
@@ -1561,7 +1558,7 @@ msgstr "Fastprogram balance"
 #: .tmp/microtek2.h:712
 #, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
-msgstr "Fastsætter farvebalance værdierne til værdierne fra det faste program."
+msgstr "Fastsætter farvebalanceværdierne til værdierne fra det faste program."
 
 #: .tmp/mustek.c:143
 #, no-c-format
@@ -1676,12 +1673,12 @@ msgstr "2x2 tilpasset"
 #: .tmp/mustek.c:4231
 #, no-c-format
 msgid "Fast gray mode"
-msgstr "Hurtig gråtone tilstand"
+msgstr "Hurtig gråtonetilstand"
 
 #: .tmp/mustek.c:4232
 #, no-c-format
 msgid "Scan in fast gray mode (lower quality)."
-msgstr "Skan i hurtig gråtone tilstand (lavere kvalitet)"
+msgstr "Skan i hurtig gråtonetilstand (lavere kvalitet)"
 
 #: .tmp/mustek.c:4328
 #, no-c-format
@@ -1695,7 +1692,7 @@ msgid ""
 "may be a non-color mode or a low resolution mode."
 msgstr ""
 "Forlang at alle forhåndsvisninger udføres i hurtigste (lav kvalitet) "
-"tilstand. Dette kan være gråtone, eller lav opløsning."
+"tilstand. Dette kan være gråtone, eller lav-opløsning."
 
 #: .tmp/mustek.c:4337
 #, no-c-format
@@ -1810,7 +1807,7 @@ msgstr "Film"
 #: .tmp/plustek.c:854
 #, no-c-format
 msgid "Device-Settings"
-msgstr "Enheds indstillinger"
+msgstr "Enhedsindstillinger"
 
 #: .tmp/plustek.c:861
 #, no-c-format
@@ -1825,12 +1822,12 @@ msgstr "Manuelt tænd/sluk for lampen(lamperne)."
 #: .tmp/plustek.c:867
 #, no-c-format
 msgid "Calibration data cache"
-msgstr "Kalibrerings data cache"
+msgstr "Kalibreringsdatacache"
 
 #: .tmp/plustek.c:868
 #, no-c-format
 msgid "Enables or disables calibration data cache."
-msgstr "Aktiver eller deaktiver kalibrerings data cache."
+msgstr "Aktivér eller deaktivér kalibreringsdatacache."
 
 #: .tmp/plustek.c:879
 #, no-c-format
@@ -1865,7 +1862,7 @@ msgstr "Rød forstærkning"
 #: .tmp/plustek.c:902
 #, no-c-format
 msgid "Red gain value of the AFE"
-msgstr "Rødforstærkningsværdi for den analoge forende"
+msgstr "Rød forstærkningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:909 .tmp/umax_pp.c:712
 #, no-c-format
@@ -1875,7 +1872,7 @@ msgstr "Rød forskydning"
 #: .tmp/plustek.c:910
 #, no-c-format
 msgid "Red offset value of the AFE"
-msgstr "Rødforskydningsværdi for den analoge forende"
+msgstr "Rød forskydningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:917 .tmp/umax_pp.c:667
 #, no-c-format
@@ -1885,7 +1882,7 @@ msgstr "Grøn forstærkning"
 #: .tmp/plustek.c:918
 #, no-c-format
 msgid "Green gain value of the AFE"
-msgstr "Grønforstærkningsværdi for den analoge forende"
+msgstr "Grøn forstærkningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:925 .tmp/umax_pp.c:724
 #, no-c-format
@@ -1895,7 +1892,7 @@ msgstr "Grøn forskydning"
 #: .tmp/plustek.c:926
 #, no-c-format
 msgid "Green offset value of the AFE"
-msgstr "Grønforskydningsværdi for den analoge forende"
+msgstr "Grøn forskydningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:933 .tmp/umax_pp.c:679
 #, no-c-format
@@ -1905,7 +1902,7 @@ msgstr "Blå forstærkning"
 #: .tmp/plustek.c:934
 #, no-c-format
 msgid "Blue gain value of the AFE"
-msgstr "Blåforstærkningsværdi for den analoge forende"
+msgstr "Blå forstærkningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:941 .tmp/umax_pp.c:736
 #, no-c-format
@@ -1915,7 +1912,7 @@ msgstr "Blå forskydning"
 #: .tmp/plustek.c:942
 #, no-c-format
 msgid "Blue offset value of the AFE"
-msgstr "Blåforskydningsværdi for den analoge forende"
+msgstr "Blå forskydningsværdi for den analoge forende"
 
 #: .tmp/plustek.c:949
 #, no-c-format
@@ -1948,20 +1945,19 @@ msgid "Defines blue lamp off parameter"
 msgstr "Fastsætter parametre for slukning af blå lampe"
 
 #: .tmp/plustek.c:980
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buttons"
-msgstr "Knap tilstand"
+msgstr "Knapper"
 
 #: .tmp/plustek.c:988
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner button"
-msgstr "Håndskanner simulering"
+msgstr "Skannerknap"
 
 #: .tmp/plustek.c:989
 #, no-c-format
-msgid ""
-"This options reflects the front pannel scanner button pressed by the user."
-msgstr ""
+msgid "This options reflects the front pannel scanner button pressed by the user."
+msgstr "Denne indstilling reflekterer frontpanel skannerknap aktiveret af bruger."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -1971,12 +1967,12 @@ msgstr "Farve36"
 #: .tmp/plustek_pp.c:208
 #, no-c-format
 msgid "Dithermap 1"
-msgstr "Ditherings mønster 1"
+msgstr "Ditheringsmønster 1"
 
 #: .tmp/plustek_pp.c:209
 #, no-c-format
 msgid "Dithermap 2"
-msgstr "Ditherings mønster 2"
+msgstr "Ditheringsmønster 2"
 
 #: .tmp/plustek_pp.c:210
 #, no-c-format
@@ -1986,12 +1982,12 @@ msgstr "Udvælge tilfældigt"
 #: .tmp/pnm.c:162
 #, no-c-format
 msgid "Source Selection"
-msgstr "Kilde valg"
+msgstr "Kildevalg"
 
 #: .tmp/pnm.c:199
 #, no-c-format
 msgid "Image Enhancement"
-msgstr "Billed forbedring"
+msgstr "Billedforbedring"
 
 #: .tmp/pnm.c:235
 #, no-c-format
@@ -2015,7 +2011,7 @@ msgid ""
 "returns green, then blue, then red."
 msgstr ""
 "Simuler en tre-gennemløbs skanner ved at returnere 3 separate billedrammer, "
-"en for hver grundfarve. Rækkefølgen er: grøn, blå og rød."
+"én for hver grundfarve. Rækkefølgen er: grøn, blå og rød."
 
 #: .tmp/pnm.c:261
 #, no-c-format
@@ -2029,14 +2025,14 @@ msgid ""
 "priori.  Instead, they return a height of -1.  Setting this option allows to "
 "test whether a frontend can handle this correctly."
 msgstr ""
-"Simuler en håndskanner. Oftest kender en håndskanner ikke billedhøjden i "
+"Simulerer en håndskanner. Oftest kender en håndskanner ikke billedhøjden i "
 "forvejen. I stedet for returnerer de en højde på -1. Sættes denne "
 "indstilling tillades test af, om en forende kan håndtere dette korrekt."
 
 #: .tmp/pnm.c:277
 #, no-c-format
 msgid "Set default values for enhancement controls (brightness & contrast)."
-msgstr "Sæt standardværdier for forbedrings kontroller (lyshed og kontrast)."
+msgstr "Sæt standardværdier for forbedringskontroller (lyshed og kontrast)."
 
 #: .tmp/pnm.c:289
 #, no-c-format
@@ -2174,12 +2170,12 @@ msgstr "Antal af indstillingsmuligheder"
 #: .tmp/saneopts.h:135
 #, no-c-format
 msgid "Preview"
-msgstr "Forhåndsvisning"
+msgstr "Smugkig"
 
 #: .tmp/saneopts.h:136
 #, no-c-format
 msgid "Force monochrome preview"
-msgstr "Gennemtving monokrom forhåndsvisning"
+msgstr "Gennemtving monokrom smugkig"
 
 #: .tmp/saneopts.h:137
 #, no-c-format
@@ -2189,12 +2185,12 @@ msgstr "Bit dybde"
 #: .tmp/saneopts.h:139
 #, no-c-format
 msgid "Scan speed"
-msgstr "Skannings hastighed"
+msgstr "Skanningshastighed"
 
 #: .tmp/saneopts.h:140
 #, no-c-format
 msgid "Scan source"
-msgstr "Skannings kilde"
+msgstr "Skanningskilde"
 
 #: .tmp/saneopts.h:141
 #, no-c-format
@@ -2224,7 +2220,7 @@ msgstr "Nederst-højre y"
 #: .tmp/saneopts.h:146
 #, no-c-format
 msgid "Scan resolution"
-msgstr "Skan opløsning"
+msgstr "Skanningsopløsning"
 
 #: .tmp/saneopts.h:147
 #, no-c-format
@@ -2239,12 +2235,12 @@ msgstr "Y-opløsning"
 #: .tmp/saneopts.h:149
 #, no-c-format
 msgid "Use custom gamma table"
-msgstr "Brug tilpasset gamma tabel"
+msgstr "Brug tilpasset gammatabel"
 
 #: .tmp/saneopts.h:150
 #, no-c-format
 msgid "Image intensity"
-msgstr "Billede intensitet"
+msgstr "Billedeintensitet"
 
 #: .tmp/saneopts.h:151
 #, no-c-format
@@ -2274,7 +2270,7 @@ msgstr "Kontrast"
 #: .tmp/saneopts.h:156
 #, no-c-format
 msgid "Grain size"
-msgstr "Korn størrelse"
+msgstr "Kornstørrelse"
 
 #: .tmp/saneopts.h:157
 #, no-c-format
@@ -2364,12 +2360,12 @@ msgstr "Filnavn"
 #: .tmp/saneopts.h:174
 #, no-c-format
 msgid "Halftone pattern size"
-msgstr "Halvtone mønster størrelse"
+msgstr "Halvtonemønster størrelse"
 
 #: .tmp/saneopts.h:175
 #, no-c-format
 msgid "Halftone pattern"
-msgstr "Halvtone mønster"
+msgstr "Halvtonemønster"
 
 #: .tmp/saneopts.h:176
 #, no-c-format
@@ -2379,7 +2375,7 @@ msgstr "Sammenbind X- og Y-opløsning"
 #: .tmp/saneopts.h:178
 #, no-c-format
 msgid "Quality calibration"
-msgstr "Kvalitets kalibrering"
+msgstr "Kvalitetskalibrering"
 
 #: .tmp/saneopts.h:179
 #, no-c-format
@@ -2399,7 +2395,7 @@ msgstr "Tærskelværdi"
 #: .tmp/saneopts.h:182
 #, no-c-format
 msgid "Analog gamma correction"
-msgstr "Analog gamma korrektion"
+msgstr "Analog gammakorrektion"
 
 #: .tmp/saneopts.h:183
 #, no-c-format
@@ -2429,22 +2425,22 @@ msgstr "Varmer lampen op"
 #: .tmp/saneopts.h:188
 #, no-c-format
 msgid "Cal. exposure-time"
-msgstr "Kalibrer eksponeringstid"
+msgstr "Kalibrér eksponeringstid"
 
 #: .tmp/saneopts.h:189
 #, no-c-format
 msgid "Cal. exposure-time for red"
-msgstr "Kalibrer eksponeringstid for rød"
+msgstr "Kalibrér eksponeringstid for rød"
 
 #: .tmp/saneopts.h:190
 #, no-c-format
 msgid "Cal. exposure-time for green"
-msgstr "Kalibrer eksponeringstid for grøn"
+msgstr "Kalibrér eksponeringstid for grøn"
 
 #: .tmp/saneopts.h:192
 #, no-c-format
 msgid "Cal. exposure-time for blue"
-msgstr "Kalibrer eksponeringstid for blå"
+msgstr "Kalibrér eksponeringstid for blå"
 
 #: .tmp/saneopts.h:193
 #, no-c-format
@@ -2474,7 +2470,7 @@ msgstr "Fastsæt eksponeringstid"
 #: .tmp/saneopts.h:199
 #, no-c-format
 msgid "Cal. lamp density"
-msgstr "Kalibrer lampe densitet"
+msgstr "Kalibrér lampe densitet"
 
 #: .tmp/saneopts.h:200
 #, no-c-format
@@ -2493,8 +2489,7 @@ msgstr "Lampe slukkes ved afslutning"
 
 #: .tmp/saneopts.h:206
 #, no-c-format
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+msgid "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Skrivebeskyttet indstilling der specificerer hvor mange indstillinger en "
 "bestemt enhed understøtter."
@@ -2502,7 +2497,7 @@ msgstr ""
 #: .tmp/saneopts.h:210
 #, no-c-format
 msgid "Request a preview-quality scan."
-msgstr "Forlang et skan i forhåndsvisnings kvalitet."
+msgstr "Forlang et skan i smugkigkvalitet."
 
 #: .tmp/saneopts.h:213
 #, no-c-format
@@ -2511,7 +2506,7 @@ msgid ""
 "scanner this cuts down the number of passes to one and on a one-pass "
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
-"Forlang at alle forhåndsvisninger laves i monokrom tilstand. På en tre-"
+"Forlang at alle smugkig laves i monokrom tilstand. På en tre-"
 "gennemløbs skanner, reduceres antal gennemløb til et, og på en en-gennemløbs "
 "skanner reducerer det hukommelsesforbruget og tidsforbruget."
 
@@ -2527,7 +2522,7 @@ msgstr ""
 #: .tmp/saneopts.h:223
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
-msgstr "Vælger skannings tilstand (f.eks. stregtegning, monokrom eller farve)."
+msgstr "Vælger skanningstilstand (f.eks. stregtegning, monokrom eller farve)."
 
 #: .tmp/saneopts.h:226
 #, no-c-format
@@ -2537,7 +2532,7 @@ msgstr "Fastlægger hastigheden for skanningen."
 #: .tmp/saneopts.h:229
 #, no-c-format
 msgid "Selects the scan source (such as a document-feeder)."
-msgstr "Vælger skannings kilde (som f.eks. en dokument-føder)."
+msgstr "Vælger skanningskilde (som f.eks. en dokument-føder)."
 
 #: .tmp/saneopts.h:232
 #, no-c-format
@@ -2547,22 +2542,22 @@ msgstr "Fastsætter om bagudrettet sporing er gennemtvunget."
 #: .tmp/saneopts.h:235
 #, no-c-format
 msgid "Top-left x position of scan area."
-msgstr "Øverste-venstre x position af skan område."
+msgstr "Øverste-venstre x position af skanområde."
 
 #: .tmp/saneopts.h:238
 #, no-c-format
 msgid "Top-left y position of scan area."
-msgstr "Øverste-venstre y position af skan område."
+msgstr "Øverste-venstre y position af skanområde."
 
 #: .tmp/saneopts.h:241
 #, no-c-format
 msgid "Bottom-right x position of scan area."
-msgstr "Nederste-højre x position af skan område."
+msgstr "Nederste-højre x position af skanområde."
 
 #: .tmp/saneopts.h:244
 #, no-c-format
 msgid "Bottom-right y position of scan area."
-msgstr "Nederste-højre y position af skan område."
+msgstr "Nederste-højre y position af skanområde."
 
 #: .tmp/saneopts.h:247
 #, no-c-format
@@ -2591,23 +2586,23 @@ msgid ""
 "green, and blue channels simultaneously (i.e., it is an intensity gamma "
 "table)."
 msgstr ""
-"Gamma korrektions tabel. I farve tilstand påvirker denne indstilling de "
-"røde, blå og grønne kanaler ens (dvs., der er en intensitets gamma tabel)."
+"Gamma korrektionstabel. I farve tilstand påvirker denne indstilling de "
+"røde, blå og grønne kanaler ens (dvs., der er en intensitets gammatabel)."
 
 #: .tmp/saneopts.h:265
 #, no-c-format
 msgid "Gamma-correction table for the red band."
-msgstr "Gamma korrektions tabel for rød kanal."
+msgstr "Gamma korrektionstabel for rød kanal."
 
 #: .tmp/saneopts.h:268
 #, no-c-format
 msgid "Gamma-correction table for the green band."
-msgstr "Gamma korrektions tabel for grøn kanal."
+msgstr "Gamma korrektionstabel for grøn kanal."
 
 #: .tmp/saneopts.h:271
 #, no-c-format
 msgid "Gamma-correction table for the blue band."
-msgstr "Gamma korrektions tabel for blå kanal."
+msgstr "Gamma korrektionstabel for blå kanal."
 
 #: .tmp/saneopts.h:274
 #, no-c-format
@@ -2632,7 +2627,7 @@ msgstr ""
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr ""
-"Vælger om det rekvirerede billede skal skannes i halvtone indstilling "
+"Vælger om det rekvirerede billede skal skannes i halvtoneindstilling "
 "(dithering)."
 
 #: .tmp/saneopts.h:287 .tmp/saneopts.h:302
@@ -2701,7 +2696,7 @@ msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs when "
 "acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
-"Mætningsgraden styrer belysningen af et hvert enkelt billede taget med et "
+"Mætningsgraden styrer belysningen af ethvert enkeltbillede taget med et "
 "kamera. Højere værdier sørger for en stærkere belysning."
 
 #: .tmp/saneopts.h:330
@@ -2715,16 +2710,15 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
-"Fastsætter størrelsen på det halvtone gitter (dithering) der skal bruges ved "
-"skanning af halvtone billeder."
+"Fastsætter størrelsen på det halvtonegitter (dithering) der skal bruges ved "
+"skanning af halvtonebilleder."
 
 #: .tmp/saneopts.h:337
 #, no-c-format
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
-"Angiver det halvtone gitter (dithering) der skal anvendes ved skanning af "
-"halvtone billeder."
+"Angiver det halvtonegitter (dithering) der skal anvendes ved skanning af "
+"halvtonebilleder."
 
 #: .tmp/saneopts.h:341
 #, no-c-format
@@ -2734,12 +2728,12 @@ msgstr "Brug samme værdier for X og Y opløsning."
 #: .tmp/saneopts.h:343
 #, no-c-format
 msgid "Swap black and white"
-msgstr "Inverter farver, f.eks. byt om på sort og hvid."
+msgstr "Invertér farver, f.eks. byt om på sort og hvid."
 
 #: .tmp/saneopts.h:345
 #, no-c-format
 msgid "Do a quality white-calibration"
-msgstr "Foretag en kvalitets hvid kalibrering."
+msgstr "Foretag en kvalitets hvid-kalibrering."
 
 #: .tmp/saneopts.h:347
 #, no-c-format
@@ -2759,22 +2753,22 @@ msgstr "Vælg minimum-lyshed, der skal betragtes som hvidt."
 #: .tmp/saneopts.h:353
 #, no-c-format
 msgid "Analog gamma-correction"
-msgstr "Analog gamma korrektion"
+msgstr "Analog gammakorrektion"
 
 #: .tmp/saneopts.h:355
 #, no-c-format
 msgid "Analog gamma-correction for red"
-msgstr "Analog gamma korrektion for rød"
+msgstr "Analog gammakorrektion for rød"
 
 #: .tmp/saneopts.h:357
 #, no-c-format
 msgid "Analog gamma-correction for green"
-msgstr "Analog gamma korrektion for grøn"
+msgstr "Analog gammakorrektion for grøn"
 
 #: .tmp/saneopts.h:359
 #, no-c-format
 msgid "Analog gamma-correction for blue"
-msgstr "Analog gamma korrektion for blå"
+msgstr "Analog gammakorrektion for blå"
 
 #: .tmp/saneopts.h:363
 #, no-c-format
@@ -2784,22 +2778,22 @@ msgstr "Varm lampen op før skanning"
 #: .tmp/saneopts.h:365
 #, no-c-format
 msgid "Define exposure-time for calibration"
-msgstr "Angiv belysningstid før kalibrering"
+msgstr "Angiv belysningstid for kalibrering"
 
 #: .tmp/saneopts.h:367
 #, no-c-format
 msgid "Define exposure-time for red calibration"
-msgstr "Angiv belysningstid før kalibrering for rød farvedel"
+msgstr "Angiv belysningstid for kalibrering af rød farvedel"
 
 #: .tmp/saneopts.h:369
 #, no-c-format
 msgid "Define exposure-time for green calibration"
-msgstr "Angiv belysningstid før kalibrering for grøn farvedel"
+msgstr "Angiv belysningstid for kalibrering af grøn farvedel"
 
 #: .tmp/saneopts.h:371
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
-msgstr "Angiv belysningstid før kalibrering for blå farvedel"
+msgstr "Angiv belysningstid for kalibrering af blå farvedel"
 
 #: .tmp/saneopts.h:373
 #, no-c-format
@@ -2809,17 +2803,17 @@ msgstr "Angiv belysningstid for skanning"
 #: .tmp/saneopts.h:375
 #, no-c-format
 msgid "Define exposure-time for red scan"
-msgstr "Angiv belysningstid for skanning for rød farvedel"
+msgstr "Angiv belysningstid for skanning af rød farvedel"
 
 #: .tmp/saneopts.h:377
 #, no-c-format
 msgid "Define exposure-time for green scan"
-msgstr "Angiv belysningstid for skanning for grøn farvedel"
+msgstr "Angiv belysningstid for skanning af grøn farvedel"
 
 #: .tmp/saneopts.h:379
 #, no-c-format
 msgid "Define exposure-time for blue scan"
-msgstr "Angiv belysningstid for skanning for blå farvedel"
+msgstr "Angiv belysningstid for skanning af blå farvedel"
 
 #: .tmp/saneopts.h:381
 #, no-c-format
@@ -2904,7 +2898,7 @@ msgstr ""
 #: .tmp/snapscan-options.c:390
 #, no-c-format
 msgid "Preview mode"
-msgstr "Forhåndsvisnings tilstand"
+msgstr "Smugkigtilstand"
 
 #: .tmp/snapscan-options.c:392
 #, no-c-format
@@ -2912,18 +2906,17 @@ msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
 msgstr ""
-"Vælg tilstand for forhåndsvisning. Gråskala forhåndsvisninger er normalt det "
+"Vælg tilstand for forhåndsvisning. Gråskala smugkig er normalt det "
 "bedste kompromis mellem hastighed og detaljerigdom."
 
 #: .tmp/snapscan-options.c:498
 #, no-c-format
 msgid "Predefined settings"
-msgstr "Forud definerede indstillinger"
+msgstr "Foruddefinerede indstillinger"
 
 #: .tmp/snapscan-options.c:500
 #, no-c-format
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr "Giver standard skanområde for fotografier, tryk o.l."
 
 #: .tmp/snapscan-options.c:744
@@ -2955,7 +2948,7 @@ msgstr "Helt hvidt"
 #: .tmp/test.c:133
 #, no-c-format
 msgid "Color pattern"
-msgstr "Farve mønster"
+msgstr "Farvemønster"
 
 #: .tmp/test.c:133
 #, no-c-format
@@ -3006,8 +2999,7 @@ msgstr "Tre-gennemløbs simulering"
 
 #: .tmp/test.c:354
 #, no-c-format
-msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuler en tre-gennemløbs skanner. I farvetilstand overføres tre "
 "billedrammer."
@@ -3025,7 +3017,7 @@ msgstr "Fastsætter billedrammernes rækkefølge i tre-gennemløbs tilstand."
 #: .tmp/test.c:402
 #, no-c-format
 msgid "Special Options"
-msgstr "Special indstillinger"
+msgstr "Specialindstillinger"
 
 #: .tmp/test.c:415
 #, no-c-format
@@ -3051,7 +3043,7 @@ msgstr ""
 #: .tmp/test.c:438
 #, no-c-format
 msgid "Invert endianness"
-msgstr "Inverter endianness"
+msgstr "Invertér endianness"
 
 #: .tmp/test.c:439
 #, no-c-format
@@ -3067,7 +3059,7 @@ msgstr ""
 #: .tmp/test.c:455
 #, no-c-format
 msgid "Read limit"
-msgstr "Læse begrænsning"
+msgstr "Læsebegrænsning"
 
 #: .tmp/test.c:456
 #, no-c-format
@@ -3077,7 +3069,7 @@ msgstr "Begræns mængden af overført data ved hvert kald af sane_read()."
 #: .tmp/test.c:469
 #, no-c-format
 msgid "Size of read-limit"
-msgstr "Størrelsen af læse begrænsning"
+msgstr "Størrelsen af læsebegrænsning"
 
 #: .tmp/test.c:470
 #, no-c-format
@@ -3087,7 +3079,7 @@ msgstr "Den (maksimale) mængde data overført, ved hvert kald af sane_read()."
 #: .tmp/test.c:485
 #, no-c-format
 msgid "Read delay"
-msgstr "Læse forsinkelse"
+msgstr "Læseforsinkelse"
 
 #: .tmp/test.c:486
 #, no-c-format
@@ -3097,12 +3089,11 @@ msgstr "Forsink overførsel af data til røret."
 #: .tmp/test.c:498
 #, no-c-format
 msgid "Duration of read-delay"
-msgstr "Varighed af læse forsinkelse"
+msgstr "Varighed af læseforsinkelse"
 
 #: .tmp/test.c:499
 #, no-c-format
-msgid ""
-"How long to wait after transferring each buffer of data through the pipe."
+msgid "How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Fastlægger, hvor længe der skal ventes efter overførsel af hver databuffer "
 "gennem røret."
@@ -3119,8 +3110,8 @@ msgid ""
 "for scanning. All other status codes are for testing how the frontend "
 "handles them."
 msgstr ""
-"Fastlægger retur værdien af sane_read(). \"Srandard\" er den normale "
-"indstilling ved skanning. Alle andre retur værdier er til for at teste "
+"Fastlægger returværdien af sane_read(). \"Standard\" er den normale "
+"indstilling ved skanning. Alle andre returværdier er til for at teste "
 "hvordan forenden håndterer dem."
 
 #: .tmp/test.c:533
@@ -3166,8 +3157,7 @@ msgstr "Tilbyd en vælg fil beskriver"
 
 #: .tmp/test.c:577
 #, no-c-format
-msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Tilbyd en vælg fil beskriver for at bestemme om sane_read() vil returnere "
 "data."
@@ -3175,7 +3165,7 @@ msgstr ""
 #: .tmp/test.c:590
 #, no-c-format
 msgid "Enable test options"
-msgstr "Aktiver test indstillinger"
+msgstr "Aktivér testindstillinger"
 
 #: .tmp/test.c:591
 #, no-c-format
@@ -3183,8 +3173,8 @@ msgid ""
 "Enable various test options. This is for testing the ability of frontends to "
 "view and modify all the different SANE option types."
 msgstr ""
-"Aktiver forskellige test indstillinger. Dette er til at afprøve om "
-"forenderne kan vise og ændre alle de forskellige SANE indstillings typer."
+"Aktivér forskellige testindstillinger. Dette er til at afprøve om "
+"forenderne kan vise og ændre alle de forskellige SANE indstillingstyper."
 
 #: .tmp/test.c:605
 #, no-c-format
@@ -3199,7 +3189,7 @@ msgstr "Udskriv en liste med alle indstillinger."
 #: .tmp/test.c:683
 #, no-c-format
 msgid "Bool test options"
-msgstr "Boolske test indstillinger"
+msgstr "Boolske testindstillinger"
 
 #: .tmp/test.c:696
 #, no-c-format
@@ -3246,7 +3236,7 @@ msgstr ""
 "(3/6) Dette er en boolsk testindstilling, som er \"hard select\" (og "
 "\"avanceret\"). Dette betyder, at indstillingen ikke kan ændres fra "
 "forenden, men af brugeren (f.eks. ved at trykke på en knap på enheden), og "
-"at det ikke kan læsese af forenden."
+"at det ikke kan læses af forenden."
 
 #: .tmp/test.c:752
 #, no-c-format
@@ -3294,7 +3284,7 @@ msgstr ""
 #: .tmp/test.c:804
 #, no-c-format
 msgid "Int test options"
-msgstr "Heltals indstillinger"
+msgstr "Heltalsindstillinger"
 
 #: .tmp/test.c:817
 #, no-c-format
@@ -3304,32 +3294,29 @@ msgstr "(1/6) Heltal"
 #: .tmp/test.c:818
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
-msgstr "(1/6) Heltal test indstilling uden enhed og uden begrænsninger."
+msgstr "(1/6) Heltal testindstilling uden enhed og uden begrænsninger."
 
 #: .tmp/test.c:833
 #, no-c-format
 msgid "(2/6) Int constraint range"
-msgstr "(2/6) Heltals begrænsnings område"
+msgstr "(2/6) Heltalsbegrænsningsområde"
 
 #: .tmp/test.c:834
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum is "
 "4, maximum 192, and quant is 2."
-msgstr ""
-"(2/6) Heltal test indstilling med enheden \"pixel\" og et begrænsnings "
-"område. Minimum er 4, maksimum 192, og skridtlængden er 2."
+msgstr "(2/6) Heltal testindstilling med enheden \"pixel\" og et begrænsningsområde. Minimum er 4, maksimum 192, og skridtlængden er 2."
 
 #: .tmp/test.c:850
 #, no-c-format
 msgid "(3/6) Int constraint word list"
-msgstr "(3/6) Heltals begrænsnings ord liste"
+msgstr "(3/6) Heltalsbegrænsningsordliste"
 
 #: .tmp/test.c:851
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
-msgstr ""
-"(3/6) Heltal test indstilling med enheden \"bit\" og en ordliste begrænsning."
+msgstr "(3/6) Heltal testindstilling med enheden \"bit\" og en ordlistebegrænsning."
 
 #: .tmp/test.c:866
 #, no-c-format
@@ -3338,10 +3325,9 @@ msgstr "(4/6) Heltal tabel"
 
 #: .tmp/test.c:867
 #, no-c-format
-msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr ""
-"(4/6) Heltal test indstilling med enheden \"mm\" og en tabel uden "
+"(4/6) Heltal testindstilling med enheden \"mm\" og en tabel uden "
 "indskrænkninger."
 
 #: .tmp/test.c:882
@@ -3355,7 +3341,7 @@ msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
-"(5/6) Heltal test indstilling med enheden \"dpi\" og en tabel med et "
+"(5/6) Heltal testindstilling med enheden \"dpi\" og en tabel med et "
 "begrænset område. minimum er 4, og maksimum 192, og skridtlængden er 2."
 
 #: .tmp/test.c:900
@@ -3369,13 +3355,13 @@ msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
 "constraint."
 msgstr ""
-"(6/6) Heltal test indstilling med enheden \"procent\" og en tabel med en "
+"(6/6) Heltal testindstilling med enheden \"procent\" og en tabel med en "
 "begrænset ordliste."
 
 #: .tmp/test.c:917
 #, no-c-format
 msgid "Fixed test options"
-msgstr "Faste test indstillinger"
+msgstr "Faste testindstillinger"
 
 #: .tmp/test.c:930
 #, no-c-format
@@ -3385,12 +3371,12 @@ msgstr "(1/3) Faste"
 #: .tmp/test.c:931
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Faste test indstillinger uden enhed og ingen restriktioner sat."
+msgstr "(1/3) Faste testindstillinger uden enhed og ingen restriktioner sat."
 
 #: .tmp/test.c:946
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
-msgstr "(2/3) Fast restriktions område"
+msgstr "(2/3) Fast restriktionsområde"
 
 #: .tmp/test.c:947
 #, no-c-format
@@ -3398,7 +3384,7 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Fast test indstilling, med enhed i nicrosekund og restriktion s område "
+"(2/3) Fast testindstilling, med enhed i microsekund og restriktionsområde "
 "sat. Minimalt er -42.17, og maksimalt 32767.9999, og mængde er 2.0."
 
 #: .tmp/test.c:963
@@ -3409,12 +3395,12 @@ msgstr "(3/3) Fast restriktions ordliste"
 #: .tmp/test.c:964
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr "(3/3) Fast test indstilling uden enheder og restriktions ordliste sat."
+msgstr "(3/3) Fast testindstilling uden enheder og restriktions ordliste sat."
 
 #: .tmp/test.c:979
 #, no-c-format
 msgid "String test options"
-msgstr "Streng test indstillinger"
+msgstr "Streng testindstillinger"
 
 #: .tmp/test.c:992
 #, no-c-format
@@ -3424,7 +3410,7 @@ msgstr "(1/3) Streng"
 #: .tmp/test.c:993
 #, no-c-format
 msgid "(1/3) String test option without constraint."
-msgstr "(1/3) Streng test indstillinger uden restriktioner."
+msgstr "(1/3) Streng testindstillinger uden restriktioner."
 
 #: .tmp/test.c:1010
 #, no-c-format
@@ -3434,7 +3420,7 @@ msgstr "(2/3) Streng restriktioner strengliste"
 #: .tmp/test.c:1011
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
-msgstr "(2/3) Streng test indstillinger med strengliste restriktioner."
+msgstr "(2/3) Streng testindstillinger med strengliste restriktioner."
 
 #: .tmp/test.c:1030
 #, no-c-format
@@ -3447,13 +3433,13 @@ msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
-"(3/3) Streng test indstillinger med strengliste restriktioner. Indeholder "
+"(3/3) Streng testindstillinger med strengliste restriktioner. Indeholder "
 "nogle flere indgange..."
 
 #: .tmp/test.c:1051
 #, no-c-format
 msgid "Button test options"
-msgstr "Knap test indstillinger"
+msgstr "Knap testindstillinger"
 
 #: .tmp/test.c:1064
 #, no-c-format
@@ -3463,7 +3449,7 @@ msgstr "(1/1) Knap"
 #: .tmp/test.c:1065
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
-msgstr "(1/1) Knap test indstilling. Udskriver noget tekst..."
+msgstr "(1/1) Knap testindstilling. Udskriver noget tekst..."
 
 #: .tmp/umax1220u.c:247 .tmp/umax.c:5810
 #, no-c-format
@@ -3488,27 +3474,27 @@ msgstr "Farve halvtone"
 #: .tmp/umax.c:236
 #, no-c-format
 msgid "Use Image Composition"
-msgstr "Anvend billed komposition"
+msgstr "Anvend billedkomposition"
 
 #: .tmp/umax.c:237
 #, no-c-format
 msgid "Bi-level black and white (lineart mode)"
-msgstr "2 niveau sort/hvid (stregtegnings tilstand)"
+msgstr "2 niveau sort/hvid (stregtegningstilstand)"
 
 #: .tmp/umax.c:238
 #, no-c-format
 msgid "Dithered/halftone black & white (halftone mode)"
-msgstr "Dithered/halvtone sort/hvid (halvtone tilstand)"
+msgstr "Dithered/halvtone sort/hvid (halvtonetilstand)"
 
 #: .tmp/umax.c:239
 #, no-c-format
 msgid "Multi-level black & white (grayscale mode)"
-msgstr "Fler niveau sort/hvid (gråskala tilstand)"
+msgstr "Flerniveau sort/hvid (gråskalatilstand)"
 
 #: .tmp/umax.c:240
 #, no-c-format
 msgid "Multi-level RGB color (one pass color)"
-msgstr "Fler niveau RGB farve (et gennemløb farve)"
+msgstr "Flerniveau RGB farve (et-gennemløb farve)"
 
 #: .tmp/umax.c:241
 #, no-c-format
@@ -3523,7 +3509,7 @@ msgstr "Deaktiver pre-fokusering"
 #: .tmp/umax.c:5732
 #, no-c-format
 msgid "Do not calibrate focus"
-msgstr "Kalibrer ikke fokus"
+msgstr "Kalibrér ikke fokus"
 
 #: .tmp/umax.c:5743
 #, no-c-format
@@ -3533,27 +3519,27 @@ msgstr "Manuel pre-fokus"
 #: .tmp/umax.c:5755
 #, no-c-format
 msgid "Fix focus position"
-msgstr "Fast fokus position"
+msgstr "Fast fokusposition"
 
 #: .tmp/umax.c:5767
 #, no-c-format
 msgid "Lens calibration in doc position"
-msgstr "Linse kalibrering på dokument position"
+msgstr "Linsekalibrering på dokumentposition"
 
 #: .tmp/umax.c:5768
 #, no-c-format
 msgid "Calibrate lens focus in document position"
-msgstr "Kalibrer linse fokus på dokument position"
+msgstr "Kalibrér linsefokus på dokumentposition"
 
 #: .tmp/umax.c:5779
 #, no-c-format
 msgid "Holder focus position 0mm"
-msgstr "Holder fokus position 0mm"
+msgstr "Holder fokusposition 0mm"
 
 #: .tmp/umax.c:5780
 #, no-c-format
 msgid "Use 0mm holder focus position instead of 0.6mm"
-msgstr "Anvend 0mm holder fokus position i stedet for 0,6mm"
+msgstr "Anvend 0mm holder fokusposition i stedet for 0,6mm"
 
 #: .tmp/umax.c:5793 .tmp/umax_pp.c:559
 #, no-c-format
@@ -3563,17 +3549,17 @@ msgstr "Lampe tændt"
 #: .tmp/umax.c:5794
 #, no-c-format
 msgid "Turn on scanner lamp"
-msgstr "Tænd for skanner lampen"
+msgstr "Tænd for skannerlampen"
 
 #: .tmp/umax.c:5883
 #, no-c-format
 msgid "Calibration mode"
-msgstr "Kalibrerings tilstand"
+msgstr "Kalibreringstilstand"
 
 #: .tmp/umax.c:5884
 #, no-c-format
 msgid "Define calibration mode"
-msgstr "Definer kalibrerings tilstand"
+msgstr "Definer kalibreringstilstand"
 
 #: .tmp/umax_pp.c:560
 #, no-c-format
@@ -3598,32 +3584,32 @@ msgstr "Forstærk"
 #: .tmp/umax_pp.c:636
 #, no-c-format
 msgid "Color channels gain settings"
-msgstr "Farvekanal forstærknings indstillinger"
+msgstr "Farvekanalforstærkningsindstillinger"
 
 #: .tmp/umax_pp.c:643
 #, no-c-format
 msgid "Gray gain"
-msgstr "Grå forstærkning"
+msgstr "Grå-forstærkning"
 
 #: .tmp/umax_pp.c:644
 #, no-c-format
 msgid "Sets gray channel gain"
-msgstr "Fastsætter grå kanals forstærkning"
+msgstr "Fastsætter grå-kanals forstærkning"
 
 #: .tmp/umax_pp.c:656
 #, no-c-format
 msgid "Sets red channel gain"
-msgstr "Fastsætter den røde kanals forstærkning"
+msgstr "Fastsætter rød-kanals forstærkning"
 
 #: .tmp/umax_pp.c:668
 #, no-c-format
 msgid "Sets green channel gain"
-msgstr "Fastsætter den grønne kanals forstærkning"
+msgstr "Fastsætter grøn-kanals forstærkning"
 
 #: .tmp/umax_pp.c:680
 #, no-c-format
 msgid "Sets blue channel gain"
-msgstr "Fastsætter den blå kanals forstærkning"
+msgstr "Fastsætter blå-kanals forstærkning"
 
 #: .tmp/umax_pp.c:691
 #, no-c-format
@@ -3633,29 +3619,30 @@ msgstr "Forskydning"
 #: .tmp/umax_pp.c:693
 #, no-c-format
 msgid "Color channels offset settings"
-msgstr "Indstillinger for farve kanalernes forskydning"
+msgstr "Indstillinger for farvekanalernes forskydning"
 
 #: .tmp/umax_pp.c:700
 #, no-c-format
 msgid "Gray offset"
-msgstr "Grå forskydning"
+msgstr "Grå-forskydning"
 
 #: .tmp/umax_pp.c:701
 #, no-c-format
 msgid "Sets gray channel offset"
-msgstr "Indstillinger for den grå kanals forskydning"
+msgstr "Indstillinger for grå-kanals forskydning"
 
 #: .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Sets red channel offset"
-msgstr "Indstillinger for den røde kanals forskydning"
+msgstr "Indstillinger for rød-kanals forskydning"
 
 #: .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Sets green channel offset"
-msgstr "Indstillinger for den grønne kanals forskydning"
+msgstr "Indstillinger for grøn-kanals forskydning"
 
 #: .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Sets blue channel offset"
-msgstr "Indstillinger for den blå kanals forskydning"
+msgstr "Indstillinger for blå-kanals forskydning"
+

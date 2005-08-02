@@ -1,7 +1,7 @@
 # Swedish translation for SANE backend options.
 # Copyright (C) 2002, 2003 SANE Project.
 # Dennis Björklund <db@zigo.dhs.org>, 2002.
-# Mattias Ellert <mattias.ellert@tsl.uu.se>, 2003, 2004.
+# Mattias Ellert <mattias.ellert@tsl.uu.se>, 2003, 2004, 2005.
 #
 # Engelskans "Halftone" motsvaras av "Raster" på svenska och
 # svenskans "Halvton" heter "Continuous tone" på engelska. Dessa
@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-09 14:41+0200\n"
-"PO-Revision-Date: 2005-06-26 06:38+0200\n"
+"POT-Creation-Date: 2005-08-02 16:55+0200\n"
+"PO-Revision-Date: 2005-08-02 17:04+0200\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -113,15 +113,25 @@ msgstr ""
 msgid "Button state"
 msgstr "Knappläge"
 
-#: .tmp/avision.h:539
+#: .tmp/avision.h:605
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Bildruta att läsa in"
 
-#: .tmp/avision.h:540
+#: .tmp/avision.h:606
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Väljer numret på den bildruta som ska läsas in"
+
+#: .tmp/avision.h:609
+#, no-c-format
+msgid "Duplex scan"
+msgstr "Dubbelsidig inläsning"
+
+#: .tmp/avision.h:610
+#, no-c-format
+msgid "Duplex scan provide a scan of the front and back side of the document"
+msgstr "Dubbelsidig inläsning läser in dokumentets framsida och baksida"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -657,12 +667,12 @@ msgid "Transparency Adapter"
 msgstr "Skrivfilmsadapter"
 
 #: .tmp/genesys.c:4012
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Extras"
-msgstr "Extra snabb"
+msgstr "Övrigt"
 
 #: .tmp/genesys.c:4021
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time"
 msgstr "Lampavstängningstid"
 
@@ -672,6 +682,8 @@ msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
 msgstr ""
+"Lampan kommer att stängas av efter den angivna tiden (i minuter). Värdet 0 "
+"betyder att lampan inte kommer att stängas av."
 
 #: .tmp/gt68xx.c:470
 #, no-c-format
@@ -1956,20 +1968,22 @@ msgid "Defines blue lamp off parameter"
 msgstr "Definierar blå-lampa-av-parameter"
 
 #: .tmp/plustek.c:980
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buttons"
-msgstr "Knappläge"
+msgstr "Knappar"
 
 #: .tmp/plustek.c:988
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner button"
-msgstr "Handbildläsarsimulering"
+msgstr "Bildläsarknapp"
 
 #: .tmp/plustek.c:989
 #, no-c-format
 msgid ""
 "This options reflects the front pannel scanner button pressed by the user."
 msgstr ""
+"Denna inställing avspeglar knappen på bildläsarens frontpanel som trycks ned "
+"av användaren."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format

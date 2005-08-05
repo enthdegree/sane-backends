@@ -704,6 +704,7 @@ genesys_create_slope_table2 (Genesys_Device * dev,
   SANE_Int sum = 0;
   int vstart, vend;
   int i;
+  SANE_Byte h,l;
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: %d steps, step_type = %d, "
@@ -808,7 +809,18 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 	}
     }
 
+  /* post fix endianess issue */
+  if(!little_endian)
+    {
+      for(i=0; i <steps; i++)
+        {
+	  h = (SANE_Byte) slope_table[i] / 256;
+	  l = (SANE_Byte) slope_table[i] % 256;
+	  *(SANE_Byte *)(slope_table+i)=h;
+	  *((SANE_Byte *)(slope_table+i)+1)=l;
 
+	}
+    }
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: returns sum=%d, completed\n", sum);
 

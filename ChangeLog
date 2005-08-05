@@ -1,3 +1,8 @@
+2005-08-05  St�hane Voltz <stefdev@modulonet.fr>
+
+	* backend/genesys.c: Fixed endianess issue in slope table
+	  generation. Tested ok on x86 architecture.
+
 2005-08-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.da.po: Updated Danish translation (from

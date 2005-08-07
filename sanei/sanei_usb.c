@@ -156,7 +156,7 @@ typedef struct
   unsigned short index;
   unsigned short length;
 }
-devrequest __attribute__ ((packed));
+devrequest;
 
 /* From /usr/src/linux/driver/usb/scanner.h */
 struct ctrlmsg_ioctl
@@ -815,8 +815,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		      int address, direction, transfer_type;
 
 		      endpoint = &interface->endpoint[num];
-		      DBG (5, "sanei_usb_open:num: %d endpoint: 0x%x\n", num,
-			   endpoint);
+		      DBG (5, "sanei_usb_open: endpoint nr: %d\n", num);
 		      transfer_type =
 			endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
 		      address =
@@ -825,12 +824,12 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		      direction =
 			endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 
-		      DBG (5, "sanei_usb_open: direction: %d)\n", direction);
+		      DBG (5, "sanei_usb_open: direction: %d\n", direction);
 		      transfer_type =
 			endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
 
 		      DBG (5,
-			   "sanei_usb_open:  address: %d transfertype: %d\n",
+			   "sanei_usb_open: address: %d transfertype: %d\n",
 			   address, transfer_type);
 
 

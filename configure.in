@@ -138,6 +138,17 @@ AC_CHECK_HEADER(resmgr.h,[
 	)
 ])
 
+AC_CHECK_HEADER(usbcalls.h,[
+	AC_CHECK_LIB(
+		usbcalls,
+		rsm_open_device,[
+			AC_DEFINE(HAVE_USBCALLS,1,[define if you have the usbcalls library])
+			LIBS="$LIBS -lusbcalls"
+		]
+	)
+])
+
+
 dnl ***********************************************************************
 dnl Checks for types and structures
 dnl ***********************************************************************

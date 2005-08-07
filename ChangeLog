@@ -9,5 +9,9 @@
 	  warnings.
 	* doc/releases.txt: Typo fix.
 	* config.guess config.sub: Updated from libtool 1.5.18.
+	* configure configure.in include/sane/config.h.in
+	  sanei/sanei_usb.c: Added support for usb functionality on OS/2
+	  using the usbcalls interface (patch from Paul Smedley
+	  <paul@smedley.info>). 
 
 Older entries can be found in ChangeLog-1.0.16.

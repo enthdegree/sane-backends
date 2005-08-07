@@ -2,6 +2,7 @@
    Copyright (C) 2003 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2001 - 2003 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
+   Copyright (C) 2005 Paul Smedley <paul@smedley.info> (OS/2 usbcalls)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -62,6 +63,30 @@
 #include <usb.h>
 #endif /* HAVE_LIBUSB */
 
+#ifdef HAVE_USBCALLS
+#include <usb.h>
+#include <os2.h>
+#include <usbcalls.h>
+#define MAX_RW 64000
+static int usbcalls_timeout = 30 * 1000;	/* 30 seconds */
+USBHANDLE dh;
+HEV UsbIrqStartHev;
+
+static
+struct usb_descriptor_header *GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR  *lastBytePtr)
+{
+  UCHAR    *currBytePtr, *nextBytePtr;
+
+  if (!currHead->bLength)
+     return (NULL);
+  currBytePtr=(UCHAR *)currHead;
+  nextBytePtr=currBytePtr+currHead->bLength;
+  if (nextBytePtr>=lastBytePtr)
+     return (NULL);
+  return ((struct usb_descriptor_header*)nextBytePtr);
+}
+#endif /* HAVE_USBCALLS */
+
 #define BACKEND_NAME	sanei_usb
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
@@ -72,7 +97,9 @@ typedef enum
 {
   sanei_usb_method_scanner_driver = 0,	/* kernel scanner driver 
 					   (Linux, BSD) */
-  sanei_usb_method_libusb
+  sanei_usb_method_libusb,
+
+  sanei_usb_method_usbcalls
 }
 sanei_usb_access_method_type;
 
@@ -436,6 +463,81 @@ sanei_usb_init (void)
 	}
     }
 #endif /* HAVE_LIBUSB */
+#ifdef HAVE_USBCALLS
+  /* Check for devices using OS/2 USBCALLS Interface */
+
+   CHAR ucData[2048];
+   struct usb_device_descriptor *pDevDesc;
+   struct usb_config_descriptor   *pCfgDesc;
+   struct usb_interface_descriptor *intf;
+   struct usb_endpoint_descriptor  *ep;
+   struct usb_descriptor_header    *pDescHead;
+
+   APIRET rc;
+   ULONG ulNumDev, ulDev, ulBufLen;
+
+   ulBufLen = sizeof(ucData);
+   memset(&ucData,0,sizeof(ucData));
+   rc = UsbQueryNumberDevices( &ulNumDev);
+
+   if(rc==0 && ulNumDev)
+   {
+       for (ulDev=1; ulDev<=ulNumDev; ulDev++)
+       {
+         rc = UsbQueryDeviceReport( ulDev,
+                                  &ulBufLen,
+                                  ucData);
+
+         pDevDesc = (struct usb_device_descriptor*)ucData;
+         pCfgDesc = (struct usb_config_descriptor*) (ucData+sizeof(struct usb_device_descriptor));
+	  int interface=0;
+	  SANE_Bool found;
+	  if (!pCfgDesc->bConfigurationValue)
+	    {
+	      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x is not configured\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+	  if (pDevDesc->idVendor == 0 || pDevDesc->idProduct == 0)
+	    {
+	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+	  found = SANE_FALSE;
+          
+          if (pDevDesc->bDeviceClass = USB_CLASS_VENDOR_SPEC)
+           {
+             found = SANE_TRUE;
+           }
+
+	  if (!found)
+	    {
+	      DBG (5, "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+		   pDevDesc->idVendor, pDevDesc->idProduct);
+	      continue;
+	    }
+
+	  snprintf (devname, sizeof (devname), "usbcalls:%d",
+		    ulDev);
+	  devices[dn].devname = strdup (devname);
+          devices[dn].fd = ulDev; /* store usbcalls device number */
+	  devices[dn].vendor = pDevDesc->idVendor;
+	  devices[dn].product = pDevDesc->idProduct;
+	  devices[dn].method = sanei_usb_method_usbcalls;
+	  devices[dn].open = SANE_FALSE;
+	  devices[dn].interface_nr = interface;
+	  DBG (4, "sanei_usb_init: found usbcalls device (0x%04x/0x%04x) as device number %s\n",
+	       pDevDesc->idVendor, pDevDesc->idProduct,devices[dn].devname);
+          dn++;
+          if (dn >= MAX_DEVICES)
+	    return;
+
+       }
+   }
+
+#endif /* HAVE_USBCALLS */
+
   DBG (5, "sanei_usb_init: found %d devices\n", dn);
 }
 
@@ -508,13 +610,22 @@ sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
       return SANE_STATUS_UNSUPPORTED;
 #endif /* HAVE_LIBUSB */
     }
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+   {
+#ifdef HAVE_USBCALLS
+     vendorID = devices[dn].vendor;
+     productID = devices[dn].product;
+#else
+      DBG (1, "sanei_usb_get_vendor_product: usbcalls support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* HAVE_USBCALLS */
+   }
   else
     {
       DBG (1, "sanei_usb_get_vendor_product: access method %d not "
 	   "implemented\n", devices[dn].method);
       return SANE_STATUS_INVAL;
     }
-
   if (vendor)
     *vendor = vendorID;
   if (product)
@@ -880,6 +991,153 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 		 devname, strerror (errno));
 	}
     }
+  else if (devices[devcount].method == sanei_usb_method_usbcalls)
+    {
+#ifdef HAVE_USBCALLS
+      CHAR ucData[2048];
+      struct usb_device_descriptor *pDevDesc;
+      struct usb_config_descriptor   *pCfgDesc;
+      struct usb_interface_descriptor *interface;
+      struct usb_endpoint_descriptor  *endpoint;
+      struct usb_descriptor_header    *pDescHead;
+
+      ULONG  ulBufLen;
+      ulBufLen = sizeof(ucData);
+      memset(&ucData,0,sizeof(ucData));
+
+      int result, num,rc;
+      int address, direction, transfer_type;
+
+      DBG (5, "devname = %s, devcount = %d\n",devices[devcount].devname,devcount);
+      DBG (5, "USBCalls device number to open = %d\n",devices[devcount].fd);
+      DBG (5, "USBCalls Vendor/Product to open = 0x%04x/0x%04x\n",
+               devices[devcount].vendor,devices[devcount].product);
+      
+      rc = UsbOpen (&dh, 
+			devices[devcount].vendor,
+			devices[devcount].product,
+			USB_ANY_PRODUCTVERSION,
+			USB_OPEN_FIRST_UNUSED);
+      DBG (1, "sanei_usb_open: UsbOpen rc = %d\n",rc);
+      if (rc!=0)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+	  DBG (1, "sanei_usb_open: can't open device `%s': %s\n",
+	       devname, strerror (rc));
+	  return status;
+	}
+      rc = UsbQueryDeviceReport( devices[devcount].fd,
+                                  &ulBufLen,
+                                  ucData);
+      DBG (1, "sanei_usb_open: UsbQueryDeviceReport rc = %d\n",rc);
+      pDevDesc = (struct usb_device_descriptor*)ucData;
+      pCfgDesc = (struct usb_config_descriptor*) (ucData+sizeof(struct usb_device_descriptor));
+      UCHAR *pCurPtr = (UCHAR*) pCfgDesc;
+      UCHAR *pEndPtr = pCurPtr+ pCfgDesc->wTotalLength;
+      pDescHead = (struct usb_descriptor_header *) (pCurPtr+pCfgDesc->bLength);
+      /* Set the configuration */
+      if (pDevDesc->bNumConfigurations > 1)
+	{
+	  DBG (3, "sanei_usb_open: more than one "
+	       "configuration (%d), choosing first config (%d)\n",
+	       pDevDesc->bNumConfigurations, 
+	       pCfgDesc->bConfigurationValue);
+	}
+      DBG (5, "UsbDeviceSetConfiguration parameters: dh = %p, bConfigurationValue = %d\n",
+               dh,pCfgDesc->bConfigurationValue);
+      result = UsbDeviceSetConfiguration (dh,
+				      pCfgDesc->bConfigurationValue);
+      DBG (1, "sanei_usb_open: UsbDeviceSetConfiguration rc = %d\n",result);
+      if (result)
+	{
+	  SANE_Status status = SANE_STATUS_INVAL;
+	  DBG (1, "sanei_usb_open: usbcalls complained on UsbDeviceSetConfiguration, rc= %d\n", result);
+	  status = SANE_STATUS_ACCESS_DENIED;
+	  UsbClose (dh);
+	  return status;
+	}
+      
+      /* Now we look for usable endpoints */
+      
+      for (pDescHead = (struct usb_descriptor_header *) (pCurPtr+pCfgDesc->bLength);
+            pDescHead;pDescHead = GetNextDescriptor(pDescHead,pEndPtr) )
+	{
+          switch(pDescHead->bDescriptorType)
+          {
+            case USB_DT_INTERFACE:
+              interface = (struct usb_interface_descriptor *) pDescHead;
+              DBG (5, "Found %d endpoints\n",interface->bNumEndpoints);
+              break;
+            case USB_DT_ENDPOINT:
+	      endpoint = (struct usb_endpoint_descriptor*)pDescHead;
+              address = endpoint->bEndpointAddress;
+	      //address = endpoint->bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
+	      direction = endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
+	      transfer_type = endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
+	      /* save the endpoints we need later */
+	      if (transfer_type == USB_ENDPOINT_TYPE_INTERRUPT)
+	      {
+   	       DBG (5, "sanei_usb_open: found interupt-%s endpoint (address %2x)\n",
+  	            direction ? "in" : "out", address);
+	       if (direction)	/* in */
+	       {
+	         if (devices[devcount].int_in_ep)
+		   DBG (3, "sanei_usb_open: we already have a int-in endpoint "
+		        "(address: %d), ignoring the new one\n",
+		        devices[devcount].int_in_ep);
+	         else
+		   devices[devcount].int_in_ep = endpoint->bEndpointAddress;
+	       }
+	       else
+	         if (devices[devcount].int_out_ep)
+		   DBG (3, "sanei_usb_open: we already have a int-out endpoint "
+		        "(address: %d), ignoring the new one\n",
+		        devices[devcount].int_out_ep);
+	         else
+		   devices[devcount].int_out_ep = endpoint->bEndpointAddress;
+	     }
+	     else if (transfer_type == USB_ENDPOINT_TYPE_BULK)
+	     {
+	       DBG (5, "sanei_usb_open: found bulk-%s endpoint (address %2x)\n",
+	            direction ? "in" : "out", address);
+	       if (direction)	/* in */
+	         {
+		   if (devices[devcount].bulk_in_ep)
+		     DBG (3, "sanei_usb_open: we already have a bulk-in endpoint "
+		          "(address: %d), ignoring the new one\n",
+		          devices[devcount].bulk_in_ep);
+		   else
+		     devices[devcount].bulk_in_ep = endpoint->bEndpointAddress;
+	         }
+	       else
+	         {
+	           if (devices[devcount].bulk_out_ep)
+		     DBG (3, "sanei_usb_open: we already have a bulk-out endpoint "
+		          "(address: %d), ignoring the new one\n",
+		          devices[devcount].bulk_out_ep);
+	           else
+		     devices[devcount].bulk_out_ep = endpoint->bEndpointAddress;
+	         }
+	       }
+	     /* ignore currently unsupported endpoints */
+	     else {
+	         DBG (5, "sanei_usb_open: ignoring %s-%s endpoint "
+		      "(address: %d)\n",
+		      transfer_type == USB_ENDPOINT_TYPE_CONTROL ? "control" :
+		      transfer_type == USB_ENDPOINT_TYPE_ISOCHRONOUS
+		      ? "isochronous" : "interrupt",
+		      direction ? "in" : "out", address);
+	         continue;
+	          }
+          break;
+          }
+        }
+#else
+      DBG (1, "sanei_usb_open: can't open device `%s': "
+	   "usbcalls support missing\n", devname);
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* HAVE_USBCALLS */
+    }
   else
     {
       DBG (1, "sanei_usb_open: access method %d not implemented\n",
@@ -911,6 +1169,16 @@ sanei_usb_close (SANE_Int dn)
     }
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     close (devices[dn].fd);
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+    {
+#ifdef HAVE_USBCALLS
+      int rc;
+      rc=UsbClose (dh);
+      DBG (5,"rc of UsbClose = %d\n",rc);
+#else
+    DBG (1, "sanei_usb_close: usbcalls support missing\n");
+#endif
+    }
   else
 #ifdef HAVE_LIBUSB
     {
@@ -986,6 +1254,41 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB */
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+  {
+#ifdef HAVE_USBCALLS
+    int rc;
+    while (*size)
+    {
+      ULONG ulToRead = (*size>MAX_RW)?MAX_RW:*size;
+      ULONG ulNum = ulToRead;
+      DBG (5, "Entered usbcalls UsbBulkRead with dn = %d\n",dn);
+      DBG (5, "Entered usbcalls UsbBulkRead with dh = %p\n",dh);
+      DBG (5, "Entered usbcalls UsbBulkRead with bulk_in_ep = 0x%02x\n",devices[dn].bulk_in_ep);
+      DBG (5, "Entered usbcalls UsbBulkRead with interface_nr = %d\n",devices[dn].interface_nr);
+      DBG (5, "Entered usbcalls UsbBulkRead with usbcalls_timeout = %d\n",usbcalls_timeout);
+
+      if (devices[dn].bulk_in_ep){
+        rc = UsbBulkRead (dh, devices[dn].bulk_in_ep, devices[dn].interface_nr,
+                               &ulToRead, (char *) buffer, usbcalls_timeout);
+        DBG (1, "sanei_usb_read_bulk: rc = %d\n",rc);}
+      else
+      {
+          DBG (1, "sanei_usb_read_bulk: can't read without a bulk-in endpoint\n");
+          return SANE_STATUS_INVAL;
+      }
+      if (rc || (ulNum!=ulToRead)) return SANE_STATUS_INVAL;
+      *size -=ulToRead;
+      buffer += ulToRead;
+      read_size += ulToRead;
+    }
+#else /* not HAVE_USBCALLS */
+    {
+      DBG (1, "sanei_usb_read_bulk: usbcalls support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_USBCALLS */
+  }
   else
     {
       DBG (1, "sanei_usb_read_bulk: access method %d not implemented\n",
@@ -1062,6 +1365,42 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB */
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+  {
+#ifdef HAVE_USBCALLS
+    int rc;
+    DBG (5, "Entered usbcalls UsbBulkWrite with dn = %d\n",dn);
+    DBG (5, "Entered usbcalls UsbBulkWrite with dh = %p\n",dh);
+    DBG (5, "Entered usbcalls UsbBulkWrite with bulk_out_ep = 0x%02x\n",devices[dn].bulk_out_ep);
+    DBG (5, "Entered usbcalls UsbBulkWrite with interface_nr = %d\n",devices[dn].interface_nr);
+    DBG (5, "Entered usbcalls UsbBulkWrite with usbcalls_timeout = %d\n",usbcalls_timeout);
+    while (*size)
+    {
+      ULONG ulToWrite = (*size>MAX_RW)?MAX_RW:*size;
+
+      DBG (5, "size requested to write = %lu, ulToWrite = %lu\n",(unsigned long) *size,ulToWrite);
+      if (devices[dn].bulk_out_ep){
+        rc = UsbBulkWrite (dh, devices[dn].bulk_out_ep, devices[dn].interface_nr,
+                               ulToWrite, (char*) buffer, usbcalls_timeout);
+        DBG (1, "sanei_usb_write_bulk: rc = %d\n",rc);}
+      else
+      {
+          DBG (1, "sanei_usb_write_bulk: can't read without a bulk-out endpoint\n");
+          return SANE_STATUS_INVAL;
+      }
+      if (rc) return SANE_STATUS_INVAL;
+      *size -=ulToWrite;
+      buffer += ulToWrite;
+      write_size += ulToWrite;
+      DBG (5, "size = %d, write_size = %d\n",*size, write_size);
+    }
+#else /* not HAVE_USBCALLS */
+    {
+      DBG (1, "sanei_usb_write_bulk: usbcalls support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_USBCALLS */
+  }
   else
     {
       DBG (1, "sanei_usb_write_bulk: access method %d not implemented\n",
@@ -1172,6 +1511,30 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB */
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+     {
+#ifdef HAVE_USBCALLS
+      int result;
+
+      result = UsbCtrlMessage (dh, rtype, req,
+				value, index, len, (char *) data, 
+				usbcalls_timeout);
+      DBG (5, "rc of usb_control_msg = %d\n",result);
+      if (result < 0)
+	{
+	  DBG (1, "sanei_usb_control_msg: usbcalls complained: %d\n",result);
+	  return SANE_STATUS_INVAL;
+	}
+      if ((rtype & 0x80) && debug_level > 10)
+	print_buffer (data, len);
+      return SANE_STATUS_GOOD;
+#else /* not HAVE_USBCALLS */
+    {
+      DBG (1, "sanei_usb_control_msg: usbcalls support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_USBCALLS */
+     }
   else
     {
       DBG (1, "sanei_usb_control_msg: access method %d not implemented\n",
@@ -1226,6 +1589,35 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_UNSUPPORTED;
     }
 #endif /* not HAVE_LIBUSB */
+  else if (devices[dn].method == sanei_usb_method_usbcalls)
+    {
+#ifdef HAVE_USBCALLS
+      int rc;
+      USHORT usNumBytes=*size; 
+      DBG (5, "Entered usbcalls UsbBulkWrite with dn = %d\n",dn);
+      DBG (5, "Entered usbcalls UsbBulkWrite with dh = %p\n",dh);
+      DBG (5, "Entered usbcalls UsbBulkWrite with int_in_ep = 0x%02x\n",devices[dn].int_in_ep);
+      DBG (5, "Entered usbcalls UsbBulkWrite with interface_nr = %d\n",devices[dn].interface_nr);
+      DBG (5, "Entered usbcalls UsbBulkWrite with bytes to read = %u\n",usNumBytes);
+
+      if (devices[dn].int_in_ep){
+         rc = UsbIrqStart (dh,devices[dn].int_in_ep,devices[dn].interface_nr,
+			usNumBytes, (char *) buffer, (HEV *) UsbIrqStartHev);
+         DBG (5, "rc of UsbIrqStart = %d\n",rc);
+        }
+      else
+	{
+	  DBG (1, "sanei_usb_read_int: can't read without an int "
+	       "endpoint\n");
+	  return SANE_STATUS_INVAL;
+	}
+      if (rc) return SANE_STATUS_INVAL;
+      read_size += usNumBytes;
+#else
+      DBG (1, "sanei_usb_read_int: usbcalls support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif /* HAVE_USBCALLS */
+    }
   else
     {
       DBG (1, "sanei_usb_read_int: access method %d not implemented\n",

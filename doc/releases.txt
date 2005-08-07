@@ -37,7 +37,7 @@ Making the release:
 * upload these files together with the .diff to the FTP/HTTP servers
   (at the moment: rpm.org and alioth.debian.org).
 * copy sane-backends.html to sane-backends-"old-version".html,
-  update sane-backends.html, sane-mfgs.html and sane-supported-deviced.html 
+  update sane-backends.html, sane-mfgs.html and sane-supported-devices.html 
   on sane-project.org
 * update SANE standard and man pages on sane-project.org
 * check and update platforms page on sane-project.org

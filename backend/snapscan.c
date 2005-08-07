@@ -833,6 +833,12 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
     DBG (DL_CALL_TRACE, "%s (%s, %p)\n", me, name, (void *) h);
 
     /* possible authorization required */
+    
+    /* no device name: use first device */
+    if ((strlen(name) == 0) && (first_device != NULL))
+    {
+        name = first_device->dev.name;
+    }
 
     /* device exists? */
     psd = find_device (name);
@@ -1865,6 +1871,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.49  2005/08/07 12:37:29  oliver-guest
+ * Use first known device if no device is specified
+ *
  * Revision 1.48  2004/12/09 23:21:48  oliver-guest
  * Added quality calibration for Epson 2480 (by Simon Munton)
  *
@@ -1999,7 +2008,7 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  * Set version number to 1.4.4
  *
  * Revision 1.36  2002/01/06 18:34:02  oliverschwartz
- * Added support for Snapscan e42 thanks to Yari Adán Petralanda
+ * Added support for Snapscan e42 thanks to Yari Adï¿½ Petralanda
  *
  * Revision 1.35  2001/12/20 23:18:01  oliverschwartz
  * Remove tmpfname

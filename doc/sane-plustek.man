@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "02 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "08 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -138,6 +138,7 @@ CanoScan D660U     LM9832  600x1200dpi 42bit 512Kb 0x2208
 CanoScan N670/676U LM9833  600x1200dpi 48bit 512Kb 0x220D
 CanoScan N1240U    LM9833 1200x2400dpi 48bit 512Kb 0x220E
 CanoScan LIDE20    LM9833  600x1200dpi 48bit 512Kb 0x220D
+CanoScan LIDE25    LM9833 1200x2400dpi 48bit 512Kb 0x2220
 CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
 .fi
 .ft R

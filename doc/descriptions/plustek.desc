@@ -172,6 +172,10 @@
 :interface "USB"
 :status :complete
 
+:model "CanoScan LiDE25"
+:interface "USB"
+:status :good
+
 :model "CanoScan LiDE30"
 :interface "USB"
 :status :complete

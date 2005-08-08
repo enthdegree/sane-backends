@@ -267,6 +267,11 @@ AC_DEFUN([SANE_CHECK_LOCKING],
 [
   LOCKPATH_GROUP=uucp
   use_locking=yes
+  case "${host_os}" in
+    os2* )
+      use_locking=no
+      ;;
+  esac
 
   #
   # we check the user

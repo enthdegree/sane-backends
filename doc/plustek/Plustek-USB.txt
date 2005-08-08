@@ -1,4 +1,4 @@
-Plustek-USB.txt (2004-07-05) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB.txt (2005-08-08) Gerhard Jäger <gerhard@gjaeger.de>
 ===============================================================
 
 NOTE:
@@ -96,6 +96,7 @@ Product ID       Device-description and status
 0x2207           N1220U        - working
 0x2208           D660U         - working
 0x220D           N670U/LiDE20  - working
+0x2220           LiDE25        - working
 0x220E           N1240U/LiDE30 - working
 
 
@@ -378,6 +379,7 @@ Allan N. Hessenflow    allan@kallisti.com        for UMAX 3400 testing and patch
 Craig Smoothey         craig@smoothey.org        for HP2100c testing and patches
 Till Kamppeter         till.kamppeter@gmx.net    for EPSON1260 testing
 Christopher Montgomery monty@xiph.org            for CanoScan calibration works
+Olaf Leidinger         leidola@newcon.de         for CanoScan LiDE25 testing
 
 and a lot of other guys not named here...
 
@@ -413,9 +415,9 @@ Ideal MCLK Divider
 ------------------
                         48MHz            (DataPixelsEnd - DataPixelStart)
 MCLK_DIV = --------------------------- x --------------------------------
-           HostIORate x 8 x LineLength          HDPI_ADJ x PP		
+           HostIORate x 8 x LineLength          HDPI_ADJ x PP
 
-		                48MHz                (DataPixelsEnd - DataPixelStart)    CM
+                        48MHz                (DataPixelsEnd - DataPixelStart)    CM
          = ------------------------------- x -------------------------------- x ----
            BytesPerSecond x 8 x LineLength            HDPI_ADJ x PP              CM
 
@@ -424,8 +426,8 @@ MCLK_DIV = --------------------------- x --------------------------------
                      8 x LineLength                CM
 
                         48MHz             (Tint * 1000)
-         =	------------------------ x --------------------
-			1000 x 8 x LineLength             CM
+         = ----------------------- x --------------------
+            1000 x 8 x LineLength             CM
 
 
 Ideal Scan Speed (inches/second)

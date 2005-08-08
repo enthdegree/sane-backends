@@ -39,6 +39,7 @@
  *        - cleanup
  * - 0.48 - added function usb_CheckAndCopyAdjs()
  * - 0.49 - changed autodetection
+ *        - added support for LiDE25 (pid 0x2220)
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1094,7 +1095,8 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 	/* the CanoScan CIS devices need special handling... */
 	if((dev->usbDev.vendor == 0x04A9) &&    
 		(dev->usbDev.product==0x2206 || dev->usbDev.product==0x2207 ||
-		 dev->usbDev.product==0x220D || dev->usbDev.product==0x220E)) {
+		 dev->usbDev.product==0x220D || dev->usbDev.product==0x220E ||
+		 dev->usbDev.product==0x2220)) {
 		use_alt_cal = SANE_TRUE;
 		
 	} else {

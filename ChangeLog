@@ -1,3 +1,13 @@
+2005-08-08  Gerhard Jaeger <gerhard@gjaeger.de> 
+
+	* acinclude.m4 configure: Locking feature will be disabled on OS/2
+	  per default (according to Paul Smedley <paul@smedley.info>).
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* doc/plustek/Plustek-USB.txt doc/descriptions/plustek.desc 
+	  doc/sane-plustek.man backend/plustek-usb.c backend/plustek-usbdevs.c:
+	  Added support for CanoScan LiDE25.
+
 2005-08-07  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c: Use first known device if no explicit device name

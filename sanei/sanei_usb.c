@@ -70,7 +70,7 @@
 #define MAX_RW 64000
 static int usbcalls_timeout = 30 * 1000;	/* 30 seconds */
 USBHANDLE dh;
-HEV UsbIrqStartHev;
+PHEV pUsbIrqStartHev=NULL;
 
 static
 struct usb_descriptor_header *GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR  *lastBytePtr)
@@ -1066,11 +1066,11 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
             case USB_DT_INTERFACE:
               interface = (struct usb_interface_descriptor *) pDescHead;
               DBG (5, "Found %d endpoints\n",interface->bNumEndpoints);
+              DBG (5, "bAlternateSetting = %d\n",interface->bAlternateSetting);
               break;
             case USB_DT_ENDPOINT:
 	      endpoint = (struct usb_endpoint_descriptor*)pDescHead;
               address = endpoint->bEndpointAddress;
-	      //address = endpoint->bEndpointAddress & USB_ENDPOINT_ADDRESS_MASK;
 	      direction = endpoint->bEndpointAddress & USB_ENDPOINT_DIR_MASK;
 	      transfer_type = endpoint->bmAttributes & USB_ENDPOINT_TYPE_MASK;
 	      /* save the endpoints we need later */
@@ -1208,7 +1208,7 @@ sanei_usb_set_timeout (SANE_Int timeout)
 #ifdef HAVE_LIBUSB
   libusb_timeout = timeout;
 #else
-  DBG (1, "sanei_usb_close: libusb support missing\n");
+  DBG (1, "sanei_usb_set_timeout: libusb support missing\n");
 #endif /* HAVE_LIBUSB */
 }
 
@@ -1593,15 +1593,15 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 #ifdef HAVE_USBCALLS
       int rc;
       USHORT usNumBytes=*size; 
-      DBG (5, "Entered usbcalls UsbBulkWrite with dn = %d\n",dn);
-      DBG (5, "Entered usbcalls UsbBulkWrite with dh = %p\n",dh);
-      DBG (5, "Entered usbcalls UsbBulkWrite with int_in_ep = 0x%02x\n",devices[dn].int_in_ep);
-      DBG (5, "Entered usbcalls UsbBulkWrite with interface_nr = %d\n",devices[dn].interface_nr);
-      DBG (5, "Entered usbcalls UsbBulkWrite with bytes to read = %u\n",usNumBytes);
+      DBG (5, "Entered usbcalls UsbIrqStart with dn = %d\n",dn);
+      DBG (5, "Entered usbcalls UsbIrqStart with dh = %p\n",dh);
+      DBG (5, "Entered usbcalls UsbIrqStart with int_in_ep = 0x%02x\n",devices[dn].int_in_ep);
+      DBG (5, "Entered usbcalls UsbIrqStart with interface_nr = %d\n",devices[dn].interface_nr);
+      DBG (5, "Entered usbcalls UsbIrqStart with bytes to read = %u\n",usNumBytes);
 
       if (devices[dn].int_in_ep){
          rc = UsbIrqStart (dh,devices[dn].int_in_ep,devices[dn].interface_nr,
-			usNumBytes, (char *) buffer, (HEV *) UsbIrqStartHev);
+			usNumBytes, (char *) buffer, pUsbIrqStartHev);
          DBG (5, "rc of UsbIrqStart = %d\n",rc);
         }
       else

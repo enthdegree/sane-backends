@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-07-30"		; version of backend
+:version "2005-08-09"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -659,6 +659,12 @@
 :model "ScanJet 4070 Photosmart"
 :interface "USB"
 :url "/unsupported/hp-scanjet-4070.html"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "ScanJet 4370"
+:interface "USB"
+:url "/unsupported/hp-scanjet-4370.html"
 :status :unsupported
 :comment "Unsupported. See link for details."
 

@@ -2,6 +2,8 @@
 	
 	* sanei/sanei_usb.c: Minor fixes for usbcalls interface (patch
 	  from Paul Smedley <paul@smedley.info>).
+	* doc/descriptions/unsupported.desc: Added Hewlett-Packard Scanjet
+	  4370. 
 	
 2005-08-08  Gerhard Jaeger <gerhard@gjaeger.de> 
 

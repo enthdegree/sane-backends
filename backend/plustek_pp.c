@@ -6,7 +6,7 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2005 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.01 - initial version, imported from the kernel-module 0.42-11
@@ -83,7 +83,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.43-7"
+#define BACKEND_VERSION "0.43-8"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"

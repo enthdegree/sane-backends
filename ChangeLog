@@ -1,3 +1,11 @@
+2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek_pp.c: Bumped build number.
+	* backend/plustek_pp-genericio.c: Fixed bug, that causes ASIC96003/1
+	  based devices to move their sensors too fast in lineart mode at
+	  200 and 300dpi.
+	* doc/plustek/Plustek-PARPORT.changes: Update.
+
 2005-08-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* sanei/sanei_usb.c: Minor fixes for usbcalls interface (patch
@@ -5,7 +13,7 @@
 	* doc/descriptions/unsupported.desc: Added Hewlett-Packard Scanjet
 	  4370. 
 	
-2005-08-08  Gerhard Jaeger <gerhard@gjaeger.de> 
+2005-08-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* acinclude.m4 configure: Locking feature will be disabled on OS/2
 	  per default (according to Paul Smedley <paul@smedley.info>).

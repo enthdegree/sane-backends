@@ -30,7 +30,8 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
- * - 0.43 - no changes
+ * - 0.43 - fixed a problem in ioP96InitialSetCurrentSpeed(), for COLOR_BW
+ *          at least, used the setting for A3I
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -391,22 +392,18 @@ static void ioP96InitialSetCurrentSpeed( pScanData ps )
 {
 	DBG( DBG_LOW, "ioP96InitialSetCurrentSpeed()\n" );
 
-    switch ( ps->DataInf.wPhyDataType ) {
+	switch ( ps->DataInf.wPhyDataType ) {
 
 	case COLOR_BW:
-	    ps->bCurrentSpeed = (ps->DataInf.dwAsicPixelsPerPlane >
-/*
-// HEINER:A3I
-//							 _BUF_SIZE_BASE_CONST * 2) ? 2 : 1;
-*/
-							 _BUF_SIZE_BASE_CONST) ? 2 : 1;
-	    break;
+		ps->bCurrentSpeed = (ps->DataInf.dwAsicPixelsPerPlane >
+			                      _BUF_SIZE_BASE_CONST * 2) ? 2 : 1;
+		break;
 
 	case COLOR_256GRAY:
-	    if ( COLOR_256GRAY == ps->DataInf.wAppDataType ) {
+		if ( COLOR_256GRAY == ps->DataInf.wAppDataType ) {
 
 			ps->bCurrentSpeed = (Byte)(ps->a_wGrayInitTime[ps->IO.portMode] /
-							       	   ps->wLinesPer64kTime);
+			                           ps->wLinesPer64kTime);
 			if (!ps->bCurrentSpeed)
 			    ps->bCurrentSpeed = 1;
 

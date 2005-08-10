@@ -147,3 +147,7 @@ Version 0.43-6 04/25/2005
 
 Version 0.43-7 05/11/2005
     1.0 Fixed timer issues in user-space (Thanx to Rod Roark)
+
+Version 0.43-8 08/10/2005
+    1.0 Fixed problem on ASIC96003/1 based devices, when scanning 
+        lineart at 200 and 300 dpi

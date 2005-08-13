@@ -12,6 +12,8 @@
 	  Frank Zago's patches based on Adrian Perez Jorge's code. Fixed
 	  compilation warnings. Fixed bug when no sane device was
 	  given. Code indented by indent -gnu. Added man page.
+	* doc/descriptions-external/hp4200.desc: Removed (backend is now
+	  included).
 
 2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
 

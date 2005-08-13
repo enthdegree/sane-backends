@@ -14,6 +14,8 @@
 	  given. Code indented by indent -gnu. Added man page.
 	* doc/descriptions-external/hp4200.desc: Removed (backend is now
 	  included).
+	* configure configure.in: Moved CPPFLAGS definition down to avoid
+	  problems with libtool tests for -fPIC.
 
 2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
 

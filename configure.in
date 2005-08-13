@@ -73,10 +73,6 @@ AC_SUBST(INCLUDES)
 SANE_SET_CFLAGS([$is_release])
 SANE_SET_LDFLAGS
 SANE_LINKER_RPATH
-CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
-	  -DPATH_SANE_DATA_DIR=\$(datadir) \
-	  -DPATH_SANE_LOCK_DIR=\$(localstatedir) \
-	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 dnl ***********************************************************************
 dnl Checks for unix variants
@@ -309,6 +305,11 @@ dnl ***********************************************************************
 dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
+
+CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
+	  -DPATH_SANE_DATA_DIR=\$(datadir) \
+	  -DPATH_SANE_LOCK_DIR=\$(localstatedir) \
+	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 if test "${ac_cv_header_sys_socket_h}" = "no"; then
   echo "*** disabling saned (sys/socket.h not found)"

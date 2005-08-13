@@ -2,6 +2,16 @@
 
 	* doc/descriptions/niash.desc doc/descriptions/sm3840.desc:
 	  Removed ":new".
+	* AUTHORS configure configure.in backend/Makefile.in
+	  backend/dll.conf backend/hp4200.c backend/hp4200.conf
+	  backend/hp4200.h backend/hp4200_lm9830.c
+	  backend/hp4200_lm9830.h doc/Makefile.in
+	  doc/sane-hp4200.man doc/sane.man
+	  doc/descriptions/hp4200.desc: Added hp4200 backend. Code from
+	  Julien BLACHE's sane-backends-extras debian package, based on
+	  Frank Zago's patches based on Adrian Perez Jorge's code. Fixed
+	  compilation warnings. Fixed bug when no sane device was
+	  given. Code indented by indent -gnu. Added man page.
 
 2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
 

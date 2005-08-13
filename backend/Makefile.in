@@ -110,6 +110,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
   hpsj5s.c hpsj5s.conf hpsj5s.h \
+  hp4200.c  hp4200.conf  hp4200.h  hp4200_lm9830.c  hp4200_lm9830.h \
   hp5400.c hp5400.h hp5400.conf hp5400_debug.c hp5400_debug.h \
   hp5400_internal.c hp5400_internal.h hp5400_xfer.h \
   hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
@@ -361,6 +362,9 @@ libsane-hp.la: ../sanei/sanei_usb.lo
 libsane-hp.la: $(addsuffix .lo,$(EXTRA_hp))
 libsane-hp.la: ../sanei/sanei_pio.lo
 libsane-hp.la: ../sanei/sanei_thread.lo
+libsane-hp4200.la: ../sanei/sanei_constrain_value.lo
+libsane-hp4200.la: ../sanei/sanei_usb.lo
+libsane-hp4200.la: ../sanei/sanei_pv8630.lo
 libsane-hp5400.la: ../sanei/sanei_usb.lo
 libsane-ibm.la: ../sanei/sanei_scsi.lo
 libsane-ibm.la: ../sanei/sanei_config2.lo

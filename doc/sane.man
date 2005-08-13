@@ -1,4 +1,4 @@
-.TH sane 7 "29 May 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "13 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -268,6 +268,11 @@ for details.
 .B hpsj5s
 The SANE backend for the Hewlett-Packard ScanJet 5S scanner. See
 .BR sane\-hpsj5s (5)
+for details.
+.TP
+.B hp4200
+The SANE backend for the Hewlett-Packard ScanJet 4200 series. See
+.BR sane\-hp4200 (5)
 for details.
 .TP
 .B hp5400

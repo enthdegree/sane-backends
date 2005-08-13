@@ -12,8 +12,6 @@
 
 :backend "sm3840"                 ; name of backend
 :version "1.1"                    ; version of backend (or "unmaintained")
-:new :yes                         ; Is the backend new to this SANE release?
-                                  ; :yes or :no
 :manpage "sane-sm3840"          ; name of manpage (if it exists)
 :url "http://www.ziplabel.com/sm3840/" ; backend's web page
 :comment "This reverse-engineered backend supports the USB ScanMaker 3840 model" 

@@ -12,7 +12,6 @@
 :backend "niash"
 :version "0.2"
 :manpage "sane-niash"
-:new :yes
 :url "http://sourceforge.net/projects/hp3300backend"
 
 :devicetype :scanner

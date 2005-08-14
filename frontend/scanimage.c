@@ -929,7 +929,14 @@ set_option (SANE_Handle device, int optnum, void *valuep)
   SANE_Int info;
 
   opt = sane_get_option_descriptor (device, optnum);
-
+  if (opt && (!SANE_OPTION_IS_ACTIVE (opt->cap)))
+    {
+      if (verbose > 0)
+	fprintf (stderr, "%s: ignored request to set inactive option %s\n",
+		 prog_name, opt->name);
+      return;
+    }
+    
   if (opt->size == sizeof (SANE_Word) && opt->type != SANE_TYPE_STRING)
     orig = *(SANE_Word *) valuep;
 

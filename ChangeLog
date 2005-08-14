@@ -8,6 +8,9 @@
 	  image. Increased safety margin for backtracking. This fixes the
 	  "garbled image" bug. Set default gamma value to 2. Manpage
 	  update. Status set to "basic".
+	* frontend/scanimage.c: Don't exit with error when trying to set
+	  inactive options. This especially happens in connection with
+	  geometry options and the v4l backend (bugs #300321, #301977).
 
 2005-08-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

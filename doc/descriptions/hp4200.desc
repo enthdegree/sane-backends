@@ -10,7 +10,7 @@
 
 
 :backend "hp4200"               ; name of backend
-:version "1.0-1"                    ; version of backend
+:version "1.0-2"                    ; version of backend
 :new :yes
 :manpage "sane-hp4200"           ; name of manpage (if it exists)
 :url "http://hp4200-backend.sourceforge.net" ; backend's web page
@@ -24,18 +24,18 @@
 
 :model "ScanJet 4200C"                   ; name models for above-specified mfg.
 :interface "USB"
-:status :minimal
-:comment "8bpp, 150/300/600 dpi only, and scanned image needs postprocessing"
+:status :basic
+:comment "8bpp color, 75/150/300/600 dpi only"
 
 :model "ScanJet 4200Cxi"                   ; name models for above-specified mfg.
 :interface "USB"
-:status :minimal
-:comment "8bpp, 150/300/600 dpi only, and scanned image needs postprocessing"
+:status :basic
+:comment "8bpp color, 75/150/300/600 dpi only"
 
 :model "ScanJet 4200Cse"                   ; name models for above-specified mfg.
 :interface "USB"
-:status :minimal
-:comment "8bpp, 150/300/600 dpi only, and scanned image needs postprocessing"
+:status :basic
+:comment "8bpp color, 75/150/300/600 dpi only"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.                                                       

@@ -46,7 +46,7 @@ TODO:
   
 */
 
-#define BUILD 1
+#define BUILD 2
 #define BACKEND_NAME hp4200
 
 #include "../include/sane/config.h"
@@ -513,7 +513,7 @@ read_available_data (HP4200_Scanner * s, SANE_Byte * buffer,
       buffer += really_read;
       to_read -= really_read;
 #ifdef DEBUG
-      fprintf (stderr, "he leido %d bytes\n", really_read);
+      fprintf (stderr, "read %d bytes\n", really_read);
 #endif
     }
   return SANE_STATUS_GOOD;
@@ -912,10 +912,8 @@ compute_pause_limit (hardware_parameters_t * hw_parms, int bytes_per_line)
   coef_size = coef_mapping[hw_parms->sensor_resolution & 0x01];
   pause_limit = hw_parms->SRAM_size - coef_size - (bytes_per_line / 1024) - 1;
 
-#ifdef PROBLEMS_WITH_PAUSE_LIMIT
   if (pause_limit > 2)
-    pause_limit--;		/* or try -= 2 */
-#endif
+    pause_limit -= 2;
 
   return pause_limit;
 }
@@ -2034,10 +2032,6 @@ end_scan (HP4200_Scanner * s)
   cache_write (s);
   setreg (s, 0x07, 0x02);
 
-#ifdef DEBUG
-  fprintf (stderr, "%d bytes read\n", byte_count);
-#endif
-
   /* Free some buffers */
   if (s->ciclic_buffer.buffer)
     {
@@ -2567,7 +2561,7 @@ init_options (HP4200_Scanner * s)
   s->opt[OPT_BACKTRACK].size = sizeof (SANE_Bool);
   s->opt[OPT_BACKTRACK].unit = SANE_UNIT_NONE;
   s->opt[OPT_BACKTRACK].constraint_type = SANE_CONSTRAINT_NONE;
-  s->val[OPT_BACKTRACK].b = SANE_FALSE;
+  s->val[OPT_BACKTRACK].b = SANE_TRUE;
 
   s->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
   s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
@@ -2607,11 +2601,16 @@ init_options (HP4200_Scanner * s)
 
   {
     int i;
+    double gamma = 2.0;
     for (i = 0; i < 1024; i++)
       {
-	s->user_parms.gamma[0][i] = i / 4;
-	s->user_parms.gamma[1][i] = i / 4;
-	s->user_parms.gamma[2][i] = i / 4;
+	s->user_parms.gamma[0][i] =
+	  255 * pow (((double) i + 1) / 1024, 1.0 / gamma);
+	s->user_parms.gamma[1][i] =	s->user_parms.gamma[0][i];
+	s->user_parms.gamma[2][i] =	s->user_parms.gamma[0][i];
+#ifdef DEBUG
+	printf ("%d %d\n", i, s->user_parms.gamma[0][i]);
+#endif
       }
   }
 

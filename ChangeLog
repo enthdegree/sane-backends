@@ -1,6 +1,13 @@
 2005-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: Added Changelog-1.0.16 to DISTFILES.
+	* backend/hp4200.c doc/sane-hp4200.man
+	  doc/descriptions/hp4200.desc: Enabled backtracking by
+	  default. This is slower but avois bumping the scan head at the end
+	  of the scan area and also missing parts of the scanned
+	  image. Increased safety margin for backtracking. This fixes the
+	  "garbled image" bug. Set default gamma value to 2. Manpage
+	  update. Status set to "basic".
 
 2005-08-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

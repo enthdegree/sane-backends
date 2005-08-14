@@ -1,4 +1,4 @@
-.TH sane-hp4200 5 "13 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-hp4200 5 "14 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hp4200
 .SH NAME
 sane-hp4200 \- SANE backend for Hewlett-Packard 4200 scanners
@@ -19,7 +19,7 @@ ScanJet 4200 Cse
 More details can be found on the hp4200 backend homepage 
 .IR http://hp4200-backend.sourceforge.net/ .
 .PP
-This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
+This is BETA software. Keep your hand at the scanner's plug and unplug it, if
 the head bumps at the end of the scan area. 
 .PP
 If you own a scanner other than the ones listed above that works with this
@@ -95,4 +95,11 @@ Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson, Frank Zago,
 Henning Meier-Geinitz. Current maintainer: Henning Meier-Geinitz <henning@meier-geinitz.de>.
 
 .SH BUGS
-Probably many. Send bug reports to the sane-devel mailing list: sane-devel@lists.alioth.debian.org.
+Tested only with Linux.
+.PP
+Only 8 bit color mode works.
+.PP
+Scanning is slow due to backtracking.
+.PP
+Send bug reports to the sane-devel mailing list:
+sane-devel@lists.alioth.debian.org.

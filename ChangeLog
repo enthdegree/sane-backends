@@ -1,3 +1,7 @@
+2005-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* Makefile.in: Added Changelog-1.0.16 to DISTFILES.
+
 2005-08-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/niash.desc doc/descriptions/sm3840.desc:
@@ -16,7 +20,7 @@
 	  included).
 	* configure configure.in: Moved CPPFLAGS definition down to avoid
 	  problems with libtool tests for -fPIC.
-
+ 
 2005-08-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek_pp.c: Bumped build number.

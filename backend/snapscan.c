@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               42
+#define BUILD               43
 
 #define BACKEND_NAME snapscan
 
@@ -1871,6 +1871,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.51  2005/08/15 18:56:55  oliver-guest
+ * Added temporary debug code for 2480/2580 distinction
+ *
  * Revision 1.50  2005/08/15 18:06:37  oliver-guest
  * Added support for Epson 3490/3590 (thanks to Matt Judge)
  *

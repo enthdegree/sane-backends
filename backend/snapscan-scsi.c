@@ -414,12 +414,38 @@ static SANE_Status mini_inquiry (SnapScan_Bus bus, int fd, char *vendor, char *m
     return SANE_STATUS_GOOD;
 }
 
+/* TODO: Remove */
+static char *snapscani_debug_data(char *str,const char *data, int len) {
+    char tmpstr[10];
+    int i;
+
+    str[0]=0;
+    for(i=0; i < (len < 20 ? len : 20); i++) {
+        sprintf(tmpstr," 0x%02x",((int)data[i]) & 0xff);
+        if(i%16 == 0 && i != 0)
+            strcat(str,"\n");
+        strcat(str,tmpstr);
+    }
+    if(i < len)
+        strcat(str," ...");
+    return str;
+}
+
 static SANE_Status inquiry (SnapScan_Scanner *pss)
 {
     static const char *me = "inquiry";
-
+    char tmpstr[150]; /* TODO: Remove */
     SANE_Status status;
-    pss->read_bytes = INQUIRY_RET_LEN;
+    switch (pss->pdev->model)
+    {
+    case PERFECTION2480:
+    case PERFECTION3490:
+        pss->read_bytes = 138;
+        break;
+    default:
+        pss->read_bytes = INQUIRY_RET_LEN;
+        break;
+    }
 
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = INQUIRY;
@@ -453,6 +479,11 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->chroma_offset[B_CHAN] = 0;
         pss->chroma = 0;
         break;
+    case PERFECTION2480:
+    case PERFECTION3590:
+        /* TODO: remove */
+        snapscani_debug_data(tmpstr, pss->buf+120, 18);
+        DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
     default:
     {
         signed char min_diff;
@@ -1389,6 +1420,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.34  2005/08/15 18:56:55  oliver-guest
+ * Added temporary debug code for 2480/2580 distinction
+ *
  * Revision 1.33  2005/08/15 18:06:37  oliver-guest
  * Added support for Epson 3490/3590 (thanks to Matt Judge)
  *

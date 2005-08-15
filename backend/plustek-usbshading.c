@@ -28,6 +28,7 @@
  *        - added usb_AutoWarmup()
  * - 0.49 - a_bRegs is now part of the device structure
  *        - using now PhyDpi.y as selector for the motor MCLK range
+ * - 0.50 - readded kCIS670 to add 5% extra to LiDE20 fine calibration
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -107,9 +108,9 @@ static void usb_line_statistics( char *cmt, u_short* buf,
 	int          i, end;
 	u_long       dw, imad, imid, alld, cld, cud;
 	u_short      mid, mad, aved, lbd, ubd, tmp;
-	pMonoWordDef pvd, pvd2;
+	MonoWordDef *pvd, *pvd2;
 
-	pvd = pvd2 = (pMonoWordDef)buf;
+	pvd = pvd2 = (MonoWordDef*)buf;
 
 	if( color )
 		end = 3;
@@ -382,9 +383,22 @@ static void usb_GetSWOffsetGain( Plustek_Device *dev )
 	case kNEC8861:
 		DBG( _DBG_INFO2, "kNEC8861 adjustments\n" );
 		break;
+
+	case kCIS670:
+		DBG( _DBG_INFO2, "kCIS670 adjustments\n" );
+		if(param->bDataType == SCANDATATYPE_Color) {
+
+			param->swGain[0] =
+			param->swGain[1] =
+			param->swGain[2] = 952;
+
+			param->swOffset[0] =
+			param->swOffset[1] =
+			param->swOffset[2] = 1000;
+		}
+		break;
 #if 0
 	case kCIS650:
-	case kCIS670:
 	case kCIS1220:
 
 		DBG( _DBG_INFO2, "kCIS adjustments\n" );
@@ -424,7 +438,7 @@ static void usb_GetSWOffsetGain( Plustek_Device *dev )
 				param->swGain[0] = 960;
 				param->swGain[1] = 970;
 				param->swGain[2] = 1000;
-			} else if (param->PhyDpi.x <= 300)	{
+			} else if (param->PhyDpi.x <= 300) {
 				param->swOffset[0] = 700;
 				param->swOffset[1] = 600;
 				param->swOffset[2] = 400;
@@ -816,9 +830,9 @@ TOGAIN:
 
 				rgbSum.Red = rgbSum.Green = rgbSum.Blue = 0;
 				for( dw10 = 20; dw10--; dw++ ) {
-					rgbSum.Red   += (u_long)(((pRGBULongDef)scanbuf)[dw].Red);
-					rgbSum.Green += (u_long)(((pRGBULongDef)scanbuf)[dw].Green);
-					rgbSum.Blue  += (u_long)(((pRGBULongDef)scanbuf)[dw].Blue);
+					rgbSum.Red   += (u_long)(((RGBULongDef*)scanbuf)[dw].Red);
+					rgbSum.Green += (u_long)(((RGBULongDef*)scanbuf)[dw].Green);
+					rgbSum.Blue  += (u_long)(((RGBULongDef*)scanbuf)[dw].Blue);
 				}
 
 				/* do some weighting of the color planes for negatives */
@@ -892,9 +906,9 @@ TOGAIN:
 						dwG += ((u_short*)scanbuf)[dw+m_ScanParam.Size.dwPhyPixels+1];
 						dwB += ((u_short*)scanbuf)[dw+(m_ScanParam.Size.dwPhyPixels+1)*2];
             		} else {
-						dwR += ((pRGBUShortDef)scanbuf)[dw].Red;
-						dwG += ((pRGBUShortDef)scanbuf)[dw].Green;
-						dwB += ((pRGBUShortDef)scanbuf)[dw].Blue;
+						dwR += ((RGBUShortDef*)scanbuf)[dw].Red;
+						dwG += ((RGBUShortDef*)scanbuf)[dw].Green;
+						dwB += ((RGBUShortDef*)scanbuf)[dw].Blue;
 					}
 				}
 				dwR = dwR / dwDiv;
@@ -1291,13 +1305,13 @@ static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
 
 			for (dw = 0; dw < dwPixels; dw++) {
 #ifndef SWAP_COARSE
-				dwSum[0] += (u_long)_HILO2WORD(((pColorWordDef)scanbuf)[dw].HiLo[0]);
-				dwSum[1] += (u_long)_HILO2WORD(((pColorWordDef)scanbuf)[dw].HiLo[1]);
-				dwSum[2] += (u_long)_HILO2WORD(((pColorWordDef)scanbuf)[dw].HiLo[2]);
+				dwSum[0] += (u_long)_HILO2WORD(((ColorWordDef*)scanbuf)[dw].HiLo[0]);
+				dwSum[1] += (u_long)_HILO2WORD(((ColorWordDef*)scanbuf)[dw].HiLo[1]);
+				dwSum[2] += (u_long)_HILO2WORD(((ColorWordDef*)scanbuf)[dw].HiLo[2]);
 #else
-				dwSum[0] += ((pRGBUShortDef)scanbuf)[dw].Red;
-				dwSum[1] += ((pRGBUShortDef)scanbuf)[dw].Green;
-				dwSum[2] += ((pRGBUShortDef)scanbuf)[dw].Blue;
+				dwSum[0] += ((RGBUShortDef*)scanbuf)[dw].Red;
+				dwSum[1] += ((RGBUShortDef*)scanbuf)[dw].Green;
+				dwSum[2] += ((RGBUShortDef*)scanbuf)[dw].Blue;
 #endif
 			}
 
@@ -1326,7 +1340,7 @@ static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
 
 			for( dw = 0; dw < dwPixels; dw++ ) {
 #ifndef SWAP_COARSE
-				dwSum[0] += (u_long)_HILO2WORD(((pHiLoDef)scanbuf)[dw]);
+				dwSum[0] += (u_long)_HILO2WORD(((HiLoDef*)scanbuf)[dw]);
 #else
 				dwSum[0] += ((u_short*)scanbuf)[dw];
 #endif
@@ -1377,13 +1391,13 @@ static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
  *  off...
  */
 static void usb_GetDarkShading( Plustek_Device *dev, u_short *pwDest,
-                                pHiLoDef pSrce, u_long dwPixels,
+                                HiLoDef *pSrce, u_long dwPixels,
                                 u_long dwAdd, int iOffset )
 {
 	u_long    dw;
 	u_long    dwSum[2];
-	pDCapsDef scaps = &dev->usbDev.Caps;
-	pHWDef    hw    = &dev->usbDev.HwSetting;
+	DCapsDef *scaps = &dev->usbDev.Caps;
+	HWDef    *hw    = &dev->usbDev.HwSetting;
 
 	if( scaps->workaroundFlag & _WAF_BLACKFINE )
 	{
@@ -1609,33 +1623,33 @@ static SANE_Bool usb_AdjustDarkShading( Plustek_Device *dev )
 
 		if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 
-			usb_GetDarkShading( dev, a_wDarkShading, (pHiLoDef)scanbuf,
-								m_ScanParam.Size.dwPhyPixels, 1,
-												scanning->sParam.swOffset[0]);
+			usb_GetDarkShading( dev, a_wDarkShading, (HiLoDef*)scanbuf,
+			                    m_ScanParam.Size.dwPhyPixels, 1,
+			                    scanning->sParam.swOffset[0]);
 
 			usb_GetDarkShading( dev, a_wDarkShading + m_ScanParam.Size.dwPhyPixels,
-							(pHiLoDef)scanbuf + m_ScanParam.Size.dwPhyPixels,
-					m_ScanParam.Size.dwPhyPixels, 1, scanning->sParam.swOffset[1]);
+			                    (HiLoDef*)scanbuf + m_ScanParam.Size.dwPhyPixels,
+			                     m_ScanParam.Size.dwPhyPixels, 1, scanning->sParam.swOffset[1]);
 
 			usb_GetDarkShading( dev, a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
-			               (pHiLoDef)scanbuf + m_ScanParam.Size.dwPhyPixels * 2,
+			               (HiLoDef*)scanbuf + m_ScanParam.Size.dwPhyPixels * 2,
 			               m_ScanParam.Size.dwPhyPixels, 1, scanning->sParam.swOffset[2]);
 
 		} else {
 
-			usb_GetDarkShading( dev, a_wDarkShading, (pHiLoDef)scanbuf,
+			usb_GetDarkShading( dev, a_wDarkShading, (HiLoDef*)scanbuf,
 			                    m_ScanParam.Size.dwPhyPixels, 3,
 			                    scanning->sParam.swOffset[0]);
 			usb_GetDarkShading( dev, a_wDarkShading + m_ScanParam.Size.dwPhyPixels,
-			                (pHiLoDef)scanbuf + 1, m_ScanParam.Size.dwPhyPixels,
+			                (HiLoDef*)scanbuf + 1, m_ScanParam.Size.dwPhyPixels,
 			                3, scanning->sParam.swOffset[1]);
 			usb_GetDarkShading( dev, a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
-			               (pHiLoDef)scanbuf + 2, m_ScanParam.Size.dwPhyPixels,
+			               (HiLoDef*)scanbuf + 2, m_ScanParam.Size.dwPhyPixels,
 			               3, scanning->sParam.swOffset[2]);
 		}
 	} else {
 
-		usb_GetDarkShading( dev, a_wDarkShading, (pHiLoDef)scanbuf,
+		usb_GetDarkShading( dev, a_wDarkShading, (HiLoDef*)scanbuf,
 		                    m_ScanParam.Size.dwPhyPixels, 1,
 		                    scanning->sParam.swOffset[1]);
 
@@ -1975,7 +1989,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	if( _LM9831 == hw->chip ) {
 
 		u_short *pwDest = (u_short*)pBuf;
-		pHiLoDef pwSrce = (pHiLoDef)pBuf;
+		HiLoDef *pwSrce = (HiLoDef*)pBuf;
 
 		pwSrce  += ((u_long)(scan->sParam.Origin.x-m_ScanParam.Origin.x) /
 		           (u_short)m_dHDPIDivider) *
@@ -1995,14 +2009,14 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 			}
 #endif
 			pwDest += (u_long)m_dwPixels * m_ScanParam.bChannels;
-			pwSrce  = (pHiLoDef)((u_char*)pwSrce + m_ScanParam.Size.dwPhyBytes);
+			pwSrce  = (HiLoDef*)((u_char*)pwSrce + m_ScanParam.Size.dwPhyBytes);
 		}
 
 		_SWAP(m_ScanParam.Size.dwPhyPixels, m_dwPixels);
 	} else {
 		/* Discard the status word and conv. the hi-lo order to intel format */
 		u_short *pwDest = (u_short*)pBuf;
-		pHiLoDef pwSrce = (pHiLoDef)pBuf;
+		HiLoDef *pwSrce = (HiLoDef*)pBuf;
 
 		for( dwLines = shading_lines; dwLines; dwLines-- ) {
 
@@ -2022,7 +2036,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 			}
 #endif
 			pwDest += m_ScanParam.Size.dwPhyPixels * m_ScanParam.bChannels;
-			pwSrce = (pHiLoDef)((u_char*)pwSrce + m_ScanParam.Size.dwPhyBytes);
+			pwSrce = (HiLoDef*)((u_char*)pwSrce + m_ScanParam.Size.dwPhyBytes);
 		}
 	}
 
@@ -2030,7 +2044,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 
 		usb_procHighlightAndShadow(dev, &m_ScanParam, hilight, shadow, shading_lines);
 
-		pValue = (pMonoWordDef)a_wWhiteShading;
+		pValue = (MonoWordDef*)a_wWhiteShading;
 		pdw    = (u_long*)m_pSum;
 
 		/* Software gain */
@@ -2116,7 +2130,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		}
 
 		/* Software gain */
-		pValue = (pMonoWordDef)a_wWhiteShading;
+		pValue = (MonoWordDef*)a_wWhiteShading;
 		if( scan->sParam.bSource != SOURCE_Negative ) {
 
 			for( dw = 0; dw < m_ScanParam.Size.dwPhyPixels; dw++) {
@@ -2416,9 +2430,9 @@ static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
 				curG += ((u_short*)scanbuf)[dw+m_ScanParam.Size.dwPhyPixels+1];
 				curB += ((u_short*)scanbuf)[dw+(m_ScanParam.Size.dwPhyPixels+1)*2];
 			} else {
-				curR += ((pRGBUShortDef)scanbuf)[dw].Red;
-				curG += ((pRGBUShortDef)scanbuf)[dw].Green;
-				curB += ((pRGBUShortDef)scanbuf)[dw].Blue;
+				curR += ((RGBUShortDef*)scanbuf)[dw].Red;
+				curG += ((RGBUShortDef*)scanbuf)[dw].Green;
+				curB += ((RGBUShortDef*)scanbuf)[dw].Blue;
 			}
 		}
 		curR /= len;
@@ -2457,7 +2471,7 @@ static SANE_Bool usb_AutoWarmup( Plustek_Device *dev )
  */
 static int usb_DoIt( Plustek_Device *dev )
 {
-	pScanDef  scanning = &dev->scanning;
+	ScanDef *scanning = &dev->scanning;
 
 	DBG( _DBG_INFO, "Settings done, so start...\n" );
 	if( !scanning->skipCoarseCalib ) {

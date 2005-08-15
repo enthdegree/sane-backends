@@ -1,3 +1,26 @@
+2005-08-15  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* doc/descriptions/plustek.desc: Updated version number.
+	* backend/plustek.h. backend/plustek-usb.h backend/plustek-usbcalfile.c
+	  backend/plustek-usbimg.c backend/plustek-usbmap.c
+	  backend/plustek-usbdevs.c backend/plustek-usbscan.c: Cleanup.
+	* backend/plustek.c: Bumped version and build number.
+	  Activated IPC between reader-process and parent.
+	* backend/plustek-usbio.c: usbio_DetectLM983x() now returns error if
+	  register could not be red, usbio_ResetLM983x() checks for reg7 
+	  value before writing.
+	* backend/plustek-usbhw.c: Added button support for Plustek/Genius 
+	  devices. Changed behaviour of usb_IsScannerReady().
+	  Added special misc I/O setup for CIS devices (usb_ResetRegisters).
+	* backend/plustek-usb.c: Minor fix for startup reset.
+	  Removed unnecessary calls to usbio_ResetLM983x().
+	* backend/plustek-usbshading.c: Readded kCIS670 to add 5% extra to 
+	  LiDE20 fine calibration.
+	* backend/plustek-usbcal.c: Tried to use the settings from SANE-1.0.13.
+	  Added _TWEAK_GAIN to allow increasing GAIN during lamp coarse 
+	  calibration. Added call to speedtest function.
+
 2005-08-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: Added Changelog-1.0.16 to DISTFILES.

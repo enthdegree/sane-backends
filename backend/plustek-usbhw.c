@@ -43,6 +43,9 @@
  * - 0.49 - a_bRegs is now part of the device structure
  *        - fixed problem in backtracking, when speedup is enabled
  *        - added usb_UpdateButtonStatus()
+ * - 0.50 - added button support for Plustek/Genius devices
+ *        - changed behaviour of usb_IsScannerReady
+ *        - added special misc I/O setup for CIS devices (usb_ResetRegisters)
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -125,7 +128,7 @@ static void usb_Swap( u_short *pw, u_long dwBytes )
  * according to the model, the function returns the address of
  * the corresponding entry of the Motor table
  */
-static pClkMotorDef usb_GetMotorSet( eModelDef model )
+static ClkMotorDef *usb_GetMotorSet( eModelDef model )
 {
 	int i;
 
@@ -151,7 +154,6 @@ static SANE_Bool usb_MotorOn( Plustek_Device *dev, SANE_Bool fOn )
 		dev->usbDev.a_bRegs[0x45] &= ~0x10;
 
 	usbio_WriteReg( dev->fd, 0x45, dev->usbDev.a_bRegs[0x45] );
-
 	return SANE_TRUE;
 }
 
@@ -169,7 +171,8 @@ static SANE_Bool usb_IsScannerReady( Plustek_Device *dev )
 	u_char         value;
 	double         len;	
 	long           timeout;
-    struct timeval t;
+	struct timeval t;
+	SANE_Status    res;
 
 	/* time in s = 1000*scanner length in inches/max step speed/in */
 	len = (dev->usbDev.Caps.Normal.Size.y/(double)_MEASURE_BASE) + 5;
@@ -184,26 +187,29 @@ static SANE_Bool usb_IsScannerReady( Plustek_Device *dev )
 	timeout = t.tv_sec + len;
 
 	do {	
-		_UIO( usbio_ReadReg( dev->fd, 7, &value));
-
-		if( value == 0 ) {
-			_UIO( usbio_ResetLM983x( dev ));
-			return SANE_TRUE;
-		}
-
-		if((value == 0) || (value >= 0x20) || (value == 0x03)) {
-
-			if( !usbio_WriteReg( dev->fd, 0x07, 0 )) {
-				DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
-				return SANE_FALSE;
+		res = usbio_ReadReg( dev->fd, 7, &value);
+		if( res != SANE_STATUS_GOOD ) {
+			sleep(1);
+		} else {
+			if( value == 0 ) {
+				_UIO( usbio_ResetLM983x( dev ));
+				return SANE_TRUE;
 			}
-			else
-				return SANE_TRUE;	
+
+			if((value == 0) || (value >= 0x20) || (value == 0x03)) {
+
+				if( !usbio_WriteReg( dev->fd, 0x07, 0 )) {
+					DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
+					return SANE_FALSE;
+				}
+				else {
+					return SANE_TRUE;	
+				}
+			}
 		}
-	
-		gettimeofday( &t, NULL);	
+		gettimeofday( &t, NULL);
 		
-	} while( t.tv_sec < timeout );		
+	} while( t.tv_sec < timeout );
 	
 	DBG( _DBG_ERROR, "Scanner not ready!!!\n" );
 	return SANE_FALSE;
@@ -284,7 +290,7 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	}
 
 	gettimeofday( &start_time, NULL );
-    dwTicks = start_time.tv_sec + to;
+	dwTicks = start_time.tv_sec + to;
 	step    = 1;
 	retval  = SANE_FALSE;
 
@@ -353,8 +359,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	u_char       bReg2, reg7, mclk_div;
 	u_short      wFastFeedStepSize;
 	double       dMaxMoveSpeed;
-	pClkMotorDef clk;
-	pHWDef       hw   = &dev->usbDev.HwSetting;
+	ClkMotorDef *clk;
+	HWDef       *hw   = &dev->usbDev.HwSetting;
 	u_char      *regs = dev->usbDev.a_bRegs;
 
 	if( bAction != MOVE_ToPaperSensor   &&
@@ -543,8 +549,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 {
 	u_char    mclk_div;
 	u_char    value;
-	pDCapsDef scaps = &dev->usbDev.Caps;
-	pHWDef    hw    = &dev->usbDev.HwSetting;
+	DCapsDef *scaps = &dev->usbDev.Caps;
+	HWDef    *hw    = &dev->usbDev.HwSetting;
 	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	/* Check if merlin is ready for setting command */
@@ -578,7 +584,7 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 		if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 
-			pClkMotorDef clk;
+			ClkMotorDef *clk;
 
 			clk = usb_GetMotorSet( hw->motorModel );
 
@@ -715,8 +721,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
  */
 static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 {
-	pDCapsDef sCaps = &dev->usbDev.Caps;
-	pHWDef    hw    = &dev->usbDev.HwSetting;
+	DCapsDef *sCaps = &dev->usbDev.Caps;
+	HWDef    *hw    = &dev->usbDev.HwSetting;
 	u_char   *regs  = dev->usbDev.a_bRegs;
 
 	if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
@@ -758,7 +764,7 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
  */
 static SANE_Bool usb_AdjustLamps( Plustek_Device *dev )
 {
-	pHWDef  hw   = &dev->usbDev.HwSetting;
+	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
 
 	regs[0x2c] = _HIBYTE(hw->red_lamp_on);
@@ -784,7 +790,7 @@ static SANE_Bool usb_AdjustLamps( Plustek_Device *dev )
  */
 static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
 {
-	pHWDef hw = &dev->usbDev.HwSetting;
+	HWDef *hw = &dev->usbDev.HwSetting;
 
 	if( !(hw->bReg_0x26 & _ONE_CH_COLOR))
 		return;
@@ -864,29 +870,29 @@ static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
 		*reg = 0x5b;
 		*msk = 0x80;
 
-   	} else if( _MIO5 == ( _MIO5 & flag )) {
+	} else if( _MIO5 == ( _MIO5 & flag )) {
 		*reg = 0x5b;
 		*msk = 0x08;
 
-   	} else if( _MIO4 == ( _MIO4 & flag )) {
+	} else if( _MIO4 == ( _MIO4 & flag )) {
 		*reg = 0x5a;
 		*msk = 0x80;
 
-   	} else if( _MIO3 == ( _MIO3 & flag )) {
+	} else if( _MIO3 == ( _MIO3 & flag )) {
 		*reg = 0x5a;
 		*msk = 0x08;
-   	
-    } else if( _MIO2 == ( _MIO2 & flag )) {
+
+	} else if( _MIO2 == ( _MIO2 & flag )) {
 		*reg = 0x59;
 		*msk = 0x80;
 
-   	} else if( _MIO1 == ( _MIO1 & flag )) {
+	} else if( _MIO1 == ( _MIO1 & flag )) {
 		*reg = 0x59;
 		*msk = 0x08;
 
-   	} else {
-       *reg = 0;
-       *msk = 0;
+	} else {
+		*reg = 0;
+		*msk = 0;
 	}
 }
 
@@ -901,10 +907,10 @@ static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
  */
 static int usb_GetLampStatus( Plustek_Device *dev )
 {
-	int    iLampStatus = 0;
-	u_char       *regs = dev->usbDev.a_bRegs;
-	pHWDef hw          = &dev->usbDev.HwSetting;
-	pDCapsDef sc       = &dev->usbDev.Caps;
+	int       iLampStatus = 0;
+	u_char   *regs = dev->usbDev.a_bRegs;
+	HWDef    *hw   = &dev->usbDev.HwSetting;
+	DCapsDef *sc   = &dev->usbDev.Caps;
 	SANE_Byte reg, msk, val;
 
 
@@ -913,28 +919,14 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 		return -1;
 	}
 
-#if 0
-	/* on the CanoScan D660U switch always... */
-	if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product==0x2208)) {
-		DBG( _DBG_INFO, "CanoScan D660U -> Lamp is off!!!\n" );
-		return 0;
-	}
-#endif
-
 	/* do we use the misc I/O pins for switching the lamp ? */
 	if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 
 		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
 
 		if( 0 == reg ) {
-#if 0
-			/* probably not correct, esp. when changing from color to gray...*/
-			usbio_ReadReg( dev->fd, 0x29, &regs[0x29] );
-			if( regs[0x29] & 3 )
-#else
 			usbio_ReadReg( dev->fd, 0x29, &reg );
 			if( reg & 3 )
-#endif
 				iLampStatus |= DEV_LampReflection;
 		} else {
 
@@ -955,12 +947,11 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 				if( val & msk )
 					iLampStatus |= DEV_LampTPA;
 			}
-	
+
 			if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product==0x2208)) {
-/*				DBG( _DBG_INFO, "CanoScan D660U -> Lamp is off!!! (STATUS=%i)\n", iLampStatus );*/
 				sanei_lm983x_read( dev->fd, 0x29, &regs[0x29], 3, SANE_TRUE );
-				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n", regs[0x29], regs[0x2a], regs[0x2b] );
-				/*return 0;*/
+				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n", 
+				                regs[0x29], regs[0x2a], regs[0x2b] );
 			}
 		}
 	} else {
@@ -973,7 +964,7 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 			if(!_IS_PLUSTEKMOTOR(hw->motorModel)) {
 				iLampStatus |= DEV_LampReflection;
 
-            } else {
+			} else {
 
 				if((regs[0x2e] * 256 + regs[0x2f]) > hw->wLineEnd )
 					iLampStatus |= DEV_LampReflection;
@@ -995,7 +986,7 @@ static SANE_Bool usb_switchLampX( Plustek_Device *dev,
                                   SANE_Bool on, SANE_Bool tpa )
 {
 	SANE_Byte reg, msk;
-	pDCapsDef sc   = &dev->usbDev.Caps;
+	DCapsDef *sc   = &dev->usbDev.Caps;
 	u_char   *regs = dev->usbDev.a_bRegs;
 
 	if( tpa )
@@ -1060,7 +1051,7 @@ static void usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
  */
 static void usb_FillLampRegs( Plustek_Device *dev )
 {
-	pHWDef  hw   = &dev->usbDev.HwSetting;
+	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
 
 	regs[0x2a] = _HIBYTE( hw->wGreenPWMDutyCycleLow );
@@ -1087,9 +1078,9 @@ static void usb_FillLampRegs( Plustek_Device *dev )
 static SANE_Bool usb_LampOn( Plustek_Device *dev,
                              SANE_Bool fOn, SANE_Bool fResetTimer )
 {
-	pDCapsDef      sc          = &dev->usbDev.Caps;
-	pScanDef       scanning    = &dev->scanning;
-	pHWDef         hw          = &dev->usbDev.HwSetting;
+	DCapsDef      *sc          = &dev->usbDev.Caps;
+	ScanDef       *scanning    = &dev->scanning;
+	HWDef         *hw          = &dev->usbDev.HwSetting;
 	u_char        *regs        = dev->usbDev.a_bRegs;
 	int            iLampStatus = usb_GetLampStatus( dev );
 	int            lampId      = -1;
@@ -1179,7 +1170,7 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
 					regs[0x2e] = 16383 / 256;
 					regs[0x2f] = 16383 % 256;
 				}
-    	
+
 				if( iStatusChange & DEV_LampTPA ) {
 					regs[0x36] = 16383 / 256;
 					regs[0x37] = 16383 % 256;
@@ -1223,7 +1214,7 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 {
 	int linend;
 
-	pHWDef  hw   = &dev->usbDev.HwSetting;
+	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
 
 	DBG( _DBG_INFO, "RESETTING REGISTERS(%i) - 0x%02x\n", dev->initialized,sizeof(dev->usbDev.a_bRegs));
@@ -1274,7 +1265,18 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 
 		DBG( _DBG_INFO2, "SETTING THE MISC I/Os\n" );
 		memcpy( regs+0x54, &hw->bReg_0x54, 0x5e - 0x54 + 1 );
-		sanei_lm983x_write( dev->fd, 0x59, &regs[0x59], 3, SANE_TRUE );
+
+		if( usb_IsCISDevice( dev )) {
+
+			/* this sequence seems to be needed at least for the
+			 * CanoScan devices to work properly after power-up
+			 */
+			sanei_lm983x_write_byte( dev->fd, 0x5b, regs[0x5b] );
+			sanei_lm983x_write_byte( dev->fd, 0x59, regs[0x59] );
+			sanei_lm983x_write_byte( dev->fd, 0x5a, regs[0x5a] );
+		} else {
+			sanei_lm983x_write( dev->fd, 0x59, &regs[0x59], 3, SANE_TRUE );
+		}
 	}
 	DBG( _DBG_INFO, "MISC I/O after RESET: 0x%02x, 0x%02x, 0x%02x\n",
 	                        regs[0x59], regs[0x5a], regs[0x5b] );
@@ -1285,7 +1287,7 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 static SANE_Bool usb_ModuleStatus( Plustek_Device *dev )
 {
 	u_char value;
-	pHWDef hw = &dev->usbDev.HwSetting;
+	HWDef *hw = &dev->usbDev.HwSetting;
 
 /* HEINER: Maybe needed to avoid recalibration!!! */
 #if 0
@@ -1462,7 +1464,7 @@ static SANE_Bool usb_Wait4Warmup( Plustek_Device *dev )
 	u_long         dw;
 	struct timeval t;
 
-	pHWDef hw = &dev->usbDev.HwSetting;
+	HWDef *hw = &dev->usbDev.HwSetting;
 
 	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
 		DBG(_DBG_INFO,"Warmup: skipped for CIS devices\n" );
@@ -1564,9 +1566,10 @@ static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
 	int             i, j, bc;
 	int             handle = -1;
 	SANE_Status     status;
-	Plustek_Device *dev = s->hw;
+	Plustek_Device *dev  = s->hw;
+	DCapsDef       *caps = &dev->usbDev.Caps;
 
-	if (dev->usbDev.Caps.bButtons == 0)
+	if (caps->bButtons == 0)
 		return SANE_FALSE;
 
 	status = sanei_access_lock( dev->sane.name, 3 );
@@ -1593,25 +1596,57 @@ static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
 
 		/* first read clears the status... */
 		usbio_ReadReg( dev->fd, 0x02, &val );
-		val >>= 2;
-		bc    = 0; 
 
-		for( i = 0; i < 3; i++ ) {
-	
-			DBG( _DBG_INFO2, "Checking MISC IO[%u]=0x%02x\n", i, mio[i] );
-			mask = 0x01;
+		/* Plustek and KYE/Genius use altnernative button handling */
+		if((dev->usbDev.vendor == 0x07B3) || (dev->usbDev.vendor == 0x0458)) {
 
-			for( j = 0; j < 2; j++ ) {
+			/* no button pressed so far */
+			for( i = 0; i < caps->bButtons; i++ )
+				s->val[OPT_BUTTON_0 + i].w = 0;
 
-				if((mio[i] & mask) == 0) {
-					DBG( _DBG_INFO2, "* port %u configured as input,"
-					     " status: %s (%u)\n", (i*2)+j+1, 
-						 ((val & 1)?"PRESSED":"RELEASED"), (OPT_BUTTON_0 + bc));
-					s->val[OPT_BUTTON_0 + bc].w = val & 1; 
-					bc++;
+			if (caps->bButtons == 2 || caps->bButtons == 5) {
+				val >>= 2;
+
+				switch( val ) {
+					case 1: s->val[OPT_BUTTON_1].w = 1; break;
+					case 2: s->val[OPT_BUTTON_0].w = 1; break;
+					case 3: s->val[OPT_BUTTON_2].w = 1; break;
+					case 4: s->val[OPT_BUTTON_3].w = 1; break;
+					case 6: s->val[OPT_BUTTON_4].w = 1; break;
 				}
-				val  >>= 1;
-				mask <<= 4;
+			} else if (caps->bButtons == 4 ) {
+				val >>= 5;
+				switch( val ) {
+					case 1: s->val[OPT_BUTTON_0].w = 1; break;
+					case 2: s->val[OPT_BUTTON_1].w = 1; break;
+					case 4: s->val[OPT_BUTTON_2].w = 1; break;
+					case 6: s->val[OPT_BUTTON_3].w = 1; break;
+				}
+			}
+
+		} else {
+
+			/* the generic section... */
+			val >>= 2;
+			bc    = 0; 
+
+			for( i = 0; i < 3; i++ ) {
+	
+				DBG( _DBG_INFO2, "Checking MISC IO[%u]=0x%02x\n", i, mio[i] );
+				mask = 0x01;
+
+				for( j = 0; j < 2; j++ ) {
+
+					if((mio[i] & mask) == 0) {
+						DBG( _DBG_INFO2, "* port %u configured as input,"
+						     " status: %s (%u)\n", (i*2)+j+1, 
+							 ((val & 1)?"PRESSED":"RELEASED"), (OPT_BUTTON_0 + bc));
+						s->val[OPT_BUTTON_0 + bc].w = val & 1; 
+						bc++;
+					}
+					val  >>= 1;
+					mask <<= 4;
+				}
 			}
 		}
 	} else {

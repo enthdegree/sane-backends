@@ -40,6 +40,8 @@
  * - 0.48 - added function usb_CheckAndCopyAdjs()
  * - 0.49 - changed autodetection
  *        - added support for LiDE25 (pid 0x2220)
+ * - 0.50 - minor fix for startup reset
+ *          removed unnecessary calls to usbio_ResetLM983x()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -85,7 +87,7 @@
 /** useful for description tables
  */
 typedef struct {
-	int	  id;
+	int   id;
 	char *desc;
 } TabDef, *pTabDef;
 
@@ -167,7 +169,7 @@ static void usb_CheckAndCopyAdjs( Plustek_Device *dev )
 /**
  * assign the values to the structures used by the currently found scanner
  */
-static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
+static void usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 {
 	char     *ptr;
 	char      tmp_str1[PATH_MAX];
@@ -261,7 +263,6 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 	if( dev->initialized >= 0 )
 		return;
 
-	usbio_ResetLM983x ( dev );
 	usb_IsScannerReady( dev );
 
 	sParam.bBitDepth     = 8;
@@ -278,16 +279,16 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 
 	/* create calibration-filename */
 	ptr = getenv ("HOME");
-    if( !usb_normFileName( dev->usbDev.ModelStr, tmp_str1, PATH_MAX )) {
+	if( !usb_normFileName( dev->usbDev.ModelStr, tmp_str1, PATH_MAX )) {
 		strcpy( tmp_str1, "plustek-default" );
 	}
 	
-    if( NULL == ptr ) {
+	if( NULL == ptr ) {
 		sprintf( tmp_str2, "/tmp/%s-%s.cal",
-				 dev->sane.vendor, tmp_str1 );
+		         dev->sane.vendor, tmp_str1 );
 	} else {
 		sprintf( tmp_str2, "%s/.sane/%s-%s.cal",
-				 ptr, dev->sane.vendor, tmp_str1 );
+		         ptr, dev->sane.vendor, tmp_str1 );
 	}
 	dev->calFile = strdup( tmp_str2 );
 	DBG( _DBG_INFO, "Calibration file-name set to:\n" );
@@ -306,27 +307,25 @@ static void usb_initDev( pPlustek_Device dev, int idx, int handle, int vendor )
 /**
  * will be used for retrieving a Plustek device
  */
-static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
+static int usb_CheckForPlustekDevice( int handle, Plustek_Device *dev )
 {
 	char   tmp[50];
-    char   pcbStr[10];
-    u_char reg59[3], reg59s[3], pcbID;
-    int    i, result;
+	char   pcbStr[10];
+	u_char reg59[3], reg59s[3], pcbID;
+	int    i, result;
 
 	/*
 	 * Plustek uses the misc IO 12 to get the PCB ID
 	 * (PCB = printed circuit board), so it's possible to have one
 	 * product ID and up to 7 different devices...
 	 */
-   	DBG( _DBG_INFO, "Trying to get the pcbID of a Plustek device...\n" );
+	DBG( _DBG_INFO, "Trying to get the pcbID of a Plustek device...\n" );
 
-    /*
-   	 * get the PCB-ID
-     */
+	/* get the PCB-ID */
 	result = sanei_lm983x_read( handle, 0x59, reg59s, 3, SANE_TRUE );
-   	if( SANE_STATUS_GOOD != result ) {
+	if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
-       	return -1;
+		return -1;
 	}
 
 	reg59[0] = 0x22;	/* PIO1: Input, PIO2: Input         */
@@ -334,42 +333,42 @@ static int usb_CheckForPlustekDevice( int handle, pPlustek_Device dev )
 	reg59[2] = 0x03;
 
 	result = sanei_lm983x_write( handle, 0x59,  reg59, 3, SANE_TRUE );
-    if( SANE_STATUS_GOOD != result ) {
+	if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
-       	return -1;
+		return -1;
 	}
 
 	result = sanei_lm983x_read ( handle, 0x02, &pcbID, 1, SANE_TRUE );
-    if( SANE_STATUS_GOOD != result ) {
+	if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
-       	return -1;
+		return -1;
 	}
 
 	pcbID = (u_char)((pcbID >> 2) & 0x07);
 
 	result = sanei_lm983x_read( handle, 0x59, reg59s, 3, SANE_TRUE );
-    if( SANE_STATUS_GOOD != result ) {
+	if( SANE_STATUS_GOOD != result ) {
 		sanei_usb_close( handle );
-       	return -1;
+		return -1;
 	}
 
-   	DBG( _DBG_INFO, "pcbID=0x%02x\n", pcbID );
+	DBG( _DBG_INFO, "pcbID=0x%02x\n", pcbID );
 
-    /* now roam through the setting list... */
-    strncpy( tmp, dev->usbId, 13 );
+	/* now roam through the setting list... */
+	strncpy( tmp, dev->usbId, 13 );
 	tmp[13] = '\0';
 	
 	sprintf( pcbStr, "-%u", pcbID );
 	strcat ( tmp, pcbStr );
 
-    DBG( _DBG_INFO, "Checking for device >%s<\n", tmp );
+	DBG( _DBG_INFO, "Checking for device >%s<\n", tmp );
 
 	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
 
 		if( 0 == strcmp( Settings[i].pIDString, tmp )) {
-	    	DBG(_DBG_INFO, "Device description for >%s< found.\n", tmp );
+			DBG(_DBG_INFO, "Device description for >%s< found.\n", tmp );
 			usb_initDev( dev, i, handle, dev->usbDev.vendor );
-	    	return handle;
+			return handle;
 		}
 	}
 	
@@ -391,10 +390,10 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 	}
 
 	if( SANE_STATUS_GOOD == sanei_usb_open( dev->sane.name, &handle )) {
-		
-    	dev->fd = handle;
-		
-    	DBG( _DBG_INFO, "Waiting for scanner-ready...\n" );
+
+		dev->fd = handle;
+
+		DBG( _DBG_INFO, "Waiting for scanner-ready...\n" );
 		usb_IsScannerReady( dev );
 	
 		if( 0 != dev->usbDev.bLampOffOnEnd ) {
@@ -402,11 +401,9 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 			DBG( _DBG_INFO, "Switching lamp off...\n" );
 			usb_LampOn( dev, SANE_FALSE, SANE_FALSE );
 		}
-		
 		dev->fd = -1;
 		sanei_usb_close( handle );
 	}
-
 	usb_StopLampTimer( dev );
 }
 
@@ -425,9 +422,8 @@ static SANE_Bool usb_IsDeviceInList( char *usbIdStr )
 	for( i = 0; NULL != Settings[i].pIDString; i++ ) {
 
 		if( 0 == strncmp( Settings[i].pIDString, usbIdStr, 13 ))
-	    	return SANE_TRUE;
-	}			
-
+			return SANE_TRUE;
+	}
 	return SANE_FALSE;
 }
 
@@ -441,7 +437,7 @@ getLast( DevList *l )
 
 	while( l->next != NULL )
 		l = l->next;
-	return l; 
+	return l;
 }
 
 /** add a new entry to our internal device list, when a device is detected
@@ -700,9 +696,10 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 		return -1;
 	}
 
+	/* need to set the handle and the detected chiptype... */
 	dev->fd = handle;
-	usbio_ResetLM983x ( dev );
-	usb_IsScannerReady( dev );
+	dev->usbDev.HwSetting.chip = (version==3 ? _LM9831:_LM9832);
+	usbio_ResetLM983x( dev );
 	dev->fd = -1;
 
 	dev->usbDev.vendor  = vendor;
@@ -726,7 +723,7 @@ static int usbDev_open( Plustek_Device *dev, DevList *devs, int keep_lock )
 		if( handle >= 0 ) {
 			if( !keep_lock )
 				sanei_access_unlock( dev->sane.name );
-			return handle;	
+			return handle;
 		}
 		
 	} else {
@@ -783,7 +780,7 @@ static int usbDev_close( Plustek_Device *dev )
  */
 static int usbDev_getCaps( Plustek_Device *dev )
 {
-	pDCapsDef scaps = &dev->usbDev.Caps;
+	DCapsDef *scaps = &dev->usbDev.Caps;
 
 	DBG( _DBG_INFO, "usbDev_getCaps()\n" );
 
@@ -803,7 +800,7 @@ static int usbDev_getCaps( Plustek_Device *dev )
 /** usbDev_getCropInfo
  * function to set the image relevant stuff
  */
-static int usbDev_getCropInfo( Plustek_Device *dev, pCropInfo ci )
+static int usbDev_getCropInfo( Plustek_Device *dev, CropInfo *ci )
 {
 	WinInfo size;
 
@@ -862,7 +859,7 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 
 /**
  */
-static int usbDev_setScanEnv( Plustek_Device *dev, pScanInfo si )
+static int usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 {
 	DCapsDef *caps = &dev->usbDev.Caps;
 
@@ -1290,7 +1287,7 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 	/* here the NT driver uses an extra reading thread...
 	 * as the SANE stuff already forked the driver to read data, I think
 	 * we should only read data by using a function...
-     */
+	 */
 	scan->dwLinesUser = scan->sParam.Size.dwLines; 
 	if( !scan->dwLinesUser )
 		return _E_BUFFER_TOO_SMALL;

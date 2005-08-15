@@ -23,6 +23,9 @@
  * - 0.47 - no changes
  * - 0.48 - cleanup
  * - 0.49 - no changes
+ * - 0.50 - usbio_DetectLM983x() now returns error if register 
+ *          could not be red
+ *        - usbio_ResetLM983x() checks for reg7 value before writing
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -68,14 +71,14 @@
 #include "sane/sanei_usb.h"
 #include "sane/sanei_lm983x.h"
 
-#define _UIO(func)                        \
-    {                                     \
-      SANE_Status status;                 \
-      status = func;                      \
-      if (status != SANE_STATUS_GOOD) {   \
-		DBG( _DBG_ERROR, "UIO error\n" ); \
-        return SANE_FALSE;                \
-	  }                                   \
+#define _UIO(func)                            \
+    {                                         \
+        SANE_Status status;                   \
+        status = func;                        \
+        if (status != SANE_STATUS_GOOD) {     \
+            DBG( _DBG_ERROR, "UIO error\n" ); \
+            return SANE_FALSE;                \
+        }                                     \
     }
 
 #define usbio_ReadReg(fd, reg, value) \
@@ -110,7 +113,7 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 			if( 0 != dPix.x ) {
 
 				DBG( _DBG_DPIC, "> X=%lu, Y=%lu, depth=%u\n",
-											dPix.x, dPix.y, dPix.depth );
+				                 dPix.x, dPix.y, dPix.depth );
 				if( dPix.depth > 8 )
 					fprintf( fp, "P6\n%lu %lu\n65535\n", dPix.x, dPix.y );
     			else
@@ -127,12 +130,12 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 	}
 
 	fwrite( buffer, 1, len, fp );
-    fclose( fp );
+	fclose( fp );
 }
 
 /**
  */
-static void dumpPicInit( pScanParam sd, char* name )
+static void dumpPicInit( ScanParam *sd, char* name )
 {
 	dPix.x = sd->Size.dwPhyBytes;
 
@@ -211,13 +214,12 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 			if((i%8)==0)
 				strcat( buf, " ");
 
-	    	if((i == 0) || (i == 5) || (i == 6))
+			if((i == 0) || (i == 5) || (i == 6))
 				strcat( buf, "XX ");
 			else {
 				sprintf( b2, "%02x ", cmp[i]);
 				strcat( buf, b2 );
 			}
-
 		}
 		DBG( _DBG_DREGS, "%s\n", buf );
 	}
@@ -262,7 +264,7 @@ static SANE_Bool usbio_WriteReg( SANE_Int handle,
 	return SANE_FALSE;
 }
 
-/**
+/** try and read register 0x69 from a LM983x to find out which version we have.
  */
 static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 {
@@ -272,13 +274,11 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 
 	DBG( _DBG_INFO, "usbio_DetectLM983x\n");
 
-#if 0	
-	_UIO( sanei_lm983x_write_byte(fd, 0x07, 0x00));
-	_UIO( sanei_lm983x_write_byte(fd, 0x08, 0x02));
-	_UIO( usbio_ReadReg(fd, 0x07, &value));
-	_UIO( usbio_ReadReg(fd, 0x08, &value));
-#endif	
-	_UIO( usbio_ReadReg(fd, 0x69, &value));
+	res = usbio_ReadReg(fd, 0x69, &value);
+	if( res != SANE_STATUS_GOOD ) {
+		DBG( _DBG_ERROR, " * could not read version register!\n");
+		return res;
+	}
 
 	value &= 7;
 	if (version)
@@ -300,32 +300,39 @@ static SANE_Status usbio_DetectLM983x( SANE_Int fd, SANE_Byte *version )
 				 break;
 	}
 
-	DBG( _DBG_INFO, "%s\n", buf ); 
+	DBG( _DBG_INFO, "%s\n", buf );
 	return res;
 }
 
-/**
+/** well, this is more or less a reset function, for LM9831 based devices
+ * we issue a real reset command, while for LM9832/3 based devices, checking
+ * and resetting register 7 will be enough...
  */
-static SANE_Status usbio_ResetLM983x( pPlustek_Device dev )
+static SANE_Status usbio_ResetLM983x( Plustek_Device *dev )
 {
 	SANE_Byte value;
-	pHWDef    hw = &dev->usbDev.HwSetting;
+	HWDef    *hw = &dev->usbDev.HwSetting;
 
 	if( _LM9831 == hw->chip ) {
 
+		DBG( _DBG_INFO," * resetting LM9831 device!\n");
 		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07, 0));
 		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07,0x20));
 		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07, 0));
 		_UIO( usbio_ReadReg( dev->fd, 0x07, &value));
 		if (value != 0) {
-    		DBG( _DBG_ERROR, "usbio_ResetLM983x: "
-							 "reset wasn't successful, status=%d\n", value );
+ 			DBG( _DBG_ERROR, "usbio_ResetLM983x: reset was not "
+			                 "successful, status=%d\n", value );
 			return SANE_STATUS_INVAL;
-    	}
-	} else {
-		_UIO( sanei_lm983x_write_byte( dev->fd, 0x07, 0));
-	}
+		}
 
+	} else {
+		_UIO( usbio_ReadReg( dev->fd, 0x07, &value));
+		if (value != 0 ) {
+			DBG( _DBG_INFO," * setting device to idle state!\n");
+			_UIO( sanei_lm983x_write_byte( dev->fd, 0x07, 0));
+		}
+	}
 	return SANE_STATUS_GOOD;
 }
 

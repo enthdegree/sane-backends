@@ -499,15 +499,16 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->read_bytes = 0;
     pss->hwst = pss->buf[INQUIRY_HWST];
     pss->hconfig = pss->buf[INQUIRY_HCFG];
-    pss->bpp = 8;
     switch (pss->pdev->model)
     {
     case PERFECTION1270:
     case PERFECTION1670:
     case PERFECTION2480:
+    case PERFECTION3490:
         pss->bpp = 14;
         break;
     default:
+        pss->bpp = 8;
         if (pss->hconfig & HCFG_ADC)
             pss->bpp = 10;
         break;
@@ -773,6 +774,9 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
             break;
         case PERFECTION2480:
             pos_factor = (pss->res > 1200) ?  2400 : 1200;
+            break;
+        case PERFECTION3490:
+            pos_factor = (pss->res > 1600) ?  3200 : 1600;
             break;
         default:
             pos_factor = pss->actual_res;
@@ -1331,6 +1335,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             case PERFECTION1270:
             case PERFECTION1670:
 	    case PERFECTION2480:
+	    case PERFECTION3490:
                 /* Epson firmware files contain an info block which
                    specifies the length of the firmware data. The
                    length information is stored at offset 0x64 from
@@ -1384,6 +1389,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.33  2005/08/15 18:06:37  oliver-guest
+ * Added support for Epson 3490/3590 (thanks to Matt Judge)
+ *
  * Revision 1.32  2005/07/18 17:37:37  oliver-guest
  * ZETA changes for SnapScan backend
  *

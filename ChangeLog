@@ -1,3 +1,10 @@
+2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-options.c backend/snapscan-scsi.c
+	  backend/snapscan.h doc/descriptions/snapscan.desc 
+	  backend/snapscan.conf: Added support for Epson Perfection 3490/3590 
+	  (thanks to Matt Judge).
+
 2005-08-15  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

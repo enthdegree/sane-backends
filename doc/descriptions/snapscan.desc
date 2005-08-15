@@ -251,5 +251,13 @@
 :status :basic
 :comment "Problems with preview scans reported, unplugging transparency unit seems to help"
 
+:model "Perfection 3490"
+:interface "USB"
+:status :basic
+
+:model "Perfection 3590"
+:interface "USB"
+:status :untested
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -178,9 +178,8 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
         break;
     case PERFECTION1270:
     case PERFECTION1670:
-        pos_factor = 800;
-        break;
     case PERFECTION2480:
+    case PERFECTION3490:
         pos_factor = 800;
         break;
     default:
@@ -1289,6 +1288,7 @@ static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char d
         case PERFECTION1270:
         case PERFECTION1670:
         case PERFECTION2480:
+        case PERFECTION3490:
             /* Some epson scanners need the gamma table twice */
             status = send (pss, dtc, dtcq);
             CHECK_STATUS (status, me, "2nd send");
@@ -1871,6 +1871,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.50  2005/08/15 18:06:37  oliver-guest
+ * Added support for Epson 3490/3590 (thanks to Matt Judge)
+ *
  * Revision 1.49  2005/08/07 12:37:29  oliver-guest
  * Use first known device if no device is specified
  *

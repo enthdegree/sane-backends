@@ -164,6 +164,16 @@ static const SANE_Range y_range_tpo_2480 =
     SANE_FIX (0.0), SANE_FIX (80.0), 0
 };        /* mm */
 
+/* TPO range for the Epson 3490 */
+static const SANE_Range x_range_tpo_3490 =
+{
+    SANE_FIX (0.0), SANE_FIX (33.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_3490 =
+{
+    SANE_FIX (0.0), SANE_FIX (162.0), 0
+};        /* mm */
+
 static SANE_Range x_range_tpo;
 static SANE_Range y_range_tpo;
 static const SANE_Range gamma_range =
@@ -221,6 +231,9 @@ static void init_options (SnapScan_Scanner * ps)
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600};
     static SANE_Word resolutions_2400[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
+    static SANE_Word resolutions_3200[] =
+        {13, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
+        //{17, 50, 72, 96, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -252,6 +265,10 @@ static void init_options (SnapScan_Scanner * ps)
     case PERFECTION2480:
         x_range_tpo = x_range_tpo_2480;
         y_range_tpo = y_range_tpo_2480;
+        break;
+    case PERFECTION3490:
+        x_range_tpo = x_range_tpo_3490;
+        y_range_tpo = y_range_tpo_3490;
         break;
     default:
         x_range_tpo = x_range_tpo_default;
@@ -308,6 +325,9 @@ static void init_options (SnapScan_Scanner * ps)
         break;
     case PERFECTION2480:
         po[OPT_SCANRES].constraint.word_list = resolutions_2400;
+        break;
+    case PERFECTION3490:
+        po[OPT_SCANRES].constraint.word_list = resolutions_3200;
         break;
     default:
         po[OPT_SCANRES].constraint.word_list = resolutions_600;
@@ -532,6 +552,7 @@ static void init_options (SnapScan_Scanner * ps)
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
         || (ps->pdev->model == SNAPSCANE52)
         || (ps->pdev->model == PERFECTION1670)
+        || (ps->pdev->model == PERFECTION3490)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
@@ -1514,6 +1535,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.22  2005/08/15 18:06:37  oliver-guest
+ * Added support for Epson 3490/3590 (thanks to Matt Judge)
+ *
  * Revision 1.21  2005/07/20 21:37:29  oliver-guest
  * Changed TPO scanning area for 2480/2580, reenabled 2400 DPI for 2480/2580
  *

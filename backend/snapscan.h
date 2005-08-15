@@ -102,7 +102,8 @@ typedef enum
     PERFECTION660,      /* Epson Perfection 660 - 1200 DPI */
     PERFECTION1270,     /* Epson Perfection 1270 - 1600 DPI */
     PERFECTION1670,     /* Epson Perfection 1670 - 1600 DPI */
-    PERFECTION2480,
+    PERFECTION2480,     /* Epson Perfection 2480 - 2400 DPI */
+    PERFECTION3490,     /* Epson Perfection 3490 - 3200 DPI */
     ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
 } SnapScan_Model;
 
@@ -138,7 +139,8 @@ static struct SnapScan_Driver_desc drivers[] =
     {PERFECTION660,  "Perfection 660"},
     {PERFECTION1270, "Perfection 1270"},
     {PERFECTION1670, "Perfection 1670"},
-    {PERFECTION2480, "Perfection 2480"}
+    {PERFECTION2480, "Perfection 2480"},
+    {PERFECTION3490, "Perfection 3490"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -190,6 +192,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"Perfection 660",      PERFECTION660},
     {"EPSON Scanner",       PERFECTION1670}, /* dummy entry to detect scanner */
     {"EPSON Scanner1",      PERFECTION2480}, /* dummy entry to detect scanner */
+    {"EPSON Scanner2",      PERFECTION3490}, /* dummy entry to detect scanner */
     {"ARCUS 1200",          ARCUS1200}
 };
 
@@ -221,6 +224,7 @@ static char *vendors[] =
 #define USB_PRODUCT_PERFECTION1270 0x0120
 #define USB_PRODUCT_PERFECTION1670 0x011f
 #define USB_PRODUCT_PERFECTION2480 0x0121
+#define USB_PRODUCT_PERFECTION3490 0x0122
 
 static SANE_Word usb_vendor_ids[] =
 {
@@ -245,7 +249,8 @@ static struct SnapScan_USB_Model_desc usb_scanners[] =
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION660, PERFECTION660}, /* Epson Perfection 660 */
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION1270, PERFECTION1270}, /* Epson Perfection 1270 */
     {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION1670, PERFECTION1670}, /* Epson Perfection 1670 */
-    {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION2480, PERFECTION2480} /* Epson Perfection 2480 */
+    {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION2480, PERFECTION2480}, /* Epson Perfection 2480 */
+    {USB_VENDOR_EPSON, USB_PRODUCT_PERFECTION3490, PERFECTION3490} /* Epson Perfection 3490 */
 };
 #define known_usb_scanners ((int) (sizeof(usb_scanners)/sizeof(usb_scanners[0])))
 
@@ -406,6 +411,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.34  2005/08/15 18:06:37  oliver-guest
+ * Added support for Epson 3490/3590 (thanks to Matt Judge)
+ *
  * Revision 1.33  2005/02/08 22:17:53  oliver-guest
  * Added IDs for Benq 5250C and 5000S
  *

@@ -55,6 +55,7 @@
  * - 0.49 - added typedef struct DevList
  *        - added button stuff
  *        - added transferRate to struct Plustek_Device
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -127,8 +128,8 @@
 
 #define _DEFAULT_NEG_TLX     1.5    /* 0..38.9 mm */
 #define _DEFAULT_NEG_TLY     1.5    /* 0..29.6 mm */
-#define _DEFAULT_NEG_BRX	37.5    /* 0..38.9 mm */
-#define _DEFAULT_NEG_BRY	25.5    /* 0..29.6 mm */
+#define _DEFAULT_NEG_BRX    37.5    /* 0..38.9 mm */
+#define _DEFAULT_NEG_BRY    25.5    /* 0..29.6 mm */
 
 /** image sizes for normal, transparent and negative modes
  */
@@ -231,7 +232,7 @@ enum {
 	OPT_OVR_GREEN_LOFF,
 	OPT_OVR_BLUE_LOFF,
 	OPT_BUTTON_GROUP,
-	OPT_BUTTON_0,         
+	OPT_BUTTON_0,
 	OPT_BUTTON_1,
 	OPT_BUTTON_2,
 	OPT_BUTTON_3,
@@ -265,10 +266,10 @@ typedef struct {
 	                          perhaps other Canon scanners require the
 	                          alternate autocalibration as well */
 	/* AFE adjustemnts, gain and offset */
-	int rgain;      
+	int rgain;
 	int ggain;
 	int bgain;
-	int rofs;      
+	int rofs;
 	int gofs;
 	int bofs;
 	
@@ -291,40 +292,40 @@ typedef struct {
 
 	double  graygamma;
 
-} AdjDef, *pAdjDef;
+} AdjDef;
 
 typedef struct {
 	unsigned short x;
 	unsigned short y;
 	unsigned short cx;
 	unsigned short cy;
-} CropRect, *pCropRect;
+} CropRect;
 
 typedef struct image {
-	unsigned long dwFlag;
-	CropRect      crArea;
-	XY            xyDpi;
-	unsigned short	wDataType;
-} ImgDef, *pImgDef;
+	unsigned long  dwFlag;
+	CropRect       crArea;
+	XY             xyDpi;
+	unsigned short wDataType;
+} ImgDef;
 
 typedef struct {
 	unsigned long dwPixelsPerLine;
 	unsigned long dwBytesPerLine;
 	unsigned long dwLinesPerArea;
 	ImgDef        ImgDef;
-} CropInfo, *pCropInfo;
+} CropInfo;
 
 typedef struct {
 	ImgDef ImgDef;
 	short  siBrightness;
 	short  siContrast;
-} ScanInfo, *pScanInfo;
+} ScanInfo;
 
 typedef struct {
 	unsigned long  dwFlag;
 	unsigned short wMaxExtentX; /**< scanarea width  */
 	unsigned short wMaxExtentY; /**< scanarea height */
-} ScannerCaps, *pScannerCaps;
+} ScannerCaps;
 
 typedef struct Plustek_Device
 {
@@ -355,7 +356,7 @@ typedef struct Plustek_Device
 	struct itimerval       saveSettings;     /* for lamp timer               */
 #endif
 
-} Plustek_Device, *pPlustek_Device;
+} Plustek_Device;
 
 #ifndef SANE_OPTION
 /* for compatibility with older versions */
@@ -390,7 +391,7 @@ typedef struct Plustek_Scanner
 
 	SANE_Option_Descriptor opt[NUM_OPTIONS];
 
-} Plustek_Scanner, *pPlustek_Scanner;
+} Plustek_Scanner;
 
 /** for collecting configuration info...
  */
@@ -402,7 +403,7 @@ typedef struct {
 	/* contains the stuff to adjust... */
 	AdjDef   adj;
 
-} CnfDef, *pCnfDef;
+} CnfDef;
 
 /** for supported device list
  */

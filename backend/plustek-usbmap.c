@@ -20,6 +20,7 @@
  * - 0.47 - cleanup work
  * - 0.48 - added support for binary from color scans
  * - 0.49 - changed usb_MapDownload
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -91,7 +92,7 @@ static void usb_MapAdjust( Plustek_Device *dev )
 
 	if( dev->scanning.sParam.brightness == 0 && dev->scanning.sParam.contrast )
 		return;
-	                
+
 	for( i = 0; i < tabLen; i++ ) {
 
 		tmp = ((double)(a_bMap[i] + b)) * c;
@@ -115,8 +116,8 @@ static void usb_MapAdjust( Plustek_Device *dev )
  */
 static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 {
-	pScanDef  scanning = &dev->scanning;
-	pDCapsDef sc       = &dev->usbDev.Caps;
+	ScanDef  *scanning = &dev->scanning;
+	DCapsDef *sc       = &dev->usbDev.Caps;
 
 	int       color;
 	int       i, threshold;
@@ -194,8 +195,8 @@ static SANE_Bool usb_MapDownload( Plustek_Device *dev )
 			
 		} else {
 			DBG( _DBG_INFO, "* downloading map %u...\n", color );
-			sanei_lm983x_write( dev->fd,  0x06, a_bMap+color*_MAP_SIZE,
-								 _MAP_SIZE, SANE_FALSE );
+			sanei_lm983x_write( dev->fd, 0x06, a_bMap+color*_MAP_SIZE,
+			                    _MAP_SIZE, SANE_FALSE );
 		}
 	
 	} /* for each color */

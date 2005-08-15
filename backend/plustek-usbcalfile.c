@@ -13,6 +13,7 @@
  * - 0.47 - no changes
  * - 0.48 - no changes
  * - 0.49 - a_bRegs is now part of the device structure
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -205,11 +206,11 @@ static void usb_RestoreCalData( Plustek_Device *dev, CalData *cal )
 
 /**
  */
-static void usb_CreatePrefix( pPlustek_Device dev, char *pfx )
+static void usb_CreatePrefix( Plustek_Device *dev, char *pfx )
 {
 	char       bd[5];
-	pScanDef   scanning = &dev->scanning;
-	pScanParam param    = &scanning->sParam;
+	ScanDef   *scanning = &dev->scanning;
+	ScanParam *param    = &scanning->sParam;
 
 	switch( scanning->sParam.bSource ) {
 
@@ -332,7 +333,7 @@ static void usb_PrepCalData( Plustek_Device *dev, CalData *cal )
 
 /** function to save/update the calibration data
  */
-static void usb_SaveCalData( pPlustek_Device dev )
+static void usb_SaveCalData( Plustek_Device *dev )
 {
 	char       pfx[20];
 	char       tmp[1024];
@@ -341,7 +342,7 @@ static void usb_SaveCalData( pPlustek_Device dev )
 	u_short    version;
 	FILE      *fp;
 	CalData    cal;
-	pScanDef   scanning = &dev->scanning;
+	ScanDef   *scanning = &dev->scanning;
 
 	DBG( _DBG_INFO, "usb_SaveCalData()\n" );
 
@@ -362,14 +363,14 @@ static void usb_SaveCalData( pPlustek_Device dev )
 	usb_CreatePrefix( dev, pfx );
 
 	sprintf( set_tmp, "%s%u,%u,%u,%u,%u,%u,"
-						  "%lu,%lu,%lu,%lu,%lu,%lu,%lu\n", pfx,
-						cal.red_gain,   cal.red_offs,
-						cal.green_gain, cal.green_offs,
-						cal.blue_gain,  cal.blue_offs,
-						cal.light.red_light_on,   cal.light.red_light_off,
-						cal.light.green_light_on, cal.light.green_light_off,
-						cal.light.blue_light_on,  cal.light.blue_light_off,
-						cal.light.green_pwm_duty );
+	                  "%lu,%lu,%lu,%lu,%lu,%lu,%lu\n", pfx,
+	                  cal.red_gain,   cal.red_offs,
+	                  cal.green_gain, cal.green_offs,
+	                  cal.blue_gain,  cal.blue_offs,
+	                  cal.light.red_light_on,   cal.light.red_light_off,
+	                  cal.light.green_light_on, cal.light.green_light_off,
+	                  cal.light.blue_light_on,  cal.light.blue_light_off,
+	                  cal.light.green_pwm_duty );
 
 	/* read complete old file if compatible... */
 	other_tmp = NULL;

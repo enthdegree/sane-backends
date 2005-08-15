@@ -51,6 +51,7 @@
  *        - cleanup
  * - 0.49 - tweaked motor settings for EPSON and CANON1200
  *        - added support for CanoScan LiDE25
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -240,7 +241,7 @@ static DCapsDef Cap0x07B3_0x0005_4 =
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
-	12,	5, kNEC3778, 0x05, _WAF_NONE, _NO_MIO
+	12, 5, kNEC3778, 0x05, _WAF_NONE, _NO_MIO
 };
 
 /* Plustek Model: ???, Genius ColorPage HR6A

@@ -37,6 +37,7 @@
  *          to struct DeviceDef
  *        - added CRYSTAL_FREQ
  *        - added IPCDef
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -117,56 +118,56 @@ typedef struct {
 	u_char Red;
 	u_char Green;
 	u_char Blue;
-} RGBByteDef, *pRGBByteDef;
+} RGBByteDef;
 
 typedef struct {
 	u_short Red;
 	u_short Green;
 	u_short Blue;
-} RGBUShortDef, *pRGBUShortDef;
+} RGBUShortDef;
 
 typedef struct {
 	u_long Red;
 	u_long Green;
 	u_long Blue;
-} RGBULongDef, *pRGBULongDef;
+} RGBULongDef;
 
 typedef struct {
 	u_char a_bColor[3];
-} ColorByteDef, *pColorByteDef;
+} ColorByteDef;
 
 typedef struct {
 	u_char bHi;
 	u_char bLo;
-} HiLoDef, *pHiLoDef;
+} HiLoDef;
 
 typedef union {
 	HiLoDef HiLo[3];
-	u_short	Colors[3];
-} ColorWordDef, *pColorWordDef;
+	u_short Colors[3];
+} ColorWordDef;
 
 typedef union {
-	HiLoDef	HiLo;
-	u_short	Mono;
-} MonoWordDef, *pMonoWordDef;
+	HiLoDef HiLo;
+	u_short Mono;
+} MonoWordDef;
 
 typedef union {
 
 	u_char       *pb;
 	u_short      *pw;
-	pMonoWordDef  pmw;
-	pColorByteDef pcb;
-	pColorWordDef pcw;
-	pRGBByteDef   pb_rgb;
-	pRGBUShortDef pw_rgb;
-	pHiLoDef      philo;
+	MonoWordDef  *pmw;
+	ColorByteDef *pcb;
+	ColorWordDef *pcw;
+	RGBByteDef   *pb_rgb;
+	RGBUShortDef *pw_rgb;
+	HiLoDef      *philo;
 
-} AnyPtr, *pAnyPtr;
+} AnyPtr;
 
 typedef struct {
 	unsigned short x;
 	unsigned short y;
-} XY, *pXY;
+} XY;
 
 #define _VAR_NOT_USED(x) ((x)=(x))
 
@@ -330,8 +331,8 @@ enum SCANFLAG
 typedef	struct Origins
 {
 	long lLeft;  /* How many pix to move the scanning org left, in optic res */
-	long lUp;	 /* How many pix to move the scanning or up, in optic res    */
-} OrgDef, *pOrgDef;
+	long lUp;    /* How many pix to move the scanning or up, in optic res    */
+} OrgDef;
 
 typedef struct SrcAttr
 {
@@ -345,7 +346,7 @@ typedef struct SrcAttr
 	XY     MinDpi;          /**< Minimum dpi supported for scanning          */
 	u_char bMinDataType;    /**< Minimum data type supports                  */
 
-} SrcAttrDef, *pSrcAttrDef;
+} SrcAttrDef;
 
 typedef struct DevCaps
 {
@@ -365,7 +366,7 @@ typedef struct DevCaps
 	                            /*   _WORKAROUNDS                            */
 	u_long     lamp;            /**< for lamp: loword: normal, hiword: tpa   */
 
-} DCapsDef, *pDCapsDef;
+} DCapsDef;
 
 /**
  * for keeping intial illumination settings
@@ -381,7 +382,7 @@ typedef struct
 	u_short blue_lamp_on;
 	u_short blue_lamp_off;
 
-} IllumiDef, *pIllumiDef;
+} IllumiDef;
 
 
 /** basic register settings
@@ -400,7 +401,7 @@ typedef struct HWDefault
 	u_short             wGreenPWMDutyCycleLow;
 	u_short             wGreenPWMDutyCycleHigh;
 	/* Registers */
-	u_char              bSensorConfiguration;	/* 0x0b */
+	u_char              bSensorConfiguration;           /* 0x0b */
 	/* Sensor control settings */
 	u_char              bReg_0x0c;
 	u_char              bReg_0x0d;
@@ -418,13 +419,13 @@ typedef struct HWDefault
 	/* initial illumination settings */
 	IllumiDef           illu_mono;
 	IllumiDef           illu_color;
-	
+
 	/* 0x1a & 0x1b, remember the u_char order is not Intel
 	 * format, you have to pay your attention when you
 	 * write this value to register.
 	 */
 	u_short             StepperPhaseCorrection;	
-	
+
 	/* Sensor Pixel Configuration
 	 * Actually, the wActivePixelsStart will be set to 0 for shading purpose.
 	 * We have to keep these values to adjust the origins when user does the
@@ -434,7 +435,7 @@ typedef struct HWDefault
 	u_char              bOpticBlackEnd;         /* 0x1d        */
 	u_short             wActivePixelsStart;     /* 0x1e & 0x1f */
 	u_short             wLineEnd;               /* 0x20 & 0x21 */
-	
+
 	/* illumination settings (runtime) */
 	u_short             red_lamp_on;            /* 0x2c & 0x2d */
 	u_short             red_lamp_off;           /* 0x2e & 0x2f */
@@ -442,7 +443,7 @@ typedef struct HWDefault
 	u_short             green_lamp_off;         /* 0x32 & 0x33 */
 	u_short             blue_lamp_on;           /* 0x34 & 0x35 */
 	u_short             blue_lamp_off;          /* 0x36 & 0x37 */
-	
+
 	/* Misc */
 	u_char              bReg_0x45;
 	u_short             wStepsAfterPaperSensor2;/* 0x4c & 0x4d */
@@ -459,11 +460,11 @@ typedef struct HWDefault
 	u_char              bReg_0x5c;
 	u_char              bReg_0x5d;
 	u_char              bReg_0x5e;
-	
+
 	eChipDef            chip;           /* chiptype               */
 	eModelDef           motorModel;     /* to identify used motor */
 	double              gamma;          /* gamma setting          */
-} HWDef, *pHWDef;
+} HWDef;
 
 /** device description during runtime
  */
@@ -474,7 +475,7 @@ typedef struct DeviceDef
 	int         product;       /**< product ID                               */
 	DCapsDef    Caps;          /**< pointer to the attribute of current dev  */
 	HWDef       HwSetting;     /**< Pointer to the characteristics of device */
-	pSrcAttrDef pSource;       /**< Scanning src, it's equal to Caps.Normal  */
+	SrcAttrDef *pSource;       /**< Scanning src, it's equal to Caps.Normal  */
 	                           /**< on the source that the user specified.   */
 	OrgDef      Normal;        /**< Reflection - Pix to adjust scanning orgs */
 	OrgDef      Positive;      /**< Pos film - Pix to adjust scanning orgs   */
@@ -488,17 +489,17 @@ typedef struct DeviceDef
 	SANE_Bool   fLastScanIsAdf;/**<                                          */
 	u_char      a_bRegs[0x80]; /**< our global register file                 */
 
-} DeviceDef, *pDeviceDef;
+} DeviceDef;
 
 
 typedef struct Settings
 {
-    char      *pIDString;
-	pDCapsDef  pDevCaps;
-	pHWDef     pHwDef;
+	char      *pIDString;
+	DCapsDef  *pDevCaps;
+	HWDef     *pHwDef;
 	char      *pModelString;
 
-} SetDef, *pSetDef;
+} SetDef;
 
 /**
  */
@@ -517,7 +518,7 @@ typedef struct
 	                      /*   request dpi (CCD lines distance)              */
 	u_long dwTotalBytes;  /**< Total bytes per scan                          */
 
-} WinInfo, *pWinInfo;
+} WinInfo;
 
 /**
  */
@@ -554,7 +555,7 @@ typedef struct
 	int     swOffset[3];  /**< for calibration adjustment                  */
 	int     swGain[3];    /**< for calibration adjustment                  */
 
-} ScanParam, *pScanParam;
+} ScanParam;
 
 struct Plustek_Device;
 
@@ -605,7 +606,7 @@ typedef struct ScanDef
 
 	u_char  bLinesToSkip;     /**< how many lines to skip at start */
 
-} ScanDef, *pScanDef;
+} ScanDef;
 
 
 /** max number of different colck settings */
@@ -619,7 +620,7 @@ typedef struct
 	u_char pwm_duty;            /**< PWM duty cycles */
 	u_char scan_lines_per_line; /**< lines to scan to obtain 1 real line
                                       will be used in 16bit color modes only */
-} MDef, *pMDef;
+} MDef;
 
 /** according to the CCD and motor, we provide various settings
  */
@@ -645,7 +646,7 @@ typedef struct {
 	double gray_mclk_8[_MAX_CLK];   /**< MCLK settings for gray scan         */
 	double gray_mclk_16[_MAX_CLK];  /**< MCLK settings for gray (16bit) scan */
 
-} ClkMotorDef, *pClkMotorDef;
+} ClkMotorDef;
 
 /** for transferring some info between child and parent after calibration
  */

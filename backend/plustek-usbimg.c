@@ -29,6 +29,7 @@
  *        - added usb_BWScaleFromColor() and usb_BWDuplicateFromColor
  *        - cleanup
  * - 0.49 - a_bRegs is now part of the device structure
+ * - 0.50 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -200,7 +201,7 @@ static void usb_ReverseBitStream( u_char *pSrc, u_char *pTar, int iPixels,
 static void usb_AverageColorByte( Plustek_Device *dev )
 {
 	u_long   dw;
-	pScanDef scan = &dev->scanning;
+	ScanDef *scan = &dev->scanning;
 
 	if((scan->sParam.bSource == SOURCE_Negative ||
 	    scan->sParam.bSource == SOURCE_Transparency) &&
@@ -229,7 +230,7 @@ static void usb_AverageColorWord( Plustek_Device *dev )
 {
 	u_char   ls = 2;
 	u_long   dw;
-	pScanDef scan = &dev->scanning;
+	ScanDef *scan = &dev->scanning;
 
 	if((scan->sParam.bSource == SOURCE_Negative ||
 		scan->sParam.bSource == SOURCE_Transparency) &&
@@ -268,7 +269,7 @@ static void usb_AverageColorWord( Plustek_Device *dev )
 static void usb_AverageGrayByte( Plustek_Device *dev )
 {
 	u_long   dw;
-	pScanDef scan = &dev->scanning;
+	ScanDef *scan = &dev->scanning;
 
 	if((scan->sParam.bSource == SOURCE_Negative ||
 		scan->sParam.bSource == SOURCE_Transparency) &&
@@ -285,7 +286,7 @@ static void usb_AverageGrayByte( Plustek_Device *dev )
 static void usb_AverageGrayWord( Plustek_Device *dev )
 {
 	u_long   dw;
-	pScanDef scan = &dev->scanning;
+	ScanDef *scan = &dev->scanning;
 
 	if((scan->sParam.bSource == SOURCE_Negative ||
 		scan->sParam.bSource == SOURCE_Transparency) &&
@@ -442,13 +443,13 @@ static void usb_ColorDuplicate16_2( Plustek_Device *dev )
 	for( dw = 0; dw < scan->sParam.Size.dwPixels; dw++, pixels += next) {
 
 		if( swap ) {
-			tmp = *((pHiLoDef)&scan->Red.pw[dw]);
+			tmp = *((HiLoDef*)&scan->Red.pw[dw]);
 			scan->UserBuf.pw_rgb[pixels].Red = _HILO2WORD(tmp) >> ls;
 
-			tmp = *((pHiLoDef)&scan->Green.pw[dw]);
+			tmp = *((HiLoDef*)&scan->Green.pw[dw]);
 			scan->UserBuf.pw_rgb[pixels].Green = _HILO2WORD(tmp) >> ls;
 
-			tmp = *((pHiLoDef)&scan->Blue.pw[dw]);
+			tmp = *((HiLoDef*)&scan->Blue.pw[dw]);
 			scan->UserBuf.pw_rgb[pixels].Blue = _HILO2WORD(tmp) >> ls;
 
 		} else {
@@ -721,7 +722,7 @@ static void usb_GrayDuplicatePseudo16( Plustek_Device *dev )
  */
 static void usb_BWDuplicate( Plustek_Device *dev )
 {
-	pScanDef scan = &dev->scanning;
+	ScanDef *scan = &dev->scanning;
 
 	if(scan->sParam.bSource == SOURCE_ADF)
 	{
@@ -1126,13 +1127,13 @@ static void usb_ColorScale16_2( Plustek_Device *dev )
 
 			if( swap ) {
 					
-				tmp = *((pHiLoDef)&scan->Red.pw[bitsput]);
+				tmp = *((HiLoDef*)&scan->Red.pw[bitsput]);
 				scan->UserBuf.pw_rgb[pixels].Red = _HILO2WORD(tmp) >> ls;
 
-				tmp = *((pHiLoDef)&scan->Green.pw[bitsput]);
+				tmp = *((HiLoDef*)&scan->Green.pw[bitsput]);
 				scan->UserBuf.pw_rgb[pixels].Green = _HILO2WORD(tmp) >> ls;
 
-				tmp = *((pHiLoDef)&scan->Blue.pw[bitsput]);
+				tmp = *((HiLoDef*)&scan->Blue.pw[bitsput]);
 				scan->UserBuf.pw_rgb[pixels].Blue = _HILO2WORD(tmp) >> ls;
 
 			} else {

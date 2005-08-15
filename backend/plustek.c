@@ -75,6 +75,8 @@
  *        - tweaked some device settings
  *        - added button support
  *        - moved AFE stuff to enhanced options
+ * - 0.50 - cleanup
+ *        - activated IPC stuff
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -150,13 +152,15 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.49-8"
+#define BACKEND_VERSION "0.50-1"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_thread.h"
+
+#define USE_IPC
 
 #include "plustek-usb.h"
 #include "plustek.h"
@@ -250,7 +254,7 @@ static SANE_Auth_Callback auth = NULL;
  * @param cnf - pointer to the configuration structure whose content should be
  *              displayed
  */
-static void show_cnf( pCnfDef cnf )
+static void show_cnf( CnfDef *cnf )
 {
 	DBG( _DBG_SANE_INIT,"Device configuration:\n" );
 	DBG( _DBG_SANE_INIT,"device name  : >%s<\n",cnf->devName                 );
@@ -1161,7 +1165,7 @@ static SANE_Bool decodeDevName( char *src, char *dest )
 /** attach a device to the backend
  */
 static SANE_Status attach( const char *dev_name,
-                           pCnfDef cnf, Plustek_Device **devp )
+                           CnfDef *cnf, Plustek_Device **devp )
 {
 	int             cntr;
 	int             result;
@@ -1296,7 +1300,7 @@ static SANE_Status attach( const char *dev_name,
 /** function to preset a configuration structure
  * @param cnf - pointer to the structure that should be initialized
  */
-static void init_config_struct( pCnfDef cnf )
+static void init_config_struct( CnfDef *cnf )
 {
 	memset( cnf, 0, sizeof(CnfDef));
 

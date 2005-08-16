@@ -480,7 +480,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->chroma = 0;
         break;
     case PERFECTION2480:
-    case PERFECTION3590:
+    case PERFECTION3490:
         /* TODO: remove */
         snapscani_debug_data(tmpstr, pss->buf+120, 18);
         DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
@@ -1420,6 +1420,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.35  2005/08/16 17:19:20  oliver-guest
+ * Make compileable again
+ *
  * Revision 1.34  2005/08/15 18:56:55  oliver-guest
  * Added temporary debug code for 2480/2580 distinction
  *

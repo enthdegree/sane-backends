@@ -1,3 +1,7 @@
+2005-08-16  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c: Make compileable ;-)
+
 2005-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP780 and

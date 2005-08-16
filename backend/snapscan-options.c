@@ -233,7 +233,6 @@ static void init_options (SnapScan_Scanner * ps)
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
     static SANE_Word resolutions_3200[] =
         {13, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
-        //{17, 50, 72, 96, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -1535,6 +1534,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.23  2005/08/16 20:15:10  oliver-guest
+ * Removed C++-style comment
+ *
  * Revision 1.22  2005/08/15 18:06:37  oliver-guest
  * Added support for Epson 3490/3590 (thanks to Matt Judge)
  *

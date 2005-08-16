@@ -1,6 +1,6 @@
 /* sane-find-scanner.c
 
-   Copyright (C) 1997-2004 Oliver Rauch, Henning Meier-Geinitz, and others.
+   Copyright (C) 1997-2005 Oliver Rauch, Henning Meier-Geinitz, and others.
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -1439,9 +1439,10 @@ main (int argc, char **argv)
   if (verbose > 1)
     printf ("This is sane-find-scanner from %s\n", PACKAGE_STRING);
 
-  printf ("\n  # sane-find-scanner will now attempt to detect your scanner. If the"
-	  "\n  # result is different from what you expected, first make sure your"
-	  "\n  # scanner is powered up and properly connected to your computer.\n\n");
+  if (verbose > 0)
+    printf ("\n  # sane-find-scanner will now attempt to detect your scanner. If the"
+	    "\n  # result is different from what you expected, first make sure your"
+	    "\n  # scanner is powered up and properly connected to your computer.\n\n");
 
   if (verbose > 1)
     printf ("searching for SCSI scanners:\n");

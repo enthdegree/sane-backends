@@ -6,6 +6,8 @@
 	
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP780 and
 	  Lexmark P6250.
+	* tools/sane-find-scanner.c: Don't print anything else but the
+	  found messages in "-q" mode.
 	
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

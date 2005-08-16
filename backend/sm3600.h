@@ -190,7 +190,7 @@ typedef struct TInstance {
   TQuality           quality;
   TMode              mode;
   TModel             model;
-  usb_dev_handle    *hScanner;
+  int                hScanner;
   FILE              *fhLog;
   FILE              *fhScan;
   int                ichPageBuffer; /* write position in full page buffer */

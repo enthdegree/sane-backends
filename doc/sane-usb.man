@@ -1,4 +1,4 @@
-.TH sane-usb 5 "29 May 2005"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-usb 5 "16 August 2005"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-usb
 .SH NAME
 sane-usb \- USB configuration tips for SANE
@@ -7,14 +7,12 @@ This manual page contains information on how to access scanners with a USB
 interface. It focusses on two main topics: getting the scanner detected by the
 operating system kernel and using it with SANE.
 .PP
-This page applies to most backends and scanners, as they use the generic
-sanei_usb interface. However, there are some exceptions: USB Scanners
+This page applies to USB most backends and scanners, as they use the generic
+sanei_usb interface. However, there is one exceptions: USB Scanners
 supported by the microtek2 backend need a special USB kernel
 driver, see
 .BR sane-microtek2 (5)
-for details. The sm3600 backend accesses scanners over libusb dierctly. See the
-appropriate section in this manpage and
-.BR sane-sm3600 (5).
+for details. 
 
 .SH "QUICK START"
 This is a short HOWTO-like section. For the full details, read the following

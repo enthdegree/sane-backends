@@ -68,14 +68,20 @@ static int TransferControlMsg(TInstance *this,
 		       int  cchBuffer,
 		       int  cJiffiesTimeout)
 {
-  return usb_control_msg(this->hScanner,
+  SANE_Status err;
+
+  cJiffiesTimeout = cJiffiesTimeout;
+
+  err = sanei_usb_control_msg (this->hScanner,
 			 nReqType,
 			 nRequest,
 			 nValue,
 			 nIndex,
-			 pBuffer,
 			 cchBuffer,
-			 cJiffiesTimeout);
+			 pBuffer);
+  if (err)
+    return err;
+  return cchBuffer;
 }
 
 /* **********************************************************************
@@ -90,11 +96,18 @@ static int TransferBulkRead(TInstance *this,
 	     int cchMax,
 	     int cJiffiesTimeout)
 {
-  return usb_bulk_read(this->hScanner,
-		       nEndPoint,
-		       pBuffer,
-		       cchMax,
-		       cJiffiesTimeout);
+  int err;
+  size_t sz = cchMax;
+
+  nEndPoint = nEndPoint;
+  cJiffiesTimeout = cJiffiesTimeout;
+
+  err = sanei_usb_read_bulk(this->hScanner,
+			    pBuffer,
+			    &sz);
+  if (err)
+    return err;
+  return sz;
 }
 
 /* **********************************************************************
@@ -310,7 +323,9 @@ int BulkRead(TInstance *this, FILE *fhOut, unsigned int cchBulk)
 	{
 	  rc=SetError(this,SANE_STATUS_IO_ERROR,
 		      "bulk read of %d bytes failed: %s",
-		      cchChunk,usb_strerror());
+		      cchChunk,
+		      "I/O error"
+		      );
 	  continue;
 	}
     }
@@ -371,7 +386,9 @@ int BulkReadBuffer(TInstance *this,
       else
 	rc=SetError(this,SANE_STATUS_IO_ERROR,
 		    "bulk read of %d bytes failed: %s",
-		    cchChunk,usb_strerror());
+		    cchChunk,
+		    "I/O error"
+		    );
     }
   dprintf(DEBUG_COMM,"writing %d bytes\n",cchRead);
   

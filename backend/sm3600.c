@@ -55,24 +55,25 @@ Start: 2.4.2001
 
 ====================================================================== */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-#include <usb.h>
-
-#define BUILD	5
+#define BUILD	6
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME sm3600
 #endif
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_config.h"
-#include "sane/saneopts.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_usb.h"
+
+#undef HAVE_LIBUSB
 
 /* prevent inclusion of scantool.h */
 #define SCANTOOL_H
@@ -326,7 +327,8 @@ InitOptions(TInstance *this)
 }
 
 static SANE_Status
-RegisterSaneDev (struct usb_device *pdevUSB, TModel model, char *szName){
+RegisterSaneDev (TModel model, SANE_String_Const szName)
+{
   TDevice * q;
 
   errno = 0;
@@ -342,7 +344,6 @@ RegisterSaneDev (struct usb_device *pdevUSB, TModel model, char *szName){
   q->sane.model  = "ScanMaker 3600";
   q->sane.type   = "flatbed scanner";
 
-  q->pdev=pdevUSB;
   q->model=model;
 
   ++num_devices;
@@ -351,13 +352,37 @@ RegisterSaneDev (struct usb_device *pdevUSB, TModel model, char *szName){
 
   return SANE_STATUS_GOOD;
 }
+ 
+static SANE_Status 
+sm_usb_attach (SANE_String_Const dev_name)
+{
+  int fd;
+  SANE_Status err;
+  SANE_Word v, p;
+  TModel model;
+
+  err = sanei_usb_open(dev_name, &fd);
+  if (err)
+    return err;
+  err = sanei_usb_get_vendor_product (fd, &v, &p);
+  if (err)
+    {
+      sanei_usb_close (fd);
+      return err;
+    }
+  DBG (DEBUG_JUNK, "found dev %04X/%04X, %s\n", v, p, dev_name);
+  model = GetScannerModel (v, p);
+  if (model != unknown)
+    RegisterSaneDev (model, dev_name);
+
+  sanei_usb_close(fd);
+  return SANE_STATUS_GOOD;
+}
 
 SANE_Status
 sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
 {
-  struct usb_bus    *pbus;
-  struct usb_device *pdev;
-  int                iBus;
+  int                i;
 
   DBG_INIT();
 
@@ -372,38 +397,11 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
    }
 
   pdevFirst=NULL;
-
-  usb_init();
-  usb_find_busses();
-  if (!usb_busses)
-    return SANE_STATUS_IO_ERROR;
-
-  usb_find_devices();
-
-  iBus=0;
-  DBG(DEBUG_INFO,"starting bus scan\n");
-  for (pbus = usb_busses; pbus; pbus = pbus->next)
+  
+  sanei_usb_init();
+  for (i = 0; aScanners[i].idProduct; i++) 
     {
-      int iDev=0;
-      iBus++;
-      /* 0.1.3b no longer has a "busnum" member */
-      DBG(DEBUG_JUNK,"scanning bus %s\n", pbus->dirname);
-      for (pdev=pbus->devices; pdev; pdev  = pdev->next)
-	{
-	  TModel model;
-	  iDev++;
-	  DBG(DEBUG_JUNK,"found dev %04X/%04X\n",
-		  pdev->descriptor.idVendor,
-		  pdev->descriptor.idProduct);
-	  model=GetScannerModel(pdev->descriptor.idVendor,
-				       pdev->descriptor.idProduct);
-	  if (model!=unknown)
-	    {
-	      char ach[100];
-	      sprintf(ach,"%d/%d",iBus,iDev);
-	      RegisterSaneDev(pdev,model,ach);
-	    }
-	}
+      sanei_usb_find_devices(SCANNER_VENDOR, aScanners[i].idProduct, sm_usb_attach);
     }
   return SANE_STATUS_GOOD;
 }
@@ -464,8 +462,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   if (devicename[0]) /* selected */
     {
       for (pdev=pdevFirst; pdev; pdev=pdev->pNext)
+{
+DBG(DEBUG_VERBOSE,"%s<>%s\n",devicename, pdev->sane.name);
 	if (!strcmp(devicename,pdev->sane.name))
 	  break;
+}
       /* no dynamic post-registration */
     }
   else
@@ -482,14 +483,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   pinstFirst=this;
   this->model=pdev->model; /* memorize model */
   /* open and prepare USB scanner handle */
-  this->hScanner=usb_open(pdev->pdev);
-  if (!this->hScanner)
-    return SetError(this,SANE_STATUS_IO_ERROR, "cannot open scanner device");
-  rc=SANE_STATUS_GOOD;
-  if (usb_claim_interface(this->hScanner, 0))
-    return SetError(this,SANE_STATUS_IO_ERROR, "cannot claim IF");
-  if (usb_set_configuration(this->hScanner, 1))
-    return SetError(this,SANE_STATUS_IO_ERROR, "cannot set USB config 1");
+
+  if (sanei_usb_open (devicename, &this->hScanner) != SANE_STATUS_GOOD)
+    return SetError (this, SANE_STATUS_IO_ERROR, "cannot open scanner device");
+
+  rc = SANE_STATUS_GOOD;
 
   this->quality=fast;
   return InitOptions(this);
@@ -505,8 +503,9 @@ sane_close (SANE_Handle handle)
     {
       if (this->state.bScanning)
 	EndScan(this);
-      usb_close(this->hScanner);
-      this->hScanner=NULL;
+
+      sanei_usb_close(this->hScanner);
+      this->hScanner=-1;
     }
   ResetCalibration(this); /* release calibration data */
   /* unlink active device entry */

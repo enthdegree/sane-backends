@@ -430,6 +430,7 @@ libsane-sharp.la: ../sanei/sanei_config2.lo
 libsane-sharp.la: ../sanei/sanei_constrain_value.lo
 libsane-sharp.la: ../sanei/sanei_scsi.lo
 libsane-sm3600.la: ../sanei/sanei_constrain_value.lo
+libsane-sm3600.la: ../sanei/sanei_usb.lo
 libsane-sm3840.la: ../sanei/sanei_config2.lo
 libsane-sm3840.la: ../sanei/sanei_constrain_value.lo
 libsane-sm3840.la: ../sanei/sanei_usb.lo

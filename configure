@@ -26142,7 +26142,8 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
           microtek2 mustek mustek_usb nec pie plustek \
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-          artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash sm3840 hp4200"
+          artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash sm3840 hp4200 \
+          sm3600"
 
   if test "${sane_cv_use_libjpeg}" != "yes"; then
     echo "*** disabling DC210 backend (failed to find JPEG library)"
@@ -26216,12 +26217,6 @@ else
     echo "*** disabling pnm backend (not selected manually)"
 
 fi;
-
-  if test "${HAVE_LIBUSB}" != "yes" ; then
-    echo "*** disabling SM3600 backend (libusb or usb.h not found)"
-  else
-    BACKENDS="${BACKENDS} sm3600"
-  fi
 fi
 fi
 

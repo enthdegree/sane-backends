@@ -1,4 +1,4 @@
-.TH sane-sm3600 5 "10.02.2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-sm3600 5 "16 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-sm3600
 .SH NAME
 sane-sm3600 \- SANE backend for Microtek scanners with M011 USB chip
@@ -9,7 +9,7 @@ library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with the Toshiba M011 custom
 USB chip.  This backend should be considered alpha.
 .PP 
-There exist a backends for Microtek scanners with SCSI command set.
+There are also backends for Microtek scanners with SCSI command set.
 Refer to sane-microtek(5) and sane-microtek2(5) for details.
 .PP
 At present, the following
@@ -55,23 +55,6 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-sm3600.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
-
-.SH PERMISSIONS AND INTERFACES
-
-The backend uses \fBlibusb\fR and it's pseudo files in
-\fI/proc/bus/usb/*\fR. Since \fBlibusb\fR versions 0.1.3b and 0.1.4 have
-incompatible binary data structures, You must be shure not to have obsolete
-header files. When You mix wrong versions, the scanner detection code will
-raise a "segment violation".
-
-These files are normally owned by \fBroot\fR and You are responsible
-to get access to these files, for example \fBchown\fR-ing them to
-Yourself. If You have no right permissions, the backend will find the
-device, but You'll get an I/O error.
-
-The better way is to use automatical \fBhotplugging\fR. See
-\fIhttp://sm3600.sf.net/hotplug.html\fR for instructions and useful
-links.
 
 .SH ENVIRONMENT
 .TP

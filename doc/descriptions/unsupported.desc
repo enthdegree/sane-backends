@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-08-09"		; version of backend
+:version "2005-08-16"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -389,6 +389,12 @@
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
+:model "PIXMA MP780"
+:url "/unsupported/canon-pixma-mp780.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
 ;********************************************************************************************
 :mfg "Chinon"
 
@@ -748,6 +754,12 @@
 
 :mfg "Lexmark"
 :url "http://www.lexmark.com/"
+
+:model "P6250"
+:url "/unsupported/lexmark-p6250.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "Photo 3150"
 :url "/unsupported/lexmark-3150.html"

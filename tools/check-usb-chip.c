@@ -1,7 +1,7 @@
 /*
    check-usb-chip.c -- Find out what USB scanner chipset is used
    
-   Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2003 Gerhard Jäger <gerhard@gjaeger.de>
                       for LM983x tests
    Copyright (C) 2003 Gerard Klaver <gerard at gkall dot hobby dot nl>
@@ -28,7 +28,6 @@
 
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -841,7 +840,7 @@ static char *
 check_ma1509 (struct usb_device *dev)
 {
   char req[8];
-  unsigned char inquiry[0x60];
+  char inquiry[0x60];
   usb_dev_handle *handle;
   int result;
 
@@ -2063,6 +2062,184 @@ check_icm532b (struct usb_device *dev)
   return "ICM532B";
 }
 
+/* Check for the combination of a PowerVision PV8630 (USB->parport bridge)
+   and National Semiconductor LM9830 */
+static char *
+check_pv8630_lm9830 (struct usb_device *dev)
+{
+  usb_dev_handle *handle;
+  int result;
+  char data;
+
+  if (verbose > 2)
+    printf ("    checking for PV8630/LM9830 ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != USB_CLASS_PER_INTERFACE)
+    {
+      if (verbose > 2)
+	printf ("    this is not a PV8630/LM9830 (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x100)
+    {
+      if (verbose > 2)
+	printf ("    this is not a PV8630/LM9830 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    this is not a PV8630/LM9830 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    this is not a PV8630/LM9830 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a PV8630/LM9830 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  /* Endpoint 0 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a PV8630/LM9830 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+  /* Endpoint 1 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x82)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a PV8630/LM9830 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+  /* Endpoint 2 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0x01))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a PV8630/LM9830 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  /* Now we write/read a register (red offset) */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "PV8630/LM9830?";
+
+  result = 
+    usb_control_msg (handle, 0x40, 0x01, 0x38, 0x01, NULL, 0, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send write register number (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  result =
+    usb_control_msg (handle, 0x40, 0x01, 0x0f, 0x00,  NULL, 0, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send register data (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  result = 
+    usb_control_msg (handle, 0x40, 0x01, 0x38, 0x01, NULL, 0, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send read register number (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  result =
+    usb_control_msg (handle, 0xc0, 0x00, 0, 0x00, &data, 1, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read register data (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  if (data != 0x0f)
+    {
+      if (verbose > 2)
+	printf ("    Data read != data written (%d/%d)\n", data, 0x0f);
+      finish_interface (handle);
+      return 0;
+    }
+
+  finish_interface (handle);
+  return "PV8630/LM9830";
+}
+
 /* ====================================== end of icm532b ==================*/
 
 char *
@@ -2110,6 +2287,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_icm532b (dev);
+
+  if (!chip_name)
+    chip_name = check_pv8630_lm9830 (dev);
 
   if (verbose > 2)
     {

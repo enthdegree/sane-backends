@@ -8,6 +8,10 @@
 	  Lexmark P6250.
 	* tools/sane-find-scanner.c: Don't print anything else but the
 	  found messages in "-q" mode.
+	* tools/check-usb-chip.c: Added check for combination of a
+	  PowerVision PV8630 (USB->parport bridge) and National
+	  Semiconductor LM9830 as used in the HP 4200. Fixed compilation
+	  warning. 
 	
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

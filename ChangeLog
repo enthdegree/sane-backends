@@ -12,7 +12,8 @@
 	* tools/check-usb-chip.c: Added check for combination of a
 	  PowerVision PV8630 (USB->parport bridge) and National
 	  Semiconductor LM9830 as used in the HP 4200. Fixed compilation
-	  warning.
+	  warning. Added check for Toshiba M011 chips as used in Microtek
+	  ScanMaker 3600, 3700, and 3750.
 	* configure configure.in backend/Makefile.in backend/sm3600-scanusb.c
 	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h
 	  doc/sane-sm3600.man doc/sane-usb.man:

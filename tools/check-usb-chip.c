@@ -2240,6 +2240,121 @@ check_pv8630_lm9830 (struct usb_device *dev)
   return "PV8630/LM9830";
 }
 
+
+/* Check for Toshiba M011 */
+static char *
+check_m011 (struct usb_device *dev)
+{
+  usb_dev_handle *handle;
+  int result;
+  char data;
+
+  if (verbose > 2)
+    printf ("    checking for M011 ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
+    {
+      if (verbose > 2)
+	printf ("    this is not a M011 (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x100)
+    {
+      if (verbose > 2)
+	printf ("    this is not a M011 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != USB_CLASS_VENDOR_SPEC)
+    {
+      if (verbose > 2)
+	printf ("    this is not a M011 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != USB_CLASS_VENDOR_SPEC)
+    {
+      if (verbose > 2)
+	printf ("    this is not a M011 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 1)
+    {
+      if (verbose > 2)
+	printf ("    this is not a M011 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  /* Endpoint 0 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x82)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a M011 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  /* Now we write/read a register (red offset) */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "M011?";
+
+  data = 0x63;
+
+  result = 
+    usb_control_msg (handle, 0x40, 0x08, 0x34, 0x00, &data, 1, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't write register (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+  data = 0;
+
+  result =
+    usb_control_msg (handle, 0xc0, 0x00, 0x34, 0x00, &data, 1, TIMEOUT);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read register (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  if (data != 0x63)
+    {
+      if (verbose > 2)
+	printf ("    Data read != data written (%d/%d)\n", data, 0x63);
+      finish_interface (handle);
+      return 0;
+    }
+
+  finish_interface (handle);
+  return "M011";
+}
+
 /* ====================================== end of icm532b ==================*/
 
 char *
@@ -2290,6 +2405,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_pv8630_lm9830 (dev);
+
+  if (!chip_name)
+    chip_name = check_m011 (dev);
 
   if (verbose > 2)
     {

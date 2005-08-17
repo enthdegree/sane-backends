@@ -1,3 +1,7 @@
+2005-08-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README: Min. libusb version is 0.1.8.
+
 2005-08-17  Julien Blache <jb@jblache.org>
 	* tools/hotplug/libsane.usermap: Added USB IDs for the
 	sm3600-supported scanners. If you know the exact model name

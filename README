@@ -42,7 +42,7 @@ In order to build SANE, the following tools and libraries are required:
 Some more libraries are not strictly necessary to compile SANE, but some
 functionality may be lost if they are not available:
         
-        - libusb (>=0.1.6): Strongly recommended if you use a USB scanner.
+        - libusb (>=0.1.8): Strongly recommended if you use a USB scanner.
           Some backends won't work without libusb at all.
 
         - libjpeg (>=6B): For the dc210, dc240, and gphoto2 backends.

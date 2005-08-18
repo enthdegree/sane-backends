@@ -6,8 +6,6 @@ General:
 - some sort of fixed lookup-table may be necessary to compensate for the
   non-linear CCD/CIS behaviour. A gamma value is not good enough. Or maybe line
   calibration  can be used for that?
-- Scanning on *BSD works only once for all scanners but 2448. Firmware 
-  upload sometimes works more than once
 - Check autobandwidth
 - check several get scanner info functions
 - check exposure (start + stop)?

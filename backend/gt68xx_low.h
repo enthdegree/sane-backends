@@ -1038,7 +1038,20 @@ static SANE_Status
 gt68xx_device_check_result (GT68xx_Packet res, SANE_Byte command);
 
 
-static SANE_Status gt68xx_device_get_id (GT68xx_Device * dev);
+static SANE_Status 
+gt68xx_device_get_id (GT68xx_Device * dev);
+
+/** Read the device descriptor of the scanner.
+ *
+ * This function should be called before closing the device to make sure
+ * that the device descriptor is propperly stored in the scanner's memory.
+ * If that's not done, the next try to get the config descriptor will
+ * result in a corrupted descriptor.
+ *
+ * @param dev device
+*/
+static void 
+gt68xx_device_fix_descriptor (GT68xx_Device * dev);
 
 #endif /* not GT68XX_LOW_H */
 

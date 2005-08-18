@@ -1,6 +1,17 @@
 gt68xx.CHANGES -*-text-*-
 
-V 1.0.71 (2005-07-10)
+V 1.0.72 (2005-08-18)
+
+* Finally fixed the problem concerning scanning on *BSD. Scanning only worked
+  once. After that, the scanner wasn't even detected anymore beacuse the config
+  descriptor returned by the device was corrupted. This is a hardware bug. When
+  filling the internal memory of the scanner completely, the config descriptor
+  is overwritten. The work-around is to ask the scanner for the device
+  descriptor before closing the device. This rewrites also the config descriptor
+  to the memory of the scanner.
+* Fixed compilation warnings.
+
+V 1.0.71 (2005-07-10) Included in sane-backends 1.0.16
 
 * Changed resolution from 75 to 100 dpi and changed 16 bit/color to 12 based on
   a user report for the Visioneer OneTouch 7300. Updated .desc.

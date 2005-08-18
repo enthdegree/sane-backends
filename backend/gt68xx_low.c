@@ -1013,4 +1013,12 @@ gt68xx_device_get_id (GT68xx_Device * dev)
     return SANE_STATUS_UNSUPPORTED;
 }
 
+static void 
+gt68xx_device_fix_descriptor (GT68xx_Device * dev)
+{
+  SANE_Byte data[8];
+  sanei_usb_control_msg (dev->fd, 0x80, 0x06, 0x01 << 8, 0, 8, data);
+}
+
+
 /* vim: set sw=2 cino=>2se-1sn-1s{s^-1st0(0u0 smarttab expandtab: */

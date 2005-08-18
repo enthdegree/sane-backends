@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "29 May 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "18 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -203,10 +203,6 @@ David Stevenson. Thanks for sending patches and answering questions to them
 and all the other contributors.
 
 .SH BUGS
-Currently scanning seems to only work reliably under Linux. With FreeBSD,
-NetBSD and OpenBSD scanning works only once. Then the scanner isn't detected
-anymore and has to be replugged.
-.PP
 The first few lines of the image are garbage for the 2400 TA
 Plus.
 .PP

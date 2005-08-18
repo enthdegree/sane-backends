@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 71
+#define BUILD 72
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -1187,7 +1187,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	}
       else if (strcmp (word, "afe") == 0)
 	{
-	  GT68xx_AFE_Parameters afe;
+	  GT68xx_AFE_Parameters afe = {0, 0, 0, 0, 0, 0};
 	  SANE_Status status;
 
 	  free (word);
@@ -1462,6 +1462,9 @@ sane_close (SANE_Handle handle)
 
   dev = s->dev;
   gt68xx_scanner_free (s);
+  
+  gt68xx_device_fix_descriptor (dev);
+
   gt68xx_device_deactivate (dev);
   gt68xx_device_close (dev);
 

@@ -1,3 +1,11 @@
+2005-08-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_low.c backend/gt68xx_low.h
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO:
+	  Fixed the problem concerning scanning on *BSD. Scanning only
+	  worked once (bug #300597). Fixed compilation warnings.
+
 2005-08-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Min. libusb version is 0.1.8.

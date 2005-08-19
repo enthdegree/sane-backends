@@ -3,6 +3,14 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.50-2 (2005-08-19)
+---------------------
+More cleanup.
+Removed obsolete _WAF_BLACKFINE. 
+LiDE20 does not seem to have a reliable black calibration area,
+so the devices now will switch off the lamp for dark calibration.
+Fixed line statistics and added  calibration data output.
+
 V 0.50-1 (2005-08-15)
 ---------------------
 Cleanup

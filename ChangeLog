@@ -6,6 +6,8 @@
 	  doc/gt68xx/gt68xx.CHANGES: Enabled GT68XX_FLAG_NO_STOP for
 	  Mustek BearPaw  2400 CU Plus. Some of these scanners don't seem
 	  to like that command.
+	* doc/descriptions/artec_eplus48u.desc: Disabled link to backend
+	  homepage which doesn't seem to contain anything sane-related.
 
 2005-08-19  Gerhard Jaeger <gerhard@gjaeger.de>
 

@@ -5,7 +5,7 @@
 :backend "artec_eplus48u"
 :version "0.0.10"
 :manpage "sane-artec_eplus48u"
-:url "http://www.angelfire.com/linux/crapsite/"
+;:url "http://www.angelfire.com/linux/crapsite/"
 :devicetype :scanner
 
 :mfg "Artec/Ultima"

@@ -1,3 +1,8 @@
+2005-08-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* configure configure.in: Fixed check for usbcalls.h on OS/2
+	  (patch from Paul Smedley <paul@smedley.info>).
+
 2005-08-19  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

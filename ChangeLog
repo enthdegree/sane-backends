@@ -2,6 +2,10 @@
 
 	* configure configure.in: Fixed check for usbcalls.h on OS/2
 	  (patch from Paul Smedley <paul@smedley.info>).
+	* backend/gt68xx.c backend/gt68xx_devices.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES: Enabled GT68XX_FLAG_NO_STOP for
+	  Mustek BearPaw  2400 CU Plus. Some of these scanners don't seem
+	  to like that command.
 
 2005-08-19  Gerhard Jaeger <gerhard@gjaeger.de>
 

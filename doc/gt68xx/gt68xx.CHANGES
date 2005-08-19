@@ -1,5 +1,10 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.73 (2005-08-19)
+
+* Enabled GT68XX_FLAG_NO_STOP for Mustek BearPaw 2400 CU Plus. Some of these
+  scanners don't seem to like that command.
+
 V 1.0.72 (2005-08-18)
 
 * Finally fixed the problem concerning scanning on *BSD. Scanning only worked

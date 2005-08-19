@@ -551,7 +551,7 @@ static GT68xx_Model mustek_2400cuplus_model = {
   SANE_FIX (1.5),		/* Default gamma value */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  0				/* Which flags are needed for this scanner? */
+  GT68XX_FLAG_NO_STOP		/* Which flags are needed for this scanner? */
     /* Setup and tested */
 };
 

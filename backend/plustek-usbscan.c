@@ -1047,13 +1047,13 @@ static void usb_GetPauseLimit( Plustek_Device *dev, ScanParam *pParam )
 	/* If not reversing, take into account the steps to reverse */
 	if( regs[0x50] == 0 )
 		m_dwPauseLimit -= ((regs[0x54] & 7) *
-							(pParam->Size.dwPhyBytes * scaler) + 1023) / 1024;
+		                  (pParam->Size.dwPhyBytes * scaler) + 1023) / 1024;
 
 	DBG( _DBG_INFO2, "* PL=%lu, coeffsize=%u, scaler=%u\n",
 	                  m_dwPauseLimit, coeffsize, scaler );
 
 	m_dwPauseLimit = usb_max( usb_min(m_dwPauseLimit,
-						(u_long)ceil(pParam->Size.dwTotalBytes / 1024.0)), 2);
+	                  (u_long)ceil(pParam->Size.dwTotalBytes / 1024.0)), 2);
 
 	regs[0x4e] = (u_char)floor((m_dwPauseLimit*512.0)/(2.0*hw->wDRAMSize));
 
@@ -1104,6 +1104,7 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 {
 	static u_char reg8, reg38[6], reg48[2];
 
+	ScanDef   *scan    = &dev->scanning;
 	ScanParam *pdParam = &dev->scanning.sParam;
 	HWDef     *hw      = &dev->usbDev.HwSetting;
 	u_char    *regs    = dev->usbDev.a_bRegs;

@@ -38,6 +38,7 @@
  *        - added CRYSTAL_FREQ
  *        - added IPCDef
  * - 0.50 - cleanup
+ *        - removed obsolete _WAF_BLACKFINE
  * .
  * <hr>
  * This file is part of the SANE package.

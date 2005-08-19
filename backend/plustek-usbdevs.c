@@ -52,6 +52,9 @@
  * - 0.49 - tweaked motor settings for EPSON and CANON1200
  *        - added support for CanoScan LiDE25
  * - 0.50 - cleanup
+ *        - removed obsolete _WAF_BLACKFINE
+ *        - LiDE20 does not seem to have a reliable black calibration area
+ *          so the devices now will switch off the lamp for dark calibration
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -628,7 +631,7 @@ static DCapsDef Cap0x04A9_0x2206 =
 	1,                  /* number of buttons                       */
 	kCIS650,            /* use default settings during calibration */
 	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
 /* Canon N1220U
@@ -646,7 +649,7 @@ static DCapsDef Cap0x04A9_0x2207 =
 	1,                  /* number of buttons                       */
 	kCIS1220,           /* use default settings during calibration */
 	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
 /* Canon D660U
@@ -664,7 +667,7 @@ static DCapsDef Cap0x04A9_0x2208 =
 	1,
 	kNEC8861,           /* use default settings during calibration */
 	0,
-	(_WAF_MISC_IO_LAMPS | _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR), 
+	(_WAF_MISC_IO_LAMPS | _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR),
 	_MIO5 + _TPA(_MIO6)
 };
 
@@ -672,7 +675,7 @@ static DCapsDef Cap0x04A9_0x2208 =
  */
 static DCapsDef Cap0x04A9_0x220D =
 {
-	{{ 0, 110}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+	{{ 0, 110}, 35, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -683,7 +686,7 @@ static DCapsDef Cap0x04A9_0x220D =
 	3,                  /* number of buttons                       */
 	kCIS670,
 	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
 /* Canon N1240U/LiDE30
@@ -701,7 +704,7 @@ static DCapsDef Cap0x04A9_0x220E =
 	3,                  /* number of buttons                       */
 	kCIS1240,           /* use default settings during calibration */
 	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
 /* Canon LiDE25
@@ -719,7 +722,7 @@ static DCapsDef Cap0x04A9_0x2220 =
 	3,                  /* number of buttons                       */
 	kCIS1240,           /* use default settings during calibration */
 	0,                  /* not used here...                        */
-	_WAF_MISC_IO_LAMPS | _WAF_BLACKFINE, _NO_MIO
+	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
 /******************* additional Hardware descriptions ************************/

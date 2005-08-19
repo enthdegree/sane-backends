@@ -77,6 +77,7 @@
  *        - moved AFE stuff to enhanced options
  * - 0.50 - cleanup
  *        - activated IPC stuff
+ *        - added _DBG_DCALDATA for fine calibration data logging
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -152,7 +153,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.50-1"
+#define BACKEND_VERSION "0.50-2"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -175,6 +176,7 @@
 #define _DBG_SANE_INIT 10
 #define _DBG_INFO2     15
 #define _DBG_DREGS     20
+#define _DBG_DCALDATA  22
 #define _DBG_DPIC      25
 #define _DBG_READ      30
 

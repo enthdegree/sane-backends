@@ -1,3 +1,15 @@
+2005-08-19  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek-usb.h backend/plustek-usbdevs.c: Removed obsolete
+	  _WAF_BLACKFINE. LiDE20 does not seem to have a reliable black
+	  calibration area, so the devices now will switch off the lamp
+	  for dark calibration.
+	* backend/plustek-usbcal.c backend/plustek-usbscan.c: Cleanup.
+	* backend/plustek-usbshading.c: Fixed line statistics and added
+	  calibration data output.
+	* backend/plustek.c: Bumped build number.
+
 2005-08-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_low.c backend/gt68xx_low.h
@@ -11,16 +23,17 @@
 	* README: Min. libusb version is 0.1.8.
 
 2005-08-17  Julien Blache <jb@jblache.org>
+
 	* tools/hotplug/libsane.usermap: Added USB IDs for the
-	sm3600-supported scanners. If you know the exact model name
-	corresponding to the above IDs, please mail sane-devel:
-	    0x05da/0x40b3, 0x05da/0x40b8,
-	    0x05da/0x40ca, 0x05da/0x40dd, 0x05da/0x40ff
+	  sm3600-supported scanners. If you know the exact model name
+	  corresponding to the above IDs, please mail sane-devel:
+	  0x05da/0x40b3, 0x05da/0x40b8,
+	  0x05da/0x40ca, 0x05da/0x40dd, 0x05da/0x40ff
 
 2005-08-16  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c: Make compileable ;-)
-        * backend/snapscan-options.c: Removed //-style comment
+	* backend/snapscan-options.c: Removed //-style comment
 
 2005-08-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
@@ -44,8 +57,8 @@
 
 	* backend/snapscan.c: Bumped version number
 	* backend/snapscan-scsi.c: Added temporary debug code for 2480/2580
-          distinction
-        
+	  distinction
+
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-options.c backend/snapscan-scsi.c

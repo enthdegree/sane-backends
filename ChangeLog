@@ -1,3 +1,12 @@
+2005-08-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_low.h doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: 
+	  Increased number limit of scanners that can work with this
+	  backend to 50. Added support for Genius ColorPage Vivid 1200 X
+	  (untested). 
+
 2005-08-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* configure configure.in: Fixed check for usbcalls.h on OS/2

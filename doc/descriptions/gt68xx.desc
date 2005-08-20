@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-73"
+:version "1.0-74"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -72,6 +72,11 @@
 :status :basic
 :interface "USB"
 :comment "Should work but has limited testing. Please contact me if you own such a device."
+
+:model "Colorpage Vivid 1200 X"
+:status :untested
+:interface "USB"
+;:comment "Untested. Please tell us if the scanner works!"
 
 :model "Colorpage Vivid 1200 XE"
 :status :good

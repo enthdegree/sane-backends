@@ -157,7 +157,7 @@ struct GT68xx_USB_Device_Entry
   GT68xx_Model *model;			/**< Scanner model information */
 };
 
-#define MAX_SCANNERS 30
+#define MAX_SCANNERS 50
 /* Looks like gcc doesn't like declarations without specificating the number
    of array elements at least when --enable-warnings is active */
 

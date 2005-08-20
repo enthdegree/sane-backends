@@ -1,5 +1,10 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.74 (2005-08-20)
+
+* Increased number limit of scanners that can work with this backend to 50.
+* Added support for Genius ColorPage Vivid 1200 X (untested).
+
 V 1.0.73 (2005-08-19)
 
 * Enabled GT68XX_FLAG_NO_STOP for Mustek BearPaw 2400 CU Plus. Some of these

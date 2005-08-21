@@ -10,9 +10,9 @@
 ;
 
 :backend "microtek2"              ; name of backend
-:version "0.96"                   ; version of backend
+:version "unsupported"                   ; version of backend
 :manpage "sane-microtek2"         ; name of manpage (if it exists)
-:url "http://karstenfestag.gmxhome.de"
+:url "http://karstenfestag.gmxhome.de/linux.html"
 
 :devicetype :scanner              ; start of a list of devices....
 
@@ -80,9 +80,11 @@
 :comment "only flatbed mode ?"
 :status :good
 
-;:model "ScanMaker 9600XL"
-;:interface "SCSI"
-;:status :minimal
+:model "ScanMaker 9800XL"
+:url "/unsupported/microtek-scanmaker-9800.html"
+:interface "IEEE-1394"
+:status :minimal
+:comment "IEEE-1394 seems to work. See link. More reports welcome."
 
 :model "Phantom 330CX"
 :interface "Parport"

@@ -1,3 +1,10 @@
+2005-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/microtek2.desc
+	  doc/descriptions/unsupported.desc: Marked microtek2 backend as
+	  unsupported. Changed link to point to old website directly. Listed
+	  Microtek ScanMaker 9800XL as supported (bug #301515).
+	
 2005-08-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* ltmain.sh acinclude.am configure: Updated from libtool 1.5.18.

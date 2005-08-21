@@ -1044,15 +1044,15 @@
 
 :model "ScanMaker 9600XL"
 ;:url "/unsupported/microtek-scanmaker-9800.html"
-:interface "USB SCSI IEEE-1394"
+:interface "USB IEEE-1394"
 :status :unsupported
-:comment "Probably unsupported."
+:comment "Probably unsupported. SCSI seems to work with microtek2 backend."
 
 :model "ScanMaker 9800XL"
 :url "/unsupported/microtek-scanmaker-9800.html"
-:interface "USB SCSI IEEE-1394"
+:interface "USB SCSI"
 :status :unsupported
-:comment "Unsupported. See link."
+:comment "Partly unsupported. IEEE-1394 works with microtek2 backend. See link."
 
 :model "ScanMaker i320"
 :url "/unsupported/microtek-scanmaker-i320.html"

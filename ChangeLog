@@ -1,3 +1,7 @@
+2005-08-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* ltmain.sh acinclude.am configure: Updated from libtool 1.5.18.
+
 2005-08-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

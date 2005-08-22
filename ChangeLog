@@ -1,3 +1,8 @@
+2005-08-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/hotplug/libsane.usermap: Added some Genius scanners. Fixed
+	  Visioneer Onetouch 7300 USB. Added Plustek OpticSlim 2400.
+
 2005-08-22  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

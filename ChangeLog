@@ -1,3 +1,12 @@
+2005-08-22  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usb.c backend/plustek-usbscan.c: Fixed problem,
+	  when trying to scan at resolutions beyond the optical one
+	  (sensor stops too early).
+	* tools/hotplug/libsane.usermap: Added USB ID for LiDE25.
+
 2005-08-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/microtek2.desc
@@ -16,7 +25,7 @@
 	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: 
 	  Increased number limit of scanners that can work with this
 	  backend to 50. Added support for Genius ColorPage Vivid 1200 X
-	  (untested). 
+	  (untested).
 
 2005-08-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

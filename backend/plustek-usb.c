@@ -1127,6 +1127,17 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 		usleep( 10 * 1000 );
 
+		/* need to preset that here, as we need it during parameter setting
+		 */
+		scan->bLinesToSkip = (u_char)(scan->sParam.PhyDpi.y / 50);
+
+		scan->dwLinesDiscard = 0;
+		if( scan->sParam.bChannels == 3 ) {
+			scan->dwLinesDiscard = (u_long)scaps->bSensorDistance *
+			                       scan->sParam.PhyDpi.y / scaps->OpticDpi.y;
+			scan->dwLinesDiscard <<= 1;
+		}
+
 		if( !usb_SetScanParameters( dev, &scan->sParam )) {
 			DBG( _DBG_ERROR, "Setting Scan Parameters failed!\n" );
 			return 0;
@@ -1135,7 +1146,7 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 		/* if we bypass the calibration step, we wait on lamp warmup here...
 		 */
 		if( scaps->workaroundFlag & _WAF_BYPASS_CALIBRATION ) {
-    		if( !usb_Wait4Warmup( dev )) {
+			if( !usb_Wait4Warmup( dev )) {
 				DBG( _DBG_INFO, "usbDev_Prepare() - Cancel detected...\n" );
 				return 0;
 			}
@@ -1256,7 +1267,6 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 		/* set a funtion to process the RAW data... */
 		usb_GetImageProc( dev );
 
-		scan->bLinesToSkip = (u_char)(scan->sParam.PhyDpi.y / 50);
 		if( scan->sParam.bSource == SOURCE_ADF )
 			scan->dwFlag |= SCANFLAG_StillModule;
 

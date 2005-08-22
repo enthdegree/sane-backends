@@ -1250,10 +1250,12 @@ static SANE_Bool usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 	 */
 	if(pParam->bCalibration == PARAM_Scan && pParam->bSource != SOURCE_ADF) {
 
-		u_short scansteps = (u_short)ceil((double)(pParam->Size.dwPhyLines + 10)*
+		u_long  lines     = pParam->Size.dwPhyLines + scan->bLinesToSkip +
+		                                              scan->dwLinesDiscard + 5;
+		u_short scansteps = (u_short)ceil((double)lines*
 		                                     hw->wMotorDpi / pParam->PhyDpi.y);
-		DBG( _DBG_INFO, "* Scansteps=%u (%lu*%u/%u)\n", scansteps, 
-		                 pParam->Size.dwPhyLines, hw->wMotorDpi, pParam->PhyDpi.y );
+		DBG( _DBG_INFO, "* Scansteps=%u (%lu*%u/%u)\n", scansteps,  lines,
+		                hw->wMotorDpi, pParam->PhyDpi.y );
 		regs[0x4c] = _HIBYTE(scansteps);
 		regs[0x4d] = _LOBYTE(scansteps);
 	}

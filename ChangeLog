@@ -1,3 +1,8 @@
+2005-08-22  Stéphane Voltz <stefdev@modulonet.fr>
+
+	* tools/check-usb-chip.c: Added rts8858c detection (Lexmark
+	  X1100 series, Dell A920).
+
 2005-08-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Added some Genius scanners. Fixed

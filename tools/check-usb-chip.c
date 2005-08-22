@@ -2357,6 +2357,172 @@ check_m011 (struct usb_device *dev)
 
 /* ====================================== end of icm532b ==================*/
 
+/* Check for Realtek rts8858c */
+static int
+rts88xx_read_reg (usb_dev_handle * handle, unsigned char *req, unsigned char *res, int size)
+{
+  int result;
+
+  result =
+    usb_bulk_write (handle, 0x02, (char *)req, 0x04, TIMEOUT);
+  if (result < 0)
+    return 0;
+
+  result =
+    usb_bulk_read (handle,  0x81, (char *)res, size, TIMEOUT);
+  if (result < 0)
+    return 0;
+
+  return 1;
+}
+
+static char *
+check_rts8858c (struct usb_device *dev)
+{
+  unsigned char req[4];
+  unsigned char res[10];
+  usb_dev_handle *handle;
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for rts8858c ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8858c (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8858c (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8858c (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8858c (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8858c (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8858c (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x08)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8858c (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0xFA))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8858c (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  /* Now we read 10 registers */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "rts8858c?";
+
+  memset (req, 0, 4);
+  req[0] = 0x80;		/* get registers 0x12-0x1c */
+  req[1] = 0x12;
+  req[2] = 0x00;
+  req[3] = 0x0a;
+
+  result = rts88xx_read_reg(handle,req,res,req[3]);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read registers\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  if (res[1] != 0x03 || res[2] != 0x00)
+    {
+      if (verbose > 2)
+	printf ("    Unexpected result from register reading (0x%0x/0x%0x)\n",
+		res[1], res[2]);
+      finish_interface (handle);
+      return 0;
+    }
+  finish_interface (handle);
+  return "rts8858c";
+}	/* end of rts8858 detection */
+
 char *
 check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 {
@@ -2408,6 +2574,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_m011 (dev);
+
+  if (!chip_name)
+    chip_name = check_rts8858c (dev);
 
   if (verbose > 2)
     {

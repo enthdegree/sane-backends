@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-08-16"		; version of backend
+:version "2005-08-23"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -304,6 +304,12 @@
 :interface "USB"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
+
+:model "CanoScan LiDE 60"
+;:url "/unsupported/"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details available."
 
 :model "CanoScan LiDE 80"
 :url "/unsupported/canon-lide-80.html"
@@ -1590,7 +1596,7 @@
 :interface "USB IEEE-1394"
 :url "/unsupported/reflecta-digitdia-3600.html"
 :status :unsupported
-:comment "GL841 based, to be added to genesys backend. Film scanner that can scan directly from the magazine."
+:comment "Film scanner that can scan directly from the magazine."
 
 :model "iScan 1800"
 :interface "USB"

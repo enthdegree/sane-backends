@@ -1,3 +1,8 @@
+2005-08-24  Stéphane Voltz <stefdev@modulonet.fr>
+
+	* backend/umax_pp.c backend/umax_pp_low.c tools/umax_pp.c: Added EPP
+	  support for 610P, revision number changes
+
 2005-08-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon LiDE 60. Reflecta

@@ -305,7 +305,7 @@ sanei_insb (unsigned int port, unsigned char *addr, unsigned long count)
 static void
 sanei_insl (unsigned int port, unsigned char *addr, unsigned long count)
 {
-int i;
+  int i;
 
   for (i = 0; i < count * 4; i++)
     addr[i] = sanei_inb (port);
@@ -533,18 +533,23 @@ static int init005 (int arg);
 
 /* 610p comm functions */
 static int putByte610p (int data);
+static int EPPputByte610p (int data);
 static int sendLength610p (int *cmd);
 static int sendData610p (int *cmd, int len);
 static int receiveData610p (int *cmd, int len);
 static int connect610p (void);
 static int sync610p (void);
 static int cmdSync610p (int cmd);
+static int EPPcmdSync610p (int cmd);
 static int getStatus610p (void);
+static int EPPgetStatus610p (void);
 static int disconnect610p (void);
 static int EPPsendWord610p (int *cmd);
 static int SPPsendWord610p (int *cmd);
 static int cmdSet610p (int cmd, int len, int *buffer);
 static int cmdGet610p (int cmd, int len, int *buffer);
+static int EPPcmdSet610p (int cmd, int len, int *buffer);
+static int EPPcmdGet610p (int cmd, int len, int *buffer);
 static int initScanner610p (int recover);
 static int cmdGetBuffer610p (int cmd, int len, unsigned char *buffer);
 
@@ -1280,6 +1285,9 @@ Outb (int port, int value)
 	  if (rc)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
+#ifdef IOLOG
+	  DBG (0, "outb DATA,%02X\n", value);
+#endif
 	  return;
 	case 2:
 	  mode = val & 0x20;
@@ -1292,6 +1300,9 @@ Outb (int port, int value)
 	  if (rc)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n",
 		 strerror (errno), __FILE__, __LINE__);
+#ifdef IOLOG
+	  DBG (0, "outb CONTROL,%02X\n", value);
+#endif
 	  return;
 	case 4:
 	  rc = ioctl (fd, PPGETMODE, &exmode);
@@ -1315,6 +1326,9 @@ Outb (int port, int value)
 	  if (rc)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
+#ifdef IOLOG
+	  DBG (0, "outb EPPDATA,%02X\n", value);
+#endif
 	  return;
 	case 3:
 	  rc = ioctl (fd, PPGETMODE, &exmode);
@@ -1437,6 +1451,9 @@ Inb (int port)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
 	  res = val;
+#ifdef IOLOG
+	  DBG (0, "inb  DATA,%02X\n", res);
+#endif
 	  return res;
 
 	case 1:
@@ -1445,6 +1462,9 @@ Inb (int port)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
 	  res = val;
+#ifdef IOLOG
+	  DBG (0, "inb  STATUS,%02X\n", res);
+#endif
 	  return res;
 
 	case 2:
@@ -1453,6 +1473,9 @@ Inb (int port)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
 	  res = val;
+#ifdef IOLOG
+	  DBG (0, "inb  CONTROL,%02X\n", res);
+#endif
 	  return res;
 
 	case 4:
@@ -1475,6 +1498,9 @@ Inb (int port)
 	    DBG (0, "ppdev ioctl returned <%s>  (%s:%d)\n", strerror (errno),
 		 __FILE__, __LINE__);
 	  res = val;
+#ifdef IOLOG
+	  DBG (0, "inb  EPPDATA,%02X\n", res);
+#endif
 	  return res;
 	case 0x400:
 	case 0x402:
@@ -1566,7 +1592,6 @@ Insb (int port, unsigned char *dest, int size)
       return;
     }
 #endif /* HAVE_DEV_PPBUS_PPI_H */
-
   sanei_insb (port, dest, size);
 
 #endif
@@ -3628,11 +3653,33 @@ init005 (int arg)
   return 0;
 }
 
-int
+/* write 1 byte in EPP mode, returning scnner's status */
+static int
+EPPputByte610p (int data)
+{
+  int status, control;
+
+  status = Inb (STATUS) & 0xF8;
+  if ((status != 0xC8) && (status != 0xC0) && (status != 0xD0))
+    {
+      DBG (0,
+	   "EPPputByte610p failed, expected 0xC8, 0xD0 or 0xC0 got 0x%02X ! (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+  control = (Inb (CONTROL) & 0x44) | 0x44;	/* data forward, bit 5 cleared (!!) */
+  Outb (CONTROL, control);
+  Outb (EPPDATA, data);
+  return status;
+}
+
+static int
 putByte610p (int data)
 {
   int status, control, j;
 
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return EPPputByte610p (data);
   j = 0;
   do
     {
@@ -3708,10 +3755,92 @@ sync610p (void)
 }
 
 static int
+EPPcmdSync610p (int cmd)
+{
+  int word[5];
+  int status;
+  int i;
+
+  word[0] = 0;
+  word[1] = 0;
+  word[2] = 0;
+  word[3] = cmd;
+
+  connect610p ();
+  sync610p ();
+
+  /* sends magic seal 55 AA */
+  status = EPPputByte610p (0x55);
+  if ((status != 0xC8) && (status != 0xC0) && (status != 0xD0))
+    {
+      DBG (1,
+	   "EPPcmdSync610p: Found 0x%X expected 0xC8, 0xC0 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+  status = EPPputByte610p (0xAA);
+  if ((status != 0xC8) && (status != 0xC0) && (status != 0xD0))
+    {
+      DBG (1,
+	   "EPPcmdSync610p: Found 0x%X expected 0xC8, 0xC0 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  status = EPPgetStatus610p ();
+  if (status == 0xC0)
+    for (i = 0; i < 10; i++)
+      status = Inb (STATUS) & 0xF8;
+  if (status != 0xC8)
+    {
+      DBG (0, "EPPcmdSync610p: Found 0x%X expected 0xC8 (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      /*return 0; */
+    }
+
+  /* sends 4 bytes of data */
+  for (i = 0; i < 4; i++)
+    {
+      status = EPPputByte610p (word[i]);
+    }
+  if (status != 0xC8)
+    {
+      DBG (0, "EPPcmdSync610p: Found 0x%X expected 0xC8 (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      /*return 0; */
+    }
+
+  /* tests status */
+  Outb (DATA, 0xFF);
+  if (cmd == 0xC2)
+    {
+      status = EPPgetStatus610p ();
+      if (status != 0xC0)
+	{
+	  DBG (0, "EPPcmdSync610p: Found 0x%X expected 0xC0 (%s:%d)\n",
+	       status, __FILE__, __LINE__);
+	  /*return 0; */
+	}
+    }
+  status = EPPgetStatus610p ();
+  if (status != 0xC0)
+    {
+      DBG (0, "EPPcmdSync610p: Found 0x%X expected 0xC0 (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      /*return 0; */
+    }
+  disconnect610p ();
+  return 1;
+}
+
+static int
 cmdSync610p (int cmd)
 {
   int word[5];
   int status;
+
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return EPPcmdSync610p (cmd);
 
   word[0] = 0;
   word[1] = 0;
@@ -3744,6 +3873,28 @@ cmdSync610p (int cmd)
     }
   disconnect610p ();
   return 1;
+}
+
+static int
+EPPgetStatus610p (void)
+{
+  int data, status, control, i;
+
+  control = Inb (CONTROL) & 0xA4;
+  control = control | 0xE0;
+  Outb (CONTROL, control);
+  status = Inb (STATUS) & 0xF8;
+  if (status & 0x08)
+    {
+      for (i = 1; i < 10; i++)
+	status = Inb (STATUS) & 0xF8;
+    }
+  else
+    {
+      data = Inb (EPPDATA);
+      scannerStatus = data;
+    }
+  return status;
 }
 
 static int
@@ -3838,8 +3989,15 @@ disconnect610p (void)
 	}
     }
   Outb (CONTROL, 0x0C);
-  /*Outb (DATA, gData); */
-  Outb (DATA, 0xFF);		/* XXX STEF XXX */
+  control = Inb (CONTROL) & 0x3F;
+  if (control != 0x0C)
+    {
+      DBG (0, "disconnect610p failed expected 0x0C got %02X (%s:%d)\n",
+	   control, __FILE__, __LINE__);
+      return 0;
+    }
+  /* XXX STEF XXX Outb (DATA, gData); */
+  Outb (DATA, 0xFF);
   return 1;
 }
 
@@ -4739,7 +4897,7 @@ EPPsendWord610p (int *cmd)
     }
 
   /* sets to EPP, and get sure that data direction is forward */
-  tmp = (Inb (CONTROL) & 0xE0) | 0x04;
+  tmp = (Inb (CONTROL) & 0x44) | 0x44;	/* !! */
   Outb (CONTROL, tmp);
   Outb (EPPDATA, 0x55);
 
@@ -4752,13 +4910,13 @@ EPPsendWord610p (int *cmd)
 	   tmp, __FILE__, __LINE__);
       return 0;
     }
-  tmp = (Inb (CONTROL) & 0xE0) | 0x04;
+  tmp = (Inb (CONTROL) & 0x44) | 0x44;
   Outb (CONTROL, tmp);
   Outb (EPPDATA, 0xAA);
 
-  control = (Inb (CONTROL) & 0xE0) | 0xA4;
+  control = (Inb (CONTROL) & 0xE0) | 0xE4;
   Outb (CONTROL, control);	/* bit 7 + data reverse + reset */
-  for (i = 0; i < 9; i++)
+  for (i = 0; i < 10; i++)
     {
       tmp = Inb (STATUS) & 0xF8;
       if (tmp != 0xC8)
@@ -4774,7 +4932,7 @@ EPPsendWord610p (int *cmd)
   while ((tmp == 0xC8) && (cmd[i] != -1))
     {
       tmp = Inb (STATUS) & 0xF8;
-      control = (Inb (CONTROL) & 0xE0) | 0x04;
+      control = (Inb (CONTROL) & 0x44) | 0x44;	/* !! */
       Outb (CONTROL, control);
       Outb (EPPDATA, cmd[i]);
       i++;
@@ -4782,15 +4940,19 @@ EPPsendWord610p (int *cmd)
 
   /* end */
   Outb (DATA, 0xFF);
-  control = (Inb (CONTROL) & 0xE0) | 0xA4;
+  control = (Inb (CONTROL) & 0x44) | 0xE4;
   Outb (CONTROL, control);	/* data reverse + ????? */
   tmp = Inb (STATUS) & 0xF8;
   if (tmp == 0xC8)
     {
       for (i = 0; i < 9; i++)
 	tmp = Inb (STATUS) & 0xF8;
+      scannerStatus = tmp;
     }
-  scannerStatus = tmp;
+  else
+    {
+      scannerStatus = Inb (EPPDATA);
+    }
   if ((tmp != 0xC0) && (tmp != 0xD0))
     {
       DBG (0,
@@ -4798,7 +4960,6 @@ EPPsendWord610p (int *cmd)
 	   tmp, __FILE__, __LINE__);
       return 0;
     }
-  tmp = Inb (EPPDATA);
   return 1;
 }
 
@@ -5755,8 +5916,6 @@ int
 sanei_umax_pp_endSession (void)
 {
   int zero[5] = { 0, 0, 0, 0, -1 };
-  int c2[5] = { 0, 0, 0, 0xC2, -1 };
-
 
   if (sanei_umax_pp_getastra () != 610)
     {
@@ -5769,35 +5928,10 @@ sanei_umax_pp_endSession (void)
     }
   else
     {
-      byteMode ();
-      if (SPPsendWord610p (zero) == 0)
-	{
-	  DBG (0, "SPPsendWord610p(zero) failed! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      TRACE (16, "SPPsendWord610p(zero) passed ... ");
-      if (SPPsendWord610p (c2) == 0)
-	{
-	  DBG (0, "SPPsendWord610p(zero) failed! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      TRACE (16, "SPPsendWord610p(c2) passed ... ");
-      if (SPPsendWord610p (zero) == 0)
-	{
-	  DBG (0, "SPPsendWord610p(c2) failed! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      TRACE (16, "SPPsendWord610p(zero) passed ... ");
-      if (SPPsendWord610p (zero) == 0)
-	{
-	  DBG (0, "SPPsendWord610p(zero) failed! (%s:%d)\n", __FILE__,
-	       __LINE__);
-	  return 0;
-	}
-      TRACE (16, "SPPsendWord610p(zero) passed ... ");
+      CMDSYNC (0x00);
+      CMDSYNC (0xC2);
+      CMDSYNC (0x00);
+      CMDSYNC (0x00);
     }
   compatMode ();
 
@@ -6241,6 +6375,7 @@ initTransport610p (void)
     }
   else
     {
+      DBG (1, "EPP mode detected\n");
       gMode = UMAX_PP_PARPORT_EPP;
     }
   disconnect610p ();
@@ -6248,48 +6383,53 @@ initTransport610p (void)
   /* set up to bidirectionnal */
   /* in fact we could add support for EPP */
   /* but let's make 610 work first */
-  byteMode ();
+  if (gMode == UMAX_PP_PARPORT_BYTE)
+    {
+      byteMode ();
 
-  /* reset after failure */
-  /* set to data reverse */
-  Outb (CONTROL, 0x2C);
-  Inb (CONTROL);
-  for (i = 0; i < 10; i++)
-    Outb (DATA, 0xAA);
-  tmp = Inb (DATA);
-  tmp = Inb (DATA);
-  if (tmp != 0xFF)
-    {
-      DBG (1, "Found 0x%X expected 0xFF  (%s:%d)\n", tmp, __FILE__, __LINE__);
-    }
-  for (i = 0; i < 4; i++)
-    {
-      Outb (DATA, 0x00);
+      /* reset after failure */
+      /* set to data reverse */
+      Outb (CONTROL, 0x2C);
+      Inb (CONTROL);
+      for (i = 0; i < 10; i++)
+	Outb (DATA, 0xAA);
+      tmp = Inb (DATA);
       tmp = Inb (DATA);
       if (tmp != 0xFF)
 	{
 	  DBG (1, "Found 0x%X expected 0xFF  (%s:%d)\n", tmp, __FILE__,
 	       __LINE__);
-	  return 0;
 	}
-      Outb (DATA, 0xFF);
-      tmp = Inb (DATA);
-      if (tmp != 0xFF)
+      for (i = 0; i < 4; i++)
 	{
-	  DBG (1, "Found 0x%X expected 0xFF  (%s:%d)\n", tmp, __FILE__,
+	  Outb (DATA, 0x00);
+	  tmp = Inb (DATA);
+	  if (tmp != 0xFF)
+	    {
+	      DBG (1, "Found 0x%X expected 0xFF  (%s:%d)\n", tmp, __FILE__,
+		   __LINE__);
+	      return 0;
+	    }
+	  Outb (DATA, 0xFF);
+	  tmp = Inb (DATA);
+	  if (tmp != 0xFF)
+	    {
+	      DBG (1, "Found 0x%X expected 0xFF  (%s:%d)\n", tmp, __FILE__,
+		   __LINE__);
+	      return 0;
+	    }
+	}
+      TRACE (16, "RESET done... ");
+      byteMode ();
+
+      if (SPPsendWord610p (zero) == 0)
+	{
+	  DBG (0, "SPPsendWord610p(zero) failed! (%s:%d)\n", __FILE__,
 	       __LINE__);
 	  return 0;
 	}
+      TRACE (16, "SPPsendWord610p(zero) passed... ");
     }
-  TRACE (16, "RESET done... ");
-  byteMode ();
-
-  if (SPPsendWord610p (zero) == 0)
-    {
-      DBG (0, "SPPsendWord610p(zero) failed! (%s:%d)\n", __FILE__, __LINE__);
-      return 0;
-    }
-  TRACE (16, "SPPsendWord610p(zero) passed... ");
 
   /* OK ! */
   TRACE (1, "initTransport610p done... ");
@@ -7911,6 +8051,127 @@ epilogue (void)
 }
 
 
+static int
+EPPcmdGet610p (int cmd, int len, int *val)
+{
+  int word[4];
+  int i, status, control;
+
+  word[0] = len / 65536;
+  word[1] = len / 256 % 256;
+  word[2] = len % 256;
+  word[3] = (cmd & 0x3F) | 0x80 | 0x40;	/* 0x40 means 'read' */
+
+  connect610p ();
+  sync610p ();
+
+  /* sends magic seal 55 AA */
+  status = EPPputByte610p (0x55);
+  if (status != 0xC8)
+    {
+      DBG (1, "EPPcmdGet610p: Found 0x%X expected 0xC8  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  status = EPPputByte610p (0xAA);
+  if (status != 0xC8)
+    {
+      DBG (1, "EPPcmdGet610p: Found 0x%02X expected 0xC8  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* tests status */
+  /* scannerStatus=0x58 */
+  status = EPPgetStatus610p ();
+  if (status != 0xC8)
+    {
+      DBG (1,
+	   "EPPcmdGet610p: Found 0x%X expected 0xC8, status=0x%02X  (%s:%d)\n",
+	   status, scannerStatus, __FILE__, __LINE__);
+      return 0;
+    }
+
+
+  /* sends length of data */
+  for (i = 0; (i < 4) && (status == 0xC8); i++)
+    {
+      status = EPPputByte610p (word[i]);
+    }
+  if (status != 0xC8)
+    {
+      DBG (1, "EPPcmdGet610p: loop %d, found 0x%02X expected 0xC8  (%s:%d)\n",
+	   i, status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  Outb (DATA, 0xFF);
+
+  /* tests status */
+  /* scannerStatus=0x58 */
+  status = EPPgetStatus610p ();
+  if (status != 0xD0)
+    {
+      DBG (1,
+	   "EPPcmdGet610p: Found 0x%X expected 0xD0, status=0x%02X  (%s:%d)\n",
+	   status, scannerStatus, __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* data reverse */
+  control = Inb (CONTROL) & 0xF4;
+  control = control | 0xA0;
+
+  /* receive data */
+  i = 0;
+  while (i < len)
+    {
+      status = Inb (STATUS) & 0xF8;
+      if (status & 0x08)
+	{
+	  DBG (1,
+	       "EPPcmdGet610p: loop %d, found 0x%X expected 0xD0 or 0xC0  (%s:%d)\n",
+	       i, status, __FILE__, __LINE__);
+	  return 0;
+	}
+      val[i] = Inb (EPPDATA);
+      i++;
+    }
+
+  if (DBG_LEVEL >= 8)
+    {
+      char *str = NULL;
+
+      str = malloc (3 * len + 1);
+      if (str != NULL)
+	{
+	  for (i = 0; i < len; i++)
+	    {
+	      sprintf (str + 3 * i, "%02X ", val[i]);
+	    }
+	  str[3 * i] = 0x00;
+	  DBG (8, "String received for %02X: %s\n", cmd, str);
+	  free (str);
+	}
+      else
+	{
+	  TRACE (8, "not enough memory for debugging ...");
+	}
+    }
+
+  /* scannerStatus=0x58 */
+  status = EPPgetStatus610p ();
+  scannerStatus = status;
+  if (status != 0xC0)
+    {
+      DBG (0, "EPPcmdGet610p: Found 0x%02X expected 0xC0  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  disconnect610p ();
+  return 1;
+}
+
 
 
 static int
@@ -7920,7 +8181,10 @@ cmdGet610p (int cmd, int len, int *val)
   int i, j, status;
 
   if ((cmd == 8) && (len > 0x23))
-    len = 0x22;
+    len = 0x23;
+
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return EPPcmdGet610p (cmd, len, val);
 
   /* compute word */
   word[0] = len / 65536;
@@ -7991,10 +8255,119 @@ cmdGet610p (int cmd, int len, int *val)
 
 
 static int
+EPPcmdSet610p (int cmd, int len, int *val)
+{
+  int word[5];
+  int i, status;
+
+  if ((cmd == 8) && (len > 0x23))
+    {
+      /* blank useless extra bytes */
+      for (i = 0x22; i < len; i++)
+	val[i] = 0x00;
+    }
+
+  word[0] = len / 65536;
+  word[1] = len / 256 % 256;
+  word[2] = len % 256;
+  word[3] = (cmd & 0x3F) | 0x80;
+
+  connect610p ();
+  sync610p ();
+
+  /* sends magic seal 55 AA */
+  status = EPPputByte610p (0x55);
+  if ((status != 0xC8) && (status!=0xC0))
+    {
+      DBG (0, "EPPcmdSet610p: Found 0x%X expected 0xC0 or 0xC8  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+  status = EPPputByte610p (0xAA);
+  if ((status != 0xC8) && (status!=0xC0))
+    {
+      DBG (0, "EPPcmdSet610p: Found 0x%X expected 0xC0 or 0xC8  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* tests status */
+  status = EPPgetStatus610p ();
+  if ((status != 0xC8) && (status!=0xC0))
+    {
+      DBG (0, "EPPcmdSet610p: Found 0x%02X expected 0xC0 or 0xC8  (%s:%d)\n", status,
+	   __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* sends length of data */
+  for (i = 0; i < 4; i++)
+    {
+      status = EPPputByte610p (word[i]);
+    }
+  if ((status != 0xC8) && (status!=0xC0))
+    {
+      DBG (0, "EPPcmdSet610p: loop %d, found 0x%02X expected 0xC0 or 0xC8  (%s:%d)\n",
+	   i, status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  Outb (DATA, 0xFF);
+
+  /* tests status */
+  status = EPPgetStatus610p ();
+  if (status != 0xC0)
+    {
+      DBG (0, "Found 0x%X expected 0xC0 (%s:%d)\n", status, __FILE__,
+	   __LINE__);
+      return 0;
+    }
+
+  /* sends data */
+  status = 0xC8;
+  for (i = 0; (i < len) && (status == 0xC8); i++)
+    {
+      /* escape special values with ESC (0x1B) */
+      if (val[i] == 0x1B)
+	status = EPPputByte610p (0x1B);
+      if (i > 0)
+	{
+	  if ((val[i] == 0xAA) && (val[i - 1] == 0x55))
+	    status = EPPputByte610p (0x1B);
+	}
+      /* now send data */
+      status = EPPputByte610p (val[i]);
+    }
+
+  if (status != 0xC8)
+    {
+      DBG (0, "EPPcmdSet610p: loop %d, found 0x%02X expected 0xC8 (%s:%d)\n",
+	   i, status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  Outb (DATA, 0xFF);
+  status = EPPgetStatus610p ();
+  if (status != 0xC0)
+    {
+      DBG (0, "Found 0x%X expected 0xC0  (%s:%d)\n", status, __FILE__,
+	   __LINE__);
+      return 0;
+    }
+
+  disconnect610p ();
+  return 1;
+}
+
+
+static int
 cmdSet610p (int cmd, int len, int *val)
 {
   int word[5];
   int i, j, status;
+
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return EPPcmdSet610p (cmd, len, val);
 
   if ((cmd == 8) && (len > 0x23))
     {
@@ -8272,6 +8645,225 @@ cmdSetGet (int cmd, int len, int *val)
 }
 
 
+/* 1 OK, 0 failed */
+static int
+EPPcmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
+{
+  int status, i, tmp, control;
+  int word[5];
+  int count, needed, max;
+#ifdef HAVE_LINUX_PPDEV_H
+  int fd, mode, rc;
+#endif
+  int loop, pass, wait, remain;
+
+  /* first we set length and channel */
+  /* compute word */
+  word[0] = len / 65536;
+  word[1] = (len / 256) % 256;
+  word[2] = len % 256;
+  word[3] = (cmd & 0x0F) | 0xC0;
+  word[4] = -1;
+
+  connect610p ();		/* start of EPPsendLength610p */
+  sync610p ();
+
+  /* sends magic seal 55 AA */
+  status = EPPputByte610p (0x55);
+  if ((status != 0xD0) && (status != 0xC8))
+    {
+      DBG (0, "EPPcmdGetBuffer610p: Found 0x%X expected 0xC8 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+  status = EPPputByte610p (0xAA);
+  if ((status != 0xD0) && (status != 0xC8))
+    {
+      DBG (0, "EPPcmdGetBuffer610p: Found 0x%02X expected 0xC8 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* tests status */
+  status = EPPgetStatus610p ();
+  if ((status != 0xD0) && (status != 0xC8))
+    {
+      DBG (0, "EPPcmdGetBuffer610p: Found 0x%X expected 0xC8 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  /* sends length of data */
+  for (i = 0; i < 4; i++)
+    {
+      status = EPPputByte610p (word[i]);
+    }
+  if ((status != 0xC0) && (status != 0xC8))
+    {
+      DBG (0,
+	   "EPPcmdGetBuffer610p: loop %d, found 0x%02X expected 0xC0 or 0xC8  (%s:%d)\n",
+	   i, status, __FILE__, __LINE__);
+      return 0;
+    }
+
+  Outb (DATA, 0xFF);
+
+  /* test status */
+  status = EPPgetStatus610p ();
+  if ((status != 0xC0) && (status != 0xD0))
+    {
+      DBG (0,
+	   "EPPcmdGetBuffer610p: Found 0x%X expected 0xC0 or 0xD0 (%s:%d)\n",
+	   status, __FILE__, __LINE__);
+      /*return 0; */
+    }
+  disconnect610p ();		/* end of EPPsendLength610p */
+
+  /* max data read in one go */
+  if (sanei_umax_pp_getfull () == 1)
+    max = 2550 / 3;
+  else
+    max = 32768;
+
+  /* loop until enough data is read */
+  count = 0;
+  while (count < len)
+    {
+      if (len - count > max)
+	needed = max;
+      else
+	needed = len - count;
+      if (needed % 4)
+	remain = needed % 4;
+      else
+	remain = 4;
+      loop = (needed - remain) / 2;
+      wait = 0;
+      DBG (32, "EPPcmdGetBuffer610p: %d loops to do \n", loop);
+
+      status = 0x20;
+
+      /* wait for data ready */
+      while ((status & 0x80) != 0x80)
+	{
+	  /* this is SPPgetStatus */
+	  connect610p ();
+	  Outb (CONTROL, 0x07);
+	  Outb (DATA, 0xFF);
+	  tmp = Inb (DATA);
+	  if (tmp != 0xFF)
+	    {
+	      DBG (0,
+		   "EPPcmdGetBuffer610p found 0x%02X expected 0xFF  (%s:%d)\n",
+		   tmp, __FILE__, __LINE__);
+	      return 0;
+	    }
+	  status = Inb (STATUS) & 0xF8;
+	  if ((status & 0x80) != 0x80)
+	    {
+	      disconnect610p ();
+	      usleep(1000);
+	    }
+	  else
+	    {
+	      Outb (CONTROL, 0x04);
+	      sync610p ();
+	      Outb (DATA, 0xFF);
+	      control = (Inb (CONTROL) & 0x44) | 0xE4;
+	      Outb (CONTROL, control);
+	    }
+	}
+
+      /* EPP block read */
+      /* there is one form for full CCD width reads, and another for other
+         reads */
+#ifdef HAVE_LINUX_PPDEV_H
+      /* check we have ppdev working */
+      fd = sanei_umax_pp_getparport ();
+      if (fd > 0)
+	{
+	  mode = 1;		/* data_reverse */
+	  rc = ioctl (fd, PPDATADIR, &mode);
+	  if (rc)
+	    DBG (0,
+		 "EPPcmdGetBuffer610p: ppdev ioctl returned <%s>  (%s:%d)\n",
+		 strerror (errno), __FILE__, __LINE__);
+
+#ifdef PPSETFLAGS
+	  mode = PP_FASTREAD;
+	  rc = ioctl (fd, PPSETFLAGS, &mode);
+	  if (rc)
+	    DBG (0,
+		 "EPPcmdGetBuffer610p: ppdev ioctl returned <%s>  (%s:%d)\n",
+		 strerror (errno), __FILE__, __LINE__);
+#endif
+	  mode = IEEE1284_MODE_EPP | IEEE1284_DATA;
+	  rc = ioctl (fd, PPSETMODE, &mode);
+	  if (rc)
+	    {
+	      DBG (0,
+		   "EPPcmdGetBuffer610p: ppdev ioctl returned <%s>  (%s:%d)\n",
+		   strerror (errno), __FILE__, __LINE__);
+	      return 0;
+	    }
+	  if (sanei_umax_pp_getfull () == 1)
+	    {
+	      do
+		{
+		  rc = read (fd, buffer + count, needed);
+		}
+	      while (rc == EAGAIN);
+	      if (rc < 0)
+		{
+		  DBG (0,
+		       "EPPcmdGetBuffer610p: ppdev read failed <%s> (%s:%d)\n",
+		       strerror (errno), __FILE__, __LINE__);
+		  return 0;
+		}
+#ifdef IOLOG
+	      DBG (0, "insb *%d\n", rc);
+#endif
+	      needed = rc;
+	    }
+	  else
+	    {
+		  for (loop = 0; (loop < needed) && (wait==0); loop++)
+		    {
+		      status = Inb (STATUS) & 0xF8;
+		      if ((status != 0xD0) && (status != 0xC0)
+			  && (status != 0xC8))
+			{
+			  DBG (0,
+			       "EPPcmdGetBuffer610p found 0x%02X expected 0xD0 or 0xC0 (%s:%d)\n",
+			       status, __FILE__, __LINE__);
+			  return 0;
+			}
+		      if (status == 0xC8)
+		        {
+		          wait = 1;
+		          needed=loop;
+			}
+		      else
+		        {
+		          tmp = Inb (EPPDATA);
+		          buffer[count + loop] = tmp;
+			}
+		    }
+	    }
+	}
+      else
+#endif /* HAVE_LINUX_PPDEV_H */
+	{
+	  Insb (EPPDATA, buffer + count, needed);
+	}
+      count += needed;
+      disconnect610p ();
+    }
+  usleep (10000);
+  /* ??? CMDSYNC (0x00); */
+  /* everything went fine */
+  return 1;
+}
 
 /* 1 OK, 0 failed */
 static int
@@ -8280,6 +8872,9 @@ cmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
   int status, i, tmp;
   int word[5];
   int read, needed, max;
+
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    return EPPcmdGetBuffer610p (cmd, len, buffer);
 
   /* first we set length and channel */
   /* compute word */
@@ -9994,7 +10589,7 @@ sanei_umax_pp_readBlock (long len, int window, int dpi, int last,
 	{
 	  DBG (0, "Warning cmdSync(0xC2) failed! (%s:%d)\n", __FILE__,
 	       __LINE__);
-	  DBG (0, "Trying again ... ");
+	  DBG (0, "Trying again ...\n");
 	  if (sanei_umax_pp_cmdSync (0xC2) == 0)
 	    {
 	      DBG (0, " failed again! (%s:%d)\n", __FILE__, __LINE__);
@@ -11497,7 +12092,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
   *offGreen = 15.0 - ((high - low) * 2);
 
   /*DBG (1, "STEF: offsets(RED,GREEN,BLUE=(%d,%d,%d)\n", *offRed, *offGreen,
-       *offBlue);*/
+   *offBlue);*/
   DBG (16, "offsetCalibration1220p() done ...\n");
   return 1;
 }
@@ -11658,6 +12253,10 @@ offsetCalibration610p (int color, int *offRed, int *offGreen, int *offBlue)
 
 	  COMPLETIONWAIT;
 	  CMDGETBUF (4, w, data);
+	  if (gMode == UMAX_PP_PARPORT_EPP)
+	    {
+	      CMDSYNC (0x00);
+	    }
 	  if (DBG_LEVEL > 128)
 	    {
 	      DumpNB (w, 1, data, NULL);
@@ -11797,6 +12396,10 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
   COMPLETIONWAIT;
   CMDGETBUF (4, w, data);
+  if (gMode == UMAX_PP_PARPORT_EPP)
+    {
+      CMDSYNC (0x00);
+    }
   if (DBG_LEVEL > 128)
     {
       DumpNB (w, 1, data, NULL);
@@ -11841,6 +12444,10 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
       COMPLETIONWAIT;
       CMDGETBUF (4, w, data);
+      if (gMode == UMAX_PP_PARPORT_EPP)
+	{
+	  CMDSYNC (0x00);
+	}
 
       if (DBG_LEVEL > 128)
 	{
@@ -11886,6 +12493,10 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
 	  COMPLETIONWAIT;
 	  CMDGETBUF (4, w, data);
+	  if (gMode == UMAX_PP_PARPORT_EPP)
+	    {
+	      CMDSYNC (0x00);
+	    }
 
 	  if (DBG_LEVEL > 128)
 	    {
@@ -11927,6 +12538,10 @@ coarseGainCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
 	  COMPLETIONWAIT;
 	  CMDGETBUF (4, w, data);
+	  if (gMode == UMAX_PP_PARPORT_EPP)
+	    {
+	      CMDSYNC (0x00);
+	    }
 
 	  if (DBG_LEVEL > 128)
 	    {
@@ -12344,7 +12959,9 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 	  for (y = top; y < h - bottom; y++)
 	    sum += data[(y * bpp) * w + x];
 	  avg = ((float) (sum)) / ((float) (h - (top + bottom)));
-	  coeff = (256.0 * (targetCode / avg - 1.0)) / 2.00;
+	  /* XXX ICI XXX avg=128==>2 */
+	  /*coeff = (256.0 * (targetCode / avg - 1.0)) / 2.00;*/
+	  coeff = (256.0 * (targetCode / avg - 1.0)) / ((avg*3.5)/targetCode);
 	  if (coeff < 0)
 	    coeff = 0;
 	  if (coeff > 255)
@@ -12397,24 +13014,6 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
     {
       DumpNB (w * bpp, h, data, NULL);
       DumpNB (w, h * bpp, data, NULL);
-      for (x = 0; x < 2550; x++)
-	printf (" %02x", data[x]);
-      printf ("\n");
-      for (x = 0; x < 2550; x++)
-	printf (" %02x", data[x + 2550]);
-      printf ("\n");
-      for (x = 0; x < 2550; x++)
-	printf (" %02x", data[x + 5100]);
-      printf ("\n");
-      for (x = 0; x < 256; x++)
-	printf (" %02x", data[x + 7650]);
-      printf ("\n");
-      for (x = 0; x < 256; x++)
-	printf (" %02x", data[x + 7650 + 256]);
-      printf ("\n");
-      for (x = 0; x < 256; x++)
-	printf (" %02x", data[x + 7650 + 512]);
-      printf ("\n");
     }
 
   free (data);

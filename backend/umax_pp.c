@@ -106,7 +106,7 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	603
+#define UMAX_PP_BUILD	604
 #define UMAX_PP_STATE	"dev"
 
 static int num_devices = 0;

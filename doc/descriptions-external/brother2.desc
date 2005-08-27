@@ -79,9 +79,8 @@
 :comment "No report yet."
 
 :model "MFC-5440CN"
-:status :untested
+:status :good
 :interface "USB"
-:comment "No report yet."
 
 :model "MFC-5840CN"
 :status :untested

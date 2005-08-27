@@ -1,3 +1,8 @@
+2005-08-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother2.desc: Brother MFC-5440CN is
+	  reported to work (bug #302105).
+
 2005-08-24  Stéphane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c tools/umax_pp.c: Added EPP

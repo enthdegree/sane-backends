@@ -28,8 +28,8 @@
 
 :model "CanoScan fb636u"           ; name models for above-specified mfg.
 :interface "USB"
-:status :untested
-:comment "hopefully works"
+:status :good
+:comment "OK"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

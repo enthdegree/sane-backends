@@ -1,3 +1,7 @@
+2005-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Canon LiDE 60 is GL841 based.
+
 2005-08-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/canon630u.desc: Changed status of Canon 636u

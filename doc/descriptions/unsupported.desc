@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-08-29"		; version of backend
+:version "2005-08-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1147,19 +1147,13 @@
 :model "BearPaw 2400 TA Pro"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
 :interface "USB"
-:comment "Not supported. See link for some information."
+:comment "Not supported. May be supported by mustek_usb2 backend later. See link for some information."
 :status :unsupported
 
 :model "BearPaw 2448 CU Pro"
 :url "/unsupported/mustek-bearpaw-2448-cu-pro.html"
 :interface "USB"
-:comment "Not supported. See link for some information."
-:status :unsupported
-
-:model "BearPaw 2448 TA Pro"
-:url "/unsupported/mustek-bearpaw-2448ta-pro.html"
-:interface "USB"
-:comment "Not supported. See link for some information."
+:comment "Not supported. May be supported by mustek_usb2 backend later. See link for some information."
 :status :unsupported
 
 :model "BearPaw 4800 TA Pro"
@@ -1171,14 +1165,20 @@
 :model "BearPaw 4800 TA Pro II"
 :url "/unsupported/mustek-bearpaw-4800ta-pro-ii.html"
 :interface "USB"
-:comment "Not supported. See link for some information."
+:comment "Not supported.  May be supported by mustek_usb2 backend later. See link for some information."
 :status :unsupported
 
 :model "P 3600 A3 Pro"
 :interface "USB"
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
-:comment "Not supported. Maybe similar to the 1800 A3 Pro-1?. See link."
+:comment "Not supported. May be supported by mustek_usb2 backend later. Maybe similar to the 1800 A3 Pro-1?. See link."
+
+:model "BearPaw 6400 TA Pro"
+:url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
+:interface "USB"
+:comment "Not supported. May be supported by mustek_usb2 backend later. See link for some information."
+:status :unsupported
 
 :model "Paragon 800 II EP"
 :interface "Parport"

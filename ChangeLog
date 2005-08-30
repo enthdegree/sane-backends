@@ -1,3 +1,10 @@
+2005-08-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Removed Mustek BearPaw 2448
+	  TA Pro (now supported by external Mustek USB2 backend). Added
+	  comments about that backend to some other scanners that may be
+	  supported later.
+
 2005-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Canon LiDE 60 is GL841 based.

@@ -4,6 +4,8 @@
 	  TA Pro (now supported by external Mustek USB2 backend). Added
 	  comments about that backend to some other scanners that may be
 	  supported later.
+	* doc/descriptions-external/mustek_usb2.desc: New external Backend
+	  for Mustek BearPaw 2448 TA Pro.
 
 2005-08-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

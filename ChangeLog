@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Removed Mustek 1800 A3 Pro
 	  (this is actually a P3600 A3 Pro). 
+	* doc/descriptions-external/mustek_usb2.desc: Mustek BearPaw 2448
+	  TA Pro has status "good" now.
 	
 2005-08-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

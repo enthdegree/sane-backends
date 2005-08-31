@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-08-30"		; version of backend
+:version "2005-08-31"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1126,12 +1126,6 @@
 :status :unsupported
 :comment "Probably not supported. quarlewm at jmu dot edu offers to temporarily loan such a scanner to anyone who is interested in writing a driver."
 
-:model "1800 A3 Pro-1"
-:interface "USB"
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
-:status :unsupported
-:comment "Not supported but someone wants to start writing a backend. See link. Vendor/Product ids: 0x055f/0x0401. No information about this scanner on any Mustek website."
-
 :model "2400 M"
 :interface "USB"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"
@@ -1172,7 +1166,7 @@
 :interface "USB"
 :url "http://lists.alioth.debian.org/pipermail/sane-devel/2003-April/007338.html"
 :status :unsupported
-:comment "Not supported. May be supported by mustek_usb2 backend later. Maybe similar to the 1800 A3 Pro-1?. See link."
+:comment "Not supported. May be supported by mustek_usb2 backend later. See link."
 
 :model "BearPaw 6400 TA Pro"
 :url "http://www.meier-geinitz.de/sane/misc/mustek-scanners.html#UNSUPPORTED"

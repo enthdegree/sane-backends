@@ -2061,6 +2061,8 @@ check_icm532b (struct usb_device *dev)
   finish_interface (handle);
   return "ICM532B";
 }
+/* ====================================== end of icm532b ==================*/
+
 
 /* Check for the combination of a PowerVision PV8630 (USB->parport bridge)
    and National Semiconductor LM9830 */
@@ -2355,7 +2357,6 @@ check_m011 (struct usb_device *dev)
   return "M011";
 }
 
-/* ====================================== end of icm532b ==================*/
 
 /* Check for Realtek rts8858c */
 static int
@@ -2523,6 +2524,230 @@ check_rts8858c (struct usb_device *dev)
   return "rts8858c";
 }	/* end of rts8858 detection */
 
+
+/* Check for Service & Quality SQ113 */
+static char *
+check_sq113 (struct usb_device *dev)
+{
+  usb_dev_handle *handle;
+  int result;
+  unsigned char data;
+  unsigned char buffer[4];
+
+  if (verbose > 2)
+    printf ("    checking for SQ113 ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x200)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check interface */
+  if (dev->config[0].interface[0].altsetting[0].bInterfaceClass != 255)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bInterfaceClass = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bInterfaceClass);
+      return 0;
+    }
+
+  if (dev->config[0].interface[0].altsetting[0].bInterfaceSubClass != 255)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bInterfaceSubClass = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bInterfaceSubClass);
+      return 0;
+    }
+  if (dev->config[0].interface[0].altsetting[0].bInterfaceProtocol != 255)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bInterfaceProtocol = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bInterfaceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a SQ113 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  /* Endpoint 0 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+	  && (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	      wMaxPacketSize != 0x200))
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a SQ113 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  /* Endpoint 1 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x82)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x40)
+	  && (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	      wMaxPacketSize != 0x200))
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a SQ113 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+  /* Endpoint 2 */
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x1)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0x03))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a SQ113 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  /* Now we read the status register */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "SQ113?";
+  
+  buffer [0] = 0x5f;
+  buffer [1] = 0x00;
+  buffer [2] = 0x5f;
+  buffer [3] = 0x00;
+
+  result = 
+    usb_control_msg (handle, 0x40, 0x01, 0xb0, 0, (char *) buffer, 4, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't set bank (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  data = 0x00;
+
+  buffer [0] = 0x8b;
+  buffer [1] = data;
+  buffer [2] = 0x8b;
+  buffer [3] = data;
+
+  result = 
+    usb_control_msg (handle, 0x40, 0x01, 0xb0, 0, (char *) buffer, 4, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't write register (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  buffer [0] = 0x8b;
+  buffer [1] = 0x8b;
+  buffer [2] = 0x8b;
+  buffer [3] = 0x8b;
+  result = 
+    usb_control_msg (handle, 0x40, 0x01, 0x04, 0x8b, (char *) buffer, 4, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't set read register address (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  result = 
+    usb_control_msg (handle, 0xc0, 0x01, 0x07, 0, (char *) buffer, 4, TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read register (%s)\n",
+		usb_strerror ());
+      finish_interface (handle);
+      return 0;
+    }
+
+  if ((buffer[0] & 0x10) != 0x10)
+    {
+      if (verbose > 2)
+	printf ("    Sensor not home? (0x%02x)\n", buffer[0]);
+      finish_interface (handle);
+      return 0;
+    }
+
+  finish_interface (handle);
+  return "SQ113";
+}
+
 char *
 check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 {
@@ -2577,6 +2802,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_rts8858c (dev);
+
+  if (!chip_name)
+    chip_name = check_sq113 (dev);
 
   if (verbose > 2)
     {

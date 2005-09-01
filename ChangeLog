@@ -7,6 +7,8 @@
 	  4 XE seems to be the same as 4 X, it just doesn't have
 	  buttons. Cleanup of .desc file. Fixed gain setting. Mustek
 	  ScanExpress A3 USB 600 dpi color scanning works now. 
+	* tools/check-usb-chip.c: Added detection for SQ113 chip
+	  (e.g. Mustek BearPaw 2448 TA Pro).	
 
 2005-08-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

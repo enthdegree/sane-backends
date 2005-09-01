@@ -681,7 +681,7 @@ gt68xx_scanner_calibrate (GT68xx_Scanner * scanner,
   req.mds = SANE_TRUE;
   req.mas = SANE_FALSE;
 
-  if (scanner->dev->model->is_cis)
+  if (scanner->dev->model->is_cis && !(scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
     req.color = SANE_TRUE;
 
   if (req.use_ta)
@@ -897,7 +897,7 @@ gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
 	}
       else
 	{
-	  if (scanner->dev->model->is_cis)
+	  if (scanner->dev->model->is_cis && !(scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP))
 	    {
 	      if (strcmp
 		  (scanner->val[OPT_GRAY_MODE_COLOR].s,

@@ -867,7 +867,7 @@ static GT68xx_Model mustek_a3usb_model = {
   300,				/* base x-res used to calculate geometry */
   300,				/* base y-res used to calculate geometry */
   1200,				/* if ydpi is equal or higher, disable backtracking */
-  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+  SANE_TRUE,			/* Use base_ydpi for all resolutions */
 
   {300, 150, 75, 50, 0},	/* possible x-resolutions */
   {600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
@@ -1351,9 +1351,9 @@ static GT68xx_Model genius_vivid1200x_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE |
-  GT68XX_FLAG_UNTESTED		/* Which flags are needed for this scanner? */
-    /* Untested, but is reported to be the same as 1200 XE with additional buttons */
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE
+  				/* Which flags are needed for this scanner? */
+    /* Tested. */
 };
 
 

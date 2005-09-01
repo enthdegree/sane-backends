@@ -1,3 +1,13 @@
+2005-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  backend/gt68xx_generic.c backend/gt68xx_high.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Genius
+	  ColorPage Vivid 1200 X is reported to work. Genius ColorPage Vivid
+	  4 XE seems to be the same as 4 X, it just doesn't have
+	  buttons. Cleanup of .desc file. Fixed gain setting. Mustek
+	  ScanExpress A3 USB 600 dpi color scanning works now. 
+
 2005-08-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Removed Mustek 1800 A3 Pro

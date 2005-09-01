@@ -110,11 +110,10 @@ gt68xx_generic_fix_gain (SANE_Int gain)
   if (gain < 0)
     gain = 0;
   else if (gain > 31)
-    {
-      gain = gain / 2 + 32;
-      if (gain > 63)
-	gain = 63;
-    }
+    gain += 12;
+  else if (gain > 51)
+    gain = 63;
+    
   return gain;
 }
 
@@ -465,7 +464,7 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
       DBG (6,
 	   "gt68xx_generic_setup_scan: using pixel mode (GT68XX_FLAG_NO_LINEMODE)\n");
     }
-  else if (model->is_cis)
+  else if (model->is_cis && !(model->flags & GT68XX_FLAG_CIS_LAMP))
     {
       line_mode = SANE_TRUE;
       DBG (6, "gt68xx_generic_setup_scan: using line mode (CIS)\n");
@@ -581,7 +580,7 @@ gt68xx_generic_setup_scan (GT68xx_Device * dev,
       req[0x08] = LOBYTE (abs_xs);
       req[0x09] = HIBYTE (abs_xs);
       req[0x0a] = color_mode_code;
-      if (model->is_cis)
+      if (model->is_cis && !(model->flags & GT68XX_FLAG_CIS_LAMP))
 	req[0x0b] = 0x60;
       else
 	req[0x0b] = 0x20;

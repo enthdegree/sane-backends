@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-74"
+:version "1.0-75"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -36,7 +36,7 @@
 :model "1200CUS"
 :status :basic
 :interface "USB"
-:comment "Works, but is slow. Maybe a Mustek BearPaw 2400 CU clone?"
+:comment "Works, but is slow. Probably a Mustek BearPaw 2400 CU clone."
 
 ; -----------------------------------------------------------------------------
 
@@ -61,27 +61,22 @@
 :model "Colorpage Vivid4"
 :status :good
 :interface "USB"
-:comment "Works."
 
 :model "Colorpage Vivid4x"
 :status :good
 :interface "USB"
-:comment "Works."
 
 :model "Colorpage Vivid4xe"
-:status :basic
+:status :good
 :interface "USB"
-:comment "Should work but has limited testing. Please contact me if you own such a device."
 
 :model "Colorpage Vivid 1200 X"
-:status :untested
+:status :good
 :interface "USB"
-;:comment "Untested. Please tell us if the scanner works!"
 
 :model "Colorpage Vivid 1200 XE"
 :status :good
 :interface "USB"
-;:comment ""
 
 ; -----------------------------------------------------------------------------
 
@@ -153,12 +148,6 @@
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
 :status :good
-:comment "Product id 0x021c"
-
-:model "BearPaw 1200 CU Plus"
-:interface "USB"
-:status :good
-:comment "Procuct id 0x021b."
 
 :model "BearPaw 1200 TA"
 :interface "USB"
@@ -197,12 +186,12 @@
 :model "BearPaw 2448 CS Plus"
 :interface "USB"
 :status :basic
-:comment "Same as 2448 TA Plus, but without TA."
+:comment "Slow. Same as 2448 TA Plus, but without TA."
 
 :model "BearPaw 2448 TA Plus"
 :interface "USB"
 :status :basic
-:comment "Transparency adapter supported. Slow. Brightness depends on resolution?"
+:comment "Slow. Transparency adapter supported. Slow. Brightness depends on resolution?"
 
 :model "Plug-n-Scan 2400 MT"
 :interface "USB"
@@ -230,7 +219,7 @@
 :model "ScanExpress 2400 USB"
 :interface "USB"
 :status :minimal
-:comment "Should be detected but may need some more work in the code. Testers welcome."
+:comment "Should be detected but may need some more work in the code. Testers welcome. Please contact me if you own this scanner."
 
 :model "ScanMagic 1200 UB Plus"
 :interface "USB"
@@ -249,12 +238,7 @@
 :model "Diamond 1200 Plus"
 :status :good
 :interface "USB"
-:comment "Product id 0x021c. Similar to Mustek BearPaw 1200 Plus"
-
-:model "Diamond 1200 Plus"
-:status :good
-:interface "USB"
-:comment "Product id 0x021b. Similar to Mustek BearPaw 1200 Plus"
+:comment "Similar to Mustek BearPaw 1200 Plus"
 
 :model "Diamond 2450"
 :status :good

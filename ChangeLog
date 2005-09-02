@@ -1,3 +1,8 @@
+2005-09-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Epson Perfection 4490
+	  Photo. 
+
 2005-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_devices.c

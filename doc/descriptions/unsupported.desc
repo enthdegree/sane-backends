@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-08-31"		; version of backend
+:version "2005-09-02"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -481,6 +481,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported. Doesn't speak ESC/I. Closely related to the GT-9400. It will be supported by epkowa backeend in future."
+
+:model "Perfection 4490 Photo"
+;:url "/unsupported/"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. Support is planned for the epkowa backend. USB vendor/product ID info: 0x04b8/0x0119"
 
 :model "Perfection 4180"
 ;:url "/unsupported/"

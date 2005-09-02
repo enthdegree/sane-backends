@@ -2,6 +2,7 @@
 
 	* doc/descriptions/unsupported.desc: Added Epson Perfection 4490
 	  Photo. 
+	* tools/hotplug/libsane.usermap: Added HP PSC 750.
 
 2005-09-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

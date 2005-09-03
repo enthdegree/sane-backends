@@ -1,3 +1,9 @@
+2005-09-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h backend/snapscan-scsi.c: (Hopefully) fixed
+	  some debugging code for Epson scanners that only works after 
+	  firmware upload.                  
+
 2005-09-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Epson Perfection 4490
@@ -46,7 +52,7 @@
 	* doc/descriptions-external/brother2.desc: Brother MFC-5440CN is
 	  reported to work (bug #302105).
 
-2005-08-24  Stéphane Voltz <stefdev@modulonet.fr>
+2005-08-24  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c tools/umax_pp.c: Added EPP
 	  support for 610P, revision number changes
@@ -56,7 +62,7 @@
 	* doc/descriptions/unsupported.desc: Added Canon LiDE 60. Reflecta
 	  Digitdia 3600 is not GL841-based.
 
-2005-08-22  Stéphane Voltz <stefdev@modulonet.fr>
+2005-08-22  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* tools/check-usb-chip.c: Added rts8858c detection (Lexmark
 	  X1100 series, Dell A920).

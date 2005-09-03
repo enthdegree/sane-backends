@@ -440,7 +440,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     {
     case PERFECTION2480:
     case PERFECTION3490:
-        pss->read_bytes = 138;
+        pss->read_bytes = (pss->firmware_loaded) ?  139 : INQUIRY_RET_LEN;
         break;
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
@@ -482,8 +482,11 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case PERFECTION2480:
     case PERFECTION3490:
         /* TODO: remove */
-        snapscani_debug_data(tmpstr, pss->buf+120, 18);
-        DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
+        if (pss->firmware_loaded)
+        {
+            snapscani_debug_data(tmpstr, pss->buf+120, 19);
+            DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
+        }
     default:
     {
         signed char min_diff;
@@ -1410,6 +1413,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
             status = snapscan_cmd (
                 pss->pdev->bus, pss->fd, pCDB, bufLength+cdbLength, NULL, NULL);
+            pss->firmware_loaded = SANE_TRUE;
 
             free(pCDB);
             fclose(fd);
@@ -1420,6 +1424,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.36  2005/09/03 10:52:11  oliver-guest
+ * Fixed debugging code for epson scanners
+ *
  * Revision 1.35  2005/08/16 17:19:20  oliver-guest
  * Make compileable again
  *

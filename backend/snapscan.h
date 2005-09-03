@@ -405,12 +405,16 @@ struct snapscan_scanner
     SANE_Int threshold;          /* threshold for line art */
     SANE_Int rgb_lpr;            /* lines per scsi read (RGB) */
     SANE_Int gs_lpr;             /* lines per scsi read (greyscale) */
+    SANE_Bool firmware_loaded;   /* true if firmware was downloaded */
 };
 
 #endif
 
 /*
  * $Log$
+ * Revision 1.35  2005/09/03 10:52:11  oliver-guest
+ * Fixed debugging code for epson scanners
+ *
  * Revision 1.34  2005/08/15 18:06:37  oliver-guest
  * Added support for Epson 3490/3590 (thanks to Matt Judge)
  *
@@ -491,7 +495,7 @@ struct snapscan_scanner
  * Improve recognition of Acer 320U
  *
  * Revision 1.27  2002/01/06 18:34:02  oliverschwartz
- * Added support for Snapscan e42 thanks to Yari Adán Petralanda
+ * Added support for Snapscan e42 thanks to Yari Adï¿½ Petralanda
  *
  * Revision 1.26  2001/12/20 23:18:01  oliverschwartz
  * Remove tmpfname
@@ -549,7 +553,7 @@ struct snapscan_scanner
  * add changes from Acer (new models; automatic firmware upload for USB scanners); fix distorted colour scans after greyscale scans (call set_window only in sane_start); code cleanup
  *
  * Revision 1.11  2001/04/10 12:38:21  sable
- * Adding e20 support thanks to Steffen Hübner
+ * Adding e20 support thanks to Steffen Hbner
  *
  * Revision 1.10  2001/04/10 11:04:31  sable
  * Adding support for snapscan e40 an e50 thanks to Giuseppe Tanzilli

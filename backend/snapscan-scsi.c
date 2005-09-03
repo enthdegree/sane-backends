@@ -532,6 +532,10 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     pss->expected_read_bytes = 0;
     pss->read_bytes = 0;
     pss->hwst = pss->buf[INQUIRY_HWST];
+    if ((pss->pdev->bus == USB) && !(pss->hwst & 0x02))
+    {
+        pss->firmware_loaded = SANE_TRUE;
+    }
     pss->hconfig = pss->buf[INQUIRY_HCFG];
     switch (pss->pdev->model)
     {
@@ -1424,6 +1428,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.37  2005/09/03 11:31:31  oliver-guest
+ * Another small bugfix
+ *
  * Revision 1.36  2005/09/03 10:52:11  oliver-guest
  * Fixed debugging code for epson scanners
  *

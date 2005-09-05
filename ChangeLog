@@ -1,3 +1,8 @@
+2005-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.ru.po: Updated Russian translation (from Vitaly
+	  Lipatov <LAV@vl3143.spb.edu>).
+
 2005-09-03  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.h backend/snapscan-scsi.c: (Hopefully) fixed

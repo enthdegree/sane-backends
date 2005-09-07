@@ -1,3 +1,8 @@
+2005-09-07  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* acinclude.m4, configure: fix disabling of locking when the
+	  locking user group does not exist
+
 2005-09-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Genius ColorPage Slim

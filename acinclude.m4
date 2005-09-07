@@ -286,9 +286,6 @@ AC_DEFUN([SANE_CHECK_LOCKING],
       fi
     ])
   if test $use_locking = yes ; then
-    AC_DEFINE([ENABLE_LOCKING], 1, 
-              [Define to 1 if device locking should be enabled.])
-    INSTALL_LOCKPATH=install-lockpath
     AC_ARG_WITH([group],
       AC_HELP_STRING([--with-group],
                      [use the specified group for lock dir @<:@default=uucp@:>@]),
@@ -303,8 +300,12 @@ AC_DEFUN([SANE_CHECK_LOCKING],
       AC_MSG_WARN([Group $LOCKPATH_GROUP does not exist on this system.])
       AC_MSG_WARN([Locking feature will be disabled.])
       use_locking=no
-      INSTALL_LOCKPATH=
     fi
+  fi
+  if test $use_locking = yes ; then
+    INSTALL_LOCKPATH=install-lockpath
+    AC_DEFINE([ENABLE_LOCKING], 1, 
+              [Define to 1 if device locking should be enabled.])
   else
     INSTALL_LOCKPATH=
   fi

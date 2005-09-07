@@ -1,3 +1,8 @@
+2005-09-07  Oliver Schirrmeister <oschirr@abm.de>
+
+	* backend/fujitsu.c: enabled dropoutcolor for all fi-* scanners.
+	  Applied patch from Mario Goppold: Bugfixes for the M3092DCd     
+
 2005-09-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.ru.po: Updated Russian translation (from Vitaly
@@ -57,7 +62,7 @@
 	* doc/descriptions-external/brother2.desc: Brother MFC-5440CN is
 	  reported to work (bug #302105).
 
-2005-08-24  St�hane Voltz <stefdev@modulonet.fr>
+2005-08-24  St~hane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp.c backend/umax_pp_low.c tools/umax_pp.c: Added EPP
 	  support for 610P, revision number changes
@@ -67,7 +72,7 @@
 	* doc/descriptions/unsupported.desc: Added Canon LiDE 60. Reflecta
 	  Digitdia 3600 is not GL841-based.
 
-2005-08-22  St�hane Voltz <stefdev@modulonet.fr>
+2005-08-22  St~hane Voltz <stefdev@modulonet.fr>
 
 	* tools/check-usb-chip.c: Added rts8858c detection (Lexmark
 	  X1100 series, Dell A920).
@@ -170,7 +175,7 @@
 	  backend/sm3600-scanutil.c backend/sm3600.c backend/sm3600.h
 	  doc/sane-sm3600.man doc/sane-usb.man:
 	  Removed direct dependence of sm3600 on libusb. Used sanei_usb
-	  instead. Based on patch from Fran�is Revol <revol@free.fr>.
+	  instead. Based on patch from Fran~is Revol <revol@free.fr>.
 	  Updated documentation accordingly. Fixed compilation warnings.
 	
 2005-08-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>

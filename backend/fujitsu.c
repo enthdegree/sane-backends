@@ -664,7 +664,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   if (!scanner->has_gamma && scanner->num_download_gamma > 0) 
     {
       
-      scanner->gamma = (scanner->model == MODEL_3091) ? 0x00 : 0x80;
+      scanner->gamma = (scanner->model == MODEL_3091 || scanner->model == MODEL_3092) ? 0x00 : 0x80;
     }
   else 
     {
@@ -4174,12 +4174,16 @@ identify_scanner (struct fujitsu *s)
         {
           s->has_dropout_color = SANE_TRUE;
         }
-
-      if (!strncmp (product, "fi-4530C", 8))
-	{
+      
+      else if (!strncmp (product, "fi-4530C", 8))
+        {
           s->has_dropout_color = SANE_TRUE;
-	  s->read_mode = READ_MODE_BGR;
-	}
+          s->read_mode = READ_MODE_BGR;
+        }
+      else 
+        {
+          s->has_dropout_color = SANE_TRUE;
+        }
     }
   else
     {
@@ -4385,7 +4389,8 @@ identify_scanner (struct fujitsu *s)
           s->has_white_level_follow =
             get_IN_ipc_white_level_follow (s->buffer);
           s->has_subwindow = get_IN_ipc_subwindow (s->buffer);
-          s->has_reverse = get_IN_ipc_bw_reverse(s->buffer);
+          if (!((s->model == MODEL_3091) || (s->model == MODEL_3092)))
+            s->has_reverse = get_IN_ipc_bw_reverse(s->buffer);
 
           /*
            * get threshold, brightness and contrast ranges.

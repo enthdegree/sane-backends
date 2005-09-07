@@ -1,3 +1,8 @@
+2005-09-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Genius ColorPage Slim
+	  1200.
+
 2005-09-07  Oliver Schirrmeister <oschirr@abm.de>
 
 	* backend/fujitsu.c: enabled dropoutcolor for all fi-* scanners.

@@ -36,7 +36,7 @@ failure to the SANE mailing list. At least the following scanners are
 known to work: UMAX Astra 1220U and 2000U, Epson Perfection 1640SU and
 2450 Photo.
 
-Use libusb version 0.1.11 or later (or a cvs checkout from 2005-04-25
+Use libusb version 0.1.11 or later (or a cvs checkout from 2005-09-01
 or later). If you use earlier versions the libusb code needs to be
 patched.
 

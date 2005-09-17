@@ -1,3 +1,7 @@
+2005-09-17  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* README.darwin: New date for good libusb from CVS
+
 2005-09-07  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* acinclude.m4, configure: fix disabling of locking when the

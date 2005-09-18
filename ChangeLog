@@ -1,9 +1,11 @@
 2005-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	*  backend/gt68xx.c backend/gt68xx_high.c
+	* backend/gt68xx.c backend/gt68xx_high.c
 	  doc/descriptions/gt68xx.descdoc/gt68xx/gt68xx.CHANGES
 	  doc/gt68xx/gt68xx.TODO: Fixed segfault that may happen with
 	  Mustek ScanExpress A3 USB. 
+	* doc/backend-writing.txt: Added some hints about number of
+	  files. 
 
 2005-09-17  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

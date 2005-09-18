@@ -1,4 +1,4 @@
-2005-05-16
+2005-09-03
 
 Here are a few rules and tips that should help writing a
 SANE-conforming backend and including it into the SANE package:
@@ -41,6 +41,13 @@ GETTING STARTED
 
 PROGRAMMING
 -----------
+
+* A backend library is always only one file (libsane-backendname.so). Please do
+  not use miltiple libraries e.g. for lower and higher level code.
+
+* The number of source code files for your backend should be limited. While it
+  is useful to split big backends into several files, the number of .c files
+  shouldn't exceed 5-10. Please see the existing backends for examples.
 
 * Please follow the GNU coding standards.  It's clear that the style
   outlined there is nobody's favorite, but it's much easier to

@@ -1,5 +1,9 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.76 (2005-09-18)
+
+* Fixed segfault that may happen with Mustek ScanExpress A3 USB.
+
 V 1.0.75 (2005-09-01)
 
 * Genius ColorPage Vivid 1200 X is reported to work.

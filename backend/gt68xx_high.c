@@ -1705,6 +1705,7 @@ gt68xx_afe_cis_read_lines (GT68xx_Afe_Values * values,
       values->scan_dpi = params.xdpi;
       values->calwidth = params.pixel_xs;
       values->callines = params.pixel_ys;
+      values->start_black = scanner->dev->model->x_offset_mark;
       return SANE_STATUS_GOOD;
     }
 

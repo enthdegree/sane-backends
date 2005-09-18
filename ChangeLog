@@ -9,6 +9,7 @@
 	* backend/mustek.conf doc/sane-mustek.man
 	  doc/descriptions/mustek.desc: Mustek Paragon 600 II EP
 	  works. Mentioned "parport0".
+	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP750.
 
 2005-09-17  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

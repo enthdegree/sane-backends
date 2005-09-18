@@ -6,6 +6,9 @@
 	  Mustek ScanExpress A3 USB. 
 	* doc/backend-writing.txt: Added some hints about number of
 	  files. 
+	* backend/mustek.conf doc/sane-mustek.man
+	  doc/descriptions/mustek.desc: Mustek Paragon 600 II EP
+	  works. Mentioned "parport0".
 
 2005-09-17  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

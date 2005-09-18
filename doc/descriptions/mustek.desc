@@ -46,8 +46,8 @@
 
 :model "Paragon 600 II EP"
 :interface "Parport"
-:status :untested
-:comment "Not tested yet but should work. Please contact me if you own such a device."
+:status :minimal
+:comment "Works, however only low resolutions and quality in color mode is bad."
 
 :model "ScanMagic 600 II SP"
 :interface "SCSI"

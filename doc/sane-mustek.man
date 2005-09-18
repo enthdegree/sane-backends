@@ -1,4 +1,4 @@
-.TH sane-mustek 5 "25 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek 5 "18 Sep 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek
 .SH NAME
 sane-mustek \- SANE backend for Mustek SCSI flatbed scanners (and some other devices)
@@ -297,7 +297,7 @@ for the 600 II N are
 .IR 0x26b ", " 0x2ab ", " 0x2eb ", " 0x22b ", " 0x32b ", " 0x36b ", "
 .IR 0x3ab ", " 0x3eb .
 For the 600 II EP use one of these:
-.IR 0x378 ", " 0x278 ", " 0x3bc .
+.IR parport0 ", " parport1 ", " parport2 ", " 0x378 ", " 0x278 ", " 0x3bc .
 Pick one that doesn't conflict with the other hardware in your computer. Put
 only one number on a single line. Example:
 .PP

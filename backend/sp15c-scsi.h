@@ -49,6 +49,9 @@ static const char RCSid_sh[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.6  2005/09/19 19:57:48  fzago-guest
+ * Replaced __unused__ with __sane_unused__ to avoid a namespace conflict.
+ *
  * Revision 1.5  2004/11/13 19:53:04  fzago-guest
  * Fixes some warnings.
  *
@@ -540,7 +543,7 @@ static scsiblk window_descriptor_blockB =
 
 /* ==================================================================== */
 
-static scsiblk __unused__ *lint_catcher[] =
+static scsiblk __sane_unused__ *lint_catcher[] =
 {&reserve_unitB,
  &release_unitB,
  &inquiryB,

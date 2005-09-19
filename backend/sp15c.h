@@ -49,6 +49,9 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
+ * Revision 1.7  2005/09/19 19:57:48  fzago-guest
+ * Replaced __unused__ with __sane_unused__ to avoid a namespace conflict.
+ *
  * Revision 1.6  2004/11/13 19:53:04  fzago-guest
  * Fixes some warnings.
  *
@@ -273,7 +276,7 @@ static int
 static int
   wait_scanner (struct sp15c *s);
 
-static int __unused__
+static int __sane_unused__
   sp15c_object_position (struct sp15c *s);
 
 static SANE_Status
@@ -282,7 +285,7 @@ static SANE_Status
 static void
   swap_res (struct sp15c *s);
 
-static int __unused__
+static int __sane_unused__
   sp15c_object_discharge (struct sp15c *s);
 
 static int

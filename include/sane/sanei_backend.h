@@ -20,11 +20,11 @@
 
 /* __unused tells the compiler a variable is unused, so the
  * compiler doesn't spit a warning. */
-#define __unused__ __attribute__((unused))
+#define __sane_unused__ __attribute__((unused))
 
 #else
 
-#define __unused__
+#define __sane_unused__
 
 #endif
 

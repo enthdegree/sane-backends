@@ -59,7 +59,7 @@
 		      VM656A, VM6586
    update 2004/08/05, use of SANE_VALUE_SCAN_MODE_LINEART, _GRAY, and _COLOR,
                       changed use of %d to %ld (when bytes values are displayed)
-   update 2005/03/04, use of __unused__
+   update 2005/03/04, use of __sane_unused__
    update 2005/07/29. Removed using teco_request_sense (dev) routine for VM3564
 */
 
@@ -1669,7 +1669,7 @@ teco_scan (Teco_Scanner * dev)
 
 /* SCSI sense handler. Callback for SANE. */
 static SANE_Status
-teco_sense_handler (int scsi_fd, unsigned char *result, void __unused__ *arg)
+teco_sense_handler (int scsi_fd, unsigned char *result, void __sane_unused__ *arg)
 {
   int asc, ascq, sensekey;
   int len;
@@ -2504,7 +2504,7 @@ do_cancel (Teco_Scanner * dev)
 /* Sane entry points */
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   FILE *fp;
   char dev_name[PATH_MAX];
@@ -2551,7 +2551,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool __unused__ local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __sane_unused__ local_only)
 {
   Teco_Scanner *dev;
   int i;
@@ -3341,7 +3341,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, SANE_Bool __sane_unused__ non_blocking)
 {
   SANE_Status status;
   Teco_Scanner *dev = handle;
@@ -3368,7 +3368,7 @@ sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocki
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle __unused__ handle, SANE_Int __unused__ * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__ * fd)
 {
   DBG (DBG_proc, "sane_get_select_fd: enter\n");
 

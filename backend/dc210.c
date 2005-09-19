@@ -653,7 +653,7 @@ change_res (int fd, unsigned char res)
 }
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
 
   char f[] = "sane_init";
@@ -826,7 +826,7 @@ static const SANE_Device dev[] = {
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list,
-		  SANE_Bool __unused__ local_only)
+		  SANE_Bool __sane_unused__ local_only)
 {
   static const SANE_Device *devlist[] = {
     dev + 0, 0
@@ -1127,7 +1127,7 @@ my_source_mgr;
 typedef my_source_mgr *my_src_ptr;
 
 METHODDEF (void)
-sanei_jpeg_init_source (j_decompress_ptr __unused__ cinfo)
+sanei_jpeg_init_source (j_decompress_ptr __sane_unused__ cinfo)
 {
   /* nothing to do */
 }
@@ -1169,7 +1169,7 @@ sanei_jpeg_skip_input_data (j_decompress_ptr cinfo, long num_bytes)
 }
 
 METHODDEF (void)
-sanei_jpeg_term_source (j_decompress_ptr __unused__ cinfo)
+sanei_jpeg_term_source (j_decompress_ptr __sane_unused__ cinfo)
 {
   /* no work necessary here */
 }
@@ -1274,7 +1274,7 @@ sane_start (SANE_Handle handle)
 }
 
 SANE_Status
-sane_read (SANE_Handle __unused__ handle, SANE_Byte * data,
+sane_read (SANE_Handle __sane_unused__ handle, SANE_Byte * data,
 	   SANE_Int max_length, SANE_Int * length)
 {
 
@@ -1377,7 +1377,7 @@ sane_read (SANE_Handle __unused__ handle, SANE_Byte * data,
 }
 
 void
-sane_cancel (SANE_Handle __unused__ handle)
+sane_cancel (SANE_Handle __sane_unused__ handle)
 {
   DBG (127, "sane_cancel() called\n");
   if (Camera.scanning)
@@ -1387,14 +1387,14 @@ sane_cancel (SANE_Handle __unused__ handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle __unused__ handle,
-		  SANE_Bool __unused__ non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle,
+		  SANE_Bool __sane_unused__ non_blocking)
 {
   return SANE_STATUS_UNSUPPORTED;
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle __unused__ handle, SANE_Int __unused__ * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__ * fd)
 {
   return SANE_STATUS_UNSUPPORTED;
 }

@@ -521,7 +521,7 @@ sceptre_adjust_raster (Sceptre_Scanner * dev, size_t size_in)
  * Since this scanner does not have REQUEST SENSE, it is always an
  * error if this function is called.*/
 static SANE_Status
-sceptre_sense_handler (int scsi_fd, unsigned char __unused__ *result, void __unused__ *arg)
+sceptre_sense_handler (int scsi_fd, unsigned char __sane_unused__ *result, void __sane_unused__ *arg)
 {
   DBG (DBG_proc, "sceptre_sense_handler (scsi_fd = %d)\n", scsi_fd);
 
@@ -1307,7 +1307,7 @@ sceptre_send_gamma (Sceptre_Scanner * dev)
 /* Entry points */
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   FILE *fp;
   char dev_name[PATH_MAX];
@@ -1354,7 +1354,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __unused__ authorize)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool __unused__ local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __sane_unused__ local_only)
 {
   Sceptre_Scanner *dev;
   int i;
@@ -1991,7 +1991,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, SANE_Bool __sane_unused__ non_blocking)
 {
   SANE_Status status;
   Sceptre_Scanner *dev = handle;
@@ -2018,7 +2018,7 @@ sane_set_io_mode (SANE_Handle __unused__ handle, SANE_Bool __unused__ non_blocki
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle __unused__ handle, SANE_Int __unused__ * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, SANE_Int __sane_unused__ * fd)
 {
   DBG (DBG_proc, "sane_get_select_fd: enter\n");
 

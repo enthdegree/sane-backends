@@ -1,3 +1,11 @@
+2005-09-19  Frank Zago  <sane at zago.net>
+
+	* backend/dc210.c backend/leo.c backend/matsushita.c
+	  backend/sceptre.c backend/sp15c-scsi.h backend/sp15c.h
+	  backend/teco1.c backend/teco2.c backend/teco3.c
+	  include/sane/sanei_backend.h: Replaced __unused__ with 
+	  __sane_unused__ to avoid a namespace conflict.
+
 2005-09-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx_high.c

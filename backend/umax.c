@@ -6007,6 +6007,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
 #ifdef UMAX_ENABLE_USB
   sanei_usb_init();
+  sanei_pv8630_init();
 #endif
 
   fp = sanei_config_open(UMAX_CONFIG_FILE);

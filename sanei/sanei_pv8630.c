@@ -61,6 +61,12 @@
 #define DBG_error   1
 #define DBG_info    5
 
+void
+sanei_pv8630_init (void)
+{
+  DBG_INIT();
+}
+
 /* Write one control byte */
 SANE_Status
 sanei_pv8630_write_byte (int fd, SANEI_PV_Index index, SANE_Byte byte)

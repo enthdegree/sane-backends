@@ -1,3 +1,9 @@
+2005-09-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/hp4200.c backend/umax.c backend/umax1220u.c
+	  include/sane/sanei_pv8630.h sanei/sanei_pv8630.c:
+	  Fix SANE_DEBUG_SANEI_PV8630
+
 2005-09-19  Frank Zago  <sane at zago.net>
 
 	* backend/dc210.c backend/leo.c backend/matsushita.c

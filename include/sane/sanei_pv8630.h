@@ -77,6 +77,7 @@ typedef enum
 }
 SANEI_PV_Index;
 
+extern void sanei_pv8630_init (void);
 extern SANE_Status sanei_pv8630_write_byte (int fd, SANEI_PV_Index index,
 					    SANE_Byte byte);
 extern SANE_Status sanei_pv8630_read_byte (int fd, SANEI_PV_Index index,

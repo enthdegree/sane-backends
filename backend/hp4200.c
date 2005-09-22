@@ -2387,6 +2387,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   sanei_usb_init ();
+  sanei_pv8630_init ();
 
   fp = sanei_config_open (HP4200_CONFIG_FILE);
   if (!fp)

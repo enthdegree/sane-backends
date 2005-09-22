@@ -598,6 +598,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
   sanei_usb_init ();
+  sanei_pv8630_init ();
 
   fp = sanei_config_open (UMAX_CONFIG_FILE);
   if (!fp)

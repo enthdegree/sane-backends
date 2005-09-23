@@ -40,7 +40,11 @@ In order to build SANE, the following tools and libraries are required:
 	  but any ANSI-compliant compiler should do
 
 Some more libraries are not strictly necessary to compile SANE, but some
-functionality may be lost if they are not available:
+functionality may be lost if they are not available. Make sure that these
+libraries and their respective header files are available before running
+configure. On some Linux distributions the header files are part of separate
+packages (e.g. usb.h in libusb-devel or libusb-dev). These must also be
+installed.
         
         - libusb (>=0.1.8): Strongly recommended if you use a USB scanner.
           Some backends won't work without libusb at all.

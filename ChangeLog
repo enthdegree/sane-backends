@@ -9,6 +9,9 @@
 	  to scanimage (based on patch from Mario Goppold 
 	  <mgoppold@tbz-pariv.de>). Updated copyright information, added
 	  links to sane-devel mailing list.
+	* sanei/sanei_usb.c: Ignore EBUSY from usb_set_configuration. This
+	  function fails, if a different interface of the same device is
+	  claimed (e.g. by usblp).
 
 2005-09-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

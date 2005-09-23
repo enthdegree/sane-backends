@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2003 Rene Rebe (sanei_read_int,sanei_set_timeout)
-   Copyright (C) 2001 - 2003 Henning Meier-Geinitz
+   Copyright (C) 2001 - 2005 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
    Copyright (C) 2005 Paul Smedley <paul@smedley.info> (OS/2 usbcalls)
    This file is part of the SANE package.
@@ -760,12 +760,15 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	    }
 	  else if (errno == EBUSY)
 	    {
-	      DBG (1, "Maybe the kernel scanner driver claims the "
-		   "scanner's interface?\n");
-	      status = SANE_STATUS_DEVICE_BUSY;
+	      DBG (3, "Maybe the kernel scanner driver or usblp claims the "
+		   "interface? Ignoring this error...\n");
+	      status = SANE_STATUS_GOOD;
 	    }
-	  usb_close (devices[devcount].libusb_handle);
-	  return status;
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      usb_close (devices[devcount].libusb_handle);
+	      return status;
+	    }
 	}
 
       /* Claim the interface */

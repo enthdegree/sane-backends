@@ -566,6 +566,18 @@ if test "$SELECTED_BACKENDS" != "" ; then
   echo "*** connected to your local computer won't be supported.  Only a network"
   echo "*** connection to a remote host is possible."
 fi
+if test "$HAVE_LIBUSB" != "yes" && test "$USE_LIBUSB" = "yes" ; then
+  echo "*** Warning: sane-backends will be built without libusb support.  There may"
+  echo "*** be valid reasons to do so, e.g. if you don't use USB scanners or on"
+  echo "*** platforms without libusb support but generally this means that you"
+  echo "*** can't use USB devices with SANE. The most probable cause is that"
+  if test "${ac_cv_header_usb_h}" != "yes"; then
+    echo "*** the libusb header file usb.h is not installed. If you use Linux"
+    echo "*** you may need a package called 'libusb-dev', 'libusb-devel' or similar."
+  else
+    echo "*** libusb is not installed at all or is too old. See README."
+  fi
+fi
 
 echo "****************************************************************"
 echo "* Please be sure to read file PROBLEMS in this directory       *"

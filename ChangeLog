@@ -3,6 +3,8 @@
 	* README: Mention in addition to the listed libraries, their
 	  header files are also neccessary. A missing usb.h is a common
 	  problem when building SANE (--> no USB support).
+	* configure configure.in: Added warning message that's printed
+	  when libusb or its header file is not available.
 
 2005-09-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

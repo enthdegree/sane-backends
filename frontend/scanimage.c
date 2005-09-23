@@ -1,8 +1,12 @@
 /* scanimage -- command line scanning utility
    Uses the SANE library.
    Copyright (C) 1996, 1997, 1998 Andreas Beck and David Mosberger
+   
+   Copyright (C) 1999 - 2005 by the SANE Project -- See AUTHORS and ChangeLog
+   for details.
 
-   You can contact me at becka@uni-duesseldorf.de
+   For questions and comments contact the sane-devel mailinglist (see
+   http://www.sane-project.org/mailing-lists.html).
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -80,6 +84,7 @@ static struct option basic_options[] = {
   {"formatted-device-list", required_argument, NULL, 'f'},
   {"help", no_argument, NULL, 'h'},
   {"verbose", no_argument, NULL, 'v'},
+  {"progress", no_argument, NULL, 'p'},
   {"test", no_argument, NULL, 'T'},
   {"version", no_argument, NULL, 'V'},
   {"buffer_size", no_argument, NULL, 'B'},
@@ -99,7 +104,7 @@ static struct option basic_options[] = {
 #define OUTPUT_PNM      0
 #define OUTPUT_TIFF     1
 
-#define BASE_OPTSTRING	"d:hi:Lf:nvBVTb"
+#define BASE_OPTSTRING	"d:hi:Lf:nvBVTbp"
 #define STRIP_HEIGHT	256	/* # lines we increment image height */
 
 static struct option *all_options;
@@ -107,6 +112,7 @@ static int option_number_len;
 static int *option_number;
 static SANE_Handle device;
 static int verbose;
+static int progress = 0;
 static int test;
 static int output_format = OUTPUT_PNM;
 static int help;
@@ -1122,7 +1128,7 @@ advance (Image * image)
 static SANE_Status
 scan_it (void)
 {
-  int i, len, first_frame = 1, offset = 0, must_buffer = 0;
+  int i, len, first_frame = 1, offset = 0, must_buffer = 0, hundred_percent;
   SANE_Byte min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
@@ -1244,11 +1250,20 @@ scan_it (void)
 	  offset = parm.format - SANE_FRAME_RED;
 	  image.x = image.y = 0;
 	}
+      hundred_percent = parm.bytes_per_line * parm.lines 
+	* ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY) ? 1:3);
 
       while (1)
 	{
+	  double progr;
 	  status = sane_read (device, buffer, buffer_size, &len);
 	  total_bytes += (SANE_Word) len;
+          progr = ((total_bytes * 100.) / (double) hundred_percent);
+          if (progr > 100.)
+	    progr = 100.;
+          if (progress)
+	    fprintf (stderr, "Progress: %3.1f%%\r", progr);
+
 	  if (status != SANE_STATUS_GOOD)
 	    {
 	      if (verbose && parm.depth == 8)
@@ -1628,6 +1643,9 @@ main (int argc, char **argv)
 	case 'v':
 	  ++verbose;
 	  break;
+	case 'p':
+          progress = 1;
+	  break;
 	case 'B':
 	  buffer_size = (1024 * 1024);
 	  break;
@@ -1818,6 +1836,7 @@ standard output.\n\
     --batch-prompt         ask for pressing a key before scanning a page\n\
     --accept-md5-only      only accept authorization requests using md5\n");
       printf ("\
+-p, --progress             print progress messages\n\
 -n, --dont-scan            only set options, don't actually scan\n\
 -T, --test                 test backend thoroughly\n\
 -h, --help                 display this help message and exit\n\
@@ -1942,6 +1961,7 @@ standard output.\n\
 
 	    case 'd':
 	    case 'h':
+	    case 'p':
 	    case 'v':
 	    case 'V':
 	    case 'T':

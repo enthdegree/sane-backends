@@ -1,4 +1,4 @@
-.TH scanimage 1 "15 April 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "23 Sep 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -23,6 +23,7 @@ scanimage \- scan an image
 .IR increment ]
 .RB [ \-\-batch-double ]
 .RB [ \-\-accept-md5-only ]
+.RB [ \-p | \-\-progress ]
 .RB [ \-n | \-\-dont-scan ]
 .RB [ \-T | \-\-test ]
 .RB [ \-h | \-\-help ]
@@ -188,6 +189,17 @@ network daemon
 .RB ( saned )
 is capable of doing such requests. See
 .BR saned (8).
+.PP
+The
+.B \-p
+or
+.B \-\-progress
+option requests that
+.B scanimage
+prints a progress counter. It shows how much image data of the current image has
+already been received by
+.B scanimage 
+(in percent).
 .PP
 The
 .B \-n
@@ -430,7 +442,10 @@ to 127 characters.
 .BR sane-net (5),
 .BR sane-"backendname" (5)
 .SH AUTHOR
-David Mosberger, Andreas Beck, Gordon Matzigkeit and Caskey Dickson
+David Mosberger, Andreas Beck, Gordon Matzigkeit, Caskey Dickson, and many
+others.  For questions and comments contact the sane-devel mailinglist (see
+http://www.sane-project.org/mailing-lists.html).
+
 .SH BUGS
 For vector options, the help output currently has no indication as to
 how many elements a vector-value should have.

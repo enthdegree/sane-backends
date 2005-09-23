@@ -5,6 +5,10 @@
 	  problem when building SANE (--> no USB support).
 	* configure configure.in: Added warning message that's printed
 	  when libusb or its header file is not available.
+	* frontend/scanimage.c doc/scanimage.man: Added progress indicator
+	  to scanimage (based on patch from Mario Goppold 
+	  <mgoppold@tbz-pariv.de>). Updated copyright information, added
+	  links to sane-devel mailing list.
 
 2005-09-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

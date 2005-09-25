@@ -438,10 +438,12 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     SANE_Status status;
     switch (pss->pdev->model)
     {
+/* Doesn't work yet
     case PERFECTION2480:
     case PERFECTION3490:
         pss->read_bytes = (pss->firmware_loaded) ?  139 : INQUIRY_RET_LEN;
         break;
+*/    
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
         break;
@@ -479,14 +481,15 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->chroma_offset[B_CHAN] = 0;
         pss->chroma = 0;
         break;
+/* Doesn't work yet    
     case PERFECTION2480:
     case PERFECTION3490:
-        /* TODO: remove */
         if (pss->firmware_loaded)
         {
             snapscani_debug_data(tmpstr, pss->buf+120, 19);
             DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
         }
+*/    
     default:
     {
         signed char min_diff;
@@ -1428,6 +1431,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.38  2005/09/25 08:19:12  oliver-guest
+ * Removed debugging code for Epson scanners
+ *
  * Revision 1.37  2005/09/03 11:31:31  oliver-guest
  * Another small bugfix
  *

@@ -1,3 +1,8 @@
+2005-09-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c: Removed debugging code for 
+	  Epson scanners until a working solution has been found.               
+
 2005-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Mention in addition to the listed libraries, their

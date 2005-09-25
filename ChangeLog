@@ -1,3 +1,10 @@
+2005-09-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/lexmark.desc
+	  doc/descriptions/unsupported.desc: Added external lexmark
+	  backend. Moved Lexmark X11?? devices to lexmark.desc. Based on
+	  patch from  Fred Odendaal <freshshelf@rogers.com>.
+
 2005-09-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c: Removed debugging code for 

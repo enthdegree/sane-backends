@@ -1,3 +1,9 @@
+2005-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/sane-find-scanner.c: Print more clear output if no USB
+	  scanners are found. Point to manual page. Warn if libusb support
+	  hasn't been built.
+
 2005-09-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/lexmark.desc

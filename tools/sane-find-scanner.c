@@ -1484,7 +1484,7 @@ main (int argc, char **argv)
       if (verbose > 0)
 	printf
 	  ("  # No SCSI scanners found. If you expected something different, "
-	   "make sure that\n  # you have loaded a SCSI driver for your SCSI "
+	   "make sure that\n  # you have loaded a kernel SCSI driver for your SCSI "
 	   "adapter.\n");
       if (!check_sg ())
 	{
@@ -1584,8 +1584,15 @@ main (int argc, char **argv)
       if (verbose > 0)
 	printf
 	  ("  # No USB scanners found. If you expected something different, "
-	   "make sure that\n  # you have loaded a driver for your USB host "
-	   "controller and have installed a\n  # kernel scanner module.\n");
+	   "make sure that\n  # you have loaded a kernel driver for your USB host "
+	   "controller and have setup\n  # the USB system correctly. "
+	   "See man sane-usb for details.\n");
+#ifndef HAVE_LIBUSB
+      if (verbose > 0)
+	printf ("  # SANE has been built without libusb support. This may be a "
+		"reason\n  # for not detecting USB scanners. Read README for "
+		"more details.\n");
+#endif
     }
   if (enable_pp_checks == SANE_TRUE) 
     {

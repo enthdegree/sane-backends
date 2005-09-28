@@ -31,7 +31,10 @@ cat "$1" | { while read map; do
     else
 	set $map
 
-	echo -e "SYSFS{idVendor}==\"$3\", SYSFS{idProduct}==\"$4\", MODE=\"660\", GROUP=\"scanner\"" >> libsane.rules
+	vid=$(echo $3 | cut -b3-)
+	pid=$(echo $4 | cut -b3-)
+
+	echo -e "SYSFS{idVendor}==\"$vid\", SYSFS{idProduct}==\"$pid\", MODE=\"660\", GROUP=\"scanner\"" >> libsane.rules
     fi
 done }
 

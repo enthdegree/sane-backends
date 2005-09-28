@@ -438,12 +438,10 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     SANE_Status status;
     switch (pss->pdev->model)
     {
-/* Doesn't work yet
     case PERFECTION2480:
     case PERFECTION3490:
         pss->read_bytes = (pss->firmware_loaded) ?  139 : INQUIRY_RET_LEN;
         break;
-*/    
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
         break;
@@ -451,7 +449,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
 
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = INQUIRY;
-    pss->cmd[4] = INQUIRY_RET_LEN;
+    pss->cmd[4] = pss->read_bytes;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus,
@@ -481,7 +479,6 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->chroma_offset[B_CHAN] = 0;
         pss->chroma = 0;
         break;
-/* Doesn't work yet    
     case PERFECTION2480:
     case PERFECTION3490:
         if (pss->firmware_loaded)
@@ -489,7 +486,6 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
             snapscani_debug_data(tmpstr, pss->buf+120, 19);
             DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
         }
-*/    
     default:
     {
         signed char min_diff;
@@ -1434,6 +1430,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.40  2005/09/28 22:09:26  oliver-guest
+ * Reenabled enhanced inquiry command for Epson scanners (duh\!)
+ *
  * Revision 1.39  2005/09/28 21:33:10  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
  *

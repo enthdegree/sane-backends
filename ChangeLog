@@ -2,7 +2,8 @@
 
 	* backend/snapscan-options.c backend/snapscan-scsi.c
 	  backend/snapscan.c backend/snapscan.h:
-	  Added 16 bit option for Epson scanners, untested
+	  Added 16 bit option for Epson scanners, untested.
+	  Reenabled enhanced inquiry command for epson scanners.
 
 2005-09-28  Julien Blache <jb@jblache.org>
 	* tools/udev/convert-usermap.sh: Don't print 0x when matching VID

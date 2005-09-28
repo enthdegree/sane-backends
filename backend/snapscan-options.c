@@ -905,7 +905,6 @@ static void control_options(SnapScan_Scanner *pss)
         {
         case PERFECTION2480:
         case PERFECTION3490:
-        case PRISA620:
             pss->options[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
             break;
         default:
@@ -1586,6 +1585,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.25  2005/09/28 22:09:26  oliver-guest
+ * Reenabled enhanced inquiry command for Epson scanners (duh\!)
+ *
  * Revision 1.24  2005/09/28 21:33:10  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
  *

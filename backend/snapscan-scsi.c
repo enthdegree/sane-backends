@@ -860,11 +860,14 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_CONTRAST] = 128;
     {
         SnapScan_Mode mode = pss->mode;
-        u_char bpp = 8;
+        u_char bpp = pss->bpp_scan;
 
         if (pss->preview)
+        {
             mode = pss->preview_mode;
-
+            bpp = 8;
+        }
+            
         DBG (DL_MINOR_INFO, "%s Mode: %d\n", me, mode);
         switch (mode)
         {
@@ -1431,6 +1434,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.39  2005/09/28 21:33:10  oliver-guest
+ * Added 16 bit option for Epson scanners (untested)
+ *
  * Revision 1.38  2005/09/25 08:19:12  oliver-guest
  * Removed debugging code for Epson scanners
  *

@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               43
+#define BUILD               44
 
 #define BACKEND_NAME snapscan
 
@@ -105,13 +105,14 @@
 #include "../include/sane/sanei_config.h"
 
 /* debug levels */
-#define DL_INFO        10
-#define DL_MINOR_INFO  15
-#define DL_MAJOR_ERROR 1
-#define DL_MINOR_ERROR 2
-#define DL_DATA_TRACE  50
-#define DL_CALL_TRACE  30
-#define DL_VERBOSE     20
+#define DL_INFO         10
+#define DL_MINOR_INFO   15
+#define DL_MAJOR_ERROR  1
+#define DL_MINOR_ERROR  2
+#define DL_DATA_TRACE   50
+#define DL_OPTION_TRACE 70
+#define DL_CALL_TRACE   30
+#define DL_VERBOSE      20
 
 #define CHECK_STATUS(s,caller,cmd) \
 if ((s) != SANE_STATUS_GOOD) { DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n", caller, (cmd), sane_strstatus(s)); return s; }
@@ -1086,19 +1087,19 @@ SANE_Status sane_get_parameters (SANE_Handle h,
         {
         case MD_COLOUR:
         case MD_BILEVELCOLOUR:
-            p->bytes_per_line = 3 * p->pixels_per_line;
+            p->bytes_per_line = 3 * p->pixels_per_line * ((pss->bpp_scan+7)/8);
             break;
         case MD_LINEART:
             p->bytes_per_line = (p->pixels_per_line + 7) / 8;
             break;
         default:
             /* greyscale */
-            p->bytes_per_line = p->pixels_per_line;
+            p->bytes_per_line = p->pixels_per_line * ((pss->bpp_scan+7)/8);
             break;
         }
     }
     p->format = (is_colour_mode(mode)) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
-    p->depth = (mode == MD_LINEART) ? 1 : 8;
+    p->depth = (mode == MD_LINEART) ? 1 : pss->bpp_scan;
 
     DBG (DL_DATA_TRACE, "%s: depth = %ld\n", me, (long) p->depth);
     DBG (DL_DATA_TRACE, "%s: lines = %ld\n", me, (long) p->lines);
@@ -1871,6 +1872,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.52  2005/09/28 21:33:11  oliver-guest
+ * Added 16 bit option for Epson scanners (untested)
+ *
  * Revision 1.51  2005/08/15 18:56:55  oliver-guest
  * Added temporary debug code for 2480/2580 distinction
  *

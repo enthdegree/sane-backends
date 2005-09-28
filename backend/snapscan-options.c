@@ -66,6 +66,7 @@
 
 static SANE_Int def_rgb_lpr = 4;
 static SANE_Int def_gs_lpr = 12;
+static SANE_Int def_bpp = 8;
 
 
 /* predefined preview mode name */
@@ -241,6 +242,8 @@ static void init_options (SnapScan_Scanner * ps)
         {md_auto, md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const preview_names_basic[] =
         {md_auto, md_colour, md_greyscale, md_lineart, NULL};
+    static SANE_Int bit_depth_list[4];
+    int bit_depths;
     SANE_Option_Descriptor *po = ps->options;
 
     /* Initialize TPO range */
@@ -536,6 +539,30 @@ static void init_options (SnapScan_Scanner * ps)
     po[OPT_ENHANCEMENT_GROUP].cap = 0;
     po[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
+    /* bit depth */     
+    po[OPT_BIT_DEPTH].name  = SANE_NAME_BIT_DEPTH;
+    po[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
+    po[OPT_BIT_DEPTH].desc  = SANE_DESC_BIT_DEPTH;
+    po[OPT_BIT_DEPTH].type  = SANE_TYPE_INT;
+    po[OPT_BIT_DEPTH].unit  = SANE_UNIT_BIT;
+    po[OPT_BIT_DEPTH].size = sizeof (SANE_Word);    
+    po[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+    po[OPT_BIT_DEPTH].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    bit_depths = 0;
+    bit_depth_list[++bit_depths] = def_bpp;
+    switch (ps->pdev->model)
+    {
+    case PERFECTION2480:
+    case PERFECTION3490:
+        bit_depth_list[++bit_depths] = 16;
+        break;
+    default:
+        break;
+    }    
+    bit_depth_list[0] = bit_depths;
+    po[OPT_BIT_DEPTH].constraint.word_list = bit_depth_list;
+    ps->bpp_scan = def_bpp;
+    
     po[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
     po[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
     po[OPT_QUALITY_CAL].desc = SANE_DESC_QUALITY_CAL;
@@ -792,7 +819,7 @@ static void init_options (SnapScan_Scanner * ps)
 const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle h,
                                                           SANE_Int n)
 {
-    DBG (DL_CALL_TRACE,
+    DBG (DL_OPTION_TRACE,
          "sane_snapscan_get_option_descriptor (%p, %ld)\n",
          (void *) h,
          (long) n);
@@ -818,7 +845,8 @@ static void control_options(SnapScan_Scanner *pss)
     pss->options[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
     pss->options[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
     pss->options[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-
+    pss->options[OPT_BIT_DEPTH].cap  |= SANE_CAP_INACTIVE;
+    
     if ((pss->mode == MD_COLOUR) ||
         ((pss->mode == MD_BILEVELCOLOUR) && (pss->hconfig & HCFG_HT) &&
          pss->halftone))
@@ -871,6 +899,19 @@ static void control_options(SnapScan_Scanner *pss)
             pss->options[OPT_GAMMA_GS].cap &= ~SANE_CAP_INACTIVE;
         }
     }
+    if ((pss->mode == MD_GREYSCALE) || (pss->mode == MD_COLOUR))
+    {
+        switch(pss->pdev->model)
+        {
+        case PERFECTION2480:
+        case PERFECTION3490:
+        case PRISA620:
+            pss->options[OPT_BIT_DEPTH].cap &= ~SANE_CAP_INACTIVE;
+            break;
+        default:
+            break;
+        }
+    }        
 }
 
 SANE_Status sane_control_option (SANE_Handle h,
@@ -884,7 +925,7 @@ SANE_Status sane_control_option (SANE_Handle h,
     SnapScan_Device *pdev = pss->pdev;
     static SANE_Status status;
 
-    DBG (DL_CALL_TRACE,
+    DBG (DL_OPTION_TRACE,
         "%s (%p, %ld, %ld, %p, %p)\n",
         me,
         (void *) h,
@@ -1006,6 +1047,9 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GS_LPR:
             *(SANE_Int *) v = pss->gs_lpr;
             break;
+        case OPT_BIT_DEPTH:
+            *(SANE_Int *) v = pss->bpp_scan;
+            break;        
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
@@ -1415,6 +1459,11 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GS_LPR:
             pss->gs_lpr = *(SANE_Int *) v;
             break;
+        case OPT_BIT_DEPTH:
+            pss->bpp_scan = *(SANE_Int *) v;
+            if (i)
+                *i |= SANE_INFO_RELOAD_PARAMS;
+            break;
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
@@ -1422,21 +1471,21 @@ SANE_Status sane_control_option (SANE_Handle h,
                  (long) n);
             return SANE_STATUS_UNSUPPORTED;
         }
-        DBG (DL_DATA_TRACE, "%s: option %s set to value ",
+        DBG (DL_OPTION_TRACE, "%s: option %s set to value ",
              me, pss->options[n].name);
         switch (pss->options[n].type)
         {
         case SANE_TYPE_INT:
-            DBG (DL_VERBOSE, "%ld\n", (long) (*(SANE_Int *) v));
+            DBG (DL_OPTION_TRACE, "%ld\n", (long) (*(SANE_Int *) v));
             break;
         case SANE_TYPE_BOOL:
             {
                 char *valstr = (*(SANE_Bool *) v == SANE_TRUE)  ?  "TRUE"  :  "FALSE";
-                DBG (DL_DATA_TRACE, "%s\n", valstr);
+                DBG (DL_OPTION_TRACE, "%s\n", valstr);
             }
             break;
         default:
-            DBG (DL_DATA_TRACE, "other than an integer or boolean.\n");
+            DBG (DL_OPTION_TRACE, "other than an integer or boolean.\n");
             break;
         }
         break;
@@ -1517,6 +1566,9 @@ SANE_Status sane_control_option (SANE_Handle h,
         case OPT_GS_LPR:
             pss->gs_lpr = def_gs_lpr;
             break;
+        case OPT_BIT_DEPTH:
+            pss->bpp_scan = def_bpp;
+            break;
         default:
             DBG (DL_MAJOR_ERROR,
                  "%s: invalid option number %ld\n",
@@ -1534,6 +1586,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.24  2005/09/28 21:33:10  oliver-guest
+ * Added 16 bit option for Epson scanners (untested)
+ *
  * Revision 1.23  2005/08/16 20:15:10  oliver-guest
  * Removed C++-style comment
  *

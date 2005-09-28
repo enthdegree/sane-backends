@@ -1,3 +1,9 @@
+2005-09-28  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c backend/snapscan-scsi.c
+	  backend/snapscan.c backend/snapscan.h:
+	  Added 16 bit option for Epson scanners, untested
+
 2005-09-28  Julien Blache <jb@jblache.org>
 	* tools/udev/convert-usermap.sh: Don't print 0x when matching VID
 	and PID.

@@ -271,6 +271,7 @@ typedef enum
     OPT_BRY,               /* bottom right y */
     OPT_PREDEF_WINDOW,     /* predefined window configuration */
     OPT_ENHANCEMENT_GROUP, /* enhancement group */
+    OPT_BIT_DEPTH,         /* 8/16 bit/pixel for colour scans */
     OPT_QUALITY_CAL,       /* quality calibration */
     OPT_HALFTONE,          /* halftone flag */
     OPT_HALFTONE_PATTERN,  /* halftone matrix */
@@ -376,7 +377,8 @@ struct snapscan_scanner
     SANE_Option_Descriptor options[NUM_OPTS];  /* the option descriptors */
     Option_Value val[NUM_OPTS];  /* the options themselves... */
     SANE_Int res;                /* resolution */
-    SANE_Int bpp;                /* bit depth */
+    SANE_Int bpp;                /* bit depth supported by scanner*/
+    SANE_Int bpp_scan;           /* bit depth used for scanning */
     SANE_Bool preview;           /* preview mode toggle */
     SANE_Bool highquality;       /* high quality mode toggle */
     SANE_String mode_s;          /* scanning mode */
@@ -412,6 +414,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.36  2005/09/28 21:33:11  oliver-guest
+ * Added 16 bit option for Epson scanners (untested)
+ *
  * Revision 1.35  2005/09/03 10:52:11  oliver-guest
  * Fixed debugging code for epson scanners
  *

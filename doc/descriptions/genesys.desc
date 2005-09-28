@@ -2,6 +2,7 @@
 :version "1.0"
 :manpage "sane-genesys"
 :comment "Only the USB scanners mentioned below are currently supported."
+:url "http://www.meier-geinitz.de/sane/genesys-backend/"
 :devicetype :scanner
 
 ; -----------------------------------------------------------------------------

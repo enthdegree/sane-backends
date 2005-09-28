@@ -254,12 +254,6 @@
 ;:url ""  ; model's URL
 :comment "Is reported to work well with backend version 0.0.12."
 
-:model "MFC-9160"
-:status :untested
-:interface "USB"
-;:url ""  ; model's URL
-:comment "No report yet."
-
 :model "MFC-9180"
 :status :untested
 :interface "USB"

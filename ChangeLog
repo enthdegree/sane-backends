@@ -1,3 +1,7 @@
+2005-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother.desc: Removed duplicate entry.
+
 2005-09-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/sane-find-scanner.c: Print more clear output if no USB

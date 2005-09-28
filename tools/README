@@ -7,6 +7,11 @@ This directory contains various tools that may be useful:
         on the libusb "device nodes" when a scanner is plugged in.
         Please read the README file in this directory for instructions.
 
+ udev:
+	Contains the convert-usermap.sh script to produce a udev rules file
+	based on tools/hotplug/libsane.usermap. udev now replaces hotplug and
+	provides all the functionalities of hotplug.
+
  sane-find-scanner:
         Attempts to find a SCSI scanner attached to your system.
         Invoke with "sane-find-scanner -h" to get command-line

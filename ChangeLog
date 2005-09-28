@@ -1,3 +1,9 @@
+2005-09-28  Julien Blache <jb@jblache.org>
+	* tools/udev/convert-usermap.sh: Added script to convert
+	hotplug/libsane.usermap to a udev rules file. udev 070 + linux
+	2.6.14 will deprecate hotplug.
+	* tools/README: updated.
+
 2005-09-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother.desc: Removed duplicate entry.

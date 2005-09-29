@@ -1,4 +1,4 @@
-.TH sane-gt68xx 5 "18 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-gt68xx 5 "29 September 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-gt68xx
 .SH NAME
 sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
@@ -9,7 +9,7 @@ library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Grandtech GT-6801 and GT-6816
 chips.  A list of supported scanners can be found on the gt68xx backend
 homepage: 
-.IR http://www.meier-geinitz.de/sane/gt68xx/ .
+.IR http://www.meier-geinitz.de/sane/gt68xx-backend/ .
 .PP
 This is BETA software. Especially if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
@@ -27,8 +27,8 @@ or GT-6816 chipset, you can try to add it to the backend. Have a look at the
 following web page: 
 .I http://www.meier-geinitz.de/sane/gt68xx-backend/adding.html
 .PP
-.SH KERNEL ISSUES
-Please use libusb-0.1.6 or later. Without libusb or with older libusb versions
+.SH LIBUSB ISSUES
+Please use libusb-0.1.8 or later. Without libusb or with older libusb versions
 all kinds of trouble can be expected. The scanner should be found by
 sane-find-scanner without further actions. For setting permissions and general
 USB information looks at
@@ -212,7 +212,7 @@ Y-resolution differ.
 Support for buttons is missing.
 .PP
 More detailed bug information is available at the gt68xx backend homepage
-.IR http://www.meier-geinitz.de/sane/gt68xx .
+.IR http://www.meier-geinitz.de/sane/gt68xx-backend/ .
 Please contact me if you find a bug or missing feature:
 <henning@meier-geinitz.de>. Please send a debug log if your scanner isn't
 detected correctly (see SANE_DEBUG_GT68XX above).

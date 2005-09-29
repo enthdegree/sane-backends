@@ -1,3 +1,14 @@
+2005-09-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_generic.c backend/gt68xx_generic.h
+	  backend/gt68xx_high.c backend/gt68xx_low.c backend/gt68xx_low.h
+	  doc/sane-gt68xx.man doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: 
+	  Added support for Plustek OpticSlim M12 (untested). Based on patch
+	  from Gerhard Jaeger <gerhard@gjaeger.de>. Fixed gt68xx homepage
+	  links in man page. Changed minimum version of libusb to 0.1.8.
+
 2005-09-28  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c backend/snapscan-scsi.c

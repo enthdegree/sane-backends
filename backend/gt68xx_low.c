@@ -612,6 +612,16 @@ gt68xx_device_carriage_home (GT68xx_Device * dev)
 }
 
 SANE_Status
+gt68xx_device_paperfeed (GT68xx_Device * dev)
+{
+  CHECK_DEV_ACTIVE (dev, "gt68xx_device_paperfeed");
+  if (dev->model->command_set->paperfeed)
+    return (*dev->model->command_set->paperfeed) (dev);
+  else
+    return SANE_STATUS_UNSUPPORTED;
+}
+
+SANE_Status
 gt68xx_device_start_scan (GT68xx_Device * dev)
 {
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_start_scan");

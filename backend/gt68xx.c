@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 76
+#define BUILD 77
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -600,6 +600,11 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_COARSE_CAL].w = SANE_TRUE;
   if (!debug_options)
     DISABLE (OPT_COARSE_CAL);
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    {
+      s->val[OPT_COARSE_CAL].w = SANE_FALSE;
+      DISABLE (OPT_COARSE_CAL);
+    }
 
   /* coarse calibration only once */
   s->opt[OPT_COARSE_CAL_ONCE].name = "coarse-calibration-once";
@@ -616,6 +621,8 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_COARSE_CAL_ONCE].w = SANE_FALSE;
   if (!debug_options)
     DISABLE (OPT_COARSE_CAL_ONCE);
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    DISABLE (OPT_COARSE_CAL_ONCE);
 
   /* calibration */
   s->opt[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
@@ -627,6 +634,11 @@ init_options (GT68xx_Scanner * s)
   s->val[OPT_QUALITY_CAL].w = SANE_TRUE;
   if (!debug_options)
     DISABLE (OPT_QUALITY_CAL);
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    {
+      s->val[OPT_QUALITY_CAL].w = SANE_FALSE;
+      DISABLE (OPT_QUALITY_CAL);
+    }
 
   /* backtrack lines */
   s->opt[OPT_BACKTRACK_LINES].name = "backtrack-lines";
@@ -646,6 +658,12 @@ init_options (GT68xx_Scanner * s)
     s->val[OPT_BACKTRACK_LINES].w = 0x3f;
   if (!debug_options)
     DISABLE (OPT_BACKTRACK_LINES);
+
+  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    {
+      s->val[OPT_BACKTRACK_LINES].w = 0x3f;
+      DISABLE (OPT_BACKTRACK_LINES);
+    }
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
@@ -1795,7 +1813,8 @@ sane_start (SANE_Handle handle)
   if (!(s->dev->model->flags & GT68XX_FLAG_NO_STOP))
     RIE (gt68xx_device_stop_scan (s->dev));
 
-  RIE (gt68xx_device_carriage_home (s->dev));
+  if (!(s->dev->model->flags & GT68XX_FLAG_SHEET_FED))
+    RIE (gt68xx_device_carriage_home (s->dev));
 
   gt68xx_scanner_wait_for_positioning (s);
   gettimeofday (&s->start_time, 0);
@@ -1816,6 +1835,7 @@ sane_start (SANE_Handle handle)
     scan_request.backtrack_lines = 0;
 
   RIE (gt68xx_scanner_calibrate (s, &scan_request));
+  
   RIE (gt68xx_scanner_start_scan (s, &scan_request, &scan_params));
   for (i = 0; i < scan_params.overscan_lines; ++i)
     RIE (gt68xx_scanner_read_line (s, buffer_pointers));
@@ -2084,8 +2104,16 @@ sane_cancel (SANE_Handle handle)
 
 	}
       gt68xx_scanner_stop_scan (s);
-      gt68xx_scanner_wait_for_positioning (s);
-      gt68xx_device_carriage_home (s->dev);
+
+      if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
+	{
+	  gt68xx_device_paperfeed (s->dev);
+	} 
+      else
+	{
+	  gt68xx_scanner_wait_for_positioning (s);
+	  gt68xx_device_carriage_home (s->dev);
+	}
       if (s->gamma_table)
 	free (s->gamma_table);
       s->gamma_table = 0;

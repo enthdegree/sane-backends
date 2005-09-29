@@ -113,6 +113,7 @@
 #define GT68XX_FLAG_SCAN_FROM_HOME  (1 << 9)	/* Move home after calibration */
 #define GT68XX_FLAG_USE_OPTICAL_X   (1 << 10)	/* Use optical xdpi for 50 dpi and below */
 #define GT68XX_FLAG_ALWAYS_LINEMODE (1 << 11)	/* Linemode must be used for any resolution */
+#define GT68XX_FLAG_SHEET_FED       (1 << 12)	/* we have a sheet fed scanner */
 
 /* Forward typedefs */
 typedef struct GT68xx_USB_Device_Entry GT68xx_USB_Device_Entry;
@@ -333,6 +334,7 @@ struct GT68xx_Command_Set
    */
     SANE_Status (*is_moving) (GT68xx_Device * dev, SANE_Bool * moving);
 
+
   /** Move the scanner carriage by the specified number of steps.
    *
    * @param dev Device object.
@@ -352,6 +354,12 @@ struct GT68xx_Command_Set
    * @param dev Device object.
    */
     SANE_Status (*carriage_home) (GT68xx_Device * dev);
+
+  /** Eject the paper at the end of the scan.
+   *
+   * @param dev Device object.
+   */
+    SANE_Status (*paperfeed) (GT68xx_Device * dev);
 
   /** Start scanning the image.
    *
@@ -902,6 +910,17 @@ gt68xx_device_move_relative (GT68xx_Device * dev, SANE_Int distance);
  * - #SANE_STATUS_IO_ERROR - a communication error occured.
  */
 static SANE_Status gt68xx_device_carriage_home (GT68xx_Device * dev);
+
+/** Eject the paper after the end of scanning.
+ *
+ *
+ * @param dev Device object.
+ *
+ * @return
+ * - #SANE_STATUS_GOOD - success; the movement is started.
+ * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ */
+static SANE_Status gt68xx_device_paperfeed (GT68xx_Device * dev);
 
 /** Start scanning the image.
  *

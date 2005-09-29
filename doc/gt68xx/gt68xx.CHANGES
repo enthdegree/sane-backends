@@ -1,5 +1,12 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.77 (2005-09-29)
+
+* Added support for Plustek OpticSlim M12 (untested). Based on patch from
+  Gerhard Jaeger <gerhard@gjaeger.de>. 
+* Fixed gt68xx homepage links in man page. Changed minimum version of libusb
+  to 0.1.8.
+
 V 1.0.76 (2005-09-18)
 
 * Fixed segfault that may happen with Mustek ScanExpress A3 USB.

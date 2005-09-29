@@ -61,6 +61,7 @@ static SANE_Status
 gt68xx_generic_set_exposure_time (GT68xx_Device * dev,
 				  GT68xx_Exposure_Parameters * params);
 static SANE_Status gt68xx_generic_get_id (GT68xx_Device * dev);
+static SANE_Status gt68xx_generic_paperfeed (GT68xx_Device * dev);
 
 static SANE_Status
 gt68xx_generic_setup_scan (GT68xx_Device * dev,

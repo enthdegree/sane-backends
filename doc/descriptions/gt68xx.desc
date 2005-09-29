@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-76"
+:version "1.0-77"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -276,6 +276,11 @@
 :interface "USB"
 :status :good
 :comment "Works up to 1200 dpi."
+
+:model "OpticSlim M12"
+:interface "USB"
+:status :basic
+:comment "Scans, but no calibration is performed and the area selection is limited."
 ; -----------------------------------------------------------------------------
 
 :mfg "RevScan"

@@ -78,9 +78,49 @@ static GT68xx_Command_Set mustek_gt6816_command_set = {
   gt6816_is_moving,
   gt68xx_generic_move_relative,
   gt6816_carriage_home,
+  /* gt68xx_generic_paperfeed */ NULL,
   gt68xx_generic_start_scan,
   gt68xx_generic_read_scanned_data,
   gt6816_stop_scan,
+  gt68xx_generic_setup_scan,
+  gt68xx_generic_set_afe,
+  gt68xx_generic_set_exposure_time,
+  gt68xx_generic_get_id
+};
+
+static GT68xx_Command_Set mustek_gt6816_sheetfed_command_set = {
+  "mustek-gt6816",		/* Name of this command set */
+
+  0x40,				/* Request type */
+  0x01,				/* Request */
+
+  0x200c,			/* Memory read - wValue */
+  0x200b,			/* Memory write - wValue */
+
+  0x2010,			/* Send normal command - wValue */
+  0x3f40,			/* Send normal command - wIndex */
+  0x2011,			/* Receive normal result - wValue */
+  0x3f00,			/* Receive normal result - wIndex */
+
+  0x2012,			/* Send small command - wValue */
+  0x3f40,			/* Send small command - wIndex */
+  0x2013,			/* Receive small result - wValue */
+  0x3f00,			/* Receive small result - wIndex */
+
+  /* activate */ NULL,
+  /* deactivate */ NULL,
+  gt6816_check_firmware,
+  gt6816_download_firmware,
+  gt6816_get_power_status,
+  gt6816_get_ta_status,
+  gt6816_lamp_control,
+  gt6816_is_moving,
+  gt68xx_generic_move_relative,
+  /* gt6816_carriage_home */ NULL,
+  gt68xx_generic_paperfeed,
+  gt68xx_generic_start_scan,
+  gt68xx_generic_read_scanned_data,
+  gt6801_stop_scan,
   gt68xx_generic_setup_scan,
   gt68xx_generic_set_afe,
   gt68xx_generic_set_exposure_time,
@@ -117,6 +157,7 @@ static GT68xx_Command_Set mustek_gt6801_command_set = {
   gt6801_is_moving,
   /* gt68xx_generic_move_relative *** to be tested */ NULL,
   gt6801_carriage_home,
+  /* gt68xx_generic_paperfeed */ NULL,
   gt68xx_generic_start_scan,
   gt68xx_generic_read_scanned_data,
   gt6801_stop_scan,
@@ -155,6 +196,7 @@ static GT68xx_Command_Set plustek_gt6801_command_set = {
   gt6801_is_moving,
   /* gt68xx_generic_move_relative *** to be tested */ NULL,
   gt6801_carriage_home,
+  /* gt68xx_generic_paperfeed */ NULL,
   gt68xx_generic_start_scan,
   gt68xx_generic_read_scanned_data,
   gt6801_stop_scan,
@@ -1406,6 +1448,54 @@ static GT68xx_Model genius_vivid1200xe_model = {
     /* Tested by hmg */
 };
 
+static GT68xx_Model plustek_opticslim_m12_model = {
+  "plustek-opticslim-m12",	/* Name */
+  "Plustek",				/* Device vendor string */
+  "OpticSlim M12",			/* Device model name */
+  "cism216.fw",				/* Name of the firmware file */
+  SANE_FALSE,				/* Dynamic allocation flag */
+
+  &mustek_gt6816_sheetfed_command_set,	/* Command set used by this scanner */
+
+  600,					/* maximum optical sensor resolution */
+  1200,					/* maximum motor resolution */
+  600,					/* base x-res used to calculate geometry */
+  600,					/* base y-res used to calculate geometry */
+  1200,   				/* if ydpi is equal or higher, disable backtracking */
+  SANE_FALSE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 200, 150, 100, 0},	/* possible x-resolutions */
+  {600, 300, 200, 150, 100, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (1.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (9.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (10.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (140.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,				/* RGB CCD Line-distance correction in pixel */
+  0,					/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  {0x24, 0x0a, 0x23, 0x0f, 0x23, 0x0b},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),			/* Default gamma value */
+
+  SANE_TRUE,				/* Is this a CIS scanner? */
+  GT68XX_FLAG_NO_POWER_STATUS | GT68XX_FLAG_SHEET_FED
+};
+
 static GT68xx_Model plustek_opticslim1200_model = {
   "plustek-opticslim-1200",	/* Name */
   "Plustek",			/* Device vendor string */
@@ -1575,6 +1665,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0401, &plustek_op1248u_model},	/* Same scanner, different id? */
   {0x07b3, 0x0402, &plustek_u16b_model},
   {0x07b3, 0x0403, &plustek_u16b_model},	/* two ids? 403 seems to be more common */
+  {0x07b3, 0x0412, &plustek_opticslim_m12_model},
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},
   {0x0458, 0x2011, &genius_vivid3x_model},

@@ -96,10 +96,17 @@ gt68xx_generic_read_scanned_data (GT68xx_Device * dev, SANE_Bool * ready)
 
   RIE (gt68xx_device_req (dev, req, req));
 
-  if (req[0] == 0)
-    *ready = SANE_TRUE;
+  *ready = SANE_FALSE;
+  if (dev->model->flags & GT68XX_FLAG_SHEET_FED)
+    {
+      if (req[0] == 0 && req[1] == 0x35)
+	*ready = SANE_TRUE;
+    }
   else
-    *ready = SANE_FALSE;
+    {
+      if (req[0] == 0)
+	*ready = SANE_TRUE;
+    }
 
   return SANE_STATUS_GOOD;
 }
@@ -194,6 +201,19 @@ gt68xx_generic_get_id (GT68xx_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+SANE_Status
+gt68xx_generic_paperfeed (GT68xx_Device * dev)
+{
+  GT68xx_Packet req;
+  SANE_Status status;
+
+  memset (req, 0, sizeof (req));
+  req[0] = 0x83;
+  req[1] = 0x01;
+
+  RIE (gt68xx_device_req (dev, req, req));
+  return SANE_STATUS_GOOD;
+}
 
 #define MAX_PIXEL_MODE 15600
 

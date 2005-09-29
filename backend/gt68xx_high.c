@@ -510,7 +510,8 @@ gt68xx_scanner_start_scan_extended (GT68xx_Scanner * scanner,
       return status;
     }
 
-  if (scanner->dev->model->is_cis)
+  if (scanner->dev->model->is_cis 
+      && !(scanner->dev->model->flags & GT68XX_FLAG_SHEET_FED))
     {
       status =
 	gt68xx_device_set_exposure_time (scanner->dev,

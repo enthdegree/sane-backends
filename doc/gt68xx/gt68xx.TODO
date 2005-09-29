@@ -82,6 +82,7 @@ Mustek BearPaw 2400 CU Plus
 Mustek ScanExpress A3 USB
 - still slight vert. stripes
 - why is line distance setup necessary?
+- line distance varies with resolution (0,5,5 at 300 dpi, 0, 6, 7 with 150 dpi)
 - exposure doesn't seem to have any effect
 
 Mustek ScanExpress 1248 UB

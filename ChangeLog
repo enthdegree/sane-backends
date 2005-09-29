@@ -8,6 +8,7 @@
 	  Added support for Plustek OpticSlim M12 (untested). Based on patch
 	  from Gerhard Jaeger <gerhard@gjaeger.de>. Fixed gt68xx homepage
 	  links in man page. Changed minimum version of libusb to 0.1.8.
+	* doc/descriptions/unsupported.desc: Removed Plustek OpticSlim M12.
 
 2005-09-28  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

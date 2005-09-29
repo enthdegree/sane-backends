@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-09-25"		; version of backend
+:version "2005-09-29"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1472,12 +1472,6 @@
 :interface "USB"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
-
-:model "OpticSlim M12"
-:interface "USB"
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2004-May/011076.html"
-:status :unsupported
-:comment "Uses the GT6816 chipset. May be supported by the gt68xx backend in future. See link for details."
 
 :model "OpticWorks 2000"
 :interface "Parport"

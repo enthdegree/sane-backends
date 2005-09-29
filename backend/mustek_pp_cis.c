@@ -2298,7 +2298,6 @@ void cis_drv_capabilities(SANE_Int info, SANE_String *model,
         break;
       case MUSTEK_PP_CIS1200PLUS:
         *model = strdup("1200CP+");
-        *model = strdup("1200CP");
         *maxres = 1200;
         *minres = 50;
         *maxhsize = MUSTEK_PP_CIS_MAX_H_PIXEL*2;

@@ -1,3 +1,8 @@
+2005-09-29  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
+	* backend/mustek_pp_cis.c: Minor bug fix: wrong model name was 
+	  reported for 1200CP+ driver.
+
 2005-09-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c

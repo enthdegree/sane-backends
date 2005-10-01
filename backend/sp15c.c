@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.12  2005/10/01 17:06:25  hmg-guest
+ * Fixed some warnings (bug #302290).
+ *
  * Revision 1.11  2005/07/15 18:12:49  hmg-guest
  * Better 4->8 bit depth expansion algorithm (from Mattias Ellert
  * <mattias.ellert@tsl.uu.se>).
@@ -1238,9 +1241,9 @@ sp15c_identify_scanner (struct sp15c *s)
       return SANE_STATUS_INVAL;
     }
 
-  get_IN_vendor (s->buffer, vendor);
-  get_IN_product (s->buffer, product);
-  get_IN_version (s->buffer, version);
+  get_IN_vendor ((char *) s->buffer, vendor);
+  get_IN_product ((char *)s->buffer, product);
+  get_IN_version ((char *)s->buffer, version);
 
   if (strncmp ("FCPA    ", vendor, 8))
     {
@@ -2029,7 +2032,8 @@ reader_process (void *data)
           for (i = 0; i < data_to_read; i++)
             {
               *dst-- = ((*src << 4) & 0xf0) + ((*src)        & 0x0f);
-              *dst-- = ((*src)      & 0xf0) + ((*src-- >> 4) & 0x0f);
+              *dst-- = ((*src)      & 0xf0) + ((*src >> 4) & 0x0f);
+	      --src;
             }
           data_to_read *= 2;
         }

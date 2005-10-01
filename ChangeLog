@@ -1,3 +1,9 @@
+2005-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/mustek_a3p1.desc
+	  doc/descriptions/unsupported.desc: Added external mustek_a3p1
+	  backend that supports Mustek P 3600 A3 Pro. 
+
 2005-10-01  Julien Blache <jb@jblache.org>
 	* doc/sane-find-scanner.man: Typo fix, s/itsself/itself/ from
 	Alfie Costa.

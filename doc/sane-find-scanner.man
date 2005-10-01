@@ -91,7 +91,7 @@ filename is a file that contains USB descriptors in the format of
 .B sane-find-scanner
 tries to identify the chipset(s) of all USB scanners found in such a file. This
 option is useful for developers when the output of "cat /proc/bus/usb/devices"
-is available but the scanner itsself isn't.
+is available but the scanner itself isn't.
 .TP 8
 .B devname
 Test device file "devname". No other devices are checked if devname is given.

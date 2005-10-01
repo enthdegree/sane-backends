@@ -1,3 +1,7 @@
+2005-10-01  Julien Blache <jb@jblache.org>
+	* doc/sane-find-scanner.man: Typo fix, s/itsself/itself/ from
+	Alfie Costa.
+
 2005-09-29  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp_cis.c: Minor bug fix: wrong model name was 

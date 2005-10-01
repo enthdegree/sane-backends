@@ -2,7 +2,7 @@ SANE Backend specification files
 --------------------------------
 
 The specification files (e.g. epson.desc) describe the capabilities of the
-backends. They provide information about the backend itsself (e.g., name and
+backends. They provide information about the backend itself (e.g., name and
 version) and about the supported devices (e.g., manufacturer and product
 names).  One file per backend should be used. Descriptions for backends
 included in the SANE distribution are located in

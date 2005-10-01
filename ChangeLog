@@ -2,7 +2,9 @@
 
 	* doc/descriptions-external/mustek_a3p1.desc
 	  doc/descriptions/unsupported.desc: Added external mustek_a3p1
-	  backend that supports Mustek P 3600 A3 Pro. 
+	  backend that supports Mustek P 3600 A3 Pro.
+	* tools/Makefile.in: Added udev to list of directories that are
+	  part of the distribution.
 
 2005-10-01  Julien Blache <jb@jblache.org>
 	* doc/sane-find-scanner.man: Typo fix, s/itsself/itself/ from

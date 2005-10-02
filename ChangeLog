@@ -1,3 +1,11 @@
+2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c backend/plustek-usb.h: Updated motor
+	  settings for Canoscan LiDE25, thanks to Stephan February 
+	  <stephanf@singnet.com.sg> for providing these values.
+
 2005-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/as6e.desc: Added Trust Easy Scan 9600 Plus (bug

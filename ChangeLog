@@ -1,3 +1,8 @@
+2005-10-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/as6e.desc: Added Trust Easy Scan 9600 Plus (bug
+	  #301000).
+	
 2005-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/mustek_a3p1.desc

@@ -23,6 +23,14 @@
 :status :basic
 :comment "Requires the program 'as6edriver' to run."
 
+:mfg "Trust"                    ; name a manufacturer
+:url "http://www.trust-site.com"
+:comment "Carefully check the model names. Trust uses similar names for completely different hardware."
+
+:model "Easy Scan 9600 Plus"
+:interface "Parport"
+:status :basic
+:comment "Requires the program 'as6edriver' to run."
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

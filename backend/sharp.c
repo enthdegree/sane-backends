@@ -322,7 +322,7 @@ static const SANE_Range u8_range =
 #endif
 
 static SANE_Status
-sense_handler(int fd, u_char *sense_buffer, void *s)
+sense_handler(int __sane_unused__ fd, u_char *sense_buffer, void *s)
 {
   int sense_key;
   SHARP_Sense_Data *sdat = (SHARP_Sense_Data *) s;
@@ -1285,7 +1285,7 @@ attach (const char *devnam, SHARP_Device ** devp)
   SHARP_Sense_Data sensedat;
 
   int fd;
-  unsigned char inquiry_data[INQUIRY_LEN];
+  char inquiry_data[INQUIRY_LEN];
   const char *model_name;
   mode_sense_param msp;
   mode_sense_subdevice m_subdev;
@@ -1794,7 +1794,7 @@ init_string_option(SHARP_Scanner *s, SANE_String_Const name,
 static SANE_Status
 init_options (SHARP_Scanner * s)
 {
-  int i, default_source, sourcename_index;
+  int i, default_source, sourcename_index = 0;
   SANE_Word scalar;
   DBG (10, "<< init_options ");
 
@@ -2335,7 +2335,8 @@ static int stop_on_fsu_error[2] = {COMPLAIN_ON_FSU_ERROR | COMPLAIN_ON_ADF_ERROR
 static int default_scan_mode[2] = {-1, -1}; 
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, 
+	   SANE_Auth_Callback __sane_unused__ authorize)
 {
   char devnam[PATH_MAX] = "/dev/scanner";
   char line[PATH_MAX];
@@ -2583,7 +2584,8 @@ sane_exit (void)
 }
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list,
+		  SANE_Bool __sane_unused__ local_only)
 {
   SHARP_Device *dev;
   int i;
@@ -2720,7 +2722,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 #else
   SANE_Word cap;
 #endif
-  int i, range_index;
+#ifdef USE_RESOLUTION_LIST
+  int i;
+#endif
+  int range_index;
   DBG (10, "<< sane_control_option %i", option);
 
   if (info)
@@ -3138,10 +3143,10 @@ sprint_gamma(Option_Value val, SANE_Byte *dst)
   int i;
   SANE_Byte *p = dst;
   
-  p += sprintf(p, "%i", val.wa[0] > 255 ? 255 : val.wa[0]);
+  p += sprintf((char *) p, "%i", val.wa[0] > 255 ? 255 : val.wa[0]);
   /* val.wa[i] is over 255, so val.wa[i] is limitied to 255 */
   for (i = 1; i < 256; i++)
-    p += sprintf(p, ",%i", val.wa[i] > 255 ? 255 : val.wa[i]);
+    p += sprintf((char *) p, ",%i", val.wa[i] > 255 ? 255 : val.wa[i]);
   return p - dst;
 }
 
@@ -3277,7 +3282,7 @@ send_threshold_data(SHARP_Scanner *s)
      restricted to the range 0..255), 3 '/' and the null-byte,
      total: 16 bytes.
   */
-  len = sprintf(&cmd[10], "%i/%i/%i/%i", 
+  len = sprintf((char *) &cmd[10], "%i/%i/%i/%i", 
                 s->val[OPT_THRESHOLD_R].w,
                 s->val[OPT_THRESHOLD_G].w,
                 s->val[OPT_THRESHOLD_B].w,
@@ -4188,7 +4193,8 @@ sane_cancel (SANE_Handle handle)
 }
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle __sane_unused__ handle, 
+		  SANE_Bool __sane_unused__ non_blocking)
 {
   DBG (10, "<< sane_set_io_mode");
   DBG (10, ">>\n");
@@ -4197,7 +4203,8 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 }
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle __sane_unused__ handle, 
+		    SANE_Int __sane_unused__ * fd)
 {
   DBG (10, "<< sane_get_select_fd");
   DBG (10, ">>\n");

@@ -2,6 +2,7 @@
 
 	* doc/descriptions/as6e.desc: Added Trust Easy Scan 9600 Plus (bug
 	  #301000).
+	* backend/sharp.c: Fixed some compilation warnings (bug #300404).
 	
 2005-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

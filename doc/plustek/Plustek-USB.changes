@@ -3,6 +3,12 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.50-4 (2005-10-02)
+---------------------
+Updated motor settings for Canoscan LiDE25, thanks to
+Stephan February <stephanf@singnet.com.sg> for providing these 
+values.
+
 V 0.50-3 (2005-08-22)
 ---------------------
 Fixed problem, when trying to scan at resolutions beyond the

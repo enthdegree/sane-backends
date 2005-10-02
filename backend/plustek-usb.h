@@ -39,6 +39,7 @@
  *        - added IPCDef
  * - 0.50 - cleanup
  *        - removed obsolete _WAF_BLACKFINE
+ *        - added MODEL_CANON_LIDE25
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -280,6 +281,7 @@ typedef enum
 	MODEL_CANON600 ,      /**< for CanoScan 600dpi models   */
 	MODEL_CANON1200,      /**< for Canon 1200dpi models     */
 	MODEL_CANONCCD1200,   /**< for Canon CCD 1200dpi models */
+	MODEL_CANON_LIDE25,   /**< for CanoScan LiDE25          */
 	MODEL_UMAX,           /**< for UMAX 3400/3450           */
 	MODEL_UMAX1200,       /**< for UMAX 5400                */
 	MODEL_LAST

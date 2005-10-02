@@ -55,6 +55,7 @@
  *        - removed obsolete _WAF_BLACKFINE
  *        - LiDE20 does not seem to have a reliable black calibration area
  *          so the devices now will switch off the lamp for dark calibration
+ *        - added Stephan Februarys' <stephanf@singnet.com.sg> LiDE25 changes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -2307,8 +2308,8 @@ static HWDef Hw0x04A9_0x220E =
 /** Canon LiDE25 */
 static HWDef Hw0x04A9_0x2220 =
 {
-	0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.30,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.80,   /* dMaxMotorSpeed (Max_Speed)                     */
+	0.20,   /* dMaxMoveSpeed (Max_Speed)                      */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* wIntegrationTimeLowLamp                        */
 	100,    /* wIntegrationTimeHighLamp                       */
@@ -2369,7 +2370,7 @@ static HWDef Hw0x04A9_0x2220 =
 	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
 	0,      /* test mode (reg 0x5e)                           */
 	_LM9833,
-	MODEL_CANON1200,
+	MODEL_CANON_LIDE25,
 	2.0
 };
 
@@ -2641,6 +2642,21 @@ static ClkMotorDef Motors[] = {
 		/* Gray mode MCLK settings */
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
 		{ 6.5, 6.5, 6.5, 7.0, 8.0, 8.0, 8.0, 10.0, 10.0, 10.0 }
+	},
+
+	{ MODEL_CANON_LIDE25, 8, 51, 9,
+	/* Motor settings (PWM and PWM_Duty) */
+	/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+	{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
+
+	/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+	{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
+	/* Color mode MCLK settings */
+	{ 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0 },
+	{ 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0 },
+	/* Gray mode MCLK settings */
+	{ 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
+	{ 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
 	}
 };
 

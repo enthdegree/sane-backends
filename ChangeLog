@@ -4,6 +4,8 @@
 	  #301000).
 	* backend/sharp.c: Fixed some compilation warnings (bug #300404).
 	* AUTHORS: Fixed Rene Rebe's email address.
+	* doc/descriptions/unsupported.desc: Removed Epson Perfection 4180
+	  (supported by epkowa backend).
 	
 2005-10-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -50,19 +50,19 @@
 #include <sys/types.h>
 #include <sane/sane.h>
 
-/** some modes, we'd like to see/use... */
+/** some modes, we'd like to see/use. */
 enum sanei_pp_mode {
-	SANEI_PP_MODE_SPP  = (1<<1),
-	SANEI_PP_MODE_BIDI = (1<<2),
-	SANEI_PP_MODE_EPP  = (1<<4),
-	SANEI_PP_MODE_ECP  = (1<<8)
+  	SANEI_PP_MODE_SPP  = (1<<1), 		/**< SPP */
+	SANEI_PP_MODE_BIDI = (1<<2), 		/**< BIDI */
+	SANEI_PP_MODE_EPP  = (1<<4), 		/**< EPP */
+	SANEI_PP_MODE_ECP  = (1<<8) 		/**< ECP */
 };
 
 #define SANEI_PP_DATAIN  1
 #define SANEI_PP_DATAOUT 0
 
-/** Parallelport Control-Register definitions
- */
+/* @{ */
+/** Parallelport Control-Register definitions */
 #define SANEI_PP_CTRL_STROBE        0x01
 #define SANEI_PP_CTRL_AUTOLF        0x02
 #define SANEI_PP_CTRL_NOT_INIT      0x04
@@ -70,7 +70,7 @@ enum sanei_pp_mode {
 #define SANEI_PP_CTRL_ENABLE_IRQ    0x10
 #define SANEI_PP_CTRL_DIRECTION     0x20
 #define SANEI_PP_CTRL_RESERVED      0xc0
-
+/* @} */
 
 /** Initialize sanei_pp.
  *

@@ -233,8 +233,11 @@ extern void sanei_usb_close (SANE_Int dn);
  * 
  * @param timeout the new timeout in ms
  */
-#define HAVE_SANEI_USB_SET_TIMEOUT
 extern void sanei_usb_set_timeout (SANE_Int timeout);
+
+/** Check if sanei_usb_set_timeout() is available.
+ */
+#define HAVE_SANEI_USB_SET_TIMEOUT
 
 /** Initiate a bulk transfer read.
  *

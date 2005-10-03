@@ -8,26 +8,24 @@
  * @sa sanei.h sanei_thread.h
  */
 
-/** @name Compatibility macros
- * @{
- */
 
 /*
  * Compiler related options
  */
 
+/** Mark unused variables/parameters
+ *
+ * Tells the compiler a variable is unused, so the compiler doesn't spit a warning. 
+ */
 #ifdef __GNUC__
-
-/* __unused tells the compiler a variable is unused, so the
- * compiler doesn't spit a warning. */
 #define __sane_unused__ __attribute__((unused))
-
 #else
-
 #define __sane_unused__
-
 #endif
 
+/** @name Compatibility macros
+ * @{
+ */
 #include <sane/sanei_debug.h>
 
 #ifdef HAVE_SYS_HW_H
@@ -145,29 +143,27 @@ extern void ENTRY(exit) (void);
 #endif /* STUBS */
 /* @} */
 
-/** @name Internationalization for SANE backends
+/** Internationalization for SANE backends
+ *
  * Add SANE_I18N() to all texts that can be translated.
- *  E.g. out_txt = SANE_I18N("Hello"); 
- * @{
+ * E.g. out_txt = SANE_I18N("Hello"); 
  */
 #ifndef SANE_I18N
 #define SANE_I18N(text) text
 #endif
-/* @} */
 
-/** @name Option_Value union
- * convenience union to access option values given to the backend
- * @{
+/** Option_Value union
+ *
+ * Convenience union to access option values given to the backend
  */
 #ifndef SANE_OPTION
-#define SANE_OPTION 1
 typedef union
 {
-  SANE_Bool b;
-  SANE_Word w;
-  SANE_Word *wa;		/* word array */
-  SANE_String s;
+  SANE_Bool b;		/**< bool */
+  SANE_Word w;		/**< word */
+  SANE_Word *wa;	/**< word array */
+  SANE_String s;	/**< string */
 }
 Option_Value;
+#define SANE_OPTION 1
 #endif
-/* @} */

@@ -49,7 +49,7 @@
 
 /** @mainpage SANEI (SANE internal routines) documentation
  *
- * @image html ../images/sane-logo2.jpg
+ * @image html sane-logo2.jpg
  * @section intro Introduction
  *
  * The header files in the include/sane/ directory named sanei_*.h provide
@@ -70,7 +70,7 @@
  * - Information on how to write a backend: <a
  *   href="../backend-writing.txt">backend-writing.txt</a>.
  * - General SANE documentation is on <a
- *   href="http://www.sane-project.org/docs.html>the SANE documentation
+ *   href="http://www.sane-project.org/docs.html">the SANE documentation
  *   page</a>.
  * 
  * @section contact Contact 
@@ -133,17 +133,6 @@
  * @sa sanei_check_value()
  */
 
-/* @} */
-
-/** @name Private macros
- * @{
- */
-/** @def STRINGIFY1(x)
- * Internal use only.
- */
-/** @def PASTE1(x,y)
- * Internal use only.
- */
 /* @} */
 
 /* A few convenience macros:  */

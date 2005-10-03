@@ -21,6 +21,10 @@
 	  website).
 	* doc/doxygen-sanei.conf.in: Updated to current doxygen
 	  version. Output more C-friendly format.
+	* include/sane/sanei.h include/sane/sanei_backend.h
+	  include/sane/sanei_debug.h include/sane/sanei_pp.h
+	  include/sane/sanei_usb.h: Fixed some bugs in doxygen
+	  documentation. Added some comments.
 
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 

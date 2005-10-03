@@ -19,6 +19,8 @@
 	  website has links to projects). Removed link to wi32 port
   	  (included in SANE). Removed link to SaneTwain (listed on SANE
 	  website).
+	* doc/doxygen-sanei.conf.in: Updated to current doxygen
+	  version. Output more C-friendly format.
 
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 

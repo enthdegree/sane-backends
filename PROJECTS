@@ -1,4 +1,4 @@
-PROJECTS (2002-11-25)
+PROJECTS (2005-10-03)
 
 Here is a list of projects that various people have expressed interest
 in.  Before starting working on one of these projects, it may be a
@@ -19,22 +19,12 @@ wip       Work in progress. There is (more or less) working code. For details,
 SANE on non-Unix platforms:
 ----------------------------
 
-BeOS port (wip)
-http://www.intuiware.com/Products/BeSANE/index.html
-
 OS/2 support (wip)
 http://home.tiscalinet.de/fbakan/sane-os2.htm
-
-win32 port of SANE (wip)
-http://www.zago.net/sane/windows/sane_on_windows.html
 
 
 Misc:
 -----
-
-SaneTwain: TWAIN compliant datasource which is able to connect to a SANE
-           scanner backend.
-http://sanetwain.ozuzo.net/
 
 TWAIN interface for xsane-win32 (planned)
 Oliver Rauch <oliver.rauch@Wolfsburg.DE>

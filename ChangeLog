@@ -15,6 +15,10 @@
 	  backend. Added missing links to other backends.
 	* doc/descriptions/mustek_usb2.desc: Moved from
 	  descriptions-external. Updated.
+	* PROJECTS: Removed link to BeOS (link goes to nowhere, SANE
+	  website has links to projects). Removed link to wi32 port
+  	  (included in SANE). Removed link to SaneTwain (listed on SANE
+	  website).
 
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 

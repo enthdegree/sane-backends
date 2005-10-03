@@ -52,7 +52,8 @@ SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-teco1.5 sane-teco2.5 sane-teco3.5 sane-test.5 sane-sp15c.5 \
           sane-coolscan2.5 sane-hpsj5s.5 sane-gt68xx.5 sane-artec_eplus48u.5 \
           sane-ma1509.5 sane-ibm.5 sane-hp5400.5 sane-plustek_pp.5 sane-u12.5 \
-	  sane-niash.5 sane-sm3840.5 sane-genesys.5 sane-hp4200.5
+	  sane-niash.5 sane-sm3840.5 sane-genesys.5 sane-hp4200.5 \
+	  sane-mustek_usb2.5
 SECT7   = sane.7
 SECT8	= saned.8
 MANPAGES = $(SECT1) $(SECT5) $(SECT7) $(SECT8)
@@ -62,7 +63,8 @@ READMES = README AUTHORS COPYING ChangeLog LICENSE NEWS PROBLEMS \
           README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
           README.solaris README.unixware2 README.unixware7 README.windows README.zeta
 DOCS    = backend-writing.txt sane.ps sane.dvi
-BACKDIRS= canon leo matsushita mustek mustek_usb plustek u12 umax sceptre teco gt68xx niash
+BACKDIRS= canon leo matsushita mustek mustek_usb plustek u12 umax sceptre teco \
+	  gt68xx niash mustek_usb2
 LATEX	= TEXINPUTS=$(srcdir):$$TEXINPUTS @LATEX@
 DVIPS   = @DVIPS@
 MAKEINDEX = @MAKEINDEX@
@@ -103,7 +105,8 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-teco1.man sane-teco2.man sane-teco3.man sane-test.man sane-sp15c.man \
   sane-hpsj5s.man gamma4scanimage.man sane-gt68xx.man sane-artec_eplus48u.man \
   sane-ma1509.man sane-ibm.man sane-hp5400.man sane-plustek_pp.man \
-  sane-u12.man sane-niash.man sane-sm3840.man sane-genesys.man sane-hp4200.man
+  sane-u12.man sane-niash.man sane-sm3840.man sane-genesys.man sane-hp4200.man \
+  sane-mustek_usb2.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   sane-html uninstall

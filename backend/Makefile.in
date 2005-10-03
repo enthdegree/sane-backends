@@ -126,6 +126,9 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   mustek_pp_ccd300.h mustek_scsi_pp.c mustek_scsi_pp.h mustek_usb.c mustek_usb.conf \
   mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
   mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf nec.h \
+  mustek_usb2.c mustek_usb2.h mustek_usb2_asic.c \
+  mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h \
+  mustek_usb2_reflective.c mustek_usb2_transparent.c \
   net.c net.conf net.h niash.c niash_core.c niash_core.h \
   niash_xfer.c niash_xfer.h pie.c pie.conf pie-scsidef.h pint.c pint.h \
   plustek.c plustek.conf plustek-usbdevs.c plustek.h \
@@ -394,6 +397,8 @@ libsane-mustek_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_pp.la: ../sanei/sanei_pa4s2.lo
 libsane-mustek_usb.la: ../sanei/sanei_constrain_value.lo
 libsane-mustek_usb.la: ../sanei/sanei_usb.lo
+libsane-mustek_usb2.la: ../sanei/sanei_usb.lo
+libsane-mustek_usb2.la: ../sanei/sanei_constrain_value.lo
 libsane-nec.la: ../sanei/sanei_config2.lo
 libsane-nec.la: ../sanei/sanei_constrain_value.lo
 libsane-nec.la: ../sanei/sanei_scsi.lo

@@ -398,6 +398,12 @@ else
     BACKENDS="${BACKENDS} net"
   fi
 
+  if test "${have_pthread}" != "yes"; then
+    echo "*** disabling MUSTEK_USB2 backend (failed to find pthread library)"
+  else
+    BACKENDS="${BACKENDS} mustek_usb2"
+  fi
+
   AC_ARG_ENABLE(pnm-backend, 
     AC_HELP_STRING([--enable-pnm-backend],
                    [enable the pnm backend for testing frontends (possible

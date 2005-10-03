@@ -1,3 +1,17 @@
+2005-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* AUTHORS acinclude.m4 configure configure.in backend/Makefile.in
+	  backend/dll.conf backend/mustek_usb2.c backend/mustek_usb2.h
+	  backend/mustek_usb2_asic.c backend/mustek_usb2_asic.h
+	  backend/mustek_usb2_high.c backend/mustek_usb2_high.h
+	  backend/mustek_usb2_reflective.c backend/mustek_usb2_transparent.c
+	  doc/Makefile.in doc/sane-mustek_usb2.man
+	  doc/mustek_usb2/mustek_usb2.CHANGES
+	  doc/mustek_usb2/mustek_usb2.TODO: 
+	  Added mustek_usb backend which supports the Mustek BearPaw 2448
+	  TA Pro. Changes of the code before inclusion to CVS can be found
+	  in doc/mustek_usb2/mustek_usb2.CHANGES.
+
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

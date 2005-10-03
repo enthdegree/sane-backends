@@ -223,16 +223,17 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
         use_pthread=yes
       fi
     ])
-  if test $use_pthread = yes ; then
-    AC_CHECK_HEADERS(pthread.h,
+  AC_CHECK_HEADERS(pthread.h,
     [
        AC_CHECK_LIB(pthread,pthread_create)
-       AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach],,use_pthread=no)
+       AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach],have_pthread=yes,use_pthread=no)
     ],)
-  fi
+ 
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
                    [Define if pthreads should be used instead of forked processes.])
+  fi
+  if test "$have_pthread" = "yes" ; then
     CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
   fi
   AC_MSG_CHECKING([whether to enable pthread support])

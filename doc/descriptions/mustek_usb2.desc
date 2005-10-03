@@ -1,6 +1,6 @@
 :backend "mustek_usb2"
-:version "1.0-3"
-;:manpage "sane-mustek_usb2"
+:version "1.0-9"
+:manpage "sane-mustek_usb2"
 :url "http://www.meier-geinitz.de/sane/mustek_usb2-backend/"
 :comment "Only BearPaw 2448TA Pro is supported at the moment"
 :devicetype :scanner
@@ -13,7 +13,3 @@
 :model "BearPaw 2448TA Pro"
 :interface "USB"
 :status :good
-
-
-
-

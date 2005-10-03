@@ -13,6 +13,8 @@
 	  in doc/mustek_usb2/mustek_usb2.CHANGES.
 	* doc/sane.man: Added mustek_usb2. Added description for u12
 	  backend. Added missing links to other backends.
+	* doc/descriptions/mustek_usb2.desc: Moved from
+	  descriptions-external. Updated.
 
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 

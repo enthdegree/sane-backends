@@ -1,4 +1,4 @@
-.TH sane 7 "13 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "03 October 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -332,6 +332,12 @@ scanners. See
 .BR sane\-mustek_usb (5)
 for details.
 .TP
+.B mustek_usb2
+The mustek_usb backend provides access to scanners using the SQ113 chipset like
+the Mustek BearPaw 2448 TA Pro USB flatbed scanner. See
+.BR sane\-mustek_usb2 (5)
+for details.
+.TP
 .B nec
 The SANE nec backend supports the NEC PC-IN500/4C SCSI scanner. See
 .BR sane\-nec (5)
@@ -420,6 +426,13 @@ The SANE teco1, teco2 and teco3 backends support some TECO scanners,
 usually sold under the Relisys, Trust, Primax, Piotech, Dextra
 names. See
 .BR sane\-teco1 "(5), " sane\-teco2 "(5) and " sane\-teco3 (5)
+for details.
+.TP
+.B u12
+The sane-u12 backend provides USB flatbed scanners based on Plustek's ASIC 98003
+(parallel-port ASIC) and a GeneSys Logics' USB-parport bridge chip like the
+Plustek OpticPro U(T)12. See
+.BR sane\-u12 (5)
 for details.
 .TP
 .B umax
@@ -773,11 +786,13 @@ for details).
 .BR sane\-dmc (5),
 .BR sane\-epson (5),
 .BR sane\-fujitsu (5),
+.BR sane\-genesys (5),
 .BR sane\-gphoto2 (5),
 .BR sane\-gt68xx (5),
 .BR sane\-hp (5),
 .BR sane\-hpsj5s (5),
-.BR sane\-hp5400 (5)
+.BR sane\-hp4200 (5),
+.BR sane\-hp5400 (5),
 .BR sane\-ibm (5),
 .BR sane\-leo (5),
 .BR sane\-ma1509 (5),
@@ -787,6 +802,7 @@ for details).
 .BR sane\-mustek (5),
 .BR sane\-mustek_pp (5),
 .BR sane\-mustek_usb (5),
+.BR sane\-mustek_usb2 (5),
 .BR sane\-nec (5),
 .BR sane\-net (5),
 .BR sane\-niash (5),
@@ -802,6 +818,7 @@ for details).
 .BR sane\-scsi (5),
 .BR sane\-sharp (5),
 .BR sane\-sm3600 (5),
+.BR sane\-sm3840 (5),
 .BR sane\-snapscan (5),
 .BR sane\-sp15c (5),
 .BR sane\-st400 (5),

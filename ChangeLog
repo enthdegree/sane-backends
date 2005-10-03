@@ -11,6 +11,8 @@
 	  Added mustek_usb backend which supports the Mustek BearPaw 2448
 	  TA Pro. Changes of the code before inclusion to CVS can be found
 	  in doc/mustek_usb2/mustek_usb2.CHANGES.
+	* doc/sane.man: Added mustek_usb2. Added description for u12
+	  backend. Added missing links to other backends.
 
 2005-10-02  Gerhard Jaeger <gerhard@gjaeger.de>
 

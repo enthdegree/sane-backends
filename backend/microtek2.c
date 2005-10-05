@@ -3576,7 +3576,7 @@ sane_get_option_descriptor(SANE_Handle handle, SANE_Int n)
     DBG(255, "sane_get_option_descriptor: handle=%p, sod=%p, opt=%d\n",
               (void *) handle, (void *) ms->sod, n);
 
-    if ( n < 0 || n > NUM_OPTIONS )
+    if ( n < 0 || n >= NUM_OPTIONS )
       {
         DBG(30, "sane_get_option_descriptor: invalid option %d\n", n);
         return NULL;

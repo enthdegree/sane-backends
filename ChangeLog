@@ -1,3 +1,7 @@
+2005-10-05  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/microtek2.c: Off-by-one error
+
 2005-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS acinclude.m4 configure configure.in backend/Makefile.in

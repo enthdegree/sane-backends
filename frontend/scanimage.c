@@ -178,7 +178,7 @@ auth_callback (SANE_String_Const resource,
 	      else
 		len = strlen (resource);
 
-	      while (fgets (tmp, 512, pass_file))
+	      while (fgets (tmp, sizeof(tmp), pass_file))
 		{
 
 		  if ((strlen (tmp) > 0) && (tmp[strlen (tmp) - 1] == '\n'))

@@ -1,3 +1,9 @@
+2005-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added HP ScanJet 3800c.
+	* frontend/scanimage.c: Use correct size for fgets. Patch from
+	  Antoine Jacoutot <ajacoutot@lphp.org>. 
+
 2005-10-05  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/microtek2.c: Off-by-one error

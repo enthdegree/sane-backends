@@ -12,7 +12,8 @@
 
 :model "P 3600 A3 Pro"
 :interface "USB"
-:status :good
+:status :minimal
+:comment "Reports about scanning problems. 1800 dpi seems to work if only small scan areas are selected."
 
 
 

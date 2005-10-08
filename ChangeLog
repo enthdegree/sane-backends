@@ -2,6 +2,7 @@
 
 	* doc/descriptions-external/mustek_a3p1.desc: Downgraded status to
 	  minimal.
+	* doc/descriptions/mustek_usb2.desc: Added "new" marker.
 
 2005-10-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -172,7 +172,8 @@ static const SANE_Range u8_range = {
 #define UMAX_PP_RESERVE			259200
 
 static int
-parse_int_option (const char *string, char *name, long int *value, long int fallback);
+parse_int_option (const char *string, char *name, long int *value,
+		  long int fallback);
 
 /*
  * devname may be either an hardware address for direct I/O (0x378 for instance)
@@ -412,14 +413,14 @@ umax_pp_get_sync (SANE_Int dpi)
 	case 600:
 	  return 16;
 	case 300:
-	  return 8;	/* 8 double-checked*/
+	  return 8;		/* 8 double-checked */
 	case 150:
 	  /* wrong: 2, 3, 5
 	   * double-checked : 4
 	   */
 	  return 4;
 	default:
-	  return 2;	/* 2 double-checked */
+	  return 2;		/* 2 double-checked */
 	}
     }
 }
@@ -747,7 +748,8 @@ init_options (Umax_PP_Device * dev)
 }
 
 static int
-parse_int_option (const char *string, char *name, long int *value, long int fallback)
+parse_int_option (const char *string, char *name, long int *value,
+		  long int fallback)
 {
   int len;
   char *end;
@@ -756,14 +758,15 @@ parse_int_option (const char *string, char *name, long int *value, long int fall
   if ((strncmp (string, name, len) == 0) && isspace (string[len]))
     {
 
-      string += len+1;
+      string += len + 1;
 
       errno = 0;
       *value = strtol (string, &end, 0);
 
       if (end == string || errno)
 	{
-	  DBG (2, "init: invalid value `%s`, using fallback '%ld'\n", string,fallback);
+	  DBG (2, "init: invalid value `%s`, using fallback '%ld'\n", string,
+	       fallback);
 	  *value = fallback;
 	}
       DBG (3, "init: option %s %ld\n", name, *value);
@@ -827,7 +830,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  cp += 7;
 	  cp = sanei_config_skip_whitespace (cp);
 
-	  if (parse_int_option(cp, "buffer", &val, buf_size))
+	  if (parse_int_option (cp, "buffer", &val, buf_size))
 	    {
 	      if (val < 8192)
 		{
@@ -849,86 +852,88 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 		  devlist[0].buf_size = val;
 		}
 	    }
-	  else if (parse_int_option(cp, "astra", &val, 0))
-	  {
-	  	if((val!=610)&&(val!=1200)&&(val!=1600)&&(val!=2000))
+	  else if (parse_int_option (cp, "astra", &val, 0))
+	    {
+	      if ((val != 610) && (val != 1200) && (val != 1600)
+		  && (val != 2000))
 		{
-		  val=0;
+		  val = 0;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option astra to %ld\n", val);
 	      sanei_umax_pp_setastra (val);
-	  }
-	  else if (parse_int_option(cp, "red-gain", &val, 12))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "red-gain", &val, 12))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=12;
+		  val = 12;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option red-gain to %ld\n", val);
 	      red_gain = val;
-	  }
-	  else if (parse_int_option(cp, "green-gain", &val, 6))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "green-gain", &val, 6))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=6;
+		  val = 6;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option green-gain to %ld\n", val);
 	      green_gain = val;
-	  }
-	  else if (parse_int_option(cp, "blue-gain", &val,12))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "blue-gain", &val, 12))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=12;
+		  val = 12;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option blue-gain to %ld\n", val);
 	      blue_gain = val;
-	  }
-	  else if (parse_int_option(cp, "red-offset", &val, 10))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "red-offset", &val, 10))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=10;
+		  val = 10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option red-offset to %ld\n", val);
 	      red_offset = val;
-	  }
-	  else if (parse_int_option(cp, "green-offset", &val, 10))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "green-offset", &val, 10))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=10;
+		  val = 10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
-	      DBG (3, "init: setting global option green-offset to %ld\n", val);
+	      DBG (3, "init: setting global option green-offset to %ld\n",
+		   val);
 	      green_offset = val;
-	  }
-	  else if (parse_int_option(cp, "blue-offset", &val, 10))
-	  {
-	  	if((val<0)||(val>15))
+	    }
+	  else if (parse_int_option (cp, "blue-offset", &val, 10))
+	    {
+	      if ((val < 0) || (val > 15))
 		{
-		  val=10;
+		  val = 10;
 		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
 		       cp, val);
 		}
 	      DBG (3, "init: setting global option red-offset to %ld\n", val);
 	      blue_offset = val;
-	  }
-          else
+	    }
+	  else
 	    DBG (2, "init: don't know what to do with option `%s'\n", cp);
-	  }
+	}
       else if ((strncmp (cp, "port", 4) == 0) && isspace (cp[4]))
 	{
 	  /* protect ourself from buggy configuration tool such as
@@ -2077,11 +2082,21 @@ sane_start (SANE_Handle handle)
       DBG (2, "sane_start: checking if scanner is parking head .... \n");
 
       rc = sanei_umax_pp_status ();
+      points = 0;
 
-      /* check if scanner busy parking */
+      /* check if scanner busy parking  */
+      /* if so, wait parking completion */
+      DBG (2, "sane_start: scanner busy\n");
+      while ((rc == UMAX1220P_BUSY) && (points < 30))
+	{
+	  sleep (1);
+	  rc = sanei_umax_pp_status ();
+	  points++;
+	}
+      /* timeout waiting for scanner */
       if (rc == UMAX1220P_BUSY)
 	{
-	  DBG (2, "sane_start: scanner busy\n");
+	  DBG (2, "sane_start: scanner still busy\n");
 	  return SANE_STATUS_DEVICE_BUSY;
 	}
       dev->state = UMAX_PP_STATE_IDLE;

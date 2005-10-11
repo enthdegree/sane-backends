@@ -1,3 +1,8 @@
+2005-10-11  Stephane Voltz <stefdev@modulonet.fr>
+
+	* backend/umax_pp.c: change sane_start semantic to allow for batch
+	  scanning
+
 2005-10-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/mustek_a3p1.desc: Downgraded status to

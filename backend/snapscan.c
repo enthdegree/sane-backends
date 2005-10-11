@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               44
+#define BUILD               45
 
 #define BACKEND_NAME snapscan
 
@@ -1099,7 +1099,12 @@ SANE_Status sane_get_parameters (SANE_Handle h,
         }
     }
     p->format = (is_colour_mode(mode)) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
-    p->depth = (mode == MD_LINEART) ? 1 : pss->bpp_scan;
+    if (mode == MD_LINEART)
+        p->depth = 1;
+    else if (pss->preview)
+        p->depth = 8;
+    else 
+        p->depth = pss->val[OPT_BIT_DEPTH].w;
 
     DBG (DL_DATA_TRACE, "%s: depth = %ld\n", me, (long) p->depth);
     DBG (DL_DATA_TRACE, "%s: lines = %ld\n", me, (long) p->lines);
@@ -1872,6 +1877,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.53  2005/10/11 18:47:07  oliver-guest
+ * Fixes for Epson 3490 and 16 bit scan mode
+ *
  * Revision 1.52  2005/09/28 21:33:11  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
  *

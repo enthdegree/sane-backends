@@ -233,7 +233,7 @@ static void init_options (SnapScan_Scanner * ps)
     static SANE_Word resolutions_2400[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
     static SANE_Word resolutions_3200[] =
-        {13, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
+        {15, 50, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -561,7 +561,7 @@ static void init_options (SnapScan_Scanner * ps)
     }    
     bit_depth_list[0] = bit_depths;
     po[OPT_BIT_DEPTH].constraint.word_list = bit_depth_list;
-    ps->bpp_scan = def_bpp;
+    ps->val[OPT_BIT_DEPTH].w = def_bpp;
     
     po[OPT_QUALITY_CAL].name = SANE_NAME_QUALITY_CAL;
     po[OPT_QUALITY_CAL].title = SANE_TITLE_QUALITY_CAL;
@@ -1047,7 +1047,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             *(SANE_Int *) v = pss->gs_lpr;
             break;
         case OPT_BIT_DEPTH:
-            *(SANE_Int *) v = pss->bpp_scan;
+            *(SANE_Int *) v = pss->val[OPT_BIT_DEPTH].w;
             break;        
         default:
             DBG (DL_MAJOR_ERROR,
@@ -1459,7 +1459,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->gs_lpr = *(SANE_Int *) v;
             break;
         case OPT_BIT_DEPTH:
-            pss->bpp_scan = *(SANE_Int *) v;
+            pss->val[OPT_BIT_DEPTH].w = *(SANE_Int *) v;
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS;
             break;
@@ -1566,7 +1566,7 @@ SANE_Status sane_control_option (SANE_Handle h,
             pss->gs_lpr = def_gs_lpr;
             break;
         case OPT_BIT_DEPTH:
-            pss->bpp_scan = def_bpp;
+            pss->val[OPT_BIT_DEPTH].w = def_bpp;
             break;
         default:
             DBG (DL_MAJOR_ERROR,
@@ -1585,6 +1585,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.26  2005/10/11 18:47:07  oliver-guest
+ * Fixes for Epson 3490 and 16 bit scan mode
+ *
  * Revision 1.25  2005/09/28 22:09:26  oliver-guest
  * Reenabled enhanced inquiry command for Epson scanners (duh\!)
  *

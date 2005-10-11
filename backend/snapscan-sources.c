@@ -929,9 +929,22 @@ static SANE_Status RGBRouter_get (Source *pself,
             b = (ps->cb_start + ps->ch_offset[2])%ps->cb_size;
             for (i = 0;  i < ps->cb_line_size/3;  i++)
             {
-                *s++ = ps->cbuf[r++];
-                *s++ = ps->cbuf[g++];
-                *s++ = ps->cbuf[b++];
+                if (pself->pss->bpp_scan == 8)
+                {
+                    *s++ = ps->cbuf[r++];
+                    *s++ = ps->cbuf[g++];
+                    *s++ = ps->cbuf[b++];
+                }
+                else
+                {
+                    *s++ = ps->cbuf[r++];
+                    *s++ = ps->cbuf[r++];
+                    *s++ = ps->cbuf[g++];
+                    *s++ = ps->cbuf[g++];
+                    *s++ = ps->cbuf[b++];
+                    *s++ = ps->cbuf[b++];
+                    i++;
+                }
             }
 
             /* end of reading & offsetiing whole line data;
@@ -1162,6 +1175,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.13  2005/10/11 18:47:07  oliver-guest
+ * Fixes for Epson 3490 and 16 bit scan mode
+ *
  * Revision 1.12  2004/11/14 19:26:38  oliver-guest
  * Applied patch from Julien Blache to change ch_past_init from SANE_Int to SANE_Bool
  *

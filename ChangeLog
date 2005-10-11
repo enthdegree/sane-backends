@@ -1,3 +1,9 @@
+2005-10-11  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c backend/snapscan-scsi.c
+	  backend/snapscan.c backend/snapscan-sources.c:
+	  Fixes for Epson 3490/3590 and 16 bit scan mode
+
 2005-10-11  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp.c: change sane_start semantic to allow for batch

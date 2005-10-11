@@ -856,12 +856,12 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     pc[SET_WINDOW_P_CONTRAST] = 128;
     {
         SnapScan_Mode mode = pss->mode;
-        u_char bpp = pss->bpp_scan;
+        pss->bpp_scan = pss->val[OPT_BIT_DEPTH].w;
 
         if (pss->preview)
         {
             mode = pss->preview_mode;
-            bpp = 8;
+            pss->bpp_scan = 8;
         }
             
         DBG (DL_MINOR_INFO, "%s Mode: %d\n", me, mode);
@@ -875,21 +875,24 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
                 pc[SET_WINDOW_P_COMPOSITION] = 0x04;    /* halftone RGB */
             else
                 pc[SET_WINDOW_P_COMPOSITION] = 0x03;    /* bi-level RGB */
-            bpp = 1;
+            pss->bpp_scan = 1;
             break;
         case MD_GREYSCALE:
             pc[SET_WINDOW_P_COMPOSITION] = 0x02;    /* grayscale */
             break;
-        default:
+        case MD_LINEART:
             if (pss->halftone)
                 pc[SET_WINDOW_P_COMPOSITION] = 0x01;    /* b&w halftone */
             else
                 pc[SET_WINDOW_P_COMPOSITION] = 0x00;    /* b&w (lineart) */
+            pss->bpp_scan = 1;
+            break;
+        default:
             break;
         }
 
-        pc[SET_WINDOW_P_BITS_PER_PIX] = bpp;
-        DBG (DL_INFO, "%s: bits-per-pixel set to %d\n", me, (int) bpp);
+        pc[SET_WINDOW_P_BITS_PER_PIX] = pss->bpp_scan;
+        DBG (DL_INFO, "%s: bits-per-pixel set to %d\n", me, (int) pss->bpp_scan);
     }
     /* the RIF bit is the high bit of the padding type */
     pc[SET_WINDOW_P_PADDING_TYPE] = 0x00 /*| (pss->negative ? 0x00 : 0x80) */ ;
@@ -927,7 +930,9 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     if (!pss->highquality) {
         source |= 0x80; /* no high quality */
     }
-
+    if (pss->pdev->model == PERFECTION3490) {
+        source |= 0x40; /* 3490 always needs no_preview bit */
+    }
     if (pss->source == SRC_TPO) {
         source |= 0x08;
     }
@@ -1186,7 +1191,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
 
             /* add calibration results into bins (TODO 16 bit scans have 2 bytes per bucket) */
             pbuf = buf;
-            for (j = 0; j < expected_read_bytes / num_bins; j++) {
+            for (j = 0; j < (int)expected_read_bytes / num_bins; j++) {
               for (k = 0; k < num_bins; k++)
                 bins[k] += *pbuf++;
             }
@@ -1430,6 +1435,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.41  2005/10/11 18:47:07  oliver-guest
+ * Fixes for Epson 3490 and 16 bit scan mode
+ *
  * Revision 1.40  2005/09/28 22:09:26  oliver-guest
  * Reenabled enhanced inquiry command for Epson scanners (duh\!)
  *

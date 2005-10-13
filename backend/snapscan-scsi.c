@@ -650,6 +650,10 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTCQ_GAMMA_RED14 0x96
 #define DTCQ_GAMMA_GREEN14 0x97
 #define DTCQ_GAMMA_BLUE14 0x98
+#define DTCQ_GAMMA_GRAY14_16BIT 0xa5 /* ? */
+#define DTCQ_GAMMA_RED14_16BIT 0xa6
+#define DTCQ_GAMMA_GREEN14_16BIT 0xa7
+#define DTCQ_GAMMA_BLUE14_16BIT 0xa8
 
 static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
 {
@@ -704,6 +708,12 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         case DTCQ_GAMMA_GREEN14:
         case DTCQ_GAMMA_BLUE14:
             tl = 16384;
+            break;
+        case DTCQ_GAMMA_GRAY14_16BIT:    /* 14-bit tables with 16 bit data */
+        case DTCQ_GAMMA_RED14_16BIT:
+        case DTCQ_GAMMA_GREEN14_16BIT:
+        case DTCQ_GAMMA_BLUE14_16BIT:
+            tl = 32768;
             break;
         default:
             DBG (DL_MAJOR_ERROR, "%s: bad gamma data type qualifier 0x%x\n",
@@ -1435,6 +1445,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.42  2005/10/13 22:43:30  oliver-guest
+ * Fixes for 16 bit scan mode from Simon Munton
+ *
  * Revision 1.41  2005/10/11 18:47:07  oliver-guest
  * Fixes for Epson 3490 and 16 bit scan mode
  *

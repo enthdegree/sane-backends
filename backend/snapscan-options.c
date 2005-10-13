@@ -183,7 +183,7 @@ static const SANE_Range gamma_range =
 };
 static const SANE_Range gamma_vrange =
 {
-    0, 255, 1
+    0, 65535, 1
 };
 static const SANE_Range lpr_range =
 {
@@ -1585,6 +1585,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.27  2005/10/13 22:43:30  oliver-guest
+ * Fixes for 16 bit scan mode from Simon Munton
+ *
  * Revision 1.26  2005/10/11 18:47:07  oliver-guest
  * Fixes for Epson 3490 and 16 bit scan mode
  *

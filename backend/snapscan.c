@@ -149,7 +149,7 @@ static SANE_Char password[SANE_MAX_PASSWORD_LEN];
 /* function prototypes */
 
 static void gamma_n (double gamma, int brightness, int contrast,
-                     u_char *buf, int length);
+                     u_char *buf, int length, int gamma_16bit);
 static void gamma_to_sane (int length, u_char *in, SANE_Int *out);
 
 static size_t max_string_size(SANE_String_Const strings[]);
@@ -243,7 +243,7 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
 {
     u_char *gamma;
 
-    gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char));
+    gamma = (u_char*) malloc(ps->gamma_length * sizeof(u_char) * 2);
 
     if (!gamma)
     {
@@ -251,16 +251,16 @@ static SANE_Status init_gamma(SnapScan_Scanner * ps)
     }
 
     /* Default tables */
-    gamma_n (SANE_UNFIX(ps->gamma_gs), ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_gs), ps->bright, ps->contrast, gamma, ps->bpp, 1);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_gs);
 
-    gamma_n (SANE_UNFIX(ps->gamma_r), ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_r), ps->bright, ps->contrast, gamma, ps->bpp, 1);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_r);
 
-    gamma_n (SANE_UNFIX(ps->gamma_g), ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_g), ps->bright, ps->contrast, gamma, ps->bpp, 1);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_g);
 
-    gamma_n (SANE_UNFIX(ps->gamma_b), ps->bright, ps->contrast, gamma, ps->bpp);
+    gamma_n (SANE_UNFIX(ps->gamma_b), ps->bright, ps->contrast, gamma, ps->bpp, 1);
     gamma_to_sane (ps->gamma_length, gamma, ps->gamma_table_b);
 
     free (gamma);
@@ -286,7 +286,7 @@ static size_t max_string_size (SANE_String_Const strings[])
 
 /* gamma table computation */
 static void gamma_n (double gamma, int brightness, int contrast,
-                      u_char *buf, int bpp)
+                      u_char *buf, int bpp, int gamma_16bit)
 {
     int i;
     double i_gamma = 1.0/gamma;
@@ -299,23 +299,37 @@ static void gamma_n (double gamma, int brightness, int contrast,
         double val = (i - mid) * (1.0 + contrast / 100.0)
             + (1.0 + brightness / 100.0) * mid;
         val = LIMIT(val, 0, max);
-        buf[i] =
-            (u_char) LIMIT(255*pow ((double) val/max, i_gamma) + 0.5, 0, 255);
+        if (gamma_16bit)
+        {
+            int x = LIMIT(65535*pow ((double) val/max, i_gamma) + 0.5, 0, 65535);
+
+            buf[2*i] = (u_char) x;
+            buf[2*i + 1] = (u_char) (x >> 8);
+        }
+        else
+            buf[i] =
+                (u_char) LIMIT(255*pow ((double) val/max, i_gamma) + 0.5, 0, 255);
     }
 }
 
-static void gamma_from_sane (int length, SANE_Int *in, u_char *out)
+static void gamma_from_sane (int length, SANE_Int *in, u_char *out, int gamma_16bit)
 {
     int i;
     for (i = 0; i < length; i++)
-        out[i] = (u_char) LIMIT(in[i], 0, 255);
+        if (gamma_16bit)
+        {
+            out[2*i] = (u_char) LIMIT(in[i], 0, 65535);
+            out[2*i + 1] = (u_char) (LIMIT(in[i], 0, 65535) >> 8);
+        }
+        else
+            out[i] = (u_char) LIMIT(in[i] / 256, 0, 255);
 }
 
 static void gamma_to_sane (int length, u_char *in, SANE_Int *out)
 {
     int i;
     for (i = 0; i < length; i++)
-        out[i] = in[i];
+        out[i] = in[2*i] + 256 * in[2*i + 1];
 }
 
 /* dispersed-dot dither matrices; this is discussed in Foley, Van Dam,
@@ -1318,6 +1332,7 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
     int dtcq_gamma_red;
     int dtcq_gamma_green;
     int dtcq_gamma_blue;
+    int gamma_16bit = 0;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     switch (mode)
@@ -1351,10 +1366,21 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
         break;
     case 14:
-        dtcq_gamma_gray = DTCQ_GAMMA_GRAY14;
-        dtcq_gamma_red = DTCQ_GAMMA_RED14;
-        dtcq_gamma_green = DTCQ_GAMMA_GREEN14;
-        dtcq_gamma_blue = DTCQ_GAMMA_BLUE14;
+        if (pss->bpp_scan == 16)
+        {
+            dtcq_gamma_gray = DTCQ_GAMMA_GRAY14_16BIT;
+            dtcq_gamma_red = DTCQ_GAMMA_RED14_16BIT;
+            dtcq_gamma_green = DTCQ_GAMMA_GREEN14_16BIT;
+            dtcq_gamma_blue = DTCQ_GAMMA_BLUE14_16BIT;
+            gamma_16bit = 1;
+        }
+        else
+        {
+            dtcq_gamma_gray = DTCQ_GAMMA_GRAY14;
+            dtcq_gamma_red = DTCQ_GAMMA_RED14;
+            dtcq_gamma_green = DTCQ_GAMMA_GREEN14;
+            dtcq_gamma_blue = DTCQ_GAMMA_BLUE14;
+        }
         break;
     default:
         dtcq_gamma_gray = DTCQ_GAMMA_GRAY8;
@@ -1372,34 +1398,34 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
             {
                 /* Use greyscale gamma for all rgb channels */
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
             else
             {
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_r,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_g,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_from_sane (pss->gamma_length, pss->gamma_table_b,
-                                 pss->buf + SEND_LENGTH);
+                                 pss->buf + SEND_LENGTH, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
@@ -1410,34 +1436,34 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
             {
                 /* Use greyscale gamma for all rgb channels */
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_gs, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
             else
             {
                 gamma_n (gamma_r, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_red);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_g, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_green);
                 CHECK_STATUS (status, me, "send");
 
                 gamma_n (gamma_b, pss->bright, pss->contrast,
-                         pss->buf + SEND_LENGTH, pss->bpp);
+                         pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
                 status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_blue);
                 CHECK_STATUS (status, me, "send");
             }
@@ -1448,14 +1474,14 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         if(pss->val[OPT_CUSTOM_GAMMA].b)
         {
             gamma_from_sane (pss->gamma_length, pss->gamma_table_gs,
-                             pss->buf + SEND_LENGTH);
+                             pss->buf + SEND_LENGTH, gamma_16bit);
             status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_gray);
             CHECK_STATUS (status, me, "send");
         }
         else
         {
             gamma_n (gamma_gs, pss->bright, pss->contrast,
-                     pss->buf + SEND_LENGTH, pss->bpp);
+                     pss->buf + SEND_LENGTH, pss->bpp, gamma_16bit);
             status = send_gamma_table(pss, DTC_GAMMA, dtcq_gamma_gray);
             CHECK_STATUS (status, me, "send");
         }
@@ -1877,6 +1903,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.54  2005/10/13 22:43:30  oliver-guest
+ * Fixes for 16 bit scan mode from Simon Munton
+ *
  * Revision 1.53  2005/10/11 18:47:07  oliver-guest
  * Fixes for Epson 3490 and 16 bit scan mode
  *

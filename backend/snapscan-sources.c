@@ -823,6 +823,8 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
 	    	pself->ch_bytes_per_pixel = 1;
 	    else
 	    	pself->ch_bytes_per_pixel = 3;
+	    if (pss->bpp_scan == 16)
+		pself->ch_bytes_per_pixel *= 2;
         }
     }
     return status;
@@ -1175,6 +1177,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.14  2005/10/13 22:43:30  oliver-guest
+ * Fixes for 16 bit scan mode from Simon Munton
+ *
  * Revision 1.13  2005/10/11 18:47:07  oliver-guest
  * Fixes for Epson 3490 and 16 bit scan mode
  *

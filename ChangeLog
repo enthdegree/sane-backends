@@ -1,3 +1,9 @@
+2005-10-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c backend/snapscan-scsi.c
+	  backend/snapscan.c backend/snapscan-sources.c:
+	  Fixes for 16 bit scan mode from Simon Munton
+
 2005-10-11  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c backend/snapscan-scsi.c

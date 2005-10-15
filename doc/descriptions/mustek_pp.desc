@@ -79,6 +79,11 @@
 :status :good
 :comment "300 dpi CCD scanner"
 
+:model "MD 9806"
+:interface "Parport (EPP)"
+:status :good
+:comment "300 dpi CCD scanner"
+
 :model "MD/LT 935x"
 :interface "Parport (EPP)"
 :status :good

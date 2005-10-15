@@ -1,3 +1,8 @@
+2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* doc/descriptions/mustek_pp.desc: add Medion MD9806 scanner as
+	  supported
+
 2005-10-14  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c backend/snapscan-scsi.c

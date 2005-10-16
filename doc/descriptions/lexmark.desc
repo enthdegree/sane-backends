@@ -52,7 +52,7 @@
 :model "X1180"
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
-:status :untested
+:status :basic
 
 :model "X1185"
 :interface "USB"

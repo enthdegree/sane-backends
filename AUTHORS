@@ -13,7 +13,7 @@ Backends:
  apple:         Milon Firikis
  artec:         Chris Pinkham
  artec_eplus48u:Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Michael Herder (*)
+                Michael Herder
  as6e:          Eugene S. Weiss (*)
  avision:       Meino Christian Cramer, Rene Rebe (*)
  bh:            Tom Martone
@@ -177,7 +177,7 @@ Matthew Marjanovic <maddog@mir.com>
 Mattias Ellert <mattias.ellert@tsl.uu.se>
 Max Vorobiev <pcwizard@yandex.ru>
 Meino Christian Cramer <mccramer@s.netic.de>
-Michael Herder <crapsite@gmx.net>
+Michael Herder <crapmail@nurfuerspam.de>
 Michael K. Johnson <johnsonm@redhat.com>
 Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>

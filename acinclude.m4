@@ -226,7 +226,8 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   AC_CHECK_HEADERS(pthread.h,
     [
        AC_CHECK_LIB(pthread,pthread_create)
-       AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach],have_pthread=yes,use_pthread=no)
+       AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach pthread_cancel],
+	have_pthread=yes,use_pthread=no)
     ],)
  
   if test $use_pthread = yes ; then

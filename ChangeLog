@@ -35,6 +35,8 @@
 	* doc/sane.man: Added lexmark backend.
 	* backend/Makefile.in doc/Makefile.in tools/Makefile.in: Make
 	  "make dist" work again.
+	* acinclude.m4 configure include/sane/config.h.in: Check for
+	  pthread_cancel(). 
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

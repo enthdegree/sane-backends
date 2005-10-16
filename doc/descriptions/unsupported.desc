@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-10-06"		; version of backend
+:version "2005-10-16"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -720,6 +720,12 @@
 :url "/unsupported/hp-scanjet-4600.html"
 :interface "USB"
 :comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 4850C"
+:url "/unsupported/hp-scanjet-4850.html"
+:interface "USB"
+:comment "GL841, maybe can be added to genesys backend "
 :status :unsupported
 
 :model "ScanJet 5500C"
@@ -1818,12 +1824,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported currently. See link for more details."
-
-:model "AstraSlim 1200 SE"
-:url "/unsupported/umax-astraslim-1200-se.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably not supported currently. May be supported in future. See link for more details."
 
 :model "AstraSlim 6000"
 :url "/unsupported/umax-astraslim-6000.html"

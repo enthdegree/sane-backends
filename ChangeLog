@@ -8,6 +8,8 @@
 	  1200 SE (from Harq al-Ada <nadaban.bogdan at gmail.com>).
 	* doc/descriptions/artec_eplus48u.desc: UMAX AstraSlim
 	  1200 SE is supported. Backend is unmaintained.
+	* doc/descriptions/unsupported.desc: Added HP ScanJet
+	  4850C. Removed UMAX AstraSlim 1200 SE.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

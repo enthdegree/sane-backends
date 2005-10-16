@@ -102,7 +102,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   gt68xx.c gt68xx.h gt68xx_high.c gt68xx_high.h gt68xx_mid.c gt68xx_mid.h \
   gt68xx_gt6801.c gt68xx_gt6801.h gt68xx_gt6816.c gt68xx_gt6816.h \
   gt68xx_low.c gt68xx_low.h gt68xx_devices.c gt68xx_generic.c \
-  gt68xx_generic.h gt68xx_shm_channel.c gt68xx_shm_channel.c \
+  gt68xx_generic.h gt68xx_shm_channel.c \
   gt68xx_shm_channel.h gt68xx.conf \
   genesys.c genesys.h genesys_gl646.c genesys_low.h \
   genesys.conf genesys_devices.c genesys_gl841.c \

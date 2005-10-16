@@ -270,7 +270,8 @@ dist: $(DISTFILES)
 	  $(MKDIR) $(distdir)/doc/$${subdir} ; \
 	  for file in $${subdir}/* ; do \
 	    ln $$file $(distdir)/doc/$${subdir} 2> /dev/null \
-	      || cp -p $$file $(distdir)/doc/$${subdir} ; \
+	      || cp -p $$file $(distdir)/doc/$${subdir} \
+	      || echo "ignoring: $$file" ; \
 	  done ; \
 	done
 	for file in $(DISTFILES); do \

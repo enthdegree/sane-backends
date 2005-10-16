@@ -33,6 +33,8 @@
 	  "new" marker. Added manpage link. Updated version. Marked X1180
 	  as "basic" according to man page.
 	* doc/sane.man: Added lexmark backend.
+	* backend/Makefile.in doc/Makefile.in tools/Makefile.in: Make
+	  "make dist" work again.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

@@ -51,7 +51,7 @@
 /* const use in structures*/
 
 /*scan mode*/
-typedef WORD SCANMODE, *LPSCANMODE;
+typedef unsigned short SCANMODE, *LPSCANMODE;
 #define SM_TEXT		0x00
 #define SM_GRAY		0x01
 #define SM_RGB24	0x02
@@ -65,19 +65,19 @@ typedef WORD SCANMODE, *LPSCANMODE;
 #define SM_RGB48	0x0a
 
 /*pixel flavor*/
-typedef BYTE PIXELFLAVOR, *LPPIXELFLAVOR;
+typedef SANE_Byte PIXELFLAVOR, *LPPIXELFLAVOR;
 #define PF_BlackIs0 0x00
 #define PF_WhiteIs0 0x01
 
 /*scan source*/
-typedef BYTE SCANSOURCE, *LPSCANSOURCE;
+typedef SANE_Byte SCANSOURCE, *LPSCANSOURCE;
 #define SS_Reflective	0x00
 #define SS_Positive		0x01
 #define SS_Negative		0x02
 #define SS_ADF			0x03
 
 /*RGB order*/
-typedef WORD RGBORDER, *LPRGBORDER;
+typedef unsigned short RGBORDER, *LPRGBORDER;
 #define RO_RGB 0x00
 #define RO_BGR 0x01
 
@@ -86,43 +86,43 @@ typedef WORD RGBORDER, *LPRGBORDER;
 typedef struct tagGAMMAINFO
 {
   SCANMODE smScanMode;
-  WORD wInputGammaBits;
-  WORD wOutputGammaBits;
+  unsigned short wInputGammaBits;
+  unsigned short wOutputGammaBits;
 } GAMMAINFO, *LPGAMMAINFO;
 
 typedef struct tagGETPARAMETERS
 {
-  WORD wSourceXDPI;
-  WORD wSourceYDPI;
-  DWORD dwLineByteWidth;
-  DWORD dwLength;
+  unsigned short wSourceXDPI;
+  unsigned short wSourceYDPI;
+  unsigned int dwLineByteWidth;
+  unsigned int dwLength;
 } GETPARAMETERS, *LPGETPARAMETERS;
 
 typedef struct tagFRAME
 {
-  WORD x1;
-  WORD y1;
-  WORD x2;
-  WORD y2;
+  unsigned short x1;
+  unsigned short y1;
+  unsigned short x2;
+  unsigned short y2;
 } FRAME, *LPFRAME;
 
 typedef struct tagSETPARAMETERS
 {
   FRAME fmArea;
-  WORD wTargetDPI;
+  unsigned short wTargetDPI;
   SCANMODE smScanMode;
-  WORD wLinearThreshold;	/*threshold for Line art mode */
+  unsigned short wLinearThreshold;	/*threshold for Line art mode */
   PIXELFLAVOR pfPixelFlavor;
   SCANSOURCE ssScanSource;
-  LPWORD pGammaTable;
+  unsigned short * pGammaTable;
 } SETPARAMETERS, *LPSETPARAMETERS;
 
 typedef struct tagIMAGEROWS
 {
   RGBORDER roRgbOrder;
-  WORD wWantedLineNum;
-  WORD wXferedLineNum;
-  LPBYTE pBuffer;
+  unsigned short wWantedLineNum;
+  unsigned short wXferedLineNum;
+  SANE_Byte * pBuffer;
 } IMAGEROWS, *LPIMAGEROWS;
 
 
@@ -236,26 +236,26 @@ typedef enum tagCOLORMODE
 
 typedef struct tagTARGETIMAGE
 {
-  BOOL isOptimalSpeed;
+  SANE_Bool isOptimalSpeed;
   COLORMODE cmColorMode;
-  WORD wDpi;
-  WORD wX;
-  WORD wY;
-  WORD wWidth;
-  WORD wHeight;
-  BYTE bScanSource;
+  unsigned short wDpi;
+  unsigned short wX;
+  unsigned short wY;
+  unsigned short wWidth;
+  unsigned short wHeight;
+  SANE_Byte bScanSource;
 } TARGETIMAGE, *PTARGETIMAGE;
 
 typedef struct tagSUGGESTSETTING
 {
   COLORMODE cmScanMode;
-  WORD wXDpi;
-  WORD wYDpi;
-  WORD wX;
-  WORD wY;
-  WORD wWidth;
-  WORD wHeight;
-  DWORD dwBytesPerRow;
+  unsigned short wXDpi;
+  unsigned short wYDpi;
+  unsigned short wX;
+  unsigned short wY;
+  unsigned short wWidth;
+  unsigned short wHeight;
+  unsigned int dwBytesPerRow;
 } SUGGESTSETTING, *PSUGGESTSETTING;
 
 

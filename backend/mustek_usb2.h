@@ -142,7 +142,7 @@ typedef struct Mustek_Scanner
 
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
-  WORD *gamma_table;
+  unsigned short *gamma_table;
   SANE_Parameters params;   /**< SANE Parameters */
   Scanner_Model model;
   SETPARAMETERS setpara;

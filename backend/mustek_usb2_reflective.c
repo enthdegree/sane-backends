@@ -47,17 +47,17 @@
 
 /* forward declarations */
 
-static BOOL Reflective_Reset (void);
-static BOOL Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
-static BOOL Reflective_SetupScan (COLORMODE ColorMode, WORD XDpi, WORD YDpi,
-				  BOOL isInvert, WORD X, WORD Y, WORD Width,
-				  WORD Height);
-static BOOL Reflective_StopScan (void);
-static BOOL Reflective_GetRows (BYTE * lpBlock, WORD * Rows, BOOL isOrderInvert);
-static BOOL Reflective_AdjustAD (void);
-static BOOL Reflective_FindTopLeft (WORD * lpwStartX, WORD * lpwStartY);
-static BOOL Reflective_LineCalibration16Bits (void);
-static BOOL Reflective_PrepareScan (void);
+static SANE_Bool Reflective_Reset (void);
+static SANE_Bool Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest);
+static SANE_Bool Reflective_SetupScan (COLORMODE ColorMode, unsigned short XDpi, unsigned short YDpi,
+				  SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width,
+				  unsigned short Height);
+static SANE_Bool Reflective_StopScan (void);
+static SANE_Bool Reflective_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert);
+static SANE_Bool Reflective_AdjustAD (void);
+static SANE_Bool Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY);
+static SANE_Bool Reflective_LineCalibration16Bits (void);
+static SANE_Bool Reflective_PrepareScan (void);
 
 /*function description*/
 
@@ -73,7 +73,7 @@ Return value:
 	els
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_Reset ()
 {
   DBG (DBG_FUNC, "Reflective_Reset: call in\n");
@@ -151,11 +151,11 @@ Return value:
 	els
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 {
   int i;
-  WORD wMaxWidth, wMaxHeight;
+  unsigned short wMaxWidth, wMaxHeight;
 
   DBG (DBG_FUNC, "Reflective_ScanSuggest: call in\n");
 
@@ -211,17 +211,17 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 
   /*3. suggest scan area */
   pSuggest->wX =
-    (WORD) (((DWORD) (pTarget->wX) * (DWORD) (pSuggest->wXDpi)) /
-	    (DWORD) (pTarget->wDpi));
+    (unsigned short) (((unsigned int) (pTarget->wX) * (unsigned int) (pSuggest->wXDpi)) /
+	    (unsigned int) (pTarget->wDpi));
   pSuggest->wY =
-    (WORD) (((DWORD) (pTarget->wY) * (DWORD) (pSuggest->wYDpi)) /
-	    (DWORD) (pTarget->wDpi));
+    (unsigned short) (((unsigned int) (pTarget->wY) * (unsigned int) (pSuggest->wYDpi)) /
+	    (unsigned int) (pTarget->wDpi));
   pSuggest->wWidth =
-    (WORD) (((DWORD) (pTarget->wWidth) * (DWORD) (pSuggest->wXDpi)) /
-	    (DWORD) (pTarget->wDpi));
+    (unsigned short) (((unsigned int) (pTarget->wWidth) * (unsigned int) (pSuggest->wXDpi)) /
+	    (unsigned int) (pTarget->wDpi));
   pSuggest->wHeight =
-    (WORD) (((DWORD) (pTarget->wHeight) * (DWORD) (pSuggest->wYDpi)) /
-	    (DWORD) (pTarget->wDpi));
+    (unsigned short) (((unsigned int) (pTarget->wHeight) * (unsigned int) (pSuggest->wYDpi)) /
+	    (unsigned int) (pTarget->wDpi));
 
   pSuggest->wWidth = (pSuggest->wWidth / 2) * 2;
 
@@ -282,23 +282,23 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 	{
 	case CM_RGB48:
 	  pSuggest->cmScanMode = CM_RGB48;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 6);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 6);
 	  break;
 	case CM_RGB24:
 	  pSuggest->cmScanMode = CM_RGB24ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 3);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 3);
 	  break;
 	case CM_GRAY16:
 	  pSuggest->cmScanMode = CM_GRAY16ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 2);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 2);
 	  break;
 	case CM_GRAY8:
 	  pSuggest->cmScanMode = CM_GRAY8ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth));
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth));
 	  break;
 	case CM_TEXT:
 	  pSuggest->cmScanMode = CM_TEXT;
-	  pSuggest->dwBytesPerRow = (DWORD) (pSuggest->wWidth) / 8;
+	  pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth) / 8;
 	  break;
 	default:
 	  break;
@@ -310,23 +310,23 @@ Reflective_ScanSuggest (PTARGETIMAGE pTarget, PSUGGESTSETTING pSuggest)
 	{
 	case CM_RGB48:
 	  pSuggest->cmScanMode = CM_RGB48;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 6);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 6);
 	  break;
 	case CM_RGB24:
 	  pSuggest->cmScanMode = CM_RGB24ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 3);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 3);
 	  break;
 	case CM_GRAY16:
 	  pSuggest->cmScanMode = CM_GRAY16ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth) * 2);
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth) * 2);
 	  break;
 	case CM_GRAY8:
 	  pSuggest->cmScanMode = CM_GRAY8ext;
-	  pSuggest->dwBytesPerRow = (DWORD) ((pSuggest->wWidth));
+	  pSuggest->dwBytesPerRow = (unsigned int) ((pSuggest->wWidth));
 	  break;
 	case CM_TEXT:
 	  pSuggest->cmScanMode = CM_TEXT;
-	  pSuggest->dwBytesPerRow = (DWORD) (pSuggest->wWidth) / 8;
+	  pSuggest->dwBytesPerRow = (unsigned int) (pSuggest->wWidth) / 8;
 	  break;
 	default:
 	  break;
@@ -358,11 +358,11 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_SetupScan (COLORMODE ColorMode,
-		      WORD XDpi,
-		      WORD YDpi,
-		      BOOL isInvert, WORD X, WORD Y, WORD Width, WORD Height)
+		      unsigned short XDpi,
+		      unsigned short YDpi,
+		      SANE_Bool isInvert, unsigned short X, unsigned short Y, unsigned short Width, unsigned short Height)
 {
   isInvert = isInvert;
   DBG (DBG_FUNC, "Reflective_SetupScan: Call in\n");
@@ -577,27 +577,27 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_AdjustAD ()
 {
-  LPBYTE lpCalData;
-  WORD wCalWidth;
+  SANE_Byte * lpCalData;
+  unsigned short wCalWidth;
   int nTimesOfCal;
-  WORD wMaxValueR, wMinValueR, wMaxValueG, wMinValueG, wMaxValueB, wMinValueB;
+  unsigned short wMaxValueR, wMinValueR, wMaxValueG, wMinValueG, wMaxValueB, wMinValueB;
 #if 0
-  BYTE bDarkMaxLevel;
-  BYTE bDarkMinLevel;
-  BYTE bLastMinR, bLastROffset, bROffsetUpperBound = 255, bROffsetLowerBound =
+  SANE_Byte bDarkMaxLevel;
+  SANE_Byte bDarkMinLevel;
+  SANE_Byte bLastMinR, bLastROffset, bROffsetUpperBound = 255, bROffsetLowerBound =
     0;
-  BYTE bLastMinG, bLastGOffset, bGOffsetUpperBound = 255, bGOffsetLowerBound =
+  SANE_Byte bLastMinG, bLastGOffset, bGOffsetUpperBound = 255, bGOffsetLowerBound =
     0;
-  BYTE bLastMinB, bLastBOffset, bBOffsetUpperBound = 255, bBOffsetLowerBound =
+  SANE_Byte bLastMinB, bLastBOffset, bBOffsetUpperBound = 255, bBOffsetLowerBound =
     0;
   float fRFactor = 1.0;
   float fGFactor = 1.0;
   float fBFactor = 1.0;
 #endif
-  WORD wAdjustADResolution;
+  unsigned short wAdjustADResolution;
 
   DBG (DBG_FUNC, "Reflective_AdjustAD: call in\n");
   if (!g_bOpened)
@@ -632,7 +632,7 @@ Reflective_AdjustAD ()
     }
   wCalWidth = 10240;
 
-  lpCalData = (LPBYTE) malloc (sizeof (BYTE) * wCalWidth * 3);
+  lpCalData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * wCalWidth * 3);
   if (lpCalData == NULL)
     {
       DBG (DBG_FUNC, "Reflective_AdjustAD: lpCalData malloc error\n");
@@ -653,7 +653,7 @@ Reflective_AdjustAD ()
   Asic_ScanStop (&g_chip);
 
   FILE *stream = NULL;
-  LPBYTE lpBuf = (LPBYTE) malloc (50);
+  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
   if (NULL == lpBuf)
     {
       return FALSE;
@@ -662,8 +662,8 @@ Reflective_AdjustAD ()
 
   stream = fopen ("/root/AD(Ref).pnm\n", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n255\n\n", wCalWidth, 1);
-  fwrite (lpBuf, sizeof (BYTE), strlen (lpBuf), stream);
-  fwrite (lpCalData, sizeof (BYTE), wCalWidth * 3, stream);
+  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
+  fwrite (lpCalData, sizeof (SANE_Byte), wCalWidth * 3, stream);
   fclose (stream);
   free (lpBuf);
 #endif
@@ -762,15 +762,15 @@ Reflective_AdjustAD ()
 					   g_chip.AD.OffsetB=%d\n", g_chip.AD.OffsetR, g_chip.AD.OffsetG, g_chip.AD.OffsetB);
 
   g_chip.AD.GainR = 1 - (double) (wMaxValueR - wMinValueR) / 210 > 0 ?
-    (BYTE) (((1 -
+    (SANE_Byte) (((1 -
 	      (double) (wMaxValueR - wMinValueR) / 210)) * 63 * 6 / 5) : 0;
   g_chip.AD.GainG =
     1 - (double) (wMaxValueG - wMinValueG) / 210 >
-    0 ? (BYTE) (((1 - (double) (wMaxValueG - wMinValueG) / 210)) * 63 * 6 /
+    0 ? (SANE_Byte) (((1 - (double) (wMaxValueG - wMinValueG) / 210)) * 63 * 6 /
 		5) : 0;
   g_chip.AD.GainB =
     1 - (double) (wMaxValueB - wMinValueB) / 210 >
-    0 ? (BYTE) (((1 - (double) (wMaxValueB - wMinValueB) / 210)) * 63 * 6 /
+    0 ? (SANE_Byte) (((1 - (double) (wMaxValueB - wMinValueB) / 210)) * 63 * 6 /
 		5) : 0;
 
   if (g_chip.AD.GainR > 63)
@@ -1113,19 +1113,19 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
-Reflective_FindTopLeft (WORD * lpwStartX, WORD * lpwStartY)
+static SANE_Bool
+Reflective_FindTopLeft (unsigned short * lpwStartX, unsigned short * lpwStartY)
 {
-  WORD wCalWidth = FIND_LEFT_TOP_WIDTH_IN_DIP;
-  WORD wCalHeight = FIND_LEFT_TOP_HEIGHT_IN_DIP;
+  unsigned short wCalWidth = FIND_LEFT_TOP_WIDTH_IN_DIP;
+  unsigned short wCalHeight = FIND_LEFT_TOP_HEIGHT_IN_DIP;
 
   int i, j;
-  WORD wLeftSide;
-  WORD wTopSide;
+  unsigned short wLeftSide;
+  unsigned short wTopSide;
   int nScanBlock;
-  LPBYTE lpCalData;
-  DWORD dwTotalSize;
-  WORD wXResolution, wYResolution;
+  SANE_Byte * lpCalData;
+  unsigned int dwTotalSize;
+  unsigned short wXResolution, wYResolution;
 
   DBG (DBG_FUNC, "Reflective_FindTopLeft: call in\n");
   if (!g_bOpened)
@@ -1141,7 +1141,7 @@ Reflective_FindTopLeft (WORD * lpwStartX, WORD * lpwStartY)
 
   wXResolution = wYResolution = FIND_LEFT_TOP_CALIBRATE_RESOLUTION;
 
-  lpCalData = (LPBYTE) malloc (sizeof (BYTE) * wCalWidth * wCalHeight);
+  lpCalData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * wCalWidth * wCalHeight);
   if (lpCalData == NULL)
     {
       DBG (DBG_FUNC, "Reflective_FindTopLeft: lpCalData malloc error\n");
@@ -1195,15 +1195,15 @@ Reflective_FindTopLeft (WORD * lpwStartX, WORD * lpwStartY)
 #ifdef DEBUG_SAVE_IMAGE
   FILE *stream = NULL;
   stream = fopen ("/root/bound(Ref).pnm", "wb+\n");
-  LPBYTE lpBuf = (LPBYTE) malloc (50);
+  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
   if (NULL == lpBuf)
     {
       return FALSE;
     }
   memset (lpBuf, 0, 50);
   sprintf (lpBuf, "P5\n%d %d\n255\n", wCalWidth, wCalHeight);
-  fwrite (lpBuf, sizeof (BYTE), strlen (lpBuf), stream);
-  fwrite (lpCalData, sizeof (BYTE), wCalWidth * wCalHeight, stream);
+  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
+  fwrite (lpCalData, sizeof (SANE_Byte), wCalWidth * wCalHeight, stream);
 
   fclose (stream);
   free (lpBuf);
@@ -1294,7 +1294,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_StopScan ()
 {
   DBG (DBG_FUNC, "Reflective_StopScan: call in\n");
@@ -1339,34 +1339,34 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_LineCalibration16Bits ()
 {
   STATUS status;
-  LPBYTE lpWhiteData;
-  LPBYTE lpDarkData;
-  DWORD dwWhiteTotalSize;
-  DWORD dwDarkTotalSize;
-  WORD wCalHeight = LINE_CALIBRATION__16BITS_HEIGHT;
-  WORD wCalWidth;
+  SANE_Byte * lpWhiteData;
+  SANE_Byte * lpDarkData;
+  unsigned int dwWhiteTotalSize;
+  unsigned int dwDarkTotalSize;
+  unsigned short wCalHeight = LINE_CALIBRATION__16BITS_HEIGHT;
+  unsigned short wCalWidth;
 
-  WORD *lpWhiteShading;
-  WORD *lpDarkShading;
+  unsigned short *lpWhiteShading;
+  unsigned short *lpDarkShading;
   double wRWhiteLevel = 0;
   double wGWhiteLevel = 0;
   double wBWhiteLevel = 0;
-  DWORD dwRDarkLevel = 0;
-  DWORD dwGDarkLevel = 0;
-  DWORD dwBDarkLevel = 0;
-  DWORD dwREvenDarkLevel = 0;
-  DWORD dwGEvenDarkLevel = 0;
-  DWORD dwBEvenDarkLevel = 0;
-  LPWORD lpRWhiteSort;
-  LPWORD lpGWhiteSort;
-  LPWORD lpBWhiteSort;
-  LPWORD lpRDarkSort;
-  LPWORD lpGDarkSort;
-  LPWORD lpBDarkSort;
+  unsigned int dwRDarkLevel = 0;
+  unsigned int dwGDarkLevel = 0;
+  unsigned int dwBDarkLevel = 0;
+  unsigned int dwREvenDarkLevel = 0;
+  unsigned int dwGEvenDarkLevel = 0;
+  unsigned int dwBEvenDarkLevel = 0;
+  unsigned short * lpRWhiteSort;
+  unsigned short * lpGWhiteSort;
+  unsigned short * lpBWhiteSort;
+  unsigned short * lpRDarkSort;
+  unsigned short * lpGDarkSort;
+  unsigned short * lpBDarkSort;
   int i, j;
 
   DBG (DBG_FUNC, "Reflective_LineCalibration16Bits: call in\n");
@@ -1389,8 +1389,8 @@ Reflective_LineCalibration16Bits ()
 
   dwWhiteTotalSize = wCalWidth * wCalHeight * 3 * 2;
   dwDarkTotalSize = wCalWidth * wCalHeight * 3 * 2;
-  lpWhiteData = (LPBYTE) malloc (sizeof (BYTE) * dwWhiteTotalSize);
-  lpDarkData = (LPBYTE) malloc (sizeof (BYTE) * dwDarkTotalSize);
+  lpWhiteData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * dwWhiteTotalSize);
+  lpDarkData = (SANE_Byte *) malloc (sizeof (SANE_Byte) * dwDarkTotalSize);
 
   if (lpWhiteData == NULL || lpDarkData == NULL)
     {
@@ -1514,7 +1514,7 @@ Reflective_LineCalibration16Bits ()
 
 #ifdef DEBUG_SAVE_IMAGE
   FILE *stream = NULL;
-  LPBYTE lpBuf = (LPBYTE) malloc (50);
+  SANE_Byte * lpBuf = (SANE_Byte *) malloc (50);
   if (NULL == lpBuf)
     {
       return FALSE;
@@ -1523,30 +1523,30 @@ Reflective_LineCalibration16Bits ()
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/whiteshading(Ref).pnm", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
-  fwrite (lpBuf, sizeof (BYTE), strlen (lpBuf), stream);
-  fwrite (lpWhiteData, sizeof (BYTE), wCalWidth * wCalHeight * 3 * 2, stream);
+  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
+  fwrite (lpWhiteData, sizeof (SANE_Byte), wCalWidth * wCalHeight * 3 * 2, stream);
   fclose (stream);
 
   memset (lpBuf, 0, 50);
   stream = fopen ("/root/darkshading(Ref).pnm", "wb+\n");
   sprintf (lpBuf, "P6\n%d %d\n65535\n", wCalWidth, wCalHeight);
-  fwrite (lpBuf, sizeof (BYTE), strlen (lpBuf), stream);
-  fwrite (lpDarkData, sizeof (BYTE), wCalWidth * wCalHeight * 3 * 2, stream);
+  fwrite (lpBuf, sizeof (SANE_Byte), strlen (lpBuf), stream);
+  fwrite (lpDarkData, sizeof (SANE_Byte), wCalWidth * wCalHeight * 3 * 2, stream);
   fclose (stream);
   free (lpBuf);
 #endif
 
   sleep (1);
 
-  lpWhiteShading = (WORD *) malloc (sizeof (WORD) * wCalWidth * 3);
-  lpDarkShading = (WORD *) malloc (sizeof (WORD) * wCalWidth * 3);
+  lpWhiteShading = (unsigned short *) malloc (sizeof (unsigned short) * wCalWidth * 3);
+  lpDarkShading = (unsigned short *) malloc (sizeof (unsigned short) * wCalWidth * 3);
 
-  lpRWhiteSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
-  lpGWhiteSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
-  lpBWhiteSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
-  lpRDarkSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
-  lpGDarkSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
-  lpBDarkSort = (WORD *) malloc (sizeof (WORD) * wCalHeight);
+  lpRWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpGWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpBWhiteSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpRDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpGDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
+  lpBDarkSort = (unsigned short *) malloc (sizeof (unsigned short) * wCalHeight);
 
   if (lpWhiteShading == NULL || lpDarkShading == NULL
       || lpRWhiteSort == NULL || lpGWhiteSort == NULL || lpBWhiteSort == NULL
@@ -1576,19 +1576,19 @@ Reflective_LineCalibration16Bits ()
       for (j = 0; j < wCalHeight; j++)
 	{
 	  lpRDarkSort[j] =
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 0));
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 0));
 	  lpRDarkSort[j] +=
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 1) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 1) << 8);
 
 	  lpGDarkSort[j] =
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 2));
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 2));
 	  lpGDarkSort[j] +=
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 3) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 3) << 8);
 
 	  lpBDarkSort[j] =
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 4));
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 4));
 	  lpBDarkSort[j] +=
-	    (WORD) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 5) << 8);
+	    (unsigned short) (*(lpDarkData + j * wCalWidth * 6 + i * 6 + 5) << 8);
 	}
 
       if (g_XDpi == 1200)
@@ -1598,26 +1598,26 @@ Reflective_LineCalibration16Bits ()
 	  if (i % 2)
 	    {
 	      dwRDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
 					       30);
 	      dwGDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
 					       30);
 	      dwBDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
 					       30);
 	    }
 	  else
 	    {
 	      dwREvenDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20,
 					       30);
 
 	      dwGEvenDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20,
 					       30);
 	      dwBEvenDarkLevel +=
-		(DWORD) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
+		(unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20,
 					       30);
 	    }
 	}
@@ -1625,28 +1625,28 @@ Reflective_LineCalibration16Bits ()
 	{
 
 	  dwRDarkLevel +=
-	    (DWORD) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpRDarkSort, wCalHeight, 20, 30);
 	  dwGDarkLevel +=
-	    (DWORD) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpGDarkSort, wCalHeight, 20, 30);
 	  dwBDarkLevel +=
-	    (DWORD) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20, 30);
+	    (unsigned int) MustScanner_FiltLower (lpBDarkSort, wCalHeight, 20, 30);
 	}
     }
 
   if (g_XDpi == 1200)
     {
-      dwRDarkLevel = (DWORD) (dwRDarkLevel / (wCalWidth / 2));
-      dwGDarkLevel = (DWORD) (dwGDarkLevel / (wCalWidth / 2));
-      dwBDarkLevel = (DWORD) (dwBDarkLevel / (wCalWidth / 2));
-      dwREvenDarkLevel = (DWORD) (dwREvenDarkLevel / (wCalWidth / 2));
-      dwGEvenDarkLevel = (DWORD) (dwGEvenDarkLevel / (wCalWidth / 2));
-      dwBEvenDarkLevel = (DWORD) (dwBEvenDarkLevel / (wCalWidth / 2));
+      dwRDarkLevel = (unsigned int) (dwRDarkLevel / (wCalWidth / 2));
+      dwGDarkLevel = (unsigned int) (dwGDarkLevel / (wCalWidth / 2));
+      dwBDarkLevel = (unsigned int) (dwBDarkLevel / (wCalWidth / 2));
+      dwREvenDarkLevel = (unsigned int) (dwREvenDarkLevel / (wCalWidth / 2));
+      dwGEvenDarkLevel = (unsigned int) (dwGEvenDarkLevel / (wCalWidth / 2));
+      dwBEvenDarkLevel = (unsigned int) (dwBEvenDarkLevel / (wCalWidth / 2));
     }
   else
     {
-      dwRDarkLevel = (DWORD) (dwRDarkLevel / wCalWidth);
-      dwGDarkLevel = (DWORD) (dwGDarkLevel / wCalWidth);
-      dwBDarkLevel = (DWORD) (dwBDarkLevel / wCalWidth);
+      dwRDarkLevel = (unsigned int) (dwRDarkLevel / wCalWidth);
+      dwGDarkLevel = (unsigned int) (dwGDarkLevel / wCalWidth);
+      dwBDarkLevel = (unsigned int) (dwBDarkLevel / wCalWidth);
     }
 
   /*Create white shading */
@@ -1659,41 +1659,41 @@ Reflective_LineCalibration16Bits ()
       for (j = 0; j < wCalHeight; j++)
 	{
 	  lpRWhiteSort[j] =
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 0));
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 0));
 	  lpRWhiteSort[j] +=
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 1) << 8);
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 1) << 8);
 
 	  lpGWhiteSort[j] =
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 2));
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 2));
 	  lpGWhiteSort[j] +=
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 3) << 8);
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 3) << 8);
 
 	  lpBWhiteSort[j] =
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 4));
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 4));
 	  lpBWhiteSort[j] +=
-	    (WORD) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 5) << 8);
+	    (unsigned short) (*(lpWhiteData + j * wCalWidth * 2 * 3 + i * 6 + 5) << 8);
 	}
 
       if (g_XDpi == 1200)
 	{
 	  if (i % 2)
 	    {
-	      *(lpDarkShading + i * 3 + 0) = (WORD) dwRDarkLevel;
-	      *(lpDarkShading + i * 3 + 1) = (WORD) dwGDarkLevel;
-	      *(lpDarkShading + i * 3 + 2) = (WORD) dwBDarkLevel;
+	      *(lpDarkShading + i * 3 + 0) = (unsigned short) dwRDarkLevel;
+	      *(lpDarkShading + i * 3 + 1) = (unsigned short) dwGDarkLevel;
+	      *(lpDarkShading + i * 3 + 2) = (unsigned short) dwBDarkLevel;
 	    }
 	  else
 	    {
-	      *(lpDarkShading + i * 3 + 0) = (WORD) dwREvenDarkLevel;
-	      *(lpDarkShading + i * 3 + 1) = (WORD) dwGEvenDarkLevel;
-	      *(lpDarkShading + i * 3 + 2) = (WORD) dwBEvenDarkLevel;
+	      *(lpDarkShading + i * 3 + 0) = (unsigned short) dwREvenDarkLevel;
+	      *(lpDarkShading + i * 3 + 1) = (unsigned short) dwGEvenDarkLevel;
+	      *(lpDarkShading + i * 3 + 2) = (unsigned short) dwBEvenDarkLevel;
 	    }
 	}
       else
 	{
-	  *(lpDarkShading + i * 3 + 0) = (WORD) dwRDarkLevel;
-	  *(lpDarkShading + i * 3 + 1) = (WORD) dwGDarkLevel;
-	  *(lpDarkShading + i * 3 + 2) = (WORD) dwBDarkLevel;
+	  *(lpDarkShading + i * 3 + 0) = (unsigned short) dwRDarkLevel;
+	  *(lpDarkShading + i * 3 + 1) = (unsigned short) dwGDarkLevel;
+	  *(lpDarkShading + i * 3 + 2) = (unsigned short) dwBDarkLevel;
 	}
 
 
@@ -1710,19 +1710,19 @@ Reflective_LineCalibration16Bits ()
 
       if (wRWhiteLevel > 0)
 	*(lpWhiteShading + i * 3 + 0) =
-	  (WORD) (((float) 65535 / wRWhiteLevel * 0x2000));
+	  (unsigned short) (((float) 65535 / wRWhiteLevel * 0x2000));
       else
 	*(lpWhiteShading + i * 3 + 0) = 0x2000;
 
       if (wGWhiteLevel > 0)
 	*(lpWhiteShading + i * 3 + 1) =
-	  (WORD) (((float) 65535 / wGWhiteLevel * 0x2000));
+	  (unsigned short) (((float) 65535 / wGWhiteLevel * 0x2000));
       else
 	*(lpWhiteShading + i * 3 + 1) = 0x2000;
 
       if (wBWhiteLevel > 0)
 	*(lpWhiteShading + i * 3 + 2) =
-	  (WORD) (((float) 65535 / wBWhiteLevel * 0x2000));
+	  (unsigned short) (((float) 65535 / wBWhiteLevel * 0x2000));
       else
 	*(lpWhiteShading + i * 3 + 2) = 0x2000;
     }
@@ -1759,7 +1759,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 Reflective_PrepareScan ()
 {
   g_wScanLinesPerBlock = g_dwBufferSize / g_BytesPerRow;
@@ -1787,7 +1787,7 @@ Reflective_PrepareScan ()
       DBG (DBG_FUNC,
 	   "Reflective_PrepareScan:g_lpReadImageHead malloc %d Bytes\n",
 	   g_dwImageBufferSize);
-      g_lpReadImageHead = (LPBYTE) malloc (g_dwImageBufferSize);
+      g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
       if (g_lpReadImageHead == NULL)
 	{
 	  DBG (DBG_FUNC,
@@ -1804,7 +1804,7 @@ Reflective_PrepareScan ()
       DBG (DBG_FUNC,
 	   "Reflective_PrepareScan:g_lpReadImageHead malloc %d Bytes\n",
 	   g_dwImageBufferSize);
-      g_lpReadImageHead = (LPBYTE) malloc (g_dwImageBufferSize);
+      g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
       if (g_lpReadImageHead == NULL)
 	{
 	  DBG (DBG_FUNC,
@@ -1820,7 +1820,7 @@ Reflective_PrepareScan ()
       DBG (DBG_FUNC,
 	   "Reflective_PrepareScan:g_lpReadImageHead malloc %d Bytes\n",
 	   g_dwImageBufferSize);
-      g_lpReadImageHead = (LPBYTE) malloc (g_dwImageBufferSize);
+      g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
       if (g_lpReadImageHead == NULL)
 	{
 	  DBG (DBG_FUNC,
@@ -1836,7 +1836,7 @@ Reflective_PrepareScan ()
       DBG (DBG_FUNC,
 	   "Reflective_PrepareScan:g_lpReadImageHead malloc %d Bytes\n",
 	   g_dwImageBufferSize);
-      g_lpReadImageHead = (LPBYTE) malloc (g_dwImageBufferSize);
+      g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
       if (g_lpReadImageHead == NULL)
 	{
 	  DBG (DBG_FUNC,
@@ -1852,7 +1852,7 @@ Reflective_PrepareScan ()
       DBG (DBG_FUNC,
 	   "Reflective_PrepareScan:g_lpReadImageHead malloc %d Bytes\n",
 	   g_dwImageBufferSize);
-      g_lpReadImageHead = (LPBYTE) malloc (g_dwImageBufferSize);
+      g_lpReadImageHead = (SANE_Byte *) malloc (g_dwImageBufferSize);
       if (g_lpReadImageHead == NULL)
 	{
 	  DBG (DBG_FUNC,
@@ -1883,8 +1883,8 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
-Reflective_GetRows (BYTE * lpBlock, WORD * Rows, BOOL isOrderInvert)
+static SANE_Bool
+Reflective_GetRows (SANE_Byte * lpBlock, unsigned short * Rows, SANE_Bool isOrderInvert)
 {
   DBG (DBG_FUNC, "Reflective_GetRows: call in \n");
   if (!g_bOpened)

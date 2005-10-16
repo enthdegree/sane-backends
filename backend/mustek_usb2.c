@@ -46,7 +46,7 @@
    This file implements a SANE backend for the Mustek BearPaw 2448 TA Pro 
    and similar USB2 scanners. */
 
-#define BUILD 9
+#define BUILD 10
 
 #include "../include/sane/config.h"
 
@@ -151,25 +151,25 @@ static Scanner_Model mustek_A2nu2_model = {
 
 /* Forward declarations */
 
-static BOOL GetDeviceStatus (void);
-static BOOL PowerControl (BOOL isLampOn, BOOL isTaLampOn);
-static BOOL CarriageHome (void);
-static BOOL SetParameters (LPSETPARAMETERS pSetParameters);
-static BOOL GetParameters (LPGETPARAMETERS pGetParameters);
-static BOOL StartScan (void);
-static BOOL ReadScannedData (LPIMAGEROWS pImageRows);
-static BOOL StopScan (void);
-static BOOL IsTAConnected (void);
-static void AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
-		DWORD BytesPerLine);
+static SANE_Bool GetDeviceStatus (void);
+static SANE_Bool PowerControl (SANE_Bool isLampOn, SANE_Bool isTaLampOn);
+static SANE_Bool CarriageHome (void);
+static SANE_Bool SetParameters (LPSETPARAMETERS pSetParameters);
+static SANE_Bool GetParameters (LPGETPARAMETERS pGetParameters);
+static SANE_Bool StartScan (void);
+static SANE_Bool ReadScannedData (LPIMAGEROWS pImageRows);
+static SANE_Bool StopScan (void);
+static SANE_Bool IsTAConnected (void);
+static void AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+		unsigned int BytesPerLine);
 static size_t max_string_size (const SANE_String_Const strings[]);
 static SANE_Status calc_parameters (Mustek_Scanner * s);
 #ifdef SANE_UNUSED
-static BOOL GetGammaInfo (LPGAMMAINFO pGamaInfo);
-static BOOL GetKeyStatus (BYTE * pKey);
-static void QBetChange (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
-		 DWORD BytesPerLine);
-static void QBETDetectAutoLevel (void *pDIB, DWORD ImageWidth, DWORD ImageHeight);
+static SANE_Bool GetGammaInfo (LPGAMMAINFO pGamaInfo);
+static SANE_Bool GetKeyStatus (SANE_Byte * pKey);
+static void QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+		 unsigned int BytesPerLine);
+static void QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeight);
 #endif
 
 
@@ -258,13 +258,13 @@ calc_parameters (Mustek_Scanner * s)
 
 
   s->setpara.fmArea.x1 =
-    (WORD) ((SANE_UNFIX (s->val[OPT_TL_X].w) * 300.0) / MM_PER_INCH + 0.5);
+    (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_X].w) * 300.0) / MM_PER_INCH + 0.5);
   s->setpara.fmArea.x2 =
-    (WORD) ((SANE_UNFIX (s->val[OPT_BR_X].w) * 300.0) / MM_PER_INCH + 0.5);
+    (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_X].w) * 300.0) / MM_PER_INCH + 0.5);
   s->setpara.fmArea.y1 =
-    (WORD) ((SANE_UNFIX (s->val[OPT_TL_Y].w) * 300.0) / MM_PER_INCH + 0.5);
+    (unsigned short) ((SANE_UNFIX (s->val[OPT_TL_Y].w) * 300.0) / MM_PER_INCH + 0.5);
   s->setpara.fmArea.y2 =
-    (WORD) ((SANE_UNFIX (s->val[OPT_BR_Y].w) * 300.0) / MM_PER_INCH + 0.5);
+    (unsigned short) ((SANE_UNFIX (s->val[OPT_BR_Y].w) * 300.0) / MM_PER_INCH + 0.5);
 
   if (s->val[OPT_PREVIEW].w)
     {
@@ -521,10 +521,10 @@ init_options (Mustek_Scanner * s)
 
 /***************************** Code from spicall.c *****************************/
 
-static LPBYTE g_lpNegImageData = NULL;
-static BOOL g_bIsFirstGetNegData = TRUE;
-static BOOL g_bIsMallocNegData = FALSE;
-static DWORD g_dwAlreadyGetNegLines = 0;
+static SANE_Byte * g_lpNegImageData = NULL;
+static SANE_Bool g_bIsFirstGetNegData = TRUE;
+static SANE_Bool g_bIsMallocNegData = FALSE;
+static unsigned int g_dwAlreadyGetNegLines = 0;
 
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
@@ -538,7 +538,7 @@ Return value:
 	else 
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 GetDeviceStatus ()
 {
   DBG (DBG_FUNC, "GetDeviceStatus: start\n");
@@ -558,8 +558,8 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
-PowerControl (BOOL isLampOn, BOOL isTALampOn)
+static SANE_Bool
+PowerControl (SANE_Bool isLampOn, SANE_Bool isTALampOn)
 {
   DBG (DBG_FUNC, "PowerControl: start\n");
   return MustScanner_PowerControl (isLampOn, isTALampOn);
@@ -577,7 +577,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 CarriageHome ()
 {
   DBG (DBG_FUNC, "CarriageHome: start\n");
@@ -597,7 +597,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 GetGammaInfo (LPGAMMAINFO pGammaInfo)
 {
   DBG (DBG_FUNC, "GetGammaInfo: start\n");
@@ -642,13 +642,13 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 SetParameters (LPSETPARAMETERS pSetParameters)
 {
-  WORD X1inTargetDpi;
-  WORD Y1inTargetDpi;
-  WORD X2inTargetDpi;
-  WORD Y2inTargetDpi;
+  unsigned short X1inTargetDpi;
+  unsigned short Y1inTargetDpi;
+  unsigned short X2inTargetDpi;
+  unsigned short Y2inTargetDpi;
 
   DBG (DBG_FUNC, "SetParameters: start\n");
 
@@ -740,17 +740,17 @@ SetParameters (LPSETPARAMETERS pSetParameters)
     }
 
   X1inTargetDpi =
-    (WORD) ((DWORD) (pSetParameters->fmArea.x1) *
-	    (DWORD) (pSetParameters->wTargetDPI) / 300L);
+    (unsigned short) ((unsigned int) (pSetParameters->fmArea.x1) *
+	    (unsigned int) (pSetParameters->wTargetDPI) / 300L);
   Y1inTargetDpi =
-    (WORD) ((DWORD) (pSetParameters->fmArea.y1) *
-	    (DWORD) (pSetParameters->wTargetDPI) / 300L);
+    (unsigned short) ((unsigned int) (pSetParameters->fmArea.y1) *
+	    (unsigned int) (pSetParameters->wTargetDPI) / 300L);
   X2inTargetDpi =
-    (WORD) ((DWORD) (pSetParameters->fmArea.x2) *
-	    (DWORD) (pSetParameters->wTargetDPI) / 300L);
+    (unsigned short) ((unsigned int) (pSetParameters->fmArea.x2) *
+	    (unsigned int) (pSetParameters->wTargetDPI) / 300L);
   Y2inTargetDpi =
-    (WORD) ((DWORD) (pSetParameters->fmArea.y2) *
-	    (DWORD) (pSetParameters->wTargetDPI) / 300L);
+    (unsigned short) ((unsigned int) (pSetParameters->fmArea.y2) *
+	    (unsigned int) (pSetParameters->wTargetDPI) / 300L);
 
   g_tiTarget.isOptimalSpeed = TRUE;
   g_tiTarget.wDpi = pSetParameters->wTargetDPI;
@@ -795,15 +795,15 @@ SetParameters (LPSETPARAMETERS pSetParameters)
   else if (pSetParameters->smScanMode == SM_GRAY
 	   || pSetParameters->smScanMode == SM_RGB24)
     {
-      WORD i;
-      BYTE byGammaData;
+      unsigned short i;
+      SANE_Byte byGammaData;
       double pow_d;
       double pow_z = (double) 10 / 16.0;
 
-      g_pGammaTable = (WORD *) malloc (sizeof (WORD) * 4096 * 3);
+      g_pGammaTable = (unsigned short *) malloc (sizeof (unsigned short) * 4096 * 3);
 
       DBG (DBG_INFO, "SetParameters: gamma table malloc %ld Bytes\n",
-	   (long int) sizeof (WORD) * 4096 * 3);
+	   (long int) sizeof (unsigned short) * 4096 * 3);
       DBG (DBG_INFO, "SetParameters: address of g_pGammaTable=%p\n",
 	   (void *) g_pGammaTable);
 
@@ -818,7 +818,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	{
 	  pow_d = (double) i / (double) 4096;
 
-	  byGammaData = (BYTE) (pow (pow_d, pow_z) * 255);
+	  byGammaData = (SANE_Byte) (pow (pow_d, pow_z) * 255);
 
 	  *(g_pGammaTable + i) = byGammaData;
 	  *(g_pGammaTable + i + 4096) = byGammaData;
@@ -829,7 +829,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
 	   || pSetParameters->smScanMode == SM_RGB48)
     {
       unsigned int i, wGammaData;
-      g_pGammaTable = (WORD *) malloc (sizeof (WORD) * 65536 * 3);
+      g_pGammaTable = (unsigned short *) malloc (sizeof (unsigned short) * 65536 * 3);
 
       if (g_pGammaTable == NULL)
 	{
@@ -841,7 +841,7 @@ SetParameters (LPSETPARAMETERS pSetParameters)
       for (i = 0; i < 65536; i++)
 	{
 	  wGammaData =
-	    (WORD) (pow ((((float) i) / 65536.0), (((float) 10) / 16.0)) *
+	    (unsigned short) (pow ((((float) i) / 65536.0), (((float) 10) / 16.0)) *
 		    65535);
 
 	  *(g_pGammaTable + i) = wGammaData;
@@ -871,7 +871,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 GetParameters (LPGETPARAMETERS pGetParameters)
 {
   DBG (DBG_FUNC, "GetParameters: start\n");
@@ -894,7 +894,7 @@ GetParameters (LPGETPARAMETERS pGetParameters)
 
   pGetParameters->wSourceXDPI = g_ssSuggest.wXDpi;
   pGetParameters->wSourceYDPI = g_ssSuggest.wYDpi;
-  pGetParameters->dwLength = (DWORD) g_ssSuggest.wHeight;
+  pGetParameters->dwLength = (unsigned int) g_ssSuggest.wHeight;
   pGetParameters->dwLineByteWidth = g_ssSuggest.dwBytesPerRow;
 
   DBG (DBG_FUNC, "GetParameters: exit\n");
@@ -915,7 +915,7 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 StartScan ()
 {
   DBG (DBG_FUNC, "StartScan: start\n");
@@ -960,13 +960,13 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 ReadScannedData (LPIMAGEROWS pImageRows)
 {
-  BOOL isRGBInvert;
-  WORD Rows = 0;
-  BYTE *lpBlock = (BYTE *) pImageRows->pBuffer;
-  LPBYTE lpReturnData = (BYTE *) pImageRows->pBuffer;
+  SANE_Bool isRGBInvert;
+  unsigned short Rows = 0;
+  SANE_Byte *lpBlock = (SANE_Byte *) pImageRows->pBuffer;
+  SANE_Byte *lpReturnData = (SANE_Byte *) pImageRows->pBuffer;
   int i = 0;
 
   DBG (DBG_FUNC, "ReadScannedData: start\n");
@@ -1008,11 +1008,11 @@ ReadScannedData (LPIMAGEROWS pImageRows)
 
       if (g_bIsFirstGetNegData)
 	{
-	  DWORD TotalImgeSize = g_SWHeight * g_ssSuggest.dwBytesPerRow;
-	  g_lpNegImageData = (LPBYTE) malloc (TotalImgeSize);
+	  unsigned int TotalImgeSize = g_SWHeight * g_ssSuggest.dwBytesPerRow;
+	  g_lpNegImageData = (SANE_Byte *) malloc (TotalImgeSize);
 	  if (NULL != g_lpNegImageData)
 	    {
-	      LPBYTE lpTempData = g_lpNegImageData;
+	      SANE_Byte * lpTempData = g_lpNegImageData;
 	      DBG (DBG_INFO,
 		   "ReadScannedData: malloc the negative data is success!\n");
 	      g_bIsMallocNegData = TRUE;
@@ -1100,10 +1100,10 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 StopScan ()
 {
-  BOOL rt;
+  SANE_Bool rt;
   int i;
 
   DBG (DBG_FUNC, "StopScan: start\n");
@@ -1160,10 +1160,10 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
+static SANE_Bool
 IsTAConnected ()
 {
-  BOOL hasTA;
+  SANE_Bool hasTA;
 
   DBG (DBG_FUNC, "StopScan: start\n");
 
@@ -1197,10 +1197,10 @@ Return value:
 	else
 	return FALSE
 ***********************************************************************/
-static BOOL
-GetKeyStatus (BYTE * pKey)
+static SANE_Bool
+GetKeyStatus (SANE_Byte * pKey)
 {
-  BYTE pKeyTemp = 0x00;
+  SANE_Byte pKeyTemp = 0x00;
   STATUS status = Asic_CheckFunctionKey (&g_chip, &pKeyTemp);
   DBG (DBG_FUNC, "GetKeyStatus: start\n");
 
@@ -1261,25 +1261,25 @@ Return value:
 	none
 ***********************************************************************/
 static void
-AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
-	   DWORD BytesPerLine)
+AutoLevel (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+	   unsigned int BytesPerLine)
 {
   int ii;
-  DWORD i, j;
-  DWORD tLines, CountPixels, TotalImgSize;
-  WORD R, G, B, max_R, max_G, max_B, min_R, min_G, min_B;
+  unsigned int i, j;
+  unsigned int tLines, CountPixels, TotalImgSize;
+  unsigned short R, G, B, max_R, max_G, max_B, min_R, min_G, min_B;
   float fmax_R, fmax_G, fmax_B;
-  DWORD sum_R = 0, sum_G = 0, sum_B = 0;
+  unsigned int sum_R = 0, sum_G = 0, sum_B = 0;
   float mean_R, mean_G, mean_B;
-  DWORD hisgram_R[256], hisgram_G[256], hisgram_B[256];
+  unsigned int hisgram_R[256], hisgram_G[256], hisgram_B[256];
 
-  DWORD iWidth = BytesPerLine / 3;
-  DWORD iHeight = ScanLines;
-  BYTE *pbmpdata = (BYTE *) lpSource;
+  unsigned int iWidth = BytesPerLine / 3;
+  unsigned int iHeight = ScanLines;
+  SANE_Byte *pbmpdata = (SANE_Byte *) lpSource;
 
-  DWORD tmp = 0;
-  WORD imin_threshold[3];
-  WORD imax_threshold[3];
+  unsigned int tmp = 0;
+  unsigned short imin_threshold[3];
+  unsigned short imax_threshold[3];
 
   DBG (DBG_FUNC, "AutoLevel: start\n");
 
@@ -1319,9 +1319,9 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 
       for (i = 0; i < iWidth; i++)
 	{
-	  R = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 2));
-	  G = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 1));
-	  B = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3));
+	  R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
+	  G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
+	  B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
 
 	  max_R = _MAX (R, max_R);
 	  max_G = _MAX (G, max_G);
@@ -1331,17 +1331,17 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  min_G = _MIN (G, min_G);
 	  min_B = _MIN (B, min_B);
 
-	  hisgram_R[(BYTE) R]++;
-	  hisgram_G[(BYTE) G]++;
-	  hisgram_B[(BYTE) B]++;
+	  hisgram_R[(SANE_Byte) R]++;
+	  hisgram_G[(SANE_Byte) G]++;
+	  hisgram_B[(SANE_Byte) B]++;
 
 	  sum_R += R;
 	  sum_G += G;
 	  sum_B += B;
 
-	  *(pbmpdata + (tLines + i * 3 + 2)) = (BYTE) R;
-	  *(pbmpdata + (tLines + i * 3 + 1)) = (BYTE) G;
-	  *(pbmpdata + (tLines + i * 3)) = (BYTE) B;
+	  *(pbmpdata + (tLines + i * 3 + 2)) = (SANE_Byte) R;
+	  *(pbmpdata + (tLines + i * 3 + 1)) = (SANE_Byte) G;
+	  *(pbmpdata + (tLines + i * 3)) = (SANE_Byte) B;
 
 	  CountPixels++;
 	}
@@ -1439,9 +1439,9 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
       tLines = j * iWidth * 3;
       for (i = 0; i < iWidth; i++)
 	{
-	  R = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 2));
-	  G = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 1));
-	  B = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3));
+	  R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
+	  G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
+	  B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
 
 	   /*R*/ if (sum_R == 0)
 	    R = max_R;
@@ -1450,7 +1450,7 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  else if (R <= 255)
 	    {
 	      fmax_R = ((float) ((R - min_R) * 255) / (float) sum_R);
-	      R = (WORD) fmax_R;
+	      R = (unsigned short) fmax_R;
 	      fmax_R = (fmax_R - R) * 10;
 
 	      if (fmax_R >= 5)
@@ -1466,7 +1466,7 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  else if (G <= 255)
 	    {
 	      fmax_G = ((float) ((G - min_G) * 255) / (float) sum_G);
-	      G = (WORD) fmax_G;
+	      G = (unsigned short) fmax_G;
 	      fmax_G = (fmax_G - G) * 10;
 	      if (fmax_G >= 5)
 		G++;
@@ -1482,7 +1482,7 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  else if (B <= 255)
 	    {
 	      fmax_B = ((float) (B - min_B) * 255 / (float) sum_B);
-	      B = (WORD) fmax_B;
+	      B = (unsigned short) fmax_B;
 	      fmax_B = (fmax_B - B) * 10;
 	      if (fmax_B >= 5)
 		B++;
@@ -1490,13 +1490,13 @@ AutoLevel (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  if (B > 255)
 	    B = 255;
 
-	  hisgram_R[(BYTE) R]++;
-	  hisgram_G[(BYTE) G]++;
-	  hisgram_B[(BYTE) B]++;
+	  hisgram_R[(SANE_Byte) R]++;
+	  hisgram_G[(SANE_Byte) G]++;
+	  hisgram_B[(SANE_Byte) B]++;
 
-	  *(pbmpdata + (tLines + i * 3 + 2)) = (BYTE) R;
-	  *(pbmpdata + (tLines + i * 3 + 1)) = (BYTE) G;
-	  *(pbmpdata + (tLines + i * 3)) = (BYTE) B;
+	  *(pbmpdata + (tLines + i * 3 + 2)) = (SANE_Byte) R;
+	  *(pbmpdata + (tLines + i * 3 + 1)) = (SANE_Byte) G;
+	  *(pbmpdata + (tLines + i * 3)) = (SANE_Byte) B;
 
 	}
     }
@@ -1518,28 +1518,28 @@ Return value:
 	none
 ***********************************************************************/
 static void
-QBETDetectAutoLevel (void *pDIB, DWORD ImageWidth, DWORD ImageHeight)
+QBETDetectAutoLevel (void *pDIB, unsigned int ImageWidth, unsigned int ImageHeight)
 {
-  WORD *pbmpdata;
+  unsigned short *pbmpdata;
   float fRPercent = 0.0;
   float fGPercent = 0.0;
   float fBPercent = 0.0;
   float fRSum, fGSum, fBSum;
 
   int i, j;
-  DWORD tLines, CountPixels, TotalImgSize;
-  WORD R, G, B, max_R, max_G, max_B, min_R, min_G, min_B;
-  WORD wIndexR, wIndexG, wIndexB;
+  unsigned int tLines, CountPixels, TotalImgSize;
+  unsigned short R, G, B, max_R, max_G, max_B, min_R, min_G, min_B;
+  unsigned short wIndexR, wIndexG, wIndexB;
   float fmax_R, fmax_G, fmax_B;
-  DWORD sum_R = 0, sum_G = 0, sum_B = 0;
-  DWORD hisgram_R[1024], hisgram_G[1024], hisgram_B[1024];
+  unsigned int sum_R = 0, sum_G = 0, sum_B = 0;
+  unsigned int hisgram_R[1024], hisgram_G[1024], hisgram_B[1024];
 
   if (!pDIB)
     {
       return;
     }
 
-  pbmpdata = (WORD *) pDIB;
+  pbmpdata = (unsigned short *) pDIB;
 
   CountPixels = 0;
   TotalImgSize = ImageWidth * ImageHeight;
@@ -1744,7 +1744,7 @@ QBETDetectAutoLevel (void *pDIB, DWORD ImageWidth, DWORD ImageHeight)
 	  else if ((R >= min_R) && (R <= 1023))
 	    {
 	      fmax_R = ((float) ((R - min_R) * 923) / (float) sum_R) + 100;
-	      R = (WORD) fmax_R;
+	      R = (unsigned short) fmax_R;
 	      fmax_R = (fmax_R - R) * 10;
 	      if (fmax_R >= 5)
 		R++;
@@ -1762,7 +1762,7 @@ QBETDetectAutoLevel (void *pDIB, DWORD ImageWidth, DWORD ImageHeight)
 	  else if ((G >= min_G) && (G <= 1023))
 	    {
 	      fmax_G = ((float) ((G - min_G) * 923) / (float) sum_G) + 100;
-	      G = (WORD) fmax_G;
+	      G = (unsigned short) fmax_G;
 	      fmax_G = (fmax_G - G) * 10;
 	      if (fmax_G >= 5)
 		G++;
@@ -1781,7 +1781,7 @@ QBETDetectAutoLevel (void *pDIB, DWORD ImageWidth, DWORD ImageHeight)
 	    {
 	      fmax_B = ((float) (B - min_B) * 923 / (float) sum_B) + 100;
 
-	      B = (WORD) fmax_B;
+	      B = (unsigned short) fmax_B;
 	      fmax_B = (fmax_B - B) * 10;
 	      if (fmax_B >= 5)
 		B++;
@@ -1814,19 +1814,19 @@ Return value:
 	none
 ***********************************************************************/
 static void
-QBetChange (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
-	    DWORD BytesPerLine)
+QBetChange (SANE_Byte *lpSource, SCANMODE scanMode, unsigned short ScanLines,
+	    unsigned int BytesPerLine)
 {
-  WORD i, j;
-  DWORD tLines, TotalImgSize;
-  WORD R1, G1, B1, R, G, B, R2, G2, B2, QBET_RGB = 0, PointF, PointB;
-  WORD *pwRGB;
+  unsigned short i, j;
+  unsigned int tLines, TotalImgSize;
+  unsigned short R1, G1, B1, R, G, B, R2, G2, B2, QBET_RGB = 0, PointF, PointB;
+  unsigned short *pwRGB;
 
   int k;
 
-  DWORD ImageWidth = BytesPerLine / 3;
-  DWORD ImageHeight = ScanLines;
-  BYTE *pbmpdata = (BYTE *) lpSource;
+  unsigned int ImageWidth = BytesPerLine / 3;
+  unsigned int ImageHeight = ScanLines;
+  SANE_Byte *pbmpdata = (SANE_Byte *) lpSource;
 
   if (scanMode != CM_RGB24ext)
     {
@@ -1835,7 +1835,7 @@ QBetChange (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 
 
   TotalImgSize = ImageWidth * ImageHeight * 3 * 2;
-  if ((pwRGB = (WORD *) malloc (TotalImgSize)) == NULL)
+  if ((pwRGB = (unsigned short *) malloc (TotalImgSize)) == NULL)
     {
       return;
     }
@@ -1848,35 +1848,35 @@ QBetChange (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	{
 	  if (i == 0)
 	    {
-	      R1 = R = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 2));
-	      G1 = G = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 1));
-	      B1 = B = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3));
-	      R2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3 + 2));
-	      G2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3 + 1));
-	      B2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3));
+	      R1 = R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
+	      G1 = G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
+	      B1 = B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
+	      R2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3 + 2));
+	      G2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3 + 1));
+	      B2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3));
 	    }
 	  else if (i == (ImageWidth - 1))
 	    {
-	      R1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3 + 2));
-	      G1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3 + 1));
-	      B1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3));
-	      R2 = R = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 2));
-	      G2 = G = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 1));
-	      B2 = B = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3));
+	      R1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3 + 2));
+	      G1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3 + 1));
+	      B1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3));
+	      R2 = R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
+	      G2 = G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
+	      B2 = B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
 	    }
 	  else
 	    {
-	      R1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3 + 2));
-	      G1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3 + 1));
-	      B1 = (WORD) (BYTE) * (pbmpdata + (tLines + (i - 1) * 3));
+	      R1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3 + 2));
+	      G1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3 + 1));
+	      B1 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i - 1) * 3));
 
-	      R = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 2));
-	      G = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3 + 1));
-	      B = (WORD) (BYTE) * (pbmpdata + (tLines + i * 3));
+	      R = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 2));
+	      G = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3 + 1));
+	      B = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + i * 3));
 
-	      R2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3 + 2));
-	      G2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3 + 1));
-	      B2 = (WORD) (BYTE) * (pbmpdata + (tLines + (i + 1) * 3));
+	      R2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3 + 2));
+	      G2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3 + 1));
+	      B2 = (unsigned short) (SANE_Byte) * (pbmpdata + (tLines + (i + 1) * 3));
 	    }
 
 	  R1 = R1 & 0x0003;
@@ -1995,9 +1995,9 @@ QBetChange (LPSTR lpSource, SCANMODE scanMode, WORD ScanLines,
 	  if (B > 255)
 	    B = 255;
 
-	  *(pbmpdata + (tLines + i * 3 + 2)) = (BYTE) R;
-	  *(pbmpdata + (tLines + i * 3 + 1)) = (BYTE) G;
-	  *(pbmpdata + (tLines + i * 3)) = (BYTE) B;
+	  *(pbmpdata + (tLines + i * 3 + 2)) = (SANE_Byte) R;
+	  *(pbmpdata + (tLines + i * 3 + 1)) = (SANE_Byte) G;
+	  *(pbmpdata + (tLines + i * 3)) = (SANE_Byte) B;
 
 	}
 
@@ -2490,7 +2490,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
 
   Mustek_Scanner *s = handle;
-  static BYTE *tempbuf;
+  static SANE_Byte *tempbuf;
   SANE_Int lines_to_read, lines_read;
   IMAGEROWS image_row;
 
@@ -2533,19 +2533,19 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	    lines_to_read = s->read_rows;
 
 	  tempbuf =
-	    (BYTE *) malloc (sizeof (BYTE) * lines_to_read *
+	    (SANE_Byte *) malloc (sizeof (SANE_Byte) * lines_to_read *
 			     s->getpara.dwLineByteWidth + 3 * 1024 + 1);
 	  memset (tempbuf, 0,
-		  sizeof (BYTE) * lines_to_read * s->getpara.dwLineByteWidth +
+		  sizeof (SANE_Byte) * lines_to_read * s->getpara.dwLineByteWidth +
 		  3 * 1024 + 1);
 
 	  DBG (DBG_INFO, "sane_read: buffer size is %ld\n",
-	       (long int) sizeof (BYTE) * lines_to_read * s->getpara.dwLineByteWidth +
+	       (long int) sizeof (SANE_Byte) * lines_to_read * s->getpara.dwLineByteWidth +
 	       3 * 1024 + 1);
 
 	  image_row.roRgbOrder = mustek_A2nu2_model.line_mode_color_order;
 	  image_row.wWantedLineNum = lines_to_read;
-	  image_row.pBuffer = (LPBYTE) tempbuf;
+	  image_row.pBuffer = (SANE_Byte *) tempbuf;
 	  s->bIsReading = SANE_TRUE;
 
 	  if (!ReadScannedData (&image_row))

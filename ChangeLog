@@ -13,6 +13,14 @@
 	* backend/gt68xx.c backend/gt68xx_generic.c
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Minor
 	  modifications to sheet-fed scanner support.
+	* backend/mustek_usb2.c backend/mustek_usb2.h
+	  backend/mustek_usb2_asic.c backend/mustek_usb2_asic.h
+	  backend/mustek_usb2_high.c backend/mustek_usb2_high.h
+	  backend/mustek_usb2_reflective.c backend/mustek_usb2_transparent.c
+	  doc/descriptions/mustek_usb2.desc
+	  doc/mustek_usb2/mustek_usb2.CHANGES:
+	  Removed typedefs for DWORD, WORD and so on. Used int, unsigned
+	  short, ... directly in the code. 
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

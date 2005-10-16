@@ -27,6 +27,7 @@
 	  doc/sane-lexmark.man tools/hotplug/libsane.usermap: Added lexmark
 	  backend (from Fred Odendaal <freshshelf@rogers.com>).
 	* frontend/tstbackend.c: Added vendor "Lexmark".
+	* doc/sane.tex: Added vendor "Lexmark". Used current date.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

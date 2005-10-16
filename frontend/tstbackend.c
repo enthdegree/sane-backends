@@ -1724,6 +1724,7 @@ main (int argc, char **argv)
 					(strcmp(dev->vendor, "Hewlett-Packard") == 0) ||
 					(strcmp(dev->vendor, "IBM") == 0) ||
 					(strcmp(dev->vendor, "Kodak") == 0) ||
+                                        (strcmp(dev->vendor, "Lexmark") == 0) ||
 					(strcmp(dev->vendor, "Logitech") == 0) ||
 					(strcmp(dev->vendor, "Microtek") == 0) ||
 					(strcmp(dev->vendor, "Minolta") == 0) ||

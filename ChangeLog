@@ -26,6 +26,7 @@
 	  backend/lexmark.conf backend/lexmark.h doc/Makefile.in
 	  doc/sane-lexmark.man tools/hotplug/libsane.usermap: Added lexmark
 	  backend (from Fred Odendaal <freshshelf@rogers.com>).
+	* frontend/tstbackend.c: Added vendor "Lexmark".
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

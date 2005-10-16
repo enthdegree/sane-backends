@@ -4,6 +4,8 @@
 	  some time, most email addresses bounce, no response to
 	  pings. Changed contact address to the only one that doesn't
 	  directly bounce.
+	* backend/artec_eplus48u.conf: Added support for UMAX AstraSlim
+	  1200 SE (from Harq al-Ada <nadaban.bogdan at gmail.com>).
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

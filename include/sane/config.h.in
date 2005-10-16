@@ -206,6 +206,9 @@
 /* Define to 1 if you have the `pthread_kill' function. */
 #undef HAVE_PTHREAD_KILL
 
+/* Define to 1 if you have the `pthread_testcancel' function. */
+#undef HAVE_PTHREAD_TESTCANCEL
+
 /* define if you have the resmgr library */
 #undef HAVE_RESMGR
 

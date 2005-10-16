@@ -6,6 +6,8 @@
 	  directly bounce.
 	* backend/artec_eplus48u.conf: Added support for UMAX AstraSlim
 	  1200 SE (from Harq al-Ada <nadaban.bogdan at gmail.com>).
+	* doc/descriptions/artec_eplus48u.desc: UMAX AstraSlim
+	  1200 SE is supported. Backend is unmaintained.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

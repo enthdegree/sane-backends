@@ -3,7 +3,7 @@
 ;
 
 :backend "artec_eplus48u"
-:version "0.0.10"
+:version "unmaintained"
 :manpage "sane-artec_eplus48u"
 ;:url "http://www.angelfire.com/linux/crapsite/"
 :devicetype :scanner
@@ -59,10 +59,16 @@
 :url "http://www.umax-europe.com"
 :url "http://www.umaxjapan.co.jp"
 :url "http://www.umax.com.cn"
+
 :model "AstraSlim SE"
 :status :good
 :interface "USB"
 :comment "Different product id: 0x4009"
+
+:model "AstraSlim 1200 SE"
+:status :good
+:interface "USB"
+:comment "Different product id: 0x4010"
 
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"

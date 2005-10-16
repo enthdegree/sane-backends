@@ -1,5 +1,9 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.78 (2005-10-16)
+
+* Minor modifications to sheet-fed scanner support.
+
 V 1.0.77 (2005-09-29)
 
 * Added support for Plustek OpticSlim M12 (untested). Based on patch from

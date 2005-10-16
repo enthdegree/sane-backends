@@ -97,16 +97,8 @@ gt68xx_generic_read_scanned_data (GT68xx_Device * dev, SANE_Bool * ready)
   RIE (gt68xx_device_req (dev, req, req));
 
   *ready = SANE_FALSE;
-  if (dev->model->flags & GT68XX_FLAG_SHEET_FED)
-    {
-      if (req[0] == 0 && req[1] == 0x35)
-	*ready = SANE_TRUE;
-    }
-  else
-    {
-      if (req[0] == 0)
-	*ready = SANE_TRUE;
-    }
+  if (req[0] == 0)
+    *ready = SANE_TRUE;
 
   return SANE_STATUS_GOOD;
 }

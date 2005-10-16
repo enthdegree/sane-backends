@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 77
+#define BUILD 78
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -652,18 +652,12 @@ init_options (GT68xx_Scanner * s)
   s->opt[OPT_BACKTRACK_LINES].unit = SANE_UNIT_NONE;
   s->opt[OPT_BACKTRACK_LINES].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BACKTRACK_LINES].constraint.range = &u8_range;
-  if (s->dev->model->is_cis)
+  if (s->dev->model->is_cis && !(s->dev->model->flags & GT68XX_FLAG_SHEET_FED))
     s->val[OPT_BACKTRACK_LINES].w = 0x10;
   else
     s->val[OPT_BACKTRACK_LINES].w = 0x3f;
   if (!debug_options)
     DISABLE (OPT_BACKTRACK_LINES);
-
-  if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
-    {
-      s->val[OPT_BACKTRACK_LINES].w = 0x3f;
-      DISABLE (OPT_BACKTRACK_LINES);
-    }
 
   /* "Enhancement" group: */
   s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");

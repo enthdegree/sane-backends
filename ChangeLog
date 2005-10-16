@@ -10,6 +10,9 @@
 	  1200 SE is supported. Backend is unmaintained.
 	* doc/descriptions/unsupported.desc: Added HP ScanJet
 	  4850C. Removed UMAX AstraSlim 1200 SE.
+	* backend/gt68xx.c backend/gt68xx_generic.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Minor
+	  modifications to sheet-fed scanner support.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

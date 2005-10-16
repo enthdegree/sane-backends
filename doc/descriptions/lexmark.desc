@@ -10,10 +10,10 @@
 
 
 :backend "lexmark"               ; name of backend
-:version "0.1"                    ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
+:version "1.0-0"                    ; version of backend (or "unmaintained")
+:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
-; :manpage "lexmark"        ; name of manpage (if it exists)
+:manpage "lexmark"        ; name of manpage (if it exists)
 :url "http://ca.geocities.com/freshshelf@rogers.com/" 
 				  ; backend's web page
 

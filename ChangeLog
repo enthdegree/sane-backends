@@ -28,6 +28,9 @@
 	  backend (from Fred Odendaal <freshshelf@rogers.com>).
 	* frontend/tstbackend.c: Added vendor "Lexmark".
 	* doc/sane.tex: Added vendor "Lexmark". Used current date.
+	* doc/descriptions-external/lexmark.desc
+	  doc/descriptions/lexmark.desc: Moved to doc/descriptions. Added
+	  "new" marker. Added manpage link. Updated version.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

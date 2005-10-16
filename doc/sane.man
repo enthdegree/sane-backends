@@ -1,4 +1,4 @@
-.TH sane 7 "03 October 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "16 October 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -289,6 +289,11 @@ for details.
 This backend supports the Leo S3 and the Across FS-1130, which is a re-badged
 LEO FS-1130 scanner. See
 .BR sane\-leo (5)
+for details.
+.TP
+.B lexmark
+This backend supports the Lexmark X1100 series of USB scanners. See
+.BR sane\-lexmark (5)
 for details.
 .TP
 .B ma1509
@@ -795,6 +800,7 @@ for details).
 .BR sane\-hp5400 (5),
 .BR sane\-ibm (5),
 .BR sane\-leo (5),
+.BR sane\-lexmark (5),
 .BR sane\-ma1509 (5),
 .BR sane\-matsushita (5),
 .BR sane\-microtek2 (5),

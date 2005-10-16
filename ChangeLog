@@ -31,6 +31,7 @@
 	* doc/descriptions-external/lexmark.desc
 	  doc/descriptions/lexmark.desc: Moved to doc/descriptions. Added
 	  "new" marker. Added manpage link. Updated version.
+	* doc/sane.man: Added lexmark backend.
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

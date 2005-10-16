@@ -21,6 +21,11 @@
 	  doc/mustek_usb2/mustek_usb2.CHANGES:
 	  Removed typedefs for DWORD, WORD and so on. Used int, unsigned
 	  short, ... directly in the code. 
+	* AUTHORS configure configure.in backend/Makefile.in
+	  backend/dll.conf backend/lexmark-x1100.c backend/lexmark.c
+	  backend/lexmark.conf backend/lexmark.h doc/Makefile.in
+	  doc/sane-lexmark.man tools/hotplug/libsane.usermap: Added lexmark
+	  backend (from Fred Odendaal <freshshelf@rogers.com>).
 
 2005-10-15  Jochen Eisinger <jochen@penguin-breeder.org>
 

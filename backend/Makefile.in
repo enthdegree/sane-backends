@@ -116,6 +116,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
   ibm.c ibm.conf ibm.h ibm-scsi.c \
   leo.c leo.h leo.conf \
+  lexmark.c lexmark-x1100.c lexmark.h lexmark.conf \
   lm9830.h \
   ma1509.c ma1509.conf ma1509.h \
   Makefile.in matsushita.c \
@@ -287,6 +288,7 @@ EXTRA_genesys = genesys_gl646 genesys_gl841
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
+EXTRA_lexmark = lexmark-x1100
 
 # When preloading dll, we need to add in all preloaded objects:
 libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))
@@ -375,6 +377,9 @@ libsane-ibm.la: ../sanei/sanei_constrain_value.lo
 libsane-leo.la: ../sanei/sanei_config2.lo
 libsane-leo.la: ../sanei/sanei_constrain_value.lo
 libsane-leo.la: ../sanei/sanei_scsi.lo
+libsane-lexmark.la: $(addsuffix .lo,$(EXTRA_lexmark))
+libsane-lexmark.la: ../sanei/sanei_constrain_value.lo
+libsane-lexmark.la: ../sanei/sanei_usb.lo
 libsane-ma1509.la: ../sanei/sanei_constrain_value.lo
 libsane-ma1509.la: ../sanei/sanei_usb.lo
 libsane-matsushita.la: ../sanei/sanei_config2.lo

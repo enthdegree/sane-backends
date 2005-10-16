@@ -43,6 +43,7 @@ Backends:
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  ibm:           M.F., Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
+ lexmark:       Fred Odendaal
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
@@ -142,6 +143,7 @@ Eugene S. Weiss <yossarian@users.sourceforge.net>
 Feico W. Dillema <dillema@acm.org>
 Franck Schneider <schnefra@hol.fr>
 Frank Zago <sane at zago dot net>
+Fred Odendaal <freshshelf at rogers dot com>
 Frederik Ramm <frederik@remote.org>
 Gerard Klaver <gerard at gkall dot hobby dot nl>
 Gerhard Jaeger <gerhard@gjaeger.de>

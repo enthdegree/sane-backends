@@ -40,7 +40,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 SECT1	= scanimage.1 sane-config.1 sane-find-scanner.1 gamma4scanimage.1
 SECT5	= sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 sane-dll.5 \
           sane-dc25.5 sane-dmc.5 sane-epson.5 sane-hp.5 sane-gphoto2.5 \
-          sane-leo.5 sane-matsushita.5 sane-microtek.5 \
+          sane-leo.5 sane-lexmark.5 sane-matsushita.5 sane-microtek.5 \
           sane-microtek2.5 sane-mustek.5 sane-nec.5 sane-net.5 sane-pie.5 \
           sane-pint.5 sane-pnm.5 sane-umax.5 sane-qcam.5 sane-scsi.5 \
           sane-artec.5 sane-fujitsu.5 sane-sharp.5 sane-s9036.5 \
@@ -94,7 +94,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-dc25.man sane-dll.man sane-dmc.man sane-epson.man \
   sane-find-scanner.man sane-fujitsu.man sane-gphoto2.man sane-hp.man \
   sane-logo.png sane-logo2.jpg sane-matsushita.man sane-microtek.man \
-  sane-leo.man sane-microtek2.man \
+  sane-leo.man sane-lexmark.man sane-microtek2.man \
   sane-mustek.man sane-mustek_pp.man sane-mustek_usb.man sane-nec.man \
   sane-net.man sane-pie.man sane-pint.man sane-plustek.man \
   sane-pnm.man sane-qcam.man sane-ricoh.man sane-s9036.man \

@@ -1,7 +1,10 @@
 2005-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* acinclude.m4 configure: Fixed check for libpthread functions.
-	* tools/hotplug/libsane.usermap: Added Brother MFC 210C.
+	* tools/hotplug/libsane.usermap: Added Brother MFC 210C (from
+	  Benjamin Mirza <bm1607@yahoo.de>). 
+	* doc/descriptions-external/epkowa.desc: Updated for iscan 1.17.0
+	  (patch from Olaf Meeuwissen <olaf@member.fsf.org>). Bug #302183.
 
 2005-10-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

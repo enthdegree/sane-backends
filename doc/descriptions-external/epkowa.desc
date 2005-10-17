@@ -22,10 +22,9 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-1.15.0/README
-;;;  * iscan-1.15.0/README.ja
-;;;  * iscan-1.15.0/doc/sane-epkowa.man
-;;;  * iscan-1.15.0/backend/epkowa_usb.c
+;;;  * iscan-1.17.0/NEWS
+;;;  * iscan-1.17.0/doc/sane-epkowa.man
+;;;  * iscan-1.17.0/backend/epkowa_usb.c
 ;;;  * sane-backends-1.0.15/backend/epson_usb.c
 ;;;  * sane-backends-1.0.15/doc/descriptions/epson.desc
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -38,7 +37,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "1.15.0"
+:version "1.17.0"
 :manpage "sane-epkowa"
 :url     "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
@@ -395,11 +394,23 @@
 
 :model     "GT-F500"			; product spec (JP)
 :interface "USB"
-:status    :complete
+:status    :good
+:comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
+
+:model     "GT-F520"
+:interface "USB"
+:status    :good
+:comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "GT-F550"			; product spec (JP)
 :interface "USB"
 :status    :good
+:comment   "auto film loader not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
+
+:model     "GT-F570"
+:interface "USB"
+:status    :good
+:comment   "auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "GT-F600"			; product spec (JP)
 :interface "USB"
@@ -458,7 +469,17 @@
 :model     "LP-A500"
 :interface "USB"
 :status    :complete
-:comment   "business all-in-one"
+:comment   "business all-in-one<br>network interface not supported"
+
+:model     "LP-M5500"
+:interface "USB"
+:status    :complete
+:comment   "business all-in-one<br>network interface not supported"
+
+:model     "LP-M5500F"
+:interface "USB"
+:status    :complete
+:comment   "business all-in-one<br>LP-M5500 with the fax option bundled<br>network interface not supported"
 
 :model     "PM-A700"			; product spec (JP)
 :interface "USB"
@@ -602,13 +623,13 @@
 
 :model     "Perfection 2480 PHOTO"
 :interface "USB"
-:status    :complete
-:comment   "overseas version of the GT-F500<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
+:status    :good
+:comment   "overseas version of the GT-F500<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
 
 :model     "Perfection 2580 PHOTO"
 :interface "USB"
-:status    :complete
-:comment   "overseas version of the GT-F550<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
+:status    :good
+:comment   "overseas version of the GT-F550<br>auto film loader not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
 
 :model     "Perfection 3170 PHOTO"
 :interface "USB"
@@ -619,6 +640,16 @@
 :interface "USB"
 :status    :complete
 :comment   "overseas version of the GT-9800F<br>IEEE1394 untested"
+
+:model     "Perfection 3490 PHOTO"
+:interface "USB"
+:status    :good
+:comment   "overseas version of the GT-F520<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
+
+:model     "Perfection 3590 PHOTO"
+:interface "USB"
+:status    :good
+:comment   "overseas version of the GT-F570<br>auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "Perfection 4180 PHOTO"
 :interface "USB"
@@ -663,6 +694,16 @@
 :model     "Stylus CX3650"		; France
 :interface "USB"
 :status    :unsupported
+:comment   "all-in-one"
+
+:model     "Stylus CX3700"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX3800"
+:interface "USB"
+:status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX4500"
@@ -715,6 +756,21 @@
 :status    :complete
 :comment   "all-in-one"
 
+:model     "Stylus CX7700"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus CX7800"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus DX3800"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
 :model     "Stylus Photo RX420"
 :interface "USB"
 :status    :complete
@@ -736,6 +792,16 @@
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX510"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX520"
+:interface "USB"
+:status    :complete
+:comment   "all-in-one"
+
+:model     "Stylus Photo RX530"
 :interface "USB"
 :status    :complete
 :comment   "all-in-one"

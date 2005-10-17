@@ -226,8 +226,9 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   AC_CHECK_HEADERS(pthread.h,
     [
        AC_CHECK_LIB(pthread,pthread_create)
+       have_pthread=yes
        AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach pthread_cancel pthread_testcancel],
-	have_pthread=yes,use_pthread=no)
+	,[ have_pthread=no; use_pthread=no ])
     ],)
  
   if test $use_pthread = yes ; then
@@ -238,6 +239,8 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
     CPPFLAGS="${CPPFLAGS} -D_REENTRANT"
   fi
   AC_MSG_CHECKING([whether to enable pthread support])
+  AC_MSG_RESULT([$have_pthread])
+  AC_MSG_CHECKING([whether to use pthread instead of fork])
   AC_MSG_RESULT([$use_pthread])
 ])
 

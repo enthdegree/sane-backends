@@ -1,3 +1,7 @@
+2005-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* acinclude.m4 configure: Fixed check for libpthread functions.
+
 2005-10-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* AUTHORS: Marked Michael Herder as not active. No activity since

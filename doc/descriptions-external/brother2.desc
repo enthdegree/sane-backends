@@ -54,9 +54,8 @@
 :interface "USB"
 
 :model "MFC-210C"
-:status :untested
+:status :good
 :interface "USB"
-:comment "No report yet."
 
 :model "MFC-3240C"
 :status :untested

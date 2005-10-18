@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added HP ScanJet 7650 and
 	  UMAX Astra 2500.
+	* doc/descriptions-external/brother2.desc: MFC-210C is reported to
+	  work.
 
 2005-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

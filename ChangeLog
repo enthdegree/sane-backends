@@ -4,6 +4,7 @@
 	  UMAX Astra 2500.
 	* doc/descriptions-external/brother2.desc: MFC-210C is reported to
 	  work.
+	* NEWS: Created entry for sane-backends 1.0.17.
 
 2005-10-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

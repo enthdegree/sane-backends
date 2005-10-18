@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-10-16"		; version of backend
+:version "2005-10-18"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -748,6 +748,12 @@
 
 :model "ScanJet 5590"
 :url "/unsupported/hp-scanjet-5590.html"
+:interface "USB"
+:comment "Not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet 7650"
+:url "/unsupported/hp-scanjet-7650.html"
 :interface "USB"
 :comment "Not supported. See link for details."
 :status :unsupported
@@ -1759,6 +1765,12 @@
 
 :mfg "UMAX"
 :url "http://www.umax.com/"
+
+:model "Astra 2500"
+:url "/unsupported/umax-astra-2500.html"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. See link for details."
 
 :model "Astra 3000"
 :url "/unsupported/umax-astra-3000.html"

@@ -1124,6 +1124,11 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
     int pass;
     int cal_lines = NUM_CALIBRATION_LINES_2480;
     int dtc = READ_CALIBRATION;
+    int bytes_per_bin = 1;
+
+    /* in 16 bit mode we get two bytes of cal data per bin */
+    if (pss->bpp_scan == 16)
+        bytes_per_bin = 2;
 
     /* calculate number of bins depending on mode and resolution
      * colour mode requires bins for each of rgb
@@ -1151,7 +1156,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
         return SANE_STATUS_NO_MEM;
     }
 
-    loop_inc = expected_read_bytes / num_bins;
+    loop_inc = expected_read_bytes / (num_bins * bytes_per_bin);
 
     /* do two passes, first pass does basic calibration, second does transparency adaptor if in use */
     for (pass = 0; pass < 2; pass++) {
@@ -1175,16 +1180,16 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
             pss->cmd[2] = dtc;
             pss->cmd[5] = cal_lines;
             if (cal_lines - i > loop_inc)
-                expected_read_bytes = loop_inc * num_bins;
+                expected_read_bytes = loop_inc * (num_bins * bytes_per_bin);
             else
-                expected_read_bytes = (cal_lines - i) * num_bins;
+                expected_read_bytes = (cal_lines - i) * (num_bins * bytes_per_bin);
 
             u_int_to_u_char3p (expected_read_bytes, pss->cmd + 6);
             read_bytes = expected_read_bytes;
 
             status = snapscan_cmd (pss->pdev->bus, pss->fd, pss->cmd,
                          READ_LEN, buf, &read_bytes);
-            
+
             if (status != SANE_STATUS_GOOD) {
                 DBG(DL_MAJOR_ERROR, "%s: %s command failed: %s\n", me, "read_cal_2480", sane_strstatus(status));
                 free (bins);
@@ -1199,18 +1204,26 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
                 return SANE_STATUS_IO_ERROR;
             }
 
-            /* add calibration results into bins (TODO 16 bit scans have 2 bytes per bucket) */
+            /* add calibration results into bins */
             pbuf = buf;
-            for (j = 0; j < (int)expected_read_bytes / num_bins; j++) {
-              for (k = 0; k < num_bins; k++)
+            for (j = 0; j < (int)expected_read_bytes / (num_bins * bytes_per_bin); j++) {
+              for (k = 0; k < num_bins; k++) {
                 bins[k] += *pbuf++;
+                /* add in second byte for 16bit mode */
+                if (bytes_per_bin == 2) {
+                  bins[k] += *pbuf++ * 256;
+		}
+              }
             }
         }
 
-        /* now make averages (TODO 16 bit scans needs divide by 64 too) */
-        for (k = 0; k < num_bins; k++)
+        /* now make averages */
+        for (k = 0; k < num_bins; k++) {
             bins[k] /= cal_lines;
-
+            /* also divide by 64 for 16bit mode */
+            if (bytes_per_bin == 2)
+              bins[k] /= 64;
+        }
         /* now fill up result buffer */
         r = g = b = 0;
 
@@ -1445,6 +1458,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.43  2005/10/20 21:23:53  oliver-guest
+ * Fixes for 16 bit quality calibration by Simon Munton
+ *
  * Revision 1.42  2005/10/13 22:43:30  oliver-guest
  * Fixes for 16 bit scan mode from Simon Munton
  *

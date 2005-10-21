@@ -153,7 +153,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.50-4"
+#define BACKEND_VERSION "0.50-5"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -2505,7 +2505,7 @@ sane_set_io_mode( SANE_Handle handle, SANE_Bool non_blocking )
 	}
 	
 	if( fcntl (s->r_pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0) {
-		DBG( _DBG_ERROR, "ERROR: can´t set to non-blocking mode !\n" );
+		DBG( _DBG_ERROR, "ERROR: could not set to non-blocking mode !\n" );
 		return SANE_STATUS_IO_ERROR;
 	}
 

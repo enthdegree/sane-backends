@@ -1,3 +1,10 @@
+2005-10-21  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Fixed high-speed feature of
+	  Canoscan D660U.
+
 2005-10-20  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c: Fixes for 16 bit 

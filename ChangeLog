@@ -1,5 +1,10 @@
 2005-10-22  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
+	* backend/mustek_pp_cis.c: Decreased the maximum number of pixels 
+          on a line for CIS scanners a bit to avoid border artifacts.
+
+2005-10-22  Eddy De Greef <eddy_de_greef at tiscali dot be>
+
 	* backend/mustek_pp_cis.c backend/mustek_pp_cis.h
           doc/sane-mustek_pp.man: Added an optional engine_delay parameter
           to work around potential engine instability problems for CIS models.

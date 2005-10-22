@@ -226,6 +226,8 @@ typedef struct Mustek_PP_CIS_dev
   SANE_Byte bw_limit; 
   /* Run in calibration mode ? (default: no) */
   SANE_Bool calib_mode;
+  /* Extra delay between engine commands (ms). Default: zero. */
+  SANE_Int engine_delay;
   
   /* temporary buffer for 1 line (of one color) */
   SANE_Byte *tmpbuf;

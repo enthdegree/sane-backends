@@ -65,13 +65,15 @@ Targa
    Funline TS6EP        600 CP     yes
 Trust  
    Easy Connect 9600+   600 CP     yes
+Cybercom 
+   9352                1200 CP     yes (***)
 .fi
 .ft R
 .RE
 
 .PP
 .HP 
-(*)   Calibration  problems existed with earlier version of
+(*)    Calibration  problems existed with earlier version of
 this driver. They seem to be solved now.
 .HP 
 (**)   Problems have been reported in the past for the
@@ -81,6 +83,9 @@ the current version of the driver still has these problems.
 .br
 .B  IF YOU HEAR LOUD CLICKING NOISES, IMMEDIATELY UNPLUG THE SCANNER !
 (This holds for any type of scanner).
+.HP 
+(***)  Possibly, the engine_delay parameter has to be set to 1 ms
+for accurate engine movements.
 .PP
 
 
@@ -275,6 +280,32 @@ no models for which these inaccuracy problems are known to occur.
 By default, fast skipping is used.
 .PP
 Example:  option slow_skip
+.HP
+.B engine_delay <value>
+Under normal circumstances, it is sufficient for the driver to wait for the
+scanner signaling that the engine is stable, before a new engine command can
+be transmitted. In rare cases, certain scanners and/or parallel port chipsets
+appear to prevent reliable detection of the engine state. As a result, engine
+commands are transmitted too soon and the movement of the scanner head becomes
+unreliable. Inaccuracies ranging up to 10 cm over the whole vertical scan
+range have been reported. To work around this problem, the engine_delay option
+can be set. If it is set, the driver waits an additional amount of time after
+every engine command, equal to the engine_delay parameter, expressed in
+milliseconds. It practice an engine_delay of 1 ms is usually sufficient. The
+maximum delay is 100 ms.
+.br
+Note that every additional ms of delay can add up to 14 seconds to the total
+scanning time (highest resolution), so an as small as possible value is
+prefered.
+.br
+Default value:   0
+.br
+Minimum:         0
+.br
+Maximum:       100
+.br
+.PP
+Example:  option engine_delay 1
 .PP
 .RE
 .TP

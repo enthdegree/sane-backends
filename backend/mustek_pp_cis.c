@@ -95,6 +95,9 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <math.h>
+#ifdef HAVE_SYS_SELECT_H
+# include <sys/select.h>
+#endif
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_pa4s2.h"
 #define DEBUG_DECLARE_ONLY
@@ -1089,8 +1092,19 @@ cis_config_ccd (Mustek_PP_CIS_dev * dev)
 static SANE_Bool
 cis_wait_motor_stable (Mustek_PP_CIS_dev * dev)
 {
-   return Mustek_PP_1015_wait_bit (dev, MA1015R_MOTOR, MA1015B_MOTOR_STABLE, 
-                                   SANE_FALSE, 0);
+   static struct timeval timeoutVal;
+   SANE_Bool ret = 
+      Mustek_PP_1015_wait_bit (dev, MA1015R_MOTOR, MA1015B_MOTOR_STABLE, 
+                               SANE_FALSE, 0);
+#ifdef HAVE_SYS_SELECT_H
+   if (dev->engine_delay > 0)
+   {
+      timeoutVal.tv_sec = 0;
+      timeoutVal.tv_usec = dev->engine_delay*1000;
+      select(0, NULL, NULL, NULL, &timeoutVal);
+   }
+#endif
+   return ret;
 }
 
 static void
@@ -1998,8 +2012,7 @@ cis_measure_delay(Mustek_PP_CIS_dev * dev)
 static void
 cis_motor_control (Mustek_PP_CIS_dev * dev, u_char control)
 {
-   Mustek_PP_1015_wait_bit(dev, MA1015R_MOTOR, MA1015B_MOTOR_STABLE, 
-                           SANE_FALSE, 0);
+   cis_wait_motor_stable (dev);
    Mustek_PP_1015_write_reg(dev, MA1015W_MOTOR_CONTROL, control);
 }
 
@@ -2126,7 +2139,7 @@ cis_calibrate (Mustek_PP_CIS_dev * dev)
       {
          Mustek_PP_1015_write_reg_val (dev, 0x7B);
       }
-      Mustek_PP_1015_wait_bit(dev, MA1015R_MOTOR, MA1015B_MOTOR_STABLE, SANE_FALSE, 0);
+      cis_wait_motor_stable (dev);
    }
    Mustek_PP_1015_write_reg_stop(dev);
    
@@ -2383,6 +2396,7 @@ void cis_drv_setup (SANE_Handle hndl)
    cisdev->fast_skip = SANE_TRUE;
    cisdev->bw_limit = 127;
    cisdev->calib_mode = SANE_FALSE;
+   cisdev->engine_delay = 0;
    if (cisdev->model == MUSTEK_PP_CIS600)
    {
       cisdev->top_skip = MUSTEK_PP_CIS_600CP_DEFAULT_SKIP;
@@ -2459,7 +2473,7 @@ SANE_Status cis_drv_config(SANE_Handle hndl, SANE_String_Const optname,
       value = atoi(optval);
       if (value < 0 || value > 255)
       {
-         DBG (1, "cis_drv_config: valu for option bw out of range: "
+         DBG (1, "cis_drv_config: value for option bw out of range: "
                  "%d < 0 or %d > 255\n", value, value);
          return SANE_STATUS_INVAL;
       }
@@ -2474,6 +2488,22 @@ SANE_Status cis_drv_config(SANE_Handle hndl, SANE_String_Const optname,
       }
       DBG (3, "cis_drv_config: using calibration mode\n");
       cisdev->calib_mode = SANE_TRUE;
+   }
+   else if (!strcmp(optname, "engine_delay"))
+   {
+      if (!optval)
+      {
+         DBG (1, "cis_drv_config: missing value for option engine_delay\n");
+         return SANE_STATUS_INVAL;
+      }
+      value = atoi(optval);
+      if (value < 0 || value > 100) /* 100 ms is already pretty slow */
+      {
+         DBG (1, "cis_drv_config: value for option engine_delay out of range: "
+                 "%d < 0 or %d > 100\n", value, value);
+         return SANE_STATUS_INVAL;
+      }
+      cisdev->engine_delay = value;
    }
    else
    {

@@ -1,3 +1,8 @@
+2005-10-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/hotplug/libsane.usermap: Added Epson Stylus DX3850 (from
+	  niels_kalle <niels_kalle@web.de>). 
+
 2005-10-22  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* backend/mustek_pp_cis.c: Decreased the maximum number of pixels 

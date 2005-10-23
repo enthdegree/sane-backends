@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               45
+#define BUILD               46
 
 #define BACKEND_NAME snapscan
 
@@ -894,6 +894,8 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             pss->sense_str = NULL;
             pss->as_str = NULL;
             pss->phys_buf_sz = DEFAULT_SCANNER_BUF_SZ;
+            if (pss->pdev->model == PERFECTION2480)
+                pss->phys_buf_sz *= 2;
             if (psd->bus == SCSI) {
                 pss->phys_buf_sz = sanei_scsi_max_request_size;
             }
@@ -1554,8 +1556,17 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
            the buffer size must be rounded to a 128-byte boundary. */
 
         DBG (DL_VERBOSE, "%s: have ring buffer\n", me);
-        pss->expected_read_bytes =
-            (pss->buf_sz%128)  ?  (pss->buf_sz/128 + 1)*128  :  pss->buf_sz;
+	if (pss->pdev->model == PERFECTION2480)
+	{
+	    /* Epson 2480: read a multiple of bytes per line, limit to less than 0xfff0 */
+	    if (pss->bytes_per_line > 0xfff0)
+        	pss->expected_read_bytes = 0xfff0;
+	    else
+                pss->expected_read_bytes = (0xfff0 / pss->bytes_per_line) * pss->bytes_per_line;
+	}
+	else
+            pss->expected_read_bytes =
+                (pss->buf_sz%128)  ?  (pss->buf_sz/128 + 1)*128  :  pss->buf_sz;
 
         status = scsi_read (pss, READ_TRANSTIME);
         CHECK_STATUS (status, me, "scsi_read");
@@ -1903,6 +1914,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.55  2005/10/23 21:28:58  oliver-guest
+ * Fix for buffer size in high res modes, fixes for delay code
+ *
  * Revision 1.54  2005/10/13 22:43:30  oliver-guest
  * Fixes for 16 bit scan mode from Simon Munton
  *

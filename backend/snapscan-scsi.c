@@ -364,6 +364,7 @@ static void check_range (int *v, SANE_Range r)
 
 #define INQUIRY_LEN 6
 #define INQUIRY_RET_LEN 120
+#define INQUIRY_RET_LEN_EPSON 139
 
 #define INQUIRY_VENDOR        8    /* Offset in reply data to vendor name */
 #define INQUIRY_PRODUCT        16    /* Offset in reply data to product id */
@@ -382,6 +383,7 @@ static void check_range (int *v, SANE_Range r)
 #define INQUIRY_G2R_DIFF    54    /* green to red difference (AGFA) */
 #define INQUIRY_B2R_DIFF    55    /* green to red difference (AGFA) */
 #define INQUIRY_FIRMWARE    96    /* firmware date and time (AGFA) */
+#define INQUIRY_BYTE_PER_LINE_MSB    132   /* ?? top byte of bytes per scan line - epson 2480 */
 
 
 /* a mini-inquiry reads only the first 36 bytes of inquiry data, and
@@ -415,7 +417,7 @@ static SANE_Status mini_inquiry (SnapScan_Bus bus, int fd, char *vendor, char *m
 }
 
 /* TODO: Remove */
-static char *snapscani_debug_data(char *str,const char *data, int len) {
+static char *snapscani_debug_data(char *str,const SANE_Byte *data, int len) {
     char tmpstr[10];
     int i;
 
@@ -440,7 +442,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     {
     case PERFECTION2480:
     case PERFECTION3490:
-        pss->read_bytes = (pss->firmware_loaded) ?  139 : INQUIRY_RET_LEN;
+        pss->read_bytes = INQUIRY_RET_LEN_EPSON;
         break;
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
@@ -520,6 +522,8 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         u_char_to_u_short (pss->buf + INQUIRY_PIX_PER_LINE);
     pss->bytes_per_line =
         u_char_to_u_short (pss->buf + INQUIRY_BYTE_PER_LINE);
+    if (pss->pdev->model == PERFECTION2480)
+        pss->bytes_per_line += pss->buf[INQUIRY_BYTE_PER_LINE_MSB] << 16;
     pss->lines =
         u_char_to_u_short (pss->buf + INQUIRY_NUM_LINES) - pss->chroma;
     /* effective buffer size must be a whole number of scan lines */
@@ -996,6 +1000,9 @@ static SANE_Status scsi_read (SnapScan_Scanner *pss, u_char read_type)
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = READ;
     pss->cmd[2] = read_type;
+    if (read_type == READ_TRANSTIME && pss->pdev->model == PERFECTION2480)
+        pss->cmd[5] = 1;
+
     u_int_to_u_char3p (pss->expected_read_bytes, pss->cmd + 6);
 
     pss->read_bytes = pss->expected_read_bytes;
@@ -1077,11 +1084,21 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
         case SANE_STATUS_DEVICE_BUSY:
             /* first additional sense byte contains time to wait */
             {
-                int delay = pss->asi1 + 1;
-                DBG (0,
-                    "Scanner warming up - waiting %ld seconds.\n",
-                    (long) delay);
-                sleep (delay);
+                int delay = pss->asi1;
+                if (delay > 0)
+                {
+                    DBG (0,
+                        "Scanner warming up - waiting %d seconds.\n",
+                        delay);
+                    sleep (delay);
+                }
+                else
+                {
+                    /* This seems to happen for Epson scanners. Return
+                       SANE_STATUS_GOOD and hope the scanner accepts the 
+                       next command... */
+                    return SANE_STATUS_GOOD;
+                }
             }
             break;
         case SANE_STATUS_IO_ERROR:
@@ -1458,6 +1475,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.44  2005/10/23 21:28:58  oliver-guest
+ * Fix for buffer size in high res modes, fixes for delay code
+ *
  * Revision 1.43  2005/10/20 21:23:53  oliver-guest
  * Fixes for 16 bit quality calibration by Simon Munton
  *

@@ -1,3 +1,9 @@
+2005-10-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c: Fixes for buffer
+	  size in high-res modes by Simon Munton, small changes to delay 
+	  code.
+
 2005-10-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Added Epson Stylus DX3850 (from

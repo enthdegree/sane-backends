@@ -1,3 +1,8 @@
+2005-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/umax1220u.desc: Marked backend as
+	  unmaintained. Used non-broken link.
+
 2005-10-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c: Fixes for buffer

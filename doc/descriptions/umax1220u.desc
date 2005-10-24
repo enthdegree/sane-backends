@@ -10,10 +10,10 @@
 ;
 
 :backend "umax1220u"              ; name of backend
-:version "1.0.1"                  ; version of backend
+:version "unmaintained"                  ; version of backend
 ;:status :stable                   ; :alpha, :beta, :stable, :new
 :manpage "sane-umax1220u"         ; name of manpage (if it exists)
-:url "http://umax1220u-sane.sourceforge.net" ; backend's web page
+:url "http://sourceforge.net/projects/umax1220u-sane" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

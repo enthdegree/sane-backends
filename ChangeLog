@@ -1,3 +1,9 @@
+2005-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h
+	  backend/snapscan-options.c: Fix transparency range for Epson 
+	  2480/2580, fix preview for Epson 2580.
+
 2005-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/umax1220u.desc: Marked backend as

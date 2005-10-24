@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 1997, 1998, 2001 Franck Schnefra, Michel Roelofs,
-   Emmanuel Blot, Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller,
+   Copyright (C) 1997-2005 Franck Schnefra, Michel Roelofs, Emmanuel Blot,
+   Mikko Tyolajarvi, David Mosberger-Tang, Wolfgang Goeller, Simon Munton,
    Petter Reinholdtsen, Gary Plewa, Sebastien Sable, Mikael Magnusson,
    Oliver Schwartz and Kevin Charter
 
@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               46
+#define BUILD               47
 
 #define BACKEND_NAME snapscan
 
@@ -894,7 +894,7 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             pss->sense_str = NULL;
             pss->as_str = NULL;
             pss->phys_buf_sz = DEFAULT_SCANNER_BUF_SZ;
-            if (pss->pdev->model == PERFECTION2480)
+            if ((pss->pdev->model == PERFECTION2480) || (pss->pdev->model == PERFECTION3490))
                 pss->phys_buf_sz *= 2;
             if (psd->bus == SCSI) {
                 pss->phys_buf_sz = sanei_scsi_max_request_size;
@@ -1556,7 +1556,7 @@ static SANE_Status measure_transfer_rate (SnapScan_Scanner *pss)
            the buffer size must be rounded to a 128-byte boundary. */
 
         DBG (DL_VERBOSE, "%s: have ring buffer\n", me);
-	if (pss->pdev->model == PERFECTION2480)
+	if ((pss->pdev->model == PERFECTION2480) || (pss->pdev->model == PERFECTION3490))
 	{
 	    /* Epson 2480: read a multiple of bytes per line, limit to less than 0xfff0 */
 	    if (pss->bytes_per_line > 0xfff0)
@@ -1914,6 +1914,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.56  2005/10/24 19:46:40  oliver-guest
+ * Preview and range fix for Epson 2480/2580
+ *
  * Revision 1.55  2005/10/23 21:28:58  oliver-guest
  * Fix for buffer size in high res modes, fixes for delay code
  *

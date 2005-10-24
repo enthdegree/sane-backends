@@ -162,6 +162,15 @@ static const SANE_Range x_range_tpo_2480 =
 };        /* mm */
 static const SANE_Range y_range_tpo_2480 =
 {
+    SANE_FIX (0.0), SANE_FIX (125.0), 0
+};        /* mm */
+/* TPO range for the Epson 2580 */
+static const SANE_Range x_range_tpo_2580 =
+{
+    SANE_FIX (0.0), SANE_FIX (55.0), 0
+};        /* mm */
+static const SANE_Range y_range_tpo_2580 =
+{
     SANE_FIX (0.0), SANE_FIX (80.0), 0
 };        /* mm */
 
@@ -265,8 +274,16 @@ static void init_options (SnapScan_Scanner * ps)
         y_range_tpo = y_range_tpo_1670;
         break;
     case PERFECTION2480:
-        x_range_tpo = x_range_tpo_2480;
-        y_range_tpo = y_range_tpo_2480;
+        if (ps->hconfig_epson & 0x20)
+        {
+           x_range_tpo = x_range_tpo_2580;
+           y_range_tpo = y_range_tpo_2580;
+        }
+        else
+        {
+           x_range_tpo = x_range_tpo_2480;
+           y_range_tpo = y_range_tpo_2480;
+        }
         break;
     case PERFECTION3490:
         x_range_tpo = x_range_tpo_3490;
@@ -1585,6 +1602,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.28  2005/10/24 19:46:40  oliver-guest
+ * Preview and range fix for Epson 2480/2580
+ *
  * Revision 1.27  2005/10/13 22:43:30  oliver-guest
  * Fixes for 16 bit scan mode from Simon Munton
  *

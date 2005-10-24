@@ -366,24 +366,25 @@ static void check_range (int *v, SANE_Range r)
 #define INQUIRY_RET_LEN 120
 #define INQUIRY_RET_LEN_EPSON 139
 
-#define INQUIRY_VENDOR        8    /* Offset in reply data to vendor name */
-#define INQUIRY_PRODUCT        16    /* Offset in reply data to product id */
-#define INQUIRY_REV            32    /* Offset in reply data to revision level */
-#define INQUIRY_PRL2        36    /* Product Revision Level 2 (AGFA) */
-#define INQUIRY_HCFG        37    /* Hardware Configuration (AGFA) */
-#define INQUIRY_HWST        40    /* Hardware status */
+#define INQUIRY_VENDOR         8    /* Offset in reply data to vendor name */
+#define INQUIRY_PRODUCT       16    /* Offset in reply data to product id */
+#define INQUIRY_REV           32    /* Offset in reply data to revision level */
+#define INQUIRY_PRL2          36    /* Product Revision Level 2 (AGFA) */
+#define INQUIRY_HCFG          37    /* Hardware Configuration (AGFA) */
+#define INQUIRY_HWST          40    /* Hardware status */
 #define INQUIRY_HWMI          41    /* HARDWARE Model ID */
-#define INQUIRY_PIX_PER_LINE    42    /* Pixels per scan line (AGFA) */
-#define INQUIRY_BYTE_PER_LINE    44    /* Bytes per scan line (AGFA) */
-#define INQUIRY_NUM_LINES    46    /* number of scan lines (AGFA) */
-#define INQUIRY_OPT_RES        48    /* optical resolution (AGFA) */
+#define INQUIRY_PIX_PER_LINE  42    /* Pixels per scan line (AGFA) */
+#define INQUIRY_BYTE_PER_LINE 44    /* Bytes per scan line (AGFA) */
+#define INQUIRY_NUM_LINES     46    /* number of scan lines (AGFA) */
+#define INQUIRY_OPT_RES       48    /* optical resolution (AGFA) */
 #define INQUIRY_SCAN_SPEED    51    /* scan speed (AGFA) */
-#define INQUIRY_EXPTIME1    52    /* exposure time, first digit (AGFA) */
-#define INQUIRY_EXPTIME2    53    /* exposure time, second digit (AGFA) */
-#define INQUIRY_G2R_DIFF    54    /* green to red difference (AGFA) */
-#define INQUIRY_B2R_DIFF    55    /* green to red difference (AGFA) */
-#define INQUIRY_FIRMWARE    96    /* firmware date and time (AGFA) */
+#define INQUIRY_EXPTIME1      52    /* exposure time, first digit (AGFA) */
+#define INQUIRY_EXPTIME2      53    /* exposure time, second digit (AGFA) */
+#define INQUIRY_G2R_DIFF      54    /* green to red difference (AGFA) */
+#define INQUIRY_B2R_DIFF      55    /* green to red difference (AGFA) */
+#define INQUIRY_FIRMWARE      96    /* firmware date and time (AGFA) */
 #define INQUIRY_BYTE_PER_LINE_MSB    132   /* ?? top byte of bytes per scan line - epson 2480 */
+#define INQUIRY_EPSON_HCFG   138    /* ?? Hardware configuration (Epson) */
 
 
 /* a mini-inquiry reads only the first 36 bytes of inquiry data, and
@@ -483,11 +484,10 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         break;
     case PERFECTION2480:
     case PERFECTION3490:
-        if (pss->firmware_loaded)
-        {
-            snapscani_debug_data(tmpstr, pss->buf+120, 19);
-            DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);        
-        }
+        snapscani_debug_data(tmpstr, pss->buf+120, 19);
+        DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);
+        pss->hconfig_epson = pss->buf[INQUIRY_EPSON_HCFG];
+        /* fall through */
     default:
     {
         signed char min_diff;
@@ -522,7 +522,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         u_char_to_u_short (pss->buf + INQUIRY_PIX_PER_LINE);
     pss->bytes_per_line =
         u_char_to_u_short (pss->buf + INQUIRY_BYTE_PER_LINE);
-    if (pss->pdev->model == PERFECTION2480)
+    if ((pss->pdev->model == PERFECTION2480) || (pss->pdev->model == PERFECTION3490))
         pss->bytes_per_line += pss->buf[INQUIRY_BYTE_PER_LINE_MSB] << 16;
     pss->lines =
         u_char_to_u_short (pss->buf + INQUIRY_NUM_LINES) - pss->chroma;
@@ -944,8 +944,8 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     if (!pss->highquality) {
         source |= 0x80; /* no high quality */
     }
-    if (pss->pdev->model == PERFECTION3490) {
-        source |= 0x40; /* 3490 always needs no_preview bit */
+    if ((pss->pdev->model == PERFECTION2480) || (pss->pdev->model == PERFECTION3490)) {
+        source |= 0x40; /* 2480/3490 always need no_preview bit */
     }
     if (pss->source == SRC_TPO) {
         source |= 0x08;
@@ -1097,6 +1097,7 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
                     /* This seems to happen for Epson scanners. Return
                        SANE_STATUS_GOOD and hope the scanner accepts the 
                        next command... */
+                    DBG (DL_CALL_TRACE, "%s: No timeout specified, returning immediately\n", me);
                     return SANE_STATUS_GOOD;
                 }
             }
@@ -1475,6 +1476,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.45  2005/10/24 19:46:40  oliver-guest
+ * Preview and range fix for Epson 2480/2580
+ *
  * Revision 1.44  2005/10/23 21:28:58  oliver-guest
  * Fix for buffer size in high res modes, fixes for delay code
  *

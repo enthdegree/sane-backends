@@ -363,6 +363,7 @@ struct snapscan_scanner
     size_t bytes_per_line;        /* bytes per scan line */
     size_t pixels_per_line;       /* pixels per scan line */
     u_char hconfig;               /* hardware configuration byte */
+    u_char hconfig_epson;         /* additional hw configuration for some Epson scanners */
     u_char hwst;                  /* hardware status byte */
     float ms_per_line;            /* speed: milliseconds per scan line */
     SANE_Bool nonblocking;        /* wait on reads for data? */
@@ -414,6 +415,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.37  2005/10/24 19:46:40  oliver-guest
+ * Preview and range fix for Epson 2480/2580
+ *
  * Revision 1.36  2005/09/28 21:33:11  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
  *

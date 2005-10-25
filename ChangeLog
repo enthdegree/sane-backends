@@ -1,3 +1,13 @@
+2005-10-25  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Tweaked LiDE25 settings.
+	* backend/plustek-usb.c: Let CIS devices use green-channel
+      for gray scans.
+	* backend/plustek-usbcal.c: Fixed segfault condition in fine
+      calibration for gray scanmodes.
+
 2005-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h

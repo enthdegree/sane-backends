@@ -3,6 +3,13 @@ Plustek.changes - Gerhard J�er <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.50-6 (2005-10-25)
+---------------------
+Fixed segfault in fine calibration for CIS devices.
+Tweaked LiDE25 settings (thanks to Gerd Cendelin for lending me
+his LiDE25).
+Let 1200DPI CIS devices use now the green-channel for gray scans.
+
 V 0.50-5 (2005-10-21)
 ---------------------
 Fixed high-speed feature of CanoScan D660U.

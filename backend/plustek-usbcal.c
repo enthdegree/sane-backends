@@ -44,6 +44,7 @@
  *         - added _TWEAK_GAIN to allow increasing GAIN during
  *           lamp coarse calibration
  *         - added also speedtest
+ *         - fixed segfault in fine calibration
  *
  * This file is part of the SANE package.
  *
@@ -191,7 +192,7 @@ cano_adjLampSetting( u_short *min, u_short *max, u_short *off, u_short val )
 	u_long newoff = *off;
 
 	/* perfect value, no need to adjust
-	 * val ¤ [53440..61440] is perfect
+	 * val  [53440..61440] is perfect
 	 */
 	if((val < (IDEAL_GainNormal)) && (val > (IDEAL_GainNormal-8000)))
 		return 0;
@@ -956,22 +957,23 @@ static SANE_Bool cano_AdjustDarkShading( Plustek_Device *dev )
 		}
 
 	} else {
+
 		step = m_ScanParam.Size.dwPhyPixels + 1;
-		
 		for( i=0; i<m_ScanParam.Size.dwPhyPixels; i++ ) {
 			
 			gray = 0;
 			bufp = ((u_short *)scanbuf)+i;
 
-			for( j=0; j<m_ScanParam.Size.dwPhyLines; j++) {
-				gray += *bufp;   bufp+=step;
+			for( j=0; j < m_ScanParam.Size.dwPhyLines; j++ ) {
+				gray += *bufp;
+				bufp += step;
 			}
 			a_wDarkShading[i]= gray/j + param->swOffset[0];
 		}
 			
-		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
+		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels,
 		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
-		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 4,
+		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
 		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
 	}
 
@@ -1107,7 +1109,8 @@ static SANE_Bool cano_AdjustWhiteShading( Plustek_Device *dev )
 			bufp = ((u_short *)scanbuf)+i;
 
 			for( j=0; j<m_ScanParam.Size.dwPhyLines; j++ ) {
-				gray += *bufp;   bufp+=step;
+				gray += *bufp;
+				bufp += step;
 			}
 
 			gray = (65535.*1000./(double)param->swGain[0]) * 16384.*j/gray;
@@ -1117,10 +1120,10 @@ static SANE_Bool cano_AdjustWhiteShading( Plustek_Device *dev )
 		if(usb_HostSwap())
 			usb_Swap(a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2 );
 
-		memcpy(a_wWhiteShading+ m_ScanParam.Size.dwPhyPixels * 2,
-		                    a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
-		memcpy(a_wWhiteShading+ m_ScanParam.Size.dwPhyPixels * 4,
-		                    a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
+		memcpy( a_wWhiteShading + m_ScanParam.Size.dwPhyPixels,
+		        a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
+		memcpy( a_wWhiteShading + m_ScanParam.Size.dwPhyPixels * 2,
+		        a_wWhiteShading, m_ScanParam.Size.dwPhyPixels * 2);
 	}
 
 	usb_line_statistics( "White", a_wWhiteShading, m_ScanParam.Size.dwPhyPixels,

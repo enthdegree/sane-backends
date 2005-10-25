@@ -57,6 +57,7 @@
  *          so the devices now will switch off the lamp for dark calibration
  *        - added Stephan Februarys' <stephanf@singnet.com.sg> LiDE25 changes
  *        - fixed high-speed feature of CanoScan D660U
+ *        - tweaked LiDE25, LiDE30 and N1220U settings
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -2067,7 +2068,7 @@ static HWDef Hw0x04A9_0x2207 =
 
 	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode                    */
-	{ 3,  0,     0, 23,  4950,  0,    0 },
+	{ 3,  0,     0, 23,  2200,  0,    0 },
 	{ 2, 23, 16383, 23, 15000, 23, 6600 },
 
 	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
@@ -2268,7 +2269,7 @@ static HWDef Hw0x04A9_0x220E =
 	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode                    */
 
-	{ 3,  0,     0, 23,  4000,  0,    0 },
+	{ 3,  0,     0, 23,  3000,  0,    0 },
 	{ 2, 23, 16383, 23,  6500, 23, 4900 },
 
 	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
@@ -2309,8 +2310,8 @@ static HWDef Hw0x04A9_0x220E =
 /** Canon LiDE25 */
 static HWDef Hw0x04A9_0x2220 =
 {
-	0.80,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.20,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.70,   /* dMaxMotorSpeed (Max_Speed)                     */
+	0.25,   /* dMaxMoveSpeed (Max_Speed)                      */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* wIntegrationTimeLowLamp                        */
 	100,    /* wIntegrationTimeHighLamp                       */
@@ -2337,8 +2338,8 @@ static HWDef Hw0x04A9_0x2220 =
 	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode                    */
 
-	{ 3,  0,    0,  50,  3000,  0,     0 },
-	{ 2, 50, 16383, 50, 16383, 50, 16383 },
+	{ 3,  0,    0, 50, 3700,  0,    0 },
+	{ 2, 50, 5600, 50, 7100, 50, 4600 },
 
 	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
 	0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2347,11 +2348,11 @@ static HWDef Hw0x04A9_0x2220 =
 	10559,  /* wLineEnd (reg 0x20 + 0x21)                     */
 
 	50,     /* red lamp on    (reg 0x2c + 0x2d)               */
-	16383,  /* red lamp off   (reg 0x2e + 0x2f)               */
+	5600,   /* red lamp off   (reg 0x2e + 0x2f)               */
 	50,     /* green lamp on  (reg 0x30 + 0x31)               */
-	16383,  /* green lamp off (reg 0x32 + 0x33)               */
+	7100,   /* green lamp off (reg 0x32 + 0x33)               */
 	50,     /* blue lamp on   (reg 0x34 + 0x35)               */
-	16383,  /* blue lamp off  (reg 0x36 + 0x37)               */
+	4600,   /* blue lamp off  (reg 0x36 + 0x37)               */
 
 	3,      /* stepper motor control (reg 0x45)               */
 	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -2585,7 +2586,7 @@ static ClkMotorDef Motors[] = {
 		{ 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
 		{ 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 6.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
-		{ 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
+		{ 8.5, 7.0, 5.0, 4.0, 2.5, 2.5, 2.5,  2.5,  2.5,  2.5 },
 		{ 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
 	},
 
@@ -2645,7 +2646,7 @@ static ClkMotorDef Motors[] = {
 		{ 6.5, 6.5, 6.5, 7.0, 8.0, 8.0, 8.0, 10.0, 10.0, 10.0 }
 	},
 
-	{ MODEL_CANON_LIDE25, 8, 51, 9,
+	{ MODEL_CANON_LIDE25, 8, 31, 3,
 	/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
@@ -2653,11 +2654,11 @@ static ClkMotorDef Motors[] = {
 		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
 		/* Color mode MCLK settings */
-		{ 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0 },
-		{ 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0 },
+		{ 3.0, 3.0, 3.0, 3.0, 3.5, 3.0, 3.0, 3.0, 3.0, 3.0 },
+		{ 3.0, 3.0, 3.0, 3.0, 3.5, 3.5, 5.0, 6.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
-		{ 7.0, 7.0, 6.0, 6.0, 6.0, 6.0, 6.0,  6.0,  6.0,  6.0 },
-		{ 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
+		{ 8.5, 7.0, 5.0, 4.0, 2.5, 2.5, 2.5,  2.5,  2.5,  2.5 },
+		{ 7.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
 	}
 };
 

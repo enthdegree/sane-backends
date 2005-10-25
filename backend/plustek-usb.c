@@ -42,6 +42,7 @@
  *        - added support for LiDE25 (pid 0x2220)
  * - 0.50 - minor fix for startup reset
  *          removed unnecessary calls to usbio_ResetLM983x()
+ *          1200DPI CIS devices don't use GrayFromColor any longer
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -878,7 +879,7 @@ static int usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 
 	if( si->ImgDef.wDataType == COLOR_256GRAY ) {
 
-		if( !(si->ImgDef.dwFlag & SCANDEF_Adf ) &&
+		if( !(si->ImgDef.dwFlag & SCANDEF_Adf) && !usb_IsCISDevice(dev) &&
 		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
 			dev->scanning.fGrayFromColor = 2;
 			si->ImgDef.wDataType = COLOR_TRUE24;

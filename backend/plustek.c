@@ -78,6 +78,7 @@
  * - 0.50 - cleanup
  *        - activated IPC stuff
  *        - added _DBG_DCALDATA for fine calibration data logging
+ *        - added OPT_SPEEDUP handling
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -153,7 +154,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.50-6"
+#define BACKEND_VERSION "0.50-7"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -875,6 +876,15 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_CACHECAL].type  = SANE_TYPE_BOOL;
 	s->val[OPT_CACHECAL].w     = adj->cacheCalData;
 
+	s->opt[OPT_SPEEDUP].name  = "speedup-switch";
+	s->opt[OPT_SPEEDUP].title = SANE_I18N("Speedup sensor");;
+	s->opt[OPT_SPEEDUP].desc  = SANE_I18N("Enables or disables speeding up sensor movement.");
+	s->opt[OPT_SPEEDUP].type  = SANE_TYPE_BOOL;
+	s->val[OPT_SPEEDUP].w     = !(adj->disableSpeedup);
+
+	if( s->hw->usbDev.HwSetting.dHighSpeed == 0.0 )
+		s->opt[OPT_SPEEDUP].cap |= SANE_CAP_INACTIVE;
+
 	s->opt[OPT_LAMPOFF_ONEND].name  = SANE_NAME_LAMP_OFF_AT_EXIT;
 	s->opt[OPT_LAMPOFF_ONEND].title = SANE_TITLE_LAMP_OFF_AT_EXIT;
 	s->opt[OPT_LAMPOFF_ONEND].desc  = SANE_DESC_LAMP_OFF_AT_EXIT;
@@ -992,13 +1002,13 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	for( i = OPT_BUTTON_0; i <= OPT_BUTTON_LAST; i++ ) {
 		s->opt[i].name  = "button";
 		s->opt[i].title = SANE_I18N("Scanner button");
-		s->opt[i].desc  = SANE_I18N("This options reflects the front pannel "
-		                            "scanner button pressed by the user.");
+		s->opt[i].desc  = SANE_I18N("This option reflects the status "
+		                            "of the scanner buttons.");
 		s->opt[i].type = SANE_TYPE_BOOL;
 		s->opt[i].cap  = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 		if (i - OPT_BUTTON_0 >= dev->usbDev.Caps.bButtons )
 			s->opt[i].cap |= SANE_CAP_INACTIVE;
-      
+
 		s->opt[i].unit = SANE_UNIT_NONE;
 		s->opt[i].size = sizeof (SANE_Word);
 		s->opt[i].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1708,6 +1718,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_CUSTOM_GAMMA:
 			case OPT_LAMPOFF_ONEND:
 			case OPT_CACHECAL:
+			case OPT_SPEEDUP:
 			case OPT_OVR_REDGAIN:
 			case OPT_OVR_GREENGAIN:
 			case OPT_OVR_BLUEGAIN:
@@ -1830,6 +1841,11 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				case OPT_CACHECAL:
 					s->val[option].w = *(SANE_Word *)value;
 					dev->adj.cacheCalData = s->val[option].w;
+					break;
+
+				case OPT_SPEEDUP:
+					s->val[option].w = *(SANE_Word *)value;
+					dev->adj.disableSpeedup = !(s->val[option].w);
 					break;
 
 				case OPT_LAMPSWITCH:

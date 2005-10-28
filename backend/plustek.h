@@ -56,6 +56,7 @@
  *        - added button stuff
  *        - added transferRate to struct Plustek_Device
  * - 0.50 - cleanup
+ *        - added OPT_SPEEDUP
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -221,6 +222,7 @@ enum {
 	OPT_LAMPOFF_ONEND,
 	OPT_WARMUPTIME,
 	OPT_CACHECAL,
+	OPT_SPEEDUP,
 	OPT_AFE_GROUP,
 	OPT_OVR_REDGAIN,
 	OPT_OVR_GREENGAIN,

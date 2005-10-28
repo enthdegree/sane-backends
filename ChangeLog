@@ -1,3 +1,12 @@
+2005-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* po/*.po: Updated po files, corrected/updated german translation.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c backend/plustek.h: Added OPTION_SPEEDUP.
+	* backend/plustek-usbdevs.c: Changed high-speed setting for 
+	  UMAX 3400, due to bugreport #302317.
+	  Fixed CanoScan N650U settings (bugreport #302433).
+
 2005-10-25  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

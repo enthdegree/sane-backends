@@ -1,7 +1,13 @@
-Plustek.changes - Gerhard J�er <gerhard@gjaeger.de>
+Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================
 
 Note: All other not mentioned builds have never been released.
+
+V 0.50-7 (2005-10-28)
+---------------------
+Changed high-speed setting for UMAX 3400, due to bugreport #302317.
+Added disable speeup feature (as option).
+Fixed CanoScan N650U settings (bugreport #302433).
 
 V 0.50-6 (2005-10-25)
 ---------------------

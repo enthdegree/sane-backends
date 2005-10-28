@@ -58,7 +58,9 @@
  *        - added Stephan Februarys' <stephanf@singnet.com.sg> LiDE25 changes
  *        - fixed high-speed feature of CanoScan D660U
  *        - tweaked LiDE25, LiDE30 and N1220U settings
- * .
+ *        - changed high-speed setting for UMAX 3400, due to bugreport #302317
+ *        - fixed CanoScan N650U settings
+ *
  * <hr>
  * This file is part of the SANE package.
  *
@@ -623,7 +625,7 @@ static DCapsDef Cap0x1606_0x0160 =
  */
 static DCapsDef Cap0x04A9_0x2206 =
 {
-	{{ 0, 90}, 35, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+	{{ 0, 90}, 45, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
@@ -1838,7 +1840,7 @@ static HWDef Hw0x1606_0x0060 =
 {
 	1.5,    /* dMaxMotorSpeed (Max_Speed)                */
 	0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
-	3.5,    /* dHighSpeed                                */
+	2.75,   /* dHighSpeed                                */
 	9,      /* dIntegrationTimeLowLamp                   */
 	9,      /* dIntegrationTimeHighLamp                  */
 	600,    /* wMotorDpi (Full step DPI)                 */
@@ -1969,7 +1971,7 @@ static HWDef Hw0x1606_0x0160 =
 	1.0
 };
 
-/** Canon 650/656 */
+/** Canon N650U/N656U */
 static HWDef Hw0x04A9_0x2206 =
 {
 	0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
@@ -2000,8 +2002,8 @@ static HWDef Hw0x04A9_0x2206 =
 	0x00,   /* bReg 0x27 color mode                           */
 	2,      /* bReg 0x29 illumination mode (runtime)          */
             /* illumination mode settings                     */
-	{ 3,  0,    0, 23, 1300,  0,   0 },
-	{ 2, 23, 4000, 23, 2600, 23, 850 },
+	{ 3,  0,    0, 23,  850,  0,   0 },
+	{ 2, 23, 2500, 23, 1800, 23, 950 },
 
 	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
 	0,      /* bOpticBlackStart (reg 0x1c)                    */
@@ -2010,11 +2012,11 @@ static HWDef Hw0x04A9_0x2206 =
 	6074,   /* wLineEnd (reg 0x20 + 0x21)                     */
 
 	23,     /* red lamp on    (reg 0x2c + 0x2d)               */
-	4000,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	2500,   /* red lamp off   (reg 0x2e + 0x2f)               */
 	23,     /* green lamp on  (reg 0x30 + 0x31)               */
-	2600,   /* green lamp off (reg 0x32 + 0x33)               */
+	1800,   /* green lamp off (reg 0x32 + 0x33)               */
 	23,     /* blue lamp on   (reg 0x34 + 0x35)               */
-	850,    /* blue lamp off  (reg 0x36 + 0x37)               */
+	950,    /* blue lamp off  (reg 0x36 + 0x37)               */
 
 	3,      /* stepper motor control (reg 0x45)               */
 	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
@@ -2559,7 +2561,7 @@ static ClkMotorDef Motors[] = {
 		{ 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
-	{ MODEL_CANON600, 8, 51, 6,
+	{ MODEL_CANON600, 8, 31, 6,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
@@ -2575,7 +2577,7 @@ static ClkMotorDef Motors[] = {
 		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
-	{ MODEL_CANON1200, 8, 51, 3,
+	{ MODEL_CANON1200, 8, 31, 3,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },

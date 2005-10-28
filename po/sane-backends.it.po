@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-07-22 10:58+0200\n"
+"POT-Creation-Date: 2005-10-28 07:45+0200\n"
 "PO-Revision-Date: 2005-07-22 11:03+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
-#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
+#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:79
 #: .tmp/umax.c:186 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
@@ -31,18 +31,18 @@ msgstr "Scala di grigi"
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:75 .tmp/teco1.h:293
+#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
 #: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Colore"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:651 .tmp/hp-option.c:2952
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:663 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
 #: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
-#: .tmp/niash.c:756 .tmp/plustek.c:791 .tmp/plustek_pp.c:792
-#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:514 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:549
+#: .tmp/niash.c:756 .tmp/plustek.c:798 .tmp/plustek_pp.c:792
+#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:553 .tmp/teco1.c:1143
+#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
 msgstr "Miglioramento"
@@ -57,13 +57,13 @@ msgstr "Predefiniti"
 msgid "Set default values for enhancement controls."
 msgstr "Imposta i valori predefiniti per i controlli del miglioramento"
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3961
-#: .tmp/gt68xx.c:682 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3973
+#: .tmp/gt68xx.c:694 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:745 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:447 .tmp/teco1.c:1095
+#: .tmp/mustek_usb.c:305 .tmp/plustek.c:752 .tmp/plustek_pp.c:746
+#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:486 .tmp/teco1.c:1095
 #: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
-#: .tmp/umax_pp.c:500
+#: .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometria"
@@ -176,7 +176,7 @@ msgstr "Binario"
 
 #: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
-#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:77 .tmp/test.c:122
+#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:78 .tmp/test.c:122
 #: .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
@@ -194,7 +194,7 @@ msgstr "Fronte e retro"
 
 #: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
 #: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:81 .tmp/umax.c:182
+#: .tmp/snapscan-options.c:82 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Piano fisso"
@@ -231,7 +231,7 @@ msgstr "Messa a fuoco 2,5mm sopra piano di vetro"
 
 #: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576 .tmp/epson.c:598
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
-#: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
+#: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:87
 #, no-c-format
 msgid "None"
 msgstr "Nessuno"
@@ -391,11 +391,11 @@ msgstr "A4"
 msgid "Max"
 msgstr "Massimo"
 
-#: .tmp/epson.c:2782 .tmp/genesys.c:3890 .tmp/gt68xx.c:451
+#: .tmp/epson.c:2782 .tmp/genesys.c:3902 .tmp/gt68xx.c:451
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:600 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
-#: .tmp/niash.c:736 .tmp/plustek.c:661 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:277 .tmp/teco2.c:1875
+#: .tmp/niash.c:736 .tmp/plustek.c:668 .tmp/plustek_pp.c:657
+#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:313 .tmp/teco2.c:1875
 #: .tmp/test.c:293 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
@@ -522,7 +522,7 @@ msgstr "Modula il rosso sulla base del livello del blu"
 msgid "Controls blue level"
 msgstr "Controlla del livello del blu"
 
-#: .tmp/epson.c:3166 .tmp/snapscan-options.c:737 .tmp/umax.c:5563
+#: .tmp/epson.c:3166 .tmp/snapscan-options.c:801 .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Avanzato"
@@ -657,27 +657,29 @@ msgstr ""
 "premuto il tasto dello scanner per fare partire il processo di acquisizione."
 
 #: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:82 .tmp/umax.c:183
+#: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Adattatore per trasparenza"
 
-#: .tmp/genesys.c:4012
+#: .tmp/genesys.c:4024
 #, no-c-format
 msgid "Extras"
 msgstr "Extra"
 
-#: .tmp/genesys.c:4021
+#: .tmp/genesys.c:4033
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Durata spegnimento lampada"
 
-#: .tmp/genesys.c:4024
+#: .tmp/genesys.c:4036
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr "La lampada verrà spenta allo scadere del tempo impostato (in minuti). Il valore 0 indica che la lampada non deve mai essere spenta."
+msgstr ""
+"La lampada verrà spenta allo scadere del tempo impostato (in minuti). Il "
+"valore 0 indica che la lampada non deve mai essere spenta."
 
 #: .tmp/gt68xx.c:470
 #, no-c-format
@@ -742,12 +744,12 @@ msgstr ""
 "parametrizzazione manuale analogica. Questa opzione è attiva in maniera "
 "predefinita. Da usare solo per effettuare test."
 
-#: .tmp/gt68xx.c:607
+#: .tmp/gt68xx.c:612
 #, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Calibrazione granulosa solo per la prima scansione"
 
-#: .tmp/gt68xx.c:609
+#: .tmp/gt68xx.c:614
 #, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
@@ -759,12 +761,12 @@ msgstr ""
 "tempo. Disabilitarla se la brillantezza è diversa per ciascuna delle "
 "immagini da acquisire. Da usare solo per effettuare test."
 
-#: .tmp/gt68xx.c:633
+#: .tmp/gt68xx.c:645
 #, no-c-format
 msgid "Backtrack lines"
 msgstr "Linee del backtrack"
 
-#: .tmp/gt68xx.c:635
+#: .tmp/gt68xx.c:647
 #, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
@@ -776,18 +778,18 @@ msgstr ""
 "durante la ricezione dei dati. Valori bassi permettono una scansione più "
 "veloce, ma aumentano il rischio di linee mancanti."
 
-#: .tmp/gt68xx.c:660
+#: .tmp/gt68xx.c:672
 #, no-c-format
 msgid "Gamma value"
 msgstr "Valore gamma"
 
-#: .tmp/gt68xx.c:662
+#: .tmp/gt68xx.c:674
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Imposta il valore gamma per tutti i canali."
 
 #: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
-#: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
+#: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:77
 #: .tmp/umax.c:187
 #, no-c-format
 msgid "Halftone"
@@ -866,7 +868,7 @@ msgid "Slow"
 msgstr "Lento"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:224 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:143 .tmp/plustek.c:231 .tmp/plustek_pp.c:200
 #, no-c-format
 msgid "Normal"
 msgstr "Normale"
@@ -916,7 +918,7 @@ msgstr "Diapositiva"
 msgid "Film-strip"
 msgstr "Pellicola"
 
-#: .tmp/hp-option.c:3234 .tmp/plustek.c:226 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3234 .tmp/plustek.c:233 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
 #, no-c-format
 msgid "Negative"
@@ -1398,12 +1400,12 @@ msgstr "Utilizza l'adattatore per diapositive"
 msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr "Questa opzione spegne la lampada del piano durante la scansione"
 
-#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:330
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:369
 #, no-c-format
 msgid "Quality scan"
 msgstr "Qualità di scansione"
 
-#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:331
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:370
 #, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "Massima qualità/Bassa velocità"
@@ -1828,166 +1830,177 @@ msgstr "Accendi o spegni la lampada"
 msgid "Calibrates for black and white level."
 msgstr "Calibrare i livelli del bianco e nero"
 
-#: .tmp/plustek.c:225 .tmp/plustek_pp.c:201
+#: .tmp/plustek.c:232 .tmp/plustek_pp.c:201
 #, no-c-format
 msgid "Transparency"
 msgstr "Trasparenze"
 
-#: .tmp/plustek.c:854
+#: .tmp/plustek.c:861
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Impostazioni-dispositivo"
 
-#: .tmp/plustek.c:861
+#: .tmp/plustek.c:868
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Pulsante lampada"
 
-#: .tmp/plustek.c:862
+#: .tmp/plustek.c:869
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Accensione manuale della/e lampada/e."
 
-#: .tmp/plustek.c:867
+#: .tmp/plustek.c:874
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Cache per la calibrazione"
 
-#: .tmp/plustek.c:868
+#: .tmp/plustek.c:875
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Abilita o disabilita la cache per la calibrazione."
 
-#: .tmp/plustek.c:879
+#: .tmp/plustek.c:880
+#, no-c-format
+msgid "Speedup sensor"
+msgstr ""
+
+#: .tmp/plustek.c:881
+#, no-c-format
+msgid "Enables or disables speeding up sensor movement."
+msgstr ""
+
+#: .tmp/plustek.c:895
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Durata del preriscaldamento"
 
-#: .tmp/plustek.c:880
+#: .tmp/plustek.c:896
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Durata in secondi del preriscaldamento della lampada."
 
-#: .tmp/plustek.c:887
+#: .tmp/plustek.c:903
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Durata spegnimento lampada"
 
-#: .tmp/plustek.c:888
+#: .tmp/plustek.c:904
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Durata in secondi dello spegnimento della lampada."
 
-#: .tmp/plustek.c:895
+#: .tmp/plustek.c:911
 #, no-c-format
 msgid "Analog frontend"
 msgstr "Frontend analogico"
 
-#: .tmp/plustek.c:901 .tmp/umax_pp.c:655
+#: .tmp/plustek.c:917 .tmp/umax_pp.c:656
 #, no-c-format
 msgid "Red gain"
 msgstr "Guadagno sul rosso"
 
-#: .tmp/plustek.c:902
+#: .tmp/plustek.c:918
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Valore del guadagno sul rosso per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:909 .tmp/umax_pp.c:712
+#: .tmp/plustek.c:925 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Scarto sul rosso"
 
-#: .tmp/plustek.c:910
+#: .tmp/plustek.c:926
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Valore dello scarto sul rosso per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:917 .tmp/umax_pp.c:667
+#: .tmp/plustek.c:933 .tmp/umax_pp.c:668
 #, no-c-format
 msgid "Green gain"
 msgstr "Guadagno sul verde"
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:934
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Valore del guadagno sul verde per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:925 .tmp/umax_pp.c:724
+#: .tmp/plustek.c:941 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Scarto sul verde"
 
-#: .tmp/plustek.c:926
+#: .tmp/plustek.c:942
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Valore dello scarto sul verde per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:933 .tmp/umax_pp.c:679
+#: .tmp/plustek.c:949 .tmp/umax_pp.c:680
 #, no-c-format
 msgid "Blue gain"
 msgstr "Guadagno sul blu"
 
-#: .tmp/plustek.c:934
+#: .tmp/plustek.c:950
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Valore del guadagno sul blu per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:941 .tmp/umax_pp.c:736
+#: .tmp/plustek.c:957 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Scarto sul blu"
 
-#: .tmp/plustek.c:942
+#: .tmp/plustek.c:958
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Valore dello scarto sul blu per AFE (Analog FrontEnd)"
 
-#: .tmp/plustek.c:949
+#: .tmp/plustek.c:965
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Lampada rossa spenta"
 
-#: .tmp/plustek.c:950
+#: .tmp/plustek.c:966
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Imposta il parametro spegnimento della lampada rossa"
 
-#: .tmp/plustek.c:957
+#: .tmp/plustek.c:973
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Lampada verde spenta"
 
-#: .tmp/plustek.c:958
+#: .tmp/plustek.c:974
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Imposta il parametro spegnimento lampada verde"
 
-#: .tmp/plustek.c:965
+#: .tmp/plustek.c:981
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Lampada blu spenta"
 
-#: .tmp/plustek.c:966
+#: .tmp/plustek.c:982
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Imposta il parametro spegnimento lampada blu"
 
-#: .tmp/plustek.c:980
+#: .tmp/plustek.c:996
 #, no-c-format
 msgid "Buttons"
 msgstr "Pulsanti"
 
-#: .tmp/plustek.c:988
+#: .tmp/plustek.c:1004
 #, no-c-format
 msgid "Scanner button"
 msgstr "Pulsanti dello scanner."
 
-#: .tmp/plustek.c:989
-#, no-c-format
-msgid ""
-"This options reflects the front pannel scanner button pressed by the user."
-msgstr "Queste opzioni riportano la pressione manuale dei pulsanti sul pannello anteriore dello scanner."
+#: .tmp/plustek.c:1005
+#, fuzzy, no-c-format
+msgid "This option reflects the status of the scanner buttons."
+msgstr ""
+"Queste opzioni riportano la pressione manuale dei pulsanti sul pannello "
+"anteriore dello scanner."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -2901,42 +2914,42 @@ msgstr "Spegnere la lampada in uscita dal programma"
 msgid "flatbed scanner"
 msgstr "scanner piano"
 
-#: .tmp/snapscan-options.c:83
+#: .tmp/snapscan-options.c:84
 #, no-c-format
 msgid "Document Feeder"
 msgstr "Alimentatore automatico dei fogli"
 
-#: .tmp/snapscan-options.c:87
+#: .tmp/snapscan-options.c:88
 #, no-c-format
 msgid "6x4 (inch)"
 msgstr "6x4 pollici (~15x10 cm)"
 
-#: .tmp/snapscan-options.c:88
+#: .tmp/snapscan-options.c:89
 #, no-c-format
 msgid "8x10 (inch)"
 msgstr "8x10 pollici (~20x25 cm)"
 
-#: .tmp/snapscan-options.c:89
+#: .tmp/snapscan-options.c:90
 #, no-c-format
 msgid "8.5x11 (inch)"
 msgstr "8.5x11 pollici (~21x28 cm)"
 
-#: .tmp/snapscan-options.c:92
+#: .tmp/snapscan-options.c:93
 #, no-c-format
 msgid "Halftoning Unsupported"
 msgstr "Mezzi-toni non supportati"
 
-#: .tmp/snapscan-options.c:93
+#: .tmp/snapscan-options.c:94
 #, no-c-format
 msgid "DispersedDot8x8"
 msgstr "DispersedDot8x8"
 
-#: .tmp/snapscan-options.c:94
+#: .tmp/snapscan-options.c:95
 #, no-c-format
 msgid "DispersedDot16x16"
 msgstr "DispersedDot16x16"
 
-#: .tmp/snapscan-options.c:98
+#: .tmp/snapscan-options.c:99
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
@@ -2951,12 +2964,12 @@ msgstr ""
 "scatti\" dello scanner, un valore troppo grande può bloccare le interfacce X-"
 "Window dal rispondere agli eventi X e bloccare il sistema."
 
-#: .tmp/snapscan-options.c:390
+#: .tmp/snapscan-options.c:429
 #, no-c-format
 msgid "Preview mode"
 msgstr "Anteprima"
 
-#: .tmp/snapscan-options.c:392
+#: .tmp/snapscan-options.c:431
 #, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -2965,24 +2978,24 @@ msgstr ""
 "Determina come eseguire l'anteprima: un'anteprima con scala di grigi "
 "fornisce solitamente il miglior rapporto velocità/qualità."
 
-#: .tmp/snapscan-options.c:498
+#: .tmp/snapscan-options.c:537
 #, no-c-format
 msgid "Predefined settings"
 msgstr "Valori predefiniti"
 
-#: .tmp/snapscan-options.c:500
+#: .tmp/snapscan-options.c:539
 #, no-c-format
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 "Fornisce le aree di scansione standard per fotografie, pagine stampate, etc."
 
-#: .tmp/snapscan-options.c:744
+#: .tmp/snapscan-options.c:808
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Numero di linee colore per ciclo di lettura"
 
-#: .tmp/snapscan-options.c:756
+#: .tmp/snapscan-options.c:820
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Numero di linee in scala di grigi per ciclo di lettura"
@@ -3612,7 +3625,7 @@ msgstr "Messa a fuoco sul piano di vetro"
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Messa a fuoco sul piano di vetro invece che 0,6mm sopra il piano"
 
-#: .tmp/umax.c:5793 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5793 .tmp/umax_pp.c:560
 #, no-c-format
 msgid "Lamp on"
 msgstr "Lampada accesa"
@@ -3632,87 +3645,87 @@ msgstr "Modalità di calibrazione"
 msgid "Define calibration mode"
 msgstr "Definire la modalità di calibrazione"
 
-#: .tmp/umax_pp.c:560
+#: .tmp/umax_pp.c:561
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Commuta lo stato della lampada"
 
-#: .tmp/umax_pp.c:569
+#: .tmp/umax_pp.c:570
 #, no-c-format
 msgid "UTA on"
 msgstr "Adattatore per trasparenze acceso"
 
-#: .tmp/umax_pp.c:570
+#: .tmp/umax_pp.c:571
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Accendere/spegnere l'adattatore per trasparenze"
 
-#: .tmp/umax_pp.c:635
+#: .tmp/umax_pp.c:636
 #, no-c-format
 msgid "Gain"
 msgstr "Guadagno"
 
-#: .tmp/umax_pp.c:636
+#: .tmp/umax_pp.c:637
 #, no-c-format
 msgid "Color channels gain settings"
 msgstr "Regolazione del guadagno sui canali di colore"
 
-#: .tmp/umax_pp.c:643
+#: .tmp/umax_pp.c:644
 #, no-c-format
 msgid "Gray gain"
 msgstr "Guadagno sul grigio"
 
-#: .tmp/umax_pp.c:644
+#: .tmp/umax_pp.c:645
 #, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Imposta il guadagno sul canale grigio"
 
-#: .tmp/umax_pp.c:656
+#: .tmp/umax_pp.c:657
 #, no-c-format
 msgid "Sets red channel gain"
 msgstr "Imposta il guadagno sul canale rosso"
 
-#: .tmp/umax_pp.c:668
+#: .tmp/umax_pp.c:669
 #, no-c-format
 msgid "Sets green channel gain"
 msgstr "Imposta il guadagno sul canale verde"
 
-#: .tmp/umax_pp.c:680
+#: .tmp/umax_pp.c:681
 #, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Imposta il guadagno sul canale blu"
 
-#: .tmp/umax_pp.c:691
+#: .tmp/umax_pp.c:692
 #, no-c-format
 msgid "Offset"
 msgstr "Scarto"
 
-#: .tmp/umax_pp.c:693
+#: .tmp/umax_pp.c:694
 #, no-c-format
 msgid "Color channels offset settings"
 msgstr "Impostazione dello scarto sui canali del colore"
 
-#: .tmp/umax_pp.c:700
+#: .tmp/umax_pp.c:701
 #, no-c-format
 msgid "Gray offset"
 msgstr "Scarto sul grigio"
 
-#: .tmp/umax_pp.c:701
+#: .tmp/umax_pp.c:702
 #, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Imposta lo scarto sul grigio"
 
-#: .tmp/umax_pp.c:713
+#: .tmp/umax_pp.c:714
 #, no-c-format
 msgid "Sets red channel offset"
 msgstr "Imposta lo scarto sul rosso"
 
-#: .tmp/umax_pp.c:725
+#: .tmp/umax_pp.c:726
 #, no-c-format
 msgid "Sets green channel offset"
 msgstr "Imposta lo scarto sul verde"
 
-#: .tmp/umax_pp.c:737
+#: .tmp/umax_pp.c:738
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Imposta lo scarto sul blu"

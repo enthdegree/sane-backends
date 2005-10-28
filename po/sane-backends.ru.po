@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-09-04 12:34+0400\n"
+"POT-Creation-Date: 2005-10-28 07:45+0200\n"
 "PO-Revision-Date: 2005-09-04 15:00+0400\n"
 "Last-Translator: \n"
 "Language-Team:  <ru@li.org>\n"
@@ -16,12 +16,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.10.1\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 # original text: "Lineart"
 #: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
-#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:78
+#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:79
 #: .tmp/umax.c:186 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
@@ -36,18 +37,18 @@ msgstr "Чёрно-белый"
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:75 .tmp/teco1.h:293
+#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
 #: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Цветной"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:651 .tmp/hp-option.c:2952
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:663 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
 #: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
-#: .tmp/niash.c:756 .tmp/plustek.c:791 .tmp/plustek_pp.c:792
-#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:514 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:549
+#: .tmp/niash.c:756 .tmp/plustek.c:798 .tmp/plustek_pp.c:792
+#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:553 .tmp/teco1.c:1143
+#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
 msgstr "Дополнительно"
@@ -63,12 +64,12 @@ msgid "Set default values for enhancement controls."
 msgstr "Установить значения по умолчанию для расширенного управления."
 
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3973
-#: .tmp/gt68xx.c:682 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/gt68xx.c:694 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:745 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:447 .tmp/teco1.c:1095
+#: .tmp/mustek_usb.c:305 .tmp/plustek.c:752 .tmp/plustek_pp.c:746
+#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:486 .tmp/teco1.c:1095
 #: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
-#: .tmp/umax_pp.c:500
+#: .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
 msgstr "Расположение"
@@ -132,7 +133,9 @@ msgstr "Двухстороннее сканирование"
 #: .tmp/avision.h:610
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
-msgstr "Двухстороннее сканирование позволяет получить изображение лицевой и обратной стороны документа"
+msgstr ""
+"Двухстороннее сканирование позволяет получить изображение лицевой и обратной "
+"стороны документа"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -181,7 +184,7 @@ msgstr "Одноцветный"
 
 #: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
-#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:77 .tmp/test.c:122
+#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:78 .tmp/test.c:122
 #: .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
@@ -199,7 +202,7 @@ msgstr "Двухсторонний"
 
 #: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
 #: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:81 .tmp/umax.c:182
+#: .tmp/snapscan-options.c:82 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Планшетный"
@@ -236,7 +239,7 @@ msgstr "Фокус 2.5мм над стеклом"
 
 #: .tmp/epson.c:556 .tmp/epson.c:564 .tmp/epson.c:576 .tmp/epson.c:598
 #: .tmp/leo.c:109 .tmp/matsushita.c:138 .tmp/matsushita.c:159
-#: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:86
+#: .tmp/matsushita.c:191 .tmp/matsushita.c:213 .tmp/snapscan-options.c:87
 #, no-c-format
 msgid "None"
 msgstr "Ничего"
@@ -401,8 +404,8 @@ msgstr "Макс"
 #: .tmp/epson.c:2782 .tmp/genesys.c:3902 .tmp/gt68xx.c:451
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:600 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
-#: .tmp/niash.c:736 .tmp/plustek.c:661 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:277 .tmp/teco2.c:1875
+#: .tmp/niash.c:736 .tmp/plustek.c:668 .tmp/plustek_pp.c:657
+#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:313 .tmp/teco2.c:1875
 #: .tmp/test.c:293 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
@@ -441,7 +444,8 @@ msgstr "Коррекция цветов"
 #: .tmp/epson.c:3003
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
-msgstr "Устанавливает таблицу коррекции цветов для выбранного выходного устройства."
+msgstr ""
+"Устанавливает таблицу коррекции цветов для выбранного выходного устройства."
 
 #: .tmp/epson.c:3044
 #, no-c-format
@@ -528,7 +532,7 @@ msgstr "Добавляет к красному, основанному на ур
 msgid "Controls blue level"
 msgstr "Управляет уровнем голубого"
 
-#: .tmp/epson.c:3166 .tmp/snapscan-options.c:737 .tmp/umax.c:5563
+#: .tmp/epson.c:3166 .tmp/snapscan-options.c:801 .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Дополнительно"
@@ -571,7 +575,8 @@ msgstr "Масштаб"
 #: .tmp/epson.c:3238
 #, no-c-format
 msgid "Defines the zoom factor the scanner will use"
-msgstr "Определяет коэффициент масштабирования, который будет использоваться сканером"
+msgstr ""
+"Определяет коэффициент масштабирования, который будет использоваться сканером"
 
 #: .tmp/epson.c:3318
 #, no-c-format
@@ -645,7 +650,8 @@ msgstr "Расположение фокуса"
 #: .tmp/epson.h:73
 #, no-c-format
 msgid "Sets the focus position to either the glass or 2.5mm above the glass"
-msgstr "Устанавливает расположение фокуса либо на стекле, либо на 2.5мм выше стекла"
+msgstr ""
+"Устанавливает расположение фокуса либо на стекле, либо на 2.5мм выше стекла"
 
 #: .tmp/epson.h:75
 #, no-c-format
@@ -664,7 +670,7 @@ msgstr ""
 
 # original text: "Transparency Adapter"
 #: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:82 .tmp/umax.c:183
+#: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Слайд-модуль"
@@ -684,7 +690,9 @@ msgstr "Время выключения лампы"
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr "Лампа будет выключена через указанное время (в минутах). Значение 0 означает, что лампа выключаться не будет."
+msgstr ""
+"Лампа будет выключена через указанное время (в минутах). Значение 0 "
+"означает, что лампа выключаться не будет."
 
 #: .tmp/gt68xx.c:470
 #, no-c-format
@@ -694,7 +702,9 @@ msgstr "Цвет полутонового режима"
 #: .tmp/gt68xx.c:472
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
-msgstr "Выбирает, какой цвет будет использоваться при сканировании в полутоновом режиме (по умолчанию - зелёный)."
+msgstr ""
+"Выбирает, какой цвет будет использоваться при сканировании в полутоновом "
+"режиме (по умолчанию - зелёный)."
 
 #: .tmp/gt68xx.c:553
 #, no-c-format
@@ -711,7 +721,9 @@ msgstr "Автоматический прогрев"
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
 "seconds warm-up time."
-msgstr "Разогревать пока яркость лампы не станет постоянной, вместо простого 60-тисекундного ожидания разогрева."
+msgstr ""
+"Разогревать пока яркость лампы не станет постоянной, вместо простого 60-"
+"тисекундного ожидания разогрева."
 
 #: .tmp/gt68xx.c:578
 #, no-c-format
@@ -745,12 +757,12 @@ msgstr ""
 "параметр выключен, будут предоставлены параметры для ручной аналоговой "
 "настройки. Параметр включен по умолчанию. Только для тестирования."
 
-#: .tmp/gt68xx.c:607
+#: .tmp/gt68xx.c:612
 #, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Грубая калибровка только для первого сканирования"
 
-#: .tmp/gt68xx.c:609
+#: .tmp/gt68xx.c:614
 #, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
@@ -762,32 +774,36 @@ msgstr ""
 "изображения отличается при каждом сканировании, выключите этот параметр. "
 "Только для тестирования."
 
-#: .tmp/gt68xx.c:633
+#: .tmp/gt68xx.c:645
 #, no-c-format
 msgid "Backtrack lines"
 msgstr "Линии отката"
 
-#: .tmp/gt68xx.c:635
+#: .tmp/gt68xx.c:647
 #, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
 "happens when the scanner scans faster than the computer can receive the "
 "data. Low values cause faster scans but increase the risk of omitting lines."
-msgstr "Количество линий, на которые считыватель возвращается обратно при необходимости. Это происходит когда сканер считывает изображение быстрее, чем компьютер может принимать данные. Низкое значение приводит к более быстрому сканированию, но увеличивает вероятность пропуска линий."
+msgstr ""
+"Количество линий, на которые считыватель возвращается обратно при "
+"необходимости. Это происходит когда сканер считывает изображение быстрее, "
+"чем компьютер может принимать данные. Низкое значение приводит к более "
+"быстрому сканированию, но увеличивает вероятность пропуска линий."
 
-#: .tmp/gt68xx.c:660
+#: .tmp/gt68xx.c:672
 #, no-c-format
 msgid "Gamma value"
 msgstr "Значение гаммы"
 
-#: .tmp/gt68xx.c:662
+#: .tmp/gt68xx.c:674
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Устанавливает значение гаммы всех каналов."
 
 # original text: "Halftone"
 #: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
-#: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:76
+#: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:77
 #: .tmp/umax.c:187
 #, no-c-format
 msgid "Halftone"
@@ -864,7 +880,7 @@ msgid "Slow"
 msgstr "Медленное"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:224 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:143 .tmp/plustek.c:231 .tmp/plustek_pp.c:200
 #, no-c-format
 msgid "Normal"
 msgstr "Нормальный"
@@ -914,7 +930,7 @@ msgstr "Слайд"
 msgid "Film-strip"
 msgstr "Диафильм"
 
-#: .tmp/hp-option.c:3234 .tmp/plustek.c:226 .tmp/plustek_pp.c:202
+#: .tmp/hp-option.c:3234 .tmp/plustek.c:233 .tmp/plustek_pp.c:202
 #: .tmp/saneopts.h:177
 #, no-c-format
 msgid "Negative"
@@ -1384,7 +1400,8 @@ msgstr "Калибровка производится движком"
 #: .tmp/microtek2.h:619
 #, no-c-format
 msgid "If checked the color calibration before a scan is done by the backend"
-msgstr "Если отмечено, калибровка цвета перед сканированием выполняется движком"
+msgstr ""
+"Если отмечено, калибровка цвета перед сканированием выполняется движком"
 
 #: .tmp/microtek2.h:623
 #, no-c-format
@@ -1394,14 +1411,15 @@ msgstr "Использовать 35мм адаптер lightlid"
 #: .tmp/microtek2.h:624
 #, no-c-format
 msgid "This option turns off the lamp of the flatbed during a scan"
-msgstr "Этот параметр выключает лампу планшетного сканера во время сканирования"
+msgstr ""
+"Этот параметр выключает лампу планшетного сканера во время сканирования"
 
-#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:330
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:369
 #, no-c-format
 msgid "Quality scan"
 msgstr "Качественное сканирование"
 
-#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:331
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:370
 #, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "Наивысшее качество, но медленная скорость"
@@ -1497,8 +1515,10 @@ msgstr "Канал"
 
 #: .tmp/microtek2.h:672
 #, no-c-format
-msgid "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr "Выбирает связь цветов, \"Основной\" означает, что будут подвержены все цвета."
+msgid ""
+"Selects the colour band, \"Master\" means that all colours are affected."
+msgstr ""
+"Выбирает связь цветов, \"Основной\" означает, что будут подвержены все цвета."
 
 #: .tmp/microtek2.h:676
 #, no-c-format
@@ -1508,7 +1528,9 @@ msgstr "Полутон"
 #: .tmp/microtek2.h:677
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
-msgstr "Определяет, какой уровень излучения должен быть рассмотрен как \"50 % серого\"."
+msgstr ""
+"Определяет, какой уровень излучения должен быть рассмотрен как \"50 % серого"
+"\"."
 
 #: .tmp/microtek2.h:681
 #, no-c-format
@@ -1518,7 +1540,9 @@ msgstr "Полутон для красного"
 #: .tmp/microtek2.h:682
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % red\"."
-msgstr "Определяет, какой уровень излучения должен быть рассмотрен как \"50 % красного\"."
+msgstr ""
+"Определяет, какой уровень излучения должен быть рассмотрен как \"50 % "
+"красного\"."
 
 #: .tmp/microtek2.h:686
 #, no-c-format
@@ -1528,7 +1552,9 @@ msgstr "Полутон для зелёного"
 #: .tmp/microtek2.h:687
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
-msgstr "Определяет, какой уровень излучения должен быть рассмотрен как \"50 % зелёного\"."
+msgstr ""
+"Определяет, какой уровень излучения должен быть рассмотрен как \"50 % "
+"зелёного\"."
 
 #: .tmp/microtek2.h:691
 #, no-c-format
@@ -1538,7 +1564,9 @@ msgstr "Полутон для синего"
 #: .tmp/microtek2.h:692
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % blue\"."
-msgstr "Определяет, какой уровень излучения должен быть рассмотрен как \"50 % синего\"."
+msgstr ""
+"Определяет, какой уровень излучения должен быть рассмотрен как \"50 % синего"
+"\"."
 
 #: .tmp/microtek2.h:696
 #, no-c-format
@@ -1548,7 +1576,8 @@ msgstr "Баланс красного"
 #: .tmp/microtek2.h:697
 #, no-c-format
 msgid "Balance factor for red. A value of 100% means no correction."
-msgstr "Коэффициент для красного цвета. Значение 100% означает отсутствие коррекции."
+msgstr ""
+"Коэффициент для красного цвета. Значение 100% означает отсутствие коррекции."
 
 #: .tmp/microtek2.h:701
 #, no-c-format
@@ -1558,7 +1587,8 @@ msgstr "Баланс зелёного"
 #: .tmp/microtek2.h:702
 #, no-c-format
 msgid "Balance factor for green. A value of 100% means no correction."
-msgstr "Коэффициент для зелёного цвета. Значение 100% означает отсутствие коррекции."
+msgstr ""
+"Коэффициент для зелёного цвета. Значение 100% означает отсутствие коррекции."
 
 #: .tmp/microtek2.h:706
 #, no-c-format
@@ -1568,7 +1598,8 @@ msgstr "Баланс синего"
 #: .tmp/microtek2.h:707
 #, no-c-format
 msgid "Balance factor for blue. A value of 100% means no correction."
-msgstr "Коэффициент для синего цвета. Значение 100% означает отсутствие коррекции."
+msgstr ""
+"Коэффициент для синего цвета. Значение 100% означает отсутствие коррекции."
 
 #: .tmp/microtek2.h:711
 #, no-c-format
@@ -1578,7 +1609,9 @@ msgstr "Баланс, установленный на заводе"
 #: .tmp/microtek2.h:712
 #, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
-msgstr "Устанавливает значения цветового баланса в исходные значения, установленные на заводе."
+msgstr ""
+"Устанавливает значения цветового баланса в исходные значения, установленные "
+"на заводе."
 
 # scan speed
 #: .tmp/mustek.c:143
@@ -1826,165 +1859,177 @@ msgstr "Включить/выключить лампу"
 msgid "Calibrates for black and white level."
 msgstr "Калибрует для черного и белого уровня"
 
-#: .tmp/plustek.c:225 .tmp/plustek_pp.c:201
+#: .tmp/plustek.c:232 .tmp/plustek_pp.c:201
 #, no-c-format
 msgid "Transparency"
 msgstr "Прозрачный"
 
-#: .tmp/plustek.c:854
+#: .tmp/plustek.c:861
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Настройки устройства"
 
-#: .tmp/plustek.c:861
+#: .tmp/plustek.c:868
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Выключатель лампы"
 
-#: .tmp/plustek.c:862
+#: .tmp/plustek.c:869
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Вручную управляет лампой."
 
-#: .tmp/plustek.c:867
+#: .tmp/plustek.c:874
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Кэширование калибровочных данных"
 
-#: .tmp/plustek.c:868
+#: .tmp/plustek.c:875
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Включает или выключает кэширование данных о калибровке."
 
-#: .tmp/plustek.c:879
+#: .tmp/plustek.c:880
+#, no-c-format
+msgid "Speedup sensor"
+msgstr ""
+
+#: .tmp/plustek.c:881
+#, no-c-format
+msgid "Enables or disables speeding up sensor movement."
+msgstr ""
+
+#: .tmp/plustek.c:895
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Время прогрева лампы"
 
-#: .tmp/plustek.c:880
+#: .tmp/plustek.c:896
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Время прогрева лампы в секундах."
 
-#: .tmp/plustek.c:887
+#: .tmp/plustek.c:903
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Время выключения лампы"
 
-#: .tmp/plustek.c:888
+#: .tmp/plustek.c:904
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Время выключения лампы в секундах."
 
-#: .tmp/plustek.c:895
+#: .tmp/plustek.c:911
 #, no-c-format
 msgid "Analog frontend"
 msgstr ""
 
-#: .tmp/plustek.c:901 .tmp/umax_pp.c:655
+#: .tmp/plustek.c:917 .tmp/umax_pp.c:656
 #, no-c-format
 msgid "Red gain"
 msgstr "Канал красного"
 
-#: .tmp/plustek.c:902
+#: .tmp/plustek.c:918
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:909 .tmp/umax_pp.c:712
+#: .tmp/plustek.c:925 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Смещение красного"
 
-#: .tmp/plustek.c:910
+#: .tmp/plustek.c:926
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:917 .tmp/umax_pp.c:667
+#: .tmp/plustek.c:933 .tmp/umax_pp.c:668
 #, no-c-format
 msgid "Green gain"
 msgstr "Канал зелёного"
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:934
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:925 .tmp/umax_pp.c:724
+#: .tmp/plustek.c:941 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Смещение зелёного"
 
-#: .tmp/plustek.c:926
+#: .tmp/plustek.c:942
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:933 .tmp/umax_pp.c:679
+#: .tmp/plustek.c:949 .tmp/umax_pp.c:680
 #, no-c-format
 msgid "Blue gain"
 msgstr "Канал синего"
 
-#: .tmp/plustek.c:934
+#: .tmp/plustek.c:950
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:941 .tmp/umax_pp.c:736
+#: .tmp/plustek.c:957 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Смещение синего"
 
-#: .tmp/plustek.c:942
+#: .tmp/plustek.c:958
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:949
+#: .tmp/plustek.c:965
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Выключение красной лампы"
 
-#: .tmp/plustek.c:950
+#: .tmp/plustek.c:966
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Определяет параметры выключения красной лампы"
 
-#: .tmp/plustek.c:957
+#: .tmp/plustek.c:973
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Выключение зелёной лампы"
 
-#: .tmp/plustek.c:958
+#: .tmp/plustek.c:974
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Определяет параметры выключения зелёной лампы"
 
-#: .tmp/plustek.c:965
+#: .tmp/plustek.c:981
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Выключение синей лампы"
 
-#: .tmp/plustek.c:966
+#: .tmp/plustek.c:982
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Определяет параметры выключения синей лампы"
 
-#: .tmp/plustek.c:980
+#: .tmp/plustek.c:996
 #, no-c-format
 msgid "Buttons"
 msgstr "Кнопки"
 
-#: .tmp/plustek.c:988
+#: .tmp/plustek.c:1004
 #, no-c-format
 msgid "Scanner button"
 msgstr "Кнопки сканера"
 
-#: .tmp/plustek.c:989
-#, no-c-format
-msgid "This options reflects the front pannel scanner button pressed by the user."
-msgstr "Этот параметр отражает кнопки на передней панели сканера, нажатые пользователем."
+#: .tmp/plustek.c:1005
+#, fuzzy, no-c-format
+msgid "This option reflects the status of the scanner buttons."
+msgstr ""
+"Этот параметр отражает кнопки на передней панели сканера, нажатые "
+"пользователем."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -2504,7 +2549,8 @@ msgstr "Выключить лампу при выходе"
 
 #: .tmp/saneopts.h:206
 #, no-c-format
-msgid "Read-only option that specifies how many options a specific devices supports."
+msgid ""
+"Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Параметр только для чтения, указывающий как много параметров указанное "
 "устройство поддерживает."
@@ -2538,7 +2584,8 @@ msgstr ""
 #: .tmp/saneopts.h:223
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
-msgstr "Выберите режим сканирования (например, штриховой, чёрно-белый или цветной)."
+msgstr ""
+"Выберите режим сканирования (например, штриховой, чёрно-белый или цветной)."
 
 #: .tmp/saneopts.h:226
 #, no-c-format
@@ -2735,7 +2782,8 @@ msgstr ""
 
 #: .tmp/saneopts.h:337
 #, no-c-format
-msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid ""
+"Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
 "Устанавливает полутоновый (dithering) шаблон, используемый при сканировании "
 "полутоновых изображений."
@@ -2743,7 +2791,8 @@ msgstr ""
 #: .tmp/saneopts.h:341
 #, no-c-format
 msgid "Use same values for X and Y resolution"
-msgstr "Использовать одинаковые значения для разрешений по горизонтали и вертикали."
+msgstr ""
+"Использовать одинаковые значения для разрешений по горизонтали и вертикали."
 
 #: .tmp/saneopts.h:343
 #, no-c-format
@@ -2866,49 +2915,49 @@ msgid "flatbed scanner"
 msgstr "планшетный сканер"
 
 # snapscan.c:166
-#: .tmp/snapscan-options.c:83
+#: .tmp/snapscan-options.c:84
 #, no-c-format
 msgid "Document Feeder"
 msgstr "Податчик листов"
 
 # snapscan.c:228
-#: .tmp/snapscan-options.c:87
+#: .tmp/snapscan-options.c:88
 #, no-c-format
 msgid "6x4 (inch)"
 msgstr "6x4 (дюймов)"
 
 # snapscan.c:229
-#: .tmp/snapscan-options.c:88
+#: .tmp/snapscan-options.c:89
 #, no-c-format
 msgid "8x10 (inch)"
 msgstr "8x10 (дюймов)"
 
 # snapscan.c:230
-#: .tmp/snapscan-options.c:89
+#: .tmp/snapscan-options.c:90
 #, no-c-format
 msgid "8.5x11 (inch)"
 msgstr "8.5x11 (дюймов)"
 
 # snapscan.c:233
-#: .tmp/snapscan-options.c:92
+#: .tmp/snapscan-options.c:93
 #, no-c-format
 msgid "Halftoning Unsupported"
 msgstr "Полутоновое сканирование не поддерживается"
 
 # snapscan.c:234
-#: .tmp/snapscan-options.c:93
+#: .tmp/snapscan-options.c:94
 #, no-c-format
 msgid "DispersedDot8x8"
 msgstr "Точка размытия 8x8"
 
 # snapscan.c:235
-#: .tmp/snapscan-options.c:94
+#: .tmp/snapscan-options.c:95
 #, no-c-format
 msgid "DispersedDot16x16"
 msgstr "Точка размытия 16x16"
 
 # snapscan.c:238
-#: .tmp/snapscan-options.c:98
+#: .tmp/snapscan-options.c:99
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
@@ -2926,13 +2975,13 @@ msgstr ""
 "на ваши команды до окончания сканирования."
 
 # snapscan.c:468
-#: .tmp/snapscan-options.c:390
+#: .tmp/snapscan-options.c:429
 #, no-c-format
 msgid "Preview mode"
 msgstr "Режим предварительного просмотра"
 
 # snapscan.c:469
-#: .tmp/snapscan-options.c:392
+#: .tmp/snapscan-options.c:431
 #, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -2942,27 +2991,28 @@ msgstr ""
 "просмотр обычно даёт лучшее сочетание скорости и детализации."
 
 # snapscan.c:565
-#: .tmp/snapscan-options.c:498
+#: .tmp/snapscan-options.c:537
 #, no-c-format
 msgid "Predefined settings"
 msgstr "Заранее настроенные параметры"
 
 # snapscan.c:566
-#: .tmp/snapscan-options.c:500
+#: .tmp/snapscan-options.c:539
 #, no-c-format
-msgid "Provides standard scanning areas for photographs, printed pages and the like."
+msgid ""
+"Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 "Предоставляют стандартные области сканирования для фотографий, распечатанных "
 "страниц и прочего."
 
 # snapscan.c:809
-#: .tmp/snapscan-options.c:744
+#: .tmp/snapscan-options.c:808
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Цветных строк за запрос на чтение"
 
 # snapscan.c:821
-#: .tmp/snapscan-options.c:756
+#: .tmp/snapscan-options.c:820
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Чёрно-белых строк за запрос на чтение"
@@ -3008,7 +3058,8 @@ msgstr "Вторая запись"
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
 "display it"
-msgstr "Это очень длинная третья запись. Может быть фронтенд сможет показать её."
+msgstr ""
+"Это очень длинная третья запись. Может быть фронтенд сможет показать её."
 
 #: .tmp/test.c:335
 #, no-c-format
@@ -3036,8 +3087,10 @@ msgstr "Имитация трёхпроходного режима"
 
 #: .tmp/test.c:354
 #, no-c-format
-msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
-msgstr "Имитация трёхпроходного сканера. В цветном режиме будет передано три кадра."
+msgid ""
+"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgstr ""
+"Имитация трёхпроходного сканера. В цветном режиме будет передано три кадра."
 
 #: .tmp/test.c:369
 #, no-c-format
@@ -3096,7 +3149,8 @@ msgstr "Предел чтения"
 #: .tmp/test.c:456
 #, fuzzy, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
-msgstr "Ограничить количество данных, передаваемых при каждом вызове sane_read()."
+msgstr ""
+"Ограничить количество данных, передаваемых при каждом вызове sane_read()."
 
 #: .tmp/test.c:469
 #, no-c-format
@@ -3106,7 +3160,8 @@ msgstr "Размер предела чтения"
 #: .tmp/test.c:470
 #, no-c-format
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
-msgstr "Максимальное количество данных, передаваемых при каждом вызове sane_read()."
+msgstr ""
+"Максимальное количество данных, передаваемых при каждом вызове sane_read()."
 
 #: .tmp/test.c:485
 #, no-c-format
@@ -3125,7 +3180,8 @@ msgstr "Длительность задержки при чтении"
 
 #: .tmp/test.c:499
 #, no-c-format
-msgid "How long to wait after transferring each buffer of data through the pipe."
+msgid ""
+"How long to wait after transferring each buffer of data through the pipe."
 msgstr "Как долго ожидать после передачи каждого буфера данных через канал."
 
 #: .tmp/test.c:514
@@ -3182,7 +3238,8 @@ msgstr ""
 
 #: .tmp/test.c:577
 #, fuzzy, no-c-format
-msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid ""
+"Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr "чтение."
 
 #: .tmp/test.c:590
@@ -3333,7 +3390,8 @@ msgstr "Внутр."
 
 #: .tmp/test.c:867
 #, fuzzy, no-c-format
-msgid "(4/6) Int test option with unit mm and using an array without constraints."
+msgid ""
+"(4/6) Int test option with unit mm and using an array without constraints."
 msgstr "Внутр. мм и."
 
 #: .tmp/test.c:882
@@ -3542,7 +3600,7 @@ msgstr "Держать позицию фокуса на 0мм"
 msgid "Use 0mm holder focus position instead of 0.6mm"
 msgstr "Использовать фокус 0мм вместо 0.6мм"
 
-#: .tmp/umax.c:5793 .tmp/umax_pp.c:559
+#: .tmp/umax.c:5793 .tmp/umax_pp.c:560
 #, no-c-format
 msgid "Lamp on"
 msgstr "Включить лампу"
@@ -3563,88 +3621,87 @@ msgstr "Режим калибровки"
 msgid "Define calibration mode"
 msgstr "Задать режим калибровки"
 
-#: .tmp/umax_pp.c:560
+#: .tmp/umax_pp.c:561
 #, no-c-format
 msgid "Sets lamp on/off"
 msgstr "Включить/выключить лампу"
 
-#: .tmp/umax_pp.c:569
+#: .tmp/umax_pp.c:570
 #, no-c-format
 msgid "UTA on"
 msgstr "включить UTA"
 
-#: .tmp/umax_pp.c:570
+#: .tmp/umax_pp.c:571
 #, no-c-format
 msgid "Sets UTA on/off"
 msgstr "Включить/выключить UTA"
 
-#: .tmp/umax_pp.c:635
+#: .tmp/umax_pp.c:636
 #, fuzzy, no-c-format
 msgid "Gain"
 msgstr "интенсивность"
 
-#: .tmp/umax_pp.c:636
+#: .tmp/umax_pp.c:637
 #, fuzzy, no-c-format
 msgid "Color channels gain settings"
 msgstr "Настройки подсветки каналов цветов"
 
-#: .tmp/umax_pp.c:643
+#: .tmp/umax_pp.c:644
 #, no-c-format
 msgid "Gray gain"
 msgstr "Интенсивность серого"
 
-#: .tmp/umax_pp.c:644
+#: .tmp/umax_pp.c:645
 #, fuzzy, no-c-format
 msgid "Sets gray channel gain"
 msgstr "Устанавливает подсветку серого канала"
 
-#: .tmp/umax_pp.c:656
+#: .tmp/umax_pp.c:657
 #, fuzzy, no-c-format
 msgid "Sets red channel gain"
 msgstr "Устанавливает яркость красного канала"
 
-#: .tmp/umax_pp.c:668
+#: .tmp/umax_pp.c:669
 #, fuzzy, no-c-format
 msgid "Sets green channel gain"
 msgstr "Устанавливает подсветку зелёного канала"
 
-#: .tmp/umax_pp.c:680
+#: .tmp/umax_pp.c:681
 #, fuzzy, no-c-format
 msgid "Sets blue channel gain"
 msgstr "Устанавливает подсветку синего канала"
 
-#: .tmp/umax_pp.c:691
+#: .tmp/umax_pp.c:692
 #, no-c-format
 msgid "Offset"
 msgstr "Смещение"
 
-#: .tmp/umax_pp.c:693
+#: .tmp/umax_pp.c:694
 #, fuzzy, no-c-format
 msgid "Color channels offset settings"
 msgstr "Настройки контрастности цветовых каналов"
 
-#: .tmp/umax_pp.c:700
+#: .tmp/umax_pp.c:701
 #, fuzzy, no-c-format
 msgid "Gray offset"
 msgstr "Контрастность серого"
 
-#: .tmp/umax_pp.c:701
+#: .tmp/umax_pp.c:702
 #, fuzzy, no-c-format
 msgid "Sets gray channel offset"
 msgstr "Устанавливает контрастность канала серого"
 
-#: .tmp/umax_pp.c:713
+#: .tmp/umax_pp.c:714
 #, fuzzy, no-c-format
 msgid "Sets red channel offset"
 msgstr "Устанавливает контрастность канала красного"
 
-#: .tmp/umax_pp.c:725
+#: .tmp/umax_pp.c:726
 #, fuzzy, no-c-format
 msgid "Sets green channel offset"
 msgstr "Устанавливает контрастность канала зелёного"
 
-#: .tmp/umax_pp.c:737
+#: .tmp/umax_pp.c:738
 #, fuzzy, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Устанавливает контрастность канала синего"
-

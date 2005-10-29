@@ -6,10 +6,6 @@ Building:
 Don't forget to use GNU make (gmake). E.g. "MAKE=gmake ./configure". 
 SANE should compile and install out-of-the-box.
 
-However, there are reports that the libraries installed in lib/sane have the
-version numbers (e.g.) .1.16 instead of .1 and .1.0.16. Changing the names
-manually seems to fix this problem.
-
 SCSI-scanners:
 --------------
 SANE only supports the generic /dev/uk? devices. /dev/ss? won't work. If your

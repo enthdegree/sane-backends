@@ -18,6 +18,7 @@
 	  misconfigurations. 
 	  The install target is much quiter now and prints the libtool
 	  message only once now.
+	* README.openbsd: Removed comment about broken library links.
 
 2005-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
 

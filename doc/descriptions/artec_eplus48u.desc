@@ -34,10 +34,16 @@
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
+
 :model "Easy Webscan 19200"
 :status :good
 :interface "USB"
 :comment "Different product id: 0x4006"
+
+:model "240H Easy Webscan Gold"
+:status :basic
+:interface "USB"
+:comment "Different product id: 0x4007, works up to 600 dpi"
 
 :mfg "Memorex"
 :url "http://www.artecusa.com/"

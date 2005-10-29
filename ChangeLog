@@ -1,3 +1,9 @@
+2005-10-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/artec_eplus48u.conf
+	  doc/descriptions/artec_eplus48u.desc: Added support for Trust
+	  240H Easy Webscan Gold to artec_eplus48u backend.
+
 2005-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* po/*.po: Updated po files, corrected/updated german translation.

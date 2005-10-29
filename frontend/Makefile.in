@@ -113,7 +113,7 @@ distclean: clean
 	rm -f Makefile $(PROGRAMS) $(TESTPROGRAMS)
 
 depend:
-	makedepend $(INCLUDES) *.c
+	makedepend $(INCLUDES) *.c 2>/dev/null
 
 dist: $(DISTFILES)
 	for file in $(DISTFILES); do \

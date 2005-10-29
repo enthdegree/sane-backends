@@ -155,6 +155,16 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
     DYNAMIC_FLAG=-module
   fi
   AC_SUBST(DYNAMIC_FLAG)
+
+  #check if links for dynamic libs should be created
+  case "${host_os}" in
+  darwin*) 
+    USE_LINKS=no
+    ;;
+  *)
+    USE_LINKS=yes
+  esac
+  AC_SUBST(USE_LINKS)
 ])
 
 #

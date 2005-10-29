@@ -59,12 +59,18 @@ AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
+AC_PATH_PROG(MAKEDEPEND, makedepend$EXEEXT, no)
 AC_SUBST(MSGFMT)
 AC_SUBST(XGETTEXT)
 AC_SUBST(MSGMERGE)
 AC_SUBST(LATEX)
 AC_SUBST(DVIPS)
 AC_SUBST(MAKEINDEX)
+if test "$MAKEDEPEND" != "no"; then
+  DEPEND_RECURSIVE="depend-recursive"
+fi
+AC_SUBST(DEPEND_RECURSIVE)
+
 dnl ***********************************************************************
 dnl set compiler/linker flags
 dnl ***********************************************************************

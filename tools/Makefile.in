@@ -111,7 +111,7 @@ sane-desc: sane-desc.o
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB)
 
 depend:
-	makedepend $(INCLUDES) *.c
+	makedepend $(INCLUDES) *.c 2>/dev/null
 
 clean:
 	rm -f *.lo *.o *.la

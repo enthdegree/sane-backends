@@ -3,6 +3,21 @@
 	* backend/artec_eplus48u.conf
 	  doc/descriptions/artec_eplus48u.desc: Added support for Trust
 	  240H Easy Webscan Gold to artec_eplus48u backend.
+	* Makefile.in acinclude.m4 configure configure.in
+	  backend/Makefile.in frontend/Makefile.in lib/Makefile.in
+	  sanei/Makefile.in tools/Makefile.in: 
+	  Run "makedepend" if it's available. This way "make" builds
+	  backends correctly even if only included files (e.g. headers) are
+	  changed. Don't be too verbose when running makedepend.
+	  Create links libsane-*.so.1 to the real library files if the
+	  links are not there. This fixes dynamic loading on OpenBSD. The
+	  links are not created for MacOS X as they don't work there.
+	  Remove any libsane.* links in /usr/local/lib/sane. Such links
+	  are created by libtool. As they point to libsane-v4l.so,
+	  scanimage -L doesn't find any scanner in case of ld.so
+	  misconfigurations. 
+	  The install target is much quiter now and prints the libtool
+	  message only once now.
 
 2005-10-28  Gerhard Jaeger <gerhard@gjaeger.de>
 

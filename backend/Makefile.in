@@ -52,6 +52,7 @@ LDFLAGS = @LDFLAGS@
 BACKENDLIBS = @LIBS@ @DL_LIB@
 DEFS = @DEFS@
 DYNAMIC_FLAG=@DYNAMIC_FLAG@
+USE_LINKS=@USE_LINKS@
 
 LIBTOOL = ../libtool
 MCOMP	= --mode=compile
@@ -195,31 +196,30 @@ install: $(INSTALL_LOCKPATH) install-be@BE_INSTALL_FLAVOR@ install-libsane insta
 
 install-be:
 	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir)
+	@# Install all backends in $(prefix)/lib/sane/
 	@list="$(LIBS)"; for be in $$list; do \
-	  echo installing $${be} in $(libsanedir)/$${be}...; \
+	  echo installing $${be} in $(DESTDIR)$(libsanedir)/$${be}...; \
 	  $(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) $${be} \
-              $(DESTDIR)$(libsanedir)/$${be} || exit 1; \
+              $(DESTDIR)$(libsanedir)/$${be} >/dev/null || exit 1; \
 	done
-	@$(LIBTOOL) $(MINST) --finish $(DESTDIR)$(libsanedir)
-#	@# Assume the dll name without any versions is last
-#	@dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
-#	list="$(ALL_BACKENDS)"; cd $(DESTDIR)$(libsanedir) && for be in $$list; do \
-#	  file=libsane-$${be}.$$dllend.$(V_MAJOR); \
-#	  lib=`grep dlname= libsane-$${be}.la | cut -f2 -d"'"`; \
-#	  if test ! -f $${file} -a -n "$${lib}"; then \
-#	    $(LN_S) $${lib} $${file}; \
-#	  fi; \
-#	done
-#	@# Assume the dll name without any versions is last
-#	@dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
-#	rm -f $(DESTDIR)$(libdir)/libsane.a $(DESTDIR)$(libdir)/libsane.$$dllend \
-#		$(DESTDIR)$(libdir)/libsane.$$dllend.$(V_MAJOR)*; \
-#	cd $(DESTDIR)$(libsanedir) && for n in libsane-dll.$$dllend.$(V_MAJOR)*; do \
-#	  nn=`echo $$n | sed 's,^libsane-dll,libsane,'`; \
-#	  (cd ..; if test -f sane/$$n ; then $(LN_S) sane/$$n $$nn; fi; ); \
-#	done || exit 1
+	@$(LIBTOOL) $(MINST) --finish $(DESTDIR)$(libsanedir) >/dev/null
+	@# Remove libsane.* links in lib/sane/ as these links to libsane-v4l.so
+	@# cause misdetection of scanners.
+	rm -f $(DESTDIR)$(libsanedir)/libsane.*
+	@# Create library links manually. Actually this is libtool's job but it doesn't
+	@# seem to work on some platforms. 
+	@# Assume the dll name without any versions is last
+	@if test "$(USE_LINKS)" = "yes" ; then  \
+	  dllend=`../tools/libtool-get-dll-ext libsane-dll.la`; \
+	  list="$(ALL_BACKENDS)"; cd $(DESTDIR)$(libsanedir) && for be in $$list; do \
+	    file=libsane-$${be}.$$dllend.$(V_MAJOR); \
+	    lib=`grep dlname= libsane-$${be}.la | cut -f2 -d"'"`; \
+	    if test ! -f $${file} -a -n "$${lib}"; then \
+	      $(LN_S) $${lib} $${file}; \
+	    fi; \
+	  done; \
+	fi
 
-# need to counter libtool madness here...
 install-be-beos:
 	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(BEOS_ADDONDIR)
 	@list="$(ALL_BACKENDS)"; for be in $$list; do \
@@ -228,8 +228,10 @@ install-be-beos:
 	done
 
 install-libsane:
-	$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la \
-          $(DESTDIR)$(libdir)/libsane.la
+	@echo installing libsane.la in $(DESTDIR)$(libdir)/libsane.la...
+	@$(LIBTOOL) $(MINST) $(INSTALL_PROGRAM) libsane.la \
+          $(DESTDIR)$(libdir)/libsane.la >/dev/null
+	@$(LIBTOOL) $(MINST) --finish $(DESTDIR)$(libdir)
 
 install-becfg:
 	@list="$(CONFIGS)"; for cfg in $$list; do \
@@ -513,8 +515,8 @@ endif
 
 
 depend:
-	makedepend $(INCLUDES) *.c
-	makedepend -a -o.lo $(INCLUDES) *.c
+	makedepend $(INCLUDES) *.c 2>/dev/null
+	makedepend -a -o.lo $(INCLUDES) *.c 2>/dev/null
 
 clean:
 	rm -f *.lo *.o *.la libsane.la dll-preload.c

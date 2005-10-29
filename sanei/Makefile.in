@@ -101,7 +101,7 @@ test_wire.o: test_wire.c
 	$(COMPILE) $<
 
 depend:
-	makedepend -I. -I../include *.c
+	makedepend -I. -I../include *.c 2>/dev/null
 
 clean:
 	rm -f *.o *.lo *.a $(OBJS) $(TESTPROGRAMS)

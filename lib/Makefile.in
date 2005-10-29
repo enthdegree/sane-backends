@@ -80,7 +80,7 @@ uninstall:
 check:
 
 depend:
-	makedepend -I. -I../include *.c
+	makedepend -I. -I../include *.c 2>/dev/null
 
 clean:
 	rm -f *.o *.lo *.a $(TESTPROGRAMS)

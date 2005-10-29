@@ -30,6 +30,7 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_DATA = @INSTALL_DATA@
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
+DEPEND_RECURSIVE = @DEPEND_RECURSIVE@
 
 @SET_MAKE@
 
@@ -53,7 +54,7 @@ DISTFILES = AUTHORS COPYING ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
   depend-recursive dist install install-recursive libcheck lsm \
   sane-backends sort-cvsignore uninstall uninstall-recursive
 
-all: all-recursive
+all: $(DEPEND_RECURSIVE) all-recursive
 
 $(PACKAGE)-$(VERSION).lsm: $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE).lsm
 	( cat $(PACKAGE).lsm | \

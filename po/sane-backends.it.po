@@ -4,10 +4,10 @@
 # Giuseppe Sacco, <eppesuig@debian.org>, 2004
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.14\n"
+"Project-Id-Version: sane-backends 1.0.16\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-10-28 07:45+0200\n"
-"PO-Revision-Date: 2005-07-22 11:03+0200\n"
+"PO-Revision-Date: 2005-10-30 11:38+0100\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -1863,12 +1863,12 @@ msgstr "Abilita o disabilita la cache per la calibrazione."
 #: .tmp/plustek.c:880
 #, no-c-format
 msgid "Speedup sensor"
-msgstr ""
+msgstr "Sensore di accelerazione"
 
 #: .tmp/plustek.c:881
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr ""
+msgstr "Abilita o disabilita il movimento del sensore di accelerazione."
 
 #: .tmp/plustek.c:895
 #, no-c-format
@@ -1996,11 +1996,9 @@ msgid "Scanner button"
 msgstr "Pulsanti dello scanner."
 
 #: .tmp/plustek.c:1005
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr ""
-"Queste opzioni riportano la pressione manuale dei pulsanti sul pannello "
-"anteriore dello scanner."
+msgstr "Queste opzioni riflettono lo stato dei pulsanti dello scanner."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format

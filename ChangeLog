@@ -1,3 +1,7 @@
+2005-10-30  Giuseppe Sacco <eppesuig@debian.org>
+
+	* po/*it.po: Updated italian translation
+
 2005-10-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/artec_eplus48u.conf

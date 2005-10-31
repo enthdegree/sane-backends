@@ -1140,8 +1140,8 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                some scanners like the Epson Perfection 2480/2580 
                at 2400 dpi. */
             if (status == SANE_STATUS_GOOD && 
-                pss->pdev->model == PERFECTION2480 &&
-                pss->res == 2400)
+                ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PRISA5000E && pss->res == 1200)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_BILEVELCOLOUR:
@@ -1149,13 +1149,13 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
             if (status == SANE_STATUS_GOOD)
                 status = create_RGBRouter (pss, *pps, pps);
             if (status == SANE_STATUS_GOOD && 
-                pss->pdev->model == PERFECTION2480 &&
-                pss->res == 2400)
+                ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PRISA5000E && pss->res == 1200)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_GREYSCALE:
-            if (pss->pdev->model == PERFECTION2480 &&
-                pss->res == 2400)
+            if ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PRISA5000E && pss->res == 1200))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_LINEART:
@@ -1177,6 +1177,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.15  2005/10/31 21:08:47  oliver-guest
+ * Distinguish between Benq 5000/5000E/5000U
+ *
  * Revision 1.14  2005/10/13 22:43:30  oliver-guest
  * Fixes for 16 bit scan mode from Simon Munton
  *

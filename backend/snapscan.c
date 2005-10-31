@@ -174,6 +174,7 @@ static inline int calibration_line_length(SnapScan_Scanner *pss)
 
     switch (pss->pdev->model)
     {
+    case PRISA5000E:
     case PRISA5000:
         pos_factor = 600;
         break;
@@ -1914,6 +1915,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.57  2005/10/31 21:08:47  oliver-guest
+ * Distinguish between Benq 5000/5000E/5000U
+ *
  * Revision 1.56  2005/10/24 19:46:40  oliver-guest
  * Preview and range fix for Epson 2480/2580
  *

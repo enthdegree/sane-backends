@@ -98,6 +98,7 @@ typedef enum
     PRISA4300,          /* Acer ScanPrisa 3300/4300 - 600 DPI */
     PRISA4300_2,        /* Acer ScanPrisa 3300/4300 - 600 DPI, 42 bit*/
     PRISA5000,          /* Acer ScanPrisa 5000 - 1200 DPI */
+    PRISA5000E,         /* Acer ScanPrisa 5000E/5000U - 1200 DPI */
     PRISA5300,          /* Acer ScanPrisa 5300 - 1200 DPI */
     PERFECTION660,      /* Epson Perfection 660 - 1200 DPI */
     PERFECTION1270,     /* Epson Perfection 1270 - 1600 DPI */
@@ -133,8 +134,9 @@ static struct SnapScan_Driver_desc drivers[] =
     {PRISA4300,      "Acer4300"},
     {PRISA4300_2,    "Acer4300 (42 bit)"},
     {PRISA1240,      "Acer1240"},
-    {PRISA5000,      "Acer5000"},
-    {PRISA5300,      "Acer5300"},
+    {PRISA5000E,     "Benq 5000E/5000U"},
+    {PRISA5000,      "Benq 5000"},
+    {PRISA5300,      "Benq 5300"},
     {ARCUS1200,      "Arcus1200"},
     {PERFECTION660,  "Perfection 660"},
     {PERFECTION1270, "Perfection 1270"},
@@ -169,9 +171,9 @@ static struct SnapScan_Model_desc scanners[] =
     {"FlatbedScanner22",    PRISA4300_2},
     {"FlatbedScanner23",    PRISA4300_2},
     {"FlatbedScanner24",    PRISA5300},
-    {"FlatbedScanner25",    PRISA5000},
+    {"FlatbedScanner25",    PRISA5000E},/* 5000E/5000U */
     {"FlatbedScanner40",    PRISA5000}, /* 5250C */
-    {"FlatbedScanner42",    PRISA5000}, /* 5000S */
+    {"FlatbedScanner42",    PRISA5000}, /* 5000 */
     {"SNAPSCAN 1212U",      SNAPSCAN1212U},
     {"SNAPSCAN 1212U_2",    SNAPSCAN1212U},
     {"SNAPSCAN e10",        SNAPSCANE20},
@@ -415,6 +417,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.38  2005/10/31 21:08:47  oliver-guest
+ * Distinguish between Benq 5000/5000E/5000U
+ *
  * Revision 1.37  2005/10/24 19:46:40  oliver-guest
  * Preview and range fix for Epson 2480/2580
  *

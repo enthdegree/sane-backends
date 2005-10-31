@@ -817,6 +817,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     switch (pss->pdev->model)
     {
         case PRISA5000:
+        case PRISA5000E:
             pos_factor = (pss->res > 600) ?  1200 : 600;
             break;
         case PERFECTION1270:
@@ -1412,6 +1413,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             case PRISA4300:
             case PRISA4300_2:
             case PRISA5000:
+            case PRISA5000E:
             case PRISA5300:
                 /* ACER firmware files do not contain an info block */
                 fseek(fd, 0, SEEK_END);
@@ -1476,6 +1478,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.46  2005/10/31 21:08:47  oliver-guest
+ * Distinguish between Benq 5000/5000E/5000U
+ *
  * Revision 1.45  2005/10/24 19:46:40  oliver-guest
  * Preview and range fix for Epson 2480/2580
  *

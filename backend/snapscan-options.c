@@ -237,6 +237,8 @@ static void init_options (SnapScan_Scanner * ps)
         {8, 50, 75, 100, 150, 200, 300, 450, 600};
     static SANE_Word resolutions_1200[] =
         {10, 50, 75, 100, 150, 200, 300, 450, 600, 900, 1200};
+    static SANE_Word resolutions_1200_5000e[] =
+        {9, 50, 75, 100, 150, 200, 300, 450, 600, 1200};
     static SANE_Word resolutions_1600[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 800, 1600};
     static SANE_Word resolutions_2400[] =
@@ -335,9 +337,12 @@ static void init_options (SnapScan_Scanner * ps)
     case SNAPSCANE52:
     case PRISA5300:
     case PRISA1240:
-    case PRISA5000:
     case ARCUS1200:
         po[OPT_SCANRES].constraint.word_list = resolutions_1200;
+        break;
+    case PRISA5000E:
+    case PRISA5000:
+        po[OPT_SCANRES].constraint.word_list = resolutions_1200_5000e;
         break;
     case PERFECTION1670:
         po[OPT_SCANRES].constraint.word_list = resolutions_1600;
@@ -1602,6 +1607,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.29  2005/10/31 21:08:47  oliver-guest
+ * Distinguish between Benq 5000/5000E/5000U
+ *
  * Revision 1.28  2005/10/24 19:46:40  oliver-guest
  * Preview and range fix for Epson 2480/2580
  *

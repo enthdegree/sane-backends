@@ -14,7 +14,7 @@
 :version "1.4"                    	; version of backend
 :manpage "sane-snapscan"          	; name of manpage (if it exists)
 :url "http://snapscan.sourceforge.net/" ; backend's web page
-:comment "Supported  bit depths: 24 bit (color), 8 bit (gray)"
+:comment "Supported  bit depths: 24 bit (color), 48 bit (color, Epson) 8 bit (gray)"
 
 :devicetype :scanner              	; start of a list of devices....
                                   	; other types:  :stillcam, :vidcam,
@@ -175,10 +175,20 @@
 :interface "USB"
 :status :good
 
-:model "5000"
+:model "5000E"
 :interface "USB"
 :status :basic
-:comment "Working up to 600 DPI"
+:comment "USB ID 0x04a5,0x20fc: Same as 5000U, working up to 600 DPI"
+
+:model "5000U"
+:interface "USB"
+:status :basic
+:comment "USB ID 0x04a5,0x20fc: Same as 5000E, working up to 600 DPI"
+
+:model "5000"
+:interface "USB"
+:status :untested
+:comment "USB ID 0x04a5,0x20f8: Status unknown, please contact oliverschwartz@users.sf.net"
 
 :model "5300"
 :interface "USB"

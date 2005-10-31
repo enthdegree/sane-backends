@@ -1,3 +1,12 @@
+2005-10-24  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan.h
+	  backend/snapscan-options.c doc/descriptions/snapscan.desc:
+	  Distinguish between 5000/5000E/5000U
+	* backend/snapscan-sources.c: Enable deinterlacer for 5000E/5000U
+	  for 1200 DPI
+	* backend/snapscan.conf: Fix names for 5000/5000E/5000U
+
 2005-10-30  Giuseppe Sacco <eppesuig@debian.org>
 
 	* po/*it.po: Updated italian translation

@@ -3,6 +3,7 @@
 	* sanei/sanei_usb.c: Added support for detecting vendor and
 	  product id with FreeBSD kernel scanner driver (based on patch in
 	  FreeBSD ports).
+	* README.freebsd: Updated information about USB scanners.
 
 2005-10-31  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

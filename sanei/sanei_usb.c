@@ -87,6 +87,10 @@ struct usb_descriptor_header *GetNextDescriptor( struct usb_descriptor_header *c
 }
 #endif /* HAVE_USBCALLS */
 
+#if defined (__FreeBSD__)
+#include <dev/usb/usb.h>
+#endif /* __FreeBSD__ */
+
 #define BACKEND_NAME	sanei_usb
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_debug.h"
@@ -216,7 +220,7 @@ print_buffer (const SANE_Byte * buffer, SANE_Int size)
 }
 
 static void
-kernel_get_vendor_product (int fd, int *vendorID, int *productID)
+kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *productID)
 {
 #if defined (__linux__)
   /* read the vendor and product IDs via the IOCTLs */
@@ -224,13 +228,13 @@ kernel_get_vendor_product (int fd, int *vendorID, int *productID)
     {
       if (ioctl (fd, SCANNER_IOCTL_VENDOR_OLD, vendorID) == -1)
 	DBG (3, "kernel_get_vendor_product: ioctl (vendor) "
-	     "of device %d failed: %s\n", fd, strerror (errno));
+	     "of device %s failed: %s\n", name, strerror (errno));
     }
   if (ioctl (fd, SCANNER_IOCTL_PRODUCT, productID) == -1)
     {
       if (ioctl (fd, SCANNER_IOCTL_PRODUCT_OLD, productID) == -1)
 	DBG (3, "sanei_usb_get_vendor_product: ioctl (product) "
-	     "of device %d failed: %s\n", fd, strerror (errno));
+	     "of device %s failed: %s\n", name, strerror (errno));
     }
 #elif defined(__BEOS__)
   {
@@ -245,7 +249,47 @@ kernel_get_vendor_product (int fd, int *vendorID, int *productID)
     *vendorID = vendor;
     *productID = product;
   }
-#endif /* defined (__linux__), defined(__BEOS__) */
+#elif defined (__FreeBSD__)
+  {
+    int controller;
+    int ctrl_fd;
+    char buf[40];
+    int dev;
+    
+    for (controller = 0; ; controller++ )
+      {
+	snprintf (buf, sizeof (buf) - 1, "/dev/usb%d", controller);
+	ctrl_fd = open (buf, O_RDWR);
+	
+	/* If we can not open the usb controller device, treat it
+	   as the end of controller devices */
+	if (ctrl_fd < 0)
+	  break;
+	
+	/* Search for the scanner device on this bus */
+	for (dev = 1; dev < USB_MAX_DEVICES; dev++)
+	  {  
+	    struct usb_device_info devInfo;
+	    devInfo.udi_addr = dev;
+	    
+	    if (ioctl (ctrl_fd, USB_DEVICEINFO, &devInfo) == -1)
+	      break; /* Treat this as the end of devices for this controller */
+	    
+	    snprintf (buf, sizeof (buf), "/dev/%s", devInfo.udi_devnames[0]);
+	    if (strncmp (buf, name, sizeof (buf)) == 0)
+	      {
+		*vendorID = (int) devInfo.udi_vendorNo;
+		*productID = (int) devInfo.udi_productNo;
+		close (ctrl_fd);
+		return;
+	      }
+	  }
+	close (ctrl_fd);
+      }
+    DBG (3, "kernel_get_vendor_product: Could not retrieve "
+	 "vendor/product ID from device %s\n", name);
+  }
+#endif /* defined (__linux__), defined(__BEOS__), ... */
   /* put more os-dependant stuff ... */
 }
 
@@ -341,7 +385,7 @@ sanei_usb_init (void)
 		}
 	      vendor = -1;
 	      product = -1;
-	      kernel_get_vendor_product (fd, &vendor, &product);
+	      kernel_get_vendor_product (fd, devname, &vendor, &product);
 	      close (fd);
 	      devices[dn].devname = strdup (devname);
 	      if (!devices[dn].devname)
@@ -598,7 +642,7 @@ sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
     }
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)
-    kernel_get_vendor_product (devices[dn].fd, &vendorID, &productID);
+    kernel_get_vendor_product (devices[dn].fd, devices[dn].devname, &vendorID, &productID);
   else if (devices[dn].method == sanei_usb_method_libusb)
     {
 #ifdef HAVE_LIBUSB

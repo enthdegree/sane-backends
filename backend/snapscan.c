@@ -954,6 +954,9 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         }
         DBG (DL_MINOR_INFO, "%s: self test passed.\n", me);
 
+        /* option initialization depends on getting the hardware configuration
+           byte */
+        status = inquiry (pss);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
@@ -1913,6 +1916,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.59  2005/11/02 22:12:54  oliver-guest
+ * Correct cut'n'paste error
+ *
  * Revision 1.58  2005/11/02 19:22:06  oliver-guest
  * Fixes for Benq 5000
  *

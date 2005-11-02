@@ -300,7 +300,8 @@ static SANE_Status usb_read(SANE_Int fd, void *buf, size_t n) {
     return status;
 }
 
-static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_status)
+static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_status,
+                                   char command)
 {
     static const char me[] = "usb_read_status";
     unsigned char status_buf[8];
@@ -322,7 +323,13 @@ static SANE_Status usb_read_status(int fd, int *scsistatus, int *transaction_sta
         return SANE_STATUS_GOOD;
     case CHECK_CONDITION:
         if (usb_pss != NULL) {
-            return usb_request_sense(usb_pss);
+            if (command != REQUEST_SENSE) {
+                return usb_request_sense(usb_pss);
+            }
+            else {
+                /* Avoid recursive calls of usb_request_sense */
+                return SANE_STATUS_GOOD;
+            }
         } else {
             DBG (DL_MAJOR_ERROR, "%s: scanner structure not set, returning default error\n",
                 me);
@@ -343,6 +350,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   static const char me[] = "usb_cmd";
   int status,tstatus;
   int cmdlen,datalen;
+  char command;
 
   DBG (DL_CALL_TRACE, "%s(%d,0x%lx,%lu,0x%lx,0x%lx (%lu))\n", me,
        fd, (u_long) src,(u_long) src_size,(u_long) dst, (u_long) dst_size,(u_long) (dst_size ? *dst_size : 0));
@@ -350,7 +358,8 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   /* Since the  "Send Diagnostic" command isn't supported by
      all Snapscan USB-scanners it's disabled .
   */
-  if(((const char *)src)[0] == SEND_DIAGNOSTIC)
+  command = ((const char *)src)[0];
+  if(command == SEND_DIAGNOSTIC)
       return(SANE_STATUS_GOOD);
 
   cmdlen = usb_cmdlen(*((const char *)src));
@@ -362,7 +371,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
   RETURN_ON_FAILURE( usb_write(fd,src,cmdlen) );
 
   /* Read status */
-  RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus) );
+  RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus, command) );
 
   /* Send data only if the scanner is expecting it */
   if(datalen > 0 && (tstatus == TRANSACTION_WRITE)) {
@@ -370,7 +379,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
       RETURN_ON_FAILURE( usb_write(fd, ((const SANE_Byte *) src) + cmdlen, datalen) );
 
       /* Read status */
-      RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus) );
+      RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus, command) );
   }
 
   /* Receive data only when new data is waiting */
@@ -378,7 +387,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
       RETURN_ON_FAILURE( usb_read(fd,dst,*dst_size) );
 
       /* Read status */
-      RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus) );
+      RETURN_ON_FAILURE( usb_read_status(fd, NULL, &tstatus, command) );
   }
 
   if(tstatus != TRANSACTION_COMPLETED) {
@@ -563,6 +572,9 @@ static void snapscani_usb_shm_exit(void)
 #endif
 /*
  * $Log$
+ * Revision 1.21  2005/11/02 19:22:06  oliver-guest
+ * Fixes for Benq 5000
+ *
  * Revision 1.20  2005/07/18 17:37:37  oliver-guest
  * ZETA changes for SnapScan backend
  *

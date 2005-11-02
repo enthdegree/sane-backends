@@ -445,6 +445,9 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case PERFECTION3490:
         pss->read_bytes = INQUIRY_RET_LEN_EPSON;
         break;
+    case PRISA5000:
+        pss->read_bytes = 0x80;
+        break;
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
         break;
@@ -453,7 +456,8 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = INQUIRY;
     pss->cmd[4] = pss->read_bytes;
-
+    if (pss->pdev->model == PRISA5000)
+        pss->cmd[4] = 0x8a;
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus,
                pss->fd,
@@ -1478,6 +1482,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.47  2005/11/02 19:22:06  oliver-guest
+ * Fixes for Benq 5000
+ *
  * Revision 1.46  2005/10/31 21:08:47  oliver-guest
  * Distinguish between Benq 5000/5000E/5000U
  *

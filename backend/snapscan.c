@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               47
+#define BUILD               48
 
 #define BACKEND_NAME snapscan
 
@@ -954,9 +954,6 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         }
         DBG (DL_MINOR_INFO, "%s: self test passed.\n", me);
 
-        /* option initialization depends on getting the hardware configuration
-           byte */
-        status = inquiry (pss);
         if (status != SANE_STATUS_GOOD)
         {
             DBG (DL_MAJOR_ERROR,
@@ -970,6 +967,7 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
         /* Download Firmware for USB scanners */
         if ( (pss->pdev->bus == USB) && (pss->hwst & 0x02) )
         {
+            char vendor[8];
             char model[17];
 
             status = download_firmware(pss);
@@ -977,12 +975,9 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             /* send inquiry command again, wait for scanner to initialize */
             status = wait_scanner_ready(pss);
             CHECK_STATUS (status, me, "wait_scanner_ready after firmware upload");
-            status =  inquiry (pss);
-            CHECK_STATUS (status, me, "inquiry after firmware upload");
+            status =  mini_inquiry (pss->pdev->bus, pss->fd, vendor, model);
+            CHECK_STATUS (status, me, "mini_inquiry after firmware upload");
             /* The model identifier may change after firmware upload */
-            memcpy (model, &pss->buf[INQUIRY_PRODUCT], 16);
-            model[16] = 0;
-            remove_trailing_space(model);
             DBG (DL_INFO,
                 "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
                 me,
@@ -996,6 +991,9 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
                     me,
                     model);
             }
+            /* run "real" inquiry command once again for option initialization */
+            status = inquiry (pss);
+            CHECK_STATUS (status, me, "inquiry after firmware upload");
         }
         close_scanner(pss);
 
@@ -1915,6 +1913,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.58  2005/11/02 19:22:06  oliver-guest
+ * Fixes for Benq 5000
+ *
  * Revision 1.57  2005/10/31 21:08:47  oliver-guest
  * Distinguish between Benq 5000/5000E/5000U
  *

@@ -1,3 +1,10 @@
+2005-11-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* sanei/sanei_usb.c: Fixed output of transfer buffer for 
+	  usb_read_bulk in OS/2.
+	* backend/snapscan.c backend/snapscan-scsi.c: Fixes for Benq 5000
+	* backend/snapscan-usb.c: Avoid recursive calls of usb_sense_handler
+
 2005-11-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c: Added support for detecting vendor and

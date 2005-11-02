@@ -1304,6 +1304,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   {
 #ifdef HAVE_USBCALLS
     int rc;
+    char* buffer_ptr = (char*) buffer;
     while (*size)
     {
       ULONG ulToRead = (*size>MAX_RW)?MAX_RW:*size;
@@ -1316,7 +1317,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 
       if (devices[dn].bulk_in_ep){
         rc = UsbBulkRead (dh, devices[dn].bulk_in_ep, devices[dn].interface_nr,
-                               &ulToRead, (char *) buffer, usbcalls_timeout);
+                               &ulToRead, buffer_ptr, usbcalls_timeout);
         DBG (1, "sanei_usb_read_bulk: rc = %d\n",rc);}
       else
       {
@@ -1325,7 +1326,7 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       }
       if (rc || (ulNum!=ulToRead)) return SANE_STATUS_INVAL;
       *size -=ulToRead;
-      buffer += ulToRead;
+      buffer_ptr += ulToRead;
       read_size += ulToRead;
     }
 #else /* not HAVE_USBCALLS */

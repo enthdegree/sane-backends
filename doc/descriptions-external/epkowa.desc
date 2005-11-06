@@ -38,7 +38,7 @@
 ;;
 :backend "epkowa"
 :version "1.17.0"
-:manpage "sane-epkowa"
+;:manpage "sane-epkowa"
 :url     "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :comment "Based on the epson backend of sane-backends-1.0.15."

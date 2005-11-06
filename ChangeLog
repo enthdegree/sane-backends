@@ -1,3 +1,8 @@
+2005-11-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/epkowa.desc: Disabled man page link
+	  (points to nowhere). Bug #302463.
+
 2005-11-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* sanei/sanei_usb.c: Fixed output of transfer buffer for 

@@ -2,6 +2,7 @@
 
 	* doc/descriptions-external/epkowa.desc: Disabled man page link
 	  (points to nowhere). Bug #302463.
+	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP130.
 
 2005-11-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

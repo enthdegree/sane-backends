@@ -40,8 +40,10 @@ PhotoSmart     C5100A R029,R030,R032    SCSI
 .PP
 Support for models 5100C/5200C connected to the parallel port requires
 the ppSCSI driver available at 
-.IR http://www.torque.net/parport/ppscsi.html
-(under development)
+.I http://cyberelk.net/tim/parport/ppscsi.html
+and
+.IR http://penguin-breeder.org/kernel/download/ .
+
 .PP
 Support for models 5200C/62X0C/63X0C connected to the USB require
 the kernel scanner driver or libusb. See

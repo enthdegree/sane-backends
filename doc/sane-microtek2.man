@@ -61,7 +61,10 @@ different names in different countries your model may be equivalent to one of
 the above.
 .PP
 The parport scanners work with the ppscsi + onscsi kernel modules. See
-.B http://www.torque.net/parport/ppscsi.html
+.I http://cyberelk.net/tim/parport/ppscsi.html
+and
+.IR http://penguin-breeder.org/kernel/download/ .
+
 .PP
 The USB scanners work with the microtek kernel module. You may have to add the
 vendor and model codes to microtek.c if they aren't yet listed there.

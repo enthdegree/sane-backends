@@ -3,6 +3,7 @@
 	* doc/descriptions-external/epkowa.desc: Disabled man page link
 	  (points to nowhere). Bug #302463.
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP130.
+	* doc/sane-hp.man doc/sane-microtek2.man: Fixed links to ppscsi.
 
 2005-11-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -2748,6 +2748,154 @@ check_sq113 (struct usb_device *dev)
   return "SQ113";
 }
 
+/* Check for Realtek RTS8822L-01H chipset*/
+static char *
+check_rts8822l01h (struct usb_device *dev)
+{
+  char data[2];
+  usb_dev_handle *handle;
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for RTS8822L-01H ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a RTS8822L-01H (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x200)
+    {
+      if (verbose > 2)
+	printf ("    this is not a RTS8822L-01H (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a RTS8822L-01H (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a RTS8822L-01H (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a RTS8822L-01H (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x200)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x200)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0x0c))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  /* Now we read 1 register */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "rts8822L-01H?";
+
+  memset (data, 0, 2);
+
+  result =
+    usb_control_msg(handle, 0xc0, 0x04, 0xfe11, 0x100, data, 0x02, TIMEOUT);
+
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send read control message (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return 0;
+    }
+
+  if ((data[0] & 0x01) != 0x01)
+    {
+      if (verbose > 2)
+	printf ("    Unexpected result from register 0xfe11 : 0x%0x%0x\n",
+		data[1], data[0]);
+      finish_interface (handle);
+      return 0;
+    }
+  finish_interface (handle);
+  return "RTS8822L-01H";
+}	/* end of RTS8822L-01H detection */
+
+
+
 char *
 check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 {
@@ -2799,6 +2947,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_m011 (dev);
+
+  if (!chip_name)
+    chip_name = check_rts8822l01h (dev);
 
   if (!chip_name)
     chip_name = check_rts8858c (dev);

@@ -2,6 +2,8 @@
 
 	* doc/descriptions/microtek2.desc: Fixed "unmaintained"
 	  marker. Added Microtek Scanmaker V6UPL (bug #302464).
+	* tools/check-usb-chip.c: Added detection of rts8822l-01h chipset
+	  (patch from Jonathan Bravo Lopez <JKD@JKDSoft.cjb.net>).
 
 2005-11-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

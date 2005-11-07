@@ -663,8 +663,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 
   if (!scanner->has_gamma && scanner->num_download_gamma > 0) 
     {
-      
-      scanner->gamma = (scanner->model == MODEL_3091 || scanner->model == MODEL_3092) ? 0x00 : 0x80;
+      scanner->gamma = 0x80;
     }
   else 
     {
@@ -4505,7 +4504,12 @@ identify_scanner (struct fujitsu *s)
           s->has_imprinter = get_IN_imprinter(s->buffer);
 
 	  s->has_gamma = get_IN_num_gamma(s->buffer);
-	  s->num_download_gamma = get_IN_num_gamma_download (s->buffer);
+          if(s->model == MODEL_3092 || s->model == MODEL_3091){ /* says it supports gamma download, but it lies */
+	    s->num_download_gamma = 0;
+          }
+          else{
+	    s->num_download_gamma = get_IN_num_gamma_download (s->buffer);
+          }
         }
     }
   if (s->has_adf) 

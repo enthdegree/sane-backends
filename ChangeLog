@@ -1,3 +1,7 @@
+2005-11-07  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: M3091/2 lie about gamma dl capability
+
 2005-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/microtek2.desc: Fixed "unmaintained"

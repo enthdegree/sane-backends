@@ -1,3 +1,8 @@
+2005-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/microtek2.desc: Fixed "unmaintained"
+	  marker. Added Microtek Scanmaker V6UPL (bug #302464).
+
 2005-11-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/epkowa.desc: Disabled man page link

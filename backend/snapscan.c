@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               48
+#define BUILD               49
 
 #define BACKEND_NAME snapscan
 
@@ -1916,6 +1916,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.60  2005/11/10 19:42:02  oliver-guest
+ * Added deinterlacing for Epson 3490
+ *
  * Revision 1.59  2005/11/02 22:12:54  oliver-guest
  * Correct cut'n'paste error
  *

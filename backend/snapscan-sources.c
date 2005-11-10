@@ -667,16 +667,16 @@ static SANE_Status create_Expander (SnapScan_Scanner *pss,
 /* 
    This filter implements a fix for scanners that have some columns
    of pixels offset. Currently it only shifts every other column
-   starting with the first one down 4 pixels.
+   starting with the first one down ch_offset pixels.
    
    The Deinterlacer detects if data is in SANE RGB frame format (3 bytes/pixel)
    or in Grayscale (1 byte/pixel).
    
-   The first 4 lines of data in the output are fudged so that even indexed
+   The first ch_offset lines of data in the output are fudged so that even indexed
    add odd indexed pixels will have the same value. This is necessary because
    the real pixel values of the columns that are shifted down are not 
-   in the data for the first 4 lines. A better way to handle this would be to
-   scan in 4 extra lines of data, but I haven't figured out how to do this 
+   in the data for the first ch_offset lines. A better way to handle this would be to
+   scan in ch_offset extra lines of data, but I haven't figured out how to do this 
    yet.
 
 */
@@ -686,9 +686,11 @@ typedef struct
     TX_SOURCE_GUTS;
     SANE_Byte *ch_buf;            /* channel buffer */
     SANE_Int   ch_size;           /* channel buffer size */
+    SANE_Int   ch_line_size;      /* size of one line */
     SANE_Int   ch_ndata;          /* actual #bytes in channel buffer */
     SANE_Int   ch_pos;            /* position in buffer */
     SANE_Int   ch_bytes_per_pixel;
+    SANE_Int   ch_offset;         /* The number of lines to be shifted */
     SANE_Bool  ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
 } Deinterlacer;
 
@@ -716,17 +718,17 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
            pself->remaining(pself) > 0 &&
            !cancelRead)
     {
-        if (ps->ch_pos % (ps->ch_size/5) == ps->ch_ndata % (ps->ch_size/5) )
+        if (ps->ch_pos % (ps->ch_line_size) == ps->ch_ndata % (ps->ch_line_size) )
         {
             /* we need more data; try to get the remainder of the current
                line, or else the next line */
-            SANE_Int ndata = (ps->ch_size/5) - ps->ch_ndata % (ps->ch_size/5);
+            SANE_Int ndata = (ps->ch_line_size) - ps->ch_ndata % (ps->ch_line_size);
             if (ps->ch_pos >= ps->ch_size)
             {
 	        /* wrap to the beginning of the buffer if we need to */
                 ps->ch_ndata = 0;
                 ps->ch_pos = 0;
-                ndata = ps->ch_size /5;
+                ndata = ps->ch_line_size;
             }
             status = TxSource_get(pself, ps->ch_buf + ps->ch_pos, &ndata);
             if (status != SANE_STATUS_GOOD)
@@ -742,13 +744,13 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
 	    if (ps->ch_past_init){
 	    	/* We need to use data 4 lines back */
 		/* So we just go one forward and it will wrap around to 4 back. */
-	    	*pbuf = ps->ch_buf[(ps->ch_pos + (ps->ch_size/5)) % ps->ch_size];
+	    	*pbuf = ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size];
 	    }else{
 		/* Use data from the next pixel for even indexed pixels
 		   if we are on the first few lines. 
 	           TODO: also we will overread the buffer if the buffer read ended 
 		   on the first pixel. */
-		if (ps->ch_pos % (ps->ch_size/5) == 0 )
+		if (ps->ch_pos % (ps->ch_line_size) == 0 )
 	    	    *pbuf = ps->ch_buf[ps->ch_pos+ps->ch_bytes_per_pixel];
 		else
 	    	    *pbuf = ps->ch_buf[ps->ch_pos-ps->ch_bytes_per_pixel];
@@ -758,7 +760,7 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
             *pbuf = ps->ch_buf[ps->ch_pos];
         }
 	/* set the flag so we know we have enough data to start shifting columns */
-	if (ps->ch_pos >= ps->ch_size /5 *4)
+	if (ps->ch_pos >= ps->ch_line_size * ps->ch_offset)
 	   ps->ch_past_init = SANE_TRUE;
 
         pbuf++;
@@ -786,6 +788,7 @@ static SANE_Status Deinterlacer_done (Source *pself)
     free(ps->ch_buf);
     ps->ch_buf = NULL;
     ps->ch_size = 0;
+    ps->ch_line_size = 0;
     ps->ch_pos = 0;
     return status;
 }
@@ -804,8 +807,20 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
                                        psub);
     if (status == SANE_STATUS_GOOD)
     {
-        /* We need at least 5 lines of buffer in order to shift up 4 pixels. */
-        pself->ch_size = TxSource_bytesPerLine((Source *) pself) *5;
+        switch (pss->pdev->model)
+        {
+        case PERFECTION3490:
+            pself->ch_offset = 8;
+            break;
+        case PERFECTION2480:
+        default:
+            pself->ch_offset = 4;
+            break;
+        }
+        pself->ch_line_size = TxSource_bytesPerLine((Source *) pself);
+        /* We need at least ch_offset+1 lines of buffer in order 
+           to shift up ch_offset pixels. */
+        pself->ch_size = pself->ch_line_size * (pself->ch_offset + 1);
         pself->ch_buf = (SANE_Byte *) malloc(pself->ch_size);
         if (pself->ch_buf == NULL)
         {
@@ -1141,6 +1156,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                at 2400 dpi. */
             if (status == SANE_STATUS_GOOD && 
                 ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
                 (pss->pdev->model == PRISA5000E && pss->res == 1200)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
@@ -1150,11 +1166,13 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                 status = create_RGBRouter (pss, *pps, pps);
             if (status == SANE_STATUS_GOOD && 
                 ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
                 (pss->pdev->model == PRISA5000E && pss->res == 1200)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_GREYSCALE:
             if ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
                 (pss->pdev->model == PRISA5000E && pss->res == 1200))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
@@ -1177,6 +1195,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.16  2005/11/10 19:42:02  oliver-guest
+ * Added deinterlacing for Epson 3490
+ *
  * Revision 1.15  2005/10/31 21:08:47  oliver-guest
  * Distinguish between Benq 5000/5000E/5000U
  *

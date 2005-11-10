@@ -1,3 +1,8 @@
+2005-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* backend/snapscan.c backend/snapscan-sources.c: Added 
+          deinterlacing for Epson 3490
+	* backend/Makefile.in: added "snapscan" to FIRMWARE_DIRS
+
 2005-11-07  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c: M3091/2 lie about gamma dl capability

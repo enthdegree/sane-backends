@@ -1,6 +1,7 @@
 2005-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/unsupported.desc: Added IOmagic MobileScan USB.
+	* doc/descriptions/unsupported.desc: Added IOmagic MobileScan
+	  USB. Mentioned chips used in the Artec AM12E+.
 	* doc/descriptions-external/hp3770.desc
 	  doc/descriptions-external/hp8200.desc: Added clarification
 	  concerning status of these backends.

@@ -68,7 +68,7 @@
 :status :unsupported
 ;:url ""
 :interface "Parport"
-:comment "Unsupported. Chipset unknown. Maybe similar to SCSI version or as6e?"
+:comment "Unsupported. Chips found inside: AT015, AD9816JS. Maybe similar to SCSI version or as6e?"
 
 :model "E+ Pro"
 :status :unsupported

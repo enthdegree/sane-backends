@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-11-06"		; version of backend
+:version "2005-11-13"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -774,6 +774,17 @@
 :interface "Proprietary"
 :status :unsupported
 :comment "Unsupported. Uses proprietary ISA card. Maybe the same as the Plustek Spectra ADF?"
+
+;********************************************************************************************
+
+:mfg "IOMagic"
+:url "http://www.iomagic.com/"
+
+:model "MobileScan USB"
+:interface "USB"
+:url "/unsupported/trust-combiscan-19200.html"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 

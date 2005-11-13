@@ -1,3 +1,7 @@
+2005-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added IOmagic MobileScan USB.
+	
 2005-11-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 	* backend/snapscan.c backend/snapscan-sources.c: Added 
           deinterlacing for Epson 3490

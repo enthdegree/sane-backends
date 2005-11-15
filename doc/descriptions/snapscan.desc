@@ -259,15 +259,16 @@
 :model "Perfection 2580"
 :interface "USB"
 :status :basic
-:comment "Problems with preview scans reported, unplugging transparency unit seems to help"
+:comment "Film scanning unit unsupported"
 
 :model "Perfection 3490"
 :interface "USB"
-:status :basic
+:status :good
 
 :model "Perfection 3590"
 :interface "USB"
-:status :untested
+:status :basic
+:comment "Film scanning unit unsupported"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

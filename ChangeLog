@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added HP Scanjet 4890. Added
 	  several Optrox scanners.
+	* doc/descriptions-external/brother.desc: Marked status of
+	  MFC-9880 as "unsupported" based on a user's report.
 
 2005-11-13  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

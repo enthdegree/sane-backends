@@ -600,7 +600,6 @@ static void init_options (SnapScan_Scanner * ps)
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
         || (ps->pdev->model == SNAPSCANE52)
         || (ps->pdev->model == PERFECTION1670)
-        || (ps->pdev->model == PERFECTION3490)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
@@ -1607,6 +1606,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.30  2005/11/15 20:11:18  oliver-guest
+ * Enabled quality calibration for the Epson 3490
+ *
  * Revision 1.29  2005/10/31 21:08:47  oliver-guest
  * Distinguish between Benq 5000/5000E/5000U
  *

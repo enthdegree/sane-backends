@@ -1128,24 +1128,24 @@ static SANE_Status wait_scanner_ready (SnapScan_Scanner *pss)
 #define READ_CALIBRATION 0x82
 #define READ_CALIBRATION_BLACK 0x89
 #define NUM_CALIBRATION_LINES 16
-#define NUM_CALIBRATION_LINES_2480 48
-#define NUM_CALIBRATION_LINES_2480_BLACK 128
+#define NUM_CALIBRATION_LINES_EPSON 48
+#define NUM_CALIBRATION_LINES_EPSON_BLACK 128
 
-#define PIXELS_PER_LINE_2480 10200
-
-static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
+static SANE_Status calibrate_epson (SnapScan_Scanner *pss)
 {
     u_char *buf, *pbuf;
     int *bins;
-    static const char *me = "calibrate_2480";
-    int num_bins = PIXELS_PER_LINE_2480;
+    static const char *me = "calibrate_epson";
+    /* pixels_per_line = 8.5 inch * resolution of one sensor */
+    int pixels_per_line = pss->actual_res * 17/4;
+    int num_bins = pixels_per_line;
     int i, j, k, loop_inc, tl;
     int r, g, b;
     size_t expected_read_bytes;
     size_t read_bytes;
     SANE_Status status;
     int pass;
-    int cal_lines = NUM_CALIBRATION_LINES_2480;
+    int cal_lines = NUM_CALIBRATION_LINES_EPSON;
     int dtc = READ_CALIBRATION;
     int bytes_per_bin = 1;
 
@@ -1155,11 +1155,11 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
 
     /* calculate number of bins depending on mode and resolution
      * colour mode requires bins for each of rgb
-     * 2400 dpi doubles it because of second sensor line */
+     * full resolution doubles it because of second sensor line */
     if (is_colour_mode(actual_mode(pss))) {
         num_bins *= 3;
     }
-    if (pss->res > 1200) {
+    if (pss->res >= (SANE_Int)pss->actual_res) {
         num_bins *= 2;
     }
 
@@ -1171,7 +1171,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
     }
 
     /* allocate buffer for receive data */
-    expected_read_bytes = PIXELS_PER_LINE_2480 * 3 * 4;
+    expected_read_bytes = pixels_per_line * 3 * 4;
     buf = (u_char *) malloc (expected_read_bytes);
     if (!buf) {
         DBG (DL_MAJOR_ERROR, "%s: out of memory allocating calibration, %ld bytes.", me, (u_long)expected_read_bytes);
@@ -1186,7 +1186,7 @@ static SANE_Status calibrate_2480 (SnapScan_Scanner *pss)
         if (pass == 1) {
             if (pss->source == SRC_TPO) {
                 /* pass 1 is for black level calibration of transparency adaptor */
-                cal_lines = NUM_CALIBRATION_LINES_2480_BLACK;
+                cal_lines = NUM_CALIBRATION_LINES_EPSON_BLACK;
                 dtc = READ_CALIBRATION_BLACK;
             } else
                 continue;
@@ -1326,8 +1326,9 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     SANE_Status status;
     int line_length = calibration_line_length(pss);
 
-    if (pss->pdev->model == PERFECTION2480) {
-        return calibrate_2480 (pss);
+    if ((pss->pdev->model == PERFECTION2480) ||
+        (pss->pdev->model == PERFECTION3490)) {
+        return calibrate_epson (pss);
     }
       
     if ((pss->hconfig & HCFG_CAL_ALLOWED) && line_length) {
@@ -1482,6 +1483,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.48  2005/11/15 20:11:19  oliver-guest
+ * Enabled quality calibration for the Epson 3490
+ *
  * Revision 1.47  2005/11/02 19:22:06  oliver-guest
  * Fixes for Benq 5000
  *

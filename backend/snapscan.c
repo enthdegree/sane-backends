@@ -1645,7 +1645,9 @@ SANE_Status sane_start (SANE_Handle h)
     status = download_halftone_matrices(pss);
     CHECK_STATUS (status, me, "download_halftone_matrices");
 
-    if (pss->pdev->model == PERFECTION2480 && pss->val[OPT_QUALITY_CAL].b)
+    if (pss->val[OPT_QUALITY_CAL].b && 
+        ((pss->pdev->model == PERFECTION2480) ||
+        (pss->pdev->model == PERFECTION3490)))
     {
         status = calibrate(pss);
         if (status != SANE_STATUS_GOOD)
@@ -1676,7 +1678,9 @@ SANE_Status sane_start (SANE_Handle h)
          pss->bytes_per_line/pss->ms_per_line);
 
 
-    if (pss->pdev->model != PERFECTION2480 && pss->val[OPT_QUALITY_CAL].b)
+    if (pss->val[OPT_QUALITY_CAL].b && 
+        ((pss->pdev->model != PERFECTION2480) &&
+         (pss->pdev->model != PERFECTION3490)))
     {
         status = calibrate(pss);
         if (status != SANE_STATUS_GOOD)
@@ -1916,6 +1920,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.61  2005/11/15 20:11:19  oliver-guest
+ * Enabled quality calibration for the Epson 3490
+ *
  * Revision 1.60  2005/11/10 19:42:02  oliver-guest
  * Added deinterlacing for Epson 3490
  *

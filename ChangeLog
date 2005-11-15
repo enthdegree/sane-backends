@@ -1,3 +1,8 @@
+2005-11-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+	* backend/snapscan.c backend/snapscan-options.c 
+	  backend/snapscan-scsi.c: Enabled quality calibration for the 
+	  Epson 3490
+
 2005-11-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added HP Scanjet 4890. Added

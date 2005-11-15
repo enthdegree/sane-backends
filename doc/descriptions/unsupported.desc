@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-11-13"		; version of backend
+:version "2005-11-15"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -559,7 +559,7 @@
 :interface "USB"
 :url "/unsupported/genius-colorpage-slim-1200-usb2.html"
 :status :unsupported
-:comment "Unsupported. See link for details."
+:comment "GL841 based, to be added to genesys backend."
 
 :model "ColorPage HR6X Slim"
 :url "/unsupported/genius-colorpage-hr6x.html"
@@ -729,6 +729,12 @@
 :status :unsupported
 
 :model "ScanJet 4850C"
+:url "/unsupported/hp-scanjet-4850.html"
+:interface "USB"
+:comment "GL841, maybe can be added to genesys backend "
+:status :unsupported
+
+:model "ScanJet 4890C"
 :url "/unsupported/hp-scanjet-4850.html"
 :interface "USB"
 :comment "GL841, maybe can be added to genesys backend "
@@ -1297,11 +1303,37 @@
 :mfg "Optrox"
 ;:url ""
 
-:model "PhotoMaker 3"
-;:url "/unsupported/"
+:model "PhotoMaker 3C"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
 :interface "Parport"
 :status :unsupported
-:comment "Probably not supported."
+
+:model "PhotoMaker 3E"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
+:interface "Parport"
+:status :unsupported
+
+:model "PhotoMaker 3F"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
+:interface "Proprietary"
+:status :unsupported
+:comment "Special ISA card"
+
+:model "PhotoMaker 3S"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
+:interface "Parport"
+:status :unsupported
+
+:model "PhotoMaker 6E"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
+:interface "Parport"
+:status :unsupported
+
+:model "PhotoMaker 6F"
+:url "http://www.df.lth.se/~triad/krad/optrox/"
+:interface "Proprietary"
+:status :unsupported
+:comment "Special ISA card"
 
 ;********************************************************************************************
 

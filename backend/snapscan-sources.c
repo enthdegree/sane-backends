@@ -1155,9 +1155,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                some scanners like the Epson Perfection 2480/2580 
                at 2400 dpi. */
             if (status == SANE_STATUS_GOOD && 
-                ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
-                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
-                (pss->pdev->model == PRISA5000E && pss->res == 1200)))
+                ((pss->pdev->model == PERFECTION2480 && pss->res > 1200) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res > 1600) ||
+                (pss->pdev->model == PRISA5000E && pss->res > 600)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_BILEVELCOLOUR:
@@ -1165,15 +1165,15 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
             if (status == SANE_STATUS_GOOD)
                 status = create_RGBRouter (pss, *pps, pps);
             if (status == SANE_STATUS_GOOD && 
-                ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
-                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
-                (pss->pdev->model == PRISA5000E && pss->res == 1200)))
+                ((pss->pdev->model == PERFECTION2480 && pss->res > 1200) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res > 1600) ||
+                (pss->pdev->model == PRISA5000E && pss->res > 600)))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_GREYSCALE:
-            if ((pss->pdev->model == PERFECTION2480 && pss->res == 2400) ||
-                (pss->pdev->model == PERFECTION3490 && pss->res == 3200) ||
-                (pss->pdev->model == PRISA5000E && pss->res == 1200))
+            if ((pss->pdev->model == PERFECTION2480 && pss->res > 1200) ||
+                (pss->pdev->model == PERFECTION3490 && pss->res > 1600) ||
+                (pss->pdev->model == PRISA5000E && pss->res > 600))
                 status = create_Deinterlacer (pss, *pps, pps);
             break;
         case MD_LINEART:
@@ -1195,6 +1195,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.17  2005/11/17 23:32:23  oliver-guest
+ * Fixes for Epson 3490 @ 2400 DPI
+ *
  * Revision 1.16  2005/11/10 19:42:02  oliver-guest
  * Added deinterlacing for Epson 3490
  *

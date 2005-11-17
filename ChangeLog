@@ -1,3 +1,8 @@
+2005-11-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c backend/snapscan-sources.c:
+	  (Potential) fix for Epson 3490@2400 dpi
+
 2005-11-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: Update.

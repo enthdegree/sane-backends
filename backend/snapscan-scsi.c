@@ -1159,7 +1159,7 @@ static SANE_Status calibrate_epson (SnapScan_Scanner *pss)
     if (is_colour_mode(actual_mode(pss))) {
         num_bins *= 3;
     }
-    if (pss->res >= (SANE_Int)pss->actual_res) {
+    if (pss->res > (SANE_Int)pss->actual_res/2) {
         num_bins *= 2;
     }
 
@@ -1483,6 +1483,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.49  2005/11/17 23:32:22  oliver-guest
+ * Fixes for Epson 3490 @ 2400 DPI
+ *
  * Revision 1.48  2005/11/15 20:11:19  oliver-guest
  * Enabled quality calibration for the Epson 3490
  *

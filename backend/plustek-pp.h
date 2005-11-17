@@ -345,9 +345,9 @@ typedef const struct mode_param
 #define _PTDRV_GET_CROPINFO 	_IOR('x', 5, CropInfo)		/* get crop		 */
 #define _PTDRV_SET_ENV 			_IOWR('x',6, ScanInfo)		/* set env.		 */
 #define _PTDRV_START_SCAN 		_IOR('x', 7, StartScan)		/* start scan 	 */
-#define _PTDRV_STOP_SCAN 		_IOWR('x', 8, int)			/* stop scan 	 */
+#define _PTDRV_STOP_SCAN 		_IOWR('x', 8, short)		/* stop scan 	 */
 #define _PTDRV_CLOSE_DEVICE 	_IO('x',  9)				/* close 		 */
-#define _PTDRV_ACTION_BUTTON	_IOR('x', 10, int)	 		/* rd act. button*/
+#define _PTDRV_ACTION_BUTTON	_IOR('x', 10, unsigned char)/* rd act. button*/
 #define _PTDRV_ADJUST           _IOR('x', 11, AdjDef)		/* adjust driver */
 #define _PTDRV_SETMAP           _IOR('x', 12, MapDef)		/* download gamma*/
 
@@ -572,9 +572,9 @@ typedef struct Plustek_Device
     int  (*putImgInfo) ( struct Plustek_Device*, pImgDef    );
     int  (*setScanEnv) ( struct Plustek_Device*, pScanInfo  );
     int  (*setMap)     ( struct Plustek_Device*, SANE_Word*,
-												 SANE_Word, SANE_Word );
+	                                             SANE_Word, SANE_Word );
     int  (*startScan)  ( struct Plustek_Device*, pStartScan );
-    int  (*stopScan)   ( struct Plustek_Device*, int* );
+    int  (*stopScan)   ( struct Plustek_Device*, short* );
     int  (*readImage)  ( struct Plustek_Device*, SANE_Byte*, unsigned long );
 
     int  (*prepare)    ( struct Plustek_Device*, SANE_Byte* );

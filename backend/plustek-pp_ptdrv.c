@@ -301,30 +301,30 @@ static int getUserPtr(const pVoid useraddr, pVoid where, UInt size )
     switch (size)
     {
 #ifdef __KERNEL__
-    case 1:
+    case sizeof(u_char):
         GET_USER_RET(*(u_char *)where, (u_char *) useraddr, -EFAULT);
         break;
 
-    case 2:
+    case sizeof(u_short):
         GET_USER_RET(*(u_short *)where, (u_short *) useraddr, -EFAULT);
         break;
 
-    case 4:
+    case sizeof(u_long):
         GET_USER_RET(*(u_long *)where, (u_long *) useraddr, -EFAULT);
         break;
 
     default:
         copy_from_user(where, useraddr, size);
 #else
-    case 1:
+    case sizeof(UChar):
         *(pUChar)where = *(pUChar)useraddr;
         break;
 
-    case 2:
+    case sizeof(UShort):
         *(pUShort)where = *(pUShort)useraddr;
         break;
 
-    case 4:
+    case sizeof(ULong):
         *(pULong)where = *(pULong)useraddr;
         break;
 
@@ -388,23 +388,23 @@ static int putUserVal(const ULong value, pVoid useraddr, UInt size)
 	switch (size) {
 
 #ifdef __KERNEL__
-	case 1:
+	case sizeof(u_char):
     	PUT_USER_RET((u_char)value, (u_char *) useraddr, -EFAULT);
     	break;
-  	case 2:
+  	case sizeof(u_short):
     	PUT_USER_RET((u_short)value, (u_short *) useraddr, -EFAULT);
     	break;
-  	case 4:
+  	case sizeof(u_long):
     	PUT_USER_RET((u_long)value, (u_long *) useraddr, -EFAULT);
     	break;
 #else
-	case 1:
+	case sizeof(UChar):
 		*(pUChar)useraddr = (UChar)value;
 		break;
-	case 2:
+	case sizeof(UShort):
 		*(pUShort)useraddr = (UShort)value;
 		break;
-	case 4:
+	case sizeof(ULong):
 		*(pULong)useraddr = (ULong)value;
 		break;
 
@@ -947,6 +947,7 @@ static int ptdrvShutdown( pScanData ps )
  */
 static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 {
+	UChar  val;
 	UShort dir;
 	UShort version;
 	UInt   size;
@@ -1239,7 +1240,7 @@ static int ptdrvIoctl( pScanData ps, UInt cmd, pVoid arg )
 	 */
 	case _PTDRV_ACTION_BUTTON:
 		DBG( DBG_LOW, "ioctl(_PTDRV_ACTION_BUTTON)\n" );
-		argVal = IODataRegisterFromScanner( ps, ps->RegStatus );
+		val    = IODataRegisterFromScanner( ps, ps->RegStatus );
       	retval = putUserVal( argVal, arg, size );
 		break;
 

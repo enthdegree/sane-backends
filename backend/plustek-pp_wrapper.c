@@ -323,7 +323,7 @@ static int ppDev_setMap( Plustek_Device *dev, SANE_Word *map,
 
 /**
  */
-static int ppDev_stopScan( Plustek_Device *dev, int *mode )
+static int ppDev_stopScan( Plustek_Device *dev, short *mode )
 {
 	int retval, tmp;
 

@@ -83,7 +83,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.43-8"
+#define BACKEND_VERSION "0.43-9"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -271,7 +271,7 @@ static int drvopen(	Plustek_Device *dev )
  */
 static SANE_Status drvclose( Plustek_Device *dev )
 {
-	int int_cnt;
+	short int_cnt;
 
 	if( dev->fd >= 0 ) {
 
@@ -462,7 +462,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 {
 	struct SIGACTION act;
 	pid_t            res;
-	int              int_cnt;
+	short            int_cnt;
 
 	DBG( _DBG_PROC,"do_cancel\n" );
 

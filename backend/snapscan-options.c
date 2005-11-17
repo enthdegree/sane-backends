@@ -244,7 +244,7 @@ static void init_options (SnapScan_Scanner * ps)
     static SANE_Word resolutions_2400[] =
         {10, 50, 75, 100, 150, 200, 300, 400, 600, 1200, 2400};
     static SANE_Word resolutions_3200[] =
-        {15, 50, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 2400, 3200};
+        {15, 50, 150, 200, 240, 266, 300, 350, 360, 400, 600, 720, 800, 1200, 1600, 3200};
     static SANE_String_Const names_all[] =
         {md_colour, md_bilevelcolour, md_greyscale, md_lineart, NULL};
     static SANE_String_Const names_basic[] =
@@ -1606,6 +1606,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.31  2005/11/17 23:47:10  oliver-guest
+ * Revert previous 'fix', disable 2400 dpi for Epson 3490, use 1600 dpi instead
+ *
  * Revision 1.30  2005/11/15 20:11:18  oliver-guest
  * Enabled quality calibration for the Epson 3490
  *

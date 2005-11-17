@@ -1159,7 +1159,7 @@ static SANE_Status calibrate_epson (SnapScan_Scanner *pss)
     if (is_colour_mode(actual_mode(pss))) {
         num_bins *= 3;
     }
-    if (pss->res > (SANE_Int)pss->actual_res/2) {
+    if (pss->res >= (SANE_Int)pss->actual_res) {
         num_bins *= 2;
     }
 
@@ -1483,6 +1483,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.50  2005/11/17 23:47:10  oliver-guest
+ * Revert previous 'fix', disable 2400 dpi for Epson 3490, use 1600 dpi instead
+ *
  * Revision 1.49  2005/11/17 23:32:22  oliver-guest
  * Fixes for Epson 3490 @ 2400 DPI
  *

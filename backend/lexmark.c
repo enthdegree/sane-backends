@@ -82,32 +82,29 @@ static const SANE_Device **sane_device_list = NULL;
 /* Program globals F.O - Should this be per device?*/
 static SANE_Bool initialized = SANE_FALSE;
 
-/* F.O. Per device globals - moved to lexmark.h as part of Lexmark_Device */
-/* static int eof = 0; */
-/* static SANE_Int x_dpi = 75; */
-/* static SANE_Int y_dpi = 75; */
-/* static long data_ctr = 0; */
-/* static SANE_Bool device_cancelled = SANE_FALSE; */
-/* static int cancel_ctr = 0; */
-
 static SANE_String_Const mode_list[] = {
-  "Color", "Gray", "Lineart", NULL
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  SANE_VALUE_SCAN_MODE_LINEART, 
+  NULL
 };
 
 /* possible resolutions are: 75x75, 150x150, 300x300, 600X600, 600X1200 */
 
-static SANE_Int x_dpi_list[] = {
-  4, 75, 150, 300, 600
-};
-
-static SANE_Int y_dpi_list[] = {
-  5, 75, 150, 300, 600,
-  1200
+static SANE_Int dpi_list[] = {
+  5, 75, 150, 300, 600, 1200
 };
 
 static SANE_String_Const size_list[] = {
   "Wallet", "3x5", "4x6", "5x7", "8x10", "Letter", NULL
 };
+
+static SANE_Range threshold_range = {
+  SANE_FIX(0.0),               /* minimum */
+  SANE_FIX(100.0),             /* maximum */
+  SANE_FIX(1.0)                /* quantization */
+};
+
 
 /* static functions */
 static SANE_Status init_options (Lexmark_Device * lexmark_device);
@@ -148,33 +145,20 @@ init_options (Lexmark_Device * lexmark_device)
   lexmark_device->val[OPT_MODE].s = malloc (od->size);
   if (!lexmark_device->val[OPT_MODE].s)
     return SANE_STATUS_NO_MEM;
-  strcpy (lexmark_device->val[OPT_MODE].s, "Color");
+  strcpy (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR);
 
-  /* X dots per inch */
-  od = &(lexmark_device->opt[OPT_X_DPI]);
-  od->name = SANE_NAME_SCAN_X_RESOLUTION;
-  od->title = SANE_TITLE_SCAN_X_RESOLUTION;
-  od->desc = SANE_DESC_SCAN_X_RESOLUTION;
+  /* resolution */
+  od = &(lexmark_device->opt[OPT_RESOLUTION]);
+  od->name = SANE_NAME_SCAN_RESOLUTION;
+  od->title = SANE_TITLE_SCAN_RESOLUTION;
+  od->desc = SANE_DESC_SCAN_RESOLUTION;
   od->type = SANE_TYPE_INT;
   od->unit = SANE_UNIT_DPI;
   od->size = sizeof (SANE_Word);
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   od->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  od->constraint.word_list = x_dpi_list;
-  lexmark_device->val[OPT_X_DPI].w = 150;
-
-  /* Y dots per inch */
-  od = &(lexmark_device->opt[OPT_Y_DPI]);
-  od->name = SANE_NAME_SCAN_Y_RESOLUTION;
-  od->title = SANE_TITLE_SCAN_Y_RESOLUTION;
-  od->desc = SANE_DESC_SCAN_Y_RESOLUTION;
-  od->type = SANE_TYPE_INT;
-  od->unit = SANE_UNIT_DPI;
-  od->size = sizeof (SANE_Word);
-  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  od->constraint.word_list = y_dpi_list;
-  lexmark_device->val[OPT_Y_DPI].w = 150;
+  od->constraint.word_list = dpi_list;
+  lexmark_device->val[OPT_RESOLUTION].w = 150;
 
   /* preview mode */
   od = &(lexmark_device->opt[OPT_PREVIEW]);
@@ -189,9 +173,6 @@ init_options (Lexmark_Device * lexmark_device)
 
   /* scan size */
   od = &(lexmark_device->opt[OPT_SCAN_SIZE]);
-/*   od->name = "scan-size"; */
-/*   od->title = SANE_I18N ("Scan size"); */;
-/*   od->desc = SANE_I18N ("Selects the size of the scan."); */
   od->name = SANE_NAME_PAPER_SIZE;
   od->title = SANE_TITLE_PAPER_SIZE;
   od->desc = SANE_DESC_PAPER_SIZE;
@@ -206,6 +187,18 @@ init_options (Lexmark_Device * lexmark_device)
     return SANE_STATUS_NO_MEM;
   strcpy (lexmark_device->val[OPT_SCAN_SIZE].s, "3x5");
 
+  /* threshold */
+  od = &(lexmark_device->opt[OPT_THRESHOLD]);
+  od->name = SANE_NAME_THRESHOLD;
+  od->title = SANE_TITLE_THRESHOLD;
+  od->desc = SANE_DESC_THRESHOLD;
+  od->type = SANE_TYPE_FIXED;
+  od->unit = SANE_UNIT_PERCENT;
+  od->size = sizeof (SANE_Fixed);
+  od->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &threshold_range;
+  lexmark_device->val[OPT_THRESHOLD].w = SANE_FIX(50.0);
 
   return SANE_STATUS_GOOD;
 }
@@ -242,6 +235,9 @@ attachLexmark (SANE_String_Const devname)
 
   /* Make the pointer to the read buffer null here */
   lexmark_device->read_buffer = NULL;
+
+  /* Set the default threshold for lineart mode here */
+  lexmark_device->threshold = 0x80;
 
   lexmark_device->next = first_lexmark_device;
   first_lexmark_device = lexmark_device;
@@ -560,33 +556,23 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	    sanei_constrain_value (&(lexmark_device->opt[option]), value,
 				   info);
 	  if (status != SANE_STATUS_GOOD)
-	    return SANE_STATUS_INVAL;
+	    {
+	      DBG(2, "SANE_CONTROL_OPTION: Bad value for range\n");
+	      return SANE_STATUS_INVAL;
+	    }
 	}
 
       switch (option)
 	{
 	case OPT_NUM_OPTS:
-	case OPT_X_DPI:
+	case OPT_RESOLUTION:	
 	  lexmark_device->val[option].w = *(SANE_Int *) value;
-	  lexmark_device->val[OPT_Y_DPI].w = *(SANE_Int *) value;
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
 	  sane_get_parameters (handle, 0);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-	  return SANE_STATUS_GOOD;
-	case OPT_Y_DPI:
-	  lexmark_device->val[option].w = *(SANE_Int *) value;
-	  if (*(SANE_Int *) value == 1200)
-	    lexmark_device->val[OPT_X_DPI].w = 600;
-	  else
-	    lexmark_device->val[OPT_X_DPI].w = *(SANE_Int *) value;
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-	  sane_get_parameters (handle, 0);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-	  return SANE_STATUS_GOOD;
+	  break;
+	case OPT_THRESHOLD:
+	  lexmark_device->val[option].w = *(SANE_Fixed *) value;
+	  lexmark_device->threshold = 0xFF * (lexmark_device->val[option].w/100);
+	  break;
 	case OPT_SCAN_SIZE:
 	  strcpy (lexmark_device->val[option].s, value);
 	  break;
@@ -594,15 +580,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  lexmark_device->val[option].w = *(SANE_Int *) value;
 	  if (*(SANE_Word *) value)
 	    {
-	      lexmark_device->x_dpi = lexmark_device->val[OPT_X_DPI].w;
-	      lexmark_device->y_dpi = lexmark_device->val[OPT_Y_DPI].w;
-	      lexmark_device->val[OPT_X_DPI].w = 75;
-	      lexmark_device->val[OPT_Y_DPI].w = 75;
+	      lexmark_device->y_dpi = lexmark_device->val[OPT_RESOLUTION].w;
+	      lexmark_device->val[OPT_RESOLUTION].w = 75;
 	    }
 	  else
 	    {
-	      lexmark_device->val[OPT_X_DPI].w = lexmark_device->x_dpi;
-	      lexmark_device->val[OPT_Y_DPI].w = lexmark_device->y_dpi;
+	      lexmark_device->val[OPT_RESOLUTION].w = lexmark_device->y_dpi;
 	    }
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_OPTIONS;
@@ -613,7 +596,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  lexmark_device->val[option].w = *(SANE_Int *) value;
 	  break;
 	case OPT_MODE:
-	  strcpy (lexmark_device->val[option].s, value);
+	  strcpy (lexmark_device->val[option].s, value); 
+	  if (strcmp (lexmark_device->val[option].s, 
+		      SANE_VALUE_SCAN_MODE_LINEART) == 0)
+	    {
+	      lexmark_device->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	  else
+	    {
+	      lexmark_device->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+	    }
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
 	}
 
@@ -627,10 +621,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
       switch (option)
 	{
 	case OPT_NUM_OPTS:
-	case OPT_X_DPI:
-	case OPT_Y_DPI:
+	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	  *(SANE_Int *) value = lexmark_device->val[option].w;
+	  DBG(2,"Option value = %d\n", *(SANE_Int *) value);
+	  break;
+	case OPT_THRESHOLD:
+	  *(SANE_Fixed *) value = lexmark_device->val[option].w;
+	  DBG(2,"Option value = %f\n", SANE_UNFIX(*(SANE_Fixed *) value));
 	  break;
 	case OPT_MODE:
 	case OPT_SCAN_SIZE:
@@ -676,16 +674,20 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (!lexmark_device)
     return SANE_STATUS_INVAL;
 
-  xres = lexmark_device->val[OPT_X_DPI].w;
-  yres = lexmark_device->val[OPT_Y_DPI].w;
+  yres = lexmark_device->val[OPT_RESOLUTION].w;
+  if (yres == 1200)
+    xres = 600;
+  else
+    xres = yres;
 
   /* 24 bit colour = 8 bits/channel for each of the RGB channels */
   channels = 3;
   bitsperchannel = 8;
   isColourScan = SANE_TRUE;
 
-  /* If grayscale there is only 1 channel */
-  if (strcmp (lexmark_device->val[OPT_MODE].s, "Gray") == 0)
+  /* If not color there is only 1 channel */
+  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) 
+      != 0)
     {
       channels = 1;
       bitsperchannel = 8;
@@ -742,11 +744,21 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   lexmark_device->pixel_width = width_px;
   lexmark_device->pixel_height = height_px;
 
-
+  /* data_size is the size transferred from the scanner to the backend */
+  /* therefor bitsperchannel is the same for gray and lineart */
   lexmark_device->data_size =
     width_px * height_px * channels * (bitsperchannel / 8);
   DBG (2, "sane_get_parameters: Data size determined as %lx\n",
        lexmark_device->data_size);
+
+  /* we must tell the front end the bitsperchannel for lineart is really */
+  /* only 1, so it can calculate the correct image size */
+  /* If not color there is only 1 channel */
+  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) 
+      == 0)
+    {
+      bitsperchannel = 1;
+    }
 
   device_params = &(lexmark_device->params);
   device_params->format = SANE_FRAME_RGB;
@@ -759,7 +771,16 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   device_params->bytes_per_line =
     (SANE_Int) (channels * device_params->pixels_per_line *
 		(bitsperchannel / 8));
-  /* bytesperchannel = bitsperchannel/8  */
+  if ( bitsperchannel == 1 )
+    {
+      device_params->bytes_per_line =  
+	(SANE_Int) (device_params->pixels_per_line / 8);
+      if ((device_params->pixels_per_line % 8) != 0)
+	device_params->bytes_per_line++;
+    }
+  
+
+
   DBG (2, "sane_get_parameters: \n");
   if (device_params->format == SANE_FRAME_GRAY)
     DBG (2, "  format: SANE_FRAME_GRAY\n");

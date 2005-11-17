@@ -61,10 +61,12 @@ typedef enum
 {
   OPT_NUM_OPTS = 0,
   OPT_MODE,
-  OPT_X_DPI,
-  OPT_Y_DPI,
+/*   OPT_X_DPI, */
+/*   OPT_Y_DPI, */
+  OPT_RESOLUTION,
   OPT_PREVIEW,
   OPT_SCAN_SIZE,
+  OPT_THRESHOLD,
   /* must come last: */
   NUM_OPTIONS
 }
@@ -114,6 +116,8 @@ typedef struct Read_Buffer
   size_t linesize;
   SANE_Bool empty;
   SANE_Int image_line_no;
+  SANE_Int bit_counter;
+  SANE_Int max_lineart_offset;
 }
 Read_Buffer;
 
@@ -141,6 +145,7 @@ typedef struct Lexmark_Device
   size_t bytes_in_buffer;
   SANE_Byte *read_pointer;
   Read_Buffer *read_buffer;
+  SANE_Byte threshold;
 }
 Lexmark_Device;
 

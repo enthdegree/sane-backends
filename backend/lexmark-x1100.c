@@ -51,6 +51,7 @@
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
+#include "../include/sane/saneopts.h"
 
 #include "../include/sane/sanei_usb.h"
 
@@ -147,6 +148,9 @@ static SANE_Status read_buffer_add_byte (Read_Buffer *rb,
 					 SANE_Byte * byte_pointer);
 static SANE_Status read_buffer_add_byte_gray (Read_Buffer *rb,
 					      SANE_Byte * byte_pointer);
+static SANE_Status read_buffer_add_bit_lineart (Read_Buffer *rb, 
+						SANE_Byte * byte_pointer,
+						SANE_Byte threshold);
 static size_t read_buffer_get_bytes (Read_Buffer *rb, SANE_Byte * buffer, 
 				     size_t rqst_size);
 static SANE_Bool read_buffer_is_empty (Read_Buffer *rb);
@@ -1421,10 +1425,10 @@ sanei_lexmark_x1100_set_scan_regs (Lexmark_Device * dev, SANE_Int offset)
   int i;
 
   /* resolution */
-  yres = dev->val[OPT_Y_DPI].w;
+  yres = dev->val[OPT_RESOLUTION].w;
 
   /* colour mode */
-  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+  if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     isColourScan = SANE_TRUE;
   else
     isColourScan = SANE_FALSE;
@@ -2329,7 +2333,7 @@ sanei_lexmark_x1100_read_scan_data (SANE_Byte * data, SANE_Int size, Lexmark_Dev
 {
 
   SANE_Int devnum;
-  SANE_Bool isColourScan;
+  SANE_Bool isColourScan, isGrayScan;
 /*   SANE_Byte temp_byte; */
   static SANE_Byte command1_block[] = { 0x91, 0x00, 0xff, 0xc0 };
   size_t xfer_size, cmd_size, xfer_request, remainder;
@@ -2340,10 +2344,16 @@ sanei_lexmark_x1100_read_scan_data (SANE_Byte * data, SANE_Int size, Lexmark_Dev
   DBG (2, "sanei_lexmark_x1100_read_scan_data:\n");
 
   /* colour mode */
-  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+  isGrayScan = SANE_FALSE;
+  if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     isColourScan = SANE_TRUE;
   else
-    isColourScan = SANE_FALSE;
+    {
+      isColourScan = SANE_FALSE;
+      /* grayscale  mode */
+      if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+	isGrayScan = SANE_TRUE;
+    }
 
   devnum = dev->devnum;
 
@@ -2393,7 +2403,7 @@ sanei_lexmark_x1100_read_scan_data (SANE_Byte * data, SANE_Int size, Lexmark_Dev
 	}
     }
 
-  DBG (5, "\nREAD BUFFER INFO: \n");
+  DBG (5, "READ BUFFER INFO: \n");
   DBG (5, "   write ptr:     %p\n", dev->read_buffer->writeptr);
   DBG (5, "   read ptr:      %p\n", dev->read_buffer->readptr);
   DBG (5, "   max write ptr: %p\n", dev->read_buffer->max_writeptr);
@@ -2419,13 +2429,30 @@ sanei_lexmark_x1100_read_scan_data (SANE_Byte * data, SANE_Int size, Lexmark_Dev
 		read_buffer_add_byte (dev->read_buffer, dev->read_pointer-1);
 	      even_byte = ! even_byte;
 	    }
-	  /* Gray or Black&White Scan */
+	  /* Gray Scan */
+	  else if (isGrayScan)
+	    {
+	      if (even_byte)
+		read_buffer_add_byte_gray (dev->read_buffer, 
+					   dev->read_pointer+1);
+	      else
+		read_buffer_add_byte_gray (dev->read_buffer, 
+					   dev->read_pointer-1); 
+	      even_byte = ! even_byte;
+	    }
+	  /* Lineart Scan */
 	  else
 	    {
-	      /* read_buffer_add_byte_gray(dev->read_pointer); */
-	      read_buffer_add_byte_gray (dev->read_buffer, dev->read_pointer);
+	      if (even_byte)
+		read_buffer_add_bit_lineart (dev->read_buffer, 
+					     dev->read_pointer+1,
+					     dev->threshold);
+	      else
+		read_buffer_add_bit_lineart (dev->read_buffer, 
+					     dev->read_pointer-1,
+					     dev->threshold); 
+	      even_byte = ! even_byte;
 	    }
-
 	  dev->read_pointer = dev->read_pointer + sizeof (SANE_Byte);
 	  dev->bytes_in_buffer--;
 	}
@@ -2433,6 +2460,15 @@ sanei_lexmark_x1100_read_scan_data (SANE_Byte * data, SANE_Int size, Lexmark_Dev
       free (dev->transfer_buffer);
       dev->transfer_buffer = NULL;
     }
+
+  DBG (5, "READ BUFFER INFO: \n");
+  DBG (5, "   write ptr:     %p\n", dev->read_buffer->writeptr);
+  DBG (5, "   read ptr:      %p\n", dev->read_buffer->readptr);
+  DBG (5, "   max write ptr: %p\n", dev->read_buffer->max_writeptr);
+  DBG (5, "   buffer size:   %lu\n", (u_long)dev->read_buffer->size);
+  DBG (5, "   line size:     %lu\n", (u_long)dev->read_buffer->linesize);
+  DBG (5, "   empty:         %d\n", dev->read_buffer->empty);
+  DBG (5, "   line no:       %d\n", dev->read_buffer->image_line_no);
 
   /* Read blocks out of read buffer */
   bytes_read = read_buffer_get_bytes (dev->read_buffer, data, size);
@@ -2487,10 +2523,10 @@ x1100_rewind (Lexmark_Device * dev)
      and grayscale scans at the same resolution. */
 
   /* Scan resolution */
-  scan_resolution = dev->val[OPT_Y_DPI].w;
+  scan_resolution = dev->val[OPT_RESOLUTION].w;
 
   /* Colour mode */
-  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+  if (strcmp (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     colour_scan = SANE_TRUE;
   else
     colour_scan = SANE_FALSE;
@@ -2632,7 +2668,8 @@ read_buffer_init (Lexmark_Device *dev, int bytesperline)
     (no_lines_in_buffer - 1) * bytesperline;
   dev->read_buffer->empty = SANE_TRUE;
   dev->read_buffer->image_line_no = 0;
-
+  dev->read_buffer->bit_counter = 0;
+  dev->read_buffer->max_lineart_offset = dev->params.pixels_per_line - 1;
   return SANE_STATUS_GOOD;
 }
 
@@ -2720,18 +2757,9 @@ read_buffer_add_byte_gray (Read_Buffer *rb, SANE_Byte * byte_pointer)
 {
 
   /*  DBG(2, "read_buffer_add_byte_gray:\n"); */
-
-  /* Fix the endian byte ordering here */
-  if ((rb->gray_offset & 0x01) == 0)
-    {
-      /*Even byte number */
-      *(rb->writeptr + rb->gray_offset + 1) = *byte_pointer;
-    }
-  else
-    {
-      /*Odd byte number */
-      *(rb->writeptr + rb->gray_offset - 1) = *byte_pointer;
-    }
+   
+  *(rb->writeptr + rb->gray_offset) = *byte_pointer;
+   
   if (rb->gray_offset == rb->max_gray_offset)
     {
       rb->image_line_no++;
@@ -2746,6 +2774,80 @@ read_buffer_add_byte_gray (Read_Buffer *rb, SANE_Byte * byte_pointer)
     }
   else
     rb->gray_offset = rb->gray_offset + (1 * sizeof (SANE_Byte));
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
+read_buffer_add_bit_lineart (Read_Buffer *rb, SANE_Byte * byte_pointer,
+			     SANE_Byte threshold)
+{
+  SANE_Byte tmpByte;
+  SANE_Byte *currentBytePtr;
+  SANE_Int bitIndex;
+
+  /*  DBG(2, "read_buffer_add_bit_lineart:\n"); */
+
+  /* threshold = 0x80;  */
+  tmpByte = 0;
+  /* Create a bit by comparing incoming byte to threshold */
+  if (*byte_pointer >= threshold)
+    {
+      tmpByte = 128;
+    }
+
+  /* Calculate the bit index in the current byte */
+  bitIndex = rb->bit_counter % 8;
+  /* Move the bit to its correct position in the temporary byte */
+  tmpByte = tmpByte >> bitIndex;
+  /* Get the pointer to the current byte */
+  currentBytePtr = rb->writeptr + rb->gray_offset;
+
+  /* If this is the first write to this byte, clear the byte */
+  if ( bitIndex == 0 )
+      *currentBytePtr = 0;  
+  /* Set the value of the bit in the current byte */
+  *currentBytePtr = *currentBytePtr | tmpByte;
+
+
+
+  /* last bit in the line? */ 
+  if (rb->bit_counter == rb->max_lineart_offset)
+    {
+      /* Check if we're at the last byte of the line - error if not */
+      if (rb->gray_offset != rb->max_gray_offset)
+	{
+	  DBG(5, "read_buffer_add_bit_lineart:\n"); 
+	  DBG(5, "  Last bit of line is not last byte.\n");
+	  DBG(5, "  Bit Index: %d, Byte Index: %d. \n", rb->bit_counter,
+	      rb->max_gray_offset);    
+	  return SANE_STATUS_INVAL;
+	}
+      rb->image_line_no++;
+      /* line finished read_buffer no longer empty */
+      rb->empty = SANE_FALSE;
+      rb->gray_offset = 0;
+      /* are we at the last line in the read buffer ? */
+      if (rb->writeptr == rb->max_writeptr)
+	rb->writeptr = rb->data;	/* back to beginning of buffer */
+      else
+	rb->writeptr = rb->writeptr + rb->linesize;	/* next line */
+      /* clear the bit counter */
+      rb->bit_counter = 0;
+    }
+  /* last bit in the byte? */ 
+  else if ( bitIndex == 7 )
+    {
+      /* Not at the end of the line, but byte done. Increment byte offset */
+      rb->gray_offset = rb->gray_offset + (1 * sizeof (SANE_Byte));
+      /* increment bit counter */ 
+      rb->bit_counter++;
+    }
+  else
+    {
+      /* else increment bit counter */ 
+      rb->bit_counter++;
+    }
+
   return SANE_STATUS_GOOD;
 }
 

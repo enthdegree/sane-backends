@@ -151,3 +151,7 @@ Version 0.43-7 05/11/2005
 Version 0.43-8 08/10/2005
     1.0 Fixed problem on ASIC96003/1 based devices, when scanning 
         lineart at 200 and 300 dpi
+
+Version 0.43-9 11/14/2005
+    1.0 Fixed sizeof(long) issue for 64bit platforms, see 
+        bug #302195

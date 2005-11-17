@@ -42,40 +42,35 @@ scanimage --help -d lexmark:usb:<usb port>
 .RE
 
 .TP
-.B Scan Mode
+.B Scan Mode Options
 
 .TP
 .B --mode
 selects the basic mode of operation of the scanner valid choices are 
-.I Lineart
+.I Color
 ,
 .I Gray
 and
-.I Color
-The Lineart mode is black and white only (1 bit). Grayscale
-will produce 256 levels of gray (8 bits). Color will produce a 24 bit
-color image.
+.I Lineart
+The default mode is Color. The Lineart mode is black and white only (1 bit). 
+Grayscale will produce 256 levels of gray (8 bits). Color mode allows for over
+16 million different colors produced from 24 bits of color information.
 
 .TP
 .B --resolution
-selects the horizontal resolution for a scan.
-
-.TP
-.B --y-resolution
-selects the vertical resolution for a scan. 
-
-The scanner is capable of the following resolutions:
+selects the resolution for a scan. The horizontal and vertical resolutions are set 
+by the value of this option. The scanner is capable of the following resolutions for the specified option value:
 .PP
 .RS
 .ft CR
 .nf
-  Horizontal Resolution   Vertical Resolution 
-  ----------------------  --------------------
-  75dpi                   75dpi
-  150dpi                  150dpi 
-  300dpi                  300dpi 
-  600dpi                  600dpi 
-  600dpi                  1200dpi 
+  Value   Hor. Resolution  Vert. Resolution 
+  -----   ---------------  -------------------
+  75      75dpi            75dpi
+  150     150dpi           150dpi 
+  300     300dpi           300dpi 
+  600     600dpi           600dpi 
+  1200    600dpi           1200dpi 
 .fi
 .ft R
 .RE
@@ -83,11 +78,12 @@ The scanner is capable of the following resolutions:
 .TP 
 .B --preview
 requests a preview scan. The resolution used for that scan is 75 dpi
-and the scan area is the default or user selected as is the scan mode. The default is "no".
+and the scan area and the scan mode are as specified through their options, 
+or the default if not specified. The default value for preview mode is "no".
 
 .TP
-.B paper-size
- Selects the size of the area to be scanned. Valid sizes are
+.B --paper-size
+selects the size of the area to be scanned. Valid sizes are
 .I Wallet
 ,
 .I 3x5
@@ -101,6 +97,12 @@ and the scan area is the default or user selected as is the scan mode. The defau
 .I Letter
 , the default size is 3x5.
         
+.TP 
+.B --threshold
+selects the  minimum-brightness to get a white point. The threshold is only used with Lineart mode scans.
+It is specified as a percentage in the range 0..100% (in steps of 1).  
+The default value of the threshold option is 50.
+
 
 .SH CONFIGURATION FILE
 The configuration file @CONFIGDIR@/lexmark.conf contains only the usb device id (eg usb 0x043d 0x007c).
@@ -133,10 +135,11 @@ implements what the scanner can support.
 
 .SH BUGS
 
-Byte ordering for color scans.
+.br 
 Jerky movement on 600dpi gray 8x10 scan.
-Lineart not working.
+.br 
 Color calibration not implemented.
+.br 
 Dark compensation not implemented.
 
 

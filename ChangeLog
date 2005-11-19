@@ -1,3 +1,15 @@
+2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+        * backend/genesys_gl841.c backend/genesys_devices.c: 
+          Added support for Canon LiDE 35/40/50
+        * backend/genesys.c backend/genesys_low.h 
+	  backend/genesys_gl646.c: Reworked data conversion 
+          process to convert CIS data, added new slope 
+	  generation variant
+	* backend/genesys_conv.c backend/genesys_conv_hlp.c: 
+          Moved conversion filter functions out of 
+          backend/genesys.c
+
 2005-11-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c: Disable 2400 DPI for 

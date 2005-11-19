@@ -4,6 +4,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <svoltz@numericable.fr>
+   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
    This file is part of the SANE package.
    
@@ -55,38 +56,51 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    , {0x80, 0x80, 0x80}
    , {0x02, 0x02, 0x02}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* UMAX */
   {{0x00, 0x03, 0x05, 0x03}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x04, 0x04, 0x04}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* ST12 */
   {{0x00, 0x03, 0x05, 0x21}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x06, 0x06, 0x06}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* ST24 */
   {{0x00, 0x03, 0x05, 0x12}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x04, 0x04, 0x04}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* MD6228/MD6471 */
   {{0x00, 0x03, 0x05, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xc0, 0xc0, 0xc0}
    , {0x07, 0x07, 0x07}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* HP2400c */
   {{0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xb0, 0xb0, 0xb0}
    , {0x04, 0x04, 0x04}
+   , {0x00, 0x00, 0x00}
    }
   ,				/* HP2300c */
+  {{0x00, 0x3d, 0x08, 0x00}
+   , {0x00, 0x00, 0x00}
+   , {0xe1, 0xe1, 0xe1}
+   , {0x93, 0x93, 0x93}
+   , {0x00, 0x19, 0x06}
+   }
+  ,				/* CANONLIDE35 */
 };
 
 
@@ -180,11 +194,34 @@ static Genesys_Sensor Sensor[] = {
    ,
    2.1, 2.1, 2.1,
    NULL, NULL, NULL}
+  ,
+  /* CANOLIDE35 */
+  {1200,
+/*TODO: find a good reason for keeping all three following variables*/
+   87, /*(black)*/
+   87, /* (dummy)*/
+   0, /* (startxoffset)*/
+   10400, /*sensor_pixels*/
+   210, 
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50, 
+    0x00, 0x00, 0x00, 0x00 /* TODO(these do no harm, but may be neccessery for CCD)*/
+   },
+   {0x05, 0x07, 
+    0x00, 0x00, 0x00, 0x00, /*[GB](HI|LOW) not needed for cis*/ 
+    0x3a, 0x03, 
+    0x40, /*TODO: bit7*/
+    0x00, 0x00, 0x00, 0x00 /*TODO (these do no harm, but may be neccessery for CCD)*/
+   }
+   ,
+   0.45, 0.45, 0.45,
+   NULL, NULL, NULL}
 };
 
 /** for General Purpose Output specific settings:
- * initial GPO value (registers 0x66-0x67)
- * GPO enable mask (registers 0x68-0x69)
+ * initial GPO value (registers 0x66-0x67/0x6c-0x6d)
+ * GPO enable mask (registers 0x68-0x69/0x6e-0x6f)
  */
 static Genesys_Gpo Gpo[] = {
   /* UMAX */
@@ -234,6 +271,14 @@ static Genesys_Gpo Gpo[] = {
    {0x00, 0x00}
    ,
    }
+  ,
+  /* CANONLIDE35 */
+  {
+   {0x81, 0x80}
+   ,
+   {0xef, 0x80}
+   ,
+   }
 };
 
 #define MOTOR_ST24       2
@@ -241,24 +286,112 @@ static Genesys_Motor Motor[] = {
   /* UMAX */
   {
    1200,			/* motor base steps */
-   2400				/* maximum motor resolution */
-   }
-  ,
+   2400,			/* maximum motor resolution */
+   1,                           /* maximum step mode*/
+   {{   
+       11000,                       /* maximum start speed */
+       3000,                        /* maximum end speed */
+       128,                         /* step count */
+       1.0,                         /* nonlinearity */
+   },
+    {
+       11000,
+       3000,
+       128,
+       1.0,
+    },
+   },
+  },
   {				/* MD5345/6228/6471 */
    1200,
-   2400}
-  ,
+   2400,
+   1,
+   {{   
+       2000,
+       1375,
+       128,
+       0.5,  
+   },
+    {
+       2000,
+       1375,
+       128,
+       0.5,  
+    },
+   },
+  },
   {				/* ST24 */
    2400,
-   2400}
-  ,
+   2400,
+   1,
+   {{   
+       2289,
+       2100,
+       128,
+       0.3,
+   },
+    {
+       2289,
+       2100,
+       128,
+       0.3,
+    },
+   },
+  },
   {				/* HP 2400c */
    1200,
-   2400}
-  ,
+   2400,
+   1,
+   {{   
+       11000,
+       3000,
+       128,
+       1.0,
+   },
+    {
+       11000,
+       3000,
+       128,
+       1.0,
+    },
+   },
+  },
   {				/* HP 2300c */
    600,
-   1200}
+   1200,
+   1,
+   {{   
+       3200,
+       1200,
+       128,
+       0.5,
+   },
+    {
+       3200,
+       1200,
+       128,
+       0.5,
+    },
+   },
+  },
+  {				/* Canon LiDE 35 */
+   1200,
+   2400,
+   1,
+   {{
+       3000,
+       1300, 
+       50,
+       0.8, 
+   },
+    {
+	3000,
+	1400,
+	50,
+	0.8, 
+    },
+   },
+  },
 };
 
 /* here we have the various device settings...
@@ -309,7 +442,7 @@ static Genesys_Model canon_lide_50_model = {
   "canon-lide-50",		/* Name */
   "Canon",			/* Device vendor string */
   "LiDE 35/50",			/* Device model name */
-  GENESYS_GL646,
+  GENESYS_GL841,
   NULL,
 
   {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
@@ -317,13 +450,13 @@ static Genesys_Model canon_lide_50_model = {
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
-  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
-  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
   SANE_FIX (218.0),		/* Size of scan area in mm (x) */
   SANE_FIX (299.0),		/* Size of scan area in mm (y) */
 
-  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
-  SANE_FIX (1.0),		/* Start of black mark in mm (x) */
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
 
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
   SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
@@ -334,17 +467,20 @@ static Genesys_Model canon_lide_50_model = {
 
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
-  COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
-  CCD_UMAX,
-  DAC_WOLFSON_UMAX,
-  GPO_UMAX,
-  MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
-  /* untested, values set by hmg */
-  20,
-  200
+  CCD_CANONLIDE35,
+  DAC_CANONLIDE35,
+  GPO_CANONLIDE35,
+  MOTOR_CANONLIDE35,
+  GENESYS_FLAG_UNTESTED
+  | GENESYS_FLAG_LAZY_INIT
+  | GENESYS_FLAG_SKIP_WARMUP
+  | GENESYS_FLAG_OFFSET_CALIBRATION
+  | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  300,
+  400
 };
 
 static Genesys_Model hp2300c_model = {

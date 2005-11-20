@@ -12,6 +12,7 @@
 	  Primax Colorado 1200p.
 	* tools/hotplug/libsane.usermap: Added Plustek Opticslim 2400 ids
 	  (from Jan Matousek).
+	* NEWS: Updated.
 
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

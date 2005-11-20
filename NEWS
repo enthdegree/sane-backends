@@ -1,15 +1,15 @@
 -*-Mode: outline-*-
-New with 1.0.17, released 2005-??-??:
+New with 1.0.17, released 2005-12-11:
 
 * New backends: hp4200 (HP ScanJet 4200), lexmark (Lexmark X1100 series),
   mustek_usb2 (Mustek BearPaw 2448 TA Pro)
-* Updated backends: fujitsu, gt68xx, microtek2, mustek_pp, plustek,
-  plustek_pp, sm3600, snapscan, umax_pp.
+* Updated backends: artec_eplus48u, fujitsu, genesys, gt68xx, microtek2,
+  mustek_pp, plustek, plustek_pp, sm3600, snapscan, umax_pp.
 * Hotplug/udev updates.
 * scanimage fixes.
 * sane-find-scanner finds more chipsets.
-* Build system fixes/updates.
-* Portability fixes (especially for *BSD, OS/2).
+* Build system fixes/updates. make now calls makedepend.
+* Portability fixes (especially for MacOSX, FreeBSD, OpenBSD, OS/2).
 * Updated translations.
 * Documentation updates.
 * Bugfixes.

@@ -10,6 +10,8 @@
 	* doc/descriptions/unsupported.desc: Moved Canon LiDE 35/40/50/60
 	  to genesys.desc. Added Canon Pixma MP150, Tevion MD 90070 and
 	  Primax Colorado 1200p.
+	* tools/hotplug/libsane.usermap: Added Plustek Opticslim 2400 ids
+	  (from Jan Matousek).
 
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

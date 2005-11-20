@@ -6,6 +6,7 @@
 	  is still commented out in genesys.conf. Removed comment sign for
 	  Canon LiDE 35/40/50 in genesys.conf.
 	* doc/descriptions/genesys.desc: Added Canon LiDE 35, 40, 50, 60.
+	* doc/sane-genesys.man: Updated concerning gl841 scanners.
 
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

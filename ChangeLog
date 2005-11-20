@@ -1,3 +1,11 @@
+2005-11-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/genesys.c backend/genesys_devices.c
+	  backend/genesys.conf: Bumped build number. Changed scanner's
+	  name to Canon LiDE 35/40/50. Added Canon LiDE LiDE 60. This scanner
+	  is still commented out in genesys.conf. Removed comment sign for
+	  Canon LiDE 35/40/50 in genesys.conf.
+
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
         * backend/genesys_gl841.c backend/genesys_devices.c: 

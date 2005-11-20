@@ -441,7 +441,7 @@ static Genesys_Model umax_astra_4500_model = {
 static Genesys_Model canon_lide_50_model = {
   "canon-lide-50",		/* Name */
   "Canon",			/* Device vendor string */
-  "LiDE 35/50",			/* Device model name */
+  "LiDE 35/40/50",			/* Device model name */
   GENESYS_GL841,
   NULL,
 
@@ -482,6 +482,51 @@ static Genesys_Model canon_lide_50_model = {
   300,
   400
 };
+
+static Genesys_Model canon_lide_60_model = {
+  "canon-lide-60",		/* Name */
+  "Canon",			/* Device vendor string */
+  "LiDE 60",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.42),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.9),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  CCD_CANONLIDE35,
+  DAC_CANONLIDE35,
+  GPO_CANONLIDE35,
+  MOTOR_CANONLIDE35,
+  GENESYS_FLAG_UNTESTED
+  | GENESYS_FLAG_LAZY_INIT
+  | GENESYS_FLAG_SKIP_WARMUP
+  | GENESYS_FLAG_OFFSET_CALIBRATION
+  | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  300,
+  400
+}; /* this is completely untested -- hmg */
 
 static Genesys_Model hp2300c_model = {
   "hewlett-packard-scanjet-2300c",	/* Name */
@@ -749,6 +794,7 @@ static Genesys_Model medion_md5345_model = {
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
+  {0x04a9, 0x221c, &canon_lide_60_model},
   {0x03f0, 0x0901, &hp2300c_model},
   {0x03f0, 0x0a01, &hp2400c_model},
   {0x03f0, 0x1405, &hp3670c_model},

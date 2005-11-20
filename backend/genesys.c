@@ -50,7 +50,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 5
+#define BUILD 7
 
 #include <errno.h>
 #include <string.h>

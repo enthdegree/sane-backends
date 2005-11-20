@@ -5,6 +5,7 @@
 	  name to Canon LiDE 35/40/50. Added Canon LiDE LiDE 60. This scanner
 	  is still commented out in genesys.conf. Removed comment sign for
 	  Canon LiDE 35/40/50 in genesys.conf.
+	* doc/descriptions/genesys.desc: Added Canon LiDE 35, 40, 50, 60.
 
 2005-11-19  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

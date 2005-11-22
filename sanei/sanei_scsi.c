@@ -1171,7 +1171,7 @@ sanei_scsi_open (const char *dev, int *fdp,
 # endif
 # ifdef HAVE_IOKIT_CDB_IOSCSILIB_H
     if ((pdata == NULL) &&
-	(sscanf (dev, "u%dt%dl%d", &bus, &target, &lun) != 3))
+	(sscanf (dev, "u%ut%ul%u", &bus, &target, &lun) != 3))
 # else
     if (pdata == NULL)
 # endif
@@ -4927,17 +4927,24 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     SCSIResults results;
     UInt32 seqNumber;
 
-    masterPort = NULL;
+    masterPort = 0;
     ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
-    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
-      return SANE_STATUS_IO_ERROR;
+    if (ioReturnValue != kIOReturnSuccess || masterPort == 0)
+      {
+	DBG (5, "Could not get I/O master port (0x%08x)\n", ioReturnValue);
+	return SANE_STATUS_IO_ERROR;
+      }
 
-    scsiDevice = NULL;
+    scsiDevice = 0;
     for (i = 0; !scsiDevice && i < 2; i++)
       {
 	scsiMatchDictionary = IOServiceMatching (kIOSCSIDeviceClassName);
 	if (scsiMatchDictionary == NULL)
-	  return SANE_STATUS_NO_MEM;
+	  {
+	    DBG (5, "Could not create SCSI matching dictionary\n");
+	    return SANE_STATUS_NO_MEM;
+	  }
+
 	deviceTypeNumber =
 	  (i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
 	deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
@@ -4947,12 +4954,15 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			      deviceTypeRef);
 	CFRelease (deviceTypeRef);
 
-	scsiObjectIterator = NULL;
+	scsiObjectIterator = 0;
 	ioReturnValue = IOServiceGetMatchingServices (masterPort,
 						      scsiMatchDictionary,
 						      &scsiObjectIterator);
 	if (ioReturnValue != kIOReturnSuccess)
-	  return SANE_STATUS_NO_MEM;
+	  {
+	    DBG (5, "Could not match services (0x%08x)\n", ioReturnValue);
+	    return SANE_STATUS_NO_MEM;
+	  }
 
 	while ((device = IOIteratorNext (scsiObjectIterator)))
 	  {
@@ -4985,7 +4995,11 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	IOObjectRelease (scsiObjectIterator);
       }
     if (!scsiDevice)
-      return SANE_STATUS_INVAL;
+      {
+	DBG (5, "Device not found (unit %i, target %i, lun %i)\n",
+	     fd_info[fd].bus, fd_info[fd].target, fd_info[fd].lun);
+	return SANE_STATUS_INVAL;
+      }
 
     plugInInterface = NULL;
     score = 0;
@@ -4995,7 +5009,10 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 						       &plugInInterface,
 						       &score);
     if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
-      return SANE_STATUS_NO_MEM;
+      {
+	DBG (5, "Error creating plugin interface (0x%08x)\n", ioReturnValue);
+	return SANE_STATUS_NO_MEM;
+      }
 
     scsiDeviceInterface = NULL;
     plugInResult = (*plugInInterface)->
@@ -5003,14 +5020,20 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		      CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
 		      (LPVOID) & scsiDeviceInterface);
     if (plugInResult != S_OK || scsiDeviceInterface == NULL)
-      return SANE_STATUS_NO_MEM;
+      {
+	DBG (5, "Couldn't create SCSI device interface (%ld)\n", plugInResult);
+	return SANE_STATUS_NO_MEM;
+      }
 
     (*plugInInterface)->Release (plugInInterface);
     IOObjectRelease (scsiDevice);
 
     ioReturnValue = (*scsiDeviceInterface)->open (scsiDeviceInterface);
     if (ioReturnValue != kIOReturnSuccess)
-      return SANE_STATUS_IO_ERROR;
+      {
+	DBG (5, "Error opening SCSI interface (0x%08x)\n", ioReturnValue);
+	return SANE_STATUS_IO_ERROR;
+      }
 
     cdbCommandInterface = NULL;
     plugInResult = (*scsiDeviceInterface)->
@@ -5018,7 +5041,10 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		      CFUUIDGetUUIDBytes (kIOCDBCommandInterfaceID),
 		      (LPVOID) & cdbCommandInterface);
     if (plugInResult != S_OK || cdbCommandInterface == NULL)
-      return SANE_STATUS_NO_MEM;
+      {
+	DBG (5, "Error creating CDB interface (%ld)\n", plugInResult);
+	return SANE_STATUS_NO_MEM;
+      }
 
     cdb.cdbLength = cmd_size;
     memcpy (&cdb.cdb, cmd, cmd_size);
@@ -5045,13 +5071,20 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			    0, 0, 0, &seqNumber);
     if (ioReturnValue != kIOReturnSuccess &&
 	ioReturnValue != kIOReturnUnderrun)
-      return SANE_STATUS_IO_ERROR;
+      {
+	DBG (5, "Error executing CDB command (0x%08x)\n", ioReturnValue);
+	return SANE_STATUS_IO_ERROR;
+      }
 
     ioReturnValue = (*cdbCommandInterface)->getResults (cdbCommandInterface,
 							&results);
     if (ioReturnValue != kIOReturnSuccess &&
 	ioReturnValue != kIOReturnUnderrun)
-      return SANE_STATUS_IO_ERROR;
+      {
+	DBG (5, "Error getting results from CDB Interface (0x%08x)\n",
+	     ioReturnValue);
+	return SANE_STATUS_IO_ERROR;
+      }
 
     if (dst && dst_size)
       *dst_size = results.bytesTransferred;
@@ -5093,16 +5126,22 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     UInt32 inquirySize;
     char devname[16];
 
-    masterPort = NULL;
+    masterPort = 0;
     ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
-    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
-      return;
+    if (ioReturnValue != kIOReturnSuccess || masterPort == 0)
+      {
+	DBG (5, "Could not get I/O master port (0x%08x)\n", ioReturnValue);
+	return;
+      }
 
     for (i = 0; i < 2; i++)
       {
 	scsiMatchDictionary = IOServiceMatching (kIOSCSIDeviceClassName);
 	if (scsiMatchDictionary == NULL)
-	  return;
+	  {
+	    DBG (5, "Could not create SCSI matching dictionary\n");
+	    return;
+	  }
 	deviceTypeNumber =
 	  (i == 0 ? kSCSIDevTypeScanner : kSCSIDevTypeProcessor);
 	deviceTypeRef = CFNumberCreate (NULL, kCFNumberIntType,
@@ -5112,12 +5151,15 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			      deviceTypeRef);
 	CFRelease (deviceTypeRef);
 
-	scsiObjectIterator = NULL;
+	scsiObjectIterator = 0;
 	ioReturnValue = IOServiceGetMatchingServices (masterPort,
 						      scsiMatchDictionary,
 						      &scsiObjectIterator);
 	if (ioReturnValue != kIOReturnSuccess)
-	  return;
+	  {
+	    DBG (5, "Could not match services (0x%08x)\n", ioReturnValue);
+	    return;
+	  }
 
 	while ((scsiDevice = IOIteratorNext (scsiObjectIterator)))
 	  {
@@ -5148,7 +5190,11 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 						 kIOCFPlugInInterfaceID,
 						 &plugInInterface, &score);
 	    if (ioReturnValue != kIOReturnSuccess || plugInInterface == NULL)
-	      return;
+	      {
+		DBG (5, "Error creating plugin interface (0x%08x)\n",
+		     ioReturnValue);
+		return;
+	      }
 
 	    scsiDeviceInterface = NULL;
 	    plugInResult = (*plugInInterface)->
@@ -5156,7 +5202,11 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			      CFUUIDGetUUIDBytes (kIOSCSIDeviceInterfaceID),
 			      (LPVOID) & scsiDeviceInterface);
 	    if (plugInResult != S_OK || scsiDeviceInterface == NULL)
-	      return;
+	      {
+		DBG (5, "Couldn't create SCSI device interface (%ld)\n",
+		     plugInResult);
+		return;
+	      }
 
 	    (*plugInInterface)->Release (plugInInterface);
 	    IOObjectRelease (scsiDevice);
@@ -5291,9 +5341,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 					 &plugInInterface, &score);
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5,
-	     "Couldn't create a plugin interface for the service. (0x%08x)\n",
-	     ioReturnValue);
+	DBG (5, "Error creating plugin interface (0x%08x)\n", ioReturnValue);
 	return;
       }
 
@@ -5307,7 +5355,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 					  (LPVOID) & interface);
     if (plugInResult != S_OK)
       {
-	DBG (5, "Couldn't create SCSI device interface. (%ld)\n",
+	DBG (5, "Couldn't create SCSI device interface (%ld)\n",
 	     plugInResult);
 	return;
       }
@@ -5371,7 +5419,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     ioReturnValue = (*task)->SetCommandDescriptorBlock (task, cdb, cmd_size);
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting CDB. (0x%08x)\n", ioReturnValue);
+	DBG (5, "Error setting CDB (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
@@ -5381,7 +5429,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 						      transferType);
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting scatter-gather entries. (0x%08x)\n",
+	DBG (5, "Error setting scatter-gather entries (0x%08x)\n",
 	     ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
@@ -5391,7 +5439,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 						 sane_scsicmd_timeout * 1000);
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error setting timeout. (0x%08x)\n", ioReturnValue);
+	DBG (5, "Error setting timeout (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
@@ -5402,7 +5450,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 					      &transferCount);
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "Error executing task. (0x%08x)\n", ioReturnValue);
+	DBG (5, "Error executing task (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_IO_ERROR;
       }
 
@@ -5437,7 +5485,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     if (ioReturnValue != kIOReturnSuccess)
       {
-	DBG (5, "ObtainExclusiveAccess failed. (0x%08x)\n", ioReturnValue);
+	DBG (5, "ObtainExclusiveAccess failed (0x%08x)\n", ioReturnValue);
 	return SANE_STATUS_NO_MEM;
       }
 
@@ -5446,7 +5494,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     if (task == NULL)
       {
-	DBG (5, "CreateSCSITask returned NULL.\n");
+	DBG (5, "CreateSCSITask returned NULL\n");
 	(*interface)->ReleaseExclusiveAccess (interface);
 	return SANE_STATUS_NO_MEM;
       }
@@ -5484,20 +5532,26 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
     guid = fd_info[fd].pdata;
     if (!guid)
-      return SANE_STATUS_INVAL;
+      {
+	DBG (5, "No GUID\n");
+	return SANE_STATUS_INVAL;
+      }
 
     DBG (2, "cmd2: cmd_size:%ld src_size:%ld dst_size:%ld isWrite:%d\n",
 	 cmd_size, src_size, (!dst_size) ? 0 : *dst_size, (!dst_size) ? 1 : 0);
 
     /* Use default master port */
-    masterPort = NULL;
+    masterPort = 0;
     ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
-    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
-      return SANE_STATUS_IO_ERROR;
+    if (ioReturnValue != kIOReturnSuccess || masterPort == 0)
+      {
+	DBG (5, "Could not get I/O master port (0x%08x)\n", ioReturnValue);
+	return SANE_STATUS_IO_ERROR;
+      }
 
     /* Search for both Scanner type and Processor type devices */
     /* GB TDB This should only be needed for find */
-    scsiDevice = NULL;
+    scsiDevice = 0;
     for (i = 0; !scsiDevice && i < 2; i++)
       {
 	peripheralDeviceType =
@@ -5517,7 +5571,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	  }
 
 	/* Now search I/O Registry for the matching device */
-	iokIterator = NULL;
+	iokIterator = 0;
 	ioReturnValue =
 	  IOServiceGetMatchingServices (masterPort, matchingDict,
 					&iokIterator);
@@ -5600,9 +5654,9 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     CFNumberRef scsiLunRef;
     int scsilun;
 
-    masterPort = NULL;
+    masterPort = 0;
     ioReturnValue = IOMasterPort (MACH_PORT_NULL, &masterPort);
-    if (ioReturnValue != kIOReturnSuccess || masterPort == NULL)
+    if (ioReturnValue != kIOReturnSuccess || masterPort == 0)
       return;
 
     DBG (5, "Search for Vendor: %s Model: %s\n",
@@ -5631,7 +5685,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 	/* Now search I/O Registry for matching devices. */
 
-	iokIterator = NULL;
+	iokIterator = 0;
 	ioReturnValue =
 	  IOServiceGetMatchingServices (masterPort, matchingDict,
 					&iokIterator);
@@ -5677,7 +5731,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		    for (i = 0; i < len; i++)
 		      sprintf (&devname [2 * i + 1], "%02x", p [i]);
 		    devname [2 * len + 1] = '>';
-		    devname [2 * len + 2] = NULL;
+		    devname [2 * len + 2] = '\0';
 
 		    CFRelease (GUIDRef);
 

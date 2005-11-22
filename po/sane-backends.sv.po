@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-28 07:45+0200\n"
-"PO-Revision-Date: 2005-08-02 17:04+0200\n"
+"POT-Creation-Date: 2005-11-22 06:10+0100\n"
+"PO-Revision-Date: 2005-11-22 06:19+0100\n"
 "Last-Translator: Mattias Ellert <mattias.ellert@tsl.uu.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
+#: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:89 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
 #: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:79
 #: .tmp/umax.c:186 .tmp/umax_pp.c:137
@@ -33,7 +33,7 @@ msgstr "Streckteckning"
 msgid "Grayscale"
 msgstr "Gråskala"
 
-#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
+#: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:86
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
 #: .tmp/sceptre.h:292 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
@@ -46,7 +46,7 @@ msgstr "Färg"
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
 #: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
 #: .tmp/niash.c:756 .tmp/plustek.c:798 .tmp/plustek_pp.c:792
-#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:553 .tmp/teco1.c:1143
+#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:558 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
@@ -62,11 +62,11 @@ msgstr "Standardvärden"
 msgid "Set default values for enhancement controls."
 msgstr "Använd standardvärden för förbättringsinställningar."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3973
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4401
 #: .tmp/gt68xx.c:694 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
 #: .tmp/mustek_usb.c:305 .tmp/plustek.c:752 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:486 .tmp/teco1.c:1095
+#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:491 .tmp/teco1.c:1095
 #: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:501
 #, no-c-format
@@ -178,7 +178,7 @@ msgstr "Väljer gammakorrigerad överföringskurva"
 msgid "Binary"
 msgstr "Binär"
 
-#: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
+#: .tmp/epson.c:485 .tmp/genesys.c:87 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
 #: .tmp/sceptre.h:291 .tmp/snapscan-options.c:78 .tmp/test.c:122
 #: .tmp/umax.c:188
@@ -196,7 +196,7 @@ msgstr "Enkelsidigt"
 msgid "Duplex"
 msgstr "Dubbelsidigt"
 
-#: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
+#: .tmp/epson.c:501 .tmp/genesys.c:94 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
 #: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:82 .tmp/umax.c:182
 #, no-c-format
@@ -395,11 +395,11 @@ msgstr "A4"
 msgid "Max"
 msgstr "Max"
 
-#: .tmp/epson.c:2782 .tmp/genesys.c:3902 .tmp/gt68xx.c:451
+#: .tmp/epson.c:2782 .tmp/genesys.c:4330 .tmp/gt68xx.c:451
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:600 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
 #: .tmp/niash.c:736 .tmp/plustek.c:668 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:313 .tmp/teco2.c:1875
+#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:315 .tmp/teco2.c:1875
 #: .tmp/test.c:293 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
@@ -525,7 +525,7 @@ msgstr "Lägger till till rött beroende på blånivån"
 msgid "Controls blue level"
 msgstr "Bestämmer blånivån"
 
-#: .tmp/epson.c:3166 .tmp/snapscan-options.c:801 .tmp/umax.c:5563
+#: .tmp/epson.c:3166 .tmp/snapscan-options.c:805 .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Avancerat"
@@ -660,23 +660,23 @@ msgstr ""
 "Efter att ha skickat inläsningskommandot, vänta tills knappen på läsaren "
 "trycks in för att starta inläsningen."
 
-#: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
+#: .tmp/genesys.c:95 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Skrivfilmsadapter"
 
-#: .tmp/genesys.c:4024
+#: .tmp/genesys.c:4452
 #, no-c-format
 msgid "Extras"
 msgstr "Övrigt"
 
-#: .tmp/genesys.c:4033
+#: .tmp/genesys.c:4461
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Lampavstängningstid"
 
-#: .tmp/genesys.c:4036
+#: .tmp/genesys.c:4464
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
@@ -1396,12 +1396,12 @@ msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr ""
 "Denna inställning slår av lampan på flatbäddsbildläsaren under en inläsning"
 
-#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:369
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:374
 #, no-c-format
 msgid "Quality scan"
 msgstr "Kvalitetsinläsning"
 
-#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:370
+#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:375
 #, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "Högsta kvalitet men lägre hastighet"
@@ -1850,17 +1850,17 @@ msgstr "Kalibreringsdatacache"
 #: .tmp/plustek.c:875
 #, no-c-format
 msgid "Enables or disables calibration data cache."
-msgstr "Aktiverar eller avaktiverar kaliberingsdatacache."
+msgstr "Aktiverar eller deaktiverar kaliberingsdatacache."
 
 #: .tmp/plustek.c:880
 #, no-c-format
 msgid "Speedup sensor"
-msgstr ""
+msgstr "Öka givarens hastighet"
 
 #: .tmp/plustek.c:881
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr ""
+msgstr "Aktiverar eller deaktiverar ökning av givarens rörelsehastighet."
 
 #: .tmp/plustek.c:895
 #, no-c-format
@@ -1988,11 +1988,9 @@ msgid "Scanner button"
 msgstr "Bildläsarknapp"
 
 #: .tmp/plustek.c:1005
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr ""
-"Denna inställing avspeglar knappen på bildläsarens frontpanel som trycks ned "
-"av användaren."
+msgstr "Denna inställing avspeglar status på bildläsarens knappar."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -2932,12 +2930,12 @@ msgstr ""
 "hög kan X-baserade framplan sluta svara på X-händelser och ditt system kan "
 "gå ned."
 
-#: .tmp/snapscan-options.c:429
+#: .tmp/snapscan-options.c:434
 #, no-c-format
 msgid "Preview mode"
 msgstr "Förhandsgranskningsläge"
 
-#: .tmp/snapscan-options.c:431
+#: .tmp/snapscan-options.c:436
 #, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -2946,24 +2944,24 @@ msgstr ""
 "Välj förhandsgranskningsläge. Gråskaleförhandsgranskningar ger oftast den "
 "bästa kombinationen av hastighet och detaljrikedom."
 
-#: .tmp/snapscan-options.c:537
+#: .tmp/snapscan-options.c:542
 #, no-c-format
 msgid "Predefined settings"
 msgstr "Fördefinierade inställningar"
 
-#: .tmp/snapscan-options.c:539
+#: .tmp/snapscan-options.c:544
 #, no-c-format
 msgid ""
 "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr ""
 "Ger standardinläsningsytor för fotografier, tryckta sidor och liknande."
 
-#: .tmp/snapscan-options.c:808
+#: .tmp/snapscan-options.c:812
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Färglinjer per inläsning"
 
-#: .tmp/snapscan-options.c:820
+#: .tmp/snapscan-options.c:824
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Gråskalelinjer per inläsning"

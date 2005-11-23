@@ -421,6 +421,7 @@ static void init_options (SnapScan_Scanner * ps)
     {
     case SNAPSCAN310:
     case PRISA310:
+    case PERFECTION3490:
         po[OPT_MODE].constraint.string_list = names_basic;
         break;
     default:
@@ -447,6 +448,7 @@ static void init_options (SnapScan_Scanner * ps)
     {
     case SNAPSCAN310:
     case PRISA310:
+    case PERFECTION3490:
         po[OPT_PREVIEW_MODE].constraint.string_list = preview_names_basic;
         break;
     default:
@@ -1606,6 +1608,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.32  2005/11/23 20:57:01  oliver-guest
+ * Disable bilevel colour / halftoning for Epson 3490
+ *
  * Revision 1.31  2005/11/17 23:47:10  oliver-guest
  * Revert previous 'fix', disable 2400 dpi for Epson 3490, use 1600 dpi instead
  *

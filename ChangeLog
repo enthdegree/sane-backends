@@ -1,3 +1,8 @@
+2005-11-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-options.c: Disable bilevel colour / halftoning
+	  for Epson 3490
+
 2005-11-23  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/Makefile.in: added "artec_eplus48u" to FIRMWARE_DIRS

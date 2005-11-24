@@ -79,8 +79,8 @@ debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-find\-scanner (1),
-.BR sane\-scsi (5),
+.BR sane-find-scanner (1),
+.BR sane-scsi (5),
 
 .SH AUTHOR
 mf <massifr@tiscalinet.it>

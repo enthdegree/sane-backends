@@ -75,6 +75,6 @@ Example:
 export SANE_DEBUG_TAMARACK=4
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .SH AUTHOR
 Roger Wolff

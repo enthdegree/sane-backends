@@ -86,7 +86,7 @@ export SANE_DEBUG_HP4200=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
+.BR sane-usb (5),
 .br
 .I http://hp4200-backend.sourceforge.net/
 

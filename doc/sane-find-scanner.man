@@ -4,12 +4,12 @@
 sane-find-scanner \- find SCSI and USB scanners and their device files
 .SH SYNOPSIS
 .B sane-find-scanner
-.RB [ \-h | \-? ]
-.RB [ \-v ]
-.RB [ \-q ]
-.RB [ \-p ]
-.RB [ \-f ]
-.RB [ \-F 
+.RB [ -h | -? ]
+.RB [ -v ]
+.RB [ -q ]
+.RB [ -p ]
+.RB [ -f ]
+.RB [ -F 
 .IR filename ]
 .RI [ devname ]
 
@@ -64,28 +64,28 @@ At the time of writing this will only detect Mustek parallel port scanners.
 
 .SH OPTIONS
 .TP 8
-.B \-h, \-?
+.B -h, -?
 Prints a short usage message.
 .TP 8
-.B \-v
+.B -v
 Verbose output. If used once, 
 .B sane-find-scanner
 shows every device name and the test result.  If used twice, SCSI inquiry
 information and the USB device descriptors are also printed.
 .TP 8
-.B \-q
+.B -q
 Be quiet. Print only the devices, no comments.
 .TP 8
-.B \-p
+.B -p
 Probe parallel port scanners.
 .TP 8
-.B \-f
+.B -f
 Force opening all explicitly given devices as SCSI and USB devices. That's
 useful if 
 .B sane-find-scanner
 is wrong in determining the device type.
 .TP 8
-.B \-F filename
+.B -F filename
 filename is a file that contains USB descriptors in the format of
 /proc/bus/usb/devices as used by Linux.
 .B sane-find-scanner

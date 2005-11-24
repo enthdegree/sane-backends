@@ -55,7 +55,7 @@ for example.
 .SH CONFIGURATION
 The contents of the
 .I ma1509.conf
-file is a list of options and device names that correspond to Mustek BearPAw
+file is a list of options and device names that correspond to Mustek BearPaw
 1200F scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.
 .PP

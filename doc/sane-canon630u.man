@@ -97,7 +97,7 @@ Example:
 .br 
 SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
-sane(7), sane\-usb(5), sane\-find\-scanner(1)
+sane(7), sane-usb(5), sane-find-scanner(1)
 .br
 http://canon-fb630u.sourceforge.net/
 .br

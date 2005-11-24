@@ -86,7 +86,7 @@ export SANE_DEBUG_HP5400=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
+.BR sane-usb (5),
 .br
 .I http://hp5400backend.sourceforge.net/
 

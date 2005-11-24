@@ -22,8 +22,8 @@ The Siemens ST/Highscan series includes several more models, e.g. the ST300
 and ST600.  If you own one of these scanners, or a scanner other than the
 ones listed above that works with this backend, please let us know by sending
 the scanner's model name, SCSI ID, and firmware revision to
-.IR sane\-devel@lists.alioth.debian.org .
-Have a look at http://www.sane\-project.org/mailing\-lists.html concerning subscription
+.IR sane-devel@lists.alioth.debian.org .
+Have a look at http://www.sane-project.org/mailing-lists.html concerning subscription
 to sane-devel.
 
 .SH "DEVICE NAMES"
@@ -137,10 +137,10 @@ also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending
 me the report.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .br
 http://www.informatik.uni-oldenburg.de/~ingo/sane/ 
 
 .SH AUTHOR
 
-Ingo Wilken <Ingo.Wilken@informatik.uni\-oldenburg.de>
+Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>

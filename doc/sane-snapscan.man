@@ -95,7 +95,7 @@ levels reduce verbosity.
 Man page doesn't provide much information yet.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .br
 http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html
 .br

@@ -176,12 +176,12 @@ For a more complete and up to date list see:
 .SH "CONFIGURATION"
 To use your scanner with this backend, you need at least two
 entries in the configuration file
-.br
 .I @CONFIGDIR@/plustek.conf
-.TP
+.RS
 .I [usb] vendor-id product-id
-.TP
+.br
 .I device /dev/usbscanner
+.RE
 .PP
 .I [usb]
 tells the backend, that the following devicename (here
@@ -405,9 +405,9 @@ export SANE_DEBUG_PLUSTEK=10
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
-.BR sane\-u12 (5),
-.BR sane\-gt68xx (5),
+.BR sane-usb (5),
+.BR sane-u12 (5),
+.BR sane-gt68xx (5),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
 .br

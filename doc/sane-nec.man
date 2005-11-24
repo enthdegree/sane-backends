@@ -54,6 +54,6 @@ environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .SH AUTHORS
 Kazuya Fukuda

@@ -138,28 +138,26 @@ See this file for examples.
 .PP
 This section decribes the backends' configuration file entries.
 The file is located at:
-.PP
-.RS
 .I @CONFIGDIR@/plustek_pp.conf
-.RE
 .PP
 For a proper setup, you will need at least two entries:
-
-.TP
+.RS
 .I [direct]
-.TP
+.br
 .I device 0x378
+.RE
 .PP
 or
-.TP
+.RS
 .I [kernel]
-.TP
+.br
 .I device /dev/pt_drv
+.RE
 .PP
 .I direct
 tells the backend, that the following devicename (here
-.I 0x378
-) has to be interpreted as parallel port scanner device. In
+.IR 0x378 )
+has to be interpreted as parallel port scanner device. In
 fact it is the address to use, alternatively you can use
 .I /dev/parport0
 if the backend has been compiled with libieee1284 support.

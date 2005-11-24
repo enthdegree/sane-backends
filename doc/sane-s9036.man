@@ -66,6 +66,6 @@ Example:
 export SANE_DEBUG_S9036=4
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .SH AUTHOR
 Ingo Schneider

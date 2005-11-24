@@ -93,7 +93,7 @@ The homepage of this backend
 .I http://www.sema.be/coolscan/
 The original version of the coolscan backend by Didier
 .PP
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 
 .SH THANKS TO
 

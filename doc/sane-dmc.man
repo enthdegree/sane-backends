@@ -131,7 +131,7 @@ be read in one SCSI transfer.  In this case, the driver performs
 buffering and you can read the image in as small an increment as you
 like.
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .SH AUTHOR
 David F. Skoll
 .PP

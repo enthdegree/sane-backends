@@ -103,7 +103,7 @@ sure to adjust the scan area before doing a scan, since by default, the scan
 area is zero.
 
 .SH SEE ALSO
-sane(7), sane\-usb(5)
+sane(7), sane-usb(5)
 
 .TP
 For latest bug fixes and information see

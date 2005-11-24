@@ -169,7 +169,7 @@ Example:
 export SANE_DEBUG_AVISION=7
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane\-usb(5)
+sane(7), sane-scsi(5), sane-usb(5)
 .br
 http://www.exactcode.de/oss/avision/
 

@@ -83,9 +83,9 @@ Juergen G. Schimmer, Henning Meier-Geinitz
 If more than one video card is present, a crash may occur. Frequency and geometry
 selection is missing.
 .br
-Send bug reports to the SANE mailing list: sane\-devel@lists.alioth.debian.org.  You must
+Send bug reports to the SANE mailing list: sane-devel@lists.alioth.debian.org.  You must
 be subscribed to the list to send mail. See
-http://www.sane\-project.org/mailing\-lists.html for details.
+http://www.sane-project.org/mailing-lists.html for details.
 
 .SH SEE ALSO
 sane(7), xcam(1).

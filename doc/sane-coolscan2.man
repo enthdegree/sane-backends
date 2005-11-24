@@ -157,7 +157,7 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane\-scsi(5), sane\-usb(5), scanimage(1), xscanimage(1), xsane(1)
+sane-scsi(5), sane-usb(5), scanimage(1), xscanimage(1), xsane(1)
 
 .SH BUGS
 Currently, the SANE protocol does not allow automatically updating options

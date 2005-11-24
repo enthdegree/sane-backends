@@ -12,22 +12,21 @@ that provides access to Artec/Ultima SCSI flatbed scanners.  At present,
 the following scanners are known to work at least partially with this backend:
 .PP
 .RS
-.IP *
-Artec A6000C
-.IP *
-Artec A6000C PLUS
-.IP *
-Artec ViewStation AT3
-.IP *
-BlackWidow BW4800SP (rebadged Artec AT3)
-.IP *
-Artec ViewStation AT6
-.IP *
-Artec ViewStation AT12
-.IP *
-Artec AM12S
-.IP *
-Plustek 19200S (rebadged Artec AM12S)
+* Artec A6000C
+.br
+* Artec A6000C PLUS
+.br
+* Artec ViewStation AT3
+.br
+* BlackWidow BW4800SP (rebadged Artec AT3)
+.br
+* Artec ViewStation AT6
+.br
+* Artec ViewStation AT12
+.br
+* Artec AM12S
+.br
+* Plustek 19200S (rebadged Artec AM12S)
 .RE
 .PP
 Although this manual page is generally updated with each release,
@@ -172,7 +171,7 @@ correction is not totally working on models other than the AT3.
 
 .SH "SEE ALSO"
 
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 
 .SH AUTHOR
 

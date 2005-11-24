@@ -52,7 +52,7 @@ defines the maximum output value. Take a look at the output of scanimage -h to
 find out what maxout has to be. The default value is 255.
 .PP
 .SH EXAMPLE
-.B scanimage \-\-custom-gamma=yes \-\-gamma-table 
+.B scanimage --custom-gamma=yes --gamma-table 
 .I `gamma4scanimage 1.8 0 11500 16383 255`
 >image.pnm
 

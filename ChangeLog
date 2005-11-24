@@ -1,3 +1,26 @@
+2005-11-24  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* doc/gamma4scanimage.man, doc/sane-abaton.man, doc/sane-agfafocus.man,
+	  doc/sane-apple.man, doc/sane-artec.man, doc/sane-avision.man,
+	  doc/sane-bh.man, doc/sane-canon.man, doc/sane-canon630u.man,
+	  doc/sane-config.man, doc/sane-coolscan.man, doc/sane-coolscan2.man,
+	  doc/sane-dc210.man, doc/sane-dc240.man, doc/sane-dc25.man,
+	  doc/sane-dmc.man, doc/sane-epson.man, doc/sane-find-scanner.man,
+	  doc/sane-fujitsu.man, doc/sane-genesys.man, doc/sane-gphoto2.man,
+	  doc/sane-gt68xx.man, doc/sane-hp.man, doc/sane-hp4200.man,
+	  doc/sane-hp5400.man, doc/sane-ibm.man, doc/sane-leo.man,
+	  doc/sane-lexmark.man, doc/sane-ma1509.man, doc/sane-matsushita.man,
+	  doc/sane-microtek.man, doc/sane-microtek2.man, doc/sane-mustek.man,
+	  doc/sane-mustek_pp.man, doc/sane-mustek_usb2.man, doc/sane-nec.man,
+	  doc/sane-net.man, doc/sane-niash.man, doc/sane-pint.man,
+	  doc/sane-plustek.man, doc/sane-plustek_pp.man, doc/sane-ricoh.man,
+	  doc/sane-s9036.man, doc/sane-sceptre.man, doc/sane-sharp.man,
+	  doc/sane-snapscan.man, doc/sane-sp15c.man, doc/sane-st400.man,
+	  doc/sane-tamarack.man, doc/sane-teco1.man, doc/sane-teco2.man,
+	  doc/sane-teco3.man, doc/sane-u12.man, doc/sane-umax1220u.man,
+	  doc/sane-umax_pp.man, doc/sane-usb.man, doc/sane-v4l.man,
+	  doc/sane.man, doc/saned.man, doc/scanimage.man: man page fixes
+
 2005-11-23  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c: Disable bilevel colour / halftoning

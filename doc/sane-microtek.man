@@ -149,7 +149,7 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 
 .SH AUTHOR
 Matt Marjanovic
@@ -189,6 +189,6 @@ setenv SANE_DEBUG_MICROTEK 128
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to 
-.BR sane\-devel@lists.alioth.debian.org ,
+.BR sane-devel@lists.alioth.debian.org ,
 the SANE Developers mailing list. Have a look at
-http://www.sane\-project.org/mailing\-lists.html concerning subscription to sane-devel.
+http://www.sane-project.org/mailing-lists.html concerning subscription to sane-devel.

@@ -39,7 +39,7 @@ This allows frontends such as xscanimage to set scanning region,
 resolution, bit-depth (and color), and enable the automatic document feeder.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane-fujitsu(5)
+sane(7), sane-scsi(5), sane-fujitsu(5)
 .br
 Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
 .br

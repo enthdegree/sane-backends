@@ -30,9 +30,9 @@ COPISCAN II 3338(A) Simplex Scanner (with ACE)
 .PP
 If you have a Bell+Howell scanner and are able to test it with this
 backend, please contact
-.IR sane\-devel@lists.alioth.debian.org
+.IR sane-devel@lists.alioth.debian.org
 with the model number and testing results. Have a look at
-http://www.sane\-project.org/mailing\-lists.html concerning subscription to
+http://www.sane-project.org/mailing-lists.html concerning subscription to
 sane-devel. Additionally, the author is curious as to the likelihood of using
 this backend with the newer 4000 and 8000 series scanners.  If you have such a
 beast, please let me know.
@@ -269,6 +269,7 @@ a list of standard resolutions; only these resolutions can be used.
 Sets the compression mode of the scanner.  Determines the type of data
 returned from the scanner.  Values are:
 .RS
+.br
 .B none
 \- uncompressed data \- delivered in a SANE_FRAME_GRAY frame
 .br
@@ -535,10 +536,10 @@ This is a new backend; detailed bug reports are welcome -- and expected ;)
 If you have found something that you think is a bug, please attempt to
 recreate it with the SANE_DEBUG_BH environment variable set to
 255, and send a report detailing the conditions surrounding the bug to
-.IR sane\-devel@lists.alioth.debian.org .
+.IR sane-devel@lists.alioth.debian.org .
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), scanimage(1), scanadf(1)
+sane(7), sane-scsi(5), scanimage(1), scanadf(1)
 
 .SH AUTHOR
 The sane-bh backend was written by Tom Martone, based on the sane-ricoh

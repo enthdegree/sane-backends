@@ -53,7 +53,7 @@ Scanpaq:SQ2030:Parport
 .TE
 .PP
 Additional information can be found at
-.BR http://www.sane\-project.org/ .
+.BR http://www.sane-project.org/ .
 .PP
 If you own a Microtek scanner other than the ones listed above,
 it may or may not work with SANE! Because equal scanners are sold under

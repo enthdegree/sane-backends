@@ -62,9 +62,9 @@ SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
 Other HP scanners are not supported by the "hp" backend, but might be supported
 by another one. See
-.IR http://www.sane\-project.org/ .
+.IR http://www.sane-project.org/ .
 You can also watch the sane-devel mailinglist at
-.IR http://www.sane\-project.org/mailing\-lists.html .
+.IR http://www.sane-project.org/mailing-lists.html .
 .PP
 More details about the hp backend can be found on its homepage 
 .IR http://www.kirchgessner.net/sane.html .
@@ -148,14 +148,14 @@ Otherwise startup of frontends and changing parameters might be slower.
 A sample configuration file is shown below:
 .PP
 .RS
+.ft CR
+.nf
 /dev/scanner
-.br
 # this is a comment
-.br
 /dev/hpscan
-.RS 2
-option connect-device
-.RE
+  option connect-device
+.fi
+.ft R
 .RE
 .PP
 /dev/scanner is typically a symlink to the actual SCSI scanner device.
@@ -267,7 +267,7 @@ These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane\-usb(5)
+sane(7), sane-scsi(5), sane-usb(5)
 .SH AUTHOR
 The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
 PhotoScanner support by Peter Kirchgessner.

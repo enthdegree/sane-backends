@@ -102,14 +102,14 @@ BIOS or disable it in the backend itself (see GLOBAL OPTIONS).
 Note that the backend needs to run as root or has to have appropriate access
 rights to /dev/parport* if libieee1284 support is compiled in. To allow user 
 access to the scanner run the backend through the network interface (See 
-saned(8) and sane\-net(5)). Note also that the backend
+saned(8) and sane-net(5)). Note also that the backend
 .I does not
 support
 .IR "parport sharing" ,
 i.e. if you try printing while scanning, your computer may crash. To enable
 parport sharing, you have to enable libieee1284 at compile time. This backend
 also conflicts with the
-.I sane\-musteka4s2
+.I sane-musteka4s2
 backend. You can only enable one of them in your dll.conf. However, you have
 to enable the backend explicitly in your dll.conf, just remove the hash mark
 in the line "mustek_pp".
@@ -439,10 +439,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane\-mustek_pp.a
+.I @LIBDIR@/libsane-mustek_pp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane\-mustek_pp.so
+.I @LIBDIR@/libsane-mustek_pp.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -511,7 +511,7 @@ level   debug output
  
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-mustek(5), sane\-net(5), saned(8), sane-find-scanner(1)
+sane(7), sane-mustek(5), sane-net(5), saned(8), sane-find-scanner(1)
 
 .TP
 For latest bug fixes and information see
@@ -528,9 +528,9 @@ Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 .SH BUGS
 Too many... please send bug reports to 
-.I sane\-devel@lists.alioth.debian.org
+.I sane-devel@lists.alioth.debian.org
 (note that you have to subscribe first to the list before you can send
-emails... see http://www.sane\-project.org/mailing\-lists.html)
+emails... see http://www.sane-project.org/mailing-lists.html)
 .PP
 
 .SH BUG REPORTS

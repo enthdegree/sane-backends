@@ -107,7 +107,7 @@ actually be found in multiple directories.
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to the SANE Developers mailing list 
-(see http://www.sane\-project.org/mailing\-lists.html for details). 
+(see http://www.sane-project.org/mailing-lists.html for details). 
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.
 

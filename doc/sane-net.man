@@ -129,7 +129,7 @@ levels reduce verbosity.
 .SH BUGS
 If saned has timed out, the net backend may loop with authorization requests.
 .SH "SEE ALSO"
-sane(7), saned(8), sane\-dll(5), scanimage(1)
+sane(7), saned(8), sane-dll(5), scanimage(1)
 
 .I http://www.penguin-breeder.org/?page=sane-net
 .SH AUTHOR

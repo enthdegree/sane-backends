@@ -87,7 +87,7 @@ doesn't make sense to go on, if this is not the case. While sane-find-scanner
 is able to detect any USB scanner, actual scanning will only work if the
 scanner is supported by a SANE backend. Information on the level of support
 can be found on the SANE webpage
-.RI ( http://www.sane\-project.org/ ),
+.RI ( http://www.sane-project.org/ ),
 and the individual backend manpages.
 .PP
 Most backends can detect USB scanners automatically using "usb" configuration

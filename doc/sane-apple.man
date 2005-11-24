@@ -23,9 +23,9 @@ ColorOneScanner 24bit RGB color          3-pass
 If you own a Apple scanner other than the ones listed above that
 works with this backend, please let us know by sending the scanner's
 model name, SCSI id, and firmware revision to
-.IR sane\-devel@lists.alioth.debian.org .
-See http://www.sane\-project.org/mailing\-lists.html for details on how to subscribe to
-sane\-devel.
+.IR sane-devel@lists.alioth.debian.org .
+See http://www.sane-project.org/mailing-lists.html for details on how to subscribe to
+sane-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -129,7 +129,7 @@ have the hardware to experiment on it. Another reason is the lack
 of understanding of how SANE API could provide enaugh means to me
 to actually describe other array types than the gamma one.
 
-.SH UNSUPPORTED FEATURES.
+.SH UNSUPPORTED FEATURES
 The following "features" will never be supported. At least as I am maintaining
 the sane-apple backend.
 .TP
@@ -195,26 +195,20 @@ options panel to exceed from your screen. It happens with mine
 and I am running at 1024x768 my X Server. What can I say? Try smaller
 fonts in the X server, or virtual screens.
 .TP
-.B Weird SCSI behaviour.
+.B Weird SCSI behaviour
 I am quoting David Myers Here...
 
 >> OS: FreeBSD 2.2.6
 .br
 >> CC: egcs-1.02
 .br
->Just wanted to follow up on this...  I recently changed my SCSI card from
-.br
->the Adaptec 2940UW to a dual-channel Symbios 786 chipset.  When I started up
-.br
->SANE with your driver, I managed to scan line art drawings okay, but Gray16
-.br
->scans led to a stream of SCSI error messages on the console, ultimately
-.br
->hanging with a message saying the scanner wasn't releasing the SCSI bus.
-.br
->This may be that the Symbios is simply less tolerant of ancient
-.br
->hardware, or may be bugs in your driver or in SANE itself...
+Just wanted to follow up on this...  I recently changed my SCSI card from
+the Adaptec 2940UW to a dual-channel Symbios 786 chipset.  When I started up
+SANE with your driver, I managed to scan line art drawings okay, but Gray16
+scans led to a stream of SCSI error messages on the console, ultimately
+hanging with a message saying the scanner wasn't releasing the SCSI bus.
+This may be that the Symbios is simply less tolerant of ancient
+hardware, or may be bugs in your driver or in SANE itself...
 
 .SH DEBUG
 If you encounter a GUI bug please set the environment variable
@@ -240,7 +234,7 @@ the report.
 .SH TODO
 .TP
 .B Non Blocking Support
-Make sane\-apple a non blocking backend. Properly support for
+Make sane-apple a non blocking backend. Properly support for
 .B sane_set_io_mode
 and
 .B sane_get_select_fd
@@ -251,7 +245,7 @@ Make scan possible for all models in all supported modes.
 .B Missing Functionality
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 
 .SH AUTHOR
 The sane-apple backend was written not entirely from scratch by

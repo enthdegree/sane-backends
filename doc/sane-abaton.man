@@ -14,9 +14,9 @@ is recognized, but support for it is untested.
 If you own a Abaton scanner other than the ones listed above that
 works with this backend, or if you own an Abaton scanner that does not
 work with this backend, please contact
-.IR sane\-devel@lists.alioth.debian.org
+.IR sane-devel@lists.alioth.debian.org
 with the model number, so that arrangements can be made to include
-support for it. Have a look at http://www.sane\-project.org/mailing\-lists.html
+support for it. Have a look at http://www.sane-project.org/mailing-lists.html
 concerning subscription to sane-devel.
 .PP
 Abaton is out of business, and these scanners are not supported by
@@ -107,7 +107,7 @@ former is more likely than the latter.
 If you have found something that you think is a bug, please attempt to
 recreate it with the SANE_DEBUG_ABATON environment variable set to
 255, and send a report detailing the conditions surrounding the bug to
-.IR sane\-devel@lists.alioth.debian.org .
+.IR sane-devel@lists.alioth.debian.org .
 
 .SH TODO
 .TP
@@ -119,7 +119,7 @@ confidence that it will work, as well as to fully exploit the
 information returned by the INQUIRY command.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), scanimage(1)
+sane(7), sane-scsi(5), scanimage(1)
 
 .SH AUTHOR
 The sane-abaton backend was partially written by David Huggins-Daines,

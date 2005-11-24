@@ -31,8 +31,8 @@ color scans.
 If you own a scanner other than the ones listed above that works with
 this backend, please let us know by sending the scanner's model name,
 SCSI id, and firmware revision to
-.IR sane\-devel@lists.alioth.debian.org .
-Have a look at http://www.sane\-project.org/mailing\-lists.html
+.IR sane-devel@lists.alioth.debian.org .
+Have a look at http://www.sane-project.org/mailing-lists.html
 concerning subscription to sane-devel.
 .PP
 All of these scanners are pre-SCSI-2, and do not even report properly
@@ -167,7 +167,7 @@ a scanner, I could be helpful in adding support for these scanners.
 The AGFA HORIZON scanners are SCSI-2 scanners, and it would probably
 be easier to support these scanners in a SCSI-2 compliant backend.
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 
 .SH AUTHOR
 

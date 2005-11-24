@@ -495,7 +495,7 @@ firmware of the scanner.
 tested.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+sane(7), sane-scsi(5)
 .SH AUTHORS
 Kazuya Fukuda, Abel Deuring
 .SH CREDITS

@@ -55,8 +55,8 @@ or
 Hewlett-Packard Scanjet 4300c 
 .br
 together with Linux kernel
-.B 2.6
-, kernel version 
+.BR 2.6 ,
+kernel version 
 .B 2.6.8 
 or newer is necessary.
 
@@ -72,7 +72,7 @@ export SANE_DEBUG_NIASH=255
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5)
+.BR sane-usb (5)
 .br
 http://www.sourceforge.net/projects/hp3300backend
 .SH AUTHOR

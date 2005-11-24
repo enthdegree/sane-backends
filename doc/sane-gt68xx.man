@@ -32,7 +32,7 @@ Please use libusb-0.1.8 or later. Without libusb or with older libusb versions
 all kinds of trouble can be expected. The scanner should be found by
 sane-find-scanner without further actions. For setting permissions and general
 USB information looks at
-.BR sane\-usb (5).
+.BR sane-usb (5).
 .PP
 
 .SH FIRMWARE FILE
@@ -183,13 +183,13 @@ export SANE_DEBUG_GT68XX=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
-.BR sane\-artec_eplus48u (5)
-.BR sane\-plustek (5),
-.BR sane\-ma1509 (5),
-.BR sane\-mustek_usb (5),
-.BR sane\-mustek (5),
-.BR sane\-mustek_pp (5)
+.BR sane-usb (5),
+.BR sane-artec_eplus48u (5)
+.BR sane-plustek (5),
+.BR sane-ma1509 (5),
+.BR sane-mustek_usb (5),
+.BR sane-mustek (5),
+.BR sane-mustek_pp (5)
 .br
 .I @DOCDIR@/gt68xx/gt68xx.CHANGES
 .br

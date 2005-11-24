@@ -102,7 +102,7 @@ brightness b
 Only supported for M3096
 .RE
 .PP
-treshold t
+threshold t
 .RS
 Only supported for M3096
 .RE
@@ -152,9 +152,9 @@ often be alleviated by using "scsi-buf-size=32768".
 
 .SH "SEE ALSO"
 sane(7),
-sane\-scsi(5),
-sane\-sp15c(5)
-sane\-usb(5),
+sane-scsi(5),
+sane-sp15c(5)
+sane-usb(5),
 .br
 Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
 .br

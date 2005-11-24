@@ -4,7 +4,7 @@
 saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.RB [ \-d | \-s
+.RB [ -d | -s
 .RI [ n ]]
 .SH DESCRIPTION
 .B saned
@@ -13,9 +13,9 @@ to access image acquisition devices available on the local host.
 .SH OPTIONS
 .PP
 The
-.B \-d
+.B -d
 and
-.B \-s
+.B -s
 flags request that
 .B saned
 run in debug mode (as opposed to
@@ -26,12 +26,12 @@ explicitly waits for a connection request.  When compiled with
 debugging enabled, these flags may be followed by a number to request
 debug info. The larger the number, the more verbose the debug output.
 E.g.,
-.B \-d128
+.B -d128
 will request printing of all debug info. Debug level 0 means no debug output
 at all. The default value is 2. If flag
-.B \-d
+.B -d
 is used, the debug messages will be printed to stderr while
-.B \-s
+.B -s
 requests using syslog.
 .PP
 If 

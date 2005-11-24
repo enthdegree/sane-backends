@@ -84,18 +84,13 @@ or the default if not specified. The default value for preview mode is "no".
 .TP
 .B --paper-size
 selects the size of the area to be scanned. Valid sizes are
-.I Wallet
-,
-.I 3x5
-,
-.I 4x6
-,
-.I 5x7
-,
-.I 8x10
-,
-.I Letter
-, the default size is 3x5.
+.IR Wallet ,
+.IR 3x5 ,
+.IR 4x6 ,
+.IR 5x7 ,
+.IR 8x10 ,
+.IR Letter ,
+the default size is 3x5.
         
 .TP 
 .B --threshold

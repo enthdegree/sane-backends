@@ -1,3 +1,7 @@
+2005-11-25  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
+
+	* backend/canon-sane: fixed usage of an uninitialized variable
+
 2005-11-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.da.po: Updated Danish translation (from Mogens

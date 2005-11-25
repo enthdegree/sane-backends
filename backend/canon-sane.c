@@ -1919,9 +1919,10 @@ SANE_Int *len)
 {
   CANON_Scanner *s = handle;
   SANE_Status status;
-  SANE_Byte *firstimage, *secondimage/*, inmask, outmask, outbyte, primaryHigh[256], primaryLow[256], secondaryHigh[256], secondaryLow[256] */;
+  SANE_Byte *firstimage, *secondimage/*, inmask, outmask, outbyte,
+	    primaryHigh[256], primaryLow[256], secondaryHigh[256],
+	    secondaryLow[256] */;
   SANE_Int ncopy;
-  
   u_char dbuf[28];
   size_t buf_size, nread, remain, nwritten, nremain, pos, pix, pixel_per_line,
 	 byte, byte_per_line/*, bit*/;
@@ -1950,8 +1951,7 @@ SANE_Int *len)
 
   *len = 0;
 
-  DBG (21, "   read_fb1200: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   read_fb1200: bytes_to_read=%d\n", s->bytes_to_read);
 
   if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {

@@ -47,8 +47,7 @@ scanimage --help -d lexmark:usb:<usb port>
 .TP
 .B --mode
 selects the basic mode of operation of the scanner valid choices are 
-.I Color
-,
+.IR Color ,
 .I Gray
 and
 .I Lineart

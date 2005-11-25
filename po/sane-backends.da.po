@@ -1,18 +1,19 @@
+# translation of sane-backends.po to Danish
 # Oversættelse af sane-backends meddelelser til Dansk
 # Copyright (C) 2002 SANE Project.
-# Mogens Jaeger <mogensjaeger@get2net.dk>, 2004.
+# Mogens Jaeger <mogensjaeger@get2net.dk>, 2004, 2005.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.16\n"
+"Project-Id-Version: sane-backends 1.0.17\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-10-28 07:45+0200\n"
-"PO-Revision-Date: 2005-07-04 03:22+0100\n"
-"Last-Translator: Mogens Jæger <mogensjaeger@get2net.dk>\n"
+"PO-Revision-Date: 2005-11-25 12:17+0100\n"
+"Last-Translator: Mogens Jaeger <mogensjaeger@get2net.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.3.1\n"
+"X-Generator: KBabel 1.10\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Language: Danish\n"
 "X-Poedit-Country: DENMARK\n"
@@ -123,14 +124,14 @@ msgid "Selects the number of the frame to scan"
 msgstr "Vælger nummeret på det billede der skal skannes"
 
 #: .tmp/avision.h:609
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex scan"
-msgstr "Dobbeltsidet"
+msgstr "Duplex skan"
 
 #: .tmp/avision.h:610
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
-msgstr ""
+msgstr "Duplex skan, skanner begge sider af dokumentet"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -690,8 +691,7 @@ msgstr "Farve ved gråtone tilstand"
 #: .tmp/gt68xx.c:472
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
-msgstr ""
-"Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
+msgstr "Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
 
 #: .tmp/gt68xx.c:553
 #, no-c-format
@@ -962,8 +962,7 @@ msgstr "Automatisk tærskelværdi"
 #: .tmp/hp-option.h:68
 #, no-c-format
 msgid "Enable automatic determination of threshold for line-art scans."
-msgstr ""
-"Aktiver automatisk fastsættelse af tærskelværdi for stregtegningsskanninger."
+msgstr "Aktiver automatisk fastsættelse af tærskelværdi for stregtegningsskanninger."
 
 #: .tmp/hp-option.h:73
 #, no-c-format
@@ -1491,8 +1490,7 @@ msgstr "Kanal"
 
 #: .tmp/microtek2.h:672
 #, no-c-format
-msgid ""
-"Selects the colour band, \"Master\" means that all colours are affected."
+msgid "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr "Vælger farvekanal, \"Master\" betyder at alle farvekanaler påvirkes."
 
 #: .tmp/microtek2.h:676
@@ -1847,12 +1845,12 @@ msgstr "Aktivér eller deaktivér kalibreringsdatacache."
 #: .tmp/plustek.c:880
 #, no-c-format
 msgid "Speedup sensor"
-msgstr ""
+msgstr "Hastighedsøgnings sensor"
 
 #: .tmp/plustek.c:881
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr ""
+msgstr "Til/fra for øgning af sensors hastighed."
 
 #: .tmp/plustek.c:895
 #, no-c-format
@@ -1980,10 +1978,9 @@ msgid "Scanner button"
 msgstr "Skannerknap"
 
 #: .tmp/plustek.c:1005
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr ""
-"Denne indstilling reflekterer frontpanel skannerknap aktiveret af bruger."
+msgstr "Denne indstilling reflekterer skannerknappernes status."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -2515,8 +2512,7 @@ msgstr "Lampe slukkes ved afslutning"
 
 #: .tmp/saneopts.h:206
 #, no-c-format
-msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+msgid "Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Skrivebeskyttet indstilling der specificerer hvor mange indstillinger en "
 "bestemt enhed understøtter."
@@ -2742,8 +2738,7 @@ msgstr ""
 
 #: .tmp/saneopts.h:337
 #, no-c-format
-msgid ""
-"Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr ""
 "Angiver det halvtonegitter (dithering) der skal anvendes ved skanning af "
 "halvtonebilleder."
@@ -2944,8 +2939,7 @@ msgstr "Foruddefinerede indstillinger"
 
 #: .tmp/snapscan-options.c:539
 #, no-c-format
-msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+msgid "Provides standard scanning areas for photographs, printed pages and the like."
 msgstr "Giver standard skanområde for fotografier, tryk o.l."
 
 #: .tmp/snapscan-options.c:808
@@ -3028,8 +3022,7 @@ msgstr "Tre-gennemløbs simulering"
 
 #: .tmp/test.c:354
 #, no-c-format
-msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuler en tre-gennemløbs skanner. I farvetilstand overføres tre "
 "billedrammer."
@@ -3123,8 +3116,7 @@ msgstr "Varighed af læseforsinkelse"
 
 #: .tmp/test.c:499
 #, no-c-format
-msgid ""
-"How long to wait after transferring each buffer of data through the pipe."
+msgid "How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Fastlægger, hvor længe der skal ventes efter overførsel af hver databuffer "
 "gennem røret."
@@ -3188,8 +3180,7 @@ msgstr "Tilbyd en vælg fil beskriver"
 
 #: .tmp/test.c:577
 #, no-c-format
-msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Tilbyd en vælg fil beskriver for at bestemme om sane_read() vil returnere "
 "data."
@@ -3350,8 +3341,7 @@ msgstr "(3/6) Heltalsbegrænsningsordliste"
 #: .tmp/test.c:851
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
-msgstr ""
-"(3/6) Heltal testindstilling med enheden \"bit\" og en ordlistebegrænsning."
+msgstr "(3/6) Heltal testindstilling med enheden \"bit\" og en ordlistebegrænsning."
 
 #: .tmp/test.c:866
 #, no-c-format
@@ -3360,8 +3350,7 @@ msgstr "(4/6) Heltal tabel"
 
 #: .tmp/test.c:867
 #, no-c-format
-msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+msgid "(4/6) Int test option with unit mm and using an array without constraints."
 msgstr ""
 "(4/6) Heltal testindstilling med enheden \"mm\" og en tabel uden "
 "indskrænkninger."
@@ -3681,3 +3670,4 @@ msgstr "Indstillinger for grøn-kanals forskydning"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Indstillinger for blå-kanals forskydning"
+

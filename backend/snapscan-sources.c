@@ -692,6 +692,7 @@ typedef struct
     SANE_Int   ch_bytes_per_pixel;
     SANE_Int   ch_offset;         /* The number of lines to be shifted */
     SANE_Bool  ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
+    SANE_Bool  ch_shift_even;     /* flag indicating wether even or odd pixels are shifted */
 } Deinterlacer;
 
 static SANE_Int Deinterlacer_remaining (Source *pself)
@@ -738,7 +739,8 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
             ps->ch_ndata += ndata;
         }
 	
-        if ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 0)
+        if ((ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 0)) ||
+            (!ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 1)))
         {
 	    /* the even indexed pixels need to be shifted down */
 	    if (ps->ch_past_init){
@@ -807,10 +809,13 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
                                        psub);
     if (status == SANE_STATUS_GOOD)
     {
+        pself->ch_shift_even = SANE_TRUE;
         switch (pss->pdev->model)
         {
         case PERFECTION3490:
             pself->ch_offset = 8;
+            if ((actual_mode(pss) == MD_GREYSCALE) || (actual_mode(pss) == MD_LINEART))
+                 pself->ch_shift_even = SANE_FALSE;
             break;
         case PERFECTION2480:
         default:
@@ -834,7 +839,7 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
             pself->ch_ndata = 0;
             pself->ch_pos = 0;
             pself->ch_past_init = SANE_FALSE;
-	    if (actual_mode(pss) == MD_GREYSCALE)
+	    if ((actual_mode(pss) == MD_GREYSCALE) || (actual_mode(pss) == MD_LINEART))
 	    	pself->ch_bytes_per_pixel = 1;
 	    else
 	    	pself->ch_bytes_per_pixel = 3;
@@ -1182,6 +1187,8 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
                the internal meaning of "negative" is reversed */
             if (pss->negative == SANE_FALSE)
                 status = create_Inverter (pss, *pps, pps);
+            if (pss->pdev->model == PERFECTION3490 && pss->res == 3200)
+                status = create_Deinterlacer (pss, *pps, pps);
             break;
         default:
             DBG (DL_MAJOR_ERROR, "%s: bad mode value %d (internal error)\n",
@@ -1195,6 +1202,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.19  2005/11/25 17:24:48  oliver-guest
+ * Fix for Epson 3490 @ 3200 DPI for grayscale and lineart mode
+ *
  * Revision 1.18  2005/11/17 23:47:11  oliver-guest
  * Revert previous 'fix', disable 2400 dpi for Epson 3490, use 1600 dpi instead
  *

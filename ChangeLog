@@ -1,3 +1,8 @@
+2005-11-25  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-sources.c: Fix for grayscale / linart for Epson 3490
+	  at 3200 DPI
+
 2005-11-25  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.ru.po: Fixing some fuzzies

@@ -70,7 +70,7 @@ statements which are already included into
 .PP
 Every usb section can have additional options
 .TP
-.B artecFirmwareFile <path>/Artec48.usb
+.B artecFirmwareFile @DATADIR@/sane/artec_eplus48u/Artec48.usb
 The path to the firmware file. This option is required.
 .TP
 .B redGamma         1.0

@@ -42,7 +42,7 @@ with "firmware" followed by the fully qualified path to your firmware file,
 e.g.
 .PP
 .RS
-firmware /path/to/my/firmware.bin
+firmware @DATADIR@/sane/snapscan/firmware.bin
 .RE
 .PP
 For further details read http://snapscan.sourceforge.net.

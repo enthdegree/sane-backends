@@ -2,6 +2,8 @@
 
 	* backend/artec_eplus48u.conf, backend/snapscan.conf: Use default
 	  firmware dirs in config files
+	* doc/sane-artec_eplus48u.man, doc/sane-snapscan.man: Use default
+	  firmare dirs in man pages
 
 2005-11-25  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 

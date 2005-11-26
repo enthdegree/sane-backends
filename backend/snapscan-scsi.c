@@ -365,6 +365,7 @@ static void check_range (int *v, SANE_Range r)
 #define INQUIRY_LEN 6
 #define INQUIRY_RET_LEN 120
 #define INQUIRY_RET_LEN_EPSON 139
+#define INQUIRY_RET_LEN_5000  138
 
 #define INQUIRY_VENDOR         8    /* Offset in reply data to vendor name */
 #define INQUIRY_PRODUCT       16    /* Offset in reply data to product id */
@@ -446,7 +447,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->read_bytes = INQUIRY_RET_LEN_EPSON;
         break;
     case PRISA5000:
-        pss->read_bytes = 0x80;
+        pss->read_bytes = INQUIRY_RET_LEN_5000;
         break;
     default:
         pss->read_bytes = INQUIRY_RET_LEN;
@@ -456,8 +457,6 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     zero_buf (pss->cmd, MAX_SCSI_CMD_LEN);
     pss->cmd[0] = INQUIRY;
     pss->cmd[4] = pss->read_bytes;
-    if (pss->pdev->model == PRISA5000)
-        pss->cmd[4] = 0x8a;
     DBG (DL_CALL_TRACE, "%s\n", me);
     status = snapscan_cmd (pss->pdev->bus,
                pss->fd,
@@ -1483,6 +1482,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.51  2005/11/26 18:53:03  oliver-guest
+ * Fix inquiry bug for Benq 5000
+ *
  * Revision 1.50  2005/11/17 23:47:10  oliver-guest
  * Revert previous 'fix', disable 2400 dpi for Epson 3490, use 1600 dpi instead
  *

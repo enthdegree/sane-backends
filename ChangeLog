@@ -1,3 +1,8 @@
+2005-11-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scis.c: Fix for Benq 5000
+	* backend/snapscan.conf: Replace esfw52.bin with dummy filename entry
+
 2005-11-25  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/artec_eplus48u.conf, backend/snapscan.conf: Use default

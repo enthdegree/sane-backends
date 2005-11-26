@@ -122,31 +122,23 @@ If xinetd is installed on your system instead of inetd the following example
 for xinetd.conf may be helpful:
 .PP
 .RS
+.ft CR
+.nf
 # default: off
-.br
 # description: The sane server accepts requests 
-.br
 # for network access to a local scanner via the
-.br
 # network.
-.br
 service sane-port
-.br
 {
-.RS 3
-port        = 6566
-.br
-socket_type = stream
-.br
-wait        = no
-.br
-user        = saned
-.br
-group       = saned
-.br
-server      = @SBINDIR@/saned
-.RE
+   port        = 6566
+   socket_type = stream
+   wait        = no
+   user        = saned
+   group       = saned
+   server      = @SBINDIR@/saned
 }
+.fi
+.ft R
 .RE
 .PP
 Finally, it is also necessary to add a line of the following form to

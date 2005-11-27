@@ -338,8 +338,8 @@ scanners. See
 for details.
 .TP
 .B mustek_usb2
-The mustek_usb backend provides access to scanners using the SQ113 chipset like
-the Mustek BearPaw 2448 TA Pro USB flatbed scanner. See
+The mustek_usb2 backend provides access to scanners using the SQ113
+chipset like the Mustek BearPaw 2448 TA Pro USB flatbed scanner. See
 .BR sane-mustek_usb2 (5)
 for details.
 .TP

@@ -1,3 +1,8 @@
+2005-11-28  Stephane Voltz <stefdev@modulonet.fr>
+
+	* backend/umax_pp_low.c: fixed 'blue tint' on scanning area border
+	  by increasing shading coefficient on dark areas
+
 2005-11-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-sources.c: Fix lineart mode for Epson 3490

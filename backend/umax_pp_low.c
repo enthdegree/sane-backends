@@ -49,6 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
@@ -8655,7 +8656,7 @@ EPPcmdGetBuffer610p (int cmd, int len, unsigned char *buffer)
 #ifdef HAVE_LINUX_PPDEV_H
   int fd, mode, rc;
 #endif
-  int loop, pass, wait, remain;
+  int loop, wait, remain;
 
   /* first we set length and channel */
   /* compute word */
@@ -9920,6 +9921,10 @@ evalGain (int sum, int count)
   int gn;
   float pct;
   float avg;
+  float area=15;
+  float coeff=2;
+  float cnst=0.9;
+
 
   /* after ~ 60 * 10 scans , it looks like 1 step is a 0.57% increase   */
   /* so we take the value and compute the percent increase to reach 250 */
@@ -9929,6 +9934,18 @@ evalGain (int sum, int count)
   avg = (float) (sum) / (float) (count);
   pct = 100.0 - (avg * 100.0) / targetCode;
   gn = (int) (pct / 0.57);
+ 
+  /* give gain for dark areas a boost */
+  if(getenv("AREA")!=NULL)
+        cnst=atol(getenv("AREA"));
+  if(getenv("COEFF")!=NULL)
+        cnst=atol(getenv("COEFF"));
+  if(getenv("CNST")!=NULL)
+        cnst=atol(getenv("CNST"));
+
+  pct = gn;
+  avg = exp((-pct)/area)*coeff+cnst;
+  gn = gn * avg;
 
   /* bound checking : there are sightings of >127 values being negative */
   if (gn < 0)

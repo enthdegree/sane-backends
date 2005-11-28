@@ -9921,8 +9921,8 @@ evalGain (int sum, int count)
   int gn;
   float pct;
   float avg;
-  float area=15;
-  float coeff=2;
+  float area=50;
+  float coeff=2.5;
   float cnst=0.9;
 
 
@@ -9936,12 +9936,14 @@ evalGain (int sum, int count)
   gn = (int) (pct / 0.57);
  
   /* give gain for dark areas a boost */
+#ifdef UMAX_PP_DANGEROUS_EXPERIMENT
   if(getenv("AREA")!=NULL)
         cnst=atol(getenv("AREA"));
   if(getenv("COEFF")!=NULL)
         cnst=atol(getenv("COEFF"));
   if(getenv("CNST")!=NULL)
         cnst=atol(getenv("CNST"));
+#endif
 
   pct = gn;
   avg = exp((-pct)/area)*coeff+cnst;

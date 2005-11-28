@@ -187,8 +187,8 @@
 
 :model "5000"
 :interface "USB"
-:status :untested
-:comment "USB ID 0x04a5,0x20f8: Status unknown, please contact oliverschwartz@users.sf.net"
+:status :good
+:comment "USB ID 0x04a5,0x20f8: Color / grayscale scans working up to 1200 DPI"
 
 :model "5300"
 :interface "USB"

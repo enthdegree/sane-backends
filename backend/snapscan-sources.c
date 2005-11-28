@@ -690,6 +690,7 @@ typedef struct
     SANE_Int   ch_ndata;          /* actual #bytes in channel buffer */
     SANE_Int   ch_pos;            /* position in buffer */
     SANE_Int   ch_bytes_per_pixel;
+    SANE_Bool  ch_lineart;
     SANE_Int   ch_offset;         /* The number of lines to be shifted */
     SANE_Bool  ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
     SANE_Bool  ch_shift_even;     /* flag indicating wether even or odd pixels are shifted */
@@ -738,28 +739,66 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
                 break;
             ps->ch_ndata += ndata;
         }
-	
-        if ((ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 0)) ||
-            (!ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 1)))
+        /* Handle special lineart mode: Valid pixels need to be masked */
+        if (ps->ch_lineart)
         {
-	    /* the even indexed pixels need to be shifted down */
-	    if (ps->ch_past_init){
-	    	/* We need to use data 4 lines back */
-		/* So we just go one forward and it will wrap around to 4 back. */
-	    	*pbuf = ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size];
-	    }else{
-		/* Use data from the next pixel for even indexed pixels
-		   if we are on the first few lines. 
-	           TODO: also we will overread the buffer if the buffer read ended 
-		   on the first pixel. */
-		if (ps->ch_pos % (ps->ch_line_size) == 0 )
-	    	    *pbuf = ps->ch_buf[ps->ch_pos+ps->ch_bytes_per_pixel];
-		else
-	    	    *pbuf = ps->ch_buf[ps->ch_pos-ps->ch_bytes_per_pixel];
-	    }
-        }else{
-	    /* odd indexed pixels are okay */
-            *pbuf = ps->ch_buf[ps->ch_pos];
+            if (ps->ch_past_init)
+            {
+                if (ps->ch_shift_even)
+                {
+                    /* Even pixels need to be shifted, i.e. bits 0,2,4,6 -> 0x55 */
+                    /* use valid pixels from this line and shifted pixels from ch_size lines back */
+                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0xaa) |
+                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0x55);
+                }
+                else
+                {
+                    /* Odd pixels need to be shifted, i.e. bits 1,3,5,7 -> 0xaa */
+                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0x55) |
+                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0xaa);
+                }
+            }
+            else
+            {
+                /* not enough data. duplicate pixel values from previous column */
+                if (ps->ch_shift_even)
+                {
+                    /* bits 1,3,5,7 contain valid data -> 0xaa */
+                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0xaa;
+                    *pbuf = valid_pixel | (valid_pixel >> 1);
+                }
+                else
+                {
+                    /* bits 0,2,4,6 contain valid data -> 0x55 */
+                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0x55;
+                    *pbuf = valid_pixel | (valid_pixel << 1);
+                }
+            }
+        }
+        else /* colour / grayscale mode */
+        {
+            if ((ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 0)) ||
+                (!ps->ch_shift_even && ((ps->ch_pos/ps->ch_bytes_per_pixel) % 2 == 1)))
+            {
+                /* the even indexed pixels need to be shifted down */
+                if (ps->ch_past_init){
+                    /* We need to use data 4 lines back */
+                    /* So we just go one forward and it will wrap around to 4 back. */
+                    *pbuf = ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size];
+                }else{
+                    /* Use data from the next pixel for even indexed pixels
+                      if we are on the first few lines. 
+                      TODO: also we will overread the buffer if the buffer read ended 
+                      on the first pixel. */
+                    if (ps->ch_pos % (ps->ch_line_size) == 0 )
+                        *pbuf = ps->ch_buf[ps->ch_pos+ps->ch_bytes_per_pixel];
+                    else
+                        *pbuf = ps->ch_buf[ps->ch_pos-ps->ch_bytes_per_pixel];
+                }
+            }else{
+                /* odd indexed pixels are okay */
+                *pbuf = ps->ch_buf[ps->ch_pos];
+            }
         }
 	/* set the flag so we know we have enough data to start shifting columns */
 	if (ps->ch_pos >= ps->ch_line_size * ps->ch_offset)
@@ -846,6 +885,7 @@ static SANE_Status Deinterlacer_init (Deinterlacer *pself,
 	    if (pss->bpp_scan == 16)
 		pself->ch_bytes_per_pixel *= 2;
         }
+        pself->ch_lineart = (actual_mode(pss) == MD_LINEART);
     }
     return status;
 }
@@ -1202,6 +1242,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.20  2005/11/28 19:28:29  oliver-guest
+ * Fix for lineart mode of Epson 3490 @ 3200 DPI
+ *
  * Revision 1.19  2005/11/25 17:24:48  oliver-guest
  * Fix for Epson 3490 @ 3200 DPI for grayscale and lineart mode
  *

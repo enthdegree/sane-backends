@@ -1,6 +1,11 @@
 2005-11-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan-scis.c: Fix for Benq 5000
+	* backend/snapscan-sources.c: Fix lineart mode for Epson 3490
+	* doc/descriptions/snapscan.desc: Update status for Benq 5000
+
+2005-11-26  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c: Fix for Benq 5000
 	* backend/snapscan.conf: Replace esfw52.bin with dummy filename entry
 
 2005-11-25  Mattias Ellert <mattias.ellert@tsl.uu.se>

@@ -1254,7 +1254,7 @@ sanei_pa4s2_open (const char *dev, int *fd)
 	}
 
       if ((port[*fd].mode == PA4S2_MODE_EPP) &&
-      ((sanei_pa4s2_interface_options & SANEI_PA4S2_OPT_NO_EPP) == 1))
+      ((sanei_pa4s2_interface_options & SANEI_PA4S2_OPT_NO_EPP) != 0))
 	{
 	  DBG (3, "sanei_pa4s2_open: skipping mode EPP\n");
 	  break;

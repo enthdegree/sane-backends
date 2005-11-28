@@ -1,3 +1,7 @@
+2005-11-28  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* sanei/sanei_pa4s2.c: incorrect test of a bit mask.
+
 2005-11-28  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp_low.c: ifdef'ed forgottent debug statements

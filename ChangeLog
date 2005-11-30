@@ -1,6 +1,7 @@
 2005-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added UMAX Astra 4100.
+	* tools/hotplug/libsane.usermap: Added Epson Stylus CX4200.
 
 2005-11-28  Jochen Eisinger <jochen@penguin-breeder.org>
 

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-11-20"		; version of backend
+:version "2005-11-30"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1837,6 +1837,12 @@
 :url "/unsupported/umax-astra-4000.html"
 :status :unsupported
 :comment "Not supported. See link for details."
+
+:model "Astra 4100"
+:interface "USB"
+:url "/unsupported/umax-astra-4100.html"
+:status :unsupported
+:comment "Not supported, to be added to genesys backend."
 
 :model "Astra 4400"
 :url "/unsupported/umax-astra-4400.html"

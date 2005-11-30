@@ -1,3 +1,7 @@
+2005-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added UMAX Astra 4100.
+
 2005-11-28  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* sanei/sanei_pa4s2.c: incorrect test of a bit mask.

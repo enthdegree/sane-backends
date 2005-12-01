@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2005-11-25 13:31+0100\n"
-"PO-Revision-Date: 2005-11-25 23:02+0100\n"
+"PO-Revision-Date: 2005-12-01 08:39+0100\n"
 "Last-Translator: \n"
 "Language-Team:  <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -50,17 +50,17 @@ msgstr "Цветной"
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
-msgstr "Дополнительно"
+msgstr "Повышение"
 
 #: .tmp/artec_eplus48u.c:2874 .tmp/pnm.c:276
 #, no-c-format
 msgid "Defaults"
-msgstr "Умолчания"
+msgstr "По умолчанию"
 
 #: .tmp/artec_eplus48u.c:2876
 #, no-c-format
 msgid "Set default values for enhancement controls."
-msgstr "Устанавливает значения по умолчанию для управления выразительностью."
+msgstr "Устанавливает значения по умолчанию для управления повышением."
 
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4401
 #: .tmp/gt68xx.c:694 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
@@ -2087,8 +2087,8 @@ msgstr ""
 #, no-c-format
 msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
-"Устанавливает значения по умолчанию для управления выразительностью "
-"(яркостью и контрастностью)."
+"Устанавливает значения по умолчанию для управления повышением (яркостью и "
+"контрастностью)."
 
 #: .tmp/pnm.c:289
 #, no-c-format

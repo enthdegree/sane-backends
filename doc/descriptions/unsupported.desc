@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-11-30"		; version of backend
+:version "2005-12-01"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -431,10 +431,10 @@
 :url "http://www.cardscan.com/"
 
 :model "Cardscan 500"
-;:url ""
+:url "/unsupported/corex-cardscan-500.html"
 :interface "USB"
 :status :unsupported
-:comment "Probably not supported. Businesscard reader. Vendor/product: 0x08f0/0x0001."
+:comment "Probably not supported. Businesscard reader."
 
 ;********************************************************************************************
 

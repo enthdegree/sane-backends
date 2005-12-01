@@ -1,3 +1,8 @@
+2005-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+	
+	* doc/descriptions/unsupported.desc: Added link for Corex Cardscan
+	  500.
+
 2005-11-30  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added UMAX Astra 4100.

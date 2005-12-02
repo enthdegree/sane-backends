@@ -1,3 +1,8 @@
+2005-12-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-sources.c: Another fix for lineart mode for the 
+	  Epson 3490 @ 3200 DPI - this time tested
+
 2005-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	
 	* doc/descriptions/unsupported.desc: Added link for Corex Cardscan

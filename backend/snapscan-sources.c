@@ -746,16 +746,16 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
             {
                 if (ps->ch_shift_even)
                 {
-                    /* Even pixels need to be shifted, i.e. bits 0,2,4,6 -> 0x55 */
+                    /* Even columns need to be shifted, i.e. bits 1,3,5,7 -> 0xaa */
                     /* use valid pixels from this line and shifted pixels from ch_size lines back */
-                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0xaa) |
-                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0x55);
+                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0x55) |
+                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0xaa);
                 }
                 else
                 {
-                    /* Odd pixels need to be shifted, i.e. bits 1,3,5,7 -> 0xaa */
-                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0x55) |
-                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0xaa);
+                    /* Odd columns need to be shifted, i.e. bits 0,2,4,6 -> 0x55 */
+                    *pbuf = (ps->ch_buf[ps->ch_pos] & 0xaa) |
+                            (ps->ch_buf[(ps->ch_pos + (ps->ch_line_size)) % ps->ch_size] & 0x55);
                 }
             }
             else
@@ -763,14 +763,15 @@ static SANE_Status Deinterlacer_get (Source *pself, SANE_Byte *pbuf, SANE_Int *p
                 /* not enough data. duplicate pixel values from previous column */
                 if (ps->ch_shift_even)
                 {
-                    /* bits 1,3,5,7 contain valid data -> 0xaa */
-                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0xaa;
+                    /* bits 0,2,4,6 contain valid data -> 0x55 */
+                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0x55;
                     *pbuf = valid_pixel | (valid_pixel >> 1);
                 }
                 else
                 {
-                    /* bits 0,2,4,6 contain valid data -> 0x55 */
-                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0x55;
+
+                    /* bits 1,3,5,7 contain valid data -> 0xaa */
+                    SANE_Byte valid_pixel = ps->ch_buf[ps->ch_pos] & 0xaa;
                     *pbuf = valid_pixel | (valid_pixel << 1);
                 }
             }
@@ -1242,6 +1243,9 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 
 /*
  * $Log$
+ * Revision 1.21  2005/12/02 19:12:54  oliver-guest
+ * Another fix for lineart mode for the Epson 3490 @ 3200 DPI
+ *
  * Revision 1.20  2005/11/28 19:28:29  oliver-guest
  * Fix for lineart mode of Epson 3490 @ 3200 DPI
  *

@@ -2,6 +2,7 @@
 
 	* backend/snapscan-sources.c: Another fix for lineart mode for the 
 	  Epson 3490 @ 3200 DPI - this time tested
+	* backend/snapscan.c: Change version number to 1.4.50
 
 2005-12-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 	

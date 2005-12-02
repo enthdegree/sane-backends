@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               49
+#define BUILD               50
 
 #define BACKEND_NAME snapscan
 
@@ -1920,6 +1920,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.62  2005/12/02 19:15:42  oliver-guest
+ * Change SnapScan version number to 1.4.50
+ *
  * Revision 1.61  2005/11/15 20:11:19  oliver-guest
  * Enabled quality calibration for the Epson 3490
  *

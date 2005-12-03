@@ -380,7 +380,7 @@ init_gphoto2 (void)
 
   if (!Cam_data.camera_name)
     {
-      DBG (0, "Camera name not specified in config file\n");
+      DBG (0, "init_gphoto2: Camera name not specified in config file\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -408,7 +408,7 @@ init_gphoto2 (void)
 
   if (!Cam_data.port)
     {
-      DBG (0, "Camera port not specified in config file\n");
+      DBG (0, "init_gphoto2: Camera port not specified in config file\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -472,19 +472,19 @@ init_gphoto2 (void)
 
   if (!(abilities.operations & GP_OPERATION_CAPTURE_IMAGE))
     {
-      DBG (20, "Camera does not support image capture\n");
+      DBG (20, "init_gphoto2: Camera does not support image capture\n");
       sod[GPHOTO2_OPT_SNAP].cap |= SANE_CAP_INACTIVE;
     }
 
   if (!(abilities.file_operations & GP_FILE_OPERATION_PREVIEW))
     {
-      DBG (20, "Camera does not support image preview\n");
+      DBG (20, "init_gphoto2: Camera does not support image preview\n");
       sod[GPHOTO2_OPT_THUMBS].cap |= SANE_CAP_INACTIVE;
     }
 
   if (!(abilities.file_operations & GP_FILE_OPERATION_DELETE))
     {
-      DBG (20, "Camera does not support image deletion\n");
+      DBG (20, "init_gphoto2: Camera does not support image deletion\n");
       sod[GPHOTO2_OPT_ERASE].cap |= SANE_CAP_INACTIVE;
     }
 
@@ -496,7 +496,7 @@ init_gphoto2 (void)
   n = gp_list_count (list);
   if (n < 0)
     {
-      DBG (0, "Unable to get file list\n");
+      DBG (0, "init_gphoto2: Unable to get file list\n");
       return SANE_STATUS_INVAL;
     }
 

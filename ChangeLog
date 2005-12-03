@@ -1,3 +1,6 @@
+2005-12-03  Peter Fales <peter@fales-lorenz.net>
+	* backend/gphoto2.c: Cosmetic changes to debug messages
+
 2005-12-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-sources.c: Another fix for lineart mode for the 

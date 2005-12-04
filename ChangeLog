@@ -1,3 +1,7 @@
+2005-12-03  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson_usb.c: Added id for CX4200
+
 2005-12-04  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan.c backend/snapscan-scsi.c

@@ -1,3 +1,14 @@
+
+2005-12-04  Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.c backend/avision.h: updated the Avision backend
+	  from BUILD 167 to 179, including support for HP 5370, AV600U,
+	  AV210C2, AV220C2,  et. al. The USB i/o paths got hardened, and a
+	  lot of fixes as well es enhancements and optimizations where added
+	  and a lot of typos, mostly in debug output and comments, got fixed.
+	  The "Line Art" mode was renamed to "Lineart" to match the other
+	  backends.
+
 2005-12-03  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Added id for CX4200

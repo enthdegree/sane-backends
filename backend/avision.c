@@ -72,11 +72,14 @@
                    example code to handle calibration and C5 ASIC specifics
                 "Franz Bakan" <fbakan@gmx.net>
                    OS/2 threading support
+                "Falk Rohsiepe"
+                   Spelling and whitespace as well as HP5370 quirks
    
    Many additinoal special thanks to:
                 Avision INC for providing protocol documentation.
                 Avision INC for sponsoring an AV 8000S with ADF.
-                Avision Europ and BHS Binkert for sponsoring several scanners.
+                Avision Europe and BHS Binkert for sponsoring several more scanners.
+                Archivista GmbH, Switzerland, for sponsoring several features
                 Roberto Di Cosmo who sponsored a HP 5370 scanner.
                 Oliver Neukum who sponsored a HP 5300 USB scanner.
                 Matthias Wiedemann for lending his HP 7450C for some weeks.
@@ -90,6 +93,17 @@
                 the Avision backend would not be in the shape it is today! ;-)
    
    ChangeLog:
+   2005-12-02: René Rebe
+         * finally made the AV600U and most probably also the HP5370 aquire unshifted
+           images inspired by Falk Rohsiepe's observations
+   
+   2005-12-01: Falk Rohsiepe
+         * new feature overwrite AV_MULTI_CALIB_CMD for C5_ASIC based scanners, maybe
+           later on we just assume this for all C5's without explicit marks?
+   
+   2005-08-24: René Rebe
+         * added 3x3 color matrix support
+   
    2005-07-09: René Rebe
          * implemented non-interlaced duplex
 
@@ -750,7 +764,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 167 /* avision backend BUILD version */
+#define BACKEND_BUILD 179 /* avision backend BUILD version */
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
@@ -798,19 +812,40 @@ static Avision_HWEntry Avision_Device_List [] =
     /* comment="sheetfed scanner" */
     /* status="basic" */
 
+    { "AVISION", "AV121",
+      0x0638, 0x0A3C,
+      "Avision", "AV121",
+      AV_INT_BUTTON | AV_NO_MATRIX},
+    /* comment="sheetfed scanner" */
+    /* status="basic" */
+
+    { "AVISION", "AV122",
+      0x0638, 0x0A3C,
+      "Avision", "AV122",
+      AV_INT_BUTTON | AV_NO_MATRIX},
+    /* comment="sheetfed duplex scanner" */
+    /* status="basic" */
+
     { "AVISION", "AV210",
       0x0638, 0x0A24,
       "Avision", "AV210",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE},
     /* comment="sheetfed scanner" */
-    /* status="basic" */
+    /* status="complete" */
     
     { "AVISION", "AV210",
       0x0638, 0x0A25,
-      "Avision", "AV210-2",
-      AV_INT_BUTTON},
+      "Avision", "AV210",
+      AV_INT_BUTTON  | AV_ACCEL_TABLE},
     /* comment="sheetfed scanner" */
-    /* status="basic" */
+    /* status="complete" */
+
+    { "AVISION", "AV210C2",
+      0x0638, 0x0A3A,
+      "Avision", "AV210C2",
+      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+    /* comment="sheetfed scanner" */
+    /* status="untested" */
 
     { "AVISION", "AVISION AV220",
       0x0638, 0x0A23,
@@ -821,10 +856,10 @@ static Avision_HWEntry Avision_Device_List [] =
 
     { "AVISION", "AVISION AV220C2",
       0x0638, 0x0A2A,
-      "Avision", "AV220-C2",
+      "Avision", "AV220C2",
       AV_INT_BUTTON},
     /* comment="duplex! sheetfed scanner" */
-    /* status="untested" */
+    /* status="complete" */
 
     { "AVISION", "AV240SC",
       0, 0,
@@ -868,8 +903,15 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE},
     /* status="good" */
       
-    /* { "AVISION", "AVA6", 
+  /* { "AVISION", "AVA6", 
       0x638, 0xa22,
+      "Avision", "AVA6",
+      0}, */
+    /* comment="probably a CPU-less device" */
+    /* status="untested" */
+
+  /* { "AVISION", "AVA6",
+      0x638, 0xa3b,
       "Avision", "AVA6",
       0}, */
     /* comment="probably a CPU-less device" */
@@ -920,7 +962,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV600U",
       0x0638, 0x0A13,
       "Avision", "AV600U",
-      0},
+      AV_NO_MATRIX | AV_MULTI_CALIB_CMD},
     /* comment="1 pass, 600 dpi" */
     /* status="good" */
 
@@ -1018,16 +1060,23 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV3200C",
       0, 0,
       "Avision", "AV3200C",
-      0},
+      AV_NON_INTERLACED_DUPLEX_300},
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3800C",
       0, 0,
       "Avision", "AV3800C",
-      0},
+      AV_NON_INTERLACED_DUPLEX_300},
     /* comment="1 pass, ??? dpi" */
     /* status="good" */
+
+    { "AVISION", "FB6000E",
+       0, 0,
+      "Avision", "FB6000E",
+      AV_NON_INTERLACED_DUPLEX_300},
+    /* comment="1 pass, 1200 dpi, A3 - duplex! - zero edge!" */
+    /* status="complete" */
 
     { "AVISION", "AV8000S",
       0, 0,
@@ -1039,15 +1088,29 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV8300",
        0x0638, 0x0A40,
       "Avision", "AV8300",
-      0},
+      AV_NON_INTERLACED_DUPLEX_300},
     /* comment="1 pass, 1200 dpi, A3 - duplex!" */
     /* status="complete" */
 
     { "AVISION", "AV8350",
        0x0638, 0x0A68,
       "Avision", "AV8350",
-      0},
+      AV_NON_INTERLACED_DUPLEX_300},
     /* comment="1 pass, 1200 dpi, A3 - duplex!" */
+    /* status="complete" */
+
+    { "AVISION", "IT8300",
+       0x0638, 0x0A61,
+      "Avision", "IT8300",
+      AV_NON_INTERLACED_DUPLEX_300 | AV_ACCEL_TABLE},
+    /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
+    /* status="complete" */
+
+    { "AVISION", "@V5100",
+       0x0638, 0x0A45,
+      "Avision", "@V5100",
+      AV_NON_INTERLACED_DUPLEX_300},
+    /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
     /* status="complete" */
 
     { "AVISION", "AVA3",
@@ -1069,14 +1132,14 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "ScanJet 5370C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5370C",
-      0},
+      AV_MULTI_CALIB_CMD },
     /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
-    /* status="basic" */
+    /* status="good" */
     
     { "hp",      "scanjet 7400c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7400c",
-      AV_FIRMWARE},
+      AV_FIRMWARE | AV_NO_MATRIX},
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
     
@@ -1146,6 +1209,13 @@ static Avision_HWEntry Avision_Device_List [] =
       AV_FILMSCANNER | AV_ONE_CALIB_CMD},
     /* comment="1 pass, film-scanner" */
     /* status="basic" */
+
+    { "MINOLTA", "FS-V4",
+      0x0686, 0x400e,
+      "Minolta", "Dimage Scan Elite 5400",
+      AV_FILMSCANNER | AV_ONE_CALIB_CMD},
+    /* comment="1 pass, film-scanner" */
+    /* status="untested" */
 
     { "QMS", "SC-110",
       0x0638, 0x0a15,
@@ -1280,13 +1350,19 @@ static Avision_HWEntry Avision_Device_List [] =
     { "XEROX", "DocuMate252",
       0x04a7, 0x0449,
       "Xerox", "DocuMate252",
-      0},
+      AV_INT_BUTTON},
     /* status="untested" */
     
     { "XEROX", "DocuMate262",
       0x04a7, 0x044c,
       "Xerox", "DocuMate262",
-      0},
+      AV_INT_BUTTON},
+    /* status="good" */
+
+    { "XEROX", "DocuMate272",
+      0x04a7, 0x0475,
+      "Xerox", "DocuMate272",
+      AV_INT_BUTTON},
     /* status="untested" */
     
     /* More IDs from the Avision dll:
@@ -1390,7 +1466,7 @@ static Avision_HWEntry Avision_Device_List [] =
 #define read_constrains(s,var) {\
 	if (s->hw->inquiry_asic_type == AV_ASIC_C6) {\
 		if (var % 64 == 0) var /= 2;\
-		if (var % 64 == 0) var -= 2;\
+		if (var % 64 == 0) var += 2;\
 	}\
 }\
 
@@ -1488,6 +1564,27 @@ static void debug_print_raw (int dbg_level, char* info, const u_int8_t* data,
 	 BIT(data[i],7), BIT(data[i],6), BIT(data[i],5), BIT(data[i],4),
 	 BIT(data[i],3), BIT(data[i],2), BIT(data[i],1), BIT(data[i],0),
 	 data[i], data[i], data[i]);
+  }
+}
+
+static void debug_print_hex_raw (int dbg_level, char* info, const u_int8_t* data,
+				 size_t count)
+{
+  int address = 0;
+  char text [16*3+1];
+
+  DBG (dbg_level, info);
+  while (count) {
+    char* t = text;
+    int i = 0;
+    while (i < 16 && count) {
+      t += sprintf (t, "%02x ", *data++);
+      count--; i++;
+    }
+    *--t = 0;
+    
+    DBG (dbg_level, "  [%08x] %s\n", address, text);
+    address += 16;
   }
 }
 
@@ -1686,6 +1783,7 @@ sense_handler (int fd, u_char* sense, void* arg)
   SANE_Status status = SANE_STATUS_IO_ERROR; /* default case */
   
   char* text;
+  char textbuf[64];
   
   u_int8_t error_code = sense[0] & 0x7f;
   u_int8_t sense_key = sense[2] & 0xf;
@@ -1745,7 +1843,8 @@ sense_handler (int fd, u_char* sense, void* arg)
       text = "ABORTED COMMAND";
       break;
     default:
-      text = "got unknown sense code"; /* TODO: sprint the code ... */
+      sprintf (textbuf, "got unknown sense code 0x%02x", (int)sense_key);
+      text = textbuf;
     }
   
   DBG (1, "sense_handler: sense code: %s\n", text);
@@ -1809,12 +1908,14 @@ sense_handler (int fd, u_char* sense, void* arg)
 	/* maybe Minolta specific */
 	ADDITIONAL_SENSE (0x90,0x00, "Scanner busy");
       default:
-	text = "Unknown sense code asc: , ascq: "; /* TODO: sprint code here */
+	sprintf (textbuf, "Unknown sense code asc: 0x%02x, ascq: 0x%02x",
+		 (int)asc, (int)ascq);
+	text = textbuf;
       }
     
 #undef ADDITIONAL_SENSE
     
-    DBG (1, "sense_handler: sese code: %s\n", text);
+    DBG (1, "sense_handler: sense code: %s\n", text);
     
     /* sense code specific for invalid request
      * it is possible to get a detailed error location here ;-)*/
@@ -1852,8 +1953,10 @@ avision_usb_status (Avision_Connection* av_con, int retry, int timeout)
   u_int8_t usb_status[2] = {0, 0};
   size_t count = 0;
   int t_retry = retry;
+
+#define valid_status(status,a) (status == SANE_STATUS_GOOD ? a : 0)
   
-  DBG (4, "avision_usb_status: timeout %d\n", timeout);
+  DBG (4, "avision_usb_status: timeout %d, %d retries\n", timeout, retry);
 #ifndef HAVE_SANEI_USB_SET_TIMEOUT
 #error "You must update include/sane/sanei_usb.h and sanei/sanei_usb.c accordingly!"
 #endif
@@ -1873,7 +1976,7 @@ avision_usb_status (Avision_Connection* av_con, int retry, int timeout)
       status = sanei_usb_read_bulk (av_con->usb_dn, usb_status,
 				    &count);
       DBG (5, "<== (bulk read) got: %ld, status: %d\n",
-	   (u_long)count, usb_status[0]);
+	   (u_long)count, valid_status(status, usb_status[0]));
 
       if (count > 0) {
 	av_con->usb_status = AVISION_USB_BULK_STATUS;
@@ -1897,7 +2000,7 @@ avision_usb_status (Avision_Connection* av_con, int retry, int timeout)
     status = sanei_usb_read_int (av_con->usb_dn, usb_status,
 				 &count);
     DBG (5, "<== (interrupt read) got: %ld, status: %d\n",
-	 (u_long)count, usb_status[0]);
+	 (u_long)count, valid_status(status, usb_status[0]));
     
     if (count > 0)
       av_con->usb_status = AVISION_USB_INT_STATUS;
@@ -1915,7 +2018,7 @@ avision_usb_status (Avision_Connection* av_con, int retry, int timeout)
     case AVISION_USB_GOOD:
       return SANE_STATUS_GOOD;
     case AVISION_USB_REQUEST_SENSE:
-      DBG (2, "avision_usb_status: Needs to request sence!\n");
+      DBG (2, "avision_usb_status: Needs to request sense!\n");
       return SANE_STATUS_INVAL;
     case AVISION_USB_BUSY:
       DBG (2, "avision_usb_status: Busy!\n");
@@ -1993,9 +2096,13 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
     SANE_Status status = SANE_STATUS_GOOD;
     
     size_t i, count, out_count;
-#define STD_TIMEOUT 1500
-    int retry, timeout = STD_TIMEOUT;
-    
+#define STD_TIMEOUT 30000 /* some commands on some devices need a rather long time to respond */
+#define STD_STATUS_TIMEOUT 2500
+    int retry = 4;
+    int write_timeout = STD_TIMEOUT;
+    int read_timeout = STD_TIMEOUT;
+    int status_timeout = STD_STATUS_TIMEOUT;
+
     /* simply to allow nicer code below */
     const u_int8_t* m_cmd = (const u_int8_t*)cmd;
     const u_int8_t* m_src = (const u_int8_t*)src;
@@ -2014,33 +2121,43 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
       m_cmd = enlarged_cmd;
       cmd_size = min_usb_size;
     }
-    
-    retry = 4;
+
+    /* per command class timeout tweaks */
+    switch (m_cmd[0]) {
+      case AVISION_SCSI_INQUIRY:
+      case AVISION_SCSI_TEST_UNIT_READY:
+        read_timeout = 1500;
+        break;
+    }
+
 write_usb_cmd:
+    if (--retry == 0) {
+      DBG (1, "Max retry count reached: I/O error\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
     count = cmd_size;
-    
+
     DBG (8, "try to write cmd, count: %lu.\n", (u_long) count);
-    sanei_usb_set_timeout (timeout);
+    sanei_usb_set_timeout (write_timeout);
     status = sanei_usb_write_bulk (av_con->usb_dn, m_cmd, &count);
       
     DBG (8, "wrote %lu bytes\n", (u_long) count);
     if (status != SANE_STATUS_GOOD || count != cmd_size) {
-      DBG (3, "=== Got error %d trying to write, wrote: %d. ===\n", status, count);
+      DBG (3, "=== Got error %d trying to write, wrote: %d. ===\n",
+           status, count);
       
       if (status != SANE_STATUS_GOOD) /* == SANE_STATUS_EOF) */ {
 	DBG (3, "try to read status to clear the FIFO\n");
 	status = avision_usb_status (av_con, 1, 500);
 	if (status != SANE_STATUS_GOOD) {
-	  DBG(3, "=== Got error %d trying to read status. ===\n", status);
+	  DBG (3, "=== Got error %d trying to read status. ===\n", status);
 	  return SANE_STATUS_IO_ERROR;
 	}
 	else
 	  goto write_usb_cmd;
       } else {
-	--retry;
-	if (retry == 0)
-	  return SANE_STATUS_IO_ERROR;
-	DBG(3, "Retrying to send command\n");
+	DBG (3, "Retrying to send command\n");
 	goto write_usb_cmd;
       }
       
@@ -2048,70 +2165,55 @@ write_usb_cmd:
     }
     
     /* 2nd send command data (if any) */
-    for (i = 0; i < src_size;) {
+    for (i = 0; i < src_size; ) {
       
       count = src_size - i;
       if (count > max_usb_size)
 	count = max_usb_size;
       
       DBG (8, "try to write src, count: %lu.\n", (u_long) count);
-      sanei_usb_set_timeout (timeout);
+      sanei_usb_set_timeout (write_timeout);
       status = sanei_usb_write_bulk (av_con->usb_dn, &(m_src[i]), &count);
       
       DBG (8, "wrote %lu bytes\n", (u_long) count);
-      if (status != SANE_STATUS_GOOD)
-	break;
-      i += count;
+      if (status == SANE_STATUS_GOOD) {
+	i += count;
+      }
+      else {
+	goto write_usb_cmd;
+      }
     }
-    
+
     /* 3rd: read the resuling data (payload) (if any) */
     if (status == SANE_STATUS_GOOD && dst != NULL && *dst_size > 0) {
       out_count = 0;
+      sanei_usb_set_timeout (read_timeout);
       while (out_count < *dst_size) {
 	count = (*dst_size - out_count);
 	
 	DBG (8, "try to read %lu bytes\n", (u_long) count);
-	sanei_usb_set_timeout (timeout);
         status = sanei_usb_read_bulk(av_con->usb_dn, &(m_dst[out_count]),
 				     &count);
 	DBG (8, "read %lu bytes\n", (u_long) count);
-        
-	if (status != SANE_STATUS_GOOD)
-	  break;
-	out_count += count;
-	/* try to detect stray status bytes stuck in the FIFO */
-	if (out_count < *dst_size && out_count == 1) {
-	  DBG (1, "Detected stray status byte (%lu) stuck in the FIFO, retrying.\n",
-          (u_long) count);
-	  goto write_usb_cmd; /* verified: re-reading data does not work */
+
+	if (count == 1 && (*dst_size - out_count > 1)) {
+	  DBG (1, "Got 1 byte - status? (%d) Resending.\n", m_dst[out_count]);
+	  goto write_usb_cmd;
+        }
+	else if (count > 0) {
+          out_count += count;
+	}
+	else {
+	  DBG (1, "No data arrived.\n");
+	  goto write_usb_cmd;
 	}
       }
     }
     
     /* last: read the device status via a pseudo interrupt transfer
      * this is needed - otherwise the scanner will hang ... */
-    {
-      timeout=STD_TIMEOUT;
-      retry = 6;
-      switch (m_cmd[0]) {
-        case AVISION_SCSI_INQUIRY:
-        case AVISION_SCSI_TEST_UNIT_READY:
-          retry = 2;
-          break;
-        case AVISION_SCSI_RELEASE_UNIT:
-          retry = 8;
-          timeout=30000;
-          break;
-        case AVISION_SCSI_SCAN:
-	  timeout=5000;
-	  retry = 2;
-	  break;
-        case AVISION_SCSI_READ:
-          timeout=5000;
-      }
-      status = avision_usb_status (av_con, retry, timeout);
-      timeout = STD_TIMEOUT;
-    }
+    sanei_usb_set_timeout (status_timeout);
+    status = avision_usb_status (av_con, /*retry*/ 1, status_timeout);
     /* next i/o hardening attempt - and yes this gets ugly ... */
     if (status != SANE_STATUS_GOOD && status != SANE_STATUS_INVAL)
       goto write_usb_cmd;
@@ -2124,8 +2226,8 @@ write_usb_cmd:
       
       u_int8_t sense_buffer[22];
       
-      DBG(3, "Error during status read!\n");
-      DBG(3, "=== Try to request sense ===\n");
+      DBG (3, "Error during status read!\n");
+      DBG (3, "=== Try to request sense ===\n");
       
       /* we can not call avision_cmd recursively - we might ending in
 	 an endless recursion requesting sense for failing request
@@ -2139,7 +2241,7 @@ write_usb_cmd:
       count = sizeof(sense_cmd);
       
       DBG (8, "try to write %lu bytes\n", (u_long) count);
-      sanei_usb_set_timeout (timeout);
+      sanei_usb_set_timeout (write_timeout);
       status = sanei_usb_write_bulk (av_con->usb_dn,
 				     (u_int8_t*) &sense_cmd, &count);
       DBG (8, "wrote %lu bytes\n", (u_long) count);
@@ -2151,12 +2253,12 @@ write_usb_cmd:
 	count = sizeof (sense_buffer);
 	
 	DBG (8, "try to read %lu bytes sense data\n", (u_long) count);
-	sanei_usb_set_timeout (timeout);
+	sanei_usb_set_timeout (read_timeout);
 	status = sanei_usb_read_bulk(av_con->usb_dn, sense_buffer, &count);
 	DBG (8, "read %lu bytes sense data\n", (u_long) count);
 	
 	/* we need to read out the staus from the scanner i/o buffer */
-	status = avision_usb_status (av_con, 1, timeout);
+	status = avision_usb_status (av_con, 1, status_timeout);
 	
 	if (status != SANE_STATUS_GOOD)
 	  DBG (3, "=== Got error %d trying to read sense! ===\n", status);
@@ -2459,11 +2561,10 @@ compute_parameters (Avision_Scanner* s)
 	    however this should be corrected thruout the backend ... */
 	    
 	s->avdimen.line_difference =
-	  (dev->inquiry_line_difference * s->avdimen.yres) /
-	  dev->inquiry_max_res * 3; /* *3 should be in the other places */
+	  (dev->inquiry_line_difference * s->avdimen.yres) / dev->inquiry_max_res;
       }
 	  
-      s->avdimen.bry += s->avdimen.line_difference;
+      s->avdimen.bry += 3 * s->avdimen.line_difference;
 	  
       /* limit bry + line_difference to real scan boundary */
       {
@@ -2472,9 +2573,9 @@ compute_parameters (Avision_Scanner* s)
 	DBG (3, "sane_compute_parameters: y_max: %ld, bry: %ld, line_difference: %d\n",
 	     y_max, s->avdimen.bry, s->avdimen.line_difference);
 	    
-	if (s->avdimen.bry + s->avdimen.line_difference > y_max) {
+	if (s->avdimen.bry + 3* s->avdimen.line_difference > y_max) {
 	  DBG (1, "sane_compute_parameters: bry limitted!\n");
-	  s->avdimen.bry = y_max - s->avdimen.line_difference;
+	  s->avdimen.bry = y_max - 3 * s->avdimen.line_difference;
 	}
       }
 	  
@@ -2488,10 +2589,10 @@ compute_parameters (Avision_Scanner* s)
   s->params.pixels_per_line = (s->avdimen.brx - s->avdimen.tlx);
   s->params.pixels_per_line -= s->params.pixels_per_line % boundary;
 
-  s->params.lines = s->avdimen.bry - s->avdimen.tly - s->avdimen.line_difference;
+  s->params.lines = s->avdimen.bry - s->avdimen.tly - 3 * s->avdimen.line_difference;
   if (s->avdimen.interlaced_duplex)
     s->params.lines -= s->params.lines % 8;
-  
+
   debug_print_avdimen (1, "sane_compute_parameters", &s->avdimen);
   
   switch (s->c_mode)
@@ -2532,10 +2633,9 @@ compute_parameters (Avision_Scanner* s)
       DBG (1, "Invalid mode. %d\n", s->c_mode);
       return SANE_STATUS_INVAL;
     } /* end switch */
-      
+  
   s->params.last_frame = SANE_TRUE;
-      
-      
+  
   debug_print_params (1, "sane_compute_parameters", &s->params);
   return SANE_STATUS_GOOD;
 }
@@ -3112,11 +3212,12 @@ get_duplex_info (Avision_Scanner* s)
        get_double(result.gray_line_difference));
   DBG (3, "get_duplex_info: [5-6]  Lineart line difference: %d\n",
        get_double(result.lineart_line_difference));
+  /* isn't this supposed to be result.info ?!? */
   DBG (3, "get_duplex_info: [7]    Mode: %s%s%s%s\n",
-       BIT(result.mode,0)?" FLATBED_BGR":" FLATBED_RGB",
-       BIT(result.mode,1)?" ADF_BGR":" ADF_RGB",
-       BIT(result.mode,2)?" FLATBED_NEEDS_MIRROR_IMAGE":"",
-       BIT(result.mode,3)?" ADF_NEEDS_MIRROR_IMAGE":"");
+       BIT(result.image_info,0)?" FLATBED_BGR":" FLATBED_RGB",
+       BIT(result.image_info,1)?" ADF_BGR":" ADF_RGB",
+       BIT(result.image_info,2)?" FLATBED_NEEDS_MIRROR_IMAGE":"",
+       BIT(result.image_info,3)?" ADF_NEEDS_MIRROR_IMAGE":"");
   
   return SANE_STATUS_GOOD;
 }
@@ -3379,7 +3480,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
        BIT(i, 1)?" 3-pass color":"",
        BIT(i, 2)?" 1-pass color":"",
        BIT(i, 2) && BIT(i, 0) ?" 1-pass color (ScanPartner only)":"",
-       BIT(result[36],3)?" IS_NOT_FLATBED:":"",
+       BIT(result[36],3)?" IS_NOT_FLATBED":"",
        s);
 
   DBG (3, "attach: [37]    Optical res.:    %d00 dpi\n", result[37]);
@@ -3468,17 +3569,17 @@ get_double ( &(result[48] ) ));
   
   DBG (3, "attach: [77-78] Max X of transparency: %d dots * base_dpi\n",
        get_double ( &(result[77]) ));
-  DBG (3, "attach: [79-80] May Y of transparency: %d dots * base_dpi\n",
+  DBG (3, "attach: [79-80] Max Y of transparency: %d dots * base_dpi\n",
        get_double ( &(result[79]) ));
   
   DBG (3, "attach: [81-82] Max X of flatbed:      %d dots * base_dpi\n",
        get_double ( &(result[81]) ));
-  DBG (3, "attach: [83-84] May Y of flatbed:      %d dots * base_dpi\n",
+  DBG (3, "attach: [83-84] Max Y of flatbed:      %d dots * base_dpi\n",
        get_double ( &(result[83]) ));
   
   DBG (3, "attach: [85-86] Max X of ADF:          %d dots * base_dpi\n",
        get_double ( &(result[85]) ));
-  DBG (3, "attach: [87-88] May Y of ADF:          %d dots * base_dpi\n",
+  DBG (3, "attach: [87-88] Max Y of ADF:          %d dots * base_dpi\n",
        get_double ( &(result[87]) )); /* 0xFFFF means unlimited length */
   
   DBG (3, "attach: [89-90] Res. in Ex. mode:      %d dpi\n",
@@ -3511,7 +3612,8 @@ get_double ( &(result[48] ) ));
   DBG (3, "attach: [95]    ESA6:%s%s%s%s%s%s%s%s\n",
        BIT(result[95],7)?" SUPPORTS_PAPER_SIZE_AUTO_DETECTION":"",
        BIT(result[95],6)?" SUPPORTS_DO_HOUSEKEEPING":"", /* Kodak i80 only */
-       BIT(result[95],5)?" SUPPORTS_PAPER_LENGTH_SETTING":"", /* AV220, Kodak to detect multiple page feed */
+       BIT(result[95],5)?" SUPPORTS_PAPER_LENGTH_SETTING":"", /* AV220,
+       Kodak to detect multiple page feed */
        BIT(result[95],4)?" SUPPORTS_PRE_GAMMA_LINEAR_CORRECTION":"",
        BIT(result[95],3)?" SUPPORTS_PREFEEDING":"", /*  OKI S9800 */
        BIT(result[95],2)?" SUPPORTS_GET_BACKGROUND_RASTER":"", /* AV220 */
@@ -3536,21 +3638,23 @@ get_double ( &(result[48] ) ));
   dev->inquiry_asic_type = (int) result[91];
 
   dev->inquiry_adf = BIT (result[62], 5);
-  dev->inquiry_duplex = BIT (result[62],2) || BIT (result[94],5);
-  dev->inquiry_duplex_interlaced = BIT (result[94],4);
-  /* TODO: ask Avision if this his the right bit ... ,-) */
-  dev->inquiry_duplex_mode_two = BIT(result[94],3);
+  dev->inquiry_duplex = BIT (result[62], 2) || BIT (result[94], 5);
+  dev->inquiry_duplex_interlaced = BIT (result[94], 4);
+  dev->inquiry_paper_length = BIT (result[95], 5);
 
-  dev->inquiry_detect_accessories = BIT(result[93],7);
+  dev->inquiry_detect_accessories = BIT (result[93], 7);
   
-  dev->inquiry_needs_calibration = BIT (result[50],4);
+  dev->inquiry_needs_calibration = BIT (result[50], 4);
   
-  dev->inquiry_needs_gamma = BIT (result[50],3);
-  dev->inquiry_3x3_matrix = BIT (result[52], 4);
+  dev->inquiry_needs_gamma = BIT (result[50], 3);
+  dev->inquiry_keeps_gamma = BIT (result[50], 2);
+  dev->inquiry_keeps_window = BIT (result[50], 1);
+
+  dev->inquiry_3x3_matrix = BIT (result[51], 1);
   dev->inquiry_needs_software_colorpack = BIT (result[50],5);
   dev->inquiry_needs_line_pack = BIT (result[94], 6);
   dev->inquiry_adf_need_mirror = BIT (result[51], 0);
-  dev->inquiry_adf_bgr_order = BIT(result[93],6);
+  dev->inquiry_adf_bgr_order = BIT (result[93], 6);
   
   dev->inquiry_light_detect = BIT (result[93], 2);
   dev->inquiry_light_control = BIT (result[50], 7);
@@ -3777,7 +3881,7 @@ additional_probe (Avision_Scanner* s)
   /* create dynamic *-mode entries */
   
   if (dev->inquiry_bits_per_channel > 0) {
-    add_color_mode (dev, AV_THRESHOLDED, "Line Art");
+    add_color_mode (dev, AV_THRESHOLDED, "Lineart");
     add_color_mode (dev, AV_DITHERED, "Dithered");
   }
 
@@ -4002,9 +4106,11 @@ set_calib_data (Avision_Scanner* s, struct calibration_format* format,
   out_size = format->pixel_per_line * 2;
   
   /* send data in one command? */
+  /* FR: HP5370 reports one-pass, but needs multi (or other format in single) */
   if (format->channels == 1 ||
-      ( (dev->hw->feature_type & AV_ONE_CALIB_CMD) ||
-	! BIT(format->ability1, 0) ) )
+      ( ( (dev->hw->feature_type & AV_ONE_CALIB_CMD) ||
+	  ! BIT(format->ability1, 0) ) && 
+	! (dev->hw->feature_type & AV_MULTI_CALIB_CMD) ) )
     /* one command (most scanners) */
     {
       size_t send_size = elements_per_line * 2;
@@ -4279,13 +4385,13 @@ normal_calibration (Avision_Scanner* s)
   status = get_calib_format (s, &calib_format);
   if (status != SANE_STATUS_GOOD)
     return status;
-
+  
   /* check if need do calibration */
   if (calib_format.flags == 3) { /* needs no calibration */
     DBG (1, "normal_calibration: Scanner claims no calibration needed -> skipped!\n");
     return SANE_STATUS_GOOD;
   }
-  
+
   /* calculate calibration data size for read from scanner */
   /* size = lines * bytes_per_channel * pixels_per_line * channel */
   calib_bytes_per_line = calib_format.bytes_per_channel *
@@ -4588,6 +4694,62 @@ send_gamma (Avision_Scanner* s)
 }
 
 static SANE_Status
+send_3x3_matrix (Avision_Scanner* s)
+{
+  SANE_Status status;
+  
+#define SIGN_BIT 0x1000
+#define INT_PART 10
+  
+  struct matrix_cmd
+  {
+    struct command_send scmd;
+    struct matrix_3x3 matrix;
+  } cmd;
+  
+  /* 04 00  00 00  00 00 
+     00 00  04 00  00 00
+     00 00  00 00  04 00 */
+  
+  int i, a_i;
+  double c5_matrix[] =
+    {  1.3042, -0.1475, -0.1567,
+      -0.1413,  1.2007, -0.0594,
+      -0.0335, -0.1274,  1.1609
+    };
+  
+  double a_f, b_f;
+  u_int16_t m;
+  
+  DBG (3, "send_3x3_matrix:\n");
+  
+  memset (&cmd, 0, sizeof (cmd));
+  
+  for (i = 0; i < 9; i++)
+    {
+      m = 0;
+      a_f = c5_matrix[i];
+      if (a_f < 0) {
+	m |= SIGN_BIT;
+	a_f = -a_f;
+      }
+      
+      a_i = (int) a_f;         /* integer */
+      b_f = a_f - (double) a_i;        /*float */
+      m = m | ((a_i & 0x3) << INT_PART);
+      m = m | (u_int16_t) (b_f * 1024);
+      set_double ( ((u_int8_t*)(&cmd.matrix.v[i])), m);
+    }
+  cmd.scmd.opc = AVISION_SCSI_SEND;
+  cmd.scmd.datatypecode = 0x83; /* 0x83 for 3x3 color matrix */
+  set_triple (cmd.scmd.transferlen, sizeof (struct matrix_3x3));
+  
+  DBG (3, "send_3x3_matrix: sending matrix\n");
+  status = avision_cmd (&s->av_con, &cmd, sizeof (cmd), 0, 0, 0, 0);
+  return status;
+}
+
+static SANE_Status
 get_acceleration_info (Avision_Scanner* s, struct acceleration_info* info)
 {
   SANE_Status status;
@@ -4616,8 +4778,8 @@ get_acceleration_info (Avision_Scanner* s, struct acceleration_info* info)
   
   debug_print_accel_info (3, "get_acceleration_info", result);
   
-  info->accel_step_count = get_double (&(result[0]));
-  info->stable_step_count = get_double (&(result[2]));
+  info->total_steps = get_double (&(result[0]));
+  info->stable_steps = get_double (&(result[2]));
   info->table_units = get_quad (&(result[4]));
   info->base_units = get_double (&(result[8]));
   info->start_speed = get_double (&(result[12]));
@@ -4634,54 +4796,148 @@ send_acceleration_table (Avision_Scanner* s)
   SANE_Status status;
   
   struct command_send scmd;
-  int t;
-  struct acceleration_info accel_info;
+  int table = 0;
+  int i;
+  struct acceleration_info accel_info = accel_info;
   u_int8_t* table_data;
   
   DBG (3, "send_acceleration_table:\n");
-  
-  status = get_acceleration_info (s, &accel_info);
-  
-  /* so far I assume we have one byte tables as used in the C6 ASSIC ... */
-  table_data = malloc (accel_info.accel_step_count);
-  
-  for (t = 0; t < accel_info.table_count && status == SANE_STATUS_GOOD; ++t)
+
+  do {
+    status = get_acceleration_info (s, &accel_info);
+    
+    if (accel_info.table_count == 0) {
+      DBG (3, "send_acceleration_table: device does not need tables\n");
+      return SANE_STATUS_GOOD;
+    }
+    
+    if (accel_info.target_speed > accel_info.start_speed ||
+        accel_info.target_speed == 0 ||
+        accel_info.total_steps <= accel_info.stable_steps) {
+      DBG (1, "send_acceleration_table: tables does not look right.\n");
+      return SANE_STATUS_INVAL;
+    }
+    
+    if (accel_info.ability != 0) {
+      DBG (1, "send_acceleration_table: ability non-zero - insert code\n");
+      return SANE_STATUS_INVAL;
+    }
+    
+    /* so far I assume we have one byte tables as used in the C6 ASIC ... */
+    table_data = malloc (accel_info.total_steps + 1000);
+    
+    memset (&scmd, 0x00, sizeof (scmd));
+    scmd.opc = AVISION_SCSI_SEND;
+    scmd.datatypecode = 0x6c; /* send acceleration table */
+      
+    set_double (scmd.datatypequal, table);
+    set_triple (scmd.transferlen, accel_info.total_steps);
+    
+    /* contruct the table - Warning: This code is derived from Avision
+       sample code and is a bit scarry! I have no idea why the scanner
+       needs such a dumb table and also do not know /why/ it has to be
+       constructed this way. "Works for me" -ReneR */
     {
-      memset (&scmd, 0x00, sizeof (scmd));
-      scmd.opc = AVISION_SCSI_SEND;
-      scmd.datatypecode = 0x6c; /* send acceleration table */
+      float low_lim = 0.001;
+      float up_lim  = 1.0;
+
+      u_int16_t accel_steps = accel_info.total_steps - accel_info.stable_steps + 1;
       
-      set_double (scmd.datatypequal, t);
-      set_triple (scmd.transferlen, accel_info.accel_step_count);
-      
-      /* contruct the table */
+      /* acceleration ramp */
+      while ((up_lim - low_lim) > 0.0001)
       {
-	int i;
-	int n = accel_info.accel_step_count - accel_info.stable_step_count;
-	u_int16_t start_speed = accel_info.start_speed - 20 * t;
-	for (i = 0; i < n; ++i)
-	  table_data [i] = start_speed -
-	    ( ( start_speed - accel_info.target_speed) * i / n);
+	float mid = (up_lim + low_lim) / 2; /* accel rate */
 	
-	for (; i < accel_info.accel_step_count; ++i)
-	  table_data [i] = accel_info.target_speed;
+	u_int16_t now_count = accel_info.start_speed;
+	
+	u_int16_t i = 0;
+	
+	float now_count_f = now_count;
+	table_data [i++] = (u_int8_t) accel_info.start_speed;
+
+	while (now_count != accel_info.target_speed)
+	  {
+	    now_count_f = now_count_f - (now_count_f -
+					 accel_info.target_speed) * mid;
+	    now_count = (u_int16_t)(now_count_f + 0.5);
+	    table_data[i++] = (u_int8_t) now_count;
+	  }
+	
+	
+	if (i == accel_steps)
+	  break;
+	if (i > accel_steps)
+	  low_lim = mid;
+	else
+	  up_lim = mid;
       }
       
-      DBG (1, "send_acceleration_table: sending table %d\n", t);
+      /* fill stable steps */
+      for (i = accel_steps; i < accel_info.total_steps; i++)
+	  table_data [i] = table_data [i-1];
       
-      debug_print_raw (5, "send_acceleration_table: \n",
-		       table_data, accel_info.accel_step_count);
+      debug_print_hex_raw (5, "send_acceleration_table: first pass:\n",
+			   table_data, accel_info.total_steps);
       
-      status = avision_cmd (&s->av_con, &scmd, sizeof (scmd),
-			    (char*) table_data, accel_info.accel_step_count,
-                            0, 0);
-      if (status != SANE_STATUS_GOOD) {
-	DBG (3, "send_acceleration_table: send_data failed (%s)\n",
-	     sane_strstatus (status));
+      /* maybe post fix-up */
+      {
+	int add_count;
+	
+	/* count total steps in table */
+	int table_total = 0;
+	for (i = 0; i < accel_info.total_steps; i++)
+	  table_total += table_data [i];
+	
+	i = 0;
+	if (((table_total * accel_info.table_units) % accel_info.base_units) == 0)
+	  add_count = 0;
+	else
+	  add_count = (accel_info.base_units -
+		       ((table_total*accel_info.table_units) % accel_info.base_units))
+	    / accel_info.table_units;
+	
+	/* add_count should not be bigger than 255 */
+	if (add_count > 255) {
+	  DBG (1, "send_acceleration_table: add_count limitted, was: %d\n", add_count);
+	  add_count = 255;
+	}
+	for (i = 0; i < accel_info.total_steps - 1 && add_count > 0; i++)
+	  {
+	    u_int16_t temp_count = 255 - table_data [i];
+	    temp_count = temp_count > add_count ? add_count : temp_count;
+	    
+	    table_data [i] += (u_int8_t) temp_count;
+	    add_count -= temp_count;
+	  }
       }
     }
+    
+    debug_print_hex_raw (5, "send_acceleration_table: fixed up:\n",
+			 table_data, accel_info.total_steps);
+    
+    /* decrease all by one ... */
+    for (i = 0; i < accel_info.total_steps; i++) {
+      table_data[i]--;
+    }
+    
+    DBG (1, "send_acceleration_table: sending table %d\n", table);
+    
+    debug_print_hex_raw (5, "send_acceleration_table: final:\n",
+			 table_data, accel_info.total_steps);
+    
+    status = avision_cmd (&s->av_con, &scmd, sizeof (scmd),
+			  (char*) table_data, accel_info.total_steps,
+			  0, 0);
+    if (status != SANE_STATUS_GOOD) {
+      DBG (3, "send_acceleration_table: send_data failed (%s)\n",
+	   sane_strstatus (status));
+    }
+    
+    free (table_data); table_data = 0;
+    
+    table++;
+  } while (table < accel_info.table_count);
   
-  free (table_data);
   
   return status;
 }
@@ -4691,7 +4947,7 @@ set_window (Avision_Scanner* s)
 {
   Avision_Device* dev = s->hw;
   SANE_Status status;
-  int base_dpi;
+  int base_dpi_abs, base_dpi_rel;
   int transferlen;
   int paralen;
   
@@ -4707,19 +4963,23 @@ set_window (Avision_Scanner* s)
   
   /* plain old scanners, the C3 ASIC HP 53xx and the C6 ASIC HP 74xx do use
      1200 as base */
-  if (dev->inquiry_asic_type != AV_ASIC_C5) {
-    base_dpi = 1200;
-  }
-  else {
+  switch (dev->inquiry_asic_type)
+  {
+  case AV_ASIC_C5:
+    base_dpi_abs = 1200;
     /* round down to the next multiple of 300 */
-    base_dpi = s->avdimen.xres - s->avdimen.xres % 300;
-    if (base_dpi > dev->inquiry_optical_res)
-      base_dpi = dev->inquiry_optical_res;
+    base_dpi_rel = s->avdimen.xres - s->avdimen.xres % 300;
+    if (base_dpi_rel > dev->inquiry_optical_res)
+      base_dpi_rel = dev->inquiry_optical_res;
     else if (s->avdimen.xres <= 150)
-      base_dpi = 150;
+      base_dpi_rel = 150;
+    break;
+  default:
+    base_dpi_abs = 1200;
+    base_dpi_rel = 1200;
   }
   
-  DBG (2, "set_window: base_dpi = %d\n", base_dpi);
+  DBG (2, "set_window: base_dpi_abs: %d, base_dpi_rel: %d\n", base_dpi_abs, base_dpi_rel);
   
   /* wipe out anything */
   memset (&cmd, 0, sizeof (cmd) );
@@ -4756,15 +5016,16 @@ set_window (Avision_Scanner* s)
   
   /* upper left corner x/y as well as width/length in inch * base_dpi
      - avdimen are world pixels */
-  set_quad (cmd.window.descriptor.ulx, s->avdimen.tlx * base_dpi / s->avdimen.xres);
-  set_quad (cmd.window.descriptor.uly, s->avdimen.tly * base_dpi / s->avdimen.yres);
+  set_quad (cmd.window.descriptor.ulx, s->avdimen.tlx * base_dpi_abs / s->avdimen.xres);
+  set_quad (cmd.window.descriptor.uly, s->avdimen.tly * base_dpi_abs / s->avdimen.yres);
   
   set_quad (cmd.window.descriptor.width,
-	    s->params.pixels_per_line * base_dpi / s->avdimen.xres);
+	    s->params.pixels_per_line * base_dpi_rel / s->avdimen.xres + 1);
   set_quad (cmd.window.descriptor.length,
-	    (s->params.lines + s->avdimen.line_difference) * base_dpi / s->avdimen.yres);
+	    (s->params.lines + s->avdimen.line_difference) * base_dpi_rel /
+             s->avdimen.yres + 1);
   
-  line_count = s->params.lines + s->avdimen.line_difference;
+  line_count = s->params.lines + 3 * s->avdimen.line_difference;
   
   /* interlaced duplex scans are twice as long */
   if (s->avdimen.interlaced_duplex) {
@@ -4804,34 +5065,36 @@ set_window (Avision_Scanner* s)
   /* set speed */
   cmd.window.avision.bitset1 |= s->val[OPT_SPEED].w & 0x07; /* only 3 bit */
   
-  /* ADF scan */
-  
+  /* ADF scan? */
   DBG (3, "set_window: source mode %d source mode dim %d\n",
        s->source_mode, s->source_mode_dim);
-  if (s->source_mode_dim == AV_ADF_DIM) {
-    int adf_mode = adf_mode; /* silence GCC */
-    
+  {
+    int adf_mode = 0;
     switch (s->source_mode) {
     case AV_ADF:
-      adf_mode = 0;
-      break;
-    case AV_ADF_REAR:
       adf_mode = 1;
       break;
-    case AV_ADF_DUPLEX:
+    case AV_ADF_REAR:
       adf_mode = 2;
+      break;
+    case AV_ADF_DUPLEX:
+      adf_mode = 3;
       break;
     default:
       ; /* silence GCC */
     }
-    SET_BIT (cmd.window.avision.bitset1, 7);
-    cmd.window.avision.type.normal.bitset3 |= (adf_mode << 3);
+    if (adf_mode) {
+      DBG (3, "set_window: filling ADF bits\n");
+      SET_BIT (cmd.window.avision.bitset1, 7);
+      adf_mode--; /* coded this way to save a is_adf bool in the switch above */
+      cmd.window.avision.type.normal.bitset3 |= (adf_mode << 3);
+    }
   }
   
   /* newer scanners (AV610 and equivalent) need the paper length to detect
      double feeds - they may not work without the field set */
-  
-  set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200));
+  if (dev->inquiry_paper_length)
+    set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200));
     
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     { 
@@ -5128,12 +5391,17 @@ init_options (Avision_Scanner* s)
   dev->y_range.max = SANE_FIX ( (int)dev->inquiry_y_ranges[s->source_mode_dim]);
   dev->y_range.quant = 0;
   
-  if (dev->inquiry_asic_type >= AV_ASIC_C6) {
-    DBG (1, "init_options: dpi_range.min set to 75 due to device-list!!\n");
-    dev->dpi_range.min = 75;
+  switch (dev->inquiry_asic_type) {
+    case AV_ASIC_C5:
+      dev->dpi_range.min = 80;
+      break;
+    /*case AV_ASIC_C6:
+      dev->dpi_range.min = 75;
+      break; */
+    default:
+      dev->dpi_range.min = 50;
   }
-  else
-    dev->dpi_range.min = 50;
+  DBG (1, "init_options: dpi_range.min set to %d\n", dev->dpi_range.min);
 
   dev->dpi_range.quant = 5;
   dev->dpi_range.max = dev->inquiry_max_res;
@@ -5157,8 +5425,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MODE_GROUP].cap = 0;
   s->opt[OPT_MODE_GROUP].size = 0;
   s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* scan mode */
+  
+  /* color mode */
   s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
   s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
   s->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
@@ -5167,9 +5435,9 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_MODE].constraint.string_list = dev->color_list;
   s->val[OPT_MODE].s = strdup (dev->color_list[dev->color_list_default]);
-  
   s->c_mode = match_color_mode (dev, s->val[OPT_MODE].s);
-
+  
+  /* source mode */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
   s->opt[OPT_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
   s->opt[OPT_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
@@ -5178,9 +5446,9 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_SOURCE].constraint.string_list = &dev->source_list[0];
   s->val[OPT_SOURCE].s = strdup(dev->source_list[0]);
-  
   s->source_mode = match_source_mode (dev, s->val[OPT_SOURCE].s);
-  
+  s->source_mode_dim = match_source_mode_dim (s->source_mode);
+
   /* resolution */
   s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -5383,8 +5651,7 @@ init_options (Avision_Scanner* s)
       
       s->opt[i].unit = SANE_UNIT_NONE;
       s->opt[i].size = sizeof (SANE_Word);
-      s->opt[i].constraint_type = SANE_CONSTRAINT_RANGE;
-      s->opt[i].constraint.range = 0;
+      s->opt[i].constraint_type = SANE_CONSTRAINT_NONE;
       s->val[i].w = SANE_FALSE;
     }
   
@@ -5460,6 +5727,7 @@ reader_process (void *data)
   size_t processed_bytes;
   
   SANE_Bool deinterlace;
+  SANE_Bool really_deinterlace;
   size_t stripe = 0;
   
   /* the fat strip we currently puzzle together to perform software-colorpack
@@ -5487,8 +5755,14 @@ reader_process (void *data)
   sigaddset (&sigterm_set, SIGTERM);
   
   gray_mode = color_mode_is_shaded (s->c_mode);
-  deinterlace = s->avdimen.interlaced_duplex;
+  really_deinterlace = deinterlace = s->avdimen.interlaced_duplex;
   
+  if ( (dev->hw->feature_type & AV_NON_INTERLACED_DUPLEX_300) &&
+       (s->avdimen.xres < 300 && s->avdimen.yres < 300) )
+    really_deinterlace = SANE_FALSE;
+  if (deinterlace && !really_deinterlace)
+    DBG (1, "reader_process: deinterlacing disabled due to device list and res.\n");
+
   fp = fdopen (fd, "w");
   if (!fp)
     return SANE_STATUS_NO_MEM;
@@ -5514,7 +5788,7 @@ reader_process (void *data)
       }
       
       if (dev->hw->feature_type & AV_ACCEL_TABLE)
-          /* (s->hw->inquiry_asic_type == AV_ASIC_C6) */ {
+     /*  (s->hw->inquiry_asic_type == AV_ASIC_C6) */ {
 	status = send_acceleration_table (s);
 	if (status != SANE_STATUS_GOOD) {
 	  DBG (1, "reader_process: send_acceleration_table failed: %s\n",
@@ -5707,6 +5981,7 @@ reader_process (void *data)
       DBG (5, "reader_process: stripe filled\n");
       
       useful_bytes = stripe_fill;
+
       if (s->c_mode == AV_TRUECOLOR || s->c_mode == AV_TRUECOLOR16)
 	useful_bytes -= s->avdimen.line_difference * bytes_per_line;
       
@@ -5716,17 +5991,21 @@ reader_process (void *data)
        (AV220) that is every 2nd stripe - for others (AV83xx) this is
        the 2nd half of the transferred data. */
       if (deinterlace && !s->duplex_rear_valid)
-	if ((dev->inquiry_duplex_mode_two && processed_bytes > total_size/2) ||
-	    (!(dev->inquiry_duplex_mode_two) && stripe % 2)) {
-	DBG (5, "reader_process: rear stripe -> saving to temporary file.\n");
-	fwrite (stripe_data, bytes_per_line,
-		useful_bytes / bytes_per_line, rear_fp);
-	
-	stripe_fill -= useful_bytes;
-	/* TODO: copy remaining data, if any, to the front for line
-	   diff compensation */
-	goto iteration_end;
-      }
+	{
+	  /* for some scanners up to 300 dpi are not deinterlaced */
+	  if ( (really_deinterlace && stripe % 2) ||
+	       (!really_deinterlace && processed_bytes > total_size/2) )
+	    {
+	      DBG (5, "reader_process: rear stripe -> saving to temporary file.\n");
+	      fwrite (stripe_data, bytes_per_line,
+		    useful_bytes / bytes_per_line, rear_fp);
+	      
+	      stripe_fill -= useful_bytes;
+	      /* TODO: copy remaining data, if any, to the front for line
+		 diff compensation */
+	      goto iteration_end;
+	    }
+	}
       
       /*
        * Perform needed data convertions (packing, ...) and/or copy the
@@ -6008,7 +6287,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
   fp = sanei_config_open (AVISION_CONFIG_FILE);
   if (fp <= (FILE*)0)
     {
-      DBG(1, "sane_init: No config file present!\n");
+      DBG (1, "sane_init: No config file present!\n");
     }
   else
     {
@@ -6020,14 +6299,14 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  word = NULL;
 	  ++ linenumber;
       
-	  DBG(5, "sane_init: parsing config line \"%s\"\n",
-	      line);
+	  DBG (5, "sane_init: parsing config line \"%s\"\n",
+	       line);
       
 	  cp = sanei_config_get_string (line, &word);
 	  
 	  if (!word || cp == line) {
-	    DBG(5, "sane_init: config file line %d: ignoring empty line\n",
-		linenumber);
+	    DBG (5, "sane_init: config file line %d: ignoring empty line\n",
+		 linenumber);
 	    if (word) {
 	      free (word);
 	      word = NULL;
@@ -6036,14 +6315,14 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  }
 	  
 	  if (!word) {
-	    DBG(1, "sane_init: config file line %d: could not be parsed\n",
-		linenumber);
+	    DBG (1, "sane_init: config file line %d: could not be parsed\n",
+		 linenumber);
 	    continue;
 	  }
 	  
 	  if (word[0] == '#') {
-	    DBG(5, "sane_init: config file line %d: ignoring comment line\n",
-		linenumber);
+	    DBG (5, "sane_init: config file line %d: ignoring comment line\n",
+		 linenumber);
 	    free (word);
 	    word = NULL;
 	    continue;
@@ -6056,67 +6335,67 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	      cp = sanei_config_get_string (cp, &word);
 	  
 	      if (strcmp (word, "disable-gamma-table") == 0) {
-		DBG(3, "sane_init: config file line %d: disable-gamma-table\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: disable-gamma-table\n",
+		     linenumber);
 		disable_gamma_table = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "disable-calibration") == 0) {
-		DBG(3, "sane_init: config file line %d: disable-calibration\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: disable-calibration\n",
+		     linenumber);
 		disable_calibration = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "one-calib-only") == 0)	{
-		DBG(3, "sane_init: config file line %d: one-calib-only\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: one-calib-only\n",
+		     linenumber);
 		one_calib_only = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a4") == 0) {
-		DBG(3, "sane_init: config file line %d: enabling force-a4\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: enabling force-a4\n",
+		     linenumber);
 		force_a4 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "force-a3") == 0) {
-		DBG(3, "sane_init: config file line %d: enabling force-a3\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: enabling force-a3\n",
+		     linenumber);
 		force_a3 = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-red-calib") == 0) {
-		DBG(3, "sane_init: config file line %d: static red calibration\n",
-		    linenumber);
+		DBG (3, "sane_init: config file line %d: static red calibration\n",
+		     linenumber);
 		static_calib_list [0] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-green-calib") == 0) {
-		DBG(3, "sane_init: config file line %d: static green calibration\n",
+		DBG (3, "sane_init: config file line %d: static green calibration\n",
 		    linenumber);
 		static_calib_list [1] = SANE_TRUE;
 	      }
 	      else if (strcmp (word, "static-blue-calib") == 0) {
-		DBG(3, "sane_init: config file line %d: static blue calibration\n",
+		DBG (3, "sane_init: config file line %d: static blue calibration\n",
 		    linenumber);
 		static_calib_list [2] = SANE_TRUE; 
 	      }
 	      else
-		DBG(1, "sane_init: config file line %d: options unknown!\n",
+		DBG (1, "sane_init: config file line %d: options unknown!\n",
 		    linenumber);
 	    }
 	  else if (strcmp (word, "usb") == 0) {
-	    DBG(2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
-		linenumber, line);
+	    DBG (2, "sane_init: config file line %d: trying to attach USB:`%s'\n",
+		 linenumber, line);
 	    /* try to attach USB device */
 	    sanei_usb_attach_matching_devices (line, attach_one_usb);
 	  }
 	  else if (strcmp (word, "scsi") == 0) {
-	    DBG(2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
-		linenumber, line);
+	    DBG (2, "sane_init: config file line %d: trying to attach SCSI: %s'\n",
+		 linenumber, line);
 	    
 	    /* the last time I verified (2003-03-18) this function
 	       only matches SCSI devices ... */
 	    sanei_config_attach_matching_devices (line, attach_one_scsi);
 	  }
 	  else {
-	    DBG(1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
+	    DBG (1, "sane_init: config file line %d: OBSOLETE !! use the scsi keyword!\n",
 		linenumber);
-	    DBG(1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
+	    DBG (1, "sane_init:   (see man sane-avision for details): trying to attach SCSI: %s'\n",
 		line);
 	  
 	    /* the last time I verified (2003-03-18) this function
@@ -6149,7 +6428,7 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	  if (sanei_usb_find_devices (attaching_hw->usb_vendor,
 				      attaching_hw->usb_product,
 				      attach_one_usb) != SANE_STATUS_GOOD) {
-	    DBG(1, "sane_init: error during USB device detection!\n");
+	    DBG (1, "sane_init: error during USB device detection!\n");
 	  }
 	}
       ++ model_num;
@@ -6168,7 +6447,7 @@ sane_exit (void)
 
   for (dev = first_dev; dev; dev = next) {
     next = dev->next;
-    free ((void*) dev->sane.name);
+    free ((void*) (int)dev->sane.name);
     free (dev);
   }
   first_dev = NULL;
@@ -6398,7 +6677,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   SANE_Word cap;
   
-  DBG (3, "sane_control_option:\n");
+  DBG (3, "sane_control_option: option=%d, action=%d\n",
+       (int)option, (int)action);
 
   if (info)
     *info = 0;
@@ -6682,23 +6962,43 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: media_check ok\n");
   }
   
-  if (param_cksum == s->param_cksum)
-    goto start_scan_end;
-
-  status = set_window (s);
-  if (status != SANE_STATUS_GOOD) {
-    DBG (1, "sane_start: set scan window command failed: %s\n",
-	 sane_strstatus (status));
-    goto stop_scanner_and_return;
-  }
-  
-  /* Check the light early, to return to the GUI and notify the user. */
-  if (dev->inquiry_light_control) {
-    status = wait_4_light (s);
+#ifndef AVISION_ENHANCED_SANE
+  if (param_cksum == s->param_cksum && dev->inquiry_keeps_window)
+     DBG (1, "sane_start: Optimized set_window away.\n");
+  else
+  {
+    status = set_window (s);
     if (status != SANE_STATUS_GOOD) {
-      return status;
+      DBG (1, "sane_start: set scan window command failed: %s\n",
+	   sane_strstatus (status));
+      goto stop_scanner_and_return;
     }
   }
+#endif
+  
+  /* Check the light early, to return to the GUI and notify the user. */
+  if (param_cksum != s->param_cksum) {
+    if (dev->inquiry_light_control) {
+      status = wait_4_light (s);
+      if (status != SANE_STATUS_GOOD) {
+        return status;
+      }
+    }
+  }
+
+#ifdef AVISION_ENHANCED_SANE
+  if (param_cksum == s->param_cksum && dev->inquiry_keeps_window)
+    DBG (1, "sane_start: Optimized set_window away.\n");
+  else
+  {
+    status = set_window (s);
+    if (status != SANE_STATUS_GOOD) {
+      DBG (1, "sane_start: set scan window command failed: %s\n",
+	   sane_strstatus (status));
+      goto stop_scanner_and_return;
+    }
+  }
+#endif
   
 #ifdef DEBUG_TEST
   /* debug window size test ... */
@@ -6721,13 +7021,20 @@ sane_start (SANE_Handle handle)
 	   get_quad (&(result[0])), get_quad (&(result[4])));
     }
 #endif
-  
+
+#ifdef PARANOID
   status = wait_ready (&s->av_con);
   
   if (status != SANE_STATUS_GOOD) {
     DBG (1, "sane_start wait_ready() failed: %s\n", sane_strstatus (status));
     goto stop_scanner_and_return;
   }
+#endif
+
+ /* if (param_cksum == s->param_cksum) {
+    DBG (1, "sane_start: Optimized calibration away.\n");
+    goto calib_end;
+  } */
   
   /* Only perform the calibration for newer scanners - it is not needed
      for my Avision AV 630 - and also does not even work ... */
@@ -6769,21 +7076,33 @@ sane_start (SANE_Handle handle)
   
  calib_end:
   
+  if (dev->inquiry_3x3_matrix && param_cksum != s->param_cksum &&
+      !(dev->hw->feature_type & AV_NO_MATRIX) ) {
+    status = send_3x3_matrix (s);
+    if (status != SANE_STATUS_GOOD) {
+      return status;
+    }
+  }
+  
   /* check whether gamma-table is disabled by the user? */
   if (disable_gamma_table) {
     DBG (1, "sane_start: gamma-table disabled in config - skipped!\n");
     goto gamma_end;
   }
-  
-  status = send_gamma (s);
-  if (status != SANE_STATUS_GOOD) {
-    DBG (1, "sane_start: send gamma failed: %s\n",
-	 sane_strstatus (status));
-    goto stop_scanner_and_return;
+
+  if (param_cksum == s->param_cksum && dev->inquiry_keeps_gamma)
+    DBG (1, "sane_start: Optimized send_gama away.\n");
+  else
+  {
+    status = send_gamma (s);
+    if (status != SANE_STATUS_GOOD) {
+      DBG (1, "sane_start: send gamma failed: %s\n",
+	   sane_strstatus (status));
+      goto stop_scanner_and_return;
+    }
   }
   
  gamma_end:
-  
   
   /* check film holder */
   if (dev->scanner_type == AV_FILM && dev->holder_type == 0xff) {
@@ -6794,8 +7113,8 @@ sane_start (SANE_Handle handle)
     if (dev->inquiry_new_protocol) {
       status = object_position (s, AVISION_SCSI_OP_GO_HOME);
       if (status != SANE_STATUS_GOOD)
-	DBG(1, "sane_start: go home failed: %s\n",
-	    sane_strstatus (status));
+	DBG (1, "sane_start: go home failed: %s\n",
+	     sane_strstatus (status));
     }
     goto stop_scanner_and_return;
   }
@@ -6855,7 +7174,7 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
 
   nread = read (s->pipe, buf, max_len);
   if (nread > 0) {
-    DBG (8, "sane_read: got %ld bytes, err: %d %s\n", (long) nread, errno, strerror(errno));
+    DBG (8, "sane_read: got %ld bytes\n", (long) nread);
   }
   else {
     DBG (3, "sane_read: got %ld bytes, err: %d %s\n", (long) nread, errno, strerror(errno));

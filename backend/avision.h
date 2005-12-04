@@ -124,7 +124,16 @@ typedef struct Avision_HWEntry {
     AV_INT_BUTTON = (1<<11),
 
     /* send acceleration table ... */
-    AV_ACCEL_TABLE = (1<<12)
+    AV_ACCEL_TABLE = (1<<12),
+
+    /* non-interlaced scanns up to 300 dpi (AV32xx / AV83xx) */
+    AV_NON_INTERLACED_DUPLEX_300 = (1<<13),
+
+    /* do not send 3x3 matrix */
+    AV_NO_MATRIX = (1<<14),
+
+    /* force channel-by-channel calibration */
+    AV_MULTI_CALIB_CMD = (1<<15)
 
     /* maybe more ...*/
   } feature_type;
@@ -177,7 +186,7 @@ enum Avision_Option
   OPT_MODE_GROUP,
   OPT_MODE,
   OPT_RESOLUTION,
-#define OPT_RESOLUTION_DEFAULT 300
+#define OPT_RESOLUTION_DEFAULT 150
   OPT_SPEED,
   OPT_PREVIEW,
   
@@ -257,10 +266,12 @@ typedef struct Avision_Device
   SANE_Bool inquiry_adf;
   SANE_Bool inquiry_duplex;
   SANE_Bool inquiry_duplex_interlaced;
-  SANE_Bool inquiry_duplex_mode_two;
+  SANE_Bool inquiry_paper_length;
   SANE_Bool inquiry_detect_accessories;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
+  SANE_Bool inquiry_keeps_gamma;
+  SANE_Bool inquiry_keeps_window;
   SANE_Bool inquiry_calibration;
   SANE_Bool inquiry_3x3_matrix;
   SANE_Bool inquiry_needs_software_colorpack;
@@ -301,7 +312,7 @@ typedef struct Avision_Device
 
   int inquiry_channels_per_pixel;
   int inquiry_bits_per_channel;
-
+  
   int scsi_buffer_size; /* nice to have SCSI buffer size */
 
   /* additional information - read delayed until sane_open() */
@@ -554,16 +565,22 @@ typedef struct calibration_format
   u_int8_t channels;
 } calibration_format;
 
+typedef struct matrix_3x3
+{
+  u_int16_t v[9];
+} matrix_3x3;
+
 typedef struct acceleration_info 
 {
-  u_int16_t accel_step_count;
-  u_int16_t stable_step_count;
+  u_int16_t total_steps;
+  u_int16_t stable_steps;
   u_int32_t table_units;
   u_int32_t base_units;
   u_int16_t start_speed;
   u_int16_t target_speed;
   u_int8_t ability;
   u_int8_t table_count;
+  u_int8_t reserved[6];
 } acceleration_info;
 
 /* set/get SCSI highended (big-endian) variables. Declare them as an array
@@ -583,7 +600,7 @@ typedef struct acceleration_info
 #define get_double(var) ((*var << 8) + *(var + 1))
 
 #define get_triple(var) ((*var << 16) + \
-                         (*(var + 1) << 8) + * *var)
+                         (*(var + 1) << 8) + *(var + 2))
 
 #define get_quad(var)   ((*var << 24) + \
                          (*(var + 1) << 16) + \

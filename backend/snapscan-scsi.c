@@ -549,6 +549,8 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case PERFECTION1670:
     case PERFECTION2480:
     case PERFECTION3490:
+    case PRISA5150:
+    case PRISA5000:
         pss->bpp = 14;
         break;
     default:
@@ -821,6 +823,7 @@ static SANE_Status set_window (SnapScan_Scanner *pss)
     {
         case PRISA5000:
         case PRISA5000E:
+        case PRISA5150:
             pos_factor = (pss->res > 600) ?  1200 : 600;
             break;
         case PERFECTION1270:
@@ -1418,6 +1421,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             case PRISA4300_2:
             case PRISA5000:
             case PRISA5000E:
+            case PRISA5150:
             case PRISA5300:
                 /* ACER firmware files do not contain an info block */
                 fseek(fd, 0, SEEK_END);
@@ -1482,6 +1486,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.52  2005/12/04 15:03:00  oliver-guest
+ * Some fixes for Benq 5150
+ *
  * Revision 1.51  2005/11/26 18:53:03  oliver-guest
  * Fix inquiry bug for Benq 5000
  *

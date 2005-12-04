@@ -342,6 +342,7 @@ static void init_options (SnapScan_Scanner * ps)
         break;
     case PRISA5000E:
     case PRISA5000:
+    case PRISA5150:
         po[OPT_SCANRES].constraint.word_list = resolutions_1200_5000e;
         break;
     case PERFECTION1670:
@@ -602,6 +603,7 @@ static void init_options (SnapScan_Scanner * ps)
     if ((!(ps->hconfig & HCFG_CAL_ALLOWED))
         || (ps->pdev->model == SNAPSCANE52)
         || (ps->pdev->model == PERFECTION1670)
+        || (ps->pdev->model == PRISA5150)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
@@ -1608,6 +1610,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.33  2005/12/04 15:03:00  oliver-guest
+ * Some fixes for Benq 5150
+ *
  * Revision 1.32  2005/11/23 20:57:01  oliver-guest
  * Disable bilevel colour / halftoning for Epson 3490
  *

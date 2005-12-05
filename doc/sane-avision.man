@@ -38,8 +38,6 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
  option force-a3
  option disable-gamma-table
  option disable-calibration
- option one-calib-only
- option old-calibration
 \ 
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi AVISION
@@ -72,18 +70,6 @@ disable-calibration:
 Disables the scanner's color calibration. You
 might try this if your scans hang or only produces
 random garbage.
-.TP
-one-calib-only:
-When this option is enabled, the backend will only
-perform a calibration when the backend is initialized
-and not before each scan. This might extend the life
-of the CCD, but does not work reliable with the newer
-USB scanners (they hang sometimes or return garbage
-image data). So this option should be used with care.
-.TP
-old-calibration:
-This enables the use of the old calibration code for
-testing purposes.
 .TP
 Note:
 Any option above modifies the default code-flow

@@ -93,6 +93,9 @@
                 the Avision backend would not be in the shape it is today! ;-)
    
    ChangeLog:
+   2005-12-05: René Rebe
+         * fixed 12bit mode support - data is not packed
+
    2005-12-02: René Rebe
          * finally made the AV600U and most probably also the HP5370 aquire unshifted
            images inspired by Falk Rohsiepe's observations
@@ -764,7 +767,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 179 /* avision backend BUILD version */
+#define BACKEND_BUILD 182 /* avision backend BUILD version */
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
@@ -1484,9 +1487,6 @@ static SANE_Bool disable_gamma_table = SANE_FALSE;
 /* disable the calibration */
 static SANE_Bool disable_calibration = SANE_FALSE;
 
-/* do only one claibration per backend initialization */
-static SANE_Bool one_calib_only = SANE_FALSE;
-
 /* force scanable areas to ISO(DIN) A4/A3 */
 static SANE_Bool force_a4 = SANE_FALSE;
 static SANE_Bool force_a3 = SANE_FALSE;
@@ -1756,7 +1756,7 @@ static void debug_print_window_descriptor (int dbg_level, char* func,
        window->avision.type.normal.bitset3);
   DBG (dbg_level, "%s: [58]    auto focus: %d\n", func,
        window->avision.type.normal.auto_focus);
-  DBG (dbg_level, "%s: [59]    line-widht (MSB): %d\n",
+  DBG (dbg_level, "%s: [59]    line-width (MSB): %d\n",
        func, window->avision.type.normal.line_width_msb);
   DBG (dbg_level, "%s: [60]    line-count (MSB): %d\n",
        func, window->avision.type.normal.line_count_msb);
@@ -2144,8 +2144,8 @@ write_usb_cmd:
       
     DBG (8, "wrote %lu bytes\n", (u_long) count);
     if (status != SANE_STATUS_GOOD || count != cmd_size) {
-      DBG (3, "=== Got error %d trying to write, wrote: %d. ===\n",
-           status, count);
+      DBG (3, "=== Got error %d trying to write, wrote: %ld. ===\n",
+           status, (long)count);
       
       if (status != SANE_STATUS_GOOD) /* == SANE_STATUS_EOF) */ {
 	DBG (3, "try to read status to clear the FIFO\n");
@@ -2444,20 +2444,14 @@ get_pixel_boundary (Avision_Scanner* s)
   
   switch (s->c_mode) {
   case AV_TRUECOLOR:
+  case AV_TRUECOLOR12:
   case AV_TRUECOLOR16:
     boundary = dev->inquiry_color_boundary;
     break;
-  case AV_TRUECOLOR12:
-    boundary = dev->inquiry_color_boundary;
-    boundary += 6 - boundary % 6;
-    break;
   case AV_GRAYSCALE:
+  case AV_GRAYSCALE12:
   case AV_GRAYSCALE16:
     boundary = dev->inquiry_gray_boundary;
-    break;
-  case AV_GRAYSCALE12:
-    boundary = dev->inquiry_gray_boundary;
-    boundary += 3 - boundary % 3;
     break;
   case AV_DITHERED:
     if (dev->inquiry_asic_type != AV_ASIC_C5)
@@ -2506,19 +2500,17 @@ compute_parameters (Avision_Scanner* s)
       boundary = boundary > 32 ? boundary : 32;
       break;
     case AV_GRAYSCALE:
+    case AV_GRAYSCALE12:
     case AV_GRAYSCALE16:
       boundary = boundary > 4 ? boundary : 4;
       break;
-    case AV_GRAYSCALE12:
-      boundary = boundary > 6 ? boundary : 6;
       break;
     case AV_TRUECOLOR:
+    case AV_TRUECOLOR12:
     case AV_TRUECOLOR16:
       /* 12 bytes for 24bit color - 48bit is untested w/ Office */
       boundary = boundary > 4 ? boundary : 4;
       break;
-    case AV_TRUECOLOR12:
-      boundary = boundary > 6 ? boundary : 6;
       break;
   }
 #endif
@@ -2555,17 +2547,12 @@ compute_parameters (Avision_Scanner* s)
 	DBG (1, "sane_compute_parameters: Line difference ignored due to device-list!!\n");
       }
       else {
-	/*  R² TODO: I made a mistake some months ago. line_difference should
-	    be difference per color, unfortunately I'm out of time to review
-	    all occurances of line_difference. At some point in the future
-	    however this should be corrected thruout the backend ... */
-	    
 	s->avdimen.line_difference =
 	  (dev->inquiry_line_difference * s->avdimen.yres) / dev->inquiry_max_res;
       }
 	  
-      s->avdimen.bry += 3 * s->avdimen.line_difference;
-	  
+      s->avdimen.bry += 2 * s->avdimen.line_difference;
+	
       /* limit bry + line_difference to real scan boundary */
       {
 	long y_max = dev->inquiry_y_ranges[s->source_mode_dim] *
@@ -2573,9 +2560,9 @@ compute_parameters (Avision_Scanner* s)
 	DBG (3, "sane_compute_parameters: y_max: %ld, bry: %ld, line_difference: %d\n",
 	     y_max, s->avdimen.bry, s->avdimen.line_difference);
 	    
-	if (s->avdimen.bry + 3* s->avdimen.line_difference > y_max) {
+	if (s->avdimen.bry + 2 * s->avdimen.line_difference > y_max) {
 	  DBG (1, "sane_compute_parameters: bry limitted!\n");
-	  s->avdimen.bry = y_max - 3 * s->avdimen.line_difference;
+	  s->avdimen.bry = y_max - 2 * s->avdimen.line_difference;
 	}
       }
 	  
@@ -2589,7 +2576,8 @@ compute_parameters (Avision_Scanner* s)
   s->params.pixels_per_line = (s->avdimen.brx - s->avdimen.tlx);
   s->params.pixels_per_line -= s->params.pixels_per_line % boundary;
 
-  s->params.lines = s->avdimen.bry - s->avdimen.tly - 3 * s->avdimen.line_difference;
+  s->params.lines = s->avdimen.bry - s->avdimen.tly -
+                    2 * s->avdimen.line_difference;
   if (s->avdimen.interlaced_duplex)
     s->params.lines -= s->params.lines % 8;
 
@@ -3011,7 +2999,7 @@ get_button_status (Avision_Scanner* s)
       DBG (5, "==> (interrupt read) going down ...\n");
       status = sanei_usb_read_int (s->av_con.usb_dn, (u_int8_t*)&result,
 				   &size);
-      DBG (5, "==> (interrupt read) got: %d\n", size);
+      DBG (5, "==> (interrupt read) got: %ld\n", (long)size);
       
       if (status != SANE_STATUS_GOOD) {
 	DBG (1, "get_button_status: interrupt read failed (%s)\n",
@@ -3564,7 +3552,7 @@ get_double ( &(result[48] ) ));
        BIT(result[62],3)?" Film scanner":"",
        BIT(result[62],2)?" Duplex":"");
   
-  DBG (3, "attach: [75-75] Max shading target : %x\n",
+  DBG (3, "attach: [75-76] Max shading target : %x\n",
        get_double ( &(result[75]) ));
   
   DBG (3, "attach: [77-78] Max X of transparency: %d dots * base_dpi\n",
@@ -4031,7 +4019,8 @@ get_calib_data (Avision_Scanner* s, u_int8_t data_type,
 
     set_triple (rcmd.transferlen, get_size);
 
-    DBG (3, "get_calib_data: Reading %d bytes calibration data\n", get_size);
+    DBG (3, "get_calib_data: Reading %ld bytes calibration data\n",
+         (long)get_size);
  
     status = avision_cmd (&s->av_con, &rcmd,
 			  sizeof (rcmd), 0, 0, calib_ptr, &get_size);
@@ -4041,7 +4030,7 @@ get_calib_data (Avision_Scanner* s, u_int8_t data_type,
       return status;
     }
 
-    DBG (3, "get_calib_data: Got %d bytes calibration data\n", get_size);
+    DBG (3, "get_calib_data: Got %ld bytes calibration data\n", (long)get_size);
 
     data_size -= get_size;
     calib_ptr += get_size;
@@ -5022,10 +5011,10 @@ set_window (Avision_Scanner* s)
   set_quad (cmd.window.descriptor.width,
 	    s->params.pixels_per_line * base_dpi_rel / s->avdimen.xres + 1);
   set_quad (cmd.window.descriptor.length,
-	    (s->params.lines + s->avdimen.line_difference) * base_dpi_rel /
+	    (s->params.lines + 2 * s->avdimen.line_difference) * base_dpi_rel /
              s->avdimen.yres + 1);
   
-  line_count = s->params.lines + 3 * s->avdimen.line_difference;
+  line_count = s->params.lines + 2 * s->avdimen.line_difference;
   
   /* interlaced duplex scans are twice as long */
   if (s->avdimen.interlaced_duplex) {
@@ -5033,19 +5022,7 @@ set_window (Avision_Scanner* s)
     line_count *= 2;
   }
   
-  /* we always pass 16bit data thru the API - thus we need to translate
-     the 12 bit per channel modes */
-  switch (s->c_mode)
-    {
-    case AV_GRAYSCALE12:
-      bytes_per_line = s->params.bytes_per_line * 12 / 16;
-      break;
-    case AV_TRUECOLOR12:
-      bytes_per_line = s->params.bytes_per_line * 36 / 48;
-      break;
-    default:
-      bytes_per_line = s->params.bytes_per_line;
-    }
+  bytes_per_line = s->params.bytes_per_line;
   
   set_double (cmd.window.avision.line_width, bytes_per_line);
   set_double (cmd.window.avision.line_count, line_count);
@@ -5392,12 +5369,15 @@ init_options (Avision_Scanner* s)
   dev->y_range.quant = 0;
   
   switch (dev->inquiry_asic_type) {
+    case AV_ASIC_C2:
+      dev->dpi_range.min = 100;
+      break;
     case AV_ASIC_C5:
       dev->dpi_range.min = 80;
       break;
-    /*case AV_ASIC_C6:
-      dev->dpi_range.min = 75;
-      break; */
+    case AV_ASIC_C6: /* TODO: AV610 in ADF mode does not scan less */
+      dev->dpi_range.min = 175;
+      break;
     default:
       dev->dpi_range.min = 50;
   }
@@ -5824,8 +5804,6 @@ reader_process (void *data)
   
   switch (s->c_mode) {
   case AV_GRAYSCALE12:
-    pixels_per_line = pixels_per_line * 12 / 16;
-    break;
   case AV_GRAYSCALE16:
     pixels_per_line /= 2;
     break;
@@ -5833,8 +5811,6 @@ reader_process (void *data)
     pixels_per_line /= 3;
     break;
   case AV_TRUECOLOR12:
-    pixels_per_line = pixels_per_line * 36 / 48;
-    break;
   case AV_TRUECOLOR16:
     pixels_per_line /= 6;
     break;
@@ -5847,7 +5823,7 @@ reader_process (void *data)
      pleasuant preview */
   
   if (!deinterlace) {
-    lines_per_stripe = s->avdimen.line_difference * 2;
+    lines_per_stripe = s->avdimen.line_difference * 3 * 2;
   }
   else {
     /* In theory the SPEC has a command to request the value from the scanner.
@@ -5891,7 +5867,8 @@ reader_process (void *data)
   s->line = 0;
   
   /* calculate params for the simple reader */
-  total_size = bytes_per_line * (s->params.lines + s->avdimen.line_difference);
+  total_size = bytes_per_line * (s->params.lines +
+                                 2 * s->avdimen.line_difference);
   if (deinterlace && !s->duplex_rear_valid)
     total_size *= 2;
   DBG (3, "reader_process: total_size: %lu\n", (u_long) total_size);
@@ -5983,7 +5960,7 @@ reader_process (void *data)
       useful_bytes = stripe_fill;
 
       if (s->c_mode == AV_TRUECOLOR || s->c_mode == AV_TRUECOLOR16)
-	useful_bytes -= s->avdimen.line_difference * bytes_per_line;
+	useful_bytes -= 2 * s->avdimen.line_difference * bytes_per_line;
       
       DBG (3, "reader_process: useful_bytes %i\n", useful_bytes);
       
@@ -6025,7 +6002,7 @@ reader_process (void *data)
 	    {
 	      /* TODO: add 16bit per sample code? */
 	      int i;
-	      int c_offset = (s->avdimen.line_difference / 3) * bytes_per_line;
+	      int c_offset = s->avdimen.line_difference * bytes_per_line;
 	      
 	      u_int8_t* r_ptr = stripe_data;
 	      u_int8_t* g_ptr = stripe_data + c_offset + 1;
@@ -6344,11 +6321,6 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 		     linenumber);
 		disable_calibration = SANE_TRUE;
 	      }
-	      else if (strcmp (word, "one-calib-only") == 0)	{
-		DBG (3, "sane_init: config file line %d: one-calib-only\n",
-		     linenumber);
-		one_calib_only = SANE_TRUE;
-	      }
 	      else if (strcmp (word, "force-a4") == 0) {
 		DBG (3, "sane_init: config file line %d: enabling force-a4\n",
 		     linenumber);
@@ -6447,7 +6419,9 @@ sane_exit (void)
 
   for (dev = first_dev; dev; dev = next) {
     next = dev->next;
-    free ((void*) (int)dev->sane.name);
+    /* no warning for stripping const - C lacks a const_cast<> */
+    free ((void*)(size_t) dev->sane.name);
+
     free (dev);
   }
   first_dev = NULL;
@@ -7076,8 +7050,8 @@ sane_start (SANE_Handle handle)
   
  calib_end:
   
-  if (dev->inquiry_3x3_matrix && param_cksum != s->param_cksum &&
-      !(dev->hw->feature_type & AV_NO_MATRIX) ) {
+  if (dev->inquiry_3x3_matrix && dev->inquiry_asic_type >= AV_ASIC_C5 &&
+      param_cksum != s->param_cksum && !(dev->hw->feature_type & AV_NO_MATRIX) ) {
     status = send_3x3_matrix (s);
     if (status != SANE_STATUS_GOOD) {
       return status;

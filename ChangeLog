@@ -1,3 +1,13 @@
+
+2005-12-05  Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.c backend/avision.conf doc/sane-avision.man:
+	  fixed more typos in comments and debug output, removed obsolete
+	  options from the parser, example avision.conf and manual page.
+	  Fixed 12 Bit gray and color modes to actually work as well as
+	  software CCD line-difference correction. Minimal scan resolutions
+	  have been slightly adapted for some ASICs.
+
 2005-12-05  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys.c: removed usage of current_setup in functions

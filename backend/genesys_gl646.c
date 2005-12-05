@@ -3014,8 +3014,6 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 
 
   dev->current_setup.pixels = (pixels * dpiset) / dev->sensor.optical_res;
-  if (half_ccd)
-      dev->current_setup.pixels &= ~1;
   dev->current_setup.lines = lincnt + 1;
   dev->current_setup.depth = depth;
   dev->current_setup.channels = channels;
@@ -3046,9 +3044,11 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (depth == 1 || dev->settings.scan_mode == 0)
       dev->total_bytes_to_read =
-	  ((dev->settings.pixels * dev->settings.lines) / 8) * channels;
+	  ((dev->settings.pixels * dev->settings.lines) / 8 +
+	   (((dev->settings.pixels * dev->settings.lines)%8)?1:0)
+	      ) * channels;
   else
       dev->total_bytes_to_read =
 	  dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
@@ -3411,6 +3411,9 @@ ST12: 0x60 0x00 0x61 0x00 0x62 0x00 0x63 0x00 0x64 0x00 0x65 0x3f 0x66 0x00 0x67
       RIE (gl646_send_slope_table
 	   (dev, 0, slope_table, dev->calib_reg[reg_0x21].value));
     }
+
+  /* work around incorrect calibration when frequent color/dpi scan changes */
+  RIE (gl646_set_fe (dev, AFE_INIT));
 
   RIE (gl646_set_fe (dev, AFE_SET));
 

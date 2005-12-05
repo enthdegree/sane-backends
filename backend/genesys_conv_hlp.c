@@ -207,7 +207,7 @@ FUNC_NAME(genesys_reorder_components_endian) (
 	*dst++ = src[0];
 	src += 2;
     }
-    return SANE_STATUS_GOOD;
+return SANE_STATUS_GOOD;
 }
 #endif /*defined(DOUBLE_BYTE) && defined(WORDS_BIGENDIAN)*/
 
@@ -217,8 +217,7 @@ FUNC_NAME(genesys_reverse_ccd) (
     u_int8_t *src_data, 
     u_int8_t *dst_data, 
     unsigned int lines, 
-    unsigned int pixels,
-    unsigned int channels,
+    unsigned int components_per_line,
     unsigned int *ccd_shift,
     unsigned int component_count) 
 {
@@ -227,7 +226,7 @@ FUNC_NAME(genesys_reverse_ccd) (
     COMPONENT_TYPE *dst = (COMPONENT_TYPE *)dst_data;
     COMPONENT_TYPE *srcp;
     COMPONENT_TYPE *dstp;
-    unsigned int pitch = pixels * channels;
+    unsigned int pitch = components_per_line;
     unsigned int ccd_shift_pitch[12];
     unsigned int *csp;
     
@@ -299,6 +298,8 @@ FUNC_NAME(genesys_shrink_lines) (
 
     if (src_pixels > dst_pixels) {
 /*average*/
+	for (c = 0; c < channels; c++)
+	    avg[c] = 0;
 	for(y = 0; y < lines; y++) {
 	    cnt = src_pixels / 2;
 	    src_x = 0;
@@ -314,8 +315,10 @@ FUNC_NAME(genesys_shrink_lines) (
 		}
 		cnt -= src_pixels;
 
-		for (c = 0; c < channels; c++) 
+		for (c = 0; c < channels; c++) {
 		    *dst++ = avg[c] / count;
+		    avg[c] = 0;
+		}
 	    }
 	}
     } else {

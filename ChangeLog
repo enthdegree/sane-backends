@@ -1,3 +1,26 @@
+2005-12-05  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys.c: removed usage of current_setup in functions
+	  where it is not necessarily initialized. Modified shading
+	  calibration to not use fixed stripe sizes. Fixed memory
+	  corruption while calculating shading data. Fixed read sizes to
+	  be multiples of 256. Fixed stagger/line distance
+	  correction. Fixed line shrinking to correctly update data
+	  buffers. Bumped BUILD number.
+	* backend/genesys.c backend/genesys_conv.c: Added gray to lineart
+	  conversion.
+	* backend/genesys.c backend/genesys_conv_hlp.c: Modified calling
+	  parameters to stagger/line distance correction filter to better
+	  describe its inner working.
+	* backend/genesys_devices.c: Slowed down motor timings for 
+	  LiDE 35/40/50/60. Removed untested message for LiDE 35/40/50/60.
+	* backend/genesys_gl646.c: Fixed bug for odd pixel count. Added
+	  support for gray to lineart conversion.
+	* backend/genesys_gl841.c: Fixed words_per_line calculation. Added
+	  support for gray to lineart conversion(not used). Fixed problem
+	  with scanners not backtracking while scanning calibration area
+	  leading to scanning part of document area.
+
 2005-12-05  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c: small bugfix for Benq5150

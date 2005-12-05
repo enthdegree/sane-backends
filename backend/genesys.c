@@ -50,7 +50,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 7
+#define BUILD 8
 
 #include <errno.h>
 #include <string.h>
@@ -439,6 +439,21 @@ genesys_pixels_per_line (Genesys_Register_Set * reg)
      sanei_genesys_read_reg_from_set (reg, 0x31));
 
   return pixels_per_line;
+}
+
+/* returns dpiset from register set */
+/*candidate for moving into chip specific files?*/
+static int
+genesys_dpiset (Genesys_Register_Set * reg)
+{
+  int dpiset;
+
+  dpiset =
+    sanei_genesys_read_reg_from_set (reg,
+				     0x2c) * 256 +
+    sanei_genesys_read_reg_from_set (reg, 0x2d);
+
+  return dpiset;
 }
 
 /** read the number of valid words in scanner's RAM
@@ -1084,6 +1099,14 @@ sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,
 /* computes the exposure_time on the basis of the given vertical dpi, 
    the number of pixels the ccd needs to send,
    the step_type and the corresponding maximum speed from the motor struct */
+/*
+  Currently considers maximum motor speed at given step_type, minimum 
+  line exposure needed for conversion and led exposure time.
+
+  TODO: Should also consider maximum transfer rate: ~6.5MB/s.
+    Note: The enhance option of the scanners does _not_ help. It only halves 
+          the amount of pixels transfered.
+ */
 SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
 			      int step_type, int endpixel,
@@ -2125,7 +2148,10 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dark_shading_calibration\n");
   /* end pixel - start pixel */
-  pixels_per_line = genesys_pixels_per_line (dev->calib_reg);
+  pixels_per_line = 
+      (genesys_pixels_per_line (dev->calib_reg)
+       * genesys_dpiset(dev->calib_reg)) /
+      dev->sensor.optical_res;
 
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
@@ -2255,7 +2281,10 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_dummy_dark_shading \n");
 
-  pixels_per_line = genesys_pixels_per_line (dev->calib_reg);
+  pixels_per_line = 
+      (genesys_pixels_per_line (dev->calib_reg)
+       * genesys_dpiset(dev->calib_reg)) /
+      dev->sensor.optical_res;
 
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
@@ -2349,7 +2378,10 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   DBG (DBG_proc, "genesys_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
 
-  pixels_per_line = genesys_pixels_per_line (dev->calib_reg);
+  pixels_per_line = 
+      (genesys_pixels_per_line (dev->calib_reg)
+       * genesys_dpiset(dev->calib_reg)) /
+      dev->sensor.optical_res;
 
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
@@ -2467,13 +2499,19 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   SANE_Status status;
   size_t size;
   u_int16_t pixels_per_line;
-  u_int8_t *calibration_data;
+  u_int8_t *calibration_data, *average_white, *average_dark;
   u_int8_t channels;
+  unsigned int x, y, avgpixels;
+  u_int32_t dark, white, dark_sum, white_sum, dark_count, white_count, col, dif;
+
 
   DBG (DBG_proc, "genesys_black_white_shading_calibration (lines = %d)\n",
        dev->model->shading_lines);
 
-  pixels_per_line = dev->current_setup.pixels;
+  pixels_per_line = 
+      (genesys_pixels_per_line (dev->calib_reg)
+       * genesys_dpiset(dev->calib_reg)) /
+      dev->sensor.optical_res;
 
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
@@ -2487,7 +2525,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (!dev->white_average_data)
     {
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: failed to allocate average memory\n");
+	   "genesys_dark_white_shading_calibration: failed to allocate average memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2498,7 +2536,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (!dev->dark_average_data)
     {
       DBG (DBG_error,
-	   "genesys_black_white_shading_shading_calibration: failed to allocate average memory\n");
+	   "genesys_dark_white_shading_shading_calibration: failed to allocate average memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2508,7 +2546,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   if (!calibration_data)
     {
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: failed to allocate calibration memory\n");
+	   "genesys_dark_white_shading_calibration: failed to allocate calibration memory\n");
       return SANE_STATUS_NO_MEM;
     }
 
@@ -2524,7 +2562,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: failed to bulk write registers: %s\n",
+	   "genesys_dark_white_shading_calibration: failed to bulk write registers: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2535,7 +2573,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: Failed to begin scan: %s\n",
+	   "genesys_dark_white_shading_calibration: Failed to begin scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2545,7 +2583,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: Failed to read data: %s\n",
+	   "genesys_dark_white_shading_calibration: Failed to read data: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2555,7 +2593,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
     {
       free (calibration_data);
       DBG (DBG_error,
-	   "genesys_black_white_shading_calibration: Failed to end scan: %s\n",
+	   "genesys_dark_white_shading_calibration: Failed to end scan: %s\n",
 	   sane_strstatus (status));
       return status;
     }
@@ -2565,18 +2603,62 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 				  channels, pixels_per_line,
 				  dev->model->shading_lines);
 
-/* use upper fifth for black data */
-  genesys_average_data (dev->dark_average_data, calibration_data,
-			dev->model->shading_lines / 5,
-			pixels_per_line * channels);
 
-/* use lower fifth for white data */
-  genesys_average_data (
-      dev->white_average_data, 
-      calibration_data + pixels_per_line * channels * 2
-			  * ((dev->model->shading_lines * 3) / 5),
-      dev->model->shading_lines / 5,
-      pixels_per_line * channels);
+  average_white = dev->white_average_data;
+  average_dark = dev->dark_average_data;
+
+  for (x = 0; x < pixels_per_line * channels; x++)
+    {
+      dark = 0xffff;
+      white = 0;
+
+      for (y = 0; y < dev->model->shading_lines; y++)
+	{
+          col = calibration_data[(x + y * pixels_per_line * channels) * 2];
+          col |= calibration_data[(x + y * pixels_per_line * channels) * 2 + 1] << 8;
+
+	  if (col > white)
+	      white = col;
+	  if (col < dark)
+	      dark = col;
+	}
+
+      dif = white - dark;
+
+      dark = dark + dif / 8;
+      white = white - dif / 8;
+
+      dark_count = 0;
+      dark_sum = 0;
+
+      white_count = 0;
+      white_sum = 0;
+
+      for (y = 0; y < dev->model->shading_lines; y++)
+	{
+          col = calibration_data[(x + y * pixels_per_line * channels) * 2];
+          col |= calibration_data[(x + y * pixels_per_line * channels) * 2 + 1] << 8;
+
+	  if (col >= white) {
+	      white_sum += col;
+	      white_count++;
+	  }
+	  if (col <= dark) {
+	      dark_sum += col;
+	      dark_count++;
+	  }
+
+	}
+
+      dark_sum /= dark_count;
+      white_sum /= white_count;
+      
+      *average_dark++ = dark_sum & 255;
+      *average_dark++ = dark_sum >> 8;
+
+      *average_white++ = white_sum & 255;
+      *average_white++ = white_sum >> 8;
+    }
 
   if (DBG_LEVEL >= DBG_data) {
     sanei_genesys_write_pnm_file ("white_average.pnm",
@@ -2589,7 +2671,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
 
   free (calibration_data);
 
-  DBG (DBG_proc, "genesys_black_white_shading_calibration: completed\n");
+  DBG (DBG_proc, "genesys_dark_white_shading_calibration: completed\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -2609,7 +2691,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   DBG (DBG_proc, "genesys_send_shading_coefficient\n");
 
 
-  pixels_per_line = dev->current_setup.pixels;
+  pixels_per_line = 
+      (genesys_pixels_per_line (dev->calib_reg)
+       * genesys_dpiset(dev->calib_reg)) /
+      dev->sensor.optical_res;
 
   if (dev->settings.scan_mode == 4)	/* single pass color */
     channels = 3;
@@ -2809,13 +2894,11 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   first pixel at full resolution is used.
  */
       /*this should be evenly dividable*/
-      avgpixels = dev->sensor.optical_res/dev->current_setup.xres;
-      if (dev->current_setup.half_ccd)
-	  avgpixels /= 2;
+      avgpixels = dev->sensor.optical_res/genesys_dpiset(dev->calib_reg);
 
       DBG (DBG_info, "genesys_send_shading_coefficient: averaging over %d pixels\n", avgpixels);
 
-      for (x = 0; x < pixels_per_line; x++)
+      for (x = 0; x < pixels_per_line - o; x++)
 	{
 
 	    if ((x*avgpixels+o) * 2 * 2 + 3 > words_per_color) 
@@ -2826,7 +2909,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      /* dark data */
 	      val = dev->dark_average_data[(x + pixels_per_line * j) * 2] |
 		  (dev->dark_average_data[(x + pixels_per_line * j) * 2 + 1] << 8);
-
+/*fill all pixels, even if only the first one is relevant*/
 	      for (i = 0; i < avgpixels; i++) {
 		  shading_data[
 		      (x*avgpixels+o+i) * 2 * 2 + words_per_color * j
@@ -2849,6 +2932,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      else
 		  val = 65535;
 	      
+/*fill all pixels, even if only the first one is relevant*/
 	      for (i = 0; i < avgpixels; i++) {
 		  shading_data[
 		      (x*avgpixels+o+i) * 2 * 2 + words_per_color * j + 2
@@ -2859,6 +2943,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	      }
 	    }
 
+/*fill remaining channels*/
 	    for ( j = channels; j < 3; j++) {
 	      for (i = 0; i < avgpixels; i++) {
 		  shading_data[
@@ -3694,13 +3779,22 @@ genesys_fill_read_buffer(Genesys_Device * dev) {
 /* never read an odd number. exception: last read 
    the chip internal counter does not count half words. */
   size &= ~1;
+/* Some setups need the reads to be multiples of 256 bytes */
+  size &= ~0xff;
 
-  if (dev->read_bytes_left < size)
+  if (dev->read_bytes_left < size) {
       size = dev->read_bytes_left;
+/*round up to a multiple of 256 bytes*/
+      size += (size & 0xff)?0x100:0x00;
+      size &= ~0xff;
+  }
+  
+/*early out if our remaining buffer capacity is too low*/
+  if (size == 0)
+    return SANE_STATUS_GOOD;
       
   DBG (DBG_error, "genesys_fill_read_buffer: reading %lu bytes\n",
        (u_long) size);
-  
 /* size is already maxed to our needs. bulk_read_data
    will read as much data as requested. */
   status =
@@ -3723,6 +3817,9 @@ genesys_fill_read_buffer(Genesys_Device * dev) {
   }
 #endif
   
+  if (size > dev->read_bytes_left)
+      size = dev->read_bytes_left;
+
   dev->read_bytes_left -= size;
   
   RIE(sanei_genesys_buffer_produce(&(dev->read_buffer), size));
@@ -3741,7 +3838,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   SANE_Status status;
   size_t bytes, extra;
   unsigned int channels, depth, src_pixels;
-  unsigned int ccd_shift[12];
+  unsigned int ccd_shift[12], shift_count;
   u_int8_t *work_buffer_src;
   u_int8_t *work_buffer_dst;
   unsigned int dst_lines;
@@ -3750,6 +3847,7 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   unsigned int needs_ccd;
   unsigned int needs_shrink;
   unsigned int needs_reverse;
+  unsigned int needs_gray_lineart;
   Genesys_Buffer *src_buffer;
   Genesys_Buffer *dst_buffer;
 
@@ -3808,12 +3906,15 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
   needs_ccd = dev->current_setup.max_shift > 0;
   needs_shrink = dev->settings.pixels != src_pixels;
   needs_reverse = depth == 1;
+  needs_gray_lineart = depth == 8 && dev->settings.scan_mode == 0;
 
   DBG (DBG_info,
-       "genesys_read_ordered_data: using filters:%s%s%s\n",
+       "genesys_read_ordered_data: using filters:%s%s%s%s%s\n",
        needs_reorder?" reorder":"",
        needs_ccd?" ccd":"",
-       needs_shrink?" shrink":"");
+       needs_shrink?" shrink":"",
+       needs_reverse?" reverse":"",
+       needs_gray_lineart?" gray_lineart":"");
 
   DBG (DBG_info,
        "genesys_read_ordered_data: frontend requested %lu bytes\n",
@@ -3858,19 +3959,28 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
        ((dev->read_bytes_left+dev->read_buffer.avail)*8)/
        (src_pixels*channels*depth));
 
-  ccd_shift[0] =
-    ((dev->model->ld_shift_r * dev->settings.yres) / dev->motor.base_ydpi);
-  ccd_shift[1] =
-    ((dev->model->ld_shift_g * dev->settings.yres) / dev->motor.base_ydpi);
-  ccd_shift[2] =
-    ((dev->model->ld_shift_b * dev->settings.yres) / dev->motor.base_ydpi);
+  if (channels == 1) {
+      ccd_shift[0] = 0;
+      ccd_shift[1] = dev->current_setup.stagger;
+      shift_count = 2;
+  } else {
+      ccd_shift[0] =
+	  ((dev->model->ld_shift_r * dev->settings.yres) / dev->motor.base_ydpi);
+      ccd_shift[1] =
+	  ((dev->model->ld_shift_g * dev->settings.yres) / dev->motor.base_ydpi);
+      ccd_shift[2] =
+	  ((dev->model->ld_shift_b * dev->settings.yres) / dev->motor.base_ydpi);
 
-  ccd_shift[3] =
-      ccd_shift[0] + dev->current_setup.stagger;
-  ccd_shift[4] =
-      ccd_shift[1] + dev->current_setup.stagger;
-  ccd_shift[5] =
-      ccd_shift[2] + dev->current_setup.stagger;
+      ccd_shift[3] =
+	  ccd_shift[0] + dev->current_setup.stagger;
+      ccd_shift[4] =
+	  ccd_shift[1] + dev->current_setup.stagger;
+      ccd_shift[5] =
+	  ccd_shift[2] + dev->current_setup.stagger;
+
+      shift_count = 6;
+  }
+  
 
 /* convert data */
 /*
@@ -3900,6 +4010,12 @@ Problems with the first approach:
  */
 
   status = genesys_fill_read_buffer(dev);
+
+  if (status != SANE_STATUS_GOOD) {
+      DBG (DBG_error,
+	   "genesys_read_ordered_data: genesys_fill_read_buffer failed\n");
+      return status;
+  }
 
   src_buffer = &(dev->read_buffer);
 
@@ -4055,18 +4171,16 @@ Problems with the first approach:
 	      status = genesys_reverse_ccd_8(
 		  work_buffer_src, work_buffer_dst,
 		  dst_lines,
-		  src_pixels,
-		  channels,
+		  src_pixels * channels,
 		  ccd_shift,
-		  6);
+		  shift_count);
 	  else
 	      status = genesys_reverse_ccd_16(
 		  work_buffer_src, work_buffer_dst,
 		  dst_lines,
-		  src_pixels,
-		  channels,
+		  src_pixels * channels,
 		  ccd_shift,
-		  6);
+		  shift_count);
 	  
 	  if (status != SANE_STATUS_GOOD) {
 	      DBG (DBG_error,
@@ -4087,6 +4201,7 @@ Problems with the first approach:
 
       dst_buffer = &(dev->out_buffer);
 
+      work_buffer_src = sanei_genesys_buffer_get_read_pos(src_buffer);
       bytes = src_buffer->avail;
 
 /*lines in input*/
@@ -4137,12 +4252,12 @@ Problems with the first approach:
 	      return SANE_STATUS_IO_ERROR;
 	  }
 
-/*we just created this many bytes*/
-	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
-	  RIE(sanei_genesys_buffer_consume(src_buffer, bytes));
-	  
 /*we just consumed this many bytes*/
 	  bytes = (dst_lines * src_pixels * channels * depth) / 8;
+	  RIE(sanei_genesys_buffer_consume(src_buffer, bytes));
+	  
+/*we just created this many bytes*/
+	  bytes = (dst_lines * dev->settings.pixels * channels * depth) / 8;
 	  RIE(sanei_genesys_buffer_produce(dst_buffer, bytes));
 
       }
@@ -4165,18 +4280,48 @@ Problems with the first approach:
 	       sane_strstatus (status));
 	  return SANE_STATUS_IO_ERROR;
       }
+      *len = bytes;
   }
-  else
-      memcpy(destination, work_buffer_src, bytes);
-  RIE(sanei_genesys_buffer_consume(src_buffer, bytes));
+  else if (needs_gray_lineart)
+  {
+      if (depth != 8) {
+	  DBG(DBG_error, "Cannot convert from 16bit to lineart\n");
+	  return SANE_STATUS_INVAL;
+      }
+/*lines in input*/
+      dst_lines = bytes / (dev->settings.pixels * channels);
 
-  *len = bytes;
-  dev->total_bytes_read += bytes;
+      bytes = dst_lines * dev->settings.pixels * channels;
+
+      status = genesys_gray_lineart(work_buffer_src, destination, 
+				    dev->settings.pixels,
+				    channels,
+				    dst_lines);
+      if (status != SANE_STATUS_GOOD) {
+	  DBG (DBG_error,
+	       "genesys_read_ordered_data: failed to reverse bits(%s)\n",
+	       sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+      }
+
+      *len = dst_lines * channels * 
+	  (dev->settings.pixels / 8 + ((dev->settings.pixels % 8)?1:0));
+  } 
+  else 
+  {    
+      memcpy(destination, work_buffer_src, bytes);
+      *len = bytes;
+  }
+
+  dev->total_bytes_read += *len;
+  
+  RIE(sanei_genesys_buffer_consume(src_buffer, bytes));
 
   DBG (DBG_proc, "genesys_read_ordered_data: completed, %lu bytes read\n",
        (u_long) bytes);
   return SANE_STATUS_GOOD;
 }
+
 
 
 /* ------------------------------------------------------------------------ */

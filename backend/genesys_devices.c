@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2003 Oliver Rauch
-   Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <svoltz@numericable.fr>
    Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
@@ -379,13 +379,13 @@ static Genesys_Motor Motor[] = {
    2400,
    1,
    {{
-       3000,
+       3500,
        1300, 
        50,
        0.8, 
    },
     {
-	3000,
+	3500,
 	1400,
 	50,
 	0.8, 
@@ -474,8 +474,7 @@ static Genesys_Model canon_lide_50_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_UNTESTED
-  | GENESYS_FLAG_LAZY_INIT
+  GENESYS_FLAG_LAZY_INIT
   | GENESYS_FLAG_SKIP_WARMUP
   | GENESYS_FLAG_OFFSET_CALIBRATION
   | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
@@ -519,8 +518,7 @@ static Genesys_Model canon_lide_60_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_UNTESTED
-  | GENESYS_FLAG_LAZY_INIT
+  GENESYS_FLAG_LAZY_INIT
   | GENESYS_FLAG_SKIP_WARMUP
   | GENESYS_FLAG_OFFSET_CALIBRATION
   | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */

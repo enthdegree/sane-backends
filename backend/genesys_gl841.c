@@ -488,6 +488,25 @@ gl841_bulk_write_data (Genesys_Device * dev, u_int8_t addr,
   return status;
 }
 
+/* for debugging transfer rate*/
+/*
+#include <sys/time.h>
+static struct timeval start_time;
+static void
+starttime(){
+    gettimeofday(&start_time,NULL);
+}
+static void
+printtime(char *p) {
+    struct timeval t;
+    long long int dif;
+    gettimeofday(&t,NULL);
+    dif = t.tv_sec - start_time.tv_sec;
+    dif = dif*1000000 + t.tv_usec - start_time.tv_usec;
+    fprintf(stderr,"%s %lluµs\n",p,dif);
+}
+*/
+
 /* Read bulk data (e.g. scanned data) */
 static SANE_Status
 gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
@@ -499,6 +518,9 @@ gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
 
   DBG (DBG_io, "gl841_bulk_read_data: requesting %lu bytes\n",
        (u_long) len);
+
+  if (len == 0) 
+      return SANE_STATUS_GOOD;
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
@@ -541,7 +563,9 @@ gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
       DBG (DBG_io2,
 	   "gl841_bulk_read_data: trying to read %lu bytes of data\n",
 	   (u_long) size);
+
       status = sanei_usb_read_bulk (dev->dn, data, &size);
+
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -560,7 +584,7 @@ gl841_bulk_read_data (Genesys_Device * dev, u_int8_t addr,
 
   DBG (DBG_io, "gl841_bulk_read_data: completed\n");
 
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 /* Set address for writing data */
@@ -2479,6 +2503,11 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     words_per_line = (pixels * used_res) / optical_res; 
     
     words_per_line *= channels;
+
+    if (depth == 1)
+	words_per_line = (words_per_line >> 3) + ((words_per_line & 7)?1:0);
+    else
+	words_per_line *= depth / 8;
     
     r = sanei_genesys_get_address (reg, 0x35);
     r->value = LOBYTE (HIWORD (words_per_line));
@@ -2897,9 +2926,11 @@ dummy \ scanned lines
    */
 
   dev->total_bytes_read = 0;
-  if (depth == 1)
+  if (depth == 1 || dev->settings.scan_mode == 0)
       dev->total_bytes_to_read =
-	  ((dev->settings.pixels * dev->settings.lines) / 8) * channels;
+	  ((dev->settings.pixels * dev->settings.lines) / 8 +
+	   (((dev->settings.pixels * dev->settings.lines)%8)?1:0)
+	      ) * channels;
   else
       dev->total_bytes_to_read =
 	  dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
@@ -3844,7 +3875,8 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 channels,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
-				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
+/* we don't handle differing shading areas very well */
+/*				 SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |*/
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE
       );
 
@@ -4754,7 +4786,12 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 
       if (dev->model->dac_type == DAC_CANONLIDE35) {
 	  gain[j] *= 0.69;/*seems we don't get the real maximum. empirically derived*/
-	  dev->frontend.gain[j] = 283 - 208/gain[j];
+	  if (283 - 208/gain[j] > 255) 
+	      dev->frontend.gain[j] = 255;
+	  else if (283 - 208/gain[j] < 0)
+	      dev->frontend.gain[j] = 0;
+	  else
+	      dev->frontend.gain[j] = 283 - 208/gain[j];
       }
 
       DBG (DBG_proc,

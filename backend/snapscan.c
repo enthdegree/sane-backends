@@ -1320,7 +1320,7 @@ static SANE_Status send_gamma_table (SnapScan_Scanner *pss, u_char dtc, u_char d
             break;
         case PRISA5150:
             /* 5150 needs the gamma table twice, with dtc = 0x04 for the second one */
-            status = send (pss, dtc+1, dtcq);
+            status = send (pss, DTC_GAMMA2, dtcq);
             CHECK_STATUS (status, me, "2nd send");
             break;
         default:
@@ -1926,6 +1926,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.64  2005/12/05 20:38:23  oliver-guest
+ * Small bugfix for Benq 5150
+ *
  * Revision 1.63  2005/12/04 15:03:00  oliver-guest
  * Some fixes for Benq 5150
  *

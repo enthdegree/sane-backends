@@ -1,3 +1,7 @@
+2005-12-05  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.c backend/snapscan-scsi.c: small bugfix for Benq5150
+
 2005-12-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon PIXMA MP170.
@@ -18,7 +22,7 @@
 
 2005-12-04  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-	* backend/snapscan.c backend/snapscan.c backend/snapscan-scsi.c
+	* backend/snapscan.h backend/snapscan.c backend/snapscan-scsi.c
 	  backend/snapscan-options.c: Some fixes for Benq 5150
 
 2005-12-03  Peter Fales <peter@fales-lorenz.net>

@@ -640,6 +640,7 @@ static void release_unit (SnapScan_Scanner *pss)
 #define SEND_LENGTH 10
 #define DTC_HALFTONE 0x02
 #define DTC_GAMMA 0x03
+#define DTC_GAMMA2 0x04
 #define DTC_SPEED 0x81
 #define DTC_CALIBRATION 0x82
 #define DTC_CALIBRATION_BLACK 0x89
@@ -698,6 +699,7 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         }
         break;
     case DTC_GAMMA:        /* gamma function */
+    case DTC_GAMMA2:
         switch (dtcq)
         {
         case DTCQ_GAMMA_GRAY8:    /* 8-bit tables */
@@ -1486,6 +1488,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.53  2005/12/05 20:38:22  oliver-guest
+ * Small bugfix for Benq 5150
+ *
  * Revision 1.52  2005/12/04 15:03:00  oliver-guest
  * Some fixes for Benq 5150
  *

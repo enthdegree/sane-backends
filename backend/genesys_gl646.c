@@ -1275,12 +1275,11 @@ gl646_save_power(Genesys_Device * dev, SANE_Bool enable) {
 
     if (enable)
     {
-
 	gl646_set_fe (dev, AFE_POWER_SAVE);
-
     } 
     else 
     {
+	gl646_set_fe (dev, AFE_INIT);
     }
 
     return SANE_STATUS_GOOD;
@@ -4125,6 +4124,9 @@ gl646_init (Genesys_Device * dev)
   struct timeval tv;
   u_int8_t val;
   int size;
+  u_int8_t data[64];
+  SANE_Int timeout=sanei_usb_get_timeout();
+
 
   DBG_INIT ();
   DBG (DBG_proc, "gl646_init\n");
@@ -4279,6 +4281,21 @@ gl646_init (Genesys_Device * dev)
 
   /* Set analog frontend */
   RIE (gl646_set_fe (dev, AFE_INIT));
+
+  /*  fix for timeouts at init */
+  if (dev->model->ccd_type == CCD_5345)
+    {
+      /* we read data without any pending scan to trigger timeout */
+      status = dev->model->cmd_set->bulk_read_data (dev, 0x45, data, 64);
+      if (status != SANE_STATUS_GOOD)
+        {
+          /* expected error */
+	  DBG (DBG_error, "gl646_init: read stream reset ... %s\n",
+		 sane_strstatus (status));
+          return status;
+        }
+      /* restore timeout */
+    }
 
   /* Move home */
   RIE (gl646_slow_back_home (dev, SANE_TRUE));

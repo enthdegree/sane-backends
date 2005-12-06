@@ -2,6 +2,9 @@
 
 	* backend/genesys.conf: Enabled Canon LiDE 60 which was disabled
 	  for safety reasons. Bugs are fixed now.
+	* doc/descriptions/genesys.desc: Changed status of Canon LiDE 50
+	  and 60 to "good". Added comment for untested LiDE 40 to report any
+	  success/failure.
 
 2005-12-05  Rene Rebe <rene@exactcode.de>
 

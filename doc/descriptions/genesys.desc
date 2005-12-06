@@ -1,5 +1,5 @@
 :backend "genesys"
-:version "1.0-7"
+:version "1.0-8"
 :manpage "sane-genesys"
 :comment "Only the USB scanners mentioned below are currently supported."
 :url "http://www.meier-geinitz.de/sane/genesys-backend/"
@@ -49,15 +49,12 @@
 :model "CanoScan LiDE 40"
 :interface "USB"
 :status :untested
-:comment "Same ids as LiDE 50."
+:comment "Same ids as LiDE 50. Please tell us if this scanner works."
 
 :model "CanoScan LiDE 50"
 :interface "USB"
-:status :minimal
-:comment "Some modes work only with specific width. Try to vary width if the scan freezes."
+:status :good
 
 :model "CanoScan LiDE 60"
-:url "http://lists.alioth.debian.org/pipermail/sane-devel/2005-October/015059.html"
 :interface "USB"
-:status :untested
-:comment "Untested. Please report! Read information given in the link and comment out the respective usb line in genesys.conf."
+:status :good

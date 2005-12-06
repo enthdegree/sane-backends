@@ -1,3 +1,7 @@
+2005-12-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/genesys.conf: Enabled Canon LiDE 60 which was disabled
+	  for safety reasons. Bugs are fixed now.
 
 2005-12-05  Rene Rebe <rene@exactcode.de>
 

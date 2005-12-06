@@ -43,7 +43,7 @@ Backends:
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  ibm:           M.F., Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
- lexmark:       Fred Odendaal
+ lexmark:       Fred Odendaal (*)
  ma1509:        Henning Meier-Geinitz (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)

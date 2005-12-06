@@ -1,5 +1,10 @@
 2005-12-06  Stephane Voltz <stefdev@modulonet.fr>
 
+	* backend/genesys_gl646.c: removed forgotten left-over of
+	  an experiment .
+
+2005-12-06  Stephane Voltz <stefdev@modulonet.fr>
+
 	* backend/genesys_gl646.c: added AF init in powersave, fixed
 	  long-standing bug related to a data read timeout between 
 	  distinct scanning sessions

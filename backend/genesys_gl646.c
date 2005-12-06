@@ -4125,8 +4125,6 @@ gl646_init (Genesys_Device * dev)
   u_int8_t val;
   int size;
   u_int8_t data[64];
-  SANE_Int timeout=sanei_usb_get_timeout();
-
 
   DBG_INIT ();
   DBG (DBG_proc, "gl646_init\n");

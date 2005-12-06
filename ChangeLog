@@ -6,6 +6,7 @@
 	  and 60 to "good". Added comment for untested LiDE 40 to report any
 	  success/failure.
 	* AUTHORS: Marked Fred Odendaal as active maintainer.
+	* tools/hotplug/libsane.usermap: Added Epson Perfection 3490.
 
 2005-12-05  Rene Rebe <rene@exactcode.de>
 

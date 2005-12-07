@@ -1559,12 +1559,6 @@
 :status :unsupported
 :comment "Unsupported by SANE. But is reported to partly work with pxscan. See link."
 
-:model "Colorado 2400U"
-:url "/unsupported/primax-colorado-2400u.html"
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. See link for details."
-
 :model "Primascan Colorado 2600u"
 :url "/unsupported/visioneer-onetouch4400.html"
 :interface "USB"

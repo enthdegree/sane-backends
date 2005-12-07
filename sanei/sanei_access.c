@@ -62,6 +62,14 @@
 # define PATH_MAX	1024
 #endif
 
+#if defined(HAVE_OS2_H) || defined(HAVE_WINDOWS_H)
+# define PATH_SEP	'\\'
+#else
+# define PATH_SEP	'/'
+#endif
+
+#define REPLACEMENT_CHAR '_'
+
 #define PID_BUFSIZE  50
 
 #define PROCESS_SELF  0
@@ -123,9 +131,20 @@ get_lock_status( char *fn )
 static void
 create_lock_filename( char *fn, const char *devname )
 {
+	char *p;
+
 	strcpy( fn, STRINGIFY(PATH_SANE_LOCK_DIR)"/lock/sane/LCK.." );
+	p = &fn[strlen(fn)];
+
 	strcat( fn, devname );
-} 
+
+	while( *p != '\0' ) {
+		if( *p == PATH_SEP )
+			*p = REPLACEMENT_CHAR;
+		p++;
+	}
+	DBG( 2, "sanei_access: lockfile name >%s<\n", fn );
+}
 #endif
 
 void

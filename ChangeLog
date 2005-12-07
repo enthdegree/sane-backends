@@ -1,3 +1,9 @@
+2005-12-07  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* sanei/sanei_acces.c: Fixed problem, when the device name contains 
+	  one or more path-separators. These characters are now converted.
+	  The problem occurs on 2.4 based installations as well as on OpenBSD.
+
 2005-12-06  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: removed forgotten left-over of

@@ -1,3 +1,7 @@
+2005-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Brother MFC-7300c.
+
 2005-12-07  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* sanei/sanei_acces.c: Fixed problem, when the device name contains 

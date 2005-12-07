@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-05"		; version of backend
+:version "2005-12-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -185,6 +185,11 @@
 :url "http://sourceforge.net/projects/brother-mfc"
 :interface "Parport USB"
 :comment "Unsupported. However there is a project to support this scanner/printer/fax combination. See link."
+
+:model "MFC 7300c"
+:status :unsupported
+:url "/unsupported/brother-mfc-7300.html"
+:interface "Parport USB"
 
 ;********************************************************************************************
 

@@ -62,6 +62,8 @@ static void u12tpa_Reshading( U12_Device *dev )
 
 	DBG( _DBG_INFO, "u12tpa_Reshading()\n" );
 
+	bHi[0] = bHi[1] = bHi[2] = 0;
+
 	dev->scan.negScan[1].exposureTime = 144;
 	dev->scan.negScan[1].xStepTime    = 18;
 	dev->scan.negScan[2].exposureTime = 144;

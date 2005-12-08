@@ -839,6 +839,8 @@ _LOC void TPAP98003Reshading( pScanData ps )
     DataPointer RedPtr, GreenPtr, BluePtr;
     TimerDef    timer;
 
+	bHi[0] = bHi[1] = bHi[2] = 0;
+
 /* CHECK: Why this ??? */
 #if 1
     ps->Scan.negScan[1].exposureTime = 144;

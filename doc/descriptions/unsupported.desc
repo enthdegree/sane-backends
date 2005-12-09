@@ -183,8 +183,8 @@
 :model "MFC 4600"
 :status :unsupported
 :url "http://sourceforge.net/projects/brother-mfc"
-:interface "Parport USB"
-:comment "Unsupported. However there is a project to support this scanner/printer/fax combination. See link."
+:interface "Parport"
+:comment "The parport 200x400dpi grayscale version of this scanner is unsupported. Dmitri Katchalov did some investigations on this scanner. If you want to write a backend, contact him (see link)."
 
 :model "MFC 7300c"
 :status :unsupported
@@ -854,6 +854,13 @@
 :interface "USB"
 :status :unsupported
 :comment "Unsupported."
+
+:model "X6170"
+;:url "/unsupported/"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. No further details known."
+
 
 ;********************************************************************************************
 

@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/brother-mfc4600.desc: Added .desc file
 	  for (older) external backend for Brother MFC 4600 (USB version).
+	* doc/descriptions/unsupported.desc: Added Lexmark X6170. Removed
+	  Brother MFC 4600 USB.
 
 2005-12-08  Gerhard Jaeger <gerhard@gjaeger.de>
 

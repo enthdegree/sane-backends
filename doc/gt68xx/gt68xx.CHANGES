@@ -1,6 +1,6 @@
 gt68xx.CHANGES -*-text-*-
 
-V 1.0.79 (2005-12-??)
+V 1.0.79 (2005-12-09)
 
 * Silenced warning when scan is cancelled.
 * Silenced often non-fatal check_result error messages.

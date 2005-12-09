@@ -1,3 +1,8 @@
+2005-12-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother-mfc4600.desc: Added .desc file
+	  for (older) external backend for Brother MFC 4600 (USB version).
+
 2005-12-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-pp_tpa.c backend/u12-tpa.c: Fixed nasty

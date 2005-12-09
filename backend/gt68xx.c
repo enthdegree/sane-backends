@@ -48,10 +48,12 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 78
+#define BUILD 79
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
+#define SHORT_TIMEOUT (1 * 1000)
+#define LONG_TIMEOUT (30 * 1000)
 
 /* Use a reader process if possible (usually faster) */
 #if defined (HAVE_SYS_SHM_H) && (!defined (USE_PTHREAD)) && (!defined (HAVE_OS2_H))
@@ -1641,6 +1643,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		}
 	      s->first_scan = SANE_TRUE;
 	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	      gettimeofday (&s->lamp_on_time, 0);
 	    }
 	  break;
 	case OPT_MODE:
@@ -2076,7 +2079,7 @@ sane_cancel (SANE_Handle handle)
     {
       s->scanning = SANE_FALSE;
       if (s->total_bytes != (s->params.bytes_per_line * s->params.lines))
-	DBG (0, "sane_cancel: warning: scanned %d bytes, expected %d "
+	DBG (1, "sane_cancel: warning: scanned %d bytes, expected %d "
 	     "bytes\n", s->total_bytes,
 	     s->params.bytes_per_line * s->params.lines);
       else
@@ -2097,7 +2100,11 @@ sane_cancel (SANE_Handle handle)
 #endif
 
 	}
+      /* some scanners don't like this command when cancelling a scan */
+      sanei_usb_set_timeout (SHORT_TIMEOUT);
+      gt68xx_device_fix_descriptor (s->dev);
       gt68xx_scanner_stop_scan (s);
+      sanei_usb_set_timeout (LONG_TIMEOUT);
 
       if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
 	{
@@ -2105,7 +2112,9 @@ sane_cancel (SANE_Handle handle)
 	} 
       else
 	{
+	  sanei_usb_set_timeout (SHORT_TIMEOUT);
 	  gt68xx_scanner_wait_for_positioning (s);
+	  sanei_usb_set_timeout (LONG_TIMEOUT);
 	  gt68xx_device_carriage_home (s->dev);
 	}
       if (s->gamma_table)

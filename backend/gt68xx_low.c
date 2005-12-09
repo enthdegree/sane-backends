@@ -1001,7 +1001,7 @@ gt68xx_device_check_result (GT68xx_Packet res, SANE_Byte command)
 {
   if (res[0] != 0)
     {
-      DBG (0, "gt68xx_device_check_result: result was %2X %2X "
+      DBG (1, "gt68xx_device_check_result: result was %2X %2X "
 	   "(expected: %2X %2X)\n", res[0], res[1], 0, command);
       return SANE_STATUS_IO_ERROR;
     }

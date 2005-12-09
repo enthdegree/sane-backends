@@ -1,5 +1,24 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.79 (2005-12-??)
+
+* Silenced warning when scan is cancelled.
+* Silenced often non-fatal check_result error messages.
+* Reduced timeout for cancelling a scan. Some scanners freeze for 30 seconds
+  otherwise. Repeat is_moving test even if an error was received.
+* Run fix_descriptors before cancelling the scan. Without that, some gt6816
+  scanners are not detected anymore after closing the device.
+* Fixed wait_lamp_stable. Wait for a maximum time of 60 seconds. Print
+  warming up message after 5 seconds. Print how long warming up took.
+* For Mustek ScanExpress A3 USB, use more intelligent warm-up mechanism. The 
+  brightness for this scanner first decreases and then increases again. With the
+  previous logic the scanner always warmed up for at least 10 seconds even if it
+  wasn't necessary.
+* Warm up lamp also when changing from flatbed to transparency. Without this the
+  lamp may be too dark directly after changing the source.
+* Decreased scan width of Plustek OpticPro 1248U. This fixes some strange color
+  artifacts and results in less backtracking in some modes.
+
 V 1.0.78 (2005-10-16)
 
 * Minor modifications to sheet-fed scanner support.

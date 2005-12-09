@@ -4,6 +4,13 @@
 	  for (older) external backend for Brother MFC 4600 (USB version).
 	* doc/descriptions/unsupported.desc: Added Lexmark X6170. Removed
 	  Brother MFC 4600 USB.
+	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_high.c
+	  backend/gt68xx_low.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: Silenced
+	  non-fatal warnings/error messages. Several fixes for avoiding
+	  freezes/timeouts after cancelling a scan. Several fixes for
+	  warming up of lamp. Decreased scan width of Plustek OpticPro
+	  1248U. 
 
 2005-12-08  Gerhard Jaeger <gerhard@gjaeger.de>
 

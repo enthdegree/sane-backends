@@ -400,13 +400,27 @@ gt68xx_scanner_wait_for_positioning (GT68xx_Scanner * scanner)
 {
   SANE_Status status;
   SANE_Bool moving;
+  SANE_Int status_count = 0;
 
   usleep (100000);		/* needed by the BP 2400 CU Plus? */
   while (SANE_TRUE)
     {
-      RIE (gt68xx_device_is_moving (scanner->dev, &moving));
-      if (!moving)
-	break;
+      status = gt68xx_device_is_moving (scanner->dev, &moving);
+      if (status == SANE_STATUS_GOOD)
+	{
+	  if (!moving)
+	    break;
+	}
+      else
+	{
+	  if (status_count > 9)
+	    {
+	      DBG (1, "gt68xx_scanner_wait_for_positioning: error count too high!\n");
+	      return status;
+	    }
+	  status_count++;
+	  DBG(3, "gt68xx_scanner_wait_for_positioning: ignored error\n");
+	}
       usleep (100000);
     }
 
@@ -1146,16 +1160,17 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 			 GT68xx_Afe_Values *values,
 			 SANE_Bool dont_move)
 {
-  int i;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int last_white = 0;
-  SANE_Int first = SANE_TRUE;
+  SANE_Bool first = SANE_TRUE;
+  SANE_Bool message_printed = SANE_FALSE;
+  struct timeval now;
+  int secs;
+  int increase = -5;
 
-  for (i = 0; i < 80; i++)
+  do
     {
       usleep (200000);
-      if (i == 10)
-	DBG (0, "Please wait for lamp warm-up\n");
 
       if (!first && dont_move)
 	{
@@ -1190,18 +1205,24 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 	   "gt68xx_wait_lamp_stable: this white = %d, last white = %d\n",
 	   values->total_white, last_white);
 
+      gettimeofday (&now, 0);
+      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+
+      if (!message_printed && secs > 5 && secs <= WARMUP_TIME)
+	{
+	  DBG (0, "Please wait for lamp warm-up\n");
+	  message_printed = SANE_TRUE;
+	}
 
       if (scanner->val[OPT_AUTO_WARMUP].w == SANE_TRUE)
 	{
 	  if (scanner->dev->model->flags & GT68XX_FLAG_CIS_LAMP)
 	    {
-	      /* insist on at least 10 seconds */
-	      struct timeval now;
-	      int secs;
-
-	      gettimeofday (&now, 0);
-	      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
-	      if (secs >= 10 && (values->total_white <= (last_white + 20))
+	      if (values->total_white <= (last_white - 20))
+		  increase--;
+	      if (values->total_white >= last_white)
+		  increase++;
+	      if (increase > 0 && (values->total_white <= (last_white + 20))
 		  && values->total_white != 0)
 		break;
 	    }
@@ -1212,19 +1233,12 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 		break;		/* lamp is warmed up */
 	    }
 	}
-      else
-	{			/* insist on 60 seconds */
-	  struct timeval now;
-	  int secs;
-
-	  gettimeofday (&now, 0);
-	  secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
-	  if (secs >= WARMUP_TIME)
-	    break;
-	}
       last_white = values->total_white;
     }
-  DBG (3, "gt68xx_wait_lamp_stable: Lamp is stable\n");
+  while (secs <= WARMUP_TIME);
+
+  DBG (3, "gt68xx_wait_lamp_stable: Lamp is stable after %d seconds\n",
+       secs);
   return status;
 }
 

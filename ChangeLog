@@ -1,3 +1,9 @@
+2005-12-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/hp3500.desc: Added .desc file for new
+	  external backend hp3500 which provides support for the HP ScanJet
+	  3500 series.
+
 2005-12-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother-mfc4600.desc: Added .desc file

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-07"		; version of backend
+:version "2005-12-10"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -642,24 +642,6 @@
 :interface "USB"
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
-
-:model "HP3500C"
-:url "http://hp44x0backend.sourceforge.net"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
-
-:model "HP3530C"
-:url "http://hp44x0backend.sourceforge.net"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
-
-:model "HP3570C"
-:url "http://hp44x0backend.sourceforge.net"
-:interface "USB"
-:status :unsupported
-:comment "Doesn't work yet but support by the hp_rts88x backend is planned."
 
 :model "ScanJet 3670c"
 :interface "USB"

@@ -1,5 +1,7 @@
 2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: List ChangeLog-1.0.17 in DISTFILES.
+	* configure configure.in: Changed version to 1.0.17-cvs. Enabled
+	  compilation warnings.
 
 Older entries can be found in ChangeLog-1.0.17.

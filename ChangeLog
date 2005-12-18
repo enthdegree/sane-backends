@@ -1,3 +1,7 @@
+2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added link to Lexmark X6170.
+
 2005-12-17  Karl Heinz Kremer <khk@khk.net>
 
 	* doc/descriptions/epson.desc: Added a few new scanners based on 

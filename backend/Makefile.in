@@ -107,6 +107,7 @@ DISTFILES = abaton.c abaton.conf abaton.h agfafocus.c agfafocus.conf \
   gt68xx_shm_channel.h gt68xx.conf \
   genesys.c genesys.h genesys_gl646.c genesys_low.h \
   genesys.conf genesys_devices.c genesys_gl841.c \
+  genesys_conv.c genesys_conv_hlp.c \
   hp-accessor.c hp-accessor.h hp.c hp.conf \
   hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \

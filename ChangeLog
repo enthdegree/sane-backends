@@ -3,6 +3,9 @@
 	* doc/descriptions/unsupported.desc: Added link to Lexmark X6170.
 	* doc/descriptions/gt68xx.desc: Added Trust Direct WebScan 19200
 	  (reported on sane-devel).
+	* backend/Makefile.in: Added missing genesys_conv.c and
+	  genesys_conv_hlp.c to DISTFILES. Without this change the files
+	  wouldn't be part of the archive.
 
 2005-12-17  Karl Heinz Kremer <khk@khk.net>
 

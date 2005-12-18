@@ -57,6 +57,11 @@
 :status :good
 :interface "USB"
 
+:model "MFC-215C"
+:status :good
+:interface "USB"
+:comment "brscan2-0.0.2 necessary"
+
 :model "MFC-3240C"
 :status :untested
 :interface "USB"

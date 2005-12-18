@@ -3,5 +3,6 @@
 	* Makefile.in: List ChangeLog-1.0.17 in DISTFILES.
 	* configure configure.in: Changed version to 1.0.17-cvs. Enabled
 	  compilation warnings.
-
+	* doc/descriptions-external/brother2.desc: Added Brother MFC-215C.
+	
 Older entries can be found in ChangeLog-1.0.17.

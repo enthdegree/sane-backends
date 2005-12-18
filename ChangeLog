@@ -1,6 +1,8 @@
 2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added link to Lexmark X6170.
+	* doc/descriptions/gt68xx.desc: Added Trust Direct WebScan 19200
+	  (reported on sane-devel).
 
 2005-12-17  Karl Heinz Kremer <khk@khk.net>
 

@@ -311,6 +311,11 @@
 :interface "USB"
 :comment "Same as Mustek Bearpaw 2400 TA plus."
 
+:model "Direct WebScan 19200"
+:status :good
+:interface "USB"
+:comment "Same as Mustek BearPaw 1200 CU Plus (0x021c)."
+
 ; -----------------------------------------------------------------------------
 
 :mfg "Visioneer"

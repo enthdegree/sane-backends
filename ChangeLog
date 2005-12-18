@@ -1,3 +1,8 @@
+2005-12-17  Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added a few new scanners based on 
+	  messages to the sane-devel mailing list. 
+
 2005-12-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated for release.

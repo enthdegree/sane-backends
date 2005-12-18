@@ -6,6 +6,8 @@
 	* backend/Makefile.in: Added missing genesys_conv.c and
 	  genesys_conv_hlp.c to DISTFILES. Without this change the files
 	  wouldn't be part of the archive.
+	* configure configure.in: Disabled compilation warnings. Increased
+	  version number.
 
 2005-12-17  Karl Heinz Kremer <khk@khk.net>
 

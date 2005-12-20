@@ -1,3 +1,8 @@
+2005-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/dll.c doc/descriptions/dll.desc: Fixed dynamic loading
+	  on current HP/UX systems (bug #302732).
+
 2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* Makefile.in: List ChangeLog-1.0.17 in DISTFILES.

@@ -44,7 +44,7 @@
 
 /* Please increase version number with every change 
    (don't forget to update dll.desc) */
-#define DLL_VERSION "1.0.11"
+#define DLL_VERSION "1.0.12"
 
 #ifdef _AIX
 # include "lalloca.h"		/* MUST come first for AIX! */
@@ -382,6 +382,7 @@ load (struct backend *be)
 # define PREFIX "libsane-"
 # ifdef __hpux
 #   define POSTFIX ".sl.%u"
+#   define ALT_POSTFIX ".so.%u"
 #elif defined (HAVE_WINDOWS_H)
 #   undef PREFIX
 #   define PREFIX "cygsane-"
@@ -460,6 +461,18 @@ load (struct backend *be)
       if (fp)
 	break;
       DBG (4, "load: couldn't open `%s' (%s)\n", libname, strerror (errno));
+
+#ifdef ALT_POSTFIX      
+      /* Some platforms have two ways of storing their libraries, try both
+	 postfixes */
+      snprintf (libname, sizeof (libname), "%s/" PREFIX "%s" ALT_POSTFIX,
+		dir, be->name, V_MAJOR);
+      DBG (4, "load: trying to load `%s'\n", libname);
+      fp = fopen (libname, "r");
+      if (fp)
+	break;
+      DBG (4, "load: couldn't open `%s' (%s)\n", libname, strerror (errno));
+#endif
 
       dir = strsep (&src, DIR_SEP);
     }

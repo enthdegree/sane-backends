@@ -9,6 +9,8 @@
 	  including the 3500C, 3530C and 3570C (patch from Troy Rollo
 	  <sane@troy.rollo.name>) (bug #302687). 
 	* doc/descriptions-external/hp3500.desc: Deleted.
+	* doc/descriptions/hp4200.desc doc/descriptions/lexmark.desc
+	  doc/descriptions/mustek_usb2.desc: Removed "NEW!" markers.
 
 2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

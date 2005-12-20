@@ -38,6 +38,7 @@ Backends:
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev
+ hp3500:        Troy Rollo
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
                 Frank Zago, Henning Meier-Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
@@ -205,5 +206,6 @@ Thomas Soumarmon <soumarmt@nerim.net>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>
 Tristan Tarrant <ttarrant@etnoteam.it>
+Troy Rollo <sane@troy.rollo.name>
 Ullrich Sigwanz <usigwanz@freesurf.ch>
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>

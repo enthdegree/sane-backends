@@ -270,6 +270,11 @@ The SANE backend for the Hewlett-Packard ScanJet 5S scanner. See
 .BR sane-hpsj5s (5)
 for details.
 .TP
+.B hp3500
+The SANE backend for the Hewlett-Packard ScanJet 3500 series. See
+.BR sane-hp3500 (5)
+for details.
+.TP
 .B hp4200
 The SANE backend for the Hewlett-Packard ScanJet 4200 series. See
 .BR sane-hp4200 (5)
@@ -796,6 +801,7 @@ for details).
 .BR sane-gt68xx (5),
 .BR sane-hp (5),
 .BR sane-hpsj5s (5),
+.BR sane-hp3500 (5),
 .BR sane-hp4200 (5),
 .BR sane-hp5400 (5),
 .BR sane-ibm (5),

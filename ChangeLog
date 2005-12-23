@@ -1,6 +1,7 @@
 2005-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Canon Pixma MP500.
+	* README.openbsd: Added hint about CPPFLAGS.
 
 2005-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -38,9 +38,9 @@
 :comment "f/w <= v1.92 basic, f/w >= v1.93 OK"
 
 :model "AT6"
-:status :minimal
+:status :good
 :interface "SCSI"
-:comment "First scan works, subsequent fail until scanner power cycle."
+:comment "Scan head needs to return home before another scan can be started."
 
 :model "AT12"
 :interface "SCSI"

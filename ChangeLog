@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Added Canon Pixma MP500.
 	* README.openbsd: Added hint about CPPFLAGS.
+	* doc/descriptions/artec.desc: Changed status of Artec AT6 to
+	  "good" as reported in bug #302749.
 
 2005-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,3 +1,7 @@
+2005-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Canon Pixma MP500.
+
 2005-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/dll.c doc/descriptions/dll.desc: Fixed dynamic loading

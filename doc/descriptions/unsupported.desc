@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-23"		; version of backend
+:version "2005-12-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -831,6 +831,12 @@
 :status :unsupported
 :comment "Unsupported. Vendor/product 0x043d/0x003d. GL640."
 
+:model "X2330"
+:url "/unsupported/lexmark-x2330.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
+ 
 :model "X5130"
 :url "/unsupported/lexmark-x5130.html"
 :interface "USB"

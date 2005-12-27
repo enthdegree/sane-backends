@@ -1,3 +1,7 @@
+2005-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README.linux: Mention ld.so.conf issue.
+
 2005-12-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Lexmark X2330.

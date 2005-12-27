@@ -119,6 +119,12 @@ about missing SCSI headers.
 Other Information
 =================
 
+ld.so.conf configuration:
+  "/usr/local/lib/sane" or "/usr/lib/sane" MUST NOT be listed in
+  /etc/ld.so.conf. If your scanner is not detected or only Video for Linux
+  devices are found, check for one of the above lines in ld.so.conf.
+  A line "/usr/local/lib" or "/usr/lib" in ld.so.conf is ok, however.
+
 Excessive warnings "pointer of type `void *' used in arithmetic":
   Some older versions of glibc generate these warnings not related to SANE
   source code. To suppress these warnings do

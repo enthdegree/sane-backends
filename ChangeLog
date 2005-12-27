@@ -1,6 +1,10 @@
 2005-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Mention ld.so.conf issue.
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/hp3900.desc: Added external hp3900
+	  backend. Moved (possibly) supported scanners from
+	  unsupported.desc. 
 
 2005-12-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -1,4 +1,4 @@
-2005-09-03
+2005-12-27
 
 Here are a few rules and tips that should help writing a
 SANE-conforming backend and including it into the SANE package:
@@ -48,6 +48,18 @@ PROGRAMMING
 * The number of source code files for your backend should be limited. While it
   is useful to split big backends into several files, the number of .c files
   shouldn't exceed 5-10. Please see the existing backends for examples.
+
+* To add the backend to the existing SANE code, the following must be done at
+  least:
+    - add the backend name to BACKENDS in configure.in (and rerun autoconf)
+    - add any parts of SANE that are used in the backend in
+      backend/Makefile.in. E.g., for the backend "newbackend" that uses
+      sanei_usb code:
+           libsane-newbackend.la: ../sanei/sanei_usb.lo
+      See the lines near the end of Makefile.in for examples.
+    - Add the source code files to the backend/ directories. All file names must
+      start with the backend name (e.g. newbackend.c, newbackend.h and
+      newbackend-usb.c). 
 
 * Please follow the GNU coding standards.  It's clear that the style
   outlined there is nobody's favorite, but it's much easier to

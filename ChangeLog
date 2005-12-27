@@ -5,6 +5,8 @@
 	  doc/descriptions-external/hp3900.desc: Added external hp3900
 	  backend. Moved (possibly) supported scanners from
 	  unsupported.desc. 
+	* doc/backend-writing.c: Added some hints about what to do to add
+	  a new backend to the existing sane-backends code.
 
 2005-12-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

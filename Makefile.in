@@ -93,6 +93,14 @@ libcheck:
 	    echo -e "*** $$lib:\n$$lines"; \
 	  fi \
 	done
+	@echo "Libraries exporting 'non-standard sane_*' symbols:"
+	@for lib in backend/.libs/*.a; do \
+	  lines=`nm -g $$lib|grep '\( T \)\|\( D \)'|egrep ' sane_' | egrep -v 'sane_.*init|sane_.*exit|sane_.*get_devices|sane_.*open|sane_.*close|sane_.*get_option_descriptor|sane_.*control_option|sane_.*get_parameters|sane_.*start|sane_.*read|sane_.*cancel|sane_.*set_io_mode|sane_.*get_select_fd|sane_strstatus'` ; \
+	  if test -n "$$lines" ; \
+	  then \
+	    echo -e "*** $$lib:\n$$lines"; \
+	  fi \
+	done
 
 clean: clean-recursive
 

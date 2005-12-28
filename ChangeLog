@@ -2,7 +2,9 @@
 
 	* tools/hotplug/libsane.usermap: Added Brother MFC 8440.
 	* Makefile.in: make libcheck now also checks for non standard sane
-	  symbols (sane_*). 
+	  symbols (sane_*).
+	* doc/descriptions/unsupported.desc: HP Scanjet 3690 uses GL646_HP
+	  chipset.
 
 2005-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

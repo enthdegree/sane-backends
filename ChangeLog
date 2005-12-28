@@ -1,3 +1,7 @@
+2005-12-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/hotplug/libsane.usermap: Added Brother MFC 8440.
+
 2005-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.linux: Mention ld.so.conf issue.

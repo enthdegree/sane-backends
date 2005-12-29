@@ -1,3 +1,8 @@
+2005-12-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/scanwit.desc: Added "(Acer)" to
+	  manufacturer name (bug #302801). 
+
 2005-12-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/hotplug/libsane.usermap: Added Brother MFC 8440.

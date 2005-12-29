@@ -17,7 +17,7 @@
 
 :devicetype :scanner
 
-:mfg "Benq"                         ; name a manufacturer
+:mfg "Benq (Acer)"                         ; name a manufacturer
 :url "http://www.benq.com"
 :comment "Formerly Acer Peripherals"
 

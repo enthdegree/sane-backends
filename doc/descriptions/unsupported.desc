@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-28"		; version of backend
+:version "2005-12-29"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -19,11 +19,6 @@
 ;********************************************************************************************
 
 :mfg "Agfa"
-
-:model "1212 P"
-:status :unsupported
-:interface "Parport"
-:comment "Most probably unsupported."
 
 :model "DuoScan f40"
 :status :unsupported
@@ -41,6 +36,29 @@
 :status :unsupported
 :comment "Unsupported. Same as Microtek Artixscan 2500f"
 
+:model "SnapScan 310P"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
+
+:model "SnapScan EZ"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
+
+:model "SnapScan 1200P"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
+
+:model "SnapScan 1212P"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
 
 ;********************************************************************************************
 
@@ -128,41 +146,53 @@
 :url "http://www.benq.com"
 :comment "Formerly Acer Peripherals"
 
-:model "310p"
+:model "310P"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-;:url ""
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported, see link for details."
 
-:model "320p"
+:model "320P"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-;:url ""
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported, see link for details."
 
-:model "610p"
+:model "340P"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-;:url ""
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported, see link for details."
 
-:model "620p"
+:model "610P"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-;:url ""
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported, see link for details."
 
-:model "620pt"
+:model "610PT"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-;:url ""
 :interface "Parport"
-:comment "Unsupported. No details about the protocol known."
+:comment "Unsupported, see link for details."
 
-:model "640p"
+:model "620P"
+:url "/unsupported/acer-parport.html"
 :status :unsupported
-:url "/unsupported/benq-640p.html"
 :interface "Parport"
-:comment "Unsupported. Someone is working to ge this scanner supported. See link for details."
+:comment "Unsupported, see link for details."
+
+:model "620PT"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
+
+:model "640P"
+:url "/unsupported/acer-parport.html"
+:status :unsupported
+:interface "Parport"
+:comment "Unsupported, see link for details."
 
 ;********************************************************************************************
 

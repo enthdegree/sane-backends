@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/scanwit.desc: Added "(Acer)" to
 	  manufacturer name (bug #302801). 
+	* doc/descriptions/unsupported.desc: Added/updated several old
+	  Acer (Benq) and Agfa parport scanners.
 
 2005-12-28  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

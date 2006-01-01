@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               50
+#define BUILD               51
 
 #define BACKEND_NAME snapscan
 
@@ -1926,6 +1926,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.65  2006/01/01 23:02:55  oliver-guest
+ * Added snapscan-data.c to Makefile.in
+ *
  * Revision 1.64  2005/12/05 20:38:23  oliver-guest
  * Small bugfix for Benq 5150
  *

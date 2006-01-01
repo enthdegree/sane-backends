@@ -106,6 +106,7 @@ typedef enum
     PERFECTION1670,     /* Epson Perfection 1670 - 1600 DPI */
     PERFECTION2480,     /* Epson Perfection 2480 - 2400 DPI */
     PERFECTION3490,     /* Epson Perfection 3490 - 3200 DPI */
+    STYLUS_CX1500,      /* Epson Stylus CX 1500 - 600 DPI */
     ARCUS1200		/* Agfa Arcus 1200 - 1200 DPI (rebadged Acer?) */
 } SnapScan_Model;
 
@@ -144,7 +145,8 @@ static struct SnapScan_Driver_desc drivers[] =
     {PERFECTION1270, "Perfection 1270"},
     {PERFECTION1670, "Perfection 1670"},
     {PERFECTION2480, "Perfection 2480"},
-    {PERFECTION3490, "Perfection 3490"}
+    {PERFECTION3490, "Perfection 3490"},
+    {STYLUS_CX1500,  "Stylus CX 1500"}
 };
 
 #define known_drivers ((int) (sizeof(drivers)/sizeof(drivers[0])))
@@ -197,6 +199,7 @@ static struct SnapScan_Model_desc scanners[] =
     {"EPSON Scanner",       PERFECTION1670}, /* dummy entry to detect scanner */
     {"EPSON Scanner1",      PERFECTION2480}, /* dummy entry to detect scanner */
     {"EPSON Scanner2",      PERFECTION3490}, /* dummy entry to detect scanner */
+    {"EPSON MFP00", 		STYLUS_CX1500},
     {"ARCUS 1200",          ARCUS1200}
 };
 
@@ -419,6 +422,9 @@ struct snapscan_scanner
 
 /*
  * $Log$
+ * Revision 1.40  2006/01/01 22:57:01  oliver-guest
+ * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
+ *
  * Revision 1.39  2005/12/04 15:03:00  oliver-guest
  * Some fixes for Benq 5150
  *

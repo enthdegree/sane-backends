@@ -384,10 +384,10 @@ static void init_options (SnapScan_Scanner * ps)
     if (ps->pdev->model == PERFECTION1270)
     {
         po[OPT_HIGHQUALITY].cap |= SANE_CAP_INACTIVE;
-        ps->val[OPT_QUALITY_CAL].b = SANE_TRUE;
+        ps->val[OPT_HIGHQUALITY].b = SANE_TRUE;
         ps->highquality=SANE_TRUE;
     }
-    
+
     po[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
     po[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
     po[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
@@ -607,6 +607,12 @@ static void init_options (SnapScan_Scanner * ps)
         || (ps->pdev->model == PRISA5300)) {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
+    }
+
+    if (ps->pdev->model == PRISA5150)
+    {
+        po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
+        ps->val[OPT_QUALITY_CAL].b = SANE_TRUE;
     }
 
     po[OPT_GAMMA_BIND].name = SANE_NAME_ANALOG_GAMMA_BIND;
@@ -1257,7 +1263,7 @@ SANE_Status sane_control_option (SANE_Handle h,
                 pss->source = SRC_FLATBED;
                 pss->pdev->x_range.max = x_range_fb.max;
                 pss->pdev->y_range.max = y_range_fb.max;
-             }
+            }
             else if (strcmp(v, src_tpo) == 0)
             {
                 pss->source = SRC_TPO;
@@ -1610,6 +1616,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.34  2006/01/01 22:57:01  oliver-guest
+ * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
+ *
  * Revision 1.33  2005/12/04 15:03:00  oliver-guest
  * Some fixes for Benq 5150
  *

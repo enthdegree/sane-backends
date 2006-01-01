@@ -1,3 +1,11 @@
+2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-data.c backend/snapscan-options.c backend/snapscan.c
+	  doc/descriptions/snascan.desc: 
+	  Added (static) calibration data for Benq 5150 / 5250
+	* backend/snapscan.h backend/snapscan.conf:
+	  Added preliminary support for Epson Stylus CX 1500
+
 2005-12-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/scanwit.desc: Added "(Acer)" to

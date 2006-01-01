@@ -756,6 +756,25 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
     return status;
 }
 
+#include "snapscan-data.c"
+static SANE_Status send_calibration_5150(SnapScan_Scanner *pss)
+{
+    static const int length = sizeof(calibration_data_5150);
+    SANE_Byte* buf = malloc (length + SEND_LENGTH);
+    SANE_Status status;
+    zero_buf (buf, SEND_LENGTH);
+    *buf = SEND;
+    *(buf + 2) = DTC_CALIBRATION;
+    *(buf + 6) = (length >> 16) & 0xff;
+    *(buf + 7) = (length >> 8) & 0xff;
+    *(buf + 8) = length & 0xff;
+    memcpy(buf + SEND_LENGTH, calibration_data_5150, length);
+    status = snapscan_cmd (
+      pss->pdev->bus, pss->fd, buf, SEND_LENGTH + length, NULL, NULL);
+    free (buf);
+    return status;
+}
+
 #define SET_WINDOW_LEN             10
 #define SET_WINDOW_HEADER         10    /* header starts */
 #define SET_WINDOW_HEADER_LEN         8
@@ -1334,6 +1353,11 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
         (pss->pdev->model == PERFECTION3490)) {
         return calibrate_epson (pss);
     }
+    
+    if (pss->pdev->model == PRISA5150)
+    {
+    	return send_calibration_5150(pss);
+    }
       
     if ((pss->hconfig & HCFG_CAL_ALLOWED) && line_length) {
         int num_lines = pss->phys_buf_sz / line_length;
@@ -1425,6 +1449,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
             case PRISA5000E:
             case PRISA5150:
             case PRISA5300:
+            case STYLUS_CX1500:
                 /* ACER firmware files do not contain an info block */
                 fseek(fd, 0, SEEK_END);
                 bufLength = ftell(fd);
@@ -1432,8 +1457,8 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
                 break;
             case PERFECTION1270:
             case PERFECTION1670:
-	    case PERFECTION2480:
-	    case PERFECTION3490:
+            case PERFECTION2480:
+            case PERFECTION3490:
                 /* Epson firmware files contain an info block which
                    specifies the length of the firmware data. The
                    length information is stored at offset 0x64 from
@@ -1488,6 +1513,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.54  2006/01/01 22:57:01  oliver-guest
+ * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
+ *
  * Revision 1.53  2005/12/05 20:38:22  oliver-guest
  * Small bugfix for Benq 5150
  *

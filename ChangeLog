@@ -16,6 +16,10 @@
 	  doc/sane-test.man doc/descriptions/test.desc:
 	  Added option "source" which can be used to simulate an Automatic
 	  Document Feeder (ADF). Added copyright header to test.h.
+	* frontend/scanimage.c: Don't create and delete a file in batch
+	  mode if the document feeder is empty or if CTRL-D is pressed in
+	  prompt mode. This change avoids deleting existing files. For an
+	  explanation, see bug #302797.
 
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

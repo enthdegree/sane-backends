@@ -1143,12 +1143,15 @@ scan_it (void)
 
   do
     {
-      status = sane_start (device);
-      if (status != SANE_STATUS_GOOD)
+      if (!first_frame)
 	{
-	  fprintf (stderr, "%s: sane_start: %s\n",
-		   prog_name, sane_strstatus (status));
-	  goto cleanup;
+	  status = sane_start (device);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      fprintf (stderr, "%s: sane_start: %s\n",
+		       prog_name, sane_strstatus (status));
+	      goto cleanup;
+	    }
 	}
 
       status = sane_get_parameters (device, &parm);
@@ -2114,11 +2117,6 @@ List of available devices:", prog_name);
 	  if (batch)		/* format is NULL unless batch mode */
 	    sprintf (path, format, n);	/* love --(C++) */
 
-	  if (batch && NULL == freopen (path, "w", stdout))
-	    {
-	      fprintf (stderr, "cannot open %s\n", path);
-	      return SANE_STATUS_ACCESS_DENIED;
-	    }
 
 	  if (batch)
 	    {
@@ -2135,12 +2133,28 @@ List of available devices:", prog_name);
 		      fprintf (stderr, "Batch terminated, %d pages scanned\n",
 			       (n - batch_increment));
 		      fclose (stdout);
-		      unlink (path);
 		      break;	/* get out of this loop */
 		    }
 		}
 	      fprintf (stderr, "Scanning page %d\n", n);
 	    }
+
+	  status = sane_start (device);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      fprintf (stderr, "%s: sane_start: %s\n",
+		       prog_name, sane_strstatus (status));
+	      fclose (stdout);
+	      break;
+	    }
+
+	  if (batch && NULL == freopen (path, "w", stdout))
+	    {
+	      fprintf (stderr, "cannot open %s\n", path);
+	      sane_cancel (device);
+	      return SANE_STATUS_ACCESS_DENIED;
+	    }
+
 	  status = scan_it ();
 	  if (batch)
 	    {

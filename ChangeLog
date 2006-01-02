@@ -10,6 +10,8 @@
 	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: Added Plustek
 	  OpticPro S(T)12 (product id 0x040b). Mostly untested. Print
 	  warmup message 5 seconds after starting the warm-up. 
+	* doc/descriptions/unsupported.desc: Added Visioneer 9450
+	  USB. Updated comments for Plustek S(T)12.
 
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

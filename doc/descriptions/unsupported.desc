@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2005-12-29"		; version of backend
+:version "2006-01-02"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1480,11 +1480,13 @@
 :url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
+:comment "Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend."
 
 :model "OpticPro ST12"
 :url "/unsupported/plustek-opticpro-st12.html"
 :interface "USB"
 :status :unsupported
+:comment "Product id 0x0600 is unsupported but may be supported by the genesys backend in future. Product id 0x040b is supported by the gt68xx backend."
 
 :model "OpticPro ST16"
 :url "/unsupported/plustek-opticpro-st16.html"
@@ -1941,6 +1943,12 @@
 :interface "USB"
 :status :unsupported
 :comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. See link for some details. Looks similar to Primascan Colorado 2600u."
+
+:model "9450 USB"
+:url "/unsupported/visioneer-9450-usb.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "Onetouch 4400"
 :url "/unsupported/visioneer-onetouch4400.html"

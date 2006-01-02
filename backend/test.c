@@ -1,7 +1,9 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2002, 2003 Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+   Copyright (C) 2002-2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Changes according to the sanei_thread usage by
                                          Gerhard Jaeger <gerhard@gjaeger.de>
+
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -43,7 +45,7 @@
    This backend is for testing frontends.
 */
 
-#define BUILD 27
+#define BUILD 28
 
 #include "../include/sane/config.h"
 
@@ -183,6 +185,11 @@ static SANE_Int int_array_constraint_word_list[] = {
   -42, 0, -8, 17, 42, 42
 };
 
+static SANE_String_Const source_list[] = {
+  SANE_I18N ("Flatbed"), SANE_I18N ("Automatic Document Feeder"),
+  0
+};
+
 static double random_factor;	/* use for fuzzyness of parameters */
 
 /* initial values */
@@ -197,6 +204,7 @@ static SANE_Word init_depth = 8;
 static SANE_Bool init_hand_scanner = SANE_FALSE;
 static SANE_Bool init_three_pass = SANE_FALSE;
 static SANE_String init_three_pass_order = "RGB";
+static SANE_String init_scan_source = "Flatbed";
 static SANE_String init_test_picture = "Solid black";
 static SANE_Bool init_invert_endianess = SANE_FALSE;
 static SANE_Bool init_read_limit = SANE_FALSE;
@@ -395,6 +403,22 @@ init_options (Test_Device * test_device)
   od->constraint_type = SANE_CONSTRAINT_RANGE;
   od->constraint.range = &resolution_range;
   test_device->val[opt_resolution].w = init_resolution;
+
+  /* opt_scan_source */
+  od = &test_device->opt[opt_scan_source];
+  od->name = SANE_NAME_SCAN_SOURCE;
+  od->title = SANE_TITLE_SCAN_SOURCE;
+  od->desc = SANE_I18N("If Automatic Document Feeder is selected, the feeder will be 'empty' after 10 scans.");
+  od->type = SANE_TYPE_STRING;
+  od->unit = SANE_UNIT_NONE;
+  od->size = max_string_size (source_list);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
+  od->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  od->constraint.string_list = source_list;
+  test_device->val[opt_scan_source].s = malloc (od->size);
+  if (!test_device->val[opt_scan_source].s)
+    return SANE_STATUS_NO_MEM;
+  strcpy (test_device->val[opt_scan_source].s, init_scan_source);
 
   /* opt_special_group */
   od = &test_device->opt[opt_special_group];
@@ -1420,7 +1444,7 @@ print_options (Test_Device * test_device)
 
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   FILE *fp;
   SANE_Int linenumber;
@@ -1436,8 +1460,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   test_device = 0;
   previous_device = 0;
 
-  DBG (2, "sane_init: version_code= %p, authorize=%p\n",
-       (void *) version_code, (void *) authorize);
   DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n", V_MAJOR,
        V_MINOR, BUILD, PACKAGE_STRING);
 
@@ -1507,6 +1529,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	    continue;
 	  if (read_option (line, "depth", param_int,
 			   &init_depth) == SANE_STATUS_GOOD)
+	    continue;
+	  if (read_option (line, "scan-source", param_string,
+			   &init_scan_source) == SANE_STATUS_GOOD)
 	    continue;
 	  if (read_option (line, "test-picture", param_string,
 			   &init_test_picture) == SANE_STATUS_GOOD)
@@ -1733,6 +1758,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   test_device->eof = SANE_FALSE;
   test_device->bytes_total = 0;
   test_device->pass = 0;
+  test_device->number_of_scans = 0;
 
   return SANE_STATUS_GOOD;
 }
@@ -2016,6 +2042,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	case opt_string:
 	case opt_string_constraint_string_list:
 	case opt_string_constraint_long_string_list:
+	case opt_scan_source:
 	  if (strcmp (test_device->val[option].s, value) == 0)
 	    {
 	      DBG (4, "sane_control_option: option %d (%s) not changed\n",
@@ -2237,6 +2264,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	case opt_string:
 	case opt_string_constraint_string_list:
 	case opt_string_constraint_long_string_list:
+	case opt_scan_source:
 	  strcpy (value, test_device->val[option].s);
 	  DBG (4, "sane_control_option: get option %d (%s), value=`%s'\n",
 	       option, test_device->opt[option].name, (SANE_String) value);
@@ -2461,6 +2489,19 @@ sane_start (SANE_Handle handle)
     {
       DBG (1, "sane_start: already in last pass of three\n");
       return SANE_STATUS_INVAL;
+    }
+
+  if (test_device->pass == 0)
+    {
+      test_device->number_of_scans++;
+      DBG (3, "sane_start: scanning page %d\n", test_device->number_of_scans);
+      
+      if ((strcmp (test_device->val[opt_scan_source].s, "Automatic Document Feeder") == 0) &&
+	  (((test_device->number_of_scans) % 11) == 0))
+	{
+	  DBG (1, "sane_start: Document feeder is out of documents!\n");
+	  return SANE_STATUS_NO_DOCS;
+	}
     }
 
   test_device->scanning = SANE_TRUE;

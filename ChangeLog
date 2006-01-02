@@ -12,6 +12,10 @@
 	  warmup message 5 seconds after starting the warm-up. 
 	* doc/descriptions/unsupported.desc: Added Visioneer 9450
 	  USB. Updated comments for Plustek S(T)12.
+	* backend/test.c backend/test.conf backend/test.h
+	  doc/sane-test.man doc/descriptions/test.desc:
+	  Added option "source" which can be used to simulate an Automatic
+	  Document Feeder (ADF). Added copyright header to test.h.
 
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -1,3 +1,9 @@
+2006-01-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/microtek2.c backend/microtek2.h: Fixed problem with
+	  option "resolution" which esists twice at the same time. Bug
+	  #302466. 
+
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-data.c backend/snapscan-options.c backend/snapscan.c

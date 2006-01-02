@@ -374,10 +374,10 @@ sane_get_parameters(SANE_Handle handle, SANE_Parameters *params)
         }
       else
         {
-          x_pixel_per_mm = SANE_UNFIX(val[OPT_X_RESOLUTION].w) / MM_PER_INCH;
+          x_pixel_per_mm = SANE_UNFIX(val[OPT_RESOLUTION].w) / MM_PER_INCH;
           y_pixel_per_mm = SANE_UNFIX(val[OPT_Y_RESOLUTION].w) / MM_PER_INCH;
           DBG(30, "sane_get_parameters: x_res=%f, y_res=%f\n",
-                  SANE_UNFIX(val[OPT_X_RESOLUTION].w),
+                  SANE_UNFIX(val[OPT_RESOLUTION].w),
                   SANE_UNFIX(val[OPT_Y_RESOLUTION].w));
         }
 
@@ -2163,7 +2163,6 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
     md->x_res_range_dpi.max = SANE_FIX(mi->max_xresolution);
     md->x_res_range_dpi.quant = SANE_FIX(1.0);
     val[OPT_RESOLUTION].w = MIN(MD_RESOLUTION_DEFAULT, md->x_res_range_dpi.max);
-    val[OPT_X_RESOLUTION].w = val[OPT_RESOLUTION].w;
 
     md->y_res_range_dpi.min = SANE_FIX(10.0);
     md->y_res_range_dpi.max = SANE_FIX(mi->max_yresolution);
@@ -2426,22 +2425,15 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_HALFTONE].constraint.string_list = md->halftone_mode_list;
 
         /* Resolution */
-        sod[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
-        sod[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
-        sod[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
+        sod[OPT_RESOLUTION].name = SANE_NAME_SCAN_X_RESOLUTION;
+        sod[OPT_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
+        sod[OPT_RESOLUTION].desc = SANE_DESC_SCAN_X_RESOLUTION;
         sod[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_RESOLUTION].constraint.range = &md->x_res_range_dpi;
 
-        sod[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_X_RESOLUTION;
-        sod[OPT_X_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
-        sod[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
-        sod[OPT_X_RESOLUTION].unit = SANE_UNIT_DPI;
-        sod[OPT_X_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-        sod[OPT_X_RESOLUTION].constraint.range = &md->x_res_range_dpi;
-
         sod[OPT_Y_RESOLUTION].name = SANE_NAME_SCAN_Y_RESOLUTION;
         sod[OPT_Y_RESOLUTION].title = SANE_TITLE_SCAN_Y_RESOLUTION;
-        sod[OPT_Y_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
+        sod[OPT_Y_RESOLUTION].desc = SANE_DESC_SCAN_Y_RESOLUTION;
         sod[OPT_Y_RESOLUTION].unit = SANE_UNIT_DPI;
         sod[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
         sod[OPT_Y_RESOLUTION].constraint.range = &md->y_res_range_dpi;
@@ -3067,7 +3059,6 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
               /* word options */
               case OPT_BITDEPTH:
               case OPT_RESOLUTION:
-              case OPT_X_RESOLUTION:
               case OPT_Y_RESOLUTION:
               case OPT_THRESHOLD:
               case OPT_TL_X:
@@ -3248,7 +3239,6 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
           switch ( option )
             {
               case OPT_RESOLUTION:
-              case OPT_X_RESOLUTION:
               case OPT_Y_RESOLUTION:
               case OPT_TL_X:
               case OPT_TL_Y:
@@ -3505,14 +3495,10 @@ sane_control_option(SANE_Handle handle, SANE_Int option,
               case OPT_RESOLUTION_BIND:
                 if ( ms->val[option].w == SANE_FALSE )
                   {
-                    ms->sod[OPT_RESOLUTION].cap |= SANE_CAP_INACTIVE;
-                    ms->sod[OPT_X_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
                     ms->sod[OPT_Y_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
                   }
                 else
                   {
-                    ms->sod[OPT_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
-                    ms->sod[OPT_X_RESOLUTION].cap |= SANE_CAP_INACTIVE;
                     ms->sod[OPT_Y_RESOLUTION].cap |= SANE_CAP_INACTIVE;
                   }
                 if ( info )
@@ -3948,7 +3934,7 @@ get_scan_parameters(Microtek2_Scanner *ms)
     else
       {
         ms->x_resolution_dpi =
-                    (SANE_Int) (SANE_UNFIX(ms->val[OPT_X_RESOLUTION].w) + 0.5);
+                    (SANE_Int) (SANE_UNFIX(ms->val[OPT_RESOLUTION].w) + 0.5);
         ms->y_resolution_dpi =
                     (SANE_Int) (SANE_UNFIX(ms->val[OPT_Y_RESOLUTION].w) + 0.5);
       }

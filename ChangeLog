@@ -3,6 +3,8 @@
 	* backend/microtek2.c backend/microtek2.h: Fixed problem with
 	  option "resolution" which esists twice at the same time. Bug
 	  #302466. 
+	* tools/hotplug/libsane.usermap: Added Canon LiDE 60 (bug
+	  #302830). 
 
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -1,6 +1,11 @@
 gt68xx.CHANGES -*-text-*-
 
-V 1.0.79 (2005-12-09)
+V 1.0.80 (2006-01-02)
+
+* Added Plustek OpticPro S(T)12 (product id 0x040b). Mostly untested.
+* Print warmup message 5 seconds after starting the warm-up.
+
+V 1.0.79 (2005-12-09) sane-backends 1.0.17
 
 * Silenced warning when scan is cancelled.
 * Silenced often non-fatal check_result error messages.

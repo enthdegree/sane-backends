@@ -5,6 +5,11 @@
 	  #302466. 
 	* tools/hotplug/libsane.usermap: Added Canon LiDE 60 (bug
 	  #302830). 
+	* backend/gt68xx.c backend/gt68xx.conf backend/gt68xx_devices.c
+	  backend/gt68xx_high.c doc/descriptions/gt68xx.desc
+	  doc/gt68xx/gt68xx.CHANGES doc/gt68xx/gt68xx.TODO: Added Plustek
+	  OpticPro S(T)12 (product id 0x040b). Mostly untested. Print
+	  warmup message 5 seconds after starting the warm-up. 
 
 2006-01-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

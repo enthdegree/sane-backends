@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
    
    This file is part of the SANE package.
    
@@ -1100,6 +1100,55 @@ static GT68xx_Model plustek_u16b_model = {
        issue. */
 };
 
+static GT68xx_Model plustek_ops12_model = {
+  "plustek-opticpro-s12",	/* Name */
+  "Plustek",			/* Device vendor string */
+  "OpticPro S12",		/* Device model name */
+  "ccd548.fw",			/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  600,				/* maximum optical sensor resolution */
+  600,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  600,				/* base y-res used to calculate geometry */
+  1200,				/* if ydpi is equal or higher, disable backtracking */
+  SANE_TRUE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (3.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (7.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x1c, 0x29, 0x1c, 0x2c, 0x1c, 0x2b},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),		/* Default gamma value */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_UNTESTED | GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE	/* Which flags are needed for this scanner? */
+    /* Untested */
+};
+
 static GT68xx_Model genius_vivid4_model = {
   "genius-colorpage-vivid4",	/* Name */
   "Genius",			/* Device vendor string */
@@ -1665,6 +1714,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0401, &plustek_op1248u_model},	/* Same scanner, different id? */
   {0x07b3, 0x0402, &plustek_u16b_model},
   {0x07b3, 0x0403, &plustek_u16b_model},	/* two ids? 403 seems to be more common */
+  {0x07b3, 0x040b, &plustek_ops12_model},
   {0x07b3, 0x0412, &plustek_opticslim_m12_model},
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},

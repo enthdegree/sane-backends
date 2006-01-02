@@ -13,8 +13,6 @@ General:
   one is repeated to avoid endless loops.
 - Print commands that are send to the scanner in clear text.
 - Try to implement non-blocking USB bulk reads, check libusb CVS.
-- Lamp warmup info message should only be printed when loop takes more then 5
-  seconds, not 5 seconds after start.
 
 CCD:
 ----

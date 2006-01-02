@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    AFE offset/gain setting by David Stevenson <david.stevenson@zoom.co.uk>
-   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -1164,10 +1164,11 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
   SANE_Int last_white = 0;
   SANE_Bool first = SANE_TRUE;
   SANE_Bool message_printed = SANE_FALSE;
-  struct timeval now;
-  int secs;
+  struct timeval now, start_time;
+  int secs_lamp_on, secs_start;
   int increase = -5;
 
+  gettimeofday (&start_time, 0);
   do
     {
       usleep (200000);
@@ -1206,9 +1207,10 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 	   values->total_white, last_white);
 
       gettimeofday (&now, 0);
-      secs = now.tv_sec - scanner->lamp_on_time.tv_sec;
+      secs_lamp_on = now.tv_sec - scanner->lamp_on_time.tv_sec;
+      secs_start = now.tv_sec - start_time.tv_sec;
 
-      if (!message_printed && secs > 5 && secs <= WARMUP_TIME)
+      if (!message_printed && secs_start > 5)
 	{
 	  DBG (0, "Please wait for lamp warm-up\n");
 	  message_printed = SANE_TRUE;
@@ -1235,10 +1237,10 @@ gt68xx_wait_lamp_stable (GT68xx_Scanner * scanner,
 	}
       last_white = values->total_white;
     }
-  while (secs <= WARMUP_TIME);
+  while (secs_lamp_on <= WARMUP_TIME);
 
-  DBG (3, "gt68xx_wait_lamp_stable: Lamp is stable after %d seconds\n",
-       secs);
+  DBG (3, "gt68xx_wait_lamp_stable: Lamp is stable after %d secs (%d secs total)\n",
+       secs_start, secs_lamp_on);
   return status;
 }
 

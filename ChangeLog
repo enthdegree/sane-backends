@@ -1,3 +1,9 @@
+2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane.tex: Corrected formula for calculation of
+	  bytes_per_line in chapter 4.3.8 sane_get_parameters.
+	  New version: 1.04.
+
 2006-01-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.c backend/microtek2.h: Fixed problem with

@@ -12,9 +12,9 @@
 \setlength{\marginparsep}{0pt}
 \addtolength{\topmargin}{-0.75in}
 
-\title{\huge SANE Standard Version 1.03}
+\title{\huge SANE Standard Version 1.04}
 \author{}
-\date{2005-10-16} 
+\date{2006-01-03} 
 
 \makeindex
 
@@ -1459,8 +1459,8 @@ related to $c$, the number of bytes per line (as given by member
 \[
   c >= \left\{
   \begin{array}{ll}
-    \lceil B\cdot n / 8\rceil & \mbox{if $d=1$}\\
-    B\cdot n \cdot \lceil (d + 7)/8 \rceil & \mbox{if $d>1$}
+    B\cdot \lfloor (n + 7) / 8\rfloor & \mbox{if $d=1$}\\
+    B\cdot n \cdot d / 8 & \mbox{if $d>1$}
   \end{array}
   \right.
 \]

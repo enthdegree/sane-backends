@@ -72,6 +72,7 @@
 	* PROBLEMS: Removed pnm problem description. It's not relevant for
 	  normal users and explained in the sane-pnm man page anyway.
 	* backend/genesys.c: Fixed some compilation warnings.
+	* tools/hotplug/libsane.usermap: Added Hewlett-Packard PSC 1210.
 
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

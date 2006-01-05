@@ -2501,7 +2501,8 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   u_int16_t pixels_per_line;
   u_int8_t *calibration_data, *average_white, *average_dark;
   u_int8_t channels;
-  unsigned int x, y, avgpixels;
+  unsigned int x;
+  int y;
   u_int32_t dark, white, dark_sum, white_sum, dark_count, white_count, col, dif;
 
 
@@ -2686,7 +2687,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   u_int8_t channels;
   int x, j, o;
   unsigned int i;
-  unsigned int coeff, target_code, val, avgpixels, dk, words_per_color;
+  unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
 
   DBG (DBG_proc, "genesys_send_shading_coefficient\n");
 

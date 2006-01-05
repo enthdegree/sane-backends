@@ -61,6 +61,9 @@
 	  the files and directories of sane-backends. Fixed building
 	  instructions for tstbackend. Mentioned that sane_* symbols
 	  should be only used for API symbols.
+	* testsuite/Makefile.in testsuite/README testsuite/testfile.pnm:
+	  Changed testsuite to use the test backend instead of the pnm
+	  backend. This actually works with current sane-backends.
 
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

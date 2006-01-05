@@ -35,8 +35,9 @@ RANLIB = @RANLIB@
 
 SCANIMAGE = ../frontend/scanimage
 TESTFILE  = testfile.pnm
-DEVICE    = pnm:0
-OPTIONS   = --filename=$(TESTFILE)
+OUTFILE   = outfile.pnm
+DEVICE    = test
+OPTIONS   = --mode Color --depth 16 --test-picture "Color pattern" --resolution 50 -y 20 -x 20 > $(OUTFILE)
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
@@ -50,16 +51,24 @@ all: Makefile
 test: Makefile test.local
 
 test.local: 
-	@echo "Testing $(SCANIMAGE) with device $(DEVICE)"
-	@if echo "Trying flatbed scanner" && \
-	  $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) -T && \
-	  echo "Trying three pass flatbed scanner" && \
-	  $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) --three-pass=yes   -T && \
-	  echo "Trying hand scanner" && \
-	  $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) --hand-scanner=yes -T ; \
-	then echo ; echo ; echo "All tests passed" ; \
+	@echo "**** Testing $(SCANIMAGE) with device $(DEVICE)"
+	@if echo "---> Trying flatbed scanner" && \
+	  $(SCANIMAGE) -d $(DEVICE) -T && \
+	  echo "<--- Flatbed scanner succeded" && \
+	  echo "---> Trying three pass flatbed scanner" && \
+	  $(SCANIMAGE) -d $(DEVICE) --mode Color --three-pass=yes   -T && \
+	  echo "<--- Three pass scanner succeded" && \
+	  echo "---> Trying hand scanner" && \
+	  $(SCANIMAGE) -d $(DEVICE) --hand-scanner=yes -T && \
+	  echo "<--- Hand scanner succeded" && \
+	  echo "---> Checking 16 bit color mode" && \
+	  $(SCANIMAGE) -d $(DEVICE) $(OPTIONS) && \
+	  cmp -s $(TESTFILE) $(OUTFILE) && \
+	  echo "<--- 16 bit color mode succeded" && \
+	  rm $(OUTFILE) ; \
+	then echo ; echo ; echo "**** All tests passed" ; \
 	else echo ; echo; \
-	echo "Something failed (maybe pnm backend not enabled by configure?)";\
+	echo "**** Something failed (maybe test backend not enabled by configure?)";\
 	fi
 
 # Generate new Makefile when something changes
@@ -68,6 +77,7 @@ Makefile: Makefile.in ../config.status
 	  && CONFIG_FILES=testsuite/Makefile CONFIG_HEADERS= /bin/sh ./config.status
 
 clean:
+	rm -f $(OUTFILE)
 
 distclean: clean
 	rm -f $(DISTCLEAN_FILES)

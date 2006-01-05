@@ -8,5 +8,8 @@ everything without installing, to make sure a new distribution is
 function properly before the old one is replaced.  If it isn't, please
 fix the bug. :-)
 
-The current test needs the pnm backend. Hint: 
-"configure --enable-pnm-backend".
+The current tests use the test backend to scan in flatbed, hand scanner and
+three pass mode. Also a 16 bit color image is created and compared to the
+"right" one. This test should detect any little/big endian issues in scanimage.
+
+

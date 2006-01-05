@@ -11,11 +11,12 @@ attention. So if scanimage -L lists your scanner as root but not as normal user
 read on this text.
 
 The device files used by libusb are located in /proc/bus/usb/
-(e.g. /proc/bus/usb/001/003).  The exact file name can be found out by running
-sane-find-scanner which would print "libusb:001:003" in this case.  While
-setting permissions with e.g. "chmod a+rw /proc/bus/usb/001/003" works,
-this change is not permanent.  The permissions will be reset when the scanner is
-replugged or Linux is rebooted.
+(e.g. /proc/bus/usb/001/003) or in /dev/bus/usb/ (e.g. /dev/bus/usb/001/003), if
+you use udev.  The exact file name can be found out by running sane-find-scanner
+which would print "libusb:001:003" in this case.  While setting permissions with
+e.g. "chmod a+rw /proc/bus/usb/001/003" works, this change is not permanent.
+The permissions will be reset when the scanner is replugged or Linux is
+rebooted.
 
 One solution to set permissions on-the-fly are the Linux hot-plug tools that
 should come with any current distribution. Your distribution should have set up

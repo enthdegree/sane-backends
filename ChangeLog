@@ -56,6 +56,7 @@
 	  firmware locations. For the firmware paths for the artec_eplus48u,
 	  gt68xx, and snapscan backends variables were used. Bug #302590.
 	* backend/.cvsignore: Added *.conf.
+	* README.linux: Mentioned udev.
 
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

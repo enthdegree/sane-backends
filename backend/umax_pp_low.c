@@ -6136,7 +6136,7 @@ initScanner610p (int recover)
 int
 sanei_umax_pp_initScanner (int recover)
 {
-  int i, j;
+  int i;
   int status;
   int readcmd[64];
   /* in umax1220u, this buffer is opc[16] */
@@ -6150,15 +6150,9 @@ sanei_umax_pp_initScanner (int recover)
     return initScanner610p (recover);
 
   if (getModel () == 0x07)
-    {
-      sentcmd[15] = 0x00;
-      j++;
-    }
+    sentcmd[15] = 0x00;
   else
-    {
-      sentcmd[15] = 0x18;
-      j++;
-    }
+    sentcmd[15] = 0x18;
 
   /* fails here if there is an unfinished previous scan */
   CMDSETGET (0x02, 16, sentcmd);

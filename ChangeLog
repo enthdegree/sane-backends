@@ -57,6 +57,10 @@
 	  gt68xx, and snapscan backends variables were used. Bug #302590.
 	* backend/.cvsignore: Added *.conf.
 	* README.linux: Mentioned udev.
+	* doc/backend-writing.txt: New chapters about the build system and
+	  the files and directories of sane-backends. Fixed building
+	  instructions for tstbackend. Mentioned that sane_* symbols
+	  should be only used for API symbols.
 
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

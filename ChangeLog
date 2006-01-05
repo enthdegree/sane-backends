@@ -64,6 +64,8 @@
 	* testsuite/Makefile.in testsuite/README testsuite/testfile.pnm:
 	  Changed testsuite to use the test backend instead of the pnm
 	  backend. This actually works with current sane-backends.
+	* PROBLEMS: Removed pnm problem description. It's not relevant for
+	  normal users and explained in the sane-pnm man page anyway.
 
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

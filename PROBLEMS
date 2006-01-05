@@ -1,4 +1,4 @@
-Last update: 2003-02-09
+Last update: 2006-01-05
 
 - Avoiding damage on flatbed scanners
 
@@ -12,18 +12,6 @@ Last update: 2003-02-09
   exceeded.  However, if your scanner model has not been tested yet this
   safety-guard may not work. Please report errors like this to the author of
   the backend or the sane-devel mailing list.
-
-- pnm backend disabled by default
-
-  If the pnm backend is installed and saned is used to allow users on remote
-  computers to scan on the local machine, pnm files can be read by the remote
-  user. This is limited to the files saned can access (usually it's running as
-  user "sane"). All pnm files can be read if saned runs as root which isn't
-  recommended anyway. The pnm backend is disabled by default. If you want to
-  use it, enable it with configure (see configure --help for details). Be sure
-  that only trusted users can access the pnm backend over saned. As the pnm
-  backend is ususally used for testing, the "test" backend should be used
-  instead.
 
 - Security problems with saned (SANE network scanning daemon)
 

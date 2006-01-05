@@ -1,3 +1,61 @@
+2006-01-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/Makefile.in backend/abaton.conf backend/abaton.conf.in
+	  backend/agfafocus.conf backend/agfafocus.conf.in
+	  backend/apple.conf backend/apple.conf.in backend/artec.conf
+	  backend/artec.conf.in backend/artec_eplus48u.conf
+	  backend/artec_eplus48u.conf.in backend/avision.conf
+	  backend/avision.conf.in backend/bh.conf backend/bh.conf.in
+	  backend/canon.conf backend/canon.conf.in backend/canon630u.conf
+	  backend/canon630u.conf.in backend/canon_pp.conf
+	  backend/canon_pp.conf.in backend/coolscan.conf
+	  backend/coolscan.conf.in backend/coolscan2.conf
+	  backend/coolscan2.conf.in backend/dc210.conf
+	  backend/dc210.conf.in backend/dc240.conf backend/dc240.conf.in
+	  backend/dc25.conf backend/dc25.conf.in backend/dll.conf
+	  backend/dll.conf.in backend/dmc.conf backend/dmc.conf.in
+	  backend/epson.conf backend/epson.conf.in backend/fujitsu.conf
+	  backend/fujitsu.conf.in backend/genesys.conf
+	  backend/genesys.conf.in backend/gphoto2.conf
+	  backend/gphoto2.conf.in backend/gt68xx.conf
+	  backend/gt68xx.conf.in backend/hp.conf backend/hp.conf.in
+	  backend/hp4200.conf backend/hp4200.conf.in backend/hp5400.conf
+	  backend/hp5400.conf.in backend/hpsj5s.conf
+	  backend/hpsj5s.conf.in backend/ibm.conf backend/ibm.conf.in
+	  backend/leo.conf backend/leo.conf.in backend/lexmark.conf
+	  backend/lexmark.conf.in backend/ma1509.conf
+	  backend/ma1509.conf.in backend/matsushita.conf
+	  backend/matsushita.conf.in backend/microtek.conf
+	  backend/microtek.conf.in backend/microtek2.conf
+	  backend/microtek2.conf.in backend/mustek.conf
+	  backend/mustek.conf.in backend/mustek_pp.conf
+	  backend/mustek_pp.conf.in backend/mustek_usb.conf
+	  backend/mustek_usb.conf.in backend/nec.conf backend/nec.conf.in
+	  backend/net.conf backend/net.conf.in backend/pie.conf
+	  backend/pie.conf.in backend/plustek.conf backend/plustek.conf.in
+	  backend/plustek_pp.conf backend/plustek_pp.conf.in
+	  backend/qcam.conf backend/qcam.conf.in backend/ricoh.conf
+	  backend/ricoh.conf.in backend/s9036.conf backend/s9036.conf.in
+	  backend/saned.conf backend/saned.conf.in backend/sceptre.conf
+	  backend/sceptre.conf.in backend/sharp.conf backend/sharp.conf.in
+	  backend/sm3840.conf backend/sm3840.conf.in backend/snapscan.conf
+	  backend/snapscan.conf.in backend/sp15c.conf
+	  backend/sp15c.conf.in backend/st400.conf backend/st400.conf.in
+	  backend/tamarack.conf backend/tamarack.conf.in
+	  backend/teco1.conf backend/teco1.conf.in backend/teco2.conf
+	  backend/teco2.conf.in backend/teco3.conf backend/teco3.conf.in
+	  backend/test.conf backend/test.conf.in backend/u12.conf
+	  backend/u12.conf.in backend/umax.conf backend/umax.conf.in
+	  backend/umax1220u.conf backend/umax1220u.conf.in
+	  backend/umax_pp.conf backend/umax_pp.conf.in backend/v4l.conf
+	  backend/v4l.conf.in:
+	  Renamed backend configuration files from *.conf to
+	  *.conf.in. The configuration files are preprocessed by
+	  backend/Makefile now and variables like @DATADIR@ are substituted
+	  by the appropriate directories. This is especially useful for
+	  firmware locations. For the firmware paths for the artec_eplus48u,
+	  gt68xx, and snapscan backends variables were used. Bug #302590.
+
 2006-01-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/sane.tex: Corrected formula for calculation of

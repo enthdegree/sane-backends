@@ -1,11 +1,13 @@
 
-# gt68xx.conf: Configuration file for GT68XX based scanners
+# gt68xx.conf: Configuration file for GT68XX based scanners (@PACKAGEVERSION@)
 # Read man sane-gt68xx for documentation
+
+# Put the firmware file into "@DATADIR@/sane/gt68xx/".
 
 # Manual configuration is necessary for some scanners. Please uncomment the
 # override line and optinally the vendor and product lines that apply to your
 # scanner. For some scanners it's also necessary to change the name of the 
-# firmware file.
+# firmware file. 
 
 #############################################################################
 # For testing scanners that are not yet supported by this backend add the
@@ -162,15 +164,7 @@ usb 0x07b3 0x0403
 # Plustek OpticPro U16B doesn't need any manual settings
 
 # Plustek OpticPro UT16B
-#model "OpticPro UT16B"
-
-##############################################################################
-# Autodetect Plustek OpticPro S12
-usb 0x07b3 0x040b
-# Plustek OpticPro S12 doesn't need any manual settings
-
-# Plustek OpticPro ST12
-#model "OpticPro ST12"
+#model "UT16B"
 
 ##############################################################################
 # Autodetect Plustek OpticSlim M12

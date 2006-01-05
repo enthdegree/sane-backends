@@ -28,9 +28,6 @@ resolution_max 1200.0
 resolution_quant 1.0
 resolution 50.0
 
-# Scan source (Flatbed, Automatic Document Feeder)
-scan-source Flatbed
-
 # Draw test picture ("Solid black", "Solid white", "Color pattern", "Grid")
 test-picture "Solid black"
 

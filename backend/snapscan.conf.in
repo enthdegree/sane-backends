@@ -2,7 +2,7 @@
 
 # Change to the fully qualified filename of your firmware file, if
 # firmware upload is needed by the scanner
-firmware /usr/share/sane/snapscan/your-firmwarefile.bin
+firmware @DATADIR@/sane/snapscan/your-firmwarefile.bin
 
 # If not automatically found you may manually specify a device name.
 
@@ -65,7 +65,7 @@ usb 0x04a5 0x20fc
 # Benq/Acer 5300
 usb 0x04a5 0x20fe
 
-# Benq 5150C / 5250C
+# Benq 5250C
 usb 0x04a5 0x2137
 
 # Agfa 1236U
@@ -110,6 +110,3 @@ usb 0x04b8 0x0121
 
 # Epson Perfection 3490
 usb 0x04b8 0x0122
-
-# Epson Stylus CX 1500
-usb 0x04b8 0x080c

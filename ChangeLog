@@ -59,6 +59,7 @@
 	  by the appropriate directories. This is especially useful for
 	  firmware locations. For the firmware paths for the artec_eplus48u,
 	  gt68xx, and snapscan backends variables were used. Bug #302590.
+	  Regenerate .conf files only if .conf.in were changed.
 	* backend/.cvsignore: Added *.conf.
 	* README.linux: Mentioned udev.
 	* doc/backend-writing.txt: New chapters about the build system and

@@ -609,7 +609,8 @@ static void init_options (SnapScan_Scanner * ps)
         ps->val[OPT_QUALITY_CAL].b = SANE_FALSE;
     }
 
-    if (ps->pdev->model == PRISA5150)
+    if ((ps->pdev->model == PRISA5150) ||
+        (ps->pdev->model == STYLUS_CX1500))
     {
         po[OPT_QUALITY_CAL].cap |= SANE_CAP_INACTIVE;
         ps->val[OPT_QUALITY_CAL].b = SANE_TRUE;
@@ -1616,6 +1617,9 @@ SANE_Status sane_control_option (SANE_Handle h,
 
 /*
  * $Log$
+ * Revision 1.35  2006/01/06 20:59:17  oliver-guest
+ * Some fixes for the Epson Stylus CX 1500
+ *
  * Revision 1.34  2006/01/01 22:57:01  oliver-guest
  * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
  *

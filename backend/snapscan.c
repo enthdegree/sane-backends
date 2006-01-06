@@ -79,8 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               51
-
+#define BUILD               52
 #define BACKEND_NAME snapscan
 
 #ifdef __GNUC__
@@ -169,23 +168,22 @@ static inline int is_colour_mode (SnapScan_Mode m)
 
 static inline int calibration_line_length(SnapScan_Scanner *pss)
 {
-    int pos_factor = pss->actual_res;
+    int pos_factor;
     int pixel_length;
 
     switch (pss->pdev->model)
     {
+    case STYLUS_CX1500:
     case PRISA5000E:
     case PRISA5000:
     case PRISA5150:
-        pos_factor = 600;
-        break;
     case PERFECTION1270:
     case PERFECTION1670:
     case PERFECTION2480:
     case PERFECTION3490:
-        pos_factor = 800;
-        break;
+        pos_factor = pss->actual_res / 2;
     default:
+        pos_factor = pss->actual_res;
         break;
     }
     pixel_length = pos_factor * 8.5;
@@ -1926,6 +1924,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.66  2006/01/06 20:59:17  oliver-guest
+ * Some fixes for the Epson Stylus CX 1500
+ *
  * Revision 1.65  2006/01/01 23:02:55  oliver-guest
  * Added snapscan-data.c to Makefile.in
  *

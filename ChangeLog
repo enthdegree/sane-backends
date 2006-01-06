@@ -1,4 +1,9 @@
-2006-01-05  Stéphane Voltz <stefdev@modulonet.fr>
+2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c backend/snapscan-options.c backend/snapscan.c:
+          Some fixes for the Epson Stylus CX1500
+
+2006-01-05  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* backend/umax_pp_low.c: removed unused local variable
 

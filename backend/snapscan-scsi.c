@@ -447,6 +447,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         pss->read_bytes = INQUIRY_RET_LEN_EPSON;
         break;
     case PRISA5000:
+    case PRISA5150:
         pss->read_bytes = INQUIRY_RET_LEN_5000;
         break;
     default:
@@ -551,6 +552,7 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case PERFECTION3490:
     case PRISA5150:
     case PRISA5000:
+    case STYLUS_CX1500:
         pss->bpp = 14;
         break;
     default:
@@ -1359,7 +1361,7 @@ static SANE_Status calibrate (SnapScan_Scanner *pss)
     	return send_calibration_5150(pss);
     }
       
-    if ((pss->hconfig & HCFG_CAL_ALLOWED) && line_length) {
+    if (line_length) {
         int num_lines = pss->phys_buf_sz / line_length;
         if (num_lines > NUM_CALIBRATION_LINES)
         {
@@ -1513,6 +1515,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.55  2006/01/06 20:59:17  oliver-guest
+ * Some fixes for the Epson Stylus CX 1500
+ *
  * Revision 1.54  2006/01/01 22:57:01  oliver-guest
  * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
  *

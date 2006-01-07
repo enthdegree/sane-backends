@@ -9,6 +9,8 @@
 	  chip sets.
 	* sanei/sanei_usb.c: Added warning if libusb support is not built
 	  in and some more debug messages.
+	* doc/descriptions-external/hp3900.desc: Status of HP ScanJet 4070
+	  Photosmart is now minimal.
 
 2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

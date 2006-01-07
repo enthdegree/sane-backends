@@ -331,6 +331,7 @@ sanei_usb_init (void)
 
   memset (devices, 0, sizeof (devices));
 
+  DBG (4, "sanei_usb_init: Looking for kernel scanner devices\n");
   /* Check for devices using the kernel scanner driver */
 
   for (prefix = prefixlist; *prefix; prefix += 2)
@@ -413,6 +414,7 @@ sanei_usb_init (void)
 
   /* Check for devices using libusb */
 #ifdef HAVE_LIBUSB
+  DBG (4, "sanei_usb_init: Looking for libusb devices\n");
   usb_init ();
 #ifdef DBG_LEVEL
   if (DBG_LEVEL > 4)
@@ -506,7 +508,10 @@ sanei_usb_init (void)
 	    return;
 	}
     }
+#else /* HAVE_LIBUSB */
+  DBG (4, "sanei_usb_init: SANE is built without support for libusb\n");
 #endif /* HAVE_LIBUSB */
+
 #ifdef HAVE_USBCALLS
   /* Check for devices using OS/2 USBCALLS Interface */
 

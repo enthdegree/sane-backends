@@ -2,6 +2,9 @@
 
 	* doc/descriptions/unsupported.desc: Added Medion MD 85264 finger
 	  print sensor and Trust Office Scan USB 19200.
+	* doc/descriptions-external/brother2.desc
+	  tools/hotplug/libsane.usermap: Brother DCP-7010 is reported to
+	  work (bug #302862).
 
 2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

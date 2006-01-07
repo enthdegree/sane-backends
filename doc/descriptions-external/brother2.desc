@@ -40,9 +40,8 @@
 :comment "No report yet."
 
 :model "DCP-7010"
-:status :untested
+:status :good
 :interface "USB"
-:comment "No report yet."
 
 :model "DCP-7020"
 :status :untested

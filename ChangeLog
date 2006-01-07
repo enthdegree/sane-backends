@@ -1,3 +1,8 @@
+2006-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Medion MD 85264 finger
+	  print sensor and Trust Office Scan USB 19200.
+
 2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c backend/snapscan-options.c backend/snapscan.c:

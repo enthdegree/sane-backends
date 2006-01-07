@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-01-02"		; version of backend
+:version "2006-01-07"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -920,6 +920,12 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "MD 85264"
+:interface "USB"
+:status :unsupported
+:url "http://gkall.hobby.nl/authentec.html"
+:comment "Fingerprint sensor. See link for details."
+
 :model "MD 90009"
 :url "/unsupported/tevion-md90009.html"
 :interface "USB"
@@ -1815,6 +1821,12 @@
 :status :unsupported
 :url "/unsupported/trust-combiscan-19200.html"
 :interface "Parport USB"
+:comment "Unsupported. See link for details."
+
+:model "Office Scan USB 19200"
+:status :unsupported
+:url "/unsupported/trust-officescan-usb-19200.html"
+:interface "USB"
 :comment "Unsupported. See link for details."
 
 :model "SCSI Scan 19200 -Excellence Series-"

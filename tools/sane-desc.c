@@ -1,7 +1,7 @@
 /* 
    sane-desc.c -- generate list of supported SANE devices
 
-   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Jose Gato <jgato@gsyc.escet.urjc.es> (XML output)
 
    This file is part of the SANE package.
@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.5"
+#define SANE_DESC_VERSION "2.6"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -69,7 +69,8 @@ typedef enum output_mode
   output_mode_xml,
   output_mode_html_backends,
   output_mode_html_backends_split,
-  output_mode_html_mfgs
+  output_mode_html_mfgs,
+  output_mode_statistics
 }
 output_mode;
 
@@ -198,7 +199,7 @@ mfg_record_entry;
 static char *program_name;
 static int debug = 0;
 static int current_debug_level = 0;
-static char *search_dir = 0;
+static char *search_dir_spec = 0;
 static backend_entry *first_backend = 0;
 static enum output_mode mode = output_mode_ascii;
 static char *title = 0;
@@ -244,11 +245,11 @@ print_usage (char *program_name)
 {
   printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n",
 	  program_name);
-  printf ("  -s|--search-dir dir    Specify the directory that contains "
-	  ".desc files\n");
+  printf ("  -s|--search-dir dir    Specify the directory that contains .desc files \n"
+	  "                         (multiple directories can be concatenated by \":\")\n");
   printf
     ("  -m|--mode mode         Output mode (ascii, html-backends-split,\n"
-     "                         html-mfgs, xml)\n");
+     "                         html-mfgs, xml, statistics)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -262,7 +263,7 @@ static void
 print_version (void)
 {
   printf ("sane-desc %s (%s)\n", SANE_DESC_VERSION, PACKAGE_STRING);
-  printf ("Copyright (C) 2002-2004 Henning Meier-Geinitz "
+  printf ("Copyright (C) 2002-2006 Henning Meier-Geinitz "
 	  "<henning@meier-geinitz.de>\n"
 	  "sane-desc comes with NO WARRANTY, to the extent permitted by "
 	  "law.\n"
@@ -301,29 +302,34 @@ get_options (int argc, char **argv)
 	  print_version ();
 	  exit (0);
 	case 's':
-	  search_dir = strdup (optarg);
-	  DBG_INFO ("setting search directory to `%s'\n", search_dir);
+	  search_dir_spec = strdup (optarg);
+	  DBG_INFO ("setting search directory to `%s'\n", search_dir_spec);
 	  break;
 	case 'm':
 	  if (strcmp (optarg, "ascii") == 0)
 	    {
-	      DBG_INFO ("Output mode: ascii\n");
+	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_ascii;
 	    }
 	  else if (strcmp (optarg, "xml") == 0)
 	    {
-	      DBG_INFO ("Output mode: xml\n");
+	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_xml;
 	    }
 	  else if (strcmp (optarg, "html-backends-split") == 0)
 	    {
-	      DBG_INFO ("Output mode: html-backends-split\n");
+	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_html_backends_split;
 	    }
 	  else if (strcmp (optarg, "html-mfgs") == 0)
 	    {
-	      DBG_INFO ("Output mode: html-mfgs\n");
+	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_html_mfgs;
+	    }
+	  else if (strcmp (optarg, "statistics") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_statistics;
 	    }
 	  else
 	    {
@@ -354,8 +360,8 @@ get_options (int argc, char **argv)
 	  return SANE_FALSE;
 	}
     }
-  if (!search_dir)
-    search_dir = ".";
+  if (!search_dir_spec)
+    search_dir_spec = ".";
   return SANE_TRUE;
 }
 
@@ -550,8 +556,17 @@ read_files (void)
   mfg_entry *current_mfg = 0;
   model_entry *current_model = 0;
   enum level current_level = level_backend;
+  char *search_dir = search_dir_spec, *end = 0;
 
-  DBG_INFO ("looking for .desc files in `%s'\n", search_dir);
+  DBG_INFO ("looking for .desc files in `%s'\n", search_dir_spec);
+
+  while (search_dir && search_dir[0])
+    {
+      end = strchr (search_dir, ':');
+      if (end)
+	end[0] = '\0';
+      DBG_INFO ("reading directory `%s'\n", search_dir);
+    
   if (stat (search_dir, &stat_buf) < 0)
     {
       DBG_ERR ("cannot stat `%s' (%s)\n", search_dir, strerror (errno));
@@ -731,48 +746,6 @@ read_files (void)
 		{
 		  switch (current_level)
 		    {
-		    case level_backend:
-		      if (current_backend->status != status_unknown)
-			{
-			  DBG_WARN ("overwriting status of backend `%s'\n",
-				    current_backend->name);
-			}
-		      if (strcmp (string_entry, ":new") == 0)
-			{
-			  DBG_WARN ("ignored `%s' status :new, use keyword "
-				    "`:new :yes' instead\n",
-				    current_backend->name);
-			  current_backend->status = status_unknown;
-			}
-		      else if (strcmp (string_entry, ":alpha") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED backend status `alpha': setting status of backend `%s' to `basic'\n",
-			     current_backend->name);
-			  current_backend->status = status_basic;
-			}
-		      else if (strcmp (string_entry, ":beta") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED backend status `beta': setting status of backend `%s' to `good'\n",
-			     current_backend->name);
-			  current_backend->status = status_good;
-			}
-		      else if (strcmp (string_entry, ":stable") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED backend status `stable': setting status of backend `%s' to `complete'\n",
-			     current_backend->name);
-			  current_backend->status = status_complete;
-			}
-		      else
-			{
-			  DBG_ERR ("unknown status of backend `%s': `%s'\n",
-				   current_backend->name, string_entry);
-			  current_backend->status = status_unknown;
-			  return SANE_FALSE;
-			}
-		      break;
 		    case level_model:
 		      if (current_model->status != status_unknown)
 			{
@@ -780,28 +753,7 @@ read_files (void)
 			    ("overwriting status of model `%s' (backend `%s')\n",
 			     current_model->name, current_backend->name);
 			}
-		      if (strcmp (string_entry, ":alpha") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED status `alpha': setting status of model `%s' to `basic' (backend `%s')\n",
-			     current_model->name, current_backend->name);
-			  current_model->status = status_basic;
-			}
-		      else if (strcmp (string_entry, ":beta") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED status `beta': setting status of model `%s' to `good' (backend `%s')\n",
-			     current_model->name, current_backend->name);
-			  current_model->status = status_good;
-			}
-		      else if (strcmp (string_entry, ":stable") == 0)
-			{
-			  DBG_WARN
-			    ("DEPRECATED status `stable': setting status of model `%s' to `complete' (backend `%s')\n",
-			     current_model->name, current_backend->name);
-			  current_model->status = status_complete;
-			}
-		      else if (strcmp (string_entry, ":minimal") == 0)
+		      if (strcmp (string_entry, ":minimal") == 0)
 			{
 			  DBG_INFO
 			    ("setting status of model `%s' to `minimal'\n",
@@ -1210,6 +1162,11 @@ read_files (void)
 	  fclose (fp);
 	}			/* if (strlen) */
     }				/* while (direntry) */
+      if (end)
+        search_dir = end + 1;
+      else
+        search_dir = (search_dir + strlen (search_dir));
+    }
 
   desc_name = 0;
   if (!first_backend)
@@ -2556,6 +2513,84 @@ html_print_mfgs (void)
   html_print_footer ();
 }
 
+/* print statistics about supported devices */
+static void
+print_statistics_per_type (device_type dev_type)
+{
+  backend_entry *be = first_backend;
+  int num[7] = {0, 0, 0, 0, 0, 0, 0};
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      model_entry *model;
+
+	      if (type->desc)
+		{
+		  num[status_complete]++;
+		  type = type->next;
+		  continue;
+		}
+
+	      if (!mfg)
+		{
+		  type = type->next;
+		  continue;
+		}
+
+	      mfg = type->mfg;
+	      while (mfg)
+		{
+		  model = mfg->model;
+		  if (model)
+		    {
+		      while (model)
+			{
+			  enum status_entry status = model->status;
+			  num[status]++;
+			  model = model->next;
+			}	/* while (model) */
+		    }		/* if (num_models) */
+		  mfg = mfg->next;
+		}		/* while (mfg) */
+	    }			/* if (type->type) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+
+  printf (" Total:       %4d\n", num[status_minimal] + num[status_basic] + num[status_good] 
+	  + num[status_complete] + num[status_untested] + num[status_untested] + num[status_unsupported]);
+  if (dev_type == type_scanner || dev_type == type_stillcam || dev_type == type_vidcam)
+    {
+      printf (" Supported:   %4d (complete: %d, good: %d, basic: %d, minimal: %d)\n",
+	      num[status_minimal] + num[status_basic] + num[status_good] + num[status_complete],
+	      num[status_complete], num[status_good], num[status_basic],  num[status_minimal]);
+      printf (" Untested:    %4d\n", num[status_untested]);
+      printf (" Unsupported: %4d\n", num[status_unsupported]);
+    }
+}
+static void
+print_statistics (void)
+{
+  printf ("Number of known devices:\n");
+  printf ("Scanners:\n");
+  print_statistics_per_type (type_scanner);
+  printf ("Still cameras:\n");
+  print_statistics_per_type (type_stillcam);
+  printf ("Video cameras:\n");
+  print_statistics_per_type (type_vidcam);
+  printf ("Meta backends:\n");
+  print_statistics_per_type (type_meta);
+  printf ("API backends:\n");
+  print_statistics_per_type (type_api);
+}
 
 int
 main (int argc, char **argv)
@@ -2583,6 +2618,9 @@ main (int argc, char **argv)
       break;
     case output_mode_html_mfgs:
       html_print_mfgs ();
+      break;
+    case output_mode_statistics:
+      print_statistics ();
       break;
     default:
       DBG_ERR ("Unknown output mode\n");

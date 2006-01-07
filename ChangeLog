@@ -5,6 +5,8 @@
 	* doc/descriptions-external/brother2.desc
 	  tools/hotplug/libsane.usermap: Brother DCP-7010 is reported to
 	  work (bug #302862).
+	* tools/check-usb-chip.c: Print version information when detecting
+	  chip sets.
 
 2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

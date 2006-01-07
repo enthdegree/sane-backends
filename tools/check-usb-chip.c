@@ -2960,9 +2960,11 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
   if (verbose > 2)
     {
       if (chip_name)
-	printf ("<This USB chip looks like a %s>\n\n", chip_name);
+	printf ("<This USB chip looks like a %s (result from %s)>\n\n",
+		chip_name, PACKAGE_STRING);
       else
-	printf ("<Couldn't determine the type of the USB chip>\n\n");
+	printf ("<Couldn't determine the type of the USB chip (result from %s)>\n\n",
+		PACKAGE_STRING);
     }
 
   return chip_name;

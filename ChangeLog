@@ -14,7 +14,7 @@
 	* tools/sane-desc.c: Added new output mode: statistics. This mode
 	  prints overal statistics about known devices. Added support for
 	  more than one search directory. Removed support for deprecated
-	  backend status ("alpha", "beta" ...). 
+	  backend status ("alpha", "beta" ...). Ran indent -gnu.
 
 2006-01-06  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

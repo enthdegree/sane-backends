@@ -245,11 +245,13 @@ print_usage (char *program_name)
 {
   printf ("Usage: %s [-s dir] [-m mode] [-d level] [-h] [-V]\n",
 	  program_name);
-  printf ("  -s|--search-dir dir    Specify the directory that contains .desc files \n"
-	  "                         (multiple directories can be concatenated by \":\")\n");
-  printf
-    ("  -m|--mode mode         Output mode (ascii, html-backends-split,\n"
-     "                         html-mfgs, xml, statistics)\n");
+  printf ("  -s|--search-dir dir    "
+	  "Specify the directory that contains .desc files \n"
+	  "                         "
+	  "(multiple directories can be concatenated by \":\")\n");
+  printf ("  -m|--mode mode         "
+	  "Output mode (ascii, html-backends-split,\n"
+	  "                         html-mfgs, xml, statistics)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -566,606 +568,633 @@ read_files (void)
       if (end)
 	end[0] = '\0';
       DBG_INFO ("reading directory `%s'\n", search_dir);
-    
-  if (stat (search_dir, &stat_buf) < 0)
-    {
-      DBG_ERR ("cannot stat `%s' (%s)\n", search_dir, strerror (errno));
-      return SANE_FALSE;
-    }
-  if (!S_ISDIR (stat_buf.st_mode))
-    {
-      DBG_ERR ("`%s' is not a directory\n", search_dir);
-      return SANE_FALSE;
-    }
-  if ((dir = opendir (search_dir)) == 0)
-    {
-      DBG_ERR ("cannot read directory `%s' (%s)\n", search_dir,
-	       strerror (errno));
-      return SANE_FALSE;
-    }
 
-  while ((dir_entry = readdir (dir)) != NULL)
-    {
-      if (strlen (dir_entry->d_name) > 5 &&
-	  strcmp (dir_entry->d_name + strlen (dir_entry->d_name) - 5,
-		  ".desc") == 0)
+      if (stat (search_dir, &stat_buf) < 0)
 	{
-	  if (strlen (search_dir)
-	      + strlen (dir_entry->d_name) + 1 + 1 > PATH_MAX)
+	  DBG_ERR ("cannot stat `%s' (%s)\n", search_dir, strerror (errno));
+	  return SANE_FALSE;
+	}
+      if (!S_ISDIR (stat_buf.st_mode))
+	{
+	  DBG_ERR ("`%s' is not a directory\n", search_dir);
+	  return SANE_FALSE;
+	}
+      if ((dir = opendir (search_dir)) == 0)
+	{
+	  DBG_ERR ("cannot read directory `%s' (%s)\n", search_dir,
+		   strerror (errno));
+	  return SANE_FALSE;
+	}
+
+      while ((dir_entry = readdir (dir)) != NULL)
+	{
+	  if (strlen (dir_entry->d_name) > 5 &&
+	      strcmp (dir_entry->d_name + strlen (dir_entry->d_name) - 5,
+		      ".desc") == 0)
 	    {
-	      DBG_ERR ("filename too long\n");
-	      return SANE_FALSE;
-	    }
-	  sprintf (file_name, "%s/%s", search_dir, dir_entry->d_name);
-	  DBG_INFO ("-> reading desc file: %s\n", file_name);
-	  fp = fopen (file_name, "r");
-	  if (!fp)
-	    {
-	      DBG_ERR ("can't open desc file: %s (%s)\n", file_name,
-		       strerror (errno));
-	      return SANE_FALSE;
-	    }
-	  /* now we check if everything is ok with the previous backend 
-	     before we read the new one */
-	  if (current_backend)
-	    {
-	      type_entry *current_type = current_backend->type;
-	      while (current_type)
+	      if (strlen (search_dir)
+		  + strlen (dir_entry->d_name) + 1 + 1 > PATH_MAX)
 		{
-		  if (current_type->type == type_scanner ||
-		      current_type->type == type_stillcam ||
-		      current_type->type == type_vidcam)
-		    {
-		      mfg_entry *current_mfg = current_type->mfg;
-
-		      while (current_mfg)
-			{
-			  model_entry *current_model = current_mfg->model;
-
-			  while (current_model)
-			    {
-			      if (current_model->status == status_unknown)
-				DBG_WARN
-				  ("`%s' `%s' does not have a status\n",
-				   current_mfg->name, current_model->name);
-			      current_model = current_model->next;
-			    }
-			  current_mfg = current_mfg->next;
-			}
-		    }
-		  current_type = current_type->next;
-		}
-	    }
-	  desc_name = dir_entry->d_name;
-	  current_backend = 0;
-	  current_type = 0;
-	  current_mfg = 0;
-	  current_model = 0;
-	  while (sanei_config_read (line, sizeof (line), fp))
-	    {
-	      char *string_entry = 0;
-	      word = 0;
-
-	      cp = get_token (line, &word);
-	      if (!word || cp == line)
-		{
-		  DBG_DBG ("ignoring empty line\n");
-		  if (word)
-		    free (word);
-		  word = 0;
-		  continue;
-		}
-	      if (word[0] == ';')
-		{
-		  DBG_DBG ("ignoring comment line\n");
-		  free (word);
-		  word = 0;
-		  continue;
-		}
-	      DBG_DBG ("line: %s\n", line);
-
-	      if (read_keyword (line, ":backend", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  backend_entry *be = first_backend, *prev_be = 0, *new_be =
-		    0;
-		  DBG_INFO ("creating backend entry `%s'\n", string_entry);
-
-		  new_be = calloc (1, sizeof (backend_entry));
-		  if (!new_be)
-		    {
-		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
-		      return SANE_FALSE;
-		    }
-		  new_be->name = string_entry;
-		  new_be->status = status_unknown;
-		  new_be->new = SANE_FALSE;
-
-		  if (!be)
-		    {
-		      first_backend = new_be;
-		      be = new_be;
-		    }
-		  else
-		    {
-		      while (be)
-			{
-			  int compare =
-			    string_compare (new_be->name, be->name);
-			  if (compare <= 0)
-			    {
-			      backend_entry *be_tmp = be;
-			      be = new_be;
-			      be->next = be_tmp;
-			      if (!prev_be)
-				first_backend = be;
-			      else
-				prev_be->next = be;
-			      break;
-			    }
-			  prev_be = be;
-			  be = be->next;
-			}
-		      if (!be)	/* last entry */
-			{
-			  prev_be->next = new_be;
-			  be = prev_be->next;
-			}
-		    }
-		  current_backend = be;
-		  current_type = 0;
-		  current_mfg = 0;
-		  current_model = 0;
-		  current_level = level_backend;
-		  continue;
-		}
-	      if (!current_backend)
-		{
-		  DBG_ERR ("use `:backend' keyword first\n");
+		  DBG_ERR ("filename too long\n");
 		  return SANE_FALSE;
 		}
-	      if (read_keyword (line, ":version", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
+	      sprintf (file_name, "%s/%s", search_dir, dir_entry->d_name);
+	      DBG_INFO ("-> reading desc file: %s\n", file_name);
+	      fp = fopen (file_name, "r");
+	      if (!fp)
 		{
-		  if (current_backend->version)
-		    {
-		      DBG_WARN ("overwriting version of backend `%s' to `%s'"
-				"(was: `%s')\n",
-				current_backend->name, string_entry,
-				current_backend->version,
-				current_backend->version);
-		    }
-
-		  DBG_INFO ("setting version of backend `%s' to `%s'\n",
-			    current_backend->name, string_entry);
-		  current_backend->version = string_entry;
-		  continue;
+		  DBG_ERR ("can't open desc file: %s (%s)\n", file_name,
+			   strerror (errno));
+		  return SANE_FALSE;
 		}
-	      if (read_keyword (line, ":status", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
+	      /* now we check if everything is ok with the previous backend 
+	         before we read the new one */
+	      if (current_backend)
 		{
-		  switch (current_level)
+		  type_entry *current_type = current_backend->type;
+		  while (current_type)
 		    {
-		    case level_model:
-		      if (current_model->status != status_unknown)
+		      if (current_type->type == type_scanner ||
+			  current_type->type == type_stillcam ||
+			  current_type->type == type_vidcam)
+			{
+			  mfg_entry *current_mfg = current_type->mfg;
+
+			  while (current_mfg)
+			    {
+			      model_entry *current_model = current_mfg->model;
+
+			      while (current_model)
+				{
+				  if (current_model->status == status_unknown)
+				    DBG_WARN
+				      ("`%s' `%s' does not have a status\n",
+				       current_mfg->name,
+				       current_model->name);
+				  current_model = current_model->next;
+				}
+			      current_mfg = current_mfg->next;
+			    }
+			}
+		      current_type = current_type->next;
+		    }
+		}
+	      desc_name = dir_entry->d_name;
+	      current_backend = 0;
+	      current_type = 0;
+	      current_mfg = 0;
+	      current_model = 0;
+	      while (sanei_config_read (line, sizeof (line), fp))
+		{
+		  char *string_entry = 0;
+		  word = 0;
+
+		  cp = get_token (line, &word);
+		  if (!word || cp == line)
+		    {
+		      DBG_DBG ("ignoring empty line\n");
+		      if (word)
+			free (word);
+		      word = 0;
+		      continue;
+		    }
+		  if (word[0] == ';')
+		    {
+		      DBG_DBG ("ignoring comment line\n");
+		      free (word);
+		      word = 0;
+		      continue;
+		    }
+		  DBG_DBG ("line: %s\n", line);
+
+		  if (read_keyword
+		      (line, ":backend", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      backend_entry *be = first_backend, *prev_be =
+			0, *new_be = 0;
+		      DBG_INFO ("creating backend entry `%s'\n",
+				string_entry);
+
+		      new_be = calloc (1, sizeof (backend_entry));
+		      if (!new_be)
+			{
+			  DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+			  return SANE_FALSE;
+			}
+		      new_be->name = string_entry;
+		      new_be->status = status_unknown;
+		      new_be->new = SANE_FALSE;
+
+		      if (!be)
+			{
+			  first_backend = new_be;
+			  be = new_be;
+			}
+		      else
+			{
+			  while (be)
+			    {
+			      int compare =
+				string_compare (new_be->name, be->name);
+			      if (compare <= 0)
+				{
+				  backend_entry *be_tmp = be;
+				  be = new_be;
+				  be->next = be_tmp;
+				  if (!prev_be)
+				    first_backend = be;
+				  else
+				    prev_be->next = be;
+				  break;
+				}
+			      prev_be = be;
+			      be = be->next;
+			    }
+			  if (!be)	/* last entry */
+			    {
+			      prev_be->next = new_be;
+			      be = prev_be->next;
+			    }
+			}
+		      current_backend = be;
+		      current_type = 0;
+		      current_mfg = 0;
+		      current_model = 0;
+		      current_level = level_backend;
+		      continue;
+		    }
+		  if (!current_backend)
+		    {
+		      DBG_ERR ("use `:backend' keyword first\n");
+		      return SANE_FALSE;
+		    }
+		  if (read_keyword
+		      (line, ":version", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (current_backend->version)
 			{
 			  DBG_WARN
-			    ("overwriting status of model `%s' (backend `%s')\n",
-			     current_model->name, current_backend->name);
+			    ("overwriting version of backend `%s' to `%s'"
+			     "(was: `%s')\n", current_backend->name,
+			     string_entry, current_backend->version,
+			     current_backend->version);
 			}
-		      if (strcmp (string_entry, ":minimal") == 0)
+
+		      DBG_INFO ("setting version of backend `%s' to `%s'\n",
+				current_backend->name, string_entry);
+		      current_backend->version = string_entry;
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":status", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      switch (current_level)
+			{
+			case level_model:
+			  if (current_model->status != status_unknown)
+			    {
+			      DBG_WARN
+				("overwriting status of model `%s' (backend `%s')\n",
+				 current_model->name, current_backend->name);
+			    }
+			  if (strcmp (string_entry, ":minimal") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `minimal'\n",
+				 current_model->name);
+			      current_model->status = status_minimal;
+			    }
+			  else if (strcmp (string_entry, ":basic") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `basic'\n",
+				 current_model->name);
+			      current_model->status = status_basic;
+			    }
+			  else if (strcmp (string_entry, ":good") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `good'\n",
+				 current_model->name);
+			      current_model->status = status_good;
+			    }
+			  else if (strcmp (string_entry, ":complete") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `complete'\n",
+				 current_model->name);
+			      current_model->status = status_complete;
+			    }
+			  else if (strcmp (string_entry, ":untested") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `untested'\n",
+				 current_model->name);
+			      current_model->status = status_untested;
+			    }
+			  else if (strcmp (string_entry, ":unsupported") == 0)
+			    {
+			      DBG_INFO
+				("setting status of model `%s' to `unsupported'\n",
+				 current_model->name);
+			      current_model->status = status_unsupported;
+			    }
+			  else
+			    {
+			      DBG_ERR
+				("unknown status of model `%s': `%s' (backend `%s')\n",
+				 current_model->name, string_entry,
+				 current_backend->name);
+			      current_model->status = status_untested;
+			      return SANE_FALSE;
+			    }
+			  break;
+			default:
+			  DBG_ERR
+			    ("level %d not implemented for :status (backend `%s')\n",
+			     current_level, current_backend->name);
+			  return SANE_FALSE;
+			}
+
+
+		      continue;
+		    }
+		  if (read_keyword (line, ":new", param_string, &string_entry)
+		      == SANE_STATUS_GOOD)
+		    {
+		      if (strcmp (string_entry, ":yes") == 0)
 			{
 			  DBG_INFO
-			    ("setting status of model `%s' to `minimal'\n",
-			     current_model->name);
-			  current_model->status = status_minimal;
+			    ("backend %s is new in this SANE release\n",
+			     current_backend->name);
+			  current_backend->new = SANE_TRUE;
 			}
-		      else if (strcmp (string_entry, ":basic") == 0)
+		      else if (strcmp (string_entry, ":no") == 0)
 			{
 			  DBG_INFO
-			    ("setting status of model `%s' to `basic'\n",
-			     current_model->name);
-			  current_model->status = status_basic;
+			    ("backend %s is NOT new in this SANE release\n",
+			     current_backend->name);
+			  current_backend->new = SANE_FALSE;
 			}
-		      else if (strcmp (string_entry, ":good") == 0)
+		      else
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `good'\n",
-			     current_model->name);
-			  current_model->status = status_good;
+			  DBG_ERR ("unknown :new parameter of backend `%s': "
+				   "`%s'\n", current_backend->name,
+				   string_entry);
+			  current_backend->new = SANE_FALSE;
+			  return SANE_FALSE;
 			}
-		      else if (strcmp (string_entry, ":complete") == 0)
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":manpage", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (current_backend->manpage)
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `complete'\n",
-			     current_model->name);
-			  current_model->status = status_complete;
+			  DBG_WARN
+			    ("overwriting manpage of backend `%s' to `%s'"
+			     "(was: `%s')\n", current_backend->name,
+			     string_entry, current_backend->manpage);
 			}
-		      else if (strcmp (string_entry, ":untested") == 0)
+
+		      DBG_INFO ("setting manpage of backend `%s' to `%s'\n",
+				current_backend->name, string_entry);
+		      current_backend->manpage = string_entry;
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":devicetype", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      type_entry *type = 0;
+
+		      type = current_backend->type;
+
+		      DBG_INFO
+			("adding `%s' to list of device types of backend "
+			 "`%s'\n", string_entry, current_backend->name);
+
+		      if (type)
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `untested'\n",
-			     current_model->name);
-			  current_model->status = status_untested;
+			  while (type->next)
+			    type = type->next;
+			  type->next = calloc (1, sizeof (type_entry));
+			  type = type->next;
 			}
-		      else if (strcmp (string_entry, ":unsupported") == 0)
+		      else
 			{
-			  DBG_INFO
-			    ("setting status of model `%s' to `unsupported'\n",
-			     current_model->name);
-			  current_model->status = status_unsupported;
+			  current_backend->type =
+			    calloc (1, sizeof (type_entry));
+			  type = current_backend->type;
+			}
+
+		      type->type = type_unknown;
+		      if (strcmp (string_entry, ":scanner") == 0)
+			{
+			  DBG_INFO ("setting device type of backend `%s' to "
+				    "scanner\n", current_backend->name);
+			  type->type = type_scanner;
+			}
+		      else if (strcmp (string_entry, ":stillcam") == 0)
+			{
+			  DBG_INFO ("setting device type of backend `%s' to "
+				    "still camera\n", current_backend->name);
+			  type->type = type_stillcam;
+			}
+		      else if (strcmp (string_entry, ":vidcam") == 0)
+			{
+			  DBG_INFO ("setting device type of backend `%s' to "
+				    "video camera\n", current_backend->name);
+			  type->type = type_vidcam;
+			}
+		      else if (strcmp (string_entry, ":api") == 0)
+			{
+			  DBG_INFO ("setting device type of backend `%s' to "
+				    "API\n", current_backend->name);
+			  type->type = type_api;
+			}
+		      else if (strcmp (string_entry, ":meta") == 0)
+			{
+			  DBG_INFO ("setting device type of backend `%s' to "
+				    "meta\n", current_backend->name);
+			  type->type = type_meta;
 			}
 		      else
 			{
 			  DBG_ERR
-			    ("unknown status of model `%s': `%s' (backend `%s')\n",
-			     current_model->name, string_entry,
-			     current_backend->name);
-			  current_model->status = status_untested;
+			    ("unknown device type of backend `%s': `%s'\n",
+			     current_backend->name, string_entry);
+			  type->type = type_unknown;
 			  return SANE_FALSE;
 			}
-		      break;
-		    default:
-		      DBG_ERR
-			("level %d not implemented for :status (backend `%s')\n",
-			 current_level, current_backend->name);
-		      return SANE_FALSE;
-		    }
-
-
-		  continue;
-		}
-	      if (read_keyword (line, ":new", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  if (strcmp (string_entry, ":yes") == 0)
-		    {
-		      DBG_INFO ("backend %s is new in this SANE release\n",
-				current_backend->name);
-		      current_backend->new = SANE_TRUE;
-		    }
-		  else if (strcmp (string_entry, ":no") == 0)
-		    {
-		      DBG_INFO
-			("backend %s is NOT new in this SANE release\n",
-			 current_backend->name);
-		      current_backend->new = SANE_FALSE;
-		    }
-		  else
-		    {
-		      DBG_ERR ("unknown :new parameter of backend `%s': "
-			       "`%s'\n", current_backend->name, string_entry);
-		      current_backend->new = SANE_FALSE;
-		      return SANE_FALSE;
-		    }
-		  continue;
-		}
-	      if (read_keyword (line, ":manpage", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  if (current_backend->manpage)
-		    {
-		      DBG_WARN ("overwriting manpage of backend `%s' to `%s'"
-				"(was: `%s')\n",
-				current_backend->name, string_entry,
-				current_backend->manpage);
-		    }
-
-		  DBG_INFO ("setting manpage of backend `%s' to `%s'\n",
-			    current_backend->name, string_entry);
-		  current_backend->manpage = string_entry;
-		  continue;
-		}
-	      if (read_keyword
-		  (line, ":devicetype", param_string,
-		   &string_entry) == SANE_STATUS_GOOD)
-		{
-		  type_entry *type = 0;
-
-		  type = current_backend->type;
-
-		  DBG_INFO ("adding `%s' to list of device types of backend "
-			    "`%s'\n", string_entry, current_backend->name);
-
-		  if (type)
-		    {
-		      while (type->next)
-			type = type->next;
-		      type->next = calloc (1, sizeof (type_entry));
-		      type = type->next;
-		    }
-		  else
-		    {
-		      current_backend->type = calloc (1, sizeof (type_entry));
-		      type = current_backend->type;
-		    }
-
-		  type->type = type_unknown;
-		  if (strcmp (string_entry, ":scanner") == 0)
-		    {
-		      DBG_INFO ("setting device type of backend `%s' to "
-				"scanner\n", current_backend->name);
-		      type->type = type_scanner;
-		    }
-		  else if (strcmp (string_entry, ":stillcam") == 0)
-		    {
-		      DBG_INFO ("setting device type of backend `%s' to "
-				"still camera\n", current_backend->name);
-		      type->type = type_stillcam;
-		    }
-		  else if (strcmp (string_entry, ":vidcam") == 0)
-		    {
-		      DBG_INFO ("setting device type of backend `%s' to "
-				"video camera\n", current_backend->name);
-		      type->type = type_vidcam;
-		    }
-		  else if (strcmp (string_entry, ":api") == 0)
-		    {
-		      DBG_INFO ("setting device type of backend `%s' to "
-				"API\n", current_backend->name);
-		      type->type = type_api;
-		    }
-		  else if (strcmp (string_entry, ":meta") == 0)
-		    {
-		      DBG_INFO ("setting device type of backend `%s' to "
-				"meta\n", current_backend->name);
-		      type->type = type_meta;
-		    }
-		  else
-		    {
-		      DBG_ERR ("unknown device type of backend `%s': `%s'\n",
-			       current_backend->name, string_entry);
-		      type->type = type_unknown;
-		      return SANE_FALSE;
-		    }
-		  current_type = type;
-		  current_mfg = 0;
-		  current_model = 0;
-		  continue;
-		}
-	      if (read_keyword (line, ":desc", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  if (!current_type)
-		    {
-		      DBG_ERR
-			("use `:devicetype' keyword first (backend `%s')\n",
-			 current_backend->name);
-		      return SANE_FALSE;
-		    }
-		  if (current_type->type < type_meta)
-		    {
-		      DBG_ERR
-			("use `:desc' for `:api' and `:meta' only (backend `%s')\n",
-			 current_backend->name);
-		      return SANE_FALSE;
-		    }
-
-		  if (current_type->desc)
-		    {
-		      DBG_WARN ("overwriting description of  device type of "
-				"backend `%s' to `%s' (was: `%s')\n",
-				current_backend->name, string_entry,
-				current_type->desc);
-		    }
-
-		  DBG_INFO ("setting description of backend `%s' to `%s'\n",
-			    current_backend->name, string_entry);
-		  current_type->desc = calloc (1, sizeof (desc_entry));
-		  if (!current_type->desc)
-		    {
-		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
-		      return SANE_FALSE;
-		    }
-		  current_type->desc->desc = string_entry;
-		  current_level = level_desc;
-		  current_mfg = 0;
-		  current_model = 0;
-		  continue;
-		}
-	      if (read_keyword (line, ":mfg", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  mfg_entry *mfg = 0;
-
-		  if (!current_type)
-		    {
-		      DBG_ERR
-			("use `:devicetype' keyword first (backend `%s')\n",
-			 current_backend->name);
-		      return SANE_FALSE;
-		    }
-		  if (current_type->type >= type_meta)
-		    {
-		      DBG_ERR
-			("use `:mfg' for hardware devices only (backend `%s')\n",
-			 current_backend->name);
-		      return SANE_FALSE;
-		    }
-
-		  mfg = current_type->mfg;
-		  if (mfg)
-		    {
-		      while (mfg->next)
-			mfg = mfg->next;
-		      mfg->next = calloc (1, sizeof (mfg_entry));
-		      mfg = mfg->next;
-		    }
-		  else
-		    {
-		      current_type->mfg = calloc (1, sizeof (mfg_entry));
-		      mfg = current_type->mfg;
-		    }
-
-		  if (!mfg)
-		    {
-		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
-		      return SANE_FALSE;
-		    }
-		  mfg->name = string_entry;
-		  DBG_INFO ("adding mfg entry %s to backend `%s'\n",
-			    string_entry, current_backend->name);
-		  current_mfg = mfg;
-		  current_model = 0;
-		  current_level = level_mfg;
-		  continue;
-		}
-	      if (read_keyword (line, ":model", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  model_entry *model = 0;
-
-		  if (!current_type)
-		    {
-		      DBG_ERR
-			("use `:devicetype' keyword first (backend `%s')\n",
-			 current_backend->name);
-		      return SANE_FALSE;
-		    }
-		  if (current_level != level_mfg
-		      && current_level != level_model)
-		    {
-		      DBG_ERR ("use `:mfg' keyword first (backend `%s')\n",
-			       current_backend->name);
-		      return SANE_FALSE;
-		    }
-		  model = current_mfg->model;
-		  if (model)
-		    {
-		      while (model->next)
-			model = model->next;
-		      model->next = calloc (1, sizeof (model_entry));
-		      model = model->next;
-		    }
-		  else
-		    {
-		      current_mfg->model = calloc (1, sizeof (model_entry));
-		      model = current_mfg->model;
-		    }
-
-		  if (!model)
-		    {
-		      DBG_ERR ("calloc failed (%s)\n", strerror (errno));
-		      return SANE_FALSE;
-		    }
-		  model->name = string_entry;
-		  model->status = status_unknown;
-		  DBG_INFO ("adding model entry %s to manufacturer `%s'\n",
-			    string_entry, current_mfg->name);
-		  current_model = model;
-		  current_level = level_model;
-		  continue;
-		}
-	      if (read_keyword
-		  (line, ":interface", param_string,
-		   &string_entry) == SANE_STATUS_GOOD)
-		{
-		  if (!current_model)
-		    {
-		      DBG_WARN ("ignored `%s' :interface, only allowed for "
-				"hardware devices\n", current_backend->name);
+		      current_type = type;
+		      current_mfg = 0;
+		      current_model = 0;
 		      continue;
 		    }
+		  if (read_keyword
+		      (line, ":desc", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (!current_type)
+			{
+			  DBG_ERR
+			    ("use `:devicetype' keyword first (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
+		      if (current_type->type < type_meta)
+			{
+			  DBG_ERR
+			    ("use `:desc' for `:api' and `:meta' only (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
 
-		  if (current_model->interface)
-		    {
-		      DBG_WARN ("overwriting `%s's interface of model "
-				"`%s' to `%s' (was: `%s')\n",
-				current_backend->name, current_model->name,
-				string_entry, current_model->interface);
-		    }
+		      if (current_type->desc)
+			{
+			  DBG_WARN
+			    ("overwriting description of  device type of "
+			     "backend `%s' to `%s' (was: `%s')\n",
+			     current_backend->name, string_entry,
+			     current_type->desc);
+			}
 
-		  DBG_INFO ("setting interface of model `%s' to `%s'\n",
-			    current_model->name, string_entry);
-		  current_model->interface = string_entry;
-		  continue;
-		}
-	      if (read_keyword (line, ":url", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  switch (current_level)
-		    {
-		    case level_backend:
-		      current_backend->url =
-			update_url_list (current_backend->url, string_entry);
-		      DBG_INFO ("adding `%s' to list of urls of backend "
-				"`%s'\n", string_entry,
-				current_backend->name);
-		      break;
-		    case level_mfg:
-		      current_mfg->url =
-			update_url_list (current_mfg->url, string_entry);
-		      DBG_INFO ("adding `%s' to list of urls of mfg "
-				"`%s'\n", string_entry, current_mfg->name);
-		      break;
-		    case level_desc:
-		      current_type->desc->url =
-			update_url_list (current_type->desc->url,
-					 string_entry);
-		      DBG_INFO ("adding `%s' to list of urls of description "
-				"for backend `%s'\n", string_entry,
-				current_backend->name);
-		      break;
-		    case level_model:
-		      current_model->url =
-			update_url_list (current_model->url, string_entry);
-		      DBG_INFO ("adding `%s' to list of urls of model "
-				"`%s'\n", string_entry, current_model->name);
-		      break;
-		    default:
-		      DBG_ERR
-			("level %d not implemented for :url (backend `%s')\n",
-			 current_level, current_backend->name);
-		      return SANE_FALSE;
-		    }
-		  continue;
-		}
-	      if (read_keyword (line, ":comment", param_string, &string_entry)
-		  == SANE_STATUS_GOOD)
-		{
-		  switch (current_level)
-		    {
-		    case level_backend:
-		      current_backend->comment = string_entry;
-		      DBG_INFO ("setting comment of backend %s to `%s'\n",
-				current_backend->name, string_entry);
-		      break;
-		    case level_mfg:
-		      current_mfg->comment = string_entry;
 		      DBG_INFO
-			("setting comment of manufacturer %s to `%s'\n",
-			 current_mfg->name, string_entry);
-		      break;
-		    case level_desc:
-		      current_type->desc->comment = string_entry;
-		      DBG_INFO ("setting comment of description for "
-				"backend %s to `%s'\n", current_backend->name,
-				string_entry);
-		      break;
-		    case level_model:
-		      current_model->comment = string_entry;
-		      DBG_INFO ("setting comment of model %s to `%s'\n",
-				current_model->name, string_entry);
-		      break;
-		    default:
-		      DBG_ERR
-			("level %d not implemented for `:comment' (backend `%s')\n",
-			 current_level, current_backend->name);
-		      return SANE_FALSE;
+			("setting description of backend `%s' to `%s'\n",
+			 current_backend->name, string_entry);
+		      current_type->desc = calloc (1, sizeof (desc_entry));
+		      if (!current_type->desc)
+			{
+			  DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+			  return SANE_FALSE;
+			}
+		      current_type->desc->desc = string_entry;
+		      current_level = level_desc;
+		      current_mfg = 0;
+		      current_model = 0;
+		      continue;
 		    }
-		  continue;
-		}
-	      DBG_ERR ("unknown keyword token in line `%s' of file `%s'\n",
-		       line, file_name);
-	      return SANE_FALSE;
-	    }			/* while (sanei_config_readline) */
-	  fclose (fp);
-	}			/* if (strlen) */
-    }				/* while (direntry) */
+		  if (read_keyword (line, ":mfg", param_string, &string_entry)
+		      == SANE_STATUS_GOOD)
+		    {
+		      mfg_entry *mfg = 0;
+
+		      if (!current_type)
+			{
+			  DBG_ERR
+			    ("use `:devicetype' keyword first (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
+		      if (current_type->type >= type_meta)
+			{
+			  DBG_ERR
+			    ("use `:mfg' for hardware devices only (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
+
+		      mfg = current_type->mfg;
+		      if (mfg)
+			{
+			  while (mfg->next)
+			    mfg = mfg->next;
+			  mfg->next = calloc (1, sizeof (mfg_entry));
+			  mfg = mfg->next;
+			}
+		      else
+			{
+			  current_type->mfg = calloc (1, sizeof (mfg_entry));
+			  mfg = current_type->mfg;
+			}
+
+		      if (!mfg)
+			{
+			  DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+			  return SANE_FALSE;
+			}
+		      mfg->name = string_entry;
+		      DBG_INFO ("adding mfg entry %s to backend `%s'\n",
+				string_entry, current_backend->name);
+		      current_mfg = mfg;
+		      current_model = 0;
+		      current_level = level_mfg;
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":model", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      model_entry *model = 0;
+
+		      if (!current_type)
+			{
+			  DBG_ERR
+			    ("use `:devicetype' keyword first (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
+		      if (current_level != level_mfg
+			  && current_level != level_model)
+			{
+			  DBG_ERR
+			    ("use `:mfg' keyword first (backend `%s')\n",
+			     current_backend->name);
+			  return SANE_FALSE;
+			}
+		      model = current_mfg->model;
+		      if (model)
+			{
+			  while (model->next)
+			    model = model->next;
+			  model->next = calloc (1, sizeof (model_entry));
+			  model = model->next;
+			}
+		      else
+			{
+			  current_mfg->model =
+			    calloc (1, sizeof (model_entry));
+			  model = current_mfg->model;
+			}
+
+		      if (!model)
+			{
+			  DBG_ERR ("calloc failed (%s)\n", strerror (errno));
+			  return SANE_FALSE;
+			}
+		      model->name = string_entry;
+		      model->status = status_unknown;
+		      DBG_INFO
+			("adding model entry %s to manufacturer `%s'\n",
+			 string_entry, current_mfg->name);
+		      current_model = model;
+		      current_level = level_model;
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":interface", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (!current_model)
+			{
+			  DBG_WARN
+			    ("ignored `%s' :interface, only allowed for "
+			     "hardware devices\n", current_backend->name);
+			  continue;
+			}
+
+		      if (current_model->interface)
+			{
+			  DBG_WARN ("overwriting `%s's interface of model "
+				    "`%s' to `%s' (was: `%s')\n",
+				    current_backend->name,
+				    current_model->name, string_entry,
+				    current_model->interface);
+			}
+
+		      DBG_INFO ("setting interface of model `%s' to `%s'\n",
+				current_model->name, string_entry);
+		      current_model->interface = string_entry;
+		      continue;
+		    }
+		  if (read_keyword (line, ":url", param_string, &string_entry)
+		      == SANE_STATUS_GOOD)
+		    {
+		      switch (current_level)
+			{
+			case level_backend:
+			  current_backend->url =
+			    update_url_list (current_backend->url,
+					     string_entry);
+			  DBG_INFO ("adding `%s' to list of urls of backend "
+				    "`%s'\n", string_entry,
+				    current_backend->name);
+			  break;
+			case level_mfg:
+			  current_mfg->url =
+			    update_url_list (current_mfg->url, string_entry);
+			  DBG_INFO ("adding `%s' to list of urls of mfg "
+				    "`%s'\n", string_entry,
+				    current_mfg->name);
+			  break;
+			case level_desc:
+			  current_type->desc->url =
+			    update_url_list (current_type->desc->url,
+					     string_entry);
+			  DBG_INFO
+			    ("adding `%s' to list of urls of description "
+			     "for backend `%s'\n", string_entry,
+			     current_backend->name);
+			  break;
+			case level_model:
+			  current_model->url =
+			    update_url_list (current_model->url,
+					     string_entry);
+			  DBG_INFO ("adding `%s' to list of urls of model "
+				    "`%s'\n", string_entry,
+				    current_model->name);
+			  break;
+			default:
+			  DBG_ERR
+			    ("level %d not implemented for :url (backend `%s')\n",
+			     current_level, current_backend->name);
+			  return SANE_FALSE;
+			}
+		      continue;
+		    }
+		  if (read_keyword
+		      (line, ":comment", param_string,
+		       &string_entry) == SANE_STATUS_GOOD)
+		    {
+		      switch (current_level)
+			{
+			case level_backend:
+			  current_backend->comment = string_entry;
+			  DBG_INFO ("setting comment of backend %s to `%s'\n",
+				    current_backend->name, string_entry);
+			  break;
+			case level_mfg:
+			  current_mfg->comment = string_entry;
+			  DBG_INFO
+			    ("setting comment of manufacturer %s to `%s'\n",
+			     current_mfg->name, string_entry);
+			  break;
+			case level_desc:
+			  current_type->desc->comment = string_entry;
+			  DBG_INFO ("setting comment of description for "
+				    "backend %s to `%s'\n",
+				    current_backend->name, string_entry);
+			  break;
+			case level_model:
+			  current_model->comment = string_entry;
+			  DBG_INFO ("setting comment of model %s to `%s'\n",
+				    current_model->name, string_entry);
+			  break;
+			default:
+			  DBG_ERR
+			    ("level %d not implemented for `:comment' (backend `%s')\n",
+			     current_level, current_backend->name);
+			  return SANE_FALSE;
+			}
+		      continue;
+		    }
+		  DBG_ERR
+		    ("unknown keyword token in line `%s' of file `%s'\n",
+		     line, file_name);
+		  return SANE_FALSE;
+		}		/* while (sanei_config_readline) */
+	      fclose (fp);
+	    }			/* if (strlen) */
+	}			/* while (direntry) */
       if (end)
-        search_dir = end + 1;
+	search_dir = end + 1;
       else
-        search_dir = (search_dir + strlen (search_dir));
+	search_dir = (search_dir + strlen (search_dir));
     }
 
   desc_name = 0;
@@ -2518,7 +2547,7 @@ static void
 print_statistics_per_type (device_type dev_type)
 {
   backend_entry *be = first_backend;
-  int num[7] = {0, 0, 0, 0, 0, 0, 0};
+  int num[7] = { 0, 0, 0, 0, 0, 0, 0 };
 
   while (be)
     {
@@ -2565,13 +2594,18 @@ print_statistics_per_type (device_type dev_type)
       be = be->next;
     }				/* while (be) */
 
-  printf (" Total:       %4d\n", num[status_minimal] + num[status_basic] + num[status_good] 
-	  + num[status_complete] + num[status_untested] + num[status_untested] + num[status_unsupported]);
-  if (dev_type == type_scanner || dev_type == type_stillcam || dev_type == type_vidcam)
+  printf (" Total:       %4d\n",
+	  num[status_minimal] + num[status_basic] + num[status_good] +
+	  num[status_complete] + num[status_untested] + num[status_untested] +
+	  num[status_unsupported]);
+  if (dev_type == type_scanner || dev_type == type_stillcam
+      || dev_type == type_vidcam)
     {
-      printf (" Supported:   %4d (complete: %d, good: %d, basic: %d, minimal: %d)\n",
-	      num[status_minimal] + num[status_basic] + num[status_good] + num[status_complete],
-	      num[status_complete], num[status_good], num[status_basic],  num[status_minimal]);
+      printf
+	(" Supported:   %4d (complete: %d, good: %d, basic: %d, minimal: %d)\n",
+	 num[status_minimal] + num[status_basic] + num[status_good] +
+	 num[status_complete], num[status_complete], num[status_good],
+	 num[status_basic], num[status_minimal]);
       printf (" Untested:    %4d\n", num[status_untested]);
       printf (" Unsupported: %4d\n", num[status_unsupported]);
     }

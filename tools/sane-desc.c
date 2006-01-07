@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.6"
+#define SANE_DESC_VERSION "2.7"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -32,6 +32,7 @@
 #define COLOR_UNTESTED     "\"#0000B0\""
 #define COLOR_UNSUPPORTED  "\"#F00000\""
 #define COLOR_NEW          "\"#F00000\""
+#define COLOR_UNKNOWN      "\"#000000\""
 
 #include <../include/sane/config.h>
 
@@ -84,8 +85,8 @@ parameter_type;
 typedef enum status_entry
 {
   status_unknown,
-  status_untested,
   status_unsupported,
+  status_untested,
   status_minimal,
   status_basic,
   status_good,
@@ -164,7 +165,6 @@ typedef struct backend_entry
   struct backend_entry *next;
   char *name;
   char *version;
-  enum status_entry status;	/* deprecated */
   char *manpage;
   struct url_entry *url;
   char *comment;
@@ -195,6 +195,7 @@ typedef struct mfg_record_entry
 }
 mfg_record_entry;
 
+typedef int  statistics_type [status_complete + 1];
 
 static char *program_name;
 static int debug = 0;
@@ -205,6 +206,18 @@ static enum output_mode mode = output_mode_ascii;
 static char *title = 0;
 static char *intro = 0;
 static SANE_String desc_name = 0;
+static const char *status_name[] = 
+  {"Unknown", "Unsupported", "Untested", "Minimal", "Basic", 
+   "Good", "Complete"};
+static const char *device_type_name[] = 
+  {"Unknown", "Scanners", "Still cameras", "Video Cameras", "Meta backends", 
+   "APIs"};
+static const char *device_type_aname[] = 
+  {"UKNOWN", "SCANNERS", "STILL", "VIDEO", "META", 
+   "API"};
+static const char *status_color[] =
+  {COLOR_UNKNOWN, COLOR_UNSUPPORTED, COLOR_UNTESTED, COLOR_MINIMAL, 
+   COLOR_BASIC, COLOR_GOOD, COLOR_COMPLETE};
 
 static void
 debug_call (const char *fmt, ...)
@@ -683,7 +696,6 @@ read_files (void)
 			  return SANE_FALSE;
 			}
 		      new_be->name = string_entry;
-		      new_be->status = status_unknown;
 		      new_be->new = SANE_FALSE;
 
 		      if (!be)
@@ -1560,8 +1572,6 @@ ascii_print_backends (void)
 			    printf ("    interface `%s'\n", model->interface);
 			  else
 			    printf ("    interface *none*\n");
-			  if (model->status == status_unknown)
-			    model->status = be->status;
 			  switch (model->status)
 			    {
 			    case status_minimal:
@@ -1795,8 +1805,6 @@ xml_print_backends (void)
 			  else
 			    printf ("    <interface>*none*</interface>\n");
 
-			  if (model->status == status_unknown)
-			    model->status = be->status;
 			  switch (model->status)
 			    {
 			    case status_minimal:
@@ -1860,6 +1868,130 @@ xml_print_backends (void)
 
     }				/* while (be) */
   printf ("</backends>\n");
+}
+
+/* calculate statistics about supported devices per device type*/
+static void
+calculate_statistics_per_type (device_type dev_type, statistics_type num)
+{
+  backend_entry *be = first_backend;
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  if (type->type == dev_type)
+	    {
+	      mfg_entry *mfg = type->mfg;
+	      model_entry *model;
+
+	      if (type->desc)
+		{
+		  num[status_complete]++;
+		  type = type->next;
+		  continue;
+		}
+
+	      if (!mfg)
+		{
+		  type = type->next;
+		  continue;
+		}
+
+	      mfg = type->mfg;
+	      while (mfg)
+		{
+		  model = mfg->model;
+		  if (model)
+		    {
+		      while (model)
+			{
+			  enum status_entry status = model->status;
+			  num[status]++;
+			  model = model->next;
+			}	/* while (model) */
+		    }		/* if (num_models) */
+		  mfg = mfg->next;
+		}		/* while (mfg) */
+	    }			/* if (type->type) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+}
+
+static void
+html_print_statistics_cell (const char * color, int number)
+{
+  printf ("<td align=center><font color=%s>%d</font></td>\n", 
+	  color, number);
+}
+
+static void
+html_print_statistics_per_type (device_type dev_type)
+{
+  statistics_type num = {0, 0, 0, 0, 0, 0, 0};
+  status_entry status;
+
+  calculate_statistics_per_type (dev_type, num);
+  printf ("<tr>\n");
+  printf("<td align=center><a href=\"#%s\">%s</a></td>\n", 
+	 device_type_aname [dev_type], device_type_name [dev_type]);
+
+  html_print_statistics_cell 
+    (COLOR_UNKNOWN, 
+     num[status_minimal] + num[status_basic] + num[status_good] +
+     num[status_complete] + num[status_untested] + num[status_untested] +
+     num[status_unsupported]);
+  if (dev_type == type_scanner || dev_type == type_stillcam
+      || dev_type == type_vidcam)
+    {
+      html_print_statistics_cell 
+	(COLOR_UNKNOWN, 
+	 num[status_minimal] + num[status_basic] + num[status_good] +
+	 num[status_complete]);
+      for (status = status_complete; status >= status_unsupported; status--)
+	html_print_statistics_cell (status_color [status], num [status]);
+    }
+  else
+    {
+      printf ("<td align=center colspan=7>n/a</td>\n");
+    }
+  printf ("</tr>\n");
+}
+
+/* print html statistcis */
+static void
+html_print_summary (void)
+{
+  device_type dev_type;
+  status_entry status;
+
+  printf ("<h2>Summary</h2>\n");
+  printf ("<table border=1>\n");
+  printf ("<tr bgcolor=E0E0FF>\n");
+  printf ("<th align=center rowspan=3>Device type</th>\n");
+  printf ("<th align=center colspan=8>Number of devices</th>\n");
+  printf ("</tr>\n");
+  printf ("<tr bgcolor=E0E0FF>\n");
+  printf ("<th align=center rowspan=2>Total</th>\n");
+  printf ("<th align=center colspan=5>Supported</th>\n");
+  printf ("<th align=center rowspan=2><font color=" COLOR_UNTESTED 
+	  ">%s</font></th>\n", status_name[status_untested]);
+  printf ("<th align=center rowspan=2><font color=" COLOR_UNSUPPORTED
+	  ">%s</font></th>\n", status_name[status_unsupported]);
+  printf ("</tr>\n");
+  printf ("<tr bgcolor=E0E0FF>\n");
+  printf ("<th align=center>Sum</th>\n");
+  for (status = status_complete; status >= status_minimal; status--)
+    printf ("<th align=center><font color=%s>%s</font></th>\n",
+	    status_color[status], status_name[status]);
+  printf ("</tr>\n");
+  for (dev_type = type_scanner; dev_type <= type_api; dev_type++)
+    html_print_statistics_per_type (dev_type);
+  printf ("</table>\n");
 }
 
 
@@ -2084,40 +2216,8 @@ html_backends_split_table (device_type dev_type)
 			  else
 			    printf ("<td align=center>?</td>\n");
 
-			  printf ("<td align=center>");
-			  if (status == status_unknown)
-			    status = be->status;
-			  switch (status)
-			    {
-			    case status_minimal:
-			      printf ("<font color=" COLOR_MINIMAL
-				      ">minimal</font>");
-			      break;
-			    case status_basic:
-			      printf ("<font color=" COLOR_BASIC
-				      ">basic</font>");
-			      break;
-			    case status_good:
-			      printf ("<font color=" COLOR_GOOD
-				      ">good</font>");
-			      break;
-			    case status_complete:
-			      printf ("<font color=" COLOR_COMPLETE
-				      ">complete</font>");
-			      break;
-			    case status_untested:
-			      printf ("<font color=" COLOR_UNTESTED
-				      ">untested</font>");
-			      break;
-			    case status_unsupported:
-			      printf ("<font color=" COLOR_UNSUPPORTED
-				      ">unsupported</font>");
-			      break;
-			    default:
-			      printf ("?");
-			      break;
-			    }
-			  printf ("</td>\n");
+			  printf ("<td align=center><font color=%s>%s</font></td>\n", 
+				  status_color[status], status_name[status]);
 
 			  if (model->comment && model->comment[0] != 0)
 			    printf ("<td>%s</td>\n", model->comment);
@@ -2218,37 +2318,9 @@ html_mfgs_table (device_type dev_type)
 	    printf ("<td align=center>%s</td>\n", model_record->interface);
 	  else
 	    printf ("<td align=center>?</td>\n");
-
-	  printf ("<td align=center>");
-
-	  if (status == status_unknown)
-	    status = model_record->be->status;
-
-	  switch (status)
-	    {
-	    case status_minimal:
-	      printf ("<font color=" COLOR_MINIMAL ">minimal</font>");
-	      break;
-	    case status_basic:
-	      printf ("<font color=" COLOR_BASIC ">basic</font>");
-	      break;
-	    case status_good:
-	      printf ("<font color=" COLOR_GOOD ">good</font>");
-	      break;
-	    case status_complete:
-	      printf ("<font color=" COLOR_COMPLETE ">complete</font>");
-	      break;
-	    case status_untested:
-	      printf ("<font color=" COLOR_UNTESTED ">untested</font>");
-	      break;
-	    case status_unsupported:
-	      printf ("<font color=" COLOR_UNSUPPORTED ">unsupported</font>");
-	      break;
-	    default:
-	      printf ("?");
-	      break;
-	    }
-	  printf ("</td>\n");
+	  
+	  printf ("<td align=center><font color=%s>%s</font></td>\n", 
+		  status_color[status], status_name[status]);
 
 	  if (model_record->comment && model_record->comment[0] != 0)
 	    printf ("<td>%s</td>\n", model_record->comment);
@@ -2322,12 +2394,6 @@ html_print_header (void)
      "isn't mentioned in this list at all.</p>\n"
      "<p>For an explanation of the tables, see the\n"
      "<a href=\"#legend\">legend</a>.\n");
-  printf
-    ("<p>There are tables for <a href=\"#SCANNERS\">scanners</a>,\n"
-     "<a href=\"#STILL\">still cameras</a>,\n"
-     "<a href=\"#VIDEO\">video cameras</a>,\n"
-     "<a href=\"#API\">APIs</a>, and\n"
-     "<a href=\"#META\">meta backends</a>.\n");
 }
 
 /* Print the HTML footers and contact information */
@@ -2464,6 +2530,8 @@ html_print_backends_split (void)
 
   html_print_header ();
 
+  html_print_summary ();
+
   printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
   html_backends_split_table (type_scanner);
 
@@ -2509,6 +2577,8 @@ html_print_mfgs (void)
 
   html_print_header ();
 
+  html_print_summary ();
+
   printf ("<h2><a name=\"SCANNERS\">Scanners</a></h2>\n");
   html_mfgs_table (type_scanner);
 
@@ -2542,57 +2612,14 @@ html_print_mfgs (void)
   html_print_footer ();
 }
 
+
 /* print statistics about supported devices */
 static void
 print_statistics_per_type (device_type dev_type)
 {
-  backend_entry *be = first_backend;
-  int num[7] = { 0, 0, 0, 0, 0, 0, 0 };
+  statistics_type num = {0, 0, 0, 0, 0, 0, 0};
 
-  while (be)
-    {
-      type_entry *type = be->type;
-
-      while (type)
-	{
-	  if (type->type == dev_type)
-	    {
-	      mfg_entry *mfg = type->mfg;
-	      model_entry *model;
-
-	      if (type->desc)
-		{
-		  num[status_complete]++;
-		  type = type->next;
-		  continue;
-		}
-
-	      if (!mfg)
-		{
-		  type = type->next;
-		  continue;
-		}
-
-	      mfg = type->mfg;
-	      while (mfg)
-		{
-		  model = mfg->model;
-		  if (model)
-		    {
-		      while (model)
-			{
-			  enum status_entry status = model->status;
-			  num[status]++;
-			  model = model->next;
-			}	/* while (model) */
-		    }		/* if (num_models) */
-		  mfg = mfg->next;
-		}		/* while (mfg) */
-	    }			/* if (type->type) */
-	  type = type->next;
-	}			/* while (type) */
-      be = be->next;
-    }				/* while (be) */
+  calculate_statistics_per_type (dev_type, num);
 
   printf (" Total:       %4d\n",
 	  num[status_minimal] + num[status_basic] + num[status_good] +
@@ -2601,15 +2628,16 @@ print_statistics_per_type (device_type dev_type)
   if (dev_type == type_scanner || dev_type == type_stillcam
       || dev_type == type_vidcam)
     {
-      printf
-	(" Supported:   %4d (complete: %d, good: %d, basic: %d, minimal: %d)\n",
-	 num[status_minimal] + num[status_basic] + num[status_good] +
-	 num[status_complete], num[status_complete], num[status_good],
-	 num[status_basic], num[status_minimal]);
+      printf (" Supported:   %4d (complete: %d, good: %d, basic: %d, "
+	      "minimal: %d)\n", 
+	      num[status_minimal] + num[status_basic] + num[status_good] +
+	      num[status_complete], num[status_complete], num[status_good],
+	      num[status_basic], num[status_minimal]);
       printf (" Untested:    %4d\n", num[status_untested]);
       printf (" Unsupported: %4d\n", num[status_unsupported]);
     }
 }
+
 static void
 print_statistics (void)
 {

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-01-07"		; version of backend
+:version "2006-01-08"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -2091,6 +2091,12 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Not supported. See link for more details."
+
+:model "One Touch 4800"
+:url "/unsupported/visioneer-onetouch4800.html"
+:interface "USB"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 :model "WorkCentre 470cx"
 :url "/unsupported/xerox-workcentre-470cx.html"

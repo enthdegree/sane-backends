@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "2.7"
+#define SANE_DESC_VERSION "3.0"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -78,7 +78,8 @@ output_mode;
 typedef enum parameter_type
 {
   param_none = 0,
-  param_string
+  param_string,
+  param_two_strings
 }
 parameter_type;
 
@@ -129,6 +130,8 @@ typedef struct model_entry
   struct url_entry *url;
   char *comment;
   enum status_entry status;
+  char *usb_vendor_id;
+  char *usb_product_id;
 }
 model_entry;
 
@@ -181,6 +184,8 @@ typedef struct model_record_entry
   struct url_entry *url;
   char *comment;
   enum status_entry status;
+  char *usb_vendor_id;
+  char *usb_product_id;
   struct backend_entry *be;
 }
 model_record_entry;
@@ -544,6 +549,41 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	*(SANE_String *) argument = strdup (word);
 	break;
       }
+    case param_two_strings:
+      {
+	char *pos;
+	char **strings = malloc (2 * sizeof (SANE_String));
+
+	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	  *pos = ' ';
+	DBG_INFO ("read_keyword: set first entry of `%s' to `%s'\n", keyword_token,
+		 word);
+	strings[0] = strdup (word);
+	if (word)
+	  free (word);
+
+	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	  *pos = ' ';
+	DBG_INFO ("read_keyword: set second entry of `%s' to `%s'\n", keyword_token,
+		 word);
+	strings[1] = strdup (word);
+	* (SANE_String **) argument = strings;
+	break;
+      }
     default:
       DBG_ERR ("read_keyword: unknown param_type %d\n", p_type);
       return SANE_STATUS_INVAL;
@@ -553,6 +593,29 @@ read_keyword (SANE_String line, SANE_String keyword_token,
     free (word);
   word = 0;
   return SANE_STATUS_GOOD;
+}
+
+/* Check for a all-lowercase 4-digit hex number (e.g. 0x1234) */
+static SANE_Bool
+check_hex (SANE_String string)
+{
+  unsigned int i;
+
+  if (strlen (string) != 6)
+    return SANE_FALSE;
+  if (strncmp (string, "0x", 2) != 0)
+    return SANE_FALSE;
+  for (i = 0; i < strlen (string); i++)
+    {
+      if (isupper (string[i]))
+	return SANE_FALSE;
+    }
+  for (i = 2; i < strlen (string); i++)
+    {
+      if (!isxdigit (string[i]))
+	return SANE_FALSE;
+    }
+  return SANE_TRUE;
 }
 
 /* Read and interprete the .desc files */
@@ -660,6 +723,7 @@ read_files (void)
 	      while (sanei_config_read (line, sizeof (line), fp))
 		{
 		  char *string_entry = 0;
+		  char **two_string_entry;
 		  word = 0;
 
 		  cp = get_token (line, &word);
@@ -1114,6 +1178,51 @@ read_files (void)
 		      current_model->interface = string_entry;
 		      continue;
 		    }
+		  if (read_keyword
+		      (line, ":usbid", param_two_strings,
+		       &two_string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (!current_model)
+			{
+			  DBG_WARN
+			    ("ignored `%s' :usbid, only allowed for "
+			     "hardware devices\n", current_backend->name);
+			  continue;
+			}
+		      if (!check_hex (two_string_entry[0]))
+			{
+			  DBG_WARN ("`%s's USB vendor id of `%s' is "
+				    "not a lowercase 4-digit hex number: "
+				    "`%s'\n", current_backend->name,
+				    current_model->name, two_string_entry[0]);
+			  continue;
+			}
+		      if (!check_hex (two_string_entry[1]))
+			{
+			  DBG_WARN ("`%s's USB product id of `%s' is "
+				    "not a lowercase 4-digit hex number: "
+				    "`%s'\n", current_backend->name,
+				    current_model->name, two_string_entry[1]);
+			  continue;
+			}
+
+		      if (current_model->usb_vendor_id || current_model->usb_product_id)
+			{
+			  DBG_WARN ("overwriting `%s's USB ids of model "
+				    "`%s' to `%s/%s' (was: `%s/%s')\n",
+				    current_backend->name,
+				    current_model->name, two_string_entry[0],
+				    two_string_entry[1], 
+				    current_model->usb_vendor_id,
+				    current_model->usb_product_id);
+			}
+
+		      DBG_INFO ("setting USB vendor and product ids of model `%s' to `%s/%s'\n",
+				current_model->name, two_string_entry[0], two_string_entry[1]);
+		      current_model->usb_vendor_id = two_string_entry[0];
+		      current_model->usb_product_id = two_string_entry[1];
+		      continue;
+		    }
 		  if (read_keyword (line, ":url", param_string, &string_entry)
 		      == SANE_STATUS_GOOD)
 		    {
@@ -1235,6 +1344,8 @@ create_model_record (model_entry * model)
   model_record->interface = model->interface;
   model_record->url = model->url;
   model_record->comment = model->comment;
+  model_record->usb_vendor_id = model->usb_vendor_id;
+  model_record->usb_product_id = model->usb_product_id;
   return model_record;
 }
 
@@ -1572,6 +1683,17 @@ ascii_print_backends (void)
 			    printf ("    interface `%s'\n", model->interface);
 			  else
 			    printf ("    interface *none*\n");
+
+			  if (model->usb_vendor_id)
+			    printf ("    usb-vendor-id `%s'\n", model->usb_vendor_id);
+			  else
+			    printf ("    usb-vendor-id *none*\n");
+
+			  if (model->usb_product_id)
+			    printf ("    usb-product-id `%s'\n", model->usb_product_id);
+			  else
+			    printf ("    usb-product-id *none*\n");
+
 			  switch (model->status)
 			    {
 			    case status_minimal:
@@ -1804,6 +1926,17 @@ xml_print_backends (void)
 				    clean_string (model->interface));
 			  else
 			    printf ("    <interface>*none*</interface>\n");
+
+			  if (model->usb_vendor_id)
+			    printf ("    <usbvendorid>%s</usbvendorid>\n",
+				    clean_string (model->usb_vendor_id));
+			  else
+			    printf ("    <usbvendorid>*none*</usbvendorid>\n");
+			  if (model->usb_product_id)
+			    printf ("    <usbproductid>%s</usbproductid>\n",
+				    clean_string (model->usb_product_id));
+			  else
+			    printf ("    <usbproductid>*none*</usbproductid>\n");
 
 			  switch (model->status)
 			    {
@@ -2169,6 +2302,7 @@ html_backends_split_table (device_type dev_type)
 	      printf ("<th align=center>Manufacturer</th>\n");
 	      printf ("<th align=center>Model</th>\n");
 	      printf ("<th align=center>Interface</th>\n");
+	      printf ("<th align=center>USB id</th>\n");
 	      printf ("<th align=center>Status</th>\n");
 	      printf ("<th align=center>Comment</th>\n");
 	      printf ("</tr>\n");
@@ -2215,6 +2349,12 @@ html_backends_split_table (device_type dev_type)
 				    model->interface);
 			  else
 			    printf ("<td align=center>?</td>\n");
+
+			  if (model->usb_vendor_id && model->usb_product_id)
+			    printf ("<td align=center>%s/%s</td>\n", 
+				    model->usb_vendor_id, model->usb_product_id);
+			  else
+			    printf ("<td align=center>&nbsp;</td>\n");
 
 			  printf ("<td align=center><font color=%s>%s</font></td>\n", 
 				  status_color[status], status_name[status]);
@@ -2297,6 +2437,7 @@ html_mfgs_table (device_type dev_type)
 
       printf ("<th align=center>Model</th>\n");
       printf ("<th align=center>Interface</th>\n");
+      printf ("<th align=center>USB id</th>\n");
       printf ("<th align=center>Status</th>\n");
       printf ("<th align=center>Comment</th>\n");
       printf ("<th align=center>Backend</th>\n");
@@ -2318,6 +2459,12 @@ html_mfgs_table (device_type dev_type)
 	    printf ("<td align=center>%s</td>\n", model_record->interface);
 	  else
 	    printf ("<td align=center>?</td>\n");
+
+	  if (model_record->usb_vendor_id && model_record->usb_product_id)
+	    printf ("<td align=center>%s/%s</td>\n", 
+		    model_record->usb_vendor_id, model_record->usb_product_id);
+	  else
+	    printf ("<td align=center>&nbsp;</td>\n");
 	  
 	  printf ("<td align=center><font color=%s>%s</font></td>\n", 
 		  status_color[status], status_name[status]);
@@ -2482,6 +2629,14 @@ html_print_legend_interface (void)
 }
 
 static void
+html_print_legend_usbid (void)
+{
+  printf
+    ("  <dt><b>USB id:</b></dt>\n"
+     "  <dd>The USB vendor and product ids as printed by sane-find-scanner -q (only applicable for USB devices).</dd>\n");
+}
+
+static void
 html_print_legend_status (void)
 {
   printf
@@ -2556,6 +2711,7 @@ html_print_backends_split (void)
   html_print_legend_manufacturer ();
   html_print_legend_model ();
   html_print_legend_interface ();
+  html_print_legend_usbid ();
   html_print_legend_status ();
   html_print_legend_description ();
 
@@ -2599,6 +2755,7 @@ html_print_mfgs (void)
 
   html_print_legend_model ();
   html_print_legend_interface ();
+  html_print_legend_usbid ();
   html_print_legend_status ();
   html_print_legend_comment ();
   html_print_legend_backend ();

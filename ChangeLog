@@ -1,6 +1,9 @@
 2006-01-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added Xerox 4800.
+	* doc/descriptions.txt tools/sane-desc.c: Added support for
+	  keyword :usbid. All output modes now print the usb vendor and
+	  product modes.
 
 2006-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

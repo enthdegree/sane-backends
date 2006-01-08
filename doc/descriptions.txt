@@ -15,10 +15,10 @@ SANE. It may contain additional information about the device or links to
 non-SANE based programs.
 
 The specification files can be used to generate lists of backends and/or
-supported devices, databases and similar sources of information.  Currently
-the creation of HTML lists is supported by `tools/sane-desc.c'.  The
-generation of the HTML pages can be started by `make html-pages' in the doc/
-directory.
+supported devices, hotplug/udev device lists, databases for search engines, and
+similar sources of information.  Currently the creation of ASCII output and HTML
+lists is supported by `tools/sane-desc.c'.  The generation of the HTML pages can
+be started by `make html-pages' in the doc/ directory.
 
 The file contents is basically emacs-lisp --- so ";" indicates comment to end
 of line.  Empty lines are ignored.
@@ -81,6 +81,13 @@ please contact the SANE mailing list for advice. The "Parport" entries can be
 amended by "(SPP)", "(ECP)" and/or "(EPP)". The `:interface' keyword refers to
 the previous `:model', is optional and should be used only once per model.
 Example: `:interface "SCSI USB IEEE-1394"'
+
+`:usbid' defines the USB vendor and product ids of the device. It has two
+arguments which must be lower case hexadecimal (4 digits). The first one is the
+USB vendor id, the second one the USB üproduct id. The keyword refers to the
+previous `:model', is optional, and applicable for devices with :interface "USB"
+only, and should be used only once per model.
+Example: `:usbid "0x1234" "0x4321"'
 
 The keyword `:status' is an indication of the level of support for the model.
 It's followed by one of the following keyword arguments: `:unsupported',

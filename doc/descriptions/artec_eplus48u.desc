@@ -62,6 +62,7 @@
 :model "MR 9791"
 :status :good
 :interface "USB"
+:usbid "0x05d8" "0x4003"
 
 :mfg "UMAX"
 :url "http://www.umax.com/"

@@ -55,44 +55,59 @@
 :model "SnapScan 1236u"
 :interface "USB"
 :status :good
+:usbid "0x06bd" "0x0002"
 :comment "Optional ADF and transparency unit supported."
 
-:model "SnapScan 1212u"
+:model "SnapScan 1212U"
 :interface "USB"
+:usbid "0x06bd" "0x0001"
+:status :good
+
+:model "SnapScan 1212U_2"
+:interface "USB"
+:usbid "0x06bd" "0x2061"
 :status :good
 
 :model "SnapScan e10"
 :interface "USB"
+:usbid "0x06bd" "0x2093"
 :status :good
 
 :model "SnapScan e20"
 :interface "USB"
+:usbid "0x06bd" "0x2091"
 :status :good
 
 :model "SnapScan e25"
 :interface "USB"
+:usbid "0x06bd" "0x2095"
 :status :good
 
 :model "SnapScan e26"
 :interface "USB"
+:usbid "0x06bd" "0x2097"
 :status :good
 
 :model "SnapScan e40"
 :interface "USB"
+:usbid "0x06bd" "0x208d"
 :status :good
 
 :model "SnapScan e42"
 :interface "USB"
+:usbid "0x06bd" "0x20ff"
 :status :good
 
 :model "SnapScan e50"
 :interface "USB"
 :status :good
+:usbid "0x06bd" "0x208f"
 :comment "Optional tranparency unit supported"
 
 :model "SnapScan e52"
 :interface "USB"
 :status :good
+:usbid "0x06bd" "0x20fd"
 :comment "Optional tranparency unit supported"
 
 :model "SnapScan e60"
@@ -131,77 +146,110 @@
 :interface "SCSI"
 :status :good
 
-:model "310u"
+:model "310U"
 :interface "USB"
+:usbid "0x04a5" "0x1a20"
 :status :good
 
-:model "320u"
+:model "320U"
 :interface "USB"
+:usbid "0x04a5" "0x2022"
 :status :good
 
-:model "340u"
+:model "340U"
 :interface "USB"
+:usbid "0x04a5" "0x2022"
 :status :good
 
-:model "620u"
+:model "620U"
 :interface "USB"
+:usbid "0x04a5" "0x1a2a"
 :status :good
 :comment "Optional tranparency unit supported"
 
-:model "640u"
+:model "620UT"
 :interface "USB"
+:usbid "0x04a5" "0x2040"
+:status :good
+:comment "Optional tranparency unit supported"
+
+
+:model "640U"
+:interface "USB"
+:usbid "0x04a5" "0x2060"
 :status :good
 :comment "Optional tranparency unit supported"
 
 :model "640bu"
 :interface "USB"
+:usbid "0x04a5" "0x207e"
 :status :good
 
 :model "640BT"
 :interface "USB"
+:usbid "0x04a5" "0x20be"
 :status :good
 :comment "Optional tranparency unit supported"
 
 :model "1240"
 :interface "USB"
+:usbid "0x04a5" "0x20c0"
 :status :good
 :comment "Optional tranparency unit supported"
 
 :model "3300"
 :interface "USB"
+:usbid "0x04a5" "0x20b0"
+:status :good
+
+:model "3300_2"
+:interface "USB"
+:usbid "0x04a5" "0x20de"
 :status :good
 
 :model "4300"
 :interface "USB"
+:usbid "0x04a5" "0x20b0"
+:status :good
+
+:model "4300_2"
+:interface "USB"
+:usbid "0x04a5" "0x20de"
 :status :good
 
 :model "5000E"
 :interface "USB"
+:usbid "0x04a5" "0x20fc"
 :status :basic
-:comment "USB ID 0x04a5,0x20fc: Same as 5000U, working up to 600 DPI"
+:comment "Same as 5000U, working up to 600 DPI"
 
 :model "5000U"
 :interface "USB"
+:usbid "0x04a5" "0x20fc"
 :status :basic
-:comment "USB ID 0x04a5,0x20fc: Same as 5000E, working up to 600 DPI"
+:comment "Same as 5000E, working up to 600 DPI"
 
 :model "5000"
 :interface "USB"
+:usbid "0x04a5" "0x20f8"
 :status :good
 :comment "USB ID 0x04a5,0x20f8: Color / grayscale scans working up to 1200 DPI"
 
 :model "5150"
 :interface "USB"
+:usbid "0x04a5" "0x2137"
 :status :basic
 :comment "Calibration algorithm unknown"
 
 :model "5250"
 :interface "USB"
+:usbid "0x04a5" "0x2137"
 :status :basic
-:comment "Same hardware as 5150 (?)"
+:comment "Same hardware as 5150 (?), Calibration algorithm unknown"
 
 :model "5300"
 :interface "USB"
+:usbid "0x04a5" "0x20fe"
 :status :basic
 :comment "Problems with firmware upload reported"
 
@@ -217,16 +265,19 @@
 
 :model "Scan@home Touch 1248 (USB)"
 :interface "USB"
+:usbid "0x04a5" "0x20de"
 :status :good
 :comment "Rebadged Benq 3300."
 
 :model "Maxi Scan A4 USB 640U"
 :interface "USB"
+:usbid "0x04a5" "0x2060"
 :status :good
 :comment "Rebadged Benq 640U."
 
 :model "Maxi A4 36 bit"
 :interface "USB"
+:usbid "0x04a5" "0x2060"
 :status :good
 :comment "Rebadged Benq 620U, needs Benq firmware file u96v???.bin"
 
@@ -237,11 +288,13 @@
 
 :model "Diamondview 648UT"
 :interface "USB"
+:usbid "0x04a5" "0x2022"
 :status :good
 :comment "Rebadged Benq 320u."
 
 :model "Diamondview 650U"
 :interface "USB"
+:usbid "0x04a5" "0x20b0"
 :status :good
 :comment "Rebadged Benq 4300."
 
@@ -252,31 +305,38 @@
 
 :model "Perfection 660"
 :interface "USB"
+:usbid "0x04b8" "0x0114"
 :status :good
 
 :model "Perfection 1270"
 :interface "USB"
+:usbid "0x04b8" "0x0120"
 :status :good
 
 :model "Perfection 1670"
 :interface "USB"
+:usbid "0x04b8" "0x011f"
 :status :good
 
 :model "Perfection 2480"
 :interface "USB"
+:usbid "0x04b8" "0x0121"
 :status :good
 
 :model "Perfection 2580"
 :interface "USB"
 :status :basic
+:usbid "0x04b8" "0x0121"
 :comment "Film scanning unit unsupported"
 
 :model "Perfection 3490"
 :interface "USB"
+:usbid "0x04b8" "0x0122"
 :status :good
 
 :model "Perfection 3590"
 :interface "USB"
+:usbid "0x04b8" "0x0122"
 :status :basic
 :comment "Film scanning unit unsupported"
 

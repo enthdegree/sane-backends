@@ -34,6 +34,7 @@
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
+:usbid "0x05da" "0x30d4"
 :comment "8 and 16 bit, color and grayscale"  ; comment about the model
 
 :model "ScanMaker 4800"           ; name models for above-specified mfg.
@@ -44,6 +45,7 @@
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
+:usbid "0x05da" "0x30cf"
 :comment "Same hardware as SM3840, different color box" ; comment
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,

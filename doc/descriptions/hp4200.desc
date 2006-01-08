@@ -23,16 +23,19 @@
 
 :model "ScanJet 4200C"                   ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x03f0" "0x0105"
 :status :basic
 :comment "8bpp color, 75/150/300/600 dpi only"
 
 :model "ScanJet 4200Cxi"                   ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x03f0" "0x0105"
 :status :basic
 :comment "8bpp color, 75/150/300/600 dpi only"
 
 :model "ScanJet 4200Cse"                   ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x03f0" "0x0105"
 :status :basic
 :comment "8bpp color, 75/150/300/600 dpi only"
 

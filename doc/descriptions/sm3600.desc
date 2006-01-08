@@ -18,15 +18,36 @@
 
 :model "ScanMaker 3600"
 :interface "USB"
+:usbid "0x05da" "0x40b3"
+:comment "works"
+:status :basic
+
+:model "ScanMaker 3600"
+:interface "USB"
+:usbid "0x05da" "0x40ca"
+:comment "works"
+:status :basic
+
+:model "ScanMaker 3600"
+:interface "USB"
+:usbid "0x05da" "0x40ff"
 :comment "works"
 :status :basic
 
 :model "ScanMaker 3700"
 :interface "USB"
+:usbid "0x05da" "0x40b8"
+:comment "works"
+:status :basic
+
+:model "ScanMaker 3700"
+:interface "USB"
+:usbid "0x05da" "0x40cb"
 :comment "works"
 :status :basic
 
 :model "ScanMaker 3750"
 :interface "USB"
+:usbid "0x05da" "0x40dd"
 :comment "works (told)"
 :status :basic

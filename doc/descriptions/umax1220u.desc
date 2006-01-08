@@ -24,22 +24,26 @@
 
 :model "Astra 1220U"        ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x1606" "0x0010"
 :status :good
 :comment "OK"
 
 :model "Astra 1600U"
 :interface "USB"
+:usbid "0x1606" "0x0030"
 :status :minimal
 :comment "Is reported to be the same as the 2000U. Sort of scans, but colors all messed up."
 
 :model "Astra 2000U"
 :interface "USB"
+:usbid "0x1606" "0x0030"
 :status :minimal
 :comment "Sort of scans, but colors all messed up."
 
 :model "Astra 2100 U"
 :url "/unsupported/umax-astra-2100u.html"
 :interface "USB"
+:usbid "0x1606" "0x0130"
 :status :minimal
 :comment "Colours are distorted, there are vertical colour stripes, and the image is shadowed inches to its left."
 

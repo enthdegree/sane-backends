@@ -8,6 +8,15 @@
 	  udev. Added version information to html modes.
 	* doc/descriptions/gt68xx.desc: Added vendor and product ids for
 	  all scanners.
+	* doc/descriptions/artec_eplus48u.desc
+	  doc/descriptions/genesys.desc doc/descriptions/hp3500.desc
+	  doc/descriptions/hp4200.desc doc/descriptions/ma1509.desc
+	  doc/descriptions/microtek2.desc doc/descriptions/mustek_usb.desc
+	  doc/descriptions/mustek_usb2.desc doc/descriptions/sm3600.desc
+	  doc/descriptions/sm3840.desc doc/descriptions/template.desc.
+	  doc/descriptions/umax1220u.desc doc/descriptions/unsupported.desc
+	  doc/descriptions-external/template.desc.:
+	  Added USB vendor and product ids. Minor cleanups.
 
 2006-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

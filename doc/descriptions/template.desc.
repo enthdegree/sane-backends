@@ -38,16 +38,19 @@
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
+:usbid "0x1234" "0x4321"          ; Vendor and product ids of an USB device
 :url "http://www.tmp.com/z.html"  ; model's URL
 :comment "With Z-Axis scrolling"  ; comment about the model
 
 :model "Templ ZS"
 :interface "USB"
+:usbid "0x1234" "0x4322"
 :status :unsupported
 :comment "No support yet, but we have docs."
 
 :model "Templ ZQ"
 :interface "USB"
+:usbid "0x1234" "0x4323"
 :status :minimal
 
 :model "Templ ZY"

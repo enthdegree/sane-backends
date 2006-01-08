@@ -571,6 +571,10 @@
 :status :unsupported
 :comment "Unsupported. Vendor/product unknown. Maybe similar to fi-4220C?"
 
+:model "fi-4110EOX2"
+:interface "USB"
+:status :unsupported
+:comment "Uses ma1509 chip, but very different from other scanners supported by the ma1509 backend"
 
 ;********************************************************************************************
 

@@ -12,4 +12,5 @@
 
 :model "BearPaw 2448TA Pro"
 :interface "USB"
+:usbid "0x055f" "0x0409"
 :status :good

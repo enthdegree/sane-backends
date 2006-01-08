@@ -13,6 +13,7 @@
 :model "E+ 48U"
 :status :good
 :interface "USB"
+:usbid "0x05d8" "0x4003"
 :comment "CIS scanner based on the GT6816 chip. Apparently all other devices are re-badged Artec scanners."
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
@@ -22,14 +23,17 @@
 :model "MD9693"
 :status :good
 :interface "USB"
+:usbid "0x05d8" "0x4003"
 
 :model "MD9705"
 :status :good
 :interface "USB"
+:usbid "0x05d8" "0x4003"
 
 :model "MD4394"
 :status :good
 :interface "USB"
+:usbid "0x05d8" "0x4003"
 :comment "Only scanners with product id 0x4003 will work; try the gt68xx backend, if your scanner has product id 0x4002 "
 
 :mfg "Trust"
@@ -38,19 +42,20 @@
 :model "Easy Webscan 19200"
 :status :good
 :interface "USB"
-:comment "Different product id: 0x4006"
+:usbid "0x05d8" "0x4006"
 
 :model "240H Easy Webscan Gold"
 :status :basic
 :interface "USB"
-:comment "Different product id: 0x4007, works up to 600 dpi"
+:usbid "0x05d8" "0x4007"
+:comment "Works up to 600 dpi"
 
 :mfg "Memorex"
 :url "http://www.artecusa.com/"
 :model "MEM 48U"
 :status :good
 :interface "USB"
-:comment "Different product id: 0x4005"
+:usbid "0x05d8" "0x4005"
 
 :mfg "Microstar"
 :url "http://www.microstar.de/"
@@ -69,16 +74,17 @@
 :model "AstraSlim SE"
 :status :good
 :interface "USB"
-:comment "Different product id: 0x4009"
+:usbid "0x05d8" "0x4009"
 
 :model "AstraSlim 1200 SE"
 :status :good
 :interface "USB"
-:comment "Different product id: 0x4010"
+:usbid "0x05d8" "0x4010"
 
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
 :model "E+ Pro"
 :status :minimal
 :interface "USB"
-:comment "Experimental! Different product id: 0x4004. Please report your results!"
+:usbid "0x05d8" "0x4004"
+:comment "Experimental! Please report your results!"

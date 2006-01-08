@@ -12,18 +12,21 @@
 :url "http://www.medion.de/"
 
 :model "MD5345"
-:status :good
 :interface "USB"
+:usbid "0x0461" "0x0377"
+:status :good
 :comment "Has a Primax USB ID"
 
 :model "MD6228"
-:status :good
 :interface "USB"
+:usbid "0x0461" "0x0377"
+:status :good
 :comment "Has a Primax USB ID. Same as MD5345"
 
 :model "MD6471"
-:status :complete
 :interface "USB"
+:usbid "0x0461" "0x0377"
+:status :complete
 :comment "Has a Primax USB ID. Same as MD5345"
 
 ; -----------------------------------------------------------------------------
@@ -32,8 +35,9 @@
 :url "http://www.hp.com/"
 
 :model "ScanJet 2300C"
-:status :complete
 :interface "USB"
+:usbid "0x03f0" "0x0901"
+:status :complete
 :comment "600x1200 dpi max"
 
 ; -----------------------------------------------------------------------------
@@ -43,18 +47,22 @@
 
 :model "CanoScan LiDE 35"
 :interface "USB"
+:usbid "0x04a9" "0x2213"
 :status :good
 :comment "Same ids as LiDE 50."
 
 :model "CanoScan LiDE 40"
 :interface "USB"
+:usbid "0x04a9" "0x2213"
 :status :untested
 :comment "Same ids as LiDE 50. Please tell us if this scanner works."
 
 :model "CanoScan LiDE 50"
 :interface "USB"
+:usbid "0x04a9" "0x2213"
 :status :good
 
 :model "CanoScan LiDE 60"
 :interface "USB"
+:usbid "0x04a9" "0x221c"
 :status :good

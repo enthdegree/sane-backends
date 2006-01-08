@@ -12,30 +12,30 @@
 
 :model "ScanExpress 600 CU"
 :interface "USB"
+:usbid "0x055f" "0x0002"
 :status :complete
 
 :model "ScanExpress 1200 CU"
 :interface "USB"
+:usbid "0x055f" "0x0001"
 :status :complete
 
 :model "ScanExpress 1200 CU Plus"
 :interface "USB"
+:usbid "0x055f" "0x0008"
 :status :complete
 
 :model "ScanExpress 1200 UB"
 :interface "USB"
+:usbid "0x055f" "0x0006"
 :status :complete
 :comment "For the UB Plus, see gt68xx backend"
-
-;:model "ScanExpress 1200 USB"
-;:interface "USB"
-;:comment "CCD not yet supported"
-;:status :untested
 
 :mfg "Trust"
 :url "http://www.trust-site.com"
 
 :model "Compact Scan USB 19200"
 :interface "USB"
+:usbid "0x055f" "0x0006"
 :status :complete
 :comment "Mustek 1200 UB compatible"

@@ -4,6 +4,8 @@
 	* doc/descriptions.txt tools/sane-desc.c: Added support for
 	  keyword :usbid. All output modes now print the usb vendor and
 	  product modes.
+	* doc/descriptions/gt68xx.desc: Added vendor and product ids for
+	  all scanners.
 
 2006-01-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

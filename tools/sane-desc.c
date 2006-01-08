@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "3.0"
+#define SANE_DESC_VERSION "3.1"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -71,7 +71,10 @@ typedef enum output_mode
   output_mode_html_backends,
   output_mode_html_backends_split,
   output_mode_html_mfgs,
-  output_mode_statistics
+  output_mode_statistics,
+  output_mode_usermap,
+  output_mode_db,
+  output_mode_udev
 }
 output_mode;
 
@@ -202,6 +205,23 @@ mfg_record_entry;
 
 typedef int  statistics_type [status_complete + 1];
 
+
+typedef struct manufacturer_model_type
+{
+  struct manufacturer_model_type * next;
+  char *name;
+}
+manufacturer_model_type;
+
+typedef struct usbid_type
+{
+  struct usbid_type * next;
+  char *usb_vendor_id;
+  char *usb_product_id;
+  struct manufacturer_model_type *name;
+}
+usbid_type;
+
 static char *program_name;
 static int debug = 0;
 static int current_debug_level = 0;
@@ -269,7 +289,7 @@ print_usage (char *program_name)
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
 	  "Output mode (ascii, html-backends-split,\n"
-	  "                         html-mfgs, xml, statistics)\n");
+	  "                         html-mfgs, xml, statistics, usermap, db, udev)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -350,6 +370,21 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_statistics;
+	    }
+	  else if (strcmp (optarg, "usermap") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_usermap;
+	    }
+	  else if (strcmp (optarg, "db") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_db;
+	    }
+	  else if (strcmp (optarg, "udev") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_udev;
 	    }
 	  else
 	    {
@@ -2555,8 +2590,8 @@ html_print_footer (void)
      "<address>\n"
      "<a href=\"http://www.sane-project.org/imprint.html\"\n"
      ">Contact</a>\n" "</address>\n" "<font size=-1>\n");
-  printf ("This page was last updated on %s\n",
-	  asctime (localtime (&current_time)));
+  printf ("This page was last updated on %s by sane-desc %s from %s\n",
+	  asctime (localtime (&current_time)), SANE_DESC_VERSION, PACKAGE_STRING);
   printf ("</font>\n");
   printf ("</body> </html>\n");
 }
@@ -2811,6 +2846,297 @@ print_statistics (void)
   print_statistics_per_type (type_api);
 }
 
+static usbid_type *
+create_usbid (char *manufacturer, char *model, 
+	      char *usb_vendor_id, char *usb_product_id)
+{
+  usbid_type * usbid = calloc (1, sizeof (usbid_type));
+
+  usbid->usb_vendor_id = strdup (usb_vendor_id);
+  usbid->usb_product_id = strdup (usb_product_id);
+  usbid->name = calloc (1, sizeof (manufacturer_model_type));
+  usbid->name->name = calloc (1, strlen (manufacturer) + strlen (model) + 3);
+  sprintf (usbid->name->name, "%s %s", manufacturer, model);
+  usbid->name->next = 0;
+  usbid->next = 0;
+  DBG_DBG ("New USB ids: %s/%s (%s %s)\n", usb_vendor_id, usb_product_id,
+	    manufacturer, model);
+  return usbid;
+}
+
+static usbid_type *
+add_usbid (usbid_type *first_usbid, char *manufacturer, char *model, 
+	   char *usb_vendor_id, char *usb_product_id)
+{
+  usbid_type *usbid = first_usbid;
+  usbid_type *prev_usbid = 0, *tmp_usbid = 0;
+
+  if (!first_usbid)
+    first_usbid = create_usbid (manufacturer, model, usb_vendor_id, usb_product_id);
+  else
+    {
+      while (usbid)
+	{
+	  if (strcmp (usb_vendor_id, usbid->usb_vendor_id) == 0 &&
+	      strcmp (usb_product_id, usbid->usb_product_id) == 0)
+	    {
+	      manufacturer_model_type *man_mod = usbid->name;
+
+	      while (man_mod->next)
+		man_mod = man_mod->next;
+	      man_mod->next = malloc (sizeof (manufacturer_model_type));
+	      man_mod->next->name = malloc (strlen (manufacturer) + strlen (model) + 3);
+	      sprintf (man_mod->next->name, "%s %s", manufacturer, model);
+	      man_mod->next->next = 0;
+	      DBG_DBG ("Added manufacturer/model %s %s to USB ids %s/%s\n", manufacturer, model,
+			usb_vendor_id, usb_product_id);
+	      break;
+	    }
+	  if (strcmp (usb_vendor_id, usbid->usb_vendor_id) < 0 || 
+	      (strcmp (usb_vendor_id, usbid->usb_vendor_id) == 0 &&
+	       strcmp (usb_product_id, usbid->usb_product_id) < 0))
+	    {
+	      
+	      tmp_usbid = create_usbid (manufacturer, model, usb_vendor_id, usb_product_id);
+	      tmp_usbid->next = usbid;
+	      if (prev_usbid)
+		prev_usbid->next = tmp_usbid;
+	      else
+		first_usbid = tmp_usbid;
+	      break;
+	    }
+	  prev_usbid = usbid;
+	  usbid = usbid->next;
+	}
+      if (!usbid)
+	{
+	  prev_usbid->next = create_usbid (manufacturer, model, usb_vendor_id, usb_product_id);
+	  usbid = prev_usbid->next;
+	}
+    }
+  return first_usbid;
+}
+
+static usbid_type *
+create_usbids_table (void)
+{
+  backend_entry *be = first_backend;
+  usbid_type *first_usbid = 0;
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  mfg_entry *mfg = type->mfg;
+	  model_entry *model;
+
+	  if (!mfg)
+	    {
+	      type = type->next;
+	      continue;
+	    }
+
+	  mfg = type->mfg;
+	  while (mfg)
+	    {
+	      model = mfg->model;
+	      if (model)
+		{
+		  while (model)
+		    {
+		      if (model->usb_vendor_id && model->usb_product_id)
+			{
+			  first_usbid = add_usbid (first_usbid, mfg->name, 
+						   model->name,
+						   model->usb_vendor_id,
+						   model->usb_product_id);
+			}
+		      model = model->next;
+		    }	/* while (model) */
+		}		/* if (model) */
+	      mfg = mfg->next;
+	    }		/* while (mfg) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+  return first_usbid;
+}
+
+/* print USB usermap file to be used by the hotplug tools */
+static void
+print_usermap_header (void)
+{
+  time_t current_time = time (0);
+
+  printf ("# This file was automatically created based on description files (*.desc)\n"
+	  "# by sane-desc %s from %s on %s",
+	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+  printf
+    ("#\n"
+     "# The entries below are used to detect a USB device when it's plugged in\n"
+     "# and then run the libusbscanner script to change the ownership and\n"
+     "# permissions on the \"device node\" used by libusb.\n"
+     "#\n"
+     "# The 0x0003 match flag means the device is matched by its vendor and\n"
+     "# product IDs.\n"
+     "#\n"
+     "# Sample entry (replace 0xVVVV and 0xPPPP with vendor ID and product ID\n"
+     "# respectively):\n");
+  printf
+    ("# libusbscanner 0x0003 0xVVVV 0xPPPP 0x0000 0x0000 0x00 0x00 0x00 0x00 "
+     "0x00 0x00 0x00000000\n"
+     "# usb module match_flags idVendor idProduct bcdDevice_lo bcdDevice_hi "
+     "bDeviceClass bDeviceSubClass bDeviceProtocol bInterfaceClass "
+     "bInterfaceSubClass bInterfaceProtocol driver_info\n"
+     "#\n"
+     "# The following list already contains a lot of scanners. If your scanner\n"
+     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "#\n");
+}
+
+static void
+print_usermap (void)
+{
+  usbid_type *usbid = create_usbids_table ();
+
+  print_usermap_header ();
+  while (usbid)
+    {
+      manufacturer_model_type * name = usbid->name;
+
+      printf ("# ");
+      while (name)
+	{
+	  if (name != usbid->name)
+	    printf (" | ");
+	  printf ("%s", name->name);
+	  name = name->next;
+	}
+      printf ("\n");
+      printf ("libusbscanner 0x0003 %s %s ", usbid->usb_vendor_id,
+	      usbid->usb_product_id);
+      printf ("0x0000 0x0000 0x00 0x00 0x00 0x00 0x00 0x00 0x00000000\n");
+      usbid = usbid->next;
+    }
+}
+
+/* print libsane.db file for hotplug-ng */
+static void
+print_db_header (void)
+{
+  time_t current_time = time (0);
+  printf ("# This file was automatically created based on description files (*.desc)\n"
+	  "# by sane-desc %s from %s on %s",
+	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+  printf
+    ("#\n"
+     "# The entries below are used to detect a USB device when it's plugged in\n"
+     "# and then run a script to change the ownership and\n"
+     "# permissions on the \"device node\" used by libusb.\n"
+     "# Sample entry (replace 0xVVVV and 0xPPPP with vendor ID and product ID\n"
+     "# respectively):\n");
+  printf 
+    ("#\n"
+     "# 0xVVVV<tab>0xPPPP<tab>root:scanner<tab>0660<tab>[/usr/local/bin/foo.sh]\n"
+     "# Fields:\n"
+     "#   vendor ID\n"
+     "#   product ID\n"
+     "#   ownership (user:group)\n"
+     "#   permissions\n"
+     "#   path of an optional script to run (it can be omitted)\n");
+  printf
+    ("#\n"
+     "# The following list already contains a lot of scanners. If your scanner\n"
+     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "#\n");
+}
+
+
+static void
+print_db (void)
+{
+  usbid_type *usbid = create_usbids_table ();
+
+  print_db_header ();
+  while (usbid)
+    {
+      manufacturer_model_type * name = usbid->name;
+
+      printf ("# ");
+      while (name)
+	{
+	  if (name != usbid->name)
+	    printf (" | ");
+	  printf ("%s", name->name);
+	  name = name->next;
+	}
+      printf ("\n");
+      printf ("%s\t%s\troot:scanner\t0660\t\n", usbid->usb_vendor_id,
+	      usbid->usb_product_id);
+      usbid = usbid->next;
+    }
+}
+
+/* print libsane.rules for Linux udev */
+static void
+print_udev_header (void)
+{
+  time_t current_time = time (0);
+  printf ("# This file was automatically created based on description files (*.desc)\n"
+	  "# by sane-desc %s from %s on %s",
+	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+
+  printf 
+    ("#\n"
+     "# udev rules file for supported USB devices\n"
+     "#\n"
+     "# To add a USB device, add a rule to the list below between the SUBSYSTEM...\n"
+     "# and LABEL... lines.\n"
+     "#\n"
+     "# To run a script when your device is plugged in, add RUN=\"/path/to/script\"\n"
+     "# to the appropriate rule.\n");
+  printf
+    ("#\n"
+     "# The following list already contains a lot of scanners. If your scanner\n"
+     "# isn't mentioned there, add it as explained above and mail the entry to\n"
+     "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
+     "#\n");
+}
+
+
+
+static void
+print_udev (void)
+{
+  usbid_type *usbid = create_usbids_table ();
+
+  print_udev_header ();
+  printf ("\nSUBSYSTEM!=\"usb_device\", ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n\n");
+  while (usbid)
+    {
+      manufacturer_model_type * name = usbid->name;
+
+      printf ("# ");
+      while (name)
+	{
+	  if (name != usbid->name)
+	    printf (" | ");
+	  printf ("%s", name->name);
+	  name = name->next;
+	}
+      printf ("\n");
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"660\", GROUP=\"scanner\"\n",
+	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
+      usbid = usbid->next;
+    }
+  printf ("LABEL=\"libsane_rules_end\"\n");
+}
+
 int
 main (int argc, char **argv)
 {
@@ -2840,6 +3166,15 @@ main (int argc, char **argv)
       break;
     case output_mode_statistics:
       print_statistics ();
+      break;
+    case output_mode_usermap:
+      print_usermap ();
+      break;
+    case output_mode_db:
+      print_db ();
+      break;
+    case output_mode_udev:
+      print_udev ();
       break;
     default:
       DBG_ERR ("Unknown output mode\n");

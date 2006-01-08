@@ -3,7 +3,9 @@
 	* doc/descriptions/unsupported.desc: Added Xerox 4800.
 	* doc/descriptions.txt tools/sane-desc.c: Added support for
 	  keyword :usbid. All output modes now print the usb vendor and
-	  product modes.
+	  product modes. Added usermap, db, and udev output modes for
+	  generating USB vendor/product lists for hotplug (ng) and Linux
+	  udev. Added version information to html modes.
 	* doc/descriptions/gt68xx.desc: Added vendor and product ids for
 	  all scanners.
 

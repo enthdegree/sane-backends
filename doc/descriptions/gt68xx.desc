@@ -168,6 +168,11 @@
 
 :model "BearPaw 1200 CU Plus"
 :interface "USB"
+:usbid "0x055f" "0x021b"
+:status :good
+
+:model "BearPaw 1200 CU Plus"
+:interface "USB"
 :usbid "0x055f" "0x021c"
 :status :good
 

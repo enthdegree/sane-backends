@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-01-08"		; version of backend
+:version "2006-01-09"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -396,7 +396,7 @@
 
 :model "IS 52"
 :url "/unsupported/canon-is-52.html"
-;:interface "USB"
+:interface "USB"
 :status :unsupported
 :comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
@@ -1361,62 +1361,77 @@
 :mfg "Panasonic"
 
 :model "KV-SS905C"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S2026C"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S2046C"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S2055W"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S2055L"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S2065W"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S3065CW"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S3065CL"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S3085"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S3105C"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S6040W"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S6045W"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S6050W"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S6055W"
+:interface "SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 
 :model "KV-S7065C"
+:interface "USB SCSI"
 :status :unsupported
 :comment "might be supported by matsushita backend."
 

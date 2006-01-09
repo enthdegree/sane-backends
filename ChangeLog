@@ -1,6 +1,8 @@
 2006-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/gt68xx.desc: Added USB id.
+	* doc/descriptions/unsupported.desc: Added interfaces to Panasonic
+	  scanners.
 
 2006-01-08  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

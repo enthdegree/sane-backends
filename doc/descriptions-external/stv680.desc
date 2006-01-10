@@ -26,8 +26,9 @@
 ; name models for above-specified mfg.
 :model "Aiptek Pencam"
 :interface "USB"
+:usbid "0x0553" "0x0202"
 :status :minimal
-:comment "usb vid 0c0553 pid 0x0202, image is OK for CIF and QCIF, VGA and QVGA untested, streaming video is a problem"
+:comment "image is OK for CIF and QCIF, VGA and QVGA untested, streaming video is a problem"
 
 :mfg "Konica"                         ; name a manufacturer
 :url "http://www.konicaminolta.com"
@@ -35,19 +36,29 @@
 ; name models for above-specified mfg.
 :model "e-mini"
 :interface "USB"
+:usbid "0x4c8" "0x0722"
 :status :untested
-:comment "usb vid 0x04c8 pid 0x0722  "
+:comment "  "
 
-:mfg "Digital Dream"                         ; name a manufacturer
+:mfg "Digital Dream"                  ; name a manufacturer
 :url "http://www.digitaldreamco.com/en/index.shtml"
 
 ; name models for above-specified mfg.
 :model "l' espion XS"
 :interface "USB"
+:usbid "0x1183" "0x0001"
 :status :untested
-:comment "usb vid 0x1183 pid 0x0001"
+:comment "  "
 
+:mfg "Creative"                       ; name a manufacturer
+:url "http://www.creative.com/"
 
+; name models for above-specified mfg.
+:model "WebCam Go Mini"
+:interface "USB"
+:usbid "0x041e" "0x4007"
+:status :untested
+:comment "  "
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,3 +1,8 @@
+2006-01-10  Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* doc/descriptions-external/stv680.desc: Added USB id.
+	  added Creative webcam to list
+	  
 2006-01-10  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/epkowa.desc: Film area guide mode of

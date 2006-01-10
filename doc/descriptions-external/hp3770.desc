@@ -27,12 +27,13 @@
 :url "http://www.hp.com/"         ; manufacturer's URL
 
 :model "ScanJet 3770"                  ; name models for above-specified mfg.
-:status :good                     ; :minimal, :basic, :good, :complete
+:status :basic                     ; :minimal, :basic, :good, :complete
                                   ; :untested, or :unsupported
 :interface "USB"                  ; interface type of the device:
                                   ; "SCSI", "USB", "Parport (EPP)",
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
+:usbid "0x03f0" "0x2505"
 :url "http://ftp.cyberbaladeur.fr/3770.tar.gz"  ; model's URL
-:comment "External backend. Binary-only code. Not supported by the SANE developers. Is reported to scan only a small area?"
+:comment "External backend. Binary-only Linux i386 code. Not supported by the SANE developers. Is reported to scan only a small area?  Scanning of slides or negatives is not implemented."

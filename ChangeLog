@@ -15,6 +15,18 @@
 
 	* doc/descriptions-external/epkowa.desc: Film area guide mode of
 	  4990 not supported (bug #302728).
+	* doc/descriptions-external/brother-mfc4600.desc
+	  doc/descriptions-external/brother.desc
+	  doc/descriptions-external/brother2.desc
+	  doc/descriptions-external/hp3770.desc
+	  doc/descriptions-external/hp3900.desc
+	  doc/descriptions-external/hp8200.desc
+	  doc/descriptions-external/hp_rts88xx.desc
+	  doc/descriptions-external/mustek_a3p1.desc
+	  doc/descriptions-external/primascan.desc
+	  doc/descriptions-external/template.desc.
+	  doc/descriptions-external/viceo.desc:
+	  Added several USB ids. Added some more scanners. General cleanup.
 
 2006-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

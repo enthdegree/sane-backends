@@ -27,7 +27,6 @@
 :url "http://www.hp.com/"
 
 :model "ScanJet 3970c"                  ; name models for above-specified mfg.
-;:url "/unsupported/hp-scanjet-3970c.html"
 :status :minimal                 ; :minimal, :basic, :good, :complete
                                   ; :untested, or :unsupported
 :interface "USB"                 ; interface type of the device:
@@ -35,15 +34,17 @@
                                   ; "Parport (SPP)", "Parport (ECP)",
                                   ; "Serial port", "IEEE-1394", "JetDirect",
                                   ; or "Proprietary".
+:usbid "0x03f0" "0x2305"
 ;:comment ""  				; comment about the model
 
 :model "ScanJet 4070 Photosmart"
 :interface "USB"
-;:url "/unsupported/hp-scanjet-4070.html"
+:usbid "0x03f0" "0x2405"
 :status :minimal
 
 :model "ScanJet 4370"
 :interface "USB"
+:usbid "0x03f0" "0x4105"
 ;:url "/unsupported/hp-scanjet-4370.html"
 :status :untested
 :comment "Untested. Please report if it works."

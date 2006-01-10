@@ -21,6 +21,7 @@
 :url "http://www.genius-kye.com/"
 :model "Vivid Pro USB"                  ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x0458"	"0x2001"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
@@ -28,29 +29,34 @@
 :url "http://www.primax.nl/"
 :model "Colorado USB 19200"
 :interface "USB"
+:usbid "0x0461"	"0x0360"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
 :model "Colorado 2200 USB"
 :interface "USB"
+:usbid "0x0461" "0x0364"
 :status :untested
 :comment "Untested. See link for details. Linux 2.4 only, needs a kernel patch."
-:url "/untested/primax-colorado-2200-usb.html"
+:url "/unsupported/primax-colorado-2200-usb.html"
 
 :mfg "Visioneer"
 
 :model "OneTouch 6100"
 :interface "USB"
+:usbid "0x04a7"	"0x0231"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
 :model "OneTouch 7600"
 :interface "USB"
+:usbid "0x04a7"	"0x0211"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
 :model "OneTouch 8600"
 :interface "USB"
+:usbid "0x04a7"	"0x0331"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."
 
@@ -64,5 +70,6 @@
 :mfg "LG Electronics"
 :model "Scanworks 600U"
 :interface "USB"
+:usbid "0x0461"	"0x0364"
 :status :basic
 :comment "Linux 2.4 only, needs a kernel patch."

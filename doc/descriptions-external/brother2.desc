@@ -28,89 +28,122 @@
 ;:comment ""
                                   ; comment about the manufacturer
 
+;data taken from Brother website and Brsane2.ini
 
 :model "DCP-110C"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0169"
 :comment "No report yet."
 
 :model "DCP-310CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x016b"
 :comment "No report yet."
 
 :model "DCP-7010"
 :status :good
 :interface "USB"
+:usbid "0x04f9" "0x0182"
 
 :model "DCP-7020"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0183"
 :comment "No report yet."
 
 :model "DCP-7025"
 :status :good
 :interface "USB"
+:usbid "0x04f9" "0x0184"
 
 :model "MFC-210C"
 :status :good
 :interface "USB"
+:usbid "0x04f9" "0x0161"
 
 :model "MFC-215C"
 :status :good
 :interface "USB"
+:usbid "0x04f9" "0x0193"
 :comment "brscan2-0.0.2 necessary"
 
 :model "MFC-3240C"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0173"
 :comment "No report yet."
 
 :model "MFC-3340CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0174"
 :comment "No report yet."
 
 :model "MFC-410CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0163"
 :comment "No report yet."
 
 :model "MFC-420CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0162"
 :comment "No report yet."
 
 :model "MFC-5440CN"
 :status :good
 :interface "USB"
+:usbid "0x04f9" "0x016d"
 
 :model "MFC-5840CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x016e"
+:comment "No report yet."
+
+;only in ini
+:model "MFC-610CLN"
+:status :untested
+:interface "USB"
+:usbid "0x04f9" "0x0166"
+:comment "No report yet."
+
+;only in ini
+:model "MFC-610CLN"
+:status :untested
+:interface "USB"
+:usbid "0x04f9" "0x0168"
 :comment "No report yet."
 
 :model "MFC-620CN"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0165"
 :comment "No report yet."
 
 :model "MFC-7220"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0185"
 :comment "No report yet."
 
 :model "MFC-7225N"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0186"
 :comment "No report yet."
 
 :model "MFC-7420"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0180"
 :comment "No report yet."
 
 :model "MFC-7820N"
 :status :untested
 :interface "USB"
+:usbid "0x04f9" "0x0181"
 :comment "No report yet."

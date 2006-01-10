@@ -13,6 +13,7 @@
 :model "P 3600 A3 Pro"
 :interface "USB"
 :status :minimal
+:usbid "0x055f" "0x0401"
 :comment "Reports about scanning problems. 1800 dpi seems to work if only small scan areas are selected."
 
 

@@ -28,5 +28,6 @@
 
 :model "Colorado 2400U"
 :interface "USB"
+:usbid "0x0461" "0x0346"
 :status :minimal
 ;:comment ""

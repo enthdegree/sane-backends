@@ -552,8 +552,10 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     case PERFECTION3490:
     case PRISA5150:
     case PRISA5000:
-    case STYLUS_CX1500:
         pss->bpp = 14;
+        break;
+    case STYLUS_CX1500:
+        pss->bpp = 12;
         break;
     default:
         pss->bpp = 8;
@@ -658,6 +660,10 @@ static void release_unit (SnapScan_Scanner *pss)
 #define DTCQ_GAMMA_RED10 0x81
 #define DTCQ_GAMMA_GREEN10 0x82
 #define DTCQ_GAMMA_BLUE10 0x83
+#define DTCQ_GAMMA_GRAY12 0x90
+#define DTCQ_GAMMA_RED12 0x91
+#define DTCQ_GAMMA_GREEN12 0x92
+#define DTCQ_GAMMA_BLUE12 0x93
 #define DTCQ_GAMMA_GRAY14 0x95 /* ? */
 #define DTCQ_GAMMA_RED14 0x96
 #define DTCQ_GAMMA_GREEN14 0x97
@@ -715,6 +721,12 @@ static SANE_Status send (SnapScan_Scanner *pss, u_char dtc, u_char dtcq)
         case DTCQ_GAMMA_GREEN10:
         case DTCQ_GAMMA_BLUE10:
             tl = 1024;
+            break;
+        case DTCQ_GAMMA_GRAY12:    /* 12-bit tables */
+        case DTCQ_GAMMA_RED12:
+        case DTCQ_GAMMA_GREEN12:
+        case DTCQ_GAMMA_BLUE12:
+            tl = 4096;
             break;
         case DTCQ_GAMMA_GRAY14:    /* 14-bit tables */
         case DTCQ_GAMMA_RED14:
@@ -1515,6 +1527,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.56  2006/01/10 19:32:16  oliver-guest
+ * Added 12 bit gamma tables for Epson Stylus CX-1500
+ *
  * Revision 1.55  2006/01/06 20:59:17  oliver-guest
  * Some fixes for the Epson Stylus CX 1500
  *

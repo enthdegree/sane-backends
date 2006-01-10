@@ -79,7 +79,7 @@
 
 #define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
-#define BUILD               52
+#define BUILD               53
 #define BACKEND_NAME snapscan
 
 #ifdef __GNUC__
@@ -1373,6 +1373,12 @@ static SANE_Status download_gamma_tables (SnapScan_Scanner *pss)
         dtcq_gamma_green = DTCQ_GAMMA_GREEN10;
         dtcq_gamma_blue = DTCQ_GAMMA_BLUE10;
         break;
+    case 12:
+        dtcq_gamma_gray = DTCQ_GAMMA_GRAY12;
+        dtcq_gamma_red = DTCQ_GAMMA_RED12;
+        dtcq_gamma_green = DTCQ_GAMMA_GREEN12;
+        dtcq_gamma_blue = DTCQ_GAMMA_BLUE12;
+        break;
     case 14:
         if (pss->bpp_scan == 16)
         {
@@ -1924,6 +1930,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.67  2006/01/10 19:32:16  oliver-guest
+ * Added 12 bit gamma tables for Epson Stylus CX-1500
+ *
  * Revision 1.66  2006/01/06 20:59:17  oliver-guest
  * Some fixes for the Epson Stylus CX 1500
  *

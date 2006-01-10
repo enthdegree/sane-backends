@@ -36,7 +36,7 @@
 ; name models for above-specified mfg.
 :model "e-mini"
 :interface "USB"
-:usbid "0x4c8" "0x0722"
+:usbid "0x04c8" "0x0722"
 :status :untested
 :comment "  "
 

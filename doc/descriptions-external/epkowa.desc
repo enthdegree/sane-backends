@@ -663,8 +663,8 @@
 
 :model     "Perfection 4990 PHOTO"
 :interface "USB"
-:status    :complete
-:comment   "overseas version of the GT-X800<br>IEEE1394 untested"
+:status    :good
+:comment   "overseas version of the GT-X800<br>IEEE1394 untested<br>film area guide mode not supported"
 
 :model     "Stylus CX1500"		; Australia
 :interface "USB"

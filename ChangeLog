@@ -1,3 +1,11 @@
+2006-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* doc/descriptions/snapscan.desc: Changed entries for duplicate USB IDs,
+	  added Epson Stylus CX-1500
+	* backend/snapscan.c backend/snapscan-scsi.c: Added support for 12 bit
+	  gamma tables for Epson CX-1500
+	* backend/snapscan.conf.in: Added Epson Stylus CX-1500
+
 2006-01-10  Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/descriptions-external/stv680.desc: Added USB id.

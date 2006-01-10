@@ -110,3 +110,6 @@ usb 0x04b8 0x0121
 
 # Epson Perfection 3490
 usb 0x04b8 0x0122
+
+# Epson Stylus CX-1500
+usb 0x04b8 0x080c

@@ -202,7 +202,7 @@
 :usbid "0x04a5" "0x20b0"
 :status :good
 
-:model "3300_2"
+:model "3300"
 :interface "USB"
 :usbid "0x04a5" "0x20de"
 :status :good
@@ -212,7 +212,7 @@
 :usbid "0x04a5" "0x20b0"
 :status :good
 
-:model "4300_2"
+:model "4300"
 :interface "USB"
 :usbid "0x04a5" "0x20de"
 :status :good
@@ -339,6 +339,11 @@
 :usbid "0x04b8" "0x0122"
 :status :basic
 :comment "Film scanning unit unsupported"
+
+:model "Stylus CX-1500"
+:interface "USB"
+:usbid "0x04b8" "0x080c"
+:status :good
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

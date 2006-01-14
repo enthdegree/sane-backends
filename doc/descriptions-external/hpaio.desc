@@ -12,7 +12,7 @@
 :backend "hpaio"                   ; name of backend
 ;:version "(external)"             ; version of backend
 :url "http://hpinkjet.sourceforge.net/hplip_readme.html" ; backend's web page
-:comment "This backend is a replacement for the hpoj backend its package name is hplip. See the website for the latest releases."
+:comment "This backend is a replacement for the hpoj backend. It's package name is hplip. See the website for the latest releases."
 
 
 
@@ -27,6 +27,7 @@
 :model "Most HP OfficeJet, LaserJet, and PSC (Printer/Scanner/Copier) multi-function peripherals"
 :url "http://hpinkjet.sourceforge.net/hplip_readme.html"
 :interface "Parport(ECP) USB JetDirect"
+:usbid "ignore"
 :status :good
 :comment "Distributed with the HP Linux Imaging and Printing Project (hplip), see table on website for product support status"
 

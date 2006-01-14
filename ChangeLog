@@ -11,6 +11,9 @@
 	  interface.
 	* doc/descriptions.txt: Added "ignore" parameter to :usbid
 	  token.
+	* doc/descriptions-external/hpaio.desc doc/descriptions-external/hpoj.desc
+	  doc/descriptions-external/samsung.desc: Updated comments. Added
+	  usb ids or "ignore".
 
 2006-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

@@ -22,7 +22,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "3.1"
+#define SANE_DESC_VERSION "3.2"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -135,6 +135,7 @@ typedef struct model_entry
   enum status_entry status;
   char *usb_vendor_id;
   char *usb_product_id;
+  SANE_Bool ignore_usb_id;
 }
 model_entry;
 
@@ -453,6 +454,17 @@ string_compare (char *string1, char *string2)
 {
   int count = 0;
   int compare = 0;
+
+  if (!string1)
+    {
+      if (!string2)
+	return 0;
+      else
+	return 1;
+    }
+  else if (!string2)
+    return -1;
+
   while (string1[count] && string2[count])
     {
       if (isdigit (string1[count]) && isdigit (string2[count]))
@@ -723,6 +735,8 @@ read_files (void)
 	      if (current_backend)
 		{
 		  type_entry *current_type = current_backend->type;
+		  int no_usbids = 0;
+		  
 		  while (current_type)
 		    {
 		      if (current_type->type == type_scanner ||
@@ -738,16 +752,45 @@ read_files (void)
 			      while (current_model)
 				{
 				  if (current_model->status == status_unknown)
-				    DBG_WARN
-				      ("`%s' `%s' does not have a status\n",
-				       current_mfg->name,
-				       current_model->name);
+				    {
+				      DBG_WARN
+					("Backend `%s': `%s' `%s' does not have a status\n",
+					 current_backend->name,
+					 current_mfg->name,
+					 current_model->name);
+				    }
+				  if (!current_model->interface)
+				    {
+				      DBG_WARN
+					("Backend `%s': `%s' `%s' does not have an interface\n",
+					 current_backend->name,
+					 current_mfg->name,
+					 current_model->name);
+				    }
+				  else if (strstr (current_model->interface, "USB"))
+				    {
+				      if ((!current_model->usb_vendor_id || !current_model->usb_product_id)
+					  && !current_model->ignore_usb_id)
+					{
+					  DBG_INFO ("`%s' seems to provide a USB device "
+						    "without :usbid (%s %s)\n", 
+						    current_backend->name,
+						    current_mfg->name,
+						    current_model->name);
+					  no_usbids++;
+					}
+				    }
 				  current_model = current_model->next;
 				}
 			      current_mfg = current_mfg->next;
 			    }
 			}
 		      current_type = current_type->next;
+		    }
+		  if (no_usbids)
+		    {
+		      DBG_WARN ("Backend `%s': %d USB devices without :usbid\n", 
+				current_backend->name, no_usbids);
 		    }
 		}
 	      desc_name = dir_entry->d_name;
@@ -1224,6 +1267,14 @@ read_files (void)
 			     "hardware devices\n", current_backend->name);
 			  continue;
 			}
+		      if (strcasecmp (two_string_entry[0], "ignore") == 0)
+			{
+			  DBG_INFO ("Ignoring `%s's USB ids of `%s'\n",
+				    current_backend->name,
+				    current_model->name);
+			  current_model->ignore_usb_id = SANE_TRUE;
+			  continue;
+			}
 		      if (!check_hex (two_string_entry[0]))
 			{
 			  DBG_WARN ("`%s's USB vendor id of `%s' is "
@@ -1423,9 +1474,10 @@ update_model_record_list (model_record_entry * first_model_record,
 	  if (compare <= 0)
 	    {
 	      model_record_entry *tmp_model_record = model_record;
-	      if (compare == 0 &&
-		  string_compare (model->interface, model_record->interface)
-		  == 0)
+	      if ((compare == 0) &&
+		  (string_compare (model->interface, model_record->interface) == 0) &&
+		  (string_compare (model->usb_vendor_id, model_record->usb_vendor_id) == 0) &&
+		  (string_compare (model->usb_product_id, model_record->usb_product_id) == 0))
 		{
 		  /* Two entries for the same model */
 		  int new_priority = calc_priority (model->status);

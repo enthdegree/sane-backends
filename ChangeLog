@@ -5,6 +5,10 @@
 	  by some scanners and accepting any value diferent to 0, read
 	  from 0xfe11 register. Patch from Jonathan Bravo Lopez
 	  <JKD@JKDSoft.cjb.net>. 
+	* tools/sane-desc.c: Added "ignore" parameter to :usbid
+	  token. Print warning if a backend defines USB models without
+	  defining usbid. Print warning if a model doesn't have an
+	  interface.
 
 2006-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

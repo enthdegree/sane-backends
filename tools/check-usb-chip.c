@@ -2767,7 +2767,7 @@ check_rts8822l01h (struct usb_device *dev)
 		dev->descriptor.bDeviceClass);
       return 0;
     }
-  if (dev->descriptor.bcdUSB != 0x200)
+  if ((dev->descriptor.bcdUSB != 0x200)&&(dev->descriptor.bcdUSB != 0x110))
     {
       if (verbose > 2)
 	printf ("    this is not a RTS8822L-01H (bcdUSB = 0x%x)\n",
@@ -2882,7 +2882,7 @@ check_rts8822l01h (struct usb_device *dev)
       return 0;
     }
 
-  if ((data[0] & 0x01) != 0x01)
+  if (data == 0)
     {
       if (verbose > 2)
 	printf ("    Unexpected result from register 0xfe11 : 0x%0x%0x\n",

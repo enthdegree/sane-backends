@@ -1,3 +1,11 @@
+2006-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* tools/check-usb-chip.c: Improved rts8822l-01h chipset
+	  detection by adding check for descriptor.bcdUSB == 0x110 reported
+	  by some scanners and accepting any value diferent to 0, read
+	  from 0xfe11 register. Patch from Jonathan Bravo Lopez
+	  <JKD@JKDSoft.cjb.net>. 
+
 2006-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* doc/descriptions/snapscan.desc: Changed entries for duplicate USB IDs,

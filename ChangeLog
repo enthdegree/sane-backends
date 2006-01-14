@@ -9,6 +9,8 @@
 	  token. Print warning if a backend defines USB models without
 	  defining usbid. Print warning if a model doesn't have an
 	  interface.
+	* doc/descriptions.txt: Added "ignore" parameter to :usbid
+	  token.
 
 2006-01-10  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 

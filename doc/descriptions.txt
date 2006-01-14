@@ -86,7 +86,9 @@ Example: `:interface "SCSI USB IEEE-1394"'
 arguments which must be lower case hexadecimal (4 digits). The first one is the
 USB vendor id, the second one the USB üproduct id. The keyword refers to the
 previous `:model', is optional, and applicable for devices with :interface "USB"
-only, and should be used only once per model.
+only, and should be used only once per model. The special parameter "ignore" can
+be used if no vendor or product ids are given intentionally, e.g. for a group of
+scanners.
 Example: `:usbid "0x1234" "0x4321"'
 
 The keyword `:status' is an indication of the level of support for the model.

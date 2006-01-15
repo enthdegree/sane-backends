@@ -1727,6 +1727,9 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   int c;
   size_t i, nread, nread2;
   u_char *p, b;
+#if defined(WORDS_BIGENDIAN)
+  u_char b;
+#endif
 
   DBG (21, ">> sane_read\n");
 
@@ -1745,10 +1748,11 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
 
   if (!s->scanning) return (do_cancel (s));
 
-  /* We must receive 2 bytes per pixel and colour. In raw mode we
-     must swap the bytes (for compatibility with xsane) and pass
-     them both. Otherwise the other subroutines expect only 1 byte,
-     so we must set up an intermediate buffer which is twice as large
+  /* We must receive 2 little-endian bytes per pixel and colour.
+     In raw mode we must swap the bytes if we are running a big-endian
+     architecture (SANE standard 3.2.1), and pass them both.
+     Otherwise the other subroutines expect only 1 byte, so we must
+     set up an intermediate buffer which is twice as large
      as buf, and then map this buffer to buf. */
 
   if (!strcmp (s->val[OPT_MODE].s, "Color"))
@@ -1787,12 +1791,14 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
 	  do_cancel (s);
 	  return (SANE_STATUS_IO_ERROR);
 	}
+#if defined(WORDS_BIGENDIAN)
       for (p = buf; p < buf + nread; p++)
 	{
 	  b = *p;
 	  *p++ = *(p + 1);
 	  *p = b;
 	}
+#endif
     }
   *len = nread;
   s->bytes_to_read -= nread;

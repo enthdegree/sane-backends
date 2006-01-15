@@ -1,3 +1,8 @@
+2006-01-15  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
+
+	* backend/canon-sane.c: fixed byte-swapping problem for little-endian
+	  platforms (affects raw-mode scanning with FS2710 slide scanner)
+
 2006-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/check-usb-chip.c: Improved rts8822l-01h chipset

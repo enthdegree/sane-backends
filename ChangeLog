@@ -8,6 +8,9 @@
 	  doc/descriptions/artec_eplus48u.desc: Added Yakumo Scan50. Minor
 	  cleanup.
 	* doc/descriptions/gt68xx.desc: Added Mustek BearPaw 1248 CU.
+	* doc/descriptions/lexmark.desc: Added USB vendor and product
+	  ids. Changed status of X1150 and X1170 according to reports on
+	  sane-devel. 
 
 2006-01-15  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 

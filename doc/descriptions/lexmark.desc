@@ -27,33 +27,42 @@
 
 :model "X1110"
 :interface "USB"
+:usbid "0x043d" "0x007c"
 :status :untested
 
 :model "X1130"
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
+:usbid "0x043d" "0x007c"
 :status :untested
 
 :model "X1140"
 :interface "USB"
+:usbid "0x043d" "0x007c"
 :status :untested
 
 :model "X1150"
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
-:status :untested
+:usbid "0x043d" "0x007c"
+:status :minimal
+:comment "Colors don't seem to be ok. Scanned white pages appear purple."
 
 :model "X1170"
 :interface "USB"
-:status :untested
+:usbid "0x043d" "0x007c"
+:status :basic
+:comment "Colors aren't so bright. Bed-wide pictures are unscannable because the scan head never reaches the end of the bed (neither with letter selected). It leaves almost 2 cm out."
 
 :model "X1180"
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
+:usbid "0x043d" "0x007c"
 :status :basic
 
 :model "X1185"
 :interface "USB"
+:usbid "0x043d" "0x007c"
 :status :basic
 :comment "Tested with xscanimage. Supports 75, 150, 300, 600, 1200(600x1200) dpi resolutions. Does grayscale or colour scans in the following sizes: wallet, 3x5, 4x6, 5x7, 8x10, letter."
 

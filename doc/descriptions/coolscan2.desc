@@ -29,6 +29,7 @@
 
 :model "LS 40 ED"
 :interface "USB"
+:usbid "0x04b0" "0x4000"
 :status :complete
 
 :model "LS 4000 ED"

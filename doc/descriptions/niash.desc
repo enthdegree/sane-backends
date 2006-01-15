@@ -21,16 +21,18 @@
 
 :model "ScanJet 3300c"
 :interface "USB"
-:comment ""
+:usbid "0x03f0" "0x0205"
 :status :complete
 
 :model "ScanJet 3400c"
 :interface "USB"
+:usbid "0x03f0" "0x0405"
 :comment "If you use Linux 2.6, version 2.6.8 or newer is necessary."
 :status :complete
 
 :model "ScanJet 4300c"
 :interface "USB"
+:usbid "0x03f0" "0x0305"
 :comment "If you use Linux 2.6, version 2.6.8 or newer is necessary."
 :status :complete
 
@@ -39,7 +41,7 @@
 
 :model "Snapscan Touch"
 :interface "USB"
-:comment ""
+:usbid "0x06bd" "0x0100"
 :status :complete
 
 

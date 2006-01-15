@@ -27,10 +27,12 @@
 				; "SCSI", "USB", "Parport (EPP)",
 				; "Parport (SPP)", "Parport (ECP)",
 				; "Serial port" or "Propretiary".
+:usbid "0x03f0" "0x1005""
 :status :basic
 
 :model "ScanJet 5470c"		; name models for above-specified mfg.
 :interface "USB"		; interface type of the device:
+:usbid "0x03f0" "0x1105"
 :status :basic
 
 :model "ScanJet 5490c"		; name models for above-specified mfg.

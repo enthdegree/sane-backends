@@ -23,11 +23,13 @@
 :url "http://www.canon.com/"
 :model "CanoScan fb630u"           ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x04a9" "0x2204"
 :comment "OK"
 :status :good
 
 :model "CanoScan fb636u"           ; name models for above-specified mfg.
 :interface "USB"
+:usbid "0x04a9" "0x2204"
 :status :good
 :comment "OK"
 

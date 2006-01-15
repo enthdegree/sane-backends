@@ -182,6 +182,12 @@
 :status :good
 :comment "Transparency adapter supported"
 
+:model "BearPaw 1248 CU"
+:interface "USB"
+:usbid "0x055f" "0x021c"
+:status :good
+:comment "Seems to use the same ids as BearPaw 1200 CU Plus."
+
 :model "BearPaw 2400 CS"
 :interface "USB"
 :usbid "0x055f" "0x0218"

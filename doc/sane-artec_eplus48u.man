@@ -1,40 +1,22 @@
-.TH sane-artec_eplus48u 5 "19 Nov 2002" "@PACKAGEVERSION@" "SANE"
+.TH sane-artec_eplus48u 5 "15 Jan 2006" "@PACKAGEVERSION@" "SANE"
 .SH NAME
 sane-artec_eplus48u \- SANE backend for the scanner Artec E+ 48U and re-badged models
 .SH DESCRIPTION
 The
 .B sane-artec_eplus48u
-library implements a SANE (Scanner Access Now Easy) backend that at present provides
-access to the USB flatbed scanners
-.PP
-Artec E+ 48U,
-.br
-Tevion MD 9693,
-.br
-Medion MD 9693,
-.br
-Medion MD 9705 and
-.br
-Trust Easy Webscan 19200.
-.br
-.PP
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to several USB flatbed scanners using the GT6816 chipset like the Artec E+ 48U.
 These scanners have a contact image sensor (CIS) and an USB interface.
 .PP
-VendorID: 0x05d8
-.br
-ProductID: 0x4003
-.PP
-The Trust Easy Webscan 19200 is an exception. It's ProductID is 0x4006.
-.PP
-More details can be found on
-.IR http://www.angelfire.com/linux/crapsite/ .
+A complete list of supported devices can be found on
+.IR http://www.sane-project.org/sane-supported-devices.html .
 .PP
 This is ALPHA software. Especially if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
 the scan area.
 .PP
-If you own a scanner other than the ones listed above that works with this
-backend, please let me know this by sending the scanner's exact model name and
+If you own a scanner other than the ones mentioned on the list that works with this
+backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and product ids (e.g. from /proc/bus/usb/devices,
 sane-find-scanner or syslog) to me. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
@@ -50,10 +32,10 @@ required.
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing
 software that will be uploaded to the scanner's memory. For the scanners
-mentioned above, it's usually named Artec48.usb. You can find it on the
-installation CD that was provided by the manufacturer, normally in the
-directory Win98, WinMe or similar. If the Windows-driver is installed on
-your computer, then you can also find the firmware file under
+mentioned above, it's usually named Artec48.usb or 1200.usb. You can find it on
+the installation CD that was provided by the manufacturer, normally in the
+directory Win98, WinMe or similar. If the Windows-driver is installed on your
+computer, then you can also find the firmware file under
 c:\\windows\\system32\\drivers.
 .SH CONFIGURATION
 The contents of the
@@ -143,7 +125,7 @@ export SANE_DEBUG_ARTEC_EPLUS48U=3
 sane(7), sane-usb(5)
 
 .SH AUTHOR
-Michael Herder <crapsite@gmx.net>
+Michael Herder
 .br
 This backend is based on the gt68xx test-program written by Sergey Vlasov, Andreas Nowack, and
 David Stevenson. Thanks to everyone who tested the backend or reported bugs.
@@ -151,14 +133,12 @@ David Stevenson. Thanks to everyone who tested the backend or reported bugs.
 This man page is based on man sane-gt68xx, written by Henning Meier-Geinitz.
 .SH BUGS
 This backend has been tested on Linux only. If you are using it on a different platform, please
-contact me.
+contact us.
 .PP
 Interpolation with 1200 dpi is weak.
 .PP
 Support for buttons is missing due to missing support in SANE.
 .PP
-More detailed bug information is
-available at
-.IR http://www.angelfire.com/linux/crapsite .
-Please contact me if you find a bug or missing feature:
-<crapsite@gmx.net>
+Please contact us if you find a bug: 
+.IR http://www.sane-project.org/bugs.html .
+

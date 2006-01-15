@@ -10,11 +10,19 @@
 
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
+
 :model "E+ 48U"
 :status :good
 :interface "USB"
 :usbid "0x05d8" "0x4003"
 :comment "CIS scanner based on the GT6816 chip. Apparently all other devices are re-badged Artec scanners."
+
+:model "E+ Pro"
+:status :minimal
+:interface "USB"
+:usbid "0x05d8" "0x4004"
+:comment "Experimental! Please report your results!"
+
 
 :mfg "Medion/Lifetec/Tevion/Cytron"
 :url "http://www.medion.com"
@@ -36,6 +44,7 @@
 :usbid "0x05d8" "0x4003"
 :comment "Only scanners with product id 0x4003 will work; try the gt68xx backend, if your scanner has product id 0x4002 "
 
+
 :mfg "Trust"
 :url "http://www.trust-site.com"
 
@@ -50,19 +59,24 @@
 :usbid "0x05d8" "0x4007"
 :comment "Works up to 600 dpi"
 
+
 :mfg "Memorex"
 :url "http://www.artecusa.com/"
+
 :model "MEM 48U"
 :status :good
 :interface "USB"
 :usbid "0x05d8" "0x4005"
 
+
 :mfg "Microstar"
 :url "http://www.microstar.de/"
+
 :model "MR 9791"
 :status :good
 :interface "USB"
 :usbid "0x05d8" "0x4003"
+
 
 :mfg "UMAX"
 :url "http://www.umax.com/"
@@ -82,10 +96,11 @@
 :interface "USB"
 :usbid "0x05d8" "0x4010"
 
-:mfg "Artec/Ultima"
-:url "http://www.artecusa.com/"
-:model "E+ Pro"
-:status :minimal
+
+:mfg "Yakumo"
+:url "http://www.yakumo.com/"
+
+:model "Scan50"
+:status :good
 :interface "USB"
-:usbid "0x05d8" "0x4004"
-:comment "Experimental! Please report your results!"
+:usbid "0x05d8" "0x4011"

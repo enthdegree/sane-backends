@@ -4,6 +4,9 @@
 	  doc/descriptions/hp5400.desc doc/descriptions/niash.desc
 	  doc/descriptions/unsupported.desc: Added USB vendor and product
 	  ids. Minor cleanup.
+	* backend/artec_eplus48u.conf.in doc/sane-artec_eplus48u.man
+	  doc/descriptions/artec_eplus48u.desc: Added Yakumo Scan50. Minor
+	  cleanup.
 
 2006-01-15  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 

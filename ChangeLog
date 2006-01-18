@@ -1,3 +1,10 @@
+2006-01-18  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Fixed CanoScan N670U settings,
+	  see (bugreport #302738).
+
 2006-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/canon630u.desc doc/descriptions/coolscan2.desc

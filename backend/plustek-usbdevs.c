@@ -60,6 +60,7 @@
  *        - tweaked LiDE25, LiDE30 and N1220U settings
  *        - changed high-speed setting for UMAX 3400, due to bugreport #302317
  *        - fixed CanoScan N650U settings
+ *        - fixed CanoScan N670U settings, see (bugreport #302738)
  *
  * <hr>
  * This file is part of the SANE package.
@@ -680,7 +681,7 @@ static DCapsDef Cap0x04A9_0x2208 =
  */
 static DCapsDef Cap0x04A9_0x220D =
 {
-	{{ 0, 110}, 35, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
+	{{ 0, 110}, 45, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
 	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },

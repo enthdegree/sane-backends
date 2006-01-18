@@ -1,7 +1,11 @@
-Plustek.changes - Gerhard JÃ¤ger <gerhard@gjaeger.de>
+Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================
 
 Note: All other not mentioned builds have never been released.
+
+V 0.50-8 (2006-01-18)
+---------------------
+Fixed CanoScan N670U settings (bugreport #302433).
 
 V 0.50-7 (2005-10-28)
 ---------------------

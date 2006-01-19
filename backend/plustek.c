@@ -79,6 +79,7 @@
  *        - activated IPC stuff
  *        - added _DBG_DCALDATA for fine calibration data logging
  *        - added OPT_SPEEDUP handling
+ *        - fixed constraint_type for OPT_BUTTON
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -154,7 +155,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.50-8"
+#define BACKEND_VERSION "0.50-9"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -218,7 +219,7 @@ static unsigned long       tsecs   = 0;
 static const SANE_Int bpp_lm9832_list [] = { 2, 8, 14 };
 static const SANE_Int bpp_lm9833_list [] = { 2, 8, 16 };
 
-static const SANE_String_Const mode_usb_list[] =
+static const SANE_String_Const mode_list[] =
 {
 	SANE_VALUE_SCAN_MODE_LINEART,
 	SANE_VALUE_SCAN_MODE_GRAY,
@@ -226,7 +227,7 @@ static const SANE_String_Const mode_usb_list[] =
 	NULL
 };
 
-static const SANE_String_Const ext_mode_list[] =
+static const SANE_String_Const source_list[] =
 {
 	SANE_I18N("Normal"),
 	SANE_I18N("Transparency"),
@@ -356,6 +357,22 @@ getScanMode( Plustek_Scanner *scanner )
 			scanmode = COLOR_TRUE48;
 	} 
 	return scanmode;
+}
+
+/** return the len of the largest string in the array
+ */
+static size_t
+max_string_size (const SANE_String_Const strings[])
+{
+	size_t size, max_size = 0;
+	SANE_Int i;
+
+	for (i = 0; strings[i]; ++i) {
+		size = strlen (strings[i]) + 1;
+		if (size > max_size)
+			max_size = size;
+	}
+	return max_size;
 }
 
 /** shutdown open pipes
@@ -675,11 +692,11 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
 	s->opt[OPT_MODE].desc  = SANE_DESC_SCAN_MODE;
 	s->opt[OPT_MODE].type  = SANE_TYPE_STRING;
-	s->opt[OPT_MODE].size  = 32;
+	s->opt[OPT_MODE].size  = max_string_size(mode_list);
 	s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
+	s->opt[OPT_MODE].constraint.string_list = mode_list;
 	s->val[OPT_MODE].w = 2; /* Color */
-  
+
 	/* bit depth */
 	s->opt[OPT_BIT_DEPTH].name  = SANE_NAME_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
@@ -698,9 +715,9 @@ static SANE_Status init_options( Plustek_Scanner *s )
 	s->opt[OPT_EXT_MODE].title = SANE_TITLE_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].desc  = SANE_DESC_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].type  = SANE_TYPE_STRING;
-	s->opt[OPT_EXT_MODE].size  = 32;
+	s->opt[OPT_EXT_MODE].size  = max_string_size(source_list);
 	s->opt[OPT_EXT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_EXT_MODE].constraint.string_list = ext_mode_list;
+	s->opt[OPT_EXT_MODE].constraint.string_list = source_list;
 	s->val[OPT_EXT_MODE].w     = 0; /* Normal */
 
 	/* brightness */
@@ -1011,7 +1028,7 @@ static SANE_Status init_options( Plustek_Scanner *s )
 
 		s->opt[i].unit = SANE_UNIT_NONE;
 		s->opt[i].size = sizeof (SANE_Word);
-		s->opt[i].constraint_type = SANE_CONSTRAINT_RANGE;
+		s->opt[i].constraint_type = SANE_CONSTRAINT_NONE;
 		s->opt[i].constraint.range = 0;
 		s->val[i].w = SANE_FALSE;
 	}
@@ -1777,7 +1794,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				DBG( _DBG_INFO, "Reading BLUE gamma.\n" );
 				memcpy( value, s->val[option].wa, s->opt[option].size );
 				break;
-
 			default:
 				return SANE_STATUS_INVAL;
 		}
@@ -1961,9 +1977,8 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					scanmode = getScanMode( s );
 					
 					s->opt[OPT_CONTRAST].cap     &= ~SANE_CAP_INACTIVE;
-					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 					s->opt[OPT_BIT_DEPTH].cap    &= ~SANE_CAP_INACTIVE;
-
+					s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 					if( scanmode == COLOR_BW ) {
 						s->opt[OPT_CONTRAST].cap     |= SANE_CAP_INACTIVE;
 						s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
@@ -1987,7 +2002,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 							s->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
 						}
 					}
-
 					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
 					break;
@@ -2009,7 +2023,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 						s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_BRX);
 						s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_BRY);
 
-						s->opt[OPT_MODE].constraint.string_list = mode_usb_list;
+						s->opt[OPT_MODE].constraint.string_list = mode_list;
 						s->val[OPT_MODE].w = 2; /* HEINER COLOR_TRUE24;*/
 
 					} else {
@@ -2045,7 +2059,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 							s->val[OPT_BR_X].w = SANE_FIX(_DEFAULT_NEG_BRX);
 							s->val[OPT_BR_Y].w = SANE_FIX(_DEFAULT_NEG_BRY);
 						}
-						s->opt[OPT_MODE].constraint.string_list = &mode_usb_list[2];
+						s->opt[OPT_MODE].constraint.string_list = &mode_list[2];
 						s->val[OPT_MODE].w = 0;  /* COLOR_24 is the default */
 					}
 					if( s->val[OPT_LAMPSWITCH].w != 0 ) {
@@ -2092,7 +2106,6 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					if( NULL != info )
 						*info |= SANE_INFO_RELOAD_PARAMS;
 					break;
-
 				default:
 					return SANE_STATUS_INVAL;
 			}
@@ -2123,8 +2136,8 @@ sane_get_option_descriptor( SANE_Handle handle, SANE_Int option )
 SANE_Status
 sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 {
-	int              ndpi;
-	int              scanmode;
+	int ndpi;
+	int scanmode;
 	Plustek_Scanner *s = (Plustek_Scanner *)handle;
 
 	/* if we're calling from within, calc best guess

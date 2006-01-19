@@ -1,3 +1,11 @@
+2006-01-19  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number. Fixed constraint_type for
+	  OPT_BUTTON.
+	* backend/plustek-usbdevs.c: Added high-speed setting for HP2200.
+	  Cleanup.
+
 2006-01-18  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

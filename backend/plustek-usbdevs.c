@@ -61,6 +61,7 @@
  *        - changed high-speed setting for UMAX 3400, due to bugreport #302317
  *        - fixed CanoScan N650U settings
  *        - fixed CanoScan N670U settings, see (bugreport #302738)
+ *        - added high-speed setting for HP2200
  *
  * <hr>
  * This file is part of the SANE package.
@@ -1356,7 +1357,7 @@ static HWDef Hw0x07B3_0x0017_3 =
 	_GREEN_CH,
 	0,
 	1,
-	/* illumination mode settings (not used for CCD devices)    */
+	/* illumination mode settings (not used for CCD devices) */
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	1,
@@ -1420,58 +1421,58 @@ static HWDef Hw0x03F0_0x0505 =
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 
-	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     */
-	15,		/* bOpticBlackStart (0x1c)             		*/
-	50,		/* bOpticBlackEnd (0x1d)               		*/
-	140,	/* wActivePixelsStart (0x1e & 0x1f)    		*/
-	5414,   /* wLineEnd=(0x20 & 0x21)       			*/
+	1,      /* StepperPhaseCorrection (0x1a & 0x1b)     */
+	15,     /* bOpticBlackStart (0x1c)                  */
+	50,     /* bOpticBlackEnd (0x1d)                    */
+	140,    /* wActivePixelsStart (0x1e & 0x1f)         */
+	5414,   /* wLineEnd=(0x20 & 0x21)                   */
 
 	1,      /* red lamp on    (reg 0x2c + 0x2d)         */
 	16383,  /* red lamp off   (reg 0x2e + 0x2f)         */
 	16383,  /* green lamp on  (reg 0x30 + 0x31)         */
 	1,      /* green lamp off (reg 0x32 + 0x33)         */
 	16383,  /* blue lamp on   (reg 0x34 + 0x35)         */
-	1,  	/* blue lamp off  (reg 0x36 + 0x37)         */
+	1,      /* blue lamp off  (reg 0x36 + 0x37)         */
 	
 	/* Misc                                             */
-	0x13,	/* bReg_0x45                                */
-	0,		/* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
+	0x13,   /* bReg_0x45                                */
+	0,      /* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
 	0x1e,   /* steps to reverse on buffer full reg 0x50 */
-	0xfc,	/* 0xa8 -bReg_0x51                          */
-	0,		/* bReg_0x54                                */
-	0x18, 	/* bReg_0x55 		                        */
-	8,		/* bReg_0x56                                */
-	60,		/* bReg_0x57                                */
-	0x0d,	/* bReg_0x58                                */
-	0xaa,	/* bReg_0x59                                */
-	0xba,	/* bReg_0x5a                                */
-	0xbb,	/* bReg_0x5b                                */
-	0,		/* bReg_0x5c                                */
-	0,		/* bReg_0x5d                                */
-	0,		/* bReg_0x5e                                */
-	_LM9831,                /* chiptype                 */
-	MODEL_HP,               /* motorModel               */
+	0xfc,   /* 0xa8 -bReg_0x51                          */
+	0,      /* bReg_0x54                                */
+	0x18,   /* bReg_0x55                                */
+	8,      /* bReg_0x56                                */
+	60,     /* bReg_0x57                                */
+	0x0d,   /* bReg_0x58                                */
+	0xaa,   /* bReg_0x59                                */
+	0xba,   /* bReg_0x5a                                */
+	0xbb,   /* bReg_0x5b                                */
+	0,      /* bReg_0x5c                                */
+	0,      /* bReg_0x5d                                */
+	0,      /* bReg_0x5e                                */
+	_LM9831,
+	MODEL_HP,
 	1.0
 };
 
 /** HP Scanjet 2200C */
 static HWDef Hw0x03F0_0x0605 =
 {
-	1.05,	/* dMaxMotorSpeed (Max_Speed)               */
-	1.05,	/* dMaxMoveSpeed (Max_Speed)                */
-	0.0,    /* dHighSpeed                               */
-	6,		/* dIntegrationTimeLowLamp                  */
-	8,		/* dIntegrationTimeHighLamp                 */
-	600,	/* ok wMotorDpi (Full step DPI)             */
-	512,	/* wRAMSize (KB)                            */
-	6,		/* dMinIntegrationTimeLowres (ms)           */
-	6,		/* dMinIntegrationTimeHighres (ms)          */
-	0,		/* wGreenPWMDutyCycleLow                    */
-	0,		/* wGreenPWMDutyCycleHigh                   */
-	0x02,	/* bSensorConfiguration (0x0b)              */
-	0x04,	/* bReg_0x0c                                */
-	0x2F,	/* bReg_0x0d                                */
-	0x1F,	/* bReg_0x0e                                */
+	1.05,   /* dMaxMotorSpeed (Max_Speed)               */
+	1.05,   /* dMaxMoveSpeed (Max_Speed)                */
+	2.2,    /* dHighSpeed                               */
+	6,      /* dIntegrationTimeLowLamp                  */
+	8,      /* dIntegrationTimeHighLamp                 */
+	600,    /* ok wMotorDpi (Full step DPI)             */
+	512,    /* wRAMSize (KB)                            */
+	6,      /* dMinIntegrationTimeLowres (ms)           */
+	6,      /* dMinIntegrationTimeHighres (ms)          */
+	0,      /* wGreenPWMDutyCycleLow                    */
+	0,      /* wGreenPWMDutyCycleHigh                   */
+	0x02,   /* bSensorConfiguration (0x0b)              */
+	0x04,   /* bReg_0x0c                                */
+	0x2F,   /* bReg_0x0d                                */
+	0x1F,   /* bReg_0x0e                                */
 
 	/* bReg_0x0f_Mono[10] (0x0f to 0x18)        */
 	{ 0x02, 0x07, 0x01, 0x02, 0x02, 0x03, 0x00, 0x00, 0x04, 0x07 },
@@ -1479,46 +1480,45 @@ static HWDef Hw0x03F0_0x0605 =
 	/* bReg_0x0f_Color[10] (0x0f to 0x18)       */
 	{ 0x08, 0x17, 0x00, 0x03, 0x08, 0x0b, 0x00, 0x00, 0x0a, 0x14 },
 	
-	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5 	 	*/
-	0,          /* bReg 0x27 color mode                 	*/
-	
-	1,          /* bReg 0x29 illumination mode          	*/
+	_GREEN_CH,  /* bReg_0x26 color mode - bits 4 and 5  */
+	0,          /* bReg 0x27 color mode                 */
+	1,          /* bReg 0x29 illumination mode          */
 
 	/* illumination mode settings (not used for CCD devices)*/
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 
-	1,		/* StepperPhaseCorrection (0x1a & 0x1b)     	*/
-	14,		/* bOpticBlackStart (0x1c)             			*/
-	63,		/* bOpticBlackEnd (0x1d)               			*/
-	140,	/* wActivePixelsStart (0x1e & 0x1f)    			*/
-	5367, 	/* wLineEnd=(0x20 & 0x21)       				*/
+	1,      /* StepperPhaseCorrection (0x1a & 0x1b)     */
+	14,     /* bOpticBlackStart (0x1c)                  */
+	63,     /* bOpticBlackEnd (0x1d)                    */
+	140,    /* wActivePixelsStart (0x1e & 0x1f)         */
+	5367,   /* wLineEnd=(0x20 & 0x21)                   */
 
-	1,      /* red lamp on    (reg 0x2c + 0x2d)         	*/
-	16383,  /* red lamp off   (reg 0x2e + 0x2f)     	    */
-	16383,  /* green lamp on  (reg 0x30 + 0x31) 	        */
-	1,      /* green lamp off (reg 0x32 + 0x33)         	*/
-	16383,  /* blue lamp on   (reg 0x34 + 0x35)     	    */
-	1,  	/* blue lamp off  (reg 0x36 + 0x37)  	       	*/
+	1,      /* red lamp on    (reg 0x2c + 0x2d)         */
+	16383,  /* red lamp off   (reg 0x2e + 0x2f)         */
+	16383,  /* green lamp on  (reg 0x30 + 0x31)         */
+	1,      /* green lamp off (reg 0x32 + 0x33)         */
+	16383,  /* blue lamp on   (reg 0x34 + 0x35)         */
+	1,      /* blue lamp off  (reg 0x36 + 0x37)         */
 	
-	/* Misc                                  	           	*/
-	0x13,	/* bReg_0x45                        	        */
-	0,		/* wStepsAfterPaperSensor2 (0x4c & 0x4d)	    */
-	0x1e,   /* steps to reverse on buffer full (0x50)	   	*/
-	0xfc,	/* 0xa8 -bReg_0x51      	                    */
-	0,		/* bReg_0x54                	                */
-	0x18, 	/* bReg_0x55 		            	            */
-	8,		/* bReg_0x56                        	        */
-	60,		/* bReg_0x57                            	    */
-	0x0d,	/* bReg_0x58                                	*/
-	0xcc,	/* bReg_0x59                                	*/
-	0xbc,	/* bReg_0x5a                	                */
-	0xbb,	/* bReg_0x5b                    	            */
-	0,		/* bReg_0x5c                        	        */
-	0,		/* bReg_0x5d                            	    */
-	0,		/* bReg_0x5e                                	*/
-	_LM9832,                /* chiptype                		*/
-	MODEL_HP,               /* motorModel               	*/
+	/* Misc                                             */
+	0x13,   /* bReg_0x45                                */
+	0,      /* wStepsAfterPaperSensor2 (0x4c & 0x4d)    */
+	0x1e,   /* steps to reverse on buffer full (0x50)   */
+	0xfc,   /* 0xa8 -bReg_0x51                          */
+	0,      /* bReg_0x54                                */
+	0x18,   /* bReg_0x55                                */
+	8,      /* bReg_0x56                                */
+	60,     /* bReg_0x57                                */
+	0x0d,   /* bReg_0x58                                */
+	0xcc,   /* bReg_0x59                                */
+	0xbc,   /* bReg_0x5a                                */
+	0xbb,   /* bReg_0x5b                                */
+	0,      /* bReg_0x5c                                */
+	0,      /* bReg_0x5d                                */
+	0,      /* bReg_0x5e                                */
+	_LM9832,
+	MODEL_HP,
 	1.0
 };
 

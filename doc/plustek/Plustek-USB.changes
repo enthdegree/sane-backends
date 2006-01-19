@@ -3,6 +3,11 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.50-9 (2006-01-19)
+---------------------
+Added high-speed setting for HP2200.
+Fixed constraint_type for OPT_BUTTON.
+
 V 0.50-8 (2006-01-18)
 ---------------------
 Fixed CanoScan N670U settings (bugreport #302433).

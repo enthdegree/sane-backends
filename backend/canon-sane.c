@@ -1726,7 +1726,7 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   SANE_Status status;
   int c;
   size_t i, nread, nread2;
-  u_char *p, b;
+  u_char *p;
 #if defined(WORDS_BIGENDIAN)
   u_char b;
 #endif

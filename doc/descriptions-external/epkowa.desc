@@ -1,5 +1,5 @@
 ;;;  epkowa.desc			-*- emacs-lisp -*- (eh, sort of)
-;;;  Copyright (C) 2004, 2005  Olaf Meeuwissen
+;;;  Copyright (C) 2004--2006  Olaf Meeuwissen
 ;;;
 ;;;  This file is part of the "Image Scan!" documentation.
 ;;;
@@ -22,9 +22,9 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-1.17.0/NEWS
-;;;  * iscan-1.17.0/doc/sane-epkowa.man
-;;;  * iscan-1.17.0/backend/epkowa_usb.c
+;;;  * iscan-1.18.0/NEWS
+;;;  * iscan-1.18.0/doc/sane-epkowa.man
+;;;  * iscan-1.18.0/backend/epkowa_usb.c
 ;;;  * sane-backends-1.0.15/backend/epson_usb.c
 ;;;  * sane-backends-1.0.15/doc/descriptions/epson.desc
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -37,8 +37,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "1.17.0"
-;:manpage "sane-epkowa"
+:version "1.18.0"
 :url     "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :comment "Based on the epson backend of sane-backends-1.0.15."
@@ -85,6 +84,7 @@
 
 :model     "AcuLaser CX11"
 :interface "USB"
+:usbid     "0x04b8" "0x0815"
 :status    :complete
 :comment   "overseas version of the LP-A500"
 
@@ -100,11 +100,13 @@
 
 :model     "CC-570L"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0802"
 :status    :untested			; :good
 :comment   "all-in-one"
 
 :model     "CC-600PX"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0801"
 :status    :complete
 :comment   "all-in-one"
 
@@ -139,11 +141,13 @@
 
 :model     "ES-2000"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0107"
 :status    :complete
 :comment   "IEEE1394 untested"
 
 :model     "ES-2200"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010e"
 :status    :complete
 :comment   "IEEE1394 untested"
 
@@ -163,6 +167,7 @@
 
 :model     "ES-7000H"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0126"
 :status    :complete
 :comment   "IEEE1394 untested; 100Base-TX/10Base-T unsupported"
 
@@ -172,6 +177,7 @@
 
 :model     "ES-8500"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0109"
 :status    :complete
 :comment   "IEEE1394 untested"
 
@@ -182,6 +188,7 @@
 
 :model     "ES-10000G"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0129"
 :status    :complete
 :comment   "IEEE1394 untested<br>100Base-TX/10Base-T unsupported"
 
@@ -202,21 +209,25 @@
 
 :model     "Expression 1600"		; command spec
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0107"
 :status    :complete
 :comment   "overseas version of the ES-2000<br>IEEE1394 untested"
 
 :model     "Expression 1640XL"		; command spec
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0109"
 :status    :complete
 :comment   "overseas version of the ES-8500<br>IEEE1394 untested"
 
 :model     "Expression 1680"		; command spec
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010e"
 :status    :complete
 :comment   "overseas version of the ES-2200<br>IEEE1394 untested"
 
 :model     "Expression 10000XL"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0129"
 :status    :complete
 :comment   "overseas version of the ES-10000G<br>IEEE1394 untested; 100Base-TX/10Base-T unsupported"
 
@@ -256,10 +267,12 @@
 
 :model     "GT-6600U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0103"
 :status    :complete
 
 :model     "GT-6700U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x010c"
 :status    :complete
 
 :model     "GT-7000S"
@@ -268,15 +281,18 @@
 
 :model     "GT-7000U"
 :interface "USB"
+:usbid     "0x04b8" "0x0101"
 :status    :untested			; :complete
 
 :model     "GT-7200U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x010f"
 :status    :complete
 :comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
 
 :model     "GT-7300U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x011d"
 :status    :complete
 :comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
 
@@ -292,16 +308,19 @@
 
 :model     "GT-7600U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0104"
 :status    :complete
 :comment   "USB version of the GT-7600S"
 
 :model     "GT-7600UF"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0104"
 :status    :complete
 :comment   "GT-7600U with TPU option bundled"
 
 :model     "GT-7700U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x010b"
 :status    :complete
 
 :model     "GT-8000"
@@ -310,14 +329,17 @@
 
 :model     "GT-8200U"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0110"
 :status    :complete
 
 :model     "GT-8200UF"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0110"
 :status    :complete
 
 :model     "GT-8300UF"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x011e"
 :status    :complete
 
 :model     "GT-8400UF"			; product spec (JP)
@@ -329,10 +351,12 @@
 
 :model     "GT-8700"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010a"
 :status    :complete
 
 :model     "GT-8700F"			; product spec (JP)
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010a"
 :status    :complete
 :comment   "GT-8700U with TPU option bundled"
 
@@ -342,10 +366,12 @@
 
 :model     "GT-9300UF"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x011b"
 :status    :complete
 
 :model     "GT-9400UF"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0116"
 :status    :complete
 :comment   "requires a DFSG non-free module"
 
@@ -359,11 +385,13 @@
 
 :model     "GT-9700F"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0112"
 :status    :complete
 :comment   "IEEE1394 untested"
 
 :model     "GT-9800F"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x011c"
 :status    :complete
 :comment   "IEEE1394 untested"
 
@@ -384,6 +412,7 @@
 
 :model     "GT-15000"			; command spec
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x0126"
 :status    :complete
 :comment   "overseas version of the ES-7000H<br>IEEE1394 untested"
 
@@ -394,37 +423,51 @@
 
 :model     "GT-F500"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
 
 :model     "GT-F520"
 :interface "USB"
+:usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "GT-F550"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "auto film loader not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
 
 :model     "GT-F570"
 :interface "USB"
+:usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "GT-F600"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0118"
 :status    :good
 :comment   "only scans up to 2400dpi<br>requires a DFSG non-free module"
 
 :model     "GT-X700"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0128"
 :status    :complete
 :comment   "IEEE1394 untested"
 
+:model     "GT-X750"
+:interface "USB"
+:usbid     "0x04b8" "0x0119"
+:status    :complete
+:comment   "requires a DFSG non-free module"
+
 :model     "GT-X800"			; product spec (JP)
 :interface "USB IEEE1394"
-:status    :complete
+:usbid     "0x04b8" "0x012a"
+:status    :good
+:comment   "IEEE1394 untested<br>film area guide mode not supported"
 
 :model     "LP-7900CS"
 :status    :untested
@@ -468,41 +511,49 @@
 
 :model     "LP-A500"
 :interface "USB"
+:usbid     "0x04b8" "0x0815"
 :status    :complete
 :comment   "business all-in-one<br>network interface not supported"
 
 :model     "LP-M5500"
 :interface "USB"
+:usbid     "0x04b8" "0x0817"
 :status    :complete
 :comment   "business all-in-one<br>network interface not supported"
 
 :model     "LP-M5500F"
 :interface "USB"
+:usbid     "0x04b8" "0x0817"
 :status    :complete
 :comment   "business all-in-one<br>LP-M5500 with the fax option bundled<br>network interface not supported"
 
 :model     "PM-A700"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0814"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "PM-A850"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0806"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "PM-A870"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0811"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "PM-A900"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x0810"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "PX-A550"			; product spec (JP)
 :interface "USB"
+:usbid     "0x04b8" "0x080e"
 :status    :complete
 :comment   "all-in-one"
 
@@ -513,6 +564,7 @@
 
 :model     "Perfection 610"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0103"
 :status    :complete
 :comment   "overseas version of the GT-6600U"
 
@@ -523,11 +575,13 @@
 
 :model     "Perfection 636U"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0101"
 :status    :untested			; :complete
 :comment   "overseas version of the GT-7000U"
 
 :model     "Perfection 640U"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x010c"
 :status    :complete
 :comment   "overseas version of the GT-6700U"
 
@@ -543,36 +597,43 @@
 
 :model     "Perfection 1200U"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0104"
 :status    :complete
 :comment   "overseas version of the GT-7600U"
 
 :model     "Perfection 1200U PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0104"
 :status    :complete
 :comment   "overseas version of the GT-7600UF"
 
 :model     "Perfection 1240U"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x010b"
 :status    :complete
 :comment   "overseas version of the GT-7700U"
 
 :model     "Perfection 1250"
 :interface "USB"
+:usbid     "0x04b8" "0x010f"
 :status    :complete
 :comment   "overseas version of the GT-7200U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
 
 :model     "Perfection 1250 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x010f"
 :status    :complete
 :comment   "Perfection 1250 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
 
 :model     "Perfection 1260"
 :interface "USB"
+:usbid     "0x04b8" "0x011d"
 :status    :complete
 :comment   "overseas version of the GT-7300U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
 
 :model     "Perfection 1260 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x011d"
 :status    :complete
 :comment   "Perfection 1260 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
 
@@ -583,26 +644,31 @@
 
 :model     "Perfection 1640SU"		; command spec
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010a"
 :status    :complete
 :comment   "overseas version of the GT-8700"
 
 :model     "Perfection 1640SU PHOTO"
 :interface "SCSI USB"
+:usbid     "0x04b8" "0x010a"
 :status    :complete
 :comment   "overseas version of the GT-8700F"
 
 :model     "Perfection 1650"		; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0110"
 :status    :complete
 :comment   "overseas version of the GT-8200U"
 
 :model     "Perfection 1650 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0110"
 :status    :complete
 :comment   "overseas version of the GT-8200UF"
 
 :model     "Perfection 1660 PHOTO"	; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x011e"
 :status    :complete
 :comment   "overseas version of the GT-8300UF"
 
@@ -613,56 +679,73 @@
 
 :model     "Perfection 2400 PHOTO"	; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x011b"
 :status    :complete
 :comment   "overseas version of the GT-9300UF"
 
 :model     "Perfection 2450 PHOTO"	; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0112"
 :status    :complete
 :comment   "overseas version of the GT-9700F<br>IEEE1394 untested"
 
 :model     "Perfection 2480 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "overseas version of the GT-F500<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
 
 :model     "Perfection 2580 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0121"
 :status    :good
 :comment   "overseas version of the GT-F550<br>auto film loader not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
 
 :model     "Perfection 3170 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0116"
 :status    :complete
 :comment   "overseas version of the GT-9400UF<br>requires a DFSG non-free module"
 
 :model     "Perfection 3200 PHOTO"	; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x011c"
 :status    :complete
 :comment   "overseas version of the GT-9800F<br>IEEE1394 untested"
 
 :model     "Perfection 3490 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "overseas version of the GT-F520<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "Perfection 3590 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0122"
 :status    :good
 :comment   "overseas version of the GT-F570<br>auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
 
 :model     "Perfection 4180 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x0118"
 :status    :good
 :comment   "overseas version of the GT-F600<br>only scans up to 2400dpi<br>requires a DFSG non-free module"
 
+:model     "Perfection 4490 PHOTO"
+:interface "USB"
+:usbid     "0x04b8" "0x0119"
+:status    :complete
+:comment   "overseas version of the GT-X750<br>requires a DFSG non-free module"
+
 :model     "Perfection 4870 PHOTO"	; command spec
 :interface "USB"
+:usbid     "0x04b8" "0x0128"
 :status    :complete
 :comment   "overseas version of the GT-X700<br>IEEE1394 untested"
 
 :model     "Perfection 4990 PHOTO"
 :interface "USB"
+:usbid     "0x04b8" "0x012a"
 :status    :good
 :comment   "overseas version of the GT-X800<br>IEEE1394 untested<br>film area guide mode not supported"
 
@@ -673,161 +756,193 @@
 
 :model     "Stylus CX3100"
 :interface "USB"
+:usbid     "0x04b8" "0x0802"
 :status    :untested			; :good
 :comment   "overseas version of the CC-570<br>all-in-one"
 
 :model     "Stylus CX3200"
 :interface "USB"
+:usbid     "0x04b8" "0x0802"
 :status    :untested			; :good
 :comment   "overseas version of the CC-570<br>all-in-one"
 
 :model     "Stylus CX3500"		; Australia
 :interface "USB"
+:usbid     "0x04b8" "0x080e"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX3600"		; UK
 :interface "USB"
+:usbid     "0x04b8" "0x080e"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX3650"		; France
 :interface "USB"
+:usbid     "0x04b8" "0x080e"
 :status    :unsupported
 :comment   "all-in-one"
 
 :model     "Stylus CX3700"
 :interface "USB"
+:usbid     "0x04b8" "0x0818"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX3800"
 :interface "USB"
+:usbid     "0x04b8" "0x0818"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX4500"
 :interface "USB"
+:usbid     "0x04b8" "0x080d"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX4600"
 :interface "USB"
+:usbid     "0x04b8" "0x080d"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX5100"
 :interface "USB"
+:usbid     "0x04b8" "0x0801"
 :status    :complete
 :comment   "overseas version of the CC-600PX<br>all-in-one"
 
 :model     "Stylus CX5200"
 :interface "USB"
+:usbid     "0x04b8" "0x0801"
 :status    :complete
 :comment   "overseas version of the CC-600PX<br>all-in-one"
 
 :model     "Stylus CX5300"
 :interface "USB"
+:usbid     "0x04b8" "0x0801"
 :status    :complete
 :comment   "overseas version of the CC-600PX<br>all-in-one"
 
 :model     "Stylus CX5400"
 :interface "USB"
+:usbid     "0x04b8" "0x0801"
 :status    :complete
 :comment   "overseas version of the CC-600PX<br>all-in-one"
 
 :model     "Stylus CX6300"
 :interface "USB"
+:usbid     "0x04b8" "0x0805"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX6400"
 :interface "USB"
+:usbid     "0x04b8" "0x0805"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX6500"
 :interface "USB"
+:usbid     "0x04b8" "0x0805"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX6600"
 :interface "USB"
+:usbid     "0x04b8" "0x0805"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX7700"
 :interface "USB"
+:usbid     "0x04b8" "0x081f"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus CX7800"
 :interface "USB"
+:usbid     "0x04b8" "0x081f"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus DX3800"
 :interface "USB"
+:usbid     "0x04b8" "0x0818"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX420"
 :interface "USB"
+:usbid     "0x04b8" "0x080f"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX425"		; France
 :interface "USB"
+:usbid     "0x04b8" "0x080f"
 :status    :unsupported
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX430"		; Australia
 :interface "USB"
+:usbid     "0x04b8" "0x080f"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX500"
 :interface "USB"
+:usbid     "0x04b8" "0x0807"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX510"
 :interface "USB"
+:usbid     "0x04b8" "0x0807"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX520"
 :interface "USB"
+:usbid     "0x04b8" "0x081a"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX530"
 :interface "USB"
+:usbid     "0x04b8" "0x081a"
 :status    :complete
 :comment   "all-in-one"
 
 :model     "Stylus Photo RX600"
 :interface "USB"
+:usbid     "0x04b8" "0x0806"
 :status    :complete
 :comment   "overseas version of the PM-A850<br>all-in-one"
 
 :model     "Stylus Photo RX610"
 :interface "USB"
+:usbid     "0x04b8" "0x0806"
 :status    :complete
 :comment   "overseas version of the PM-A850<br>all-in-one"
 
 :model     "Stylus Photo RX620"
 :interface "USB"
+:usbid     "0x04b8" "0x0811"
 :status    :complete
 :comment   "overseas version of the PM-A870<br>all-in-one"
 
 :model     "Stylus Photo RX630"
 :interface "USB"
+:usbid     "0x04b8" "0x0811"
 :status    :complete
 :comment   "overseas version of the PM-A870<br>all-in-one"
 
 :model     "Stylus Photo RX700"
 :interface "USB"
+:usbid     "0x04b8" "0x0810"
 :status    :complete
 :comment   "overseas version of the PM-A900<br>all-in-one"
 
@@ -836,4 +951,5 @@
 
 :model     "Stylus Scan 2500"
 :interface "USB"
+:usbid     "0x04b8" "0x0106"
 :status    :untested

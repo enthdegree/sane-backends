@@ -1,3 +1,9 @@
+2006-01-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/epkowa.desc: Updated to match
+	  iscan-1.18.0. Added usb ids (patch from Olaf Meeuwissen
+	  <olaf@member.fsf.org>). 
+
 2006-01-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/dll.c, backend/plustek-usbhw.c, backend/plustek-usbscan.c,

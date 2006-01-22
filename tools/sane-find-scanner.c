@@ -625,6 +625,9 @@ check_libusb_device (struct usb_device *dev, SANE_Bool from_file)
 	  ++is_scanner;
 	  break;
 	case USB_CLASS_PER_INTERFACE:
+	  if (dev->config[0].interface[interface_nr].num_altsetting == 0 || 
+	      !dev->config[0].interface[interface_nr].altsetting)
+	    break;
 	  switch (dev->config[0].interface[interface_nr].altsetting[0].bInterfaceClass)
 	    {
 	    case USB_CLASS_VENDOR_SPEC:

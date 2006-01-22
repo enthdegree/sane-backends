@@ -5,6 +5,8 @@
 	  <olaf@member.fsf.org>). 
 	* doc/descriptions/unsupported.desc: Added Scanshell 800N and
 	  Canon Smartbase MP360.
+	* sanei/sanei_usb.c tools/sane-find-scanner.c: Added checks for
+	  altsetting =! 0.
 
 2006-01-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

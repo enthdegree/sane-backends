@@ -459,6 +459,15 @@ sanei_usb_init (void)
 		  found = SANE_TRUE;
 		  break;
 		case USB_CLASS_PER_INTERFACE:
+		  if (dev->config[0].interface[interface].num_altsetting == 0 || 
+		      !dev->config[0].interface[interface].altsetting)
+		    {
+		      DBG (1, "sanei_usb_init: device 0x%04x/0x%04x doesn't "
+			   "have an altsetting for interface %d\n",
+			   dev->descriptor.idVendor, dev->descriptor.idProduct,
+			   interface);
+		      continue;
+		    }
 		  switch (dev->config[0].interface[interface].altsetting[0].
 			  bInterfaceClass)
 		    {
@@ -476,8 +485,8 @@ sanei_usb_init (void)
 		     "scanner (%d/%d)\n", dev->descriptor.idVendor,
 		     dev->descriptor.idProduct, interface,
 		     dev->descriptor.bDeviceClass,
-		     dev->config[0].interface[interface].altsetting[0].
-		     bInterfaceClass);
+		     dev->config[0].interface[interface].altsetting != 0 ? dev->config[0].interface[interface].altsetting[0].
+		     bInterfaceClass : -1);
 	    }
 	  interface--;
 	  if (!found)

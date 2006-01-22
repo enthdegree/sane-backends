@@ -322,13 +322,13 @@ dyld_get_error_str ()
 static SANE_Status
 load (struct backend *be)
 {
-	// use BeOS kernel function to load scanner addons from ~/config/add-ons/SANE/
+	/* use BeOS kernel function to load scanner addons from ~/config/add-ons/SANE */
 	char path[PATH_MAX];
 	image_id id = -1;
 	int i, w;
 	directory_which which[3] = { B_USER_ADDONS_DIRECTORY, B_COMMON_ADDONS_DIRECTORY, B_BEOS_ADDONS_DIRECTORY };
 	
-	// look for config files in SANE/conf
+	/* look for config files in SANE/conf */
 	for (w = 0; (w < 3) && (id < 0) && (find_directory(which[w],0,true,path,PATH_MAX) == 0); w++)
 	{
 		strcat(path,"/SANE/");
@@ -814,8 +814,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   fclose (fp);
 
 #else  
-	// no ugly config files, just get scanners from their ~/config/add-ons/SANE
-	// look for drivers
+	/* no ugly config files, just get scanners from their ~/config/add-ons/SANE */
+	/* look for drivers */
 	for (i = 0; i < 3; i++)
 	{
 		if (find_directory(which[i],0,true,path,1024) < B_OK)
@@ -857,8 +857,8 @@ sane_exit (void)
 	      (*(op_exit_t)be->op[OP_EXIT]) ();
 	    }
 #ifdef __BEOS__
-			// use BeOS kernel functions to unload add-ons
-			if(be->handle) unload_add_on((image_id)be->handle);	
+	  /* use BeOS kernel functions to unload add-ons */
+	  if(be->handle) unload_add_on((image_id)be->handle);
 #else
 #ifdef HAVE_DLL
 

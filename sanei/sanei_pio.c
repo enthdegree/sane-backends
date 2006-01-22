@@ -533,7 +533,7 @@ sanei_pio_open (const char *dev, int *fdp)
 {
 	int fp;
 	
-	// open internal parallel port
+	/* open internal parallel port */
 	fp=open("/dev/parallel/parallel1",O_RDWR);
   
   	*fdp=fp;

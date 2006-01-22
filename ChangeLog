@@ -1,3 +1,9 @@
+2006-01-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/dll.c, backend/plustek-usbhw.c, backend/plustek-usbscan.c,
+	  sanei/sanei_pio.c: Fixed warnings about C++ style comments.
+	* backend/hp5400_xfer.h: Fixed compilation warnings.
+
 2006-01-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/canon-sane.c: Fixed variable redeclaration.

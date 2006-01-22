@@ -696,7 +696,7 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 			u_long	dwSpeedUp = GetTickCount () + 250;
 			
-			//while(GetTickCount () < dwSpeedUp)
+			/* while(GetTickCount () < dwSpeedUp) */
 			while((int)(dwSpeedUp - GetTickCount ()) > 0)
 			{
 				Sleep (10);

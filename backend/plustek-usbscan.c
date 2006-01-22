@@ -1478,7 +1478,7 @@ static SANE_Bool usb_ScanReadImage( Plustek_Device *dev,
 
 			if(!dwBytes)
 			{
-				WriteRegister(0x07, 0);	// To stop scanning
+				WriteRegister(0x07, 0);	/* To stop scanning */ 
 				ScanInf.m_fADF++;
 				if(dwSize > dw)
 					ScanReadImage((PBYTE)pBuf + dw, dwSize - dw);

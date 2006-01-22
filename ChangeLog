@@ -3,6 +3,8 @@
 	* doc/descriptions-external/epkowa.desc: Updated to match
 	  iscan-1.18.0. Added usb ids (patch from Olaf Meeuwissen
 	  <olaf@member.fsf.org>). 
+	* doc/descriptions/unsupported.desc: Added Scanshell 800N and
+	  Canon Smartbase MP360.
 
 2006-01-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

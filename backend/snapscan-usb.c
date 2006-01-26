@@ -74,6 +74,14 @@
 #include "snapscan-usb.h"
 #include "snapscan-mutex.c"
 
+#ifndef SHM_R
+#define SHM_R 0
+#endif
+
+#ifndef SHM_W
+#define SHM_W 0
+#endif
+
 /* Global variables */
 
 static snapscan_mutex_t snapscan_mutex;
@@ -572,6 +580,9 @@ static void snapscani_usb_shm_exit(void)
 #endif
 /*
  * $Log$
+ * Revision 1.22  2006/01/26 17:42:30  hmg-guest
+ * Added #defines for SHM_R/W for cygwin (patch from Philip Aston <philipa@mail.com>).
+ *
  * Revision 1.21  2005/11/02 19:22:06  oliver-guest
  * Fixes for Benq 5000
  *

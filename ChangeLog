@@ -2,6 +2,7 @@
 
 	* backend/snapscan-usb.c: Added #defines for SHM_R/W for cygwin
 	  (patch from Philip Aston <philipa@mail.com>).
+	* AUTHORS: Troy Rollo is now active.
 
 2006-01-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

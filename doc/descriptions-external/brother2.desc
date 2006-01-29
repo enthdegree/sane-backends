@@ -82,10 +82,10 @@
 :comment "No report yet."
 
 :model "MFC-410CN"
-:status :untested
+:status :basic
 :interface "USB"
 :usbid "0x04f9" "0x0163"
-:comment "No report yet."
+:comment "Sometimes hangs and refuses to scan. A simple power off/on switch will fix things."
 
 :model "MFC-420CN"
 :status :untested

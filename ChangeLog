@@ -1,3 +1,8 @@
+2006-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother2.desc: Changed status of
+	  Brother MFC-410CN to "basic" (bug #302961).
+
 2006-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/snapscan-usb.c: Added #defines for SHM_R/W for cygwin

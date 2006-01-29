@@ -2,6 +2,8 @@
 
 	* doc/descriptions-external/brother2.desc: Changed status of
 	  Brother MFC-410CN to "basic" (bug #302961).
+	* doc/descriptions/unsupported.desc: Added Benq 7400UT and Genius
+	  Colorpage CS. 
 
 2006-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

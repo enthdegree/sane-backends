@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.50-10 (2006-01-31)
+---------------------
+Fixed CanoScan N1220U settings.
+
 V 0.50-9 (2006-01-19)
 ---------------------
 Added high-speed setting for HP2200.

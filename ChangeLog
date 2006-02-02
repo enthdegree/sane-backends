@@ -1,3 +1,7 @@
+2006-02-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan.h: Corrected USB ID for Benq 310
+
 2006-01-31  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.
@@ -37,7 +41,7 @@
 
 	* backend/canon-sane.c: Fixed variable redeclaration.
 
-2006-01-05  Stéphane Voltz <stefdev@modulonet.fr>
+2006-01-05  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
 	* tools/hotplug/libsane.usermap: Added Dell A920 (rebranded X1100)
 

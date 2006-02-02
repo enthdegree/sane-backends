@@ -224,7 +224,7 @@ static char *vendors[] =
 /* Agfa product IDs */
 #define USB_PRODUCT_1212U2 0x2061
 /* Acer product IDs */
-#define USB_PRODUCT_PRISA310 0x12a0
+#define USB_PRODUCT_PRISA310 0x1a20
 #define USB_PRODUCT_PRISA320 0x2022
 /* Epson product IDs */
 #define USB_PRODUCT_PERFECTION660  0x0114
@@ -416,12 +416,17 @@ struct snapscan_scanner
     SANE_Int rgb_lpr;            /* lines per scsi read (RGB) */
     SANE_Int gs_lpr;             /* lines per scsi read (greyscale) */
     SANE_Bool firmware_loaded;   /* true if firmware was downloaded */
+    SANE_Word usb_vendor;        /* USB vendor id */
+    SANE_Word usb_product;       /* USB product id */
 };
 
 #endif
 
 /*
  * $Log$
+ * Revision 1.41  2006/02/02 21:28:05  oliver-guest
+ * Corrected USB ID for Benq 310
+ *
  * Revision 1.40  2006/01/01 22:57:01  oliver-guest
  * Added calibration data for Benq 5150 / 5250, preliminary support for Epson Stylus CX 1500
  *

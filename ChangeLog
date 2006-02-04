@@ -1,3 +1,8 @@
+2006-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
+	  19200 (now in niash.desc), added Xerox 4800 One Touch.
+
 2006-02-04  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
         * backend/niash_xfer.c: Added Trust OfficeScan 19200

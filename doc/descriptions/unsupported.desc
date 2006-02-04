@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-01-29"		; version of backend
+:version "2006-02-04"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -2008,13 +2008,6 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
-:model "Office Scan USB 19200"
-:url "/unsupported/trust-officescan-usb-19200.html"
-:interface "USB"
-:usbid "0x047b" "0x1000"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
 :model "SCSI Scan 19200 -Excellence Series-"
 :url "/unsupported/trust-scsi-scan-19200.html"
 :interface "SCSI"
@@ -2300,6 +2293,13 @@
 :status :unsupported
 :comment "Probably GL646_HP based, maybe can be added to genesys backend"
 
+:model "4800 One Touch"
+:url "/unsupported/xerox-4800-onetouch.html"
+:interface "USB"
+:usbid "0x04a7" "0x03a0"
+:status :unsupported
+:comment "Unsupported. See link for details. Different id compared to One Touch 4800?"
+
 :model "DocuImage 620S"
 :url "/unsupported/xerox-docuimage-620s.html"
 :interface "SCSI"
@@ -2311,7 +2311,7 @@
 :interface "USB"
 :usbid "0x04a7" "0x0224"
 :status :unsupported
-:comment "Unsupported. See link for details."
+:comment "Unsupported. See link for details. Different id compared to 4800 One Touch?"
 
 :model "WorkCentre 470cx"
 :url "/unsupported/xerox-workcentre-470cx.html"

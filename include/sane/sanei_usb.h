@@ -367,7 +367,7 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration);
  * Change claim interface
  *
  * @param dn device number
- * @param interface, interface nummber
+ * @param interface_number, interface nummber
  *
  * @return 
  * - SANE_STATUS_GOOD - on succes
@@ -378,14 +378,14 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration);
  */
 
 extern SANE_Status
-sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface);
+sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number);
 
 /** Initiate release interface.
  *
  * Change release interface
  *
  * @param dn device number
- * @param interface, interface nummber
+ * @param interface_number, interface nummber
  *
  * @return 
  * - SANE_STATUS_GOOD - on succes
@@ -396,7 +396,7 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface);
  */
 
 extern SANE_Status
-sanei_usb_release_interface (SANE_Int dn, SANE_Int interface);
+sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number);
 
 /** Initiate a set altinterface.
  *

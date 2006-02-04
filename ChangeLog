@@ -2,6 +2,8 @@
 
 	* doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
 	  19200 (now in niash.desc), added Xerox 4800 One Touch.
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
+	  compilation problem on Windows/cygwin.
 
 2006-02-04  Ullrich Sigwanz <usigwanz@freesurf.ch>
 

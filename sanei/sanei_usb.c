@@ -1764,7 +1764,7 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 }
 
 SANE_Status
-sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface)
+sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number)
 {
   if (dn >= MAX_DEVICES || dn < 0)
     {
@@ -1774,7 +1774,7 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface)
       return SANE_STATUS_INVAL;
     }
 
-  DBG (5, "sanei_usb_claim_interface: interface = %d\n", interface);
+  DBG (5, "sanei_usb_claim_interface: interface_number = %d\n", interface_number);
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -1790,7 +1790,7 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface)
     {
       int result;
 
-      result = usb_claim_interface (devices[dn].libusb_handle, interface);
+      result = usb_claim_interface (devices[dn].libusb_handle, interface_number);
       if (result < 0)
 	{
 	  DBG (1, "sanei_usb_claim_interface: libusb complained: %s\n",
@@ -1814,7 +1814,7 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface)
 }
 
 SANE_Status
-sanei_usb_release_interface (SANE_Int dn, SANE_Int interface)
+sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number)
 {
   if (dn >= MAX_DEVICES || dn < 0)
     {
@@ -1824,7 +1824,7 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface)
       return SANE_STATUS_INVAL;
     }
 
-  DBG (5, "sanei_usb_release_interface: interface = %d\n", interface);
+  DBG (5, "sanei_usb_release_interface: interface_number = %d\n", interface_number);
 
   if (devices[dn].method == sanei_usb_method_scanner_driver)
     {
@@ -1840,7 +1840,7 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface)
     {
       int result;
 
-      result = usb_release_interface (devices[dn].libusb_handle, interface);
+      result = usb_release_interface (devices[dn].libusb_handle, interface_number);
       if (result < 0)
 	{
 	  DBG (1, "sanei_usb_release_interface: libusb complained: %s\n",

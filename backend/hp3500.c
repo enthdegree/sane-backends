@@ -1793,7 +1793,7 @@ rt_set_all_registers (void const *regs_)
   char regs[255];
 
   memcpy (regs, regs_, 255);
-  regs[32] &= ~0x40;
+  regs[0x32] &= ~0x40;
 
   if (rt_set_one_register (0x32, regs[0x32]) < 0 ||
       rt_set_register_immediate (0, 255, regs) < 0 ||

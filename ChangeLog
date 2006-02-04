@@ -4,6 +4,8 @@
 	  19200 (now in niash.desc), added Xerox 4800 One Touch.
 	* include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
 	  compilation problem on Windows/cygwin.
+	* backend/dll.c: With cygwin, use ":" as DIR_SEP (patch from
+	  Philip Aston <paston@bea.com>). 
 
 2006-02-04  Ullrich Sigwanz <usigwanz@freesurf.ch>
 

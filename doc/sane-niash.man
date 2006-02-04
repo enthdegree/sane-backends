@@ -16,8 +16,8 @@ the following models:
 .nf
 MANUFACTURER:    MODEL:          USB ID:
 ---------------  ----------------  ---------
-Agfa             Snapscan Touch    047B-1000 (1)(a)
-Trust            Office Scan 1900  06BD-0100 (1)(a)
+Agfa             Snapscan Touch    06BD-0100 (1)(a)
+Trust            Office Scan 19200 047B-1000 (1)(a)
 Hewlett-Packard  Scanjet 3300c     03F0-0205 (1)(a)(b)
 Hewlett-Packard  Scanjet 3400c     03F0-0405 (2)(b)
 Hewlett-Packard  Scanjet 4300c     03F0-0305 (2)(a)

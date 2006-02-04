@@ -2522,7 +2522,7 @@ rts8801_fullscan (unsigned x,
 					       red_green_offset +
 					       resparms[jres].
 					       green_blue_offset) : 0) +
-			  resparms[jres].intra_channel_offset));
+			  resparms[jres].intra_channel_offset) - 1);
 
   rt_set_scanline_start (regs,
 			 x * (1200 / xresolution) /

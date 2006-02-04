@@ -19,13 +19,13 @@
 */
 
 /*
-	Provides a simple interface to read and write data from the scanner,
-	without any knowledge whether it's a parallel or USB scanner
+        Provides a simple interface to read and write data from the scanner,
+        without any knowledge whether it's a parallel or USB scanner
 */
 
-#include <stdio.h>		/* printf */
-#include <errno.h>		/* better error reports */
-#include <string.h>		/* better error reports */
+#include <stdio.h>              /* printf */
+#include <errno.h>              /* better error reports */
+#include <string.h>             /* better error reports */
 
 #include "niash_xfer.h"
 
@@ -43,6 +43,8 @@ STATIC TScannerModel ScannerModels[] = {
   ,
   {"Agfa", "Snapscan Touch", 0x6BD, 0x100, eAgfaTouch}
   ,
+  {"Trust", "Office Scanner USB 19200", 0x47b, 0x1000, eAgfaTouch}
+  ,
 /* last entry all zeros */
   {0, 0, 0, 0, 0}
 };
@@ -53,11 +55,11 @@ static TScannerModel *_pModel;
 /*
   MatchUsbDevice
   ==============
-	Matches a given USB vendor and product id against a list of
-	supported scanners.
+        Matches a given USB vendor and product id against a list of
+        supported scanners.
 
   IN  iVendor   USB vendor ID
-	  iProduct  USB product ID
+          iProduct  USB product ID
   OUT *ppModel  Pointer to TScannerModel structure
 
   Returns TRUE if a matching USB scanner was found
@@ -71,12 +73,12 @@ MatchUsbDevice (int iVendor, int iProduct, TScannerModel ** ppModel)
   while (pModels->pszName != NULL)
     {
       if ((pModels->iVendor == iVendor) && (pModels->iProduct == iProduct))
-	{
-	  DBG (DBG_MSG, "found %s %s\n", pModels->pszVendor,
-	       pModels->pszName);
-	  *ppModel = pModels;
-	  return SANE_TRUE;
-	}
+        {
+          DBG (DBG_MSG, "found %s %s\n", pModels->pszVendor,
+               pModels->pszName);
+          *ppModel = pModels;
+          return SANE_TRUE;
+        }
       /* next model to match */
       pModels++;
     }
@@ -104,8 +106,8 @@ _AttachUsb (SANE_String_Const devname)
 /*
   NiashXferInit
   ===============
-	Initialises all registered data transfer modules, which causes
-	them to report any devices found through the pfnReport callback.
+        Initialises all registered data transfer modules, which causes
+        them to report any devices found through the pfnReport callback.
 
   IN  pfnReport Function to call to report a transfer device
 */
@@ -123,13 +125,13 @@ NiashXferInit (TFnReportDevice * pfnReport)
       DBG (DBG_MSG, "Looking for %s...\n", pModels->pszName);
       _pModel = pModels;
       if (sanei_usb_find_devices ((SANE_Int) pModels->iVendor,
-				  (SANE_Int) pModels->iProduct,
-				  _AttachUsb) != SANE_STATUS_GOOD)
-	{
+                                  (SANE_Int) pModels->iProduct,
+                                  _AttachUsb) != SANE_STATUS_GOOD)
+        {
 
-	  DBG (DBG_ERR, "Error invoking sanei_usb_find_devices");
-	  break;
-	}
+          DBG (DBG_ERR, "Error invoking sanei_usb_find_devices");
+          break;
+        }
       pModels++;
     }
 }
@@ -141,7 +143,7 @@ NiashXferOpen (const char *pszName, EScannerModel * peModel)
   SANE_Status status;
   SANE_Word vendor, product;
   int fd;
-  TScannerModel *pModel;
+  TScannerModel *pModel = 0;
 
   DBG (DBG_MSG, "Trying to open %s...\n", pszName);
 
@@ -178,8 +180,8 @@ static void
 parusb_write_reg (int fd, unsigned char bReg, unsigned char bValue)
 {
   sanei_usb_control_msg (fd,
-			 USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-			 0x0C, bReg, 0, 1, &bValue);
+                         USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+                         0x0C, bReg, 0, 1, &bValue);
 }
 
 
@@ -187,8 +189,8 @@ static void
 parusb_read_reg (int fd, unsigned char bReg, unsigned char *pbValue)
 {
   sanei_usb_control_msg (fd,
-			 USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
-			 0x0C, bReg, 0, 1, pbValue);
+                         USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
+                         0x0C, bReg, 0, 1, pbValue);
 }
 
 
@@ -247,8 +249,8 @@ NiashWriteBulk (int iHandle, unsigned char *pabBuf, int iSize)
   abSetup[4] = (iSize) & 0xFF;
   abSetup[5] = (iSize >> 8) & 0xFF;
   sanei_usb_control_msg (iHandle,
-			 USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-			 0x04, USB_SETUP, 0, 8, abSetup);
+                         USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+                         0x04, USB_SETUP, 0, 8, abSetup);
 
   /* do the bulk write */
   size = iSize;
@@ -279,8 +281,8 @@ NiashReadBulk (int iHandle, unsigned char *pabBuf, int iSize)
   abSetup[4] = (iSize) & 0xFF;
   abSetup[5] = (iSize >> 8) & 0xFF;
   sanei_usb_control_msg (iHandle,
-			 USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
-			 0x04, USB_SETUP, 0, 8, abSetup);
+                         USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
+                         0x04, USB_SETUP, 0, 8, abSetup);
 
   /* do the bulk read */
   size = iSize;

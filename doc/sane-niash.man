@@ -15,11 +15,13 @@ the following models:
 .ft CR
 .nf
 MANUFACTURER:    MODEL:          USB ID:
----------------  --------------  ---------
-Agfa             Snapscan Touch  06BD-0100 (1)(a)
-Hewlett-Packard  Scanjet 3300c   03F0-0205 (1)(a)(b)
-Hewlett-Packard  Scanjet 3400c   03F0-0405 (2)(b)
-Hewlett-Packard  Scanjet 4300c   03F0-0305 (2)(a)
+---------------  ----------------  ---------
+Agfa             Snapscan Touch    047B-1000 (1)(a)
+Trust            Office Scan 1900  06BD-0100 (1)(a)
+Hewlett-Packard  Scanjet 3300c     03F0-0205 (1)(a)(b)
+Hewlett-Packard  Scanjet 3400c     03F0-0405 (2)(b)
+Hewlett-Packard  Scanjet 4300c     03F0-0305 (2)(a)
+Silitek          ScanJet 4300c     047B-1002 (2)(b)
 .fi
 .ft R
 .PP
@@ -49,15 +51,15 @@ support dynamic loading).
 .SH CAVEATS
 If you use a
 .br
-Hewlett-Packard Scanjet 3400c 
-or 
+Hewlett-Packard Scanjet 3400c
+or
 .br
-Hewlett-Packard Scanjet 4300c 
+Hewlett-Packard Scanjet 4300c
 .br
 together with Linux kernel
 .BR 2.6 ,
-kernel version 
-.B 2.6.8 
+kernel version
+.B 2.6.8
 or newer is necessary.
 
 .SH ENVIRONMENT

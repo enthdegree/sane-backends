@@ -10,7 +10,7 @@
 ;
 
 :backend "niash"
-:version "0.2"
+:version "0.3"
 :manpage "sane-niash"
 :url "http://sourceforge.net/projects/hp3300backend"
 
@@ -36,12 +36,26 @@
 :comment "If you use Linux 2.6, version 2.6.8 or newer is necessary."
 :status :complete
 
+:model "ScanJet 4300c/Silitek"
+:interface "USB"
+:usbid "0x047b" "0x1002"
+:comment "If you use Linux 2.6, version 2.6.8 or newer is necessary."
+:status :complete
+
 :mfg "Agfa"
 :url "http://www.agfa.com"
 
 :model "Snapscan Touch"
 :interface "USB"
 :usbid "0x06bd" "0x0100"
+:status :complete
+
+:mfg "Trust"
+:url "http://www.trust.com"
+
+:model "Office Scan USB 19200"
+:interface "USB"
+:usbid "0x047b" "0x1000"
 :status :complete
 
 

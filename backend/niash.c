@@ -31,8 +31,8 @@
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/saneopts.h"
 
-#include <stdlib.h>		/* malloc, free */
-#include <string.h>		/* memcpy */
+#include <stdlib.h>             /* malloc, free */
+#include <string.h>             /* memcpy */
 #include <stdio.h>
 #include <sys/time.h>
 #include <sys/wait.h>
@@ -73,7 +73,7 @@ typedef enum
   optDPI,
 
   optGroupImage,
-  optGammaTable,		/* gamma table */
+  optGammaTable,                /* gamma table */
 
   optGroupMode,
   optMode,
@@ -89,14 +89,14 @@ typedef enum
   optLamp,
 
   optCalibrate,
-  optGamma			/* analog gamma = single number */
+  optGamma                      /* analog gamma = single number */
 } EOptionIndex;
 
 
 typedef union
 {
   SANE_Word w;
-  SANE_Word *wa;		/* word array */
+  SANE_Word *wa;                /* word array */
   SANE_String s;
 } TOptionValue;
 
@@ -112,20 +112,20 @@ typedef struct
   THWParams HWParams;
 
   TDataPipe DataPipe;
-  int iLinesLeft;		/* lines to scan */
-  int iBytesLeft;		/* bytes to read */
-  int iPixelsPerLine;		/* pixels in one scan line */
+  int iLinesLeft;               /* lines to scan */
+  int iBytesLeft;               /* bytes to read */
+  int iPixelsPerLine;           /* pixels in one scan line */
 
-  SANE_Int aGammaTable[SANE_GAMMA_SIZE];	/* a 12-to-8 bit color lookup table */
+  SANE_Int aGammaTable[SANE_GAMMA_SIZE];        /* a 12-to-8 bit color lookup table */
 
   /* fCancelled needed to let sane issue the cancel message
      instead of an error message */
-  SANE_Bool fCancelled;		/* SANE_TRUE if scanning cancelled */
+  SANE_Bool fCancelled;         /* SANE_TRUE if scanning cancelled */
 
-  SANE_Bool fScanning;		/* SANE_TRUE if actively scanning */
+  SANE_Bool fScanning;          /* SANE_TRUE if actively scanning */
 
-  int WarmUpTime;		/* time to wait before a calibration starts */
-  unsigned char CalWhite[3];	/* values for the last calibration of white */
+  int WarmUpTime;               /* time to wait before a calibration starts */
+  unsigned char CalWhite[3];    /* values for the last calibration of white */
   struct timeval WarmUpStarted;
   /* system type to trace the time elapsed */
 } TScanner;
@@ -155,7 +155,7 @@ static const SANE_Range rangeGamma = { SANE_FIX (0.25), SANE_FIX (4.0),
   SANE_FIX (0.0)
 };
 
-/* interpolate a sane gamma table to a hardware appropriate one 
+/* interpolate a sane gamma table to a hardware appropriate one
    just in case the sane gamma table would be smaller */
 static void
 _ConvertGammaTable (SANE_Word * saneGamma, unsigned char *hwGamma)
@@ -175,11 +175,11 @@ _ConvertGammaTable (SANE_Word * saneGamma, unsigned char *hwGamma)
 
       /* the interpolation of the rest depends on the gap */
       for (j = current + 1; j < HW_GAMMA_SIZE && j < next; ++j)
-	{
-	  hwGamma[j] =
-	    (saneGamma[i] * (next - j) +
-	     saneGamma[i + 1] * (j - current)) / (next - current);
-	}
+        {
+          hwGamma[j] =
+            (saneGamma[i] * (next - j) +
+             saneGamma[i + 1] * (j - current)) / (next - current);
+        }
       current = next;
     }
 }
@@ -241,7 +241,7 @@ static int
 _bytesPerLineLineart (int pixelsPerLine)
 {
   return (pixelsPerLine * BITS_PER_PIXEL_LINEART +
-	  BITS_PADDING) / BITS_PER_BYTE;
+          BITS_PADDING) / BITS_PER_BYTE;
 }
 
 static int
@@ -254,7 +254,7 @@ static int
 _bytesPerLineColor (int pixelsPerLine)
 {
   return (pixelsPerLine * BITS_PER_PIXEL_COLOR +
-	  BITS_PADDING) / BITS_PER_BYTE;
+          BITS_PADDING) / BITS_PER_BYTE;
 }
 
 
@@ -290,11 +290,11 @@ _rgb2gray (unsigned char *buffer, int pixels, int threshold)
     {
       acc += aWeight[x % BYTES_PER_PIXEL_COLOR] * buffer[x];
       if ((x + 1) % BYTES_PER_PIXEL_COLOR == 0)
-	{
-	  buffer[x / BYTES_PER_PIXEL_COLOR] =
-	    (unsigned char) (acc / WEIGHT_W);
-	  acc = 0;
-	}
+        {
+          buffer[x / BYTES_PER_PIXEL_COLOR] =
+            (unsigned char) (acc / WEIGHT_W);
+          acc = 0;
+        }
     }
 #undef WEIGHT_R
 #undef WEIGHT_G
@@ -317,14 +317,14 @@ _rgb2lineart (unsigned char *buffer, int pixels, int threshold)
   for (x = 0; x < nx; ++x)
     {
       if (x < pixels && buffer[x] < thresh)
-	{
-	  acc |= aMask[x % BITS_PER_BYTE];
-	}
+        {
+          acc |= aMask[x % BITS_PER_BYTE];
+        }
       if ((x + 1) % BITS_PER_BYTE == 0)
-	{
-	  buffer[x / BITS_PER_BYTE] = (unsigned char) (acc);
-	  acc = 0;
-	}
+        {
+          buffer[x / BITS_PER_BYTE] = (unsigned char) (acc);
+          acc = 0;
+        }
     }
 }
 
@@ -344,11 +344,11 @@ static const TModeParam modeParam[] = {
 };
 
 
-#define WARMUP_AFTERSTART    1	/* flag for 1st warm up */
+#define WARMUP_AFTERSTART    1  /* flag for 1st warm up */
 #define WARMUP_INSESSION     0
-#define WARMUP_TESTINTERVAL 15	/* test every 15sec */
-#define WARMUP_TIME         30	/* first wait is 30sec minimum */
-#define WARMUP_MAXTIME      90	/* after one and a half minute start latest */
+#define WARMUP_TESTINTERVAL 15  /* test every 15sec */
+#define WARMUP_TIME         30  /* first wait is 30sec minimum */
+#define WARMUP_MAXTIME      90  /* after one and a half minute start latest */
 
 #define CAL_DEV_MAX         15
 /* maximum deviation of cal values in percent between 2 tests */
@@ -399,13 +399,13 @@ _WarmUpLamp (TScanner * s, int iMode)
 static void
 _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
 {
-  struct timeval now[2];	/* toggling time holder */
-  int i;			/* rgb loop */
-  int iCal = 0;			/* counter */
-  int iCurrent = 0;		/* buffer and time-holder swap flag */
+  struct timeval now[2];        /* toggling time holder */
+  int i;                        /* rgb loop */
+  int iCal = 0;                 /* counter */
+  int iCurrent = 0;             /* buffer and time-holder swap flag */
   SANE_Bool fHasCal;
-  unsigned char CalWhite[2][3];	/* toggling buffer */
-  int iDelay = 0;		/* delay loop counter */
+  unsigned char CalWhite[2][3]; /* toggling buffer */
+  int iDelay = 0;               /* delay loop counter */
   _WarmUpLamp (s, SANE_FALSE);
 
 
@@ -424,101 +424,101 @@ _WaitForLamp (TScanner * s, unsigned char *pabCalibTable)
       /* check if the last scan has lower calibration values than
          the current one would have */
       if (s->WarmUpTime && fHasCal)
-	{
-	  SANE_Bool fOver = SANE_TRUE;
-	  for (i = 0; fOver && i < 3; ++i)
-	    {
-	      if (!s->CalWhite[i])
-		fOver = SANE_FALSE;
-	      else if (CalWhite[iCurrent][i] < s->CalWhite[i])
-		fOver = SANE_FALSE;
-	    }
+        {
+          SANE_Bool fOver = SANE_TRUE;
+          for (i = 0; fOver && i < 3; ++i)
+            {
+              if (!s->CalWhite[i])
+                fOver = SANE_FALSE;
+              else if (CalWhite[iCurrent][i] < s->CalWhite[i])
+                fOver = SANE_FALSE;
+            }
 
-	  /* warm up is not needed, when calibration data is above
-	     the calibration data of the last scan */
-	  if (fOver)
-	    {
-	      s->WarmUpTime = 0;
-	      DBG (DBG_MSG,
-		   "_WaitForLamp: Values seem stable, skipping next calibration cycle\n");
-	    }
-	}
+          /* warm up is not needed, when calibration data is above
+             the calibration data of the last scan */
+          if (fOver)
+            {
+              s->WarmUpTime = 0;
+              DBG (DBG_MSG,
+                   "_WaitForLamp: Values seem stable, skipping next calibration cycle\n");
+            }
+        }
 
 
       /* break the loop, when the longest wait time has expired
-         to prevent a hanging application, 
+         to prevent a hanging application,
          even if the values might not be good, yet */
       if (s->WarmUpTime && fHasCal && iCal)
-	{
-	  /* abort, when we have waited long enough */
-	  if (_TimeElapsed
-	      (&s->WarmUpStarted, &now[iCurrent], WARMUP_MAXTIME))
-	    {
-	      /* stop idling */
-	      s->WarmUpTime = 0;
-	      DBG (DBG_MSG, "_WaitForLamp: WARMUP_MAXTIME=%ds elapsed!\n",
-		   WARMUP_MAXTIME);
-	    }
-	}
+        {
+          /* abort, when we have waited long enough */
+          if (_TimeElapsed
+              (&s->WarmUpStarted, &now[iCurrent], WARMUP_MAXTIME))
+            {
+              /* stop idling */
+              s->WarmUpTime = 0;
+              DBG (DBG_MSG, "_WaitForLamp: WARMUP_MAXTIME=%ds elapsed!\n",
+                   WARMUP_MAXTIME);
+            }
+        }
 
 
       /* enter a delay loop, when there is still time to wait */
       if (s->WarmUpTime)
-	{
-	  /* if the (too low) calibration values have just been acquired
-	     we start waiting */
-	  if (fHasCal)
-	    DBG (DBG_MSG, "_WaitForLamp: entering delay loop\r");
-	  else
-	    DBG (DBG_MSG, "_WaitForLamp: delay loop %d        \r", ++iDelay);
-	  sleep (1);
-	  fHasCal = SANE_FALSE;
-	  gettimeofday (&now[!iCurrent], 0);
-	}
+        {
+          /* if the (too low) calibration values have just been acquired
+             we start waiting */
+          if (fHasCal)
+            DBG (DBG_MSG, "_WaitForLamp: entering delay loop\r");
+          else
+            DBG (DBG_MSG, "_WaitForLamp: delay loop %d        \r", ++iDelay);
+          sleep (1);
+          fHasCal = SANE_FALSE;
+          gettimeofday (&now[!iCurrent], 0);
+        }
 
 
       /* look if we should check again */
-      if (s->WarmUpTime		/* did we have to wait at all */
-	  /* is the minimum time elapsed */
-	  && _TimeElapsed (&s->WarmUpStarted, &now[!iCurrent], s->WarmUpTime)
-	  /* has the minimum time elapsed since the last calibration */
-	  && _TimeElapsed (&now[iCurrent], &now[!iCurrent],
-			   WARMUP_TESTINTERVAL))
-	{
-	  int dev = 0;		/* 0 percent deviation in cal value as default */
-	  iDelay = 0;		/* all delays processed */
-	  /* new calibration */
-	  ++iCal;
-	  iCurrent = !iCurrent;	/* swap the test-buffer, and time-holder */
-	  SimpleCalibExt (&s->HWParams, pabCalibTable, CalWhite[iCurrent]);
-	  fHasCal = SANE_TRUE;
+      if (s->WarmUpTime         /* did we have to wait at all */
+          /* is the minimum time elapsed */
+          && _TimeElapsed (&s->WarmUpStarted, &now[!iCurrent], s->WarmUpTime)
+          /* has the minimum time elapsed since the last calibration */
+          && _TimeElapsed (&now[iCurrent], &now[!iCurrent],
+                           WARMUP_TESTINTERVAL))
+        {
+          int dev = 0;          /* 0 percent deviation in cal value as default */
+          iDelay = 0;           /* all delays processed */
+          /* new calibration */
+          ++iCal;
+          iCurrent = !iCurrent; /* swap the test-buffer, and time-holder */
+          SimpleCalibExt (&s->HWParams, pabCalibTable, CalWhite[iCurrent]);
+          fHasCal = SANE_TRUE;
 
-	  for (i = 0; i < 3; ++i)
-	    {
-	      /* copy for faster and clearer access */
-	      int cwa;
-	      int cwb;
-	      int ldev;
-	      cwa = CalWhite[!iCurrent][i];
-	      cwb = CalWhite[iCurrent][i];
-	      /* find the biggest deviation of one color */
-	      if (cwa > cwb)
-		ldev = 0;
-	      else if (cwa && cwb)
-		ldev = ((cwb - cwa) * 100) / cwb;
-	      else
-		ldev = 100;
-	      dev = MAX (dev, ldev);
-	    }
+          for (i = 0; i < 3; ++i)
+            {
+              /* copy for faster and clearer access */
+              int cwa;
+              int cwb;
+              int ldev;
+              cwa = CalWhite[!iCurrent][i];
+              cwb = CalWhite[iCurrent][i];
+              /* find the biggest deviation of one color */
+              if (cwa > cwb)
+                ldev = 0;
+              else if (cwa && cwb)
+                ldev = ((cwb - cwa) * 100) / cwb;
+              else
+                ldev = 100;
+              dev = MAX (dev, ldev);
+            }
 
-	  /* show the biggest deviation of the calibration values */
-	  DBG (DBG_MSG, "_WaitForLamp: recalibration #%d, deviation = %d%%\n",
-	       iCal, dev);
+          /* show the biggest deviation of the calibration values */
+          DBG (DBG_MSG, "_WaitForLamp: recalibration #%d, deviation = %d%%\n",
+               iCal, dev);
 
-	  /* the deviation to the previous calibration is tolerable */
-	  if (dev <= CAL_DEV_MAX)
-	    s->WarmUpTime = 0;
-	}
+          /* the deviation to the previous calibration is tolerable */
+          if (dev <= CAL_DEV_MAX)
+            s->WarmUpTime = 0;
+        }
     }
 
   /* remember the values of this calibration
@@ -541,10 +541,10 @@ _SetScalarGamma (SANE_Int * aiGamma, SANE_Int sfGamma)
     {
       int iData;
       iData =
-	floor (256.0 *
-	       pow (((double) j / (double) SANE_GAMMA_SIZE), 1.0 / fGamma));
+        floor (256.0 *
+               pow (((double) j / (double) SANE_GAMMA_SIZE), 1.0 / fGamma));
       if (iData > 255)
-	iData = 255;
+        iData = 255;
       aiGamma[j] = iData;
     }
 }
@@ -561,7 +561,7 @@ _MaxStringSize (const SANE_String_Const strings[])
     {
       size = strlen (strings[i]) + 1;
       if (size > max_size)
-	max_size = size;
+        max_size = size;
     }
   return max_size;
 }
@@ -609,172 +609,172 @@ _InitOptions (TScanner * s)
       pDesc->cap = 0;
 
       switch (i)
-	{
+        {
 
-	case optCount:
-	  pDesc->title = SANE_TITLE_NUM_OPTIONS;
-	  pDesc->desc = SANE_DESC_NUM_OPTIONS;
-	  pDesc->cap = SANE_CAP_SOFT_DETECT;
-	  pVal->w = (SANE_Word) optLast;
-	  break;
+        case optCount:
+          pDesc->title = SANE_TITLE_NUM_OPTIONS;
+          pDesc->desc = SANE_DESC_NUM_OPTIONS;
+          pDesc->cap = SANE_CAP_SOFT_DETECT;
+          pVal->w = (SANE_Word) optLast;
+          break;
 
-	case optGroupGeometry:
-	  pDesc->title = "Geometry";
-	  pDesc->type = SANE_TYPE_GROUP;
-	  pDesc->size = 0;
-	  break;
+        case optGroupGeometry:
+          pDesc->title = "Geometry";
+          pDesc->type = SANE_TYPE_GROUP;
+          pDesc->size = 0;
+          break;
 
-	case optTLX:
-	  pDesc->name = SANE_NAME_SCAN_TL_X;
-	  pDesc->title = SANE_TITLE_SCAN_TL_X;
-	  pDesc->desc = SANE_DESC_SCAN_TL_X;
-	  pDesc->unit = SANE_UNIT_MM;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeXmm;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = rangeXmm.min;
-	  break;
+        case optTLX:
+          pDesc->name = SANE_NAME_SCAN_TL_X;
+          pDesc->title = SANE_TITLE_SCAN_TL_X;
+          pDesc->desc = SANE_DESC_SCAN_TL_X;
+          pDesc->unit = SANE_UNIT_MM;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeXmm;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = rangeXmm.min;
+          break;
 
-	case optTLY:
-	  pDesc->name = SANE_NAME_SCAN_TL_Y;
-	  pDesc->title = SANE_TITLE_SCAN_TL_Y;
-	  pDesc->desc = SANE_DESC_SCAN_TL_Y;
-	  pDesc->unit = SANE_UNIT_MM;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeYmm;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = rangeYmm.min;
-	  break;
+        case optTLY:
+          pDesc->name = SANE_NAME_SCAN_TL_Y;
+          pDesc->title = SANE_TITLE_SCAN_TL_Y;
+          pDesc->desc = SANE_DESC_SCAN_TL_Y;
+          pDesc->unit = SANE_UNIT_MM;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeYmm;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = rangeYmm.min;
+          break;
 
-	case optBRX:
-	  pDesc->name = SANE_NAME_SCAN_BR_X;
-	  pDesc->title = SANE_TITLE_SCAN_BR_X;
-	  pDesc->desc = SANE_DESC_SCAN_BR_X;
-	  pDesc->unit = SANE_UNIT_MM;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeXmm;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = 210 /* A4 width instead of rangeXmm.max */ ;
-	  break;
+        case optBRX:
+          pDesc->name = SANE_NAME_SCAN_BR_X;
+          pDesc->title = SANE_TITLE_SCAN_BR_X;
+          pDesc->desc = SANE_DESC_SCAN_BR_X;
+          pDesc->unit = SANE_UNIT_MM;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeXmm;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = 210 /* A4 width instead of rangeXmm.max */ ;
+          break;
 
-	case optBRY:
-	  pDesc->name = SANE_NAME_SCAN_BR_Y;
-	  pDesc->title = SANE_TITLE_SCAN_BR_Y;
-	  pDesc->desc = SANE_DESC_SCAN_BR_Y;
-	  pDesc->unit = SANE_UNIT_MM;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeYmm;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = 290 /* have a bit reserve instaed of rangeYmm.max */ ;
-	  break;
+        case optBRY:
+          pDesc->name = SANE_NAME_SCAN_BR_Y;
+          pDesc->title = SANE_TITLE_SCAN_BR_Y;
+          pDesc->desc = SANE_DESC_SCAN_BR_Y;
+          pDesc->unit = SANE_UNIT_MM;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeYmm;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = 290 /* have a bit reserve instaed of rangeYmm.max */ ;
+          break;
 
-	case optDPI:
-	  pDesc->name = SANE_NAME_SCAN_RESOLUTION;
-	  pDesc->title = SANE_TITLE_SCAN_RESOLUTION;
-	  pDesc->desc = SANE_DESC_SCAN_RESOLUTION;
-	  pDesc->unit = SANE_UNIT_DPI;
-	  pDesc->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-	  pDesc->constraint.word_list = setResolutions;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = setResolutions[2];	/* default to 150dpi */
-	  break;
+        case optDPI:
+          pDesc->name = SANE_NAME_SCAN_RESOLUTION;
+          pDesc->title = SANE_TITLE_SCAN_RESOLUTION;
+          pDesc->desc = SANE_DESC_SCAN_RESOLUTION;
+          pDesc->unit = SANE_UNIT_DPI;
+          pDesc->constraint_type = SANE_CONSTRAINT_WORD_LIST;
+          pDesc->constraint.word_list = setResolutions;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = setResolutions[2];  /* default to 150dpi */
+          break;
 
-	case optGroupImage:
-	  pDesc->title = SANE_I18N ("Image");
-	  pDesc->type = SANE_TYPE_GROUP;
-	  pDesc->size = 0;
-	  break;
+        case optGroupImage:
+          pDesc->title = SANE_I18N ("Image");
+          pDesc->type = SANE_TYPE_GROUP;
+          pDesc->size = 0;
+          break;
 
-	case optGamma:
-	  pDesc->name = SANE_NAME_ANALOG_GAMMA;
-	  pDesc->title = SANE_TITLE_ANALOG_GAMMA;
-	  pDesc->desc = SANE_DESC_ANALOG_GAMMA;
-	  pDesc->type = SANE_TYPE_FIXED;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeGamma;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->w = startUpGamma;
-	  break;
+        case optGamma:
+          pDesc->name = SANE_NAME_ANALOG_GAMMA;
+          pDesc->title = SANE_TITLE_ANALOG_GAMMA;
+          pDesc->desc = SANE_DESC_ANALOG_GAMMA;
+          pDesc->type = SANE_TYPE_FIXED;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeGamma;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->w = startUpGamma;
+          break;
 
-	case optGammaTable:
-	  pDesc->name = SANE_NAME_GAMMA_VECTOR;
-	  pDesc->title = SANE_TITLE_GAMMA_VECTOR;
-	  pDesc->desc = SANE_DESC_GAMMA_VECTOR;
-	  pDesc->size = sizeof (s->aGammaTable);
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeGammaTable;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  pVal->wa = s->aGammaTable;
-	  break;
+        case optGammaTable:
+          pDesc->name = SANE_NAME_GAMMA_VECTOR;
+          pDesc->title = SANE_TITLE_GAMMA_VECTOR;
+          pDesc->desc = SANE_DESC_GAMMA_VECTOR;
+          pDesc->size = sizeof (s->aGammaTable);
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeGammaTable;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          pVal->wa = s->aGammaTable;
+          break;
 
-	case optGroupMisc:
-	  pDesc->title = SANE_I18N ("Miscellaneous");
-	  pDesc->type = SANE_TYPE_GROUP;
-	  pDesc->size = 0;
-	  break;
+        case optGroupMisc:
+          pDesc->title = SANE_I18N ("Miscellaneous");
+          pDesc->type = SANE_TYPE_GROUP;
+          pDesc->size = 0;
+          break;
 
-	case optLamp:
-	  pDesc->name = "lamp";
-	  pDesc->title = SANE_I18N ("Lamp status");
-	  pDesc->desc = SANE_I18N ("Switches the lamp on or off.");
-	  pDesc->type = SANE_TYPE_BOOL;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	  /* switch the lamp on when starting for first the time */
-	  pVal->w = SANE_TRUE;
-	  break;
+        case optLamp:
+          pDesc->name = "lamp";
+          pDesc->title = SANE_I18N ("Lamp status");
+          pDesc->desc = SANE_I18N ("Switches the lamp on or off.");
+          pDesc->type = SANE_TYPE_BOOL;
+          pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+          /* switch the lamp on when starting for first the time */
+          pVal->w = SANE_TRUE;
+          break;
 
-	case optCalibrate:
-	  pDesc->name = "calibrate";
-	  pDesc->title = SANE_I18N ("Calibrate");
-	  pDesc->desc = SANE_I18N ("Calibrates for black and white level.");
-	  pDesc->type = SANE_TYPE_BUTTON;
-	  pDesc->cap = SANE_CAP_SOFT_SELECT;
-	  pDesc->size = 0;
-	  break;
+        case optCalibrate:
+          pDesc->name = "calibrate";
+          pDesc->title = SANE_I18N ("Calibrate");
+          pDesc->desc = SANE_I18N ("Calibrates for black and white level.");
+          pDesc->type = SANE_TYPE_BUTTON;
+          pDesc->cap = SANE_CAP_SOFT_SELECT;
+          pDesc->size = 0;
+          break;
 
-	case optGroupMode:
-	  pDesc->title = SANE_I18N ("Scan Mode");
-	  pDesc->desc = "";
-	  pDesc->type = SANE_TYPE_GROUP;
-	  break;
+        case optGroupMode:
+          pDesc->title = SANE_I18N ("Scan Mode");
+          pDesc->desc = "";
+          pDesc->type = SANE_TYPE_GROUP;
+          break;
 
-	case optMode:
-	  /* scan mode */
-	  pDesc->name = SANE_NAME_SCAN_MODE;
-	  pDesc->title = SANE_TITLE_SCAN_MODE;
-	  pDesc->desc = SANE_DESC_SCAN_MODE;
-	  pDesc->type = SANE_TYPE_STRING;
-	  pDesc->size = _MaxStringSize (modeList);
-	  pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	  pDesc->constraint.string_list = modeList;
-	  pDesc->cap =
-	    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_EMULATED;
-	  pVal->w = MODE_COLOR;
-	  break;
+        case optMode:
+          /* scan mode */
+          pDesc->name = SANE_NAME_SCAN_MODE;
+          pDesc->title = SANE_TITLE_SCAN_MODE;
+          pDesc->desc = SANE_DESC_SCAN_MODE;
+          pDesc->type = SANE_TYPE_STRING;
+          pDesc->size = _MaxStringSize (modeList);
+          pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+          pDesc->constraint.string_list = modeList;
+          pDesc->cap =
+            SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_EMULATED;
+          pVal->w = MODE_COLOR;
+          break;
 
-	case optGroupEnhancement:
-	  pDesc->title = SANE_I18N ("Enhancement");
-	  pDesc->desc = "";
-	  pDesc->type = SANE_TYPE_GROUP;
-	  break;
+        case optGroupEnhancement:
+          pDesc->title = SANE_I18N ("Enhancement");
+          pDesc->desc = "";
+          pDesc->type = SANE_TYPE_GROUP;
+          break;
 
-	case optThreshold:
-	  pDesc->name = SANE_NAME_THRESHOLD;
-	  pDesc->title = SANE_TITLE_THRESHOLD;
-	  pDesc->desc = SANE_DESC_THRESHOLD;
-	  pDesc->type = SANE_TYPE_INT;
-	  pDesc->unit = SANE_UNIT_PERCENT;
-	  pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
-	  pDesc->constraint.range = &rangeThreshold;
-	  pDesc->cap =
-	    SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE |
-	    SANE_CAP_EMULATED;
-	  pVal->w = 50;
+        case optThreshold:
+          pDesc->name = SANE_NAME_THRESHOLD;
+          pDesc->title = SANE_TITLE_THRESHOLD;
+          pDesc->desc = SANE_DESC_THRESHOLD;
+          pDesc->type = SANE_TYPE_INT;
+          pDesc->unit = SANE_UNIT_PERCENT;
+          pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+          pDesc->constraint.range = &rangeThreshold;
+          pDesc->cap =
+            SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE |
+            SANE_CAP_EMULATED;
+          pVal->w = 50;
 
-	default:
-	  DBG (DBG_ERR, "Uninitialised option %d\n", i);
-	  break;
-	}
+        default:
+          DBG (DBG_ERR, "Uninitialised option %d\n", i);
+          break;
+        }
     }
 }
 
@@ -801,9 +801,9 @@ _ReportDevice (TScannerModel * pModel, const char *pszDeviceName)
   else
     {
       for (pDev = _pFirstSaneDev; pDev->pNext; pDev = pDev->pNext)
-	{
-	  ;
-	}
+        {
+          ;
+        }
       pDev->pNext = pNew;
     }
 
@@ -856,11 +856,11 @@ sane_exit (void)
   if (_pSaneDevList)
     {
       for (pDev = _pFirstSaneDev; pDev; pDev = pNext)
-	{
-	  pNext = pDev->pNext;
-	  free ((void *) pDev->dev.name);
-	  free (pDev);
-	}
+        {
+          pNext = pDev->pNext;
+          free ((void *) pDev->dev.name);
+          free (pDev);
+        }
       _pFirstSaneDev = 0;
       free (_pSaneDevList);
       _pSaneDevList = 0;
@@ -894,7 +894,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     {
       _pSaneDevList[i++] = &pDev->dev;
     }
-  _pSaneDevList[i++] = 0;	/* last entry is 0 */
+  _pSaneDevList[i++] = 0;       /* last entry is 0 */
 
   *device_list = _pSaneDevList;
 
@@ -981,7 +981,7 @@ sane_get_option_descriptor (SANE_Handle h, SANE_Int n)
 
 SANE_Status
 sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
-		     void *pVal, SANE_Int * pInfo)
+                     void *pVal, SANE_Int * pInfo)
 {
   TScanner *s;
   SANE_Bool fVal;
@@ -1003,182 +1003,186 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
     {
     case SANE_ACTION_GET_VALUE:
       switch (n)
-	{
+        {
 
-	  /* Get options of type SANE_Word */
-	case optCount:
-	case optDPI:
-	case optGamma:
-	case optTLX:
-	case optTLY:
-	case optBRX:
-	case optBRY:
-	case optThreshold:
-	  DBG (DBG_MSG,
-	       "sane_control_option: SANE_ACTION_GET_VALUE %d = %d\n", n,
-	       (int) s->aValues[n].w);
-	  *(SANE_Word *) pVal = s->aValues[n].w;
-	  break;
+          /* Get options of type SANE_Word */
+        case optCount:
+        case optDPI:
+        case optGamma:
+        case optTLX:
+        case optTLY:
+        case optBRX:
+        case optBRY:
+        case optThreshold:
+          DBG (DBG_MSG,
+               "sane_control_option: SANE_ACTION_GET_VALUE %d = %d\n", n,
+               (int) s->aValues[n].w);
+          *(SANE_Word *) pVal = s->aValues[n].w;
+          break;
 
-	  /* Get options of type SANE_Word array */
-	case optGammaTable:
-	  DBG (DBG_MSG, "Reading gamma table\n");
-	  memcpy (pVal, s->aValues[n].wa, s->aOptions[n].size);
-	  break;
+          /* Get options of type SANE_Word array */
+        case optGammaTable:
+          DBG (DBG_MSG, "Reading gamma table\n");
+          memcpy (pVal, s->aValues[n].wa, s->aOptions[n].size);
+          break;
 
-	case optMode:
-	  DBG (DBG_MSG, "Reading scan mode %s\n",
-	       modeList[s->aValues[optMode].w]);
-	  strcpy ((char *) pVal, modeList[s->aValues[optMode].w]);
-	  break;
+        case optMode:
+          DBG (DBG_MSG, "Reading scan mode %s\n",
+               modeList[s->aValues[optMode].w]);
+          strcpy ((char *) pVal, modeList[s->aValues[optMode].w]);
+          break;
 
-	  /* Get options of type SANE_Bool */
-	case optLamp:
-	  GetLamp (&s->HWParams, &fLampIsOn);
-	  *(SANE_Bool *) pVal = fLampIsOn;
-	  break;
+          /* Get options of type SANE_Bool */
+        case optLamp:
+          GetLamp (&s->HWParams, &fLampIsOn);
+          *(SANE_Bool *) pVal = fLampIsOn;
+          break;
 
-	case optCalibrate:
-	  /*  although this option has nothing to read,
-	     it's added here to avoid a warning when running scanimage --help */
-	  break;
+        case optCalibrate:
+          /*  although this option has nothing to read,
+             it's added here to avoid a warning when running scanimage --help */
+          break;
 
-	default:
-	  DBG (DBG_MSG, "SANE_ACTION_GET_VALUE: Invalid option (%d)\n", n);
-	}
+        default:
+          DBG (DBG_MSG, "SANE_ACTION_GET_VALUE: Invalid option (%d)\n", n);
+        }
       break;
 
 
     case SANE_ACTION_SET_VALUE:
       if (s->fScanning)
-	{
-	  DBG (DBG_ERR,
-	       "sane_control_option: SANE_ACTION_SET_VALUE not allowed during scan\n");
-	  return SANE_STATUS_INVAL;
-	}
+        {
+          DBG (DBG_ERR,
+               "sane_control_option: SANE_ACTION_SET_VALUE not allowed during scan\n");
+          return SANE_STATUS_INVAL;
+        }
       switch (n)
-	{
+        {
 
-	case optCount:
-	  return SANE_STATUS_INVAL;
+        case optCount:
+          return SANE_STATUS_INVAL;
 
-	case optGamma:
-	case optDPI:
-	case optTLX:
-	case optTLY:
-	case optBRX:
-	case optBRY:
-	case optThreshold:
-	  info |= SANE_INFO_RELOAD_PARAMS;
-	  status = sanei_constrain_value (&s->aOptions[n], pVal, &info);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_ERR, "Failed to constrain option %d (%s)\n", n,
-		   s->aOptions[n].title);
-	      return status;
-	    }
+        case optGamma:
+        case optThreshold:
+        case optDPI:
 
-	  /* check values if they are equal */
-	  fSame = s->aValues[n].w == *(SANE_Word *) pVal;
+          info |= SANE_INFO_RELOAD_PARAMS;
+          /* fall through */
 
-	  /* set the values */
-	  s->aValues[n].w = *(SANE_Word *) pVal;
-	  DBG (DBG_MSG,
-	       "sane_control_option: SANE_ACTION_SET_VALUE %d = %d\n", n,
-	       (int) s->aValues[n].w);
-	  if (n == optGamma)
-	    {
-	      if (!fSame && optLast > optGammaTable)
-		{
-		  info |= SANE_INFO_RELOAD_OPTIONS;
-		}
-	      _SetScalarGamma (s->aGammaTable, s->aValues[n].w);
-	    }
-	  break;
+        case optTLX:
+        case optTLY:
+        case optBRX:
+        case optBRY:
 
-	case optGammaTable:
-	  DBG (DBG_MSG, "Writing gamma table\n");
-	  pi = (SANE_Int *) pVal;
-	  memcpy (s->aValues[n].wa, pVal, s->aOptions[n].size);
+          status = sanei_constrain_value (&s->aOptions[n], pVal, &info);
+          if (status != SANE_STATUS_GOOD)
+            {
+              DBG (DBG_ERR, "Failed to constrain option %d (%s)\n", n,
+                   s->aOptions[n].title);
+              return status;
+            }
 
-	  /* prepare table for debug */
-	  strcpy (szTable, "Gamma table summary:");
-	  for (i = 0; i < SANE_GAMMA_SIZE; i++)
-	    {
-	      if ((SANE_GAMMA_SIZE / 16) && (i % (SANE_GAMMA_SIZE / 16)) == 0)
-		{
-		  strcat (szTable, "\n");
-		  DBG (DBG_MSG, szTable);
-		  strcpy (szTable, "");
-		}
-	      /* test for number print */
-	      if ((SANE_GAMMA_SIZE / 64) && (i % (SANE_GAMMA_SIZE / 64)) == 0)
-		{
-		  sprintf (szTemp, " %04X", pi[i]);
-		  strcat (szTable, szTemp);
-		}
-	    }
-	  if (strlen (szTable))
-	    {
-	      strcat (szTable, "\n");
-	      DBG (DBG_MSG, szTable);
-	    }
-	  break;
+          /* check values if they are equal */
+          fSame = s->aValues[n].w == *(SANE_Word *) pVal;
 
-	case optMode:
-	  {
-	    SANE_Word *pCap;
-	    int fCapChanged = 0;
+          /* set the values */
+          s->aValues[n].w = *(SANE_Word *) pVal;
+          DBG (DBG_MSG,
+               "sane_control_option: SANE_ACTION_SET_VALUE %d = %d\n", n,
+               (int) s->aValues[n].w);
+          if (n == optGamma)
+            {
+              if (!fSame && optLast > optGammaTable)
+                {
+                  info |= SANE_INFO_RELOAD_OPTIONS;
+                }
+              _SetScalarGamma (s->aGammaTable, s->aValues[n].w);
+            }
+          break;
 
-	    pCap = &s->aOptions[optThreshold].cap;
+        case optGammaTable:
+          DBG (DBG_MSG, "Writing gamma table\n");
+          pi = (SANE_Int *) pVal;
+          memcpy (s->aValues[n].wa, pVal, s->aOptions[n].size);
 
-	    if (strcmp ((char const *) pVal, colorStr) == 0)
-	      {
-		s->aValues[optMode].w = MODE_COLOR;
-		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
-	      }
-	    if (strcmp ((char const *) pVal, grayStr) == 0)
-	      {
-		s->aValues[optMode].w = MODE_GRAY;
-		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
-	      }
-	    if (strcmp ((char const *) pVal, lineartStr) == 0)
-	      {
-		s->aValues[optMode].w = MODE_LINEART;
-		fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 0);
+          /* prepare table for debug */
+          strcpy (szTable, "Gamma table summary:");
+          for (i = 0; i < SANE_GAMMA_SIZE; i++)
+            {
+              if ((SANE_GAMMA_SIZE / 16) && (i % (SANE_GAMMA_SIZE / 16)) == 0)
+                {
+                  strcat (szTable, "\n");
+                  DBG (DBG_MSG, szTable);
+                  strcpy (szTable, "");
+                }
+              /* test for number print */
+              if ((SANE_GAMMA_SIZE / 64) && (i % (SANE_GAMMA_SIZE / 64)) == 0)
+                {
+                  sprintf (szTemp, " %04X", pi[i]);
+                  strcat (szTable, szTemp);
+                }
+            }
+          if (strlen (szTable))
+            {
+              strcat (szTable, "\n");
+              DBG (DBG_MSG, szTable);
+            }
+          break;
 
-	      }
-	    info |= SANE_INFO_RELOAD_PARAMS;
-	    if (fCapChanged)
-	      {
-		info |= SANE_INFO_RELOAD_OPTIONS;
-	      }
-	    DBG (DBG_MSG, "setting scan mode: %s\n", (char const *) pVal);
-	  }
-	  break;
+        case optMode:
+          {
+            SANE_Word *pCap;
+            int fCapChanged = 0;
+
+            pCap = &s->aOptions[optThreshold].cap;
+
+            if (strcmp ((char const *) pVal, colorStr) == 0)
+              {
+                s->aValues[optMode].w = MODE_COLOR;
+                fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
+              }
+            if (strcmp ((char const *) pVal, grayStr) == 0)
+              {
+                s->aValues[optMode].w = MODE_GRAY;
+                fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 1);
+              }
+            if (strcmp ((char const *) pVal, lineartStr) == 0)
+              {
+                s->aValues[optMode].w = MODE_LINEART;
+                fCapChanged = _ChangeCap (pCap, SANE_CAP_INACTIVE, 0);
+
+              }
+            info |= SANE_INFO_RELOAD_PARAMS;
+            if (fCapChanged)
+              {
+                info |= SANE_INFO_RELOAD_OPTIONS;
+              }
+            DBG (DBG_MSG, "setting scan mode: %s\n", (char const *) pVal);
+          }
+          break;
 
 
 
-	case optLamp:
-	  fVal = *(SANE_Bool *) pVal;
-	  DBG (DBG_MSG, "lamp %s\n", fVal ? "on" : "off");
-	  if (fVal)
-	    _WarmUpLamp (s, WARMUP_INSESSION);
-	  else
-	    SetLamp (&s->HWParams, SANE_FALSE);
-	  break;
+        case optLamp:
+          fVal = *(SANE_Bool *) pVal;
+          DBG (DBG_MSG, "lamp %s\n", fVal ? "on" : "off");
+          if (fVal)
+            _WarmUpLamp (s, WARMUP_INSESSION);
+          else
+            SetLamp (&s->HWParams, SANE_FALSE);
+          break;
 
-	case optCalibrate:
+        case optCalibrate:
 /*       SimpleCalib(&s->HWParams); */
-	  break;
+          break;
 
-	default:
-	  DBG (DBG_ERR, "SANE_ACTION_SET_VALUE: Invalid option (%d)\n", n);
-	}
+        default:
+          DBG (DBG_ERR, "SANE_ACTION_SET_VALUE: Invalid option (%d)\n", n);
+        }
       if (pInfo != NULL)
-	{
-	  *pInfo |= info;
-	}
+        {
+          *pInfo |= info;
+        }
       break;
 
 
@@ -1212,12 +1216,12 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
   if (s->aValues[optTLX].w >= s->aValues[optBRX].w)
     {
       DBG (DBG_ERR, "TLX should be smaller than BRX\n");
-      return SANE_STATUS_INVAL;	/* proper error code? */
+      return SANE_STATUS_INVAL; /* proper error code? */
     }
   if (s->aValues[optTLY].w >= s->aValues[optBRY].w)
     {
       DBG (DBG_ERR, "TLY should be smaller than BRY\n");
-      return SANE_STATUS_INVAL;	/* proper error code? */
+      return SANE_STATUS_INVAL; /* proper error code? */
     }
 
 
@@ -1228,18 +1232,18 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
   p->last_frame = SANE_TRUE;
 
   p->lines = MM_TO_PIXEL (s->aValues[optBRY].w - s->aValues[optTLY].w,
-			  s->aValues[optDPI].w);
+                          s->aValues[optDPI].w);
   p->depth = pMode->depth;
   p->pixels_per_line =
     MM_TO_PIXEL (s->aValues[optBRX].w - s->aValues[optTLX].w,
-		 s->aValues[optDPI].w);
+                 s->aValues[optDPI].w);
   p->bytes_per_line = pMode->bytesPerLine (p->pixels_per_line);
 
   return SANE_STATUS_GOOD;
 }
 
 
-/* get the scale down factor for a resolution that is 
+/* get the scale down factor for a resolution that is
   not supported by hardware */
 static int
 _SaneEmulateScaling (int iDpi)
@@ -1278,13 +1282,13 @@ sane_start (SANE_Handle h)
   s->ScanParams.iLpi = s->aValues[optDPI].w * iScaleDown;
 
   /* calculate correction for filling of circular buffer */
-  iLineCorr = 3 * s->HWParams.iSensorSkew;	/* usually 16 motor steps */
+  iLineCorr = 3 * s->HWParams.iSensorSkew;      /* usually 16 motor steps */
   /* calculate correction for garbage lines */
   iLineCorr += s->HWParams.iSkipLines * (HW_LPI / s->ScanParams.iLpi);
 
   s->ScanParams.iTop =
     MM_TO_PIXEL (s->aValues[optTLY].w + s->HWParams.iTopLeftY,
-		 HW_LPI) - iLineCorr;
+                 HW_LPI) - iLineCorr;
   s->ScanParams.iLeft =
     MM_TO_PIXEL (s->aValues[optTLX].w + s->HWParams.iTopLeftX, HW_DPI);
 
@@ -1308,7 +1312,7 @@ sane_start (SANE_Handle h)
     }
 
   WriteGammaCalibTable (abGamma, abGamma, abGamma, abCalibTable, 0, 0,
-			&s->HWParams);
+                        &s->HWParams);
 
   /* prepare the actual scan */
   if (!InitScan (&s->ScanParams, &s->HWParams))
@@ -1324,8 +1328,8 @@ sane_start (SANE_Handle h)
   if (s->HWParams.fReg07)
     {
       s->DataPipe.iSkipLines +=
-	MM_TO_PIXEL (s->aValues[optTLY].w + s->HWParams.iTopLeftY,
-		     s->aValues[optDPI].w * iScaleDown);
+        MM_TO_PIXEL (s->aValues[optTLY].w + s->HWParams.iTopLeftY,
+                     s->aValues[optDPI].w * iScaleDown);
     }
   s->iBytesLeft = 0;
   s->iPixelsPerLine = par.pixels_per_line;
@@ -1333,9 +1337,9 @@ sane_start (SANE_Handle h)
   /* hack */
   s->DataPipe.pabLineBuf = (unsigned char *) malloc (HW_PIXELS * 3);
   CircBufferInit (s->HWParams.iXferHandle, &s->DataPipe,
-		  par.pixels_per_line, s->ScanParams.iHeight,
-		  s->ScanParams.iLpi * s->HWParams.iSensorSkew / HW_LPI,
-		  s->HWParams.iReversedHead, iScaleDown, iScaleDown);
+                  par.pixels_per_line, s->ScanParams.iHeight,
+                  s->ScanParams.iLpi * s->HWParams.iSensorSkew / HW_LPI,
+                  s->HWParams.iReversedHead, iScaleDown, iScaleDown);
 
   s->fScanning = SANE_TRUE;
   s->fCancelled = SANE_FALSE;
@@ -1360,18 +1364,18 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   if (!s->fScanning)
     {
       if (s->fCancelled)
-	{
-	  DBG (DBG_MSG, "\n");
-	  DBG (DBG_MSG, "sane_read: sane_read cancelled\n");
-	  s->fCancelled = SANE_FALSE;
-	  return SANE_STATUS_CANCELLED;
-	}
+        {
+          DBG (DBG_MSG, "\n");
+          DBG (DBG_MSG, "sane_read: sane_read cancelled\n");
+          s->fCancelled = SANE_FALSE;
+          return SANE_STATUS_CANCELLED;
+        }
       else
-	{
-	  DBG (DBG_ERR,
-	       "sane_read: sane_read only allowed after sane_start\n");
-	  return SANE_STATUS_INVAL;
-	}
+        {
+          DBG (DBG_ERR,
+               "sane_read: sane_read only allowed after sane_start\n");
+          return SANE_STATUS_INVAL;
+        }
     }
 
   p = &s->DataPipe;
@@ -1396,36 +1400,36 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     {
       /* read a line from the transfer buffer */
       if (CircBufferGetLineEx (s->HWParams.iXferHandle, p, p->pabLineBuf,
-			       s->HWParams.iReversedHead, SANE_TRUE))
-	{
-	  pMode->adaptFormat (p->pabLineBuf, s->iPixelsPerLine,
-			      s->aValues[optThreshold].w);
-	  s->iBytesLeft = pMode->bytesPerLine (s->iPixelsPerLine);
-	  s->iLinesLeft--;
-	}
+                               s->HWParams.iReversedHead, SANE_TRUE))
+        {
+          pMode->adaptFormat (p->pabLineBuf, s->iPixelsPerLine,
+                              s->aValues[optThreshold].w);
+          s->iBytesLeft = pMode->bytesPerLine (s->iPixelsPerLine);
+          s->iLinesLeft--;
+        }
       /* stop scanning further, when the read action fails
          because we try read after the end of the buffer */
       else
-	{
-	  FinishScan (&s->HWParams);
-	  CircBufferExit (p);
-	  free (p->pabLineBuf);
-	  p->pabLineBuf = NULL;
-	  *len = 0;
-	  DBG (DBG_MSG, "\n");
-	  DBG (DBG_MSG, "sane_read: read after end of buffer\n");
-	  s->fCancelled = SANE_FALSE;
-	  s->fScanning = SANE_FALSE;
-	  return SANE_STATUS_EOF;
-	}
+        {
+          FinishScan (&s->HWParams);
+          CircBufferExit (p);
+          free (p->pabLineBuf);
+          p->pabLineBuf = NULL;
+          *len = 0;
+          DBG (DBG_MSG, "\n");
+          DBG (DBG_MSG, "sane_read: read after end of buffer\n");
+          s->fCancelled = SANE_FALSE;
+          s->fScanning = SANE_FALSE;
+          return SANE_STATUS_EOF;
+        }
 
     }
 
   /* copy (part of) a line */
   *len = MIN (maxlen, s->iBytesLeft);
   memcpy (buf,
-	  &p->pabLineBuf[pMode->bytesPerLine (s->iPixelsPerLine) -
-			 s->iBytesLeft], *len);
+          &p->pabLineBuf[pMode->bytesPerLine (s->iPixelsPerLine) -
+                         s->iBytesLeft], *len);
   s->iBytesLeft -= *len;
 
   DBG (DBG_MSG, " read=%d    \n", *len);

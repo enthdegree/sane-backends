@@ -1,6 +1,9 @@
 This is a report on how to build SANE on Solaris/x86 using a USB scanner. See
 below for SCSI.
 
+Another report for SANE on OpenSolaris can be found here:
+http://ginfo.egim-mrs.fr/article.php3?id_article=44
+
 From: Tomasz Orlinski <tomasz.orlinski@wp.pl>
 To: sane-devel@lists.alioth.debian.org
 Subject: [sane-devel] USB scanners DO work on Solaris 10 x86

@@ -1,6 +1,8 @@
 2006-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.solaris: Added link to installation report.
+	* doc/descriptions/unsupported.desc: Removed HP ScanJet 8200
+	  (supported by Avision backend). Minor updates.
 
 2006-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

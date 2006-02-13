@@ -1,3 +1,7 @@
+2006-02-13  Stéphane Voltz <stefdev@modulonet.fr>
+
+        * backend/genesys_gl646.c: disabled power saving for gl646.
+
 2006-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README.solaris: Added link to installation report.
@@ -62,7 +66,7 @@
 
         * backend/canon-sane.c: Fixed variable redeclaration.
 
-2006-01-05  Stï¿½hane Voltz <stefdev@modulonet.fr>
+2006-01-05  Stéphane Voltz <stefdev@modulonet.fr>
 
         * tools/hotplug/libsane.usermap: Added Dell A920 (rebranded X1100)
 

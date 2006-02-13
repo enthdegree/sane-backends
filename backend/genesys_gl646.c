@@ -1108,8 +1108,8 @@ gl646_set_fe (Genesys_Device * dev, u_int8_t set)
   int i;
   u_int8_t val;
 
-  DBG (DBG_proc, "gl646_set_fe (%s)\n", set == 1 ? "init" : set == 2 ? "set"
-       : set == 3 ? "powersave" : "huh?");
+  DBG (DBG_proc, "gl646_set_fe (%s)\n", set == AFE_INIT ? "init" : set == AFE_SET ? "set"
+       : set == AFE_POWER_SAVE ? "powersave" : "huh?");
 
   if ((dev->reg[reg_0x04].value & REG04_FESET) != 0x03)
     {
@@ -1294,6 +1294,8 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 
   DBG (DBG_proc, "gl646_set_powersaving (delay = %d)\n", delay);
 
+  DBG (DBG_proc, "gl646_set_powersaving *DISABLED*\n");
+
   local_reg[0].address = 0x01;
   local_reg[0].value = sanei_genesys_read_reg_from_set (dev->reg, 0x01) & ~REG01_FASTMOD;	/* disable fastmode */
 
@@ -1358,9 +1360,12 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 
   local_reg[4].value = exposure_time / 256;	/* highbyte */
   local_reg[5].value = exposure_time & 255;	/* lowbyte */
-
-  status =
+  /* disabled for now, the registers altered have to be reset 
+     after powersaving */
+  status = SANE_STATUS_GOOD;
+  /*
     gl646_bulk_write_register (dev, local_reg, sizeof (local_reg));
+    */
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error,
 	 "gl646_set_powersaving: Failed to bulk write registers: %s\n",

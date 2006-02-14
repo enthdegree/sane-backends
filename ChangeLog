@@ -1,21 +1,30 @@
+2006-02-14  Gerhard Jaeger <gerhard@gjaeger.de>
+
+        * doc/u12/U12.changes: Update.
+        * backend/u12.c: Bumped build number.
+        * backend/u12-hw.c: SoftwareReset is now disabled in
+          cancelSequence when the device is a Genius scanner.
+
+Fixed CanoScan N1220U settings.
+
 2006-02-13  Stéphane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: disabled power saving for gl646.
 
 2006-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* README.solaris: Added link to installation report.
-	* doc/descriptions/unsupported.desc: Removed HP ScanJet 8200
-	  (supported by Avision backend). Minor updates.
+        * README.solaris: Added link to installation report.
+        * doc/descriptions/unsupported.desc: Removed HP ScanJet 8200
+          (supported by Avision backend). Minor updates.
 
 2006-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
-	  19200 (now in niash.desc), added Xerox 4800 One Touch.
-	* include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
-	  compilation problem on Windows/cygwin.
-	* backend/dll.c: With cygwin, use ":" as DIR_SEP (patch from
-	  Philip Aston <paston@bea.com>). 
+        * doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
+          19200 (now in niash.desc), added Xerox 4800 One Touch.
+        * include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
+          compilation problem on Windows/cygwin.
+        * backend/dll.c: With cygwin, use ":" as DIR_SEP (patch from
+          Philip Aston <paston@bea.com>).
 
 2006-02-04  Ullrich Sigwanz <usigwanz@freesurf.ch>
 

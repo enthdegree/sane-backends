@@ -80,7 +80,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-9"
+#define BACKEND_VERSION "0.02-10"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"

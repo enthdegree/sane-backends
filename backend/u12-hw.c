@@ -7,6 +7,8 @@
  * - 0.01 - initial version
  * - 0.02 - cleanup
  *        - added lampTimer stuff
+ *        - fixed issue for Genius device - reported by
+ *          Jose Alberto Reguero <jareguero@telefonica.net>
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -804,7 +806,9 @@ static void u12hw_CancelSequence( U12_Device *dev )
 	u12io_DataToRegister( dev, REG_MODELCONTROL, 0x1a );
 
 	u12hw_PutToIdleMode( dev );
-	u12io_SoftwareReset( dev );
+
+	if( strcmp( dev->usbId, "0x0458-0x2004" ))
+		u12io_SoftwareReset( dev );
 
 	u12motor_PositionModuleToHome( dev );
 

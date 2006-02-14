@@ -25,4 +25,9 @@ V 0.02-6 (2004-21-01)
 V 0.02-9 (2004-06-10)
 ---------------------
 - using now SANE definitions for scanmodes
-                                  
+
+V 0.02-10 (2006-14-02)
+----------------------
+- SoftwareReset is now disabled in cancelSequence when the device
+  is a Genius (reported by Jose Alberto Reguero <jareguero@telefonica.net>)
+

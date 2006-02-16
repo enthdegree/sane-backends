@@ -1,11 +1,17 @@
+2006-02-16  Gerhard Jaeger <gerhard@gjaeger.de>
+
+        * doc/plustek/Plustek-PARPORT.changes: Update.
+        * backend/plustek_pp.c: Bumped build number.
+        * backend/plustek-pp_ptdrv.c backend/plustek-pp_detec.c:
+          Fixed bug, that prevents backend from working, when the device
+          is another parport than parport0 - spotted by Christoph Steinbruchel.
+
 2006-02-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
         * doc/u12/U12.changes: Update.
         * backend/u12.c: Bumped build number.
         * backend/u12-hw.c: SoftwareReset is now disabled in
           cancelSequence when the device is a Genius scanner.
-
-Fixed CanoScan N1220U settings.
 
 2006-02-13  Stéphane Voltz <stefdev@modulonet.fr>
 

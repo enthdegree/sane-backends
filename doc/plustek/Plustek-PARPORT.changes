@@ -155,3 +155,8 @@ Version 0.43-8 08/10/2005
 Version 0.43-9 11/14/2005
     1.0 Fixed sizeof(long) issue for 64bit platforms, see 
         bug #302195
+
+Version 0.43-10 02/16/2006
+    1.0 Fixed bug, that prevents backend from working, when the
+        device is connected to parport1 or higher, parport0 works.
+        Bug spotted by Christoph Steinbruchel.

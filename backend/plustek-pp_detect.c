@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -23,7 +23,7 @@
  * - 0.40 - no changes
  * - 0.41 - no changes
  * - 0.42 - changed include names
- * - 0.43 - no changes
+ * - 0.43 - cleanup
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -75,10 +75,10 @@
  */
 static void detectResetPort( pScanData ps )
 {
-    UChar control;
+	UChar control;
 
-    DBG( DBG_HIGH, "ResetPort()\n" );
-    
+	DBG( DBG_HIGH, "ResetPort()\n" );
+
 	control = _INB_CTRL( ps );
 	_DO_UDELAY( 2 );
 
@@ -102,12 +102,12 @@ static int detectScannerConnection( pScanData ps )
 	DBG( DBG_LOW, "Ctrlport = 0x%04x\n", ps->IO.pbControlPort );
 #endif
 
-    detectResetPort( ps );
+	detectResetPort( ps );
 
 	/*
 	 * as we're called during InitPorts, we can be sure
 	 * to operate in EPP-mode (hopefuly ;-)
-	 */	
+	 */
 	control = _INB_CTRL( ps );
 
 	/*
@@ -155,36 +155,34 @@ static int detectScannerConnection( pScanData ps )
 		  				  data, status, ps->IO.portBase );
 
 			if( data != status ) {
+
 				_ASSERT( ps->ReadWriteTest );
 
-                /*
-                 * here we try to detect the operation speed of our
-                 * parallel port
-                 * if we have tested all the stuff and had no success, retval
-                 * will contain the error-code
+				/*
+				 * here we try to detect the operation speed of our parallel 
+				 * port if we have tested all the stuff and had no success, 
+				 * retval will contain the error-code
                  */
 				for( ps->IO.delay = 0; ps->IO.delay < 5; ps->IO.delay++ ) {
 
 					retval = ps->ReadWriteTest( ps );
 
-                    /* break on OK or when the ASIC detection fails */
-   					if((_OK == retval) ||  (_E_NO_ASIC == retval))
+					/* break on OK or when the ASIC detection fails */
+					if((_OK == retval) ||  (_E_NO_ASIC == retval))
 						break;
 				}
 			}
 		}
 	}
 
-    /*
-     * work on the result
-     */
+	/* work on the result */
 	if ( _OK == retval ) {
 #ifdef __KERNEL__
-    	ps->sCaps.wIOBase = ps->IO.pbSppDataPort;
+		ps->sCaps.wIOBase = ps->IO.pbSppDataPort;
 #else
-    	ps->sCaps.wIOBase = ps->pardev;
+		ps->sCaps.wIOBase = ps->pardev;
 #endif
-        ps->PutToIdleMode( ps );
+		ps->PutToIdleMode( ps );
 
 	} else {
     	ps->sCaps.wIOBase = _NO_BASE;
@@ -198,7 +196,7 @@ static int detectScannerConnection( pScanData ps )
 
 	DBG( DBG_HIGH, "detectScannerConnection() returns %i.\n", retval );
 
-    return retval;
+	return retval;
 }
 
 /** we need some memory...
@@ -436,9 +434,9 @@ _LOC int DetectScanner( pScanData ps, int mode )
             /* read Register 0x18 (AsicID Register) of Asic9800x based devices */
 #ifdef _ASIC_98001_SIM
 #ifdef __KERNEL__
-		_PRINT(
+			_PRINT(
 #else
-		DBG( DBG_HIGH,
+			DBG( DBG_HIGH,
 #endif
 						"!!!! WARNING, SW-Emulation active !!!!\n" );
             asic = _ASIC_IS_98001;

@@ -3,7 +3,7 @@
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (C) 1998 Plustek Inc.
- * Copyright (C) 2000-2004 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  * also based on the work done by Rick Bronson
  *
  * History:
@@ -694,6 +694,8 @@ static int ptdrvOpenDevice( pScanData ps )
 	struct pardevice *pd;
 	struct parport   *pp;
 	ProcDirDef        procDir;
+#else
+    int pd;
 #endif
 
 	/*
@@ -701,10 +703,10 @@ static int ptdrvOpenDevice( pScanData ps )
      */
 #ifdef __KERNEL__
 	flags    = ps->flags;
-	pd       = ps->pardev;
 	pp       = ps->pp;
 	procDir  = ps->procDir;
 #endif
+	pd       = ps->pardev;
 	iobase   = ps->sCaps.wIOBase;
 	asic     = ps->sCaps.AsicID;
 	lastStat = ps->bLastLampStatus;
@@ -722,13 +724,13 @@ static int ptdrvOpenDevice( pScanData ps )
 	 */
 #ifdef __KERNEL__
 	ps->flags   = flags;
-	ps->pardev  = pd;
 	ps->pp      = pp;
 	ps->procDir = procDir;
 #endif
+	ps->pardev          = pd;
 	ps->bLastLampStatus = lastStat;
 	ps->IO.lastPortMode = lastMode;
-	ps->devno			= devno;
+	ps->devno           = devno;
 
 #ifdef __KERNEL__
 	if( _TRUE == slowIO[devno] ) {
@@ -799,10 +801,10 @@ static int ptdrvInit( int devno )
 #endif
 	ps->ModelOverride = mov[devno];
 	ps->warmup        = warmup[devno];
-	ps->lampoff		  = lampoff[devno];
-	ps->lOffonEnd	  = lOffonEnd[devno];
+	ps->lampoff       = lampoff[devno];
+	ps->lOffonEnd     = lOffonEnd[devno];
 	ps->IO.forceMode  = forceMode[devno];
-	ps->devno		  = devno;
+	ps->devno         = devno;
 
 	/* assign it right here, to allow correct shutdown */
 	PtDrvDevices[devno] = ps;

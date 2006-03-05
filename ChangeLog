@@ -2,7 +2,9 @@
 
 	* doc/descriptions-external/samsung.desc: Added USB ids for
 	  SCX-4100 (bug #303166).
-
+	* doc/descriptions/unsupported.desc: Added Brother MFC 9600, Canon
+	  PIXMA MP450, and Plustek ScanCopy 115.
+	
 2006-02-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
         * doc/plustek/Plustek-PARPORT.changes: Update.

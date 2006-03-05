@@ -1,3 +1,8 @@
+2006-03-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/samsung.desc: Added USB ids for
+	  SCX-4100 (bug #303166).
+
 2006-02-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
         * doc/plustek/Plustek-PARPORT.changes: Update.

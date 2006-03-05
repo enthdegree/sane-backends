@@ -32,8 +32,9 @@
 
 :model "SCX-4100"
 :interface "Parport USB"
+:usbid "0x04e8" "0x3413"
 :status :good
-:comment "Is reported to work. USB vendor and product ids unknown."
+:comment "Is reported to work. "
 
 :model "SCX-4216F"
 :interface "Parport USB"

@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
+   Copyright (C) 2004, 2006 Stephane Voltz <stefdev@modulonet.fr>
    Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
    This file is part of the SANE package.
@@ -1275,7 +1275,7 @@ gl646_save_power(Genesys_Device * dev, SANE_Bool enable) {
 
     if (enable)
     {
-	gl646_set_fe (dev, AFE_POWER_SAVE);
+	/* gl646_set_fe (dev, AFE_POWER_SAVE); */
     } 
     else 
     {
@@ -1288,16 +1288,14 @@ gl646_save_power(Genesys_Device * dev, SANE_Bool enable) {
 static SANE_Status
 gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
 {
-  SANE_Status status;
-  Genesys_Register_Set local_reg[7];
+  SANE_Status status=SANE_STATUS_GOOD;
+  Genesys_Register_Set local_reg[6];
   int rate, exposure_time, tgtime, time;
 
   DBG (DBG_proc, "gl646_set_powersaving (delay = %d)\n", delay);
 
-  DBG (DBG_proc, "gl646_set_powersaving *DISABLED*\n");
-
   local_reg[0].address = 0x01;
-  local_reg[0].value = sanei_genesys_read_reg_from_set (dev->reg, 0x01) & ~REG01_FASTMOD;	/* disable fastmode */
+  local_reg[0].value = sanei_genesys_read_reg_from_set (dev->reg, 0x01);	/* disable fastmode */
 
   local_reg[1].address = 0x03;
   local_reg[1].value = sanei_genesys_read_reg_from_set (dev->reg, 0x03);	/* Lamp power control */
@@ -1305,17 +1303,14 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   local_reg[2].address = 0x05;
   local_reg[2].value = sanei_genesys_read_reg_from_set (dev->reg, 0x05) & ~REG05_BASESEL;	/* 24 clocks/pixel */
 
-  local_reg[3].address = 0x18;	/* Set CCD type */
+  local_reg[3].address = 0x38;	/* line period low */
   local_reg[3].value = 0x00;
 
-  local_reg[4].address = 0x38;	/* line period low */
+  local_reg[4].address = 0x39;	/* line period high */
   local_reg[4].value = 0x00;
 
-  local_reg[5].address = 0x39;	/* line period high */
+  local_reg[5].address = 0x6c;	/* period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE */
   local_reg[5].value = 0x00;
-
-  local_reg[6].address = 0x6c;	/* period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE */
-  local_reg[6].value = 0x00;
 
   if (!delay)
     local_reg[1].value = local_reg[1].value & 0xf0;	/* disable lampdog and set lamptime = 0 */
@@ -1352,20 +1347,16 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
       tgtime = 0;
     }
 
-  local_reg[6].value |= tgtime << 6;
+  local_reg[5].value |= tgtime << 6;
   exposure_time /= rate;
 
   if (exposure_time > 65535)
     exposure_time = 65535;
 
-  local_reg[4].value = exposure_time / 256;	/* highbyte */
-  local_reg[5].value = exposure_time & 255;	/* lowbyte */
-  /* disabled for now, the registers altered have to be reset 
-     after powersaving */
-  status = SANE_STATUS_GOOD;
-  /*
-    gl646_bulk_write_register (dev, local_reg, sizeof (local_reg));
-    */
+  local_reg[3].value = exposure_time / 256;	/* highbyte */
+  local_reg[4].value = exposure_time & 255;	/* lowbyte */
+
+  status = gl646_bulk_write_register (dev, local_reg, sizeof (local_reg));
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error,
 	 "gl646_set_powersaving: Failed to bulk write registers: %s\n",

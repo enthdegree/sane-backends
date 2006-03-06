@@ -1,3 +1,7 @@
+2006-03-06  Stéphane Voltz <stefdev@modulonet.fr>
+
+        * backend/genesys_gl646.c: power saving fixes
+
 2006-03-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/samsung.desc: Added USB ids for

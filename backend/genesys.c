@@ -3,7 +3,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
    This file is part of the SANE package.
    
@@ -531,7 +531,7 @@ sanei_genesys_stop_motor (Genesys_Device * dev)
  */
 static SANE_Int
 genesys_generate_slope_table (
-    u_int8_t * slope_table, unsigned int max_steps, 
+    u_int16_t * slope_table, unsigned int max_steps, 
     unsigned int use_steps, u_int16_t stop_at, 
     u_int16_t vstart, u_int16_t vend, unsigned int steps, double g,
     unsigned int *used_steps, unsigned int *vfinal)
@@ -577,8 +577,7 @@ genesys_generate_slope_table (
 	  t2 = vstart * (1 - t) + t * vend;
 	  if (t2 < stop_at)
 	      break;
-	  *slope_table++ = t2 & 0xff;
-	  *slope_table++ = t2 >> 8;
+	  *slope_table++ = t2;
 	  DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2);
 	  sum += t2;
       }
@@ -597,8 +596,7 @@ genesys_generate_slope_table (
 
   for (i = 0; i < max_steps; i++,c++)
   {
-      *slope_table++ = (*vfinal) & 0xff;
-      *slope_table++ = (*vfinal) >> 8;
+      *slope_table++ = *vfinal;
       DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal);
   }
 
@@ -634,7 +632,7 @@ genesys_generate_slope_table (
  */
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   u_int8_t * slope_table, int max_step,
+				   u_int16_t * slope_table, int max_step,
 				   unsigned int use_steps,
 				   int step_type, int exposure_time,
 				   double yres,
@@ -735,7 +733,7 @@ genesys_create_slope_table4 (Genesys_Device * dev,
       vend = 65535;
   
   sum_time = genesys_generate_slope_table(
-      (u_int8_t*)slope_table, 128, 
+      slope_table, 128, 
 
       steps,
       vtarget,
@@ -766,9 +764,6 @@ genesys_create_slope_table2 (Genesys_Device * dev,
   SANE_Int sum = 0;
   int vstart, vend;
   int i;
-#ifdef WORDS_BIGENDIAN
-  SANE_Byte h,l;
-#endif
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: %d steps, step_type = %d, "
@@ -872,17 +867,6 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 	  sum += slope_table[i];
 	}
     }
-
-  /* post fix endianess issue */
-#ifdef WORDS_BIGENDIAN
-  for(i=0; i <steps; i++)
-  {
-      h = (SANE_Byte)(slope_table[i] / 256);
-      l = (SANE_Byte)(slope_table[i] % 256);
-      *(SANE_Byte *)(slope_table+i)=h;
-      *((SANE_Byte *)(slope_table+i)+1)=l;
-  }
-#endif
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: returns sum=%d, completed\n", sum);

@@ -550,7 +550,7 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
 
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
-				   u_int8_t * slope_table, int max_step,
+				   u_int16_t * slope_table, int max_step,
 				   unsigned int use_steps,
 				   int step_type, int exposure_time,
 				   double yres,

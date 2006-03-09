@@ -3,8 +3,8 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2006 Stephane Voltz <stefdev@modulonet.fr>
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2004 - 2006 Stephane Voltz <stefdev@modulonet.fr>
+   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
    This file is part of the SANE package.
    
@@ -1051,7 +1051,9 @@ gl646_init_regs (Genesys_Device * dev)
 }
 
 
-/* Send slope table for motor movement */
+/* Send slope table for motor movement 
+   slope_table in machine byte order
+*/
 static SANE_Status
 gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 			u_int16_t * slope_table, int steps)
@@ -1059,6 +1061,10 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   int dpihw;
   int start_address;
   SANE_Status status;
+  u_int8_t *table;
+#ifdef WORDS_BIGENDIAN
+  int i;
+#endif
 
   DBG (DBG_proc, "gl646_send_slope_table (table_nr = %d, steps = %d)\n",
        table_nr, steps);
@@ -1074,10 +1080,23 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
   else				/* reserved */
     return SANE_STATUS_INVAL;
 
+#ifdef WORDS_BIGENDIAN
+  table = (u_int8_t*)malloc(steps * 2);
+  for(i = 0; i < steps; i++) {
+      table[i * 2] = slope_table[i] & 0xff;
+      table[i * 2 + 1] = slope_table[i] >> 8;
+  }
+#else
+  table = (u_int8_t*)slope_table;
+#endif
+
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x100);
   if (status != SANE_STATUS_GOOD)
     {
+#ifdef WORDS_BIGENDIAN
+      free(table);
+#endif
       DBG (DBG_error,
 	   "gl646_send_slope_table: failed to set buffer address: %s\n",
 	   sane_strstatus (status));
@@ -1089,12 +1108,18 @@ gl646_send_slope_table (Genesys_Device * dev, int table_nr,
 				   steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
+#ifdef WORDS_BIGENDIAN
+      free(table);
+#endif
       DBG (DBG_error,
 	   "gl646_send_slope_table: failed to send slope table: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
+#ifdef WORDS_BIGENDIAN
+  free(table);
+#endif
   DBG (DBG_proc, "gl646_send_slope_table: completed\n");
   return status;
 }
@@ -3954,12 +3979,12 @@ gl646_repark_head (Genesys_Device * dev)
 {
   Genesys_Register_Set local_reg[GENESYS_GL646_MAX_REGS + 1];
   u_int16_t slope_table[256];
-  int exposure_time;		/* todo : modify sanei_genesys_exposure_time() */
+  unsigned int exposure_time;	/* todo : modify sanei_genesys_exposure_time() */
   SANE_Status status;
-  int steps = 232;
-  int lincnt = 212;
-  int dpi = 600;
-  int endpixel, expected;
+  unsigned int steps = 232;
+  unsigned int lincnt = 212;
+  unsigned int dpi = 600;
+  unsigned int endpixel, expected;
 
   DBG (DBG_proc, "gl646_repark_head\n");
 

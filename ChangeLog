@@ -1,5 +1,12 @@
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
+        * backend/genesys.c backend/genesys_low.h: Removed little endian 
+          conversions in slope table creation functions
+        * backend/genesys_gl646.c backend/genesys_gl841.c: Added little
+          endian conversions to gl*_send_slope_table functions
+
+2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
         * backend/genesys.c: Some annotations about endianess of scanned
           data
 	* backend/genesys_gl646.c: Convert gamma tables to little endian

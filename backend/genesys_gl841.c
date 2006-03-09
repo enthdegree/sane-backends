@@ -5,7 +5,7 @@
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
     
    This file is part of the SANE package.
@@ -1511,7 +1511,9 @@ gl841_init_registers (Genesys_Device * dev)
   DBG (DBG_proc, "gl841_init_registers complete\n");
 }
 
-/* Send slope table for motor movement */
+/* Send slope table for motor movement 
+   slope_table in machine byte order
+ */
 static SANE_Status
 gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 			      u_int16_t * slope_table, int steps)
@@ -1519,6 +1521,10 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   int dpihw;
   int start_address;
   SANE_Status status;
+  u_int8_t *table;
+#ifdef WORDS_BIGENDIAN
+  int i;
+#endif
 
   DBG (DBG_proc, "gl841_send_slope_table (table_nr = %d, steps = %d)\n",
        table_nr, steps);
@@ -1534,10 +1540,23 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   else				/* reserved */
     return SANE_STATUS_INVAL;
 
+#ifdef WORDS_BIGENDIAN
+  table = (u_int8_t*)malloc(steps * 2);
+  for(i = 0; i < steps; i++) {
+      table[i * 2] = slope_table[i] & 0xff;
+      table[i * 2 + 1] = slope_table[i] >> 8;
+  }
+#else
+  table = (u_int8_t*)slope_table;
+#endif
+
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x200);
   if (status != SANE_STATUS_GOOD)
     {
+#ifdef WORDS_BIGENDIAN
+      free(table);
+#endif
       DBG (DBG_error,
 	   "gl841_send_slope_table: failed to set buffer address: %s\n",
 	   sane_strstatus (status));
@@ -1549,12 +1568,18 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 				   steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
+#ifdef WORDS_BIGENDIAN
+      free(table);
+#endif
       DBG (DBG_error,
 	   "gl841_send_slope_table: failed to send slope table: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
+#ifdef WORDS_BIGENDIAN
+  free(table);
+#endif
   DBG (DBG_proc, "gl841_send_slope_table: completed\n");
   return status;
 }
@@ -1841,7 +1866,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
     SANE_Status status;
     unsigned int fast_exposure;
     int use_fast_fed = 0;
-    u_int8_t fast_slope_table[512];
+    u_int16_t fast_slope_table[256];
     unsigned int fast_slope_time;
     unsigned int fast_slope_steps = 0;
     unsigned int feedl;
@@ -1855,16 +1880,11 @@ gl841_init_motor_regs(Genesys_Device * dev,
 
     memset(fast_slope_table,0xff,512);
     
-    gl841_send_slope_table (dev, 0,
-			    (u_int16_t*)fast_slope_table, 256);
-    gl841_send_slope_table (dev, 1,
-			    (u_int16_t*)fast_slope_table, 256);
-    gl841_send_slope_table (dev, 2,
-			    (u_int16_t*)fast_slope_table, 256);
-    gl841_send_slope_table (dev, 3,
-			    (u_int16_t*)fast_slope_table, 256);
-    gl841_send_slope_table (dev, 4,
-			    (u_int16_t*)fast_slope_table, 256);
+    gl841_send_slope_table (dev, 0, fast_slope_table, 256);
+    gl841_send_slope_table (dev, 1, fast_slope_table, 256);
+    gl841_send_slope_table (dev, 2, fast_slope_table, 256);
+    gl841_send_slope_table (dev, 3, fast_slope_table, 256);
+    gl841_send_slope_table (dev, 4, fast_slope_table, 256);
 
 
     if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME) {
@@ -1969,8 +1989,7 @@ HOME_FREE: 3
 
     r->value &= ~0x40;
 
-    status = gl841_send_slope_table (dev, 3,
-				     (u_int16_t*)fast_slope_table, 256);
+    status = gl841_send_slope_table (dev, 3, fast_slope_table, 256);
     
     if (status != SANE_STATUS_GOOD)
 	return status;
@@ -2020,9 +2039,9 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
     int use_fast_fed = 0;
     unsigned int fast_time;
     unsigned int slow_time;
-    u_int8_t slow_slope_table[512];
-    u_int8_t fast_slope_table[512];
-    u_int8_t back_slope_table[512];
+    u_int16_t slow_slope_table[256];
+    u_int16_t fast_slope_table[256];
+    u_int16_t back_slope_table[256];
     unsigned int slow_slope_time;
     unsigned int fast_slope_time;
     unsigned int back_slope_time;
@@ -2058,16 +2077,11 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 
     memset(slow_slope_table,0xff,512);
     
-    gl841_send_slope_table (dev, 0,
-			    (u_int16_t*)slow_slope_table, 256);
-    gl841_send_slope_table (dev, 1,
-			    (u_int16_t*)slow_slope_table, 256);
-    gl841_send_slope_table (dev, 2,
-			    (u_int16_t*)slow_slope_table, 256);
-    gl841_send_slope_table (dev, 3,
-			    (u_int16_t*)slow_slope_table, 256);
-    gl841_send_slope_table (dev, 4,
-			    (u_int16_t*)slow_slope_table, 256);
+    gl841_send_slope_table (dev, 0, slow_slope_table, 256);
+    gl841_send_slope_table (dev, 1, slow_slope_table, 256);
+    gl841_send_slope_table (dev, 2, slow_slope_table, 256);
+    gl841_send_slope_table (dev, 3, slow_slope_table, 256);
+    gl841_send_slope_table (dev, 4, slow_slope_table, 256);
 
 
 /*
@@ -2229,35 +2243,30 @@ HOME_FREE: 3
     else
 	r->value &= ~0x40;
 
-    status = gl841_send_slope_table (dev, 0,
-				     (u_int16_t*)slow_slope_table, 256);
+    status = gl841_send_slope_table (dev, 0, slow_slope_table, 256);
     
     if (status != SANE_STATUS_GOOD)
 	return status;
     
-    status = gl841_send_slope_table (dev, 1,
-				     (u_int16_t*)back_slope_table, 256);
+    status = gl841_send_slope_table (dev, 1, back_slope_table, 256);
     
     if (status != SANE_STATUS_GOOD)
 	return status;
     
-    status = gl841_send_slope_table (dev, 2,
-				     (u_int16_t*)slow_slope_table, 256);
+    status = gl841_send_slope_table (dev, 2, slow_slope_table, 256);
     
     if (status != SANE_STATUS_GOOD)
 	return status;
     
     if (use_fast_fed) {
-	status = gl841_send_slope_table (dev, 3,
-					 (u_int16_t*)fast_slope_table, 256);
+	status = gl841_send_slope_table (dev, 3, fast_slope_table, 256);
 	
 	if (status != SANE_STATUS_GOOD)
 	    return status;
     }
     
     if (flags & MOTOR_FLAG_AUTO_GO_HOME){
-	status = gl841_send_slope_table (dev, 4,
-					 (u_int16_t*)fast_slope_table, 256);
+	status = gl841_send_slope_table (dev, 4, fast_slope_table, 256);
 	
 	if (status != SANE_STATUS_GOOD)
 	    return status;

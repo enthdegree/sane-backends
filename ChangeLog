@@ -1,3 +1,9 @@
+2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+        * backend/genesys.c: Some annotations about endianess of scanned
+          data
+	* backend/genesys_gl646.c: Convert gamma tables to little endian
+
 2006-03-06  Stéphane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: power saving fixes

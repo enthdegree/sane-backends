@@ -3095,7 +3095,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
   int size;
   int address;
   int status;
-  u_int16_t *gamma;
+  u_int8_t *gamma;
   int i;
 
   /* don't send anything if no specific gamma table defined */
@@ -3131,7 +3131,7 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
     }
 
   /* allocate temporary gamma tables: 16 bits words, 3 channels */
-  gamma = (u_int16_t *) malloc (size * 2 * 3);
+  gamma = (u_int8_t *) malloc (size * 2 * 3);
   if (!gamma)
     return SANE_STATUS_NO_MEM;
 
@@ -3141,9 +3141,12 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       /* fill with default values */
       for (i = 0; i < size; i++)
 	{
-	  gamma[i] = (u_int16_t) i;
-	  gamma[i + size] = (u_int16_t) i;
-	  gamma[i + size * 2] = (u_int16_t) i;
+	  gamma[i * 2]                = i & 0xff;
+	  gamma[i * 2 + 1]            = i >> 8;
+	  gamma[i * 2     + size]     = i & 0xff;
+	  gamma[i * 2 + 1 + size]     = i >> 8;
+	  gamma[i * 2     + size * 2] = i & 0xff;
+	  gamma[i * 2 + 1 + size * 2] = i >> 8;
 	}
     }
   else
@@ -3151,9 +3154,12 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
       /* copy sensor specific's gamma tables */
       for (i = 0; i < size; i++)
 	{
-	  gamma[i] = dev->sensor.red_gamma_table[i];
-	  gamma[i + size] = dev->sensor.green_gamma_table[i];
-	  gamma[i + size * 2] = dev->sensor.blue_gamma_table[i];
+	  gamma[i * 2]                = dev->sensor.red_gamma_table[i] & 0xff;
+	  gamma[i * 2 + 1]            = dev->sensor.red_gamma_table[i] >> 8;
+	  gamma[i * 2     + size]     = dev->sensor.green_gamma_table[i] & 0xff;
+	  gamma[i * 2 + 1 + size]     = dev->sensor.green_gamma_table[i] >> 8;
+	  gamma[i * 2     + size * 2] = dev->sensor.blue_gamma_table[i] & 0xff;
+	  gamma[i * 2 + 1 + size * 2] = dev->sensor.blue_gamma_table[i] >> 8;
 	}
     }
 

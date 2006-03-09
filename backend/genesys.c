@@ -1238,7 +1238,15 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 
 
 
-/* ? */
+/* Sends a block of shading information to the scanner. 
+   The data is placed at address 0x0000 for color mode, gray mode and 
+   unconditionally for the following CCD chips: HP2300, HP2400 and HP5345
+   In the other cases (lineart, halftone on ccd chips not mentioned) the 
+   addresses are 0x2a00 for dpihw==0, 0x5500 for dpihw==1 and 0xa800 for 
+   dpihw==2. //Note: why this?
+
+   The data needs to be of size "size", and in little endian byte order.
+ */
 static SANE_Status
 genesys_send_offset_and_shading (Genesys_Device * dev, u_int8_t * data,
 				 int size)
@@ -2112,7 +2120,9 @@ genesys_coarse_calibration (Genesys_Device * dev)
   return status;
 }
 
-
+/* Averages image data.
+   average_data and calibration_data are little endian 16 bit words.
+ */
 static void
 genesys_average_data (u_int8_t * average_data,
 		      u_int8_t * calibration_data, u_int16_t lines,
@@ -2683,7 +2693,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 {
   SANE_Status status;
   u_int16_t pixels_per_line;
-  u_int8_t *shading_data;
+  u_int8_t *shading_data;/*contains 16bit words in little endian*/
   u_int8_t channels;
   int x, j, o;
   unsigned int i;

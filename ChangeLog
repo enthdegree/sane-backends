@@ -1,3 +1,8 @@
+2006-03-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* sanei/sanei_usb.c tools/sane-find-scanner.c: Added USB support
+	  for DragonFlyBSD (bug #303183).
+
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
         * backend/genesys.c backend/genesys_low.h: Removed little endian 

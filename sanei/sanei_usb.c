@@ -87,9 +87,12 @@ struct usb_descriptor_header *GetNextDescriptor( struct usb_descriptor_header *c
 }
 #endif /* HAVE_USBCALLS */
 
-#if defined (__FreeBSD__)
+#if defined (__FreeBSD__) 
 #include <dev/usb/usb.h>
 #endif /* __FreeBSD__ */
+#if defined (__DragonFly__)
+#include <bus/usb/usb.h>
+#endif
 
 #define BACKEND_NAME	sanei_usb
 #include "../include/sane/sane.h"
@@ -249,7 +252,7 @@ kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *product
     *vendorID = vendor;
     *productID = product;
   }
-#elif defined (__FreeBSD__)
+#elif defined (__FreeBSD__) || defined (__DragonFly__)
   {
     int controller;
     int ctrl_fd;
@@ -301,7 +304,7 @@ sanei_usb_init (void)
 #if defined(__linux__)
     "/dev/", "usbscanner",
     "/dev/usb/", "scanner",
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined (__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined (__OpenBSD__) || defined (__DragonFly__)
     "/dev/", "uscanner",
 #elif defined(__BEOS__)
     "/dev/scanner/usb/", "",

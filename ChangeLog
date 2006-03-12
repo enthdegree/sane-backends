@@ -1,3 +1,8 @@
+2006-03-12  Stéphane Voltz <stefdev@modulonet.fr>
+
+        * backend/genesys_gl646.c: fixed gl646_send_gamma_table after
+	  endianess changes. Put again a little fix for power saving
+
 2006-03-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* sanei/sanei_usb.c tools/sane-find-scanner.c: Added USB support

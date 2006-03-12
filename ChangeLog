@@ -1,3 +1,8 @@
+2006-03-12  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+        * backend/genesys_gl646.c: fixed silly thinko in
+          gl646_send_gamma_table.
+
 2006-03-12  Stéphane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: fixed gl646_send_gamma_table after

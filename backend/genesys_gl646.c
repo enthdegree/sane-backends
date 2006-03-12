@@ -3172,10 +3172,10 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
 	{
 	  gamma[i * 2]                = i & 0xff;
 	  gamma[i * 2 + 1]            = i >> 8;
-	  gamma[i * 2     + size]     = i & 0xff;
-	  gamma[i * 2 + 1 + size]     = i >> 8;
 	  gamma[i * 2     + size * 2] = i & 0xff;
 	  gamma[i * 2 + 1 + size * 2] = i >> 8;
+	  gamma[i * 2     + size * 4] = i & 0xff;
+	  gamma[i * 2 + 1 + size * 4] = i >> 8;
 	}
     }
   else
@@ -3185,10 +3185,10 @@ gl646_send_gamma_table (Genesys_Device * dev, SANE_Bool generic)
 	{
 	  gamma[i * 2]                = dev->sensor.red_gamma_table[i] & 0xff;
 	  gamma[i * 2 + 1]            = dev->sensor.red_gamma_table[i] >> 8;
-	  gamma[i * 2     + size]     = dev->sensor.green_gamma_table[i] & 0xff;
-	  gamma[i * 2 + 1 + size]     = dev->sensor.green_gamma_table[i] >> 8;
-	  gamma[i * 2     + size * 2] = dev->sensor.blue_gamma_table[i] & 0xff;
-	  gamma[i * 2 + 1 + size * 2] = dev->sensor.blue_gamma_table[i] >> 8;
+	  gamma[i * 2     + size * 2] = dev->sensor.green_gamma_table[i] & 0xff;
+	  gamma[i * 2 + 1 + size * 2]  = dev->sensor.green_gamma_table[i] >> 8;
+	  gamma[i * 2     + size * 4] = dev->sensor.blue_gamma_table[i] & 0xff;
+	  gamma[i * 2 + 1 + size * 4] = dev->sensor.blue_gamma_table[i] >> 8;
 	}
     }
 #else

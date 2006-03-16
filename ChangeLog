@@ -1,3 +1,8 @@
+2006-03-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker 4850
+	  II and Plustek OpticPro ST 64+.
+
 2006-03-12  Stéphane Voltz <stefdev@modulonet.fr> 
 
         * backend/genesys_gl646.c: removed now unneeded #ifdef in

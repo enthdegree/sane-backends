@@ -1,3 +1,8 @@
+2006-02-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
+
+	* backend/snapscan-scsi.c: Limit inquiry length to 120 bytes if
+	  firmware is not yet loaded
+
 2006-03-18  Julien Blache <jb@jblache.org>
 	* doc/sane-apple.man: Applied patch from A Costa (through Debian);
 	english/spelling fixes for sane-apple(5).
@@ -7,7 +12,7 @@
 	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker 4850
 	  II and Plustek OpticPro ST 64+.
 
-2006-03-12  Stéphane Voltz <stefdev@modulonet.fr> 
+2006-03-12  Stï¿½hane Voltz <stefdev@modulonet.fr> 
 
         * backend/genesys_gl646.c: removed now unneeded #ifdef in
           gl646_send_gamma_table.
@@ -17,7 +22,7 @@
         * backend/genesys_gl646.c: fixed silly thinko in
           gl646_send_gamma_table.
 
-2006-03-12  Stéphane Voltz <stefdev@modulonet.fr>
+2006-03-12  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: fixed gl646_send_gamma_table after
 	  endianess changes. Put again a little fix for power saving
@@ -40,7 +45,7 @@
           data
 	* backend/genesys_gl646.c: Convert gamma tables to little endian
 
-2006-03-06  Stéphane Voltz <stefdev@modulonet.fr>
+2006-03-06  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: power saving fixes
 
@@ -66,7 +71,7 @@
         * backend/u12-hw.c: SoftwareReset is now disabled in
           cancelSequence when the device is a Genius scanner.
 
-2006-02-13  Stéphane Voltz <stefdev@modulonet.fr>
+2006-02-13  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
         * backend/genesys_gl646.c: disabled power saving for gl646.
 
@@ -134,7 +139,7 @@
 
         * backend/canon-sane.c: Fixed variable redeclaration.
 
-2006-01-05  Stéphane Voltz <stefdev@modulonet.fr>
+2006-01-05  Stï¿½hane Voltz <stefdev@modulonet.fr>
 
         * tools/hotplug/libsane.usermap: Added Dell A920 (rebranded X1100)
 

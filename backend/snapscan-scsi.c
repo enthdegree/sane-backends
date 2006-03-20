@@ -444,7 +444,10 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
     {
     case PERFECTION2480:
     case PERFECTION3490:
-        pss->read_bytes = INQUIRY_RET_LEN_EPSON;
+        if (pss->firmware_loaded)
+          pss->read_bytes = INQUIRY_RET_LEN_EPSON;
+        else
+          pss->read_bytes = INQUIRY_RET_LEN;
         break;
     case PRISA5000:
     case PRISA5150:
@@ -488,9 +491,12 @@ static SANE_Status inquiry (SnapScan_Scanner *pss)
         break;
     case PERFECTION2480:
     case PERFECTION3490:
-        snapscani_debug_data(tmpstr, pss->buf+120, 19);
-        DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);
-        pss->hconfig_epson = pss->buf[INQUIRY_EPSON_HCFG];
+        if (pss->firmware_loaded)
+        {
+            snapscani_debug_data(tmpstr, pss->buf+120, 19);
+            DBG (DL_DATA_TRACE, "%s: Epson additional inquiry data:\n%s\n", me, tmpstr);
+            pss->hconfig_epson = pss->buf[INQUIRY_EPSON_HCFG];
+        }
         /* fall through */
     default:
     {
@@ -1527,6 +1533,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.57  2006/03/20 18:20:10  oliver-guest
+ * Limit inquiry length to 120 bytes if firmware is not yet loaded
+ *
  * Revision 1.56  2006/01/10 19:32:16  oliver-guest
  * Added 12 bit gamma tables for Epson Stylus CX-1500
  *

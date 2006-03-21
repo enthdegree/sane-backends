@@ -35,7 +35,7 @@ ignored.  A sample configuration file is shown below:
 The "topfolder" line specifies the "fixed" part of the file path.  For 
 example, on the Kodak DC-240, files are stored in the directory 
 /DCIM/100DC240.  The /DCIM portion is constant, but 100DC240 will
-change and must be read from the camers.  In this case, the 
+change and must be read from the camera.  In this case, the 
 line would read "topfolder=/DCIM"
 .PP
 Some cameras don't implement a file structure and store all pictures
@@ -105,7 +105,7 @@ sane(7)
 Peter S. Fales
 
 .PP
-The manpage was largeley copied from the dc210 manpage.
+The manpage was largely copied from the dc210 manpage.
 
 .SH BUGS
 Many, no doubt.

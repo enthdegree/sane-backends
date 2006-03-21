@@ -42,7 +42,7 @@ software that will be uploaded to the scanner's memory. It's usually named
 .IR PS1fw.usb .
 It comes on the installation CD that was provided by the manufacturer, but it
 may be packaged together with the installation program in an .exe file. For
-Mustek scanners, the file can be dowloaded from the gt68xx backend homepage. For
+Mustek scanners, the file can be downloaded from the gt68xx backend homepage. For
 other scanners, check the CD for .usb files. If you only find *.cab files, try
 cabextract to unpack. If everything else fails, you must install the Windows
 driver and get the firmware from there (usually in the
@@ -63,7 +63,7 @@ autodetected by
 .B usb vendor_id product_id
 statements which are already included into
 .IR gt68xx.conf .
-"vendor_id" and "product_id" are hexadecimal numbers that identfy the
+"vendor_id" and "product_id" are hexadecimal numbers that identify the
 scanner. 
 .PP
 The 

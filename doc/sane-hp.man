@@ -63,7 +63,7 @@ complete.
 Other HP scanners are not supported by the "hp" backend, but might be supported
 by another one. See
 .IR http://www.sane-project.org/ .
-You can also watch the sane-devel mailinglist at
+You can also watch the sane-devel mailing list at
 .IR http://www.sane-project.org/mailing-lists.html .
 .PP
 More details about the hp backend can be found on its homepage 
@@ -141,7 +141,7 @@ used in case of forward/backward moving scanner lamp.
 Option
 .B dumb-read
 can be used to work around problems with "Error during device I/O". These
-problems may occur with certain SCSI-to-USB convertors or Buslogic SCSI cards.
+problems may occur with certain SCSI-to-USB converters or Buslogic SCSI cards.
 The option should not be used for SCSI devices which are working correctly.
 Otherwise startup of frontends and changing parameters might be slower.
 .PP

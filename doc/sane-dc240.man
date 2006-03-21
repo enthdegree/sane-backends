@@ -96,7 +96,7 @@ Peter S. Fales
 This backend borrows heavily from the dc210 backend by Brian J. Murrell
 which is based somewhat on the dc25 backend by Peter Fales.
 .PP
-The manpage was largeley copied from the dc210 manpage.
+The manpage was largely copied from the dc210 manpage.
 
 .SH BUGS
 The major limitation that I know of is that the backend assumes

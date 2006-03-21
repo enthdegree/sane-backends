@@ -240,7 +240,7 @@ knowing ahead of time which page will be the last, can cancel batch mode
 prior to initiating the last scan command.  Currently, there is no mechanism
 available for the frontend to pass this knowledge to the backend.
 If batch mode is enabled and the --end-count terminates a scanadf session,
-an extra page will be pulled through the scanner, but is niether read
+an extra page will be pulled through the scanner, but is neither read
 nor delivered to the frontend.  The issue can be avoided by specifying 
 --batch=no when scanning a fixed number of pages.
 .TP
@@ -340,7 +340,7 @@ the hardware default value which varies based on the scanner model.
 Check ADF Status prior to starting scan using the OBJECT POSITION command.
 Note that this feature requires RSC firmware level 1.5 or higher and dip
 switch 4 must be in the on position.  NOTE: This option has not been tested
-extensively and may produce undesireable results.
+extensively and may produce undesirable results.
 .TP
 .B  Enhancement:
 .TP

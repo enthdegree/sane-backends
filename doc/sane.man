@@ -407,7 +407,7 @@ The SANE sm3600 backend supports the Microtek ScanMaker 3600 USB scanner. See
 for details.
 .TP
 .B sm3840
-The SANE sm3840 backend suppoert the Microtek ScanMaker 3840 USB scanner.  See
+The SANE sm3840 backend supports the Microtek ScanMaker 3840 USB scanner.  See
 .BR sane-sm3840 (5)
 for details.
 .TP

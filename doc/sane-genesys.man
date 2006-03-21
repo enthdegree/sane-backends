@@ -53,7 +53,7 @@ autodetected by
 .B usb vendor_id product_id
 statements which are already included into
 .IR genesys.conf .
-"vendor_id" and "product_id" are hexadecimal numbers that identfy the
+"vendor_id" and "product_id" are hexadecimal numbers that identify the
 scanner. 
 .PP 
 

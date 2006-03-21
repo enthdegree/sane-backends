@@ -41,9 +41,9 @@ scanimage --help -d sceptre
 .B --mode 
 selects the basic mode of operation of the scanner valid choices are 
 .I Lineart, Halftone, Gray and Color. 
-The Lineart and Haltone mode are black and white only (1 bit). Gray
+The Lineart and Halftone mode are black and white only (1 bit). Gray
 will produce 256 levels of gray (8 bits). Color will produce a 24 bits
-color image. The scanner suports 30 bits internally but it only
+color image. The scanner supports 30 bits internally but it only
 exports 24.
 
 .TP
@@ -100,7 +100,7 @@ selected. The default is "no".
 .B -l -t -x -y 
 control the scan area: -l sets the top left x coordinate, -t the top
 left y coordinate, -x selects the width and -y the height of the scan
-area. All parameters are specified in milimeters by default.
+area. All parameters are specified in millimeters by default.
 
 
 .SH CONFIGURATION FILE

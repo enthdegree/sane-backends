@@ -1,9 +1,14 @@
+2006-03-21  Julien Blache <jb@jblache.org>
+	
+	* doc/*.man: More spelling fixes from A. Costa (through Debian).
+
 2006-02-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-scsi.c: Limit inquiry length to 120 bytes if
 	  firmware is not yet loaded
 
 2006-03-18  Julien Blache <jb@jblache.org>
+	
 	* doc/sane-apple.man: Applied patch from A Costa (through Debian);
 	english/spelling fixes for sane-apple(5).
 

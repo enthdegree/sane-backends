@@ -64,7 +64,7 @@ non-SCSI scanners that have some support at this point is the 600 II N and 600
 II EP scanners. The former one comes with its own parallel port adapter (i.e.,
 it does
 .I not
-attach to the printer port). Both scanners use the SCSI protocoll internally,
+attach to the printer port). Both scanners use the SCSI protocol internally,
 too. More info on how to use these parallel port scanners can be found below in
 section
 .BR "PARALLEL PORT SCANNERS" .
@@ -314,7 +314,7 @@ setuid root (generally not recommended for safety reasons) or, alternatively,
 access this backend through the network daemon 
 .BR saned (8).
 .PP
-If the Mustek backend blocks while sending the inqiury command to the scanner,
+If the Mustek backend blocks while sending the inquiry command to the scanner,
 add the option
 .B force-wait
 to
@@ -396,7 +396,7 @@ Henning Meier-Geinitz, James Perry (600 II EP).
 
 .SH BUGS
 Scanning with the SCSI adapters supplied by Mustek is very slow at
-high resolutions and wide scanareas. 
+high resolutions and wide scan areas. 
 .PP
 Some scanners (e.g. Paragon 1200 A3 + Pro, SE A3) need more testing.
 .PP

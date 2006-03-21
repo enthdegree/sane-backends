@@ -24,7 +24,7 @@ Agfa StudioScan II, StudioScan IIsi
 .br
 Agfa Arcus II (but not the "Arcus")
 .br
-Agfa DuoScan (premliminary)
+Agfa DuoScan (preliminary)
 .br
 Vobis "Highscreen Realscan"
 .br

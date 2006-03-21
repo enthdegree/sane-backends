@@ -107,7 +107,7 @@ The
 .I --sharpness
 switch sets the sharpness of the image data. Valid options are integer
 values from -2 to 2, with -2 meaning "Defocus", -1 "Defocus slightly",
-0 "Normal", 1 "Sharpen slighly" and 2 "Sharpen".
+0 "Normal", 1 "Sharpen slightly" and 2 "Sharpen".
 
 The 
 .I --gamma-correction
@@ -124,14 +124,14 @@ options are "No Correction", "Impact-dot printers", "Thermal printers",
 The 
 .I --resolution
 switch selects the resolution for a scan. Some EPSON scanners will scan in
-any resulution between the lowest and highest possible value. The list
+any resolution between the lowest and highest possible value. The list
 reported by the scanner can be displayed using the "--help -d epson"
 parameters to scanimage.
 
 The 
 .I --mirror
 option controls the way the image is scanned. By reading the image data
-from right to left the image is mirored. Valid options are "yes" and
+from right to left the image is mirrored. Valid options are "yes" and
 "no". The default is "no".
 
 The 
@@ -145,7 +145,7 @@ The
 switch activates the automatic area segmentation for monochrome scans. The
 scanner will try to determine which areas are text and which contain
 images. The image areas will be halftoned, and the text will be
-impoved. Valid options are "yes" and "no". The default is "yes".
+improved. Valid options are "yes" and "no". The default is "yes".
 
 The 
 .I --gamma-table
@@ -188,7 +188,7 @@ The geometry options
 .I -l -t -x -y 
 control the scan area: -l sets the top left x coordinate, -t the top
 left y coordinate, -x selects the width and -y the height of the scan
-aea. All parameters are specified in milimeters.
+area. All parameters are specified in millimeters.
 
 The
 .I --quick-format

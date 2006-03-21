@@ -224,7 +224,7 @@ ignored. Options have the following format:
 .RE
 .PP
 Depending on the nature of the option, a value may or may not be present.
-Options always apply to the scanner definition that preceeds them. There
+Options always apply to the scanner definition that precedes them. There
 are no global options. Options are also driver-specific: not all drivers
 support all possible options. 
 
@@ -296,7 +296,7 @@ maximum delay is 100 ms.
 .br
 Note that every additional ms of delay can add up to 14 seconds to the total
 scanning time (highest resolution), so an as small as possible value is
-prefered.
+preferred.
 .br
 Default value:   0
 .br
@@ -412,7 +412,7 @@ option top 56
 .SH GLOBAL OPTIONS
 .PP
 You can control the overall behaviour of the mustek_pp backend by global
-options which preceed any scanner definition in the mustek_pp.conf file.
+options which precede any scanner definition in the mustek_pp.conf file.
 .br
 Currently, there is only one global option:
 

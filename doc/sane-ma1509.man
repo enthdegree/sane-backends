@@ -65,7 +65,7 @@ statements which are already included into
 .IR ma1509.conf .
 This is only supported with Linux 2.4.8 and higher and all systems that
 support libsub. "vendor_id" and "product_id" are hexadecimal numbers that
-identfy the scanner. If this doesn't work, a device name must be placed in
+identify the scanner. If this doesn't work, a device name must be placed in
 .I ma1509.conf 
 as described above.
 .PP

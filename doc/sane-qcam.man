@@ -86,7 +86,7 @@ believe it works in all cases yet.  Reportedly, acquiring images of
 certain sizes work fine, but others result in shifted images (sounds
 like a problem due to byte-padding).
 .PP
-The program needs root-priviledges since it needs to be able to access
+The program needs root-privileges since it needs to be able to access
 the camera's I/O ports.
 .SH SEE ALSO
 sane(7)

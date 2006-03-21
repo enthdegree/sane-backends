@@ -152,7 +152,7 @@ The scanner probes ok but any attempt to
 access it
 .I hangs
 the entire system. It looks like something is disabling interrupts and
-then not reenabling them, so it looks like a bug in the FreeBSD
+then not re-enabling them, so it looks like a bug in the FreeBSD
 .B aic
 driver.
 .TP
@@ -267,7 +267,7 @@ You may change the values of the USLEEP macros in drivers/scsi/g_NCR5380.c.
 Some documentation is in this file and NCR5380.c.
 .TP
 NCR/Symbios 810 
-For some scanners it may be necssary to disable disconnect/reconnect. To
+For some scanners it may be necessary to disable disconnect/reconnect. To
 achieve this use the option ncr53c8xx="disc:n". Some people reported that
 their scanner only worked with the 53c7,8xx driver, not the ncr53c8xx. Try
 both if you have trouble.

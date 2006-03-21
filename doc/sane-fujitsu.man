@@ -32,7 +32,7 @@ FUJITSU  M3092DCd
 .RE
 .P
 The driver supports lineart, halftone, grayscale, and color
-(3091 and 3092) scanning depending on hardware capabiliites.
+(3091 and 3092) scanning depending on hardware capabilities.
 
 The "Fujitsu" driver is a first attempt at integrating support
 for all Fujitsu scanners \- previously available as different

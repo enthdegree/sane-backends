@@ -193,7 +193,7 @@ detect this by its own. If device is set to
 then the next matching device is used.
 .br
 The following options can be used for a default setup of
-your device. Most of them are also availaby through
+your device. Most of them are also available through
 the frontend.
 .PP
 .B
@@ -449,12 +449,12 @@ to 16 times the physical resolution. The only scaling
 is done on resolutions between the physical resolution
 of the CDD-sensor and the stepper motor i.e. you have a
 600x1200 dpi scanner and you are scanning using 800dpi,
-so scaling is necesary, because the sensor only delivers
-600dpi but the motor is capable to perform 1200dpi 
+so scaling is necessary, because the sensor only delivers
+600dpi but the motor is capable of performing 1200dpi 
 steps.
 .PP
-* Plusteks' model policy is somewhat inconsistent. This
-means, they sell technical different devices under the
+* Plusteks' model policy is somewhat inconsistent. They 
+sell technically different devices under the
 same product name. Therefore it is possible that some
 devices like the UT12 or U12 won't work \- please check
 the model list above and compare the product-id to

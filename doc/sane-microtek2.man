@@ -74,7 +74,7 @@ have loaded the scsi_mod and sg modules!
 .PP
 If you try your scanner for the first time keep an eye on it. If it gets
 commands that it doesn't understand the scanhead may go beyond the scan area.
-The scanner then makes strange noises. In this case immedieately switch off
+The scanner then makes strange noises. In this case immediately switch off
 the scanner or disconnect its power cable to prevent damages!
 .PP
 If your scanner is a different one than the models mentioned above and it is

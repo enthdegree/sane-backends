@@ -87,7 +87,7 @@ statements which are already included into
 .IR mustek_usb.conf .
 This is only supported with Linux 2.4.8 and higher and all systems that
 support libsub. "vendor_id" and "product_id" are hexadecimal numbers that
-identfy the scanner. If this doesn't work, a device name and the option
+identify the scanner. If this doesn't work, a device name and the option
 specifying the scanner type must be placed in
 .I mustek_usb.conf 
 as described above.
@@ -155,7 +155,7 @@ debug levels increase the verbosity of the output.
 
 .ft CR
 .nf
-Value  Descsription
+Value  Description
 0      no output
 1      print fatal errors
 2      print important messages
@@ -195,10 +195,10 @@ These devices have a hardware bug: Once data is written to them, they can't be
 reset (toggle = DATA0). That means, any operation that tries to reset the
 device will result in running into timeouts.
 
-In earlier versions this backend failed when it is loaded the second time in
+In earlier versions this backend failed when it was loaded the second time in
 some configurations. The only choice was to replug the scanner in this case. The
 backend uses a workaround for that bug now but it's only tested on
-Linux. Reports for other operating systems are appriciated.
+Linux. Reports for other operating systems are appreciated.
 
 .PP
 More detailed bug information is available at the Mustek backend homepage

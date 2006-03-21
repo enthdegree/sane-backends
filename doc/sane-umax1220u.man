@@ -17,7 +17,7 @@ For the latest information on this backend, please visit
 
 This backend may also be able to drive the UMAX Astra 2000U.
 Some people are successful with it, others report that the
-colors come out terrible. Your milage may vary.
+colors come out terrible. Your mileage may vary.
 
 From Stephane (the author of sane-umax_pp), I learned that there
 are differences in the way the color calibration is performed on

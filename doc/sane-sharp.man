@@ -154,7 +154,7 @@ The default values are 0, 1, 2, .. 255 (i.e., gamma == 1). This table
 is only used for gray scale scans.
 
 .B Red Gamma Table
-(paramter 
+(parameter 
 .B --red-gamma-table 
 for scanimage). Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
@@ -303,7 +303,7 @@ The default value is
 This option is only available in scan modes lineart color and color.
 
 .SH ADF USAGE
-If a paper jam occured, the maintenance cover
+If a paper jam occurred, the maintenance cover
 .I
 must
 be opened and closed, even if the jammed paper can be removed without opening
@@ -369,7 +369,7 @@ are not reasonable in most cases.
 should be greater than 
 .B option readqueue.
 
-.SH Performance Considarations
+.SH Performance Considerations
 This section focuses on the problem of stops of the scanner's carriage
 during a scan. Carriage stops happen mainly with the JX-250. This scanner 
 has obviously only a small internal buffer compared to its speed. That 
@@ -391,7 +391,7 @@ Stops of the carriage can be caused by the following reasons:
 .br
 \- slow responses by the backend to the scanner,
 .br
-\- a program which processes the data aquired by the backend too slow.
+\- a program which processes the data acquired by the backend too slow.
 .PP
 .RE
 Too much "traffic" on the SCSI bus: This happens for example, if hard disks
@@ -419,7 +419,7 @@ For Linux, the usage of the SG driver version 2.1.36 or above is
 recommended, because it supports, in combination with
 the SCSI library of Sane version 1.0.2, command queueing within the kernel.
 This queueing implementation, combined with a buffer size of at least
-128 kB, should avoid most carirage stops.
+128 kB, should avoid most carriage stops.
 .PP
 Slow processing of the scan data: An example for this situation is
 the access to the scanner via a 10 MBit Ethernet, which is definitely

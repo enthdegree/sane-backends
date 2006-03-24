@@ -136,7 +136,7 @@ See this file for examples.
 
 .SH "CONFIGURATION"
 .PP
-This section decribes the backends' configuration file entries.
+This section describes the backends' configuration file entries.
 The file is located at:
 .I @CONFIGDIR@/plustek_pp.conf
 .PP
@@ -207,12 +207,12 @@ has been detected) swaps red/green color
 .IR m " = 3"
 OpticPro 9636 override (works if OP9636 has
 been detected) disables backends
-transparency/negativ capabilities
+transparency/negative capabilities
 .TP
 .IR m " = 4"
 OpticPro 9636P override (works if OP9636 has
 been detected) disables backends
-transparency/negativ capabilities
+transparency/negative capabilities
 .TP
 .IR m " = 5"
 OpticPro A3I override (works if OP12000 has
@@ -290,7 +290,7 @@ port=ppp
 .RS
 .I ppp
 specifies the port base address, where the scanner
-is connected to. The default value is 0x378 which
+is connected to. The default value is 0x378, which
 normaly is standard.
 .RE
 .PP
@@ -339,12 +339,12 @@ has been detected) swaps red/green color
 .IR m " = 3"
 OpticPro 9636 override (works if OP9636 has
 been detected) disables backends
-transparency/negativ capabilities
+transparency/negative capabilities
 .TP
 .IR m " = 4"
 OpticPro 9636P override (works if OP9636 has
 been detected) disables backends
-transparency/negativ capabilities
+transparency/negative capabilities
 .TP
 .IR m " = 5"
 OpticPro A3I override (works if OP12000 has
@@ -490,10 +490,10 @@ to 16 times the physical resolution. The only scaling
 is done on resolutions between the physical resolution
 of the CDD-sensor and the stepper motor i.e. you have a
 600x1200 dpi scanner and you are scanning using 800dpi,
-so scaling is necesary, because the sensor only delivers
+so scaling is necessary, because the sensor only delivers
 600dpi but the motor is capable to perform 800dpi steps.
 .PP
-* On some devices, the pictures seems to be bluished
+* On some devices, the pictures seems bluish
 .PP
 .I ASIC 98001 based models:
 .PP
@@ -501,7 +501,7 @@ so scaling is necesary, because the sensor only delivers
 correctly.
 .PP
 * There is currently no way to distinguish a model with
-and without transpareny unit.
+and without transparency unit.
 .PP
 * The scanned images seem to be too dark (P9636T)
 .PP
@@ -509,10 +509,10 @@ and without transpareny unit.
 .PP
 * 30bit mode is currently not supported.
 .PP
-* On low-end systems and under heavy system load, the
-driver will loose data, this might causes the sensor
-to hit the scan-bed and/or the picture is corrupted.
+* On low end systems under heavy system load the
+driver may lose data, which can result in picture 
+corruption or cause the sensor to hit the scan bed.
 .PP
-* The scanspeed on 600x1200 dpi models is slow.
+* The scanning speed on 600x1200 dpi models is slow.
 .PP
-* The scanquality of the A3I is poor
+* The scanning quality of the A3I is poor

@@ -1,32 +1,32 @@
 .TH sane-hpsj5s 5 "24 Feb 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-hpsj5s
 .SH NAME
-sane-hpsj5s \- SANE backend for HP ScanJet 5S sheetfed scanner
+sane-hpsj5s \- SANE backend for HP ScanJet 5S sheet-fed scanner
 .SH DESCRIPTION
 The
 .B sane-hpsj5s
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to parallel port Hewlett-Packard ScanJet 5S scaner.
+provides access to a parallel port Hewlett-Packard ScanJet 5S scanner.
 .PP
 IMPORTANT: this is alpha code. Don't expect this to work
 correctly. Many functions are missing, others contain errors. In some
 cases, your computer might even hang. It cannot be excluded (although
-I consider it extremely unprobable) that your scanner will be
+I consider it extremely improbable) that your scanner will be
 damaged.
 .PP
-LIMITATIONS: For now this backend works only at Linux platform.This limitation
-is due dependance on libieee1284 library. If your system supports libieee1284 too,
-this backend should work. If you ported libieee1284 for you platform, please let
-me know.Your system should support
+LIMITATIONS: For now this backend works only on Linux.  This limitation
+is due to dependence on the libieee1284 library. If your system supports libieee1284 too,
+this backend should work. If you ported libieee1284 for your platform, please let
+me know. Your system should support
 .B EPP
 (or
 .B EPP+ECP
-) mode to operate this scaner. Future versions will support ECP and SPP
-(Nibble and Byte) modes also. It's planned to support for scaners not only
-at 0 daisy-chain position, but at any one. Support for multiple scaners could
+) mode to operate this scanner. Future versions will support ECP and SPP
+(Nibble and Byte) modes also. It's planned to support scanners not only
+at daisy-chain position 0, but anywhere. Support for multiple scanners could
 be implemented too.
 .PP
-Current version implements only gray scale scaning. True Color and B/W modes are
+Current version implements only gray scale scanning. True Color and B/W modes are
 not supported for now.
 .PP
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
@@ -54,10 +54,10 @@ for this moment. Future versions will support daisy chain selection.
 
 .SH TIPS
 .PP
-It seems that HP ScanJet 5S scaner uses software noise correction. This
+It seems that HP ScanJet 5S scanner uses software noise correction. This
 feature is not implemented for now. So does gamma correction and calibration.
 I'll handle it in future versions.
-Native resolution for this scaner is 300 DPI. Other modes could be jagged in some
+Native resolution for this scanner is 300 DPI. Other modes could be jagged in some
 ways.
 .PP
 .SH FILES

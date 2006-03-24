@@ -14,11 +14,11 @@ options.
 The idea is not only to find bugs in frontends but also to show all
 capabilities of SANE.  Therefore
 .B sane-test
-implements functions and options that are not (or seldomly) found in other
+implements functions and options that are not (or seldom) found in other
 backends. 
 .PP
 The backend is commented out in @CONFIGDIR@/dll.conf, so either the comment
-character must be removed or the backend must be called explicitely.  E.g. 
+character must be removed or the backend must be called explicitly.  E.g. 
 `scanimage -d test' or `xscanimage test'.
 
 .SH SCAN MODE OPTIONS
@@ -71,7 +71,7 @@ Option
 allows to set the image that's returned to the frontend.  While "Solid white"
 and "Solid black" are quite obvious, the other options need some more
 explanation.  Color patterns are used to determine if all modes and their
-colors are reprented correctly by the frontend.  The grid should look like the
+colors are represented correctly by the frontend.  The grid should look like the
 same in every mode and resolution.  A table of all the test pictures can be
 found at: http://www.meier-geinitz.de/sane/test-backend/test-pictures.html.
 .PP
@@ -83,7 +83,7 @@ frontend uses the correct endianess.
 .PP
 If option
 .B read-limit
-is set, the maximum amount of data tranferred with each call to sane_read() is
+is set, the maximum amount of data transferred with each call to sane_read() is
 limited.
 .PP
 Option 
@@ -159,8 +159,8 @@ determines the bottom-right y position of the scan area.
 
 .SH BOOL TEST OPTIONS
 There are 6 bool test options in total.  Each option is numbered.  (3/6)
-means: this is option 3 of 6.  The numbering scheme is inetended for easier
-detection of options not displayed by the frontend (bevause of missing support
+means: this is option 3 of 6.  The numbering scheme is intended for easier
+detection of options not displayed by the frontend (because of missing support
 or bugs).
 .PP
 Option

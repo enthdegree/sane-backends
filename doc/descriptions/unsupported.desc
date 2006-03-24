@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-03-16"		; version of backend
+:version "2006-03-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -872,6 +872,17 @@
 :usbid "0x05cb" "0x1483"
 :status :unsupported
 :comment "Unsupported. See link for details."
+
+;********************************************************************************************
+
+:mfg "Iris"
+
+:model "IriScan"
+:url "/unsupported/iris-iriscan.html"
+:interface "USB"
+:usbid "0x0a53" "0x1000"
+:status :unsupported
+:comment "Unsupported. LM9832/3. See link for details."
 
 ;********************************************************************************************
 
@@ -2329,6 +2340,13 @@
 :url "/unsupported/xerox-docuimage-620s.html"
 :interface "SCSI"
 :status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "DocuMate 510"
+:url "/unsupported/xerox-documate-510.html"
+:interface "USB"
+:status :unsupported
+:usbid "0x04a7" "0x0446"
 :comment "Not supported. See link for more details."
 
 :model "One Touch 4800"

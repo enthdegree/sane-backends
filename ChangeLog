@@ -1,3 +1,8 @@
+2006-03-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added Iris Iriscan and Xerox
+	  Documate 510.  
+
 2006-03-21  Julien Blache <jb@jblache.org>
 	
 	* doc/*.man: More spelling fixes from A. Costa (through Debian).

@@ -216,11 +216,11 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 				 to check that the fix does not break
 				 calibration */
   
-  int i, j;
+  int i, j, k;
   struct CalPixel
   {
-    short highr, highg, highb;
-    short lowr, lowg, lowb;
+    char highr[2], highg[2], highb[2];
+    char lowr[2], lowg[2], lowb[2];
   };
   struct CalBlock
   {
@@ -258,13 +258,22 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
 
       /* This is obviously not quite right. The values on
        * the right are approximatly what windows sends */
-      pixel->highr = (high_vals[0][i] > 0x4000) ? 1000000000 / high_vals[0][i] : 0;	/* 0x6700 */
-      pixel->highg = (high_vals[1][i] > 0x4000) ? 1000000000 / high_vals[1][i] : 0;	/* 0x5e00 */
-      pixel->highb = (high_vals[2][i] > 0x4000) ? 1000000000 / high_vals[2][i] : 0;	/* 0x6000 */
+      k = (high_vals[0][i] > 0x4000) ? 1000000000 / high_vals[0][i] : 0;	/* 0x6700 */
+      pixel->highr[0] = k;
+      pixel->highr[1] = k >> 8;
+      k = (high_vals[1][i] > 0x4000) ? 1000000000 / high_vals[1][i] : 0;	/* 0x5e00 */
+      pixel->highg[0] = k;
+      pixel->highg[1] = k >> 8;
+      k = (high_vals[2][i] > 0x4000) ? 1000000000 / high_vals[2][i] : 0;	/* 0x6000 */
+      pixel->highb[0] = k;
+      pixel->highb[1] = k >> 8;
 
-      pixel->lowr = low_vals[0][i];	/* 0x0530 */
-      pixel->lowg = low_vals[1][i];	/* 0x0530 */
-      pixel->lowb = low_vals[2][i];	/* 0x0530 */
+      pixel->lowr[0] = low_vals[0][i];		/* 0x0530 */
+      pixel->lowr[1] = low_vals[0][i] >> 8;
+      pixel->lowg[0] = low_vals[1][i];		/* 0x0530 */
+      pixel->lowg[1] = low_vals[1][i] >> 8;
+      pixel->lowb[0] = low_vals[2][i];		/* 0x0530 */
+      pixel->lowb[1] = low_vals[2][i] >> 8;
     }
 
   cmd[0] = 0xff & (calSize >> 16);
@@ -290,7 +299,7 @@ WriteGammaCalibTable (int iHandle, const int *pabGammaR, const int *pabGammaG,
 		      const int *pabGammaB)
 {
   char cmd[3];
-  short *buffer;
+  char *buffer;
   int i, j;
 
   /* Setup dummy gamma correction table */
@@ -305,8 +314,10 @@ WriteGammaCalibTable (int iHandle, const int *pabGammaR, const int *pabGammaG,
       const int *ptr = (i == 0) ? pabGammaR :
 	(i == 1) ? pabGammaG : pabGammaB;
 
-      for (j = 0; j < 65536; j++)	/* Truncate integers to shorts */
-	buffer[j] = ptr[j];
+      for (j = 0; j < 65536; j++) {
+	buffer[2 * j] = ptr[j];
+	buffer[2 * j + 1] = ptr[j] >> 8;
+      }
 
       hp5400_bulk_command_write (iHandle, 0x2A01 + i, cmd, 3, 2 * 65536,
 				 65536, (void *) buffer);
@@ -436,8 +447,9 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
   while (p->bufstart + maxoff >= p->bufend)	/* Not enough data in buffer */
     {
       int res;
-      unsigned short cmd[4] = { 0, 0, 0, 0 };
-      cmd[2] = p->blksize;
+      unsigned char cmd[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+      cmd[4] = p->blksize;
+      cmd[5] = p->blksize >> 8;
 
       assert ((p->bufend + p->blksize) <= p->buffersize);
 
@@ -449,7 +461,7 @@ CircBufferGetLine (int iHandle, TDataPipe * p, void *pabLine)
     				buftmp + p->bufend, p->blksize);
       if (res != p->blksize)
 	{
-	  HP5400_DBG (DBG_ERR, "*** ERROR: Read returned %d. FATAL.", res);
+	  HP5400_DBG (DBG_ERR, "*** ERROR: Read returned %d. FATAL.\n", res);
 	  return -1;
 	}
 #ifdef IMAGE_DEBUG

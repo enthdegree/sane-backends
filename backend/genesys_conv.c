@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
    This file is part of the SANE package.
    
@@ -95,7 +95,8 @@ genesys_gray_lineart(
     u_int8_t *dst_data, 
     size_t pixels,
     size_t channels,
-    size_t lines)
+    size_t lines,
+    u_int8_t threshold)
 {
     size_t x,y,c,b;
     for(y = 0; y < lines; y++) {
@@ -104,7 +105,7 @@ genesys_gray_lineart(
 		*(dst_data + c) = 0;
 	    for(b = 0; b < 8 && x+b < pixels; b++) {
 		for(c = 0; c < channels; c++) {
-		    if (*src_data++ < 0x80) 
+		    if (*src_data++ < threshold) 
 			*(dst_data + c) |= (0x80 >> b);
 		}
 	    }

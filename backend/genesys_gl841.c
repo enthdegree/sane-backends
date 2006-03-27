@@ -6,6 +6,7 @@
    Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    
     
    This file is part of the SANE package.
@@ -1396,6 +1397,7 @@ gl841_bulk_full_size (void)
 
 /*
  * Set all registers to default values 
+ * (function called only once at the beginning)
  */
 static void
 gl841_init_registers (Genesys_Device * dev)
@@ -2457,6 +2459,13 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     r = sanei_genesys_get_address (reg, 0x03);
     r->value |= REG03_AVEENB | REG03_LAMPPWR;
     
+    /* BW threshold */
+    r = sanei_genesys_get_address (reg, 0x2e);
+    r->value = dev->settings.threshold;
+    r = sanei_genesys_get_address (reg, 0x2f);
+    r->value = dev->settings.threshold;
+
+
     /* monochrome / color scan */
     r = sanei_genesys_get_address (reg, 0x04);
     switch (depth) {

@@ -5,6 +5,7 @@
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
    Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
    Sergey Vlasov <vsu@altlinux.ru> et al.
    
@@ -400,6 +401,9 @@ typedef struct
   int exposure_time;
 
   unsigned int color_filter;	/* todo: check, may be make it an advanced option */
+
+  /* BW threshold */
+  int threshold;
 } Genesys_Settings;
 
 typedef struct Genesys_Current_Setup

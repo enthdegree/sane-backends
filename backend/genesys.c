@@ -4,6 +4,7 @@
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
 
    This file is part of the SANE package.
    
@@ -120,6 +121,11 @@ static const SANE_Range u8_range = {
   0				/* quantization */
 };
 
+static const SANE_Range threshold_percentage_range = {
+  SANE_FIX( 0),   /* minimum */
+  SANE_FIX( 100), /* maximum */
+  SANE_FIX( 1)    /* quantization */
+};
 
 /* ------------------------------------------------------------------------ */
 /*                  functions calling ASIC specific functions               */
@@ -4291,7 +4297,8 @@ Problems with the first approach:
       status = genesys_gray_lineart(work_buffer_src, destination, 
 				    dev->settings.pixels,
 				    channels,
-				    dst_lines);
+				    dst_lines,
+				    dev->settings.threshold);
       if (status != SANE_STATUS_GOOD) {
 	  DBG (DBG_error,
 	       "genesys_read_ordered_data: failed to reverse bits(%s)\n",
@@ -4417,6 +4424,9 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.pixels = s->params.pixels_per_line;
   s->dev->settings.tl_x = tl_x;
   s->dev->settings.tl_y = tl_y;
+
+  /* threshold setting */
+  s->dev->settings.threshold = 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
 
   return status;
 }
@@ -4595,6 +4605,17 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_EXTRAS_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_EXTRAS_GROUP].size = 0;
   s->opt[OPT_EXTRAS_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* BW threshold */
+  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
+  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
+  s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
+  s->val[OPT_THRESHOLD].w = SANE_FIX(50);
 
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
@@ -5127,6 +5148,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_TL_Y:
 	case OPT_BR_X:
 	case OPT_BR_Y:
+	case OPT_THRESHOLD:
 	case OPT_LAMP_OFF_TIME:
 	  *(SANE_Word *) val = s->val[option].w;
 	  break;
@@ -5173,6 +5195,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  break;
 	case OPT_RESOLUTION:
 	case OPT_BIT_DEPTH:
+	case OPT_THRESHOLD:
 	case OPT_PREVIEW:
 	  s->val[option].w = *(SANE_Word *) val;
 	  RIE (calc_parameters (s));
@@ -5207,12 +5230,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->val[option].s = strdup (val);
 	  if (strcmp (s->val[option].s, "Lineart") == 0)
 	    {
-	      /* ENABLE (OPT_THRESHOLD); */
+	      ENABLE (OPT_THRESHOLD); 
 	      DISABLE (OPT_BIT_DEPTH);
 	    }
 	  else
 	    {
-	      /* DISABLE (OPT_THRESHOLD); */
+	      DISABLE (OPT_THRESHOLD);
 	      if (strcmp (s->val[option].s, "Gray") == 0)
 		create_bpp_list (s, s->dev->model->bpp_gray_values);
 	      else

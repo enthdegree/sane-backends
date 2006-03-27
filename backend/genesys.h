@@ -2,6 +2,7 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2005 Stephane Voltz <svoltz@numericable.fr>
+   Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    
    This file is part of the SANE package.
    
@@ -82,6 +83,7 @@ enum Genesys_Option
 
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
+  OPT_THRESHOLD,
   /* must come last: */
   NUM_OPTIONS
 };

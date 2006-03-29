@@ -1,3 +1,8 @@
+2006-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/sp15c.c: Fixed ADF support. Patch from Andreas Degert
+	  <ad@papyrus-gmbh.de>. 
+
 2006-03-27  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys.c backend/genesys.h backend/genesys_low.h 

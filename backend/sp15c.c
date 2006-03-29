@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.13  2006/03/29 20:48:50  hmg-guest
+ * Fixed ADF support. Patch from Andreas Degert <ad@papyrus-gmbh.de>.
+ *
  * Revision 1.12  2005/10/01 17:06:25  hmg-guest
  * Fixed some warnings (bug #302290).
  *
@@ -1737,7 +1740,6 @@ do_cancel (struct sp15c *scanner)
 {
   DBG (10, "do_cancel\n");
   swap_res (scanner);
-  scanner->scanning = SANE_FALSE;
 
   do_eof (scanner);             /* close pipe and reposition scanner */
 
@@ -2061,6 +2063,7 @@ do_eof (struct sp15c *scanner)
 {
   DBG (10, "do_eof\n");
 
+  scanner->scanning = SANE_FALSE;
   if (scanner->pipe >= 0)
     {
       close (scanner->pipe);

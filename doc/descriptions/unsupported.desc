@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-03-24"		; version of backend
+:version "2006-03-29"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -258,13 +258,6 @@
 :status :unsupported
 :comment "GL660+GL646 based."
 
-:model "CanoScan 3200F"
-:url "/unsupported/canon-3200f.html"
-:interface "USB"
-:usbid "0x04a9" "0x2216"
-:status :unsupported
-:comment "Unsupported. backend is beeing developped. See link."
-
 :model "CanoScan 4200F"
 :url "/unsupported/canon-4200f.html"
 :interface "USB"
@@ -476,14 +469,21 @@
 :interface "USB"
 :usbid "0x04a9" "0x1706"
 :status :unsupported
-:comment "Probably not supported. See link for details."
+:comment "Not supported yet but stand-alone driver is available."
+
+:model "PIXMA MP760"
+:url "http://pixma.schewe.com"
+:interface "USB"
+:usbid "0x04a9" "0x1708"
+:status :unsupported
+:comment "Not supported yet but stand-alone driver is available."
 
 :model "PIXMA MP780"
 :url "/unsupported/canon-pixma-mp780.html"
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :unsupported
-:comment "Probably not supported. See link for details."
+:comment "Not supported yet but stand-alone driver is available."
 
 :model "Smartbase MP360"
 :url "/unsupported/canon-smartbase-mp360.html"
@@ -1060,7 +1060,15 @@
 :interface "USB"
 :usbid "0x05da" "0x3022"
 :status :unsupported
-:comment "Probably unsupported. See link for details."
+:comment "Unsupported. See link for details."
+
+:model "MD 90090"
+:url "/unsupported/tevion-md90070.html"
+:interface "USB"
+:usbid "0x05da" "0x3022"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 ;********************************************************************************************
 
 :mfg "Memorex"
@@ -1148,6 +1156,13 @@
 :url "/unsupported/microtek-scanmaker-3830.html"
 :interface "USB"
 :usbid "0x05da" "0x30ce"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
+:model "ScanMaker 4600"
+:url "/unsupported/microtek-scanmaker-4600.html"
+:interface "USB"
+:usbid "0x05da" "0x40c7"
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
@@ -2271,6 +2286,13 @@
 :usbid  "0x04a7" "0x022c"
 :status :unsupported
 :comment "Not supported. See link for details."
+
+:model "Onetouch 9320"
+:url "/unsupported/visioneer-onetouch9320.html"
+:interface "USB"
+:usbid  "0x04a7" "0x0362"
+:status :unsupported
+:comment "Probably not supported. See link for details."
 
 :model "Onetouch Pro 8800"
 :url "/unsupported/visioneer-onetouch8820.html"

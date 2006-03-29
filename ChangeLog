@@ -4,6 +4,9 @@
 	  <ad@papyrus-gmbh.de>. 
 	* doc/descriptions-external/cs3200f.desc: Listed new cs3200f
 	  backend for Canon 3200F.
+	* doc/descriptions/unsupported.desc: Added Canon PIXMA760, Tevion
+	  MD 90090, Microtek ScanMaker 4600, and Visioneer Onetouch
+	  9320. Removed Canon CanoScan 3200F (now in external backends).
 
 2006-03-27  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

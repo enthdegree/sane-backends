@@ -2,6 +2,8 @@
 
 	* backend/sp15c.c: Fixed ADF support. Patch from Andreas Degert
 	  <ad@papyrus-gmbh.de>. 
+	* doc/descriptions-external/cs3200f.desc: Listed new cs3200f
+	  backend for Canon 3200F.
 
 2006-03-27  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 

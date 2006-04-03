@@ -1,3 +1,8 @@
+2006-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother2.desc: Added several scanners
+	  from Brother website.
+
 2006-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/sp15c.c: Fixed ADF support. Patch from Andreas Degert

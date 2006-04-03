@@ -36,10 +36,39 @@
 :usbid "0x04f9" "0x0169"
 :comment "No report yet."
 
+:model "DCP-115C"
+:status :good
+:interface "USB"
+:usbid "0x04f9" "0x018c"
+
+:model "DCP-117C"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
+:comment "No report yet."
+
+:model "DCP-120C"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
+:comment "No report yet."
+
 :model "DCP-310CN"
 :status :untested
 :interface "USB"
 :usbid "0x04f9" "0x016b"
+:comment "No report yet."
+
+:model "DCP-315CN"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
+:comment "No report yet."
+
+:model "DCP-340CN"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
 :comment "No report yet."
 
 :model "DCP-7010"
@@ -93,6 +122,12 @@
 :usbid "0x04f9" "0x0162"
 :comment "No report yet."
 
+:model "MFC-425CN"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
+:comment "No report yet."
+
 :model "MFC-5440CN"
 :status :good
 :interface "USB"
@@ -124,6 +159,12 @@
 :usbid "0x04f9" "0x0165"
 :comment "No report yet."
 
+:model "MFC-640CW"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
+:comment "No report yet."
+
 :model "MFC-7220"
 :status :untested
 :interface "USB"
@@ -146,4 +187,10 @@
 :status :untested
 :interface "USB"
 :usbid "0x04f9" "0x0181"
+:comment "No report yet."
+
+:model "MFC-9420CN"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" ""
 :comment "No report yet."

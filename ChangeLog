@@ -3,6 +3,7 @@
 	* doc/descriptions-external/brother2.desc: Added several scanners
 	  from Brother website.
 	* doc/descriptions/unsupported.desc: Added C-Channel scanners.
+	* tools/hotplug/libsane.usermap: Added some scanners.
 
 2006-03-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

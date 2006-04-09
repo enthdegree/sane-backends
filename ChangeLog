@@ -7,6 +7,8 @@
 	  #303338).
 	* doc/descriptions/umax1220u.desc: Added links to Patrick
 	  Lessard's patch.
+	* backend/qcam.c: Fixed undefined symbols in the qcam backend on
+          GNU/kFreeBSD (patch from Aurelien Jarno <aurelien@aurel32.net>).
 
 2006-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -3,7 +3,10 @@
 	* frontend/saned.c: If saned does not find any config file, it
 	  calls fclose with a NULL FILE*. The code may also leak open file
 	  descriptors and FILE's if multiple config files are found. (bug
-	  #303339). Fixed possible segfault on close_handle() (bug #303338).
+	  #303339). Fixed possible segfault on close_handle() (bug
+	  #303338).
+	* doc/descriptions/umax1220u.desc: Added links to Patrick
+	  Lessard's patch.
 
 2006-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

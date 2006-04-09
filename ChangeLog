@@ -1,3 +1,10 @@
+2006-04-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* frontend/saned.c: If saned does not find any config file, it
+	  calls fclose with a NULL FILE*. The code may also leak open file
+	  descriptors and FILE's if multiple config files are found. (bug
+	  #303339). Fixed possible segfault on close_handle() (bug #303338).
+
 2006-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother2.desc: Added several scanners

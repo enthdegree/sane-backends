@@ -447,8 +447,10 @@ static void
 close_handle (int h)
 {
   if (h >= 0 && handle[h].inuse)
-    sane_close (handle[h].handle);
-  handle[h].inuse = 0;
+    {
+      sane_close (handle[h].handle);
+      handle[h].inuse = 0;
+    }
 }
 
 static SANE_Word
@@ -1035,9 +1037,9 @@ check_host (int fd)
 		}
 	    }
 	}
+      fclose (fp);
     }
   
-  fclose (fp);
   if (access_ok)
     return SANE_STATUS_GOOD;
   

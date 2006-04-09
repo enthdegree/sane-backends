@@ -9,6 +9,7 @@
 	  Lessard's patch.
 	* backend/qcam.c: Fixed undefined symbols in the qcam backend on
           GNU/kFreeBSD (patch from Aurelien Jarno <aurelien@aurel32.net>).
+	* doc/descriptions/unsupported.desc: Added Lexmark X5150.
 
 2006-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

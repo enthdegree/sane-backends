@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-04-03"		; version of backend
+:version "2006-04-09"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -832,7 +832,7 @@
 :url "/unsupported/hp-scanjet-4850.html"
 :interface "USB"
 :usbid "0x03f0" "0x1b05"
-:comment "GL841, maybe can be added to genesys backend "
+:comment "GL843, maybe can be added to genesys backend "
 :status :unsupported
 
 :model "ScanJet 5500C"
@@ -980,6 +980,13 @@
 :usbid "0x043d" "0x0065"
 :status :unsupported
 :comment "Unsupported."
+
+:model "X5150"
+;:url "/unsupported/lexmark-x5130.html"
+:interface "USB"
+;:usbid "0x043d" "0x0065"
+:status :unsupported
+:comment "Probably unsupported. No details known. Please send output of sane-find-scanner -v -v."
 
 :model "X5250"
 :url "/unsupported/lexmark-x5250.html"

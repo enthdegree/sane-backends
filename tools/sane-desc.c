@@ -3168,7 +3168,8 @@ print_udev (void)
   usbid_type *usbid = create_usbids_table ();
 
   print_udev_header ();
-  printf ("\nSUBSYSTEM!=\"usb_device\", ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n\n");
+  printf ("\nACTION!=\"add\", GOTO=\"libsane_rules_end\"\n");
+  printf ("SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_rules_end\"\n\n");
   while (usbid)
     {
       manufacturer_model_type * name = usbid->name;
@@ -3186,7 +3187,7 @@ print_udev (void)
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
       usbid = usbid->next;
     }
-  printf ("LABEL=\"libsane_rules_end\"\n");
+  printf ("\nLABEL=\"libsane_rules_end\"\n");
 }
 
 int

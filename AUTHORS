@@ -32,7 +32,8 @@ Backends:
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
- genesys:	Henning Meier-Geinitz (*), Gerhard Jaeger (*), Stephane Voltz (*)
+ genesys:	Henning Meier-Geinitz (*), Gerhard Jaeger (*), Stephane Voltz (*),
+                Pierre Willenbrock (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Meier-Geinitz (*)
  hp:            Peter Kirchgessner (*)
@@ -84,7 +85,7 @@ Backends:
  u12:           Gerhard Jaeger (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
- umax1220u:     Marcio L. Teixeira
+ umax1220u:     Marcio L. Teixeira, Patrick Lessard
  v4l:           Juergen G. Schimmer, and Henning Meier-Geinitz (*)
 
 Frontends:
@@ -189,10 +190,12 @@ Nathan Rutman <nathan@gordian.com>
 Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
 Oliver Schirrmeister <oschirr@abm.de>
 Oliver Schwartz <oliverschwartz@users.sourceforge.net>
+Patrick Lessard <palessar@cgocable.ca>
 Patrick Reynolds <patrickr@virginia.edu>
 Peter Fales <peter@fales-lorenz.net>
 Peter Kirchgessner <peter@kirchgessner.net>
 Petter Reinholdtsen <pere@hungry.com>
+Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 Randolph Bentson <bentson@grieg.holmsjoen.com>
 Rene Rebe <rene@exactcode.de>
 Roger Wolff <R.E.Wolff@BitWizard.nl>

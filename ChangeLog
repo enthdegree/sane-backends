@@ -6,7 +6,11 @@
 	  Lessard <palessar@cgocable.ca>. Updated manual page and .desc
 	  file.
 	* AUTHORS: Added Patrick Lessard and Pierre Willenbrock.
-
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/pixma.desc: Moved scanners supported
+	  by the external pixma backend to pixma.desc. Added Canon PIXMA
+	  MP730.
+	
 2006-04-12  Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Fix/optimize udev rules; tests on the same
 	  line are ANDed together, not ORed together, causing the rules to

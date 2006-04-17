@@ -1,4 +1,4 @@
-.TH sane-mustek_usb2 5 "29 Sep 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-mustek_usb2 5 "15 Apr 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-mustek_usb2
 .SH NAME
 sane-mustek_usb2 \- SANE backend for SQ113 based USB flatbed scanners
@@ -33,11 +33,6 @@ USB information looks at
 
 .SH FILES
 .TP
-.I @CONFIGDIR@/mustek_usb2.conf
-The backend configuration file (see also description of
-.B SANE_CONFIG_DIR
-below).
-.TP
 .I @LIBDIR@/libsane-mustek_usb2.a
 The static library implementing this backend.
 .TP
@@ -45,20 +40,6 @@ The static library implementing this backend.
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
-.TP
-.B SANE_CONFIG_DIR
-This environment variable specifies the list of directories that may
-contain the configuration file.  Under UNIX, the directories are
-separated by a colon (`:'), under OS/2, they are separated by a
-semi-colon (`;').  If this variable is not set, the configuration file
-is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
-.B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
 .TP
 .B SANE_DEBUG_MUSTEK_USB2
 If the library was compiled with debug support enabled, this environment

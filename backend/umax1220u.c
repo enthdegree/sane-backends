@@ -5,6 +5,7 @@
    Parts copyright (C) 1996, 1997 Andreas Beck
    Parts copyright (C) 2000, 2001 Michael Herder <crapsite@gmx.net>
    Parts copyright (C) 2001 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Parts copyright (C) 2006 Patrick Lessard
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -772,7 +773,6 @@ sane_close (SANE_Handle handle)
   else
     first_handle = scanner->next;
 
-  res = UMAX_set_lamp_state (&scanner->scan, UMAX_LAMP_OFF);
   res = UMAX_close_device (&scanner->scan);
 
   free (scanner);
@@ -861,7 +861,10 @@ sane_start (SANE_Handle handle)
   if (res != SANE_STATUS_GOOD)
     return res;
 
-  return UMAX_start_scan (&scanner->scan);
+  if (scanner->scan.model == ASTRA_1220U)
+     return UMAX_start_scan (&scanner->scan);
+  else
+     return UMAX_start_scan_2100U (&scanner->scan);
 }
 
 SANE_Status
@@ -875,18 +878,22 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   len = *length = 0;
 
-  DBG (3, "sane_read: max_length = %d\n", max_length);
-
   if (!data || !length)
     return SANE_STATUS_INVAL;
 
   if (scanner->scan.done)
     {
       res = UMAX_finish_scan (&scanner->scan);
-      res = UMAX_park_head (&scanner->scan);
+
+      if (scanner->scan.model == ASTRA_1220U)
+        res = UMAX_park_head (&scanner->scan);
+      else
+        res = UMAX_park_head_2100U (&scanner->scan);
 
       return SANE_STATUS_EOF;
     }
+
+  DBG (3, "sane_read: max_length = %d\n", max_length);
 
   if (optionGrayscaleValue == SANE_FALSE)
     {

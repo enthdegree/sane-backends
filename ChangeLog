@@ -1,3 +1,10 @@
+2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/umax1220u-common.c backend/umax1220u.c
+	  doc/descriptions/umax1220u.desc doc/sane-umax1220u.man: Make
+	  UMAX 2100U (and probably 1600U and 2000U) work. Code from Patrick
+	  Lessard <palessar@cgocable.ca>. Updated manual page and .desc file.
+
 2006-04-12  Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Fix/optimize udev rules; tests on the same
 	  line are ANDed together, not ORed together, causing the rules to

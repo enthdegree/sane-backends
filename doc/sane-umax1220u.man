@@ -1,39 +1,31 @@
-.TH sane-umax1220u 5 "6 Jan 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-umax1220u 5 "17 Apr 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-umax
 .SH NAME
-sane-umax1220u \- SANE backend for the UMAX Astra 1220U scanner
+sane-umax1220u \- SANE backend for the UMAX Astra 1220U and similar scanners
 
 .SH DESCRIPTION
 
 The
 .B sane-umax1220
 library implements a SANE (Scanner Access Now Easy) backend for the
-the UMAX Astra 1220U scanner.
+the UMAX Astra 1220U and similar scanners.
 
-For the latest information on this backend, please visit
+For more information on this backend, please visit
 .IR http://umax1220u-sane.sourceforge.net/ .
 
-.SH UMAX ASTRA 2000U EXPERIMENTAL SUPPORT
+.SH UMAX ASTRA 1600U/2000U/2100U SUPPORT
 
-This backend may also be able to drive the UMAX Astra 2000U.
-Some people are successful with it, others report that the
-colors come out terrible. Your mileage may vary.
-
-From Stephane (the author of sane-umax_pp), I learned that there
-are differences in the way the color calibration is performed on
-the 1220U and the 2000U and it may account for the problem.
-Stephane's backend support the 2000P, the parallel port sibling
-to the 2000U. It may be possible to use ideas and code from 
-Stephane's backend to add complete support for the 2000U to
-this backend. Since I do not have access to an Astra 2000U, I
-do not plan to work on this \- any volunteers?
+This backend is also able to drive the UMAX Astra 1600U/2000U/2100U.  The
+2100U is confirmed to work. For the other scanners no reports have been received
+yet. Please contact us and tell us if your scanner works
+(sane-devel@lists.alioth.debian.org).
 
 .SH CONFIGURATION
 
-The configuration file for this backend resides in
+Usually, no manual configuration is necessary. The configuration file for this backend resides in
 .IR @CONFIGDIR@/umax1220u.conf .
 
-Its contents is a list of device names that correspond to UMAX Astra 1220U scanners.
+Its contents is a list of device names that correspond to UMAX Astra scanners.
 Empty lines and lines starting with a hash mark (#) are ignored. A sample
 configuration file is shown below: 
 
@@ -45,8 +37,8 @@ configuration file is shown below:
  /dev/usb/scanner0
 .fi
 
-When driving a Astra 2000U, use the product number 0x0030. See sane-usb(5) for
-information on how to set the access permissions on the usb device files.
+See sane-usb(5) for information on how to set the access permissions on the usb
+device files.
 
 .SH FILES
 
@@ -106,7 +98,7 @@ area is zero.
 sane(7), sane-usb(5)
 
 .TP
-For latest bug fixes and information see
+(Old) homepage:
 .I http://umax1220u-sane.sourceforge.net/
 
 .SH AUTHOR
@@ -114,9 +106,11 @@ For latest bug fixes and information see
 Marcio Luis Teixeira <marciot@users.sourceforge.net>
 
 .SH EMAIL-CONTACT
-umax1220u-sane-devel@lists.sourceforge.net
+sane-devel@lists.alioth.debian.org
 
 .SH REPORTING BUGS
 
-When reporting bugs, please run the backend with SANE_DEBUG_UMAX1220U
-set to 10 and attach a copy of the log messages.
+This backend isn't actively maintained. Nevertheless, bug reports and comments
+should be sent to the sane-devel mailing list.  When reporting bugs, please run
+the backend with SANE_DEBUG_UMAX1220U set to 10 and attach a copy of the log
+messages.

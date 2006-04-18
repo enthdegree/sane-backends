@@ -28,6 +28,9 @@
 	* doc/Makefile.in: Don't print warnings when creating the HTML
 	  scanner tables. The warnings are already printed in the tools
 	  directory.
+	* doc/descriptions-external/brother.desc
+	  doc/descriptions-external/brother2.desc: Point to current lists
+	  on Brother website.
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

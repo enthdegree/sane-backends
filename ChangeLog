@@ -19,6 +19,8 @@
 	* doc/descriptions/plustek.desc: Added USB ids. Splitted some
 	  entries which have two different USB ids. Clarified comment about
 	  UMAX 3400. 
+	* tools/hotplug/libsane.usermap: Removed. Will be created 
+	  automatically by sane-desc.
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

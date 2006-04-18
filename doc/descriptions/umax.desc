@@ -98,6 +98,7 @@
 
 :model "Astra 2200 (SU)"
 :interface "USB"
+:usbid "0x1606" "0x0230"
 :status :good
 :comment "OK, needs USB control messages"
 

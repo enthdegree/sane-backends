@@ -20,63 +20,89 @@
 
 :mfg "Hewlett-Packard"            ; name a manufacturer
 :url "http://www.hp.com/"
+
 :model "ScanJet Plus"           ; name models for above-specified mfg.
 :interface "Propietary"
 :status :complete
 :comment "Driver for HP parallel interface card required"
+
 :model "ScanJet IIc"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet IIp"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet IIcx"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 3c"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 3p"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 4c"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 4p"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 4100C"
 :interface "USB"
+:usbid "0x03f0" "0x0101"
 :status :complete
+
 :model "ScanJet 5p"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 5100C"
 :interface "Parport"
 :status :complete
 :comment "Requires ppscsi driver and epst module"
+
 :model "ScanJet 5200C"
 :interface "Parport USB"
+:usbid "0x03f0" "0x0401"
 :status :complete
 :comment "Parallel interface requires ppscsi driver and epst module"
+
 :model "ScanJet 6100C"
 :interface "SCSI"
 :status :complete
+
 :model "ScanJet 6200C"
 :interface "SCSI USB"
+:usbid "0x03f0" "0x0201"
 :status :complete
+
 :model "ScanJet 6250C"
 :interface "SCSI USB"
+:usbid "0x03f0" "0x0201"
 :status :complete
+
 :model "ScanJet 6300C"
 :interface "SCSI USB"
+:usbid "0x03f0" "0x0601"
 :status :complete
+
 :model "ScanJet 6350C"
 :interface "SCSI USB"
+:usbid "0x03f0" "0x0601"
 :status :complete
+
 :model "ScanJet 6390C"
 :interface "SCSI USB"
+:usbid "0x03f0" "0x0601"
 :status :complete
+
 :model "PhotoSmart PhotoScanner"
 :interface "SCSI"
 :status :complete

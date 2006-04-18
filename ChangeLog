@@ -1,3 +1,10 @@
+2006-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/epson.desc doc/descriptions/fujitsu.desc
+	  doc/descriptions/hp.desc doc/descriptions/u12.desc
+	  doc/descriptions/umax.desc: Added most USB vendor and product
+	  ids. Minor cleanup.
+
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/umax1220u-common.c backend/umax1220u.c
@@ -10,8 +17,8 @@
 	  doc/descriptions-external/pixma.desc: Moved scanners supported
 	  by the external pixma backend to pixma.desc. Added Canon PIXMA
 	  MP730.
-	* doc/sane-mustek_usb2.man: Removed description of non-existimg
-	  configuration ile.
+	* doc/sane-mustek_usb2.man: Removed description of non-existing
+	  configuration file.
 	
 2006-04-12  Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Fix/optimize udev rules; tests on the same

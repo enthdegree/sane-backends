@@ -81,14 +81,17 @@
 
 :model "Perfection 636U"
 :interface "USB"
+:usbid "0x04b8" "0x0101"
 :status :complete
 
 :model "Perfection 610"
 :interface "USB"
+:usbid "0x04b8" "0x0103"
 :status :complete
 
 :model "Perfection 640"
 :interface "USB"
+:usbid "0x04b8" "0x010c"
 :status :complete
 
 :model "Perfection 1200S"
@@ -97,45 +100,55 @@
 
 :model "Perfection 1200U"
 :interface "USB"
+:usbid "0x04b8" "0x0104"
 :status :complete
 
 :model "Perfection 1200Photo"
 :comment "with TPU"
 :interface "USB"
+:usbid "0x04b8" "0x0104"
 :status :complete
 
 :model "Perfection 1240"
 :interface "SCSI USB"
+:usbid "0x04b8" "0x010b"
 :status :complete
 
 :model "Perfection 1640"
 :interface "SCSI USB"
+:usbid "0x04b8" "0x010a"
 :status :complete
 
 :model "Perfection 1650"
 :interface "USB"
+:usbid "0x04b8" "0x0110"
 :status :complete
 
 :model "Perfection 1660"
 :interface "USB"
+:usbid "0x04b8" "0x011e"
 :status :complete
 
 :model "Perfection 2400"
 :interface "USB"
+:usbid "0x04b8" "0x011b"
 :status :complete
 
 :model "Perfection 2450"
 :interface "USB IEEE-1394"
+:usbid "0x04b8" "0x0112"
 :status :complete
 
 :model "Perfection 3200"
 :comment "US version of the GT-9800"
 :interface "USB"
+:usbid "0x04b8" "0x011c"
 :status :complete
 
 :model "Perfection 4870"
 :comment "US version of the GT-9800"
 :interface "USB"
+:usbid "0x04b8" "0x0128"
 :status :complete
 
 :model "Expression 636"
@@ -149,10 +162,12 @@
 
 :model "Expression 1600"
 :interface "SCSI USB IEEE-1394"
+:usbid "0x04b8" "0x0107"
 :status :complete
 
 :model "Expression 1680"
 :interface "SCSI USB IEEE-1394"
+:usbid "0x04b8" "0x010e"
 :status :complete
 
 :model "FilmScan 200"
@@ -163,42 +178,52 @@
 
 :model "CX-3200"
 :interface "USB"
+:usbid "0x04b8" "0x0802"
 :status :good
 
 :model "CX-3600"
 :interface "USB"
+:usbid "0x04b8" "0x080e"
 :status :good
 
 :model "CX-3650"
+:usbid "0x04b8" "0x080e"
 :interface "USB"
 :status :good
 
 :model "CX-4600"
 :interface "USB"
+:usbid "0x04b8" "0x080d"
 :status :good
 
 :model "CX-5200"
 :interface "USB"
+:usbid "0x04b8" "0x0801"
 :status :good
 
 :model "CX-5400"
 :interface "USB"
+:usbid "0x04b8" "0x0801"
 :status :good
 
 :model "CX-6400"
 :interface "USB"
+:usbid  "0x04b8" "0x0805"
 :status :good
 
 :model "RX-500"
 :interface "USB"
+:usbid "0x04b8" "0x0807"
 :status :good
 
 :model "RX-600"
 :interface "USB"
+:usbid "0x04b8" "0x0806"
 :status :good
 
 :model "RX-425"
 :interface "USB"
+:usbid "0x04b8" "0x080f"
 :status :good
 
 :model "DX-3850"
@@ -207,28 +232,35 @@
 
 :model "CX-3700"
 :interface "USB"
+:usbid "0x04b8" "0x0818"
 :status :good
 
 :model "CX-3800"
 :interface "USB"
+:usbid "0x04b8" "0x0818"
 :status :good
 
 :model "DX-3800"
 :interface "USB"
+:usbid "0x04b8" "0x0818"
 :status :good
 
 :model "CX-4200"
 :interface "USB"
+:usbid "0x04b8" "0x0820"
 :status :good
 
 :model "AcuLaser CX11"
 :interface "USB"
+:usbid "0x04b8" "0x0815"
 :status :good
 
 :model "AcuLaser CX11NF"
 :interface "USB"
+:usbid "0x04b8" "0x0815"
 :status :good
 
 :model "CX-6600"
 :interface "USB"
+:usbid "0x04b8" "0x0103"
 :status :good

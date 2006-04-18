@@ -19,16 +19,19 @@
 
 :model "OpticPro U12"
 :interface "USB"
+:usbid "0x07b3" "0x0001"
 :status :basic
 :comment "Note: Only devices with product ID 0x0001 are supported!"
 
 :model "OpticPro UT12"
 :interface "USB"
+:usbid "0x07b3" "0x0001"
 :status :basic
 :comment "Note: Only devices with product ID 0x0001 are supported!"
 
 :model "OpticPro 1212U"
 :interface "USB"
+:usbid "0x07b3" "0x0001"
 :status :basic
 
 ;* RevScan **********************************************************************************
@@ -37,6 +40,7 @@
 
 :model "RevScan Orange R48Ti"
 :interface "USB"
+:usbid "0x07b3" "0x0001"
 :status :basic
 :comment "Rebadged Plustek OpticPro UT12"
 
@@ -47,9 +51,11 @@
 
 :model "ColorPage HR6 V1"
 :interface "USB"
+:usbid "0x0458" "0x2004"
 :status :basic
 
 :model "ColorPage Vivid III USB"
 :interface "USB"
+:usbid "0x07b3" "0x0001"
 :status :untested
 :comment "Note: Device has Plustek vendor and product ID (0x07b3/0x0001)"

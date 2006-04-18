@@ -55,10 +55,12 @@
 
 :model "fi-4120C"
 :interface "SCSI USB"
+:usbid "0x04c5" "0x1042"
 :status :basic
 
 :model "fi-4220C"
 :interface "SCSI USB"
+:usbid "0x04c5" "0x1041"
 :status :basic
 
 :model "fi-4340C"

@@ -21,6 +21,10 @@
 	  UMAX 3400. 
 	* tools/hotplug/libsane.usermap: Removed. Will be created 
 	  automatically by sane-desc.
+	* tools/Makefile.in: Create libsane.usermap (for hotplug),
+	  libsane.db (for hotplug-ng) and libsane.rules (for udev)
+	  automatically with sane-desc based on the :usbid tokens in the
+	  description files.
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

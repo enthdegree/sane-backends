@@ -53,7 +53,8 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage sane-desc
+DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage sane-desc \
+	       hotplug/libsane.usermap hotplug-ng/libsane.db udev/libsane.rules
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -69,7 +70,7 @@ DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
 
 SUBDIRS = hotplug hotplug-ng udev
 
-.PHONY: all clean depend dist distclean install uninstall
+.PHONY: all clean depend dist distclean install uninstall 
 
 .c.o:
 	$(COMPILE) $<
@@ -110,6 +111,19 @@ umax_pp: umax_pp.o ../backend/umax_pp_low.o
 sane-desc: sane-desc.o
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB)
 
+hotplug/libsane.usermap: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+	@./sane-desc -m usermap -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
+	   -d 1 > $@
+
+hotplug-ng/libsane.db: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+	@./sane-desc -m db -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
+	   -d 0 > $@
+
+udev/libsane.rules: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+	@./sane-desc -m udev -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
+	   -d 0 > $@
+
+
 depend:
 	makedepend $(INCLUDES) *.c 2>/dev/null
 
@@ -117,6 +131,7 @@ clean:
 	rm -f *.lo *.o *.la
 	find . -type l -name \*-s.c | xargs rm -f
 	rm -rf .libs
+	rm -f hotplug/libsane.usermap hotplug-ng/libsane.db hotplug/libsane.rules
 
 distclean: clean
 	rm -f Makefile $(DESTINATIONS) mustek600iin-off sane-desc

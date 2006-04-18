@@ -59,6 +59,11 @@
 :usbid "0x0458"	"0x2007"
 :status :complete
 
+:model "Colorpage HR6 V2"
+:interface "USB"
+:usbid "0x0458"	"0x2008"
+:status :complete
+
 :model "Colorpage HR7"
 :interface "USB"
 :usbid "0x0458"	"0x2013"

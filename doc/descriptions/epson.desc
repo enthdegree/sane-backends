@@ -206,6 +206,11 @@
 :usbid "0x04b8" "0x0801"
 :status :good
 
+:model "CX-5400"
+:interface "USB"
+:usbid "0x04b8" "0x0808"
+:status :good
+
 :model "CX-6400"
 :interface "USB"
 :usbid  "0x04b8" "0x0805"

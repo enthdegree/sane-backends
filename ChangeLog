@@ -1,3 +1,6 @@
+2006-04-18  Giuseppe Sacco <eppesuig@debian.org>
+	* Updated italian translation
+
 2006-04-18  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_gl841.c backend/genesys_gl646.c: Actually use

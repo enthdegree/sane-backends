@@ -4,6 +4,8 @@
 	  the endian converted slope table.
 	* backend/genesys_conv_hlp.c: Fix interpolation code to emit all
 	  pixels of a line.
+	* doc/descriptions/unsupported.desc: Added missing scanners from
+	  libsane.usermap. 
 
 2006-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

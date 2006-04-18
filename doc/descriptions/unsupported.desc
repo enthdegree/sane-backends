@@ -347,6 +347,12 @@
 :status :unsupported
 :comment "Not supported. See link."
 
+:model "CanoScan FB320U"
+:interface "USB"
+:usbid "0x04a9" "0x2201"
+:status :unsupported
+:comment "Probably not supported. No details known."
+
 :model "CanoScan FB620U"
 :url "/unsupported/canon-fb620u.html"
 :interface "USB"
@@ -541,7 +547,7 @@
 :model "A920"
 :url "/unsupported/dell-a920.html"
 :interface "USB"
-:usbid "0x413c" "0x5101"
+:usbid "0x413c" "0x5105"
 :status :unsupported
 :comment "Not supported by stable SANE, but a backend is available in experimental CVS. See link."
 
@@ -576,6 +582,28 @@
 :usbid "0x04b8" "0x0119"
 :status :unsupported
 :comment "Unsupported. Support is planned for the epkowa backend."
+
+:model "GT-2200"
+:interface "USB"
+:usbid "0x04b8" "0x0102"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "StylusScan 2000"
+:interface "USB"
+:usbid "0x04b8" "0x0105"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model ""
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+:model ""
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
 
 ;********************************************************************************************
 
@@ -1495,6 +1523,17 @@
 :interface "SCSI"
 :status :unsupported
 :comment "Probably not supported. See link for details."
+
+;********************************************************************************************
+
+:mfg "Optoelectronics"
+
+:model "Barcode scanner"
+:interface "USB"
+:usbid "0x065a" "0x0001"
+:status :unsupported
+:comment "Probably not supported."
+
 ;********************************************************************************************
 
 :mfg "Optrox"
@@ -1780,6 +1819,60 @@
 :status :unsupported
 :comment "Unsupported. Uses proprietary ISA card that also provides power and is labelled GPS-1 PAGE-A from Taiwan. Other labels on the scanner include ADF Color Scanner and SF600AS. Maybe the same as the IBM ADF Color Scanner?"
 
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0005"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0007"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x000f"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0012"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device (UT12?)"
+:interface "USB"
+:usbid "0x07b3" "0x0013"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0012"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0014"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0012"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
+:model "Unknown Plustek Device"
+:interface "USB"
+:usbid "0x07b3" "0x0016"
+:status :unsupported
+:comment "Probably unsupported. Scanner name not known yet."
+
 ;********************************************************************************************
 
 :mfg "Primax"
@@ -1797,6 +1890,12 @@
 :url "http://home2.swipnet.se/~w-25069/pxscan.html"
 :status :unsupported
 :comment "Unsupported by SANE. But is reported to partly work with pxscan. See link."
+
+:model "Colorado 1200u"
+:interface "USB"
+:usbid "0x0461" "0x0361"
+:status :unsupported
+:comment "Probably unsupported. No details known."
 
 :model "Primascan Colorado 2600u"
 :url "/unsupported/visioneer-onetouch4400.html"
@@ -1824,10 +1923,58 @@
 :status :unsupported
 :comment "Not supported. See link for details."
 
+:model "G2-300"
+:interface "USB"
+:usbid "0x0461" "0x0300"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2-300 #2"
+:interface "USB"
+:usbid "0x0461" "0x0302"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2E-300"
+:interface "USB"
+:usbid "0x0461" "0x0301"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2E-300 #2"
+:usbid "0x0461" "0x0303"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2-600"
+:usbid "0x0461" "0x0380"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2-600 #2"
+:interface "USB"
+:usbid "0x0461" "0x0382"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
+:model "G2E-600"
+:usbid "0x0461" "0x0383"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
+
 :model "OneTouch 5300"
 :interface "Parport"
 :status :unsupported
 :comment "Not supported."
+
+:model "ReadyScan 636i"
+:usbid "0x0461" "0x0381"
+:interface "USB"
+:status :unsupported
+:comment "Probably unsupported. No details known."
 
 :model "Slim-Line 1200"
 :interface "USB"
@@ -1936,6 +2083,23 @@
 :interface "proprietary"
 :status :unsupported
 :comment "Not supported until now. Work on a backend has started, contact the author for details (see link)"
+
+;********************************************************************************************
+
+:mfg "Siemens"                 ; name a manufacturer
+:url "http://www.siemens.com/"
+
+:model "ID Mouse Professional"
+:interface "USB"
+:usbid "0x0681" "0x0005"
+:status :unsupported
+:comment "Not supported."
+
+:model "Cherry FingerTIP ID Board - Sensor"
+:interface "USB"
+:usbid "0x0681" "0x0010"
+:status :unsupported
+:comment "Not supported."
 
 ;********************************************************************************************
 
@@ -2203,6 +2367,12 @@
 :status :unsupported
 :comment "Not supported. Is reported to use the E5 chipset. Uses a Primax ID. Looks similar to Primascan Colorado 2600u."
 
+:model "6200 EPP/USB"
+:interface "USB"
+:usbid "0x04a7" "0x0311"
+:status :unsupported
+:comment "Not supported. Id is from Primax? Yet another scanner with the same name?"
+
 :model "9450 USB"
 :url "/unsupported/visioneer-9450-usb.html"
 :interface "USB"
@@ -2230,6 +2400,12 @@
 :usbid "0x04a7" "0x0226"
 :status :unsupported
 :comment "Not supported. Chipset is RTS8801B(?). See link for output of /proc/bus/usb/devices."
+
+:model "OneTouch 5300"
+:interface "USB"
+:usbid "0x04a7" "0x0221"
+:status :unsupported
+:comment "Not supported. Yet another scanner with this name?"
 
 :model "OneTouch 5800 USB"
 :url "/unsupported/visioneer-onetouch5800.html"

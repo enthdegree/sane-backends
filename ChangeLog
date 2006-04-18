@@ -31,6 +31,9 @@
 	* doc/descriptions-external/brother.desc
 	  doc/descriptions-external/brother2.desc: Point to current lists
 	  on Brother website.
+	* tools/hotplug/.cvsignore tools/hotplug-ng/.cvsignore
+	  tools/udev/.cvsignore: Added.
+
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

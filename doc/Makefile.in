@@ -210,7 +210,7 @@ sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
 	@../tools/sane-desc -m html-backends-split -s ${srcdir}/descriptions \
 	 -i "The following table summarizes the backends/drivers distributed \
 	     with $(PACKAGE)-$(VERSION), and the hardware or software they \
-             support." -d 1 > sane-backends.html
+             support." -d 0 > sane-backends.html
 
 sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
                              ../tools/sane-desc
@@ -218,21 +218,21 @@ sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
 	   -i "The following table summarizes the backends/drivers that \
 	       have not yet been included in the SANE distribution, and the \
 	       hardware or software they support." \
-	   -t "SANE: External Backends (Drivers)" -d 1 \
+	   -t "SANE: External Backends (Drivers)" -d 0 \
 	   > sane-backends-external.html
 
 sane-mfgs.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
 	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions \
 	   -i "The following table summarizes the devices supported \
 	       by $(PACKAGE)-$(VERSION)." \
-	   -d 1 > sane-mfgs.html
+	   -d 0 > sane-mfgs.html
 
 sane-mfgs-external.html: $(wildcard descriptions-external/*.desc) \
                              ../tools/sane-desc
 	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions-external \
 	   -i "The following table summarizes the devices that \
 	       are supported by external backends." \
-	   -t "SANE: Devices Supported by External Backends" -d 1 \
+	   -t "SANE: Devices Supported by External Backends" -d 0 \
 	   > sane-mfgs-external.html
 
 html-pages: $(HTML_PAGES)

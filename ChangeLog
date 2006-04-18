@@ -25,6 +25,9 @@
 	  libsane.db (for hotplug-ng) and libsane.rules (for udev)
 	  automatically with sane-desc based on the :usbid tokens in the
 	  description files.
+	* doc/Makefile.in: Don't print warnings when creating the HTML
+	  scanner tables. The warnings are already printed in the tools
+	  directory.
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

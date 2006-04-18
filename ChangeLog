@@ -7,6 +7,9 @@
 	* doc/descriptions/avision.desc: Used avision-desc.sh to update
 	  the .desc file to current SANE CVS avision.c code. Added USB
 	  ids. 
+	* doc/descriptions/plustek.desc: Added USB ids. Splitted some
+	  entries which have two different USB ids. Clarified comment about
+	  UMAX 3400. 
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

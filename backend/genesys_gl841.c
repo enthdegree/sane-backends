@@ -1566,7 +1566,7 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
     }
 
   status =
-    gl841_bulk_write_data (dev, 0x3c, (u_int8_t *) slope_table,
+    gl841_bulk_write_data (dev, 0x3c, (u_int8_t *) table,
 				   steps * 2);
   if (status != SANE_STATUS_GOOD)
     {

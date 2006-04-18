@@ -327,9 +327,10 @@ FUNC_NAME(genesys_shrink_lines) (
 	    cnt = dst_pixels / 2;
 	    dst_x = 0;
 	    for (src_x = 0; src_x < src_pixels; src_x++) {
-		for (c = 0; c < channels; c++) 
+		for (c = 0; c < channels; c++)
 		    avg[c] = *src++;
-		while (cnt < dst_pixels && dst_x < dst_pixels) {
+		while ((cnt < dst_pixels || src_x + 1 == src_pixels) && 
+		       dst_x < dst_pixels) {
 		    cnt += src_pixels;
 
 		    for (c = 0; c < channels; c++) 

@@ -1,3 +1,10 @@
+2006-04-18  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_gl841.c backend/genesys_gl646.c: Actually use
+	  the endian converted slope table.
+	* backend/genesys_conv_hlp.c: Fix interpolation code to emit all
+	  pixels of a line.
+
 2006-04-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/epson.desc doc/descriptions/fujitsu.desc

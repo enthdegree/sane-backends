@@ -4,6 +4,9 @@
 	  doc/descriptions/hp.desc doc/descriptions/u12.desc
 	  doc/descriptions/umax.desc: Added most USB vendor and product
 	  ids. Minor cleanup.
+	* doc/descriptions/avision.desc: Used avision-desc.sh to update
+	  the .desc file to current SANE CVS avision.c code. Added USB
+	  ids. 
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

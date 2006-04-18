@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 167"
+:version "Build: 182"
 ;status: alpha, beta, stable, new
 ;:status :stable
 
@@ -43,28 +43,51 @@
 
 :model "AV120"
 :interface "USB"
+:usbid "0x0638" "0x0a27"
 :comment "sheetfed scanner"
+:status :basic
+
+:model "AV121"
+:interface "USB"
+:usbid "0x0638" "0x0a3c"
+:comment "sheetfed scanner"
+:status :basic
+
+:model "AV122"
+:interface "USB"
+:usbid "0x0638" "0x0a3c"
+:comment "sheetfed duplex scanner"
 :status :basic
 
 :model "AV210"
 :interface "USB"
+:usbid "0x0638" "0x0a24"
 :comment "sheetfed scanner"
-:status :basic
+:status :complete
 
-:model "AV210-2"
+:model "AV210"
 :interface "USB"
+:usbid "0x0638" "0x0a25"
 :comment "sheetfed scanner"
-:status :basic
+:status :complete
+
+:model "AV210C2"
+:interface "USB"
+:usbid "0x0638" "0x0a3a"
+:comment "sheetfed scanner"
+:status :untested
 
 :model "AV220"
 :interface "USB"
+:usbid "0x0638" "0x0a23"
 :comment "duplex! sheetfed scanner"
 :status :complete
 
-:model "AV220-C2"
+:model "AV220C2"
 :interface "USB"
+:usbid "0x0638" "0x0a2a"
 :comment "duplex! sheetfed scanner"
-:status :untested
+:status :complete
 
 :model "AV240SC"
 :interface "SCSI"
@@ -92,15 +115,24 @@
 
 :model "AV610"
 :interface "USB"
+:usbid "0x0638" "0x0a19"
 :status :good
 
 :model "AVA6"
 :interface "USB"
+:usbid "0x0638" "0x0a22"
+:comment "probably a CPU-less device"
+:status :untested
+
+:model "AVA6"
+:interface "USB"
+:usbid "0x0638" "0x0a3b"
 :comment "probably a CPU-less device"
 :status :untested
 
 :model "DS610CU Scancopier"
 :interface "USB"
+:usbid "0x0638" "0x0a16"
 :comment "1 pass, 600 dpi, A4"
 :status :good
 
@@ -131,11 +163,13 @@
 
 :model "AV600U"
 :interface "USB"
+:usbid "0x0638" "0x0a13"
 :comment "1 pass, 600 dpi"
 :status :good
 
 :model "AV600U Plus"
 :interface "USB"
+:usbid "0x0638" "0x0a18"
 :comment "1 pass, ??? dpi"
 :status :untested
 
@@ -209,6 +243,11 @@
 :comment "1 pass, ??? dpi"
 :status :good
 
+:model "FB6000E"
+:interface "SCSI"
+:comment "1 pass, 1200 dpi, A3 - duplex! - zero edge!"
+:status :complete
+
 :model "AV8000S"
 :interface "SCSI"
 :comment "1 pass, 1200 dpi, A3 - regularly tested"
@@ -216,12 +255,26 @@
 
 :model "AV8300"
 :interface "USB"
+:usbid "0x0638" "0x0a40"
 :comment "1 pass, 1200 dpi, A3 - duplex!"
 :status :complete
 
 :model "AV8350"
 :interface "USB"
+:usbid "0x0638" "0x0a68"
 :comment "1 pass, 1200 dpi, A3 - duplex!"
+:status :complete
+
+:model "IT8300"
+:interface "USB"
+:usbid "0x0638" "0x0a61"
+:comment "1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors"
+:status :complete
+
+:model "@V5100"
+:interface "USB"
+:usbid "0x0638" "0x0a45"
+:comment "1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors"
 :status :complete
 
 :model "AVA3"
@@ -235,41 +288,49 @@
 
 :model "ScanJet 5300C"
 :interface "USB"
+:usbid "0x03f0" "0x0701"
 :comment "1 pass, 2400 dpi - regularly tested - some FW revisions have x-axis image scaling problems over 1200 dpi"
 :status :complete
 
 :model "ScanJet 5370C"
 :interface "USB"
+:usbid "0x03f0" "0x0701"
 :comment "1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi"
-:status :basic
+:status :good
 
 :model "ScanJet 7400c"
 :interface "USB"
+:usbid "0x03f0" "0x0801"
 :comment "1 pass, 2400 dpi - dual USB/SCSI interface"
 :status :good
 
 :model "ScanJet 7450c"
 :interface "USB"
+:usbid "0x03f0" "0x0801"
 :comment "1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested"
 :status :good
 
 :model "ScanJet 7490c"
 :interface "USB"
+:usbid "0x03f0" "0x0801"
 :comment "1 pass, 1200 dpi - dual USB/SCSI interface"
 :status :good
 
 :model "ScanJet 8200"
 :interface "USB"
+:usbid "0x03f0" "0x0b01"
 :comment "1 pass, 4800 (?) dpi - USB 2.0"
 :status :good
 
 :model "ScanJet 8250"
 :interface "USB"
+:usbid "0x03f0" "0x0b01"
 :comment "1 pass, 4800 (?) dpi - USB 2.0"
 :status :good
 
 :model "ScanJet 8290"
 :interface "USB"
+:usbid "0x03f0" "0x0b01"
 :comment "1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far"
 :status :good
 
@@ -283,28 +344,39 @@
 
 :model "Dimage Scan Dual II"
 :interface "USB"
+:usbid "0x0638" "0x026a"
 :comment "1 pass, film-scanner"
 :status :good
 
 :model "Elite II"
 :interface "USB"
+:usbid "0x0686" "0x4004"
 :comment "1 pass, film-scanner"
 :status :untested
 
 :model "Dimage Scan Dual III"
 :interface "USB"
+:usbid "0x0686" "0x400d"
 :comment "1 pass, film-scanner"
 :status :basic
+
+:model "Dimage Scan Elite 5400"
+:interface "USB"
+:usbid "0x0686" "0x400e"
+:comment "1 pass, film-scanner"
+:status :untested
 
 
 :mfg "Minolta-QMS"
 
 :model "SC-110"
 :interface "USB"
+:usbid "0x0638" "0x0a15"
 :status :untested
 
 :model "SC-215"
 :interface "USB"
+:usbid "0x0638" "0x0a16"
 :status :good
 
 
@@ -395,6 +467,7 @@
 
 :model "1200U"
 :interface "USB"
+:usbid "0x0638" "0x0268"
 :status :untested
 
 
@@ -402,9 +475,16 @@
 
 :model "DocuMate252"
 :interface "USB"
+:usbid "0x04a7" "0x0449"
 :status :untested
 
 :model "DocuMate262"
 :interface "USB"
+:usbid "0x04a7" "0x044c"
+:status :good
+
+:model "DocuMate272"
+:interface "USB"
+:usbid "0x04a7" "0x0475"
 :status :untested
 

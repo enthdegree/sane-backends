@@ -4,6 +4,8 @@
 	  readable. Instead of commenting every single line, the
 	  explanations are given once at the top. Don't repeat options
 	  that aren't changed anyway.
+	* doc/descriptions/unsupported.desc: Added Microtek Scanmaker
+	  3880. 
 
 2006-04-18  Giuseppe Sacco <eppesuig@debian.org>
 	* Updated italian translation
@@ -43,7 +45,6 @@
 	  on Brother website.
 	* tools/hotplug/.cvsignore tools/hotplug-ng/.cvsignore
 	  tools/udev/.cvsignore: Added.
-
 
 2006-04-17  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

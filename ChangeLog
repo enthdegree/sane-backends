@@ -1,3 +1,10 @@
+2006-04-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/artec_eplus48u.conf.in: Made config file more
+	  readable. Instead of commenting every single line, the
+	  explanations are given once at the top. Don't repeat options
+	  that aren't changed anyway.
+
 2006-04-18  Giuseppe Sacco <eppesuig@debian.org>
 	* Updated italian translation
 

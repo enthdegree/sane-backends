@@ -3429,8 +3429,21 @@ genesys_warmup_lamp (Genesys_Device * dev)
 	  sanei_genesys_test_buffer_empty (dev, &empty);
 	}
       while (empty);
-      RIE (sanei_genesys_read_data_from_scanner
-	   (dev, first_line, total_size));
+
+      /* STEF: workaround 'hang' problem with gl646 : data reading hangs
+         depending on the amount of data read by the last scan done
+        before scanner reset. So we allow for one read failure, which
+        fixes the communication with scanner . Put usb timeout to a friendly
+	value first, so that 'recovery' doesn't take too long */
+      sanei_usb_set_timeout (2 * 1000);
+      status = sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
+      if (status!= SANE_STATUS_GOOD)
+       {
+          RIE (sanei_genesys_read_data_from_scanner
+              (dev, first_line, total_size));
+       }	   
+      /* back to normal time out */
+      sanei_usb_set_timeout (30 * 1000);
       RIE (dev->model->cmd_set->end_scan (dev, local_reg, SANE_FALSE));
 
       sleep (1);		/* sleep 1 s */

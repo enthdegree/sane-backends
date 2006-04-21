@@ -1,6 +1,6 @@
 2006-04-21  Stéphane Voltz <stefdev@modulonet.fr> 
 
-        * backend/genesys_gl646.c: add workraound with issue related
+        * backend/genesys.c: add workraound with issue related
           to asic reset and data scan amount
 
 2006-04-20  Henning Meier-Geinitz <henning@meier-geinitz.de>

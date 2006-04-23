@@ -1,3 +1,8 @@
+2006-04-23  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_devices.c: Increase length of acceleration
+	  slopes for Canon LiDE 35/40/50/60
+
 2006-04-21  Stéphane Voltz <stefdev@modulonet.fr> 
 
         * backend/genesys.c: add workraound with issue related

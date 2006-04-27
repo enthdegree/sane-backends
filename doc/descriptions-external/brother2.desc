@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://solutions.brother.com/linux/sol/printer/linux/sane_drivers.html" ; backend's web page
-:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the brother website which contains the latest list."  
+:comment "External backend made by brother. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the brother website which contains the latest list."  
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -41,6 +41,12 @@
 :interface "USB"
 :usbid "0x04f9" "0x018c"
 
+:model "DCP-116C"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" "0x018c"
+:comment "No report yet."
+
 :model "DCP-117C"
 :status :untested
 :interface "USB"
@@ -55,17 +61,17 @@
 
 :model "DCP-310CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x016b"
 :comment "No report yet."
 
 :model "DCP-315CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 ;:usbid "0x04f9" ""
 :comment "No report yet."
 
-:model "DCP-340CN"
+:model "DCP-340CW"
 :status :untested
 :interface "USB"
 ;:usbid "0x04f9" ""
@@ -106,56 +112,56 @@
 
 :model "MFC-3340CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0174"
 :comment "No report yet."
 
 :model "MFC-410CN"
 :status :basic
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0163"
 :comment "Sometimes hangs and refuses to scan. A simple power off/on switch will fix things."
 
 :model "MFC-420CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0162"
 :comment "No report yet."
 
 :model "MFC-425CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 ;:usbid "0x04f9" ""
 :comment "No report yet."
 
 :model "MFC-5440CN"
 :status :good
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x016d"
 
 :model "MFC-5840CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x016e"
 :comment "No report yet."
 
 ;only in ini
 :model "MFC-610CLN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0166"
 :comment "No report yet."
 
 ;only in ini
 :model "MFC-610CLN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0168"
 :comment "No report yet."
 
 :model "MFC-620CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0165"
 :comment "No report yet."
 
@@ -173,7 +179,7 @@
 
 :model "MFC-7225N"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0186"
 :comment "No report yet."
 
@@ -184,13 +190,31 @@
 :comment "No report yet."
 
 :model "MFC-7820N"
+:status :good
+:interface "USB network"
+:usbid "0x04f9" "0x0181"
+:comment "Network connection reported to work."
+
+:model "MFC-820CW"
 :status :untested
 :interface "USB"
-:usbid "0x04f9" "0x0181"
+;:usbid "0x04f9" "0x0180"
+:comment "No report yet."
+
+:model "MFC-8460N"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" "0x0180"
+:comment "No report yet."
+
+:model "MFC-8860DN"
+:status :untested
+:interface "USB"
+;:usbid "0x04f9" "0x0180"
 :comment "No report yet."
 
 :model "MFC-9420CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 ;:usbid "0x04f9" ""
 :comment "No report yet."

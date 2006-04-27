@@ -16,7 +16,7 @@
                                   ; :yes or :no
 ;:manpage "sane-template"          ; name of manpage (if it exists)
 :url "http://solutions.brother.com/linux/sol/printer/linux/sane_drivers.html" ; backend's web page
-:comment "Supports only USB models. External backend made by brother. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the brother website which contains the latest list." 
+:comment "External backend made by brother. As this software contains non-free parts, it can't be included into SANE. If you can't find your model here, please have a look at the brother website which contains the latest list." 
                                   ; comment about the backend
 
 :devicetype :scanner              ; start of a list of devices....
@@ -109,7 +109,7 @@
 
 :model "FAX1920CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0149"
 :comment "No report yet."
 
@@ -182,7 +182,7 @@
 
 :model "MFC-3320CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x0148"
 :comment "No report yet."
 
@@ -199,7 +199,7 @@
 
 :model "MFC-3820CN"
 :status :untested
-:interface "USB"
+:interface "USB network"
 :usbid "0x04f9" "0x014b"
 :comment "No report yet."
 

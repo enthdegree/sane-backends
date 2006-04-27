@@ -1,3 +1,9 @@
+2006-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/brother.desc
+	  doc/descriptions-external/brother2.desc: Network models are now
+	  supported (bug #303386).
+
 2006-04-23  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_devices.c: Increase length of acceleration

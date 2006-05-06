@@ -34,7 +34,8 @@
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :untested
+:status :basic
+:comment "The images scanned have a lot of vertical lines"
 
 :model "X1140"
 :interface "USB"

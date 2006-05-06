@@ -1,3 +1,7 @@
+2006-05-06  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/lexmark.desc: X1150 is reported to work.
+
 2006-04-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/brother.desc

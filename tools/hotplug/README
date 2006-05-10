@@ -1,8 +1,11 @@
 README for the USB hotplug scripts for sane-backends :
 ------------------------------------------------------
 
-If you intend to use a USB scanner with libusb and Linux, you should install the
-hotplug package, and then take the following steps :
+If you intend to use a USB scanner with libusb and older versions of Linux, you
+should install the hotplug package, and then take the following steps. For
+current Linux kernels, "udev" is state of the art, see the "udev" directory
+instead.
+
   o Copy the libsane.usermap and libusbscanner files from this directory to
     /etc/hotplug/usb/
   o If you use Linux 2.6.3 or older, add scanner to /etc/hotplug/blacklist so

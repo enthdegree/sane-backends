@@ -3,7 +3,8 @@ hotplug/hotplug-ng hook for sane-backends
 
 The libsane.hotplug script is intended to replace the existing hotplug scripts,
 as those won't be usable with the new hotplug-ng. The libsane.hotplug script
-works with both hotplug and hotplug-ng.
+works with both hotplug and hotplug-ng.  For current Linux kernels, "udev" is
+state of the art, see the "udev" directory instead.
 
 This script is provided in the hope that it will be useful, simpler, faster and
 more extensible than the current usermap approach.
@@ -14,12 +15,7 @@ INSTALLATION
 
 Install libsane.hotplug in /etc/hotplug/usb, and make it executable.
 
-Create the directory /etc/sane.d/hotplug, then run the convert-usermap.sh
-script on libsane.usermap to produce the libsane.db file:
-    $ ./convert-usermap.sh libsane.usermap
-
-The libsane.usermap file can be found in the tools/hotplug directory; for now
-the usermap file remains the authoritative source for the list of USB scanners.
+Create the directory /etc/sane.d/hotplug and copy libsane.db there.
 
 
 FILE FORMAT

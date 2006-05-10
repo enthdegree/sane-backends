@@ -1,16 +1,25 @@
-2004-06-05
+2006-05-10
 
 This directory contains various tools that may be useful:
 
  hotplug/:
-        Linux hotplug script and config file used to change the persmissions
-        on the libusb "device nodes" when a scanner is plugged in.
-        Please read the README file in this directory for instructions.
+        Linux hotplug script and an automatically generated config file
+        (libsane.usermap) used to change the permissions on the libusb "device
+        nodes" in /proc/bus/usb/ when a scanner is plugged in. For newer Linux
+        kernels, you may need to use udev instead.  Please read the README file
+        in this directory for instructions.
 
- udev:
-	Contains the convert-usermap.sh script to produce a udev rules file
-	based on tools/hotplug/libsane.usermap. udev now replaces hotplug and
-	provides all the functionalities of hotplug.
+ hotplug-ng/:
+        Linux hotplug-ng script and an automatically generated config file
+        (libsane.db) used to change the permissions on the libusb "device nodes"
+        in /proc/bus/usb/ when a scanner is plugged in. For newer Linux kernels,
+        you may need to use udev instead.  Please read the README file in this
+        directory for instructions.
+
+ udev/:
+	Contains a automatically generated udev rules file. udev now replaces
+	hotplug and provides all the functionalities of hotplug. libusb 0.1.12
+	or newer is necessary.
 
  sane-find-scanner:
         Attempts to find a SCSI scanner attached to your system.

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-04-20"		; version of backend
+:version "2006-05-10"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -595,14 +595,10 @@
 :status :unsupported
 :comment "Probably unsupported. No details known."
 
-:model ""
+:model "Stylus CX-5800"
 :interface "USB"
 :status :unsupported
-:comment "Probably unsupported. No details known."
-:model ""
-:interface "USB"
-:status :unsupported
-:comment "Probably unsupported. No details known."
+:comment "Probably unsupported at the moment. Not compatible to snapscan backend. It's not known if it may work with epson or epkowa backend."
 
 
 ;********************************************************************************************
@@ -1879,6 +1875,26 @@
 :usbid "0x07b3" "0x0016"
 :status :unsupported
 :comment "Probably unsupported. Scanner name not known yet."
+
+;********************************************************************************************
+
+:mfg "PLANon"
+:url "http://www.planon.com/"
+
+:model "DocuPen RC800"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No details known."
+
+:model "DocuPen DocuPen R700"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No details known."
+
+:model "DocuPen (DPEN-BW)"
+:interface "USB"
+:status :unsupported
+:comment "Probably not supported. No details known."
 
 ;********************************************************************************************
 

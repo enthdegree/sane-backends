@@ -12,7 +12,6 @@
 :backend "fujitsu"               ; name of backend
 :url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
 :version "1.0.23"                ; version of backend
-:status :beta                    ; :alpha, :beta, :stable, :new
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,

@@ -1,7 +1,5 @@
-.TH sane-fujitsu 5 "17 Apr 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2006-05-12" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
-.IX sane-fcpa
-.IX sane-m3096g
 
 .SH NAME
 sane-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
@@ -10,173 +8,261 @@ sane-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 The
 .B sane-fujitsu
 library implements a SANE (Scanner Access Now Easy) backend which
-provides access to Fujitsu flatbed and ADF scanners.
-At present, the following
-scanners are known to work with this backend:
+provides access to most Fujitsu flatbed and ADF scanners.
+
+This document describes the rewritten backend versions 1.0.21 and greater.
+
+The backend supports lineart, halftone, grayscale, and color
+scanning for most scanners, depending on hardware capabilities.
+Most simple scanning related features are exposed. This version
+features better usb support, and less model-specific code.
+This enables at least basic support for many more models.
+See LIMITATIONS.
+
+.SH HARDWARE SUPPORT
+The following scanners are thought to have at least basic scanning
+capability, either because they have been tested with a prior
+version, or because documentation indicates they are compatible
+with a tested model.
 .PP
 .RS
 .ft CR
 .nf
-Vendor:  Model:           Rev:  
--------- ---------------- -----
-FUJITSU  M3096Gm          02  
-FUJITSU  M3093GX            
-FUJITSU  M3093GD            
-FUJITSU  M4097
-FUJITSU  fi-4220C           
-FUJITSU  fi-4340C           
-FUJITSU  M3091DCd         BF21
-FUJITSU  M3092DCd
+WORKGROUP SIZED SCANNERS:
+--------------------------------------
+SCSI:        SCSI/USB:    USB:
+------------ ------------ ------------
+M3091DC      fi-4120C     fi-5110C
+M3092DC      fi-4220C     fi-5110EOX
+SP-93GX      fi-4120C2
+             fi-4220C2
+             fi-5120C
+             fi-5220C
 .fi
 .ft R
 .RE
 .P
-The driver supports lineart, halftone, grayscale, and color
-(3091 and 3092) scanning depending on hardware capabilities.
+.PP
+.RS
+.ft CR
+.nf
+DEPARTMENTAL SIZED SCANNERS:
+--------------------------------------
+SCSI:        SCSI/USB:
+------------ ------------
+M3093GX/DG   fi-4340C
+M3096G/GX    fi-4530C
+M3097G+/DG   fi-5530C
+fi-4640S
+fi-4750C
+.fi
+.ft R
+.RE
+.P
+.PP
+.RS
+.ft CR
+.nf
+PRODUCTION SIZED SCANNERS:
+--------------------------------------
+SCSI:        SCSI/USB:
+------------ ------------
+M3099G/GH/GX fi-5650C
+M4097D       fi-5750C
+fi-4750L     fi-5900C
+fi-4860C
+M4099D
+.fi
+.ft R
+.RE
+.P
+The following scanners are known NOT to work with this backend,
+either because they have a non-fujitsu chipset, or an unsupported
+interface type. Some of these scanners may be supported by another
+backend.
+.PP
+.RS
+.ft CR
+.nf
+UNSUPPORTED SCANNERS:
+SCSI:        SERIAL:      USB:
+------------ ------------ ------------
+ScanStation  M3093E/DE/EX fi-4110EOX2
+ScanPartner  M3096EX
+SP-Jr        M3097E+/DE
+SP-10/10C    M3099A/EH/EX 
+SP-15C/300C
+SP-600C/620C
+.fi
+.ft R
+.RE
+.P
+This backend may support scanners not listed here. The best
+way to determine level of support is to test the scanner directly.
+Fujitsu equipment has historically been good enough to not be
+damaged by incorrect commands if the scanner is incompatible.
+Please contact the author with test results, positive or negative.
 
-The "Fujitsu" driver is a first attempt at integrating support
-for all Fujitsu scanners \- previously available as different
-single drivers \- in one driver. At present, the M3091DCd
-is working (lineart, halftone, 8-bit grayscale and 24-bit color,
-simplex and duplex), and the driver should also support the
-M3096 as the M3096g driver code has been incorporated.
-This driver supersedes the old "m3091"/"fujitsu" drivers and
-the old "m3096g" driver.
-
-Other scanners in these families may work.
-The ScanPartner 15C seems to be a repackaging
-of the ScanPartner 600C, but I don't know if it works.
-Look at the sp15c backend for this scanner.
-Perusal of the M3096GX/M3093GX/M3093DG manual
-suggests the M3096G driver offers access to a
-subset of the new scanners.
-People are encouraged to try these driver with the other scanners
-and to contact the author with test results.
-
-.SH DUPLEX MODE
-The M3091 driver supports duplex scanning. To the front-end, a duplex
-scan looks very much like scanning two separate pages from the document
-feeder, i.e. the SANE front-end receives two images instead of one.
-Front-ends which are not capable of dealing with that \- e.g. the
-command-line tool scanimage \- cannot be used for duplex scanning.
-If you want to do duplex scans from the command line, get Tom 
-Martone's scanadf program from 
-http://www.martoneconsulting.com/sane-scanadf.html.
-
-.SH CONFIGURATION
+.SH OPTIONS
 A modest effort has been made to expose the standard options to the API.
-This allows frontends such as xscanimage to set scanning region,
-resolution, bit-depth (and color), and enable the automatic document feeder.
-.br
-The "Fujitsu" driver supports the following options:
-.br
+This allows a frontend to set scanning region, resolution, bit-depth,
+color mode, and enable the automatic document feeder. The fujitsu backend
+supports the following basic options for most scanners:
+.PP
+source s
+.RS
+Selects the source for the scan. Options
+may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
+.RE
+.PP
 mode m
 .RS
-.I m 
-may be one of "Color", "Lineart", "Halftone", or "Gray", dependent on the
-scanner model. It is advisable to specify this option first when using
-command line tools, as the validity of some of the other options depends
-on the mode setting.
-.RE
-.PP
-x, y
-.RS
-Scan width and height
-.RE
-.PP
-pagewidth, pageheight
-.RS
-Page size; when using the ADF, the driver will assume that a page of the
-given width is centered
+Selects the mode for the scan. Options
+may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
 resolution, y-resolution
 .RS
-Controls scan resolution. Permissible values dependent on model and scan mode;
-setting --resolution also sets --y-resolution but not vice versa. This makes
-it possible to set the 3091's maximum resolution of 300x600dpi.
+Controls scan resolution. Setting --resolution also sets --y-resolution
+but not vice versa. This behavior is overridden by some frontends.
 .RE
 .PP
-brightness b
+tlx, tly, brx, bry
 .RS
-Only supported for M3096
+Sets scan area upper left and lower right coordinates. Often converted
+to t, l, x, y by frontend code.
 .RE
 .PP
-threshold t
+pagewidth, pageheight
 .RS
-Only supported for M3096
+Sets paper size. Used by scanner to determine centering of scan
+coordinates when using ADF.
 .RE
 .PP
-duplex d
+Other options will be available based on the capabilities of the scanner.
+Use 'scanimage --help' to get a list. Be aware that some options may
+appear only when another option has been set.
+.PP
+.SH CONFIGURATION FILE
+The configuration file "fujitsu.conf" is used to tell the backend how to look for
+scanners, and provide options controlling the operation of the backend.
+This file is read each time the frontend asks the backend for a list
+of scanners, generally only when the frontend starts. If the configuration
+file is missing, the backend will use a set of compiled defaults, which
+are identical to the default configuration file shipped with SANE.
+.PP
+Scanners can be specified in the configuration file in 4 ways:
+.PP
+"scsi FUJITSU"
 .RS
-.I d
-may be "front", "back", or "both" and denotes which sides of the page
-are to be scanned (duplex scanner only for example 3091, 3093Gd).
+Requests backend to search all scsi busses in the system for a device
+which reports itself to be a scanner made by 'FUJITSU'. 
 .RE
 .PP
-lampcolor c
+"scsi /dev/sg0" (or other scsi device file)
 .RS
-.I c
-may be "red", "green", "blue", or "default" \- the lamp color to be used
-when doing graysacale or b/w scans on the M3091.
+Requests backend to open the named scsi device. Only useful if you have
+multiple compatible scanners connected to your system, and need to
+specify one. Probably should not be used with the other "scsi" line above.
 .RE
 .PP
-blueoffset, greenoffset
+"usb 0x04c5 0x1042" (or other vendor/product ids)
 .RS
-Color justification options for the M3091; anything other than +1/-1 will
-probably distort the image. Should be left alone unless your scanner is
-buggy.
+Requests backend to search all usb busses in the system for a device
+which uses that vendor and product id. The device will then be queried
+to determine if it is a Fujitsu scanner.
 .RE
 .PP
-swapfile
+"usb /dev/usb/scanner0" (or other device file)
 .RS
-boolean option for the M3091. Only affects duplex scans. If set, a swap
-file will be used for storing the rear side of a document as it is scanned;
-otherwise the whole page will be kept in memory.
+Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
-
-.br
-
-You may specify the line "forceModel=xxx"
-in the configuration file to make the driver treat your scanner as an
-"xxx" scanner (currently supported: 3096, 3091). Use this if you have
-another scanner that is not automatically detected as being compatible.
-
-.br
-
-The only other configuration option supported is "scsi-buf-size=xxx",
+.PP
+The only configuration option supported is "scsi-buf-size=xxx",
 allowing you to set the SCSI buffer size to something other than the
-compiled-in default. Especially with the M3091 scanner, some users
-had the problem that the scanner would "hang" mid-page, and this can
-often be alleviated by using "scsi-buf-size=32768".
+compiled-in default. Some users report that the scanner would "hang"
+mid-page, and this can often be alleviated by increasing scsi-buf-size.
+.PP
+Note: This option may appear multiple times in the configuration file. It only
+applies to scanners discovered by "scanner" lines that follow this option, and will be updated to the new value each time it occurs.
+.PP
+Note: The backend does not place an upper bound on this value, as some users
+required it to be quite large. Values above 32768 are not recommended,
+and may crash your OS or lockup your scsi card driver. You have been
+warned.
+
+.SH ENVIRONMENT
+The backend uses a single environment variable, SANE_DEBUG_FUJITSU, which
+enables debugging output to stderr. Valid values are:
+.PP
+.RS
+5  Errors
+.br
+10 Function trace
+.br
+15 Function detail
+.br
+20 Option commands
+.br
+30 Scsi/Usb packets
+.RE
+
+.SH OLDER VERSIONS
+Backend versions prior to this were numbered with a two part version,
+or with no version number at all. At the time this version was written,
+all older versions were retroactively renumbered, 1.0.2 - 1.0.20.
+.PP
+The current backend may have lost support for some important feature
+you were using. The last of the "old" backends, 1.0.20, is still available
+as source from:
+.PP
+http://www2.pfeiffer.edu/~anoah/fujitsu/
+.PP
+If you find that you need to use the older version, please contact the
+author, to try and get those features restored to a later version.
+
+.SH KNOWN ISSUES
+.PP
+.RS
+3091/3092 color and duplex modes are broken.
+.br
+All IPC and compression options are disabled.
+.br
+Most scanner specific 'quirks' are not accounted for, making it possible
+to set some options in ways that the scanner does not support.
+.br
+Some flatbed options are affected by adf settings.
+.br
+Speed is too low, especially at higher resolutions, due to single-threading.
+.RE
+
+.SH HISTORY
+m3091 backend: Frederik Ramm <frederik a t remote d o t org>
+.br
+m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
+.br
+  (with credit to the unnamed author of the coolscan driver)
+.br
+merged fujitsu backend: Frederik?
+.br
+3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz d o t de>
+.br
+3093,fi-4340C,ipc,cmp support, and long-time backend maintainer:
+.br
+  Oliver Schirrmeister <oschirr a t abm d o t de>
+.br
+fi-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
+.br
+fi-4120, fi-series color support, backend re-write, current maintainer:
+  M. Allan Noah: <anoah a t pfeiffer d o t edu>
 
 .SH "SEE ALSO"
 sane(7),
 sane-scsi(5),
-sane-sp15c(5)
 sane-usb(5),
-.br
-Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
-.br
-Fujitsu M3096G OEM Manual, part number 50FH5028E-05
-.br
-Fujitsu M3096GX/M3093GX/M3093DG OEM Manual, part number C150-E015...03
+sane-sp15c(5),
+sane-avision(5)
 
 .SH AUTHOR
-3096/SP15 drivers: Randolph Bentson
-<bentson@holmsjoen.com>,
-with credit to the unnamed author of the coolscan driver
-.br
-3091 driver: Frederik Ramm <frederik@remote.org>
-3093GD,fi-4340C, ipc and cmp options: Oliver Schirrmeister <oschirr@abm.de>
-3092 patch: Mario Goppold <mgoppold@tbzpariv.tcc-chemnitz.de>
-fi-4220C patch and USB support: Ronald B. Cemer <ron@roncemer.com>
-.SH LIMITATIONS
-Only tested with Linux 2.4 
+M. Allan Noah: <anoah a t pfeiffer d o t edu>
 
-.SH BUGS
-I'm sure there are plenty, and not too well hidden,
-but I haven't seen them yet.
-I don't know if the ScanPartner 15C still works, because I'm not able
-to test it.
-3091/3092 don't support halftone

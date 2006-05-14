@@ -1,16 +1,25 @@
+# NOTE: any 'option' lines must come first
+
+# to override data buffer size, in bytes
+# if unset, the backend will figure it out.
+# the value ranges from 4096 - infinity
+# but will likely not work above 32768
+# dont use this unless you KNOW you need it
+#option scsi-buffer-size 32768
+
 # To search for all FUJITSU scsi devices
 scsi FUJITSU
 
 # To use a specific scsi device
-#/dev/sg1
+#scsi /dev/sg1
 
 # For Fujitsu scanners connected via USB on a known device (kernel driver):
 #usb /dev/usb/scanner0
 
 # For Fujitsu scanners connected via USB using vendor and device ids (libusb):
-#usb 0x04c5 0x1042
-#usb 0x04c5 0x1041
-
-# To force the Fujitsu backend to treat all devices it finds as a certain type:
-#option force-model fi-4340Cdi
+usb 0x04c5 0x1042
+usb 0x04c5 0x1041
+usb 0x04c5 0x1097
+usb 0x04c5 0x10e0
+usb 0x04c5 0x10ae
 

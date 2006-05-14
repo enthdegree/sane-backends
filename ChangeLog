@@ -1,3 +1,8 @@
+2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
+	* backend/fujitsu*: rewritten backend, supports many more scanners
+	  with much better usb support and less model-specific code.
+	* doc/sane-fujitsu.man: updated to match new backend.
+
 2006-05-12  m. allan noah <anoah AT pfeiffer DOT edu>
 	* doc/descriptions/fujitsu.desc: updated with all known scanners
 	  by fujitsu. Most now supported as 'basic'.

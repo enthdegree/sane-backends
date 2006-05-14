@@ -9,6 +9,16 @@
 
 /****************************************************/
 
+#define USB_COMMAND_CODE   0x43
+#define USB_COMMAND_LEN    0x1F
+#define USB_COMMAND_OFFSET 0x13
+#define USB_COMMAND_TIME   1000
+#define USB_DATA_TIME      1000
+#define USB_STATUS_CODE    0x53
+#define USB_STATUS_LEN     0x0D
+#define USB_STATUS_OFFSET  0x09
+#define USB_STATUS_TIME    3000
+
 /*static inline void */
 static void
 setbitfield (unsigned char *pageaddr, int mask, int shift, int val)
@@ -99,7 +109,7 @@ scsiblk;
 #define SCAN                    0x1b
 #define IMPRINTER               0xc1
 #define HW_STATUS               0xc2
-#define RESET_UNIT              0xf1
+#define SCANNER_CONTROL         0xf1
 
 
 /* ==================================================================== */
@@ -116,9 +126,16 @@ static scsiblk release_unitB = { release_unitC, sizeof (release_unitC) };
 
 /* ==================================================================== */
 
-static unsigned char reset_unitC[] =
-  { RESET_UNIT, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk reset_unitB = { reset_unitC, sizeof (reset_unitC) };
+static unsigned char scanner_controlC[] =
+  { SCANNER_CONTROL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk scanner_controlB = { scanner_controlC, sizeof (scanner_controlC) };
+
+#define set_SC_function(icb, val)              setbitfield(icb + 1, 7, 0, val)
+#define SC_function_cancel                     0x04
+#define SC_function_lamp_on                    0x05
+#define SC_function_lamp_off                   0x03
+#define SC_function_lamp_normal                0x06
+#define SC_function_lamp_saving                0x07
 
 /* ==================================================================== */
 
@@ -143,9 +160,12 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_product(in, buf)            strncpy(buf, in + 0x10, 0x010)
 #define get_IN_version(in, buf)            strncpy(buf, in + 0x20, 0x04)
 #define get_IN_raster(in)                  getnbyte (in+0x2A, 2)	/* offset between colors */
-#define get_IN_frontback(in)               getnbyte (in+0x2E, 2)	/* offset between front and back for duplex */
-#define get_IN_duplex_3091(in)                  getnbyte (in+0x2D, 1)	/* duplex available */
 
+/* these two only in some scanners */
+#define get_IN_duplex_3091(in)             getnbyte (in+0x2D, 1)	/* duplex available */
+#define get_IN_frontback(in)               getnbyte (in+0x2E, 2)	/* offset between front and back for duplex */
+
+/* the VPD response */
 #define get_IN_page_length(in)             getnbyte(in + 0x04, 1)
 #define get_IN_basic_x_res(in)             getnbyte(in + 0x05, 2)
 #define get_IN_basic_y_res(in)             getnbyte(in + 0x07, 2)
@@ -180,23 +200,37 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_monochrome_rgb(in)          getbitfield(in+0x1c, 1, 5)
 #define get_IN_half_tone_rgb(in)           getbitfield(in+0x1c, 1, 6)
 #define get_IN_multilevel_rgb(in)          getbitfield(in+0x1c, 1, 7)
+
+/* vendor unique section */
 #define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
 #define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
-#define get_IN_endorser(in)                getbitfield(in+0x20, 1, 3)
+#define get_IN_imprinter(in)                getbitfield(in+0x20, 1, 3)
 #define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
-#define get_IN_trancepareny(in)            getbitfield(in+0x20, 1, 5)
+#define get_IN_transparency(in)            getbitfield(in+0x20, 1, 5)
 #define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
 #define get_IN_adf(in)                     getbitfield(in+0x20, 1, 7)
+
+#define get_IN_adbits(in)                  getbitfield(in+0x21, 0x0f, 0)
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
-#define get_IN_has_set_subwindow(in)       (getnbyte(in+0x2a, 2)) & 1
-#define get_IN_has_imprinter(in)           (getnbyte(in+0x2a, 2)) & 2
-#define get_IN_has_hw_status(in)           (getnbyte(in+0x2a, 2)) & 4
+
+/* more stuff here (std supported commands) */
+
+#define get_IN_has_subwindow(in)           getbitfield(in+0x2b, 1, 0) 
+#define get_IN_has_endorser(in)            getbitfield(in+0x2b, 1, 1)
+#define get_IN_has_hw_status(in)           getbitfield(in+0x2b, 1, 2)
+#define get_IN_has_scanner_ctl(in)         getbitfield(in+0x31, 1, 1)
+
 #define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
 #define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
 #define get_IN_contrast_steps(in)          getnbyte(in+0x54, 1)
-#define get_IN_num_gamma(in)               getbitfield(in+0x57, 15, 4)
+
+#define get_IN_num_dither_internal(in)     getbitfield(in+0x56, 15, 4)
+#define get_IN_num_dither_download(in)     getbitfield(in+0x56, 15, 0)
+
+#define get_IN_num_gamma_internal(in)      getbitfield(in+0x57, 15, 4)
 #define get_IN_num_gamma_download(in)      getbitfield(in+0x57, 15, 0)
-#define get_IN_ipc_bw_reverse(in)          getbitfield(in+0x58, 1, 7)
+
+#define get_IN_ipc_bw_rif(in)          getbitfield(in+0x58, 1, 7)
 #define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 6)
 #define get_IN_ipc_auto2(in)               getbitfield(in+0x58, 1, 5)
 #define get_IN_ipc_outline_extraction(in)  getbitfield(in+0x58, 1, 4)
@@ -204,8 +238,10 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_ipc_auto_separation(in)     getbitfield(in+0x58, 1, 2)
 #define get_IN_ipc_mirroring(in)           getbitfield(in+0x58, 1, 1)
 #define get_IN_ipc_white_level_follow(in)  getbitfield(in+0x58, 1, 0)
+
 #define get_IN_ipc_subwindow(in)           getbitfield(in+0x59, 1, 7)
 #define get_IN_ipc_error_diffusion(in)     getbitfield(in+0x59, 1, 6)
+
 #define get_IN_compression_MH(in)          getbitfield(in+0x5a, 1, 7)
 #define get_IN_compression_MR(in)          getbitfield(in+0x5a, 1, 6)
 #define get_IN_compression_MMR(in)         getbitfield(in+0x5a, 1, 5)
@@ -213,9 +249,10 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_compression_JPG_BASE(in)    getbitfield(in+0x5a, 1, 3)
 #define get_IN_compression_JPG_EXT(in)     getbitfield(in+0x5a, 1, 2)
 #define get_IN_compression_JPG_INDEP(in)   getbitfield(in+0x5a, 1, 1)
-#define get_IN_imprinter(in)               getbitfield(in+0x5c, 1, 7)
-#define get_IN_imprinter_stamp(in)         getbitfield(in+0x5c, 1, 6)
-#define get_IN_imprinter_electrical(in)    getbitfield(in+0x5c, 1, 5)
+
+#define get_IN_imprinter2(in)               getbitfield(in+0x5c, 1, 7)
+#define get_IN_imprinter2_stamp(in)         getbitfield(in+0x5c, 1, 6)
+#define get_IN_imprinter2_electrical(in)    getbitfield(in+0x5c, 1, 5)
 
 /* ==================================================================== */
 
@@ -232,16 +269,6 @@ static unsigned char set_windowC[] =
 static scsiblk set_windowB = { set_windowC, sizeof (set_windowC) };
 #define set_SW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
 
-	/* With the fi-series scanners, we have to use a 12-byte command
-	 * instead of a 10-byte command when communicating via USB.  This
-	 * may be a firmware bug. */
-static unsigned char set_usb_windowC[] =
-  { SET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00 };
-/* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
-static scsiblk set_usb_windowB = { set_usb_windowC, sizeof (set_usb_windowC) };
-#define set_SW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
-
 /* ==================================================================== */
 
 static unsigned char object_positionC[] =
@@ -252,7 +279,7 @@ static scsiblk object_positionB =
 
 #define set_OP_autofeed(b,val) setbitfield(b+0x01, 0x07, 0, val)
 #define OP_Discharge	0x00
-#define OP_Feed			0x01
+#define OP_Feed	0x01
 
 /* ==================================================================== */
 
@@ -381,75 +408,107 @@ static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
 
 #define set_MSEL_xfer_length(sb, val) sb[0x04] = (unsigned char)val
 
-
-static unsigned char mode_select_headerC[] = {
-  0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_headerB = {
-  mode_select_headerC, sizeof (mode_select_headerC)
-};
-
-
-	/* With the fi-series scanners, we have to use a 10-byte header
-	 * instead of a 4-byte header when communicating via USB.  This
-	 * may be a firmware bug. */
-static unsigned char mode_select_usb_headerC[] = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_usb_headerB = {
-  mode_select_usb_headerC, sizeof (mode_select_usb_headerC)
-};
-
-
-static unsigned char mode_select_parameter_blockC[] = {
-  0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00,
-  0x00
-};
-static scsiblk mode_select_parameter_blockB =
-  { mode_select_parameter_blockC, sizeof (mode_select_parameter_blockC) };
-
-#define set_MSEL_len(sb, len) putnbyte(sb + 0x01, len, 1)
-/*
- * PageCode:
+/* combined 4 byte header and 8 byte page
+ * PageCodes: (most scanners know a few of these)
  * 0x34 = Sleep mode
  * 0x35 = ADF duplex reading transfer mode
  * 0x36 = All sorts of device controls switching
  * 0x37 = Backing switch control
  * 0x38 = Double feed detection
  * 0x39 = Drop out color
- * 0x3c = Paper width, paper length detection, deskew
+ * 0x3c = Auto paper size detection
  * 0x3d = Lamp light timer set
- * 0x3e = Special-purpose paper detection mode
+ * 0x3e = Detect job separation sheet
+ * there is also possibly a 'descriptor block'
+ * and a 'vendor-specific block'
+ * fujitsu's seem not to use these two
  */
-#define set_MSEL_pagecode(sb, val) setbitfield(sb, 0x3f, 0, val)
-#define MSEL_sleep         0x34
-#define MSEL_transfer_mode 0x35
-#define MSEL_dropout_color 0x39
 
+static unsigned char mode_select_sleepC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x34, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_sleepB = {
+  mode_select_sleepC, sizeof (mode_select_sleepC)
+};
 /* time until the device internal power supply switches to Sleep Mode
  * 0 = Default (15 min)
  * 1 = 1 min
  * 2 = 2 min
  * 0x3c ..0xff = 60 min
  */
-#define set_MSEL_sleep_mode(sb, val) setbitfield(sb + 0x02, 0x0f, 0, val)
+#define set_MSEL_sleep_mode(sb, val) sb[0x06]=val
 
+static unsigned char mode_select_duplexC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x35, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_duplexB = {
+  mode_select_duplexC, sizeof (mode_select_duplexC)
+};
 /* adf duplex reading transfer method
  * 0 = front side - back side sequential transfer
  * 1 = front side - back side alternate transfer
  */
 #define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
 
-#define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x02, 0x0f, 0, val)
-#define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x02, 0x0f, 4, val)
+static unsigned char mode_select_randC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x36, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_randB = {
+  mode_select_randC, sizeof (mode_select_randC)
+};
+
+static unsigned char mode_select_backingC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x37, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_backingB = {
+  mode_select_backingC, sizeof (mode_select_backingC)
+};
+
+/*byte 0x06 is bitmask controlling double feed detection*/
+static unsigned char mode_select_dfeedC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x38, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_dfeedB = {
+  mode_select_dfeedC, sizeof (mode_select_dfeedC)
+};
+
+/*byte 0x06 is bitmask controlling monochrome color*/
+static unsigned char mode_select_dropoutC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x39, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_dropoutB = {
+  mode_select_dropoutC, sizeof (mode_select_dropoutC)
+};
+#define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x06, 0x0f, 0, val)
+#define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x06, 0x0f, 4, val)
 #define MSEL_dropout_DEFAULT 0
 #define MSEL_dropout_GREEN   8
 #define MSEL_dropout_RED     9
 #define MSEL_dropout_BLUE    11
 #define MSEL_dropout_CUSTOM  12
-/* ==================================================================== */
+
+/*bytes 0x06-07 and 0x09 control paper size detection*/
+static unsigned char mode_select_autoC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x3C, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_autoB = {
+  mode_select_autoC, sizeof (mode_select_autoC)
+};
+
+static unsigned char mode_select_lampC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x3D, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_lampB= {
+  mode_select_lampC, sizeof (mode_select_lampC)
+};
 
 /* ==================================================================== */
 #if 0
@@ -478,36 +537,43 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 
 #define set_HW_allocation_length(sb, len) putnbyte(sb + 0x07, len, 2)
 
-#define get_HW_B5_present(in)              getbitfield(in+0x02, 1, 0)
-#define get_HW_A4_present(in)              getbitfield(in+0x02, 1, 1)
-#define get_HW_B4_present(in)              getbitfield(in+0x02, 1, 2)
-#define get_HW_A3_present(in)              getbitfield(in+0x02, 1, 3)
-#define get_HW_adf_empty(in)               getbitfield(in+0x03, 1, 7)
-#define get_HW_omr(in)                     getbitfield(in+0x03, 1, 6)
-#define get_HW_adfc_open(in)               getbitfield(in+0x03, 1, 5)
-#define get_HW_sleep(in)                   getbitfield(in+0x04, 1, 7)
-#define get_HW_manual_feed(in)             getbitfield(in+0x04, 1, 1)
-#define get_HW_start_button(in)            getbitfield(in+0x04, 1, 0)
-#define get_HW_ink_empty(in)               getbitfield(in+0x06, 1, 7)
-#define get_HW_dfeed_detected(in)          getbitfield(in+0x06, 1, 0)
-#define get_HW_skew_angle(in)              getnbyte(in+0x08, 2)
+#define get_HW_top(in)             getbitfield(in+0x02, 1, 7)
+#define get_HW_A3(in)              getbitfield(in+0x02, 1, 3)
+#define get_HW_B4(in)              getbitfield(in+0x02, 1, 2)
+#define get_HW_A4(in)              getbitfield(in+0x02, 1, 1)
+#define get_HW_B5(in)              getbitfield(in+0x02, 1, 0)
 
+#define get_HW_hopper(in)          !getbitfield(in+0x03, 1, 7)
+#define get_HW_omr(in)             getbitfield(in+0x03, 1, 6)
+#define get_HW_adf_open(in)        getbitfield(in+0x03, 1, 5)
+
+#define get_HW_sleep(in)           getbitfield(in+0x04, 1, 7)
+#define get_HW_send_sw(in)         getbitfield(in+0x04, 1, 2)
+#define get_HW_manual_feed(in)     getbitfield(in+0x04, 1, 1)
+#define get_HW_scan_sw(in)         getbitfield(in+0x04, 1, 0)
+
+#define get_HW_function(in)        getbitfield(in+0x05, 0x0f, 0)
+
+#define get_HW_ink_empty(in)       getbitfield(in+0x06, 1, 7)
+#define get_HW_double_feed(in)     getbitfield(in+0x06, 1, 0)
+
+#define get_HW_error_code(in)      in[0x07]
+
+#define get_HW_skew_angle(in)      getnbyte(in+0x08, 2)
+
+#define get_HW_ink_remain(in)      in[0x0a]
 
 /* ==================================================================== */
 
 /* We use the same structure for both SET WINDOW and GET WINDOW. */
-static unsigned char window_parameter_data_blockC[] = {
+static unsigned char window_descriptor_headerC[] = {
   0x00, 0x00, 0x00,
   0x00, 0x00, 0x00,		/* reserved */
   0x00, 0x00,			/* Window Descriptor Length */
 };
-static scsiblk window_parameter_data_blockB =
-  { window_parameter_data_blockC, sizeof (window_parameter_data_blockC) };
-
+static scsiblk window_descriptor_headerB=
+  { window_descriptor_headerC, sizeof (window_descriptor_headerC) };
 #define set_WPDB_wdblen(sb, len) putnbyte(sb + 0x06, len, 2)
-
-#define used_WDB_size 0x60
-#define max_WDB_size 0xff
 
 /* ==================================================================== */
 
@@ -617,7 +683,9 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_comp_LA 0
 #define WD_comp_HT 1
 #define WD_comp_GS 2
-#define WD_comp_RC 5
+#define WD_comp_CL 3
+#define WD_comp_CH 4
+#define WD_comp_CG 5
 
   /* 0x1a - Depth
    *        3091 - use 0x01 for b/w or 0x08 for gray/color
@@ -694,7 +762,7 @@ static unsigned char window_descriptor_blockC[] = {
    *        3091 - use 0xc0
    *        3096 - use 0xc0
    */
-  0xC0,
+  0x00,
 #define set_WD_vendor_id_code(sb, val)  sb[0x28] = val
 #define get_WD_vendor_id_code(sb) sb[0x28]
 
@@ -757,10 +825,10 @@ static unsigned char window_descriptor_blockC[] = {
 #define get_WD_mirroring(sb) getbitfield(sb + 0x2d, 1, 7)
 #define set_WD_lamp_color(sb, val)  sb[0x2d] = val
 #define get_WD_lamp_color(sb) sb[0x2d]
-#define LAMP_DEFAULT 0x00
-#define LAMP_BLUE 0x01
-#define LAMP_RED 0x02
-#define LAMP_GREEN 0x04
+#define WD_LAMP_DEFAULT 0x00
+#define WD_LAMP_BLUE 0x01
+#define WD_LAMP_RED 0x02
+#define WD_LAMP_GREEN 0x04
 
   /* 0x2e - variance/bit padding
    *        3091 - unsupported, use 0x00
@@ -828,13 +896,27 @@ static unsigned char window_descriptor_blockC[] = {
 #define set_WD_subwindow_list(sb, val) putnbyte(sb + 0x33, val, 2)
 #define get_WD_subwindow_list(sb)	getnbyte(sb + 0x33, 2)
 
-  /* 0x35 - paper size          
+  /* 0x35 - paper size
    *        3091 unsupported, always use 0xc0
    *        3096 if bits 6-7 both set, custom paper size enabled,  
    *             bytes 0x36-0x3d used. Otherwise, a number of 
    *             valid fixed values denote common paper formats.
    */
   0xC0,
+#define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
+#define WD_paper_SEL_UNDEFINED     0
+#define WD_paper_SEL_NON_STANDARD  3
+
+/* we no longer use these, custom size (0xc0) overrides,
+   and more recent scanners only use custom size anyway
+#define get_WD_paper_selection(sb)      getbitfield(sb + 0x35, 3, 6)
+#define WD_paper_SEL_STANDARD      2
+
+#define set_WD_paper_orientation(sb, val) setbitfield(sb + 0x35, 1, 4, val)
+#define get_WD_paper_orientation(sb)      getbitfield(sb + 0x35, 1, 4)
+#define WD_paper_PORTRAIT  0
+#define WD_paper_LANDSCAPE 1
+
 #define set_WD_paper_size(sb, val)  setbitfield(sb + 0x35, 0x0f, 0, val)
 #define get_WD_paper_size(sb)       getbitfield(sb + 0x35, 0x0f, 0)
 #define WD_paper_UNDEFINED 0
@@ -847,15 +929,7 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_paper_B5       13
 #define WD_paper_LEGAL    15
 #define WD_paper_CUSTOM   14
-#define set_WD_paper_orientation(sb, val) setbitfield(sb + 0x35, 1, 4, val)
-#define get_WD_paper_orientation(sb)      getbitfield(sb + 0x35, 1, 4)
-#define WD_paper_PORTRAIT  0
-#define WD_paper_LANDSCAPE 1
-#define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
-#define get_WD_paper_selection(sb)      getbitfield(sb + 0x35, 3, 6)
-#define WD_paper_SEL_UNDEFINED     0
-#define WD_paper_SEL_STANDARD      2
-#define WD_paper_SEL_NON_STANDARD  3
+*/
 
   /* 0x36-0x39 - custom paper width
    *        3091 0<w<=10200
@@ -905,28 +979,18 @@ static unsigned char window_descriptor_blockC[] = {
   0x00, 0x00, 0x00, 0x00, 0x00,	/* 0x58 - 0x5c reserved */
   0x00, 0x00, 0x00		/* 0x5d - 0x5f reserved */
 };
-
 static scsiblk window_descriptor_blockB =
   { window_descriptor_blockC, sizeof (window_descriptor_blockC) };
+#define max_WDB_size 0xc8
 
 /* ==================================================================== */
 
-/*#define set_WDB_length(length)   (window_descriptor_block.size = (length)) */
-#define WPDB_OFF(b)              (b + set_window.size)
-#define WDB_OFF(b, n)            (b + set_window.size + \
-		                 window_parameter_data_block.size + \
-		                 ( window_descriptor_block.size * (n - 1) ) )
-#define set_WPDB_wdbnum(sb,n) set_WPDB_wdblen(sb,window_descriptor_block.size*n)
+#define RS_return_size                    0x12
 
-/* ==================================================================== */
+static unsigned char request_senseC[] =
+{REQUEST_SENSE, 0x00, 0x00, 0x00, RS_return_size, 0x00};
+static scsiblk request_senseB = {request_senseC, sizeof (request_senseC)};
 
-  static unsigned char request_senseC[] =
-  {REQUEST_SENSE, 0x00, 0x00, 0x00, 0x12, 0x00,
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  static scsiblk request_senseB =
-  {request_senseC, sizeof (request_senseC)};
-
-#define set_RS_allocation_length(sb,val) sb[0x04] = (unsigned char)val
 /* defines for request sense return block */
 #define get_RS_information_valid(b)       getbitfield(b + 0x00, 1, 7)
 #define get_RS_error_code(b)              getbitfield(b + 0x00, 0x7f, 0)
@@ -938,12 +1002,24 @@ static scsiblk window_descriptor_blockB =
 #define get_RS_additional_length(b)       b[0x07]	/* always 10 */
 #define get_RS_ASC(b)                     b[0x0c]
 #define get_RS_ASCQ(b)                    b[0x0d]
-#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7)   /* valid, always 0 */
+#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7) /* valid=0 */
+#define get_RS_SKSB(b)                    getnbyte(b+0x0f, 3)
+
+/* when RS is 0x05/0x26 bad bytes listed in sksb */
 #define get_RS_offending_byte(b)          getnbyte(b+0x10, 2)
 
-#define rs_return_block_size              18	/* Says Nikon */
+/* 3091 and 3092 use RS instead of ghs. RS must be 0x00/0x80 */
+/* in ascq */
+#define get_RS_adf_open(in)        getbitfield(in+0x0d, 1, 7)
+#define get_RS_send_sw(in)         getbitfield(in+0x0d, 1, 5)
+#define get_RS_scan_sw(in)         getbitfield(in+0x0d, 1, 4)
+#define get_RS_duplex_sw(in)       getbitfield(in+0x0d, 1, 2)
+#define get_RS_top(in)             getbitfield(in+0x0d, 1, 1)
+#define get_RS_hopper(in)          getbitfield(in+0x0d, 1, 0)
 
-/* ==================================================================== */
+/* in sksb */
+#define get_RS_function(in)        getbitfield(in+0x0f, 0x0f, 3)
+#define get_RS_density(in)         getbitfield(in+0x0f, 0x07, 0)
 
 /* ==================================================================== */
 

@@ -3,14 +3,8 @@
 
 /* 
  * Part of SANE - Scanner Access Now Easy.
- * 
  * Please see opening comment in fujitsu.c
  */
-
-/* ------------------------------------------------------------------------- */
-
-static int num_devices = 0;
-static struct fujitsu *first_dev;
 
 /* ------------------------------------------------------------------------- 
  * This option list has to contain all options for all scanners supported by
@@ -22,410 +16,389 @@ enum fujitsu_Option
   OPT_NUM_OPTS = 0,
 
   OPT_MODE_GROUP,
-  OPT_SOURCE,
-  OPT_MODE,
-  OPT_DUPLEX,
-  OPT_X_RES,
-  OPT_Y_RES,
+  OPT_SOURCE, /*fb/adf/front/back/duplex*/
+  OPT_MODE,   /*mono/gray/color*/
+  OPT_X_RES,  /*a range or a list*/
+  OPT_Y_RES,  /*a range or a list*/
 
   OPT_GEOMETRY_GROUP,
-  OPT_TL_X,                     /* in mm/2^16 */
-  OPT_TL_Y,                     /* in mm/2^16 */
-  OPT_BR_X,                     /* in mm/2^16 */
-  OPT_BR_Y,                     /* in mm/2^16 */
+  OPT_TL_X,
+  OPT_TL_Y,
+  OPT_BR_X,
+  OPT_BR_Y,
   OPT_PAGE_WIDTH,
   OPT_PAGE_HEIGHT,
 
-
   OPT_ENHANCEMENT_GROUP,
-  OPT_AVERAGING,
   OPT_BRIGHTNESS,
   OPT_THRESHOLD,
   OPT_CONTRAST,
-
   OPT_RIF,
-  OPT_COMPRESSION,
-  OPT_COMPRESSION_ARG,
 
-  OPT_DTC_SELECTION,
-  OPT_GAMMA,
-  OPT_OUTLINE_EXTRACTION,
-  OPT_EMPHASIS,
-  OPT_AUTOSEP,
-  OPT_MIRROR_IMAGE,
-  OPT_VARIANCE_RATE,
-  OPT_THRESHOLD_CURVE,
-  OPT_GRADATION,
-  OPT_SMOOTHING_MODE,
-  OPT_FILTERING,
-  OPT_BACKGROUND,
-  OPT_NOISE_REMOVAL,
-  OPT_MATRIX2X2,
-  OPT_MATRIX3X3,
-  OPT_MATRIX4X4,
-  OPT_MATRIX5X5,
-  OPT_WHITE_LEVEL_FOLLOW,
-
-  OPT_PAPER_SIZE,
-  OPT_PAPER_WIDTH,
-  OPT_PAPER_HEIGHT,
-  OPT_PAPER_ORIENTATION,
-
+  OPT_ADVANCED_GROUP,
   OPT_DROPOUT_COLOR,
-  OPT_START_BUTTON,
-
-  OPT_TUNING_GROUP,
-  OPT_LAMP_COLOR,
+  OPT_SLEEP_TIME,
+  OPT_DUPLEX_OFFSET,
   OPT_BLUE_OFFSET,
   OPT_GREEN_OFFSET,
   OPT_USE_SWAPFILE,
 
-  OPT_IMPRINTER_GROUP,
-  OPT_IMPRINTER,
-  OPT_IMPRINTER_DIR,
-  OPT_IMPRINTER_YOFFSET,
-  OPT_IMPRINTER_STRING,
-  OPT_IMPRINTER_CTR_INIT,
-  OPT_IMPRINTER_CTR_STEP,
-  OPT_IMPRINTER_CTR_DIR,
-
-  OPT_SLEEP_MODE,
+  OPT_SENSOR_GROUP,
+  OPT_TOP,
+  OPT_A3,
+  OPT_B4,
+  OPT_A4,
+  OPT_B5,
+  OPT_HOPPER,
+  OPT_OMR,
+  OPT_ADF_OPEN,
+  OPT_SLEEP,
+  OPT_SEND_SW,
+  OPT_MANUAL_FEED,
+  OPT_SCAN_SW,
+  OPT_FUNCTION,
+  OPT_INK_EMPTY,
+  OPT_DOUBLE_FEED,
+  OPT_ERROR_CODE,
+  OPT_SKEW_ANGLE,
+  OPT_INK_REMAIN,
+  OPT_DUPLEX_SW,
+  OPT_DENSITY_SW,
 
   /* must come last: */
   NUM_OPTIONS
 };
 
-
-typedef enum {                          /* hardware connection to the scanner */
-        SANE_FUJITSU_NODEV,             /* default, no HW specified yet */
-        SANE_FUJITSU_SCSI,              /* SCSI interface */
-        SANE_FUJITSU_PIO,               /* parallel interface */
-        SANE_FUJITSU_USB                /* USB interface */
-} Fujitsu_Connection_Type;
-
 struct fujitsu
 {
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during init of scanner.                */
   struct fujitsu *next;
+  char *device_name;            /* The name of the scanner device for sane */
 
-  SANE_Option_Descriptor opt[NUM_OPTIONS];
-  Option_Value val[NUM_OPTIONS];
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during reading of config file.         */
+  int scsi_buf_size;
+  int connection;               /* hardware interface type */
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during inquiry probing of the scanner. */
+  /* members in order found in scsi data...                                */
   SANE_Device sane;
 
-
-  /* Immutable values which are set during initial probing of the scanner. */
-  /* --------------------------------------------------------------------- */
-
-  char vendorName[9];           /* raw data as returned by SCSI inquiry.     */
-  char productName[17];         /* raw data as returned by SCSI inquiry.     */
-  char versionName[5];          /* raw data as returned by SCSI inquiry.     */
-
-  int model;                    /* The scanner model.                        */
-
-  char *devicename;             /* The name of the scanner device.           */
-
-  Fujitsu_Connection_Type connection;   /* hardware interface type */
-
-  int sfd;                      /* The scanner device file descriptor.       */
+  char vendor_name[9];          /* raw data as returned by SCSI inquiry.   */
+  char product_name[17];        /* raw data as returned by SCSI inquiry.   */
+  char version_name[5];         /* raw data as returned by SCSI inquiry.   */
 
   int color_raster_offset;      /* offset between r and b scan line and    */
-  /* between b and g scan line (4 for all      */
-  /* known models)                             */
-  int duplex_raster_offset;     /* offset between front and rear page when   */
-  /* when scanning duplex                   */
+                                /* between b and g scan line (0 or 4)      */
+  int duplex_raster_offset;     /* offset between front and rear page when */
+                                /* when scanning 3091 style duplex         */
 
-  int can_read_alternate;       /* duplex transfer mode front/back/front/back... */
-  int read_mode;                /* constants READ_MODE_* and funcs convert_* */
-  int has_adf;                  /* true if an ADF has been detected.       */
-  int has_fb;
-  int duplex_present;           /* true if a duplex unit has been detected. */
-  int ipc_present;              /* true if ipc2/3 option detected         */
-  int cmp_present;              /* true if cmp2 present                   */
-  int has_hw_status;            /* true for M409X series                  */
-  int has_outline;              /* ............                           */
-  int has_emphasis;             /* ............                           */
-  int has_autosep;              /* ............                           */
-  int has_mirroring;            /* ............                           */
-  int has_reverse;
-  int has_white_level_follow;   /* ............                           */
-  int has_subwindow;            /* ............                            */
-  int has_dropout_color;        /*  */
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during std VPD probing of the scanner. */
+  /* members in order found in scsi data...                                */
+  int basic_x_res;
+  int basic_y_res;
+  int step_x_res;
+  int step_y_res;
+  int max_x_res;
+  int max_y_res;
+  int min_x_res;
+  int min_y_res;
+
+  int std_res_200;
+  int std_res_180;
+  int std_res_160;
+  int std_res_150;
+  int std_res_120;
+  int std_res_100;
+  int std_res_75;
+  int std_res_60;
+  int std_res_1200;
+  int std_res_800;
+  int std_res_600;
+  int std_res_480;
+  int std_res_400;
+  int std_res_320;
+  int std_res_300;
+  int std_res_240;
+
+  /* max scan size in pixels comes from scanner in basic res units */
+  int max_x_basic;
+  int max_y_basic;
+
+  int can_overflow;
+  int can_monochrome;
+  int can_halftone;
+  int can_grayscale;
+  int can_color_monochrome;
+  int can_color_halftone;
+  int can_color_grayscale;
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during vndr VPD probing of the scanner */
+  /* members in order found in scsi data...                                */
+  int has_operator_panel;
+  int has_barcode;
   int has_imprinter;
-  int has_threshold;
-  int has_brightness;
-  int has_contrast;
-  int has_gamma;
+  int has_duplex;
+  int has_transparency;
+  int has_flatbed;
+  int has_adf;
+
+  int adbits;
+  int buffer_bytes;
+
+  /*FIXME: do we need the std cmd list? */
+
+  /*FIXME: there are more vendor cmds? */
+  int has_cmd_subwindow;
+  int has_cmd_endorser;
+  int has_cmd_hw_status;
+  int has_cmd_scanner_ctl;
+
+  /*FIXME: do we need the vendor window param list? */
+
+  int brightness_steps;
+  int threshold_steps;
+  int contrast_steps;
+
+  int num_internal_gamma;
   int num_download_gamma;
-  int has_fixed_paper_size;
+  int num_internal_dither;
+  int num_download_dither;
 
-  SANE_Range adf_width_range;
-  SANE_Range adf_height_range;
-  SANE_Range x_range;
-  SANE_Range y_range;
+  int has_rif;
+  int has_auto1;
+  int has_auto2;
+  int has_outline;
+  int has_emphasis;
+  int has_autosep;
+  int has_mirroring;
+  int has_white_level_follow;
+  int has_subwindow;
 
+  int has_comp_MH;
+  int has_comp_MR;
+  int has_comp_MMR;
+  int has_comp_JBIG;
+  int has_comp_JPG1;
+  int has_comp_JPG2;
+  int has_comp_JPG3;
+
+  /*FIXME: endorser data? */
+
+  /*FIXME: barcode data? */
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are hard coded because they are not in vpd     */
+  /* this section replaces all the old 'switch (s->model)' code            */
+
+  /* the scan size in 1/1200th inches, NOT basic_units or sane units */
+  int max_x;
+  int max_y;
+  int min_x;
+  int min_y;
+
+  int has_back;       /* not all duplex scanners can do adf back side only */
+  int color_interlace;  /* different models interlace colors differently   */
+  int duplex_interlace; /* different models interlace sides differently    */
+  int has_MS_dropout; /* dropout color specified in mode select data */
+  int has_SW_dropout; /* dropout color specified in set window data */
+  int window_vid; /* some models want different vendor ID in set window */
+  int ghs_in_rs;
+
+  int reverse_by_mode[6]; /* mode specific */
+  /* --------------------------------------------------------------------- */
+  /* changeable SANE_Option structs provide our interface to frontend.     */
+  /* some options require lists of strings or numbers, we keep them here   */
+  /* instead of in global vars so that they can differ for each scanner    */
+  /* these are loaded in init_options(), but may be changed by other funcs */
+
+  /* long array of option structs */
+  SANE_Option_Descriptor opt[NUM_OPTIONS];
+
+  /*mode group*/
+  SANE_String_Const mode_list[7];
+  SANE_String_Const source_list[5];
+
+  SANE_Int x_res_list[17];
+  SANE_Int y_res_list[17];
   SANE_Range x_res_range;
   SANE_Range y_res_range;
-  SANE_Range x_grey_res_range;
-  SANE_Range y_grey_res_range;
 
-  SANE_String_Const vpd_mode_list[7];
-  SANE_String_Const compression_mode_list[9];
+  /*geometry group*/
+  SANE_Range tl_x_range;
+  SANE_Range tl_y_range;
+  SANE_Range br_x_range;
+  SANE_Range br_y_range;
+  SANE_Range paper_x_range;
+  SANE_Range paper_y_range;
 
-  SANE_Int x_res_list[17];      /* range of x and y resolution */
-  SANE_Int y_res_list[17];      /* if scanner has only fixed resolutions */
-  SANE_Int x_res_list_grey[17];
-  SANE_Int y_res_list_grey[17];
-
-  SANE_Range threshold_range;
+  /*enhancement group*/
   SANE_Range brightness_range;
+  SANE_Range threshold_range;
   SANE_Range contrast_range;
 
-  /* User settable values (usually mirrored in SANE options)               */
+  /*ipc group*/
+
+  /*advanced group*/
+  SANE_String_Const do_color_list[5];
+  SANE_String_Const lamp_color_list[5];
+  SANE_Range sleep_time_range;
+  SANE_Range duplex_offset_range;
+  SANE_Range blue_offset_range;
+  SANE_Range green_offset_range;
+
   /* --------------------------------------------------------------------- */
+  /* changeable vars to hold user input. modified by SANE_Options above    */
 
-  int duplex_mode;              /* Use DUPLEX_* constants below              */
-  int resolution_x;             /* X resolution in dpi                       */
-  int resolution_y;             /* Y resolution in dpi                       */
-  int resolution_linked;        /* When true, Y resolution is set whenever   */
-  /* X resolution gets changed. true initially, */
-  /* becomes false if Y resolution is ever     */
-  /* set independently                         */
-  int top_left_x;               /* The desired size of the scan, in          */
-  int top_left_y;               /*   mm/2^16. Notice that there's a second   */
-  int bottom_right_x;           /*   group of these with the "rounded"       */
-  int bottom_right_y;           /*   prefix, below.                          */
+  /*mode group*/
+  int mode;           /*color,lineart,etc*/
+  int source;         /*fb,adf front,adf duplex,etc*/
+  int resolution_x;   /* X resolution in dpi                       */
+  int resolution_y;   /* Y resolution in dpi                       */
 
-  /* A note on the scan are size (topLeft/bottomRight) values. When the    
-   * user (the front-end) sets one of these, we change the above values   
-   * and immediately calculate from it the scan height and width in      
-   * 1/1200 inches (the internal scanner unit). Depending on the scan 
-   * mode, depth, etc., other rules may be used to change the value, 
-   * e.g. in 1bpp scans, the width is always increased until each scan
-   * line has a full number of bytes.
-   *
-   * The results of these calculations are the "top_margin", "left_margin",
-   * "scan_width", and "scan_height" values below. In addition, these
-   * values are now converted back into SANE units (1/2^16mm) and stored
-   * in roundedTopLeft... and roundedBottomRight... - when the front-end
-   * _sets_ the scan area size, the topLeft... and bottomRight... values
-   * will be set, but when the front-end _gets_ the scan area size, 
-   * the rounded values will be returned.
-   *
-   * By keeping the original values instead of rounding them "in place",
-   * we can revise our rounded values later. Assume the resolution is set
-   * to 75dpi, and then the scan size is set - it will be rounded to
-   * the nearest 1/75 inch. Later the resolution is changed to 600dpi,
-   * making a better approximation of the original desired size possible.
-   *
-   * All these calculations are done within the "calculateDerivedValues"
-   * function.
-   */
+  /*geometry group*/
+  /* The desired size of the scan, all in 1/1200 inch */
+  int tl_x;
+  int tl_y;
+  int br_x;
+  int br_y;
+  int page_width;
+  int page_height;
 
-  int page_width;               /* paper width and height may influence the  */
-  int page_height;              /* way the ADF operates  - in 1/1200 inch    */
-
-  int output_depth;             /* How many bits per pixel the user wants.   */
-  int scanner_depth;            /* How many bpp the scanner will send.       */
-
-  /* A note on "depth" values. Many colour scanners require you to use
-   * the value "8" for depth if you're doing colour scans even if they 
-   * deliver 24. The front-end, when it calls "sane_get_parameters", will
-   * expect to see the value 8 as well. However, internally, we use
-   * scanner_depth as the real number of bits sent per pixel, which is 
-   * obvoiusly 24 for coulour scans. 
-   * 
-   * output_depth uses the same logic and normally both values would be
-   * identical; however it may be desirable to implement, say, a 4-bit
-   * grayscale mode in the backend even if the scanner only supports
-   * 8-bit grayscale. In that case, the backend would to the reduction
-   * "on the fly", and output_depth would be 4, while scanner_depth is 8.
-   */
-
-  int color_mode;               /* Color/Gray/..., use MODE_* constants      */
-  int use_adf;                  /* Whether the ADF should be used or not.    */
-  int use_temp_file;            /* Whether to use a temp file for duplex.    */
-  int mirror;                   /* Whether to mirror scan area for rear side */
-  int lamp_color;               /* lamp color to use for monochrome scans    */
-  int green_offset;             /* color tuning - green scan line offset     */
-  int blue_offset;              /* color tuning - blue scan line offset      */
-
-
-
-  /* Derived values (calculated by calculateDerivedValues from the above)  */
-  /* --------------------------------------------------------------------- */
-
-  int rounded_top_left_x;       /* Same as topLeft... and bottomRight...,    */
-  int rounded_top_left_y;       /*   but "rounded" to the nearest 1/1200     */
-  int rounded_bottom_right_x;   /*   value, i.e. these are the values really */
-  int rounded_bottom_right_y;   /*   used for scanning.                      */
-  int top_margin;               /* Top margin in 1/1200 inch                 */
-  int left_margin;              /* Left margin in 1/1200 inch                */
-  int scan_width;               /* Width of scan in 1/1200 inch              */
-  int scan_height;              /* Height of scan in 1/1200 inch             */
-  int scan_width_pixels;        /* Pixels per scan line for this job         */
-  int scan_height_pixels;       /* Number of lines in this job               */
-  int bytes_per_scan_line;      /* Number of bytes per line in this job      */
-
-  /* Operational values (contain internal status information etc.)         */
-  /* --------------------------------------------------------------------- */
-
-  int default_pipe_r;           /* Pipe between reader process and backend.  */
-  int default_pipe_w;           /* Pipe between reader process and backend.  */
-  int duplex_pipe_r;            /* Additional pipe for duplex scans.         */
-  int duplex_pipe_w;            /* Additional pipe for duplex scans.         */
-  int reader_pid;               /* Process ID of the reader process.         */
-
-  int reverse;                  /* Whether to reverse the image. Not user    */
-  /* settable but required internally.         */
-
-  int i_transfer_length;        /* needed when the scanner returns           */
-  /* compressed data and size of return data   */
-  /* is unknown in advance */
-
-
-
-  /* This replaced the former "scanning" flag. object_count represents the
-   * number of objects acquired (or being acquired) by the scanner which
-   * haven't been read. Thus, an object_count of != 0 means the scanner is
-   * busy. If the scanner is scanning the first page, it's 1; if the scanner
-   * is scanning the second page of a duplex scan, it's 2.
-   */
-  int object_count;
-
-  /* This is set to "true" by sane_read when it encounters the end of a data
-   * stream.
-   */
-  int eof;
-
-  unsigned char *buffer;        /* Buffer used for SCSI transfers.           */
-  unsigned int scsi_buf_size;   /* Max amount of data in one SCSI call.      */
-
-  /** these can be set */
-
+  /*enhancement group*/
   int brightness;
   int threshold;
   int contrast;
+  int rif;
 
-  int bitorder;
-  int compress_type;
-  int compress_arg;
-  int vendor_id_code;
-  int gamma;
-  int outline;
-  int emphasis;
-  int auto_sep;
-  int mirroring;
-  int var_rate_dyn_thresh;
-  int white_level_follow;
-  int gradation;
-  int smoothing_mode;
-  int filtering;
-  int background;
-  int matrix2x2;
-  int matrix3x3;
-  int matrix4x4;
-  int matrix5x5;
-  int noise_removal;
-  int paper_orientation;
-  int paper_selection;
-  int paper_size;
-  int dtc_threshold_curve;
-  int dtc_selection;
+  /*ipc group*/
+  int gamma; /* not currently user settable */
 
-  int subwindow_list;
-  /***** end of "set window" terms *****/
-
+  /*advanced group*/
   int dropout_color;
+  int lamp_color;
+  int sleep_time;
+  int duplex_offset;
+  int blue_offset;
+  int green_offset;
+  int use_temp_file;
 
-  SANE_Bool use_imprinter;
-  int imprinter_direction;
-  SANE_Word imprinter_y_offset;
-  SANE_Char imprinter_string[max_imprinter_string_length];
-  int imprinter_ctr_init;
-  int imprinter_ctr_step;
-  int imprinter_ctr_dir;
+  /* --------------------------------------------------------------------- */
+  /* values which are derived from setting the options above */
+  /* the user never directly modifies these */
 
-  SANE_Int sleep_time;
+  /* this is defined in sane spec as a struct containing:
+	SANE_Frame format;
+	SANE_Bool last_frame;
+	SANE_Int lines;
+	SANE_Int depth; ( binary=1, gray=8, color=8 (!24) )
+	SANE_Int pixels_per_line;
+	SANE_Int bytes_per_line;
+  */
+  SANE_Parameters params;
+
+  /* --------------------------------------------------------------------- */
+  /* values which are set by scanning functions to keep track of pages, etc */
+  int started;
+  int img_count; /* how many 'sides' delivered */
+
+  /* how far we have read */
+  int bytes_rx[2];
+  int eof_rx[2];
+
+  /* how far we have written */
+  int bytes_tx[2];
+  int eof_tx[2];
+
+  int duplex_fd;
+  unsigned char *duplex_buffer;
+
+  /* --------------------------------------------------------------------- */
+  /* values which used by the command and data sending functions (scsi/usb)*/
+  int fd;                      /* The scanner device file descriptor.     */
+  unsigned char *buffer;
+  unsigned char rs_buffer[RS_return_size];
+
+  /* --------------------------------------------------------------------- */
+  /* values which are used by the get hardware status command              */
+  time_t last_ghs;
+
+  int hw_top;
+  int hw_A3;
+  int hw_B4;
+  int hw_A4;
+  int hw_B5;
+
+  int hw_hopper;
+  int hw_omr;
+  int hw_adf_open;
+
+  int hw_sleep;
+  int hw_send_sw;
+  int hw_manual_feed;
+  int hw_scan_sw;
+
+  int hw_function;
+
+  int hw_ink_empty;
+  int hw_double_feed;
+
+  int hw_error_code;
+  int hw_skew_angle;
+  int hw_ink_remain;
+
+  int hw_duplex_sw;
+  int hw_density_sw;
 };
 
-/** scan only front page */
-#define DUPLEX_FRONT 1
-/** scan only reverse page */
-#define DUPLEX_BACK  2
-/** scan both sides and return them in two different image acquisition operations */
-#define DUPLEX_BOTH  3
+#define CONNECTION_SCSI   0 /* SCSI interface */
+#define CONNECTION_USB    1 /* USB interface */
 
-#define MODEL_FORCE 0
-/** Fujitsu M3091DCd (300x600dpi, color, duplex, ADF-only) */
-#define MODEL_3091 1
-/** Fujitsu M3096 (400x400dpi grayscale, simplex, FB and optional ADF) */
-#define MODEL_3096 2
-/** 3093 */
-#define MODEL_3093 4
-/** 4097 */
-#define MODEL_4097 5
-/** fi-???? */
-#define MODEL_FI   6
-#define MODEL_3097 7
-/** Fujitsu M3092DCd (300x600dpi, color, duplex, FB and ADF) */
-#define MODEL_3092 8
-/** ScanPartner fi-4120 and ScanParter fi-4220 scsi/usb */
-#define MODEL_FI4x20   9
+#define SIDE_FRONT 0
+#define SIDE_BACK 1
 
-/* A note regarding the MODEL... constants. There's a place in
- * identifyScanner() where the INQUIRY data is parsed and the model
- * set accordingly. Now while there is, for example, only one 3091
- * model (called M3091DCd), there may be different sub-models (e.g.
- * the 1000abc and the 1000xyz).
- * 
- * It is suggested that a new MODEL... type be introduced for these if
- * there are significant differences in capability that have to be
- * treated differently in the backend. For example, if the "abc" model
- * has an optional ADF and the "xyz" model has the ADF built-in, we
- * don't need to distinguish these models, and it's sufficient to set
- * the "has_adf" variable accordingly.
- * 
- * The same would apply if two sub-models behave in the same way but
- * one of them is faster, or has some exotic extra capability that we
- * don't support anyway.
- *
- * If, on the other hand, one model supports a different resolution,
- * page size, different scan parameters and modes, and such, then it's
- * probably necessary to create a new MODEL... constant.
- * 
- * It may also be feasible to introduce a "subModel" member in the
- * structure above for those cases where subtle, but important,
- * differences exist - e.g. one model is 100% the same as another but
- * supports twice the resolution.
- */
+#define SOURCE_FLATBED 0
+#define SOURCE_ADF_FRONT 1
+#define SOURCE_ADF_BACK 2
+#define SOURCE_ADF_DUPLEX 3
 
-/** Black-and-White (Line Art) - depth always 1 */
-#define MODE_LINEART 1
-/** Black-and-White (Halftone) - depth always 1 */
-#define MODE_HALFTONE 2
-/** Grayscale */
-#define MODE_GRAYSCALE 3
-/** RGB Color */
-#define MODE_COLOR 4
-/** Binary RGB Color*/
-#define MODE_BIN_COLOR 5
-/** half-tones RGB Color*/
-#define MODE_HALFTONE_COLOR 6
+/* these are same as scsi data to make code easier */
+#define MODE_LINEART WD_comp_LA
+#define MODE_HALFTONE WD_comp_HT
+#define MODE_GRAYSCALE WD_comp_GS
+#define MODE_COLOR_LINEART WD_comp_CL
+#define MODE_COLOR_HALFTONE WD_comp_CH
+#define MODE_COLOR WD_comp_CG
 
+/* these are same as scsi data to make code easier */
+#define COLOR_DEFAULT MSEL_dropout_DEFAULT
+#define COLOR_RED MSEL_dropout_RED
+#define COLOR_GREEN MSEL_dropout_GREEN
+#define COLOR_BLUE MSEL_dropout_BLUE
+
+#define COLOR_INTERLACE_NONE 0
+#define COLOR_INTERLACE_3091 1
+#define COLOR_INTERLACE_BGR 2
+#define COLOR_INTERLACE_RRGGBB 3
+
+#define DUPLEX_INTERLACE_NONE 0 
+#define DUPLEX_INTERLACE_3091 1 
+
+#define GHS_TIME 1 /* seconds passed before calling GHS */
 /* ------------------------------------------------------------------------- */
 
 #define MM_PER_INCH    25.4
-#define length_quant SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
-#define mmToIlu(mm) ((mm) / length_quant)
-#define iluToMm(ilu) ((ilu) * length_quant)
+#define MM_PER_UNIT_UNFIX SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
+#define MM_PER_UNIT_FIX SANE_FIX(SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0)))
+
+#define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX(number * MM_PER_UNIT_UNFIX)
+#define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) / MM_PER_UNIT_UNFIX
+
 #define FUJITSU_CONFIG_FILE "fujitsu.conf"
-#define READ_MODE_PASS 1
-#define READ_MODE_RRGGBB 2
-#define READ_MODE_3091RGB 3
-#define READ_MODE_BGR 4
-
-
-#define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) * 1200 / MM_PER_INCH
-#define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX(number * MM_PER_INCH / 1200)
 
 #ifndef PATH_MAX
 #  define PATH_MAX 1024
@@ -441,7 +414,6 @@ struct fujitsu
 
 /* ------------------------------------------------------------------------- */
 
-
 SANE_Status sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize);
 
 SANE_Status sane_get_devices (const SANE_Device *** device_list,
@@ -453,7 +425,7 @@ SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking);
 
 SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fdp);
 
-const SANE_Option_Descriptor *sane_get_option_descriptor (SANE_Handle handle,
+const SANE_Option_Descriptor * sane_get_option_descriptor (SANE_Handle handle,
                                                           SANE_Int option);
 
 SANE_Status sane_control_option (SANE_Handle handle, SANE_Int option,
@@ -476,36 +448,42 @@ void sane_exit (void);
 
 /* ------------------------------------------------------------------------- */
 
-static void do_inquiry (struct fujitsu *s);
+static SANE_Status find_scanners (void);
 
-static SANE_Status attachScanner (const char *devicename,
-                                  struct fujitsu **devp);
+static SANE_Status attach_one_scsi (const char *name);
+static SANE_Status attach_one_usb (const char *name);
+static SANE_Status attach_one (const char *devicename, int connType);
 
-static SANE_Status scsi_sense_handler (int scsi_fd, u_char * result, void *arg);
+static SANE_Status connect_fd (struct fujitsu *s);
+static SANE_Status disconnect_fd (struct fujitsu *s);
 
-static int identify_scanner (struct fujitsu *s);
+static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg);
 
-static int
-do_cmd (Fujitsu_Connection_Type connection, int fd, unsigned char *cmd,
-             int cmd_len, unsigned char *out, size_t req_out_len,
-             size_t *res_out_len);
-
-static int do_scsi_cmd (int fd, unsigned char *cmd, int cmd_len,
-                        unsigned char *out, size_t req_out_len, 
-                        size_t *res_out_len);
-
-static int
-do_usb_cmd (int fd, unsigned char *cmd,
-             int cmd_len, unsigned char *out, size_t req_out_len,
-             size_t *res_out_len);
-
-static void hexdump (int level, char *comment, unsigned char *p, int l);
-
+static SANE_Status init_inquire (struct fujitsu *s);
+static SANE_Status init_vpd (struct fujitsu *s);
+static SANE_Status init_model (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
 
-static int grab_scanner (struct fujitsu *s);
+static SANE_Status
+do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
+ unsigned char * cmdBuff, int cmdLen, int cmdTime,
+ unsigned char * outBuff, int outLen, int outTime,
+ unsigned char * inBuff, int inLen, int inTime
+);
 
-static int free_scanner (struct fujitsu *s);
+static SANE_Status
+do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
+ unsigned char * cmdBuff, int cmdLen, int cmdTime,
+ unsigned char * outBuff, int outLen, int outTime,
+ unsigned char * inBuff, int inLen, int inTime
+);
+
+static SANE_Status
+do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
+ unsigned char * cmdBuff, int cmdLen, int cmdTime,
+ unsigned char * outBuff, int outLen, int outTime,
+ unsigned char * inBuff, int inLen, int inTime
+);
 
 static int wait_scanner (struct fujitsu *s);
 
@@ -513,71 +491,36 @@ static int object_position (struct fujitsu *s, int i_load);
 
 static SANE_Status do_cancel (struct fujitsu *scanner);
 
-static SANE_Status do_reset (struct fujitsu *scanner);
+static SANE_Status scanner_control (struct fujitsu *s, int function);
 
-/*static int objectDischarge (struct fujitsu *s);*/
+static SANE_Status mode_select_dropout(struct fujitsu *s);
 
-static int fujitsu_set_sleep_mode(struct fujitsu *s);
+static SANE_Status set_sleep_mode(struct fujitsu *s);
 
-static int set_mode_params (struct fujitsu *s);
+int get_current_side (struct fujitsu *s);
 
-static int imprinter(struct fujitsu *s);
-
-static int fujitsu_send(struct fujitsu *s);
-
-static int setWindowParam (struct fujitsu *s);
-
-static size_t maxStringSize (const SANE_String_Const strings[]);
+static int set_window (struct fujitsu *s);
 
 static int start_scan (struct fujitsu *s);
 
-static int reader_process (void *scanner);
+static SANE_Status read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
-static unsigned int reader3091ColorDuplex (struct fujitsu *scanner, FILE * fd,
-                                           FILE * fd2);
-static unsigned int reader3091ColorSimplex (struct fujitsu *scanner,
-                                            FILE * fd);
-static unsigned int reader3091GrayDuplex (struct fujitsu *scanner, FILE * fd,
-                                          FILE * fd2);
-static void convert_bgr_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
+static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
-static void convert_rrggbb_to_rgb(struct fujitsu *scanner, unsigned char * buffptr, unsigned int length);
+static SANE_Status convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buffptr, unsigned int length);
 
-static unsigned int reader_gray_duplex_sequential (struct fujitsu *scanner,
-                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_gray_duplex_alternate (struct fujitsu *scanner,
-                                                  FILE * fd, FILE * fd2);
+static SANE_Status convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buffptr, unsigned int length);
 
-static unsigned int reader_duplex_sequential (struct fujitsu *scanner,
-                                                   FILE * fd, FILE * fd2);
-static unsigned int reader_duplex_alternate (struct fujitsu *scanner,
-                                                  FILE * fd, FILE * fd2);
-static unsigned int reader_simplex (struct fujitsu *scanner, FILE * fd, 
-					int i_window_id);
-
-static unsigned int reader_generic_passthrough (struct fujitsu *scanner,
-                                                FILE * fd, int i_window_id);
-
-static int read_large_data_block (struct fujitsu *s,
-                                  unsigned char *buffer, unsigned int length,
-                                  int i_window_id, 
-                                  unsigned int *i_data_read);
-
-static SANE_Status attachOne (const char *name);
-
-static int modelMatch (const char *product);
-
-static void setDefaults3091 (struct fujitsu *scanner);
-static void setDefaults3096 (struct fujitsu *scanner);
-
-static SANE_Status setMode3091 (struct fujitsu *scanner, int mode);
-static SANE_Status setMode3096 (struct fujitsu *scanner, int mode);
+static SANE_Status convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length);
 
 static void calculateDerivedValues (struct fujitsu *scanner);
 
-static int makeTempFile (void);
-static SANE_Status get_hardware_status (struct fujitsu *s);
-static void fujitsu_set_standard_size (SANE_Handle handle);
+static SANE_Status setup_duplex_buffer (struct fujitsu *s);
 
+static SANE_Status get_hardware_status (struct fujitsu *s);
+
+static void hexdump (int level, char *comment, unsigned char *p, int l);
+
+static size_t maxStringSize (const SANE_String_Const strings[]);
 
 #endif /* FUJITSU_H */

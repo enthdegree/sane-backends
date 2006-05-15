@@ -1,3 +1,9 @@
+2006-05-15  Stéphane Voltz <stefdev@modulonet.fr> 
+
+        * backend/genesys_devices.c backend/genesys_gl646.c: tuned HP 2300
+	  geometry description and added a safeguard against failed origin
+	  detection
+
 2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
 	* backend/fujitsu*: rewritten backend, supports many more scanners
 	  with much better usb support and less model-specific code.

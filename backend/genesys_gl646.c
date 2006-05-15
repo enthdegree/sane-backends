@@ -2729,9 +2729,9 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   if (channels > 1)
     {
       max_shift = dev->model->ld_shift_r;
-      if (dev->model->ld_shift_b > max_shift)
+      if ((unsigned int)dev->model->ld_shift_b > max_shift)
 	max_shift = dev->model->ld_shift_b;
-      if (dev->model->ld_shift_g > max_shift)
+      if ((unsigned int)dev->model->ld_shift_g > max_shift)
 	max_shift = dev->model->ld_shift_g;
       max_shift =
 	(max_shift * dev->settings.yres) / dev->motor.base_ydpi;
@@ -2947,6 +2947,13 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
 
   move += (SANE_UNFIX (dev->model->y_offset) * move_dpi) / MM_PER_INCH;
+  if (move < 0)
+    {
+      DBG (DBG_error,
+	   "gl646_init_regs_for_scan: overriding negative move value %d\n",
+	   move);
+      move = 1;
+    }
   DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
 
   /* add tl_y to base movement */

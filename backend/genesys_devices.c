@@ -539,9 +539,9 @@ static Genesys_Model hp2300c_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (-2.0),		/* Start of scan area in mm (x_offset) */
-  SANE_FIX (-2.0),		/* Start of scan area in mm (y_offset) */
+  SANE_FIX (0.0),		/* Start of scan area in mm (y_offset) */
   SANE_FIX (215.9),		/* Size of scan area in mm (x) */
-  SANE_FIX (297.1),		/* Size of scan area in mm (y) */
+  SANE_FIX (295.0),		/* Size of scan area in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in mm (y) */
   SANE_FIX (1.0),		/* Start of black mark in mm (x) */

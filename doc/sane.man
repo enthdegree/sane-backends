@@ -239,8 +239,8 @@ flatbed scanners. See
 for details.
 .TP
 .B fujitsu
-The fujitsu backend provides support for Fujitsu 3091, 3093, 3096 and
-fi-4340 SCSI scanners. See
+The fujitsu backend provides support for most Fujitsu SCSI and USB, flatbed
+and adf scanners. See
 .BR sane-fujitsu (5)
 for details.
 .TP

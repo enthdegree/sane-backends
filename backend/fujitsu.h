@@ -465,24 +465,24 @@ static SANE_Status init_model (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
 
 static SANE_Status
-do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 );
 
 static SANE_Status
-do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 );
 
 static SANE_Status
-do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 );
 
 static int wait_scanner (struct fujitsu *s);

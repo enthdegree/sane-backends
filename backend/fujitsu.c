@@ -154,6 +154,10 @@
       V 1.0.23 2006-05-14, MAN
          - initial attempt to recover duplex mode
          - fix bad usb prodID when config file missing
+      V 1.0.24 2006-05-17, MAN
+         - sane_read must set len=0 when return != good
+         - simplify do_cmd() calls by removing timeouts
+         - lengthen most timeouts, shorten those for wait_scanner()
 
    SANE FLOW DIAGRAM
 
@@ -214,7 +218,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 22
+#define FUJITSU_V_POINT 24
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -651,10 +655,10 @@ init_inquire (struct fujitsu *s)
   set_IN_page_code (inquiryB.cmd, 0);
  
   ret = do_cmd (
-    s, 0, 0, 1,
-    inquiryB.cmd, inquiryB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    s->buffer, 96, USB_DATA_TIME
+    s, 0, 0, 1, 0, 
+    inquiryB.cmd, inquiryB.size,
+    NULL, 0,
+    s->buffer, 96
   );
 
   if (ret != SANE_STATUS_GOOD){
@@ -716,10 +720,10 @@ init_vpd (struct fujitsu *s)
   set_IN_page_code (inquiryB.cmd, 0xf0);
 
   ret = do_cmd (
-    s, 0, 0, 1,
-    inquiryB.cmd, inquiryB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    s->buffer, 0x64, USB_DATA_TIME
+    s, 0, 0, 1, 0,
+    inquiryB.cmd, inquiryB.size,
+    NULL, 0,
+    s->buffer, 0x64
   );
 
   /* This scanner supports vital product data.
@@ -2551,10 +2555,10 @@ set_sleep_mode(struct fujitsu *s)
   set_MSEL_sleep_mode(mode_select_sleepB.cmd, s->sleep_time);
 
   ret = do_cmd (
-    s, 0, 0, 1,
-    mode_selectB.cmd, mode_selectB.size, USB_COMMAND_TIME,
-    mode_select_sleepB.cmd, mode_select_sleepB.size, USB_DATA_TIME,
-    NULL, 0, 0
+    s, 0, 0, 1, 0,
+    mode_selectB.cmd, mode_selectB.size,
+    mode_select_sleepB.cmd, mode_select_sleepB.size,
+    NULL, 0
   );
 
   DBG (10, "set_sleep_mode: finish\n");
@@ -2577,10 +2581,10 @@ get_hardware_status (struct fujitsu *s)
           set_HW_allocation_length (hw_statusB.cmd, 10);
         
           ret = do_cmd (
-            s, 0, 0, 1,
-            hw_statusB.cmd, hw_statusB.size, USB_COMMAND_TIME,
-            NULL, 0, 0,
-            s->buffer, 10, USB_DATA_TIME
+            s, 0, 0, 1, 0,
+            hw_statusB.cmd, hw_statusB.size,
+            NULL, 0,
+            s->buffer, 10
           );
         
           if (ret == SANE_STATUS_GOOD) {
@@ -2622,10 +2626,10 @@ get_hardware_status (struct fujitsu *s)
           DBG(15,"get_hardware_status: calling rs\n");
 
           ret = do_cmd(
-            s,0,0,0,
-            request_senseB.cmd, request_senseB.size, USB_COMMAND_TIME,
-            NULL,0,0,
-            (unsigned char *)s->buffer,RS_return_size,USB_DATA_TIME
+            s,0,0,0,0,
+            request_senseB.cmd, request_senseB.size,
+            NULL,0,
+            (unsigned char *)s->buffer,RS_return_size
           );
     
           /* parse the rs data */
@@ -2665,10 +2669,10 @@ mode_select_dropout (struct fujitsu *s)
   set_MSEL_dropout_back (mode_select_dropoutB.cmd, s->dropout_color);
   
   ret = do_cmd (
-      s, 0, 0, 1,
-      mode_selectB.cmd, mode_selectB.size, USB_COMMAND_TIME,
-      mode_select_dropoutB.cmd, mode_select_dropoutB.size, USB_DATA_TIME,
-      NULL, 0, 0
+      s, 0, 0, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_dropoutB.cmd, mode_select_dropoutB.size,
+      NULL, 0
   );
 
   DBG (10, "mode_select_dropout: finish\n");
@@ -2975,10 +2979,10 @@ scanner_control (struct fujitsu *s, int function)
 
   /* notice extremely long retry period */
   ret = do_cmd (
-    s, 30, 10, 1,
-    scanner_controlB.cmd, scanner_controlB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    NULL, 0, 0
+    s, 30, 10, 1, 0,
+    scanner_controlB.cmd, scanner_controlB.size,
+    NULL, 0,
+    NULL, 0
   );
 
   DBG (10, "scanner_control: finish\n");
@@ -3172,10 +3176,10 @@ set_window (struct fujitsu *s)
   set_SW_xferlen(set_windowB.cmd,bufferLen);
 
   ret = do_cmd (
-    s, 3, 1, 1,
-    set_windowB.cmd, set_windowB.size, USB_COMMAND_TIME,
-    buffer, bufferLen, USB_DATA_TIME,
-    NULL, 0, 0
+    s, 3, 1, 1, 0,
+    set_windowB.cmd, set_windowB.size,
+    buffer, bufferLen,
+    NULL, 0
   );
 
   DBG (10, "set_window: finish\n");
@@ -3207,10 +3211,10 @@ object_position (struct fujitsu *s, int i_load)
   }
 
   ret = do_cmd (
-    s, 0, 0, 1,
-    object_positionB.cmd, object_positionB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    NULL, 0, 0
+    s, 0, 0, 1, 0,
+    object_positionB.cmd, object_positionB.size,
+    NULL, 0,
+    NULL, 0
   );
   if (ret != SANE_STATUS_GOOD)
     return ret;
@@ -3250,10 +3254,10 @@ start_scan (struct fujitsu *s)
   set_SC_xfer_length (scanB.cmd, outLen);
 
   ret = do_cmd (
-    s, 0, 0, 1,
-    scanB.cmd, scanB.size, USB_COMMAND_TIME,
-    (unsigned char *)&outBuff, outLen, USB_DATA_TIME,
-    NULL, 0, 0
+    s, 0, 0, 1, 0,
+    scanB.cmd, scanB.size,
+    (unsigned char *)&outBuff, outLen,
+    NULL, 0
   );
 
   DBG (10, "start_scan: finish\n");
@@ -3284,6 +3288,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   DBG (10, "sane_read: start\n");
 
+  *len=0;
+
   /* maybe cancelled? */
   if(!s->started){
       DBG (5, "sane_read: not started, call sane_start\n");
@@ -3294,7 +3300,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* sane_start required between sides */
   if(s->eof_rx[side] && s->eof_tx[side]){
-      DBG (5, "sane_read: already have eof, call sane_start\n");
+      DBG (15, "sane_read: returning eof\n");
       return SANE_STATUS_EOF;
   }
 
@@ -3318,9 +3324,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     }
   }
 
-  /* we are about to transmit EOF */
+  /* we are about to transmit last bytes for this side */
+  /* but sane standard says status_eof be returned */
+  /* only with 0 bytes, so we return that next pass */
   if(ret == SANE_STATUS_EOF){
     s->eof_tx[side] = 1;
+    ret = SANE_STATUS_GOOD;
   }
 
   /* scanners interlace colors in many different ways */
@@ -3368,8 +3377,6 @@ read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 
   DBG (10, "read_from_scanner: start\n");
 
-  *len = 0;
-
   /* figure out the max amount to transfer */
   if(bytes > max_len){
     bytes = max_len;
@@ -3401,10 +3408,10 @@ read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int
   set_R_xfer_length (readB.cmd, bytes);
 
   ret = do_cmd (
-    s, 15, 10, 1,
-    readB.cmd, readB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    buf, bytes, USB_DATA_TIME*3
+    s, 15, 10, 1, 0,
+    readB.cmd, readB.size,
+    NULL, 0,
+    buf, bytes
   );
 
   if (ret == SANE_STATUS_GOOD) {
@@ -3444,8 +3451,6 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int 
   int remain = s->bytes_rx[side] - s->bytes_tx[side];
 
   DBG (10, "read_from_buffer: start\n");
-
-  *len = 0;
 
   /* figure out the max amount to transfer */
   if(bytes > remain){
@@ -3874,32 +3879,32 @@ sense_handler (int scsi_fd, unsigned char * sensed_data, void *arg)
  * we also dump lots of debug info to stderr
  */
 static SANE_Status
-do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 )
 {
     if (s->connection == CONNECTION_SCSI) {
-        return do_scsi_cmd(s, busyRetry, busySleep, runRS,
-                 cmdBuff, cmdLen, cmdTime,
-                 outBuff, outLen, outTime,
-                 inBuff, inLen, inTime);
+        return do_scsi_cmd(s, busyRetry, busySleep, runRS, shortTime,
+                 cmdBuff, cmdLen,
+                 outBuff, outLen,
+                 inBuff, inLen);
     }
     if (s->connection == CONNECTION_USB) {
-        return do_usb_cmd(s, busyRetry, busySleep, runRS,
-                 cmdBuff, cmdLen, cmdTime,
-                 outBuff, outLen, outTime,
-                 inBuff, inLen, inTime);
+        return do_usb_cmd(s, busyRetry, busySleep, runRS, shortTime,
+                 cmdBuff, cmdLen,
+                 outBuff, outLen,
+                 inBuff, inLen);
     }
     return SANE_STATUS_INVAL;
 }
 
 SANE_Status
-do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 )
 {
   int ret;
@@ -3907,9 +3912,7 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
 
   /*shut up compiler*/
   runRS=runRS;
-  cmdTime=cmdTime;
-  outTime=outTime;
-  inTime=inTime;
+  shortTime=shortTime;
 
   DBG(10, "do_scsi_cmd: start\n");
 
@@ -3935,15 +3938,15 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
     if(busyRetry){
         DBG (30, "do_scsi_cmd: retrying\n");
         usleep(busySleep*100000);
-        return do_cmd(s,busyRetry-1,busySleep,runRS,
-          cmdBuff,cmdLen,cmdTime,
-          outBuff,outLen,outTime,
-          inBuff,inLen,inTime
+        return do_cmd(s,busyRetry-1,busySleep,runRS,shortTime,
+          cmdBuff,cmdLen,
+          outBuff,outLen,
+          inBuff,inLen
         );
     }
 
     /* out of retries, still busy? */
-    DBG (30, "do_usb_cmd: out of retries, but still busy\n");
+    DBG (30, "do_scsi_cmd: out of retries, but still busy\n");
     return SANE_STATUS_DEVICE_BUSY;
   }
 
@@ -3963,10 +3966,10 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
 }
 
 SANE_Status
-do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
- unsigned char * cmdBuff, int cmdLen, int cmdTime,
- unsigned char * outBuff, int outLen, int outTime,
- unsigned char * inBuff, int inLen, int inTime
+do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+ unsigned char * cmdBuff, int cmdLen,
+ unsigned char * outBuff, int outLen,
+ unsigned char * inBuff, int inLen
 )
 {
     unsigned char usb_cmdBuff[USB_COMMAND_LEN];
@@ -3983,7 +3986,19 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
     int rsRetVal = 0;
     SANE_Status ret = SANE_STATUS_GOOD;
 
+    int cmdTime = USB_COMMAND_TIME;
+    int outTime = USB_DATA_TIME;
+    int inTime = USB_DATA_TIME;
+    int statTime = USB_STATUS_TIME;
+
     DBG (10, "do_usb_cmd: start\n");
+
+    if(shortTime){
+        cmdTime = USB_COMMAND_TIME/20;
+        outTime = USB_DATA_TIME/20;
+        inTime = USB_DATA_TIME/20;
+        statTime = USB_STATUS_TIME/20;
+    }
 
     hexdump(30, "cmd >>", cmdBuff, cmdLen);
 
@@ -4065,7 +4080,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
     memset(&usb_statBuff,0,USB_STATUS_LEN);
 
     /* sanei_usb timeout is way too long */
-    sanei_usb_set_timeout(USB_STATUS_TIME);
+    sanei_usb_set_timeout(statTime);
 
     DBG(30, "reading %u bytes\n", (unsigned int) USB_STATUS_LEN);
     statRetVal = sanei_usb_read_bulk(s->fd, (unsigned char *)&usb_statBuff, (unsigned int *)&usb_statLen);
@@ -4096,10 +4111,10 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
   
         DBG(30,"rs sub call >>\n");
         rsRetVal = do_cmd(
-          s,0,0,0,
-          request_senseB.cmd, request_senseB.size, USB_COMMAND_TIME,
-          NULL,0,0,
-          (unsigned char *)&rsBuff,RS_return_size,USB_DATA_TIME
+          s,0,0,0,0,
+          request_senseB.cmd, request_senseB.size,
+          NULL,0,
+          (unsigned char *)&rsBuff,RS_return_size
         );
         DBG(30,"rs sub call <<\n");
   
@@ -4123,10 +4138,10 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS,
       if(busyRetry){
         DBG (30, "do_usb_cmd: retrying\n");
         usleep(busySleep*100000);
-        return do_cmd(s,busyRetry-1,busySleep,runRS,
-          cmdBuff,cmdLen,cmdTime,
-          outBuff,outLen,outTime,
-          inBuff,inLen,inTime
+        return do_cmd(s,busyRetry-1,busySleep,runRS,shortTime,
+          cmdBuff,cmdLen,
+          outBuff,outLen,
+          inBuff,inLen
         );
       }
 
@@ -4148,28 +4163,28 @@ wait_scanner(struct fujitsu *s)
   DBG (10, "wait_scanner: start\n");
 
   ret = do_cmd (
-    s, 0, 0, 1,
-    test_unit_readyB.cmd, test_unit_readyB.size, USB_COMMAND_TIME,
-    NULL, 0, 0,
-    NULL, 0, 0
+    s, 0, 0, 0, 1,
+    test_unit_readyB.cmd, test_unit_readyB.size,
+    NULL, 0,
+    NULL, 0
   );
   
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
     ret = do_cmd (
-      s, 0, 0, 1,
-      test_unit_readyB.cmd, test_unit_readyB.size, USB_COMMAND_TIME,
-      NULL, 0, 0,
-      NULL, 0, 0
+      s, 0, 0, 0, 1,
+      test_unit_readyB.cmd, test_unit_readyB.size,
+      NULL, 0,
+      NULL, 0
     );
   }
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again\n");
     ret = do_cmd (
-      s, 0, 0, 1,
-      test_unit_readyB.cmd, test_unit_readyB.size, USB_COMMAND_TIME,
-      NULL, 0, 0,
-      NULL, 0, 0
+      s, 0, 0, 0, 1,
+      test_unit_readyB.cmd, test_unit_readyB.size,
+      NULL, 0,
+      NULL, 0
     );
   }
 

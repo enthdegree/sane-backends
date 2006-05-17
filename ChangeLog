@@ -1,15 +1,23 @@
+2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: sane_read() - only send EOF with len=0
+	  do_cmd() - simplify timeout handling
+	* backend/fujitsu-scsi.h: increase default timeoutes
+
 2006-05-15  Stéphane Voltz <stefdev@modulonet.fr> 
 
-        * backend/genesys_devices.c backend/genesys_gl646.c: tuned HP 2300
+	* backend/genesys_devices.c backend/genesys_gl646.c: tuned HP 2300
 	  geometry description and added a safeguard against failed origin
 	  detection
 
 2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
+
 	* backend/fujitsu*: rewritten backend, supports many more scanners
 	  with much better usb support and less model-specific code.
 	* doc/sane-fujitsu.man: updated to match new backend.
 
 2006-05-12  m. allan noah <anoah AT pfeiffer DOT edu>
+
 	* doc/descriptions/fujitsu.desc: updated with all known scanners
 	  by fujitsu. Most now supported as 'basic'.
 

@@ -1,3 +1,7 @@
+2006-05-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* README: Updated concerning USB permissions.
+
 2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c: sane_read() - only send EOF with len=0

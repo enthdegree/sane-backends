@@ -629,19 +629,19 @@
 ;********************************************************************************************
 
 :mfg "Fujitsu"
-:url "http://www.fujitsu.ca/"
+:url "http://www.fujitsu.com/"
 
 :model "fi-4010C"
 :interface "USB"
 :usbid "0x04c5" "0x1029"
 :status :unsupported
-:comment "Unsupported. Maybe similar to fi-4220C?"
+:comment "Unsupported. Unknown chipset."
 
 :model "fi-4110CU"
 :interface "USB"
 :usbid "0x04c5" "0x1033"
 :status :unsupported
-:comment "Unsupported. Maybe similar to fi-4220C?"
+:comment "Unsupported. Unknown chipset (perhaps ma1509?)."
 
 :model "fi-4110EOX2"
 :interface "USB"

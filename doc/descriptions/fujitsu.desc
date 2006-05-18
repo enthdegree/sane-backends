@@ -46,13 +46,13 @@
 ; DISCONTINUED NEWER MODELS, PERSONAL
 :model "fi-4120C"
 :interface "SCSI USB"
-:usbid "0x04c5" "0x1042"
+:usbid "0x04c5" "0x1041"
 :status :basic
 :comment "workgroup, newer, discontinued"
 
 :model "fi-4220C"
 :interface "SCSI USB"
-:usbid "0x04c5" "0x1041"
+:usbid "0x04c5" "0x1042"
 :status :basic
 :comment "workgroup, newer, discontinued"
 
@@ -92,7 +92,6 @@
 :model "fi-5110EOX"
 :interface "USB"
 :status :basic
-:usbid "0x04c5" "0x1097"
 :comment "workgroup, newer, discontinued"
 
 :model "fi-5110EOX2"
@@ -124,6 +123,7 @@
 :model "fi-5110C"
 :interface "USB"
 :status :basic
+:usbid "0x04c5" "0x1097"
 :comment "workgroup, current"
 
 :model "fi-5120C"

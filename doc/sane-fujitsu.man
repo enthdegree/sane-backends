@@ -85,10 +85,11 @@ backend.
 .ft CR
 .nf
 UNSUPPORTED SCANNERS:
+--------------------------------------
 SCSI:        SERIAL:      USB:
 ------------ ------------ ------------
 ScanStation  M3093E/DE/EX fi-4110EOX2
-ScanPartner  M3096EX
+ScanPartner  M3096EX      fi-4010CU
 SP-Jr        M3097E+/DE
 SP-10/10C    M3099A/EH/EX 
 SP-15C/300C

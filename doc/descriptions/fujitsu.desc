@@ -47,30 +47,29 @@
 :model "fi-4120C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1041"
-:status :basic
+:status :good
 :comment "workgroup, newer, discontinued"
 
 :model "fi-4220C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1042"
-:status :basic
+:status :good
 :comment "workgroup, newer, discontinued"
 
 :model "fi-4120C2"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10ae"
-:status :basic
+:status :good
 :comment "workgroup, newer, discontinued"
 
 :model "fi-4220C2"
 :interface "SCSI USB"
-:status :basic
+:status :good
 :comment "workgroup, newer, discontinued"
 
 :model "fi-4010C"
 :interface "USB"
 :status :untested
-:usbid "0x04c5" "0x1029"
 :comment "workgroup, newer, discontinued, unknown chipset, perhaps non-fujitsu"
 
 :model "fi-4110CU"
@@ -112,8 +111,9 @@
 
 :model "fi-4010CU"
 :interface "USB"
-:status :untested
-:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
+:status :unsupported
+:usbid "0x04c5" "0x1029"
+:comment "workgroup, current, Avision chipset?"
 
 :model "fi-5110EOXM"
 :interface "USB"
@@ -122,19 +122,19 @@
 
 :model "fi-5110C"
 :interface "USB"
-:status :basic
+:status :good
 :usbid "0x04c5" "0x1097"
 :comment "workgroup, current"
 
 :model "fi-5120C"
 :interface "SCSI USB"
-:status :basic
+:status :good
 :usbid "0x04c5" "0x10e0"
 :comment "workgroup, current"
 
 :model "fi-5220C"
 :interface "SCSI USB"
-:status :basic
+:status :good
 :comment "workgroup, current"
 
 :model "ScanPartner 15C/620C"

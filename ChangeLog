@@ -1,6 +1,8 @@
 2006-05-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Updated concerning USB permissions.
+	* doc/descriptions-external/pixma.desc: Added some models (from
+	  Wittawat Yamwong <wy-sane-devel@arcor.de>). 
 
 2006-05-14  m. allan noah <anoah AT pfeiffer DOT edu>
 

@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-;:version "0.42"                  ; version of backend (or "unmaintained")
+:version "0.11.0"                 ; version of backend (or "unmaintained")
 ;:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 ;:manpage ""                      ; name of manpage (if it exists)
@@ -37,13 +37,37 @@
 :model "PIXMA MP450"
 :interface "USB"
 :usbid "0x04a9" "0x170b"
-:status :untested
-:comment "Should work but is untested."
+:status :basic
+:comment "Scanner makes loud noise at 600 DPI."
 
 :model "PIXMA MP500"
 :interface "USB"
 :usbid "0x04a9" "0x170c"
-:status :untested
-:comment "Should work but is untested."
+:status :basic
 
+:model "imageCLASS MP730"
+:interface "USB"
+:usbid "0x04a9" "0x262f"
+:status :minimal
+
+:model "PIXMA MP750"
+:interface "USB"
+:usbid "0x04a9" "0x1706"
+:status :untested
+
+:model "PIXMA MP760"
+:interface "USB"
+:usbid "0x04a9" "0x1708"
+:status :untested
+
+:model "PIXMA MP780"
+:interface "USB"
+:usbid "0x04a9" "0x1707"
+:status :minimal
+:comment "Scanner hangs when cancel while it scans."
+
+:model "PIXMA MP830"
+:interface "USB"
+:usbid "0x04a9" "0x1713"
+:status :minimal
 

@@ -158,6 +158,11 @@
          - sane_read must set len=0 when return != good
          - simplify do_cmd() calls by removing timeouts
          - lengthen most timeouts, shorten those for wait_scanner()
+      V 1.0.25 2006-05-19, MAN
+         - rename scsi-buffer-size to buffer-size, usb uses it too
+         - default buffer-size increased to 64k
+         - use sanei_scsi_open_extended() to set buffer size
+         - fix some compiler warns: 32&64 bit gcc
 
    SANE FLOW DIAGRAM
 
@@ -218,7 +223,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 24
+#define FUJITSU_V_POINT 25
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -247,14 +252,14 @@ static const char color_Blue[] = "Blue";
 static const char color_Default[] = "Default";
 
 /* Also set via config file. */
-static int scsiBuffer = 64 * 1024;
+static int global_buffer_size = 64 * 1024;
 
 /*
  * used by attach* and sane_get_devices
  * a ptr to a null term array of ptrs to SANE_Device structs
  * a ptr to a single-linked list of fujitsu structs
  */
-static struct SANE_Device **sane_devArray = NULL;
+static const SANE_Device **sane_devArray = NULL;
 static struct fujitsu *fujitsu_devList = NULL;
 
 /*
@@ -290,9 +295,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, FUJITSU_V_POINT);
 
   DBG (5, "sane_init: backend version %d.%d.%d\n", V_MAJOR, V_MINOR, FUJITSU_V_POINT);
-
-  if(scsiBuffer > sanei_scsi_max_request_size)
-    scsiBuffer = sanei_scsi_max_request_size;
 
   DBG (10, "sane_init: finish\n");
 
@@ -359,6 +361,9 @@ find_scanners ()
 
   DBG (10, "find_scanners: start\n");
 
+  /* set this to 64K before reading the file */
+  global_buffer_size = 64 * 1024;
+
   fp = sanei_config_open (FUJITSU_CONFIG_FILE);
 
   if (fp) {
@@ -388,23 +393,24 @@ find_scanners ()
               lp = sanei_config_skip_whitespace (lp);
     
               /* we allow setting buffersize too big */
-              if ((strncmp (lp, "scsi-buffer-size", 16) == 0) && isspace (lp[16])) {
+              if ((strncmp (lp, "buffer-size", 11) == 0) && isspace (lp[11])) {
     
                   int buf;
-                  lp += 16;
+                  lp += 11;
                   lp = sanei_config_skip_whitespace (lp);
                   buf = atoi (lp);
     
                   if (buf < 4096) {
-                    DBG (5, "find_scanners: config option \"scsi-buffer-size\" (%d) is < 4096, ignoring!\n", buf);
+                    DBG (5, "find_scanners: config option \"buffer-size\" (%d) is < 4096, ignoring!\n", buf);
                     continue;
                   }
     
-                  if (buf > sanei_scsi_max_request_size) {
-                    DBG (5, "find_scanners: config option \"scsi-buffer-size\" (%d) is > %d, warning!\n", buf, sanei_scsi_max_request_size);
+                  if (buf > 64*1024) {
+                    DBG (5, "find_scanners: config option \"buffer-size\" (%d) is > %d, warning!\n", buf, 64*1024);
                   }
     
-                  scsiBuffer = buf;
+                  DBG (15, "find_scanners: setting \"buffer-size\" to %d\n", buf);
+                  global_buffer_size = buf;
               }
               else {
                   DBG (5, "find_scanners: config option \"%s\" unrecognized - ignored.\n", lp);
@@ -459,7 +465,7 @@ find_scanners ()
     return SANE_STATUS_NO_MEM;
 
   for (dev = fujitsu_devList; dev; dev=dev->next) {
-    sane_devArray[i++] = &dev->sane;
+    sane_devArray[i++] = (SANE_Device *)&dev->sane;
   }
 
   sane_devArray[i] = 0;
@@ -506,8 +512,8 @@ attach_one (const char *device_name, int connType)
     return SANE_STATUS_NO_MEM;
 
   /* scsi command/data buffer */
-  s->scsi_buf_size = scsiBuffer;
-  if ((s->buffer = calloc (s->scsi_buf_size, 1)) == NULL){
+  s->buffer_size = global_buffer_size;
+  if ((s->buffer = calloc (s->buffer_size, 1)) == NULL){
     free (s);
     return SANE_STATUS_NO_MEM;
   }
@@ -601,6 +607,7 @@ static SANE_Status
 connect_fd (struct fujitsu *s)
 {
   SANE_Status ret;
+  int buffer_size = s->buffer_size;
 
   DBG (10, "connect_fd: start\n");
 
@@ -614,7 +621,11 @@ connect_fd (struct fujitsu *s)
   }
   else {
     DBG (15, "connect_fd: opening SCSI device\n");
-    ret = sanei_scsi_open (s->device_name, &(s->fd), sense_handler, s);
+    ret = sanei_scsi_open_extended (s->device_name, &(s->fd), sense_handler, s, &s->buffer_size);
+    if(ret == SANE_STATUS_GOOD && buffer_size != s->buffer_size){
+      DBG (5, "connect_fd: cannot get requested buffer size (%d/%d)\n", buffer_size, s->buffer_size);
+      ret = SANE_STATUS_NO_MEM;
+    }
   }
 
   if(ret == SANE_STATUS_GOOD){
@@ -630,7 +641,7 @@ connect_fd (struct fujitsu *s)
 
   }
   else{
-    DBG (5, "connect_fd: could not open device\n");
+    DBG (5, "connect_fd: could not open device: %d\n", ret);
   }
 
   DBG (10, "connect_fd: finish\n");
@@ -1691,7 +1702,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "One-pass color scanners read three colors; only one of them is used in non-color scanning. Sometimes useful for colored paper or ink.";
     opt->type = SANE_TYPE_STRING;
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
-    opt->constraint.string_list = &s->do_color_list;
+    opt->constraint.string_list = s->do_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
     if ((s->has_MS_dropout || s->has_SW_dropout) && s->mode != MODE_COLOR)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
@@ -3315,7 +3326,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
     /* fill back side buffer */
     if(!s->eof_rx[SIDE_BACK]){
-      ret2 = read_from_scanner(s, s->duplex_buffer+s->bytes_rx[SIDE_BACK], s->scsi_buf_size, &len2, SIDE_BACK);
+      ret2 = read_from_scanner(s, s->duplex_buffer+s->bytes_rx[SIDE_BACK], s->buffer_size, &len2, SIDE_BACK);
     }
 
     /* we are looking at back side, copy buffer */
@@ -3372,7 +3383,7 @@ static SANE_Status
 read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = s->scsi_buf_size;
+  int bytes = s->buffer_size;
   int remain = (s->params.bytes_per_line * s->params.lines) - s->bytes_rx[side];
 
   DBG (10, "read_from_scanner: start\n");
@@ -3390,11 +3401,11 @@ read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int
 
   /* this should never happen */
   if(bytes < 1){
-    DBG(5, "read_from_scanner: ERROR side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->scsi_buf_size, bytes, s->bytes_rx[side]);
+    DBG(5, "read_from_scanner: ERROR side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->buffer_size, bytes, s->bytes_rx[side]);
     return SANE_STATUS_INVAL;
   }
 
-  DBG(15, "read_from_scanner: side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->scsi_buf_size, bytes, s->bytes_rx[side]);
+  DBG(15, "read_from_scanner: side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->buffer_size, bytes, s->bytes_rx[side]);
 
   set_R_datatype_code (readB.cmd, R_datatype_imagedata);
 
@@ -3462,11 +3473,11 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int 
 
   /* this should never happen */
   if(bytes < 1){
-    DBG(5, "read_from_buffer: ERROR side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->scsi_buf_size, bytes, s->bytes_tx[side]);
+    DBG(5, "read_from_buffer: ERROR side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->buffer_size, bytes, s->bytes_tx[side]);
     return SANE_STATUS_INVAL;
   }
 
-  DBG(15, "read_from_buffer: side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->scsi_buf_size, bytes, s->bytes_tx[side]);
+  DBG(15, "read_from_buffer: side:%d want:%d room:%d/%d doing:%d done:%d\n", side, remain, max_len, s->buffer_size, bytes, s->bytes_tx[side]);
 
   memcpy(buf,s->duplex_buffer+s->bytes_tx[side],bytes);
   s->bytes_tx[side] += bytes;
@@ -3637,7 +3648,7 @@ sane_exit (void)
  * and copies the sense buffer into the scanner struct
  */
 static SANE_Status
-sense_handler (int scsi_fd, unsigned char * sensed_data, void *arg)
+sense_handler (int fd, unsigned char * sensed_data, void *arg)
 {
   unsigned int sense = get_RS_sense_key (sensed_data);
   unsigned int asc = get_RS_ASC (sensed_data);
@@ -3647,7 +3658,7 @@ sense_handler (int scsi_fd, unsigned char * sensed_data, void *arg)
   DBG (5, "sense_handler: start\n");
 
   /* kill compiler warning */
-  scsi_fd = scsi_fd;
+  fd = fd;
 
   /* copy the rs return data into the scanner struct
      so that the caller can use it if he wants */
@@ -3880,9 +3891,9 @@ sense_handler (int scsi_fd, unsigned char * sensed_data, void *arg)
  */
 static SANE_Status
 do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 )
 {
     if (s->connection == CONNECTION_SCSI) {
@@ -3902,9 +3913,9 @@ do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime
 
 SANE_Status
 do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 )
 {
   int ret;
@@ -3922,7 +3933,7 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
     hexdump(30, "out >>", outBuff, outLen);
   }
   if (inBuff && inLen){
-    DBG(30, "in << want %u bytes\n", inLen);
+    DBG(30, "in << want %lu bytes\n", (long unsigned int)inLen);
     memset(inBuff,0,inLen);
   }
 
@@ -3951,7 +3962,7 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
   }
 
   if (inBuff && inLen){
-    DBG(30, "in << got %d bytes\n", actLen);
+    DBG(30, "in << got %lu bytes\n", (long unsigned int)actLen);
 
     if (inLen != actLen) {
       DBG(30,"wrong size!\n");
@@ -3967,18 +3978,18 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
 
 SANE_Status
 do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 )
 {
     unsigned char usb_cmdBuff[USB_COMMAND_LEN];
     unsigned char usb_statBuff[USB_STATUS_LEN];
     unsigned char rsBuff[RS_return_size];
-    int usb_cmdLen = USB_COMMAND_LEN;
-    int usb_outLen = outLen;
-    int usb_inLen = inLen;
-    int usb_statLen = USB_STATUS_LEN;
+    size_t usb_cmdLen = USB_COMMAND_LEN;
+    size_t usb_outLen = outLen;
+    size_t usb_inLen = inLen;
+    size_t usb_statLen = USB_STATUS_LEN;
     int cmdRetVal = 0;
     int outRetVal = 0;
     int inRetVal = 0;
@@ -4013,7 +4024,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
     /* write the command out */
     hexdump(30, "usb_cmd >>", (unsigned char *)&usb_cmdBuff, USB_COMMAND_LEN);
     DBG(30, "writing %u bytes\n", (unsigned int) usb_cmdLen);
-    cmdRetVal = sanei_usb_write_bulk(s->fd, (unsigned char *)&usb_cmdBuff, (unsigned int *)&usb_cmdLen);
+    cmdRetVal = sanei_usb_write_bulk(s->fd, (unsigned char *)&usb_cmdBuff, &usb_cmdLen);
     DBG(30, "wrote %u bytes\n", (unsigned int) usb_cmdLen);
     DBG(30,"cmdRetVal: %d\n",cmdRetVal);
 
@@ -4034,7 +4045,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
 
         hexdump(30, "out >>", outBuff, outLen);
         DBG(30, "writing %u bytes\n", (unsigned int) outLen);
-        outRetVal = sanei_usb_write_bulk(s->fd, outBuff, (unsigned int *)&usb_outLen);
+        outRetVal = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
         DBG(30, "wrote %u bytes\n", (unsigned int) usb_outLen);
         DBG(30,"outRetVal: %d\n",outRetVal);
     
@@ -4057,7 +4068,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
         sanei_usb_set_timeout(inTime);
 
         DBG(30, "reading %u bytes\n", (unsigned int) inLen);
-        inRetVal = sanei_usb_read_bulk(s->fd, inBuff, (unsigned int *)&usb_inLen);
+        inRetVal = sanei_usb_read_bulk(s->fd, inBuff, &usb_inLen);
         DBG(30, "read %u bytes\n", (unsigned int) usb_inLen);
         hexdump(30, "in <<", inBuff, usb_inLen);
         DBG(30,"inRetVal: %d\n",inRetVal);
@@ -4083,7 +4094,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
     sanei_usb_set_timeout(statTime);
 
     DBG(30, "reading %u bytes\n", (unsigned int) USB_STATUS_LEN);
-    statRetVal = sanei_usb_read_bulk(s->fd, (unsigned char *)&usb_statBuff, (unsigned int *)&usb_statLen);
+    statRetVal = sanei_usb_read_bulk(s->fd, (unsigned char *)&usb_statBuff, &usb_statLen);
     DBG(30, "read %u bytes\n", (unsigned int) usb_statLen);
     hexdump(30, "stat <<", usb_statBuff, usb_statLen);
     DBG(30,"statRetVal: %d\n",statRetVal);
@@ -4203,7 +4214,7 @@ wait_scanner(struct fujitsu *s)
  * r/g/b pointers all slide right together
  */
 static SANE_Status
-convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length)
+convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buff, int length)
 {
     int i, j, k;
     int bytes_per_line = s->params.bytes_per_line;
@@ -4236,7 +4247,7 @@ convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int leng
 /* scanner returns pixel data as bgrbgr
  * turn each pixel around to rgbrgb */
 static SANE_Status
-convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length)
+convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buff, int length)
 {
 
     int tmp, i;
@@ -4257,7 +4268,7 @@ convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length)
 /* scanner returns pixel data as foo
  * turn each pixel around to rgbrgb */
 static SANE_Status
-convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length)
+convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, int length)
 {
 
     /* silence compiler */ 

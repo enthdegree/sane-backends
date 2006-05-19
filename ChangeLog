@@ -1,3 +1,9 @@
+2006-05-19  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu*: use sanei_scsi_open_extended()
+	  change config file var to "buffer-size", increase default
+	* doc/sane-fujitsu.man: buffer-size mentioned
+
 2006-05-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Updated concerning USB permissions.

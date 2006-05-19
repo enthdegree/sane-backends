@@ -113,17 +113,15 @@ scsiblk;
 
 
 /* ==================================================================== */
-
+/*
 static unsigned char reserve_unitC[] =
   { RESERVE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk reserve_unitB = { reserve_unitC, sizeof (reserve_unitC) };
 
-/* ==================================================================== */
-
 static unsigned char release_unitC[] =
   { RELEASE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk release_unitB = { release_unitC, sizeof (release_unitC) };
-
+*/
 /* ==================================================================== */
 
 static unsigned char scanner_controlC[] =
@@ -311,13 +309,14 @@ static scsiblk sendB =
 #define S_DQ_Reg3	0x03
 #define set_S_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
 
+/*
 static unsigned char send_imprinterC[] = 
   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
    0x00, 0x00};
 static scsiblk send_imprinterB = 
   {send_imprinterC, sizeof(send_imprinterC)};
-
+*/
 /* imprinter counter
  * 0 = increase counter
  * 1 = decrease counter
@@ -357,7 +356,7 @@ static scsiblk send_imprinterB =
  */
 
 /* ==================================================================== */
-
+/*
 static unsigned char imprinterC[] =
   { IMPRINTER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk imprinterB = { imprinterC, sizeof (imprinterC) };
@@ -367,7 +366,7 @@ static scsiblk imprinterB = { imprinterC, sizeof (imprinterC) };
 static unsigned char imprinter_descC[] = 
   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk imprinter_descB = {imprinter_descC, sizeof(imprinter_descC) };
-
+*/
 /* enable/disable imprinter printing*/
 #define set_IMD_enable(sb, val) setbitfield(sb + 0x01, 1, 7, val)
 #define IMD_enable 0
@@ -438,7 +437,7 @@ static scsiblk mode_select_sleepB = {
  * 0x3c ..0xff = 60 min
  */
 #define set_MSEL_sleep_mode(sb, val) sb[0x06]=val
-
+/*
 static unsigned char mode_select_duplexC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x35, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -446,12 +445,13 @@ static unsigned char mode_select_duplexC[] = {
 static scsiblk mode_select_duplexB = {
   mode_select_duplexC, sizeof (mode_select_duplexC)
 };
+*/
 /* adf duplex reading transfer method
  * 0 = front side - back side sequential transfer
  * 1 = front side - back side alternate transfer
  */
 #define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
-
+/*
 static unsigned char mode_select_randC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x36, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -467,8 +467,8 @@ static unsigned char mode_select_backingC[] = {
 static scsiblk mode_select_backingB = {
   mode_select_backingC, sizeof (mode_select_backingC)
 };
-
-/*byte 0x06 is bitmask controlling double feed detection*/
+*/
+/*
 static unsigned char mode_select_dfeedC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x38, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -476,7 +476,7 @@ static unsigned char mode_select_dfeedC[] = {
 static scsiblk mode_select_dfeedB = {
   mode_select_dfeedC, sizeof (mode_select_dfeedC)
 };
-
+*/
 /*byte 0x06 is bitmask controlling monochrome color*/
 static unsigned char mode_select_dropoutC[] = {
   0x00, 0x00, 0x00, 0x00,
@@ -494,6 +494,7 @@ static scsiblk mode_select_dropoutB = {
 #define MSEL_dropout_CUSTOM  12
 
 /*bytes 0x06-07 and 0x09 control paper size detection*/
+/*
 static unsigned char mode_select_autoC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x3C, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -501,7 +502,6 @@ static unsigned char mode_select_autoC[] = {
 static scsiblk mode_select_autoB = {
   mode_select_autoC, sizeof (mode_select_autoC)
 };
-
 static unsigned char mode_select_lampC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x3D, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -509,6 +509,7 @@ static unsigned char mode_select_lampC[] = {
 static scsiblk mode_select_lampB= {
   mode_select_lampC, sizeof (mode_select_lampC)
 };
+*/
 
 /* ==================================================================== */
 #if 0

@@ -179,18 +179,19 @@ to determine if it is a Fujitsu scanner.
 Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
 .PP
-The only configuration option supported is "scsi-buf-size=xxx",
-allowing you to set the SCSI buffer size to something other than the
+The only configuration option supported is "buffer-size=xxx",
+allowing you to set the buffer size to something other than the
 compiled-in default. Some users report that the scanner would "hang"
-mid-page, and this can often be alleviated by increasing scsi-buf-size.
+mid-page, or fail to transmit the image if the buffer is not large enough.
 .PP
 Note: This option may appear multiple times in the configuration file. It only
 applies to scanners discovered by "scanner" lines that follow this option, and will be updated to the new value each time it occurs.
 .PP
 Note: The backend does not place an upper bound on this value, as some users
-required it to be quite large. Values above 32768 are not recommended,
+required it to be quite large. Values above 65536 are not recommended,
 and may crash your OS or lockup your scsi card driver. You have been
 warned.
+.PP
 
 .SH ENVIRONMENT
 The backend uses a single environment variable, SANE_DEBUG_FUJITSU, which

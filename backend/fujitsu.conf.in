@@ -1,11 +1,11 @@
-# NOTE: any 'option' lines must come first
+# NOTE: any 'option' lines only apply to
+# scanners discovered later in this file
 
-# to override data buffer size, in bytes
-# if unset, the backend will figure it out.
+# to set data buffer size, in bytes
 # the value ranges from 4096 - infinity
-# but will likely not work above 32768
-# dont use this unless you KNOW you need it
-#option scsi-buffer-size 32768
+# but you may have scanning problems with
+# a value larger than 65536 (the default)
+option buffer-size 65536
 
 # To search for all FUJITSU scsi devices
 scsi FUJITSU

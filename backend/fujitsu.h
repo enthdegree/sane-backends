@@ -78,7 +78,7 @@ struct fujitsu
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during reading of config file.         */
-  int scsi_buf_size;
+  int buffer_size;
   int connection;               /* hardware interface type */
 
   /* --------------------------------------------------------------------- */
@@ -466,23 +466,23 @@ static SANE_Status init_options (struct fujitsu *scanner);
 
 static SANE_Status
 do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 );
 
 static SANE_Status
 do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 );
 
 static SANE_Status
 do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
- unsigned char * cmdBuff, int cmdLen,
- unsigned char * outBuff, int outLen,
- unsigned char * inBuff, int inLen
+ unsigned char * cmdBuff, size_t cmdLen,
+ unsigned char * outBuff, size_t outLen,
+ unsigned char * inBuff, size_t inLen
 );
 
 static int wait_scanner (struct fujitsu *s);
@@ -507,11 +507,11 @@ static SANE_Status read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_In
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
-static SANE_Status convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buffptr, unsigned int length);
+static SANE_Status convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buffptr, int length);
 
-static SANE_Status convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buffptr, unsigned int length);
+static SANE_Status convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buffptr, int length);
 
-static SANE_Status convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, unsigned int length);
+static SANE_Status convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, int length);
 
 static void calculateDerivedValues (struct fujitsu *scanner);
 

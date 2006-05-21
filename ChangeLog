@@ -6,6 +6,9 @@
 	  in pixma.desc.
 	* doc/descriptions-external/hp_rts88xx.desc: Added reason for not
 	  including the backend.
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc: Added support for Plustek OpticPro
+	  S24 (some models). Added .conf entry for Plustek OpticPro S12.
 
 2006-05-19  m. allan noah <anoah AT pfeiffer DOT edu>
 

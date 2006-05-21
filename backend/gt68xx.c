@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
 
    This file is part of the SANE package.
    
@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 80
+#define BUILD 81
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5

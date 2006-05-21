@@ -1,5 +1,10 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.81 (2006-05-21)
+
+* Added support for Plustek OpticPro S24 (some models). Added .conf entry for
+  Plustek OpticPro S12. 
+
 V 1.0.80 (2006-01-02)
 
 * Added Plustek OpticPro S(T)12 (product id 0x040b). Mostly untested.

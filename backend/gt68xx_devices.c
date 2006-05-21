@@ -1149,6 +1149,57 @@ static GT68xx_Model plustek_ops12_model = {
     /* Untested */
 };
 
+static GT68xx_Model plustek_ops24_model = {
+  "plustek-opticpro-s24",	/* Name */
+  "Plustek",			/* Device vendor string */
+  "OpticPro S24",	/* Device model name */
+  "ccd569.fw",			/* Name of the firmware file */
+  SANE_FALSE,			/* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,	/* Command set used by this scanner */
+
+  600,				/* maximum optical sensor resolution */
+  1200,				/* maximum motor resolution */
+  600,				/* base x-res used to calculate geometry */
+  600,				/* base y-res used to calculate geometry */
+  1200,				/* if ydpi is equal or higher, disable backtracking */
+  SANE_TRUE,			/* Use base_ydpi for all resolutions */
+
+  {600, 300, 200, 100, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 200, 100, 50, 0},	/* possible y-resolutions */
+  {12, 8, 0},			/* possible depths in gray mode */
+  {12, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (4.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (8.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (218.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (299.0),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (1.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
+  0,				/* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+  {0x18, 0x1c, 0x16, 0x12, 0x18, 0x1c},	/* Default offset/gain */
+  {0x157, 0x157, 0x157},	/* Default exposure parameters */
+  SANE_FIX (2.0),		/* Default gamma value */
+
+  SANE_FALSE,			/* Is this a CIS scanner? */
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE | GT68XX_FLAG_UNTESTED
+  				/* Which flags are needed for this scanner? */
+    /* Untested. Based on genius Colorpage Vivid 1200 X*/
+};
+
+
 static GT68xx_Model genius_vivid4_model = {
   "genius-colorpage-vivid4",	/* Name */
   "Genius",			/* Device vendor string */
@@ -1693,6 +1744,7 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
 /* Tested by Jason Novek. Based on Plustek OpticSlim 2400. */
 
 
+
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x10000, 0x10000, &unknown_model},	/* used for yet unknown scanners */
   {0x055f, 0x0218, &mustek_2400ta_model},
@@ -1715,6 +1767,7 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x07b3, 0x0402, &plustek_u16b_model},
   {0x07b3, 0x0403, &plustek_u16b_model},	/* two ids? 403 seems to be more common */
   {0x07b3, 0x040b, &plustek_ops12_model},
+  {0x07b3, 0x040e, &plustek_ops24_model},
   {0x07b3, 0x0412, &plustek_opticslim_m12_model},
   {0x07b3, 0x0413, &plustek_opticslim1200_model},
   {0x07b3, 0x0422, &plustek_opticslim2400_model},

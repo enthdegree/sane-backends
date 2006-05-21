@@ -4,6 +4,8 @@
 	  time). 
 	* doc/descriptions/unsupported.desc: Removed models that are now
 	  in pixma.desc.
+	* doc/descriptions-external/hp_rts88xx.desc: Added reason for not
+	  including the backend.
 
 2006-05-19  m. allan noah <anoah AT pfeiffer DOT edu>
 

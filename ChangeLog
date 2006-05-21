@@ -2,6 +2,8 @@
 
 	* README.linux: Updated concerning USB permissions (really, this
 	  time). 
+	* doc/descriptions/unsupported.desc: Removed models that are now
+	  in pixma.desc.
 
 2006-05-19  m. allan noah <anoah AT pfeiffer DOT edu>
 

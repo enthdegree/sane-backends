@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-05-18"		; version of backend
+:version "2006-05-21"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -1725,7 +1725,7 @@
 :interface "USB"
 :usbid "0x07b3" "0x0601"
 :status :unsupported
-:comment "GL646 based, to be added to genesys backend"
+:comment "Product id 0x0601 is unsupported but may be supported by the genesys backend in future /GL646). Product id 0x040e is supported by the gt68xx backend."
 
 :model "OpticPro ST24"
 :url "/unsupported/plustek-opticpro-st24.html"

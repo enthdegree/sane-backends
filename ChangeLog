@@ -3,7 +3,7 @@
 	* README.linux: Updated concerning USB permissions (really, this
 	  time). 
 	* doc/descriptions/unsupported.desc: Removed models that are now
-	  in pixma.desc.
+	  in pixma.desc. Updated comment for Plustek OpticPro S24.
 	* doc/descriptions-external/hp_rts88xx.desc: Added reason for not
 	  including the backend.
 	* backend/gt68xx.c backend/gt68xx_devices.c

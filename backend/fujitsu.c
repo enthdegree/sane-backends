@@ -443,6 +443,9 @@ find_scanners ()
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1042'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1042", attach_one_usb);
 
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1096'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1096", attach_one_usb);
+
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1097'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1097", attach_one_usb);
 

@@ -91,6 +91,7 @@
 :model "fi-5110EOX"
 :interface "USB"
 :status :basic
+:usbid "0x04c5" "0x1096"
 :comment "workgroup, newer, discontinued"
 
 :model "fi-5110EOX2"

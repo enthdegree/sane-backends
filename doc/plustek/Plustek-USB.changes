@@ -1,7 +1,13 @@
-Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
+Plustek.changes - Gerhard JÃ¤ger <gerhard@gjaeger.de>
 ====================================================
 
 Note: All other not mentioned builds have never been released.
+
+V 0.51-8 (2006-04-09)
+---------------------
+Added cache for fine calibration (CIS devices only)
+Added support for sheet-fed scanner (CIS devices only)
+Added support for Syscan Travelscan662
 
 V 0.50-10 (2006-01-31)
 ---------------------

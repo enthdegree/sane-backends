@@ -10,7 +10,13 @@ ifeq ($(LINUXVERSION),)
 endif
 LINUXRELEASE = $(shell uname -r | cut -d'.' -f3)
 
-VERSIONSTR = $(shell grep "define BACKEND_VERSION" $M/plustek_pp.c | cut -b25-50 )
+ifeq ($(VERSIONSTR),)
+ ifeq ($(SUBDIRS),)
+  VERSIONSTR = $(shell grep "define BACKEND_VERSION" $(M)/plustek_pp.c | cut -b25-50 )
+ else
+  VERSIONSTR = $(shell grep "define BACKEND_VERSION" $(SUBDIRS)/plustek_pp.c | cut -b25-50 )
+ endif
+endif
 
 #
 # extra flags

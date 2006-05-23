@@ -1,4 +1,4 @@
-Plustek-USB-TODO.txt (2004-07-26) Gerhard Jäger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2004-07-26) Gerhard Jï¿½er <gerhard@gjaeger.de>
 ====================================================================
 
 TODO (in general):
@@ -20,7 +20,7 @@ all               add plustek.conf presettings to               done
                   interface for frontends
 
 all               Auto-warmup                                   done
-all               Sensor movement speedup ffw/rev               done 
+all               Sensor movement speedup ffw/rev               done
 
 Canon             fine calibration does not work                fixed
 Canon  650        color modes >=600 dpi too dark                fixed

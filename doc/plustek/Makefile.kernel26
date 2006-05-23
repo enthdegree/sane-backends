@@ -10,7 +10,7 @@ ifeq ($(LINUXVERSION),)
 endif
 LINUXRELEASE = $(shell uname -r | cut -d'.' -f3)
 
-VERSIONSTR = $(shell grep "define BACKEND_VERSION" $(PWD)/plustek_pp.c | cut -b25-50 )
+VERSIONSTR = $(shell grep "define BACKEND_VERSION" $M/plustek_pp.c | cut -b25-50 )
 
 #
 # extra flags

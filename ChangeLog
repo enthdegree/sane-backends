@@ -1,3 +1,7 @@
+2006-05-24  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* Updated Swedish translation
+
 2006-05-23  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c: dont send scsi cmd F1 if unsupported.

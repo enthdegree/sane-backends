@@ -163,6 +163,8 @@
          - default buffer-size increased to 64k
          - use sanei_scsi_open_extended() to set buffer size
          - fix some compiler warns: 32&64 bit gcc
+      V 1.0.26 2006-05-23, MAN
+         - dont send scanner control (F1) if unsupported
 
    SANE FLOW DIAGRAM
 
@@ -223,7 +225,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 25
+#define FUJITSU_V_POINT 26
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2985,19 +2987,21 @@ get_current_side (struct fujitsu * s){
 static SANE_Status
 scanner_control (struct fujitsu *s, int function) 
 {
-  int ret;
+  int ret = SANE_STATUS_GOOD;
 
   DBG (10, "scanner_control: start\n");
 
-  set_SC_function (scanner_controlB.cmd, function);
-
-  /* notice extremely long retry period */
-  ret = do_cmd (
-    s, 30, 10, 1, 0,
-    scanner_controlB.cmd, scanner_controlB.size,
-    NULL, 0,
-    NULL, 0
-  );
+  if(s->has_cmd_hw_status){
+    set_SC_function (scanner_controlB.cmd, function);
+  
+    /* notice extremely long retry period */
+    ret = do_cmd (
+      s, 30, 10, 1, 0,
+      scanner_controlB.cmd, scanner_controlB.size,
+      NULL, 0,
+      NULL, 0
+    );
+  }
 
   DBG (10, "scanner_control: finish\n");
 

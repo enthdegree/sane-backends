@@ -1,6 +1,11 @@
+2006-05-23  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: dont send scsi cmd F1 if unsupported.
+	* doc/descriptions/fujitsu.desc: update version number.
+
 2006-05-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/plustek/Makefile.kernel26: Fixed extraction of version string.
+	* doc/plustek/Makefile.kernel26: Fixed extraction of version string.
 
 2006-05-21  m. allan noah <anoah AT pfeiffer DOT edu>
 

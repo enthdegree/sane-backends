@@ -255,8 +255,8 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
 ])
 
 #
-# Checks for jpeg library >= v6B (61), needed for DC210,  DC240, and 
-# GPHOTO2 backends.
+# Checks for jpeg library >= v6B (61), needed for DC210,  DC240,
+# GPHOTO2 and dell1600n_net backends.
 AC_DEFUN([SANE_CHECK_JPEG],
 [
   AC_CHECK_LIB(jpeg,jpeg_start_decompress, 
@@ -273,6 +273,16 @@ AC_DEFUN([SANE_CHECK_JPEG],
       ],[sane_cv_use_libjpeg="yes"; LIBS="${LIBS} -ljpeg"; 
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
+  ],)
+])
+
+# Checks for tiff library dell1600n_net backend.
+AC_DEFUN([SANE_CHECK_TIFF],
+[
+  AC_CHECK_LIB(tiff,TIFFFdOpen, 
+  [
+    AC_CHECK_HEADER(tiffio.h, 
+    [sane_cv_use_libtiff="yes"; LIBS="${LIBS} -ltiff"],)
   ],)
 ])
 

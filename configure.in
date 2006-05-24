@@ -104,6 +104,7 @@ if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
     AC_SEARCH_LIBS(syslog, syslog be)            # OS/2 needs -lsyslog, BeOS needs -lbe
 fi
 SANE_CHECK_JPEG
+SANE_CHECK_TIFF
 SANE_CHECK_IEEE1284
 SANE_CHECK_PTHREAD
 SANE_CHECK_LOCKING
@@ -368,6 +369,13 @@ else
     echo "***                              and parport-directio is disabled)"
   else
     BACKENDS="${BACKENDS} mustek_pp"
+  fi
+
+  if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"
+    then
+    echo "*** disabling DELL1600N_NET backend (failed to find jpeg and/or tiff library"
+  else
+    BACKENDS="${BACKENDS} dell1600n_net"
   fi
 
   if test "${HAVE_GPHOTO2}" != "true" \

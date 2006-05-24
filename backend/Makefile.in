@@ -95,7 +95,7 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   canon_pp-dev.h canon_pp-io.c canon_pp-io.h coolscan.c \
   coolscan.conf.in coolscan.h coolscan-scsidef.h coolscan2.c coolscan2.conf.in \
   dc210.c dc210.conf.in dc210.h \
-  dc240.c dc240.conf.in dc240.h dc25.c dc25.conf.in dc25.h \
+  dc240.c dc240.conf.in dc240.h dc25.c dc25.conf.in dc25.h dell1600n_net.c\
   dll.aliases dll.c dll.conf.in dmc.c dmc.conf.in dmc.h \
   epson.c epson_scsi.c epson_usb.c epson.conf.in epson.h epson_scsi.h \
   epson_usb.h \

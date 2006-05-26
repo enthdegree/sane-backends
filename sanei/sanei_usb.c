@@ -1611,6 +1611,9 @@ SANE_Status
 sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 {
   ssize_t read_size = 0;
+#ifdef HAVE_LIBUSB
+  SANE_Bool stalled = SANE_FALSE;
+#endif
 
   if (!size)
     {
@@ -1646,6 +1649,7 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	       "endpoint\n");
 	  return SANE_STATUS_INVAL;
 	}
+      stalled = (read_size == -EPIPE);
     }
 #else /* not HAVE_LIBUSB */
     {
@@ -1694,7 +1698,8 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       DBG (1, "sanei_usb_read_int: read failed: %s\n", strerror (errno));
 #ifdef HAVE_LIBUSB
       if (devices[dn].method == sanei_usb_method_libusb)
-	usb_clear_halt (devices[dn].libusb_handle, devices[dn].int_in_ep);
+        if (stalled)
+	  usb_clear_halt (devices[dn].libusb_handle, devices[dn].int_in_ep);
 #endif
       *size = 0;
       return SANE_STATUS_IO_ERROR;

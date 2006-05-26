@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-10-28 07:45+0200\n"
-"PO-Revision-Date: 2005-10-28 07:55+0200\n"
+"POT-Creation-Date: 2006-05-26 13:38+0200\n"
+"PO-Revision-Date: 2006-05-26 14:24+0200\n"
 "Last-Translator: Gerhard Jaeger <gerhard@gjaeger.de>\n"
 "Language-Team:  <de@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -22,9 +22,10 @@ msgstr ""
 "X-Generator: KBabel 1.10.2\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
-#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
-#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:79
-#: .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
+#: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
+#: .tmp/sceptre.h:289 .tmp/snapscan-options.c:79 .tmp/umax.c:186
+#: .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
 msgstr "Strichzeichnung"
@@ -37,19 +38,21 @@ msgstr "Graustufen"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
-#: .tmp/teco3.h:296 .tmp/test.c:122 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:614
+#: .tmp/saneopts.h:393 .tmp/sceptre.h:292 .tmp/sm3840.c:81
+#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
+#: .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Farbe"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:663 .tmp/hp-option.c:2952
+#: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:665 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
-#: .tmp/microtek2.h:602 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
-#: .tmp/niash.c:756 .tmp/plustek.c:798 .tmp/plustek_pp.c:792
-#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:553 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
+#: .tmp/microtek2.h:601 .tmp/mustek.c:4405 .tmp/mustek_usb2.c:431
+#: .tmp/mustek_usb.c:353 .tmp/niash.c:756 .tmp/plustek.c:815
+#: .tmp/plustek_pp.c:792 .tmp/sceptre.c:750 .tmp/snapscan-options.c:561
+#: .tmp/teco1.c:1143 .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592
+#: .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
 msgstr "Farbverbesserung"
@@ -64,12 +67,13 @@ msgstr "Defaulteinstellungen"
 msgid "Set default values for enhancement controls."
 msgstr "Auf Voreinstellungen für Verbesserungen zurücksetzen."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:3973
-#: .tmp/gt68xx.c:694 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
-#: .tmp/matsushita.c:1135 .tmp/microtek2.h:601 .tmp/mustek.c:4357
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:752 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:486 .tmp/teco1.c:1095
-#: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:618 .tmp/umax.c:5174
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4564
+#: .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
+#: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
+#: .tmp/plustek.c:769 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
+#: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
+#: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
@@ -116,25 +120,26 @@ msgstr ""
 msgid "Button state"
 msgstr "Schalter Status"
 
-#: .tmp/avision.h:605
+#: .tmp/avision.h:622
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Nummer des zu scannenden Bildes"
 
-#: .tmp/avision.h:606
+#: .tmp/avision.h:623
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Wählt die Nummer des zu scannenden Bildes aus"
 
-#: .tmp/avision.h:609
+#: .tmp/avision.h:626
 #, no-c-format
 msgid "Duplex scan"
 msgstr "Duplexscan"
 
-#: .tmp/avision.h:610
+#: .tmp/avision.h:627
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
-msgstr "Duplex Scan ermöglicht das Scannen der Vorder- und Rückseite eines Dokuments."
+msgstr ""
+"Duplex Scan ermöglicht das Scannen der Vorder- und Rückseite eines Dokuments."
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -146,12 +151,12 @@ msgstr "Scanner kalibrieren"
 msgid "Force scanner calibration before scan"
 msgstr "Erzwinge Scannerkalibrierung vor dem Scannen"
 
-#: .tmp/canon630u.c:258 .tmp/umax1220u.c:207
+#: .tmp/canon630u.c:258 .tmp/umax1220u.c:208
 #, no-c-format
 msgid "Grayscale scan"
 msgstr "Graustufen-Scan"
 
-#: .tmp/canon630u.c:259 .tmp/umax1220u.c:208
+#: .tmp/canon630u.c:259 .tmp/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
 msgstr "Führe einen Graustufen-Scan statt eines Farb-Scans durch"
@@ -182,9 +187,9 @@ msgid "Binary"
 msgstr "Schwarzweiss"
 
 #: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
-#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:78 .tmp/test.c:122
-#: .tmp/umax.c:188
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:617
+#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:289
+#: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
 msgstr "Graustufen"
@@ -199,9 +204,9 @@ msgstr "Einseitig"
 msgid "Duplex"
 msgstr "Duplex"
 
-#: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:142 .tmp/ma1509.c:106
-#: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:82 .tmp/umax.c:182
+#: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:144 .tmp/ma1509.c:106
+#: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/pixma.c:622
+#: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Flachbett"
@@ -211,7 +216,8 @@ msgstr "Flachbett"
 msgid "Transparency Unit"
 msgstr "Durchlichtaufsatz"
 
-#: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/umax.c:184
+#: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/pixma.c:627 .tmp/test.c:189
+#: .tmp/umax.c:184
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Autom. Dokumenteneinzug"
@@ -293,17 +299,20 @@ msgstr "Übertrage Muster A"
 msgid "Download pattern B"
 msgstr "Übertrage Muster B"
 
-#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3092
+#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/gt68xx_low.h:135
+#: .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Rot"
 
-#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3093
+#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/gt68xx_low.h:136
+#: .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Grün"
 
-#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3094
+#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/gt68xx_low.h:137
+#: .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
 msgstr "Blau"
@@ -338,7 +347,7 @@ msgstr "Tintenstrahldrucker"
 msgid "CRT monitors"
 msgstr "CRT Monitore"
 
-#: .tmp/epson.c:656 .tmp/hp-option.c:3225 .tmp/test.c:138
+#: .tmp/epson.c:656 .tmp/hp-option.c:3225 .tmp/test.c:140
 #, no-c-format
 msgid "Default"
 msgstr "Standardeinstellung"
@@ -398,12 +407,12 @@ msgstr "A4"
 msgid "Max"
 msgstr "Maximal"
 
-#: .tmp/epson.c:2782 .tmp/genesys.c:3902 .tmp/gt68xx.c:451
+#: .tmp/epson.c:2782 .tmp/genesys.c:4493 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
-#: .tmp/microtek2.h:600 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
-#: .tmp/niash.c:736 .tmp/plustek.c:668 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:313 .tmp/teco2.c:1875
-#: .tmp/test.c:293 .tmp/umax.c:5052
+#: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:685
+#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
+#: .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Scanmodus"
@@ -528,7 +537,7 @@ msgstr "Erhöhe den Rotanteil basierend auf dem Blauwert"
 msgid "Controls blue level"
 msgstr "Legt den Blauwert fest"
 
-#: .tmp/epson.c:3166 .tmp/snapscan-options.c:801 .tmp/umax.c:5563
+#: .tmp/epson.c:3166 .tmp/snapscan-options.c:816 .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Erweitert"
@@ -661,52 +670,54 @@ msgstr ""
 "Beginne mit dem Scannen erst, wenn nach dem Senden des Scankommandos des "
 "Knopf am Scanner gedrückt wird."
 
-#: .tmp/genesys.c:96 .tmp/gt68xx.c:143 .tmp/ma1509.c:106 .tmp/mustek.c:158
+#: .tmp/genesys.c:96 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Durchlichteinheit"
 
-#: .tmp/genesys.c:4024
+#: .tmp/genesys.c:4615
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Besonders schnell"
 
-#: .tmp/genesys.c:4033
+#: .tmp/genesys.c:4635
 #, fuzzy, no-c-format
 msgid "Lamp off time"
 msgstr "Lampenausschaltzeit"
 
-#: .tmp/genesys.c:4036
+#: .tmp/genesys.c:4638
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr "Die Lampe wird nach der angegebenen Zeit (in Minuten) ausgeschaltet. Ein Wert von 0 bedeutet, dass die Lampe nich ausgeschaltet wird."
+msgstr ""
+"Die Lampe wird nach der angegebenen Zeit (in Minuten) ausgeschaltet. Ein "
+"Wert von 0 bedeutet, dass die Lampe nich ausgeschaltet wird."
 
-#: .tmp/gt68xx.c:470
+#: .tmp/gt68xx.c:472
 #, no-c-format
 msgid "Gray mode color"
 msgstr "Graustufen-Farbe"
 
-#: .tmp/gt68xx.c:472
+#: .tmp/gt68xx.c:474
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
 "Legt fest, welche SCanfarbe im Garustufen-Modus verwendet wird "
 "(Standardwert: Grün)."
 
-#: .tmp/gt68xx.c:553
+#: .tmp/gt68xx.c:555 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Optionen zur Fehlersuche"
 
-#: .tmp/gt68xx.c:564
+#: .tmp/gt68xx.c:566 .tmp/mustek_usb2.c:419
 #, no-c-format
 msgid "Automatic warmup"
 msgstr "Automatisches Aufwärmen"
 
-#: .tmp/gt68xx.c:566
+#: .tmp/gt68xx.c:568
 #, no-c-format
 msgid ""
 "Warm-up until the lamp's brightness is constant instead of insisting on 60 "
@@ -715,12 +726,12 @@ msgstr ""
 "Warte solange, bis die Helligkeit der Lampe konstant ist anstatt einfach 60 "
 "Sekunden zu warten."
 
-#: .tmp/gt68xx.c:578
+#: .tmp/gt68xx.c:580
 #, no-c-format
 msgid "Full scan"
 msgstr "Kompletter Scan"
 
-#: .tmp/gt68xx.c:580
+#: .tmp/gt68xx.c:582
 #, no-c-format
 msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
@@ -730,12 +741,12 @@ msgstr ""
 "Kalibrierungsstreifens. Vorsicht, keine zu große Länge auswählen. Nur für "
 "Testzwecke."
 
-#: .tmp/gt68xx.c:591
+#: .tmp/gt68xx.c:593
 #, no-c-format
 msgid "Coarse calibration"
 msgstr "Grobkalibrierung"
 
-#: .tmp/gt68xx.c:593
+#: .tmp/gt68xx.c:595
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
@@ -747,12 +758,12 @@ msgstr ""
 "manuell eingestellt werden. Diese Option is standardmäßig an. Nur für "
 "Testzwecke."
 
-#: .tmp/gt68xx.c:612
+#: .tmp/gt68xx.c:614
 #, no-c-format
 msgid "Coarse calibration for first scan only"
 msgstr "Grobkalibrierung nur für ersten Scan"
 
-#: .tmp/gt68xx.c:614
+#: .tmp/gt68xx.c:616
 #, no-c-format
 msgid ""
 "Coarse calibration is only done for the first scan. Works with most scanners "
@@ -764,12 +775,12 @@ msgstr ""
 "Wenn die Helligkeit der Bilder von Scan zu Scan schwankt, sollte diese "
 "Option ausgeschaltet werden. Nur für Testzwecke."
 
-#: .tmp/gt68xx.c:645
+#: .tmp/gt68xx.c:647
 #, no-c-format
 msgid "Backtrack lines"
 msgstr "Backtrack-Zeilen"
 
-#: .tmp/gt68xx.c:647
+#: .tmp/gt68xx.c:649
 #, no-c-format
 msgid ""
 "Number of lines the scan slider moves back when backtracking occurs. That "
@@ -781,15 +792,65 @@ msgstr ""
 "die Daten aufnehmen kann. Niedrigere Werte sorgen für schnellere Scans, "
 "erhöhen jedoch das Risiko, Zeilen zu überspringen."
 
-#: .tmp/gt68xx.c:672
+#: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
 #, no-c-format
 msgid "Gamma value"
 msgstr "Gammawert"
 
-#: .tmp/gt68xx.c:674
+#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Legt den Gammawert für alle Kanäle fest."
+
+#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
+#, no-c-format
+msgid "Image"
+msgstr "Bild"
+
+#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
+#, no-c-format
+msgid "Miscellaneous"
+msgstr "Verschiedenes"
+
+#: .tmp/hp5400_sane.c:358
+#, fuzzy, no-c-format
+msgid "offset X"
+msgstr "Offset"
+
+#: .tmp/hp5400_sane.c:359
+#, fuzzy, no-c-format
+msgid "Hardware internal X position of the scanning area."
+msgstr "Linke Kante des zu scannenden Bereichs."
+
+#: .tmp/hp5400_sane.c:368
+#, fuzzy, no-c-format
+msgid "offset Y"
+msgstr "Offset"
+
+#: .tmp/hp5400_sane.c:369
+#, fuzzy, no-c-format
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Linke Kante des zu scannenden Bereichs."
+
+#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
+#, no-c-format
+msgid "Lamp status"
+msgstr "Lampen Status"
+
+#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
+#, no-c-format
+msgid "Switches the lamp on or off."
+msgstr "Schaltet die Lampe an oder aus"
+
+#: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
+#, no-c-format
+msgid "Calibrate"
+msgstr "Kalibrierung"
+
+#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
+#, no-c-format
+msgid "Calibrates for black and white level."
+msgstr "Kalibriert Schwarz- und Weisswert."
 
 #: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:77
@@ -869,7 +930,7 @@ msgid "Slow"
 msgstr "Langsam"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:231 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:143 .tmp/plustek.c:232 .tmp/plustek_pp.c:200 .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normal"
@@ -919,8 +980,8 @@ msgstr "Dia"
 msgid "Film-strip"
 msgstr "Film-Streifen"
 
-#: .tmp/hp-option.c:3234 .tmp/plustek.c:233 .tmp/plustek_pp.c:202
-#: .tmp/saneopts.h:177
+#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:234
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
 #, no-c-format
 msgid "Negative"
 msgstr "Negativ"
@@ -1011,11 +1072,6 @@ msgstr "Auswerfen"
 #, no-c-format
 msgid "Unload Document."
 msgstr "Dokument auswerfen."
-
-#: .tmp/hp-option.h:97 .tmp/niash.c:728
-#, no-c-format
-msgid "Calibrate"
-msgstr "Kalibrierung"
 
 #: .tmp/hp-option.h:98
 #, no-c-format
@@ -1112,7 +1168,8 @@ msgstr "8-Bit-Ausgabe"
 #: .tmp/hp-option.h:158
 #, no-c-format
 msgid "Use bit depth greater eight internally, but output only eight bits."
-msgstr "Benutze intern eine Frabtiefe von mehr als 8 Bit, extern aber nur 8 Bit."
+msgstr ""
+"Benutze intern eine Frabtiefe von mehr als 8 Bit, extern aber nur 8 Bit."
 
 #: .tmp/hp-option.h:164
 #, no-c-format
@@ -1159,7 +1216,7 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 Vertikale Linie"
 
-#: .tmp/leo.c:781 .tmp/saneopts.h:138
+#: .tmp/leo.c:781 .tmp/pixma_sane_options.c:40 .tmp/saneopts.h:138
 #, no-c-format
 msgid "Scan mode"
 msgstr "Scanmodus"
@@ -1168,6 +1225,16 @@ msgstr "Scanmodus"
 #, no-c-format
 msgid "Black & White"
 msgstr "Schwarzweiß."
+
+#: .tmp/lexmark.h:55 .tmp/matsushita.h:220
+#, no-c-format
+msgid "Paper size"
+msgstr "Papiergröße"
+
+#: .tmp/lexmark.h:57
+#, fuzzy, no-c-format
+msgid "Selects the size of the area to be scanned."
+msgstr "Wählt die Nummer des zu scannenden Bildes aus"
 
 #: .tmp/matsushita.c:139
 #, no-c-format
@@ -1308,7 +1375,7 @@ msgstr "Bildgewichtung"
 msgid "Sets the image emphasis"
 msgstr "Wählt die Bildgewichtung."
 
-#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
+#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301 .tmp/pixma_sane_options.c:107
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
@@ -1322,11 +1389,6 @@ msgstr "4 Bit Graustufen"
 #, no-c-format
 msgid "Grayscale 8 bits"
 msgstr "8 Bit Graustufen"
-
-#: .tmp/matsushita.h:220
-#, no-c-format
-msgid "Paper size"
-msgstr "Papiergröße"
 
 #: .tmp/matsushita.h:221 .tmp/matsushita.h:228
 #, no-c-format
@@ -1343,93 +1405,93 @@ msgstr "Schalte Duplex- (zweiseitiges) Scannen ein"
 msgid "Physical size of the paper in the ADF"
 msgstr "Tatsächliche Größe des Papiers im ADF"
 
-#: .tmp/microtek2.h:603
+#: .tmp/microtek2.h:602
 #, no-c-format
 msgid "Shadow, midtone, highlight, exposure time"
 msgstr "Lichtwerte"
 
-#: .tmp/microtek2.h:605
+#: .tmp/microtek2.h:604
 #, no-c-format
 msgid "Special options"
 msgstr "Spezialoptionen"
 
-#: .tmp/microtek2.h:606
+#: .tmp/microtek2.h:605
 #, no-c-format
 msgid "Color balance"
 msgstr "Farbbalance"
 
-#: .tmp/microtek2.h:609
+#: .tmp/microtek2.h:608
 #, no-c-format
 msgid "Disable backtracking"
 msgstr "kein Backtracking"
 
-#: .tmp/microtek2.h:610
+#: .tmp/microtek2.h:609
 #, no-c-format
 msgid "If checked the scanner does not perform backtracking"
 msgstr ""
 "wenn aktiviert, erfolgt kein Rücklauf des Scankopfes während der "
 "Datenübertragung"
 
-#: .tmp/microtek2.h:614
+#: .tmp/microtek2.h:613
 #, no-c-format
 msgid "Toggle lamp of flatbed"
 msgstr "Lampe ein/ausschalten"
 
-#: .tmp/microtek2.h:615
+#: .tmp/microtek2.h:614
 #, no-c-format
 msgid "Toggles the lamp of the flatbed"
 msgstr "Schaltet die Lampe des Flachbettscanners ein bzw. aus"
 
-#: .tmp/microtek2.h:618
+#: .tmp/microtek2.h:617
 #, no-c-format
 msgid "Calibration by backend"
 msgstr "Software - Kalibrierung"
 
-#: .tmp/microtek2.h:619
+#: .tmp/microtek2.h:618
 #, no-c-format
 msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "einige Scanner benötigen eine Kalibrierung durch die Software, sonst "
 "entstehen senkrechte Streifen im Bild"
 
-#: .tmp/microtek2.h:623
+#: .tmp/microtek2.h:622
 #, no-c-format
 msgid "Use the lightlid-35mm adapter"
 msgstr "Benutzung des LIGHTLID 35"
 
-#: .tmp/microtek2.h:624
+#: .tmp/microtek2.h:623
 #, no-c-format
 msgid "This option turns off the lamp of the flatbed during a scan"
 msgstr ""
 "Bei der Benutzung des LIGHTLID 35 Durchlichtadapters wird während des Scans "
 "die Flachbett - Lampe ausgeschaltet um besseren Kontrast zu erreichen"
 
-#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:369
+#: .tmp/microtek2.h:627 .tmp/snapscan-options.c:375
 #, no-c-format
 msgid "Quality scan"
 msgstr "Hohe Qualität"
 
-#: .tmp/microtek2.h:629 .tmp/snapscan-options.c:370
+#: .tmp/microtek2.h:628 .tmp/snapscan-options.c:376
 #, no-c-format
 msgid "Highest quality but lower speed"
 msgstr "Hohe Qualität bei geringer Geschwindigkeit"
 
-#: .tmp/microtek2.h:632
+#: .tmp/microtek2.h:631
 #, no-c-format
 msgid "Fast scan"
 msgstr "Hohe Geschwindigkeit"
 
-#: .tmp/microtek2.h:633
+#: .tmp/microtek2.h:632
 #, no-c-format
 msgid "Highest speed but lower quality"
 msgstr "Hohe Geschwindigkeit bei geringerer Qualität"
 
-#: .tmp/microtek2.h:636
+#: .tmp/microtek2.h:635
 #, no-c-format
 msgid "Automatic adjustment of threshold"
 msgstr "Automatische schwarz/weiß - Schwelle"
 
-#: .tmp/microtek2.h:637
+#: .tmp/microtek2.h:636
 #, no-c-format
 msgid ""
 "If checked the backend automatically tries to determine an optimal value for "
@@ -1438,152 +1500,154 @@ msgstr ""
 "Bei einem Strichzeichnungsscan versucht die Software einen optimalen Wert "
 "für die schwarz/weiß- Schwelle zu bestimmen"
 
-#: .tmp/microtek2.h:642
+#: .tmp/microtek2.h:641
 #, no-c-format
 msgid "Gamma correction"
 msgstr "Gammakorrektur"
 
-#: .tmp/microtek2.h:643
+#: .tmp/microtek2.h:642
 #, no-c-format
 msgid "Selects the gamma correction mode."
 msgstr "Modus der Gammakorrektur."
 
-#: .tmp/microtek2.h:646
+#: .tmp/microtek2.h:645
 #, no-c-format
 msgid "Bind gamma"
 msgstr "Verbinde Gammawerte"
 
-#: .tmp/microtek2.h:647
+#: .tmp/microtek2.h:646
 #, no-c-format
 msgid "Use same gamma values for all colour channels."
 msgstr "Alle Farben benutzen dieselbe Gammakorrektur."
 
-#: .tmp/microtek2.h:651
+#: .tmp/microtek2.h:650
 #, no-c-format
 msgid "Scalar gamma"
 msgstr "Gamma - Zahlenwert"
 
-#: .tmp/microtek2.h:652
+#: .tmp/microtek2.h:651
 #, no-c-format
 msgid "Selects a value for scalar gamma correction."
 msgstr "Gibt einen Gamma - Zahlenwert an"
 
-#: .tmp/microtek2.h:656
+#: .tmp/microtek2.h:655
 #, no-c-format
 msgid "Scalar gamma red"
 msgstr "Gamma - Wert für Rot"
 
-#: .tmp/microtek2.h:657
+#: .tmp/microtek2.h:656
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
 msgstr "Gamma - Wert für Rot"
 
-#: .tmp/microtek2.h:661
+#: .tmp/microtek2.h:660
 #, no-c-format
 msgid "Scalar gamma green"
 msgstr "Gamma - Wert für Grün"
 
-#: .tmp/microtek2.h:662
+#: .tmp/microtek2.h:661
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
 msgstr "Gamma - Wert für Grün"
 
-#: .tmp/microtek2.h:666
+#: .tmp/microtek2.h:665
 #, no-c-format
 msgid "Scalar gamma blue"
 msgstr "Gamma - Wert für Blau"
 
-#: .tmp/microtek2.h:667
+#: .tmp/microtek2.h:666
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (blue channel)"
 msgstr "Gamma - Wert für Blau"
 
-#: .tmp/microtek2.h:671
+#: .tmp/microtek2.h:670
 #, no-c-format
 msgid "Channel"
 msgstr "Farbkanal"
 
-#: .tmp/microtek2.h:672
+#: .tmp/microtek2.h:671
 #, no-c-format
-msgid "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr "Wählt den Farbkanal; \"Master\" bedeutet, dass alle Farben beeinflusst werden"
+msgid ""
+"Selects the colour band, \"Master\" means that all colours are affected."
+msgstr ""
+"Wählt den Farbkanal; \"Master\" bedeutet, dass alle Farben beeinflusst werden"
 
-#: .tmp/microtek2.h:676
+#: .tmp/microtek2.h:675
 #, no-c-format
 msgid "Midtone"
 msgstr "Mittelgrauwert"
 
-#: .tmp/microtek2.h:677
+#: .tmp/microtek2.h:676
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % gray\"."
 msgstr "Bestimmt, welcher Helligkeitswert als 50% Grau angenommen wird"
 
-#: .tmp/microtek2.h:681
+#: .tmp/microtek2.h:680
 #, no-c-format
 msgid "Midtone for red"
 msgstr "Mittelwert für Rot"
 
-#: .tmp/microtek2.h:682
+#: .tmp/microtek2.h:681
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % red\"."
 msgstr "Bestimmt, welcher Helligkeitswert als 50% Rot angenommen wird"
 
-#: .tmp/microtek2.h:686
+#: .tmp/microtek2.h:685
 #, no-c-format
 msgid "Midtone for green"
 msgstr "Mittelwert für Grün"
 
-#: .tmp/microtek2.h:687
+#: .tmp/microtek2.h:686
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % green\"."
 msgstr "Bestimmt, welcher Helligkeitswert als 50% Grün angenommen wird"
 
-#: .tmp/microtek2.h:691
+#: .tmp/microtek2.h:690
 #, no-c-format
 msgid "Midtone for blue"
 msgstr "Mittelwert für Blau"
 
-#: .tmp/microtek2.h:692
+#: .tmp/microtek2.h:691
 #, no-c-format
 msgid "Selects which radiance level should be considered \"50 % blue\"."
 msgstr "Bestimmt, welcher Helligkeitswert als 50% Blau angenommen wird"
 
-#: .tmp/microtek2.h:696
+#: .tmp/microtek2.h:695
 #, no-c-format
 msgid "Red balance"
 msgstr "Rot - Balance"
 
-#: .tmp/microtek2.h:697
+#: .tmp/microtek2.h:696
 #, no-c-format
 msgid "Balance factor for red. A value of 100% means no correction."
 msgstr "Farbbalance-Faktor für Rot: 100% bedeutet keine Farbkorrektur"
 
-#: .tmp/microtek2.h:701
+#: .tmp/microtek2.h:700
 #, no-c-format
 msgid "Green balance"
 msgstr "Grün - Balance"
 
-#: .tmp/microtek2.h:702
+#: .tmp/microtek2.h:701
 #, no-c-format
 msgid "Balance factor for green. A value of 100% means no correction."
 msgstr "Farbbalance-Faktor für Grün: 100% bedeutet keine Farbkorrektur"
 
-#: .tmp/microtek2.h:706
+#: .tmp/microtek2.h:705
 #, no-c-format
 msgid "Blue balance"
 msgstr "Blau - Balance"
 
-#: .tmp/microtek2.h:707
+#: .tmp/microtek2.h:706
 #, no-c-format
 msgid "Balance factor for blue. A value of 100% means no correction."
 msgstr "Farbbalance-Faktor für Blau: 100% bedeutet keine Farbkorrektur"
 
-#: .tmp/microtek2.h:711
+#: .tmp/microtek2.h:710
 #, no-c-format
 msgid "Firmware balance"
 msgstr "Standard - Balance"
 
-#: .tmp/microtek2.h:712
+#: .tmp/microtek2.h:711
 #, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
 msgstr "Setzt die Farbbalance auf die vom Hersteller vorgegebenen Werte"
@@ -1731,7 +1795,8 @@ msgstr "Lampenausschaltzeit (Minuten)."
 #: .tmp/mustek.c:4338
 #, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
-msgstr "Legt die Zeit (in Minuten) fest, nach der die Lampe ausgeschaltet wird."
+msgstr ""
+"Legt die Zeit (in Minuten) fest, nach der die Lampe ausgeschaltet wird."
 
 #: .tmp/mustek.c:4349
 #, no-c-format
@@ -1803,197 +1868,244 @@ msgstr "Kontrast der blauen Komponente"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Stellt den Kontrast der blauen Komponente des gescannten Bildes ein."
 
-#: .tmp/niash.c:683
+#: .tmp/mustek_usb2.c:105
 #, no-c-format
-msgid "Image"
-msgstr "Bild"
+msgid "Color48"
+msgstr "Farbe 48"
 
-#: .tmp/niash.c:711
+#: .tmp/mustek_usb2.c:106 .tmp/mustek_usb2.c:114
 #, no-c-format
-msgid "Miscellaneous"
-msgstr "Verschiedenes"
+msgid "Color24"
+msgstr "Farbe 24"
 
-#: .tmp/niash.c:718
+#: .tmp/mustek_usb2.c:107
 #, no-c-format
-msgid "Lamp status"
-msgstr "Lampen Status"
+msgid "Gray16"
+msgstr "Grau 16"
 
-#: .tmp/niash.c:719
+#: .tmp/mustek_usb2.c:108
 #, no-c-format
-msgid "Switches the lamp on or off."
-msgstr "Schaltet die Lampe an oder aus"
+msgid "Gray8"
+msgstr "Grau 8"
 
-#: .tmp/niash.c:729
+#: .tmp/mustek_usb2.c:119
 #, no-c-format
-msgid "Calibrates for black and white level."
-msgstr "Kalibriert Schwarz- und Weisswert."
+msgid "Reflective"
+msgstr ""
 
-#: .tmp/plustek.c:232 .tmp/plustek_pp.c:201
+#: .tmp/mustek_usb2.c:120
+#, fuzzy, no-c-format
+msgid "Positive"
+msgstr "Filmpositiv"
+
+#: .tmp/mustek_usb2.c:421
 #, no-c-format
-msgid "Transparency"
-msgstr "Durchlicht"
+msgid ""
+"Warm-up until the lamp's brightness is constant instead of insisting on 40 "
+"seconds warm-up time."
+msgstr ""
+"Warte solange, bis die Helligkeit der Lampe konstant ist anstatt einfach 40 "
+"Sekunden zu warten."
 
-#: .tmp/plustek.c:861
+#: .tmp/pixma.c:116
 #, no-c-format
-msgid "Device-Settings"
-msgstr "Geräteeinstellungen"
+msgid "multi-function peripheral"
+msgstr ""
 
-#: .tmp/plustek.c:868
+#: .tmp/pixma_sane_options.c:91
 #, no-c-format
-msgid "Lampswitch"
-msgstr "Lampenschalter"
+msgid "Button-controlled scan (experimental)"
+msgstr ""
 
-#: .tmp/plustek.c:869
+#: .tmp/pixma_sane_options.c:94
 #, no-c-format
-msgid "Manually switching the lamp(s)."
-msgstr "Lampe(n) ein-/ausschalten."
+msgid ""
+"When enabled, scan process will not start immediately. To proceed, press "
+"\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
+"cancel, press \"GRAY\" button."
+msgstr ""
 
-#: .tmp/plustek.c:874
-#, no-c-format
-msgid "Calibration data cache"
-msgstr "Kalibrierungsdatenspeicher"
-
-#: .tmp/plustek.c:875
-#, no-c-format
-msgid "Enables or disables calibration data cache."
-msgstr "Schaltet Kalibrierungsdatenspeicher ein oder aus."
-
-#: .tmp/plustek.c:880
-#, no-c-format
-msgid "Speedup sensor"
-msgstr "Sensorbeschleunigung"
-
-#: .tmp/plustek.c:881
-#, no-c-format
-msgid "Enables or disables speeding up sensor movement."
-msgstr "Schaltet Sensorbeschleunigung an oder ab."
-
-#: .tmp/plustek.c:895
-#, no-c-format
-msgid "Warmup-time"
-msgstr "Aufwärmzeit"
-
-#: .tmp/plustek.c:896
-#, no-c-format
-msgid "Warmup-time in seconds."
-msgstr "Aufwärmzeit in Sekunden."
-
-#: .tmp/plustek.c:903
-#, no-c-format
-msgid "Lampoff-time"
-msgstr "Lampenausschaltzeit"
-
-#: .tmp/plustek.c:904
-#, no-c-format
-msgid "Lampoff-time in seconds."
-msgstr "Lampenausschaltzeit in Sekunden."
-
-#: .tmp/plustek.c:911
-#, no-c-format
-msgid "Analog frontend"
-msgstr "Analog Frontend"
-
-#: .tmp/plustek.c:917 .tmp/umax_pp.c:656
-#, no-c-format
-msgid "Red gain"
-msgstr "Verstärkung roter Kanal"
-
-#: .tmp/plustek.c:918
-#, no-c-format
-msgid "Red gain value of the AFE"
-msgstr "Verstärkung roter Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:925 .tmp/umax_pp.c:713
-#, no-c-format
-msgid "Red offset"
-msgstr "Offset roter Kanal"
-
-#: .tmp/plustek.c:926
-#, no-c-format
-msgid "Red offset value of the AFE"
-msgstr "Offset roter Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:933 .tmp/umax_pp.c:668
-#, no-c-format
-msgid "Green gain"
-msgstr "Verstärkung grüner Kanal"
-
-#: .tmp/plustek.c:934
-#, no-c-format
-msgid "Green gain value of the AFE"
-msgstr "Verstärkung grüner Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:941 .tmp/umax_pp.c:725
-#, no-c-format
-msgid "Green offset"
-msgstr "Offset grüner Kanal"
-
-#: .tmp/plustek.c:942
-#, no-c-format
-msgid "Green offset value of the AFE"
-msgstr "Offset grüner Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:949 .tmp/umax_pp.c:680
-#, no-c-format
-msgid "Blue gain"
-msgstr "Verstärkung blauer Kanal"
-
-#: .tmp/plustek.c:950
-#, no-c-format
-msgid "Blue gain value of the AFE"
-msgstr "Verstärkung blauer Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:957 .tmp/umax_pp.c:737
-#, no-c-format
-msgid "Blue offset"
-msgstr "Offset blauer Kanal"
-
-#: .tmp/plustek.c:958
-#, no-c-format
-msgid "Blue offset value of the AFE"
-msgstr "Offset blauer Kanal des AD-Wandlers."
-
-#: .tmp/plustek.c:965
-#, no-c-format
-msgid "Red lamp off"
-msgstr "Ausschaltzeitpunkt rote Lampe"
-
-#: .tmp/plustek.c:966
-#, no-c-format
-msgid "Defines red lamp off parameter"
-msgstr "Definiert den Ausschaltzeitpunkt der roten Lampe."
-
-#: .tmp/plustek.c:973
-#, no-c-format
-msgid "Green lamp off"
-msgstr "Ausschaltzeitpunkt grüne Lampe"
-
-#: .tmp/plustek.c:974
-#, no-c-format
-msgid "Defines green lamp off parameter"
-msgstr "Definiert den Ausschaltzeitpunkt der grünen Lampe."
-
-#: .tmp/plustek.c:981
-#, no-c-format
-msgid "Blue lamp off"
-msgstr "Ausschaltzeitpunkt blaue Lampe"
-
-#: .tmp/plustek.c:982
-#, no-c-format
-msgid "Defines blue lamp off parameter"
-msgstr "Definiert den Ausschaltzeitpunkt der blauen Lampe."
-
-#: .tmp/plustek.c:996
+#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1013
 #, no-c-format
 msgid "Buttons"
 msgstr "Knöpfe"
 
-#: .tmp/plustek.c:1004
+#: .tmp/pixma_sane_options.c:216
+#, fuzzy, no-c-format
+msgid "Update button state"
+msgstr "Schalter Status"
+
+#: .tmp/pixma_sane_options.c:228
+#, no-c-format
+msgid "Button 1"
+msgstr "Knopf 1"
+
+#: .tmp/pixma_sane_options.c:242
+#, no-c-format
+msgid "Button 2"
+msgstr "Knopf 2"
+
+#: .tmp/plustek.c:233 .tmp/plustek_pp.c:201 .tmp/u12.c:156
+#, no-c-format
+msgid "Transparency"
+msgstr "Durchlicht"
+
+#: .tmp/plustek.c:878
+#, no-c-format
+msgid "Device-Settings"
+msgstr "Geräteeinstellungen"
+
+#: .tmp/plustek.c:885
+#, no-c-format
+msgid "Lampswitch"
+msgstr "Lampenschalter"
+
+#: .tmp/plustek.c:886
+#, no-c-format
+msgid "Manually switching the lamp(s)."
+msgstr "Lampe(n) ein-/ausschalten."
+
+#: .tmp/plustek.c:891
+#, no-c-format
+msgid "Calibration data cache"
+msgstr "Kalibrierungsdatenspeicher"
+
+#: .tmp/plustek.c:892
+#, no-c-format
+msgid "Enables or disables calibration data cache."
+msgstr "Schaltet Kalibrierungsdatenspeicher ein oder aus."
+
+#: .tmp/plustek.c:897
+#, no-c-format
+msgid "Speedup sensor"
+msgstr "Sensorbeschleunigung"
+
+#: .tmp/plustek.c:898
+#, no-c-format
+msgid "Enables or disables speeding up sensor movement."
+msgstr "Schaltet Sensorbeschleunigung an oder ab."
+
+#: .tmp/plustek.c:912
+#, no-c-format
+msgid "Warmup-time"
+msgstr "Aufwärmzeit"
+
+#: .tmp/plustek.c:913
+#, no-c-format
+msgid "Warmup-time in seconds."
+msgstr "Aufwärmzeit in Sekunden."
+
+#: .tmp/plustek.c:920
+#, no-c-format
+msgid "Lampoff-time"
+msgstr "Lampenausschaltzeit"
+
+#: .tmp/plustek.c:921
+#, no-c-format
+msgid "Lampoff-time in seconds."
+msgstr "Lampenausschaltzeit in Sekunden."
+
+#: .tmp/plustek.c:928
+#, no-c-format
+msgid "Analog frontend"
+msgstr "Analog Frontend"
+
+#: .tmp/plustek.c:934 .tmp/umax_pp.c:656
+#, no-c-format
+msgid "Red gain"
+msgstr "Verstärkung roter Kanal"
+
+#: .tmp/plustek.c:935
+#, no-c-format
+msgid "Red gain value of the AFE"
+msgstr "Verstärkung roter Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:942 .tmp/umax_pp.c:713
+#, no-c-format
+msgid "Red offset"
+msgstr "Offset roter Kanal"
+
+#: .tmp/plustek.c:943
+#, no-c-format
+msgid "Red offset value of the AFE"
+msgstr "Offset roter Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:950 .tmp/umax_pp.c:668
+#, no-c-format
+msgid "Green gain"
+msgstr "Verstärkung grüner Kanal"
+
+#: .tmp/plustek.c:951
+#, no-c-format
+msgid "Green gain value of the AFE"
+msgstr "Verstärkung grüner Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:958 .tmp/umax_pp.c:725
+#, no-c-format
+msgid "Green offset"
+msgstr "Offset grüner Kanal"
+
+#: .tmp/plustek.c:959
+#, no-c-format
+msgid "Green offset value of the AFE"
+msgstr "Offset grüner Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:966 .tmp/umax_pp.c:680
+#, no-c-format
+msgid "Blue gain"
+msgstr "Verstärkung blauer Kanal"
+
+#: .tmp/plustek.c:967
+#, no-c-format
+msgid "Blue gain value of the AFE"
+msgstr "Verstärkung blauer Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:974 .tmp/umax_pp.c:737
+#, no-c-format
+msgid "Blue offset"
+msgstr "Offset blauer Kanal"
+
+#: .tmp/plustek.c:975
+#, no-c-format
+msgid "Blue offset value of the AFE"
+msgstr "Offset blauer Kanal des AD-Wandlers."
+
+#: .tmp/plustek.c:982
+#, no-c-format
+msgid "Red lamp off"
+msgstr "Ausschaltzeitpunkt rote Lampe"
+
+#: .tmp/plustek.c:983
+#, no-c-format
+msgid "Defines red lamp off parameter"
+msgstr "Definiert den Ausschaltzeitpunkt der roten Lampe."
+
+#: .tmp/plustek.c:990
+#, no-c-format
+msgid "Green lamp off"
+msgstr "Ausschaltzeitpunkt grüne Lampe"
+
+#: .tmp/plustek.c:991
+#, no-c-format
+msgid "Defines green lamp off parameter"
+msgstr "Definiert den Ausschaltzeitpunkt der grünen Lampe."
+
+#: .tmp/plustek.c:998
+#, no-c-format
+msgid "Blue lamp off"
+msgstr "Ausschaltzeitpunkt blaue Lampe"
+
+#: .tmp/plustek.c:999
+#, no-c-format
+msgid "Defines blue lamp off parameter"
+msgstr "Definiert den Ausschaltzeitpunkt der blauen Lampe."
+
+#: .tmp/plustek.c:1021
 #, no-c-format
 msgid "Scanner button"
 msgstr "Scannerbutton"
 
-#: .tmp/plustek.c:1005
+#: .tmp/plustek.c:1022
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr "Diese Option spiegelt den Zustand der Scannerknöpfe wider."
@@ -2531,7 +2643,8 @@ msgstr "Lampe beim Beenden ausschalten"
 
 #: .tmp/saneopts.h:206
 #, no-c-format
-msgid "Read-only option that specifies how many options a specific devices supports."
+msgid ""
+"Read-only option that specifies how many options a specific devices supports."
 msgstr ""
 "Nur-Lese-Option, die angibt, wieviele Optionen ein bestimmtes Gerät "
 "unterstützt."
@@ -2773,7 +2886,8 @@ msgstr "Legt die Größe der für den Scanvorgang verwendeten Halbtonmatrix fest
 
 #: .tmp/saneopts.h:337
 #, no-c-format
-msgid "Defines the halftoning (dithering) pattern for scanning halftoned images."
+msgid ""
+"Defines the halftoning (dithering) pattern for scanning halftoned images."
 msgstr "Definiert die für den Scanvorgang zu verwendende Halbton-Matrix."
 
 #: .tmp/saneopts.h:341
@@ -2839,17 +2953,20 @@ msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung."
 #: .tmp/saneopts.h:367
 #, no-c-format
 msgid "Define exposure-time for red calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der roten Komponente."
 
 #: .tmp/saneopts.h:369
 #, no-c-format
 msgid "Define exposure-time for green calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der grünen Komponente."
 
 #: .tmp/saneopts.h:371
 #, no-c-format
 msgid "Define exposure-time for blue calibration"
-msgstr "Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
+msgstr ""
+"Bestimmt die Beleuchtungszeit für die Kalibrierung der blauen Komponente."
 
 #: .tmp/saneopts.h:373
 #, no-c-format
@@ -2900,6 +3017,16 @@ msgstr "Schalte Lampe beim Beenden des Programms aus"
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "Flachbettscanner"
+
+#: .tmp/sm3840.c:689
+#, fuzzy, no-c-format
+msgid "Lamp timeout"
+msgstr "Lampenausschaltzeit"
+
+#: .tmp/sm3840.c:691
+#, no-c-format
+msgid "Minutes until lamp is turned off after scan"
+msgstr ""
 
 #: .tmp/snapscan-options.c:84
 #, no-c-format
@@ -2953,12 +3080,12 @@ msgstr ""
 "möglicherweise nicht mehr auf Eingaben und das System kann unbenutzbar "
 "werden."
 
-#: .tmp/snapscan-options.c:429
+#: .tmp/snapscan-options.c:436
 #, no-c-format
 msgid "Preview mode"
 msgstr "Vorschaumodus"
 
-#: .tmp/snapscan-options.c:431
+#: .tmp/snapscan-options.c:438
 #, no-c-format
 msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
@@ -2967,22 +3094,24 @@ msgstr ""
 "Wählt den Scanmodus für die Vorschau aus. Vorschau in Graustufen ist "
 "normalerweise der beste Kompromiss aus Geschwindigkeit und Detailtreue."
 
-#: .tmp/snapscan-options.c:537
+#: .tmp/snapscan-options.c:545
 #, no-c-format
 msgid "Predefined settings"
 msgstr "Vordefinierte Einstellungen"
 
-#: .tmp/snapscan-options.c:539
+#: .tmp/snapscan-options.c:547
 #, no-c-format
-msgid "Provides standard scanning areas for photographs, printed pages and the like."
-msgstr "Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
+msgid ""
+"Provides standard scanning areas for photographs, printed pages and the like."
+msgstr ""
+"Stellt Standardgrößen für Fotographien, bedruckte Seiten etc. zur Verfügung."
 
-#: .tmp/snapscan-options.c:808
+#: .tmp/snapscan-options.c:823
 #, no-c-format
 msgid "Colour lines per read"
 msgstr "Farbzeilen pro Lesevorgang"
 
-#: .tmp/snapscan-options.c:820
+#: .tmp/snapscan-options.c:835
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Graustufenzeilen pro Lesevorgang"
@@ -2993,37 +3122,37 @@ msgstr "Graustufenzeilen pro Lesevorgang"
 msgid "Dither"
 msgstr "Halbton"
 
-#: .tmp/test.c:132
+#: .tmp/test.c:134
 #, no-c-format
 msgid "Solid black"
 msgstr "Komplett schwarz"
 
-#: .tmp/test.c:132
+#: .tmp/test.c:134
 #, no-c-format
 msgid "Solid white"
 msgstr "Komplett weiß"
 
-#: .tmp/test.c:133
+#: .tmp/test.c:135
 #, no-c-format
 msgid "Color pattern"
 msgstr "Farbmuster"
 
-#: .tmp/test.c:133
+#: .tmp/test.c:135
 #, no-c-format
 msgid "Grid"
 msgstr "Gitter"
 
-#: .tmp/test.c:158 .tmp/test.c:166
+#: .tmp/test.c:160 .tmp/test.c:168
 #, no-c-format
 msgid "First entry"
 msgstr "Erster Eintrag"
 
-#: .tmp/test.c:158 .tmp/test.c:166
+#: .tmp/test.c:160 .tmp/test.c:168
 #, no-c-format
 msgid "Second entry"
 msgstr "Zweiter Eintrag"
 
-#: .tmp/test.c:160
+#: .tmp/test.c:162
 #, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
@@ -3032,12 +3161,12 @@ msgstr ""
 "Dies ist der sehr lange dritte Eintrag. Vielleicht weiß das Frontend, wie "
 "man ihn darstellen kann."
 
-#: .tmp/test.c:335
+#: .tmp/test.c:343
 #, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Handscanner-Simulation"
 
-#: .tmp/test.c:336
+#: .tmp/test.c:344
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
@@ -3050,39 +3179,47 @@ msgstr ""
 "Mit dieser Option kann man prüfen, ob das Frontend damit richtig umgehen "
 "kann."
 
-#: .tmp/test.c:353
+#: .tmp/test.c:361
 #, no-c-format
 msgid "Three-pass simulation"
 msgstr "Three-Pass-Simulation"
 
-#: .tmp/test.c:354
+#: .tmp/test.c:362
 #, no-c-format
-msgid "Simulate a three-pass scanner. In color mode, three frames are transmitted."
+msgid ""
+"Simulate a three-pass scanner. In color mode, three frames are transmitted."
 msgstr ""
 "Simuliere einen Three-Pass-Scanner. Im Farbmodus werden drei Frames "
 "übertragen."
 
-#: .tmp/test.c:369
+#: .tmp/test.c:377
 #, no-c-format
 msgid "Set the order of frames"
 msgstr "Legt die Reihenfolge der Frames fest"
 
-#: .tmp/test.c:370
+#: .tmp/test.c:378
 #, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Legt die Reihenfolge der Frames im Three-Pass-Modus fest."
 
-#: .tmp/test.c:402
+#: .tmp/test.c:411
+#, no-c-format
+msgid ""
+"If Automatic Document Feeder is selected, the feeder will be 'empty' after "
+"10 scans."
+msgstr ""
+
+#: .tmp/test.c:426
 #, no-c-format
 msgid "Special Options"
 msgstr "Spezialoptionen"
 
-#: .tmp/test.c:415
+#: .tmp/test.c:439
 #, no-c-format
 msgid "Select the test picture"
 msgstr "Wählt das Testbild aus"
 
-#: .tmp/test.c:417
+#: .tmp/test.c:441
 #, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
@@ -3099,12 +3236,12 @@ msgstr ""
 "Gitter: zeichnet ein Schwarz-Weiß-Gitter mit einer Höhe und Breite der "
 "einzelnen Felder von jeweils 10 mm."
 
-#: .tmp/test.c:438
+#: .tmp/test.c:462
 #, no-c-format
 msgid "Invert endianness"
 msgstr "Kehre Endianness um"
 
-#: .tmp/test.c:439
+#: .tmp/test.c:463
 #, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option can "
@@ -3116,58 +3253,59 @@ msgstr ""
 "testen, beispielsweise um festzustellen, ob das Frontend die richtige "
 "Endianness verwendet."
 
-#: .tmp/test.c:455
+#: .tmp/test.c:479
 #, no-c-format
 msgid "Read limit"
 msgstr "Lesebegrenzung"
 
-#: .tmp/test.c:456
+#: .tmp/test.c:480
 #, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Begrenzt die Menge an Daten, die mit jedem Aufruf von sane_read() übertragen "
 "wird."
 
-#: .tmp/test.c:469
+#: .tmp/test.c:493
 #, no-c-format
 msgid "Size of read-limit"
 msgstr "Größe der Lesebegrenzung"
 
-#: .tmp/test.c:470
+#: .tmp/test.c:494
 #, no-c-format
 msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "Die (maximale) Menge and Daten, die bei jedem Aufruf von sane_read() "
 "übertragen wird."
 
-#: .tmp/test.c:485
+#: .tmp/test.c:509
 #, no-c-format
 msgid "Read delay"
 msgstr "Leseverzögerung"
 
-#: .tmp/test.c:486
+#: .tmp/test.c:510
 #, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Verzögere die Datenübertragung durch die Pipe."
 
-#: .tmp/test.c:498
+#: .tmp/test.c:522
 #, no-c-format
 msgid "Duration of read-delay"
 msgstr "Dauer der Leseverzögerung."
 
-#: .tmp/test.c:499
+#: .tmp/test.c:523
 #, no-c-format
-msgid "How long to wait after transferring each buffer of data through the pipe."
+msgid ""
+"How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
 "Legt fest, wie lange nach der Übertragung eines Datenpuffers durch die Pipe "
 "gewartet wird."
 
-#: .tmp/test.c:514
+#: .tmp/test.c:538
 #, no-c-format
 msgid "Return-value of sane_read"
 msgstr "Rückgabewert von sane_read"
 
-#: .tmp/test.c:516
+#: .tmp/test.c:540
 #, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal handling "
@@ -3178,22 +3316,22 @@ msgstr ""
 "Einstellung für's Scannen. Alle anderen Rückgabewerte dienen dazu, das "
 "Verhalten des Frontends festzustellen."
 
-#: .tmp/test.c:533
+#: .tmp/test.c:557
 #, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Pixelverlust pro Zeile"
 
-#: .tmp/test.c:535
+#: .tmp/test.c:559
 #, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Die Anzahl der Pixel, die am Ende der Zeile ungenutzt sind."
 
-#: .tmp/test.c:548
+#: .tmp/test.c:572
 #, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Ungenaue Parameter"
 
-#: .tmp/test.c:549
+#: .tmp/test.c:573
 #, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
@@ -3202,36 +3340,37 @@ msgstr ""
 "Gebe ungenaue Werte für die Anzahl der Zeilen und die Bytes pro Zeile "
 "zurück, wenn sane_parameters() vor sane_start() aufgerufen wird."
 
-#: .tmp/test.c:562
+#: .tmp/test.c:586
 #, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Nichtblockierendes IO"
 
-#: .tmp/test.c:563
+#: .tmp/test.c:587
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
 "Verwende nichtblockierndes IO für sane_read(), wenn das durch das Frontend "
 "unterstützt wird."
 
-#: .tmp/test.c:576
+#: .tmp/test.c:600
 #, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Biete Select-Dateideskriptor an"
 
-#: .tmp/test.c:577
+#: .tmp/test.c:601
 #, no-c-format
-msgid "Offer a select filedescriptor for detecting if sane_read() will return data."
+msgid ""
+"Offer a select filedescriptor for detecting if sane_read() will return data."
 msgstr ""
 "Biete einen Select-Dateideskriptor an, damit das Frontend erkennen kann, ob "
 "sane_read() Daten zurückliefern würde."
 
-#: .tmp/test.c:590
+#: .tmp/test.c:614
 #, no-c-format
 msgid "Enable test options"
 msgstr "Test-Optionen einschalten"
 
-#: .tmp/test.c:591
+#: .tmp/test.c:615
 #, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of frontends to "
@@ -3241,27 +3380,27 @@ msgstr ""
 "Fähigkeit des Frontends feststellen, die verschiedenen Typen von SANE-"
 "Optionen darzustellen und zu ändern."
 
-#: .tmp/test.c:605
+#: .tmp/test.c:629
 #, no-c-format
 msgid "Print options"
 msgstr "Gebe Optionen aus"
 
-#: .tmp/test.c:606
+#: .tmp/test.c:630
 #, no-c-format
 msgid "Print a list of all options."
 msgstr "Gibt eine Liste aller Optionen aus."
 
-#: .tmp/test.c:683
+#: .tmp/test.c:707
 #, no-c-format
 msgid "Bool test options"
 msgstr "Bool-Testoptionen"
 
-#: .tmp/test.c:696
+#: .tmp/test.c:720
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Bool soft select soft detect"
 
-#: .tmp/test.c:698
+#: .tmp/test.c:722
 #, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and advanced) "
@@ -3271,12 +3410,12 @@ msgstr ""
 "und \"soft detect\" (und \"advanced\") hat. Also eine ganz normale Bool-"
 "Option."
 
-#: .tmp/test.c:714
+#: .tmp/test.c:738
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Bool hard select soft detect"
 
-#: .tmp/test.c:716
+#: .tmp/test.c:740
 #, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and advanced) "
@@ -3288,12 +3427,12 @@ msgstr ""
 "nicht vom Frontend geändert werden kann, sondern vom Benutzer (z. B. indem "
 "er einen Knopf am Gerät drückt)."
 
-#: .tmp/test.c:733
+#: .tmp/test.c:757
 #, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
-#: .tmp/test.c:734
+#: .tmp/test.c:758
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
@@ -3305,12 +3444,12 @@ msgstr ""
 "geändert werden kann, sondern vom Benutzer (z. B. indem er einen Knopf am "
 "Gerät drückt). Außerdem kann sie nicht vom Frontend gelesen werden."
 
-#: .tmp/test.c:752
+#: .tmp/test.c:776
 #, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
-#: .tmp/test.c:753
+#: .tmp/test.c:777
 #, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
@@ -3319,12 +3458,12 @@ msgstr ""
 "(4/6) Die ist eine Bool-Testoption, welche die Fähigkeiten \"soft detect"
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
-#: .tmp/test.c:769
+#: .tmp/test.c:793
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
-#: .tmp/test.c:770
+#: .tmp/test.c:794
 #, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated (and "
@@ -3333,12 +3472,12 @@ msgstr ""
 "(5/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select\", "
 "\"soft detect\", und \"emulated\" (und \"advanced\") hat."
 
-#: .tmp/test.c:786
+#: .tmp/test.c:810
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
-#: .tmp/test.c:787
+#: .tmp/test.c:811
 #, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic (and "
@@ -3348,27 +3487,27 @@ msgstr ""
 "\"soft detect\", und \"automatic\" (und \"advanced\") hat. Diese Option kann "
 "vom Backend automatisch gesetzt werden."
 
-#: .tmp/test.c:804
+#: .tmp/test.c:828
 #, no-c-format
 msgid "Int test options"
 msgstr "Int-Testoptionen"
 
-#: .tmp/test.c:817
+#: .tmp/test.c:841
 #, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Int"
 
-#: .tmp/test.c:818
+#: .tmp/test.c:842
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Int-Testoption ohne Einheit und Beschränkung."
 
-#: .tmp/test.c:833
+#: .tmp/test.c:857
 #, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Int constraint range"
 
-#: .tmp/test.c:834
+#: .tmp/test.c:858
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum is "
@@ -3378,34 +3517,36 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: .tmp/test.c:850
+#: .tmp/test.c:874
 #, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int constraint word list"
 
-#: .tmp/test.c:851
+#: .tmp/test.c:875
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Int-Testoption mit der Einheit \"Bits\" und einer Wortlisten-"
 "Beschränkung."
 
-#: .tmp/test.c:866
+#: .tmp/test.c:890
 #, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
-#: .tmp/test.c:867
+#: .tmp/test.c:891
 #, no-c-format
-msgid "(4/6) Int test option with unit mm and using an array without constraints."
-msgstr "(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
+msgid ""
+"(4/6) Int test option with unit mm and using an array without constraints."
+msgstr ""
+"(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne Beschränkung."
 
-#: .tmp/test.c:882
+#: .tmp/test.c:906
 #, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int array constraint range"
 
-#: .tmp/test.c:883
+#: .tmp/test.c:907
 #, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -3415,12 +3556,12 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: .tmp/test.c:900
+#: .tmp/test.c:924
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array constraint word list"
 
-#: .tmp/test.c:901
+#: .tmp/test.c:925
 #, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word list "
@@ -3429,27 +3570,27 @@ msgstr ""
 "(6/6) Int-Testoption mit der Einheit \"Prozent\" und einem Feld mit einer "
 "Wort-Beschränkung."
 
-#: .tmp/test.c:917
+#: .tmp/test.c:941
 #, no-c-format
 msgid "Fixed test options"
 msgstr "Fixed-Testoptionen"
 
-#: .tmp/test.c:930
+#: .tmp/test.c:954
 #, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Fixed"
 
-#: .tmp/test.c:931
+#: .tmp/test.c:955
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Fixed-Testoption ohne Einheit und ohne Beschränkung."
 
-#: .tmp/test.c:946
+#: .tmp/test.c:970
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Fixed constraint range"
 
-#: .tmp/test.c:947
+#: .tmp/test.c:971
 #, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
@@ -3459,47 +3600,48 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist -42.17, das Maximum 32767.9999, und "
 "die Schrittweite ist 2.0."
 
-#: .tmp/test.c:963
+#: .tmp/test.c:987
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Fixed constraint word list"
 
-#: .tmp/test.c:964
+#: .tmp/test.c:988
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr "(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
+msgstr ""
+"(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-Beschränkung."
 
-#: .tmp/test.c:979
+#: .tmp/test.c:1003
 #, no-c-format
 msgid "String test options"
 msgstr "String-Testoptionen"
 
-#: .tmp/test.c:992
+#: .tmp/test.c:1016
 #, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) String"
 
-#: .tmp/test.c:993
+#: .tmp/test.c:1017
 #, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) String-Testoption ohne Beschränkung."
 
-#: .tmp/test.c:1010
+#: .tmp/test.c:1034
 #, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) String constraint string list"
 
-#: .tmp/test.c:1011
+#: .tmp/test.c:1035
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) String-Testoption mit einer Stringlisten-Beschränkung."
 
-#: .tmp/test.c:1030
+#: .tmp/test.c:1054
 #, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) String constraint long string list"
 
-#: .tmp/test.c:1031
+#: .tmp/test.c:1055
 #, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
@@ -3508,27 +3650,32 @@ msgstr ""
 "(3/3) String-Testoption mit einer Stringlisten-Beschränkung. Enthält ein "
 "paar mehr Einträge..."
 
-#: .tmp/test.c:1051
+#: .tmp/test.c:1075
 #, no-c-format
 msgid "Button test options"
 msgstr "Button-Testoptionen"
 
-#: .tmp/test.c:1064
+#: .tmp/test.c:1088
 #, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Button"
 
-#: .tmp/test.c:1065
+#: .tmp/test.c:1089
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Button-Testoption. Gibt etwas Text aus..."
 
-#: .tmp/umax1220u.c:247 .tmp/umax.c:5810
+#: .tmp/u12.c:149
+#, no-c-format
+msgid "Color 36"
+msgstr "Farbe 36"
+
+#: .tmp/umax1220u.c:248 .tmp/umax.c:5810
 #, no-c-format
 msgid "Lamp off"
 msgstr "Lampe aus"
 
-#: .tmp/umax1220u.c:248 .tmp/umax.c:5811
+#: .tmp/umax1220u.c:249 .tmp/umax.c:5811
 #, no-c-format
 msgid "Turn off scanner lamp"
 msgstr "Schalte Scannerlampe aus"
@@ -3717,4 +3864,3 @@ msgstr "Legt den Offset des grünen Kanals fest"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Legt den Offset des blauen Kanals fest"
-

@@ -7,22 +7,25 @@ ALL_LINGUAS = bg cs da de es fi fr it nl no pl pt ru sv
 SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/avision.h \
   ../backend/canon630u.c ../backend/epson.c ../backend/epson.h \
-  ../backend/gt68xx.c ../backend/hp5400.c ../backend/leo.c ../backend/leo.h \
+  ../backend/genesys.c \
+  ../backend/gt68xx.c ../backend/gt68xx_low.h ../backend/hp5400_sane.c \
+  ../backend/hp-option.c ../backend/hp-option.h \
+  ../backend/leo.c ../backend/leo.h ../backend/lexmark.h \
   ../backend/ma1509.c \
-  ../backend/matsushita.c ../backend/matsushita.h ../backend/mustek.c \
+  ../backend/matsushita.c ../backend/matsushita.h \
   ../backend/microtek2.c ../backend/microtek2.h \
-  ../backend/mustek_usb.c \
+  ../backend/mustek.c ../backend/mustek_usb.c ../backend/mustek_usb2.c \
   ../backend/niash.c \
+  ../backend/pixma.c ../backend/pixma_sane_options.c \
   ../backend/plustek.c ../backend/plustek_pp.c \
   ../backend/pnm.c \
-  ../backend/sceptre.c ../backend/sceptre.h ../backend/snapscan.c \
-  ../backend/snapscan-options.c ../backend/teco1.c ../backend/teco1.h \
-  ../backend/teco2.c ../backend/teco2.h ../backend/teco3.c \
-  ../backend/teco3.h ../backend/test.c ../backend/umax1220u.c \
-  ../backend/umax.c ../backend/umax_pp.c \
-  ../backend/hp-option.h ../backend/hp-option.c \
-  ../backend/genesys.c
-
+  ../backend/sceptre.c ../backend/sceptre.h  ../backend/sm3840.c \
+  ../backend/snapscan.c ../backend/snapscan-options.c \
+  ../backend/teco1.c ../backend/teco1.h \
+  ../backend/teco2.c ../backend/teco2.h \
+  ../backend/teco3.c ../backend/teco3.h \
+  ../backend/test.c ../backend/u12.c ../backend/umax1220u.c \
+  ../backend/umax.c ../backend/umax_pp.c
 
 DISTFILES = Makefile.in README template.po \
   $(foreach lang,$(ALL_LINGUAS),sane-backends.$(lang).po)

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-04-18 21:47+0200\n"
-"PO-Revision-Date: 2006-04-18 21:49+0200\n"
+"POT-Creation-Date: 2006-05-26 13:38+0200\n"
+"PO-Revision-Date: 2006-05-26 14:30+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -15,9 +15,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/genesys.c:90 .tmp/hp-option.c:2926
-#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb.c:270
-#: .tmp/saneopts.h:395 .tmp/sceptre.h:289 .tmp/snapscan-options.c:79
-#: .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
+#: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
+#: .tmp/sceptre.h:289 .tmp/snapscan-options.c:79 .tmp/umax.c:186
+#: .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
 msgstr "Binario"
@@ -30,19 +31,21 @@ msgstr "Scala di grigi"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/saneopts.h:393
-#: .tmp/sceptre.h:292 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
-#: .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:614
+#: .tmp/saneopts.h:393 .tmp/sceptre.h:292 .tmp/sm3840.c:81
+#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
+#: .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Colore"
 
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:665 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
-#: .tmp/microtek2.h:601 .tmp/mustek.c:4405 .tmp/mustek_usb.c:353
-#: .tmp/niash.c:756 .tmp/plustek.c:815 .tmp/plustek_pp.c:792
-#: .tmp/sceptre.c:750 .tmp/snapscan-options.c:561 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/umax.c:5224 .tmp/umax_pp.c:550
+#: .tmp/microtek2.h:601 .tmp/mustek.c:4405 .tmp/mustek_usb2.c:431
+#: .tmp/mustek_usb.c:353 .tmp/niash.c:756 .tmp/plustek.c:815
+#: .tmp/plustek_pp.c:792 .tmp/sceptre.c:750 .tmp/snapscan-options.c:561
+#: .tmp/teco1.c:1143 .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592
+#: .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
 msgstr "Miglioramento"
@@ -57,12 +60,13 @@ msgstr "Predefiniti"
 msgid "Set default values for enhancement controls."
 msgstr "Imposta i valori predefiniti per i controlli del miglioramento"
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4551
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4564
 #: .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
-#: .tmp/mustek_usb.c:305 .tmp/plustek.c:769 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:494 .tmp/teco1.c:1095
-#: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642 .tmp/umax.c:5174
+#: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
+#: .tmp/plustek.c:769 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
+#: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
+#: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
@@ -175,9 +179,9 @@ msgid "Binary"
 msgstr "Binario"
 
 #: .tmp/epson.c:485 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/saneopts.h:394
-#: .tmp/sceptre.h:291 .tmp/snapscan-options.c:78 .tmp/test.c:124
-#: .tmp/umax.c:188
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:617
+#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:289
+#: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
 msgstr "Grigio"
@@ -193,7 +197,7 @@ msgid "Duplex"
 msgstr "Fronte e retro"
 
 #: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:144 .tmp/ma1509.c:106
-#: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
+#: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/pixma.c:622
 #: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
@@ -204,7 +208,8 @@ msgstr "Piano fisso"
 msgid "Transparency Unit"
 msgstr "Adattatore per trasparenze"
 
-#: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/test.c:189 .tmp/umax.c:184
+#: .tmp/epson.c:503 .tmp/mustek.c:154 .tmp/pixma.c:627 .tmp/test.c:189
+#: .tmp/umax.c:184
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Caricatore automatico fogli"
@@ -286,17 +291,20 @@ msgstr "Scarica il modello A"
 msgid "Download pattern B"
 msgstr "Scarica il modello B"
 
-#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/hp-option.c:3092
+#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/gt68xx_low.h:135
+#: .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Rosso"
 
-#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/hp-option.c:3093
+#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/gt68xx_low.h:136
+#: .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Verde"
 
-#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/hp-option.c:3094
+#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/gt68xx_low.h:137
+#: .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
 msgstr "Blu"
@@ -391,12 +399,12 @@ msgstr "A4"
 msgid "Max"
 msgstr "Massimo"
 
-#: .tmp/epson.c:2782 .tmp/genesys.c:4480 .tmp/gt68xx.c:453
+#: .tmp/epson.c:2782 .tmp/genesys.c:4493 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
-#: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb.c:260
-#: .tmp/niash.c:736 .tmp/plustek.c:685 .tmp/plustek_pp.c:657
-#: .tmp/sceptre.c:673 .tmp/snapscan-options.c:315 .tmp/teco2.c:1875
-#: .tmp/test.c:301 .tmp/umax.c:5052
+#: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:685
+#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
+#: .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Modalità di scansione"
@@ -662,17 +670,17 @@ msgstr ""
 msgid "Transparency Adapter"
 msgstr "Adattatore per trasparenza"
 
-#: .tmp/genesys.c:4602
+#: .tmp/genesys.c:4615
 #, no-c-format
 msgid "Extras"
 msgstr "Extra"
 
-#: .tmp/genesys.c:4622
+#: .tmp/genesys.c:4635
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Durata spegnimento lampada"
 
-#: .tmp/genesys.c:4625
+#: .tmp/genesys.c:4638
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
@@ -693,12 +701,12 @@ msgstr ""
 "Seleziona il colore di scansione da usare per la scala di grigi "
 "(predefinito: verde)."
 
-#: .tmp/gt68xx.c:555
+#: .tmp/gt68xx.c:555 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Opzioni per il debugging"
 
-#: .tmp/gt68xx.c:566
+#: .tmp/gt68xx.c:566 .tmp/mustek_usb2.c:419
 #, no-c-format
 msgid "Automatic warmup"
 msgstr "Preriscaldamento automatico"
@@ -778,15 +786,65 @@ msgstr ""
 "durante la ricezione dei dati. Valori bassi permettono una scansione più "
 "veloce, ma aumentano il rischio di linee mancanti."
 
-#: .tmp/gt68xx.c:674
+#: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
 #, no-c-format
 msgid "Gamma value"
 msgstr "Valore gamma"
 
-#: .tmp/gt68xx.c:676
+#: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
 msgstr "Imposta il valore gamma per tutti i canali."
+
+#: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
+#, no-c-format
+msgid "Image"
+msgstr "Immagine"
+
+#: .tmp/hp5400_sane.c:352 .tmp/niash.c:711
+#, no-c-format
+msgid "Miscellaneous"
+msgstr "Varie"
+
+#: .tmp/hp5400_sane.c:358
+#, fuzzy, no-c-format
+msgid "offset X"
+msgstr "Scarto"
+
+#: .tmp/hp5400_sane.c:359
+#, fuzzy, no-c-format
+msgid "Hardware internal X position of the scanning area."
+msgstr "Posizione X in alto a sinistra dell'area di scansione."
+
+#: .tmp/hp5400_sane.c:368
+#, fuzzy, no-c-format
+msgid "offset Y"
+msgstr "Scarto"
+
+#: .tmp/hp5400_sane.c:369
+#, fuzzy, no-c-format
+msgid "Hardware internal Y position of the scanning area."
+msgstr "Posizione X in alto a sinistra dell'area di scansione."
+
+#: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
+#, no-c-format
+msgid "Lamp status"
+msgstr "Stato della lampada"
+
+#: .tmp/hp5400_sane.c:382 .tmp/niash.c:719
+#, no-c-format
+msgid "Switches the lamp on or off."
+msgstr "Accendi o spegni la lampada"
+
+#: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
+#, no-c-format
+msgid "Calibrate"
+msgstr "Calibrazione"
+
+#: .tmp/hp5400_sane.c:393 .tmp/niash.c:729
+#, no-c-format
+msgid "Calibrates for black and white level."
+msgstr "Calibrare i livelli del bianco e nero"
 
 #: .tmp/hp-option.c:2927 .tmp/mustek.c:127 .tmp/plustek_pp.c:182
 #: .tmp/plustek_pp.c:191 .tmp/sceptre.h:290 .tmp/snapscan-options.c:77
@@ -868,7 +926,7 @@ msgid "Slow"
 msgstr "Lento"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:232 .tmp/plustek_pp.c:200
+#: .tmp/mustek.c:143 .tmp/plustek.c:232 .tmp/plustek_pp.c:200 .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normale"
@@ -918,8 +976,8 @@ msgstr "Diapositiva"
 msgid "Film-strip"
 msgstr "Pellicola"
 
-#: .tmp/hp-option.c:3234 .tmp/plustek.c:234 .tmp/plustek_pp.c:202
-#: .tmp/saneopts.h:177
+#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:234
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
 #, no-c-format
 msgid "Negative"
 msgstr "Negativo"
@@ -1009,11 +1067,6 @@ msgstr "Espulsione"
 #, no-c-format
 msgid "Unload Document."
 msgstr "Espelle il documento."
-
-#: .tmp/hp-option.h:97 .tmp/niash.c:728
-#, no-c-format
-msgid "Calibrate"
-msgstr "Calibrazione"
 
 #: .tmp/hp-option.h:98
 #, no-c-format
@@ -1159,7 +1212,7 @@ msgstr "8x8 Bayer"
 msgid "8x8 Vertical Line"
 msgstr "8x8 linea verticale"
 
-#: .tmp/leo.c:781 .tmp/saneopts.h:138
+#: .tmp/leo.c:781 .tmp/pixma_sane_options.c:40 .tmp/saneopts.h:138
 #, no-c-format
 msgid "Scan mode"
 msgstr "Modalità di scansione"
@@ -1168,6 +1221,16 @@ msgstr "Modalità di scansione"
 #, no-c-format
 msgid "Black & White"
 msgstr "Bianco e nero"
+
+#: .tmp/lexmark.h:55 .tmp/matsushita.h:220
+#, no-c-format
+msgid "Paper size"
+msgstr "Dimensione del foglio"
+
+#: .tmp/lexmark.h:57
+#, fuzzy, no-c-format
+msgid "Selects the size of the area to be scanned."
+msgstr "Selezionare il numero di fotogrammi da acquisire"
 
 #: .tmp/matsushita.c:139
 #, no-c-format
@@ -1308,7 +1371,7 @@ msgstr "Accentuazione dell'immagine"
 msgid "Sets the image emphasis"
 msgstr "Imposta l'accentuazione dell'immagine"
 
-#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
+#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301 .tmp/pixma_sane_options.c:107
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
@@ -1322,11 +1385,6 @@ msgstr "Scala di grigi a 4 bit"
 #, no-c-format
 msgid "Grayscale 8 bits"
 msgstr "Scala di grigi a 8 bit"
-
-#: .tmp/matsushita.h:220
-#, no-c-format
-msgid "Paper size"
-msgstr "Dimensione del foglio"
 
 #: .tmp/matsushita.h:221 .tmp/matsushita.h:228
 #, no-c-format
@@ -1805,32 +1863,84 @@ msgstr "Contrasto canale blu"
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr "Controlla il contrasto del canale blu dell'immagine acquisita."
 
-#: .tmp/niash.c:683
+#: .tmp/mustek_usb2.c:105
 #, no-c-format
-msgid "Image"
-msgstr "Immagine"
+msgid "Color48"
+msgstr "Colore a 48 bits"
 
-#: .tmp/niash.c:711
+#: .tmp/mustek_usb2.c:106 .tmp/mustek_usb2.c:114
 #, no-c-format
-msgid "Miscellaneous"
-msgstr "Varie"
+msgid "Color24"
+msgstr "Colore a 24 bits"
 
-#: .tmp/niash.c:718
+#: .tmp/mustek_usb2.c:107
 #, no-c-format
-msgid "Lamp status"
-msgstr "Stato della lampada"
+msgid "Gray16"
+msgstr "Grigio a 16 bits"
 
-#: .tmp/niash.c:719
+#: .tmp/mustek_usb2.c:108
 #, no-c-format
-msgid "Switches the lamp on or off."
-msgstr "Accendi o spegni la lampada"
+msgid "Gray8"
+msgstr "Grigio a 8 bits"
 
-#: .tmp/niash.c:729
+#: .tmp/mustek_usb2.c:119
 #, no-c-format
-msgid "Calibrates for black and white level."
-msgstr "Calibrare i livelli del bianco e nero"
+msgid "Reflective"
+msgstr ""
 
-#: .tmp/plustek.c:233 .tmp/plustek_pp.c:201
+#: .tmp/mustek_usb2.c:120
+#, fuzzy, no-c-format
+msgid "Positive"
+msgstr "Pellicola positiva"
+
+#: .tmp/mustek_usb2.c:421
+#, no-c-format
+msgid ""
+"Warm-up until the lamp's brightness is constant instead of insisting on 40 "
+"seconds warm-up time."
+msgstr ""
+"Preriscalda fino a che la luminisità della lampada sia costante invece di "
+"attendere 40 secondi."
+
+#: .tmp/pixma.c:116
+#, no-c-format
+msgid "multi-function peripheral"
+msgstr ""
+
+#: .tmp/pixma_sane_options.c:91
+#, no-c-format
+msgid "Button-controlled scan (experimental)"
+msgstr ""
+
+#: .tmp/pixma_sane_options.c:94
+#, no-c-format
+msgid ""
+"When enabled, scan process will not start immediately. To proceed, press "
+"\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
+"cancel, press \"GRAY\" button."
+msgstr ""
+
+#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1013
+#, no-c-format
+msgid "Buttons"
+msgstr "Pulsanti"
+
+#: .tmp/pixma_sane_options.c:216
+#, fuzzy, no-c-format
+msgid "Update button state"
+msgstr "Stato del pulsante"
+
+#: .tmp/pixma_sane_options.c:228
+#, fuzzy, no-c-format
+msgid "Button 1"
+msgstr "Pulsanti"
+
+#: .tmp/pixma_sane_options.c:242
+#, fuzzy, no-c-format
+msgid "Button 2"
+msgstr "Pulsanti"
+
+#: .tmp/plustek.c:233 .tmp/plustek_pp.c:201 .tmp/u12.c:156
 #, no-c-format
 msgid "Transparency"
 msgstr "Trasparenze"
@@ -1984,11 +2094,6 @@ msgstr "Lampada blu spenta"
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Imposta il parametro spegnimento lampada blu"
-
-#: .tmp/plustek.c:1013
-#, no-c-format
-msgid "Buttons"
-msgstr "Pulsanti"
 
 #: .tmp/plustek.c:1021
 #, no-c-format
@@ -2912,6 +3017,16 @@ msgstr "Spegnere la lampada in uscita dal programma"
 msgid "flatbed scanner"
 msgstr "scanner piano"
 
+#: .tmp/sm3840.c:689
+#, fuzzy, no-c-format
+msgid "Lamp timeout"
+msgstr "Durata spegnimento lampada"
+
+#: .tmp/sm3840.c:691
+#, no-c-format
+msgid "Minutes until lamp is turned off after scan"
+msgstr ""
+
 #: .tmp/snapscan-options.c:84
 #, no-c-format
 msgid "Document Feeder"
@@ -3090,7 +3205,9 @@ msgstr "Determina l'ordine delle immagini in una scansione a 3 passate"
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' after "
 "10 scans."
-msgstr "Se viene selezionato il caricatore automatico di fogli, questo sarà vuoto dopo 10 scansioni."
+msgstr ""
+"Se viene selezionato il caricatore automatico di fogli, questo sarà vuoto "
+"dopo 10 scansioni."
 
 #: .tmp/test.c:426
 #, no-c-format
@@ -3538,6 +3655,11 @@ msgstr "(1/1) pulsante"
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) opzione pulsante di test. Stampa un testo..."
+
+#: .tmp/u12.c:149
+#, no-c-format
+msgid "Color 36"
+msgstr "Colore a 36 bit"
 
 #: .tmp/umax1220u.c:248 .tmp/umax.c:5810
 #, no-c-format

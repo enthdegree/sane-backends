@@ -365,6 +365,13 @@ SCSI flatbed scanners. See
 .BR sane-pie (5)
 for details.
 .TP
+.B pixma
+The pixma backend supports Canon PIXMA MP series (multi-function devices). See
+.BR sane-pixma (5)
+or
+.I http://home.arcor.de/wittawat/pixma/
+for details.
+.TP
 .B plustek
 The SANE plustek backend supports USB flatbed scanners that use the National
 Semiconductor LM983[1/2/3]-chipset aka Merlin. Scanners using this LM983x chips

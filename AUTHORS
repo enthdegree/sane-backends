@@ -60,6 +60,7 @@ Backends:
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
+ pixma:         Wittawat Yamwong (*)
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
@@ -212,3 +213,4 @@ Tristan Tarrant <ttarrant@etnoteam.it>
 Troy Rollo <sane@troy.rollo.name>
 Ullrich Sigwanz <usigwanz@freesurf.ch>
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
+Wittawat Yamwong <wittawat@web.de>

@@ -1,0 +1,112 @@
+.TH "sane-pixma" "5" "26 May 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-pixma
+.SH NAME
+sane-pixma \- SANE backend for Canon PIXMA MP series
+
+.SH DESCRIPTION
+The
+.B sane-pixma
+library implements a SANE (Scanner Access Now Easy) backend that provides
+access to Canon PIXMA multi-function devices (All-in-one printers).
+Currently, the following models work with this backend:
+.PP
+.RS
+PIXMA MP150, PIXMA MP170, PIXMA MP450, PIXMA MP500
+.RE
+.PP
+The following models are marked as experimental because they are not well
+tested and/or the scanner sometimes hangs and must be switched off and on.
+Therefore they are disabled by default. (See PIXMA_EXPERIMENT below)
+.PP
+.RS
+MultiPASS MP700, MultiPASS MP730,
+.br
+PIXMA MP750, PIXMA MP760, PIXMA MP780,
+.br
+PIXMA MP800, PIXMA MP830
+.RE
+.PP
+The backend supports
+.br
+* resolutions 75,150,300,600,1200 and 2400 DPI,
+.br
+* color and grayscale mode,
+.br
+* a custom gamma table with 4096 entries and
+.br
+* automatic document feeder.
+.PP
+The device name is in the form
+.BI pixma: xxxxyyyy_zzzzz
+where x, y and z are vendor ID, product ID and serial number respectively.
+Example: pixma:04A91709_123456 is a MP150.
+.PP
+This backend is in
+.B alpha
+stage and will stay in this stage until we get the programming manual
+for the hardware. Although we have tested it as good as we could, it will
+not work in every situations. You will find an up-to-date status at the
+project homepage. (See below)
+
+.SH FILES
+.TP
+.I @LIBDIR@/libsane-pixma.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane-pixma.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_PIXMA
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend. Higher value increases
+the verbosity.
+.PP
+.RS
+0  print nothing
+.br
+1  print error and warning messages
+.br
+2  print informative messages
+.br
+3  print debugging messages
+.br
+10 dump USB traffics
+.br
+.RE
+.TP
+.B PIXMA_EXPERIMENT
+Setting to a non-zero value will enable the support for experimental models.
+You should also set SANE_DEBUG_PIXMA to 10 and keep the last log file
+somewhere for the case that the backend fails.
+
+.SH "SEE ALSO"
+.BR sane (7),
+.BR sane-dll (5),
+.I http://home.arcor.de/wittawat/pixma/
+
+.SH AUTHOR
+Wittawat Yamwong
+.PP
+I would like to thank:
+.br
+Farvil for testing MP150
+.br
+Jose Juan Iglesias for testing MP450
+.br
+Malcolm Caldwell for testing MP170
+.br
+Martin Schewe for setting up mailing list for discussion
+.br
+Rune Kock for testing MP500
+.br
+Ryan McDonald for testing MP830
+.br
+Stephan Aegerter for testing MP780
+.br
+Trevor Hobson for testing MP730
+.br
+Wade Fitzpatrick for testing MP730
+.br

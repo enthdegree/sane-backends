@@ -11,10 +11,10 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.11.0"                 ; version of backend (or "unmaintained")
-;:new :yes                         ; Is the backend new to this SANE release?
+:version "0.11.2"                ; version of backend (or "unmaintained")
+:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
-;:manpage ""                      ; name of manpage (if it exists)
+:manpage "sane-pixma"             ; name of manpage (if it exists)
 :url "http://home.arcor.de/wittawat/pixma/" ; backend's web page
 
 :devicetype :scanner              ; start of a list of devices....
@@ -45,10 +45,17 @@
 :usbid "0x04a9" "0x170c"
 :status :basic
 
-:model "imageCLASS MP730"
+:model "MultiPASS MP700"
+:interface "USB"
+:usbid "0x04a9" "0x2630"
+:status :minimal
+:comment "Is it the same model as SmartBase MP700 Photo sold in Germany?"
+
+:model "MultiPASS MP730"
 :interface "USB"
 :usbid "0x04a9" "0x262f"
 :status :minimal
+:comment "Is it the same model as SmartBase MP730 Photo sold in Germany?"
 
 :model "PIXMA MP750"
 :interface "USB"
@@ -64,10 +71,15 @@
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :minimal
-:comment "Scanner hangs when cancel while it scans."
+:comment "Scanner hangs if cancel while it scans."
+
+:model "PIXMA MP800"
+:interface "USB"
+:usbid "0x04a9" "0x170d"
+:status :untested
+:comment "Should work but is untested."
 
 :model "PIXMA MP830"
 :interface "USB"
 :usbid "0x04a9" "0x1713"
 :status :minimal
-

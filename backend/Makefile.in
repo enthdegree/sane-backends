@@ -136,6 +136,10 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   mustek_usb2_reflective.c mustek_usb2_transparent.c \
   net.c net.conf.in net.h niash.c niash_core.c niash_core.h \
   niash_xfer.c niash_xfer.h pie.c pie.conf.in pie-scsidef.h pint.c pint.h \
+  pixma.c pixma.h pixma_common.c pixma_common.h \
+  pixma_mp150.c pixma_mp730.c pixma_mp750.c \
+  pixma_sane_options.c pixma_sane_options.h pixma_io.h pixma_io_sanei.c \
+  pixma_rename.h \
   plustek.c plustek.conf.in plustek-usbdevs.c plustek.h \
   plustek-usb.c plustek-usb.h plustek-usbhw.c plustek-usbimg.c \
   plustek-usbio.c plustek-usbmap.c plustek-usbscan.c plustek-usbshading.c \
@@ -306,6 +310,7 @@ EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
 EXTRA_lexmark = lexmark-x1100
+EXTRA_pixma = pixma_io_sanei pixma_common pixma_mp150 pixma_mp730 pixma_mp750
 
 # When preloading dll, we need to add in all preloaded objects:
 libsane-dll.la: $(addsuffix .lo,$(DLL_PRELOAD))
@@ -433,6 +438,9 @@ libsane-net.la: ../sanei/sanei_wire.lo
 libsane-niash.la: ../sanei/sanei_constrain_value.lo
 libsane-niash.la: ../sanei/sanei_usb.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo
+libsane-pixma.la: ../sanei/sanei_usb.lo
+libsane-pixma.la: ../sanei/sanei_thread.lo
+libsane-pixma.la: $(addsuffix .lo,$(EXTRA_pixma))
 libsane-plustek.la: ../sanei/sanei_constrain_value.lo
 libsane-plustek.la: ../sanei/sanei_usb.lo
 libsane-plustek.la: ../sanei/sanei_lm983x.lo

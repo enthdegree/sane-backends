@@ -1,3 +1,13 @@
+2006-05-26  Wittawat Yamwong <wittawat@web.de>
+	* AUTHORS: added Wittawat Yamwong
+	* configure configure.in doc/Makefile.in doc/sane.man
+	  doc/descriptions/pixma.desc backend/Makefile.in 
+	  backend/dll.conf.in backend/pixma*.[ch]: added pixma backend
+        * doc/descriptions-external/pixma.desc: removed because the backend
+          is now a part of sane-backends.
+	* sanei/sanei_usb.c: Modified sanei_read_int(): call
+          usb_clear_halt() if and only if the endpoint is halted.
+
 2006-05-24  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* Updated Swedish translation

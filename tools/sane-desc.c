@@ -3224,6 +3224,7 @@ print_plist (void)
   printf ("\t\t</array>\n");
   printf ("\t</dict>\n");
   printf ("</dict>\n");
+  printf ("</plist>\n");
 }
 
 int

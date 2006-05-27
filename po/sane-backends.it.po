@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-05-26 13:38+0200\n"
-"PO-Revision-Date: 2006-05-26 14:30+0200\n"
+"PO-Revision-Date: 2006-05-27 16:41+0200\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -807,24 +807,24 @@ msgid "Miscellaneous"
 msgstr "Varie"
 
 #: .tmp/hp5400_sane.c:358
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "offset X"
-msgstr "Scarto"
+msgstr "Scarto X"
 
 #: .tmp/hp5400_sane.c:359
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware internal X position of the scanning area."
-msgstr "Posizione X in alto a sinistra dell'area di scansione."
+msgstr "Posizione interna X dell'area di scansione."
 
 #: .tmp/hp5400_sane.c:368
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "offset Y"
-msgstr "Scarto"
+msgstr "Scarto Y"
 
 #: .tmp/hp5400_sane.c:369
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware internal Y position of the scanning area."
-msgstr "Posizione X in alto a sinistra dell'area di scansione."
+msgstr "Posizione interna Y dell'area di scansione."
 
 #: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
 #, no-c-format
@@ -1228,9 +1228,9 @@ msgid "Paper size"
 msgstr "Dimensione del foglio"
 
 #: .tmp/lexmark.h:57
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Selects the size of the area to be scanned."
-msgstr "Selezionare il numero di fotogrammi da acquisire"
+msgstr "Selezionare la dimensione dell'area da acquisire."
 
 #: .tmp/matsushita.c:139
 #, no-c-format
@@ -1866,30 +1866,30 @@ msgstr "Controlla il contrasto del canale blu dell'immagine acquisita."
 #: .tmp/mustek_usb2.c:105
 #, no-c-format
 msgid "Color48"
-msgstr "Colore a 48 bits"
+msgstr "Colore a 48 bit"
 
 #: .tmp/mustek_usb2.c:106 .tmp/mustek_usb2.c:114
 #, no-c-format
 msgid "Color24"
-msgstr "Colore a 24 bits"
+msgstr "Colore a 24 bit"
 
 #: .tmp/mustek_usb2.c:107
 #, no-c-format
 msgid "Gray16"
-msgstr "Grigio a 16 bits"
+msgstr "Grigio a 16 bit"
 
 #: .tmp/mustek_usb2.c:108
 #, no-c-format
 msgid "Gray8"
-msgstr "Grigio a 8 bits"
+msgstr "Grigio a 8 bit"
 
 #: .tmp/mustek_usb2.c:119
 #, no-c-format
 msgid "Reflective"
-msgstr ""
+msgstr "Riflesso"
 
 #: .tmp/mustek_usb2.c:120
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Positive"
 msgstr "Pellicola positiva"
 
@@ -1905,12 +1905,12 @@ msgstr ""
 #: .tmp/pixma.c:116
 #, no-c-format
 msgid "multi-function peripheral"
-msgstr ""
+msgstr "Periferica multi funzione"
 
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
 msgid "Button-controlled scan (experimental)"
-msgstr ""
+msgstr "Scansione controllata da pulsante (sperimentale)"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format
@@ -1918,7 +1918,7 @@ msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
-msgstr ""
+msgstr "Quando abilitato, l'acquisizione non partirà immediatamente. Per procedere premere il pulsante \"SCAN\" (per ML150) oppure \"COLOR\" (per altri modelli). Per annullare premere il pulsante \"GRAY\"."
 
 #: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1013
 #, no-c-format
@@ -1926,19 +1926,19 @@ msgid "Buttons"
 msgstr "Pulsanti"
 
 #: .tmp/pixma_sane_options.c:216
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Update button state"
-msgstr "Stato del pulsante"
+msgstr "Aggiorna lo stato del pulsante"
 
 #: .tmp/pixma_sane_options.c:228
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 1"
-msgstr "Pulsanti"
+msgstr "Pulsante 1"
 
 #: .tmp/pixma_sane_options.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 2"
-msgstr "Pulsanti"
+msgstr "Pulsante 2"
 
 #: .tmp/plustek.c:233 .tmp/plustek_pp.c:201 .tmp/u12.c:156
 #, no-c-format
@@ -3018,14 +3018,14 @@ msgid "flatbed scanner"
 msgstr "scanner piano"
 
 #: .tmp/sm3840.c:689
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp timeout"
-msgstr "Durata spegnimento lampada"
+msgstr "Timeout della lampada"
 
 #: .tmp/sm3840.c:691
 #, no-c-format
 msgid "Minutes until lamp is turned off after scan"
-msgstr ""
+msgstr "Numero di minuti prima che la lampada venga spenta dopo la scansione"
 
 #: .tmp/snapscan-options.c:84
 #, no-c-format

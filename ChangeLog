@@ -1,3 +1,7 @@
+2006-05-27  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* tools/sane-desc.c: Added plist output
+
 2006-05-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: updated with translation

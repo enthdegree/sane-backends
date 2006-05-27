@@ -3,6 +3,7 @@
 
    Copyright (C) 2002-2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Jose Gato <jgato@gsyc.escet.urjc.es> (XML output)
+   Copyright (C) 2006 Mattias Ellert <mattias.ellert@tsl.uu.se> (plist output)
 
    This file is part of the SANE package.
 
@@ -74,7 +75,8 @@ typedef enum output_mode
   output_mode_statistics,
   output_mode_usermap,
   output_mode_db,
-  output_mode_udev
+  output_mode_udev,
+  output_mode_plist
 }
 output_mode;
 
@@ -289,8 +291,8 @@ print_usage (char *program_name)
 	  "                         "
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
-	  "Output mode (ascii, html-backends-split,\n"
-	  "                         html-mfgs, xml, statistics, usermap, db, udev)\n");
+	  "Output mode (ascii, html-backends-split, html-mfgs,\n"
+	  "                         xml, statistics, usermap, db, udev, plist)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -386,6 +388,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_udev;
+	    }
+	  else if (strcmp (optarg, "plist") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_plist;
 	    }
 	  else
 	    {
@@ -3108,7 +3115,6 @@ print_db_header (void)
      "#\n");
 }
 
-
 static void
 print_db (void)
 {
@@ -3160,8 +3166,6 @@ print_udev_header (void)
      "#\n");
 }
 
-
-
 static void
 print_udev (void)
 {
@@ -3188,6 +3192,38 @@ print_udev (void)
       usbid = usbid->next;
     }
   printf ("\nLABEL=\"libsane_rules_end\"\n");
+}
+
+static void
+print_plist (void)
+{
+  usbid_type *usbid = create_usbids_table ();
+
+  printf ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  printf ("<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n");
+  printf ("<plist version=\"1.0\">\n");
+  printf ("<dict>\n");
+  printf ("\t<key>device info version</key>\n");
+  printf ("\t<string>2.0</string>\n");
+  printf ("\t<key>usb</key>\n");
+  printf ("\t<dict>\n");
+  printf ("\t\t<key>IOUSBDevice</key>\n");
+  printf ("\t\t<array>\n");
+  while (usbid)
+    {
+      printf ("\t\t\t<dict>\n");
+      printf ("\t\t\t\t<key>device type</key>\n");
+      printf ("\t\t\t\t<string>scanner</string>\n");
+      printf ("\t\t\t\t<key>product</key>\n");
+      printf ("\t\t\t\t<string>%s</string>\n", usbid->usb_product_id);
+      printf ("\t\t\t\t<key>vendor</key>\n");
+      printf ("\t\t\t\t<string>%s</string>\n", usbid->usb_vendor_id);
+      printf ("\t\t\t</dict>\n");
+      usbid = usbid->next;
+    }
+  printf ("\t\t</array>\n");
+  printf ("\t</dict>\n");
+  printf ("</dict>\n");
 }
 
 int
@@ -3228,6 +3264,9 @@ main (int argc, char **argv)
       break;
     case output_mode_udev:
       print_udev ();
+      break;
+    case output_mode_plist:
+      print_plist ();
       break;
     default:
       DBG_ERR ("Unknown output mode\n");

@@ -57,6 +57,7 @@
  *        - added transferRate to struct Plustek_Device
  * - 0.50 - cleanup
  *        - added OPT_SPEEDUP
+ * - 0.51 - added OPT_CALIBRATE
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -119,7 +120,7 @@
  */
 #define _DEFAULT_TLX          0     /* 0..216 mm */
 #define _DEFAULT_TLY          0     /* 0..297 mm */
-#define _DEFAULT_BRX        126     /* 0..216 mm */
+#define _DEFAULT_BRX        103     /* 0..216 mm */
 #define _DEFAULT_BRY         76.21  /* 0..297 mm */
 
 #define _DEFAULT_TP_TLX      3.5    /* 0..42.3 mm */
@@ -195,6 +196,9 @@
 
 /************************ some structures ************************************/
 
+#define _ENABLE(option)  s->opt[option].cap &= ~SANE_CAP_INACTIVE
+#define _DISABLE(option) s->opt[option].cap |=  SANE_CAP_INACTIVE
+
 enum {
 	OPT_NUM_OPTS = 0,
 	OPT_MODE_GROUP,
@@ -223,6 +227,7 @@ enum {
 	OPT_WARMUPTIME,
 	OPT_CACHECAL,
 	OPT_SPEEDUP,
+	OPT_CALIBRATE,
 	OPT_AFE_GROUP,
 	OPT_OVR_REDGAIN,
 	OPT_OVR_GREENGAIN,
@@ -382,6 +387,7 @@ typedef struct Plustek_Scanner
 	Option_Value            val[NUM_OPTIONS];
 	SANE_Byte              *buf;            /* the image buffer              */
 	SANE_Bool               scanning;       /* TRUE during scan-process      */
+	SANE_Bool               calibrating;    /* TRUE during calibration       */
 	SANE_Bool               ipc_read_done;  /* TRUE after ipc has been red   */
 	SANE_Parameters         params;         /* for keeping the parameter     */
 

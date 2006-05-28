@@ -1,3 +1,8 @@
+2006-05-28  Wittawat Yamwong <wittawat@web.de>
+
+	* backend/pixma.h: Added #define ENODATA and EPROTO to let the
+	  backend compiles under OS/2 with gcc 3.3.5.
+
 2006-05-27  Giuseppe Sacco <eppesuig@debian.org>
 
 	* Updated italian translation
@@ -12,6 +17,7 @@
 	  keys from pixma backand
 
 2006-05-26  Wittawat Yamwong <wittawat@web.de>
+
 	* AUTHORS: added Wittawat Yamwong
 	* configure configure.in doc/Makefile.in doc/sane.man
 	  doc/descriptions/pixma.desc backend/Makefile.in 

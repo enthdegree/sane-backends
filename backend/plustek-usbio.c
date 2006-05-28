@@ -7,7 +7,7 @@
  *  @brief Some I/O stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * History:
@@ -26,6 +26,7 @@
  * - 0.50 - usbio_DetectLM983x() now returns error if register 
  *          could not be red
  *        - usbio_ResetLM983x() checks for reg7 value before writing
+ * - 0.51 - allow dumpRegs to be called without valid fd
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -165,37 +166,38 @@ static void dumpregs( int fd, SANE_Byte *cmp )
 
 	buf[0] = '\0';
 
-	usbio_ReadReg(fd, 0x01, &regs[0x01]);
-	usbio_ReadReg(fd, 0x02, &regs[0x02]);
-	usbio_ReadReg(fd, 0x03, &regs[0x03]);
-	usbio_ReadReg(fd, 0x04, &regs[0x04]);
-	usbio_ReadReg(fd, 0x07, &regs[0x07]);
+	if( fd >= 0 ) {
+		usbio_ReadReg(fd, 0x01, &regs[0x01]);
+		usbio_ReadReg(fd, 0x02, &regs[0x02]);
+		usbio_ReadReg(fd, 0x03, &regs[0x03]);
+		usbio_ReadReg(fd, 0x04, &regs[0x04]);
+		usbio_ReadReg(fd, 0x07, &regs[0x07]);
 
-	sanei_lm983x_read( fd, 0x08, &regs[0x8], 0x80-0x8, SANE_TRUE );
+		sanei_lm983x_read( fd, 0x08, &regs[0x8], 0x80-0x8, SANE_TRUE );
 
-	for( i = 0x0; i < 0x80; i++ ) {
+		for( i = 0x0; i < 0x80; i++ ) {
 
-		if((i%16) ==0 ) {
+			if((i%16) ==0 ) {
 
-			if( buf[0] )
-				DBG( _DBG_DREGS, "%s\n", buf );
-			sprintf( buf, "0x%02x:", i );
+				if( buf[0] )
+					DBG( _DBG_DREGS, "%s\n", buf );
+				sprintf( buf, "0x%02x:", i );
+			}
+
+			if((i%8)==0)
+				strcat( buf, " ");
+
+			/* the dataport read returns with "0 Bytes read", of course. */
+			if((i == 0) || (i == 5) || (i == 6))
+				strcat( buf, "XX ");
+			else {
+
+				sprintf( b2, "%02x ", regs[i]);
+				strcat( buf, b2 );
+			}
 		}
-
-		if((i%8)==0)
-			strcat( buf, " ");
-
-		/* the dataport read returns with "0 Bytes read", of course. */
-		if((i == 0) || (i == 5) || (i == 6))
-			strcat( buf, "XX ");
-		else {
-
-			sprintf( b2, "%02x ", regs[i]);
-			strcat( buf, b2 );
-		}
-
+		DBG( _DBG_DREGS, "%s\n", buf );
 	}
-	DBG( _DBG_DREGS, "%s\n", buf );
 
 	if( cmp ) {
 

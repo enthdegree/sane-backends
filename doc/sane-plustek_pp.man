@@ -488,7 +488,7 @@ to other printers too, using bidirectional protocol
 * The driver does not support these manic scalings up
 to 16 times the physical resolution. The only scaling
 is done on resolutions between the physical resolution
-of the CDD-sensor and the stepper motor i.e. you have a
+of the CCD-sensor and the stepper motor i.e. you have a
 600x1200 dpi scanner and you are scanning using 800dpi,
 so scaling is necessary, because the sensor only delivers
 600dpi but the motor is capable to perform 800dpi steps.

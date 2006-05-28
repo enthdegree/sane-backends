@@ -7,7 +7,7 @@
  *  @brief Creating and manipulating lookup tables.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -21,6 +21,7 @@
  * - 0.48 - added support for binary from color scans
  * - 0.49 - changed usb_MapDownload
  * - 0.50 - cleanup
+ * - 0.51 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

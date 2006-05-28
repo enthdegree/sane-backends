@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -62,6 +62,9 @@
  *        - fixed CanoScan N650U settings
  *        - fixed CanoScan N670U settings, see (bugreport #302738)
  *        - added high-speed setting for HP2200
+ * - 0.51 - tweaked CanoScan N1220U settings again
+ *        - added settings for Syscan Travelscan 662
+ *        - tweaked settings for Bearpaw 1200
  *
  * <hr>
  * This file is part of the SANE package.
@@ -124,15 +127,13 @@ static DCapsDef Cap0x07B3_0x0017_0 =
 		{0, 93},        /* DataOrigin (X: 0, Y: 8mm from home) */
 		0, -1,          /* ShadingOriginY, DarkShadOrgY        */
 		{2550, 3508},   /* Size                                */
-		{50, 50},       /* MinDpi                              */
-		COLOR_BW        /* bMinDataType                        */
+		{50, 50}       /* MinDpi                              */
 	},
 	{	/* Positive */
 		{1040 + 15, 744 - 32},/* DataOrigin (X: 7cm + 1.8cm, Y: 8mm + 5.5cm)*/
 		543, -1,              /* ShadingOriginY (Y: 8mm + 3.8cm)     */
 		{473, 414},           /* Size (X: 4cm, Y: 3.5cm)             */
-		{150, 150},           /* MinDpi                              */
-		COLOR_TRUE24          /* bMinDataType                        */
+		{150, 150}           /* MinDpi                              */
 	},
 	{	/* Negative */
 		{1004 + 55, 744 + 12},	/* DataOrigin (X: 7cm + 1.5cm, Y: 8mm + 5.5cm)*/
@@ -143,15 +144,13 @@ static DCapsDef Cap0x07B3_0x0017_0 =
 		
 		/*543*/, -1,    /* ShadingOriginY (Y: 8mm + 3.8cm)     */
 		{567, 414},     /* Size	(X: 4.8cm, Y: 3.5cm)           */
-		{150, 150},     /* MinDpi                              */
-		COLOR_TRUE24    /* bMinDataType                        */
+		{150, 150}     /* MinDpi                              */
 	},
 	{	/* Adf */
 		{0, 95},        /* DataOrigin (X: 0, Y: 8mm from home) */
 		0, -1,          /* ShadingOriginY, DarkShadOrgY        */
 		{2550, 3508},   /* Size                                */
-		{50, 50},       /* MinDpi                              */
-		COLOR_BW        /* bMinDataType                        */
+		{50, 50}        /* MinDpi                              */
 	},
 	{600, 600},                                   /* OpticDpi */
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,  /* wFlags   */
@@ -169,10 +168,10 @@ static DCapsDef Cap0x07B3_0x0017_0 =
  */
 static DCapsDef Cap0x07B3_0x0015_0 =
 {
-	{{0, 93},               0,   -1, {2550, 3508}, {50, 50},   COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, -1, {473, 414},   {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32},	543, -1, {567, 414},   {150, 150}, COLOR_TRUE24 },
-	{{0, 95},               0,   -1, {2550, 3508}, {50, 50},   COLOR_BW     },
+	{{0, 93},               0,   -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32},	543, -1, {473, 414},   {150, 150}},
+	{{1004 + 20, 744 + 32},	543, -1, {567, 414},   {150, 150}},
+	{{0, 95},               0,   -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -184,10 +183,10 @@ static DCapsDef Cap0x07B3_0x0015_0 =
  */
 static DCapsDef Cap0x07B3_0x0014_0 =
 {
-	{{0, 93},               0,   -1, {2550, 3508}, {50, 50},   COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, -1, {473, 414},   {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32},	543, -1, {567, 414},   {150, 150}, COLOR_TRUE24 },
-	{{0, 95},               0,   -1, {2550, 3508}, {50, 50},   COLOR_BW     },
+	{{0, 93},               0,   -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32},	543, -1, {473, 414},   {150, 150}},
+	{{1004 + 20, 744 + 32},	543, -1, {567, 414},   {150, 150}},
+	{{0, 95},               0,   -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -199,10 +198,10 @@ static DCapsDef Cap0x07B3_0x0014_0 =
 */
 static DCapsDef Cap0x07B3_0x0007_0 =
 {
-	{{0,    124},  36, -1, {2550, 3508}, { 50, 50 }, COLOR_BW     },
-	{{1040, 744}, 543, -1, { 473, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{1004, 744}, 543, -1, { 567, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{0,     95},	0, -1, {2550, 3508}, { 50, 50 }, COLOR_BW     },
+	{{0,    124},  36, -1, {2550, 3508}, { 50, 50 }},
+	{{1040, 744}, 543, -1, { 473, 414 }, {150, 150}},
+	{{1004, 744}, 543, -1, { 567, 414 }, {150, 150}},
+	{{0,     95},	0, -1, {2550, 3508}, { 50, 50 }},
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -214,10 +213,10 @@ static DCapsDef Cap0x07B3_0x0007_0 =
  */
 static DCapsDef Cap0x07B3_0x0005_2 =
 {
-	{{ 0, 64}, 0, -1, {2550, 3508}, { 50, 50 }, COLOR_BW },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 64}, 0, -1, {2550, 3508}, { 50, 50 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -229,10 +228,10 @@ static DCapsDef Cap0x07B3_0x0005_2 =
  */
 static DCapsDef Cap0x07B3_0x0007_4 =
 {
-	{{       0,  111 - 4 },	  0, -1, {2550, 3508}, { 50, 50 }, COLOR_BW     },
-	{{1040 + 5,  744 - 32}, 543, -1, { 473, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{1040 - 20, 768     },	543, -1, { 567, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{        0, 95      },   0, -1, {2550, 3508}, { 50, 50 }, COLOR_BW     },
+	{{       0,  111 - 4 },	  0, -1, {2550, 3508}, { 50, 50 }},
+	{{1040 + 5,  744 - 32}, 543, -1, { 473, 414 }, {150, 150}},
+	{{1040 - 20, 768     },	543, -1, { 567, 414 }, {150, 150}},
+	{{        0, 95      },   0, -1, {2550, 3508}, { 50, 50 }},
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -244,10 +243,10 @@ static DCapsDef Cap0x07B3_0x0007_4 =
  */
 static DCapsDef Cap0x07B3_0x0005_4 =
 {
-	{{ 0,  111 - 4 }, 0, -1, {2550, 3508}, {50, 50}, COLOR_BW },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 0,  111 - 4 }, 0, -1, {2550, 3508}, {50, 50}},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -259,26 +258,25 @@ static DCapsDef Cap0x07B3_0x0005_4 =
  */
 static DCapsDef Cap0x07B3_0x000F_0 =
 {
-	{{   0, 130},  12, -1, {2550, 3508}, { 50, 50 }, COLOR_BW	  },
-	{{1040, 744}, 543, -1, { 473, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{1004, 744}, 543, -1, { 567, 414 }, {150, 150}, COLOR_TRUE24 },
-	{{   0, 244},  12, -1, {2550, 4200}, { 50, 50 }, COLOR_BW     },
+	{{   0, 130},  12, -1, {2550, 3508}, { 50, 50 }},
+	{{1040, 744}, 543, -1, { 473, 414 }, {150, 150}},
+	{{1004, 744}, 543, -1, { 567, 414 }, {150, 150}},
+	{{   0, 244},  12, -1, {2550, 4200}, { 50, 50 }},
 	{600, 600},
 	DEVCAPSFLAG_Normal + DEVCAPSFLAG_Adf,
 	SENSORORDER_rgb,
 	4, 5, kNEC3799, 0x0F, _WAF_NONE, _NO_MIO
 };
 
-
 /* Plustek Model: ???
  * KH: NS9831 + TPA + Button + NEC3799
  */
 static DCapsDef Cap0x07B3_0x0013_0 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 30, 744 + 32},	543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 30, 744 + 32},	543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -287,13 +285,13 @@ static DCapsDef Cap0x07B3_0x0013_0 =
 
 /* Plustek Model: U24
  * KH: NS9831 + Button + NEC3799
- */
+//  */
 static DCapsDef Cap0x07B3_0x0011_0 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -305,10 +303,10 @@ static DCapsDef Cap0x07B3_0x0011_0 =
  */
 static DCapsDef Cap0x07B3_0x0010_0 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},	  0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},	  0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -320,10 +318,10 @@ static DCapsDef Cap0x07B3_0x0010_0 =
  */
 static DCapsDef Cap0x07B3_0x0013_4 =
 {
-	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20,   744 - 20}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}},
+	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20,   744 - 20}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,	
 	SENSORORDER_rgb,
@@ -335,10 +333,10 @@ static DCapsDef Cap0x07B3_0x0013_4 =
  */
 static DCapsDef Cap0x07B3_0x0011_4 =
 {
-	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20,   744 - 20}, 543, -1 ,{ 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}},
+	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20,   744 - 20}, 543, -1 ,{ 567,  414}, {150, 150}},
+	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -350,10 +348,10 @@ static DCapsDef Cap0x07B3_0x0011_4 =
  */
 static DCapsDef Cap0x07B3_0x0010_4 =
 {
-	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20,   744 - 20}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0, 99 /*114*/},   0, -1, {2550, 3508}, { 50,  50}},
+	{{     1055,   744 - 84}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20,   744 - 20}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,         95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -365,10 +363,10 @@ static DCapsDef Cap0x07B3_0x0010_4 =
  */
 static DCapsDef Cap0x07B3_0x000F_4 =
 {
-	{{        0,      107},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{ 1040 + 5, 744 - 32}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1040 - 20,      768}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,      244},   0, -1, {2550, 4200}, { 50,  50}, COLOR_BW     },
+	{{        0,      107},   0, -1, {2550, 3508}, { 50,  50}},
+	{{ 1040 + 5, 744 - 32}, 543, -1, { 473,  414}, {150, 150}},
+	{{1040 - 20,      768}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,      244},   0, -1, {2550, 4200}, { 50,  50}},
 	{1200, 1200},
 	DEVCAPSFLAG_Normal + DEVCAPSFLAG_Adf,
 	SENSORORDER_rgb,
@@ -380,10 +378,10 @@ static DCapsDef Cap0x07B3_0x000F_4 =
  */
 static DCapsDef Cap0x07B3_0x0016_4 =
 {
-	{{   0,  93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{ 954, 422}, 272, -1, { 624, 1940}, {150, 150}, COLOR_TRUE24 },
-	{{1120, 438}, 275, -1, { 304, 1940}, {150, 150}, COLOR_TRUE24 },
-	{{   0,  95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{   0,  93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{ 954, 422}, 272, -1, { 624, 1940}, {150, 150}},
+	{{1120, 438}, 275, -1, { 304, 1940}, {150, 150}},
+	{{   0,  95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -395,10 +393,10 @@ static DCapsDef Cap0x07B3_0x0016_4 =
  */
 static DCapsDef Cap0x07B3_0x0017_4 =
 {
-	{{             0,  99 - 6},	    0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1025 /*1055*/, 744 - 84},   543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1048 /*1024*/, 754/*724*/}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{            0,       95},     0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{             0,  99 - 6},	    0, -1, {2550, 3508}, { 50,  50}},
+	{{1025 /*1055*/, 744 - 84},   543, -1, { 473,  414}, {150, 150}},
+	{{1048 /*1024*/, 754/*724*/}, 543, -1, { 567,  414}, {150, 150}},
+	{{            0,       95},     0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -410,10 +408,10 @@ static DCapsDef Cap0x07B3_0x0017_4 =
  */
 static DCapsDef Cap0x07B3_0x0015_4 =
 {
-	{{        0,   99 - 6},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{     1055, 744 - 84}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 - 20}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,   99 - 6},   0, -1, {2550, 3508}, { 50,  50}},
+	{{     1055, 744 - 84}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 - 20}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -425,10 +423,10 @@ static DCapsDef Cap0x07B3_0x0015_4 =
  */
 static DCapsDef Cap0x07B3_0x0014_4 =
 {
-	{{        0,   99 - 6},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{     1055, 744 - 84}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 - 20},	543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,   99 - 6},   0, -1, {2550, 3508}, { 50,  50}},
+	{{     1055, 744 - 84}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 - 20},	543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -440,10 +438,10 @@ static DCapsDef Cap0x07B3_0x0014_4 =
  */
 static DCapsDef Cap0x07B3_0x0014_1 =
 {
-	{{        0,       93},   0, -1, {3600, 5100}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {3600, 5100}, { 50,  50}},
+	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{400, 400},
 	0,
 	SENSORORDER_rgb,
@@ -455,10 +453,10 @@ static DCapsDef Cap0x07B3_0x0014_1 =
  */
 static DCapsDef Cap0x07B3_0x0012_0 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32},	543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 20, 744 + 32}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -470,10 +468,10 @@ static DCapsDef Cap0x07B3_0x0012_0 =
  */
 static DCapsDef Cap0x07B3_0x0017_2 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{     1004,      744},	543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}},
+	{{     1004,      744},	543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_bgr,
@@ -485,10 +483,10 @@ static DCapsDef Cap0x07B3_0x0017_2 =
  */
 static DCapsDef Cap0x07B3_0x0017_3 =
 {
-	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1004 + 30, 744 + 32}, 543, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
+	{{        0,       93},   0, -1, {2550, 3508}, { 50,  50}},
+	{{1040 + 15, 744 - 32}, 543, -1, { 473,  414}, {150, 150}},
+	{{1004 + 30, 744 + 32}, 543, -1, { 567,  414}, {150, 150}},
+	{{        0,       95},   0, -1, {2550, 3508}, { 50,  50}},
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -498,10 +496,10 @@ static DCapsDef Cap0x07B3_0x0017_3 =
 /* Model: HP Scanjet 2100c */
 static DCapsDef Cap0x03F0_0x0505 =
 {
-	{{ 0,  65}, 10, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
-	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module */
-	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module */
-	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                 */
+	{{ 0,  65}, 10, -1, {2550, 3508}, { 50,  50}},
+	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0, -1, {0, 0}, { 0, 0 }},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -514,13 +512,13 @@ static DCapsDef Cap0x03F0_0x0505 =
 static DCapsDef Cap0x03F0_0x0605 =
 {
 	/* DataOrigin (x, y), ShadingOriginY */
-	{{ 0, 209},  40, -1, {2550, 3508}, { 50,  50}, COLOR_BW },
-	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No film scanner module    */
-	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }, 0 }, /* No ADF                    */
-	{600, 600},                                 /* Motor can handle 1200 DPI */
+	{{ 0, 209},  40, -1, {2550, 3508}, { 50,  50}},
+	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0, -1, {0, 0}, { 0, 0 }},
+	{600, 600},
 	0,
-	SENSORORDER_rgb, 
+	SENSORORDER_rgb,
 	4, 2, kNECSLIM, 0x00, _WAF_NONE, _NO_MIO
 };
 
@@ -529,15 +527,17 @@ static DCapsDef Cap0x03F0_0x0605 =
  */
 static DCapsDef Cap0x0400_0x1000_0 =
 {
-	{{ 0, 130}, 20, -1, {2550, 3508}, { 50, 50 }, COLOR_BW },
-	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 130}, 20, -1, {2550, 3508}, { 50, 50 }},
+	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
-	4,
-	5, kNEC8861, 0x00, _WAF_NONE, _NO_MIO
+	8,
+	5, kNEC8861, 0x00,
+	_WAF_MISC_IO_LAMPS | _WAF_USE_ALT_DESC,
+	_MIO5
 };
 
 /* Mustek BearPaw 2400
@@ -545,17 +545,17 @@ static DCapsDef Cap0x0400_0x1000_0 =
  */
 static DCapsDef Cap0x0400_0x1001_0 =
 {
-	{{ 0, 130/*209*/}, 35/*20*/, -1, {2550, 3508}, { 50, 50 }, COLOR_BW },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 130/*209*/}, 35/*20*/, -1, {2550, 3508}, { 50, 50 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
+	{{ 0,  0}, 0, -1, {0, 0}, { 0, 0 }},
 	{ 600, 600 }, /*{ 1200, 1200 }, */
 	0,
 	SENSORORDER_rgb,
 	4,/*16*/            /* sensor distance   */
 	5,                  /* number of buttons */
 	kSONY548,           /* CCD type          */
-	0, _WAF_NONE, _NO_MIO
+	0, _WAF_USE_ALT_DESC, _NO_MIO
 };
 
 /* Epson Perfection/Photo1250 (thanks to Gene Heskett and Reinhard Max)
@@ -565,12 +565,12 @@ static DCapsDef Cap0x0400_0x1001_0 =
 static DCapsDef Cap0x04B8_0x010F =
 {
 	/* Normal */
-	{{   25,   85},  10, -1, {2550, 3508}, { 100, 100 }, COLOR_BW },
+	{{   25,   85},  10, -1, {2550, 3508}, { 100, 100 }},
 	/* Positive */
-	{{ 1100,  972}, 720, -1, { 473,  414}, { 150, 150 }, COLOR_TRUE24 },
+	{{ 1100,  972}, 720, -1, { 473,  414}, { 150, 150 }},
 	/* Negative */
-	{{ 1116, 1049}, 720, -1, { 567,  414}, { 150, 150 }, COLOR_TRUE24 },
-	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 1116, 1049}, 720, -1, { 567,  414}, { 150, 150 }},
+	{{ 0,  0},   0, -1, {0, 0}, { 0, 0 }},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -587,12 +587,12 @@ static DCapsDef Cap0x04B8_0x010F =
 static DCapsDef Cap0x1606_0x0060 =
 {
 	/* Normal */
-	{{  30, 105 },  15, -1, {2550, 3508}, { 100, 100 }, COLOR_BW     },
+	{{  30, 105 },  15, -1, {2550, 3508}, { 100, 100 }},
 	/* Positive */
-	{{ 700, 760 }, 650, -1, {1200, 1500}, { 150, 150 }, COLOR_TRUE24 },
+	{{ 700, 760 }, 650, -1, {1200, 1500}, { 150, 150 }},
 	/* Negative */
-	{{ 700, 760 }, 650, -1, {1200, 1500}, { 150, 150 }, COLOR_TRUE24 },
-	{{   0,   0 },   0, -1, {0, 0}, { 0, 0 }, 0 },
+	{{ 700, 760 }, 650, -1, {1200, 1500}, { 150, 150 }},
+	{{   0,   0 },   0, -1, {0, 0}, { 0, 0 }},
 	{600, 600},
 	DEVCAPSFLAG_LargeTPA,
 	SENSORORDER_bgr,
@@ -608,10 +608,10 @@ static DCapsDef Cap0x1606_0x0060 =
  */
 static DCapsDef Cap0x1606_0x0160 =
 {
- 	{{ 30, 165}, 0, -1, {2550, 3508}, {100, 100}, COLOR_BW },
- 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
- 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
- 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }, 0 },
+ 	{{ 30, 165}, 0, -1, {2550, 3508}, {100, 100}},
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }},
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }},
+ 	{{  0,   0}, 0, -1, {0, 0}, { 0, 0 }},
  	{1200, 1200},
  	0,
  	SENSORORDER_bgr,
@@ -627,10 +627,10 @@ static DCapsDef Cap0x1606_0x0160 =
  */
 static DCapsDef Cap0x04A9_0x2206 =
 {
-	{{ 0, 90}, 45, 10, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 90}, 45, 10, {2550, 3508}, {75, 75}},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -645,10 +645,10 @@ static DCapsDef Cap0x04A9_0x2206 =
  */
 static DCapsDef Cap0x04A9_0x2207 =
 {
-	{{ 0, 85}, 45, 10, {2550, 3508}, {75, 75}, COLOR_BW },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 85}, 45, 10, {2550, 3508}, {75, 75}},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,  0},  0,  0, {0, 0}, { 0, 0 }},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -663,10 +663,10 @@ static DCapsDef Cap0x04A9_0x2207 =
  */
 static DCapsDef Cap0x04A9_0x2208 =
 {
-	{{  45, 125},  15, -1, {2550, 3508}, { 50,  50}, COLOR_BW     },
-	{{1060, 744}, 510, -1, { 473,  414}, {150, 150}, COLOR_TRUE24 },
-	{{1082, 842}, 610, -1, { 567,  414}, {150, 150}, COLOR_TRUE24 },
-	{{   0,   0},   0,  0, {   0,    0}, {  0,   0},            0 },
+	{{  45, 125},  15, -1, {2550, 3508}, { 50,  50}},
+	{{1060, 744}, 510, -1, { 473,  414}, {150, 150}},
+	{{1082, 842}, 610, -1, { 567,  414}, {150, 150}},
+	{{   0,   0},   0,  0, {   0,    0}, {  0,   0}},
 	{600, 600},
 	DEVCAPSFLAG_Positive + DEVCAPSFLAG_Negative,
 	SENSORORDER_rgb,
@@ -682,10 +682,10 @@ static DCapsDef Cap0x04A9_0x2208 =
  */
 static DCapsDef Cap0x04A9_0x220D =
 {
-	{{ 0, 110}, 45, -1, {2550, 3508}, {75, 75}, COLOR_GRAY16 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 110}, 45, -1, {2550, 3508}, {75, 75}},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
 	{600, 600},
 	0,
 	SENSORORDER_rgb,
@@ -700,10 +700,10 @@ static DCapsDef Cap0x04A9_0x220D =
  */
 static DCapsDef Cap0x04A9_0x220E =
 {
-	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}, COLOR_BW },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -718,10 +718,10 @@ static DCapsDef Cap0x04A9_0x220E =
  */
 static DCapsDef Cap0x04A9_0x2220 =
 {
-	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}, COLOR_BW },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
-	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }, 0 },
+	{{ 0, 100}, 50, 10, {2550, 3508}, {75, 75}},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},  0,  0, {0, 0}, { 0, 0 }},
 	{1200, 1200},
 	0,
 	SENSORORDER_rgb,
@@ -732,14 +732,34 @@ static DCapsDef Cap0x04A9_0x2220 =
 	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
 
+/* Syscan TravelScan 662 A6 sheet-fed scanner
+ */
+static DCapsDef Cap0x0A82_0x6620 =
+{
+	{{ 0,   0}, 100, -1, {1226, 3508}, { 75, 75 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{600, 600},
+	DEVCAPSFLAG_SheetFed,
+	SENSORORDER_rgb,
+	8,
+	1,
+	kNEC8861,           /* use default settings during calibration */
+	0,                  /* not used here... */
+	(_WAF_MISC_IO_LAMPS | _WAF_MISC_IO_BUTTONS |
+	 _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR),
+	_MIO5 + _PORT1
+};
+
 /******************* additional Hardware descriptions ************************/
 
 /** U24, UT12 and UT16
  */
 static HWDef Hw0x07B3_0x0017_0 =
 {
-	1.5,            /* dMaxMotorSpeed (Max_Speed)               */
-	1.2,            /* dMaxMoveSpeed (Max_Speed)                */
+	1.5,            /* dMaxMotorSpeed                           */
+	1.2,            /* dMaxMoveSpeed                            */
 	0.0,            /* dHighSpeed                               */
 	9,              /* dIntegrationTimeLowLamp                  */
 	9,              /* dIntegrationTimeHighLamp                 */
@@ -1390,8 +1410,8 @@ static HWDef Hw0x07B3_0x0017_3 =
  */
 static HWDef Hw0x03F0_0x0505 =
 {
-	1.05,   /* dMaxMotorSpeed (Max_Speed)               */
-	1.05,   /* dMaxMoveSpeed (Max_Speed)                */
+	1.05,   /* dMaxMotorSpeed                           */
+	1.05,   /* dMaxMoveSpeed                            */
 	0.0,    /* dHighSpeed                               */
 	6,      /* dIntegrationTimeLowLamp                  */
 	8,      /* dIntegrationTimeHighLamp                 */
@@ -1458,8 +1478,8 @@ static HWDef Hw0x03F0_0x0505 =
 /** HP Scanjet 2200C */
 static HWDef Hw0x03F0_0x0605 =
 {
-	1.05,   /* dMaxMotorSpeed (Max_Speed)               */
-	1.05,   /* dMaxMoveSpeed (Max_Speed)                */
+	1.05,   /* dMaxMotorSpeed                           */
+	1.05,   /* dMaxMoveSpeed                            */
 	2.2,    /* dHighSpeed                               */
 	6,      /* dIntegrationTimeLowLamp                  */
 	8,      /* dIntegrationTimeHighLamp                 */
@@ -1525,8 +1545,8 @@ static HWDef Hw0x03F0_0x0605 =
 /** Mustek BearPaw 1200 */
 static HWDef Hw0x0400_0x1000_0 =
 {
-	1.25,   /* ok dMaxMotorSpeed (Max_Speed)                */
-	1.25,   /* ok dMaxMoveSpeed (Max_Speed)                 */
+	1.75,   /* ok dMaxMotorSpeed                            */
+	1.25,   /* ok dMaxMoveSpeed                             */
 	0.0,    /* ok dHighSpeed                                */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
@@ -1572,20 +1592,20 @@ static HWDef Hw0x0400_0x1000_0 =
 	0x0d,	/* ok Paper sense (reg 0x58)                    */
 	0x44,   /* ok misc io12 (reg 0x59)                      */
 	0x44,   /* ok misc io34 (reg 0x5a)                      */
-	0x4f,   /* ok misc io56 (reg 0x5b)                      */
+	0x16,   /* ok misc io56 (reg 0x5b)                      */
 	0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
 	0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* ok test mode (reg 0x5e)                      */
 	_LM9831,
 	MODEL_MUSTEK600,
-	1.0
+	1.5
 };
 
 /** Mustek BearPaw 1200 (LM9832) */
 static HWDef Hw0x0400_0x1001_1 =
 {
-	1.25,   /* ok dMaxMotorSpeed (Max_Speed)                */
-	1.25,   /* ok dMaxMoveSpeed (Max_Speed)                 */
+	1.25,   /* ok dMaxMotorSpeed                            */
+	1.25,   /* ok dMaxMoveSpeed                             */
 	0.0,    /* dHighSpeed                                   */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
@@ -1631,20 +1651,20 @@ static HWDef Hw0x0400_0x1001_1 =
 	0x0d,	/* ok Paper sense (reg 0x58)                    */
 	0x44,   /* ok misc io12 (reg 0x59)                      */
 	0x44,   /* ok misc io34 (reg 0x5a)                      */
-	0x4f,   /* ok misc io56 (reg 0x5b)                      */
+	0x16,   /* ok misc io56 (reg 0x5b)                      */
 	0,      /* ok test mode ADC Output CODE MSB (reg 0x5c)  */
 	0,      /* ok test mode ADC Output CODE LSB (reg 0x5d)  */
 	0,      /* ok test mode (reg 0x5e)                      */
 	_LM9832,
 	MODEL_MUSTEK600,
-	1.0
+	1.5
 };
 
 /** BearPaw 2400 */
 static HWDef Hw0x0400_0x1001_0 =
 {
-	1.0/*1.8*/, /* ok dMaxMotorSpeed (Max_Speed)            */
-	0.9/*1.8*/, /* ok dMaxMoveSpeed (Max_Speed)             */
+	1.0/*1.8*/, /* ok dMaxMotorSpeed                        */
+	0.9/*1.8*/, /* ok dMaxMoveSpeed                         */
 	0.0,    /* ok dHighSpeed                                */
 	12,     /* ok dIntegrationTimeLowLamp                   */
 	12,     /* ok dIntegrationTimeHighLamp                  */
@@ -1666,49 +1686,49 @@ static HWDef Hw0x0400_0x1001_0 =
 /*	{5, 14, 12, 15, 18, 21, 0, 0, 0, 9 },*/
 	{1,  4,  4,  5,  6,  7, 0, 0, 0, 3 },
 
-	_GREEN_CH,	/* bReg_0x26 color mode - bits 4 and 5   	*/
-	0,	        /* bReg 0x27 color mode                  	*/
-	1,          /* bReg 0x29 illumination mode           	*/
+	_GREEN_CH, /* bReg_0x26 color mode - bits 4 and 5      */
+	0,         /* bReg 0x27 color mode                     */
+	1,         /* bReg 0x29 illumination mode              */
 	/* illumination mode settings (not used for CCD devices)*/
 	{ 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0 },
 
-	257,	/* StepperPhaseCorrection (reg 0x1a + 0x1b)  	*/
-    13,   	/* bOpticBlackStart (reg 0x1c)               	*/
-    60,   	/* bOpticBlackEnd (reg 0x1d)                 	*/
-    10,     /* wActivePixelsStart (reg 0x1e + 0x1f)      	*/
-5416 /*	11000*/,  /* wLineEnd (reg 0x20 + 0x21)                	*/
+	257,    /* StepperPhaseCorrection (reg 0x1a + 0x1b)    */
+	13,     /* bOpticBlackStart (reg 0x1c)                 */
+	60,     /* bOpticBlackEnd (reg 0x1d)                   */
+	10,     /* wActivePixelsStart (reg 0x1e + 0x1f)        */
+5416 /*	11000*/,  /* wLineEnd (reg 0x20 + 0x21)            */
 
-    1,  	/* ok red lamp on    (reg 0x2c + 0x2d)       	*/
-    16383,  /* ok red lamp off   (reg 0x2e + 0x2f)      	*/
-    1,		/* ok green lamp on  (reg 0x30 + 0x31)    	   	*/
-    16383,  /* ok green lamp off (reg 0x32 + 0x33)     	  	*/
-    1,      /* ok blue lamp on   (reg 0x34 + 0x35)       	*/
-    16383,  /* ok blue lamp off  (reg 0x36 + 0x37)       	*/
+	1,      /* ok red lamp on    (reg 0x2c + 0x2d)         */
+	16383,  /* ok red lamp off   (reg 0x2e + 0x2f)         */
+	1,      /* ok green lamp on  (reg 0x30 + 0x31)         */
+	16383,  /* ok green lamp off (reg 0x32 + 0x33)         */
+	1,      /* ok blue lamp on   (reg 0x34 + 0x35)         */
+	16383,  /* ok blue lamp off  (reg 0x36 + 0x37)         */
 
-	0x03,   /* ok stepper motor control (reg 0x45)          */
-	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d) 	*/
-    0x1e,   /* steps to reverse on buffer full (reg 0x50)   */
-	0xfc,   /* ok acceleration profile (reg 0x51)           */
-	0x03,   /* ok lines to process (reg 0x54)               */
-    0x13,	/* Kickstart      0x55                    		*/
-	 2,     /* PWM frequency  0x56                      	*/
-	32,     /* PWM duty cycle 0x57           				*/
-	0x15, 	/* paper sense 0x58								*/
-    0x44,	/* misc I/O 0x59                   				*/
-    0x44,	/* misc I/O 0x5a,                  				*/
-    0x46,	/* misc I/O 0x5b                   				*/
-    0, 0, 0,/* test registers, set to 0 (0x5c, 0x5d, 0x5e)	*/
+	0x03,   /* ok stepper motor control (reg 0x45)         */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)   */
+	0x1e,   /* steps to reverse on buffer full (reg 0x50)  */
+	0xfc,   /* ok acceleration profile (reg 0x51)          */
+	0x03,   /* ok lines to process (reg 0x54)              */
+	0x13,   /* Kickstart      0x55                         */
+	2,      /* PWM frequency  0x56                         */
+	32,     /* PWM duty cycle 0x57                         */
+	0x15,   /* paper sense 0x58                            */
+	0x44,   /* misc I/O 0x59                               */
+	0x44,   /* misc I/O 0x5a,                              */
+	0x46,   /* misc I/O 0x5b                               */
+	0, 0, 0,/* test registers, set to 0 (0x5c, 0x5d, 0x5e) */
 	_LM9832,
-    MODEL_MUSTEK1200,
+	MODEL_MUSTEK1200,
 	1.0
 };
 
 /** EPSON Perfection/Photo 1250 */
 static HWDef Hw0x04B8_0x010F =
 {
-	0.8,    /* dMaxMotorSpeed (Max_Speed)                   */
-	0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
+	0.8,    /* dMaxMotorSpeed                               */
+	0.8,    /* dMaxMoveSpeed                                */
 	4.1,    /* dHighSpeed                                   */
 	12,     /* dIntegrationTimeLowLamp                      */
 	12,     /* dIntegrationTimeHighLamp                     */
@@ -1773,8 +1793,8 @@ static HWDef Hw0x04B8_0x010F =
 /** EPSON Perfection/Photo 1260 */
 static HWDef Hw0x04B8_0x011D =
 {
-	0.9,    /* dMaxMotorSpeed (Max_Speed)                   */
-	0.8,    /* dMaxMoveSpeed (Max_Speed)                    */
+	0.9,    /* dMaxMotorSpeed                               */
+	0.8,    /* dMaxMoveSpeed                                */
 	4.1,    /* dHighSpeed                                   */
 	12,     /* dIntegrationTimeLowLamp                      */
 	12,     /* dIntegrationTimeHighLamp                     */
@@ -1839,8 +1859,8 @@ static HWDef Hw0x04B8_0x011D =
 /** Umax 3400/3450 */
 static HWDef Hw0x1606_0x0060 =
 {
-	1.5,    /* dMaxMotorSpeed (Max_Speed)                */
-	0.8,    /* dMaxMoveSpeed (Max_Speed)                 */
+	1.5,    /* dMaxMotorSpeed                            */
+	0.8,    /* dMaxMoveSpeed                             */
 	2.75,   /* dHighSpeed                                */
 	9,      /* dIntegrationTimeLowLamp                   */
 	9,      /* dIntegrationTimeHighLamp                  */
@@ -1906,8 +1926,8 @@ static HWDef Hw0x1606_0x0060 =
 /** Umax 5400 */
 static HWDef Hw0x1606_0x0160 =
 {
-	1.1,    /* dMaxMotorSpeed (Max_Speed)                */
-	0.9,    /* dMaxMoveSpeed (Max_Speed)                 */
+	1.1,    /* dMaxMotorSpeed                            */
+	0.9,    /* dMaxMoveSpeed                             */
 	0.0,    /* dHighSpeed                                */
 	9,      /* dIntegrationTimeLowLamp                   */
 	9,      /* dIntegrationTimeHighLamp                  */
@@ -1975,8 +1995,8 @@ static HWDef Hw0x1606_0x0160 =
 /** Canon N650U/N656U */
 static HWDef Hw0x04A9_0x2206 =
 {
-	0.86,   /* dMaxMotorSpeed (Max_Speed)                    */
-	0.243,  /* dMaxMoveSpeed (Max_Speed)                     */
+	0.86,   /* dMaxMotorSpeed                                */
+	0.243,  /* dMaxMoveSpeed                                 */
 	0.0,    /* dHighSpeed                                    */
 	100,    /* dIntegrationTimeLowLamp                       */
 	100,    /* dIntegrationTimeHighLamp                      */
@@ -2044,8 +2064,8 @@ static HWDef Hw0x04A9_0x2206 =
 /** Canon N1220U */
 static HWDef Hw0x04A9_0x2207 =
 {
-	0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.36,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.72,   /* dMaxMotorSpeed                                 */
+	0.36,   /* dMaxMoveSpeed                                  */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* wIntegrationTimeLowLamp                        */
 	100,    /* wIntegrationTimeHighLamp                       */
@@ -2112,8 +2132,8 @@ static HWDef Hw0x04A9_0x2207 =
 /** Canon D660U */
 static HWDef Hw0x04A9_0x2208 =
 {
-	1.2,    /* dMaxMotorSpeed (Max_Speed)                     */
-	1.1,    /* dMaxMoveSpeed (Max_Speed)                      */
+	1.2,    /* dMaxMotorSpeed                                 */
+	1.1,    /* dMaxMoveSpeed                                  */
 	2.75,   /* dHighSpeed                                     */
 	9,      /* dIntegrationTimeLowLamp                        */
 	9,      /* dIntegrationTimeHighLamp                       */
@@ -2175,8 +2195,8 @@ static HWDef Hw0x04A9_0x2208 =
 /** Canon 670/676/LiDE20 */
 static HWDef Hw0x04A9_0x220D =
 {
-	0.86,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.243,  /* dMaxMoveSpeed (Max_Speed)                      */
+	0.86,   /* dMaxMotorSpeed                                 */
+	0.243,  /* dMaxMoveSpeed                                  */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* dIntegrationTimeLowLamp                        */
 	100,    /* dIntegrationTimeHighLamp                       */
@@ -2244,8 +2264,8 @@ static HWDef Hw0x04A9_0x220D =
 /** Canon N1240U/LiDE30 */
 static HWDef Hw0x04A9_0x220E =
 {
-	0.72,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.30,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.72,   /* dMaxMotorSpeed                                 */
+	0.30,   /* dMaxMoveSpeed                                  */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* wIntegrationTimeLowLamp                        */
 	100,    /* wIntegrationTimeHighLamp                       */
@@ -2262,10 +2282,10 @@ static HWDef Hw0x04A9_0x220E =
 	0x00,   /* sensor control settings (reg 0x0e)             */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-	       /* mono (reg 0x0f to 0x18)                        */
+	       /* mono (reg 0x0f to 0x18)                         */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-	      /* color (reg 0x0f to 0x18)                       */
+	      /* color (reg 0x0f to 0x18)                         */
 
 	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
@@ -2313,8 +2333,8 @@ static HWDef Hw0x04A9_0x220E =
 /** Canon LiDE25 */
 static HWDef Hw0x04A9_0x2220 =
 {
-	0.70,   /* dMaxMotorSpeed (Max_Speed)                     */
-	0.25,   /* dMaxMoveSpeed (Max_Speed)                      */
+	0.70,   /* dMaxMotorSpeed                                 */
+	0.25,   /* dMaxMoveSpeed                                  */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* wIntegrationTimeLowLamp                        */
 	100,    /* wIntegrationTimeHighLamp                       */
@@ -2331,10 +2351,10 @@ static HWDef Hw0x04A9_0x2220 =
 	0x00,   /* sensor control settings (reg 0x0e)             */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x07},
-	       /* mono (reg 0x0f to 0x18)                        */
+	       /* mono (reg 0x0f to 0x18)                         */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x07},
-	      /* color (reg 0x0f to 0x18)                       */
+	      /* color (reg 0x0f to 0x18)                         */
 
 	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
@@ -2377,6 +2397,76 @@ static HWDef Hw0x04A9_0x2220 =
 	_LM9833,
 	MODEL_CANON_LIDE25,
 	2.0
+};
+
+/** TravelScan 662 */
+static HWDef Hw0x0A82_0x6620 =
+{
+	0.72,   /* dMaxMotorSpeed                                 */
+	0.188,  /* dMaxMoveSpeed                                  */
+	0.0,    /* dHighSpeed                                     */
+	100,    /* wIntegrationTimeLowLamp                        */
+	100,    /* wIntegrationTimeHighLamp                       */
+	740,    /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	3.75,   /* dMinIntegrationTimeLowres (ms)                 */
+	5.75,   /* dMinIntegrationTimeHighres (ms)                */
+	3000,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	3000,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+
+	0x0d,   /* bSensorConfiguration (0x0b)                    */
+	0x00,   /* sensor control settings (reg 0x0c)             */
+	0x25,   /* sensor control settings (reg 0x0d)             */
+	0x00,   /* sensor control settings (reg 0x0e)             */
+
+	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
+	       /* mono (reg 0x0f to 0x18)                         */
+
+	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
+	      /* color (reg 0x0f to 0x18)                         */
+
+	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
+
+	0x00,   /* bReg 0x27 color mode                           */
+	2,      /* bReg 0x29 illumination mode                    */
+
+	{ 3,  0,    0, 10, 450,  0,   0 },
+	{ 2, 10, 1000, 10, 880, 10, 630 },
+
+	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	1,      /* bOpticBlackStart (reg 0x1c)                    */
+	2,      /* bOpticBlackEnd (reg 0x1d)                      */
+	0x17,   /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	2600,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+	10,     /* red lamp on    (reg 0x2c + 0x2d)               */
+	1000,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	10,     /* green lamp on  (reg 0x30 + 0x31)               */
+	880,    /* green lamp off (reg 0x32 + 0x33)               */
+	10,     /* blue lamp on   (reg 0x34 + 0x35)               */
+	630,    /* blue lamp off  (reg 0x36 + 0x37)               */
+
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+
+	0,      /* steps to reverse when buffer is full reg 0x50) */
+	0,      /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0x09,   /* kickstart (reg 0x55)                           */
+	0x02,   /* pwm freq (reg 0x56)                            */
+	0x16,   /* pwm duty cycle (reg 0x57)                      */
+
+	0x01,   /* Paper sense (reg 0x58)                         */
+
+	0x0e,   /* misc io12 (reg 0x59)                           */
+	0x96,   /* misc io34 (reg 0x5a)                           */
+	0x01,   /* misc io56 (reg 0x5b)                           */
+	0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9833,
+	MODEL_TSCAN,
+	1.8
 };
 
 /******************** all available combinations *****************************/
@@ -2450,6 +2540,9 @@ static SetDef Settings[] =
 	{"0x04A9-0x220E",   &Cap0x04A9_0x220E, &Hw0x04A9_0x220E, "N1240U/LiDE30"      },
 	{"0x04A9-0x2220",   &Cap0x04A9_0x2220, &Hw0x04A9_0x2220, "LiDE25"      },
 
+	/* SYSCAN... */
+	{"0x0A82-0x6620",   &Cap0x0A82_0x6620, &Hw0x0A82_0x6620, "TravelScan 662" },
+
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
 	 * it's used by the driver to select the device settings. For other devices
@@ -2484,7 +2577,7 @@ static ClkMotorDef Motors[] = {
 
 	{ MODEL_KaoHsiung,
 		64, 20, 6, /* PWM, PWM_Duty, MCLK for fast move */
-		
+		0, 0,      /* for lineend adjustment, here disabled */
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
 		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
@@ -2496,7 +2589,7 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_HuaLien, 64, 20, 6,
+	{ MODEL_HuaLien, 64, 20, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
 		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
@@ -2508,7 +2601,7 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_Tokyo600, 4, 4, 6,
+	{ MODEL_Tokyo600, 4, 4, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 },
 		 { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }},
@@ -2520,23 +2613,27 @@ static ClkMotorDef Motors[] = {
 		{ 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 }
 	},
 
-	{ MODEL_MUSTEK600, 4, 4, 6,
+	{ MODEL_MUSTEK600, 4, 4, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
 		/* Color mode MCLK settings */
+#if 0
 		{ 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
 		{ 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
+#else
+		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		{ 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
+#endif
 		/* Gray mode MCLK settings */
 		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5 },
 		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5 }
 	},
 
-	{ MODEL_MUSTEK1200, 2, 32, 3,
+	{ MODEL_MUSTEK1200, 2, 32, 3, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi   */
 		{{ 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 },
-
 		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		 { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }, { 2, 32, 1 }},
 		/* Color mode MCLK settings */
@@ -2548,41 +2645,36 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the HP models (tested with 2200)*/
-	{ MODEL_HP, 8, 60, 6,
+	{ MODEL_HP, 8, 60, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 },
 		 { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }, { 8, 60, 1 }},
-
     	/* Color mode MCLK settings */
 		{ 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },
 		{ 4.0, 4.0, 4.0, 4.0, 3.0, 4.0, 6.0, 6.0, 6.0, 6.0 },
-
 		/* Gray mode MCLK settings */
 		{ 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 },
 		{ 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
-	{ MODEL_CANON600, 8, 31, 6,
+	{ MODEL_CANON600, 8, 31, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
-
 		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		 { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
 		/* Color mode MCLK settings */
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
-
 		/* Gray mode MCLK settings */
 		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
 		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
-	{ MODEL_CANON1200, 8, 31, 3,
+	{ MODEL_CANON1200, 8, 31, 3, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
-
 		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		 { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
 		/* Color mode MCLK settings */
@@ -2594,7 +2686,7 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the UMAX models (tested with 3400) */
-	{ MODEL_UMAX, 16, 4, 6,
+	{ MODEL_UMAX, 16, 4, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
@@ -2606,7 +2698,7 @@ static ClkMotorDef Motors[] = {
 		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 10.5 }
 	},
 
-	{ MODEL_UMAX1200, 16, 4, 6,
+	{ MODEL_UMAX1200, 16, 4, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
@@ -2619,11 +2711,10 @@ static ClkMotorDef Motors[] = {
 	},
 
 	/* settings good for the EPSON models */
-	{ MODEL_EPSON, 2, 1, 6,
+	{ MODEL_EPSON, 2, 1, 6, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi      <=100dpi     <=150dpi     <=200dpi     <=300dpi  */
 		{{ 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 },
-
 		/* <=400dpi     <=600dpi     <=800dpi     <=1200dpi    <=2400dpi */
 		 { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }, { 2, 1, 1 }},
 		/* Color mode MCLK settings */
@@ -2634,11 +2725,10 @@ static ClkMotorDef Motors[] = {
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 8.0, 9.0, 9.0, 18.0, 18.0 }
 	},
 
-	{ MODEL_CANONCCD1200, 2, 31, 6,
+	{ MODEL_CANONCCD1200, 2, 31, 3, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 },
-
 		/* <=400dpi      <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		 { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }, { 2, 31, 1 }},
 		/* Color mode MCLK settings */
@@ -2649,11 +2739,10 @@ static ClkMotorDef Motors[] = {
 		{ 6.5, 6.5, 6.5, 7.0, 8.0, 8.0, 8.0, 10.0, 10.0, 10.0 }
 	},
 
-	{ MODEL_CANON_LIDE25, 8, 31, 3,
+	{ MODEL_CANON_LIDE25, 8, 31, 3, 0, 0,
 	/* Motor settings (PWM and PWM_Duty) */
-		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
-
 		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }},
 		/* Color mode MCLK settings */
@@ -2662,6 +2751,21 @@ static ClkMotorDef Motors[] = {
 		/* Gray mode MCLK settings */
 		{ 8.5, 7.0, 5.0, 4.0, 2.5, 2.5, 2.5,  2.5,  2.5,  2.5 },
 		{ 7.5, 6.5, 6.0, 6.0, 6.0, 6.0, 8.0, 12.0, 12.0, 12.0 }
+	},
+
+	{ MODEL_TSCAN, 2, 22, 6, 75, 4000,
+	/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
+		{{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 },
+		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }},
+		/* Color mode MCLK settings */
+		/* Color mode MCLK settings */
+		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		/* Gray mode MCLK settings */
+		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
+		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
 	}
 };
 

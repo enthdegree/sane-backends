@@ -7,7 +7,7 @@
  *  @brief Main defines for the USB devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -40,6 +40,10 @@
  * - 0.50 - cleanup
  *        - removed obsolete _WAF_BLACKFINE
  *        - added MODEL_CANON_LIDE25
+ * - 0.51 - added _WAF_MISC_IO_BUTTONS plus _BUTTON stuff
+ *        - added _WAF_USE_ALT_DESC
+ *        - added DEVCAPSFLAG_SheetFed
+ *        - added dpi_thresh and lineend to motor structure
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -181,9 +185,6 @@ typedef struct {
 
 #define GAIN_Target                     65535UL
 
-#define DRAM_UsedByAsic8BitMode         216             /* in KB */
-#define DRAM_UsedByAsic16BitMode        196 /*192*/     /* in KB */
-
 /** Chip-types */
 typedef enum _CHIPSET
 {
@@ -229,7 +230,8 @@ enum _DEVCAPSFLAG
 	DEVCAPSFLAG_Negative = 0x0004,
 	DEVCAPSFLAG_TPA      = 0x0006,
 	DEVCAPSFLAG_Adf      = 0x0008,
-	DEVCAPSFLAG_LargeTPA = 0x0010
+	DEVCAPSFLAG_LargeTPA = 0x0010,
+	DEVCAPSFLAG_SheetFed = 0x0020
 };
 
 /** to allow some workarounds */
@@ -244,7 +246,9 @@ enum _WORKAROUNDS
 	_WAF_SKIP_FINE          = 0x00000020, /* skip the fine calbration        */
 	_WAF_SKIP_WHITEFINE     = 0x00000040, /* skip the fine white calbration  */
 	_WAF_BIN_FROM_COLOR     = 0x00000080, /* generate binary & gray images   */
-	_WAF_GRAY_FROM_COLOR    = 0x00000100  /* from color scans                */
+	_WAF_GRAY_FROM_COLOR    = 0x00000100, /* from color scans                */
+	_WAF_MISC_IO_BUTTONS    = 0x00000200, /* special handling for buttons    */
+	_WAF_USE_ALT_DESC       = 0x00000400  /* use alternate manufacturer      */
 };
 
 /** for lamps connected to the misc I/O pins*/
@@ -259,14 +263,27 @@ enum _LAMPS
 	_MIO6   = 0x0020
 };
 
+#define _BUTTON_SHIFT 16
+#define _BUTTON_MASK  0xFF0000
+#define _TPA_SHIFT    8
+#define _TPA_MASK     0xFF00
+
+enum _BUTTONS
+{
+	_NO_BUTTON = 0,
+	_PORT0     = ((_MIO1 | _MIO2) << _BUTTON_SHIFT),
+	_PORT1     = ((_MIO3 | _MIO4) << _BUTTON_SHIFT),
+	_PORT2     = ((_MIO5 | _MIO6) << _BUTTON_SHIFT)
+};
+
 /** for encoding a misc I/O register as TPA */
-#define _TPA(register) ((u_long)(register << 16))
+#define _TPA(register) ((u_long)(register << _TPA_SHIFT))
 
 /** Mask to check for available TPA */
-#define _HAS_TPA(flag) (flag & 0xFFFF0000)
+#define _HAS_TPA(flag) (flag & _TPA_MASK)
 
 /** Get the TPA misc I/O register */
-#define _GET_TPALAMP(flag) (flag >> 16)
+#define _GET_TPALAMP(flag) ((flag >> _TPA_SHIFT) & 0xFF)
 
 /** motor types */
 typedef enum
@@ -284,6 +301,7 @@ typedef enum
 	MODEL_CANON_LIDE25,   /**< for CanoScan LiDE25          */
 	MODEL_UMAX,           /**< for UMAX 3400/3450           */
 	MODEL_UMAX1200,       /**< for UMAX 5400                */
+	MODEL_TSCAN,          /**< for Syscan Travelscan        */
 	MODEL_LAST
 } eModelDef;
 
@@ -325,10 +343,11 @@ enum SCANFLAG
 	SCANFLAG_DWORDBoundary  = 0x00020000,
 	SCANFLAG_RightAlign     = 0x00040000,
 	SCANFLAG_StillModule    = 0x00080000, 
-	SCANFLAG_StartScan      = 0x40000000,
-	SCANFLAG_Scanning       = 0x20020000,
 	SCANFLAG_Pseudo48       = 0x08000000,
-	SCANFLAG_SampleY        = 0x04000000
+	SCANFLAG_SampleY        = 0x04000000,
+	SCANFLAG_Calibration    = 0x10000000,
+	SCANFLAG_Scanning       = 0x20020000,
+	SCANFLAG_StartScan      = 0x40000000
 };
 
 typedef	struct Origins
@@ -347,7 +366,6 @@ typedef struct SrcAttr
 	short  DarkShadOrgY;    /**< if the device has a dark calibration strip  */
 	XY     Size;            /**< Scanning width/height, in 300 DPI base.     */
 	XY     MinDpi;          /**< Minimum dpi supported for scanning          */
-	u_char bMinDataType;    /**< Minimum data type supports                  */
 
 } SrcAttrDef;
 
@@ -635,14 +653,17 @@ typedef struct {
 	u_char  pwm_duty_fast;  /**< PWM duty during fast movement */
 	u_char  mclk_fast;      /**< MCLK during fast movement     */
 
-    /**
-     * here we define some ranges for better supporting
-     * non-Plustek devices with it's different hardware
-     * we can set the MCLK and the motor PWM stuff for color
-     * and gray modes (8bit and 14/16bit modes)
-     *    0    1     2     3     4     5     6      7     8      9
-     * <= 75 <=100 <=150 <=200 <=300 <=400 <=600 <= 800 <=1200 <=2400DPI
-     */
+	u_short dpi_thresh;
+	u_short lineend;
+
+	/**
+	 * here we define some ranges for better supporting
+	 * non-Plustek devices with it's different hardware
+	 * we can set the MCLK and the motor PWM stuff for color
+	 * and gray modes (8bit and 14/16bit modes)
+	 *    0    1     2     3     4     5     6      7     8      9
+	 * <= 75 <=100 <=150 <=200 <=300 <=400 <=600 <= 800 <=1200 <=2400DPI
+	 */
 	MDef   motor_sets[_MAX_CLK];	/**< motor PWM settings during scan      */
 	double color_mclk_8[_MAX_CLK];  /**< MCLK settings for color scan        */
 	double color_mclk_16[_MAX_CLK]; /**< MCLK settings for color (16bit) scan*/

@@ -7,7 +7,7 @@
  *  @brief The interface functions to the USB driver stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -43,6 +43,8 @@
  * - 0.50 - minor fix for startup reset
  *          removed unnecessary calls to usbio_ResetLM983x()
  *          1200DPI CIS devices don't use GrayFromColor any longer
+ * - 0.51 - added Syscan to the vendor list
+ *        - added SCANFLAG_Calibration handling
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -90,22 +92,23 @@
 typedef struct {
 	int   id;
 	char *desc;
+	char *desc_alt;
 } TabDef, *pTabDef;
 
 /** to allow different vendors...
  */
 static TabDef usbVendors[] = {
 
-	{ 0x07B3, "Plustek"         },
-	{ 0x0400, "Mustek"          },  /* this in fact is not correct  */
-                                    /* but is used for the BearPaws */
-	{ 0x0458, "KYE/Genius"      },
-	{ 0x03F0, "Hewlett-Packard" },
-	{ 0x04B8, "Epson"           },
-	{ 0x04A9, "Canon"           },
- 	{ 0x1606, "UMAX"            },
- 	{ 0x049F, "Compaq"          },
-	{ 0xFFFF, NULL              }
+	{ 0x07B3, "Plustek",         NULL     },
+	{ 0x0400, "NSC",             "Mustek" },
+	{ 0x0458, "KYE/Genius",      NULL     },
+	{ 0x03F0, "Hewlett-Packard", NULL     },
+	{ 0x04B8, "Epson",           NULL     },
+	{ 0x04A9, "Canon",           NULL     },
+	{ 0x1606, "UMAX",            NULL     },
+	{ 0x049F, "Compaq",          NULL     },
+	{ 0x0A82, "Syscan",          NULL     },
+	{ 0xFFFF, NULL,              NULL     }
 };
 
 /** we use at least 8 megs for scanning... */
@@ -170,7 +173,8 @@ static void usb_CheckAndCopyAdjs( Plustek_Device *dev )
 /**
  * assign the values to the structures used by the currently found scanner
  */
-static void usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
+static void
+usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 {
 	char     *ptr;
 	char      tmp_str1[PATH_MAX];
@@ -252,6 +256,9 @@ static void usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 
 		if( usbVendors[i].id == vendor ) {
 			dev->sane.vendor = usbVendors[i].desc;
+			if (dev->usbDev.Caps.workaroundFlag & _WAF_USE_ALT_DESC )
+				if (usbVendors[i].desc_alt )
+					dev->sane.vendor = usbVendors[i].desc_alt;
 			DBG( _DBG_INFO, "Vendor adjusted to: >%s<\n", dev->sane.vendor );
 			break;
 		}
@@ -285,15 +292,16 @@ static void usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 	}
 	
 	if( NULL == ptr ) {
-		sprintf( tmp_str2, "/tmp/%s-%s.cal",
+		sprintf( tmp_str2, "/tmp/%s-%s",
 		         dev->sane.vendor, tmp_str1 );
 	} else {
-		sprintf( tmp_str2, "%s/.sane/%s-%s.cal",
+		sprintf( tmp_str2, "%s/.sane/%s-%s",
 		         ptr, dev->sane.vendor, tmp_str1 );
 	}
 	dev->calFile = strdup( tmp_str2 );
-	DBG( _DBG_INFO, "Calibration file-name set to:\n" );
-	DBG( _DBG_INFO, ">%s<\n", dev->calFile );
+	DBG( _DBG_INFO, "Calibration file-names set to:\n" );
+	DBG( _DBG_INFO, ">%s-coarse.cal<\n", dev->calFile );
+	DBG( _DBG_INFO, ">%s-fine.cal<\n", dev->calFile );
 
 	/* initialize the ASIC registers */
 	usb_SetScanParameters( dev, &sParam );
@@ -860,57 +868,67 @@ static int usbDev_setMap( Plustek_Device *dev, SANE_Word *map,
 
 /**
  */
-static int usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
+static int
+usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 {
+	ScanDef  *scan  = &dev->scanning;
 	DCapsDef *caps = &dev->usbDev.Caps;
 
 	DBG( _DBG_INFO, "usbDev_setScanEnv()\n" );
 
 	/* clear all the stuff */
-	memset( &dev->scanning, 0, sizeof(ScanDef));
+	memset( scan, 0, sizeof(ScanDef));
 
 	if((si->ImgDef.dwFlag & SCANDEF_Adf) &&
 	   (si->ImgDef.dwFlag & SCANDEF_ContinuousScan)) {
-		dev->scanning.sParam.dMCLK = dMCLK_ADF;
+		scan->sParam.dMCLK = dMCLK_ADF;
 	}
 
     /* Save necessary informations */
-	dev->scanning.fGrayFromColor = 0;
+	scan->fGrayFromColor = 0;
 
-	if( si->ImgDef.wDataType == COLOR_256GRAY ) {
+	/* for some devices and settings, we tweak the physical settings
+	 * how to get the image - but not in calibration mode
+	 */
+	if((si->ImgDef.dwFlag & SCANFLAG_Calibration) == 0) {
 
-		if( !(si->ImgDef.dwFlag & SCANDEF_Adf) && !usb_IsCISDevice(dev) &&
-		  (dev->usbDev.Caps.OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
-			dev->scanning.fGrayFromColor = 2;
-			si->ImgDef.wDataType = COLOR_TRUE24;
-			DBG( _DBG_INFO, "* Gray from color set!\n" );
-		}
+		if( si->ImgDef.wDataType == COLOR_256GRAY ) {
 
-		if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
-			DBG( _DBG_INFO, "* Gray(8-bit) from color set!\n" );
-			dev->scanning.fGrayFromColor = 2;
-			si->ImgDef.wDataType = COLOR_TRUE24;
-		}
+			if( !(si->ImgDef.dwFlag & SCANDEF_Adf) && !usb_IsCISDevice(dev) &&
+			   (caps->OpticDpi.x == 1200 && si->ImgDef.xyDpi.x <= 300)) {
+				scan->fGrayFromColor = 2;
+				si->ImgDef.wDataType = COLOR_TRUE24;
+				DBG( _DBG_INFO, "* Gray from color set!\n" );
+			}
 
-	} else if ( si->ImgDef.wDataType == COLOR_GRAY16 ) {
-		if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
-			DBG( _DBG_INFO, "* Gray(16-bit) from color set!\n" );
-			dev->scanning.fGrayFromColor = 2;
-			si->ImgDef.wDataType = COLOR_TRUE48;
-		}
-	} else if ( si->ImgDef.wDataType == COLOR_BW ) {
-		if( caps->workaroundFlag & _WAF_BIN_FROM_COLOR ) {
-			DBG( _DBG_INFO, "* Binary from color set!\n" );
-			dev->scanning.fGrayFromColor = 10;
-			si->ImgDef.wDataType = COLOR_TRUE24;
+			if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
+				DBG( _DBG_INFO, "* Gray(8-bit) from color set!\n" );
+				scan->fGrayFromColor = 2;
+				si->ImgDef.wDataType = COLOR_TRUE24;
+			}
+
+		} else if ( si->ImgDef.wDataType == COLOR_GRAY16 ) {
+			if( caps->workaroundFlag & _WAF_GRAY_FROM_COLOR ) {
+				DBG( _DBG_INFO, "* Gray(16-bit) from color set!\n" );
+				scan->fGrayFromColor = 2;
+				si->ImgDef.wDataType = COLOR_TRUE48;
+			}
+
+		} else if ( si->ImgDef.wDataType == COLOR_BW ) {
+			if( caps->workaroundFlag & _WAF_BIN_FROM_COLOR ) {
+				DBG( _DBG_INFO, "* Binary from color set!\n" );
+				scan->fGrayFromColor = 10;
+				si->ImgDef.wDataType = COLOR_TRUE24;
+			}
 		}
 	}
-	usb_SaveImageInfo( dev, &si->ImgDef );
-	usb_GetImageInfo ( dev, &si->ImgDef, &dev->scanning.sParam.Size );
 
-	/* Flags */
-	dev->scanning.dwFlag = si->ImgDef.dwFlag & 
-	              (SCANFLAG_bgr | SCANFLAG_BottomUp |
+	usb_SaveImageInfo( dev, &si->ImgDef );
+	usb_GetImageInfo ( dev, &si->ImgDef, &scan->sParam.Size );
+
+	/* mask the flags */
+	scan->dwFlag = si->ImgDef.dwFlag & 
+	              (SCANFLAG_bgr | SCANFLAG_BottomUp | SCANFLAG_Calibration |
 	               SCANFLAG_DWORDBoundary | SCANFLAG_RightAlign |
 	               SCANFLAG_StillModule | SCANDEF_Adf | SCANDEF_ContinuousScan);
 
@@ -918,27 +936,27 @@ static int usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 		DBG( _DBG_INFO, "* Preview Mode set!\n" );
 	} else {
 		DBG( _DBG_INFO, "* Preview Mode NOT set!\n" );
-		dev->scanning.dwFlag |= SCANDEF_QualityScan;
+		scan->dwFlag |= SCANDEF_QualityScan;
 	}
 
-	dev->scanning.sParam.brightness  = si->siBrightness;
-	dev->scanning.sParam.contrast    = si->siContrast;
+	scan->sParam.brightness  = si->siBrightness;
+	scan->sParam.contrast    = si->siContrast;
 
-	if( dev->scanning.sParam.bBitDepth <= 8 )
-		dev->scanning.dwFlag &= ~SCANFLAG_RightAlign;
+	if( scan->sParam.bBitDepth <= 8 )
+		scan->dwFlag &= ~SCANFLAG_RightAlign;
 
-	if( dev->scanning.dwFlag & SCANFLAG_DWORDBoundary ) {
-		if( dev->scanning.fGrayFromColor && dev->scanning.fGrayFromColor < 10)
-			dev->scanning.dwBytesLine = (dev->scanning.sParam.Size.dwBytes / 3 + 3) & 0xfffffffcUL;
+	if( scan->dwFlag & SCANFLAG_DWORDBoundary ) {
+		if( scan->fGrayFromColor && scan->fGrayFromColor < 10)
+			scan->dwBytesLine = (scan->sParam.Size.dwBytes / 3 + 3) & 0xfffffffcUL;
 		else
-			dev->scanning.dwBytesLine = (dev->scanning.sParam.Size.dwBytes + 3UL) & 0xfffffffcUL;
+			scan->dwBytesLine = (scan->sParam.Size.dwBytes + 3UL) & 0xfffffffcUL;
 
 	} else {
 
-		if( dev->scanning.fGrayFromColor && dev->scanning.fGrayFromColor < 10)
-			dev->scanning.dwBytesLine = dev->scanning.sParam.Size.dwBytes / 3;
+		if( scan->fGrayFromColor && scan->fGrayFromColor < 10)
+			scan->dwBytesLine = scan->sParam.Size.dwBytes / 3;
 		else
-			dev->scanning.dwBytesLine = dev->scanning.sParam.Size.dwBytes;
+			scan->dwBytesLine = scan->sParam.Size.dwBytes;
 	}
 
 	/* on CIS based devices we have to reconfigure the illumination
@@ -946,72 +964,73 @@ static int usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 	 */
 	usb_AdjustCISLampSettings( dev, SANE_TRUE );
 
-	if( dev->scanning.dwFlag & SCANFLAG_BottomUp)
-		dev->scanning.lBufAdjust = -(long)dev->scanning.dwBytesLine;
+	if( scan->dwFlag & SCANFLAG_BottomUp)
+		scan->lBufAdjust = -(long)scan->dwBytesLine;
 	else
-		dev->scanning.lBufAdjust = dev->scanning.dwBytesLine;
+		scan->lBufAdjust = scan->dwBytesLine;
 
 	/* LM9831 has a BUG in 16-bit mode,
 	 * so we generate pseudo 16-bit data from 8-bit
 	 */
-	if( dev->scanning.sParam.bBitDepth > 8 ) {
+	if( scan->sParam.bBitDepth > 8 ) {
 
 		if( _LM9831 == dev->usbDev.HwSetting.chip ) {
 
-			dev->scanning.sParam.bBitDepth = 8;
-			dev->scanning.dwFlag |= SCANFLAG_Pseudo48;
-			dev->scanning.sParam.Size.dwBytes >>= 1;
+			scan->sParam.bBitDepth = 8;
+			scan->dwFlag |= SCANFLAG_Pseudo48;
+			scan->sParam.Size.dwBytes >>= 1;
 		}
 	}
 
 	/* Source selection */
-	if( dev->scanning.sParam.bSource == SOURCE_Reflection ) {
+	if( scan->sParam.bSource == SOURCE_Reflection ) {
 
-		dev->usbDev.pSource = &dev->usbDev.Caps.Normal;
-		dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+		dev->usbDev.pSource = &caps->Normal;
+		scan->sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
 		                                      (u_long)dev->usbDev.Normal.lLeft;
-		dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+		scan->sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
 		                                        (u_long)dev->usbDev.Normal.lUp;
 
-	} else if( dev->scanning.sParam.bSource == SOURCE_Transparency ) {
+	} else if( scan->sParam.bSource == SOURCE_Transparency ) {
 
-		dev->usbDev.pSource = &dev->usbDev.Caps.Positive;
-		dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+		dev->usbDev.pSource = &caps->Positive;
+		scan->sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
 		                                    (u_long)dev->usbDev.Positive.lLeft;
-		dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+		scan->sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
 		                                      (u_long)dev->usbDev.Positive.lUp;
 
-	} else if( dev->scanning.sParam.bSource == SOURCE_Negative ) {
+	} else if( scan->sParam.bSource == SOURCE_Negative ) {
 
-		dev->usbDev.pSource = &dev->usbDev.Caps.Negative;
-		dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+		dev->usbDev.pSource = &caps->Negative;
+		scan->sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
 		                                    (u_long)dev->usbDev.Negative.lLeft;
-		dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+		scan->sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
 		                                      (u_long)dev->usbDev.Negative.lUp;
 
 	} else {
 
 		dev->usbDev.pSource = &dev->usbDev.Caps.Adf;
-		dev->scanning.sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
+		scan->sParam.Origin.x += dev->usbDev.pSource->DataOrigin.x +
 		                                      (u_long)dev->usbDev.Normal.lLeft;
-		dev->scanning.sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
+		scan->sParam.Origin.y += dev->usbDev.pSource->DataOrigin.y +
 		                                        (u_long)dev->usbDev.Normal.lUp;
 	}
 
-	if( dev->scanning.sParam.bSource == SOURCE_ADF ) {
+	if( scan->sParam.bSource == SOURCE_ADF ) {
 
-		if( dev->scanning.dwFlag & SCANDEF_ContinuousScan )
+		if( scan->dwFlag & SCANDEF_ContinuousScan )
 			dev->usbDev.fLastScanIsAdf = SANE_TRUE;
 		else
 			dev->usbDev.fLastScanIsAdf = SANE_FALSE;
 	}
 
-    return 0;
+	return 0;
 }
 
 /**
  */
-static int usbDev_stopScan( Plustek_Device *dev )
+static int
+usbDev_stopScan( Plustek_Device *dev )
 {
 	DBG( _DBG_INFO, "usbDev_stopScan()\n" );
 
@@ -1031,7 +1050,8 @@ static int usbDev_stopScan( Plustek_Device *dev )
 
 /**
  */
-static int usbDev_startScan( Plustek_Device *dev )
+static int
+usbDev_startScan( Plustek_Device *dev )
 {
 	ScanDef *scan = &dev->scanning;
 	DBG( _DBG_INFO, "usbDev_startScan()\n" );
@@ -1066,6 +1086,10 @@ static int usbDev_startScan( Plustek_Device *dev )
 	m_fStart    = m_fFirst = SANE_TRUE;
 	m_fAutoPark = (scan->dwFlag&SCANFLAG_StillModule)?SANE_FALSE:SANE_TRUE;
 
+	if( usb_IsSheetFedDevice(dev))
+		if(usb_InCalibrationMode(dev))
+			m_fAutoPark = SANE_FALSE;
+
 	usb_StopLampTimer( dev );
 	return 0;
 }
@@ -1075,7 +1099,8 @@ static int usbDev_startScan( Plustek_Device *dev )
  * first we perform the calibration step, and then we read the image
  * line for line
  */
-static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
+static int
+usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 {
 	int       result;
 	SANE_Bool use_alt_cal = SANE_FALSE;
@@ -1088,13 +1113,11 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 	/* check the current position of the sensor and move it back
 	 * to it's home position if necessary...
 	 */
-	usb_ModuleStatus( dev );
+	if( !usb_IsSheetFedDevice(dev))
+		usb_SensorStatus( dev );
 
-	/* the CanoScan CIS devices need special handling... */
-	if((dev->usbDev.vendor == 0x04A9) &&    
-		(dev->usbDev.product==0x2206 || dev->usbDev.product==0x2207 ||
-		 dev->usbDev.product==0x220D || dev->usbDev.product==0x220E ||
-		 dev->usbDev.product==0x2220)) {
+	/* CIS devices need special handling... */
+	if( usb_IsCISDevice(dev)) {
 		use_alt_cal = SANE_TRUE;
 		
 	} else {
@@ -1116,15 +1139,17 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 	if( SANE_TRUE != result ) {
 		DBG( _DBG_ERROR, "calibration failed!!!\n" );
-		return result;
+		return _E_ABORT;
 	}
 
 	if( dev->adj.cacheCalData )
 		usb_SaveCalData( dev );
 
 	DBG( _DBG_INFO, "calibration done.\n" );
+	if( usb_InCalibrationMode(dev))
+		return 0;
 
-	if( !( scan->dwFlag & SCANFLAG_Scanning )) {
+	if( !(scan->dwFlag & SCANFLAG_Scanning)) {
 
 		usleep( 10 * 1000 );
 
@@ -1342,7 +1367,8 @@ static int usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 /** as the name says, read one line...
  */
-static int usbDev_ReadLine( Plustek_Device *dev )
+static int
+usbDev_ReadLine( Plustek_Device *dev )
 {
 	int      wrap;
 	u_long   cur;

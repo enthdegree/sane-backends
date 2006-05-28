@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "08 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "09 April 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -142,6 +142,18 @@ CanoScan LIDE25    LM9833 1200x2400dpi 48bit 512Kb 0x2220
 CanoScan LIDE30    LM9833 1200x2400dpi 48bit 512Kb 0x220E
 .fi
 .ft R
+.PP
+
+Vendor Syscan \- ID: 0x0A82
+.br
+.ft CR
+.nf
+----------------------------------------------------------
+USB Model:         ASIC:  Properties:              Prod-ID
+----------------------------------------------------------
+Travelscan 662     LM9833  600x1200dpi 48bit 512Kb 0x6620
+.fi
+.ft R
 
 .SH "OTHER PLUSTEK SCANNERS"
 For parallelport device support see the
@@ -247,8 +259,8 @@ option invertNegatives b
 option cacheCalData b
 .RS
 .I b
-0 --> do not save coarse calibration results,
-1 --> save results of coarse calibration in ~/.sane/ directory
+0 --> do not save calibration results,
+1 --> save results of calibration in ~/.sane/ directory
 .RE
 .PP
 option altCalibration b
@@ -447,11 +459,11 @@ For problem reports it should be enough the set the verbosity to
 * The driver does not support these manic scalings up
 to 16 times the physical resolution. The only scaling
 is done on resolutions between the physical resolution
-of the CDD-sensor and the stepper motor i.e. you have a
-600x1200 dpi scanner and you are scanning using 800dpi,
-so scaling is necessary, because the sensor only delivers
-600dpi but the motor is capable of performing 1200dpi 
-steps.
+of the CCD-/CIS-sensor and the stepper motor i.e. you 
+have a 600x1200 dpi scanner and you are scanning using 
+800dpi, so scaling is necessary, because the sensor only 
+delivers 600dpi but the motor is capable to perform 
+1200dpi steps.
 .PP
 * Plusteks' model policy is somewhat inconsistent. They 
 sell technically different devices under the

@@ -7,7 +7,7 @@
  *  @brief Functions to control the scanner hardware.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -46,6 +46,8 @@
  * - 0.50 - added button support for Plustek/Genius devices
  *        - changed behaviour of usb_IsScannerReady
  *        - added special misc I/O setup for CIS devices (usb_ResetRegisters)
+ * - 0.51 - change usb_AdjustLamps() and use it now in usb_switchLamp() 
+ *        - added usb_Wait4ScanSample() and usb_InCalibrationMode()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -97,12 +99,11 @@
 #define DEV_LampPositive        4
 #define DEV_LampNegative        5
 
-/* HEINER: check the tick counts 'cause 1 tick on NT is about 10ms */
-
 /** the NatSemi 983x is a big endian chip, and the line protocol data all
  *  arrives big-endian.  This determines if we need to swap to host-order
  */
-static SANE_Bool usb_HostSwap( void )
+static SANE_Bool
+usb_HostSwap( void )
 {
 	u_short        pattern  = 0xfeed; /* deadbeef */
 	unsigned char *bytewise = (unsigned char *)&pattern;
@@ -118,17 +119,42 @@ static SANE_Bool usb_HostSwap( void )
 
 /** as the name says..
  */
-static void usb_Swap( u_short *pw, u_long dwBytes )
+static void
+usb_Swap( u_short *pw, u_long dwBytes )
 {
 	for( dwBytes /= 2; dwBytes--; pw++ )
 		_SWAP(((u_char*) pw)[0], ((u_char*)pw)[1]);
+}
+
+/**
+ * This function is used to detect a cancel condition,
+ * our ESC key is the SIGUSR1 signal. It is sent by the backend when the
+ * cancel button has been pressed
+ *
+ * @param - none
+ * @return the function returns SANE_TRUE if a cancel condition has been
+ *  detected, if not, it returns SANE_FALSE
+ */
+static SANE_Bool
+usb_IsEscPressed( void )
+{
+	sigset_t sigs;
+
+	sigpending( &sigs );
+	if( sigismember( &sigs, SIGUSR1 )) {
+		DBG( _DBG_INFO, "SIGUSR1 is pending --> Cancel detected\n" );
+		return SANE_TRUE;
+	}
+
+	return SANE_FALSE;
 }
 
 /** usb_GetMotorSet
  * according to the model, the function returns the address of
  * the corresponding entry of the Motor table
  */
-static ClkMotorDef *usb_GetMotorSet( eModelDef model )
+static ClkMotorDef*
+usb_GetMotorSet( eModelDef model )
 {
 	int i;
 
@@ -146,7 +172,8 @@ static ClkMotorDef *usb_GetMotorSet( eModelDef model )
  * @param fOn    - SANE_TRUE means motor on, SANE_FALSE means motor off
  * @return always SANE_TRUE
  */
-static SANE_Bool usb_MotorOn( Plustek_Device *dev, SANE_Bool fOn )
+static SANE_Bool
+usb_MotorOn( Plustek_Device *dev, SANE_Bool fOn )
 {
 	if( fOn )
 		dev->usbDev.a_bRegs[0x45] |= 0x10;
@@ -159,14 +186,35 @@ static SANE_Bool usb_MotorOn( Plustek_Device *dev, SANE_Bool fOn )
 
 /**
  */
-static SANE_Bool usb_IsCISDevice( Plustek_Device *dev )
+static SANE_Bool
+usb_IsCISDevice( Plustek_Device *dev )
 {
 	return ( dev->usbDev.HwSetting.bReg_0x26 & _ONE_CH_COLOR );
 }
 
+/**
+ */
+static SANE_Bool
+usb_IsSheetFedDevice( Plustek_Device *dev )
+{
+	return ( dev->usbDev.Caps.wFlags & DEVCAPSFLAG_SheetFed );
+}
+
+/**
+ */
+static SANE_Bool
+usb_InCalibrationMode( Plustek_Device *dev )
+{
+	if((dev->scanning.dwFlag & SCANFLAG_Calibration) == 0)
+		return SANE_FALSE;
+
+	return SANE_TRUE;
+}
+
 /** check if scanner is ready
  */
-static SANE_Bool usb_IsScannerReady( Plustek_Device *dev )
+static SANE_Bool
+usb_IsScannerReady( Plustek_Device *dev )
 {
 	u_char         value;
 	double         len;	
@@ -217,7 +265,8 @@ static SANE_Bool usb_IsScannerReady( Plustek_Device *dev )
 
 /**
  */
-static SANE_Bool usb_SensorAdf( int handle )
+static SANE_Bool
+usb_SensorAdf( int handle )
 {
 	u_char value;
 
@@ -228,19 +277,56 @@ static SANE_Bool usb_SensorAdf( int handle )
 
 /**
  */
-static SANE_Bool usb_SensorPaper( int handle )
+static SANE_Bool
+usb_SensorPaper( Plustek_Device *dev )
 {
-	u_char value;
+	u_char val, mask = 0x02;
 
-	usbio_ReadReg( handle, 0x02, &value );
+	usbio_ReadReg( dev->fd, 0x02, &val );
 
-	return (value & 0x02);
+	if( usb_IsSheetFedDevice(dev))
+		mask = 0x08;
+
+	return (val & mask);
+}
+
+/** function for sheet-fed devices, to make sure, that there's
+ * something to scan
+ */
+static SANE_Bool
+usb_Wait4ScanSample( Plustek_Device *dev )
+{
+	struct timeval start_time, t2;
+
+	/* we wait about 10s for something to scan... */
+	if( !usb_IsSheetFedDevice(dev))
+		return SANE_TRUE;
+
+	DBG( _DBG_INFO2, "Waiting for something to scan...\n" );
+	gettimeofday( &start_time, NULL );
+	do {
+
+		gettimeofday( &t2, NULL );
+		if( t2.tv_sec > start_time.tv_sec + 10 ) {
+			DBG( _DBG_ERROR, "Nothing to scan!!!\n" );
+			return SANE_FALSE;
+		}
+		if( usb_IsEscPressed())
+			return SANE_FALSE;
+	}
+	while( !usb_SensorPaper( dev ));
+
+	/* just a little delay, to make sure the paper is taken by the scanner */
+	usleep(100* 1000);
+	DBG( _DBG_INFO2, "... okay, scanning now!\n" );
+	return SANE_TRUE;
 }
 
 /** function to move the sensor and to speed it up to a certain speed until
  *  the position is reached
  */
-static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
+static SANE_Bool
+usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 {
 	SANE_Bool      retval;
 	u_char         value, mclk_div, mch;
@@ -344,17 +430,14 @@ static SANE_Bool usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 	return retval;
 }
 
-/**
- * Home sensor always on when backward move.
- * dwStep is steps to move and based on 300 dpi, but
- * if the action is MOVE_Both, it becomes the times
- * to repeatly move the module around the scanner and
- * 0 means forever.
+/** function to move the sensor or if sheet-fed device, to move the paper.
+ * In moving backward-mode, the home sensor is always turned on.
+ * @param action - what to do
+ * @param steps  - steps to move, based on 300dpi, 0 means move forever
  */
-static SANE_Bool usb_ModuleMove( Plustek_Device *dev, 
-                                 u_char bAction, u_long dwStep )
+static SANE_Bool
+usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 {
-	SANE_Status  res;
 	SANE_Bool    retval;
 	u_char       bReg2, reg7, mclk_div;
 	u_short      wFastFeedStepSize;
@@ -363,10 +446,10 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	HWDef       *hw   = &dev->usbDev.HwSetting;
 	u_char      *regs = dev->usbDev.a_bRegs;
 
-	if( bAction != MOVE_ToPaperSensor   &&
-		bAction != MOVE_EjectAllPapers  &&
-		bAction != MOVE_SkipPaperSensor &&
-		bAction != MOVE_ToShading       && !dwStep ) {
+	if( action != MOVE_ToPaperSensor   &&
+		action != MOVE_EjectAllPapers  &&
+		action != MOVE_SkipPaperSensor &&
+		action != MOVE_ToShading       && !dwStep ) {
 
 		return SANE_TRUE;
 	}
@@ -376,35 +459,51 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 		return SANE_FALSE;
 	}
 
-	if( bAction == MOVE_EjectAllPapers ) {
+	if( action == MOVE_EjectAllPapers ) {
 
 		double d = hw->dMaxMoveSpeed;
 
-		hw->dMaxMoveSpeed += 0.6;
+		hw->dMaxMoveSpeed += 0.8; /* was 0.6 */
 
+		DBG( _DBG_INFO2, "Ejecting paper...\n" );
+		retval = SANE_TRUE;
 		do {
-			if( usb_SensorPaper(dev->fd) &&
-							!usb_ModuleMove(dev,MOVE_SkipPaperSensor, 0 )) {
+			if( usb_SensorPaper(dev) &&
+				!usb_ModuleMove(dev,MOVE_SkipPaperSensor, 0 )) {
+				hw->dMaxMoveSpeed = d;
 				return SANE_FALSE;
 			}
 
 			if( usb_SensorAdf(dev->fd) &&
-							!usb_ModuleMove(dev,MOVE_ToPaperSensor, 0 )) {
+				!usb_ModuleMove(dev,MOVE_ToPaperSensor, 0 )) {
+				hw->dMaxMoveSpeed = d;
 				return SANE_FALSE;
-            }
+			}
 
-		} while( usb_SensorPaper(dev->fd));
+			if( usb_IsEscPressed()) {
+				retval = SANE_FALSE;
+				break;
+			}
+		} while( usb_SensorPaper(dev));
 
-		if(!usb_ModuleMove( dev, MOVE_Forward, 300 * 3))
-			return SANE_FALSE;
+		/* when the paper is beyond the sensor, we move another 300 steps
+		 * to make sure, that the scanned sheet is out of the scanner
+		 * BUT: not at startup
+		 */
+		if (dev->initialized >= 0) {
+			if(!usb_ModuleMove( dev, MOVE_Forward, 300 /* *3 */)) {
+				hw->dMaxMoveSpeed = d;
+				return SANE_FALSE;
+			}
+		}
 
 		usbio_WriteReg( dev->fd, 0x07, 0);
 		usbio_WriteReg( dev->fd, 0x58, regs[0x58]);
 
 		usbio_ReadReg( dev->fd, 0x02, &bReg2 );
 		hw->dMaxMoveSpeed = d;
-
-		return SANE_TRUE;
+		DBG( _DBG_INFO2, "...done\n" );
+		return retval;
 	}
 
 	usbio_WriteReg( dev->fd, 0x0a, 0 );
@@ -412,7 +511,7 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	/* Compute fast feed step size, use equation 3 and equation 8 */
 	dMaxMoveSpeed = hw->dMaxMoveSpeed;
 
-	if( bAction == MOVE_ToShading ) {
+	if( action == MOVE_ToShading ) {
 		if( hw->dMaxMoveSpeed > 0.5 )
 			dMaxMoveSpeed = hw->dMaxMoveSpeed - 0.5;
 	}
@@ -476,12 +575,12 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	if( !usbio_WriteReg(dev->fd, 0x45, regs[0x45] ))
 		return SANE_FALSE;
 
-	if( bAction == MOVE_Forward || bAction == MOVE_ToShading )
+	if( action == MOVE_Forward || action == MOVE_ToShading )
 		reg7 = 5;
-	else if( bAction == MOVE_Backward )
+	else if( action == MOVE_Backward )
 		reg7 = 6;
-	else if( bAction == MOVE_ToPaperSensor || bAction == MOVE_EjectAllPapers ||
-			 bAction == MOVE_SkipPaperSensor ) {
+	else if( action == MOVE_ToPaperSensor || action == MOVE_EjectAllPapers ||
+			 action == MOVE_SkipPaperSensor ) {
 		reg7 = 1;
 	} else {
 		return SANE_TRUE;
@@ -489,21 +588,21 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 	
 	retval = SANE_FALSE;
 
+	/* start the sensor... */
 	if( usbio_WriteReg( dev->fd, 0x07, reg7 )) {
 
-		long           dwTicks;
+		long           secs;
 	    struct timeval start_time, t2;
 
-		res = gettimeofday( &start_time, NULL );	
+		/* at least we move 20 seconds before timeout... */
+		gettimeofday( &start_time, NULL );
+	    secs = start_time.tv_sec + 20;
 
-		/* 20000 NT-Ticks means 200s */
-	    dwTicks = start_time.tv_sec + 200;
+		if( action == MOVE_ToPaperSensor ) {
 
-		if( bAction == MOVE_ToPaperSensor ) {
+			for(;;) {
 
-			for(;;)	{
-
-				if( usb_SensorPaper( dev->fd )) {
+				if( usb_SensorPaper( dev )) {
 					usbio_WriteReg( dev->fd, 0x07, 0 );
 					usbio_WriteReg( dev->fd, 0x58, regs[0x58] );
 					usbio_ReadReg ( dev->fd, 0x02, &bReg2 );
@@ -511,14 +610,14 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 				}
 
 				gettimeofday(&t2, NULL);	
-				if( t2.tv_sec > dwTicks )
+				if( t2.tv_sec > secs )
 					break;	
 			}
-		} else if( bAction == MOVE_SkipPaperSensor ) {
+		} else if( action == MOVE_SkipPaperSensor ) {
 
-			for(;;)	{
+			for(;;) {
 
-				if( usb_SensorPaper( dev->fd )) {
+				if( !usb_SensorPaper( dev )) {
 					usbio_WriteReg( dev->fd, 0x07, 0 );
 					usbio_WriteReg( dev->fd, 0x58, regs[0x58] );
 					usbio_ReadReg ( dev->fd, 0x02, &bReg2 );
@@ -526,8 +625,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 				}
 
 				gettimeofday(&t2, NULL);	
-				if( t2.tv_sec > dwTicks )
-					break;	
+				if( t2.tv_sec > secs )
+					break;
 			}
 		} else {
 
@@ -545,7 +644,8 @@ static SANE_Bool usb_ModuleMove( Plustek_Device *dev,
 
 /**
  */
-static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
+static SANE_Bool
+usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 {
 	u_char    mclk_div;
 	u_char    value;
@@ -553,10 +653,13 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 	HWDef    *hw    = &dev->usbDev.HwSetting;
 	u_char   *regs  = dev->usbDev.a_bRegs;
 
+	if( usb_IsSheetFedDevice(dev)) {
+		return usb_ModuleMove( dev, MOVE_EjectAllPapers, 0 );
+	}
+
 	/* Check if merlin is ready for setting command */
 	usbio_WriteReg( dev->fd, 0x58, hw->bReg_0x58 );
 	usbio_ReadReg ( dev->fd, 2, &value );
-
 	if( value & 1 ) {
 		dev->usbDev.fModFirstHome = SANE_FALSE;
 		return SANE_TRUE;
@@ -590,7 +693,7 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 			regs[0x56] = clk->pwm_fast;
 			regs[0x57] = clk->pwm_duty_fast;
-			mclk_div      = clk->mclk_fast;
+			mclk_div   = clk->mclk_fast;
 
 		} else {
 
@@ -719,7 +822,8 @@ static SANE_Bool usb_ModuleToHome( Plustek_Device *dev, SANE_Bool fWait )
 
 /**
  */
-static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
+static SANE_Bool
+usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 {
 	DCapsDef *sCaps = &dev->usbDev.Caps;
 	HWDef    *hw    = &dev->usbDev.HwSetting;
@@ -760,39 +864,61 @@ static SANE_Bool usb_MotorSelect( Plustek_Device *dev, SANE_Bool fADF )
 	return SANE_TRUE;
 }
 
-/** function to adjust the lamp settings of a device
+/** function to adjust the lamp settings of a CIS device without tweaking
+ *  the driver-device settings
+ * @param dev - our almitghty device structure
+ * @param on  - switch the lamp on or off
  */
-static SANE_Bool usb_AdjustLamps( Plustek_Device *dev )
+static SANE_Bool
+usb_AdjustLamps( Plustek_Device *dev, SANE_Bool on )
 {
 	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
 
-	regs[0x2c] = _HIBYTE(hw->red_lamp_on);
-	regs[0x2d] = _LOBYTE(hw->red_lamp_on);
-	regs[0x2e] = _HIBYTE(hw->red_lamp_off);
-	regs[0x2f] = _LOBYTE(hw->red_lamp_off);
+	if( !usb_IsCISDevice(dev))
+		return SANE_TRUE;
 
-	regs[0x30] = _HIBYTE(hw->green_lamp_on);
-	regs[0x31] = _LOBYTE(hw->green_lamp_on);
-	regs[0x32] = _HIBYTE(hw->green_lamp_off);
-	regs[0x33] = _LOBYTE(hw->green_lamp_off);
+	DBG(_DBG_INFO2, "usb_AdjustLamps(%u)\n", on );
 
-	regs[0x34] = _HIBYTE(hw->blue_lamp_on);
-	regs[0x35] = _LOBYTE(hw->blue_lamp_on);
-	regs[0x36] = _HIBYTE(hw->blue_lamp_off);
-	regs[0x37] = _LOBYTE(hw->blue_lamp_off);
+	if( on ) {
+		regs[0x2c] = _HIBYTE(hw->red_lamp_on);
+		regs[0x2d] = _LOBYTE(hw->red_lamp_on);
+		regs[0x2e] = _HIBYTE(hw->red_lamp_off);
+		regs[0x2f] = _LOBYTE(hw->red_lamp_off);
 
-	return sanei_lm983x_write( dev->fd, 0x2c, 
+		regs[0x30] = _HIBYTE(hw->green_lamp_on);
+		regs[0x31] = _LOBYTE(hw->green_lamp_on);
+		regs[0x32] = _HIBYTE(hw->green_lamp_off);
+		regs[0x33] = _LOBYTE(hw->green_lamp_off);
+
+		regs[0x34] = _HIBYTE(hw->blue_lamp_on);
+		regs[0x35] = _LOBYTE(hw->blue_lamp_on);
+		regs[0x36] = _HIBYTE(hw->blue_lamp_off);
+		regs[0x37] = _LOBYTE(hw->blue_lamp_off);
+
+	} else {
+		memset( &regs[0x2c], 0, 12 );
+
+		regs[0x2c] = 0x3f;
+		regs[0x2d] = 0xff;
+		regs[0x30] = 0x3f;
+		regs[0x31] = 0xff;
+		regs[0x34] = 0x3f;
+		regs[0x35] = 0xff;
+	}
+
+	return sanei_lm983x_write( dev->fd, 0x2c,
 	                           &regs[0x2c], 0x37-0x2c+1, SANE_TRUE );
 }
 
 /**
  */
-static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
+static void
+usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
 {
 	HWDef *hw = &dev->usbDev.HwSetting;
 
-	if( !(hw->bReg_0x26 & _ONE_CH_COLOR))
+	if( !usb_IsCISDevice(dev))
 		return;
 
 	DBG( _DBG_INFO2, "AdjustCISLamps(%u)\n", on );
@@ -854,17 +980,18 @@ static void usb_AdjustCISLampSettings( Plustek_Device *dev, SANE_Bool on )
 	}
 
 	dev->usbDev.a_bRegs[0x29] = hw->bReg_0x29;
-	usb_AdjustLamps( dev );
+	usb_AdjustLamps( dev, on );
 }
 
 /** according to the flag field, we return the register and
- * it's maks to turn on/off the lamp.
+ * it's mask to turn on/off the lamp.
  * @param flag - field to check
  * @param reg  - pointer to a var to receive the register value
  * @param msk  - pointer to a var to receive the mask value
  * @return Nothing
  */
-static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
+static void
+usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
 {
 	if( _MIO6 == ( _MIO6 & flag )) {
 		*reg = 0x5b;
@@ -905,14 +1032,14 @@ static void usb_GetLampRegAndMask( u_long flag, SANE_Byte *reg, SANE_Byte *msk )
  *           for the normal lamp, or DEV_LampTPA for negative/transparency
  *           lamp
  */
-static int usb_GetLampStatus( Plustek_Device *dev )
+static int
+usb_GetLampStatus( Plustek_Device *dev )
 {
-	int       iLampStatus = 0;
-	u_char   *regs = dev->usbDev.a_bRegs;
-	HWDef    *hw   = &dev->usbDev.HwSetting;
-	DCapsDef *sc   = &dev->usbDev.Caps;
-	SANE_Byte reg, msk, val;
-
+	int         iLampStatus = 0;
+	u_char     *regs = dev->usbDev.a_bRegs;
+	HWDef      *hw   = &dev->usbDev.HwSetting;
+	DCapsDef   *sc   = &dev->usbDev.Caps;
+	SANE_Byte   reg, msk, val;
 
 	if( NULL == hw ) {
 		DBG( _DBG_ERROR, "NULL-Pointer detected: usb_GetLampStatus()\n" );
@@ -928,6 +1055,7 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 			usbio_ReadReg( dev->fd, 0x29, &reg );
 			if( reg & 3 )
 				iLampStatus |= DEV_LampReflection;
+
 		} else {
 
 			/* check if the lamp is on */
@@ -948,9 +1076,10 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 					iLampStatus |= DEV_LampTPA;
 			}
 
+			/* CanoScan D660U extra vaganza... */
 			if((dev->usbDev.vendor == 0x04A9) && (dev->usbDev.product==0x2208)) {
 				sanei_lm983x_read( dev->fd, 0x29, &regs[0x29], 3, SANE_TRUE );
-				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n", 
+				DBG( _DBG_INFO, "[29]=0x%02x, [2A]=0x%02x, [2B]=0x%02x\n",
 				                regs[0x29], regs[0x2a], regs[0x2b] );
 			}
 		}
@@ -982,8 +1111,8 @@ static int usb_GetLampStatus( Plustek_Device *dev )
 /** usb_switchLampX
  * used for all devices that use some misc I/O pins to switch the lamp
  */
-static SANE_Bool usb_switchLampX( Plustek_Device *dev,
-                                  SANE_Bool on, SANE_Bool tpa )
+static SANE_Bool
+usb_switchLampX( Plustek_Device *dev, SANE_Bool on, SANE_Bool tpa )
 {
 	SANE_Byte reg, msk;
 	DCapsDef *sc   = &dev->usbDev.Caps;
@@ -1013,7 +1142,8 @@ static SANE_Bool usb_switchLampX( Plustek_Device *dev,
 /** usb_switchLamp
  * used for all devices that use some misc I/O pins to switch the lamp
  */
-static SANE_Bool usb_switchLamp( Plustek_Device *dev, SANE_Bool on )
+static SANE_Bool
+usb_switchLamp( Plustek_Device *dev, SANE_Bool on )
 {
 	SANE_Bool result;
 
@@ -1023,12 +1153,16 @@ static SANE_Bool usb_switchLamp( Plustek_Device *dev, SANE_Bool on )
 	} else {
 		result = usb_switchLampX( dev, on, SANE_FALSE );
 	}
+
+	/* to switch off CIS, we need to tweak the lampoff/on regs */
+	usb_AdjustLamps( dev, on );
 	return result;
 }
 
 /** usb_LedOn
  */
-static void usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
+static void
+usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
 {
 	u_char value;
 
@@ -1049,7 +1183,8 @@ static void usb_LedOn( Plustek_Device *dev, SANE_Bool fOn )
 /** usb_FillLampRegs
  * set all the registers controlling the lamps
  */
-static void usb_FillLampRegs( Plustek_Device *dev )
+static void
+usb_FillLampRegs( Plustek_Device *dev )
 {
 	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
@@ -1075,8 +1210,8 @@ static void usb_FillLampRegs( Plustek_Device *dev )
 
 /** usb_LampOn
  */
-static SANE_Bool usb_LampOn( Plustek_Device *dev,
-                             SANE_Bool fOn, SANE_Bool fResetTimer )
+static SANE_Bool
+usb_LampOn( Plustek_Device *dev, SANE_Bool fOn, SANE_Bool fResetTimer )
 {
 	DCapsDef      *sc          = &dev->usbDev.Caps;
 	ScanDef       *scanning    = &dev->scanning;
@@ -1210,7 +1345,8 @@ static SANE_Bool usb_LampOn( Plustek_Device *dev,
  *                 it should contain all we need
  * @return - Nothing
  */
-static void usb_ResetRegisters( Plustek_Device *dev )
+static void
+usb_ResetRegisters( Plustek_Device *dev )
 {
 	int linend;
 
@@ -1224,7 +1360,11 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 	memcpy( regs+0x0f, &hw->bReg_0x0f_Color, 10 );
 	regs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
 	regs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
+
 #if 0
+	regs[0x1c] = hw->bOpticBlackStart;
+	regs[0x1d] = hw->bOpticBlackEnd;
+
 	regs[0x1e] = _HIBYTE( hw->wActivePixelsStart );
 	regs[0x1f] = _LOBYTE( hw->wActivePixelsStart );
 #endif
@@ -1232,7 +1372,7 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 	regs[0x21] = _LOBYTE( hw->wLineEnd );
 
 	regs[0x22] = _HIBYTE( hw->bOpticBlackStart );
-	regs[0x22] = _LOBYTE( hw->bOpticBlackStart );
+	regs[0x23] = _LOBYTE( hw->bOpticBlackStart );
 
 	linend = hw->bOpticBlackStart + hw->wLineEnd;
 	if( linend < (hw->wLineEnd-20))
@@ -1282,9 +1422,11 @@ static void usb_ResetRegisters( Plustek_Device *dev )
 	                        regs[0x59], regs[0x5a], regs[0x5b] );
 }
 
-/** usb_ModuleStatus
+/** function which checks if we are already in home position or not.
+ * 
  */
-static SANE_Bool usb_ModuleStatus( Plustek_Device *dev )
+static SANE_Bool
+usb_SensorStatus( Plustek_Device *dev )
 {
 	u_char value;
 	HWDef *hw = &dev->usbDev.HwSetting;
@@ -1295,12 +1437,11 @@ static SANE_Bool usb_ModuleStatus( Plustek_Device *dev )
 		return SANE_TRUE;
 #endif
 
+	/* read the status register */
 	_UIO( usbio_ReadReg( dev->fd, 2, &value ));
-
-	if( value & 1 )	{
+	if( value & 1 ) {
 
 		_UIO( usbio_ReadReg( dev->fd, 0x7, &value));
-
 		if( value ) {
 
 			usbio_WriteReg( dev->fd, 0x07, 0 );
@@ -1319,15 +1460,17 @@ static SANE_Bool usb_ModuleStatus( Plustek_Device *dev )
 
 	_UIO( usbio_ReadReg( dev->fd, 0x7, &value ));
 
-	if( !(value & 2))
+	if( !(value & 2)) {
 		usb_ModuleToHome( dev, SANE_FALSE );
+	}
 
 	return SANE_FALSE;
 }
 
 /**
  */
-static void usb_LampSwitch( Plustek_Device *dev, SANE_Bool sw )
+static void
+usb_LampSwitch( Plustek_Device *dev, SANE_Bool sw )
 {
 	int handle = -1;
 
@@ -1355,10 +1498,11 @@ static Plustek_Device *dev_xxx = NULL;
 
 /** ISR to switch lamp off after time has elapsed
  */
-static void usb_LampTimerIrq( int sig )
+static void
+usb_LampTimerIrq( int sig )
 {
 	if( NULL == dev_xxx )
-		return;                             
+		return;
 
 	_VAR_NOT_USED( sig );
 	DBG( _DBG_INFO, "LAMP OFF!!!\n" );
@@ -1368,7 +1512,8 @@ static void usb_LampTimerIrq( int sig )
 
 /** usb_StartLampTimer
  */
-static void usb_StartLampTimer( Plustek_Device *dev )
+static void
+usb_StartLampTimer( Plustek_Device *dev )
 {
 	sigset_t         block, pause_mask;
 	struct sigaction s;
@@ -1414,7 +1559,8 @@ static void usb_StartLampTimer( Plustek_Device *dev )
 
 /** usb_StopLampTimer
  */
-static void usb_StopLampTimer( Plustek_Device *dev )
+static void
+usb_StopLampTimer( Plustek_Device *dev )
 {
 	sigset_t block, pause_mask;
 
@@ -1435,38 +1581,15 @@ static void usb_StopLampTimer( Plustek_Device *dev )
 	DBG( _DBG_INFO, "Lamp-Timer stopped\n" );
 }
 
-/**
- * This function is used to detect a cancel condition,
- * our ESC key is the SIGUSR1 signal. It is sent by the backend when the
- * cancel button has been pressed
- *
- * @param - none
- * @return the function returns SANE_TRUE if a cancel condition has been
- *  detected, if not, it returns SANE_FALSE
- */
-static SANE_Bool usb_IsEscPressed( void )
-{
-	sigset_t sigs;
-
-	sigpending( &sigs );
-	if( sigismember( &sigs, SIGUSR1 )) {
-		DBG( _DBG_INFO, "SIGUSR1 is pending --> Cancel detected\n" );
-		return SANE_TRUE;
-	}
-
-	return SANE_FALSE;
-}
-
 /** wait until warmup has been done
  */
-static SANE_Bool usb_Wait4Warmup( Plustek_Device *dev )
+static SANE_Bool
+usb_Wait4Warmup( Plustek_Device *dev )
 {
 	u_long         dw;
 	struct timeval t;
 
-	HWDef *hw = &dev->usbDev.HwSetting;
-
-	if( hw->bReg_0x26 & _ONE_CH_COLOR ) {
+	if( usb_IsCISDevice(dev)) {
 		DBG(_DBG_INFO,"Warmup: skipped for CIS devices\n" );
 		return SANE_TRUE;
 	}
@@ -1499,7 +1622,8 @@ static SANE_Bool usb_Wait4Warmup( Plustek_Device *dev )
 
 /** function for TPA autodection (EPSON & UMAX devices)
  */
-static SANE_Bool usb_HasTPA( Plustek_Device *dev )
+static SANE_Bool
+usb_HasTPA( Plustek_Device *dev )
 {
 	static char model[] = { "3450" };
 	u_char val;
@@ -1559,7 +1683,8 @@ static SANE_Bool usb_HasTPA( Plustek_Device *dev )
 
 /** function for reading the button states
  */
-static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
+static SANE_Bool
+usb_UpdateButtonStatus( Plustek_Scanner *s )
 {
 	u_char          mio[3];
 	SANE_Byte       val, mask;
@@ -1628,7 +1753,17 @@ static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
 
 			/* the generic section... */
 			val >>= 2;
-			bc    = 0; 
+			bc    = 0;
+
+			/* only use the "valid" ports, that reflect a button */
+			if( _WAF_MISC_IO_BUTTONS & caps->workaroundFlag ) {
+				if((caps->lamp & _PORT0) == 0)
+					mio[0] = 0xff;
+				if((caps->lamp & _PORT1) == 0)
+					mio[1] = 0xff;
+				if((caps->lamp & _PORT2) == 0)
+					mio[2] = 0xff;
+			}
 
 			for( i = 0; i < 3; i++ ) {
 	
@@ -1661,4 +1796,5 @@ static SANE_Bool usb_UpdateButtonStatus( Plustek_Scanner *s )
 	sanei_access_unlock( dev->sane.name );
 	return SANE_TRUE;
 }
+
 /* END PLUSTEK-USBHW.C ......................................................*/

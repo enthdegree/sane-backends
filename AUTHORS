@@ -26,6 +26,7 @@ Backends:
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
  dc240:         Peter Fales (*)
+ dell1600n_net: Jon Chambers (*)
  dll:           David Mosberger
  dmc:           David F. Skoll
  epson:         Karl Heinz Kremer (*)
@@ -162,6 +163,7 @@ Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 James Perry <jamesp@epcc.ed.ac.uk>
 Jeff Freedman <jsf@hevanet.com>
 Jochen Eisinger <jochen.eisinger@gmx.net>
+Jon Chambers <jon@jon.demon.co.uk>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Julien Blache <jb@jblache.org>
 Karl Anders Øygard <karlo@opera.no>

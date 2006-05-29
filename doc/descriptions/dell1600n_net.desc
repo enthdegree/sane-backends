@@ -1,0 +1,18 @@
+;
+; dell1600n_net backend
+; Jon Chambers <jon@jon.demon.co.uk>, 2006-05-29
+;
+:backend "dell1600n_net"
+:new :yes
+
+:devicetype :scanner
+
+:mfg "Dell"
+:url "http://www.dell.com/"
+
+:model "1600n"
+:interface "Ethernet USB"
+:usbid "0x413c" "0x5250"
+:status :basic
+:comment "Supports single page scans over ethernet"
+

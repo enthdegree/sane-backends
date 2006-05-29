@@ -537,13 +537,6 @@
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
-:model "1600n"
-:url "/unsupported/dell-1600n.html"
-:interface "USB Ethernet"
-:usbid "0x413c" "0x5250"
-:status :unsupported
-:comment "Probably not supported. See link for details."
-
 ;********************************************************************************************
 
 :mfg "Epson"

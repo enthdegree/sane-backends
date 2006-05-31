@@ -165,6 +165,11 @@
          - fix some compiler warns: 32&64 bit gcc
       V 1.0.26 2006-05-23, MAN
          - dont send scanner control (F1) if unsupported
+      V 1.0.27 2006-05-30, MAN
+         - speed up hexdump (adeuring A T gmx D O T net)
+         - duplex request same size block from both sides
+         - dont #include or call sanei_thread
+         - split usb/scsi command DBG into 25 and 30
 
    SANE FLOW DIAGRAM
 
@@ -219,20 +224,20 @@
 #include "sane/sanei_usb.h"
 #include "sane/saneopts.h"
 #include "sane/sanei_config.h"
-#include "sane/sanei_thread.h"
 
 #include "fujitsu-scsi.h"
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 26
+#define FUJITSU_V_POINT 27
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
  - function trace  10
  - function detail 15
  - get/setopt cmds 20
- - scsi/usb data   30
+ - scsi/usb trace  25 
+ - scsi/usb detail 30
 */
 
 /* ------------------------------------------------------------------------- */
@@ -290,9 +295,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (10, "sane_init: start\n");
 
   sanei_usb_init();
-  sanei_thread_init();
 
-  /*FIXME*/
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, FUJITSU_V_POINT);
 
@@ -3333,7 +3336,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
     /* fill back side buffer */
     if(!s->eof_rx[SIDE_BACK]){
-      ret2 = read_from_scanner(s, s->duplex_buffer+s->bytes_rx[SIDE_BACK], s->buffer_size, &len2, SIDE_BACK);
+      ret2 = read_from_scanner(s, s->duplex_buffer+s->bytes_rx[SIDE_BACK], max_len, &len2, SIDE_BACK);
     }
 
     /* we are looking at back side, copy buffer */
@@ -3945,7 +3948,7 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
   }
 
   ret = sanei_scsi_cmd2 (s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, &actLen);
-  DBG(30, "do_scsi_cmd: sanei returned %d\n",ret);
+  DBG(25, "do_scsi_cmd: sanei returned %d\n",ret);
 
   /* FIXME: what about 0 length reads?
   if(ret == SANE_STATUS_EOF){
@@ -3954,7 +3957,7 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
 
   if(ret == SANE_STATUS_DEVICE_BUSY){
     if(busyRetry){
-        DBG (30, "do_scsi_cmd: retrying\n");
+        DBG (25, "do_scsi_cmd: retrying\n");
         usleep(busySleep*100000);
         return do_cmd(s,busyRetry-1,busySleep,runRS,shortTime,
           cmdBuff,cmdLen,
@@ -3964,15 +3967,15 @@ do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shor
     }
 
     /* out of retries, still busy? */
-    DBG (30, "do_scsi_cmd: out of retries, but still busy\n");
+    DBG (5, "do_scsi_cmd: out of retries, but still busy\n");
     return SANE_STATUS_DEVICE_BUSY;
   }
 
   if (inBuff && inLen){
-    DBG(30, "in << got %lu bytes\n", (long unsigned int)actLen);
+    DBG(25, "in << got %lu bytes\n", (long unsigned int)actLen);
 
     if (inLen != actLen) {
-      DBG(30,"wrong size!\n");
+      DBG(5,"wrong size!\n");
     }
 
     hexdump(30, "in <<", inBuff, actLen);
@@ -4030,17 +4033,17 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
 
     /* write the command out */
     hexdump(30, "usb_cmd >>", (unsigned char *)&usb_cmdBuff, USB_COMMAND_LEN);
-    DBG(30, "writing %u bytes\n", (unsigned int) usb_cmdLen);
+    DBG(25, "writing %u bytes\n", (unsigned int) usb_cmdLen);
     cmdRetVal = sanei_usb_write_bulk(s->fd, (unsigned char *)&usb_cmdBuff, &usb_cmdLen);
-    DBG(30, "wrote %u bytes\n", (unsigned int) usb_cmdLen);
-    DBG(30,"cmdRetVal: %d\n",cmdRetVal);
+    DBG(25, "wrote %u bytes\n", (unsigned int) usb_cmdLen);
+    DBG(25,"cmdRetVal: %d\n",cmdRetVal);
 
     if(cmdRetVal != SANE_STATUS_GOOD){
-        DBG(30,"ERROR!\n");
+        DBG(5,"ERROR!\n");
         return cmdRetVal;
     }
     if(usb_cmdLen != USB_COMMAND_LEN){
-        DBG(30,"wrong size!\n");
+        DBG(5,"wrong size!\n");
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -4051,17 +4054,17 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
         sanei_usb_set_timeout(outTime);
 
         hexdump(30, "out >>", outBuff, outLen);
-        DBG(30, "writing %u bytes\n", (unsigned int) outLen);
+        DBG(25, "writing %u bytes\n", (unsigned int) outLen);
         outRetVal = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
-        DBG(30, "wrote %u bytes\n", (unsigned int) usb_outLen);
-        DBG(30,"outRetVal: %d\n",outRetVal);
+        DBG(25, "wrote %u bytes\n", (unsigned int) usb_outLen);
+        DBG(25,"outRetVal: %d\n",outRetVal);
     
         if(outRetVal != SANE_STATUS_GOOD){
-            DBG(30,"ERROR!\n");
+            DBG(5,"ERROR!\n");
             return outRetVal;
         }
         if(usb_outLen != outLen){
-            DBG(30,"wrong size!\n");
+            DBG(5,"wrong size!\n");
             return SANE_STATUS_IO_ERROR;
         }
     }
@@ -4074,23 +4077,23 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
         /* sanei_usb timeout is way too long */
         sanei_usb_set_timeout(inTime);
 
-        DBG(30, "reading %u bytes\n", (unsigned int) inLen);
+        DBG(25, "reading %u bytes\n", (unsigned int) inLen);
         inRetVal = sanei_usb_read_bulk(s->fd, inBuff, &usb_inLen);
-        DBG(30, "read %u bytes\n", (unsigned int) usb_inLen);
+        DBG(25, "read %u bytes\n", (unsigned int) usb_inLen);
         hexdump(30, "in <<", inBuff, usb_inLen);
-        DBG(30,"inRetVal: %d\n",inRetVal);
+        DBG(25,"inRetVal: %d\n",inRetVal);
     
         if(inRetVal == SANE_STATUS_EOF){
             ret = SANE_STATUS_DEVICE_BUSY;
         }
 
         else if(inRetVal != SANE_STATUS_GOOD){
-            DBG(30,"ERROR!\n");
+            DBG(5,"ERROR!\n");
             return inRetVal;
         }
 
         else if(usb_inLen != inLen){
-            DBG(30,"wrong size!\n");
+            DBG(5,"wrong size!\n");
             return SANE_STATUS_IO_ERROR;
         }
     }
@@ -4100,18 +4103,18 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
     /* sanei_usb timeout is way too long */
     sanei_usb_set_timeout(statTime);
 
-    DBG(30, "reading %u bytes\n", (unsigned int) USB_STATUS_LEN);
+    DBG(25, "reading %u bytes\n", (unsigned int) USB_STATUS_LEN);
     statRetVal = sanei_usb_read_bulk(s->fd, (unsigned char *)&usb_statBuff, &usb_statLen);
-    DBG(30, "read %u bytes\n", (unsigned int) usb_statLen);
+    DBG(25, "read %u bytes\n", (unsigned int) usb_statLen);
     hexdump(30, "stat <<", usb_statBuff, usb_statLen);
-    DBG(30,"statRetVal: %d\n",statRetVal);
+    DBG(25,"statRetVal: %d\n",statRetVal);
 
     if(statRetVal != SANE_STATUS_GOOD){
-        DBG(30,"ERROR!\n");
+        DBG(5,"ERROR!\n");
         return statRetVal;
     }
     if(usb_statLen != USB_STATUS_LEN){
-        DBG(30,"wrong size!\n");
+        DBG(5,"wrong size!\n");
         return SANE_STATUS_IO_ERROR;
     }
 
@@ -4127,14 +4130,14 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
       /* run RS for every error status other than busy */
       else if(runRS){
   
-        DBG(30,"rs sub call >>\n");
+        DBG(25,"rs sub call >>\n");
         rsRetVal = do_cmd(
           s,0,0,0,0,
           request_senseB.cmd, request_senseB.size,
           NULL,0,
           (unsigned char *)&rsBuff,RS_return_size
         );
-        DBG(30,"rs sub call <<\n");
+        DBG(25,"rs sub call <<\n");
   
         if(rsRetVal != SANE_STATUS_GOOD){
           return rsRetVal;
@@ -4144,7 +4147,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
         ret = sense_handler( 0, (unsigned char *)&rsBuff, (void *)s );
       }
       else{
-        DBG(30,"Not calling rs!\n");
+        DBG(5,"Not calling rs!\n");
         ret = SANE_STATUS_IO_ERROR;
       }
     }
@@ -4154,7 +4157,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
     if(ret == SANE_STATUS_DEVICE_BUSY){
 
       if(busyRetry){
-        DBG (30, "do_usb_cmd: retrying\n");
+        DBG (25, "do_usb_cmd: retrying\n");
         usleep(busySleep*100000);
         return do_cmd(s,busyRetry-1,busySleep,runRS,shortTime,
           cmdBuff,cmdLen,
@@ -4164,7 +4167,7 @@ do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int short
       }
 
       /* out of retries, still busy? */
-      DBG (30, "do_usb_cmd: out of retries, but still busy\n");
+      DBG (5, "do_usb_cmd: out of retries, but still busy\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -4314,6 +4317,9 @@ hexdump (int level, char *comment, unsigned char *p, int l)
   char line[128];
   char *ptr;
 
+  if(DBG_LEVEL < level)
+    return;
+  
   DBG (level, "%s\n", comment);
   ptr = line;
   for (i = 0; i < l; i++, p++)

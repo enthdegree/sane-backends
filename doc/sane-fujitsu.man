@@ -1,11 +1,11 @@
-.TH sane-fujitsu 5 "2006-05-12" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2006-05-30" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 
 .SH NAME
 sane-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 
 .SH DESCRIPTION
-The
+The 
 .B sane-fujitsu
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
@@ -13,14 +13,13 @@ provides access to most Fujitsu flatbed and ADF scanners.
 This document describes the rewritten backend versions 1.0.21 and greater.
 
 The backend supports lineart, halftone, grayscale, and color
-scanning for most scanners, depending on hardware capabilities.
-Most simple scanning related features are exposed. This version
-features better usb support, and less model-specific code.
-This enables at least basic support for many more models.
+scanning for most USB and SCSI scanners, depending on hardware capabilities.
+Most simple scanning related features are exposed.
+This version features at least basic support for many more models.
 See LIMITATIONS.
 
 .SH HARDWARE SUPPORT
-The following scanners are thought to have at least basic scanning
+The following scanners are thought to have at least basic scanning 
 capability, either because they have been tested with a prior
 version, or because documentation indicates they are compatible
 with a tested model.
@@ -100,7 +99,7 @@ SP-600C/620C
 .P
 This backend may support scanners not listed here. The best
 way to determine level of support is to test the scanner directly.
-Fujitsu equipment has historically been good enough to not be
+Fujitsu equipment has historically been good enough to not be 
 damaged by incorrect commands if the scanner is incompatible.
 Please contact the author with test results, positive or negative.
 
@@ -147,7 +146,7 @@ appear only when another option has been set.
 .SH CONFIGURATION FILE
 The configuration file "fujitsu.conf" is used to tell the backend how to look for
 scanners, and provide options controlling the operation of the backend.
-This file is read each time the frontend asks the backend for a list
+This file is read each time the frontend asks the backend for a list 
 of scanners, generally only when the frontend starts. If the configuration
 file is missing, the backend will use a set of compiled defaults, which
 are identical to the default configuration file shipped with SANE.
@@ -156,7 +155,7 @@ Scanners can be specified in the configuration file in 4 ways:
 .PP
 "scsi FUJITSU"
 .RS
-Requests backend to search all scsi busses in the system for a device
+Requests backend to search all scsi busses in the system for a device 
 which reports itself to be a scanner made by 'FUJITSU'. 
 .RE
 .PP
@@ -169,7 +168,7 @@ specify one. Probably should not be used with the other "scsi" line above.
 .PP
 "usb 0x04c5 0x1042" (or other vendor/product ids)
 .RS
-Requests backend to search all usb busses in the system for a device
+Requests backend to search all usb busses in the system for a device 
 which uses that vendor and product id. The device will then be queried
 to determine if it is a Fujitsu scanner.
 .RE
@@ -179,16 +178,17 @@ to determine if it is a Fujitsu scanner.
 Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
 .PP
-The only configuration option supported is "buffer-size=xxx",
-allowing you to set the buffer size to something other than the
-compiled-in default. Some users report that the scanner would "hang"
-mid-page, or fail to transmit the image if the buffer is not large enough.
+The only configuration option supported is "buffer-size=xxx", allowing you
+to set the number of bytes in the data buffer to something other than the 
+compiled-in default, 65536 (64K). Some users report that their scanner will
+"hang" mid-page, or fail to transmit the image if the buffer is not large
+enough.
 .PP
 Note: This option may appear multiple times in the configuration file. It only
-applies to scanners discovered by "scanner" lines that follow this option, and will be updated to the new value each time it occurs.
+applies to scanners discovered by 'scsi/usb' lines that follow this option.
 .PP
 Note: The backend does not place an upper bound on this value, as some users
-required it to be quite large. Values above 65536 are not recommended,
+required it to be quite large. Values above the default are not recommended,
 and may crash your OS or lockup your scsi card driver. You have been
 warned.
 .PP
@@ -206,7 +206,9 @@ enables debugging output to stderr. Valid values are:
 .br
 20 Option commands
 .br
-30 Scsi/Usb packets
+25 SCSI/USB trace
+.br
+30 SCSI/USB detail
 .RE
 
 .SH OLDER VERSIONS
@@ -214,9 +216,8 @@ Backend versions prior to this were numbered with a two part version,
 or with no version number at all. At the time this version was written,
 all older versions were retroactively renumbered, 1.0.2 - 1.0.20.
 .PP
-The current backend may have lost support for some important feature
-you were using. The last of the "old" backends, 1.0.20, is still available
-as source from:
+The current backend may have lost support for some feature you were using.
+The last of the "old" backends, 1.0.20, is still available as source from:
 .PP
 http://www2.pfeiffer.edu/~anoah/fujitsu/
 .PP
@@ -234,8 +235,6 @@ Most scanner specific 'quirks' are not accounted for, making it possible
 to set some options in ways that the scanner does not support.
 .br
 Some flatbed options are affected by adf settings.
-.br
-Speed is too low, especially at higher resolutions, due to single-threading.
 .RE
 
 .SH HISTORY
@@ -245,13 +244,11 @@ m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
 .br
   (with credit to the unnamed author of the coolscan driver)
 .br
-merged fujitsu backend: Frederik?
-.br
-3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz d o t de>
-.br
-3093,fi-4340C,ipc,cmp support, and long-time backend maintainer:
+fujitsu backend, 3093, fi-4340C, ipc, cmp, long-time maintainer:
 .br
   Oliver Schirrmeister <oschirr a t abm d o t de>
+.br
+3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz d o t de>
 .br
 fi-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
 .br

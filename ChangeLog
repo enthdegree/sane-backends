@@ -1,3 +1,11 @@
+2006-05-30  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: DBG speedup from abel deuring,
+	  duplex bugfix, split scsi/usb data into new DBG level,
+	  stop including or calling sanei_thread
+	* doc/descriptions/fujitsu.desc: minor update
+	* doc/sane-fujitsu.man: minor text changes, note DBG levels
+
 2006-5-28  Gerhard Jaeger <gerhard@gjaeger.de>
 
         * doc/sane-plustek_pp.man: Fixed typo.

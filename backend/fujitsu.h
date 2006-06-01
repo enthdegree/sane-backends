@@ -465,21 +465,21 @@ static SANE_Status init_model (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
 
 static SANE_Status
-do_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+do_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t inLen
 );
 
 static SANE_Status
-do_scsi_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t inLen
 );
 
 static SANE_Status
-do_usb_cmd(struct fujitsu *s, int busyRetry, int busySleep, int runRS, int shortTime,
+do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t inLen

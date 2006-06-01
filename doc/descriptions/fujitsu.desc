@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
-:version "1.0.27"                ; version of backend
+:version "1.0.28"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -31,13 +31,13 @@
 :model "M3091DC"
 :interface "SCSI"
 :url "http://www.remote.org/frederik/projects/software/sane/" 
-:status :basic
-:comment "workgroup, older, discontinued"
+:status :minimal
+:comment "workgroup, older, discontinued, color and duplex broken"
 
 :model "M3092DC"
 :interface "SCSI"
-:status :basic
-:comment "workgroup, older, discontinued"
+:status :minimal
+:comment "workgroup, older, discontinued, color and duplex broken"
 
 :model "ScanPartner Jr/10/15/300/600"
 :interface "SCSI"
@@ -98,13 +98,13 @@
 :model "fi-5110EOX2"
 :interface "USB"
 :status :untested
-:comment "workgroup, newer, discontinued, unknown chipset, perhaps non-fujitsu"
+:comment "workgroup, newer, discontinued, perhaps same as fi-5110EOX"
 
 ; CURRENT MODELS, PERSONAL
 :model "S500"
 :interface "USB"
 :status :untested
-:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
+:comment "workgroup, current, unknown chipset, perhaps same as fi-5110EOX"
 
 :model "fi-60F"
 :interface "USB"
@@ -120,7 +120,7 @@
 :model "fi-5110EOXM"
 :interface "USB"
 :status :untested
-:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
+:comment "workgroup, current, unknown chipset, perhaps same as fi-5110EOX"
 
 :model "fi-5110C"
 :interface "USB"

@@ -210,23 +210,21 @@ send_scan_param (pixma_t * s)
 {
   mp750_t *mp = (mp750_t *) s->subdriver;
   uint8_t *data;
-  unsigned mode;
-
-  mode = 0x0818;
 
   data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x2e, 0);
-  pixma_set_be16 (s->param->xdpi | 0x8000, data + 4);
-  pixma_set_be16 (s->param->ydpi | 0x8000, data + 6);
-  pixma_set_be32 (s->param->x, data + 8);
-  pixma_set_be32 (s->param->y, data + 12);
-  pixma_set_be32 (mp->raw_width, data + 16);
-  pixma_set_be32 (mp->raw_height, data + 20);
-  pixma_set_be16 (mode, data + 24);
-  data[32] = 0xff;
-  data[35] = 0x81;
-  data[38] = 0x02;
-  data[39] = 0x01;
-  data[41] = mp->monochrome ? 0 : 1;
+  pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
+  pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
+  pixma_set_be32 (s->param->x, data + 0x08);
+  pixma_set_be32 (s->param->y, data + 0x0c);
+  pixma_set_be32 (mp->raw_width, data + 0x10);
+  pixma_set_be32 (mp->raw_height, data + 0x14);
+  data[0x18] = 8;		/* 8 = color, 4 = grayscale(?) */
+  data[0x19] = s->param->channels * s->param->depth;
+  data[0x20] = 0xff;
+  data[0x23] = 0x81;
+  data[0x26] = 0x02;
+  data[0x27] = 0x01;
+  data[0x29] = mp->monochrome ? 0 : 1;
 
   return pixma_exec (s, &mp->cb);
 }
@@ -684,6 +682,23 @@ mp750_wait_event (pixma_t * s, int timeout)
     }
 }
 
+static int
+mp750_get_status (pixma_t * s, pixma_device_status_t * status)
+{
+  int error;
+
+  error = query_status (s);
+  if (error < 0)
+    return error;
+  status->hardware = PIXMA_HARDWARE_OK;
+  status->adf = (has_paper (s)) ? PIXMA_ADF_OK : PIXMA_ADF_NO_PAPER;
+  status->cal =
+    (is_calibrated (s)) ? PIXMA_CALIBRATION_OK : PIXMA_CALIBRATION_OFF;
+  status->lamp = (is_warming_up (s)) ? PIXMA_LAMP_WARMING_UP : PIXMA_LAMP_OK;
+  return 0;
+}
+
+
 static const pixma_scan_ops_t pixma_mp750_ops = {
   mp750_open,
   mp750_close,
@@ -691,7 +706,8 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
   mp750_fill_buffer,
   mp750_finish_scan,
   mp750_wait_event,
-  mp750_check_param
+  mp750_check_param,
+  mp750_get_status
 };
 
 /* FIXME: What is the maximum resolution? 2400 DPI?*/
@@ -703,12 +719,14 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 	&pixma_mp750_ops,      /* ops */		\
 	dpi, 2*(dpi),          /* xdpi, ydpi */		\
 	638, 877,              /* width, height */	\
-	PIXMA_CAP_ADF|cap		\
+        cap                                             \
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
-  DEVICE ("Canon PIXMA MP750", 0x1706, 2400, PIXMA_CAP_EXPERIMENT),
-  DEVICE ("Canon PIXMA MP780", 0x1707, 2400, PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon PIXMA MP750", 0x1706, 2400,
+	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon PIXMA MP780", 0x1707, 2400,
+	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
   DEVICE ("Canon PIXMA MP760", 0x1708, 2400, PIXMA_CAP_EXPERIMENT),
   DEVICE (NULL, 0, 0, 0)
 };

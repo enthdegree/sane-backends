@@ -90,7 +90,10 @@ enum mp150_cmd_t
   cmd_status = 0xf320,
   cmd_abort_session = 0xef20,
   cmd_time = 0xeb80,
-  cmd_read_image = 0xd420
+  cmd_read_image = 0xd420,
+
+  cmd_error_info = 0xff20,	/* seen in MP800 */
+  cmd_e920 = 0xe920		/*     "         */
 };
 
 typedef struct mp150_t
@@ -229,22 +232,21 @@ send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-#if 0
   unsigned raw_width;
 
+  /* NOTE: MP150 can cope with "unaligned" width. It always correctly
+     returns padded rows. Can other models do this, too? */
   if (s->param->channels == 1)
     raw_width = ALIGN (s->param->w, 12);
   else
     raw_width = ALIGN (s->param->w, 4);
-  /* FIXME: MP150 can cope with "unaligned" width. It always correctly
-     returns padded rows. Can other models do this, too? */
-#endif
+
   data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
   pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
   pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
   pixma_set_be32 (s->param->x, data + 0x08);
   pixma_set_be32 (s->param->y, data + 0x0c);
-  pixma_set_be32 (s->param->w, data + 0x10);
+  pixma_set_be32 (raw_width, data + 0x10);
   pixma_set_be32 (s->param->h, data + 0x14);
   data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
   data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
@@ -645,6 +647,21 @@ mp150_wait_event (pixma_t * s, int timeout)
     }
 }
 
+static int
+mp150_get_status (pixma_t * s, pixma_device_status_t * status)
+{
+  int error;
+
+  error = query_status (s);
+  if (error < 0)
+    return error;
+  status->hardware = PIXMA_HARDWARE_OK;
+  status->adf = (has_paper (s)) ? PIXMA_ADF_OK : PIXMA_ADF_NO_PAPER;
+  status->cal =
+    (is_calibrated (s)) ? PIXMA_CALIBRATION_OK : PIXMA_CALIBRATION_OFF;
+  return 0;
+}
+
 static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_open,
   mp150_close,
@@ -652,7 +669,8 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_fill_buffer,
   mp150_finish_scan,
   mp150_wait_event,
-  mp150_check_param
+  mp150_check_param,
+  mp150_get_status
 };
 
 #define DEVICE(name, pid, dpi, cap) {		\
@@ -665,15 +683,17 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 	PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|	\
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap	\
 }
+
 const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP150", 0x1709, 1200, 0),
   DEVICE ("Canon PIXMA MP170", 0x170a, 1200, 0),
   DEVICE ("Canon PIXMA MP450", 0x170b, 1200, 0),
   DEVICE ("Canon PIXMA MP500", 0x170c, 1200, 0),
-  /* TODO: check MP830 & MP800 limits & cap */
-  DEVICE ("Canon PIXMA MP800", 0x170d, 2400,
+  DEVICE ("Canon PIXMA MP530", 0xffff, 1200,
 	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
-  DEVICE ("Canon PIXMA MP830", 0x1713, 2400,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon PIXMA MP800", 0x170d, 2400, PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP800R", 0xffff, 2400,
+	  PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon PIXMA MP830", 0x1713, 2400, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0)
 };

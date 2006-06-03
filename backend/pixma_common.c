@@ -611,7 +611,7 @@ pixma_wait_event (pixma_t * s, int timeout /*ms */ )
   if (s->events == PIXMA_EV_NONE && s->ops->wait_event)
     s->ops->wait_event (s, timeout);
   events = s->events;
-  s->events = 0;
+  s->events = PIXMA_EV_NONE;
   return events;
 }
 
@@ -710,3 +710,12 @@ pixma_get_device_model (unsigned devnr)
   return (cfg) ? cfg->name : NULL;
 }
 
+
+int
+pixma_get_device_status (pixma_t * s, pixma_device_status_t * status)
+{
+  if (!status)
+    return -EINVAL;
+  memset (status, 0, sizeof (*status));
+  return s->ops->get_status (s, status);
+}

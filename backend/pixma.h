@@ -43,46 +43,45 @@
 #ifndef PIXMA_H
 #define PIXMA_H
 
-/*! \mainpage Scanner driver for Canon PIXMA MP series
-
-\section example Sample code for application
-\code
-   pixma_set_debug_level(level);
-   pixma_init();
-   nscanners = pixma_find_scanners();
-   devnr = choose_scanner(nscanners);
-   scanner = pixma_open(devnr);
-   setup_param(param);
-   pixma_check_scan_param(scanner, param);
-   do {
-       if (I_need_events &&
-           (ev = pixma_wait_event(scanner, timeout)) > 0) {
-           handle_event(ev);
-       }
-       pixma_scan(scanner, param);
-       while ((count = pixma_read_image(scanner, buf, len)) > 0) {
-	   write(buf, count);
-           if (error_occured_in_write) {
-               pixma_cancel(scanner);
-           }
-       }
-   } while (!enough);
-   pixma_close(scanner);
-   pixma_cleanup();
-\endcode
-
-<b>Note:</b> pixma_cancel() can be called asynchronously to
-interrupt pixma_read_image(). It does not cancel the operation
-immediately. pixma_read_image() <em>must</em> be called until it
-returns zero or an error (probably \c -ECANCELED).
-
-\section reference Reference
-- \subpage API
-- \subpage IO
-- \subpage subdriver
-- \subpage debug
-
-*/
+/*!
+ * \mainpage Scanner driver for Canon PIXMA MP series
+ * \section example Sample code for application
+ * \code
+ *    pixma_set_debug_level(level);
+ *    pixma_init();
+ *    nscanners = pixma_find_scanners();
+ *    devnr = choose_scanner(nscanners);
+ *    scanner = pixma_open(devnr);
+ *    setup_param(param);
+ *    pixma_check_scan_param(scanner, param);
+ *    do {
+ *        if (I_need_events &&
+ *            (ev = pixma_wait_event(scanner, timeout)) > 0) {
+ *            handle_event(ev);
+ *        }
+ *        pixma_scan(scanner, param);
+ *        while ((count = pixma_read_image(scanner, buf, len)) > 0) {
+ *            write(buf, count);
+ *            if (error_occured_in_write) {
+ *                pixma_cancel(scanner);
+ *            }
+ *        }
+ *    } while (!enough);
+ *    pixma_close(scanner);
+ *    pixma_cleanup();
+ * \endcode
+ *
+ * <b>Note:</b> pixma_cancel() can be called asynchronously to
+ * interrupt pixma_read_image(). It does not cancel the operation
+ * immediately. pixma_read_image() <em>must</em> be called until it
+ * returns zero or an error (probably \c -ECANCELED).
+ *
+ * \section reference Reference
+ * - \subpage API
+ * - \subpage IO
+ * - \subpage subdriver
+ * - \subpage debug
+ */
 
 /*!
  * \defgroup API The driver API
@@ -137,9 +136,10 @@ typedef u_int32_t uint32_t;
 #define PIXMA_CAP_EASY_RGB     (1 << 0)
 #define PIXMA_CAP_GRAY         (1 << 1)
 #define PIXMA_CAP_ADF          (1 << 2)
-#define PIXMA_CAP_16BIT        (1 << 3)
+#define PIXMA_CAP_48BIT        (1 << 3)
 #define PIXMA_CAP_GAMMA_TABLE  (1 << 4)
 #define PIXMA_CAP_EVENTS       (1 << 5)
+#define PIXMA_CAP_TPU          (1 << 6)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -159,6 +159,7 @@ struct pixma_scan_param_t;
 struct pixma_config_t;
 struct pixma_cmdbuf_t;
 struct pixma_imagebuf_t;
+struct pixma_device_status_t;
 
 typedef struct pixma_t pixma_t;
 typedef struct pixma_scan_ops_t pixma_scan_ops_t;
@@ -166,6 +167,7 @@ typedef struct pixma_scan_param_t pixma_scan_param_t;
 typedef struct pixma_config_t pixma_config_t;
 typedef struct pixma_cmdbuf_t pixma_cmdbuf_t;
 typedef struct pixma_imagebuf_t pixma_imagebuf_t;
+typedef struct pixma_device_status_t pixma_device_status_t;
 
 
 /** \addtogroup API
@@ -184,6 +186,46 @@ typedef enum pixma_paper_source_t
   PIXMA_SOURCE_FLATBED,
   PIXMA_SOURCE_ADF
 } pixma_paper_source_t;
+
+typedef enum pixma_hardware_status_t
+{
+  PIXMA_HARDWARE_OK,
+  PIXMA_HARDWARE_ERROR
+} pixma_hardware_status_t;
+
+typedef enum pixma_lamp_status_t
+{
+  PIXMA_LAMP_OK,
+  PIXMA_LAMP_WARMING_UP,
+  PIXMA_LAMP_OFF,
+  PIXMA_LAMP_ERROR
+} pixma_lamp_status_t;
+
+typedef enum pixma_adf_status_t
+{
+  PIXMA_ADF_OK,
+  PIXMA_ADF_NO_PAPER,
+  PIXMA_ADF_JAMMED,
+  PIXMA_ADF_COVER_OPEN,
+  PIXMA_ADF_ERROR
+} pixma_adf_status_t;
+
+typedef enum pixma_calibration_status_t
+{
+  PIXMA_CALIBRATION_OK,
+  PIXMA_CALIBRATION_IN_PROGRESS,
+  PIXMA_CALIBRATION_OFF,
+  PIXMA_CALIBRATION_ERROR
+} pixma_calibration_status_t;
+
+/** Device status. */
+struct pixma_device_status_t
+{
+  pixma_hardware_status_t hardware;
+  pixma_lamp_status_t lamp;
+  pixma_adf_status_t adf;
+  pixma_calibration_status_t cal;
+};
 
 /** Scan parameters. */
 struct pixma_scan_param_t
@@ -341,6 +383,12 @@ uint32_t pixma_wait_event (pixma_t *, int timeout);
  *  \param[in] enabled if not zero, enable background task.
  *  \see pixma_set_interrupt_mode() */
 int pixma_enable_background (pixma_t *, int enabled);
+
+/** Read the current device status.
+ *  \param[out] status the current device status
+ *  \return 0 if succeeded. Otherwise, failed.
+ */
+int pixma_get_device_status (pixma_t *, pixma_device_status_t * status);
 
 const char *pixma_get_string (pixma_t *, pixma_string_index_t);
 const pixma_config_t *pixma_get_config (pixma_t *);

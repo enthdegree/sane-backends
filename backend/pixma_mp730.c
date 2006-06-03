@@ -169,7 +169,6 @@ send_scan_param (pixma_t * s)
 {
   mp730_t *mp = (mp730_t *) s->subdriver;
   uint8_t *data;
-  unsigned mode;
 
   data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x2e, 0);
   pixma_set_be16 (s->param->xdpi | 0x1000, data + 0x04);
@@ -178,8 +177,8 @@ send_scan_param (pixma_t * s)
   pixma_set_be32 (s->param->y, data + 0x0c);
   pixma_set_be32 (mp->raw_width, data + 0x10);
   pixma_set_be32 (s->param->h, data + 0x14);
-  mode = (s->param->channels == 1) ? 0x0408 : 0x0818;
-  pixma_set_be16 (mode, data + 0x18);
+  data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
+  data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
   data[0x1f] = 0x7f;
   data[0x20] = 0xff;
   data[0x23] = 0x81;
@@ -225,6 +224,37 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
   if (mp->cb.reslen < hlen)
     return -EPROTO;
   return datalen;
+}
+
+static int
+send_time (pixma_t * s)
+{
+  /* TODO */
+  UNUSED (s);
+  return 0;
+}
+
+static int
+handle_interrupt (pixma_t * s, int timeout)
+{
+  uint8_t buf[16];
+  int len;
+
+  len = pixma_wait_interrupt (s->io, buf, sizeof (buf), timeout);
+  if (len == -ETIMEDOUT)
+    return 0;
+  if (len < 0)
+    return len;
+  if (len != 8)
+    {
+      PDBG (pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n",
+		       len));
+      return -EPROTO;
+    }
+
+  if (buf[5] & 8)
+    send_time (s);
+  return 1;
 }
 
 static int
@@ -307,14 +337,14 @@ mp730_close (pixma_t * s)
 static unsigned
 calc_raw_width (const pixma_t * s, const pixma_scan_param_t * sp)
 {
-  unsigned raw_width, maxw;
+  unsigned raw_width;
   /* FIXME: Does MP730 need the alignment? */
+  UNUSED (s);
   if (sp->channels == 1)
     raw_width = ALIGN (sp->w, 12);
   else
     raw_width = ALIGN (sp->w, 4);
-  maxw = s->cfg->width * (sp->xdpi / 75);
-  return (raw_width < maxw) ? raw_width : maxw;
+  return raw_width;
 }
 
 static int
@@ -461,6 +491,29 @@ mp730_finish_scan (pixma_t * s)
     }
 }
 
+static void
+mp730_wait_event (pixma_t * s, int timeout)
+{
+  /* FIXME: timeout is not correct. See usbGetCompleteUrbNoIntr() for
+   * instance. */
+  while (s->events == 0 && handle_interrupt (s, timeout) > 0)
+    {
+    }
+}
+
+static int
+mp730_get_status (pixma_t * s, pixma_device_status_t * status)
+{
+  int error;
+
+  error = query_status (s);
+  if (error < 0)
+    return error;
+  status->hardware = PIXMA_HARDWARE_OK;
+  status->adf = (has_paper (s)) ? PIXMA_ADF_OK : PIXMA_ADF_NO_PAPER;
+  return 0;
+}
+
 
 static const pixma_scan_ops_t pixma_mp730_ops = {
   mp730_open,
@@ -468,8 +521,9 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
   mp730_scan,
   mp730_fill_buffer,
   mp730_finish_scan,
-  NULL /*mp730_wait_event */ ,
-  mp730_check_param
+  mp730_wait_event,
+  mp730_check_param,
+  mp730_get_status
 };
 
 #define DEVICE(name, pid, dpi, w, h, cap) {     \
@@ -483,8 +537,8 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 637, 877, 0),
-  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 637, 870,
+  DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 638, 877, 0),
+  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 638, 868,
 	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
   DEVICE (NULL, 0, 0, 0, 0, 0)
 };

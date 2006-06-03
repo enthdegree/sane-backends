@@ -161,6 +161,9 @@ struct pixma_scan_ops_t
     /** Check the scan parameters. The parameters can be adjusted if they are
      *  out of range, e.g. width > max_width. */
   int (*check_param) (pixma_t *, pixma_scan_param_t *);
+
+    /** Read the device status. \see pixma_get_device_status() */
+  int (*get_status) (pixma_t *, pixma_device_status_t *);
 };
 
 

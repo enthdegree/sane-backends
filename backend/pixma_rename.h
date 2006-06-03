@@ -70,6 +70,7 @@
 #define pixma_get_device_config sanei_pixma_get_device_config
 #define pixma_get_device_id sanei_pixma_get_device_id
 #define pixma_get_device_model sanei_pixma_get_device_model
+#define pixma_get_device_status sanei_pixma_get_device_status
 #define pixma_get_string sanei_pixma_get_string
 #define pixma_get_time sanei_pixma_get_time
 #define pixma_hexdump sanei_pixma_hexdump

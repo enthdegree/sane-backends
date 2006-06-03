@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "26 May 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "02 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -12,6 +12,10 @@ Currently, the following models work with this backend:
 .PP
 .RS
 PIXMA MP150, PIXMA MP170, PIXMA MP450, PIXMA MP500
+.br
+PIXMA MP800, PIXMA MP830,
+.br
+MultiPASS MP700 (no grayscale)
 .RE
 .PP
 The following models are marked as experimental because they are not well
@@ -19,16 +23,14 @@ tested and/or the scanner sometimes hangs and must be switched off and on.
 Therefore they are disabled by default. (See PIXMA_EXPERIMENT below)
 .PP
 .RS
-MultiPASS MP700, MultiPASS MP730,
+MultiPASS MP730,
 .br
 PIXMA MP750, PIXMA MP760, PIXMA MP780,
-.br
-PIXMA MP800, PIXMA MP830
 .RE
 .PP
 The backend supports
 .br
-* resolutions 75,150,300,600,1200 and 2400 DPI,
+* resolutions at 75,150,300,600,1200 and 2400 DPI,
 .br
 * color and grayscale mode,
 .br
@@ -67,7 +69,7 @@ the verbosity.
 .RS
 0  print nothing
 .br
-1  print error and warning messages
+1  print error and warning messages (recommended)
 .br
 2  print informative messages
 .br
@@ -94,15 +96,21 @@ I would like to thank:
 .br
 Farvil for testing MP150
 .br
+Gordon for testing MP730
+.br
 Jose Juan Iglesias for testing MP450
 .br
 Malcolm Caldwell for testing MP170
+.br
+Marcus Froeschl for testing MP800
 .br
 Martin Schewe for setting up mailing list for discussion
 .br
 Rune Kock for testing MP500
 .br
 Ryan McDonald for testing MP830
+.br
+Simon for testing MP700
 .br
 Stephan Aegerter for testing MP780
 .br

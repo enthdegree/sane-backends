@@ -67,7 +67,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   sod->constraint.string_list = ss->mode_list;
   OPT_IN_CTX[opt_mode].info = SANE_INFO_RELOAD_PARAMS;
-  opt->def.s = "Color";
+  opt->def.s = SANE_I18N ("Color");
   opt->val.w = find_string_in_list (opt->def.s, sod->constraint.string_list);
 
   opt = &(OPT_IN_CTX[opt_source]);
@@ -82,7 +82,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   sod->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   sod->constraint.string_list = ss->source_list;
   OPT_IN_CTX[opt_source].info = 0;
-  opt->def.s = "Flatbed";
+  opt->def.s = SANE_I18N ("Flatbed");
   opt->val.w = find_string_in_list (opt->def.s, sod->constraint.string_list);
 
   opt = &(OPT_IN_CTX[opt_button_controlled]);

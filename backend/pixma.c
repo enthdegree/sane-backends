@@ -649,14 +649,11 @@ init_option_descriptors (pixma_sane_t * ss)
 
 /* Writing to reader_ss outside reader_process() is a BUG! */
 static pixma_sane_t *reader_ss = NULL;
-/* Writing to reader_early_stop outside reader_signal_handler() is a BUG! */
-static volatile SANE_Bool reader_early_stop = SANE_FALSE;
 
 static RETSIGTYPE
 reader_signal_handler (int sig)
 {
   UNUSED (sig);
-  reader_early_stop = SANE_TRUE;
   if (reader_ss)
     {
       reader_ss->reader_stop = SANE_TRUE;
@@ -764,9 +761,6 @@ reader_process (void *arg)
   struct sigaction sa;
 
   reader_ss = ss;
-  if (reader_early_stop)
-    /* For the case that we get a signal before reader_ss is assigned. */
-    return SANE_STATUS_CANCELLED;
   memset (&sa, 0, sizeof (sa));
   sigemptyset (&sa.sa_mask);
   sa.sa_handler = reader_signal_handler;
@@ -1058,6 +1052,8 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   first_scanner = ss;
   ss->wpipe = -1;
   ss->rpipe = -1;
+  ss->idle = SANE_TRUE;
+  ss->scanning = SANE_FALSE;
 
   error = pixma_open (i, &ss->s);
   if (error < 0)
@@ -1068,8 +1064,6 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     }
   pixma_enable_background (ss->s, 0);
   init_option_descriptors (ss);
-  ss->idle = SANE_TRUE;
-  ss->scanning = SANE_FALSE;
   *h = ss;
   return SANE_STATUS_GOOD;
 }

@@ -1,3 +1,13 @@
+2006-06-03 Wittawat Yamwong <wittawat@web.de>
+	* backend/pixma_sane_options.c: Added SANE_I18N for "Flatbed" and "Color"
+	* backend/pixma_common.[ch]
+	  backend/pixma_mp150.c backend/pixma_mp730.c
+	  backend/pixma_mp750.c backend/pixma_rename.h
+	  backend/pixma.h: Added pixma_get_device_status()
+	* backend/pixma.c: Fixed a bug in sane_open(). State wasn't initiallized
+	  properly.
+	* doc/sane-pixma.man doc/descriptions/pixma.desc: Updated device status.
+
 2006-06-01  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: update to v 1.0.28

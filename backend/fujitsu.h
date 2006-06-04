@@ -39,8 +39,8 @@ enum fujitsu_Option
   OPT_DROPOUT_COLOR,
   OPT_SLEEP_TIME,
   OPT_DUPLEX_OFFSET,
-  OPT_BLUE_OFFSET,
   OPT_GREEN_OFFSET,
+  OPT_BLUE_OFFSET,
   OPT_USE_SWAPFILE,
 
   OPT_SENSOR_GROUP,
@@ -248,8 +248,8 @@ struct fujitsu
   SANE_String_Const lamp_color_list[5];
   SANE_Range sleep_time_range;
   SANE_Range duplex_offset_range;
-  SANE_Range blue_offset_range;
   SANE_Range green_offset_range;
+  SANE_Range blue_offset_range;
 
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
@@ -283,8 +283,8 @@ struct fujitsu
   int lamp_color;
   int sleep_time;
   int duplex_offset;
-  int blue_offset;
   int green_offset;
+  int blue_offset;
   int use_temp_file;
 
   /* --------------------------------------------------------------------- */
@@ -306,21 +306,22 @@ struct fujitsu
   int started;
   int img_count; /* how many 'sides' delivered */
 
+  /* total to read/write */
+  int bytes_tot[2];
+
   /* how far we have read */
   int bytes_rx[2];
-  int eof_rx[2];
+  int lines_rx[2]; /*only used by 3091*/
 
   /* how far we have written */
   int bytes_tx[2];
-  int eof_tx[2];
 
-  int duplex_fd;
-  unsigned char *duplex_buffer;
+  unsigned char * buffers[2];
+  int fds[2];
 
   /* --------------------------------------------------------------------- */
   /* values which used by the command and data sending functions (scsi/usb)*/
   int fd;                      /* The scanner device file descriptor.     */
-  unsigned char *buffer;
   unsigned char rs_buffer[RS_return_size];
 
   /* --------------------------------------------------------------------- */
@@ -503,19 +504,15 @@ static int set_window (struct fujitsu *s);
 
 static int start_scan (struct fujitsu *s);
 
-static SANE_Status read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
+static SANE_Status read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int * len, int side);
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
 
-static SANE_Status convert_bgr_to_rgb(struct fujitsu *s, unsigned char * buffptr, int length);
-
-static SANE_Status convert_rrggbb_to_rgb(struct fujitsu *s, unsigned char * buffptr, int length);
-
-static SANE_Status convert_3091rgb_to_rgb(struct fujitsu *s, unsigned char * buff, int length);
+static SANE_Status read_from_3091(struct fujitsu *s, SANE_Int * len, int side);
 
 static void calculateDerivedValues (struct fujitsu *scanner);
 
-static SANE_Status setup_duplex_buffer (struct fujitsu *s);
+static SANE_Status setup_buffers (struct fujitsu *s);
 
 static SANE_Status get_hardware_status (struct fujitsu *s);
 

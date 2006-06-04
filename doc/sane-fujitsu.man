@@ -227,7 +227,7 @@ author, to try and get those features restored to a later version.
 .SH KNOWN ISSUES
 .PP
 .RS
-3091/3092 color and duplex modes are broken.
+3091/3092 duplex modes are broken.
 .br
 All IPC and compression options are disabled.
 .br

@@ -1,3 +1,11 @@
+2006-06-04  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch]: update to v 1.0.29, option cleanups,
+	  M3091/2 color mode support, sloppy buffer supports saned/scanimage -T
+	* backend/fujitsu-scsi.c: proper casting in macro
+	* doc/descriptions/fujitsu.desc: status and version update
+	* doc/sane-fujitsu.man: remove note about broken M3091/2 color
+
 2006-06-03 Wittawat Yamwong <wittawat@web.de>
 	* backend/pixma_sane_options.c: Added SANE_I18N for "Flatbed" and "Color"
 	* backend/pixma_common.[ch]

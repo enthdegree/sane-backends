@@ -154,9 +154,9 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_response_format(in)         getbitfield(in + 0x03, 0x07, 0)
 #define IN_recognized                         0x02
 #define get_IN_additional_length(in)       in[0x04]
-#define get_IN_vendor(in, buf)             strncpy(buf, in + 0x08, 0x08)
-#define get_IN_product(in, buf)            strncpy(buf, in + 0x10, 0x010)
-#define get_IN_version(in, buf)            strncpy(buf, in + 0x20, 0x04)
+#define get_IN_vendor(in, buf)             strncpy(buf, (char *)in + 0x08, 0x08)
+#define get_IN_product(in, buf)            strncpy(buf, (char *)in + 0x10, 0x010)
+#define get_IN_version(in, buf)            strncpy(buf, (char *)in + 0x20, 0x04)
 #define get_IN_raster(in)                  getnbyte (in+0x2A, 2)	/* offset between colors */
 
 /* these two only in some scanners */

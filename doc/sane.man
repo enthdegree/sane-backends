@@ -433,6 +433,11 @@ The sane-st400 backend provides access to Siemens ST400 and ST800. See
 .BR sane-st400 (5)
 for details.
 .TP
+.B stv680
+The sane-st680 backend provides access to webcams with a stv680 chip. See
+.BR sane-st680 (5)
+for details.
+.TP
 .B tamarack
 The SANE tamarack backend supports Tamarack Artiscan flatbed scanners. See
 .BR sane-tamarack (5)

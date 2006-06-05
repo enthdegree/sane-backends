@@ -1,3 +1,13 @@
+2006-06-05 Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* backend/stv680.c backend/stv680.h backend/stv680.conf.in added
+	* doc/sane-stv680.man doc/descriptions/stv680.desc added
+        * AUTHORS: added stv680 Gerard Klaver
+	* configure configure.in doc/Makefile.in doc/sane.man
+	  backend/Makefile.in backend/dll.conf.in: added stv680 backend
+        * doc/descriptions-external/stv680.desc: removed because the backend
+          is now a part of sane-backends.
+
 2006-06-04  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: update to v 1.0.29, option cleanups,

@@ -159,6 +159,7 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   snapscan.conf.in snapscan.h snapscan-scsi.c snapscan-sources.c snapscan-mutex.c \
   snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
   sp15c.conf.in sp15c.h sp15c-scsi.h st400.c st400.conf.in st400.h stubs.c \
+  stv680.c stv680.conf.in stv680.h \
   tamarack.c tamarack.conf.in tamarack.h teco1.c teco1.h teco1.conf.in \
   teco2.c teco2.conf.in teco2.h \
   teco3.c teco3.conf.in teco3.h \
@@ -485,6 +486,9 @@ libsane-sp15c.la: ../sanei/sanei_thread.lo
 libsane-st400.la: ../sanei/sanei_config2.lo
 libsane-st400.la: ../sanei/sanei_constrain_value.lo
 libsane-st400.la: ../sanei/sanei_scsi.lo
+libsane-stv680.la: ../sanei/sanei_config2.lo
+libsane-stv680.la: ../sanei/sanei_constrain_value.lo
+libsane-stv680.la: ../sanei/sanei_usb.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo
 libsane-tamarack.la: ../sanei/sanei_constrain_value.lo
 libsane-tamarack.la: ../sanei/sanei_scsi.lo

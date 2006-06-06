@@ -121,18 +121,18 @@
 
 :model "AV610"
 :interface "USB"
-:usbid "0x638" "0xa19"
+:usbid "0x0638" "0x0a19"
 :status :good
 
 :model "AM3000 Series"
 :interface "USB"
-:usbid "0x638" "0xa41"
+:usbid "0x0638" "0xa41"
 :comment "MFD"
 :status :basic
 
 :model "DS610CU Scancopier"
 :interface "USB"
-:usbid "0x638" "0xa16"
+:usbid "0x0638" "0x0a16"
 :comment "1 pass, 600 dpi, A4"
 :status :good
 
@@ -245,7 +245,7 @@
 
 :model "AV3850SU"
 :interface "USB"
-:usbid "0x638" "0xa66"
+:usbid "0x0638" "0x0a66"
 :comment "1 pass, ??? dpi"
 :status :complete
 

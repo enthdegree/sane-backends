@@ -1,3 +1,8 @@
+2006-05-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* po/Makefile.in, po/sane-backends.*.po: updated with translation
+	  keys from stv680 backand
+
 2006-06-05 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* backend/stv680.c backend/stv680.h backend/stv680.conf.in added

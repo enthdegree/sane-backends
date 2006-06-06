@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.12\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-05-26 13:38+0200\n"
-"PO-Revision-Date: 2006-05-26 14:31+0200\n"
+"POT-Creation-Date: 2006-06-06 12:42+0200\n"
+"PO-Revision-Date: 2006-06-06 13:00+0200\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot enib "
 "dot fr>\n"
 "Language-Team:\n"
@@ -64,9 +64,9 @@ msgstr "Niveaux de gris"
 #: .tmp/artec_eplus48u.c:156 .tmp/epson.c:486 .tmp/genesys.c:87
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:614
-#: .tmp/saneopts.h:393 .tmp/sceptre.h:292 .tmp/sm3840.c:81
-#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
-#: .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393 .tmp/sceptre.h:292
+#: .tmp/sm3840.c:81 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
+#: .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Couleur"
@@ -74,10 +74,10 @@ msgstr "Couleur"
 #: .tmp/artec_eplus48u.c:2805 .tmp/gt68xx.c:665 .tmp/hp-option.c:2952
 #: .tmp/leo.c:871 .tmp/ma1509.c:597 .tmp/matsushita.c:1189
 #: .tmp/microtek2.h:601 .tmp/mustek.c:4405 .tmp/mustek_usb2.c:431
-#: .tmp/mustek_usb.c:353 .tmp/niash.c:756 .tmp/plustek.c:815
+#: .tmp/mustek_usb.c:353 .tmp/niash.c:756 .tmp/plustek.c:846
 #: .tmp/plustek_pp.c:792 .tmp/sceptre.c:750 .tmp/snapscan-options.c:561
-#: .tmp/teco1.c:1143 .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592
-#: .tmp/umax.c:5224 .tmp/umax_pp.c:550
+#: .tmp/stv680.c:1067 .tmp/teco1.c:1143 .tmp/teco2.c:1951 .tmp/teco3.c:968
+#: .tmp/u12.c:592 .tmp/umax.c:5224 .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
 msgstr "Réglages fins"
@@ -96,7 +96,7 @@ msgstr "Valeurs par défaut pour les réglages fins."
 #: .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
 #: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
-#: .tmp/plustek.c:769 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
+#: .tmp/plustek.c:800 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
 #: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
 #: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:501
@@ -230,7 +230,8 @@ msgstr "Recto-verso"
 
 #: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:144 .tmp/ma1509.c:106
 #: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/pixma.c:622
-#: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
+#: .tmp/pixma_sane_options.c:85 .tmp/snapscan-options.c:82 .tmp/test.c:189
+#: .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "A plat"
@@ -434,9 +435,10 @@ msgstr "Max"
 #: .tmp/epson.c:2782 .tmp/genesys.c:4493 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:685
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:716
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
-#: .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
+#: .tmp/stv680.c:1030 .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473
+#: .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Mode de numérisation"
@@ -864,6 +866,7 @@ msgid "Switches the lamp on or off."
 msgstr "Allume/éteint la lampe."
 
 #: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
+#: .tmp/plustek.c:928
 #, no-c-format
 msgid "Calibrate"
 msgstr "Calibration"
@@ -1939,7 +1942,7 @@ msgid ""
 "cancel, press \"GRAY\" button."
 msgstr ""
 
-#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1013
+#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1068
 #, fuzzy, no-c-format
 msgid "Buttons"
 msgstr "Etat du bouton"
@@ -1964,162 +1967,167 @@ msgstr "Etat du bouton"
 msgid "Transparency"
 msgstr "Transparence"
 
-#: .tmp/plustek.c:878
+#: .tmp/plustek.c:909
 #, no-c-format
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:885
+#: .tmp/plustek.c:916
 #, no-c-format
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:886
+#: .tmp/plustek.c:917
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:891
+#: .tmp/plustek.c:922
 #, fuzzy, no-c-format
 msgid "Calibration data cache"
 msgstr "Mode de calibration"
 
-#: .tmp/plustek.c:892
+#: .tmp/plustek.c:923
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:897
+#: .tmp/plustek.c:929
+#, fuzzy, no-c-format
+msgid "Performs calibration"
+msgstr "Calibration grossière"
+
+#: .tmp/plustek.c:947
 #, no-c-format
 msgid "Speedup sensor"
 msgstr ""
 
-#: .tmp/plustek.c:898
+#: .tmp/plustek.c:948
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr ""
 
-#: .tmp/plustek.c:912
+#: .tmp/plustek.c:962
 #, fuzzy, no-c-format
 msgid "Warmup-time"
 msgstr "Préchauffage de la lampe"
 
-#: .tmp/plustek.c:913
+#: .tmp/plustek.c:963
 #, fuzzy, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Préchauffage de la lampe"
 
-#: .tmp/plustek.c:920
+#: .tmp/plustek.c:975
 #, fuzzy, no-c-format
 msgid "Lampoff-time"
 msgstr "Lampe éteinte"
 
-#: .tmp/plustek.c:921
+#: .tmp/plustek.c:976
 #, fuzzy, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Préchauffage de la lampe"
 
-#: .tmp/plustek.c:928
+#: .tmp/plustek.c:983
 #, fuzzy, no-c-format
 msgid "Analog frontend"
 msgstr "Gamma analogique rouge"
 
-#: .tmp/plustek.c:934 .tmp/umax_pp.c:656
+#: .tmp/plustek.c:989 .tmp/umax_pp.c:656
 #, no-c-format
 msgid "Red gain"
 msgstr "Gain des rouges"
 
-#: .tmp/plustek.c:935
+#: .tmp/plustek.c:990
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:942 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:997 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Décalage des rouges"
 
-#: .tmp/plustek.c:943
+#: .tmp/plustek.c:998
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:950 .tmp/umax_pp.c:668
+#: .tmp/plustek.c:1005 .tmp/umax_pp.c:668
 #, no-c-format
 msgid "Green gain"
 msgstr "Gain des verts"
 
-#: .tmp/plustek.c:951
+#: .tmp/plustek.c:1006
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:958 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1013 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Décalage des verts"
 
-#: .tmp/plustek.c:959
+#: .tmp/plustek.c:1014
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:966 .tmp/umax_pp.c:680
+#: .tmp/plustek.c:1021 .tmp/umax_pp.c:680
 #, no-c-format
 msgid "Blue gain"
 msgstr "Gain des bleus"
 
-#: .tmp/plustek.c:967
+#: .tmp/plustek.c:1022
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:974 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1029 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Décalage des bleus"
 
-#: .tmp/plustek.c:975
+#: .tmp/plustek.c:1030
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:982
+#: .tmp/plustek.c:1037
 #, fuzzy, no-c-format
 msgid "Red lamp off"
 msgstr "Allume/éteint la lampe."
 
-#: .tmp/plustek.c:983
+#: .tmp/plustek.c:1038
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:990
+#: .tmp/plustek.c:1045
 #, fuzzy, no-c-format
 msgid "Green lamp off"
 msgstr "Allume/éteint la lampe."
 
-#: .tmp/plustek.c:991
+#: .tmp/plustek.c:1046
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:998
+#: .tmp/plustek.c:1053
 #, fuzzy, no-c-format
 msgid "Blue lamp off"
 msgstr "Allume/éteint la lampe."
 
-#: .tmp/plustek.c:999
+#: .tmp/plustek.c:1054
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1021
+#: .tmp/plustek.c:1076
 #, fuzzy, no-c-format
 msgid "Scanner button"
 msgstr "Simulation de scanner à main."
 
-#: .tmp/plustek.c:1022
+#: .tmp/plustek.c:1077
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr ""
@@ -3130,6 +3138,26 @@ msgstr "Nombre de lignes en couleurs par cycle de lecture"
 #, no-c-format
 msgid "Greyscale lines per read"
 msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
+
+#: .tmp/stv680.c:974
+#, no-c-format
+msgid "webcam"
+msgstr ""
+
+#: .tmp/stv680.h:115
+#, no-c-format
+msgid "Color RAW"
+msgstr "Couleur RAW"
+
+#: .tmp/stv680.h:116
+#, no-c-format
+msgid "Color RGB"
+msgstr "Couleur RGB"
+
+#: .tmp/stv680.h:117
+#, no-c-format
+msgid "Color RGB TEXT"
+msgstr "Couleur RGB TEXTE"
 
 #: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
 #: .tmp/teco3.c:977 .tmp/teco3.c:978

@@ -21,6 +21,7 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/pnm.c \
   ../backend/sceptre.c ../backend/sceptre.h  ../backend/sm3840.c \
   ../backend/snapscan.c ../backend/snapscan-options.c \
+  ../backend/stv680.c ../backend/stv680.h \
   ../backend/teco1.c ../backend/teco1.h \
   ../backend/teco2.c ../backend/teco2.h \
   ../backend/teco3.c ../backend/teco3.h \

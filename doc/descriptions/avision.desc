@@ -14,7 +14,7 @@
 :backend "avision"
 
 ; version of backend
-:version "Build: 182"
+:version "Build: 201"
 ;status: alpha, beta, stable, new
 ;:status :stable
 
@@ -45,19 +45,19 @@
 :interface "USB"
 :usbid "0x0638" "0x0a27"
 :comment "sheetfed scanner"
-:status :basic
+:status :complete
 
 :model "AV121"
 :interface "USB"
 :usbid "0x0638" "0x0a3c"
 :comment "sheetfed scanner"
-:status :basic
+:status :untested
 
 :model "AV122"
 :interface "USB"
-:usbid "0x0638" "0x0a3c"
+:usbid "0x0638" "0x0a33"
 :comment "sheetfed duplex scanner"
-:status :basic
+:status :good
 
 :model "AV210"
 :interface "USB"
@@ -75,11 +75,17 @@
 :interface "USB"
 :usbid "0x0638" "0x0a3a"
 :comment "sheetfed scanner"
-:status :untested
+:status :complete
 
 :model "AV220"
 :interface "USB"
 :usbid "0x0638" "0x0a23"
+:comment "duplex! sheetfed scanner"
+:status :complete
+
+:model "AV220C2"
+:interface "USB"
+:usbid "0x0638" "0x0a2a"
 :comment "duplex! sheetfed scanner"
 :status :complete
 
@@ -115,24 +121,18 @@
 
 :model "AV610"
 :interface "USB"
-:usbid "0x0638" "0x0a19"
+:usbid "0x638" "0xa19"
 :status :good
 
-:model "AVA6"
+:model "AM3000 Series"
 :interface "USB"
-:usbid "0x0638" "0x0a22"
-:comment "probably a CPU-less device"
-:status :untested
-
-:model "AVA6"
-:interface "USB"
-:usbid "0x0638" "0x0a3b"
-:comment "probably a CPU-less device"
-:status :untested
+:usbid "0x638" "0xa41"
+:comment "MFD"
+:status :basic
 
 :model "DS610CU Scancopier"
 :interface "USB"
-:usbid "0x0638" "0x0a16"
+:usbid "0x638" "0xa16"
 :comment "1 pass, 600 dpi, A4"
 :status :good
 
@@ -206,12 +206,12 @@
 :model "AV820C"
 :interface "SCSI"
 :comment "1 pass, ??? dpi"
-:status :good
+:status :complete
 
 :model "AV820C Plus"
 :interface "SCSI"
 :comment "1 pass, ??? dpi"
-:status :untested
+:status :complete
 
 :model "AV830C"
 :interface "SCSI"
@@ -241,7 +241,13 @@
 :model "AV3800C"
 :interface "SCSI"
 :comment "1 pass, ??? dpi"
-:status :good
+:status :complete
+
+:model "AV3850SU"
+:interface "USB"
+:usbid "0x638" "0xa66"
+:comment "1 pass, ??? dpi"
+:status :complete
 
 :model "FB6000E"
 :interface "SCSI"
@@ -269,7 +275,7 @@
 :interface "USB"
 :usbid "0x0638" "0x0a61"
 :comment "1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors"
-:status :complete
+:status :good
 
 :model "@V5100"
 :interface "USB"
@@ -438,28 +444,38 @@
 :interface "SCSI"
 :status :untested
 
+:model "fi-4010CU"
+:interface "USB"
+:usbid "0x04c5" "0x1029"
+:status :untested
+
 
 :mfg "Kodak"
 :url "http://www.kodak.com"
 
 :model "i30"
-:interface "SCSI"
+:interface "USB"
+:usbid "0x040a" "0x6001"
 :status :untested
 
 :model "i40"
-:interface "SCSI"
-:status :untested
+:interface "USB"
+:usbid "0x040a" "0x6002"
+:status :basic
 
 :model "i50"
-:interface "SCSI"
+:interface "USB"
+:usbid "0x040a" "0x6003"
 :status :untested
 
 :model "i60"
-:interface "SCSI"
+:interface "USB"
+:usbid "0x040a" "0x6004"
 :status :untested
 
 :model "i80"
-:interface "SCSI"
+:interface "USB"
+:usbid "0x040a" "0x6005"
 :status :untested
 
 
@@ -487,4 +503,12 @@
 :interface "USB"
 :usbid "0x04a7" "0x0475"
 :status :untested
+
+
+:mfg "Bell+Howell"
+
+:model "2000F"
+:interface "SCSI"
+:comment "1 pass, ??? dpi, A4"
+:status :basic
 

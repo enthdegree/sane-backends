@@ -133,7 +133,19 @@ typedef struct Avision_HWEntry {
     AV_NO_MATRIX = (1<<14),
 
     /* force channel-by-channel calibration */
-    AV_MULTI_CALIB_CMD = (1<<15)
+    AV_MULTI_CALIB_CMD = (1<<15),
+
+    /* non color scans are faster with a filter applied (AV32xx) */
+    AV_FASTER_WITH_FILTER = (1<<16),
+
+    /* interlaced data with 1 line distance */
+    AV_2ND_LINE_INTERLACED = (1<<17),
+
+    /* does not keep the window though it advertices so */
+    AV_DOES_NOT_KEEP_WINDOW = (1<<18),
+
+    /* advertises ADF is BGR order, but isn't (or vice versa) */
+    AV_ADF_BGR_ORDER_INVERT = (1<<18)
 
     /* maybe more ...*/
   } feature_type;
@@ -210,7 +222,7 @@ enum Avision_Option
   OPT_GAMMA_VECTOR_B,
   
   /* too bad the SANE API does not allow bool vectors ... */
-  OPT_BUTTON_0,           /* scanner button pressed */
+  OPT_BUTTON_0,          /* scanner button pressed */
   OPT_BUTTON_1,
   OPT_BUTTON_2,
   OPT_BUTTON_3,
@@ -219,10 +231,13 @@ enum Avision_Option
   OPT_BUTTON_6,
   OPT_BUTTON_7,
   OPT_BUTTON_LAST = OPT_BUTTON_7,
+  OPT_MESSAGE,           /* optional message from the scanner display */
 
-  OPT_MESSAGE,
-  
   OPT_FRAME,             /* Film holder control */
+
+  OPT_POWER_SAVE_TIME,   /* set power save time to the scanner */
+  
+  OPT_NVRAM,             /* retrieve NVRAM values as pretty printed text */
   
   NUM_OPTIONS            /* must come last */
 };
@@ -262,6 +277,10 @@ typedef struct Avision_Device
 
   asic_type inquiry_asic_type;
   SANE_Bool inquiry_new_protocol;
+
+  SANE_Bool inquiry_nvram_read;
+  SANE_Bool inquiry_power_save_time;
+
   SANE_Bool inquiry_light_box;
   SANE_Bool inquiry_adf;
   SANE_Bool inquiry_duplex;
@@ -347,8 +366,9 @@ typedef struct Avision_Scanner
   
   /* Parsed option values and variables that are valid only during
      the actual scan: */
-  
+  SANE_Bool prepared;			/* first page marker */
   SANE_Bool scanning;           /* scan in progress */
+
   SANE_Parameters params;       /* scan window */
   Avision_Dimensions avdimen;   /* scan window - detailed internals */
   
@@ -365,9 +385,9 @@ typedef struct Avision_Scanner
   /* Avision HW Access Connection (SCSI/USB abstraction) */
   Avision_Connection av_con;
 
-  pid_t reader_pid;		/* process id of reader */
-  int reader_fds;		/* pipe write handler for reader */
-  int pipe;			/* pipe to reader process */
+  pid_t reader_pid;	/* process id of reader */
+  int read_fds;		/* pipe reading end */
+  int write_fds;	/* pipe writing end */
   int line;			/* current line number during scan */
   
 } Avision_Scanner;
@@ -401,6 +421,14 @@ typedef struct Avision_Scanner
 #define AVISION_SCSI_OP_GO_HOME             0x02
 #define AVISION_SCSI_OP_TRANS_CALIB_GRAY    0x04
 #define AVISION_SCSI_OP_TRANS_CALIB_COLOR   0x05
+
+#define AVISION_FILTER_NONE	0
+#define AVISION_FILTER_RED	1
+#define AVISION_FILTER_GREEN	2
+#define AVISION_FILTER_BLUE	3
+#define AVISION_FILTER_RGB	4
+#define AVISION_FILTER_CMYK	5
+#define AVISION_FILTER_GRAY	6
 
 /* The SCSI structures that we have to send to an avision to get it to
    do various stuff... */
@@ -452,6 +480,42 @@ typedef struct command_send
   u_int8_t reserved1;
 } command_send;
 
+typedef struct nvram_data
+{
+  u_int8_t pad_scans [4];
+  u_int8_t adf_simplex_scans [4];
+  u_int8_t adf_duplex_scans [4];
+  u_int8_t flatbed_scans [4];
+
+  u_int8_t flatbed_leading_edge [2];
+  u_int8_t flatbed_side_edge [2];
+  u_int8_t adf_leading_edge [2];
+  u_int8_t adf_side_edge [2];
+  u_int8_t adf_rear_leading_edge [2];
+  u_int8_t adf_rear_side_edge [2];
+
+  u_int8_t born_month [2];
+  u_int8_t born_day [2];
+  u_int8_t born_year [2];
+
+  u_int8_t first_scan_month [2];
+  u_int8_t first_scan_day [2];
+  u_int8_t first_scan_year [2];
+
+  u_int8_t vertical_magnification [2];
+  u_int8_t horizontal_magnification [2];
+
+  u_int8_t ccd_type;
+  u_int8_t scan_speed;
+
+  u_int8_t serial [24];
+
+  u_int8_t power_saving_time [2];
+
+  u_int8_t reserved [56];
+} nvram_data;
+
+
 typedef struct command_set_window_window
 {
   struct {
@@ -493,7 +557,7 @@ typedef struct command_set_window_window
     u_int8_t line_width [2];
     u_int8_t line_count [2];
     
-    /* the tail is quite version and model sepecific */
+    /* the tail is quite version and model specific */
     union {
       struct {
 	u_int8_t bitset2;

@@ -9,15 +9,15 @@
 #option disable-calibration
 #option force-a4
 
-scsi AVISION
-scsi FCPA
-scsi MINOLTA
-scsi MITSBISH MCA-S600C
-scsi MITSBISH MCA-SS600
-scsi HP
-scsi hp
+#scsi AVISION
+#scsi FCPA
+#scsi MINOLTA
+#scsi MITSBISH MCA-S600C
+#scsi MITSBISH MCA-SS600
+#scsi HP
+#scsi hp
 
-scsi /dev/scanner
+#scsi /dev/scanner
 # usb libusb:002:003
 # usb 0x03f0 0x0701
 

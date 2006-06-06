@@ -767,7 +767,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 182 /* avision backend BUILD version */
+#define BACKEND_BUILD 201 /* avision backend BUILD version */
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
@@ -811,23 +811,23 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV120",
       0x0638, 0x0A27,
       "Avision", "AV120",
-      AV_INT_BUTTON},
+      0},
     /* comment="sheetfed scanner" */
-    /* status="basic" */
+    /* status="complete" */
 
     { "AVISION", "AV121",
       0x0638, 0x0A3C,
       "Avision", "AV121",
       AV_INT_BUTTON | AV_NO_MATRIX},
     /* comment="sheetfed scanner" */
-    /* status="basic" */
+    /* status="untested" */
 
     { "AVISION", "AV122",
-      0x0638, 0x0A3C,
+      0x0638, 0x0A33,
       "Avision", "AV122",
-      AV_INT_BUTTON | AV_NO_MATRIX},
+      AV_INT_BUTTON | AV_NO_MATRIX | AV_2ND_LINE_INTERLACED},
     /* comment="sheetfed duplex scanner" */
-    /* status="basic" */
+    /* status="good" */
 
     { "AVISION", "AV210",
       0x0638, 0x0A24,
@@ -846,9 +846,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV210C2",
       0x0638, 0x0A3A,
       "Avision", "AV210C2",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON},
     /* comment="sheetfed scanner" */
-    /* status="untested" */
+    /* status="complete" */
 
     { "AVISION", "AVISION AV220",
       0x0638, 0x0A23,
@@ -858,6 +858,13 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { "AVISION", "AVISION AV220C2",
+      0x0638, 0x0A2A,
+      "Avision", "AV220C2",
+      AV_INT_BUTTON},
+    /* comment="duplex! sheetfed scanner" */
+    /* status="complete" */
+
+    { "AVISION", "AV220C2",
       0x0638, 0x0A2A,
       "Avision", "AV220C2",
       AV_INT_BUTTON},
@@ -901,27 +908,20 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="untested" */
     
     { "AVISION", "AV610",
-      0x638, 0xa19,
+      0x0638, 0x0a19,
       "Avision", "AV610",
       AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE},
     /* status="good" */
-      
-  /* { "AVISION", "AVA6", 
-      0x638, 0xa22,
-      "Avision", "AVA6",
-      0}, */
-    /* comment="probably a CPU-less device" */
-    /* status="untested" */
 
-  /* { "AVISION", "AVA6",
-      0x638, 0xa3b,
-      "Avision", "AVA6",
-      0}, */
-    /* comment="probably a CPU-less device" */
-    /* status="untested" */
-   
+   { "AVISION", "AM3000 Series", 
+     0x638, 0xa41,
+     "Avision", "AM3000 Series",
+      0},
+    /* comment="MFD" */
+    /* status="basic" */
+
     { "AVision", "DS610CU",
-      0x638, 0xa16,
+      0x0638, 0x0a16,
       "Avision", "DS610CU Scancopier",
       0},
     /* comment="1 pass, 600 dpi, A4" */
@@ -965,7 +965,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV600U",
       0x0638, 0x0A13,
       "Avision", "AV600U",
-      AV_NO_MATRIX | AV_MULTI_CALIB_CMD},
+      AV_NO_MATRIX | AV_MULTI_CALIB_CMD | AV_ADF_BGR_ORDER_INVERT},
     /* comment="1 pass, 600 dpi" */
     /* status="good" */
 
@@ -1023,14 +1023,14 @@ static Avision_HWEntry Avision_Device_List [] =
       "Avision", "AV820C",
       0},
     /* comment="1 pass, ??? dpi" */
-    /* status="good" */
+    /* status="complete" */
     
     { "AVISION", "AV820C Plus",
       0, 0,
       "Avision", "AV820C Plus",
       0},
     /* comment="1 pass, ??? dpi" */
-    /* status="untested" */
+    /* status="complete" */
     
     { "AVISION", "AV830C",
       0, 0,
@@ -1063,7 +1063,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV3200C",
       0, 0,
       "Avision", "AV3200C",
-      AV_NON_INTERLACED_DUPLEX_300},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_FASTER_WITH_FILTER},
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
@@ -1072,7 +1072,14 @@ static Avision_HWEntry Avision_Device_List [] =
       "Avision", "AV3800C",
       AV_NON_INTERLACED_DUPLEX_300},
     /* comment="1 pass, ??? dpi" */
-    /* status="good" */
+    /* status="complete" */
+
+    { "AVISION", "AV3850SU",
+      0x0638, 0x0a66,
+      "Avision", "AV3850SU",
+      0},
+    /* comment="1 pass, ??? dpi" */
+    /* status="complete" */
 
     { "AVISION", "FB6000E",
        0, 0,
@@ -1084,7 +1091,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV8000S",
       0, 0,
       "Avision", "AV8000S",
-      0},
+      AV_DOES_NOT_KEEP_WINDOW},
     /* comment="1 pass, 1200 dpi, A3 - regularly tested" */
     /* status="complete" */
 
@@ -1107,7 +1114,7 @@ static Avision_HWEntry Avision_Device_List [] =
       "Avision", "IT8300",
       AV_NON_INTERLACED_DUPLEX_300 | AV_ACCEL_TABLE},
     /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
-    /* status="complete" */
+    /* status="good" */
 
     { "AVISION", "@V5100",
        0x0638, 0x0A45,
@@ -1135,7 +1142,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "ScanJet 5370C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5370C",
-      AV_MULTI_CALIB_CMD },
+      AV_MULTI_CALIB_CMD | AV_NO_MATRIX},
     /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="good" */
     
@@ -1150,7 +1157,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "hp",      "scanjet 7450c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7450c",
-      AV_FIRMWARE},
+      AV_FIRMWARE | AV_NO_MATRIX},
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface - regularly tested" */
     /* status="good" */
     
@@ -1165,7 +1172,7 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8200",
-      AV_FIRMWARE},
+      AV_FIRMWARE | AV_NO_MATRIX},
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -1314,34 +1321,40 @@ static Avision_HWEntry Avision_Device_List [] =
       0},
     /* status="untested" */
 
-    { "Kodak", "i30",
-      0, 0,
-      "Kodak", "i30",
+    { "FCPA", "fi-4010CU",
+      0x04c5, 0x1029,
+      "Fujitsu", "fi-4010CU",
       0},
     /* status="untested" */
 
-    { "Kodak", "i40",
-      0, 0,
+    { "KODAK", "i30 Scanner",
+      0x040a, 0x6001,
+      "Kodak", "i30",
+      AV_INT_BUTTON},
+    /* status="untested" */
+
+    { "KODAK", "i40 Scanner",
+      0x040a, 0x6002,
       "Kodak", "i40",
-      0},
-    /* status="untested" */
+      AV_LIGHT_CHECK_BOGUS | AV_NO_GAMMA | AV_NO_MATRIX | AV_INT_BUTTON},
+    /* status="basic" */
     
-    { "Kodak", "i50",
-      0, 0,
+    { "KODAK", "i50 Scanner",
+      0x040a, 0x6003,
       "Kodak", "i50",
-      0},
+      AV_INT_BUTTON},
     /* status="untested" */
     
-    { "Kodak", "i60",
-      0, 0,
+    { "KODAK", "i60 Scanner",
+      0x040a, 0x6004,
       "Kodak", "i60",
-      0},
+      AV_INT_BUTTON},
     /* status="untested" */
     
-    { "Kodak", "i80",
-      0, 0,
+    { "KODAK", "i80 Scanner",
+      0x040a, 0x6005,
       "Kodak", "i80",
-      0},
+      AV_INT_BUTTON},
     /* status="untested" */
     
     { "iVina", "1200U",
@@ -1367,6 +1380,13 @@ static Avision_HWEntry Avision_Device_List [] =
       "Xerox", "DocuMate272",
       AV_INT_BUTTON},
     /* status="untested" */
+
+    { "B+H", "2000F",
+      0, 0,
+      "Bell+Howell", "2000F",
+      0},
+    /* comment="1 pass, ??? dpi, A4" */
+    /* status="basic" */
     
     /* More IDs from the Avision dll:
        ArtiScan ProA3
@@ -1384,59 +1404,13 @@ static Avision_HWEntry Avision_Device_List [] =
       0} 
   };
 
-/* This is just for reference and future review - this is NOT used */
-
-/* static const char c7_flash_ram [] = {
-  0x00, 0xff, 0xff, 0x08, 0x53, 0x63, 0x61, 0x6e,
-  0x6e, 0x65, 0x6e, 0x14}; */
-
-/* a set of NV-RAM data obtained from the Avision driver */
-
-/*
-  Scannen
-  SCN2CSS0279LZ
-  Initialisierung
-  Bereit
-  Bitte entriegeln
-  Fehler
-  SCSI-Adresse:
-  Energiesparmodus
-  Scannen
-  ADF-Papierstau */
-
-/* static const char c7_nvram [] = {
-  0xff, 0xff, 0x00, 0x00, 0x01, 0xb0, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c,
-  0x00, 0x1c, 0x07, 0xd2, 0x00, 0x03, 0x00, 0x05,
-  0x00, 0x03, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x7f,
-  0x53, 0x43, 0x4e, 0x32, 0x43, 0x53, 0x53, 0x30,
-  0x32, 0x37, 0x39, 0x4c, 0x5a, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x49, 0x6e, 0x69, 0x74, 0x69, 0x61,
-  0x6c, 0x69, 0x73, 0x69, 0x65, 0x72, 0x75, 0x6e,
-  0x67, 0x14, 0x00, 0x20, 0x20, 0x20, 0x42, 0x65,
-  0x72, 0x65, 0x69, 0x74, 0x00, 0x42, 0x69, 0x74,
-  0x74, 0x65, 0x20, 0x65, 0x6e, 0x74, 0x72, 0x69,
-  0x65, 0x67, 0x65, 0x6c, 0x6e, 0x00, 0x46, 0x65,
-  0x68, 0x6c, 0x65, 0x72, 0x00, 0x53, 0x43, 0x53,
-  0x49, 0x2d, 0x41, 0x64, 0x72, 0x65, 0x73, 0x73,
-  0x65, 0x3a, 0x00, 0x45, 0x6e, 0x65, 0x72, 0x67,
-  0x69, 0x65, 0x73, 0x70, 0x61, 0x72, 0x6d, 0x6f,
-  0x64, 0x75, 0x73, 0x00, 0x53, 0x63, 0x61, 0x6e,
-  0x6e, 0x65, 0x6e, 0x14, 0x00, 0x41, 0x44, 0x46,
-  0x2d, 0x50, 0x61, 0x70, 0x69, 0x65, 0x72, 0x73,
-  0x74, 0x61, 0x75, 0x00, 0x00, 0x00, 0x5c, 0x5c,
-  0x2e, 0x5c, 0x55, 0x73, 0x62, 0x73, 0x63, 0x61,
-  0x6e, 0x30, 0x00, 0xf5, 0x64, 0x00, 0x28, 0xb8,
-  0xf7, 0xbf, 0x34, 0x32, 0x8a, 0x81, 0xf7, 0x41,
-  0xf7, 0xbf, 0x90, 0x94, 0xfc, 0xbf, 0x4e, 0xb8,
-  0xf7, 0xbf, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00,
-  0x00, 0x00, 0xb0, 0xf6, 0x57, 0xc1, 0x09, 0x00,
-  0x00, 0x00, 0x68, 0x2c, 0xf9, 0xbf, 0xab, 0xf5,
-  0x64, 0x00, 0x29, 0x37, 0x04, 0x02, 0x5c, 0x45,
-  0x03, 0x02, 0x5c, 0x00, 0x00, 0x00, 0xf9, 0x83,
-  0x03, 0x02, 0x2c, 0x37, 0x04, 0x02, 0x9f, 0x7d}; */
+#if 0
+  struct timeval tv;
+  #define TIMING(txt) gettimeofday (&tv, NULL);				\
+  DBG (4, "%lu: " txt "\n", tv.tv_sec * 1000000 + tv.tv_usec)
+#else
+  #define TIMING(txt)
+#endif
 
 /* used when scanner returns invalid range fields ... */
 #define A4_X_RANGE 8.5 /* or 8.25 ? */
@@ -1449,7 +1423,12 @@ static Avision_HWEntry Avision_Device_List [] =
 
 #define AVISION_CONFIG_FILE "avision.conf"
 
+#define STD_INQUIRY_SIZE 0x24
+#define AVISION_INQUIRY_SIZE 0x60
+
 #define MM_PER_INCH 25.4
+
+#define AVISION_READER_STRIPE_SIZE 32
 #define AVISION_BASE_RES 300
 
 /* calibration (shading) defines */
@@ -1486,6 +1465,7 @@ static SANE_Bool disable_gamma_table = SANE_FALSE;
 
 /* disable the calibration */
 static SANE_Bool disable_calibration = SANE_FALSE;
+static SANE_Bool force_calibration = SANE_FALSE;
 
 /* force scanable areas to ISO(DIN) A4/A3 */
 static SANE_Bool force_a4 = SANE_FALSE;
@@ -1586,6 +1566,63 @@ static void debug_print_hex_raw (int dbg_level, char* info, const u_int8_t* data
     DBG (dbg_level, "  [%08x] %s\n", address, text);
     address += 16;
   }
+}
+
+static void debug_print_nvram_data (int dbg_level, char* func,
+				    nvram_data* nvram)
+{
+  DBG (dbg_level, "%s: pad scans:             %d\n",
+       func, get_quad(nvram->pad_scans));
+  DBG (dbg_level, "%s: ADF simplex scans:     %d\n",
+       func, get_quad(nvram->adf_simplex_scans));
+  DBG (dbg_level, "%s: ADF duplex scans:      %d\n",
+       func, get_quad(nvram->adf_duplex_scans));
+  DBG (dbg_level, "%s: flatbed scans:         %d\n",
+       func, get_quad(nvram->flatbed_scans));
+  
+  DBG (dbg_level, "%s: flatbed leading edge:  %d\n",
+       func, get_double(nvram->flatbed_leading_edge));
+  DBG (dbg_level, "%s: flatbed side edge:     %d\n",
+       func, get_double(nvram->flatbed_side_edge));
+  DBG (dbg_level, "%s: ADF leading edge:      %d\n",
+       func, get_double(nvram->adf_leading_edge));
+  DBG (dbg_level, "%s: ADF side edge:         %d\n",
+       func, get_double(nvram->adf_side_edge));
+  DBG (dbg_level, "%s: ADF rear leading edge: %d\n",
+       func, get_double(nvram->adf_rear_leading_edge));
+  DBG (dbg_level, "%s: ADF rear side edge:    %d\n",
+       func, get_double(nvram->adf_rear_side_edge));
+  
+  DBG (dbg_level, "%s: born month:            %d\n",
+       func, get_double(nvram->born_month));
+  DBG (dbg_level, "%s: born day:              %d\n",
+       func, get_double(nvram->born_day));
+  DBG (dbg_level, "%s: born year:             %d\n",
+       func, get_double(nvram->born_year));
+
+  DBG (dbg_level, "%s: first scan month:      %d\n",
+       func, get_double(nvram->first_scan_month));
+  DBG (dbg_level, "%s: first scan day:        %d\n",
+       func, get_double(nvram->first_scan_day));
+  DBG (dbg_level, "%s: first scan year:       %d\n",
+       func, get_double(nvram->first_scan_year));
+  
+
+  DBG (dbg_level, "%s: vert. magnification:   %d\n",
+       func, get_double(nvram->vertical_magnification));
+  DBG (dbg_level, "%s: horiz. magnification:  %d\n",
+       func, get_double(nvram->horizontal_magnification));
+
+  DBG (dbg_level, "%s: CCD type:              %d\n",
+       func, nvram->ccd_type);
+  DBG (dbg_level, "%s: scan speed:            %d\n",
+       func, nvram->scan_speed);
+  
+  DBG (dbg_level, "%s: serial:                %.24s\n", /* 24 chars max */
+       func, nvram->serial);
+  
+  DBG (dbg_level, "%s: power saving time:     %d\n",
+       func, get_double(nvram->power_saving_time));
 }
 
 static void debug_print_avdimen (int dbg_level, char* func,
@@ -2096,8 +2133,9 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
     SANE_Status status = SANE_STATUS_GOOD;
     
     size_t i, count, out_count;
-#define STD_TIMEOUT 30000 /* some commands on some devices need a rather long time to respond */
-#define STD_STATUS_TIMEOUT 2500
+    /* some commands on some devices need a rather long time to respond */
+#define STD_TIMEOUT 30000
+#define STD_STATUS_TIMEOUT 10000
     int retry = 4;
     int write_timeout = STD_TIMEOUT;
     int read_timeout = STD_TIMEOUT;
@@ -2126,9 +2164,13 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
     switch (m_cmd[0]) {
       case AVISION_SCSI_INQUIRY:
       case AVISION_SCSI_TEST_UNIT_READY:
-        read_timeout = 1500;
+        read_timeout = 1500; /* quick timeout on initial detection */
+	status_timeout = 1500;
         break;
     }
+
+    DBG (7, "Timeouts: write: %d, read: %d, status: %d\n",
+         write_timeout, read_timeout, status_timeout);
 
 write_usb_cmd:
     if (--retry == 0) {
@@ -2138,8 +2180,8 @@ write_usb_cmd:
 
     count = cmd_size;
 
-    DBG (8, "try to write cmd, count: %lu.\n", (u_long) count);
     sanei_usb_set_timeout (write_timeout);
+    DBG (8, "try to write cmd, count: %lu.\n", (u_long) count);
     status = sanei_usb_write_bulk (av_con->usb_dn, m_cmd, &count);
       
     DBG (8, "wrote %lu bytes\n", (u_long) count);
@@ -2579,8 +2621,8 @@ compute_parameters (Avision_Scanner* s)
   s->params.lines = s->avdimen.bry - s->avdimen.tly -
                     2 * s->avdimen.line_difference;
   if (s->avdimen.interlaced_duplex)
-    s->params.lines -= s->params.lines % 8;
-
+    s->params.lines -= s->params.lines % AVISION_READER_STRIPE_SIZE;
+  
   debug_print_avdimen (1, "sane_compute_parameters", &s->avdimen);
   
   switch (s->c_mode)
@@ -2626,6 +2668,38 @@ compute_parameters (Avision_Scanner* s)
   
   debug_print_params (1, "sane_compute_parameters", &s->params);
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+inquiry (Avision_Connection av_con, u_int8_t* data, size_t len)
+{
+  SANE_Status status;
+  size_t size;
+  command_header inquiry;
+  
+  DBG (3, "inquiry: %ld\n", (long)len);
+ 
+  memset (&inquiry, 0, sizeof(inquiry));
+  inquiry.opc = AVISION_SCSI_INQUIRY;
+  inquiry.len = len;
+  
+  DBG (3, "attach: sending INQUIRY\n");
+  size = inquiry.len;
+  
+  {
+    int try = 2;
+    
+    do {
+      status = avision_cmd (&av_con, &inquiry, sizeof (inquiry), 0, 0,
+			   data, &size);
+      if (status != SANE_STATUS_GOOD || size != inquiry.len) {
+        DBG (1, "inquiry: inquiry failed (%s)\n", sane_strstatus (status));
+      --try;
+      }
+    }while (status != SANE_STATUS_GOOD && try > 0);
+  }
+  
+  return status;
 }
 
 static SANE_Status
@@ -2739,6 +2813,34 @@ wait_4_light (Avision_Scanner* s)
 }
 
 static SANE_Status
+set_power_save_time (Avision_Scanner* s, int time)
+{
+  struct {
+    struct command_send cmd;
+    u_int8_t time[2];
+  } scmd;
+
+  Avision_Device* dev = s->hw;
+  SANE_Status status;
+
+  DBG (3, "set_power_save_time: time %d\n", time);
+
+  memset (&scmd, 0, sizeof (scmd));
+  scmd.cmd.opc = AVISION_SCSI_SEND;
+  scmd.cmd.datatypecode = 0xA2; /* power-saving timer */
+  set_double (scmd.cmd.datatypequal, dev->data_dq);
+  set_triple (scmd.cmd.transferlen, sizeof (scmd.time) );
+
+  set_double (scmd.time, time);
+
+  status = avision_cmd (&s->av_con, &scmd.cmd, sizeof (scmd.cmd),
+                        &scmd.time, sizeof (scmd.time), 0, 0);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "set_power_save_time: send_data (%s)\n", sane_strstatus (status));
+  return status;
+}
+
+static SANE_Status
 get_firmware_status (Avision_Connection* av_con)
 {
   /* read stuff */
@@ -2837,6 +2939,121 @@ get_flash_ram_info (Avision_Connection* av_con)
 
   DBG (3, "get_flash_ram_info: [30-33] size RESERVED: %d\n",
        get_quad ( &(result[30]) ) );
+  
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+get_nvram_data (Avision_Scanner* s, nvram_data* nvram)
+{
+  /* read stuff */
+  struct command_send rcmd;
+  
+  size_t size;
+  SANE_Status status;
+  
+  DBG (3, "get_nvram_data\n");
+  
+  size = sizeof (*nvram);
+  
+  memset (&rcmd, 0, sizeof (rcmd));
+  memset (nvram, 0, size);
+  
+  rcmd.opc = AVISION_SCSI_READ;
+  
+  rcmd.datatypecode = 0x69; /* Read NVM RAM data */
+  set_double (rcmd.datatypequal, 0); /* dev->data_dq not available */
+  set_triple (rcmd.transferlen, size);
+ 
+  status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0,
+			nvram, &size);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "read_nvram_data: read failed (%s)\n",
+	 sane_strstatus (status));
+    return (status);
+  }
+  
+  debug_print_nvram_data (5, "get_nvram_data", nvram);
+  
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+get_and_parse_nvram (Avision_Scanner* s, char* str, int n)
+{
+  SANE_Status status;
+  int i = 0;
+  int x;
+  nvram_data nvram;
+  u_int8_t inquiry_result [AVISION_INQUIRY_SIZE];
+  
+  status = inquiry (s->av_con, inquiry_result, sizeof(inquiry_result));
+  if (status == SANE_STATUS_GOOD) {
+    i += snprintf (str+i, n-i, "Vendor: %.8s",
+		   inquiry_result+8);
+    i += snprintf (str+i, n-i, "\nModel: %.16s",
+		   inquiry_result+16);
+    i += snprintf (str+i, n-i, "\nFirmware: %.4s",
+		   inquiry_result+32);
+  }
+  
+  if (!s->hw->inquiry_nvram_read)
+    return SANE_STATUS_GOOD;
+  
+  status = get_nvram_data (s, &nvram);
+  if (status == SANE_STATUS_GOOD)
+    {
+      if (nvram.serial[0])
+	i += snprintf (str+i, n-i, "\nSerial: %.24s",
+		       nvram.serial);
+      
+      if (nvram.born_year)
+	i += snprintf (str+i, n-i, "\nManufacturing date: %d-%d-%d",
+		       get_double(nvram.born_year),
+		       get_double(nvram.born_month),
+		       get_double(nvram.born_day));
+      if (nvram.first_scan_year)
+	i += snprintf (str+i, n-i, "\nFirst scan date: %d-%d-%d",
+		       get_double(nvram.first_scan_year),
+		       get_double(nvram.first_scan_month),
+		       get_double(nvram.first_scan_day));
+      
+      x = get_quad (nvram.flatbed_scans);
+      if (x)
+	i += snprintf (str+i, n-i, "\nFlatbed scans: %d", x);
+      x = get_quad (nvram.pad_scans);
+      if (x)
+	i += snprintf (str+i, n-i, "\nPad scans: %d", x);
+      x = get_quad (nvram.adf_simplex_scans);
+      if (x)
+	i += snprintf (str+i, n-i, "\nADF simplex scans: %d", x);
+      x = get_quad (nvram.adf_duplex_scans);
+      if (x)
+	i += snprintf (str+i, n-i, "\nADF duplex scans: %d", x);
+    }
+  
+  return status;
+}
+
+static SANE_Status
+get_power_save_time (Avision_Scanner* s, SANE_Word* time)
+{
+  SANE_Status status;
+  nvram_data nvram;
+  
+  DBG (3, "get_power_save_time\n");
+  
+  if (!s->hw->inquiry_nvram_read)
+    return SANE_STATUS_INVAL;
+  
+  status = get_nvram_data (s, &nvram);
+  
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "get_power_save_time: read nvram failed (%s)\n", sane_strstatus (status));
+    return status;
+  }
+  
+  *time = get_double (nvram.power_saving_time);
   
   return SANE_STATUS_GOOD;
 }
@@ -3272,17 +3489,11 @@ static SANE_Status
 attach (SANE_String_Const devname, Avision_ConnectionType con_type,
         Avision_Device** devp)
 {
-#define STD_INQUIRY_SIZE 0x24
-#define AVISION_INQUIRY_SIZE 0x60
-
-  command_header inquiry;
-  
   u_int8_t result [AVISION_INQUIRY_SIZE];
   int model_num;
 
   Avision_Device* dev;
   SANE_Status status;
-  size_t size;
   
   Avision_Connection av_con;
 
@@ -3315,36 +3526,12 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   }
   
   /* first: get the standard inquiry? */
-  memset (&inquiry, 0, sizeof (inquiry) );
-#ifdef MAYBE_OPTIONAL
-  inquiry.opc = AVISION_SCSI_INQUIRY;
-  inquiry.len = STD_INQUIRY_SIZE;
-#else
-  inquiry.opc = AVISION_SCSI_INQUIRY;
-  inquiry.len = AVISION_INQUIRY_SIZE;
-#endif
-  DBG (3, "attach: sending standard INQUIRY\n");
-  size = inquiry.len;
-  if (av_con.connection_type == AV_USB) {
-    sanei_usb_set_timeout (1500);
+  status = inquiry (av_con, result, AVISION_INQUIRY_SIZE);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "attach: 1st inquiry failed (%s)\n", sane_strstatus (status));
+    return status;
   }
   
-  {
-    int try = 2;
-    
-    do {
-      status = avision_cmd (&av_con, &inquiry, sizeof (inquiry), 0, 0,
-  			    result, &size);
-      if (status != SANE_STATUS_GOOD || size != inquiry.len) {
-        DBG (1, "attach: standard inquiry failed (%s)\n",
-             sane_strstatus (status));
-      --try;
-      }
-    }while (status != SANE_STATUS_GOOD && try > 0);
-    if (status != SANE_STATUS_GOOD)
-      goto close_scanner_and_return;
-  }
-
   /* copy string information - and zero terminate them c-style */
   memcpy (&mfg, result + 8, 8);
   mfg [8] = 0;
@@ -3384,9 +3571,9 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   }
   
   if (!found) {
-    DBG (1, "attach: model is not in the list of supported models!\n");
-    DBG (1, "attach: You might want to report this output. To:\n");
-    DBG (1, "attach: rene@exactcode.de (the Avision backend author)\n");
+    DBG (0, "attach: model is not in the list of supported models!\n");
+    DBG (0, "attach: You might want to report this output.\n");
+    DBG (0, "attach: To: rene@exactcode.de (the Avision backend author)\n");
     
     status = SANE_STATUS_INVAL;
     goto close_scanner_and_return;
@@ -3420,14 +3607,9 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
     }
   
   /* third: get the extended Avision inquiry */
-  inquiry.len = AVISION_INQUIRY_SIZE;
-  
-  DBG (3, "attach: sending Avision INQUIRY\n");
-  size = inquiry.len;
-  status = avision_cmd (&av_con, &inquiry, sizeof (inquiry), 0, 0,
-			result, &size);
-  if (status != SANE_STATUS_GOOD || size != inquiry.len) {
-    DBG (1, "attach: Avision inquiry failed (%s)\n", sane_strstatus (status));
+  status = inquiry (av_con, result, AVISION_INQUIRY_SIZE);
+  if (status != SANE_STATUS_GOOD) {
+    DBG (1, "attach: 2nd inquiry failed (%s)\n", sane_strstatus (status));
     goto close_scanner_and_return;
   }
   
@@ -3625,24 +3807,31 @@ get_double ( &(result[48] ) ));
   dev->inquiry_new_protocol = BIT (result[39],2);
   dev->inquiry_asic_type = (int) result[91];
 
+  dev->inquiry_nvram_read = BIT(result[52],0);
+  dev->inquiry_power_save_time = BIT(result[52],1);
+
   dev->inquiry_adf = BIT (result[62], 5);
   dev->inquiry_duplex = BIT (result[62], 2) || BIT (result[94], 5);
   dev->inquiry_duplex_interlaced = BIT (result[94], 4);
   dev->inquiry_paper_length = BIT (result[95], 5);
 
   dev->inquiry_detect_accessories = BIT (result[93], 7);
-  
+ 
   dev->inquiry_needs_calibration = BIT (result[50], 4);
   
   dev->inquiry_needs_gamma = BIT (result[50], 3);
   dev->inquiry_keeps_gamma = BIT (result[50], 2);
   dev->inquiry_keeps_window = BIT (result[50], 1);
+  if (Avision_Device_List [model_num].feature_type & AV_DOES_NOT_KEEP_WINDOW)
+    dev->inquiry_keeps_window = 0;
 
   dev->inquiry_3x3_matrix = BIT (result[51], 1);
   dev->inquiry_needs_software_colorpack = BIT (result[50],5);
   dev->inquiry_needs_line_pack = BIT (result[94], 6);
   dev->inquiry_adf_need_mirror = BIT (result[51], 0);
   dev->inquiry_adf_bgr_order = BIT (result[93], 6);
+  if (Avision_Device_List [model_num].feature_type & AV_ADF_BGR_ORDER_INVERT)
+    dev->inquiry_adf_bgr_order = ! dev->inquiry_adf_bgr_order;
   
   dev->inquiry_light_detect = BIT (result[93], 2);
   dev->inquiry_light_control = BIT (result[50], 7);
@@ -4451,7 +4640,7 @@ normal_calibration (Avision_Scanner* s)
     int elements_per_line = calib_format.pixel_per_line * calib_format.channels;
     int i;
 
-    DBG (1, "normal_calibration: dark data present - decreasing white aerage data\n");
+    DBG (1, "normal_calibration: dark data present - decreasing white average data\n");
     
     for (i = 0; i < elements_per_line; ++ i) {
       s->white_avg_data[i] -= s->dark_avg_data[i];
@@ -4803,7 +4992,7 @@ send_acceleration_table (Avision_Scanner* s)
     if (accel_info.target_speed > accel_info.start_speed ||
         accel_info.target_speed == 0 ||
         accel_info.total_steps <= accel_info.stable_steps) {
-      DBG (1, "send_acceleration_table: tables does not look right.\n");
+      DBG (1, "send_acceleration_table: table does not look right.\n");
       return SANE_STATUS_INVAL;
     }
     
@@ -5072,7 +5261,7 @@ set_window (Avision_Scanner* s)
      double feeds - they may not work without the field set */
   if (dev->inquiry_paper_length)
     set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200));
-    
+
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     { 
       /* quality scan option switch */
@@ -5080,8 +5269,8 @@ set_window (Avision_Scanner* s)
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 4);
       }
   
-      /* quality calibration option switch */
-      if (s->val[OPT_QCALIB].w == SANE_TRUE) {
+      /* quality calibration option switch (inverted! if set == speed) */
+      if (s->val[OPT_QCALIB].w == SANE_FALSE) {
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 3);
       }
       
@@ -5109,62 +5298,64 @@ set_window (Avision_Scanner* s)
   cmd.window.descriptor.contrast = 128;
   cmd.window.avision.highlight = 0xFF;
   cmd.window.avision.shadow = 0x00;
-  
+
   /* mode dependant settings */
   switch (s->c_mode)
     {
     case AV_THRESHOLDED:
       cmd.window.descriptor.bpc = 1;
       cmd.window.descriptor.image_comp = 0;
-      /* cmd.window.avision.bitset1 &= 0xC7;*/ /* no filter */
       break;
     
     case AV_DITHERED:
       cmd.window.descriptor.bpc = 1;
       cmd.window.descriptor.image_comp = 1;
-      /* cmd.window.avision.bitset1 &= 0xC7;*/ /* no filter */
       break;
       
     case AV_GRAYSCALE:
       cmd.window.descriptor.bpc = 8;
       cmd.window.descriptor.image_comp = 2;
-      /* cmd.window.avision.bitset1 &= 0xC7;*/ /* no filter */
       break;
       
     case AV_GRAYSCALE12:
       cmd.window.descriptor.bpc = 12;
       cmd.window.descriptor.image_comp = 2;
-      /* cmd.window.avision.bitset1 &= 0xC7;*/ /* no filter */
       break;
 
     case AV_GRAYSCALE16:
       cmd.window.descriptor.bpc = 16;
       cmd.window.descriptor.image_comp = 2;
-      /* cmd.window.avision.bitset1 &= 0xC7;*/ /* no filter */
       break;
       
     case AV_TRUECOLOR:
       cmd.window.descriptor.bpc = 8;
       cmd.window.descriptor.image_comp = 5;
-      cmd.window.avision.bitset1 |= 0x20; /* rgb one-pass filter */
       break;
 
     case AV_TRUECOLOR12:
       cmd.window.descriptor.bpc = 12;
       cmd.window.descriptor.image_comp = 5;
-      cmd.window.avision.bitset1 |= 0x20; /* rgb one-pass filter */
       break;
 
     case AV_TRUECOLOR16:
       cmd.window.descriptor.bpc = 16;
       cmd.window.descriptor.image_comp = 5;
-      cmd.window.avision.bitset1 |= 0x20; /* rgb one-pass filter */
       break;
       
     default:
       DBG (1, "Invalid mode. %d\n", s->c_mode);
       return SANE_STATUS_INVAL;
     }
+
+  if (color_mode_is_color (s->c_mode)) {
+    cmd.window.avision.bitset1 |= AVISION_FILTER_RGB << 3;
+  }
+  else {
+    if (dev->hw->feature_type & AV_FASTER_WITH_FILTER)
+      cmd.window.avision.bitset1 |= AVISION_FILTER_GREEN << 3;
+    else
+     cmd.window.avision.bitset1 |= AVISION_FILTER_NONE << 3;
+  }
   
   debug_print_window_descriptor (5, "set_window", &(cmd.window));
   
@@ -5278,7 +5469,8 @@ do_eof (Avision_Scanner *s)
   
   DBG (3, "do_eof:\n");
   
-  s->param_cksum = create_cksum (s);
+  s->prepared = s->scanning = SANE_FALSE;
+  
   /* we can now mark the rear data as valid */
   if (s->avdimen.interlaced_duplex) {
     DBG (3, "do_eof: toggling duplex rear data valid\n");
@@ -5287,19 +5479,17 @@ do_eof (Avision_Scanner *s)
 	 s->duplex_rear_valid);
   }
   
-  if (s->pipe >= 0) {
-    close (s->pipe);
-    s->pipe = -1;
+  if (s->read_fds >= 0) {
+    close (s->read_fds);
+    s->read_fds = -1;
   }
   
   /* join our processes - without a wait() you will produce defunct
      childs */
   sanei_thread_waitpid (s->reader_pid, &exit_status);
-
   s->reader_pid = 0;
 
   DBG (3, "do_eof: returning %d\n", exit_status);
-  
   return (SANE_Status)exit_status;
 }
 
@@ -5308,9 +5498,7 @@ do_cancel (Avision_Scanner* s)
 {
   DBG (3, "do_cancel:\n");
   
-  /* TODO: reuse do_eof? */
-  
-  s->scanning = SANE_FALSE;
+  s->prepared = s->scanning = SANE_FALSE;
   s->duplex_rear_valid = SANE_FALSE;
   
   if (s->reader_pid > 0) {
@@ -5375,8 +5563,8 @@ init_options (Avision_Scanner* s)
     case AV_ASIC_C5:
       dev->dpi_range.min = 80;
       break;
-    case AV_ASIC_C6: /* TODO: AV610 in ADF mode does not scan less */
-      dev->dpi_range.min = 175;
+    case AV_ASIC_C6: /* TODO: AV610 in ADF mode does not scan less than 180 or so */
+      dev->dpi_range.min = 50;
       break;
     default:
       dev->dpi_range.min = 50;
@@ -5657,6 +5845,31 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_FRAME].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_FRAME].constraint.range = &dev->frame_range;
   s->val[OPT_FRAME].w = dev->current_frame;
+
+  /* power save time */
+  if (!dev->inquiry_power_save_time)
+    s->opt[OPT_POWER_SAVE_TIME].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_POWER_SAVE_TIME].name = "power-save-time";
+  s->opt[OPT_POWER_SAVE_TIME].title = "Power save timer control";
+  s->opt[OPT_POWER_SAVE_TIME].desc = "Allows control of the scanner's power save timer, dimming or turning off the light.";
+  s->opt[OPT_POWER_SAVE_TIME].type = SANE_TYPE_INT;
+  s->opt[OPT_POWER_SAVE_TIME].unit = SANE_UNIT_NONE;
+  s->opt[OPT_POWER_SAVE_TIME].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_POWER_SAVE_TIME].w = 0;
+
+  /* NVRAM */
+  if (!dev->inquiry_nvram_read)
+    s->opt[OPT_NVRAM].cap |= SANE_CAP_INACTIVE;
+  s->opt[OPT_NVRAM].cap |= SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+  s->opt[OPT_NVRAM].name = "nvram-values";
+  s->opt[OPT_NVRAM].title = "Obtain NVRAM values";
+  s->opt[OPT_NVRAM].desc = "Allows access obtaining the scanner's NVRAM values as pretty printed text.";
+  s->opt[OPT_NVRAM].type = SANE_TYPE_STRING;
+  s->opt[OPT_NVRAM].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NVRAM].size = 1024;
+  s->opt[OPT_NVRAM].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_NVRAM].s = malloc(s->opt[OPT_NVRAM].size);
+  s->val[OPT_NVRAM].s[0] = 0;
   
   return SANE_STATUS_GOOD;
 }
@@ -5676,12 +5889,12 @@ static int
 reader_process (void *data)
 {
   struct Avision_Scanner *s = (struct Avision_Scanner *) data;
-  int fd = s->reader_fds;
+  int fd = s->write_fds;
 
   Avision_Device* dev = s->hw;
   
   SANE_Status status;
-  SANE_Status exit_status;
+  SANE_Status exit_status = SANE_STATUS_GOOD;
   sigset_t sigterm_set;
   sigset_t ignore_set;
   struct SIGACTION act;
@@ -5690,25 +5903,28 @@ reader_process (void *data)
   FILE* rear_fp = 0; /* used to store the deinterlaced rear data */
   
   /* the complex params */
-  size_t bytes_per_line;
-  size_t pixels_per_line;
-  size_t lines_per_stripe;
-  size_t lines_per_output;
-  size_t max_bytes_per_read;
+  unsigned int bytes_per_line;
+  unsigned int pixels_per_line;
+  unsigned int lines_per_stripe;
+  unsigned int lines_per_output;
+  unsigned int max_bytes_per_read;
   
   SANE_Bool gray_mode;
   
   /* the simple params for the data reader */
-  size_t stripe_size;
-  size_t stripe_fill;
-  size_t out_size;
+  unsigned int stripe_size;
+  unsigned int stripe_fill;
+  unsigned int out_size;
   
   size_t total_size;
   size_t processed_bytes;
   
   SANE_Bool deinterlace;
-  SANE_Bool really_deinterlace;
-  size_t stripe = 0;
+  enum {
+	STRIPE, /* every 2nd stripe */
+	HALF,	/* the 2nd half */
+	LINE	/* every 2nd line */
+  } deinterlace_type;
   
   /* the fat strip we currently puzzle together to perform software-colorpack
      and more */
@@ -5719,7 +5935,7 @@ reader_process (void *data)
   DBG (3, "reader_process:\n");
   
   if (sanei_thread_is_forked())
-    close (s->pipe);
+    close (s->read_fds);
   
   sigfillset (&ignore_set);
   sigdelset (&ignore_set, SIGTERM);
@@ -5735,13 +5951,14 @@ reader_process (void *data)
   sigaddset (&sigterm_set, SIGTERM);
   
   gray_mode = color_mode_is_shaded (s->c_mode);
-  really_deinterlace = deinterlace = s->avdimen.interlaced_duplex;
-  
+
+  deinterlace = s->avdimen.interlaced_duplex;
+  deinterlace_type = STRIPE;
   if ( (dev->hw->feature_type & AV_NON_INTERLACED_DUPLEX_300) &&
-       (s->avdimen.xres < 300 && s->avdimen.yres < 300) )
-    really_deinterlace = SANE_FALSE;
-  if (deinterlace && !really_deinterlace)
-    DBG (1, "reader_process: deinterlacing disabled due to device list and res.\n");
+       (s->avdimen.xres <= 300 && s->avdimen.yres <= 300) )
+    deinterlace_type = HALF;
+  if (dev->hw->feature_type & AV_2ND_LINE_INTERLACED)
+    deinterlace_type = LINE;
 
   fp = fdopen (fd, "w");
   if (!fp)
@@ -5781,8 +5998,8 @@ reader_process (void *data)
   /* setup file i/o for deinterlacing scans */
   if (deinterlace)
     {
-      DBG (3, "reader_process: opening duplex rear file for writing.\n");
       if (!s->duplex_rear_valid) { /* create new file for writing */
+	DBG (3, "reader_process: opening duplex rear file for writing.\n");
 	rear_fp = fopen (s->duplex_rear_fname, "w");
 	if (! rear_fp) {
 	  fclose (fp);
@@ -5818,55 +6035,39 @@ reader_process (void *data)
     ;
   }
   
-  /* lines_per_stripe is either the line-difference, some ADF
-     deinterlace constant or in the remaining cases just 16 for a
-     pleasuant preview */
-  
-  if (!deinterlace) {
-    lines_per_stripe = s->avdimen.line_difference * 3 * 2;
-  }
-  else {
-    /* In theory the SPEC has a command to request the value from the scanner.
-       However in practice the AV220 does not respond to the command ... */
-    lines_per_stripe = 8;
-  }
-  
-  if (lines_per_stripe == 0) {
-    lines_per_stripe = 16;
-  }
+  /* always quite some lines to saturate the (USB) bus */
+  lines_per_stripe = AVISION_READER_STRIPE_SIZE;
   
   stripe_size = bytes_per_line * lines_per_stripe;
   lines_per_output = lines_per_stripe - s->avdimen.line_difference;
   
-  /* The "/2" might make scans faster - because it should leave some
-     space in the SCSI buffers (scanner, kernel, ...) empty to
-     read/send _ahead_ ... */
   if (s->av_con.connection_type == AV_SCSI)
+    /* maybe better not /2 ... */
     max_bytes_per_read = dev->scsi_buffer_size / 2;
-  else {
-    max_bytes_per_read = (0x10000 / bytes_per_line) * bytes_per_line;
-  }
+  else 
+    /* 1MB, vast buffer size to saturate the bus */
+    max_bytes_per_read = 0x100000;
   
   out_size = bytes_per_line * lines_per_output;
   
   DBG (3, "dev->scsi_buffer_size / 2: %d\n",
        dev->scsi_buffer_size / 2);
   
-  DBG (3, "bytes_per_line: %lu, pixels_per_line: %lu\n",
-       (u_long) bytes_per_line, (u_long) pixels_per_line);
+  DBG (3, "bytes_per_line: %d, pixels_per_line: %d\n",
+       bytes_per_line, pixels_per_line);
   
-  DBG (3, "lines_per_stripe: %lu, lines_per_output: %lu\n",
-       (u_long) lines_per_stripe, (u_long) lines_per_output);
+  DBG (3, "lines_per_stripe: %d, lines_per_output: %d\n",
+       lines_per_stripe, lines_per_output);
   
-  DBG (3, "max_bytes_per_read: %lu, stripe_size: %lu, out_size: %lu\n",
-       (u_long) max_bytes_per_read, (u_long) stripe_size, (u_long) out_size);
+  DBG (3, "max_bytes_per_read: %d, stripe_size: %d, out_size: %d\n",
+       max_bytes_per_read, stripe_size, out_size);
   
   stripe_data = malloc (stripe_size);
   out_data = malloc (out_size);
   
   s->line = 0;
   
-  /* calculate params for the simple reader */
+  /* calculate params for the reading loop */
   total_size = bytes_per_line * (s->params.lines +
                                  2 * s->avdimen.line_difference);
   if (deinterlace && !s->duplex_rear_valid)
@@ -5878,13 +6079,14 @@ reader_process (void *data)
   
   /* Data read loop until all data has been processed.  Might exit
      before all lines are transferred for ADF paper end. */
-  while (processed_bytes < total_size)
+  while (exit_status == SANE_STATUS_GOOD && processed_bytes < total_size)
     {
-      int useful_bytes;
+      unsigned int useful_bytes;
       
-      /* fill the stripe buffer with real data*/
+      /* fill the stripe buffer with real data */
       while (!s->duplex_rear_valid &&
-	     processed_bytes < total_size && stripe_fill < stripe_size)
+	     processed_bytes < total_size && stripe_fill < stripe_size &&
+             exit_status  == SANE_STATUS_GOOD)
 	{
 	  size_t this_read = stripe_size - stripe_fill;
 	  
@@ -5901,9 +6103,7 @@ reader_process (void *data)
 
 	  DBG (5, "reader_process: processed_bytes: %lu, total_size: %lu\n",
 	       (u_long) processed_bytes, (u_long) total_size);
-	  
-	  DBG (5, "reader_process: this_read: %lu\n",
-	       (u_long) this_read);
+	  DBG (5, "reader_process: this_read: %lu\n", (u_long) this_read);
 
 	  sigprocmask (SIG_BLOCK, &sigterm_set, 0);
 	  status = read_data (s, stripe_data + stripe_fill, &this_read);
@@ -5912,14 +6112,12 @@ reader_process (void *data)
 	  if (status == SANE_STATUS_EOF || this_read == 0) {
 	    DBG (1, "reader_process: read_data failed due to EOF\n");
 	    exit_status = SANE_STATUS_EOF;
-	    goto cleanup;
 	  }
 	  
 	  if (status != SANE_STATUS_GOOD) {
 	    DBG (1, "reader_process: read_data failed with status: %d\n",
 		 status);
 	    exit_status = status;
-	    goto cleanup;
 	  }
           
 	  stripe_fill += this_read;
@@ -5941,47 +6139,57 @@ reader_process (void *data)
 	  
 	  DBG (5, "reader_process: virtual processed_bytes: %lu, total_size: %lu\n",
 	       (u_long) processed_bytes, (u_long) total_size);
-	  
-	  DBG (5, "reader_process: virtual this_read: %lu\n",
-	       (u_long) this_read);
+	  DBG (5, "reader_process: virtual this_read: %lu\n", (u_long) this_read);
 	  
 	  got = fread (stripe_data + stripe_fill, 1, this_read, rear_fp);
 	  if (got != this_read) {
 	    exit_status = SANE_STATUS_EOF;
-	    goto cleanup;
 	  }
           
 	  stripe_fill += this_read;
 	  processed_bytes += this_read;
 	}
       
-      DBG (5, "reader_process: stripe filled\n");
+      DBG (5, "reader_process: stripe filled: %d\n", stripe_fill);
       
       useful_bytes = stripe_fill;
 
-      if (s->c_mode == AV_TRUECOLOR || s->c_mode == AV_TRUECOLOR16)
+      if (color_mode_is_color (s->c_mode))
 	useful_bytes -= 2 * s->avdimen.line_difference * bytes_per_line;
       
       DBG (3, "reader_process: useful_bytes %i\n", useful_bytes);
       
-      /* Save the rear stripes to deinterlace. For some scanners
+      /* Deinterlace, save the rear stripes. For some scanners
        (AV220) that is every 2nd stripe - for others (AV83xx) this is
        the 2nd half of the transferred data. */
       if (deinterlace && !s->duplex_rear_valid)
 	{
-	  /* for some scanners up to 300 dpi are not deinterlaced */
-	  if ( (really_deinterlace && stripe % 2) ||
-	       (!really_deinterlace && processed_bytes > total_size/2) )
+	  /* for all lines we have in the buffer: */
+	  unsigned int absline = (processed_bytes - stripe_fill) / bytes_per_line;
+	  unsigned int abslines = absline + useful_bytes / bytes_per_line;
+	  u_int8_t* ptr = stripe_data;
+	  for ( ; absline < abslines; ++absline)
 	    {
-	      DBG (5, "reader_process: rear stripe -> saving to temporary file.\n");
-	      fwrite (stripe_data, bytes_per_line,
-		    useful_bytes / bytes_per_line, rear_fp);
-	      
-	      stripe_fill -= useful_bytes;
-	      /* TODO: copy remaining data, if any, to the front for line
-		 diff compensation */
-	      goto iteration_end;
-	    }
+	      DBG (9, "reader_process: deinterlacing line %d\n", absline);
+	      /* interlaced? save the back data to the rear buffer */
+	      if ( (deinterlace_type == STRIPE && absline % (lines_per_stripe*2) >= lines_per_stripe) ||
+		   (deinterlace_type == HALF   && absline >= total_size / bytes_per_line / 2) ||
+                   (deinterlace_type == LINE   && absline & 0x1) ) /* last bit equals % 2 */
+		{
+		  DBG (9, "reader_process: saving rear line %d to temporary file.\n", absline);
+		  fwrite (ptr, bytes_per_line, 1, rear_fp);
+		  if (deinterlace_type == LINE)
+		    memmove (ptr, ptr+bytes_per_line, stripe_data + stripe_fill - ptr - bytes_per_line);
+		  else
+		    ptr += bytes_per_line;
+		  useful_bytes -= bytes_per_line;
+		  stripe_fill -= bytes_per_line;
+		}
+		else
+			ptr += bytes_per_line;
+ 	    }
+	  DBG (9, "reader_process: after deinterlacing: useful_bytes: %d, stripe_fill: %d\n",
+	       useful_bytes, stripe_fill);
 	}
       
       /*
@@ -5996,12 +6204,12 @@ reader_process (void *data)
 	}
       else /* AV_TRUECOLOR* */
 	{
-	  /* WARNING: DO NOT MODIFY MY (HOPEFULLY WELL) OPTMIZED
+	  /* WARNING: DO NOT MODIFY MY (HOPEFULLY WELL) OPTIMIZED
 	     ALGORITHMS BELOW, WITHOUT UNDERSTANDING THEM FULLY ! */
 	  if (s->avdimen.line_difference > 0) /* color-pack */
 	    {
 	      /* TODO: add 16bit per sample code? */
-	      int i;
+	      unsigned int i;
 	      int c_offset = s->avdimen.line_difference * bytes_per_line;
 	      
 	      u_int8_t* r_ptr = stripe_data;
@@ -6050,11 +6258,11 @@ reader_process (void *data)
 	  {
 	    /* Mirroring with bgr -> rgb convertion: Just mirror the
 	     * whole line */
-	    
+
 	    int l;
 	    int lines = useful_bytes / bytes_per_line;
-	    
-	    for (l = 0; l < lines; ++ l)
+
+	    for (l = 0; l < lines; ++l)
 	      {
 		u_int8_t* begin_ptr = out_data + (l * bytes_per_line);
 		u_int8_t* end_ptr = begin_ptr + bytes_per_line;
@@ -6073,11 +6281,11 @@ reader_process (void *data)
 	    
 	    int l;
 	    int lines = useful_bytes / bytes_per_line;
-	    
-	    for (l = 0; l < lines; ++ l)
+
+	    for (l = 0; l < lines; ++l)
 	      {
 		u_int8_t* begin_ptr = out_data + (l * bytes_per_line);
-		u_int8_t* end_ptr = begin_ptr + bytes_per_line - 2;
+		u_int8_t* end_ptr = begin_ptr + bytes_per_line - 3;
 		
 		while (begin_ptr < end_ptr) {
 		  u_int8_t tmp;
@@ -6153,7 +6361,7 @@ reader_process (void *data)
       /* I know that the next lines are broken if not a multiple of
 	 bytes_per_line are in the buffer. Shouldn't happen ... */
       fwrite (out_data, bytes_per_line, useful_bytes / bytes_per_line, fp);
-      
+	  
       /* save image date in stripe buffer for next next stripe */
       stripe_fill -= useful_bytes;
       if (stripe_fill > 0)
@@ -6161,17 +6369,12 @@ reader_process (void *data)
       
       s->line += useful_bytes / bytes_per_line;
       
-    iteration_end:
       DBG (3, "reader_process: end of iteration\n");
-      ++stripe;
     } /* end while not all lines or inf. mode */
   
-  DBG (3, "reader_process: regular i/o loop finished\n");
-  exit_status = SANE_STATUS_EOF;
-  
- cleanup:
-  
-  DBG (3, "reader_process: cleanup\n");
+  DBG (3, "reader_process: i/o loop finished\n");
+  if (exit_status == SANE_STATUS_GOOD)
+    exit_status = SANE_STATUS_EOF;
   
   /* maybe we need to fill in some white data */
   if (exit_status == SANE_STATUS_EOF && s->line < s->params.lines) {
@@ -6321,6 +6524,11 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 		     linenumber);
 		disable_calibration = SANE_TRUE;
 	      }
+	      else if (strcmp (word, "force-calibration") == 0) {
+		DBG (3, "sane_init: config file line %d: force-calibration\n",
+		     linenumber);
+		force_calibration = SANE_TRUE;
+	      }
 	      else if (strcmp (word, "force-a4") == 0) {
 		DBG (3, "sane_init: config file line %d: enabling force-a4\n",
 		     linenumber);
@@ -6384,13 +6592,18 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 	free (word);
     } /* end if fp */
   
-  /* search for all supported USB devices */
+  /* search for all supported SCSI/USB devices */
   while (Avision_Device_List [model_num].scsi_mfg != NULL)
     {
-      attaching_hw = 0;
       /* also potentionally accessed in the attach_* callbacks */
       attaching_hw = &(Avision_Device_List [model_num]);
-      if (attaching_hw->usb_vendor != 0 && attaching_hw->usb_product != 0 )
+	  
+	  sanei_scsi_find_devices (attaching_hw->scsi_mfg,
+				               attaching_hw->scsi_model, NULL,
+				               -1, -1, -1, -1,
+				               attach_one_scsi);
+      
+	if (attaching_hw->usb_vendor != 0 && attaching_hw->usb_product != 0 )
 	{
 	  DBG (1, "sane_init: Trying to find USB device %x %x ...\n",
 	       attaching_hw->usb_vendor,
@@ -6463,6 +6676,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   SANE_Status status;
   Avision_Scanner* s;
   int i, j;
+  u_int8_t inquiry_result[AVISION_INQUIRY_SIZE];
 
   DBG (3, "sane_open:\n");
   
@@ -6497,7 +6711,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s->av_con.scsi_fd = -1;
   s->av_con.usb_dn = -1;
   
-  s->pipe = -1;
+  s->read_fds = -1;
   s->hw = dev;
   
   /* We initilize the table to a gamma value of 2.22, since this is what
@@ -6539,6 +6753,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
     DBG (1, "sane_open: got %d scsi_max_request_size\n", dev->scsi_buffer_size);
   }
   
+  /* first: re-awake the device with an inquiry, some devices are flunk while initializing
+     the usb connection and like a inquiry to come first ... (AV610 et.al.) */
+  status = inquiry (s->av_con, inquiry_result, sizeof(inquiry_result));
+  if (status != SANE_STATUS_GOOD) {
+	DBG (1, "sane_open: awakening inquiry failed: %s\n", sane_strstatus (status));
+	return status;
+  }
+
   /* maybe probe for additional information */
   if (dev->additional_probe)
     {
@@ -6582,7 +6804,7 @@ sane_close (SANE_Handle handle)
   Avision_Scanner* s = handle;
   int i;
 
-  DBG (3, "sane_close:\n\n");
+  DBG (3, "sane_close:\n");
   
   /* close the device */
   if (avision_is_open (&s->av_con) ) {
@@ -6688,11 +6910,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_QSCAN:
 	case OPT_QCALIB:
 	case OPT_FRAME:
-	  
 	  *(SANE_Word*) val = s->val[option].w;
 	  return SANE_STATUS_GOOD;
 	  
 	  /* specially treated word options */
+	
+	case OPT_POWER_SAVE_TIME:
+	  get_power_save_time (s, &(s->val[option].w));
+	  *(SANE_Word*) val = s->val[option].w;
+	  return SANE_STATUS_GOOD;
+	  
 	case OPT_BUTTON_0:
           /* I would like to return _INVALID for buttons not present
              however xsane querries them all :-( */
@@ -6727,6 +6954,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_MESSAGE:
 	  strcpy (val, s->val[option].s);
 	  return SANE_STATUS_GOOD;
+
+	case OPT_NVRAM:
+	  get_and_parse_nvram (s, s->val[option].s, 1024);
+	  
+	  strcpy (val, s->val[option].s);
+	  return SANE_STATUS_GOOD;
+	  
 	} /* end switch option */
     } /* end if GET_ACTION_GET_VALUE */
   else if (action == SANE_ACTION_SET_VALUE)
@@ -6836,6 +7070,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	    return status;
 	  }
+	case OPT_POWER_SAVE_TIME:
+	  {
+	    SANE_Word time = *((SANE_Word  *) val);
+
+	    status = set_power_save_time (s, time);
+	    if (status == SANE_STATUS_GOOD)
+	      s->val[OPT_POWER_SAVE_TIME].w = time;
+	    return status;
+	  }
 	} /* end switch option */
     } /* end else SET_VALUE */
   return SANE_STATUS_INVAL;
@@ -6891,7 +7134,6 @@ sane_start (SANE_Handle handle)
   DBG (1, "sane_start:\n");
   
   /* Make sure there is no scan running!!! */
-  
   if (s->scanning)
     return SANE_STATUS_DEVICE_BUSY;
  
@@ -6920,6 +7162,18 @@ sane_start (SANE_Handle handle)
   
   if (s->duplex_rear_valid) {
     DBG (1, "sane_start: virtual duplex rear data valid.\n");
+
+#ifdef AVISION_ENHANCED_SANE
+    /* only continue the 2nd time */
+    if (s->prepared == SANE_FALSE) {
+      s->prepared = SANE_TRUE;
+	  DBG (1, "sane_start: scan prepared, leaving for now.\n");
+	  return SANE_STATUS_GOOD;
+    }
+    else
+  	  DBG (1, "sane_start: scan prepared, leaving for now.\n");
+#endif
+
     goto start_scan_end;
   }
   
@@ -6936,7 +7190,16 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: media_check ok\n");
   }
   
-#ifndef AVISION_ENHANCED_SANE
+  /* Check the light early, to return to the GUI and notify the user. */
+  if (s->prepared == SANE_FALSE) {
+    if (dev->inquiry_light_control) {
+      status = wait_4_light (s);
+      if (status != SANE_STATUS_GOOD) {
+        return status;
+      }
+    }
+  }
+
   if (param_cksum == s->param_cksum && dev->inquiry_keeps_window)
      DBG (1, "sane_start: Optimized set_window away.\n");
   else
@@ -6948,32 +7211,7 @@ sane_start (SANE_Handle handle)
       goto stop_scanner_and_return;
     }
   }
-#endif
-  
-  /* Check the light early, to return to the GUI and notify the user. */
-  if (param_cksum != s->param_cksum) {
-    if (dev->inquiry_light_control) {
-      status = wait_4_light (s);
-      if (status != SANE_STATUS_GOOD) {
-        return status;
-      }
-    }
-  }
 
-#ifdef AVISION_ENHANCED_SANE
-  if (param_cksum == s->param_cksum && dev->inquiry_keeps_window)
-    DBG (1, "sane_start: Optimized set_window away.\n");
-  else
-  {
-    status = set_window (s);
-    if (status != SANE_STATUS_GOOD) {
-      DBG (1, "sane_start: set scan window command failed: %s\n",
-	   sane_strstatus (status));
-      goto stop_scanner_and_return;
-    }
-  }
-#endif
-  
 #ifdef DEBUG_TEST
   /* debug window size test ... */
   if (dev->inquiry_new_protocol)
@@ -6996,20 +7234,23 @@ sane_start (SANE_Handle handle)
     }
 #endif
 
-#ifdef PARANOID
-  status = wait_ready (&s->av_con);
-  
-  if (status != SANE_STATUS_GOOD) {
-    DBG (1, "sane_start wait_ready() failed: %s\n", sane_strstatus (status));
-    goto stop_scanner_and_return;
+#ifdef AVISION_ENHANCED_SANE
+  /* only continue the 2nd time */
+  if (s->prepared == SANE_FALSE) {
+    s->prepared = SANE_TRUE;
+	DBG (1, "sane_start: scan prepared, leaving for now.\n");
+	return SANE_STATUS_GOOD;
   }
+  else
+  	DBG (1, "sane_start: scan prepared, leaving for now.\n");
 #endif
 
- /* if (param_cksum == s->param_cksum) {
-    DBG (1, "sane_start: Optimized calibration away.\n");
-    goto calib_end;
-  } */
-  
+  /* check whether the user enforces calibration */
+  if (force_calibration) {
+    DBG (1, "sane_start: calibration enforced in config!\n");
+    goto calib;
+  }
+
   /* Only perform the calibration for newer scanners - it is not needed
      for my Avision AV 630 - and also does not even work ... */
   if (!dev->inquiry_new_protocol) {
@@ -7034,12 +7275,11 @@ sane_start (SANE_Handle handle)
     goto calib_end;
   }
   
-  /* TODO: do the calibration here if the user asks for it? */ 
-  
   /* R² reminder: We must not skip the calibration for ADF scans, some
      scanner (HP 53xx/74xx ASIC series) rely on a calibration data
      read (and will hang otherwise) */
-  
+
+ calib:
   status = normal_calibration (s);
   
   if (status != SANE_STATUS_GOOD) {
@@ -7051,7 +7291,8 @@ sane_start (SANE_Handle handle)
  calib_end:
   
   if (dev->inquiry_3x3_matrix && dev->inquiry_asic_type >= AV_ASIC_C5 &&
-      param_cksum != s->param_cksum && !(dev->hw->feature_type & AV_NO_MATRIX) ) {
+      param_cksum != s->param_cksum && !(dev->hw->feature_type & AV_NO_MATRIX) )
+  {
     status = send_3x3_matrix (s);
     if (status != SANE_STATUS_GOOD) {
       return status;
@@ -7065,7 +7306,7 @@ sane_start (SANE_Handle handle)
   }
 
   if (param_cksum == s->param_cksum && dev->inquiry_keeps_gamma)
-    DBG (1, "sane_start: Optimized send_gama away.\n");
+    DBG (1, "sane_start: Optimized send_gamma away.\n");
   else
   {
     status = send_gamma (s);
@@ -7096,25 +7337,24 @@ sane_start (SANE_Handle handle)
  start_scan_end:
   
   s->scanning = SANE_TRUE;
+  s->param_cksum = param_cksum; /* now the scanner is setup, can be reused */
   
   if (pipe (fds) < 0) {
     return SANE_STATUS_IO_ERROR;
   }
   
-  s->pipe = fds[0];
-  s->reader_fds = fds[1];
-  
-#ifdef AVISION_ENHANCED_SANE
+  s->read_fds = fds[0];
+  s->write_fds = fds[1];
+
   s->reader_pid = 0; /* the thread will be started uppon the first read */
-#else
+
   /* create reader routine as new process or thread */
   DBG (3, "sane_start: starting thread\n");
   s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
   
   if (sanei_thread_is_forked())
-    close (s->reader_fds);
-#endif
-  
+	close (s->write_fds);
+ 
   return SANE_STATUS_GOOD;
   
  stop_scanner_and_return:
@@ -7130,23 +7370,11 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
 {
   Avision_Scanner* s = handle;
   ssize_t nread;
-
-#ifdef AVISION_ENHANCED_SANE
-  /* create reader routine as new process or thread */
-  if (s->reader_pid == 0) {
-    DBG (3, "sane_read: starting thread\n");
-    s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
-  
-    if (sanei_thread_is_forked())
-      close (s->reader_fds);
-  }
-#endif
-  
-  DBG (8, "sane_read: max_len: %d\n", max_len);
-
   *len = 0;
 
-  nread = read (s->pipe, buf, max_len);
+  DBG (8, "sane_read: max_len: %d\n", max_len);
+
+  nread = read (s->read_fds, buf, max_len);
   if (nread > 0) {
     DBG (8, "sane_read: got %ld bytes\n", (long) nread);
   }
@@ -7168,11 +7396,10 @@ sane_read (SANE_Handle handle, SANE_Byte* buf, SANE_Int max_len, SANE_Int* len)
   
   *len = nread;
   
-  /* if all data is passed through */
-  if (nread == 0) {
-    s->scanning = SANE_FALSE;
+  /* if all data was passed through */
+  if (nread == 0)
     return do_eof (s);
-  }
+
   return SANE_STATUS_GOOD;
 }
 
@@ -7180,9 +7407,18 @@ void
 sane_cancel (SANE_Handle handle)
 {
   Avision_Scanner* s = handle;
-  
   DBG (3, "sane_cancel:\n");
-  
+
+#ifdef AVISION_ENHANCED_SANE
+  /* really start already? */
+  if (s->scanning == SANE_FALSE) {
+    DBG (3, "sane_cancel: The scan was not yet initiated, just resetting state.\n");
+    s->prepared = SANE_FALSE;
+	return;
+  }
+  DBG (3, "sane_cancel: Really cancelling.\n");
+#endif
+
   if (s->scanning)
     do_cancel (s);
 }
@@ -7198,7 +7434,7 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
     return SANE_STATUS_INVAL;
   }
   
-  if (fcntl (s->pipe, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
+  if (fcntl (s->read_fds, F_SETFL, non_blocking ? O_NONBLOCK : 0) < 0)
     return SANE_STATUS_IO_ERROR;
   
   return SANE_STATUS_GOOD;
@@ -7216,7 +7452,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int* fd)
     return SANE_STATUS_INVAL;
   }
   
-  *fd = s->pipe;
+  *fd = s->read_fds;
   return SANE_STATUS_GOOD;
 }
 

@@ -1,3 +1,19 @@
+2006-06-06 Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.c backend/avision.h backend/avision.conf.in
+	  doc/descriptions/avision.desc doc/sane-avision.man: updated the
+	  Avision backend (Build 182 -> 201), including a lot fixes,
+	  some new features and support for a bunch of new devices and updates
+	  to the status marks, including: control of the lamp power-save time,
+	  retrieval of NVRAM data such as the scan counts and serial number,
+	  correction of the quality vs. preview scan bit (was inverted),
+	  fixes for the logic deciding whether the cached window parameters
+	  are valid, yet another deinterlacing method (for new scanner
+	  models), rewritten main loop to be able to read with larger
+	  USB buffers for enhanced scan speed, fixes of BGR -> RGB mirroring
+	  (was off-by-one), attaching without a config by probing all
+	  known SCSI vendor/product IDs and some fixed typos on the way
+
 2006-05-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: updated with translation

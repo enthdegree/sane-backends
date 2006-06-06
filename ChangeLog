@@ -14,10 +14,11 @@
 	  (was off-by-one), attaching without a config by probing all
 	  known SCSI vendor/product IDs and some fixed typos on the way
 
-2006-05-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
+2006-06-06  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: updated with translation
 	  keys from stv680 backand
+	* backend/Makefile.in: Fix stv680 dependencies
 
 2006-06-05 Gerard Klaver <gerard at gkall dot hobby dot nl>
 

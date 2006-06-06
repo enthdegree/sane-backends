@@ -486,7 +486,6 @@ libsane-sp15c.la: ../sanei/sanei_thread.lo
 libsane-st400.la: ../sanei/sanei_config2.lo
 libsane-st400.la: ../sanei/sanei_constrain_value.lo
 libsane-st400.la: ../sanei/sanei_scsi.lo
-libsane-stv680.la: ../sanei/sanei_config2.lo
 libsane-stv680.la: ../sanei/sanei_constrain_value.lo
 libsane-stv680.la: ../sanei/sanei_usb.lo
 libsane-tamarack.la: ../sanei/sanei_config2.lo

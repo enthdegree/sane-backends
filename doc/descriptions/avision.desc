@@ -126,7 +126,7 @@
 
 :model "AM3000 Series"
 :interface "USB"
-:usbid "0x0638" "0xa41"
+:usbid "0x0638" "0x0a41"
 :comment "MFD"
 :status :basic
 

@@ -914,7 +914,7 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="good" */
 
    { "AVISION", "AM3000 Series", 
-     0x0638, 0xa41,
+     0x0638, 0x0a41,
      "Avision", "AM3000 Series",
       0},
     /* comment="MFD" */

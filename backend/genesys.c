@@ -91,6 +91,13 @@ static SANE_String_Const mode_list[] = {
   0
 };
 
+static SANE_String_Const color_filter_list[] = {
+  SANE_I18N ("Red"),
+  SANE_I18N ("Green"),
+  SANE_I18N ("Blue"),
+  0
+};
+
 static SANE_String_Const source_list[] = {
   SANE_I18N ("Flatbed"),
   SANE_I18N ("Transparency Adapter"),
@@ -4361,13 +4368,14 @@ max_string_size (const SANE_String_Const strings[])
 static SANE_Status
 calc_parameters (Genesys_Scanner * s)
 {
-  SANE_String mode, source;
+  SANE_String mode, source, color_filter;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int depth = 0, resolution = 0;
   double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
   mode = s->val[OPT_MODE].s;
   source = s->val[OPT_SOURCE].s;
+  color_filter = s->val[OPT_COLOR_FILTER].s;
   depth = s->val[OPT_BIT_DEPTH].w;
   resolution = s->val[OPT_RESOLUTION].w;
   tl_x = SANE_UNFIX (s->val[OPT_TL_X].w);
@@ -4389,8 +4397,12 @@ calc_parameters (Genesys_Scanner * s)
   s->dev->settings.depth = depth;
 
 
+  /* interpolation */
+  s->dev->settings.disable_interpolation = s->val[OPT_DISABLE_INTERPOLATION].w == SANE_TRUE;
+
   /* Hardware settings */
-  if (resolution > s->dev->sensor.optical_res)
+  if (resolution > s->dev->sensor.optical_res && 
+      s->dev->settings.disable_interpolation)
     s->dev->settings.xres = s->dev->sensor.optical_res;
   else
     s->dev->settings.xres = resolution;
@@ -4440,6 +4452,14 @@ calc_parameters (Genesys_Scanner * s)
 
   /* threshold setting */
   s->dev->settings.threshold = 2.55 * (SANE_UNFIX (s->val[OPT_THRESHOLD].w));
+
+  /* color filter */
+  if (strcmp(color_filter, "Red") == 0) 
+    s->dev->settings.color_filter = 0;
+  else if (strcmp(color_filter, "Blue") == 0) 
+    s->dev->settings.color_filter = 2;
+  else
+    s->dev->settings.color_filter = 1;  
 
   return status;
 }
@@ -4629,6 +4649,30 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
   s->val[OPT_THRESHOLD].w = SANE_FIX(50);
+
+  /* disable_interpolation */
+  s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
+  s->opt[OPT_DISABLE_INTERPOLATION].title = SANE_I18N("Disable interpolation");
+  s->opt[OPT_DISABLE_INTERPOLATION].desc = 
+    SANE_I18N
+    ("When using high resolutions where the horizontal resolution is smaller "
+     "than the vertical resolution this disables horizontal interpolation.");
+  s->opt[OPT_DISABLE_INTERPOLATION].type = SANE_TYPE_BOOL;
+  s->opt[OPT_DISABLE_INTERPOLATION].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DISABLE_INTERPOLATION].constraint_type = SANE_CONSTRAINT_NONE;
+  s->val[OPT_DISABLE_INTERPOLATION].w = SANE_FALSE;
+
+  /* color filter */
+  s->opt[OPT_COLOR_FILTER].name = "color-filter";
+  s->opt[OPT_COLOR_FILTER].title = SANE_I18N("Color Filter");
+  s->opt[OPT_COLOR_FILTER].desc = 
+    SANE_I18N
+    ("When using gray or lineart this option selects the used color.");
+  s->opt[OPT_COLOR_FILTER].type = SANE_TYPE_STRING;
+  s->opt[OPT_COLOR_FILTER].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_COLOR_FILTER].size = max_string_size (color_filter_list);
+  s->opt[OPT_COLOR_FILTER].constraint.string_list = color_filter_list;
+  s->val[OPT_COLOR_FILTER].s = strdup("Green");
 
   /* Powersave time (turn lamp off) */
   s->opt[OPT_LAMP_OFF_TIME].name = "lamp-off-time";
@@ -5162,13 +5206,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	case OPT_THRESHOLD:
+	case OPT_DISABLE_INTERPOLATION:
 	case OPT_LAMP_OFF_TIME:
 	  *(SANE_Word *) val = s->val[option].w;
 	  break;
 	  /* string options: */
 	case OPT_MODE:
-	  strcpy (val, s->val[option].s);
-	  break;
+	case OPT_COLOR_FILTER:
 	case OPT_SOURCE:
 	  strcpy (val, s->val[option].s);
 	  break;
@@ -5209,6 +5253,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_RESOLUTION:
 	case OPT_BIT_DEPTH:
 	case OPT_THRESHOLD:
+	case OPT_DISABLE_INTERPOLATION:
 	case OPT_PREVIEW:
 	  s->val[option].w = *(SANE_Word *) val;
 	  RIE (calc_parameters (s));
@@ -5245,14 +5290,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      ENABLE (OPT_THRESHOLD); 
 	      DISABLE (OPT_BIT_DEPTH);
+	      ENABLE (OPT_COLOR_FILTER);
 	    }
 	  else
 	    {
 	      DISABLE (OPT_THRESHOLD);
-	      if (strcmp (s->val[option].s, "Gray") == 0)
+	      if (strcmp (s->val[option].s, "Gray") == 0) {
+		ENABLE (OPT_COLOR_FILTER);
 		create_bpp_list (s, s->dev->model->bpp_gray_values);
-	      else
+	      } else {
+		DISABLE (OPT_COLOR_FILTER);
 		create_bpp_list (s, s->dev->model->bpp_color_values);
+	      }
 	      if (s->bpp_list[0] < 2)
 		DISABLE (OPT_BIT_DEPTH);
 	      else
@@ -5261,6 +5310,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  RIE (calc_parameters (s));
 	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  break;
+	case OPT_COLOR_FILTER:
+	  if (s->val[option].s)
+	    free (s->val[option].s);
+	  s->val[option].s = strdup (val);
+	  RIE (calc_parameters (s));
+	  break;  
 	case OPT_LAMP_OFF_TIME:
 	  if (*(SANE_Word *) val != s->val[option].w)
 	    {

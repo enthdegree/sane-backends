@@ -84,6 +84,8 @@ enum Genesys_Option
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
   OPT_THRESHOLD,
+  OPT_DISABLE_INTERPOLATION,
+  OPT_COLOR_FILTER,
   /* must come last: */
   NUM_OPTIONS
 };

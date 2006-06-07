@@ -1524,9 +1524,9 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   int start_address;
   SANE_Status status;
   u_int8_t *table;
-#ifdef WORDS_BIGENDIAN
+/*#ifdef WORDS_BIGENDIAN*/
   int i;
-#endif
+/*#endif*/
 
   DBG (DBG_proc, "gl841_send_slope_table (table_nr = %d, steps = %d)\n",
        table_nr, steps);
@@ -1542,23 +1542,23 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
   else				/* reserved */
     return SANE_STATUS_INVAL;
 
-#ifdef WORDS_BIGENDIAN
+/*#ifdef WORDS_BIGENDIAN*/
   table = (u_int8_t*)malloc(steps * 2);
   for(i = 0; i < steps; i++) {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
   }
-#else
+/*#else
   table = (u_int8_t*)slope_table;
-#endif
+  #endif*/
 
   status =
     sanei_genesys_set_buffer_address (dev, start_address + table_nr * 0x200);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
+/*#ifdef WORDS_BIGENDIAN*/
       free(table);
-#endif
+/*#endif*/
       DBG (DBG_error,
 	   "gl841_send_slope_table: failed to set buffer address: %s\n",
 	   sane_strstatus (status));
@@ -1570,18 +1570,18 @@ gl841_send_slope_table (Genesys_Device * dev, int table_nr,
 				   steps * 2);
   if (status != SANE_STATUS_GOOD)
     {
-#ifdef WORDS_BIGENDIAN
+/*#ifdef WORDS_BIGENDIAN*/
       free(table);
-#endif
+/*#endif*/
       DBG (DBG_error,
 	   "gl841_send_slope_table: failed to send slope table: %s\n",
 	   sane_strstatus (status));
       return status;
     }
 
-#ifdef WORDS_BIGENDIAN
+/*#ifdef WORDS_BIGENDIAN*/
   free(table);
-#endif
+/*#endif*/
   DBG (DBG_proc, "gl841_send_slope_table: completed\n");
   return status;
 }
@@ -2384,6 +2384,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 			     int channels,
 			     int depth,
 			     SANE_Bool half_ccd,
+			     int color_filter,
 			     int flags
     )
 {
@@ -2485,9 +2486,19 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     r->value &= ~(REG04_FILTER | REG04_AFEMOD);
     /* we could make the color filter used an advanced option of the 
        backend */
-    if (channels == 1)
-	r->value |= 0x18;	/* green filter */
-    else 
+    if (channels == 1) {
+	switch (color_filter) {
+	    case 0:
+		r->value |= 0x14;	/* red filter */
+		break;
+	    case 2:
+		r->value |= 0x1c;	/* blue filter */
+		break;
+	    default:
+		r->value |= 0x18;	/* green filter */
+		break;
+	}
+    } else 
 	r->value |= 0x10;	/* color pixel by pixel */
     
     /* enable gamma tables */
@@ -2589,6 +2600,7 @@ gl841_init_scan_regs (Genesys_Device * dev,
 		      float lines,
 		      unsigned int depth,
 		      unsigned int channels,
+		      int color_filter,
 		      unsigned int flags
 		      )
 {
@@ -2798,18 +2810,19 @@ dummy \ scanned lines
       flags |= SCAN_FLAG_DISABLE_GAMMA;
 
   status = gl841_init_optical_regs_scan(dev, 
-				   reg, 
-				   exposure_time,
-				   used_res,
-				   start, 
-				   used_pixels,
-				   channels,
-				   depth,
-				   half_ccd,
-				   ((flags & SCAN_FLAG_DISABLE_SHADING)?
-				   OPTICAL_FLAG_DISABLE_SHADING:0) |
-				   ((flags & SCAN_FLAG_DISABLE_GAMMA)?
-				   OPTICAL_FLAG_DISABLE_GAMMA:0));
+					reg, 
+					exposure_time,
+					used_res,
+					start, 
+					used_pixels,
+					channels,
+					depth,
+					half_ccd,
+					color_filter,
+					((flags & SCAN_FLAG_DISABLE_SHADING)?
+					 OPTICAL_FLAG_DISABLE_SHADING:0) |
+					((flags & SCAN_FLAG_DISABLE_GAMMA)?
+					 OPTICAL_FLAG_DISABLE_GAMMA:0));
 
   if (status != SANE_STATUS_GOOD)
       return status;
@@ -3706,6 +3719,7 @@ gl841_search_start_position (Genesys_Device * dev)
 				 dev->model->search_lines,
 				 8,
 				 1,
+				 1,/*green*/
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_IGNORE_LINE_DISTANCE |
@@ -3826,6 +3840,7 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				 20,
 				 16,
 				 channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -3891,6 +3906,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 				 dev->model->shading_lines,
 				 16,
 				 channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 /* we don't handle differing shading areas very well */
@@ -4009,6 +4025,7 @@ gl841_init_regs_for_scan (Genesys_Device * dev)
 				 dev->settings.lines,
 				 depth,
 				 channels,
+				 dev->settings.color_filter,
 				 0
       );
   
@@ -4165,6 +4182,7 @@ gl841_led_calibration (Genesys_Device * dev)
 				 1,
 				 16,
 				 channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -4355,6 +4373,7 @@ gl841_offset_calibration (Genesys_Device * dev)
 				 1,
 				 16,
 				 channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -4742,6 +4761,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 				 1,
 				 16,
 				 channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -4875,6 +4895,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
 				 1,
 				 16,
 				 *channels,
+				 dev->settings.color_filter,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |
@@ -5077,6 +5098,7 @@ gl841_init (Genesys_Device * dev)
 				 1,
 				 16,
 				 3,
+				 0,
 				 SCAN_FLAG_DISABLE_SHADING |
 				 SCAN_FLAG_DISABLE_GAMMA |
 				 SCAN_FLAG_SINGLE_LINE |

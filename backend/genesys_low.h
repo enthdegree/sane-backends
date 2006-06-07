@@ -404,6 +404,9 @@ typedef struct
 
   /* BW threshold */
   int threshold;
+
+  /* Disable interpolation for xres<yres*/
+  int disable_interpolation;
 } Genesys_Settings;
 
 typedef struct Genesys_Current_Setup

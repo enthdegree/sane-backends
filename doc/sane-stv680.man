@@ -6,30 +6,30 @@ sane-stv680 \- SANE backend for STV680 camera's
 The
 .B sane-stv680
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to some STV680 camera's. This backend
+provides access to some STV680 cameras. This backend
 should be considered
 .B beta-quality
-software! STV680 camera's are sold under
+software! STV680 cameras are sold under
 various brands like Aiptek.
 This backend may or may not support yours.
 .PP
-The camera's that should work with this backend are:
+The cameras that should work with this backend are:
 .PP
-.RS
-   Vendor Model          USB Vendor id   USB product id status
-.br
-----------------------  --------------  -----------  ----------
-.br
-  AIPTEK stv680            0x0553      0x0202        basic
-  Konica e-mini            0x04c8      0x0722      untested
-  DigitalDream l'espion XS 0x1183      0x0001      untested
-  Creative WebCam Go mini  0x041e      0x4007      untested
-.RE
+.ft CR
+.nf
+Vendor Model              USB vendor id  USB product id  status
+------------------------  -------------  --------------  --------
+AIPTEK stv680                0x0553         0x0202       basic
+Konica e-mini                0x04c8         0x0722       untested
+DigitalDream l'espion XS     0x1183         0x0001       untested
+Creative WebCam Go mini      0x041e         0x4007       untested
+.fi
+.ft R
 
-For all these camera's, see the backend home page (under AUTHOR)
+For all these cameras, see the backend home page (under AUTHOR)
 for the exact status of each scanner.
 
-For problems with the untested camera's, you
+For problems with the untested cameras, you
 should contact the author for that.
 
 The options the backend supports can either be selected through
@@ -77,23 +77,23 @@ Bayer unshuffle, color correction, textline with date and time is added
 .B --white-level-r
 Selects what red radiance level should be
 considered "white", when scanning some sheets by changing the calibration 
-value loaded into the scanner. Scale -32 .. 0..+32 in steps of 1.
+value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
 
 .TP
 .B --white-level-g
 Selects what green radiance level should be
 considered "white", when scanning some sheets by changing the calibration i
-value loaded into the scanner. Scale -32 ..0..+32 in steps of 1.
+value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
 
 .TP
 .B --white-level-b
 Selects what blue radiance level should be
 considered "white", when scanning some sheets by changing the calibration
-value loaded into the scanner. Scale -32 ..0..+32 in steps of 1.
+value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
 
 .SH CONFIGURATION FILE
 The configuration file @CONFIGDIR@/stv680.conf supports only one
-information: the device name to use (eg usb 0x.... 0x ....).
+information: the device name to use (eg usb 0x.... 0x....).
 
 
 .SH FILES
@@ -122,15 +122,18 @@ implements what the webcam can support.
 
 .SH BUGS
 
+.TP
 Plenty. Parts of this backend are still under development.
-1. Some untested camera's.
+1. Some untested cameras.
+.br
 2. Video streaming slow and stops sometimes (scanimage).
+.br
 3. Sometimes 1/3 of image is NOK (xcam).
 
 
 .SH "SEE ALSO"
 
-sane\-sane-usb(5),scanimage(1), xcam(1), sane(7)
+sane-usb(5), scanimage(1), xcam(1), sane(7)
 
 
 .SH AUTHORS
@@ -141,9 +144,11 @@ Gerard Klaver http://gkall.hobby.nl/stv680-aiptek.html
 
 .SH CREDITS
 
-Thanks to developers of the other stv680 programs:
 .TP
-STV680 kernel module, 
-pencam2 program, 
+Thanks to developers of the other stv680 programs:
+STV680 kernel module
+.br
+pencam2 program
+.br
 libghoto2 program (camlib stv0680)
 

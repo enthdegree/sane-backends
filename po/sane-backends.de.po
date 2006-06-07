@@ -2,7 +2,7 @@
 # German translation for SANE backend options
 # Copyright (C) 2002-2005 SANE Project.
 # Burma Group Karlsruhe, Heiko Schaefer <heiko@burmagroup.de>, 2002.
-# Gerhard Jaeger <gerhard@gjaeger.de>, 2002,2004, 2005.
+# Gerhard Jaeger <gerhard@gjaeger.de>, 2002-2006.
 # Henning Meier-Geinitz <henning@meier-geinitz.de>, 2002-2005.
 # Michael Herder <crapsite@gmx.net>, 2002.
 # Oliver Rauch <Oliver.Rauch@Rauch-domain.de>, 2002.
@@ -669,7 +669,7 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"Beginne mit dem Scannen erst, wenn nach dem Senden des Scankommandos des "
+"Beginne mit dem Scannen erst, wenn nach dem Senden des Scankommandos der "
 "Knopf am Scanner gedrückt wird."
 
 #: .tmp/genesys.c:96 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
@@ -1979,9 +1979,9 @@ msgid "Enables or disables calibration data cache."
 msgstr "Schaltet Kalibrierungsdatenspeicher ein oder aus."
 
 #: .tmp/plustek.c:929
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Performs calibration"
-msgstr "Grobkalibrierung"
+msgstr "Führt Kalibrierung durch"
 
 #: .tmp/plustek.c:947
 #, no-c-format

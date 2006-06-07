@@ -1,3 +1,13 @@
+2006-06-07  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* configure, configure.in, backend/Makefile.in
+	  include/sane/sanei_access.h sanei/Makefile.in
+	  sanei/sanei_access.c: Added patch created by
+	  Vitaly Lipatov <LAV AT vl3143.spb.edu>:
+	  Add --with-lockdir to configure for set path to lock dir
+	  Set PATH_SANE_LOCK_DIR really to lock dir (instead localstatedir)
+	* po/sane-backends.de.po: Update.
+
 2006-06-06  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: update to v1.0.30, init more models,
@@ -68,21 +78,20 @@
 	* doc/descriptions/fujitsu.desc: minor update
 	* doc/sane-fujitsu.man: minor text changes, note DBG levels
 
-2006-5-28  Gerhard Jaeger <gerhard@gjaeger.de>
+2006-05-28  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/sane-plustek_pp.man: Fixed typo.
-        * doc/sane-plustek.man: Update.
-        * doc/descriptions/plustek.desc: Update.
-        * backend/plustek.c backend/plustek.h backend/plustek-usb.c
-          backend/plustek-usbcal.c backend/plustek-usbcalfile.c
-          backend/plustek-usbdevs.c backend/plustek-usb.h
-          backend/plustek-usbhw.c backend/plustek-usbimg.c
-          backend/plustek-usbio.c backend/plustek-usbmap.c
-          backend/plustek-usbscan.c backend/plustek-usbshading.c:
-          Added support for CIS-based sheetfed scanners, namely
-          TravelScan662.
-          Added support for saving calibration data for CIS
-          devices - should speedup CanoScan devices.
+	* doc/sane-plustek_pp.man: Fixed typo.
+	* doc/sane-plustek.man: Update.
+	* doc/descriptions/plustek.desc: Update.
+	* backend/plustek.c backend/plustek.h backend/plustek-usb.c
+	  backend/plustek-usbcal.c backend/plustek-usbcalfile.c
+	  backend/plustek-usbdevs.c backend/plustek-usb.h
+	  backend/plustek-usbhw.c backend/plustek-usbimg.c
+	  backend/plustek-usbio.c backend/plustek-usbmap.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c:
+	  Added support for CIS-based sheetfed scanners, namely TravelScan662.
+	  Added support for saving calibration data for CIS
+	  devices - should speedup CanoScan devices.
 
 2006-05-28  Wittawat Yamwong <wittawat@web.de>
 

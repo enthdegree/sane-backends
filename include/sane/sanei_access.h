@@ -67,11 +67,11 @@ extern void sanei_access_init( const char * backend );
 /** Set a lock.
  *
  * The function tries to open/create exclusively a lock file in 
- * $PATH_SANE_LOCK_DIR/lock/sane.
+ * $PATH_SANE_LOCK_DIR.
  * If the file could be created successfully, the function fills in the
  * process ID.
  * The complete filename of the lockfile is created as follows:
- * $PATH_SANE_LOCK_DIR/lock/LCK..<devicename>
+ * $PATH_SANE_LOCK_DIR/LCK..<devicename>
  * If the lock could not be set, the function tries it until the timeout
  * period has been elapsed.
  *

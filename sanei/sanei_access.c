@@ -133,7 +133,7 @@ create_lock_filename( char *fn, const char *devname )
 {
 	char *p;
 
-	strcpy( fn, STRINGIFY(PATH_SANE_LOCK_DIR)"/lock/sane/LCK.." );
+	strcpy( fn, STRINGIFY(PATH_SANE_LOCK_DIR)"/LCK.." );
 	p = &fn[strlen(fn)];
 
 	strcat( fn, devname );

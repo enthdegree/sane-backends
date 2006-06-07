@@ -19,7 +19,7 @@ datadir = @datadir@
 sysconfdir = @sysconfdir@
 sharedstatedir = @sharedstatedir@
 localstatedir = @localstatedir@
-localstatesanedir = $(localstatedir)/lock/sane
+locksanedir = @locksanedir@
 libdir = @libdir@
 libsanedir = $(libdir)/sane
 infodir = @infodir@
@@ -255,10 +255,10 @@ install-becfg:
 	 done
 
 install-lockpath:
-	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(localstatesanedir)
+	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(locksanedir)
 
 uninstall:
-	rm -rf $(libsanedir) $(configdir) $(localstatesanedir)
+	rm -rf $(libsanedir) $(configdir) $(locksanedir)
 	rm -f $(libdir)/libsane.*
 	-for dir in $(FIRMWARE_DIRS) ; do \
 	   rmdir $(datadir)/sane/$${dir} ; \

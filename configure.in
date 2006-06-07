@@ -305,14 +305,20 @@ if test "$ac_cv_header_windows_h" = "yes" -o "$ac_cv_header_be_kernel_OS_h" = "y
   AC_SUBST(LIBTOOL_LINK_EXTRA)
 fi
 
+dnl Check for lock dir
+
+AC_ARG_WITH(lockdir, AC_HELP_STRING([--with-lockdir=DIR],
+                                    [set SANE lockdir @<:@localstatedir/lock/sane@:>@]),
+                                    [locksanedir=$withval],[locksanedir=${localstatedir}/lock/sane])
+AC_SUBST(locksanedir)
+
 dnl ***********************************************************************
 dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
-
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
-	  -DPATH_SANE_LOCK_DIR=\$(localstatedir) \
+	  -DPATH_SANE_LOCK_DIR=\$(locksanedir) \
 	  -DV_MAJOR=${V_MAJOR} -DV_MINOR=${V_MINOR}"
 
 if test "${ac_cv_header_sys_socket_h}" = "no"; then
@@ -544,7 +550,7 @@ echo "Binaries:      `eval eval echo ${bindir}` and `eval eval echo ${sbindir}`"
 echo "Manpages:      `eval eval echo ${mandir}`"
 echo "Documentation: `eval eval echo ${docdir}`"
 if eval "test x$INSTALL_LOCKPATH = xinstall-lockpath" ; then
-  echo "Lockfiles:     `eval eval echo ${localstatedir}/lock/sane`"
+  echo "Lockfiles:     `eval eval echo ${locksanedir}`"
 else
   echo "Lockfiles:     Feature is disabled!"
 fi

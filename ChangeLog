@@ -1,3 +1,10 @@
+2006-06-06  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch]: update to v1.0.30, init more models,
+	  M3091/2 duplex support, flatbed bug fixes, minor refactoring
+	* doc/descriptions/fujitsu.desc: status and version update
+	* doc/sane-fujitsu.man: remove note about broken M3091/2 duplex
+
 2006-06-06 Rene Rebe <rene@exactcode.de>
 
 	* backend/avision.c backend/avision.h backend/avision.conf.in

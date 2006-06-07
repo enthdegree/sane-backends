@@ -504,11 +504,13 @@ static int set_window (struct fujitsu *s);
 
 static int start_scan (struct fujitsu *s);
 
-static SANE_Status read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int * len, int side);
+static SANE_Status read_from_3091duplex(struct fujitsu *s);
+static SANE_Status read_from_scanner(struct fujitsu *s, int side);
+
+static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side);
+static SANE_Status copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side);
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
-
-static SANE_Status read_from_3091(struct fujitsu *s, SANE_Int * len, int side);
 
 static void calculateDerivedValues (struct fujitsu *scanner);
 

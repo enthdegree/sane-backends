@@ -187,6 +187,13 @@
          - remove scanner cmd buf, use buf per func instead
          - print color and duplex raster offsets (inquiry)
          - print EOM, ILI, and info bytes (request sense)
+      V 1.0.30 2006-06-06, MAN
+         - M3091/2 duplex support, color/gray/ht/lineart ok
+         - sane_read helpers share code, report more errors
+         - add error msg if VPD missing or non-extended
+         - remove references to color_lineart and ht units
+         - rework init_model to support more known models
+         - dont send paper size data if using flatbed
 
    SANE FLOW DIAGRAM
 
@@ -246,7 +253,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 29
+#define FUJITSU_V_POINT 30 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -990,10 +997,17 @@ init_vpd (struct fujitsu *s)
       }
       /*FIXME no vendor vpd, set some defaults? */
       else{
+        DBG (5, "init_vpd: Your scanner supports only partial VPD?\n");
+        DBG (5, "init_vpd: Please contact anoah at pfeiffer dot edu\n");
+        DBG (5, "init_vpd: with details of your scanner model.\n");
+        ret = SANE_STATUS_INVAL;
       }
   }
   /*FIXME no vpd, set some defaults? */
   else{
+    DBG (5, "init_vpd: Your scanner does not support VPD?\n");
+    DBG (5, "init_vpd: Please contact anoah at pfeiffer dot edu\n");
+    DBG (5, "init_vpd: with details of your scanner model.\n");
   }
 
   DBG (10, "init_vpd: finish\n");
@@ -1021,8 +1035,6 @@ init_model (struct fujitsu *s)
 
   /* give defaults to all the user settings */
 
-  /* "Mode" group -------------------------------------------------------- */
-
   /* source */
   if(s->has_flatbed)
     s->source = SOURCE_FLATBED;
@@ -1036,10 +1048,6 @@ init_model (struct fujitsu *s)
     s->mode=MODE_HALFTONE;
   else if(s->can_grayscale)
     s->mode=MODE_GRAYSCALE;
-  else if(s->can_color_monochrome)
-    s->mode=MODE_COLOR_LINEART;
-  else if(s->can_color_halftone)
-    s->mode=MODE_COLOR_HALFTONE;
   else if(s->can_color_grayscale)
     s->mode=MODE_COLOR;
 
@@ -1051,8 +1059,6 @@ init_model (struct fujitsu *s)
   if(s->resolution_y > s->resolution_x){
     s->resolution_y = s->resolution_x;
   }
-
-  /* "Geometry" group ---------------------------------------------------- */
 
   /* bottom-right x */
   s->br_x = 8.5 * 1200;
@@ -1072,31 +1078,11 @@ init_model (struct fujitsu *s)
   /* page height */
   s->page_height = s->br_y;
 
-  /* "Enhancement" group --------------------------------------------------- */
-
-  /* most scanners dont support gamma, but the default varies */
-  /* newer models want 0x80, older want 0x00, override below */
-  s->gamma = 0x80;
-
   /* ------------------------------------------------------ */
-  /* load vars that cannot be gotten from vpd */
-  s->has_back = s->has_duplex;
-  s->color_interlace = COLOR_INTERLACE_NONE;
-  s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-  s->has_MS_dropout = 1;
-  s->has_SW_dropout = 0;
-  s->window_vid = 0;
-  s->ghs_in_rs = 0;
+  /* load vars that cannot be gotten from vpd, based on model */
 
-  s->reverse_by_mode[MODE_LINEART] = 0;
-  s->reverse_by_mode[MODE_HALFTONE] = 0;
-  s->reverse_by_mode[MODE_GRAYSCALE] = 1;
-  s->reverse_by_mode[MODE_COLOR_LINEART] = 0;
-  s->reverse_by_mode[MODE_COLOR_HALFTONE] = 0;
-  s->reverse_by_mode[MODE_COLOR] = 1;
-
-  /* now we override any of the above based on model */
-  if (strstr (s->product_name, "3091")) {
+  if (strstr (s->product_name, "M3091")
+   || strstr (s->product_name, "M3092")) {
     s->gamma = 0;
     s->has_rif=1;
 
@@ -1111,43 +1097,57 @@ init_model (struct fujitsu *s)
     s->reverse_by_mode[MODE_LINEART] = 1;
     s->reverse_by_mode[MODE_HALFTONE] = 1;
     s->reverse_by_mode[MODE_GRAYSCALE] = 0;
-    s->reverse_by_mode[MODE_COLOR_LINEART] = 1;
-    s->reverse_by_mode[MODE_COLOR_HALFTONE] = 1;
     s->reverse_by_mode[MODE_COLOR] = 0;
   }
-  else if (strstr (s->product_name, "3092")) {
+  else if (strstr (s->product_name, "M309")
+   || strstr (s->product_name, "M409")){
     s->gamma = 0;
-    s->has_rif=1;
-
-    s->has_back = 0;
+  
+    s->has_back = s->has_duplex;
+    s->color_interlace = COLOR_INTERLACE_NONE;
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->has_MS_dropout = 0;
-    s->has_SW_dropout = 1;
-    s->color_interlace = COLOR_INTERLACE_3091;
-    s->duplex_interlace = DUPLEX_INTERLACE_3091;
-    s->window_vid = 0xc0;
-    s->ghs_in_rs = 1;
-
-    s->reverse_by_mode[MODE_LINEART] = 1;
-    s->reverse_by_mode[MODE_HALFTONE] = 1;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 0;
-    s->reverse_by_mode[MODE_COLOR_LINEART] = 1;
-    s->reverse_by_mode[MODE_COLOR_HALFTONE] = 1;
+    s->has_SW_dropout = 0;
+    s->window_vid = 0;
+    s->ghs_in_rs = 0;
+  
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
     s->reverse_by_mode[MODE_COLOR] = 0;
   }
-  else if (strstr (s->product_name, "3093")) {
+  else if (strstr (s->product_name, "fi-4750")
+   || strstr (s->product_name, "fi-4340") ) {
+    s->gamma = 0x00;
+
+    s->has_back = s->has_duplex;
+    s->color_interlace = COLOR_INTERLACE_RRGGBB;
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_dropout = 1;
+    s->has_SW_dropout = 0;
+    s->window_vid = 0;
+    s->ghs_in_rs = 0;
+  
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
+    s->reverse_by_mode[MODE_COLOR] = 1;
   }
-  else if (strstr (s->product_name, "3096")) {
-    s->window_vid = 0xc0;
-  }
-  else if (strstr (s->product_name, "3097")) {
-  }
-  else if (strstr (s->product_name, "4097") || strstr (s->product_name, "4099")) {
-  }
-  else if (strstr (s->product_name, "fi-4120") || strstr (s->product_name, "fi-4220")) {
+  else{
+    s->gamma = 0x80;
+
+    s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_BGR;
-  }
-  else if (strstr (s->product_name, "fi-")) {
-    s->color_interlace = COLOR_INTERLACE_BGR;
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_dropout = 1;
+    s->has_SW_dropout = 0;
+    s->window_vid = 0;
+    s->ghs_in_rs = 0;
+  
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
+    s->reverse_by_mode[MODE_COLOR] = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -2155,12 +2155,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else if(s->mode == MODE_GRAYSCALE){
             strcpy (val, mode_Grayscale);
           }
-          else if(s->mode == MODE_COLOR_LINEART){
-            strcpy (val, mode_Color_lineart);
-          }
-          else if(s->mode == MODE_COLOR_HALFTONE){
-            strcpy (val, mode_Color_halftone);
-          }
           else if(s->mode == MODE_COLOR){
             strcpy (val, mode_Color);
           }
@@ -2421,12 +2415,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           else if (!strcmp (val, mode_Grayscale)) {
             tmp = MODE_GRAYSCALE;
-          }
-          else if (!strcmp (val, mode_Color_lineart)) {
-            tmp = MODE_COLOR_LINEART;
-          }
-          else if (!strcmp (val, mode_Color_halftone)) {
-            tmp = MODE_COLOR_HALFTONE;
           }
           else{
             tmp = MODE_COLOR;
@@ -3214,9 +3202,14 @@ set_window (struct fujitsu *s)
   set_WD_vendor_id_code (window_descriptor_blockB.cmd, s->window_vid);
   set_WD_gamma (window_descriptor_blockB.cmd, s->gamma);
 
-  set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_NON_STANDARD);
-  set_WD_paper_width_X (window_descriptor_blockB.cmd, s->page_width);
-  set_WD_paper_length_Y (window_descriptor_blockB.cmd, s->page_height);
+  if(s->source == SOURCE_FLATBED){
+    set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_UNDEFINED);
+  }
+  else{
+    set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_NON_STANDARD);
+    set_WD_paper_width_X (window_descriptor_blockB.cmd, s->page_width);
+    set_WD_paper_length_Y (window_descriptor_blockB.cmd, s->page_height);
+  }
 
   if (s->source == SOURCE_ADF_BACK) {
       set_WD_wid (window_descriptor_blockB.cmd, WD_wid_back);
@@ -3356,8 +3349,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 {
   struct fujitsu *s = (struct fujitsu *) handle;
   int side;
-  int rxlen[] = {0,0};
-  SANE_Status rxret[] = {0,0}, ret=0;
+  SANE_Status ret=0;
 
   DBG (10, "sane_read: start\n");
 
@@ -3377,10 +3369,17 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_EOF;
   }
 
-  /* 3091/2 are on crack, get their own reader function */
-  if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-    if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT] ){
-      rxret[SIDE_FRONT] = read_from_3091(s, &rxlen[SIDE_FRONT], SIDE_FRONT);
+  /* 3091/2 are on crack, get their own duplex reader function */
+  if(s->source == SOURCE_ADF_DUPLEX && s->duplex_interlace == DUPLEX_INTERLACE_3091){
+    if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
+      || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
+
+        ret = read_from_3091duplex(s);
+        if(ret){
+          DBG(5,"sane_read: 3091 returning %d\n",ret);
+          return ret;
+        }
+
     }
   }
 
@@ -3388,24 +3387,29 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     /* buffer front side */
     if( side == SIDE_FRONT){
       if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT] ){
-        rxret[SIDE_FRONT] = read_from_scanner(s, s->buffers[SIDE_FRONT]+s->bytes_rx[SIDE_FRONT], &rxlen[SIDE_FRONT], SIDE_FRONT);
+
+        ret = read_from_scanner(s, SIDE_FRONT);
+        if(ret){
+          DBG(5,"sane_read: front returning %d\n",ret);
+          return ret;
+        }
+
       }
     }
   
     /* buffer back side */
     if( side == SIDE_BACK || s->source == SOURCE_ADF_DUPLEX ){
       if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
-        rxret[SIDE_BACK] = read_from_scanner(s, s->buffers[SIDE_BACK]+s->bytes_rx[SIDE_BACK], &rxlen[SIDE_BACK], SIDE_BACK);
+
+        ret = read_from_scanner(s, SIDE_BACK);
+        if(ret){
+          DBG(5,"sane_read: back returning %d\n",ret);
+          return ret;
+        }
+
       }
     }
   }
-
-  /* if both front and back got 0 bytes, we sleep a bit */
-  /* just to keep from hitting the scanner while its busy */
-  /*if(!rxlen[SIDE_FRONT] && !rxlen[SIDE_BACK]){
-    DBG(15,"sane_read: scanner busy, usleep\n");
-    usleep(500000);
-  }*/
 
   /* copy a block from buffer to frontend */
   ret = read_from_buffer(s,buf,max_len,len,side);
@@ -3416,16 +3420,17 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 }
 
 static SANE_Status
-read_from_3091(struct fujitsu *s, SANE_Int * len, int side)
+read_from_3091duplex(struct fujitsu *s)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = s->buffer_size, i, dest, boff, goff;
-  int remain = s->bytes_tot[side] - s->bytes_rx[side];
+  int side = SIDE_FRONT;
+  int bytes = s->buffer_size;
+  int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT]) + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
+  int off = (s->duplex_raster_offset+s->duplex_offset) * s->resolution_y/300;
+  int len, i;
   unsigned char * buf;
 
-  DBG (10, "read_from_3091: start\n");
-
-  *len=0;
+  DBG (10, "read_from_3091duplex: start\n");
 
   /* figure out the max amount to transfer */
   if(bytes > remain){
@@ -3437,15 +3442,130 @@ read_from_3091(struct fujitsu *s, SANE_Int * len, int side)
 
   /* this should never happen */
   if(bytes < 1){
-    DBG(5, "read_from_3091: ERROR: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
-    return SANE_STATUS_INVAL;
+    DBG(5, "read_from_3091duplex: ERROR: no bytes this pass\n");
+    ret = SANE_STATUS_INVAL;
   }
 
-  DBG(15, "read_from_3091: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
+  DBG(15, "read_from_3091duplex: to:%d rx:%d li:%d re:%d bu:%d pa:%d of:%d\n",
+      s->bytes_tot[SIDE_FRONT] + s->bytes_tot[SIDE_BACK],
+      s->bytes_rx[SIDE_FRONT] + s->bytes_rx[SIDE_BACK],
+      s->lines_rx[SIDE_FRONT] + s->lines_rx[SIDE_BACK],
+      remain, s->buffer_size, bytes, off);
+
+  if(ret){
+    return ret;
+  }
 
   buf = malloc(bytes);
   if(!buf){
-    DBG(5, "read_from_3091: not enough mem for buffer: %d\n",bytes);
+    DBG(5, "read_from_3091duplex: not enough mem for buffer: %d\n",bytes);
+    return SANE_STATUS_NO_MEM;
+  }
+
+  set_R_datatype_code (readB.cmd, R_datatype_imagedata);
+  set_R_window_id (readB.cmd, WD_wid_front);
+  set_R_xfer_length (readB.cmd, bytes);
+
+  ret = do_cmd (
+    s, 1, 0,
+    readB.cmd, readB.size,
+    NULL, 0,
+    buf, bytes
+  );
+
+  if (ret == SANE_STATUS_GOOD) {
+    DBG(15, "read_from_3091duplex: got GOOD\n");
+    len = bytes;
+  }
+  /* FIXME get the real number of bytes */
+  else if (ret == SANE_STATUS_EOF) {
+    DBG(5, "read_from_3091duplex: got EOF, changing to GOOD\n");
+    len = bytes;
+    ret = SANE_STATUS_GOOD;
+  }
+  else if (ret == SANE_STATUS_DEVICE_BUSY) {
+    DBG(5, "read_from_3091duplex: got BUSY, changing to GOOD\n");
+    len = 0;
+    ret = SANE_STATUS_GOOD;
+  }
+  else {
+    DBG(5, "read_from_3091duplex: error reading data block status = %d\n", ret);
+    len = 0;
+  }
+
+  /* loop thru all lines in read buffer */
+  for(i=0;i<len/s->params.bytes_per_line;i++){
+
+      /* start is front */
+      if(s->lines_rx[SIDE_FRONT] < off){
+        side=SIDE_FRONT;
+      }
+
+      /* end is back */
+      else if(s->bytes_rx[SIDE_FRONT] == s->bytes_tot[SIDE_FRONT]){
+        side=SIDE_BACK;
+      }
+
+      /* odd are back */
+      else if( ((s->lines_rx[SIDE_FRONT] + s->lines_rx[SIDE_BACK] - off) % 2) ){
+        side=SIDE_BACK;
+      }
+
+      /* even are front */
+      else{
+        side=SIDE_FRONT;
+      }
+
+      if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+        copy_3091 (s, buf + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+      }
+      else{
+        copy_buffer (s, buf + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+      }
+  }
+
+  free(buf);
+
+  DBG (10, "read_from_3091duplex: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+read_from_scanner(struct fujitsu *s, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+  int bytes = s->buffer_size;
+  int remain = s->bytes_tot[side] - s->bytes_rx[side];
+  unsigned char * buf;
+  int len;
+
+  DBG (10, "read_from_scanner: start\n");
+
+  /* figure out the max amount to transfer */
+  if(bytes > remain){
+    bytes = remain;
+  }
+
+  /* all requests must end on line boundary */
+  bytes -= (bytes % s->params.bytes_per_line);
+
+  /* this should never happen */
+  if(bytes < 1){
+    DBG(5, "read_from_scanner: ERROR: no bytes this pass\n");
+    ret = SANE_STATUS_INVAL;
+  }
+
+  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n",
+    side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
+
+  if(ret){
+    return ret;
+  }
+
+  buf = malloc(bytes);
+  if(!buf){
+    DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",bytes);
     return SANE_STATUS_NO_MEM;
   }
 
@@ -3469,39 +3589,61 @@ read_from_3091(struct fujitsu *s, SANE_Int * len, int side)
 
   if (ret == SANE_STATUS_GOOD) {
     DBG(15, "read_from_scanner: got GOOD\n");
-    *len = bytes;
+    len = bytes;
   }
   /* FIXME get the real number of bytes */
   else if (ret == SANE_STATUS_EOF) {
-    DBG(5, "read_from_scanner: got EOF\n");
-    *len = bytes;
+    DBG(5, "read_from_scanner: got EOF, changing to GOOD\n");
+    len = bytes;
     ret = SANE_STATUS_GOOD;
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
     DBG(5, "read_from_scanner: got BUSY, changing to GOOD\n");
+    len = 0;
     ret = SANE_STATUS_GOOD;
   }
   else {
     DBG(5, "read_from_scanner: error reading data block status = %d\n", ret);
+    len = 0;
   }
 
-  /* data is RR...GG...BB... on each line,
-   * but the G parts are 4 lines ahead of
-   * the B parts, which are 4 ahead of R.
-   * here we just get things on correct line
-   * interlacing to make RGBRGB comes later
-   */
+  if(len){
+    if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+      copy_3091 (s, buf, len, side);
+    }
+    else{
+      copy_buffer (s, buf, len, side);
+    }
+  }
 
-  /* red is back 8 lines from current at 300 dpi
-   * blue is back 4 lines from current at 300 dpi 
-   * we add the user-supplied offsets before we scale
-   * so that they are independent of scanning resolution
+  free(buf);
+
+  DBG (10, "read_from_scanner: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+  int i, dest, boff, goff;
+
+  DBG (10, "copy_3091: start\n");
+
+  /* Data is RR...GG...BB... on each line,
+   * green is back 8 lines from red at 300 dpi
+   * blue is back 4 lines from red at 300 dpi. 
+   * Here, we just get things on correct line,
+   * interlacing to make RGBRGB comes later.
+   * We add the user-supplied offsets before we scale
+   * so that they are independent of scanning resolution.
    */
   goff = (s->color_raster_offset+s->green_offset) * s->resolution_y/150;
   boff = (s->color_raster_offset+s->blue_offset) * s->resolution_y/300;
 
   /* loop thru all lines in read buffer */
-  for(i=0;i<*len/s->params.bytes_per_line;i++){
+  for(i=0;i<len/s->params.bytes_per_line;i++){
 
       /* red at start of line */
       dest = s->lines_rx[side] * s->params.bytes_per_line;
@@ -3530,91 +3672,31 @@ read_from_3091(struct fujitsu *s, SANE_Int * len, int side)
       s->lines_rx[side]++;
   }
 
-  free(buf);
-
   /* even if we have read data, we may not have any 
    * full lines loaded yet, so we may have to lie */
   i = (s->lines_rx[side]-goff) * s->params.bytes_per_line;
   if(i < 0){
     i = 0;
   } 
-  /*else if(i > s->bytes_tot[side]){
-    i = s->bytes_tot[side];
-  }*/ 
-  *len = i-s->bytes_rx[side];
   s->bytes_rx[side] = i;
 
-  DBG (10, "read_from_3091: finish\n");
+  DBG (10, "copy_3091: finish\n");
 
   return ret;
 }
 
 static SANE_Status
-read_from_scanner(struct fujitsu *s, SANE_Byte * buf, SANE_Int * len, int side)
+copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = s->buffer_size;
-  int remain = s->bytes_tot[side] - s->bytes_rx[side];
 
-  DBG (10, "read_from_scanner: start\n");
+  DBG (10, "copy_buffer: start\n");
 
-  *len=0;
+  memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
+  s->lines_rx[side] += len/s->params.bytes_per_line;
+  s->bytes_rx[side] += len;
 
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
-  }
-
-  /* all requests must end on line boundary */
-  bytes -= (bytes % s->params.bytes_per_line);
-
-  /* this should never happen */
-  if(bytes < 1){
-    DBG(5, "read_from_scanner: ERROR: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
-    return SANE_STATUS_INVAL;
-  }
-
-  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
-
-  set_R_datatype_code (readB.cmd, R_datatype_imagedata);
-
-  if (side == SIDE_BACK) {
-      set_R_window_id (readB.cmd, WD_wid_back);
-  }
-  else{
-      set_R_window_id (readB.cmd, WD_wid_front);
-  }
-
-  set_R_xfer_length (readB.cmd, bytes);
-
-  ret = do_cmd (
-    s, 1, 0,
-    readB.cmd, readB.size,
-    NULL, 0,
-    buf, bytes
-  );
-
-  if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner: got GOOD\n");
-    *len = bytes;
-  }
-  /* FIXME get the real number of bytes */
-  else if (ret == SANE_STATUS_EOF) {
-    DBG(5, "read_from_scanner: got EOF\n");
-    *len = bytes;
-    ret = SANE_STATUS_GOOD;
-  }
-  else if (ret == SANE_STATUS_DEVICE_BUSY) {
-    DBG(5, "read_from_scanner: got BUSY, changing to GOOD\n");
-    ret = SANE_STATUS_GOOD;
-  }
-  else {
-    DBG(5, "read_from_scanner: error reading data block status = %d\n", ret);
-  }
-
-  s->bytes_rx[side] += *len;
-
-  DBG (10, "read_from_scanner: finish\n");
+  DBG (10, "copy_buffer: finish\n");
 
   return ret;
 }
@@ -3626,8 +3708,6 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int 
   int bytes = max_len, i=0;
   int remain = s->bytes_rx[side] - s->bytes_tx[side];
 
-  *len=0;
-
   DBG (10, "read_from_buffer: start\n");
 
   /* figure out the max amount to transfer */
@@ -3635,8 +3715,11 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int 
     bytes = remain;
   }
 
+  *len = bytes;
+
   DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
 
+  /*FIXME this needs to timeout eventually */
   if(!bytes){
     DBG(5,"read_from_buffer: nothing to do\n");
     return SANE_STATUS_GOOD;
@@ -3654,34 +3737,24 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int 
           for (i=0; i < bytes; i++){
             buf[i]=s->buffers[side][s->bytes_tx[side]+i-(((s->bytes_tx[side]+i)%3)-1)*2];
           }
-          *len = bytes;
           break;
 
         /* one line has the following format:
-         * rrr...rrrggg...gggbbb...bbbb */
+         * rrr...rrrggg...gggbbb...bbb */
         case COLOR_INTERLACE_3091:
         case COLOR_INTERLACE_RRGGBB:
           for (i=0; i < bytes; i++){
             byteOff = (s->bytes_tx[side]+i)%s->params.bytes_per_line;
             buf[i]=s->buffers[side][(s->bytes_tx[side]+i)-byteOff + (byteOff%3)*s->params.pixels_per_line + (byteOff/3)];
           }
-          *len = bytes;
           break; 
 
-        case COLOR_INTERLACE_NONE:
-          memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-          *len = bytes;
-          break;
-
         default:
-          DBG (5, "sane_read: warning, copying color buffer: %d\n",s->color_interlace);
           memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-          *len = bytes;
     }
   }
   else{
     memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-    *len = bytes;
   }
 
   s->bytes_tx[side] += *len;

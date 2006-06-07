@@ -1,4 +1,4 @@
-.TH sane-fujitsu 5 "2006-05-30" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2006-06-06" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 
 .SH NAME
@@ -16,7 +16,7 @@ The backend supports lineart, halftone, grayscale, and color
 scanning for most USB and SCSI scanners, depending on hardware capabilities.
 Most simple scanning related features are exposed.
 This version features at least basic support for many more models.
-See LIMITATIONS.
+See KNOWN ISSUES.
 
 .SH HARDWARE SUPPORT
 The following scanners are thought to have at least basic scanning 
@@ -227,14 +227,17 @@ author, to try and get those features restored to a later version.
 .SH KNOWN ISSUES
 .PP
 .RS
-3091/3092 duplex modes are broken.
+All IPC, imprinter, and compression options are disabled.
 .br
-All IPC and compression options are disabled.
 .br
 Most scanner specific 'quirks' are not accounted for, making it possible
 to set some options in ways that the scanner does not support.
 .br
+.br
 Some flatbed options are affected by adf settings.
+.br
+.br
+Any model that does not support VPD during inquiry will not function.
 .RE
 
 .SH HISTORY

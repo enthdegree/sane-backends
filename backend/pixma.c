@@ -113,7 +113,7 @@ typedef struct pixma_sane_t
 
 
 static const char vendor_str[] = "CANON";
-static const char type_str[] = SANE_I18N ("multi-function peripheral");
+static const char type_str[] = "multi-function peripheral";
 
 static pixma_sane_t *first_scanner = NULL;
 static const SANE_Device **dev_list = NULL;

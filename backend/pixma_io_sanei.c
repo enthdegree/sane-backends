@@ -397,8 +397,8 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
   /* FIXME: What is the meaning of "timeout" in sanei_usb? */
   if (timeout < 0)
     timeout = INT_MAX;
-  else if (timeout == 0)
-    timeout = 1;
+  else if (timeout < 10)
+    timeout = 10;
   sanei_usb_set_timeout (timeout);
 #endif
   error = map_error (sanei_usb_read_int (io->usb, buf, &count));
@@ -406,7 +406,8 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
     error = -ETIMEDOUT;		/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (error == 0)
     error = count;
-  PDBG (pixma_dump (10, "INTR", buf, error, -1, -1));
+  if (error != -ETIMEDOUT)
+    PDBG (pixma_dump (10, "INTR", buf, error, -1, -1));
   return error;
 }
 

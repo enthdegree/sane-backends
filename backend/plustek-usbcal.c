@@ -1137,7 +1137,7 @@ cano_DoCalibration( Plustek_Device *dev )
 	scaps->workaroundFlag &= ~_WAF_SKIP_FINE;
 	scaps->workaroundFlag &= ~_WAF_BYPASS_CALIBRATION;
 
-	if( !dev->adj.cacheCalData )
+	if( !dev->adj.cacheCalData && !usb_IsSheetFedDevice(dev))
 		usb_SpeedTest( dev );
 
 	/* here we handle that warmup stuff for CCD devices */
@@ -1197,6 +1197,12 @@ cano_DoCalibration( Plustek_Device *dev )
 		if( usb_InCalibrationMode(dev)) {
 			skip_fine = SANE_FALSE;
 			idx_end   = DIVIDER+1;
+
+			/* did I say any case? */
+			if (scan->sParam.bBitDepth != 8) {
+				skip_fine = SANE_TRUE;
+				DBG( _DBG_INFO2, "No fine calibration for non-8bit modes!\n" );
+			}
 
 		} else if( usb_IsSheetFedDevice(dev)) {
 

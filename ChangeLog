@@ -1,3 +1,11 @@
+2006-06-08  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Pluste-USB.changes: Update
+	* backend/plustek.c backend/plustek-usbcal.c 
+	  backend/plustek-usbcalfile.c backend/plustek-usbhw.c:
+	  Fixed calibration cache issues (coarse calibration for all modes,
+	  correct fine calibration for sheetfed devices).
+
 2006-06-08  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.*.po: updated with new translation keys from
@@ -54,11 +62,11 @@
 
 	* backend/stv680.c backend/stv680.h backend/stv680.conf.in added
 	* doc/sane-stv680.man doc/descriptions/stv680.desc added
-        * AUTHORS: added stv680 Gerard Klaver
+	* AUTHORS: added stv680 Gerard Klaver
 	* configure configure.in doc/Makefile.in doc/sane.man
 	  backend/Makefile.in backend/dll.conf.in: added stv680 backend
-        * doc/descriptions-external/stv680.desc: removed because the backend
-          is now a part of sane-backends.
+	* doc/descriptions-external/stv680.desc: removed because the backend
+	  is now a part of sane-backends.
 
 2006-06-04  m. allan noah <anoah AT pfeiffer DOT edu>
 
@@ -182,7 +190,7 @@
 	  do_cmd() - simplify timeout handling
 	* backend/fujitsu-scsi.h: increase default timeoutes
 
-2006-05-15  St�hane Voltz <stefdev@modulonet.fr> 
+2006-05-15  Stephane Voltz <stefdev@modulonet.fr> 
 
 	* backend/genesys_devices.c backend/genesys_gl646.c: tuned HP 2300
 	  geometry description and added a safeguard against failed origin
@@ -226,10 +234,10 @@
 	* backend/genesys_devices.c: Increase length of acceleration
 	  slopes for Canon LiDE 35/40/50/60
 
-2006-04-21  St�hane Voltz <stefdev@modulonet.fr> 
+2006-04-21  Stephane Voltz <stefdev@modulonet.fr> 
 
-        * backend/genesys.c: add workraound with issue related
-          to asic reset and data scan amount
+	* backend/genesys.c: add workraound with issue related
+	  to asic reset and data scan amount
 
 2006-04-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -362,19 +370,19 @@
 	* doc/descriptions/unsupported.desc: Added Microtek ScanMaker 4850
 	  II and Plustek OpticPro ST 64+.
 
-2006-03-12  St�hane Voltz <stefdev@modulonet.fr> 
+2006-03-12  Stephane Voltz <stefdev@modulonet.fr> 
 
-        * backend/genesys_gl646.c: removed now unneeded #ifdef in
-          gl646_send_gamma_table.
+	* backend/genesys_gl646.c: removed now unneeded #ifdef in
+	  gl646_send_gamma_table.
 
 2006-03-12  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-        * backend/genesys_gl646.c: fixed silly thinko in
-          gl646_send_gamma_table.
+	* backend/genesys_gl646.c: fixed silly thinko in
+	  gl646_send_gamma_table.
 
-2006-03-12  St�hane Voltz <stefdev@modulonet.fr>
+2006-03-12  Stephane Voltz <stefdev@modulonet.fr>
 
-        * backend/genesys_gl646.c: fixed gl646_send_gamma_table after
+	* backend/genesys_gl646.c: fixed gl646_send_gamma_table after
 	  endianess changes. Put again a little fix for power saving
 
 2006-03-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -384,20 +392,20 @@
 
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-        * backend/genesys.c backend/genesys_low.h: Removed little endian 
-          conversions in slope table creation functions
-        * backend/genesys_gl646.c backend/genesys_gl841.c: Added little
-          endian conversions to gl*_send_slope_table functions
+	* backend/genesys.c backend/genesys_low.h: Removed little endian 
+	  conversions in slope table creation functions
+	* backend/genesys_gl646.c backend/genesys_gl841.c: Added little
+	  endian conversions to gl*_send_slope_table functions
 
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-        * backend/genesys.c: Some annotations about endianess of scanned
-          data
+	* backend/genesys.c: Some annotations about endianess of scanned
+	  data
 	* backend/genesys_gl646.c: Convert gamma tables to little endian
 
-2006-03-06  St�hane Voltz <stefdev@modulonet.fr>
+2006-03-06  Stephane Voltz <stefdev@modulonet.fr>
 
-        * backend/genesys_gl646.c: power saving fixes
+	* backend/genesys_gl646.c: power saving fixes
 
 2006-03-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -408,124 +416,124 @@
 	
 2006-02-16  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/plustek/Plustek-PARPORT.changes: Update.
-        * backend/plustek_pp.c: Bumped build number.
-        * backend/plustek-pp_ptdrv.c backend/plustek-pp_detec.c:
-          Fixed bug, that prevents backend from working, when the device
-          is another parport than parport0 - spotted by Christoph Steinbruchel.
+	* doc/plustek/Plustek-PARPORT.changes: Update.
+	* backend/plustek_pp.c: Bumped build number.
+	* backend/plustek-pp_ptdrv.c backend/plustek-pp_detec.c:
+	  Fixed bug, that prevents backend from working, when the device
+	  is another parport than parport0 - spotted by Christoph Steinbruchel.
 
 2006-02-14  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/u12/U12.changes: Update.
-        * backend/u12.c: Bumped build number.
-        * backend/u12-hw.c: SoftwareReset is now disabled in
-          cancelSequence when the device is a Genius scanner.
+	* doc/u12/U12.changes: Update.
+	* backend/u12.c: Bumped build number.
+	* backend/u12-hw.c: SoftwareReset is now disabled in
+	  cancelSequence when the device is a Genius scanner.
 
-2006-02-13  St�hane Voltz <stefdev@modulonet.fr>
+2006-02-13  Stephane Voltz <stefdev@modulonet.fr>
 
-        * backend/genesys_gl646.c: disabled power saving for gl646.
+	* backend/genesys_gl646.c: disabled power saving for gl646.
 
 2006-02-12  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * README.solaris: Added link to installation report.
-        * doc/descriptions/unsupported.desc: Removed HP ScanJet 8200
-          (supported by Avision backend). Minor updates.
+	* README.solaris: Added link to installation report.
+	* doc/descriptions/unsupported.desc: Removed HP ScanJet 8200
+	  (supported by Avision backend). Minor updates.
 
 2006-02-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
-          19200 (now in niash.desc), added Xerox 4800 One Touch.
-        * include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
-          compilation problem on Windows/cygwin.
-        * backend/dll.c: With cygwin, use ":" as DIR_SEP (patch from
-          Philip Aston <paston@bea.com>).
+	* doc/descriptions/unsupported.desc: Removed Trust Office Scan USB
+	  19200 (now in niash.desc), added Xerox 4800 One Touch.
+	* include/sane/sanei_usb.h sanei/sanei_usb.c: Workaround for
+	  compilation problem on Windows/cygwin.
+	* backend/dll.c: With cygwin, use ":" as DIR_SEP (patch from
+      Philip Aston <paston@bea.com>).
 
 2006-02-04  Ullrich Sigwanz <usigwanz@freesurf.ch>
 
-        * backend/niash_xfer.c: Added Trust OfficeScan 19200
-        * doc/descriptions/niash.desc: Added Trust OfficeScan 19200
-        * backend/niash.c: Removed Reload on X,Y settings
+	* backend/niash_xfer.c: Added Trust OfficeScan 19200
+	* doc/descriptions/niash.desc: Added Trust OfficeScan 19200
+	* backend/niash.c: Removed Reload on X,Y settings
 
 2006-02-02  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
-        * backend/snapscan.h: Corrected USB ID for Benq 310
+	* backend/snapscan.h: Corrected USB ID for Benq 310
 
 2006-01-31  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/plustek/Plustek-USB.changes: Update.
-        * backend/plustek.c: Bumped build number.
-        * backend/plustek-usbdevs.c: Fixed CanoScan N1220U settings.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Fixed CanoScan N1220U settings.
 
 2006-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions-external/brother2.desc: Changed status of
-          Brother MFC-410CN to "basic" (bug #302961).
-        * doc/descriptions/unsupported.desc: Added Benq 7400UT and Genius
-          Colorpage CS.
+	* doc/descriptions-external/brother2.desc: Changed status of
+	  Brother MFC-410CN to "basic" (bug #302961).
+	* doc/descriptions/unsupported.desc: Added Benq 7400UT and Genius
+	  Colorpage CS.
 
 2006-01-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * backend/snapscan-usb.c: Added #defines for SHM_R/W for cygwin
-          (patch from Philip Aston <philipa@mail.com>).
-        * AUTHORS: Troy Rollo is now active.
+	* backend/snapscan-usb.c: Added #defines for SHM_R/W for cygwin
+	  (patch from Philip Aston <philipa@mail.com>).
+	* AUTHORS: Troy Rollo is now active.
 
 2006-01-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions-external/epkowa.desc: Updated to match
-          iscan-1.18.0. Added usb ids (patch from Olaf Meeuwissen
-          <olaf@member.fsf.org>).
-        * doc/descriptions/unsupported.desc: Added Scanshell 800N and
-          Canon Smartbase MP360.
-        * sanei/sanei_usb.c tools/sane-find-scanner.c: Added checks for
-          altsetting =! 0.
+	* doc/descriptions-external/epkowa.desc: Updated to match
+	  iscan-1.18.0. Added usb ids (patch from Olaf Meeuwissen
+	  <olaf@member.fsf.org>).
+	* doc/descriptions/unsupported.desc: Added Scanshell 800N and
+	  Canon Smartbase MP360.
+	* sanei/sanei_usb.c tools/sane-find-scanner.c: Added checks for
+	  altsetting =! 0.
 
 2006-01-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
-        * backend/dll.c, backend/plustek-usbhw.c, backend/plustek-usbscan.c,
-          sanei/sanei_pio.c: Fixed warnings about C++ style comments.
-        * backend/hp5400_xfer.h: Fixed compilation warnings.
+	* backend/dll.c, backend/plustek-usbhw.c, backend/plustek-usbscan.c,
+	  sanei/sanei_pio.c: Fixed warnings about C++ style comments.
+	* backend/hp5400_xfer.h: Fixed compilation warnings.
 
 2006-01-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
-        * backend/canon-sane.c: Fixed variable redeclaration.
+	* backend/canon-sane.c: Fixed variable redeclaration.
 
-2006-01-05  St�hane Voltz <stefdev@modulonet.fr>
+2006-01-05  Stephane Voltz <stefdev@modulonet.fr>
 
-        * tools/hotplug/libsane.usermap: Added Dell A920 (rebranded X1100)
+	* tools/hotplug/libsane.usermap: Added Dell A920 (rebranded X1100)
 
 2006-01-19  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/plustek/Plustek-USB.changes: Update.
-        * backend/plustek.c: Bumped build number. Fixed constraint_type for
-          OPT_BUTTON.
-        * backend/plustek-usbdevs.c: Added high-speed setting for HP2200.
-          Cleanup.
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number. Fixed constraint_type for
+	  OPT_BUTTON.
+	* backend/plustek-usbdevs.c: Added high-speed setting for HP2200.
+	  Cleanup.
 
 2006-01-18  Gerhard Jaeger <gerhard@gjaeger.de>
 
-        * doc/plustek/Plustek-USB.changes: Update.
-        * backend/plustek.c: Bumped build number.
-        * backend/plustek-usbdevs.c: Fixed CanoScan N670U settings,
-          see (bugreport #302738).
+	* doc/plustek/Plustek-USB.changes: Update.
+	* backend/plustek.c: Bumped build number.
+	* backend/plustek-usbdevs.c: Fixed CanoScan N670U settings,
+	  see (bugreport #302738).
 
 2006-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions/canon630u.desc doc/descriptions/coolscan2.desc
-          doc/descriptions/hp5400.desc doc/descriptions/niash.desc
-          doc/descriptions/unsupported.desc: Added USB vendor and product
-          ids. Minor cleanup.
-        * backend/artec_eplus48u.conf.in doc/sane-artec_eplus48u.man
-          doc/descriptions/artec_eplus48u.desc: Added Yakumo Scan50. Minor
-          cleanup.
-        * doc/descriptions/gt68xx.desc: Added Mustek BearPaw 1248 CU.
-        * doc/descriptions/lexmark.desc: Added USB vendor and product
-          ids. Changed status of X1150 and X1170 according to reports on
-          sane-devel.
+	* doc/descriptions/canon630u.desc doc/descriptions/coolscan2.desc
+	  doc/descriptions/hp5400.desc doc/descriptions/niash.desc
+	  doc/descriptions/unsupported.desc: Added USB vendor and product
+	  ids. Minor cleanup.
+	* backend/artec_eplus48u.conf.in doc/sane-artec_eplus48u.man
+	  doc/descriptions/artec_eplus48u.desc: Added Yakumo Scan50. Minor
+	  cleanup.
+	* doc/descriptions/gt68xx.desc: Added Mustek BearPaw 1248 CU.
+	* doc/descriptions/lexmark.desc: Added USB vendor and product
+	  ids. Changed status of X1150 and X1170 according to reports on
+	  sane-devel.
 
 2006-01-15  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
-        * backend/canon-sane.c: fixed byte-swapping problem for little-endian
-          platforms (affects raw-mode scanning with FS2710 slide scanner)
+	* backend/canon-sane.c: fixed byte-swapping problem for little-endian
+	  platforms (affects raw-mode scanning with FS2710 slide scanner)
 
 2006-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -630,7 +638,7 @@
         * backend/snapscan-scsi.c backend/snapscan-options.c backend/snapscan.c:
           Some fixes for the Epson Stylus CX1500
 
-2006-01-05  St�hane Voltz <stefdev@modulonet.fr>
+2006-01-05  Stephane Voltz <stefdev@modulonet.fr>
 
         * backend/umax_pp_low.c: removed unused local variable
 
@@ -761,45 +769,45 @@
 
 2005-12-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * README.linux: Mention ld.so.conf issue.
-        * doc/descriptions/unsupported.desc
-          doc/descriptions-external/hp3900.desc: Added external hp3900
-          backend. Moved (possibly) supported scanners from
-          unsupported.desc.
-        * doc/backend-writing.c: Added some hints about what to do to add
-          a new backend to the existing sane-backends code.
+	* README.linux: Mention ld.so.conf issue.
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/hp3900.desc: Added external hp3900
+	  backend. Moved (possibly) supported scanners from
+	  unsupported.desc.
+	* doc/backend-writing.c: Added some hints about what to do to add
+	  a new backend to the existing sane-backends code.
 
 2005-12-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions/unsupported.desc: Added Lexmark X2330.
+	* doc/descriptions/unsupported.desc: Added Lexmark X2330.
 
 2005-12-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * doc/descriptions/unsupported.desc: Added Canon Pixma MP500.
-        * README.openbsd: Added hint about CPPFLAGS.
-        * doc/descriptions/artec.desc: Changed status of Artec AT6 to
-          "good" as reported in bug #302749.
-        * tools/hotplug/libsane.usermap: Added Brother MFC-7420.
+	* doc/descriptions/unsupported.desc: Added Canon Pixma MP500.
+	* README.openbsd: Added hint about CPPFLAGS.
+	* doc/descriptions/artec.desc: Changed status of Artec AT6 to
+	  "good" as reported in bug #302749.
+	* tools/hotplug/libsane.usermap: Added Brother MFC-7420.
 
 2005-12-20  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * backend/dll.c doc/descriptions/dll.desc: Fixed dynamic loading
-          on current HP/UX systems (bug #302732).
-        * AUTHORS ChangeLog configure configure.in backend/Makefile.in
-          backend/dll.conf backend/hp3500.c doc/Makefile.in
-          doc/sane-hp3500.man doc/sane.man doc/descriptions/hp3500.desc:
-          Added hp3500 backend which supports the  HP ScanJet 3500 series,
-          including the 3500C, 3530C and 3570C (patch from Troy Rollo
-          <sane@troy.rollo.name>) (bug #302687).
-        * doc/descriptions-external/hp3500.desc: Deleted.
-        * doc/descriptions/hp4200.desc doc/descriptions/lexmark.desc
-          doc/descriptions/mustek_usb2.desc: Removed "NEW!" markers.
+	* backend/dll.c doc/descriptions/dll.desc: Fixed dynamic loading
+	  on current HP/UX systems (bug #302732).
+	* AUTHORS ChangeLog configure configure.in backend/Makefile.in
+	  backend/dll.conf backend/hp3500.c doc/Makefile.in
+	  doc/sane-hp3500.man doc/sane.man doc/descriptions/hp3500.desc:
+	  Added hp3500 backend which supports the  HP ScanJet 3500 series,
+	  including the 3500C, 3530C and 3570C (patch from Troy Rollo
+	  <sane@troy.rollo.name>) (bug #302687).
+	* doc/descriptions-external/hp3500.desc: Deleted.
+	* doc/descriptions/hp4200.desc doc/descriptions/lexmark.desc
+	  doc/descriptions/mustek_usb2.desc: Removed "NEW!" markers.
 
 2005-12-18  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-        * Makefile.in: List ChangeLog-1.0.17 in DISTFILES.
-        * configure configure.in: Changed version to 1.0.17-cvs. Enabled
-          compilation warnings.
-        * doc/descriptions-external/brother2.desc: Added Brother MFC-215C.
+	* Makefile.in: List ChangeLog-1.0.17 in DISTFILES.
+	* configure configure.in: Changed version to 1.0.17-cvs. Enabled
+	  compilation warnings.
+	* doc/descriptions-external/brother2.desc: Added Brother MFC-215C.
 
 Older entries can be found in ChangeLog-1.0.17.

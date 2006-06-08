@@ -433,7 +433,13 @@ usb_ReadAndSetCalData( Plustek_Device *dev )
 		if( 13 == res ) {
 			usb_RestoreCalData( dev, &cal );
 			ret = SANE_TRUE;
+		} else {
+			DBG( _DBG_ERROR, "Error reading coarse-calibration data, only "
+			                 "%d elements available!\n", res );
 		}
+	} else {
+		DBG( _DBG_ERROR, "Error reading coarse-calibration data for "
+		                 "PFX: >%s<!\n", pfx );
 	}
 
 	fclose( fp );

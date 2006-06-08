@@ -157,7 +157,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-10"
+#define BACKEND_VERSION "0.51-11"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -216,8 +216,8 @@ static const SANE_Device **devlist = 0;
 static unsigned long       tsecs   = 0;
 static Plustek_Scanner    *sc = NULL;
 
-static const SANE_Int bpp_lm9832_list [] = { 2, 8, 14 };
-static const SANE_Int bpp_lm9833_list [] = { 2, 8, 16 };
+static const SANE_Int bpp_lm9832_list [] = { 1, 8, 14 };
+static const SANE_Int bpp_lm9833_list [] = { 1, 8, 16 };
 
 static const SANE_String_Const mode_list[] =
 {
@@ -355,7 +355,7 @@ getScanMode( Plustek_Scanner *scanner )
 	} else {
 		scanner->params.depth = 16;
 		if( mode == 1 )
-			scanmode =  COLOR_GRAY16;
+			scanmode = COLOR_GRAY16;
 		else
 			scanmode = COLOR_TRUE48;
 	}
@@ -1760,27 +1760,28 @@ do_calibration( void *args )
 	Plustek_Device  *dev  = s->hw;
 	DCapsDef        *caps = &dev->usbDev.Caps;
 	int              scanmode, rc;
+	int              modes[] = { COLOR_BW, COLOR_256GRAY, COLOR_GRAY16,
+	                             COLOR_TRUE24, COLOR_TRUE48 };
 
 	thread_entry();
 
-	/* if the device does only supports color scanning, there's no need
-	 * to calibrate the gray mode
+	/* if the device does only support color scanning, there's no need
+	 * to calibrate the gray modes
 	 */
 	if (caps->workaroundFlag & _WAF_GRAY_FROM_COLOR)
-		scanmode = 2;
+		scanmode = 3;
 	else
-		scanmode = 1;
+		scanmode = 0;
 
-	for ( ; scanmode < 3; scanmode++ ) {
+	for ( ; scanmode < 5; scanmode++ ) {
 
 		dev->scanning.dwFlag |= SCANFLAG_Calibration;
 
-		if (SANE_STATUS_GOOD == local_sane_start(s, scanmode)) {
-
+		if (SANE_STATUS_GOOD == local_sane_start(s, modes[scanmode])) {
 
 			/* prepare for scanning: speed-test, warmup, calibration */
 			rc = usbDev_Prepare( dev, s->buf );
-			if( rc != 0 || scanmode == 2) {
+			if( rc != 0 || scanmode == 4) {
 				if (rc != 0 )
 					DBG(_DBG_INFO,"Calibration canceled!\n");
 				m_fStart    = SANE_TRUE;
@@ -1827,7 +1828,15 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				do_cancel(s, SANE_TRUE);
 				return SANE_STATUS_GOOD;
 			}
-			return SANE_STATUS_DEVICE_BUSY;
+
+			/* okay, we need some exceptions */
+			switch (option) {
+				case OPT_TL_X:
+				case OPT_TL_Y:
+				case OPT_BR_X:
+				case OPT_BR_Y: break;
+				default:       return SANE_STATUS_DEVICE_BUSY;
+			}
 		}
 	}
 

@@ -1,7 +1,17 @@
-Plustek.changes - Gerhard JÃ¤ger <gerhard@gjaeger.de>
+Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 ====================================================
 
 Note: All other not mentioned builds have never been released.
+
+V 0.51-11 (2006-06-08)
+----------------------
+Fixed calibration: All modes will be coarse calibrated now, fine calibration
+will be done only for 8 bit modes.
+Fixed paper eject during startup.
+
+V 0.51-10 (2006-05-28)
+---------------------
+Released
 
 V 0.51-8 (2006-04-09)
 ---------------------

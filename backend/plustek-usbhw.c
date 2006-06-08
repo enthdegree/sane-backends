@@ -48,6 +48,8 @@
  *        - added special misc I/O setup for CIS devices (usb_ResetRegisters)
  * - 0.51 - change usb_AdjustLamps() and use it now in usb_switchLamp() 
  *        - added usb_Wait4ScanSample() and usb_InCalibrationMode()
+ *        - tweaked EjectPaper to work correctly with the supported sheetfed
+ *          devices
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -438,7 +440,7 @@ usb_WaitPos( Plustek_Device *dev, u_long to, SANE_Bool stay )
 static SANE_Bool
 usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 {
-	SANE_Bool    retval;
+	SANE_Bool    retval, ejected;
 	u_char       bReg2, reg7, mclk_div;
 	u_short      wFastFeedStepSize;
 	double       dMaxMoveSpeed;
@@ -466,12 +468,15 @@ usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 		hw->dMaxMoveSpeed += 0.8; /* was 0.6 */
 
 		DBG( _DBG_INFO2, "Ejecting paper...\n" );
-		retval = SANE_TRUE;
+		retval  = SANE_TRUE;
+		ejected = SANE_FALSE;
 		do {
-			if( usb_SensorPaper(dev) &&
-				!usb_ModuleMove(dev,MOVE_SkipPaperSensor, 0 )) {
-				hw->dMaxMoveSpeed = d;
-				return SANE_FALSE;
+			if( usb_SensorPaper(dev)) {
+				if (!usb_ModuleMove(dev,MOVE_SkipPaperSensor, 0 )) {
+					hw->dMaxMoveSpeed = d;
+					return SANE_FALSE;
+				}
+				ejected = SANE_TRUE;
 			}
 
 			if( usb_SensorAdf(dev->fd) &&
@@ -490,7 +495,7 @@ usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 		 * to make sure, that the scanned sheet is out of the scanner
 		 * BUT: not at startup
 		 */
-		if (dev->initialized >= 0) {
+		if (dev->initialized >= 0 || ejected) {
 			if(!usb_ModuleMove( dev, MOVE_Forward, 300 /* *3 */)) {
 				hw->dMaxMoveSpeed = d;
 				return SANE_FALSE;

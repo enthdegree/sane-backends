@@ -91,9 +91,9 @@ enum mp150_cmd_t
   cmd_abort_session = 0xef20,
   cmd_time = 0xeb80,
   cmd_read_image = 0xd420,
+  cmd_error_info = 0xff20,
 
-  cmd_error_info = 0xff20,	/* seen in MP800 */
-  cmd_e920 = 0xe920		/*     "         */
+  cmd_e920 = 0xe920		/* seen in MP800 */
 };
 
 typedef struct mp150_t
@@ -154,7 +154,7 @@ typedef struct mp150_t
   result:
    u16be      STAT
    u8[6]      0
-   u8         block info byte 0x38 = last image data block
+   u8         block info bitfield: 0x8 = end of scan, 0x10 = no more paper, 0x20 = no more data
    u8[3]      0
    u32be      ILEN image data size
    u8[ILEN]   image data
@@ -180,8 +180,7 @@ static void
 drain_bulk_in (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) ==
-	 IMAGE_BLOCK_SIZE);
+  while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) >= 0);
 }
 
 static int
@@ -189,6 +188,13 @@ abort_session (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   return pixma_exec_short_cmd (s, &mp->cb, cmd_abort_session);
+}
+
+static int
+send_cmd_e920 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  return pixma_exec_short_cmd (s, &mp->cb, cmd_e920);
 }
 
 static int
@@ -227,19 +233,26 @@ send_gamma_table (pixma_t * s)
   return pixma_exec (s, &mp->cb);
 }
 
+static unsigned
+calc_raw_width (const pixma_scan_param_t * param)
+{
+  unsigned raw_width;
+  /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
+     are always padded to multiple of 4 or 12 pixels. Is this valid for
+     other models, too? */
+  if (param->channels == 1)
+    raw_width = ALIGN (param->w, 12);
+  else
+    raw_width = ALIGN (param->w, 4);
+  return raw_width;
+}
+
 static int
 send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-  unsigned raw_width;
-
-  /* NOTE: MP150 can cope with "unaligned" width. It always correctly
-     returns padded rows. Can other models do this, too? */
-  if (s->param->channels == 1)
-    raw_width = ALIGN (s->param->w, 12);
-  else
-    raw_width = ALIGN (s->param->w, 4);
+  unsigned raw_width = calc_raw_width (s->param);
 
   data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
   pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
@@ -269,9 +282,8 @@ query_status (pixma_t * s)
   if (error >= 0)
     {
       memcpy (mp->current_status, data, 12);
-      PDBG (pixma_dbg (3, "Current status: %s %s\n",
-		       is_calibrated (s) ? "Calibrated" : "Calibrating",
-		       has_paper (s) ? "HasPaper" : "NoPaper"));
+      PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u busy=%u\n",
+		       data[1], data[8], data[7], data[9]));
     }
   return error;
 }
@@ -340,6 +352,27 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
   return datalen;
 }
 
+static int
+read_error_info (pixma_t * s, void *buf, unsigned size)
+{
+  unsigned len = 16;
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+  int error;
+
+  data = pixma_newcmd (&mp->cb, cmd_error_info, 0, len);
+  error = pixma_exec (s, &mp->cb);
+  if (error >= 0 && buf)
+    {
+      if (len < size)
+	size = len;
+      /* NOTE: I've absolutely no idea what the returned data mean. */
+      memcpy (buf, data, size);
+      error = len;
+    }
+  return error;
+}
+
 /*
 handle_interrupt() waits until it receives an interrupt packet or times out.
 It calls send_time() and query_status() if necessary. Therefore, make sure
@@ -370,26 +403,15 @@ handle_interrupt (pixma_t * s, int timeout)
       return -EPROTO;
     }
 
-  switch (buf[0])
-    {
-    case 0:
-      /* no button pressed */
-      break;
-    case 1:
-      s->events = PIXMA_EV_BUTTON1 | buf[1];
-      break;
-    case 2:
-      s->events = PIXMA_EV_BUTTON2 | buf[1];
-      break;
-    default:
-      PDBG (pixma_dbg (2, "Interesting interrupt packet\n"));
-      PDBG (pixma_hexdump (2, buf, 16));
-    }
   /* More than one event can be reported at the same time. */
   if (buf[3] & 1)
     send_time (s);
   if (buf[9] & 2)
     query_status (s);
+  if (buf[0] & 2)
+    s->events = PIXMA_EV_BUTTON2 | buf[1];	/* b/w scan */
+  if (buf[0] & 1)
+    s->events = PIXMA_EV_BUTTON1 | buf[1];	/* color scan */
   return 1;
 }
 
@@ -470,23 +492,17 @@ mp150_close (pixma_t * s)
 static int
 mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
-  unsigned raw_width;
-
   UNUSED (s);
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
-  if (sp->channels == 1)
-    raw_width = ALIGN (sp->w, 12);
-  else
-    raw_width = ALIGN (sp->w, 4);
-  sp->line_size = raw_width * sp->channels;
+  sp->line_size = calc_raw_width (sp) * sp->channels;
   return 0;
 }
 
 static int
 mp150_scan (pixma_t * s)
 {
-  int error, tmo;
+  int error = 0, tmo;
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   if (mp->state != state_idle)
@@ -512,6 +528,27 @@ mp150_scan (pixma_t * s)
 #endif
       if (!has_paper (s))
 	return -ENODATA;
+    }
+
+  if (s->cfg->vid == 0x170d /*MP800 */ )
+    {
+      /* FIXME: What does this command do? */
+      error = send_cmd_e920 (s);
+      if (error == 0)
+	{
+	  query_status (s);
+	}
+      if (error == -ECANCELED || error == -EBUSY)
+	{
+	  PDBG (pixma_dbg (2, "cmd e920 returned %s\n", strerror (-error)));
+	  query_status (s);
+	}
+      else
+	{
+	  PDBG (pixma_dbg (1, "WARNING:cmd e920 failed %s\n",
+			   strerror (-error)));
+	  return error;
+	}
     }
 
   error = start_session (s);
@@ -586,12 +623,20 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
       error = read_image_block (s, header, mp->imgbuf);
       if (error < 0)
-	return error;
+	{
+	  if (error == -ECANCELED)
+	    {
+	      /* NOTE: I see this in traffic logs but I don't know
+	         its meaning. */
+	      read_error_info (s, NULL, 0);
+	    }
+	  return error;
+	}
 
       bytes_received = error;
       block_size = pixma_get_be32 (header + 12);
-      mp->last_block = (header[8] == 0x38);
-      if (header[8] != 0 && header[8] != 0x38)
+      mp->last_block = ((header[8] & 0x28) == 0x28);
+      if ((header[8] & ~0x38) != 0)
 	{
 	  PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
 	  PDBG (pixma_hexdump (1, header, 16));
@@ -630,6 +675,7 @@ mp150_finish_scan (pixma_t * s)
 			 strerror (-error)));
       /* fall through */
     case state_finished:
+      while (handle_interrupt (s, 0) > 0);
       mp->state = state_idle;
       /* fall through */
     case state_idle:

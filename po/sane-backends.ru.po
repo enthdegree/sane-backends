@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-06-06 12:42+0200\n"
+"POT-Creation-Date: 2006-06-08 06:19+0200\n"
 "PO-Revision-Date: 2006-06-06 13:12+0200\n"
 "Last-Translator: \n"
 "Language-Team:  <ru@li.org>\n"
@@ -65,7 +65,7 @@ msgstr "По умолчанию"
 msgid "Set default values for enhancement controls."
 msgstr "Устанавливает значения по умолчанию для управления повышением."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4564
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson.c:3267 .tmp/genesys.c:4584
 #: .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
 #: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
@@ -118,22 +118,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Состояние кнопки"
 
-#: .tmp/avision.h:622
+#: .tmp/avision.h:686
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Количество кадров для сканирования"
 
-#: .tmp/avision.h:623
+#: .tmp/avision.h:687
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Выберите количество кадров для сканирования"
 
-#: .tmp/avision.h:626
+#: .tmp/avision.h:690
 #, no-c-format
 msgid "Duplex scan"
 msgstr "Двухстороннее сканирование"
 
-#: .tmp/avision.h:627
+#: .tmp/avision.h:691
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
@@ -203,7 +203,7 @@ msgstr "Односторонний"
 msgid "Duplex"
 msgstr "Двухсторонний"
 
-#: .tmp/epson.c:501 .tmp/genesys.c:95 .tmp/gt68xx.c:144 .tmp/ma1509.c:106
+#: .tmp/epson.c:501 .tmp/genesys.c:102 .tmp/gt68xx.c:144 .tmp/ma1509.c:106
 #: .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158 .tmp/pixma.c:622
 #: .tmp/pixma_sane_options.c:85 .tmp/snapscan-options.c:82 .tmp/test.c:189
 #: .tmp/umax.c:182
@@ -299,19 +299,19 @@ msgstr "Загрузить шаблон A"
 msgid "Download pattern B"
 msgstr "Загрузить шаблон B"
 
-#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/gt68xx_low.h:135
+#: .tmp/epson.c:599 .tmp/epson.c:3065 .tmp/genesys.c:95 .tmp/gt68xx_low.h:135
 #: .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Красный"
 
-#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/gt68xx_low.h:136
+#: .tmp/epson.c:600 .tmp/epson.c:3061 .tmp/genesys.c:96 .tmp/gt68xx_low.h:136
 #: .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Зелёный"
 
-#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/gt68xx_low.h:137
+#: .tmp/epson.c:601 .tmp/epson.c:3069 .tmp/genesys.c:97 .tmp/gt68xx_low.h:137
 #: .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
@@ -407,7 +407,7 @@ msgstr "A4"
 msgid "Max"
 msgstr "Макс"
 
-#: .tmp/epson.c:2782 .tmp/genesys.c:4493 .tmp/gt68xx.c:453
+#: .tmp/epson.c:2782 .tmp/genesys.c:4513 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
 #: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:716
@@ -674,23 +674,45 @@ msgstr ""
 "После подачи команды \"сканировать\", будет ожидать пока не будет нажата "
 "кнопка на сканере, чтобы действительно начать процесс сканирования."
 
-#: .tmp/genesys.c:96 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
+#: .tmp/genesys.c:103 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Слайд-модуль"
 
-#: .tmp/genesys.c:4615
+#: .tmp/genesys.c:4635
 #, no-c-format
 msgid "Extras"
 msgstr "Дополнительно"
 
-#: .tmp/genesys.c:4635
+#: .tmp/genesys.c:4655
+#, fuzzy, no-c-format
+msgid "Disable interpolation"
+msgstr "Выключить отслеживание"
+
+#: .tmp/genesys.c:4658
+#, no-c-format
+msgid ""
+"When using high resolutions where the horizontal resolution is smaller than "
+"the vertical resolution this disables horizontal interpolation."
+msgstr ""
+
+#: .tmp/genesys.c:4667
+#, fuzzy, no-c-format
+msgid "Color Filter"
+msgstr "Цветное штриховое"
+
+#: .tmp/genesys.c:4670
+#, no-c-format
+msgid "When using gray or lineart this option selects the used color."
+msgstr ""
+
+#: .tmp/genesys.c:4679
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Время выключения лампы"
 
-#: .tmp/genesys.c:4638
+#: .tmp/genesys.c:4682
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "

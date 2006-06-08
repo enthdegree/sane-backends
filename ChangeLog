@@ -1,3 +1,7 @@
+2006-06-08  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* po/sane-backends.*.po: updated with new translation keys from
+	  genesys backend.
 
 2006-06-07  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
@@ -43,7 +47,7 @@
 2006-06-06  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: updated with translation
-	  keys from stv680 backand
+	  keys from stv680 backend
 	* backend/Makefile.in: Fix stv680 dependencies
 
 2006-06-05 Gerard Klaver <gerard at gkall dot hobby dot nl>
@@ -118,7 +122,7 @@
 2006-05-26  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: updated with translation
-	  keys from pixma backand
+	  keys from pixma backend
 
 2006-05-26  Wittawat Yamwong <wittawat@web.de>
 

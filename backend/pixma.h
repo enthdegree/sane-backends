@@ -128,7 +128,7 @@ typedef u_int32_t uint32_t;
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
 #define PIXMA_VERSION_MINOR 11
-#define PIXMA_VERSION_BUILD 2
+#define PIXMA_VERSION_BUILD 3
 /**@}*/
 
 /** \name Capabilities for using with pixma_config_t::cap */
@@ -184,7 +184,8 @@ typedef enum pixma_string_index_t
 typedef enum pixma_paper_source_t
 {
   PIXMA_SOURCE_FLATBED,
-  PIXMA_SOURCE_ADF
+  PIXMA_SOURCE_ADF,
+  PIXMA_SOURCE_TPU
 } pixma_paper_source_t;
 
 typedef enum pixma_hardware_status_t

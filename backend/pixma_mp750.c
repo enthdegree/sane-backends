@@ -91,7 +91,7 @@ enum mp750_cmd_t
 
   cmd_activate = 0xcf60,
   cmd_calibrate = 0xe920,
-  cmd_reset = 0xff20
+  cmd_error_info = 0xff20
 };
 
 typedef struct mp750_t
@@ -141,7 +141,7 @@ static void
 drain_bulk_in (pixma_t * s)
 {
   mp750_t *mp = (mp750_t *) s->subdriver;
-  while (pixma_read (s->io, mp->buf, IMAGE_BLOCK_SIZE) == IMAGE_BLOCK_SIZE);
+  while (pixma_read (s->io, mp->buf, IMAGE_BLOCK_SIZE) >= 0);
 }
 
 static int
@@ -163,10 +163,8 @@ query_status (pixma_t * s)
   if (error >= 0)
     {
       memcpy (mp->current_status, data, 12);
-      PDBG (pixma_dbg (2, "Current status: %s %s %s\n",
-		       has_paper (s) ? "HasPaper" : "NoPaper",
-		       is_warming_up (s) ? "WarmingUp" : "LampReady",
-		       is_calibrated (s) ? "Calibrated" : "Calibrating"));
+      PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u\n",
+		       data[1], data[8], data[7]));
     }
   return error;
 }
@@ -244,14 +242,6 @@ calibrate_cs (pixma_t * s)
 }
 
 static int
-reset_scanner (pixma_t * s)
-{
-  mp750_t *mp = (mp750_t *) s->subdriver;
-  pixma_newcmd (&mp->cb, cmd_reset, 0, 16);
-  return pixma_exec (s, &mp->cb);
-}
-
-static int
 request_image_block_ex (pixma_t * s, unsigned *size, uint8_t * info,
 			unsigned flag)
 {
@@ -307,6 +297,27 @@ read_image_block (pixma_t * s, uint8_t * data)
 }
 
 static int
+read_error_info (pixma_t * s, void *buf, unsigned size)
+{
+  unsigned len = 16;
+  mp750_t *mp = (mp750_t *) s->subdriver;
+  uint8_t *data;
+  int error;
+
+  data = pixma_newcmd (&mp->cb, cmd_error_info, 0, len);
+  error = pixma_exec (s, &mp->cb);
+  if (error >= 0 && buf)
+    {
+      if (len < size)
+	size = len;
+      /* NOTE: I've absolutely no idea what the returned data mean. */
+      memcpy (buf, data, size);
+      error = len;
+    }
+  return error;
+}
+
+static int
 handle_interrupt (pixma_t * s, int timeout)
 {
   mp750_t *mp = (mp750_t *) s->subdriver;
@@ -329,6 +340,10 @@ handle_interrupt (pixma_t * s, int timeout)
     mp->needs_time = 1;
   if (intr[12] & 0x40)
     query_status (s);
+  if (intr[15] & 1)
+    s->events = PIXMA_EV_BUTTON2;	/* b/w scan */
+  if (intr[15] & 2)
+    s->events = PIXMA_EV_BUTTON1;	/* color scan */
   return 1;
 }
 
@@ -454,7 +469,7 @@ mp750_scan (pixma_t * s)
     mp->raw_width = ALIGN (s->param->w, 4);
 
   dpi = s->param->ydpi;
-  spare = 4 * dpi / 75 + 1;
+  spare = 4 * dpi / 75;		/* FIXME: or maybe (4*dpi/75 + 1)? */
   mp->raw_height = s->param->h + spare;
   PDBG (pixma_dbg (3, "raw_width=%u raw_height=%u dpi=%u\n",
 		   mp->raw_width, mp->raw_height, dpi));
@@ -580,6 +595,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 		    }
 		}
 	      mp->needs_abort = (info != 0x38);
+	      mp->last_block = info;
 	      mp->state = state_finished;
 	      return 0;
 	    }
@@ -589,9 +605,13 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  /*SIM*/ block_size = IMAGE_BLOCK_SIZE;
 	  error = request_image_block (s, &block_size, &info);
 	  if (error < 0)
-	    return error;
+	    {
+	      if (error == -ECANCELED)
+		read_error_info (s, NULL, 0);
+	      return error;
+	    }
 	  mp->last_block = info;
-	  if (info != 0 && info != 0x38)
+	  if ((info & ~0x38) != 0)
 	    {
 	      PDBG (pixma_dbg (1, "WARNING: Unknown info byte %x\n", info));
 	    }
@@ -648,14 +668,19 @@ mp750_finish_scan (pixma_t * s)
     case state_scanning:
     case state_warmup:
       error = abort_session (s);
-      if (error < 0)
-	{
-	  PDBG (pixma_dbg (1, "WARNING:abort_session() failed: %s\n",
-			   strerror (-error)));
-	  reset_scanner (s);
-	}
+      if (abort_session (s) == -ECANCELED)
+	read_error_info (s, NULL, 0);
       /* fall through */
     case state_finished:
+      if (s->param->source == PIXMA_SOURCE_FLATBED)
+	{
+	   /*SIM*/ query_status (s);
+	  if (abort_session (s) == -ECANCELED)
+	    {
+	      read_error_info (s, NULL, 0);
+	      query_status (s);
+	    }
+	}
       query_status (s);
       /*SIM*/ activate (s, 0);
       if (mp->needs_abort)
@@ -663,6 +688,7 @@ mp750_finish_scan (pixma_t * s)
 	  mp->needs_abort = 0;
 	  abort_session (s);
 	}
+      while (handle_interrupt (s, 100) > 0);
       free (mp->buf);
       mp->buf = mp->rawimg = NULL;
       mp->state = state_idle;
@@ -718,15 +744,16 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 	0,                     /* iface */		\
 	&pixma_mp750_ops,      /* ops */		\
 	dpi, 2*(dpi),          /* xdpi, ydpi */		\
-	638, 877,              /* width, height */	\
+	637, 877,              /* width, height */	\
         cap                                             \
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
   DEVICE ("Canon PIXMA MP750", 0x1706, 2400,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_ADF | PIXMA_CAP_EVENTS | PIXMA_CAP_EXPERIMENT),
   DEVICE ("Canon PIXMA MP780", 0x1707, 2400,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
-  DEVICE ("Canon PIXMA MP760", 0x1708, 2400, PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_ADF | PIXMA_CAP_EVENTS | PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon PIXMA MP760", 0x1708, 2400,
+	  PIXMA_CAP_EVENTS | PIXMA_CAP_EXPERIMENT),
   DEVICE (NULL, 0, 0, 0)
 };

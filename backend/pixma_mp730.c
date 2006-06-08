@@ -111,8 +111,7 @@ static void
 drain_bulk_in (pixma_t * s)
 {
   mp730_t *mp = (mp730_t *) s->subdriver;
-  while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) ==
-	 IMAGE_BLOCK_SIZE);
+  while (pixma_read (s->io, mp->imgbuf, IMAGE_BLOCK_SIZE) >= 0);
 }
 
 static int
@@ -134,6 +133,8 @@ query_status (pixma_t * s)
   if (error >= 0)
     {
       memcpy (mp->current_status, data, 12);
+      PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u\n",
+		       data[1], data[8], data[7]));
     }
   return error;
 }
@@ -335,11 +336,10 @@ mp730_close (pixma_t * s)
 }
 
 static unsigned
-calc_raw_width (const pixma_t * s, const pixma_scan_param_t * sp)
+calc_raw_width (const pixma_scan_param_t * sp)
 {
   unsigned raw_width;
   /* FIXME: Does MP730 need the alignment? */
-  UNUSED (s);
   if (sp->channels == 1)
     raw_width = ALIGN (sp->w, 12);
   else
@@ -350,13 +350,10 @@ calc_raw_width (const pixma_t * s, const pixma_scan_param_t * sp)
 static int
 mp730_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
-  unsigned raw_width;
-
   UNUSED (s);
 
   sp->depth = 8;		/* FIXME: Does MP730 supports other depth? */
-  raw_width = calc_raw_width (s, sp);
-  sp->line_size = raw_width * sp->channels;
+  sp->line_size = calc_raw_width (sp) * sp->channels;
   return 0;
 }
 
@@ -370,7 +367,8 @@ mp730_scan (pixma_t * s)
   if (mp->state != state_idle)
     return -EBUSY;
 
-  mp->raw_width = calc_raw_width (s, s->param);
+  mp->raw_width = calc_raw_width (s->param);
+  PDBG (pixma_dbg (3, "raw_width = %u\n", mp->raw_width));
 
   n = IMAGE_BLOCK_SIZE / s->param->line_size + 1;
   buf = (uint8_t *) malloc ((n + 1) * s->param->line_size + IMAGE_BLOCK_SIZE);
@@ -426,8 +424,8 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
 	  bytes_received = error;
 	  block_size = pixma_get_be16 (header + 4);
-	  mp->last_block = (header[2] == 0x38);
-	  if (header[2] != 0 && header[2] != 0x38)
+	  mp->last_block = ((header[2] & 0x28) == 0x28);
+	  if ((header[2] & ~0x38) != 0)
 	    {
 	      PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
 	      PDBG (pixma_hexdump (1, header, 16));
@@ -538,7 +536,7 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
   DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 638, 877, 0),
-  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 638, 868,
+  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 637, 868,
 	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
   DEVICE (NULL, 0, 0, 0, 0, 0)
 };

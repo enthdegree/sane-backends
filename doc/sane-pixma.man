@@ -1,8 +1,7 @@
-.TH "sane-pixma" "5" "02 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "08 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
-
 .SH DESCRIPTION
 The
 .B sane-pixma
@@ -38,8 +37,7 @@ The backend supports
 .br
 * automatic document feeder.
 .PP
-The device name is in the form
-.BI pixma: xxxxyyyy_zzzzz
+The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
 Example: pixma:04A91709_123456 is a MP150.
 .PP
@@ -49,7 +47,37 @@ stage and will stay in this stage until we get the programming manual
 for the hardware. Although we have tested it as good as we could, it will
 not work in every situations. You will find an up-to-date status at the
 project homepage. (See below)
-
+.SH OPTIONS
+Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
+provides the following
+.B experimental
+options for button handling, i.e. the options might change in the future.
+.TP
+.I button-controlled
+This option can be used in combination with
+.BR scanadf (1)
+and
+.BR scanimage (1)
+in batch mode, for example when you want to scan many photos or
+multiple-page documents. If it is enabled (i.e. is set to true or yes), the
+backend waits before every scan until the user presses the "SCAN" button
+(for MP150) or the color-scan button (for other models). Just put the
+first page in the scanner, press the button, then the next page, press
+the button and so on. When you finished, press the gray-scan button. (For
+MP150 you have to stop the frontend by pressing Ctrl-C for example.)
+.TP
+.I button-update button-1 button-2
+These options are interesting for developers. To check button status: (1) set
+.I button-1
+and
+.I button-2
+to zero, (2) set
+.I button-update
+(Its type is SANE_TYPE_BUTTON.), (3) get
+.I button-1
+and
+.IR button-2 .
+If the result is not zero, the corresponding button was pressed.
 .SH FILES
 .TP
 .I @LIBDIR@/libsane-pixma.a
@@ -58,7 +86,6 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane-pixma.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
-
 .SH ENVIRONMENT
 .TP
 .B SANE_DEBUG_PIXMA
@@ -71,9 +98,9 @@ the verbosity.
 .br
 1  print error and warning messages (recommended)
 .br
-2  print informative messages
+2  print informational messages
 .br
-3  print debugging messages
+3  print debug-level messages
 .br
 10 dump USB traffics
 .br
@@ -81,40 +108,14 @@ the verbosity.
 .TP
 .B PIXMA_EXPERIMENT
 Setting to a non-zero value will enable the support for experimental models.
-You should also set SANE_DEBUG_PIXMA to 10 and keep the last log file
-somewhere for the case that the backend fails.
-
+You should also set SANE_DEBUG_PIXMA to 10.
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane-dll (5),
 .I http://home.arcor.de/wittawat/pixma/
-
 .SH AUTHOR
 Wittawat Yamwong
 .PP
-I would like to thank:
-.br
-Farvil for testing MP150
-.br
-Gordon for testing MP730
-.br
-Jose Juan Iglesias for testing MP450
-.br
-Malcolm Caldwell for testing MP170
-.br
-Marcus Froeschl for testing MP800
-.br
-Martin Schewe for setting up mailing list for discussion
-.br
-Rune Kock for testing MP500
-.br
-Ryan McDonald for testing MP830
-.br
-Simon for testing MP700
-.br
-Stephan Aegerter for testing MP780
-.br
-Trevor Hobson for testing MP730
-.br
-Wade Fitzpatrick for testing MP730
-.br
+I would like to thank all testers and helpers. Without them I would not be
+able to write subdrivers for models I don't have. See also the project
+homepage.

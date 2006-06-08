@@ -1,3 +1,17 @@
+2006-06-08  Wittawat Yamwong <wittawat@web.de>
+
+	* backend/pixma.h: Upgraded to version 0.11.3
+	* backend/pixma_common.c backend/pixma_common.h:
+	  Added a work-around for the buffer underrun problem.
+	* backend/pixma_io_sanei.c: Set minimum timeout to 10ms.
+	* backend/pixma_mp150.c: Added 2 commands for MP800.
+	* backend/pixma_mp730.c: Added debug info.
+	* backend/pixma_mp750.c: Added support for buttons and a work-around
+	  for the lockup problem.
+	* backend/pixma.c: Removed SANE_I18N from backend type string.
+	* doc/sane-pixma.man: Updated
+	* doc/descriptions/pixma.desc: Updated status of MP750.
+
 2006-06-08  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update

@@ -135,7 +135,7 @@ pixma_hexdump (int level, const void *d_, unsigned len)
     }
 }
 
-static int
+static void
 time2str (char *buf, unsigned size)
 {
   time_t sec;
@@ -152,8 +152,8 @@ time2str (char *buf, unsigned size)
       usec = 1000000 + usec - tstart_usec;
       sec--;
     }
-  return snprintf (buf, size, "%lu.%03u", (unsigned long) sec,
-		   (unsigned) (usec / 1000));
+  snprintf (buf, size, "%lu.%03u", (unsigned long) sec,
+	    (unsigned) (usec / 1000));
 }
 
 void
@@ -515,6 +515,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
   s->imagebuf.wend = NULL;
   s->imagebuf.rptr = NULL;
   s->imagebuf.rend = NULL;
+  s->underrun = 0;
   error = s->ops->scan (s);
   if (error >= 0)
     {
@@ -526,6 +527,21 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
     }
 
   return error;
+}
+
+static uint8_t *
+fill_pixels (pixma_t * s, uint8_t * ptr, uint8_t * end, uint8_t value)
+{
+  if (s->cur_image_size < s->param->image_size)
+    {
+      int n = s->param->image_size - s->cur_image_size;
+      if (n > (end - ptr))
+	n = end - ptr;
+      memset (ptr, value, n);
+      s->cur_image_size += n;
+      ptr += n;
+    }
+  return ptr;
 }
 
 int
@@ -545,6 +561,22 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
   ib = s->imagebuf;		/* get rptr and rend */
   ib.wptr = (uint8_t *) buf;
   ib.wend = ib.wptr + len;
+
+  if (s->underrun)
+    {
+      if (s->cur_image_size < s->param->image_size)
+	{
+	  ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
+	}
+      else
+	{
+	  PDBG (pixma_dbg
+		(3, "pixma_read_image():completed (underrun detected)\n"));
+	  s->scanning = 0;
+	}
+      return ib.wptr - (uint8_t *) buf;
+    }
+
   while (ib.wptr != ib.wend)
     {
       if (ib.rptr == ib.rend)
@@ -556,14 +588,32 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
 	  if (result == 0)
 	    {			/* end of image? */
 	      s->ops->finish_scan (s);
-	      s->scanning = 0;
+#ifndef NDEBUG
 	      if (s->cur_image_size != s->param->image_size)
 		{
-		  PDBG (pixma_dbg (1, "WARNING:image size mismatches: "
-				   "%u expected, %u received\n",
-				   s->param->image_size, s->cur_image_size));
+		  pixma_dbg (1, "WARNING:image size mismatches\n");
+		  pixma_dbg (1,
+			     "    %u expected (%d lines) but %u received (%d lines)\n",
+			     s->param->image_size, s->param->h,
+			     s->cur_image_size,
+			     s->cur_image_size / s->param->line_size);
+		  if ((s->cur_image_size % s->param->line_size) != 0)
+		    {
+		      pixma_dbg (1,
+				 "BUG:received data not multiple of line_size\n");
+		    }
 		}
-	      PDBG (pixma_dbg (3, "pixma_read_image():completed\n"));
+#endif /* !NDEBUG */
+	      if (s->cur_image_size < s->param->image_size)
+		{
+		  s->underrun = 1;
+		  ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
+		}
+	      else
+		{
+		  PDBG (pixma_dbg (3, "pixma_read_image():completed\n"));
+		  s->scanning = 0;
+		}
 	      break;
 	    }
 	  s->cur_image_size += result;
@@ -577,7 +627,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
 	  ib.wptr += count;
 	}
     }
-  s->imagebuf = ib;
+  s->imagebuf = ib;		/* store rptr and rend */
   return ib.wptr - (uint8_t *) buf;
 
 cancel:
@@ -641,7 +691,7 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
 
   /* FIXME: I assume the same minimum width and height for every model. */
   CLAMP2 (sp->x, sp->w, 13, s->cfg->width, sp->xdpi);
-  CLAMP2 (sp->y, sp->h, 1, s->cfg->height, sp->ydpi);
+  CLAMP2 (sp->y, sp->h, 8, s->cfg->height, sp->ydpi);
 
   if (!(s->cfg->cap & PIXMA_CAP_ADF))
     sp->source = PIXMA_SOURCE_FLATBED;

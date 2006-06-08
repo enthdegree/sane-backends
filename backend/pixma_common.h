@@ -108,14 +108,15 @@ struct pixma_t
   pixma_scan_param_t *param;
   const pixma_config_t *cfg;
   char id[PIXMA_MAX_ID_LEN + 1];
-  int cancel;
+  int cancel;			/* NOTE: It can be set in a signal handler. */
   uint32_t events;
   void *subdriver;		/* can be used by model driver. */
 
   /* private */
-  unsigned scanning:1;
   unsigned cur_image_size;
   pixma_imagebuf_t imagebuf;
+  unsigned scanning:1;
+  unsigned underrun:1;
 };
 
 /** \addtogroup subdriver

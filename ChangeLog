@@ -1,3 +1,7 @@
+2006-06-09 Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* doc/sane-stv680.man update text
+
 2006-06-09  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* frontend/scanimage.c: move sane_cancel() out of scan_it().

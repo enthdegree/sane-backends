@@ -1,4 +1,4 @@
-.TH sane-stv680 5 "05 June 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-stv680 5 "09 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-stv680
 .SH NAME
 sane-stv680 \- SANE backend for STV680 camera's
@@ -27,14 +27,35 @@ Creative WebCam Go mini      0x041e         0x4007       untested
 .ft R
 
 For all these cameras, see the backend home page (under AUTHOR)
-for the exact status of each scanner.
+for the exact status of each camera.
+
+For startup of this backend check that if present the stv680 kernel module is
+removed or disabled.
+.br
+Also before using, enable the backend by editing the /etc/sane.d/dll.conf file, 
+change #stv680 to stv680.
 
 For problems with the untested cameras, you
 should contact the author for that.
 
 The options the backend supports can either be selected through
 command line options to programs like scanimage or through GUI
-elements in xcam. For both programs use the -B option
+elements in xcam. For both programs use the -B option needed for size buffer.
+
+Some frontends examples:
+.br
+xcam
+.RS
+xcam -B
+.RE
+
+scanimage: for writing in batch mode to a file or to a new file each time.
+.RS
+scanimage -B -d stv680:libusb:001:002 --batch=out.ppm --batch-count 5 --mode "Color RGB"
+.RE
+.RS
+scanimage -B -d stv680:libusb:001:002 --batch=out%d.ppm --batch-count 5 --mode "Color RGB"
+.RE
 
 .br
 If you have any success with a camera not listed here, or if you have
@@ -45,6 +66,7 @@ Valid command line options and their syntax can be listed by using
 .RS
 scanimage --help -d stv680
 .RE
+
 
 .TP
 .B Scan Mode

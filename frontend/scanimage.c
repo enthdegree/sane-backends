@@ -1409,7 +1409,6 @@ scan_it (void)
     }
 
 cleanup:
-  sane_cancel (device);
   if (image.data)
     free (image.data);
 
@@ -2182,6 +2181,8 @@ List of available devices:", prog_name);
       while ((batch
 	      && (batch_count == BATCH_COUNT_UNLIMITED || --batch_count))
 	     && SANE_STATUS_GOOD == status);
+
+      sane_cancel (device);
     }
   else
     status = test_it ();

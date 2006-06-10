@@ -109,6 +109,8 @@ struct ScannerState
   struct sockaddr_in m_sockAddr;	/* printer address */
   struct ComBuf m_buf;		/* buffer for network data */
   struct ComBuf m_imageData;	/* storage for decoded image data */
+  int m_numPages;	        /* number of complete pages (host byte order) */
+  struct ComBuf m_pageInfo;	/* "array" of numPages PageInfo structs */
   int m_bFinish;		/* set non-0 to signal that we are finished */
   char m_regName[REG_NAME_SIZE];	/* name with which to register */
   unsigned short m_xres;	/* x resolution (network byte order) */
@@ -120,6 +122,18 @@ struct ScannerState
   unsigned int m_pixelWidth;	/* width in pixels (network byte order) */
   unsigned int m_pixelHeight;	/* height in pixels (network byte order) */
   unsigned int m_bytesRead;	/* bytes read by SANE (host byte order) */
+  unsigned int m_currentPageBytes;/* number of bytes of current page read (host byte order) */
+};
+
+/* state data for a single page 
+   NOTE: all ints are in host byte order 
+*/
+struct PageInfo
+{
+  int m_width;                 /* pixel width */
+  int m_height;                /* pixel height */
+  int m_totalSize;             /* total page size (bytes) */
+  int m_bytesRemaining;        /* number of bytes not yet passed to SANE client */
 };
 
 /* struct for in-memory jpeg decompression */
@@ -157,7 +171,7 @@ static int AppendToComBuf (struct ComBuf *pBuf, const unsigned char *pData,
 /* remove data from the front of a ComBuf struct */
 static int PopFromComBuf (struct ComBuf *pBuf, size_t datSize);
 
-/* Initialise a packet */
+/* initialise a packet */
 static int InitPacket (struct ComBuf *pBuf, char type);
 
 /* append message to a packet */
@@ -384,6 +398,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   struct hostent *pHostent;
   char *pDot;
 
+  DBG( 15, "sane_open: %s\n", devicename );
 
   /* find the next available scanner pointer in gOpenScanners */
   for (i = 0; i < MAX_SCANNERS; ++i)
@@ -414,6 +429,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   memset (gOpenScanners[iScanner], 0, sizeof (struct ScannerState));
   InitComBuf (&gOpenScanners[iScanner]->m_buf);
   InitComBuf (&gOpenScanners[iScanner]->m_imageData);
+  InitComBuf (&gOpenScanners[iScanner]->m_pageInfo);
   gOpenScanners[iScanner]->m_xres = ntohs (200);
   gOpenScanners[iScanner]->m_yres = ntohs (200);
   gOpenScanners[iScanner]->m_composition = ntohl (0x01);
@@ -494,6 +510,8 @@ void
 sane_close (SANE_Handle handle)
 {
 
+  DBG( 15, "sane_close: %x\n", handle );
+
   FreeScannerState ((int) handle);
 
 }				/* sane_close */
@@ -548,16 +566,26 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   int iHandle = (int) handle;
   unsigned int width, height, imageSize;
+  struct PageInfo pageInfo;
 
   if (!gOpenScanners[iHandle])
     return SANE_STATUS_INVAL;
 
-  width = ntohl (gOpenScanners[iHandle]->m_pixelWidth);
-  height = ntohl (gOpenScanners[iHandle]->m_pixelHeight);
+  /* fetch page info */
+  memcpy( & pageInfo, gOpenScanners[iHandle]->m_pageInfo.m_pBuf, sizeof( pageInfo ) );
+
+  width = pageInfo.m_width;
+  height = pageInfo.m_height;
   imageSize = width * height * 3;
 
+  DBG( 15, "sane_get_parameters: bytes remaining on this page: %d, num pages: %d, size: %dx%d\n", 
+       pageInfo.m_bytesRemaining,
+       gOpenScanners[iHandle]->m_numPages,
+       width,
+       height );
+
   DBG (10,
-       "sane_get_parameters: handle %d: bytes outstanding: %d, image size: %d\n",
+       "sane_get_parameters: handle %x: bytes outstanding: %d, image size: %d\n",
        iHandle, gOpenScanners[iHandle]->m_imageData.m_used, imageSize);
 
   /* check for enough data */
@@ -569,10 +597,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
 
   params->format = SANE_FRAME_RGB;
-  /*
-     params->last_frame = ( gOpenScanners[ iHandle ]->m_imageData.m_used == imageSize )
-     ? SANE_TRUE : SANE_FALSE;
-   */
   params->last_frame = SANE_TRUE;
   params->lines = height;
   params->depth = 8;
@@ -599,14 +623,21 @@ sane_start (SANE_Handle handle)
   fd_set readFds;
   struct timeval selTimeVal;
 
+  DBG( 15, "sane_start: %x\n", handle );
+
   /* fetch and check scanner index */
   iScanner = (int) handle;
   if (!ValidScannerNumber (iScanner))
     return SANE_STATUS_INVAL;
 
   /* check if we still have oustanding pages of data on this handle */
-  if (gOpenScanners[iScanner]->m_imageData.m_used)
+  if (gOpenScanners[iScanner]->m_imageData.m_used){
+
+    /* remove empty page */
+    PopFromComBuf ( & gOpenScanners[iScanner]->m_pageInfo, sizeof( struct PageInfo ) );
     return SANE_STATUS_GOOD;
+
+  }
 
   /* determine local IP address */
   addrSize = sizeof (myAddr);
@@ -697,6 +728,9 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   int iHandle = (int) handle;
   int dataSize, imageSize;
+  struct PageInfo pageInfo;
+
+  DBG( 15, "sane_read: %x (max_length=%d)\n", handle, max_length );
 
   *length = 0;
 
@@ -704,41 +738,42 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     return SANE_STATUS_INVAL;
 
   /* check for end of data */
-  if (!gOpenScanners[iHandle]->m_imageData.m_used)
+  if ( ( ! gOpenScanners[iHandle]->m_imageData.m_used ) 
+       || ( ! gOpenScanners[iHandle]->m_numPages ) )
     return SANE_STATUS_EOF;
 
-  /* calculate the size of a single RGB frame */
-  imageSize = ntohl (gOpenScanners[iHandle]->m_pixelWidth)
-    * ntohl (gOpenScanners[iHandle]->m_pixelHeight) * 3;
+  /* fetch page info */
+  memcpy( & pageInfo, gOpenScanners[iHandle]->m_pageInfo.m_pBuf, sizeof( pageInfo ) );
 
-  /* check for end of page */
-  if (gOpenScanners[iHandle]->m_bytesRead
-      && !(gOpenScanners[iHandle]->m_bytesRead % imageSize))
-    {
-      *length = 0;
-      gOpenScanners[iHandle]->m_bytesRead = 0;
-      return SANE_STATUS_EOF;
-    }
+  /* check for end of page data */
+  if ( dataSize = pageInfo.m_bytesRemaining < 1 )
+    return SANE_STATUS_EOF;
 
-  /* how much to send? */
+  /*  send the remainder of the current image */
+  dataSize = pageInfo.m_bytesRemaining;
 
-  /* calculate the size of the remainder of the current image */
-  dataSize = imageSize - (gOpenScanners[iHandle]->m_bytesRead % imageSize);
-
-  /* ...unless we don't have that much data to send */
-  if ((unsigned int) dataSize > gOpenScanners[iHandle]->m_imageData.m_used)
-    dataSize = gOpenScanners[iHandle]->m_imageData.m_used;
-
-  /* ...or there's not enough room in the output buffer */
+  /* unless there's not enough room in the output buffer */
   if (dataSize > max_length)
     dataSize = max_length;
 
-  /* update the data sent counter */
+  /* update the data sent counters */
   gOpenScanners[iHandle]->m_bytesRead += dataSize;
+  pageInfo.m_bytesRemaining -= dataSize;
+
+  /* update counter */
+  memcpy( gOpenScanners[iHandle]->m_pageInfo.m_pBuf, & pageInfo, sizeof( pageInfo ) );
+
+  /* check for end of page */
+  if ( pageInfo.m_bytesRemaining < 1 ){
+
+    /* yes, so remove page info */
+    gOpenScanners[iHandle]->m_numPages--;
+
+  } /* if */
 
   DBG (10,
        "sane_read: sending %d bytes, image total %d of %d, %d remaining in buffer\n",
-       dataSize, gOpenScanners[iHandle]->m_bytesRead, imageSize,
+       dataSize, gOpenScanners[iHandle]->m_bytesRead, pageInfo.m_bytesRemaining ,
        gOpenScanners[iHandle]->m_imageData.m_used - dataSize);
 
   /* copy the data */
@@ -755,8 +790,9 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 /***********************************************************/
 
 void
-sane_cancel (SANE_Handle __sane_unused__ handle)
+sane_cancel (SANE_Handle handle)
 {
+  DBG( 15, "sane_cancel: %x\n", handle );
 }				/* sane_cancel */
 
 /***********************************************************/
@@ -796,9 +832,9 @@ ClearKnownDevices ()
       if (gKnownDevices[i])
 	{
 	  if (gKnownDevices[i]->name)
-	    free (gKnownDevices[i]->name);
+	    free ((void*)(gKnownDevices[i]->name));
 	  if (gKnownDevices[i]->model)
-	    free (gKnownDevices[i]->model);
+	    free ((void*)(gKnownDevices[i]->model));
 	  free (gKnownDevices[i]);
 	}
       gKnownDevices[i] = NULL;
@@ -965,9 +1001,9 @@ int
 AppendMessageToPacket (struct ComBuf *pBuf,	/* packet to which to append */
 		       char messageType,	/* type of message */
 		       char *messageName,	/* name of message */
-		       char valueType,	/* type of value */
-		       void *pValue,	/* pointer to value */
-		       size_t valueLen	/* length of value (bytes) */
+		       char valueType,	        /* type of value */
+		       void *pValue,	        /* pointer to value */
+		       size_t valueLen	        /* length of value (bytes) */
   )
 {
 
@@ -1364,6 +1400,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
   char *pName;
   unsigned int uiVal;
   int errorCheck = 0;
+  int bProcessImage = 0;
 
   DBG (10, "ProcessTcpResponse: processing %d bytes, pData=%p\n",
        pTcpBuf->m_used, pData);
@@ -1523,7 +1560,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	}
       else if (!strncmp ("std-scan-page-widthpixel", pName, nameSize))
 	{
-	  if (!pState->m_pixelWidth)
+	  if (1 || !pState->m_pixelWidth)
 	    {
 	      memcpy (&pState->m_pixelWidth, pValue,
 		      sizeof (pState->m_pixelWidth));
@@ -1538,7 +1575,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
       else if (!strncmp ("std-scan-page-heightpixel", pName, nameSize))
 	{
 
-	  if (!pState->m_pixelHeight)
+	  if (1 || !pState->m_pixelHeight)
 	    {
 	      memcpy (&pState->m_pixelHeight, pValue,
 		      sizeof (pState->m_pixelHeight));
@@ -1560,15 +1597,24 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	  FinalisePacket (&buf);
 	  send (pState->m_tcpFd, buf.m_pBuf, buf.m_used, 0);
 
-	  /* write out any pre-existing page data */
+	  /* write out any pre-existing page data 
 	  errorCheck |= ProcessPageData (pState);
+	  */
 
 	  /* reset the data buffer ready to store a new page */
 	  pState->m_buf.m_used = 0;
 
+	  /* init current page size */
+	  pState->m_currentPageBytes = 0;
+
+	  pState->m_pixelWidth = 0;
+	  pState->m_pixelHeight = 0;
+
 	}
       else if (!strncmp ("std-scan-page-end", pName, nameSize))
 	{
+
+	  bProcessImage = 1;
 
 	  errorCheck |= InitPacket (&buf, 0x02);
 	  uiVal = 0;
@@ -1592,7 +1638,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	  send (pState->m_tcpFd, buf.m_pBuf, buf.m_used, 0);
 
 	  /* write out any pre-existing page data */
-	  errorCheck |= ProcessPageData (pState);
+	  /* errorCheck |= ProcessPageData (pState); */
 
 	  /* reset the data buffer ready to store a new page */
 	  pState->m_buf.m_used = 0;
@@ -1636,6 +1682,9 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 
     }				/* while */
 
+
+  /* process page data if required */ 
+  if ( bProcessImage ) errorCheck |= ProcessPageData (pState);
 
 cleanup:
 
@@ -1695,6 +1744,7 @@ ProcessPageData (struct ScannerState *pState)
   struct jpeg_error_mgr jpegErr;
   int numPixels, iPixel, width, height, scanLineSize, imageBytes;
   int ret = 0;
+  struct PageInfo pageInfo;
 
   JSAMPLE *pJpegLine = NULL;
   uint32 *pTiffRgba = NULL;
@@ -1767,6 +1817,18 @@ ProcessPageData (struct ScannerState *pState)
 				   pJpegLine, scanLineSize);
 
 	  }			/* while */
+
+	/* update info for this page */
+	pageInfo.m_width = jpegCinfo.m_cinfo.output_width;
+	pageInfo.m_height = jpegCinfo.m_cinfo.output_height;
+	pageInfo.m_totalSize = pageInfo.m_width * pageInfo.m_height * 3;
+	pageInfo.m_bytesRemaining = pageInfo.m_totalSize;
+
+	DBG( 1, "Process page data: page %d: JPEG image: %d x %d, %d bytes\n",
+	     pState->m_numPages, pageInfo.m_width, pageInfo.m_height, pageInfo.m_totalSize );
+
+	ret |= AppendToComBuf( & pState->m_pageInfo, & pageInfo, sizeof( pageInfo ) );
+	++( pState->m_numPages );
 
       JPEG_CLEANUP:
 	jpeg_finish_decompress (&jpegCinfo.m_cinfo);
@@ -1850,6 +1912,19 @@ ProcessPageData (struct ScannerState *pState)
 
 	  }			/* for iRow */
 
+
+
+	/* update info for this page */
+	pageInfo.m_width = width;
+	pageInfo.m_height = height;
+	pageInfo.m_totalSize = pageInfo.m_width * pageInfo.m_height * 3;
+	pageInfo.m_bytesRemaining = pageInfo.m_totalSize;
+
+	DBG( 1, "Process page data: page %d: TIFF image: %d x %d, %d bytes\n",
+	     pState->m_numPages, width, height, pageInfo.m_totalSize );
+
+	ret |= AppendToComBuf( & pState->m_pageInfo, & pageInfo, sizeof( pageInfo ) );
+	++( pState->m_numPages );
 
       TIFF_CLEANUP:
 	if (pTiff)

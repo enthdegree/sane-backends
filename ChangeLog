@@ -1,3 +1,9 @@
+2006-06-10  Wittawat Yamwong <wittawat@web.de>
+
+	* backend/pixma_mp750.c doc/sane-pixma.man
+	  /doc/descriptions/pixma.desc:
+	  Removed experimental flag from MP750, MP760 and MP780.
+
 2006-06-09 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* doc/sane-stv680.man update text

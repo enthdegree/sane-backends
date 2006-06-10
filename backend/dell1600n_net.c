@@ -193,10 +193,10 @@ static int MessageIsComplete (unsigned char *pData, size_t size);
 static SANE_Device *ProcessFindResponse (unsigned char *pData, size_t size);
 
 /* frees a scanner state struct stored in gOpenScanners */
-static void FreeScannerState (int iScanner);
+static void FreeScannerState (int iHandle);
 
-/* \return 1 if iScanner is a valid member of gOpenScanners, 0 otherwise */
-static int ValidScannerNumber (int iScanner);
+/* \return 1 if iHandle is a valid member of gOpenScanners, 0 otherwise */
+static int ValidScannerNumber (int iHandle);
 
 /* process UDP responses, \return 0 in success, >0 otherwise */
 static int ProcessUdpResponse (unsigned char *pData, size_t size,
@@ -261,15 +261,15 @@ void
 sane_exit (void)
 {
 
-  int iScanner;
+  int iHandle;
 
   /* clean up */
   ClearKnownDevices ();
 
-  for (iScanner = 0; iScanner < MAX_SCANNERS; ++iScanner)
+  for (iHandle = 0; iHandle < MAX_SCANNERS; ++iHandle)
     {
-      if (gOpenScanners[iScanner])
-	FreeScannerState (iScanner);
+      if (gOpenScanners[iHandle])
+	FreeScannerState (iHandle);
     }
 
 }				/* sane_exit */
@@ -393,12 +393,12 @@ SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
 
-  int iScanner = -1, i;
+  int iHandle = -1, i;
   SANE_Status status = SANE_STATUS_GOOD;
   struct hostent *pHostent;
   char *pDot;
 
-  DBG( 15, "sane_open: %s\n", devicename );
+  DBG( 5, "sane_open: %s\n", devicename );
 
   /* find the next available scanner pointer in gOpenScanners */
   for (i = 0; i < MAX_SCANNERS; ++i)
@@ -407,11 +407,11 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       if (gOpenScanners[i])
 	continue;
 
-      iScanner = i;
+      iHandle = i;
       break;
 
     }				/* for */
-  if (iScanner == -1)
+  if (iHandle == -1)
     {
       DBG (1, "sane_open: no space left in gOpenScanners array\n");
       status = SANE_STATUS_NO_MEM;
@@ -419,23 +419,23 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
   /* allocate some space */
-  if (!(gOpenScanners[iScanner] = malloc (sizeof (struct ScannerState))))
+  if (!(gOpenScanners[iHandle] = malloc (sizeof (struct ScannerState))))
     {
       status = SANE_STATUS_NO_MEM;
       goto cleanup;
     }
 
   /* init data */
-  memset (gOpenScanners[iScanner], 0, sizeof (struct ScannerState));
-  InitComBuf (&gOpenScanners[iScanner]->m_buf);
-  InitComBuf (&gOpenScanners[iScanner]->m_imageData);
-  InitComBuf (&gOpenScanners[iScanner]->m_pageInfo);
-  gOpenScanners[iScanner]->m_xres = ntohs (200);
-  gOpenScanners[iScanner]->m_yres = ntohs (200);
-  gOpenScanners[iScanner]->m_composition = ntohl (0x01);
-  gOpenScanners[iScanner]->m_brightness = 0x80;
-  gOpenScanners[iScanner]->m_compression = ntohl (0x08);
-  gOpenScanners[iScanner]->m_fileType = ntohl (0x02);
+  memset (gOpenScanners[iHandle], 0, sizeof (struct ScannerState));
+  InitComBuf (&gOpenScanners[iHandle]->m_buf);
+  InitComBuf (&gOpenScanners[iHandle]->m_imageData);
+  InitComBuf (&gOpenScanners[iHandle]->m_pageInfo);
+  gOpenScanners[iHandle]->m_xres = ntohs (200);
+  gOpenScanners[iHandle]->m_yres = ntohs (200);
+  gOpenScanners[iHandle]->m_composition = ntohl (0x01);
+  gOpenScanners[iHandle]->m_brightness = 0x80;
+  gOpenScanners[iHandle]->m_compression = ntohl (0x08);
+  gOpenScanners[iHandle]->m_fileType = ntohl (0x02);
 
 
   /* look up scanner name */
@@ -448,7 +448,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
   /* open a UDP socket */
-  if (!(gOpenScanners[iScanner]->m_udpFd =
+  if (!(gOpenScanners[iHandle]->m_udpFd =
 	socket (PF_INET, SOCK_DGRAM, IPPROTO_UDP)))
     {
       DBG (1, "sane_open: error opening socket\n");
@@ -457,15 +457,15 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
   /* connect to the scanner */
-  memset (&gOpenScanners[iScanner]->m_sockAddr, 0,
-	  sizeof (gOpenScanners[iScanner]->m_sockAddr));
-  gOpenScanners[iScanner]->m_sockAddr.sin_family = AF_INET;
-  gOpenScanners[iScanner]->m_sockAddr.sin_port = htons (gScannerPort);
-  memcpy (&gOpenScanners[iScanner]->m_sockAddr.sin_addr,
+  memset (&gOpenScanners[iHandle]->m_sockAddr, 0,
+	  sizeof (gOpenScanners[iHandle]->m_sockAddr));
+  gOpenScanners[iHandle]->m_sockAddr.sin_family = AF_INET;
+  gOpenScanners[iHandle]->m_sockAddr.sin_port = htons (gScannerPort);
+  memcpy (&gOpenScanners[iHandle]->m_sockAddr.sin_addr,
 	  pHostent->h_addr_list[0], pHostent->h_length);
-  if (connect (gOpenScanners[iScanner]->m_udpFd,
-	       (struct sockaddr *) &gOpenScanners[iScanner]->m_sockAddr,
-	       sizeof (gOpenScanners[iScanner]->m_sockAddr)))
+  if (connect (gOpenScanners[iHandle]->m_udpFd,
+	       (struct sockaddr *) &gOpenScanners[iHandle]->m_sockAddr,
+	       sizeof (gOpenScanners[iHandle]->m_sockAddr)))
     {
       DBG (1, "sane_open: error connecting to %s:%d\n", devicename,
 	   gScannerPort);
@@ -474,31 +474,31 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
 
   /* set fallback registration name */
-  sprintf (gOpenScanners[iScanner]->m_regName, "Sane");
+  sprintf (gOpenScanners[iHandle]->m_regName, "Sane");
 
   /* try to fill in hostname */
-  gethostname (gOpenScanners[iScanner]->m_regName, REG_NAME_SIZE);
+  gethostname (gOpenScanners[iHandle]->m_regName, REG_NAME_SIZE);
 
   /* just in case... */
-  gOpenScanners[iScanner]->m_regName[REG_NAME_SIZE - 1] = 0;
+  gOpenScanners[iHandle]->m_regName[REG_NAME_SIZE - 1] = 0;
 
   /* chop off any domain (if any) */
-  if ((pDot = strchr (gOpenScanners[iScanner]->m_regName, '.')))
+  if ((pDot = strchr (gOpenScanners[iHandle]->m_regName, '.')))
     *pDot = 0;
 
   DBG (5, "sane_open: connected to %s:%d as %s\n", devicename, gScannerPort,
-       gOpenScanners[iScanner]->m_regName);
+       gOpenScanners[iHandle]->m_regName);
 
 
   /* set the handle */
-  *handle = (SANE_Handle) iScanner;
+  *handle = (SANE_Handle) iHandle;
 
   return status;
 
 cleanup:
 
-  if (iScanner != -1)
-    FreeScannerState (iScanner);
+  if (iHandle != -1)
+    FreeScannerState (iHandle);
 
   return status;
 
@@ -510,7 +510,7 @@ void
 sane_close (SANE_Handle handle)
 {
 
-  DBG( 15, "sane_close: %x\n", handle );
+  DBG( 5, "sane_close: %x\n", (int)handle );
 
   FreeScannerState ((int) handle);
 
@@ -578,23 +578,26 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   height = pageInfo.m_height;
   imageSize = width * height * 3;
 
-  DBG( 15, "sane_get_parameters: bytes remaining on this page: %d, num pages: %d, size: %dx%d\n", 
+  DBG( 5, "sane_get_parameters: bytes remaining on this page: %d, num pages: %d, size: %dx%d\n", 
        pageInfo.m_bytesRemaining,
        gOpenScanners[iHandle]->m_numPages,
        width,
        height );
 
-  DBG (10,
+  DBG (5,
        "sane_get_parameters: handle %x: bytes outstanding: %d, image size: %d\n",
        iHandle, gOpenScanners[iHandle]->m_imageData.m_used, imageSize);
 
   /* check for enough data */
+  /*
   if (gOpenScanners[iHandle]->m_imageData.m_used < imageSize)
     {
       DBG (1, "sane_get_parameters: handle %d: not enough data: %d < %d\n",
 	   iHandle, gOpenScanners[iHandle]->m_imageData.m_used, imageSize);
       return SANE_STATUS_INVAL;
     }
+  */
+
 
   params->format = SANE_FRAME_RGB;
   params->last_frame = SANE_TRUE;
@@ -616,32 +619,32 @@ sane_start (SANE_Handle handle)
   SANE_Status status = SANE_STATUS_GOOD;
   struct ComBuf buf;
   unsigned char sockBuf[SOCK_BUF_SIZE];
-  int iScanner, nread;
+  int iHandle, nread;
   int errorCheck = 0;
   struct sockaddr_in myAddr;
   socklen_t addrSize;
   fd_set readFds;
   struct timeval selTimeVal;
 
-  DBG( 15, "sane_start: %x\n", handle );
+  DBG( 5, "sane_start: %x\n", (int)handle );
 
   /* fetch and check scanner index */
-  iScanner = (int) handle;
-  if (!ValidScannerNumber (iScanner))
+  iHandle = (int) handle;
+  if (!ValidScannerNumber (iHandle))
     return SANE_STATUS_INVAL;
 
   /* check if we still have oustanding pages of data on this handle */
-  if (gOpenScanners[iScanner]->m_imageData.m_used){
+  if (gOpenScanners[iHandle]->m_imageData.m_used){
 
     /* remove empty page */
-    PopFromComBuf ( & gOpenScanners[iScanner]->m_pageInfo, sizeof( struct PageInfo ) );
+    PopFromComBuf ( & gOpenScanners[iHandle]->m_pageInfo, sizeof( struct PageInfo ) );
     return SANE_STATUS_GOOD;
 
   }
 
   /* determine local IP address */
   addrSize = sizeof (myAddr);
-  if (getsockname (gOpenScanners[iScanner]->m_udpFd, &myAddr, &addrSize))
+  if (getsockname (gOpenScanners[iHandle]->m_udpFd, &myAddr, &addrSize))
     {
       DBG (1, "sane_start: Error getting own IP address\n");
       return SANE_STATUS_IO_ERROR;
@@ -654,8 +657,8 @@ sane_start (SANE_Handle handle)
   errorCheck |= InitPacket (&buf, 1);
   errorCheck |=
     AppendMessageToPacket (&buf, 0x22, "std-scan-subscribe-user-name", 0x0b,
-			   gOpenScanners[iScanner]->m_regName,
-			   strlen (gOpenScanners[iScanner]->m_regName));
+			   gOpenScanners[iHandle]->m_regName,
+			   strlen (gOpenScanners[iHandle]->m_regName));
   errorCheck |=
     AppendMessageToPacket (&buf, 0x22, "std-scan-subscribe-ip-address", 0x0a,
 			   &myAddr.sin_addr, 4);
@@ -669,30 +672,30 @@ sane_start (SANE_Handle handle)
     }
 
   /* send the packet */
-  send (gOpenScanners[iScanner]->m_udpFd, buf.m_pBuf, buf.m_used, 0);
+  send (gOpenScanners[iHandle]->m_udpFd, buf.m_pBuf, buf.m_used, 0);
 
 
   /* loop until done */
-  gOpenScanners[iScanner]->m_bFinish = 0;
-  while (!gOpenScanners[iScanner]->m_bFinish)
+  gOpenScanners[iHandle]->m_bFinish = 0;
+  while (!gOpenScanners[iHandle]->m_bFinish)
     {
 
       /* prepare select mask */
       FD_ZERO (&readFds);
-      FD_SET (gOpenScanners[iScanner]->m_udpFd, &readFds);
+      FD_SET (gOpenScanners[iHandle]->m_udpFd, &readFds);
       selTimeVal.tv_sec = 1;
       selTimeVal.tv_usec = 0;
 
-      DBG (20, "sane_start: waiting for scan signal\n");
+      DBG (5, "sane_start: waiting for scan signal\n");
 
       /* wait again if nothing received */
-      if (!select (gOpenScanners[iScanner]->m_udpFd + 1,
+      if (!select (gOpenScanners[iHandle]->m_udpFd + 1,
 		   &readFds, NULL, NULL, &selTimeVal))
 	continue;
 
       /* read from socket */
       nread =
-	read (gOpenScanners[iScanner]->m_udpFd, sockBuf, sizeof (sockBuf));
+	read (gOpenScanners[iHandle]->m_udpFd, sockBuf, sizeof (sockBuf));
 
       if (nread <= 0)
 	{
@@ -701,7 +704,7 @@ sane_start (SANE_Handle handle)
 	}
 
       /* process the response */
-      if (ProcessUdpResponse (sockBuf, nread, gOpenScanners[iScanner]))
+      if (ProcessUdpResponse (sockBuf, nread, gOpenScanners[iHandle]))
 	{
 	  status = SANE_STATUS_IO_ERROR;
 	  goto cleanup;
@@ -727,27 +730,31 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 {
 
   int iHandle = (int) handle;
-  int dataSize, imageSize;
+  int dataSize;
   struct PageInfo pageInfo;
 
-  DBG( 15, "sane_read: %x (max_length=%d)\n", handle, max_length );
+  DBG( 5, "sane_read: %x (max_length=%d)\n", (int)handle, max_length );
 
   *length = 0;
 
   if (!gOpenScanners[iHandle])
     return SANE_STATUS_INVAL;
 
-  /* check for end of data */
+  /* check for end of data (no further pages) */
   if ( ( ! gOpenScanners[iHandle]->m_imageData.m_used ) 
        || ( ! gOpenScanners[iHandle]->m_numPages ) )
-    return SANE_STATUS_EOF;
+    {
+      /* remove empty page if there are no more cached pages */
+      PopFromComBuf ( & gOpenScanners[iHandle]->m_pageInfo, sizeof( struct PageInfo ) );
+
+      return SANE_STATUS_EOF;
+    }
 
   /* fetch page info */
   memcpy( & pageInfo, gOpenScanners[iHandle]->m_pageInfo.m_pBuf, sizeof( pageInfo ) );
 
-  /* check for end of page data */
-  if ( dataSize = pageInfo.m_bytesRemaining < 1 )
-    return SANE_STATUS_EOF;
+  /* check for end of page data (we still have further cached pages) */
+  if ( pageInfo.m_bytesRemaining < 1 ) return SANE_STATUS_EOF;
 
   /*  send the remainder of the current image */
   dataSize = pageInfo.m_bytesRemaining;
@@ -771,10 +778,12 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 
   } /* if */
 
-  DBG (10,
-       "sane_read: sending %d bytes, image total %d of %d, %d remaining in buffer\n",
+  DBG (5,
+       "sane_read: sending %d bytes, image total %d, %d page bytes remaining, %d total remaining, image: %dx%d\n",
        dataSize, gOpenScanners[iHandle]->m_bytesRead, pageInfo.m_bytesRemaining ,
-       gOpenScanners[iHandle]->m_imageData.m_used - dataSize);
+       gOpenScanners[iHandle]->m_imageData.m_used - dataSize, 
+       pageInfo.m_width,
+       pageInfo.m_height);
 
   /* copy the data */
   memcpy (data, gOpenScanners[iHandle]->m_imageData.m_pBuf, dataSize);
@@ -792,7 +801,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
-  DBG( 15, "sane_cancel: %x\n", handle );
+  DBG( 5, "sane_cancel: %x\n", (int)handle );
 }				/* sane_cancel */
 
 /***********************************************************/
@@ -1201,48 +1210,48 @@ ProcessFindResponse (unsigned char *pData, size_t size)
 
 /* frees a scanner state struct stored in gOpenScanners */
 void
-FreeScannerState (int iScanner)
+FreeScannerState (int iHandle)
 {
 
   /* check range etc */
-  if (!ValidScannerNumber (iScanner))
+  if (!ValidScannerNumber (iHandle))
     return;
 
   /* close UDP handle */
-  if (gOpenScanners[iScanner]->m_udpFd)
-    close (gOpenScanners[iScanner]->m_udpFd);
+  if (gOpenScanners[iHandle]->m_udpFd)
+    close (gOpenScanners[iHandle]->m_udpFd);
 
   /* free m_buf */
-  FreeComBuf (&gOpenScanners[iScanner]->m_buf);
+  FreeComBuf (&gOpenScanners[iHandle]->m_buf);
 
   /* free m_imageData */
-  FreeComBuf (&gOpenScanners[iScanner]->m_imageData);
+  FreeComBuf (&gOpenScanners[iHandle]->m_imageData);
 
   /* free the struct */
-  free (gOpenScanners[iScanner]);
+  free (gOpenScanners[iHandle]);
 
   /* set pointer to NULL */
-  gOpenScanners[iScanner] = NULL;
+  gOpenScanners[iHandle] = NULL;
 
 }				/* FreeScannerState */
 
 /***********************************************************/
 
-/* \return 1 if iScanner is a valid member of gOpenScanners, 0 otherwise */
+/* \return 1 if iHandle is a valid member of gOpenScanners, 0 otherwise */
 int
-ValidScannerNumber (int iScanner)
+ValidScannerNumber (int iHandle)
 {
   /* check range */
-  if ((iScanner < 0) || (iScanner >= MAX_SCANNERS))
+  if ((iHandle < 0) || (iHandle >= MAX_SCANNERS))
     {
-      DBG (1, "ValidScannerNumber: invalid scanner index %d", iScanner);
+      DBG (1, "ValidScannerNumber: invalid scanner index %d", iHandle);
       return 0;
     }
 
   /* check non-NULL pointer */
-  if (!gOpenScanners[iScanner])
+  if (!gOpenScanners[iHandle])
     {
-      DBG (1, "ValidScannerNumber: NULL scanner struct %d", iScanner);
+      DBG (1, "ValidScannerNumber: NULL scanner struct %d", iHandle);
       return 0;
     }
 
@@ -1532,7 +1541,7 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	{
 
 	  memcpy (&pState->m_fileType, pValue, sizeof (pState->m_fileType));
-	  DBG (10, "File type: %x\n", ntohl (pState->m_fileType));
+	  DBG (5, "File type: %x\n", ntohl (pState->m_fileType));
 
 	}
       else
@@ -1541,21 +1550,21 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 
 	  memcpy (&pState->m_compression, pValue,
 		  sizeof (pState->m_compression));
-	  DBG (10, "Compression: %x\n", ntohl (pState->m_compression));
+	  DBG (5, "Compression: %x\n", ntohl (pState->m_compression));
 
 	}
       else if (!strncmp ("std-scan-document-xresolution", pName, nameSize))
 	{
 
 	  memcpy (&pState->m_xres, pValue, sizeof (pState->m_xres));
-	  DBG (10, "X resolution: %d\n", ntohs (pState->m_xres));
+	  DBG (5, "X resolution: %d\n", ntohs (pState->m_xres));
 
 	}
       else if (!strncmp ("std-scan-document-yresolution", pName, nameSize))
 	{
 
 	  memcpy (&pState->m_yres, pValue, sizeof (pState->m_yres));
-	  DBG (10, "Y resolution: %d\n", ntohs (pState->m_yres));
+	  DBG (5, "Y resolution: %d\n", ntohs (pState->m_yres));
 
 	}
       else if (!strncmp ("std-scan-page-widthpixel", pName, nameSize))
@@ -1564,11 +1573,11 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	    {
 	      memcpy (&pState->m_pixelWidth, pValue,
 		      sizeof (pState->m_pixelWidth));
-	      DBG (10, "Width: %d\n", ntohl (pState->m_pixelWidth));
+	      DBG (5, "Width: %d\n", ntohl (pState->m_pixelWidth));
 	    }
 	  else
 	    {
-	      DBG (10, "Ignoring width (already have a value)\n");
+	      DBG (5, "Ignoring width (already have a value)\n");
 	    }
 
 	}
@@ -1579,11 +1588,11 @@ ProcessTcpResponse (struct ScannerState *pState, struct ComBuf *pTcpBuf)
 	    {
 	      memcpy (&pState->m_pixelHeight, pValue,
 		      sizeof (pState->m_pixelHeight));
-	      DBG (10, "Height: %d\n", ntohl (pState->m_pixelHeight));
+	      DBG (5, "Height: %d\n", ntohl (pState->m_pixelHeight));
 	    }
 	  else
 	    {
-	      DBG (10, "Ignoring height (already have a value)\n");
+	      DBG (5, "Ignoring height (already have a value)\n");
 	    }
 	}
       else if (!strncmp ("std-scan-page-start", pName, nameSize))

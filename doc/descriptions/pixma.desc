@@ -62,19 +62,19 @@
 :interface "USB"
 :usbid "0x04a9" "0x1706"
 :status :minimal
-:comment "Experimental. No grayscale."
+:comment "No grayscale. Canceling scan in ADF mode doesn't eject the paper!"
 
 :model "PIXMA MP760"
 :interface "USB"
 :usbid "0x04a9" "0x1708"
 :status :untested
-:comment "Experimental. No grayscale."
+:comment "Should work. No grayscale."
 
 :model "PIXMA MP780"
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :minimal
-:comment "Experimental. No grayscale. Scanner hangs if cancel while it scans."
+:comment "No grayscale. Scanner hangs if cancel while it scans (still true?)."
 
 :model "PIXMA MP800"
 :interface "USB"

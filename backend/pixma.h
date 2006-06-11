@@ -113,13 +113,11 @@ typedef u_int16_t uint16_t;
 typedef u_int32_t uint32_t;
 #endif /* HAVE_STDINT_H */
 
-#ifdef HAVE_OS2_H
-# ifndef EPROTO
-#  define EPROTO        10000
-# endif
-# ifndef ENODATA
-#  define ENODATA       10001
-# endif
+#ifndef EPROTO
+# define EPROTO        10000
+#endif
+#ifndef ENODATA
+# define ENODATA       10001
 #endif
 
 /** \addtogroup API

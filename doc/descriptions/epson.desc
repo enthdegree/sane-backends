@@ -151,6 +151,12 @@
 :usbid "0x04b8" "0x0128"
 :status :complete
 
+:model "Perfection 4990"
+:comment "US version of the GT-X800"
+:interface "USB"
+:usbid "0x04b8" "0x012a"
+:status :complete
+
 :model "Expression 636"
 :comment "US version of GT-9500"
 :interface "SCSI"
@@ -194,6 +200,11 @@
 :model "CX-4600"
 :interface "USB"
 :usbid "0x04b8" "0x080d"
+:status :good
+
+:model "CX-4800"
+:interface "USB"
+:usbid "0x04b8" "0x0819"
 :status :good
 
 :model "CX-5200"

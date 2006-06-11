@@ -101,6 +101,7 @@ inb (u_long port)
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "sane/saneopts.h"
 
@@ -145,7 +146,7 @@ typedef struct
   {
     u_long base;		/* i/o base address */
     int fd;			/* >= 0 when using /dev/port */
-    int max_polls;		/* forever if <= 0 */
+    int max_time_seconds;/* forever if <= 0 */
     u_int in_use;		/* port in use? */
   }
 PortRec, *Port;
@@ -204,7 +205,9 @@ pio_inb (const Port port, u_char * val, u_long addr)
 static inline int 
 pio_wait (const Port port, u_char val, u_char mask)
 {
-  int n, stat = 0;
+  int stat = 0;
+  long poll_count = 0;
+  time_t start = time(NULL);
 
   DBG (DL60, "wait on port 0x%03lx for %02x mask %02x\n",
        port->base, (int) val, (int) mask);
@@ -213,21 +216,28 @@ pio_wait (const Port port, u_char val, u_char mask)
   DBG (DL61, "   NACKNLG %s\n",
        (mask & PIO_STAT_NACKNLG) ? (val & PIO_STAT_NACKNLG ? "on" : "off")
        : "-");
-
-  for (n = 1; (port->max_polls <= 0) || (n <= port->max_polls); n++)
+  for (;;)
     {
+      ++poll_count;
       stat = inb (port->base + PIO_STAT);
       if ((stat & mask) == (val & mask))
 	{
-	  DBG (DL60, "got %02x after %d tries\n", stat, n);
+	  DBG (DL60, "got %02x after %ld tries\n", stat, poll_count);
 	  DBG (DL61, "   BUSY    %s\n", stat & PIO_STAT_BUSY ? "on" : "off");
 	  DBG (DL61, "   NACKNLG %s\n",
 	       stat & PIO_STAT_NACKNLG ? "on" : "off");
 
 	  return stat;
 	}
+      if(poll_count>1000)
+        {
+          if ((port->max_time_seconds>0) && (time(NULL)-start >= port->max_time_seconds))
+	    break;
+          usleep(1);
+        }
+
     }
-  DBG (DL60, "got %02x aborting after %d\n", stat, port->max_polls);
+  DBG (DL60, "got %02x aborting after %ld\n", stat, poll_count);
   DBG (DL61, "   BUSY    %s\n", stat & PIO_STAT_BUSY ? "on" : "off");
   DBG (DL61, "   NACKNLG %s\n", stat & PIO_STAT_NACKNLG ? "on" : "off");
   DBG (1, "polling time out, abort\n");
@@ -450,7 +460,7 @@ pio_open (const char *dev, SANE_Status * status)
     }
   port[n].base = base;
   port[n].fd = -1;
-  port[n].max_polls = 0;
+  port[n].max_time_seconds = 10;
   port[n].in_use = 1;
 
   if (ioperm (port[n].base, 3, 1))

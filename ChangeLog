@@ -1,3 +1,31 @@
+2006-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+		(patch applied by Karl Heinz Kremer <khk@khk.net>
+
+	* doc/descriptions/epson.desc: Added CX-4800. Added Perfection
+	  4990 (bug #301795).
+	* backend/epson_usb.c: Added CX-4800 (bug #303341).
+	* backend/epson.c: Fixed segfault when a scanner isn't
+	  recognized. Added "Flatbed" as the only possible source option for
+	  MOD_SOURCE in this case (bug #303340).
+	  Epson CX4800 and CX6400 were detected as "unknown model". This
+	  changes request_identity2 to 0 in the EpsonCmdRec for the "D7"
+	  level, which skips the call to get_identity2_information(). The
+	  second bug was that the return status of
+	  get_identity2_information() was not checked in attach(). This
+	  actually allowed the scanner to be used but with inaccurate
+	  parameters (e.g. "Unknown model", default color depth, etc)
+	  because the scanner was already closed before probing for the rest
+	  of the parameters (bug #301478, #303342).
+	  The Epson Perfection 4990 photo/GT-X800 wrongly return 3200 dpi as
+	  their maximum resolution. This workaround enables teh full 4800
+	  dpi (bug #302090, patch from Claus Boje <claus@egehuset.dk>).
+	* backend/epson.conf.in: Detect some more epson SCSI scanners
+	  (GT-6000, GT-9000) which report "EPSON SC" instead of "EPSON" as
+	  SCSI manufacturer ID (bug #303269).
+	* sanei/sanei_pio.c: Don't do a busy loop when looking for
+	  scanners. This froze the backend when the scanner was switched
+	  off. Also CPU time is much reduced (bug #301926).
+
 2006-06-11 Gerard Klaver <gerard at gkall dot hobby dot nl>
 
 	* include/Makefile.in font_6x11.h added

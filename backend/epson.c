@@ -14,10 +14,11 @@
    Copyright (C) 2000 Mike Porter <mike@udel.edu> (mjp)
    Copyright (C) 2003 EPSON KOWA Corporation
    Copyright (C) 1999-2005 Karl Heinz Kremer <khk@khk.net>
+   Copyright (C) 2006 Claus Boje <claus@egehuset.dk>
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.45 - 2000-01-09"
-#define SANE_EPSON_BUILD	245
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.46 - 2006-06-11"
+#define SANE_EPSON_BUILD	246
 
 /*
    This file is part of the SANE package.
@@ -59,6 +60,8 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+   2006-06-11   Applied patch from Henning. Fixed a number of compiler warnings
+   2006-03-12   Added support for perfetion 4990 photo 4800 dpi
    2005-01-09   "flaming hack to get USB scanners working without timeouts under linux" 
 		submitted by "Steve" (in comment to bug #300830)
    2004-12-18   Added USB IDs for CX-4600 and CX-3650
@@ -453,7 +456,7 @@ static EpsonCmdRec epson_cmd[] = {
   {"B8", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-4,3,0}, 'Z','B','M','@','g','d','K','z','Q','b','m','f','e','\f', 0x19,'!','s','N', 0,  0,  0, 'p','q'},
   {"F5", 'I', 0, 'F','S','C','G','D','R','H','A','L',{-3,3,0}, 'Z', 0, 'M','@','g','d','K','z','Q', 0, 'm','f','e','\f', 0,    0,  0, 'N','T','P', 0,  0,  0},
   {"D1", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f', 0,   0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
-  {"D7", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f', 0,   0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
+  {"D7", 'I', 0, 'F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f', 0,   0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
   {"D8", 'I','i','F', 0, 'C','G','D','R', 0, 'A', 0, {0,0,0},  'Z', 0,  0, '@','g','d', 0, 'z', 0,  0,  0, 'f','e',  0,  0,   '!', 0,  0,  0,  0,  0,  0,  0},
 };
 
@@ -2080,13 +2083,13 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
      */
 
     if (buf[0] != TYPE_PROCESSOR
-	|| strncmp (buf + 8, "EPSON", 5) != 0
-	|| (strncmp (buf + 16, "SCANNER ", 8) != 0
-	    && strncmp (buf + 14, "SCANNER ", 8) != 0
-	    && strncmp (buf + 14, "Perfection", 10) != 0
-	    && strncmp (buf + 16, "Perfection", 10) != 0
-	    && strncmp (buf + 16, "Expression", 10) != 0
-	    && strncmp (buf + 16, "GT", 2) != 0))
+	|| strncmp ((char *) (buf + 8), "EPSON", 5) != 0
+	|| (strncmp ((char *) buf + 16, "SCANNER ", 8) != 0
+	    && strncmp ((char *) buf + 14, "SCANNER ", 8) != 0
+	    && strncmp ((char *) buf + 14, "Perfection", 10) != 0
+	    && strncmp ((char *) buf + 16, "Perfection", 10) != 0
+	    && strncmp ((char *) buf + 16, "Expression", 10) != 0
+	    && strncmp ((char *) buf + 16, "GT", 2) != 0))
     {
       DBG (1, "attach: device doesn't look like an EPSON  scanner\n");
       close_scanner (s);
@@ -2219,7 +2222,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 
   if (s->hw->cmd->request_identity2 != 0)
   {
-    get_identity2_information (s);
+    status = get_identity2_information (s);
     if (status != SANE_STATUS_GOOD)
       return status;
   }				/* request identity 2 */
@@ -2354,6 +2357,7 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
     {
       DBG (1, "Extended status flag request failed\n");
       dev->sane.model = strdup ("Unknown model");
+      *source_list_add++ = FBF_STR;
     }
     else
     {
@@ -2478,6 +2482,21 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
 	  SANE_FIX ((buf[10] << 8 | buf[9]) * 25.4 / dev->dpi_range.max);
 	dev->tpu_y_range.quant = 0;
 
+        /* 
+         * Check for Perfection 4990 photo/GT-X800 scanner.
+         * This scanner only report 3200 dpi back.
+         * The scanner fysical supports 4800 dpi.
+         * This is simulated here...
+         * Futher details read:
+         * EPSON Programming guide for EPSON Color Image Scanner Perfection 4990
+         */
+        if (strncmp((char *) buf + 0x1A,"GT-X800",7) == 0)
+        {
+	  dev->tpu_x_range.max = (dev->tpu_x_range.max/32)*48; 
+	  dev->tpu_y_range.max = (dev->tpu_y_range.max/32)*48; 
+	  DBG (5, "dpi_range.max %x \n",  dev->dpi_range.max);
+        }
+ 
 	DBG (5, "tpu tlx %f tly %f brx %f bry %f [mm]\n",
 	     SANE_UNFIX (dev->tpu_x_range.min),
 	     SANE_UNFIX (dev->tpu_y_range.min),
@@ -4944,7 +4963,7 @@ sane_start (SANE_Handle handle)
       len = result[3] << 8 | result[2];
       buf = alloca (len);
 
-      receive (s, buf, len, &status);	/* reveive actual status data */
+      receive (s, buf, len, &status);	/* receive actual status data */
 
       if (buf[0] & 0x80)
       {
@@ -5949,7 +5968,6 @@ get_identity_information (SANE_Handle handle)
     /* we need to correct for the difference in size between
        the EpsonIdentRec and the EpsonHdrRec */
     int correction = sizeof (EpsonIdentRec) - sizeof (EpsonHdrRec);
-
     for (n = (count - correction), buf = ident->buf; n; n -= k, buf += k)
     {
       switch (*buf)
@@ -5982,6 +6000,53 @@ get_identity_information (SANE_Handle handle)
 
 	  DBG (1, "maximum scan area: x %d y %d\n", x, y);
 	  k = 5;
+
+          /* 
+           * Check for Perfection 4990 photo/GT-X800 scanner.
+           * This scanner only report 3200 dpi back.
+           * The scanner fysical supports 4800 dpi.
+           * This is simulated here...
+           * Futher details read:
+           * EPSON Programming guide for EPSON Color Image Scanner Perfection 4990
+           */
+          if (s->hw->cmd->request_extended_status != 0)
+          {
+            u_char *buf;
+            u_char params[2];
+            EpsonHdr head;
+
+            params[0] = ESC;
+            params[1] = s->hw->cmd->request_extended_status;
+
+            if (NULL != (head = (EpsonHdr) command (s, params, 2, &status)))
+            {
+              buf = &head->buf[0x1A];
+	      DBG (1, "product name %x %x %x %x %x %x %x %x \n", buf[0], buf[1],buf[2],buf[3],buf[4], buf[5],buf[6], buf[7] );
+              if (strncmp((char *) buf,"GT-X800",7) == 0)
+              {
+                int val = 0x12 << 8 | 0xC0;   
+                
+                s->hw->res_list_size++;
+	        s->hw->res_list =
+	         (SANE_Int *) realloc (s->hw->res_list,
+		        		  s->hw->res_list_size * sizeof (SANE_Int));
+
+	        if (NULL == s->hw->res_list)
+	        {
+	          DBG (1, "out of memory (line %d)\n", __LINE__);
+	          return SANE_STATUS_NO_MEM;
+	        }
+
+	        s->hw->res_list[s->hw->res_list_size - 1] = (SANE_Int) val;
+                x = (x/32)*48;
+                y = (y/32)*48;
+
+	        DBG (1, "resolution (dpi): %d\n", val);
+	        DBG (1, "maximum scan area GT-X800: x %d y %d\n", x, y);
+              }
+            }
+          }
+
 	  continue;
 	}
       default:

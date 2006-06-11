@@ -56,6 +56,7 @@
 /*
    Revision log:
 
+   0.1.9, 20/10/2005, ariel: added support for the LS-50/5000
    0.1.8, 27/09/2002, andras: added subframe and load options
    0.1.7, 22/08/2002, andras: added exposure correction option
                                 and hack for LS-40 IR readout
@@ -114,8 +115,10 @@ typedef enum
   CS2_TYPE_UNKOWN,
   CS2_TYPE_LS30,
   CS2_TYPE_LS40,
+  CS2_TYPE_LS50,
   CS2_TYPE_LS2000,
   CS2_TYPE_LS4000,
+  CS2_TYPE_LS5000,
   CS2_TYPE_LS8000
 }
 cs2_type_t;
@@ -257,6 +260,7 @@ typedef struct
   unsigned long real_xoffset, real_yoffset, real_width, real_height,
     logical_width, logical_height;
   int odd_padding;
+  int block_padding;
 
   double exposure, exposure_r, exposure_g, exposure_b;
   unsigned long real_exposure[10];
@@ -1512,6 +1516,16 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   xfer_len_in =
     s->n_colour_in * s->logical_width * s->bytes_per_pixel +
     s->n_colour_in * s->odd_padding;
+  /* Do not change the behaviour of older models */
+  if ((s->type == CS2_TYPE_LS50) || (s->type == CS2_TYPE_LS5000))
+    {
+      /* Ariel - Check, win driver uses multiple of 64, docu seems to say 512? */
+      ssize_t i;
+      xfer_len_in += s->block_padding;
+      i = (xfer_len_in & 0x3f);
+      if (i != 0)
+        DBG (1, "BUG: sane_read(): Read size is not a multiple of 64. (0x%06x)\n", i);
+    }
 
   if (s->xfer_position + xfer_len_line > s->xfer_bytes_total)
     xfer_len_line = s->xfer_bytes_total - s->xfer_position; /* just in case */
@@ -1679,6 +1693,8 @@ cs2_open (const char *device, cs2_interface_t interface, cs2_t ** sp)
       sanei_config_attach_matching_devices ("scsi Nikon *", cs2_attach);
       try_interface = CS2_INTERFACE_USB;
       sanei_usb_attach_matching_devices ("usb 0x04b0 0x4000", cs2_attach);
+      sanei_usb_attach_matching_devices ("usb 0x04b0 0x4001", cs2_attach);
+      sanei_usb_attach_matching_devices ("usb 0x04b0 0x4002", cs2_attach);
       return SANE_STATUS_GOOD;
     }
 
@@ -1769,10 +1785,14 @@ cs2_open (const char *device, cs2_interface_t interface, cs2_t ** sp)
     s->type = CS2_TYPE_LS30;
   else if (!strncmp (s->product_string, "LS-40 ED        ", 16))
     s->type = CS2_TYPE_LS40;
+  else if (!strncmp (s->product_string, "LS-50 ED        ", 16))
+    s->type = CS2_TYPE_LS50;
   else if (!strncmp (s->product_string, "LS-2000         ", 16))
     s->type = CS2_TYPE_LS2000;
   else if (!strncmp (s->product_string, "LS-4000 ED      ", 16))
     s->type = CS2_TYPE_LS4000;
+  else if (!strncmp (s->product_string, "LS-5000 ED      ", 16))
+    s->type = CS2_TYPE_LS5000;
   else if (!strncmp (s->product_string, "LS-8000 ED      ", 16))
     s->type = CS2_TYPE_LS8000;
 
@@ -1959,7 +1979,7 @@ cs2_parse_sense_data (cs2_t * s)
       break;
     }
 
-  if (s->sense_code == 0x09800600)
+  if ((s->sense_code == 0x09800600) || (s->sense_code == 0x09800601))
     s->status = CS2_STATUS_REISSUE;
 
   return status;
@@ -2120,6 +2140,11 @@ cs2_issue_cmd (cs2_t * s)
       break;
     case CS2_INTERFACE_USB:
       status = sanei_usb_write_bulk (s->fd, s->send_buf, &s->n_cmd);
+      if (status != SANE_STATUS_GOOD)
+        {
+          DBG (1, "Error: cs2_issue_cmd(): Could not write command.\n");
+          return SANE_STATUS_IO_ERROR;
+        }
       switch (cs2_phase_check (s))
 	{
 	case CS2_PHASE_OUT:
@@ -2140,6 +2165,9 @@ cs2_issue_cmd (cs2_t * s)
 	  status = sanei_usb_read_bulk (s->fd, s->recv_buf, &n_data);
 	  s->n_recv = n_data;
 	  break;
+	case CS2_PHASE_NONE:
+	  DBG (4, "Error: cs2_issue_cmd(): No command received!\n");
+	  return SANE_STATUS_IO_ERROR;
 	default:
 	  if (n_data)
 	    {
@@ -2324,14 +2352,14 @@ cs2_full_inquiry (cs2_t * s)
   s->resx_max = 256 * s->recv_buf[20] + s->recv_buf[21];
   s->resx_min = 256 * s->recv_buf[22] + s->recv_buf[23];
   s->boundaryx =
-    65536 * (s->recv_buf[36] + 256 * s->recv_buf[37]) +
+    65536 * (256 * s->recv_buf[36] + s->recv_buf[37]) +
     256 * s->recv_buf[38] + s->recv_buf[39];
 
   s->resy_optical = 256 * s->recv_buf[40] + s->recv_buf[41];
   s->resy_max = 256 * s->recv_buf[42] + s->recv_buf[43];
   s->resy_min = 256 * s->recv_buf[44] + s->recv_buf[45];
   s->boundaryy =
-    65536 * (s->recv_buf[58] + 256 * s->recv_buf[59]) +
+    65536 * (256 * s->recv_buf[58] + s->recv_buf[59]) +
     256 * s->recv_buf[60] + s->recv_buf[61];
 
   s->focus_min = 256 * s->recv_buf[76] + s->recv_buf[77];
@@ -2649,6 +2677,8 @@ cs2_set_boundary (cs2_t *s)
   int i_boundary;
   unsigned long lvalue;
 
+/* Ariel - Check this function */
+
   cs2_scanner_ready (s, CS2_STATUS_READY);
   cs2_init_buffer (s);
   cs2_parse_cmd (s, "2a 00 88 00 00 03");
@@ -2712,7 +2742,11 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
 
   cs2_scanner_ready (s, CS2_STATUS_READY);
   cs2_init_buffer (s);
-  cs2_parse_cmd (s, "15 10 00 00 0c 00 0b 00 00 00 03 06 00 00");
+  /* Ariel - the '0b' byte in the 'else' part seems to be wrong, should be 0 */
+  if ((s->type == CS2_TYPE_LS50) || (s->type == CS2_TYPE_LS5000))
+    cs2_parse_cmd (s, "15 10 00 00 14 00 00 00 00 08 00 00 00 00 00 00 00 01 03 06 00 00");
+  else
+    cs2_parse_cmd (s, "15 10 00 00 0c 00 0b 00 00 00 03 06 00 00");
   cs2_pack_byte (s, (s->unit_dpi >> 8) & 0xff);
   cs2_pack_byte (s, s->unit_dpi & 0xff);
   cs2_parse_cmd (s, "00 00");
@@ -2723,6 +2757,9 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
   status = cs2_convert_options (s);
   if (status)
     return status;
+
+  /* Ariel - Is this the best place to initialize it? */
+  s->block_padding = 0;
 
   status = cs2_set_boundary (s);
   if (status)
@@ -2830,7 +2867,12 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
       cs2_pack_byte (s, s->real_depth);	/* pixel composition */
       cs2_parse_cmd (s, "00 00 00 00 00 00 00 00 00 00 00 00 00");
       cs2_pack_byte (s, 0x00);	/* multiread, ordering */
-      cs2_pack_byte (s, 0x80 + (s->negative ? 0 : 1));	/* averaging, pos/neg */
+      /* No need to use an undocumented bit in LS50 */
+      if ((s->type == CS2_TYPE_LS50) || (s->type == CS2_TYPE_LS5000))
+        cs2_pack_byte (s, 0x00 + (s->negative ? 0 : 1));	/* averaging, pos/neg */
+      else
+        cs2_pack_byte (s, 0x80 + (s->negative ? 0 : 1));	/* averaging, pos/neg */
+
       switch (type)
 	{			/* scanning kind */
 	case CS2_SCAN_NORMAL:
@@ -2895,6 +2937,37 @@ cs2_scan (cs2_t * s, cs2_scan_t type)
     return status;
   if (s->status == CS2_STATUS_REISSUE)
     {
+      /* Make sure we don't affect the behaviour for other scanners */
+      if ((s->type == CS2_TYPE_LS50) || (s->type == CS2_TYPE_LS5000))
+        {
+          cs2_init_buffer (s);
+          cs2_parse_cmd (s, "28 00 87 00 00 00 00 00 06 00");
+          s->n_recv = 6;
+          status = cs2_issue_cmd (s);
+          if (status)
+            return status;
+          cs2_init_buffer (s);
+          cs2_parse_cmd (s, "28 00 87 00 00 00 00 00");
+          cs2_pack_byte (s, s->recv_buf[5] + 6);
+          cs2_parse_cmd (s, "00");
+          s->n_recv = s->recv_buf[5] + 6;
+          status = cs2_issue_cmd (s);
+          if (status)
+            return status;
+          if ((s->recv_buf[11] != 0x08) || (s->recv_buf[12] != 0x00))
+            DBG (1, "BUG: cs2_scan(): Unexpected block_padding position.\n");
+          s->block_padding = 256 * s->recv_buf[19] + s->recv_buf[20];
+          cs2_init_buffer (s);
+          switch (s->n_colour_in)
+            {
+            case 3:
+              cs2_parse_cmd (s, "1b 00 00 00 03 00 01 02 03");
+              break;
+            case 4:
+              cs2_parse_cmd (s, "1b 00 00 00 04 00 01 02 03 09");
+              break;
+            }
+        }
       status = cs2_issue_cmd (s);
       if (status)
 	return status;

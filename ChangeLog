@@ -1,3 +1,10 @@
+2006-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* backend/coolscan2.c doc/descriptions/coolscan2.desc: Added
+	  (minimal) support for Nikon LS 50 ED, Coolscan V ED and
+	  (probably) Super Coolscan LS-5000 ED (patch from Giuseppe Sacco
+	  <giuseppe@eppesuigoccas.homedns.org>). 
+
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 
 	* AUTHORS backend/mustek_pp_cis.c backend/mustek_pp_cis.h 

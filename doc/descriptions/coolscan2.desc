@@ -37,6 +37,25 @@
 :status :good
 :comment "needs linux kernel 2.4.19 or later"
 
+:model "LS 50 ED"
+;:url "/unsupported/nikon-ls50-ed.html"
+:interface "USB"
+:usbid "0x04b0" "0x4001"
+:status :minimal
+
+:model "Coolscan V ED"
+:url "/unsupported/nikon-ls50-ed.html"
+:interface "USB"
+:usbid "0x04b0" "0x4001"
+:status :minimal
+
+:model "Super Coolscan LS-5000 ED"
+:url "/unsupported/nikon-ls5000-ed.html"
+:interface "USB"
+:usbid "0x04b0" "0x4002"
+:status :untested
+:comment "May work, similar to LS 50 ED, but untested. Please tell us if it works."
+
 :model "LS 8000 ED"
 :interface "IEEE-1394"
 :status :good

@@ -6,6 +6,9 @@
 	  <giuseppe@eppesuigoccas.homedns.org>). 
 	* backend/pixma.h: Fixed compilation problem on *BSD (ENODATA not
 	  defined). 
+	* doc/descriptions/unsupported.desc: Added Canon 9950. Removed
+	  Epson 4490 (supported by epkowa). Removed Nikon scanners
+	  (supported by coolscan2 backend). Updated PLANon DocuPen R700.
 
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 

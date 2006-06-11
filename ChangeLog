@@ -1,3 +1,7 @@
+2006-06-11 Gerard Klaver <gerard at gkall dot hobby dot nl>
+
+	* include/Makefile.in font_6x11.h added
+
 2006-06-10  Wittawat Yamwong <wittawat@web.de>
 
 	* backend/pixma_mp750.c doc/sane-pixma.man

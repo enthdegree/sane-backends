@@ -1,3 +1,7 @@
+2006-06-12  Jochen Eisinger <jochen@penguin-breeder.org>
+	
+	* doc/descriptions/mustek_pp.desc: Added Micromaxx MM-0851
+
 ---- FEATURE FREEZE FOR SANE 1.0.18 ---
 
 2006-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -15,7 +19,7 @@
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 
 	* AUTHORS backend/mustek_pp_cis.c backend/mustek_pp_cis.h 
-          doc/sane-mustek_pp.man: e-mail address update.
+	  doc/sane-mustek_pp.man: e-mail address update.
 
 2006-06-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 		(patch applied by Karl Heinz Kremer <khk@khk.net>

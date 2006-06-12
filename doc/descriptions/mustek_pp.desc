@@ -152,7 +152,7 @@
 :status :good
 :comment "300 dpi CCD scanner"
 
-:msg "Micromaxx"
+:mfg "Micromaxx"
 
 :model "MM-9851"
 :interface "Parport (EPP)"

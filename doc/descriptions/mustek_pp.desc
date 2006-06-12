@@ -152,5 +152,12 @@
 :status :good
 :comment "300 dpi CCD scanner"
 
+:msg "Micromaxx"
+
+:model "MM-9851"
+:interface "Parport (EPP)"
+:status :good
+:comment "300x600 dpi CIS scanner"
+
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

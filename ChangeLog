@@ -1,3 +1,10 @@
+2006-06-13  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch]: update to v1.0.31, add 5220c usb id,
+	  dont show ink level buttons if no imprinter, gather button
+	  presses more frequently
+	* doc/descriptions/fujitsu.desc: usbi id and version update
+
 2006-06-12  Jochen Eisinger <jochen@penguin-breeder.org>
 	
 	* doc/descriptions/mustek_pp.desc: Added Micromaxx MM-0851

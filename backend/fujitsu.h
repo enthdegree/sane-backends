@@ -389,7 +389,7 @@ struct fujitsu
 #define DUPLEX_INTERLACE_NONE 0 
 #define DUPLEX_INTERLACE_3091 1 
 
-#define GHS_TIME 1 /* seconds passed before calling GHS */
+#define GHS_TIME 0 /* seconds passed before calling GHS */
 /* ------------------------------------------------------------------------- */
 
 #define MM_PER_INCH    25.4

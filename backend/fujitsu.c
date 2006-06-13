@@ -194,6 +194,10 @@
          - remove references to color_lineart and ht units
          - rework init_model to support more known models
          - dont send paper size data if using flatbed
+      V 1.0.31 2006-06-13, MAN
+         - add 5220C usb id
+         - dont show ink level buttons if no imprinter
+         - run ghs/rs every second instead of every other
 
    SANE FLOW DIAGRAM
 
@@ -253,7 +257,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 30 
+#define FUJITSU_V_POINT 31 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -480,6 +484,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e0'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e0", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e1'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ae'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
@@ -1987,7 +1994,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink running low";
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status)
+    if (s->has_cmd_hw_status && s->has_imprinter)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -2035,7 +2042,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink level";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status)
+    if (s->has_cmd_hw_status && s->has_imprinter)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -2596,8 +2603,12 @@ get_hardware_status (struct fujitsu *s)
   /* only run this once every couple seconds */
   if (s->last_ghs + GHS_TIME < time(NULL)) {
 
+      DBG (15, "get_hardware_status: running\n");
+
       if (s->has_cmd_hw_status){
           unsigned char buffer[10];
+
+          DBG (15, "get_hardware_status: calling ghs\n");
   
           set_HW_allocation_length (hw_statusB.cmd, 10);
         
@@ -2609,9 +2620,9 @@ get_hardware_status (struct fujitsu *s)
           );
         
           if (ret == SANE_STATUS_GOOD) {
-      
+
               s->last_ghs = time(NULL);
-    
+
               s->hw_top = get_HW_top(buffer);
               s->hw_A3 = get_HW_A3(buffer);
               s->hw_B4 = get_HW_B4(buffer);
@@ -2628,8 +2639,8 @@ get_hardware_status (struct fujitsu *s)
               s->hw_scan_sw = get_HW_scan_sw(buffer);
       
               s->hw_function = get_HW_function(buffer);
-      
               s->hw_ink_empty = get_HW_ink_empty(buffer);
+
               s->hw_double_feed = get_HW_double_feed(buffer);
       
               s->hw_error_code = get_HW_error_code(buffer);

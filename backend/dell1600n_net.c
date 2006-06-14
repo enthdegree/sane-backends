@@ -112,6 +112,7 @@ struct ScannerState
   int m_numPages;	        /* number of complete pages (host byte order) */
   struct ComBuf m_pageInfo;	/* "array" of numPages PageInfo structs */
   int m_bFinish;		/* set non-0 to signal that we are finished */
+  int m_bCancelled;		/* set non-0 that bFinish state arose from cancelation */
   char m_regName[REG_NAME_SIZE];	/* name with which to register */
   unsigned short m_xres;	/* x resolution (network byte order) */
   unsigned short m_yres;	/* y resolution (network byte order) */
@@ -686,6 +687,8 @@ sane_start (SANE_Handle handle)
       selTimeVal.tv_sec = 1;
       selTimeVal.tv_usec = 0;
 
+
+
       DBG (5, "sane_start: waiting for scan signal\n");
 
       /* wait again if nothing received */
@@ -713,9 +716,16 @@ sane_start (SANE_Handle handle)
     }				/* while */
 
 
+  /* check whether we were cancelled */
+  if ( gOpenScanners[iHandle]->m_bCancelled ) status = SANE_STATUS_CANCELLED;
+
+
 cleanup:
 
   FreeComBuf (&buf);
+
+
+  
 
 
   return status;
@@ -801,7 +811,14 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
 void
 sane_cancel (SANE_Handle handle)
 {
-  DBG( 5, "sane_cancel: %x\n", (int)handle );
+  int iHandle = (int) handle;
+
+  DBG( 5, "sane_cancel: %x\n", iHandle );
+
+  /* signal that bad things are afoot */
+  gOpenScanners[iHandle]->m_bFinish = 1;
+  gOpenScanners[iHandle]->m_bCancelled = 1;
+
 }				/* sane_cancel */
 
 /***********************************************************/

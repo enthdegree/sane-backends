@@ -17,14 +17,25 @@ scsi FUJITSU
 #usb /dev/usb/scanner0
 
 # For Fujitsu scanners connected via USB using vendor and device ids (libusb):
+#usb VENDORID PRODUCTID
+
 # NOTE: if you have to add your device here- please send the id and model
 # to the author via email, so it can be included in next version. anoah at
 # pfeiffer dot edu - with Fujitsu in the subject line
+
+#fi-4x20C
 usb 0x04c5 0x1041
 usb 0x04c5 0x1042
+
+#fi-5110xxx
 usb 0x04c5 0x1096
 usb 0x04c5 0x1097
+
+#fi-4x20C2
+usb 0x04c5 0x10ae
+usb 0x04c5 0x10af
+
+#fi-5x20C
 usb 0x04c5 0x10e0
 usb 0x04c5 0x10e1
-usb 0x04c5 0x10ae
 

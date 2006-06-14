@@ -198,6 +198,8 @@
          - add 5220C usb id
          - dont show ink level buttons if no imprinter
          - run ghs/rs every second instead of every other
+      V 1.0.32 2006-06-14, MAN
+         - add 4220C2 usb id
 
    SANE FLOW DIAGRAM
 
@@ -257,7 +259,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 31 
+#define FUJITSU_V_POINT 32 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -482,14 +484,18 @@ find_scanners ()
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1097'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1097", attach_one_usb);
 
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ae'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10af'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10af", attach_one_usb);
+
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e0'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e0", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e1'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ae'\n");
-      sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
   }
 
   for (dev = fujitsu_devList; dev; dev=dev->next) {

@@ -1408,6 +1408,9 @@ scan_it (void)
 	}
     }
 
+  /* flush the output buffer */
+  fflush( stdout );
+
 cleanup:
   if (image.data)
     free (image.data);

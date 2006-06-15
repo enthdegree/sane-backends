@@ -241,7 +241,7 @@ get_tpu_stat (int fd, CANON_Device * dev)
     }
 
   for (i = 0; i < buf_size; i++)
-    DBG (3, "scan mode control byte[%d] = %d\n", i, tbuf[i]);
+    DBG (3, "scan mode control byte[%d] = %d\n", (int) i, tbuf[i]);
   dev->tpu.Status = (tbuf[2 + 4 + 5] >> 7) ?
     TPU_STAT_INACTIVE : TPU_STAT_NONE;
   if (dev->tpu.Status == SANE_TRUE)	/* TPU available */
@@ -286,7 +286,7 @@ get_adf_stat (int fd, CANON_Device * dev)
     }
 
   for (i = 0; i < buf_size; i++)
-    DBG (3, "scan mode control byte[%d] = %d\n", i, abuf[i]);
+    DBG (3, "scan mode control byte[%d] = %d\n", (int) i, abuf[i]);
 
   dev->adf.Status = (abuf[ADF_Status] & ADF_NOT_PRESENT) ?
     ADF_STAT_NONE : ADF_STAT_INACTIVE;
@@ -330,6 +330,7 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
     result[9], result[10], result[11], result[12], result[13], result[14],
     result[15]);
 
+  status = SANE_STATUS_GOOD;
   if (dev && dev->info.is_scsi2)
     {
       DBG(11, "sense data interpretation for SCSI-2 devices\n");
@@ -750,7 +751,7 @@ attach (const char *devnam, CANON_Device ** devp)
     }
   for (i = 0; i < buf_size; i++)
     {
-      DBG (3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
+      DBG (3, "scan mode byte[%d] = %d\n", (int) i, ebuf[i]);
     }
 
   DBG (3, "attach: sending (extended) INQUIRY\n");

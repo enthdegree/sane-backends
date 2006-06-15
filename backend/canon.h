@@ -1,8 +1,9 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 BYTEC GmbH Germany
    Written by Helmut Koeberle, Email: helmut.koeberle@bytec.de
-   Modified by Manuel Panea <Manuel.Panea@rzg.mpg.de>
-   and Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>
+   Modified by Manuel Panea <Manuel.Panea@rzg.mpg.de>,
+   Markus Mertinat <Markus.Mertinat@Physik.Uni-Augsburg.DE>,
+   and ULrich Deiters <ulrich.deiters@uni-koeln.de>
 
    This file is part of the SANE package.
 
@@ -44,6 +45,12 @@
 
 #ifndef canon_h
 #define canon_h 1
+
+#ifdef __GNUC__
+#define UNUSEDARG __attribute__ ((unused))
+#else
+#define UNUSEDARG
+#endif
 
 /* all the different possible model names. */
 #define FB1200S "IX-12015E      "

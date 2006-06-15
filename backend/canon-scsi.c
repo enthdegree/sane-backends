@@ -381,10 +381,12 @@ define_scan_mode (int fd, u_char page, void *data)
     : (page == SCAN_CONTROL_CON_FB1200) ? 19 : 32);
 
   for (i = 0; i < sizeof (cmd); i++)
-    DBG (31, "define scan mode: cmd[%d]='0x%0X'\n", i, cmd[i]);
+    DBG (31, "define scan mode: cmd[%d]='0x%0X'\n", (int) i,
+    cmd[i]);
 
   for (i = 0; i < sizeof (pdata); i++)
-    DBG (31, "define scan mode: pdata[%d]='0x%0X'\n", i, pdata[i]);
+    DBG (31, "define scan mode: pdata[%d]='0x%0X'\n", (int) i,
+    pdata[i]);
 
   pdatalen = (page == TRANSPARENCY_UNIT) ? 12
     : (page == TRANSPARENCY_UNIT_FB1200) ? 14

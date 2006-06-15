@@ -1,5 +1,5 @@
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 {
   char devnam[PATH_MAX] = "/dev/scanner";
   FILE *fp;
@@ -97,7 +97,7 @@ sane_exit (void)
       next = dev->next;
       free ((void *) dev->sane.name);
       free ((void *) dev->sane.model);
-      free (dev);
+      free ((void *) dev);
     }
 
   DBG (1, "<< sane_exit\n");
@@ -106,7 +106,8 @@ sane_exit (void)
 /**************************************************************************/
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list,
+SANE_Bool UNUSEDARG local_only)
 {
   static const SANE_Device **devlist = 0;
   CANON_Device *dev;
@@ -1249,7 +1250,7 @@ sane_start (SANE_Handle handle)
       return (SANE_STATUS_INVAL);
     }
   for (i = 0; i < buf_size; i++)
-    DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
+    DBG (3, "scan mode control byte[%d] = %d\n", (int) i, ebuf[i]);
 
   if (s->hw->adf.Status != ADF_STAT_NONE)
     {
@@ -1265,7 +1266,8 @@ sane_start (SANE_Handle handle)
 	  return (SANE_STATUS_INVAL);
 	}
       for (i = 0; i < buf_size; i++)
-	DBG (3, "scan mode control byte[%d] = %d\n", i, ebuf[i]);
+	DBG (3, "scan mode control byte[%d] = %d\n", (int) i,
+	ebuf[i]);
     }
 
   mode_str = s->val[OPT_MODE].s;
@@ -1524,7 +1526,7 @@ sane_start (SANE_Handle handle)
       return (SANE_STATUS_INVAL);
     }
   for (i = 0; i < buf_size; i++)
-    DBG (3, "scan mode byte[%d] = %d\n", i, ebuf[i]);
+    DBG (3, "scan mode byte[%d] = %d\n", (int) i, ebuf[i]);
 
   /* Focus, but not for previews or negatives with speed control */
   if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_FOCUS_GROUP].cap)
@@ -1690,8 +1692,8 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   *len = 0;
   nread = max_len;
 
-  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", (int) nread,
+  (int) s->bytes_to_read);
   if (s->bytes_to_read == 0)
     {
       do_cancel (s);
@@ -1710,8 +1712,8 @@ sane_read_direct (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   *len = nread;
   s->bytes_to_read -= nread;
 
-  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", (int) nread,
+  (int) s->bytes_to_read);
   DBG (21, "<< sane_read\n");
   return (SANE_STATUS_GOOD);
 }
@@ -1727,17 +1729,17 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   int c;
   size_t i, nread, nread2;
   u_char *p;
-#if defined(WORDS_BIGENDIAN)
+  #if defined(WORDS_BIGENDIAN)
   u_char b;
-#endif
+  #endif
 
   DBG (21, ">> sane_read\n");
 
   *len = 0;
   nread = max_len;
 
-  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", (int) nread,
+  (int) s->bytes_to_read);
 
   if (nread > s->bytes_to_read) nread = s->bytes_to_read;
   if (s->bytes_to_read == 0)
@@ -1803,8 +1805,8 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   *len = nread;
   s->bytes_to_read -= nread;
 
-  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   sane_read: nread=%d, bytes_to_read=%d\n", (int) nread,
+  (int) s->bytes_to_read);
   DBG (21, "<< sane_read\n");
   return (SANE_STATUS_GOOD);
 }
@@ -1826,8 +1828,8 @@ read_fb620 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
 
   *len = 0;
 
-  DBG (21, "   read_fb620: nread=%d, bytes_to_read=%d\n", nread,
-       s->bytes_to_read);
+  DBG (21, "   read_fb620: nread=%d, bytes_to_read=%d\n", (int) nread,
+  (int) s->bytes_to_read);
 
   if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {
@@ -1952,12 +1954,14 @@ SANE_Int *len)
     + (dbuf[22] << 8) + dbuf[23]);
   DBG (5, "Filled Data Buffer=%d\n", (dbuf[24] << 24) + (dbuf[25] << 16)
     + (dbuf[26] << 8) + dbuf[27]);
-  DBG (5, "temp file position:%u\n", lseek(s->tmpfile, 0, SEEK_CUR));
+  DBG (5, "temp file position:%u\n", (unsigned int) lseek(s->tmpfile,
+  0, SEEK_CUR));
   DBG (5, "<< GET DATA STATUS\n");
 
   *len = 0;
 
-  DBG (21, "   read_fb1200: bytes_to_read=%d\n", s->bytes_to_read);
+  DBG (21, "   read_fb1200: bytes_to_read=%d\n",
+  (int) s->bytes_to_read);
 
   if (s->bytes_to_read == 0 && s->buf_pos == s->buf_used)
     {
@@ -2207,7 +2211,8 @@ sane_cancel (SANE_Handle handle)
 /**************************************************************************/
 
 SANE_Status
-sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
+sane_set_io_mode (SANE_Handle UNUSEDARG handle,
+SANE_Bool UNUSEDARG non_blocking)
 {
   DBG (1, ">> sane_set_io_mode\n");
   DBG (1, "<< sane_set_io_mode\n");
@@ -2217,7 +2222,8 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 /**************************************************************************/
 
 SANE_Status
-sane_get_select_fd (SANE_Handle handle, SANE_Int * fd)
+sane_get_select_fd (SANE_Handle UNUSEDARG handle,
+SANE_Int UNUSEDARG * fd)
 {
   DBG (1, ">> sane_get_select_fd\n");
   DBG (1, "<< sane_get_select_fd\n");

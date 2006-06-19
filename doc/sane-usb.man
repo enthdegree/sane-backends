@@ -106,7 +106,7 @@ is the USB product id of the scanner. Both ids are non-negative integer numbers
 in decimal or hexadecimal format. The correct values for these fields can be
 found by running sane-find-scanner, looking into the syslog (e.g.,
 /var/log/messages) or under Linux by issuing the command "cat
-/proc/bus/usb/devices/".  This is an example of a config file line:
+/proc/bus/usb/devices".  This is an example of a config file line:
 .PP
 .RS
 usb 0x055f 0x0006

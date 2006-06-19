@@ -1,3 +1,7 @@
+2006-06-19  Giuseppe Sacco <eppesuig@debian.org>
+
+	* corrected sane-usb manual page.
+
 2006-06-15  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
 	* backend/canon.c, canon.h, canon-scsi.c, canon-sane.c:

@@ -1,3 +1,7 @@
+2006-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/sane-usb.man: Fixed typo (bug #303571).
+
 2006-06-19  Giuseppe Sacco <eppesuig@debian.org>
 
 	* corrected sane-usb manual page.

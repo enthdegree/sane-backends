@@ -1,4 +1,4 @@
-.TH sane-usb 5 "10 May 2006"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-usb 5 "19 Jun 2006"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-usb
 .SH NAME
 sane-usb \- USB configuration tips for SANE
@@ -26,7 +26,7 @@ for details on how to go on.
 .PP
 Sane-find-scanner doesn't list your scanner? Does it work as root? If yes,
 there is a permission issue. See the
-.B LIBSUB
+.B LIBUSB
 section for details.
 .PP
 Nothing is found even as root? Check that your kernel supports USB and that

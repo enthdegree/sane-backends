@@ -2,6 +2,8 @@
 
 	* doc/descriptions/epson.desc: Fixed USB id of CX6600 (patch from
 	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>). 
+	* doc/descriptions-external/epkowa.desc: Updated (patch from 
+	  Olaf Meeuwissen <olaf.meeuwissen@avasys.jp>). 
 
 2006-06-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

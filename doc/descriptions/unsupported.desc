@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-06-11"		; version of backend
+:version "2006-06-22"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -2567,6 +2567,13 @@
 :url "/unsupported/xerox-workcentre-pe16.html"
 :interface "USB Parport"
 :usbid "0x0924" "0x4220"
+:status :unsupported
+:comment "Not supported. See link for more details."
+
+:model "WorkCentre PE120i"
+:url "/unsupported/xerox-workcentre-pe120i.html"
+:interface "USB"
+:usbid "0x0924" "0x4237"
 :status :unsupported
 :comment "Not supported. See link for more details."
 

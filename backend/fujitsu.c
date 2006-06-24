@@ -200,6 +200,8 @@
          - run ghs/rs every second instead of every other
       V 1.0.32 2006-06-14, MAN
          - add 4220C2 usb id
+      V 1.0.33 2006-06-14, MAN
+         - add Fi-5900 usb id and init_model section
 
    SANE FLOW DIAGRAM
 
@@ -259,7 +261,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define FUJITSU_V_POINT 32 
+#define BUILD 33 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -327,9 +329,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   sanei_usb_init();
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, FUJITSU_V_POINT);
+    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
-  DBG (5, "sane_init: backend version %d.%d.%d\n", V_MAJOR, V_MINOR, FUJITSU_V_POINT);
+  DBG (5, "sane_init: fujitsu backend %d.%d.%d, from %s\n",
+    V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   DBG (10, "sane_init: finish\n");
 
@@ -495,6 +498,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e1'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e7'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
 
   }
 
@@ -1096,6 +1102,7 @@ init_model (struct fujitsu *s)
 
   if (strstr (s->product_name, "M3091")
    || strstr (s->product_name, "M3092")) {
+
     s->gamma = 0;
     s->has_rif=1;
 
@@ -1114,6 +1121,7 @@ init_model (struct fujitsu *s)
   }
   else if (strstr (s->product_name, "M309")
    || strstr (s->product_name, "M409")){
+
     s->gamma = 0;
   
     s->has_back = s->has_duplex;
@@ -1131,6 +1139,7 @@ init_model (struct fujitsu *s)
   }
   else if (strstr (s->product_name, "fi-4750")
    || strstr (s->product_name, "fi-4340") ) {
+
     s->gamma = 0x00;
 
     s->has_back = s->has_duplex;
@@ -1146,7 +1155,27 @@ init_model (struct fujitsu *s)
     s->reverse_by_mode[MODE_GRAYSCALE] = 1;
     s->reverse_by_mode[MODE_COLOR] = 1;
   }
+  /* some firmware versions use capital f? */
+  else if (strstr (s->product_name, "Fi-5900")
+   || strstr (s->product_name, "fi-5900") ) {
+
+    s->gamma = 0x00;
+
+    s->has_back = s->has_duplex;
+    s->color_interlace = COLOR_INTERLACE_BGR;
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_dropout = 1;
+    s->has_SW_dropout = 0;
+    s->window_vid = 0;
+    s->ghs_in_rs = 0;
+  
+    s->reverse_by_mode[MODE_LINEART] = 0;
+    s->reverse_by_mode[MODE_HALFTONE] = 0;
+    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
+    s->reverse_by_mode[MODE_COLOR] = 1;
+  }
   else{
+
     s->gamma = 0x80;
 
     s->has_back = s->has_duplex;

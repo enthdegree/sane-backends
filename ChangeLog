@@ -1,3 +1,8 @@
+2006-06-24  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: update to v1.0.33, add 5900 usb id
+	* doc/descriptions/fujitsu.desc: usb id and version update
+
 2006-06-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/epson.desc: Fixed USB id of CX6600 (patch from

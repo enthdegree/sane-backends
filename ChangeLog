@@ -1,3 +1,7 @@
+2006-06-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* NEWS: Updated for 1.0.18.
+
 2006-06-24  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c: update to v1.0.33, add 5900 usb id
@@ -846,7 +850,7 @@
 2006-01-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/microtek2.c backend/microtek2.h: Fixed problem with
-	  option "resolution" which esists twice at the same time. Bug
+	  option "resolution" which exists twice at the same time. Bug
 	  #302466.
 	* tools/hotplug/libsane.usermap: Added Canon LiDE 60 (bug
 	  #302830).
@@ -897,7 +901,7 @@
 	  doc/descriptions-external/hp3900.desc: Added external hp3900
 	  backend. Moved (possibly) supported scanners from
 	  unsupported.desc.
-	* doc/backend-writing.c: Added some hints about what to do to add
+	* doc/backend-writing.txt: Added some hints about what to do to add
 	  a new backend to the existing sane-backends code.
 
 2005-12-24  Henning Meier-Geinitz <henning@meier-geinitz.de>

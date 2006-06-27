@@ -94,18 +94,19 @@
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x1096"
-:comment "workgroup, newer, discontinued"
+:comment "workgroup, newer, discontinued, no TWAIN driver"
 
 :model "fi-5110EOX2"
 :interface "USB"
-:status :untested
-:comment "workgroup, newer, discontinued, perhaps same as fi-5110EOX"
+:status :good
+:comment "workgroup, newer, discontinued, no TWAIN driver"
 
 ; CURRENT MODELS, PERSONAL
 :model "S500"
 :interface "USB"
-:status :untested
-:comment "workgroup, current, unknown chipset, perhaps same as fi-5110EOX"
+:status :good
+:usbid "0x04c5" "0x10fe"
+:comment "workgroup, current, no TWAIN driver"
 
 :model "fi-60F"
 :interface "USB"

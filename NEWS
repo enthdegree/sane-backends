@@ -1,14 +1,14 @@
 -*-Mode: outline-*-
 New with 1.0.18, released 2006-07-02:
 
-* New backends: hp3500 (HP ScanJet 3500 series), pixma (Canon Pixma series),
-  stv680 (Aiptek Pencam and similar).
+* New backends: dell1600n_net (Dell 1600n), hp3500 (HP ScanJet 3500 series),
+  pixma (Canon Pixma series), stv680 (Aiptek Pencam and similar).
 * Updated backends: avision, canon, dll, epson, fujitsu, genesys, gt68xx,
   microtek2, mustek_pp, niash, plustek, snapscan, sp15c, test, u12, umax1220u.
 * Scanimage batch mode fixes.
 * Scanner lists contain USB vendor/product ids and some statistics now.
 * Udev/hotplug lists are generated autmatically from the .desc files now.
-* Portability fixes (especially for DragonFlyBSD andHP/UX).
+* Portability fixes (especially for DragonFlyBSD and HP/UX).
 * Build system updates.
 * Updated translations.
 * Documentation updates.

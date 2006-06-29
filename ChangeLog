@@ -1,6 +1,7 @@
 2006-06-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Added dell1600n_net backend.
+	* doc/releases.txt: Typo fix.
 
 ---- CODE FREEZE FOR SANE-BACKENDS 1.0.18 ---
 

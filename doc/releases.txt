@@ -1,4 +1,4 @@
-2004-11-07
+2006-06-29
 
 This text summarizes some points to pay attention to when a new release
 of sane-backends should is planned.
@@ -18,7 +18,7 @@ Before the release:
   the latest autoconf release).
 * configure.in: increase version number (twice!)
 * configure.in: remove -cvs from textual version number
-* configure.in: set is_release=no
+* configure.in: set is_release=yes
 * configure: recreate
 * NEWS: update and enter date of release
 * sane-backends.lsm: update

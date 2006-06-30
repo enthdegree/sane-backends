@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jäger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.51-12 (2006-06-30)
+----------------------
+Fixed bit-depth selection
+
 V 0.51-11 (2006-06-08)
 ----------------------
 Fixed calibration: All modes will be coarse calibrated now, fine calibration

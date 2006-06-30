@@ -1,3 +1,8 @@
+2006-06-30  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update
+	* backend/plustek.c: Fixed problem when trying to select bit-depth.
+
 2006-06-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Added dell1600n_net backend.

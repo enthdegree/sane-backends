@@ -157,7 +157,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-11"
+#define BACKEND_VERSION "0.51-12"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -216,8 +216,8 @@ static const SANE_Device **devlist = 0;
 static unsigned long       tsecs   = 0;
 static Plustek_Scanner    *sc = NULL;
 
-static const SANE_Int bpp_lm9832_list [] = { 1, 8, 14 };
-static const SANE_Int bpp_lm9833_list [] = { 1, 8, 16 };
+static const SANE_Int bpp_lm9832_list [] = { 3, 1, 8, 14 };
+static const SANE_Int bpp_lm9833_list [] = { 3, 1, 8, 16 };
 
 static const SANE_String_Const mode_list[] =
 {
@@ -448,7 +448,7 @@ thread_entry(void)
 #endif
 	sigprocmask( SIG_SETMASK, &ignore_set, 0 );
 
-	memset   ( &act, 0, sizeof (act));
+	memset(&act, 0, sizeof (act));
 	sigaction( SIGTERM, &act, 0 );
 
 	cancelRead = SANE_FALSE;
@@ -507,7 +507,7 @@ reader_process( void *args )
 
 #ifdef USE_IPC
 	/* prepare IPC structure */
-	memset( &ipc, 0, sizeof(ipc));
+	memset(&ipc, 0, sizeof(ipc));
 	ipc.transferRate = DEFAULT_RATE;
 
 	if( dev->transferRate > 0 && dev->transferRate != DEFAULT_RATE )
@@ -696,7 +696,7 @@ init_options( Plustek_Scanner *s )
 	Plustek_Device *dev = s->hw;
 	AdjDef         *adj = &dev->adj;
 
-	memset( s->opt, 0, sizeof(s->opt));
+	memset(s->opt, 0, sizeof(s->opt));
 
 	for( i = 0; i < NUM_OPTIONS; ++i ) {
 		s->opt[i].size = sizeof (SANE_Word);
@@ -1383,7 +1383,7 @@ attach( const char *dev_name, CnfDef *cnf, Plustek_Device **devp )
 static void
 init_config_struct( CnfDef *cnf )
 {
-	memset( cnf, 0, sizeof(CnfDef));
+	memset(cnf, 0, sizeof(CnfDef));
 
 	cnf->adj.warmup       = -1;
 	cnf->adj.lampOff      = -1;
@@ -1660,7 +1660,7 @@ sane_open( SANE_String_Const devicename, SANE_Handle* handle )
 
 		if( !dev ) {
 
-			memset( &config, 0, sizeof(CnfDef));
+			memset(&config, 0, sizeof(CnfDef));
 
 			status = attach( devicename, &config, &dev );
 			if( SANE_STATUS_GOOD != status )
@@ -2299,7 +2299,7 @@ sane_get_parameters( SANE_Handle handle, SANE_Parameters *params )
 	 */
 	if((NULL == params) || (s->scanning != SANE_TRUE)) {
 
-		memset( &s->params, 0, sizeof (SANE_Parameters));
+		memset(&s->params, 0, sizeof (SANE_Parameters));
 
 		ndpi = s->val[OPT_RESOLUTION].w;
 

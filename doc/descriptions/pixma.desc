@@ -67,14 +67,14 @@
 :model "PIXMA MP760"
 :interface "USB"
 :usbid "0x04a9" "0x1708"
-:status :untested
-:comment "Should work. No grayscale."
+:status :minimal
+:comment "Experimental. No grayscale. The scanner sometimes hangs!"
 
 :model "PIXMA MP780"
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :minimal
-:comment "No grayscale. Scanner hangs if cancel while it scans (still true?)."
+:comment "Experimental. No grayscale. The scanner sometimes hangs!"
 
 :model "PIXMA MP800"
 :interface "USB"

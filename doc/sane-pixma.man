@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "10 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "1 July 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -14,13 +14,7 @@ PIXMA MP150, PIXMA MP170, PIXMA MP450, PIXMA MP500
 .br
 PIXMA MP800, PIXMA MP830,
 .br
-MultiPASS MP700 (no grayscale),
-.RE
-.PP
-The following models don't support grayscale mode in hardware:
-.PP
-.RS
-PIXMA MP750, PIXMA MP760, PIXMA MP780
+MultiPASS MP700 (no grayscale), PIXMA MP750 (no grayscale)
 .RE
 .PP
 The following model are marked as experimental because they are not well
@@ -28,7 +22,7 @@ tested and/or the scanner sometimes hangs and must be switched off and on.
 Therefore they are disabled by default. (See PIXMA_EXPERIMENT below)
 .PP
 .RS
-MultiPASS MP730
+MultiPASS MP730, PIXMA MP760, PIXMA MP780
 .RE
 .PP
 The backend supports

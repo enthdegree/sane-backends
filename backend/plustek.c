@@ -216,8 +216,8 @@ static const SANE_Device **devlist = 0;
 static unsigned long       tsecs   = 0;
 static Plustek_Scanner    *sc = NULL;
 
-static const SANE_Int bpp_lm9832_list [] = { 3, 1, 8, 14 };
-static const SANE_Int bpp_lm9833_list [] = { 3, 1, 8, 16 };
+static const SANE_Int bpp_lm9832_list [] = { 2, 8, 14 };
+static const SANE_Int bpp_lm9833_list [] = { 2, 8, 16 };
 
 static const SANE_String_Const mode_list[] =
 {

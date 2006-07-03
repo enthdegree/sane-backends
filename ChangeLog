@@ -2,5 +2,6 @@
 
 	* configure configure.in: Changed version to 1.0.18-cvs. Enabled
 	  compilation warnings.
+	* Makefile.in: Added ChangeLog-1.0.18 to DISTFILES.
 
 Older entries can be found in ChangeLog-1.0.18.

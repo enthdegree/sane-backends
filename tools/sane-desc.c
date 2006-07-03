@@ -76,7 +76,8 @@ typedef enum output_mode
   output_mode_usermap,
   output_mode_db,
   output_mode_udev,
-  output_mode_plist
+  output_mode_plist,
+  output_mode_clist
 }
 output_mode;
 
@@ -292,7 +293,7 @@ print_usage (char *program_name)
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
 	  "Output mode (ascii, html-backends-split, html-mfgs,\n"
-	  "                         xml, statistics, usermap, db, udev, plist)\n");
+	  "                         xml, statistics, usermap, db, udev, plist, clist)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -393,6 +394,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_plist;
+	    }
+	  else if (strcmp (optarg, "clist") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_clist;
 	    }
 	  else
 	    {
@@ -3156,7 +3162,7 @@ print_udev_header (void)
      "# To add a USB device, add a rule to the list below between the SUBSYSTEM...\n"
      "# and LABEL... lines.\n"
      "#\n"
-     "# To run a script when your device is plugged in, add RUN=\"/path/to/script\"\n"
+     "# To run a script when your device is plugged in, add RUN+=\"/path/to/script\"\n"
      "# to the appropriate rule.\n");
   printf
     ("#\n"
@@ -3227,6 +3233,75 @@ print_plist (void)
   printf ("</plist>\n");
 }
 
+static void
+print_clist (void)
+{
+  backend_entry *be = first_backend;
+
+  static const char *status_string[] = {
+    "*unknown*",
+    "unsupported",
+    "untested",
+    "minimal",
+    "basic",
+    "good",
+    "complete"
+  };
+
+  printf("struct usb_scanner {\n");
+  printf("  unsigned short vid;\n");
+  printf("  unsigned short pid;\n");
+  printf("  char *be;\n");
+  printf("  char *status;\n");
+  printf("  char *model;\n");
+  printf("};\n");
+  printf("\n");
+  printf("struct usb_scanner supported_usb_scanners[] = {\n");
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  mfg_entry *mfg = type->mfg;
+	  model_entry *model;
+
+	  if (!mfg)
+	    {
+	      type = type->next;
+	      continue;
+	    }
+
+	  mfg = type->mfg;
+	  while (mfg)
+	    {
+	      model = mfg->model;
+	      if (model)
+		{
+		  while (model)
+		    {
+		      if (model->usb_vendor_id && model->usb_product_id)
+			{
+			  printf("  { %s, %s, \"%s\", \"%s\", \"%s %s\" },\n",
+				 model->usb_vendor_id, model->usb_product_id, be->name,
+				 status_string[model->status], mfg->name, model->name);
+			}
+		      model = model->next;
+		    }	/* while (model) */
+		}		/* if (model) */
+	      mfg = mfg->next;
+	    }		/* while (mfg) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+
+  printf("  { 0, 0, NULL, NULL, NULL }\n");
+  printf("};\n");
+}
+
+
 int
 main (int argc, char **argv)
 {
@@ -3268,6 +3343,9 @@ main (int argc, char **argv)
       break;
     case output_mode_plist:
       print_plist ();
+      break;
+    case output_mode_clist:
+      print_clist ();
       break;
     default:
       DBG_ERR ("Unknown output mode\n");

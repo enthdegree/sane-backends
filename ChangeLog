@@ -1,3 +1,9 @@
+2006-07-05  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: backend v1.0.35,
+	  allow double feed detection, minor cleanups
+	* doc/descriptions/fujitsu.desc: version number update
+
 2006-07-04  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: 

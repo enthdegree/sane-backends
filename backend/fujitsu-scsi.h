@@ -479,15 +479,22 @@ static scsiblk mode_select_bgB = {
 #define set_MSEL_bg_back(sb, val) setbitfield(sb + 6, 1, 4, val)
 #define set_MSEL_bg_fb(sb, val) setbitfield(sb + 6, 1, 3, val)
 
-/*
-static unsigned char mode_select_dfeedC[] = {
+static unsigned char mode_select_dfC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x38, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-static scsiblk mode_select_dfeedB = {
-  mode_select_dfeedC, sizeof (mode_select_dfeedC)
+static scsiblk mode_select_dfB = {
+  mode_select_dfC, sizeof (mode_select_dfC)
 };
-*/
+#define set_MSEL_df_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
+#define set_MSEL_df_continue(sb, val) setbitfield(sb + 6, 1, 6, val)
+#define set_MSEL_df_thickness(sb, val) setbitfield(sb + 6, 1, 4, val)
+#define set_MSEL_df_length(sb, val) setbitfield(sb + 6, 1, 3, val)
+#define set_MSEL_df_diff(sb, val) setbitfield(sb + 6, 3, 0, val)
+#define MSEL_df_diff_DEFAULT 0 
+#define MSEL_df_diff_10MM 1
+#define MSEL_df_diff_15MM 2
+#define MSEL_df_diff_20MM 3
 
 static unsigned char mode_select_dropoutC[] = {
   0x00, 0x00, 0x00, 0x00,

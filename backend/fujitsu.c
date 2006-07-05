@@ -47,7 +47,7 @@
     - fi-series (M. Allan Noah, Oliver Schirrmeister)
 
    The source code is divided in sections which you can easily find by
-   search for the tag "@@".
+   searching for the tag "@@".
 
    Section 1 - Init & static stuff
    Section 2 - sane_init, _get_devices, _open & friends
@@ -69,24 +69,22 @@
          - bugfix. Imprinter didn't print the first time after
            switching on the scanner
          - bugfix. reader_generic_passthrough ignored the number of bytes
-           returned by the scanner.
+           returned by the scanner
       V 1.0.4, 2002-09-13, OS
-         - 3092 support (mgoppold@tbz-pariv.de)
+         - 3092 support (mgoppold a t tbz-pariv.de)
          - tested 4097 support
          - changed some functions to receive compressed data
       V 1.0.4, 2003-02-13, OS
-         - fi-4220C support (ron@roncemer.com)
-         - SCSI over USB support (ron@roncemer.com)
+         - fi-4220C support (ron a t roncemer.com)
+         - SCSI over USB support (ron a t roncemer.com)
       V 1.0.5, 2003-02-20, OS
          - set availability of options THRESHOLD und VARIANCE
-         - option RIF is available for 3091 und 3092
+         - option RIF is available for 3091 and 3092
       V 1.0.6, 2003-03-04, OS
          - renamed some variables
          - bugfix: duplex scanning now works when disconnect is enabled
-           in the scsi controller.
       V 1.0.7, 2003-03-10, OS
-         - displays the offending byte when something is wrong in the
-           window descriptor block.
+         - displays the offending byte in the window descriptor block
       V 1.0.8, 2003-03-28, OS
          - fi-4120C support, MAN
          - display information about gamma in vital_product_data
@@ -102,23 +100,21 @@
          - added code to support color modes of more recent scanners
       V 1.0.13 2003-11-07, OS
 	 - Bugfix. If a scanner returned a color image
-	   in format rr...r gg.g bb...b the reader process crashed.
-	 - Bugfix. The option gamma was enabled for
-	   the fi-4120. The result was an 'invalid field in parm list'-error.
+	   in format rr...r gg...g bb...b the reader process crashed
+	 - Bugfix. Disable option gamma was for the fi-4120
       V 1.0.14 2003-12-15, OS
          - Bugfix: set default threshold range to 0..255 There is a problem
-           with the M3093 when you are not allows to set the threshold to 0.
+           with the M3093 when you are not allows to set the threshold to 0
          - Bugfix: set the allowable x- and y-DPI values from VPD. Scanning
            with x=100 and y=100 dpi with an fi4120 resulted in an image
-           with 100,75 dpi.
+           with 100,75 dpi
          - Bugfix: Set the default value of gamma to 0x80 for all scanners
-           that don't have build in gamma patterns.
+           that don't have built in gamma patterns
          - Bugfix: fi-4530 and fi-4210 don't support standard paper size
-           spezification. Disable this option for these scanners.
       V 1.0.15 2003-12-16, OS
-         - Bugfix: pagewidth and pageheight where disable for the fi-4530C.
+         - Bugfix: pagewidth and pageheight were disabled for the fi-4530C
       V 1.0.16 2004-02-20, OS
-         - merged the 3092-routines with the 3091-routines.
+         - merged the 3092-routines with the 3091-routines
          - inverted the image in mode color and grayscale
          - jpg hardware compression support (fi-4530C)
       V 1.0.17 2004-03-04, OS
@@ -126,7 +122,7 @@
       V 1.0.18 2004-06-02, OS
          - bugfix: can read duplex color now
       V 1.0.19 2004-06-28, MAN
-         - 4220 use model code not strcmp (stan@saticed.me.uk)
+         - 4220 use model code not strcmp (stan a t saticed.me.uk)
       V 1.0.20 2004-08-24, OS
          - bugfix: 3091 did not work since 15.12.2003 
          - M4099 supported (bw only)
@@ -200,12 +196,15 @@
          - run ghs/rs every second instead of every other
       V 1.0.32 2006-06-14, MAN
          - add 4220C2 usb id
-      V 1.0.33 2006-06-14, MAN
+      V 1.0.33 2006-06-14, MAN (SANE v1.0.18)
          - add Fi-5900 usb id and init_model section
       V 1.0.34 2006-07-04, MAN
          - add S500 usb id
          - gather more data from inq and vpd
          - allow background color setting
+      V 1.0.35 2006-07-05, MAN
+         - allow double feed sensor settings
+         - more consistent naming of global strings
 
    SANE FLOW DIAGRAM
 
@@ -265,7 +264,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 33 
+#define BUILD 35 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -277,24 +276,32 @@
 */
 
 /* ------------------------------------------------------------------------- */
-static const char source_Flatbed[] = "Flatbed";
-static const char source_ADFFront[] = "ADF Front";
-static const char source_ADFBack[] = "ADF Back";
-static const char source_ADFDuplex[] = "ADF Duplex";
+static const char string_Flatbed[] = "Flatbed";
+static const char string_ADFFront[] = "ADF Front";
+static const char string_ADFBack[] = "ADF Back";
+static const char string_ADFDuplex[] = "ADF Duplex";
 
-static const char mode_Lineart[] = "Lineart";
-static const char mode_Halftone[] = "Halftone";
-static const char mode_Grayscale[] = "Gray";
-static const char mode_Color_lineart[] = "Color Lineart";
-static const char mode_Color_halftone[] = "Color Halftone";
-static const char mode_Color[] = "Color";
+static const char string_Lineart[] = "Lineart";
+static const char string_Halftone[] = "Halftone";
+static const char string_Grayscale[] = "Gray";
+static const char string_Color[] = "Color";
 
-static const char color_Red[] = "Red";
-static const char color_Green[] = "Green";
-static const char color_Blue[] = "Blue";
-static const char color_Default[] = "Default";
-static const char color_White[] = "White";
-static const char color_Black[] = "Black";
+static const char string_Default[] = "Default";
+
+static const char string_Red[] = "Red";
+static const char string_Green[] = "Green";
+static const char string_Blue[] = "Blue";
+static const char string_White[] = "White";
+static const char string_Black[] = "Black";
+
+static const char string_None[] = "None";
+static const char string_Thickness[] = "Thickness";
+static const char string_Length[] = "Length";
+static const char string_Both[] = "Both";
+
+static const char string_10mm[] = "10mm";
+static const char string_15mm[] = "15mm";
+static const char string_20mm[] = "20mm";
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -906,11 +913,8 @@ init_vpd (struct fujitsu *s)
       s->can_grayscale = get_IN_multilevel (buffer);
       DBG (15, "  grayscale: %d\n", s->can_grayscale);
 
-      s->can_color_monochrome = get_IN_monochrome_rgb(buffer);
-      DBG (15, "  color_monochrome: %d\n", s->can_color_monochrome);
-
-      s->can_color_halftone = get_IN_half_tone_rgb(buffer);
-      DBG (15, "  color_halftone: %d\n", s->can_color_halftone);
+      DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(buffer));
+      DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(buffer));
 
       s->can_color_grayscale = get_IN_multilevel_rgb (buffer);
       DBG (15, "  color_grayscale: %d\n", s->can_color_grayscale);
@@ -1145,6 +1149,7 @@ init_model (struct fujitsu *s)
     s->has_back = 0;
     s->color_interlace = COLOR_INTERLACE_3091;
     s->duplex_interlace = DUPLEX_INTERLACE_3091;
+    s->has_MS_df = 0;
     s->has_MS_dropout = 0;
     s->has_SW_dropout = 1;
     s->window_vid = 0xc0;
@@ -1163,6 +1168,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_NONE;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_df = 0;
     s->has_MS_dropout = 0;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
@@ -1181,6 +1187,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
@@ -1200,6 +1207,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
@@ -1217,6 +1225,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
@@ -1370,16 +1379,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_SOURCE){
     i=0;
     if(s->has_flatbed){
-      s->source_list[i++]=source_Flatbed;
+      s->source_list[i++]=string_Flatbed;
     }
     if(s->has_adf){
-      s->source_list[i++]=source_ADFFront;
+      s->source_list[i++]=string_ADFFront;
   
       if(s->has_back){
-        s->source_list[i++]=source_ADFBack;
+        s->source_list[i++]=string_ADFBack;
       }
       if(s->has_duplex){
-        s->source_list[i++]=source_ADFDuplex;
+        s->source_list[i++]=string_ADFDuplex;
       }
     }
     s->source_list[i]=NULL;
@@ -1398,22 +1407,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_MODE){
     i=0;
     if(s->can_monochrome){
-      s->mode_list[i++]=mode_Lineart;
+      s->mode_list[i++]=string_Lineart;
     }
     if(s->can_halftone){
-      s->mode_list[i++]=mode_Halftone;
+      s->mode_list[i++]=string_Halftone;
     }
     if(s->can_grayscale){
-      s->mode_list[i++]=mode_Grayscale;
-    }
-    if(s->can_color_monochrome){
-      s->mode_list[i++]=mode_Color_lineart;
-    }
-    if(s->can_color_halftone){
-      s->mode_list[i++]=mode_Color_halftone;
+      s->mode_list[i++]=string_Grayscale;
     }
     if(s->can_color_grayscale){
-      s->mode_list[i++]=mode_Color;
+      s->mode_list[i++]=string_Color;
     }
     s->mode_list[i]=NULL;
   
@@ -1790,11 +1793,54 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*double feed detection*/
+  if(option==OPT_DF_DETECT){
+    s->df_detect_list[0] = string_Default;
+    s->df_detect_list[1] = string_None;
+    s->df_detect_list[2] = string_Thickness;
+    s->df_detect_list[3] = string_Length;
+    s->df_detect_list[4] = string_Both;
+    s->df_detect_list[5] = NULL;
+  
+    opt->name = "dfdetect";
+    opt->title = "DF detection";
+    opt->desc = "Enable double feed sensors";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->df_detect_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed length difference*/
+  if(option==OPT_DF_DIFF){
+    s->df_diff_list[0] = string_Default;
+    s->df_diff_list[1] = string_10mm;
+    s->df_diff_list[2] = string_15mm;
+    s->df_diff_list[3] = string_20mm;
+    s->df_diff_list[4] = NULL;
+  
+    opt->name = "dfdiff";
+    opt->title = "DF length difference";
+    opt->desc = "Difference in page length to trigger double feed sensor";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->df_diff_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_df)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*background color*/
   if(option==OPT_BG_COLOR){
-    s->bg_color_list[0] = color_Default;
-    s->bg_color_list[1] = color_White;
-    s->bg_color_list[2] = color_Black;
+    s->bg_color_list[0] = string_Default;
+    s->bg_color_list[1] = string_White;
+    s->bg_color_list[2] = string_Black;
     s->bg_color_list[3] = NULL;
   
     opt->name = "bgcolor";
@@ -1812,10 +1858,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /*dropout color*/
   if(option==OPT_DROPOUT_COLOR){
-    s->do_color_list[0] = color_Default;
-    s->do_color_list[1] = color_Red;
-    s->do_color_list[2] = color_Green;
-    s->do_color_list[3] = color_Blue;
+    s->do_color_list[0] = string_Default;
+    s->do_color_list[1] = string_Red;
+    s->do_color_list[2] = string_Green;
+    s->do_color_list[3] = string_Blue;
     s->do_color_list[4] = NULL;
   
     opt->name = "dropoutcolor";
@@ -2227,16 +2273,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_SOURCE:
           if(s->source == SOURCE_FLATBED){
-            strcpy (val, source_Flatbed);
+            strcpy (val, string_Flatbed);
           }
           else if(s->source == SOURCE_ADF_FRONT){
-            strcpy (val, source_ADFFront);
+            strcpy (val, string_ADFFront);
           }
           else if(s->source == SOURCE_ADF_BACK){
-            strcpy (val, source_ADFBack);
+            strcpy (val, string_ADFBack);
           }
           else if(s->source == SOURCE_ADF_DUPLEX){
-            strcpy (val, source_ADFDuplex);
+            strcpy (val, string_ADFDuplex);
           }
           else{
             DBG(5,"missing option val for source\n"); 
@@ -2245,16 +2291,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_MODE:
           if(s->mode == MODE_LINEART){
-            strcpy (val, mode_Lineart);
+            strcpy (val, string_Lineart);
           }
           else if(s->mode == MODE_HALFTONE){
-            strcpy (val, mode_Halftone);
+            strcpy (val, string_Halftone);
           }
           else if(s->mode == MODE_GRAYSCALE){
-            strcpy (val, mode_Grayscale);
+            strcpy (val, string_Grayscale);
           }
           else if(s->mode == MODE_COLOR){
-            strcpy (val, mode_Color);
+            strcpy (val, string_Color);
           }
           return SANE_STATUS_GOOD;
 
@@ -2307,16 +2353,53 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_DF_DETECT:
+          switch (s->df_detect) {
+            case DF_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case DF_NONE:
+              strcpy (val, string_None);
+              break;
+            case DF_THICKNESS:
+              strcpy (val, string_Thickness);
+              break;
+            case DF_LENGTH:
+              strcpy (val, string_Length);
+              break;
+            case DF_BOTH:
+              strcpy (val, string_Both);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_DIFF:
+          switch (s->df_diff) {
+            case DF_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case DF_10MM:
+              strcpy (val, string_10mm);
+              break;
+            case DF_15MM:
+              strcpy (val, string_15mm);
+              break;
+            case DF_20MM:
+              strcpy (val, string_20mm);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
         case OPT_BG_COLOR:
           switch (s->bg_color) {
             case COLOR_DEFAULT:
-              strcpy (val, color_Default);
+              strcpy (val, string_Default);
               break;
             case COLOR_WHITE:
-              strcpy (val, color_White);
+              strcpy (val, string_White);
               break;
             case COLOR_BLACK:
-              strcpy (val, color_Black);
+              strcpy (val, string_Black);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -2324,16 +2407,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         case OPT_DROPOUT_COLOR:
           switch (s->dropout_color) {
             case COLOR_DEFAULT:
-              strcpy (val, color_Default);
+              strcpy (val, string_Default);
               break;
             case COLOR_RED:
-              strcpy (val, color_Red);
+              strcpy (val, string_Red);
               break;
             case COLOR_GREEN:
-              strcpy (val, color_Green);
+              strcpy (val, string_Green);
               break;
             case COLOR_BLUE:
-              strcpy (val, color_Blue);
+              strcpy (val, string_Blue);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -2498,13 +2581,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  
         /* Mode Group */
         case OPT_SOURCE:
-          if (!strcmp (val, source_ADFFront)) {
+          if (!strcmp (val, string_ADFFront)) {
             tmp = SOURCE_ADF_FRONT;
           }
-          else if (!strcmp (val, source_ADFBack)) {
+          else if (!strcmp (val, string_ADFBack)) {
             tmp = SOURCE_ADF_BACK;
           }
-          else if (!strcmp (val, source_ADFDuplex)) {
+          else if (!strcmp (val, string_ADFDuplex)) {
             tmp = SOURCE_ADF_DUPLEX;
           }
           else{
@@ -2519,13 +2602,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
-          if (!strcmp (val, mode_Lineart)) {
+          if (!strcmp (val, string_Lineart)) {
             tmp = MODE_LINEART;
           }
-          else if (!strcmp (val, mode_Halftone)) {
+          else if (!strcmp (val, string_Halftone)) {
             tmp = MODE_HALFTONE;
           }
-          else if (!strcmp (val, mode_Grayscale)) {
+          else if (!strcmp (val, string_Grayscale)) {
             tmp = MODE_GRAYSCALE;
           }
           else{
@@ -2636,23 +2719,47 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_DF_DETECT:
+          if (!strcmp(val, string_Default))
+            s->df_detect = DF_DEFAULT;
+          else if (!strcmp(val, string_None))
+            s->df_detect = DF_NONE;
+          else if (!strcmp(val, string_Thickness))
+            s->df_detect = DF_THICKNESS;
+          else if (!strcmp(val, string_Length))
+            s->df_detect = DF_LENGTH;
+          else if (!strcmp(val, string_Both))
+            s->df_detect = DF_BOTH;
+          return mode_select_df(s);
+
+        case OPT_DF_DIFF:
+          if (!strcmp(val, string_Default))
+            s->df_diff = DF_DEFAULT;
+          else if (!strcmp(val, string_10mm))
+            s->df_diff = DF_10MM;
+          else if (!strcmp(val, string_15mm))
+            s->df_diff = DF_15MM;
+          else if (!strcmp(val, string_20mm))
+            s->df_diff = DF_20MM;
+          return mode_select_df(s);
+
         case OPT_BG_COLOR:
-          if (!strcmp(val, color_Default))
+          if (!strcmp(val, string_Default))
             s->bg_color = COLOR_DEFAULT;
-          else if (!strcmp(val, color_White))
+          else if (!strcmp(val, string_White))
             s->bg_color = COLOR_WHITE;
-          else if (!strcmp(val, color_Black))
+          else if (!strcmp(val, string_Black))
             s->bg_color = COLOR_BLACK;
           return mode_select_bg(s);
 
         case OPT_DROPOUT_COLOR:
-          if (!strcmp(val, color_Default))
+          if (!strcmp(val, string_Default))
             s->dropout_color = COLOR_DEFAULT;
-          else if (!strcmp(val, color_Red))
+          else if (!strcmp(val, string_Red))
             s->dropout_color = COLOR_RED;
-          else if (!strcmp(val, color_Green))
+          else if (!strcmp(val, string_Green))
             s->dropout_color = COLOR_GREEN;
-          else if (!strcmp(val, color_Blue))
+          else if (!strcmp(val, string_Blue))
             s->dropout_color = COLOR_BLUE;
           if (s->has_MS_dropout)
             return mode_select_dropout(s);
@@ -2715,7 +2822,7 @@ get_hardware_status (struct fujitsu *s)
   DBG (10, "get_hardware_status: start\n");
 
   /* only run this once every couple seconds */
-  if (s->last_ghs + GHS_TIME < time(NULL)) {
+  if (s->last_ghs < time(NULL)) {
 
       DBG (15, "get_hardware_status: running\n");
 
@@ -2800,6 +2907,68 @@ get_hardware_status (struct fujitsu *s)
   }
 
   DBG (10, "get_hardware_status: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+mode_select_df (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "mode_select_df: start\n");
+
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_dfB.size);
+
+  /* clear everything for defaults */
+  if(s->df_detect == DF_DEFAULT){
+    set_MSEL_df_enable (mode_select_dfB.cmd, 0);
+    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
+    set_MSEL_df_length (mode_select_dfB.cmd, 0);
+    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+  }
+  /* none, still have to enable */
+  else if(s->df_detect == DF_NONE){
+    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
+    set_MSEL_df_continue (mode_select_dfB.cmd, 1);
+    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
+    set_MSEL_df_length (mode_select_dfB.cmd, 0);
+    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+  }
+  /* thickness only */
+  else if(s->df_detect == DF_THICKNESS){
+    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
+    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_dfB.cmd, 1);
+    set_MSEL_df_length (mode_select_dfB.cmd, 0);
+    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+  }
+  /* length only */
+  else if(s->df_detect == DF_LENGTH){
+    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
+    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
+    set_MSEL_df_length (mode_select_dfB.cmd, 1);
+    set_MSEL_df_diff (mode_select_dfB.cmd, s->df_diff);
+  }
+  /* thickness and length */
+  else{
+    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
+    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_dfB.cmd, 1);
+    set_MSEL_df_length (mode_select_dfB.cmd, 1);
+    set_MSEL_df_diff (mode_select_dfB.cmd, s->df_diff);
+  }
+  
+  ret = do_cmd (
+      s, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_dfB.cmd, mode_select_dfB.size,
+      NULL, 0
+  );
+
+  DBG (10, "mode_select_df: finish\n");
 
   return ret;
 }

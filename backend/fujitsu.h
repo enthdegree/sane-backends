@@ -36,6 +36,7 @@ enum fujitsu_Option
   OPT_RIF,
 
   OPT_ADVANCED_GROUP,
+  OPT_BG_COLOR,
   OPT_DROPOUT_COLOR,
   OPT_SLEEP_TIME,
   OPT_DUPLEX_OFFSET,
@@ -92,6 +93,9 @@ struct fujitsu
 
   int color_raster_offset;      /* offset between r and b scan line and    */
                                 /* between b and g scan line (0 or 4)      */
+  int has_bg_front;             /* background color can be changed for f/r */
+  int has_bg_back;
+
   int duplex_raster_offset;     /* offset between front and rear page when */
                                 /* when scanning 3091 style duplex         */
 
@@ -191,6 +195,10 @@ struct fujitsu
 
   /*FIXME: barcode data? */
 
+  /* overscan size in pixels comes from scanner in basic res units */
+  int os_x_basic;
+  int os_y_basic;
+
   /* --------------------------------------------------------------------- */
   /* immutable values which are hard coded because they are not in vpd     */
   /* this section replaces all the old 'switch (s->model)' code            */
@@ -204,17 +212,23 @@ struct fujitsu
   int has_back;       /* not all duplex scanners can do adf back side only */
   int color_interlace;  /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently    */
-  int has_MS_dropout; /* dropout color specified in mode select data */
-  int has_SW_dropout; /* dropout color specified in set window data */
   int window_vid; /* some models want different vendor ID in set window */
   int ghs_in_rs;
+
+  /*int has_MS_prepick;
+  int has_MS_sleep;
+  int has_MS_background;
+  int has_MS_multifeed;*/
+  int has_SW_dropout; /* dropout color specified in set window data */
+  int has_MS_dropout; /* dropout color specified in mode select data */
+  /*int has_MS_buffered;
+  int has_MS_paperlen;*/
 
   int reverse_by_mode[6]; /* mode specific */
   /* --------------------------------------------------------------------- */
   /* changeable SANE_Option structs provide our interface to frontend.     */
   /* some options require lists of strings or numbers, we keep them here   */
   /* instead of in global vars so that they can differ for each scanner    */
-  /* these are loaded in init_options(), but may be changed by other funcs */
 
   /* long array of option structs */
   SANE_Option_Descriptor opt[NUM_OPTIONS];
@@ -244,6 +258,7 @@ struct fujitsu
   /*ipc group*/
 
   /*advanced group*/
+  SANE_String_Const bg_color_list[4];
   SANE_String_Const do_color_list[5];
   SANE_String_Const lamp_color_list[5];
   SANE_Range sleep_time_range;
@@ -279,6 +294,7 @@ struct fujitsu
   int gamma; /* not currently user settable */
 
   /*advanced group*/
+  int bg_color;
   int dropout_color;
   int lamp_color;
   int sleep_time;
@@ -375,11 +391,14 @@ struct fujitsu
 #define MODE_COLOR_HALFTONE WD_comp_CH
 #define MODE_COLOR WD_comp_CG
 
-/* these are same as scsi data to make code easier */
-#define COLOR_DEFAULT MSEL_dropout_DEFAULT
-#define COLOR_RED MSEL_dropout_RED
-#define COLOR_GREEN MSEL_dropout_GREEN
-#define COLOR_BLUE MSEL_dropout_BLUE
+/* these are same as dropout scsi data to make code easier */
+#define COLOR_DEFAULT 0
+#define COLOR_GREEN 8
+#define COLOR_RED 9
+#define COLOR_BLUE 11
+
+#define COLOR_WHITE 1
+#define COLOR_BLACK 2
 
 #define COLOR_INTERLACE_NONE 0
 #define COLOR_INTERLACE_3091 1
@@ -495,6 +514,8 @@ static SANE_Status do_cancel (struct fujitsu *scanner);
 static SANE_Status scanner_control (struct fujitsu *s, int function);
 
 static SANE_Status mode_select_dropout(struct fujitsu *s);
+
+static SANE_Status mode_select_bg(struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 

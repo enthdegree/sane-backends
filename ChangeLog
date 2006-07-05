@@ -1,3 +1,10 @@
+2006-07-04  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: 
+	  update to v1.0.34, add S500 usb id, get more inq and vpd data,
+	  allow background color setting for some scanners
+	* doc/descriptions/fujitsu.desc: version number update
+
 2006-07-03  Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Fix a typo in the udev header.
 

@@ -157,11 +157,18 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_vendor(in, buf)             strncpy(buf, (char *)in + 0x08, 0x08)
 #define get_IN_product(in, buf)            strncpy(buf, (char *)in + 0x10, 0x010)
 #define get_IN_version(in, buf)            strncpy(buf, (char *)in + 0x20, 0x04)
-#define get_IN_raster(in)                  getnbyte (in+0x2A, 2)	/* offset between colors */
+#define get_IN_color_offset(in)            getnbyte (in+0x2A, 2) /* offset between colors */
 
-/* these two only in some scanners */
-#define get_IN_duplex_3091(in)             getnbyte (in+0x2D, 1)	/* duplex available */
-#define get_IN_frontback(in)               getnbyte (in+0x2E, 2)	/* offset between front and back for duplex */
+/* these only in some scanners */
+#define get_IN_long_color(in)              getbitfield(in+0x2C, 1, 0)
+#define get_IN_long_gray(in)               getbitfield(in+0x2C, 1, 1)
+
+#define get_IN_duplex_3091(in)             getbitfield(in+0x2D, 1, 0)
+#define get_IN_bg_front(in)                getbitfield(in+0x2D, 1, 2)
+#define get_IN_bg_back(in)                 getbitfield(in+0x2D, 1, 3)
+#define get_IN_emulation(in)               getbitfield(in+0x2D, 1, 6)
+
+#define get_IN_duplex_offset(in)           getnbyte (in+0x2E, 2)
 
 /* the VPD response */
 #define get_IN_page_length(in)             getnbyte(in + 0x04, 1)
@@ -202,7 +209,7 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 /* vendor unique section */
 #define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
 #define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
-#define get_IN_imprinter(in)                getbitfield(in+0x20, 1, 3)
+#define get_IN_imprinter(in)               getbitfield(in+0x20, 1, 3)
 #define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
 #define get_IN_transparency(in)            getbitfield(in+0x20, 1, 5)
 #define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
@@ -248,9 +255,17 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_compression_JPG_EXT(in)     getbitfield(in+0x5a, 1, 2)
 #define get_IN_compression_JPG_INDEP(in)   getbitfield(in+0x5a, 1, 1)
 
-#define get_IN_imprinter2(in)               getbitfield(in+0x5c, 1, 7)
-#define get_IN_imprinter2_stamp(in)         getbitfield(in+0x5c, 1, 6)
-#define get_IN_imprinter2_electrical(in)    getbitfield(in+0x5c, 1, 5)
+#define get_IN_imprinter_mechanical(in)    getbitfield(in+0x5c, 1, 7)
+#define get_IN_imprinter_stamp(in)         getbitfield(in+0x5c, 1, 6)
+#define get_IN_imprinter_electrical(in)    getbitfield(in+0x5c, 1, 5)
+#define get_IN_imprinter_max_id(in)        getbitfield(in+0x5c, 0x0f, 0)
+
+#define get_IN_imprinter_size(in)          getbitfield(in+0x5d, 3, 0)
+
+#define get_IN_connection(in)       getbitfield(in+0x62, 3, 0)
+
+#define get_IN_x_overscan_size(in)  getnbyte(in + 0x64, 2)
+#define get_IN_y_overscan_size(in)  getnbyte(in + 0x66, 2)
 
 /* ==================================================================== */
 
@@ -404,7 +419,6 @@ static scsiblk readB = { readC, sizeof (readC) };
 static unsigned char mode_selectC[] =
   { MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
-
 #define set_MSEL_xfer_length(sb, val) sb[0x04] = (unsigned char)val
 
 /* combined 4 byte header and 8 byte page
@@ -418,9 +432,9 @@ static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
  * 0x3c = Auto paper size detection
  * 0x3d = Lamp light timer set
  * 0x3e = Detect job separation sheet
- * there is also possibly a 'descriptor block'
+ * there is also a 'descriptor block'
  * and a 'vendor-specific block'
- * fujitsu's seem not to use these two
+ * but fujitsu seems not to use these
  */
 
 static unsigned char mode_select_sleepC[] = {
@@ -430,13 +444,8 @@ static unsigned char mode_select_sleepC[] = {
 static scsiblk mode_select_sleepB = {
   mode_select_sleepC, sizeof (mode_select_sleepC)
 };
-/* time until the device internal power supply switches to Sleep Mode
- * 0 = Default (15 min)
- * 1 = 1 min
- * 2 = 2 min
- * 0x3c ..0xff = 60 min
- */
 #define set_MSEL_sleep_mode(sb, val) sb[0x06]=val
+
 /*
 static unsigned char mode_select_duplexC[] = {
   0x00, 0x00, 0x00, 0x00,
@@ -445,12 +454,9 @@ static unsigned char mode_select_duplexC[] = {
 static scsiblk mode_select_duplexB = {
   mode_select_duplexC, sizeof (mode_select_duplexC)
 };
-*/
-/* adf duplex reading transfer method
- * 0 = front side - back side sequential transfer
- * 1 = front side - back side alternate transfer
- */
 #define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
+*/
+
 /*
 static unsigned char mode_select_randC[] = {
   0x00, 0x00, 0x00, 0x00,
@@ -459,15 +465,20 @@ static unsigned char mode_select_randC[] = {
 static scsiblk mode_select_randB = {
   mode_select_randC, sizeof (mode_select_randC)
 };
+*/
 
-static unsigned char mode_select_backingC[] = {
+static unsigned char mode_select_bgC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x37, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-static scsiblk mode_select_backingB = {
-  mode_select_backingC, sizeof (mode_select_backingC)
+static scsiblk mode_select_bgB = {
+  mode_select_bgC, sizeof (mode_select_bgC)
 };
-*/
+#define set_MSEL_bg_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
+#define set_MSEL_bg_front(sb, val) setbitfield(sb + 6, 1, 5, val)
+#define set_MSEL_bg_back(sb, val) setbitfield(sb + 6, 1, 4, val)
+#define set_MSEL_bg_fb(sb, val) setbitfield(sb + 6, 1, 3, val)
+
 /*
 static unsigned char mode_select_dfeedC[] = {
   0x00, 0x00, 0x00, 0x00,
@@ -477,7 +488,7 @@ static scsiblk mode_select_dfeedB = {
   mode_select_dfeedC, sizeof (mode_select_dfeedC)
 };
 */
-/*byte 0x06 is bitmask controlling monochrome color*/
+
 static unsigned char mode_select_dropoutC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x39, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -493,7 +504,6 @@ static scsiblk mode_select_dropoutB = {
 #define MSEL_dropout_BLUE    11
 #define MSEL_dropout_CUSTOM  12
 
-/*bytes 0x06-07 and 0x09 control paper size detection*/
 /*
 static unsigned char mode_select_autoC[] = {
   0x00, 0x00, 0x00, 0x00,
@@ -502,6 +512,9 @@ static unsigned char mode_select_autoC[] = {
 static scsiblk mode_select_autoB = {
   mode_select_autoC, sizeof (mode_select_autoC)
 };
+*/
+
+/*
 static unsigned char mode_select_lampC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x3D, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00

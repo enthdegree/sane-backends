@@ -202,6 +202,10 @@
          - add 4220C2 usb id
       V 1.0.33 2006-06-14, MAN
          - add Fi-5900 usb id and init_model section
+      V 1.0.34 2006-07-04, MAN
+         - add S500 usb id
+         - gather more data from inq and vpd
+         - allow background color setting
 
    SANE FLOW DIAGRAM
 
@@ -289,6 +293,8 @@ static const char color_Red[] = "Red";
 static const char color_Green[] = "Green";
 static const char color_Blue[] = "Blue";
 static const char color_Default[] = "Default";
+static const char color_White[] = "White";
+static const char color_Black[] = "Black";
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -502,6 +508,8 @@ find_scanners ()
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e7'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
 
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10fe'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
   }
 
   for (dev = fujitsu_devList; dev; dev=dev->next) {
@@ -749,13 +757,26 @@ init_inquire (struct fujitsu *s)
   DBG (15, "init_inquire: Found %s scanner %s version %s at %s\n",
     s->vendor_name, s->product_name, s->version_name, s->device_name);
 
-  /*some scanners (3091/2) list raster offsets here*/
+  /*some scanners list random data here*/
   DBG (15, "inquiry options\n");
 
-  s->color_raster_offset = get_IN_raster(buffer);
+  s->color_raster_offset = get_IN_color_offset(buffer);
   DBG (15, "  color offset: %d lines\n",s->color_raster_offset);
 
-  s->duplex_raster_offset = get_IN_frontback(buffer);
+  /* FIXME: we dont store all of these? */
+  DBG (15, "  long color scan: %d\n",get_IN_long_color(buffer));
+  DBG (15, "  long gray scan: %d\n",get_IN_long_gray(buffer));
+  DBG (15, "  3091 duplex: %d\n",get_IN_duplex_3091(buffer));
+
+  s->has_bg_front = get_IN_bg_front(buffer);
+  DBG (15, "  background front: %d\n",s->has_bg_front);
+
+  s->has_bg_back = get_IN_bg_back(buffer);
+  DBG (15, "  background back: %d\n",s->has_bg_back);
+
+  DBG (15, "  emulation mode: %d\n",get_IN_emulation(buffer));
+
+  s->duplex_raster_offset = get_IN_duplex_offset(buffer);
   DBG (15, "  duplex offset: %d lines\n",s->duplex_raster_offset);
 
   DBG (10, "init_inquire: finish\n");
@@ -770,12 +791,12 @@ static SANE_Status
 init_vpd (struct fujitsu *s)
 {
   SANE_Status ret;
-  unsigned char buffer[0x64];
+  unsigned char buffer[0x68];
 
   DBG (10, "init_vpd: start\n");
 
   /* get EVPD */
-  set_IN_return_size (inquiryB.cmd, 0x64);
+  set_IN_return_size (inquiryB.cmd, 0x68);
   set_IN_evpd (inquiryB.cmd, 1);
   set_IN_page_code (inquiryB.cmd, 0xf0);
 
@@ -783,7 +804,7 @@ init_vpd (struct fujitsu *s)
     s, 1, 0,
     inquiryB.cmd, inquiryB.size,
     NULL, 0,
-    buffer, 0x64
+    buffer, 0x68
   );
 
   /* This scanner supports vital product data.
@@ -1012,7 +1033,22 @@ init_vpd (struct fujitsu *s)
 
           s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (buffer);
           DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
-          
+
+          /* FIXME: we dont store these? */
+          DBG (15, "  imprinter mech: %d\n", get_IN_imprinter_mechanical(buffer));
+          DBG (15, "  imprinter stamp: %d\n", get_IN_imprinter_stamp(buffer));
+          DBG (15, "  imprinter elec: %d\n", get_IN_imprinter_electrical(buffer));
+          DBG (15, "  imprinter max id: %d\n", get_IN_imprinter_max_id(buffer));
+          DBG (15, "  imprinter size: %d\n", get_IN_imprinter_size(buffer));
+
+          DBG (15, "  connection type: %d\n", get_IN_connection(buffer));
+
+          s->os_x_basic = get_IN_x_overscan_size(buffer);
+          DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
+
+          s->os_y_basic = get_IN_y_overscan_size(buffer);
+          DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
+
       }
       /*FIXME no vendor vpd, set some defaults? */
       else{
@@ -1754,6 +1790,26 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*background color*/
+  if(option==OPT_BG_COLOR){
+    s->bg_color_list[0] = color_Default;
+    s->bg_color_list[1] = color_White;
+    s->bg_color_list[2] = color_Black;
+    s->bg_color_list[3] = NULL;
+  
+    opt->name = "bgcolor";
+    opt->title = "Background color";
+    opt->desc = "Set color of background for scans";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->bg_color_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_bg_front || s->has_bg_back)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*dropout color*/
   if(option==OPT_DROPOUT_COLOR){
     s->do_color_list[0] = color_Default;
@@ -2251,6 +2307,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_BG_COLOR:
+          switch (s->bg_color) {
+            case COLOR_DEFAULT:
+              strcpy (val, color_Default);
+              break;
+            case COLOR_WHITE:
+              strcpy (val, color_White);
+              break;
+            case COLOR_BLACK:
+              strcpy (val, color_Black);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
         case OPT_DROPOUT_COLOR:
           switch (s->dropout_color) {
             case COLOR_DEFAULT:
@@ -2566,6 +2636,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_BG_COLOR:
+          if (!strcmp(val, color_Default))
+            s->bg_color = COLOR_DEFAULT;
+          else if (!strcmp(val, color_White))
+            s->bg_color = COLOR_WHITE;
+          else if (!strcmp(val, color_Black))
+            s->bg_color = COLOR_BLACK;
+          return mode_select_bg(s);
+
         case OPT_DROPOUT_COLOR:
           if (!strcmp(val, color_Default))
             s->dropout_color = COLOR_DEFAULT;
@@ -2721,6 +2800,49 @@ get_hardware_status (struct fujitsu *s)
   }
 
   DBG (10, "get_hardware_status: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+mode_select_bg (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "mode_select_bg: start\n");
+
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_bgB.size);
+
+  /* clear everything for defaults */
+  if(s->bg_color == COLOR_DEFAULT){
+    set_MSEL_bg_enable (mode_select_bgB.cmd, 0);
+    set_MSEL_bg_front (mode_select_bgB.cmd, 0);
+    set_MSEL_bg_back (mode_select_bgB.cmd, 0);
+    set_MSEL_bg_fb (mode_select_bgB.cmd, 0);
+  }
+  else{
+    set_MSEL_bg_enable (mode_select_bgB.cmd, 1);
+
+    if(s->bg_color == COLOR_BLACK){
+      set_MSEL_bg_front (mode_select_bgB.cmd, 1);
+      set_MSEL_bg_back (mode_select_bgB.cmd, 1);
+      set_MSEL_bg_fb (mode_select_bgB.cmd, 1);
+    }
+    else{
+      set_MSEL_bg_front (mode_select_bgB.cmd, 0);
+      set_MSEL_bg_back (mode_select_bgB.cmd, 0);
+      set_MSEL_bg_fb (mode_select_bgB.cmd, 0);
+    }
+  }
+  
+  ret = do_cmd (
+      s, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_bgB.cmd, mode_select_bgB.size,
+      NULL, 0
+  );
+
+  DBG (10, "mode_select_bg: finish\n");
 
   return ret;
 }

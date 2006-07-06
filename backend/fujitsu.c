@@ -205,6 +205,9 @@
       V 1.0.35 2006-07-05, MAN
          - allow double feed sensor settings
          - more consistent naming of global strings
+      V 1.0.36 2006-07-06, MAN
+         - deal with fi-5900 even bytes problem
+         - less verbose calculateDerivedValues()
 
    SANE FLOW DIAGRAM
 
@@ -264,7 +267,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 35 
+#define BUILD 36 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1149,6 +1152,7 @@ init_model (struct fujitsu *s)
     s->has_back = 0;
     s->color_interlace = COLOR_INTERLACE_3091;
     s->duplex_interlace = DUPLEX_INTERLACE_3091;
+    s->even_scan_line = 0;
     s->has_MS_df = 0;
     s->has_MS_dropout = 0;
     s->has_SW_dropout = 1;
@@ -1168,6 +1172,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_NONE;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->even_scan_line = 0;
     s->has_MS_df = 0;
     s->has_MS_dropout = 0;
     s->has_SW_dropout = 0;
@@ -1182,11 +1187,12 @@ init_model (struct fujitsu *s)
   else if (strstr (s->product_name, "fi-4750")
    || strstr (s->product_name, "fi-4340") ) {
 
-    s->gamma = 0x00;
+    s->gamma = 0;
 
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->even_scan_line = 0;
     s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
@@ -1202,11 +1208,12 @@ init_model (struct fujitsu *s)
   else if (strstr (s->product_name, "Fi-5900")
    || strstr (s->product_name, "fi-5900") ) {
 
-    s->gamma = 0x00;
+    s->gamma = 0;
 
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->even_scan_line = 1;
     s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
@@ -1225,6 +1232,7 @@ init_model (struct fujitsu *s)
     s->has_back = s->has_duplex;
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->even_scan_line = 0;
     s->has_MS_df = 1;
     s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
@@ -3093,10 +3101,11 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 void
 calculateDerivedValues (struct fujitsu *s)
 {
+  int dir = 1;
 
   DBG (10, "calculateDerivedValues: start\n");
-  DBG (5, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
-  DBG (5, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
+  DBG (15, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
+  DBG (15, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
 
   s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
   s->params.lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
@@ -3113,29 +3122,48 @@ calculateDerivedValues (struct fujitsu *s)
     s->params.bytes_per_line = s->params.pixels_per_line;
   }
   else if (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE) {
-
-    /* increase scan width to full number of bytes in a scan line */
-    while (s->params.pixels_per_line % 8) {
-      s->br_x++;
-      s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-    }
-
-    /* dont round up larger than scanners max width */
-    while (s->br_x > s->max_x || s->params.pixels_per_line % 8){
-      s->br_x--;
-      s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-    }
-
     s->params.format = SANE_FRAME_GRAY;
     s->params.depth = 1;
+
+    /* increase scan width to full number of bytes in a scan line */
+    /* but dont round up larger than scanners max width */
+    while (s->params.pixels_per_line % 8) {
+      if(s->br_x == s->max_x){
+        dir = -1;
+      }
+      s->br_x += dir;
+      s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+    }
+
     s->params.bytes_per_line = s->params.pixels_per_line / 8;
   }
-  /*FIXME what about the other modes*/
-  else{
+
+  dir = 1;
+
+  /* some scanners need even number of bytes per line */
+  /* increase scan width to even number of bytes */
+  /* but dont round up larger than scanners max width */
+  while(s->even_scan_line && s->params.bytes_per_line % 2) {
+
+    if(s->br_x == s->max_x){
+      dir = -1;
+    }
+    s->br_x += dir;
+    s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+
+    if (s->mode == MODE_COLOR) {
+      s->params.bytes_per_line = s->params.pixels_per_line * 3;
+    }
+    else if (s->mode == MODE_GRAYSCALE) {
+      s->params.bytes_per_line = s->params.pixels_per_line;
+    }
+    else if (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE) {
+      s->params.bytes_per_line = s->params.pixels_per_line / 8;
+    }
   }
 
-  DBG (5, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
-  DBG (5, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
+  DBG (15, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
+  DBG (15, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
 
 #if 0
   /* special relationship between X and Y must be maintained for 3096 */

@@ -212,7 +212,8 @@ struct fujitsu
   int has_back;       /* not all duplex scanners can do adf back side only */
   int color_interlace;  /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently    */
-  int window_vid; /* some models want different vendor ID in set window */
+  int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
+  int window_vid;    /* some models want different vendor ID in set window */
   int ghs_in_rs;
 
   /*int has_MS_prepick;

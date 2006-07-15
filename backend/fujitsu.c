@@ -208,6 +208,12 @@
       V 1.0.36 2006-07-06, MAN
          - deal with fi-5900 even bytes problem
          - less verbose calculateDerivedValues()
+      V 1.0.37 2006-07-14, MAN
+         - mode sense command support
+         - detect mode page codes instead of hardcoding
+         - send command support
+         - brightness/contrast support via LUT
+         - merge global mode page buffers
 
    SANE FLOW DIAGRAM
 
@@ -250,6 +256,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <math.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -267,7 +274,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 36 
+#define BUILD 37 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -622,6 +629,16 @@ attach_one (const char *device_name, int connType)
     return ret;
   }
 
+  /* see what mode pages device supports */
+  ret = init_ms (s);
+  if (ret != SANE_STATUS_GOOD) {
+    disconnect_fd(s);
+    free (s->device_name);
+    free (s);
+    DBG (5, "attach_one: ms failed\n");
+    return ret;
+  }
+
   /* clean up the scanner struct based on model */
   /* this is the only piece of model specific code */
   /* sets SANE option 'values' to good defaults */
@@ -954,6 +971,10 @@ init_vpd (struct fujitsu *s)
           s->buffer_bytes = get_IN_buffer_bytes(buffer);
           DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
 
+          /* std scsi command support */
+          s->has_cmd_msen = get_IN_has_cmd_msen(buffer);
+          DBG (15, "  mode_sense cmd: %d\n", s->has_cmd_msen);
+
           /* vendor added scsi command support */
           /* FIXME: there are more of these... */
           s->has_cmd_subwindow = get_IN_has_subwindow(buffer);
@@ -1077,6 +1098,180 @@ init_vpd (struct fujitsu *s)
   return ret;
 }
 
+static SANE_Status
+init_ms(struct fujitsu *s) 
+{
+  int ret;
+  unsigned char buff[64];
+
+  DBG (10, "init_ms: start\n");
+
+  if(!s->has_cmd_msen){
+    DBG (10, "init_ms: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
+
+  set_MSEN_xfer_length (mode_senseB.cmd, 64);
+
+  /* prepick */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_prepick);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_prepick=1;
+  }
+  DBG (15, "  prepick: %d\n", s->has_MS_prepick);
+
+  /* sleep */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_sleep);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_sleep=1;
+  }
+  DBG (15, "  sleep: %d\n", s->has_MS_sleep);
+
+  /* duplex */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_duplex);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_duplex=1;
+  }
+  DBG (15, "  duplex: %d\n", s->has_MS_duplex);
+
+  /* rand */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_rand);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_rand=1;
+  }
+  DBG (15, "  rand: %d\n", s->has_MS_rand);
+
+  /* bg */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_bg);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_bg=1;
+  }
+  DBG (15, "  bg: %d\n", s->has_MS_bg);
+
+  /* df */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_df);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_df=1;
+  }
+  DBG (15, "  df: %d\n", s->has_MS_df);
+
+  /* dropout */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_dropout);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_dropout=1;
+  }
+  DBG (15, "  dropout: %d\n", s->has_MS_dropout);
+
+  /* buff */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_buff);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_buff=1;
+  }
+  DBG (15, "  buff: %d\n", s->has_MS_buff);
+
+  /* auto */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_auto);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_auto=1;
+  }
+  DBG (15, "  auto: %d\n", s->has_MS_auto);
+
+  /* lamp */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_lamp);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_lamp=1;
+  }
+  DBG (15, "  lamp: %d\n", s->has_MS_lamp);
+
+  /* jobsep */
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_jobsep);
+  memset(buff,0,64);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buff, 64
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_jobsep=1;
+  }
+  DBG (15, "  jobsep: %d\n", s->has_MS_jobsep);
+
+  DBG (10, "init_ms: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
 /*
  * set model specific info and good default user values 
  * in scanner struct. struct is already initialized to 0,
@@ -1153,11 +1348,10 @@ init_model (struct fujitsu *s)
     s->color_interlace = COLOR_INTERLACE_3091;
     s->duplex_interlace = DUPLEX_INTERLACE_3091;
     s->even_scan_line = 0;
-    s->has_MS_df = 0;
-    s->has_MS_dropout = 0;
     s->has_SW_dropout = 1;
     s->window_vid = 0xc0;
     s->ghs_in_rs = 1;
+    s->lut_bits = 8;
 
     s->reverse_by_mode[MODE_LINEART] = 1;
     s->reverse_by_mode[MODE_HALFTONE] = 1;
@@ -1173,11 +1367,10 @@ init_model (struct fujitsu *s)
     s->color_interlace = COLOR_INTERLACE_NONE;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->even_scan_line = 0;
-    s->has_MS_df = 0;
-    s->has_MS_dropout = 0;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
     s->ghs_in_rs = 0;
+    s->lut_bits = 0;
   
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
@@ -1193,11 +1386,10 @@ init_model (struct fujitsu *s)
     s->color_interlace = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->even_scan_line = 0;
-    s->has_MS_df = 1;
-    s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
     s->ghs_in_rs = 0;
+    s->lut_bits = 10;
   
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
@@ -1214,11 +1406,10 @@ init_model (struct fujitsu *s)
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->even_scan_line = 1;
-    s->has_MS_df = 1;
-    s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
     s->ghs_in_rs = 0;
+    s->lut_bits = 10;
   
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
@@ -1233,11 +1424,10 @@ init_model (struct fujitsu *s)
     s->color_interlace = COLOR_INTERLACE_BGR;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->even_scan_line = 0;
-    s->has_MS_df = 1;
-    s->has_MS_dropout = 1;
     s->has_SW_dropout = 0;
     s->window_vid = 0;
     s->ghs_in_rs = 0;
+    s->lut_bits = 10;
   
     s->reverse_by_mode[MODE_LINEART] = 0;
     s->reverse_by_mode[MODE_HALFTONE] = 0;
@@ -1729,10 +1919,20 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->brightness_range;
-    s->brightness_range.min=0;
-    s->brightness_range.max=s->brightness_steps;
     s->brightness_range.quant=1;
+
+    /* scanner has brightness built-in */
+    /* value ranges from 0-255 (usually) */
     if (s->brightness_steps){
+      s->brightness_range.min=0;
+      s->brightness_range.max=s->brightness_steps;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+    /* scanner has brightness via LUT */
+    /* value ranges from -127 to +127 */
+    else if (s->lut_bits){
+      s->brightness_range.min=-127;
+      s->brightness_range.max=127;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
     else{
@@ -1769,12 +1969,22 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->contrast_range;
-    s->contrast_range.min=0;
-    s->contrast_range.max=s->contrast_steps;
     s->contrast_range.quant=1;
+
+    /* scanner has contrast built-in */
+    /* value ranges from 0-255 (usually) */
     if (s->contrast_steps) {
+      s->contrast_range.min=0;
+      s->contrast_range.max=s->contrast_steps;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     } 
+    /* scanner has contrast via LUT */
+    /* value ranges from -127 to +127 */
+    else if (s->lut_bits){
+      s->contrast_range.min=-127;
+      s->contrast_range.max=127;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
     else {
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -1898,7 +2108,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range=&s->sleep_time_range;
-    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    if(s->has_MS_sleep)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   /*duplex offset*/
@@ -1944,7 +2157,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->blue_offset_range.quant = 1;
   
     opt->name = "blueoffset";
-    opt->title = "blue scan line offset from default";
+    opt->title = "Blue offset";
     opt->desc = "Adjust blue/red offset";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
@@ -2807,13 +3020,14 @@ set_sleep_mode(struct fujitsu *s)
 
   DBG (10, "set_sleep_mode: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_sleepB.size);
-  set_MSEL_sleep_mode(mode_select_sleepB.cmd, s->sleep_time);
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_sleep);
+  set_MSEL_sleep_mode(mode_select_8byteB.cmd, s->sleep_time);
 
   ret = do_cmd (
     s, 1, 0,
     mode_selectB.cmd, mode_selectB.size,
-    mode_select_sleepB.cmd, mode_select_sleepB.size,
+    mode_select_8byteB.cmd, mode_select_8byteB.size,
     NULL, 0
   );
 
@@ -2919,6 +3133,92 @@ get_hardware_status (struct fujitsu *s)
   return ret;
 }
 
+/* instead of internal brightness/contrast/gamma
+   most scanners use a 256x256 or 1024x256 LUT
+   default is linear table of slope 1 or 1/4 resp.
+   brightness and contrast inputs are -127 to +127 
+
+   contrast rotates slope of line around central input val
+
+       high           low
+       .       x      .
+       .      x       .         xx
+   out .     x        . xxxxxxxx
+       .    x         xx
+       ....x.......   ............
+           input
+
+   then brightness moves line vertically, and clamps to 8bit
+
+       bright         dark
+       .   xxxxxxxx   .
+   out . x            . 
+       x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+           input                            */
+static SANE_Status
+send_lut (struct fujitsu *s)
+{
+  int i, j, ret, bytes = 1 << s->lut_bits;
+  unsigned char * p = send_lutC+S_lut_data_offset;
+  double b, cmax, coff;
+
+  DBG (10, "send_lut: start\n");
+
+  /* contrast is converted to height in last col of table
+   * first from -127 to +127 to 0 to ~.996
+   * then multiply by PI/2 to convert to radians
+   * then take the tangent and multiply by max input (255) */
+  cmax = tan(((double)s->contrast+127)/255 * M_PI/2) * 255;
+
+  /* contrast slope must stay centered, so figure
+   * out vertical offset at central input value (127.5)*/
+  coff = 127.5-(cmax/2);
+
+  /* convert the user brightness setting (-127 to +127)
+   * into a scale that covers the range required
+   * to slide the contrast curve entirely off the table */
+  b = ((double)s->brightness/127) * (256 - coff);
+
+  DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b, s->contrast, cmax, coff);
+
+  set_S_xfer_datatype (sendB.cmd, S_datatype_lut_data);
+  set_S_xfer_length (sendB.cmd, S_lut_data_offset+bytes);
+
+  set_S_lut_order (send_lutC, S_lut_order_single);
+  set_S_lut_ssize (send_lutC, bytes);
+  set_S_lut_dsize (send_lutC, 256);
+ 
+  for(i=0;i<bytes;i++){
+    j=cmax*i/bytes + coff + b;
+
+    if(j<0){
+      j=0;
+    }
+
+    if(j>255){
+      j=255;
+    }
+
+    *p=j;
+    p++;
+  }
+
+  hexdump(15,"LUT:",send_lutC+S_lut_data_offset,bytes);
+ 
+  ret = do_cmd (
+      s, 1, 0,
+      sendB.cmd, sendB.size,
+      send_lutC, S_lut_data_offset+bytes,
+      NULL, 0
+  );
+
+  DBG (10, "send_lut: finish\n");
+
+  return ret;
+}
+
 static SANE_Status
 mode_select_df (struct fujitsu *s)
 {
@@ -2926,53 +3226,54 @@ mode_select_df (struct fujitsu *s)
 
   DBG (10, "mode_select_df: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_dfB.size);
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_df);
 
   /* clear everything for defaults */
   if(s->df_detect == DF_DEFAULT){
-    set_MSEL_df_enable (mode_select_dfB.cmd, 0);
-    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
-    set_MSEL_df_length (mode_select_dfB.cmd, 0);
-    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+    set_MSEL_df_enable (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
   }
   /* none, still have to enable */
   else if(s->df_detect == DF_NONE){
-    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
-    set_MSEL_df_continue (mode_select_dfB.cmd, 1);
-    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
-    set_MSEL_df_length (mode_select_dfB.cmd, 0);
-    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_continue (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
   }
   /* thickness only */
   else if(s->df_detect == DF_THICKNESS){
-    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
-    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_dfB.cmd, 1);
-    set_MSEL_df_length (mode_select_dfB.cmd, 0);
-    set_MSEL_df_diff (mode_select_dfB.cmd, 0);
+    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
   }
   /* length only */
   else if(s->df_detect == DF_LENGTH){
-    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
-    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_dfB.cmd, 0);
-    set_MSEL_df_length (mode_select_dfB.cmd, 1);
-    set_MSEL_df_diff (mode_select_dfB.cmd, s->df_diff);
+    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_length (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
   }
   /* thickness and length */
   else{
-    set_MSEL_df_enable (mode_select_dfB.cmd, 1);
-    set_MSEL_df_continue (mode_select_dfB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_dfB.cmd, 1);
-    set_MSEL_df_length (mode_select_dfB.cmd, 1);
-    set_MSEL_df_diff (mode_select_dfB.cmd, s->df_diff);
+    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
+    set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_length (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
   }
   
   ret = do_cmd (
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
-      mode_select_dfB.cmd, mode_select_dfB.size,
+      mode_select_8byteB.cmd, mode_select_8byteB.size,
       NULL, 0
   );
 
@@ -2988,34 +3289,35 @@ mode_select_bg (struct fujitsu *s)
 
   DBG (10, "mode_select_bg: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_bgB.size);
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_bg);
 
   /* clear everything for defaults */
   if(s->bg_color == COLOR_DEFAULT){
-    set_MSEL_bg_enable (mode_select_bgB.cmd, 0);
-    set_MSEL_bg_front (mode_select_bgB.cmd, 0);
-    set_MSEL_bg_back (mode_select_bgB.cmd, 0);
-    set_MSEL_bg_fb (mode_select_bgB.cmd, 0);
+    set_MSEL_bg_enable (mode_select_8byteB.cmd, 0);
+    set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
+    set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
+    set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
   }
   else{
-    set_MSEL_bg_enable (mode_select_bgB.cmd, 1);
+    set_MSEL_bg_enable (mode_select_8byteB.cmd, 1);
 
     if(s->bg_color == COLOR_BLACK){
-      set_MSEL_bg_front (mode_select_bgB.cmd, 1);
-      set_MSEL_bg_back (mode_select_bgB.cmd, 1);
-      set_MSEL_bg_fb (mode_select_bgB.cmd, 1);
+      set_MSEL_bg_front (mode_select_8byteB.cmd, 1);
+      set_MSEL_bg_back (mode_select_8byteB.cmd, 1);
+      set_MSEL_bg_fb (mode_select_8byteB.cmd, 1);
     }
     else{
-      set_MSEL_bg_front (mode_select_bgB.cmd, 0);
-      set_MSEL_bg_back (mode_select_bgB.cmd, 0);
-      set_MSEL_bg_fb (mode_select_bgB.cmd, 0);
+      set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
+      set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
+      set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
     }
   }
   
   ret = do_cmd (
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
-      mode_select_bgB.cmd, mode_select_bgB.size,
+      mode_select_8byteB.cmd, mode_select_8byteB.size,
       NULL, 0
   );
 
@@ -3031,14 +3333,15 @@ mode_select_dropout (struct fujitsu *s)
 
   DBG (10, "mode_select_dropout: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_dropoutB.size);
-  set_MSEL_dropout_front (mode_select_dropoutB.cmd, s->dropout_color);
-  set_MSEL_dropout_back (mode_select_dropoutB.cmd, s->dropout_color);
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_10byteB.size);
+  set_MSEL_pc(mode_select_10byteB.cmd, MS_pc_dropout);
+  set_MSEL_dropout_front (mode_select_10byteB.cmd, s->dropout_color);
+  set_MSEL_dropout_back (mode_select_10byteB.cmd, s->dropout_color);
   
   ret = do_cmd (
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
-      mode_select_dropoutB.cmd, mode_select_dropoutB.size,
+      mode_select_10byteB.cmd, mode_select_10byteB.size,
       NULL, 0
   );
 
@@ -3239,14 +3542,22 @@ sane_start (SANE_Handle handle)
       s->bytes_tx[1]=0;
 
       /* send batch setup commands */
-      ret = scanner_control (s, SC_function_lamp_on);
+      ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot start lamp\n");
         do_cancel(s);
         return ret;
       }
     
-      /*FIXME: send lut and dither ?*/
+      /* send lut if scanner has no contrast option */
+      if(!s->contrast_steps && s->lut_bits){
+        ret = send_lut(s);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot send lut\n");
+          do_cancel(s);
+          return ret;
+        }
+      }
     
       /* get the scan size, etc */ 
       calculateDerivedValues(s);
@@ -3534,9 +3845,18 @@ set_window (struct fujitsu *s)
   }
   set_WD_length (window_descriptor_blockB.cmd, length);
 
-  set_WD_brightness (window_descriptor_blockB.cmd, s->brightness);
+  set_WD_brightness (window_descriptor_blockB.cmd, 0);
+  if(s->brightness_steps){
+    set_WD_brightness (window_descriptor_blockB.cmd, s->brightness);
+  }
+
   set_WD_threshold (window_descriptor_blockB.cmd, s->threshold);
-  set_WD_contrast (window_descriptor_blockB.cmd, s->contrast);
+
+  set_WD_contrast (window_descriptor_blockB.cmd, 0);
+  if(s->contrast_steps){
+    set_WD_contrast (window_descriptor_blockB.cmd, s->contrast);
+  }
+
   set_WD_composition (window_descriptor_blockB.cmd, s->mode);
 
   /* FIXME: is this something else on new scanners? */

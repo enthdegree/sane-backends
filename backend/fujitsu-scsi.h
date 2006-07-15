@@ -219,6 +219,7 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
 
 /* more stuff here (std supported commands) */
+#define get_IN_has_cmd_msen(in)            getbitfield(in+0x29, 1, 7)
 
 #define get_IN_has_subwindow(in)           getbitfield(in+0x2b, 1, 0) 
 #define get_IN_has_endorser(in)            getbitfield(in+0x2b, 1, 1)
@@ -299,19 +300,17 @@ static scsiblk object_positionB =
 
 static unsigned char sendC[] =
   {SEND, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static scsiblk sendB =
-  {sendC, sizeof (sendC)};
+static scsiblk sendB = {sendC, sizeof (sendC)};
 
-
-#define set_S_datatype_code(sb, val) sb[0x02] = (unsigned char)val
-#define S_datatype_imagedatai		0x00
+#define set_S_xfer_datatype(sb, val) sb[0x02] = (unsigned char)val
+/*#define S_datatype_imagedatai		0x00
 #define S_datatype_halftone_mask        0x02
-#define S_datatype_gamma_function       0x03
-#define S_datatype_LUT_data             0x83
-#define S_datatype_jpg_q_table          0x88
+#define S_datatype_gamma_function       0x03*/
+#define S_datatype_lut_data             0x83
+/*#define S_datatype_jpg_q_table          0x88
 #define S_datatype_imprinter_data       0x90
-#define S_EX_datatype_LUT		0x01	/* Experiment code */
-#define S_EX_datatype_shading_data	0xa0	/* Experiment code */
+#define S_EX_datatype_lut		0x01
+#define S_EX_datatype_shading_data	0xa0
 #define S_user_reg_gamma		0xc0
 #define S_device_internal_info		0x03
 #define set_S_datatype_qual_upper(sb, val) sb[0x04] = (unsigned char)val
@@ -321,8 +320,16 @@ static scsiblk sendB =
 #define S_DQ_Bcomp	0x08
 #define S_DQ_Reg1	0x01
 #define S_DQ_Reg2	0x02
-#define S_DQ_Reg3	0x03
-#define set_S_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
+#define S_DQ_Reg3	0x03*/
+#define set_S_xfer_id(sb, val)    putnbyte(sb + 4, val, 2)
+#define set_S_xfer_length(sb, val)    putnbyte(sb + 6, val, 3)
+
+static unsigned char send_lutC[1034];
+#define set_S_lut_order(sb, val)    putnbyte(sb + 2, val, 1)
+#define S_lut_order_single 0x10
+#define set_S_lut_ssize(sb, val)    putnbyte(sb + 4, val, 2)
+#define set_S_lut_dsize(sb, val)    putnbyte(sb + 6, val, 2)
+#define S_lut_data_offset 0x0a
 
 /*
 static unsigned char send_imprinterC[] = 
@@ -331,44 +338,28 @@ static unsigned char send_imprinterC[] =
    0x00, 0x00};
 static scsiblk send_imprinterB = 
   {send_imprinterC, sizeof(send_imprinterC)};
-*/
-/* imprinter counter
- * 0 = increase counter
- * 1 = decrease counter
- */
 #define set_imprinter_cnt_dir(sb, val) setbitfield(sb + 0x01, 1, 5, val)
 #define S_im_dir_inc 0
 #define S_im_dir_dec 1
-/* counter value
- * 1 = 24 bit
- * 0 = 16 bit
- */
 #define set_imprinter_lap24(sb, val) setbitfield(sb + 0x01, 1, 4, val)
 #define S_im_ctr_24bit 1
 #define S_im_ctr_16bit 0
-/* stepping of the imprinter counter
- * 0..2 allowed
- */
 #define set_imprinter_cstep(sb, val) setbitfield(sb + 0x01, 0x03, 0, val)
 #define set_imprinter_uly(sb, val) putnbyte(sb + 0x06, val, 4)
-
-/* specifies the way of printing direction of the strings.
- */
 #define set_imprinter_dirs(sb, val) setbitfield(sb + 0x0c, 0x03, 0, val)
 #define S_im_dir_left_right 0
 #define S_im_dir_top_bottom 1
 #define S_im_dir_right_left 2
 #define S_im_dir_bottom_top 3
-
 #define set_imprinter_string_length(sb, len)  putnbyte(sb + 0x11, len, 1)
 #define max_imprinter_string_length 40
+*/
 
 /*
-   static unsigned char gamma_user_LUT_LS1K[512] = { 0x00 };
-   static scsiblk gamma_user_LUT_LS1K_LS1K = {
-   gamma_user_LUT_LS1K, sizeof(gamma_user_LUT_LS1K)
-   };
- */
+static unsigned char gamma_user_LUT_LS1K[512] = { 0x00 };
+static scsiblk gamma_user_LUT_LS1K_LS1K = 
+  { gamma_user_LUT_LS1K, sizeof(gamma_user_LUT_LS1K) };
+*/
 
 /* ==================================================================== */
 /*
@@ -416,76 +407,70 @@ static scsiblk readB = { readC, sizeof (readC) };
 
 /* ==================================================================== */
 
+/* page codes used by mode_sense and mode_select */
+#define MS_pc_prepick 0x33 /* Prepick next adf page */
+#define MS_pc_sleep   0x34 /* Sleep mode */
+#define MS_pc_duplex  0x35 /* ADF duplex transfer mode */
+#define MS_pc_rand    0x36 /* All sorts of device controls */
+#define MS_pc_bg      0x37 /* Backing switch control */
+#define MS_pc_df      0x38 /* Double feed detection */
+#define MS_pc_dropout 0x39 /* Drop out color */
+#define MS_pc_buff    0x3a /* Scan buffer control */
+#define MS_pc_auto    0x3c /* Auto paper size detection */
+#define MS_pc_lamp    0x3d /* Lamp light timer set */
+#define MS_pc_jobsep  0x3e /* Detect job separation sheet */
+#define MS_pc_all     0x3f /* Only used with mode_sense */
+
+/* ==================================================================== */
+
+static unsigned char mode_senseC[] =
+  { MODE_SENSE, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk mode_senseB = { mode_senseC, sizeof (mode_senseC) };
+#define set_MSEN_DBD(b, val)    setbitfield(b, 0x01, 3, (val?1:0))
+#define set_MSEN_pc(sb, val)    setbitfield(sb + 0x02, 0x3f, 0, val)
+#define set_MSEN_xfer_length(sb, val) sb[0x04] = (unsigned char)val
+#define get_MSEN_MUD(b)		getnbyte(b+(0x04+((int)*(b+0x3)))+0x4,2)
+
+/* ==================================================================== */
+
 static unsigned char mode_selectC[] =
   { MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
 #define set_MSEL_xfer_length(sb, val) sb[0x04] = (unsigned char)val
 
-/* combined 4 byte header and 8 byte page
- * PageCodes: (most scanners know a few of these)
- * 0x34 = Sleep mode
- * 0x35 = ADF duplex reading transfer mode
- * 0x36 = All sorts of device controls switching
- * 0x37 = Backing switch control
- * 0x38 = Double feed detection
- * 0x39 = Drop out color
- * 0x3c = Auto paper size detection
- * 0x3d = Lamp light timer set
- * 0x3e = Detect job separation sheet
- * there is also a 'descriptor block'
- * and a 'vendor-specific block'
- * but fujitsu seems not to use these
- */
+/* following are combined 4 byte header and 8 or 10 byte page 
+ * there is also 'descriptor block' & 'vendor-specific block'
+ * but fujitsu seems not to use these */
 
-static unsigned char mode_select_sleepC[] = {
+/* 8 byte page only used by all pages except dropout? */
+static unsigned char mode_select_8byteC[] = {
   0x00, 0x00, 0x00, 0x00,
-  0x34, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-static scsiblk mode_select_sleepB = {
-  mode_select_sleepC, sizeof (mode_select_sleepC)
+static scsiblk mode_select_8byteB = {
+  mode_select_8byteC, sizeof (mode_select_8byteC)
 };
+
+/* 10 byte page only used by dropout? */
+static unsigned char mode_select_10byteC[] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+static scsiblk mode_select_10byteB = {
+  mode_select_10byteC, sizeof (mode_select_10byteC)
+};
+
+#define set_MSEL_pc(sb, val) sb[0x04]=val
+
 #define set_MSEL_sleep_mode(sb, val) sb[0x06]=val
 
-/*
-static unsigned char mode_select_duplexC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x35, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_duplexB = {
-  mode_select_duplexC, sizeof (mode_select_duplexC)
-};
 #define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
-*/
 
-/*
-static unsigned char mode_select_randC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x36, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_randB = {
-  mode_select_randC, sizeof (mode_select_randC)
-};
-*/
-
-static unsigned char mode_select_bgC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x37, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_bgB = {
-  mode_select_bgC, sizeof (mode_select_bgC)
-};
 #define set_MSEL_bg_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
 #define set_MSEL_bg_front(sb, val) setbitfield(sb + 6, 1, 5, val)
 #define set_MSEL_bg_back(sb, val) setbitfield(sb + 6, 1, 4, val)
 #define set_MSEL_bg_fb(sb, val) setbitfield(sb + 6, 1, 3, val)
 
-static unsigned char mode_select_dfC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x38, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_dfB = {
-  mode_select_dfC, sizeof (mode_select_dfC)
-};
 #define set_MSEL_df_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
 #define set_MSEL_df_continue(sb, val) setbitfield(sb + 6, 1, 6, val)
 #define set_MSEL_df_thickness(sb, val) setbitfield(sb + 6, 1, 4, val)
@@ -496,13 +481,6 @@ static scsiblk mode_select_dfB = {
 #define MSEL_df_diff_15MM 2
 #define MSEL_df_diff_20MM 3
 
-static unsigned char mode_select_dropoutC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x39, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_dropoutB = {
-  mode_select_dropoutC, sizeof (mode_select_dropoutC)
-};
 #define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x06, 0x0f, 0, val)
 #define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x06, 0x0f, 4, val)
 #define MSEL_dropout_DEFAULT 0
@@ -510,38 +488,6 @@ static scsiblk mode_select_dropoutB = {
 #define MSEL_dropout_RED     9
 #define MSEL_dropout_BLUE    11
 #define MSEL_dropout_CUSTOM  12
-
-/*
-static unsigned char mode_select_autoC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x3C, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_autoB = {
-  mode_select_autoC, sizeof (mode_select_autoC)
-};
-*/
-
-/*
-static unsigned char mode_select_lampC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x3D, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_lampB= {
-  mode_select_lampC, sizeof (mode_select_lampC)
-};
-*/
-
-/* ==================================================================== */
-#if 0
-/* currently not used */
-static unsigned char mode_senseC[] =
-  { MODE_SENSE, 0x18, 0x03, 0x00, 0x00, 0x00, /* PF set, page type 03 */  };
-static scsiblk mode_senseB = { mode_senseC, sizeof (mode_senseC) };
-
-#define set_MS_DBD(b, val)      setbitfield(b, 0x01, 3, (val?1:0))
-#define set_MS_len(b, val)	putnbyte(b+0x04, val, 1)
-#define get_MS_MUD(b)		getnbyte(b+(0x04+((int)*(b+0x3)))+0x4,2)
-#endif
 
 /* ==================================================================== */
 

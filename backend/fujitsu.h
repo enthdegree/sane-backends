@@ -155,6 +155,7 @@ struct fujitsu
   int buffer_bytes;
 
   /*FIXME: do we need the std cmd list? */
+  int has_cmd_msen;
 
   /*FIXME: there are more vendor cmds? */
   int has_cmd_subwindow;
@@ -200,6 +201,21 @@ struct fujitsu
   int os_y_basic;
 
   /* --------------------------------------------------------------------- */
+  /* immutable values which are gathered by mode_sense command     */
+
+  int has_MS_prepick;
+  int has_MS_sleep;
+  int has_MS_duplex;
+  int has_MS_rand;
+  int has_MS_bg;
+  int has_MS_df;
+  int has_MS_dropout; /* dropout color specified in mode select data */
+  int has_MS_buff;
+  int has_MS_auto;
+  int has_MS_lamp;
+  int has_MS_jobsep;
+
+  /* --------------------------------------------------------------------- */
   /* immutable values which are hard coded because they are not in vpd     */
   /* this section replaces all the old 'switch (s->model)' code            */
 
@@ -215,15 +231,9 @@ struct fujitsu
   int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
   int window_vid;    /* some models want different vendor ID in set window */
   int ghs_in_rs;
+  int lut_bits;
 
-  /*int has_MS_prepick;
-  int has_MS_sleep;
-  int has_MS_background;*/
-  int has_MS_df;
-  int has_MS_dropout; /* dropout color specified in mode select data */
   int has_SW_dropout; /* dropout color specified in set window data */
-  /*int has_MS_buffered;
-  int has_MS_paperlen;*/
 
   int reverse_by_mode[6]; /* mode specific */
 
@@ -497,6 +507,7 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg);
 
 static SANE_Status init_inquire (struct fujitsu *s);
 static SANE_Status init_vpd (struct fujitsu *s);
+static SANE_Status init_ms (struct fujitsu *s);
 static SANE_Status init_model (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
 

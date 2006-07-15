@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
-:version "1.0.36"                ; version of backend
+:version "1.0.37"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -303,6 +303,6 @@
 :model "fi-5900C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10e7"
-:status :basic
+:status :good
 :comment "production, current"
 

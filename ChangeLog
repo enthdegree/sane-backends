@@ -1,3 +1,12 @@
+2006-07-14  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: backend v1.0.37,
+	  add support for mode sense command, use it to detect various
+	  page codes instead of hardcoding. add support for send cmd,
+	  use it to enable 8 or 10 bit LUT for brightness/contrast.
+	  minor global variable and option description cleanups.
+	* doc/descriptions/fujitsu.desc: version number/status update
+
 2006-07-06  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: backend v1.0.36, less verbose debugging,

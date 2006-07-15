@@ -123,29 +123,30 @@ may include "Lineart", "Halftone", "Gray", and "Color".
 .PP
 resolution, y-resolution
 .RS
-Controls scan resolution. Setting --resolution also sets --y-resolution
-but not vice versa. This behavior is overridden by some frontends.
+Controls scan resolution. Setting --resolution also sets --y-resolution, 
+though this behavior is overridden by some frontends.
 .RE
 .PP
 tlx, tly, brx, bry
 .RS
-Sets scan area upper left and lower right coordinates. Often converted
-to t, l, x, y by frontend code.
+Sets scan area upper left and lower right coordinates. These are renamed 
+t, l, x, y by some frontends.
 .RE
 .PP
 pagewidth, pageheight
 .RS
 Sets paper size. Used by scanner to determine centering of scan
-coordinates when using ADF.
+coordinates when using ADF and to detect double feed errors.
 .RE
 .PP
 Other options will be available based on the capabilities of the scanner.
 Use 'scanimage --help' to get a list. Be aware that some options may
-appear only when another option has been set.
+appear only when another option has been set, and that advanced options 
+may be hidden by the frontend.
 .PP
 .SH CONFIGURATION FILE
-The configuration file "fujitsu.conf" is used to tell the backend how to look for
-scanners, and provide options controlling the operation of the backend.
+The configuration file "fujitsu.conf" is used to tell the backend how to look
+for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list 
 of scanners, generally only when the frontend starts. If the configuration
 file is missing, the backend will use a set of compiled defaults, which
@@ -209,6 +210,8 @@ enables debugging output to stderr. Valid values are:
 25 SCSI/USB trace
 .br
 30 SCSI/USB detail
+.br
+35 Useless noise
 .RE
 
 .SH OLDER VERSIONS

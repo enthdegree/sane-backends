@@ -214,6 +214,9 @@
          - send command support
          - brightness/contrast support via LUT
          - merge global mode page buffers
+      V 1.0.38 2006-07-15, MAN
+         - add 'useless noise' debug level (35)
+         - move mode sense probe errors to DBG 35
 
    SANE FLOW DIAGRAM
 
@@ -274,7 +277,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 37 
+#define BUILD 38 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -283,6 +286,7 @@
  - get/setopt cmds 20
  - scsi/usb trace  25 
  - scsi/usb detail 30
+ - useless noise   35
 */
 
 /* ------------------------------------------------------------------------- */
@@ -1103,12 +1107,17 @@ init_ms(struct fujitsu *s)
 {
   int ret;
   unsigned char buff[64];
+  int oldDbg=DBG_LEVEL;
 
   DBG (10, "init_ms: start\n");
 
   if(!s->has_cmd_msen){
     DBG (10, "init_ms: unsupported\n");
     return SANE_STATUS_GOOD;
+  }
+
+  if(DBG_LEVEL < 35){
+    DBG_LEVEL = 0;
   }
 
   set_MSEN_xfer_length (mode_senseB.cmd, 64);
@@ -1125,7 +1134,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_prepick=1;
   }
-  DBG (15, "  prepick: %d\n", s->has_MS_prepick);
 
   /* sleep */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_sleep);
@@ -1139,7 +1147,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_sleep=1;
   }
-  DBG (15, "  sleep: %d\n", s->has_MS_sleep);
 
   /* duplex */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_duplex);
@@ -1153,7 +1160,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_duplex=1;
   }
-  DBG (15, "  duplex: %d\n", s->has_MS_duplex);
 
   /* rand */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_rand);
@@ -1167,7 +1173,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_rand=1;
   }
-  DBG (15, "  rand: %d\n", s->has_MS_rand);
 
   /* bg */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_bg);
@@ -1181,7 +1186,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_bg=1;
   }
-  DBG (15, "  bg: %d\n", s->has_MS_bg);
 
   /* df */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_df);
@@ -1195,7 +1199,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_df=1;
   }
-  DBG (15, "  df: %d\n", s->has_MS_df);
 
   /* dropout */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_dropout);
@@ -1209,7 +1212,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_dropout=1;
   }
-  DBG (15, "  dropout: %d\n", s->has_MS_dropout);
 
   /* buff */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_buff);
@@ -1223,7 +1225,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_buff=1;
   }
-  DBG (15, "  buff: %d\n", s->has_MS_buff);
 
   /* auto */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_auto);
@@ -1237,7 +1238,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_auto=1;
   }
-  DBG (15, "  auto: %d\n", s->has_MS_auto);
 
   /* lamp */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_lamp);
@@ -1251,7 +1251,6 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_lamp=1;
   }
-  DBG (15, "  lamp: %d\n", s->has_MS_lamp);
 
   /* jobsep */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_jobsep);
@@ -1265,6 +1264,19 @@ init_ms(struct fujitsu *s)
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_jobsep=1;
   }
+
+  DBG_LEVEL = oldDbg;
+
+  DBG (15, "  prepick: %d\n", s->has_MS_prepick);
+  DBG (15, "  sleep: %d\n", s->has_MS_sleep);
+  DBG (15, "  duplex: %d\n", s->has_MS_duplex);
+  DBG (15, "  rand: %d\n", s->has_MS_rand);
+  DBG (15, "  bg: %d\n", s->has_MS_bg);
+  DBG (15, "  df: %d\n", s->has_MS_df);
+  DBG (15, "  dropout: %d\n", s->has_MS_dropout);
+  DBG (15, "  buff: %d\n", s->has_MS_buff);
+  DBG (15, "  auto: %d\n", s->has_MS_auto);
+  DBG (15, "  lamp: %d\n", s->has_MS_lamp);
   DBG (15, "  jobsep: %d\n", s->has_MS_jobsep);
 
   DBG (10, "init_ms: finish\n");

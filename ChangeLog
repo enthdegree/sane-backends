@@ -1,3 +1,10 @@
+2006-07-15  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: backend v1.0.38, add 'useless noise'
+	  debug level (35), for mode sense errors
+	* doc/sane-fujitsu.man: minor text changes, add new debug level
+	* doc/descriptions/fujitsu.desc: version number update
+
 2006-07-14  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: backend v1.0.37,

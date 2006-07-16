@@ -3176,6 +3176,7 @@ static void
 print_udev (void)
 {
   usbid_type *usbid = create_usbids_table ();
+  int i;
 
   print_udev_header ();
   printf ("\nACTION!=\"add\", GOTO=\"libsane_rules_end\"\n");
@@ -3184,13 +3185,27 @@ print_udev (void)
     {
       manufacturer_model_type * name = usbid->name;
 
+      i = 0;
       printf ("# ");
       while (name)
 	{
-	  if (name != usbid->name)
+	  if ((name != usbid->name) && (i > 0))
 	    printf (" | ");
 	  printf ("%s", name->name);
 	  name = name->next;
+
+	  i++;
+
+	  /*
+	   * Limit the number of model names on the same line to 3,
+	   * as udev cannot handle very long lines and prints a warning
+	   * message while loading the rules files.
+	   */
+	  if ((i == 3) && (name != NULL))
+	    {
+	      printf("\n# ");
+	      i = 0;
+	    }
 	}
       printf ("\n");
       printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"660\", GROUP=\"scanner\"\n",

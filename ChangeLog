@@ -1,3 +1,8 @@
+2006-07-16  Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: split very long comment lines in the
+	generated udev rules file. Some comment lines very overly long,
+	and udev produced warning messages while loading the rules file.
+
 2006-07-15  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c: backend v1.0.38, add 'useless noise'

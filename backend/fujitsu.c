@@ -217,6 +217,8 @@
       V 1.0.38 2006-07-15, MAN
          - add 'useless noise' debug level (35)
          - move mode sense probe errors to DBG 35
+      V 1.0.39 2006-07-17, MAN
+         - rewrite contrast slope math for readability
 
    SANE FLOW DIAGRAM
 
@@ -277,7 +279,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 38 
+#define BUILD 39 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -3158,42 +3160,45 @@ get_hardware_status (struct fujitsu *s)
    out .     x        . xxxxxxxx
        .    x         xx
        ....x.......   ............
-           input
+            in             in
 
    then brightness moves line vertically, and clamps to 8bit
 
        bright         dark
        .   xxxxxxxx   .
-   out . x            . 
-       x              .          x
+       . x            . 
+   out x              .          x
        .              .        x
        ............   xxxxxxxx....
-           input                            */
+            in             in
+  */
 static SANE_Status
 send_lut (struct fujitsu *s)
 {
   int i, j, ret, bytes = 1 << s->lut_bits;
   unsigned char * p = send_lutC+S_lut_data_offset;
-  double b, cmax, coff;
+  double b, slope, offset;
 
   DBG (10, "send_lut: start\n");
 
-  /* contrast is converted to height in last col of table
-   * first from -127 to +127 to 0 to ~.996
+  /* contrast is converted to a slope [0,~90] degrees:
+   * first [-127,127] to [0,254] then to [0,0.996]
    * then multiply by PI/2 to convert to radians
-   * then take the tangent and multiply by max input (255) */
-  cmax = tan(((double)s->contrast+127)/255 * M_PI/2) * 255;
+   * then take the tangent to get slope (T.O.A)
+   * then multiply by the normal linear slope 
+   * because the table may not be square, i.e. 1024x256*/
+  slope = tan(((double)s->contrast+127)/255 * M_PI/2) * 256/bytes;
 
   /* contrast slope must stay centered, so figure
-   * out vertical offset at central input value (127.5)*/
-  coff = 127.5-(cmax/2);
+   * out vertical offset at central input value */
+  offset = 127.5-(slope*bytes/2);
 
   /* convert the user brightness setting (-127 to +127)
    * into a scale that covers the range required
    * to slide the contrast curve entirely off the table */
-  b = ((double)s->brightness/127) * (256 - coff);
+  b = ((double)s->brightness/127) * (256 - offset);
 
-  DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b, s->contrast, cmax, coff);
+  DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b, s->contrast, slope, offset);
 
   set_S_xfer_datatype (sendB.cmd, S_datatype_lut_data);
   set_S_xfer_length (sendB.cmd, S_lut_data_offset+bytes);
@@ -3203,7 +3208,7 @@ send_lut (struct fujitsu *s)
   set_S_lut_dsize (send_lutC, 256);
  
   for(i=0;i<bytes;i++){
-    j=cmax*i/bytes + coff + b;
+    j=slope*i + offset + b;
 
     if(j<0){
       j=0;

@@ -13,7 +13,7 @@ fi
 lafile=$1
 
 libnames=`grep library_names= $lafile`
-last=`echo $libnames | cut -d\' -f2|tr " " "\n"|tail -1`
+last=`echo $libnames | cut -d\' -f2|tr " " "\n"|tail -n 1`
 dllend=`echo $last | cut -d. -f2`
 
 echo $dllend

@@ -395,10 +395,15 @@ gl841_bulk_write_register (Genesys_Device * dev,
        (u_long) size);
 
   for (i = 0; i < size / 2; i++) {
+
+      u_int8_t msg[2];
+
+      msg[0] = reg[i].address;
+      msg[1] = reg[i].value;
       
       status =
 	  sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-				 VALUE_SET_REGISTER, INDEX, 2, &(((u_int8_t *) reg)[2 * i]));
+				 VALUE_SET_REGISTER, INDEX, 2, msg);
       if (status != SANE_STATUS_GOOD)
       {
 	  DBG (DBG_error,
@@ -407,8 +412,8 @@ gl841_bulk_write_register (Genesys_Device * dev,
 	  return status;
       }
 
-      DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", ((u_int8_t *) reg)[2 * i],
-	   ((u_int8_t *) reg)[2 * i + 1]);
+      DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", msg[0],
+	   msg[1]);
   }
   
 

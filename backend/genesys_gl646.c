@@ -257,6 +257,7 @@ gl646_bulk_write_register (Genesys_Device * dev,
 {
   SANE_Status status;
   u_int8_t outdata[8];
+  u_int8_t buffer[GENESYS_MAX_REGS * 2];
   unsigned int i;
 
   /* handle differently sized register sets, reg[0x00] is the last one */
@@ -280,7 +281,7 @@ gl646_bulk_write_register (Genesys_Device * dev,
   
   status =
       sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_BUFFER,
-			     VALUE_BUFFER, INDEX, sizeof (outdata), outdata);
+			     VALUE_BUFFER, INDEX, sizeof(outdata), outdata);
   if (status != SANE_STATUS_GOOD)
   {
       DBG (DBG_error,
@@ -288,8 +289,15 @@ gl646_bulk_write_register (Genesys_Device * dev,
 	   sane_strstatus (status));
       return status;
   }
-  
-  status = sanei_usb_write_bulk (dev->dn, (u_int8_t *) reg, &size);
+ 
+  /* copy registers and values in data buffer */
+  for (i=0; i<size; i+=2)
+  {
+	buffer[i] = reg[i/2].address;
+	buffer[i+1] = reg[i/2].value;
+  }
+
+  status = sanei_usb_write_bulk (dev->dn, buffer, &size);
   if (status != SANE_STATUS_GOOD)
   {
       DBG (DBG_error,
@@ -298,9 +306,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
       return status;
   }
 
-  for (i = 0; i < size / 2; i++)
-      DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", ((u_int8_t *) reg)[2 * i],
-	   ((u_int8_t *) reg)[2 * i + 1]);
+  for (i = 0; i < size ; i+=2)
+      DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
 
   DBG (DBG_io, "gl646_bulk_write_register: wrote %d bytes\n", size);
   return status;

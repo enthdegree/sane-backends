@@ -1,3 +1,8 @@
+2006-07-30  Stephane Voltz <stefdev@modulonet.fr>
+
+	* backend/genesys_gl646.c: use an intermediate char buffer
+	  for register bulk write (bug #303681). 
+
 2006-07-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* tools/libtool-get-dll-ext: Fixed compilation problem with newer

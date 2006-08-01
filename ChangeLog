@@ -1,3 +1,9 @@
+2006-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/epkowa.desc: Updated info about
+	  plugins and other comments (patch from Olaf Meeuwissen
+	  <olaf.meeuwissen@avasys.jp>). 
+
 2006-07-30  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_gl841.c: use an intermediate u_int8_t buffer

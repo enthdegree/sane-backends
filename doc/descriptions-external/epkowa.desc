@@ -320,13 +320,15 @@
 :interface "USB"
 :usbid     "0x04b8" "0x010f"
 :status    :good
-:comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "requires DFSG non-free iscan-plugin-gt-7200<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-7300U"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x011d"
 :status    :good
-:comment   "requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "requires DFSG non-free iscan-plugin-gt-7300<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-7400U"			; product spec (JP)
 :interface "USB"
@@ -405,7 +407,8 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0116"
 :status    :good
-:comment   "requires a DFSG non-free module"
+:comment   "requires DFSG non-free iscan-plugin-gt-9400"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-9500"
 :interface "SCSI"
@@ -457,31 +460,36 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
-:comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
+:comment   "multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-F520"
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
-:comment   "multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
+:comment   "multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-F550"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
-:comment   "auto film loader not supported<br>requires a DFSG non-free module<br>should also be supported by the snapscan backend"
+:comment   "auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-F570"
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
-:comment   "auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
+:comment   "auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-F600"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0118"
 :status    :good
-:comment   "only scans up to 2400dpi<br>requires a DFSG non-free module"
+:comment   "only scans up to 2400dpi<br>requires DFSG non-free iscan-plugin-gt-f600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-X700"			; product spec (JP)
 :interface "USB"
@@ -493,7 +501,8 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0119"
 :status    :good
-:comment   "requires a DFSG non-free module"
+:comment   "requires DFSG non-free iscan-plugin-gt-x750"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "GT-X800"			; product spec (JP)
 :interface "USB IEEE1394"
@@ -680,30 +689,35 @@
 :interface "USB"
 :usbid     "0x04b8" "0x010f"
 :status    :good
-:comment   "overseas version of the GT-7200U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "overseas version of the GT-7200U<br>requires DFSG non-free iscan-plugin-gt-7200<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 1250 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x010f"
 :status    :good
-:comment   "Perfection 1250 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "Perfection 1250 with TPU option bundled<br>requires DFSG non-free iscan-plugin-gt-7200<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 1260"
 :interface "USB"
 :usbid     "0x04b8" "0x011d"
 :status    :good
-:comment   "overseas version of the GT-7300U<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "overseas version of the GT-7300U<br>requires DFSG non-free iscan-plugin-gt-7300<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 1260 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x011d"
 :status    :good
-:comment   "Perfection 1260 with TPU option bundled<br>requires a DFSG non-free module<br>also supported by the plustek backend"
+:comment   "Perfection 1260 with TPU option bundled<br>requires DFSG non-free iscan-plugin-gt-7300<br>also supported by the plustek backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 1270"
 :interface "USB"
+:usbid     "0x04b8" "0x0120"
 :status    :unsupported
-:comment   "may be supported by the snapscan backend"
+:comment   "supported by the snapscan backend"
 
 :model     "Perfection 1600"
 :interface "SCSI"
@@ -749,7 +763,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x011f"
 :status    :unsupported
-:comment   "may be supported by the snapscan backend"
+:comment   "supported by the snapscan backend"
 
 :model     "Perfection 2400 PHOTO"	; command spec
 :interface "USB"
@@ -767,19 +781,22 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
-:comment   "overseas version of the GT-F500<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
+:comment   "overseas version of the GT-F500<br>multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 2580 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x0121"
 :status    :good
-:comment   "overseas version of the GT-F550<br>auto film loader not supported<br>requires a DFSG non-free module<br>also supported by the snapscan backend"
+:comment   "overseas version of the GT-F550<br>auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f500<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 3170 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x0116"
 :status    :good
-:comment   "overseas version of the GT-9400UF<br>requires a DFSG non-free module"
+:comment   "overseas version of the GT-9400UF<br>requires DFSG non-free iscan-plugin-gt-9400"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 3200 PHOTO"	; command spec
 :interface "USB"
@@ -791,25 +808,29 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
-:comment   "overseas version of the GT-F520<br>multi photo feeder not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
+:comment   "overseas version of the GT-F520<br>multi photo feeder not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 3590 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x0122"
 :status    :good
-:comment   "overseas version of the GT-F570<br>auto film loader not supported<br>requires a DFSG non-free module<br>may be supported by the snapscan backend"
+:comment   "overseas version of the GT-F570<br>auto film loader not supported<br>requires DFSG non-free iscan-plugin-gt-f520<br>also supported by the snapscan backend"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 4180 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x0118"
 :status    :good
-:comment   "overseas version of the GT-F600<br>only scans up to 2400dpi<br>requires a DFSG non-free module"
+:comment   "overseas version of the GT-F600<br>only scans up to 2400dpi<br>requires DFSG non-free iscan-plugin-gt-f600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 4490 PHOTO"
 :interface "USB"
 :usbid     "0x04b8" "0x0119"
 :status    :good
-:comment   "overseas version of the GT-X750<br>requires a DFSG non-free module"
+:comment   "overseas version of the GT-X750<br>requires DFSG non-free iscan-plugin-gt-x750"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
 :model     "Perfection 4870 PHOTO"	; command spec
 :interface "USB"
@@ -842,8 +863,9 @@
 
 :model     "Stylus CX1500"		; Australia
 :interface "USB"
+:usbid     "0x04b8" "0x080c"
 :status    :unsupported
-:comment   "all-in-one"
+:comment   "all-in-one<br>supported by the snapscan backend"
 
 :model     "Stylus CX3100"
 :interface "USB"

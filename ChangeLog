@@ -1,3 +1,8 @@
+2006-08-06  Stephane Voltz <stefdev@modulonet.fr>
+
+	* backend/genesys_gl646.c backend/genesys.c: fix y scan area offset
+	  detection for HP2300, one more fixe related to bug #303681. 
+
 2006-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/epkowa.desc: Updated info about

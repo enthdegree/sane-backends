@@ -397,20 +397,19 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
 			     u_int16_t data)
 {
   SANE_Status status;
-  u_int8_t outdata[6];
+  Genesys_Register_Set reg[3];
 
   DBG (DBG_io, "sanei_genesys_fe_write_data (0x%02x, 0x%04x)\n", addr, data);
 
-  outdata[0] = 0x51;
-  outdata[1] = addr;
-  outdata[2] = 0x3a;
-  outdata[3] = (data / 256) & 0xff;
-  outdata[4] = 0x3b;
-  outdata[5] = data & 0xff;
+  reg[0].address = 0x51;
+  reg[0].value = addr;
+  reg[1].address = 0x3a;
+  reg[1].value = (data / 256) & 0xff;
+  reg[2].address = 0x3b;
+  reg[2].value = data & 0xff;
 
   status =
-    dev->model->cmd_set->bulk_write_register (dev, (Genesys_Register_Set *) outdata,
-				       6);
+    dev->model->cmd_set->bulk_write_register (dev, reg, 6);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -1446,6 +1445,11 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
   /*sanity check */
   if ((width < 3) || (height < 3))
     return SANE_STATUS_INVAL;
+ 
+  /* TODO either put this value in a new field in Genesys_sensor struct
+     or, better, compute it from data */
+  if (dev->model->ccd_type == CCD_HP2300)
+    level = 60;
 
   /* transformed image data */
   size = width * height;
@@ -1577,7 +1581,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
       top = top / 50;
       dev->model->y_offset_calib = SANE_FIX ((top * MM_PER_INCH) / dpi);
       DBG (DBG_info,
-	   "sanei_genesys_search_reference_point: white corner y_offset = %f mm \n",
+	   "sanei_genesys_search_reference_point: white corner y_offset = %f mm\n",
 	   SANE_UNFIX (dev->model->y_offset_calib));
     }
 

@@ -260,7 +260,7 @@ gl646_bulk_write_register (Genesys_Device * dev,
   u_int8_t buffer[GENESYS_MAX_REGS * 2];
   unsigned int i;
 
-  /* handle differently sized register sets, reg[0x00] is the last one */
+  /* handle differently sized register sets, reg[0x00] may be the last one */
   i = 0;
   while ((i < size / 2) && (reg[i].address != 0))
     i++;

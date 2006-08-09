@@ -792,7 +792,7 @@ attach (const char *dev_name, Artec48U_Device ** devp)
   XDBG ((3, "attach: setting vendor string: %s\n", vendor_string));
   dev->sane.model = strdup (model_string);
   XDBG ((3, "attach: setting model string: %s\n", model_string));
-  dev->sane.type = "USB flatbed scanner";
+  dev->sane.type = "flatbed scanner";
   dev->firmware_path = strdup (firmwarePath);
 
   dev->epro_mult = eProMult;

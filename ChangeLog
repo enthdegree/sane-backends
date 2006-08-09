@@ -1,3 +1,11 @@
+2006-08-09  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-PARPORT.changes doc/plustek/Plustek-USB.changes
+	  doc/u12/U12.changes: update.
+	* backend/artec_eplus48u.c backend/plustek.c backend/plustek_pp.c
+	  backend/u12.c: changed sane.type to "flatbed scanner" only.
+	* backend/plustek-usbdevs.c: fixed LiDE20/30 motor settings
+
 2006-08-06  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c backend/genesys.c: fix y scan area offset
@@ -7,17 +15,17 @@
 
 	* doc/descriptions-external/epkowa.desc: Updated info about
 	  plugins and other comments (patch from Olaf Meeuwissen
-	  <olaf.meeuwissen@avasys.jp>). 
+	  <olaf.meeuwissen@avasys.jp>).
 
 2006-07-30  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_gl841.c: use an intermediate u_int8_t buffer
-	  for register write (bug #303681). 
+	  for register write (bug #303681).
 
 2006-07-30  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: use an intermediate char buffer
-	  for register bulk write (bug #303681). 
+	  for register bulk write (bug #303681).
 
 2006-07-25  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

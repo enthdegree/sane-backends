@@ -31,3 +31,6 @@ V 0.02-10 (2006-14-02)
 - SoftwareReset is now disabled in cancelSequence when the device
   is a Genius (reported by Jose Alberto Reguero <jareguero@telefonica.net>)
 
+V 0.02-11 (2006-09-08)
+----------------------
+- Changed sane.type to "flatbed scanner" only

@@ -80,7 +80,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.02-10"
+#define BACKEND_VERSION "0.02-11"
 #define BACKEND_NAME    u12
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -848,8 +848,8 @@ static SANE_Status attach( const char *dev_name,
 	dev->sane.name   = dev->name;           /* compiler warnings        */
 	dev->sane.vendor = "Plustek";
 	dev->sane.model  = "U12/1212U";
-	dev->sane.type   = "USB flatbed scanner";
-	dev->initialized = SANE_FALSE;         
+	dev->sane.type   = SANE_I18N ("flatbed scanner");
+	dev->initialized = SANE_FALSE;
 
 	memcpy( &dev->adj, &cnf->adj, sizeof(AdjDef));
 	show_cnf( cnf );

@@ -157,7 +157,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-12"
+#define BACKEND_VERSION "0.51-13"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -1311,9 +1311,9 @@ attach( const char *dev_name, CnfDef *cnf, Plustek_Device **devp )
 	/* okay, so assign the handle and the scanner type */
 	dev->fd = handle;
 	if( usb_IsSheetFedDevice( dev ))
-		dev->sane.type = "USB sheet-fed scanner";
+		dev->sane.type = SANE_I18N("sheetfed scanner");
 	else
-		dev->sane.type = "USB flatbed scanner";
+		dev->sane.type = SANE_I18N("flatbed scanner");
 
 	result = usbDev_getCaps( dev );
 	if( result < 0 ) {

@@ -65,6 +65,7 @@
  * - 0.51 - tweaked CanoScan N1220U settings again
  *        - added settings for Syscan Travelscan 662
  *        - tweaked settings for Bearpaw 1200
+ *        - fixed Motorsettings for LiDE20/30
  *
  * <hr>
  * This file is part of the SANE package.
@@ -2195,8 +2196,8 @@ static HWDef Hw0x04A9_0x2208 =
 /** Canon 670/676/LiDE20 */
 static HWDef Hw0x04A9_0x220D =
 {
-	0.86,   /* dMaxMotorSpeed                                 */
-	0.243,  /* dMaxMoveSpeed                                  */
+	0.72,   /* dMaxMotorSpeed                                 */
+	0.23,   /* dMaxMoveSpeed                                  */
 	0.0,    /* dHighSpeed                                     */
 	100,    /* dIntegrationTimeLowLamp                        */
 	100,    /* dIntegrationTimeHighLamp                       */
@@ -2657,7 +2658,7 @@ static ClkMotorDef Motors[] = {
 		{ 8.0, 8.0, 8.0, 8.0, 8.0, 13.0, 13.0, 13.0, 13.0, 13.0 }
 	},
 
-	{ MODEL_CANON600, 8, 31, 6, 0, 0,
+	{ MODEL_CANON600, 8, 31, 12, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },
@@ -2667,11 +2668,11 @@ static ClkMotorDef Motors[] = {
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
-		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
-		{ 12.5, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
+		{ 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 },
+		{ 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0 }
 	},
 
-	{ MODEL_CANON1200, 8, 31, 3, 0, 0,
+	{ MODEL_CANON1200, 8, 31, 8, 0, 0,
 		/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi  */
 		{{ 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 }, { 8, 31, 1 },

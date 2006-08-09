@@ -1,8 +1,9 @@
-Plustek-USB-TODO.txt (2004-07-26) Gerhard J�er <gerhard@gjaeger.de>
-====================================================================
+Plustek-USB-TODO.txt (2006-07-28) Gerhard Jaeger <gerhard@gjaeger.de>
+=====================================================================
 
 TODO (in general):
 - more documentation/comments for the different functions
+- replace mclk_fast stuff and use instead values from 75DPI grayscale
 
 
 KNOWN BUGS/Limitations:
@@ -11,8 +12,10 @@ Model             Description                           Workaround
 ------------------------------------------------------------------------------
 
 HP 2100c          Straight Line Bug                     none
+Bearpaw1200       works only once                       restart backend each time
 All with TPA      Negative Scanning quality bad         none
 CIS devices       Skip calibration does not work        none
+All               problems on ARM and XScale            none
 
 ********************************* DONE ***************************************
 

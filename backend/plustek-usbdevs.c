@@ -65,7 +65,9 @@
  * - 0.51 - tweaked CanoScan N1220U settings again
  *        - added settings for Syscan Travelscan 662
  *        - tweaked settings for Bearpaw 1200
- *        - fixed Motorsettings for LiDE20/30
+ *        - fixed CanoScan LiDE20 settings, cause of various reports, seems
+ *          Canon has built-in different motortypes
+ *        - also fixed Motorsettings for LiDE30
  *
  * <hr>
  * This file is part of the SANE package.

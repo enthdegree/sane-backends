@@ -1439,17 +1439,12 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
   int x, y;
   int current, left, top = 0, bottom = 0;
   u_int8_t *image;
-  int size;
+  int size, count;
   int level = 80;		/* edge threshold level */
 
   /*sanity check */
   if ((width < 3) || (height < 3))
     return SANE_STATUS_INVAL;
- 
-  /* TODO either put this value in a new field in Genesys_sensor struct
-     or, better, compute it from data */
-  if (dev->model->ccd_type == CCD_HP2300)
-    level = 60;
 
   /* transformed image data */
   size = width * height;
@@ -1481,9 +1476,11 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
      -1  0  1
      -2  0  2
      -1  0  1
+     and finds threshold level
    */
-  for (y = 1; y < height - 1; y++)
-    for (x = 1; x < width - 1; x++)
+  level = 0;
+  for (y = 2; y < height - 2; y++)
+    for (x = 2; x < width - 2; x++)
       {
 	current =
 	  data[(y - 1) * width + x + 1] - data[(y - 1) * width + x - 1] +
@@ -1491,16 +1488,24 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 	  data[(y + 1) * width + x + 1] - data[(y + 1) * width + x - 1];
 	if (current < 0)
 	  current = -current;
+	if (current > 255)
+	  current = 255;
 	image[y * width + x] = current;
+	if(current>level)
+		level = current;
       }
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("xsobel.pnm", image, 8, 1, width, height);
+
+  /* set up detection level */
+  level = level / 3;
 
   /* find left black margin first
      todo: search top before left
      we average the result of N searches */
   left = 0;
-  for (y = 1; y < 11; y++)
+  count = 0;
+  for (y = 2; y < 11; y++)
     {
       x = 8;
       while ((x < width / 2) && (image[y * width + x] < level))
@@ -1508,9 +1513,12 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 	  image[y * width + x] = 255;
 	  x++;
 	}
+      count ++;
       left += x;
     }
-  left = left / (y - 1);
+  if (DBG_LEVEL >= DBG_data)
+    sanei_genesys_write_pnm_file ("detected-xsobel.pnm", image, 8, 1, width, height);
+  left = left / count;
 
   /* turn it in CCD pixel at full sensor optical resolution */
   dev->sensor.CCD_start_xoffset =
@@ -1522,8 +1530,9 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
      0  0  0
      1  2  1
    */
-  for (y = 1; y < height - 1; y++)
-    for (x = 1; x < width - 1; x++)
+  level = 0;
+  for (y = 2; y < height - 2; y++)
+    for (x = 2; x < width - 2; x++)
       {
 	current =
 	  -data[(y - 1) * width + x + 1] - 2 * data[(y - 1) * width + x] -
@@ -1531,35 +1540,51 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 	  2 * data[(y + 1) * width + x] + data[(y + 1) * width + x - 1];
 	if (current < 0)
 	  current = -current;
+	if (current > 255)
+	  current = 255;
 	image[y * width + x] = current;
+	if(current>level)
+		level = current;
       }
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file ("ysobel.pnm", image, 8, 1, width, height);
+
+  /* set up detection level */
+  level = level / 3;
 
   /* search top of horizontal black stripe */
   if (dev->model->ccd_type == CCD_5345
       && dev->model->motor_type == MOTOR_5345)
     {
       top = 0;
+      count = 0;
       for (x = width / 2; x < width - 1; x++)
 	{
 	  y = 2;
 	  while ((y < height) && (image[x + y * width] < level))
-	    y++;
+	    {
+	      image[y * width + x] = 255;
+	      y++;
+	    }
+	  count ++;
 	  top += y;
 	}
-      top = top / (width / 2 - 1);
+      if (DBG_LEVEL >= DBG_data)
+        sanei_genesys_write_pnm_file ("detected-ysobel.pnm", image, 8, 1, width, height);
+      top = top / count;
 
       /* find bottom of black stripe */
       bottom = 0;
+      count = 0;
       for (x = width / 2; x < width - 1; x++)
 	{
 	  y = top + 5;
 	  while ((y < height) && (image[x + y * width] < level))
 	    y++;
 	  bottom += y;
+	  count ++;
 	}
-      bottom = bottom / (width / 2 - 1);
+      bottom = bottom / count;
       dev->model->y_offset_calib = SANE_FIX ((bottom * MM_PER_INCH) / dpi);
       DBG (DBG_info,
 	   "sanei_genesys_search_reference_point: black stripe y_offset = %f mm \n",
@@ -1571,14 +1596,16 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
       && dev->model->motor_type == MOTOR_HP2300)
     {
       top = 0;
+      count = 0;
       for (x = 10; x < 60; x++)
 	{
 	  y = 2;
 	  while ((y < height) && (image[x + y * width] < level))
 	    y++;
 	  top += y;
+	  count ++;
 	}
-      top = top / 50;
+      top = top / count;
       dev->model->y_offset_calib = SANE_FIX ((top * MM_PER_INCH) / dpi);
       DBG (DBG_info,
 	   "sanei_genesys_search_reference_point: white corner y_offset = %f mm\n",
@@ -1587,8 +1614,8 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 
   free (image);
   DBG (DBG_proc,
-       "sanei_genesys_search_reference_point: CCD_start_xoffset = %d, top = %d, bottom=%d\n",
-       dev->sensor.CCD_start_xoffset, top, bottom);
+       "sanei_genesys_search_reference_point: CCD_start_xoffset = %d, left = %d, top = %d, bottom=%d\n",
+       dev->sensor.CCD_start_xoffset, left, top, bottom);
 
   return SANE_STATUS_GOOD;
 }

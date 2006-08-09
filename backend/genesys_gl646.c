@@ -720,6 +720,22 @@ gl646_setup_sensor (Genesys_Device * dev,
       r->value = 0x80 | (r->value & 0x03);	/* VSMP=16 */
       return;
     }
+
+  if (dev->model->ccd_type == CCD_HP2400)
+    {
+      /* settings for CCD used at half is max resolution */
+      if (half_ccd)
+	{
+	  r = sanei_genesys_get_address (regs, 0x08);
+	  r->value = 2;
+	  r = sanei_genesys_get_address (regs, 0x09);
+	  r->value = 4;
+	  r = sanei_genesys_get_address (regs, 0x0a);
+	  r->value = 0;
+	  r = sanei_genesys_get_address (regs, 0x0b);
+	  r->value = 0;
+	}
+    }
 }
 
 /** Test if the ASIC works 
@@ -3839,6 +3855,11 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 	{
 	  slope_table[0] = 4480;
 	  slope_table[1] = 4480;
+	}
+      else if (dev->model->motor_type == MOTOR_HP2400)
+        {
+	  slope_table[0] = 7120;
+	  slope_table[1] = 7120;
 	}
       RIE (gl646_send_slope_table
 	   (dev, 0, slope_table, local_reg[reg_0x21].value));

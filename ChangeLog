@@ -1,3 +1,9 @@
+2006-08-09  Stephane Voltz <stefdev@modulonet.fr>
+
+	* backend/genesys_gl646.c backend/genesys.c backend/genesys_devices.c:
+	  improved sanei_genesys_search_reference_point to get more reliable
+	  detection for HP2300 and MD6345. Slight tune up for HP2400 model.
+
 2006-08-09  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes doc/plustek/Plustek-USB.changes

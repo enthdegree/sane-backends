@@ -1,3 +1,11 @@
+2006-08-11  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: update.
+	* backend/plustek.c: bumped build number.
+	* backend/plustek-usbdevs.c: lowered speed for LiDE20/30 when
+	  using low resolutions.
+	* backend/plustek-usb.c: fixed warning condition.
+
 2006-08-09  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c backend/genesys.c backend/genesys_devices.c:

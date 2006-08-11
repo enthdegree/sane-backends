@@ -137,8 +137,8 @@ static SANE_Bool usb_normFileName( char *fname, char* buffer, u_long max_len )
 		else
 			*dst = *src;
 
-		*dst++;
-		*src++;
+		dst++;
+		src++;
 	}
 	*dst = '\0';
 

@@ -1,3 +1,9 @@
+2006-08-12  Jon Chambers <jon@jon.demon.co.uk>
+
+	* backend/dell1600n_net.c: update for dell1600n_net.conf + reduce memory footprint
+	* backend/dell1600n_net.conf.in: added
+	* backend/dell1600n_net.c: update for dell1600n_net.conf.in 
+
 2006-08-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: update.

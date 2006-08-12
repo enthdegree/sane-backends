@@ -3,7 +3,6 @@
 ; Jon Chambers <jon@jon.demon.co.uk>, 2006-05-29
 ;
 :backend "dell1600n_net"
-:new :yes
 
 :devicetype :scanner
 
@@ -14,5 +13,5 @@
 :interface "Ethernet USB"
 :usbid "0x413c" "0x5250"
 :status :basic
-:comment "Supports single page scans over ethernet"
+:comment "Supports colour and monochrome scans over ethernet (USB not supported)"
 

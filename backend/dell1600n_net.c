@@ -90,6 +90,13 @@
 /* size of registation name */
 #define REG_NAME_SIZE 64
 
+struct DeviceRecord
+{
+  SANE_Device m_device;
+  char * m_pName;        /* storage of name */
+  char * m_pModel;       /* storage of model */
+};
+
 /* a buffer struct to store "stuff" */
 struct ComBuf
 {
@@ -186,9 +193,9 @@ static void FinalisePacket (struct ComBuf *pBuf);
 static int MessageIsComplete (unsigned char *pData, size_t size);
 
 /* process a registration broadcast response
-   \return SANE_Device pointer on success (caller frees), NULL on failure 
+   \return DeviceRecord pointer on success (caller frees), NULL on failure 
 */
-static SANE_Device *ProcessFindResponse (unsigned char *pData, size_t size);
+static struct DeviceRecord *ProcessFindResponse (unsigned char *pData, size_t size);
 
 /* frees a scanner state struct stored in gOpenScanners */
 static void FreeScannerState (int iHandle);
@@ -218,7 +225,7 @@ static void JpegDecompTermSource (j_decompress_ptr cinfo);
  ***********************************************************/
 
 /* Results of last call to sane_get_devices */
-static SANE_Device *gKnownDevices[MAX_SCANNERS];
+static struct DeviceRecord *gKnownDevices[MAX_SCANNERS];
 
 /* Array of open scanner device states.
    :NOTE: (int)SANE_Handle is an offset into this array */
@@ -282,7 +289,7 @@ sane_get_devices (const SANE_Device *** device_list,
   int ret;
   unsigned char sockBuf[SOCK_BUF_SIZE];
   int sock, optYes;
-  SANE_Device *pDevice;
+  struct DeviceRecord *pDevice;
   struct ComBuf queryPacket;
   struct sockaddr_in remoteAddr;
   unsigned char ucVal;
@@ -291,7 +298,7 @@ sane_get_devices (const SANE_Device *** device_list,
   int nread, iNextDevice;
   FILE *fConfig;
   char configBuf[ 256 ];
-  char *pVal;
+  const char *pVal;
   int valLen;
 
   /* init variables */
@@ -325,17 +332,20 @@ sane_get_devices (const SANE_Device *** device_list,
 
             pVal = sanei_config_skip_whitespace ( pVal + valLen );
 
-            pDevice = malloc (sizeof (SANE_Device));
+            pDevice = malloc (sizeof (struct DeviceRecord));
             if (!pDevice)
               {
                 DBG (1, "sane_get_devices: memory allocation failure\n");
                 break;
               }
 
-            pDevice->name = strdup (pVal);
-            pDevice->vendor = "Dell";
-            pDevice->model = strdup( "1600n" );
-            pDevice->type = "multi-function peripheral";
+            pDevice->m_pName = strdup (pVal);
+            pDevice->m_device.vendor = "Dell";
+            pDevice->m_pModel = strdup( "1600n" );
+            pDevice->m_device.type = "multi-function peripheral";
+
+            pDevice->m_device.name = pDevice->m_pName;
+            pDevice->m_device.model = pDevice->m_pModel;
 
             /* add to list */
             gKnownDevices[iNextDevice++] = pDevice;
@@ -894,9 +904,9 @@ ClearKnownDevices ()
 
       if (gKnownDevices[i])
         {
-          if (gKnownDevices[i]->name) free ((void*)(gKnownDevices[i]->name));
-          if (gKnownDevices[i]->model) free ((void*)(gKnownDevices[i]->model));
-          free (gKnownDevices[i]);
+          if (gKnownDevices[i]->m_pName) free ( gKnownDevices[i]->m_pName );
+          if (gKnownDevices[i]->m_pModel) free ( gKnownDevices[i]->m_pModel );
+          free ( gKnownDevices[i] );
         }
       gKnownDevices[i] = NULL;
 
@@ -1156,13 +1166,13 @@ MessageIsComplete (unsigned char *pData, size_t size)
 /***********************************************************/
 
 /* process a registration broadcast response
-   \return SANE_Device pointer on success (caller frees), NULL on failure 
+   \return struct DeviceRecord pointer on success (caller frees), NULL on failure 
 */
-SANE_Device *
+struct DeviceRecord *
 ProcessFindResponse (unsigned char *pData, size_t size)
 {
 
-  SANE_Device *pDevice = NULL;
+  struct DeviceRecord *pDevice = NULL;
   unsigned short messageSize, nameSize, valueSize;
   unsigned char *pItem, *pEnd, *pValue;
   char printerName[256] = { 0 };
@@ -1230,7 +1240,7 @@ ProcessFindResponse (unsigned char *pData, size_t size)
   /* just in case nothing sensible was found */
   if ( ! strlen( printerName ) ) return NULL;
 
-  pDevice = malloc (sizeof (SANE_Device));
+  pDevice = malloc (sizeof (struct DeviceRecord));
   if (!pDevice)
     {
       DBG (1, "ProcessFindResponse: memory allocation failure\n");
@@ -1242,10 +1252,13 @@ ProcessFindResponse (unsigned char *pData, size_t size)
   if ( ! strncmp( pModel, "Dell ", 5 ) )
     pModel += 5;
 
-  pDevice->name = strdup( printerName );
-  pDevice->vendor = "Dell";
-  pDevice->model = strdup (pModel);
-  pDevice->type = "multi-function peripheral";
+  pDevice->m_pName = strdup( printerName );
+  pDevice->m_device.vendor = "Dell";
+  pDevice->m_pModel = strdup (pModel);
+  pDevice->m_device.type = "multi-function peripheral";
+
+  pDevice->m_device.name = pDevice->m_pName;
+  pDevice->m_device.model = pDevice->m_pModel;
 
   return pDevice;
 
@@ -1850,7 +1863,7 @@ ProcessPageData (struct ScannerState *pState)
         DBG( 1, "Process page data: page %d: JPEG image: %d x %d, %d bytes\n",
              pState->m_numPages, pageInfo.m_width, pageInfo.m_height, pageInfo.m_totalSize );
 
-        ret |= AppendToComBuf( & pState->m_pageInfo, & pageInfo, sizeof( pageInfo ) );
+        ret |= AppendToComBuf( & pState->m_pageInfo, (unsigned char*)& pageInfo, sizeof( pageInfo ) );
         ++( pState->m_numPages );
 
       JPEG_CLEANUP:
@@ -1946,7 +1959,7 @@ ProcessPageData (struct ScannerState *pState)
         DBG( 1, "Process page data: page %d: TIFF image: %d x %d, %d bytes\n",
              pState->m_numPages, width, height, pageInfo.m_totalSize );
 
-        ret |= AppendToComBuf( & pState->m_pageInfo, & pageInfo, sizeof( pageInfo ) );
+        ret |= AppendToComBuf( & pState->m_pageInfo, (unsigned char*)& pageInfo, sizeof( pageInfo ) );
         ++( pState->m_numPages );
 
       TIFF_CLEANUP:

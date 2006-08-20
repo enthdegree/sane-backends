@@ -241,12 +241,12 @@ install-libsane:
 
 install-becfg:
 	@list="$(CONFIGS)"; for cfg in $$list; do \
-	  if test ! -r $(srcdir)/$${cfg}; then continue; fi; \
+	  if test ! -r $${cfg}; then continue; fi; \
 	  if test -f $(DESTDIR)$(configdir)/$${cfg}; then \
 	    echo NOT overwriting $${cfg} in $(configdir)...; \
 	  else \
 	    echo installing $${cfg} in $(configdir)/$${cfg}...; \
-	    $(INSTALL_DATA) $(srcdir)/$${cfg} $(DESTDIR)$(configdir)/$${cfg} \
+	    $(INSTALL_DATA) $${cfg} $(DESTDIR)$(configdir)/$${cfg} \
               || exit 1; \
 	  fi; \
 	done

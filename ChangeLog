@@ -1,4 +1,5 @@
-2006-08-12  Jon Chambers <jon@jon.demon.co.uk>
+2006-08-21  Jon Chambers <jon@jon.demon.co.uk>
+	* TIFF tweaks for pickier libtiff under cygwin
 	* backend/Makefile.in: remove explicit $(srcdir) path from .conf
 	  source paths to allow support for kdevelop-style build dirs.
 	* backend/dell1600n_net.c: fix compile warnings

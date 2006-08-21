@@ -1901,6 +1901,7 @@ ProcessPageData (struct ScannerState *pState)
         TIFFSetField (pTiff, TIFFTAG_BITSPERSAMPLE, 1);
         TIFFSetField (pTiff, TIFFTAG_PHOTOMETRIC, 0);        /* 0 is white */
         TIFFSetField (pTiff, TIFFTAG_COMPRESSION, 4);        /* CCITT Group 4 */
+        TIFFSetField (pTiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
         TIFFWriteRawStrip (pTiff, 0, pState->m_buf.m_pBuf,
                            pState->m_buf.m_used);

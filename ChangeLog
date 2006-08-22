@@ -1,3 +1,7 @@
+2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
+
+	* doc/sane-mustek_pp.man: URL update.
+        
 2006-08-21  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fix buffer overflow error (submitted by Johannes Meixner)

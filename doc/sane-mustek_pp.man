@@ -519,7 +519,7 @@ For latest bug fixes and information see
 
 .TP
 For additional information on the CIS driver, see
-.I http://home.tiscali.be/eddy_de_greef/
+.I http://home.scarlet.be/eddy_de_greef/
 
 .SH AUTHORS
 Jochen Eisinger <jochen.eisinger@gmx.net> 

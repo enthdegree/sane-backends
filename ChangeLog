@@ -1,3 +1,7 @@
+2006-08-21  Karl Heinz Kremer <khk@khk.net>
+
+	* backend/epson.c: Fix buffer overflow error (submitted by Johannes Meixner)
+
 2006-08-21  Jon Chambers <jon@jon.demon.co.uk>
 	* TIFF tweaks for pickier libtiff under cygwin
 	* backend/Makefile.in: remove explicit $(srcdir) path from .conf

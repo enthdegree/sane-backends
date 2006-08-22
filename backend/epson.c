@@ -17,8 +17,8 @@
    Copyright (C) 2006 Claus Boje <claus@egehuset.dk>
 */
 
-#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.46 - 2006-06-11"
-#define SANE_EPSON_BUILD	246
+#define	SANE_EPSON_VERSION	"SANE Epson Backend v0.2.47 - 2006-08-21"
+#define SANE_EPSON_BUILD	247
 
 /*
    This file is part of the SANE package.
@@ -60,6 +60,7 @@
    If you do not wish that, delete this exception notice.  */
 
 /*
+	 2006-08-21   Fix buffer overflow error (submitted by Johannes Meixner)
    2006-06-11   Applied patch from Henning. Fixed a number of compiler warnings
    2006-03-12   Added support for perfetion 4990 photo 4800 dpi
    2005-01-09   "flaming hack to get USB scanners working without timeouts under linux" 
@@ -1331,7 +1332,7 @@ set_gamma_table (Epson_Scanner * s)
     {
       for (i = 0; i < 256; i += 16)
       {
-	char gammaValues[16 * 3 + 1], newValue[3];
+	char gammaValues[16 * 3 + 1], newValue[4];
 
 	gammaValues[0] = '\0';
 

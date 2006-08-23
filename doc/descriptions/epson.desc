@@ -193,8 +193,8 @@
 :status :good
 
 :model "CX-3650"
-:usbid "0x04b8" "0x080e"
 :interface "USB"
+:usbid "0x04b8" "0x080e"
 :status :good
 
 :model "CX-4600"
@@ -244,6 +244,7 @@
 
 :model "DX-3850"
 :interface "USB"
+:usbid "0x04b8" "0x0818"
 :status :good
 
 :model "CX-3700"
@@ -280,3 +281,14 @@
 :interface "USB"
 :usbid "0x04b8" "0x0805"
 :status :good
+
+:model "V700"
+:interface "USB IEEE-1394"
+:usbid "0x04b8" "0x012c"
+:status :good
+
+:model "V750"
+:interface "USB IEEE-1394"
+:usbid "0x04b8" "0x012c"
+:status :good
+

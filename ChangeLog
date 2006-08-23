@@ -1,6 +1,6 @@
 2006-08-22  Karl Heinz Kremer <khk@khk.net>
 
-	* backend/epson_usb.c: Add product ID for CX3800/3810
+	* backend/epson_usb.c: Add product ID for CX3800/3810, V700/V750
 
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 

@@ -1,3 +1,16 @@
+2006-08-27  Wittawat Yamwong <wittawat@web.de>
+
+	* backend/pixma*.[ch]: update to 0.12.2,
+	  use own error codes e.g. PIXMA_EPROTO instead of EPROTO,
+	  add MP530, MP800R and MP360,
+	  add grayscale mode for MP700 and MP730,
+	  add work-around for lock-up ("hang") problem of MP760 and MP780,
+	  fix line correction (color alignment) for MP760
+	* doc/sane-pixma.man: update
+	* doc/descriptions/pixma.desc: add MP360,MP530 and MP800R product ID
+	* doc/descriptions/unsupported.desc: remove Smartbase MP360 (supported 
+	  by pixma backend)
+
 2006-08-26  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: update to v1.0.40,

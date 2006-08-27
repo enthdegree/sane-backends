@@ -93,6 +93,7 @@
 #define pixma_set_debug_level sanei_pixma_set_debug_level
 #define pixma_set_interrupt_mode sanei_pixma_set_interrupt_mode
 #define pixma_sleep sanei_pixma_sleep
+#define pixma_strerror sanei_pixma_strerror
 #define pixma_sum_bytes sanei_pixma_sum_bytes
 #define pixma_wait_event sanei_pixma_wait_event
 #define pixma_wait_interrupt sanei_pixma_wait_interrupt

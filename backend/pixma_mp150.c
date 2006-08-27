@@ -52,7 +52,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>		/* localtime(C90) */
-#include <errno.h>		/* POSIX */
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
@@ -71,6 +70,16 @@
 #define IMAGE_BLOCK_SIZE (512*1024)
 #define CMDBUF_SIZE (4096 + 24)
 #define DEFAULT_GAMMA 1.0
+
+#define MP150_PID 0x1709
+#define MP170_PID 0x170a
+#define MP450_PID 0x170b
+#define MP500_PID 0x170c
+#define MP530_PID 0x1712
+#define MP800_PID 0x170d
+#define MP800R_PID 0x170e
+#define MP830_PID 0x1713
+
 
 enum mp150_state_t
 {
@@ -102,15 +111,14 @@ typedef struct mp150_t
   pixma_cmdbuf_t cb;
   uint8_t *imgbuf;
   uint8_t current_status[12];
-
-  unsigned last_block:1;
+  unsigned last_block;
 } mp150_t;
 
 
 /*
   STAT:  0x0606 = ok,
-         0x1515 = failed (-ECANCELED),
-	 0x1414 = busy (-EBUSY)
+         0x1515 = failed (PIXMA_ECANCELED),
+	 0x1414 = busy (PIXMA_EBUSY)
 
   Transaction scheme
     1. command_header/data | result_header
@@ -173,7 +181,7 @@ static int
 has_paper (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  return (mp->current_status[1] == 0);	/* FIXME: correct? */
+  return (mp->current_status[1] == 0);
 }
 
 static void
@@ -211,8 +219,38 @@ select_source (pixma_t * s)
   uint8_t *data;
 
   data = pixma_newcmd (&mp->cb, cmd_select_source, 12, 0);
-  data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
-  data[1] = 1;
+  if (s->cfg->pid == MP830_PID)
+    {
+      switch (s->param->source)
+	{
+	case PIXMA_SOURCE_ADF:
+	  data[0] = 2;
+	  data[5] = 1;
+	  data[6] = 1;
+	  break;
+
+	case PIXMA_SOURCE_ADFDUP:
+	  data[0] = 2;
+	  data[5] = 3;
+	  data[6] = 3;
+	  break;
+
+	case PIXMA_SOURCE_TPU:
+	  PDBG (pixma_dbg (1, "BUG:select_source(): unsupported source %d\n",
+			   s->param->source));
+	  /* fall through */
+
+	case PIXMA_SOURCE_FLATBED:
+	  data[0] = 1;
+	  data[1] = 1;
+	  break;
+	}
+    }
+  else
+    {
+      data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
+      data[1] = 1;
+    }
   return pixma_exec (s, &mp->cb);
 }
 
@@ -312,13 +350,17 @@ send_time (pixma_t * s)
 static int
 read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
 {
-  static const uint8_t cmd[16] =	/* 0xd420 cmd */
-  { 0xd4, 0x20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    IMAGE_BLOCK_SIZE / 65536, 0, 8
-  };
+  uint8_t cmd[16];
   mp150_t *mp = (mp150_t *) s->subdriver;
   const int hlen = 8 + 8;
   int error, datalen;
+
+  memset (cmd, 0, sizeof (cmd));
+  pixma_set_be16 (cmd_read_image, cmd);
+  if ((mp->last_block & 0x20) == 0)
+    pixma_set_be32 ((IMAGE_BLOCK_SIZE / 65536) * 65536 + 8, cmd + 0xc);
+  else
+    pixma_set_be32 (32 + 8, cmd + 0xc);
 
   mp->state = state_transfering;
   mp->cb.reslen =
@@ -348,7 +390,7 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
   if (error < 0)
     return error;
   if (mp->cb.reslen < hlen)
-    return -EPROTO;
+    return PIXMA_EPROTO;
   return datalen;
 }
 
@@ -381,8 +423,8 @@ and query_status().
 
    Returns:
    0     timed out
-   1     interrupt packet received
-   -EINTR interrupted by signal
+   1     an interrupt packet received
+   PIXMA_ECANCELED interrupted by signal
    <0    error
 */
 static int
@@ -392,15 +434,15 @@ handle_interrupt (pixma_t * s, int timeout)
   int len;
 
   len = pixma_wait_interrupt (s->io, buf, sizeof (buf), timeout);
-  if (len == -ETIMEDOUT)
+  if (len == PIXMA_ETIMEDOUT)
     return 0;
   if (len < 0)
     return len;
   if (len != 16)
     {
-      PDBG (pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n",
-		       len));
-      return -EPROTO;
+      PDBG (pixma_dbg
+	    (1, "WARNING:unexpected interrupt packet length %d\n", len));
+      return PIXMA_EPROTO;
     }
 
   /* More than one event can be reported at the same time. */
@@ -427,13 +469,14 @@ wait_until_ready (pixma_t * s)
     {
       error = handle_interrupt (s, 1000);
       if (s->cancel)
-	return -ECANCELED;
-      if (error != -EINTR && error < 0)
+	return PIXMA_ECANCELED;
+      if (error != PIXMA_ECANCELED && error < 0)
 	return error;
       if (--tmo == 0)
 	{
 	  PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
-	  return -ETIMEDOUT;
+	  PDBG (query_status (s));
+	  return PIXMA_ETIMEDOUT;
 	}
 #if 0
       /* If we use sanei_usb_*, we sometimes lose interrupts! So poll the
@@ -447,6 +490,21 @@ wait_until_ready (pixma_t * s)
 }
 
 static int
+has_ccd_sensor (pixma_t * s)
+{
+  return (s->cfg->pid == MP800_PID || s->cfg->pid == MP830_PID
+	  || s->cfg->pid == MP800R_PID);
+}
+
+static int
+is_scanning_from_adf (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADF
+	  || s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+
+
+static int
 mp150_open (pixma_t * s)
 {
   mp150_t *mp;
@@ -454,13 +512,13 @@ mp150_open (pixma_t * s)
 
   mp = (mp150_t *) calloc (1, sizeof (*mp));
   if (!mp)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
 
   buf = (uint8_t *) malloc (CMDBUF_SIZE + IMAGE_BLOCK_SIZE);
   if (!buf)
     {
       free (mp);
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
 
   s->subdriver = mp;
@@ -474,6 +532,7 @@ mp150_open (pixma_t * s)
 
   mp->imgbuf = buf + CMDBUF_SIZE;
 
+  /*query_status(s); */
   handle_interrupt (s, 200);
   return 0;
 }
@@ -506,31 +565,24 @@ mp150_scan (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   if (mp->state != state_idle)
-    return -EBUSY;
+    return PIXMA_EBUSY;
 
+  /* clear interrupt packets buffer */
   while (handle_interrupt (s, 0) > 0)
     {
-    }				/* clear interrupt packets buffer */
+    }
 
-  if (s->param->source == PIXMA_SOURCE_ADF)
+  /* FIXME: Duplex ADF: check paper status only before odd pages (1,3,5,...). */
+  if (is_scanning_from_adf (s))
     {
       error = query_status (s);
       if (error < 0)
 	return error;
-#ifndef NDEBUG
-      pixma_dbg (1,
-		 "Support for ADF is untested. If it doesn't work, please set\n");
-      pixma_dbg (1,
-		 "the debug level to 10 and send me debug messages for these\n");
-      pixma_dbg (1, "2 cases:\n");
-      pixma_dbg (1, "  1. no paper in ADF\n");
-      pixma_dbg (1, "  2. paper in ADF\n");
-#endif
       if (!has_paper (s))
-	return -ENODATA;
+	return PIXMA_ENO_PAPER;
     }
 
-  if (s->cfg->vid == 0x170d /*MP800 */ )
+  if (has_ccd_sensor (s))
     {
       /* FIXME: What does this command do? */
       error = send_cmd_e920 (s);
@@ -538,26 +590,28 @@ mp150_scan (pixma_t * s)
 	{
 	  query_status (s);
 	}
-      if (error == -ECANCELED || error == -EBUSY)
+      else if (error == PIXMA_ECANCELED || error == PIXMA_EBUSY)
 	{
-	  PDBG (pixma_dbg (2, "cmd e920 returned %s\n", strerror (-error)));
+	  PDBG (pixma_dbg
+		(2, "cmd e920 returned %s\n", pixma_strerror (error)));
 	  query_status (s);
 	}
       else
 	{
-	  PDBG (pixma_dbg (1, "WARNING:cmd e920 failed %s\n",
-			   strerror (-error)));
+	  PDBG (pixma_dbg
+		(1, "WARNING:cmd e920 failed %s\n", pixma_strerror (error)));
 	  return error;
 	}
+      /* pixma_sleep(30000); */
     }
 
-  error = start_session (s);
   tmo = 10;
-  while (error == -EBUSY && --tmo >= 0)
+  error = start_session (s);
+  while (error == PIXMA_EBUSY && --tmo >= 0)
     {
       if (s->cancel)
 	{
-	  error = -ECANCELED;
+	  error = PIXMA_ECANCELED;
 	  break;
 	}
       PDBG (pixma_dbg
@@ -565,7 +619,7 @@ mp150_scan (pixma_t * s)
       pixma_sleep (1000000);
       error = start_session (s);
     }
-  if (error == -EBUSY || error == -ETIMEDOUT)
+  if (error == PIXMA_EBUSY || error == PIXMA_ETIMEDOUT)
     {
       /* The scanner maybe hangs. We try to empty output buffer of the
        * scanner and issue the cancel command. */
@@ -613,10 +667,12 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   do
     {
       if (s->cancel)
-	return -ECANCELED;
-      if (mp->last_block)
+	return PIXMA_ECANCELED;
+      if ((mp->last_block & 0x28) == 0x28)
 	{
 	  /* end of image */
+	  if (mp->last_block != 0x38)
+	    abort_session (s);	/* FIXME: it probably doesn't work in duplex mode! */
 	  mp->state = state_finished;
 	  return 0;
 	}
@@ -624,10 +680,9 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       error = read_image_block (s, header, mp->imgbuf);
       if (error < 0)
 	{
-	  if (error == -ECANCELED)
+	  if (error == PIXMA_ECANCELED)
 	    {
-	      /* NOTE: I see this in traffic logs but I don't know
-	         its meaning. */
+	      /* NOTE: I see this in traffic logs but I don't know its meaning. */
 	      read_error_info (s, NULL, 0);
 	    }
 	  return error;
@@ -635,7 +690,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
       bytes_received = error;
       block_size = pixma_get_be32 (header + 12);
-      mp->last_block = ((header[8] & 0x28) == 0x28);
+      mp->last_block = header[8] & 0x38;
       if ((header[8] & ~0x38) != 0)
 	{
 	  PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
@@ -671,11 +726,9 @@ mp150_finish_scan (pixma_t * s)
     case state_warmup:
       error = abort_session (s);
       if (error < 0)
-	PDBG (pixma_dbg (1, "WARNING:abort_session() failed: %s\n",
-			 strerror (-error)));
+	PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
       /* fall through */
     case state_finished:
-      while (handle_interrupt (s, 0) > 0);
       mp->state = state_idle;
       /* fall through */
     case state_idle:
@@ -731,15 +784,16 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 }
 
 const pixma_config_t pixma_mp150_devices[] = {
-  DEVICE ("Canon PIXMA MP150", 0x1709, 1200, 0),
-  DEVICE ("Canon PIXMA MP170", 0x170a, 1200, 0),
-  DEVICE ("Canon PIXMA MP450", 0x170b, 1200, 0),
-  DEVICE ("Canon PIXMA MP500", 0x170c, 1200, 0),
-  DEVICE ("Canon PIXMA MP530", 0xffff, 1200,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
-  DEVICE ("Canon PIXMA MP800", 0x170d, 2400, PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP800R", 0xffff, 2400,
-	  PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
-  DEVICE ("Canon PIXMA MP830", 0x1713, 2400, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP150", MP150_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP170", MP170_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP450", MP450_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP500", MP500_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP530", MP530_PID, 1200, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP800", MP800_PID, 2400,
+	  PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP800R", MP800R_PID, 2400,
+	  PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP830", MP830_PID, 2400,
+	  PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
   DEVICE (NULL, 0, 0, 0)
 };

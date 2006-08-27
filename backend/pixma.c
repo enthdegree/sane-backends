@@ -127,32 +127,32 @@ map_error (int error)
 
   switch (error)
     {
-    case -ENOMEM:
+    case PIXMA_ENOMEM:
       return SANE_STATUS_NO_MEM;
-    case -ECANCELED:
+    case PIXMA_ECANCELED:
       return SANE_STATUS_CANCELLED;
-    case -EBUSY:
+    case PIXMA_EBUSY:
       return SANE_STATUS_DEVICE_BUSY;
-    case -EINVAL:
+    case PIXMA_EINVAL:
       return SANE_STATUS_INVAL;
-    case -EACCES:
+    case PIXMA_EACCES:
       return SANE_STATUS_ACCESS_DENIED;
-    case -EDEADLK:
+    case PIXMA_EPAPER_JAMMED:
       return SANE_STATUS_JAMMED;
-    case -ENODATA:
+    case PIXMA_ENO_PAPER:
       return SANE_STATUS_NO_DOCS;
-    case -ENOLCK:
+    case PIXMA_ECOVER_OPEN:
       return SANE_STATUS_COVER_OPEN;
-    case -EPROTO:
-    case -ENODEV:
-    case -EIO:
-    case -ETIMEDOUT:
-      return SANE_STATUS_IO_ERROR;
-    default:
-      PDBG (pixma_dbg (1, "BUG: unmapped error %d %s\n", error,
-		       strerror (-error)));
+    case PIXMA_ENOTSUP:
+      return SANE_STATUS_UNSUPPORTED;
+    case PIXMA_EPROTO:
+    case PIXMA_ENODEV:
+    case PIXMA_EIO:
+    case PIXMA_ETIMEDOUT:
       return SANE_STATUS_IO_ERROR;
     }
+  PDBG (pixma_dbg (1, "BUG: unmapped error %d\n", error));
+  return SANE_STATUS_IO_ERROR;
 }
 
 static int
@@ -162,6 +162,8 @@ getenv_atoi (const char *name, int def)
   return (str) ? atoi (str) : def;
 }
 
+#define CONST_CAST(t,x) (t)(x)
+
 static void
 cleanup_device_list (void)
 {
@@ -170,9 +172,9 @@ cleanup_device_list (void)
       int i;
       for (i = 0; dev_list[i]; i++)
 	{
-	  free (dev_list[i]->name);
-	  free (dev_list[i]->model);
-	  free (dev_list[i]);
+	  free (CONST_CAST (void *, dev_list[i]->name));
+	  free (CONST_CAST (void *, dev_list[i]->model));
+	  free (CONST_CAST (void *, dev_list[i]));
 	}
     }
   free (dev_list);
@@ -249,6 +251,17 @@ update_button_state (pixma_sane_t * ss, SANE_Int * info)
     *info |= SANE_INFO_RELOAD_OPTIONS;
   OVAL (opt_button_1).w = b1;
   OVAL (opt_button_2).w = b2;
+}
+
+static SANE_Bool
+enable_option (pixma_sane_t * ss, SANE_Int o, SANE_Bool enable)
+{
+  SANE_Word save = SOD (o).cap;
+  if (enable)
+    SOD (o).cap &= ~SANE_CAP_INACTIVE;
+  else
+    SOD (o).cap |= SANE_CAP_INACTIVE;
+  return (save != SOD (o).cap);
 }
 
 static void
@@ -502,12 +515,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
     case opt_custom_gamma:
       if (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO)
 	{
-	  SANE_Word save = SOD (opt_gamma_table).cap;
-	  if (OVAL (opt_custom_gamma).b)
-	    SOD (opt_gamma_table).cap &= ~SANE_CAP_INACTIVE;
-	  else
-	    SOD (opt_gamma_table).cap |= SANE_CAP_INACTIVE;
-	  if (save != SOD (opt_gamma_table).cap)
+	  if (enable_option (ss, opt_gamma_table, OVAL (opt_custom_gamma).b))
 	    *info |= SANE_INFO_RELOAD_OPTIONS;
 	}
       break;
@@ -574,7 +582,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   error = pixma_check_scan_param (ss->s, sp);
   if (error < 0)
     {
-      PDBG (pixma_dbg (1, "BUG:calc_scan_param():%s\n", strerror (-error)));
+      PDBG (pixma_dbg (1, "BUG:calc_scan_param() failed %d\n", error));
       PDBG (print_scan_param (1, sp));
     }
   return error;
@@ -628,24 +636,28 @@ init_option_descriptors (pixma_sane_t * ss)
       ss->source_map[i] = PIXMA_SOURCE_ADF;
       i++;
     }
+#if 0
+  if (cfg->cap & PIXMA_CAP_ADFDUP)
+    {
+      ss->source_list[i] = SANE_I18N ("ADF Duplex");
+      ss->source_map[i] = PIXMA_SOURCE_ADFDUP;
+      i++;
+    }
+#endif
 
   build_option_descriptors (ss);
 
   /* Enable options that are available only in some scanners. */
   if (cfg->cap & PIXMA_CAP_GAMMA_TABLE)
     {
-      SOD (opt_custom_gamma).cap &= ~SANE_CAP_INACTIVE;
+      enable_option (ss, opt_custom_gamma, SANE_TRUE);
       sane_control_option (ss, opt_custom_gamma, SANE_ACTION_SET_AUTO,
 			   NULL, NULL);
       pixma_fill_gamma_table (AUTO_GAMMA, ss->gamma_table, 4096);
     }
-  if (cfg->cap & PIXMA_CAP_EVENTS)
-    SOD (opt_button_controlled).cap &= ~SANE_CAP_INACTIVE;
+  enable_option (ss, opt_button_controlled,
+		 ((cfg->cap & PIXMA_CAP_EVENTS) != 0));
 }
-
-#ifndef RETSIGTYPE
-#define RETSIGTYPE void
-#endif
 
 /* Writing to reader_ss outside reader_process() is a BUG! */
 static pixma_sane_t *reader_ss = NULL;
@@ -693,7 +705,7 @@ reader_loop (pixma_sane_t * ss)
   buf = malloc (bufsize);
   if (!buf)
     {
-      count = -ENOMEM;
+      count = PIXMA_ENOMEM;
       goto done;
     }
   pixma_enable_background (ss->s, 1);
@@ -713,7 +725,7 @@ reader_loop (pixma_sane_t * ss)
 	  uint32_t events;
 	  if (ss->reader_stop)
 	    {
-	      count = -ECANCELED;
+	      count = PIXMA_ECANCELED;
 	      goto done;
 	    }
 	  events = pixma_wait_event (ss->s, 1000);
@@ -723,7 +735,7 @@ reader_loop (pixma_sane_t * ss)
 	      start = 1;
 	      break;
 	    case PIXMA_EV_BUTTON2:
-	      count = -ENODATA;
+	      count = PIXMA_ENO_PAPER;
 	      goto done;
 	    }
 	}
@@ -749,7 +761,8 @@ done:
     }
   else
     {
-      PDBG (pixma_dbg (2, "Reader task terminated: %s\n", strerror (-count)));
+      PDBG (pixma_dbg
+	    (2, "Reader task terminated: %s\n", pixma_strerror (count)));
     }
   return map_error (count);
 }
@@ -758,7 +771,7 @@ static int
 reader_process (void *arg)
 {
   pixma_sane_t *ss = (pixma_sane_t *) arg;
-  struct sigaction sa;
+  struct SIGACTION sa;
 
   reader_ss = ss;
   memset (&sa, 0, sizeof (sa));
@@ -817,7 +830,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
     }
   else
     {
-      PDBG (pixma_dbg (1, "WARNING:waitpid() failed:%s\n", strerror (errno)));
+      PDBG (pixma_dbg (1, "WARNING:waitpid() failed %s\n", strerror (errno)));
       return -1;
     }
 }
@@ -847,7 +860,7 @@ start_reader_task (pixma_sane_t * ss)
     {
       PDBG (pixma_dbg (1, "ERROR:start_reader_task():pipe() failed %s\n",
 		       strerror (errno)));
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
   ss->rpipe = fds[0];
   ss->wpipe = fds[1];
@@ -874,7 +887,7 @@ start_reader_task (pixma_sane_t * ss)
       ss->wpipe = -1;
       ss->rpipe = -1;
       PDBG (pixma_dbg (1, "ERROR:unable to start reader task\n"));
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
   PDBG (pixma_dbg (3, "Reader task id=%d (%s)\n", pid,
 		   (is_forked) ? "forked" : "threaded"));
@@ -966,7 +979,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   status = pixma_init ();
   if (status < 0)
     {
-      PDBG (pixma_dbg (2, "pixma_init() returned %s\n", strerror (-status)));
+      PDBG (pixma_dbg
+	    (2, "pixma_init() failed %s\n", pixma_strerror (status)));
     }
   return map_error (status);
 }
@@ -1058,7 +1072,6 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   error = pixma_open (i, &ss->s);
   if (error < 0)
     {
-      PDBG (pixma_dbg (2, "pixma_open() returned %s\n", strerror (-error)));
       sane_close (ss);
       return map_error (error);
     }
@@ -1192,7 +1205,9 @@ sane_start (SANE_Handle h)
     {
       ss->output_line_size = ss->sp.w * ss->sp.channels * (ss->sp.depth / 8);
       ss->byte_pos_in_line = 0;
-      if (ss->idle || ss->source_map[OVAL (opt_source).w] != PIXMA_SOURCE_ADF)
+      if (ss->idle ||
+	  ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_FLATBED ||
+	  ss->source_map[OVAL (opt_source).w] == PIXMA_SOURCE_TPU)
 	ss->page_count = 0;	/* start from idle state or scan from flatbed or TPU */
       else
 	ss->page_count++;
@@ -1299,7 +1314,8 @@ sane_set_io_mode (SANE_Handle h, SANE_Bool m)
   PDBG (pixma_dbg (2, "Setting %sblocking mode\n", (m) ? "non-" : ""));
   if (fcntl (ss->rpipe, F_SETFL, (m) ? O_NONBLOCK : 0) == -1)
     {
-      PDBG (pixma_dbg (1, "WARNING:fcntl(F_SETFL):%s\n", strerror (errno)));
+      PDBG (pixma_dbg
+	    (1, "WARNING:fcntl(F_SETFL) failed %s\n", strerror (errno)));
       return SANE_STATUS_UNSUPPORTED;
     }
   return SANE_STATUS_GOOD;

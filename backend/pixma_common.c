@@ -48,7 +48,6 @@
 #include <stdarg.h>
 #include <math.h>		/* pow(C90) */
 
-#include <errno.h>		/* POSIX */
 #include <sys/time.h>		/* gettimeofday(4.3BSD) */
 #include <unistd.h>		/* usleep */
 
@@ -78,6 +77,7 @@ static pixma_t *first_pixma = NULL;
 static time_t tstart_sec = 0;
 static uint32_t tstart_usec = 0;
 static int debug_level = 1;
+
 
 #ifndef NDEBUG
 
@@ -180,12 +180,52 @@ pixma_dump (int level, const char *type, const void *data, int len,
 	pixma_dbg (level, " ...\n");
     }
   if (len < 0)
-    pixma_dbg (level, "  ERROR: %s\n", strerror (-len));
+    pixma_dbg (level, "  ERROR: %s\n", pixma_strerror (len));
   pixma_dbg (level, "\n");
 }
 
 
 #endif /* NDEBUG */
+
+/* NOTE: non-reentrant */
+const char *
+pixma_strerror (int error)
+{
+  static char buf[50];
+
+  /* TODO: more human friendly messages */
+  switch (error)
+    {
+    case PIXMA_EIO:
+      return "EIO";
+    case PIXMA_ENODEV:
+      return "ENODEV";
+    case PIXMA_EACCES:
+      return "EACCES";
+    case PIXMA_ENOMEM:
+      return "ENOMEM";
+    case PIXMA_EINVAL:
+      return "EINVAL";
+    case PIXMA_EBUSY:
+      return "EBUSY";
+    case PIXMA_ECANCELED:
+      return "ECANCELED";
+    case PIXMA_ENOTSUP:
+      return "ENOTSUP";
+    case PIXMA_ETIMEDOUT:
+      return "ETIMEDOUT";
+    case PIXMA_EPROTO:
+      return "EPROTO";
+    case PIXMA_EPAPER_JAMMED:
+      return "EPAPAR_JAMMED";
+    case PIXMA_ECOVER_OPEN:
+      return "ECOVER_OPEN";
+    case PIXMA_ENO_PAPER:
+      return "ENO_PAPER";
+    }
+  snprintf (buf, sizeof (buf), "EUNKNOWN:%d", error);
+  return buf;
+}
 
 void
 pixma_set_debug_level (int level)
@@ -257,11 +297,11 @@ pixma_map_status_errno (unsigned status)
     case PIXMA_STATUS_OK:
       return 0;
     case PIXMA_STATUS_FAILED:
-      return -ECANCELED;
+      return PIXMA_ECANCELED;
     case PIXMA_STATUS_BUSY:
-      return -EBUSY;
+      return PIXMA_EBUSY;
     default:
-      return -EPROTO;
+      return PIXMA_EPROTO;
     }
 }
 
@@ -286,7 +326,7 @@ pixma_check_result (pixma_cmdbuf_t * cb)
 	  if (len == expected_reslen)
 	    {
 	      if (pixma_sum_bytes (r + header_len, len - header_len) != 0)
-		error = -EPROTO;
+		error = PIXMA_EPROTO;
 	    }
 	  else
 	    {
@@ -294,18 +334,18 @@ pixma_check_result (pixma_cmdbuf_t * cb)
 	         executed, e.g. because you press the cancel button. The
 	         device will return only a header with PIXMA_STATUS_FAILED. */
 	      if (len != header_len)
-		error = -EPROTO;
+		error = PIXMA_EPROTO;
 	    }
 	}
     }
   else
-    error = -EPROTO;
+    error = PIXMA_EPROTO;
 
 #ifndef NDEBUG
-  if (error == -EPROTO)
+  if (error == PIXMA_EPROTO)
     {
-      pixma_dbg (1, "WARNING: result len=%d expected %d: %s\n",
-		 len, cb->expected_reslen, strerror (-error));
+      pixma_dbg (1, "WARNING: result len=%d expected %d\n",
+		 len, cb->expected_reslen);
       pixma_hexdump (1, r, MIN (len, 64));
     }
 #endif
@@ -320,7 +360,17 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
 
   error = pixma_write (s->io, cmd, cmdlen);
   if (error != (int) cmdlen)
-    return error;		/* FIXME: make sure that error < 0! */
+    {
+      if (error >= 0)
+	{
+	  /* Write timeout is too low? */
+	  PDBG (pixma_dbg
+		(1, "ERROR:incomplete write, %u out of %u written\n",
+		 (unsigned) error, cmdlen));
+	  error = PIXMA_ETIMEDOUT;
+	}
+      return error;
+    }
 
   /* When you send the start_session command while the scanner optic is
      going back to the home position after the last scan session has been
@@ -334,10 +384,10 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
   do
     {
       error = pixma_read (s->io, data, expected_len);
-      if (error == -ETIMEDOUT)
+      if (error == PIXMA_ETIMEDOUT)
 	PDBG (pixma_dbg (2, "No response yet. Timed out in %d sec.\n", tmo));
     }
-  while (error == -ETIMEDOUT && --tmo != 0);
+  while (error == PIXMA_ETIMEDOUT && --tmo != 0);
   if (error < 0)
     {
       PDBG (pixma_dbg (1, "WARNING:Error in response phase. cmd:%02x%02x\n",
@@ -396,7 +446,7 @@ pixma_check_dpi (unsigned dpi, unsigned max)
   /* valid dpi = 75 * 2^n */
   unsigned temp = dpi / 75;
   if (dpi > max || dpi < 75 || 75 * temp != dpi || (temp & (temp - 1)) != 0)
-    return -EINVAL;
+    return PIXMA_EINVAL;
   return 0;
 }
 
@@ -430,12 +480,12 @@ pixma_open (unsigned devnr, pixma_t ** handle)
   *handle = NULL;
   cfg = pixma_get_device_config (devnr);
   if (!cfg)
-    return -EINVAL;		/* invalid devnr */
+    return PIXMA_EINVAL;	/* invalid devnr */
   PDBG (pixma_dbg (2, "pixma_open(): %s\n", cfg->name));
 
   s = (pixma_t *) calloc (1, sizeof (s[0]));
   if (!s)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
   s->next = first_pixma;
   first_pixma = s;
 
@@ -443,7 +493,8 @@ pixma_open (unsigned devnr, pixma_t ** handle)
   error = pixma_connect (devnr, &s->io);
   if (error < 0)
     {
-      PDBG (pixma_dbg (2, "pixma_connect() failed:%s\n", strerror (-error)));
+      PDBG (pixma_dbg
+	    (2, "pixma_connect() failed %s\n", pixma_strerror (error)));
       goto rollback;
     }
   strncpy (s->id, pixma_get_device_id (devnr), sizeof (s->id));
@@ -456,6 +507,7 @@ pixma_open (unsigned devnr, pixma_t ** handle)
   return 0;
 
 rollback:
+  PDBG (pixma_dbg (2, "pixma_open() failed %s\n", pixma_strerror (error)));
   pixma_close (s);
   return error;
 }
@@ -523,7 +575,8 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
     }
   else
     {
-      PDBG (pixma_dbg (3, "pixma_scan() failed:%s\n", strerror (-error)));
+      PDBG (pixma_dbg
+	    (3, "pixma_scan() failed %s\n", pixma_strerror (error)));
     }
 
   return error;
@@ -554,7 +607,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
     return 0;
   if (s->cancel)
     {
-      result = -ECANCELED;
+      result = PIXMA_ECANCELED;
       goto cancel;
     }
 
@@ -633,10 +686,15 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
 cancel:
   s->ops->finish_scan (s);
   s->scanning = 0;
-  if (result == -ECANCELED)
+  if (result == PIXMA_ECANCELED)
     {
       PDBG (pixma_dbg (3, "pixma_read_image():cancelled by %sware\n",
 		       (s->cancel) ? "soft" : "hard"));
+    }
+  else
+    {
+      PDBG (pixma_dbg (3, "pixma_read_image() failed %s\n",
+		       pixma_strerror (result)));
     }
   return result;
 }
@@ -677,34 +735,72 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
 {
   if (!(sp->channels == 3 ||
 	(sp->channels == 1 && (s->cfg->cap & PIXMA_CAP_GRAY) != 0)))
-    return -EINVAL;
+    return PIXMA_EINVAL;
 
   if (pixma_check_dpi (sp->xdpi, s->cfg->xdpi) < 0 ||
       pixma_check_dpi (sp->ydpi, s->cfg->ydpi) < 0)
-    return -EINVAL;
+    return PIXMA_EINVAL;
 
   /* xdpi must be equal to ydpi except that
      xdpi = max_xdpi and ydpi = max_ydpi. */
   if (!(sp->xdpi == sp->ydpi ||
 	(sp->xdpi == s->cfg->xdpi && sp->ydpi == s->cfg->ydpi)))
-    return -EINVAL;
+    return PIXMA_EINVAL;
 
   /* FIXME: I assume the same minimum width and height for every model. */
   CLAMP2 (sp->x, sp->w, 13, s->cfg->width, sp->xdpi);
   CLAMP2 (sp->y, sp->h, 8, s->cfg->height, sp->ydpi);
 
-  if (!(s->cfg->cap & PIXMA_CAP_ADF))
-    sp->source = PIXMA_SOURCE_FLATBED;
+  switch (sp->source)
+    {
+    case PIXMA_SOURCE_FLATBED:
+      break;
+
+    case PIXMA_SOURCE_TPU:
+      if ((s->cfg->cap & PIXMA_CAP_TPU) != PIXMA_CAP_TPU)
+	{
+	  sp->source = PIXMA_SOURCE_FLATBED;
+	  PDBG (pixma_dbg
+		(1, "WARNING: TPU unsupported, fallback to flatbed.\n"));
+	}
+      break;
+
+    case PIXMA_SOURCE_ADF:
+      if ((s->cfg->cap & PIXMA_CAP_ADF) != PIXMA_CAP_ADF)
+	{
+	  sp->source = PIXMA_SOURCE_FLATBED;
+	  PDBG (pixma_dbg
+		(1, "WARNING: ADF unsupported, fallback to flatbed.\n"));
+	}
+      break;
+
+    case PIXMA_SOURCE_ADFDUP:
+      if ((s->cfg->cap & PIXMA_CAP_ADFDUP) != PIXMA_CAP_ADFDUP)
+	{
+	  if (s->cfg->cap & PIXMA_CAP_ADF)
+	    {
+	      sp->source = PIXMA_SOURCE_ADF;
+	    }
+	  else
+	    {
+	      sp->source = PIXMA_SOURCE_FLATBED;
+	    }
+	  PDBG (pixma_dbg
+		(1, "WARNING: ADF duplex unsupported, fallback to %d.\n",
+		 sp->source));
+	}
+      break;
+    }
 
   if (sp->depth == 0)
     sp->depth = 8;
   if ((sp->depth % 8) != 0)
-    return -EINVAL;
+    return PIXMA_EINVAL;
 
   sp->line_size = 0;
 
   if (s->ops->check_param (s, sp) < 0)
-    return -EINVAL;
+    return PIXMA_EINVAL;
 
   if (sp->line_size == 0)
     sp->line_size = sp->depth / 8 * sp->channels * sp->w;
@@ -765,7 +861,7 @@ int
 pixma_get_device_status (pixma_t * s, pixma_device_status_t * status)
 {
   if (!status)
-    return -EINVAL;
+    return PIXMA_EINVAL;
   memset (status, 0, sizeof (*status));
   return s->ops->get_status (s, status);
 }

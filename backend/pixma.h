@@ -74,7 +74,7 @@
  * <b>Note:</b> pixma_cancel() can be called asynchronously to
  * interrupt pixma_read_image(). It does not cancel the operation
  * immediately. pixma_read_image() <em>must</em> be called until it
- * returns zero or an error (probably \c -ECANCELED).
+ * returns zero or an error (probably \c PIXMA_ECANCELED).
  *
  * \section reference Reference
  * - \subpage API
@@ -91,18 +91,7 @@
  * meaning if not otherwise specified:
  *    - >= 0  if succeeded
  *    - < 0 if failed
- *       - \c -EBUSY
- *       - \c -ECANCELED
- *       - \c -EINVAL
- *       - \c -ENOMEM
- *       - \c -EPROTO unexpected reply from scanner.
- *       - \c -ETIMEDOUT
- *       - \c -EDEADLK papar jam
- *       - \c -ENODATA no paper
- *       - \c -ENOLCK scanner cover is opened
  */
-
-#include <errno.h>
 
 #ifdef HAVE_STDINT_H
 # include <stdint.h>		/* available in ISO C99 */
@@ -113,20 +102,30 @@ typedef u_int16_t uint16_t;
 typedef u_int32_t uint32_t;
 #endif /* HAVE_STDINT_H */
 
-#ifndef EPROTO
-# define EPROTO        10000
-#endif
-#ifndef ENODATA
-# define ENODATA       10001
-#endif
-
 /** \addtogroup API
  *  @{ */
 /** \name Version of the driver */
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
-#define PIXMA_VERSION_MINOR 11
-#define PIXMA_VERSION_BUILD 3
+#define PIXMA_VERSION_MINOR 12
+#define PIXMA_VERSION_BUILD 2
+/**@}*/
+
+/** \name Error codes */
+/**@{*/
+#define PIXMA_EIO               -1
+#define PIXMA_ENODEV            -2
+#define PIXMA_EACCES            -3
+#define PIXMA_ENOMEM            -4
+#define PIXMA_EINVAL            -5
+#define PIXMA_EBUSY             -6
+#define PIXMA_ECANCELED         -7
+#define PIXMA_ENOTSUP           -8
+#define PIXMA_ETIMEDOUT         -9
+#define PIXMA_EPROTO            -10
+#define PIXMA_EPAPER_JAMMED     -11
+#define PIXMA_ECOVER_OPEN       -12
+#define PIXMA_ENO_PAPER         -13
 /**@}*/
 
 /** \name Capabilities for using with pixma_config_t::cap */
@@ -138,6 +137,7 @@ typedef u_int32_t uint32_t;
 #define PIXMA_CAP_GAMMA_TABLE  (1 << 4)
 #define PIXMA_CAP_EVENTS       (1 << 5)
 #define PIXMA_CAP_TPU          (1 << 6)
+#define PIXMA_CAP_ADFDUP       ((1 << 7) | PIXMA_CAP_ADF)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -183,7 +183,8 @@ typedef enum pixma_paper_source_t
 {
   PIXMA_SOURCE_FLATBED,
   PIXMA_SOURCE_ADF,
-  PIXMA_SOURCE_TPU
+  PIXMA_SOURCE_TPU,
+  PIXMA_SOURCE_ADFDUP		/* duplex */
 } pixma_paper_source_t;
 
 typedef enum pixma_hardware_status_t
@@ -358,13 +359,13 @@ int pixma_read_image_write (pixma_t *, int fd);
  *  progress. It can be called asynchronously e.g. within a signal
  *  handle. pixma_cancel() doesn't abort the operation immediately.  It
  *  guarantees that the current call or, at the latest, the next call to
- *  pixma_read_image() will return zero or an error (probably -ECANCELED). */
+ *  pixma_read_image() will return zero or an error (probably PIXMA_ECANCELED). */
 void pixma_cancel (pixma_t *);
 
 /** Check the scan parameters. This function can change your parameters to
  *  match the device capability, e.g. adjust width and height to the available
  *  area.
- *  \return -EINVAL for invalid parameters. */
+ *  \return PIXMA_EINVAL for invalid parameters. */
 int pixma_check_scan_param (pixma_t *, pixma_scan_param_t *);
 
 /** Wait until a scanner button is pressed or it times out. It should not be
@@ -392,6 +393,7 @@ int pixma_get_device_status (pixma_t *, pixma_device_status_t * status);
 const char *pixma_get_string (pixma_t *, pixma_string_index_t);
 const pixma_config_t *pixma_get_config (pixma_t *);
 void pixma_fill_gamma_table (double gamma, uint8_t * table, unsigned n);
+const char *pixma_strerror (int error);
 
 /** @} end of API group */
 

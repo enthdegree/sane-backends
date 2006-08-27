@@ -40,19 +40,20 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
  */
+
+/****************************************************************************
+ * Credits should go to Martin Schewe (http://pixma.schewe.com) who analysed
+ * the protocol of MP750.
+ ****************************************************************************/
+
 #include "../include/sane/config.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>		/* POSIX */
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
 #include "pixma_io.h"
-
-
-/* Credits should go to Martin Schewe (http://pixma.schewe.com) who analysed
-   the protocol of MP750. */
 
 /* TODO: remove lines marked with SIM. They are inserted so that I can test
    the subdriver with the simulator. WY */
@@ -68,6 +69,10 @@
 #define HAS_PAPER(s) (s[1] == 0)
 #define IS_WARMING_UP(s) (s[7] != 3)
 #define IS_CALIBRATED(s) (s[8] == 0xf)
+
+#define MP750_PID 0x1706
+#define MP760_PID 0x1708
+#define MP780_PID 0x1707
 
 
 enum mp750_state_t
@@ -107,7 +112,6 @@ typedef struct mp750_t
   unsigned last_block;
 
   unsigned monochrome:1;
-  unsigned needs_time:1;
   unsigned needs_abort:1;
 } mp750_t;
 
@@ -264,7 +268,7 @@ request_image_block_ex (pixma_t * s, unsigned *size, uint8_t * info,
 	}
       else
 	{
-	  error = -EPROTO;
+	  error = PIXMA_EPROTO;
 	}
     }
   return error;
@@ -292,7 +296,14 @@ read_image_block (pixma_t * s, uint8_t * data)
   if (count < 0)
     return count;
   if (count == IMAGE_BLOCK_SIZE)
-    pixma_read (s->io, &temp, 0);
+    {
+      int error;
+      if ((error = pixma_read (s->io, &temp, 0)) < 0)
+	{
+	  PDBG (pixma_dbg
+		(1, "WARNING:reading zero-length packet failed %d\n", error));
+	}
+    }
   return count;
 }
 
@@ -318,14 +329,22 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
 }
 
 static int
+send_time (pixma_t * s)
+{
+  /* TODO: implement send_time() */
+  UNUSED (s);
+  PDBG (pixma_dbg (3, "send_time() is not yet implemented.\n"));
+  return 0;
+}
+
+static int
 handle_interrupt (pixma_t * s, int timeout)
 {
-  mp750_t *mp = (mp750_t *) s->subdriver;
   int error;
   uint8_t intr[16];
 
   error = pixma_wait_interrupt (s->io, intr, sizeof (intr), timeout);
-  if (error == -ETIMEDOUT)
+  if (error == PIXMA_ETIMEDOUT)
     return 0;
   if (error < 0)
     return error;
@@ -333,11 +352,11 @@ handle_interrupt (pixma_t * s, int timeout)
     {
       PDBG (pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n",
 		       error));
-      return -EPROTO;
+      return PIXMA_EPROTO;
     }
 
   if (intr[10] & 0x40)
-    mp->needs_time = 1;
+    send_time (s);
   if (intr[12] & 0x40)
     query_status (s);
   if (intr[15] & 1)
@@ -356,22 +375,34 @@ check_status (pixma_t * s)
 static int
 step1 (pixma_t * s)
 {
-  int error;
+  int error, tmo;
 
   error = activate (s, 0);
-  if (error >= 0)
-    error = query_status (s);
-  if (error >= 0)
+  if (error < 0)
+    return error;
+  error = query_status (s);
+  if (error < 0)
+    return error;
+  if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
+    return PIXMA_ENO_PAPER;
+  error = activate_cs (s, 0);
+  /*SIM*/ if (error < 0)
+    return error;
+  error = activate_cs (s, 0x20);
+  if (error < 0)
+    return error;
+
+  tmo = 60;
+  error = calibrate_cs (s);
+  while (error == PIXMA_EBUSY && --tmo >= 0)
     {
-      if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
-	return -ENODATA;
+      if (s->cancel)
+	return PIXMA_ECANCELED;
+      PDBG (pixma_dbg
+	    (2, "Scanner is busy. Timed out in %d sec.\n", tmo + 1));
+      pixma_sleep (1000000);
+      error = calibrate_cs (s);
     }
-  if (error >= 0)
-    error = activate_cs (s, 0);
-  /*SIM*/ if (error >= 0)
-    error = activate_cs (s, 0x20);
-  if (error >= 0)
-    error = calibrate_cs (s);
   return error;
 }
 
@@ -387,6 +418,77 @@ shift_rgb (const uint8_t * src, unsigned pixels,
     }
 }
 
+static int
+calc_component_shifting (pixma_t * s)
+{
+  switch (s->cfg->pid)
+    {
+    case MP760_PID:
+      switch (s->param->ydpi)
+	{
+	case 300:
+	  return 3;
+	case 600:
+	  return 6;
+	default:
+	  return s->param->ydpi / 75;
+	}
+      /* never reached */
+
+    case MP750_PID:
+    case MP780_PID:
+    default:
+      return 2 * s->param->ydpi / 75;
+    }
+}
+
+static void
+workaround_first_command (pixma_t * s)
+{
+  /* FIXME: Send a dummy command because the device doesn't response to the
+     first command that is sent directly after the USB interface has been
+     set up. Why? USB isn't set up properly? */
+  uint8_t cmd[10];
+  int error;
+
+  if (s->cfg->pid == MP750_PID)
+    return;			/* MP750 doesn't have this problem(?) */
+
+  PDBG (pixma_dbg
+	(1,
+	 "Work-around for the problem: device doesn't response to the first command.\n"));
+  memset (cmd, 0, sizeof (cmd));
+  pixma_set_be16 (cmd_calibrate, cmd);
+  error = pixma_write (s->io, cmd, 10);
+  if (error != 10)
+    {
+      if (error < 0)
+	{
+	  PDBG (pixma_dbg
+		(1, "  Sending a dummy command failed: %s\n",
+		 pixma_strerror (error)));
+	}
+      else
+	{
+	  PDBG (pixma_dbg
+		(1, "  Sending a dummy command failed: count = %d\n", error));
+	}
+      return;
+    }
+  error = pixma_read (s->io, cmd, sizeof (cmd));
+  if (error >= 0)
+    {
+      PDBG (pixma_dbg
+	    (1, "  Got %d bytes response from a dummy command.\n", error));
+    }
+  else
+    {
+      PDBG (pixma_dbg
+	    (1, "  Reading response of a dummy command failed: %s\n",
+	     pixma_strerror (error)));
+    }
+}
+
 
 static int
 mp750_open (pixma_t * s)
@@ -396,13 +498,13 @@ mp750_open (pixma_t * s)
 
   mp = (mp750_t *) calloc (1, sizeof (*mp));
   if (!mp)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
 
   buf = (uint8_t *) malloc (CMDBUF_SIZE);
   if (!buf)
     {
       free (mp);
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
 
   s->subdriver = mp;
@@ -422,6 +524,7 @@ mp750_open (pixma_t * s)
   mp->cb.cmd_header_len = 10;
   mp->cb.cmd_len_field_ofs = 7;
 
+  workaround_first_command (s);
   return 0;
 }
 
@@ -461,7 +564,7 @@ mp750_scan (pixma_t * s)
   unsigned size, dpi, spare;
 
   if (mp->state != state_idle)
-    return -EBUSY;
+    return PIXMA_EBUSY;
 
   if (s->param->channels == 1)
     mp->raw_width = ALIGN (s->param->w, 12);
@@ -469,7 +572,7 @@ mp750_scan (pixma_t * s)
     mp->raw_width = ALIGN (s->param->w, 4);
 
   dpi = s->param->ydpi;
-  spare = 4 * dpi / 75;		/* FIXME: or maybe (4*dpi/75 + 1)? */
+  spare = 2 * calc_component_shifting (s);	/* FIXME: or maybe (2*... + 1)? */
   mp->raw_height = s->param->h + spare;
   PDBG (pixma_dbg (3, "raw_width=%u raw_height=%u dpi=%u\n",
 		   mp->raw_width, mp->raw_height, dpi));
@@ -477,7 +580,7 @@ mp750_scan (pixma_t * s)
   size = 8 + 2 * IMAGE_BLOCK_SIZE + spare * s->param->line_size;
   buf = (uint8_t *) malloc (size);
   if (!buf)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
   mp->buf = buf;
   mp->rawimg = buf;
   mp->imgbuf_ofs = spare * s->param->line_size;
@@ -522,7 +625,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       /*SIM*/ while (!is_calibrated (s) && --tmo >= 0)
 	{
 	  if (s->cancel)
-	    return -ECANCELED;
+	    return PIXMA_ECANCELED;
 	  if (handle_interrupt (s, 1000) > 0)
 	    {
 	      block_size = 0;
@@ -534,7 +637,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       if (tmo < 0)
 	{
 	  PDBG (pixma_dbg (1, "WARNING:Timed out waiting for calibration\n"));
-	  return -ETIMEDOUT;
+	  return PIXMA_ETIMEDOUT;
 	}
       pixma_sleep (100000);
       query_status (s);
@@ -542,7 +645,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	{
 	  PDBG (pixma_dbg (1, "WARNING:Wrong status: wup=%d cal=%d\n",
 			   is_warming_up (s), is_calibrated (s)));
-	  return -EPROTO;
+	  return PIXMA_EPROTO;
 	}
       block_size = 0;
       request_image_block (s, &block_size, &info);
@@ -551,7 +654,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   /* TODO: Move to other place, values are constant. */
-  base_shift = 2 * s->param->ydpi / 75 * s->param->line_size;
+  base_shift = calc_component_shifting (s) * s->param->line_size;
   if (s->param->source == PIXMA_SOURCE_ADF)
     {
       shift[0] = 0;
@@ -576,7 +679,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       do
 	{
 	  if (s->cancel)
-	    return -ECANCELED;
+	    return PIXMA_ECANCELED;
 	  if (mp->last_block)
 	    {
 	      /* end of image */
@@ -589,7 +692,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 		      pixma_sleep (10000);
 		      error = request_image_block2 (s, &info);
 		      if (s->cancel)
-			return -ECANCELED;
+			return PIXMA_ECANCELED;	/* FIXME: Is it safe to cancel here? */
 		      if (error < 0)
 			return error;
 		    }
@@ -606,7 +709,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  error = request_image_block (s, &block_size, &info);
 	  if (error < 0)
 	    {
-	      if (error == -ECANCELED)
+	      if (error == PIXMA_ECANCELED)
 		read_error_info (s, NULL, 0);
 	      return error;
 	    }
@@ -668,14 +771,14 @@ mp750_finish_scan (pixma_t * s)
     case state_scanning:
     case state_warmup:
       error = abort_session (s);
-      if (abort_session (s) == -ECANCELED)
+      if (abort_session (s) == PIXMA_ECANCELED)
 	read_error_info (s, NULL, 0);
       /* fall through */
     case state_finished:
       if (s->param->source == PIXMA_SOURCE_FLATBED)
 	{
 	   /*SIM*/ query_status (s);
-	  if (abort_session (s) == -ECANCELED)
+	  if (abort_session (s) == PIXMA_ECANCELED)
 	    {
 	      read_error_info (s, NULL, 0);
 	      query_status (s);
@@ -688,7 +791,6 @@ mp750_finish_scan (pixma_t * s)
 	  mp->needs_abort = 0;
 	  abort_session (s);
 	}
-      while (handle_interrupt (s, 100) > 0);
       free (mp->buf);
       mp->buf = mp->rawimg = NULL;
       mp->state = state_idle;
@@ -736,8 +838,6 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
   mp750_get_status
 };
 
-/* FIXME: What is the maximum resolution? 2400 DPI?*/
-
 #define DEVICE(name, pid, dpi, cap) {			\
 	name,                  /* name */		\
 	0x04a9, pid,           /* vid pid */		\
@@ -745,14 +845,12 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 	&pixma_mp750_ops,      /* ops */		\
 	dpi, 2*(dpi),          /* xdpi, ydpi */		\
 	637, 877,              /* width, height */	\
-        cap                                             \
+        PIXMA_CAP_EVENTS|cap                            \
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
-  DEVICE ("Canon PIXMA MP750", 0x1706, 2400,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EVENTS),
-  DEVICE ("Canon PIXMA MP780", 0x1707, 2400,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EVENTS),
-  DEVICE ("Canon PIXMA MP760", 0x1708, 2400, PIXMA_CAP_EVENTS),
+  DEVICE ("Canon PIXMA MP750", MP750_PID, 2400, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP760", MP760_PID, 2400, PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP780", MP780_PID, 2400, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0)
 };

@@ -44,7 +44,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>		/* POSIX */
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
@@ -59,6 +58,10 @@
 
 #define IMAGE_BLOCK_SIZE (0xc000)
 #define CMDBUF_SIZE 512
+
+#define MP360_PID 0x263c
+#define MP700_PID 0x2630
+#define MP730_PID 0x262f
 
 
 enum mp730_state_t
@@ -81,7 +84,8 @@ enum mp730_cmd_t
   cmd_time = 0xeb80,
   cmd_read_image = 0xd420,
 
-  cmd_activate = 0xcf60
+  cmd_activate = 0xcf60,
+  cmd_calibrate = 0xe920
 };
 
 typedef struct mp730_t
@@ -187,6 +191,13 @@ send_scan_param (pixma_t * s)
 }
 
 static int
+calibrate (pixma_t * s)
+{
+  mp730_t *mp = (mp730_t *) s->subdriver;
+  return pixma_exec_short_cmd (s, &mp->cb, cmd_calibrate);
+}
+
+static int
 read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
 {
   static const uint8_t cmd[10] =	/* 0xd420 cmd */
@@ -223,7 +234,7 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
   if (error < 0)
     return error;
   if (mp->cb.reslen < hlen)
-    return -EPROTO;
+    return PIXMA_EPROTO;
   return datalen;
 }
 
@@ -232,6 +243,7 @@ send_time (pixma_t * s)
 {
   /* TODO */
   UNUSED (s);
+  PDBG (pixma_dbg (3, "send_time() is not yet implemented.\n"));
   return 0;
 }
 
@@ -242,20 +254,52 @@ handle_interrupt (pixma_t * s, int timeout)
   int len;
 
   len = pixma_wait_interrupt (s->io, buf, sizeof (buf), timeout);
-  if (len == -ETIMEDOUT)
+  if (len == PIXMA_ETIMEDOUT)
     return 0;
   if (len < 0)
     return len;
-  if (len != 8)
+  switch (s->cfg->pid)
     {
-      PDBG (pixma_dbg (1, "WARNING:unexpected interrupt packet length %d\n",
-		       len));
-      return -EPROTO;
-    }
+    case MP360_PID:
+      if (len != 16)
+	{
+	  PDBG (pixma_dbg
+		(1, "WARNING:unexpected interrupt packet length %d\n", len));
+	  return PIXMA_EPROTO;
+	}
+      if (buf[12] & 0x40)
+	query_status (s);
+      /* FIXME: following is unverified! */
+      if (buf[10] & 0x40)
+	send_time (s);
+      if (buf[15] & 1)
+	s->events = PIXMA_EV_BUTTON2;	/* b/w scan */
+      if (buf[15] & 2)
+	s->events = PIXMA_EV_BUTTON1;	/* color scan */
+      break;
 
-  if (buf[5] & 8)
-    send_time (s);
+    case MP700_PID:
+    case MP730_PID:
+    default:
+      if (len != 8)
+	{
+	  PDBG (pixma_dbg
+		(1, "WARNING:unexpected interrupt packet length %d\n", len));
+	  return PIXMA_EPROTO;
+	}
+      if (buf[7] & 0x10)
+	s->events = PIXMA_EV_BUTTON1;
+      if (buf[5] & 8)
+	send_time (s);
+      break;
+    }
   return 1;
+}
+
+static int
+has_ccd_sensor (pixma_t * s)
+{
+  return (s->cfg->pid == MP360_PID);
 }
 
 static int
@@ -267,7 +311,12 @@ step1 (pixma_t * s)
   if (error < 0)
     return error;
   if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
-    return -ENODATA;
+    return PIXMA_ENO_PAPER;
+  if (has_ccd_sensor (s))
+    {
+      activate (s, 0);
+      error = calibrate (s);
+    }
   if (error >= 0)
     error = activate (s, 0);
   if (error >= 0)
@@ -303,13 +352,13 @@ mp730_open (pixma_t * s)
 
   mp = (mp730_t *) calloc (1, sizeof (*mp));
   if (!mp)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
 
   buf = (uint8_t *) malloc (CMDBUF_SIZE);
   if (!buf)
     {
       free (mp);
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
 
   s->subdriver = mp;
@@ -365,7 +414,7 @@ mp730_scan (pixma_t * s)
   uint8_t *buf;
 
   if (mp->state != state_idle)
-    return -EBUSY;
+    return PIXMA_EBUSY;
 
   mp->raw_width = calc_raw_width (s->param);
   PDBG (pixma_dbg (3, "raw_width = %u\n", mp->raw_width));
@@ -373,7 +422,7 @@ mp730_scan (pixma_t * s)
   n = IMAGE_BLOCK_SIZE / s->param->line_size + 1;
   buf = (uint8_t *) malloc ((n + 1) * s->param->line_size + IMAGE_BLOCK_SIZE);
   if (!buf)
-    return -ENOMEM;
+    return PIXMA_ENOMEM;
   mp->buf = buf;
   mp->lbuf = buf;
   mp->imgbuf = buf + n * s->param->line_size;
@@ -410,7 +459,7 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       do
 	{
 	  if (s->cancel)
-	    return -ECANCELED;
+	    return PIXMA_ECANCELED;
 	  if (mp->last_block)
 	    {
 	      /* end of image */
@@ -440,12 +489,22 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	}
       while (block_size == 0);
 
+      /* TODO: simplify! */
       mp->imgbuf_len += bytes_received;
       n = mp->imgbuf_len / s->param->line_size;
       /* n = number of full lines (rows) we have in the buffer. */
       if (n != 0)
 	{
-	  pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
+	  if (s->param->channels != 1)
+	    {
+	      /* color */
+	      pack_rgb (mp->imgbuf, n, mp->raw_width, mp->lbuf);
+	    }
+	  else
+	    {
+	      /* grayscale */
+	      memcpy (mp->lbuf, mp->imgbuf, n * s->param->line_size);
+	    }
 	  block_size = n * s->param->line_size;
 	  mp->imgbuf_len -= block_size;
 	  memcpy (mp->imgbuf, mp->imgbuf + block_size, mp->imgbuf_len);
@@ -473,8 +532,9 @@ mp730_finish_scan (pixma_t * s)
     case state_warmup:
       error = abort_session (s);
       if (error < 0)
-	PDBG (pixma_dbg (1, "WARNING:abort_session() failed: %s\n",
-			 strerror (-error)));
+	PDBG (pixma_dbg
+	      (1, "WARNING:abort_session() failed %s\n",
+	       pixma_strerror (error)));
       /* fall through */
     case state_finished:
       query_status (s);
@@ -531,12 +591,12 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 	&pixma_mp730_ops,  /* ops */		\
 	dpi, dpi,          /* xdpi, ydpi */	\
 	w, h,              /* width, height */	\
-        cap                                     \
+        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap                      \
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 638, 877, 0),
-  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 637, 868,
-	  PIXMA_CAP_ADF | PIXMA_CAP_EXPERIMENT),
+  DEVICE ("Canon SmartBase MP360", 0x263c, 1200, 636, 868, 0),
+  DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 638, 877 /*1035 */ , 0),
+  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0, 0, 0)
 };

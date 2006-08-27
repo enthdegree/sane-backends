@@ -44,7 +44,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <limits.h>		/* INT_MAX */
 
 #include "pixma_rename.h"
@@ -59,6 +58,7 @@
 #else
 # define UNUSED(v)
 #endif
+
 
 struct pixma_io_t
 {
@@ -212,31 +212,26 @@ map_error (SANE_Status ss)
     case SANE_STATUS_GOOD:
       return 0;
     case SANE_STATUS_UNSUPPORTED:
-      return -ENOTSUP;
-    case SANE_STATUS_CANCELLED:
-      return -ECANCELED;
+      return PIXMA_ENODEV;
     case SANE_STATUS_DEVICE_BUSY:
-      return -EBUSY;
+      return PIXMA_EBUSY;
     case SANE_STATUS_INVAL:
-      return -EINVAL;
-    case SANE_STATUS_EOF:
-      return 0;			/* FIXME: */
-    case SANE_STATUS_JAMMED:
-      return -EDEADLK;
-    case SANE_STATUS_NO_DOCS:
-      return -ENODATA;
-    case SANE_STATUS_COVER_OPEN:
-      return -ENOLCK;
+      return PIXMA_EINVAL;
     case SANE_STATUS_IO_ERROR:
-      return -EIO;
+      return PIXMA_EIO;
     case SANE_STATUS_NO_MEM:
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     case SANE_STATUS_ACCESS_DENIED:
-      return -EACCES;
-    default:
-      PDBG (pixma_dbg (1, "WARNING:Unmapped SANE Status code %d\n", ss));
-      return -ENOTSUP;		/* should not happen */
+      return PIXMA_EACCES;
+    case SANE_STATUS_CANCELLED:
+    case SANE_STATUS_EOF:
+    case SANE_STATUS_JAMMED:
+    case SANE_STATUS_NO_DOCS:
+    case SANE_STATUS_COVER_OPEN:
+      break;
     }
+  PDBG (pixma_dbg (1, "BUG:Unmapped SANE Status code %d\n", ss));
+  return PIXMA_EIO;		/* should not happen */
 }
 
 
@@ -256,7 +251,7 @@ pixma_io_cleanup (void)
   clear_scanner_list ();
 }
 
-int
+unsigned
 pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
 {
   unsigned i, j;
@@ -308,7 +303,7 @@ pixma_connect (unsigned devnr, pixma_io_t ** handle)
   *handle = NULL;
   si = get_scanner_info (devnr);
   if (!si)
-    return -EINVAL;
+    return PIXMA_EINVAL;
   error = map_error (sanei_usb_open (si->devname, &usb));
   if (error < 0)
     return error;
@@ -316,7 +311,7 @@ pixma_connect (unsigned devnr, pixma_io_t ** handle)
   if (!io)
     {
       sanei_usb_close (usb);
-      return -ENOMEM;
+      return PIXMA_ENOMEM;
     }
   io->next = first_io;
   first_io = io;
@@ -348,7 +343,7 @@ int
 pixma_reset_device (pixma_io_t * io)
 {
   UNUSED (io);
-  return -ENOTSUP;
+  return PIXMA_ENOTSUP;
 }
 
 int
@@ -361,9 +356,15 @@ pixma_write (pixma_io_t * io, const void *cmd, unsigned len)
   sanei_usb_set_timeout (PIXMA_BULKOUT_TIMEOUT);
 #endif
   error = map_error (sanei_usb_write_bulk (io->usb, cmd, &count));
-  if (error == -EIO)
-    error = -ETIMEDOUT;		/* FIXME: SANE doesn't have ETIMEDOUT!! */
-  if (error == 0)
+  if (error == PIXMA_EIO)
+    error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
+  if (count != len)
+    {
+      PDBG (pixma_dbg (1, "WARNING:pixma_write(): count(%u) != len(%u)\n",
+		       (unsigned) count, len));
+      error = PIXMA_EIO;
+    }
+  if (error >= 0)
     error = count;
   PDBG (pixma_dump (10, "OUT ", cmd, error, len, 128));
   return error;
@@ -379,9 +380,9 @@ pixma_read (pixma_io_t * io, void *buf, unsigned size)
   sanei_usb_set_timeout (PIXMA_BULKIN_TIMEOUT);
 #endif
   error = map_error (sanei_usb_read_bulk (io->usb, buf, &count));
-  if (error == -EIO)
-    error = -ETIMEDOUT;		/* FIXME: SANE doesn't have ETIMEDOUT!! */
-  if (error == 0)
+  if (error == PIXMA_EIO)
+    error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
+  if (error >= 0)
     error = count;
   PDBG (pixma_dump (10, "IN  ", buf, error, -1, 128));
   return error;
@@ -402,11 +403,11 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
   sanei_usb_set_timeout (timeout);
 #endif
   error = map_error (sanei_usb_read_int (io->usb, buf, &count));
-  if (error == -EIO)
-    error = -ETIMEDOUT;		/* FIXME: SANE doesn't have ETIMEDOUT!! */
+  if (error == PIXMA_EIO)
+    error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (error == 0)
     error = count;
-  if (error != -ETIMEDOUT)
+  if (error != PIXMA_ETIMEDOUT)
     PDBG (pixma_dump (10, "INTR", buf, error, -1, -1));
   return error;
 }
@@ -415,5 +416,5 @@ int
 pixma_set_interrupt_mode (pixma_io_t * s, int background)
 {
   UNUSED (s);
-  return (background) ? -ENOTSUP : 0;
+  return (background) ? PIXMA_ENOTSUP : 0;
 }

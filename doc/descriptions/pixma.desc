@@ -11,8 +11,8 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.11.3"                ; version of backend (or "unmaintained")
-:new :yes                         ; Is the backend new to this SANE release?
+:version "0.12.2"                ; version of backend (or "unmaintained")
+;:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 :url "http://home.arcor.de/wittawat/pixma/" ; backend's web page
@@ -35,6 +35,12 @@
 :usbid "0x04a9" "0x170a"
 :status :good
 
+:model "SmartBase MP360"
+:interface "USB"
+:usbid "0x04a9" "0x263c"
+:status :minimal
+:comment "The scanner locks up sometimes."
+
 :model "PIXMA MP450"
 :interface "USB"
 :usbid "0x04a9" "0x170b"
@@ -46,17 +52,22 @@
 :usbid "0x04a9" "0x170c"
 :status :good
 
+:model "PIXMA MP530"
+:interface "USB"
+:usbid "0x04a9" "0x1712"
+:status :good
+
 :model "MultiPASS MP700"
 :interface "USB"
 :usbid "0x04a9" "0x2630"
-:status :minimal
-:comment "No grayscale. Same model as SmartBase MP700 Photo?"
+:status :basic
+:comment "Same model as SmartBase MP700 Photo?"
 
 :model "MultiPASS MP730"
 :interface "USB"
 :usbid "0x04a9" "0x262f"
 :status :minimal
-:comment "Experimental. No grayscale. Same model as SmartBase MP730 Photo?"
+:comment "Do grayscale and ADF work? Same model as SmartBase MP730 Photo?"
 
 :model "PIXMA MP750"
 :interface "USB"
@@ -68,13 +79,13 @@
 :interface "USB"
 :usbid "0x04a9" "0x1708"
 :status :minimal
-:comment "Experimental. No grayscale. The scanner sometimes hangs!"
+:comment "No grayscale. The scanner sometimes hangs!"
 
 :model "PIXMA MP780"
 :interface "USB"
 :usbid "0x04a9" "0x1707"
 :status :minimal
-:comment "Experimental. No grayscale. The scanner sometimes hangs!"
+:comment "No grayscale. The scanner sometimes hangs!"
 
 :model "PIXMA MP800"
 :interface "USB"
@@ -82,8 +93,14 @@
 :status :basic
 :comment "No film scan."
 
+:model "PIXMA MP800R"
+:interface "USB"
+:usbid "0x04a9" "0x170e"
+:status :basic
+:comment "No film scan."
+
 :model "PIXMA MP830"
 :interface "USB"
 :usbid "0x04a9" "0x1713"
 :status :basic
-:comment "Please report if ADF works."
+:comment "Sigle-side ADF works but duplex doesn't work yet."

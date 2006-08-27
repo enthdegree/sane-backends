@@ -33,8 +33,8 @@ SCSI:        SCSI/USB:    USB:
 ------------ ------------ ------------
 M3091DC      fi-4120C     fi-5110C
 M3092DC      fi-4220C     fi-5110EOX
-SP-93GX      fi-4120C2
-             fi-4220C2
+SP-93GX      fi-4120C2    fi-5110EOX2
+             fi-4220C2    S500
              fi-5120C
              fi-5220C
 .fi

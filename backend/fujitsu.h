@@ -31,8 +31,9 @@ enum fujitsu_Option
 
   OPT_ENHANCEMENT_GROUP,
   OPT_BRIGHTNESS,
-  OPT_THRESHOLD,
   OPT_CONTRAST,
+  OPT_GAMMA,
+  OPT_THRESHOLD,
   OPT_RIF,
 
   OPT_ADVANCED_GROUP,
@@ -40,6 +41,8 @@ enum fujitsu_Option
   OPT_DF_DIFF,
   OPT_BG_COLOR,
   OPT_DROPOUT_COLOR,
+  OPT_BUFF_MODE,
+  OPT_PREPICK,
   OPT_SLEEP_TIME,
   OPT_DUPLEX_OFFSET,
   OPT_GREEN_OFFSET,
@@ -231,7 +234,7 @@ struct fujitsu
   int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
   int window_vid;    /* some models want different vendor ID in set window */
   int ghs_in_rs;
-  int lut_bits;
+  int window_gamma;
 
   int has_SW_dropout; /* dropout color specified in set window data */
 
@@ -264,8 +267,9 @@ struct fujitsu
 
   /*enhancement group*/
   SANE_Range brightness_range;
-  SANE_Range threshold_range;
   SANE_Range contrast_range;
+  SANE_Range gamma_range;
+  SANE_Range threshold_range;
 
   /*ipc group*/
 
@@ -275,6 +279,8 @@ struct fujitsu
   SANE_String_Const bg_color_list[4];
   SANE_String_Const do_color_list[5];
   SANE_String_Const lamp_color_list[5];
+  SANE_String_Const buff_mode_list[4];
+  SANE_String_Const prepick_list[4];
   SANE_Range sleep_time_range;
   SANE_Range duplex_offset_range;
   SANE_Range green_offset_range;
@@ -300,18 +306,18 @@ struct fujitsu
 
   /*enhancement group*/
   int brightness;
-  int threshold;
   int contrast;
+  int gamma;
+  int threshold;
   int rif;
-
-  /*ipc group*/
-  int gamma; /* not currently user settable */
 
   /*advanced group*/
   int df_detect;
   int df_diff;
   int bg_color;
   int dropout_color;
+  int buff_mode;
+  int prepick;
   int lamp_color;
   int sleep_time;
   int duplex_offset;
@@ -354,7 +360,8 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* values which used by the command and data sending functions (scsi/usb)*/
   int fd;                      /* The scanner device file descriptor.     */
-  unsigned char rs_buffer[RS_return_size];
+  /*unsigned char rs_buffer[RS_return_size];*/
+  size_t datLen;
 
   /* --------------------------------------------------------------------- */
   /* values which are used by the get hardware status command              */
@@ -424,16 +431,11 @@ struct fujitsu
 #define DUPLEX_INTERLACE_NONE 0 
 #define DUPLEX_INTERLACE_3091 1 
 
+#define DF_DEFAULT 0
 #define DF_NONE 1
 #define DF_THICKNESS 2
 #define DF_LENGTH 3
 #define DF_BOTH 4
-
-/* these are same as df scsi data to make code easier */
-#define DF_DEFAULT 0
-#define DF_10MM 1
-#define DF_15MM 2
-#define DF_20MM 3
 
 /* ------------------------------------------------------------------------- */
 
@@ -509,27 +511,28 @@ static SANE_Status init_inquire (struct fujitsu *s);
 static SANE_Status init_vpd (struct fujitsu *s);
 static SANE_Status init_ms (struct fujitsu *s);
 static SANE_Status init_model (struct fujitsu *s);
+static SANE_Status init_user (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
 
 static SANE_Status
 do_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 );
 
 static SANE_Status
 do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 );
 
 static SANE_Status
 do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 );
 
 static int wait_scanner (struct fujitsu *s);
@@ -545,6 +548,10 @@ static SANE_Status mode_select_df(struct fujitsu *s);
 static SANE_Status mode_select_dropout(struct fujitsu *s);
 
 static SANE_Status mode_select_bg(struct fujitsu *s);
+
+static SANE_Status mode_select_buff (struct fujitsu *s);
+
+static SANE_Status mode_select_prepick (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 

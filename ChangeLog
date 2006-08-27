@@ -1,3 +1,14 @@
+2006-08-26  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch] backend/fujitsu-scsi.h: update to v1.0.40,
+	  add 5530C usb id, rewrite brightness/contrast/gamma functions,
+	  do_*_cmd functions handle short reads, updated init functions,
+	  add MS buffer and prepick support for newer scanners
+	* doc/descriptions/fujitsu.desc backend/fujitsu.conf.in:
+	  add 5530C usb id, version number update
+	* doc/descriptions/sane-fujitsu.man:
+	  note support for newer scanner models
+
 2006-08-22  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson_usb.c: Add product ID for CX3800/3810, V700/V750
@@ -5,7 +16,7 @@
 2006-06-11 Eddy De Greef <eddy_de_greef at scarlet dot be>
 
 	* doc/sane-mustek_pp.man: URL update.
-        
+
 2006-08-21  Karl Heinz Kremer <khk@khk.net>
 
 	* backend/epson.c: Fix buffer overflow error (submitted by Johannes Meixner)

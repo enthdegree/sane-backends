@@ -219,6 +219,17 @@
          - move mode sense probe errors to DBG 35
       V 1.0.39 2006-07-17, MAN
          - rewrite contrast slope math for readability
+      V 1.0.40 2006-08-26, MAN
+         - rewrite brightness/contrast more like xsane
+         - initial gamma support
+         - add fi-5530 usb id
+         - rewrite do_*_cmd functions to handle short reads
+           and to use ptr to return read in length
+         - new init_user function split from init_model
+         _ init_vpd allows short vpd block for older models
+         - support MS buffer (s.scipioni AT harvardgroup DOT it)
+         - support MS prepick
+         - read only 1 byte of mode sense output
 
    SANE FLOW DIAGRAM
 
@@ -279,7 +290,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 39 
+#define BUILD 40 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -303,6 +314,8 @@ static const char string_Grayscale[] = "Gray";
 static const char string_Color[] = "Color";
 
 static const char string_Default[] = "Default";
+static const char string_On[] = "On";
+static const char string_Off[] = "Off";
 
 static const char string_Red[] = "Red";
 static const char string_Green[] = "Green";
@@ -528,6 +541,9 @@ find_scanners ()
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e1'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
 
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e2'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e2", attach_one_usb);
+
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e7'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
 
@@ -647,13 +663,22 @@ attach_one (const char *device_name, int connType)
 
   /* clean up the scanner struct based on model */
   /* this is the only piece of model specific code */
-  /* sets SANE option 'values' to good defaults */
   ret = init_model (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
     free (s->device_name);
     free (s);
     DBG (5, "attach_one: model failed\n");
+    return ret;
+  }
+
+  /* sets SANE option 'values' to good defaults */
+  ret = init_user (s);
+  if (ret != SANE_STATUS_GOOD) {
+    disconnect_fd(s);
+    free (s->device_name);
+    free (s);
+    DBG (5, "attach_one: user failed\n");
     return ret;
   }
 
@@ -742,10 +767,11 @@ init_inquire (struct fujitsu *s)
   int i;
   SANE_Status ret;
   unsigned char buffer[96];
+  size_t inLen = sizeof(buffer);
 
   DBG (10, "init_inquire: start\n");
 
-  set_IN_return_size (inquiryB.cmd, 96);
+  set_IN_return_size (inquiryB.cmd, inLen);
   set_IN_evpd (inquiryB.cmd, 0);
   set_IN_page_code (inquiryB.cmd, 0);
  
@@ -753,7 +779,7 @@ init_inquire (struct fujitsu *s)
     s, 1, 0, 
     inquiryB.cmd, inquiryB.size,
     NULL, 0,
-    buffer, 96
+    buffer, &inLen
   );
 
   if (ret != SANE_STATUS_GOOD){
@@ -814,7 +840,7 @@ init_inquire (struct fujitsu *s)
 
   DBG (10, "init_inquire: finish\n");
 
-  return 0;
+  return SANE_STATUS_GOOD;
 }
 
 /*
@@ -825,11 +851,12 @@ init_vpd (struct fujitsu *s)
 {
   SANE_Status ret;
   unsigned char buffer[0x68];
+  size_t inLen = sizeof(buffer);
 
   DBG (10, "init_vpd: start\n");
 
   /* get EVPD */
-  set_IN_return_size (inquiryB.cmd, 0x68);
+  set_IN_return_size (inquiryB.cmd, inLen);
   set_IN_evpd (inquiryB.cmd, 1);
   set_IN_page_code (inquiryB.cmd, 0xf0);
 
@@ -837,12 +864,14 @@ init_vpd (struct fujitsu *s)
     s, 1, 0,
     inquiryB.cmd, inquiryB.size,
     NULL, 0,
-    buffer, 0x68
+    buffer, &inLen
   );
 
   /* This scanner supports vital product data.
    * Use this data to set dpi-lists etc. */
-  if (ret == SANE_STATUS_GOOD) {
+  if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+
+      DBG (15, "length=%0x\n",get_IN_page_length (buffer));
 
       DBG (15, "standard options\n");
 
@@ -921,9 +950,11 @@ init_vpd (struct fujitsu *s)
 
       /* maximum window width and length are reported in basic units.*/
       s->max_x_basic = get_IN_window_width(buffer);
+      s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
       DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
 
       s->max_y_basic = get_IN_window_length(buffer);
+      s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
       DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
 
       /* known modes */
@@ -946,7 +977,7 @@ init_vpd (struct fujitsu *s)
       DBG (15, "  color_grayscale: %d\n", s->can_color_grayscale);
 
       /* now we look at vendor specific data */
-      if (get_IN_page_length (buffer) > 0x1C) {
+      if (get_IN_page_length (buffer) >= 0x5f) {
 
           DBG (15, "vendor options\n");
 
@@ -960,6 +991,7 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  imprinter: %d\n", s->has_imprinter);
 
           s->has_duplex = get_IN_duplex(buffer);
+          s->has_back = s->has_duplex;
           DBG (15, "  duplex: %d\n", s->has_duplex);
 
           s->has_transparency = get_IN_transparency(buffer);
@@ -1011,6 +1043,12 @@ init_vpd (struct fujitsu *s)
 
 	  s->num_download_gamma = get_IN_num_gamma_download (buffer);
           DBG (15, "  download gamma patterns: %d\n", s->num_download_gamma);
+
+          /* if scanner supports gamma table download, we always enable it.
+           * use send command and 0x80 in set window data block */
+          if (s->num_download_gamma){
+            s->window_gamma = 0x80;
+          }
 
 	  s->num_internal_dither = get_IN_num_dither_internal (buffer);
           DBG (15, "  built in dither patterns: %d\n", s->num_internal_dither);
@@ -1075,14 +1113,18 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  imprinter max id: %d\n", get_IN_imprinter_max_id(buffer));
           DBG (15, "  imprinter size: %d\n", get_IN_imprinter_size(buffer));
 
-          DBG (15, "  connection type: %d\n", get_IN_connection(buffer));
+          /*not all scanners go this far*/
+          if (get_IN_page_length (buffer) > 0x5f) {
+              DBG (15, "  connection type: %d\n", get_IN_connection(buffer));
+    
+              s->os_x_basic = get_IN_x_overscan_size(buffer);
+              DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
+    
+              s->os_y_basic = get_IN_y_overscan_size(buffer);
+              DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
+          }
 
-          s->os_x_basic = get_IN_x_overscan_size(buffer);
-          DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
-
-          s->os_y_basic = get_IN_y_overscan_size(buffer);
-          DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
-
+          ret = SANE_STATUS_GOOD;
       }
       /*FIXME no vendor vpd, set some defaults? */
       else{
@@ -1108,8 +1150,9 @@ static SANE_Status
 init_ms(struct fujitsu *s) 
 {
   int ret;
-  unsigned char buff[64];
   int oldDbg=DBG_LEVEL;
+  unsigned char buffer[1];
+  size_t inLen = sizeof(buffer);
 
   DBG (10, "init_ms: start\n");
 
@@ -1122,16 +1165,16 @@ init_ms(struct fujitsu *s)
     DBG_LEVEL = 0;
   }
 
-  set_MSEN_xfer_length (mode_senseB.cmd, 64);
+  set_MSEN_xfer_length (mode_senseB.cmd, inLen);
 
   /* prepick */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_prepick);
-  memset(buff,0,64);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_prepick=1;
@@ -1139,12 +1182,13 @@ init_ms(struct fujitsu *s)
 
   /* sleep */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_sleep);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_sleep=1;
@@ -1152,12 +1196,13 @@ init_ms(struct fujitsu *s)
 
   /* duplex */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_duplex);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_duplex=1;
@@ -1165,12 +1210,13 @@ init_ms(struct fujitsu *s)
 
   /* rand */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_rand);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_rand=1;
@@ -1178,12 +1224,13 @@ init_ms(struct fujitsu *s)
 
   /* bg */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_bg);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_bg=1;
@@ -1191,12 +1238,13 @@ init_ms(struct fujitsu *s)
 
   /* df */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_df);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_df=1;
@@ -1204,25 +1252,27 @@ init_ms(struct fujitsu *s)
 
   /* dropout */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_dropout);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_dropout=1;
   }
 
-  /* buff */
+  /* buffer */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_buff);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_buff=1;
@@ -1230,12 +1280,13 @@ init_ms(struct fujitsu *s)
 
   /* auto */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_auto);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_auto=1;
@@ -1243,12 +1294,13 @@ init_ms(struct fujitsu *s)
 
   /* lamp */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_lamp);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_lamp=1;
@@ -1256,12 +1308,13 @@ init_ms(struct fujitsu *s)
 
   /* jobsep */
   set_MSEN_pc(mode_senseB.cmd, MS_pc_jobsep);
-  memset(buff,0,64);
+  inLen = sizeof(buffer);
+  memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
     mode_senseB.cmd, mode_senseB.size,
     NULL, 0,
-    buff, 64
+    buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_jobsep=1;
@@ -1287,9 +1340,8 @@ init_ms(struct fujitsu *s)
 }
 
 /*
- * set model specific info and good default user values 
- * in scanner struct. struct is already initialized to 0,
- * so all the default 0 values dont need touching.
+ * get model specific info that is not in vpd, and correct
+ * errors in vpd data. struct is already initialized to 0.
  */
 static SANE_Status
 init_model (struct fujitsu *s)
@@ -1297,14 +1349,75 @@ init_model (struct fujitsu *s)
 
   DBG (10, "init_model: start\n");
 
-  /* converted to native scanner unit of 1200dpi */
-  /* FIXME: put these elsewhere, make them variable? */
-  s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
-  s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
-  s->min_x=0;
-  s->min_y=0;
 
-  /* give defaults to all the user settings */
+  /* for most scanners these are good defaults */
+  s->color_interlace = COLOR_INTERLACE_BGR;
+
+  s->reverse_by_mode[MODE_LINEART] = 0;
+  s->reverse_by_mode[MODE_HALFTONE] = 0;
+  s->reverse_by_mode[MODE_GRAYSCALE] = 1;
+  s->reverse_by_mode[MODE_COLOR] = 1;
+
+  /* these two scanners lie about their capabilities,
+   * and/or differ significantly from most other models */
+  if (strstr (s->product_name, "M3091")
+   || strstr (s->product_name, "M3092")) {
+
+    /* lies */
+    s->has_rif = 1;
+    s->has_back = 0;
+    s->adbits = 8;
+
+    /* weirdness */
+    s->color_interlace = COLOR_INTERLACE_3091;
+    s->duplex_interlace = DUPLEX_INTERLACE_3091;
+    s->has_SW_dropout = 1;
+    s->window_vid = 0xc0;
+    s->ghs_in_rs = 1;
+    s->window_gamma = 0;
+
+    s->reverse_by_mode[MODE_LINEART] = 1;
+    s->reverse_by_mode[MODE_HALFTONE] = 1;
+    s->reverse_by_mode[MODE_GRAYSCALE] = 0;
+    s->reverse_by_mode[MODE_COLOR] = 0;
+  }
+  else if (strstr (s->product_name, "M309")
+   || strstr (s->product_name, "M409")){
+
+    /* lies */
+    s->adbits = 8;
+
+  }
+  else if (strstr (s->product_name, "fi-4750")
+   || strstr (s->product_name, "fi-4340") ) {
+
+    /* weirdness */
+    s->color_interlace = COLOR_INTERLACE_RRGGBB;
+  
+  }
+  /* some firmware versions use capital f? */
+  else if (strstr (s->product_name, "Fi-5900")
+   || strstr (s->product_name, "fi-5900") ) {
+
+    /* weirdness */
+    s->even_scan_line = 1;
+
+  }
+
+  DBG (10, "init_model: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+/*
+ * set good default user values.
+ * struct is already initialized to 0.
+ */
+static SANE_Status
+init_user (struct fujitsu *s)
+{
+
+  DBG (10, "init_user: start\n");
 
   /* source */
   if(s->has_flatbed)
@@ -1349,107 +1462,10 @@ init_model (struct fujitsu *s)
   /* page height */
   s->page_height = s->br_y;
 
-  /* ------------------------------------------------------ */
-  /* load vars that cannot be gotten from vpd, based on model */
+  /* gamma ramp exponent */
+  s->gamma = 1;
 
-  if (strstr (s->product_name, "M3091")
-   || strstr (s->product_name, "M3092")) {
-
-    s->gamma = 0;
-    s->has_rif=1;
-
-    s->has_back = 0;
-    s->color_interlace = COLOR_INTERLACE_3091;
-    s->duplex_interlace = DUPLEX_INTERLACE_3091;
-    s->even_scan_line = 0;
-    s->has_SW_dropout = 1;
-    s->window_vid = 0xc0;
-    s->ghs_in_rs = 1;
-    s->lut_bits = 8;
-
-    s->reverse_by_mode[MODE_LINEART] = 1;
-    s->reverse_by_mode[MODE_HALFTONE] = 1;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 0;
-    s->reverse_by_mode[MODE_COLOR] = 0;
-  }
-  else if (strstr (s->product_name, "M309")
-   || strstr (s->product_name, "M409")){
-
-    s->gamma = 0;
-  
-    s->has_back = s->has_duplex;
-    s->color_interlace = COLOR_INTERLACE_NONE;
-    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->even_scan_line = 0;
-    s->has_SW_dropout = 0;
-    s->window_vid = 0;
-    s->ghs_in_rs = 0;
-    s->lut_bits = 0;
-  
-    s->reverse_by_mode[MODE_LINEART] = 0;
-    s->reverse_by_mode[MODE_HALFTONE] = 0;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
-    s->reverse_by_mode[MODE_COLOR] = 0;
-  }
-  else if (strstr (s->product_name, "fi-4750")
-   || strstr (s->product_name, "fi-4340") ) {
-
-    s->gamma = 0;
-
-    s->has_back = s->has_duplex;
-    s->color_interlace = COLOR_INTERLACE_RRGGBB;
-    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->even_scan_line = 0;
-    s->has_SW_dropout = 0;
-    s->window_vid = 0;
-    s->ghs_in_rs = 0;
-    s->lut_bits = 10;
-  
-    s->reverse_by_mode[MODE_LINEART] = 0;
-    s->reverse_by_mode[MODE_HALFTONE] = 0;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
-    s->reverse_by_mode[MODE_COLOR] = 1;
-  }
-  /* some firmware versions use capital f? */
-  else if (strstr (s->product_name, "Fi-5900")
-   || strstr (s->product_name, "fi-5900") ) {
-
-    s->gamma = 0;
-
-    s->has_back = s->has_duplex;
-    s->color_interlace = COLOR_INTERLACE_BGR;
-    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->even_scan_line = 1;
-    s->has_SW_dropout = 0;
-    s->window_vid = 0;
-    s->ghs_in_rs = 0;
-    s->lut_bits = 10;
-  
-    s->reverse_by_mode[MODE_LINEART] = 0;
-    s->reverse_by_mode[MODE_HALFTONE] = 0;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
-    s->reverse_by_mode[MODE_COLOR] = 1;
-  }
-  else{
-
-    s->gamma = 0x80;
-
-    s->has_back = s->has_duplex;
-    s->color_interlace = COLOR_INTERLACE_BGR;
-    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->even_scan_line = 0;
-    s->has_SW_dropout = 0;
-    s->window_vid = 0;
-    s->ghs_in_rs = 0;
-    s->lut_bits = 10;
-  
-    s->reverse_by_mode[MODE_LINEART] = 0;
-    s->reverse_by_mode[MODE_HALFTONE] = 0;
-    s->reverse_by_mode[MODE_GRAYSCALE] = 1;
-    s->reverse_by_mode[MODE_COLOR] = 1;
-  }
-
-  DBG (10, "init_model: finish\n");
+  DBG (10, "init_user: finish\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -1935,21 +1951,75 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->brightness_range;
     s->brightness_range.quant=1;
 
+    /* scanner has brightness via LUT or GT */
+    /* value ranges from -100 to +100 */
+    if (s->num_download_gamma){
+      s->brightness_range.min=-100;
+      s->brightness_range.max=100;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
     /* scanner has brightness built-in */
     /* value ranges from 0-255 (usually) */
-    if (s->brightness_steps){
+    else if (s->brightness_steps){
       s->brightness_range.min=0;
       s->brightness_range.max=s->brightness_steps;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    /* scanner has brightness via LUT */
-    /* value ranges from -127 to +127 */
-    else if (s->lut_bits){
-      s->brightness_range.min=-127;
-      s->brightness_range.max=127;
+    else{
+      opt->cap = SANE_CAP_INACTIVE;
+    }
+  }
+
+  /* contrast */
+  if(option==OPT_CONTRAST){
+    opt->name = SANE_NAME_CONTRAST;
+    opt->title = SANE_TITLE_CONTRAST;
+    opt->desc = SANE_DESC_CONTRAST;
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->contrast_range;
+    s->contrast_range.quant=1;
+
+    /* scanner has contrast via LUT or GT */
+    /* value ranges from -100 to +100 */
+    if (s->num_download_gamma){
+      s->contrast_range.min=-100;
+      s->contrast_range.max=100;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    else{
+    /* scanner has contrast built-in */
+    /* value ranges from 0-255 (usually) */
+    else if (s->contrast_steps) {
+      s->contrast_range.min=0;
+      s->contrast_range.max=s->contrast_steps;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    } 
+    else {
+      opt->cap = SANE_CAP_INACTIVE;
+    }
+  }
+
+  /* gamma */
+  if(option==OPT_GAMMA){
+    opt->name = "gamma";
+    opt->title = "Gamma function exponent";
+    opt->desc = "Changes intensity of midtones";
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->gamma_range;
+
+    /* value ranges from .3 to 5, should be log scale? */
+    s->gamma_range.quant=SANE_FIX(0.01);
+    s->gamma_range.min=SANE_FIX(0.3);
+    s->gamma_range.max=SANE_FIX(5);
+
+    /* scanner has gamma via LUT or GT */
+    if (s->num_download_gamma){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+    else {
       opt->cap = SANE_CAP_INACTIVE;
     }
   }
@@ -1969,36 +2039,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     if (s->threshold_steps && s->mode == MODE_LINEART) {
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     } 
-    else {
-      opt->cap = SANE_CAP_INACTIVE;
-    }
-  }
-
-  /* contrast */
-  if(option==OPT_CONTRAST){
-    opt->name = SANE_NAME_CONTRAST;
-    opt->title = SANE_TITLE_CONTRAST;
-    opt->desc = SANE_DESC_CONTRAST;
-    opt->type = SANE_TYPE_INT;
-    opt->unit = SANE_UNIT_NONE;
-    opt->constraint_type = SANE_CONSTRAINT_RANGE;
-    opt->constraint.range = &s->contrast_range;
-    s->contrast_range.quant=1;
-
-    /* scanner has contrast built-in */
-    /* value ranges from 0-255 (usually) */
-    if (s->contrast_steps) {
-      s->contrast_range.min=0;
-      s->contrast_range.max=s->contrast_steps;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    } 
-    /* scanner has contrast via LUT */
-    /* value ranges from -127 to +127 */
-    else if (s->lut_bits){
-      s->contrast_range.min=-127;
-      s->contrast_range.max=127;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }
     else {
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -2104,6 +2144,46 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->do_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
     if ((s->has_MS_dropout || s->has_SW_dropout) && s->mode != MODE_COLOR)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*buffer mode*/
+  if(option==OPT_BUFF_MODE){
+    s->buff_mode_list[0] = string_Default;
+    s->buff_mode_list[1] = string_Off;
+    s->buff_mode_list[2] = string_On;
+    s->buff_mode_list[3] = NULL;
+  
+    opt->name = "buffermode";
+    opt->title = "Buffer mode";
+    opt->desc = "Request scanner to read pages quickly from ADF into internal memory";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->buff_mode_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_buff)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*prepick*/
+  if(option==OPT_PREPICK){
+    s->prepick_list[0] = string_Default;
+    s->prepick_list[1] = string_Off;
+    s->prepick_list[2] = string_On;
+    s->prepick_list[3] = NULL;
+  
+    opt->name = "prepick";
+    opt->title = "Prepick";
+    opt->desc = "Request scanner to grab next page from ADF";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->prepick_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_prepick)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -2575,12 +2655,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->brightness;
           return SANE_STATUS_GOOD;
 
-        case OPT_THRESHOLD:
-          *val_p = s->threshold;
-          return SANE_STATUS_GOOD;
-
         case OPT_CONTRAST:
           *val_p = s->contrast;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA:
+          *val_p = SANE_FIX(s->gamma);
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD:
+          *val_p = s->threshold;
           return SANE_STATUS_GOOD;
 
         case OPT_RIF:
@@ -2610,16 +2694,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_DF_DIFF:
           switch (s->df_diff) {
-            case DF_DEFAULT:
+            case MSEL_df_diff_DEFAULT:
               strcpy (val, string_Default);
               break;
-            case DF_10MM:
+            case MSEL_df_diff_10MM:
               strcpy (val, string_10mm);
               break;
-            case DF_15MM:
+            case MSEL_df_diff_15MM:
               strcpy (val, string_15mm);
               break;
-            case DF_20MM:
+            case MSEL_df_diff_20MM:
               strcpy (val, string_20mm);
               break;
           }
@@ -2652,6 +2736,34 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               break;
             case COLOR_BLUE:
               strcpy (val, string_Blue);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_BUFF_MODE:
+          switch (s->buff_mode) {
+            case MSEL_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case MSEL_ON:
+              strcpy (val, string_On);
+              break;
+            case MSEL_OFF:
+              strcpy (val, string_Off);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_PREPICK:
+          switch (s->prepick) {
+            case MSEL_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case MSEL_ON:
+              strcpy (val, string_On);
+              break;
+            case MSEL_OFF:
+              strcpy (val, string_Off);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -2941,12 +3053,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->brightness = val_c;
           return SANE_STATUS_GOOD;
 
-        case OPT_THRESHOLD:
-          s->threshold = val_c;
-          return SANE_STATUS_GOOD;
-
         case OPT_CONTRAST:
           s->contrast = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA:
+          s->gamma = SANE_UNFIX(val_c);
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD:
+          s->threshold = val_c;
           return SANE_STATUS_GOOD;
 
         case OPT_RIF:
@@ -2969,13 +3085,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_DF_DIFF:
           if (!strcmp(val, string_Default))
-            s->df_diff = DF_DEFAULT;
+            s->df_diff = MSEL_df_diff_DEFAULT;
           else if (!strcmp(val, string_10mm))
-            s->df_diff = DF_10MM;
+            s->df_diff = MSEL_df_diff_10MM;
           else if (!strcmp(val, string_15mm))
-            s->df_diff = DF_15MM;
+            s->df_diff = MSEL_df_diff_15MM;
           else if (!strcmp(val, string_20mm))
-            s->df_diff = DF_20MM;
+            s->df_diff = MSEL_df_diff_20MM;
           return mode_select_df(s);
 
         case OPT_BG_COLOR:
@@ -2998,6 +3114,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color = COLOR_BLUE;
           if (s->has_MS_dropout)
             return mode_select_dropout(s);
+          else
+            return SANE_STATUS_GOOD;
+
+        case OPT_BUFF_MODE:
+          if (!strcmp(val, string_Default))
+            s->buff_mode = MSEL_DEFAULT;
+          else if (!strcmp(val, string_On))
+            s->buff_mode= MSEL_ON;
+          else if (!strcmp(val, string_Off))
+            s->buff_mode= MSEL_OFF;
+          if (s->has_MS_buff)
+            return mode_select_buff(s);
+          else
+            return SANE_STATUS_GOOD;
+
+        case OPT_PREPICK:
+          if (!strcmp(val, string_Default))
+            s->prepick = MSEL_DEFAULT;
+          else if (!strcmp(val, string_On))
+            s->prepick= MSEL_ON;
+          else if (!strcmp(val, string_Off))
+            s->prepick= MSEL_OFF;
+          if (s->has_MS_buff)
+            return mode_select_prepick(s);
           else
             return SANE_STATUS_GOOD;
 
@@ -3042,7 +3182,7 @@ set_sleep_mode(struct fujitsu *s)
     s, 1, 0,
     mode_selectB.cmd, mode_selectB.size,
     mode_select_8byteB.cmd, mode_select_8byteB.size,
-    NULL, 0
+    NULL, NULL
   );
 
   DBG (10, "set_sleep_mode: finish\n");
@@ -3064,16 +3204,17 @@ get_hardware_status (struct fujitsu *s)
 
       if (s->has_cmd_hw_status){
           unsigned char buffer[10];
+          size_t inLen = sizeof(buffer);
 
           DBG (15, "get_hardware_status: calling ghs\n");
   
-          set_HW_allocation_length (hw_statusB.cmd, 10);
+          set_HW_allocation_length (hw_statusB.cmd, inLen);
         
           ret = do_cmd (
             s, 1, 0,
             hw_statusB.cmd, hw_statusB.size,
             NULL, 0,
-            buffer, 10
+            buffer, &inLen
           );
         
           if (ret == SANE_STATUS_GOOD) {
@@ -3112,6 +3253,7 @@ get_hardware_status (struct fujitsu *s)
       /* 3091/2 put hardware status in RS data */
       else if (s->ghs_in_rs){
           unsigned char buffer[RS_return_size];
+          size_t inLen = sizeof(buffer);
           
           DBG(15,"get_hardware_status: calling rs\n");
 
@@ -3119,7 +3261,7 @@ get_hardware_status (struct fujitsu *s)
             s,0,0,
             request_senseB.cmd, request_senseB.size,
             NULL,0,
-            buffer,RS_return_size
+            buffer, &inLen
           );
     
           /* parse the rs data */
@@ -3150,7 +3292,7 @@ get_hardware_status (struct fujitsu *s)
 /* instead of internal brightness/contrast/gamma
    most scanners use a 256x256 or 1024x256 LUT
    default is linear table of slope 1 or 1/4 resp.
-   brightness and contrast inputs are -127 to +127 
+   brightness and contrast inputs are -100 to +100 
 
    contrast rotates slope of line around central input val
 
@@ -3175,19 +3317,19 @@ get_hardware_status (struct fujitsu *s)
 static SANE_Status
 send_lut (struct fujitsu *s)
 {
-  int i, j, ret, bytes = 1 << s->lut_bits;
+  int i, j, ret, bytes = 1 << s->adbits;
   unsigned char * p = send_lutC+S_lut_data_offset;
   double b, slope, offset;
 
   DBG (10, "send_lut: start\n");
 
-  /* contrast is converted to a slope [0,~90] degrees:
-   * first [-127,127] to [0,254] then to [0,0.996]
+  /* contrast is converted to a slope [0,90] degrees:
+   * first [-100,100] to [0,200] then to [0,1]
    * then multiply by PI/2 to convert to radians
    * then take the tangent to get slope (T.O.A)
    * then multiply by the normal linear slope 
    * because the table may not be square, i.e. 1024x256*/
-  slope = tan(((double)s->contrast+127)/255 * M_PI/2) * 256/bytes;
+  slope = tan(((double)s->contrast+100)/200 * M_PI/2) * 256/bytes;
 
   /* contrast slope must stay centered, so figure
    * out vertical offset at central input value */
@@ -3228,7 +3370,7 @@ send_lut (struct fujitsu *s)
       s, 1, 0,
       sendB.cmd, sendB.size,
       send_lutC, S_lut_data_offset+bytes,
-      NULL, 0
+      NULL, NULL
   );
 
   DBG (10, "send_lut: finish\n");
@@ -3291,7 +3433,7 @@ mode_select_df (struct fujitsu *s)
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
       mode_select_8byteB.cmd, mode_select_8byteB.size,
-      NULL, 0
+      NULL, NULL
   );
 
   DBG (10, "mode_select_df: finish\n");
@@ -3335,7 +3477,7 @@ mode_select_bg (struct fujitsu *s)
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
       mode_select_8byteB.cmd, mode_select_8byteB.size,
-      NULL, 0
+      NULL, NULL
   );
 
   DBG (10, "mode_select_bg: finish\n");
@@ -3359,10 +3501,56 @@ mode_select_dropout (struct fujitsu *s)
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
       mode_select_10byteB.cmd, mode_select_10byteB.size,
-      NULL, 0
+      NULL, NULL
   );
 
   DBG (10, "mode_select_dropout: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+mode_select_buff (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "mode_select_buff: start\n");
+
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_buff);
+  set_MSEL_buff_mode(mode_select_8byteB.cmd, s->buff_mode);
+  
+  ret = do_cmd (
+      s, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      NULL, NULL
+  );
+
+  DBG (10, "mode_select_buff: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+mode_select_prepick (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "mode_select_prepick: start\n");
+
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_prepick);
+  set_MSEL_prepick(mode_select_8byteB.cmd, s->prepick);
+  
+  ret = do_cmd (
+      s, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      NULL, NULL
+  );
+
+  DBG (10, "mode_select_prepick: finish\n");
 
   return ret;
 }
@@ -3567,7 +3755,7 @@ sane_start (SANE_Handle handle)
       }
     
       /* send lut if scanner has no contrast option */
-      if(!s->contrast_steps && s->lut_bits){
+      if(!s->contrast_steps && s->adbits){
         ret = send_lut(s);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot send lut\n");
@@ -3705,7 +3893,7 @@ scanner_control (struct fujitsu *s, int function)
         s, 1, 0,
         scanner_controlB.cmd, scanner_controlB.size,
         NULL, 0,
-        NULL, 0
+        NULL, NULL
       );
 
       if(ret == SANE_STATUS_GOOD){
@@ -3902,7 +4090,8 @@ set_window (struct fujitsu *s)
   set_WD_rif (window_descriptor_blockB.cmd, s->rif);
 
   set_WD_vendor_id_code (window_descriptor_blockB.cmd, s->window_vid);
-  set_WD_gamma (window_descriptor_blockB.cmd, s->gamma);
+
+  set_WD_gamma (window_descriptor_blockB.cmd, s->window_gamma);
 
   if(s->source == SOURCE_FLATBED){
     set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_UNDEFINED);
@@ -3946,7 +4135,7 @@ set_window (struct fujitsu *s)
     s, 1, 0,
     set_windowB.cmd, set_windowB.size,
     buffer, bufferLen,
-    NULL, 0
+    NULL, NULL
   );
 
   DBG (10, "set_window: finish\n");
@@ -3981,7 +4170,7 @@ object_position (struct fujitsu *s, int i_load)
     s, 1, 0,
     object_positionB.cmd, object_positionB.size,
     NULL, 0,
-    NULL, 0
+    NULL, NULL
   );
   if (ret != SANE_STATUS_GOOD)
     return ret;
@@ -4024,7 +4213,7 @@ start_scan (struct fujitsu *s)
     s, 1, 0,
     scanB.cmd, scanB.size,
     outBuff, outLen,
-    NULL, 0
+    NULL, NULL
   );
 
   DBG (10, "start_scan: finish\n");
@@ -4129,8 +4318,9 @@ read_from_3091duplex(struct fujitsu *s)
   int bytes = s->buffer_size;
   int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT]) + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
   int off = (s->duplex_raster_offset+s->duplex_offset) * s->resolution_y/300;
-  int len, i;
+  unsigned int i;
   unsigned char * buf;
+  size_t inLen = 0;
 
   DBG (10, "read_from_3091duplex: start\n");
 
@@ -4158,6 +4348,8 @@ read_from_3091duplex(struct fujitsu *s)
     return ret;
   }
 
+  inLen = bytes;
+
   buf = malloc(bytes);
   if(!buf){
     DBG(5, "read_from_3091duplex: not enough mem for buffer: %d\n",bytes);
@@ -4172,31 +4364,25 @@ read_from_3091duplex(struct fujitsu *s)
     s, 1, 0,
     readB.cmd, readB.size,
     NULL, 0,
-    buf, bytes
+    buf, &inLen
   );
 
-  if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_3091duplex: got GOOD\n");
-    len = bytes;
-  }
-  /* FIXME get the real number of bytes */
-  else if (ret == SANE_STATUS_EOF) {
-    DBG(5, "read_from_3091duplex: got EOF, changing to GOOD\n");
-    len = bytes;
+  if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+    DBG(15, "read_from_3091duplex: got GOOD/EOF, returning GOOD\n");
     ret = SANE_STATUS_GOOD;
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
-    DBG(5, "read_from_3091duplex: got BUSY, changing to GOOD\n");
-    len = 0;
+    DBG(5, "read_from_3091duplex: got BUSY, returning GOOD\n");
+    inLen = 0;
     ret = SANE_STATUS_GOOD;
   }
   else {
     DBG(5, "read_from_3091duplex: error reading data block status = %d\n", ret);
-    len = 0;
+    inLen = 0;
   }
 
   /* loop thru all lines in read buffer */
-  for(i=0;i<len/s->params.bytes_per_line;i++){
+  for(i=0;i<inLen/s->params.bytes_per_line;i++){
 
       /* start is front */
       if(s->lines_rx[SIDE_FRONT] < off){
@@ -4240,7 +4426,7 @@ read_from_scanner(struct fujitsu *s, int side)
   int bytes = s->buffer_size;
   int remain = s->bytes_tot[side] - s->bytes_rx[side];
   unsigned char * buf;
-  int len;
+  size_t inLen = 0;
 
   DBG (10, "read_from_scanner: start\n");
 
@@ -4265,6 +4451,8 @@ read_from_scanner(struct fujitsu *s, int side)
     return ret;
   }
 
+  inLen = bytes;
+
   buf = malloc(bytes);
   if(!buf){
     DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",bytes);
@@ -4286,35 +4474,29 @@ read_from_scanner(struct fujitsu *s, int side)
     s, 1, 0,
     readB.cmd, readB.size,
     NULL, 0,
-    buf, bytes
+    buf, &inLen
   );
 
-  if (ret == SANE_STATUS_GOOD) {
-    DBG(15, "read_from_scanner: got GOOD\n");
-    len = bytes;
-  }
-  /* FIXME get the real number of bytes */
-  else if (ret == SANE_STATUS_EOF) {
-    DBG(5, "read_from_scanner: got EOF, changing to GOOD\n");
-    len = bytes;
+  if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+    DBG(15, "read_from_scanner: got GOOD/EOF, returning GOOD\n");
     ret = SANE_STATUS_GOOD;
   }
   else if (ret == SANE_STATUS_DEVICE_BUSY) {
-    DBG(5, "read_from_scanner: got BUSY, changing to GOOD\n");
-    len = 0;
+    DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
+    inLen = 0;
     ret = SANE_STATUS_GOOD;
   }
   else {
     DBG(5, "read_from_scanner: error reading data block status = %d\n", ret);
-    len = 0;
+    inLen = 0;
   }
 
-  if(len){
+  if(inLen){
     if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-      copy_3091 (s, buf, len, side);
+      copy_3091 (s, buf, inLen, side);
     }
     else{
-      copy_buffer (s, buf, len, side);
+      copy_buffer (s, buf, inLen, side);
     }
   }
 
@@ -4644,8 +4826,9 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   fd = fd;
 
   /* copy the rs return data into the scanner struct
-     so that the caller can use it if he wants */
+     so that the caller can use it if he wants
   memcpy(&s->rs_buffer,sensed_data,RS_return_size);
+  */
 
   DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08x\n", sense, asc, ascq, eom, ili, info);
 
@@ -4664,7 +4847,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         return SANE_STATUS_IO_ERROR;
       }
       if (get_RS_EOM (sensed_data)) {
-        /*s->i_transfer_length = get_RS_information (sensed_data);*/
+        /*s->datLen = get_RS_information (sensed_data);*/
         DBG  (5, "No sense: EOM\n");
         return SANE_STATUS_EOF;
       }
@@ -4873,27 +5056,27 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
 
 /*
  * take a bunch of pointers, send commands to scanner
- * if the status byte/rs data says 'busy' then we try again
- * we also dump lots of debug info to stderr
  */
 static SANE_Status
 do_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 )
 {
     if (s->connection == CONNECTION_SCSI) {
         return do_scsi_cmd(s, runRS, shortTime,
                  cmdBuff, cmdLen,
                  outBuff, outLen,
-                 inBuff, inLen);
+                 inBuff, inLen
+        );
     }
     if (s->connection == CONNECTION_USB) {
         return do_usb_cmd(s, runRS, shortTime,
                  cmdBuff, cmdLen,
                  outBuff, outLen,
-                 inBuff, inLen);
+                 inBuff, inLen
+        );
     }
     return SANE_STATUS_INVAL;
 }
@@ -4902,11 +5085,10 @@ SANE_Status
 do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 )
 {
   int ret;
-  size_t actLen = inLen;
 
   /*shut up compiler*/
   runRS=runRS;
@@ -4922,59 +5104,51 @@ do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
     hexdump(30, "out: >>", outBuff, outLen);
   }
   if (inBuff && inLen){
-    DBG(25, "in: reading %d bytes\n", (int)inLen);
-    memset(inBuff,0,inLen);
+    DBG(25, "in: reading %d bytes\n", (int)*inLen);
+    memset(inBuff,0,*inLen);
   }
 
-  ret = sanei_scsi_cmd2 (s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, &actLen);
+  ret = sanei_scsi_cmd2 (s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);
 
-  if(ret != SANE_STATUS_GOOD){
+  if(ret != SANE_STATUS_GOOD && ret != SANE_STATUS_EOF){
     DBG(5,"do_scsi_cmd: return '%s'\n",sane_strstatus(ret));
     return ret;
   }
 
   if (inBuff && inLen){
-    hexdump(30, "in: <<", inBuff, actLen);
-    DBG(25, "in: read %d bytes\n", (int)actLen);
-    if (inLen != actLen) {
-      DBG(5,"in: wrong size %d/%d\n", (int)inLen, (int)actLen);
-      return SANE_STATUS_IO_ERROR;
-    }
+    hexdump(30, "in: <<", inBuff, *inLen);
+    DBG(25, "in: read %d bytes\n", (int)*inLen);
   }
-
-  /* FIXME: what about 0 length reads?
-  if(ret == SANE_STATUS_EOF){
-    ret = SANE_STATUS_DEVICE_BUSY;
-  }*/
 
   DBG(10, "do_scsi_cmd: finish\n");
 
-  return SANE_STATUS_GOOD;
+  return ret;
 }
 
 SANE_Status
 do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
- unsigned char * inBuff, size_t inLen
+ unsigned char * inBuff, size_t * inLen
 )
 {
-    unsigned char usb_cmdBuff[USB_COMMAND_LEN];
-    unsigned char usb_statBuff[USB_STATUS_LEN];
-    unsigned char rsBuff[RS_return_size];
+    /*sanei_usb overwrites the transfer size,
+     * so make some local copies */
     size_t usb_cmdLen = USB_COMMAND_LEN;
     size_t usb_outLen = outLen;
-    size_t usb_inLen = inLen;
     size_t usb_statLen = USB_STATUS_LEN;
-    int cmdRetVal = 0;
-    int outRetVal = 0;
-    int inRetVal = 0;
-    int statRetVal = 0;
-    int rsRetVal = 0;
+
+    /*copy the callers buffs into larger, padded ones*/
+    unsigned char usb_cmdBuff[USB_COMMAND_LEN];
+    unsigned char usb_statBuff[USB_STATUS_LEN];
+
     int cmdTime = USB_COMMAND_TIME;
     int outTime = USB_DATA_TIME;
     int inTime = USB_DATA_TIME;
     int statTime = USB_STATUS_TIME;
+
+    int ret = 0;
+    int ret2 = 0;
 
     DBG (10, "do_usb_cmd: start\n");
 
@@ -4996,12 +5170,12 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     /* write the command out */
     DBG(25, "cmd: writing %d bytes, timeout %d\n", USB_COMMAND_LEN, cmdTime);
     hexdump(30, "cmd: >>", usb_cmdBuff, USB_COMMAND_LEN);
-    cmdRetVal = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
-    DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, cmdRetVal);
+    ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
+    DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, ret);
 
-    if(cmdRetVal != SANE_STATUS_GOOD){
-        DBG(5,"cmd: return error '%s'\n",sane_strstatus(cmdRetVal));
-        return cmdRetVal;
+    if(ret != SANE_STATUS_GOOD){
+        DBG(5,"cmd: return error '%s'\n",sane_strstatus(ret));
+        return ret;
     }
     if(usb_cmdLen != USB_COMMAND_LEN){
         DBG(5,"cmd: wrong size %d/%d\n", USB_COMMAND_LEN, (int)usb_cmdLen);
@@ -5016,12 +5190,12 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
         DBG(25, "out: writing %d bytes, timeout %d\n", (int)outLen, outTime);
         hexdump(30, "out: >>", outBuff, outLen);
-        outRetVal = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
-        DBG(25, "out: wrote %d bytes, retVal %d\n", (int)usb_outLen, outRetVal);
+        ret = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
+        DBG(25, "out: wrote %d bytes, retVal %d\n", (int)usb_outLen, ret);
 
-        if(outRetVal != SANE_STATUS_GOOD){
-            DBG(5,"out: return error '%s'\n",sane_strstatus(outRetVal));
-            return outRetVal;
+        if(ret != SANE_STATUS_GOOD){
+            DBG(5,"out: return error '%s'\n",sane_strstatus(ret));
+            return ret;
         }
         if(usb_outLen != outLen){
             DBG(5,"out: wrong size %d/%d\n", (int)outLen, (int)usb_outLen);
@@ -5031,29 +5205,35 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
     /* this command has a read component, and a place to put it */
     if(inBuff && inLen && inTime){
+        size_t askLen = *inLen;
 
-        memset(inBuff,0,inLen);
+        memset(inBuff,0,*inLen);
 
         /* change timeout */
         sanei_usb_set_timeout(inTime);
 
-        DBG(25, "in: reading %d bytes, timeout %d\n", (int)inLen, inTime);
-        inRetVal = sanei_usb_read_bulk(s->fd, inBuff, &usb_inLen);
-        DBG(25, "in: retVal %d\n", inRetVal);
+        DBG(25, "in: reading %d bytes, timeout %d\n", (int)*inLen, inTime);
+        ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
+        DBG(25, "in: retVal %d\n", ret);
 
-        if(inRetVal != SANE_STATUS_GOOD){
-            DBG(5,"in: return error '%s'\n",sane_strstatus(inRetVal));
-            return inRetVal;
+        /* sanei returns EOF on 0 len reads */
+        if(ret != SANE_STATUS_GOOD && ret != SANE_STATUS_EOF){
+            DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
+            return ret;
         }
 
-        hexdump(30, "in: <<", inBuff, usb_inLen);
-        DBG(25, "in: read %d bytes\n", (int)usb_inLen);
+        DBG(25, "in: read %d bytes\n", (int)*inLen);
+        if(*inLen){
+            hexdump(30, "in: <<", inBuff, *inLen);
+        }
 
-        if(usb_inLen != inLen){
-            DBG(5,"in: wrong size %d/%d\n", (int)inLen, (int)usb_inLen);
-            return SANE_STATUS_IO_ERROR;
+        if(*inLen != askLen){
+            ret = SANE_STATUS_EOF;
+            DBG(5,"in: short read, %d/%d\n",(int)*inLen,(int)askLen);
         }
     }
+
+    /*gather the scsi status byte. use ret2 instead of ret for status*/
 
     memset(&usb_statBuff,0,USB_STATUS_LEN);
 
@@ -5061,13 +5241,13 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     sanei_usb_set_timeout(statTime);
 
     DBG(25, "stat: reading %d bytes, timeout %d\n", USB_STATUS_LEN, statTime);
-    statRetVal = sanei_usb_read_bulk(s->fd, usb_statBuff, &usb_statLen);
+    ret2 = sanei_usb_read_bulk(s->fd, usb_statBuff, &usb_statLen);
     hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
-    DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, statRetVal);
+    DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, ret2);
 
-    if(statRetVal != SANE_STATUS_GOOD){
-        DBG(5,"stat: return error '%s'\n",sane_strstatus(statRetVal));
-        return statRetVal;
+    if(ret2 != SANE_STATUS_GOOD){
+        DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
+        return ret2;
     }
     if(usb_statLen != USB_STATUS_LEN){
         DBG(5,"stat: wrong size %d/%d\n", USB_STATUS_LEN, (int)usb_statLen);
@@ -5082,24 +5262,25 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
     /* if there is a non-busy status >0, try to figure out why */
     if(usb_statBuff[USB_STATUS_OFFSET] > 0){
-
       DBG(25,"stat: value %d\n", usb_statBuff[USB_STATUS_OFFSET]);
 
       /* caller is interested in having RS run on errors */
       if(runRS){
+        unsigned char rsBuff[RS_return_size];
+        size_t rs_datLen = RS_return_size;
   
         DBG(25,"rs sub call >>\n");
-        rsRetVal = do_cmd(
+        ret2 = do_cmd(
           s,0,0,
           request_senseB.cmd, request_senseB.size,
           NULL,0,
-          rsBuff,RS_return_size
+          rsBuff, &rs_datLen
         );
         DBG(25,"rs sub call <<\n");
   
-        if(rsRetVal != SANE_STATUS_GOOD){
-          DBG(5,"rs: return error '%s'\n",sane_strstatus(rsRetVal));
-          return rsRetVal;
+        if(ret2 != SANE_STATUS_GOOD){
+          DBG(5,"rs: return error '%s'\n",sane_strstatus(ret2));
+          return ret2;
         }
 
         /* parse the rs data */
@@ -5113,7 +5294,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
     DBG (10, "do_usb_cmd: finish\n");
 
-    return SANE_STATUS_GOOD;
+    return ret;
 }
 
 static int
@@ -5127,7 +5308,7 @@ wait_scanner(struct fujitsu *s)
     s, 0, 1,
     test_unit_readyB.cmd, test_unit_readyB.size,
     NULL, 0,
-    NULL, 0
+    NULL, NULL
   );
   
   if (ret != SANE_STATUS_GOOD) {
@@ -5136,7 +5317,7 @@ wait_scanner(struct fujitsu *s)
       s, 0, 1,
       test_unit_readyB.cmd, test_unit_readyB.size,
       NULL, 0,
-      NULL, 0
+      NULL, NULL
     );
   }
   if (ret != SANE_STATUS_GOOD) {
@@ -5145,7 +5326,7 @@ wait_scanner(struct fujitsu *s)
       s, 0, 1,
       test_unit_readyB.cmd, test_unit_readyB.size,
       NULL, 0,
-      NULL, 0
+      NULL, NULL
     );
   }
 

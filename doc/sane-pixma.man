@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "1 July 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "26 August 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -12,17 +12,17 @@ Currently, the following models work with this backend:
 .RS
 PIXMA MP150, PIXMA MP170, PIXMA MP450, PIXMA MP500
 .br
-PIXMA MP800, PIXMA MP830,
+PIXMA MP530, PIXMA MP800, PIXMA MP800R, PIXMA MP830,
 .br
-MultiPASS MP700 (no grayscale), PIXMA MP750 (no grayscale)
+MultiPASS MP700, PIXMA MP750 (no grayscale)
 .RE
 .PP
-The following model are marked as experimental because they are not well
+The following models are marked as experimental because they are not well
 tested and/or the scanner sometimes hangs and must be switched off and on.
 Therefore they are disabled by default. (See PIXMA_EXPERIMENT below)
 .PP
 .RS
-MultiPASS MP730, PIXMA MP760, PIXMA MP780
+SmartBase MP360, MultiPASS MP730, PIXMA MP760, PIXMA MP780
 .RE
 .PP
 The backend supports
@@ -92,7 +92,7 @@ variable controls the debug level for this backend. Higher value increases
 the verbosity.
 .PP
 .RS
-0  print nothing
+0  print nothing (default)
 .br
 1  print error and warning messages (recommended)
 .br

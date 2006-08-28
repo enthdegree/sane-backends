@@ -1,3 +1,11 @@
+2006-08-28  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c backend/fujitsu-scsi.h: update to v1.0.41,
+	  do_usb_cmd() returns io error on cmd/out/status/rs EOF,
+	  fix bug in MS buffer/prepick scsi data block
+	* doc/descriptions/fujitsu.desc:
+	  version number update
+
 2006-08-28  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: changes in gl646_init_regs_for_warmup

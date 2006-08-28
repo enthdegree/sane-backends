@@ -230,6 +230,9 @@
          - support MS buffer (s.scipioni AT harvardgroup DOT it)
          - support MS prepick
          - read only 1 byte of mode sense output
+      V 1.0.41 2006-08-28, MAN
+         - do_usb_cmd() returns io error on cmd/out/status/rs EOF
+         - fix bug in MS buffer/prepick scsi data block
 
    SANE FLOW DIAGRAM
 
@@ -290,7 +293,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 40 
+#define BUILD 41 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5173,6 +5176,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
     DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, ret);
 
+    if(ret == SANE_STATUS_EOF){
+        DBG(5,"cmd: got EOF, returning IO_ERROR\n");
+        return SANE_STATUS_IO_ERROR;
+    }
     if(ret != SANE_STATUS_GOOD){
         DBG(5,"cmd: return error '%s'\n",sane_strstatus(ret));
         return ret;
@@ -5193,6 +5200,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         ret = sanei_usb_write_bulk(s->fd, outBuff, &usb_outLen);
         DBG(25, "out: wrote %d bytes, retVal %d\n", (int)usb_outLen, ret);
 
+        if(ret == SANE_STATUS_EOF){
+            DBG(5,"out: got EOF, returning IO_ERROR\n");
+            return SANE_STATUS_IO_ERROR;
+        }
         if(ret != SANE_STATUS_GOOD){
             DBG(5,"out: return error '%s'\n",sane_strstatus(ret));
             return ret;
@@ -5216,8 +5227,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
         DBG(25, "in: retVal %d\n", ret);
 
-        /* sanei returns EOF on 0 len reads */
-        if(ret != SANE_STATUS_GOOD && ret != SANE_STATUS_EOF){
+        if(ret == SANE_STATUS_EOF){
+            DBG(5,"in: got EOF, continuing\n");
+        }
+        else if(ret != SANE_STATUS_GOOD){
             DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
             return ret;
         }
@@ -5245,6 +5258,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     hexdump(30, "stat: <<", usb_statBuff, usb_statLen);
     DBG(25, "stat: read %d bytes, retVal %d\n", (int)usb_statLen, ret2);
 
+    if(ret2 == SANE_STATUS_EOF){
+        DBG(5,"stat: got EOF, returning IO_ERROR\n");
+        return SANE_STATUS_IO_ERROR;
+    }
     if(ret2 != SANE_STATUS_GOOD){
         DBG(5,"stat: return error '%s'\n",sane_strstatus(ret2));
         return ret2;
@@ -5278,6 +5295,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         );
         DBG(25,"rs sub call <<\n");
   
+        if(ret2 == SANE_STATUS_EOF){
+          DBG(5,"rs: got EOF, returning IO_ERROR\n");
+          return SANE_STATUS_IO_ERROR;
+        }
         if(ret2 != SANE_STATUS_GOOD){
           DBG(5,"rs: return error '%s'\n",sane_strstatus(ret2));
           return ret2;

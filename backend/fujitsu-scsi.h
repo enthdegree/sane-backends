@@ -489,9 +489,9 @@ static scsiblk mode_select_10byteB = {
 #define MSEL_dropout_BLUE    11
 #define MSEL_dropout_CUSTOM  12
 
-#define set_MSEL_buff_mode(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
+#define set_MSEL_buff_mode(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
 
-#define set_MSEL_prepick(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
+#define set_MSEL_prepick(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
 
 /*buffer and prepick use these*/
 #define MSEL_DEFAULT 0

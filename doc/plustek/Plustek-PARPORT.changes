@@ -80,7 +80,7 @@ Version 0.37 11/09/2000
     2.0 Added file procfs.c for proc-filesystem support
     3.0 Code cleanup
     4.0 Added A3I support
-    5.0 Added Michael´s backend patches
+    5.0 Added Michaels backend patches
 
 Version 0.38 11/30/2000
     1.0 Started integration of ASIC98003 specific stuff
@@ -163,3 +163,9 @@ Version 0.43-10 02/16/2006
 
 Version 0.43-11 08/09/2006
     1.0 Changed sane.type to "flatbed scanner" only
+
+Version 0.43-12 08/29/2006
+    1.0 Fixed "not homing" problem, the sensor did not
+        return when the driver gets the _IOCTL_STOP command
+    2.0 Fixed compilation issue for kernels > 2.6.15
+    3.0 Fixed compiler warning conditions

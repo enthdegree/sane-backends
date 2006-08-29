@@ -12,6 +12,7 @@
  * - 0.01 - initial version
  * - 0.43 - bumped up version to reflect the former module code version
  *        - removed Version from ScannerCaps
+ *        - added _E_FAULT
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -234,6 +235,12 @@ typedef const struct mode_param
 #define _E_REGISTER	  (_FIRST_ERR-24)	/* cannot register this device		*/
 #define _E_SEQUENCE	  (_FIRST_ERR-30)	/* caller sequence does not match	*/
 #define _E_NO_ASIC	  (_FIRST_ERR-31)	/* can't detect ASIC            	*/
+
+#ifdef __KERNEL__
+# define _E_FAULT     (-EFAULT)
+#else
+# define _E_FAULT     (_E_INTERNAL)    /* should never happen in userspace  */
+#endif
 
 #define _E_LAMP_NOT_IN_POS	(_FIRST_ERR-40)
 #define _E_LAMP_NOT_STABLE	(_FIRST_ERR-41)

@@ -1,3 +1,12 @@
+2006-08-29  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-PARPORT.changes: update.
+	* backend/plustek-pp.h backend/plustek-pp_ptdrv.c backend/plustek_pp.c:
+	  fixed "not homing" problem, the sensor did not return when 
+	  the driver gets the _IOCTL_STOP command
+	  fixed compilation issue for kernels > 2.6.15
+	  fixed compiler warning conditions
+
 2006-08-28  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.c backend/fujitsu-scsi.h: update to v1.0.41,

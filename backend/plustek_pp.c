@@ -83,7 +83,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.43-11"
+#define BACKEND_VERSION "0.43-12"
 #define BACKEND_NAME	plustek_pp
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
@@ -1012,8 +1012,8 @@ static SANE_Status attach( const char *dev_name, pCnfDef cnf,
 	show_cnf( cnf );
 
 	dev->sane.type   = SANE_I18N ("flatbed scanner");
-	dev->open  	     = ppDev_open;
-	dev->close 	     = ppDev_close;
+	dev->open        = ppDev_open;
+	dev->close       = ppDev_close;
 	dev->getCaps     = ppDev_getCaps;
 	dev->getLensInfo = ppDev_getLensInfo;
 	dev->getCropInfo = ppDev_getCropInfo;

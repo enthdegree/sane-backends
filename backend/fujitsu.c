@@ -233,6 +233,8 @@
       V 1.0.41 2006-08-28, MAN
          - do_usb_cmd() returns io error on cmd/out/status/rs EOF
          - fix bug in MS buffer/prepick scsi data block
+      V 1.0.42 2006-08-31, MAN
+         - fix bug in get_hardware_status (#303798)
 
    SANE FLOW DIAGRAM
 
@@ -293,7 +295,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 41 
+#define BUILD 42 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -3206,7 +3208,7 @@ get_hardware_status (struct fujitsu *s)
       DBG (15, "get_hardware_status: running\n");
 
       if (s->has_cmd_hw_status){
-          unsigned char buffer[10];
+          unsigned char buffer[12];
           size_t inLen = sizeof(buffer);
 
           DBG (15, "get_hardware_status: calling ghs\n");
@@ -3220,7 +3222,7 @@ get_hardware_status (struct fujitsu *s)
             buffer, &inLen
           );
         
-          if (ret == SANE_STATUS_GOOD) {
+          if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
 
               s->last_ghs = time(NULL);
 
@@ -3247,9 +3249,10 @@ get_hardware_status (struct fujitsu *s)
               s->hw_error_code = get_HW_error_code(buffer);
       
               s->hw_skew_angle = get_HW_skew_angle(buffer);
-        
-              s->hw_ink_remain = get_HW_ink_remain(buffer);
-      
+
+              if(inLen > 9){
+                s->hw_ink_remain = get_HW_ink_remain(buffer);
+              }
           }
       }
 

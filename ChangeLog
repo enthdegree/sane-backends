@@ -1,3 +1,11 @@
+2006-08-31  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.c: update to v1.0.42,
+	  fix bug in get_hardware_status (#303798)
+	* doc/descriptions/fujitsu.desc:
+	  version number update
+
+
 2006-08-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: update.

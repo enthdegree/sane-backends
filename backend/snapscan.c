@@ -966,37 +966,45 @@ SANE_Status sane_open (SANE_String_Const name, SANE_Handle * h)
             return status;
         }
 
-        /* Download Firmware for USB scanners */
-        if ( (pss->pdev->bus == USB) && (pss->hwst & 0x02) )
-        {
-            char vendor[8];
-            char model[17];
-
-            status = download_firmware(pss);
-            CHECK_STATUS (status, me, "download_firmware");
-            /* send inquiry command again, wait for scanner to initialize */
-            status = wait_scanner_ready(pss);
-            CHECK_STATUS (status, me, "wait_scanner_ready after firmware upload");
-            status =  mini_inquiry (pss->pdev->bus, pss->fd, vendor, model);
-            CHECK_STATUS (status, me, "mini_inquiry after firmware upload");
-            /* The model identifier may change after firmware upload */
-            DBG (DL_INFO,
-                "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
-                me,
-                model);
-            /* Check if it is one of our supported models */
-            pss->pdev->model = snapscani_get_model_id(model, pss->fd, pss->pdev->bus);
-
-            if (pss->pdev->model == UNKNOWN) {
-                DBG (DL_MINOR_ERROR,
-                    "%s (after firmware upload): \"%s\" is not a supported scanner\n",
-                    me,
-                    model);
-            }
-            /* run "real" inquiry command once again for option initialization */
-            status = inquiry (pss);
-            CHECK_STATUS (status, me, "inquiry after firmware upload");
-        }
+		if (pss->pdev->bus == USB)
+		{
+			if (sanei_usb_get_vendor_product(pss->fd, &pss->usb_vendor, &pss->usb_product) != SANE_STATUS_GOOD)
+			{
+				pss->usb_vendor = 0;
+				pss->usb_product = 0;
+			}
+	        /* Download Firmware for USB scanners */
+	        if (pss->hwst & 0x02)
+	        {
+	            char vendor[8];
+	            char model[17];
+	
+	            status = download_firmware(pss);
+	            CHECK_STATUS (status, me, "download_firmware");
+	            /* send inquiry command again, wait for scanner to initialize */
+	            status = wait_scanner_ready(pss);
+	            CHECK_STATUS (status, me, "wait_scanner_ready after firmware upload");
+	            status =  mini_inquiry (pss->pdev->bus, pss->fd, vendor, model);
+	            CHECK_STATUS (status, me, "mini_inquiry after firmware upload");
+	            /* The model identifier may change after firmware upload */
+	            DBG (DL_INFO,
+	                "%s (after firmware upload): Checking if \"%s\" is a supported scanner\n",
+	                me,
+	                model);
+	            /* Check if it is one of our supported models */
+	            pss->pdev->model = snapscani_get_model_id(model, pss->fd, pss->pdev->bus);
+	
+	            if (pss->pdev->model == UNKNOWN) {
+	                DBG (DL_MINOR_ERROR,
+	                    "%s (after firmware upload): \"%s\" is not a supported scanner\n",
+	                    me,
+	                    model);
+	            }
+	            /* run "real" inquiry command once again for option initialization */
+	            status = inquiry (pss);
+	            CHECK_STATUS (status, me, "inquiry after firmware upload");
+	        }
+		}
         close_scanner(pss);
 
         status = alloc_gamma_tables (pss);
@@ -1655,9 +1663,7 @@ SANE_Status sane_start (SANE_Handle h)
     status = download_halftone_matrices(pss);
     CHECK_STATUS (status, me, "download_halftone_matrices");
 
-    if (pss->val[OPT_QUALITY_CAL].b && 
-        ((pss->pdev->model == PERFECTION2480) ||
-        (pss->pdev->model == PERFECTION3490)))
+    if (pss->val[OPT_QUALITY_CAL].b && (pss->usb_vendor == USB_VENDOR_EPSON))
     {
         status = calibrate(pss);
         if (status != SANE_STATUS_GOOD)
@@ -1688,9 +1694,7 @@ SANE_Status sane_start (SANE_Handle h)
          pss->bytes_per_line/pss->ms_per_line);
 
 
-    if (pss->val[OPT_QUALITY_CAL].b && 
-        ((pss->pdev->model != PERFECTION2480) &&
-         (pss->pdev->model != PERFECTION3490)))
+    if (pss->val[OPT_QUALITY_CAL].b && (pss->usb_vendor != USB_VENDOR_EPSON))
     {
         status = calibrate(pss);
         if (status != SANE_STATUS_GOOD)
@@ -1930,6 +1934,9 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
+ * Revision 1.68  2006/09/03 10:00:11  oliver-guest
+ * Bugfix for firmware download by Paul Smedley
+ *
  * Revision 1.67  2006/01/10 19:32:16  oliver-guest
  * Added 12 bit gamma tables for Epson Stylus CX-1500
  *

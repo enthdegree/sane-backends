@@ -1447,7 +1447,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
     {
         cdbLength = 10;
         DBG(DL_INFO, "Downloading %s\n", firmware);
-        fd = fopen(firmware,"r");
+        fd = fopen(firmware,"rb");
         if(fd == NULL)
         {
             DBG (0, "Cannot open firmware file %s.\n", firmware);
@@ -1533,6 +1533,9 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 
 /*
  * $Log$
+ * Revision 1.58  2006/09/03 10:00:11  oliver-guest
+ * Bugfix for firmware download by Paul Smedley
+ *
  * Revision 1.57  2006/03/20 18:20:10  oliver-guest
  * Limit inquiry length to 120 bytes if firmware is not yet loaded
  *

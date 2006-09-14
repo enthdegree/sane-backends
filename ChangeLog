@@ -1,3 +1,9 @@
+2006-09-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc
+	  doc/descriptions-external/samsung.desc
+	  doc/descriptions-external/hpaio.desc: Added several scanners.
+
 2006-08-31  Oliver Schwartz <oliverschwartz@users.sf.net>
 
 	* backend/snapscan-scsi.c: Bugfix for firmware download

@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-06-22"		; version of backend
+:version "2006-09-14"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -647,6 +647,13 @@
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
 
+:model "ColorPage HR7XE"
+:url "/unsupported/genius-colorpage-hr7xe.html"
+:interface "USB"
+:usbid "0x06dc" "0x0012"
+:status :unsupported
+:comment "Unsuported. See link for details."
+
 :model "ColorPage HR8"
 :url "/unsupported/genius-colorpage-hr8.html"
 :interface "USB"
@@ -857,6 +864,7 @@
 ;********************************************************************************************
 
 :mfg "Iris"
+:url "http://irislink.com/"
 
 :model "IriScan"
 :url "/unsupported/iris-iriscan.html"
@@ -864,6 +872,20 @@
 :usbid "0x0a53" "0x1000"
 :status :unsupported
 :comment "Unsupported. LM9832/3. See link for details."
+
+:model "IRISPen Translator Executive"
+:url "/unsupported/iris-irispen-translator.html"
+:interface "USB"
+:usbid "0x0f43" "0x015a"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "IRISCard Pro (IBCR II)"
+:url "/unsupported/iris-business.html"
+:interface "USB"
+:usbid "0x0a38" "0x0301"
+:status :unsupported
+:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -944,11 +966,11 @@
 :comment "Unsupported."
 
 :model "X5150"
-;:url "/unsupported/lexmark-x5130.html"
+:url "/unsupported/lexmark-x5130.html"
 :interface "USB"
-;:usbid "0x043d" "0x0065"
+:usbid "0x043d" "0x0065"
 :status :unsupported
-:comment "Probably unsupported. No details known. Please send output of sane-find-scanner -v -v."
+:comment "Probably unsupported. See link for details."
 
 :model "X5250"
 :url "/unsupported/lexmark-x5250.html"
@@ -1838,6 +1860,18 @@
 
 ;********************************************************************************************
 
+:mfg "Portable Peripheral"
+:url "http://www.pandp.com.tw/"
+
+:model "Q-Scan (A4 portable scanner)"
+:url "/unsupported/iris-iriscan.html"
+:interface "USB"
+:usbid "0x0a53" "0x1000"
+:status :unsupported
+:comment "Unsupported. LM9832/3. See link for details."
+
+;********************************************************************************************
+
 :mfg "Primax"
 :url "http://www.primax.nl/"
 
@@ -1954,7 +1988,7 @@
 :interface "USB"
 :usbid "0x06dc" "0x0014"
 :status :unsupported
-:comment "Not supported. Some information is available. Vendor=0x06dc product=0x0014. RealTek RTS8801."
+:comment "Not supported. Some information is available. RealTek RTS8801."
 
 :model "Winscan Pro 2000"
 :interface "USB Parport"
@@ -2296,6 +2330,11 @@
 :status :unsupported
 :comment "Probably not supported currently. See link for more details."
 
+:model "Nete3470'"
+:interface "Parport"
+:status :unsupported
+:comment "Probably not supported. No details known.."
+
 :model "Powerlook 180"
 :url "/unsupported/umax-powerlook-180.html"
 :interface "USB"
@@ -2514,6 +2553,13 @@
 :status :unsupported
 :usbid "0x04a7" "0x0446"
 :comment "Not supported. See link for more details."
+
+:model "DocuMate 510"
+:url "/unsupported/xerox-documate-510.html"
+:interface "USB"
+:status :unsupported
+:usbid "0x04a7" "0x047c"
+:comment "Not supported. See link for more details. Yet another USB id."
 
 :model "One Touch 4800"
 :url "/unsupported/visioneer-onetouch4800.html"

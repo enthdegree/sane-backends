@@ -24,7 +24,7 @@
 :url "http://www.hp.com/go/all-in-one"
 
 ; name models for above-specified mfg.
-:model "Most HP OfficeJet, LaserJet, and PSC (Printer/Scanner/Copier) multi-function peripherals"
+:model "Most HP OfficeJet, LaserJet, Photosmart, PSC (Printer/Scanner/Copier), and some Photosmart multi-function peripherals"
 :url "http://hpinkjet.sourceforge.net/hplip_readme.html"
 :interface "Parport(ECP) USB JetDirect"
 :usbid "ignore"

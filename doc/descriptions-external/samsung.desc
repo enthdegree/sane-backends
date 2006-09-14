@@ -36,6 +36,12 @@
 :status :good
 :comment "Is reported to work. "
 
+:model "SCX-4200"
+:interface "USB"
+:usbid "0x04e8" "0x341b"
+:status :untested
+:comment "Please contact us if you use this device."
+
 :model "SCX-4216F"
 :interface "Parport USB"
 :usbid "0x04e8" "0x3409"

@@ -3,6 +3,8 @@
 	* doc/descriptions/unsupported.desc
 	  doc/descriptions-external/samsung.desc
 	  doc/descriptions-external/hpaio.desc: Added several scanners.
+	* po/sane-backends.pl.po: Updated Polish translation (from Jakub
+	  Bogusz, bug #303769).
 
 2006-08-31  Oliver Schwartz <oliverschwartz@users.sf.net>
 

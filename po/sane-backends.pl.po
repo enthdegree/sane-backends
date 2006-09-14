@@ -1,14 +1,15 @@
 # Polish translation for SANE backend options
 # Copyright (c) 2002-2003 Piotr Gogolewski
-# Piotr Gogolewski <docent@panoramix.net.pl>, 2003.
+# Piotr Gogolewski <docent@panoramix.net.pl>, 2003-2005.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2005-2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.11\n"
+"Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-06-08 06:19+0200\n"
-"PO-Revision-Date: 2006-06-06 13:09+0200\n"
-"Last-Translator: Piotr Gogolewski <docent@panoramix.net.pl>\n"
-"Language-Team: Polish <pl@li.org>\n"
+"PO-Revision-Date: 2006-08-20 20:20+0200\n"
+"Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
+"Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -123,14 +124,14 @@ msgid "Selects the number of the frame to scan"
 msgstr "Wybiera numer ramki do skanowania"
 
 #: .tmp/avision.h:690
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex scan"
-msgstr "Dwustronny"
+msgstr "Skanowanie dwustronne"
 
 #: .tmp/avision.h:691
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
-msgstr ""
+msgstr "Skanowanie dwustronne pozwala na skanowanie przedniej i tylnej strony dokumentu"
 
 #: .tmp/canon630u.c:158
 #, no-c-format
@@ -670,14 +671,14 @@ msgid "Transparency Adapter"
 msgstr "Moduł do skanowania negatywów"
 
 #: .tmp/genesys.c:4635
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Extras"
-msgstr "Bardzo szybki"
+msgstr "Dodatki"
 
 #: .tmp/genesys.c:4655
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Disable interpolation"
-msgstr "Nie wykonuj nawracania"
+msgstr "Wyłącz interpolację"
 
 #: .tmp/genesys.c:4658
 #, no-c-format
@@ -685,28 +686,30 @@ msgid ""
 "When using high resolutions where the horizontal resolution is smaller than "
 "the vertical resolution this disables horizontal interpolation."
 msgstr ""
+"Lampa zostanie wyłączona po upłynięciu podanego czasu (w minutach). Wartość 0 "
+"oznacza, że lampa nie zostanie wyłączona."
 
 #: .tmp/genesys.c:4667
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color Filter"
-msgstr "Kolorowy tryb kreski"
+msgstr "Filtr kolorów"
 
 #: .tmp/genesys.c:4670
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
-msgstr ""
+msgstr "W trybie szarości lub kreski ta opcja wybiera używany kolor."
 
 #: .tmp/genesys.c:4679
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time"
-msgstr "Czas wyłączenia lampy"
+msgstr "Czas wyłączania lampy"
 
 #: .tmp/genesys.c:4682
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
 "means, that the lamp won't be turned off."
-msgstr ""
+msgstr "Lampa zostanie wyłączona po podanym czasie (w minutach). Wartość 0 oznacza, że lampa nie będzie wyłączana."
 
 #: .tmp/gt68xx.c:472
 #, no-c-format
@@ -823,24 +826,24 @@ msgid "Miscellaneous"
 msgstr "Różne"
 
 #: .tmp/hp5400_sane.c:358
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "offset X"
-msgstr "Offset"
+msgstr "offset X"
 
 #: .tmp/hp5400_sane.c:359
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware internal X position of the scanning area."
-msgstr "Lewa krawędź skanowanego obszaru (górny lewy x)."
+msgstr "Wewnętrzne sprzętowe położenie X obszaru skanowania."
 
 #: .tmp/hp5400_sane.c:368
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "offset Y"
-msgstr "Offset"
+msgstr "offset Y"
 
 #: .tmp/hp5400_sane.c:369
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware internal Y position of the scanning area."
-msgstr "Lewa krawędź skanowanego obszaru (górny lewy x)."
+msgstr "Wewnętrzne sprzętowe położenie Y obszaru skanowania."
 
 #: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
 #, no-c-format
@@ -871,9 +874,9 @@ msgid "Halftone"
 msgstr "Półtony"
 
 #: .tmp/hp-option.c:2983
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Advanced Options"
-msgstr "Aktualizuj opcje"
+msgstr "Opcje zaawansowane"
 
 #: .tmp/hp-option.c:3040
 #, no-c-format
@@ -913,12 +916,12 @@ msgstr "Automatyczny"
 #: .tmp/hp-option.c:3087
 #, no-c-format
 msgid "NTSC RGB"
-msgstr ""
+msgstr "NTSC RBG"
 
 #: .tmp/hp-option.c:3088
 #, no-c-format
 msgid "XPA RGB"
-msgstr ""
+msgstr "XPA RGB"
 
 #: .tmp/hp-option.c:3089
 #, no-c-format
@@ -1000,12 +1003,12 @@ msgstr "Negatyw"
 #: .tmp/hp-option.c:3252
 #, no-c-format
 msgid "ADF"
-msgstr ""
+msgstr "ADF"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
 msgid "XPA"
-msgstr ""
+msgstr "XPA"
 
 #: .tmp/hp-option.c:3326 .tmp/hp-option.c:3339
 #, no-c-format
@@ -1018,9 +1021,9 @@ msgid "Conditional"
 msgstr "Warunkowy"
 
 #: .tmp/hp-option.c:3413
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Experiment"
-msgstr "Czas ekspozycji"
+msgstr "Eksperyment"
 
 #: .tmp/hp-option.h:60
 #, no-c-format
@@ -1242,9 +1245,9 @@ msgid "Paper size"
 msgstr "Rozmiar papieru"
 
 #: .tmp/lexmark.h:57
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Selects the size of the area to be scanned."
-msgstr "Wybiera numer ramki do skanowania"
+msgstr "Wybiera rozmiar obszaru do skanowania."
 
 #: .tmp/matsushita.c:139
 #, no-c-format
@@ -1324,7 +1327,7 @@ msgstr "Wysoki"
 #: .tmp/matsushita.c:245
 #, no-c-format
 msgid "CRT"
-msgstr ""
+msgstr "CRT"
 
 #: .tmp/matsushita.c:257
 #, no-c-format
@@ -1799,24 +1802,24 @@ msgstr ""
 "jakości). To może być tryb niekolorowy lub niskiej rozdzielczości."
 
 #: .tmp/mustek.c:4337
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off time (minutes)"
-msgstr "Czas wyłączenia lampy w sekundach."
+msgstr "Czas wyłączenia lampy (w minutach)"
 
 #: .tmp/mustek.c:4338
 #, no-c-format
 msgid "Set the time (in minutes) after which the lamp is shut off."
-msgstr ""
+msgstr "Czas (w minutach), po którym lampa jest wyłączana."
 
 #: .tmp/mustek.c:4349
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Turn lamp off"
-msgstr "Wyłącz zieloną lampę"
+msgstr "Wyłącz lampę"
 
 #: .tmp/mustek.c:4350
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Turns the lamp off immediately."
-msgstr "Włącza bądź wyłącza lampę główną skanera"
+msgstr "Wyłącza lampę natychmiast."
 
 #: .tmp/mustek.c:4427
 #, no-c-format
@@ -1901,10 +1904,10 @@ msgstr "Skala szarości 8"
 #: .tmp/mustek_usb2.c:119
 #, no-c-format
 msgid "Reflective"
-msgstr ""
+msgstr "Odbijający światło"
 
 #: .tmp/mustek_usb2.c:120
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Positive"
 msgstr "Pozytyw"
 
@@ -1920,12 +1923,12 @@ msgstr ""
 #: .tmp/pixma.c:116
 #, no-c-format
 msgid "multi-function peripheral"
-msgstr ""
+msgstr "urządzenie wielofunkcyjne"
 
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
 msgid "Button-controlled scan (experimental)"
-msgstr ""
+msgstr "Skanowanie sterowane przyciskiem (eksperymentalne)"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format
@@ -1933,27 +1936,27 @@ msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
-msgstr ""
+msgstr "Kiedy jest włączone, proces skanowania nie zacznie się natychmiast. Aby kontynuować, należy nacisnąć przycisk \"SCAN\" (dla MP150) lub przycisk \"COLOR\" (dla innych modeli). Aby anulować, należy nacisnąć przycisk \"GRAY\"."
 
 #: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1068
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buttons"
-msgstr "Stan przycisku"
+msgstr "Przyciski"
 
 #: .tmp/pixma_sane_options.c:216
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Update button state"
-msgstr "Stan przycisku"
+msgstr "Uaktualnij stan przycisku"
 
 #: .tmp/pixma_sane_options.c:228
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 1"
-msgstr "Stan przycisku"
+msgstr "Przycisk 1"
 
 #: .tmp/pixma_sane_options.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button 2"
-msgstr "Stan przycisku"
+msgstr "Przycisk 2"
 
 #: .tmp/plustek.c:233 .tmp/plustek_pp.c:201 .tmp/u12.c:156
 #, no-c-format
@@ -1986,19 +1989,19 @@ msgid "Enables or disables calibration data cache."
 msgstr "Włącza lub wyłącza pamięć podręczną danych kalibracji."
 
 #: .tmp/plustek.c:929
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Performs calibration"
-msgstr "Kalibracja ziarnistości"
+msgstr "Wykonuje kalibrację"
 
 #: .tmp/plustek.c:947
 #, no-c-format
 msgid "Speedup sensor"
-msgstr ""
+msgstr "Przyspieszenie czujnika"
 
 #: .tmp/plustek.c:948
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr ""
+msgstr "Włącza lub wyłącza przyspieszanie ruchu czujnika."
 
 #: .tmp/plustek.c:962
 #, no-c-format
@@ -2116,14 +2119,14 @@ msgid "Defines blue lamp off parameter"
 msgstr "Definiuje parametr wyłączenia niebieskiej lampy"
 
 #: .tmp/plustek.c:1076
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner button"
-msgstr "Symulacja skanera ręcznego"
+msgstr "Przycisk skanera"
 
 #: .tmp/plustek.c:1077
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr ""
+msgstr "Opcja ta odzwierciedla stan przycisków skanera."
 
 #: .tmp/plustek_pp.c:194
 #, no-c-format
@@ -3024,14 +3027,14 @@ msgid "flatbed scanner"
 msgstr "skaner płaski"
 
 #: .tmp/sm3840.c:689
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp timeout"
 msgstr "Czas wyłączenia lampy"
 
 #: .tmp/sm3840.c:691
 #, no-c-format
 msgid "Minutes until lamp is turned off after scan"
-msgstr ""
+msgstr "Liczba minut do wyłączenia lampy po skanowaniu"
 
 #: .tmp/snapscan-options.c:84
 #, no-c-format
@@ -3121,7 +3124,7 @@ msgstr "Liczba linii w skali szarości na odczyt"
 #: .tmp/stv680.c:974
 #, no-c-format
 msgid "webcam"
-msgstr ""
+msgstr "kamera internetowa"
 
 #: .tmp/stv680.h:115
 #, no-c-format
@@ -3228,7 +3231,7 @@ msgstr "Ustaw kolejność ramek w kolorowym trybie trójprzebiegowym"
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' after "
 "10 scans."
-msgstr ""
+msgstr "Jeśli wybrano automatyczny podajnij dokumentów (ADF), podajnik będzie 'pusty' po 10 skanach."
 
 #: .tmp/test.c:426
 #, no-c-format

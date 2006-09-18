@@ -1,5 +1,5 @@
 /**
-   Copyright (C) 2001 Stéphane Voltz <svoltz@wanadoo.fr>
+   Copyright (C) 2001-2006 Stéphane Voltz <stef.dev@free.fr>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -9942,7 +9942,7 @@ evalGain (int sum, int count)
   pct = gn;
   avg = exp((-pct)/area)*coeff+cnst;
   gn = gn * avg;
-
+  
   /* bound checking : there are sightings of >127 values being negative */
   if (gn < 0)
     gn = 0;
@@ -12777,7 +12777,7 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
   for (i = xstart; i < xend; i++)
     sum += buffer[i];
   sum = sum / (xend - xstart);
-  while ((opsc04[6] < 0x07) && (sum < 120))
+  while ((opsc04[6] < 0x07) && (sum < 110))
     {
       CMDSYNC (0x00);
       opsc04[6]++;

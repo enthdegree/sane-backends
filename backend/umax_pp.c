@@ -1,5 +1,5 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2001 Stéphane Voltz <svoltz@wanadoo.fr>
+   Copyright (C) 2001-2006 Stéphane Voltz <stef.dev@free.fr>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -106,8 +106,8 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	604
-#define UMAX_PP_STATE	"dev"
+#define UMAX_PP_BUILD	610
+#define UMAX_PP_STATE	"stable"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;

@@ -360,7 +360,6 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* values which used by the command and data sending functions (scsi/usb)*/
   int fd;                      /* The scanner device file descriptor.     */
-  /*unsigned char rs_buffer[RS_return_size];*/
   size_t datLen;
 
   /* --------------------------------------------------------------------- */

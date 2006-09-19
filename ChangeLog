@@ -1,3 +1,10 @@
+2006-09-18  m. allan noah <anoah AT pfeiffer DOT edu>
+
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.43,
+	  add model-specific code to init_vpd for M3099, clean some noise
+	* doc/descriptions/fujitsu.desc:
+	  version number update
+
 2006-09-18  Stephane Voltz <stef.dev@free.fr>
 
 	* backend/umax_pp.c backend/umax_pp_mid.c backend/umax_pp.c_low:
@@ -23,7 +30,6 @@
 	* doc/descriptions/fujitsu.desc:
 	  version number update
 
-
 2006-08-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: update.
@@ -44,7 +50,7 @@
 2006-08-28  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: changes in gl646_init_regs_for_warmup
-	  to add support for  HP2400 model.
+	  to add support for HP2400 model.
 
 2006-08-27  Wittawat Yamwong <wittawat@web.de>
 

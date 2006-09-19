@@ -153,7 +153,6 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define IN_periph_devtype_unknown             0x1f
 #define get_IN_response_format(in)         getbitfield(in + 0x03, 0x07, 0)
 #define IN_recognized                         0x02
-#define get_IN_additional_length(in)       in[0x04]
 #define get_IN_vendor(in, buf)             strncpy(buf, (char *)in + 0x08, 0x08)
 #define get_IN_product(in, buf)            strncpy(buf, (char *)in + 0x10, 0x010)
 #define get_IN_version(in, buf)            strncpy(buf, (char *)in + 0x20, 0x04)
@@ -171,7 +170,7 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_duplex_offset(in)           getnbyte (in+0x2E, 2)
 
 /* the VPD response */
-#define get_IN_page_length(in)             getnbyte(in + 0x04, 1)
+#define get_IN_page_length(in)             in[0x04]
 #define get_IN_basic_x_res(in)             getnbyte(in + 0x05, 2)
 #define get_IN_basic_y_res(in)             getnbyte(in + 0x07, 2)
 #define get_IN_step_x_res(in)              getbitfield(in+0x09, 1, 0)
@@ -268,6 +267,8 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_x_overscan_size(in)  getnbyte(in + 0x64, 2)
 #define get_IN_y_overscan_size(in)  getnbyte(in + 0x66, 2)
 
+/* = some scanners need inquiry data manipulated ====================== */
+#define set_IN_page_length(in,val)             in[0x04]=val
 /* ==================================================================== */
 
 static unsigned char test_unit_readyC[] =

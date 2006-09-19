@@ -235,6 +235,8 @@
          - fix bug in MS buffer/prepick scsi data block
       V 1.0.42 2006-08-31, MAN
          - fix bug in get_hardware_status (#303798)
+      V 1.0.43 2006-09-19, MAN
+         - add model-specific code to init_vpd for M3099
 
    SANE FLOW DIAGRAM
 
@@ -295,7 +297,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 42 
+#define BUILD 43 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -872,11 +874,27 @@ init_vpd (struct fujitsu *s)
     buffer, &inLen
   );
 
+  /* M3099 gives all data, but wrong length */
+  if (strstr (s->product_name, "M3099")
+    && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
+    && get_IN_page_length (buffer) == 0x19){
+      DBG (5, "init_vpd: 3099 repair\n");
+      set_IN_page_length(buffer,0x5f);
+  }
+
+  /* some(all?) versions of 3097 dont have vpd?
+  else if (strstr (s->product_name, "M3097")
+    && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
+    && get_IN_page_length (buffer) == 0x19){
+      DBG (5, "init_vpd: 3097 repair\n");
+      memcpy(buffer+0x19,buff_VPD_M3097.cmd,buff_VPD_M3097.size);
+  }*/
+
+  DBG (5, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
+
   /* This scanner supports vital product data.
    * Use this data to set dpi-lists etc. */
   if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-
-      DBG (15, "length=%0x\n",get_IN_page_length (buffer));
 
       DBG (15, "standard options\n");
 
@@ -4824,7 +4842,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   unsigned int eom = get_RS_EOM (sensed_data);
   unsigned int ili = get_RS_ILI (sensed_data);
   unsigned int info = get_RS_information (sensed_data);
-  struct fujitsu * s = arg;
+  arg = arg;
 
   DBG (5, "sense_handler: start\n");
 

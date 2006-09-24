@@ -1,3 +1,7 @@
+2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
+
+	* Updated italian translation
+
 2006-09-18  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.43,

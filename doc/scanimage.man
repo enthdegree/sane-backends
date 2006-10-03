@@ -1,4 +1,4 @@
-.TH scanimage 1 "23 Sep 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH scanimage 1 "03 Oct 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX scanimage
 .SH NAME
 scanimage \- scan an image
@@ -61,11 +61,19 @@ To scan with default settings to the file image.pnm:
 
   scanimage >image.pnm
 
+To scan 100x100 mm to the file image.tiff (-x and -y may not be available with
+all devices):
+
+  scanimage -x 100 -y 100 --format=tiff >image.tiff
+
 To print all available options:
 
   scanimage -h
 
 .SH OPTIONS
+Parameters are separated by a blank from single-character options (e.g.
+-d epson) and by a "=" from multi-character options (e.g. --device-name=epson).
+
 .PP
 The
 .B -d
@@ -284,6 +292,20 @@ via a command-line of the form:
 The documentation for the device-specific options printed by
 .B --help
 is best explained with a few examples:
+
+ -l 0..218mm [0]
+.br
+    Top-left x position of scan area.
+.PP
+.RS
+The description above shows that option
+.B -l
+expects an option value in the range from 0 to 218 mm.  The
+value in square brackets indicates that the current option value is 0
+mm. Most backends provide similar geometry options for top-left y position (-t),
+width (-x) and height of scan-area (-y).
+.RE
+
 
  --brightness -100..100% [0]
 .br

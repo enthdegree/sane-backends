@@ -2,6 +2,10 @@
 
 	* doc/descriptions-external/hp3900.desc: Changed status of HP
 	  Scanjet 4370 to "minimal" (bug #303839).
+	* doc/scanimage.man frontend/scanimage.c: Added examples on how to
+	  set the scan area in the manual page (bug #303802). Mention how
+	  to separate parameters from options in --help and manpage (bug 
+	  #303819).
 
 2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
 

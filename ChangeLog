@@ -1,3 +1,8 @@
+2006-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/hp3900.desc: Changed status of HP
+	  Scanjet 4370 to "minimal" (bug #303839).
+
 2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
 
 	* Updated italian translation

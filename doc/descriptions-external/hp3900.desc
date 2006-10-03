@@ -46,5 +46,5 @@
 :interface "USB"
 :usbid "0x03f0" "0x4105"
 ;:url "/unsupported/hp-scanjet-4370.html"
-:status :untested
-:comment "Untested. Please report if it works."
+:status :minimal
+:comment "Scans are completely black."

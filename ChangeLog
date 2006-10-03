@@ -6,6 +6,8 @@
 	  set the scan area in the manual page (bug #303802). Mention how
 	  to separate parameters from options in --help and manpage (bug 
 	  #303819).
+	* doc/descriptions/unsupported.desc: Added EDT BizCardReader
+	  900C. Moved Genius ColorPage-SF600 to gt68xx.desc. Minor updates.
 
 2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
 

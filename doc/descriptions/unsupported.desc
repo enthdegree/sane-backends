@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-09-14"		; version of backend
+:version "2006-10-03"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -562,6 +562,20 @@
 
 ;********************************************************************************************
 
+:mfg "EDT (Electronic Document Technology)"
+:url "http://www.bizcardreader.com/"
+
+:model "BizCardReader 900C"
+:url "/unsupported/edt-900c.html"
+:interface "USB"
+:usbid "0x0a53" "0x5001"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
+
+
+;********************************************************************************************
+
 :mfg "E-Lux"
 :comment "E-Lux and Enhans seem to have been purchased by dysan, now known as MEMOREX"
 
@@ -660,13 +674,6 @@
 :usbid "0x0458" "0x201c"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
-
-:model "ColorPage-SF600"
-:url "/unsupported/genius-colorpage-sf600.html"
-:interface "USB"
-:usbid "0x0458" "0x2021"
-:status :unsupported
-:comment "Unsupported. See link for details."
 
 ;********************************************************************************************
 
@@ -822,7 +829,6 @@
 :url "/unsupported/hp-scanjet-5550c.html"
 :interface "USB"
 :usbid "0x03f0" "0x1205"
-:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
 :status :unsupported
 
 :model "ScanJet 5590"
@@ -1749,9 +1755,11 @@
 :comment "No further information available."
 
 :model "OpticPro ST64+"
+:url "/unsupported/plustek-opticpro-st64plus.html"
 :interface "USB"
+:usbid "0x07b3" "0x0c03"
 :status :unsupported
-:comment "Is reported to be based on a GL843 chipset."
+:comment "Is reported to be based on a GL843 chipset. See link for more details."
 
 :model "OpticSlim 2420"
 :url "/unsupported/plustek-opticslim-2420.html"

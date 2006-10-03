@@ -1,5 +1,9 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.82 (2006-10-03)
+
+* Added support for Genius Colorpage SF600.
+
 V 1.0.81 (2006-05-21)
 
 * Added support for Plustek OpticPro S24 (some models). Added .conf entry for

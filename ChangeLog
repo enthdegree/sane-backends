@@ -7,7 +7,11 @@
 	  to separate parameters from options in --help and manpage (bug 
 	  #303819).
 	* doc/descriptions/unsupported.desc: Added EDT BizCardReader
-	  900C. Moved Genius ColorPage-SF600 to gt68xx.desc. Minor updates.
+	  900C. Moved Genius ColorPage-SF600 to gt68xx.desc. Minor
+	  updates.
+	* backend/gt68xx.c backend/gt68xx_devices.c
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
+	  Support for Genius Colorpage SF600. 
 
 2006-09-24  Giuseppe Sacco <eppesuig@debian.org>
 

@@ -1,3 +1,8 @@
+2006-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* po/sane-backends.pl.po: Major bugfix and few small changes
+	  (noticed by Jaroslaw Gorny) (bug #303962).
+
 2006-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/hp3900.desc: Changed status of HP

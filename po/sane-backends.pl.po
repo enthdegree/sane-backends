@@ -686,8 +686,8 @@ msgid ""
 "When using high resolutions where the horizontal resolution is smaller than "
 "the vertical resolution this disables horizontal interpolation."
 msgstr ""
-"Lampa zostanie wyłączona po upłynięciu podanego czasu (w minutach). Wartość 0 "
-"oznacza, że lampa nie zostanie wyłączona."
+"Przy wysokich rozdzielczościach kiedy rozdzielczość pozioma jest mniejsza "
+"niż rozdzielczość pionowa, ta opcja wyłącza interpolację poziomą."
 
 #: .tmp/genesys.c:4667
 #, no-c-format
@@ -828,22 +828,22 @@ msgstr "Różne"
 #: .tmp/hp5400_sane.c:358
 #, no-c-format
 msgid "offset X"
-msgstr "offset X"
+msgstr "przesunięcie X"
 
 #: .tmp/hp5400_sane.c:359
 #, no-c-format
 msgid "Hardware internal X position of the scanning area."
-msgstr "Wewnętrzne sprzętowe położenie X obszaru skanowania."
+msgstr "Wewnętrzne sprzętowe położenie poziome (X) obszaru skanowania."
 
 #: .tmp/hp5400_sane.c:368
 #, no-c-format
 msgid "offset Y"
-msgstr "offset Y"
+msgstr "przesunięcie Y"
 
 #: .tmp/hp5400_sane.c:369
 #, no-c-format
 msgid "Hardware internal Y position of the scanning area."
-msgstr "Wewnętrzne sprzętowe położenie Y obszaru skanowania."
+msgstr "Wewnętrzne sprzętowe położenie pionowe (Y) obszaru skanowania."
 
 #: .tmp/hp5400_sane.c:381 .tmp/niash.c:718
 #, no-c-format
@@ -916,7 +916,7 @@ msgstr "Automatyczny"
 #: .tmp/hp-option.c:3087
 #, no-c-format
 msgid "NTSC RGB"
-msgstr "NTSC RBG"
+msgstr "NTSC RGB"
 
 #: .tmp/hp-option.c:3088
 #, no-c-format

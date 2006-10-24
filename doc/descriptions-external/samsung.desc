@@ -48,6 +48,12 @@
 :status :untested
 :comment "Please contact us if you use this device."
 
+:model "SCX-SCX-4521F"
+:interface "Parport USB"
+:usbid "0x04e8" "0x3419"
+:status :untested
+:comment "Please contact us if you use this device."
+
 :model "SCX-4720F"
 :interface "Parport USB"
 :status :untested

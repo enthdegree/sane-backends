@@ -27,7 +27,7 @@
 :url "http://www.hp.com/"
 
 :model "ScanJet 3970c"                  ; name models for above-specified mfg.
-:status :minimal                 ; :minimal, :basic, :good, :complete
+:status :good                 ; :minimal, :basic, :good, :complete
                                   ; :untested, or :unsupported
 :interface "USB"                 ; interface type of the device:
                                   ; "SCSI", "USB", "Parport (EPP)",
@@ -40,11 +40,11 @@
 :model "ScanJet 4070 Photosmart"
 :interface "USB"
 :usbid "0x03f0" "0x2405"
-:status :minimal
+:status :good
 
 :model "ScanJet 4370"
 :interface "USB"
 :usbid "0x03f0" "0x4105"
 ;:url "/unsupported/hp-scanjet-4370.html"
-:status :minimal
-:comment "Scans are completely black."
+:status :basic
+:comment "resolutions higher than 1200dpi don't work quite well"

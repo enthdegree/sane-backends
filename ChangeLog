@@ -4,6 +4,9 @@
 	  (noticed by Jaroslaw Gorny) (bug #303962).
 	* po/sane-backends.es.po: Updated (from Jonathan Bravo Lopez
 	  <jkdsoft at gmail.com>).
+	* doc/descriptions-external/hp3900.desc 
+	  doc/descriptions-external/samsung.desc: Updated based on
+	  sane-devel information.
 
 2006-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

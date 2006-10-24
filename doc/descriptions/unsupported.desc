@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-10-03"		; version of backend
+:version "2006-10-24"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -284,6 +284,13 @@
 :status :unsupported
 :comment "Probably unsupported. See link."
 
+:model "CanoScan 4400F"
+:url "/unsupported/canon-4400.html"
+:interface "USB"
+:usbid "0x04a9" "0x2228"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
 :model "CanoScan 5000F"
 :url "/unsupported/canon-5000f.html"
 :interface "USB"
@@ -373,6 +380,13 @@
 :usbid "0x04a9" "0x2205"
 :status :unsupported
 :comment "Not supported. However, a stand-alone program for FreeBSD is available."
+
+:model "CanoScan LiDE 70"
+:url "/unsupported/canon-lide-70.html"
+:interface "USB"
+:usbid "0x04a9" "0x2225"
+:status :unsupported
+:comment "See link for details"
 
 :model "CanoScan LiDE 80"
 :url "/unsupported/canon-lide-80.html"
@@ -510,6 +524,13 @@
 :usbid "0x08f0" "0x0001"
 :status :unsupported
 :comment "Probably not supported. Businesscard reader."
+
+:model "Cardscan 700 C"
+:url "/unsupported/corex-cardscan-700.html"
+:interface "USB"
+:usbid "0x08f0" "0x0004"
+:status :unsupported
+:comment "Probably not supported."
 
 ;********************************************************************************************
 
@@ -1239,6 +1260,13 @@
 :model "ScanMaker 5800"
 :url "/unsupported/microtek-scanmaker-5800.html"
 :interface "USB"
+:usbid "0x05da" "0x3008"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "ScanMaker 5800"
+:url "/unsupported/microtek-scanmaker-5800.html"
+:interface "USB"
 :usbid "0x05da" "0x30d8"
 :status :unsupported
 :comment "Unsupported. See link for details."
@@ -1750,9 +1778,11 @@
 :comment "GL841 based, to be added to genesys backend"
 
 :model "OpticPro ST64"
+:url "/unsupported/plustek-opticpro-st64.html"
 :interface "USB"
+:usbid "0x07b3" "0x0c00"
 :status :unsupported
-:comment "No further information available."
+:comment "GL841 based, to be added to genesys backend"
 
 :model "OpticPro ST64+"
 :url "/unsupported/plustek-opticpro-st64plus.html"
@@ -2319,6 +2349,13 @@
 :status :unsupported
 :comment "GL646/GL660 based. Avision iVina FB1800 clone."
 
+:model "Astra 4900"
+:url "/unsupported/umax-astra-4900.html"
+:interface "USB"
+:usbid "0x06dc" "0x0020"
+:status :unsupported
+:comment "RTS8822L based."
+
 :model "Astra 6700"
 :interface "USB"
 :status :unsupported
@@ -2437,6 +2474,13 @@
 :usbid  "0x04a7" "0x0229"
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
+
+:model "Onetouch 7700"
+:url "/unsupported/visioneer-onetouch7700.html"
+:interface "USB"
+:usbid  "0x04a7" "0x0380"
+:status :unsupported
+:comment "LM9832/3 based, to be added to plustek backend"
 
 :model "OneTouch 8100"
 :url "/unsupported/visioneer-onetouch8100.html"

@@ -7,6 +7,9 @@
 	* doc/descriptions-external/hp3900.desc 
 	  doc/descriptions-external/samsung.desc: Updated based on
 	  sane-devel information.
+	* doc/descriptions/unsupported.desc: Added Canon Canoscan 4400F,
+	  LiDE 70, Corex Cardscan 700 C, Umax Astra 4900, Visioneer
+	  Onetouch 7700. Updated other scanners.
 
 2006-10-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

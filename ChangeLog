@@ -1,3 +1,8 @@
+2006-10-31  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added HP Photosmart C5100 and
+	  ScanJet 8390.
+
 2006-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* po/sane-backends.pl.po: Major bugfix and few small changes

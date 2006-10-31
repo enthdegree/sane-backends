@@ -2,6 +2,7 @@
 
 	* doc/descriptions/unsupported.desc: Added HP Photosmart C5100 and
 	  ScanJet 8390.
+	* doc/descriptions-external/hpoj.desc: Project is unmaintained.
 
 2006-10-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

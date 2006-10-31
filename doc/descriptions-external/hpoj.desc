@@ -10,9 +10,9 @@
 ;
 
 :backend "hpoj"                   ; name of backend
-;:version "(external)"             ; version of backend
+:version "(unmaintained)"             ; version of backend
 :url "http://hpoj.sourceforge.net/" ; backend's web page
-:comment "It's recommended to use the hpaio (hplip) backend instead of HPOJ for all locally connected HP devices."
+:comment "HPOJ is not maintained anymore. It's recommended to use the hpaio (hplip) backend instead of HPOJ."
 
 
 
@@ -28,7 +28,7 @@
 :url "http://hpoj.sourceforge.net/suplist.shtml"
 :interface "Parport(ECP) USB JetDirect"
 :status :good
-:comment "It's recommended to use the hpaio (hplip) backend instead of hpoj for all locally connected HP devices."
+:comment "HPOJ is not maintained anymore. It's recommended to use the hpaio (hplip) backend instead of hpoj."
 :usbid "ignore"
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

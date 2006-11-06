@@ -22,9 +22,9 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-2.1.0/NEWS
-;;;  * iscan-2.1.0/doc/sane-epkowa.man
-;;;  * iscan-2.1.0/backend/epkowa_usb.c
+;;;  * iscan-2.3.0/NEWS
+;;;  * iscan-2.3.0/doc/sane-epkowa.man
+;;;  * iscan-2.3.0/backend/epkowa_usb.c
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -39,7 +39,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "2.1.0"
+:version "2.3.0"
 :url     "http://www.avasys.jp/english/linux_e/index.html"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -195,6 +195,12 @@
 :status    :good
 :comment   "IEEE1394 untested<br>100Base-TX/10Base-T unsupported"
 
+:model     "ES-H300"
+:interface "USB"
+:usbid     "0x04b8" "0x012b"
+:status    :good
+:comment   "simplex ADF support only<br>Ethernet option not supported"
+
 :model     "Expression 636"
 :interface "SCSI"
 :status    :complete
@@ -272,6 +278,12 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0102"
 :status    :unsupported
+
+:model     "GT-2500"
+:interface "USB"
+:usbid     "0x04b8" "0x012b"
+:status    :good
+:comment   "overseas version of the ES-H300<br>simplex ADF support only<br>Ethernet option not supported"
 
 :model     "GT-4000"
 :status    :untested
@@ -491,6 +503,27 @@
 :comment   "only scans up to 2400dpi<br>requires DFSG non-free iscan-plugin-gt-f600"
 :url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
 
+:model     "GT-F650"
+:interface "USB"
+:usbid     "0x04b8" "0x012d"
+:status    :good
+:comment   "GT-S600 with TPU<br>requires DFSG non-free iscan-plugin-gt-s600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
+:model     "GT-F700"
+:interface "USB"
+:usbid     "0x04b8" "0x012f"
+:status    :good
+:comment   "requires DFSG non-free iscan-plugin-gt-f700"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
+:model     "GT-S600"
+:interface "USB"
+:usbid     "0x04b8" "0x012d"
+:status    :good
+:comment   "requires DFSG non-free iscan-plugin-gt-s600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
 :model     "GT-X700"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0128"
@@ -574,6 +607,12 @@
 :status    :good
 :comment   "business all-in-one<br>LP-M5500 with the fax option bundled<br>network interface not supported"
 
+:model     "ME200"
+:interface "USB"
+:usbid     "0x04b8" "0x0830"
+:status    :good
+:comment   "all-in-one"
+
 :model     "PM-A700"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0814"
@@ -585,6 +624,13 @@
 :usbid     "0x04b8" "0x081a"
 :status    :good
 :comment   "all-in-one"
+
+:model     "PM-A820"
+:interface "USB"
+:usbid     "0x04b8" "0x0827"
+:status    :good
+:comment   "all-in-one"
+
 
 :model     "PM-A850"			; product spec (JP)
 :interface "USB"
@@ -610,9 +656,21 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "PM-A920"
+:interface "USB"
+:usbid     "0x04b8" "0x082a"
+:status    :good
+:comment   "all-in-one"
+
 :model     "PM-A950"
 :interface "USB"
 :usbid     "0x04b8" "0x081d"
+:status    :good
+:comment   "all-in-one"
+
+:model     "PM-A970"
+:interface "USB"
+:usbid     "0x04b8" "0x0828"
 :status    :good
 :comment   "all-in-one"
 
@@ -625,6 +683,12 @@
 :model     "PX-A650"
 :interface "USB"
 :usbid     "0x04b8" "0x0819"
+:status    :good
+:comment   "all-in-one"
+
+:model     "PX-A720"
+:interface "USB"
+:usbid     "0x04b8" "0x082e"
 :status    :good
 :comment   "all-in-one"
 
@@ -849,6 +913,27 @@
 :status    :untested
 :comment   "seems to be a 4990 PHOTO with additional software"
 
+:model     "Perfection V10"
+:interface "USB"
+:usbid     "0x04b8" "0x012d"
+:status    :good
+:comment   "overseas version of the GT-S600<br>requires DFSG non-free iscan-plugin-gt-s600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
+:model     "Perfection V100 PHOTO"
+:interface "USB"
+:usbid     "0x04b8" "0x012d"
+:status    :good
+:comment   "overseas version of the GT-F650<br>requires DFSG non-free iscan-plugin-gt-s600"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
+:model     "Perfection V350 PHOTO"
+:interface "USB"
+:usbid     "0x04b8" "0x012f"
+:status    :good
+:comment   "overseas version of the GT-F700<br>requires DFSG non-free iscan-plugin-gt-f700"
+:url       "http://www.avasys.jp/english/linux_e/dl_scan.html"
+
 :model     "Perfection V700"
 :interface "USB IEEE1394"
 :usbid     "0x04b8" "0x012c"
@@ -866,6 +951,18 @@
 :usbid     "0x04b8" "0x080c"
 :status    :unsupported
 :comment   "all-in-one<br>supported by the snapscan backend"
+
+:model     "Stylus CX2800"
+:interface "USB"
+:usbid     "0x04b8" "0x0830"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus CX2900"
+:interface "USB"
+:usbid     "0x04b8" "0x0830"
+:status    :good
+:comment   "all-in-one"
 
 :model     "Stylus CX3100"
 :interface "USB"
@@ -914,6 +1011,12 @@
 :status    :untested
 :comment   "all-in-one"
 
+:model     "Stylus CX3900"
+:interface "USB"
+:usbid     "0x04b8" "0x082f"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus CX4100"
 :interface "USB"
 :usbid     "0x04b8" "0x0820"
@@ -950,6 +1053,18 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-A650"
 
+:model     "Stylus CX4900"
+:interface "USB"
+:usbid     "0x04b8" "0x082b"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus CX5000"
+:interface "USB"
+:usbid     "0x04b8" "0x082b"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus CX5100"
 :interface "USB"
 :usbid     "0x04b8" "0x0801"
@@ -976,11 +1091,27 @@
 
 :model     "Stylus CX5700F"
 :interface "USB"
-:comment   "all-in-one"
+:usbid     "0x04b8" "0x0821"
+:status    :unsupported
+:comment   "all-in-one with FAX"
 
 :model     "Stylus CX5800F"
 :interface "USB"
-:comment   "all-in-one"
+:usbid     "0x04b8" "0x0821"
+:status    :unsupported
+:comment   "all-in-one with FAX"
+
+:model     "Stylus CX5900"
+:interface "USB"
+:usbid     "0x04b8" "0x082e"
+:status    :good
+:comment   "all-in-one<br>overseas version of the PX-A720"
+
+:model     "Stylus CX6000"
+:interface "USB"
+:usbid     "0x04b8" "0x082e"
+:status    :good
+:comment   "all-in-one<br>overseas version of the PX-A720"
 
 :model     "Stylus CX6300"
 :interface "USB"
@@ -1036,6 +1167,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus DX4000"
+:interface "USB"
+:usbid     "0x04b8" "0x082f"
+:status    :good
+:comment   "all-in-one"
+
 :model     "Stylus DX4200"
 :interface "USB"
 :usbid     "0x04b8" "0x0820"
@@ -1053,6 +1190,18 @@
 :usbid     "0x04b8" "0x0819"
 :status    :good
 :comment   "DX4800 + card reader<br>all-in-one"
+
+:model     "Stylus DX5000"
+:interface "USB"
+:usbid     "0x04b8" "0x082b"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus DX6000"
+:interface "USB"
+:usbid     "0x04b8" "0x082e"
+:status    :good
+:comment   "all-in-one<br>overseas version of the PX-A720"
 
 :model     "Stylus Photo RX420"
 :interface "USB"

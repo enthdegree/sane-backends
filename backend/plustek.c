@@ -157,7 +157,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-14"
+#define BACKEND_VERSION "0.51-15"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -700,14 +700,14 @@ init_options( Plustek_Scanner *s )
 
 	for( i = 0; i < NUM_OPTIONS; ++i ) {
 		s->opt[i].size = sizeof (SANE_Word);
-		s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+		s->opt[i].cap  = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+		s->opt[i].unit = SANE_UNIT_NONE;
 	}
 
 	s->opt[OPT_NUM_OPTS].name  = SANE_NAME_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].desc  = SANE_DESC_NUM_OPTIONS;
 	s->opt[OPT_NUM_OPTS].type  = SANE_TYPE_INT;
-	s->opt[OPT_NUM_OPTS].unit  = SANE_UNIT_NONE;
 	s->opt[OPT_NUM_OPTS].cap   = SANE_CAP_SOFT_DETECT;
 	s->opt[OPT_NUM_OPTS].constraint_type = SANE_CONSTRAINT_NONE;
 	s->val[OPT_NUM_OPTS].w     = NUM_OPTIONS;
@@ -733,6 +733,7 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_BIT_DEPTH].title = SANE_TITLE_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].desc  = SANE_DESC_BIT_DEPTH;
 	s->opt[OPT_BIT_DEPTH].type  = SANE_TYPE_INT;
+	s->opt[OPT_BIT_DEPTH].unit  = SANE_UNIT_BIT;
 	s->opt[OPT_BIT_DEPTH].size  = sizeof (SANE_Word);
 	s->opt[OPT_BIT_DEPTH].constraint_type = SANE_CONSTRAINT_WORD_LIST;
 	if( _LM9833 == dev->usbDev.HwSetting.chip )
@@ -777,7 +778,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_RESOLUTION].desc  = SANE_DESC_SCAN_RESOLUTION;
 	s->opt[OPT_RESOLUTION].type  = SANE_TYPE_INT;
 	s->opt[OPT_RESOLUTION].unit  = SANE_UNIT_DPI;
-
 	s->opt[OPT_RESOLUTION].constraint_type  = SANE_CONSTRAINT_RANGE;
 	s->opt[OPT_RESOLUTION].constraint.range = &s->hw->dpi_range;
 	s->val[OPT_RESOLUTION].w = s->hw->dpi_range.min;
@@ -856,7 +856,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
 	s->opt[OPT_GAMMA_VECTOR].desc  = SANE_DESC_GAMMA_VECTOR;
 	s->opt[OPT_GAMMA_VECTOR].type  = SANE_TYPE_INT;
-	s->opt[OPT_GAMMA_VECTOR].unit  = SANE_UNIT_NONE;
 	s->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->val[OPT_GAMMA_VECTOR].wa   = &(s->gamma_table[0][0]);
 	s->opt[OPT_GAMMA_VECTOR].constraint.range = &(s->gamma_range);
@@ -867,7 +866,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
 	s->opt[OPT_GAMMA_VECTOR_R].desc  = SANE_DESC_GAMMA_VECTOR_R;
 	s->opt[OPT_GAMMA_VECTOR_R].type  = SANE_TYPE_INT;
-	s->opt[OPT_GAMMA_VECTOR_R].unit  = SANE_UNIT_NONE;
 	s->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->val[OPT_GAMMA_VECTOR_R].wa   = &(s->gamma_table[1][0]);
 	s->opt[OPT_GAMMA_VECTOR_R].constraint.range = &(s->gamma_range);
@@ -878,7 +876,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
 	s->opt[OPT_GAMMA_VECTOR_G].desc  = SANE_DESC_GAMMA_VECTOR_G;
 	s->opt[OPT_GAMMA_VECTOR_G].type  = SANE_TYPE_INT;
-	s->opt[OPT_GAMMA_VECTOR_G].unit  = SANE_UNIT_NONE;
 	s->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->val[OPT_GAMMA_VECTOR_G].wa   = &(s->gamma_table[2][0]);
 	s->opt[OPT_GAMMA_VECTOR_G].constraint.range = &(s->gamma_range);
@@ -889,7 +886,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
 	s->opt[OPT_GAMMA_VECTOR_B].desc  = SANE_DESC_GAMMA_VECTOR_B;
 	s->opt[OPT_GAMMA_VECTOR_B].type  = SANE_TYPE_INT;
-	s->opt[OPT_GAMMA_VECTOR_B].unit  = SANE_UNIT_NONE;
 	s->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
 	s->val[OPT_GAMMA_VECTOR_B].wa   = &(s->gamma_table[3][0]);
 	s->opt[OPT_GAMMA_VECTOR_B].constraint.range = &(s->gamma_range);
@@ -928,7 +924,6 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_CALIBRATE].title = SANE_I18N("Calibrate");;
 	s->opt[OPT_CALIBRATE].desc  = SANE_I18N("Performs calibration");
 	s->opt[OPT_CALIBRATE].type  = SANE_TYPE_BUTTON;
-	s->opt[OPT_CALIBRATE].unit = SANE_UNIT_NONE;
 	s->opt[OPT_CALIBRATE].size = sizeof (SANE_Word);
 	s->opt[OPT_CALIBRATE].constraint_type = SANE_CONSTRAINT_NONE;
 	s->opt[OPT_CALIBRATE].constraint.range = 0;
@@ -1072,8 +1067,15 @@ init_options( Plustek_Scanner *s )
 
 	/* scanner buttons */
 	for( i = OPT_BUTTON_0; i <= OPT_BUTTON_LAST; i++ ) {
-		s->opt[i].name  = "button";
-		s->opt[i].title = SANE_I18N("Scanner button");
+
+		char name [12];
+		char title [128];
+
+		sprintf (name, "button %d", i - OPT_BUTTON_0);
+		sprintf (title, "Scanner button %d", i - OPT_BUTTON_0);
+
+		s->opt[i].name  = strdup(name);
+		s->opt[i].title = strdup(title);
 		s->opt[i].desc  = SANE_I18N("This option reflects the status "
 		                            "of the scanner buttons.");
 		s->opt[i].type = SANE_TYPE_BOOL;

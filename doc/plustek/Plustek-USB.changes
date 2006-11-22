@@ -3,6 +3,10 @@ Plustek.changes - Gerhard J�er <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.51-15 (2006-11-22)
+----------------------
+Fixed option descriptors (bugreport #303786)
+
 V 0.51-14 (2006-08-11)
 ----------------------
 Lowered speed for LiDE20/30 models in low resolution mode (<75dpi)

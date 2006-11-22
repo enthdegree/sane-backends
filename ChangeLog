@@ -1,3 +1,9 @@
+2006-11-22  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: update.
+	* backend/plustek.c: bumped build number, fixed option 
+	  descriptors, see bug #303786.
+
 2006-11-22  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions/unsupported.desc: Added several scanners, fixed
@@ -5,7 +11,7 @@
 	* doc/descriptions/umax1220u.desc: Updated status of UMAX 2000.
 	* doc/descriptions-external/brother2.desc: Updated status of
 	  Brother MFC-7420.
-	
+
 2006-11-06  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* doc/descriptions-external/epkowa.desc: backend v2.3.0

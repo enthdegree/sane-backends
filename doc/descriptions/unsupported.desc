@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-10-31"		; version of backend
+:version "2006-11-21"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -319,6 +319,14 @@
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
 
+:model "CanoScan 8600F"
+:url "/unsupported/canon-8600.html"
+:interface "USB"
+:usbid "0x04a9" "0x2229"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+
 :model "CanoScan 9900F"
 :url "/unsupported/canon-9900f.html"
 :interface "USB"
@@ -401,6 +409,12 @@
 :usbid "0x04a9" "0x221f"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
+
+:model "CanoScan LiDE 600"
+:url "/unsupported/canon-canoscan-lide-600.html"
+:interface "USB"
+:usbid "0x04a9" "0x2224"
+:status :unsupported
 
 :model "DR-2080C"
 :url "/unsupported/canon-dr2080c.html"
@@ -729,6 +743,13 @@
 
 :mfg "Hewlett-Packard"			; name a manufacturer
 :url "http://www.hp.com/"
+
+:model "Scanjet G3010"
+:url "/unsupported/hp-scanjet-g3010.html"
+:interface "USB"
+:usbid "0x03f0" "0x4205"
+:status :unsupported
+:comment "Not supported yet by SANE. See link for details."
 
 :model "Photo Scanner 1000"
 :url "/unsupported/hp-photo-1000.html"
@@ -1234,7 +1255,7 @@
 :model "ScanMaker 4850"
 :url "/unsupported/microtek-scanmaker-4900.html"
 :interface "USB"
-:usbid "0x05da" "0x30b9"
+:usbid "0x05da" "0x30d9"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
@@ -1287,6 +1308,13 @@
 
 :model "ScanMaker 5900"
 :url "/unsupported/microtek-scanmaker-5900.html"
+:interface "USB"
+:usbid "0x05da" "0x30d8"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
+:model "ScanMaker 5950"
+:url "/unsupported/microtek-scanmaker-5950.html"
 :interface "USB"
 :usbid "0x05da" "0x30d8"
 :status :unsupported
@@ -1809,6 +1837,13 @@
 :url "/unsupported/plustek-opticslim-2420.html"
 :interface "USB"
 :usbid "0x07b3" "0x0806"
+:status :unsupported
+:comment "GL841 based, to be added to genesys backend"
+
+:model "OpticSlim 2420+"
+:url "/unsupported/plustek-opticslim-2420plus.html"
+:interface "USB"
+:usbid "0x07b3" "0x0914"
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
 
@@ -2381,6 +2416,13 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably not supported currently. See link for more details."
+
+:model "AstraSlim 1200"
+:url "/unsupported/umax-astraslim-1200.html"
+:interface "USB"
+:usbid "0x080d" "0x0110"
+:status :unsupported
+:comment "See link for more details."
 
 :model "AstraSlim 6000"
 :url "/unsupported/umax-astraslim-6000.html"

@@ -3,6 +3,8 @@
 	* doc/descriptions/unsupported.desc: Added several scanners, fixed
 	  the USB id for Microtek 4850 (bug #304151).
 	* doc/descriptions/umax1220u.desc: Updated status of UMAX 2000.
+	* doc/descriptions-external/brother2.desc: Updated status of
+	  Brother MFC-7420.
 	
 2006-11-06  m. allan noah <anoah AT pfeiffer DOT edu>
 

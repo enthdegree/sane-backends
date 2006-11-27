@@ -1,3 +1,7 @@
+2006-11-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions-external/samsung.desc: SCX-4200 is reported to work.
+
 2006-11-22  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: update.

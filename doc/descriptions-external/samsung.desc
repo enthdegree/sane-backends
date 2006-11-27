@@ -39,8 +39,8 @@
 :model "SCX-4200"
 :interface "USB"
 :usbid "0x04e8" "0x341b"
-:status :untested
-:comment "Please contact us if you use this device."
+:status :good
+:comment "Is reported to work. The configuration applet must be run as root."
 
 :model "SCX-4216F"
 :interface "Parport USB"

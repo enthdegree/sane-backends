@@ -1,3 +1,7 @@
+2006-12-01  Alessandro Zummo <a.zummo@towertech.it>
+
+	* Added sanei_tcp interface.
+
 2006-11-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* doc/descriptions-external/samsung.desc: SCX-4200 is reported to work.

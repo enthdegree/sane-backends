@@ -1,3 +1,7 @@
+2006-12-02  Alessandro Zummo <a.zummo@towertech.it>
+
+	* Added missing bits for epson2 driver.
+
 2006-12-01  Alessandro Zummo <a.zummo@towertech.it>
 
 	* Added (experimental) epson2 driver.

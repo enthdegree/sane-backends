@@ -215,7 +215,7 @@ static Genesys_Sensor Sensor[] = {
     0x00, 0x00, 0x00, 0x00 /*TODO (these do no harm, but may be neccessery for CCD)*/
    }
    ,
-   0.45, 0.45, 0.45,
+   1.0, 1.0, 1.0,
    NULL, NULL, NULL}
 };
 

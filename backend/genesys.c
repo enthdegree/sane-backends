@@ -2726,6 +2726,7 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   int x, j, o;
   unsigned int i;
   unsigned int coeff, target_code, val, avgpixels, dk, words_per_color = 0;
+  unsigned int target_dark, target_bright, br;
 
   DBG (DBG_proc, "genesys_send_shading_coefficient\n");
 
@@ -2917,7 +2918,8 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	}
       break;
     case CCD_CANONLIDE35:
-      target_code = 0xfa00;
+      target_bright = 0xfa00;
+      target_dark = 0xa00;
       o = 4;/*first four pixels are ignored*/
       memset(shading_data, 0xff, words_per_color * 3);
 
@@ -2931,6 +2933,22 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
   another one: the dark/white shading is actually performed _after_ reducing 
   resolution via averaging. only dark/white shading data for what would be
   first pixel at full resolution is used.
+ */
+/*
+  scanner raw input to output value calculation:
+    o=(i-off)*(gain/coeff)
+
+  from datasheet:
+    off=dark_average
+    gain=coeff*bright_target/(bright_average-dark_average)
+  works for dark_target==0
+
+  what we want is these:
+    bright_target=(bright_average-off)*(gain/coeff)
+    dark_target=(dark_average-off)*(gain/coeff)
+  leading to
+    off = (dark_average*bright_target - bright_average*dark_target)/(bright_target - dark_target)
+    gain = (bright_target - dark_target)/(bright_average - dark_average)*coeff
  */
       /*this should be evenly dividable*/
       avgpixels = dev->sensor.optical_res/genesys_dpiset(dev->calib_reg);
@@ -2946,8 +2964,21 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 	    for ( j = 0; j < channels; j++) {
 		
 	      /* dark data */
-	      val = dev->dark_average_data[(x + pixels_per_line * j) * 2] |
+	      dk = dev->dark_average_data[(x + pixels_per_line * j) * 2] |
 		  (dev->dark_average_data[(x + pixels_per_line * j) * 2 + 1] << 8);
+
+	      /* white data */
+	      br = (dev->white_average_data[(x + pixels_per_line * j) * 2] 
+		     | (dev->white_average_data[(x + pixels_per_line * j) * 2 + 1] << 8));
+	      
+	      if (br*target_dark > dk*target_bright)
+		  val = 0;
+	      else if (dk*target_bright - br*target_dark > 65535 * (target_bright - target_dark))
+		  val = 65535;
+	      else
+		  val = (dk*target_bright - br*target_dark)/(target_bright - target_dark);
+
+
 /*fill all pixels, even if only the first one is relevant*/
 	      for (i = 0; i < avgpixels; i++) {
 		  shading_data[
@@ -2958,16 +2989,10 @@ genesys_send_shading_coefficient (Genesys_Device * dev)
 		      ] = val >> 8;
 	      }
 
-	      dk = val;
+	      val = br - dk;
 
-	      /* white data */
-	      val = (dev->white_average_data[(x + pixels_per_line * j) * 2] 
-		     | (dev->white_average_data[(x + pixels_per_line * j) * 2 + 1] << 8));
-	      
-	      val -= dk;
-
-	      if (65535 * val > target_code * coeff)
-		  val = (coeff * target_code) / val;
+	      if (65535 * val > (target_bright - target_dark) * coeff)
+		  val = (coeff * (target_bright - target_dark)) / val;
 	      else
 		  val = 65535;
 	      

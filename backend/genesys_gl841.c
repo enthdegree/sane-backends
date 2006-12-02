@@ -4362,6 +4362,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   int turn;
   char fn[20];
   SANE_Bool acceptable = SANE_FALSE;
+  int mintgt = 0x600;
 
   DBG (DBG_proc, "gl841_offset_calibration\n");
 
@@ -4492,9 +4493,9 @@ gl841_offset_calibration (Genesys_Device * dev)
 		  val =
 		      first_line[i * 2 * channels + 2 * j + 1] * 256 +
 		      first_line[i * 2 * channels + 2 * j];
-	      if (val == 0)
+	      if (val < 10)
 		  cmin[j]++;
-	      if (val == 65535)
+	      if (val > 65525)
 		  cmax[j]++;
 	  }
 
@@ -4578,7 +4579,7 @@ gl841_offset_calibration (Genesys_Device * dev)
       }
       
       DBG (DBG_info,
-	   "gl841_offset_calibration: starting first line reading\n");
+	   "gl841_offset_calibration: starting second line reading\n");
       RIE (gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
       
@@ -4608,9 +4609,9 @@ gl841_offset_calibration (Genesys_Device * dev)
 		  val =
 		      second_line[i * 2 * channels + 2 * j + 1] * 256 +
 		      second_line[i * 2 * channels + 2 * j];
-	      if (val == 0)
+	      if (val < 10)
 		  cmin[j]++;
-	      if (val == 65535)
+	      if (val > 65525)
 		  cmax[j]++;
 	  }
 
@@ -4676,17 +4677,35 @@ gl841_offset_calibration (Genesys_Device * dev)
   DBG(DBG_info,"gl841_offset_calibration: second set: %d/%d,%d/%d,%d/%d\n",
       off2[0],min2[0],off2[1],min2[1],off2[2],min2[2]);
 
+/* 
+  calculate offset for each channel
+  based on minimal pixel value min1 at offset off1 and minimal pixel value min2
+  at offset off2
+  
+  to get min at off, values are linearly interpolated:
+  min=real+off*fact
+  min1=real+off1*fact
+  min2=real+off2*fact
+
+  fact=(min1-min2)/(off1-off2)
+  real=min1-off1*(min1-min2)/(off1-off2)
+
+  off=(min-min1+off1*(min1-min2)/(off1-off2))/((min1-min2)/(off1-off2))
+
+  off=(min*(off1-off2)+min1*off2-off1*min2)/(min1-min2)
+
+ */
   for (j = 0; j < channels; j++)
   {
       if (min2[j]-min1[j] == 0) {
 /*TODO: try to avoid this*/
 	  DBG(DBG_warn,"gl841_offset_calibration: difference too small\n");
-	  if (min1[j] * off2[j] - min2[j] * off1[j] >= 0)
+	  if (mintgt * (off1[j] - off2[j]) + min1[j] * off2[j] - min2[j] * off1[j] >= 0)
 	      off[j] = 0x0000;
 	  else
 	      off[j] = 0xffff;
       } else
-	  off[j] = -(min1[j] * off2[j] - min2[j] * off1[j])/(min2[j]-min1[j]);
+	  off[j] = -(mintgt * (off1[j] - off2[j]) + min2[j] * off1[j] - min1[j] * off2[j])/(min2[j]-min1[j]);
       dev->frontend.offset[j] = off[j];
   }
 

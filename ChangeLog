@@ -1,3 +1,9 @@
+2006-12-02  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_devices.c: fixed gamma settings(1.0 now)
+	* backend/genesys.c backend/genesys_gl841.c: improved calibration
+	  for dark shades
+
 2006-12-02  Alessandro Zummo <a.zummo@towertech.it>
 
 	* Added missing bits for epson2 driver.

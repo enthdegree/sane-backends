@@ -12,3 +12,4 @@
 # PARTICULAR PURPOSE.
 
 m4_include([acinclude.m4])
+m4_include([acbyteorder.m4])

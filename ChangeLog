@@ -1,3 +1,7 @@
+2006-12-06  Alessandro Zummo <a.zummo@towertech.it>
+
+	* Added acbyteorder.m4 macro for endianness conversion
+
 2006-12-02  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_devices.c: fixed gamma settings(1.0 now)

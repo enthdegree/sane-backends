@@ -14,6 +14,8 @@ AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.
 AC_ARG_PROGRAM
 
+AC_NEED_BYTEORDER_H([include/byteorder.h])
+
 PACKAGE=AC_PACKAGE_NAME
 VERSION=AC_PACKAGE_VERSION
 NUMBER_VERSION=${V_MAJOR}.${V_MINOR}.${V_REV}

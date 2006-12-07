@@ -42,9 +42,98 @@
 #define SANE_EPSON_WAIT_FOR_BUTTON_DESC SANE_I18N("After sending the scan command, wait until the button on the scanner is pressed to actually start the scan process.");
 
 
-#define LINES_SHUFFLE_MAX	(17)	/* 2 x 8 lines plus 1 */
+#define LINES_SHUFFLE_MAX	17	/* 2 x 8 lines plus 1 */
 
-#define SANE_EPSON_MAX_RETRIES	(120)	/* how often do we retry during warmup ? */
+#define SANE_EPSON_MAX_RETRIES	120	/* how often do we retry during warmup ? */
+
+
+/* NOTE: you can find these codes with "man ascii". */
+#define STX	0x02
+#define ACK	0x06
+#define NAK	0x15
+#define CAN	0x18
+#define ESC	0x1B
+#define PF	0x19
+#define FS	0x1C
+
+#define	S_ACK	"\006"
+#define	S_CAN	"\030"
+
+#define STATUS_FER		0x80	/* fatal error */
+#define STATUS_NOT_READY	0x40	/* scanner is in use on another interface */
+#define STATUS_AREA_END		0x20	/* area end */
+#define STATUS_OPTION		0x10	/* option installed */
+#define STATUS_EXT_COMMANDS	0x02	/* scanners supports extended commands */
+#define STATUS_RESERVED		0x01	/* this should be always 0 */
+
+#define CMD_SIZE_EXT_STATUS	42
+
+#define EXT_STATUS_FER		0x80	/* fatal error */
+#define EXT_STATUS_FBF		0x40	/* flat bed scanner */
+#define EXT_STATUS_ADFT		0x20	/* page type ADF */
+#define EXT_STATUS_ADFS		0x10	/* ADF is duplex capable */
+#define EXT_STATUS_ADFO		0x08	/* ADF loads from the first sheet (page type only) */
+#define EXT_STATUS_LID		0x04	/* lid is open */
+#define EXT_STATUS_WU		0x02	/* warming up */
+#define EXT_STATUS_PB		0x01	/* scanner has a push button */
+
+#define EXT_STATUS_IST		0x80	/* option detected */
+#define EXT_STATUS_EN		0x40	/* option enabled */
+#define EXT_STATUS_ERR		0x20	/* other error */
+#define EXT_STATUS_PE		0x08	/* no paper */
+#define EXT_STATUS_PJ		0x04	/* paper jam */
+#define EXT_STATUS_OPN		0x02	/* cover open */
+
+#define EXT_IDTY_STATUS_DLF	0x80
+#define EXT_IDTY_STATUS_NOTFBF	0x40
+#define EXT_IDTY_STATUS_ADFT	0x20
+#define EXT_IDTY_STATUS_ADFS	0x10
+#define EXT_IDTY_STATUS_ADFO	0x08
+#define EXT_IDTY_STATUS_LID	0x04
+#define EXT_IDTY_STATUS_TPIR	0x02
+#define EXT_IDTY_STATUS_PB	0x01
+
+#define FSF_STATUS_MAIN_FER	0x80	/* system error */
+#define FSF_STATUS_MAIN_NR	0x40	/* not ready */
+#define FSF_STATUS_MAIN_WU	0x02	/* warming up */
+#define FSF_STATUS_ADF_IST	0x80	/* installed */
+#define FSF_STATUS_ADF_EN	0x40	/* enabled */
+#define FSF_STATUS_ADF_ERR	0x20	/* system error */
+#define FSF_STATUS_ADF_PE	0x08	/* paper empty */
+#define FSF_STATUS_ADF_PJ	0x04	/* paper jam */
+#define FSF_STATUS_ADF_OPN	0x02	/* cover open */
+#define FSF_STATUS_ADF_PAG	0x01	/* duplex */
+#define FSF_STATUS_TPU_IST	0x80	/* installed */
+#define FSF_STATUS_TPU_EN	0x40	/* enabled */
+#define FSF_STATUS_TPU_ERR	0x20	/* system error */
+#define FSF_STATUS_TPU_OPN	0x02	/* cover open */
+#define FSF_STATUS_MAIN2_ERR	0x20	/* system error */
+#define FSF_STATUS_MAIN2_PE	0x08	/* paper empty */
+#define FSF_STATUS_MAIN2_PJ	0x04	/* paper jam */
+#define FSF_STATUS_MAIN2_OPN	0x02	/* cover open */
+
+#define EPSON_LEVEL_A1		 0
+#define EPSON_LEVEL_A2		 1
+#define EPSON_LEVEL_B1		 2
+#define	EPSON_LEVEL_B2		 3
+#define	EPSON_LEVEL_B3		 4
+#define	EPSON_LEVEL_B4		 5
+#define	EPSON_LEVEL_B5		 6
+#define	EPSON_LEVEL_B6		 7
+#define	EPSON_LEVEL_B7		 8
+#define	EPSON_LEVEL_B8		 9
+#define	EPSON_LEVEL_F5		10
+#define EPSON_LEVEL_D1		11
+#define EPSON_LEVEL_D7		12
+#define EPSON_LEVEL_D8		13
+
+/* there is also a function level "A5", which I'm igoring here until somebody can
+ * convince me that this is still needed. The A5 level was for the GT-300, which
+ * was (is) a monochrome only scanner. So if somebody really wants to use this
+ * scanner with SANE get in touch with me and we can work something out - khk
+ */
+
+#define	 EPSON_LEVEL_DEFAULT	EPSON_LEVEL_B3
 
 typedef struct
 {

@@ -15,6 +15,7 @@ AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.
 AC_ARG_PROGRAM
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
+AX_NEED_STDINT_H([include/_stdint.h])
 
 PACKAGE=AC_PACKAGE_NAME
 VERSION=AC_PACKAGE_VERSION

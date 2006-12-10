@@ -478,7 +478,7 @@ static Genesys_Model canon_lide_50_model = {
   | GENESYS_FLAG_SKIP_WARMUP
   | GENESYS_FLAG_OFFSET_CALIBRATION
   | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
-  300,
+  280,
   400
 };
 

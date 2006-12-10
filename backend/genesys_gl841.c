@@ -4362,7 +4362,7 @@ gl841_offset_calibration (Genesys_Device * dev)
   int turn;
   char fn[20];
   SANE_Bool acceptable = SANE_FALSE;
-  int mintgt = 0x600;
+  int mintgt = 0x2000;
 
   DBG (DBG_proc, "gl841_offset_calibration\n");
 
@@ -4706,6 +4706,10 @@ gl841_offset_calibration (Genesys_Device * dev)
 	      off[j] = 0xffff;
       } else
 	  off[j] = -(mintgt * (off1[j] - off2[j]) + min2[j] * off1[j] - min1[j] * off2[j])/(min2[j]-min1[j]);
+      if (off[j] > 255)
+	  off[j] = 255;
+      if (off[j] < 0)
+	  off[j] = 0;
       dev->frontend.offset[j] = off[j];
   }
 

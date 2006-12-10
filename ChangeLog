@@ -1,3 +1,9 @@
+2006-12-10  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_devices.c: reduced height of calibration area
+	* backend/genesys_gl841.c: fixed bug in offset calibration(offset
+	values were not clamped to 0..255)
+
 2006-12-10  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
 	* canon: disentangled some pointer arithmetics in canon-sane.c

@@ -123,6 +123,10 @@
 
 #include <canon.h>
 
+#ifndef SANE_I18N
+#define SANE_I18N(text)	text
+#endif
+
 #define MM_PER_INCH	 25.4
 
 static SANE_Byte primaryHigh[256], primaryLow[256], secondaryHigh[256],
@@ -133,40 +137,42 @@ static CANON_Device *first_dev = NULL;
 static CANON_Scanner *first_handle = NULL;
 
 static const SANE_String_Const mode_list[] = {
-  "Lineart", "Halftone", "Gray", "Color", 0
+  SANE_I18N(SANE_I18N("Lineart")), SANE_I18N("Halftone"), SANE_I18N("Gray"),
+  SANE_I18N("Color"), 0
 };
 
 /* modification for FS2710 */
 static const SANE_String_Const mode_list_fs2710[] = {
-  "Color", "Raw", 0
+  SANE_I18N("Color"), SANE_I18N("Raw"), 0
 };
 
 /* modification for FB620S */
 static const SANE_String_Const mode_list_fb620[] = {
-  "Lineart", "Gray", "Color", "Fine color", 0
+  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"),
+  SANE_I18N("Fine color"), 0
 };
 
 /* modification for FB1200S */
 static const SANE_String_Const mode_list_fb1200[] = {
-  "Lineart", "Gray", "Color", 0
+  SANE_I18N("Lineart"), SANE_I18N("Gray"), SANE_I18N("Color"), 0
 };
 
 static const SANE_String_Const tpu_dc_mode_list[] = {
-  "No transparency correction",
-  "Correction according to Film type",
-  "Correction according to Transparency Ratio",
+  SANE_I18N("No transparency correction"),
+  SANE_I18N("Correction according to film type"),
+  SANE_I18N("Correction according to transparency ratio"),
   0
 };
 
 static const SANE_String_Const page_list[] = {
-  "Show normal options",
-  "Show advanced options",
-  "Show all options",
+  SANE_I18N("Show normal options"),
+  SANE_I18N("Show advanced options"),
+  SANE_I18N("Show all options"),
   0
 };
 
 static const SANE_String_Const filmtype_list[] = {
-  "Negatives", "Slides",
+  SANE_I18N("Negatives"), SANE_I18N("Slides"),
   0
 };
 
@@ -176,7 +182,8 @@ static const SANE_String_Const negative_filmtype_list[] = {
 };
 
 static const SANE_String_Const scanning_speed_list[] = {
-  "Automatic", "Normal speed", "1/2 normal speed", "1/3 normal speed",
+  SANE_I18N("Automatic"), SANE_I18N("Normal speed"),
+  SANE_I18N("1/2 normal speed"), SANE_I18N("1/3 normal speed"),
   0
 };
 
@@ -331,6 +338,11 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
     result[15]);
 
   status = SANE_STATUS_GOOD;
+
+  /* If the sense handler is invoked before the scanner has been
+     identified, pretend that nothing has happened. */
+  if (strncmp(dev->sane.vendor, "CANON", 5) != 0) return (status);
+
   if (dev && dev->info.is_scsi2)
     {
       DBG(11, "sense data interpretation for SCSI-2 devices\n");
@@ -354,10 +366,10 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x3700:
-	      sense_str = "rounded parameter";
+	      sense_str = SANE_I18N("rounded parameter");
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	    }
 	  status = SANE_STATUS_GOOD;
 	  break;
@@ -367,13 +379,13 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x8000:
-	      sense_str = "ADF jam";
+	      sense_str = SANE_I18N("ADF jam");
 	      break;
 	    case 0x8001:
-	      sense_str = "ADF cover open";
+	      sense_str = SANE_I18N("ADF cover open");
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	    }
 	  status = SANE_STATUS_IO_ERROR;
 	  break;
@@ -383,31 +395,32 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x6000:
-	      sense_str = "lamp failure";
+	      sense_str = SANE_I18N("lamp failure");
 	      break;
 	    case 0x6200:
-	      sense_str = "scan head positioning error";
+	      sense_str = SANE_I18N("scan head positioning error");
 	      break;
 	    case 0x8001:
-	      sense_str = "CPU check error";
+	      sense_str = SANE_I18N("CPU check error");
 	      break;
 	    case 0x8002:
-	      sense_str = "RAM check error";
+	      sense_str = SANE_I18N("RAM check error");
 	      break;
 	    case 0x8003:
-	      sense_str = "ROM check error";
+	      sense_str = SANE_I18N("ROM check error");
 	      break;
 	    case 0x8004:
-	      sense_str = "hardware check error";
+	      sense_str = SANE_I18N("hardware check error");
 	      break;
 	    case 0x8005:
-	      sense_str = "transparency unit lamp failure";
+	      sense_str = SANE_I18N("transparency unit lamp failure");
 	      break;
 	    case 0x8006:
-	      sense_str = "transparency unit scan head positioning failure";
+	      sense_str = SANE_I18N("transparency unit scan head "
+	      "positioning failure");
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	    }
 	  status = SANE_STATUS_IO_ERROR;
 	  break;
@@ -417,47 +430,47 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x1a00:
-	      sense_str = "parameter list length error";
+	      sense_str = SANE_I18N("parameter list length error");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x2000:
-	      sense_str = "invalid command operation code";
+	      sense_str = SANE_I18N("invalid command operation code");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x2400:
-	      sense_str = "invalid field in CDB";
+	      sense_str = SANE_I18N("invalid field in CDB");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x2500:
-	      sense_str = "unsupported LUN";
+	      sense_str = SANE_I18N("unsupported LUN");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x2600:
-	      sense_str = "invalid field in parameter list";
+	      sense_str = SANE_I18N("invalid field in parameter list");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x2c00:
-	      sense_str = "command sequence error";
+	      sense_str = SANE_I18N("command sequence error");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x2c01:
-	      sense_str = "too many windows specified";
+	      sense_str = SANE_I18N("too many windows specified");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x3a00:
-	      sense_str = "medium not present";
+	      sense_str = SANE_I18N("medium not present");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x3d00:
-	      sense_str = "invalid bit IDENTIFY message";
+	      sense_str = SANE_I18N("invalid bit IDENTIFY message");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x8002:
-	      sense_str = "option not connect";
+	      sense_str = SANE_I18N("option not connect");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	      status = SANE_STATUS_UNSUPPORTED;
 	    }
 	  break;
@@ -467,15 +480,15 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x2900:
-	      sense_str = "power on reset / bus device reset";
+	      sense_str = SANE_I18N("power on reset / bus device reset");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x2a00:
-	      sense_str = "parameter changed by another initiator";
+	      sense_str = SANE_I18N("parameter changed by another initiator");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	      status = SANE_STATUS_IO_ERROR;
 	    }
 	  break;
@@ -485,39 +498,40 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	  switch (asc)
 	    {
 	    case 0x0000:
-	      sense_str = "no additional sense information";
+	      sense_str = SANE_I18N("no additional sense information");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x4500:
-	      sense_str = "reselect failure";
+	      sense_str = SANE_I18N("reselect failure");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x4700:
-	      sense_str = "SCSI parity error";
+	      sense_str = SANE_I18N("SCSI parity error");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x4800:
-	      sense_str = "initiator detected error message received";
+	      sense_str = SANE_I18N("initiator detected error message "
+	      "received");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x4900:
-	      sense_str = "invalid message error";
+	      sense_str = SANE_I18N("invalid message error");
 	      status = SANE_STATUS_UNSUPPORTED;
 	      break;
 	    case 0x8000:
-	      sense_str = "timeout error";
+	      sense_str = SANE_I18N("timeout error");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x8001:
-	      sense_str = "trancparency unit shading error";
+	      sense_str = SANE_I18N("trancparency unit shading error");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x8003:
-	      sense_str = "lamp not stabilized";
+	      sense_str = SANE_I18N("lamp not stabilized");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    default:
-	      sense_str = "unknown";
+	      sense_str = SANE_I18N("unknown");
 	      status = SANE_STATUS_IO_ERROR;
 	    }
 	  break;
@@ -527,7 +541,7 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
     }
   else
     {
-      sense_str = "problem not analyzed (unknown SCSI class)";
+      sense_str = SANE_I18N("problem not analyzed (unknown SCSI class)");
       status = SANE_STATUS_IO_ERROR;
     }
   DBG (11, "sense message: %s\n", sense_str);
@@ -556,7 +570,7 @@ do_gamma (CANON_Scanner * s)
     strcmp (filmtype_list[1], s->val[OPT_NEGATIVE].s)
     : s->val[OPT_HNEGATIVE].w;
 
-  if (!strcmp (s->val[OPT_MODE].s, "Gray"))
+  if (!strcmp (s->val[OPT_MODE].s, SANE_I18N("Gray")))
     {
       /* If scanning in gray mode, use the first curve for the
          scanner's monochrome gamma component                    */
@@ -842,10 +856,10 @@ attach (const char *devnam, CANON_Device ** devp)
      - whether it is a film scanner (or can be used as one)
      - whether it has fixed, hardware-set scan resolutions only
   */
-  if (strncmp (str, "IX-27015", 8) == 0)	/* FS2700S */
+  if (!strncmp (str, "IX-27015", 8))		/* FS2700S */
     {
       dev->info.model = CS2700;
-      dev->sane.type = "film scanner";
+      dev->sane.type = SANE_I18N("film scanner");
       dev->adf.Status = ADF_STAT_NONE;
       dev->tpu.Status = TPU_STAT_NONE;
       dev->info.can_focus = SANE_TRUE;
@@ -857,10 +871,10 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.is_filmscanner = SANE_TRUE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else if (strncmp (str, "IX-27025E", 9) == 0)	/* FS2710S */
+  else if (!strncmp (str, "IX-27025E", 9))	/* FS2710S */
     {
       dev->info.model = FS2710;
-      dev->sane.type = "film scanner";
+      dev->sane.type = SANE_I18N("film scanner");
       dev->adf.Status = ADF_STAT_NONE;
       dev->tpu.Status = TPU_STAT_NONE;
       dev->info.can_focus = SANE_TRUE;
@@ -872,10 +886,10 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.is_filmscanner = SANE_TRUE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else if (strncmp (str, "IX-06035E", 9) == 0)	/* FB620S */
+  else if (!strncmp (str, "IX-06035E", 9))	/* FB620S */
     {
       dev->info.model = FB620;
-      dev->sane.type = "flatbed scanner";
+      dev->sane.type = SANE_I18N("flatbed scanner");
       dev->adf.Status = ADF_STAT_NONE;
       dev->tpu.Status = TPU_STAT_NONE;
       dev->info.can_focus = SANE_FALSE;
@@ -887,10 +901,10 @@ attach (const char *devnam, CANON_Device ** devp)
       dev->info.is_filmscanner = SANE_FALSE;
       dev->info.has_fixed_resolutions = SANE_TRUE;
     }
-  else if (strncmp (str, "IX-12015E", 9) == 0)	/* FB1200S */
+  else if (!strncmp (str, "IX-12015E", 9))	/* FB1200S */
     {
       dev->info.model = FB1200;
-      dev->sane.type = "flatbed scanner";
+      dev->sane.type = SANE_I18N("flatbed scanner");
       dev->adf.Status = ADF_STAT_INACTIVE;
       dev->tpu.Status = TPU_STAT_INACTIVE;
       dev->info.can_focus = SANE_FALSE;
@@ -905,7 +919,7 @@ attach (const char *devnam, CANON_Device ** devp)
   else						/* CS300, CS600 */
     {
       dev->info.model = CS3_600;
-      dev->sane.type = "flatbed scanner";
+      dev->sane.type = SANE_I18N("flatbed scanner");
       dev->adf.Status = ADF_STAT_INACTIVE;
       dev->tpu.Status = TPU_STAT_INACTIVE;
       dev->info.can_focus = SANE_FALSE;
@@ -1122,7 +1136,7 @@ init_options (CANON_Scanner * s)
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* "Mode" group: */
-  s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+  s->opt[OPT_MODE_GROUP].title = SANE_I18N("Scan mode");
   s->opt[OPT_MODE_GROUP].desc = "";
   s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MODE_GROUP].cap = 0;
@@ -1160,9 +1174,9 @@ init_options (CANON_Scanner * s)
 
   /* Slides or negatives */
   s->opt[OPT_NEGATIVE].name = "film-type";
-  s->opt[OPT_NEGATIVE].title = "Film type";
-  s->opt[OPT_NEGATIVE].desc =
-    "Selects the film type, i.e. negatives or slides";
+  s->opt[OPT_NEGATIVE].title = SANE_I18N("Film type");
+  s->opt[OPT_NEGATIVE].desc = SANE_I18N("Selects the film type, i.e. "
+  "negatives or slides");
   s->opt[OPT_NEGATIVE].type = SANE_TYPE_STRING;
   s->opt[OPT_NEGATIVE].size = max_string_size (filmtype_list);
   s->opt[OPT_NEGATIVE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1173,8 +1187,8 @@ init_options (CANON_Scanner * s)
 
   /* Negative film type */
   s->opt[OPT_NEGATIVE_TYPE].name = "negative-film-type";
-  s->opt[OPT_NEGATIVE_TYPE].title = "Negative film type";
-  s->opt[OPT_NEGATIVE_TYPE].desc = "Selects the negative film type";
+  s->opt[OPT_NEGATIVE_TYPE].title = SANE_I18N("Negative film type");
+  s->opt[OPT_NEGATIVE_TYPE].desc = SANE_I18N("Selects the negative film type");
   s->opt[OPT_NEGATIVE_TYPE].type = SANE_TYPE_STRING;
   s->opt[OPT_NEGATIVE_TYPE].size = max_string_size (negative_filmtype_list);
   s->opt[OPT_NEGATIVE_TYPE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1184,8 +1198,8 @@ init_options (CANON_Scanner * s)
 
   /* Scanning speed */
   s->opt[OPT_SCANNING_SPEED].name = "scanning-speed";
-  s->opt[OPT_SCANNING_SPEED].title = "Scanning speed";
-  s->opt[OPT_SCANNING_SPEED].desc = "Selects the scanning speed";
+  s->opt[OPT_SCANNING_SPEED].title = SANE_I18N("Scanning speed");
+  s->opt[OPT_SCANNING_SPEED].desc = SANE_I18N("Selects the scanning speed");
   s->opt[OPT_SCANNING_SPEED].type = SANE_TYPE_STRING;
   s->opt[OPT_SCANNING_SPEED].size = max_string_size (scanning_speed_list);
   s->opt[OPT_SCANNING_SPEED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1198,7 +1212,7 @@ init_options (CANON_Scanner * s)
 
 
   /* "Resolution" group: */
-  s->opt[OPT_RESOLUTION_GROUP].title = "Scan Resolution";
+  s->opt[OPT_RESOLUTION_GROUP].title = SANE_I18N("Scan Resolution");
   s->opt[OPT_RESOLUTION_GROUP].desc = "";
   s->opt[OPT_RESOLUTION_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_RESOLUTION_GROUP].cap = 0;
@@ -1213,8 +1227,9 @@ init_options (CANON_Scanner * s)
 
   /* hardware resolutions only */
   s->opt[OPT_HW_RESOLUTION_ONLY].name = "hw-resolution-only";
-  s->opt[OPT_HW_RESOLUTION_ONLY].title = "Hardware resolution";
-  s->opt[OPT_HW_RESOLUTION_ONLY].desc = "Use only hardware resolutions";
+  s->opt[OPT_HW_RESOLUTION_ONLY].title = SANE_I18N("Hardware resolution");
+  s->opt[OPT_HW_RESOLUTION_ONLY].desc = SANE_I18N("Use only hardware "
+  "resolutions");
   s->opt[OPT_HW_RESOLUTION_ONLY].type = SANE_TYPE_BOOL;
   s->val[OPT_HW_RESOLUTION_ONLY].w = SANE_TRUE;
   s->opt[OPT_HW_RESOLUTION_ONLY].cap |=
@@ -1294,7 +1309,7 @@ init_options (CANON_Scanner * s)
     }
 
   /* Focus group: */
-  s->opt[OPT_FOCUS_GROUP].title = "Focus";
+  s->opt[OPT_FOCUS_GROUP].title = SANE_I18N("Focus");
   s->opt[OPT_FOCUS_GROUP].desc = "";
   s->opt[OPT_FOCUS_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_FOCUS_GROUP].cap = SANE_CAP_ADVANCED;
@@ -1304,25 +1319,26 @@ init_options (CANON_Scanner * s)
 
   /* Auto-Focus switch */
   s->opt[OPT_AF].name = "af";
-  s->opt[OPT_AF].title = "Auto Focus";
-  s->opt[OPT_AF].desc = "Enable/disable Auto Focus";
+  s->opt[OPT_AF].title = SANE_I18N("Auto focus");
+  s->opt[OPT_AF].desc = SANE_I18N("Enable/disable auto focus");
   s->opt[OPT_AF].type = SANE_TYPE_BOOL;
   s->opt[OPT_AF].cap |= (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
   s->val[OPT_AF].w = s->hw->info.can_focus;
 
   /* Auto-Focus once switch */
   s->opt[OPT_AF_ONCE].name = "afonce";
-  s->opt[OPT_AF_ONCE].title = "Auto Focus only once";
-  s->opt[OPT_AF_ONCE].desc = "Do Auto Focus only once between ejects";
+  s->opt[OPT_AF_ONCE].title = SANE_I18N("Auto focus only once");
+  s->opt[OPT_AF_ONCE].desc = SANE_I18N("Do auto focus only once between "
+  "ejects");
   s->opt[OPT_AF_ONCE].type = SANE_TYPE_BOOL;
   s->opt[OPT_AF_ONCE].cap |= (s->hw->info.can_focus) ? 0 : SANE_CAP_INACTIVE;
   s->val[OPT_AF_ONCE].w = s->hw->info.can_focus;
 
   /* Manual focus */
   s->opt[OPT_FOCUS].name = "focus";
-  s->opt[OPT_FOCUS].title = "Manual focus position";
-  s->opt[OPT_FOCUS].desc =
-    "Set the optical system's focus position by hand (default: 128).";
+  s->opt[OPT_FOCUS].title = SANE_I18N("Manual focus position");
+  s->opt[OPT_FOCUS].desc = SANE_I18N("Set the optical system's focus "
+  "position by hand (default: 128).");
   s->opt[OPT_FOCUS].type = SANE_TYPE_INT;
   s->opt[OPT_FOCUS].unit = SANE_UNIT_NONE;
   s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_RANGE;
@@ -1331,7 +1347,7 @@ init_options (CANON_Scanner * s)
   s->val[OPT_FOCUS].w = (s->hw->info.can_focus) ? 128 : 0;
 
   /* Margins group: */
-  s->opt[OPT_MARGINS_GROUP].title = "Scan margins";
+  s->opt[OPT_MARGINS_GROUP].title = SANE_I18N("Scan margins");
   s->opt[OPT_MARGINS_GROUP].desc = "";
   s->opt[OPT_MARGINS_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_MARGINS_GROUP].cap = SANE_CAP_ADVANCED;
@@ -1378,7 +1394,7 @@ init_options (CANON_Scanner * s)
   s->val[OPT_BR_Y].w = s->hw->info.y_range.max;
 
   /* Colors group: */
-  s->opt[OPT_COLORS_GROUP].title = "Extra color adjustments";
+  s->opt[OPT_COLORS_GROUP].title = SANE_I18N("Extra color adjustments");
   s->opt[OPT_COLORS_GROUP].desc = "";
   s->opt[OPT_COLORS_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_COLORS_GROUP].cap = SANE_CAP_ADVANCED;
@@ -1469,7 +1485,7 @@ init_options (CANON_Scanner * s)
 
 
   /* "Enhancement" group: */
-  s->opt[OPT_ENHANCEMENT_GROUP].title = "Enhancement";
+  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N("Enhancement");
   s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
   s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ENHANCEMENT_GROUP].cap = 0;
@@ -1509,8 +1525,8 @@ init_options (CANON_Scanner * s)
   s->val[OPT_THRESHOLD].w = 128;
 
   s->opt[OPT_MIRROR].name = "mirror";
-  s->opt[OPT_MIRROR].title = "Mirror image";
-  s->opt[OPT_MIRROR].desc = "Mirror the image horizontally";
+  s->opt[OPT_MIRROR].title = SANE_I18N("Mirror image");
+  s->opt[OPT_MIRROR].desc = SANE_I18N("Mirror the image horizontally");
   s->opt[OPT_MIRROR].type = SANE_TYPE_BOOL;
   s->opt[OPT_MIRROR].cap |= (s->hw->info.can_mirror) ? 0: SANE_CAP_INACTIVE;
   s->val[OPT_MIRROR].w = SANE_FALSE;
@@ -1579,15 +1595,15 @@ init_options (CANON_Scanner * s)
   s->val[OPT_GAMMA_VECTOR_B].wa = &s->gamma_table[3][0];
 
   s->opt[OPT_AE].name = "ae";
-  s->opt[OPT_AE].title = "Auto Exposure";
-  s->opt[OPT_AE].desc = "Enable/disable the Auto Exposure feature";
+  s->opt[OPT_AE].title = SANE_I18N("Auto exposure");
+  s->opt[OPT_AE].desc = SANE_I18N("Enable/disable the auto exposure feature");
   s->opt[OPT_AE].cap |= (s->hw->info.can_autoexpose) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_AE].type = SANE_TYPE_BOOL;
   s->val[OPT_AE].w = SANE_FALSE;
 
 
   /* "Calibration" group */
-  s->opt[OPT_CALIBRATION_GROUP].title = "Calibration";
+  s->opt[OPT_CALIBRATION_GROUP].title = SANE_I18N("Calibration");
   s->opt[OPT_CALIBRATION_GROUP].desc = "";
   s->opt[OPT_CALIBRATION_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_CALIBRATION_GROUP].cap |=
@@ -1596,8 +1612,8 @@ init_options (CANON_Scanner * s)
 
   /* calibration now */
   s->opt[OPT_CALIBRATION_NOW].name = "calibration-now";
-  s->opt[OPT_CALIBRATION_NOW].title = "Calibration now";
-  s->opt[OPT_CALIBRATION_NOW].desc = "Execute calibration *now*";
+  s->opt[OPT_CALIBRATION_NOW].title = SANE_I18N("Calibration now");
+  s->opt[OPT_CALIBRATION_NOW].desc = SANE_I18N("Execute calibration *now*");
   s->opt[OPT_CALIBRATION_NOW].type = SANE_TYPE_BUTTON;
   s->opt[OPT_CALIBRATION_NOW].unit = SANE_UNIT_NONE;
   s->opt[OPT_CALIBRATION_NOW].cap |=
@@ -1607,9 +1623,9 @@ init_options (CANON_Scanner * s)
 
   /* scanner self diagnostic */
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].name = "self-diagnostic";
-  s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].title = "Self diagnostic";
-  s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].desc =
-    "Perform scanner self diagnostic";
+  s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].title = SANE_I18N("Self diagnosis");
+  s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].desc = SANE_I18N("Perform scanner "
+  "self diagnosis");
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].type = SANE_TYPE_BUTTON;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].unit = SANE_UNIT_NONE;
   s->opt[OPT_SCANNER_SELF_DIAGNOSTIC].cap |=
@@ -1619,8 +1635,8 @@ init_options (CANON_Scanner * s)
 
   /* reset scanner for FB620S */
   s->opt[OPT_RESET_SCANNER].name = "reset-scanner";
-  s->opt[OPT_RESET_SCANNER].title = "Reset scanner";
-  s->opt[OPT_RESET_SCANNER].desc = "Reset the scanner";
+  s->opt[OPT_RESET_SCANNER].title = SANE_I18N("Reset scanner");
+  s->opt[OPT_RESET_SCANNER].desc = SANE_I18N("Reset the scanner");
   s->opt[OPT_RESET_SCANNER].type = SANE_TYPE_BUTTON;
   s->opt[OPT_RESET_SCANNER].unit = SANE_UNIT_NONE;
   s->opt[OPT_RESET_SCANNER].cap |=
@@ -1630,7 +1646,7 @@ init_options (CANON_Scanner * s)
 
 
   /* "Eject" group (active only for film scanners) */
-  s->opt[OPT_EJECT_GROUP].title = "Medium handling";
+  s->opt[OPT_EJECT_GROUP].title = SANE_I18N("Medium handling");
   s->opt[OPT_EJECT_GROUP].desc = "";
   s->opt[OPT_EJECT_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_EJECT_GROUP].cap |=
@@ -1639,9 +1655,9 @@ init_options (CANON_Scanner * s)
 
   /* eject after scan */
   s->opt[OPT_EJECT_AFTERSCAN].name = "eject-after-scan";
-  s->opt[OPT_EJECT_AFTERSCAN].title = "Eject film after each scan";
-  s->opt[OPT_EJECT_AFTERSCAN].desc =
-    "Automatically eject the film from the device after each scan";
+  s->opt[OPT_EJECT_AFTERSCAN].title = SANE_I18N("Eject film after each scan");
+  s->opt[OPT_EJECT_AFTERSCAN].desc = SANE_I18N("Automatically eject the "
+  "film from the device after each scan");
   s->opt[OPT_EJECT_AFTERSCAN].cap |=
     (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_AFTERSCAN].type = SANE_TYPE_BOOL;
@@ -1649,9 +1665,9 @@ init_options (CANON_Scanner * s)
 
   /* eject before exit */
   s->opt[OPT_EJECT_BEFOREEXIT].name = "eject-before-exit";
-  s->opt[OPT_EJECT_BEFOREEXIT].title = "Eject film before exit";
-  s->opt[OPT_EJECT_BEFOREEXIT].desc =
-    "Automatically eject the film from the device before exiting the program";
+  s->opt[OPT_EJECT_BEFOREEXIT].title = SANE_I18N("Eject film before exit");
+  s->opt[OPT_EJECT_BEFOREEXIT].desc = SANE_I18N("Automatically eject the "
+  "film from the device before exiting the program");
   s->opt[OPT_EJECT_BEFOREEXIT].cap |=
     (s->hw->info.can_eject) ? 0 : SANE_CAP_INACTIVE;
   s->opt[OPT_EJECT_BEFOREEXIT].type = SANE_TYPE_BOOL;
@@ -1659,8 +1675,8 @@ init_options (CANON_Scanner * s)
 
   /* eject now */
   s->opt[OPT_EJECT_NOW].name = "eject-now";
-  s->opt[OPT_EJECT_NOW].title = "Eject film now";
-  s->opt[OPT_EJECT_NOW].desc = "Eject the film from the device *now*";
+  s->opt[OPT_EJECT_NOW].title = SANE_I18N("Eject film now");
+  s->opt[OPT_EJECT_NOW].desc = SANE_I18N("Eject the film *now*");
   s->opt[OPT_EJECT_NOW].type = SANE_TYPE_BUTTON;
   s->opt[OPT_EJECT_NOW].unit = SANE_UNIT_NONE;
   s->opt[OPT_EJECT_NOW].cap |=
@@ -1669,16 +1685,16 @@ init_options (CANON_Scanner * s)
   s->opt[OPT_EJECT_NOW].constraint.range = NULL;
 
   /* "NO-ADF" option: */
-  s->opt[OPT_ADF_GROUP].title = "Document Feeder Extras";
+  s->opt[OPT_ADF_GROUP].title = SANE_I18N("Document feeder extras");
   s->opt[OPT_ADF_GROUP].desc = "";
   s->opt[OPT_ADF_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_ADF_GROUP].cap = 0;
   s->opt[OPT_ADF_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   s->opt[OPT_FLATBED_ONLY].name = "noadf";
-  s->opt[OPT_FLATBED_ONLY].title = "Flatbed Only";
-  s->opt[OPT_FLATBED_ONLY].desc =
-    "Disable Auto Document Feeder and use Flatbed only";
+  s->opt[OPT_FLATBED_ONLY].title = SANE_I18N("Flatbed only");
+  s->opt[OPT_FLATBED_ONLY].desc = SANE_I18N("Disable auto document feeder "
+  "and use flatbed only");
   s->opt[OPT_FLATBED_ONLY].type = SANE_TYPE_BOOL;
   s->opt[OPT_FLATBED_ONLY].unit = SANE_UNIT_NONE;
   s->opt[OPT_FLATBED_ONLY].size = sizeof (SANE_Word);
@@ -1687,7 +1703,7 @@ init_options (CANON_Scanner * s)
   s->val[OPT_FLATBED_ONLY].w = SANE_FALSE;
 
   /* "TPU" group: */
-  s->opt[OPT_TPU_GROUP].title = "Transparency Unit";
+  s->opt[OPT_TPU_GROUP].title = SANE_I18N("Transparency unit");
   s->opt[OPT_TPU_GROUP].desc = "";
   s->opt[OPT_TPU_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_TPU_GROUP].cap = 0;
@@ -1697,11 +1713,11 @@ init_options (CANON_Scanner * s)
 
   /* Transparency Unit (FAU, Film Adapter Unit) */
   s->opt[OPT_TPU_ON].name = "transparency-unit-on-off";
-  s->opt[OPT_TPU_ON].title =
-    (s->hw->tpu.Status == TPU_STAT_ACTIVE) ?
-    "Turn Off the Transparency Unit" : "Turn On the Transparency Unit";
-  s->opt[OPT_TPU_ON].desc =
-    "Switch on/off the Transparency Unit (FAU, Film Adapter Unit)";
+  s->opt[OPT_TPU_ON].title = (s->hw->tpu.Status == TPU_STAT_ACTIVE)
+  ?  SANE_I18N("Turn off the transparency unit")
+  : SANE_I18N("Turn on the transparency unit");
+  s->opt[OPT_TPU_ON].desc = SANE_I18N("Switch on/off the transparency unit "
+  "(FAU, film adapter unit)");
   s->opt[OPT_TPU_ON].type = SANE_TYPE_BOOL;
   s->opt[OPT_TPU_ON].unit = SANE_UNIT_NONE;
   s->val[OPT_TPU_ON].w = s->hw->tpu.Status;
@@ -1709,8 +1725,8 @@ init_options (CANON_Scanner * s)
     (s->hw->tpu.Status != TPU_STAT_NONE) ? 0 : SANE_CAP_INACTIVE;
 
   s->opt[OPT_TPU_PN].name = "transparency-unit-negative-film";
-  s->opt[OPT_TPU_PN].title = "Negative Film";
-  s->opt[OPT_TPU_PN].desc = "Positive or Negative Film";
+  s->opt[OPT_TPU_PN].title = SANE_I18N("Negative film");
+  s->opt[OPT_TPU_PN].desc = SANE_I18N("Positive or negative film");
   s->opt[OPT_TPU_PN].type = SANE_TYPE_BOOL;
   s->opt[OPT_TPU_PN].unit = SANE_UNIT_NONE;
   s->val[OPT_TPU_PN].w = s->hw->tpu.PosNeg;
@@ -1719,8 +1735,8 @@ init_options (CANON_Scanner * s)
 
   /* density control mode */
   s->opt[OPT_TPU_DCM].name = "TPMDC";
-  s->opt[OPT_TPU_DCM].title = "Density Control";
-  s->opt[OPT_TPU_DCM].desc = "Set Density Control Mode";
+  s->opt[OPT_TPU_DCM].title = SANE_I18N("Density control");
+  s->opt[OPT_TPU_DCM].desc = SANE_I18N("Set density control mode");
   s->opt[OPT_TPU_DCM].type = SANE_TYPE_STRING;
   s->opt[OPT_TPU_DCM].size = max_string_size (tpu_dc_mode_list);
   s->opt[OPT_TPU_DCM].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1731,7 +1747,7 @@ init_options (CANON_Scanner * s)
 
   /* Transparency Ratio */
   s->opt[OPT_TPU_TRANSPARENCY].name = "Transparency-Ratio";
-  s->opt[OPT_TPU_TRANSPARENCY].title = "Transparency Ratio";
+  s->opt[OPT_TPU_TRANSPARENCY].title = SANE_I18N("Transparency ratio");
   s->opt[OPT_TPU_TRANSPARENCY].desc = "";
   s->opt[OPT_TPU_TRANSPARENCY].type = SANE_TYPE_INT;
   s->opt[OPT_TPU_TRANSPARENCY].unit = SANE_UNIT_NONE;
@@ -1745,8 +1761,8 @@ init_options (CANON_Scanner * s)
 
   /* Select Film type */
   s->opt[OPT_TPU_FILMTYPE].name = "Filmtype";
-  s->opt[OPT_TPU_FILMTYPE].title = "Select Film type";
-  s->opt[OPT_TPU_FILMTYPE].desc = "Select the film type";
+  s->opt[OPT_TPU_FILMTYPE].title = SANE_I18N("Select film type");
+  s->opt[OPT_TPU_FILMTYPE].desc = SANE_I18N("Select the film type");
   s->opt[OPT_TPU_FILMTYPE].type = SANE_TYPE_STRING;
   s->opt[OPT_TPU_FILMTYPE].size = max_string_size (tpu_filmtype_list);
   s->opt[OPT_TPU_FILMTYPE].constraint_type = SANE_CONSTRAINT_STRING_LIST;

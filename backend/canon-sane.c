@@ -671,7 +671,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[OPT_TPU_ON].w == TPU_STAT_INACTIVE)	/* switch on */
 	    {
 	      s->val[OPT_TPU_ON].w = TPU_STAT_ACTIVE;
-	      s->opt[OPT_TPU_ON].title = "Turn Off the Transparency Unit";
+	      s->opt[OPT_TPU_ON].title = SANE_I18N("Turn off the transparency "
+	      "unit");
 	      s->opt[OPT_TPU_TRANSPARENCY].cap &=
 		(s->hw->tpu.ControlMode == 3) ? ~SANE_CAP_INACTIVE : ~0;
 	      s->opt[OPT_TPU_FILMTYPE].cap &=
@@ -680,7 +681,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  else			/* switch off */
 	    {
 	      s->val[OPT_TPU_ON].w = TPU_STAT_INACTIVE;
-	      s->opt[OPT_TPU_ON].title = "Turn On Transparency Unit";
+	      s->opt[OPT_TPU_ON].title = SANE_I18N("Turn on the transparency "
+	      "unit");
 	      s->opt[OPT_TPU_TRANSPARENCY].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_TPU_FILMTYPE].cap |= SANE_CAP_INACTIVE;
 	    }
@@ -698,13 +700,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  s->opt[OPT_TPU_TRANSPARENCY].cap |= SANE_CAP_INACTIVE;
 	  s->opt[OPT_TPU_FILMTYPE].cap |= SANE_CAP_INACTIVE;
 	  if (!strcmp (s->val[OPT_TPU_DCM].s,
-		       "Correction according to Transparency Ratio"))
+	  SANE_I18N("Correction according to transparency ratio")))
 	    {
 	      s->hw->tpu.ControlMode = 3;
 	      s->opt[OPT_TPU_TRANSPARENCY].cap &= ~SANE_CAP_INACTIVE;
 	    }
 	  else if (!strcmp (s->val[OPT_TPU_DCM].s,
-			    "Correction according to Film type"))
+	  SANE_I18N("Correction according to film type")))
 	    {
 	      s->hw->tpu.ControlMode = 1;
 	      s->opt[OPT_TPU_FILMTYPE].cap &= ~SANE_CAP_INACTIVE;
@@ -727,7 +729,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
-	  if (!strcmp (val, "Lineart") || !strcmp (val, "Halftone"))
+	  if (!strcmp (val, SANE_I18N("Lineart"))
+	  || !strcmp (val, SANE_I18N("Halftone")))
 	    {
 	      /* For Lineart and Halftone: */
 	      /* Enable "threshold" */
@@ -754,7 +757,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      s->opt[OPT_CUSTOM_GAMMA].cap &= ~SANE_CAP_INACTIVE;
 	      if (s->val[OPT_CUSTOM_GAMMA].w)
 		{
-		  if (!strcmp (val, "Color") || !strcmp (val, "Fine color"))
+		  if (!strcmp (val, SANE_I18N("Color"))
+		  || !strcmp (val, SANE_I18N("Fine color")))
 		    {
 		      s->opt[OPT_CUSTOM_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
 		      if (s->val[OPT_CUSTOM_GAMMA_BIND].w == SANE_TRUE)
@@ -798,7 +802,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (s->val[option].s)
 	    free (s->val[option].s);
 	  s->val[option].s = strdup (val);
-	  if (!strcmp (val, "Negatives"))
+	  if (!strcmp (val, SANE_I18N("Negatives")))
 	    {
 	      s->RIF = 0;
 	      s->opt[OPT_NEGATIVE_TYPE].cap &= ~SANE_CAP_INACTIVE;
@@ -959,10 +963,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    {
 	      const char *mode = s->val[OPT_MODE].s;
 
-	      if (!strcmp (mode, "Gray"))
+	      if (!strcmp (mode, SANE_I18N("Gray")))
 		s->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-	      else if (!strcmp (mode, "Color")
-		       || !strcmp (mode, "Fine color"))
+	      else if (!strcmp (mode, SANE_I18N("Color"))
+	      || !strcmp (mode, SANE_I18N("Fine color")))
 		{
 		  s->opt[OPT_CUSTOM_GAMMA_BIND].cap &= ~SANE_CAP_INACTIVE;
 		  if (s->val[OPT_CUSTOM_GAMMA_BIND].w)
@@ -1082,7 +1086,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 	}
 
       mode = s->val[OPT_MODE].s;
-      if (!strcmp (mode, "Lineart") || !strcmp (mode, "Halftone"))
+      if (!strcmp (mode, SANE_I18N("Lineart"))
+      || !strcmp (mode, SANE_I18N("Halftone")))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line / 8;
@@ -1090,13 +1095,14 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters *params)
 	  s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	  s->params.depth = 1;
 	}
-      else if (!strcmp (mode, "Gray"))
+      else if (!strcmp (mode, SANE_I18N("Gray")))
 	{
 	  s->params.format = SANE_FRAME_GRAY;
 	  s->params.bytes_per_line = s->params.pixels_per_line;
 	  s->params.depth = 8;
 	}
-      else if (!strcmp (mode, "Color") || !strcmp (mode, "Fine color"))
+      else if (!strcmp (mode, SANE_I18N("Color"))
+      || !strcmp (mode, SANE_I18N("Fine color")))
 	{
 	  s->params.format = SANE_FRAME_RGB;
 	  s->params.bytes_per_line = 3 * s->params.pixels_per_line;
@@ -1289,7 +1295,8 @@ sane_start (SANE_Handle handle)
 
   if (s->hw->info.model != CS2700 && s->hw->info.model != FS2710)
     {
-      if (!strcmp (mode_str, "Lineart") || !strcmp (mode_str, "Halftone"))
+      if (!strcmp (mode_str, SANE_I18N("Lineart"))
+      || !strcmp (mode_str, SANE_I18N("Halftone")))
 	s->RIF = s->val[OPT_HNEGATIVE].w;
       else
 	s->RIF = !s->val[OPT_HNEGATIVE].w;
@@ -1321,27 +1328,28 @@ sane_start (SANE_Handle handle)
       s->ShadowB = s->val[OPT_SHADOW_B].w;
     }
 
-  if (!strcmp (mode_str, "Lineart"))
+  if (!strcmp (mode_str, SANE_I18N("Lineart")))
     {
       mode = 4;
       s->image_composition = 0;
     }
-  else if (!strcmp (mode_str, "Halftone"))
+  else if (!strcmp (mode_str, SANE_I18N("Halftone")))
     {
       mode = 4;
       s->image_composition = 1;
     }
-  else if (!strcmp (mode_str, "Gray"))
+  else if (!strcmp (mode_str, SANE_I18N("Gray")))
     {
       mode = 5;
       s->image_composition = 2;
     }
-  else if (!strcmp (mode_str, "Color") || !strcmp (mode_str, "Fine color"))
+  else if (!strcmp (mode_str, SANE_I18N("Color"))
+  || !strcmp (mode_str, SANE_I18N("Fine color")))
     {
       mode = 6;
       s->image_composition = 5;
     }
-  else if (!strcmp (mode_str, "Raw"))
+  else if (!strcmp (mode_str, SANE_I18N("Raw")))
     {
       mode = 6;
       s->image_composition = 5;
@@ -1416,7 +1424,8 @@ sane_start (SANE_Handle handle)
 #if 0
       wbuf[34] = (((600 < s->val[OPT_X_RESOLUTION].w)
 	|| (600 < s->val[OPT_Y_RESOLUTION].w))
-	&& (strcmp (s->val[OPT_MODE].s, "Lineart") != 0)) ? 12 : s->bpp;
+	&& (strcmp (s->val[OPT_MODE].s, SANE_I18N("Lineart")) != 0))
+	? 12 : s->bpp;
 #endif
       wbuf[36] = 0;
       wbuf[37] = (s->RIF << 7) + 0x3;
@@ -1504,7 +1513,7 @@ sane_start (SANE_Handle handle)
       if (!s->val[OPT_PREVIEW].w && s->hw->info.is_filmscanner)
 	wbuf[11] = s->scanning_speed;
       wbuf[15] = (s->hw->info.model == FB620
-	&& !strcmp (mode_str, "Fine color")
+	&& !strcmp (mode_str, SANE_I18N("Fine color"))
 	&& !s->val[OPT_PREVIEW].w) ? 1 << 3 : 0;
       status = define_scan_mode (s->fd, SCAN_CONTROL_CONDITIONS, wbuf);
     }
@@ -1640,7 +1649,7 @@ sane_start (SANE_Handle handle)
 	  s->bytes_to_read = s->params.bytes_per_line * s->params.lines;
 
 	  mode_str = s->val[OPT_MODE].s;
-	  if (!strcmp (mode_str, "Lineart"))
+	  if (!strcmp (mode_str, SANE_I18N("Lineart")))
 	    {
 	      if (((600 < s->val[OPT_X_RESOLUTION].w)
 		|| (600 < s->val[OPT_Y_RESOLUTION].w)))
@@ -1650,10 +1659,10 @@ sane_start (SANE_Handle handle)
 		}
 	      s->params.pixels_per_line = s->params.bytes_per_line * 8;
 	    }
-	  else if (!strcmp (mode_str, "Gray"))
+	  else if (!strcmp (mode_str, SANE_I18N("Gray")))
 	      s->params.pixels_per_line = s->params.bytes_per_line;
-	  else if (!strcmp (mode_str, "Color")
-	    || !strcmp (mode_str, "Fine color"))
+	  else if (!strcmp (mode_str, SANE_I18N("Color"))
+	    || !strcmp (mode_str, SANE_I18N("Fine color")))
 	      s->params.pixels_per_line = s->params.bytes_per_line / 3;
 	  else
 	    s->params.pixels_per_line = s->params.bytes_per_line / 6;
@@ -1729,9 +1738,9 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
   int c;
   size_t i, nread, nread2;
   u_char *p;
-  #if defined(WORDS_BIGENDIAN)
+#if defined(WORDS_BIGENDIAN)
   u_char b;
-  #endif
+#endif
 
   DBG (21, ">> sane_read\n");
 
@@ -1757,7 +1766,7 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
      set up an intermediate buffer which is twice as large
      as buf, and then map this buffer to buf. */
 
-  if (!strcmp (s->val[OPT_MODE].s, "Color"))
+  if (!strcmp (s->val[OPT_MODE].s, SANE_I18N("Color")))
     {
       if (max_len > s->auxbuf_len)
 	{				/* extend buffer? */
@@ -1797,7 +1806,8 @@ read_fs2710 (SANE_Handle handle, SANE_Byte *buf, SANE_Int max_len,
       for (p = buf; p < buf + nread; p++)
 	{
 	  b = *p;
-	  *p++ = *(p + 1);
+	  *p = *(p + 1);
+	  p++;
 	  *p = b;
 	}
 #endif
@@ -2073,7 +2083,7 @@ SANE_Int *len)
 
       secondimage = s->inbuffer;
 
-      if (!strcmp (s->val[OPT_MODE].s, "Color"))
+      if (!strcmp (s->val[OPT_MODE].s, SANE_I18N("Color")))
 	{
 	  maxpix = pixel_per_line / 2;
 	  for (pix = 0; (int) pix < maxpix; pix++)
@@ -2086,7 +2096,7 @@ SANE_Int *len)
 	      s->outbuffer[6 * pix + 5] = firstimage[3 * pix + 2];
 	    }
 	}
-      else if (!strcmp (s->val[OPT_MODE].s, "Gray"))
+      else if (!strcmp (s->val[OPT_MODE].s, SANE_I18N("Gray")))
 	{
 	  for (pix = 0; pix < pixel_per_line / 2; pix++)
 	    {

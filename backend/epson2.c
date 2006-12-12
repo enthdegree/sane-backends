@@ -26,6 +26,7 @@
  *	15	epson_send, epson_recv calls
  *	12	epson_cmd_simple
  *	10	some more details on scanner commands
+ *	 9	ESC x/FS I in epson_send
  *	 8	scanner commands
  *	 5
  *	 4
@@ -34,13 +35,8 @@
  *		warnings
  */
 
-#ifdef  _AIX
-#include <lalloca.h>		/* MUST come first for AIX! */
-#endif
-
 #include <sane/config.h>
 
-#include <lalloca.h>
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
@@ -82,10 +78,6 @@
 #define __func__ "(undef)"
 /* I cast my vote for C99... :) */
 #endif
-
-
-#define walloc(x) (x *) malloc(sizeof(x))
-#define walloca(x) (x *) alloca(sizeof(x))
 
 #ifndef XtNumber
 #define XtNumber(x)  (sizeof(x) / sizeof(x[0]))
@@ -574,11 +566,11 @@ epson_send(Epson_Scanner * s, void *buf, size_t buf_size, size_t reply_len,
 
 		switch (cmd[0]) {
 		case ESC:
-			DBG(8, "%s: ESC %c\n", __func__, cmd[1]);
+			DBG(9, "%s: ESC %c\n", __func__, cmd[1]);
 			break;
 
 		case FS:
-			DBG(8, "%s: FS %c\n", __func__, cmd[1]);
+			DBG(9, "%s: FS %c\n", __func__, cmd[1]);
 			break;
 		}
 	}
@@ -678,29 +670,44 @@ epson_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
 	return n;
 }
 
+/* Simple function to exchange a fixed amount of
+ * data with the scanner
+ */
+
+static SANE_Status
+epson2_txrx(Epson_Scanner *s, unsigned char *txbuf, size_t txlen,
+	unsigned char *rxbuf, size_t rxlen)
+{
+	SANE_Status status;
+
+	epson_send(s, txbuf, txlen, rxlen, &status);
+	if (status != SANE_STATUS_GOOD) {
+		DBG(1, "%s: tx err, %s\n", __func__, sane_strstatus(status));
+                return status;
+	}
+
+	epson_recv(s, rxbuf, rxlen, &status);
+	if (status != SANE_STATUS_GOOD) {
+		DBG(1, "%s: rx err, %s\n", __func__, sane_strstatus(status));
+	}
+
+	return status;
+}
+
 /* This function should be used to send codes that only requires the scanner
  * to give back an ACK or a NAK.
  */
 static SANE_Status
-epson_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
+epson2_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
 {
 	unsigned char result;
 	SANE_Status status;
 
 	DBG(12, "%s: size = %d\n", __func__, buf_size);
 
-	epson_send(s, buf, buf_size, 1, &status);
+	status = epson2_txrx(s, buf, buf_size, &result, 1);
 	if (status != SANE_STATUS_GOOD) {
-		DBG(1, "%s: failed, %s\n", __func__,
-		    sane_strstatus(status));
-		return status;
-	}
-
-	epson_recv(s, &result, 1, &status);
-
-	if (status != SANE_STATUS_GOOD) {
-		DBG(1, "%s: failed, %s\n", __func__,
-		    sane_strstatus(status));
+		DBG(1, "%s: failed, %s\n", __func__, sane_strstatus(status));
 		return status;
 	}
 
@@ -718,9 +725,9 @@ epson_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
 	return SANE_STATUS_GOOD;
 }
 
-/* receives information block for line and block modes */
+/* receives a 4 or 6 bytes information block from the scanner*/
 static SANE_Status
-epson_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
+epson2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
 		      size_t info_size, size_t * payload_size)
 {
 	SANE_Status status;
@@ -763,15 +770,93 @@ epson_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
 		if (info_size == 6)
 			*payload_size *= le16atoh(&info[4]);
 
-		DBG(14, "payload size: %d\n", *payload_size);
+		DBG(14, "%s: payload length: %d\n", __func__, *payload_size);
 	}
 
 	return SANE_STATUS_GOOD;
 }
 
-/* This is used for ESC x commands with a single byte parameter */
+/* This function can be called for commands that
+ * will be answered by the scanner with an info block of 4 bytes
+ * and a variable payload. The payload is passed back to the caller
+ * in **buf. The caller must free it if != NULL,
+ * even if the status != SANE_STATUS_GOOD.
+ */
+
 static SANE_Status
-esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
+epson2_cmd_info_block(SANE_Handle handle, unsigned char *params,
+	unsigned char params_len, size_t reply_len,
+	unsigned char **buf, size_t *buf_len)
+{
+	SANE_Status status;
+	Epson_Scanner *s = (Epson_Scanner *) handle;
+	size_t len;
+
+	DBG(8, "%s, params len = %d, reply len = %d, buf = %p\n",
+		__func__, params_len, reply_len, (void *) buf);
+
+	if (buf == NULL)
+		return SANE_STATUS_INVAL;
+
+	/* initialize */
+	*buf = NULL;
+
+	/* send command, we expect the info block + reply_len back */
+	epson_send(s, params, params_len,
+		reply_len ? reply_len + 4 : 0, &status);
+
+	if (status != SANE_STATUS_GOOD)
+		goto end;
+
+	status = epson2_recv_info_block(s, NULL, 4, &len);
+	if (status != SANE_STATUS_GOOD)
+		goto end;
+
+	/* do we need to provide the length of the payload? */
+	if (buf_len)
+		*buf_len = len;
+
+	/* no payload, stop here */
+	if (len == 0)
+		goto end;
+
+	/* if a reply_len has been specified and the actual
+	 * length differs, throw a warning
+	 */
+	if (reply_len && (len != reply_len)) {
+		DBG(1, "%s: mismatched len - expected %d, got %d\n",
+			__func__, reply_len, len);
+	}
+
+	/* allocate and receive the payload */
+	*buf = malloc(len);
+
+	if (*buf) {
+		memset(*buf, 0x00, len);
+		epson_recv(s, *buf, len, &status);	/* receive actual data */
+	}
+	else
+		status = SANE_STATUS_NO_MEM;
+end:
+
+	if (status != SANE_STATUS_GOOD) {
+		DBG(1, "%s: failed, %s\n", __func__, sane_strstatus(status));
+
+		if (*buf) {
+			free(*buf);
+			*buf = NULL;
+		}
+	}
+
+	return status;
+}	
+
+
+/* This is used for ESC commands with a single byte parameter. Scanner
+ * will answer with ACK/NAK.
+ */
+static SANE_Status
+epson2_esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
 {
 	SANE_Status status;
 	unsigned char params[2];
@@ -783,14 +868,26 @@ esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
 	params[0] = ESC;
 	params[1] = cmd;
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
 	params[0] = val;
 
-	return epson_cmd_simple(s, params, 1);
+	return epson2_cmd_simple(s, params, 1);
 }
+
+/* Send an ACK to the scanner */
+
+static SANE_Status
+epson2_ack(Epson_Scanner *s)
+{
+	SANE_Status status;
+	epson_send(s, S_ACK, 1, 0, &status);
+	return status;
+}
+
+
 
 /* A little helper function to correct the extended status reply
  * gotten from scanners with known buggy firmware.
@@ -798,8 +895,8 @@ esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
 static void
 fix_up_extended_status_reply(const char *model, unsigned char *buf)
 {
-	if (0 == strncmp(model, "ES-9000H", strlen("ES-9000H"))
-	    || 0 == strncmp(model, "GT-30000", strlen("GT-30000"))) {
+	if (strncmp(model, "ES-9000H", strlen("ES-9000H")) == 0
+	    || strncmp(model, "GT-30000", strlen("GT-30000")) == 0) {
 		DBG(1, "fixing up buggy ADF max scan dimensions.\n");
 		buf[2] = 0xB0;
 		buf[3] = 0x6D;
@@ -851,23 +948,23 @@ epson2_set_cmd_level(SANE_Handle handle, unsigned char *level)
 
 /* simple scanner commands, ESC v */
 
-#define set_focus_position(s,v)		esc_cmd( s,(s)->hw->cmd->set_focus_position, v)
-#define set_color_mode(s,v)		esc_cmd( s,(s)->hw->cmd->set_color_mode, v)
-#define set_data_format(s,v)		esc_cmd( s,(s)->hw->cmd->set_data_format, v)
-#define set_halftoning(s,v)		esc_cmd( s,(s)->hw->cmd->set_halftoning, v)
-#define set_gamma(s,v)			esc_cmd( s,(s)->hw->cmd->set_gamma, v)
-#define set_color_correction(s,v)	esc_cmd( s,(s)->hw->cmd->set_color_correction, v)
-#define set_lcount(s,v)			esc_cmd( s,(s)->hw->cmd->set_lcount, v)
-#define set_bright(s,v)			esc_cmd( s,(s)->hw->cmd->set_bright, v)
-#define mirror_image(s,v)		esc_cmd( s,(s)->hw->cmd->mirror_image, v)
-#define set_speed(s,v)			esc_cmd( s,(s)->hw->cmd->set_speed, v)
-#define set_sharpness(s,v)		esc_cmd( s,(s)->hw->cmd->set_outline_emphasis, v)
-#define set_auto_area_segmentation(s,v)	esc_cmd( s,(s)->hw->cmd->control_auto_area_segmentation, v)
-#define set_film_type(s,v)		esc_cmd( s,(s)->hw->cmd->set_film_type, v)
-#define set_exposure_time(s,v)		esc_cmd( s,(s)->hw->cmd->set_exposure_time, v)
-#define set_bay(s,v)			esc_cmd( s,(s)->hw->cmd->set_bay, v)
-#define set_threshold(s,v)		esc_cmd( s,(s)->hw->cmd->set_threshold, v)
-#define control_extension(s,v)		esc_cmd( s,(s)->hw->cmd->control_an_extension, v)
+#define set_focus_position(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_focus_position, v)
+#define set_color_mode(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_color_mode, v)
+#define set_data_format(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_data_format, v)
+#define set_halftoning(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_halftoning, v)
+#define set_gamma(s,v)			epson2_esc_cmd( s,(s)->hw->cmd->set_gamma, v)
+#define set_color_correction(s,v)	epson2_esc_cmd( s,(s)->hw->cmd->set_color_correction, v)
+#define set_lcount(s,v)			epson2_esc_cmd( s,(s)->hw->cmd->set_lcount, v)
+#define set_bright(s,v)			epson2_esc_cmd( s,(s)->hw->cmd->set_bright, v)
+#define mirror_image(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->mirror_image, v)
+#define set_speed(s,v)			epson2_esc_cmd( s,(s)->hw->cmd->set_speed, v)
+#define set_sharpness(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_outline_emphasis, v)
+#define set_auto_area_segmentation(s,v)	epson2_esc_cmd( s,(s)->hw->cmd->control_auto_area_segmentation, v)
+#define set_film_type(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_film_type, v)
+#define set_exposure_time(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_exposure_time, v)
+#define set_bay(s,v)			epson2_esc_cmd( s,(s)->hw->cmd->set_bay, v)
+#define set_threshold(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->set_threshold, v)
+#define control_extension(s,v)		epson2_esc_cmd( s,(s)->hw->cmd->control_an_extension, v)
 
 static SANE_Status
 set_zoom(Epson_Scanner * s, unsigned char x, unsigned char y)
@@ -885,14 +982,14 @@ set_zoom(Epson_Scanner * s, unsigned char x, unsigned char y)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->set_zoom;
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
 	params[0] = x;
 	params[1] = y;
 
-	return epson_cmd_simple(s, params, 2);
+	return epson2_cmd_simple(s, params, 2);
 }
 
 /* ESC R */
@@ -912,7 +1009,7 @@ set_resolution(Epson_Scanner * s, int x, int y)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->set_resolution;
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -921,7 +1018,7 @@ set_resolution(Epson_Scanner * s, int x, int y)
 	params[2] = y;
 	params[3] = y >> 8;
 
-	return epson_cmd_simple(s, params, 4);
+	return epson2_cmd_simple(s, params, 4);
 }
 
 /*
@@ -951,7 +1048,7 @@ set_scan_area(Epson_Scanner * s, int x, int y, int width, int height)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->set_scan_area;
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -964,7 +1061,7 @@ set_scan_area(Epson_Scanner * s, int x, int y, int width, int height)
 	params[6] = height;
 	params[7] = height >> 8;
 
-	return epson_cmd_simple(s, params, 8);
+	return epson2_cmd_simple(s, params, 8);
 }
 
 /*
@@ -988,7 +1085,7 @@ set_color_correction_coefficients(Epson_Scanner * s)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->set_color_correction_coefficients;
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -1006,7 +1103,7 @@ set_color_correction_coefficients(Epson_Scanner * s)
 	    cct[0], cct[1], cct[2], cct[3],
 	    cct[4], cct[5], cct[6], cct[7], cct[8]);
 
-	return epson_cmd_simple(s, params, 9);
+	return epson2_cmd_simple(s, params, 9);
 }
 
 static SANE_Status
@@ -1070,11 +1167,11 @@ set_gamma_table(Epson_Scanner * s)
 			}
 		}
 
-		status = epson_cmd_simple(s, params, 2);
+		status = epson2_cmd_simple(s, params, 2);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 
-		status = epson_cmd_simple(s, gamma, 257);
+		status = epson2_cmd_simple(s, gamma, 257);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}
@@ -1082,7 +1179,11 @@ set_gamma_table(Epson_Scanner * s)
 	return status;
 }
 
-#define from_llhh(x) (le32atoh(x))
+
+/* ESC F - Request Status
+ * -> ESC f
+ * <- Information block
+ */
 
 static SANE_Status
 request_status(SANE_Handle handle, unsigned char *scanner_status)
@@ -1103,34 +1204,34 @@ request_status(SANE_Handle handle, unsigned char *scanner_status)
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	status = epson_recv_info_block(s, scanner_status, 4, NULL);
+	status = epson2_recv_info_block(s, params, 4, NULL);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	if (scanner_status == NULL)
-		return status;
+	if (scanner_status)
+		*scanner_status = params[0];
 
 	DBG(1, "status:\n");
 
-	if (*scanner_status & STATUS_NOT_READY)
+	if (params[0] & STATUS_NOT_READY)
 		DBG(1, " scanner in use on another interface\n");
 	else
 		DBG(1, " ready\n");
 
-	if (*scanner_status & STATUS_FER)
+	if (params[0] & STATUS_FER)
 		DBG(1, " system error\n");
 
-	if (*scanner_status & STATUS_OPTION)
+	if (params[0] & STATUS_OPTION)
 		DBG(1, " option equipment is installed\n");
 	else
 		DBG(1, " no option equipment installed\n");
 
-	if (*scanner_status & STATUS_EXT_COMMANDS)
+	if (params[0] & STATUS_EXT_COMMANDS)
 		DBG(1, " support extended commands\n");
 	else
 		DBG(1, " does NOT support extended commands\n");
 
-	if (*scanner_status & STATUS_RESERVED)
+	if (params[0] & STATUS_RESERVED)
 		DBG(0,
 		    "a reserved bit is set, please contact <a.zummo@towertech.it>.\n");
 
@@ -1139,10 +1240,11 @@ request_status(SANE_Handle handle, unsigned char *scanner_status)
 
 /* extended commands */
 
-/* FS I, request extended identity
+/* FS I, Request Extended Identity
+ * -> FS I
+ * <- Extended identity data (80)
  *
  * Request the properties of the scanner.
- * The scanner return 80 bytes without the information block.
  */
 
 static SANE_Status
@@ -1164,25 +1266,21 @@ request_extended_identity(SANE_Handle handle, unsigned char *buf)
 	params[0] = FS;
 	params[1] = s->hw->cmd->request_extended_identity;
 
-	epson_send(s, params, 2, 80, &status);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	epson_recv(s, buf, 80, &status);
+	status = epson2_txrx(s, params, 2, buf, 80);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
 	DBG(1, " command level   : %c%c\n", buf[0], buf[1]);
-	DBG(1, " basic resolution: %d\n", from_llhh(&buf[4]));
-	DBG(1, " min resolution  : %d\n", from_llhh(&buf[8]));
-	DBG(1, " max resolution  : %d\n", from_llhh(&buf[12]));
-	DBG(1, " max pixel num   : %d\n", from_llhh(&buf[16]));
-	DBG(1, " scan area       : %dx%d\n", from_llhh(&buf[20]),
-	    from_llhh(&buf[24]));
-	DBG(1, " adf area        : %dx%d\n", from_llhh(&buf[28]),
-	    from_llhh(&buf[32]));
-	DBG(1, " tpu area        : %dx%d\n", from_llhh(&buf[36]),
-	    from_llhh(&buf[40]));
+	DBG(1, " basic resolution: %d\n", le32atoh(&buf[4]));
+	DBG(1, " min resolution  : %d\n", le32atoh(&buf[8]));
+	DBG(1, " max resolution  : %d\n", le32atoh(&buf[12]));
+	DBG(1, " max pixel num   : %d\n", le32atoh(&buf[16]));
+	DBG(1, " scan area       : %dx%d\n", le32atoh(&buf[20]),
+	    le32atoh(&buf[24]));
+	DBG(1, " adf area        : %dx%d\n", le32atoh(&buf[28]),
+	    le32atoh(&buf[32]));
+	DBG(1, " tpu area        : %dx%d\n", le32atoh(&buf[36]),
+	    le32atoh(&buf[40]));
 
 	DBG(1, " main status     : 0x%02x\n", buf[44]);
 	DBG(1, " input depth     : %d\n", buf[66]);
@@ -1222,11 +1320,7 @@ request_scanner_status(SANE_Handle handle, unsigned char *buf)
 	params[0] = FS;
 	params[1] = 'F';
 
-	epson_send(s, params, 2, 16, &status);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	epson_recv(s, buf, 16, &status);
+	status = epson2_txrx(s, params, 2, buf, 16);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -1318,12 +1412,12 @@ set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 	params[0] = FS;
 	params[1] = 'W';
 
-	DBG(9, "resolution of main scan     : %d\n", from_llhh(&buf[0]));
-	DBG(9, "resolution of sub scan      : %d\n", from_llhh(&buf[4]));
-	DBG(9, "offset length of main scan  : %d\n", from_llhh(&buf[8]));
-	DBG(9, "offset length of sub scan   : %d\n", from_llhh(&buf[12]));
-	DBG(9, "scanning length of main scan: %d\n", from_llhh(&buf[16]));
-	DBG(9, "scanning length of sub scan : %d\n", from_llhh(&buf[20]));
+	DBG(9, "resolution of main scan     : %d\n", le32atoh(&buf[0]));
+	DBG(9, "resolution of sub scan      : %d\n", le32atoh(&buf[4]));
+	DBG(9, "offset length of main scan  : %d\n", le32atoh(&buf[8]));
+	DBG(9, "offset length of sub scan   : %d\n", le32atoh(&buf[12]));
+	DBG(9, "scanning length of main scan: %d\n", le32atoh(&buf[16]));
+	DBG(9, "scanning length of sub scan : %d\n", le32atoh(&buf[20]));
 	DBG(9, "scanning color              : %d\n", buf[24]);
 	DBG(9, "data format                 : %d\n", buf[25]);
 	DBG(9, "option control              : %d\n", buf[26]);
@@ -1340,11 +1434,11 @@ set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 	DBG(9, "film type                   : %d\n", buf[37]);
 	DBG(9, "main lamp lighting mode     : %d\n", buf[38]);
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	status = epson_cmd_simple(s, buf, 64);
+	status = epson2_cmd_simple(s, buf, 64);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -1356,7 +1450,6 @@ request_command_parameter(SANE_Handle handle, unsigned char *buf)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status;
-	size_t len;
 	unsigned char params[2];
 
 	DBG(8, "%s\n", __func__);
@@ -1367,21 +1460,7 @@ request_command_parameter(SANE_Handle handle, unsigned char *buf)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->request_condition;
 
-	epson_send(s, params, 2, 4 + 45, &status);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	status = epson_recv_info_block(s, NULL, 4, &len);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	if (len != 45) {
-		DBG(0, "%s: wrong len (%d), please contact the author\n",
-		    __func__, len);
-		return SANE_STATUS_INVAL;
-	}
-
-	epson_recv(s, buf, len, &status);
+	status = epson2_cmd_info_block(s, params, 2, 45, &buf, NULL);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -1409,14 +1488,22 @@ request_command_parameter(SANE_Handle handle, unsigned char *buf)
 	return status;
 }
 
+/* ESC q - Request Focus Position 
+ * -> ESC q
+ * <- Information block
+ * <- Focus position status (2)
+ *	0 - Error status
+ *	1 - Focus position
+ */
+
 static SANE_Status
 request_focus_position(SANE_Handle handle, unsigned char *position)
 {
-	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status;
-	size_t len;
-	unsigned char params[2];
 	unsigned char *buf;
+	Epson_Scanner *s = (Epson_Scanner *) handle;
+
+	unsigned char params[2];
 
 	DBG(8, "%s\n", __func__);
 
@@ -1426,42 +1513,33 @@ request_focus_position(SANE_Handle handle, unsigned char *position)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->request_focus_position;
 
-	epson_send(s, params, 2, 4 + 2, &status);
+	status = epson2_cmd_info_block(s, params, 2, 2, &buf, NULL);
 	if (status != SANE_STATUS_GOOD)
 		return status;
-
-	status = epson_recv_info_block(s, NULL, 4, &len);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	buf = alloca(len);
-
-	epson_recv(s, buf, len, &status);	/* receive actual status data */
 
 	if (buf[0] & 0x01)
 		DBG(1, "autofocus error\n");
 
 	*position = buf[1];
-	DBG(8, "focus position = 0x%x\n", buf[1]);
+	DBG(8, " focus position = 0x%x\n", buf[1]);
 
-	return SANE_STATUS_GOOD;
+	free(buf);
+
+	return status;
 }
 
-/*
- * Request the push button status
- * stores SANE_TRUE in theButtonStatus if the button was pressed
- * and SANE_FALSE if the button was not pressed
- * it also returns SANE_TRUE in case of an error.
- * This is necessary so that a process that waits for
- * the button does not block indefinitely.
+/* ESC ! - Request Push Button Status
+ * -> ESC !
+ * <- Information block
+ * <- Push button status (1)
  */
-static SANE_Bool
-request_push_button_status(SANE_Handle handle, int *buttonStatus)
+
+static SANE_Status
+request_push_button_status(SANE_Handle handle, unsigned char *bstatus)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status;
-	size_t len;
-	unsigned char param[2];
+	unsigned char params[2];
 	unsigned char *buf;
 
 	DBG(8, "%s\n", __func__);
@@ -1471,33 +1549,26 @@ request_push_button_status(SANE_Handle handle, int *buttonStatus)
 		return SANE_STATUS_UNSUPPORTED;
 	}
 
-	param[0] = ESC;
-	param[1] = s->hw->cmd->request_push_button_status;
+	params[0] = ESC;
+	params[1] = s->hw->cmd->request_push_button_status;
 
-	epson_send(s, param, 2, 4 + 1, &status);
-	if (status != SANE_STATUS_GOOD) {
-		DBG(1, "error sending command\n");
-		return status;
-	}
-
-	status = epson_recv_info_block(s, NULL, 4, &len);
+	status = epson2_cmd_info_block(s, params, 2, 1, &buf, NULL);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	buf = alloca(len);
-
-	epson_recv(s, buf, len, &status);	/* receive button data */
-
 	DBG(1, "push button status = %d\n", buf[0]);
-	*buttonStatus = buf[0];
+	*bstatus = buf[0];
 
-	return SANE_STATUS_GOOD;
+	free(buf);
+
+	return status;
 }
 
 
 /*
  * Request Identity information from scanner and fill in information
  * into dev and/or scanner structures.
+ * XXX information shoul dbe parsed separately.
  */
 static SANE_Status
 request_identity(SANE_Handle handle)
@@ -1509,7 +1580,7 @@ request_identity(SANE_Handle handle)
 	size_t len;
 	unsigned int n;
 	unsigned char *buf;
-	unsigned char scanner_status;
+/*	unsigned char scanner_status; */
 
 	DBG(1, "%s\n", __func__);
 
@@ -1519,23 +1590,7 @@ request_identity(SANE_Handle handle)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->request_identity;
 
-	epson_send(s, params, 2, 4, &status);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	status = epson_recv_info_block(s, &scanner_status, 4, &len);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	DBG(10, " identity data len = %d\n", (unsigned int) len);
-
-	buf = malloc(len);
-	if (buf == NULL)
-		return SANE_STATUS_NO_MEM;
-
-	memset(buf, 0x00, len);
-
-	epson_recv(s, buf, len, &status);
+	status = epson2_cmd_info_block(s, params, 2, 0, &buf, &len);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
@@ -1644,9 +1699,8 @@ request_identity(SANE_Handle handle)
 	filter_resolution_list(s);
 
 
-      exit:
-	if (buf)
-		free(buf);
+exit:
+	free(buf);
 
 	return status;
 }
@@ -1673,23 +1727,13 @@ request_identity2(SANE_Handle handle)
 	params[0] = ESC;
 	params[1] = s->hw->cmd->request_identity2;
 
-	epson_send(s, params, 2, 0, &status);
-
+	status = epson2_cmd_info_block(s, params, 2, 0, &buf, &len);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	/* receive info block */
-	status = epson_recv_info_block(s, NULL, 4, &len);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	buf = alloca(len);
-
-	epson_recv(s, buf, len, &status);	/* reveive actual status data */
-
-	if (buf[0] & 0x80) {
-		close_scanner(s);
-		return SANE_STATUS_INVAL;
+	if (buf[0] & 0x80) { /* what's this for? */
+		status = SANE_STATUS_INVAL;
+		goto exit;
 	}
 
 	/* the first two bytes of the buffer contain the optical resolution */
@@ -1700,12 +1744,17 @@ request_identity2(SANE_Handle handle)
 	 * be identical, otherwise this software can not handle this scanner.
 	 */
 	if (buf[4] != buf[5]) {
-		close_scanner(s);
-		return SANE_STATUS_INVAL;
+		status = SANE_STATUS_INVAL;
+		goto exit;
 	}
+
 	s->hw->max_line_distance = buf[4];
 
-	return SANE_STATUS_GOOD;
+exit:
+	if (buf)
+		free(buf);
+
+	return status;
 }
 
 /* Send the "initialize scanner" command to the device and reset it */
@@ -1732,7 +1781,7 @@ reset(Epson_Scanner * s)
 			return status;
 	}
 
-	status = epson_cmd_simple(s, params, 2);
+	status = epson2_cmd_simple(s, params, 2);
 
 	if (needToClose)
 		close_scanner(s);
@@ -1755,7 +1804,7 @@ feed(Epson_Scanner * s)
 
 	params[0] = s->hw->cmd->feed;
 
-	status = epson_cmd_simple(s, params, 1);
+	status = epson2_cmd_simple(s, params, 1);
 	if (status != SANE_STATUS_GOOD) {
 		close_scanner(s);
 		return status;
@@ -1793,7 +1842,7 @@ eject(Epson_Scanner * s)
 
 	params[0] = s->hw->cmd->eject;
 
-	status = epson_cmd_simple(s, params, 1);
+	status = epson2_cmd_simple(s, params, 1);
 	if (status != SANE_STATUS_GOOD) {
 		close_scanner(s);
 		return status;
@@ -1806,41 +1855,38 @@ eject(Epson_Scanner * s)
 }
 
 static SANE_Status
-request_extended_status(SANE_Handle handle, unsigned char *buf)
+request_extended_status(SANE_Handle handle, unsigned char **data, size_t *data_len)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status = SANE_STATUS_GOOD;
 	unsigned char params[2];
-	size_t len;
+	unsigned char *buf;
+	size_t buf_len;
 
 	DBG(8, "%s\n", __func__);
 
 	if (s->hw->cmd->request_extended_status == 0)
 		return SANE_STATUS_UNSUPPORTED;
 
-	if (buf == NULL)
-		return SANE_STATUS_INVAL;
-
 	params[0] = ESC;
 	params[1] = s->hw->cmd->request_extended_status;
 
-	epson_send(s, params, 2, 4 + CMD_SIZE_EXT_STATUS, &status);
+	/* This command returns 33 bytes of data on old scanners
+	 * and 42 (CMD_SIZE_EXT_STATUS) on new ones.
+	 */
+	status = epson2_cmd_info_block(s, params, 2, CMD_SIZE_EXT_STATUS,
+					&buf, &buf_len);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	status = epson_recv_info_block(s, NULL, 4, &len);
-	if (status != SANE_STATUS_GOOD)
-		return status;
-
-	if (len != CMD_SIZE_EXT_STATUS) {
-		DBG(0, "%s: wrong len (%d), please contact the author\n",
-		    __func__, len);
-		return SANE_STATUS_INVAL;
+	switch (buf_len) {
+	case 33:
+	case 42:
+		break;
+	default:
+		DBG(1, "%s: unknown reply length (%d)\n", __func__, buf_len);
+		break;
 	}
-
-	epson_recv(s, buf, len, &status);
-	if (status != SANE_STATUS_GOOD)
-		return status;
 
 	DBG(4, "main status  : 0x%02x\n", buf[0]);
 	DBG(4, "ADF status   : 0x%02x\n", buf[1]);
@@ -1853,25 +1899,33 @@ request_extended_status(SANE_Handle handle, unsigned char *buf)
 	if (buf[0] & EXT_STATUS_WU)
 		DBG(1, "scanner is warming up\n");
 
-	if (buf[1] & EXT_STATUS_ERR) {
+	if (buf[1] & EXT_STATUS_ERR)
 		DBG(1, "ADF: other error\n");
-	}
 
-	if (buf[1] & EXT_STATUS_PE) {
+	if (buf[1] & EXT_STATUS_PE)
 		DBG(1, "ADF: no paper\n");
-	}
 
-	if (buf[1] & EXT_STATUS_PJ) {
+	if (buf[1] & EXT_STATUS_PJ)
 		DBG(1, "ADF: paper jam\n");
-	}
 
-	if (buf[1] & EXT_STATUS_OPN) {
+	if (buf[1] & EXT_STATUS_OPN)
 		DBG(1, "ADF: cover open\n");
-	}
 
-	if (buf[6] & EXT_STATUS_ERR) {
+	if (buf[6] & EXT_STATUS_ERR)
 		DBG(1, "TPU: other error\n");
-	}
+
+	/* give back a pointer to the payload
+	 * if the user requested it, otherwise
+	 * free it.
+	 */
+
+	if (data)
+		*data = buf;
+	else
+		free(buf);
+
+	if (data_len)
+		*data_len = buf_len;
 
 	return status;
 }
@@ -1900,8 +1954,7 @@ close_scanner(Epson_Scanner * s)
 
 	/* request extended status. This toggles w_cmd_count only */
 	if (w_cmd_count % 2) {
-		unsigned char ext_status[CMD_SIZE_EXT_STATUS];
-		request_extended_status(s, ext_status);
+		request_extended_status(s, NULL, NULL);
 	}
 
 	if (s->hw->connection == SANE_EPSON_NET) {
@@ -1971,12 +2024,10 @@ static SANE_Status
 attach(const char *name, Epson_Device * *devp, int type)
 {
 	SANE_Status status;
-	Epson_Scanner *s = walloca(Epson_Scanner);
+	Epson_Scanner *s;
 	struct Epson_Device *dev;
 	SANE_String_Const *source_list_add = source_list;
 	int port;
-
-	memset(s, 0x00, sizeof(struct Epson_Scanner));
 
 	DBG(1, "%s\n", SANE_EPSON2_VERSION);
 
@@ -1990,6 +2041,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 			return SANE_STATUS_GOOD;
 		}
 	}
+
 
 	/* alloc and clear our device structure */
 	dev = malloc(sizeof(*dev));
@@ -2016,6 +2068,13 @@ attach(const char *name, Epson_Device * *devp, int type)
 		name = sanei_config_skip_whitespace(name);
 		type = SANE_EPSON_PIO;
 	}
+
+
+	s = malloc(sizeof(struct Epson_Scanner));
+	if (s == NULL)
+		return SANE_STATUS_NO_MEM;
+
+	memset(s, 0x00, sizeof(struct Epson_Scanner));
 
 
 	/*
@@ -2054,7 +2113,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "%s: %s open failed: %s\n", __func__,
 			    name, sane_strstatus(status));
-			return status;
+			goto free;
 		}
 
 		s->netlen = 0;
@@ -2077,14 +2136,14 @@ attach(const char *name, Epson_Device * *devp, int type)
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "%s: open failed: %s\n", __func__,
 			    sane_strstatus(status));
-			return status;
+			goto free;
 		}
 		status = sanei_epson2_scsi_inquiry(s->fd, buf, &buf_size);
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "%s: inquiry failed: %s\n", __func__,
 			    sane_strstatus(status));
 			close_scanner(s);
-			return status;
+			goto free;
 		}
 
 		buf[INQUIRY_BUF_SIZE] = 0;
@@ -2130,7 +2189,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 			DBG(1,
 			    "cannot open %s as a parallel-port device: %s\n",
 			    name, sane_strstatus(status));
-			return status;
+			goto free;
 		}
 	}
 	/* use the SANEI functions to handle a USB device */
@@ -2162,7 +2221,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		status = sanei_usb_open(name, &s->fd);
 
 		if (status != SANE_STATUS_GOOD) {
-			return status;
+			goto free;
 		}
 
 		/* if the sanei_usb_get_vendor_product call is not supported,
@@ -2236,7 +2295,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 		status = request_identity(s);
 		if (status != SANE_STATUS_GOOD)
-			return status;
+			goto free;
 	}
 
 	/* ESC F, request status */
@@ -2245,7 +2304,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 		status = request_status(s, &scanner_status);
 		if (status != SANE_STATUS_GOOD)
-			return status;
+			goto free;
 
 		/* set capabilities */
 		if (scanner_status & STATUS_OPTION)
@@ -2262,7 +2321,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 		status = request_extended_identity(s, buf);
 		if (status != SANE_STATUS_GOOD)
-			return status;
+			goto free;
 
 		epson2_set_cmd_level(s, &buf[0]);
 
@@ -2294,7 +2353,9 @@ attach(const char *name, Epson_Device * *devp, int type)
 	if (s->hw->cmd->request_identity2) {
 		status = request_identity2(s);
 		if (status != SANE_STATUS_GOOD)
-			return status;
+			goto free;
+
+		/* XXX parse the result buffer here */
 	}
 
 	/*
@@ -2345,6 +2406,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 	 * Check for "request focus position" command. If this command is
 	 * supported, then the scanner does also support the "set focus
 	 * position" command.
+	 * XXX ???
 	 */
 
 	if (request_focus_position(s, &s->currentFocusPosition) ==
@@ -2396,57 +2458,58 @@ attach(const char *name, Epson_Device * *devp, int type)
 	if (s->hw->connection != SANE_EPSON_NET &&
 	    s->hw->cmd->request_extended_status) {
 		char *model, *p;
-		unsigned char buf[CMD_SIZE_EXT_STATUS];
+		unsigned char *es;
+		size_t es_len;
 
-		status = request_extended_status(s, buf);
+		status = request_extended_status(s, &es, &es_len);
 		if (status != SANE_STATUS_GOOD)
-			return status;
-
-		/* Add the flatbed option to the source list */
-		*source_list_add++ = FBF_STR;
-
-		s->hw->devtype = buf[11] >> 6;
+			goto free;
 
 		/*
 		 * Get the device name and copy it to dev->sane.model.
-		 * The device name starts at buf[0x1A] and is up to 16 bytes long
+		 * The device name starts at es[0x1A] and is up to 16 bytes long
 		 * We are overwriting whatever was set previously!
 		 */
-		model = (char *) (buf + 0x1A);
-		p = strchr(model, ' ');
-		if (p != NULL)
-			*p = '\0';
+		if (es_len == CMD_SIZE_EXT_STATUS) { /* 42 */ 
 
-		if (dev->sane.model)
-			free(dev->sane.model);
+			model = (char *) (es + 0x1A);
+			p = strchr(model, ' ');
+			if (p != NULL)
+				*p = '\0';
 
-		dev->sane.model = strndup(model, 16);
+			if (dev->sane.model)
+				free(dev->sane.model);
 
-		if (buf[0] & EXT_STATUS_LID)
+			dev->sane.model = strndup(model, 16);
+		}
+
+		if (es[0] & EXT_STATUS_LID)
 			DBG(1, "LID detected\n");
 
-		if (buf[0] & EXT_STATUS_PB)
+		if (es[0] & EXT_STATUS_PB)
 			DBG(1, "push button(s) detected\n");
 		else
 			s->hw->cmd->request_push_button_status = 0;
 
 		/* Flatbed */
+		*source_list_add++ = FBF_STR;
 
-		s->hw->fbf_max_x = buf[13] << 8 | buf[12];
-		s->hw->fbf_max_y = buf[15] << 8 | buf[14];
+		s->hw->devtype = es[11] >> 6;
+		s->hw->fbf_max_x = es[13] << 8 | es[12];
+		s->hw->fbf_max_y = es[15] << 8 | es[14];
 
 		/* ADF */
-		if (dev->extension && (buf[1] & EXT_STATUS_IST)) {
+		if (dev->extension && (es[1] & EXT_STATUS_IST)) {
 			DBG(1, "ADF detected\n");
 
-			fix_up_extended_status_reply(dev->sane.model, buf);
+			fix_up_extended_status_reply(dev->sane.model, es);
 
-			dev->duplexSupport = (buf[0] & EXT_STATUS_ADFS) != 0;
+			dev->duplexSupport = (es[0] & EXT_STATUS_ADFS) != 0;
 			if (dev->duplexSupport) {
 				DBG(1, "ADF supports duplex\n");
 			}
 
-			if (buf[1] & EXT_STATUS_EN) {
+			if (es[1] & EXT_STATUS_EN) {
 				DBG(1, "ADF is enabled\n");
 				dev->x_range = &dev->adf_x_range;
 				dev->y_range = &dev->adf_y_range;
@@ -2454,19 +2517,19 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 			dev->adf_x_range.min = 0;
 			dev->adf_x_range.max =
-				SANE_FIX((buf[3] << 8 | buf[2]) *
+				SANE_FIX((es[3] << 8 | es[2]) *
 					 MM_PER_INCH / dev->dpi_range.max);
 			dev->adf_x_range.quant = 0;
 
-			dev->adf_max_x = buf[3] << 8 | buf[2];
+			dev->adf_max_x = es[3] << 8 | es[2];
 
 			dev->adf_y_range.min = 0;
 			dev->adf_y_range.max =
-				SANE_FIX((buf[5] << 8 | buf[4]) *
+				SANE_FIX((es[5] << 8 | es[4]) *
 					 MM_PER_INCH / dev->dpi_range.max);
 			dev->adf_y_range.quant = 0;
 
-			dev->adf_max_y = buf[5] << 8 | buf[4];
+			dev->adf_max_y = es[5] << 8 | es[4];
 
 			DBG(5, "adf tlx %f tly %f brx %f bry %f [mm]\n",
 			    SANE_UNFIX(dev->adf_x_range.min),
@@ -2480,10 +2543,10 @@ attach(const char *name, Epson_Device * *devp, int type)
 		}
 
 		/* TPU */
-		if (dev->extension && (buf[6] & EXT_STATUS_IST)) {
+		if (dev->extension && (es[6] & EXT_STATUS_IST)) {
 			DBG(1, "TPU detected\n");
 
-			if (buf[6] & EXT_STATUS_EN) {
+			if (es[6] & EXT_STATUS_EN) {
 				DBG(1, "TPU is enabled\n");
 				dev->x_range = &dev->tpu_x_range;
 				dev->y_range = &dev->tpu_y_range;
@@ -2491,13 +2554,13 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 			dev->tpu_x_range.min = 0;
 			dev->tpu_x_range.max =
-				SANE_FIX((buf[8] << 8 | buf[7]) *
+				SANE_FIX((es[8] << 8 | es[7]) *
 					 MM_PER_INCH / dev->dpi_range.max);
 			dev->tpu_x_range.quant = 0;
 
 			dev->tpu_y_range.min = 0;
 			dev->tpu_y_range.max =
-				SANE_FIX((buf[10] << 8 | buf[9]) *
+				SANE_FIX((es[10] << 8 | es[9]) *
 					 MM_PER_INCH / dev->dpi_range.max);
 			dev->tpu_y_range.quant = 0;
 
@@ -2511,6 +2574,8 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 			dev->TPU = SANE_TRUE;
 		}
+
+		free(es);
 	}
 
 	/* FS F, request scanner status */
@@ -2519,7 +2584,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 		status = request_scanner_status(s, buf);
 		if (status != SANE_STATUS_GOOD)
-			return status;
+			goto free;
 	}
 
 	/* XXX necessary? */
@@ -2565,7 +2630,9 @@ attach(const char *name, Epson_Device * *devp, int type)
 	if (devp)
 		*devp = dev;
 
-	return SANE_STATUS_GOOD;
+free:
+	free(s);
+	return status;
 }
 
 /*
@@ -2628,18 +2695,17 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 				continue;
 
 			len = strlen(line);
-			if (!len)
+			if (len == 0)
 				continue;	/* ignore empty lines */
 
-			DBG(4, "%s\n", line);
+			DBG(120, " %s\n", line);
 
 			if (sscanf(line, "usb %i %i", &vendor, &product) == 2) {
 				int numIds;
 
 				/* add the vendor and product IDs to the list of
 				   known devices before we call the attach function */
-				numIds = sanei_epson_getNumberOfUSBProductIds
-					();
+				numIds = sanei_epson_getNumberOfUSBProductIds();
 				if (vendor != 0x4b8)
 					continue;	/* this is not an EPSON device */
 
@@ -2672,12 +2738,7 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 	return SANE_STATUS_GOOD;
 }
 
-/*
- * void sane_exit(void)
- *
- * Clean up the list of attached scanners.
- */
-
+/* Clean up the list of attached scanners. */
 void
 sane_exit(void)
 {
@@ -2713,14 +2774,12 @@ sane_get_devices(const SANE_Device * **device_list, SANE_Bool local_only)
 		return SANE_STATUS_NO_MEM;
 	}
 
-	i = 0;
-
-	for (dev = first_dev; i < num_devices; dev = dev->next) {
+	for (i = 0, dev = first_dev; i < num_devices; dev = dev->next, i++) {
 		DBG(1, " %d: %s\n", i, dev->sane.model);
-		devlist[i++] = &dev->sane;
+		devlist[i] = &dev->sane;
 	}
 
-	devlist[i++] = NULL;
+	devlist[i] = NULL;
 
 	*device_list = devlist;
 
@@ -4793,7 +4852,7 @@ epson2_wait_for_button(Epson_Scanner * s)
 	s->hw->wait_for_button = SANE_TRUE;
 
 	while (s->hw->wait_for_button == SANE_TRUE) {
-		int button_status;
+		unsigned char button_status = 0;
 
 		if (s->canceling == SANE_TRUE) {
 			s->hw->wait_for_button = SANE_FALSE;
@@ -4933,9 +4992,9 @@ sane_start(SANE_Handle handle)
 
 	/* XXX do we need the extended status to check for STATUS_FER? */
 	if (s->hw->cmd->request_extended_status != 0 && s->hw->extension) {
-		unsigned char ext_status[CMD_SIZE_EXT_STATUS];
+		unsigned char *ext_status;
 
-		status = request_extended_status(s, ext_status);
+		status = request_extended_status(s, &ext_status, NULL);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 
@@ -4943,6 +5002,8 @@ sane_start(SANE_Handle handle)
 			close_scanner(s);
 			return SANE_STATUS_INVAL;
 		}
+
+		free(ext_status);
 	}
 
 	/* for debug, request command parameter */
@@ -5007,6 +5068,7 @@ sane_auto_eject(Epson_Scanner * s)
 	return SANE_STATUS_GOOD;
 }
 
+/* XXX this routine is ugly and should be avoided */
 static SANE_Status
 read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 {
@@ -5024,15 +5086,11 @@ read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 		return SANE_STATUS_INVAL;
 	}
 
+	/* XXX */
 	if (result->status & STATUS_FER) {
-		unsigned char ext_status[CMD_SIZE_EXT_STATUS];
+		unsigned char *ext_status;
 
 		DBG(1, "fatal error, status = %02x\n", result->status);
-
-		/* if the scanner is warming up, retry after a few secs */
-		status = request_extended_status(s, ext_status);
-		if (status != SANE_STATUS_GOOD)
-			return status;
 
 		if (s->retry_count > SANE_EPSON_MAX_RETRIES) {
 			DBG(1, "max retry count exceeded (%d)\n",
@@ -5040,7 +5098,14 @@ read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 			return SANE_STATUS_INVAL;
 		}
 
+		/* if the scanner is warming up, retry after a few secs */
+		status = request_extended_status(s, &ext_status, NULL);
+		if (status != SANE_STATUS_GOOD)
+			return status;
+
 		if (ext_status[0] & EXT_STATUS_WU) {
+			free(ext_status);
+
 			sleep(5);	/* for the next attempt */
 
 			DBG(1, "retrying ESC G - %d\n", ++(s->retry_count));
@@ -5054,6 +5119,9 @@ read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 
 			goto retry;
 		}
+		else
+			free(ext_status);
+
 	}
 
 	return status;
@@ -5062,7 +5130,7 @@ read_info_block(Epson_Scanner * s, EpsonDataRec * result)
 void
 epson2_scan_finish(Epson_Scanner * s)
 {
-	unsigned char buf[CMD_SIZE_EXT_STATUS];
+	unsigned char *buf;
 	SANE_Status status;
 	int i;
 
@@ -5079,13 +5147,18 @@ epson2_scan_finish(Epson_Scanner * s)
 	}
 
 
-	status = request_extended_status(s, buf);
+	/* XXX do we have other means to check
+	 * for paper empty? */
+	status = request_extended_status(s, &buf, NULL);
 	if (status != SANE_STATUS_GOOD)
 		return;
 
 	if (buf[1] & EXT_STATUS_PE)
 		sane_auto_eject(s);
 
+	free(buf);
+
+	/* XXX required? */
 	reset(s);
 }
 
@@ -5175,7 +5248,7 @@ sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 			 * send the ACK signal to the scanner in order to make
 			 * it ready for the next data block.
 			 */
-			epson_send(s, S_ACK, 1, 0, &status);
+			status = epson2_ack(s);
 
 			/*
 			 * ... and request the next data block
@@ -5208,7 +5281,7 @@ sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 				return status;
 			}
 
-			epson_send(s, S_ACK, 1, 0, &status);
+			status = epson2_ack(s);
 
 			/*
 			 * ... and the last info block
@@ -5267,7 +5340,7 @@ sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 			s->eof = SANE_TRUE;
 		} else {
 			if (s->canceling) {
-				status = epson_cmd_simple(s, S_CAN, 1);
+				status = epson2_cmd_simple(s, S_CAN, 1);
 
 				*length = 0;
 
@@ -5275,7 +5348,7 @@ sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 
 				return SANE_STATUS_CANCELLED;
 			} else	/* XXX */
-				epson_send(s, S_ACK, 1, 0, &status);
+				status = epson2_ack(s);
 		}
 
 		s->end = s->buf + buf_len;

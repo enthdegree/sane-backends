@@ -1,3 +1,10 @@
+2006-12-12  Alessandro Zummo <a.zummo@towertech.it>
+
+	* epson2: removed calls to alloca(), code reorganization
+	  fixed a bug with request_extended_status (reply
+	  length is 33 on older scanners).	
+	* include/.cvsignore: added two more entries
+
 2006-12-10  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_devices.c: reduced height of calibration area

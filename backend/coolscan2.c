@@ -1482,6 +1482,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       if (xfer_len_out == 0)	/* no more data */
 	{
 	  *len = 0;
+	s->scanning = SANE_FALSE;
 	  return SANE_STATUS_EOF;
 	}
 
@@ -1533,6 +1534,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   if (xfer_len_line == 0)	/* no more data */
     {
       *len = 0;
+	s->scanning = SANE_FALSE;
       return SANE_STATUS_EOF;
     }
 

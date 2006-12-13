@@ -1,3 +1,9 @@
+2006-12-13  Alessandro Zummo <a.zummo@towertech.it>
+
+	* coolscan2: fixed coolscan2 infrared to work
+	  as advertised in the man page. RGBA format
+	  will come soon.
+
 2006-12-12  Alessandro Zummo <a.zummo@towertech.it>
 
 	* epson2: removed calls to alloca(), code reorganization

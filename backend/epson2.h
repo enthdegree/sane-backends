@@ -18,9 +18,39 @@
 #ifndef epson2_h
 #define epson2_h
 
-#include <sys/ioctl.h>
+#undef BACKEND_NAME
+#define BACKEND_NAME	epson2
+#define DEBUG_NOT_STATIC
 
+#include <sys/ioctl.h>
 #include <sys/types.h>
+
+#include <sane/sane.h>
+#include <sane/sanei_backend.h>
+#include <sane/sanei_debug.h>
+
+#ifdef __GNUC__
+#define __func__ __FUNCTION__
+#else
+#define __func__ "(undef)"
+/* I cast my vote for C99... :) */
+#endif
+
+#define EPSON2_CONFIG_FILE      "epson2.conf"
+
+#ifndef PATH_MAX
+#define PATH_MAX                (1024)
+#endif
+
+#ifndef XtNumber
+#define XtNumber(x)  (sizeof(x) / sizeof(x[0]))
+#define XtOffset(p_type, field)  ((size_t)&(((p_type)NULL)->field))
+#define XtOffsetOf(s_type, field)  XtOffset(s_type*, field)
+#endif
+
+#define NUM_OF_HEX_ELEMENTS (16)        /* number of hex numbers per line for data dump */
+#define DEVICE_NAME_LEN (16)    /* length of device name in extended status */
+
 
 /* some string constants that are used in the config file */
 
@@ -46,6 +76,9 @@
 
 #define SANE_EPSON_MAX_RETRIES	120	/* how often do we retry during warmup ? */
 
+#ifndef MM_PER_INCH
+#define MM_PER_INCH             25.4
+#endif
 
 /* NOTE: you can find these codes with "man ascii". */
 #define STX	0x02
@@ -164,13 +197,13 @@ typedef struct
   unsigned char set_color_correction_coefficients;	/* B3 and later */
   unsigned char request_extended_status;	/* get extended status from scanner */
   unsigned char control_an_extension;	/* for extension control */
-  unsigned char eject;		/* for extension control */
+  unsigned char eject;			/* for extension control */
   unsigned char feed;
   unsigned char request_push_button_status;
   unsigned char control_auto_area_segmentation;
-  unsigned char set_film_type;	/* for extension control */
+  unsigned char set_film_type;		/* for extension control */
   unsigned char set_exposure_time;	/* F5 only */
-  unsigned char set_bay;	/* F5 only */
+  unsigned char set_bay;		/* F5 only */
   unsigned char set_threshold;
   unsigned char set_focus_position;	/* B8 only */
   unsigned char request_focus_position;	/* B8 only */
@@ -201,32 +234,6 @@ typedef enum
   SANE_EPSON_USB,		/* USB interface */
   SANE_EPSON_NET		/* network interface */
 } Epson_Connection_Type;
-
-
-typedef struct
-{
-  u_short opt_resolution;
-  u_char sensor;
-  u_char scan_order;
-  u_char line_dist1;
-  u_char line_dist2;
-
-  u_short main_res1;
-  u_short main_res2;
-  u_short main_res3;
-  u_short main_res4;
-  u_short main_res5;
-  u_short main_res6;
-  u_short main_res7;
-
-  u_short sub_res1;
-  u_short sub_res2;
-  u_short sub_res3;
-  u_short sub_res4;
-  u_short sub_res5;
-  u_short sub_res6;
-} Epson_Identity2;
-
 
 struct Epson_Device
 {
@@ -259,7 +266,7 @@ struct Epson_Device
   SANE_Int use_extension;	/* use the installed extension */
   SANE_Bool TPU;		/* TPU is installed */
   SANE_Bool ADF;		/* ADF is installed */
-  SANE_Bool duplexSupport;	/* does the ADF handle duplex scanning */
+  SANE_Bool duplex;		/* does the ADF handle duplex scanning */
   SANE_Bool focusSupport;	/* does this scanner have support for "set focus position" ? */
   SANE_Bool color_shuffle;	/* does this scanner need color shuffling */
   SANE_Int maxDepth;		/* max. color depth */
@@ -273,14 +280,6 @@ struct Epson_Device
 
   SANE_Bool wait_for_button;	/* do we have to wait until the scanner button is pressed? */
 
-  SANE_Int fbf_max_x;
-  SANE_Int fbf_max_y;
-  SANE_Int adf_max_x;
-  SANE_Int adf_max_y;
-
-  SANE_Int devtype;
-
-  SANE_Bool local;
   SANE_Bool extended_commands;
 
   EpsonCmd cmd;
@@ -318,6 +317,13 @@ struct Epson_Scanner
   SANE_Int left, top, lcount;
   unsigned char *netbuf, *netptr;
   size_t netlen;
+
+
+  /* extended image data handshaking */
+  SANE_Int ext_block_len;
+  SANE_Int ext_last_len;
+  SANE_Int ext_blocks;
+  SANE_Int ext_counter;
 };
 
 typedef struct Epson_Scanner Epson_Scanner;

@@ -104,5 +104,5 @@ sanei_tcp_write(int fd, const u_char * buf, int count)
 ssize_t
 sanei_tcp_read(int fd, u_char * buf, int count)
 {
-	return recv(fd, buf, count, 0);
+	return recv(fd, buf, count, MSG_WAITALL);
 }

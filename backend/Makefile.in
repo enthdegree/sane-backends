@@ -99,6 +99,7 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   dell1600n_net.conf.in dll.aliases dll.c dll.conf.in dmc.c dmc.conf.in dmc.h \
   epson.c epson_scsi.c epson_usb.c epson.conf.in epson.h epson_scsi.h \
   epson_usb.h epson2_net.c epson2_net.h epson2.c epson2_scsi.c epson2.conf.in\
+  epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h\
   fujitsu.c fujitsu.conf.in fujitsu.h fujitsu-scsi.h \
   gphoto2.c gphoto2.conf.in gphoto2.h \
   gt68xx.c gt68xx.h gt68xx_high.c gt68xx_high.h gt68xx_mid.c gt68xx_mid.h \
@@ -310,7 +311,7 @@ EXTRA_genesys = genesys_gl646 genesys_gl841
 EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
-EXTRA_epson2 = epson2_scsi epson_usb epson2_net
+EXTRA_epson2 = epson2_scsi epson_usb epson2_net epson2-io epson2-commands
 EXTRA_lexmark = lexmark-x1100
 EXTRA_pixma = pixma_io_sanei pixma_common pixma_mp150 pixma_mp730 pixma_mp750
 

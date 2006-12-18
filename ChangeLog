@@ -1,3 +1,12 @@
+2006-12-18  Alessandro Zummo <a.zummo@towertech.it>
+
+	* epson2: restructured code once more, splitted
+	  in multiple files, added networking
+	  support, added FS G extended handshaking mode,
+	  make proper use of extended commands when possible
+	* sanei/sanei_tcp.c: read now wait until all
+	  the requested data is available.
+
 2006-12-13  Alessandro Zummo <a.zummo@towertech.it>
 
 	* coolscan2: fixed coolscan2 infrared to work

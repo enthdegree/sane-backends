@@ -1,5 +1,7 @@
 2007-01-08  Julien Blache <jb@jblache.org>
 	* doc: fix man warnings.
+	* backend/microtek2.c: add missing return status check in
+	sane_start(), preventing an ugly segfault later on.
 
 2006-12-18  Alessandro Zummo <a.zummo@towertech.it>
 

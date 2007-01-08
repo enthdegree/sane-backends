@@ -1,3 +1,6 @@
+2007-01-08  Julien Blache <jb@jblache.org>
+	* doc: fix man warnings.
+
 2006-12-18  Alessandro Zummo <a.zummo@towertech.it>
 
 	* epson2: restructured code once more, splitted

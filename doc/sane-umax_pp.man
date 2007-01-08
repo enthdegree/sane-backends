@@ -169,8 +169,8 @@ it may fail on unkown hardware combination. Valid values are 610, 1220, 1600
 and 2000. It is usefull only when autodetection fails to detect properly
 your scanner model. If your scanner work properly but is reported wrongly, 
 let it be that way. 
-The only valid case to change the model is when your scanner produces 'black' or 
-'inverted' scans. In this case you can put the model. Be aware that it will 
+The only valid case to change the model is when your scanner produces "black" or 
+"inverted" scans. In this case you can put the model. Be aware that it will 
 prevent scanner model autodetection.
 .PP 
 

@@ -121,7 +121,7 @@ Henning Meier-Geinitz <henning@meier-geinitz.de>
 .br 
 Gerhard Jaeger <gerhard@gjaeger.de>
 .br 
-Stéphane Voltz <svoltz@numericable.fr>
+St\['e]phane Voltz <svoltz@numericable.fr>
 .br 
 Philipp Schmid <philipp8288@web.de>
 .br 

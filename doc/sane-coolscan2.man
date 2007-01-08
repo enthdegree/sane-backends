@@ -178,5 +178,5 @@ No real bugs currently known, please report any to the backend maintainer
 or the SANE developers' email list.
 
 .SH AUTHORS
-The backend is written and maintained by András Major
+The backend is written and maintained by Andr\['a]s Major
 (andras@users.sourceforge.net).

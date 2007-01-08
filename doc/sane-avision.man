@@ -160,4 +160,4 @@ sane(7), sane-scsi(5), sane-usb(5)
 http://www.exactcode.de/oss/avision/
 
 .SH AUTHOR
-René Rebe and Meino Christian Cramer
+Ren\['e] Rebe and Meino Christian Cramer

@@ -1,3 +1,8 @@
+2007-01-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
+
+	* doc/descriptions/unsupported.desc: Added and updated several
+	  scanners.
+
 2007-01-08  Julien Blache <jb@jblache.org>
 	* doc: fix man warnings.
 	* backend/microtek2.c: add missing return status check in

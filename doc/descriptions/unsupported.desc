@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2006-11-21"		; version of backend
+:version "2007-12-01"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -369,6 +369,13 @@
 :status :unsupported
 :comment "Not supported. See link."
 
+:model "CanoScan DR2580C"
+:url "/unsupported/canon-dr2580c.html"
+:interface "USB"
+:usbid "0x04a9" "0x1608"
+:status :unsupported
+:comment "Not supported. See link."
+
 :model "CanoScan FB320U"
 :interface "USB"
 :usbid "0x04a9" "0x2201"
@@ -411,10 +418,17 @@
 :comment "GL841 based, to be added to genesys backend"
 
 :model "CanoScan LiDE 600"
-:url "/unsupported/canon-canoscan-lide-600.html"
+:url "/unsupported/canon-lide-600.html"
 :interface "USB"
 :usbid "0x04a9" "0x2224"
 :status :unsupported
+
+:model "D1230U"
+:url "/unsupported/canon-d1230u.html"
+:interface "USB"
+:usbid "0x04a9" "0x2209"
+:status :unsupported
+:comment "Probably not supported. "
 
 :model "DR-2080C"
 :url "/unsupported/canon-dr2080c.html"
@@ -482,6 +496,13 @@
 :status :unsupported
 :comment "Probably not supported. Scanner cardridge for Canon inkjet printers."
 
+:model "Multipass 390"
+:url "/unsupported/canon-multipass-390.html"
+:interface "USB"
+:usbid "0x04a9" "0x263e"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
 :model "PIXMA MP110"
 :url "/unsupported/canon-pixma-mp110.html"
 :interface "USB"
@@ -493,6 +514,20 @@
 :url "/unsupported/canon-pixma-mp130.html"
 :interface "USB"
 :usbid "0x04a9" "0x1701"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
+:model "PIXMA MP160"
+:url "/unsupported/canon-pixma-mp160.html"
+:interface "USB"
+:usbid "0x04a9" "0x1714"
+:status :unsupported
+:comment "Probably not supported. See link for details."
+
+:model "PIXMA MP600"
+:url "/unsupported/canon-pixma-mp600.html"
+:interface "USB"
+:usbid "0x04a9" "0x1718"
 :status :unsupported
 :comment "Probably not supported. See link for details."
 
@@ -822,7 +857,7 @@
 :url "/unsupported/hp-scanjet-4500c.html"
 :interface "USB"
 :usbid "0x03f0" "0x1205"
-:comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend "
+:comment "Probably unsupported, see link for details."
 :status :unsupported
 
 :model "ScanJet 4570C"
@@ -898,6 +933,13 @@
 :url "/unsupported/hp-scanjet-8390.html"
 :interface "USB"
 :usbid "0x03f0" "0x3805"
+:comment "Probably not supported. See link for details."
+:status :unsupported
+
+:model "ScanJet G4000"
+:url "/unsupported/hp-G4000.html"
+:interface "USB"
+:usbid "0x03f0" "0x4505"
 :comment "Probably not supported. See link for details."
 :status :unsupported
 
@@ -1013,6 +1055,27 @@
 :status :unsupported
 :comment "Unsupported. GL640."
 
+:model "X1195"
+:url "/unsupported/lexmark-x1195.html"
+:interface "USB"
+:usbid "0x043d" "0x007c"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "X1240"
+:url "/unsupported/lexmark-x1240.html"
+:interface "USB"
+:usbid "0x043d" "0x007d"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "X1270"
+:url "/unsupported/lexmark-x1270.html"
+:interface "USB"
+:usbid "0x043d" "0x007d"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "X2330"
 :url "/unsupported/lexmark-x2330.html"
 :interface "USB"
@@ -1045,6 +1108,13 @@
 :url "/unsupported/lexmark-x6170.html"
 :interface "USB"
 :usbid "0x043d" "0x0072"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
+:model "X7350"
+:url "/unsupported/lexmark-x7350.html"
+:interface "USB"
+:usbid "0x043d" "0x00b8"
 :status :unsupported
 :comment "Unsupported. See link for details."
 

@@ -12,5 +12,3 @@
 # PARTICULAR PURPOSE.
 
 m4_include([acinclude.m4])
-m4_include([m4/byteorder.m4])
-m4_include([m4/stdint.m4])

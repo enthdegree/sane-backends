@@ -6772,3 +6772,6 @@ done
 SED=$lt_cv_path_SED
 AC_MSG_RESULT([$SED])
 ])
+
+m4_include([m4/byteorder.m4])
+m4_include([m4/stdint.m4])

@@ -164,13 +164,6 @@ static const SANE_String_Const tpu_dc_mode_list[] = {
   0
 };
 
-static const SANE_String_Const page_list[] = {
-  SANE_I18N("Show normal options"),
-  SANE_I18N("Show advanced options"),
-  SANE_I18N("Show all options"),
-  0
-};
-
 static const SANE_String_Const filmtype_list[] = {
   SANE_I18N("Negatives"), SANE_I18N("Slides"),
   0
@@ -1197,9 +1190,9 @@ init_options (CANON_Scanner * s)
   s->val[OPT_NEGATIVE_TYPE].s = strdup (negative_filmtype_list[0]);
 
   /* Scanning speed */
-  s->opt[OPT_SCANNING_SPEED].name = "scanning-speed";
-  s->opt[OPT_SCANNING_SPEED].title = SANE_I18N("Scanning speed");
-  s->opt[OPT_SCANNING_SPEED].desc = SANE_I18N("Selects the scanning speed");
+  s->opt[OPT_SCANNING_SPEED].name = SANE_NAME_SCAN_SPEED;
+  s->opt[OPT_SCANNING_SPEED].title = SANE_TITLE_SCAN_SPEED;
+  s->opt[OPT_SCANNING_SPEED].desc = SANE_DESC_SCAN_SPEED;
   s->opt[OPT_SCANNING_SPEED].type = SANE_TYPE_STRING;
   s->opt[OPT_SCANNING_SPEED].size = max_string_size (scanning_speed_list);
   s->opt[OPT_SCANNING_SPEED].constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1212,7 +1205,7 @@ init_options (CANON_Scanner * s)
 
 
   /* "Resolution" group: */
-  s->opt[OPT_RESOLUTION_GROUP].title = SANE_I18N("Scan Resolution");
+  s->opt[OPT_RESOLUTION_GROUP].title = SANE_I18N("Scan resolution");
   s->opt[OPT_RESOLUTION_GROUP].desc = "";
   s->opt[OPT_RESOLUTION_GROUP].type = SANE_TYPE_GROUP;
   s->opt[OPT_RESOLUTION_GROUP].cap = 0;

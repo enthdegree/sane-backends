@@ -797,7 +797,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   DBG (3,
        "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
-       handle, option, action, value, info);
+       handle, option, action, value, (void*) info);
 
   return dispatch_control_option (handle, option, action, value, info);
 }

@@ -3357,7 +3357,7 @@ sane_control_option (SANE_Handle handle,
   SANE_Status status;
 
   DBG(96, "sane_control_option (opt=%d,act=%d,val=%p,info=%p)\n",
-      option, action, value, info);
+      option, action, value, (void*) info);
 
   sod = scanner->sod;
   val = scanner->val;

@@ -164,7 +164,7 @@ struct backend
   u_int loaded:1;		/* are the functions available? */
   u_int inited:1;		/* has the backend been initialized? */
   void *handle;			/* handle returned by dlopen() */
-  void *(*op[NUM_OPS]) ();
+  void *(*op[NUM_OPS]) (void);
 };
 
 #define BE_ENTRY(be,func)       sane_##be##_##func

@@ -487,7 +487,7 @@ sanei_w_device_ptr (Wire * w, SANE_Device ** v)
   DBG (3, "sanei_w_device_ptr: wire %d\n", w->io.fd);
   sanei_w_ptr (w, (void **) v, (WireCodecFunc) sanei_w_device, sizeof (**v));
   if (w->direction != WIRE_FREE)
-    DBG (4, "sanei_w_device_ptr: device struct at %p\n", *v);
+    DBG (4, "sanei_w_device_ptr: device struct at %p\n", (void*) *v);
 }
 
 void

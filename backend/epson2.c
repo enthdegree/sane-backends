@@ -15,8 +15,8 @@
  * published by the Free Software Foundation, version 2.
  */
 
-#define	SANE_EPSON2_VERSION	"SANE Epson 2 Backend v0.1.12 - 2006-12-07"
-#define SANE_EPSON2_BUILD	112
+#define	SANE_EPSON2_VERSION	"SANE Epson 2 Backend v0.1.14 - 2007-01-20"
+#define SANE_EPSON2_BUILD	114
 
 /* debugging levels:
  *
@@ -29,7 +29,7 @@
  *	13	epson2_cmd_info_block
  *	12	epson_cmd_simple
  *	10	some more details on scanner commands
- *	 9	ESC x/FS I in epson2_send
+ *	 9	ESC x/FS x in epson2_send
  *	 8	scanner commands
  *	 5
  *	 4
@@ -398,12 +398,12 @@ static int *gamma_params;
  */
 
 static const SANE_String_Const bay_list[] = {
-	" 1 ",
-	" 2 ",
-	" 3 ",
-	" 4 ",
-	" 5 ",
-	" 6 ",
+	"1",
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
 	NULL
 };
 
@@ -696,6 +696,9 @@ static void
 epson2_set_fbf_area(Epson_Scanner *s, int x, int y, int unit)
 {
 	struct Epson_Device *dev = s->hw;
+
+	if (x == 0 || y == 0)
+		return;
 
 	dev->fbf_x_range.min = 0;
 	dev->fbf_x_range.max =
@@ -1267,10 +1270,6 @@ attach(const char *name, Epson_Device * *devp, int type)
 		if (status != SANE_STATUS_GOOD)
 			goto free;
 
-		if (buf[0] & 0x80) {	/* XXX what's this for? */
-			/* exit */
-		}
-
 		/* the first two bytes of the buffer contain the optical resolution */
 		dev->optical_res = buf[1] << 8 | buf[0];
 
@@ -1597,11 +1596,10 @@ sane_get_devices(const SANE_Device * **device_list, SANE_Bool local_only)
 
 	DBG(5, "%s\n", __func__);
 
-	local_only = local_only;	/* just to get rid of the compiler warning */
+	local_only = local_only;	/* just to get rid of the compailer warning */
 
-	if (devlist) {
+	if (devlist)
 		free(devlist);
-	}
 
 	devlist = malloc((num_devices + 1) * sizeof(devlist[0]));
 	if (!devlist) {
@@ -2236,7 +2234,7 @@ init_options(Epson_Scanner * s)
 		s->opt[OPT_AUTO_EJECT].cap |= SANE_CAP_INACTIVE;
 
 
-	s->opt[OPT_ADF_MODE].name = "adf_mode";
+	s->opt[OPT_ADF_MODE].name = "adf-mode";
 	s->opt[OPT_ADF_MODE].title = SANE_I18N("ADF Mode");
 	s->opt[OPT_ADF_MODE].desc =
 		SANE_I18N("Selects the ADF mode (simplex/duplex)");
@@ -2703,6 +2701,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int * info)
 		break;
 
 	case OPT_EJECT:
+		/* XXX required?  control_extension(s, 1); */
 		eject(s);
 		break;
 
@@ -3694,6 +3693,10 @@ epson2_check_warm_up(Epson_Scanner *s, SANE_Bool *wup)
 	} else {
 		unsigned char *es;
 
+		/* this command is not available on some scanners */
+		if (!s->hw->cmd->request_extended_status)
+			return SANE_STATUS_GOOD;
+
 		status = request_extended_status(s, &es, NULL);
 		if (status != SANE_STATUS_GOOD)
 			return status;
@@ -3744,6 +3747,9 @@ epson2_check_adf(Epson_Scanner *s)
 	SANE_Status status;
 
 	DBG(8, "%s\n", __func__);
+
+	if (s->hw->use_extension == SANE_FALSE)
+		return SANE_STATUS_GOOD;
 
 	if (s->hw->extended_commands) {
 		unsigned char buf[16];
@@ -4223,21 +4229,16 @@ epson2_ext_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 		}
 		else
 			s->eof = SANE_TRUE;
+
+		s->end = s->buf + buf_len;
+		s->ptr = s->buf;
 	}
-
-	s->end = s->buf + buf_len;
-	s->ptr = s->buf;
-
-	/* copy the image data to the data memory area
-	 * (this routine andvances s->ptr)
-	 */
-	epson2_copy_image_data(s, data, max_length, length);
 
 	return status;	
 }
 
 static SANE_Status
-epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
+epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	  SANE_Int * length)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
@@ -4245,7 +4246,6 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	int index = 0;
 	SANE_Bool reorder = SANE_FALSE;
 	SANE_Bool needStrangeReorder = SANE_FALSE;
-	int bytes_to_process = 0;
 
       START_READ:
 	DBG(18, "%s: begin\n", __func__);
@@ -4274,116 +4274,16 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 		}
 
 		buf_len = result.buf[1] << 8 | result.buf[0];
-
-		if (s->block)
-			buf_len *= (result.buf[3] << 8 | result.buf[2]);
+		buf_len *= (result.buf[3] << 8 | result.buf[2]);
 
 		DBG(18, "%s: buf len = %lu\n", __func__, (u_long) buf_len);
 
-		if (!s->block && SANE_FRAME_RGB == s->params.format) {
-			/*
-			 * Read color data in line mode
-			 */
-
-			/*
-			 * read the first color line - the number of bytes to read
-			 * is already known (from last call to read_info_block()
-			 * We determine where to write the line from the color information
-			 * in the data block. At the end we want the order RGB, but the
-			 * way the data is delivered does not guarantee this - actually it's
-			 * most likely that the order is GRB if it's not RGB!
-			 */
-			index = get_color(result.status);
-
-			epson2_recv(s,
-				    s->buf +
-				    index * s->params.pixels_per_line,
-				    buf_len, &status);
-			if (status != SANE_STATUS_GOOD)
-				return status;
-			/*
-			 * send the ACK signal to the scanner in order to make
-			 * it ready for the next data block.
-			 */
-			status = epson2_ack(s);
-
-			/*
-			 * ... and request the next data block
-			 */
-			if (SANE_STATUS_GOOD !=
-			    (status = read_info_block(s, &result)))
-				return status;
-
-			buf_len = result.buf[1] << 8 | result.buf[0];
-			/*
-			 * this should never happen, because we are already in
-			 * line mode, but it does not hurt to check ...
-			 */
-			if (s->block)
-				buf_len *=
-					(result.buf[3] << 8 | result.buf[2]);
-
-			DBG(18, "%s: buf len2 = %lu\n", __func__,
-			    (u_long) buf_len);
-
-			index = get_color(result.status);
-
-			epson2_recv(s,
-				    s->buf +
-				    index * s->params.pixels_per_line,
-				    buf_len, &status);
-
-			if (status != SANE_STATUS_GOOD) {
-				*length = 0;
-				return status;
-			}
-
-			status = epson2_ack(s);
-
-			/*
-			 * ... and the last info block
-			 */
-			if (SANE_STATUS_GOOD !=
-			    (status = read_info_block(s, &result))) {
-				*length = 0;
-				return status;
-			}
-
-			buf_len = result.buf[1] << 8 | result.buf[0];
-
-			if (s->block)
-				buf_len *=
-					(result.buf[3] << 8 | result.buf[2]);
-
-			DBG(18, "%s: buf len3 = %lu\n", __func__,
-			    (u_long) buf_len);
-
-			index = get_color(result.status);
-
-			/* receive image data */
-			epson2_recv(s,
-				    s->buf +
-				    index * s->params.pixels_per_line,
-				    buf_len, &status);
-
-			if (status != SANE_STATUS_GOOD) {
-				*length = 0;
-				return status;
-			}
-		} else {
-			/*
-			 * Read data in block mode
-			 */
-
+		{
 			/* do we have to reorder the data ? */
 			if (get_color(result.status) == 0x01)
 				reorder = SANE_TRUE;
 
-			bytes_to_process =
-				epson2_recv(s, s->buf, buf_len, &status);
-
-			/* bytes_to_process = buf_len; */
-
+			epson2_recv(s, s->buf, buf_len, &status);
 			if (status != SANE_STATUS_GOOD) {
 				*length = 0;
 				return status;
@@ -4391,7 +4291,7 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 		}
 
 		if (result.status & STATUS_AREA_END) {
-			DBG(1, "EOF\n");
+			DBG(1, "%s: EOF\n", __func__);
 			s->eof = SANE_TRUE;
 		} else {
 			if (s->canceling) {
@@ -4401,11 +4301,7 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 
 				return SANE_STATUS_CANCELLED;
 			} else	{
-				size_t nl = buf_len;
-
-				DBG(1, "next: %d\n", buf_len);
-
-				status = epson2_ack_next(s, nl + 6);
+				status = epson2_ack(s);
 			}
 		}
 
@@ -4438,17 +4334,10 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 		 * with the half vertical scanning area. When we corrected this,
 		 * we also set the variable s->hw->need_color_reorder
 		 */
-		if (s->hw->need_color_reorder) {
-			needStrangeReorder = SANE_TRUE;
-		}
-
-		if (needStrangeReorder)
+		if (s->hw->need_color_reorder)
 			reorder = SANE_FALSE;	/* reordering once is enough */
 
-		if (s->params.format != SANE_FRAME_RGB)
-			reorder = SANE_FALSE;	/* don't reorder for BW or gray */
-
-		if (reorder) {
+		if (reorder && s->params.format == SANE_FRAME_RGB) {
 			SANE_Byte *ptr;
 
 			ptr = s->buf;
@@ -4504,17 +4393,11 @@ epson2_std_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 		DBG(18, "%s: begin scan2\n", __func__);
 	}
 
-	DBG(18, "moving data\n");
-
-	/* copy the image data to the data memory area
-	 * (this routine andvances s->ptr)
-	 */
-	epson2_copy_image_data(s, data, max_length, length);
-
 	DBG(18, "%s: end\n", __func__);
 
 	return SANE_STATUS_GOOD;
 }
+
 
 SANE_Status
 sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
@@ -4526,7 +4409,10 @@ sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 	if (s->hw->extended_commands)
 		status = epson2_ext_sane_read(handle, data, max_length, length);
 	else
-		status = epson2_std_sane_read(handle, data, max_length, length);
+		status = epson2_block_sane_read(handle, data, max_length, length);
+
+	DBG(18, "moving data\n");
+	epson2_copy_image_data(s, data, max_length, length);
 
 	/* continue reading if appropriate */
 	if (status == SANE_STATUS_GOOD)
@@ -4734,7 +4620,7 @@ sane_cancel(SANE_Handle handle)
 	 * was started and if s->eof is FALSE, it was not finished.
 	 */
 
-	if (s->buf != NULL) {
+	if (s->buf) {
 		unsigned char *dummy;
 		int len;
 

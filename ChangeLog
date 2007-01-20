@@ -1,3 +1,9 @@
+2007-01-20  Alessandro Zummo <a.zummo@towertech.it>
+
+	* sanei/sanei_tcp.c: added a missing include
+	* backend/epson2.c: fixed a bug while moving scanner data,
+	removed support for line mode (block or ext modes will be used).
+
 2007-01-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* acinclude.m4, aclocal.m4, configure, include/sane/config.h.in:

@@ -46,6 +46,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/socket.h>
+
 #define BACKEND_NAME sanei_tcp
 
 #include "../include/sane/sane.h"

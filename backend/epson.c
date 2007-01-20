@@ -3218,7 +3218,7 @@ init_options (Epson_Scanner * s)
 
   /* preview speed */
   s->opt[OPT_PREVIEW_SPEED].name = "preview-speed";
-  s->opt[OPT_PREVIEW_SPEED].title = SANE_I18N ("Speed");
+  s->opt[OPT_PREVIEW_SPEED].title = SANE_I18N ("High speed preview");
   s->opt[OPT_PREVIEW_SPEED].desc = "";
 
   s->opt[OPT_PREVIEW_SPEED].type = SANE_TYPE_BOOL;

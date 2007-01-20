@@ -6,7 +6,9 @@ ALL_LINGUAS = bg cs da de es fi fr it nl no pl pt ru sv
 
 SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/avision.h \
-  ../backend/canon630u.c ../backend/epson.c ../backend/epson.h \
+  ../backend/canon630u.c ../backend/canon.c ../backend/canon-sane.c \
+  ../backend/epson.c ../backend/epson.h \
+  ../backend/epson2.c ../backend/epson2.h \
   ../backend/genesys.c \
   ../backend/gt68xx.c ../backend/gt68xx_low.h ../backend/hp5400_sane.c \
   ../backend/hp-option.c ../backend/hp-option.h \

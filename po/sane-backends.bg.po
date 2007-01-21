@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-20 15:37+0100\n"
-"PO-Revision-Date: 2007-01-20 15:38+0100\n"
+"POT-Creation-Date: 2007-01-21 14:35+0100\n"
+"PO-Revision-Date: 2007-01-21 14:36+0100\n"
 "Last-Translator: Pavel Constantinov <pavelconstantinov@bigfoot.com>\n"
 "Language-Team:  <>\n"
 "MIME-Version: 1.0\n"
@@ -14,9 +14,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
-#: .tmp/canon.c:157 .tmp/canon-sane.c:732 .tmp/canon-sane.c:1089
-#: .tmp/canon-sane.c:1298 .tmp/canon-sane.c:1331 .tmp/canon-sane.c:1427
-#: .tmp/canon-sane.c:1652 .tmp/genesys.c:90 .tmp/hp-option.c:2926
+#: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
+#: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
+#: .tmp/canon-sane.c:1623 .tmp/genesys.c:90 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
 #: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
 #: .tmp/sceptre.h:289 .tmp/snapscan-options.c:79 .tmp/umax.c:186
@@ -32,9 +32,9 @@ msgid "Grayscale"
 msgstr "В сива скала"
 
 #: .tmp/artec_eplus48u.c:156 .tmp/canon.c:141 .tmp/canon.c:146
-#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:760
-#: .tmp/canon-sane.c:968 .tmp/canon-sane.c:1104 .tmp/canon-sane.c:1346
-#: .tmp/canon-sane.c:1664 .tmp/canon-sane.c:1769 .tmp/canon-sane.c:2086
+#: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
+#: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
+#: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
 #: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:87 .tmp/hp-option.c:2929
 #: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128 .tmp/mustek.c:132
 #: .tmp/mustek_usb.c:268 .tmp/pixma.c:622 .tmp/pixma_sane_options.c:70
@@ -67,7 +67,7 @@ msgstr "Висящи опции"
 msgid "Set default values for enhancement controls."
 msgstr "Нагласи висящи опции за повишителните контроли."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2100 .tmp/epson.c:3287
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2098 .tmp/epson.c:3287
 #: .tmp/genesys.c:4640 .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823
 #: .tmp/ma1509.c:549 .tmp/matsushita.c:1135 .tmp/microtek2.h:600
 #: .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305
@@ -179,8 +179,8 @@ msgstr "Корекция на гамата"
 msgid "Selects the gamma corrected transfer curve"
 msgstr "Избира кривата на коригираната гама"
 
-#: .tmp/canon.c:140 .tmp/canon-sane.c:733 .tmp/canon-sane.c:1090
-#: .tmp/canon-sane.c:1299 .tmp/canon-sane.c:1336 .tmp/hp-option.c:2927
+#: .tmp/canon.c:140 .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061
+#: .tmp/canon-sane.c:1270 .tmp/canon-sane.c:1307 .tmp/hp-option.c:2927
 #: .tmp/mustek.c:127 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
 #: .tmp/sceptre.h:290 .tmp/snapscan-options.c:77 .tmp/umax.c:187
 #, no-c-format
@@ -188,8 +188,8 @@ msgid "Halftone"
 msgstr "Полутон"
 
 #: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
-#: .tmp/canon-sane.c:966 .tmp/canon-sane.c:1098 .tmp/canon-sane.c:1341
-#: .tmp/canon-sane.c:1662 .tmp/canon-sane.c:2099 .tmp/epson2.c:194
+#: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
+#: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
 #: .tmp/epson.c:489 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:625
 #: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:289
@@ -198,14 +198,14 @@ msgstr "Полутон"
 msgid "Gray"
 msgstr "Сиво"
 
-#: .tmp/canon.c:146 .tmp/canon-sane.c:1352
+#: .tmp/canon.c:146 .tmp/canon-sane.c:1323
 #, no-c-format
 msgid "Raw"
 msgstr ""
 
-#: .tmp/canon.c:152 .tmp/canon-sane.c:761 .tmp/canon-sane.c:969
-#: .tmp/canon-sane.c:1105 .tmp/canon-sane.c:1347 .tmp/canon-sane.c:1516
-#: .tmp/canon-sane.c:1665
+#: .tmp/canon.c:152 .tmp/canon-sane.c:732 .tmp/canon-sane.c:940
+#: .tmp/canon-sane.c:1076 .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487
+#: .tmp/canon-sane.c:1636
 #, no-c-format
 msgid "Fine color"
 msgstr ""
@@ -215,17 +215,17 @@ msgstr ""
 msgid "No transparency correction"
 msgstr "Цветова корекция."
 
-#: .tmp/canon.c:162 .tmp/canon-sane.c:709
+#: .tmp/canon.c:162 .tmp/canon-sane.c:680
 #, no-c-format
 msgid "Correction according to film type"
 msgstr ""
 
-#: .tmp/canon.c:163 .tmp/canon-sane.c:703
+#: .tmp/canon.c:163 .tmp/canon-sane.c:674
 #, no-c-format
 msgid "Correction according to transparency ratio"
 msgstr ""
 
-#: .tmp/canon.c:168 .tmp/canon-sane.c:805
+#: .tmp/canon.c:168 .tmp/canon-sane.c:776
 #, fuzzy, no-c-format
 msgid "Negatives"
 msgstr "Негатив"
@@ -438,7 +438,7 @@ msgstr "flatbed скенер"
 msgid "Scan mode"
 msgstr "Режим на сканиране"
 
-#: .tmp/canon.c:1170 .tmp/epson2.c:2187 .tmp/epson.c:3375
+#: .tmp/canon.c:1170 .tmp/epson2.c:2185 .tmp/epson.c:3375
 #, no-c-format
 msgid "Film type"
 msgstr "Тип екран (film)"
@@ -518,7 +518,7 @@ msgstr ""
 msgid "Extra color adjustments"
 msgstr ""
 
-#: .tmp/canon.c:1521 .tmp/epson2.c:2013 .tmp/epson.c:3194
+#: .tmp/canon.c:1521 .tmp/epson2.c:2011 .tmp/epson.c:3194
 #, no-c-format
 msgid "Mirror image"
 msgstr "Огледален образ"
@@ -618,57 +618,47 @@ msgstr "Flatbed"
 msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
 
-#: .tmp/canon.c:1699
+#: .tmp/canon.c:1699 .tmp/canon.c:1709
 #, fuzzy, no-c-format
 msgid "Transparency unit"
 msgstr "Прозрачност"
 
-#: .tmp/canon.c:1710 .tmp/canon-sane.c:674
-#, fuzzy, no-c-format
-msgid "Turn off the transparency unit"
-msgstr "Прозрачност"
-
-#: .tmp/canon.c:1711 .tmp/canon-sane.c:684
-#, fuzzy, no-c-format
-msgid "Turn on the transparency unit"
-msgstr "Прозрачност"
-
-#: .tmp/canon.c:1712
+#: .tmp/canon.c:1710
 #, no-c-format
 msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
 msgstr ""
 
-#: .tmp/canon.c:1721
+#: .tmp/canon.c:1720
 #, fuzzy, no-c-format
 msgid "Negative film"
 msgstr "Негативен филм"
 
-#: .tmp/canon.c:1722
+#: .tmp/canon.c:1721
 #, fuzzy, no-c-format
 msgid "Positive or negative film"
 msgstr "Позитивен екран"
 
-#: .tmp/canon.c:1731
+#: .tmp/canon.c:1730
 #, no-c-format
 msgid "Density control"
 msgstr ""
 
-#: .tmp/canon.c:1732
+#: .tmp/canon.c:1731
 #, no-c-format
 msgid "Set density control mode"
 msgstr ""
 
-#: .tmp/canon.c:1743
+#: .tmp/canon.c:1742
 #, fuzzy, no-c-format
 msgid "Transparency ratio"
 msgstr "Прозрачност"
 
-#: .tmp/canon.c:1757
+#: .tmp/canon.c:1756
 #, fuzzy, no-c-format
 msgid "Select film type"
 msgstr "Тип екран (film)"
 
-#: .tmp/canon.c:1758
+#: .tmp/canon.c:1757
 #, fuzzy, no-c-format
 msgid "Select the film type"
 msgstr "Избира полутона"
@@ -798,19 +788,19 @@ msgstr "Свали десен B"
 msgid "Download pattern B"
 msgstr "Свали десен B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1925 .tmp/epson.c:603 .tmp/epson.c:3085
+#: .tmp/epson2.c:305 .tmp/epson2.c:1923 .tmp/epson.c:603 .tmp/epson.c:3085
 #: .tmp/genesys.c:95 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Червено"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1921 .tmp/epson.c:604 .tmp/epson.c:3081
+#: .tmp/epson2.c:306 .tmp/epson2.c:1919 .tmp/epson.c:604 .tmp/epson.c:3081
 #: .tmp/genesys.c:96 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Зелено"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1929 .tmp/epson.c:605 .tmp/epson.c:3089
+#: .tmp/epson2.c:307 .tmp/epson2.c:1927 .tmp/epson.c:605 .tmp/epson.c:3089
 #: .tmp/genesys.c:97 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
@@ -906,7 +896,7 @@ msgstr "A4"
 msgid "Max"
 msgstr "Макс."
 
-#: .tmp/epson2.c:1643 .tmp/epson.c:2802 .tmp/genesys.c:4569 .tmp/gt68xx.c:453
+#: .tmp/epson2.c:1641 .tmp/epson.c:2802 .tmp/genesys.c:4569 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
 #: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:716
@@ -917,213 +907,213 @@ msgstr "Макс."
 msgid "Scan Mode"
 msgstr "Режим на сканиране"
 
-#: .tmp/epson2.c:1675 .tmp/epson.c:2834
+#: .tmp/epson2.c:1673 .tmp/epson.c:2834
 #, no-c-format
 msgid "Selects the halftone."
 msgstr "Избира полутона"
 
-#: .tmp/epson2.c:1696 .tmp/epson.c:2856
+#: .tmp/epson2.c:1694 .tmp/epson.c:2856
 #, no-c-format
 msgid "Dropout"
 msgstr "Dropout"
 
-#: .tmp/epson2.c:1697 .tmp/epson.c:2857
+#: .tmp/epson2.c:1695 .tmp/epson.c:2857
 #, no-c-format
 msgid "Selects the dropout."
 msgstr "Избира dropout-а."
 
-#: .tmp/epson2.c:1709 .tmp/epson.c:2869
+#: .tmp/epson2.c:1707 .tmp/epson.c:2869
 #, no-c-format
 msgid "Selects the brightness."
 msgstr "Избира яркостта."
 
-#: .tmp/epson2.c:1723 .tmp/epson.c:2884
+#: .tmp/epson2.c:1721 .tmp/epson.c:2884
 #, no-c-format
 msgid "Sharpness"
 msgstr "Острота"
 
-#: .tmp/epson2.c:1859 .tmp/epson.c:3020
+#: .tmp/epson2.c:1857 .tmp/epson.c:3020
 #, no-c-format
 msgid "Color correction"
 msgstr "Цветова корекция."
 
-#: .tmp/epson2.c:1862 .tmp/epson.c:3023
+#: .tmp/epson2.c:1860 .tmp/epson.c:3023
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr "Наглася таблицата за цветова корекция на избраното изходно устройство."
 
-#: .tmp/epson2.c:1903 .tmp/epson.c:3064
+#: .tmp/epson2.c:1901 .tmp/epson.c:3064
 #, no-c-format
 msgid "Color correction coefficients"
 msgstr "Коефициенти на цветова корекция"
 
-#: .tmp/epson2.c:1905 .tmp/epson.c:3065
+#: .tmp/epson2.c:1903 .tmp/epson.c:3065
 #, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Матрично умножаване на RGB"
 
-#: .tmp/epson2.c:1922 .tmp/epson.c:3082
+#: .tmp/epson2.c:1920 .tmp/epson.c:3082
 #, no-c-format
 msgid "Shift green to red"
 msgstr "Измести зелено към червено"
 
-#: .tmp/epson2.c:1923 .tmp/epson.c:3083
+#: .tmp/epson2.c:1921 .tmp/epson.c:3083
 #, no-c-format
 msgid "Shift green to blue"
 msgstr "Измести зелено към синьо"
 
-#: .tmp/epson2.c:1924 .tmp/epson.c:3084
+#: .tmp/epson2.c:1922 .tmp/epson.c:3084
 #, no-c-format
 msgid "Shift red to green"
 msgstr "Измести червено към зелено"
 
-#: .tmp/epson2.c:1926 .tmp/epson.c:3086
+#: .tmp/epson2.c:1924 .tmp/epson.c:3086
 #, no-c-format
 msgid "Shift red to blue"
 msgstr "Измести червено към синьо"
 
-#: .tmp/epson2.c:1927 .tmp/epson.c:3087
+#: .tmp/epson2.c:1925 .tmp/epson.c:3087
 #, no-c-format
 msgid "Shift blue to green"
 msgstr "Измести синьо към зелено"
 
-#: .tmp/epson2.c:1928 .tmp/epson.c:3088
+#: .tmp/epson2.c:1926 .tmp/epson.c:3088
 #, no-c-format
 msgid "Shift blue to red"
 msgstr "Измести синьо към червено"
 
-#: .tmp/epson2.c:1931 .tmp/epson.c:3091
+#: .tmp/epson2.c:1929 .tmp/epson.c:3091
 #, no-c-format
 msgid "Controls green level"
 msgstr "Наглася степента на зелено"
 
-#: .tmp/epson2.c:1933 .tmp/epson.c:3092
+#: .tmp/epson2.c:1931 .tmp/epson.c:3092
 #, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Добавя към червеното според степента на зелено"
 
-#: .tmp/epson2.c:1935 .tmp/epson.c:3093
+#: .tmp/epson2.c:1933 .tmp/epson.c:3093
 #, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Добавя към синьото според степента на зелено"
 
-#: .tmp/epson2.c:1937 .tmp/epson.c:3094
+#: .tmp/epson2.c:1935 .tmp/epson.c:3094
 #, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Добавя към зеленото според степента на червено"
 
-#: .tmp/epson2.c:1938 .tmp/epson.c:3095
+#: .tmp/epson2.c:1936 .tmp/epson.c:3095
 #, no-c-format
 msgid "Controls red level"
 msgstr "Наглася степента на червено"
 
-#: .tmp/epson2.c:1939 .tmp/epson.c:3096
+#: .tmp/epson2.c:1937 .tmp/epson.c:3096
 #, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Добавя към синьото според степента на червено"
 
-#: .tmp/epson2.c:1941 .tmp/epson.c:3097
+#: .tmp/epson2.c:1939 .tmp/epson.c:3097
 #, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Добавя към зеленото според степента на синьо"
 
-#: .tmp/epson2.c:1942 .tmp/epson.c:3098
+#: .tmp/epson2.c:1940 .tmp/epson.c:3098
 #, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Добавя към червеното според степента на синьо"
 
-#: .tmp/epson2.c:1943 .tmp/epson.c:3099
+#: .tmp/epson2.c:1941 .tmp/epson.c:3099
 #, no-c-format
 msgid "Controls blue level"
 msgstr "Наглася степента на синьо"
 
-#: .tmp/epson2.c:2006 .tmp/epson.c:3186 .tmp/snapscan-options.c:816
+#: .tmp/epson2.c:2004 .tmp/epson.c:3186 .tmp/snapscan-options.c:816
 #: .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Разширено"
 
-#: .tmp/epson2.c:2014 .tmp/epson.c:3195
+#: .tmp/epson2.c:2012 .tmp/epson.c:3195
 #, no-c-format
 msgid "Mirror the image."
 msgstr "Направи огледален образ на изображението"
 
-#: .tmp/epson2.c:2035 .tmp/epson.c:3221 .tmp/mustek.c:4328
+#: .tmp/epson2.c:2033 .tmp/epson.c:3221 .tmp/mustek.c:4328
 #, no-c-format
 msgid "Fast preview"
 msgstr "Бързо превю"
 
-#: .tmp/epson2.c:2046 .tmp/epson.c:3234
+#: .tmp/epson2.c:2044 .tmp/epson.c:3234
 #, no-c-format
 msgid "Auto area segmentation"
 msgstr "Автоматична сегментация на площ"
 
-#: .tmp/epson2.c:2059 .tmp/epson.c:3247
+#: .tmp/epson2.c:2057 .tmp/epson.c:3247
 #, no-c-format
 msgid "Short resolution list"
 msgstr "Кратък списък резолюции"
 
-#: .tmp/epson2.c:2061 .tmp/epson.c:3249
+#: .tmp/epson2.c:2059 .tmp/epson.c:3249
 #, no-c-format
 msgid "Display short resolution list"
 msgstr "Покажи кратък списък с резолюции"
 
-#: .tmp/epson2.c:2069 .tmp/epson.c:3256
+#: .tmp/epson2.c:2067 .tmp/epson.c:3256
 #, no-c-format
 msgid "Zoom"
 msgstr "Увеличение"
 
-#: .tmp/epson2.c:2071 .tmp/epson.c:3258
+#: .tmp/epson2.c:2069 .tmp/epson.c:3258
 #, no-c-format
 msgid "Defines the zoom factor the scanner will use"
 msgstr "Определя фактора на увеличение за скенера"
 
-#: .tmp/epson2.c:2151 .tmp/epson.c:3338
+#: .tmp/epson2.c:2149 .tmp/epson.c:3338
 #, no-c-format
 msgid "Quick format"
 msgstr "Бързо форматиране"
 
-#: .tmp/epson2.c:2163 .tmp/epson.c:3349
+#: .tmp/epson2.c:2161 .tmp/epson.c:3349
 #, no-c-format
 msgid "Optional equipment"
 msgstr "Оборудване по избор"
 
-#: .tmp/epson2.c:2217 .tmp/epson.c:3420
+#: .tmp/epson2.c:2215 .tmp/epson.c:3420
 #, no-c-format
 msgid "Eject"
 msgstr "Извади"
 
-#: .tmp/epson2.c:2218 .tmp/epson.c:3421
+#: .tmp/epson2.c:2216 .tmp/epson.c:3421
 #, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Извади листа от ADF"
 
-#: .tmp/epson2.c:2228 .tmp/epson.c:3433
+#: .tmp/epson2.c:2226 .tmp/epson.c:3433
 #, no-c-format
 msgid "Auto eject"
 msgstr "Авто изваждане"
 
-#: .tmp/epson2.c:2230 .tmp/epson.c:3434
+#: .tmp/epson2.c:2228 .tmp/epson.c:3434
 #, no-c-format
 msgid "Eject document after scanning"
 msgstr "Извади документа след сканиране"
 
-#: .tmp/epson2.c:2240 .tmp/epson.c:3446
+#: .tmp/epson2.c:2238 .tmp/epson.c:3446
 #, no-c-format
 msgid "ADF Mode"
 msgstr ""
 
-#: .tmp/epson2.c:2242 .tmp/epson.c:3448
+#: .tmp/epson2.c:2240 .tmp/epson.c:3448
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 
-#: .tmp/epson2.c:2254 .tmp/epson.c:3462
+#: .tmp/epson2.c:2252 .tmp/epson.c:3462
 #, fuzzy, no-c-format
 msgid "Bay"
 msgstr "Bay"
 
-#: .tmp/epson2.c:2255 .tmp/epson.c:3463
+#: .tmp/epson2.c:2253 .tmp/epson.c:3463
 #, fuzzy, no-c-format
 msgid "Select bay to scan"
 msgstr "Избор на bay за сканиране"

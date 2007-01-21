@@ -244,7 +244,7 @@ get_tpu_stat (int fd, CANON_Device * dev)
     DBG (3, "scan mode control byte[%d] = %d\n", (int) i, tbuf[i]);
   dev->tpu.Status = (tbuf[2 + 4 + 5] >> 7) ?
     TPU_STAT_INACTIVE : TPU_STAT_NONE;
-  if (dev->tpu.Status == SANE_TRUE)	/* TPU available */
+  if (dev->tpu.Status != TPU_STAT_NONE)	/* TPU available */
     {
       dev->tpu.Status = (tbuf[2 + 4 + 5] && 0x04) ?
 	TPU_STAT_INACTIVE : TPU_STAT_ACTIVE;
@@ -291,7 +291,7 @@ get_adf_stat (int fd, CANON_Device * dev)
   dev->adf.Status = (abuf[ADF_Status] & ADF_NOT_PRESENT) ?
     ADF_STAT_NONE : ADF_STAT_INACTIVE;
 
-  if (dev->adf.Status == SANE_TRUE)	/* ADF available / INACTIVE */
+  if (dev->adf.Status != ADF_STAT_NONE)	/* ADF available / INACTIVE */
     {
       dev->adf.Status = (abuf[ADF_Status] & ADF_PROBLEM) ?
 	ADF_STAT_INACTIVE : ADF_STAT_ACTIVE;
@@ -1706,14 +1706,13 @@ init_options (CANON_Scanner * s)
 
   /* Transparency Unit (FAU, Film Adapter Unit) */
   s->opt[OPT_TPU_ON].name = "transparency-unit-on-off";
-  s->opt[OPT_TPU_ON].title = (s->hw->tpu.Status == TPU_STAT_ACTIVE)
-  ?  SANE_I18N("Turn off the transparency unit")
-  : SANE_I18N("Turn on the transparency unit");
+  s->opt[OPT_TPU_ON].title = SANE_I18N("Transparency unit");
   s->opt[OPT_TPU_ON].desc = SANE_I18N("Switch on/off the transparency unit "
   "(FAU, film adapter unit)");
   s->opt[OPT_TPU_ON].type = SANE_TYPE_BOOL;
   s->opt[OPT_TPU_ON].unit = SANE_UNIT_NONE;
-  s->val[OPT_TPU_ON].w = s->hw->tpu.Status;
+  s->val[OPT_TPU_ON].w =
+    (s->hw->tpu.Status == TPU_STAT_ACTIVE) ? SANE_TRUE : SANE_FALSE;
   s->opt[OPT_TPU_ON].cap |=
     (s->hw->tpu.Status != TPU_STAT_NONE) ? 0 : SANE_CAP_INACTIVE;
 

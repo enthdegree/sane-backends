@@ -371,8 +371,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *(SANE_Word *) val = s->val[option].w;
 	  DBG (21, "value for option %s: %d\n", option_name[option],
 	       s->val[option].w);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
 	  return (SANE_STATUS_GOOD);
 
 	case OPT_GAMMA_VECTOR:
@@ -435,33 +433,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_TPU_DCM:
 	case OPT_TPU_FILMTYPE:
 	case OPT_MODE:
-	  strcpy (val, s->val[option].s);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
-	  DBG (21, "value for option %s: %s\n", option_name[option],
-	       s->val[option].s);
-	  return (SANE_STATUS_GOOD);
-
 	case OPT_NEGATIVE:
-	  strcpy (val, s->val[option].s);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  DBG (21, "value for option %s: %s\n", option_name[option],
-	       s->val[option].s);
-	  return (SANE_STATUS_GOOD);
-
 	case OPT_NEGATIVE_TYPE:
-	  strcpy (val, s->val[option].s);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  DBG (21, "value for option %s: %s\n", option_name[option],
-	       s->val[option].s);
-	  return (SANE_STATUS_GOOD);
-
 	case OPT_SCANNING_SPEED:
 	  strcpy (val, s->val[option].s);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 	  DBG (21, "value for option %s: %s\n", option_name[option],
 	       s->val[option].s);
 	  return (SANE_STATUS_GOOD);
@@ -658,21 +633,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 	case OPT_FLATBED_ONLY:
 	  s->val[option].w = *(SANE_Word *) val;
-	  if (s->hw->adf.Status != ADF_STAT_NONE && s->val[option].w )
+	  if (s->hw->adf.Status != ADF_STAT_NONE && s->val[option].w)
 	    {					/* switch on */
 	      s->hw->adf.Priority |= 0x03;	/* flatbed mode */
 	      s->hw->adf.Feeder &= 0x00;	/* autofeed off (default) */
 	      s->hw->adf.Status = ADF_STAT_DISABLED;
-	      s->val[option].w = SANE_TRUE;
 	    }		/* if it isn't connected, don't bother fixing */
 	  return SANE_STATUS_GOOD;
 
 	case OPT_TPU_ON:
-	  if (s->val[OPT_TPU_ON].w == TPU_STAT_INACTIVE)	/* switch on */
+	  s->val[option].w = *(SANE_Word *) val;
+	  if (s->val[option].w)			/* switch on */
 	    {
-	      s->val[OPT_TPU_ON].w = TPU_STAT_ACTIVE;
-	      s->opt[OPT_TPU_ON].title = SANE_I18N("Turn off the transparency "
-	      "unit");
+	      s->hw->tpu.Status = TPU_STAT_ACTIVE;
 	      s->opt[OPT_TPU_TRANSPARENCY].cap &=
 		(s->hw->tpu.ControlMode == 3) ? ~SANE_CAP_INACTIVE : ~0;
 	      s->opt[OPT_TPU_FILMTYPE].cap &=
@@ -680,9 +653,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  else			/* switch off */
 	    {
-	      s->val[OPT_TPU_ON].w = TPU_STAT_INACTIVE;
-	      s->opt[OPT_TPU_ON].title = SANE_I18N("Turn on the transparency "
-	      "unit");
+	      s->hw->tpu.Status = TPU_STAT_INACTIVE;
 	      s->opt[OPT_TPU_TRANSPARENCY].cap |= SANE_CAP_INACTIVE;
 	      s->opt[OPT_TPU_FILMTYPE].cap |= SANE_CAP_INACTIVE;
 	    }
@@ -1186,7 +1157,7 @@ sane_start (SANE_Handle handle)
 
   s->scanning = SANE_FALSE;
 
-  if ((s->hw->adf.Status == SANE_TRUE)
+  if ((s->hw->adf.Status != ADF_STAT_NONE)
       && (s->val[OPT_FLATBED_ONLY].w != SANE_TRUE)
       && (s->hw->adf.Problem != 0))
     {
@@ -1208,7 +1179,7 @@ sane_start (SANE_Handle handle)
 	}
       return status;
     }
-  else if ((s->hw->adf.Status == SANE_TRUE)
+  else if ((s->hw->adf.Status != ADF_STAT_NONE)
 	   && (s->val[OPT_FLATBED_ONLY].w == SANE_TRUE))
     {
       set_adf_mode (s->fd, s->hw->adf.Priority);

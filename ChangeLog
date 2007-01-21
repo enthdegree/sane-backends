@@ -1,3 +1,8 @@
+2007-01-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/canon.c, backend/canon-sane.c:
+	  Fixed the "three-valued boolean" bug
+
 2007-01-20  Alessandro Zummo <a.zummo@towertech.it>
 
 	* sanei/sanei_tcp.c: added a missing include

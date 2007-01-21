@@ -1,3 +1,7 @@
+2006-01-21  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* doc/descriptions/mustek_pp.desc: Cybercom is a CIS scanner
+
 2007-01-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/canon.c, backend/canon-sane.c:

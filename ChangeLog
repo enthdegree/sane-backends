@@ -1,3 +1,8 @@
+2007-01-27 oliver rauch <oliver.rauch@rauch-domain.de>
+	* backend/umax.c
+	  removed bug in highlight blue using green value
+	* doc/umax/umax.CHANGES
+
 2007-01-26  m. allan noah <kitno455 a t gmail d o t com>
 
 	* AUTHORS, doc/sane-fujitsu.man, backend/fujitsu.conf.in,

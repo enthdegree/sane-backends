@@ -1,4 +1,4 @@
-.TH sane-fujitsu 5 "2006-06-06" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2007-01-26" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 
 .SH NAME
@@ -259,7 +259,7 @@ fujitsu backend, 3093, fi-4340C, ipc, cmp, long-time maintainer:
 fi-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
 .br
 fi-4120, fi-series color support, backend re-write, current maintainer:
-  M. Allan Noah: <anoah a t pfeiffer d o t edu>
+  m. allan noah: <kitno455 a t gmail d o t com>
 
 .SH "SEE ALSO"
 sane(7),
@@ -269,5 +269,5 @@ sane-sp15c(5),
 sane-avision(5)
 
 .SH AUTHOR
-M. Allan Noah: <anoah a t pfeiffer d o t edu>
+m. allan noah: <kitno455 a t gmail d o t com>
 

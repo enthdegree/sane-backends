@@ -226,7 +226,7 @@
          - rewrite do_*_cmd functions to handle short reads
            and to use ptr to return read in length
          - new init_user function split from init_model
-         _ init_vpd allows short vpd block for older models
+         - init_vpd allows short vpd block for older models
          - support MS buffer (s.scipioni AT harvardgroup DOT it)
          - support MS prepick
          - read only 1 byte of mode sense output
@@ -237,6 +237,11 @@
          - fix bug in get_hardware_status (#303798)
       V 1.0.43 2006-09-19, MAN
          - add model-specific code to init_vpd for M3099
+      V 1.0.44 2007-01-26, MAN
+         - set SANE_CAP_HARD_SELECT on all buttons/sensors
+         - disable sending gamma LUT, seems wrong on some units?
+         - support MS overscan
+         - clamp the scan area to the pagesize on ADF
 
    SANE FLOW DIAGRAM
 
@@ -297,7 +302,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 43 
+#define BUILD 44 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -890,7 +895,7 @@ init_vpd (struct fujitsu *s)
       memcpy(buffer+0x19,buff_VPD_M3097.cmd,buff_VPD_M3097.size);
   }*/
 
-  DBG (5, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
+  DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
 
   /* This scanner supports vital product data.
    * Use this data to set dpi-lists etc. */
@@ -1152,7 +1157,7 @@ init_vpd (struct fujitsu *s)
       /*FIXME no vendor vpd, set some defaults? */
       else{
         DBG (5, "init_vpd: Your scanner supports only partial VPD?\n");
-        DBG (5, "init_vpd: Please contact anoah at pfeiffer dot edu\n");
+        DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
         DBG (5, "init_vpd: with details of your scanner model.\n");
         ret = SANE_STATUS_INVAL;
       }
@@ -1160,7 +1165,7 @@ init_vpd (struct fujitsu *s)
   /*FIXME no vpd, set some defaults? */
   else{
     DBG (5, "init_vpd: Your scanner does not support VPD?\n");
-    DBG (5, "init_vpd: Please contact anoah at pfeiffer dot edu\n");
+    DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
     DBG (5, "init_vpd: with details of your scanner model.\n");
   }
 
@@ -1410,6 +1415,14 @@ init_model (struct fujitsu *s)
     /* lies */
     s->adbits = 8;
 
+  }
+  else if (strstr (s->product_name, "fi-4120C2")
+   || strstr (s->product_name, "fi-4220C2") ) {
+
+    /* missing from vpd */
+    s->os_x_basic = 376;
+    s->os_y_basic = 236;
+  
   }
   else if (strstr (s->product_name, "fi-4750")
    || strstr (s->product_name, "fi-4340") ) {
@@ -1878,7 +1891,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
-    s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
+
+    /* clamp to scanner max for fb */
+    if(s->source == SOURCE_FLATBED){
+      s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
+    }
+    /* clamp to current paper size for adf */
+    else{
+      s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->page_width);
+    }
+
     s->br_x_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_BR_X;
@@ -1896,7 +1918,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
-    s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
+
+    /* clamp to scanner max for fb */
+    if(s->source == SOURCE_FLATBED){
+      s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
+    }
+    /* clamp to current paper size for adf */
+    else{
+      s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->page_height);
+    }
+
     s->br_y_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_BR_Y;
@@ -2212,6 +2243,26 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /*overscan*/
+  if(option==OPT_OVERSCAN){
+    s->overscan_list[0] = string_Default;
+    s->overscan_list[1] = string_Off;
+    s->overscan_list[2] = string_On;
+    s->overscan_list[3] = NULL;
+  
+    opt->name = "overscan";
+    opt->title = "Overscan";
+    opt->desc = "Collect a few mm of background on top side of scan, before paper enters ADF.";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->overscan_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+    if (s->has_MS_auto)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*sleep time*/
   if(option==OPT_SLEEP_TIME){
     s->sleep_time_range.min = 0;
@@ -2314,7 +2365,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2326,7 +2377,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2338,7 +2389,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2350,7 +2401,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2362,7 +2413,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2374,7 +2425,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2386,7 +2437,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2398,7 +2449,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2410,7 +2461,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2422,7 +2473,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2434,7 +2485,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2446,7 +2497,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2458,7 +2509,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2470,7 +2521,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status && s->has_imprinter)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2482,7 +2533,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2494,7 +2545,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2506,7 +2557,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2518,7 +2569,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status && s->has_imprinter)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2530,7 +2581,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
     if (s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2542,7 +2593,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->ghs_in_rs)
-      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2779,6 +2830,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_PREPICK:
           switch (s->prepick) {
+            case MSEL_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case MSEL_ON:
+              strcpy (val, string_On);
+              break;
+            case MSEL_OFF:
+              strcpy (val, string_Off);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_OVERSCAN:
+          switch (s->overscan) {
             case MSEL_DEFAULT:
               strcpy (val, string_Default);
               break;
@@ -3164,6 +3229,18 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else
             return SANE_STATUS_GOOD;
 
+        case OPT_OVERSCAN:
+          if (!strcmp(val, string_Default))
+            s->overscan = MSEL_DEFAULT;
+          else if (!strcmp(val, string_On))
+            s->overscan= MSEL_ON;
+          else if (!strcmp(val, string_Off))
+            s->overscan= MSEL_OFF;
+          if (s->has_MS_auto)
+            return mode_select_overscan(s);
+          else
+            return SANE_STATUS_GOOD;
+
         case OPT_SLEEP_TIME:
           s->sleep_time = val_c;
           return set_sleep_mode(s);
@@ -3341,7 +3418,7 @@ get_hardware_status (struct fujitsu *s)
 static SANE_Status
 send_lut (struct fujitsu *s)
 {
-  int i, j, ret, bytes = 1 << s->adbits;
+  int i, j, ret=0, bytes = 1 << s->adbits;
   unsigned char * p = send_lutC+S_lut_data_offset;
   double b, slope, offset;
 
@@ -3390,12 +3467,13 @@ send_lut (struct fujitsu *s)
 
   hexdump(15,"LUT:",send_lutC+S_lut_data_offset,bytes);
  
-  ret = do_cmd (
+  DBG (10,"send_lut: skipping\n");
+  /*ret = do_cmd (
       s, 1, 0,
       sendB.cmd, sendB.size,
       send_lutC, S_lut_data_offset+bytes,
       NULL, NULL
-  );
+  );*/
 
   DBG (10, "send_lut: finish\n");
 
@@ -3575,6 +3653,29 @@ mode_select_prepick (struct fujitsu *s)
   );
 
   DBG (10, "mode_select_prepick: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+mode_select_overscan (struct fujitsu *s)
+{
+  int ret;
+
+  DBG (10, "mode_select_overscan: start\n");
+
+  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
+  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_auto);
+  set_MSEL_overscan(mode_select_8byteB.cmd, s->overscan);
+  
+  ret = do_cmd (
+      s, 1, 0,
+      mode_selectB.cmd, mode_selectB.size,
+      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      NULL, NULL
+  );
+
+  DBG (10, "mode_select_overscan: finish\n");
 
   return ret;
 }

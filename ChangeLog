@@ -1,3 +1,15 @@
+2007-01-26  m. allan noah <kitno455 a t gmail d o t com>
+
+	* AUTHORS, doc/sane-fujitsu.man, backend/fujitsu.conf.in,
+	  backend/fujitsu.c: updated email address
+	* backend/fujitsu-scsi.h, backend/fujitsu.[ch]: update to v1.0.44,
+	  set SANE_CAP_HARD_SELECT on all buttons/sensors.
+	  disable sending gamma LUT, quality errors reported. 
+	  support MS overscan.
+	  clamp the scan area to the pagesize on ADF.
+
+	* doc/descriptions/fujitsu.desc: version number update
+
 2006-01-21  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* doc/descriptions/mustek_pp.desc: Cybercom is a CIS scanner
@@ -164,8 +176,7 @@
 
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.43,
 	  add model-specific code to init_vpd for M3099, clean some noise
-	* doc/descriptions/fujitsu.desc:
-	  version number update
+	* doc/descriptions/fujitsu.desc: version number update
 
 2006-09-18  Stephane Voltz <stef.dev@free.fr>
 
@@ -189,8 +200,7 @@
 
 	* backend/fujitsu.c: update to v1.0.42,
 	  fix bug in get_hardware_status (#303798)
-	* doc/descriptions/fujitsu.desc:
-	  version number update
+	* doc/descriptions/fujitsu.desc: version number update
 
 2006-08-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -206,8 +216,7 @@
 	* backend/fujitsu.c backend/fujitsu-scsi.h: update to v1.0.41,
 	  do_usb_cmd() returns io error on cmd/out/status/rs EOF,
 	  fix bug in MS buffer/prepick scsi data block
-	* doc/descriptions/fujitsu.desc:
-	  version number update
+	* doc/descriptions/fujitsu.desc: version number update
 
 2006-08-28  Stephane Voltz <stefdev@modulonet.fr>
 

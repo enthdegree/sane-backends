@@ -43,6 +43,7 @@ enum fujitsu_Option
   OPT_DROPOUT_COLOR,
   OPT_BUFF_MODE,
   OPT_PREPICK,
+  OPT_OVERSCAN,
   OPT_SLEEP_TIME,
   OPT_DUPLEX_OFFSET,
   OPT_GREEN_OFFSET,
@@ -281,6 +282,7 @@ struct fujitsu
   SANE_String_Const lamp_color_list[5];
   SANE_String_Const buff_mode_list[4];
   SANE_String_Const prepick_list[4];
+  SANE_String_Const overscan_list[4];
   SANE_Range sleep_time_range;
   SANE_Range duplex_offset_range;
   SANE_Range green_offset_range;
@@ -318,6 +320,7 @@ struct fujitsu
   int dropout_color;
   int buff_mode;
   int prepick;
+  int overscan;
   int lamp_color;
   int sleep_time;
   int duplex_offset;
@@ -551,6 +554,8 @@ static SANE_Status mode_select_bg(struct fujitsu *s);
 static SANE_Status mode_select_buff (struct fujitsu *s);
 
 static SANE_Status mode_select_prepick (struct fujitsu *s);
+
+static SANE_Status mode_select_overscan (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 

@@ -104,6 +104,7 @@
 	  scanners.
 
 2003-11-04  m. allan noah <anoah at pfeiffer dot edu>
+
 	* doc/descriptions/fujitsu.desc: added model "fi-4110EOX2"
 
 2003-11-04  Gerhard Jaeger <gerhard@gjaeger.de>
@@ -300,8 +301,9 @@
 	  fixed urls.
 
 2003-10-19  m. allan noah <anoah at pfeiffer dot edu>
+
 	* backend/fujitsu.c: reverse previous patch. Dont blindly trust
-          code from the backend maintainer :)
+	  code from the backend maintainer :)
 
 2003-10-19  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: added subnet support to saned ; added
@@ -347,7 +349,7 @@
 	* backend/fujitsu.c: memset the device struct and the scsi buff
 	  when a new device is attached. Submitted by 
 	  Chris Chesney <cchesney at go-integral dot com>.
-          Initialized a couple vars in the 3091 init routines.
+	  Initialized a couple vars in the 3091 init routines.
 
 2003-10-15  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -1228,8 +1230,8 @@
 
 2003-06-11  Oliver Schirrmeister <oschirr@abm.de>
 
-	* backend/fujitsu.c fixed bug in that code when a scanner is 
-	  disconnected (anoah@pfeiffer.edu)
+	* backend/fujitsu.c: fixed bug in that code when a scanner is 
+	  disconnected (anoah at pfeiffer dot edu)
 	
 2003-06-10  Michael Herder <crapsite@gmx.net>
 
@@ -1282,10 +1284,10 @@
 
 2003-06-06  Oliver Schirrmeister <oschirr@abm.de>
 
-	* backend/fujitsu.h backend/fujitsu.c doc/descriptions/fujitsu.desc
-          path from anoah@pfeiffer.edu:
+	* backend/fujitsu.h backend/fujitsu.c doc/descriptions/fujitsu.desc:
 	  remove SP15 code
 	  sane_open actually opens the device you request
+	  from (anoah at pfeiffer dot edu)
 
 2003-06-05  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

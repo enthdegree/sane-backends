@@ -443,7 +443,7 @@ static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
  * there is also 'descriptor block' & 'vendor-specific block'
  * but fujitsu seems not to use these */
 
-/* 8 byte page only used by all pages except dropout? */
+/* 8 byte page used by all pages except dropout? */
 static unsigned char mode_select_8byteC[] = {
   0x00, 0x00, 0x00, 0x00,
   0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -494,7 +494,9 @@ static scsiblk mode_select_10byteB = {
 
 #define set_MSEL_prepick(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
 
-/*buffer and prepick use these*/
+#define set_MSEL_overscan(sb, val) setbitfield(sb + 0x09, 0x03, 6, val)
+
+/*buffer, prepick, overscan use these*/
 #define MSEL_DEFAULT 0
 #define MSEL_OFF 2
 #define MSEL_ON 3

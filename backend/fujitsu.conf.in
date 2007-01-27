@@ -20,8 +20,8 @@ scsi FUJITSU
 #usb VENDORID PRODUCTID
 
 # NOTE: if you have to add your device here- please send the id and model
-# to the author via email, so it can be included in next version. anoah at
-# pfeiffer dot edu - with Fujitsu in the subject line
+# to the author via email, so it can be included in next version. kitno455 at
+# gmail dot com - with Fujitsu in the subject line
 
 #fi-4x20C
 usb 0x04c5 0x1041

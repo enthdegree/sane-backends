@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 82
+#define BUILD 83
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5

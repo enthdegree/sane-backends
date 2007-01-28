@@ -1194,9 +1194,9 @@ static GT68xx_Model plustek_ops24_model = {
   SANE_FIX (2.0),		/* Default gamma value */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
-  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE | GT68XX_FLAG_UNTESTED
+  GT68XX_FLAG_OFFSET_INV | GT68XX_FLAG_ALWAYS_LINEMODE
   				/* Which flags are needed for this scanner? */
-    /* Untested. Based on genius Colorpage Vivid 1200 X. Colormode doesn't work? */
+    /* Works (tested by Filip Kaluza). Based on genius Colorpage Vivid 1200 X. */
 };
 
 

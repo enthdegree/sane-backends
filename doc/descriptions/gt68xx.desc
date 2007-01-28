@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-82"
+:version "1.0-83"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -348,8 +348,8 @@
 :model "OpticPro S24"
 :interface "USB"
 :usbid "0x07b3" "0x040e"
-:status :basic
-:comment "Product ID 0x040e only. Color mode doesn't seem to work. Needs more testing. Please contact me if you own such a scanner."
+:status :good
+:comment "Product ID 0x040e only. Is reported to work."
 
 :model "OpticPro ST12"
 :interface "USB"

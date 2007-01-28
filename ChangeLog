@@ -1,3 +1,9 @@
+2007-01-28  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.[ch]: update to v1.0.45,
+	  update overscan code to extend max scan area
+	* doc/descriptions/fujitsu.desc: version number update
+
 2007-01-27 oliver rauch <oliver.rauch@rauch-domain.de>
 	* backend/umax.c
 	  removed bug in highlight blue using green value
@@ -12,7 +18,6 @@
 	  disable sending gamma LUT, quality errors reported. 
 	  support MS overscan.
 	  clamp the scan area to the pagesize on ADF.
-
 	* doc/descriptions/fujitsu.desc: version number update
 
 2006-01-21  Jochen Eisinger <jochen@penguin-breeder.org>

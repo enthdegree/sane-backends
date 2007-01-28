@@ -242,6 +242,8 @@
          - disable sending gamma LUT, seems wrong on some units?
          - support MS overscan
          - clamp the scan area to the pagesize on ADF
+      V 1.0.45 2007-01-28, MAN
+         - update overscan code to extend max scan area
 
    SANE FLOW DIAGRAM
 
@@ -302,7 +304,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 44 
+#define BUILD 45 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1480,23 +1482,23 @@ init_user (struct fujitsu *s)
     s->resolution_y = s->resolution_x;
   }
 
-  /* bottom-right x */
-  s->br_x = 8.5 * 1200;
-  if(s->br_x > s->max_x){
-    s->br_x = s->max_x;
+  /* page width US-Letter */
+  s->page_width = 8.5 * 1200;
+  if(s->page_width > s->max_x){
+    s->page_width = s->max_x;
   }
+
+  /* page height US-Letter */
+  s->page_height = 11 * 1200;
+  if(s->page_height > s->max_y){
+    s->page_height = s->max_y;
+  }
+
+  /* bottom-right x */
+  s->br_x = s->page_width;
 
   /* bottom-right y */
-  s->br_y = 11 * 1200;
-  if(s->br_y > s->max_y){
-    s->br_y = s->max_y;
-  }
-
-  /* page width */
-  s->page_width = s->br_x;
-
-  /* page height */
-  s->page_height = s->br_y;
+  s->br_y = s->page_height;
 
   /* gamma ramp exponent */
   s->gamma = 1;
@@ -1855,7 +1857,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->tl_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
-    s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
+    s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->tl_x_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_TL_X;
@@ -1873,7 +1875,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->tl_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
-    s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
+    s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->tl_y_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_TL_Y;
@@ -1891,16 +1893,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
-
-    /* clamp to scanner max for fb */
-    if(s->source == SOURCE_FLATBED){
-      s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
-    }
-    /* clamp to current paper size for adf */
-    else{
-      s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->page_width);
-    }
-
+    s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
     s->br_x_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_BR_X;
@@ -1918,16 +1911,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     /* values stored in 1200 dpi units */
     /* must be converted to MM for sane */
     s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
-
-    /* clamp to scanner max for fb */
-    if(s->source == SOURCE_FLATBED){
-      s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
-    }
-    /* clamp to current paper size for adf */
-    else{
-      s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->page_height);
-    }
-
+    s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
     s->br_y_range.quant = MM_PER_UNIT_FIX;
   
     opt->name = SANE_NAME_SCAN_BR_Y;
@@ -3125,7 +3109,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               return SANE_STATUS_GOOD;
 
           s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
-          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         case OPT_PAGE_HEIGHT:
@@ -3133,7 +3117,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               return SANE_STATUS_GOOD;
 
           s->page_height = FIXED_MM_TO_SCANNER_UNIT(val_c);
-          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
           return SANE_STATUS_GOOD;
 
         /* Enhancement Group */
@@ -3221,9 +3205,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (!strcmp(val, string_Default))
             s->prepick = MSEL_DEFAULT;
           else if (!strcmp(val, string_On))
-            s->prepick= MSEL_ON;
+            s->prepick = MSEL_ON;
           else if (!strcmp(val, string_Off))
-            s->prepick= MSEL_OFF;
+            s->prepick = MSEL_OFF;
           if (s->has_MS_buff)
             return mode_select_prepick(s);
           else
@@ -3233,11 +3217,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (!strcmp(val, string_Default))
             s->overscan = MSEL_DEFAULT;
           else if (!strcmp(val, string_On))
-            s->overscan= MSEL_ON;
+            s->overscan = MSEL_ON;
           else if (!strcmp(val, string_Off))
-            s->overscan= MSEL_OFF;
-          if (s->has_MS_auto)
+            s->overscan = MSEL_OFF;
+          if (s->has_MS_auto){
+            *info |= SANE_INFO_RELOAD_OPTIONS;
             return mode_select_overscan(s);
+          }
           else
             return SANE_STATUS_GOOD;
 
@@ -4223,7 +4209,11 @@ set_window (struct fujitsu *s)
   }
   else{
     set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_NON_STANDARD);
-    set_WD_paper_width_X (window_descriptor_blockB.cmd, s->page_width);
+
+    /* call helper function, scanner wants lies about paper width */
+    set_WD_paper_width_X (window_descriptor_blockB.cmd, get_page_width(s));
+
+    /* dont call helper function, scanner wants actual length?  */
     set_WD_paper_length_Y (window_descriptor_blockB.cmd, s->page_height);
   }
 
@@ -5481,6 +5471,63 @@ wait_scanner(struct fujitsu *s)
 
   return ret;
 }
+
+/* s->page_width stores the user setting
+ * for the paper width in adf. sometimes,
+ * we need a value that differs from this
+ * due to using FB or overscan.
+ */
+int
+get_page_width(struct fujitsu *s) 
+{
+
+  /* scanner max for fb */
+  if(s->source == SOURCE_FLATBED){
+      return s->max_x;
+  }
+
+  /* current paper size for adf not overscan */
+  if(s->overscan != MSEL_ON){
+      return s->page_width;
+  }
+
+  /* cant overscan larger than scanner max */
+  if((s->page_width + s->os_x_basic*2) > s->max_x){
+      return s->max_x;
+  }
+
+  /* overscan adds a margin to both sides */
+  return (s->page_width + s->os_x_basic*2);
+}
+
+/* s->page_height stores the user setting
+ * for the paper height in adf. sometimes,
+ * we need a value that differs from this
+ * due to using FB or overscan.
+ */
+int
+get_page_height(struct fujitsu *s) 
+{
+
+  /* scanner max for fb */
+  if(s->source == SOURCE_FLATBED){
+      return s->max_y;
+  }
+
+  /* current paper size for adf not overscan */
+  if(s->overscan != MSEL_ON){
+      return s->page_height;
+  }
+
+  /* cant overscan larger than scanner max */
+  if((s->page_height + s->os_y_basic*2) > s->max_y){
+      return s->max_y;
+  }
+
+  /* overscan adds a margin to both sides */
+  return (s->page_height + s->os_y_basic*2);
+}
+
 
 /**
  * Convenience method to determine longest string size in a list.

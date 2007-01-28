@@ -445,7 +445,7 @@ struct fujitsu
 #define MM_PER_UNIT_UNFIX SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0))
 #define MM_PER_UNIT_FIX SANE_FIX(SANE_UNFIX(SANE_FIX(MM_PER_INCH / 1200.0)))
 
-#define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX(number * MM_PER_UNIT_UNFIX)
+#define SCANNER_UNIT_TO_FIXED_MM(number) SANE_FIX((number) * MM_PER_UNIT_UNFIX)
 #define FIXED_MM_TO_SCANNER_UNIT(number) SANE_UNFIX(number) / MM_PER_UNIT_UNFIX
 
 #define FUJITSU_CONFIG_FILE "fujitsu.conf"
@@ -560,6 +560,8 @@ static SANE_Status mode_select_overscan (struct fujitsu *s);
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
 int get_current_side (struct fujitsu *s);
+int get_page_width (struct fujitsu *s);
+int get_page_height (struct fujitsu *s);
 
 static int set_window (struct fujitsu *s);
 

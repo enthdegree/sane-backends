@@ -4,7 +4,8 @@
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
 	  .conf entry for Pluste OpticPro S12 and S24. Updated .desc
 	  file. 
-	* doc/descriptions/unsupported.desc: Added UMAX Astra 2850.
+	* doc/descriptions/unsupported.desc: Added UMAX Astra 2850. Added
+	  Canon Imagerunner series.
 
 2007-01-28  m. allan noah <kitno455 a t gmail d o t com>
 

@@ -4,7 +4,7 @@
 
    umax.c 
 
-   (C) 1997-2002 Oliver Rauch
+   (C) 1997-2007 Oliver Rauch
 
    This file is part of the SANE package.
 
@@ -49,7 +49,7 @@
 
 /* --------------------------------------------------------------------------------------------------------- */
 
-#define BUILD 44
+#define BUILD 45
 
 /* --------------------------------------------------------------------------------------------------------- */
 
@@ -2252,7 +2252,7 @@ static SANE_Status umax_set_window_param(Umax_Device *dev)
 							      /* set highlight in dependence of analog gamma */ 
         set_WD_highlight(buffer_r, umax_correct_light(dev->highlight_r, dev->analog_gamma_r));
         set_WD_highlight(buffer_g, umax_correct_light(dev->highlight_g, dev->analog_gamma_g));
-        set_WD_highlight(buffer_b, umax_correct_light(dev->highlight_g, dev->analog_gamma_b));
+        set_WD_highlight(buffer_b, umax_correct_light(dev->highlight_b, dev->analog_gamma_b));
 
 								 /* set shadow in dependence of analog gamma */ 
         set_WD_shadow(buffer_r, umax_correct_light(dev->shadow_r, dev->analog_gamma_r));

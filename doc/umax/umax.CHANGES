@@ -1156,3 +1156,17 @@ build-42 -> build-43
 build-43 -> build-44
 --------------------
 
+  * the sense_hanlder stores the sense data in buffer[0] when valid sense data is avialable
+
+  * do_calibration:
+	- corrected bug in reading calibration width from scanner (added /bytespp)
+	- when additional request sense is not called then the buffer is not erased,
+	  the sense data from the sense_handler is used
+	- when additional request sense is called then the buffer is erased at first
+
+build-44 -> build-45
+--------------------
+
+   * added defualt options for Linotype Opal2
+   * changed bug in highlight-blue function (using green value)
+

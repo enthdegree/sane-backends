@@ -281,6 +281,20 @@ static char lastrcmd[16];	/* hold command block of last read command */
 # define MAX_DATA	(32*1024)
 #endif
 
+#ifdef SG_SET_TIMEOUT
+# ifdef _SC_CLK_TCK
+#  define GNU_HZ  sysconf(_SC_CLK_TCK)
+# else
+#  ifdef HZ
+#   define GNU_HZ  HZ
+#  else
+#   ifdef CLOCKS_PER_SEC
+#    define GNU_HZ  CLOCKS_PER_SEC
+#   endif
+#  endif
+# endif
+#endif
+
 /* default timeout value: 120 seconds */
 static int sane_scsicmd_timeout = 120;
 int sanei_scsi_max_request_size = MAX_DATA;
@@ -1273,7 +1287,7 @@ sanei_scsi_open (const char *dev, int *fdp,
      disconnect... ;-( */
   {
     int timeout;
-    timeout = sane_scsicmd_timeout * HZ;
+    timeout = sane_scsicmd_timeout * GNU_HZ;
     ioctl (fd, SG_SET_TIMEOUT, &timeout);
   }
 #endif

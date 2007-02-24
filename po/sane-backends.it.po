@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2007-01-21 14:35+0100\n"
-"PO-Revision-Date: 2007-01-21 14:38+0100\n"
+"PO-Revision-Date: 2007-02-24 10:18+0100\n"
 "Last-Translator: Giuseppe Sacco <eppesuig@debian.org>\n"
 "Language-Team: italian translation project <tp@lists.linux.it>\n"
 "MIME-Version: 1.0\n"
@@ -201,41 +201,41 @@ msgid "Gray"
 msgstr "Grigio"
 
 #: .tmp/canon.c:146 .tmp/canon-sane.c:1323
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Raw"
-msgstr ""
+msgstr "Grezzo"
 
 #: .tmp/canon.c:152 .tmp/canon-sane.c:732 .tmp/canon-sane.c:940
 #: .tmp/canon-sane.c:1076 .tmp/canon-sane.c:1318 .tmp/canon-sane.c:1487
 #: .tmp/canon-sane.c:1636
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Fine color"
-msgstr ""
+msgstr "Colore ad alta qualità"
 
 #: .tmp/canon.c:161
 #, fuzzy, no-c-format
 msgid "No transparency correction"
-msgstr "Correzione del colore"
+msgstr "Nessuna correzione della trasparenza"
 
 #: .tmp/canon.c:162 .tmp/canon-sane.c:680
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Correction according to film type"
-msgstr ""
+msgstr "Correzione in base al tipo di pellicola"
 
 #: .tmp/canon.c:163 .tmp/canon-sane.c:674
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Correction according to transparency ratio"
-msgstr ""
+msgstr "Correzione in base al rapporto di trasparenza"
 
 #: .tmp/canon.c:168 .tmp/canon-sane.c:776
 #, fuzzy, no-c-format
 msgid "Negatives"
-msgstr "Negativo"
+msgstr "Negativi"
 
 #: .tmp/canon.c:168
 #, fuzzy, no-c-format
 msgid "Slides"
-msgstr "Diapositiva"
+msgstr "Diapositive"
 
 #: .tmp/canon.c:178 .tmp/matsushita.c:178
 #, no-c-format
@@ -245,128 +245,128 @@ msgstr "Automatico"
 #: .tmp/canon.c:178
 #, fuzzy, no-c-format
 msgid "Normal speed"
-msgstr "Normale"
+msgstr "Velocità normale"
 
 #: .tmp/canon.c:179
 #, fuzzy, no-c-format
 msgid "1/2 normal speed"
-msgstr "2x2 normale"
+msgstr "Velocità normale dimezzata"
 
 #: .tmp/canon.c:179
 #, fuzzy, no-c-format
 msgid "1/3 normal speed"
-msgstr "3x3 normale"
+msgstr "1/3 della velocità normale"
 
 #: .tmp/canon.c:362
 #, fuzzy, no-c-format
 msgid "rounded parameter"
-msgstr "Parametri «fuzzy»"
+msgstr "parametri arrotondati"
 
 #: .tmp/canon.c:365 .tmp/canon.c:381 .tmp/canon.c:416 .tmp/canon.c:466
 #: .tmp/canon.c:484 .tmp/canon.c:527
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "unknown"
-msgstr ""
+msgstr "sconosciuto"
 
 #: .tmp/canon.c:375
 #, fuzzy, no-c-format
 msgid "ADF jam"
-msgstr "ADF"
+msgstr "ADF inceppato"
 
 #: .tmp/canon.c:378
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "ADF cover open"
-msgstr ""
+msgstr "Coperchio ADF aperto"
 
 #: .tmp/canon.c:391
 #, fuzzy, no-c-format
 msgid "lamp failure"
-msgstr "Valore gamma"
+msgstr "lampada guasta"
 
 #: .tmp/canon.c:394
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "scan head positioning error"
-msgstr ""
+msgstr "errore nel posizionamenteo della testa di scansione"
 
 #: .tmp/canon.c:397
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "CPU check error"
-msgstr ""
+msgstr "Errore nel controllo della CPU"
 
 #: .tmp/canon.c:400
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "RAM check error"
-msgstr ""
+msgstr "Error nel controllo della RAM"
 
 #: .tmp/canon.c:403
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "ROM check error"
-msgstr ""
+msgstr "Errore nel controllo della ROM"
 
 #: .tmp/canon.c:406
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "hardware check error"
-msgstr ""
+msgstr "errore nei controlli hardware"
 
 #: .tmp/canon.c:409
 #, fuzzy, no-c-format
 msgid "transparency unit lamp failure"
-msgstr "Adattatore per trasparenze"
+msgstr "guasto della lampada dell'adattatore per trasparenze"
 
 #: .tmp/canon.c:412
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "transparency unit scan head positioning failure"
-msgstr ""
+msgstr "errore durante il posizionamento della testa di scansione per l'adatattore per trasparenze"
 
 #: .tmp/canon.c:426
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "parameter list length error"
-msgstr ""
+msgstr "errore nella lunghezza della lista di parametri"
 
 #: .tmp/canon.c:430
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "invalid command operation code"
-msgstr ""
+msgstr "codice di comando non valido"
 
 #: .tmp/canon.c:434
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "invalid field in CDB"
-msgstr ""
+msgstr "campo non valido in CDB"
 
 #: .tmp/canon.c:438
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "unsupported LUN"
-msgstr ""
+msgstr "LUN non supportata"
 
 #: .tmp/canon.c:442
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "invalid field in parameter list"
-msgstr ""
+msgstr "campo non valido nella lista di parametri"
 
 #: .tmp/canon.c:446
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "command sequence error"
-msgstr ""
+msgstr "errore nella sequenza di comandi"
 
 #: .tmp/canon.c:450
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "too many windows specified"
-msgstr ""
+msgstr "sono state specificate troppe finestre"
 
 #: .tmp/canon.c:454
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "medium not present"
-msgstr ""
+msgstr "supporto non presente"
 
 #: .tmp/canon.c:458
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "invalid bit IDENTIFY message"
-msgstr ""
+msgstr "messaggio con bit IDENTIFY non valido"
 
 #: .tmp/canon.c:462
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "option not connect"
-msgstr ""
+msgstr "opzione non connesso"
 
 #: .tmp/canon.c:476
 #, no-c-format
@@ -374,24 +374,24 @@ msgid "power on reset / bus device reset"
 msgstr ""
 
 #: .tmp/canon.c:480
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "parameter changed by another initiator"
-msgstr ""
+msgstr "parametro cambiato da un altro iniziatore"
 
 #: .tmp/canon.c:494
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "no additional sense information"
-msgstr ""
+msgstr "nessun altra informazione aggiuntiva sul «sense»"
 
 #: .tmp/canon.c:498
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "reselect failure"
-msgstr ""
+msgstr "errore durante la reselezione"
 
 #: .tmp/canon.c:502
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "SCSI parity error"
-msgstr ""
+msgstr "errore di parità SCSI"
 
 #: .tmp/canon.c:506
 #, no-c-format
@@ -399,14 +399,14 @@ msgid "initiator detected error message received"
 msgstr ""
 
 #: .tmp/canon.c:511
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "invalid message error"
-msgstr ""
+msgstr "errore di messaggio non valido"
 
 #: .tmp/canon.c:515
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "timeout error"
-msgstr ""
+msgstr "errore di timeout"
 
 #: .tmp/canon.c:519
 #, no-c-format
@@ -414,19 +414,19 @@ msgid "trancparency unit shading error"
 msgstr ""
 
 #: .tmp/canon.c:523
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "lamp not stabilized"
-msgstr ""
+msgstr "lampada non stabilizzata"
 
 #: .tmp/canon.c:537
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "problem not analyzed (unknown SCSI class)"
-msgstr ""
+msgstr "problema non analizzato (classe SCSI sconosciuta)"
 
 #: .tmp/canon.c:855 .tmp/canon.c:870
 #, fuzzy, no-c-format
 msgid "film scanner"
-msgstr "scanner piano"
+msgstr "scanner da negativi"
 
 #: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915 .tmp/plustek.c:1318
 #: .tmp/plustek_pp.c:1014 .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
@@ -446,19 +446,19 @@ msgid "Film type"
 msgstr "Pellicola"
 
 #: .tmp/canon.c:1171
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Selects the film type, i.e. negatives or slides"
-msgstr ""
+msgstr "Imposta il tipo di pellicola: negativi o diapositive"
 
 #: .tmp/canon.c:1183
 #, fuzzy, no-c-format
 msgid "Negative film type"
-msgstr "Pellicola negativa"
+msgstr "Tipo di pellicola negativa"
 
 #: .tmp/canon.c:1184
 #, fuzzy, no-c-format
 msgid "Selects the negative film type"
-msgstr "Seleziona l'immagine di prova"
+msgstr "Seleziona il tipo di pellicola negativa"
 
 #: .tmp/canon.c:1208 .tmp/saneopts.h:146
 #, no-c-format
@@ -468,57 +468,57 @@ msgstr "Risoluzione della scansione"
 #: .tmp/canon.c:1223
 #, fuzzy, no-c-format
 msgid "Hardware resolution"
-msgstr "Risoluzione della scansione"
+msgstr "Risoluzione hardware"
 
 #: .tmp/canon.c:1224
 #, fuzzy, no-c-format
 msgid "Use only hardware resolutions"
-msgstr "Mostra la lista ridotta delle risoluzioni disponibili"
+msgstr "Mostra solo le risoluzioni hardware"
 
 #: .tmp/canon.c:1305
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Focus"
-msgstr ""
+msgstr "Fuoco"
 
 #: .tmp/canon.c:1315
 #, fuzzy, no-c-format
 msgid "Auto focus"
-msgstr "Espulsione automatica"
+msgstr "Autofocus"
 
 #: .tmp/canon.c:1316
 #, fuzzy, no-c-format
 msgid "Enable/disable auto focus"
-msgstr "Disabilita la messa a fuoco preliminare"
+msgstr "Abilita/disabilita la messa a fuoco automatica"
 
 #: .tmp/canon.c:1323
 #, no-c-format
 msgid "Auto focus only once"
-msgstr ""
+msgstr "Autofocus unico"
 
 #: .tmp/canon.c:1324
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Do auto focus only once between ejects"
-msgstr ""
+msgstr "Effettua l'autofocus una sola volta per ogni pellicola inserita"
 
 #: .tmp/canon.c:1332
 #, fuzzy, no-c-format
 msgid "Manual focus position"
-msgstr "Fissa la posizione di messa a fuoco"
+msgstr "Posizione di messa a fuoco manuale"
 
 #: .tmp/canon.c:1333
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Set the optical system's focus position by hand (default: 128)."
-msgstr ""
+msgstr "Imposta manualmente la posizione del sistema di messa a fuoco (normalmente alla posizione 128)."
 
 #: .tmp/canon.c:1343
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Scan margins"
-msgstr ""
+msgstr "Margini di scansione"
 
 #: .tmp/canon.c:1390
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Extra color adjustments"
-msgstr ""
+msgstr "Altre impostazioni del colore"
 
 #: .tmp/canon.c:1521 .tmp/epson2.c:2011 .tmp/epson.c:3194
 #, no-c-format
@@ -528,97 +528,97 @@ msgstr "Immagine riflessa"
 #: .tmp/canon.c:1522
 #, fuzzy, no-c-format
 msgid "Mirror the image horizontally"
-msgstr "Riflette l'immagine orizzontalmente."
+msgstr "Riflette l'immagine orizzontalmente"
 
 #: .tmp/canon.c:1591
 #, fuzzy, no-c-format
 msgid "Auto exposure"
-msgstr "Determinare il tempo di esposizione"
+msgstr "Esposizione automatica"
 
 #: .tmp/canon.c:1592
 #, fuzzy, no-c-format
 msgid "Enable/disable the auto exposure feature"
-msgstr "Abilita la selezione del tempo di esposizione"
+msgstr "Abilita/disabilita l'esposizione automatica"
 
 #: .tmp/canon.c:1608
 #, fuzzy, no-c-format
 msgid "Calibration now"
-msgstr "Calibrazione"
+msgstr "Calibrazione immediata"
 
 #: .tmp/canon.c:1609
 #, fuzzy, no-c-format
 msgid "Execute calibration *now*"
-msgstr "Definire la modalità di calibrazione"
+msgstr "Esegue adesso la calibrazione"
 
 #: .tmp/canon.c:1619
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Self diagnosis"
-msgstr ""
+msgstr "Auto diagnostica"
 
 #: .tmp/canon.c:1620
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Perform scanner self diagnosis"
-msgstr ""
+msgstr "Effettua i controlli automatici"
 
 #: .tmp/canon.c:1631
 #, fuzzy, no-c-format
 msgid "Reset scanner"
-msgstr "Scanner con alimentatore automatico dei fogli"
+msgstr "Reimposta scanner"
 
 #: .tmp/canon.c:1632
 #, fuzzy, no-c-format
 msgid "Reset the scanner"
-msgstr "Scanner con alimentatore automatico dei fogli"
+msgstr "Reimposto lo scanner"
 
 #: .tmp/canon.c:1642
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Medium handling"
-msgstr ""
+msgstr "Gestione del supporto"
 
 #: .tmp/canon.c:1651
 #, fuzzy, no-c-format
 msgid "Eject film after each scan"
-msgstr "Espelle il documento dopo la sua scansione"
+msgstr "Espelle la pellicola dopo ogni scansione"
 
 #: .tmp/canon.c:1652
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Automatically eject the film from the device after each scan"
-msgstr ""
+msgstr "Espelle automaticamente la pellicola dopo ogni scansione"
 
 #: .tmp/canon.c:1661
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Eject film before exit"
-msgstr ""
+msgstr "Espelle la pellicola all'uscita"
 
 #: .tmp/canon.c:1662
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Automatically eject the film from the device before exiting the program"
-msgstr ""
+msgstr "Espelle automaticamente la pellicola alla chiusura del programma"
 
 #: .tmp/canon.c:1671
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Eject film now"
-msgstr ""
+msgstr "Espulsione della pellicola immediata"
 
 #: .tmp/canon.c:1672
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Eject the film *now*"
-msgstr ""
+msgstr "Espelle la pellicola adesso"
 
 #: .tmp/canon.c:1681
 #, fuzzy, no-c-format
 msgid "Document feeder extras"
-msgstr "Alimentatore automatico dei fogli"
+msgstr "Opzioni dell'alimentatore automatico"
 
 #: .tmp/canon.c:1688
 #, fuzzy, no-c-format
 msgid "Flatbed only"
-msgstr "Piano fisso"
+msgstr "Solo piano fisso"
 
 #: .tmp/canon.c:1689
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Disable auto document feeder and use flatbed only"
-msgstr ""
+msgstr "Disabilita l'alimentatore di fogli e usa solo il piano fisso"
 
 #: .tmp/canon.c:1699 .tmp/canon.c:1709
 #, fuzzy, no-c-format
@@ -626,9 +626,9 @@ msgid "Transparency unit"
 msgstr "Adattatore per trasparenze"
 
 #: .tmp/canon.c:1710
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
-msgstr ""
+msgstr "Abilita/disabilita l'adattatore per le trasparenze (FAU, «film adapter unit»)"
 
 #: .tmp/canon.c:1720
 #, fuzzy, no-c-format
@@ -638,32 +638,32 @@ msgstr "Pellicola negativa"
 #: .tmp/canon.c:1721
 #, fuzzy, no-c-format
 msgid "Positive or negative film"
-msgstr "Pellicola positiva"
+msgstr "Pellicola positiva o negativa"
 
 #: .tmp/canon.c:1730
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Density control"
-msgstr ""
+msgstr "Controllo della densità"
 
 #: .tmp/canon.c:1731
-#, no-c-format
+#, no-c-format, fuzzy
 msgid "Set density control mode"
-msgstr ""
+msgstr "Imposta la modalità di controllo della densità"
 
 #: .tmp/canon.c:1742
 #, fuzzy, no-c-format
 msgid "Transparency ratio"
-msgstr "Adattatore per trasparenze"
+msgstr "Rapporto per trasparenze"
 
 #: .tmp/canon.c:1756
 #, fuzzy, no-c-format
 msgid "Select film type"
-msgstr "Pellicola"
+msgstr "Seleziona tipo pellicola"
 
 #: .tmp/canon.c:1757
 #, fuzzy, no-c-format
 msgid "Select the film type"
-msgstr "Seleziona i mezzi toni"
+msgstr "Seleziona il tipo di pellicola"
 
 #: .tmp/epson2.c:193 .tmp/epson.c:488
 #, no-c-format
@@ -712,12 +712,12 @@ msgstr "Pellicola negativa"
 #: .tmp/epson2.c:231
 #, fuzzy, no-c-format
 msgid "Positive Slide"
-msgstr "Pellicola positiva"
+msgstr "Diapositiva positiva"
 
 #: .tmp/epson2.c:232
 #, fuzzy, no-c-format
 msgid "Negative Slide"
-msgstr "Pellicola negativa"
+msgstr "Diapositiva negativa"
 
 #: .tmp/epson2.c:239 .tmp/epson.c:533
 #, no-c-format

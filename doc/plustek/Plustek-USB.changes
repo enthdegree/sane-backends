@@ -3,6 +3,14 @@ Plustek.changes - Gerhard J�er <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.51-16 (2007-03-05)
+----------------------
+
+Added CanoScan to all Canon device strings.
+Identified one more Plustek device as U24.
+Fixed button handling for Plustek/KYE devices and
+added some more debug messages.
+
 V 0.51-15 (2006-11-22)
 ----------------------
 Fixed option descriptors (bugreport #303786)

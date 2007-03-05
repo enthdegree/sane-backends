@@ -495,7 +495,7 @@ usbGetList( DevList **devs )
 		p = strtol( &(Settings[i].pIDString)[7], 0, 0 );
 
 		/* check if this vendor- and product-ID has already been added, needed
-		 * for Plustek devices - here on product-ID is used for more than one
+		 * for Plustek devices - here one product-ID is used for more than one
 		 * device type...
 		 */
 		il = SANE_FALSE;

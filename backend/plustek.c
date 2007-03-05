@@ -157,7 +157,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-15"
+#define BACKEND_VERSION "0.51-16"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -2494,7 +2494,7 @@ local_sane_start(Plustek_Scanner *s, int scanmode )
 		return SANE_STATUS_IO_ERROR;
 	}
 
-	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesLine = %ld \n",
+	DBG( _DBG_SANE_INIT, "dwflag = 0x%lx dwBytesLine = %ld\n",
 	                      dev->scanning.dwFlag, dev->scanning.dwBytesLine );
 	DBG( _DBG_SANE_INIT, "Lines          = %d\n", s->params.lines);
 	DBG( _DBG_SANE_INIT, "Bytes per Line = %d\n", s->params.bytes_per_line );

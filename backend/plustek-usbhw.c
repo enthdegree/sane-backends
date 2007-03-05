@@ -50,6 +50,8 @@
  *        - added usb_Wait4ScanSample() and usb_InCalibrationMode()
  *        - tweaked EjectPaper to work correctly with the supported sheetfed
  *          devices
+ *        - fixed button handling for Plustek/Genius devices and added
+ *          some more debug output to that code path
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1358,7 +1360,8 @@ usb_ResetRegisters( Plustek_Device *dev )
 	HWDef  *hw   = &dev->usbDev.HwSetting;
 	u_char *regs = dev->usbDev.a_bRegs;
 
-	DBG( _DBG_INFO, "RESETTING REGISTERS(%i) - 0x%02x\n", dev->initialized,sizeof(dev->usbDev.a_bRegs));
+	DBG( _DBG_INFO, "RESETTING REGISTERS(%i) - 0x%02x\n", 
+	                dev->initialized,sizeof(dev->usbDev.a_bRegs));
 	memset( regs, 0, sizeof(dev->usbDev.a_bRegs));
 
 	memcpy( regs+0x0b, &hw->bSensorConfiguration, 4 );
@@ -1730,12 +1733,16 @@ usb_UpdateButtonStatus( Plustek_Scanner *s )
 		/* Plustek and KYE/Genius use altnernative button handling */
 		if((dev->usbDev.vendor == 0x07B3) || (dev->usbDev.vendor == 0x0458)) {
 
+			DBG( _DBG_INFO2, "Button Value=0x%02x\n", val );
+
 			/* no button pressed so far */
 			for( i = 0; i < caps->bButtons; i++ )
 				s->val[OPT_BUTTON_0 + i].w = 0;
 
 			if (caps->bButtons == 2 || caps->bButtons == 5) {
 				val >>= 2;
+				val &= 0x07;
+				DBG( _DBG_INFO2, "Button Value=0x%02x (2/5)\n", val );
 
 				switch( val ) {
 					case 1: s->val[OPT_BUTTON_1].w = 1; break;
@@ -1746,12 +1753,17 @@ usb_UpdateButtonStatus( Plustek_Scanner *s )
 				}
 			} else if (caps->bButtons == 4 ) {
 				val >>= 5;
+				val &= 0x07;
+				DBG( _DBG_INFO2, "Button Value=0x%02x (4)\n", val );
+
 				switch( val ) {
 					case 1: s->val[OPT_BUTTON_0].w = 1; break;
 					case 2: s->val[OPT_BUTTON_1].w = 1; break;
 					case 4: s->val[OPT_BUTTON_2].w = 1; break;
 					case 6: s->val[OPT_BUTTON_3].w = 1; break;
 				}
+			} else {
+				DBG( _DBG_INFO2, "Hmm, could not handle this!\n" );
 			}
 
 		} else {

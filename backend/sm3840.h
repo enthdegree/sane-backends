@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    ScanMaker 3840 Backend
-   Copyright (C) 2005 Earle F. Philhower, III
+   Copyright (C) 2005-7 Earle F. Philhower, III
    earle@ziplabel.com - http://www.ziplabel.com
 
    This program is free software; you can redistribute it and/or
@@ -66,6 +66,7 @@ typedef enum SM3840_Option
   OPT_CONTRAST,
 
   OPT_LAMP_TIMEOUT,
+  OPT_THRESHOLD,
 
   /* must come last */
   NUM_OPTIONS
@@ -106,6 +107,8 @@ typedef struct SM3840_Scan
   unsigned char *save_scan_line;
   unsigned char *save_dpi1200_remap;
   unsigned char *save_color_remap;
+  unsigned char threshold;
+  int save_dither_err;
 
 } SM3840_Scan;
 

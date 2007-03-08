@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    ScanMaker 3840 Backend
-   Copyright (C) 2005 Earle F. Philhower, III
+   Copyright (C) 2005-7 Earle F. Philhower, III
    earle@ziplabel.com - http://www.ziplabel.com
 
    This program is free software; you can redistribute it and/or
@@ -116,6 +116,14 @@ prepare_params (SM3840_Params * params)
 {
   if (params->gray)
     params->gray = 1;
+  if (params->lineart) {
+    params->gray = 1;
+    params->lineart = 1;
+  }
+  if (params->halftone) {
+    params->gray = 1;
+    params->halftone = 1;
+  }
   if (params->dpi != 1200 && params->dpi != 600 && params->dpi != 300
       && params->dpi != 150)
     params->dpi = 150;

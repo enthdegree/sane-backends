@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    ScanMaker 3840 Backend
-   Copyright (C) 2005 Earle F. Philhower, III
+   Copyright (C) 2005-7 Earle F. Philhower, III
    earle@ziplabel.com - http://www.ziplabel.com
 
    This program is free software; you can redistribute it and/or

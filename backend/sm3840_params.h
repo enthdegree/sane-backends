@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    ScanMaker 3840 Backend
-   Copyright (C) 2005 Earle F. Philhower, III
+   Copyright (C) 2005-7 Earle F. Philhower, III
    earle@ziplabel.com - http://www.ziplabel.com
 
    This program is free software; you can redistribute it and/or
@@ -47,6 +47,9 @@
 typedef struct SM3840_Params
 {
   int gray;			/* 0, 1 */
+  int halftone;			/* 0, 1 (also set gray=1) */
+  int lineart;			/* 0, 1 (also set gray=1) */
+
   int dpi;			/* 150, 300, 600, 1200 */
   int bpp;			/* 8, 16 */
 
@@ -54,6 +57,8 @@ typedef struct SM3840_Params
   int offset;			/* 0..4095 */
 
   int lamp;			/* 1..15 mins */
+
+  int threshold;		/* 0...255 luminosity */
 
   /* Input to configure(), in inches */
   double top, left;

@@ -1,3 +1,8 @@
+2007-03-08  Earle F. Philhower, III <earlephilhower@yahoo.com>
+
+	* backend/sm3840*.[ch]: Add 1-bpp modes (lineart, halftone)
+	* doc/sane-sm3840.man: Add 1-bpp mode options
+
 2007-03-05  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update.

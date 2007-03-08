@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    ScanMaker 3840 Backend
-   Copyright (C) 2005 Earle F. Philhower, III
+   Copyright (C) 2005-7 Earle F. Philhower, III
    earle@ziplabel.com - http://www.ziplabel.com
 
    This program is free software; you can redistribute it and/or
@@ -79,6 +79,7 @@ static const SANE_Device **devlist = 0;
 
 static const SANE_String_Const mode_list[] = {
   SANE_I18N ("Gray"), SANE_I18N ("Color"),
+  SANE_I18N ("Lineart"), SANE_I18N ("Halftone"),
   0
 };
 
@@ -120,6 +121,11 @@ static const SANE_Range lamp_range = {
   1
 };
 
+static const SANE_Range threshold_range = {
+  0,
+  255,
+  1
+};
 
 /*--------------------------------------------------------------------------*/
 static int
@@ -136,8 +142,10 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	   SANE_Int * len)
 {
   SM3840_Scan *s = handle;
+  unsigned char c, d;
+  int i;
 
-  DBG (2, "+sane-read:%p %p %d %p\n", (unsigned char *) s, buf, max_len, 
+  DBG (2, "+sane-read:%p %p %d %p\n", (unsigned char *) s, buf, max_len,
        (unsigned char *) len);
   DBG (2,
        "+sane-read:remain:%d offset:%d linesleft:%d linebuff:%p linesread:%d\n",
@@ -187,11 +195,46 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       s->linesleft--;
     }
 
-  memcpy (buf, s->offset + s->line_buffer, min (max_len, s->remaining));
-
-  *len = min (max_len, s->remaining);
-  s->offset += min (max_len, s->remaining);
-  s->remaining -= min (max_len, s->remaining);
+  /* Need to software emulate 1-bpp modes, simple threshold and error */
+  /* diffusion dither implemented. */
+  if (s->sm3840_params.lineart || s->sm3840_params.halftone)
+    {
+      d = 0;
+      for (i = 0; i < min (max_len * 8, s->remaining); i++)
+	{
+	  d = d << 1;
+	  if (s->sm3840_params.halftone)
+	    {
+	      c = (*(unsigned char *) (s->offset + s->line_buffer + i));
+	      if (c + s->save_dither_err < 128)
+		{
+		  d |= 1;
+		  s->save_dither_err += c;
+		}
+	      else
+		{
+		  s->save_dither_err += c - 255;
+		}
+	    }
+	  else
+	    {
+	      if ((*(unsigned char *) (s->offset + s->line_buffer + i)) < s->threshold )
+		d |= 1;
+	    }
+	  if (i % 8 == 7)
+	    *(buf++) = d;
+	}
+      *len = i / 8;
+      s->offset += i;
+      s->remaining -= i;
+    }
+  else
+    {
+      memcpy (buf, s->offset + s->line_buffer, min (max_len, s->remaining));
+      *len = min (max_len, s->remaining);
+      s->offset += min (max_len, s->remaining);
+      s->remaining -= min (max_len, s->remaining);
+    }
 
   DBG (2, "-sane_read\n");
 
@@ -260,6 +303,9 @@ sane_start (SANE_Handle handle)
   s->save_dpi1200_remap = NULL;
   s->save_color_remap = NULL;
 
+  s->save_dither_err = 0;
+  s->threshold = s->sm3840_params.threshold;
+
   setup_scan ((usb_dev_handle *) s->udev, &(s->sm3840_params));
 
   return (SANE_STATUS_GOOD);
@@ -287,11 +333,23 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       /* Copy from options to sm3840_params */
       s->sm3840_params.gray =
 	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Gray"))) ? 1 : 0;
+      s->sm3840_params.halftone =
+	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Halftone"))) ? 1 : 0;
+      s->sm3840_params.lineart =
+	(!strcasecmp (s->value[OPT_MODE].s, SANE_I18N ("Lineart"))) ? 1 : 0;
+
       s->sm3840_params.dpi = s->value[OPT_RESOLUTION].w;
       s->sm3840_params.bpp = s->value[OPT_BIT_DEPTH].w;
       s->sm3840_params.gain = SANE_UNFIX (s->value[OPT_CONTRAST].w);
       s->sm3840_params.offset = s->value[OPT_BRIGHTNESS].w;
       s->sm3840_params.lamp = s->value[OPT_LAMP_TIMEOUT].w;
+      s->sm3840_params.threshold = s->value[OPT_THRESHOLD].w;
+
+      if (s->sm3840_params.lineart || s->sm3840_params.halftone)
+	{
+	  s->sm3840_params.gray = 1;
+	  s->sm3840_params.bpp = 8;
+	}
 
       s->sm3840_params.top = sm3840_unit_convert (s->value[OPT_TL_Y].w);
       s->sm3840_params.left = sm3840_unit_convert (s->value[OPT_TL_X].w);
@@ -310,8 +368,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	s->sm3840_params.gray ? SANE_FRAME_GRAY : SANE_FRAME_RGB;
       s->sane_params.bytes_per_line = s->sm3840_params.linelen;
       s->sane_params.depth = s->sm3840_params.bpp;
+
+      if (s->sm3840_params.lineart || s->sm3840_params.halftone)
+	{
+	  s->sane_params.bytes_per_line += 7;
+	  s->sane_params.bytes_per_line /= 8;
+	  s->sane_params.depth = 1;
+	  s->sane_params.pixels_per_line = s->sane_params.bytes_per_line * 8;
+	}
+
       s->sane_params.last_frame = SANE_TRUE;
-    } /*!scanning */
+    }				/*!scanning */
 
   if (params)
     *params = s->sane_params;
@@ -353,6 +420,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST:
 	case OPT_BRIGHTNESS:
 	case OPT_LAMP_TIMEOUT:
+	case OPT_THRESHOLD:
 	  *(SANE_Word *) val = s->value[option].w;
 	  return (SANE_STATUS_GOOD);
 	  /* string options: */
@@ -385,13 +453,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_CONTRAST:
 	case OPT_BRIGHTNESS:
 	case OPT_LAMP_TIMEOUT:
+	case OPT_THRESHOLD:
 	  s->value[option].w = *(SANE_Word *) val;
-	  DBG (1, "set brightness to\n");
 	  return (SANE_STATUS_GOOD);
 	case OPT_MODE:
 	  if (s->value[option].s)
 	    free (s->value[option].s);
 	  s->value[option].s = strdup (val);
+
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
 	  return (SANE_STATUS_GOOD);
@@ -482,7 +551,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
   if (authorize)
-    DBG(2, "Unused authorize\n");
+    DBG (2, "Unused authorize\n");
 
   sanei_usb_init ();
 
@@ -695,6 +764,16 @@ initialize_options_list (SM3840_Scan * s)
   s->options_list[OPT_LAMP_TIMEOUT].constraint.range = &lamp_range;
   s->value[OPT_LAMP_TIMEOUT].w = 15;
 
+  s->options_list[OPT_THRESHOLD].name = "threshold";
+  s->options_list[OPT_THRESHOLD].title = SANE_I18N ("Threshold");
+  s->options_list[OPT_THRESHOLD].desc =
+    SANE_I18N ("Threshold value for lineart mode");
+  s->options_list[OPT_THRESHOLD].type = SANE_TYPE_INT;
+  s->options_list[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+  s->options_list[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  s->options_list[OPT_THRESHOLD].constraint.range = &threshold_range;
+  s->value[OPT_THRESHOLD].w = 128;
+
 }
 
 /*--------------------------------------------------------------------------*/
@@ -719,7 +798,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       /* empty devicename -> use first device */
       dev = first_dev;
     }
-  DBG (2, "using device: %s %p\n", dev->sane.name, (unsigned char *)dev);
+  DBG (2, "using device: %s %p\n", dev->sane.name, (unsigned char *) dev);
   if (!dev)
     return SANE_STATUS_INVAL;
   s = calloc (sizeof (*s), 1);

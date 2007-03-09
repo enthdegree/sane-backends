@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
-:version "1.0.44"                ; version of backend
+:version "1.0.46"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -121,8 +121,9 @@
 
 :model "fi-5110EOXM"
 :interface "USB"
-:status :untested
-:comment "workgroup, current, unknown chipset, perhaps same as fi-5110EOX"
+:usbid "0x04c5" "0x10f2"
+:status :good
+:comment "workgroup, current"
 
 :model "fi-5110C"
 :interface "USB"

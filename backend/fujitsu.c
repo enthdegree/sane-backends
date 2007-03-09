@@ -244,6 +244,10 @@
          - clamp the scan area to the pagesize on ADF
       V 1.0.45 2007-01-28, MAN
          - update overscan code to extend max scan area
+      V 1.0.46 2007-03-08, MAN
+         - tweak fi-4x20c2 and M3093 settings
+	 - add fi-5110EOXM usb id
+	 - add M3093 non-alternating duplex code
 
    SANE FLOW DIAGRAM
 
@@ -304,7 +308,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 45 
+#define BUILD 46 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -560,6 +564,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e7'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10f2'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10f2", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10fe'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
@@ -1411,6 +1418,14 @@ init_model (struct fujitsu *s)
     s->reverse_by_mode[MODE_GRAYSCALE] = 0;
     s->reverse_by_mode[MODE_COLOR] = 0;
   }
+  else if (strstr (s->product_name, "M3093")){
+    /* lies */
+    s->has_back = 0;
+
+    /* weirdness */
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->window_gamma = 0;
+  }
   else if (strstr (s->product_name, "M309")
    || strstr (s->product_name, "M409")){
 
@@ -1420,6 +1435,8 @@ init_model (struct fujitsu *s)
   }
   else if (strstr (s->product_name, "fi-4120C2")
    || strstr (s->product_name, "fi-4220C2") ) {
+
+    s->max_x = 10488;
 
     /* missing from vpd */
     s->os_x_basic = 376;
@@ -4387,6 +4404,20 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         }
 
     }
+  }
+
+  /* 3093 cant alternate? */
+  else if(s->source == SOURCE_ADF_DUPLEX && s->duplex_interlace == DUPLEX_INTERLACE_NONE){
+
+      if(s->bytes_tot[side] > s->bytes_rx[side] ){
+
+        ret = read_from_scanner(s, side);
+        if(ret){
+          DBG(5,"sane_read: side %d returning %d\n",side,ret);
+          return ret;
+        }
+
+      }
   }
 
   else{

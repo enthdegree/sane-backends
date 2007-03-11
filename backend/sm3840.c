@@ -805,7 +805,10 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (!s)
     return SANE_STATUS_NO_MEM;
 
+  s->udev = 0;
   status = sanei_usb_open (dev->sane.name, &(s->udev));
+  if (!s->udev)
+    return SANE_STATUS_ACCESS_DENIED;
 
   initialize_options_list (s);
   s->scanning = 0;

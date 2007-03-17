@@ -1,3 +1,7 @@
+2007-03-17 Oliver Rauch <oliver.rauch@xsane.org>
+	* Bug #303752: Maybe faulty icc-profile-file length detection:
+	  corrected icc profile length calculation
+
 2007-03-08  Earle F. Philhower, III <earlephilhower@yahoo.com>
 
 	* backend/sm3840*.[ch]: Add 1-bpp modes (lineart, halftone)

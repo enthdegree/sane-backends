@@ -282,7 +282,7 @@ write_tiff_grey_header (FILE *fptr, int width, int height, int depth,
       }
       else
       {
-        icc_len = 16777216 * fgetc(icc_file)*65536+fgetc(icc_file)+fgetc(icc_file)*256+fgetc(icc_file);
+        icc_len = 16777216 * fgetc(icc_file) + 65536 * fgetc(icc_file) + 256 * fgetc(icc_file) + fgetc(icc_file);
         rewind(icc_file);
       }
     }
@@ -432,7 +432,7 @@ write_tiff_color_header (FILE *fptr, int width, int height, int depth,
       }
       else
       {
-        icc_len = 16777216 * fgetc(icc_file)*65536+fgetc(icc_file)+fgetc(icc_file)*256+fgetc(icc_file);
+        icc_len = 16777216 * fgetc(icc_file) + 65536 * fgetc(icc_file) + 256 * fgetc(icc_file) + fgetc(icc_file);
         rewind(icc_file);
       }
     }

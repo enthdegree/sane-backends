@@ -54,7 +54,7 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 @SET_MAKE@
 
 DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage sane-desc \
-	       hotplug/libsane.usermap hotplug-ng/libsane.db udev/libsane.rules
+	       hotplug/libsane.usermap hotplug-ng/libsane.db udev/libsane.rules hal/libsane.fdi
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
@@ -68,9 +68,9 @@ DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
 	mustek600iin-off.c sane-config.in sane-desc.c check-usb-chip.c \
 	sane-find-scanner.c umax_pp.c xerox gamma4scanimage.c check-po.awk
 
-SUBDIRS = hotplug hotplug-ng udev
+SUBDIRS = hotplug hotplug-ng udev hal
 
-.PHONY: all clean depend dist distclean install uninstall 
+.PHONY: all clean depend dist distclean install uninstall
 
 .c.o:
 	$(COMPILE) $<
@@ -92,7 +92,8 @@ sane-config: sane-config.in $(top_builddir)/config.status
 	cd $(top_builddir) \
           && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
 
-sane-find-scanner: sane-find-scanner.o check-usb-chip.o ../backend/sane_strstatus.lo \
+sane-find-scanner: supported_scanners.h external_scanners.h \
+	sane-find-scanner.o check-usb-chip.o ../backend/sane_strstatus.lo \
 	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o check-usb-chip.o \
@@ -111,6 +112,12 @@ umax_pp: umax_pp.o ../backend/umax_pp_low.o
 sane-desc: sane-desc.o
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB)
 
+supported_scanners.h: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) sane-desc
+	./sane-desc -m clist -s ../doc/descriptions > supported_scanners.h
+
+external_scanners.h: $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+	./sane-desc -m clist -s ../doc/descriptions-external | tail -n +8 | sed -e s/supported_usb/external_usb/ > external_scanners.h
+
 hotplug/libsane.usermap: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
 	@./sane-desc -m usermap -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 1 > $@
@@ -123,6 +130,10 @@ udev/libsane.rules: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard
 	@./sane-desc -m udev -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
 	   -d 0 > $@
 
+hal/libsane.fdi: $(wildcard ${top_srcdir}/doc/descriptions/*.desc) $(wildcard ${top_srcdir}/doc/descriptions-external/*.desc) sane-desc
+	@./sane-desc -m hal -s ${top_srcdir}/doc/descriptions:${top_srcdir}/doc/descriptions-external \
+	   -d 0 > $@
+
 
 depend:
 	makedepend $(INCLUDES) *.c 2>/dev/null
@@ -131,6 +142,7 @@ clean:
 	rm -f *.lo *.o *.la
 	find . -type l -name \*-s.c | xargs rm -f
 	rm -rf .libs
+	rm -f supported_scanners.h external_scanners.h
 	rm -f hotplug/libsane.usermap hotplug-ng/libsane.db hotplug/libsane.rules
 
 distclean: clean

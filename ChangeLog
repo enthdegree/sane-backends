@@ -1,3 +1,6 @@
+2007-03-21 Julien Blache <jb@jblache.org>
+	* tools/Makefile.in: Remove leftovers from a previous experiment.
+
 2007-03-18 Julien Blache <jb@jblache.org>
 	* tools/hal: New directory.
 	* tools/Makefile.in: Add rules to build hal/10-libsane.fdi.

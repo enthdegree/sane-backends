@@ -12,9 +12,9 @@
 \setlength{\marginparsep}{0pt}
 \addtolength{\topmargin}{-0.75in}
 
-\title{\huge SANE Standard Version 1.04}
+\title{\huge SANE Standard Version 1.05}
 \author{}
-\date{2006-01-03} 
+\date{2006-04-02} 
 
 \makeindex
 
@@ -1395,10 +1395,10 @@ typedef struct
   {
     SANE_Frame format;
     SANE_Bool last_frame;
+    SANE_Int bytes_per_line;
+    SANE_Int pixels_per_line;
     SANE_Int lines;
     SANE_Int depth;
-    SANE_Int pixels_per_line;
-    SANE_Int bytes_per_line;
   }
 SANE_Parameters;
 \end{verbatim}

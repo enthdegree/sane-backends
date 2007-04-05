@@ -21,6 +21,10 @@ This directory contains various tools that may be useful:
 	hotplug and provides all the functionalities of hotplug. libusb 0.1.12
 	or newer is necessary.
 
+ openbsd/:
+ 	Contains example scripts for hotplugd(8) for USB scanners accessed via
+	libusb.
+
  sane-find-scanner:
         Attempts to find a SCSI scanner attached to your system.
         Invoke with "sane-find-scanner -h" to get command-line

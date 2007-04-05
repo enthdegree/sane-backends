@@ -10,6 +10,8 @@ If some libraries and headers (like libjpeg) are installed in /usr/local/, addin
 "-I/usr/local/include/ -L/usr/local/lib/" to the CPPFLAGS environment variable
 before running configure may be necessary to get them detected.
 
+Since release 3.9, SANE is available from OpenBSD ports.
+
 SCSI-scanners:
 --------------
 SANE only supports the generic /dev/uk? devices. /dev/ss? won't work. If your
@@ -40,6 +42,11 @@ no pipe". Make sure, that /dev/ugen* and /dev/usb* devices are available. Use
 
 For some backends you must use libusb. The uscanner driver won't work because
 automatic detection, control messages, or interrupt endpoints are needed.
+
+When using libusb, you need read/write permissions to ugen(4) (/dev/ugen*.*) and
+the usb(4) controller (/dev/usb*) your scanner is connected to.  Consider adding
+a group usb and setting the device permissions using the hotplugd(8) attach
+and detach scripts.  See tools/openbsd for an example.
 
 Parport-scanners:
 -----------------

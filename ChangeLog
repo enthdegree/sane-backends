@@ -1,3 +1,9 @@
+2007-04-5  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* README.openbsd, tools/README, tools/openbsd/attach,
+	  tools/openbsd/detach: add notes about device permissions on
+	  OpenBSD and provide some example scripts for hotplugd(8).
+
 2007-03-02  m. allan noah <kitno455 a t gmail d o t com>
 
 	* doc/sane.tex: update to 1.05, fix description of SANE_Parameters,

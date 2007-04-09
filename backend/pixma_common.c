@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -497,7 +497,7 @@ pixma_open (unsigned devnr, pixma_t ** handle)
 	    (2, "pixma_connect() failed %s\n", pixma_strerror (error)));
       goto rollback;
     }
-  strncpy (s->id, pixma_get_device_id (devnr), sizeof (s->id));
+  strncpy (s->id, pixma_get_device_id (devnr), sizeof (s->id) - 1);
   s->ops = s->cfg->ops;
   s->scanning = 0;
   error = s->ops->open (s);

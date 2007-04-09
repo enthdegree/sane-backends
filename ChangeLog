@@ -1,3 +1,10 @@
+2007-04-09  Wittawat Yamwong <wittawat@web.de>
+
+	* backend/pixma*.[ch] doc/sane-pixma.man doc/descriptions/pixma.desc:
+          Updated to version 0.13.0
+	  Added MP160, MP180, MP460, MP510 and MP600
+	  Fixed a buffer-overflow bug in sane_read()
+
 2007-04-5  Jochen Eisinger <jochen@penguin-breeder.org>
 
 	* README.openbsd, tools/README, tools/openbsd/attach,

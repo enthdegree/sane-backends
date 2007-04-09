@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -70,7 +70,12 @@
 #define IMAGE_BLOCK_SIZE (512*1024)
 #define CMDBUF_SIZE (4096 + 24)
 #define DEFAULT_GAMMA 1.0
+#define UNKNOWN_PID 0xffff
 
+
+#define CANON_VID 0x04a9
+
+/* Generation 1 */
 #define MP150_PID 0x1709
 #define MP170_PID 0x170a
 #define MP450_PID 0x170b
@@ -80,6 +85,14 @@
 #define MP800R_PID 0x170e
 #define MP830_PID 0x1713
 
+/* Generation 2 */
+#define MP160_PID 0x1714
+#define MP180_PID 0x1715	/* FIXME */
+#define MP460_PID 0x1716
+#define MP510_PID 0x1717
+#define MP600_PID 0x1718
+/* TODO: #define MP600R_PID 0x1719 */
+/* TODO: #define MP810_PID 0x171a */
 
 enum mp150_state_t
 {
@@ -110,8 +123,9 @@ typedef struct mp150_t
   enum mp150_state_t state;
   pixma_cmdbuf_t cb;
   uint8_t *imgbuf;
-  uint8_t current_status[12];
+  uint8_t current_status[16];
   unsigned last_block;
+  int generation;
 } mp150_t;
 
 
@@ -174,7 +188,14 @@ static int
 is_calibrated (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  return (mp->current_status[8] == 1);
+  if (mp->generation == 1)
+    {
+      return (mp->current_status[8] == 1);
+    }
+  else
+    {
+      return (mp->current_status[9] == 1);
+    }
 }
 
 static int
@@ -250,6 +271,10 @@ select_source (pixma_t * s)
     {
       data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
       data[1] = 1;
+      if (mp->generation == 2)
+	{
+	  data[5] = 1;
+	}
     }
   return pixma_exec (s, &mp->cb);
 }
@@ -261,27 +286,66 @@ send_gamma_table (pixma_t * s)
   const uint8_t *lut = s->param->gamma_table;
   uint8_t *data;
 
-  data = pixma_newcmd (&mp->cb, cmd_gamma, 4096 + 8, 0);
-  data[0] = (s->param->channels == 3) ? 0x10 : 0x01;
-  pixma_set_be16 (0x1004, data + 2);
-  if (lut)
-    memcpy (data + 4, lut, 4096);
+  if (mp->generation == 1)
+    {
+      data = pixma_newcmd (&mp->cb, cmd_gamma, 4096 + 8, 0);
+      data[0] = (s->param->channels == 3) ? 0x10 : 0x01;
+      pixma_set_be16 (0x1004, data + 2);
+      if (lut)
+	memcpy (data + 4, lut, 4096);
+      else
+	pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
+    }
   else
-    pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
+    {
+      /* FIXME: Gamma table for 2nd generation: 1024 * uint16_le */
+      data = pixma_newcmd (&mp->cb, cmd_gamma, 2048 + 8, 0);
+      data[0] = 0x10;
+      pixma_set_be16 (0x0804, data + 2);
+      if (lut)
+	{
+	  int i;
+	  for (i = 0; i < 1024; i++)
+	    {
+	      int j = (i << 2) + (i >> 8);
+	      data[4 + 2 * i + 0] = lut[j];
+	      data[4 + 2 * i + 1] = lut[j];
+	    }
+	}
+      else
+	{
+	  int i;
+	  pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 2048);
+	  for (i = 0; i < 1024; i++)
+	    {
+	      int j = (i << 1) + (i >> 9);
+	      data[4 + 2 * i + 0] = data[4 + j];
+	      data[4 + 2 * i + 1] = data[4 + j];
+	    }
+	}
+    }
   return pixma_exec (s, &mp->cb);
 }
 
 static unsigned
-calc_raw_width (const pixma_scan_param_t * param)
+calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
 {
   unsigned raw_width;
   /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
      are always padded to multiple of 4 or 12 pixels. Is this valid for
      other models, too? */
-  if (param->channels == 1)
-    raw_width = ALIGN (param->w, 12);
+  if (mp->generation == 2)
+    {
+      raw_width = ALIGN (param->w, 32);
+    }
+  else if (param->channels == 1)
+    {
+      raw_width = ALIGN (param->w, 12);
+    }
   else
-    raw_width = ALIGN (param->w, 4);
+    {
+      raw_width = ALIGN (param->w, 4);
+    }
   return raw_width;
 }
 
@@ -290,7 +354,7 @@ send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-  unsigned raw_width = calc_raw_width (s->param);
+  unsigned raw_width = calc_raw_width (mp, s->param);
 
   data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
   pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
@@ -313,13 +377,14 @@ query_status (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
-  int error;
+  int error, status_len;
 
-  data = pixma_newcmd (&mp->cb, cmd_status, 0, 12);
+  status_len = (mp->generation == 1) ? 12 : 16;
+  data = pixma_newcmd (&mp->cb, cmd_status, 0, status_len);
   error = pixma_exec (s, &mp->cb);
   if (error >= 0)
     {
-      memcpy (mp->current_status, data, 12);
+      memcpy (mp->current_status, data, status_len);
       PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u busy=%u\n",
 		       data[1], data[8], data[7], data[9]));
     }
@@ -492,6 +557,7 @@ wait_until_ready (pixma_t * s)
 static int
 has_ccd_sensor (pixma_t * s)
 {
+  /* TODO: add MP810 */
   return (s->cfg->pid == MP800_PID || s->cfg->pid == MP830_PID
 	  || s->cfg->pid == MP800R_PID);
 }
@@ -531,8 +597,9 @@ mp150_open (pixma_t * s)
   mp->cb.cmd_len_field_ofs = 14;
 
   mp->imgbuf = buf + CMDBUF_SIZE;
+  mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
 
-  /*query_status(s); */
+  query_status (s);
   handle_interrupt (s, 200);
   return 0;
 }
@@ -551,10 +618,15 @@ mp150_close (pixma_t * s)
 static int
 mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
-  UNUSED (s);
+  mp150_t *mp = (mp150_t *) s->subdriver;
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
-  sp->line_size = calc_raw_width (sp) * sp->channels;
+  if (mp->generation == 2)
+    {
+      sp->x = ALIGN (sp->x, 32);
+      sp->y = ALIGN (sp->y, 32);
+    }
+  sp->line_size = calc_raw_width (mp, sp) * sp->channels;
   return 0;
 }
 
@@ -658,8 +730,8 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       error = wait_until_ready (s);
       if (error < 0)
 	return error;
-      pixma_sleep (1500000);	/* No need to wait, actually, but Window's driver
-				 * waits 1.5 sec. */
+      pixma_sleep (1000000);	/* No need to sleep, actually, but Window's driver
+				 * sleep 1.5 sec. */
       mp->state = state_scanning;
       mp->last_block = 0;
     }
@@ -774,7 +846,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 
 #define DEVICE(name, pid, dpi, cap) {		\
         name,              /* name */		\
-	0x04a9, pid,       /* vid pid */	\
+	CANON_VID, pid,       /* vid pid */	\
 	0,                 /* iface */		\
 	&pixma_mp150_ops,  /* ops */		\
 	dpi, 2*(dpi),      /* xdpi, ydpi */	\
@@ -784,16 +856,32 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 }
 
 const pixma_config_t pixma_mp150_devices[] = {
+  /* TODO: PIXMA_CAP_CCD & PIXMA_CAP_CIS */
+  /* Generation 1: CIS */
   DEVICE ("Canon PIXMA MP150", MP150_PID, 1200, 0),
   DEVICE ("Canon PIXMA MP170", MP170_PID, 1200, 0),
   DEVICE ("Canon PIXMA MP450", MP450_PID, 1200, 0),
   DEVICE ("Canon PIXMA MP500", MP500_PID, 1200, 0),
   DEVICE ("Canon PIXMA MP530", MP530_PID, 1200, PIXMA_CAP_ADF),
+
+  /* Generation 1: CCD */
   DEVICE ("Canon PIXMA MP800", MP800_PID, 2400,
 	  PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
   DEVICE ("Canon PIXMA MP800R", MP800R_PID, 2400,
 	  PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
   DEVICE ("Canon PIXMA MP830", MP830_PID, 2400,
 	  PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
+
+  /* Generation 2: CIS */
+  DEVICE ("Canon PIXMA MP160", MP160_PID, 600, 0),
+  DEVICE ("Canon PIXMA MP180", MP180_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP460", MP460_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP510", MP510_PID, 1200, 0),
+  DEVICE ("Canon PIXMA MP600", MP600_PID, 2400, 0),
+  DEVICE ("Canon PIXMA MP600R", UNKNOWN_PID, 2400, PIXMA_CAP_EXPERIMENT),
+
+  /* Generation 2: CCD */
+  DEVICE ("Canon PIXMA MP810", UNKNOWN_PID, 4800, PIXMA_CAP_EXPERIMENT),	/* TPU, 4800x4800DPI */
+
   DEVICE (NULL, 0, 0, 0)
 };

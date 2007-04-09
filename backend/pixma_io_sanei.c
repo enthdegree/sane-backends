@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -174,8 +174,10 @@ read_serial_number (scanner_info_t * si)
   if (iSerialNumber != 0)
     {
       int iSerialNumber = ddesc[16];
+      /* Read the first language code. Assumed that there is at least one. */
       if (get_string_descriptor (usb, 0, 0, 4, unicode) != SANE_STATUS_GOOD)
 	goto done;
+      /* Read the serial number string. */
       status =
 	get_string_descriptor (usb, iSerialNumber,
 			       unicode[3] * 256 + unicode[2],
@@ -268,6 +270,8 @@ pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
 	  si = first_scanner;
 	  while (j < nscanners)
 	    {
+	      PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
+			       cfg->name, si->devname));
 	      si->cfg = cfg;
 	      read_serial_number (si);
 	      si = si->next;

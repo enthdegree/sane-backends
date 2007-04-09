@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -188,6 +188,7 @@ find_scanners (void)
 
   cleanup_device_list ();
   nscanners = pixma_find_scanners ();
+  PDBG (pixma_dbg (3, "pixma_find_scanners() found %u devices\n", nscanners));
   dev_list =
     (const SANE_Device **) calloc (nscanners + 1, sizeof (*dev_list));
   if (!dev_list)
@@ -413,7 +414,7 @@ control_string_option (pixma_sane_t * ss, SANE_Int n, SANE_Action a, void *v,
 	  str = opt->def.s;
 	  /* fall through */
 	case SANE_ACTION_SET_VALUE:
-	  strncpy (opt->val.s, str, opt->sod.size);
+	  strncpy (opt->val.s, str, opt->sod.size - 1);
 	  *info |= opt->info;
 	  break;
 	}
@@ -798,7 +799,7 @@ reader_thread (void *arg)
   sigemptyset (&sigs);
   sigaddset (&sigs, SIGPIPE);
   pthread_sigmask (SIG_BLOCK, &sigs, NULL);
-#endif
+#endif /* USE_PTHREAD */
   return reader_loop (ss);
 }
 
@@ -1223,7 +1224,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 {
   DECL_CTX;
   int sum, n;
-  SANE_Byte temp[16];
+  SANE_Byte temp[60];
   SANE_Status status;
 
   if (len)
@@ -1265,6 +1266,13 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	    {
 	      /* skip padding */
 	      n = ss->sp.line_size - ss->byte_pos_in_line;
+	      if (n > (int) sizeof (temp))
+		{
+		  PDBG (pixma_dbg (3,
+				   "Inefficient skip buffer. Should be %d\n",
+				   n));
+		  n = sizeof (temp);
+		}
 	      status = read_image (ss, temp, n, &n);
 	      if (n == 0)
 		break;

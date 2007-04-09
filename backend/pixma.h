@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -107,8 +107,8 @@ typedef u_int32_t uint32_t;
 /** \name Version of the driver */
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
-#define PIXMA_VERSION_MINOR 12
-#define PIXMA_VERSION_BUILD 2
+#define PIXMA_VERSION_MINOR 13
+#define PIXMA_VERSION_BUILD 0
 /**@}*/
 
 /** \name Error codes */

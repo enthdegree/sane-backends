@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -60,6 +60,8 @@
 #define CMDBUF_SIZE 512
 
 #define MP360_PID 0x263c
+#define MP370_PID 0x263d
+#define MP390_PID 0x263e
 #define MP700_PID 0x2630
 #define MP730_PID 0x262f
 
@@ -261,6 +263,8 @@ handle_interrupt (pixma_t * s, int timeout)
   switch (s->cfg->pid)
     {
     case MP360_PID:
+    case MP370_PID:
+    case MP390_PID:
       if (len != 16)
 	{
 	  PDBG (pixma_dbg
@@ -280,7 +284,6 @@ handle_interrupt (pixma_t * s, int timeout)
 
     case MP700_PID:
     case MP730_PID:
-    default:
       if (len != 8)
 	{
 	  PDBG (pixma_dbg
@@ -292,6 +295,10 @@ handle_interrupt (pixma_t * s, int timeout)
       if (buf[5] & 8)
 	send_time (s);
       break;
+
+    default:
+      PDBG (pixma_dbg (1, "WARNING:unknown interrupt, please report!\n"));
+      PDBG (pixma_hexdump (1, buf, len));
     }
   return 1;
 }
@@ -299,7 +306,8 @@ handle_interrupt (pixma_t * s, int timeout)
 static int
 has_ccd_sensor (pixma_t * s)
 {
-  return (s->cfg->pid == MP360_PID);
+  return (s->cfg->pid == MP360_PID || s->cfg->pid == MP370_PID
+	  || s->cfg->pid == MP390_PID);
 }
 
 static int
@@ -370,6 +378,11 @@ mp730_open (pixma_t * s)
   mp->cb.cmd_header_len = 10;
   mp->cb.cmd_len_field_ofs = 7;
 
+  PDBG (pixma_dbg (3, "Trying to clear the interrupt buffer...\n"));
+  if (handle_interrupt (s, 200) == 0)
+    {
+      PDBG (pixma_dbg (3, "  no packets in buffer\n"));
+    }
   return 0;
 }
 
@@ -415,6 +428,11 @@ mp730_scan (pixma_t * s)
 
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
+
+  /* clear interrupt packets buffer */
+  while (handle_interrupt (s, 0) > 0)
+    {
+    }
 
   mp->raw_width = calc_raw_width (s->param);
   PDBG (pixma_dbg (3, "raw_width = %u\n", mp->raw_width));
@@ -484,8 +502,9 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  if (block_size == 0)
 	    {
 	      /* no image data at this moment. */
-	      pixma_sleep (100000);	/* FIXME: too short, too long? */
-	    }
+	      /*pixma_sleep(100000); *//* FIXME: too short, too long? */
+	      handle_interrupt (s, 100);
+	    /*XXX*/}
 	}
       while (block_size == 0);
 
@@ -595,8 +614,10 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon SmartBase MP360", 0x263c, 1200, 636, 868, 0),
-  DEVICE ("Canon MultiPASS MP700", 0x2630, 1200, 638, 877 /*1035 */ , 0),
-  DEVICE ("Canon MultiPASS MP730", 0x262f, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon SmartBase MP360", MP360_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon SmartBase MP370", MP370_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon SmartBase MP390", MP390_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon MultiPASS MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
+  DEVICE ("Canon MultiPASS MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0, 0, 0)
 };

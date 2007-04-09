@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2006 Wittawat Yamwong <wittawat@web.de>
+   Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
 
@@ -524,6 +524,7 @@ mp750_open (pixma_t * s)
   mp->cb.cmd_header_len = 10;
   mp->cb.cmd_len_field_ofs = 7;
 
+  handle_interrupt (s, 200);
   workaround_first_command (s);
   return 0;
 }
@@ -565,6 +566,11 @@ mp750_scan (pixma_t * s)
 
   if (mp->state != state_idle)
     return PIXMA_EBUSY;
+
+  /* clear interrupt packets buffer */
+  while (handle_interrupt (s, 0) > 0)
+    {
+    }
 
   if (s->param->channels == 1)
     mp->raw_width = ALIGN (s->param->w, 12);

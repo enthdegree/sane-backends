@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "26 August 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "09 April 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -17,11 +17,12 @@ PIXMA MP530, PIXMA MP800, PIXMA MP800R, PIXMA MP830,
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .RE
 .PP
-The following models are marked as experimental because they are not well
-tested and/or the scanner sometimes hangs and must be switched off and on.
-Therefore they are disabled by default. (See PIXMA_EXPERIMENT below)
+The following models are not well tested and/or the scanner sometimes hangs
+and must be switched off and on.
 .PP
 .RS
+PIXMA MP160, PIXMA MP180, PIXMA MP460, PIXMA MP510, PIXMA MP600
+.br
 SmartBase MP360, MultiPASS MP730, PIXMA MP760, PIXMA MP780
 .RE
 .PP

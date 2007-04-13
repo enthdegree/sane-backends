@@ -1,3 +1,11 @@
+2007-04-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* doc/descriptions-external/hp3900.desc,
+	  doc/descriptions/unsupported.desc:
+	  Moved 3 scanners from unsupported to hp3900
+	  See: http://lists.alioth.debian.org/pipermail/sane-devel/
+	  2007-April/018980.html
+
 2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
 
 	* backend/fujitsu.[ch]|fujitsu.conf.in: update to v1.0.47,

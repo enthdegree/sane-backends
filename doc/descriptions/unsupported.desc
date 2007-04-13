@@ -800,13 +800,6 @@
 :mfg "Hewlett-Packard"			; name a manufacturer
 :url "http://www.hp.com/"
 
-:model "Scanjet G3010"
-:url "/unsupported/hp-scanjet-g3010.html"
-:interface "USB"
-:usbid "0x03f0" "0x4205"
-:status :unsupported
-:comment "Not supported yet by SANE. See link for details."
-
 :model "Photo Scanner 1000"
 :url "/unsupported/hp-photo-1000.html"
 :interface "USB"
@@ -866,13 +859,6 @@
 :interface "USB"
 :usbid "0x03f0" "0x2505"
 :comment "While an external binary-only backend exists, it works only on Linux i386. Therefore the scanner is unsupported on other platforms."
-
-:model "ScanJet 3800c"
-:url "/unsupported/hp-scanjet-3800.html"
-:interface "USB"
-:usbid "0x03f0" "0x2605"
-:status :unsupported
-:comment "Probably unsupported, see link for details."
 
 :model "ScanJet 4500C"
 :url "/unsupported/hp-scanjet-4500c.html"
@@ -2495,13 +2481,6 @@
 :usbid "0x0638" "0x0a20"
 :status :unsupported
 :comment "GL646/GL660 based. Avision iVina FB1800 clone."
-
-:model "Astra 4900"
-:url "/unsupported/umax-astra-4900.html"
-:interface "USB"
-:usbid "0x06dc" "0x0020"
-:status :unsupported
-:comment "RTS8822L based."
 
 :model "Astra 6700"
 :interface "USB"

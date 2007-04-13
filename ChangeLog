@@ -1,7 +1,14 @@
+2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.[ch]|fujitsu.conf.in: update to v1.0.47,
+	  change gamma determination, add support/usbid for fi-5650C
+	* doc/descriptions/fujitsu.desc: version number update
+	* tools/hal/.cvsignore: ignore .fdi file
+
 2007-04-09  Wittawat Yamwong <wittawat@web.de>
 
 	* backend/pixma*.[ch] doc/sane-pixma.man doc/descriptions/pixma.desc:
-          Updated to version 0.13.0
+	  Updated to version 0.13.0
 	  Added MP160, MP180, MP460, MP510 and MP600
 	  Fixed a buffer-overflow bug in sane_read()
 

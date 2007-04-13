@@ -248,6 +248,9 @@
          - tweak fi-4x20c2 and M3093 settings
 	 - add fi-5110EOXM usb id
 	 - add M3093 non-alternating duplex code
+      V 1.0.47 2007-04-13, MAN
+         - change window_gamma determination
+         - add fi-5650C usb id and color mode
 
    SANE FLOW DIAGRAM
 
@@ -308,7 +311,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 46 
+#define BUILD 47 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -546,6 +549,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1097'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1097", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ad'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10ad", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ae'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
@@ -1081,12 +1087,6 @@ init_vpd (struct fujitsu *s)
 	  s->num_download_gamma = get_IN_num_gamma_download (buffer);
           DBG (15, "  download gamma patterns: %d\n", s->num_download_gamma);
 
-          /* if scanner supports gamma table download, we always enable it.
-           * use send command and 0x80 in set window data block */
-          if (s->num_download_gamma){
-            s->window_gamma = 0x80;
-          }
-
 	  s->num_internal_dither = get_IN_num_dither_internal (buffer);
           DBG (15, "  built in dither patterns: %d\n", s->num_internal_dither);
 
@@ -1386,7 +1386,6 @@ init_model (struct fujitsu *s)
 
   DBG (10, "init_model: start\n");
 
-
   /* for most scanners these are good defaults */
   s->color_interlace = COLOR_INTERLACE_BGR;
 
@@ -1394,6 +1393,13 @@ init_model (struct fujitsu *s)
   s->reverse_by_mode[MODE_HALFTONE] = 0;
   s->reverse_by_mode[MODE_GRAYSCALE] = 1;
   s->reverse_by_mode[MODE_COLOR] = 1;
+
+  /* if scanner has built-in gamma tables, we use the first one (0) */
+  /* otherwise, we use the first downloaded one (0x80) */
+  /* note that you may NOT need to send the table to use it? */
+  if (!s->num_internal_gamma && s->num_download_gamma){
+    s->window_gamma = 0x80;
+  }
 
   /* these two scanners lie about their capabilities,
    * and/or differ significantly from most other models */
@@ -1424,9 +1430,8 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
-    s->window_gamma = 0;
   }
-  else if (strstr (s->product_name, "M309")
+  else if ( strstr (s->product_name, "M309")
    || strstr (s->product_name, "M409")){
 
     /* lies */
@@ -1443,8 +1448,9 @@ init_model (struct fujitsu *s)
     s->os_y_basic = 236;
   
   }
-  else if (strstr (s->product_name, "fi-4750")
-   || strstr (s->product_name, "fi-4340") ) {
+  else if ( strstr (s->product_name, "fi-4340")
+   || strstr (s->product_name, "fi-4750")
+   || strstr (s->product_name, "fi-5650")) {
 
     /* weirdness */
     s->color_interlace = COLOR_INTERLACE_RRGGBB;

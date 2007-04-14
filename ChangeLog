@@ -1,3 +1,8 @@
+2007-04-15  Wittawat Yamwong <wittawat@web.de>
+
+	* doc/descriptions/unsupported.desc: Remove Canon PIXMA MP160 and
+	  Canon PIXMA MP600 (now supported by pixma backend)
+
 2007-04-13  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* doc/descriptions-external/hp3900.desc,

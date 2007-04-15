@@ -42,37 +42,20 @@
 :model "ScanPartner Jr/10/15/300/600"
 :interface "SCSI"
 :status :unsupported
-:comment "workgroup, discontinued, non-fujitsu, avision oem"
+:comment "workgroup, older, discontinued, non-fujitsu, avision oem"
 
+:model "ScanPartner 15C/620C"
+:interface "SCSI"
+:status :unsupported
+:comment "workgroup, older, discontinued, non-fujitsu, avision oem"
+
+;==================================================
 ; DISCONTINUED NEWER MODELS, PERSONAL
-:model "fi-4120C"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x1041"
-:status :good
-:comment "workgroup, newer, discontinued"
-
-:model "fi-4220C"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x1042"
-:status :good
-:comment "workgroup, newer, discontinued"
-
-:model "fi-4120C2"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x10ae"
-:status :good
-:comment "workgroup, newer, discontinued"
-
-:model "fi-4220C2"
-:interface "SCSI USB"
-:usbid "0x04c5" "0x10af"
-:status :good
-:comment "workgroup, newer, discontinued"
-
-:model "fi-4010C"
+:model "fi-4010CU"
 :interface "USB"
-:status :untested
-:comment "workgroup, newer, discontinued, unknown chipset, perhaps non-fujitsu"
+:status :unsupported
+:usbid "0x04c5" "0x1029"
+:comment "workgroup, current, Avision chipset?"
 
 :model "fi-4110CU"
 :interface "USB"
@@ -90,6 +73,30 @@
 :status :unsupported
 :comment "workgroup, newer, discontinued, MA1509 chipset, non-fujitsu"
 
+:model "fi-4120C"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x1041"
+:status :good
+:comment "workgroup, newer, discontinued, usb 1.1"
+
+:model "fi-4120C2"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x10ae"
+:status :good
+:comment "workgroup, newer, discontinued, usb 2.0"
+
+:model "fi-4220C"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x1042"
+:status :good
+:comment "workgroup, newer, discontinued usb 1.1"
+
+:model "fi-4220C2"
+:interface "SCSI USB"
+:usbid "0x04c5" "0x10af"
+:status :good
+:comment "workgroup, newer, discontinued usb 2.0"
+
 :model "fi-5110EOX"
 :interface "USB"
 :status :good
@@ -101,6 +108,7 @@
 :status :good
 :comment "workgroup, newer, discontinued, no TWAIN driver"
 
+;==================================================
 ; CURRENT MODELS, PERSONAL
 :model "S500"
 :interface "USB"
@@ -108,16 +116,15 @@
 :usbid "0x04c5" "0x10fe"
 :comment "workgroup, current, no TWAIN driver"
 
-:model "fi-60F"
-:interface "USB"
-:status :untested
-:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
-
-:model "fi-4010CU"
+:model "S500M"
 :interface "USB"
 :status :unsupported
-:usbid "0x04c5" "0x1029"
-:comment "workgroup, current, Avision chipset?"
+:comment "workgroup, current, no TWAIN driver, Mac only, similar to S500?"
+
+:model "fi-5015C"
+:interface "USB"
+:status :unsupported
+:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
 
 :model "fi-5110EOXM"
 :interface "USB"
@@ -143,10 +150,10 @@
 :usbid "0x04c5" "0x10e1"
 :comment "workgroup, current"
 
-:model "ScanPartner 15C/620C"
-:interface "SCSI"
-:status :unsupported
-:comment "workgroup, current, non-fujitsu, avision oem"
+:model "fi-60F"
+:interface "USB"
+:status :untested
+:comment "workgroup, current, unknown chipset, perhaps non-fujitsu"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, DEPARTMENTAL
@@ -205,7 +212,13 @@
 :status :basic
 :comment "departmental, older, discontinued"
 
+;==================================================
 ; DISCONTINUED NEWER MODELS, DEPARTMENTAL
+:model "fi-4530C"
+:interface "SCSI USB"
+:status :basic
+:comment "departmental, newer, discontinued"
+
 :model "fi-4640S"
 :interface "SCSI"
 :status :basic
@@ -216,13 +229,9 @@
 :status :basic
 :comment "departmental, newer, discontinued"
 
+;==================================================
 ; CURRENT MODELS, DEPARTMENTAL
 :model "fi-4340C"
-:interface "SCSI USB"
-:status :basic
-:comment "departmental, current"
-
-:model "fi-4530C"
 :interface "SCSI USB"
 :status :basic
 :comment "departmental, current"
@@ -270,24 +279,31 @@
 :status :basic
 :comment "production, older, discontinued"
 
+:model "M4099D"
+:interface "SCSI"
+:status :basic
+:comment "production, older, discontinued"
+
+;==================================================
 ; DISCONTINUED NEWER MODELS, PRODUCTION
 :model "fi-4750L"
 :interface "SCSI"
 :status :basic
 :comment "production, newer, discontinued"
 
+:model "fi-4990C"
+:interface "SCSI"
+:status :basic
+:comment "production, newer, discontinued"
+
+;==================================================
 ; CURRENT MODELS, PRODUCTION
 :model "fi-4860C"
 :interface "SCSI"
 :status :basic
 :comment "production, current"
 
-:model "M4099D"
-:interface "SCSI"
-:status :basic
-:comment "production, current"
-
-:model "fi-4990C"
+:model "fi-4860C2"
 :interface "SCSI"
 :status :basic
 :comment "production, current"

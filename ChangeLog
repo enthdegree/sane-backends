@@ -1,3 +1,8 @@
+2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.c: update to v1.0.48, re-enable
+	  brightness/contrast for models with built-in support
+
 2007-04-15  Wittawat Yamwong <wittawat@web.de>
 
 	* doc/descriptions/unsupported.desc: Remove Canon PIXMA MP160 and

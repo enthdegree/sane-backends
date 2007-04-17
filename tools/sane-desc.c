@@ -3106,7 +3106,7 @@ print_db_header (void)
      "# respectively):\n");
   printf 
     ("#\n"
-     "# 0xVVVV<tab>0xPPPP<tab>root:scanner<tab>0660<tab>[/usr/local/bin/foo.sh]\n"
+     "# 0xVVVV<tab>0xPPPP<tab>root:scanner<tab>0664<tab>[/usr/local/bin/foo.sh]\n"
      "# Fields:\n"
      "#   vendor ID\n"
      "#   product ID\n"
@@ -3140,7 +3140,7 @@ print_db (void)
 	  name = name->next;
 	}
       printf ("\n");
-      printf ("%s\t%s\troot:scanner\t0660\t\n", usbid->usb_vendor_id,
+      printf ("%s\t%s\troot:scanner\t0664\t\n", usbid->usb_vendor_id,
 	      usbid->usb_product_id);
       usbid = usbid->next;
     }
@@ -3208,7 +3208,7 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"660\", GROUP=\"scanner\"\n",
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"664\", GROUP=\"scanner\"\n",
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
       usbid = usbid->next;
     }

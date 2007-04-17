@@ -1,6 +1,8 @@
 2007-04-17  Julien Blache <jb@jblache.org>
 
 	* backend/microtek.c: add missing braces.
+	* tools/sane-desc.c: use mode 0664 for usbfs device nodes; allows
+	lsusb to still work for everybody on the system.
 
 2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
 

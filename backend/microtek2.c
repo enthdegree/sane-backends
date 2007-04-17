@@ -5455,9 +5455,11 @@ sane_start(SANE_Handle handle)
               || ( ms->mode != md->shading_table_contents )
             )
        )
+      {
         status = read_cx_shading(ms);
         if ( status  != SANE_STATUS_GOOD )
-            goto cleanup;
+	  goto cleanup;
+      }
         
     if ( ms->lightlid35 )  
     /* hopefully this leads to a switched off flatbed lamp with lightlid */

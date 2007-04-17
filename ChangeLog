@@ -1,3 +1,6 @@
+2007-04-17  Julien Blache <jb@jblache.org>
+
+	* backend/microtek.c: add missing braces.
 
 2007-04-13  m. allan noah <kitno455 a t gmail d o t com>
 

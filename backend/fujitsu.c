@@ -251,6 +251,8 @@
       V 1.0.47 2007-04-13, MAN
          - change window_gamma determination
          - add fi-5650C usb id and color mode
+      V 1.0.48 2007-04-16, MAN
+         - re-enable brightness/contrast for built-in models 
 
    SANE FLOW DIAGRAM
 
@@ -311,7 +313,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 47 
+#define BUILD 48 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2012,20 +2014,20 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->brightness_range;
     s->brightness_range.quant=1;
 
-    /* scanner has brightness via LUT or GT */
-    /* value ranges from -100 to +100 */
-    if (s->num_download_gamma){
-      s->brightness_range.min=-100;
-      s->brightness_range.max=100;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }
     /* scanner has brightness built-in */
     /* value ranges from 0-255 (usually) */
-    else if (s->brightness_steps){
+    if (s->brightness_steps){
       s->brightness_range.min=0;
       s->brightness_range.max=s->brightness_steps;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
+    /* scanner has brightness via LUT or GT */
+    /* value ranges from -100 to +100 */
+    /*else if (s->num_download_gamma){
+      s->brightness_range.min=-100;
+      s->brightness_range.max=100;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }*/
     else{
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -2042,20 +2044,20 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->contrast_range;
     s->contrast_range.quant=1;
 
-    /* scanner has contrast via LUT or GT */
-    /* value ranges from -100 to +100 */
-    if (s->num_download_gamma){
-      s->contrast_range.min=-100;
-      s->contrast_range.max=100;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }
     /* scanner has contrast built-in */
     /* value ranges from 0-255 (usually) */
-    else if (s->contrast_steps) {
+    if (s->contrast_steps) {
       s->contrast_range.min=0;
       s->contrast_range.max=s->contrast_steps;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     } 
+    /* scanner has contrast via LUT or GT */
+    /* value ranges from -100 to +100 */
+    /*else if (s->num_download_gamma){
+      s->contrast_range.min=-100;
+      s->contrast_range.max=100;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }*/
     else {
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -2077,12 +2079,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->gamma_range.max=SANE_FIX(5);
 
     /* scanner has gamma via LUT or GT */
-    if (s->num_download_gamma){
+    /*if (s->num_download_gamma){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
     else {
       opt->cap = SANE_CAP_INACTIVE;
-    }
+    }*/
+
+    opt->cap = SANE_CAP_INACTIVE;
   }
 
   /*threshold*/

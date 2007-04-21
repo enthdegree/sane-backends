@@ -902,26 +902,6 @@
 :comment "Maybe GL841_HP, but not confirmed, maybe can be added to genesys backend"
 :status :unsupported
 
-:model "ScanJet 5550C"
-:url "/unsupported/hp-scanjet-5550c.html"
-:interface "USB"
-:usbid "0x03f0" "0x1205"
-:status :unsupported
-
-:model "ScanJet 5590"
-:url "/unsupported/hp-scanjet-5590.html"
-:interface "USB"
-:usbid "0x03f0" "0x1705"
-:comment "Not supported. See link for details."
-:status :unsupported
-
-:model "ScanJet 7650"
-:url "/unsupported/hp-scanjet-7650.html"
-:interface "USB"
-:usbid "0x03f0" "0x1805"
-:comment "Not supported. See link for details."
-:status :unsupported
-
 :model "ScanJet 8390"
 :url "/unsupported/hp-scanjet-8390.html"
 :interface "USB"

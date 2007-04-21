@@ -1,3 +1,9 @@
+2007-04-21  Julien Blache <jb@jblache.org>
+	* backend/epson.c: remove bogus check in
+	get_identity2_information(), causing the identification of various
+	Stylus CX5xxx models (among others) to fail. Olaf Meeuwissen from
+	Epson confirmed the check was bogus.
+
 2007-04-17  Julien Blache <jb@jblache.org>
 
 	* backend/microtek.c: add missing braces.

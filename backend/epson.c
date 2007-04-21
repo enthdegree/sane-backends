@@ -6144,12 +6144,6 @@ get_identity2_information (SANE_Handle handle)
 
   receive (s, buf, len, &status);	/* reveive actual status data */
 
-  if (buf[0] & 0x80)
-  {
-    close_scanner (s);
-    return SANE_STATUS_INVAL;
-  }
-
   /* the first two bytes of the buffer contain the optical resolution */
   s->hw->optical_res = buf[1] << 8 | buf[0];
 

@@ -44,6 +44,7 @@ Backends:
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
                 Frank Zago, Henning Meier-Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
+ hp5590:        Ilia Sotnikov (*)
  ibm:           M.F., Henning Meier-Geinitz (*)
  leo:           Frank Zago (*)
  lexmark:       Fred Odendaal (*)
@@ -159,6 +160,7 @@ Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
 Henning Meier-Geinitz <henning@meier-geinitz.de>
 Henrik Johansson <henrikjo@post.urfors.se>
+Ilia Sotnikov <hostcc@gmail.com>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>
 Ingo Wilken <Ingo.Wilken@informatik.uni-oldenburg.de>
 James Perry <jamesp@epcc.ed.ac.uk>

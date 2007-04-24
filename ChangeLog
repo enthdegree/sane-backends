@@ -1,3 +1,11 @@
+2007-04-24  Ilia Sotnikov <hostcc@gmail.com>
+
+	+ configure: added check for <netinet/in.h> header
+	+ Added files for 'hp5590' backend which supports
+	  HP ScanJet 5550/5590/7650 scanners
+	+ tools/check-usb-chip.c: added HP ScanJet 5550/5590/7650 detection
+	  routine
+
 2007-04-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* doc/descriptions-external/hp5590.desc,

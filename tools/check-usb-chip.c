@@ -2894,7 +2894,259 @@ check_rts8822l01h (struct usb_device *dev)
   return "RTS8822L-01H";
 }	/* end of RTS8822L-01H detection */
 
+/* Check for Silitek chipset found in HP5550/5590/7650 scanners */
+static char *
+check_hp5590 (struct usb_device *dev)
+{
+  usb_dev_handle 	*handle;
+  int 			result;
+  u_int8_t 		status;
+  struct usb_ctrl_setup ctrl;
+  u_int8_t 		data[0x32];
+  u_int8_t 		ack;
+  u_int8_t 		*ptr;
+  int 			next_packet_size;
+  unsigned int 		len;
 
+  if (verbose > 2)
+    printf ("    checking for HP5550/5590/7650 chipset ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x200)
+    {
+      if (verbose > 2)
+	printf ("    this is not a HP5550/5590/7650 chipset (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0xff)
+    {
+      if (verbose > 2)
+	printf ("    this is not a HP5550/5590/7650 chipset (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a HP5550/5590/7650 chipset (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x200)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x200)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0x08))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a HP5550/5590/7650 chipset (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return NULL;
+
+  /* USB-in-USB command URB - command 0x0012 (init scanner), returns 0x32 bytes */
+  memset (&ctrl, 0, sizeof(ctrl));
+  ctrl.bRequestType = 0xc0;
+  ctrl.bRequest = 0x04;
+  ctrl.wValue = 0x1200;
+  ctrl.wIndex = 0x00;
+  ctrl.wLength = sizeof(data);
+  result = usb_control_msg (handle, USB_ENDPOINT_OUT | USB_TYPE_VENDOR,
+			    0x04, 0x8f, 0x00,
+			    (char *) &ctrl, sizeof (ctrl), TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send send USB-in-USB command (%s)\n",
+		strerror (errno));
+      return NULL;
+    }
+
+  /* Get confirmation for USB-in-USB command */
+  result = usb_control_msg (handle, USB_ENDPOINT_IN | USB_TYPE_VENDOR, 
+			    0x0c, 0x8e, 0x20,
+			    (char *) &status, sizeof(status), TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read USB-in-USB confirmation (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return NULL;
+    }
+
+  /* Check the confirmation received */
+  if (status != 0x01)
+    {
+      if (verbose > 2)
+	printf ("    Didn't get correct confirmation for USB-in-USB command "
+	        "(needed: 0x01, got: 0x%02x\n",
+	        status);
+      finish_interface (handle);
+      return NULL;
+    }
+
+  /* Read data in 8 byte packets */
+  ptr = data;
+  len = sizeof(data);
+  while (len)
+    {
+      next_packet_size = 8;
+      if (len < 8)
+	next_packet_size = len;
+
+      /* Read data packet */
+      result = usb_control_msg (handle, USB_ENDPOINT_IN | USB_TYPE_VENDOR,
+				0x04, 0x90, 0x00,
+				(char *) ptr, next_packet_size, TIMEOUT);
+      if (result < 0)
+	{
+	  if (verbose > 2)
+	    printf ("    Couldn't read USB-in-USB data (%s)\n",
+		    strerror (errno));
+	  finish_interface (handle);
+	  return NULL;
+	}
+
+      /* Check if all of the requested data was received */
+      if (result != next_packet_size)
+	{
+	  if (verbose > 2)
+	    printf ("    Incomplete USB-in-USB data received (needed: %u, got: %u)\n",
+		    next_packet_size, result);
+	  finish_interface (handle);
+	  return NULL;
+	}
+
+      ptr += next_packet_size;
+      len -= next_packet_size;
+    }
+
+  /* Acknowledge the whole received data */
+  ack = 0;
+  result = usb_control_msg (handle, USB_ENDPOINT_OUT | USB_TYPE_VENDOR,
+			    0x0c, 0x8f, 0x00,
+			    (char *) &ack, sizeof(ack), TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't send USB-in-USB data confirmation (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return NULL;
+    }
+
+  /* Get confirmation for acknowledge */
+  result = usb_control_msg (handle, USB_ENDPOINT_IN | USB_TYPE_VENDOR,
+			    0x0c, 0x8e, 0x20,
+			    (char *) &status, sizeof(status), TIMEOUT);
+  if (result < 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read USB-in-USB confirmation for data confirmation (%s)\n",
+		strerror (errno));
+      finish_interface (handle);
+      return NULL;
+    }
+
+  /* Check the confirmation received */
+  if (status != 0x01)
+    {
+      if (verbose > 2)
+	printf ("    Didn't get correct confirmation for USB-in-USB command "
+	        "(needed: 0x01, got: 0x%02x\n",
+	        status);
+      finish_interface (handle);
+      return NULL;
+    }
+
+  /* Check vendor ID */
+  if (memcmp (data+1, "SILITEK", 7) != 0)
+    {
+      if (verbose > 2)
+	printf ("   Incorrect product ID received\n");
+      finish_interface (handle);
+      return NULL;
+    }
+
+  finish_interface (handle);
+  return "HP5550/5590/7650";
+}
 
 char *
 check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
@@ -2956,6 +3208,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_sq113 (dev);
+
+  if (!chip_name)
+    chip_name = check_hp5590 (dev);
 
   if (verbose > 2)
     {

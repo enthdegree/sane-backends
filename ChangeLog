@@ -6,6 +6,17 @@
 	+ tools/check-usb-chip.c: added HP ScanJet 5550/5590/7650 detection
 	  routine
 
+2007-04-21  Troy Rollo <sane@troy.rollo.name>
+
+	* backend/hp3500.c: Improve speed and reduce noise of most
+	  resolutions; deal with an escape code discovered in the scanner's
+	  protocol; use hardware detailed calibrations for resolutions up to
+	  300; use improved software detailed calibration for other
+	  resolutions; ddd more debug information; drop the 25dpi
+	  resolution; make 200dpi the default (the same as the Windows
+	  frontend; Add code (not used yet) to deal partially with grayscale
+	  and lineart scanning; use I18N strings where appropriate.
+
 2007-04-21  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* doc/descriptions-external/hp5590.desc,

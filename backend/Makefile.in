@@ -174,7 +174,8 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c v4l.c \
   v4l.conf.in v4l-frequencies.h v4l.h \
   sm3840.conf.in sm3840.c sm3840_lib.c sm3840_params.h sm3840_scan.c sm3840.h \
-  sm3840_lib.h
+  sm3840_lib.h \
+  hp5590.c hp5590_cmds.c hp5590_low.c hp5590_cmds.h hp5590_low.h
 
 .PHONY: all clean depend dist distclean install uninstall
 
@@ -406,6 +407,7 @@ libsane-hp4200.la: ../sanei/sanei_constrain_value.lo
 libsane-hp4200.la: ../sanei/sanei_usb.lo
 libsane-hp4200.la: ../sanei/sanei_pv8630.lo
 libsane-hp5400.la: ../sanei/sanei_usb.lo
+libsane-hp5590.la: ../sanei/sanei_usb.lo
 libsane-ibm.la: ../sanei/sanei_scsi.lo
 libsane-ibm.la: ../sanei/sanei_config2.lo
 libsane-ibm.la: ../sanei/sanei_constrain_value.lo

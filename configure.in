@@ -128,7 +128,8 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
     IOKit/cdb/IOSCSILib.h IOKit/scsi-commands/SCSICommandOperationCodes.h \
-    windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h)
+    windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h\
+    netinet/in.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
 
@@ -351,7 +352,7 @@ else
           plustek_pp ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
           artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash sm3840 hp4200 \
-          sm3600 hp3500 stv680 epson2"
+          sm3600 hp3500 stv680 epson2 hp5590"
 
   if test "${sane_cv_use_libjpeg}" != "yes"; then
     echo "*** disabling DC210 backend (failed to find JPEG library)"

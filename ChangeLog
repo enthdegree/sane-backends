@@ -1,3 +1,11 @@
+2007-04-29 Ilia Sotnikov <hostcc@gmail.com>
+	
+	* backend/hp5590_low.c: don't use libusb structs directly, define
+	  necessary of them by ourselves ('struct usb_ctrl_setup' -> 'struct
+	  usb_in_usb_ctrl_setup')
+	* backend/hp5590_low.c: renamed 'struct usb_bulk_setup' to 'struct
+	  usb_in_usb_bulk_setup' to show its internal usage
+
 2007-04-24  Ilia Sotnikov <hostcc@gmail.com>
 
 	+ configure: added check for <netinet/in.h> header

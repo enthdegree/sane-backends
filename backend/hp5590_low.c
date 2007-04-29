@@ -54,11 +54,6 @@
 #include "sane/sanei_usb.h"
 #include "hp5590_low.h"
 
-/* For USB_* constants */
-#ifdef HAVE_USB_H
-# include <usb.h>
-#endif /* HAVE_USB_H */
-
 /* Debug levels */
 #define DBG_err		0
 #define	DBG_proc	10
@@ -79,7 +74,7 @@ struct bulk_size
 
 /* Structure describing bulk URB */
 /* FIXME: Verify according to USB standard */
-struct usb_bulk_setup
+struct usb_in_usb_bulk_setup
 {
   u_int8_t	bRequestType;
   u_int8_t	bRequest;
@@ -87,6 +82,15 @@ struct usb_bulk_setup
   u_int16_t	unknown;
   u_int16_t	wLength;
   u_int8_t 	pad;
+} __attribute__ ((packed));
+
+/* Structure describing control URB */
+struct usb_in_usb_ctrl_setup {
+  u_int8_t  bRequestType;
+  u_int8_t  bRequest;
+  u_int16_t wValue;
+  u_int16_t wIndex;
+  u_int16_t wLength;
 } __attribute__ ((packed));
 
 /* CORE status flag - ready or not */
@@ -220,13 +224,13 @@ hp5590_control_msg (SANE_Int dn,
 		    int value, int index, unsigned char *bytes,
 		    int size, int core_flags)
 {
-  struct usb_ctrl_setup	ctrl;
-  SANE_Status 		ret;
-  unsigned int 		len;
-  unsigned char 	*ptr;
-  u_int8_t 		ack;
-  u_int8_t 		response;
-  unsigned int 		needed_response;
+  struct usb_in_usb_ctrl_setup	ctrl;
+  SANE_Status 			ret;
+  unsigned int 			len;
+  unsigned char 		*ptr;
+  u_int8_t 			ack;
+  u_int8_t 			response;
+  unsigned int 			needed_response;
 
   DBG (DBG_proc, "%s: USB-in-USB: core data: %s\n",
        __FUNCTION__, core_flags & CORE_DATA ? "yes" : "no");
@@ -629,7 +633,7 @@ static SANE_Status
 hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
 		  void *state)
 {
-  struct usb_bulk_setup		ctrl;
+  struct usb_in_usb_bulk_setup	ctrl;
   SANE_Status 			ret;
   unsigned int 			next_pages;
   u_int8_t 			bulk_flags;
@@ -861,9 +865,9 @@ static SANE_Status
 hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
 		   unsigned int size)
 {
-  struct usb_bulk_setup ctrl;
-  SANE_Status 		ret;
-  struct bulk_size	bulk_size;
+  struct usb_in_usb_bulk_setup	ctrl;
+  SANE_Status 			ret;
+  struct bulk_size		bulk_size;
 
   unsigned int len;
   unsigned char *ptr;

@@ -86,10 +86,10 @@ res_list[] = { 6, 100, 200, 300, 600, 1200, 2400 };
 #define SANE_VALUE_SCAN_MODE_COLOR_24 		SANE_I18N("Color")
 #define SANE_VALUE_SCAN_MODE_COLOR_48 		SANE_I18N("Color (48 bits)")
 
-#define SANE_NAME_LAMP_TIMEOUT 			SANE_I18N("extend-lamp-timeout")
+#define SANE_NAME_LAMP_TIMEOUT 			"extend-lamp-timeout"
 #define SANE_TITLE_LAMP_TIMEOUT 		SANE_I18N("Extend lamp timeout")
 #define SANE_DESC_LAMP_TIMEOUT 			SANE_I18N("Extends lamp timeout (from 15 minutes to 1 hour)")
-#define SANE_NAME_WAIT_FOR_BUTTON 		SANE_I18N("wait-for-button")
+#define SANE_NAME_WAIT_FOR_BUTTON 		"wait-for-button"
 #define SANE_TITLE_WAIT_FOR_BUTTON 		SANE_I18N("Wait for button")
 #define SANE_DESC_WAIT_FOR_BUTTON 		SANE_I18N("Waits for button before scanning")
 

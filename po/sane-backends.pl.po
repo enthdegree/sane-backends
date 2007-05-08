@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-21 14:35+0100\n"
-"PO-Revision-Date: 2007-01-21 14:38+0100\n"
+"POT-Creation-Date: 2007-05-08 12:04+0200\n"
+"PO-Revision-Date: 2007-05-08 13:31+0200\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -20,8 +20,8 @@ msgstr ""
 #: .tmp/canon-sane.c:1623 .tmp/genesys.c:90 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
 #: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
-#: .tmp/sceptre.h:289 .tmp/snapscan-options.c:79 .tmp/umax.c:186
-#: .tmp/umax_pp.c:137
+#: .tmp/sceptre.h:289 .tmp/sm3840.c:82 .tmp/sm3840.c:339
+#: .tmp/snapscan-options.c:79 .tmp/umax.c:186 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
 msgstr "Tryb kreski"
@@ -36,12 +36,12 @@ msgstr "Skala szarości"
 #: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
 #: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
 #: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:87 .tmp/hp-option.c:2929
-#: .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128 .tmp/mustek.c:132
-#: .tmp/mustek_usb.c:268 .tmp/pixma.c:622 .tmp/pixma_sane_options.c:70
-#: .tmp/saneopts.h:393 .tmp/sceptre.h:292 .tmp/sm3840.c:81
-#: .tmp/snapscan-options.c:76 .tmp/teco1.h:293 .tmp/teco3.h:296
-#: .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:87 .tmp/hp5590.c:86
+#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:623
+#: .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393 .tmp/sceptre.h:292
+#: .tmp/sm3840.c:81 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
+#: .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Kolor"
@@ -69,13 +69,14 @@ msgid "Set default values for enhancement controls."
 msgstr "Ustaw domyślne wartości ustawień ulepszania"
 
 #: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2098 .tmp/epson.c:3287
-#: .tmp/genesys.c:4640 .tmp/gt68xx.c:696 .tmp/hp-option.c:3296 .tmp/leo.c:823
-#: .tmp/ma1509.c:549 .tmp/matsushita.c:1135 .tmp/microtek2.h:600
-#: .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305
-#: .tmp/pixma_sane_options.c:144 .tmp/plustek.c:800 .tmp/plustek_pp.c:746
-#: .tmp/sceptre.c:702 .tmp/snapscan-options.c:494 .tmp/teco1.c:1095
-#: .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546
-#: .tmp/umax.c:5174 .tmp/umax_pp.c:501
+#: .tmp/genesys.c:4640 .tmp/gt68xx.c:696 .tmp/hp3500.c:975
+#: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
+#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
+#: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
+#: .tmp/plustek.c:800 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
+#: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
+#: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
+#: .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
 msgstr "Krawędzie obszaru skanowania"
@@ -186,7 +187,8 @@ msgstr "Wybiera poprawioną krzywą przejścia"
 #: .tmp/canon.c:140 .tmp/canon-sane.c:704 .tmp/canon-sane.c:1061
 #: .tmp/canon-sane.c:1270 .tmp/canon-sane.c:1307 .tmp/hp-option.c:2927
 #: .tmp/mustek.c:127 .tmp/plustek_pp.c:182 .tmp/plustek_pp.c:191
-#: .tmp/sceptre.h:290 .tmp/snapscan-options.c:77 .tmp/umax.c:187
+#: .tmp/sceptre.h:290 .tmp/sm3840.c:82 .tmp/sm3840.c:337
+#: .tmp/snapscan-options.c:77 .tmp/umax.c:187
 #, no-c-format
 msgid "Halftone"
 msgstr "Półtony"
@@ -195,8 +197,8 @@ msgstr "Półtony"
 #: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
 #: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
 #: .tmp/epson.c:489 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:625
-#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:289
+#: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
+#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
 #: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
@@ -683,9 +685,9 @@ msgid "Duplex"
 msgstr "Dwustronny"
 
 #: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:102 .tmp/gt68xx.c:144
-#: .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154 .tmp/mustek.c:158
-#: .tmp/pixma.c:630 .tmp/pixma_sane_options.c:85 .tmp/snapscan-options.c:82
-#: .tmp/test.c:189 .tmp/umax.c:182
+#: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
+#: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
+#: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
 #, no-c-format
 msgid "Flatbed"
 msgstr "Płyta"
@@ -695,7 +697,7 @@ msgstr "Płyta"
 msgid "Transparency Unit"
 msgstr "Moduł do skanowania przezroczy"
 
-#: .tmp/epson2.c:209 .tmp/epson.c:507 .tmp/mustek.c:154 .tmp/pixma.c:635
+#: .tmp/epson2.c:209 .tmp/epson.c:507 .tmp/mustek.c:154 .tmp/pixma.c:636
 #: .tmp/test.c:189 .tmp/umax.c:184
 #, no-c-format
 msgid "Automatic Document Feeder"
@@ -1308,6 +1310,16 @@ msgstr "Wartość gamma"
 msgid "Sets the gamma value of all channels."
 msgstr "Ustawia wartość gamma dla wszystkich kanałów"
 
+#: .tmp/hp3500.c:976
+#, fuzzy, no-c-format
+msgid "Geometry Group"
+msgstr "Krawędzie obszaru skanowania"
+
+#: .tmp/hp3500.c:1032 .tmp/hp3500.c:1033
+#, fuzzy, no-c-format
+msgid "Scan Mode Group"
+msgstr "Tryb skanowania"
+
 #: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
 #, no-c-format
 msgid "Image"
@@ -1358,6 +1370,51 @@ msgstr "Kalibracja"
 #, no-c-format
 msgid "Calibrates for black and white level."
 msgstr "Kalibruje poziom dla czerni i bieli."
+
+#: .tmp/hp5590.c:81 .tmp/hp-option.c:3252
+#, no-c-format
+msgid "ADF"
+msgstr "ADF"
+
+#: .tmp/hp5590.c:82 .tmp/pixma.c:643
+#, fuzzy, no-c-format
+msgid "ADF Duplex"
+msgstr "Dwustronny"
+
+#: .tmp/hp5590.c:83
+#, fuzzy, no-c-format
+msgid "TMA Slides"
+msgstr "Slajd"
+
+#: .tmp/hp5590.c:84
+#, fuzzy, no-c-format
+msgid "TMA Negatives"
+msgstr "Negatyw"
+
+#: .tmp/hp5590.c:87
+#, fuzzy, no-c-format
+msgid "Color (48 bits)"
+msgstr "Kolor 48"
+
+#: .tmp/hp5590.c:90
+#, fuzzy, no-c-format
+msgid "Extend lamp timeout"
+msgstr "Czas wyłączenia lampy"
+
+#: .tmp/hp5590.c:91
+#, no-c-format
+msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
+msgstr ""
+
+#: .tmp/hp5590.c:93
+#, no-c-format
+msgid "Wait for button"
+msgstr "Czekaj na Przycisk"
+
+#: .tmp/hp5590.c:94
+#, fuzzy, no-c-format
+msgid "Waits for button before scanning"
+msgstr "Rozgrzej lampę przed skanowaniem"
 
 #: .tmp/hp-option.c:2983
 #, no-c-format
@@ -1485,11 +1542,6 @@ msgstr "Pasek filmu"
 #, no-c-format
 msgid "Negative"
 msgstr "Negatyw"
-
-#: .tmp/hp-option.c:3252
-#, no-c-format
-msgid "ADF"
-msgstr "ADF"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
@@ -2391,11 +2443,6 @@ msgstr ""
 "Rozgrzewaj dopóki jasność lampy będzie stała, zamiast przyjmować stały czas "
 "40 sekund."
 
-#: .tmp/pixma.c:642
-#, fuzzy, no-c-format
-msgid "ADF Duplex"
-msgstr "Dwustronny"
-
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
 msgid "Button-controlled scan (experimental)"
@@ -3022,7 +3069,7 @@ msgstr "Podwójna rozdzielczość optyczna"
 msgid "Bind RGB"
 msgstr "Zepnij RGB"
 
-#: .tmp/saneopts.h:181
+#: .tmp/saneopts.h:181 .tmp/sm3840.c:768
 #, no-c-format
 msgid "Threshold"
 msgstr "Próg"
@@ -3486,15 +3533,20 @@ msgstr "Włącz wybór gęstości lampy"
 msgid "Turn off lamp when program exits"
 msgstr "Wyłącz lampę przy wyjściu z programu"
 
-#: .tmp/sm3840.c:689
+#: .tmp/sm3840.c:758
 #, no-c-format
 msgid "Lamp timeout"
 msgstr "Czas wyłączenia lampy"
 
-#: .tmp/sm3840.c:691
+#: .tmp/sm3840.c:760
 #, no-c-format
 msgid "Minutes until lamp is turned off after scan"
 msgstr "Liczba minut do wyłączenia lampy po skanowaniu"
+
+#: .tmp/sm3840.c:770
+#, no-c-format
+msgid "Threshold value for lineart mode"
+msgstr ""
 
 #: .tmp/snapscan-options.c:84
 #, no-c-format

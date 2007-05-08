@@ -10,7 +10,8 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
   ../backend/epson.c ../backend/epson.h \
   ../backend/epson2.c ../backend/epson2.h \
   ../backend/genesys.c \
-  ../backend/gt68xx.c ../backend/gt68xx_low.h ../backend/hp5400_sane.c \
+  ../backend/gt68xx.c ../backend/gt68xx_low.h \
+  ../backend/hp3500.c ../backend/hp5400_sane.c ../backend/hp5590.c \
   ../backend/hp-option.c ../backend/hp-option.h \
   ../backend/leo.c ../backend/leo.h ../backend/lexmark.h \
   ../backend/ma1509.c \

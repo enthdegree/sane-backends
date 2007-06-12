@@ -69,9 +69,8 @@ DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
 
 all:	$(TARGETS)
 
-liblib.a: $(LIBLIB_OBJS)
-	ar r $@ $(LIBLIB_OBJS)
-	$(RANLIB) $@
+liblib.a: $(LIBLIB_LTOBJS)
+	@$(LIBTOOL) $(MLINK) $(CC) $(LIBLIB_LTOBJS) -o $@
 
 install:
 

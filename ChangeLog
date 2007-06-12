@@ -1,3 +1,8 @@
+2007-06-12 Ilia Sotnikov <hostcc@gmail.com>
+
+	+ Use libtool instead of ar/ranlib, which correctly handles dependencies
+	  (eg. for parallel makes)
+
 2007-05-08  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: New translation keys for

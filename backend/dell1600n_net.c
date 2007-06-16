@@ -76,7 +76,7 @@
 
 /* OS/2... */
 #ifndef SHUT_RDWR
-#define SHUT_RDWR       2
+#define SHUT_RDWR 2
 #endif
 
 

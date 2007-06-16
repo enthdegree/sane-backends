@@ -67,11 +67,17 @@
 /* :NOTE: these are likely to be platform-specific! */
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
 
 #include <jpeglib.h>
 #include <tiffio.h>
+
+/* OS/2... */
+#ifndef SHUT_RDWR
+#define SHUT_RDWR       2
+#endif
 
 
 /***********************************************************

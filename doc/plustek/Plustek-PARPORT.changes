@@ -169,3 +169,7 @@ Version 0.43-12 08/29/2006
         return when the driver gets the _IOCTL_STOP command
     2.0 Fixed compilation issue for kernels > 2.6.15
     3.0 Fixed compiler warning conditions
+
+Version 0.43-13 06/18/2007
+    1.0 Removed DEVFS stuff for Kernels > 2.6.15
+    2.0 Added class stuff

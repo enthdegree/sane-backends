@@ -209,8 +209,14 @@ MODULE_PARM_DESC(forceMode, "0 = use auto detection, "
                             "1 = use SPP mode, 2 = use EPP mode");
 #endif
 
-#if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
-static devfs_handle_t devfs_handle = NULL;
+#if defined (CONFIG_DEVFS_FS)
+# ifndef (DEVFS_26_STYLE)
+	static devfs_handle_t devfs_handle = NULL;
+# endif
+#else
+# ifdef LINUX_26
+	static class_t *ptdrv_class;
+# endif
 #endif
 
 /*
@@ -1605,6 +1611,12 @@ int init_module( void )
 	}
 	printk( KERN_INFO "pt_drv : driver version "_PTDRV_VERSTR"\n" );
 
+#if !defined (CONFIG_DEVFS_FS) && defined (LINUX_26)
+	ptdrv_class = class_create(THIS_MODULE, "scanner");
+	if (IS_ERR(ptdrv_class))
+		goto out_devfs;
+#endif
+
 	/* register the proc_fs */
 	ProcFsInitialize();
 
@@ -1631,7 +1643,14 @@ int init_module( void )
 				    (S_IFCHR | S_IRUGO | S_IWUGO | S_IFCHR),
 				    "scanner/pt_drv%d", devCount);
 # endif
-#endif
+#else
+# ifdef LINUX_26
+				CLASS_DEVICE_CREATE(ptdrv_class,
+				                    MKDEV(_PTDRV_MAJOR, devCount), NULL,
+				                    "pt_drv%d", devCount);
+
+# endif /* LINUX_26 */
+#endif /* CONFIG_DEVFS_FS */
 				ProcFsRegisterDevice( PtDrvDevices[i] );
 				devCount++;
 			} else {
@@ -1644,6 +1663,11 @@ int init_module( void )
 
 	/* * if something went wrong, shutdown all... */
 	if( devCount == 0 ) {
+
+#if !defined (CONFIG_DEVFS_FS) && defined (LINUX_26)
+out_devfs:
+		class_destroy(ptdrv_class);
+#endif
 
 #if (defined(CONFIG_DEVFS_FS) && !defined(DEVFS_26_STYLE))
 		devfs_unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );
@@ -1700,7 +1724,11 @@ void cleanup_module( void )
 # else
 			devfs_remove("scanner/pt_drv%d", i);
 # endif
-#endif
+#else
+# ifdef LINUX_26
+			class_device_destroy(ptdrv_class, MKDEV(_PTDRV_MAJOR, i));
+# endif /* LINUX_26 */
+#endif /* CONFIG_DEVFS_FS */
 			ptdrvShutdown( ps );
 			ProcFsUnregisterDevice( ps );
 		}
@@ -1712,6 +1740,10 @@ void cleanup_module( void )
 	unregister_chrdev( _PTDRV_MAJOR, _DRV_NAME );
 #endif
 	ProcFsShutdown();
+
+#if !defined (CONFIG_DEVFS_FS) && defined (LINUX_26)
+	class_destroy(ptdrv_class);
+#endif
 
 	DBG( DBG_HIGH, "pt_drv: cleanup done.\n" );
 	DBG( DBG_HIGH, "*********************************************\n" );

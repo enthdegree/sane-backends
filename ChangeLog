@@ -1,3 +1,10 @@
+2007-06-18  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-PARPORT.changes: Update.
+	* backend/plustek_pp.c: Bumped build number.
+	* backend/plustek-pp_drv.c backend/plustek_pp_sysdep.h:
+	  Make the Kernelmodule work with Kernels > 2.6.15 w/o DEVFS
+
 2007-06-12 Ilia Sotnikov <hostcc@gmail.com>
 
 	+ Use libtool instead of ar/ranlib, which correctly handles dependencies

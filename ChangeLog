@@ -1,3 +1,11 @@
+2007-06-21 Julien Blache <jb@jblache.org>
+	* sanei/sanei_scsi.c: Switch sanei_scsi to the SG_IO ioctl
+	interface, instead of the asynchronous SG3 read/write interface.
+
+	Makes it possible to use SCSI scanners in 32/64bit mixed
+	environments, thanks to the ioctl 32bit compatibility layer, which
+	is NOT possible using the SG3 interface.
+
 2007-06-18  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-PARPORT.changes: Update.

@@ -207,10 +207,6 @@
 # include <ddk/ntddscsi.h>
 #endif
 
-#ifdef DISABLE_LINUX_SG_IO
-#undef SG_IO
-#endif /* DISABLE_LINUX_SG_IO */
-
 #ifndef USE
 # define USE STUBBED_INTERFACE
 #endif
@@ -1852,6 +1848,7 @@ issue (struct req *req)
   fdparms *fdp;
   struct req *rp;
   int retries;
+  int ret;
 
   if (!req)
     return;
@@ -1876,6 +1873,7 @@ issue (struct req *req)
 	      ATOMIC (rp->running = 1;
 		      nwritten = write (rp->fd, &rp->sgdata.cdb,
 					rp->sgdata.cdb.hdr.pack_len);
+		      ret = 0;
 		      if (nwritten != rp->sgdata.cdb.hdr.pack_len)
 		      {
 		      /* ENOMEM can easily happen, if both command queueing
@@ -1898,9 +1896,9 @@ issue (struct req *req)
 	  else
 	    {
 	      ATOMIC (rp->running = 1;
-		      nwritten =
-		      write (rp->fd, &rp->sgdata.sg3.hdr, sizeof (Sg_io_hdr));
-		      if (nwritten < 0)
+		      ret = ioctl(rp->fd, SG_IO, &rp->sgdata.sg3.hdr);
+		      nwritten = 0;
+		      if (ret < 0)
 		      {
 		      /* ENOMEM can easily happen, if both command queuein
 		         inside the SG driver and large buffers are used.
@@ -1908,13 +1906,20 @@ issue (struct req *req)
 		         command in the queue, we simply try to issue
 		         it later again.
 		       */
-		      if (errno == EAGAIN
-			  || (errno == ENOMEM && rp != fdp->sane_qhead))
-		      {
-		      /* don't try to send the data again, but
-		         wait for the next call to issue()
-		       */
-		      rp->running = 0;}
+			if (errno == EAGAIN
+			    || (errno == ENOMEM && rp != fdp->sane_qhead))
+			  {
+			    /* don't try to send the data again, but
+			       wait for the next call to issue()
+			    */
+			    rp->running = 0;
+			  }
+			else /* game over */
+			  {
+			    rp->running = 0;
+			    rp->done = 1;
+			    rp->status = SANE_STATUS_IO_ERROR;
+			  }
 		      }
 	      );
 	      IF_DBG (if (DBG_LEVEL >= 255)
@@ -1934,16 +1939,21 @@ issue (struct req *req)
 	  if (nwritten != rp->sgdata.cdb.hdr.pack_len)
 #else
 	  if ((sg_version < 30000 && nwritten != rp->sgdata.cdb.hdr.pack_len)
-/* xxx doesn't work yet with kernel 2.3.18:
-          || (sg_version >= 30000 && nwritten < sizeof(Sg_io_hdr)))
-*/
-	      || (sg_version >= 30000 && nwritten < 0))
+	      || (sg_version >= 30000 && ret < 0))
 #endif
 	    {
 	      if (rp->running)
 		{
-		  DBG (1, "sanei_scsi.issue: bad write (errno=%i) %s %li\n",
-		       errno, strerror (errno), (long)nwritten);
+#ifdef SG_IO
+		  if (sg_version < 30000)
+#endif
+		    DBG (1, "sanei_scsi.issue: bad write (errno=%i) %s %li\n",
+			 errno, strerror (errno), (long)nwritten);
+#ifdef SG_IO
+		  else if (sg_version > 30000)
+		    DBG (1, "sanei_scsi.issue: SG_IO ioctl error (errno=%i, ret=%d) %s\n",
+			 errno, ret, strerror (errno));
+#endif
 		  rp->done = 1;
 		  if (errno == ENOMEM)
 		    {
@@ -1966,11 +1976,20 @@ issue (struct req *req)
 	      break;		/* in case of an error don't try to queue more commands */
 	    }
 	  else
-	    req->status = SANE_STATUS_IO_ERROR;
+	    {
+#ifdef SG_IO
+	      if (sg_version < 30000)
+#endif
+		req->status = SANE_STATUS_IO_ERROR;
+#ifdef SG_IO
+	      else if (sg_version > 30000) /* SG_IO is synchronous, we're all set */
+		req->status = SANE_STATUS_GOOD;
+#endif
+	    }
 	  fdp->sg_queue_used++;
 	  rp = rp->next;
-	}
     }
+}
 
   void sanei_scsi_req_flush_all_extended (int fd)
   {
@@ -2009,6 +2028,7 @@ issue (struct req *req)
 	req->next = fdp->sane_free_list;
 	fdp->sane_free_list = req;
       }
+
     fdp->sane_qhead = fdp->sane_qtail = 0;
   }
 
@@ -2197,18 +2217,18 @@ issue (struct req *req)
       }
     else
       {
-	fd_set readable;
-
-	/* wait for command completion: */
-	FD_ZERO (&readable);
-	FD_SET (req->fd, &readable);
-	select (req->fd + 1, &readable, 0, 0, 0);
-
-	/* now atomically read result and set DONE: */
 #ifdef SG_IO
 	if (sg_version < 30000)
 	  {
 #endif
+	    fd_set readable;
+
+	    /* wait for command completion: */
+	    FD_ZERO (&readable);
+	    FD_SET (req->fd, &readable);
+	    select (req->fd + 1, &readable, 0, 0, 0);
+
+	    /* now atomically read result and set DONE: */
 	    ATOMIC (nread = read (req->fd, &req->sgdata.cdb,
 				  req->sgdata.cdb.hdr.reply_len);
 		    req->done = 1);
@@ -2218,10 +2238,10 @@ issue (struct req *req)
 	  {
 	    IF_DBG (if (DBG_LEVEL >= 255)
 		    system ("cat /proc/scsi/sg/debug 1>&2");)
-	      ATOMIC (nread =
-		      read (req->fd, &req->sgdata.sg3.hdr,
-			    sizeof (Sg_io_hdr));
-		      req->done = 1);
+
+	      /* set DONE: */
+	      nread = 0; /* unused in this code path */
+	      req->done = 1;
 	  }
 #endif
 

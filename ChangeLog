@@ -1,3 +1,9 @@
+2007-06-28  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.c: update to v1.0.49, fi-5750C usb ID and color mode
+	* backend/fujitsu.conf.in: add fi-5750C
+	* doc/descriptions/fujitsu.desc: bump version, add fi-5750C and S510
+
 2007-06-21 Julien Blache <jb@jblache.org>
 	* sanei/sanei_scsi.c: Switch sanei_scsi to the SG_IO ioctl
 	interface, instead of the asynchronous SG3 read/write interface.

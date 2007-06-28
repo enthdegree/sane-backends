@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
-:version "1.0.47"                ; version of backend
+:version "1.0.49"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -121,6 +121,11 @@
 :status :untested
 :comment "workgroup, current, no TWAIN driver, Mac only, maybe like S500?"
 
+:model "S510"
+:interface "USB"
+:status :untested
+:comment "workgroup, current, no TWAIN driver, maybe like S500"
+
 :model "fi-5015C"
 :interface "USB"
 :status :untested
@@ -153,7 +158,8 @@
 :model "fi-60F"
 :interface "USB"
 :status :untested
-:comment "workgroup, current, maybe Avision OEM?"
+:usbid "0x04c5" "0x10c7"
+:comment "workgroup, current, maybe Epson OEM?"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, DEPARTMENTAL
@@ -316,6 +322,7 @@
 
 :model "fi-5750C"
 :interface "SCSI USB"
+:usbid "0x04c5" "0x1095"
 :status :good
 :comment "production, current"
 

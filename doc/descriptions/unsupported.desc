@@ -1990,18 +1990,6 @@
 
 ;********************************************************************************************
 
-:mfg "Portable Peripheral"
-:url "http://www.pandp.com.tw/"
-
-:model "Q-Scan (A4 portable scanner)"
-:url "/unsupported/iris-iriscan.html"
-:interface "USB"
-:usbid "0x0a53" "0x1000"
-:status :unsupported
-:comment "Unsupported. LM9832/3. See link for details."
-
-;********************************************************************************************
-
 :mfg "Primax"
 :url "http://www.primax.nl/"
 

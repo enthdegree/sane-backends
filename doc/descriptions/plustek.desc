@@ -3,7 +3,7 @@
 ;
 
 :backend "plustek"
-:version "0.51"
+:version "0.52"
 :manpage "sane-plustek"
 ; backend's web page
 :url "http://www.gjaeger.de/scanner/plustek/"
@@ -236,4 +236,14 @@
 :model "TravelScan 662"
 :interface "USB"
 :usbid "0x0a82" "0x6620"
+:status :complete
+
+;* Portable Peripheral Co., Ltd. ********************************************************************
+
+:mfg "Portable Peripheral Co., Ltd."
+:url "www.pandp.com.tw/"
+
+:model "Q-Scan USB001 (A4 portable scanner)"
+:interface "USB"
+:usbid "0x0a53" "0x1000"
 :status :complete

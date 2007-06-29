@@ -1,7 +1,15 @@
-Plustek.changes - Gerhard J�er <gerhard@gjaeger.de>
-====================================================
+Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
+=====================================================
 
 Note: All other not mentioned builds have never been released.
+
+V 0.52-1 (2007-03-05)
+---------------------
+
+Added sheetfed device Q-Scan USB001 from Portable Peripherals
+Fixed Mustek Bearpaw and make some speedu (bugreports #304343 and
+#301763)
+Fixed calibration for senororders other that RGB
 
 V 0.51-16 (2007-03-05)
 ----------------------

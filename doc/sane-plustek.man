@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "09 April 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "18 June 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -152,6 +152,19 @@ Vendor Syscan \- ID: 0x0A82
 USB Model:         ASIC:  Properties:              Prod-ID
 ----------------------------------------------------------
 Travelscan 662     LM9833  600x1200dpi 48bit 512Kb 0x6620
+.fi
+.ft R
+
+.PP
+
+Vendor Portable Peripheral Co., Ltd. \- ID: 0x0A53
+.br
+.ft CR
+.nf
+----------------------------------------------------------
+USB Model:         ASIC:  Properties:              Prod-ID
+----------------------------------------------------------
+Q-Scan USB001      LM9832   300x600dpi 42bit 512Kb 0x1000
 .fi
 .ft R
 

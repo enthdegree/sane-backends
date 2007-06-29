@@ -1,3 +1,14 @@
+2007-06-18  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-usb*.[ch] backend/plustek.[ch]:
+	  Added sheetfed device Q-Scan USB001 from Portable Peripherals
+	  Fixed Mustek Bearpaw and made some speedup (bugreports #304343 and
+	  #301763)
+	  Fixed calibration for senororders other that RGB
+	* doc/descriptions/plustek.desc: Bumped version and added Q-Scan
+	* doc/descriptions/unsupported.desc: Removed Q-Scan
+	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
+
 2007-06-28  m. allan noah <kitno455 a t gmail d o t com>
 
 	* backend/fujitsu.c: update to v1.0.49, fi-5750C usb ID and color mode

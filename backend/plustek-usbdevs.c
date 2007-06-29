@@ -7,7 +7,7 @@
  *  @brief Here we have our USB device definitions.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -68,6 +68,8 @@
  *        - fixed CanoScan LiDE20 settings, cause of various reports, seems
  *          Canon has built-in different motortypes
  *        - also fixed Motorsettings for LiDE30
+ * - 0.52 - added Q-Scan USB001 settings
+ *        - tweaked motor settings for Bearpaw 1200
  *
  * <hr>
  * This file is part of the SANE package.
@@ -539,8 +541,8 @@ static DCapsDef Cap0x0400_0x1000_0 =
 	SENSORORDER_rgb,
 	8,
 	5, kNEC8861, 0x00,
-	_WAF_MISC_IO_LAMPS | _WAF_USE_ALT_DESC,
-	_MIO5
+	_WAF_MISC_IO_LAMPS | _WAF_LOFF_ON_START | _WAF_USE_ALT_DESC,
+	_NO_MIO
 };
 
 /* Mustek BearPaw 2400
@@ -712,7 +714,7 @@ static DCapsDef Cap0x04A9_0x220E =
 	SENSORORDER_rgb,
 	16,                 /* sensor distance                         */
 	3,                  /* number of buttons                       */
-	kCIS1240,           /* use default settings during calibration */
+	kCIS1240,
 	0,                  /* not used here...                        */
 	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
@@ -730,7 +732,7 @@ static DCapsDef Cap0x04A9_0x2220 =
 	SENSORORDER_rgb,
 	16,                 /* sensor distance                         */
 	3,                  /* number of buttons                       */
-	kCIS1240,           /* use default settings during calibration */
+	kCIS1240,
 	0,                  /* not used here...                        */
 	_WAF_MISC_IO_LAMPS, _NO_MIO
 };
@@ -739,7 +741,7 @@ static DCapsDef Cap0x04A9_0x2220 =
  */
 static DCapsDef Cap0x0A82_0x6620 =
 {
-	{{ 0,   0}, 100, -1, {1226, 3508}, { 75, 75 }},
+	{{ 0,   0}, 100, -1, {1226, 3508}, {75, 75}},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
@@ -752,7 +754,26 @@ static DCapsDef Cap0x0A82_0x6620 =
 	0,                  /* not used here... */
 	(_WAF_MISC_IO_LAMPS | _WAF_MISC_IO_BUTTONS |
 	 _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR),
-	_MIO5 + _PORT1
+	_MIO5 + _PORT1 + _PS_INP_MIO2
+};
+
+/* IRIScan/Q-Scan USB001 A4 sheet-fed scanner
+ */
+static DCapsDef Cap0x0A53_0x1000 =
+{
+	{{ 0,   0}, 150, -1, {2550, 3508}, {150, 150}},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{300, 300},
+	DEVCAPSFLAG_SheetFed,
+	SENSORORDER_gbr,
+	2,                  /* sensor distance                         */
+	0,                  /* number of buttons                       */
+	kNEC8861,           /* use default settings during calibration */
+	200,                /* threshold for resetting sensor-order    */
+	(_WAF_MISC_IO_LAMPS | _WAF_RESET_SO_TO_RGB),
+	_PS_INP1
 };
 
 /******************* additional Hardware descriptions ************************/
@@ -2285,10 +2306,10 @@ static HWDef Hw0x04A9_0x220E =
 	0x00,   /* sensor control settings (reg 0x0e)             */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-	       /* mono (reg 0x0f to 0x18)                         */
+	        /* mono (reg 0x0f to 0x18)                        */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x05},
-	      /* color (reg 0x0f to 0x18)                         */
+	        /* color (reg 0x0f to 0x18)                       */
 
 	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
@@ -2354,10 +2375,10 @@ static HWDef Hw0x04A9_0x2220 =
 	0x00,   /* sensor control settings (reg 0x0e)             */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x07},
-	       /* mono (reg 0x0f to 0x18)                         */
+	        /* mono (reg 0x0f to 0x18)                        */
 
 	{0x00, 0x00, 0x04, 0x05, 0x06, 0x07, 0x00, 0x00, 0x00, 0x07},
-	      /* color (reg 0x0f to 0x18)                         */
+	        /* color (reg 0x0f to 0x18)                       */
 
 	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
@@ -2423,10 +2444,10 @@ static HWDef Hw0x0A82_0x6620 =
 	0x00,   /* sensor control settings (reg 0x0e)             */
 
 	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
-	       /* mono (reg 0x0f to 0x18)                         */
+	        /* mono (reg 0x0f to 0x18)                        */
 
 	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
-	      /* color (reg 0x0f to 0x18)                         */
+	        /* color (reg 0x0f to 0x18)                       */
 
 	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
 
@@ -2470,6 +2491,89 @@ static HWDef Hw0x0A82_0x6620 =
 	_LM9833,
 	MODEL_TSCAN,
 	1.8
+};
+
+/** IRIScan/Q-Scan USB001 - Portable Peripheral Co., Ltd. */
+static HWDef Hw0x0A53_0x1000 =
+{
+	0.50,   /* dMaxMotorSpeed                                 */
+	0.40,   /* dMaxMoveSpeed                                  */
+	0.0,    /* dHighSpeed                                     */
+	100,    /* wIntegrationTimeLowLamp                        */
+	100,    /* wIntegrationTimeHighLamp                       */
+	300,    /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	3.75,   /* dMinIntegrationTimeLowres (ms)                 */
+	5.75,   /* dMinIntegrationTimeHighres (ms)                */
+	4095,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	4095,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+
+	0x09,   /* bSensorConfiguration (0x0b)                    */
+	0x00,   /* sensor control settings (reg 0x0c)             */
+	0x65,   /* sensor control settings (reg 0x0d)             */
+	0x13,   /* sensor control settings (reg 0x0e)             */
+
+	{0x02, 0x07, 0x05, 0x07, 0x00, 0x00, 0x00, 0x00, 0x06, 0x02},
+	       /* mono (reg 0x0f to 0x18)                         */
+
+	{0x02, 0x07, 0x05, 0x07, 0x00, 0x00, 0x00, 0x00, 0x06, 0x02},
+	      /* color (reg 0x0f to 0x18)                         */
+
+	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
+
+	0x00,   /* bReg 0x27 color mode                           */
+	2,      /* bReg 0x29 illumination mode                    */
+
+	{ 3,    0,    0, 2593, 4600,    0,    0 },
+#if 0
+	{ 2, 2593, 4600, 2593, 4100, 2593, 4100 },
+#else
+	{ 2, 2593, 7100, 2593, 4600, 2593, 4480 },
+#endif
+
+	256,    /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	0,      /* bOpticBlackStart (reg 0x1c)                    */
+	0x15,   /* bOpticBlackEnd (reg 0x1d)                      */
+	0x15,   /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	5500,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+#if 0
+	2593,   /* red lamp on    (reg 0x2c + 0x2d)               */
+	4600,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	2593,   /* green lamp on  (reg 0x30 + 0x31)               */
+	4100,   /* green lamp off (reg 0x32 + 0x33)               */
+	2593,   /* blue lamp on   (reg 0x34 + 0x35)               */
+	4100,   /* blue lamp off  (reg 0x36 + 0x37)               */
+#else
+	2593,   /* red lamp on    (reg 0x2c + 0x2d)               */
+	7100,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	2593,   /* green lamp on  (reg 0x30 + 0x31)               */
+	4600,   /* green lamp off (reg 0x32 + 0x33)               */
+	2593,   /* blue lamp on   (reg 0x34 + 0x35)               */
+	4480,   /* blue lamp off  (reg 0x36 + 0x37)               */
+#endif
+
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+
+	0,      /* steps to reverse when buffer is full reg 0x50) */
+	0,      /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0x1b,   /* kickstart (reg 0x55)                           */
+	0x08,   /* pwm freq (reg 0x56)                            */
+	0x15,   /* pwm duty cycle (reg 0x57)                      */
+
+	0x00,   /* Paper sense (reg 0x58)                         */
+
+	0x00,   /* misc io12 (reg 0x59)                           */
+	0x00,   /* misc io34 (reg 0x5a)                           */
+	0x00,   /* misc io56 (reg 0x5b)                           */
+	0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9832,
+	MODEL_QSCAN,
+	1.1
 };
 
 /******************** all available combinations *****************************/
@@ -2546,6 +2650,9 @@ static SetDef Settings[] =
 	/* SYSCAN... */
 	{"0x0A82-0x6620",   &Cap0x0A82_0x6620, &Hw0x0A82_0x6620, "TravelScan 662" },
 
+	/* Portable Peripheral Co., Ltd. */
+	{"0x0A53-0x1000",   &Cap0x0A53_0x1000, &Hw0x0A53_0x1000, "Q-Scan USB001" },
+
 	/* Please add other devices here...
 	 * The first entry is a string, composed out of the vendor and product id,
 	 * it's used by the driver to select the device settings. For other devices
@@ -2621,16 +2728,11 @@ static ClkMotorDef Motors[] = {
 		{{ 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 },
 		 { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }, { 16, 4, 1 }},
 		/* Color mode MCLK settings */
-#if 0
-		{ 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
-		{ 3.5, 3.5, 3.5, 4.0, 6.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
-#else
-		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
-		{ 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 11.5, 11.5, 11.5, 11.5 },
-#endif
+		{ 4.0, 3.5, 3.5, 4.0, 4.0, 5.0, 5.0, 7.5, 7.5, 7.5 },
+		{ 4.0, 3.5, 3.5, 4.0, 4.0, 5.0, 5.0, 7.5, 7.5, 7.5 },
 		/* Gray mode MCLK settings */
-		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5 },
-		{ 10.5, 10.5, 10.5, 10.5, 10.5, 10.5, 11.5, 11.5, 11.5, 11.5 }
+		{ 7.5, 7.0, 6.5, 5.5, 5.5, 5.5, 7.0, 7.0, 7.0, 7.0 },
+		{ 7.5, 7.0, 6.5, 5.5, 5.5, 5.5, 7.0, 7.0, 7.0, 7.0 }
 	},
 
 	{ MODEL_MUSTEK1200, 2, 32, 3, 0, 0,
@@ -2763,12 +2865,25 @@ static ClkMotorDef Motors[] = {
 		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
 		{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }},
 		/* Color mode MCLK settings */
-		/* Color mode MCLK settings */
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 		/* Gray mode MCLK settings */
 		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
 		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
+	},
+
+	{ MODEL_QSCAN, 8, 21, 6, 300, 4600,
+	/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
+		{{ 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 },
+		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		{ 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 }, { 8, 21, 1 }},
+		/* Color mode MCLK settings */
+		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		/* Gray mode MCLK settings */
+		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		{ 6.5, 6.5, 6.5, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
 	}
 };
 

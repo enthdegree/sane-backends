@@ -82,6 +82,7 @@
  *        - fixed constraint_type for OPT_BUTTON
  * - 0.51 - added fine calibration caching
  *        - removed #define _PLUSTEK_USB
+ * - 0.52 - no changes
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -157,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.51-16"
+#define BACKEND_VERSION "0.52-1"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"

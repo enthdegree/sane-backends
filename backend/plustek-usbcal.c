@@ -7,7 +7,7 @@
  *  @brief Calibration routines for CanoScan CIS devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de><br>
  * Large parts Copyright (C) 2003 Christopher Montgomery <monty@xiph.org>
  *
  * Montys' comment:
@@ -47,6 +47,7 @@
  *         - fixed segfault in fine calibration
  * - 0.51  - added fine calibration cache
  *         - usb_SwitchLamp() now really switches off the sensor
+ * - 0.52  - fixed setting for frontend values (gain/offset)
  *
  * This file is part of the SANE package.
  *
@@ -523,13 +524,15 @@ cano_AdjustGain( Plustek_Device *dev )
 	min[0] = min[1] = min[2] = 1;
 
 	DBG( _DBG_INFO, "cano_AdjustGain()\n" );
-	if((dev->adj.rgain != -1) && 
-	   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
-		setAdjGain( dev->adj.rgain, &dev->usbDev.a_bRegs[0x3b] );
-		setAdjGain( dev->adj.ggain, &dev->usbDev.a_bRegs[0x3c] );
-		setAdjGain( dev->adj.bgain, &dev->usbDev.a_bRegs[0x3d] );
-		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
-		return SANE_TRUE;
+	if( !usb_InCalibrationMode(dev)) {
+		if((dev->adj.rgain != -1) && 
+		   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
+			setAdjGain( dev->adj.rgain, &dev->usbDev.a_bRegs[0x3b] );
+			setAdjGain( dev->adj.ggain, &dev->usbDev.a_bRegs[0x3c] );
+			setAdjGain( dev->adj.bgain, &dev->usbDev.a_bRegs[0x3d] );
+			DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
+			return SANE_TRUE;
+		}
 	}
 
 	/* define the strip to scan for coarse calibration
@@ -714,13 +717,15 @@ cano_AdjustOffset( Plustek_Device *dev )
 		return SANE_FALSE;
 
 	DBG( _DBG_INFO, "cano_AdjustOffset()\n" );
-	if((dev->adj.rofs != -1) &&
-	   (dev->adj.gofs != -1) && (dev->adj.bofs != -1)) {
-		dev->usbDev.a_bRegs[0x38] = (dev->adj.rofs & 0x3f);
-		dev->usbDev.a_bRegs[0x39] = (dev->adj.gofs & 0x3f);
-		dev->usbDev.a_bRegs[0x3a] = (dev->adj.bofs & 0x3f);
-		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
-		return SANE_TRUE;
+	if( !usb_InCalibrationMode(dev)) {
+		if((dev->adj.rofs != -1) &&
+		   (dev->adj.gofs != -1) && (dev->adj.bofs != -1)) {
+			dev->usbDev.a_bRegs[0x38] = (dev->adj.rofs & 0x3f);
+			dev->usbDev.a_bRegs[0x39] = (dev->adj.gofs & 0x3f);
+			dev->usbDev.a_bRegs[0x3a] = (dev->adj.bofs & 0x3f);
+			DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
+			return SANE_TRUE;
+		}
 	}
 
 	m_ScanParam.Size.dwLines  = 1;
@@ -1114,6 +1119,7 @@ static int
 cano_DoCalibration( Plustek_Device *dev )
 {
 	u_short   dpi, idx, idx_end;
+	u_long    save_waf;
 	SANE_Bool skip_fine;
 	ScanDef  *scan  = &dev->scanning;
 	HWDef    *hw    = &dev->usbDev.HwSetting;
@@ -1130,9 +1136,10 @@ cano_DoCalibration( Plustek_Device *dev )
 		return SANE_FALSE; /* can't cal this  */
 	}
 
-	/* Don't allow calibration settings from the other driver to confuse our use of
-	 * a few of its functions.
+	/* Don't allow calibration settings from the other driver to confuse our
+	 * use of a few of its functions.
 	 */
+	save_waf = scaps->workaroundFlag;
 	scaps->workaroundFlag &= ~_WAF_SKIP_WHITEFINE;
 	scaps->workaroundFlag &= ~_WAF_SKIP_FINE;
 	scaps->workaroundFlag &= ~_WAF_BYPASS_CALIBRATION;
@@ -1206,7 +1213,7 @@ cano_DoCalibration( Plustek_Device *dev )
 
 		} else if( usb_IsSheetFedDevice(dev)) {
 
-			/* we only to the calibration upon request !*/
+			/* we only do the calibration upon request !*/
 			if( !skip_fine ) {
 				DBG( _DBG_INFO2, "SHEET-FED device, skip fine calibration!\n" );
 				skip_fine = SANE_TRUE;
@@ -1220,8 +1227,13 @@ cano_DoCalibration( Plustek_Device *dev )
 		for( idx = 1; idx < idx_end; idx++ ) {
 
 			dpi = 0;
-			if( usb_InCalibrationMode(dev))
+			if( usb_InCalibrationMode(dev)) {
 				dpi = usb_get_res( scaps->OpticDpi.x, idx );
+
+				/* we might should check against device specific limit */
+				if(dpi < 50)
+					continue;
+			}
 
 			DBG( _DBG_INFO2, "###### ADJUST DARK (FINE) ########\n" );
 			if(cano_PrepareToReadBlackCal(dev))
@@ -1290,6 +1302,8 @@ cano_DoCalibration( Plustek_Device *dev )
 	DBG( _DBG_INFO, "REG[0x39] = %i\n", dev->usbDev.a_bRegs[0x39] );
 	DBG( _DBG_INFO, "REG[0x3a] = %i\n", dev->usbDev.a_bRegs[0x3a] );
 	DBG( _DBG_INFO, "-------------------------\n" );
+
+	scaps->workaroundFlag |= save_waf;
 
 	return SANE_TRUE;
 }

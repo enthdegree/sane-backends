@@ -31,6 +31,8 @@
  * - 0.50 - readded kCIS670 to add 5% extra to LiDE20 fine calibration
  *        - fixed line statistics and added data output
  * - 0.51 - added fine calibration cache
+ * - 0.52 - added get_ptrs to let various sensororders work
+ *          correctly
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -2280,7 +2282,14 @@ usb_PrepareCalibration( Plustek_Device *dev )
 			regs[0x3d] = 0x0a;
 
 			/* use frontend values... */
-			if((dev->adj.rgain != -1) && 
+			if((dev->adj.rofs != -1) &&
+			   (dev->adj.gofs != -1) && (dev->adj.bofs != -1)) {
+				regs[0x38] = (dev->adj.rofs & 0x3f);
+				regs[0x39] = (dev->adj.gofs & 0x3f);
+				regs[0x3a] = (dev->adj.bofs & 0x3f);
+			}
+
+			if((dev->adj.rgain != -1) &&
 			   (dev->adj.ggain != -1) && (dev->adj.bgain != -1)) {
 				setAdjGain( dev->adj.rgain, &regs[0x3b] );
 				setAdjGain( dev->adj.ggain, &regs[0x3c] );
@@ -2992,14 +3001,57 @@ usb_DoCalibration( Plustek_Device *dev )
 	return SANE_TRUE;
 }
 
+/* on different sensor orders, we need to adjust the shading buffer
+ * pointer, otherwise we correct the wrong channels
+ */
+static void
+get_ptrs(Plustek_Device *dev, u_short *buf, u_long offs,
+         u_short **r, u_short **g, u_short **b)
+{
+	ScanDef  *scan  = &dev->scanning;
+	DCapsDef *scaps = &dev->usbDev.Caps;
+	u_char so = scaps->bSensorOrder;
+
+	if (_WAF_RESET_SO_TO_RGB & scaps->workaroundFlag) {
+		if (scaps->bPCB != 0) {
+			if (scan->sParam.PhyDpi.x > scaps->bPCB)
+				so = SENSORORDER_rgb;
+		}
+	}
+
+	switch( so ) {
+		case SENSORORDER_gbr:
+			*g = buf;
+			*b = buf + offs;
+			*r = buf + offs * 2;
+			break;
+
+		case SENSORORDER_bgr:
+			*b = buf;
+			*g = buf + offs;
+			*r = buf + offs * 2;
+			break;
+
+		case SENSORORDER_rgb:
+		default:
+			*r = buf;
+			*g = buf + offs;
+			*b = buf + offs * 2;
+			break;
+	}
+}
+
 /** usb_DownloadShadingData
  * according to the job id, different registers or DRAM areas are set
  * in preparation for calibration or scanning
  */
-static SANE_Bool usb_DownloadShadingData( Plustek_Device *dev, u_char what )
+static SANE_Bool
+usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 {
 	u_char    channel;
+	u_short   *r, *g, *b;
 	DCapsDef  *scaps = &dev->usbDev.Caps;
+	ScanDef   *scan  = &dev->scanning;
 	HWDef     *hw    = &dev->usbDev.HwSetting;
 	ScanParam *param = &dev->scanning.sParam;
 	u_char    *regs  = dev->usbDev.a_bRegs;
@@ -3073,23 +3125,35 @@ static SANE_Bool usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 				if( scaps->workaroundFlag & _WAF_SKIP_FINE ) {
 					DBG( _DBG_INFO, "Skipping fine calibration\n" );
 					regs[0x42] = (u_char)(( hw->wDRAMSize > 512)? 0x60: 0x20);
+					if (scan->skipCoarseCalib) {
 
-					if( !usbio_WriteReg( dev->fd, 0x42, regs[0x42]))
-						return SANE_FALSE;
+						DBG( _DBG_INFO, "...cleaning shading buffer\n" );
+						memset( a_wWhiteShading, 0, _SHADING_BUF );
+						memset( a_wDarkShading,  0, _SHADING_BUF );
 
+						regs[0x40] = 0x3f;
+						regs[0x41] = 0xff;
+
+						_UIO(sanei_lm983x_write( dev->fd, 0x40,
+						                        &regs[0x40], 3, SANE_TRUE));
+					} else {
+						if( !usbio_WriteReg( dev->fd, 0x42, regs[0x42]))
+							return SANE_FALSE;
+					}
 					break;
 				}
 
 				DBG( _DBG_INFO, "Downloading %lu pixels\n", m_dwPixels );
 				/* Download the dark & white shadings to LM983x */
 				if( param->bDataType == SCANDATATYPE_Color ) {
-					usb_SetDarkShading( dev, CHANNEL_red, a_wDarkShading,
+
+					get_ptrs(dev, a_wDarkShading, m_dwPixels, &r, &g, &b);
+
+					usb_SetDarkShading( dev, CHANNEL_red, r,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
-					usb_SetDarkShading( dev, CHANNEL_green,
-					                    a_wDarkShading + m_dwPixels,
+					usb_SetDarkShading( dev, CHANNEL_green, g,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
-					usb_SetDarkShading( dev, CHANNEL_blue,
-					                    a_wDarkShading + m_dwPixels * 2,
+					usb_SetDarkShading( dev, CHANNEL_blue, b,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				} else {
 					usb_SetDarkShading( dev, channel,
@@ -3098,19 +3162,21 @@ static SANE_Bool usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 				}
 
 				if( param->bDataType == SCANDATATYPE_Color ) {
-					usb_SetWhiteShading( dev, CHANNEL_red, a_wWhiteShading,
+
+					get_ptrs(dev, a_wWhiteShading, 
+					         m_ScanParam.Size.dwPhyPixels, &r, &g, &b);
+
+					usb_SetWhiteShading( dev, CHANNEL_red, r,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
-					usb_SetWhiteShading( dev, CHANNEL_green, a_wWhiteShading +
-					                     m_ScanParam.Size.dwPhyPixels,
+					usb_SetWhiteShading( dev, CHANNEL_green, g,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
-					usb_SetWhiteShading( dev, CHANNEL_blue, a_wWhiteShading +
-					                     m_ScanParam.Size.dwPhyPixels * 2,
+					usb_SetWhiteShading( dev, CHANNEL_blue, b,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				} else {
 					usb_SetWhiteShading( dev, channel, a_wWhiteShading,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				}
-				
+
 				/* set RAM configuration AND
 				 * Gain = Multiplier Coefficient/16384
 				 * External DRAM for Multiplier Coefficient Source

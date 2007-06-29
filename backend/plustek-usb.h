@@ -7,7 +7,7 @@
  *  @brief Main defines for the USB devices.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -44,6 +44,11 @@
  *        - added _WAF_USE_ALT_DESC
  *        - added DEVCAPSFLAG_SheetFed
  *        - added dpi_thresh and lineend to motor structure
+ * - 0.52 - added MODEL_QSCAN
+ *        - changed DCapsDef, lamp -> misc_io
+ *        - bPCB is now ushort to be "missused" by non Plustek
+ *          devices (as threshhold for resetting sensor order)
+ *        - added _WAF_LOFF_ON_START
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -248,7 +253,9 @@ enum _WORKAROUNDS
 	_WAF_BIN_FROM_COLOR     = 0x00000080, /* generate binary & gray images   */
 	_WAF_GRAY_FROM_COLOR    = 0x00000100, /* from color scans                */
 	_WAF_MISC_IO_BUTTONS    = 0x00000200, /* special handling for buttons    */
-	_WAF_USE_ALT_DESC       = 0x00000400  /* use alternate manufacturer      */
+	_WAF_USE_ALT_DESC       = 0x00000400, /* use alternate manufacturer      */
+	_WAF_RESET_SO_TO_RGB    = 0x00000800, /* set sensororder to RGB(CIS only)*/
+	_WAF_LOFF_ON_START      = 0x00001000  /* switch lamp off before scanning */
 };
 
 /** for lamps connected to the misc I/O pins*/
@@ -263,6 +270,8 @@ enum _LAMPS
 	_MIO6   = 0x0020
 };
 
+#define _PSENSE_SHIFT 24
+#define _PSENSE_MASK  0xFF000000
 #define _BUTTON_SHIFT 16
 #define _BUTTON_MASK  0xFF0000
 #define _TPA_SHIFT    8
@@ -276,6 +285,18 @@ enum _BUTTONS
 	_PORT2     = ((_MIO5 | _MIO6) << _BUTTON_SHIFT)
 };
 
+enum _PAPER_SENSE
+{
+	_PS_INP1     = (0x01  << _PSENSE_SHIFT),
+	_PS_INP2     = (0x02  << _PSENSE_SHIFT),
+	_PS_INP_MIO1 = (_MIO1 << (_PSENSE_SHIFT+2)),
+	_PS_INP_MIO2 = (_MIO2 << (_PSENSE_SHIFT+2)),
+	_PS_INP_MIO3 = (_MIO3 << (_PSENSE_SHIFT+2)),
+	_PS_INP_MIO4 = (_MIO4 << (_PSENSE_SHIFT+2)),
+	_PS_INP_MIO5 = (_MIO5 << (_PSENSE_SHIFT+2)),
+	_PS_INP_MIO6 = (_MIO6 << (_PSENSE_SHIFT+2))
+};
+
 /** for encoding a misc I/O register as TPA */
 #define _TPA(register) ((u_long)(register << _TPA_SHIFT))
 
@@ -284,6 +305,9 @@ enum _BUTTONS
 
 /** Get the TPA misc I/O register */
 #define _GET_TPALAMP(flag) ((flag >> _TPA_SHIFT) & 0xFF)
+
+/** Get the Papersense port*/
+#define _GET_PAPERSENSE_PORT(flag) ((flag >> _PSENSE_SHIFT) & 0xFF)
 
 /** motor types */
 typedef enum
@@ -302,6 +326,7 @@ typedef enum
 	MODEL_UMAX,           /**< for UMAX 3400/3450           */
 	MODEL_UMAX1200,       /**< for UMAX 5400                */
 	MODEL_TSCAN,          /**< for Syscan Travelscan        */
+	MODEL_QSCAN,          /**< for PandP Q-Scan             */
 	MODEL_LAST
 } eModelDef;
 
@@ -382,10 +407,10 @@ typedef struct DevCaps
 	u_char     bSensorDistance; /**< CCD Color distance                      */
 	u_char     bButtons;        /**< Number of buttons                       */
 	u_char     bCCD;            /**< CCD ID                                  */
-	u_char     bPCB;            /**< PCB ID                                  */
+	u_short    bPCB;            /**< PCB ID/or threshold (only CIS)          */
 	u_long     workaroundFlag;  /**< Flag to allow special work arounds, see */
 	                            /*   _WORKAROUNDS                            */
-	u_long     lamp;            /**< for lamp: loword: normal, hiword: tpa   */
+	u_long     misc_io;         /**< for lamp, papersense and buttons        */
 
 } DCapsDef;
 

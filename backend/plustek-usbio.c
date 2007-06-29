@@ -7,7 +7,7 @@
  *  @brief Some I/O stuff.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * History:
@@ -27,6 +27,7 @@
  *          could not be red
  *        - usbio_ResetLM983x() checks for reg7 value before writing
  * - 0.51 - allow dumpRegs to be called without valid fd
+ * - 0.52 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

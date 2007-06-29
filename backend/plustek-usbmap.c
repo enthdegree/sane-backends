@@ -22,6 +22,7 @@
  * - 0.49 - changed usb_MapDownload
  * - 0.50 - cleanup
  * - 0.51 - no changes
+ * - 0.52 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

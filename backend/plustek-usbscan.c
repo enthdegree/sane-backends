@@ -29,6 +29,7 @@
  *        - changed usb_MapDownload prototype
  * - 0.50 - cleanup
  * - 0.51 - added usb_get_res() and usb_GetPhyPixels()
+ * - 0.52 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1314,7 +1315,7 @@ usb_SetScanParameters( Plustek_Device *dev, ScanParam *pParam )
 	_UIO(sanei_lm983x_write( dev->fd, 0x03, &regs[0x03], 3, SANE_TRUE));
 	_UIO(sanei_lm983x_write( dev->fd, 0x08, &regs[0x08], 0x7f - 0x08+1, SANE_TRUE));
 
-	usleep( 100 );
+	usleep(100);
 	
 	if( !usbio_WriteReg( dev->fd, 0x07, 0 ))
 		return SANE_FALSE;

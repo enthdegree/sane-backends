@@ -45,6 +45,7 @@
  *          1200DPI CIS devices don't use GrayFromColor any longer
  * - 0.51 - added Syscan to the vendor list
  *        - added SCANFLAG_Calibration handling
+ * - 0.52 - added _WAF_LOFF_ON_START handling in usbDev_startScan()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -108,6 +109,7 @@ static TabDef usbVendors[] = {
 	{ 0x1606, "UMAX",            NULL     },
 	{ 0x049F, "Compaq",          NULL     },
 	{ 0x0A82, "Syscan",          NULL     },
+	{ 0x0A53, "PandP Co., Ltd.", NULL     },
 	{ 0xFFFF, NULL,              NULL     }
 };
 
@@ -132,7 +134,7 @@ static SANE_Bool usb_normFileName( char *fname, char* buffer, u_long max_len )
 	dst = buffer;
 	while( *src != '\0' ) {
 
-		if((*src == '/') || isspace(*src))
+		if((*src == '/') || isspace(*src) || ispunct(*src))
 			*dst = '_';
 		else
 			*dst = *src;
@@ -286,17 +288,18 @@ usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 	sParam.Size.dwPixels = 0;
 
 	/* create calibration-filename */
-	ptr = getenv ("HOME");
-	if( !usb_normFileName( dev->usbDev.ModelStr, tmp_str1, PATH_MAX )) {
+	sprintf( tmp_str2, "%s-%s", 
+	         dev->sane.vendor, dev->usbDev.ModelStr );
+
+	if( !usb_normFileName( tmp_str2, tmp_str1, PATH_MAX )) {
 		strcpy( tmp_str1, "plustek-default" );
 	}
 	
+	ptr = getenv ("HOME");
 	if( NULL == ptr ) {
-		sprintf( tmp_str2, "/tmp/%s-%s",
-		         dev->sane.vendor, tmp_str1 );
+		sprintf( tmp_str2, "/tmp/%s", tmp_str1 );
 	} else {
-		sprintf( tmp_str2, "%s/.sane/%s-%s",
-		         ptr, dev->sane.vendor, tmp_str1 );
+		sprintf( tmp_str2, "%s/.sane/%s", ptr, tmp_str1 );
 	}
 	dev->calFile = strdup( tmp_str2 );
 	DBG( _DBG_INFO, "Calibration file-names set to:\n" );
@@ -1081,6 +1084,16 @@ usbDev_startScan( Plustek_Device *dev )
 		return _E_ALLOC;
 
 	scan->dwFlag |= SCANFLAG_StartScan;
+
+	/* some devices (esp. BearPaw) do need a lamp switch off before
+	 * switching it on again. Otherwise it might happen that the lamp
+	 * remains off
+	 */
+	if(dev->usbDev.Caps.workaroundFlag & _WAF_LOFF_ON_START) {
+		if (usb_GetLampStatus(dev))
+			usb_LampOn( dev, SANE_FALSE, SANE_TRUE );
+	}
+
 	usb_LampOn( dev, SANE_TRUE, SANE_TRUE );
 
 	m_fStart    = m_fFirst = SANE_TRUE;
@@ -1275,6 +1288,8 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 
 		} else {
 
+			/* CIS section */
+
 			/* this might be a simple gray operation or AFE 1 channel op */
 			scan->dwLinesDiscard = 0;
 			scan->Green.pb       = scan->pbScanBufBegin;
@@ -1282,11 +1297,37 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 			if(( scan->sParam.bDataType == SCANDATATYPE_Color ) &&
 			   ( hw->bReg_0x26 & _ONE_CH_COLOR )) {
 
+				u_char so;
 				u_long len = scan->sParam.Size.dwPhyBytes / 3;
 
-				scan->Red.pb   = scan->pbScanBufBegin;
-				scan->Green.pb = scan->pbScanBufBegin + len;
-				scan->Blue.pb  = scan->pbScanBufBegin + len * 2UL;
+				so = scaps->bSensorOrder;
+				if (_WAF_RESET_SO_TO_RGB & scaps->workaroundFlag) {
+					if (scaps->bPCB != 0) {
+						if (scan->sParam.PhyDpi.x > scaps->bPCB) {
+							so = SENSORORDER_rgb;
+							DBG(_DBG_INFO, "* Resetting sensororder to RGB\n");
+						}
+					}
+				}
+
+				switch( so ) {
+
+				case SENSORORDER_rgb:
+					scan->Red.pb   = scan->pbScanBufBegin;
+					scan->Green.pb = scan->pbScanBufBegin + len;
+					scan->Blue.pb  = scan->pbScanBufBegin + len * 2UL;
+					break;
+
+				case SENSORORDER_gbr:
+					scan->Green.pb = scan->pbScanBufBegin;
+					scan->Blue.pb  = scan->pbScanBufBegin + len;
+					scan->Red.pb   = scan->pbScanBufBegin + len * 2UL;
+					break;
+				default:
+					DBG( _DBG_ERROR, "CIS: This bSensorOrder "
+					                 "is not defined\n" );
+					return _E_INTERNAL;
+				}
 			}
 		}
 

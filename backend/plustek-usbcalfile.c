@@ -6,7 +6,7 @@
 /** @file plustek-usbcalfile.c
  *  @brief Functions for saving/restoring calibration settings
  *
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.46 - first version
@@ -16,6 +16,7 @@
  * - 0.50 - cleanup
  * - 0.51 - added functions for saving, reading and restoring
  *          fine calibration data
+ * - 0.52 - no changes
  * .
  * <hr>
  * This file is part of the SANE package.

@@ -11,7 +11,7 @@
  *
  * original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
- * Copyright (C) 2001-2005 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.30 - initial version
@@ -58,6 +58,7 @@
  * - 0.50 - cleanup
  *        - added OPT_SPEEDUP
  * - 0.51 - added OPT_CALIBRATE
+ * - 0.52 - 
  * .
  * <hr>
  * This file is part of the SANE package.

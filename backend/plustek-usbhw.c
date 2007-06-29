@@ -7,7 +7,7 @@
  *  @brief Functions to control the scanner hardware.
  *
  * Based on sources acquired from Plustek Inc.<br>
- * Copyright (C) 2001-2006 Gerhard Jaeger <gerhard@gjaeger.de>
+ * Copyright (C) 2001-2007 Gerhard Jaeger <gerhard@gjaeger.de>
  *
  * History:
  * - 0.40 - starting version of the USB support
@@ -52,6 +52,7 @@
  *          devices
  *        - fixed button handling for Plustek/Genius devices and added
  *          some more debug output to that code path
+ * - 0.52 - changed DCapsDef, lamp -> misc_io
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -270,11 +271,14 @@ usb_IsScannerReady( Plustek_Device *dev )
 /**
  */
 static SANE_Bool
-usb_SensorAdf( int handle )
+usb_SensorAdf( Plustek_Device *dev )
 {
 	u_char value;
 
-	usbio_ReadReg( handle, 0x02, &value );
+	if( usb_IsSheetFedDevice(dev))
+		return SANE_FALSE;
+
+	usbio_ReadReg( dev->fd, 0x02, &value );
 
 	return (value & 0x20);
 }
@@ -284,12 +288,13 @@ usb_SensorAdf( int handle )
 static SANE_Bool
 usb_SensorPaper( Plustek_Device *dev )
 {
+	DCapsDef   *sc   = &dev->usbDev.Caps;
 	u_char val, mask = 0x02;
 
 	usbio_ReadReg( dev->fd, 0x02, &val );
 
 	if( usb_IsSheetFedDevice(dev))
-		mask = 0x08;
+		mask = _GET_PAPERSENSE_PORT(sc->misc_io);
 
 	return (val & mask);
 }
@@ -481,7 +486,7 @@ usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 				ejected = SANE_TRUE;
 			}
 
-			if( usb_SensorAdf(dev->fd) &&
+			if( usb_SensorAdf(dev) &&
 				!usb_ModuleMove(dev,MOVE_ToPaperSensor, 0 )) {
 				hw->dMaxMoveSpeed = d;
 				return SANE_FALSE;
@@ -498,6 +503,7 @@ usb_ModuleMove( Plustek_Device *dev, u_char action, u_long dwStep )
 		 * BUT: not at startup
 		 */
 		if (dev->initialized >= 0 || ejected) {
+			DBG(_DBG_INFO2, "... MORE EJECT...\n");
 			if(!usb_ModuleMove( dev, MOVE_Forward, 300 /* *3 */)) {
 				hw->dMaxMoveSpeed = d;
 				return SANE_FALSE;
@@ -1056,7 +1062,7 @@ usb_GetLampStatus( Plustek_Device *dev )
 	/* do we use the misc I/O pins for switching the lamp ? */
 	if( _WAF_MISC_IO_LAMPS & sc->workaroundFlag ) {
 
-		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
+		usb_GetLampRegAndMask( sc->misc_io, &reg, &msk );
 
 		if( 0 == reg ) {
 			usbio_ReadReg( dev->fd, 0x29, &reg );
@@ -1068,19 +1074,22 @@ usb_GetLampStatus( Plustek_Device *dev )
 			/* check if the lamp is on */
 			usbio_ReadReg( dev->fd, reg, &val );
 
-			DBG( _DBG_INFO2, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n",reg,val,msk);
+			DBG( _DBG_INFO2, "LAMP-REG[0x%02x] = 0x%02x (msk=0x%02x)\n",
+			                  reg,val,msk);
 			if( val & msk )
 				iLampStatus |= DEV_LampReflection;
 
 			/* if the device supports a TPA, we check this here */
 			if( sc->wFlags & DEVCAPSFLAG_TPA ) {
 
-				usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
-				usbio_ReadReg( dev->fd, reg, &val );
-				DBG( _DBG_INFO2, "REG[0x%02x] = 0x%02x (msk=0x%02x)\n",
-				                                               reg,val,msk);
-				if( val & msk )
-					iLampStatus |= DEV_LampTPA;
+				usb_GetLampRegAndMask( _GET_TPALAMP(sc->misc_io), &reg, &msk );
+				if (reg) {
+					usbio_ReadReg( dev->fd, reg, &val );
+					DBG( _DBG_INFO2, "TPA-REG[0x%02x] = 0x%02x (msk=0x%02x)\n",
+					                  reg,val,msk);
+					if( val & msk )
+						iLampStatus |= DEV_LampTPA;
+				}
 			}
 
 			/* CanoScan D660U extra vaganza... */
@@ -1111,7 +1120,8 @@ usb_GetLampStatus( Plustek_Device *dev )
 		}
 	}
 
-	DBG( _DBG_INFO, "LAMP-STATUS: 0x%08x\n", iLampStatus );
+	DBG( _DBG_INFO, "LAMP-STATUS: 0x%08x (%s)\n", 
+	                 iLampStatus, iLampStatus?"on":"off" );
 	return iLampStatus;
 }
 
@@ -1126,9 +1136,9 @@ usb_switchLampX( Plustek_Device *dev, SANE_Bool on, SANE_Bool tpa )
 	u_char   *regs = dev->usbDev.a_bRegs;
 
 	if( tpa )
-		usb_GetLampRegAndMask( _GET_TPALAMP(sc->lamp), &reg, &msk );
+		usb_GetLampRegAndMask( _GET_TPALAMP(sc->misc_io), &reg, &msk );
 	else
-		usb_GetLampRegAndMask( sc->lamp, &reg, &msk );
+		usb_GetLampRegAndMask( sc->misc_io, &reg, &msk );
 
 	if( 0 == reg )
 		return SANE_FALSE; /* no need to switch something */
@@ -1369,6 +1379,7 @@ usb_ResetRegisters( Plustek_Device *dev )
 	regs[0x1a] = _HIBYTE( hw->StepperPhaseCorrection );
 	regs[0x1b] = _LOBYTE( hw->StepperPhaseCorrection );
 
+/* HEINER: CHECK WHY THIS has been disabled*/
 #if 0
 	regs[0x1c] = hw->bOpticBlackStart;
 	regs[0x1d] = hw->bOpticBlackEnd;
@@ -1409,6 +1420,7 @@ usb_ResetRegisters( Plustek_Device *dev )
 		regs[0x5d] = hw->bReg_0x5d;
 		regs[0x5e] = hw->bReg_0x5e;
 		sanei_lm983x_read( dev->fd, 0x59, &regs[0x59], 3, SANE_TRUE );
+
 	} else {
 
 		DBG( _DBG_INFO2, "SETTING THE MISC I/Os\n" );
@@ -1774,11 +1786,11 @@ usb_UpdateButtonStatus( Plustek_Scanner *s )
 
 			/* only use the "valid" ports, that reflect a button */
 			if( _WAF_MISC_IO_BUTTONS & caps->workaroundFlag ) {
-				if((caps->lamp & _PORT0) == 0)
+				if((caps->misc_io & _PORT0) == 0)
 					mio[0] = 0xff;
-				if((caps->lamp & _PORT1) == 0)
+				if((caps->misc_io & _PORT1) == 0)
 					mio[1] = 0xff;
-				if((caps->lamp & _PORT2) == 0)
+				if((caps->misc_io & _PORT2) == 0)
 					mio[2] = 0xff;
 			}
 

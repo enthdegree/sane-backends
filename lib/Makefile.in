@@ -65,12 +65,12 @@ DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
 	$(COMPILE) $<
 
 .c.lo:
-	@$(LIBTOOL) $(MCOMP) $(COMPILE) $<
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) -static $<
 
 all:	$(TARGETS)
 
 liblib.a: $(LIBLIB_LTOBJS)
-	@$(LIBTOOL) $(MLINK) $(CC) $(LIBLIB_LTOBJS) -o $@
+	@$(LIBTOOL) $(MLINK) $(CC) -static $(LIBLIB_LTOBJS) -o $@
 
 install:
 

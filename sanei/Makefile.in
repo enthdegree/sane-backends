@@ -81,12 +81,12 @@ DISTFILES = Makefile.in linux_sg3_err.h os2_srb.h sanei_DomainOS.c \
 	$(COMPILE) $<
 
 .c.lo:
-	@$(LIBTOOL) $(MCOMP) $(COMPILE) $<
+	@$(LIBTOOL) $(MCOMP) $(COMPILE) -static $<
 
 all:	$(TARGETS)
 
 libsanei.a: $(LIBSANEI_LTOBJS)
-	$(LIBTOOL) $(MLINK) $(CC) $(LIBSANEI_LTOBJS) -o $@
+	@$(LIBTOOL) $(MLINK) $(CC) -static $(LIBSANEI_LTOBJS) -o $@
 
 install:
 

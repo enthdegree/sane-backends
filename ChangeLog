@@ -1,4 +1,8 @@
-2007-06-18  Gerhard Jaeger <gerhard@gjaeger.de>
+2007-07-10  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/plustek.desc: Fixed web entries
+
+2007-06-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-usb*.[ch] backend/plustek.[ch]:
 	  Added sheetfed device Q-Scan USB001 from Portable Peripherals

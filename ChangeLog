@@ -1,6 +1,9 @@
 2007-07-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Fixed web entries
+	* backend/plustek-usb.h backend/plustek-usbdevs.c backend/plustek.c:
+	  Added flag to allow only 1- and 8-bit scanmodes. The Q-Scan does
+	  not seem to support 14-bit modes.
 
 2007-06-29  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -36,7 +39,7 @@
 
 2007-06-12 Ilia Sotnikov <hostcc@gmail.com>
 
-	+ Use libtool instead of ar/ranlib, which correctly handles dependencies
+	* Use libtool instead of ar/ranlib, which correctly handles dependencies
 	  (eg. for parallel makes)
 
 2007-05-08  Mattias Ellert <mattias.ellert@tsl.uu.se>

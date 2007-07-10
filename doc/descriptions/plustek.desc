@@ -231,7 +231,7 @@
 ;* SYSCAN *******************************************************************************************
 
 :mfg "Syscan"
-:url "http://www.syscaninc.com"
+:url "http://www.syscaninc.com/"
 
 :model "TravelScan 662"
 :interface "USB"
@@ -241,7 +241,7 @@
 ;* Portable Peripheral Co., Ltd. ********************************************************************
 
 :mfg "Portable Peripheral Co., Ltd."
-:url "www.pandp.com.tw/"
+:url "http://www.pandp.com.tw/"
 
 :model "Q-Scan USB001 (A4 portable scanner)"
 :interface "USB"

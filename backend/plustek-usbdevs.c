@@ -772,7 +772,7 @@ static DCapsDef Cap0x0A53_0x1000 =
 	0,                  /* number of buttons                       */
 	kNEC8861,           /* use default settings during calibration */
 	200,                /* threshold for resetting sensor-order    */
-	(_WAF_MISC_IO_LAMPS | _WAF_RESET_SO_TO_RGB),
+	(_WAF_MISC_IO_LAMPS | _WAF_RESET_SO_TO_RGB | _WAF_ONLY_8BIT),
 	_PS_INP1
 };
 

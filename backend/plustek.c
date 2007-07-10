@@ -158,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-1"
+#define BACKEND_VERSION "0.52-2"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -694,8 +694,9 @@ static SANE_Status
 init_options( Plustek_Scanner *s )
 {
 	int i;
-	Plustek_Device *dev = s->hw;
-	AdjDef         *adj = &dev->adj;
+	Plustek_Device *dev  = s->hw;
+	AdjDef         *adj  = &dev->adj;
+	DCapsDef       *caps = &dev->usbDev.Caps;
 
 	memset(s->opt, 0, sizeof(s->opt));
 
@@ -743,6 +744,9 @@ init_options( Plustek_Scanner *s )
 		s->opt[OPT_BIT_DEPTH].constraint.word_list = bpp_lm9832_list;
 	s->val[OPT_BIT_DEPTH].w = 8;
 	
+	if (caps->workaroundFlag & _WAF_ONLY_8BIT)
+		_DISABLE(OPT_BIT_DEPTH);
+
 	/* scan source */
 	s->opt[OPT_EXT_MODE].name  = SANE_NAME_SCAN_SOURCE;
 	s->opt[OPT_EXT_MODE].title = SANE_TITLE_SCAN_SOURCE;
@@ -1778,6 +1782,14 @@ do_calibration( void *args )
 
 	for ( ; scanmode < 5; scanmode++ ) {
 
+		if (caps->workaroundFlag & _WAF_ONLY_8BIT) {
+
+			if ((modes[scanmode] == COLOR_GRAY16) ||
+			    (modes[scanmode] == COLOR_TRUE48)) {
+				continue;
+			}
+		}
+ 
 		dev->scanning.dwFlag |= SCANFLAG_Calibration;
 
 		if (SANE_STATUS_GOOD == local_sane_start(s, modes[scanmode])) {
@@ -1812,9 +1824,10 @@ SANE_Status
 sane_control_option( SANE_Handle handle, SANE_Int option,
                      SANE_Action action, void *value, SANE_Int *info )
 {
-	Plustek_Scanner         *s = (Plustek_Scanner *)handle;
-	Plustek_Device          *dev = s->hw;
-	AdjDef                  *adj = &dev->adj;
+	Plustek_Scanner         *s    = (Plustek_Scanner *)handle;
+	Plustek_Device          *dev  = s->hw;
+	AdjDef                  *adj  = &dev->adj;
+	DCapsDef                *caps = &dev->usbDev.Caps;
 	SANE_Status              status;
 	const SANE_String_Const *optval;
 	int                      scanmode;
@@ -2135,11 +2148,14 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 					_ENABLE(OPT_CONTRAST);
 					_ENABLE(OPT_BIT_DEPTH);
 					_ENABLE(OPT_CUSTOM_GAMMA);
-					if( scanmode == COLOR_BW ) {
+					if (scanmode == COLOR_BW) {
 						_DISABLE(OPT_CONTRAST);
 						_DISABLE(OPT_CUSTOM_GAMMA);
 						_DISABLE(OPT_BIT_DEPTH);
 					}
+
+					if (caps->workaroundFlag & _WAF_ONLY_8BIT)
+						_DISABLE(OPT_BIT_DEPTH);
 
 					_DISABLE(OPT_GAMMA_VECTOR);
 					_DISABLE(OPT_GAMMA_VECTOR_R);

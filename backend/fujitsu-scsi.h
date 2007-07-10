@@ -399,12 +399,14 @@ static scsiblk readB = { readC, sizeof (readC) };
 
 #define set_R_datatype_code(sb, val) sb[0x02] = val
 #define R_datatype_imagedata		0x00
-#define R_pixel_size			0x80
-#define set_R_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
-#define set_R_window_id(sb, val) sb[0x05] = val
-#define set_R_xfer_length(sb, val)    putnbyte(sb + 0x06, val, 3)
+#define R_datatype_pixelsize		0x80
+#define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
+#define set_R_window_id(sb, val)       sb[0x05] = val
+#define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 #define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
 #define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
+#define get_PSIZE_paper_w(in)            getnbyte(in + 0x08, 4)
+#define get_PSIZE_paper_l(in)            getnbyte(in + 0x0C, 4)
 
 /* ==================================================================== */
 
@@ -708,9 +710,7 @@ static unsigned char window_descriptor_blockC[] = {
 #define get_WD_bitorder(sb)	getnbyte(sb + 0x1e, 2)
 
   /* 0x20 - compression type
-   *        3091 - not supported, use 0x00
-   *        3096 - only allowed with CMP option and not in gray
-   *               mode; use 0x01=MH,0x02=MR,0x03=MMR
+   *          not supported on smaller models, use 0x00
    */
   0x00,
 #define set_WD_compress_type(sb, val)  sb[0x20] = val
@@ -726,9 +726,8 @@ static unsigned char window_descriptor_blockC[] = {
 
 
   /* 0x21 - compression argument
-   *        3091 - not supported, use 0x00
-   *        3096 - only allowed with 0x02 ar byte 0x20 (MR compress),
-   *               use this to specify "k" parameter
+   *          specify "k" parameter with MR compress,
+   *          or with JPEG- Q param, 0-7
    */
   0x00,
 #define set_WD_compress_arg(sb, val)  sb[0x21] = val

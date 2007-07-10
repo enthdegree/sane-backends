@@ -37,6 +37,8 @@ enum fujitsu_Option
   OPT_RIF,
 
   OPT_ADVANCED_GROUP,
+  OPT_COMPRESS,
+  OPT_COMPRESS_ARG,
   OPT_DF_DETECT,
   OPT_DF_DIFF,
   OPT_BG_COLOR,
@@ -275,6 +277,8 @@ struct fujitsu
   /*ipc group*/
 
   /*advanced group*/
+  SANE_String_Const compress_list[3];
+  SANE_Range compress_arg_range;
   SANE_String_Const df_detect_list[6];
   SANE_String_Const df_diff_list[5];
   SANE_String_Const bg_color_list[4];
@@ -314,6 +318,8 @@ struct fujitsu
   int rif;
 
   /*advanced group*/
+  int compress;
+  int compress_arg;
   int df_detect;
   int df_diff;
   int bg_color;
@@ -361,9 +367,17 @@ struct fujitsu
   int fds[2];
 
   /* --------------------------------------------------------------------- */
+  /* values used by the compression functions, esp. jpeg with duplex       */
+  int jpeg_stage;
+  int jpeg_ff_offset;
+  int jpeg_front_rst;
+  int jpeg_back_rst;
+  int jpeg_x_bit;
+
+  /* --------------------------------------------------------------------- */
   /* values which used by the command and data sending functions (scsi/usb)*/
   int fd;                      /* The scanner device file descriptor.     */
-  size_t datLen;
+  size_t rs_info;
 
   /* --------------------------------------------------------------------- */
   /* values which are used by the get hardware status command              */
@@ -407,6 +421,16 @@ struct fujitsu
 #define SOURCE_ADF_FRONT 1
 #define SOURCE_ADF_BACK 2
 #define SOURCE_ADF_DUPLEX 3
+
+#define COMP_NONE WD_cmp_NONE
+#define COMP_JPEG WD_cmp_JPG1
+
+#define JPEG_STAGE_HEAD 0
+#define JPEG_STAGE_SOF 1
+#define JPEG_STAGE_SOS 2
+#define JPEG_STAGE_FRONT 3
+#define JPEG_STAGE_BACK 4
+#define JPEG_STAGE_EOI 5
 
 /* these are same as scsi data to make code easier */
 #define MODE_LINEART WD_comp_LA
@@ -566,17 +590,19 @@ int get_page_height (struct fujitsu *s);
 
 static int set_window (struct fujitsu *s);
 
+static SANE_Status get_pixelsize (struct fujitsu *s, int*, int*, int*, int*);
+
 static int start_scan (struct fujitsu *s);
 
+static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
 static SANE_Status read_from_3091duplex(struct fujitsu *s);
 static SANE_Status read_from_scanner(struct fujitsu *s, int side);
 
+static SANE_Status copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side);
 
 static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side);
-
-static void calculateDerivedValues (struct fujitsu *scanner);
 
 static SANE_Status setup_buffers (struct fujitsu *s);
 

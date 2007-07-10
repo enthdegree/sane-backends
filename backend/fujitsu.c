@@ -255,6 +255,11 @@
          - re-enable brightness/contrast for built-in models 
       V 1.0.49 2007-06-28, MAN
          - add fi-5750C usb id and color mode
+      V 1.0.50 2007-07-10, MAN
+         - updated overscan and bgcolor option descriptions
+	 - added jpeg output support
+         - restructured usb reading code to use RS len for short reads
+         - combined calcDerivedValues with sane_get_params
 
    SANE FLOW DIAGRAM
 
@@ -315,7 +320,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 49 
+#define BUILD 50 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -349,6 +354,8 @@ static const char string_White[] = "White";
 static const char string_Black[] = "Black";
 
 static const char string_None[] = "None";
+static const char string_JPEG[] = "JPEG";
+
 static const char string_Thickness[] = "Thickness";
 static const char string_Length[] = "Length";
 static const char string_Both[] = "Both";
@@ -1448,7 +1455,7 @@ init_model (struct fujitsu *s)
   else if (strstr (s->product_name, "fi-4120C2")
    || strstr (s->product_name, "fi-4220C2") ) {
 
-    s->max_x = 10488;
+    /*s->max_x = 10488;*/
 
     /* missing from vpd */
     s->os_x_basic = 376;
@@ -2136,6 +2143,52 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  /*image compression*/
+  if(option==OPT_COMPRESS){
+    i=0;
+    s->compress_list[i++]=string_None;
+
+    if(s->has_comp_JPG1){
+      s->compress_list[i++]=string_JPEG;
+    }
+
+    s->compress_list[i]=NULL;
+
+    opt->name = "compression";
+    opt->title = "Compression";
+    opt->desc = "Enable compressed data. May crash your front-end program";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->compress_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if (i > 1)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*image compression arg*/
+  if(option==OPT_COMPRESS_ARG){
+
+    opt->name = "compression-arg";
+    opt->title = "Compression argument";
+    opt->desc = "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) is same as 4";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->compress_arg_range;
+    s->compress_arg_range.quant=1;
+
+    if(s->has_comp_JPG1){
+      s->compress_arg_range.min=0;
+      s->compress_arg_range.max=7;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*double feed detection*/
   if(option==OPT_DF_DETECT){
     s->df_detect_list[0] = string_Default;
@@ -2188,7 +2241,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   
     opt->name = "bgcolor";
     opt->title = "Background color";
-    opt->desc = "Set color of background for scans";
+    opt->desc = "Set color of background for scans. May conflict with overscan option";
     opt->type = SANE_TYPE_STRING;
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->bg_color_list;
@@ -2269,7 +2322,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   
     opt->name = "overscan";
     opt->title = "Overscan";
-    opt->desc = "Collect a few mm of background on top side of scan, before paper enters ADF.";
+    opt->desc = "Collect a few mm of background on top side of scan, before paper enters ADF, and increase maximum scan area beyond paper size, to allow collection on remaining sides. May conflict with bgcolor option";
     opt->type = SANE_TYPE_STRING;
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->overscan_list;
@@ -2763,6 +2816,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_COMPRESS:
+          if(s->compress == COMP_JPEG){
+            strcpy (val, string_JPEG);
+          }
+          else{
+            strcpy (val, string_None);
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_COMPRESS_ARG:
+          *val_p = s->compress_arg;
+          return SANE_STATUS_GOOD;
+
         case OPT_DF_DETECT:
           switch (s->df_detect) {
             case DF_DEFAULT:
@@ -3175,6 +3241,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
+        case OPT_COMPRESS:
+          if (!strcmp (val, string_JPEG)) {
+            tmp = COMP_JPEG;
+          }
+          else{
+            tmp = COMP_NONE;
+          }
+
+          if (tmp == s->compress)
+              return SANE_STATUS_GOOD;
+
+          s->compress = tmp;
+          return SANE_STATUS_GOOD;
+
+        case OPT_COMPRESS_ARG:
+          s->compress_arg = val_c;
+          return SANE_STATUS_GOOD;
+
         case OPT_DF_DETECT:
           if (!strcmp(val, string_Default))
             s->df_detect = DF_DEFAULT;
@@ -3721,76 +3805,7 @@ mode_select_overscan (struct fujitsu *s)
  * device for which the parameters should be obtained and a pointer p
  * to a parameter structure.
  */
-SANE_Status
-sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
-{
-  struct fujitsu *s = (struct fujitsu *) handle;
-
-  DBG (10, "sane_get_parameters: start\n");
-
-  calculateDerivedValues (s);
-
-  params->format = s->params.format;
-  params->last_frame = s->params.last_frame;
-  params->lines = s->params.lines;
-  params->depth = s->params.depth;
-  params->pixels_per_line = s->params.pixels_per_line;
-  params->bytes_per_line = s->params.bytes_per_line;
-
-  DBG (15, "\tdepth %d\n", params->depth);
-  DBG (15, "\tlines %d\n", params->lines);
-  DBG (15, "\tpixels_per_line %d\n", params->pixels_per_line);
-  DBG (15, "\tbytes_per_line %d\n", params->bytes_per_line);
-
-  DBG (10, "sane_get_parameters: finish\n");
-
-  return SANE_STATUS_GOOD;
-}
-
-/* 
- * Computes the scanner units used for the set_window command
- */
-void
-calculateDerivedValues (struct fujitsu *s)
-{
-  int dir = 1;
-
-  DBG (10, "calculateDerivedValues: start\n");
-  DBG (15, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
-  DBG (15, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
-
-  s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-  s->params.lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
-  s->params.last_frame = 1;
-
-  if (s->mode == MODE_COLOR) {
-    s->params.format = SANE_FRAME_RGB;
-    s->params.depth = 8;
-    s->params.bytes_per_line = s->params.pixels_per_line * 3;
-  }
-  else if (s->mode == MODE_GRAYSCALE) {
-    s->params.format = SANE_FRAME_GRAY;
-    s->params.depth = 8;
-    s->params.bytes_per_line = s->params.pixels_per_line;
-  }
-  else if (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE) {
-    s->params.format = SANE_FRAME_GRAY;
-    s->params.depth = 1;
-
-    /* increase scan width to full number of bytes in a scan line */
-    /* but dont round up larger than scanners max width */
-    while (s->params.pixels_per_line % 8) {
-      if(s->br_x == s->max_x){
-        dir = -1;
-      }
-      s->br_x += dir;
-      s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-    }
-
-    s->params.bytes_per_line = s->params.pixels_per_line / 8;
-  }
-
-  dir = 1;
+#if 0
 
   /* some scanners need even number of bytes per line */
   /* increase scan width to even number of bytes */
@@ -3813,44 +3828,195 @@ calculateDerivedValues (struct fujitsu *s)
       s->params.bytes_per_line = s->params.pixels_per_line / 8;
     }
   }
-
-  DBG (15, "xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n", s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
-  DBG (15, "yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n", s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
-
-#if 0
-  /* special relationship between X and Y must be maintained for 3096 */
-  if (( (scanner->model == MODEL_3096) || (scanner->model == MODEL_3097) )&&
-      ((scanner->left_margin + scanner->scan_width) >= 13200))
-    {
-      if (scanner->top_margin > 19830)
-        scanner->top_margin = 19830;
-      if ((scanner->top_margin + scanner->scan_height) > 19842)
-        scanner->scan_height = 19842 - scanner->top_margin;
-      DBG (12, "\ttop_margin corrected: %u\n", scanner->top_margin);
-      DBG (12, "\tscan_height corrected: %u\n", scanner->scan_height);
-    }
-
-  /* Now reverse our initial calculations and compute the "real" values so 
-   * that the front-end has a chance to know. As an "added extra" we'll 
-   * also round the height and width to the resolution that has been set; 
-   * the scanner will accept height and width in 1/1200 units even at 1/75 
-   * resolution but the front-end should know what it gets exactly.
-   */
-  scanner->rounded_top_left_x =
-    SCANNER_UNIT_TO_FIXED_MM (scanner->left_margin);
-  scanner->rounded_top_left_y =
-    SCANNER_UNIT_TO_FIXED_MM (scanner->top_margin);
-  scanner->rounded_bottom_right_x =
-    SCANNER_UNIT_TO_FIXED_MM (scanner->left_margin +
-                              scanner->scan_width_pixels * 1200 /
-                              scanner->resolution_x);
-  scanner->rounded_bottom_right_y =
-    SCANNER_UNIT_TO_FIXED_MM (scanner->top_margin +
-                              scanner->scan_height_pixels * 1200 /
-                              scanner->resolution_y);
 #endif
 
-  DBG (10, "calculateDerivedValues: finish\n");
+/* we should be able to do this instead of all the math, but 
+ * this does not seem to work in duplex mode? */
+#if 0
+    int x=0,y=0,px=0,py=0;
+
+    /* call set window to send user settings to scanner */
+    ret = set_window(s);
+    if(ret){
+        DBG (5, "sane_get_parameters: error setting window\n");
+        return ret;
+    }
+
+    /* read scanner's modified version of x and y */
+    ret = get_pixelsize(s,&x,&y,&px,&py);
+    if(ret){
+        DBG (5, "sane_get_parameters: error reading size\n");
+        return ret;
+    }
+
+    /* update x data from scanner data */
+    s->params.pixels_per_line = x;
+
+    /* update y data from scanner data */
+    s->params.lines = y;
+#endif
+
+SANE_Status
+sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    struct fujitsu *s = (struct fujitsu *) handle;
+  
+    DBG (10, "sane_get_parameters: start\n");
+  
+    DBG (15, "sane_get_parameters: xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n",
+      s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
+    DBG (15, "sane_get_parameters: yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n",
+      s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
+    DBG (15, "sane_get_parameters: user_x=%d, user_y=%d\n", 
+      (s->resolution_x * (s->br_x - s->tl_x) / 1200),
+      (s->resolution_y * (s->br_y - s->tl_y) / 1200));
+
+    /* not started? update param data */
+    if(!s->started){
+        int dir = 1;
+
+        DBG (15, "sane_get_parameters: updating\n");
+
+        /* this backend only sends single frame images */
+        s->params.last_frame = 1;
+      
+        /* update params struct from user settings */
+        if (s->mode == MODE_COLOR) {
+            s->params.format = SANE_FRAME_RGB;
+            s->params.depth = 8;
+            if(s->compress == COMP_JPEG){
+                s->params.format = SANE_FRAME_JPEG;
+            }
+        }
+        else if (s->mode == MODE_GRAYSCALE) {
+            s->params.format = SANE_FRAME_GRAY;
+            s->params.depth = 8;
+            if(s->compress == COMP_JPEG){
+                s->params.format = SANE_FRAME_JPEG;
+            }
+        }
+        else {
+            s->params.format = SANE_FRAME_GRAY;
+            s->params.depth = 1;
+        }
+
+        /* adjust x data in a loop */
+        while(1){
+
+            s->params.pixels_per_line =
+              s->resolution_x * (s->br_x - s->tl_x) / 1200;
+    
+            /* bytes per line differs by mode */
+            if (s->mode == MODE_COLOR) {
+                s->params.bytes_per_line = s->params.pixels_per_line * 3;
+            }
+            else if (s->mode == MODE_GRAYSCALE) {
+                s->params.bytes_per_line = s->params.pixels_per_line;
+            }
+            else {
+                s->params.bytes_per_line = s->params.pixels_per_line / 8;
+            }
+
+            /* binary and jpeg must have width in multiple of 8 pixels */
+            /* plus, some larger scanners require even bytes per line */
+            /* so change the user's scan width and try again */
+	    /* FIXME: should change a 'hidden' copy instead? */
+            if(
+              ((s->params.depth == 1 || s->params.format == SANE_FRAME_JPEG)
+                && s->params.pixels_per_line % 8)
+              || (s->even_scan_line && s->params.bytes_per_line % 2)
+            ){
+
+                /* dont round up larger than scanners max width */
+                if(s->br_x == s->max_x){
+                    dir = -1;
+                }
+                s->br_x += dir;
+            }
+            else{
+                break;
+            }
+        }
+
+        dir = 1;
+
+        /* adjust y data in a loop */
+        while(1){
+
+            s->params.lines =
+              s->resolution_y * (s->br_y - s->tl_y) / 1200;
+    
+            /* jpeg must have length in multiple of 8 pixels */
+            /* so change the user's scan length and try again */
+            if( s->params.format == SANE_FRAME_JPEG && s->params.lines % 8 ){
+
+                /* dont round up larger than scanners max length */
+                if(s->br_y == s->max_y){
+                    dir = -1;
+                }
+                s->br_y += dir;
+            }
+            else{
+                break;
+            }
+        }
+    }
+  
+    DBG (15, "sane_get_parameters: scan_x=%d, Bpl=%d, depth=%d\n", 
+      s->params.pixels_per_line, s->params.bytes_per_line, s->params.depth );
+      
+    DBG (15, "sane_get_parameters: scan_y=%d, frame=%d, last=%d\n", 
+      s->params.lines, s->params.format, s->params.last_frame );
+
+    if(params){
+        DBG (15, "sane_get_parameters: copying to caller\n");
+        params->format = s->params.format;
+        params->last_frame = s->params.last_frame;
+        params->lines = s->params.lines;
+        params->depth = s->params.depth;
+        params->pixels_per_line = s->params.pixels_per_line;
+        params->bytes_per_line = s->params.bytes_per_line;
+    }
+
+    DBG (10, "sane_get_parameters: finish\n");
+  
+    return ret;
+}
+
+static SANE_Status
+get_pixelsize(struct fujitsu *s, int * x, int * y, int * px, int * py)
+{
+    SANE_Status ret;
+    unsigned char buf[0x18];
+    size_t inLen = sizeof(buf);
+
+    DBG (10, "get_pixelsize: start\n");
+
+    set_R_datatype_code (readB.cmd, R_datatype_pixelsize);
+    set_R_window_id (readB.cmd, WD_wid_front);
+    if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
+      set_R_window_id (readB.cmd, WD_wid_back);
+    }
+    set_R_xfer_length (readB.cmd, inLen);
+      
+    ret = do_cmd (
+      s, 1, 0,
+      readB.cmd, readB.size,
+      NULL, 0,
+      buf, &inLen
+    );
+
+    if(ret == SANE_STATUS_GOOD){
+      *x = get_PSIZE_num_x(buf);
+      *y = get_PSIZE_num_y(buf);
+      *px = get_PSIZE_paper_w(buf);
+      *py = get_PSIZE_paper_l(buf);
+      DBG (15, "get_pixelsize: x=%d, y=%d, px=%d, py=%d\n", *x, *y, *px, *py);
+    }
+
+    DBG (10, "get_pixelsize: finish\n");
+    return ret;
 }
 
 /*
@@ -3870,13 +4036,13 @@ sane_start (SANE_Handle handle)
 
   DBG (10, "sane_start: start\n");
 
-  DBG (15, "started=%d, img_count=%d, source=%d\n", s->started, s->img_count, s->source);
+  DBG (15, "started=%d, img_count=%d, source=%d\n", s->started,
+    s->img_count, s->source);
 
   /* first page of batch */
   if(!s->started){
 
       /* set clean defaults */
-      s->started=1;
       s->img_count=0;
 
       s->bytes_tot[0]=0;
@@ -3890,6 +4056,28 @@ sane_start (SANE_Handle handle)
       s->bytes_tx[0]=0;
       s->bytes_tx[1]=0;
 
+      /* reset jpeg just in case... */
+      s->jpeg_stage = JPEG_STAGE_HEAD;
+      s->jpeg_ff_offset = 0;
+      s->jpeg_front_rst = 0;
+      s->jpeg_back_rst = 0;
+
+      /* call this, in case frontend has not already */
+      ret = sane_get_parameters ((SANE_Handle) s, NULL);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot get params\n");
+        do_cancel(s);
+        return ret;
+      }
+
+      /* set window command */
+      ret = set_window(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot set window\n");
+        do_cancel(s);
+        return ret;
+      }
+    
       /* send batch setup commands */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
@@ -3907,9 +4095,6 @@ sane_start (SANE_Handle handle)
           return ret;
         }
       }
-    
-      /* get the scan size, etc */ 
-      calculateDerivedValues(s);
     
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
@@ -3929,13 +4114,6 @@ sane_start (SANE_Handle handle)
           return ret;
       }
 
-      ret = set_window(s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: failed to set window\n");
-        do_cancel(s);
-        return ret;
-      }
-
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot load page\n");
@@ -3949,6 +4127,8 @@ sane_start (SANE_Handle handle)
         do_cancel(s);
         return ret;
       }
+
+      s->started=1;
   }
 
   /* already in a batch */
@@ -3979,6 +4159,12 @@ sane_start (SANE_Handle handle)
 
       s->bytes_tx[0]=0;
       s->bytes_tx[1]=0;
+
+      /* reset jpeg just in case... */
+      s->jpeg_stage = JPEG_STAGE_HEAD;
+      s->jpeg_ff_offset = 0;
+      s->jpeg_front_rst = 0;
+      s->jpeg_back_rst = 0;
 
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
@@ -4233,6 +4419,15 @@ set_window (struct fujitsu *s)
 
   set_WD_rif (window_descriptor_blockB.cmd, s->rif);
 
+  set_WD_compress_type(window_descriptor_blockB.cmd, COMP_NONE);
+  set_WD_compress_arg(window_descriptor_blockB.cmd, 0);
+
+  /* some scanners support jpeg image compression, for color/gs only */
+  if(s->params.format == SANE_FRAME_JPEG){
+      set_WD_compress_type(window_descriptor_blockB.cmd, COMP_JPEG);
+      set_WD_compress_arg(window_descriptor_blockB.cmd, s->compress_arg);
+  }
+
   set_WD_vendor_id_code (window_descriptor_blockB.cmd, s->window_vid);
 
   set_WD_gamma (window_descriptor_blockB.cmd, s->window_gamma);
@@ -4408,8 +4603,27 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_EOF;
   }
 
+  /* jpeg (only color/gray) duplex: fixed interlacing */
+  if(s->source == SOURCE_ADF_DUPLEX && s->params.format == SANE_FRAME_JPEG){
+
+    /* read from front side if either side has remaining */
+    if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
+      || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
+
+        ret = read_from_JPEGduplex(s);
+        if(ret){
+          DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
+          return ret;
+        }
+    }
+
+  }
+
   /* 3091/2 are on crack, get their own duplex reader function */
-  if(s->source == SOURCE_ADF_DUPLEX && s->duplex_interlace == DUPLEX_INTERLACE_3091){
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->duplex_interlace == DUPLEX_INTERLACE_3091
+  ){
+
     if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
       || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
 
@@ -4423,7 +4637,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   }
 
   /* 3093 cant alternate? */
-  else if(s->source == SOURCE_ADF_DUPLEX && s->duplex_interlace == DUPLEX_INTERLACE_NONE){
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->duplex_interlace == DUPLEX_INTERLACE_NONE
+  ){
 
       if(s->bytes_tot[side] > s->bytes_rx[side] ){
 
@@ -4470,6 +4686,205 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   DBG (10, "sane_read: finish\n");
 
   return ret;
+}
+
+static SANE_Status
+read_from_JPEGduplex(struct fujitsu *s)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+    int bytes = s->buffer_size;
+    int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT])
+      + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
+    unsigned char * buf;
+    size_t inLen = 0;
+    int i=0;
+  
+    DBG (10, "read_from_JPEGduplex: start\n");
+  
+    /* figure out the max amount to transfer */
+    if(bytes > remain){
+        bytes = remain;
+    }
+  
+    /* this should never happen */
+    if(bytes < 1){
+        DBG(5, "read_from_JPEGduplex: ERROR: no bytes this pass\n");
+        ret = SANE_STATUS_INVAL;
+    }
+  
+    DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d re:%d pa:%d\n",
+      s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
+      s->bytes_tot[SIDE_BACK], s->bytes_rx[SIDE_BACK],
+      remain, bytes);
+
+    if(ret){
+        return ret;
+    }
+  
+    inLen = bytes;
+  
+    buf = malloc(bytes);
+    if(!buf){
+        DBG(5, "read_from_JPEGduplex: not enough mem for buffer: %d\n",bytes);
+        return SANE_STATUS_NO_MEM;
+    }
+  
+    set_R_datatype_code (readB.cmd, R_datatype_imagedata);
+
+    /* jpeg duplex always reads from front */
+    set_R_window_id (readB.cmd, WD_wid_front);
+  
+    set_R_xfer_length (readB.cmd, bytes);
+  
+    ret = do_cmd (
+      s, 1, 0,
+      readB.cmd, readB.size,
+      NULL, 0,
+      buf, &inLen
+    );
+  
+    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+        DBG(15, "read_from_JPEGduplex: got GOOD/EOF, returning GOOD\n");
+        ret = SANE_STATUS_GOOD;
+    }
+    else if (ret == SANE_STATUS_DEVICE_BUSY) {
+        DBG(5, "read_from_JPEGduplex: got BUSY, returning GOOD\n");
+        inLen = 0;
+        ret = SANE_STATUS_GOOD;
+    }
+    else {
+        DBG(5, "read_from_JPEGduplex: error reading data block status = %d\n",
+	  ret);
+        inLen = 0;
+    }
+  
+    for(i=0;i<(int)inLen;i++){
+
+        /* about to change stage */
+        if(buf[i] == 0xff){
+            s->jpeg_ff_offset=0;
+            continue;
+        }
+
+        /* last byte was an ff, this byte will change stage */
+        if(s->jpeg_ff_offset == 0){
+
+            /* headers (SOI/HuffTab/QTab/DRI), in both sides */
+            if(buf[i] == 0xd8 || buf[i] == 0xc4
+              || buf[i] == 0xdb || buf[i] == 0xdd){
+                s->jpeg_stage = JPEG_STAGE_HEAD;
+                DBG(15, "read_from_JPEGduplex: stage head\n");
+            }
+
+            /* start of frame, in both sides, update x first */
+            else if(buf[i]==0xc0){
+                s->jpeg_stage = JPEG_STAGE_SOF;
+                DBG(15, "read_from_JPEGduplex: stage sof\n");
+            }
+
+            /* start of scan, first few bytes of marker in both sides
+             * but rest in front */
+            else if(buf[i]==0xda){
+                s->jpeg_stage = JPEG_STAGE_SOS;
+                DBG(15, "read_from_JPEGduplex: stage sos\n");
+            }
+
+            /* finished front image block, switch to back */
+            /* also change from even RST to proper one */
+            else if(buf[i] == 0xd0 || buf[i] == 0xd2
+              || buf[i] == 0xd4 || buf[i] == 0xd6){
+                s->jpeg_stage = JPEG_STAGE_BACK;
+                DBG(35, "read_from_JPEGduplex: stage back\n");
+
+                /* skip first RST for back side*/
+                if(!s->jpeg_back_rst){
+                  DBG(15, "read_from_JPEGduplex: stage back jump\n");
+                  s->jpeg_ff_offset++;
+                  s->jpeg_back_rst++;
+                  continue;
+                }
+
+                buf[i] = 0xd0 + (s->jpeg_back_rst-1) % 8;
+                s->jpeg_back_rst++;
+            }
+
+            /* finished back image block, switch to front */
+            else if(buf[i] == 0xd1 || buf[i] == 0xd3
+              || buf[i] == 0xd5 || buf[i] == 0xd7){
+                s->jpeg_stage = JPEG_STAGE_FRONT;
+                DBG(35, "read_from_JPEGduplex: stage front\n");
+                buf[i] = 0xd0 + (s->jpeg_front_rst % 8);
+                s->jpeg_front_rst++;
+            }
+
+            /* finished image, in both, update totals */
+            else if(buf[i]==0xd9){
+                s->jpeg_stage = JPEG_STAGE_EOI;
+                DBG(15, "read_from_JPEGduplex: stage eoi %d %d\n",(int)inLen,i);
+            }
+        }
+        s->jpeg_ff_offset++;
+
+        /* first x byte in start of frame */
+        if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 7){
+          s->jpeg_x_bit = buf[i] & 0x01;
+          buf[i] = buf[i] >> 1;
+        }
+
+        /* second x byte in start of frame */
+        if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 8){
+          buf[i] = (s->jpeg_x_bit << 7) | (buf[i] >> 1);
+        }
+
+        /* copy these stages to front */
+        if(s->jpeg_stage == JPEG_STAGE_HEAD
+          || s->jpeg_stage == JPEG_STAGE_SOF
+          || s->jpeg_stage == JPEG_STAGE_SOS
+          || s->jpeg_stage == JPEG_STAGE_EOI
+          || s->jpeg_stage == JPEG_STAGE_FRONT
+        ){
+            /* first byte after ff, send the ff first */
+            if(s->jpeg_ff_offset == 1){
+              s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = 0xff;
+              s->bytes_rx[SIDE_FRONT]++;
+            }
+            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = buf[i];
+            s->bytes_rx[SIDE_FRONT]++;
+        }
+
+        /* copy these stages to back */
+        if(s->jpeg_stage == JPEG_STAGE_HEAD
+          || s->jpeg_stage == JPEG_STAGE_SOF
+          || s->jpeg_stage == JPEG_STAGE_SOS
+          || s->jpeg_stage == JPEG_STAGE_EOI
+          || s->jpeg_stage == JPEG_STAGE_BACK
+        ){
+            /* first byte after ff, send the ff first */
+            if(s->jpeg_ff_offset == 1){
+              s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = 0xff;
+              s->bytes_rx[SIDE_BACK]++;
+            }
+            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = buf[i];
+            s->bytes_rx[SIDE_BACK]++;
+        }
+
+        /* reached last byte of SOS section, next byte front */
+        if(s->jpeg_stage == JPEG_STAGE_SOS && s->jpeg_ff_offset == 0x0d){
+            s->jpeg_stage = JPEG_STAGE_FRONT;
+        }
+
+        /* last byte of file, update totals, bail out */
+        if(s->jpeg_stage == JPEG_STAGE_EOI){
+            s->bytes_tot[SIDE_FRONT] = s->bytes_rx[SIDE_FRONT];
+            s->bytes_tot[SIDE_BACK] = s->bytes_rx[SIDE_BACK];
+        }
+    }
+      
+    free(buf);
+  
+    DBG (10, "read_from_JPEGduplex: finish\n");
+  
+    return ret;
 }
 
 static SANE_Status
@@ -4584,87 +4999,133 @@ read_from_3091duplex(struct fujitsu *s)
 static SANE_Status
 read_from_scanner(struct fujitsu *s, int side)
 {
-  SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = s->buffer_size;
-  int remain = s->bytes_tot[side] - s->bytes_rx[side];
-  unsigned char * buf;
-  size_t inLen = 0;
-
-  DBG (10, "read_from_scanner: start\n");
-
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
-  }
-
-  /* all requests must end on line boundary */
-  bytes -= (bytes % s->params.bytes_per_line);
-
-  /* this should never happen */
-  if(bytes < 1){
-    DBG(5, "read_from_scanner: ERROR: no bytes this pass\n");
-    ret = SANE_STATUS_INVAL;
-  }
-
-  DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n",
-    side, s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
-
-  if(ret){
-    return ret;
-  }
-
-  inLen = bytes;
-
-  buf = malloc(bytes);
-  if(!buf){
-    DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",bytes);
-    return SANE_STATUS_NO_MEM;
-  }
-
-  set_R_datatype_code (readB.cmd, R_datatype_imagedata);
-
-  if (side == SIDE_BACK) {
-      set_R_window_id (readB.cmd, WD_wid_back);
-  }
-  else{
-      set_R_window_id (readB.cmd, WD_wid_front);
-  }
-
-  set_R_xfer_length (readB.cmd, bytes);
-
-  ret = do_cmd (
-    s, 1, 0,
-    readB.cmd, readB.size,
-    NULL, 0,
-    buf, &inLen
-  );
-
-  if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-    DBG(15, "read_from_scanner: got GOOD/EOF, returning GOOD\n");
-    ret = SANE_STATUS_GOOD;
-  }
-  else if (ret == SANE_STATUS_DEVICE_BUSY) {
-    DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
-    inLen = 0;
-    ret = SANE_STATUS_GOOD;
-  }
-  else {
-    DBG(5, "read_from_scanner: error reading data block status = %d\n", ret);
-    inLen = 0;
-  }
-
-  if(inLen){
-    if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-      copy_3091 (s, buf, inLen, side);
+    SANE_Status ret=SANE_STATUS_GOOD;
+    int bytes = s->buffer_size;
+    int remain = s->bytes_tot[side] - s->bytes_rx[side];
+    unsigned char * buf;
+    size_t inLen = 0;
+  
+    DBG (10, "read_from_scanner: start\n");
+  
+    /* figure out the max amount to transfer */
+    if(bytes > remain){
+        bytes = remain;
+    }
+  
+    /* all requests must end on line boundary */
+    bytes -= (bytes % s->params.bytes_per_line);
+  
+    /* this should never happen */
+    if(bytes < 1){
+        DBG(5, "read_from_scanner: ERROR: no bytes this pass\n");
+        ret = SANE_STATUS_INVAL;
+    }
+  
+    DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side,
+      s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
+  
+    if(ret){
+        return ret;
+    }
+  
+    inLen = bytes;
+  
+    buf = malloc(bytes);
+    if(!buf){
+        DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",bytes);
+        return SANE_STATUS_NO_MEM;
+    }
+  
+    set_R_datatype_code (readB.cmd, R_datatype_imagedata);
+  
+    if (side == SIDE_BACK) {
+        set_R_window_id (readB.cmd, WD_wid_back);
     }
     else{
-      copy_buffer (s, buf, inLen, side);
+        set_R_window_id (readB.cmd, WD_wid_front);
+    }
+  
+    set_R_xfer_length (readB.cmd, bytes);
+  
+    ret = do_cmd (
+      s, 1, 0,
+      readB.cmd, readB.size,
+      NULL, 0,
+      buf, &inLen
+    );
+  
+    if (ret == SANE_STATUS_GOOD) {
+        DBG(15, "read_from_scanner: got GOOD, returning GOOD\n");
+    }
+    else if (ret == SANE_STATUS_EOF) {
+        DBG(15, "read_from_scanner: got EOF, finishing\n");
+    }
+    else if (ret == SANE_STATUS_DEVICE_BUSY) {
+        DBG(5, "read_from_scanner: got BUSY, returning GOOD\n");
+        inLen = 0;
+        ret = SANE_STATUS_GOOD;
+    }
+    else {
+        DBG(5, "read_from_scanner: error reading data block status = %d\n",ret);
+        inLen = 0;
+    }
+  
+    if(inLen){
+        if(s->mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
+            copy_3091 (s, buf, inLen, side);
+        }
+        else{
+            copy_buffer (s, buf, inLen, side);
+        }
+    }
+  
+    free(buf);
+  
+    if(ret == SANE_STATUS_EOF){
+      s->bytes_tot[side] = s->bytes_rx[side];
+      ret = SANE_STATUS_GOOD;
+    }
+
+    DBG (10, "read_from_scanner: finish\n");
+  
+    return ret;
+}
+
+static SANE_Status
+copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+  int i,j=0;
+  int end=0;
+
+  DBG (10, "copy_JPEG: start\n");
+
+  for(i=0;i<len;i++){
+    /* copy byte */
+    s->buffers[side][ s->bytes_rx[side]+i ] = buf[i];
+
+    j = i+1;
+
+    /* look for EOI marker */
+    /* FIXME: what if ff and d9 are in different passes? */
+    if(buf[i] == 0xff && j < len && buf[j] == 0xd9){
+        DBG (10, "copy_JPEG: found end\n");
+        s->buffers[side][ s->bytes_rx[side]+j ] = buf[j];
+	j++;
+        end=1;
+        break;
     }
   }
 
-  free(buf);
+  s->bytes_rx[side] += j;
 
-  DBG (10, "read_from_scanner: finish\n");
+  /* we did not read to end of buf, must have found EOI */
+  /* override the total, so that sane_read will return EOF */
+  if(end){
+    s->bytes_tot[side] = s->bytes_rx[side];
+  }
+
+  DBG (10, "copy_JPEG: finish\n");
 
   return ret;
 }
@@ -4739,7 +5200,6 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
   DBG (10, "copy_buffer: start\n");
 
   memcpy(s->buffers[side]+s->bytes_rx[side],buf,len);
-  s->lines_rx[side] += len/s->params.bytes_per_line;
   s->bytes_rx[side] += len;
 
   DBG (10, "copy_buffer: finish\n");
@@ -4748,73 +5208,95 @@ copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side)
 }
 
 static SANE_Status
-read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len, int side)
+read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
+  SANE_Int max_len, SANE_Int * len, int side)
 {
-  SANE_Status ret=SANE_STATUS_GOOD;
-  int bytes = max_len, i=0;
-  int remain = s->bytes_rx[side] - s->bytes_tx[side];
-
-  DBG (10, "read_from_buffer: start\n");
-
-  /* figure out the max amount to transfer */
-  if(bytes > remain){
-    bytes = remain;
-  }
-
-  *len = bytes;
-
-  DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side, s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
-
-  /*FIXME this needs to timeout eventually */
-  if(!bytes){
-    DBG(5,"read_from_buffer: nothing to do\n");
-    return SANE_STATUS_GOOD;
-  }
-
-  /* scanners interlace colors in many different ways */
-  /* use separate functions to convert to regular rgb */
-  if(s->mode == MODE_COLOR){
-    int byteOff;
-
-    switch (s->color_interlace) {
-
-        /* scanner returns pixel data as bgrbgr... */
-        case COLOR_INTERLACE_BGR:
-          for (i=0; i < bytes; i++){
-            buf[i]=s->buffers[side][s->bytes_tx[side]+i-(((s->bytes_tx[side]+i)%3)-1)*2];
-          }
-          break;
-
-        /* one line has the following format:
-         * rrr...rrrggg...gggbbb...bbb */
-        case COLOR_INTERLACE_3091:
-        case COLOR_INTERLACE_RRGGBB:
-          for (i=0; i < bytes; i++){
-            byteOff = (s->bytes_tx[side]+i)%s->params.bytes_per_line;
-            buf[i]=s->buffers[side][(s->bytes_tx[side]+i)-byteOff + (byteOff%3)*s->params.pixels_per_line + (byteOff/3)];
-          }
-          break; 
-
-        default:
-          memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+    SANE_Status ret=SANE_STATUS_GOOD;
+    int bytes = max_len, i=0;
+    int remain = s->bytes_rx[side] - s->bytes_tx[side];
+  
+    DBG (10, "read_from_buffer: start\n");
+  
+    /* figure out the max amount to transfer */
+    if(bytes > remain){
+        bytes = remain;
     }
-  }
-  else{
-    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-  }
+  
+    *len = bytes;
+  
+    DBG(15, "read_from_buffer: si:%d to:%d tx:%d re:%d bu:%d pa:%d\n", side,
+      s->bytes_tot[side], s->bytes_tx[side], remain, max_len, bytes);
+  
+    /*FIXME this needs to timeout eventually */
+    if(!bytes){
+        DBG(5,"read_from_buffer: nothing to do\n");
+        return SANE_STATUS_GOOD;
+    }
+  
+    /* jpeg data does not use typical interlacing or inverting, just copy */
+    if(s->compress == COMP_JPEG &&
+      (s->mode == MODE_COLOR || s->mode == MODE_GRAYSCALE)){
 
-  s->bytes_tx[side] += *len;
+        memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+    }
+  
+    /* not using jpeg, colors interlaced, pixels inverted */
+    else {
 
-  /* invert image if scanner needs it for this mode */
-  if (s->reverse_by_mode[s->mode]){
-      for ( i = 0; i < *len; i++ ) {
-          buf[i] ^= 0xff;
-      }
-  }
+        /* scanners interlace colors in many different ways */
+        /* use separate code to convert to regular rgb */
+        if(s->mode == MODE_COLOR){
+            int byteOff, lineOff;
+        
+            switch (s->color_interlace) {
+        
+                /* scanner returns pixel data as bgrbgr... */
+                case COLOR_INTERLACE_BGR:
+                    for (i=0; i < bytes; i++){
+                        byteOff = s->bytes_tx[side] + i;
+                        buf[i] = s->buffers[side][ byteOff-((byteOff%3)-1)*2 ];
+                    }
+                    break;
+        
+                /* one line has the following format:
+                 * rrr...rrrggg...gggbbb...bbb */
+                case COLOR_INTERLACE_3091:
+                case COLOR_INTERLACE_RRGGBB:
+                    for (i=0; i < bytes; i++){
+                        byteOff = s->bytes_tx[side] + i;
+                        lineOff = byteOff % s->params.bytes_per_line;
 
-  DBG (10, "read_from_buffer: finish\n");
-
-  return ret;
+                        buf[i] = s->buffers[side][
+                          byteOff - lineOff                       /* line  */
+                          + (lineOff%3)*s->params.pixels_per_line /* color */
+                          + (lineOff/3)                           /* pixel */
+                        ];
+                    }
+                    break;
+        
+                default:
+                    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+                    break;
+            }
+        }
+        /* gray/ht/binary */
+        else{
+            memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
+        }
+      
+        /* invert image if scanner needs it for this mode */
+        if (s->reverse_by_mode[s->mode]){
+            for ( i = 0; i < *len; i++ ) {
+                buf[i] ^= 0xff;
+            }
+        }
+    }
+  
+    s->bytes_tx[side] += *len;
+      
+    DBG (10, "read_from_buffer: finish\n");
+  
+    return ret;
 }
 
 
@@ -4974,13 +5456,13 @@ sane_exit (void)
 static SANE_Status
 sense_handler (int fd, unsigned char * sensed_data, void *arg)
 {
+  struct fujitsu *s = arg;
   unsigned int sense = get_RS_sense_key (sensed_data);
   unsigned int asc = get_RS_ASC (sensed_data);
   unsigned int ascq = get_RS_ASCQ (sensed_data);
   unsigned int eom = get_RS_EOM (sensed_data);
   unsigned int ili = get_RS_ILI (sensed_data);
   unsigned int info = get_RS_information (sensed_data);
-  arg = arg;
 
   DBG (5, "sense_handler: start\n");
 
@@ -5008,9 +5490,9 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         DBG  (5, "No sense: unknown ascq\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if (get_RS_EOM (sensed_data)) {
-        /*s->datLen = get_RS_information (sensed_data);*/
-        DBG  (5, "No sense: EOM\n");
+      if (eom == 1 && ili == 1) {
+        s->rs_info = get_RS_information (sensed_data);
+        DBG  (5, "No sense: EOM remainder:%lu\n",(unsigned long)s->rs_info);
         return SANE_STATUS_EOF;
       }
       DBG  (5, "No sense: ready\n");
@@ -5251,6 +5733,7 @@ do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
 )
 {
   int ret;
+  size_t actLen = 0;
 
   /*shut up compiler*/
   runRS=runRS;
@@ -5268,15 +5751,17 @@ do_scsi_cmd(struct fujitsu *s, int runRS, int shortTime,
   if (inBuff && inLen){
     DBG(25, "in: reading %d bytes\n", (int)*inLen);
     memset(inBuff,0,*inLen);
+    actLen = *inLen;
   }
 
-  ret = sanei_scsi_cmd2 (s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);
+  ret = sanei_scsi_cmd2(s->fd, cmdBuff, cmdLen, outBuff, outLen, inBuff, inLen);
 
   if(ret != SANE_STATUS_GOOD && ret != SANE_STATUS_EOF){
     DBG(5,"do_scsi_cmd: return '%s'\n",sane_strstatus(ret));
     return ret;
   }
 
+  /* FIXME: should we look at s->rs_info here? */
   if (inBuff && inLen){
     hexdump(30, "in: <<", inBuff, *inLen);
     DBG(25, "in: read %d bytes\n", (int)*inLen);
@@ -5299,6 +5784,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     size_t usb_cmdLen = USB_COMMAND_LEN;
     size_t usb_outLen = outLen;
     size_t usb_statLen = USB_STATUS_LEN;
+    size_t askLen = 0;
 
     /*copy the callers buffs into larger, padded ones*/
     unsigned char usb_cmdBuff[USB_COMMAND_LEN];
@@ -5375,33 +5861,38 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
     /* this command has a read component, and a place to put it */
     if(inBuff && inLen && inTime){
-        size_t askLen = *inLen;
 
-        memset(inBuff,0,*inLen);
+        askLen = *inLen;
+        memset(inBuff,0,askLen);
 
         /* change timeout */
         sanei_usb_set_timeout(inTime);
 
-        DBG(25, "in: reading %d bytes, timeout %d\n", (int)*inLen, inTime);
+        DBG(25, "in: reading %lu bytes, timeout %d\n",
+          (unsigned long)askLen, inTime);
+
         ret = sanei_usb_read_bulk(s->fd, inBuff, inLen);
         DBG(25, "in: retVal %d\n", ret);
 
         if(ret == SANE_STATUS_EOF){
             DBG(5,"in: got EOF, continuing\n");
+            ret = SANE_STATUS_GOOD;
         }
-        else if(ret != SANE_STATUS_GOOD){
+
+        if(ret != SANE_STATUS_GOOD){
             DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
             return ret;
         }
 
-        DBG(25, "in: read %d bytes\n", (int)*inLen);
+        DBG(25, "in: read %lu bytes\n", (unsigned long)*inLen);
         if(*inLen){
             hexdump(30, "in: <<", inBuff, *inLen);
         }
 
-        if(*inLen != askLen){
+        if(*inLen && *inLen != askLen){
             ret = SANE_STATUS_EOF;
-            DBG(5,"in: short read, %d/%d\n",(int)*inLen,(int)askLen);
+            DBG(5,"in: short read, %lu/%lu\n",
+              (unsigned long)*inLen,(unsigned long)askLen);
         }
     }
 
@@ -5464,7 +5955,17 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         }
 
         /* parse the rs data */
-        return sense_handler( 0, rsBuff, (void *)s );
+        ret2 = sense_handler( 0, rsBuff, (void *)s );
+
+        /* this was a short read, but the usb layer did not know */
+        if(ret2 == SANE_STATUS_EOF && s->rs_info
+          && inBuff && inLen && inTime){
+            *inLen = askLen - s->rs_info;
+            s->rs_info = 0;
+            DBG(5,"do_usb_cmd: short read via rs, %lu/%lu\n",
+              (unsigned long)*inLen,(unsigned long)askLen);
+        }
+        return ret2;
       }
       else{
         DBG(5,"do_usb_cmd: Not calling rs!\n");

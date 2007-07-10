@@ -1,3 +1,10 @@
+2007-07-10  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.50,
+	  add JPEG support, usb command sending and scan params cleanups
+	* include/sane/sane.h: add SANE_FRAME_JPEG
+	* frontend/scanimage.c: dont crash on unknown frame types
+
 2007-07-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/plustek.desc: Fixed web entries

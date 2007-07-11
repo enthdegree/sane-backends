@@ -2,7 +2,7 @@
    check-usb-chip.c -- Find out what USB scanner chipset is used
    
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
-   Copyright (C) 2003 Gerhard Jäger <gerhard@gjaeger.de>
+   Copyright (C) 2003 Gerhard Jï¿½ger <gerhard@gjaeger.de>
                       for LM983x tests
    Copyright (C) 2003 Gerard Klaver <gerard at gkall dot hobby dot nl>
                       for ICM532B tests
@@ -1720,6 +1720,12 @@ check_gl660_gl646 (struct usb_device *dev)
 
 /********** the gl841 section **********/
 
+/* the various incarnations could be distinguished by the 
+ * bcdDevice entry:
+ *   >= 0x400 --> GL843 ( >= 0x500 --> 845???)
+ *   >= 0x306 --> GL842 (probably >= 0x303???)
+ *   >= 0x200 --> GL841
+ */
 static char *
 check_gl841 (struct usb_device *dev)
 {
@@ -1728,7 +1734,7 @@ check_gl841 (struct usb_device *dev)
   usb_dev_handle *handle;
 
   if (verbose > 2)
-    printf ("    checking for GL841 ...\n");
+    printf ("    checking for GL84x ...\n");
 
   /* Check device descriptor */
   if ((dev->descriptor.bDeviceClass != USB_CLASS_VENDOR_SPEC)
@@ -1846,8 +1852,14 @@ check_gl841 (struct usb_device *dev)
     }
 
   result = prepare_interface (dev, &handle);
-  if (!result)
-    return "GL841?";
+  if (!result) {
+    if (dev->descriptor.bcdDevice >= 0x400)
+	return "GL843?";
+    if (dev->descriptor.bcdDevice >= 0x306)
+	return "GL842";
+    else
+	return "GL841?";
+  }
 
   result = gl646_write_reg (handle, 0x38, 0x15);
   if (!result)
@@ -1875,6 +1887,12 @@ check_gl841 (struct usb_device *dev)
       return 0;
     }
   finish_interface (handle);
+  if (dev->descriptor.bcdDevice >= 0x400)
+    return "GL843";
+
+  if (dev->descriptor.bcdDevice >= 0x306)
+    return "GL842";
+
   return "GL841";
 }
 

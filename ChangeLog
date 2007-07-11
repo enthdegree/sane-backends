@@ -1,3 +1,8 @@
+2007-07-11  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* tools/check-usb-chip.c: Try to distinguish the various
+	  GenesysLogic GeneScan ASICS - GL841, GL842 and GL843
+
 2007-07-10  m. allan noah <kitno455 a t gmail d o t com>
 
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.50,

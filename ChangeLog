@@ -1,5 +1,11 @@
 2007-07-14  m. allan noah <kitno455 a t gmail d o t com>
 
+	* doc/sane-cardscan.man,doc/Makefile.in,doc/descriptions/cardscan.desc,
+	  backend/cardscan.*,backend/Makefile.in,configure.in:
+	    add new v1.0.0 backend for Corex CardScan 800c
+
+2007-07-14  m. allan noah <kitno455 a t gmail d o t com>
+
 	* doc/sane-fujitsu.man: add more known models, fix bug #304450
 	* backend/Makefile.in: libsane-fujitsu.la does not use sanei_thread.lo
 

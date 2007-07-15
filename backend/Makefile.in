@@ -92,8 +92,10 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   as6e.h avision.c avision.conf.in avision.h bh.c bh.conf.in bh.h canon.c \
   canon.conf.in canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
   canon630u.conf.in canon_pp.conf.in canon_pp.h canon_pp.c canon_pp-dev.c \
-  canon_pp-dev.h canon_pp-io.c canon_pp-io.h coolscan.c \
-  coolscan.conf.in coolscan.h coolscan-scsidef.h coolscan2.c coolscan2.conf.in \
+  canon_pp-dev.h canon_pp-io.c canon_pp-io.h \
+  cardscan.c cardscan.conf.in cardscan.h \
+  coolscan.c coolscan.conf.in coolscan.h coolscan-scsidef.h \
+  coolscan2.c coolscan2.conf.in \
   dc210.c dc210.conf.in dc210.h \
   dc240.c dc240.conf.in dc240.h dc25.c dc25.conf.in dc25.h dell1600n_net.c\
   dell1600n_net.conf.in dll.aliases dll.c dll.conf.in dmc.c dmc.conf.in dmc.h \
@@ -355,6 +357,9 @@ libsane-canon.la: ../sanei/sanei_scsi.lo
 libsane-canon630u.la: ../sanei/sanei_constrain_value.lo
 libsane-canon630u.la: ../sanei/sanei_usb.lo
 libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
+libsane-cardscan.la: ../sanei/sanei_config2.lo
+libsane-cardscan.la: ../sanei/sanei_constrain_value.lo
+libsane-cardscan.la: ../sanei/sanei_usb.lo
 libsane-coolscan.la: ../sanei/sanei_config2.lo
 libsane-coolscan.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan.la: ../sanei/sanei_scsi.lo

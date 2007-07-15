@@ -1,3 +1,8 @@
+2007-07-14  m. allan noah <kitno455 a t gmail d o t com>
+
+	* doc/sane-fujitsu.man: add more known models, fix bug #304450
+	* backend/Makefile.in: libsane-fujitsu.la does not use sanei_thread.lo
+
 2007-07-11  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* tools/check-usb-chip.c: Try to distinguish the various

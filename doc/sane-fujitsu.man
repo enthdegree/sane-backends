@@ -1,4 +1,4 @@
-.TH sane-fujitsu 5 "2007-01-26" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2007-07-14" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 
 .SH NAME
@@ -34,9 +34,9 @@ SCSI:        SCSI/USB:    USB:
 M3091DC      fi-4120C     fi-5110C
 M3092DC      fi-4220C     fi-5110EOX
 SP-93GX      fi-4120C2    fi-5110EOX2
-             fi-4220C2    S500
-             fi-5120C
-             fi-5220C
+             fi-4220C2    fi-5110EOXM
+             fi-5120C     S500
+             fi-5220C     S500M
 .fi
 .ft R
 .RE
@@ -127,7 +127,7 @@ Controls scan resolution. Setting --resolution also sets --y-resolution,
 though this behavior is overridden by some frontends.
 .RE
 .PP
-tlx, tly, brx, bry
+tl-x, tl-y, br-x, br-y
 .RS
 Sets scan area upper left and lower right coordinates. These are renamed 
 t, l, x, y by some frontends.
@@ -230,7 +230,7 @@ author, to try and get those features restored to a later version.
 .SH KNOWN ISSUES
 .PP
 .RS
-All IPC, imprinter, and compression options are disabled.
+All IPC, imprinter options are disabled.
 .br
 .br
 Most scanner specific 'quirks' are not accounted for, making it possible
@@ -250,11 +250,11 @@ m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
 .br
   (with credit to the unnamed author of the coolscan driver)
 .br
-fujitsu backend, 3093, fi-4340C, ipc, cmp, long-time maintainer:
+fujitsu backend, m3093, fi-4340C, ipc, cmp, long-time maintainer:
 .br
   Oliver Schirrmeister <oschirr a t abm d o t de>
 .br
-3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz d o t de>
+m3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz dot de>
 .br
 fi-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
 .br

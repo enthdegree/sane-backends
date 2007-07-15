@@ -386,7 +386,6 @@ libsane-fujitsu.la: ../sanei/sanei_config2.lo
 libsane-fujitsu.la: ../sanei/sanei_constrain_value.lo
 libsane-fujitsu.la: ../sanei/sanei_scsi.lo
 libsane-fujitsu.la: ../sanei/sanei_usb.lo
-libsane-fujitsu.la: ../sanei/sanei_thread.lo
 libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-genesys.la: ../sanei/sanei_constrain_value.lo
 libsane-genesys.la: ../sanei/sanei_usb.lo

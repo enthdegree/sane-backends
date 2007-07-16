@@ -1,6 +1,7 @@
 2007-07-15  m. allan noah <kitno455 a t gmail d o t com>
 
-	* doc/descriptions/fujitsu.desc: update website and fi-60F status
+	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: 
+	  update website and fi-60F status
 	* Authors, backend/dll.conf.in: added cardscan backend
 
 2007-07-14  m. allan noah <kitno455 a t gmail d o t com>

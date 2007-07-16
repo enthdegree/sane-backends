@@ -222,7 +222,7 @@ all older versions were retroactively renumbered, 1.0.2 - 1.0.20.
 The current backend may have lost support for some feature you were using.
 The last of the "old" backends, 1.0.20, is still available as source from:
 .PP
-http://www2.pfeiffer.edu/~anoah/fujitsu/
+http://www.thebility.com/fujitsu/
 .PP
 If you find that you need to use the older version, please contact the
 author, to try and get those features restored to a later version.

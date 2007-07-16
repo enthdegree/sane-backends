@@ -22,6 +22,7 @@ Backends:
  canon630u:     Nathan Rutman (*)
  canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick
+ cardscan:      m. allan noah (*)
  coolscan2:     Andras Major (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
@@ -175,7 +176,6 @@ Karsten Festag <karsten.festag@gmx.de>
 Kazuhiro Sasayama <kaz@hypercore.co.jp>
 Kazuya Fukuda <kaafuu@mug.biglobe.ne.jp>
 Kevin Charter <charter@cs.rice.edu>
-m. allan noah <kitno455 at gmail dot com>
 M.F. <massifr@tiscalinet.it>
 Manuel Panea <Manuel.Panea@rzg.mpg.de>
 Marcio Teixeira <marciot@users.sourceforge.net>
@@ -219,3 +219,4 @@ Troy Rollo <sane@troy.rollo.name>
 Ullrich Sigwanz <usigwanz@freesurf.ch>
 Ulrich Deiters <ukd@xenon.pc.Uni-Koeln.DE>
 Wittawat Yamwong <wittawat@web.de>
+m. allan noah <kitno455 at gmail dot com>

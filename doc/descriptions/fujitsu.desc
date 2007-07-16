@@ -10,8 +10,8 @@
 ;
 
 :backend "fujitsu"               ; name of backend
-:url "http://www2.pfeiffer.edu/~anoah/fujitsu/" 
-:version "1.0.49"                ; version of backend
+:url "http://www.thebility.com/fujitsu/" 
+:version "1.0.50"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -157,9 +157,9 @@
 
 :model "fi-60F"
 :interface "USB"
-:status :untested
+:status :unsupported
 :usbid "0x04c5" "0x10c7"
-:comment "workgroup, current, maybe Epson OEM?"
+:comment "workgroup, current, Epson chipset"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, DEPARTMENTAL

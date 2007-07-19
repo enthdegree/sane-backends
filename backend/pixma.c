@@ -949,9 +949,17 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 		       ss->image_bytes_read, ss->sp.image_size));
       close (ss->rpipe);
       ss->rpipe = -1;
-      count = terminate_reader_task (ss, &status);
-      return (count > 0
-	      && status != SANE_STATUS_GOOD) ? status : SANE_STATUS_IO_ERROR;
+      if (terminate_reader_task (ss, &status) > 0
+	  && status != SANE_STATUS_GOOD)
+	{
+	  return status;
+	}
+      else
+	{
+	  /* either terminate_reader_task failed or
+	     rpipe was closed but we expect more data */
+	  return SANE_STATUS_IO_ERROR;
+	}
     }
   if (readlen)
     *readlen = count;

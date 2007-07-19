@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.13.0"                ; version of backend (or "unmaintained")
+:version "0.13.1"                ; version of backend (or "unmaintained")
 ;:new :yes                         ; Is the backend new to this SANE release?
                                   ; :yes or :no
 :manpage "sane-pixma"             ; name of manpage (if it exists)
@@ -33,7 +33,7 @@
 :model "PIXMA MP160"
 :interface "USB"
 :usbid "0x04a9" "0x1714"
-:status :minimal
+:status :basic
 
 :model "PIXMA MP170"
 :interface "USB"
@@ -43,7 +43,7 @@
 :model "PIXMA MP180"
 :interface "USB"
 :usbid "0x04a9" "0x1715"
-:status :untested
+:status :basic
 
 :model "PIXMA MP450"
 :interface "USB"
@@ -54,7 +54,7 @@
 :model "PIXMA MP460"
 :interface "USB"
 :usbid "0x04a9" "0x1716"
-:status :untested
+:status :basic
 
 :model "PIXMA MP500"
 :interface "USB"
@@ -64,7 +64,7 @@
 :model "PIXMA MP510"
 :interface "USB"
 :usbid "0x04a9" "0x1717"
-:status :untested
+:status :basic
 
 :model "PIXMA MP530"
 :interface "USB"
@@ -74,12 +74,14 @@
 :model "PIXMA MP600"
 :interface "USB"
 :usbid "0x04a9" "0x1718"
-:status :minimal
+:status :basic
+:comment "2400DPI doesn't work."
 
-;:model "PIXMA MP600R"
-;:interface "USB"
-;:usbid "0x04a9" "0x1719"
-;:status :untested
+:model "PIXMA MP600R"
+:interface "USB"
+:usbid "0x04a9" "0x1719"
+:status :minimal
+:comment "2400DPI doesn't work."
 
 :model "PIXMA MP750"
 :interface "USB"
@@ -111,16 +113,21 @@
 :status :basic
 :comment "No film scan."
 
-;:model "PIXMA MP810"
-;:interface "USB"
-;:usbid "0x04a9" "0x171a"
-;:status :untested
+:model "PIXMA MP810"
+:interface "USB"
+:usbid "0x04a9" "0x171a"
+:status :untested
 
 :model "PIXMA MP830"
 :interface "USB"
 :usbid "0x04a9" "0x1713"
 :status :basic
 :comment "Sigle-side ADF works but duplex doesn't work yet."
+
+:model "PIXMA MP960"
+:interface "USB"
+:usbid "0x04a9" "0x171b"
+:status :minimal
 
 :model "SmartBase MP360"
 :interface "USB"

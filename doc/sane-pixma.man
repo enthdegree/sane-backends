@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "09 April 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "19 July 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -10,9 +10,11 @@ access to Canon PIXMA multi-function devices (All-in-one printers).
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MP150, PIXMA MP170, PIXMA MP450, PIXMA MP500
+PIXMA MP150, MP160, MP170, MP180, MP450, MP460
 .br
-PIXMA MP530, PIXMA MP800, PIXMA MP800R, PIXMA MP830,
+PIXMA MP500, MP510, MP530, MP600, MP600R
+.br
+PIXMA MP800, MP800R, MP810, MP830, MP960
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .RE
@@ -21,20 +23,20 @@ The following models are not well tested and/or the scanner sometimes hangs
 and must be switched off and on.
 .PP
 .RS
-PIXMA MP160, PIXMA MP180, PIXMA MP460, PIXMA MP510, PIXMA MP600
+SmartBase MP360, MP370, MP390
 .br
-SmartBase MP360, MultiPASS MP730, PIXMA MP760, PIXMA MP780
+MultiPASS MP730, PIXMA MP760, PIXMA MP780
 .RE
 .PP
 The backend supports
 .br
-* resolutions at 75,150,300,600,1200 and 2400 DPI,
+* resolutions at 75,150,300,600,1200 and 2400 DPI (still buggy),
 .br
 * color and grayscale mode,
 .br
-* a custom gamma table with 4096 entries and
+* a custom gamma table and
 .br
-* automatic document feeder.
+* automatic document feeder (only single side).
 .PP
 The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.

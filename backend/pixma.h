@@ -108,7 +108,7 @@ typedef u_int32_t uint32_t;
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
 #define PIXMA_VERSION_MINOR 13
-#define PIXMA_VERSION_BUILD 0
+#define PIXMA_VERSION_BUILD 1
 /**@}*/
 
 /** \name Error codes */
@@ -138,6 +138,8 @@ typedef u_int32_t uint32_t;
 #define PIXMA_CAP_EVENTS       (1 << 5)
 #define PIXMA_CAP_TPU          (1 << 6)
 #define PIXMA_CAP_ADFDUP       ((1 << 7) | PIXMA_CAP_ADF)
+#define PIXMA_CAP_CIS          (0)
+#define PIXMA_CAP_CCD          (1 << 8)
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 

@@ -23,7 +23,7 @@
    MA 02111-1307, USA.
 */
 
-#define SANE_DESC_VERSION "3.2"
+#define SANE_DESC_VERSION "3.3"
 
 #define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -3159,8 +3159,8 @@ print_udev_header (void)
     ("#\n"
      "# udev rules file for supported USB devices\n"
      "#\n"
-     "# To add a USB device, add a rule to the list below between the SUBSYSTEM...\n"
-     "# and LABEL... lines.\n"
+     "# To add a USB device, add a rule to the list below between the\n"
+     "# LABEL=\"libsane_no_create_usb_dev\" and LABEL=\"libsane_rules_end\" lines.\n"
      "#\n"
      "# To run a script when your device is plugged in, add RUN+=\"/path/to/script\"\n"
      "# to the appropriate rule.\n");
@@ -3169,7 +3169,7 @@ print_udev_header (void)
      "# The following list already contains a lot of scanners. If your scanner\n"
      "# isn't mentioned there, add it as explained above and mail the entry to\n"
      "# the sane-devel mailing list (sane-devel@lists.alioth.debian.org).\n"
-     "#\n");
+     "#\n\n");
 }
 
 static void
@@ -3179,8 +3179,27 @@ print_udev (void)
   int i;
 
   print_udev_header ();
-  printf ("\nACTION!=\"add\", GOTO=\"libsane_rules_end\"\n");
-  printf ("SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_rules_end\"\n\n");
+  printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n"
+	 "ENV{DEVTYPE}==\"usb_device\", GOTO=\"libsane_create_usb_dev\"\n"
+	 "SUBSYSTEM==\"usb_device\", GOTO=\"libsane_no_create_usb_dev\"\n"
+	 "SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_rules_end\"\n"
+	 "\n");
+
+  printf("# Kernel >= 2.6.22 jumps here\n"
+	 "LABEL=\"libsane_create_usb_dev\"\n"
+	 "\n");
+
+  printf("# If you are running Linux >= 2.6.22 without CONFIG_USB_DEVICE_CLASS\n"
+	"# AND this rule doesn't already exist on your system, uncomment the\n"
+	"# following line to create the /dev/bus/usb/BBB/DDD device nodes.\n"
+	"# SUBSYSTEM==\"usb\", ACTION==\"add\", ENV{DEVTYPE}==\"usb_device\", "
+	"NAME=\"bus/usb/$env{BUSNUM}/$env{DEVNUM}\", MODE=\"0664\", OWNER=\"root\", GROUP=\"root\"\n"
+	"\n");
+
+  printf("# Kernel < 2.6.22 jumps here\n"
+	 "LABEL=\"libsane_no_create_usb_dev\"\n"
+	 "\n");
+
   while (usbid)
     {
       manufacturer_model_type * name = usbid->name;
@@ -3208,7 +3227,7 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"664\", GROUP=\"scanner\"\n",
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"0664\", GROUP=\"scanner\"\n",
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
       usbid = usbid->next;
     }

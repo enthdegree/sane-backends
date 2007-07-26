@@ -1,3 +1,11 @@
+2007-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes: Update
+	* backend/plustek.c: Bumped build number
+	* backend/plustek-usbhw.c: Force output bit set on misc I/O,
+	  when lamp is switched
+	* doc/descriptions/unsupported.desc: Updated some Plustek entries
+
 2007-07-25 Julien Blache <jb@jblache.org
 	* tools/sane-desc.c: Update udev rules for use with Linux >=
 	2.6.22 and CONFIG_USB_DEVICE_CLASS=n.

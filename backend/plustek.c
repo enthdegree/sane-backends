@@ -11,7 +11,7 @@
  * Original code taken from sane-0.71<br>
  * Copyright (C) 1997 Hypercore Software Design, Ltd.<br>
  * Also based on the work done by Rick Bronson<br>
- * Copyright (C) 2000-2006 Gerhard Jaeger <gerhard@gjaeger.de><br>
+ * Copyright (C) 2000-2007 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
  * - 0.30 - initial version
@@ -158,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-2"
+#define BACKEND_VERSION "0.52-3"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"

@@ -53,6 +53,7 @@
  *        - fixed button handling for Plustek/Genius devices and added
  *          some more debug output to that code path
  * - 0.52 - changed DCapsDef, lamp -> misc_io
+ *        - hammer in output bit, when using misc io pins for lamp switching
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -1145,10 +1146,18 @@ usb_switchLampX( Plustek_Device *dev, SANE_Bool on, SANE_Bool tpa )
 
 	DBG( _DBG_INFO, "usb_switchLampX(ON=%u,TPA=%u)\n", on, tpa );
 
-	if( on )
+	if( on ) {
+		/* in fact the output bit should be set by the default settings
+		 * but we make sure, that it is set anyway...
+		 */
+		if (msk & 0x08)
+			msk |= 0x01;
+		else
+			msk |= 0x10;
 		regs[reg] |= msk;
-	else
+	} else {
 		regs[reg] &= ~msk;
+	}
 
 	DBG( _DBG_INFO, "Switch Lamp: %u, regs[0x%02x] = 0x%02x\n",
 	                on, reg, regs[reg] );

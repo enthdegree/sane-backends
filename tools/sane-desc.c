@@ -3160,7 +3160,7 @@ print_udev_header (void)
      "# udev rules file for supported USB devices\n"
      "#\n"
      "# To add a USB device, add a rule to the list below between the\n"
-     "# ENV{DEVTYPE}!=... and LABEL=\"libsane_rules_end\" lines.\n"
+     "# LABEL=\"libsane_rules_begin\" and LABEL=\"libsane_rules_end\" lines.\n"
      "#\n"
      "# To run a script when your device is plugged in, add RUN+=\"/path/to/script\"\n"
      "# to the appropriate rule.\n");
@@ -3180,7 +3180,22 @@ print_udev (void)
 
   print_udev_header ();
   printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n"
-	 "ENV{DEVTYPE}!=\"usb_device\", GOTO=\"libsane_rules_end\"\n"
+	 "ENV{DEVTYPE}==\"usb_device\", GOTO=\"libsane_create_usb_dev\"\n"
+	 "SUBSYSTEM==\"usb_device\", GOTO=\"libsane_rules_begin\"\n"
+	 "SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_rules_end\"\n"
+	 "\n");
+
+  printf("# Kernel >= 2.6.22 jumps here\n"
+	 "LABEL=\"libsane_create_usb_dev\"\n"
+	 "\n");
+
+  printf("# For Linux >= 2.6.22 without CONFIG_USB_DEVICE_CLASS=y\n"
+	 "ENV{DEVTYPE}==\"usb_device\", NAME=\"bus/usb/$env{BUSNUM}/$env{DEVNUM}\", "
+	 "MODE=\"0664\", OWNER=\"root\", GROUP=\"root\"\n"
+	 "\n");
+
+  printf("# Kernel < 2.6.22 jumps here\n"
+	 "LABEL=\"libsane_rules_begin\"\n"
 	 "\n");
 
   while (usbid)
@@ -3210,7 +3225,7 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", NAME=\"bus/usb/$env{BUSNUM}/$env{DEVNUM}\", MODE=\"0664\", GROUP=\"scanner\"\n",
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"0664\", GROUP=\"scanner\"\n",
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
       usbid = usbid->next;
     }

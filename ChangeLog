@@ -1,3 +1,7 @@
+2007-07-26 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: revert my last commit and rework the one
+	before to produce a backward compatible udev rules file. Yay.
+
 2007-07-26  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/plustek/Plustek-USB.changes: Update

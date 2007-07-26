@@ -3,11 +3,21 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
-V 0.52-1 (2007-03-05)
+V 0.52-3 (2007-07-26)
+---------------------
+Checked UMAX3400/3450 models
+Force output bit set (MIO), when lamp is switched
+
+V 0.52-2 (2007-07-10)
+---------------------
+Added flag to allow only 1- and 8-bit scanmodes. The Q-Scan does
+not seem to support 14-bit modes.
+
+V 0.52-1 (2007-06-29)
 ---------------------
 
 Added sheetfed device Q-Scan USB001 from Portable Peripherals
-Fixed Mustek Bearpaw and make some speedu (bugreports #304343 and
+Fixed Mustek Bearpaw and did some speedup (bugreports #304343 and
 #301763)
 Fixed calibration for senororders other that RGB
 

@@ -1782,14 +1782,20 @@
 :interface "USB"
 :usbid "0x07b3" "0x0900"
 :status :unsupported
-:comment "GL842 based (similar to GL841?), maybe ca be added to genesys backend. Bookscanner."
+:comment "GL842 based (similar to GL841?), maybe to be added to genesys backend. Bookscanner."
 
 :model "OpticFilm 7200"
 :url "/unsupported/plustek-opticfilm-7200.html"
 :interface "USB"
 :usbid "0x07b3" "0x0807"
 :status :unsupported
-:comment "GL841 based, to be added to genesys backend"
+:comment "GL842 based, maybe to be added to genesys backend"
+
+:model "OpticFilm 7200i"
+:interface "USB"
+:usbid "0x07b3" "0x0c04"
+:status :unsupported
+:comment "GL843 based, maybe to be added to genesys backend"
 
 :model "OpticPro A3U"
 :interface "USB"
@@ -1867,14 +1873,14 @@
 :interface "USB"
 :usbid "0x07b3" "0x0c00"
 :status :unsupported
-:comment "GL841 based, to be added to genesys backend"
+:comment "GL843 based, maybe to be added to genesys backend"
 
 :model "OpticPro ST64+"
 :url "/unsupported/plustek-opticpro-st64plus.html"
 :interface "USB"
 :usbid "0x07b3" "0x0c03"
 :status :unsupported
-:comment "Is reported to be based on a GL843 chipset. See link for more details."
+:comment "GL843 based. See link for more details."
 
 :model "OpticSlim 2420"
 :url "/unsupported/plustek-opticslim-2420.html"

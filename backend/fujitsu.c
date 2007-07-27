@@ -260,6 +260,8 @@
 	 - added jpeg output support
          - restructured usb reading code to use RS len for short reads
          - combined calcDerivedValues with sane_get_params
+      V 1.0.51 2007-07-26, MAN
+	 - fix bug in jpeg output support
 
    SANE FLOW DIAGRAM
 
@@ -320,7 +322,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 50 
+#define BUILD 51 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -4152,6 +4154,9 @@ sane_start (SANE_Handle handle)
         DBG (15, "sane_start: using buffered duplex backside\n");
     }
     else{
+      s->bytes_tot[0]=0;
+      s->bytes_tot[1]=0;
+
       s->bytes_rx[0]=0;
       s->bytes_rx[1]=0;
       s->lines_rx[0]=0;
@@ -4179,6 +4184,17 @@ sane_start (SANE_Handle handle)
         do_cancel(s);
         return ret;
       }
+
+      /* store the number of front bytes */ 
+      if ( s->source != SOURCE_ADF_BACK ){
+        s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
+      }
+
+      /* store the number of back bytes */ 
+      if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
+        s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
+      }
+
     }
   }
 

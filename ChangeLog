@@ -1,3 +1,7 @@
+2007-07-26  m. allan noah <kitno455 a t gmail d o t com>
+
+	* backend/fujitsu.c: update to version 1.0.51, fix bug in jpeg code
+
 2007-07-26 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: revert my last commit and rework the one
 	before to produce a backward compatible udev rules file. Yay.

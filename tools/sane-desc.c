@@ -3190,7 +3190,8 @@ print_udev (void)
 	 "\n");
 
   printf("# For Linux >= 2.6.22 without CONFIG_USB_DEVICE_CLASS=y\n"
-	 "ENV{DEVTYPE}==\"usb_device\", NAME=\"bus/usb/$env{BUSNUM}/$env{DEVNUM}\", "
+	 "# If the following rule does not exist on your system yet, uncomment it\n"
+	 "# ENV{DEVTYPE}==\"usb_device\", NAME=\"bus/usb/$env{BUSNUM}/$env{DEVNUM}\", "
 	 "MODE=\"0664\", OWNER=\"root\", GROUP=\"root\"\n"
 	 "\n");
 

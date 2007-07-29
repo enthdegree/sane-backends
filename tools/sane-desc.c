@@ -3226,10 +3226,14 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"0664\", GROUP=\"scanner\"\n",
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"0664\", GROUP=\"scanner\", ENV{libsane_matched}=\"yes\"\n",
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
       usbid = usbid->next;
     }
+
+  printf("\n# The following rule will disable USB autosuspend for the device\n");
+  printf("ENV{libsane_matched}==\"yes\", RUN+=\"/bin/sh -c 'test -e /sys/$env{DEVPATH}/power/level && echo on > /sys/$env{DEVPATH}/power/level'\"\n");
+
   printf ("\nLABEL=\"libsane_rules_end\"\n");
 }
 

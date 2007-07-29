@@ -1,3 +1,9 @@
+2007-07-29 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: Add a RUN rule to the udev rules to
+	automatically disable USB suspend for all known scanners.
+	Works only with kernels >= 2.6.22 where
+	/sys/bus/usb/devices/*/power/level exists.
+
 2007-07-26  m. allan noah <kitno455 a t gmail d o t com>
 
 	* backend/fujitsu.c: update to version 1.0.51, fix bug in jpeg code

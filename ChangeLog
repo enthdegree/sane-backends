@@ -2,6 +2,8 @@
 	* doc/descriptions/epson.desc: add the Epson Stylus DX-4050
 	(04b8:082f), based on several reports. Add the Epson Stylus
 	DX-5000 (04b8:082b) on the same grounds.
+	* backend/canon.c: apply patch from Nils Philippsen, turning
+	3 logical AND into bitwise AND (SANE bug #304363).
 
 2007-07-29 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Add a RUN rule to the udev rules to

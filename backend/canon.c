@@ -246,12 +246,12 @@ get_tpu_stat (int fd, CANON_Device * dev)
     TPU_STAT_INACTIVE : TPU_STAT_NONE;
   if (dev->tpu.Status != TPU_STAT_NONE)	/* TPU available */
     {
-      dev->tpu.Status = (tbuf[2 + 4 + 5] && 0x04) ?
+      dev->tpu.Status = (tbuf[2 + 4 + 5] & 0x04) ?
 	TPU_STAT_INACTIVE : TPU_STAT_ACTIVE;
     }
-  dev->tpu.ControlMode = tbuf[3 + 4 + 5] && 0x03;
+  dev->tpu.ControlMode = tbuf[3 + 4 + 5] & 0x03;
   dev->tpu.Transparency = tbuf[4 + 4 + 5] * 256 + tbuf[5 + 4 + 5];
-  dev->tpu.PosNeg = tbuf[6 + 4 + 5] && 0x01;
+  dev->tpu.PosNeg = tbuf[6 + 4 + 5] & 0x01;
   dev->tpu.FilmType = tbuf[7 + 4 + 5];
 
   DBG (11, "TPU Status: %d\n", dev->tpu.Status);

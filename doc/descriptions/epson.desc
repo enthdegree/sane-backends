@@ -267,6 +267,11 @@
 :usbid "0x04b8" "0x0818"
 :status :good
 
+:model "DX-5000"
+:interface "USB"
+:usbid "0x04b8" "0x082b"
+:status :good
+
 :model "DX-4050"
 :interface "USB"
 :usbid "0x04b8" "0x082f"

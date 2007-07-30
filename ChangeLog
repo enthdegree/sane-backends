@@ -1,6 +1,7 @@
 2007-07-30 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Epson Stylus DX-4050
-	(04b8:082f), based on several reports.
+	(04b8:082f), based on several reports. Add the Epson Stylus
+	DX-5000 (04b8:082b) on the same grounds.
 
 2007-07-29 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Add a RUN rule to the udev rules to

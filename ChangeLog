@@ -1,3 +1,7 @@
+2007-07-31 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc: add the Epson Stylys DX-5050
+	(04b8:082b).
+
 2007-07-30 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Epson Stylus DX-4050
 	(04b8:082f), based on several reports. Add the Epson Stylus

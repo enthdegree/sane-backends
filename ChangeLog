@@ -1,3 +1,11 @@
+2007-07-26  m. allan noah <kitno455 a t gmail d o t com>
+	* frontend/scanimage.c: add default: blocks to FRAME switch code
+	* backend/fujitsu.[ch]: update to version 1.0.52:
+	- remove unused jpeg function
+	- reactivate look-up-table based brightness and contrast options
+	- change range of hardware brightness/contrast to match LUT versions
+	- call send_lut() from sane_control_option instead of sane_start
+
 2007-07-31 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Epson Stylys DX-5050
 	(04b8:082b).

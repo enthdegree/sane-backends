@@ -1216,6 +1216,9 @@ scan_it (void)
 				      parm.lines, parm.depth);
 		}
 	      break;
+
+            default:
+	      break;
 	    }
 
 	  if (must_buffer)
@@ -1328,6 +1331,9 @@ scan_it (void)
 		    }
 		  offset += len;
 		  break;
+
+                default:
+	          break;
 		}
 	    }
 	  else			/* ! must_buffer */

@@ -588,6 +588,7 @@ int get_current_side (struct fujitsu *s);
 int get_page_width (struct fujitsu *s);
 int get_page_height (struct fujitsu *s);
 
+static SANE_Status send_lut (struct fujitsu *s);
 static int set_window (struct fujitsu *s);
 
 static SANE_Status get_pixelsize (struct fujitsu *s, int*, int*, int*, int*);
@@ -598,7 +599,6 @@ static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
 static SANE_Status read_from_3091duplex(struct fujitsu *s);
 static SANE_Status read_from_scanner(struct fujitsu *s, int side);
 
-static SANE_Status copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_3091(struct fujitsu *s, unsigned char * buf, int len, int side);
 static SANE_Status copy_buffer(struct fujitsu *s, unsigned char * buf, int len, int side);
 

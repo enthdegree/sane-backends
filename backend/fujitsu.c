@@ -262,6 +262,11 @@
          - combined calcDerivedValues with sane_get_params
       V 1.0.51 2007-07-26, MAN
 	 - fix bug in jpeg output support
+      V 1.0.52 2007-07-27, MAN
+	 - remove unused jpeg function
+	 - reactivate look-up-table based brightness and contrast options
+	 - change range of hardware brightness/contrast to match LUT versions
+	 - call send_lut() from sane_control_option instead of sane_start
 
    SANE FLOW DIAGRAM
 
@@ -322,7 +327,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 51 
+#define BUILD 52 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2029,20 +2034,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->brightness_range;
     s->brightness_range.quant=1;
 
-    /* scanner has brightness built-in */
-    /* value ranges from 0-255 (usually) */
-    if (s->brightness_steps){
-      s->brightness_range.min=0;
-      s->brightness_range.max=s->brightness_steps;
+    /* some have hardware brightness (always 0 to 255?) */
+    /* some use LUT or GT (-127 to +127)*/
+    if (s->brightness_steps || s->num_download_gamma){
+      s->brightness_range.min=-127;
+      s->brightness_range.max=127;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    /* scanner has brightness via LUT or GT */
-    /* value ranges from -100 to +100 */
-    /*else if (s->num_download_gamma){
-      s->brightness_range.min=-100;
-      s->brightness_range.max=100;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }*/
     else{
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -2059,20 +2057,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->contrast_range;
     s->contrast_range.quant=1;
 
-    /* scanner has contrast built-in */
-    /* value ranges from 0-255 (usually) */
-    if (s->contrast_steps) {
-      s->contrast_range.min=0;
-      s->contrast_range.max=s->contrast_steps;
+    /* some have hardware contrast (always 0 to 255?) */
+    /* some use LUT or GT (-127 to +127)*/
+    if (s->contrast_steps || s->num_download_gamma){
+      s->contrast_range.min=-127;
+      s->contrast_range.max=127;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    } 
-    /* scanner has contrast via LUT or GT */
-    /* value ranges from -100 to +100 */
-    /*else if (s->num_download_gamma){
-      s->contrast_range.min=-100;
-      s->contrast_range.max=100;
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    }*/
+    }
     else {
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -3224,10 +3215,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         /* Enhancement Group */
         case OPT_BRIGHTNESS:
           s->brightness = val_c;
+
+          /* send lut if scanner has no hardware brightness */
+          if(!s->brightness_steps && s->num_download_gamma && s->adbits){
+            return send_lut(s);
+          }
+    
           return SANE_STATUS_GOOD;
 
         case OPT_CONTRAST:
           s->contrast = val_c;
+
+          /* send lut if scanner has no hardware contrast */
+          if(!s->contrast_steps && s->num_download_gamma && s->adbits){
+            return send_lut(s);
+          }
+    
           return SANE_STATUS_GOOD;
 
         case OPT_GAMMA:
@@ -3498,7 +3501,7 @@ get_hardware_status (struct fujitsu *s)
 /* instead of internal brightness/contrast/gamma
    most scanners use a 256x256 or 1024x256 LUT
    default is linear table of slope 1 or 1/4 resp.
-   brightness and contrast inputs are -100 to +100 
+   brightness and contrast inputs are -127 to +127 
 
    contrast rotates slope of line around central input val
 
@@ -3530,12 +3533,12 @@ send_lut (struct fujitsu *s)
   DBG (10, "send_lut: start\n");
 
   /* contrast is converted to a slope [0,90] degrees:
-   * first [-100,100] to [0,200] then to [0,1]
+   * first [-127,127] to [0,254] then to [0,1]
    * then multiply by PI/2 to convert to radians
    * then take the tangent to get slope (T.O.A)
    * then multiply by the normal linear slope 
    * because the table may not be square, i.e. 1024x256*/
-  slope = tan(((double)s->contrast+100)/200 * M_PI/2) * 256/bytes;
+  slope = tan(((double)s->contrast+127)/254 * M_PI/2) * 256/bytes;
 
   /* contrast slope must stay centered, so figure
    * out vertical offset at central input value */
@@ -3546,7 +3549,8 @@ send_lut (struct fujitsu *s)
    * to slide the contrast curve entirely off the table */
   b = ((double)s->brightness/127) * (256 - offset);
 
-  DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b, s->contrast, slope, offset);
+  DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b,
+    s->contrast, slope, offset);
 
   set_S_xfer_datatype (sendB.cmd, S_datatype_lut_data);
   set_S_xfer_length (sendB.cmd, S_lut_data_offset+bytes);
@@ -3573,12 +3577,12 @@ send_lut (struct fujitsu *s)
   hexdump(15,"LUT:",send_lutC+S_lut_data_offset,bytes);
  
   DBG (10,"send_lut: skipping\n");
-  /*ret = do_cmd (
+  ret = do_cmd (
       s, 1, 0,
       sendB.cmd, sendB.size,
       send_lutC, S_lut_data_offset+bytes,
       NULL, NULL
-  );*/
+  );
 
   DBG (10, "send_lut: finish\n");
 
@@ -4088,16 +4092,6 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
-      /* send lut if scanner has no contrast option */
-      if(!s->contrast_steps && s->adbits){
-        ret = send_lut(s);
-        if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot send lut\n");
-          do_cancel(s);
-          return ret;
-        }
-      }
-    
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
@@ -4398,14 +4392,20 @@ set_window (struct fujitsu *s)
 
   set_WD_brightness (window_descriptor_blockB.cmd, 0);
   if(s->brightness_steps){
-    set_WD_brightness (window_descriptor_blockB.cmd, s->brightness);
+    /*convert our common -127 to +127 range into HW's range
+     *FIXME: this code assumes hardware range of 0-255 */
+
+    set_WD_brightness (window_descriptor_blockB.cmd, s->brightness+128);
   }
 
   set_WD_threshold (window_descriptor_blockB.cmd, s->threshold);
 
   set_WD_contrast (window_descriptor_blockB.cmd, 0);
   if(s->contrast_steps){
-    set_WD_contrast (window_descriptor_blockB.cmd, s->contrast);
+    /*convert our common -127 to +127 range into HW's range
+     *FIXME: this code assumes hardware range of 0-255 */
+
+    set_WD_contrast (window_descriptor_blockB.cmd, s->contrast+128);
   }
 
   set_WD_composition (window_descriptor_blockB.cmd, s->mode);
@@ -5105,45 +5105,6 @@ read_from_scanner(struct fujitsu *s, int side)
     DBG (10, "read_from_scanner: finish\n");
   
     return ret;
-}
-
-static SANE_Status
-copy_JPEG(struct fujitsu *s, unsigned char * buf, int len, int side)
-{
-  SANE_Status ret=SANE_STATUS_GOOD;
-  int i,j=0;
-  int end=0;
-
-  DBG (10, "copy_JPEG: start\n");
-
-  for(i=0;i<len;i++){
-    /* copy byte */
-    s->buffers[side][ s->bytes_rx[side]+i ] = buf[i];
-
-    j = i+1;
-
-    /* look for EOI marker */
-    /* FIXME: what if ff and d9 are in different passes? */
-    if(buf[i] == 0xff && j < len && buf[j] == 0xd9){
-        DBG (10, "copy_JPEG: found end\n");
-        s->buffers[side][ s->bytes_rx[side]+j ] = buf[j];
-	j++;
-        end=1;
-        break;
-    }
-  }
-
-  s->bytes_rx[side] += j;
-
-  /* we did not read to end of buf, must have found EOI */
-  /* override the total, so that sane_read will return EOF */
-  if(end){
-    s->bytes_tot[side] = s->bytes_rx[side];
-  }
-
-  DBG (10, "copy_JPEG: finish\n");
-
-  return ret;
 }
 
 static SANE_Status

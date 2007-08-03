@@ -1,6 +1,7 @@
 2007-08-03 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Epson Stylus Photo RX-700
-	(04b8:0810), based on user report.
+	(04b8:0810), based on user report. Add the Epson Stylus CX-6600
+	(04b8:0813), based on user report.
 
 2007-07-26  m. allan noah <kitno455 a t gmail d o t com>
 	* frontend/scanimage.c: add default: blocks to FRAME switch code

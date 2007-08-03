@@ -242,6 +242,11 @@
 :usbid "0x04b8" "0x080f"
 :status :good
 
+:model "RX-700"
+:interface "USB"
+:usbid "0x04b8" "0x0810"
+:status :good
+
 :model "DX-3850"
 :interface "USB"
 :usbid "0x04b8" "0x0818"

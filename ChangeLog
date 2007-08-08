@@ -1,3 +1,7 @@
+2007-08-08  m. allan noah <kitno455 a t gmail d o t com>
+	* frontend/scanimage.c: bugfix: dont round up negative user values
+	* doc/descriptions/fujitsu.desc: add/consolidate new models
+
 2007-08-03 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: add the Epson Stylus Photo RX-700
 	(04b8:0810), based on user report. Add the Epson Stylus CX-6600

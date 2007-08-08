@@ -715,7 +715,14 @@ parse_scalar (const SANE_Option_Descriptor * opt, const char *str,
 	str += sizeof ("us") - 1;
       break;
     }
-  *value = v + 0.5;
+
+  if(v < 0){
+    *value = v - 0.5;
+  }
+  else{
+    *value = v + 0.5;
+  }
+
   return str;
 }
 

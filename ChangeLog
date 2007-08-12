@@ -1,3 +1,6 @@
+2007-08-12  Henning Geinitz <sane@geinitz.org>
+	* doc/descriptions-external/hpljm1005.desc: Added.
+
 2007-08-08  m. allan noah <kitno455 a t gmail d o t com>
 	* frontend/scanimage.c: bugfix: dont round up negative user values
 	* doc/descriptions/fujitsu.desc: add/consolidate new models

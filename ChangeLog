@@ -1,3 +1,8 @@
+2007-08-18 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc: Added Stylus CX-5000 (04b8:082b).
+	* backend/epson_usb.c: Added various USB IDs for CX-6000, DX-5050,
+	DX-5000, CX-5000, DX-4050.
+
 2007-08-12  Henning Geinitz <sane@geinitz.org>
 	* doc/descriptions-external/hpljm1005.desc: Added.
 
@@ -51,7 +56,7 @@
 	  when lamp is switched
 	* doc/descriptions/unsupported.desc: Updated some Plustek entries
 
-2007-07-25 Julien Blache <jb@jblache.org
+2007-07-25 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: Update udev rules for use with Linux >=
 	2.6.22 and CONFIG_USB_DEVICE_CLASS=n.
 

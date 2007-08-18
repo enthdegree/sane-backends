@@ -207,6 +207,11 @@
 :usbid "0x04b8" "0x0819"
 :status :good
 
+:model "CX-5000"
+:interface "USB"
+:usbid "0x04b8" "0x082b"
+:status :good
+
 :model "CX-5200"
 :interface "USB"
 :usbid "0x04b8" "0x0801"

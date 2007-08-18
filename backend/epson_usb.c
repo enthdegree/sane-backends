@@ -36,11 +36,14 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x80f,			/*         / Stylus Photo RX420/RX425/RX430 */
   0x810,			/* PM-A900 / Stylus Photo RX700 */
   0x811,			/* PM-A870 / Stylus Photo RX620/RX630 */
+  0x813,			/* Stylus CX6600 */
   0x814,			/* PM-A700 */
   0x815,			/* LP-A500 / AcuLaser CX11 */
   0x818,			/* CX3800/3810 */
   0x819,			/* CX4800 */
   0x820,			/* CX4200 */
+  0x82b,			/* Stylus CX5000/DX5000/DX5050 */
+  0x82f,			/* Stylus DX4050 */
   0				/* last entry - this is used for devices that are specified 
 				   in the config file as "usb <vendor> <product>" */
 };

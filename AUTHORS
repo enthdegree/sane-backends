@@ -34,30 +34,30 @@ Backends:
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
- genesys:	Henning Meier-Geinitz (*), Gerhard Jaeger (*), Stephane Voltz (*),
+ genesys:	Henning Geinitz (*), Gerhard Jaeger (*), Stephane Voltz (*),
                 Pierre Willenbrock (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
-                Henning Meier-Geinitz (*)
+                Henning Geinitz (*)
  hp:            Peter Kirchgessner (*)
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev
  hp3500:        Troy Rollo (*)
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
-                Frank Zago, Henning Meier-Geinitz (*)
+                Frank Zago, Henning Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  hp5590:        Ilia Sotnikov (*)
- ibm:           M.F., Henning Meier-Geinitz (*)
+ ibm:           M.F., Henning Geinitz (*)
  leo:           Frank Zago (*)
  lexmark:       Fred Odendaal (*)
- ma1509:        Henning Meier-Geinitz (*)
+ ma1509:        Henning Geinitz (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
  microtek2:     Bernd Schroeder, Karsten Festag
  mustek:        Andreas Bolsch, David Mosberger, Andreas Czechanowski,
-                Henning Meier-Geinitz (*), and James Perry.
+                Henning Geinitz (*), and James Perry.
  mustek_pp:     Jochen Eisinger (*), Eddy De Greef (*)
- mustek_usb:    Tom Wang and Henning Meier-Geinitz (*)
- mustek_usb2:   Roy Zhou, Jack Xu, Vinci Cen, and Henning Meier-Geinitz (*)
+ mustek_usb:    Tom Wang and Henning Geinitz (*)
+ mustek_usb2:   Roy Zhou, Jack Xu, Vinci Cen, and Henning Geinitz (*)
  nec:           Kazuya Fukuda (*)
  net:           Andreas Beck and David Mosberger
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
@@ -67,7 +67,7 @@ Backends:
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
-                Herder, and Henning Meier-Geinitz (*)
+                Herder, and Henning Geinitz (*)
  qcam:          Scott Laird (original driver), David Mosberger (SANE backend),
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
@@ -86,12 +86,12 @@ Backends:
  teco1:         Frank Zago (*)
  teco2:         Frank Zago, Gerard Klaver (*)
  teco3:         Frank Zago (*)
- test:          Henning Meier-Geinitz (*)
+ test:          Henning Geinitz (*)
  u12:           Gerhard Jaeger (*)
  umax:          Oliver Rauch (*) and Michael K. Johnson
  umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
- v4l:           Juergen G. Schimmer, and Henning Meier-Geinitz (*)
+ v4l:           Juergen G. Schimmer, and Henning Geinitz (*)
 
 Frontends:
 
@@ -103,7 +103,7 @@ Frontends:
 Sanei internal code:
 
   Adrian Perez Jorge, Andreas Beck, Andreas Czechanowski, Christian Bucher,
-  David Mosberger-Tang, Frank Zago (*), Henning Meier-Geinitz (*),
+  David Mosberger-Tang, Frank Zago (*), Henning Geinitz (*),
   Jeff Freedman, Jochen Eisinger (*), Marcio Teixeira, Yuri Dario,
   Gerhard Jaeger (*)
 
@@ -159,7 +159,7 @@ Glenn Ramsey <glenn@componic.com>
 Gordon Matzigkeit  <gord@gnu.ai.mit.edu>
 Guido Muesch <odiug@faho.rwth-aachen.de>
 Helmut Koeberle <helmut.koeberle@bytec.de>
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Geinitz <sane@geinitz.org>
 Henrik Johansson <henrikjo@post.urfors.se>
 Ilia Sotnikov <hostcc@gmail.com>
 Ingo Schneider <schneidi@informatik.tu-muenchen.de>

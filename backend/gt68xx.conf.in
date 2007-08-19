@@ -21,7 +21,7 @@
 
 ##############################################################################
 # Autodetect Mustek BearPaw 1200 CU, 2400 CU, Mustek ScanExpress 1200 UB Plus,
-# Artec Ultima 2000, and several other GT-6801-based scanners
+# Artec Ultima 2000 (e+), and several other GT-6801-based scanners
 usb 0x05d8 0x4002
 
 # Mustek BearPaw 1200 CU doesn't need any manual override
@@ -45,6 +45,12 @@ usb 0x05d8 0x4002
 # Artec Ultima 2000:
 #override "artec-ultima-2000" 
 #firmware "ePlus2k.usb"
+
+# Artec Ultima 2000e+:
+#override "artec-ultima-2000" 
+#firmware "ePlus2k.usb"
+#vendor "Artec"
+#model "Ultima 2000e+"
 
 # Boeder SmartScan Slim Edition:
 #override "artec-ultima-2000" 
@@ -167,8 +173,20 @@ usb 0x07b3 0x0403
 #model "UT16B"
 
 ##############################################################################
-# Autodetect Plustek OpticSlim M12
+# Autodetect Plustek OpticPro S12 and Nortek MyScan1200
+usb 0x07b3 0x040b
+#vendor "Nortek"
+#model "MyScan 1200"
+
+##############################################################################
+# Autodetect Plustek OpticPro S24
+usb 0x07b3 0x040e
+
+##############################################################################
+# Autodetect Plustek OpticSlim M12 and NeatReceipts Scanalizer Professional 2.5
 usb 0x07b3 0x0412
+#vendor "NeatReceipts"
+#model "Scanalizer Professional 2.5"
 
 ##############################################################################
 # Autodetect Plustek OpticSlim 1200
@@ -177,6 +195,10 @@ usb 0x07b3 0x0413
 ##############################################################################
 # Autodetect Plustek OpticSlim 2400
 usb 0x07b3 0x0422
+
+##############################################################################
+# Autodetect Genius Colorpage SF600
+usb 0x0458 0x2021
 
 ##############################################################################
 # Autodetect Genius Colorpage Vivid3x
@@ -207,6 +229,10 @@ usb 0x0458 0x201f
 ##############################################################################
 # Autodetect Genius Colorpage Vivid 4
 usb 0x0458 0x2014
+
+##############################################################################
+# Autodetect Genius Color Slim 1200
+usb 0x0458 0x201E
 
 ##############################################################################
 # Autodetect Visioneer OneTouch 7300

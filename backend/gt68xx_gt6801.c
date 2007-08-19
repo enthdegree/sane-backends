@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    GT6801 support by Andreas Nowack <nowack.andreas@gmx.de>
-   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2007 Henning Geinitz <sane@geinitz.org>
    
    This file is part of the SANE package.
    

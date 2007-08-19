@@ -2,7 +2,7 @@
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
    AFE offset/gain setting by David Stevenson <david.stevenson@zoom.co.uk>
-   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2007 Henning Geinitz <sane@geinitz.org>
 
    This file is part of the SANE package.
    

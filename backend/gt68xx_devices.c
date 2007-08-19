@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2007 Henning Geinitz <sane@geinitz.org>
    
    This file is part of the SANE package.
    
@@ -1794,6 +1794,59 @@ static GT68xx_Model visioneer_onetouch_7300_model = {
 /* Tested by Jason Novek. Based on Plustek OpticSlim 2400. */
 
 
+static GT68xx_Model genius_colorpageslim_1200_model = {
+  "genius-colorpageslim-1200",  /* Name */
+  "Genius",                      /* Device vendor string */
+  "ColorPage Slim 1200",                /* Device model name */
+  "Cis3r5b1.fw",                /* Name of the firmware file */
+  SANE_FALSE,                   /* Dynamic allocation flag */
+
+  &mustek_gt6816_command_set,   /* Command set used by this scanner */
+
+   1200,                         /* maximum optical sensor resolution */
+   2400,                         /* maximum motor resolution */
+   1200,                          /* base x-res used to calculate geometry */
+   1200,                         /* base y-res used to calculate geometry */
+   1200,                         /* if ydpi is equal or higher, disable backtracking */
+   SANE_FALSE,                   /* Use base_ydpi for all resolutions */
+
+
+
+  {1200, 600, 300, 150, 100, 50, 0},    /* possible x-resolutions */
+  {2400,1200, 600, 300, 150, 100, 50, 0},       /* possible y-resolutions */
+  {16, 12, 8, 0},                       /* possible depths in gray mode */
+  {16, 12, 8, 0},                       /* possible depths in color mode */
+
+  SANE_FIX (0.5),               /* Start of scan area in mm  (x) */
+  SANE_FIX (8.0),               /* Start of scan area in mm (y) */
+  SANE_FIX (218.0),             /* Size of scan area in mm (x) */
+  SANE_FIX (299.0),             /* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in mm (y) */
+  SANE_FIX (9.5),               /* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),               /* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (0.0),               /* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),               /* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),               /* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,                      /* RGB CCD Line-distance correction in pixel */
+  0,                            /* CCD distcance for CCD with 6 lines) */
+
+  COLOR_ORDER_RGB,              /* Order of the CCD/CIS colors */
+  {0x19, 0x1a, 0x18, 0x14, 0x18, 0x12}, /* Default offset/gain */
+  {0x548, 0x513, 0x48d},        /* Default exposure parameters */
+  SANE_FIX (1.5),               /* Default gamma value */
+
+  SANE_TRUE,                    /* Is this a CIS scanner? */
+  GT68XX_FLAG_ALWAYS_LINEMODE | GT68XX_FLAG_SE_2400
+};
+/* tested by  Aleksey Nedorezov <aleksey at nedorezov.com> */
+
+
+
 
 static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x10000, 0x10000, &unknown_model},	/* used for yet unknown scanners */
@@ -1830,5 +1883,6 @@ static GT68xx_USB_Device_Entry gt68xx_usb_device_list[] = {
   {0x0458, 0x201f, &genius_vivid1200xe_model},
   {0x0458, 0x2021, &genius_sf600_model},
   {0x04a7, 0x0444, &visioneer_onetouch_7300_model},
+  {0x0458, 0x201E, &genius_colorpageslim_1200_model},
   {0, 0, NULL}
 };

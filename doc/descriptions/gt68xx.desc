@@ -1,5 +1,5 @@
 :backend "gt68xx"
-:version "1.0-83"
+:version "1.0-84"
 :manpage "sane-gt68xx"
 :url "http://www.meier-geinitz.de/sane/gt68xx-backend/"
 :comment "Only the USB scanners mentioned below are supported. For other Mustek BearPaws, look at the Plustek and the MA-1509 backend."
@@ -20,7 +20,7 @@
 :interface "USB"
 :usbid "0x05d8" "0x4002"
 :status :good
-:comment "Works, only limited testing until now"
+:comment "Works, however 12 bit mode doesn't seem to be supported"
 
 ; -----------------------------------------------------------------------------
 
@@ -46,6 +46,13 @@
 
 :mfg "Genius"
 :url "http://www.genius-kye.com/"
+
+:model "ColorPage Slim 1200"
+;:url "/unsupported/genius-colorpage-slim-1200.html"
+:interface "USB"
+:usbid "0x0458" "0x201e"
+:status :untested
+:comment "Untested but should work."
 
 :model "Colorpage SF600"
 :interface "USB"
@@ -280,6 +287,25 @@
 :status :good
 :comment "Same as ScanExpress 1200 UB Plus"
 
+; -----------------------------------------------------------------------------
+
+:mfg "NeatReceipts"
+
+:model "Scanalizer Professional 2.5"
+:interface "USB"
+:usbid "0x07b3" "0x0412"
+:status :untested
+:comment "Similar to Plustek OpticSlim M12. Please tell us if this scanner works."
+; -----------------------------------------------------------------------------
+
+
+:mfg "Nortek"
+
+:model "MyScan 1200"
+:interface "USB"
+:usbid "0x07b3" "0x040b"
+:status :untested
+:comment "Untested. Please test. Similar to Plustek OpticPro S12?"
 ; -----------------------------------------------------------------------------
 
 :mfg "Packard Bell"

@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002 - 2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002 - 2007 Henning Geinitz <sane@geinitz.org>
 
    This file is part of the SANE package.
    
@@ -48,7 +48,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 83
+#define BUILD 84
 #define MAX_DEBUG
 #define WARMUP_TIME 60
 #define CALIBRATION_HEIGHT 2.5
@@ -1354,7 +1354,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0, "WARNING: Your scanner is not fully supported or at least \n");
       DBG (0, "         had only limited testing. Please be careful and \n");
       DBG (0, "         report any failure/success to \n");
-      DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
+      DBG (0, "         sane-devel@lists.alioth.debian.org. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner and what does (not) work.\n");
     }
@@ -1369,7 +1369,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       DBG (0,
 	   "         the scanner immediately if you hear unusual noise. \n");
       DBG (0, "         Please report any success to \n");
-      DBG (0, "         henning@meier-geinitz.de. Please provide as many\n");
+      DBG (0, "         sane-devel@lists.alioth.debian.org. Please provide as many\n");
       DBG (0, "         details as possible, e.g. the exact name of your\n");
       DBG (0, "         scanner, ids, settings etc.\n");
 

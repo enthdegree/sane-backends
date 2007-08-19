@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002 Sergey Vlasov <vsu@altlinux.ru>
-   Copyright (C) 2002-2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2002-2007 Henning Geinitz <sane@geinitz.org>
    
    This file is part of the SANE package.
    

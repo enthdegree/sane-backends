@@ -1,3 +1,15 @@
+2007-08-19  Henning Geinitz <sane@geinitz.org>
+
+	* backend/gt68xx.c backend/gt68xx.conf.in backend/gt68xx_devices.c
+	  backend/gt68xx_generic.c backend/gt68xx_gt6801.c
+	  backend/gt68xx_gt6816.c backend/gt68xx_high.c
+	  backend/gt68xx_high.h backend/gt68xx_low.c backend/gt68xx_low.h
+	  backend/gt68xx_mid.c doc/sane-gt68xx.man
+	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES: Added
+	  Artec Ultima 2000 e+, Nortek Myscan 1200, NeatReceipts Scanalizer
+	  Professional, Genius Colorpage Slim-1200. Name and email
+	  address changes.
+
 2007-08-18 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: Added Stylus CX-5000 (04b8:082b).
 	* backend/epson_usb.c: Added various USB IDs for CX-6000, DX-5050,

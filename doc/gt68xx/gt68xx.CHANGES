@@ -1,8 +1,14 @@
 gt68xx.CHANGES -*-text-*-
 
+V 1.0.84 (2007-08-19)
+
+* Added Artec Ultima 2000 e+, Nortek Myscan 1200, NeatReceipts Scanalizer
+  Professional, Genius Colorpage Slim-1200.
+* Name and email address changes.
+
 V 1.0.83 (2007-01-28)
 
-* Added .conf entry for Pluste OpticPro S12 and S24. Updated .desc file.
+* Added .conf entry for Plustek OpticPro S12 and S24. Updated .desc file.
 
 V 1.0.82 (2006-10-03)
 

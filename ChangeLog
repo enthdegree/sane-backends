@@ -1,3 +1,8 @@
+2007-08-26  Stephane Voltz <stef.dev@free.fr>
+
+	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
+	  HP2400 warmup fix by Luke
+
 2007-08-19  Henning Geinitz <sane@geinitz.org>
 
 	* backend/gt68xx.c backend/gt68xx.conf.in backend/gt68xx_devices.c

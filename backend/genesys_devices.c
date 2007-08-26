@@ -3,8 +3,9 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2005 Stephane Voltz <svoltz@numericable.fr>
+   Copyright (C) 2004-2007 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
    This file is part of the SANE package.
    
@@ -198,22 +199,22 @@ static Genesys_Sensor Sensor[] = {
   /* CANOLIDE35 */
   {1200,
 /*TODO: find a good reason for keeping all three following variables*/
-   87, /*(black)*/
-   87, /* (dummy)*/
-   0, /* (startxoffset)*/
-   10400, /*sensor_pixels*/
-   210, 
+   87,				/*(black) */
+   87,				/* (dummy) */
+   0,				/* (startxoffset) */
+   10400,			/*sensor_pixels */
+   210,
    200,
    {0x00, 0x00, 0x00, 0x00},
-   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50, 
-    0x00, 0x00, 0x00, 0x00 /* TODO(these do no harm, but may be neccessery for CCD)*/
-   },
-   {0x05, 0x07, 
-    0x00, 0x00, 0x00, 0x00, /*[GB](HI|LOW) not needed for cis*/ 
-    0x3a, 0x03, 
-    0x40, /*TODO: bit7*/
-    0x00, 0x00, 0x00, 0x00 /*TODO (these do no harm, but may be neccessery for CCD)*/
-   }
+   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x00, 0x50,
+    0x00, 0x00, 0x00, 0x00	/* TODO(these do no harm, but may be neccessery for CCD) */
+    },
+   {0x05, 0x07,
+    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
+    0x3a, 0x03,
+    0x40,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x00	/*TODO (these do no harm, but may be neccessery for CCD) */
+    }
    ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
@@ -287,111 +288,111 @@ static Genesys_Motor Motor[] = {
   {
    1200,			/* motor base steps */
    2400,			/* maximum motor resolution */
-   1,                           /* maximum step mode*/
-   {{   
-       11000,                       /* maximum start speed */
-       3000,                        /* maximum end speed */
-       128,                         /* step count */
-       1.0,                         /* nonlinearity */
-   },
+   1,				/* maximum step mode */
+   {{
+     11000,			/* maximum start speed */
+     3000,			/* maximum end speed */
+     128,			/* step count */
+     1.0,			/* nonlinearity */
+     },
     {
-       11000,
-       3000,
-       128,
-       1.0,
+     11000,
+     3000,
+     128,
+     1.0,
+     },
     },
    },
-  },
   {				/* MD5345/6228/6471 */
    1200,
    2400,
    1,
-   {{   
-       2000,
-       1375,
-       128,
-       0.5,  
-   },
+   {{
+     2000,
+     1375,
+     128,
+     0.5,
+     },
     {
-       2000,
-       1375,
-       128,
-       0.5,  
+     2000,
+     1375,
+     128,
+     0.5,
+     },
     },
    },
-  },
   {				/* ST24 */
    2400,
    2400,
    1,
-   {{   
-       2289,
-       2100,
-       128,
-       0.3,
-   },
+   {{
+     2289,
+     2100,
+     128,
+     0.3,
+     },
     {
-       2289,
-       2100,
-       128,
-       0.3,
+     2289,
+     2100,
+     128,
+     0.3,
+     },
     },
    },
-  },
   {				/* HP 2400c */
    1200,
    2400,
    1,
-   {{   
-       11000,
-       3000,
-       128,
-       1.0,
-   },
+   {{
+     11000,
+     3000,
+     128,
+     1.0,
+     },
     {
-       11000,
-       3000,
-       128,
-       1.0,
+     11000,
+     3000,
+     128,
+     1.0,
+     },
     },
    },
-  },
   {				/* HP 2300c */
    600,
    1200,
    1,
-   {{   
-       3200,
-       1200,
-       128,
-       0.5,
-   },
+   {{
+     3200,
+     1200,
+     128,
+     0.5,
+     },
     {
-       3200,
-       1200,
-       128,
-       0.5,
+     3200,
+     1200,
+     128,
+     0.5,
+     },
     },
    },
-  },
   {				/* Canon LiDE 35 */
    1200,
    2400,
    1,
    {{
-       3500,
-       1300, 
-       60,
-       0.8, 
-   },
+     3500,
+     1300,
+     60,
+     0.8,
+     },
     {
-	3500,
-	1400,
-	60,
-	0.8, 
+     3500,
+     1400,
+     60,
+     0.8,
+     },
     },
    },
-  },
 };
 
 /* here we have the various device settings...
@@ -441,7 +442,7 @@ static Genesys_Model umax_astra_4500_model = {
 static Genesys_Model canon_lide_50_model = {
   "canon-lide-50",		/* Name */
   "Canon",			/* Device vendor string */
-  "LiDE 35/40/50",			/* Device model name */
+  "LiDE 35/40/50",		/* Device model name */
   GENESYS_GL841,
   NULL,
 
@@ -474,10 +475,7 @@ static Genesys_Model canon_lide_50_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT
-  | GENESYS_FLAG_SKIP_WARMUP
-  | GENESYS_FLAG_OFFSET_CALIBRATION
-  | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT | GENESYS_FLAG_SKIP_WARMUP | GENESYS_FLAG_OFFSET_CALIBRATION | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
   280,
   400
 };
@@ -518,13 +516,10 @@ static Genesys_Model canon_lide_60_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT
-  | GENESYS_FLAG_SKIP_WARMUP
-  | GENESYS_FLAG_OFFSET_CALIBRATION
-  | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT | GENESYS_FLAG_SKIP_WARMUP | GENESYS_FLAG_OFFSET_CALIBRATION | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
   300,
   400
-}; /* this is completely untested -- hmg */
+};				/* this is completely untested -- hmg */
 
 static Genesys_Model hp2300c_model = {
   "hewlett-packard-scanjet-2300c",	/* Name */
@@ -607,8 +602,12 @@ static Genesys_Model hp2400c_model = {
   DAC_WOLFSON_HP2400,
   GPO_HP2400,
   MOTOR_HP2400,
-  GENESYS_FLAG_UNTESTED
-    | GENESYS_FLAG_REPARK | GENESYS_FLAG_USE_PARK | GENESYS_FLAG_14BIT_GAMMA,
+  GENESYS_FLAG_UNTESTED		/* not fully working yet */
+    | GENESYS_FLAG_REPARK
+    | GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_MUST_WAIT
+    | GENESYS_FLAG_DARK_CALIBRATION | GENESYS_FLAG_OFFSET_CALIBRATION,
   20,
   132
 };

@@ -3,8 +3,9 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004 - 2006 Stephane Voltz <stefdev@modulonet.fr>
+   Copyright (C) 2004 - 2007 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
    This file is part of the SANE package.
    
@@ -724,6 +725,17 @@ gl646_setup_sensor (Genesys_Device * dev,
       if (half_ccd)
 	{
 	  r = sanei_genesys_get_address (regs, 0x08);
+	  r->value = 0x14;
+	  r = sanei_genesys_get_address (regs, 0x09);
+	  r->value = 0x15;
+	  r = sanei_genesys_get_address (regs, 0x0a);
+	  r->value = 0x00;
+	  r = sanei_genesys_get_address (regs, 0x0b);
+	  r->value = 0x00;
+	}
+      else
+	{
+	  r = sanei_genesys_get_address (regs, 0x08);
 	  r->value = 2;
 	  r = sanei_genesys_get_address (regs, 0x09);
 	  r->value = 4;
@@ -732,6 +744,7 @@ gl646_setup_sensor (Genesys_Device * dev,
 	  r = sanei_genesys_get_address (regs, 0x0b);
 	  r->value = 0;
 	}
+
     }
 }
 
@@ -952,11 +965,20 @@ gl646_init_regs (Genesys_Device * dev)
 
 /* ST12: 0x20 0x10 0x21 0x08 0x22 0x10 0x23 0x10 0x24 0x08 0x25 0x00 0x26 0x00 0x27 0xd4 0x28 0x01 0x29 0xff */
 /* ST24: 0x20 0x10 0x21 0x08 0x22 0x10 0x23 0x10 0x24 0x08 0x25 0x00 0x26 0x00 0x27 0xd4 0x28 0x01 0x29 0xff */
-
+  /* TODO this construct deserve a switch */
   if (dev->model->ccd_type != CCD_HP2300)
     {
-      dev->reg[reg_0x1f].value = 0x01;	/* scan feed step for table one in two table mode only */
-      dev->reg[reg_0x20].value = 0x10 /*0x01 */ ;	/* n * 2k, below this condition, motor move forward *//* todo: huh, 2k is pretty low? */
+      if (dev->model->ccd_type == CCD_HP2400)
+	{
+	  dev->reg[reg_0x1e].value = 0x40;
+	  dev->reg[reg_0x1f].value = 0x10;
+	  dev->reg[reg_0x20].value = 0x20;
+	}
+      else
+	{
+	  dev->reg[reg_0x1f].value = 0x01;	/* scan feed step for table one in two table mode only */
+	  dev->reg[reg_0x20].value = 0x10 /*0x01 */ ;	/* n * 2k, below this condition, motor move forward *//* todo: huh, 2k is pretty low? */
+	}
     }
   else
     {
@@ -1050,7 +1072,8 @@ gl646_init_regs (Genesys_Device * dev)
 
 /* ST12: 0x6a 0x7f 0x6b 0xff 0x6c 0x00 0x6d 0x01 */
 /* ST24: 0x6a 0x40 0x6b 0xff 0x6c 0x00 0x6d 0x01 */
-  if (dev->model->motor_type == MOTOR_HP2300)
+  if (dev->model->motor_type == MOTOR_HP2300
+      || dev->model->motor_type == MOTOR_HP2400)
     {
       dev->reg[reg_0x6a].value = 0x7f;	/* table two steps number for acc/dec */
       dev->reg[reg_0x6b].value = 0x78;	/* table two steps number for acc/dec */
@@ -1550,7 +1573,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   prepare_steps = 4;
   exposure_time = 6 * MOTOR_SPEED_MAX;
   steps = 14700 - 2 * prepare_steps;
-  if (dev->model->motor_type == MOTOR_HP2300)
+  if (dev->model->motor_type == MOTOR_HP2300
+      || dev->model->motor_type == MOTOR_HP2400)
     {
       steps = 65535;		/* enough to get back home ... */
       dpi = dev->motor.base_ydpi / 4;
@@ -1563,7 +1587,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   local_reg[reg_0x01].value =
     local_reg[reg_0x01].value & ~REG01_FASTMOD & ~REG01_SCAN;
   local_reg[reg_0x02].value = (local_reg[reg_0x02].value & ~REG02_FASTFED & ~REG02_STEPSEL) | REG02_MTRPWR | REG02_MTRREV;	/* Motor on, direction = reverse */
-  if (dev->model->motor_type == MOTOR_HP2300)
+  if (dev->model->motor_type == MOTOR_HP2300
+      || dev->model->motor_type == MOTOR_HP2400)
     local_reg[reg_0x02].value =
       (local_reg[reg_0x02].value & ~REG02_STEPSEL) | REG02_HALFSTEP;
 
@@ -1578,7 +1603,8 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   local_reg[reg_0x3f].value = LOBYTE (LOWORD (steps));
 
   local_reg[reg_0x6c].value = 0x00;	/* one time period (only one speed) */
-  if (dev->model->motor_type != MOTOR_HP2300)
+  if (dev->model->motor_type != MOTOR_HP2300
+      && dev->model->motor_type != MOTOR_HP2400)
     {
       local_reg[reg_0x66].value = local_reg[reg_0x66].value | REG66_LOW_CURRENT;	/* gpio7-12: reset GPIO11 (low current) */
       local_reg[reg_0x6d].value = 0x54;
@@ -2019,7 +2045,8 @@ gl646_search_start_position (Genesys_Device * dev)
   local_reg[reg_0x62].value = LOBYTE (0);
   local_reg[reg_0x63].value = HIBYTE (0);
 
-  if (dev->model->motor_type != MOTOR_HP2300)
+  if (dev->model->motor_type != MOTOR_HP2300
+      && dev->model->motor_type != MOTOR_HP2400)
     local_reg[reg_0x65].value = 0x00;	/* PWM duty cycle for table one motor phase (63 = max) */
   else
     {
@@ -2408,7 +2435,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   if (dev->model->motor_type == MOTOR_5345)
     gl646_setup_steps (dev, dev->calib_reg, dpiset);
-  else if (dev->model->motor_type == MOTOR_HP2300)
+  else if (dev->model->motor_type == MOTOR_HP2300
+	   || dev->model->motor_type == MOTOR_HP2400)
     {
       dev->calib_reg[reg_0x21].value = 2;
       dev->calib_reg[reg_0x22].value = 16;
@@ -2429,7 +2457,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
   steps = dev->model->y_offset * step_parts;
   if (dev->model->motor_type == MOTOR_5345)
     steps = 0;
-  else if (dev->model->motor_type == MOTOR_HP2300)
+  else if (dev->model->motor_type == MOTOR_HP2300
+	   || dev->model->motor_type == MOTOR_HP2400)
     steps = 1;
   else
     dev->calib_reg[reg_0x6b].value = 0x20 * step_parts;
@@ -2897,7 +2926,8 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   dev->reg[reg_0x37].value = LOBYTE (LOWORD (words_per_line));
 
   if ((dev->model->ccd_type == CCD_5345)
-      || (dev->model->ccd_type == CCD_HP2300))
+      || (dev->model->ccd_type == CCD_HP2300)
+      || (dev->model->ccd_type == CCD_HP2400))
     exposure_time =
       sanei_genesys_exposure_time (dev, dev->reg, dev->settings.xres);
   else
@@ -3241,7 +3271,7 @@ static SANE_Status
 gl646_led_calibration (Genesys_Device * dev)
 {
   DBG (DBG_error, "Implementation for led calibration missing\n");
-  if(dev || dev==NULL)
+  if (dev || dev == NULL)
     return SANE_STATUS_INVAL;
   return SANE_STATUS_INVAL;
 }
@@ -3289,7 +3319,8 @@ gl646_offset_calibration (Genesys_Device * dev)
       steps = 0;
       lincnt = 1;
     }
-  else if (dev->model->ccd_type == CCD_HP2300)
+  else if (dev->model->ccd_type == CCD_HP2300
+	   || dev->model->ccd_type == CCD_HP2400)
     {
       dpi = dev->settings.xres;
       steps = 1;
@@ -3312,7 +3343,7 @@ gl646_offset_calibration (Genesys_Device * dev)
 
   dev->calib_reg[reg_0x01].value &= ~REG01_DVDSET;
   dev->calib_reg[reg_0x02].value = REG02_ACDCDIS;
-  if (dev->model->motor_type == MOTOR_5345 || MOTOR_HP2300)
+  if (dev->model->motor_type == MOTOR_5345 || MOTOR_HP2300 || MOTOR_HP2400)
     {
       if (half_ccd)
 	dev->calib_reg[reg_0x02].value =
@@ -3447,7 +3478,8 @@ ST12: 0x60 0x00 0x61 0x00 0x62 0x00 0x63 0x00 0x64 0x00 0x65 0x3f 0x66 0x00 0x67
   dev->calib_reg[reg_0x62].value = HIBYTE (0);
   dev->calib_reg[reg_0x63].value = LOBYTE (0);
 
-  if (dev->model->motor_type == MOTOR_HP2300)
+  if (dev->model->motor_type == MOTOR_HP2300
+      || dev->model->motor_type == MOTOR_HP2400)
     {
       dev->calib_reg[reg_0x65].value = 0x3f;	/* PWM duty cycle for table one motor phase (63 = max) */
       dev->calib_reg[reg_0x6b].value = 0x02;
@@ -3806,7 +3838,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 			    int *channels, int *total_size)
 {
   int num_pixels = (int) (4 * 300);
-  int dpi=300, lincnt, exposure_time, words_per_line;
+  int dpi = 300, lincnt, exposure_time, words_per_line;
   int startpixel, endpixel;
   int steps = 0;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -3888,7 +3920,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
       local_reg[reg_0x37].value = LOBYTE (LOWORD (words_per_line));
 
       exposure_time = sanei_genesys_exposure_time (dev, local_reg, dpi),
-      local_reg[reg_0x38].value = HIBYTE (exposure_time);
+	local_reg[reg_0x38].value = HIBYTE (exposure_time);
       local_reg[reg_0x39].value = LOBYTE (exposure_time);
 
       /* monochrome scan */

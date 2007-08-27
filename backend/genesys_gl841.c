@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2005 Stephane Voltz <stefdev@modulonet.fr>
+   Copyright (C) 2004, 2005 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>

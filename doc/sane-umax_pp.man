@@ -270,7 +270,7 @@ For latest bug fixes and information see
 .I http://umax1220p.sourceforge.net/
 
 .SH "AUTHOR"
-St\['e]phane VOLTZ <svoltz@wanadoo.fr>
+St\['e]phane VOLTZ <stef.dev@free.fr>
 
 .SH "CREDITS"
 Support for the 610P has been made possible thank to an hardware donation

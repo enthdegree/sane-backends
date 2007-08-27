@@ -626,7 +626,7 @@ genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
  * This function generates a slope table using the slope from the motor struct
  * truncated at the given exposure time or step count, whichever comes first. 
  * The reached step time is then stored in final_exposure and used for the rest
- * of the table. The summed time of the acerleation steps is returned, and the
+ * of the table. The summed time of the acceleration steps is returned, and the
  * number of accerelation steps is put into used_steps. 
  *
  * @param dev            Device struct
@@ -636,7 +636,7 @@ genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
  * @param step_type      Generate table for this step_type. 0=>full, 1=>half,
  *                       2=>quarter
  * @param exposure_time  Minimum exposure time of a scan line
- * @param yres           Resoltuion of a scan line
+ * @param yres           Resolution of a scan line
  * @param used_steps     Final number of steps is stored here
  * @param final_exposure Final step time is stored here
  * @return               Time for acceleration

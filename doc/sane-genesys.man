@@ -20,7 +20,7 @@ Canon LiDE 35/40/50/60
 .RE
 
 .PP 
-This is BETA software. Especially if you test new or untested scanners, keep
+This is stable software for supported models. But if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
 the scan area.
 .PP 
@@ -121,12 +121,20 @@ Henning Meier-Geinitz <henning@meier-geinitz.de>
 .br 
 Gerhard Jaeger <gerhard@gjaeger.de>
 .br 
-St\['e]phane Voltz <svoltz@numericable.fr>
+St\['e]phane Voltz <stef.dev@free.fr>
 .br 
 Philipp Schmid <philipp8288@web.de>
 .br 
+Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+.br
+
+.SH "LIMITATIONS"
+Support for buttons is missing.
+.br
+Powersaving isn't implemented for gl646 based scanner.
+.br
 
 .SH "BUGS"
-Support for buttons is missing.
+Currently no known bug.
 .PP 
 

@@ -516,7 +516,7 @@ sense_handler (int scsi_fd, u_char * result, void *arg)
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x8001:
-	      sense_str = SANE_I18N("trancparency unit shading error");
+	      sense_str = SANE_I18N("transparency unit shading error");
 	      status = SANE_STATUS_IO_ERROR;
 	      break;
 	    case 0x8003:

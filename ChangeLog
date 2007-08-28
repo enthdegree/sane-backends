@@ -1,3 +1,8 @@
+2007-08-28  Giuseppe Sacco <eppesuig@debian.org>
+
+        * Italian translation update
+	* Corrected a typo in backend/canon.c
+
 2007-08-27  Stephane Voltz <stef.dev@free.fr>
 
 	* backend/genesys.h backend/genesys_gl841.c backend/genesys_low.h

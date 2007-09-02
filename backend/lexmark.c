@@ -2,7 +2,6 @@
 
    (C) 2003-2004 Lexmark International, Inc. (Original Source code)
    (C) 2005 Fred Odendaal
-   (C) 2006-2007 Stéphane Voltz <stef.dev@free.fr>
    
    This file is part of the SANE package.
 
@@ -70,9 +69,11 @@
 #include "../include/sane/sanei_backend.h"
 
 
+
 #define LEXMARK_CONFIG_FILE "lexmark.conf"
-#define BUILD 30
+#define BUILD 0
 #define MAX_OPTION_STRING_SIZE 255
+#define MM_PER_INCH 25.4
 
 static Lexmark_Device *first_lexmark_device = 0;
 static SANE_Int num_lexmark_device = 0;
@@ -84,66 +85,41 @@ static SANE_Bool initialized = SANE_FALSE;
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
-  SANE_VALUE_SCAN_MODE_LINEART,
+  SANE_VALUE_SCAN_MODE_LINEART, 
   NULL
 };
 
-/* possible resolutions are: 75x75, 150x150, 300x300, 600x600, 600x1200 */
+/* possible resolutions are: 75x75, 150x150, 300x300, 600X600, 600X1200 */
 
-static SANE_Int low_dpi_list[] = {
+static SANE_Int dpi_list[] = {
   5, 75, 150, 300, 600, 1200
 };
 
-static SANE_Int a920_dpi_list[] = {
-  4, 75, 150, 300, 600
-};
-
-static SANE_Int x1200_dpi_list[] = {
-  4, 75, 150, 300, 600
+static SANE_String_Const size_list[] = {
+  "Wallet", "3x5", "4x6", "5x7", "8x10", "Letter", NULL
 };
 
 static SANE_Range threshold_range = {
-  SANE_FIX (0.0),		/* minimum */
-  SANE_FIX (100.0),		/* maximum */
-  SANE_FIX (1.0)		/* quantization */
+  SANE_FIX(0.0),               /* minimum */
+  SANE_FIX(100.0),             /* maximum */
+  SANE_FIX(1.0)                /* quantization */
 };
 
-static const SANE_Range gain_range = {
-  0,				/* minimum */
-  31,				/* maximum */
-  0				/* quantization */
-};
-
-/* for now known models (2 ...) have the same scan window geometry.
-   coordinates are expressed in pixels, with a quantization factor of
-   8 to have 'even' coordinates at 75 dpi */
-static SANE_Range x_range = {
-  0,				/* minimum */
-  5104,				/* maximum */
-  16				/* quantization : 16 is required so we
-				   never have an odd width */
-};
-
-static SANE_Range y_range = {
-  0,				/* minimum */
-  6848,				/* maximum */
-  8				/* quantization */
-};
 
 /* static functions */
 static SANE_Status init_options (Lexmark_Device * lexmark_device);
 static SANE_Status attachLexmark (SANE_String_Const devname);
 
 SANE_Status
-init_options (Lexmark_Device * dev)
+init_options (Lexmark_Device * lexmark_device)
 {
 
   SANE_Option_Descriptor *od;
 
-  DBG (2, "init_options: dev = %p\n", (void *) dev);
+  DBG (2, "init_options: lexmark_device = %p\n", (void *) lexmark_device);
 
   /* number of options */
-  od = &(dev->opt[OPT_NUM_OPTS]);
+  od = &(lexmark_device->opt[OPT_NUM_OPTS]);
   od->name = SANE_NAME_NUM_OPTIONS;
   od->title = SANE_TITLE_NUM_OPTIONS;
   od->desc = SANE_DESC_NUM_OPTIONS;
@@ -153,10 +129,10 @@ init_options (Lexmark_Device * dev)
   od->cap = SANE_CAP_SOFT_DETECT;
   od->constraint_type = SANE_CONSTRAINT_NONE;
   od->constraint.range = 0;
-  dev->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
+  lexmark_device->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
   /* mode - sets the scan mode: Color, Gray, or Line Art */
-  od = &(dev->opt[OPT_MODE]);
+  od = &(lexmark_device->opt[OPT_MODE]);
   od->name = SANE_NAME_SCAN_MODE;
   od->title = SANE_TITLE_SCAN_MODE;
   od->desc = SANE_DESC_SCAN_MODE;;
@@ -166,13 +142,13 @@ init_options (Lexmark_Device * dev)
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   od->constraint_type = SANE_CONSTRAINT_STRING_LIST;
   od->constraint.string_list = mode_list;
-  dev->val[OPT_MODE].s = malloc (od->size);
-  if (!dev->val[OPT_MODE].s)
+  lexmark_device->val[OPT_MODE].s = malloc (od->size);
+  if (!lexmark_device->val[OPT_MODE].s)
     return SANE_STATUS_NO_MEM;
-  strcpy (dev->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR);
+  strcpy (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR);
 
   /* resolution */
-  od = &(dev->opt[OPT_RESOLUTION]);
+  od = &(lexmark_device->opt[OPT_RESOLUTION]);
   od->name = SANE_NAME_SCAN_RESOLUTION;
   od->title = SANE_TITLE_SCAN_RESOLUTION;
   od->desc = SANE_DESC_SCAN_RESOLUTION;
@@ -181,24 +157,11 @@ init_options (Lexmark_Device * dev)
   od->size = sizeof (SANE_Word);
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   od->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  switch (dev->model.sensor_type)
-    {
-    case X1100_2C_SENSOR:
-    case A920_SENSOR:
-      od->constraint.word_list = a920_dpi_list;
-      break;
-    case X1100_B2_SENSOR:
-      od->constraint.word_list = low_dpi_list;
-      od->constraint.word_list = low_dpi_list;
-      break;
-    case X1200_SENSOR:
-      od->constraint.word_list = x1200_dpi_list;
-      break;
-    }
-  dev->val[OPT_RESOLUTION].w = 75;
+  od->constraint.word_list = dpi_list;
+  lexmark_device->val[OPT_RESOLUTION].w = 150;
 
   /* preview mode */
-  od = &(dev->opt[OPT_PREVIEW]);
+  od = &(lexmark_device->opt[OPT_PREVIEW]);
   od->name = SANE_NAME_PREVIEW;
   od->title = SANE_TITLE_PREVIEW;
   od->desc = SANE_DESC_PREVIEW;
@@ -206,72 +169,26 @@ init_options (Lexmark_Device * dev)
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   od->type = SANE_TYPE_BOOL;
   od->constraint_type = SANE_CONSTRAINT_NONE;
-  dev->val[OPT_PREVIEW].w = SANE_FALSE;
+  lexmark_device->val[OPT_PREVIEW].w = SANE_FALSE;
 
-  /* "Geometry" group: */
-  od = &(dev->opt[OPT_GEOMETRY_GROUP]);
-  od->name = "";
-  od->title = SANE_I18N ("Geometry");
-  od->desc = "";
-  od->type = SANE_TYPE_GROUP;
+  /* scan size */
+  od = &(lexmark_device->opt[OPT_SCAN_SIZE]);
+  od->name = SANE_NAME_PAPER_SIZE;
+  od->title = SANE_TITLE_PAPER_SIZE;
+  od->desc = SANE_DESC_PAPER_SIZE;
+  od->type = SANE_TYPE_STRING;
+  od->unit = SANE_UNIT_NONE;
+  od->size = MAX_OPTION_STRING_SIZE;
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->size = 0;
-  od->constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* top-left x */
-  od = &(dev->opt[OPT_TL_X]);
-  od->name = SANE_NAME_SCAN_TL_X;
-  od->title = SANE_TITLE_SCAN_TL_X;
-  od->desc = SANE_DESC_SCAN_TL_X;
-  od->type = SANE_TYPE_INT;
-  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->size = sizeof (SANE_Word);
-  od->unit = SANE_UNIT_PIXEL;
-  od->constraint_type = SANE_CONSTRAINT_RANGE;
-  od->constraint.range = &x_range;
-  dev->val[OPT_TL_X].w = 0;
-
-  /* top-left y */
-  od = &(dev->opt[OPT_TL_Y]);
-  od->name = SANE_NAME_SCAN_TL_Y;
-  od->title = SANE_TITLE_SCAN_TL_Y;
-  od->desc = SANE_DESC_SCAN_TL_Y;
-  od->type = SANE_TYPE_INT;
-  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->size = sizeof (SANE_Word);
-  od->unit = SANE_UNIT_PIXEL;
-  od->constraint_type = SANE_CONSTRAINT_RANGE;
-  od->constraint.range = &y_range;
-  dev->val[OPT_TL_Y].w = 0;
-
-  /* bottom-right x */
-  od = &(dev->opt[OPT_BR_X]);
-  od->name = SANE_NAME_SCAN_BR_X;
-  od->title = SANE_TITLE_SCAN_BR_X;
-  od->desc = SANE_DESC_SCAN_BR_X;
-  od->type = SANE_TYPE_INT;
-  od->size = sizeof (SANE_Word);
-  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->unit = SANE_UNIT_PIXEL;
-  od->constraint_type = SANE_CONSTRAINT_RANGE;
-  od->constraint.range = &x_range;
-  dev->val[OPT_BR_X].w = x_range.max;
-
-  /* bottom-right y */
-  od = &(dev->opt[OPT_BR_Y]);
-  od->name = SANE_NAME_SCAN_BR_Y;
-  od->title = SANE_TITLE_SCAN_BR_Y;
-  od->desc = SANE_DESC_SCAN_BR_Y;
-  od->type = SANE_TYPE_INT;
-  od->size = sizeof (SANE_Word);
-  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
-  od->unit = SANE_UNIT_PIXEL;
-  od->constraint_type = SANE_CONSTRAINT_RANGE;
-  od->constraint.range = &y_range;
-  dev->val[OPT_BR_Y].w = y_range.max;
+  od->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  od->constraint.string_list = size_list;
+  lexmark_device->val[OPT_SCAN_SIZE].s = malloc (od->size);
+  if (!lexmark_device->val[OPT_SCAN_SIZE].s)
+    return SANE_STATUS_NO_MEM;
+  strcpy (lexmark_device->val[OPT_SCAN_SIZE].s, "3x5");
 
   /* threshold */
-  od = &(dev->opt[OPT_THRESHOLD]);
+  od = &(lexmark_device->opt[OPT_THRESHOLD]);
   od->name = SANE_NAME_THRESHOLD;
   od->title = SANE_TITLE_THRESHOLD;
   od->desc = SANE_DESC_THRESHOLD;
@@ -281,73 +198,7 @@ init_options (Lexmark_Device * dev)
   od->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_INACTIVE;
   od->constraint_type = SANE_CONSTRAINT_RANGE;
   od->constraint.range = &threshold_range;
-  dev->val[OPT_THRESHOLD].w = SANE_FIX (50.0);
-
-  /*  gain group */
-  dev->opt[OPT_MANUAL_GAIN].name = "manual-channel-gain";
-  dev->opt[OPT_MANUAL_GAIN].title = SANE_I18N ("Gain");
-  dev->opt[OPT_MANUAL_GAIN].desc = SANE_I18N ("Color channels gain settings");
-  dev->opt[OPT_MANUAL_GAIN].type = SANE_TYPE_BOOL;
-  dev->opt[OPT_MANUAL_GAIN].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
-  dev->opt[OPT_MANUAL_GAIN].size = sizeof (SANE_Bool);
-  dev->val[OPT_MANUAL_GAIN].w = SANE_FALSE;
-
-  /* gray gain */
-  dev->opt[OPT_GRAY_GAIN].name = "gray-gain";
-  dev->opt[OPT_GRAY_GAIN].title = SANE_I18N ("Gray gain");
-  dev->opt[OPT_GRAY_GAIN].desc = SANE_I18N ("Sets gray channel gain");
-  dev->opt[OPT_GRAY_GAIN].type = SANE_TYPE_INT;
-  dev->opt[OPT_GRAY_GAIN].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE |
-    SANE_CAP_ADVANCED;
-  dev->opt[OPT_GRAY_GAIN].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GRAY_GAIN].size = sizeof (SANE_Int);
-  dev->opt[OPT_GRAY_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GRAY_GAIN].constraint.range = &gain_range;
-  dev->val[OPT_GRAY_GAIN].w = 10;
-
-  /* red gain */
-  dev->opt[OPT_RED_GAIN].name = "red-gain";
-  dev->opt[OPT_RED_GAIN].title = SANE_I18N ("Red gain");
-  dev->opt[OPT_RED_GAIN].desc = SANE_I18N ("Sets red channel gain");
-  dev->opt[OPT_RED_GAIN].type = SANE_TYPE_INT;
-  dev->opt[OPT_RED_GAIN].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE |
-    SANE_CAP_ADVANCED;
-  dev->opt[OPT_RED_GAIN].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_RED_GAIN].size = sizeof (SANE_Int);
-  dev->opt[OPT_RED_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_RED_GAIN].constraint.range = &gain_range;
-  dev->val[OPT_RED_GAIN].w = 10;
-
-  /* green gain */
-  dev->opt[OPT_GREEN_GAIN].name = "green-gain";
-  dev->opt[OPT_GREEN_GAIN].title = SANE_I18N ("Green gain");
-  dev->opt[OPT_GREEN_GAIN].desc = SANE_I18N ("Sets green channel gain");
-  dev->opt[OPT_GREEN_GAIN].type = SANE_TYPE_INT;
-  dev->opt[OPT_GREEN_GAIN].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE |
-    SANE_CAP_ADVANCED;
-  dev->opt[OPT_GREEN_GAIN].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_GREEN_GAIN].size = sizeof (SANE_Int);
-  dev->opt[OPT_GREEN_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_GREEN_GAIN].constraint.range = &gain_range;
-  dev->val[OPT_GREEN_GAIN].w = 10;
-
-  /* blue gain */
-  dev->opt[OPT_BLUE_GAIN].name = "blue-gain";
-  dev->opt[OPT_BLUE_GAIN].title = SANE_I18N ("Blue gain");
-  dev->opt[OPT_BLUE_GAIN].desc = SANE_I18N ("Sets blue channel gain");
-  dev->opt[OPT_BLUE_GAIN].type = SANE_TYPE_INT;
-  dev->opt[OPT_BLUE_GAIN].cap =
-    SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_INACTIVE |
-    SANE_CAP_ADVANCED;
-  dev->opt[OPT_BLUE_GAIN].unit = SANE_UNIT_NONE;
-  dev->opt[OPT_BLUE_GAIN].size = sizeof (SANE_Int);
-  dev->opt[OPT_BLUE_GAIN].constraint_type = SANE_CONSTRAINT_RANGE;
-  dev->opt[OPT_BLUE_GAIN].constraint.range = &gain_range;
-  dev->val[OPT_BLUE_GAIN].w = 10;
+  lexmark_device->val[OPT_THRESHOLD].w = SANE_FIX(50.0);
 
   return SANE_STATUS_GOOD;
 }
@@ -359,8 +210,6 @@ SANE_Status
 attachLexmark (SANE_String_Const devname)
 {
   Lexmark_Device *lexmark_device;
-  SANE_Int dn, vendor, product;
-  SANE_Status status;
 
   DBG (2, "attachLexmark: devname=%s\n", devname);
 
@@ -375,63 +224,10 @@ attachLexmark (SANE_String_Const devname)
   if (lexmark_device == NULL)
     return SANE_STATUS_NO_MEM;
 
-#ifdef FAKE_USB
-  status = SANE_STATUS_GOOD;
-#else
-  status = sanei_usb_open (devname, &dn);
-#endif
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "attachLexmark: couldn't open device `%s': %s\n", devname,
-	   sane_strstatus (status));
-      return status;
-    }
-  else
-    DBG (2, "attachLexmark: device `%s' successfully opened\n", devname);
-
-#ifdef FAKE_USB
-  status = SANE_STATUS_GOOD;
-  /* put the id of the model you want to fake here */
-  vendor = 0x043d;
-  product = 0x007d;	/* X12xx */
-#else
-  status = sanei_usb_get_vendor_product (dn, &vendor, &product);
-#endif
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1,
-	   "attachLexmark: couldn't get vendor and product ids of device `%s': %s\n",
-	   devname, sane_strstatus (status));
-#ifndef FAKE_USB
-      sanei_usb_close (dn);
-#endif
-      return status;
-    }
-#ifndef FAKE_USB
-  sanei_usb_close (dn);
-#endif
-
-  DBG (2, "attachLexmark: testing device `%s': 0x%04x:0x%04x, no variant\n",
-       devname, vendor, product);
-  if (sanei_lexmark_low_assign_model (lexmark_device,
-			  		devname,
-					vendor,
-					product,
-					0) != SANE_STATUS_GOOD)
-    {
-      DBG (2, "attachLexmark: unsupported device `%s': 0x%04x:0x%04x\n",
-	   devname, vendor, product);
-      return SANE_STATUS_UNSUPPORTED;
-    }
-
-  /* there are two variant of the scanner with the same USB id,
-   * so we need to read registers from scanner to detect which one
-   * is really connected */
-  status = sanei_lexmark_low_open_device (lexmark_device);
-  sanei_usb_close (lexmark_device->devnum);
-
-  /* set up scanner start status */
-  sanei_lexmark_low_init (lexmark_device);
+  lexmark_device->sane.name = strdup (devname);
+  lexmark_device->sane.vendor = "Lexmark";
+  lexmark_device->sane.model = "X1100";
+  lexmark_device->sane.type = "flatbed scanner";
 
   /* Set the default resolution here */
   lexmark_device->x_dpi = 75;
@@ -442,8 +238,6 @@ attachLexmark (SANE_String_Const devname)
 
   /* Set the default threshold for lineart mode here */
   lexmark_device->threshold = 0x80;
-
-  lexmark_device->shading_coeff = NULL;
 
   lexmark_device->next = first_lexmark_device;
   first_lexmark_device = lexmark_device;
@@ -461,12 +255,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   const char *lp;
   SANE_Int vendor, product;
   size_t len;
-  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Status status;
   SANE_Auth_Callback auth_callback;
 
   DBG_INIT ();
 
-  DBG (1, "SANE Lexmark backend version %d.%d-rc1-%d\n", V_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE Lexmark backend version %d.%d-%d\n", V_MAJOR, V_MINOR, BUILD);
 
   auth_callback = authorize;
 
@@ -475,14 +269,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
-#ifndef FAKE_USB
-  sanei_usb_init ();
-#endif
+  status = sanei_lexmark_x1100_init ();
+
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
   fp = sanei_config_open (LEXMARK_CONFIG_FILE);
   if (!fp)
     {
-      /* sanei_lexmark_low_destroy (); */
+      /* sanei_lexmark_x1100_destroy (); */
       return SANE_STATUS_ACCESS_DENIED;
     }
 
@@ -497,6 +292,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       if (line[len - 1] == '\n')
 	line[--len] = '\0';
 
+      /* lp = (SANE_String) sanei_config_skip_whitespace (line); */
       lp = sanei_config_skip_whitespace (line);
       /* skip empty lines */
       if (*lp == 0)
@@ -509,23 +305,21 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3]))
 	{
 	  lp += 3;
+	  /* lp = (SANE_String) sanei_config_skip_whitespace (lp); */
 	  lp = sanei_config_skip_whitespace (lp);
 	}
       else
 	continue;
 
-#ifdef FAKE_USB
-      attachLexmark ("FAKE_USB");
-#else
       sanei_usb_attach_matching_devices (lp, attachLexmark);
-#endif
+
     }
 
   fclose (fp);
 
   initialized = SANE_TRUE;
 
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 void
@@ -542,7 +336,7 @@ sane_exit (void)
        lexmark_device = next_lexmark_device)
     {
       next_lexmark_device = lexmark_device->next;
-      sanei_lexmark_low_destroy (lexmark_device);
+      sanei_lexmark_x1100_destroy (lexmark_device);
       free (lexmark_device);
     }
 
@@ -590,21 +384,13 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   return SANE_STATUS_GOOD;
 }
 
-
-/**
- * Open the backend, ie return the struct handle of a detected scanner
- * The struct returned is choosne if it matches the name given, which is
- * usefull when several scanners handled by the backend have been detected.
- * However, special case empty string "" and "lexmark" pick the first 
- * available handle.
- */
 SANE_Status
 sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 {
   Lexmark_Device *lexmark_device;
   SANE_Status status;
 
-  DBG (2, "sane_open: devicename=\"%s\", handle=%p\n", devicename,
+  DBG (2, "sane_open: devicename=\"%s\", handle=%p\n", devicename, 
        (void *) handle);
 
   if (!initialized)
@@ -619,16 +405,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       return SANE_STATUS_INVAL;
     }
 
-  /* walk the linked list of scanner device until ther is a match
-   * with the device name */
   for (lexmark_device = first_lexmark_device; lexmark_device;
        lexmark_device = lexmark_device->next)
     {
       DBG (2, "sane_open: devname from list: %s\n",
 	   lexmark_device->sane.name);
-      if (strcmp (devicename, "") == 0
-	  || strcmp (devicename, "lexmark") == 0
-	  || strcmp (devicename, lexmark_device->sane.name) == 0)
+      if (strcmp (devicename, lexmark_device->sane.name) == 0)
 	break;
     }
 
@@ -636,7 +418,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   if (!lexmark_device)
     {
-      DBG (2, "sane_open: Not a lexmark device\n");
+      DBG (2, "sane_open: Not a Lexmark device\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -644,10 +426,13 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (status != SANE_STATUS_GOOD)
     return status;
 
-  status = sanei_lexmark_low_open_device (lexmark_device);
-  DBG (2, "sane_open: end.\n");
+/*   status = llpddk_open_device (lexmark_device->sane.name); */
+  status =
+    sanei_lexmark_x1100_open_device (lexmark_device->sane.name, &(lexmark_device->devnum));
+  if (status != SANE_STATUS_GOOD)
+    return status;
 
-  return status;
+  return SANE_STATUS_GOOD;
 }
 
 void
@@ -670,7 +455,8 @@ sane_close (SANE_Handle handle)
   if (!lexmark_device)
     return;
 
-  sanei_lexmark_low_close_device (lexmark_device);
+/*   llpddk_close_device (); */
+  sanei_lexmark_x1100_close_device (lexmark_device->devnum);
 
   return;
 }
@@ -700,56 +486,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if (!lexmark_device)
     return NULL;
 
-  if (lexmark_device->opt[option].name)
-    {
-      DBG (2, "sane_get_option_descriptor: name=%s\n",
-	   lexmark_device->opt[option].name);
-    }
-
   return &(lexmark_device->opt[option]);
-}
-
-/* rebuilds parameters if needed, called each time SANE_INFO_RELOAD_OPTIONS
-   is set */
-static void
-calc_parameters (Lexmark_Device * lexmark_device)
-{
-  if (strcmp (lexmark_device->val[OPT_MODE].s,
-	      SANE_VALUE_SCAN_MODE_LINEART) == 0)
-    {
-      lexmark_device->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
-    }
-  else
-    {
-      lexmark_device->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-    }
-
-  /* changing color mode implies changing gain setting */
-  if (lexmark_device->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
-    {
-      if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR)
-	  != 0)
-	{
-	  lexmark_device->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
-	}
-      else
-	{
-	  lexmark_device->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
-	  lexmark_device->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
-	}
-    }
-  else
-    {
-      lexmark_device->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
-      lexmark_device->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
-      lexmark_device->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
-      lexmark_device->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
-    }
 }
 
 SANE_Status
@@ -758,7 +495,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 {
   Lexmark_Device *lexmark_device;
   SANE_Status status;
-  SANE_Word w;
 
   DBG (2, "sane_control_option: handle=%p, opt=%d, act=%d, val=%p, info=%p\n",
        (void *) handle, option, action, (void *) value, (void *) info);
@@ -821,7 +557,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 				   info);
 	  if (status != SANE_STATUS_GOOD)
 	    {
-	      DBG (2, "SANE_CONTROL_OPTION: Bad value for range\n");
+	      DBG(2, "SANE_CONTROL_OPTION: Bad value for range\n");
 	      return SANE_STATUS_INVAL;
 	    }
 	}
@@ -829,42 +565,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
       switch (option)
 	{
 	case OPT_NUM_OPTS:
-	case OPT_RESOLUTION:
+	case OPT_RESOLUTION:	
 	  lexmark_device->val[option].w = *(SANE_Int *) value;
 	  sane_get_parameters (handle, 0);
 	  break;
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	  DBG (2, "Option value set to %d (%s)\n", *(SANE_Word *) value,
-	       lexmark_device->opt[option].name);
-	  lexmark_device->val[option].w = *(SANE_Word *) value;
-	  if (lexmark_device->val[OPT_TL_X].w >
-	      lexmark_device->val[OPT_BR_X].w)
-	    {
-	      w = lexmark_device->val[OPT_TL_X].w;
-	      lexmark_device->val[OPT_TL_X].w =
-		lexmark_device->val[OPT_BR_X].w;
-	      lexmark_device->val[OPT_BR_X].w = w;
-	      if (info)
-		*info |= SANE_INFO_RELOAD_PARAMS;
-	    }
-	  if (lexmark_device->val[OPT_TL_Y].w >
-	      lexmark_device->val[OPT_BR_Y].w)
-	    {
-	      w = lexmark_device->val[OPT_TL_Y].w;
-	      lexmark_device->val[OPT_TL_Y].w =
-		lexmark_device->val[OPT_BR_Y].w;
-	      lexmark_device->val[OPT_BR_Y].w = w;
-	      if (info)
-		*info |= SANE_INFO_RELOAD_PARAMS;
-	    }
-	  break;
 	case OPT_THRESHOLD:
 	  lexmark_device->val[option].w = *(SANE_Fixed *) value;
-	  lexmark_device->threshold =
-	    (0xFF * lexmark_device->val[option].w) / 100;
+	  lexmark_device->threshold = 0xFF * (lexmark_device->val[option].w/100);
+	  break;
+	case OPT_SCAN_SIZE:
+	  strcpy (lexmark_device->val[option].s, value);
 	  break;
 	case OPT_PREVIEW:
 	  lexmark_device->val[option].w = *(SANE_Int *) value;
@@ -882,38 +592,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  sane_get_parameters (handle, 0);
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_GRAY_GAIN:
-	case OPT_GREEN_GAIN:
-	case OPT_RED_GAIN:
-	case OPT_BLUE_GAIN:
-	  lexmark_device->val[option].w = *(SANE_Word *) value;
 	  return SANE_STATUS_GOOD;
+	  lexmark_device->val[option].w = *(SANE_Int *) value;
 	  break;
 	case OPT_MODE:
-	  strcpy (lexmark_device->val[option].s, value);
-	  calc_parameters (lexmark_device);
+	  strcpy (lexmark_device->val[option].s, value); 
+	  if (strcmp (lexmark_device->val[option].s, 
+		      SANE_VALUE_SCAN_MODE_LINEART) == 0)
+	    {
+	      lexmark_device->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+	    }
+	  else
+	    {
+	      lexmark_device->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+	    }
 	  if (info)
 	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  return SANE_STATUS_GOOD;
-	case OPT_MANUAL_GAIN:
-	  w = *(SANE_Word *) value;
-
-	  if (w == lexmark_device->val[OPT_MANUAL_GAIN].w)
-	    return SANE_STATUS_GOOD;	/* no change */
-
-	  lexmark_device->val[OPT_MANUAL_GAIN].w = w;
-	  calc_parameters (lexmark_device);
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-	  return SANE_STATUS_GOOD;
+	  break;
 	}
 
       if (info != NULL)
 	*info |= SANE_INFO_RELOAD_PARAMS;
 
       break;
-
+     
     case SANE_ACTION_GET_VALUE:
 
       switch (option)
@@ -921,24 +623,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	case OPT_NUM_OPTS:
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
-	case OPT_MANUAL_GAIN:
-	case OPT_GRAY_GAIN:
-	case OPT_GREEN_GAIN:
-	case OPT_RED_GAIN:
-	case OPT_BLUE_GAIN:
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	  *(SANE_Word *) value = lexmark_device->val[option].w;
-	  DBG (2, "Option value = %d (%s)\n", *(SANE_Word *) value,
-	       lexmark_device->opt[option].name);
+	  *(SANE_Int *) value = lexmark_device->val[option].w;
+	  DBG(2,"Option value = %d\n", *(SANE_Int *) value);
 	  break;
 	case OPT_THRESHOLD:
 	  *(SANE_Fixed *) value = lexmark_device->val[option].w;
-	  DBG (2, "Option value = %f\n", SANE_UNFIX (*(SANE_Fixed *) value));
+	  DBG(2,"Option value = %f\n", SANE_UNFIX(*(SANE_Fixed *) value));
 	  break;
 	case OPT_MODE:
+	case OPT_SCAN_SIZE:
 	  strcpy (value, lexmark_device->val[option].s);
 	  break;
 	default:
@@ -962,8 +655,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   SANE_Parameters *device_params;
   SANE_Int xres, yres, width_px, height_px;
   SANE_Int channels, bitsperchannel;
+  double width, height;
+  SANE_Bool isColourScan;
 
-  DBG (2, "sane_get_parameters: handle=%p, params=%p\n", (void *) handle,
+  DBG (2, "sane_get_parameters: handle=%p, params=%p\n", (void *) handle, 
        (void *) params);
 
   if (!initialized)
@@ -988,29 +683,78 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   /* 24 bit colour = 8 bits/channel for each of the RGB channels */
   channels = 3;
   bitsperchannel = 8;
+  isColourScan = SANE_TRUE;
 
   /* If not color there is only 1 channel */
-  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR)
+  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) 
       != 0)
     {
       channels = 1;
       bitsperchannel = 8;
+      isColourScan = SANE_FALSE;
     }
 
-  /* geometry in pixels */
-  width_px =
-    lexmark_device->val[OPT_BR_X].w - lexmark_device->val[OPT_TL_X].w;
-  height_px =
-    lexmark_device->val[OPT_BR_Y].w - lexmark_device->val[OPT_TL_Y].w;
-  DBG (7, "sane_get_parameters: tl=(%d,%d) br=(%d,%d)\n",
-       lexmark_device->val[OPT_TL_X].w, lexmark_device->val[OPT_TL_Y].w,
-       lexmark_device->val[OPT_BR_X].w, lexmark_device->val[OPT_BR_Y].w);
 
+  /* size in inches */
+  if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "Wallet") == 0)
+    {
+      width = 2.50;
+      height = 3.50;
+    }
+  else if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "3x5") == 0)
+    {
+      width = 3.00;
+      height = 5.00;
+    }
+  else if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "4x6") == 0)
+    {
+      width = 4.00;
+      height = 6.00;
+    }
+  else if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "5x7") == 0)
+    {
+      width = 5.00;
+      height = 7.00;
+    }
+  else if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "8x10") == 0)
+    {
+      width = 8.00;
+      height = 10.00;
+    }
+  else if (strcmp (lexmark_device->val[OPT_SCAN_SIZE].s, "Letter") == 0)
+    {
+      width = 8.50;
+      height = 11.00;
+    }
+  else
+    {
+      DBG (2, "sane_get_parameters - ERROR: Unknown Scan Size option\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  /* in pixels */
+  width_px = (SANE_Int) (width * xres);
+  /* not sure why this is so - if its odd add one */
+  if ((width_px & 0x01) == 1)
+    width_px = width_px + 1;
+
+  height_px = (SANE_Int) (height * yres);
+
+  /* Stashed with device record for easy retrieval later */
+  lexmark_device->pixel_width = width_px;
+  lexmark_device->pixel_height = height_px;
+
+  /* data_size is the size transferred from the scanner to the backend */
+  /* therefor bitsperchannel is the same for gray and lineart */
+  lexmark_device->data_size =
+    width_px * height_px * channels * (bitsperchannel / 8);
+  DBG (2, "sane_get_parameters: Data size determined as %lx\n",
+       lexmark_device->data_size);
 
   /* we must tell the front end the bitsperchannel for lineart is really */
   /* only 1, so it can calculate the correct image size */
   /* If not color there is only 1 channel */
-  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART)
+  if (strcmp (lexmark_device->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART) 
       == 0)
     {
       bitsperchannel = 1;
@@ -1021,31 +765,21 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (channels == 1)
     device_params->format = SANE_FRAME_GRAY;
   device_params->last_frame = SANE_TRUE;
-  device_params->lines = (height_px * yres) / 600;
+  device_params->lines = height_px;
   device_params->depth = bitsperchannel;
-  device_params->pixels_per_line = (width_px * xres) / 600;
-  /* we always read an even number of sensor pixels */
-  if (device_params->pixels_per_line & 1)
-    device_params->pixels_per_line++;
-
-  /* data_size is the size transferred from the scanner to the backend */
-  /* therefore bitsperchannel is the same for gray and lineart */
-  /* note: bytes_per_line has been divided by 8 in lineart mode */
-  lexmark_device->data_size =
-    channels * device_params->pixels_per_line * device_params->lines;
-
-  if (bitsperchannel == 1)
+  device_params->pixels_per_line = width_px;
+  device_params->bytes_per_line =
+    (SANE_Int) (channels * device_params->pixels_per_line *
+		(bitsperchannel / 8));
+  if ( bitsperchannel == 1 )
     {
-      device_params->bytes_per_line =
-	(SANE_Int) ((7 + device_params->pixels_per_line) / 8);
+      device_params->bytes_per_line =  
+	(SANE_Int) (device_params->pixels_per_line / 8);
+      if ((device_params->pixels_per_line % 8) != 0)
+	device_params->bytes_per_line++;
     }
-  else
-    {
-      device_params->bytes_per_line =
-	(SANE_Int) (channels * device_params->pixels_per_line);
-    }
-  DBG (2, "sane_get_parameters: Data size determined as %ld\n",
-       lexmark_device->data_size);
+  
+
 
   DBG (2, "sane_get_parameters: \n");
   if (device_params->format == SANE_FRAME_GRAY)
@@ -1058,10 +792,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     DBG (2, "  last_frame: TRUE\n");
   else
     DBG (2, "  last_frame: FALSE\n");
-  DBG (2, "  lines %d\n", device_params->lines);
-  DBG (2, "  depth %d\n", device_params->depth);
-  DBG (2, "  pixels_per_line %d\n", device_params->pixels_per_line);
-  DBG (2, "  bytes_per_line %d\n", device_params->bytes_per_line);
+  DBG (2, "  lines %x\n", device_params->lines);
+  DBG (2, "  depth %x\n", device_params->depth);
+  DBG (2, "  pixels_per_line %x\n", device_params->pixels_per_line);
+  DBG (2, "  bytes_per_line %x\n", device_params->bytes_per_line);
 
   if (params != 0)
     {
@@ -1081,8 +815,6 @@ sane_start (SANE_Handle handle)
 {
   Lexmark_Device *lexmark_device;
   SANE_Int offset;
-  SANE_Status status;
-  int i;
 
   DBG (2, "sane_start: handle=%p\n", (void *) handle);
 
@@ -1102,10 +834,9 @@ sane_start (SANE_Handle handle)
       (lexmark_device->params.pixels_per_line == 0) ||
       (lexmark_device->params.bytes_per_line == 0))
     {
-      DBG (2, "sane_start: \n");
-      DBG (2, "  ERROR: Zero size encountered in:\n");
-      DBG (2,
-	   "         number of lines, bytes per line, or pixels per line\n");
+      DBG(2, "sane_start: \n");
+      DBG(2, "  ERROR: Zero size encountered in:\n");
+      DBG(2, "         number of lines, bytes per line, or pixels per line\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -1119,7 +850,7 @@ sane_start (SANE_Handle handle)
   lexmark_device->cancel_ctr = 0;
 
   /* Find Home */
-  if (sanei_lexmark_low_search_home_fwd (lexmark_device))
+  if (sanei_lexmark_x1100_search_home_fwd (lexmark_device))
     {
       DBG (2, "sane_start: Scan head initially at home position\n");
     }
@@ -1127,44 +858,24 @@ sane_start (SANE_Handle handle)
     {
       /* We may have been rewound too far, so move forward the distance from
          the edge to the home position */
-      sanei_lexmark_low_move_fwd (0x01a8, lexmark_device,
-				    lexmark_device->shadow_regs);
-
+      /* sanei_lexmark_x1100_move_fwd_a_bit(lexmark_device); */
+      sanei_lexmark_x1100_move_fwd (0x01a8, lexmark_device);
       /* Scan backwards until we find home */
-      sanei_lexmark_low_search_home_bwd (lexmark_device);
-    }
-
-  /* do calibration before offset detection */
-  sanei_lexmark_low_set_scan_regs (lexmark_device, 0, SANE_FALSE);
-  status = sanei_lexmark_low_calibration (lexmark_device);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "sane_start: calibration failed : %s ! \n",
-	   sane_strstatus (status));
-      return status;
+      sanei_lexmark_x1100_search_home_bwd (lexmark_device);
     }
 
   /* At this point we're somewhere in the dot. We need to read a number of 
      lines greater than the diameter of the dot and determine how many lines 
      past the dot we've gone. We then use this information to see how far the 
      scan head must move before starting the scan. */
-  /* offset is in 600 dpi unit */
-  offset = sanei_lexmark_low_find_start_line (lexmark_device);
-  DBG (7, "start line offset=%d\n", offset);
+  offset = sanei_lexmark_x1100_find_start_line (lexmark_device->devnum);
 
   /* Set the shadow registers for scan with the options (resolution, mode, 
      size) set in the front end. Pass the offset so we can get the vert.
      start. */
-  sanei_lexmark_low_set_scan_regs (lexmark_device, offset, SANE_TRUE);
-  
-  fprintf (stderr, "X1200-%dDPI-RVB(0x00,255)=",lexmark_device->val[OPT_RESOLUTION].w);
-  for (i = 0; i < 255; i++)
-    {
-      fprintf (stderr, "0x%02x ", lexmark_device->shadow_regs[i]);
-    }
-  fprintf (stderr, "\n");
+  sanei_lexmark_x1100_set_scan_regs (lexmark_device, offset);
 
-  if (sanei_lexmark_low_start_scan (lexmark_device) == SANE_STATUS_GOOD)
+  if (sanei_lexmark_x1100_start_scan (lexmark_device) == SANE_STATUS_GOOD)
     {
       DBG (2, "sane_start: scan started\n");
       return SANE_STATUS_GOOD;
@@ -1204,7 +915,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
     {
       DBG (2, "sane_read: Device was cancelled\n");
       /* We don't know how far we've gone, so search for home. */
-      sanei_lexmark_low_search_home_bwd (lexmark_device);
+      sanei_lexmark_x1100_search_home_bwd (lexmark_device);
       return SANE_STATUS_EOF;
     }
 
@@ -1225,7 +936,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data,
   if (!data)
     return SANE_STATUS_INVAL;
 
-  bytes_read = sanei_lexmark_low_read_scan_data (data, max_length,
+  bytes_read = sanei_lexmark_x1100_read_scan_data (data, max_length, 
 						   lexmark_device);
   if (bytes_read < 0)
     return SANE_STATUS_IO_ERROR;
@@ -1259,7 +970,7 @@ sane_cancel (SANE_Handle handle)
     }
 
   /*If sane_cancel called more than once, return */
-  if (++lexmark_device->cancel_ctr > 1)
+  if (++lexmark_device->cancel_ctr > 1)	   
     return;
 
   /* Set the device flag so the next call to sane_read() can stop the scan. */
@@ -1273,8 +984,8 @@ sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
   Lexmark_Device *lexmark_device;
 
-  DBG (2, "sane_set_io_mode: handle = %p, non_blocking = %d\n",
-       (void *) handle, non_blocking);
+  DBG (2, "sane_set_io_mode: handle = %p, non_blocking = %d\n", (void *) handle,
+       non_blocking);
 
   if (!initialized)
     return SANE_STATUS_INVAL;

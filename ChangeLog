@@ -1,3 +1,8 @@
+2007-09-17  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/descriptions/unsupported.desc: #305009 removed UMAX3400, as it is
+	  supported by the Plustek backend
+
 2007-08-28  Giuseppe Sacco <eppesuig@debian.org>
 
         * Italian translation update

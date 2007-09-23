@@ -1917,6 +1917,13 @@
 :status :unsupported
 :comment "GL843 based. See link for more details."
 
+:model "PL 806"
+:url "/unsupported/plustek-pl806.html"
+:interface "USB"
+:usbid "0x07b3" "0x0c0c"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
 :model "OpticSlim 2420"
 :url "/unsupported/plustek-opticslim-2420.html"
 :interface "USB"

@@ -1091,6 +1091,13 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
+:model "X8350"
+:url "/unsupported/lexmark-x8350.html"
+:interface "USB"
+:usbid "0x043d" "0x00b9"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 
 ;********************************************************************************************
 

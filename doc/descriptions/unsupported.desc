@@ -2214,6 +2214,17 @@
 
 ;********************************************************************************************
 
+:mfg "Samsung"
+
+:model "SCX-4725FN"
+:url "/unsupported/samsung-scx-4725.html"
+:interface "USB"
+:usbid "0x04E8" "0x341F"
+:status :unsupported
+:comment "Not supported. See link for details."
+
+;********************************************************************************************
+
 :mfg "Scanshell"
 
 :model "800N"

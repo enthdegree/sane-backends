@@ -819,6 +819,13 @@
 :status :unsupported
 :comment "GL646 based, to be added to genesys backend"
 
+:model "Photosmart C3180"
+:url "/unsupported/hp-photosmart-3180.html"
+:interface "USB"
+:usbid "0x03f0" "0x5611"
+:status :unsupported
+:comment "Not supported yet by SANE. See link for details."
+
 :model "ScanJet 3670c"
 :url "/unsupported/hp-scanjet-3670c.html"
 :interface "USB"

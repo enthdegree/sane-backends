@@ -1,3 +1,8 @@
+2007-09-23  Bertrik Sikken <bertrik@sikken.nl>
+
+	* doc/descriptions/unsupported.desc: updated with info from
+	  'FormularDaten' e-mails from 2007/2/11 to 2007/4/30
+
 2007-09-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* doc/descriptions/unsupported.desc: #305009 removed UMAX3400, as it is

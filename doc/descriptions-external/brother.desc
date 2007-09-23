@@ -355,10 +355,10 @@
 :comment "Is reported to work well with backend version 0.0.12."
 
 :model "MFC-9180"
-:status :untested
+:status :good
 :interface "USB"
 :usbid "0x04f9" "0x011e"
-:comment "No report yet."
+:comment "Reported to work well under openSUSE 10.2."
 
 :model "MFC-9660"
 :status :untested

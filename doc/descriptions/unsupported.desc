@@ -1774,6 +1774,13 @@
 :status :unsupported
 :comment "Probably unsupported. Film scanner that can scan directly from the magazine."
 
+:model "PF3650 Pro3 Film Scanner"
+:url "/unsupported/pie-pf3650.html"
+:interface "USB IEEE-1394"
+:usbid "0x05e3" "0x0143"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 ;********************************************************************************************
 
 ;:mfg "Packard Bell"

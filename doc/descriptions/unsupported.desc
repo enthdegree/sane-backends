@@ -2369,6 +2369,13 @@
 :url "http://www.autistici.org/tamarhack/"
 :comment "Unsupported at the moment. See link for a project for that scanner."
 
+:model "Artiscan 2400FS"
+:url "/unsupported/tamarack-artiscan-2400.html"
+:interface "USB"
+:usbid "0x05e3" "0x0100"
+:status :unsupported
+:comment "Unsupported. See link for more information."
+
 ;********************************************************************************************
 
 :mfg "TCE"

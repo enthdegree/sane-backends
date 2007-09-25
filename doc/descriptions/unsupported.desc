@@ -459,6 +459,13 @@
 :status :unsupported
 :comment "Probably not supported. High-speed pass-trough (ADF) scanner."
 
+:model "DR-7580"
+:url "/unsupported/canon-dr7580.html"
+:interface "USB SCSI"
+:usbid "0x04a9" "0x160b"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "DR-9080C"
 :interface "SCSI"
 :status :unsupported

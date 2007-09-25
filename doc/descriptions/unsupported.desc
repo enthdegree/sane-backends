@@ -2158,6 +2158,13 @@
 :status :unsupported
 :comment "Maybe GL646. Maybe similar to Medion MD 6228?"
 
+:model "Onetouch 8920"
+:url "/unsupported/visioneer-onetouch8920.html"
+:interface "USB"
+:usbid "0x0461" "0x0371"
+:status :unsupported
+:comment "Not supported. Look similar to Visioneer Onetouch 8920 (same USB product id)."
+
 ;********************************************************************************************
 
 :mfg "Prolink"

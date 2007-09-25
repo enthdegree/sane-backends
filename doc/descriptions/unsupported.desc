@@ -1260,6 +1260,13 @@
 :status :unsupported
 :comment "Unsupported. Same as Agfa DuoScan T2000XL?"
 
+:model "ArtixScanDI 2020"
+:url "/unsupported/microtek-artixscan-2020.html"
+:interface "USB"
+:usbid "0x05da" "0x202e"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "Artixscan 2500f"
 :interface "SCSI IEEE-1384"
 :status :unsupported

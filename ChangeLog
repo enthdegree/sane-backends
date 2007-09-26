@@ -1,3 +1,9 @@
+2007-09-26  Julien Blache <jb@jblache.org>
+	* doc/descriptions/unsupported.desc: Added pointer to
+	http://code.google.com/p/kvss905c/ for the Panasonic KV-SS905C and
+	Panasonic KV-S3105C scanners (note that the non-SANE driver at
+	that URL supports other scanners of the KV-SS905C family).
+
 2007-09-23  Bertrik Sikken <bertrik@sikken.nl>
 
 	* doc/descriptions/unsupported.desc: updated with info from

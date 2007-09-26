@@ -1714,7 +1714,7 @@
 :model "KV-SS905C"
 :interface "SCSI"
 :status :unsupported
-:comment "might be supported by matsushita backend."
+:comment "might be supported by matsushita backend. See http://code.google.com/p/kvss905c/ for a standalone scanning tool."
 
 :model "KV-S2026C"
 :interface "USB SCSI"
@@ -1759,7 +1759,7 @@
 :model "KV-S3105C"
 :interface "USB SCSI"
 :status :unsupported
-:comment "might be supported by matsushita backend."
+:comment "might be supported by matsushita backend. See http://code.google.com/p/kvss905c/ for a standalone scanning tool."
 
 :model "KV-S6040W"
 :interface "SCSI"

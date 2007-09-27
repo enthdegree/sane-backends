@@ -1,3 +1,7 @@
+2007-09-27  Julien Blache <jb@jblache.org>
+	* doc/backend-writing.txt: fix typos, patch from
+	<jazz_johnson@verizon.net>.
+
 2007-09-26  Julien Blache <jb@jblache.org>
 	* doc/descriptions/unsupported.desc: Added pointer to
 	http://code.google.com/p/kvss905c/ for the Panasonic KV-SS905C and

@@ -122,11 +122,11 @@ sane-backends/backend/
   * newbackend.conf.in:
     Configuration file for the backend, newbackend.conf will be created by running
     "make" from this file. Some variables are substituted, e.g. for installation
-    directories. This is especially usefukl for frimware directories. See
+    directories. This is especially useful for firmware directories. See
     Makefile.in for a list.
   * newbackend-low.c:
     Contains low level code for the "newbackend" backend. Depending on the
-    complexity of the backend, splitting it toseveral files can be appropriate,
+    complexity of the backend, splitting it to several files can be appropriate,
     the total number of files shouldn't exceed approx. 10, however.
   Other files:
   * Makefile.in:
@@ -221,7 +221,7 @@ PROGRAMMING
 -----------
 
 * A backend library is always only one file (libsane-backendname.so). Please do
-  not use miltiple libraries e.g. for lower and higher level code.
+  not use multiple libraries e.g. for lower and higher level code.
 
 * To add the backend to the existing SANE code, the following must be done at
   least:

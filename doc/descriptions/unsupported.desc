@@ -1481,6 +1481,13 @@
 :status :unsupported
 :comment "Unsupported. See link."
 
+:model "ScanMaker S400"
+:url "/unsupported/microtek-scanmaker-s400.html"
+:interface "USB"
+:usbid "0x05da" "0x300b"
+:status :unsupported
+:comment "Unsupported. See link."
+
 :model "ScanPort 3000"
 :url "/unsupported/microtek-scanport-3000.html"
 :interface "USB"

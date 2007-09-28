@@ -1979,6 +1979,13 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "SmartOffice PL 812"
+:url "/unsupported/plustek-pl812.html"
+:interface "USB"
+:usbid "0x07b3" "0x0c0d"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
 :model "OpticSlim 2420"
 :url "/unsupported/plustek-opticslim-2420.html"
 :interface "USB"

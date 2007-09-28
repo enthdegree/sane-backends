@@ -8,6 +8,10 @@
 	Panasonic KV-S3105C scanners (note that the non-SANE driver at
 	that URL supports other scanners of the KV-SS905C family).
 
+2007-09-25  Bertrik Sikken <bertrik@sikken.nl>
+	* doc/descriptions/unsupported.desc: updated with info from
+	  'FormularDaten' e-mails from 2007/5/1 to 2007/6/24
+
 2007-09-23  Bertrik Sikken <bertrik@sikken.nl>
 
 	* doc/descriptions/unsupported.desc: updated with info from

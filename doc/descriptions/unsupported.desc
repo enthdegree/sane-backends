@@ -1323,6 +1323,13 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "ScanMaker 3860"
+:url "/unsupported/microtek-scanmaker-3880.html"
+:interface "USB"
+:usbid "0x05da" "0x3023"
+:status :unsupported
+:comment "Unsupported. See link for more details. Appears to be similar to ScanMaker 3880."
+
 :model "ScanMaker 3880"
 :url "/unsupported/microtek-scanmaker-3880.html"
 :interface "USB"

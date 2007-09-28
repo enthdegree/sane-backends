@@ -1,3 +1,7 @@
+2007-09-28  Bertrik Sikken <bertrik@sikken.nl>
+	* doc/descriptions/unsupported.desc: updated with info from
+	  'FormularDaten' e-mails from 2007/7/3 to 2007/7/30
+
 2007-09-27  Julien Blache <jb@jblache.org>
 	* doc/backend-writing.txt: fix typos, patch from
 	<jazz_johnson@verizon.net>.

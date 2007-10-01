@@ -1,6 +1,14 @@
 2007-10-01  Stephane Voltz <stef.dev@free.fr>
 
-	* doc/sane-umax_pp.man doc/description/umax_pp.desc:
+	* doc/sane-lexmark.man doc/descriptions/lexmark.desc
+	  backend/Makefile.in backend/lexmark.c backend/lexmark_low.c
+	  backend/lexmark_sensors.c backend/lexmark_models.c
+	  backend/lexmark.conf.in:
+	  moved experimental version to current tree
+
+2007-10-01  Stephane Voltz <stef.dev@free.fr>
+
+	* doc/sane-umax_pp.man doc/descriptions/umax_pp.desc:
 	  added Genius ColorPage-Life Pro as supported scanner
 	  by the umax_pp backend
 

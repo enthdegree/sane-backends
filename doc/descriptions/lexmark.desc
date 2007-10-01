@@ -31,11 +31,10 @@
 :status :untested
 
 :model "X1130"
-:url "/unsupported/lexmark-x1150.html"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :basic
-:comment "The images scanned have a lot of vertical lines"
+:status :good
+:comment "Supports 75, 150, 300, 600 dpi"
 
 :model "X1140"
 :interface "USB"
@@ -46,25 +45,35 @@
 :url "/unsupported/lexmark-x1150.html"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :minimal
-:comment "Colors don't seem to be ok. Scanned white pages appear purple."
+:status :good
+:comment "Supports 75, 150, 300, 600 dpi"
 
 :model "X1170"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :basic
-:comment "Colors aren't so bright. Bed-wide pictures are unscannable because the scan head never reaches the end of the bed (neither with letter selected). It leaves almost 2 cm out."
+:status :good
+:comment "Supports 75, 150, 300, 600 dpi"
 
 :model "X1180"
-:url "/unsupported/lexmark-x1150.html"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :basic
+:status :good
 
 :model "X1185"
 :interface "USB"
 :usbid "0x043d" "0x007c"
-:status :basic
+:status :good
 :comment "Tested with xscanimage. Supports 75, 150, 300, 600, 1200(600x1200) dpi resolutions. Does grayscale or colour scans in the following sizes: wallet, 3x5, 4x6, 5x7, 8x10, letter."
 
+:model "X12xx"
+:interface "USB"
+:usbid "0x043d" "0x007d"
+:status :good
+:comment "USB1.1 is OK, USB2.0 needs testing"
 
+:mfg "Dell"                   ; name a manufacturer
+:model "A920"
+:interface "USB"
+:usbid "0x413c" "0x5105"
+:status :good
+:comment "Relabelled X11xx model"

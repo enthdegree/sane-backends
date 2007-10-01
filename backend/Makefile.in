@@ -123,7 +123,8 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
   ibm.c ibm.conf.in ibm.h ibm-scsi.c \
   leo.c leo.h leo.conf.in \
-  lexmark.c lexmark-x1100.c lexmark.h lexmark.conf.in \
+  lexmark.c lexmark_low.c lexmark_sensors.c lexmark_devices.c lexmark.h \
+  lexmark.conf.in \
   lm9830.h \
   ma1509.c ma1509.conf.in ma1509.h \
   Makefile.in matsushita.c \
@@ -315,7 +316,7 @@ EXTRA_hp = hp-accessor hp-device hp-handle hp-hpmem hp-option hp-scl
 EXTRA_umax_pp = umax_pp_low umax_pp_mid
 EXTRA_epson = epson_scsi epson_usb
 EXTRA_epson2 = epson2_scsi epson_usb epson2_net epson2-io epson2-commands
-EXTRA_lexmark = lexmark-x1100
+EXTRA_lexmark = lexmark_low
 EXTRA_pixma = pixma_io_sanei pixma_common pixma_mp150 pixma_mp730 pixma_mp750
 
 # When preloading dll, we need to add in all preloaded objects:

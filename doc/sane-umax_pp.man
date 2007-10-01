@@ -24,6 +24,8 @@ Astra 1600P
 .br 
 Astra 2000P      
 .br 
+Genius ColorPage-Life Pro
+.br 
 .RE
 .PP 
 This backend handles 75x75, 150x150, 300x300, 600x600 and 600x1200 for 1220P/1600P/2000P

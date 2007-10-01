@@ -52,6 +52,12 @@
 :status :good      
 :comment "works (relabelled 1220P and 2000P)"
 
+:mfg "Genius"
+
+:model "ColorPage-Life Pro"
+:interface "Parport (EPP/ECP)"
+:status :good      
+:comment "works (relabelled 1220P and 2000P)"
 
 ; :comment and :url specifiers are optional after :mfg, :model, :desc,
 ;  and at the top-level.

@@ -1,3 +1,9 @@
+2007-10-01  Stephane Voltz <stef.dev@free.fr>
+
+	* doc/sane-umax_pp.man doc/description/umax_pp.desc:
+	  added Genius ColorPage-Life Pro as supported scanner
+	  by the umax_pp backend
+
 2007-09-28  Bertrik Sikken <bertrik@sikken.nl>
 	* doc/descriptions/unsupported.desc: updated with info from
 	  'FormularDaten' e-mails from 2007/7/3 to 2007/7/30

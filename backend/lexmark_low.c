@@ -155,11 +155,13 @@ rts88xx_set_gray_scan (SANE_Byte * regs)
   regs[0x2f] = (regs[0x2f] & 0x0f) | 0x20;
 }
 
+#if 0
 static void
 rts88xx_set_color_scan (SANE_Byte * regs)
 {
   regs[0x2f] = (regs[0x2f] & 0x0f) | 0x10;
 }
+#endif
 
 static void
 rts88xx_set_offset (SANE_Byte * regs, SANE_Byte red, SANE_Byte green,
@@ -348,7 +350,7 @@ rts88xx_read_data (SANE_Int devnum, size_t needed, SANE_Byte * data,
 }
 
 /* starts scan by sending color depth, stopping head, the starting it */
-SANE_Status
+static SANE_Status
 rts88xx_commit (SANE_Int devnum, SANE_Byte depth)
 {
   SANE_Status status;
@@ -400,6 +402,7 @@ lexmark_low_set_idle (SANE_Int devnum)
 
 
 /* wake up scanner */
+#if 0
 static SANE_Status
 lexmark_low_wake_up (Lexmark_Device * dev)
 {
@@ -421,11 +424,13 @@ lexmark_low_wake_up (Lexmark_Device * dev)
     }
   return SANE_STATUS_GOOD;
 }
+#endif
 
 
 /**
  * 
  */
+#ifdef DEEP_DEBUG
 static void write_pnm_file(char *title, int pixels, int lines, int color, unsigned char *data)
 {
 FILE * fdbg;
@@ -458,6 +463,7 @@ int x,y;
    }
  fclose (fdbg);
 }
+#endif
 
 /*
  * mid level hardware functions
@@ -883,10 +889,6 @@ low_stop_mvmt (SANE_Int devnum)
 SANE_Status
 low_clr_c6 (SANE_Int devnum)
 {
-  static SANE_Byte clearC6_command_block[] = {
-    0x88, 0xc6, 0x00, 0x01, 0x00
-  };
-  size_t cmd_size;
   SANE_Status status;
   SANE_Byte reg;
 
@@ -4593,7 +4595,7 @@ sanei_lexmark_low_offset_calibration (Lexmark_Device * dev)
   /* offsets */
   int ro = 0, go = 0, bo = 0;
   /* averages */
-  int ra, ga, ba, average, level;
+  int ra, ga, ba, average;
   SANE_Byte *data = NULL;
   SANE_Byte top[OFFSET_RANGES] = { 0, 0x7f, 0x9f, 0xbf, 0xff };
 #ifdef DEEP_DEBUG

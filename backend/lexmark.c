@@ -1082,7 +1082,6 @@ sane_start (SANE_Handle handle)
   Lexmark_Device *lexmark_device;
   SANE_Int offset;
   SANE_Status status;
-  int i;
 
   DBG (2, "sane_start: handle=%p\n", (void *) handle);
 

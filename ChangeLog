@@ -1,5 +1,10 @@
 2007-10-01  Stephane Voltz <stef.dev@free.fr>
 
+	* backend/lexmark.c backend/lexmark_low.c:
+	  fixed compilation warnings
+
+2007-10-01  Stephane Voltz <stef.dev@free.fr>
+
 	* doc/sane-lexmark.man doc/descriptions/lexmark.desc
 	  backend/Makefile.in backend/lexmark.c backend/lexmark_low.c
 	  backend/lexmark_sensors.c backend/lexmark_models.c

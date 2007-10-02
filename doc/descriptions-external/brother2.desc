@@ -48,10 +48,9 @@
 :comment "No report yet."
 
 :model "DCP-117C"
-:status :untested
+:status :good
 :interface "USB"
-;:usbid "0x04f9" ""
-:comment "No report yet."
+:usbid "0x04f9" "0x018e"
 
 :model "DCP-120C"
 :status :untested

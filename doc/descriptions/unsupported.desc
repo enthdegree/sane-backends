@@ -28,6 +28,7 @@
 :comment "Unsupported. See link for details."
 
 :model "DuoScan T2000XL"
+:url "/unsupported/agfa-duoscan-t2000xl.html"
 :interface "SCSI"
 :status :unsupported
 :comment "Unsupported. Same as Microtek ArtixScan 2020?"

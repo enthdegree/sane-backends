@@ -2013,6 +2013,13 @@
 :status :unsupported
 :comment "Unsupported. See link for more details."
 
+:model "OpticSlim 500"
+:url "/unsupported/plustek-opticslim-500.html"
+:interface "USB"
+:usbid "0x07b3" "0x0458"
+:status :unsupported
+:comment "Unsupported. See link for more details."
+
 :model "OpticSlim 2420"
 :url "/unsupported/plustek-opticslim-2420.html"
 :interface "USB"

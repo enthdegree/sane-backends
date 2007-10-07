@@ -2310,6 +2310,16 @@
 
 ;********************************************************************************************
 
+:mfg "Ricoh"
+
+:model "IS450DE"
+:url "/unsupported/ricoh-is450.html"
+:interface "SCSI"
+:status :unsupported
+:comment "Not supported. See link for details."
+
+;********************************************************************************************
+
 :mfg "Samsung"
 
 :model "SCX-4725FN"

@@ -1024,6 +1024,12 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "i260"
+:url "/unsupported/kodak-i200.html"
+:interface "IEEE-1394"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "Snapshot Photo Scanner 1"
 :interface "Parport"
 :status :unsupported

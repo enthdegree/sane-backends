@@ -2742,7 +2742,9 @@
 :comment "Not supported. See link for details."
 
 :model "Onetouch 8900"
+:url "/unsupported/visioneer-onetouch8920.html"
 :interface "USB"
+:usbid  "0x04a7" "0x0371"
 :status :unsupported
 :comment "Not supported. Same as 8920 but without TA?"
 

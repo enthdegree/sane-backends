@@ -1118,6 +1118,13 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
  
+:model "X3450"
+:url "/unsupported/lexmark-x3450.html"
+:interface "USB"
+:usbid "0x043d" "0x00f6"
+:status :unsupported
+:comment "Unsupported. See link for details."
+ 
 :model "X5130"
 :url "/unsupported/lexmark-x5130.html"
 :interface "USB"

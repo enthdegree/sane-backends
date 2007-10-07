@@ -1,3 +1,7 @@
+2007-10-07 Bertrik Sikken <bertrik@sikken.nl>
+	* doc/descriptions/unsupported.desc: updated with info from
+	  'FormularDaten' e-mails up to 2007/9/29
+
 2007-10-02  Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/brother2.desc: add DCP-117C USB IDs
 	and mark support as good, based on user report.

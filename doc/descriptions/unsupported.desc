@@ -192,6 +192,12 @@
 :interface "Parport"
 :comment "Unsupported, see link for details."
 
+:model "5450"
+:interface "USB"
+:usbid "0x04a5" "0x211e"
+:status :unsupported
+:comment "Unsupported."
+
 :model "5550"
 :url "/unsupported/benq-5550.html"
 :interface "USB"

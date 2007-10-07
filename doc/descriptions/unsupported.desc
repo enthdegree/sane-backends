@@ -2672,6 +2672,13 @@
 :status :unsupported
 :comment "Not supported. Id is from Primax? Yet another scanner with the same name?"
 
+:model "9420"
+:url "/unsupported/visioneer-9420.html"
+:interface "USB"
+:usbid "0x0461" "0x03a8"
+:status :unsupported
+:comment "Unsupported. See link for details."
+
 :model "9450 USB"
 :url "/unsupported/visioneer-9450-usb.html"
 :interface "USB"

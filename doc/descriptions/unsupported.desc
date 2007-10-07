@@ -465,6 +465,13 @@
 :status :unsupported
 :comment "Probably not supported. High-speed pass-trough (ADF) color scanner."
 
+:model "DR-4010C"
+:url "/unsupported/canon-dr4010.html"
+:interface "USB"
+:usbid "0x1083" "0x1614"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "DR-6080"
 :url "/unsupported/canon-dr6080.html"
 :interface "USB SCSI"

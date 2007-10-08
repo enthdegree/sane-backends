@@ -228,6 +228,13 @@
 :mfg "Brother"
 :url "http://www.brother.com/"
 
+:model "MFC 2500"
+:url "/unsupported/brother-mfc-2500.html"
+:interface "USB"
+:usbid "0x04f9" "0x000a"
+:status :unsupported
+:comment "Not supported. See link for details."
+
 :model "MFC 4600"
 :status :unsupported
 :url "http://sourceforge.net/projects/brother-mfc"

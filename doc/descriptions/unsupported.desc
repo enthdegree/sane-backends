@@ -673,6 +673,13 @@
 :status :unsupported
 :comment "Probably unsupported. No details known."
 
+:model "Stylus DX4450"
+:url "/unsupported/epson-stylus-dx4450.html"
+:interface "USB"
+:usbid "0x04b8" "0x083f"
+:status :unsupported
+:comment "Probably unsupported. See link for details."
+
 :model "Stylus CX-5800"
 :interface "USB"
 :status :unsupported

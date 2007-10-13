@@ -1,3 +1,8 @@
+2007-10-13  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_gl841.c backend/genesys_gl646.c: use
+	  sizeof(Genesys_Register_Set) instead of 2
+
 2007-10-07 Bertrik Sikken <bertrik@sikken.nl>
 	* doc/descriptions/unsupported.desc: updated with info from
 	  'FormularDaten' e-mails up to 2007/9/29

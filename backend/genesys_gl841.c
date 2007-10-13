@@ -3300,7 +3300,7 @@ gl841_feed (Genesys_Device * dev, int steps)
   DBG (DBG_proc, "gl841_feed (steps = %d)\n",
        steps);
 
-  memset (local_reg, 0, sizeof (Genesys_Register_Set)*(GENESYS_GL841_MAX_REGS+1));
+  memset (local_reg, 0, sizeof(local_reg));
   val = 0;
 
   /* stop motor if needed */
@@ -3418,7 +3418,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
-  memset (local_reg, 0, sizeof (Genesys_Register_Set)*(GENESYS_GL841_MAX_REGS+1));
+  memset (local_reg, 0, sizeof (local_reg));
   val = 0;
   status = sanei_genesys_get_status (dev, &val);
   if (status != SANE_STATUS_GOOD)
@@ -3576,7 +3576,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
   DBG (DBG_proc, "gl841_park_head (wait_until_home = %d)\n",
        wait_until_home);
 
-  memset (local_reg, 0, sizeof (Genesys_Register_Set)*(GENESYS_GL841_MAX_REGS+1));
+  memset (local_reg, 0, sizeof (local_reg));
 
   /* read status */
   status = sanei_genesys_get_status (dev, &val);
@@ -3709,7 +3709,7 @@ gl841_search_start_position (Genesys_Device * dev)
   DBG (DBG_proc, "gl841_search_start_position\n");
 
   memset (local_reg, 0, sizeof (local_reg));
-  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS +1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS +1) * sizeof (Genesys_Register_Set));
 
   /* sets for a 200 lines * 600 pixels */
   /* normal scan with no shading */
@@ -3794,7 +3794,7 @@ gl841_search_start_position (Genesys_Device * dev)
     }
 
   /* update regs to copy ASIC internal state */
-  memcpy (dev->reg, local_reg, (GENESYS_GL841_MAX_REGS + 1) * 2);
+  memcpy (dev->reg, local_reg, (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
 /*TODO: find out where sanei_genesys_search_reference_point 
   stores information, and use that correctly*/
@@ -4903,7 +4903,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
 
   DBG (DBG_proc, "sanei_gl841_warmup_lamp\n");
 
-  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
 /* okay.. these should be defaults stored somewhere */
   dev->frontend.gain[0] = 0x00;
@@ -5114,7 +5114,7 @@ gl841_init (Genesys_Device * dev)
     }
 
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * 2);
+  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
   status = gl841_init_scan_regs (dev,
 				 dev->calib_reg,
@@ -5158,7 +5158,7 @@ gl841_init (Genesys_Device * dev)
 
   free(line);
 
-  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * 2);
+  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL841_MAX_REGS + 1) * sizeof (Genesys_Register_Set));
 
   /* Set powersaving (default = 15 minutes) */
   RIE (gl841_set_powersaving (dev, 15));

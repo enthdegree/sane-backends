@@ -1568,7 +1568,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       usleep (200000UL);
     }
 
-  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
 
   prepare_steps = 4;
   exposure_time = 6 * MOTOR_SPEED_MAX;
@@ -1926,7 +1926,7 @@ gl646_search_start_position (Genesys_Device * dev)
 
   DBG (DBG_proc, "gl646_search_start_position\n");
   memset (local_reg, 0, sizeof (local_reg));
-  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
 
   gettimeofday (&tv, NULL);
   /* is scanner warm enough ? */
@@ -2176,7 +2176,7 @@ gl646_search_start_position (Genesys_Device * dev)
   /* update regs to copy ASIC internal state */
   dev->reg[reg_0x01].value = local_reg[reg_0x01].value;
   dev->reg[reg_0x02].value = local_reg[reg_0x02].value;
-  memcpy (dev->reg, local_reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (dev->reg, local_reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
 
   status =
     sanei_genesys_search_reference_point (dev, data, start_pixel, dpi, pixels,
@@ -3846,7 +3846,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
 
   DBG (DBG_proc, "gl646_warmup_lamp\n");
 
-  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
 /* ST12: 0x01 0x00 0x02 0x41 0x03 0x1f 0x04 0x53 0x05 0x10 0x06 0x10 0x08 0x02 0x09 0x00 0x0a 0x06 0x0b 0x04 */
@@ -4037,7 +4037,7 @@ gl646_repark_head (Genesys_Device * dev)
   DBG (DBG_proc, "gl646_repark_head\n");
 
   memset (local_reg, 0, sizeof (local_reg));
-  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (local_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
 
   local_reg[reg_0x01].value =
     local_reg[reg_0x01].value & ~REG01_DVDSET & ~REG01_FASTMOD & ~REG01_SCAN;
@@ -4402,7 +4402,7 @@ gl646_init (Genesys_Device * dev)
     }
 
   /* initial calibration reg values */
-  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * 2);
+  memcpy (dev->calib_reg, dev->reg, (GENESYS_GL646_MAX_REGS + 1) * sizeof(Genesys_Register_Set));
 
   /* Set powersaving (default = 15 minutes) */
   RIE (gl646_set_powersaving (dev, 15));

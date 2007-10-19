@@ -1,3 +1,8 @@
+2007-10-19  Stephane Voltz <stef.dev@free.fr>
+
+	* tools/check-usb-chip.c: added detection of rts8801 and
+	  rts8891 ASICs
+
 2007-10-13  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
 	* backend/genesys_gl841.c backend/genesys_gl646.c: use

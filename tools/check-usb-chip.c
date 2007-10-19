@@ -2376,7 +2376,7 @@ check_m011 (struct usb_device *dev)
 }
 
 
-/* Check for Realtek rts8858c */
+/* Check for Realtek rts88xx */
 static int
 rts88xx_read_reg (usb_dev_handle * handle, unsigned char *req, unsigned char *res, int size)
 {
@@ -2541,6 +2541,154 @@ check_rts8858c (struct usb_device *dev)
   finish_interface (handle);
   return "rts8858c";
 }	/* end of rts8858 detection */
+
+static char *
+check_rts88x1 (struct usb_device *dev)
+{
+  unsigned char req[4];
+  unsigned char res[243];
+  usb_dev_handle *handle;
+  int result;
+
+  if (verbose > 2)
+    printf ("    checking for rts8801/rts8891 ...\n");
+
+  /* Check device descriptor */
+  if (dev->descriptor.bDeviceClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8801/rts8891 (bDeviceClass = %d)\n",
+		dev->descriptor.bDeviceClass);
+      return 0;
+    }
+  if (dev->descriptor.bcdUSB != 0x110)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8801/rts8891 (bcdUSB = 0x%x)\n",
+		dev->descriptor.bcdUSB);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceSubClass != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8801/rts8891 (bDeviceSubClass = 0x%x)\n",
+		dev->descriptor.bDeviceSubClass);
+      return 0;
+    }
+  if (dev->descriptor.bDeviceProtocol != 0)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8801/rts8891 (bDeviceProtocol = 0x%x)\n",
+		dev->descriptor.bDeviceProtocol);
+      return 0;
+    }
+
+  /* Check endpoints */
+  if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
+    {
+      if (verbose > 2)
+	printf ("    this is not a rts8801/rts8891 (bNumEndpoints = %d)\n",
+		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
+      return 0;
+    }
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[0].
+       bEndpointAddress != 0x81)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].
+	  wMaxPacketSize != 0x40)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8801/rts8891 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[0].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[1].
+       bEndpointAddress != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  bmAttributes != 0x02)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].
+	  wMaxPacketSize != 0x08)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval !=
+	  0x00))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8801/rts8891 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[1].bInterval);
+      return 0;
+    }
+
+  if ((dev->config[0].interface[0].altsetting[0].endpoint[2].
+       bEndpointAddress != 0x83)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  bmAttributes != 0x03)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].
+	  wMaxPacketSize != 0x01)
+      || (dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval !=
+	  0xFA))
+    {
+      if (verbose > 2)
+	printf
+	  ("    this is not a rts8801/rts8891 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   bEndpointAddress,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bmAttributes,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].
+	   wMaxPacketSize,
+	   dev->config[0].interface[0].altsetting[0].endpoint[2].bInterval);
+      return 0;
+    }
+
+  /* Now we read 10 registers */
+  result = prepare_interface (dev, &handle);
+  if (!result)
+    return "rts8801/rts8891?";
+
+  memset (req, 0, 4);
+  req[0] = 0x80;		/* get registers 0x00-0xF2 */
+  req[1] = 0x00;
+  req[2] = 0x00;
+  req[3] = 0xf3;
+
+  result = rts88xx_read_reg(handle,req,res,req[3]);
+  if (result <= 0)
+    {
+      if (verbose > 2)
+	printf ("    Couldn't read registers\n");
+      finish_interface (handle);
+      return 0;
+    }
+
+  /* test CCD and link registers */
+  if (res[0xb0] != 0x80 || ((res[0] & 0x0f)!=0x05))
+    {
+      if (verbose > 2)
+	printf ("    Unexpected result from register reading (0x%0x/0x%0x)\n",
+		res[0xb0], res[2]);
+      finish_interface (handle);
+      return 0;
+    }
+  finish_interface (handle);
+  return "rts8801/rts8891";
+}	/* end of rts8801/rts8891 detection */
 
 
 /* Check for Service & Quality SQ113 */
@@ -3229,6 +3377,9 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
 
   if (!chip_name)
     chip_name = check_hp5590 (dev);
+
+  if (!chip_name)
+    chip_name = check_rts88x1 (dev);
 
   if (verbose > 2)
     {

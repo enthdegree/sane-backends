@@ -1,3 +1,12 @@
+2007-10-24  Julien Blache <jb@jblache.org>
+	* backends/net.c: Add an optional connection timeout for the
+	initial connection to saned. Based on a patch from Ryan Duryea
+	<rduryea@avanta.com>. Bump net backend version to 1.0.14.
+	* backends/net.conf.in: Add the new connect_timeout option and
+	adjust comments accordingly.
+	* doc/sane-net.man: Document the connect_timeout option and the
+	SANE_NET_TIMEOUT environment variable.
+
 2007-10-19  Stephane Voltz <stef.dev@free.fr>
 
 	* tools/check-usb-chip.c: added detection of rts8801 and

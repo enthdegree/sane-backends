@@ -89,13 +89,13 @@
 #if defined (HAVE_GETADDRINFO) && defined (HAVE_GETNAMEINFO)
 # define NET_USES_AF_INDEP
 # ifdef ENABLE_IPV6
-#  define NET_VERSION "1.0.13 (AF-indep+IPv6)"
+#  define NET_VERSION "1.0.14 (AF-indep+IPv6)"
 # else
-#  define NET_VERSION "1.0.13 (AF-indep)"
+#  define NET_VERSION "1.0.14 (AF-indep)"
 # endif /* ENABLE_IPV6 */
 #else
 # undef ENABLE_IPV6
-# define NET_VERSION "1.0.13"
+# define NET_VERSION "1.0.14"
 #endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 static SANE_Auth_Callback auth_callback;
@@ -105,6 +105,7 @@ static const SANE_Device **devlist;
 static int client_big_endian; /* 1 == big endian; 0 == little endian */
 static int server_big_endian; /* 1 == big endian; 0 == little endian */
 static int depth; /* bits per pixel */
+static int connect_timeout = -1; /* timeout for connection to saned */
 
 #ifndef NET_USES_AF_INDEP
 static int saned_port;
@@ -290,6 +291,7 @@ connect_dev (Net_Device * dev)
   int on = 1;
   int level = -1;
 #endif
+  struct timeval tv;
 
   int i;
 
@@ -315,6 +317,18 @@ connect_dev (Net_Device * dev)
 	       i, strerror (errno));
 	  dev->ctl = -1;
 	  continue;
+	}
+
+      /* Set SO_SNDTIMEO for the connection to saned */
+      if (connect_timeout > 0)
+	{
+	  tv.tv_sec = connect_timeout;
+	  tv.tv_usec = 0;
+
+	  if (setsockopt (dev->ctl, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
+	    {
+	      DBG (1, "connect_dev: [%d] failed to set SO_SNDTIMEO (%s)\n", i, strerror (errno));
+	    }
 	}
 
       if (connect (dev->ctl, addrp->ai_addr, addrp->ai_addrlen) < 0)
@@ -348,6 +362,7 @@ connect_dev (Net_Device * dev)
   int on = 1;
   int level = -1;
 #endif
+  struct timeval tv;
 
   DBG (2, "connect_dev: trying to connect to %s\n", dev->name);
 
@@ -369,6 +384,19 @@ connect_dev (Net_Device * dev)
   sin = (struct sockaddr_in *) &dev->addr;
   sin->sin_port = saned_port;
 
+
+  /* Set SO_SNDTIMEO for the connection to saned */
+  if (connect_timeout > 0)
+    {
+      tv.tv_sec = connect_timeout;
+      tv.tv_usec = 0;
+
+      if (setsockopt (dev->ctl, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
+	{
+	  DBG (1, "connect_dev: [%d] failed to set SO_SNDTIMEO (%s)\n", i, strerror (errno));
+	}
+    }
+
   if (connect (dev->ctl, &dev->addr, sizeof (dev->addr)) < 0)
     {
       DBG (1, "connect_dev: failed to connect (%s)\n", strerror (errno));
@@ -377,6 +405,18 @@ connect_dev (Net_Device * dev)
     }
   DBG (3, "connect_dev: connection succeeded\n");
 #endif /* NET_USES_AF_INDEP */
+
+  /* We're connected now, so reset SO_SNDTIMEO to the default value of 0 */
+  if (connect_timeout > 0)
+    {
+      tv.tv_sec = 0;
+      tv.tv_usec = 0;
+
+      if (setsockopt (dev->ctl, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
+	{
+	  DBG (1, "connect_dev: [%d] failed to reset SO_SNDTIMEO (%s)\n", i, strerror (errno));
+	}
+    }
 
 #ifdef TCP_NODELAY
 # ifdef SOL_TCP
@@ -620,6 +660,7 @@ SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
   char device_name[PATH_MAX];
+  const char *optval;
   const char *env;
   size_t len;
   FILE *fp;
@@ -693,6 +734,29 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	  if (!len)
 	    continue;		/* ignore empty lines */
 
+	  /*
+	   * Check for net backend options.
+	   * Anything that isn't an option is a saned host.
+	   */
+	  if (strstr(device_name, "connect_timeout") != NULL)
+	    {
+	      /* Look for the = sign; if it's not there, error out */
+	      optval = strchr(device_name, '=');
+
+	      if (!optval)
+		continue;
+
+	      optval = sanei_config_skip_whitespace (++optval);
+	      if ((optval != NULL) && (*optval != '\0'))
+		{
+		  connect_timeout = atoi(optval);
+
+		  DBG (2, "sane_init: connect timeout set to %d seconds\n", connect_timeout);
+		}
+
+	      continue;
+	    }
+
 	  DBG (2, "sane_init: trying to add %s\n", device_name);
 	  add_device (device_name, 0);
 	}
@@ -747,6 +811,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	DBG (1, "sane_init: not enough memory to duplicate "
 	     "environment variable\n");
     }
+
+  DBG (2, "sane_init: evaluating environment variable SANE_NET_TIMEOUT\n");
+  env = getenv ("SANE_NET_TIMEOUT");
+  if (env)
+    {
+      connect_timeout = atoi(env);
+      DBG (2, "sane_init: connect timeout set to %d seconds from env\n", connect_timeout);
+    }
+
   DBG (2, "sane_init: done\n");
   return SANE_STATUS_GOOD;
 }

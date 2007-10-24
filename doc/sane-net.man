@@ -1,4 +1,4 @@
-.TH sane-net 5 "8 Oct 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-net 5 "24 Oct 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-net
 .SH NAME
 sane-net \- SANE network backend
@@ -35,10 +35,24 @@ An IPv6 address can be specified enclosed in square brackets:
 .IR [::1] : device
 .RE
 .SH CONFIGURATION
-The contents of the
+The
 .IR net.conf
-file is a list of host names (or IP addresses) that should be contacted for
-scan requests.  Empty lines and lines starting with a hash mark (#) are
+file contains both backend options and a list of host names (or IP
+addresses) that should be contacted for scan requests. Anything that
+isn't one of the options listed below will be treated as an host name.
+.PP
+.TP
+.B connect_timeout = nsecs
+Timeout (in seconds) for the initial connection to the
+.I saned
+server. This will prevent the backend from blocking for several
+minutes trying to connect to an unresponsive
+.I saned
+host (network outage, host down, ...). The environment variable
+.B SANE_NET_TIMEOUT
+can also be used to specify the timeout at runtime.
+.PP
+Empty lines and lines starting with a hash mark (#) are
 ignored.  Note that IPv6 addresses in this file do not need to be enclosed
 in square brackets.  A sample configuration file is shown below:
 .PP
@@ -120,6 +134,11 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .B SANE_NET_HOSTS
 A colon-separated list of host names or IP addresses to be contacted by this
 backend.
+.TP
+.B SANE_NET_TIMEOUT
+Number of seconds to wait for a response from the
+.I saned
+server for the initial connection request.
 .TP
 .B SANE_DEBUG_NET
 If the library was compiled with debug support enabled, this

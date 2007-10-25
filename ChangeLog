@@ -1,6 +1,8 @@
 2007-10-25  Julien Blache <jb@jblache.org>
 	* sanei/sanei_ab306.c: Fix boundary checking after the for() loop
 	in sanei_ab306_open(). From Johannes Meixner at SuSE.
+	* backend/as6e.c: Fix strncpy()/strncat() usage in
+	check_for_driver(). From Johannes Meixner at SuSE.
 
 2007-10-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Hopefully removed the remaining hardcoded

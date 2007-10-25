@@ -811,9 +811,11 @@ check_for_driver (const char *devname)
 	  dir[count - offset] = path[count];
 	  count++;
 	}
-      strncpy (fullname, dir, NAMESIZE);
-      strncat (fullname, "/", NAMESIZE);
-      strncat (fullname, devname, NAMESIZE);
+      /* use sizeof(fullname)-1 to make sure there is at least one padded null byte */
+      strncpy (fullname, dir, sizeof(fullname)-1);
+      /* take into account that fullname already contains non-null bytes */
+      strncat (fullname, "/", sizeof(fullname)-strlen(fullname)-1);
+      strncat (fullname, devname, sizeof(fullname)-strlen(fullname)-1);
       if (!stat (fullname, &statbuf))
 	{
 	  modes = statbuf.st_mode;

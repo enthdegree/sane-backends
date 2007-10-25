@@ -3621,7 +3621,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 			65536,MOTOR_ACTION_GO_HOME,0);
 
   /* writes register */
-  status = gl841_bulk_write_register (dev, local_reg, i * 2);
+  status = gl841_bulk_write_register (dev, local_reg, i * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3639,7 +3639,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
       sanei_genesys_stop_motor (dev);
       /* restore original registers */
       gl841_bulk_write_register (dev, reg,
-					 GENESYS_GL841_MAX_REGS * 2);
+					 GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
       return status;
     }
 
@@ -3738,7 +3738,7 @@ gl841_search_start_position (Genesys_Device * dev)
   /* send to scanner */
   status =
     gl841_bulk_write_register (dev, local_reg,
-				       GENESYS_GL841_MAX_REGS  * 2);
+				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3869,7 +3869,7 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
 
   status =
     gl841_bulk_write_register (dev, dev->calib_reg,
-				       GENESYS_GL841_MAX_REGS  * 2);
+				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3935,7 +3935,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
 
   status =
     gl841_bulk_write_register (dev, dev->calib_reg,
-				       GENESYS_GL841_MAX_REGS * 2);
+				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -4208,7 +4208,7 @@ gl841_led_calibration (Genesys_Device * dev)
     }
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
@@ -4249,7 +4249,7 @@ gl841_led_calibration (Genesys_Device * dev)
       }
 
       RIE (gl841_bulk_write_register
-	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * 2));
+	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
       DBG (DBG_info,
 	   "gl841_led_calibration: starting first line reading\n");
@@ -4400,7 +4400,7 @@ gl841_offset_calibration (Genesys_Device * dev)
     }
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
@@ -4810,7 +4810,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     }
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   black_pixels =
     (dev->sensor.CCD_start_xoffset * dpi) / dev->sensor.optical_res;
@@ -4948,7 +4948,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
   RIE (gl841_bulk_write_register
-       (dev, local_reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, local_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   return status;
 }
@@ -5029,7 +5029,7 @@ gl841_init (Genesys_Device * dev)
 
   /* Write initial registers */
   RIE (gl841_bulk_write_register
-       (dev, dev->reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, dev->reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   /* Test ASIC and RAM */
   if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -5139,7 +5139,7 @@ gl841_init (Genesys_Device * dev)
       );
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * 2));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
 
   size = dev->current_setup.pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 

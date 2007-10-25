@@ -1,3 +1,7 @@
+2007-10-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys.c: Removed some more hardcoded
+	  sizeof(Genesys_Register_Set)
+
 2007-10-25  Julien Blache <jb@jblache.org>
 	* sanei/sanei_ab306.c: Fix boundary checking after the for() loop
 	in sanei_ab306_open(). From Johannes Meixner at SuSE.

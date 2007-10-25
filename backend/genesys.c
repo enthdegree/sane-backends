@@ -410,7 +410,7 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
   reg[2].address = 0x3b;
   reg[2].value = data & 0xff;
 
-  status = dev->model->cmd_set->bulk_write_register (dev, reg, 6);
+  status = dev->model->cmd_set->bulk_write_register (dev, reg, 3 * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2224,7 +2224,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
 					      dev->model->cmd_set->
-					      bulk_full_size () * 2);
+					      bulk_full_size () * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2271,7 +2271,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
 					      dev->model->cmd_set->
-					      bulk_full_size () * 2);
+					      bulk_full_size () * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2451,7 +2451,7 @@ genesys_white_shading_calibration (Genesys_Device * dev)
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
 					      dev->model->cmd_set->
-					      bulk_full_size () * 2);
+					      bulk_full_size () * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -2593,7 +2593,7 @@ genesys_dark_white_shading_calibration (Genesys_Device * dev)
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->calib_reg,
 					      dev->model->cmd_set->
-					      bulk_full_size () * 2);
+					      bulk_full_size () * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       free (calibration_data);
@@ -3699,7 +3699,7 @@ genesys_start_scan (Genesys_Device * dev)
   status =
     dev->model->cmd_set->bulk_write_register (dev, dev->reg,
 					      dev->model->cmd_set->
-					      bulk_full_size () * 2);
+					      bulk_full_size () * sizeof(Genesys_Register_Set));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,

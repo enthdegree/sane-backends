@@ -273,7 +273,7 @@ sanei_ab306_open (const char *dev, int *fdp)
     if (port[i].base == base)
       break;
 
-  if (port[i].base != base)
+  if (i >= NELEMS(port))
     {
       DBG(1, "sanei_ab306_open: %lx is not a valid base address\n", base);
       return SANE_STATUS_INVAL;

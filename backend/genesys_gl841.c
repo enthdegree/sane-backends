@@ -378,23 +378,27 @@ enum
 /* ------------------------------------------------------------------------ */
 
 /* Write to many registers */
+/* Note: There is no known bulk register write, 
+   this function is sending single registers instead */
 static SANE_Status
 gl841_bulk_write_register (Genesys_Device * dev,
 			   Genesys_Register_Set * reg, size_t size)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int i;
+  unsigned int elems;
 
   /* handle differently sized register sets, reg[0x00] is the last one */
   i = 0;
-  while ((i < size / 2) && (reg[i].address != 0))
+  while ((i < size / sizeof(Genesys_Register_Set)) && (reg[i].address != 0))
     i++;
-  size = i * 2;
+
+  elems = i;
 
   DBG (DBG_io, "gl841_bulk_write_register (size = %lu)\n",
-       (u_long) size);
+       (u_long) elems * sizeof(Genesys_Register_Set));
 
-  for (i = 0; i < size / 2; i++) {
+  for (i = 0; i < elems; i++) {
 
       u_int8_t msg[2];
 
@@ -417,7 +421,7 @@ gl841_bulk_write_register (Genesys_Device * dev,
   }
   
 
-  DBG (DBG_io, "gl841_bulk_write_register: wrote %d bytes\n", size);
+  DBG (DBG_io, "gl841_bulk_write_register: wrote %d registers\n", elems);
   return status;
 }
 

@@ -1,3 +1,10 @@
+2007-10-13  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+
+	* backend/genesys_gl841.c: One more instance of 
+	  sizeof(Genesys_Register_Set) vs 2
+	* backend/genesys.c: Add check for small register set in 
+	  sanei_genesys_get_address
+
 2007-10-24  Julien Blache <jb@jblache.org>
 	* backends/net.c: Add an optional connection timeout for the
 	initial connection to saned. Based on a patch from Ryan Duryea

@@ -499,7 +499,7 @@ Genesys_Register_Set *
 sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
 {
   int i;
-  for (i = 0; i < GENESYS_MAX_REGS; i++)
+  for (i = 0; i < GENESYS_MAX_REGS && regs[i].address; i++)
     {
       if (regs[i].address == addr)
 	return &regs[i];

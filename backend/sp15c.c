@@ -45,6 +45,9 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
+ * Revision 1.14  2007/10/26 14:56:38  jblache
+ * OPT_NUM_OPTS must be of type SANE_TYPE_INT.
+ *
  * Revision 1.13  2006/03/29 20:48:50  hmg-guest
  * Fixed ADF support. Patch from Andreas Degert <ad@papyrus-gmbh.de>.
  *
@@ -1385,6 +1388,7 @@ init_options (struct sp15c *scanner)
 
   scanner->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   scanner->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  scanner->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   scanner->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
 
 /************** "Mode" group: **************/

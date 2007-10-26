@@ -2714,6 +2714,7 @@ init_options (Coolscan_t * scanner)
 
   scanner->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   scanner->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  scanner->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   scanner->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
 
   /* "Mode" group: */

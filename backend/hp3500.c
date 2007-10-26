@@ -959,6 +959,7 @@ init_options (struct hp3500_data *scanner)
   opt = scanner->opt + OPT_NUM_OPTS;
   opt->title = SANE_TITLE_NUM_OPTIONS;
   opt->desc = SANE_DESC_NUM_OPTIONS;
+  opt->type = SANE_TYPE_INT;
   opt->cap = SANE_CAP_SOFT_DETECT;
 
   opt = scanner->opt + OPT_RESOLUTION;

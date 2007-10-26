@@ -186,6 +186,7 @@ InitOptions(TInstance *this)
 	case optCount:
 	  pdesc->title  =SANE_TITLE_NUM_OPTIONS;
 	  pdesc->desc   =SANE_DESC_NUM_OPTIONS;
+	  pdesc->type   =SANE_TYPE_INT;
 	  pdesc->cap    =SANE_CAP_SOFT_DETECT;
 	  pval->w       =(SANE_Word)optLast;
 	  break;

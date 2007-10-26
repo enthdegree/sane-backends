@@ -1,3 +1,12 @@
+2007-10-26  Julien Blache <jb@jblache.org>
+	* backend/abaton.c, backend/agfafocus.c, backend/apple.c,
+	backend/artec.c, backend/canon.c, backend/cardscan.c,
+	backend/coolscan.c, backend/epson.c, backend/epson2.c,
+	backend/fujitsu.c, backend/hp3500.c, backend/ibm.c,
+	backend/pint.c, backend/ricoh.c, backend/s9036.c,
+	backend/sm3600.c, backend/sp15c.c, backend/tamarack.c:
+	OPT_NUM_OPTS must be of type SANE_TYPE_INT.
+
 2007-10-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c: Removed some more hardcoded
 	  sizeof(Genesys_Register_Set)

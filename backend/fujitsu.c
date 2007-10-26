@@ -1577,6 +1577,7 @@ init_options (struct fujitsu *s)
   s->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
 
   DBG (10, "init_options: finish\n");

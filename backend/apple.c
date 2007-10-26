@@ -1289,6 +1289,7 @@ init_options (Apple_Scanner * s)
 
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
   s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
   s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
   s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 

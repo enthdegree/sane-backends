@@ -1,4 +1,4 @@
-2007-10-28  Julien Blache <jb@jblache.org>
+2007-10-27  Julien Blache <jb@jblache.org>
 	* backend/net.c: Fix IPv4 legacy code after last changes to the
 	net backend on 2007-10-24.
 

@@ -393,7 +393,7 @@ connect_dev (Net_Device * dev)
 
       if (setsockopt (dev->ctl, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
 	{
-	  DBG (1, "connect_dev: [%d] failed to set SO_SNDTIMEO (%s)\n", i, strerror (errno));
+	  DBG (1, "connect_dev: failed to set SO_SNDTIMEO (%s)\n", strerror (errno));
 	}
     }
 
@@ -414,7 +414,7 @@ connect_dev (Net_Device * dev)
 
       if (setsockopt (dev->ctl, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv)) < 0)
 	{
-	  DBG (1, "connect_dev: [%d] failed to reset SO_SNDTIMEO (%s)\n", i, strerror (errno));
+	  DBG (1, "connect_dev: failed to reset SO_SNDTIMEO (%s)\n", strerror (errno));
 	}
     }
 

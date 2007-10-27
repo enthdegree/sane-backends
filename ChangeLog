@@ -1,3 +1,7 @@
+2007-10-28  Julien Blache <jb@jblache.org>
+	* backend/net.c: Fix IPv4 legacy code after last changes to the
+	net backend on 2007-10-24.
+
 2007-10-26  Julien Blache <jb@jblache.org>
 	* backend/abaton.c, backend/agfafocus.c, backend/apple.c,
 	backend/artec.c, backend/canon.c, backend/cardscan.c,

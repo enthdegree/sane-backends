@@ -1,3 +1,7 @@
+2007-10-28  Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc: Added the Epson DX-6000 (04b8:082e)
+	based on user report.
+
 2007-10-27  Julien Blache <jb@jblache.org>
 	* backend/net.c: Fix IPv4 legacy code after last changes to the
 	net backend on 2007-10-24.

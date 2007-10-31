@@ -31,10 +31,9 @@
 ;data taken from Brother website and Brsane2.ini
 
 :model "DCP-110C"
-:status :untested
+:status :good
 :interface "USB"
 :usbid "0x04f9" "0x0169"
-:comment "No report yet."
 
 :model "DCP-115C"
 :status :good

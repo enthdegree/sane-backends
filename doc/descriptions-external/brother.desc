@@ -89,6 +89,11 @@
 :interface "USB"
 :usbid "0x04f9" "0x015e"
 
+:model "DCP-8060"
+:status :good
+:interface "USB"
+:usbid "0x04f9" "0x01a3"
+
 :model "FAX1800C"
 :status :untested
 :interface "USB"

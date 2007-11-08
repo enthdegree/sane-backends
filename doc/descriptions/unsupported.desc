@@ -64,18 +64,6 @@
 
 ;********************************************************************************************
 
-:mfg "Ambir"
-
-:model "Visigo A4"
-:url "/unsupported/syscan-travelscan-460.html"
-:interface "USB"
-:usbid "0x0a82" "0x4600"
-:status :unsupported
-:comment "Not supported. LM9832. See link for details."
-
-;********************************************************************************************
-
-
 :mfg "Artec/Ultima"
 :url "http://www.artecusa.com/"
 
@@ -2444,13 +2432,6 @@
 ;********************************************************************************************
 
 :mfg "Syscan"
-
-:model "TravelScan 460/464"
-:url "/unsupported/syscan-travelscan-460.html"
-:interface "USB"
-:usbid "0x0a82" "0x4600"
-:status :unsupported
-:comment "Not supported. LM9832. Some information is available. See link for details."
 
 :model "TravelScan FS-531"
 :url "/unsupported/syscan-travelscan-fs531.html"

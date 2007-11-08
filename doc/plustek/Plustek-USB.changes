@@ -3,6 +3,10 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-4 (2007-11-07)
+---------------------
+Added support for Syscan TravelScan464
+
 V 0.52-3 (2007-07-26)
 ---------------------
 Checked UMAX3400/3450 models
@@ -63,7 +67,7 @@ V 0.51-8 (2006-04-09)
 ---------------------
 Added cache for fine calibration (CIS devices only)
 Added support for sheet-fed scanner (CIS devices only)
-Added support for Syscan Travelscan662
+Added support for Syscan TravelScan662
 
 V 0.50-10 (2006-01-31)
 ---------------------

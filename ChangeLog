@@ -1,3 +1,13 @@
+2007-11-08  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* doc/plustek/Plustek-USB.changes doc/sane-plustek.man: Update
+	* backend/plustek.c: Bumped build number
+	* doc/descriptions/unsupported.desc: Updated some entries
+	* backend/plustek-usb.c backend/plustek-usbimg.c backend/plustek-usbmap.c
+	  backend/plustek-usbscan.c backend/plustek-usbshading.c: Fixed copyright
+	* backend/plustek-usb.h backend/plustek-usbdevs.c 
+	  doc/descriptions/plustek.desc: Added support for TravelScan464
+
 2007-10-28  Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: Added the Epson DX-6000 (04b8:082e)
 	based on user report.

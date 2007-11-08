@@ -63,13 +63,14 @@
  *        - fixed CanoScan N670U settings, see (bugreport #302738)
  *        - added high-speed setting for HP2200
  * - 0.51 - tweaked CanoScan N1220U settings again
- *        - added settings for Syscan Travelscan 662
+ *        - added settings for Syscan TravelScan 662
  *        - tweaked settings for Bearpaw 1200
  *        - fixed CanoScan LiDE20 settings, cause of various reports, seems
  *          Canon has built-in different motortypes
  *        - also fixed Motorsettings for LiDE30
  * - 0.52 - added Q-Scan USB001 settings
  *        - tweaked motor settings for Bearpaw 1200
+ *        - added TravelScan 464 settings
  *
  * <hr>
  * This file is part of the SANE package.
@@ -742,6 +743,26 @@ static DCapsDef Cap0x04A9_0x2220 =
 static DCapsDef Cap0x0A82_0x6620 =
 {
 	{{ 0,   0}, 100, -1, {1226, 3508}, {75, 75}},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
+	{600, 600},
+	DEVCAPSFLAG_SheetFed,
+	SENSORORDER_rgb,
+	8,
+	1,
+	kNEC8861,           /* use default settings during calibration */
+	0,                  /* not used here... */
+	(_WAF_MISC_IO_LAMPS | _WAF_MISC_IO_BUTTONS |
+	 _WAF_BIN_FROM_COLOR | _WAF_GRAY_FROM_COLOR),
+	_MIO5 + _PORT1 + _PS_INP_MIO2
+};
+
+/* Syscan TravelScan 464 A4 sheet-fed scanner
+ */
+static DCapsDef Cap0x0A82_0x4600 =
+{
+	{{ 0,   0}, 150, -1, {2550, 3508}, {75, 75}},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
 	{{ 0,   0},   0,  0, {0, 0}, { 0, 0 }},
@@ -2493,6 +2514,76 @@ static HWDef Hw0x0A82_0x6620 =
 	1.8
 };
 
+/** TravelScan 464 */
+static HWDef Hw0x0A82_0x4600 =
+{
+	0.72,   /* dMaxMotorSpeed                                 */
+	0.188,  /* dMaxMoveSpeed                                  */
+	0.0,    /* dHighSpeed                                     */
+	100,    /* wIntegrationTimeLowLamp                        */
+	100,    /* wIntegrationTimeHighLamp                       */
+	740,    /* wMotorDpi (Full step DPI)                      */
+	512,    /* wRAMSize (KB)                                  */
+	3.75,   /* dMinIntegrationTimeLowres (ms)                 */
+	5.75,   /* dMinIntegrationTimeHighres (ms)                */
+	3000,   /* wGreenPWMDutyCycleLow (reg 0x2a + 0x2b)        */
+	3000,   /* wGreenPWMDutyCycleHigh (reg 0x2a + 0x2b)       */
+
+	0x0d,   /* bSensorConfiguration (0x0b)                    */
+	0x00,   /* sensor control settings (reg 0x0c)             */
+	0x25,   /* sensor control settings (reg 0x0d)             */
+	0x00,   /* sensor control settings (reg 0x0e)             */
+
+	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
+	        /* mono (reg 0x0f to 0x18)                        */
+
+	{0x18, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x03, 0x07},
+	        /* color (reg 0x0f to 0x18)                       */
+
+	(_BLUE_CH | _ONE_CH_COLOR), /* bReg_0x26 color mode       */
+
+	0x00,   /* bReg 0x27 color mode                           */
+	2,      /* bReg 0x29 illumination mode                    */
+
+	{ 3,  0,    0, 10, 450,  0,   0 },
+	{ 2, 10, 1000, 10, 880, 10, 630 },
+
+	1,      /* StepperPhaseCorrection (reg 0x1a + 0x1b)       */
+	1,      /* bOpticBlackStart (reg 0x1c)                    */
+	2,      /* bOpticBlackEnd (reg 0x1d)                      */
+	0x15,   /* wActivePixelsStart (reg 0x1e + 0x1f)           */
+	5300,   /* wLineEnd (reg 0x20 + 0x21)                     */
+
+	500,    /* red lamp on    (reg 0x2c + 0x2d)               */
+	1000,   /* red lamp off   (reg 0x2e + 0x2f)               */
+	500,    /* green lamp on  (reg 0x30 + 0x31)               */
+	1000,   /* green lamp off (reg 0x32 + 0x33)               */
+	500,    /* blue lamp on   (reg 0x34 + 0x35)               */
+	100,    /* blue lamp off  (reg 0x36 + 0x37)               */
+
+	3,      /* stepper motor control (reg 0x45)               */
+	0,      /* wStepsAfterPaperSensor2 (reg 0x4c + 0x4d)      */
+
+	0,      /* steps to reverse when buffer is full reg 0x50) */
+	0,      /* acceleration profile (reg 0x51)                */
+	0,      /* lines to process (reg 0x54)                    */
+	0x09,   /* kickstart (reg 0x55)                           */
+	0x02,   /* pwm freq (reg 0x56)                            */
+	0x16,   /* pwm duty cycle (reg 0x57)                      */
+
+	0x01,   /* Paper sense (reg 0x58)                         */
+
+	0x0e,   /* misc io12 (reg 0x59)                           */
+	0x96,   /* misc io34 (reg 0x5a)                           */
+	0x01,   /* misc io56 (reg 0x5b)                           */
+	0,      /* test mode ADC Output CODE MSB (reg 0x5c)       */
+	0,      /* test mode ADC Output CODE LSB (reg 0x5d)       */
+	0,      /* test mode (reg 0x5e)                           */
+	_LM9833,
+	MODEL_TSCAN_A4,
+	1.5
+};
+
 /** IRIScan/Q-Scan USB001 - Portable Peripheral Co., Ltd. */
 static HWDef Hw0x0A53_0x1000 =
 {
@@ -2648,6 +2739,7 @@ static SetDef Settings[] =
 	{"0x04A9-0x2220",   &Cap0x04A9_0x2220, &Hw0x04A9_0x2220, "CanoScan LiDE25"      },
 
 	/* SYSCAN... */
+	{"0x0A82-0x4600",   &Cap0x0A82_0x4600, &Hw0x0A82_0x4600, "TravelScan 460/464" },
 	{"0x0A82-0x6620",   &Cap0x0A82_0x6620, &Hw0x0A82_0x6620, "TravelScan 662" },
 
 	/* Portable Peripheral Co., Ltd. */
@@ -2859,6 +2951,20 @@ static ClkMotorDef Motors[] = {
 	},
 
 	{ MODEL_TSCAN, 2, 22, 6, 75, 4000,
+	/* Motor settings (PWM and PWM_Duty) */
+		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
+		{{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 },
+		/* <=400dpi     <=600dpi      <=800dpi      <=1200dpi     <=2400dpi */
+		{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }},
+		/* Color mode MCLK settings */
+		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		{ 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0 },
+		/* Gray mode MCLK settings */
+		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
+		{ 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0 },
+	},
+
+	{ MODEL_TSCAN_A4, 2, 22, 6, 0, 0,
 	/* Motor settings (PWM and PWM_Duty) */
 		/* <=75dpi       <=100dpi      <=150dpi      <=200dpi      <=300dpi */
 		{{ 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 }, { 2, 22, 1 },

@@ -49,6 +49,7 @@
  *        - bPCB is now ushort to be "missused" by non Plustek
  *          devices (as threshhold for resetting sensor order)
  *        - added _WAF_LOFF_ON_START and _WAF_ONLY_8BIT
+ *        - added MODEL_TSCAN_A4
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -326,7 +327,8 @@ typedef enum
 	MODEL_CANON_LIDE25,   /**< for CanoScan LiDE25          */
 	MODEL_UMAX,           /**< for UMAX 3400/3450           */
 	MODEL_UMAX1200,       /**< for UMAX 5400                */
-	MODEL_TSCAN,          /**< for Syscan Travelscan        */
+	MODEL_TSCAN,          /**< for Syscan TravelScan A6     */
+	MODEL_TSCAN_A4,       /**< for Syscan TravelScan A4     */
 	MODEL_QSCAN,          /**< for PandP Q-Scan             */
 	MODEL_LAST
 } eModelDef;
@@ -510,7 +512,7 @@ typedef struct HWDefault
 
 	eChipDef            chip;           /* chiptype               */
 	eModelDef           motorModel;     /* to identify used motor */
-	double              gamma;          /* gamma setting          */
+	double              gamma;          /* default gamma setting  */
 } HWDef;
 
 /** device description during runtime

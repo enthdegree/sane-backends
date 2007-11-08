@@ -233,10 +233,25 @@
 :mfg "Syscan"
 :url "http://www.syscaninc.com/"
 
+:model "TravelScan 460/464"
+:interface "USB"
+:usbid "0x0a82" "0x4600"
+:status :complete
+
 :model "TravelScan 662"
 :interface "USB"
 :usbid "0x0a82" "0x6620"
 :status :complete
+
+;* SYSCAN *******************************************************************************************
+
+:mfg "Ambir"
+
+:model "Visigo A4"
+:interface "USB"
+:usbid "0x0a82" "0x4600"
+:status :complete
+:comment "Rebaged Travelscan 464"
 
 ;* Portable Peripheral Co., Ltd. ********************************************************************
 

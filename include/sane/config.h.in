@@ -122,6 +122,10 @@
    <IOKit/scsi-commands/SCSICommandOperationCodes.h> header file. */
 #undef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 
+/* Define to 1 if you have the <IOKit/scsi/SCSICommandOperationCodes.h> header
+   file. */
+#undef HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H
+
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM
 
@@ -178,6 +182,9 @@
 
 /* Define to 1 if you have a working `mmap' system call. */
 #undef HAVE_MMAP
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#undef HAVE_NETINET_IN_H
 
 /* Define to 1 if you have the `NSLinkModule' function. */
 #undef HAVE_NSLINKMODULE
@@ -371,9 +378,6 @@
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
-/* Define to 1 if you have the <netinet/in.h> header file. */
-#undef HAVE_NETINET_IN_H
-
 /* Define to 1 if you have the `_portaccess' function. */
 #undef HAVE__PORTACCESS
 
@@ -424,7 +428,7 @@
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
-   automatically deduced at run-time.
+   automatically deduced at runtime.
 	STACK_DIRECTION > 0 => grows toward higher addresses
 	STACK_DIRECTION < 0 => grows toward lower addresses
 	STACK_DIRECTION = 0 => direction of growth unknown */
@@ -480,7 +484,7 @@
 /* Define scsireq_t as \`struct scsireq\' if necessary. */
 #undef scsireq_t
 
-/* Define to `unsigned' if <sys/types.h> does not define. */
+/* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
 
 /* Define socklen_t as \`int\' if necessary. */

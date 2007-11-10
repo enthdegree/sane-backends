@@ -75,8 +75,12 @@ MAN2HTML= nroff -man |\
           -cgiurl '$$title.$$section.html'|\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'
 
+ifeq (@CROSS_COMPILING@,no)
 HTML_PAGES = sane-backends.html sane-backends-external.html \
              sane-mfgs.html sane-mfgs-external.html
+else
+HTML_PAGES =
+endif
 
 ifeq (@USE_LATEX@,no)
 STANDARD =

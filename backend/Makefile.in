@@ -358,7 +358,6 @@ libsane-canon.la: ../sanei/sanei_scsi.lo
 libsane-canon630u.la: ../sanei/sanei_constrain_value.lo
 libsane-canon630u.la: ../sanei/sanei_usb.lo
 libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
-libsane-cardscan.la: ../sanei/sanei_config2.lo
 libsane-cardscan.la: ../sanei/sanei_constrain_value.lo
 libsane-cardscan.la: ../sanei/sanei_usb.lo
 libsane-coolscan.la: ../sanei/sanei_config2.lo

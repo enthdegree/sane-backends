@@ -53,8 +53,15 @@ DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
 @SET_MAKE@
 
-DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage sane-desc \
-	       hotplug/libsane.usermap hotplug-ng/libsane.db udev/libsane.rules hal/libsane.fdi
+ifeq (@CROSS_COMPILING@,no)
+HOTPLUG_SCRIPTS = hotplug/libsane.usermap hotplug-ng/libsane.db \
+		  udev/libsane.rules hal/libsane.fdi
+else
+HOTPLUG_SCRIPTS =
+endif
+
+DESTINATIONS = sane-find-scanner sane-config umax_pp gamma4scanimage \
+	       sane-desc $(HOTPLUG_SCRIPTS)
 
 EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \

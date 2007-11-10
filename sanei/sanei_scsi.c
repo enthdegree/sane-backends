@@ -185,6 +185,7 @@
 # include <apollo/time.h>
 # include "sanei_DomainOS.h"
 #elif defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+      defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
       defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
 # define USE MACOSX_INTERFACE
 # include <CoreFoundation/CoreFoundation.h>
@@ -193,12 +194,20 @@
 #  include <IOKit/IOCFPlugIn.h>
 #  include <IOKit/cdb/IOSCSILib.h>
 # endif
+# ifdef HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H
+/* The def of VERSION causes problems in the following include files */
+#  undef VERSION
+#  include <IOKit/scsi/SCSICmds_INQUIRY_Definitions.h>
+#  include <IOKit/scsi/SCSICommandOperationCodes.h>
+#  include <IOKit/scsi/SCSITaskLib.h>
+# else
 # ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
 /* The def of VERSION causes problems in the following include files */
 #  undef VERSION
 #  include <IOKit/scsi-commands/SCSICmds_INQUIRY_Definitions.h>
 #  include <IOKit/scsi-commands/SCSICommandOperationCodes.h>
 #  include <IOKit/scsi-commands/SCSITaskLib.h>
+# endif
 # endif
 #elif defined (HAVE_WINDOWS_H)
 # define USE WIN32_INTERFACE
@@ -1162,7 +1171,8 @@ sanei_scsi_open (const char *dev, int *fdp,
   }
 #elif USE == MACOSX_INTERFACE
   {
-# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+# if defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
+     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
     len = strlen (dev);
     if (len > 2 && len % 2 == 0 && dev [0] == '<' && dev [len - 1] == '>')
       {
@@ -5269,7 +5279,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 
 # endif	/* ifdef HAVE_IOKIT_CDB_IOSCSILIB_H */
 
-# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+# if defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
+     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
 
   static
   void CreateMatchingDictionaryForSTUC (SInt32 peripheralDeviceType,
@@ -5792,7 +5803,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 		     void *dst, size_t * dst_size)
   {
     if (fd_info[fd].pdata)
-# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+# if defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
+     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
       return sanei_scsi_cmd2_stuc_api (fd, cmd, cmd_size, src, src_size,
 				       dst, dst_size);
 # else
@@ -5814,7 +5826,8 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 			     int findlun,
 			     SANE_Status (*attach) (const char *dev))
   {
-# ifdef HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H
+# if defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
+     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
     sanei_scsi_find_devices_stuc_api (findvendor, findmodel, findtype,
 				      findbus, findchannel, findid,
 				      findlun, attach);

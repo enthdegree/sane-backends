@@ -819,6 +819,7 @@ static char **build_scsi_dev_list()
 #endif
 
 #if defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+    defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
 char **scsi_dev_list;
 int scsi_dev_list_index;
@@ -1410,6 +1411,7 @@ main (int argc, char **argv)
 
 #if defined (HAVE_WINDOWS_H) || \
     defined (HAVE_IOKIT_CDB_IOSCSILIB_H) || \
+    defined (HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H) || \
     defined (HAVE_IOKIT_SCSI_COMMANDS_SCSICOMMANDOPERATIONCODES_H)
    /* Build a list of valid of possible scanners found */
       dev_list = build_scsi_dev_list();

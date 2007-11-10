@@ -385,14 +385,16 @@ load (struct backend *be)
 # ifdef __hpux
 #   define POSTFIX ".sl.%u"
 #   define ALT_POSTFIX ".so.%u"
-#elif defined (HAVE_WINDOWS_H)
+# elif defined (HAVE_WINDOWS_H)
 #   undef PREFIX
 #   define PREFIX "cygsane-"
 #   define POSTFIX "-%u.dll"
-#elif defined (HAVE_OS2_H)
+# elif defined (HAVE_OS2_H)
 #   undef PREFIX
 #   define PREFIX ""
 #   define POSTFIX ".dll"
+# elif defined (__APPLE__) && defined (__MACH__)
+#   define POSTFIX ".%u.so"
 # else
 #   define POSTFIX ".so.%u"
 # endif

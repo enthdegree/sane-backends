@@ -38,7 +38,6 @@
 
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_scsi.h"
-#include "../include/sane/sanei_usb.h"
 #include "../include/sane/sanei_pa4s2.h"
 #include "../include/sane/sanei_config.h"
 
@@ -46,6 +45,8 @@
 #include "usb.h"
 extern char * check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file);
 #endif
+
+#include "../include/sane/sanei_usb.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX 1024
@@ -721,7 +722,7 @@ get_next_file (char *dir_name, DIR * dir)
 
 #if defined (HAVE_WINDOWS_H)
 /* Return a list of potential scanners. There's a lot of hardcoded values here that might break on a system with lots of scsi devices. */
-static char **build_scsi_dev_list()
+static char **build_scsi_dev_list(void)
 {
 	char **dev_list;
 	int dev_list_index;
@@ -834,7 +835,7 @@ static SANE_Status AddToSCSIDeviceList (const char *dev) {
     return SANE_STATUS_NO_MEM;
 }
 
-static char **build_scsi_dev_list()
+static char **build_scsi_dev_list(void)
 {
   scsi_dev_list_index = 0;
   scsi_dev_list = malloc (100 * sizeof(char *));

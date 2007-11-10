@@ -226,6 +226,17 @@ __u32 houba = _IOR('v',14, unsigned long);
 ],[AC_MSG_RESULT(yes);
 have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
 
+AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
+AC_TRY_COMPILE([
+#undef VERSION
+#include <IOKit/scsi/SCSITaskLib.h>
+],[
+SCSITaskSGElement range;
+return 0;
+],[AC_MSG_RESULT(yes);
+AC_DEFINE(HAVE_SCSITASKSGELEMENT,1,[Define if SCSITaskSGElement is available.])],
+AC_MSG_RESULT(no))
+
 dnl ***********************************************************************
 dnl Checks for compiler characteristics
 dnl ***********************************************************************

@@ -5401,7 +5401,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     if (plugInResult != S_OK)
       {
 	DBG (5, "Couldn't create SCSI device interface (%ld)\n",
-	     plugInResult);
+	     (long) plugInResult);
 	return;
       }
 
@@ -5421,10 +5421,14 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
     SCSI_Sense_Data senseData;
     SCSICommandDescriptorBlock cdb;
     IOReturn ioReturnValue;
+#ifdef HAVE_SCSITASKSGELEMENT
+    SCSITaskSGElement range;
+#else
     IOVirtualRange range;
+#endif
     UInt64 transferCount = 0;
-    size_t data_length = 0;
-    int transferType = 0;
+    UInt64 data_length = 0;
+    UInt8 transferType = 0;
 
     if (dst && dst_size)	/* isRead */
       {
@@ -5434,7 +5438,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	bzero (dst, *dst_size);
 
 	/* Configure the virtual range for the buffer. */
-	range.address = (IOVirtualAddress) dst;
+	range.address = (long) dst;
 	range.length = *dst_size;
 
 	data_length = *dst_size;
@@ -5445,7 +5449,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	DBG (6, "isWrite src_size:%ld\n", src_size);
 
 	/* Configure the virtual range for the buffer. */
-	range.address = (IOVirtualAddress) src;
+	range.address = (long) src;
 	range.length = src_size;
 
 	data_length = src_size;

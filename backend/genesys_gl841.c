@@ -4863,6 +4863,25 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	   j, max[j], gain[j],dev->frontend.gain[j]);
     }
 
+  for (j = 0; j < channels; j++)
+    {
+      if(gain[j] > 10) 
+        {
+	  DBG (DBG_error0, "**********************************************\n");
+	  DBG (DBG_error0, "**********************************************\n");
+	  DBG (DBG_error0, "****                                      ****\n");
+	  DBG (DBG_error0, "****  Extremely low Brightness detected.  ****\n");
+	  DBG (DBG_error0, "****  Check the scanning head is          ****\n");
+	  DBG (DBG_error0, "****  unlocked and moving.                ****\n");
+	  DBG (DBG_error0, "****                                      ****\n");
+	  DBG (DBG_error0, "**********************************************\n");
+	  DBG (DBG_error0, "**********************************************\n");
+	    
+	  return SANE_STATUS_JAMMED;/* in search for something better */
+        }
+	
+    }
+
   if (dev->model->is_cis) {
       if (dev->frontend.gain[0] > dev->frontend.gain[1])
 	  dev->frontend.gain[0] = dev->frontend.gain[1];

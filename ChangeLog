@@ -1,4 +1,7 @@
 2007-11-11  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: add check for low brightness
+
+2007-11-11  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_gl646.c,
 	  backend/genesys_gl841.c, backend/genesys_low.h: change 
 	  bulk_write_register to take number of registers instead of

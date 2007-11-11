@@ -382,21 +382,20 @@ enum
    this function is sending single registers instead */
 static SANE_Status
 gl841_bulk_write_register (Genesys_Device * dev,
-			   Genesys_Register_Set * reg, size_t size)
+			   Genesys_Register_Set * reg, size_t elems)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   unsigned int i;
-  unsigned int elems;
 
   /* handle differently sized register sets, reg[0x00] is the last one */
   i = 0;
-  while ((i < size / sizeof(Genesys_Register_Set)) && (reg[i].address != 0))
+  while ((i < elems) && (reg[i].address != 0))
     i++;
 
   elems = i;
 
-  DBG (DBG_io, "gl841_bulk_write_register (size = %lu)\n",
-       (u_long) elems * sizeof(Genesys_Register_Set));
+  DBG (DBG_io, "gl841_bulk_write_register (elems = %lu)\n",
+       (u_long) elems);
 
   for (i = 0; i < elems; i++) {
 
@@ -3190,7 +3189,8 @@ gl841_set_powersaving (Genesys_Device * dev,
   local_reg[5].value = exposure_time & 255;	/* lowbyte */
 
   status =
-    gl841_bulk_write_register (dev, local_reg, sizeof (local_reg));
+    gl841_bulk_write_register (dev, local_reg, 
+			       sizeof (local_reg)/sizeof (local_reg[0]));
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error,
 	 "gl841_set_powersaving: Failed to bulk write registers: %s\n",
@@ -3227,7 +3227,8 @@ gl841_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     local_reg[3].value = 0x00;	/* do not start motor yet */
 
   status =
-    gl841_bulk_write_register (dev, local_reg, sizeof (local_reg));
+    gl841_bulk_write_register (dev, local_reg, 
+			       sizeof (local_reg)/sizeof (local_reg[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3360,7 +3361,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 
   status =
     gl841_bulk_write_register (dev, local_reg,
-				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+			       GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3378,7 +3379,7 @@ gl841_feed (Genesys_Device * dev, int steps)
       sanei_genesys_stop_motor (dev);
       /* send original registers */
       gl841_bulk_write_register (dev, dev->reg,
-					 GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+				 GENESYS_GL841_MAX_REGS);
       return status;
     }
 
@@ -3502,8 +3503,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   status =
-    gl841_bulk_write_register (dev, local_reg,
-				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3520,8 +3520,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   sane_strstatus (status));
       sanei_genesys_stop_motor (dev);
       /* send original registers */
-      gl841_bulk_write_register (dev, dev->reg,
-					 GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+      gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS);
       return status;
     }
 
@@ -3621,7 +3620,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 			65536,MOTOR_ACTION_GO_HOME,0);
 
   /* writes register */
-  status = gl841_bulk_write_register (dev, local_reg, i * sizeof(Genesys_Register_Set));
+  status = gl841_bulk_write_register (dev, local_reg, i);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3638,8 +3637,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 	   sane_strstatus (status));
       sanei_genesys_stop_motor (dev);
       /* restore original registers */
-      gl841_bulk_write_register (dev, reg,
-					 GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+      gl841_bulk_write_register (dev, reg, GENESYS_GL841_MAX_REGS);
       return status;
     }
 
@@ -3737,8 +3735,7 @@ gl841_search_start_position (Genesys_Device * dev)
 
   /* send to scanner */
   status =
-    gl841_bulk_write_register (dev, local_reg,
-				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3868,8 +3865,7 @@ gl841_init_regs_for_coarse_calibration (Genesys_Device * dev)
        dev->sensor.optical_res / cksel, dev->settings.xres);
 
   status =
-    gl841_bulk_write_register (dev, dev->calib_reg,
-				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+    gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3934,8 +3930,7 @@ gl841_init_regs_for_shading (Genesys_Device * dev)
   dev->scanhead_position_in_steps += dev->model->shading_lines;
 
   status =
-    gl841_bulk_write_register (dev, dev->calib_reg,
-				       GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set));
+    gl841_bulk_write_register (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -4207,8 +4202,7 @@ gl841_led_calibration (Genesys_Device * dev)
       return status;
     }
 
-  RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+  RIE (gl841_bulk_write_register(dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
@@ -4249,7 +4243,7 @@ gl841_led_calibration (Genesys_Device * dev)
       }
 
       RIE (gl841_bulk_write_register
-	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
       DBG (DBG_info,
 	   "gl841_led_calibration: starting first line reading\n");
@@ -4400,7 +4394,7 @@ gl841_offset_calibration (Genesys_Device * dev)
     }
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
   used_res = dev->current_setup.xres;
   num_pixels = dev->current_setup.pixels;
@@ -4810,7 +4804,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
     }
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
   black_pixels =
     (dev->sensor.CCD_start_xoffset * dpi) / dev->sensor.optical_res;
@@ -4948,7 +4942,7 @@ gl841_init_regs_for_warmup (Genesys_Device * dev,
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
   RIE (gl841_bulk_write_register
-       (dev, local_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+       (dev, local_reg, GENESYS_GL841_MAX_REGS));
 
   return status;
 }
@@ -5029,7 +5023,7 @@ gl841_init (Genesys_Device * dev)
 
   /* Write initial registers */
   RIE (gl841_bulk_write_register
-       (dev, dev->reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+       (dev, dev->reg, GENESYS_GL841_MAX_REGS));
 
   /* Test ASIC and RAM */
   if (!(dev->model->flags & GENESYS_FLAG_LAZY_INIT))
@@ -5139,7 +5133,7 @@ gl841_init (Genesys_Device * dev)
       );
 
   RIE (gl841_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS * sizeof(Genesys_Register_Set)));
+       (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
 
   size = dev->current_setup.pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 

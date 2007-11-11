@@ -324,7 +324,7 @@ typedef struct Genesys_Command_Set
 			      SANE_Bool wait_until_home);
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
 					Genesys_Register_Set * reg, 
-					size_t size);
+					size_t elems);
     SANE_Status (*bulk_write_data) (Genesys_Device * dev, u_int8_t addr, 
 				    u_int8_t * data, size_t len);
 

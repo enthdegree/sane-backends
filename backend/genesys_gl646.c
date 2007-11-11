@@ -254,20 +254,22 @@ enum
 /* Write to many registers */
 static SANE_Status
 gl646_bulk_write_register (Genesys_Device * dev,
-			   Genesys_Register_Set * reg, size_t size)
+			   Genesys_Register_Set * reg, size_t elems)
 {
   SANE_Status status;
   u_int8_t outdata[8];
   u_int8_t buffer[GENESYS_MAX_REGS * 2];
-  unsigned int i;
+  unsigned int i, size;
 
   /* handle differently sized register sets, reg[0x00] may be the last one */
   i = 0;
-  while ((i < size / 2) && (reg[i].address != 0))
+  while ((i < elems) && (reg[i].address != 0))
     i++;
+  elems = i;
   size = i * 2;
 
-  DBG (DBG_io, "gl646_bulk_write_register (size = %lu)\n", (u_long) size);
+  DBG (DBG_io, "gl646_bulk_write_register (elems= %lu, size = %lu)\n", 
+       (u_long) elems, (u_long) size);
 
 
   outdata[0] = BULK_OUT;
@@ -309,7 +311,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
   for (i = 0; i < size; i += 2)
     DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
 
-  DBG (DBG_io, "gl646_bulk_write_register: wrote %d bytes\n", size);
+  DBG (DBG_io, "gl646_bulk_write_register: wrote %d bytes, %d registers\n", 
+       size, elems);
   return status;
 }
 
@@ -874,7 +877,8 @@ gl646_asic_test (Genesys_Device * dev)
       return status;
     }
 
-  /* todo: why i + 2 ? */
+  /* i + 2 is needed as the changed address goes into effect only after one
+     data word is sent. */
   for (i = 0; i < size; i++)
     {
       if (verify_data[i + 2] != data[i])
@@ -1424,7 +1428,8 @@ gl646_set_powersaving (Genesys_Device * dev, int delay /* in minutes */ )
   local_reg[3].value = exposure_time / 256;	/* highbyte */
   local_reg[4].value = exposure_time & 255;	/* lowbyte */
 
-  status = gl646_bulk_write_register (dev, local_reg, sizeof (local_reg));
+  status = gl646_bulk_write_register (dev, local_reg, 
+				      sizeof (local_reg)/sizeof (local_reg[0]));
   if (status != SANE_STATUS_GOOD)
     DBG (DBG_error,
 	 "gl646_set_powersaving: Failed to bulk write registers: %s\n",
@@ -1457,7 +1462,8 @@ gl646_begin_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
   else
     local_reg[2].value = 0x00;	/* do not start motor yet */
 
-  status = gl646_bulk_write_register (dev, local_reg, sizeof (local_reg));
+  status = gl646_bulk_write_register (dev, local_reg, 
+				      sizeof (local_reg)/sizeof (local_reg[0]));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -1675,7 +1681,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     }
 
   status =
-    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS * 2);
+    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -1691,7 +1697,7 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	   sane_strstatus (status));
       sanei_genesys_stop_motor (dev);
       /* send original registers */
-      gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS * 2);
+      gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS);
       return status;
     }
 
@@ -1826,7 +1832,7 @@ gl646_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
   local_reg[i++].value = LOBYTE (exposure_time);
 
   /* writes register */
-  status = gl646_bulk_write_register (dev, local_reg, i * 2);
+  status = gl646_bulk_write_register (dev, local_reg, i);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -1854,7 +1860,7 @@ gl646_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 	   sane_strstatus (status));
       sanei_genesys_stop_motor (dev);
       /* restore original registers */
-      gl646_bulk_write_register (dev, reg, GENESYS_GL646_MAX_REGS * 2);
+      gl646_bulk_write_register (dev, reg, GENESYS_GL646_MAX_REGS);
       return status;
     }
 
@@ -2057,7 +2063,7 @@ gl646_search_start_position (Genesys_Device * dev)
 
   /* send to scanner */
   status =
-    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS * 2);
+    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2345,7 +2351,7 @@ gl646_init_regs_for_coarse_calibration (Genesys_Device * dev)
 
   status =
     gl646_bulk_write_register (dev, dev->calib_reg,
-			       GENESYS_GL646_MAX_REGS * 2);
+			       GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -2630,7 +2636,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 
   status =
     gl646_bulk_write_register (dev, dev->calib_reg,
-			       GENESYS_GL646_MAX_REGS * 2);
+			       GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3496,7 +3502,7 @@ ST12: 0x60 0x00 0x61 0x00 0x62 0x00 0x63 0x00 0x64 0x00 0x65 0x3f 0x66 0x00 0x67
   RIE (gl646_set_fe (dev, AFE_SET));
 
   RIE (gl646_bulk_write_register
-       (dev, dev->calib_reg, GENESYS_GL646_MAX_REGS * 2));
+       (dev, dev->calib_reg, GENESYS_GL646_MAX_REGS));
 
   first_line = malloc (total_size);
   if (!first_line)
@@ -4011,7 +4017,7 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   RIE (gl646_set_fe (dev, AFE_INIT));
 
   RIE (gl646_bulk_write_register
-       (dev, local_reg, GENESYS_GL646_MAX_REGS * 2));
+       (dev, local_reg, GENESYS_GL646_MAX_REGS));
 
   return status;
 }
@@ -4148,7 +4154,7 @@ gl646_repark_head (Genesys_Device * dev)
     }
 
   status =
-    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS * 2);
+    gl646_bulk_write_register (dev, local_reg, GENESYS_GL646_MAX_REGS);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl646_repark_head: failed to send registers: %s\n",
@@ -4342,7 +4348,7 @@ gl646_init (Genesys_Device * dev)
   usleep (10000UL);		/* sleep 100 ms */
 
   /* Write initial registers */
-  RIE (gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS * 2));
+  RIE (gl646_bulk_write_register (dev, dev->reg, GENESYS_GL646_MAX_REGS));
 
   /* Test ASIC and RAM */
   if (!dev->model->flags & GENESYS_FLAG_LAZY_INIT)

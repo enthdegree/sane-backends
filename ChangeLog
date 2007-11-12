@@ -1,3 +1,7 @@
+2007-11-12  Julien Blache <jb@jblache.org>
+	* doc/descriptions-external/epkowa.desc: Update epkowa.desc for
+	iScan! 2.10.0. Patch provided by Olaf Meeuwissen.
+
 2007-11-11  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: add check for low brightness
 

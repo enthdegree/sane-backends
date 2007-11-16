@@ -1,4 +1,4 @@
-.TH sane-plustek 5 "8 November 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-plustek 5 "15 November 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-plustek
 .SH NAME
 sane-plustek \- SANE backend for LM983[1/2/3] based
@@ -267,6 +267,7 @@ option invertNegatives b
 .RS
 .I b
 0 --> do not invert the picture during negativ scans,
+.br
 1 --> invert picture
 .RE
 .PP
@@ -274,6 +275,7 @@ option cacheCalData b
 .RS
 .I b
 0 --> do not save calibration results,
+.br
 1 --> save results of calibration in ~/.sane/ directory
 .RE
 .PP
@@ -281,6 +283,7 @@ option altCalibration b
 .RS
 .I b
 0 --> use standard calibration routines,
+.br
 1 --> use alternate calibration (only non Plustek devices, standard for CIS devices)
 .RE
 .PP
@@ -288,6 +291,7 @@ option skipFine b
 .RS
 .I b
 0 --> perform fine calibration,
+.br
 1 --> skip fine calibration (only non Plustek devices)
 .RE
 .PP
@@ -295,13 +299,27 @@ option skipFineWhite b
 .RS
 .I b
 0 --> perform white fine calibration,
+.br
 1 --> skip white fine calibration (only non Plustek devices)
+.RE
+.PP
+option skipDarkStrip b
+.RS
+.I b
+0 --> perform dark calibration, with enabled lamp using the
+dark calibration strip of the scanner. If the scanner does
+not have such a strip, the alternative way is to switch off
+the lamp during this step.
+.br
+1 --> always switch off the lamp for dark calibration, even
+a black strip is available
 .RE
 .PP
 option skipCalibration b
 .RS
 .I b
 0 --> perform calibration,
+.br
 1 --> skip calibration (only non Plustek devices)
 .RE
 .PP
@@ -309,6 +327,7 @@ option enableTPA b
 .RS
 .I b
 0 --> default behaviour, specified by the internal tables,
+.br
 1 --> override internal tables and allow TPA mode (EPSON/UMAX only)
 .RE
 

@@ -3,6 +3,13 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-4 (2007-11-16)
+---------------------
+Tweaked TravelScan464 settings
+Added possibility to disable dark-calibration with lamp on
+(touches devices like CanoScan1220 etc)
+Use attribute packed for data access structs
+
 V 0.52-4 (2007-11-07)
 ---------------------
 Added support for Syscan TravelScan464
@@ -270,4 +277,3 @@ V 0.45 (2003-08-05)
   * fixed TPA warmup bug on EPSON 1260/Photo
   * fixed Genius device detection problem
   * Added Compaq S4-100 (identical to UMAX3400)
-

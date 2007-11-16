@@ -5503,7 +5503,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 	return SANE_STATUS_IO_ERROR;
       }
 
-    DBG (5, "ExecuteTaskSync OK Trasferred %lld bytes\n", transferCount);
+    DBG (5, "ExecuteTaskSync OK Transferred %lld bytes\n", transferCount);
 
     if (taskStatus != kSCSITaskStatus_GOOD)
       {

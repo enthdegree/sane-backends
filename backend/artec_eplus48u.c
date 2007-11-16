@@ -4285,7 +4285,7 @@ sane_start (SANE_Handle handle)
   s->reader_pipe = fds[1];
   s->reader_pid = sanei_thread_begin (reader_process, s);
   cancelRead = SANE_FALSE;
-  if (s->reader_pid < 0)
+  if (s->reader_pid == -1)
     {
       s->scanning = SANE_FALSE;
       XDBG ((2, "sane_start: sanei_thread_begin failed (%s)\n", strerror (errno)));

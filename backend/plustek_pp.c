@@ -2014,9 +2014,9 @@ SANE_Status sane_start( SANE_Handle handle )
 	s->w_pipe     = fds[1];
 	s->reader_pid = sanei_thread_begin( reader_process, s );
 
-	if( s->reader_pid < 0 ) {
+	if( s->reader_pid == -1 ) {
 		DBG( _DBG_ERROR, "ERROR: could not create child process\n" );
-	    s->scanning = SANE_FALSE;
+		s->scanning = SANE_FALSE;
 		s->hw->close( s->hw );
 		return SANE_STATUS_IO_ERROR;
 	}

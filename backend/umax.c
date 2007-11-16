@@ -7990,13 +7990,13 @@ SANE_Status sane_start(SANE_Handle handle)
   /* start reader_process, deponds on OS if fork() or threads are used */
   scanner->reader_pid = sanei_thread_begin(reader_process, (void *) scanner);
 
-  if (scanner->reader_pid < 0)
+  if (scanner->reader_pid == -1)
   {
     DBG(DBG_error, "ERROR: sanei_thread_begin failed (%s)\n", strerror(errno));
     scanner->scanning = SANE_FALSE;
     umax_give_scanner(scanner->device); /* reposition and release scanner */
     umax_scsi_close(scanner->device);
-   return SANE_STATUS_NO_MEM; /* any other reason than no memory possible ? */
+    return SANE_STATUS_NO_MEM; /* any other reason than no memory possible ? */
   }
 
   if (sanei_thread_is_forked())

@@ -2542,7 +2542,7 @@ sane_start (SANE_Handle handle)
   test_device->reader_pid =
     sanei_thread_begin (reader_task, (void *) test_device);
 
-  if (test_device->reader_pid < 0)
+  if (test_device->reader_pid == -1)
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
 	   strerror (errno));

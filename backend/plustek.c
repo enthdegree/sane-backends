@@ -2605,9 +2605,9 @@ sane_start( SANE_Handle handle )
 
 	cancelRead = SANE_FALSE;
 	
-	if( s->reader_pid < 0 ) {
+	if( s->reader_pid == -1 ) {
 		DBG( _DBG_ERROR, "ERROR: could not start reader task\n" );
-	    s->scanning = SANE_FALSE;
+		s->scanning = SANE_FALSE;
 		usbDev_close( dev );
 		return SANE_STATUS_IO_ERROR;
 	}

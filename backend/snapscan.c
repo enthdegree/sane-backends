@@ -1287,7 +1287,7 @@ static SANE_Status start_reader (SnapScan_Scanner *pss)
         
         cancelRead = SANE_FALSE;
         
-        if (pss->child < 0)
+        if (pss->child == -1)
         {
             /* we'll have to read in blocking mode */
             DBG (DL_MAJOR_ERROR,
@@ -1934,7 +1934,10 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.68  2006/09/03 10:00:11  oliver-guest
+ * Revision 1.69  2007/11/16 08:04:02  ellert-guest
+ * Correct the test of the return value from sanei_thread_begin
+ *
+ * Revision 1.68  2006-09-03 10:00:11  oliver-guest
  * Bugfix for firmware download by Paul Smedley
  *
  * Revision 1.67  2006/01/10 19:32:16  oliver-guest

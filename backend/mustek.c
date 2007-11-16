@@ -6558,7 +6558,7 @@ sane_start (SANE_Handle handle)
   /* create reader routine as new process or thread */
   s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
 
-  if (s->reader_pid < 0)
+  if (s->reader_pid == -1)
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
 	   strerror (errno));

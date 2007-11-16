@@ -3704,7 +3704,7 @@ sane_start (SANE_Handle handle)
   scanner->reader_fds = fds[1];
   scanner->reader_pid = sanei_thread_begin( reader_process, (void*)scanner );
 
-  if (scanner->reader_pid < 0)
+  if (scanner->reader_pid == -1)
     {
       DBG (1, "sane_start: sanei_thread_begin failed (%s)\n",
              strerror (errno));

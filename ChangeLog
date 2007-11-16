@@ -1,3 +1,14 @@
+2007-11-16  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-usb.[ch] backend/plustek-usbcal.c
+	  backend/plustek-usbdevs.c backend/plustek-usbshading.c
+	  backend/plustek.[ch] backend/plustek.conf.in:
+	  Tweaked TravelScan464 settings. Added possibility to disable 
+	  dark-calibration with lamp on (touches devices like CanoScan1220 etc.)
+	  Use attribute packed for data access structs
+
+	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
+
 2007-11-16  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/artec_eplus48u.c, backend/coolscan.c, backend/mustek.c,

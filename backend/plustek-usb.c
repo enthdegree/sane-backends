@@ -168,6 +168,9 @@ static void usb_CheckAndCopyAdjs( Plustek_Device *dev )
 	if( dev->adj.skipFineWhite > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_WHITEFINE;
 
+	if( dev->adj.skipDarkStrip > 0 )
+		dev->usbDev.Caps.Normal.DarkShadOrgY = -1;
+
 	if( dev->adj.invertNegatives > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_INV_NEGATIVE_MAP;
 }

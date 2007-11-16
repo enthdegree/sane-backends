@@ -164,7 +164,6 @@ cano_PrepareToReadBlackCal( Plustek_Device *dev )
 			strip_state = 0;
 
 		} else {
-
 		 	/* switch lamp off to read dark data... */
 			dev->usbDev.a_bRegs[0x29] = 0;
 			usb_switchLamp( dev, SANE_FALSE );
@@ -845,14 +844,15 @@ cano_AdjustOffset( Plustek_Device *dev )
 		_UIO(sanei_lm983x_write(dev->fd, 0x38, &dev->usbDev.a_bRegs[0x38], 3, SANE_TRUE));
 	}
 
+	/* is that really needed?! */
 	if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
-		dev->usbDev.a_bRegs[0x38] = now[0];
-		dev->usbDev.a_bRegs[0x39] = now[1];
-		dev->usbDev.a_bRegs[0x3a] = now[2];
+		dev->usbDev.a_bRegs[0x38] = now[0] & 0x3f;
+		dev->usbDev.a_bRegs[0x39] = now[1] & 0x3f;
+		dev->usbDev.a_bRegs[0x3a] = now[2] & 0x3f;
 	} else {
 		dev->usbDev.a_bRegs[0x38] =
 		dev->usbDev.a_bRegs[0x39] =
-		dev->usbDev.a_bRegs[0x3a] = now[0];
+		dev->usbDev.a_bRegs[0x3a] = now[0] & 0x3f;
 	}
 
 	DBG( _DBG_INFO, "cano_AdjustOffset() done.\n" );
@@ -969,7 +969,7 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 			}
 			a_wDarkShading[i]= gray/j + param->swOffset[0];
 		}
-			
+
 		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels,
 		        a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2);
 		memcpy( a_wDarkShading + m_ScanParam.Size.dwPhyPixels * 2,
@@ -977,7 +977,7 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 	}
 
 	if(usb_HostSwap())
-		usb_Swap(a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 * 3 );
+		usb_Swap(a_wDarkShading, m_ScanParam.Size.dwPhyPixels * 2 * 3);
 
 	usb_line_statistics( "Dark", a_wDarkShading, m_ScanParam.Size.dwPhyPixels,
 	                     scan->sParam.bDataType == SCANDATATYPE_Color?1:0);

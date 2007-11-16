@@ -74,7 +74,7 @@
  * If you do not wish that, delete this exception notice.
  * <hr>
  */
- 
+
 /************** global stuff - I hate it, but we need it... ******************/
 
 #define _MAX_AUTO_WARMUP 60  /**< number of loops                            */
@@ -3160,7 +3160,6 @@ usb_DownloadShadingData( Plustek_Device *dev, u_char what )
 					                    a_wDarkShading + m_dwPixels,
 					                (u_short)m_ScanParam.Size.dwPhyPixels * 2);
 				}
-
 				if( param->bDataType == SCANDATATYPE_Color ) {
 
 					get_ptrs(dev, a_wWhiteShading, 

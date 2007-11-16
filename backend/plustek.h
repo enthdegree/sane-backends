@@ -58,7 +58,8 @@
  * - 0.50 - cleanup
  *        - added OPT_SPEEDUP
  * - 0.51 - added OPT_CALIBRATE
- * - 0.52 - 
+ * - 0.52 - added skipDarkStrip to struct AdjDef
+ *        - added OPT_LOFF4DARK
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -226,6 +227,7 @@ enum {
 	OPT_LAMPOFF_TIMER,
 	OPT_LAMPOFF_ONEND,
 	OPT_WARMUPTIME,
+	OPT_LOFF4DARK,
 	OPT_CACHECAL,
 	OPT_SPEEDUP,
 	OPT_CALIBRATE,
@@ -264,9 +266,10 @@ typedef struct {
 	int     lampOffOnEnd;
 	int     warmup;
 	int     enableTpa;
-	int     skipCalibration;
+	int     skipCalibration;  /**< skip entire calibration */
 	int     skipFine;
 	int     skipFineWhite;
+	int     skipDarkStrip;
 	int     disableSpeedup;
 	int     invertNegatives;
 	int     cacheCalData;

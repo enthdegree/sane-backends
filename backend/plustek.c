@@ -82,7 +82,7 @@
  *        - fixed constraint_type for OPT_BUTTON
  * - 0.51 - added fine calibration caching
  *        - removed #define _PLUSTEK_USB
- * - 0.52 - no changes
+ * - 0.52 - added skipDarkStrip and OPT_LOFF4DARK to frontend options
  *.
  * <hr>
  * This file is part of the SANE package.
@@ -158,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-4"
+#define BACKEND_VERSION "0.52-5"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -276,6 +276,7 @@ static void show_cnf( CnfDef *cnf )
 	DBG( _DBG_SANE_INIT,"skipCalibr.  : %s\n",  _YN(cnf->adj.skipCalibration));
 	DBG( _DBG_SANE_INIT,"skipFine     : %s\n",  _YN(cnf->adj.skipFine       ));
 	DBG( _DBG_SANE_INIT,"skipFineWhite: %s\n",  _YN(cnf->adj.skipFineWhite  ));
+	DBG( _DBG_SANE_INIT,"skipDarkStrip: %s\n",  _YN(cnf->adj.skipDarkStrip   ));
 	DBG( _DBG_SANE_INIT,"invertNegs.  : %s\n",  _YN(cnf->adj.invertNegatives));
 	DBG( _DBG_SANE_INIT,"dis.Speedup  : %s\n",  _YN(cnf->adj.disableSpeedup ));
 	DBG( _DBG_SANE_INIT,"pos_x        : %d\n",  cnf->adj.pos.x               );
@@ -919,6 +920,15 @@ init_options( Plustek_Scanner *s )
 	s->opt[OPT_LAMPSWITCH].type  = SANE_TYPE_BOOL;
 	s->val[OPT_LAMPSWITCH].w     = SANE_FALSE;
 
+	s->opt[OPT_LOFF4DARK].name  = "lamp-off-during-dcal";
+	s->opt[OPT_LOFF4DARK].title = SANE_I18N("Lamp off during dark calibration");;
+	s->opt[OPT_LOFF4DARK].desc  = SANE_I18N("Always switches lamp off when doing dark calibration.");
+	s->opt[OPT_LOFF4DARK].type  = SANE_TYPE_BOOL;
+	s->val[OPT_LOFF4DARK].w     = adj->skipDarkStrip;
+
+	if (dev->usbDev.Caps.Normal.DarkShadOrgY < 0)
+		_DISABLE(OPT_LOFF4DARK);
+
 	s->opt[OPT_CACHECAL].name  = "calibration-cache";
 	s->opt[OPT_CACHECAL].title = SANE_I18N("Calibration data cache");;
 	s->opt[OPT_CACHECAL].desc  = SANE_I18N("Enables or disables calibration data cache.");
@@ -1507,6 +1517,8 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 									  _INT, &config.adj.skipFine,&ival);
 			decodeVal( str, "skipFineWhite",
 									  _INT, &config.adj.skipFineWhite,&ival);
+			decodeVal( str, "skipDarkStrip",
+									  _INT, &config.adj.skipDarkStrip,&ival);
 			decodeVal( str, "invertNegatives",
 									  _INT, &config.adj.invertNegatives,&ival);
 			decodeVal( str, "disableSpeedup",
@@ -1878,6 +1890,7 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 			case OPT_LAMPSWITCH:
 			case OPT_CUSTOM_GAMMA:
 			case OPT_LAMPOFF_ONEND:
+			case OPT_LOFF4DARK:
 			case OPT_CACHECAL:
 			case OPT_SPEEDUP:
 			case OPT_OVR_REDGAIN:
@@ -2031,6 +2044,11 @@ sane_control_option( SANE_Handle handle, SANE_Int option,
 				case OPT_SPEEDUP:
 					s->val[option].w = *(SANE_Word *)value;
 					dev->adj.disableSpeedup = !(s->val[option].w);
+					break;
+
+				case OPT_LOFF4DARK:
+					s->val[option].w = *(SANE_Word *)value;
+					dev->adj.skipDarkStrip = !(s->val[option].w);
 					break;
 
 				case OPT_LAMPSWITCH:

@@ -50,6 +50,7 @@
  *          devices (as threshhold for resetting sensor order)
  *        - added _WAF_LOFF_ON_START and _WAF_ONLY_8BIT
  *        - added MODEL_TSCAN_A4
+ *        - added attribute packed for data access structs
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -126,39 +127,39 @@
 #define _PHILO2WORD(x)  ((u_short)x->bHi * 256U + x->bLo)
 
 /* useful for RGB-values */
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	u_char Red;
 	u_char Green;
 	u_char Blue;
 } RGBByteDef;
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	u_short Red;
 	u_short Green;
 	u_short Blue;
 } RGBUShortDef;
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	u_long Red;
 	u_long Green;
 	u_long Blue;
 } RGBULongDef;
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	u_char a_bColor[3];
 } ColorByteDef;
 
-typedef struct {
+typedef struct __attribute__ ((__packed__)) {
 	u_char bHi;
 	u_char bLo;
 } HiLoDef;
 
-typedef union {
+typedef union __attribute__ ((__packed__)) {
 	HiLoDef HiLo[3];
 	u_short Colors[3];
 } ColorWordDef;
 
-typedef union {
+typedef union __attribute__ ((__packed__)) {
 	HiLoDef HiLo;
 	u_short Mono;
 } MonoWordDef;

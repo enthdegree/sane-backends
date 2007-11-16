@@ -115,6 +115,15 @@ option skipFine 0
 #
 option skipFineWhite 0
 
+#
+# some scanners have a dark calibration strip, in
+# general this one should be used for calibration.
+# As this could cause some trouble, this option
+# overrides that and the dark calibration will be
+# done by switching the lamp off
+#
+option skipDarkStrip 0
+
 # for replacing the gain values found during coarse
 # calibration
 # (can also be set via frontend)

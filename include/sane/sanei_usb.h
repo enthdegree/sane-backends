@@ -162,6 +162,18 @@
 #define USB_DIR_IN                      0x80
 /* @} */
 
+/** */
+struct sanei_usb_dev_descriptor
+{
+	SANE_Byte    desc_type;
+	unsigned int bcd_usb;
+	unsigned int bcd_dev;
+	SANE_Byte    dev_class;
+	SANE_Byte    dev_sub_class;
+	SANE_Byte    dev_protocol;
+	SANE_Byte    max_packet_size;
+};
+
 /** Initialize sanei_usb.
  *
  * Call this before any other sanei_usb function.
@@ -415,6 +427,25 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number);
 
 extern SANE_Status
 sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate);
+
+/** Get some information from the device descriptor
+ *
+ * Sometimes it's useful to know something about revisions and
+ * other stuff reported by the USB system
+ *
+ * @param dn device number
+ * @param desc, where to put the information to
+ *
+ * @return 
+ * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_UNSUPPORTED - if the feature is not supported by the OS or
+ *   SANE.
+ * - SANE_STATUS_INVAL - on every other error
+ *
+ */
+
+extern SANE_Status
+sanei_usb_get_descriptor( SANE_Int dn, struct sanei_usb_dev_descriptor *desc );
 
 /*------------------------------------------------------*/
 #endif /* sanei_usb_h */

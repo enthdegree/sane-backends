@@ -1922,3 +1922,38 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
       return SANE_STATUS_UNSUPPORTED;
     }
 }
+
+extern SANE_Status
+sanei_usb_get_descriptor( SANE_Int dn, struct sanei_usb_dev_descriptor *desc )
+{
+  if (dn >= MAX_DEVICES || dn < 0)
+    {
+      DBG (1,
+	   "sanei_usb_get_descriptor: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   dn);
+      return SANE_STATUS_INVAL;
+    }
+
+  DBG (5, "sanei_usb_get_descriptor\n");
+#ifdef HAVE_LIBUSB
+    {
+	  struct usb_device_descriptor *usb_descr;
+
+	  usb_descr = &(devices[dn].libusb_device->descriptor);
+	  desc->desc_type = usb_descr->bDescriptorType;
+	  desc->bcd_usb   = usb_descr->bcdUSB;
+	  desc->bcd_dev   = usb_descr->bcdDevice;
+	  desc->dev_class = usb_descr->bDeviceClass;
+
+	  desc->dev_sub_class   = usb_descr->bDeviceSubClass;
+	  desc->dev_protocol    = usb_descr->bDeviceProtocol;
+	  desc->max_packet_size = usb_descr->bMaxPacketSize0;
+	  return SANE_STATUS_GOOD;
+    }
+#else /* not HAVE_LIBUSB */
+    {
+      DBG (1, "sanei_usb_get_descriptor: libusb support missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+#endif /* not HAVE_LIBUSB */
+}

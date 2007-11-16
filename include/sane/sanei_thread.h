@@ -87,7 +87,7 @@ extern SANE_Bool sanei_thread_is_forked (void);
  * - task id
  * - -1 if creating the new task failed
  */
-extern int sanei_thread_begin (int (func) (void *args), void *args);
+extern int sanei_thread_begin (int (*func) (void *args), void *args);
 
 /** Terminate spawned task.
  *

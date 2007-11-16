@@ -434,7 +434,7 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate);
  * other stuff reported by the USB system
  *
  * @param dn device number
- * @param desc, where to put the information to
+ * @param desc where to put the information to
  *
  * @return 
  * - SANE_STATUS_GOOD - on succes

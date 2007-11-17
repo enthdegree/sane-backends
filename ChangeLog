@@ -1,3 +1,15 @@
+2007-11-17  Rene Rebe <rene@exactcode.de>
+
+	* backend/avision.[ch]:
+	  Implemented support for latest Avision ASICs and features,
+	  including overscan, background raster, software scaling for
+	  cheaper ASICs used in HP scanners. Changed types used to
+	  more portable uint* ones, without underscore (_), removed
+	  in-file ChangeLog history, as the files became big enough.
+	  Implemented early calibration for easier handling of
+	  Avision-based film scanners and implemented support for
+	  2-pass duplex scanners.
+
 2007-11-16  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* include/sane/sanei_thread.h, include/sane/sanei_usb.h:

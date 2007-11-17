@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * SANE - Scanner Access Now Easy.
 
@@ -41,7 +40,7 @@
    *****************************************************************************
 
    This backend is based upon the Tamarack backend and adapted to the Avision
-   scanners by Renebe and Meino Cramer.
+   scanners by René Rebe and Meino Cramer.
    
    Check the avision.c file for detailed copyright and change-log
    information.
@@ -51,7 +50,14 @@
 #ifndef avision_h
 #define avision_h
 
-#include <sys/types.h>
+#ifdef HAVE_STDINT_H
+# include <stdint.h>            /* available in ISO C99 */
+#else
+# include <sys/types.h>
+typedef uint8_t uint8_t;
+typedef uint16_t uint16_t;
+typedef uint32_t uint32_t;
+#endif /* HAVE_STDINT_H */
 
 #ifndef PATH_MAX
 # define PATH_MAX 1024
@@ -85,10 +91,11 @@ typedef struct Avision_HWEntry {
   const char* real_mfg;
   const char* real_model;
   
-  /* feature overwrites */
+  /* feature overwrites - as embedded CPUs have 16bit enums - this
+     would need a change ... */
   enum {
     /* force no calibration */
-    AV_NO_CALIB = (1),
+    AV_NO_CALIB = (1<<0),
     
     /* force all in one command calibration */
     AV_ONE_CALIB_CMD = (1<<1),
@@ -99,8 +106,8 @@ typedef struct Avision_HWEntry {
     /* light check is bogus */
     AV_LIGHT_CHECK_BOGUS = (1<<3),
     
-    /* do not use line packing even if line_difference */
-    AV_NO_LINE_DIFFERENCE = (1<<4),
+    /* no button though the device advertise it */
+    AV_NO_BUTTON = (1<<4),
     
     /* if the scan area needs to be forced to A3 */
     AV_FORCE_A3 = (1<<5),
@@ -108,8 +115,8 @@ typedef struct Avision_HWEntry {
     /* if the scan area and resolution needs to be forced for films */
     AV_FORCE_FILM = (1<<6),
     
-    /* some (?) USB devices like firmware */
-    AV_FIRMWARE = (1<<7),
+    /* does not support bottom overscan, sigh */
+    AV_NO_TUNE_BOTTOM = (1<<7),
     
     /* is film scanner - no detection yet */
     AV_FILMSCANNER = (1<<8),
@@ -129,8 +136,8 @@ typedef struct Avision_HWEntry {
     /* non-interlaced scanns up to 300 dpi (AV32xx / AV83xx) */
     AV_NON_INTERLACED_DUPLEX_300 = (1<<13),
 
-    /* do not send 3x3 matrix */
-    AV_NO_MATRIX = (1<<14),
+    /* do not read multiples of 64 bytes - stalls the USB chip */
+    AV_NO_64BYTE_ALIGN = (1<<14),
 
     /* force channel-by-channel calibration */
     AV_MULTI_CALIB_CMD = (1<<15),
@@ -144,12 +151,51 @@ typedef struct Avision_HWEntry {
     /* does not keep the window though it advertices so */
     AV_DOES_NOT_KEEP_WINDOW = (1<<18),
 
-    /* advertises ADF is BGR order, but isn't (or vice versa) */
-    AV_ADF_BGR_ORDER_INVERT = (1<<18)
+    /* does not keep the gamma though it advertices so */
+    AV_DOES_NOT_KEEP_GAMMA = (1<<19),
 
+    /* advertises ADF is BGR order, but isn't (or vice versa) */
+    AV_ADF_BGR_ORDER_INVERT = (1<<20),
+
+    /* allows 12bit mode, though not flagged */
+    AV_12_BIT_MODE = (1<<21),
+
+    /* scanner always (mistakenly) advertises a transparency adapter */
+    AV_NO_TRANSPARENCY = (1<<22),
+	
+    /* though marked as GRAY only the scanner can do GRAY modes */
+    AV_GRAY_MODES = (1<<23),
+
+    /* no seperate, single REAR scan (AV122, DM152, ...) */
+    AV_NO_REAR = (1<<24),
+    
+    /* only scan with some known good hardware resolutions, as the
+       scanner fails to properly interpoloate in between (e.g.  AV121,
+       DM152 on duplex scans - but also the AV600), software scale and
+       interpolate to all the others */
+    AV_SOFT_SCALE = (1<<25),
+    
+    /* does keep window though it does not advertice it - the AV122/DM152
+       mess up image data if window is resend between ADF pages */
+    AV_DOES_KEEP_WINDOW = (1<<26),
+    
+    /* does keep gamma though it does not advertice it */
+    AV_DOES_KEEP_GAMMA = (1<<27),
+    
+    /* does the scanner contain a Cancel button? */
+    AV_CANCEL_BUTTON = (1<<28),
+    
+    /* is the rear image offset? */
+    AV_REAR_OFFSET = (1<<29),
+
+    /* some devices do not need a START_SCAN, even hang with it */
+    AV_NO_START_SCAN = (1<<30),
+    
+    AV_INT_STATUS = (1<<31)
+    
     /* maybe more ...*/
   } feature_type;
-    
+      
 } Avision_HWEntry;
 
 typedef enum {
@@ -159,6 +205,7 @@ typedef enum {
   AV_ASIC_C2 = 3,
   AV_ASIC_C5 = 5,
   AV_ASIC_C6 = 6,
+  AV_ASIC_C7 = 7,
   AV_ASIC_OA980 = 128,
   AV_ASIC_OA982 = 129
 } asic_type;
@@ -210,6 +257,10 @@ enum Avision_Option
   OPT_BR_X,	         /* bottom-right x */
   OPT_BR_Y,		 /* bottom-right y */
   
+  OPT_OVERSCAN_TOP,      /* overscan for auto-crop/deskew, if supported */
+  OPT_OVERSCAN_BOTTOM,
+  OPT_BACKGROUND,        /* background raster lines to read out */
+  
   OPT_ENHANCEMENT_GROUP,
   OPT_BRIGHTNESS,
   OPT_CONTRAST,
@@ -221,22 +272,11 @@ enum Avision_Option
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
   
-  /* too bad the SANE API does not allow bool vectors ... */
-  OPT_BUTTON_0,          /* scanner button pressed */
-  OPT_BUTTON_1,
-  OPT_BUTTON_2,
-  OPT_BUTTON_3,
-  OPT_BUTTON_4,
-  OPT_BUTTON_5,
-  OPT_BUTTON_6,
-  OPT_BUTTON_7,
-  OPT_BUTTON_LAST = OPT_BUTTON_7,
-  OPT_MESSAGE,           /* optional message from the scanner display */
-
   OPT_FRAME,             /* Film holder control */
 
   OPT_POWER_SAVE_TIME,   /* set power save time to the scanner */
-  
+
+  OPT_MESSAGE,           /* optional message from the scanner display */  
   OPT_NVRAM,             /* retrieve NVRAM values as pretty printed text */
   
   NUM_OPTIONS            /* must come last */
@@ -256,9 +296,18 @@ typedef struct Avision_Dimensions
   
   /* in pixels */
   int line_difference;
+  int rear_offset; /* in pixels of HW res */
 
   /* interlaced duplex scan */
   SANE_Bool interlaced_duplex;
+  
+  /* in dpi, likewise - different if software scaling required */
+  int hw_xres;
+  int hw_yres;
+  
+  int hw_pixels_per_line;
+  int hw_bytes_per_line;
+  int hw_lines;
   
 } Avision_Dimensions;
 
@@ -286,6 +335,7 @@ typedef struct Avision_Device
   SANE_Bool inquiry_duplex;
   SANE_Bool inquiry_duplex_interlaced;
   SANE_Bool inquiry_paper_length;
+  SANE_Bool inquiry_batch_scan;
   SANE_Bool inquiry_detect_accessories;
   SANE_Bool inquiry_needs_calibration;
   SANE_Bool inquiry_needs_gamma;
@@ -296,12 +346,16 @@ typedef struct Avision_Device
   SANE_Bool inquiry_needs_software_colorpack;
   SANE_Bool inquiry_needs_line_pack;
   SANE_Bool inquiry_adf_need_mirror;
+  SANE_Bool inquiry_adf_need_mirror_rear;
   SANE_Bool inquiry_adf_bgr_order;
   SANE_Bool inquiry_light_detect;
   SANE_Bool inquiry_light_control;
-  SANE_Bool inquiry_button_control;
   int       inquiry_max_shading_target;
-  int       inquiry_buttons;
+  SANE_Bool inquiry_button_control;
+  unsigned int inquiry_buttons;
+  SANE_Bool inquiry_tune_scan_length;
+  SANE_Bool inquiry_background_raster;
+  int       inquiry_background_raster_pixel;
   
   enum {AV_FLATBED,
 	AV_FILM,
@@ -331,8 +385,10 @@ typedef struct Avision_Device
 
   int inquiry_channels_per_pixel;
   int inquiry_bits_per_channel;
+  int inquiry_no_gray_modes;
   
   int scsi_buffer_size; /* nice to have SCSI buffer size */
+  int read_stripe_size; /* stripes to be read at-a-time */
 
   /* additional information - read delayed until sane_open() */
   
@@ -344,7 +400,7 @@ typedef struct Avision_Device
   SANE_Word holder_type;
   
   /* some versin corrections */
-  u_int16_t data_dq; /* was ox0A0D - but hangs some new scanners */
+  uint16_t data_dq; /* was ox0A0D - but hangs some new scanners */
   
   Avision_HWEntry* hw;
 } Avision_Device;
@@ -361,18 +417,20 @@ typedef struct Avision_Scanner
   
   /* we now save the calib data because we might need it for 16bit software
      calibration :-( */
-  u_int8_t* dark_avg_data;
-  u_int8_t* white_avg_data;
+  uint8_t* dark_avg_data;
+  uint8_t* white_avg_data;
+  
+  /* background raster data, if duplex first front, then rear */
+  uint8_t* background_raster;
   
   /* Parsed option values and variables that are valid only during
      the actual scan: */
-  SANE_Bool prepared;			/* first page marker */
+  SANE_Bool prepared;		/* first page marker */
   SANE_Bool scanning;           /* scan in progress */
+  unsigned int page;            /* page counter, 0: uninitialized, 1: scanning 1st page, ... */
 
   SANE_Parameters params;       /* scan window */
   Avision_Dimensions avdimen;   /* scan window - detailed internals */
-  
-  u_int32_t param_cksum;        /* checksum of scan parameters */
   
   /* Internal data for duplex scans */
   char duplex_rear_fname [PATH_MAX];
@@ -388,7 +446,6 @@ typedef struct Avision_Scanner
   pid_t reader_pid;	/* process id of reader */
   int read_fds;		/* pipe reading end */
   int write_fds;	/* pipe writing end */
-  int line;			/* current line number during scan */
   
 } Avision_Scanner;
 
@@ -435,157 +492,174 @@ typedef struct Avision_Scanner
 
 typedef struct command_header
 {
-  u_int8_t opc;
-  u_int8_t pad0 [3];
-  u_int8_t len;
-  u_int8_t pad1;
+  uint8_t opc;
+  uint8_t pad0 [3];
+  uint8_t len;
+  uint8_t pad1;
 } command_header;
 
 typedef struct command_set_window
 {
-  u_int8_t opc;
-  u_int8_t reserved0 [5];
-  u_int8_t transferlen [3];
-  u_int8_t control;
+  uint8_t opc;
+  uint8_t reserved0 [5];
+  uint8_t transferlen [3];
+  uint8_t control;
 } command_set_window;
 
 typedef struct command_read
 {
-  u_int8_t opc;
-  u_int8_t bitset1;
-  u_int8_t datatypecode;
-  u_int8_t readtype;
-  u_int8_t datatypequal [2];
-  u_int8_t transferlen [3];
-  u_int8_t control;
+  uint8_t opc;
+  uint8_t bitset1;
+  uint8_t datatypecode;
+  uint8_t readtype;
+  uint8_t datatypequal [2];
+  uint8_t transferlen [3];
+  uint8_t control;
 } command_read;
 
 typedef struct command_scan
 {
-  u_int8_t opc;
-  u_int8_t bitset0;
-  u_int8_t reserved0 [2];
-  u_int8_t transferlen;
-  u_int8_t bitset1;
+  uint8_t opc;
+  uint8_t bitset0;
+  uint8_t reserved0 [2];
+  uint8_t transferlen;
+  uint8_t bitset1;
 } command_scan;
 
 typedef struct command_send
 {
-  u_int8_t opc;
-  u_int8_t bitset1;
-  u_int8_t datatypecode;
-  u_int8_t reserved0;  
-  u_int8_t datatypequal [2];
-  u_int8_t transferlen [3];
-  u_int8_t reserved1;
+  uint8_t opc;
+  uint8_t bitset1;
+  uint8_t datatypecode;
+  uint8_t reserved0;  
+  uint8_t datatypequal [2];
+  uint8_t transferlen [3];
+  uint8_t reserved1;
 } command_send;
+
+typedef struct firmware_status
+{
+  uint8_t download_firmware;
+  uint8_t first_effective_pixel_flatbed [2];
+  uint8_t first_effective_pixel_adf_front [2];
+  uint8_t first_effective_pixel_adf_rear [2];
+  uint8_t reserved;
+} firmware_status;
 
 typedef struct nvram_data
 {
-  u_int8_t pad_scans [4];
-  u_int8_t adf_simplex_scans [4];
-  u_int8_t adf_duplex_scans [4];
-  u_int8_t flatbed_scans [4];
+  uint8_t pad_scans [4];
+  uint8_t adf_simplex_scans [4];
+  uint8_t adf_duplex_scans [4];
+  uint8_t flatbed_scans [4];
 
-  u_int8_t flatbed_leading_edge [2];
-  u_int8_t flatbed_side_edge [2];
-  u_int8_t adf_leading_edge [2];
-  u_int8_t adf_side_edge [2];
-  u_int8_t adf_rear_leading_edge [2];
-  u_int8_t adf_rear_side_edge [2];
+  uint8_t flatbed_leading_edge [2];
+  uint8_t flatbed_side_edge [2];
+  uint8_t adf_leading_edge [2];
+  uint8_t adf_side_edge [2];
+  uint8_t adf_rear_leading_edge [2];
+  uint8_t adf_rear_side_edge [2];
 
-  u_int8_t born_month [2];
-  u_int8_t born_day [2];
-  u_int8_t born_year [2];
+  uint8_t born_month [2];
+  uint8_t born_day [2];
+  uint8_t born_year [2];
 
-  u_int8_t first_scan_month [2];
-  u_int8_t first_scan_day [2];
-  u_int8_t first_scan_year [2];
+  uint8_t first_scan_month [2];
+  uint8_t first_scan_day [2];
+  uint8_t first_scan_year [2];
 
-  u_int8_t vertical_magnification [2];
-  u_int8_t horizontal_magnification [2];
+  uint8_t vertical_magnification [2];
+  uint8_t horizontal_magnification [2];
 
-  u_int8_t ccd_type;
-  u_int8_t scan_speed;
+  uint8_t ccd_type;
+  uint8_t scan_speed;
 
-  u_int8_t serial [24];
+  char     serial [24];
 
-  u_int8_t power_saving_time [2];
+  uint8_t power_saving_time [2];
 
-  u_int8_t reserved [56];
+  uint8_t auto_feed;
+  uint8_t roller_count [4];
+  uint8_t multifeed_count [4];
+  uint8_t jam_count [4];
+
+  uint8_t reserved;
+  char     identify_info[16]; 
+  char     formal_name[16];
+
+  uint8_t reserved2 [10];
 } nvram_data;
-
 
 typedef struct command_set_window_window
 {
   struct {
-    u_int8_t reserved0 [6];
-    u_int8_t desclen [2];
+    uint8_t reserved0 [6];
+    uint8_t desclen [2];
   } header;
   
   struct {
-    u_int8_t winid;
-    u_int8_t reserved0;
-    u_int8_t xres [2];
-    u_int8_t yres [2];
-    u_int8_t ulx [4];
-    u_int8_t uly [4];
-    u_int8_t width [4];
-    u_int8_t length [4];
-    u_int8_t brightness;
-    u_int8_t threshold;
-    u_int8_t contrast;
-    u_int8_t image_comp;
-    u_int8_t bpc;
-    u_int8_t halftone [2];
-    u_int8_t padding_and_bitset;
-    u_int8_t bitordering [2];
-    u_int8_t compr_type;
-    u_int8_t compr_arg;
-    u_int8_t paper_length[2];
-    u_int8_t reserved1 [4];
+    uint8_t winid;
+    uint8_t reserved0;
+    uint8_t xres [2];
+    uint8_t yres [2];
+    uint8_t ulx [4];
+    uint8_t uly [4];
+    uint8_t width [4];
+    uint8_t length [4];
+    uint8_t brightness;
+    uint8_t threshold;
+    uint8_t contrast;
+    uint8_t image_comp;
+    uint8_t bpc;
+    uint8_t halftone [2];
+    uint8_t padding_and_bitset;
+    uint8_t bitordering [2];
+    uint8_t compr_type;
+    uint8_t compr_arg;
+    uint8_t paper_length[2];
+    uint8_t reserved1 [4];
 
     /* Avision specific parameters */
-    u_int8_t vendor_specific;
-    u_int8_t paralen; /* bytes following after this byte */
+    uint8_t vendor_specific;
+    uint8_t paralen; /* bytes following after this byte */
   } descriptor;
   
   struct {
-    u_int8_t bitset1;
-    u_int8_t highlight;
-    u_int8_t shadow;
-    u_int8_t line_width [2];
-    u_int8_t line_count [2];
+    uint8_t bitset1;
+    uint8_t highlight;
+    uint8_t shadow;
+    uint8_t line_width [2];
+    uint8_t line_count [2];
     
     /* the tail is quite version and model specific */
     union {
       struct {
-	u_int8_t bitset2;
-	u_int8_t reserved;
+	uint8_t bitset2;
+	uint8_t reserved;
       } old;
       
       struct {
-	u_int8_t bitset2;
-	u_int8_t ir_exposure_time;
+	uint8_t bitset2;
+	uint8_t ir_exposure_time;
 	
 	/* optional */
-	u_int8_t r_exposure_time [2];
-	u_int8_t g_exposure_time [2];
-	u_int8_t b_exposure_time [2];
+	uint8_t r_exposure_time [2];
+	uint8_t g_exposure_time [2];
+	uint8_t b_exposure_time [2];
 	
-	u_int8_t bitset3; /* reserved in the v2 */
-	u_int8_t auto_focus;
-	u_int8_t line_width_msb;
-	u_int8_t line_count_msb;
-	u_int8_t edge_threshold; /* background lines? */
+	uint8_t bitset3; /* reserved in the v2 */
+	uint8_t auto_focus;
+	uint8_t line_width_msb;
+	uint8_t line_count_msb;
+	uint8_t background_lines;
       } normal;
       
       struct {
-	u_int8_t reserved0 [4];
-	u_int8_t paper_size;
-	u_int8_t paperx [4];
-	u_int8_t papery [4];
-	u_int8_t reserved1 [2];
+	uint8_t reserved0 [4];
+	uint8_t paper_size;
+	uint8_t paperx [4];
+	uint8_t papery [4];
+	uint8_t reserved1 [2];
       } fujitsu;
     } type;
   } avision;
@@ -593,58 +667,58 @@ typedef struct command_set_window_window
 
 typedef struct page_header
 {
-  u_int8_t pad0 [4];
-  u_int8_t code;
-  u_int8_t length;
+  uint8_t pad0 [4];
+  uint8_t code;
+  uint8_t length;
 } page_header;
 
 typedef struct avision_page
 {
-  u_int8_t gamma;
-  u_int8_t thresh;
-  u_int8_t masks;
-  u_int8_t delay;
-  u_int8_t features;
-  u_int8_t pad0;
+  uint8_t gamma;
+  uint8_t thresh;
+  uint8_t masks;
+  uint8_t delay;
+  uint8_t features;
+  uint8_t pad0;
 } avision_page;
 
 typedef struct calibration_format
 {
-  u_int16_t pixel_per_line;
-  u_int8_t bytes_per_channel;
-  u_int8_t lines;
-  u_int8_t flags;
-  u_int8_t ability1;
-  u_int8_t r_gain;
-  u_int8_t g_gain;
-  u_int8_t b_gain;
-  u_int16_t r_shading_target;
-  u_int16_t g_shading_target;
-  u_int16_t b_shading_target;
-  u_int16_t r_dark_shading_target;
-  u_int16_t g_dark_shading_target;
-  u_int16_t b_dark_shading_target;
+  uint16_t pixel_per_line;
+  uint8_t bytes_per_channel;
+  uint8_t lines;
+  uint8_t flags;
+  uint8_t ability1;
+  uint8_t r_gain;
+  uint8_t g_gain;
+  uint8_t b_gain;
+  uint16_t r_shading_target;
+  uint16_t g_shading_target;
+  uint16_t b_shading_target;
+  uint16_t r_dark_shading_target;
+  uint16_t g_dark_shading_target;
+  uint16_t b_dark_shading_target;
   
   /* not returned but usefull in some places */
-  u_int8_t channels;
+  uint8_t channels;
 } calibration_format;
 
 typedef struct matrix_3x3
 {
-  u_int16_t v[9];
+  uint16_t v[9];
 } matrix_3x3;
 
 typedef struct acceleration_info 
 {
-  u_int16_t total_steps;
-  u_int16_t stable_steps;
-  u_int32_t table_units;
-  u_int32_t base_units;
-  u_int16_t start_speed;
-  u_int16_t target_speed;
-  u_int8_t ability;
-  u_int8_t table_count;
-  u_int8_t reserved[6];
+  uint16_t total_steps;
+  uint16_t stable_steps;
+  uint32_t table_units;
+  uint32_t base_units;
+  uint16_t start_speed;
+  uint16_t target_speed;
+  uint8_t ability;
+  uint8_t table_count;
+  uint8_t reserved[6];
 } acceleration_info;
 
 /* set/get SCSI highended (big-endian) variables. Declare them as an array

@@ -1,5 +1,6 @@
 2007-11-18  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
+	* backend/mustek.c: Add protection for a double free (#306775)
 	* backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,
 	  backend/coolscan.c, backend/hp3500.c, backend/microtek2.c,
 	  backend/mustek.c, backend/pie.c, backend/pixma.c, backend/plustek.c,

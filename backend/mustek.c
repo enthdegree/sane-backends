@@ -5128,6 +5128,7 @@ reader_process (void *data)
   free (bstat[0].data);
   if (s->ld.buf[0])
     free (s->ld.buf[0]);
+  s->ld.buf[0] = NULL;
   if (extra)
     free (extra);
   close (fd);

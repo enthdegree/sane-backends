@@ -267,6 +267,9 @@
 	 - reactivate look-up-table based brightness and contrast options
 	 - change range of hardware brightness/contrast to match LUT versions
 	 - call send_lut() from sane_control_option instead of sane_start
+      V 1.0.53 2007-11-18, MAN
+         - add S510 usb id
+	 - OPT_NUM_OPTS type is SANE_TYPE_INT (jblache)
 
    SANE FLOW DIAGRAM
 
@@ -327,7 +330,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 52 
+#define BUILD 53 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -597,6 +600,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10fe'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1155'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
   }
 
   for (dev = fujitsu_devList; dev; dev=dev->next) {

@@ -1,3 +1,7 @@
+2007-11-17  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	  doc/descriptions/fujitsu.desc: add usb id for S510
+
 2007-11-17  Rene Rebe <rene@exactcode.de>
 
 	* backend/avision.[ch]:

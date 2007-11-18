@@ -2897,12 +2897,12 @@ do_cancel (Pie_Scanner * scanner)
 
   scanner->scanning = SANE_FALSE;
 
-  if (scanner->reader_pid > 0)
+  if (scanner->reader_pid != -1)
     {
       DBG (DBG_sane_info, "killing reader_process\n");
       sanei_thread_kill (scanner->reader_pid);
       sanei_thread_waitpid (scanner->reader_pid, 0);
-      scanner->reader_pid = 0;
+      scanner->reader_pid = -1;
       DBG (DBG_sane_info, "reader_process killed\n");
     }
 

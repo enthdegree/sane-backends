@@ -4668,14 +4668,14 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
 
   scanner->scanning = SANE_FALSE;
 
-  if (scanner->reader_pid > 0)
+  if (scanner->reader_pid != -1)
   {
     DBG(DBG_sane_info,"killing reader_process\n");
 
     sanei_thread_kill(scanner->reader_pid);
     pid = sanei_thread_waitpid(scanner->reader_pid, &status);
 
-    if (pid < 0)
+    if (pid == -1)
     {
       DBG(DBG_sane_info, "do_cancel: sanei_thread_waitpid failed, already terminated ? (%s)\n", strerror(errno));
     }
@@ -4684,7 +4684,7 @@ static SANE_Status do_cancel(Umax_Scanner *scanner)
       DBG(DBG_sane_info, "do_cancel: reader_process terminated with status: %s\n", sane_strstatus(status));
     }
 
-    scanner->reader_pid = 0;
+    scanner->reader_pid = -1;
 
     if (scanner->device->pixelbuffer != NULL)					      /* pixelbuffer exists? */
     {

@@ -5731,7 +5731,7 @@ do_eof (Avision_Scanner *s)
   /* join our processes - without a wait() you will produce defunct
      childs */
   sanei_thread_waitpid (s->reader_pid, &exit_status);
-  s->reader_pid = 0;
+  s->reader_pid = -1;
 
   DBG (3, "do_eof: returning %d\n", exit_status);
   return (SANE_Status)exit_status;
@@ -5746,13 +5746,13 @@ do_cancel (Avision_Scanner* s)
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
   
-  if (s->reader_pid > 0) {
+  if (s->reader_pid != -1) {
     int exit_status;
     
     /* ensure child knows it's time to stop: */
     sanei_thread_kill (s->reader_pid);
     sanei_thread_waitpid (s->reader_pid, &exit_status);
-    s->reader_pid = 0;
+    s->reader_pid = -1;
   }
 
   return SANE_STATUS_CANCELLED;
@@ -7889,7 +7889,7 @@ sane_start (SANE_Handle handle)
   s->read_fds = fds[0];
   s->write_fds = fds[1];
 
-  s->reader_pid = 0; /* the thread will be started uppon the first read */
+  s->reader_pid = -1; /* the thread will be started upon the first read */
 
   /* create reader routine as new process or thread */
   DBG (3, "sane_start: starting thread\n");

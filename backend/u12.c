@@ -391,7 +391,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 
 	scanner->scanning = SANE_FALSE;
 
-	if( scanner->reader_pid > 0 ) {
+	if( scanner->reader_pid != -1 ) {
 
 		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -421,7 +421,7 @@ static SANE_Status do_cancel( U12_Scanner *scanner, SANE_Bool closepipe )
 			sanei_thread_sendsig( scanner->reader_pid, SIGKILL );
 #endif
 		}
-		scanner->reader_pid = 0;
+		scanner->reader_pid = -1;
 		DBG( _DBG_PROC, "reader_process killed\n");
 
 		if( scanner->hw->fd >= 0 ) {

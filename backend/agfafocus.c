@@ -947,14 +947,14 @@ do_cancel (AgfaFocus_Scanner * s)
 
   do_eof (s);
 
-  if (s->reader_pid > 0)
+  if (s->reader_pid != -1)
     {
       int exit_status;
 
       /* ensure child knows it's time to stop: */
       sanei_thread_kill (s->reader_pid);
       sanei_thread_waitpid (s->reader_pid, &exit_status);
-      s->reader_pid = 0;
+      s->reader_pid = -1;
     }
 
   if (s->fd >= 0)
@@ -2052,7 +2052,7 @@ sane_cancel (SANE_Handle handle)
 {
   AgfaFocus_Scanner *s = handle;
 
-  if (s->reader_pid > 0)
+  if (s->reader_pid != -1)
     sanei_thread_kill (s->reader_pid);
   s->scanning = SANE_FALSE;
 }

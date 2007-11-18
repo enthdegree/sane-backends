@@ -2027,7 +2027,7 @@ do_cancel (Coolscan_t * scanner)
 
   do_eof (scanner);		/* close pipe and reposition scanner */
 
-  if (scanner->reader_pid > 0)
+  if (scanner->reader_pid != -1)
     {
       int exit_status;
 
@@ -2037,7 +2037,7 @@ do_cancel (Coolscan_t * scanner)
       sanei_thread_kill (scanner->reader_pid);
       while (sanei_thread_waitpid(scanner->reader_pid, &exit_status) !=
                                                         scanner->reader_pid );
-      scanner->reader_pid = 0;
+      scanner->reader_pid = -1;
     }
 
   if (scanner->sfd >= 0)
@@ -4150,11 +4150,11 @@ sane_cancel (SANE_Handle handle)
 {
   Coolscan_t *s = handle;
 
-  if (s->reader_pid > 0)
+  if (s->reader_pid != -1)
     {
       sanei_thread_kill   ( s->reader_pid );
       sanei_thread_waitpid( s->reader_pid, NULL );
-      s->reader_pid = 0;
+      s->reader_pid = -1;
     }
   swap_res (s);
   s->scanning = SANE_FALSE;

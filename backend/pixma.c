@@ -810,7 +810,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
   int status = 0;
 
   pid = ss->reader_taskid;
-  if (pid <= 0)
+  if (pid == -1)
     return -1;
   if (sanei_thread_is_forked ())
     {
@@ -822,7 +822,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
       pixma_cancel (ss->s);
     }
   result = sanei_thread_waitpid (pid, &status);
-  ss->reader_taskid = 0;
+  ss->reader_taskid = -1;
   if (result == pid)
     {
       if (exit_code)
@@ -852,7 +852,7 @@ start_reader_task (pixma_sane_t * ss)
       ss->rpipe = -1;
       ss->wpipe = -1;
     }
-  if (ss->reader_taskid > 0)
+  if (ss->reader_taskid != -1)
     {
       PDBG (pixma_dbg (1, "BUG:reader_taskid(%d) != 0\n", ss->reader_taskid));
       terminate_reader_task (ss, NULL);
@@ -893,7 +893,7 @@ start_reader_task (pixma_sane_t * ss)
   PDBG (pixma_dbg (3, "Reader task id=%d (%s)\n", pid,
 		   (is_forked) ? "forked" : "threaded"));
   ss->reader_taskid = pid;
-  return pid;
+  return 0;
 }
 
 static SANE_Status

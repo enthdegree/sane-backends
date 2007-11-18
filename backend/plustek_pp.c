@@ -468,7 +468,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 
 	scanner->scanning = SANE_FALSE;
 
-	if( scanner->reader_pid > 0 ) {
+	if( scanner->reader_pid != -1 ) {
 
 		DBG( _DBG_PROC, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -503,7 +503,7 @@ static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 #endif
 		}			
 
-		scanner->reader_pid = 0;
+		scanner->reader_pid = -1;
 		DBG( _DBG_PROC,"reader_process killed\n");
 	}
 

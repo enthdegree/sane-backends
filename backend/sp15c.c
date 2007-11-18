@@ -45,7 +45,10 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
- * Revision 1.14  2007/10/26 14:56:38  jblache
+ * Revision 1.15  2007/11/18 10:59:18  ellert-guest
+ * Fix handling of valid "negative" PIDs
+ *
+ * Revision 1.14  2007-10-26 14:56:38  jblache
  * OPT_NUM_OPTS must be of type SANE_TYPE_INT.
  *
  * Revision 1.13  2006/03/29 20:48:50  hmg-guest
@@ -1747,7 +1750,7 @@ do_cancel (struct sp15c *scanner)
 
   do_eof (scanner);             /* close pipe and reposition scanner */
 
-  if (scanner->reader_pid > 0)
+  if (scanner->reader_pid != -1)
     {
       int exit_status;
       DBG (10, "do_cancel: kill reader_process\n");
@@ -1755,7 +1758,7 @@ do_cancel (struct sp15c *scanner)
       sanei_thread_kill (scanner->reader_pid);
       DBG (50, "wait for scanner to stop\n");
       sanei_thread_waitpid (scanner->reader_pid, &exit_status);
-      scanner->reader_pid = 0;
+      scanner->reader_pid = -1;
     }
 
   if (scanner->sfd >= 0)

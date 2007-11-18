@@ -3483,7 +3483,7 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 
   s->scanning = SANE_FALSE;
 
-  if (s->reader_pid > 0)
+  if (s->reader_pid != -1)
     {
       /*parent */
       XDBG ((1, "killing reader_process\n"));
@@ -3507,7 +3507,7 @@ do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 	{
 	  XDBG ((1, "sanei_thread_waitpid() failed !\n"));
 	}
-      s->reader_pid = 0;
+      s->reader_pid = -1;
       XDBG ((1, "reader_process killed\n"));
     }
   if (SANE_TRUE == closepipe)

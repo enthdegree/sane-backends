@@ -1,4 +1,13 @@
-2007-11-28  Alessandro Zummo <a.zummo@towertech.it>
+2007-11-18  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* backend/agfafocus.c, backend/artec_eplus48u.c, backend/avision.c,
+	  backend/coolscan.c, backend/hp3500.c, backend/microtek2.c,
+	  backend/mustek.c, backend/pie.c, backend/pixma.c, backend/plustek.c,
+	  backend/plustek_pp.c, backend/snapscan.c, backend/sp15c.c,
+	  backend/tamarack.c, backend/test.c, backend/u12.c, backend/umax.c:
+	  Fix handling of valid "negative" PIDs.
+
+2007-11-18  Alessandro Zummo <a.zummo@towertech.it>
 
 	* backend/epson2.c: removed quick-format option. it's
 	the job of a frontend to provide such a commodity.

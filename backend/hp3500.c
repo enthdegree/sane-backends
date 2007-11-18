@@ -925,7 +925,7 @@ attachScanner (const char *devicename)
   dev->devicename = strdup (devicename);
   dev->sfd = -1;
   dev->last_scan = 0;
-  dev->reader_pid = 0;
+  dev->reader_pid = -1;
   dev->pipe_r = dev->pipe_w = -1;
 
   dev->sane.name = dev->devicename;
@@ -1056,7 +1056,7 @@ do_reset (struct hp3500_data *scanner)
 static void
 do_cancel (struct hp3500_data *scanner)
 {
-  if (scanner->reader_pid > 0)
+  if (scanner->reader_pid != -1)
     {
 
       if (sanei_thread_kill (scanner->reader_pid) == 0)
@@ -1065,7 +1065,7 @@ do_cancel (struct hp3500_data *scanner)
 
 	  sanei_thread_waitpid (scanner->reader_pid, &exit_status);
 	}
-      scanner->reader_pid = 0;
+      scanner->reader_pid = -1;
     }
   if (scanner->pipe_r >= 0)
     {

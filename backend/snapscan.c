@@ -1765,7 +1765,7 @@ SANE_Status sane_read (SANE_Handle h,
 
     if (pss->psrc == NULL  ||  pss->psrc->remaining(pss->psrc) == 0)
     {
-        if (pss->child > 0)
+        if (pss->child != -1)
         {
             sanei_thread_waitpid (pss->child, 0);        /* ensure no zombies */
             pss->child = -1;
@@ -1825,7 +1825,7 @@ void sane_cancel (SANE_Handle h)
         /* signal a cancellation has occurred */
         pss->state = ST_CANCEL_INIT;
         /* signal the reader, if any */
-        if (pss->child > 0)
+        if (pss->child != -1)
         {
             DBG( DL_INFO, ">>>>>>>> killing reader_process <<<<<<<<\n" );
 
@@ -1934,7 +1934,10 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.69  2007/11/16 08:04:02  ellert-guest
+ * Revision 1.70  2007/11/18 10:59:18  ellert-guest
+ * Fix handling of valid "negative" PIDs
+ *
+ * Revision 1.69  2007-11-16 08:04:02  ellert-guest
  * Correct the test of the return value from sanei_thread_begin
  *
  * Revision 1.68  2006-09-03 10:00:11  oliver-guest

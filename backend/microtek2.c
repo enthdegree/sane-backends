@@ -908,7 +908,7 @@ cancel_scan(Microtek2_Scanner *ms)
        of material on a feeder, then pid may be already -1 and
        kill(-1, SIGTERM), i.e. killing all our processes, is not
        likely what we really want - --mj, 2001/Nov/19 */
-    if (ms->pid > 1)
+    if (ms->pid != -1)
       {
        sanei_thread_kill(ms->pid);
        sanei_thread_waitpid(ms->pid, NULL);

@@ -1348,7 +1348,7 @@ finish_pass (Test_Device * test_device)
       DBG (2, "finish_pass: pipe closed\n");
       test_device->pipe = -1;
     }
-  if (test_device->reader_pid > 0)
+  if (test_device->reader_pid != -1)
     {
       int status;
       int pid;
@@ -1357,7 +1357,7 @@ finish_pass (Test_Device * test_device)
 	   test_device->reader_pid);
       sanei_thread_kill (test_device->reader_pid);
       pid = sanei_thread_waitpid (test_device->reader_pid, &status);
-      if (pid < 0)
+      if (pid == -1)
 	{
 	  DBG (1,
 	       "finish_pass: sanei_thread_waitpid failed, already terminated? (%s)\n",
@@ -1368,7 +1368,7 @@ finish_pass (Test_Device * test_device)
 	  DBG (2, "finish_pass: reader process terminated with status: %s\n",
 	       sane_strstatus (status));
 	}
-      test_device->reader_pid = 0;
+      test_device->reader_pid = -1;
     }
   /* this happens when running in thread context... */
   if (test_device->reader_fds >= 0)

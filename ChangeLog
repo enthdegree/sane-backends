@@ -1,3 +1,16 @@
+2007-11-28  Alessandro Zummo <a.zummo@towertech.it>
+
+	* backend/epson2.c: removed quick-format option. it's
+	the job of a frontend to provide such a commodity.
+	removed confusing parameters (preview-speed, speed).
+	when a preview is requested, the scanner will be
+	set to high speed (if possible).
+	removed references to the never implemented zoom function.
+	the function that shortened the list was actually
+	missing the first entry.
+	more resolutions addedd for networked scanners.
+	added support for Perfection 4990 (Claus Boje).
+
 2007-11-17  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in, 
 	  doc/descriptions/fujitsu.desc: add usb id for S510

@@ -1,3 +1,7 @@
+2007-11-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: add internal flag for disabling lamp
+	  during scan(useful for black level calibration)
+
 2007-11-18  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* backend/mustek.c: Add protection for a double free (#306775)

@@ -1143,8 +1143,8 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
   for (i = 0; i < 4; i++, r++)
     r->value = dev->sensor.regs_0x08_0x0b[i];
 
-  r = sanei_genesys_get_address (regs, 0x10);
-  for (i = 0x00; i < 0x0a; i++, r++)
+  r = sanei_genesys_get_address (regs, 0x16);
+  for (i = 0x06; i < 0x0a; i++, r++)
     r->value = dev->sensor.regs_0x10_0x1d[i];
 
 /*TODO the ommitted values may be necessary for ccd*/
@@ -2366,6 +2366,7 @@ HOME_FREE: 3
 
 #define OPTICAL_FLAG_DISABLE_GAMMA 1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
+#define OPTICAL_FLAG_DISABLE_LAMP 4
 
 static SANE_Status
 gl841_init_optical_regs_off(Genesys_Device * dev,
@@ -2400,6 +2401,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     unsigned int end;
     unsigned int dpiset;
     unsigned int optical_res;
+    unsigned int i;
     Genesys_Register_Set * r;
     SANE_Status status;
 
@@ -2466,8 +2468,24 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
        use  one of the average enabled resolutions
     */
     r = sanei_genesys_get_address (reg, 0x03);
-    r->value |= REG03_AVEENB | REG03_LAMPPWR;
+    r->value |= REG03_AVEENB;
+    if (flags & OPTICAL_FLAG_DISABLE_LAMP)
+	r->value &= ~REG03_LAMPPWR;
+    else
+	r->value |= REG03_LAMPPWR;
     
+    /* exposure times */
+    r = sanei_genesys_get_address (reg, 0x10);
+    for (i = 0; i < 6; i++, r++) {
+	if (flags & OPTICAL_FLAG_DISABLE_LAMP)
+	    r->value = 0x01;/* 0x0101 is as off as possible */
+	else
+	    if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
+		r->value = 0x01;/*0x00 will not be accepted*/
+	    else
+		r->value = dev->sensor.regs_0x10_0x1d[i];
+    }
+
     /* BW threshold */
     r = sanei_genesys_get_address (reg, 0x2e);
     r->value = dev->settings.threshold;
@@ -2573,9 +2591,9 @@ gl841_get_led_exposure(Genesys_Device * dev)
     if (!dev->model->is_cis)
 	return 0;
     d = dev->reg[reg_0x19].value;
-    r = dev->reg[reg_0x11].value | (dev->reg[reg_0x10].value << 8);
-    g = dev->reg[reg_0x13].value | (dev->reg[reg_0x12].value << 8);
-    b = dev->reg[reg_0x15].value | (dev->reg[reg_0x14].value << 8);
+    r = dev->sensor.regs_0x10_0x1d[1] | (dev->sensor.regs_0x10_0x1d[0] << 8);
+    g = dev->sensor.regs_0x10_0x1d[3] | (dev->sensor.regs_0x10_0x1d[2] << 8);
+    b = dev->sensor.regs_0x10_0x1d[5] | (dev->sensor.regs_0x10_0x1d[4] << 8);
 
     m = r;
     if (m < g)
@@ -2592,6 +2610,7 @@ gl841_get_led_exposure(Genesys_Device * dev)
 #define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE 0x08
 #define SCAN_FLAG_IGNORE_LINE_DISTANCE     0x10
 #define SCAN_FLAG_USE_OPTICAL_RES          0x20
+#define SCAN_FLAG_DISABLE_LAMP             0x40
 
 /* set up registers for an actual scan
  *
@@ -2830,7 +2849,10 @@ dummy \ scanned lines
 					((flags & SCAN_FLAG_DISABLE_SHADING)?
 					 OPTICAL_FLAG_DISABLE_SHADING:0) |
 					((flags & SCAN_FLAG_DISABLE_GAMMA)?
-					 OPTICAL_FLAG_DISABLE_GAMMA:0));
+					 OPTICAL_FLAG_DISABLE_GAMMA:0) |
+					((flags & SCAN_FLAG_DISABLE_LAMP)?
+					 OPTICAL_FLAG_DISABLE_LAMP:0)
+      );
 
   if (status != SANE_STATUS_GOOD)
       return status;

@@ -289,7 +289,8 @@ static Genesys_Motor Motor[] = {
    1200,			/* motor base steps */
    2400,			/* maximum motor resolution */
    1,				/* maximum step mode */
-   {{
+   1,                           /* number of power modes*/
+   {{{   
      11000,			/* maximum start speed */
      3000,			/* maximum end speed */
      128,			/* step count */
@@ -300,14 +301,14 @@ static Genesys_Motor Motor[] = {
      3000,
      128,
      1.0,
-     },
-    },
-   },
+   },},},
+  },
   {				/* MD5345/6228/6471 */
    1200,
    2400,
    1,
-   {{
+   1,
+   {{{   
      2000,
      1375,
      128,
@@ -318,14 +319,14 @@ static Genesys_Motor Motor[] = {
      1375,
      128,
      0.5,
-     },
-    },
-   },
+    },},},
+  },
   {				/* ST24 */
    2400,
    2400,
    1,
-   {{
+   1,
+   {{{
      2289,
      2100,
      128,
@@ -336,14 +337,14 @@ static Genesys_Motor Motor[] = {
      2100,
      128,
      0.3,
-     },
-    },
-   },
+    },},}, 
+  },
   {				/* HP 2400c */
    1200,
    2400,
    1,
-   {{
+   1,
+   {{{
      11000,
      3000,
      128,
@@ -354,14 +355,14 @@ static Genesys_Motor Motor[] = {
      3000,
      128,
      1.0,
-     },
-    },
-   },
+    },},},
+  },
   {				/* HP 2300c */
    600,
    1200,
    1,
-   {{
+   1,
+   {{{
      3200,
      1200,
      128,
@@ -372,14 +373,14 @@ static Genesys_Motor Motor[] = {
      1200,
      128,
      0.5,
-     },
-    },
-   },
+   },},},
+  },
   {				/* Canon LiDE 35 */
    1200,
    2400,
    1,
-   {{
+   1,
+   {{{
      3500,
      1300,
      60,
@@ -390,9 +391,8 @@ static Genesys_Motor Motor[] = {
      1400,
      60,
      0.8,
-     },
-    },
-   },
+    },},},
+  },
 };
 
 /* here we have the various device settings...

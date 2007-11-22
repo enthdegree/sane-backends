@@ -1623,14 +1623,14 @@ gl646_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 					local_reg[reg_0x21].value,
 					local_reg[reg_0x02].
 					value & REG02_STEPSEL, exposure_time,
-					0, dpi);
+					0, dpi, 0);
     }
   else
     {
       sanei_genesys_create_slope_table (dev, slope_table0, prepare_steps, 0,
 					exposure_time, 0,
-					dev->motor.
-					base_ydpi /*MOTOR_GEAR */ );
+					dev->motor.base_ydpi, /*MOTOR_GEAR */ 
+					0);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
@@ -2079,14 +2079,14 @@ gl646_search_start_position (Genesys_Device * dev)
 				      local_reg[reg_0x21].value,
 				      local_reg[reg_0x02].
 				      value & REG02_STEPSEL, exposure_time, 0,
-				      dpi);
+				      dpi, 0);
   else
     sanei_genesys_create_slope_table (dev,
 				      slope_table0,
 				      local_reg[reg_0x21].value,
 				      local_reg[reg_0x02].
 				      value & REG02_STEPSEL, exposure_time, 0,
-				      dev->motor.base_ydpi);
+				      dev->motor.base_ydpi, 0);
 
   status =
     gl646_send_slope_table (dev, 0, slope_table0, local_reg[reg_0x21].value);
@@ -2311,7 +2311,8 @@ gl646_init_regs_for_coarse_calibration (Genesys_Device * dev)
 				      dev->calib_reg[reg_0x02].
 				      value & REG02_STEPSEL,
 				      dev->settings.exposure_time, 0,
-				      dev->motor.base_ydpi /*MOTOR_GEAR */ );
+				      dev->motor.base_ydpi, /*MOTOR_GEAR */ 
+				      0);
 
   /* todo: z1 = z2 = 0? */
   sanei_genesys_calculate_zmode (dev,
@@ -2515,7 +2516,7 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
 						    value & REG02_STEPSEL,
 						    sanei_genesys_exposure_time
 						    (dev, dev->reg, dpiset),
-						    0, dpiset);
+						    0, dpiset, 0);
       move = (dev->model->shading_lines * dev->motor.base_ydpi) / dpiset;
       DBG (DBG_info,
 	   "gl646_init_regs_for_shading: computed move = %d, dpiset = %d\n",
@@ -2947,7 +2948,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 				    dev->slope_table0,
 				    dev->reg[reg_0x21].value,
 				    dev->reg[reg_0x02].value & REG02_STEPSEL,
-				    exposure_time, same_speed, slope_dpi);
+				    exposure_time, same_speed, slope_dpi, 0);
 
   /* computes sum of used steps */
   steps_sum = 0;
@@ -2960,7 +2961,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 				    dev->reg[reg_0x6b].value,
 				    (dev->reg[reg_0x6a].
 				     value & REG6A_FSTPSEL) >> 6,
-				    fast_exposure, 0, fast_dpi);
+				    fast_exposure, 0, fast_dpi, 0);
 
   /* steps to move to reach scanning area:
      - first we move to physical start of scanning
@@ -4123,14 +4124,14 @@ gl646_repark_head (Genesys_Device * dev)
 				    slope_table,
 				    local_reg[reg_0x21].value,
 				    local_reg[reg_0x02].value & REG02_STEPSEL,
-				    exposure_time, 0, 600);
+				    exposure_time, 0, 600, 0);
 
   sanei_genesys_create_slope_table (dev,
 				    dev->slope_table1,
 				    local_reg[reg_0x6b].value,
 				    (local_reg[reg_0x6a].
 				     value & REG6A_FSTPSEL) >> 6, 2700,
-				    SANE_FALSE, dev->motor.base_ydpi / 4);
+				    SANE_FALSE, dev->motor.base_ydpi / 4, 0);
 
   status =
     gl646_send_slope_table (dev, 0, slope_table, local_reg[reg_0x21].value);
@@ -4259,12 +4260,12 @@ gl646_init (Genesys_Device * dev)
 					sanei_genesys_exposure_time (dev,
 								     dev->reg,
 								     150), 0,
-					150);
+					150, 0);
       sanei_genesys_create_slope_table (dev, dev->slope_table1,
 					dev->reg[reg_0x6b].value,
 					(dev->reg[reg_0x6a].
 					 value & REG6A_FSTPSEL) >> 6, 3600, 0,
-					200);
+					200, 0);
     }
   else if (dev->model->motor_type == MOTOR_ST24)
     {
@@ -4272,24 +4273,25 @@ gl646_init (Genesys_Device * dev)
 					dev->reg[reg_0x21].value,
 					dev->reg[reg_0x02].
 					value & REG02_STEPSEL,
-					dev->settings.exposure_time, 0, 600);
+					dev->settings.exposure_time, 0, 600, 
+					0);
       sanei_genesys_create_slope_table (dev, dev->slope_table1,
 					dev->reg[reg_0x6b].value,
 					(dev->reg[reg_0x6a].
 					 value & REG6A_FSTPSEL) >> 6, 1200, 0,
-					400);
+					400, 0);
     }
   else
     {
       sanei_genesys_create_slope_table (dev, dev->slope_table0,
 					dev->reg[reg_0x21].value,
 					dev->reg[reg_0x02].
-					value & REG02_STEPSEL, 250, 0, 600);
+					value & REG02_STEPSEL, 250, 0, 600, 0);
       sanei_genesys_create_slope_table (dev, dev->slope_table1,
 					dev->reg[reg_0x6b].value,
 					(dev->reg[reg_0x6a].
 					 value & REG6A_FSTPSEL) >> 6, 250, 0,
-					600);
+					600, 0);
     }
 
   /* build default gamma tables */

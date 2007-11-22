@@ -202,7 +202,8 @@ typedef struct
   SANE_Int base_ydpi;		 /* motor base steps. Unit: 1/" */
   SANE_Int optical_ydpi;	 /* maximum resolution in y-direction. Unit: 1/"  */
   SANE_Int max_step_type;        /* maximum step type. 0-2 */
-  Genesys_Motor_Slope slopes[3]; /* slopes to derive individual slopes from */
+  SANE_Int power_mode_count;        /* number of power modes*/
+  Genesys_Motor_Slope slopes[2][3]; /* slopes to derive individual slopes from */
 } Genesys_Motor;
 
 typedef enum Genesys_Color_Order
@@ -543,7 +544,7 @@ sanei_genesys_fe_write_data (Genesys_Device * dev, u_int8_t addr,
 extern SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev,
 			      float ydpi, int step_type, int endpixel,
-			      int led_exposure);
+			      int led_exposure, int power_mode);
 
 extern SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
@@ -553,7 +554,8 @@ extern SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,
 				  u_int16_t * slope_table, int steps,
 				  int step_type, int exposure_time,
-				  SANE_Bool same_speed, double yres);
+				  SANE_Bool same_speed, double yres,
+				  int power_mode);
 
 SANE_Int
 sanei_genesys_create_slope_table3 (Genesys_Device * dev,
@@ -562,7 +564,8 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   int step_type, int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
-				   unsigned int *final_exposure);
+				   unsigned int *final_exposure,
+				   int power_mode);
 
 extern void
 sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,

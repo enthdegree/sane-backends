@@ -1,3 +1,9 @@
+2007-11-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys.c, backend/genesys_devices.c,
+	  backend/genesys_low.h, backend/genesys_gl646.c,
+	  backend/genesys_gl841.c: add infrastructure for multiple motor
+	  power modes
+
 2007-11-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: add internal flag for disabling lamp
 	  during scan(useful for black level calibration)

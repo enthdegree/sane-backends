@@ -1905,6 +1905,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
 	    dev->motor.base_ydpi / 4,
 	    0,/*step_type*/
 	    0,/*last used pixel*/
+	    0,
 	    0);
 	
 	DBG (DBG_info, "gl841_init_motor_regs : fast_exposure=%d pixels\n",
@@ -1914,7 +1915,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
     if (action == MOTOR_ACTION_HOME_FREE) {
 /* HOME_FREE must be able to stop in one step, so do not try to get faster */
 	fast_slope_steps = 256;
-	fast_exposure = dev->motor.slopes[0].maximum_start_speed;
+	fast_exposure = dev->motor.slopes[0][0].maximum_start_speed;
     }
 
     fast_slope_time = sanei_genesys_create_slope_table3 (
@@ -1925,7 +1926,7 @@ gl841_init_motor_regs(Genesys_Device * dev,
 	fast_exposure,
 	dev->motor.base_ydpi / 4,
 	&fast_slope_steps,
-	&fast_exposure);
+	&fast_exposure, 0);
     
     feedl = feed_steps - fast_slope_steps*2;
     use_fast_fed = 1;
@@ -2042,6 +2043,7 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 /*number of scan lines to add in a scan_lines line*/
 		      unsigned int feed_steps,/*1/base_ydpi*/
 /*maybe float for half/quarter step resolution?*/
+		      int scan_power_mode,
 		      unsigned int flags) 
 {
     SANE_Status status;
@@ -2065,13 +2067,14 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 
     DBG (DBG_proc, "gl841_init_motor_regs_scan : scan_exposure_time=%d, "
 	 "scan_yres=%g, scan_step_type=%d, scan_lines=%d, scan_dummy=%d, "
-	 "feed_steps=%d, flags=%x\n",
+	 "feed_steps=%d, scan_power_mode=%d, flags=%x\n",
 	 scan_exposure_time,
 	 scan_yres,
 	 scan_step_type,
 	 scan_lines,
 	 scan_dummy,
 	 feed_steps,
+	 scan_power_mode,
 	 flags);
 
     fast_exposure = sanei_genesys_exposure_time2(
@@ -2079,7 +2082,8 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	dev->motor.base_ydpi / 4,
 	0,/*step_type*/
 	0,/*last used pixel*/
-	0);
+	0,
+	scan_power_mode);
     
     DBG (DBG_info, "gl841_init_motor_regs_scan : fast_exposure=%d pixels\n",
 	 fast_exposure);
@@ -2107,7 +2111,8 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	scan_exposure_time,
 	scan_yres,
 	&slow_slope_steps,
-	NULL);
+	NULL,
+	scan_power_mode);
     
     back_slope_time = sanei_genesys_create_slope_table3 (
 	dev,
@@ -2117,7 +2122,8 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	0,
 	scan_yres,
 	&back_slope_steps,
-	NULL);
+	NULL,
+	scan_power_mode);
 	
     if (feed_steps < (slow_slope_steps >> scan_step_type)) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
@@ -2142,7 +2148,8 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	fast_exposure,
 	dev->motor.base_ydpi / 4,
 	&fast_slope_steps,
-	&fast_exposure);
+	&fast_exposure,
+	scan_power_mode);
     
     if (feed_steps < fast_slope_steps*2 + (slow_slope_steps >> scan_step_type)) {
 	use_fast_fed = 0;
@@ -2636,7 +2643,7 @@ gl841_init_scan_regs (Genesys_Device * dev,
   int bytes_per_line;
   int move;
   unsigned int lincnt;
-  int exposure_time;
+  int exposure_time, exposure_time2, led_exposure;
   int i;
   int stagger;
 
@@ -2644,6 +2651,7 @@ gl841_init_scan_regs (Genesys_Device * dev,
   int move_dpi = 0;
   int dummy = 0;
   int scan_step_type = 1;
+  int scan_power_mode = 0;
   int max_shift;
   size_t requested_buffer_size, read_buffer_size;
 
@@ -2819,14 +2827,31 @@ dummy \ scanned lines
       scan_step_type = 2;
   
 /* exposure_time */
+  led_exposure = gl841_get_led_exposure(dev);
+
   exposure_time = sanei_genesys_exposure_time2(
       dev,
       slope_dpi,
       scan_step_type,
       start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-      gl841_get_led_exposure(dev)
-      );
+      led_exposure,
+      scan_power_mode);
     
+  while(scan_power_mode + 1 < dev->motor.power_mode_count) {
+      exposure_time2 = sanei_genesys_exposure_time2(
+	  dev,
+	  slope_dpi,
+	  scan_step_type,
+	  start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+	  led_exposure,
+	  scan_power_mode + 1);
+      if (exposure_time < exposure_time2)
+	  break;
+      exposure_time = exposure_time2;
+      scan_power_mode++;
+  }
+  
+
   DBG (DBG_info, "gl841_init_scan_regs : exposure_time=%d pixels\n",
        exposure_time);
 
@@ -2913,6 +2938,7 @@ dummy \ scanned lines
 					  dev->model->is_cis?lincnt*channels:lincnt,
 					  dummy,
 					  move,
+					  scan_power_mode,
 					  (flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE)?
 					  MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE:0
 	  );

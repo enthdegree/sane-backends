@@ -649,7 +649,8 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 				   int step_type, int exposure_time,
 				   double yres,
 				   unsigned int *used_steps,
-				   unsigned int *final_exposure)
+				   unsigned int *final_exposure,
+				   int power_mode)
 {
   unsigned int sum_time = 0;
   unsigned int vtarget;
@@ -659,14 +660,14 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: step_type = %d, "
-       "exposure_time = %d, yres = %g\n", step_type, exposure_time, yres);
-  DBG (DBG_proc, "sanei_genesys_create_slope_table: yres = %.2f\n", yres);
+       "exposure_time = %d, yres = %g, power_mode = %d\n", step_type,
+       exposure_time, yres, power_mode);
 
   /* final speed */
   vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
 
-  vstart = dev->motor.slopes[step_type].maximum_start_speed;
-  vend = dev->motor.slopes[step_type].maximum_speed;
+  vstart = dev->motor.slopes[power_mode][step_type].maximum_start_speed;
+  vend = dev->motor.slopes[power_mode][step_type].maximum_speed;
 
   vtarget >>= step_type;
   if (vtarget > 65535)
@@ -685,9 +686,9 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 					   vtarget,
 					   vstart,
 					   vend,
-					   dev->motor.slopes[step_type].
+					   dev->motor.slopes[power_mode][step_type].
 					   minimum_steps << step_type,
-					   dev->motor.slopes[step_type].g,
+					   dev->motor.slopes[power_mode][step_type].g,
 					   used_steps, &vfinal);
 
   if (final_exposure)
@@ -708,7 +709,8 @@ static SANE_Int
 genesys_create_slope_table4 (Genesys_Device * dev,
 			     u_int16_t * slope_table, int steps,
 			     int step_type, int exposure_time,
-			     SANE_Bool same_speed, double yres)
+			     SANE_Bool same_speed, double yres,
+			     int power_mode)
 {
   unsigned int sum_time = 0;
   unsigned int vtarget;
@@ -717,15 +719,15 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: %d steps, step_type = %d, "
-       "exposure_time = %d, same_speed =%d\n", steps, step_type,
-       exposure_time, same_speed);
-  DBG (DBG_proc, "sanei_genesys_create_slope_table: yres = %.2f\n", yres);
+       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n", 
+       steps, step_type,
+       exposure_time, same_speed, yres, power_mode);
 
   /* final speed */
   vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
 
-  vstart = dev->motor.slopes[step_type].maximum_start_speed;
-  vend = dev->motor.slopes[step_type].maximum_speed;
+  vstart = dev->motor.slopes[power_mode][step_type].maximum_start_speed;
+  vend = dev->motor.slopes[power_mode][step_type].maximum_speed;
 
   vtarget >>= step_type;
   if (vtarget > 65535)
@@ -744,9 +746,9 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 					   vtarget,
 					   vstart,
 					   vend,
-					   dev->motor.slopes[step_type].
+					   dev->motor.slopes[power_mode][step_type].
 					   minimum_steps << step_type,
-					   dev->motor.slopes[step_type].g,
+					   dev->motor.slopes[power_mode][step_type].g,
 					   NULL, NULL);
 
   DBG (DBG_proc,
@@ -762,7 +764,8 @@ static SANE_Int
 genesys_create_slope_table2 (Genesys_Device * dev,
 			     u_int16_t * slope_table, int steps,
 			     int step_type, int exposure_time,
-			     SANE_Bool same_speed, double yres)
+			     SANE_Bool same_speed, double yres,
+			     int power_mode)
 {
   double t, g;
   SANE_Int sum = 0;
@@ -771,9 +774,9 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: %d steps, step_type = %d, "
-       "exposure_time = %d, same_speed =%d\n", steps, step_type,
-       exposure_time, same_speed);
-  DBG (DBG_proc, "sanei_genesys_create_slope_table2: yres = %.2f\n", yres);
+       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n", 
+       steps, step_type,
+       exposure_time, same_speed, yres, power_mode);
 
   /* start speed */
   if (dev->model->motor_type == MOTOR_5345)
@@ -884,7 +887,8 @@ SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,
 				  u_int16_t * slope_table, int steps,
 				  int step_type, int exposure_time,
-				  SANE_Bool same_speed, double yres)
+				  SANE_Bool same_speed, double yres,
+				  int power_mode)
 {
   double t;
   double start_speed;
@@ -899,13 +903,13 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
   if (dev->model->flags & GENESYS_FLAG_ALT_SLOPE_CREATE)
     return genesys_create_slope_table4 (dev, slope_table, steps,
 					step_type, exposure_time,
-					same_speed, yres);
+					same_speed, yres, power_mode);
 
   if (dev->model->motor_type == MOTOR_5345
       || dev->model->motor_type == MOTOR_HP2300)
     return genesys_create_slope_table2 (dev, slope_table, steps,
 					step_type, exposure_time,
-					same_speed, yres);
+					same_speed, yres, power_mode);
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: %d steps, step_type = %d, "
@@ -1096,11 +1100,13 @@ sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,
  */
 SANE_Int
 sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
-			      int step_type, int endpixel, int led_exposure)
+			      int step_type, int endpixel,
+			      int led_exposure, int power_mode)
 {
   int exposure_by_ccd = endpixel + 32;
-  int exposure_by_motor = (dev->motor.slopes[step_type].maximum_speed
-			   * dev->motor.base_ydpi) / ydpi;
+  int exposure_by_motor = 
+      (dev->motor.slopes[power_mode][step_type].maximum_speed
+      *dev->motor.base_ydpi)/ydpi;
   int exposure_by_led = led_exposure;
 
   int exposure = exposure_by_ccd;

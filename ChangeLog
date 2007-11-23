@@ -3,8 +3,9 @@
 	* po/sane-backends.*.po: Update
 	* backend/plustek-usb.[ch] backend/plustek-usbcal.c
 	  backend/plustek-usbdevs.c backend/plustek.[ch]:
-	  Tweaked TravelScan464 settings. Improved AFE gaincalculation 
+	  Tweaked TravelScan464 settings. Improved AFE gain calculation
 	  for CIS devices. This should avoid stripes in the scanned images.
+	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
 
 2007-11-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_devices.c,

@@ -3,6 +3,12 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-6 (2007-11-23)
+---------------------
+Tweaked TravelScan464 settings.
+Improved AFE gain calculation for CIS devices. This should avoid
+stripes in the scanned images.
+
 V 0.52-4 (2007-11-16)
 ---------------------
 Tweaked TravelScan464 settings

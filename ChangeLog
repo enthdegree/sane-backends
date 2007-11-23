@@ -1,3 +1,7 @@
+2007-11-23  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* po/sane-backends.*.po: Update
+
 2007-11-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_devices.c,
 	  backend/genesys_low.h, backend/genesys_gl646.c,

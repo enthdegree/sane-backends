@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.11\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-05-08 12:04+0200\n"
+"POT-Creation-Date: 2007-11-19 21:54+0100\n"
 "PO-Revision-Date: 2007-05-08 13:29+0200\n"
 "Last-Translator: Harri Järvi <harri.jarvi@tut.fi>\n"
 "Language-Team: Debian l10n Finnish <debian-l10n-finnish@lists.debian.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
 #: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
 #: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
-#: .tmp/canon-sane.c:1623 .tmp/genesys.c:90 .tmp/hp-option.c:2926
+#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp-option.c:2926
 #: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
 #: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
 #: .tmp/sceptre.h:289 .tmp/sm3840.c:82 .tmp/sm3840.c:339
@@ -36,7 +36,7 @@ msgstr "Harmaasävy"
 #: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
 #: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
 #: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:87 .tmp/hp5590.c:86
+#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88 .tmp/hp5590.c:86
 #: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:623
 #: .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393 .tmp/sceptre.h:292
@@ -46,11 +46,11 @@ msgstr "Harmaasävy"
 msgid "Color"
 msgstr "Väri"
 
-#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1481 .tmp/gt68xx.c:665
+#: .tmp/artec_eplus48u.c:2805 .tmp/canon.c:1482 .tmp/gt68xx.c:665
 #: .tmp/hp-option.c:2952 .tmp/leo.c:871 .tmp/ma1509.c:597
 #: .tmp/matsushita.c:1189 .tmp/microtek2.h:601 .tmp/mustek.c:4405
 #: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:846 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
+#: .tmp/plustek.c:852 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
 #: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
 #: .tmp/umax_pp.c:550
@@ -68,12 +68,12 @@ msgstr "Oletukset"
 msgid "Set default values for enhancement controls."
 msgstr "Aseta oletusasetukset parantimille."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2098 .tmp/epson.c:3287
-#: .tmp/genesys.c:4640 .tmp/gt68xx.c:696 .tmp/hp3500.c:975
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2082 .tmp/epson.c:3288
+#: .tmp/genesys.c:4682 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
 #: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
 #: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
 #: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
-#: .tmp/plustek.c:800 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
+#: .tmp/plustek.c:806 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
 #: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
 #: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
 #: .tmp/umax_pp.c:501
@@ -81,7 +81,7 @@ msgstr "Aseta oletusasetukset parantimille."
 msgid "Geometry"
 msgstr "Geometria"
 
-#: .tmp/artec_eplus48u.c:2932 .tmp/canon.c:1599
+#: .tmp/artec_eplus48u.c:2932 .tmp/canon.c:1600
 #, no-c-format
 msgid "Calibration"
 msgstr "Kalibrointi"
@@ -121,22 +121,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Painikkeen tila"
 
-#: .tmp/avision.h:686
+#: .tmp/avision.h:760
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Luettavan kehyksen numero"
 
-#: .tmp/avision.h:687
+#: .tmp/avision.h:761
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Valitsee luettavan kehyksen numeron"
 
-#: .tmp/avision.h:690
+#: .tmp/avision.h:764
 #, fuzzy, no-c-format
 msgid "Duplex scan"
 msgstr "Kaksipuolinen"
 
-#: .tmp/avision.h:691
+#: .tmp/avision.h:765
 #, no-c-format
 msgid "Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
@@ -193,7 +193,7 @@ msgstr "Rasteri"
 #: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
 #: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
 #: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
-#: .tmp/epson.c:489 .tmp/genesys.c:88 .tmp/ma1509.c:101 .tmp/mustek.c:127
+#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
 #: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
 #: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
@@ -410,9 +410,9 @@ msgid "timeout error"
 msgstr ""
 
 #: .tmp/canon.c:519
-#, no-c-format
-msgid "trancparency unit shading error"
-msgstr ""
+#, fuzzy, no-c-format
+msgid "transparency unit shading error"
+msgstr "Läpinäkyvyysyksikkö"
 
 #: .tmp/canon.c:523
 #, no-c-format
@@ -429,239 +429,239 @@ msgstr ""
 msgid "film scanner"
 msgstr "Tasokuvanlukija"
 
-#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915 .tmp/plustek.c:1318
+#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915 .tmp/plustek.c:1333
 #: .tmp/plustek_pp.c:1014 .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "Tasokuvanlukija"
 
-#: .tmp/canon.c:1132 .tmp/leo.c:781 .tmp/pixma_sane_options.c:40
+#: .tmp/canon.c:1133 .tmp/leo.c:781 .tmp/pixma_sane_options.c:40
 #: .tmp/saneopts.h:138
 #, no-c-format
 msgid "Scan mode"
 msgstr "Lukutapa"
 
-#: .tmp/canon.c:1170 .tmp/epson2.c:2185 .tmp/epson.c:3375
+#: .tmp/canon.c:1171 .tmp/epson2.c:2156 .tmp/epson.c:3376
 #, no-c-format
 msgid "Film type"
 msgstr "Filmin tyyppi"
 
-#: .tmp/canon.c:1171
+#: .tmp/canon.c:1172
 #, no-c-format
 msgid "Selects the film type, i.e. negatives or slides"
 msgstr ""
 
-#: .tmp/canon.c:1183
+#: .tmp/canon.c:1184
 #, fuzzy, no-c-format
 msgid "Negative film type"
 msgstr "Negatiivifilmi"
 
-#: .tmp/canon.c:1184
+#: .tmp/canon.c:1185
 #, fuzzy, no-c-format
 msgid "Selects the negative film type"
 msgstr "Valitse koekuva"
 
-#: .tmp/canon.c:1208 .tmp/saneopts.h:146
+#: .tmp/canon.c:1209 .tmp/saneopts.h:146
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Kuvanluvun tarkkuus"
 
-#: .tmp/canon.c:1223
+#: .tmp/canon.c:1224
 #, fuzzy, no-c-format
 msgid "Hardware resolution"
 msgstr "Kuvanluvun tarkkuus"
 
-#: .tmp/canon.c:1224
+#: .tmp/canon.c:1225
 #, fuzzy, no-c-format
 msgid "Use only hardware resolutions"
 msgstr "Näyttää lyhyen tarkkuuslistan"
 
-#: .tmp/canon.c:1305
+#: .tmp/canon.c:1306
 #, no-c-format
 msgid "Focus"
 msgstr ""
 
-#: .tmp/canon.c:1315
+#: .tmp/canon.c:1316
 #, fuzzy, no-c-format
 msgid "Auto focus"
 msgstr "Automaattinen poisto"
 
-#: .tmp/canon.c:1316
+#: .tmp/canon.c:1317
 #, fuzzy, no-c-format
 msgid "Enable/disable auto focus"
 msgstr "Poista esitarkennus"
 
-#: .tmp/canon.c:1323
+#: .tmp/canon.c:1324
 #, no-c-format
 msgid "Auto focus only once"
 msgstr ""
 
-#: .tmp/canon.c:1324
+#: .tmp/canon.c:1325
 #, no-c-format
 msgid "Do auto focus only once between ejects"
 msgstr ""
 
-#: .tmp/canon.c:1332
+#: .tmp/canon.c:1333
 #, fuzzy, no-c-format
 msgid "Manual focus position"
 msgstr "Korjaa tarkennuspiste"
 
-#: .tmp/canon.c:1333
+#: .tmp/canon.c:1334
 #, no-c-format
 msgid "Set the optical system's focus position by hand (default: 128)."
 msgstr ""
 
-#: .tmp/canon.c:1343
+#: .tmp/canon.c:1344
 #, no-c-format
 msgid "Scan margins"
 msgstr ""
 
-#: .tmp/canon.c:1390
+#: .tmp/canon.c:1391
 #, no-c-format
 msgid "Extra color adjustments"
 msgstr ""
 
-#: .tmp/canon.c:1521 .tmp/epson2.c:2011 .tmp/epson.c:3194
+#: .tmp/canon.c:1522 .tmp/epson2.c:2036 .tmp/epson.c:3195
 #, no-c-format
 msgid "Mirror image"
 msgstr "Peilikuva"
 
-#: .tmp/canon.c:1522
+#: .tmp/canon.c:1523
 #, fuzzy, no-c-format
 msgid "Mirror the image horizontally"
 msgstr "Peilaa kuvan vaakasuunnassa"
 
-#: .tmp/canon.c:1591
+#: .tmp/canon.c:1592
 #, fuzzy, no-c-format
 msgid "Auto exposure"
 msgstr "Aseta valotusaika"
 
-#: .tmp/canon.c:1592
+#: .tmp/canon.c:1593
 #, fuzzy, no-c-format
 msgid "Enable/disable the auto exposure feature"
 msgstr "Valotusajan asettaminen"
 
-#: .tmp/canon.c:1608
+#: .tmp/canon.c:1609
 #, fuzzy, no-c-format
 msgid "Calibration now"
 msgstr "Kalibrointi"
 
-#: .tmp/canon.c:1609
+#: .tmp/canon.c:1610
 #, fuzzy, no-c-format
 msgid "Execute calibration *now*"
 msgstr "Määrää kalibraatiotavan"
 
-#: .tmp/canon.c:1619
+#: .tmp/canon.c:1620
 #, no-c-format
 msgid "Self diagnosis"
 msgstr ""
 
-#: .tmp/canon.c:1620
+#: .tmp/canon.c:1621
 #, no-c-format
 msgid "Perform scanner self diagnosis"
 msgstr ""
 
-#: .tmp/canon.c:1631
+#: .tmp/canon.c:1632
 #, fuzzy, no-c-format
 msgid "Reset scanner"
 msgstr "arkkisyöttöinen"
 
-#: .tmp/canon.c:1632
+#: .tmp/canon.c:1633
 #, fuzzy, no-c-format
 msgid "Reset the scanner"
 msgstr "arkkisyöttöinen"
 
-#: .tmp/canon.c:1642
+#: .tmp/canon.c:1643
 #, no-c-format
 msgid "Medium handling"
 msgstr ""
 
-#: .tmp/canon.c:1651
+#: .tmp/canon.c:1652
 #, fuzzy, no-c-format
 msgid "Eject film after each scan"
 msgstr "Poista kohde kuvanluvun jälkeen"
 
-#: .tmp/canon.c:1652
+#: .tmp/canon.c:1653
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
 msgstr ""
 
-#: .tmp/canon.c:1661
+#: .tmp/canon.c:1662
 #, no-c-format
 msgid "Eject film before exit"
 msgstr ""
 
-#: .tmp/canon.c:1662
+#: .tmp/canon.c:1663
 #, no-c-format
 msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
 
-#: .tmp/canon.c:1671
+#: .tmp/canon.c:1672
 #, no-c-format
 msgid "Eject film now"
 msgstr ""
 
-#: .tmp/canon.c:1672
+#: .tmp/canon.c:1673
 #, no-c-format
 msgid "Eject the film *now*"
 msgstr ""
 
-#: .tmp/canon.c:1681
+#: .tmp/canon.c:1682
 #, fuzzy, no-c-format
 msgid "Document feeder extras"
 msgstr "Asiakirjan syöttäjä"
 
-#: .tmp/canon.c:1688
+#: .tmp/canon.c:1689
 #, fuzzy, no-c-format
 msgid "Flatbed only"
 msgstr "Taso"
 
-#: .tmp/canon.c:1689
+#: .tmp/canon.c:1690
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
 
-#: .tmp/canon.c:1699 .tmp/canon.c:1709
+#: .tmp/canon.c:1700 .tmp/canon.c:1710
 #, fuzzy, no-c-format
 msgid "Transparency unit"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/canon.c:1710
+#: .tmp/canon.c:1711
 #, no-c-format
 msgid "Switch on/off the transparency unit (FAU, film adapter unit)"
 msgstr ""
 
-#: .tmp/canon.c:1720
+#: .tmp/canon.c:1721
 #, fuzzy, no-c-format
 msgid "Negative film"
 msgstr "Negatiivifilmi"
 
-#: .tmp/canon.c:1721
+#: .tmp/canon.c:1722
 #, fuzzy, no-c-format
 msgid "Positive or negative film"
 msgstr "Positiivifilmi"
 
-#: .tmp/canon.c:1730
+#: .tmp/canon.c:1731
 #, no-c-format
 msgid "Density control"
 msgstr ""
 
-#: .tmp/canon.c:1731
+#: .tmp/canon.c:1732
 #, no-c-format
 msgid "Set density control mode"
 msgstr ""
 
-#: .tmp/canon.c:1742
+#: .tmp/canon.c:1743
 #, fuzzy, no-c-format
 msgid "Transparency ratio"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/canon.c:1756
+#: .tmp/canon.c:1757
 #, fuzzy, no-c-format
 msgid "Select film type"
 msgstr "Filmin tyyppi"
 
-#: .tmp/canon.c:1757
+#: .tmp/canon.c:1758
 #, fuzzy, no-c-format
 msgid "Select the film type"
 msgstr "Valitsee rasterin"
@@ -681,7 +681,7 @@ msgstr "Yksipuolinen"
 msgid "Duplex"
 msgstr "Kaksipuolinen"
 
-#: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:102 .tmp/gt68xx.c:144
+#: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:103 .tmp/gt68xx.c:144
 #: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
 #: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
 #: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
@@ -791,20 +791,20 @@ msgstr "Ladattu kuvio A"
 msgid "Download pattern B"
 msgstr "Ladattu kuvio B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1923 .tmp/epson.c:603 .tmp/epson.c:3085
-#: .tmp/genesys.c:95 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
+#: .tmp/epson2.c:305 .tmp/epson2.c:1948 .tmp/epson.c:603 .tmp/epson.c:3086
+#: .tmp/genesys.c:96 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Punainen"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1919 .tmp/epson.c:604 .tmp/epson.c:3081
-#: .tmp/genesys.c:96 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
+#: .tmp/epson2.c:306 .tmp/epson2.c:1944 .tmp/epson.c:604 .tmp/epson.c:3082
+#: .tmp/genesys.c:97 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Vihreä"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1927 .tmp/epson.c:605 .tmp/epson.c:3089
-#: .tmp/genesys.c:97 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
+#: .tmp/epson2.c:307 .tmp/epson2.c:1952 .tmp/epson.c:605 .tmp/epson.c:3090
+#: .tmp/genesys.c:98 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
 msgstr "Sininen"
@@ -869,40 +869,10 @@ msgstr "Käyttäjän määrittelemä (Gamma=1.0)"
 msgid "User defined (Gamma=1.8)"
 msgstr "Käyttäjän määrittelemä (Gamma=1.8)"
 
-#: .tmp/epson2.c:444 .tmp/epson.c:761
-#, no-c-format
-msgid "CD"
-msgstr "CD"
-
-#: .tmp/epson2.c:445 .tmp/epson.c:762
-#, no-c-format
-msgid "A5 portrait"
-msgstr "A5 pysty"
-
-#: .tmp/epson2.c:446 .tmp/epson.c:763
-#, no-c-format
-msgid "A5 landscape"
-msgstr "A5 vaaka"
-
-#: .tmp/epson2.c:447 .tmp/epson.c:764
-#, no-c-format
-msgid "Letter"
-msgstr "US-Letter"
-
-#: .tmp/epson2.c:448 .tmp/epson.c:765
-#, no-c-format
-msgid "A4"
-msgstr "A4"
-
-#: .tmp/epson2.c:449 .tmp/epson.c:766
-#, no-c-format
-msgid "Max"
-msgstr "Koko alue"
-
-#: .tmp/epson2.c:1641 .tmp/epson.c:2802 .tmp/genesys.c:4569 .tmp/gt68xx.c:453
+#: .tmp/epson2.c:1666 .tmp/epson.c:2803 .tmp/genesys.c:4611 .tmp/gt68xx.c:453
 #: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
 #: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:716
+#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:719
 #: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
 #: .tmp/stv680.c:1030 .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473
 #: .tmp/umax.c:5052
@@ -910,213 +880,193 @@ msgstr "Koko alue"
 msgid "Scan Mode"
 msgstr "Lukutapa"
 
-#: .tmp/epson2.c:1673 .tmp/epson.c:2834
+#: .tmp/epson2.c:1698 .tmp/epson.c:2835
 #, no-c-format
 msgid "Selects the halftone."
 msgstr "Valitsee rasterin"
 
-#: .tmp/epson2.c:1694 .tmp/epson.c:2856
+#: .tmp/epson2.c:1719 .tmp/epson.c:2857
 #, no-c-format
 msgid "Dropout"
 msgstr ""
 
-#: .tmp/epson2.c:1695 .tmp/epson.c:2857
+#: .tmp/epson2.c:1720 .tmp/epson.c:2858
 #, no-c-format
 msgid "Selects the dropout."
 msgstr ""
 
-#: .tmp/epson2.c:1707 .tmp/epson.c:2869
+#: .tmp/epson2.c:1732 .tmp/epson.c:2870
 #, no-c-format
 msgid "Selects the brightness."
 msgstr "Valitsee kirkkauden."
 
-#: .tmp/epson2.c:1721 .tmp/epson.c:2884
+#: .tmp/epson2.c:1746 .tmp/epson.c:2885
 #, no-c-format
 msgid "Sharpness"
 msgstr "Terävyys"
 
-#: .tmp/epson2.c:1857 .tmp/epson.c:3020
+#: .tmp/epson2.c:1882 .tmp/epson.c:3021
 #, no-c-format
 msgid "Color correction"
 msgstr "Värikorjaus"
 
-#: .tmp/epson2.c:1860 .tmp/epson.c:3023
+#: .tmp/epson2.c:1885 .tmp/epson.c:3024
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr "Valitsee värikorjaustaulukon valitulle tuloslaitteelle."
 
-#: .tmp/epson2.c:1901 .tmp/epson.c:3064
+#: .tmp/epson2.c:1926 .tmp/epson.c:3065
 #, no-c-format
 msgid "Color correction coefficients"
 msgstr "Värikorjauskertoimet"
 
-#: .tmp/epson2.c:1903 .tmp/epson.c:3065
+#: .tmp/epson2.c:1928 .tmp/epson.c:3066
 #, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Matriisikerroin RGB:lle"
 
-#: .tmp/epson2.c:1920 .tmp/epson.c:3082
+#: .tmp/epson2.c:1945 .tmp/epson.c:3083
 #, no-c-format
 msgid "Shift green to red"
 msgstr "Vihreän siirtymä punaiseen"
 
-#: .tmp/epson2.c:1921 .tmp/epson.c:3083
+#: .tmp/epson2.c:1946 .tmp/epson.c:3084
 #, no-c-format
 msgid "Shift green to blue"
 msgstr "Vihreän siirtymä siniseen"
 
-#: .tmp/epson2.c:1922 .tmp/epson.c:3084
+#: .tmp/epson2.c:1947 .tmp/epson.c:3085
 #, no-c-format
 msgid "Shift red to green"
 msgstr "Punaisen siirtymä virheään"
 
-#: .tmp/epson2.c:1924 .tmp/epson.c:3086
+#: .tmp/epson2.c:1949 .tmp/epson.c:3087
 #, no-c-format
 msgid "Shift red to blue"
 msgstr "Punaisen siirtymä siniseen"
 
-#: .tmp/epson2.c:1925 .tmp/epson.c:3087
+#: .tmp/epson2.c:1950 .tmp/epson.c:3088
 #, no-c-format
 msgid "Shift blue to green"
 msgstr "Sinisen siirtymä vihreään"
 
-#: .tmp/epson2.c:1926 .tmp/epson.c:3088
+#: .tmp/epson2.c:1951 .tmp/epson.c:3089
 #, no-c-format
 msgid "Shift blue to red"
 msgstr "Sinisen siirtymä punaiseen"
 
-#: .tmp/epson2.c:1929 .tmp/epson.c:3091
+#: .tmp/epson2.c:1954 .tmp/epson.c:3092
 #, no-c-format
 msgid "Controls green level"
 msgstr "Määrää vihreän määrän"
 
-#: .tmp/epson2.c:1931 .tmp/epson.c:3092
+#: .tmp/epson2.c:1956 .tmp/epson.c:3093
 #, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Lisää punaista vihreän määrän perusteella"
 
-#: .tmp/epson2.c:1933 .tmp/epson.c:3093
+#: .tmp/epson2.c:1958 .tmp/epson.c:3094
 #, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Lisää sinistä vihreän määrän perusteella"
 
-#: .tmp/epson2.c:1935 .tmp/epson.c:3094
+#: .tmp/epson2.c:1960 .tmp/epson.c:3095
 #, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Lisää vihreää punaisen määrän perusteella"
 
-#: .tmp/epson2.c:1936 .tmp/epson.c:3095
+#: .tmp/epson2.c:1961 .tmp/epson.c:3096
 #, no-c-format
 msgid "Controls red level"
 msgstr "Määrää punaisen määrän"
 
-#: .tmp/epson2.c:1937 .tmp/epson.c:3096
+#: .tmp/epson2.c:1962 .tmp/epson.c:3097
 #, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Lisää sinistä punaisen määrän perusteella"
 
-#: .tmp/epson2.c:1939 .tmp/epson.c:3097
+#: .tmp/epson2.c:1964 .tmp/epson.c:3098
 #, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Lisää vihreää sinisen määrän perusteella"
 
-#: .tmp/epson2.c:1940 .tmp/epson.c:3098
+#: .tmp/epson2.c:1965 .tmp/epson.c:3099
 #, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Lisää punaista sinisen määrän perusteella"
 
-#: .tmp/epson2.c:1941 .tmp/epson.c:3099
+#: .tmp/epson2.c:1966 .tmp/epson.c:3100
 #, no-c-format
 msgid "Controls blue level"
 msgstr "Määrää sinisen määrän"
 
-#: .tmp/epson2.c:2004 .tmp/epson.c:3186 .tmp/snapscan-options.c:816
+#: .tmp/epson2.c:2029 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
 #: .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Lisäasetukset"
 
-#: .tmp/epson2.c:2012 .tmp/epson.c:3195
+#: .tmp/epson2.c:2037 .tmp/epson.c:3196
 #, no-c-format
 msgid "Mirror the image."
 msgstr "Peilaa kuvan."
 
-#: .tmp/epson2.c:2033 .tmp/epson.c:3221 .tmp/mustek.c:4328
-#, no-c-format
-msgid "Fast preview"
-msgstr "Nopea esikatselu"
-
-#: .tmp/epson2.c:2044 .tmp/epson.c:3234
+#: .tmp/epson2.c:2047 .tmp/epson.c:3235
 #, no-c-format
 msgid "Auto area segmentation"
 msgstr "Automaattinen osittelu"
 
-#: .tmp/epson2.c:2057 .tmp/epson.c:3247
+#: .tmp/epson2.c:2060 .tmp/epson.c:3248
 #, no-c-format
 msgid "Short resolution list"
 msgstr "Lyhyt tarkkuuslista"
 
-#: .tmp/epson2.c:2059 .tmp/epson.c:3249
-#, no-c-format
-msgid "Display short resolution list"
+#: .tmp/epson2.c:2062
+#, fuzzy, no-c-format
+msgid "Display a shortened resolution list"
 msgstr "Näyttää lyhyen tarkkuuslistan"
 
-#: .tmp/epson2.c:2067 .tmp/epson.c:3256
-#, no-c-format
-msgid "Zoom"
-msgstr "Suurennus"
-
-#: .tmp/epson2.c:2069 .tmp/epson.c:3258
-#, no-c-format
-msgid "Defines the zoom factor the scanner will use"
-msgstr "Määrää kuvanlukijan käyttämän zoom-kertoimen"
-
-#: .tmp/epson2.c:2149 .tmp/epson.c:3338
-#, no-c-format
-msgid "Quick format"
-msgstr "Nopea formaatti"
-
-#: .tmp/epson2.c:2161 .tmp/epson.c:3349
+#: .tmp/epson2.c:2132 .tmp/epson.c:3350
 #, no-c-format
 msgid "Optional equipment"
 msgstr "Lisävaruste"
 
-#: .tmp/epson2.c:2215 .tmp/epson.c:3420
+#: .tmp/epson2.c:2186 .tmp/epson.c:3421
 #, no-c-format
 msgid "Eject"
 msgstr "Poista"
 
-#: .tmp/epson2.c:2216 .tmp/epson.c:3421
+#: .tmp/epson2.c:2187 .tmp/epson.c:3422
 #, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Poista kohde syöttölaitteesta"
 
-#: .tmp/epson2.c:2226 .tmp/epson.c:3433
+#: .tmp/epson2.c:2197 .tmp/epson.c:3434
 #, no-c-format
 msgid "Auto eject"
 msgstr "Automaattinen poisto"
 
-#: .tmp/epson2.c:2228 .tmp/epson.c:3434
+#: .tmp/epson2.c:2199 .tmp/epson.c:3435
 #, no-c-format
 msgid "Eject document after scanning"
 msgstr "Poista kohde kuvanluvun jälkeen"
 
-#: .tmp/epson2.c:2238 .tmp/epson.c:3446
+#: .tmp/epson2.c:2209 .tmp/epson.c:3447
 #, no-c-format
 msgid "ADF Mode"
 msgstr "Syötttapa"
 
-#: .tmp/epson2.c:2240 .tmp/epson.c:3448
+#: .tmp/epson2.c:2211 .tmp/epson.c:3449
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Valitsee syöttötavan (yksi-/kaksipuolinen)"
 
-#: .tmp/epson2.c:2252 .tmp/epson.c:3462
+#: .tmp/epson2.c:2223 .tmp/epson.c:3463
 #, no-c-format
 msgid "Bay"
 msgstr "Taso"
 
-#: .tmp/epson2.c:2253 .tmp/epson.c:3463
+#: .tmp/epson2.c:2224 .tmp/epson.c:3464
 #, no-c-format
 msgid "Select bay to scan"
 msgstr "Valitsee kuvanluvun tasolta"
@@ -1154,45 +1104,100 @@ msgstr ""
 "Kuvanlukukomennon lähettämisen jälkeen, odota kunnes kuvanlukijan painiketta "
 "todella painetaan, ennen kuvanluvun aloittamista."
 
-#: .tmp/genesys.c:103 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
+#: .tmp/epson.c:761
+#, no-c-format
+msgid "CD"
+msgstr "CD"
+
+#: .tmp/epson.c:762
+#, no-c-format
+msgid "A5 portrait"
+msgstr "A5 pysty"
+
+#: .tmp/epson.c:763
+#, no-c-format
+msgid "A5 landscape"
+msgstr "A5 vaaka"
+
+#: .tmp/epson.c:764
+#, no-c-format
+msgid "Letter"
+msgstr "US-Letter"
+
+#: .tmp/epson.c:765
+#, no-c-format
+msgid "A4"
+msgstr "A4"
+
+#: .tmp/epson.c:766
+#, no-c-format
+msgid "Max"
+msgstr "Koko alue"
+
+#: .tmp/epson.c:3222 .tmp/mustek.c:4328
+#, no-c-format
+msgid "Fast preview"
+msgstr "Nopea esikatselu"
+
+#: .tmp/epson.c:3250
+#, no-c-format
+msgid "Display short resolution list"
+msgstr "Näyttää lyhyen tarkkuuslistan"
+
+#: .tmp/epson.c:3257
+#, no-c-format
+msgid "Zoom"
+msgstr "Suurennus"
+
+#: .tmp/epson.c:3259
+#, no-c-format
+msgid "Defines the zoom factor the scanner will use"
+msgstr "Määrää kuvanlukijan käyttämän zoom-kertoimen"
+
+#: .tmp/epson.c:3339
+#, no-c-format
+msgid "Quick format"
+msgstr "Nopea formaatti"
+
+#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
 #: .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Läpinäkyvyysyksikkö"
 
-#: .tmp/genesys.c:4691
+#: .tmp/genesys.c:4733
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Hyvin nopea"
 
-#: .tmp/genesys.c:4711
+#: .tmp/genesys.c:4754
 #, fuzzy, no-c-format
 msgid "Disable interpolation"
 msgstr "Poista peruutus."
 
-#: .tmp/genesys.c:4714
+#: .tmp/genesys.c:4757
 #, no-c-format
 msgid ""
 "When using high resolutions where the horizontal resolution is smaller than "
 "the vertical resolution this disables horizontal interpolation."
 msgstr ""
 
-#: .tmp/genesys.c:4723
+#: .tmp/genesys.c:4766
 #, fuzzy, no-c-format
 msgid "Color Filter"
 msgstr "Väriviivapiirros"
 
-#: .tmp/genesys.c:4726
+#: .tmp/genesys.c:4769
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 
-#: .tmp/genesys.c:4735
+#: .tmp/genesys.c:4778
 #, fuzzy, no-c-format
 msgid "Lamp off time"
 msgstr "Valo pois"
 
-#: .tmp/genesys.c:4738
+#: .tmp/genesys.c:4781
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value of 0 "
@@ -1296,12 +1301,12 @@ msgstr "Gamma"
 msgid "Sets the gamma value of all channels."
 msgstr "Asettaa gamma-arvon kaikille kanaville."
 
-#: .tmp/hp3500.c:976
+#: .tmp/hp3500.c:977
 #, fuzzy, no-c-format
 msgid "Geometry Group"
 msgstr "Geometria"
 
-#: .tmp/hp3500.c:1032 .tmp/hp3500.c:1033
+#: .tmp/hp3500.c:1033 .tmp/hp3500.c:1034
 #, fuzzy, no-c-format
 msgid "Scan Mode Group"
 msgstr "Lukutapa"
@@ -1347,7 +1352,7 @@ msgid "Switches the lamp on or off."
 msgstr "Asettaa valon päälle/pois"
 
 #: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
-#: .tmp/plustek.c:924
+#: .tmp/plustek.c:939
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibroi"
@@ -1473,7 +1478,7 @@ msgid "Slow"
 msgstr "Hidas"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:232 .tmp/plustek_pp.c:200 .tmp/u12.c:155
+#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200 .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normaali"
@@ -1523,7 +1528,7 @@ msgstr "Dia"
 msgid "Film-strip"
 msgstr "Filmiliuska"
 
-#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:234
+#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
 #: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
 #, no-c-format
 msgid "Negative"
@@ -1758,16 +1763,6 @@ msgstr "8x8 pystyviiva"
 msgid "Black & White"
 msgstr "Mustavalko"
 
-#: .tmp/lexmark.h:55 .tmp/matsushita.h:220
-#, no-c-format
-msgid "Paper size"
-msgstr "Paperin koko"
-
-#: .tmp/lexmark.h:57
-#, fuzzy, no-c-format
-msgid "Selects the size of the area to be scanned."
-msgstr "Valitsee luettavan kehyksen numeron"
-
 #: .tmp/matsushita.c:139
 #, no-c-format
 msgid "Bayer Dither 16"
@@ -1853,7 +1848,7 @@ msgstr "Yksi sivu"
 msgid "All pages"
 msgstr "Kaikki sivut"
 
-#: .tmp/matsushita.c:1034 .tmp/plustek.c:1316
+#: .tmp/matsushita.c:1034 .tmp/plustek.c:1331
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "arkkisyöttöinen"
@@ -1916,6 +1911,11 @@ msgstr "Harmaasävy 4 bittiä"
 #, no-c-format
 msgid "Grayscale 8 bits"
 msgstr "Harmaasävy 8 bittiä"
+
+#: .tmp/matsushita.h:220
+#, no-c-format
+msgid "Paper size"
+msgstr "Paperin koko"
 
 #: .tmp/matsushita.h:221 .tmp/matsushita.h:228
 #, no-c-format
@@ -2431,7 +2431,7 @@ msgid ""
 "cancel, press \"GRAY\" button."
 msgstr ""
 
-#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1063
+#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1078
 #, fuzzy, no-c-format
 msgid "Buttons"
 msgstr "Painikkeen tila"
@@ -2451,167 +2451,177 @@ msgstr "Painikkeen tila"
 msgid "Button 2"
 msgstr "Painikkeen tila"
 
-#: .tmp/plustek.c:233 .tmp/plustek_pp.c:201 .tmp/u12.c:156
+#: .tmp/plustek.c:234 .tmp/plustek_pp.c:201 .tmp/u12.c:156
 #, no-c-format
 msgid "Transparency"
 msgstr "Läpinäkyvyys"
 
-#: .tmp/plustek.c:905
+#: .tmp/plustek.c:911
 #, no-c-format
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:912
+#: .tmp/plustek.c:918
 #, no-c-format
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:913
+#: .tmp/plustek.c:919
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:924
+#, fuzzy, no-c-format
+msgid "Lamp off during dark calibration"
+msgstr "Raakakalibrointi"
+
+#: .tmp/plustek.c:925
+#, no-c-format
+msgid "Always switches lamp off when doing dark calibration."
+msgstr ""
+
+#: .tmp/plustek.c:933
 #, fuzzy, no-c-format
 msgid "Calibration data cache"
 msgstr "Kalibrointitila"
 
-#: .tmp/plustek.c:919
+#: .tmp/plustek.c:934
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:925
+#: .tmp/plustek.c:940
 #, fuzzy, no-c-format
 msgid "Performs calibration"
 msgstr "Raakakalibrointi"
 
-#: .tmp/plustek.c:942
+#: .tmp/plustek.c:957
 #, no-c-format
 msgid "Speedup sensor"
 msgstr ""
 
-#: .tmp/plustek.c:943
+#: .tmp/plustek.c:958
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr ""
 
-#: .tmp/plustek.c:957
+#: .tmp/plustek.c:972
 #, fuzzy, no-c-format
 msgid "Warmup-time"
 msgstr "Lämmitä lamppu"
 
-#: .tmp/plustek.c:958
+#: .tmp/plustek.c:973
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr ""
 
-#: .tmp/plustek.c:970
+#: .tmp/plustek.c:985
 #, fuzzy, no-c-format
 msgid "Lampoff-time"
 msgstr "Valo pois"
 
-#: .tmp/plustek.c:971
+#: .tmp/plustek.c:986
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr ""
 
-#: .tmp/plustek.c:978
+#: .tmp/plustek.c:993
 #, fuzzy, no-c-format
 msgid "Analog frontend"
 msgstr "Analoginen gamma (punainen)"
 
-#: .tmp/plustek.c:984 .tmp/umax_pp.c:656
+#: .tmp/plustek.c:999 .tmp/umax_pp.c:656
 #, no-c-format
 msgid "Red gain"
 msgstr "Punaisen vahvistus"
 
-#: .tmp/plustek.c:985
+#: .tmp/plustek.c:1000
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:992 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:1007 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Punaisen siirtymä"
 
-#: .tmp/plustek.c:993
+#: .tmp/plustek.c:1008
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1000 .tmp/umax_pp.c:668
+#: .tmp/plustek.c:1015 .tmp/umax_pp.c:668
 #, no-c-format
 msgid "Green gain"
 msgstr "Vihreän vahvistus"
 
-#: .tmp/plustek.c:1001
+#: .tmp/plustek.c:1016
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1008 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1023 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Vihreän siirtymä"
 
-#: .tmp/plustek.c:1009
+#: .tmp/plustek.c:1024
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1016 .tmp/umax_pp.c:680
+#: .tmp/plustek.c:1031 .tmp/umax_pp.c:680
 #, no-c-format
 msgid "Blue gain"
 msgstr "Sinisen vahvistus"
 
-#: .tmp/plustek.c:1017
+#: .tmp/plustek.c:1032
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1024 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1039 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Sinisen siirtymä"
 
-#: .tmp/plustek.c:1025
+#: .tmp/plustek.c:1040
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1032
+#: .tmp/plustek.c:1047
 #, fuzzy, no-c-format
 msgid "Red lamp off"
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/plustek.c:1033
+#: .tmp/plustek.c:1048
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1040
+#: .tmp/plustek.c:1055
 #, fuzzy, no-c-format
 msgid "Green lamp off"
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/plustek.c:1041
+#: .tmp/plustek.c:1056
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1048
+#: .tmp/plustek.c:1063
 #, fuzzy, no-c-format
 msgid "Blue lamp off"
 msgstr "Asettaa valon päälle/pois"
 
-#: .tmp/plustek.c:1049
+#: .tmp/plustek.c:1064
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1079
+#: .tmp/plustek.c:1094
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr ""
@@ -4330,3 +4340,7 @@ msgstr "Asettaa vihreän kanavan siirtymän"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Asettaa sinisen kanavan siirtymän"
+
+#, fuzzy
+#~ msgid "Selects the size of the area to be scanned."
+#~ msgstr "Valitsee luettavan kehyksen numeron"

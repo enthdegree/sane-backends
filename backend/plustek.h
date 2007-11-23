@@ -58,7 +58,7 @@
  * - 0.50 - cleanup
  *        - added OPT_SPEEDUP
  * - 0.51 - added OPT_CALIBRATE
- * - 0.52 - added skipDarkStrip to struct AdjDef
+ * - 0.52 - added skipDarkStrip and incDarkTgt to struct AdjDef
  *        - added OPT_LOFF4DARK
  * .
  * <hr>
@@ -270,6 +270,7 @@ typedef struct {
 	int     skipFine;
 	int     skipFineWhite;
 	int     skipDarkStrip;
+	int     incDarkTgt;
 	int     disableSpeedup;
 	int     invertNegatives;
 	int     cacheCalData;

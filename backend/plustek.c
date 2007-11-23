@@ -158,7 +158,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
-#define BACKEND_VERSION "0.52-5"
+#define BACKEND_VERSION "0.52-6"
 
 #define BACKEND_NAME    plustek
 #include "../include/sane/sanei_access.h"
@@ -277,6 +277,7 @@ static void show_cnf( CnfDef *cnf )
 	DBG( _DBG_SANE_INIT,"skipFine     : %s\n",  _YN(cnf->adj.skipFine       ));
 	DBG( _DBG_SANE_INIT,"skipFineWhite: %s\n",  _YN(cnf->adj.skipFineWhite  ));
 	DBG( _DBG_SANE_INIT,"skipDarkStrip: %s\n",  _YN(cnf->adj.skipDarkStrip   ));
+	DBG( _DBG_SANE_INIT,"incDarkTarget: %s\n",  _YN(cnf->adj.incDarkTgt      ));
 	DBG( _DBG_SANE_INIT,"invertNegs.  : %s\n",  _YN(cnf->adj.invertNegatives));
 	DBG( _DBG_SANE_INIT,"dis.Speedup  : %s\n",  _YN(cnf->adj.disableSpeedup ));
 	DBG( _DBG_SANE_INIT,"pos_x        : %d\n",  cnf->adj.pos.x               );
@@ -1419,6 +1420,8 @@ init_config_struct( CnfDef *cnf )
 	cnf->adj.glampoff     = -1;
 	cnf->adj.blampoff     = -1;
 
+	cnf->adj.incDarkTgt = 1;
+
 	cnf->adj.graygamma = 1.0;
 	cnf->adj.rgamma    = 1.0;
 	cnf->adj.ggamma    = 1.0;
@@ -1519,6 +1522,8 @@ sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 									  _INT, &config.adj.skipFineWhite,&ival);
 			decodeVal( str, "skipDarkStrip",
 									  _INT, &config.adj.skipDarkStrip,&ival);
+			decodeVal( str, "incDarkTarget",
+									  _INT, &config.adj.incDarkTgt,&ival);
 			decodeVal( str, "invertNegatives",
 									  _INT, &config.adj.invertNegatives,&ival);
 			decodeVal( str, "disableSpeedup",

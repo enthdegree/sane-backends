@@ -48,6 +48,7 @@
  * - 0.51  - added fine calibration cache
  *         - usb_SwitchLamp() now really switches off the sensor
  * - 0.52  - fixed setting for frontend values (gain/offset)
+ *         - added 0 pixel detection for offset calculation
  *
  * This file is part of the SANE package.
  *
@@ -93,6 +94,9 @@
  * the initial AFE gain settings
  */
 #define _TWEAK_GAIN 1
+
+/* set the threshold for 0 pixels (in percent if pixels per line) */
+#define _DARK_TGT_THRESH 1
 
 /** 0 for not ready,  1 pos white lamp on,  2 lamp off */
 static int strip_state = 0;
@@ -651,14 +655,72 @@ cano_AdjustGain( Plustek_Device *dev )
 	return SANE_TRUE;
 }
 
+static int tweak_offset[3];
+
 /**
  */
 static int
-cano_GetNewOffset( Plustek_Device *dev, u_long *val, int channel,
-                   signed char *low, signed char *now, signed char *high )
+cano_GetNewOffset(Plustek_Device *dev, u_long *val, int channel, signed char *low,
+                  signed char *now, signed char *high, u_long *zc)
 {
-	/* if we're too black, we're likely off the low end */
-	if( val[channel] <= 16 ) {
+	DCapsDef *scaps = &dev->usbDev.Caps;
+
+	if (tweak_offset[channel]) {
+
+		/* if we're too black, we're likely off the low end */
+		if( val[channel] <= 16 ) {
+			low[channel] =  now[channel];
+			now[channel] = (now[channel]+high[channel])/2;
+
+			dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
+
+			if( low[channel]+1 >= high[channel] )
+				return 0;
+			return 1;
+
+		} else if ( val[channel]>=2048 ) {
+			high[channel]=now[channel];
+			now[channel]=(now[channel]+low[channel])/2;
+
+			dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
+
+			if(low[channel]+1>=high[channel])
+				return 0;
+			return 1;
+		}
+	}
+
+	if (!(scaps->workaroundFlag & _WAF_INC_DARKTGT)) {
+		DBG( _DBG_INFO, "0 Pixel adjustment not active!\n");
+		return 0;
+	}
+
+	/* reaching this point, our black level should be okay, but
+	 * we also should check the percentage of 0 level pixels.
+	 * It turned out, that when having a lot of 0 level pixels,
+	 * the calibration will be bad and the resulting scans show up
+	 * stripes...
+	 */
+	if (zc[channel] > _DARK_TGT_THRESH) {
+		DBG( _DBG_INFO2, "More than %u%% 0 pixels detected, raise offset!\n",
+		                 _DARK_TGT_THRESH);
+		high[channel]=now[channel];
+		now[channel]=(now[channel]+low[channel])/2;
+
+		/* no more value checks, the goal to set the black level < 2048
+		 * will cause stripes...
+		 */
+		tweak_offset[channel] = 0;
+
+		dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
+
+		if( low[channel]+1 >= high[channel] )
+			return 0;
+		return 1;
+
+	}
+#if 0
+	else if ( val[channel]>=4096 ) {
 		low[channel] =  now[channel];
 		now[channel] = (now[channel]+high[channel])/2;
 
@@ -667,17 +729,8 @@ cano_GetNewOffset( Plustek_Device *dev, u_long *val, int channel,
 		if( low[channel]+1 >= high[channel] )
 			return 0;
 		return 1;
-
-	} else if ( val[channel]>=2048 ) {
-		high[channel]=now[channel];
-		now[channel]=(now[channel]+low[channel])/2;
-
-		dev->usbDev.a_bRegs[0x38+channel]= (now[channel]&0x3f);
-
-		if(low[channel]+1>=high[channel])
-			return 0;
-		return 1;
 	}
+#endif
 	return 0;
 }
 
@@ -702,7 +755,7 @@ cano_AdjustOffset( Plustek_Device *dev )
 	int     i, adj;
 	u_short r, g, b;
 	u_long  dw, dwPixels;
-	u_long  dwSum[3];
+	u_long  dwSum[3], zCount[3];
 
 	signed char low[3]  = {-32,-32,-32 };
 	signed char now[3]  = {  0,  0,  0 };
@@ -755,6 +808,10 @@ cano_AdjustOffset( Plustek_Device *dev )
 	DBG( _DBG_INFO2, "dwPhyBytes  = %lu\n", m_ScanParam.Size.dwPhyBytes );
 	DBG( _DBG_INFO2, "dwPhyPixels = %lu\n", m_ScanParam.Size.dwPhyPixels );
 
+	tweak_offset[0] =
+	tweak_offset[1] =
+	tweak_offset[2] = 1;
+
 	for( i = 0, adj = 1; adj != 0; i++ ) {
 
 		if((!usb_ScanBegin(dev, SANE_FALSE)) ||
@@ -775,6 +832,7 @@ cano_AdjustOffset( Plustek_Device *dev )
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 
 			dwSum[0] = dwSum[1] = dwSum[2] = 0;
+			zCount[0] = zCount[1] = zCount[2] = 0;
 
 			for (dw = 0; dw < dwPixels; dw++) {
 
@@ -794,23 +852,33 @@ cano_AdjustOffset( Plustek_Device *dev )
 				dwSum[1] += g;
 				dwSum[2] += b;
 
+				if (r==0) zCount[0]++;
+				if (g==0) zCount[1]++;
+				if (b==0) zCount[2]++;
 			}
 
-			DBG( _DBG_INFO2, "RedSum   = %lu, ave = %lu\n",
-			                            dwSum[0], dwSum[0]/dwPixels );
-			DBG( _DBG_INFO2, "GreenSum = %lu, ave = %lu\n",
-			                           dwSum[1], dwSum[1] /dwPixels );
-			DBG( _DBG_INFO2, "BlueSum  = %lu, ave = %lu\n",
-			                           dwSum[2], dwSum[2] /dwPixels );
+			DBG( _DBG_INFO2, "RedSum   = %lu, ave = %lu, ZC=%lu, %lu%%\n",
+			                        dwSum[0], dwSum[0]/dwPixels,
+			                        zCount[0], (zCount[0]*100)/dwPixels);
+			DBG( _DBG_INFO2, "GreenSum = %lu, ave = %lu, ZC=%lu, %lu%%\n",
+			                        dwSum[1], dwSum[1]/dwPixels,
+			                        zCount[1], (zCount[1]*100)/dwPixels);
+			DBG( _DBG_INFO2, "BlueSum  = %lu, ave = %lu, ZC=%lu, %lu%%\n",
+			                        dwSum[2], dwSum[2]/dwPixels,
+			                        zCount[2], (zCount[2]*100)/dwPixels);
 
 			/* do averaging for each channel */
 			dwSum[0] /= dwPixels;
 			dwSum[1] /= dwPixels;
 			dwSum[2] /= dwPixels;
 
-			adj  = cano_GetNewOffset( dev, dwSum, 0, low, now, high );
-			adj |= cano_GetNewOffset( dev, dwSum, 1, low, now, high );
-			adj |= cano_GetNewOffset( dev, dwSum, 2, low, now, high );
+			zCount[0] = (zCount[0] * 100)/ dwPixels;
+			zCount[1] = (zCount[1] * 100)/ dwPixels;
+			zCount[2] = (zCount[2] * 100)/ dwPixels;
+
+			adj  = cano_GetNewOffset(dev, dwSum, 0, low, now, high, zCount);
+			adj |= cano_GetNewOffset(dev, dwSum, 1, low, now, high, zCount);
+			adj |= cano_GetNewOffset(dev, dwSum, 2, low, now, high, zCount);
 
 			DBG( _DBG_INFO2, "RedOff   = %d/%d/%d\n",
 			                            (int)low[0],(int)now[0],(int)high[0]);
@@ -821,14 +889,23 @@ cano_AdjustOffset( Plustek_Device *dev )
 
 		} else {
 			dwSum[0] = 0;
+			zCount[0] = 0;
 
-			for( dw = 0; dw < dwPixels; dw++ )
+			for( dw = 0; dw < dwPixels; dw++ ) {
 				dwSum[0] += ((u_short*)scanbuf)[dw];
 
-			dwSum[0] /= dwPixels;
-			DBG( _DBG_INFO2, "Sum=%lu, ave=%lu\n", dwSum[0],dwSum[0]/dwPixels);
+				if (((u_short*)scanbuf)[dw] == 0)
+					zCount[0]++;
+			}
 
-			adj = cano_GetNewOffset( dev, dwSum, 0, low, now, high );
+			DBG( _DBG_INFO2, "Sum=%lu, ave=%lu, ZC=%lu, %lu%%\n",
+			                  dwSum[0],dwSum[0]/dwPixels,
+			                  zCount[0], (zCount[0]*100)/dwPixels);
+
+			dwSum[0] /= dwPixels;
+			zCount[0] = (zCount[0] * 100)/ dwPixels;
+
+			adj = cano_GetNewOffset(dev, dwSum, 0, low, now, high, zCount);
 
 			dev->usbDev.a_bRegs[0x3a] =
 			dev->usbDev.a_bRegs[0x39] = dev->usbDev.a_bRegs[0x38];

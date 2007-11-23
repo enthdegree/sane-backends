@@ -51,6 +51,7 @@
  *        - added _WAF_LOFF_ON_START and _WAF_ONLY_8BIT
  *        - added MODEL_TSCAN_A4
  *        - added attribute packed for data access structs
+ *        - added _WAF_INC_DARKTGT
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -258,7 +259,8 @@ enum _WORKAROUNDS
 	_WAF_USE_ALT_DESC       = 0x00000400, /* use alternate manufacturer      */
 	_WAF_RESET_SO_TO_RGB    = 0x00000800, /* set sensororder to RGB(CIS only)*/
 	_WAF_LOFF_ON_START      = 0x00001000, /* switch lamp off before scanning */
-	_WAF_ONLY_8BIT          = 0x00002000  /* scanner allows only 8 bit modes */
+	_WAF_ONLY_8BIT          = 0x00002000, /* scanner allows only 8 bit modes */
+	_WAF_INC_DARKTGT        = 0x00004000  /* allow tgt darklevel adjustment  */
 };
 
 /** for lamps connected to the misc I/O pins*/

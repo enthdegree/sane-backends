@@ -45,7 +45,8 @@
  *          1200DPI CIS devices don't use GrayFromColor any longer
  * - 0.51 - added Syscan to the vendor list
  *        - added SCANFLAG_Calibration handling
- * - 0.52 - added _WAF_LOFF_ON_START handling in usbDev_startScan()
+ * - 0.52 - added _WAF_LOFF_ON_START and _WAF_INC_DARKTGT
+ *          handling in usbDev_startScan()
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -167,6 +168,9 @@ static void usb_CheckAndCopyAdjs( Plustek_Device *dev )
 
 	if( dev->adj.skipFineWhite > 0 )
 		dev->usbDev.Caps.workaroundFlag |= _WAF_SKIP_WHITEFINE;
+
+	if( dev->adj.incDarkTgt > 0 )
+		dev->usbDev.Caps.workaroundFlag |= _WAF_INC_DARKTGT;
 
 	if( dev->adj.skipDarkStrip > 0 )
 		dev->usbDev.Caps.Normal.DarkShadOrgY = -1;

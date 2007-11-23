@@ -1,6 +1,10 @@
 2007-11-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* po/sane-backends.*.po: Update
+	* backend/plustek-usb.[ch] backend/plustek-usbcal.c
+	  backend/plustek-usbdevs.c backend/plustek.[ch]:
+	  Tweaked TravelScan464 settings. Improved AFE gaincalculation 
+	  for CIS devices. This should avoid stripes in the scanned images.
 
 2007-11-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_devices.c,

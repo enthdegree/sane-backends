@@ -267,6 +267,7 @@ attach_usb_device (SANE_String_Const devname,
   scanner->dn = dn;
   scanner->info = info;
   scanner->bulk_read_state = NULL;
+  scanner->opts = NULL;
 
   if (!scanners_list)
     scanners_list = scanner;
@@ -357,8 +358,8 @@ void sane_exit (void)
 
   for (ptr = scanners_list; ptr; ptr = ptr->next)
     {
-      hp5590_assert_void_return (ptr->opts != NULL);
-      free (ptr->opts);
+      if (ptr->opts != NULL)
+	free (ptr->opts);
       free (ptr);
     }
 }
@@ -628,6 +629,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  *((SANE_Int *) value) = HP5590_OPT_LAST;
 	  return SANE_STATUS_GOOD;
 	}
+ 
+      if (!scanner->opts)
+	return SANE_STATUS_INVAL;
       
       DBG (DBG_proc, "%s: get option '%s' value\n", __FUNCTION__, scanner->opts[option].name);
 

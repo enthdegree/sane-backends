@@ -761,7 +761,7 @@ hp5590_read_max_scan_count (SANE_Int dn, unsigned int *max_count)
  */
 
 /******************************************************************************/
-static SANE_Status
+static __sane_unused__ SANE_Status
 hp5590_read_eeprom_all_cmd (SANE_Int dn)
 {
   u_int8_t eeprom[255];

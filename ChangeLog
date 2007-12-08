@@ -1,3 +1,7 @@
+2007-12-08  Giuseppe Sacco <eppesuig@debian.org>
+
+        * Added esperanto translation, per Antonio Codazzi.
+
 2007-11-23  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* po/sane-backends.*.po: Update

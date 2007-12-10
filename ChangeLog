@@ -1,3 +1,7 @@
+2007-12-10  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: use epson2_model where possible,
+	  fixed segmentation fault.
+
 2007-12-08  Giuseppe Sacco <eppesuig@debian.org>
 
         * Added esperanto translation, per Antonio Codazzi.

@@ -464,16 +464,25 @@ static SANE_Status attach_one_net(SANE_String_Const devname);
 static void filter_resolution_list(Epson_Scanner * s);
 
 
+static SANE_Bool
+epson2_model(Epson_Scanner *s, const char *model)
+{
+	if(s->hw->sane.model == NULL)
+		return SANE_FALSE;
 
+	if (strncmp(s->hw->sane.model, model, strlen(model)) == 0)
+		return SANE_TRUE;
+
+	return SANE_FALSE;
+}
 
 /* A little helper function to correct the extended status reply
  * gotten from scanners with known buggy firmware.
  */
 static void
-fix_up_extended_status_reply(const char *model, unsigned char *buf)
+fix_up_extended_status_reply(Epson_Scanner *s, unsigned char *buf)
 {
-	if (strncmp(model, "ES-9000H", strlen("ES-9000H")) == 0
-	    || strncmp(model, "GT-30000", strlen("GT-30000")) == 0) {
+	if (epson2_model(s, "ES-9000H") || epson2_model(s, "GT-30000")) {
 		DBG(1, "fixing up buggy ADF max scan dimensions.\n");
 		buf[2] = 0xB0;
 		buf[3] = 0x6D;
@@ -673,7 +682,7 @@ epson2_add_resolution(Epson_Scanner *s, int r)
  * - Epson Perfection 4870 Photo / GT-X700 (untested)
  */
 static void
-fix_up_dpi(const char *model, Epson_Scanner *s )
+fix_up_dpi(Epson_Scanner *s)
 {
 	SANE_Status status;
 	/*
@@ -681,8 +690,8 @@ fix_up_dpi(const char *model, Epson_Scanner *s )
 	 * EPSON Color Image Scanner Perfection 4870/4990
 	 */
 
-	if (strncmp(model, "GT-X800", 7) == 0
-		|| strncmp(model, "GT-X700", 7) == 0) {
+	if (epson2_model(s, "GT-X800")
+		|| epson2_model(s, "GT-7800")) {
 		status = epson2_add_resolution(s, 4800);
 		status = epson2_add_resolution(s, 6400);
 		status = epson2_add_resolution(s, 9600);
@@ -1139,7 +1148,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		if (dev->extension && (es[1] & EXT_STATUS_IST)) {
 			DBG(1, "ADF detected\n");
 
-			fix_up_extended_status_reply(dev->sane.model, es);
+			fix_up_extended_status_reply(s, es);
 
 			dev->duplex = (es[0] & EXT_STATUS_ADFS) != 0;
 			if (dev->duplex)
@@ -1237,7 +1246,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		/* TPU */
                 /* TPU2  (Perfection 4990 Photo/GT-X800 ) */
 
-		if (strncmp(s->hw->sane.model, "GT-X800",7) == 0) {
+		if (epson2_model(s, "GT-X800")) {
 		if (le32atoh(&buf[68]) > 0) {
 			/* XXX move to set_tpu_area */
 			if (!dev->TPU) {
@@ -1293,7 +1302,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		}
 
                 /* fix problem with broken report of dpi */
-                fix_up_dpi(dev->sane.model,s);
+                fix_up_dpi(s);
         }
 
 
@@ -1466,14 +1475,13 @@ attach(const char *name, Epson_Device * *devp, int type)
 	/* establish defaults */
 	dev->need_reset_on_source_change = SANE_FALSE;
 
-	if (strcmp("ES-9000H", dev->sane.model) == 0
-	    || strcmp("GT-30000", dev->sane.model) == 0) {
+	if (epson2_model(s, "ES-9000H") || epson2_model(s, "GT-30000")) {
 		dev->cmd->set_focus_position = 0;
 		dev->cmd->feed = 0x19;
-	} else if (strcmp("GT-8200", dev->sane.model) == 0
-		   || strcmp("Perfection1650", dev->sane.model) == 0
-		   || strcmp("Perfection1640", dev->sane.model) == 0
-		   || strcmp("GT-8700", dev->sane.model) == 0) {
+	}
+
+	if (epson2_model(s, "GT-8200") || epson2_model(s, "Perfection1650")
+	|| epson2_model(s, "Perfection1640") || epson2_model(s, "GT-8700")) {
 		dev->cmd->feed = 0;
 		dev->cmd->set_focus_position = 0;
 		dev->need_reset_on_source_change = SANE_TRUE;
@@ -2618,7 +2626,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
-	if (*info & SANE_INFO_INEXACT && sopt->type == SANE_TYPE_INT)
+	if (info && value && (*info & SANE_INFO_INEXACT) && sopt->type == SANE_TYPE_INT)
 		DBG(17, "%s: constrained val = %d\n", __func__, *(SANE_Word *)value);
 
 	s->option_has_changed = SANE_TRUE;
@@ -3531,8 +3539,9 @@ epson2_init_parameters(Epson_Scanner * s)
 		s->lcount = sanei_scsi_max_request_size /
 			     s->params.bytes_per_line;
 
-		/* XXX Check if we can do this with other scanners */
-		if (s->lcount < 3 && strncmp(s->hw->sane.model, "GT-X800", 7) == 0){
+		/* XXX Check if we can do this with other scanners,
+		 * / by bus type */
+		if (s->lcount < 3 && epson2_model(s, "GT-X800")){
                      s->lcount = 21;
 		     DBG(17, "%s: set lcount = %i bigger than sanei_scsi_max_request_size\n", __func__, s->lcount);
                 }
@@ -3778,14 +3787,14 @@ epson2_start_ext_scan(Epson_Scanner *s)
  */
 
 static SANE_Status
-fix_warmup_lamp(const char *model, Epson_Scanner *s, SANE_Status status )
+fix_warmup_lamp(Epson_Scanner *s, SANE_Status status)
 {
 	/*
 	 * Check for Perfection 4990 photo/GT-X800 scanner.
 	 * Scanner sometimes report "Fatal error" in status in informationblock when
 	 * lamp warm up. Solution send FS G one more time.
 	*/
-	if (strncmp(model, "GT-X800",7) == 0 ) {
+	if (epson2_model(s, "GT-X800")) {
 		SANE_Status status2;
 
 		DBG(1, "%s: Epson Perfection 4990 lamp warm up problem \n", __func__);
@@ -3950,7 +3959,7 @@ sane_start(SANE_Handle handle)
 		DBG(1, "%s: start failed: %s\n", __func__,
 			sane_strstatus(status));
 		if (status == SANE_STATUS_IO_ERROR)
-			status = fix_warmup_lamp(dev->sane.model, s, status);
+			status = fix_warmup_lamp(s, status);
         }
 
 	return status;

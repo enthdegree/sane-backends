@@ -42,6 +42,7 @@ Backends:
                 Geoffrey Dairiki
  hpsj5s:        Max Vorobiev
  hp3500:        Troy Rollo (*)
+ hp3900:        Jonathan Bravo Lopez (*)
  hp4200:        Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson,
                 Frank Zago, Henning Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
@@ -168,6 +169,7 @@ James Perry <jamesp@epcc.ed.ac.uk>
 Jeff Freedman <jsf@hevanet.com>
 Jochen Eisinger <jochen.eisinger@gmx.net>
 Jon Chambers <jon@jon.demon.co.uk>
+Jonathan Bravo Lopez <jkdsoft@gmail.com>
 Juergen G. Schimmer <schimmi@nbgm.siemens.de>
 Julien Blache <jb@jblache.org>
 Karl Anders Øygard <karlo@opera.no>

@@ -1,10 +1,15 @@
+2007-12-13  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* Added files for 'hp3900' backend which supports
+	  HP Scanjet 3800/3970/4070/4370/G3010
+	* doc/descriptions-external/hp3900.desc: moved to doc/descriptions
+
 2007-12-10  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: use epson2_model where possible,
 	  fixed segmentation fault.
 
 2007-12-08  Giuseppe Sacco <eppesuig@debian.org>
 
-        * Added esperanto translation, per Antonio Codazzi.
+	* Added esperanto translation, per Antonio Codazzi.
 
 2007-11-23  Gerhard Jaeger <gerhard@gjaeger.de>
 

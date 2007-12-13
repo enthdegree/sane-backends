@@ -10,7 +10,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "hp3900"
-:version "0.9"
+:version "0.10"
 :manpage "sane-hp3900"
 :url "http://sourceforge.net/projects/hp3900-series/"
 :comment "Still Beta"
@@ -24,7 +24,7 @@
 :interface "USB"
 :status :basic
 :usbid "0x03f0" "0x2605"
-:comment "Works with resolutions equal and less than 600dpi"
+:comment "Works with resolutions equal and less then 600dpi"
 
 :model "ScanJet 3970c"
 :interface "USB"
@@ -46,7 +46,7 @@
 :interface "USB"
 :usbid "0x03f0" "0x4205"
 :status :basic
-:comment "Not tested yet. Seems to be equal to hp scanjet 4370"
+:comment "Similar to hp scanjet 4370"
 
 ; -----------------------------------------------------
 :mfg "UMAX"
@@ -56,4 +56,15 @@
 :interface "USB"
 :usbid "0x06dc" "0x0020"
 :status :minimal
-:comment "testing yet"
+:comment "developing yet"
+
+; -----------------------------------------------------
+:mfg "BenQ"
+:url "http://www.benq.com/"
+
+:model "5550"
+:interface "USB"
+:usbid "0x04a5" "0x2211"
+:status :minimal
+:comment "developing yet"
+

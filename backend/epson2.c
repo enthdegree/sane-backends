@@ -691,7 +691,7 @@ fix_up_dpi(Epson_Scanner *s)
 	 */
 
 	if (epson2_model(s, "GT-X800")
-		|| epson2_model(s, "GT-7800")) {
+		|| epson2_model(s, "GT-X700")) {
 		status = epson2_add_resolution(s, 4800);
 		status = epson2_add_resolution(s, 6400);
 		status = epson2_add_resolution(s, 9600);
@@ -1342,8 +1342,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		return SANE_STATUS_NO_MEM;
 	}
 
-	bitDepthList[0] = 1;	/* we start with one element in the list */
-	bitDepthList[1] = 8;	/* 8bit is the default */
+	bitDepthList[0] = 0;
 
 	/* if dev->maxDepth has not previously set, try to discover it */
 	/* XXX maybe we should always do discover? */
@@ -1365,11 +1364,8 @@ attach(const char *name, Epson_Device * *devp, int type)
 			epson2_add_depth(dev, 12);
 	}
 
-	/* the default depth is already in the list */
-	if (dev->maxDepth == 0)
-		dev->maxDepth = 8;
-
-	DBG(3, "done\n");
+	/* add default depth */
+	epson2_add_depth(dev, 8);
 
 	DBG(1, "maximum supported color depth: %d\n", dev->maxDepth);
 
@@ -4133,14 +4129,11 @@ epson2_copy_image_data(Epson_Scanner *s, SANE_Byte *data, SANE_Int max_length,
 }
 
 static SANE_Status
-epson2_ext_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-	  SANE_Int * length)
+epson2_ext_sane_read(SANE_Handle handle)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status = SANE_STATUS_GOOD;
 	size_t buf_len = 0, read;
-
-	*length = 0;
 
 	/* did we passed everything we read to sane? */
 	if (s->ptr == s->end) {
@@ -4192,12 +4185,10 @@ epson2_ext_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
 }
 
 static SANE_Status
-epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-	  SANE_Int * length)
+epson2_block_sane_read(SANE_Handle handle)
 {
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	SANE_Status status;
-	int index = 0;
 	SANE_Bool reorder = SANE_FALSE;
 	SANE_Bool needStrangeReorder = SANE_FALSE;
 
@@ -4217,13 +4208,11 @@ epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length
 				    s->params.lines);
 			}
 
-			*length = 0;
 			return SANE_STATUS_EOF;
 		}
 
 		status = read_info_block(s, &result);
 		if (status != SANE_STATUS_GOOD) {
-			*length = 0;
 			return status;
 		}
 
@@ -4239,7 +4228,6 @@ epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length
 
 			epson2_recv(s, s->buf, buf_len, &status);
 			if (status != SANE_STATUS_GOOD) {
-				*length = 0;
 				return status;
 			}
 		}
@@ -4250,9 +4238,6 @@ epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length
 		} else {
 			if (s->canceling) {
 				status = epson2_cmd_simple(s, S_CAN, 1);
-
-				*length = 0;
-
 				return SANE_STATUS_CANCELLED;
 			} else	{
 				status = epson2_ack(s);
@@ -4355,15 +4340,19 @@ epson2_block_sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length
 
 SANE_Status
 sane_read(SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
-	  SANE_Int * length)
+	  SANE_Int *length)
 {
 	SANE_Status status;
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 
+	*length = 0;
+
 	if (s->hw->extended_commands)
-		status = epson2_ext_sane_read(handle, data, max_length, length);
+		status = epson2_ext_sane_read(handle);
 	else
-		status = epson2_block_sane_read(handle, data, max_length, length);
+		status = epson2_block_sane_read(handle);
+
+	/* XXX eval status here? */
 
 	DBG(18, "moving data\n");
 	epson2_copy_image_data(s, data, max_length, length);

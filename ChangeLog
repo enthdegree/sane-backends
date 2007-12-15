@@ -1,3 +1,8 @@
+2007-12-15  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: fixed model detection,
+	  depth detection and removed some unused
+	  variables.
+
 2007-12-13  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* Added files for 'hp3900' backend which supports
 	  HP Scanjet 3800/3970/4070/4370/G3010

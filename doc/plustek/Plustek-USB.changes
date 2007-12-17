@@ -3,6 +3,11 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-7 (2007-12-13)
+---------------------
+Fixed alignment issues for archs like XScale/ARM
+Fixed dumppic function to get valid grayscale pictures
+
 V 0.52-6 (2007-11-23)
 ---------------------
 Tweaked TravelScan464 settings.

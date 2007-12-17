@@ -1,4 +1,4 @@
-Plustek-USB-TODO.txt (2006-07-28) Gerhard Jaeger <gerhard@gjaeger.de>
+Plustek-USB-TODO.txt (2007-12-13) Gerhard Jaeger <gerhard@gjaeger.de>
 =====================================================================
 
 TODO (in general):
@@ -15,7 +15,6 @@ HP 2100c          Straight Line Bug                     none
 Bearpaw1200       works only once                       restart backend each time
 All with TPA      Negative Scanning quality bad         none
 CIS devices       Skip calibration does not work        none
-All               problems on ARM and XScale            none
 
 ********************************* DONE ***************************************
 
@@ -44,6 +43,7 @@ EPSON + HP        vertical line bug                             fixed
 HP                blooming on 42bit >=400dpi                    fixed
 UMAX5400          bad picture quality                           fixed
 UMAX3400          Straight Line Bug                             fixed
+all               problems on ARM and XScale                    fixed
 
 Make the color modes > 8bit work correctly                      done
 make mono/gray modes work on Canon scanners                     done

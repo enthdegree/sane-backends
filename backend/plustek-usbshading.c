@@ -783,7 +783,7 @@ static SANE_Bool usb_AdjustGain( Plustek_Device *dev, int fNegative )
 	ScanDef  *scanning = &dev->scanning;
 	DCapsDef *scaps    = &dev->usbDev.Caps;
 	HWDef    *hw       = &dev->usbDev.HwSetting;
-	u_char   *scanbuf  = scanning->pScanBuffer;
+	u_long   *scanbuf  = scanning->pScanBuffer;
 	u_char   *regs     = dev->usbDev.a_bRegs;
 	u_long    dw, start, end, len;
 	SANE_Bool fRepeatITA = SANE_TRUE;
@@ -868,8 +868,8 @@ TOGAIN:
 
 	sprintf( tmp, "coarse-gain-%u.raw", i++ );
 
-	dumpPicInit( &m_ScanParam, tmp );
-	dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+	dumpPicInit(&m_ScanParam, tmp);
+	dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 		
 #ifdef SWAP_COARSE
 	if(usb_HostSwap())
@@ -1257,7 +1257,7 @@ static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
 
 	HWDef  *hw      = &dev->usbDev.HwSetting;
 	u_char *regs    = dev->usbDev.a_bRegs;
-	u_char *scanbuf = dev->scanning.pScanBuffer;
+	u_long *scanbuf = dev->scanning.pScanBuffer;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
@@ -1354,8 +1354,8 @@ static SANE_Bool usb_AdjustOffset( Plustek_Device *dev )
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwPhyBytes );
 #endif
-		dumpPicInit( &m_ScanParam, tmp );
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+		dumpPicInit(&m_ScanParam, tmp);
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 
@@ -1467,7 +1467,7 @@ static void usb_GetDarkShading( Plustek_Device *dev, u_short *pwDest,
 #ifndef SWAP_FINE
 			wtmp = ((int)_PHILO2WORD(pSrce) + iOffset);
 #else
-			wtmp = (*((int*)pSrce) + iOffset);
+			wtmp = ((int)_PLOHI2WORD(pSrce) + iOffset);
 #endif
 			if( wtmp < 0 )
 				wtmp = 0;
@@ -1494,7 +1494,7 @@ static void usb_GetDarkShading( Plustek_Device *dev, u_short *pwDest,
 #ifndef SWAP_FINE
 				dwSum[dw & 1] += (u_long)_PHILO2WORD(pSrce);
 #else
-				dwSum[dw & 1] += (u_long)(*(u_short*)pSrce);
+				dwSum[dw & 1] += (u_long)_PLOHI2WORD(pSrce);
 #endif
 			}
 			dwSum[0] /= ((dwPixels + 1UL) >> 1);
@@ -1534,7 +1534,7 @@ static void usb_GetDarkShading( Plustek_Device *dev, u_short *pwDest,
 #ifndef SWAP_FINE
 				dwSum[0] += (u_long)_PHILO2WORD(pSrce);
 #else
-				dwSum[0] += (u_long)(*(u_short*)pSrce);
+				dwSum[0] += (u_long)_PLOHI2WORD(pSrce);
 #endif
 			}
 
@@ -1574,7 +1574,7 @@ static SANE_Bool usb_AdjustDarkShading( Plustek_Device *dev )
 	ScanDef  *scanning = &dev->scanning;
 	DCapsDef *scaps    = &dev->usbDev.Caps;
 	HWDef    *hw       = &dev->usbDev.HwSetting;
-	u_char   *scanbuf  = scanning->pScanBuffer;
+	u_long   *scanbuf  = scanning->pScanBuffer;
 	u_char   *regs     = dev->usbDev.a_bRegs;
 
 	if( usb_IsEscPressed())
@@ -1660,8 +1660,8 @@ static SANE_Bool usb_AdjustDarkShading( Plustek_Device *dev )
 
 	sprintf( tmp, "fine-black.raw" );
 
-	dumpPicInit( &m_ScanParam, tmp );
-	dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+	dumpPicInit(&m_ScanParam, tmp);
+	dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 	usleep(500 * 1000);    /* Warm up lamp again */
 
@@ -1817,7 +1817,7 @@ static void usb_procHighlightAndShadow( Plustek_Device *dev, ScanParam *sp,
 	u_long       *pr, *pg, *pb;
 	RGBUShortDef *rgb;
 
-	pr = (u_long*)(scan->pScanBuffer + sp->Size.dwPhyBytes * shading_lines);
+	pr = (u_long*)((u_char*)scan->pScanBuffer + sp->Size.dwPhyBytes * shading_lines);
 	pg = pr + sp->Size.dwPhyPixels;
 	pb = pg + sp->Size.dwPhyPixels;
 
@@ -1855,7 +1855,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 	ScanDef      *scan  = &dev->scanning;
 	DCapsDef     *scaps = &dev->usbDev.Caps;
 	HWDef        *hw    = &dev->usbDev.HwSetting;
-	u_char       *pBuf  = scan->pScanBuffer;
+	u_long       *pBuf  = scan->pScanBuffer;
 	u_long        dw, dwLines, dwRead;
 	u_long        shading_lines;
 	MonoWordDef  *pValue;
@@ -1940,7 +1940,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 				usleep(900000);
 			}
 
-			if( usb_ScanReadImage( dev, pBuf + dwRead,
+			if( usb_ScanReadImage( dev, (u_char*)pBuf + dwRead,
 			                       m_ScanParam.Size.dwTotalBytes)) {
 
 				if( _LM9831 == hw->chip ) {
@@ -1949,10 +1949,10 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 				}
 
 				if( 0 == dwRead ) {
-					dumpPicInit( &m_ScanParam, tmp );
+					dumpPicInit(&m_ScanParam, tmp);
 				}
 				
-				dumpPic( tmp, pBuf + dwRead, m_ScanParam.Size.dwTotalBytes );
+				dumpPic(tmp, (u_char*)pBuf + dwRead, m_ScanParam.Size.dwTotalBytes, 0);
 
 				if( usb_ScanEnd( dev )) {
 					dwRead += m_ScanParam.Size.dwTotalBytes;
@@ -1965,7 +1965,7 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 		return SANE_FALSE;
 	}
 
-	m_pSum = (u_long*)(pBuf + m_ScanParam.Size.dwPhyBytes * shading_lines);
+	m_pSum = (u_long*)((u_char*)pBuf + m_ScanParam.Size.dwPhyBytes * shading_lines);
 	
 	/*
 	 * do some reordering on CIS based devices:
@@ -2019,11 +2019,11 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 			if(usb_HostSwap()) {
 #endif
 				for( dw = 0; dw < m_dwPixels * m_ScanParam.bChannels; dw++ ) 
-					pwDest[dw] = _HILO2WORD( pwSrce[dw] );
+					pwDest[dw] = _HILO2WORD(pwSrce[dw]);
 #ifdef SWAP_FINE
 			} else {
 				for( dw = 0; dw < m_dwPixels * m_ScanParam.bChannels; dw++ )
-					pwDest[dw] = ((u_short*)pwSrce)[dw];
+					pwDest[dw] = _LOHI2WORD(pwSrce[dw]);
 			}
 #endif
 			pwDest += (u_long)m_dwPixels * m_ScanParam.bChannels;
@@ -2043,13 +2043,13 @@ static SANE_Bool usb_AdjustWhiteShading( Plustek_Device *dev )
 #endif
 				for( dw = 0; dw < m_ScanParam.Size.dwPhyPixels *
 				                                 m_ScanParam.bChannels; dw++) {
-					pwDest[dw] = _HILO2WORD( pwSrce[dw] );
+					pwDest[dw] = _HILO2WORD(pwSrce[dw]);
 				}
 #ifdef SWAP_FINE
 			} else {
 				for( dw = 0; dw < m_ScanParam.Size.dwPhyPixels *
 				                                 m_ScanParam.bChannels; dw++) {
-					pwDest[dw] = ((u_short*)pwSrce)[dw];
+					pwDest[dw] = _LOHI2WORD(pwSrce[dw]);
 				}
 			}
 #endif
@@ -2310,7 +2310,7 @@ usb_SpeedTest( Plustek_Device *dev )
 	DCapsDef *scaps   = &dev->usbDev.Caps;
 	HWDef    *hw      = &dev->usbDev.HwSetting;
 	u_char   *regs    = dev->usbDev.a_bRegs;
-	u_char   *scanbuf = dev->scanning.pScanBuffer;
+	u_long   *scanbuf = dev->scanning.pScanBuffer;
 
 	if( usb_IsEscPressed())
 		return SANE_FALSE;
@@ -2393,7 +2393,7 @@ usb_AutoWarmup( Plustek_Device *dev )
 	ScanDef  *scanning = &dev->scanning;
 	DCapsDef *scaps    = &dev->usbDev.Caps;
 	HWDef    *hw       = &dev->usbDev.HwSetting;
-	u_char   *scanbuf  = scanning->pScanBuffer;
+	u_long   *scanbuf  = scanning->pScanBuffer;
 	u_char   *regs     = dev->usbDev.a_bRegs;
 	u_long    dw, start, end, len;
 	u_long    curR,   curG,  curB;

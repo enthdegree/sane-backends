@@ -767,7 +767,7 @@ static void usb_GrayDuplicate16( Plustek_Device *dev )
 		if( swap )
 			*dest = (_PHILO2WORD(pwm)) >> ls;
 		else
-			*dest = *((u_short*)pwm) >> ls;
+			*dest = (_PLOHI2WORD(pwm)) >> ls;
 	}
 }
 
@@ -1643,7 +1643,7 @@ static void usb_GrayScale16( Plustek_Device *dev )
 			if( swap )
 				*dest = _PHILO2WORD(pwm) >> ls;
 			else
-				*dest = *((u_short*)pwm) >> ls;
+				*dest = _PLOHI2WORD(pwm) >> ls;
 
 			dest += next;
 			ddax += izoom;
@@ -1949,7 +1949,7 @@ static SANE_Int usb_ReadData( Plustek_Device *dev )
 
 		if( usb_ScanReadImage( dev, scan->pbGetDataBuf, dw )) {
 
-			dumpPic( "plustek-pic.raw", scan->pbGetDataBuf, dw );
+			dumpPic("plustek-pic.raw", scan->pbGetDataBuf, dw, 0);
 
 			if( scan->dwLinesDiscard ) {
 

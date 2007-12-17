@@ -1085,7 +1085,7 @@ usbDev_startScan( Plustek_Device *dev )
 	scan->sParam.PhyDpi.y = usb_SetAsicDpiY(dev,scan->sParam.UserDpi.y);
 
 	/* Allocate shading/scan buffer */
-	scan->pScanBuffer = (u_char*)malloc( _SCANBUF_SIZE );
+	scan->pScanBuffer = (u_long*)malloc( _SCANBUF_SIZE );
 
 	if( scan->pScanBuffer == NULL )
 		return _E_ALLOC;
@@ -1198,7 +1198,7 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 			}
 		}
 
-		scan->pbScanBufBegin = scan->pScanBuffer;
+		scan->pbScanBufBegin = (u_char*)scan->pScanBuffer;
 
 		if((dev->caps.dwFlag & SFLAG_ADF) && (scaps->OpticDpi.x == 600))
 			scan->dwLinesScanBuf = 8;

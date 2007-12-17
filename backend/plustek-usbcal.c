@@ -261,7 +261,7 @@ cano_AdjustLightsource( Plustek_Device *dev )
 	int          res_r, res_g, res_b;
 	u_long       dw, dwR, dwG, dwB, dwDiv, dwLoop1, dwLoop2;
 	RGBUShortDef max_rgb, min_rgb, tmp_rgb;
-	u_char      *scanbuf = dev->scanning.pScanBuffer;
+	u_long      *scanbuf = dev->scanning.pScanBuffer;
 	DCapsDef    *scaps   = &dev->usbDev.Caps;
 	HWDef       *hw      = &dev->usbDev.HwSetting;
 
@@ -337,16 +337,16 @@ cano_AdjustLightsource( Plustek_Device *dev )
 
 		sprintf( tmp, "coarse-lamp-%u.raw", i );
 
-		dumpPicInit( &m_ScanParam, tmp );
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+		dumpPicInit(&m_ScanParam, tmp);
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwPhyBytes );
 
 		sprintf( tmp, "coarse-lamp-swap%u.raw", i );
 
-		dumpPicInit( &m_ScanParam, tmp );
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+		dumpPicInit(&m_ScanParam, tmp);
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 		dwDiv   = 10;
 		dwLoop1 = m_ScanParam.Size.dwPhyPixels/dwDiv;
@@ -512,7 +512,7 @@ cano_AdjustGain( Plustek_Device *dev )
 	char      tmp[40];
 	int       i = 0, adj = 1;
 	u_long    dw;
-	u_char   *scanbuf = dev->scanning.pScanBuffer;
+	u_long   *scanbuf = dev->scanning.pScanBuffer;
 	DCapsDef *scaps   = &dev->usbDev.Caps;
 	HWDef    *hw      = &dev->usbDev.HwSetting;
 
@@ -579,8 +579,8 @@ cano_AdjustGain( Plustek_Device *dev )
 
 		sprintf( tmp, "coarse-gain-%u.raw", i++ );
 
-		dumpPicInit( &m_ScanParam, tmp );
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+		dumpPicInit(&m_ScanParam, tmp);
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwPhyBytes );
@@ -761,7 +761,7 @@ cano_AdjustOffset( Plustek_Device *dev )
 	signed char now[3]  = {  0,  0,  0 };
 	signed char high[3] = { 31, 31, 31 };
 
-	u_char   *scanbuf = dev->scanning.pScanBuffer;
+	u_long   *scanbuf = dev->scanning.pScanBuffer;
 	HWDef    *hw      = &dev->usbDev.HwSetting;
 	DCapsDef *scaps   = &dev->usbDev.Caps;
 	
@@ -823,8 +823,8 @@ cano_AdjustOffset( Plustek_Device *dev )
 
 		sprintf( tmp, "coarse-off-%u.raw", i );
 
-		dumpPicInit( &m_ScanParam, tmp );
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwPhyBytes );
+		dumpPicInit(&m_ScanParam, tmp);
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwPhyBytes, 0);
 
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwPhyBytes );
@@ -945,7 +945,7 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 	char         tmp[40];
 	ScanParam   *param   = &dev->scanning.sParam;
 	ScanDef     *scan    = &dev->scanning;
-	u_char      *scanbuf = scan->pScanBuffer;
+	u_long      *scanbuf = scan->pScanBuffer;
 	u_short     *bufp;
 	unsigned int i, j;
 	int          step, stepW, val;
@@ -959,13 +959,13 @@ cano_AdjustDarkShading( Plustek_Device *dev, u_short cal_dpi )
 	m_ScanParam.bCalibration = PARAM_DarkShading;
 
 	sprintf( tmp, "fine-dark.raw" );
-	dumpPicInit( &m_ScanParam, tmp );
+	dumpPicInit(&m_ScanParam, tmp);
 
 	usb_SetScanParameters( dev, &m_ScanParam );
 	if( usb_ScanBegin( dev, SANE_FALSE ) &&
 	    usb_ScanReadImage( dev, scanbuf, m_ScanParam.Size.dwTotalBytes)) {
 
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwTotalBytes );
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwTotalBytes, 0);
 
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwTotalBytes);
@@ -1073,7 +1073,7 @@ cano_AdjustWhiteShading( Plustek_Device *dev, u_short cal_dpi )
 	char         tmp[40];
 	ScanParam   *param   = &dev->scanning.sParam;
 	ScanDef     *scan    = &dev->scanning;
-	u_char      *scanbuf = scan->pScanBuffer;
+	u_long      *scanbuf = scan->pScanBuffer;
 	u_short     *bufp;
 	unsigned int i, j;
 	int          step, stepW;
@@ -1092,13 +1092,13 @@ cano_AdjustWhiteShading( Plustek_Device *dev, u_short cal_dpi )
 	DBG( _DBG_INFO2, "Pixels      = %lu\n", m_ScanParam.Size.dwPixels );
 	DBG( _DBG_INFO2, "Bytes       = %lu\n", m_ScanParam.Size.dwBytes  );
 	DBG( _DBG_INFO2, "Origin.X    = %u\n",  m_ScanParam.Origin.x );
-	dumpPicInit( &m_ScanParam, tmp );
+	dumpPicInit(&m_ScanParam, tmp);
 
 	if( usb_SetScanParameters( dev, &m_ScanParam ) &&
 	    usb_ScanBegin( dev, SANE_FALSE ) &&
 	    usb_ScanReadImage( dev, scanbuf, m_ScanParam.Size.dwTotalBytes)) {
 
-		dumpPic( tmp, scanbuf, m_ScanParam.Size.dwTotalBytes );
+		dumpPic(tmp, (u_char*)scanbuf, m_ScanParam.Size.dwTotalBytes, 0);
 
 		if(usb_HostSwap())
 			usb_Swap((u_short *)scanbuf, m_ScanParam.Size.dwTotalBytes);

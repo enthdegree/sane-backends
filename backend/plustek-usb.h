@@ -125,45 +125,51 @@
 #define _HIBYTE(x)  ((u_char)((x) >> 8))
 
 #define _HILO2WORD(x)   ((u_short)x.bHi * 256U + x.bLo)
+#define _LOHI2WORD(x)   ((u_short)x.bLo * 256U + x.bHi)
+
 #define _PHILO2WORD(x)  ((u_short)x->bHi * 256U + x->bLo)
+#define _PLOHI2WORD(x)  ((u_short)x->bLo * 256U + x->bHi)
+
+#define PACKED8  __attribute__ ((packed,aligned(1)))
+#define PACKED16 __attribute__ ((packed,aligned(2)))
 
 /* useful for RGB-values */
-typedef struct __attribute__ ((__packed__)) {
+typedef struct {
 	u_char Red;
 	u_char Green;
 	u_char Blue;
-} RGBByteDef;
+} PACKED8 RGBByteDef;
 
-typedef struct __attribute__ ((__packed__)) {
+typedef struct {
 	u_short Red;
 	u_short Green;
 	u_short Blue;
-} RGBUShortDef;
+} PACKED16 RGBUShortDef;
 
-typedef struct __attribute__ ((__packed__)) {
+typedef struct {
 	u_long Red;
 	u_long Green;
 	u_long Blue;
 } RGBULongDef;
 
-typedef struct __attribute__ ((__packed__)) {
+typedef struct {
 	u_char a_bColor[3];
-} ColorByteDef;
+} PACKED8 ColorByteDef;
 
-typedef struct __attribute__ ((__packed__)) {
+typedef struct {
 	u_char bHi;
 	u_char bLo;
-} HiLoDef;
+} PACKED8 HiLoDef;
 
-typedef union __attribute__ ((__packed__)) {
+typedef union {
 	HiLoDef HiLo[3];
 	u_short Colors[3];
-} ColorWordDef;
+} PACKED16 ColorWordDef;
 
-typedef union __attribute__ ((__packed__)) {
+typedef union {
 	HiLoDef HiLo;
 	u_short Mono;
-} MonoWordDef;
+} PACKED16 MonoWordDef;
 
 typedef union {
 
@@ -176,7 +182,7 @@ typedef union {
 	RGBUShortDef *pw_rgb;
 	HiLoDef      *philo;
 
-} AnyPtr;
+} __attribute__ ((aligned(4)))  AnyPtr;
 
 typedef struct {
 	unsigned short x;
@@ -629,7 +635,7 @@ typedef struct ScanDef
 	/** Image processing routine according to the scan mode  */
 	void (*pfnProcess)(struct Plustek_Device*);
 
-	u_char* pScanBuffer;      /**< our scan buffer */
+	u_long* pScanBuffer;      /**< our scan buffer */
 
 	u_long  dwLinesPerScanBufs;
 	u_long  dwNumberOfScanBufs;

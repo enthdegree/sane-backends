@@ -97,9 +97,10 @@ static PicDef dPix;
 
 /**
  */
-static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
+static void dumpPic( char* name, SANE_Byte *buffer, u_long len, int is_gray )
 {
-	FILE *fp;
+	u_short type;
+	FILE   *fp;
 
 	if( DBG_LEVEL < _DBG_DPIC )
 		return;
@@ -114,12 +115,17 @@ static void dumpPic( char* name, SANE_Byte *buffer, u_long len )
 
 			if( 0 != dPix.x ) {
 
+				if (is_gray)
+					type = 5;
+				else
+					type = 6;
+
 				DBG( _DBG_DPIC, "> X=%lu, Y=%lu, depth=%u\n",
 				                 dPix.x, dPix.y, dPix.depth );
 				if( dPix.depth > 8 )
-					fprintf( fp, "P6\n%lu %lu\n65535\n", dPix.x, dPix.y );
+					fprintf( fp, "P%u\n%lu %lu\n65535\n", type, dPix.x, dPix.y);
     			else
-					fprintf( fp, "P6\n%lu %lu\n255\n", dPix.x, dPix.y );
+					fprintf( fp, "P%u\n%lu %lu\n255\n", type, dPix.x, dPix.y);
 			}
     	}
 	} else {
@@ -150,7 +156,10 @@ static void dumpPicInit( ScanParam *sd, char* name )
 	dPix.y	   = sd->Size.dwLines;
 	dPix.depth = sd->bBitDepth;
 
-	dumpPic( name, NULL, 0 );
+	if( sd->bDataType == SCANDATATYPE_Color )
+		dumpPic(name, NULL, 0, 0);
+	else
+		dumpPic(name, NULL, 0, 1);
 }
 
 /**

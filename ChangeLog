@@ -1,3 +1,11 @@
+2007-12-17  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* backend/plustek-usb.[ch] backend/plustek-usbcal.c backend/plustek-usbimg.c
+	  backend/plustek-usbio.c backend/plustek-usbshading.c: Fixed ARM/Xscale
+	  issues.
+	* backend/plustek.c: Bumped build number
+	* doc/plustek/Plustek-USB-TODO.txt doc/plustek/Plustek-USB.changes: Update
+
 2007-12-15  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: fixed model detection,
 	  depth detection and removed some unused

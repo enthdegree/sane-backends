@@ -43,7 +43,7 @@
    This file implements a SANE backend for the Fujitsu fi-60F, the
    ScanSnap S300, and (hopefully) other Epson-based Fujitsu scanners. 
    This code is Copyright 2007 by m. allan noah <kitno455 at gmail dot com>
-   and was funded by Microdea, Inc and Bill McMullin.
+   and was funded by Microdea, Inc. and TrueCheck, Inc.
 
    --------------------------------------------------------------------------
 

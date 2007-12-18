@@ -99,7 +99,7 @@ Calibration is far from perfect.
 .SH CREDITS
 S300 support funded by Microdea, Inc.
 .br
-fi-60F support funded by Bill McMullin.
+fi-60F support funded by TrueCheck, Inc.
 
 .SH "SEE ALSO"
 sane(7),

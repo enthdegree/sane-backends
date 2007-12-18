@@ -219,6 +219,11 @@ parallel port scanners.  See
 .BR sane-canon_pp (5)
 for details.
 .TP
+.B cardscan
+This backend provides support for the Corex Cardscan 800c USB scanner. See 
+.BR sane-cardscan (5)
+for details.
+.TP
 .B coolscan
 This is a SANE backend for Nikon Coolscan film-scanners. See
 .BR sane-coolscan (5)
@@ -230,6 +235,11 @@ See
 .BR sane-coolscan2 (5)
 or
 .I http://coolscan2.sourceforge.net
+for details.
+.TP
+.B epjitsu
+The epjitsu backend provides support for Epson-based Fujitsu USB scanners. See
+.BR sane-epjitsu (5)
 for details.
 .TP
 .B epson

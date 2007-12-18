@@ -1,3 +1,9 @@
+2007-12-17  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu*, backend/Makefile.in, backend/dll.conf.in,
+	  doc/sane-epjitsu.man, doc/Makefile.in, doc/sane.man,
+	  doc/descriptions/epjitsu.desc, configure, configure.in, AUTHORS:
+	  add backend for Epson-based Fujitsu scanners (fi-60F and S300)
+
 2007-12-17  Gerhard Jaeger <gerhard@gjaeger.de>
 
 	* backend/plustek-usb.[ch] backend/plustek-usbcal.c backend/plustek-usbimg.c

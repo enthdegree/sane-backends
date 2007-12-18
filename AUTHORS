@@ -30,6 +30,7 @@ Backends:
  dell1600n_net: Jon Chambers (*)
  dll:           David Mosberger
  dmc:           David F. Skoll
+ epjitsu:       m. allan noah (*)
  epson:         Karl Heinz Kremer (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)

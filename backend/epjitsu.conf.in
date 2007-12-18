@@ -1,0 +1,25 @@
+# For scanners connected via USB on a known device (kernel driver):
+#usb /dev/usb/scanner0
+
+# For scanners connected via USB using vendor and device ids (libusb):
+#usb VENDORID PRODUCTID
+
+# NOTE: if you have to add your device here- please send the id and model
+# to the author via email, so it can be included in next version. kitno455 at
+# gmail dot com - with epjitsu in the subject line
+
+# these devices require a firmware file in order to function
+# it can generally be found inside C:\windows\fjsti.cab or
+# C:\windows\fjmini\*.cab
+# open that file and look for a ~65K .NAL file with the scanner's name
+# and copy it someplace sane can reach it. then update the line below.
+# NOTE: the firmware line must occur BEFORE the usb line for your scanner
+
+# Fujitsu fi-60F
+firmware /lib/firmware/60f_0A00.nal
+firmware /lib/firmware/60f_0000.nal
+usb 0x04c5 0x10c7
+
+# Fujitsu S300
+firmware /lib/firmware/300_0A00.nal
+usb 0x04c5 0x1156

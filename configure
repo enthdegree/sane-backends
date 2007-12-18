@@ -28530,6 +28530,6 @@ fi
 echo "****************************************************************"
 echo "* Please be sure to read file PROBLEMS in this directory       *"
 echo "* BEFORE running any of the SANE applications.  Some devices   *"
-echo "* may be damaged by inproper operation, so please do heed this *"
+echo "* may be damaged by improper operation, so please do heed this *"
 echo "* advice.                                                      *"
 echo "****************************************************************"

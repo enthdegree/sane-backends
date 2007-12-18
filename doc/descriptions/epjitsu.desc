@@ -25,7 +25,7 @@
 :model "fi-60F"
 :interface "USB"
 :status :basic
-:usbid "0x04c5" "0x10C7"
+:usbid "0x04c5" "0x10c7"
 :comment "A6-size flatbed, 300/600 dpi, color/grayscale in hardware"
 
 :model "ScanSnap S300"

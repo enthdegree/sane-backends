@@ -2914,43 +2914,43 @@ check_sq113 (struct usb_device *dev)
   return "SQ113";
 }
 
-/* Check for Realtek RTS8822L-01H chipset*/
+/* Check for Realtek RTS8822 chipset*/
 static char *
-check_rts8822l01h (struct usb_device *dev)
+check_rts8822 (struct usb_device *dev)
 {
   char data[2];
   usb_dev_handle *handle;
   int result;
 
   if (verbose > 2)
-    printf ("    checking for RTS8822L-01H ...\n");
+    printf ("    checking for RTS8822 ...\n");
 
   /* Check device descriptor */
   if (dev->descriptor.bDeviceClass != 0)
     {
       if (verbose > 2)
-	printf ("    this is not a RTS8822L-01H (bDeviceClass = %d)\n",
+	printf ("    this is not a RTS8822 (bDeviceClass = %d)\n",
 		dev->descriptor.bDeviceClass);
       return 0;
     }
   if ((dev->descriptor.bcdUSB != 0x200)&&(dev->descriptor.bcdUSB != 0x110))
     {
       if (verbose > 2)
-	printf ("    this is not a RTS8822L-01H (bcdUSB = 0x%x)\n",
+	printf ("    this is not a RTS8822 (bcdUSB = 0x%x)\n",
 		dev->descriptor.bcdUSB);
       return 0;
     }
   if (dev->descriptor.bDeviceSubClass != 0)
     {
       if (verbose > 2)
-	printf ("    this is not a RTS8822L-01H (bDeviceSubClass = 0x%x)\n",
+	printf ("    this is not a RTS8822 (bDeviceSubClass = 0x%x)\n",
 		dev->descriptor.bDeviceSubClass);
       return 0;
     }
   if (dev->descriptor.bDeviceProtocol != 0)
     {
       if (verbose > 2)
-	printf ("    this is not a RTS8822L-01H (bDeviceProtocol = 0x%x)\n",
+	printf ("    this is not a RTS8822 (bDeviceProtocol = 0x%x)\n",
 		dev->descriptor.bDeviceProtocol);
       return 0;
     }
@@ -2959,7 +2959,7 @@ check_rts8822l01h (struct usb_device *dev)
   if (dev->config[0].interface[0].altsetting[0].bNumEndpoints != 3)
     {
       if (verbose > 2)
-	printf ("    this is not a RTS8822L-01H (bNumEndpoints = %d)\n",
+	printf ("    this is not a RTS8822 (bNumEndpoints = %d)\n",
 		dev->config[0].interface[0].altsetting[0].bNumEndpoints);
       return 0;
     }
@@ -2974,7 +2974,7 @@ check_rts8822l01h (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a RTS8822 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[0].
 	   bEndpointAddress,
@@ -2996,7 +2996,7 @@ check_rts8822l01h (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a RTS8822 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[1].
 	   bEndpointAddress,
@@ -3018,7 +3018,7 @@ check_rts8822l01h (struct usb_device *dev)
     {
       if (verbose > 2)
 	printf
-	  ("    this is not a RTS8822L-01H (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
+	  ("    this is not a RTS8822 (bEndpointAddress = 0x%x, bmAttributes = 0x%x, "
 	   "wMaxPacketSize = 0x%x, bInterval = 0x%x)\n",
 	   dev->config[0].interface[0].altsetting[0].endpoint[2].
 	   bEndpointAddress,
@@ -3032,7 +3032,7 @@ check_rts8822l01h (struct usb_device *dev)
   /* Now we read 1 register */
   result = prepare_interface (dev, &handle);
   if (!result)
-    return "rts8822L-01H?";
+    return "RTS8822?";
 
   memset (data, 0, 2);
 
@@ -3048,7 +3048,7 @@ check_rts8822l01h (struct usb_device *dev)
       return 0;
     }
 
-  if (data == 0)
+  if ((data[0] == 0)&&(data[1] == 0))
     {
       if (verbose > 2)
 	printf ("    Unexpected result from register 0xfe11 : 0x%0x%0x\n",
@@ -3057,8 +3057,8 @@ check_rts8822l01h (struct usb_device *dev)
       return 0;
     }
   finish_interface (handle);
-  return "RTS8822L-01H";
-}	/* end of RTS8822L-01H detection */
+  return "RTS8822";
+}	/* end of RTS8822 detection */
 
 /* Check for Silitek chipset found in HP5550/5590/7650 scanners */
 static char *
@@ -3367,7 +3367,7 @@ check_usb_chip (struct usb_device *dev, int verbosity, SANE_Bool from_file)
     chip_name = check_m011 (dev);
 
   if (!chip_name)
-    chip_name = check_rts8822l01h (dev);
+    chip_name = check_rts8822 (dev);
 
   if (!chip_name)
     chip_name = check_rts8858c (dev);

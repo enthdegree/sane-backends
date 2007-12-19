@@ -1,3 +1,9 @@
+2007-12-19  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+
+	* po/sane-backends.es.po: Updated translation.
+	* tools/check-usb-chip.c: fixed compilation warning and "RTS8822L-01H"
+	  strings renamed to "RTS8822"
+
 2007-12-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: New translation keys for

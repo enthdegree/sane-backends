@@ -93,7 +93,7 @@ export SANE_DEBUG_HP3900=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane\-usb (5),
+.BR sane-usb (5),
 .br
 .I http://sourceforge.net/projects/hp3900-series/
 .I http://jkdsoftware.dyndns.org/drupal/?q=es/books/151

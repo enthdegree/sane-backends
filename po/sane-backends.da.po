@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.17\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-19 21:54+0100\n"
-"PO-Revision-Date: 2007-05-08 13:28+0200\n"
+"POT-Creation-Date: 2007-12-17 22:31+0100\n"
+"PO-Revision-Date: 2007-12-17 22:59+0100\n"
 "Last-Translator: Mogens Jaeger <mogensjaeger@get2net.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
 "MIME-Version: 1.0\n"
@@ -22,11 +22,12 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
 #: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
 #: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
-#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp-option.c:2926
-#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
-#: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
-#: .tmp/sceptre.h:289 .tmp/sm3840.c:82 .tmp/sm3840.c:339
-#: .tmp/snapscan-options.c:79 .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp3900_sane.c:383
+#: .tmp/hp3900_sane.c:1028 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
+#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb2.c:109
+#: .tmp/mustek_usb.c:270 .tmp/saneopts.h:395 .tmp/sceptre.h:289
+#: .tmp/sm3840.c:82 .tmp/sm3840.c:339 .tmp/snapscan-options.c:79
+#: .tmp/umax.c:186 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
 msgstr "Stregtegning"
@@ -41,12 +42,14 @@ msgstr "Gråskala"
 #: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
 #: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
 #: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88 .tmp/hp5590.c:86
-#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:623
-#: .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393 .tmp/sceptre.h:292
-#: .tmp/sm3840.c:81 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
-#: .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88
+#: .tmp/hp3900_sane.c:383 .tmp/hp3900_sane.c:1024 .tmp/hp5590.c:86
+#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101
+#: .tmp/mustek.c:128 .tmp/mustek.c:132 .tmp/mustek_usb.c:268
+#: .tmp/pixma.c:623 .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393
+#: .tmp/sceptre.h:292 .tmp/sm3840.c:81 .tmp/snapscan-options.c:76
+#: .tmp/teco1.h:293 .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191
+#: .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Farve"
@@ -55,7 +58,7 @@ msgstr "Farve"
 #: .tmp/hp-option.c:2952 .tmp/leo.c:871 .tmp/ma1509.c:597
 #: .tmp/matsushita.c:1189 .tmp/microtek2.h:601 .tmp/mustek.c:4405
 #: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:852 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
+#: .tmp/plustek.c:853 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
 #: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
 #: .tmp/umax_pp.c:550
@@ -73,15 +76,15 @@ msgstr "Standard"
 msgid "Set default values for enhancement controls."
 msgstr "Anvend standardværdier for forbedringskontroller."
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2082 .tmp/epson.c:3288
-#: .tmp/genesys.c:4682 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
-#: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
-#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
-#: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
-#: .tmp/plustek.c:806 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
-#: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
-#: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
-#: .tmp/umax_pp.c:501
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2086 .tmp/epson.c:3288
+#: .tmp/genesys.c:4688 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
+#: .tmp/hp3900_sane.c:1243 .tmp/hp-option.c:3296 .tmp/leo.c:823
+#: .tmp/lexmark.c:214 .tmp/ma1509.c:549 .tmp/matsushita.c:1135
+#: .tmp/microtek2.h:600 .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465
+#: .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807
+#: .tmp/plustek_pp.c:746 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
+#: .tmp/teco1.c:1095 .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642
+#: .tmp/u12.c:546 .tmp/umax.c:5174 .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
 msgstr "Skanområde"
@@ -99,11 +102,11 @@ msgstr "Kalibrér før næste skanning"
 #: .tmp/artec_eplus48u.c:2943
 #, no-c-format
 msgid ""
-"If enabled, the device will be calibrated before the next scan. Otherwise, "
-"calibration is performed only before the first start."
+"If enabled, the device will be calibrated before the next scan. "
+"Otherwise, calibration is performed only before the first start."
 msgstr ""
-"Hvis denne indstilling er sat til, vil enheden blive kalibreret før næste "
-"scanning. Ellers foretages kalibreringen kun før første skanning."
+"Hvis denne indstilling er sat til, vil enheden blive kalibreret før "
+"næste scanning. Ellers foretages kalibreringen kun før første skanning."
 
 #: .tmp/artec_eplus48u.c:2954
 #, no-c-format
@@ -113,13 +116,14 @@ msgstr "Udfør kun skyggekorrektion"
 #: .tmp/artec_eplus48u.c:2956
 #, no-c-format
 msgid ""
-"If enabled, only the shading correction is performed during calibration. The "
-"default values for gain, offset and exposure time, either build-in or from "
-"the configuration file, are used."
+"If enabled, only the shading correction is performed during calibration. "
+"The default values for gain, offset and exposure time, either build-in "
+"or from the configuration file, are used."
 msgstr ""
 "Hvis aktiveret, bliver der kun gennemført skyggekorrektion under "
 "kalibreringen. Standardværdierne for forstærkning, forskydning og "
-"eksponeringstid, enten indbygget eller fra konfigurationsfilen, bliver brugt."
+"eksponeringstid, enten indbygget eller fra konfigurationsfilen, bliver "
+"brugt."
 
 #: .tmp/artec_eplus48u.c:2967
 #, no-c-format
@@ -143,7 +147,8 @@ msgstr "Duplex skan"
 
 #: .tmp/avision.h:765
 #, no-c-format
-msgid "Duplex scan provide a scan of the front and back side of the document"
+msgid ""
+"Duplex scan provide a scan of the front and back side of the document"
 msgstr "Duplex skan, skanner begge sider af dokumentet"
 
 #: .tmp/canon630u.c:158
@@ -198,10 +203,12 @@ msgstr "Halvtone"
 #: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
 #: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
 #: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
-#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/ma1509.c:101 .tmp/mustek.c:127
+#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/hp3900_sane.c:383
+#: .tmp/hp3900_sane.c:1026 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
-#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
-#: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
+#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81
+#: .tmp/sm3840.c:335 .tmp/snapscan-options.c:78 .tmp/test.c:124
+#: .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
 msgstr "Gråtone"
@@ -434,8 +441,9 @@ msgstr ""
 msgid "film scanner"
 msgstr "Flatbed skanner"
 
-#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915 .tmp/plustek.c:1333
-#: .tmp/plustek_pp.c:1014 .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
+#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
+#: .tmp/hp3900_sane.c:1694 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "Flatbed skanner"
@@ -446,7 +454,7 @@ msgstr "Flatbed skanner"
 msgid "Scan mode"
 msgstr "Skannertilstand"
 
-#: .tmp/canon.c:1171 .tmp/epson2.c:2156 .tmp/epson.c:3376
+#: .tmp/canon.c:1171 .tmp/epson2.c:2160 .tmp/epson.c:3376
 #, no-c-format
 msgid "Film type"
 msgstr "Filmtype"
@@ -526,7 +534,7 @@ msgstr ""
 msgid "Extra color adjustments"
 msgstr ""
 
-#: .tmp/canon.c:1522 .tmp/epson2.c:2036 .tmp/epson.c:3195
+#: .tmp/canon.c:1522 .tmp/epson2.c:2040 .tmp/epson.c:3195
 #, no-c-format
 msgid "Mirror image"
 msgstr "Spejl billedet"
@@ -598,7 +606,8 @@ msgstr ""
 
 #: .tmp/canon.c:1663
 #, no-c-format
-msgid "Automatically eject the film from the device before exiting the program"
+msgid ""
+"Automatically eject the film from the device before exiting the program"
 msgstr ""
 
 #: .tmp/canon.c:1672
@@ -687,6 +696,7 @@ msgid "Duplex"
 msgstr "Dobbeltsidet"
 
 #: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:103 .tmp/gt68xx.c:144
+#: .tmp/hp3900_sane.c:420 .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1007
 #: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
 #: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
 #: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
@@ -796,19 +806,19 @@ msgstr "Hent mønster A"
 msgid "Download pattern B"
 msgstr "Hent mønster B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1948 .tmp/epson.c:603 .tmp/epson.c:3086
+#: .tmp/epson2.c:305 .tmp/epson2.c:1952 .tmp/epson.c:603 .tmp/epson.c:3086
 #: .tmp/genesys.c:96 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Rød"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1944 .tmp/epson.c:604 .tmp/epson.c:3082
+#: .tmp/epson2.c:306 .tmp/epson2.c:1948 .tmp/epson.c:604 .tmp/epson.c:3082
 #: .tmp/genesys.c:97 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Grøn"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1952 .tmp/epson.c:605 .tmp/epson.c:3090
+#: .tmp/epson2.c:307 .tmp/epson2.c:1956 .tmp/epson.c:605 .tmp/epson.c:3090
 #: .tmp/genesys.c:98 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
@@ -844,7 +854,8 @@ msgstr "Blæk printere"
 msgid "CRT monitors"
 msgstr "CRT skærme"
 
-#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225 .tmp/test.c:140
+#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225
+#: .tmp/test.c:140
 #, no-c-format
 msgid "Default"
 msgstr "Standard"
@@ -874,204 +885,204 @@ msgstr "Brugerdefineret (gamma=1,0)"
 msgid "User defined (Gamma=1.8)"
 msgstr "Brugerdefineret (gamma=1,8)"
 
-#: .tmp/epson2.c:1666 .tmp/epson.c:2803 .tmp/genesys.c:4611 .tmp/gt68xx.c:453
-#: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
-#: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:719
-#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
-#: .tmp/stv680.c:1030 .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473
-#: .tmp/umax.c:5052
+#: .tmp/epson2.c:1670 .tmp/epson.c:2803 .tmp/genesys.c:4617
+#: .tmp/gt68xx.c:453 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4199
+#: .tmp/mustek_usb2.c:344 .tmp/mustek_usb.c:260 .tmp/niash.c:736
+#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
+#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1875
+#: .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Skanner tilstand"
 
-#: .tmp/epson2.c:1698 .tmp/epson.c:2835
+#: .tmp/epson2.c:1702 .tmp/epson.c:2835
 #, no-c-format
 msgid "Selects the halftone."
 msgstr "Vælger halvtone."
 
-#: .tmp/epson2.c:1719 .tmp/epson.c:2857
+#: .tmp/epson2.c:1723 .tmp/epson.c:2857
 #, no-c-format
 msgid "Dropout"
 msgstr "Udfald"
 
-#: .tmp/epson2.c:1720 .tmp/epson.c:2858
+#: .tmp/epson2.c:1724 .tmp/epson.c:2858
 #, no-c-format
 msgid "Selects the dropout."
 msgstr "Vælger udfaldet."
 
-#: .tmp/epson2.c:1732 .tmp/epson.c:2870
+#: .tmp/epson2.c:1736 .tmp/epson.c:2870
 #, no-c-format
 msgid "Selects the brightness."
 msgstr "Vælger lyshed."
 
-#: .tmp/epson2.c:1746 .tmp/epson.c:2885
+#: .tmp/epson2.c:1750 .tmp/epson.c:2885
 #, no-c-format
 msgid "Sharpness"
 msgstr "Skarphed"
 
-#: .tmp/epson2.c:1882 .tmp/epson.c:3021
+#: .tmp/epson2.c:1886 .tmp/epson.c:3021
 #, no-c-format
 msgid "Color correction"
 msgstr "Farvekorrektion"
 
-#: .tmp/epson2.c:1885 .tmp/epson.c:3024
+#: .tmp/epson2.c:1889 .tmp/epson.c:3024
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr "Fastsætter farvekorrektiontabellen for den valgte uddataenhed."
 
-#: .tmp/epson2.c:1926 .tmp/epson.c:3065
+#: .tmp/epson2.c:1930 .tmp/epson.c:3065
 #, no-c-format
 msgid "Color correction coefficients"
 msgstr "Farvekorrektionskoefficienter"
 
-#: .tmp/epson2.c:1928 .tmp/epson.c:3066
+#: .tmp/epson2.c:1932 .tmp/epson.c:3066
 #, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Matrix multiplikation af RGB"
 
-#: .tmp/epson2.c:1945 .tmp/epson.c:3083
+#: .tmp/epson2.c:1949 .tmp/epson.c:3083
 #, no-c-format
 msgid "Shift green to red"
 msgstr "Forskyder grøn mod rød"
 
-#: .tmp/epson2.c:1946 .tmp/epson.c:3084
+#: .tmp/epson2.c:1950 .tmp/epson.c:3084
 #, no-c-format
 msgid "Shift green to blue"
 msgstr "Forskyder grøn mod blå"
 
-#: .tmp/epson2.c:1947 .tmp/epson.c:3085
+#: .tmp/epson2.c:1951 .tmp/epson.c:3085
 #, no-c-format
 msgid "Shift red to green"
 msgstr "Forskyder rød mod grøn"
 
-#: .tmp/epson2.c:1949 .tmp/epson.c:3087
+#: .tmp/epson2.c:1953 .tmp/epson.c:3087
 #, no-c-format
 msgid "Shift red to blue"
 msgstr "Forskyder rød mod blå"
 
-#: .tmp/epson2.c:1950 .tmp/epson.c:3088
+#: .tmp/epson2.c:1954 .tmp/epson.c:3088
 #, no-c-format
 msgid "Shift blue to green"
 msgstr "Forskyder blå mod grøn"
 
-#: .tmp/epson2.c:1951 .tmp/epson.c:3089
+#: .tmp/epson2.c:1955 .tmp/epson.c:3089
 #, no-c-format
 msgid "Shift blue to red"
 msgstr "Forskyder blå mod rød"
 
-#: .tmp/epson2.c:1954 .tmp/epson.c:3092
+#: .tmp/epson2.c:1958 .tmp/epson.c:3092
 #, no-c-format
 msgid "Controls green level"
 msgstr "Kontrollerer grønt niveau"
 
-#: .tmp/epson2.c:1956 .tmp/epson.c:3093
+#: .tmp/epson2.c:1960 .tmp/epson.c:3093
 #, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Øger det røde, baseret på grønt niveau"
 
-#: .tmp/epson2.c:1958 .tmp/epson.c:3094
+#: .tmp/epson2.c:1962 .tmp/epson.c:3094
 #, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Øger det blå, baseret på grønt niveau"
 
-#: .tmp/epson2.c:1960 .tmp/epson.c:3095
+#: .tmp/epson2.c:1964 .tmp/epson.c:3095
 #, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Øger det grønne, baseret på rødt niveau"
 
-#: .tmp/epson2.c:1961 .tmp/epson.c:3096
+#: .tmp/epson2.c:1965 .tmp/epson.c:3096
 #, no-c-format
 msgid "Controls red level"
 msgstr "Fastsætter rødt niveau"
 
-#: .tmp/epson2.c:1962 .tmp/epson.c:3097
+#: .tmp/epson2.c:1966 .tmp/epson.c:3097
 #, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Øger det blå, baseret på rødt niveau"
 
-#: .tmp/epson2.c:1964 .tmp/epson.c:3098
+#: .tmp/epson2.c:1968 .tmp/epson.c:3098
 #, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Øger det grønne, baseret på blåt niveau"
 
-#: .tmp/epson2.c:1965 .tmp/epson.c:3099
+#: .tmp/epson2.c:1969 .tmp/epson.c:3099
 #, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Øger det røde, baseret på blåt niveau"
 
-#: .tmp/epson2.c:1966 .tmp/epson.c:3100
+#: .tmp/epson2.c:1970 .tmp/epson.c:3100
 #, no-c-format
 msgid "Controls blue level"
 msgstr "Fastsætter blåt niveau"
 
-#: .tmp/epson2.c:2029 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
+#: .tmp/epson2.c:2033 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
 #: .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Avanceret"
 
-#: .tmp/epson2.c:2037 .tmp/epson.c:3196
+#: .tmp/epson2.c:2041 .tmp/epson.c:3196
 #, no-c-format
 msgid "Mirror the image."
 msgstr "Spejlvend billedet."
 
-#: .tmp/epson2.c:2047 .tmp/epson.c:3235
+#: .tmp/epson2.c:2051 .tmp/epson.c:3235
 #, no-c-format
 msgid "Auto area segmentation"
 msgstr "Automatisk områdeopdeling"
 
-#: .tmp/epson2.c:2060 .tmp/epson.c:3248
+#: .tmp/epson2.c:2064 .tmp/epson.c:3248
 #, no-c-format
 msgid "Short resolution list"
 msgstr "Kort opløsningsliste"
 
-#: .tmp/epson2.c:2062
+#: .tmp/epson2.c:2066
 #, fuzzy, no-c-format
 msgid "Display a shortened resolution list"
 msgstr "Vis kort liste med mulige opløsninger"
 
-#: .tmp/epson2.c:2132 .tmp/epson.c:3350
+#: .tmp/epson2.c:2136 .tmp/epson.c:3350
 #, no-c-format
 msgid "Optional equipment"
 msgstr "Tilvalgsudstyr"
 
-#: .tmp/epson2.c:2186 .tmp/epson.c:3421
+#: .tmp/epson2.c:2190 .tmp/epson.c:3421
 #, no-c-format
 msgid "Eject"
 msgstr "Skub ud"
 
-#: .tmp/epson2.c:2187 .tmp/epson.c:3422
+#: .tmp/epson2.c:2191 .tmp/epson.c:3422
 #, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Skub arket i den automatiske arkføder ud"
 
-#: .tmp/epson2.c:2197 .tmp/epson.c:3434
+#: .tmp/epson2.c:2201 .tmp/epson.c:3434
 #, no-c-format
 msgid "Auto eject"
 msgstr "Automatisk skub ud"
 
-#: .tmp/epson2.c:2199 .tmp/epson.c:3435
+#: .tmp/epson2.c:2203 .tmp/epson.c:3435
 #, no-c-format
 msgid "Eject document after scanning"
 msgstr "Skub dokumentet ud efter skanning"
 
-#: .tmp/epson2.c:2209 .tmp/epson.c:3447
+#: .tmp/epson2.c:2213 .tmp/epson.c:3447
 #, no-c-format
 msgid "ADF Mode"
 msgstr "ADF-tilstand"
 
-#: .tmp/epson2.c:2211 .tmp/epson.c:3449
+#: .tmp/epson2.c:2215 .tmp/epson.c:3449
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Vælger ADF tilstand (enkeltsidet/dobbeltsidet)"
 
-#: .tmp/epson2.c:2223 .tmp/epson.c:3463
+#: .tmp/epson2.c:2227 .tmp/epson.c:3463
 #, no-c-format
 msgid "Bay"
 msgstr "Skuffe"
 
-#: .tmp/epson2.c:2224 .tmp/epson.c:3464
+#: .tmp/epson2.c:2228 .tmp/epson.c:3464
 #, no-c-format
 msgid "Select bay to scan"
 msgstr "Vælg fra hvilken skuffe der skal skannes"
@@ -1079,11 +1090,11 @@ msgstr "Vælg fra hvilken skuffe der skal skannes"
 #: .tmp/epson2.h:65 .tmp/epson.h:69
 #, no-c-format
 msgid ""
-"Selects the gamma correction value from a list of pre-defined devices or the "
-"user defined table, which can be downloaded to the scanner"
+"Selects the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
 msgstr ""
-"Vælger gammakorrektionsværdi fra en liste med foruddefinerede enheder eller "
-"en brugerdefineret tabel, som kan hentes til skanneren"
+"Vælger gammakorrektionsværdi fra en liste med foruddefinerede enheder "
+"eller en brugerdefineret tabel, som kan hentes til skanneren"
 
 #: .tmp/epson2.h:68 .tmp/epson.h:72
 #, no-c-format
@@ -1092,8 +1103,10 @@ msgstr "Fokuseringspunkt"
 
 #: .tmp/epson2.h:69 .tmp/epson.h:73
 #, no-c-format
-msgid "Sets the focus position to either the glass or 2.5mm above the glass"
-msgstr "Fastsætter fokuseringen enten på glaspladen eller 2,5 mm over denne"
+msgid ""
+"Sets the focus position to either the glass or 2.5mm above the glass"
+msgstr ""
+"Fastsætter fokuseringen enten på glaspladen eller 2,5 mm over denne"
 
 #: .tmp/epson2.h:71 .tmp/epson.h:75
 #, no-c-format
@@ -1106,8 +1119,8 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"Når skankommando er sendt, starter skanningen først når der er trykket på "
-"knappen på skanneren."
+"Når skankommando er sendt, starter skanningen først når der er trykket "
+"på knappen på skanneren."
 
 #: .tmp/epson.c:761
 #, no-c-format
@@ -1164,49 +1177,49 @@ msgstr "Angiver zoomfaktoren som skanneren skal bruge"
 msgid "Quick format"
 msgstr "Hurtig format"
 
-#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:83 .tmp/umax.c:183
+#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106
+#: .tmp/mustek.c:158 .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Filmadapter"
 
-#: .tmp/genesys.c:4733
+#: .tmp/genesys.c:4739
 #, no-c-format
 msgid "Extras"
 msgstr "Ekstra"
 
-#: .tmp/genesys.c:4754
+#: .tmp/genesys.c:4760
 #, fuzzy, no-c-format
 msgid "Disable interpolation"
 msgstr "Deaktiver bagudrettet sporing"
 
-#: .tmp/genesys.c:4757
+#: .tmp/genesys.c:4763
 #, no-c-format
 msgid ""
-"When using high resolutions where the horizontal resolution is smaller than "
-"the vertical resolution this disables horizontal interpolation."
+"When using high resolutions where the horizontal resolution is smaller "
+"than the vertical resolution this disables horizontal interpolation."
 msgstr ""
 
-#: .tmp/genesys.c:4766
+#: .tmp/genesys.c:4772
 #, fuzzy, no-c-format
 msgid "Color Filter"
 msgstr "Farve stregtegning"
 
-#: .tmp/genesys.c:4769
+#: .tmp/genesys.c:4775
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 
-#: .tmp/genesys.c:4778
+#: .tmp/genesys.c:4784
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Sluk-lampe tid"
 
-#: .tmp/genesys.c:4781
+#: .tmp/genesys.c:4787
 #, no-c-format
 msgid ""
-"The lamp will be turned off after the given time (in minutes). A value of 0 "
-"means, that the lamp won't be turned off."
+"The lamp will be turned off after the given time (in minutes). A value "
+"of 0 means, that the lamp won't be turned off."
 msgstr ""
 "Lampen bliver slukket efter den angivne tid (i minutter). Værdien 0 "
 "bevirker, at lampen ikke bliver slukket."
@@ -1220,9 +1233,10 @@ msgstr "Farve ved gråtone tilstand"
 #, no-c-format
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
-"Vælger hvilken skan farve der bruges i gråtone tilstand (standard er grøn)."
+"Vælger hvilken skan farve der bruges i gråtone tilstand (standard er "
+"grøn)."
 
-#: .tmp/gt68xx.c:555 .tmp/mustek_usb2.c:410
+#: .tmp/gt68xx.c:555 .tmp/hp3900_sane.c:1398 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Fejlsøgningsindstillinger"
@@ -1235,11 +1249,11 @@ msgstr "Automatisk opvarmning"
 #: .tmp/gt68xx.c:568
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 60 "
-"seconds warm-up time."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"60 seconds warm-up time."
 msgstr ""
-"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på 60 "
-"sekunders opvarmningstid."
+"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på "
+"60 sekunders opvarmningstid."
 
 #: .tmp/gt68xx.c:580
 #, no-c-format
@@ -1252,8 +1266,8 @@ msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
-"Skan hele skanningsarealet inklsive kalibreringsstriben. Vær forsigtig. Vælg "
-"ikke fuld højde. Kun til test formål."
+"Skan hele skanningsarealet inklsive kalibreringsstriben. Vær forsigtig. "
+"Vælg ikke fuld højde. Kun til test formål."
 
 #: .tmp/gt68xx.c:593
 #, no-c-format
@@ -1264,12 +1278,12 @@ msgstr "Grovkalibrering"
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
-"disabled, options for setting the analog frontend parameters manually are "
-"provided. This option is enabled by default. For testing only."
+"disabled, options for setting the analog frontend parameters manually "
+"are provided. This option is enabled by default. For testing only."
 msgstr ""
-"Indstil forstærkning og forskydning for skanning automatisk. Hvis dette er "
-"fravalgt, kan de analoge brugerfladeparametre manuelt indstilles. Denne "
-"indstilling er forvalgt. Kun til testformål."
+"Indstil forstærkning og forskydning for skanning automatisk. Hvis dette "
+"er fravalgt, kan de analoge brugerfladeparametre manuelt indstilles. "
+"Denne indstilling er forvalgt. Kun til testformål."
 
 #: .tmp/gt68xx.c:614
 #, no-c-format
@@ -1279,13 +1293,13 @@ msgstr "Grovkalibrering kun for første skan."
 #: .tmp/gt68xx.c:616
 #, no-c-format
 msgid ""
-"Coarse calibration is only done for the first scan. Works with most scanners "
-"and can save scanning time. If the image brightness is different with each "
-"scan, disable this option. For testing only."
+"Coarse calibration is only done for the first scan. Works with most "
+"scanners and can save scanning time. If the image brightness is "
+"different with each scan, disable this option. For testing only."
 msgstr ""
 "Grovkalibrering udføres kun for første skanning. Virker med de fleste "
-"skannere og kan spare skanningstid. Hvis billedets lyshed er forskellig for "
-"hvert skan, fravælg denne indstilling. Kun til testformål."
+"skannere og kan spare skanningstid. Hvis billedets lyshed er forskellig "
+"for hvert skan, fravælg denne indstilling. Kun til testformål."
 
 #: .tmp/gt68xx.c:647
 #, no-c-format
@@ -1295,14 +1309,15 @@ msgstr "Bagudrettede linier"
 #: .tmp/gt68xx.c:649
 #, no-c-format
 msgid ""
-"Number of lines the scan slider moves back when backtracking occurs. That "
-"happens when the scanner scans faster than the computer can receive the "
-"data. Low values cause faster scans but increase the risk of omitting lines."
+"Number of lines the scan slider moves back when backtracking occurs. "
+"That happens when the scanner scans faster than the computer can receive "
+"the data. Low values cause faster scans but increase the risk of "
+"omitting lines."
 msgstr ""
-"Antal linier skannervognen flyttes tilbage når bagudrettet sporing opstår. "
-"Det sker når skanneren skanner hurtigere end computeren kan modtage dataene. "
-"Små værdier giver hurtigere skanninger, men øger risikoen for at linier "
-"bliver sprunget over."
+"Antal linier skannervognen flyttes tilbage når bagudrettet sporing "
+"opstår. Det sker når skanneren skanner hurtigere end computeren kan "
+"modtage dataene. Små værdier giver hurtigere skanninger, men øger "
+"risikoen for at linier bliver sprunget over."
 
 #: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
 #, no-c-format
@@ -1323,6 +1338,172 @@ msgstr "Skanområde"
 #, fuzzy, no-c-format
 msgid "Scan Mode Group"
 msgstr "Skanner tilstand"
+
+#: .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1009 .tmp/hp-option.c:3173
+#, no-c-format
+msgid "Slide"
+msgstr "Diapositiv"
+
+#: .tmp/hp3900_sane.c:430 .tmp/hp3900_sane.c:1011 .tmp/hp3900_sane.c:1427
+#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
+#, no-c-format
+msgid "Negative"
+msgstr "Negativ"
+
+#: .tmp/hp3900_sane.c:1411
+#, fuzzy, no-c-format
+msgid "Scanner model"
+msgstr "Skannertilstand"
+
+#: .tmp/hp3900_sane.c:1414
+#, no-c-format
+msgid "Allows to test device behaviour with other supported models"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1428
+#, no-c-format
+msgid "Image colours will be inverted"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1442
+#, fuzzy, no-c-format
+msgid "Disable gamma correction"
+msgstr "Analog gammakorrektion"
+
+#: .tmp/hp3900_sane.c:1443
+#, fuzzy, no-c-format
+msgid "Gamma correction will be disabled"
+msgstr "Gammakorrektion"
+
+#: .tmp/hp3900_sane.c:1457
+#, fuzzy, no-c-format
+msgid "Disable white shading correction"
+msgstr "Udfør kun skyggekorrektion"
+
+#: .tmp/hp3900_sane.c:1459
+#, no-c-format
+msgid "White shading correction will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1473
+#, no-c-format
+msgid "Skip warmup process"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1474
+#, no-c-format
+msgid "Warmup process will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1488
+#, no-c-format
+msgid "Force real depth"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1491
+#, no-c-format
+msgid ""
+"If gamma is enabled, scans are always made in 16 bits depth to improve "
+"image quality and then converted to the selected depth. This option "
+"avoids depth emulation."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1505
+#, fuzzy, no-c-format
+msgid "Emulate Grayscale"
+msgstr "Gråskala"
+
+#: .tmp/hp3900_sane.c:1508
+#, no-c-format
+msgid ""
+"If enabled, image will be scanned in color mode and then converted to "
+"grayscale by software. This may improve image quality in some "
+"circumstances."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1522
+#, no-c-format
+msgid "Save debugging images"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1525
+#, no-c-format
+msgid ""
+"If enabled, some images involved in scanner processing are saved to "
+"analyze them."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1539
+#, fuzzy, no-c-format
+msgid "Reset chipset"
+msgstr "arkføder skanner"
+
+#: .tmp/hp3900_sane.c:1540
+#, no-c-format
+msgid "Resets chipset data"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1553
+#, fuzzy, no-c-format
+msgid "Information"
+msgstr "Ignorer kalibrering"
+
+#: .tmp/hp3900_sane.c:1566
+#, fuzzy, no-c-format
+msgid "Chipset name"
+msgstr "Filnavn"
+
+#: .tmp/hp3900_sane.c:1567
+#, no-c-format
+msgid "Shows chipset name used in device."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1573
+#, no-c-format
+msgid "Unknown"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1578
+#, no-c-format
+msgid "Chipset ID"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1579
+#, fuzzy, no-c-format
+msgid "Shows the chipset ID"
+msgstr "arkføder skanner"
+
+#: .tmp/hp3900_sane.c:1591
+#, fuzzy, no-c-format
+msgid "Scan counter"
+msgstr "Skanningskilde"
+
+#: .tmp/hp3900_sane.c:1593
+#, fuzzy, no-c-format
+msgid "Shows the number of scans made by scanner"
+msgstr "Vælger nummeret på det billede der skal skannes"
+
+#: .tmp/hp3900_sane.c:1605
+#, fuzzy, no-c-format
+msgid "Update information"
+msgstr "Opdatér indstillinger"
+
+#: .tmp/hp3900_sane.c:1606
+#, no-c-format
+msgid "Updates information about device"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1619 .tmp/pixma_sane_options.c:210
+#: .tmp/plustek.c:1079
+#, no-c-format
+msgid "Buttons"
+msgstr "Knapper"
+
+#: .tmp/hp3900_sane.c:1646
+#, fuzzy, no-c-format
+msgid "This option reflects a front panel scanner button"
+msgstr "Denne indstilling reflekterer skannerknappernes status."
 
 #: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
 #, no-c-format
@@ -1365,7 +1546,7 @@ msgid "Switches the lamp on or off."
 msgstr "Tænder/slukker for lampen"
 
 #: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
-#: .tmp/plustek.c:939
+#: .tmp/plustek.c:940
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibrering"
@@ -1491,7 +1672,8 @@ msgid "Slow"
 msgstr "Langsom"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200 .tmp/u12.c:155
+#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
+#: .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normal"
@@ -1531,21 +1713,10 @@ msgstr "8-pixel"
 msgid "Print"
 msgstr "Print"
 
-#: .tmp/hp-option.c:3173
-#, no-c-format
-msgid "Slide"
-msgstr "Diapositiv"
-
 #: .tmp/hp-option.c:3174
 #, no-c-format
 msgid "Film-strip"
 msgstr "Film-stribe"
-
-#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
-#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
-#, no-c-format
-msgid "Negative"
-msgstr "Negativ"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
@@ -1586,7 +1757,8 @@ msgstr "Automatisk tærskelværdi"
 #, no-c-format
 msgid "Enable automatic determination of threshold for line-art scans."
 msgstr ""
-"Aktiver automatisk fastsættelse af tærskelværdi for stregtegningsskanninger."
+"Aktiver automatisk fastsættelse af tærskelværdi for "
+"stregtegningsskanninger."
 
 #: .tmp/hp-option.h:73
 #, no-c-format
@@ -1651,12 +1823,13 @@ msgstr "Eksponeringstid"
 #: .tmp/hp-option.h:111
 #, no-c-format
 msgid ""
-"A longer exposure time lets the scanner collect more light. Suggested use is "
-"175% for prints, 150% for normal slides and \"Negative\" for negative film. "
-"For dark (underexposed) images you can increase this value."
+"A longer exposure time lets the scanner collect more light. Suggested "
+"use is 175% for prints, 150% for normal slides and \"Negative\" for "
+"negative film. For dark (underexposed) images you can increase this "
+"value."
 msgstr ""
-"En længere eksponeringstid lader skanneren indsamle mere lys. Anbefalet brug "
-"er 175% for papirbilleder, 150% for diapositiver og \"Negativ\" for "
+"En længere eksponeringstid lader skanneren indsamle mere lys. Anbefalet "
+"brug er 175% for papirbilleder, 150% for diapositiver og \"Negativ\" for "
 "negativer. Ved mørke (undereksponerede) billeder, kan denne værdi øges."
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
@@ -1774,6 +1947,56 @@ msgstr "8x8 lodret linie"
 msgid "Black & White"
 msgstr "Sort/hvid"
 
+#: .tmp/lexmark.c:288 .tmp/umax_pp.c:636
+#, no-c-format
+msgid "Gain"
+msgstr "Forstærk"
+
+#: .tmp/lexmark.c:289 .tmp/umax_pp.c:637
+#, no-c-format
+msgid "Color channels gain settings"
+msgstr "Farvekanalforstærkningsindstillinger"
+
+#: .tmp/lexmark.c:298 .tmp/umax_pp.c:644
+#, no-c-format
+msgid "Gray gain"
+msgstr "Grå-forstærkning"
+
+#: .tmp/lexmark.c:299 .tmp/umax_pp.c:645
+#, no-c-format
+msgid "Sets gray channel gain"
+msgstr "Fastsætter grå-kanals forstærkning"
+
+#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:656
+#, no-c-format
+msgid "Red gain"
+msgstr "Rød forstærkning"
+
+#: .tmp/lexmark.c:313 .tmp/umax_pp.c:657
+#, no-c-format
+msgid "Sets red channel gain"
+msgstr "Fastsætter rød-kanals forstærkning"
+
+#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:668
+#, no-c-format
+msgid "Green gain"
+msgstr "Grøn forstærkning"
+
+#: .tmp/lexmark.c:327 .tmp/umax_pp.c:669
+#, no-c-format
+msgid "Sets green channel gain"
+msgstr "Fastsætter grøn-kanals forstærkning"
+
+#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:680
+#, no-c-format
+msgid "Blue gain"
+msgstr "Blå forstærkning"
+
+#: .tmp/lexmark.c:341 .tmp/umax_pp.c:681
+#, no-c-format
+msgid "Sets blue channel gain"
+msgstr "Fastsætter blå-kanals forstærkning"
+
 #: .tmp/matsushita.c:139
 #, no-c-format
 msgid "Bayer Dither 16"
@@ -1859,7 +2082,7 @@ msgstr "En side"
 msgid "All pages"
 msgstr "Alle sider"
 
-#: .tmp/matsushita.c:1034 .tmp/plustek.c:1331
+#: .tmp/matsushita.c:1034 .tmp/plustek.c:1332
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "arkføder skanner"
@@ -1882,8 +2105,8 @@ msgstr "Automatisk tærskelværdi"
 #: .tmp/matsushita.c:1227
 #, no-c-format
 msgid ""
-"Automatically sets brightness, contrast, white level, gamma, noise reduction "
-"and image emphasis"
+"Automatically sets brightness, contrast, white level, gamma, noise "
+"reduction and image emphasis"
 msgstr ""
 "Automatisk indstilling af lyshed, kontrast, hvid balance, gamma, "
 "støjreduktion og billedbetoning"
@@ -1908,7 +2131,8 @@ msgstr "Billedbetoning"
 msgid "Sets the image emphasis"
 msgstr "Fastsætter billedbetoning"
 
-#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301 .tmp/pixma_sane_options.c:107
+#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
+#: .tmp/pixma_sane_options.c:107
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
@@ -1985,7 +2209,8 @@ msgstr "Kalibrering ved bagende"
 
 #: .tmp/microtek2.h:618
 #, no-c-format
-msgid "If checked the color calibration before a scan is done by the backend"
+msgid ""
+"If checked the color calibration before a scan is done by the backend"
 msgstr "Hvis valgt, udføres farvekalibreringen før et skan af bagenden"
 
 #: .tmp/microtek2.h:622
@@ -2026,8 +2251,8 @@ msgstr "Automatisk justering af tærskelværdier"
 #: .tmp/microtek2.h:636
 #, no-c-format
 msgid ""
-"If checked the backend automatically tries to determine an optimal value for "
-"the threshold."
+"If checked the backend automatically tries to determine an optimal value "
+"for the threshold."
 msgstr ""
 "Hvis aktiveret prøver bagenden automatisk at bestemme en optimal "
 "tærskelværdi."
@@ -2101,7 +2326,8 @@ msgstr "Kanal"
 #, no-c-format
 msgid ""
 "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr "Vælger farvekanal, \"Master\" betyder at alle farvekanaler påvirkes."
+msgstr ""
+"Vælger farvekanal, \"Master\" betyder at alle farvekanaler påvirkes."
 
 #: .tmp/microtek2.h:675
 #, no-c-format
@@ -2181,7 +2407,8 @@ msgstr "Fastprogram balance"
 #: .tmp/microtek2.h:711
 #, no-c-format
 msgid "Sets the color balance values to the firmware provided values."
-msgstr "Fastsætter farvebalanceværdierne til værdierne fra det faste program."
+msgstr ""
+"Fastsætter farvebalanceværdierne til værdierne fra det faste program."
 
 #: .tmp/mustek.c:143
 #, no-c-format
@@ -2306,8 +2533,8 @@ msgstr "Skan i hurtig gråtonetilstand (lavere kvalitet)"
 #: .tmp/mustek.c:4329
 #, no-c-format
 msgid ""
-"Request that all previews are done in the fastest (low-quality) mode. This "
-"may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. "
+"This may be a non-color mode or a low resolution mode."
 msgstr ""
 "Forlang at alle forhåndsvisninger udføres i hurtigste (lav kvalitet) "
 "tilstand. Dette kan være gråtone, eller lav-opløsning."
@@ -2380,7 +2607,8 @@ msgstr "Kontrast grøn kanal"
 #: .tmp/mustek.c:4493
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
-msgstr "Fastsætter kontrasten i den grønne kanal i det rekvirerede billede."
+msgstr ""
+"Fastsætter kontrasten i den grønne kanal i det rekvirerede billede."
 
 #: .tmp/mustek.c:4505
 #, no-c-format
@@ -2425,11 +2653,11 @@ msgstr "Positiv film"
 #: .tmp/mustek_usb2.c:421
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 40 "
-"seconds warm-up time."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"40 seconds warm-up time."
 msgstr ""
-"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på 40 "
-"sekunders opvarmningstid."
+"Varm op indtil lampens lyshed er konstant, i stedet for at insistere på "
+"40 sekunders opvarmningstid."
 
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
@@ -2443,11 +2671,6 @@ msgid ""
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
 msgstr ""
-
-#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1078
-#, no-c-format
-msgid "Buttons"
-msgstr "Knapper"
 
 #: .tmp/pixma_sane_options.c:216
 #, fuzzy, no-c-format
@@ -2469,172 +2692,157 @@ msgstr "Knap 2"
 msgid "Transparency"
 msgstr "Film"
 
-#: .tmp/plustek.c:911
+#: .tmp/plustek.c:912
 #, no-c-format
 msgid "Device-Settings"
 msgstr "Enhedsindstillinger"
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:919
 #, no-c-format
 msgid "Lampswitch"
 msgstr "Lampe afbryder"
 
-#: .tmp/plustek.c:919
+#: .tmp/plustek.c:920
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr "Manuelt tænd/sluk for lampen(lamperne)."
 
-#: .tmp/plustek.c:924
+#: .tmp/plustek.c:925
 #, fuzzy, no-c-format
 msgid "Lamp off during dark calibration"
 msgstr "Grovkalibrering"
 
-#: .tmp/plustek.c:925
+#: .tmp/plustek.c:926
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
 msgstr ""
 
-#: .tmp/plustek.c:933
+#: .tmp/plustek.c:934
 #, no-c-format
 msgid "Calibration data cache"
 msgstr "Kalibreringsdatacache"
 
-#: .tmp/plustek.c:934
+#: .tmp/plustek.c:935
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr "Aktivér eller deaktivér kalibreringsdatacache."
 
-#: .tmp/plustek.c:940
+#: .tmp/plustek.c:941
 #, fuzzy, no-c-format
 msgid "Performs calibration"
 msgstr "Grovkalibrering"
 
-#: .tmp/plustek.c:957
+#: .tmp/plustek.c:958
 #, no-c-format
 msgid "Speedup sensor"
 msgstr "Hastighedsøgnings sensor"
 
-#: .tmp/plustek.c:958
+#: .tmp/plustek.c:959
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr "Til/fra for øgning af sensors hastighed."
 
-#: .tmp/plustek.c:972
+#: .tmp/plustek.c:973
 #, no-c-format
 msgid "Warmup-time"
 msgstr "Opvarmningstid"
 
-#: .tmp/plustek.c:973
+#: .tmp/plustek.c:974
 #, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Opvarmningstid i sekunder."
 
-#: .tmp/plustek.c:985
+#: .tmp/plustek.c:986
 #, no-c-format
 msgid "Lampoff-time"
 msgstr "Sluk lampe tid"
 
-#: .tmp/plustek.c:986
+#: .tmp/plustek.c:987
 #, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Sluk lampe tid i sekunder."
 
-#: .tmp/plustek.c:993
+#: .tmp/plustek.c:994
 #, no-c-format
 msgid "Analog frontend"
 msgstr "Analog forende"
 
-#: .tmp/plustek.c:999 .tmp/umax_pp.c:656
-#, no-c-format
-msgid "Red gain"
-msgstr "Rød forstærkning"
-
-#: .tmp/plustek.c:1000
+#: .tmp/plustek.c:1001
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr "Rød forstærkningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1007 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:1008 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Rød forskydning"
 
-#: .tmp/plustek.c:1008
+#: .tmp/plustek.c:1009
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr "Rød forskydningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1015 .tmp/umax_pp.c:668
-#, no-c-format
-msgid "Green gain"
-msgstr "Grøn forstærkning"
-
-#: .tmp/plustek.c:1016
+#: .tmp/plustek.c:1017
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr "Grøn forstærkningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1023 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1024 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Grøn forskydning"
 
-#: .tmp/plustek.c:1024
+#: .tmp/plustek.c:1025
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr "Grøn forskydningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1031 .tmp/umax_pp.c:680
-#, no-c-format
-msgid "Blue gain"
-msgstr "Blå forstærkning"
-
-#: .tmp/plustek.c:1032
+#: .tmp/plustek.c:1033
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr "Blå forstærkningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1039 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1040 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Blå forskydning"
 
-#: .tmp/plustek.c:1040
+#: .tmp/plustek.c:1041
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr "Blå forskydningsværdi for den analoge forende"
 
-#: .tmp/plustek.c:1047
+#: .tmp/plustek.c:1048
 #, no-c-format
 msgid "Red lamp off"
 msgstr "Rød lampe slukket"
 
-#: .tmp/plustek.c:1048
+#: .tmp/plustek.c:1049
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr "Fastsætter parametre for slukning af rød lampe"
 
-#: .tmp/plustek.c:1055
+#: .tmp/plustek.c:1056
 #, no-c-format
 msgid "Green lamp off"
 msgstr "Grøn lampe slukket"
 
-#: .tmp/plustek.c:1056
+#: .tmp/plustek.c:1057
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr "Fastsætter parametre for slukning af grøn lampe"
 
-#: .tmp/plustek.c:1063
+#: .tmp/plustek.c:1064
 #, no-c-format
 msgid "Blue lamp off"
 msgstr "Blå lampe slukket"
 
-#: .tmp/plustek.c:1064
+#: .tmp/plustek.c:1065
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr "Fastsætter parametre for slukning af blå lampe"
 
-#: .tmp/plustek.c:1094
+#: .tmp/plustek.c:1095
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr "Denne indstilling reflekterer skannerknappernes status."
@@ -2687,11 +2895,11 @@ msgstr "Tre-gennemløbs simulering"
 #: .tmp/pnm.c:249
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it "
-"returns green, then blue, then red."
+"Simulate a three-pass scanner by returning 3 separate frames.  For "
+"kicks, it returns green, then blue, then red."
 msgstr ""
-"Simuler en tre-gennemløbs skanner ved at returnere 3 separate billedrammer, "
-"én for hver grundfarve. Rækkefølgen er: grøn, blå og rød."
+"Simuler en tre-gennemløbs skanner ved at returnere 3 separate "
+"billedrammer, én for hver grundfarve. Rækkefølgen er: grøn, blå og rød."
 
 #: .tmp/pnm.c:261
 #, no-c-format
@@ -2701,18 +2909,20 @@ msgstr "Håndskanner simulering"
 #: .tmp/pnm.c:262
 #, no-c-format
 msgid ""
-"Simulate a hand-scanner.  Hand-scanners often do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows to "
-"test whether a frontend can handle this correctly."
+"Simulate a hand-scanner.  Hand-scanners often do not know the image "
+"height a priori.  Instead, they return a height of -1.  Setting this "
+"option allows to test whether a frontend can handle this correctly."
 msgstr ""
-"Simulerer en håndskanner. Oftest kender en håndskanner ikke billedhøjden i "
-"forvejen. I stedet for returnerer de en højde på -1. Sættes denne "
+"Simulerer en håndskanner. Oftest kender en håndskanner ikke billedhøjden "
+"i forvejen. I stedet for returnerer de en højde på -1. Sættes denne "
 "indstilling tillades test af, om en forende kan håndtere dette korrekt."
 
 #: .tmp/pnm.c:277
 #, no-c-format
-msgid "Set default values for enhancement controls (brightness & contrast)."
-msgstr "Sæt standardværdier for forbedringskontroller (lyshed og kontrast)."
+msgid ""
+"Set default values for enhancement controls (brightness & contrast)."
+msgstr ""
+"Sæt standardværdier for forbedringskontroller (lyshed og kontrast)."
 
 #: .tmp/pnm.c:289
 #, no-c-format
@@ -2752,11 +2962,11 @@ msgstr "Returner SANE_STATUS_EOF"
 #: .tmp/pnm.c:398
 #, no-c-format
 msgid ""
-"Force the backend to return the status code SANE_STATUS_EOF after sane_read"
-"() has been called."
+"Force the backend to return the status code SANE_STATUS_EOF after "
+"sane_read() has been called."
 msgstr ""
-"Tving bagenden til at returnere statuskoden SANE_STATUS_EOF efter sane_read"
-"() er blevet kaldt."
+"Tving bagenden til at returnere statuskoden SANE_STATUS_EOF efter "
+"sane_read() er blevet kaldt."
 
 #: .tmp/pnm.c:410
 #, no-c-format
@@ -2836,11 +3046,11 @@ msgstr "Returner SANE_STATUS_ACCESS_DENIED"
 #: .tmp/pnm.c:478
 #, no-c-format
 msgid ""
-"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after "
-"sane_read() has been called."
+"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
+"after sane_read() has been called."
 msgstr ""
-"Tving bagenden til at returnere statuskoden SANE_STATUS_ACCESS_DENIED efter "
-"sane_read() er blevet kaldt."
+"Tving bagenden til at returnere statuskoden SANE_STATUS_ACCESS_DENIED "
+"efter sane_read() er blevet kaldt."
 
 #: .tmp/saneopts.h:134
 #, no-c-format
@@ -3165,7 +3375,8 @@ msgstr "Lampe slukkes ved afslutning"
 #: .tmp/saneopts.h:206
 #, no-c-format
 msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+"Read-only option that specifies how many options a specific devices "
+"supports."
 msgstr ""
 "Skrivebeskyttet indstilling der specificerer hvor mange indstillinger en "
 "bestemt enhed understøtter."
@@ -3183,22 +3394,23 @@ msgid ""
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
 "Forlang at alle smugkig laves i monokrom tilstand. På en tre-gennemløbs "
-"skanner, reduceres antal gennemløb til et, og på en en-gennemløbs skanner "
-"reducerer det hukommelsesforbruget og tidsforbruget."
+"skanner, reduceres antal gennemløb til et, og på en en-gennemløbs "
+"skanner reducerer det hukommelsesforbruget og tidsforbruget."
 
 #: .tmp/saneopts.h:219
 #, no-c-format
 msgid ""
-"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
-"multibit scans."
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 "
+"for multibit scans."
 msgstr ""
-"Antal bit pr. farve, typisk bruges værdien 1 for \"stregtegning\" og 8 for "
-"multibit skanninger."
+"Antal bit pr. farve, typisk bruges værdien 1 for \"stregtegning\" og 8 "
+"for multibit skanninger."
 
 #: .tmp/saneopts.h:223
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
-msgstr "Vælger skanningstilstand (f.eks. stregtegning, monokrom eller farve)."
+msgstr ""
+"Vælger skanningstilstand (f.eks. stregtegning, monokrom eller farve)."
 
 #: .tmp/saneopts.h:226
 #, no-c-format
@@ -3252,18 +3464,20 @@ msgstr "Fastsætter den lodrette opløsning af det skannede billede."
 
 #: .tmp/saneopts.h:256
 #, no-c-format
-msgid "Determines whether a builtin or a custom gamma-table should be used."
-msgstr "Fastlægger om en indbygget eller en tilpasset gamma-tabel skal bruges."
+msgid ""
+"Determines whether a builtin or a custom gamma-table should be used."
+msgstr ""
+"Fastlægger om en indbygget eller en tilpasset gamma-tabel skal bruges."
 
 #: .tmp/saneopts.h:260
 #, no-c-format
 msgid ""
-"Gamma-correction table.  In color mode this option equally affects the red, "
-"green, and blue channels simultaneously (i.e., it is an intensity gamma "
-"table)."
+"Gamma-correction table.  In color mode this option equally affects the "
+"red, green, and blue channels simultaneously (i.e., it is an intensity "
+"gamma table)."
 msgstr ""
-"Gamma korrektionstabel. I farve tilstand påvirker denne indstilling de røde, "
-"blå og grønne kanaler ens (dvs., der er en intensitets gammatabel)."
+"Gamma korrektionstabel. I farve tilstand påvirker denne indstilling de "
+"røde, blå og grønne kanaler ens (dvs., der er en intensitets gammatabel)."
 
 #: .tmp/saneopts.h:265
 #, no-c-format
@@ -3293,11 +3507,11 @@ msgstr "Fastsætter kontrast for det rekvirerede billede."
 #: .tmp/saneopts.h:280
 #, no-c-format
 msgid ""
-"Selects the \"graininess\" of the acquired image.  Smaller values result in "
-"sharper images."
+"Selects the \"graininess\" of the acquired image.  Smaller values result "
+"in sharper images."
 msgstr ""
-"Vælger \"kornethed\" for det rekvirerede billede. Mindre værdier giver et "
-"skarpere billeder."
+"Vælger \"kornethed\" for det rekvirerede billede. Mindre værdier giver "
+"et skarpere billeder."
 
 #: .tmp/saneopts.h:284
 #, no-c-format
@@ -3353,12 +3567,15 @@ msgstr "Vælger hvilket rødt glansniveau der skal anses for \"helt rødt\"."
 
 #: .tmp/saneopts.h:315
 #, no-c-format
-msgid "Selects what green radiance level should be considered \"full green\"."
-msgstr "Vælger hvilket grønt glansniveau der skal anses for \"helt grønt\"."
+msgid ""
+"Selects what green radiance level should be considered \"full green\"."
+msgstr ""
+"Vælger hvilket grønt glansniveau der skal anses for \"helt grønt\"."
 
 #: .tmp/saneopts.h:318
 #, no-c-format
-msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgid ""
+"Selects what blue radiance level should be considered \"full blue\"."
 msgstr "Vælger hvilket blåt glansniveau der skal anses for \"helt blåt\"."
 
 #: .tmp/saneopts.h:322
@@ -3369,8 +3586,8 @@ msgstr "Fastsætter farvetone (blåt niveau) for det rekvirerede billede."
 #: .tmp/saneopts.h:325
 #, no-c-format
 msgid ""
-"The saturation level controls the amount of \"blooming\" that occurs when "
-"acquiring an image with a camera. Larger values cause more blooming."
+"The saturation level controls the amount of \"blooming\" that occurs "
+"when acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
 "Mætningsgraden styrer belysningen af ethvert enkeltbillede taget med et "
 "kamera. Højere værdier sørger for en stærkere belysning."
@@ -3386,8 +3603,8 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
-"Fastsætter størrelsen på det halvtonegitter (dithering) der skal bruges ved "
-"skanning af halvtonebilleder."
+"Fastsætter størrelsen på det halvtonegitter (dithering) der skal bruges "
+"ved skanning af halvtonebilleder."
 
 #: .tmp/saneopts.h:337
 #, no-c-format
@@ -3571,16 +3788,17 @@ msgstr "Spredte punkter 16x16"
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
-"allows you to tune the speed at which data is read from the scanner during "
-"scans. If this is set too low, the scanner will have to stop periodically in "
-"the middle of a scan; if it's set too high, X-based frontends may stop "
-"responding to X events and your system could bog down."
+"allows you to tune the speed at which data is read from the scanner "
+"during scans. If this is set too low, the scanner will have to stop "
+"periodically in the middle of a scan; if it's set too high, X-based "
+"frontends may stop responding to X events and your system could bog down."
 msgstr ""
-"Antal skanlinier der skal forlanges pr. SCSI-læsning. En ændring af denne "
-"parameter tillader en fintuning af hastigheden, hvormed der læses data fra "
-"skanneren under skanningen. Hvis dette er sat for lavt, stopper skanneren "
-"periodisk midt i skanningerne. Hvis det sættes for højt, kan X-baserede "
-"forender stoppe med at reagere på X begivenheder, og dit system går ned."
+"Antal skanlinier der skal forlanges pr. SCSI-læsning. En ændring af "
+"denne parameter tillader en fintuning af hastigheden, hvormed der læses "
+"data fra skanneren under skanningen. Hvis dette er sat for lavt, stopper "
+"skanneren periodisk midt i skanningerne. Hvis det sættes for højt, kan X-"
+"baserede forender stoppe med at reagere på X begivenheder, og dit system "
+"går ned."
 
 #: .tmp/snapscan-options.c:436
 #, no-c-format
@@ -3593,8 +3811,8 @@ msgid ""
 "Select the mode for previews. Greyscale previews usually give the best "
 "combination of speed and detail."
 msgstr ""
-"Vælg tilstand for forhåndsvisning. Gråskala smugkig er normalt det bedste "
-"kompromis mellem hastighed og detaljerigdom."
+"Vælg tilstand for forhåndsvisning. Gråskala smugkig er normalt det "
+"bedste kompromis mellem hastighed og detaljerigdom."
 
 #: .tmp/snapscan-options.c:545
 #, no-c-format
@@ -3604,7 +3822,8 @@ msgstr "Foruddefinerede indstillinger"
 #: .tmp/snapscan-options.c:547
 #, no-c-format
 msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+"Provides standard scanning areas for photographs, printed pages and the "
+"like."
 msgstr "Giver standard skanområde for fotografier, tryk o.l."
 
 #: .tmp/snapscan-options.c:823
@@ -3691,14 +3910,14 @@ msgstr "Håndskanner simulering"
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows to "
-"test whether a frontend can handle this correctly.  This option also enables "
-"a fixed width of 11 cm."
+"priori.  Instead, they return a height of -1.  Setting this option "
+"allows to test whether a frontend can handle this correctly.  This "
+"option also enables a fixed width of 11 cm."
 msgstr ""
 "Simulerer en håndskanner. Håndskannere kender ikke forud billedhøjden. I "
-"stedet for angiver de en billedhøjde på 1. Denne indstilling tillader test "
-"af forenden, om den kan håndtere dette korrekt. Indstillingen giver også en "
-"fast bredde på 11 cm."
+"stedet for angiver de en billedhøjde på 1. Denne indstilling tillader "
+"test af forenden, om den kan håndtere dette korrekt. Indstillingen giver "
+"også en fast bredde på 11 cm."
 
 #: .tmp/test.c:361
 #, no-c-format
@@ -3708,7 +3927,8 @@ msgstr "Tre-gennemløbs simulering"
 #: .tmp/test.c:362
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+"Simulate a three-pass scanner. In color mode, three frames are "
+"transmitted."
 msgstr ""
 "Simuler en tre-gennemløbs skanner. I farvetilstand overføres tre "
 "billedrammer."
@@ -3726,8 +3946,8 @@ msgstr "Fastsætter billedrammernes rækkefølge i tre-gennemløbs tilstand."
 #: .tmp/test.c:411
 #, no-c-format
 msgid ""
-"If Automatic Document Feeder is selected, the feeder will be 'empty' after "
-"10 scans."
+"If Automatic Document Feeder is selected, the feeder will be 'empty' "
+"after 10 scans."
 msgstr ""
 
 #: .tmp/test.c:426
@@ -3747,7 +3967,8 @@ msgid ""
 "Solid black: fills the whole scan with black.\n"
 "Solid white: fills the whole scan with white.\n"
 "Color pattern: draws various color test patterns depending on the mode.\n"
-"Grid: draws a black/white grid with a width and height of 10 mm per square."
+"Grid: draws a black/white grid with a width and height of 10 mm per "
+"square."
 msgstr ""
 "Vælger type af testbillede. Mulige indstillinger:\n"
 "Helt sort: fylder hele skanningen med sort.\n"
@@ -3764,9 +3985,9 @@ msgstr "Invertér endianness"
 #: .tmp/test.c:463
 #, no-c-format
 msgid ""
-"Exchange upper and lower byte of image data in 16 bit modes. This option can "
-"be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
-"correct endianness."
+"Exchange upper and lower byte of image data in 16 bit modes. This option "
+"can be used to test the 16 bit modes of frontends, e.g. if the frontend "
+"uses the correct endianness."
 msgstr ""
 "Bytter om på den øvre og nedre byte i billedata i 16 bit tilstand. Denne "
 "indstilling kan bruges til at teste forendens 16 bit tilstand, d.v.s. om "
@@ -3789,8 +4010,10 @@ msgstr "Størrelsen af læsebegrænsning"
 
 #: .tmp/test.c:494
 #, no-c-format
-msgid "The (maximum) amount of data transferred with each call to sane_read()."
-msgstr "Den (maksimale) mængde data overført, ved hvert kald af sane_read()."
+msgid ""
+"The (maximum) amount of data transferred with each call to sane_read()."
+msgstr ""
+"Den (maksimale) mængde data overført, ved hvert kald af sane_read()."
 
 #: .tmp/test.c:509
 #, no-c-format
@@ -3812,8 +4035,8 @@ msgstr "Varighed af læseforsinkelse"
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
 msgstr ""
-"Fastlægger, hvor længe der skal ventes efter overførsel af hver databuffer "
-"gennem røret."
+"Fastlægger, hvor længe der skal ventes efter overførsel af hver "
+"databuffer gennem røret."
 
 #: .tmp/test.c:538
 #, no-c-format
@@ -3823,9 +4046,9 @@ msgstr "Retur værdi af sane_read"
 #: .tmp/test.c:540
 #, no-c-format
 msgid ""
-"Select the return-value of sane_read(). \"Default\" is the normal handling "
-"for scanning. All other status codes are for testing how the frontend "
-"handles them."
+"Select the return-value of sane_read(). \"Default\" is the normal "
+"handling for scanning. All other status codes are for testing how the "
+"frontend handles them."
 msgstr ""
 "Fastlægger returværdien af sane_read(). \"Standard\" er den normale "
 "indstilling ved skanning. Alle andre returværdier er til for at teste "
@@ -3852,8 +4075,8 @@ msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
 "before sane_start()."
 msgstr ""
-"Returner uafklarede linier og bytes pr. linie når sane_parameters() kaldes "
-"før sane_start()."
+"Returner uafklarede linier og bytes pr. linie når sane_parameters() "
+"kaldes før sane_start()."
 
 #: .tmp/test.c:586
 #, no-c-format
@@ -3875,10 +4098,11 @@ msgstr "Tilbyd en vælg fil beskriver"
 #: .tmp/test.c:601
 #, no-c-format
 msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
-msgstr ""
-"Tilbyd en vælg fil beskriver for at bestemme om sane_read() vil returnere "
+"Offer a select filedescriptor for detecting if sane_read() will return "
 "data."
+msgstr ""
+"Tilbyd en vælg fil beskriver for at bestemme om sane_read() vil "
+"returnere data."
 
 #: .tmp/test.c:614
 #, no-c-format
@@ -3888,11 +4112,11 @@ msgstr "Aktivér testindstillinger"
 #: .tmp/test.c:615
 #, no-c-format
 msgid ""
-"Enable various test options. This is for testing the ability of frontends to "
-"view and modify all the different SANE option types."
+"Enable various test options. This is for testing the ability of "
+"frontends to view and modify all the different SANE option types."
 msgstr ""
-"Aktivér forskellige testindstillinger. Dette er til at afprøve om forenderne "
-"kan vise og ændre alle de forskellige SANE indstillingstyper."
+"Aktivér forskellige testindstillinger. Dette er til at afprøve om "
+"forenderne kan vise og ændre alle de forskellige SANE indstillingstyper."
 
 #: .tmp/test.c:629
 #, no-c-format
@@ -3917,11 +4141,12 @@ msgstr "(1/6) Boolsk soft select soft detect"
 #: .tmp/test.c:722
 #, no-c-format
 msgid ""
-"(1/6) Bool test option that has soft select and soft detect (and advanced) "
-"capabilities. That's just a normal bool option."
+"(1/6) Bool test option that has soft select and soft detect (and "
+"advanced) capabilities. That's just a normal bool option."
 msgstr ""
-"(1/6) Dette er en boolsk testindstilling, som er \"soft select\" og \"soft "
-"detect\" (og \"avanceret\"). Dette er en normal boolsk indstilling."
+"(1/6) Dette er en boolsk testindstilling, som er \"soft select\" og "
+"\"soft detect\" (og \"avanceret\"). Dette er en normal boolsk "
+"indstilling."
 
 #: .tmp/test.c:738
 #, no-c-format
@@ -3931,13 +4156,14 @@ msgstr "(2/6) Boolsk hard select soft detect"
 #: .tmp/test.c:740
 #, no-c-format
 msgid ""
-"(2/6) Bool test option that has hard select and soft detect (and advanced) "
-"capabilities. That means the option can't be set by the frontend but by the "
-"user (e.g. by pressing a button at the device)."
+"(2/6) Bool test option that has hard select and soft detect (and "
+"advanced) capabilities. That means the option can't be set by the "
+"frontend but by the user (e.g. by pressing a button at the device)."
 msgstr ""
-"(2/6) Dette er en boolsk testindstilling, som er \"hard select\" og \"soft "
-"detect\" (og \"avanceret\"). Dette betyder, at indstillingen ikke kan ændres "
-"fra forenden, men af brugeren (f.eks. ved at trykke på en knap på enheden)."
+"(2/6) Dette er en boolsk testindstilling, som er \"hard select\" og "
+"\"soft detect\" (og \"avanceret\"). Dette betyder, at indstillingen ikke "
+"kan ændres fra forenden, men af brugeren (f.eks. ved at trykke på en "
+"knap på enheden)."
 
 #: .tmp/test.c:757
 #, no-c-format
@@ -3948,13 +4174,13 @@ msgstr "(3/6) Boolsk hard select"
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
-"That means the option can't be set by the frontend but by the user (e.g. by "
-"pressing a button at the device) and can't be read by the frontend."
+"That means the option can't be set by the frontend but by the user (e.g. "
+"by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
 "(3/6) Dette er en boolsk testindstilling, som er \"hard select\" (og "
 "\"avanceret\"). Dette betyder, at indstillingen ikke kan ændres fra "
-"forenden, men af brugeren (f.eks. ved at trykke på en knap på enheden), og "
-"at det ikke kan læses af forenden."
+"forenden, men af brugeren (f.eks. ved at trykke på en knap på enheden), "
+"og at det ikke kan læses af forenden."
 
 #: .tmp/test.c:776
 #, no-c-format
@@ -3978,8 +4204,8 @@ msgstr "(5/6) Boolsk soft select soft detect emulered"
 #: .tmp/test.c:794
 #, no-c-format
 msgid ""
-"(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities."
+"(5/6) Bool test option that has soft select, soft detect, and emulated "
+"(and advanced) capabilities."
 msgstr ""
 "(5/6) Dette er en boolsk testindstilling, som er \"soft select\" ,\"soft "
 "detect\"og \"emulated\" (og \"avanceret\")."
@@ -3992,12 +4218,13 @@ msgstr "(6/6) Boolsk soft select soft detect auto"
 #: .tmp/test.c:811
 #, no-c-format
 msgid ""
-"(6/6) Bool test option that has soft select, soft detect, and automatic (and "
-"advanced) capabilities. This option can be automatically set by the backend."
+"(6/6) Bool test option that has soft select, soft detect, and automatic "
+"(and advanced) capabilities. This option can be automatically set by the "
+"backend."
 msgstr ""
 "(6/6) Dette er en boolsk testindstilling, som er \"soft select\" ,\"soft "
-"detect\"og \"automatic\" (og \"avanceret\"). Denne indstilling kan sættes "
-"automatisk fra bagenden."
+"detect\"og \"automatic\" (og \"avanceret\"). Denne indstilling kan "
+"sættes automatisk fra bagenden."
 
 #: .tmp/test.c:828
 #, no-c-format
@@ -4022,11 +4249,11 @@ msgstr "(2/6) Heltalsbegrænsningsområde"
 #: .tmp/test.c:858
 #, no-c-format
 msgid ""
-"(2/6) Int test option with unit pixel and constraint range set. Minimum is "
-"4, maximum 192, and quant is 2."
+"(2/6) Int test option with unit pixel and constraint range set. Minimum "
+"is 4, maximum 192, and quant is 2."
 msgstr ""
-"(2/6) Heltal testindstilling med enheden \"pixel\" og et begrænsningsområde. "
-"Minimum er 4, maksimum 192, og skridtlængden er 2."
+"(2/6) Heltal testindstilling med enheden \"pixel\" og et "
+"begrænsningsområde. Minimum er 4, maksimum 192, og skridtlængden er 2."
 
 #: .tmp/test.c:874
 #, no-c-format
@@ -4037,7 +4264,8 @@ msgstr "(3/6) Heltalsbegrænsningsordliste"
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
-"(3/6) Heltal testindstilling med enheden \"bit\" og en ordlistebegrænsning."
+"(3/6) Heltal testindstilling med enheden \"bit\" og en "
+"ordlistebegrænsning."
 
 #: .tmp/test.c:890
 #, no-c-format
@@ -4047,7 +4275,8 @@ msgstr "(4/6) Heltal tabel"
 #: .tmp/test.c:891
 #, no-c-format
 msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
+"(4/6) Int test option with unit mm and using an array without "
+"constraints."
 msgstr ""
 "(4/6) Heltal testindstilling med enheden \"mm\" og en tabel uden "
 "indskrænkninger."
@@ -4074,8 +4303,8 @@ msgstr "(6/6) Heltal tabel med begrænset ordliste"
 #: .tmp/test.c:925
 #, no-c-format
 msgid ""
-"(6/6) Int test option with unit percent and using an array with a word list "
-"constraint."
+"(6/6) Int test option with unit percent and using an array with a word "
+"list constraint."
 msgstr ""
 "(6/6) Heltal testindstilling med enheden \"procent\" og en tabel med en "
 "begrænset ordliste."
@@ -4093,7 +4322,8 @@ msgstr "(1/3) Faste"
 #: .tmp/test.c:955
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Faste testindstillinger uden enhed og ingen restriktioner sat."
+msgstr ""
+"(1/3) Faste testindstillinger uden enhed og ingen restriktioner sat."
 
 #: .tmp/test.c:970
 #, no-c-format
@@ -4106,8 +4336,9 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Fast testindstilling, med enhed i microsekund og restriktionsområde "
-"sat. Minimalt er -42.17, og maksimalt 32767.9999, og mængde er 2.0."
+"(2/3) Fast testindstilling, med enhed i microsekund og "
+"restriktionsområde sat. Minimalt er -42.17, og maksimalt 32767.9999, og "
+"mængde er 2.0."
 
 #: .tmp/test.c:987
 #, no-c-format
@@ -4117,7 +4348,8 @@ msgstr "(3/3) Fast restriktions ordliste"
 #: .tmp/test.c:988
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
-msgstr "(3/3) Fast testindstilling uden enheder og restriktions ordliste sat."
+msgstr ""
+"(3/3) Fast testindstilling uden enheder og restriktions ordliste sat."
 
 #: .tmp/test.c:1003
 #, no-c-format
@@ -4303,41 +4535,6 @@ msgstr "UTA tændt"
 msgid "Sets UTA on/off"
 msgstr "Tænder/slukker for UTA'en"
 
-#: .tmp/umax_pp.c:636
-#, no-c-format
-msgid "Gain"
-msgstr "Forstærk"
-
-#: .tmp/umax_pp.c:637
-#, no-c-format
-msgid "Color channels gain settings"
-msgstr "Farvekanalforstærkningsindstillinger"
-
-#: .tmp/umax_pp.c:644
-#, no-c-format
-msgid "Gray gain"
-msgstr "Grå-forstærkning"
-
-#: .tmp/umax_pp.c:645
-#, no-c-format
-msgid "Sets gray channel gain"
-msgstr "Fastsætter grå-kanals forstærkning"
-
-#: .tmp/umax_pp.c:657
-#, no-c-format
-msgid "Sets red channel gain"
-msgstr "Fastsætter rød-kanals forstærkning"
-
-#: .tmp/umax_pp.c:669
-#, no-c-format
-msgid "Sets green channel gain"
-msgstr "Fastsætter grøn-kanals forstærkning"
-
-#: .tmp/umax_pp.c:681
-#, no-c-format
-msgid "Sets blue channel gain"
-msgstr "Fastsætter blå-kanals forstærkning"
-
 #: .tmp/umax_pp.c:692
 #, no-c-format
 msgid "Offset"
@@ -4372,7 +4569,3 @@ msgstr "Indstillinger for grøn-kanals forskydning"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Indstillinger for blå-kanals forskydning"
-
-#, fuzzy
-#~ msgid "Selects the size of the area to be scanned."
-#~ msgstr "Vælger nummeret på det billede der skal skannes"

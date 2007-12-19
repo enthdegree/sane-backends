@@ -1411,7 +1411,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Scanner model");
 	      pDesc->desc =
 		SANE_I18N
-		("Lets to test device behaviour with other supported models");
+		("Allows to test device behaviour with other supported models");
 	      pDesc->type = SANE_TYPE_STRING;
 	      pDesc->size = max_string_size (scanner->list_models);
 	      pDesc->constraint_type = SANE_CONSTRAINT_STRING_LIST;
@@ -1505,7 +1505,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Emulate Grayscale");
 	      pDesc->desc =
 		SANE_I18N
-		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This uses to improve image quality in some circunstances.");
+		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This may improve image quality in some circumstances.");
 	      pDesc->type = SANE_TYPE_BOOL;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = sizeof (SANE_Word);
@@ -1576,7 +1576,7 @@ options_init (TScanner * scanner)
 	    case opt_chipid:
 	      pDesc->name = "opt_chipid";
 	      pDesc->title = SANE_I18N ("Chipset ID");
-	      pDesc->desc = SANE_I18N ("Shows the chipset ide");
+	      pDesc->desc = SANE_I18N ("Shows the chipset ID");
 	      pDesc->type = SANE_TYPE_INT;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
@@ -1588,7 +1588,7 @@ options_init (TScanner * scanner)
 
 	    case opt_scancount:
 	      pDesc->name = "opt_scancount";
-	      pDesc->title = SANE_I18N ("Scans counter");
+	      pDesc->title = SANE_I18N ("Scan counter");
 	      pDesc->desc =
 		SANE_I18N ("Shows the number of scans made by scanner");
 	      pDesc->type = SANE_TYPE_INT;
@@ -1643,7 +1643,7 @@ options_init (TScanner * scanner)
 		pDesc->title = strdup (title);
 		pDesc->desc =
 		  SANE_I18N
-		  ("This options reflects a front pannel scanner button");
+		  ("This option reflects a front panel scanner button");
 		pDesc->type = SANE_TYPE_BOOL;
 		pDesc->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 

@@ -1,3 +1,8 @@
+2007-12-19  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* po/Makefile.in, po/sane-backends.*.po: New translation keys for
+	  hp3900 backend. Updated Swedish translation.
+
 2007-12-17  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/epjitsu*, backend/Makefile.in, backend/dll.conf.in,
 	  doc/sane-epjitsu.man, doc/Makefile.in, doc/sane.man,
@@ -446,7 +451,7 @@
 2007-05-08  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/Makefile.in, po/sane-backends.*.po: New translation keys for
-	  hp3500 and hp 5590 backends. Updated Swedish translation.
+	  hp3500 and hp5590 backends. Updated Swedish translation.
 	* backend/hp5590.c: Do not localize option names
 
 2007-04-29 Ilia Sotnikov <hostcc@gmail.com>

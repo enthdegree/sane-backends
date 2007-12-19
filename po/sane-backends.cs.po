@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends.cs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-19 21:54+0100\n"
-"PO-Revision-Date: 2007-05-08 13:27+0200\n"
+"POT-Creation-Date: 2007-12-17 22:31+0100\n"
+"PO-Revision-Date: 2007-12-17 22:59+0100\n"
 "Last-Translator: Josef  <joeprusa@volny.cz>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,11 +17,12 @@ msgstr ""
 #: .tmp/artec_eplus48u.c:154 .tmp/canon.c:140 .tmp/canon.c:151
 #: .tmp/canon.c:157 .tmp/canon-sane.c:703 .tmp/canon-sane.c:1060
 #: .tmp/canon-sane.c:1269 .tmp/canon-sane.c:1302 .tmp/canon-sane.c:1398
-#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp-option.c:2926
-#: .tmp/ma1509.c:101 .tmp/mustek.c:127 .tmp/mustek.c:132
-#: .tmp/mustek_usb2.c:109 .tmp/mustek_usb.c:270 .tmp/saneopts.h:395
-#: .tmp/sceptre.h:289 .tmp/sm3840.c:82 .tmp/sm3840.c:339
-#: .tmp/snapscan-options.c:79 .tmp/umax.c:186 .tmp/umax_pp.c:137
+#: .tmp/canon-sane.c:1623 .tmp/genesys.c:91 .tmp/hp3900_sane.c:383
+#: .tmp/hp3900_sane.c:1028 .tmp/hp-option.c:2926 .tmp/ma1509.c:101
+#: .tmp/mustek.c:127 .tmp/mustek.c:132 .tmp/mustek_usb2.c:109
+#: .tmp/mustek_usb.c:270 .tmp/saneopts.h:395 .tmp/sceptre.h:289
+#: .tmp/sm3840.c:82 .tmp/sm3840.c:339 .tmp/snapscan-options.c:79
+#: .tmp/umax.c:186 .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Lineart"
 msgstr "Perokresba"
@@ -36,12 +37,14 @@ msgstr "Stupně šedé"
 #: .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon-sane.c:731
 #: .tmp/canon-sane.c:939 .tmp/canon-sane.c:1075 .tmp/canon-sane.c:1317
 #: .tmp/canon-sane.c:1635 .tmp/canon-sane.c:1740 .tmp/canon-sane.c:2057
-#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88 .tmp/hp5590.c:86
-#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101 .tmp/mustek.c:128
-#: .tmp/mustek.c:132 .tmp/mustek_usb.c:268 .tmp/pixma.c:623
-#: .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393 .tmp/sceptre.h:292
-#: .tmp/sm3840.c:81 .tmp/snapscan-options.c:76 .tmp/teco1.h:293
-#: .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191 .tmp/umax_pp.c:137
+#: .tmp/epson2.c:195 .tmp/epson.c:490 .tmp/genesys.c:88
+#: .tmp/hp3900_sane.c:383 .tmp/hp3900_sane.c:1024 .tmp/hp5590.c:86
+#: .tmp/hp-option.c:2929 .tmp/leo.h:262 .tmp/ma1509.c:101
+#: .tmp/mustek.c:128 .tmp/mustek.c:132 .tmp/mustek_usb.c:268
+#: .tmp/pixma.c:623 .tmp/pixma_sane_options.c:70 .tmp/saneopts.h:393
+#: .tmp/sceptre.h:292 .tmp/sm3840.c:81 .tmp/snapscan-options.c:76
+#: .tmp/teco1.h:293 .tmp/teco3.h:296 .tmp/test.c:124 .tmp/umax.c:191
+#: .tmp/umax_pp.c:137
 #, no-c-format
 msgid "Color"
 msgstr "Barva"
@@ -50,7 +53,7 @@ msgstr "Barva"
 #: .tmp/hp-option.c:2952 .tmp/leo.c:871 .tmp/ma1509.c:597
 #: .tmp/matsushita.c:1189 .tmp/microtek2.h:601 .tmp/mustek.c:4405
 #: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
-#: .tmp/plustek.c:852 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
+#: .tmp/plustek.c:853 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
 #: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
 #: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
 #: .tmp/umax_pp.c:550
@@ -68,15 +71,15 @@ msgstr "Standardní nastavení"
 msgid "Set default values for enhancement controls."
 msgstr "Nastavit standardní hodnoty prvků pro vylepšení obrázku"
 
-#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2082 .tmp/epson.c:3288
-#: .tmp/genesys.c:4682 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
-#: .tmp/hp-option.c:3296 .tmp/leo.c:823 .tmp/ma1509.c:549
-#: .tmp/matsushita.c:1135 .tmp/microtek2.h:600 .tmp/mustek.c:4357
-#: .tmp/mustek_usb2.c:465 .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144
-#: .tmp/plustek.c:806 .tmp/plustek_pp.c:746 .tmp/sceptre.c:702
-#: .tmp/snapscan-options.c:494 .tmp/teco1.c:1095 .tmp/teco2.c:1903
-#: .tmp/teco3.c:920 .tmp/test.c:642 .tmp/u12.c:546 .tmp/umax.c:5174
-#: .tmp/umax_pp.c:501
+#: .tmp/artec_eplus48u.c:2884 .tmp/epson2.c:2086 .tmp/epson.c:3288
+#: .tmp/genesys.c:4688 .tmp/gt68xx.c:696 .tmp/hp3500.c:976
+#: .tmp/hp3900_sane.c:1243 .tmp/hp-option.c:3296 .tmp/leo.c:823
+#: .tmp/lexmark.c:214 .tmp/ma1509.c:549 .tmp/matsushita.c:1135
+#: .tmp/microtek2.h:600 .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465
+#: .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807
+#: .tmp/plustek_pp.c:746 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
+#: .tmp/teco1.c:1095 .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642
+#: .tmp/u12.c:546 .tmp/umax.c:5174 .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
 msgstr "Geometrie"
@@ -94,11 +97,11 @@ msgstr "Kalibrovat před dalším skenem"
 #: .tmp/artec_eplus48u.c:2943
 #, no-c-format
 msgid ""
-"If enabled, the device will be calibrated before the next scan. Otherwise, "
-"calibration is performed only before the first start."
+"If enabled, the device will be calibrated before the next scan. "
+"Otherwise, calibration is performed only before the first start."
 msgstr ""
-"Pokud je zvolena tato volba, je skener kalibrován před každým dalším skenem. "
-"Jinak se kalibruje pouze před prvním skenem."
+"Pokud je zvolena tato volba, je skener kalibrován před každým dalším "
+"skenem. Jinak se kalibruje pouze před prvním skenem."
 
 #: .tmp/artec_eplus48u.c:2954
 #, no-c-format
@@ -108,13 +111,13 @@ msgstr "Provést pouze korekci stínů"
 #: .tmp/artec_eplus48u.c:2956
 #, no-c-format
 msgid ""
-"If enabled, only the shading correction is performed during calibration. The "
-"default values for gain, offset and exposure time, either build-in or from "
-"the configuration file, are used."
+"If enabled, only the shading correction is performed during calibration. "
+"The default values for gain, offset and exposure time, either build-in "
+"or from the configuration file, are used."
 msgstr ""
-"Pokud je tato volba zapnuta, při kalibraci se provede pouze korekce stínů. "
-"Pro zisk, odstup a expozici jsou použity standardní hodnoty - buď vestavěné "
-"nebo z konfiguračního souboru."
+"Pokud je tato volba zapnuta, při kalibraci se provede pouze korekce "
+"stínů. Pro zisk, odstup a expozici jsou použity standardní hodnoty - buď "
+"vestavěné nebo z konfiguračního souboru."
 
 #: .tmp/artec_eplus48u.c:2967
 #, no-c-format
@@ -138,7 +141,8 @@ msgstr "Oboustraně"
 
 #: .tmp/avision.h:765
 #, no-c-format
-msgid "Duplex scan provide a scan of the front and back side of the document"
+msgid ""
+"Duplex scan provide a scan of the front and back side of the document"
 msgstr ""
 
 #: .tmp/canon630u.c:158
@@ -193,10 +197,12 @@ msgstr "Polotóny"
 #: .tmp/canon.c:140 .tmp/canon.c:151 .tmp/canon.c:157 .tmp/canon.c:566
 #: .tmp/canon-sane.c:937 .tmp/canon-sane.c:1069 .tmp/canon-sane.c:1312
 #: .tmp/canon-sane.c:1633 .tmp/canon-sane.c:2070 .tmp/epson2.c:194
-#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/ma1509.c:101 .tmp/mustek.c:127
+#: .tmp/epson.c:489 .tmp/genesys.c:89 .tmp/hp3900_sane.c:383
+#: .tmp/hp3900_sane.c:1026 .tmp/ma1509.c:101 .tmp/mustek.c:127
 #: .tmp/mustek.c:132 .tmp/mustek_usb.c:269 .tmp/pixma.c:626
-#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81 .tmp/sm3840.c:335
-#: .tmp/snapscan-options.c:78 .tmp/test.c:124 .tmp/umax.c:188
+#: .tmp/saneopts.h:394 .tmp/sceptre.h:291 .tmp/sm3840.c:81
+#: .tmp/sm3840.c:335 .tmp/snapscan-options.c:78 .tmp/test.c:124
+#: .tmp/umax.c:188
 #, no-c-format
 msgid "Gray"
 msgstr "Šedá"
@@ -429,8 +435,9 @@ msgstr ""
 msgid "film scanner"
 msgstr "Stolní skener"
 
-#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915 .tmp/plustek.c:1333
-#: .tmp/plustek_pp.c:1014 .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
+#: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
+#: .tmp/hp3900_sane.c:1694 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "Stolní skener"
@@ -441,7 +448,7 @@ msgstr "Stolní skener"
 msgid "Scan mode"
 msgstr "Režim skenu"
 
-#: .tmp/canon.c:1171 .tmp/epson2.c:2156 .tmp/epson.c:3376
+#: .tmp/canon.c:1171 .tmp/epson2.c:2160 .tmp/epson.c:3376
 #, no-c-format
 msgid "Film type"
 msgstr "Typ filmu"
@@ -521,7 +528,7 @@ msgstr ""
 msgid "Extra color adjustments"
 msgstr ""
 
-#: .tmp/canon.c:1522 .tmp/epson2.c:2036 .tmp/epson.c:3195
+#: .tmp/canon.c:1522 .tmp/epson2.c:2040 .tmp/epson.c:3195
 #, no-c-format
 msgid "Mirror image"
 msgstr "Zrcadlit obrázek"
@@ -593,7 +600,8 @@ msgstr ""
 
 #: .tmp/canon.c:1663
 #, no-c-format
-msgid "Automatically eject the film from the device before exiting the program"
+msgid ""
+"Automatically eject the film from the device before exiting the program"
 msgstr ""
 
 #: .tmp/canon.c:1672
@@ -682,6 +690,7 @@ msgid "Duplex"
 msgstr "Oboustraně"
 
 #: .tmp/epson2.c:207 .tmp/epson.c:505 .tmp/genesys.c:103 .tmp/gt68xx.c:144
+#: .tmp/hp3900_sane.c:420 .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1007
 #: .tmp/hp5590.c:80 .tmp/ma1509.c:106 .tmp/mustek.c:150 .tmp/mustek.c:154
 #: .tmp/mustek.c:158 .tmp/pixma.c:631 .tmp/pixma_sane_options.c:85
 #: .tmp/snapscan-options.c:82 .tmp/test.c:189 .tmp/umax.c:182
@@ -791,19 +800,19 @@ msgstr "Download vzor A"
 msgid "Download pattern B"
 msgstr "Download vzor B"
 
-#: .tmp/epson2.c:305 .tmp/epson2.c:1948 .tmp/epson.c:603 .tmp/epson.c:3086
+#: .tmp/epson2.c:305 .tmp/epson2.c:1952 .tmp/epson.c:603 .tmp/epson.c:3086
 #: .tmp/genesys.c:96 .tmp/gt68xx_low.h:135 .tmp/hp-option.c:3092
 #, no-c-format
 msgid "Red"
 msgstr "Červená"
 
-#: .tmp/epson2.c:306 .tmp/epson2.c:1944 .tmp/epson.c:604 .tmp/epson.c:3082
+#: .tmp/epson2.c:306 .tmp/epson2.c:1948 .tmp/epson.c:604 .tmp/epson.c:3082
 #: .tmp/genesys.c:97 .tmp/gt68xx_low.h:136 .tmp/hp-option.c:3093
 #, no-c-format
 msgid "Green"
 msgstr "Zelená"
 
-#: .tmp/epson2.c:307 .tmp/epson2.c:1952 .tmp/epson.c:605 .tmp/epson.c:3090
+#: .tmp/epson2.c:307 .tmp/epson2.c:1956 .tmp/epson.c:605 .tmp/epson.c:3090
 #: .tmp/genesys.c:98 .tmp/gt68xx_low.h:137 .tmp/hp-option.c:3094
 #, no-c-format
 msgid "Blue"
@@ -839,7 +848,8 @@ msgstr "Inkoustové tiskárny"
 msgid "CRT monitors"
 msgstr "CRT monitory"
 
-#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225 .tmp/test.c:140
+#: .tmp/epson2.c:360 .tmp/epson.c:660 .tmp/hp-option.c:3225
+#: .tmp/test.c:140
 #, no-c-format
 msgid "Default"
 msgstr "Standard"
@@ -869,204 +879,204 @@ msgstr "Uživatelsky definováno (Gama=1,0)"
 msgid "User defined (Gamma=1.8)"
 msgstr "Uživatelsky definováno (Gama=1,8)"
 
-#: .tmp/epson2.c:1666 .tmp/epson.c:2803 .tmp/genesys.c:4611 .tmp/gt68xx.c:453
-#: .tmp/hp-option.c:2913 .tmp/ma1509.c:499 .tmp/matsushita.c:1084
-#: .tmp/microtek2.h:599 .tmp/mustek.c:4199 .tmp/mustek_usb2.c:344
-#: .tmp/mustek_usb.c:260 .tmp/niash.c:736 .tmp/plustek.c:719
-#: .tmp/plustek_pp.c:657 .tmp/sceptre.c:673 .tmp/snapscan-options.c:315
-#: .tmp/stv680.c:1030 .tmp/teco2.c:1875 .tmp/test.c:301 .tmp/u12.c:473
-#: .tmp/umax.c:5052
+#: .tmp/epson2.c:1670 .tmp/epson.c:2803 .tmp/genesys.c:4617
+#: .tmp/gt68xx.c:453 .tmp/hp-option.c:2913 .tmp/ma1509.c:499
+#: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4199
+#: .tmp/mustek_usb2.c:344 .tmp/mustek_usb.c:260 .tmp/niash.c:736
+#: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
+#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1875
+#: .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Režim skenování"
 
-#: .tmp/epson2.c:1698 .tmp/epson.c:2835
+#: .tmp/epson2.c:1702 .tmp/epson.c:2835
 #, no-c-format
 msgid "Selects the halftone."
 msgstr "Zvolit polotóny"
 
-#: .tmp/epson2.c:1719 .tmp/epson.c:2857
+#: .tmp/epson2.c:1723 .tmp/epson.c:2857
 #, no-c-format
 msgid "Dropout"
 msgstr "Výpadek"
 
-#: .tmp/epson2.c:1720 .tmp/epson.c:2858
+#: .tmp/epson2.c:1724 .tmp/epson.c:2858
 #, no-c-format
 msgid "Selects the dropout."
 msgstr "Nastaví výpadek."
 
-#: .tmp/epson2.c:1732 .tmp/epson.c:2870
+#: .tmp/epson2.c:1736 .tmp/epson.c:2870
 #, no-c-format
 msgid "Selects the brightness."
 msgstr "Nastaví jas."
 
-#: .tmp/epson2.c:1746 .tmp/epson.c:2885
+#: .tmp/epson2.c:1750 .tmp/epson.c:2885
 #, no-c-format
 msgid "Sharpness"
 msgstr "Zaostření"
 
-#: .tmp/epson2.c:1882 .tmp/epson.c:3021
+#: .tmp/epson2.c:1886 .tmp/epson.c:3021
 #, no-c-format
 msgid "Color correction"
 msgstr "Barevná korekce"
 
-#: .tmp/epson2.c:1885 .tmp/epson.c:3024
+#: .tmp/epson2.c:1889 .tmp/epson.c:3024
 #, no-c-format
 msgid "Sets the color correction table for the selected output device."
 msgstr "Nastaví tabulku barevných korekcí pro vybrané výstupní zařízení."
 
-#: .tmp/epson2.c:1926 .tmp/epson.c:3065
+#: .tmp/epson2.c:1930 .tmp/epson.c:3065
 #, no-c-format
 msgid "Color correction coefficients"
 msgstr "Koeficienty barevných korekcí"
 
-#: .tmp/epson2.c:1928 .tmp/epson.c:3066
+#: .tmp/epson2.c:1932 .tmp/epson.c:3066
 #, no-c-format
 msgid "Matrix multiplication of RGB"
 msgstr "Násobící matice RGB"
 
-#: .tmp/epson2.c:1945 .tmp/epson.c:3083
+#: .tmp/epson2.c:1949 .tmp/epson.c:3083
 #, no-c-format
 msgid "Shift green to red"
 msgstr "Posun zelená-červená"
 
-#: .tmp/epson2.c:1946 .tmp/epson.c:3084
+#: .tmp/epson2.c:1950 .tmp/epson.c:3084
 #, no-c-format
 msgid "Shift green to blue"
 msgstr "Posun zelená-modrá"
 
-#: .tmp/epson2.c:1947 .tmp/epson.c:3085
+#: .tmp/epson2.c:1951 .tmp/epson.c:3085
 #, no-c-format
 msgid "Shift red to green"
 msgstr "Posun červená-zelená"
 
-#: .tmp/epson2.c:1949 .tmp/epson.c:3087
+#: .tmp/epson2.c:1953 .tmp/epson.c:3087
 #, no-c-format
 msgid "Shift red to blue"
 msgstr "Posun červená-modrá"
 
-#: .tmp/epson2.c:1950 .tmp/epson.c:3088
+#: .tmp/epson2.c:1954 .tmp/epson.c:3088
 #, no-c-format
 msgid "Shift blue to green"
 msgstr "Posun modrá-zelená"
 
-#: .tmp/epson2.c:1951 .tmp/epson.c:3089
+#: .tmp/epson2.c:1955 .tmp/epson.c:3089
 #, no-c-format
 msgid "Shift blue to red"
 msgstr "Posun modrá-červená"
 
-#: .tmp/epson2.c:1954 .tmp/epson.c:3092
+#: .tmp/epson2.c:1958 .tmp/epson.c:3092
 #, no-c-format
 msgid "Controls green level"
 msgstr "Ovládá úroveň zelené"
 
-#: .tmp/epson2.c:1956 .tmp/epson.c:3093
+#: .tmp/epson2.c:1960 .tmp/epson.c:3093
 #, no-c-format
 msgid "Adds to red based on green level"
 msgstr "Přidává červenou v závislosti na úrovni zelené"
 
-#: .tmp/epson2.c:1958 .tmp/epson.c:3094
+#: .tmp/epson2.c:1962 .tmp/epson.c:3094
 #, no-c-format
 msgid "Adds to blue based on green level"
 msgstr "Přidává modrou v závislosti na úrovni zelené"
 
-#: .tmp/epson2.c:1960 .tmp/epson.c:3095
+#: .tmp/epson2.c:1964 .tmp/epson.c:3095
 #, no-c-format
 msgid "Adds to green based on red level"
 msgstr "Přidává zelenou v závislosti na úrovni červené"
 
-#: .tmp/epson2.c:1961 .tmp/epson.c:3096
+#: .tmp/epson2.c:1965 .tmp/epson.c:3096
 #, no-c-format
 msgid "Controls red level"
 msgstr "Ovládá úroveň červené"
 
-#: .tmp/epson2.c:1962 .tmp/epson.c:3097
+#: .tmp/epson2.c:1966 .tmp/epson.c:3097
 #, no-c-format
 msgid "Adds to blue based on red level"
 msgstr "Přidává modrou v závislosti na úrovni červené"
 
-#: .tmp/epson2.c:1964 .tmp/epson.c:3098
+#: .tmp/epson2.c:1968 .tmp/epson.c:3098
 #, no-c-format
 msgid "Adds to green based on blue level"
 msgstr "Přidává zelenou v závislosti na úrovni modré"
 
-#: .tmp/epson2.c:1965 .tmp/epson.c:3099
+#: .tmp/epson2.c:1969 .tmp/epson.c:3099
 #, no-c-format
 msgid "Adds to red based on blue level"
 msgstr "Přidává červenou v závislosti na úrovni modré"
 
-#: .tmp/epson2.c:1966 .tmp/epson.c:3100
+#: .tmp/epson2.c:1970 .tmp/epson.c:3100
 #, no-c-format
 msgid "Controls blue level"
 msgstr "Ovládá úroveň modré"
 
-#: .tmp/epson2.c:2029 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
+#: .tmp/epson2.c:2033 .tmp/epson.c:3187 .tmp/snapscan-options.c:816
 #: .tmp/umax.c:5563
 #, no-c-format
 msgid "Advanced"
 msgstr "Pokročilé"
 
-#: .tmp/epson2.c:2037 .tmp/epson.c:3196
+#: .tmp/epson2.c:2041 .tmp/epson.c:3196
 #, no-c-format
 msgid "Mirror the image."
 msgstr "Zrcadlí obrázek."
 
-#: .tmp/epson2.c:2047 .tmp/epson.c:3235
+#: .tmp/epson2.c:2051 .tmp/epson.c:3235
 #, no-c-format
 msgid "Auto area segmentation"
 msgstr "Automatické rozložení plochy"
 
-#: .tmp/epson2.c:2060 .tmp/epson.c:3248
+#: .tmp/epson2.c:2064 .tmp/epson.c:3248
 #, no-c-format
 msgid "Short resolution list"
 msgstr "Zkrácený seznam rozlišení"
 
-#: .tmp/epson2.c:2062
+#: .tmp/epson2.c:2066
 #, fuzzy, no-c-format
 msgid "Display a shortened resolution list"
 msgstr "Zobrazí zkrácený seznam rozlišení"
 
-#: .tmp/epson2.c:2132 .tmp/epson.c:3350
+#: .tmp/epson2.c:2136 .tmp/epson.c:3350
 #, no-c-format
 msgid "Optional equipment"
 msgstr "Volitelné příslušenství"
 
-#: .tmp/epson2.c:2186 .tmp/epson.c:3421
+#: .tmp/epson2.c:2190 .tmp/epson.c:3421
 #, no-c-format
 msgid "Eject"
 msgstr "Vysunout"
 
-#: .tmp/epson2.c:2187 .tmp/epson.c:3422
+#: .tmp/epson2.c:2191 .tmp/epson.c:3422
 #, no-c-format
 msgid "Eject the sheet in the ADF"
 msgstr "Vysunout papír z automatického podavače"
 
-#: .tmp/epson2.c:2197 .tmp/epson.c:3434
+#: .tmp/epson2.c:2201 .tmp/epson.c:3434
 #, no-c-format
 msgid "Auto eject"
 msgstr "Automaticky vysunout"
 
-#: .tmp/epson2.c:2199 .tmp/epson.c:3435
+#: .tmp/epson2.c:2203 .tmp/epson.c:3435
 #, no-c-format
 msgid "Eject document after scanning"
 msgstr "Vysunout dokument po naskenování"
 
-#: .tmp/epson2.c:2209 .tmp/epson.c:3447
+#: .tmp/epson2.c:2213 .tmp/epson.c:3447
 #, no-c-format
 msgid "ADF Mode"
 msgstr ""
 
-#: .tmp/epson2.c:2211 .tmp/epson.c:3449
+#: .tmp/epson2.c:2215 .tmp/epson.c:3449
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
 
-#: .tmp/epson2.c:2223 .tmp/epson.c:3463
+#: .tmp/epson2.c:2227 .tmp/epson.c:3463
 #, no-c-format
 msgid "Bay"
 msgstr "Pozice"
 
-#: .tmp/epson2.c:2224 .tmp/epson.c:3464
+#: .tmp/epson2.c:2228 .tmp/epson.c:3464
 #, no-c-format
 msgid "Select bay to scan"
 msgstr "Zvolte pozici pro sken"
@@ -1074,11 +1084,11 @@ msgstr "Zvolte pozici pro sken"
 #: .tmp/epson2.h:65 .tmp/epson.h:69
 #, no-c-format
 msgid ""
-"Selects the gamma correction value from a list of pre-defined devices or the "
-"user defined table, which can be downloaded to the scanner"
+"Selects the gamma correction value from a list of pre-defined devices or "
+"the user defined table, which can be downloaded to the scanner"
 msgstr ""
-"Zvolit gama korekci ze seznamu předdefinovaných zařízení nebo uživatelské "
-"tabulky, kterou lze nahrát do skeneru"
+"Zvolit gama korekci ze seznamu předdefinovaných zařízení nebo "
+"uživatelské tabulky, kterou lze nahrát do skeneru"
 
 #: .tmp/epson2.h:68 .tmp/epson.h:72
 #, no-c-format
@@ -1087,7 +1097,8 @@ msgstr "Pozice zaostření"
 
 #: .tmp/epson2.h:69 .tmp/epson.h:73
 #, no-c-format
-msgid "Sets the focus position to either the glass or 2.5mm above the glass"
+msgid ""
+"Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr "Nastaví pozici zaostření buď na sklo nebo 2,5 mm nad sklo"
 
 #: .tmp/epson2.h:71 .tmp/epson.h:75
@@ -1159,49 +1170,49 @@ msgstr "Nastaví faktor přiblížení, který skener použije"
 msgid "Quick format"
 msgstr "Rychlý formát"
 
-#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106 .tmp/mustek.c:158
-#: .tmp/snapscan-options.c:83 .tmp/umax.c:183
+#: .tmp/genesys.c:104 .tmp/gt68xx.c:145 .tmp/ma1509.c:106
+#: .tmp/mustek.c:158 .tmp/snapscan-options.c:83 .tmp/umax.c:183
 #, no-c-format
 msgid "Transparency Adapter"
 msgstr "Prosvětlovací adaptér"
 
-#: .tmp/genesys.c:4733
+#: .tmp/genesys.c:4739
 #, fuzzy, no-c-format
 msgid "Extras"
 msgstr "Velmi rychlý"
 
-#: .tmp/genesys.c:4754
+#: .tmp/genesys.c:4760
 #, fuzzy, no-c-format
 msgid "Disable interpolation"
 msgstr "Vyřadit zpětný chod"
 
-#: .tmp/genesys.c:4757
+#: .tmp/genesys.c:4763
 #, no-c-format
 msgid ""
-"When using high resolutions where the horizontal resolution is smaller than "
-"the vertical resolution this disables horizontal interpolation."
+"When using high resolutions where the horizontal resolution is smaller "
+"than the vertical resolution this disables horizontal interpolation."
 msgstr ""
 
-#: .tmp/genesys.c:4766
+#: .tmp/genesys.c:4772
 #, fuzzy, no-c-format
 msgid "Color Filter"
 msgstr "Barevná perokresba"
 
-#: .tmp/genesys.c:4769
+#: .tmp/genesys.c:4775
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 
-#: .tmp/genesys.c:4778
+#: .tmp/genesys.c:4784
 #, fuzzy, no-c-format
 msgid "Lamp off time"
 msgstr "Vypnout lampu"
 
-#: .tmp/genesys.c:4781
+#: .tmp/genesys.c:4787
 #, no-c-format
 msgid ""
-"The lamp will be turned off after the given time (in minutes). A value of 0 "
-"means, that the lamp won't be turned off."
+"The lamp will be turned off after the given time (in minutes). A value "
+"of 0 means, that the lamp won't be turned off."
 msgstr ""
 
 #: .tmp/gt68xx.c:472
@@ -1214,7 +1225,7 @@ msgstr ""
 msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
 
-#: .tmp/gt68xx.c:555 .tmp/mustek_usb2.c:410
+#: .tmp/gt68xx.c:555 .tmp/hp3900_sane.c:1398 .tmp/mustek_usb2.c:410
 #, no-c-format
 msgid "Debugging Options"
 msgstr "Volby pro ladění"
@@ -1227,8 +1238,8 @@ msgstr "Automaticky zahřát"
 #: .tmp/gt68xx.c:568
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 60 "
-"seconds warm-up time."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"60 seconds warm-up time."
 msgstr ""
 "Zahřát lampu dokud její jas není konstantní namísto standardního 60ti "
 "sekundového zahřívání."
@@ -1244,8 +1255,8 @@ msgid ""
 "Scan the complete scanning area including calibration strip. Be careful. "
 "Don't select the full height. For testing only."
 msgstr ""
-"Naskenovat kompletní skenovací plochu včetně kalibračního proužku. Opatrně! "
-"Nenastavujte plnou výšku! Pouze pro testování!"
+"Naskenovat kompletní skenovací plochu včetně kalibračního proužku. "
+"Opatrně! Nenastavujte plnou výšku! Pouze pro testování!"
 
 #: .tmp/gt68xx.c:593
 #, no-c-format
@@ -1256,12 +1267,12 @@ msgstr "Hrubá kalibrace"
 #, no-c-format
 msgid ""
 "Setup gain and offset for scanning automatically. If this option is "
-"disabled, options for setting the analog frontend parameters manually are "
-"provided. This option is enabled by default. For testing only."
+"disabled, options for setting the analog frontend parameters manually "
+"are provided. This option is enabled by default. For testing only."
 msgstr ""
 "Nastavit zisk a odstup pro skenování automaticky. Pokud je toto vypnuto, "
-"jsou zobrazeny ovádací prvky pro mauální nastavení. Tato volba je standardně "
-"zapnuta. Pouze pro testování!"
+"jsou zobrazeny ovádací prvky pro mauální nastavení. Tato volba je "
+"standardně zapnuta. Pouze pro testování!"
 
 #: .tmp/gt68xx.c:614
 #, no-c-format
@@ -1271,13 +1282,13 @@ msgstr "Hrubá kalibrace pouze pro první sken"
 #: .tmp/gt68xx.c:616
 #, no-c-format
 msgid ""
-"Coarse calibration is only done for the first scan. Works with most scanners "
-"and can save scanning time. If the image brightness is different with each "
-"scan, disable this option. For testing only."
+"Coarse calibration is only done for the first scan. Works with most "
+"scanners and can save scanning time. If the image brightness is "
+"different with each scan, disable this option. For testing only."
 msgstr ""
-"Hrubá kalibrace se provádí pouze pro první sken. Ve většině případů funguje "
-"a může zkrátit čas skenování. Pokud se obrázek s každým dalším skenem mění, "
-"vyřaďte tuto volbu. Pouze pro testování!"
+"Hrubá kalibrace se provádí pouze pro první sken. Ve většině případů "
+"funguje a může zkrátit čas skenování. Pokud se obrázek s každým dalším "
+"skenem mění, vyřaďte tuto volbu. Pouze pro testování!"
 
 #: .tmp/gt68xx.c:647
 #, fuzzy, no-c-format
@@ -1287,9 +1298,10 @@ msgstr "Skenovat při zpětném chodu"
 #: .tmp/gt68xx.c:649
 #, no-c-format
 msgid ""
-"Number of lines the scan slider moves back when backtracking occurs. That "
-"happens when the scanner scans faster than the computer can receive the "
-"data. Low values cause faster scans but increase the risk of omitting lines."
+"Number of lines the scan slider moves back when backtracking occurs. "
+"That happens when the scanner scans faster than the computer can receive "
+"the data. Low values cause faster scans but increase the risk of "
+"omitting lines."
 msgstr ""
 
 #: .tmp/gt68xx.c:674 .tmp/mustek_usb2.c:452
@@ -1311,6 +1323,172 @@ msgstr "Geometrie"
 #, fuzzy, no-c-format
 msgid "Scan Mode Group"
 msgstr "Režim skenování"
+
+#: .tmp/hp3900_sane.c:429 .tmp/hp3900_sane.c:1009 .tmp/hp-option.c:3173
+#, fuzzy, no-c-format
+msgid "Slide"
+msgstr "Zcela bílá"
+
+#: .tmp/hp3900_sane.c:430 .tmp/hp3900_sane.c:1011 .tmp/hp3900_sane.c:1427
+#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
+#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
+#, no-c-format
+msgid "Negative"
+msgstr "Negativ"
+
+#: .tmp/hp3900_sane.c:1411
+#, fuzzy, no-c-format
+msgid "Scanner model"
+msgstr "Režim skenu"
+
+#: .tmp/hp3900_sane.c:1414
+#, no-c-format
+msgid "Allows to test device behaviour with other supported models"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1428
+#, no-c-format
+msgid "Image colours will be inverted"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1442
+#, fuzzy, no-c-format
+msgid "Disable gamma correction"
+msgstr "Analogová korekce gama"
+
+#: .tmp/hp3900_sane.c:1443
+#, fuzzy, no-c-format
+msgid "Gamma correction will be disabled"
+msgstr "Korekce gama"
+
+#: .tmp/hp3900_sane.c:1457
+#, fuzzy, no-c-format
+msgid "Disable white shading correction"
+msgstr "Provést pouze korekci stínů"
+
+#: .tmp/hp3900_sane.c:1459
+#, no-c-format
+msgid "White shading correction will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1473
+#, no-c-format
+msgid "Skip warmup process"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1474
+#, no-c-format
+msgid "Warmup process will be disabled"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1488
+#, no-c-format
+msgid "Force real depth"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1491
+#, no-c-format
+msgid ""
+"If gamma is enabled, scans are always made in 16 bits depth to improve "
+"image quality and then converted to the selected depth. This option "
+"avoids depth emulation."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1505
+#, fuzzy, no-c-format
+msgid "Emulate Grayscale"
+msgstr "Stupně šedé"
+
+#: .tmp/hp3900_sane.c:1508
+#, no-c-format
+msgid ""
+"If enabled, image will be scanned in color mode and then converted to "
+"grayscale by software. This may improve image quality in some "
+"circumstances."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1522
+#, no-c-format
+msgid "Save debugging images"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1525
+#, no-c-format
+msgid ""
+"If enabled, some images involved in scanner processing are saved to "
+"analyze them."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1539
+#, fuzzy, no-c-format
+msgid "Reset chipset"
+msgstr "skener s podavačem"
+
+#: .tmp/hp3900_sane.c:1540
+#, no-c-format
+msgid "Resets chipset data"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1553
+#, fuzzy, no-c-format
+msgid "Information"
+msgstr "Ignorovat kalibraci"
+
+#: .tmp/hp3900_sane.c:1566
+#, fuzzy, no-c-format
+msgid "Chipset name"
+msgstr "Jméno souboru"
+
+#: .tmp/hp3900_sane.c:1567
+#, no-c-format
+msgid "Shows chipset name used in device."
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1573
+#, no-c-format
+msgid "Unknown"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1578
+#, no-c-format
+msgid "Chipset ID"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1579
+#, fuzzy, no-c-format
+msgid "Shows the chipset ID"
+msgstr "skener s podavačem"
+
+#: .tmp/hp3900_sane.c:1591
+#, fuzzy, no-c-format
+msgid "Scan counter"
+msgstr "Zdroj"
+
+#: .tmp/hp3900_sane.c:1593
+#, fuzzy, no-c-format
+msgid "Shows the number of scans made by scanner"
+msgstr "Zvolí číslo políčka, které bude naskenováno"
+
+#: .tmp/hp3900_sane.c:1605
+#, fuzzy, no-c-format
+msgid "Update information"
+msgstr "Zvláštní volby"
+
+#: .tmp/hp3900_sane.c:1606
+#, no-c-format
+msgid "Updates information about device"
+msgstr ""
+
+#: .tmp/hp3900_sane.c:1619 .tmp/pixma_sane_options.c:210
+#: .tmp/plustek.c:1079
+#, fuzzy, no-c-format
+msgid "Buttons"
+msgstr "Stav tlačítek"
+
+#: .tmp/hp3900_sane.c:1646
+#, no-c-format
+msgid "This option reflects a front panel scanner button"
+msgstr ""
 
 #: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
 #, no-c-format
@@ -1353,7 +1531,7 @@ msgid "Switches the lamp on or off."
 msgstr "Zapíná a vypíná lampu."
 
 #: .tmp/hp5400_sane.c:392 .tmp/hp-option.h:97 .tmp/niash.c:728
-#: .tmp/plustek.c:939
+#: .tmp/plustek.c:940
 #, no-c-format
 msgid "Calibrate"
 msgstr "Kalibrovat"
@@ -1479,7 +1657,8 @@ msgid "Slow"
 msgstr "Pomalý"
 
 #: .tmp/hp-option.c:3144 .tmp/hp-option.c:3251 .tmp/matsushita.c:244
-#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200 .tmp/u12.c:155
+#: .tmp/mustek.c:143 .tmp/plustek.c:233 .tmp/plustek_pp.c:200
+#: .tmp/u12.c:155
 #, no-c-format
 msgid "Normal"
 msgstr "Normální"
@@ -1519,21 +1698,10 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
-#: .tmp/hp-option.c:3173
-#, fuzzy, no-c-format
-msgid "Slide"
-msgstr "Zcela bílá"
-
 #: .tmp/hp-option.c:3174
 #, fuzzy, no-c-format
 msgid "Film-strip"
 msgstr "Typ filmu"
-
-#: .tmp/hp-option.c:3234 .tmp/mustek_usb2.c:121 .tmp/plustek.c:235
-#: .tmp/plustek_pp.c:202 .tmp/saneopts.h:177 .tmp/u12.c:157
-#, no-c-format
-msgid "Negative"
-msgstr "Negativ"
 
 #: .tmp/hp-option.c:3253
 #, no-c-format
@@ -1638,9 +1806,10 @@ msgstr "Expoziční čas"
 #: .tmp/hp-option.h:111
 #, no-c-format
 msgid ""
-"A longer exposure time lets the scanner collect more light. Suggested use is "
-"175% for prints, 150% for normal slides and \"Negative\" for negative film. "
-"For dark (underexposed) images you can increase this value."
+"A longer exposure time lets the scanner collect more light. Suggested "
+"use is 175% for prints, 150% for normal slides and \"Negative\" for "
+"negative film. For dark (underexposed) images you can increase this "
+"value."
 msgstr ""
 
 #: .tmp/hp-option.h:119 .tmp/hp-option.h:126
@@ -1758,6 +1927,56 @@ msgstr "8x8 vertikála"
 msgid "Black & White"
 msgstr "Černobílý"
 
+#: .tmp/lexmark.c:288 .tmp/umax_pp.c:636
+#, no-c-format
+msgid "Gain"
+msgstr "Zisk"
+
+#: .tmp/lexmark.c:289 .tmp/umax_pp.c:637
+#, no-c-format
+msgid "Color channels gain settings"
+msgstr "Nastavení zisku barevných kanálů"
+
+#: .tmp/lexmark.c:298 .tmp/umax_pp.c:644
+#, no-c-format
+msgid "Gray gain"
+msgstr "Zisk šedé"
+
+#: .tmp/lexmark.c:299 .tmp/umax_pp.c:645
+#, no-c-format
+msgid "Sets gray channel gain"
+msgstr "Nastavuje zisk šedého kanálu"
+
+#: .tmp/lexmark.c:312 .tmp/plustek.c:1000 .tmp/umax_pp.c:656
+#, no-c-format
+msgid "Red gain"
+msgstr "Zisk červené"
+
+#: .tmp/lexmark.c:313 .tmp/umax_pp.c:657
+#, no-c-format
+msgid "Sets red channel gain"
+msgstr "Nastavuje zisk červeného kanálu"
+
+#: .tmp/lexmark.c:326 .tmp/plustek.c:1016 .tmp/umax_pp.c:668
+#, no-c-format
+msgid "Green gain"
+msgstr "Zisk zelené"
+
+#: .tmp/lexmark.c:327 .tmp/umax_pp.c:669
+#, no-c-format
+msgid "Sets green channel gain"
+msgstr "Nastavuje zisk zeleného kanálu"
+
+#: .tmp/lexmark.c:340 .tmp/plustek.c:1032 .tmp/umax_pp.c:680
+#, no-c-format
+msgid "Blue gain"
+msgstr "Zisk modré"
+
+#: .tmp/lexmark.c:341 .tmp/umax_pp.c:681
+#, no-c-format
+msgid "Sets blue channel gain"
+msgstr "Nastavuje zisk modrého kanálu"
+
 #: .tmp/matsushita.c:139
 #, no-c-format
 msgid "Bayer Dither 16"
@@ -1843,7 +2062,7 @@ msgstr "Jedna strana"
 msgid "All pages"
 msgstr "Všechny strany"
 
-#: .tmp/matsushita.c:1034 .tmp/plustek.c:1331
+#: .tmp/matsushita.c:1034 .tmp/plustek.c:1332
 #, no-c-format
 msgid "sheetfed scanner"
 msgstr "skener s podavačem"
@@ -1866,11 +2085,11 @@ msgstr "Automatické nastavení prahových hodnot"
 #: .tmp/matsushita.c:1227
 #, no-c-format
 msgid ""
-"Automatically sets brightness, contrast, white level, gamma, noise reduction "
-"and image emphasis"
+"Automatically sets brightness, contrast, white level, gamma, noise "
+"reduction and image emphasis"
 msgstr ""
-"Automaticky nastaví jas, kontrast, úroveň bílé, gama korekci, redukci šumu a "
-"zvýraznění obrázku"
+"Automaticky nastaví jas, kontrast, úroveň bílé, gama korekci, redukci "
+"šumu a zvýraznění obrázku"
 
 #: .tmp/matsushita.c:1275
 #, no-c-format
@@ -1892,7 +2111,8 @@ msgstr "Zvýraznění obrázku"
 msgid "Sets the image emphasis"
 msgstr "Nastaví zvýraznění obrázku"
 
-#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301 .tmp/pixma_sane_options.c:107
+#: .tmp/matsushita.c:1300 .tmp/matsushita.c:1301
+#: .tmp/pixma_sane_options.c:107
 #, no-c-format
 msgid "Gamma"
 msgstr "Gama"
@@ -1969,7 +2189,8 @@ msgstr "Kalibrace backendem"
 
 #: .tmp/microtek2.h:618
 #, no-c-format
-msgid "If checked the color calibration before a scan is done by the backend"
+msgid ""
+"If checked the color calibration before a scan is done by the backend"
 msgstr "Pokud je zvoleno, kalibraci před skenováním provede backend"
 
 #: .tmp/microtek2.h:622
@@ -2010,8 +2231,8 @@ msgstr "Automatické nastavení prahových hodnot"
 #: .tmp/microtek2.h:636
 #, no-c-format
 msgid ""
-"If checked the backend automatically tries to determine an optimal value for "
-"the threshold."
+"If checked the backend automatically tries to determine an optimal value "
+"for the threshold."
 msgstr ""
 "Pokud je zvoleno, optimální prahové hodnoty se pokusí nastavit backend."
 
@@ -2085,7 +2306,8 @@ msgstr "Kanál"
 msgid ""
 "Selects the colour band, \"Master\" means that all colours are affected."
 msgstr ""
-"Nastaví barevné pásmo, \"Společné\" znamená, že jsou ovlivněny všechny barvy."
+"Nastaví barevné pásmo, \"Společné\" znamená, že jsou ovlivněny všechny "
+"barvy."
 
 #: .tmp/microtek2.h:675
 #, no-c-format
@@ -2290,8 +2512,8 @@ msgstr "Skenuje se ve stupních šedé v rychlé režimu (nižší kvalitě)"
 #: .tmp/mustek.c:4329
 #, no-c-format
 msgid ""
-"Request that all previews are done in the fastest (low-quality) mode. This "
-"may be a non-color mode or a low resolution mode."
+"Request that all previews are done in the fastest (low-quality) mode. "
+"This may be a non-color mode or a low resolution mode."
 msgstr ""
 "Požaduje, aby se všechny náhledy dělaly v nejrychleším režimu (s nízkou "
 "kvalitou). To může znamenat např. černobílý režim nebo nízké rozlišení."
@@ -2409,8 +2631,8 @@ msgstr "Pozitivní film"
 #: .tmp/mustek_usb2.c:421
 #, no-c-format
 msgid ""
-"Warm-up until the lamp's brightness is constant instead of insisting on 40 "
-"seconds warm-up time."
+"Warm-up until the lamp's brightness is constant instead of insisting on "
+"40 seconds warm-up time."
 msgstr ""
 "Zahřát lampu dokud její jas není konstantní namísto standardního 40ti "
 "sekundového zahřívání."
@@ -2427,11 +2649,6 @@ msgid ""
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
 msgstr ""
-
-#: .tmp/pixma_sane_options.c:210 .tmp/plustek.c:1078
-#, fuzzy, no-c-format
-msgid "Buttons"
-msgstr "Stav tlačítek"
 
 #: .tmp/pixma_sane_options.c:216
 #, fuzzy, no-c-format
@@ -2453,172 +2670,157 @@ msgstr "Stav tlačítek"
 msgid "Transparency"
 msgstr "Průsvitná předloha"
 
-#: .tmp/plustek.c:911
+#: .tmp/plustek.c:912
 #, no-c-format
 msgid "Device-Settings"
 msgstr ""
 
-#: .tmp/plustek.c:918
+#: .tmp/plustek.c:919
 #, no-c-format
 msgid "Lampswitch"
 msgstr ""
 
-#: .tmp/plustek.c:919
+#: .tmp/plustek.c:920
 #, no-c-format
 msgid "Manually switching the lamp(s)."
 msgstr ""
 
-#: .tmp/plustek.c:924
+#: .tmp/plustek.c:925
 #, fuzzy, no-c-format
 msgid "Lamp off during dark calibration"
 msgstr "Hrubá kalibrace"
 
-#: .tmp/plustek.c:925
+#: .tmp/plustek.c:926
 #, no-c-format
 msgid "Always switches lamp off when doing dark calibration."
 msgstr ""
 
-#: .tmp/plustek.c:933
+#: .tmp/plustek.c:934
 #, fuzzy, no-c-format
 msgid "Calibration data cache"
 msgstr "Režim kalibrace"
 
-#: .tmp/plustek.c:934
+#: .tmp/plustek.c:935
 #, no-c-format
 msgid "Enables or disables calibration data cache."
 msgstr ""
 
-#: .tmp/plustek.c:940
+#: .tmp/plustek.c:941
 #, fuzzy, no-c-format
 msgid "Performs calibration"
 msgstr "Hrubá kalibrace"
 
-#: .tmp/plustek.c:957
+#: .tmp/plustek.c:958
 #, no-c-format
 msgid "Speedup sensor"
 msgstr ""
 
-#: .tmp/plustek.c:958
+#: .tmp/plustek.c:959
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
 msgstr ""
 
-#: .tmp/plustek.c:972
+#: .tmp/plustek.c:973
 #, fuzzy, no-c-format
 msgid "Warmup-time"
 msgstr "Zahřát lampu"
 
-#: .tmp/plustek.c:973
+#: .tmp/plustek.c:974
 #, fuzzy, no-c-format
 msgid "Warmup-time in seconds."
 msgstr "Zahřát lampu"
 
-#: .tmp/plustek.c:985
+#: .tmp/plustek.c:986
 #, fuzzy, no-c-format
 msgid "Lampoff-time"
 msgstr "Vypnout lampu"
 
-#: .tmp/plustek.c:986
+#: .tmp/plustek.c:987
 #, fuzzy, no-c-format
 msgid "Lampoff-time in seconds."
 msgstr "Zahřát lampu"
 
-#: .tmp/plustek.c:993
+#: .tmp/plustek.c:994
 #, fuzzy, no-c-format
 msgid "Analog frontend"
 msgstr "Analogová korekce gama pro červenou"
 
-#: .tmp/plustek.c:999 .tmp/umax_pp.c:656
-#, no-c-format
-msgid "Red gain"
-msgstr "Zisk červené"
-
-#: .tmp/plustek.c:1000
+#: .tmp/plustek.c:1001
 #, no-c-format
 msgid "Red gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1007 .tmp/umax_pp.c:713
+#: .tmp/plustek.c:1008 .tmp/umax_pp.c:713
 #, no-c-format
 msgid "Red offset"
 msgstr "Odstup červené"
 
-#: .tmp/plustek.c:1008
+#: .tmp/plustek.c:1009
 #, no-c-format
 msgid "Red offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1015 .tmp/umax_pp.c:668
-#, no-c-format
-msgid "Green gain"
-msgstr "Zisk zelené"
-
-#: .tmp/plustek.c:1016
+#: .tmp/plustek.c:1017
 #, no-c-format
 msgid "Green gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1023 .tmp/umax_pp.c:725
+#: .tmp/plustek.c:1024 .tmp/umax_pp.c:725
 #, no-c-format
 msgid "Green offset"
 msgstr "Odstup zelené"
 
-#: .tmp/plustek.c:1024
+#: .tmp/plustek.c:1025
 #, no-c-format
 msgid "Green offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1031 .tmp/umax_pp.c:680
-#, no-c-format
-msgid "Blue gain"
-msgstr "Zisk modré"
-
-#: .tmp/plustek.c:1032
+#: .tmp/plustek.c:1033
 #, no-c-format
 msgid "Blue gain value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1039 .tmp/umax_pp.c:737
+#: .tmp/plustek.c:1040 .tmp/umax_pp.c:737
 #, no-c-format
 msgid "Blue offset"
 msgstr "Odstup modré"
 
-#: .tmp/plustek.c:1040
+#: .tmp/plustek.c:1041
 #, no-c-format
 msgid "Blue offset value of the AFE"
 msgstr ""
 
-#: .tmp/plustek.c:1047
+#: .tmp/plustek.c:1048
 #, fuzzy, no-c-format
 msgid "Red lamp off"
 msgstr "Zapíná/vypíná lampu"
 
-#: .tmp/plustek.c:1048
+#: .tmp/plustek.c:1049
 #, no-c-format
 msgid "Defines red lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1055
+#: .tmp/plustek.c:1056
 #, fuzzy, no-c-format
 msgid "Green lamp off"
 msgstr "Zapíná/vypíná lampu"
 
-#: .tmp/plustek.c:1056
+#: .tmp/plustek.c:1057
 #, no-c-format
 msgid "Defines green lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1063
+#: .tmp/plustek.c:1064
 #, fuzzy, no-c-format
 msgid "Blue lamp off"
 msgstr "Zapíná/vypíná lampu"
 
-#: .tmp/plustek.c:1064
+#: .tmp/plustek.c:1065
 #, no-c-format
 msgid "Defines blue lamp off parameter"
 msgstr ""
 
-#: .tmp/plustek.c:1094
+#: .tmp/plustek.c:1095
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
 msgstr ""
@@ -2671,8 +2873,8 @@ msgstr "Simulace trojitého průchodu"
 #: .tmp/pnm.c:249
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner by returning 3 separate frames.  For kicks, it "
-"returns green, then blue, then red."
+"Simulate a three-pass scanner by returning 3 separate frames.  For "
+"kicks, it returns green, then blue, then red."
 msgstr ""
 "Simuluje trojprůchodový skener tak, že vrací 3 oddělené obrázky. Pro ty "
 "pomalejší z vás to znamená zelený, modrý a pak červený."
@@ -2685,18 +2887,20 @@ msgstr "Simulace ručního skeneru"
 #: .tmp/pnm.c:262
 #, no-c-format
 msgid ""
-"Simulate a hand-scanner.  Hand-scanners often do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows to "
-"test whether a frontend can handle this correctly."
+"Simulate a hand-scanner.  Hand-scanners often do not know the image "
+"height a priori.  Instead, they return a height of -1.  Setting this "
+"option allows to test whether a frontend can handle this correctly."
 msgstr ""
-"Simuluje ruční skener. Ruční skenery obvykle neznají výšku obrázku předem. "
-"Proto vracejí výšku 1. Tato volba umožnuje otestovat, jestli se s tím "
-"frontend vyrovná."
+"Simuluje ruční skener. Ruční skenery obvykle neznají výšku obrázku "
+"předem. Proto vracejí výšku 1. Tato volba umožnuje otestovat, jestli se "
+"s tím frontend vyrovná."
 
 #: .tmp/pnm.c:277
 #, no-c-format
-msgid "Set default values for enhancement controls (brightness & contrast)."
-msgstr "Nastaví standardní hodnoty prvků vylepšení obrázku (jas a kontrast)"
+msgid ""
+"Set default values for enhancement controls (brightness & contrast)."
+msgstr ""
+"Nastaví standardní hodnoty prvků vylepšení obrázku (jas a kontrast)"
 
 #: .tmp/pnm.c:289
 #, no-c-format
@@ -2736,8 +2940,8 @@ msgstr "Vrátit SANE_STATUS_EOF"
 #: .tmp/pnm.c:398
 #, no-c-format
 msgid ""
-"Force the backend to return the status code SANE_STATUS_EOF after sane_read"
-"() has been called."
+"Force the backend to return the status code SANE_STATUS_EOF after "
+"sane_read() has been called."
 msgstr ""
 "Přinutit backend, aby po volání sane_read() vrátil stavový kód "
 "SANE_STATUS_EOF."
@@ -2820,8 +3024,8 @@ msgstr "Vrátit SANE_STATUS_ACCESS_DENIED"
 #: .tmp/pnm.c:478
 #, no-c-format
 msgid ""
-"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED after "
-"sane_read() has been called."
+"Force the backend to return the status code SANE_STATUS_ACCESS_DENIED "
+"after sane_read() has been called."
 msgstr ""
 "Přinutit backend, aby po volání sane_read() vrátil stavový kód "
 "SANE_STATUS_ACCESS_DENIED."
@@ -3149,9 +3353,11 @@ msgstr "Vypnout lampu při ukončení"
 #: .tmp/saneopts.h:206
 #, no-c-format
 msgid ""
-"Read-only option that specifies how many options a specific devices supports."
+"Read-only option that specifies how many options a specific devices "
+"supports."
 msgstr ""
-"Hodnota pouze pro čtení, která udává, kolik voleb dané zařízení podporuje."
+"Hodnota pouze pro čtení, která udává, kolik voleb dané zařízení "
+"podporuje."
 
 #: .tmp/saneopts.h:210
 #, no-c-format
@@ -3167,13 +3373,14 @@ msgid ""
 msgstr ""
 "Požaduje, aby se všechny náhledy prováděly v monochromatickém režimu. Na "
 "trojprůchodovém skeneru to snižuje počet průchodů na jeden, na "
-"jednoprůchodovém skeneru to snižuje paměťové nároky a čas skenování náhledu."
+"jednoprůchodovém skeneru to snižuje paměťové nároky a čas skenování "
+"náhledu."
 
 #: .tmp/saneopts.h:219
 #, no-c-format
 msgid ""
-"Number of bits per sample, typical values are 1 for \"line-art\" and 8 for "
-"multibit scans."
+"Number of bits per sample, typical values are 1 for \"line-art\" and 8 "
+"for multibit scans."
 msgstr ""
 "Počet bitů na vzorek, typicky je 1 pro \"perokresbu\" a 8 pro vícebitové "
 "skeny."
@@ -3235,20 +3442,21 @@ msgstr "Nastavuje vertikální rozlišení skenovaného obrázku."
 
 #: .tmp/saneopts.h:256
 #, no-c-format
-msgid "Determines whether a builtin or a custom gamma-table should be used."
+msgid ""
+"Determines whether a builtin or a custom gamma-table should be used."
 msgstr ""
-"Volí, zda má být použita vestavěná nebo uživatelem definovaná tabulka gama "
-"korekcí."
+"Volí, zda má být použita vestavěná nebo uživatelem definovaná tabulka "
+"gama korekcí."
 
 #: .tmp/saneopts.h:260
 #, no-c-format
 msgid ""
-"Gamma-correction table.  In color mode this option equally affects the red, "
-"green, and blue channels simultaneously (i.e., it is an intensity gamma "
-"table)."
+"Gamma-correction table.  In color mode this option equally affects the "
+"red, green, and blue channels simultaneously (i.e., it is an intensity "
+"gamma table)."
 msgstr ""
-"Tabluka gama korekcí. V barevném režimu ovlivňuje červený, zelený a modrý "
-"kanál současně (tj. jde o tabulku gama korekcí intenzity)."
+"Tabluka gama korekcí. V barevném režimu ovlivňuje červený, zelený a "
+"modrý kanál současně (tj. jde o tabulku gama korekcí intenzity)."
 
 #: .tmp/saneopts.h:265
 #, no-c-format
@@ -3278,17 +3486,18 @@ msgstr "Ovládá kontrast naskenovaného obrázku."
 #: .tmp/saneopts.h:280
 #, no-c-format
 msgid ""
-"Selects the \"graininess\" of the acquired image.  Smaller values result in "
-"sharper images."
+"Selects the \"graininess\" of the acquired image.  Smaller values result "
+"in sharper images."
 msgstr ""
-"Ovládá \"zrnitost\" naskenovaného obrázku. Nižší hodnoty znamenají ostřejší "
-"obrázek."
+"Ovládá \"zrnitost\" naskenovaného obrázku. Nižší hodnoty znamenají "
+"ostřejší obrázek."
 
 #: .tmp/saneopts.h:284
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
 msgstr ""
-"Volí, zda naskenovaný obrázek má být převeden na černobílý pomocí rozptylu."
+"Volí, zda naskenovaný obrázek má být převeden na černobílý pomocí "
+"rozptylu."
 
 #: .tmp/saneopts.h:287 .tmp/saneopts.h:302
 #, no-c-format
@@ -3338,13 +3547,17 @@ msgstr ""
 
 #: .tmp/saneopts.h:315
 #, no-c-format
-msgid "Selects what green radiance level should be considered \"full green\"."
-msgstr "Nastavuje, jaká úroveň zelené má být považována za \"zcela zelenou\"."
+msgid ""
+"Selects what green radiance level should be considered \"full green\"."
+msgstr ""
+"Nastavuje, jaká úroveň zelené má být považována za \"zcela zelenou\"."
 
 #: .tmp/saneopts.h:318
 #, no-c-format
-msgid "Selects what blue radiance level should be considered \"full blue\"."
-msgstr "Nastavuje, jaká úroveň modré má být považována za \"zcela modrou\"."
+msgid ""
+"Selects what blue radiance level should be considered \"full blue\"."
+msgstr ""
+"Nastavuje, jaká úroveň modré má být považována za \"zcela modrou\"."
 
 #: .tmp/saneopts.h:322
 #, no-c-format
@@ -3354,8 +3567,8 @@ msgstr "Nastavuje \"odstín\" (úroveň modré) naskenovaného obrázku."
 #: .tmp/saneopts.h:325
 #, no-c-format
 msgid ""
-"The saturation level controls the amount of \"blooming\" that occurs when "
-"acquiring an image with a camera. Larger values cause more blooming."
+"The saturation level controls the amount of \"blooming\" that occurs "
+"when acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
 "Úroveň nasycení ovládá úroveň \"sytosti\" barev, obzvláště patrné u "
 "fotografií. Vyšší hodnoty znamenají výraznější barvy."
@@ -3371,8 +3584,8 @@ msgid ""
 "Sets the size of the halftoning (dithering) pattern used when scanning "
 "halftoned images."
 msgstr ""
-"Nastaví rozměr polotónového (rozptylového) vzoru při skenování polotónových "
-"obrázků."
+"Nastaví rozměr polotónového (rozptylového) vzoru při skenování "
+"polotónových obrázků."
 
 #: .tmp/saneopts.h:337
 #, no-c-format
@@ -3555,16 +3768,16 @@ msgstr "Bodový rozptyl 16x16"
 #, no-c-format
 msgid ""
 "Number of scan lines to request in a SCSI read. Changing this parameter "
-"allows you to tune the speed at which data is read from the scanner during "
-"scans. If this is set too low, the scanner will have to stop periodically in "
-"the middle of a scan; if it's set too high, X-based frontends may stop "
-"responding to X events and your system could bog down."
+"allows you to tune the speed at which data is read from the scanner "
+"during scans. If this is set too low, the scanner will have to stop "
+"periodically in the middle of a scan; if it's set too high, X-based "
+"frontends may stop responding to X events and your system could bog down."
 msgstr ""
 "Počet řádek skenu požadovaný v jednom příkazu čtení SCSI. Změnou tohoto "
-"parametru lze doladit rychlost, jakou jsou čtena data při skenování. Pokud "
-"je toto nastavení příliš nízké, skener musí periodicky při skenování "
-"zastavovat, pokud je příliš vysoké, skenovací rozhraní v prostředí X mohou "
-"přestat reagovat a systém může zkolabovat."
+"parametru lze doladit rychlost, jakou jsou čtena data při skenování. "
+"Pokud je toto nastavení příliš nízké, skener musí periodicky při "
+"skenování zastavovat, pokud je příliš vysoké, skenovací rozhraní v "
+"prostředí X mohou přestat reagovat a systém může zkolabovat."
 
 #: .tmp/snapscan-options.c:436
 #, no-c-format
@@ -3588,9 +3801,11 @@ msgstr "Přednastavené hodnoty"
 #: .tmp/snapscan-options.c:547
 #, no-c-format
 msgid ""
-"Provides standard scanning areas for photographs, printed pages and the like."
+"Provides standard scanning areas for photographs, printed pages and the "
+"like."
 msgstr ""
-"Poskytuje standardní skenovací plochu pro fotografie, vytištěné stránky apod."
+"Poskytuje standardní skenovací plochu pro fotografie, vytištěné stránky "
+"apod."
 
 #: .tmp/snapscan-options.c:823
 #, no-c-format
@@ -3676,13 +3891,13 @@ msgstr "Simulace ručního skeneru"
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
-"priori.  Instead, they return a height of -1.  Setting this option allows to "
-"test whether a frontend can handle this correctly.  This option also enables "
-"a fixed width of 11 cm."
+"priori.  Instead, they return a height of -1.  Setting this option "
+"allows to test whether a frontend can handle this correctly.  This "
+"option also enables a fixed width of 11 cm."
 msgstr ""
-"Simuluje ruční skener. Ruční skenery obvykle neznají výšku obrázku předem. "
-"Proto vracejí výšku 1. Tato volba umožnuje otestovat, jestli se s tím "
-"frontend vyrovná."
+"Simuluje ruční skener. Ruční skenery obvykle neznají výšku obrázku "
+"předem. Proto vracejí výšku 1. Tato volba umožnuje otestovat, jestli se "
+"s tím frontend vyrovná."
 
 #: .tmp/test.c:361
 #, no-c-format
@@ -3692,7 +3907,8 @@ msgstr "Simulace trojitého průchodu"
 #: .tmp/test.c:362
 #, no-c-format
 msgid ""
-"Simulate a three-pass scanner. In color mode, three frames are transmitted."
+"Simulate a three-pass scanner. In color mode, three frames are "
+"transmitted."
 msgstr "Simuluje trojprůchodový skener tak, že vrací 3 oddělené obrázky."
 
 #: .tmp/test.c:377
@@ -3708,8 +3924,8 @@ msgstr "Nastavit pořadí kanálů v trojprůchodovém barevném režimu."
 #: .tmp/test.c:411
 #, no-c-format
 msgid ""
-"If Automatic Document Feeder is selected, the feeder will be 'empty' after "
-"10 scans."
+"If Automatic Document Feeder is selected, the feeder will be 'empty' "
+"after 10 scans."
 msgstr ""
 
 #: .tmp/test.c:426
@@ -3729,7 +3945,8 @@ msgid ""
 "Solid black: fills the whole scan with black.\n"
 "Solid white: fills the whole scan with white.\n"
 "Color pattern: draws various color test patterns depending on the mode.\n"
-"Grid: draws a black/white grid with a width and height of 10 mm per square."
+"Grid: draws a black/white grid with a width and height of 10 mm per "
+"square."
 msgstr ""
 "Zvolte druh testovacího obrázku. Možnosti:\n"
 "Zcela černý: vyplní celý sken černou barvou.\n"
@@ -3746,13 +3963,13 @@ msgstr "Převrátit endian (invert endianness)"
 #: .tmp/test.c:463
 #, no-c-format
 msgid ""
-"Exchange upper and lower byte of image data in 16 bit modes. This option can "
-"be used to test the 16 bit modes of frontends, e.g. if the frontend uses the "
-"correct endianness."
+"Exchange upper and lower byte of image data in 16 bit modes. This option "
+"can be used to test the 16 bit modes of frontends, e.g. if the frontend "
+"uses the correct endianness."
 msgstr ""
 "Zaměnit horní a spodní bajt obrázkových dat v 16-bitových režimech. Tuto "
-"volbu lze použít k testu 16-bitových režimů frontendů, např. zda frontend "
-"používá správný endian."
+"volbu lze použít k testu 16-bitových režimů frontendů, např. zda "
+"frontend používá správný endian."
 
 #: .tmp/test.c:479
 #, no-c-format
@@ -3771,8 +3988,10 @@ msgstr "Velikost limitu čtení"
 
 #: .tmp/test.c:494
 #, no-c-format
-msgid "The (maximum) amount of data transferred with each call to sane_read()."
-msgstr "Maximální velikost dat, přenášených při kaýždém volání sane_read()."
+msgid ""
+"The (maximum) amount of data transferred with each call to sane_read()."
+msgstr ""
+"Maximální velikost dat, přenášených při kaýždém volání sane_read()."
 
 #: .tmp/test.c:509
 #, no-c-format
@@ -3803,13 +4022,13 @@ msgstr "Návratová hodnota sane_read"
 #: .tmp/test.c:540
 #, no-c-format
 msgid ""
-"Select the return-value of sane_read(). \"Default\" is the normal handling "
-"for scanning. All other status codes are for testing how the frontend "
-"handles them."
+"Select the return-value of sane_read(). \"Default\" is the normal "
+"handling for scanning. All other status codes are for testing how the "
+"frontend handles them."
 msgstr ""
-"Zvolte naávratovou hodnotu sane_read(). \"Standard\" je normální zpracování "
-"při skenování. Všechny ostatní stavové hodnoty jsou pro testování, jak si s "
-"nimi frontend poradí."
+"Zvolte naávratovou hodnotu sane_read(). \"Standard\" je normální "
+"zpracování při skenování. Všechny ostatní stavové hodnoty jsou pro "
+"testování, jak si s nimi frontend poradí."
 
 #: .tmp/test.c:557
 #, no-c-format
@@ -3843,7 +4062,8 @@ msgstr "Použít neblokující V/V"
 #: .tmp/test.c:587
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
-msgstr "Použít neblokující V/V pro sane_read(), pokud to frontend podporuje."
+msgstr ""
+"Použít neblokující V/V pro sane_read(), pokud to frontend podporuje."
 
 #: .tmp/test.c:600
 #, no-c-format
@@ -3853,7 +4073,8 @@ msgstr "Nabídnout select file descriptor"
 #: .tmp/test.c:601
 #, no-c-format
 msgid ""
-"Offer a select filedescriptor for detecting if sane_read() will return data."
+"Offer a select filedescriptor for detecting if sane_read() will return "
+"data."
 msgstr ""
 "Nabídnout select file descriptor pro detekci, zda sane_read() vrátí data."
 
@@ -3865,8 +4086,8 @@ msgstr "Povolit testovací volby"
 #: .tmp/test.c:615
 #, no-c-format
 msgid ""
-"Enable various test options. This is for testing the ability of frontends to "
-"view and modify all the different SANE option types."
+"Enable various test options. This is for testing the ability of "
+"frontends to view and modify all the different SANE option types."
 msgstr ""
 "Povoluje různé testovací volby. Je tu pro testování schopností frontendů "
 "zobrazit a změnit všechny možné typy voleb SANE."
@@ -3894,8 +4115,8 @@ msgstr "(1/6) Boolovská softwarová volba, softwarová detekce"
 #: .tmp/test.c:722
 #, no-c-format
 msgid ""
-"(1/6) Bool test option that has soft select and soft detect (and advanced) "
-"capabilities. That's just a normal bool option."
+"(1/6) Bool test option that has soft select and soft detect (and "
+"advanced) capabilities. That's just a normal bool option."
 msgstr ""
 "(1/6) Boolovská volba, která umožňuje softwarovou volbu a softwarovou "
 "detekci (a pokročilejší). Je to v podstatě normální boolovská volba."
@@ -3908,13 +4129,13 @@ msgstr "(2/6) Boolovská s hardwarovým výběrem a softwarovou detekcí"
 #: .tmp/test.c:740
 #, no-c-format
 msgid ""
-"(2/6) Bool test option that has hard select and soft detect (and advanced) "
-"capabilities. That means the option can't be set by the frontend but by the "
-"user (e.g. by pressing a button at the device)."
+"(2/6) Bool test option that has hard select and soft detect (and "
+"advanced) capabilities. That means the option can't be set by the "
+"frontend but by the user (e.g. by pressing a button at the device)."
 msgstr ""
 "(2/6) Boolovská volba, která podporuje hardwarovou volbu a softwarovou "
-"detekci (a pokročilejší). To znamená, že volbu nelze nastavit frontendem ale "
-"je nastavena uživatelem (např. stisknutím tlačítka na zařízení)."
+"detekci (a pokročilejší). To znamená, že volbu nelze nastavit frontendem "
+"ale je nastavena uživatelem (např. stisknutím tlačítka na zařízení)."
 
 #: .tmp/test.c:757
 #, no-c-format
@@ -3925,12 +4146,13 @@ msgstr "(3/6) Boolovská volba s hardwarovým výběrem"
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
-"That means the option can't be set by the frontend but by the user (e.g. by "
-"pressing a button at the device) and can't be read by the frontend."
+"That means the option can't be set by the frontend but by the user (e.g. "
+"by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
-"(3/6) Boolovská testovací volba, která podporuje hardwarový (a pokročilejší) "
-"výběr. To znamená, že volbu nelze změnit frontendem ale jen uživatelem "
-"(např. stiskem tlačítka na zařízení) a frontend ji nemůže ani načíst."
+"(3/6) Boolovská testovací volba, která podporuje hardwarový (a "
+"pokročilejší) výběr. To znamená, že volbu nelze změnit frontendem ale "
+"jen uživatelem (např. stiskem tlačítka na zařízení) a frontend ji nemůže "
+"ani načíst."
 
 #: .tmp/test.c:776
 #, no-c-format
@@ -3954,11 +4176,11 @@ msgstr "(5/6) Boolovská volba s emulací softwarové volby"
 #: .tmp/test.c:794
 #, no-c-format
 msgid ""
-"(5/6) Bool test option that has soft select, soft detect, and emulated (and "
-"advanced) capabilities."
+"(5/6) Bool test option that has soft select, soft detect, and emulated "
+"(and advanced) capabilities."
 msgstr ""
-"(5/6) Boolovská testovací volba, která podporuje softwarovou volbu, detekci "
-"a emulaci (plus pokročilejší)."
+"(5/6) Boolovská testovací volba, která podporuje softwarovou volbu, "
+"detekci a emulaci (plus pokročilejší)."
 
 #: .tmp/test.c:810
 #, no-c-format
@@ -3970,8 +4192,9 @@ msgstr ""
 #: .tmp/test.c:811
 #, no-c-format
 msgid ""
-"(6/6) Bool test option that has soft select, soft detect, and automatic (and "
-"advanced) capabilities. This option can be automatically set by the backend."
+"(6/6) Bool test option that has soft select, soft detect, and automatic "
+"(and advanced) capabilities. This option can be automatically set by the "
+"backend."
 msgstr ""
 "(6/6) Boolovská testovací volba, která podporuje softwarovou volbu, "
 "softwarovou detekci (a pokročilejší). Tato volba může být automaticky "
@@ -3990,7 +4213,8 @@ msgstr "(1/6) Celočíselná"
 #: .tmp/test.c:842
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
-msgstr "(1/6) Celočíselná testovací volba bez jednotek a nastavených omezení."
+msgstr ""
+"(1/6) Celočíselná testovací volba bez jednotek a nastavených omezení."
 
 #: .tmp/test.c:857
 #, no-c-format
@@ -4000,8 +4224,8 @@ msgstr "(2/6) Celočíselná volba s omezením rozsahu"
 #: .tmp/test.c:858
 #, no-c-format
 msgid ""
-"(2/6) Int test option with unit pixel and constraint range set. Minimum is "
-"4, maximum 192, and quant is 2."
+"(2/6) Int test option with unit pixel and constraint range set. Minimum "
+"is 4, maximum 192, and quant is 2."
 msgstr ""
 "(2/6) Celočíselná testovací volba s jednotkou bod a omezením rozsahu. "
 "Minimum is 4, maximum 192, krok je 2."
@@ -4015,7 +4239,8 @@ msgstr "(3/6) Celočíselný seznam s omezením"
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
-"(3/6) Celočíselná testovací volba s jednokou bit a omezením množinou slov."
+"(3/6) Celočíselná testovací volba s jednokou bit a omezením množinou "
+"slov."
 
 #: .tmp/test.c:890
 #, no-c-format
@@ -4025,8 +4250,10 @@ msgstr "(4/6) Celočíselné pole"
 #: .tmp/test.c:891
 #, no-c-format
 msgid ""
-"(4/6) Int test option with unit mm and using an array without constraints."
-msgstr "(4/6) Celočíselné testovací pole s jednotkou mm a polem bez omezení."
+"(4/6) Int test option with unit mm and using an array without "
+"constraints."
+msgstr ""
+"(4/6) Celočíselné testovací pole s jednotkou mm a polem bez omezení."
 
 #: .tmp/test.c:906
 #, no-c-format
@@ -4039,8 +4266,8 @@ msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
 "constraint. Minimum is 4, maximum 192, and quant is 2."
 msgstr ""
-"(5/6) Celočíselné testovací pole s jednotkou dpi a omezením rozsahu. Minimum "
-"je 4, maximum 192, krok 2."
+"(5/6) Celočíselné testovací pole s jednotkou dpi a omezením rozsahu. "
+"Minimum je 4, maximum 192, krok 2."
 
 #: .tmp/test.c:924
 #, no-c-format
@@ -4050,8 +4277,8 @@ msgstr "(6/6) Celočíselné pole s omezením množinou slov"
 #: .tmp/test.c:925
 #, no-c-format
 msgid ""
-"(6/6) Int test option with unit percent and using an array with a word list "
-"constraint."
+"(6/6) Int test option with unit percent and using an array with a word "
+"list constraint."
 msgstr ""
 "(6/6) Celočíselné testovací pole s jednotkou procenta a omezením rozsahu "
 "pomocí množiny slov."
@@ -4069,7 +4296,8 @@ msgstr "(1/3) Číslo s pevnou des. čárkou"
 #: .tmp/test.c:955
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Číslo s pevnou desetinnou čárkou, bez jednotek a bez omezení."
+msgstr ""
+"(1/3) Číslo s pevnou desetinnou čárkou, bez jednotek a bez omezení."
 
 #: .tmp/test.c:970
 #, no-c-format
@@ -4082,8 +4310,8 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Číslo s pevnou des. čárkou, jednotkou mikrosekundy a omezením rozsahu. "
-"Minimum je -42,17, maximum 32767,9999, krok 2,0."
+"(2/3) Číslo s pevnou des. čárkou, jednotkou mikrosekundy a omezením "
+"rozsahu. Minimum je -42,17, maximum 32767,9999, krok 2,0."
 
 #: .tmp/test.c:987
 #, no-c-format
@@ -4094,8 +4322,8 @@ msgstr "(3/3) Číslo s pevnou desetinnou čárkou s omezením seznamem slov"
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
-"(3/3) Číslo s pevnou desetinnou čárkou bez jednotky a s omezením seznamem "
-"slov."
+"(3/3) Číslo s pevnou desetinnou čárkou bez jednotky a s omezením "
+"seznamem slov."
 
 #: .tmp/test.c:1003
 #, no-c-format
@@ -4281,41 +4509,6 @@ msgstr "UTA zapnuto"
 msgid "Sets UTA on/off"
 msgstr "Zapíná/vypíná UTA"
 
-#: .tmp/umax_pp.c:636
-#, no-c-format
-msgid "Gain"
-msgstr "Zisk"
-
-#: .tmp/umax_pp.c:637
-#, no-c-format
-msgid "Color channels gain settings"
-msgstr "Nastavení zisku barevných kanálů"
-
-#: .tmp/umax_pp.c:644
-#, no-c-format
-msgid "Gray gain"
-msgstr "Zisk šedé"
-
-#: .tmp/umax_pp.c:645
-#, no-c-format
-msgid "Sets gray channel gain"
-msgstr "Nastavuje zisk šedého kanálu"
-
-#: .tmp/umax_pp.c:657
-#, no-c-format
-msgid "Sets red channel gain"
-msgstr "Nastavuje zisk červeného kanálu"
-
-#: .tmp/umax_pp.c:669
-#, no-c-format
-msgid "Sets green channel gain"
-msgstr "Nastavuje zisk zeleného kanálu"
-
-#: .tmp/umax_pp.c:681
-#, no-c-format
-msgid "Sets blue channel gain"
-msgstr "Nastavuje zisk modrého kanálu"
-
 #: .tmp/umax_pp.c:692
 #, no-c-format
 msgid "Offset"
@@ -4350,7 +4543,3 @@ msgstr "Nastavuje odstup zeleného kanálu"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Nastavuje odstup modrého kanálu"
-
-#, fuzzy
-#~ msgid "Selects the size of the area to be scanned."
-#~ msgstr "Zvolí číslo políčka, které bude naskenováno"

@@ -24,7 +24,7 @@
 :interface "USB"
 :status :basic
 :usbid "0x03f0" "0x2605"
-:comment "Works with resolutions equal and less then 600dpi"
+:comment "Works with resolutions equal and less than 600dpi"
 
 :model "ScanJet 3970c"
 :interface "USB"

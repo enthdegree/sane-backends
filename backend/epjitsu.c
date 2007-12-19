@@ -90,6 +90,8 @@
         - fi-60F 300 & 600 dpi support (150 is non-square?)
         - fi-60F gray & binary support
         - fi-60F improved calibration
+      V 1.0.10, 2007-12-19, MAN
+        - fix missing function (and memory leak)
 
    SANE FLOW DIAGRAM
 
@@ -149,7 +151,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 9 
+#define BUILD 10 
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -318,7 +320,7 @@ attach_one (const char *name)
     /* copy the device name */
     s->sane.name = strdup (name);
     if (!s->sane.name){
-        free_scanner (s);
+        sane_close((SANE_Handle)s);
         return SANE_STATUS_NO_MEM;
     }
   
@@ -328,14 +330,14 @@ attach_one (const char *name)
     s->fd = -1;
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
-        free_scanner (s);
+        sane_close((SANE_Handle)s);
         return ret;
     }
  
     /* load the firmware file into scanner */
     ret = load_fw(s);
     if (ret != SANE_STATUS_GOOD) {
-        free_scanner (s);
+        sane_close((SANE_Handle)s);
         DBG (5, "attach_one: firmware load failed\n");
         return ret;
     }
@@ -343,7 +345,7 @@ attach_one (const char *name)
     /* Now query the device to load its vendor/model/version */
     ret = get_ident(s);
     if (ret != SANE_STATUS_GOOD) {
-        free_scanner (s);
+        sane_close((SANE_Handle)s);
         DBG (5, "attach_one: identify failed\n");
         return ret;
     }
@@ -2976,12 +2978,29 @@ sane_cancel (SANE_Handle handle)
 void
 sane_close (SANE_Handle handle)
 {
+  struct scanner * s = (struct scanner *) handle;
+
   DBG (10, "sane_close: start\n");
 
-  sane_cancel(handle);
-  lamp((struct scanner *) handle, 0);
-  disconnect_fd((struct scanner *) handle);
-  teardown_buffers((struct scanner *) handle);
+  /* still connected- drop it */
+  if(s->fd >= 0){
+      sane_cancel(handle);
+      lamp(s, 0);
+      disconnect_fd(s);
+  }
+
+  if(s->sane.name){
+    free(s->sane.name);
+  }
+  if(s->sane.model){
+    free(s->sane.model);
+  }
+  if(s->sane.vendor){
+    free(s->sane.vendor);
+  }
+
+  teardown_buffers(s);
+  free(s);
 
   DBG (10, "sane_close: finish\n");
 }
@@ -3181,6 +3200,9 @@ do_cmd(struct scanner *s, int shortTime,
 
         if(ret == SANE_STATUS_EOF){
             DBG(5,"in: got EOF, continuing\n");
+        }
+        else if(ret == SANE_STATUS_IO_ERROR){
+            DBG(5,"in: got IO_ERROR, continuing\n");
         }
         else if(ret != SANE_STATUS_GOOD){
             DBG(5,"in: return error '%s'\n",sane_strstatus(ret));

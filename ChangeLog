@@ -1,3 +1,6 @@
+2007-12-19  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu.c: backend v1.0.10, fix missing function
+
 2007-12-19  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
 	* po/sane-backends.es.po: Updated translation.

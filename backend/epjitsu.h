@@ -277,8 +277,6 @@ static SANE_Status read_from_scanner(struct scanner *s, struct transfer *tp);
 static SANE_Status fill_frontback_buffers_S300(struct scanner *s);
 static SANE_Status fill_frontback_buffers_FI60F(struct scanner *s);
 
-void free_scanner(struct scanner *s);
-
 /* utils */
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 static size_t maxStringSize (const SANE_String_Const strings[]);

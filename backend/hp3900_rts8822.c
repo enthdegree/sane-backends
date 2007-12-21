@@ -11021,7 +11021,7 @@ GetOneLineInfo (struct st_device *dev, SANE_Int resolution,
       if (Regs != NULL)
 	{
 	  /* Copy scanner registers */
-	  memcpy (Regs, &dev->init_regs, RT_BUFFER_LEN * sizeof (SANE_Byte));
+	  memcpy (Regs, dev->init_regs, RT_BUFFER_LEN * sizeof (SANE_Byte));
 
 	  /* Setting some registers */
 	  for (a = 0x192; a <= 0x19d; a++)

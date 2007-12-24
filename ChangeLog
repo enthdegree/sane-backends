@@ -1,3 +1,7 @@
+2007-12-24  Julien Blache <jb@jblache.org>
+	* configure.in, configure: Do not build plustek_pp on Hurd. Patch
+	from Samuel Thibault <samuel.thibault@ens-lyon.org>.
+
 2007-12-21  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
 	* backend/hp3900.c, backend/hp3900_rts8822.c: Fixed bug which made

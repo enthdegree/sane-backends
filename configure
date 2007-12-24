@@ -27047,10 +27047,19 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
           canon630u cardscan coolscan coolscan2 dc25 dmc epjitsu \
           epson fujitsu genesys gt68xx hp leo lexmark matsushita microtek \
           microtek2 mustek mustek_usb nec pie pixma plustek \
-          plustek_pp ricoh s9036 sceptre sharp \
+          ricoh s9036 sceptre sharp \
           sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
           artec_eplus48u ma1509 ibm hp5400 u12 snapscan niash sm3840 hp4200 \
           sm3600 hp3500 stv680 epson2 hp5590 hp3900"
+
+    case "$host_os" in
+	gnu*)
+	  echo "*** disabling PLUSTEK_PP backend (GNU/Hurd not supported)"
+	  ;;
+	*)
+	  BACKENDS="${BACKENDS} plustek_pp"
+	  ;;
+    esac
 
   if test "${sane_cv_use_libjpeg}" != "yes"; then
     echo "*** disabling DC210 backend (failed to find JPEG library)"

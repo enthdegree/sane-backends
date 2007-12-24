@@ -27090,7 +27090,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
 
   if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"
     then
-    echo "*** disabling DELL1600N_NET backend (failed to find jpeg and/or tiff library"
+    echo "*** disabling DELL1600N_NET backend (failed to find jpeg and/or tiff library)"
   else
     BACKENDS="${BACKENDS} dell1600n_net"
   fi

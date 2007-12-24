@@ -1,6 +1,7 @@
 2007-12-24  Julien Blache <jb@jblache.org>
 	* configure.in, configure: Do not build plustek_pp on Hurd. Patch
-	from Samuel Thibault <samuel.thibault@ens-lyon.org>.
+	from Samuel Thibault <samuel.thibault@ens-lyon.org>. Add missing
+	closing paren to error message.
 
 2007-12-21  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 

@@ -393,6 +393,7 @@ libsane-epson2.la: ../sanei/sanei_scsi.lo
 libsane-epson2.la: ../sanei/sanei_usb.lo
 libsane-epson2.la: ../sanei/sanei_pio.lo
 libsane-epson2.la: ../sanei/sanei_tcp.lo
+libsane-epson2.la: ../sanei/sanei_udp.lo
 libsane-fujitsu.la: ../sanei/sanei_config2.lo
 libsane-fujitsu.la: ../sanei/sanei_constrain_value.lo
 libsane-fujitsu.la: ../sanei/sanei_scsi.lo

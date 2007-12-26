@@ -58,6 +58,7 @@
 #include <sane/sanei_usb.h>
 #include <sane/sanei_pio.h>
 #include <sane/sanei_tcp.h>
+#include <sane/sanei_udp.h>
 #include <sane/sanei_backend.h>
 #include <sane/sanei_config.h>
 
@@ -570,6 +571,50 @@ close_scanner(Epson_Scanner * s)
 	return;
 }
 
+static void
+epson2_network_discovery(void)
+{
+	fd_set rfds;
+	int nfds, fd, len;
+	SANE_Status status;
+
+	char *ip, *query = "EPSONP\x00\xff\x00\x00\x00\x00\x00\x00\x00";
+	u_char buf[76];
+
+	struct timeval to;
+
+	status = sanei_udp_open_broadcast(&fd);
+	if (status != SANE_STATUS_GOOD)
+		return;
+
+	sanei_udp_write_broadcast(fd, 3289, (u_char *) query, 15);
+	
+	DBG(5, "%s, sent discovery packet\n", __func__);
+
+	to.tv_sec = 1;
+	to.tv_usec = 0;
+
+	FD_ZERO(&rfds);
+	FD_SET(fd, &rfds);
+
+	if (select(fd + 1, &rfds, NULL, NULL, &to) > 0) {
+		while((len = sanei_udp_recvfrom(fd, buf, 76, &ip)) == 76) {
+			DBG(5, " response from %s\n", ip);
+
+			/* minimal check, protocol unknown */
+			if (strncmp(buf, "EPSON", 5) == 0)
+				attach_one_net(ip);
+		}
+	}
+
+	DBG(5, "%s, end\n", __func__);
+
+	sanei_udp_close(fd);
+}
+
+
+
+
 /*
  * open_scanner()
  *
@@ -854,6 +899,12 @@ attach(const char *name, Epson_Device * *devp, int type)
 
 	if (dev->connection == SANE_EPSON_NET) {
 		unsigned char buf[5];
+
+		if (strncmp(name, "autodiscovery", 13) == 0) {
+			epson2_network_discovery();
+			status = SANE_STATUS_INVAL;
+			goto free;
+		}  
 
 		status = sanei_tcp_open(name, 1865, &s->fd);
 		if (status != SANE_STATUS_GOOD) {

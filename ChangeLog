@@ -1,4 +1,7 @@
 2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c, added network scanner autodiscovery
+
+2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
 	* sanei/sanei_udp.c, added udp support functions
 
 2007-12-24  Julien Blache <jb@jblache.org>

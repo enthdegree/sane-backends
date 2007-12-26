@@ -1,3 +1,6 @@
+2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
+	* sanei/sanei_udp.c, added udp support functions
+
 2007-12-24  Julien Blache <jb@jblache.org>
 	* configure.in, configure: Do not build plustek_pp on Hurd. Patch
 	from Samuel Thibault <samuel.thibault@ens-lyon.org>. Add missing

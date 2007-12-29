@@ -1,8 +1,12 @@
-2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
-	* backend/epson2.c, added network scanner autodiscovery
+2007-12-29  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/sane.h, frontend/scanimage.c, backend/fujitsu.[ch]:
+	  commented/removed/deactivated all new SANE_FRAME code
 
 2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
-	* sanei/sanei_udp.c, added udp support functions
+	* backend/epson2.c: added network scanner autodiscovery
+
+2007-12-26  Alessandro Zummo <a.zummo@towertech.it>
+	* sanei/sanei_udp.c: added udp support functions
 
 2007-12-24  Julien Blache <jb@jblache.org>
 	* configure.in, configure: Do not build plustek_pp on Hurd. Patch

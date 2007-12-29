@@ -1141,7 +1141,7 @@ scan_it (void)
   SANE_Status status;
   Image image = { 0, 0, 0, 0, 0, 0 };
   static const char *format_name[] = {
-    "gray", "RGB", "red", "green", "blue", "JPEG"
+    "gray", "RGB", "red", "green", "blue"
   };
   SANE_Word total_bytes = 0, expected_bytes;
   SANE_Int hang_over = -1;
@@ -1186,7 +1186,7 @@ scan_it (void)
 	    }
 
 	  fprintf (stderr, "%s: acquiring %s frame\n", prog_name,
-	   parm.format <= SANE_FRAME_JPEG ? format_name[parm.format]:"Unknown");
+	   parm.format <= SANE_FRAME_BLUE ? format_name[parm.format]:"Unknown");
 	}
 
       if (first_frame)
@@ -1505,7 +1505,7 @@ test_it (void)
 	     prog_name, parm.pixels_per_line,
 	     8 * parm.bytes_per_line / parm.pixels_per_line);
   fprintf (stderr, "%s: acquiring %s frame, %d bits/sample\n", prog_name,
-	   parm.format <= SANE_FRAME_JPEG ? format_name[parm.format]:"Unknown",
+	   parm.format <= SANE_FRAME_BLUE ? format_name[parm.format]:"Unknown",
            parm.depth);
 
   image.data = malloc (parm.bytes_per_line * 2);

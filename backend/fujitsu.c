@@ -270,6 +270,8 @@
       V 1.0.53 2007-11-18, MAN
          - add S510 usb id
 	 - OPT_NUM_OPTS type is SANE_TYPE_INT (jblache)
+      V 1.0.54 2007-12-29, MAN
+	 - disable SANE_FRAME_JPEG support until SANE 1.1.0
 
    SANE FLOW DIAGRAM
 
@@ -2162,9 +2164,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->compress_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    if (i > 1)
+    /*if (i > 1)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    else
+    else*/
       opt->cap = SANE_CAP_INACTIVE;
   }
 

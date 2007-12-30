@@ -16,10 +16,9 @@
 # NOTE: the firmware line must occur BEFORE the usb line for your scanner
 
 # Fujitsu fi-60F
-firmware /lib/firmware/60f_0A00.nal
-firmware /lib/firmware/60f_0000.nal
+firmware @DATADIR@/sane/epjitsu/60f_0A00.nal
 usb 0x04c5 0x10c7
 
 # Fujitsu S300
-firmware /lib/firmware/300_0A00.nal
+firmware @DATADIR@/sane/epjitsu/300_0A00.nal
 usb 0x04c5 0x1156

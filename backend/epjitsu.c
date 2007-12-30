@@ -3201,9 +3201,6 @@ do_cmd(struct scanner *s, int shortTime,
         if(ret == SANE_STATUS_EOF){
             DBG(5,"in: got EOF, continuing\n");
         }
-        else if(ret == SANE_STATUS_IO_ERROR){
-            DBG(5,"in: got IO_ERROR, continuing\n");
-        }
         else if(ret != SANE_STATUS_GOOD){
             DBG(5,"in: return error '%s'\n",sane_strstatus(ret));
             return ret;

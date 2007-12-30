@@ -1,4 +1,9 @@
 2007-12-29  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu.c: let io_error fall thru usb command function
+	* backend/epjitsu.conf.in: use @DATADIR@ for holding firmware
+	* backend/Makefile.in: add epjitsu to FIRMWARE_DIRS
+
+2007-12-29  m. allan noah <kitno455 a t gmail d o t com>
 	* include/sane/sane.h, frontend/scanimage.c, backend/fujitsu.[ch]:
 	  commented/removed/deactivated all new SANE_FRAME code
 

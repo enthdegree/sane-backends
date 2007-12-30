@@ -64,7 +64,7 @@ COMPILE = $(CC) -c $(CFLAGS) $(DEFS) $(INCLUDES) $(CPPFLAGS)
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
-FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan
+FIRMWARE_DIRS = artec_eplus48u gt68xx snapscan epjitsu
 
 @SET_MAKE@
 

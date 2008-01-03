@@ -124,6 +124,7 @@ DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
   hp5400.c hp5400.h hp5400.conf.in hp5400_debug.c hp5400_debug.h \
   hp5400_internal.c hp5400_internal.h hp5400_xfer.h \
   hp5400_sane.c hp5400_sanei.c hp5400_sanei.h \
+  hs2p.c hs2p.conf.in hs2p-scsi.c hs2p.h hs2p-scsi.h hs2p-saneopts.h \
   ibm.c ibm.conf.in ibm.h ibm-scsi.c \
   leo.c leo.h leo.conf.in \
   lexmark.c lexmark_low.c lexmark_sensors.c lexmark_devices.c lexmark.h \
@@ -420,6 +421,9 @@ libsane-hp4200.la: ../sanei/sanei_usb.lo
 libsane-hp4200.la: ../sanei/sanei_pv8630.lo
 libsane-hp5400.la: ../sanei/sanei_usb.lo
 libsane-hp5590.la: ../sanei/sanei_usb.lo
+libsane-hs2p.la: ../sanei/sanei_scsi.lo
+libsane-hs2p.la: ../sanei/sanei_config2.lo
+libsane-hs2p.la: ../sanei/sanei_constrain_value.lo
 libsane-ibm.la: ../sanei/sanei_scsi.lo
 libsane-ibm.la: ../sanei/sanei_config2.lo
 libsane-ibm.la: ../sanei/sanei_constrain_value.lo

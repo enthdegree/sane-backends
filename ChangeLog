@@ -1,3 +1,11 @@
+2008-01-02  m. allan noah <kitno455 a t gmail d o t com>
+	* AUTHORS, configure, configure.in, backend/Makefile.in,
+	  backend/dll.conf.in, backend/hs2p-saneopts.h,
+	  backend/hs2p-scsi.c, backend/hs2p-scsi.h, backend/hs2p.c
+	  backend/hs2p.conf.in, backend/hs2p.h doc/Makefile.in,
+	  doc/sane-hs2p.man, doc/sane.man, doc/descriptions/hs2p.desc:
+	  add hs2p backend for jazz_johnson a t verizon d o t net
+
 2007-12-29  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/epjitsu.c: let io_error fall thru usb command function
 	* backend/epjitsu.conf.in: use @DATADIR@ for holding firmware

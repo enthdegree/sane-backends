@@ -444,9 +444,14 @@
 :interface "SCSI"
 :status :untested
 
-:model "fi-4010CU"
+:model "fi-4010C"
 :interface "USB"
 :usbid "0x04c5" "0x1029"
+:status :untested
+
+:model "fi-4110CU/SSF"
+:interface "USB"
+:usbid "0x04c5" "0x1033"
 :status :untested
 
 

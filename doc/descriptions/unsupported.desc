@@ -253,6 +253,12 @@
 :status :unsupported
 :comment "Probably unsupported. See link for details."
 
+:model "MyPen Light"
+:interface "USB"
+:usbid "0x0a93" "0x0005"
+:status :unsupported
+:comment "See bug #306792 for details."
+
 :model "MoneyPen II"
 ;:url "/unsupported/c-channel-mypen-pro.html"
 :interface "USB"
@@ -712,28 +718,6 @@
 :interface "Parport"
 :status :unsupported
 :comment "Probably unsupported. "
-
-;********************************************************************************************
-
-:mfg "Fujitsu"
-:url "http://www.fujitsu.com/"
-
-:model "fi-4010C"
-:interface "USB"
-:usbid "0x04c5" "0x1029"
-:status :unsupported
-:comment "Unsupported. Unknown chipset."
-
-:model "fi-4110CU"
-:interface "USB"
-:usbid "0x04c5" "0x1033"
-:status :unsupported
-:comment "Unsupported. Unknown chipset (perhaps ma1509?)."
-
-:model "fi-4110EOX2"
-:interface "USB"
-:status :unsupported
-:comment "Uses ma1509 chip, but very different from other scanners supported by the ma1509 backend"
 
 ;********************************************************************************************
 
@@ -2330,6 +2314,11 @@
 :usbid "0x0475" "0x0103"
 :status :unsupported
 :comment "Probably unsupported. See link for details."
+
+:model "AVEC II E3"
+:interface "Parport"
+:status :unsupported
+:comment "Parport version of AVEC II S3?. See bug #304992 for details"
 
 ;********************************************************************************************
 

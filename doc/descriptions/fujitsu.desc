@@ -34,30 +34,8 @@
 :status :good
 :comment "workgroup, old, discontinued"
 
-:model "ScanPartner Jr/10C/15C/93GX/300/600/620C"
-:interface "SCSI"
-:status :unsupported
-:comment "workgroup, old, discontinued, Avision OEM"
-
 ;==================================================
 ; DISCONTINUED NEWER MODELS, PERSONAL
-:model "fi-4010CU"
-:interface "USB"
-:status :unsupported
-:usbid "0x04c5" "0x1029"
-:comment "workgroup, recent, discontinued, maybe Avision OEM?"
-
-:model "fi-4110CU/SSF"
-:interface "USB"
-:status :untested
-:usbid "0x04c5" "0x1033"
-:comment "workgroup, recent, discontinued, maybe Avision OEM?"
-
-:model "fi-4110EOX/2/3"
-:interface "USB"
-:status :untested
-:comment "workgroup, recent, discontinued, maybe MA1509 chipset?"
-
 :model "fi-4120C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1041"
@@ -140,12 +118,6 @@
 :status :good
 :usbid "0x04c5" "0x10e1"
 :comment "workgroup, current"
-
-:model "fi-60F"
-:interface "USB"
-:status :unsupported
-:usbid "0x04c5" "0x10c7"
-:comment "workgroup, current, Epson chipset"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, DEPARTMENTAL

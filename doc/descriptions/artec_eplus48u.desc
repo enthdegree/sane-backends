@@ -21,7 +21,7 @@
 :status :minimal
 :interface "USB"
 :usbid "0x05d8" "0x4004"
-:comment "Experimental! Please report your results!"
+:comment "Works up to 600dpi, but not 1200. Needs better calibration. See bug #310490"
 
 
 :mfg "Medion/Lifetec/Tevion/Cytron"

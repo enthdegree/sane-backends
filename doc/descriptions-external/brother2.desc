@@ -102,6 +102,12 @@
 :usbid "0x04f9" "0x0193"
 :comment "brscan2-0.0.2 necessary"
 
+:model "MFC-240C"
+:status :good
+:interface "USB"
+:usbid "0x04f9" "0x01ab"
+:comment "Reportedly working."
+
 :model "MFC-3240C"
 :status :untested
 :interface "USB"

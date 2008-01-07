@@ -11,6 +11,7 @@
 
 :backend "hp3900"
 :version "0.10"
+:new :yes
 :manpage "sane-hp3900"
 :url "http://sourceforge.net/projects/hp3900-series/"
 :comment "Still Beta"

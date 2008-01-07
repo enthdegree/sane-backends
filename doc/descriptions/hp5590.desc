@@ -10,6 +10,7 @@
 
 :backend "hp5590"
 :version "1.0"
+:new :yes
 :manpage "sane-hp5590"
 
 :devicetype :scanner

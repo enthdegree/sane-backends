@@ -147,7 +147,7 @@
 :status :complete
 
 :model "Perfection 4870"
-:comment "US version of the GT-9800"
+:comment "US version of the GT-X700"
 :interface "USB"
 :usbid "0x04b8" "0x0128"
 :status :complete
@@ -297,6 +297,11 @@
 :interface "USB" 
 :usbid "0x04b8" "0x082e" 
 :status :good 
+
+:model "DX-7400"
+:interface "USB"
+:usbid "0x04b8" "0x0838"
+:status :good
 
 :model "DX-4050"
 :interface "USB"

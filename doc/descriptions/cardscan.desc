@@ -11,6 +11,7 @@
 
 :backend "cardscan"              ; name of backend
 :url "http://www.thebility.com/cardscan/" 
+:new :yes
 :version "1.0.0"                 ; version of backend
 :manpage "sane-cardscan"         ; name of manpage (if it exists)
 :comment "New for sane 1.0.19"

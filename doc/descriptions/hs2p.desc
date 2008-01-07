@@ -26,7 +26,6 @@
 :status :complete
 :comment "All major scanning-related features are supported (except for IPU). Certain non-scanning features, such as those related to scanner maintenance, are not supported. Such features would be better implemented in a separate stand-alone tool. For instance, if you replace the ADF Unit, you must recalibrate the scanner optics using a Ricoh Test Sheet and reset the E^2PROM registers. Reports are welcome."
 
-:mfg "Ricoh"                         ; name a manufacturer
 :model "IS-410"
 :interface "SCSI"
 :status :untested

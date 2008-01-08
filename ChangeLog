@@ -1,3 +1,6 @@
+2008-01-09  Alessandro Zummo <a.zummo@towertech.it>
+	* sanei_tcp.c, fix compilation with cygwin.
+
 2008-01-02  m. allan noah <kitno455 a t gmail d o t com>
 	* AUTHORS, configure, configure.in, backend/Makefile.in,
 	  backend/dll.conf.in, backend/hs2p-saneopts.h,

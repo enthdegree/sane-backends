@@ -48,6 +48,10 @@
 
 #include <sys/socket.h>
 
+#if defined(__CYGWIN__) && !defined(MSG_WAITALL)
+#define MSG_WAITALL  0x08
+#endif
+
 #define BACKEND_NAME sanei_tcp
 
 #include "../include/sane/sane.h"

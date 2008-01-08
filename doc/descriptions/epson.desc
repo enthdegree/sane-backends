@@ -228,9 +228,19 @@
 :usbid "0x04b8" "0x0808"
 :status :good
 
+:model "CX-6300"
+:interface "USB"
+:usbid "0x04b8" "0x0805"
+:status :good
+
 :model "CX-6400"
 :interface "USB"
 :usbid  "0x04b8" "0x0805"
+:status :good
+
+:model "CX-6600"
+:interface "USB"
+:usbid "0x04b8" "0x0805"
 :status :good
 
 :model "CX-6600"
@@ -316,11 +326,6 @@
 :model "AcuLaser CX11NF"
 :interface "USB"
 :usbid "0x04b8" "0x0815"
-:status :good
-
-:model "CX-6600"
-:interface "USB"
-:usbid "0x04b8" "0x0805"
 :status :good
 
 :model "V700"

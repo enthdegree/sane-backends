@@ -238,9 +238,9 @@
 :usbid  "0x04b8" "0x0805"
 :status :good
 
-:model "CX-6600"
+:model "CX-6500"
 :interface "USB"
-:usbid "0x04b8" "0x0805"
+:usbid "0x04b8" "0x0813"
 :status :good
 
 :model "CX-6600"

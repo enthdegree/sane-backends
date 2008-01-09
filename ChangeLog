@@ -1,4 +1,10 @@
 2008-01-09  Alessandro Zummo <a.zummo@towertech.it>
+	* changed functions prefix (esci_ for device commands,
+	e2_ for driver's functions), better handling of tpu area,
+	fixed tpu detection, changed freeing of line buffers,
+	fixed some XXXs.
+
+2008-01-09  Alessandro Zummo <a.zummo@towertech.it>
 	* sanei_tcp.c, fix compilation with cygwin.
 
 2008-01-02  m. allan noah <kitno455 a t gmail d o t com>

@@ -45,7 +45,7 @@ unsigned int r_cmd_count = 0;
 unsigned int w_cmd_count = 0;
 
 int
-epson2_send(Epson_Scanner * s, void *buf, size_t buf_size, size_t reply_len,
+e2_send(Epson_Scanner * s, void *buf, size_t buf_size, size_t reply_len,
 	    SANE_Status * status)
 {
 	DBG(15, "%s: size = %lu, reply = %lu\n",
@@ -112,7 +112,7 @@ epson2_send(Epson_Scanner * s, void *buf, size_t buf_size, size_t reply_len,
 }
 
 ssize_t
-epson2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
+e2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
 	    SANE_Status * status)
 {
 	ssize_t n = 0;
@@ -167,18 +167,18 @@ epson2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
  */
 
 SANE_Status
-epson2_txrx(Epson_Scanner * s, unsigned char *txbuf, size_t txlen,
+e2_txrx(Epson_Scanner * s, unsigned char *txbuf, size_t txlen,
 	    unsigned char *rxbuf, size_t rxlen)
 {
 	SANE_Status status;
 
-	epson2_send(s, txbuf, txlen, rxlen, &status);
+	e2_send(s, txbuf, txlen, rxlen, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: tx err, %s\n", __func__, sane_strstatus(status));
 		return status;
 	}
 
-	epson2_recv(s, rxbuf, rxlen, &status);
+	e2_recv(s, rxbuf, rxlen, &status);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: rx err, %s\n", __func__, sane_strstatus(status));
 	}
@@ -190,14 +190,14 @@ epson2_txrx(Epson_Scanner * s, unsigned char *txbuf, size_t txlen,
  * to give back an ACK or a NAK.
  */
 SANE_Status
-epson2_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
+e2_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
 {
 	unsigned char result;
 	SANE_Status status;
 
 	DBG(12, "%s: size = %d\n", __func__, buf_size);
 
-	status = epson2_txrx(s, buf, buf_size, &result, 1);
+	status = e2_txrx(s, buf, buf_size, &result, 1);
 	if (status != SANE_STATUS_GOOD) {
 		DBG(1, "%s: failed, %s\n", __func__, sane_strstatus(status));
 		return status;
@@ -219,16 +219,16 @@ epson2_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
 
 /* receives a 4 or 6 bytes information block from the scanner*/
 SANE_Status
-epson2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
+e2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
 		       size_t info_size, size_t * payload_size)
 {
 	SANE_Status status;
 	unsigned char info[6];
 
 	if (s->hw->connection == SANE_EPSON_PIO)
-		epson2_recv(s, info, 1, &status);
+		e2_recv(s, info, 1, &status);
 	else
-		epson2_recv(s, info, info_size, &status);
+		e2_recv(s, info, info_size, &status);
 
 	if (status != SANE_STATUS_GOOD)
 		return status;
@@ -247,7 +247,7 @@ epson2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
 
 	/* if connection is PIO read the remaining bytes. */
 	if (s->hw->connection == SANE_EPSON_PIO) {
-		epson2_recv(s, &info[1], info_size - 1, &status);
+		e2_recv(s, &info[1], info_size - 1, &status);
 		if (status != SANE_STATUS_GOOD)
 			return status;
 	}
@@ -275,7 +275,7 @@ epson2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
  */
 
 SANE_Status
-epson2_cmd_info_block(SANE_Handle handle, unsigned char *params,
+e2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 		      unsigned char params_len, size_t reply_len,
 		      unsigned char **buf, size_t * buf_len)
 {
@@ -293,13 +293,13 @@ epson2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 	*buf = NULL;
 
 	/* send command, we expect the info block + reply_len back */
-	epson2_send(s, params, params_len,
+	e2_send(s, params, params_len,
 		    reply_len ? reply_len + 4 : 0, &status);
 
 	if (status != SANE_STATUS_GOOD)
 		goto end;
 
-	status = epson2_recv_info_block(s, NULL, 4, &len);
+	status = e2_recv_info_block(s, NULL, 4, &len);
 	if (status != SANE_STATUS_GOOD)
 		goto end;
 
@@ -324,7 +324,7 @@ epson2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 
 	if (*buf) {
 		memset(*buf, 0x00, len);
-		epson2_recv(s, *buf, len, &status);	/* receive actual data */
+		e2_recv(s, *buf, len, &status);	/* receive actual data */
 	} else
 		status = SANE_STATUS_NO_MEM;
       end:
@@ -346,7 +346,7 @@ epson2_cmd_info_block(SANE_Handle handle, unsigned char *params,
  * will answer with ACK/NAK.
  */
 SANE_Status
-epson2_esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
+e2_esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
 {
 	SANE_Status status;
 	unsigned char params[2];
@@ -358,29 +358,29 @@ epson2_esc_cmd(Epson_Scanner * s, unsigned char cmd, unsigned char val)
 	params[0] = ESC;
 	params[1] = cmd;
 
-	status = epson2_cmd_simple(s, params, 2);
+	status = e2_cmd_simple(s, params, 2);
 	if (status != SANE_STATUS_GOOD)
 		return status;
 
 	params[0] = val;
 
-	return epson2_cmd_simple(s, params, 1);
+	return e2_cmd_simple(s, params, 1);
 }
 
 /* Send an ACK to the scanner */
 
 SANE_Status
-epson2_ack(Epson_Scanner * s)
+e2_ack(Epson_Scanner * s)
 {
 	SANE_Status status;
-	epson2_send(s, S_ACK, 1, 0, &status);
+	e2_send(s, S_ACK, 1, 0, &status);
 	return status;
 }
 
 SANE_Status
-epson2_ack_next(Epson_Scanner * s, size_t reply_len)
+e2_ack_next(Epson_Scanner * s, size_t reply_len)
 {
 	SANE_Status status;
-	epson2_send(s, S_ACK, 1, reply_len, &status);
+	e2_send(s, S_ACK, 1, reply_len, &status);
 	return status;
 }

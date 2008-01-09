@@ -238,6 +238,11 @@ typedef enum
 struct Epson_Device
 {
   struct Epson_Device *next;
+
+  char *name;
+  char *model;
+
+
   SANE_Device sane;
   SANE_Int level;
   SANE_Range dpi_range;

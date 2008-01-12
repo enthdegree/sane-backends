@@ -1,3 +1,8 @@
+2008-01-09  Gerard Klaver <gerard at gkall dot hobby dot nl>
+	* backend/teco2.c changed routine teco_request_sens
+	  add init value to size (bugreport
+	  https://bugzilla.novell.com/show_bug.cgi?id=205451)
+
 2008-01-09  Alessandro Zummo <a.zummo@towertech.it>
 	* changed functions prefix (esci_ for device commands,
 	e2_ for driver's functions), better handling of tpu area,

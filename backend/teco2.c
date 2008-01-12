@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
 
    Copyright (C) 2002-2003 Frank Zago (sane at zago dot net)
-   Copyright (C) 2003-2005 Gerard Klaver (gerard at gkall dot hobby dot nl)
+   Copyright (C) 2003-2008 Gerard Klaver (gerard at gkall dot hobby dot nl)
 
    This file is part of the SANE package.
    
@@ -61,11 +61,13 @@
                       changed use of %d to %ld (when bytes values are displayed)
    update 2005/03/04, use of __sane_unused__
    update 2005/07/29. Removed using teco_request_sense (dev) routine for VM3564
+   update 2008/01/12, Update teco_request_sense routine due to no 
+                      init value for size.
 */
 
 /*--------------------------------------------------------------------------*/
 
-#define BUILD 9			/* 2005/07/29 */
+#define BUILD 10			/* 2008/01/12 */
 #define BACKEND_NAME teco2
 #define TECO2_CONFIG_FILE "teco2.conf"
 
@@ -1518,29 +1520,38 @@ teco_do_calibration (Teco_Scanner * dev)
   return SANE_STATUS_GOOD;
 }
 
-      /*------------request sense command 03----------------*/
+/*------------request sense command 03----------------*/
 static SANE_Status
 teco_request_sense (Teco_Scanner * dev)
 {
-  CDB cdb;
   SANE_Status status;
+  unsigned char buf[15];
+  CDB cdb;
   size_t size;
+  /* size = 0;  */
 
-
+  DBG (DBG_proc, "teco_request_sense: enter\n");
+  
+  size = sizeof (buf);
   MKSCSI_REQUEST_SENSE (cdb, size);
+  
   size = cdb.data[5];
 
-  hexdump (DBG_info2, "teco_request_sense: enter\n", cdb.data, cdb.len);
+  hexdump (DBG_info2, "teco_request_sense", cdb.data, cdb.len);
 
+  /* status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+			    NULL, 0, dev->buffer, &size); */
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
-			    NULL, 0, dev->buffer, &size);
+			    NULL, 0, buf, &size);
 
+  hexdump (DBG_info2, "teco_request_sense:", buf, size);
+  
   DBG (DBG_proc, "teco_request_sense: exit, status=%d\n", status);
 
   return (status);
 }
 
-/*----------------------------------------------------------*/
+/*----------------------------------------------------*/
 
 /* Send the gamma */
 static SANE_Status
@@ -2516,7 +2527,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 
   DBG (DBG_error, "This is sane-teco2 version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
-  DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2005 by Gerard Klaver\n");
+  DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2008 by Gerard Klaver\n");
 
   if (version_code)
     {

@@ -1525,7 +1525,7 @@ static SANE_Status
 teco_request_sense (Teco_Scanner * dev)
 {
   SANE_Status status;
-  unsigned char buf[15];
+  unsigned char buf[255];
   CDB cdb;
   size_t size;
   /* size = 0;  */
@@ -1535,11 +1535,11 @@ teco_request_sense (Teco_Scanner * dev)
   size = sizeof (buf);
   MKSCSI_REQUEST_SENSE (cdb, size);
   
-  size = cdb.data[5];
+  /*size = cdb.data[5];
 
   hexdump (DBG_info2, "teco_request_sense", cdb.data, cdb.len);
 
-  /* status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
+  status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
 			    NULL, 0, dev->buffer, &size); */
   status = sanei_scsi_cmd2 (dev->sfd, cdb.data, cdb.len,
 			    NULL, 0, buf, &size);

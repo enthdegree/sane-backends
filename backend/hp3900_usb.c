@@ -40,6 +40,10 @@
    If you do not wish that, delete this exception notice.
 */
 
+#ifndef USBLAYER
+
+#define USBLAYER
+
 #define TIMEOUT      1000
 #define BLK_READ_EP  0x81
 #define BLK_WRITE_EP 0x02
@@ -298,16 +302,16 @@ Write_Bulk (USB_Handle usb_handle, SANE_Byte * buffer, SANE_Int size)
 
 #ifdef STANDALONE
       if (usb_handle != NULL)
-	if (usb_bulk_write (usb_handle,
-			    BLK_WRITE_EP,
-			    (char *) buffer, size, TIMEOUT) == size)
+	if (usb_bulk_write
+	    (usb_handle, BLK_WRITE_EP, (char *) buffer, size,
+	     TIMEOUT) == size)
 	  rst = OK;
 #else
       if (usb_handle != -1)
 	{
 	  size_t mysize = size;
-	  if (sanei_usb_write_bulk (usb_handle,
-				    buffer, &mysize) == SANE_STATUS_GOOD)
+	  if (sanei_usb_write_bulk (usb_handle, buffer, &mysize) ==
+	      SANE_STATUS_GOOD)
 	    rst = OK;
 	}
 #endif
@@ -327,17 +331,18 @@ Read_Bulk (USB_Handle usb_handle, SANE_Byte * buffer, size_t size)
   if (buffer != NULL)
     {
       dataline_count++;
-      DBG (DBG_CTL, "%06i BLK DI: Buffer length = %i. bytes\n",
+      DBG (DBG_CTL, "%06i BLK DI: Buffer length = %u. bytes\n",
 	   dataline_count, size);
 
 #ifdef STANDALONE
       if (usb_handle != NULL)
-	rst = usb_bulk_read (usb_handle,
-			     BLK_READ_EP, (char *) buffer, size, TIMEOUT);
+	rst =
+	  usb_bulk_read (usb_handle, BLK_READ_EP, (char *) buffer, size,
+			 TIMEOUT);
 #else
       if (usb_handle != -1)
-	if (sanei_usb_read_bulk (usb_handle,
-				 buffer, &size) == SANE_STATUS_GOOD)
+	if (sanei_usb_read_bulk (usb_handle, buffer, &size) ==
+	    SANE_STATUS_GOOD)
 	  rst = size;
 #endif
     }
@@ -501,3 +506,4 @@ show_buffer (SANE_Int level, SANE_Byte * buffer, SANE_Int size)
     }
   return OK;
 }
+#endif /*USBLAYER*/

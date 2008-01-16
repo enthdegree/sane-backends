@@ -1,3 +1,7 @@
+2008-01-16  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900_usb.c: fixed compilation warning related
+	  to an argument type in Read_Bulk function.
+
 2008-01-14  m. allan noah <kitno455 a t gmail d o t com>
 	* tools/check-po.awk: support different use of 'fuzzy'
 	* po/sane-backends.fr.po: updated translation

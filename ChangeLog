@@ -1,3 +1,8 @@
+2008-01-16  m. allan noah <kitno455 a t gmail d o t com>
+	* po/sane-backends.fr.po: updated translation from Yann E. MORIN
+	* backend/fujitsu.c, backend/fujitsu.conf.in, 
+	  doc/descriptions/fujitsu.desc: add usb id for S500M
+
 2008-01-16  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_usb.c: fixed compilation warning related
 	  to an argument type in Read_Bulk function.

@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.19\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-01-09 21:26+0100\n"
-"PO-Revision-Date: 2008-01-12 00:18+0100\n"
+"POT-Creation-Date: 2008-01-16 19:12+0100\n"
+"PO-Revision-Date: 2008-01-16 19:12+0100\n"
 "Last-Translator: Yann E. MORIN <yann dot morin dot 1998 at anciens dot "
 "enib dot fr>\n"
 "Language-Team:\n"
@@ -25,6 +25,8 @@ msgstr ""
 "X-Generator: KBabel 0.9.5\n"
 
 # ####################################################
+# YEM-20080115 : Fixes from Stef and Patrick. Thanks!
+# ----------------------------------------------------
 # YEM-20080112 : Updates for sane-backends 1.0.19
 # 100% translated
 # ----------------------------------------------------
@@ -90,7 +92,7 @@ msgstr "Couleur"
 #: .tmp/mustek_usb2.c:431 .tmp/mustek_usb.c:353 .tmp/niash.c:756
 #: .tmp/plustek.c:853 .tmp/plustek_pp.c:792 .tmp/sceptre.c:750
 #: .tmp/snapscan-options.c:561 .tmp/stv680.c:1067 .tmp/teco1.c:1143
-#: .tmp/teco2.c:1951 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
+#: .tmp/teco2.c:1962 .tmp/teco3.c:968 .tmp/u12.c:592 .tmp/umax.c:5224
 #: .tmp/umax_pp.c:550
 #, no-c-format
 msgid "Enhancement"
@@ -113,7 +115,7 @@ msgstr "Valeurs par défaut pour les réglages fins."
 #: .tmp/microtek2.h:600 .tmp/mustek.c:4357 .tmp/mustek_usb2.c:465
 #: .tmp/mustek_usb.c:305 .tmp/pixma_sane_options.c:144 .tmp/plustek.c:807
 #: .tmp/plustek_pp.c:746 .tmp/sceptre.c:702 .tmp/snapscan-options.c:494
-#: .tmp/teco1.c:1095 .tmp/teco2.c:1903 .tmp/teco3.c:920 .tmp/test.c:642
+#: .tmp/teco1.c:1095 .tmp/teco2.c:1914 .tmp/teco3.c:920 .tmp/test.c:642
 #: .tmp/u12.c:546 .tmp/umax.c:5174 .tmp/umax_pp.c:501
 #, no-c-format
 msgid "Geometry"
@@ -202,7 +204,7 @@ msgstr "Niveaux de gris"
 #: .tmp/canon630u.c:259 .tmp/umax1220u.c:209
 #, no-c-format
 msgid "Do a grayscale rather than color scan"
-msgstr "Effectue une numérisation en niveaux de gris plutot qu'en couleurs"
+msgstr "Effectue une numérisation en niveaux de gris plutôt qu'en couleurs"
 
 #: .tmp/canon630u.c:305
 #, no-c-format
@@ -291,7 +293,7 @@ msgstr "Automatique"
 #: .tmp/canon.c:178
 #, no-c-format
 msgid "Normal speed"
-msgstr "Vitesse normal"
+msgstr "Vitesse normale"
 
 #: .tmp/canon.c:179
 #, no-c-format
@@ -476,7 +478,7 @@ msgstr "numériseur de transparents"
 
 #: .tmp/canon.c:885 .tmp/canon.c:900 .tmp/canon.c:915
 #: .tmp/hp3900_sane.c:1694 .tmp/plustek.c:1334 .tmp/plustek_pp.c:1014
-#: .tmp/sceptre.c:593 .tmp/teco2.c:1825 .tmp/u12.c:851
+#: .tmp/sceptre.c:593 .tmp/teco2.c:1836 .tmp/u12.c:851
 #, no-c-format
 msgid "flatbed scanner"
 msgstr "numériseur à plat"
@@ -510,17 +512,17 @@ msgstr "Sélectionne l'utilisation de film négatif"
 #: .tmp/canon.c:1209 .tmp/saneopts.h:146
 #, no-c-format
 msgid "Scan resolution"
-msgstr "Echantillonage"
+msgstr "Echantillonnage"
 
 #: .tmp/canon.c:1224
 #, no-c-format
 msgid "Hardware resolution"
-msgstr "Echantillonage matériel"
+msgstr "Echantillonnage matériel"
 
 #: .tmp/canon.c:1225
 #, no-c-format
 msgid "Use only hardware resolutions"
-msgstr "Utilise seulement les valeurs d'échantillonage matériel"
+msgstr "Utilise seulement les valeurs d'échantillonnage matériel"
 
 #: .tmp/canon.c:1306
 #, no-c-format
@@ -544,8 +546,7 @@ msgstr "Une seule mise au point automatique"
 
 #: .tmp/canon.c:1325
 #, no-c-format
-msgid ""
-"Do auto focus only once between ejects"
+msgid "Do auto focus only once between ejects"
 msgstr ""
 "Effectuer la mise au point automatique une seule fois entre chaque "
 "éjection"
@@ -573,12 +574,12 @@ msgstr "Plus de réglages de couleur"
 #: .tmp/canon.c:1522 .tmp/epson2.c:2090 .tmp/epson.c:3195
 #, no-c-format
 msgid "Mirror image"
-msgstr "Image mirroir"
+msgstr "Image miroir"
 
 #: .tmp/canon.c:1523
 #, no-c-format
 msgid "Mirror the image horizontally"
-msgstr "Image mirroir horizontal"
+msgstr "Image miroir horizontal"
 
 #: .tmp/canon.c:1592
 #, no-c-format
@@ -644,8 +645,7 @@ msgstr "Ejecte le film avant de quitter"
 #, no-c-format
 msgid ""
 "Automatically eject the film from the device before exiting the program"
-msgstr ""
-"Ejecte automatiquement le film avant de quitter le programme"
+msgstr "Ejecte automatiquement le film avant de quitter le programme"
 
 #: .tmp/canon.c:1672
 #, no-c-format
@@ -669,8 +669,7 @@ msgstr "A plat seulement"
 
 #: .tmp/canon.c:1690
 #, no-c-format
-msgid ""
-"Disable auto document feeder and use flatbed only"
+msgid "Disable auto document feeder and use flatbed only"
 msgstr ""
 "Ne pas utiliser le chargeur automatique, seulement le scanner à plat"
 
@@ -929,7 +928,7 @@ msgstr "Spécifié par l'utilisateur (gamma=1,8)"
 #: .tmp/matsushita.c:1084 .tmp/microtek2.h:599 .tmp/mustek.c:4199
 #: .tmp/mustek_usb2.c:344 .tmp/mustek_usb.c:260 .tmp/niash.c:736
 #: .tmp/plustek.c:720 .tmp/plustek_pp.c:657 .tmp/sceptre.c:673
-#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1875
+#: .tmp/snapscan-options.c:315 .tmp/stv680.c:1030 .tmp/teco2.c:1886
 #: .tmp/test.c:301 .tmp/u12.c:473 .tmp/umax.c:5052
 #, no-c-format
 msgid "Scan Mode"
@@ -1084,7 +1083,7 @@ msgstr "Liste réduite de résolutions"
 #: .tmp/epson2.c:2116
 #, no-c-format
 msgid "Display a shortened resolution list"
-msgstr "Affiche une liste réduite d'échantillonage"
+msgstr "Affiche une liste réduite d'échantillonnage"
 
 #: .tmp/epson2.c:2186 .tmp/epson.c:3350
 #, no-c-format
@@ -1109,7 +1108,7 @@ msgstr "Ejection automatique"
 #: .tmp/epson2.c:2253 .tmp/epson.c:3435
 #, no-c-format
 msgid "Eject document after scanning"
-msgstr "Ejecte le document apres la numérisation"
+msgstr "Ejecte le document après la numérisation"
 
 #: .tmp/epson2.c:2263 .tmp/epson.c:3447
 #, no-c-format
@@ -1118,11 +1117,10 @@ msgstr "Mode du chargeur automatique de documents"
 
 #: .tmp/epson2.c:2265 .tmp/epson.c:3449
 #, no-c-format
-msgid ""
-"Selects the ADF mode (simplex/duplex)"
+msgid "Selects the ADF mode (simplex/duplex)"
 msgstr ""
-"Sélectionne le mode du chargeur automatique de documents "
-"(recto/recto-verso)"
+"Sélectionne le mode du chargeur automatique de documents (recto/recto-"
+"verso)"
 
 #: .tmp/epson2.c:2277 .tmp/epson.c:3463
 #, no-c-format
@@ -1132,7 +1130,7 @@ msgstr "Baie"
 #: .tmp/epson2.c:2278 .tmp/epson.c:3464
 #, no-c-format
 msgid "Select bay to scan"
-msgstr "Selectionne la baie contennant le document à numériser"
+msgstr "Sélectionne la baie contennant le document à numériser"
 
 #: .tmp/epson2.h:65 .tmp/epson.h:69
 #, no-c-format
@@ -1166,7 +1164,7 @@ msgid ""
 "After sending the scan command, wait until the button on the scanner is "
 "pressed to actually start the scan process."
 msgstr ""
-"Aprés avoir envoyer la commande de numérisation, attendre l'appui du "
+"Aprés avoir envoyé la commande de numérisation, attendre l'appui du "
 "bouton avant de commencer la numérisation."
 
 #: .tmp/epson.c:761
@@ -1207,7 +1205,7 @@ msgstr "Aperçu rapide"
 #: .tmp/epson.c:3250
 #, no-c-format
 msgid "Display short resolution list"
-msgstr "Affiche une liste réduite d'échantillonage"
+msgstr "Affiche une liste réduite d'échantillonnage"
 
 #: .tmp/epson.c:3257
 #, no-c-format
@@ -1257,10 +1255,9 @@ msgstr "Filtre de couleur"
 
 #: .tmp/genesys.c:4775
 #, no-c-format
-msgid ""
-"When using gray or lineart this option selects the used color."
+msgid "When using gray or lineart this option selects the used color."
 msgstr ""
-"En niveaux de gris ou en mode Trait, sélectionne la couleur à utiliser."
+"En niveaux de gris ou en mode trait, sélectionne la couleur à utiliser."
 
 #: .tmp/genesys.c:4784
 #, no-c-format
@@ -1273,8 +1270,8 @@ msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
 "of 0 means, that the lamp won't be turned off."
 msgstr ""
-"La lampe sera éteinte après ce laps de temps (en minutes). Entrer 0 "
-"pour ne pas éteindre la lampe automatiquement."
+"La lampe sera éteinte après ce laps de temps (en minutes). Entrer 0 pour "
+"ne pas éteindre la lampe automatiquement."
 
 #: .tmp/gt68xx.c:472
 #, no-c-format
@@ -1283,8 +1280,7 @@ msgstr "Couleur du mode niveaux de gris"
 
 #: .tmp/gt68xx.c:474
 #, no-c-format
-msgid ""
-"Selects which scan color is used gray mode (default: green)."
+msgid "Selects which scan color is used gray mode (default: green)."
 msgstr ""
 "Sélectionne la couleur à utiliser en niveaux de gris (défaut: vert)."
 
@@ -1383,7 +1379,7 @@ msgstr "Valeur de gamma"
 #: .tmp/gt68xx.c:676 .tmp/mustek_usb2.c:454
 #, no-c-format
 msgid "Sets the gamma value of all channels."
-msgstr "Sélectionne la valeur de gamma pour tous les cannaux."
+msgstr "Sélectionne la valeur de gamma pour tous les canaux."
 
 #: .tmp/hp3500.c:977
 #, no-c-format
@@ -1414,11 +1410,10 @@ msgstr "Modèle de scanner"
 
 #: .tmp/hp3900_sane.c:1414
 #, no-c-format
-msgid ""
-"Allows to test device behaviour with other supported models"
+msgid "Allows to test device behaviour with other supported models"
 msgstr ""
-"Permet de tester le comportement du périphérique en l'utilisant "
-"comme un autre modèle compatible"
+"Permet de tester le comportement du périphérique en l'utilisant comme un "
+"autre modèle compatible"
 
 #: .tmp/hp3900_sane.c:1428
 #, no-c-format
@@ -1458,7 +1453,7 @@ msgstr "Le préchauffage sera désactivé"
 #: .tmp/hp3900_sane.c:1488
 #, no-c-format
 msgid "Force real depth"
-msgstr "Focer l'utilisatioon de la profondeur réelle"
+msgstr "Forcer l'utilisation de la profondeur réelle"
 
 #: .tmp/hp3900_sane.c:1491
 #, no-c-format
@@ -1467,10 +1462,10 @@ msgid ""
 "image quality and then converted to the selected depth. This option "
 "avoids depth emulation."
 msgstr ""
-"Si la correction gamme est activée, la numérisation sera toujours "
+"Si la correction gamma est activée, la numérisation sera toujours "
 "effectuée en 16 bits par couleur pour améliorer la qualité de l'image, "
-"puis convertie dans la profondeur demandée. Cette option évite "
-"de simuler la profondeur."
+"puis convertie dans la profondeur demandée. Cette option évite de "
+"simuler la profondeur."
 
 #: .tmp/hp3900_sane.c:1505
 #, no-c-format
@@ -1571,7 +1566,7 @@ msgstr "Boutons"
 #: .tmp/hp3900_sane.c:1646
 #, no-c-format
 msgid "This option reflects a front panel scanner button"
-msgstr "Cette option reflète un bouton de la facade du scanner"
+msgstr "Cette option reflète l'état d'un bouton de la façade du scanner"
 
 #: .tmp/hp5400_sane.c:313 .tmp/niash.c:683
 #, no-c-format
@@ -1657,8 +1652,9 @@ msgstr "Délai allongé avant extinction de la lampe"
 #: .tmp/hp5590.c:91
 #, no-c-format
 msgid "Extends lamp timeout (from 15 minutes to 1 hour)"
-msgstr "Allonge le délai avant l'extinction de la lampe "
-"(de 15 minutes à une heure)."
+msgstr ""
+"Allonge le délai avant l'extinction de la lampe (de 15 minutes à une "
+"heure)."
 
 #: .tmp/hp5590.c:93
 #, no-c-format
@@ -1703,7 +1699,7 @@ msgstr "Horizontal"
 #: .tmp/hp-option.c:3045 .tmp/hp-option.c:3096
 #, no-c-format
 msgid "Custom"
-msgstr "Personalisé"
+msgstr "Personnalisé"
 
 #: .tmp/hp-option.c:3086 .tmp/hp-option.c:3142 .tmp/hp-option.c:3157
 #, no-c-format
@@ -1930,22 +1926,22 @@ msgstr "Matrice personalisée pour numérisation en niveaux de gris."
 #: .tmp/hp-option.h:138
 #, no-c-format
 msgid "Mirror horizontal"
-msgstr "Mirroir horizontal"
+msgstr "Miroir horizontal"
 
 #: .tmp/hp-option.h:139
 #, no-c-format
 msgid "Mirror image horizontally."
-msgstr "Renverse l'image horizontallement."
+msgstr "Renverse l'image horizontalement."
 
 #: .tmp/hp-option.h:144
 #, no-c-format
 msgid "Mirror vertical"
-msgstr "Mirroir vertical"
+msgstr "Miroir vertical"
 
 #: .tmp/hp-option.h:145
 #, no-c-format
 msgid "Mirror image vertically."
-msgstr "Renverse l'image verticallement."
+msgstr "Renverse l'image verticalement."
 
 #: .tmp/hp-option.h:150
 #, no-c-format
@@ -1965,7 +1961,8 @@ msgstr "Sortie en 8 bits"
 #: .tmp/hp-option.h:158
 #, no-c-format
 msgid "Use bit depth greater eight internally, but output only eight bits."
-msgstr "Utilise plus de 8 bits de profondeur en interne, mais sort en 8 bits."
+msgstr ""
+"Utilise plus de 8 bits de profondeur en interne, mais sort en 8 bits."
 
 #: .tmp/hp-option.h:164
 #, no-c-format
@@ -2747,9 +2744,9 @@ msgid ""
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
 msgstr ""
-"Si activé, la numérisation commencera a l'appui du bouton \"SCAN\" (MP150), "
-"ou du bouton \"COLOR\" (autres modèles). Appuyez sur le bouton \"GRAY\" "
-"pour annuler la numérisation."
+"Si activé, la numérisation commencera à l'appui du bouton \"SCAN"
+"\" (MP150), ou du bouton \"COLOR\" (autres modèles). Appuyez sur le "
+"bouton \"GRAY\" pour annuler la numérisation."
 
 #: .tmp/pixma_sane_options.c:216
 #, no-c-format
@@ -2819,7 +2816,7 @@ msgstr "Accélérer le capteur"
 #: .tmp/plustek.c:959
 #, no-c-format
 msgid "Enables or disables speeding up sensor movement."
-msgstr "ACtive l'accélération du mouvement du capteur."
+msgstr "Active l'accélération du mouvement du capteur."
 
 #: .tmp/plustek.c:973
 #, no-c-format
@@ -3191,12 +3188,12 @@ msgstr "Y bas-droit"
 #: .tmp/saneopts.h:147
 #, no-c-format
 msgid "X-resolution"
-msgstr "Echantillonage X"
+msgstr "Echantillonnage X"
 
 #: .tmp/saneopts.h:148
 #, no-c-format
 msgid "Y-resolution"
-msgstr "Echantillonage Y"
+msgstr "Echantillonnage Y"
 
 #: .tmp/saneopts.h:149
 #, no-c-format
@@ -3336,7 +3333,7 @@ msgstr "Motif demi-teinte"
 #: .tmp/saneopts.h:176
 #, no-c-format
 msgid "Bind X and Y resolution"
-msgstr "Lier les échantillonage X et Y"
+msgstr "Lier les échantillonnage X et Y"
 
 #: .tmp/saneopts.h:178
 #, no-c-format
@@ -3962,7 +3959,7 @@ msgstr "Couleur RGB"
 msgid "Color RGB TEXT"
 msgstr "Couleur RGB TEXTE"
 
-#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1960 .tmp/teco2.c:1961
+#: .tmp/teco1.c:1152 .tmp/teco1.c:1153 .tmp/teco2.c:1971 .tmp/teco2.c:1972
 #: .tmp/teco3.c:977 .tmp/teco3.c:978
 #, no-c-format
 msgid "Dither"
@@ -4164,8 +4161,8 @@ msgid ""
 "frontend handles them."
 msgstr ""
 "Fixe la valeur de retour de sane_read(). \"Défaut\" sélectionne le "
-"fonctionnement normal pour la numérisation. Toute autre valeurs permet "
-"de tester les applications."
+"fonctionnement normal pour la numérisation. Toute autre valeur permet de "
+"tester les applications."
 
 #: .tmp/test.c:557
 #, no-c-format

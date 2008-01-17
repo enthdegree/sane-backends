@@ -1,7 +1,7 @@
-2006-06-29
+2008-01-10
 
 This text summarizes some points to pay attention to when a new release
-of sane-backends should is planned.
+of sane-backends is planned.
 
 Timetable (approximate periods):
 

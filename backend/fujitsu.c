@@ -272,6 +272,8 @@
 	 - OPT_NUM_OPTS type is SANE_TYPE_INT (jblache)
       V 1.0.54 2007-12-29, MAN
 	 - disable SANE_FRAME_JPEG support until SANE 1.1.0
+      V 1.0.55 2007-12-29, MAN (SANE v1.0.19)
+	 - add S500M usb id
 
    SANE FLOW DIAGRAM
 
@@ -332,7 +334,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 53 
+#define BUILD 55 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -602,6 +604,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10fe'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1135'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1135", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);

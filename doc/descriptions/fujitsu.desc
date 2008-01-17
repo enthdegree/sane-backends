@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "1.0.53"                ; version of backend
+:version "1.0.55"                ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend re-written for SANE release 1.0.18, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -81,8 +81,9 @@
 
 :model "S500M"
 :interface "USB"
-:status :untested
-:comment "workgroup, current, no TWAIN driver, Mac only, maybe like S500?"
+:status :good
+:usbid "0x04c5" "0x1135"
+:comment "workgroup, current, no TWAIN driver, Mac only"
 
 :model "S510"
 :interface "USB"

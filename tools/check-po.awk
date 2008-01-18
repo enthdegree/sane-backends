@@ -74,7 +74,7 @@ BEGIN \
 }
 
 # Is this translation fuzzy? If so count it
-$1 == "#," && $2 ~ /^fuzzy(|, )$/ \
+$1 == "#," && $2 ~ /^fuzzy(|,)$/ \
 {
   fuzzy++;
   # Next translation will be fuzzy!

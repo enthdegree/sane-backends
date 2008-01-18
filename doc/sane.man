@@ -300,6 +300,11 @@ The SANE backend for the Hewlett-Packard ScanJet 54XXC series. See
 .BR sane-hp5400 (5)
 for details.
 .TP
+.B hpljm1005
+The SANE backend for the Hewlett-Packard LaserJet M1005 scanner. See
+.BR sane-hpljm1005(5)
+for details.
+.TP
 .B hs2p
 The SANE backend for the Ricoh IS450 family of SCSI scanners. See
 .BR sane-hs2p (5)
@@ -837,6 +842,7 @@ for details).
 .BR sane-hp3900 (5),
 .BR sane-hp4200 (5),
 .BR sane-hp5400 (5),
+.BR sane-hpljm1005 (5),
 .BR sane-ibm (5),
 .BR sane-leo (5),
 .BR sane-lexmark (5),

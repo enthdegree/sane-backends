@@ -48,6 +48,7 @@ Backends:
                 Frank Zago, Henning Geinitz (*)
  hp5400:        Martijn van Oosterhout, Thomas Soumarmon (*)
  hp5590:        Ilia Sotnikov (*)
+ hpljm1005:     Philippe Rétornaz
  hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz (*)
  leo:           Frank Zago (*)

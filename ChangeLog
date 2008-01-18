@@ -1,3 +1,12 @@
+2008-01-17  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc,
+	  doc/sane-hpljm1005.man, AUTHORS, configure, configure.in,
+	  backend/Makefile.in, backend/dll.conf.in, doc/Makefile.in,
+	  doc/sane.man: add hpljm1005 backend, couriousous at mandriva dot org
+
+	* tools/check-po.awk, po/sane-backends.fr.po: updates from
+	  Yann E. MORIN
+
 2008-01-16  m. allan noah <kitno455 a t gmail d o t com>
 	* po/sane-backends.fr.po: updated translation from Yann E. MORIN
 	* backend/fujitsu.c, backend/fujitsu.conf.in, 

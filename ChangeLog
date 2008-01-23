@@ -1,3 +1,7 @@
+2008-01-23  Alessandro Zummo <a.zummo@towertech.it>
+	* doc/descriptions/epson2.desc: cloned from epson.desc with
+	minor modifications.
+
 2008-01-22  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c, doc/descriptions-external/hpljm1005.desc:
 	  Update backend with DBG macro calls, remove external .desc file,

@@ -59,10 +59,10 @@
 #include  <unistd.h>
 #include  <errno.h>
 #include <netinet/in.h>
+#define  BACKEND_NAME hpljm1005
+#include  "../include/sane/sanei_backend.h"
 #include  "../include/sane/sanei_usb.h"
 #include  "../include/sane/saneopts.h"
-#include  "../include/sane/sanei_backend.h"
-#define  BACKEND_NAME hpljm1005
 
 #define MAGIC_NUMBER 0x41535001
 #define PKT_READ_STATUS 0x0
@@ -217,6 +217,8 @@ update_img_size (struct device_s *dev)
       dev->height = round ((dy / ((double) MAX_Y_S)) * 14025);
       break;
     }
+	
+    DBG(2,"New image size: %dx%d\n",dev->width, dev->height);
 
 }
 
@@ -248,6 +250,7 @@ attach (SANE_String_Const devname)
   memset (dev, 0, sizeof (struct device_s));
 
   dev->devname = devname;
+  DBG(1,"New device found: %s\n",dev->devname);
 
 /* Init the whole structure with default values */
   /* Number of options */
@@ -375,6 +378,8 @@ sane_init (SANE_Int * version_code,
   if (version_code != NULL)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
+  DBG_INIT();
+
   sanei_usb_init ();
 
   return SANE_STATUS_GOOD;
@@ -482,13 +487,19 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     for (; dev; dev = dev->next)
       if (!strcmp (name, dev->devname))
 	break;
-  if (!dev)
+  if (!dev) {
+    DBG(1,"Unable to find device %s\n",name);
     return SANE_STATUS_INVAL;
+  }
+
+  DBG(1,"Found device %s\n",name);
 
   /* Now open the usb device */
   ret = sanei_usb_open (name, &(dev->dn));
-  if (ret != SANE_STATUS_GOOD)
+  if (ret != SANE_STATUS_GOOD) {
+    DBG(1,"Unable to open device %s\n",name);
     return ret;
+  }
 
   /* Claim the first interface */
   ret = sanei_usb_claim_interface (dev->dn, 0);
@@ -497,6 +508,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
       sanei_usb_close (dev->dn);
       /* if we cannot claim the interface, this is because
          someone else is using it */
+      DBG(1,"Unable to claim scanner interface on device %s\n",name);
       return SANE_STATUS_DEVICE_BUSY;
     }
 #ifdef HAVE_SANEI_USB_SET_TIMEOUT
@@ -693,6 +705,9 @@ static void
 send_pkt (int command, int data_size, struct device_s *dev)
 {
   size_t size = 32;
+
+  DBG(100,"Sending packet %d, next data size %d, device %s\n", command, data_size, dev->devname);
+
   memset (dev->packet_data, 0, size);
   dev->packet_data[0] = htonl (MAGIC_NUMBER);
   dev->packet_data[1] = htonl (command);
@@ -708,6 +723,7 @@ wait_ack (struct device_s *dev, int *s)
 {
   SANE_Status ret;
   size_t size;
+  DBG(100, "Waiting scanner answer on device %s\n",dev->devname);
   do
     {
       size = 32;
@@ -726,10 +742,15 @@ send_conf (struct device_s *dev)
 {
   int y1, y2, x1, x2;
   size_t size = 100;
+  DBG(100,"Sending configuration packet on device %s\n",dev->devname);
   y1 = (int) round ((dev->optionw[Y1_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
   y2 = (int) round ((dev->optionw[Y2_OFFSET] / ((double) MAX_Y_S)) * MAX_Y_H);
   x1 = (int) round ((dev->optionw[X1_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
   x2 = (int) round ((dev->optionw[X2_OFFSET] / ((double) MAX_X_S)) * MAX_X_H);
+
+  DBG(100,"\t x1: %d, x2: %d, y1: %d, y2: %d\n",x1, x2, y1, y2);
+  DBG(100,"\t brightness: %d, contrast: %d\n", dev->optionw[BRIGH_OFFSET], dev->optionw[CONTR_OFFSET]);
+  DBG(100,"\t resolution: %d\n",dev->optionw[RES_OFFSET]);
 
   dev->conf_data[0] = htonl (0x15);
   dev->conf_data[1] = htonl (dev->optionw[BRIGH_OFFSET]);
@@ -759,11 +780,13 @@ send_conf (struct device_s *dev)
     {
       dev->conf_data[15] = htonl (0x2);
       dev->conf_data[24] = htonl (0x1);
+      DBG(100,"\t Scanning in RGB format\n");
     }
   else
     {
       dev->conf_data[15] = htonl (0x6);
       dev->conf_data[24] = htonl (0x0);
+      DBG(100,"\t Scanning in Grayscale format\n");
     }
   sanei_usb_write_bulk (dev->dn, (unsigned char *) dev->conf_data, &size);
 }
@@ -791,6 +814,7 @@ get_data (struct device_s *dev)
 	      if (ntohl (dev->packet_data[1]) == PKT_END_DATA)
 		{
 		  dev->status = STATUS_IDLE;
+		  DBG(100,"End of scan encountered on device %s\n",dev->devname);
 		  send_pkt (PKT_GO_IDLE, 0, dev);
 		  wait_ack (dev, NULL);
 		  wait_ack (dev, NULL);
@@ -828,6 +852,7 @@ get_data (struct device_s *dev)
   color = ntohl (dev->packet_data[0]);
   packet_size -= size;
   dev->width = ntohl (dev->packet_data[5]);
+  DBG(100,"Got data size %d on device %s. Scan width: %d\n",packet_size, dev->devname, dev->width);
   /* Now, read the data */
   do
     {
@@ -844,6 +869,7 @@ get_data (struct device_s *dev)
       switch (color)
 	{
 	case RED_LAYER:
+	  DBG(101,"Got red layer data on device %s\n",dev->devname);
 	  i = dev->write_offset_r + 3 * size;
 	  if (i > dev->bufs)
 	    i = dev->bufs;
@@ -851,6 +877,7 @@ get_data (struct device_s *dev)
 	    dev->buffer[dev->write_offset_r] = buffer[j++];
 	  break;
 	case GREEN_LAYER:
+	  DBG(101,"Got green layer data on device %s\n",dev->devname);
 	  i = dev->write_offset_g + 3 * size;
 	  if (i > dev->bufs)
 	    i = dev->bufs;
@@ -858,6 +885,7 @@ get_data (struct device_s *dev)
 	    dev->buffer[dev->write_offset_g] = buffer[j++];
 	  break;
 	case BLUE_LAYER:
+          DBG(101,"Got blue layer data on device %s\n",dev->devname);
 	  i = dev->write_offset_b + 3 * size;
 	  if (i > dev->bufs)
 	    i = dev->bufs;
@@ -865,6 +893,7 @@ get_data (struct device_s *dev)
 	    dev->buffer[dev->write_offset_b] = buffer[j++];
 	  break;
 	case GRAY_LAYER:
+	  DBG(101,"Got gray layer data on device %s\n",dev->devname);
 	  if (dev->write_offset_r + size >= dev->bufs)
 	    size = dev->bufs - dev->write_offset_r;
 	  memcpy (dev->buffer + dev->write_offset_r, buffer, size);

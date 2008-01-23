@@ -2187,12 +2187,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->compress_arg_range;
     s->compress_arg_range.quant=1;
 
-    if(s->has_comp_JPG1){
+    /*if(s->has_comp_JPG1){
       s->compress_arg_range.min=0;
       s->compress_arg_range.max=7;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    else
+    else*/
       opt->cap = SANE_CAP_INACTIVE;
   }
 

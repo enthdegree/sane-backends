@@ -442,8 +442,18 @@
 :model "CanoScan LiDE 600"
 :url "/unsupported/canon-lide-600.html"
 :interface "USB"
+:url "http://www.juergen-ernst.de/info_sane.html"
 :usbid "0x04a9" "0x2224"
 :status :unsupported
+:comment "Same as LiDE 600F? see link for details"
+
+:model "CanoScan LiDE 600F"
+:url "/unsupported/canon-lide-600.html"
+:interface "USB"
+:url "http://www.juergen-ernst.de/info_sane.html"
+:usbid "0x04a9" "0x2224"
+:status :unsupported
+:comment "Same as LiDE 600?, see link for details"
 
 :model "D1230U"
 :url "/unsupported/canon-d1230u.html"

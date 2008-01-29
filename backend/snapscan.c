@@ -373,7 +373,7 @@ static SANE_Char* get_driver_name(SnapScan_Model model_num) {
     for (i=0; i<known_drivers; i++) {
         if (drivers[i].id == model_num) break;
     }
-    if (drivers[i].id != model_num) {
+    if (i == known_drivers) {
         DBG(0, "Implementation error: Driver name not found\n");
         return ("Unknown");
     }
@@ -1934,7 +1934,10 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.70  2007/11/18 10:59:18  ellert-guest
+ * Revision 1.71  2008/01/29 17:48:42  kitno-guest
+ * fix snapscan bug, add LiDE 600F
+ *
+ * Revision 1.70  2007-11-18 10:59:18  ellert-guest
  * Fix handling of valid "negative" PIDs
  *
  * Revision 1.69  2007-11-16 08:04:02  ellert-guest

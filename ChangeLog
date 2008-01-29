@@ -1,3 +1,7 @@
+2008-01-29  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/snapscan.c: fix bug #310538
+	* doc/descriptions/unsupported.desc: add Canon LiDE 600F
+
 2008-01-23  Alessandro Zummo <a.zummo@towertech.it>
 	* doc/descriptions/epson2.desc: cloned from epson.desc with
 	minor modifications.
@@ -7,7 +11,7 @@
 	  Update backend with DBG macro calls, remove external .desc file,
 	  from author- couriousous at mandriva dot org
 	* backend/fujitsu.c: disable compression option arg until sane 1.1.0
-	* doc/descriptions/dell1600n_net|hp355|pixma.desc: remove 'new' flag
+	* doc/descriptions/dell1600n_net|hp3500|pixma.desc: remove 'new' flag
 
 2008-01-17  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc,

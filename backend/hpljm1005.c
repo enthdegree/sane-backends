@@ -480,13 +480,19 @@ sane_get_devices (const SANE_Device * **device_list,
 SANE_Status
 sane_open (SANE_String_Const name, SANE_Handle * h)
 {
-  struct device_s *dev = devlist_head;
+  struct device_s *dev;
   int ret;
+
+  if(!devlist_head)
+    sane_get_devices(NULL,(SANE_Bool)0);
+
+  dev = devlist_head;
 
   if (strlen (name))
     for (; dev; dev = dev->next)
       if (!strcmp (name, dev->devname))
 	break;
+
   if (!dev) {
     DBG(1,"Unable to find device %s\n",name);
     return SANE_STATUS_INVAL;

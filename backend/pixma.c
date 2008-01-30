@@ -854,7 +854,7 @@ start_reader_task (pixma_sane_t * ss)
     }
   if (ss->reader_taskid != -1)
     {
-      PDBG (pixma_dbg (1, "BUG:reader_taskid(%d) != 0\n", ss->reader_taskid));
+      PDBG (pixma_dbg (1, "BUG:reader_taskid(%d) != -1\n", ss->reader_taskid));
       terminate_reader_task (ss, NULL);
     }
   if (pipe (fds) == -1)
@@ -1073,6 +1073,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     return SANE_STATUS_NO_MEM;
   ss->next = first_scanner;
   first_scanner = ss;
+  ss->reader_taskid = -1;
   ss->wpipe = -1;
   ss->rpipe = -1;
   ss->idle = SANE_TRUE;

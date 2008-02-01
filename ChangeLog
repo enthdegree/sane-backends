@@ -1,3 +1,8 @@
+2008-02-01  Gerhard Jaeger <gerhard@gjaeger.de>
+
+	* po/sane-backends.no.po: renamed to sane-backends.nb.po
+	* po/Makefile.in: norwegian bokmål locale is nb and not no
+
 2008-01-30  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c: call sane_get_devices if required
 

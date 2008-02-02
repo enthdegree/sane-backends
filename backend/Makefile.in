@@ -378,7 +378,6 @@ libsane-dc240.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-dmc.la: ../sanei/sanei_config2.lo
 libsane-dmc.la: ../sanei/sanei_constrain_value.lo
 libsane-dmc.la: ../sanei/sanei_scsi.lo
-libsane-epjitsu.la: ../sanei/sanei_config2.lo
 libsane-epjitsu.la: ../sanei/sanei_constrain_value.lo
 libsane-epjitsu.la: ../sanei/sanei_usb.lo
 libsane-epson.la: $(addsuffix .lo,$(EXTRA_epson))

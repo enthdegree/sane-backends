@@ -2,6 +2,8 @@
 
 	* configure, configure.in, include/sane/config.h.in,
 	  backend/hp3900_debug.c: make tiffio.h optional
+	* backend/Makefile.in: remove sanei_config2 from epjitsu deps
+	* backend/epson2.c, backend/hpljm1005.c: add missing #includes
 
 2008-02-01  Gerhard Jaeger <gerhard@gjaeger.de>
 

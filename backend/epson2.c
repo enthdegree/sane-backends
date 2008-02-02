@@ -52,6 +52,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include <byteorder.h>
 

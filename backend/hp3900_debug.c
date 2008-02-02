@@ -48,7 +48,9 @@
 #define DBG_BLK             0x04	/* USB Bulk data                 */
 
 #include <stdarg.h>
+#ifdef HAVE_TIFFIO_H
 #include <tiffio.h>		/* dbg_tiff_save */
+#endif
 
 /* headers */
 
@@ -555,6 +557,7 @@ dbg_tiff_save (char *sFile, SANE_Int width, SANE_Int height, SANE_Int depth,
 	       SANE_Int colortype, SANE_Int res_x, SANE_Int res_y,
 	       SANE_Byte * buffer, SANE_Int size)
 {
+#ifdef HAVE_TIFFIO_H
   if (buffer != NULL)
     {
       char *path = getenv ("HOME");
@@ -607,6 +610,7 @@ dbg_tiff_save (char *sFile, SANE_Int width, SANE_Int height, SANE_Int depth,
 	DBG (DBG_ERR,
 	     "- dbg_tiff_save: Enviroment HOME variable does not exist\n");
     }
+#endif
 }
 
 static void

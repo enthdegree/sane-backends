@@ -133,7 +133,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     IOKit/cdb/IOSCSILib.h IOKit/scsi/SCSICommandOperationCodes.h \
     IOKit/scsi-commands/SCSICommandOperationCodes.h \
     windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h\
-    netinet/in.h)
+    netinet/in.h tiffio.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
 

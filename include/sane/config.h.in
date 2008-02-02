@@ -360,6 +360,9 @@
 /* Define to 1 if you have the `tcsendbreak' function. */
 #undef HAVE_TCSENDBREAK
 
+/* Define to 1 if you have the <tiffio.h> header file. */
+#undef HAVE_TIFFIO_H
+
 /* Define if union semun is available. */
 #undef HAVE_UNION_SEMUN
 

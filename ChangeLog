@@ -3,6 +3,7 @@
 	* Makefile.in, */Makefile.in, tools/sane-config.in:
 	  Fix warnings about ignored --datarootdir
 	* backend/hp5590_low.c: Fix incompatible pointer type warning
+	* backend/genesys_gl646.c: Fix incompatible pointer type warning
 
 2008-02-02  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

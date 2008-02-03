@@ -259,7 +259,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
   SANE_Status status;
   u_int8_t outdata[8];
   u_int8_t buffer[GENESYS_MAX_REGS * 2];
-  unsigned int i, size;
+  size_t size;
+  unsigned int i;
 
   /* handle differently sized register sets, reg[0x00] may be the last one */
   i = 0;
@@ -311,8 +312,8 @@ gl646_bulk_write_register (Genesys_Device * dev,
   for (i = 0; i < size; i += 2)
     DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i], buffer[i + 1]);
 
-  DBG (DBG_io, "gl646_bulk_write_register: wrote %d bytes, %d registers\n", 
-       size, elems);
+  DBG (DBG_io, "gl646_bulk_write_register: wrote %lu bytes, %lu registers\n", 
+       (u_long) size, (u_long) elems);
   return status;
 }
 

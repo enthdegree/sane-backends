@@ -148,8 +148,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   DBG (2, "+sane-read:%p %p %d %p\n", (unsigned char *) s, buf, max_len,
        (unsigned char *) len);
   DBG (2,
-       "+sane-read:remain:%d offset:%d linesleft:%d linebuff:%p linesread:%d\n",
-       s->remaining, s->offset, s->linesleft, s->line_buffer, s->linesread);
+       "+sane-read:remain:%lu offset:%lu linesleft:%d linebuff:%p linesread:%d\n",
+       (u_long)s->remaining, (u_long)s->offset, s->linesleft, s->line_buffer, s->linesread);
 
   if (!s->scanning)
     return SANE_STATUS_INVAL;

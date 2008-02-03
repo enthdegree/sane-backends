@@ -4045,10 +4045,10 @@ genesys_read_ordered_data (Genesys_Device * dev, SANE_Byte * destination,
     }
 #endif
 
-  DBG (DBG_info, "genesys_read_ordered_data: %d lines left by output\n",
+  DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by output\n",
        ((dev->total_bytes_to_read - dev->total_bytes_read) * 8) /
        (dev->settings.pixels * channels * depth));
-  DBG (DBG_info, "genesys_read_ordered_data: %d lines left by input\n",
+  DBG (DBG_info, "genesys_read_ordered_data: %lu lines left by input\n",
        ((dev->read_bytes_left + dev->read_buffer.avail) * 8) /
        (src_pixels * channels * depth));
 

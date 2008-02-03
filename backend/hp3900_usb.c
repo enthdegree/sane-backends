@@ -331,8 +331,8 @@ Read_Bulk (USB_Handle usb_handle, SANE_Byte * buffer, size_t size)
   if (buffer != NULL)
     {
       dataline_count++;
-      DBG (DBG_CTL, "%06i BLK DI: Buffer length = %u. bytes\n",
-	   dataline_count, size);
+      DBG (DBG_CTL, "%06i BLK DI: Buffer length = %lu bytes\n",
+	   dataline_count, (u_long) size);
 
 #ifdef STANDALONE
       if (usb_handle != NULL)

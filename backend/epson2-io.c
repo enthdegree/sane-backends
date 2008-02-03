@@ -195,7 +195,7 @@ e2_cmd_simple(Epson_Scanner * s, void *buf, size_t buf_size)
 	unsigned char result;
 	SANE_Status status;
 
-	DBG(12, "%s: size = %d\n", __func__, buf_size);
+	DBG(12, "%s: size = %lu\n", __func__, (u_long) buf_size);
 
 	status = e2_txrx(s, buf, buf_size, &result, 1);
 	if (status != SANE_STATUS_GOOD) {
@@ -261,7 +261,8 @@ e2_recv_info_block(Epson_Scanner * s, unsigned char *scanner_status,
 		if (info_size == 6)
 			*payload_size *= le16atoh(&info[4]);
 
-		DBG(14, "%s: payload length: %d\n", __func__, *payload_size);
+		DBG(14, "%s: payload length: %lu\n", __func__,
+			(u_long) *payload_size);
 	}
 
 	return SANE_STATUS_GOOD;
@@ -283,8 +284,8 @@ e2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 	Epson_Scanner *s = (Epson_Scanner *) handle;
 	size_t len;
 
-	DBG(13, "%s, params len = %d, reply len = %d, buf = %p\n",
-	    __func__, params_len, reply_len, (void *) buf);
+	DBG(13, "%s, params len = %d, reply len = %lu, buf = %p\n",
+	    __func__, params_len, (u_long) reply_len, (void *) buf);
 
 	if (buf == NULL)
 		return SANE_STATUS_INVAL;
@@ -315,8 +316,8 @@ e2_cmd_info_block(SANE_Handle handle, unsigned char *params,
 	 * length differs, throw a warning
 	 */
 	if (reply_len && (len != reply_len)) {
-		DBG(1, "%s: mismatched len - expected %d, got %d\n",
-		    __func__, reply_len, len);
+		DBG(1, "%s: mismatched len - expected %lu, got %lu\n",
+		    __func__, (u_long) reply_len, (u_long) len);
 	}
 
 	/* allocate and receive the payload */

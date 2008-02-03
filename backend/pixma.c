@@ -45,6 +45,9 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#ifdef USE_PTHREAD
+# include <pthread.h>
+#endif
 #include <signal.h>		/* sigaction(POSIX) */
 #include <unistd.h>		/* POSIX: write read close pipe */
 #ifdef HAVE_FCNTL_H

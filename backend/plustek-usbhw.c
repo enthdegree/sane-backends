@@ -1380,7 +1380,7 @@ usb_ResetRegisters( Plustek_Device *dev )
 	u_char *regs = dev->usbDev.a_bRegs;
 
 	DBG( _DBG_INFO, "RESETTING REGISTERS(%i) - 0x%02x\n", 
-	                dev->initialized,sizeof(dev->usbDev.a_bRegs));
+	                dev->initialized, (int) sizeof(dev->usbDev.a_bRegs));
 	memset( regs, 0, sizeof(dev->usbDev.a_bRegs));
 
 	memcpy( regs+0x0b, &hw->bSensorConfiguration, 4 );

@@ -4,6 +4,11 @@
 	  Fix warnings about ignored --datarootdir
 	* backend/hp5590_low.c: Fix incompatible pointer type warning
 	* backend/genesys_gl646.c: Fix incompatible pointer type warning
+	* backend/dc25.c, backend/epson2.c, backend/epson2-commands.c,
+	  backend/epson2-io.c, backend/epson2_net.c, backend/genesys.c,
+	  backend/genesys_gl841.c, backend/hp3900_usb.c, backend/lexmark_low.c,
+	  backend/plustek-usbhw.c, backend/sm3840.c: Fix format warnings
+	* backend/pixma.c: Add missing #include
 
 2008-02-02  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

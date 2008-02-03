@@ -826,8 +826,8 @@ low_usb_bulk_write (SANE_Int devnum, SANE_Byte * cmd, size_t * size)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (5,
-	   "low_usb_bulk_write: returned %s (size = %ld, expected %d)\n",
-	   sane_strstatus (status), (long int) *size, cmd_size);
+	   "low_usb_bulk_write: returned %s (size = %lu, expected %lu)\n",
+	   sane_strstatus (status), (u_long) *size, (u_long) cmd_size);
       /* F.O. should reset the pipe here... */
     }
   return status;
@@ -848,12 +848,12 @@ low_usb_bulk_read (SANE_Int devnum, SANE_Byte * buf, size_t * size)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (5,
-	   "low_usb_bulk_read: returned %s (size = %ld, expected %d)\n",
-	   sane_strstatus (status), (long int) *size, exp_size);
+	   "low_usb_bulk_read: returned %s (size = %lu, expected %lu)\n",
+	   sane_strstatus (status), (u_long) *size, (u_long) exp_size);
       /* F.O. should reset the pipe here... */
     }
-  DBG (7, "low_usb_bulk_read: returned size = %ld (required %d)\n",
-       (long int) *size, exp_size);
+  DBG (7, "low_usb_bulk_read: returned size = %lu (required %lu)\n",
+       (u_long) *size, (u_long) exp_size);
   return status;
 }
 
@@ -1059,8 +1059,8 @@ low_simple_scan (Lexmark_Device * dev, SANE_Byte * regs, int xoffset,
 
   /* data reading loop */
   needed = bpl * lines;
-  DBG (1, "low_simple_scan: bpl=%d, lines=%d, needed=%d.\n", bpl, lines,
-       needed);
+  DBG (1, "low_simple_scan: bpl=%d, lines=%d, needed=%lu.\n", bpl, lines,
+       (u_long) needed);
   read = 0;
   do
     {

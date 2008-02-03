@@ -420,7 +420,8 @@ gl841_bulk_write_register (Genesys_Device * dev,
   }
   
 
-  DBG (DBG_io, "gl841_bulk_write_register: wrote %d registers\n", elems);
+  DBG (DBG_io, "gl841_bulk_write_register: wrote %lu registers\n",
+       (u_long) elems);
   return status;
 }
 
@@ -640,7 +641,8 @@ gl841_bulk_write_data_gamma (Genesys_Device * dev, u_int8_t addr,
   size_t size;
   u_int8_t outdata[8];
 
-  DBG (DBG_io, "gl841_bulk_write_data_gamma writing %d bytes\n", len);
+  DBG (DBG_io, "gl841_bulk_write_data_gamma writing %lu bytes\n",
+       (u_long) len);
 
   status =
     sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
@@ -690,8 +692,9 @@ gl841_bulk_write_data_gamma (Genesys_Device * dev, u_int8_t addr,
 	  return status;
 	}
 
-      DBG (DBG_io2, "genesys_bulk_write_data:gamma wrote %d bytes, %d remaining\n",
-	   size, (len - size));
+      DBG (DBG_io2,
+	   "genesys_bulk_write_data:gamma wrote %lu bytes, %lu remaining\n",
+	   (u_long) size, (u_long) (len - size));
 
       len -= size;
       data += size;
@@ -2981,8 +2984,8 @@ dummy \ scanned lines
   dev->read_bytes_left = bytes_per_line * lincnt;
 
   DBG (DBG_info,
-       "gl841_init_scan_regs: physical bytes to read = %d\n",
-       dev->read_bytes_left);
+       "gl841_init_scan_regs: physical bytes to read = %lu\n",
+       (u_long) dev->read_bytes_left);
   dev->read_active = SANE_TRUE;
 
 

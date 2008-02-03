@@ -1907,7 +1907,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback UNUSEDARG authorize)
 		  tty_baud = DEFAULT_TTY_BAUD;
 		  break;
 		}
-	      DBG (20, "Config file baud=%d\n", tty_baud);
+	      DBG (20, "Config file baud=%lu\n", (u_long) tty_baud);
 	    }
 	  else if (strcmp (dev_name, "dumpinquiry") == 0)
 	    {

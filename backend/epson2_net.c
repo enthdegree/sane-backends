@@ -77,8 +77,8 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 
 	/* read from buffer, if available */
 	if (s->netptr != s->netbuf) {
-		DBG(4, "reading %d from buffer at %p, %d available\n",
-			wanted, s->netptr, s->netlen);
+		DBG(4, "reading %lu from buffer at %p, %lu available\n",
+			(u_long) wanted, s->netptr, (u_long) s->netlen);
 
 		memcpy(buf, s->netptr, wanted);
 		read = wanted;
@@ -105,7 +105,8 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 	}
 	size = be32atoh(&header[6]);
 
-	DBG(4, "%s: wanted = %d, available = %d\n", __FUNCTION__, wanted, size);
+	DBG(4, "%s: wanted = %lu, available = %lu\n", __FUNCTION__,
+		(u_long) wanted, (u_long) size);
 
 	*status = SANE_STATUS_GOOD;
 
@@ -128,8 +129,8 @@ sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, size_t wanted,
 		read = wanted;
 
 		DBG(4, "0,4 %02x %02x\n", s->netbuf[0], s->netbuf[4]);
-		DBG(4, "storing %d to buffer at %p, next read at %p, %d bytes left\n",
-			size, s->netbuf, s->netptr, s->netlen);
+		DBG(4, "storing %lu to buffer at %p, next read at %p, %lu bytes left\n",
+			(u_long) size, s->netbuf, s->netptr, (u_long) s->netlen);
 
 		memcpy(buf, s->netbuf, wanted);
 	}
@@ -154,10 +155,12 @@ sanei_epson_net_write(Epson_Scanner *s, unsigned int cmd, const unsigned char *b
 	if (reply_len) {
 		s->netbuf = s->netptr = malloc(reply_len);
 		s->netlen = reply_len;
-		DBG(8, "allocated %d bytes at %p\n", reply_len, s->netbuf);
+		DBG(8, "allocated %lu bytes at %p\n",
+			(u_long) reply_len, s->netbuf);
 	}
 
-	DBG(2, "%s: cmd = %04x, buf = %p, buf_size = %d, reply_len = %d\n", __FUNCTION__, cmd, buf, buf_size, reply_len);
+	DBG(2, "%s: cmd = %04x, buf = %p, buf_size = %lu, reply_len = %lu\n",
+		__FUNCTION__, cmd, buf, (u_long) buf_size, (u_long) reply_len);
 
 	memset(h1, 0x00, 12);
 	memset(h2, 0x00, 8);
@@ -179,9 +182,9 @@ sanei_epson_net_write(Epson_Scanner *s, unsigned int cmd, const unsigned char *b
 		htobe32a(&h2[0], buf_size);
 		htobe32a(&h2[4], reply_len);
 
-		DBG(9, "H1[6]: %02x %02x %02x %02x (%d)\n", h1[6], h1[7], h1[8], h1[9], buf_size + 8);
-		DBG(9, "H2[0]: %02x %02x %02x %02x (%d)\n", h2[0], h2[1], h2[2], h2[3], buf_size);
-		DBG(9, "H2[4]: %02x %02x %02x %02x (%d)\n", h2[4], h2[5], h2[6], h2[7], reply_len);
+		DBG(9, "H1[6]: %02x %02x %02x %02x (%lu)\n", h1[6], h1[7], h1[8], h1[9], (u_long) (buf_size + 8));
+		DBG(9, "H2[0]: %02x %02x %02x %02x (%lu)\n", h2[0], h2[1], h2[2], h2[3], (u_long) buf_size);
+		DBG(9, "H2[4]: %02x %02x %02x %02x (%lu)\n", h2[4], h2[5], h2[6], h2[7], (u_long) reply_len);
 	}
 
 	if ((cmd >> 8) == 0x20 && (buf_size || reply_len)) {

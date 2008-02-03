@@ -3817,9 +3817,9 @@ e2_start_ext_scan(Epson_Scanner * s)
 	s->ext_counter = 0;
 
 	DBG(5, " status         : 0x%02x\n", buf[1]);
-	DBG(5, " block size     : %d\n", le32atoh(&buf[2]));
-	DBG(5, " block count    : %d\n", le32atoh(&buf[6]));
-	DBG(5, " last block size: %d\n", le32atoh(&buf[10]));
+	DBG(5, " block size     : %lu\n", le32atoh(&buf[2]));
+	DBG(5, " block count    : %lu\n", le32atoh(&buf[6]));
+	DBG(5, " last block size: %lu\n", le32atoh(&buf[10]));
 
 	if (s->ext_last_len) {
 		s->ext_blocks++;
@@ -4190,13 +4190,13 @@ e2_ext_sane_read(SANE_Handle handle)
 		if (s->ext_counter == s->ext_blocks && s->ext_last_len)
 			buf_len = s->ext_last_len;
 
-		DBG(18, "%s: block %d, size %d\n", __func__, s->ext_counter,
-		    buf_len);
+		DBG(18, "%s: block %d, size %lu\n", __func__, s->ext_counter,
+		    (u_long) buf_len);
 
 		/* receive image data + error code */
 		read = e2_recv(s, s->buf, buf_len + 1, &status);
 
-		DBG(18, "%s: read %d bytes\n", __func__, read);
+		DBG(18, "%s: read %lu bytes\n", __func__, (u_long) read);
 
 		if (read != buf_len + 1)
 			return SANE_STATUS_IO_ERROR;

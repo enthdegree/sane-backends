@@ -335,17 +335,17 @@ esci_request_extended_identity(SANE_Handle handle, unsigned char *buf)
 		return status;
 
 	DBG(1, " command level   : %c%c\n", buf[0], buf[1]);
-	DBG(1, " basic resolution: %d\n", le32atoh(&buf[4]));
-	DBG(1, " min resolution  : %d\n", le32atoh(&buf[8]));
-	DBG(1, " max resolution  : %d\n", le32atoh(&buf[12]));
-	DBG(1, " max pixel num   : %d\n", le32atoh(&buf[16]));
-	DBG(1, " scan area       : %dx%d\n",
+	DBG(1, " basic resolution: %lu\n", le32atoh(&buf[4]));
+	DBG(1, " min resolution  : %lu\n", le32atoh(&buf[8]));
+	DBG(1, " max resolution  : %lu\n", le32atoh(&buf[12]));
+	DBG(1, " max pixel num   : %lu\n", le32atoh(&buf[16]));
+	DBG(1, " scan area       : %lux%lu\n",
 	    le32atoh(&buf[20]), le32atoh(&buf[24]));
 
-	DBG(1, " adf area        : %dx%d\n",
+	DBG(1, " adf area        : %lux%lu\n",
 	    le32atoh(&buf[28]), le32atoh(&buf[32]));
 
-	DBG(1, " tpu area        : %dx%d\n",
+	DBG(1, " tpu area        : %lux%lu\n",
 	    le32atoh(&buf[36]), le32atoh(&buf[40]));
 
 	DBG(1, " main status     : 0x%02x\n", buf[44]);
@@ -507,12 +507,12 @@ esci_set_scanning_parameter(SANE_Handle handle, unsigned char *buf)
 	params[0] = FS;
 	params[1] = 'W';
 
-	DBG(10, "resolution of main scan     : %d\n", le32atoh(&buf[0]));
-	DBG(10, "resolution of sub scan      : %d\n", le32atoh(&buf[4]));
-	DBG(10, "offset length of main scan  : %d\n", le32atoh(&buf[8]));
-	DBG(10, "offset length of sub scan   : %d\n", le32atoh(&buf[12]));
-	DBG(10, "scanning length of main scan: %d\n", le32atoh(&buf[16]));
-	DBG(10, "scanning length of sub scan : %d\n", le32atoh(&buf[20]));
+	DBG(10, "resolution of main scan     : %lu\n", le32atoh(&buf[0]));
+	DBG(10, "resolution of sub scan      : %lu\n", le32atoh(&buf[4]));
+	DBG(10, "offset length of main scan  : %lu\n", le32atoh(&buf[8]));
+	DBG(10, "offset length of sub scan   : %lu\n", le32atoh(&buf[12]));
+	DBG(10, "scanning length of main scan: %lu\n", le32atoh(&buf[16]));
+	DBG(10, "scanning length of sub scan : %lu\n", le32atoh(&buf[20]));
 	DBG(10, "scanning color              : %d\n", buf[24]);
 	DBG(10, "data format                 : %d\n", buf[25]);
 	DBG(10, "option control              : %d\n", buf[26]);
@@ -803,7 +803,8 @@ esci_request_extended_status(SANE_Handle handle, unsigned char **data,
 	case 42:
 		break;
 	default:
-		DBG(1, "%s: unknown reply length (%d)\n", __func__, buf_len);
+		DBG(1, "%s: unknown reply length (%lu)\n", __func__,
+			(u_long) buf_len);
 		break;
 	}
 

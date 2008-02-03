@@ -637,7 +637,7 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
   SANE_Status 			ret;
   unsigned int 			next_pages;
   u_int8_t 			bulk_flags;
-  unsigned int 			next_portion;
+  size_t 			next_portion;
   struct bulk_read_state	*bulk_read_state;
   unsigned int 			bytes_until_buffer_end;
 
@@ -755,8 +755,8 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
 	}
 
       /* Bulk read next page */
-      DBG (DBG_usb, "%s: USB-in-USB: bulk reading %u bytes\n",
-	   __FUNCTION__, next_portion);
+      DBG (DBG_usb, "%s: USB-in-USB: bulk reading %lu bytes\n",
+	   __FUNCTION__, (u_long) next_portion);
       ret = sanei_usb_read_bulk (dn,
 				 bulk_read_state->buffer_in_ptr,
 				 &next_portion);
@@ -773,8 +773,8 @@ hp5590_bulk_read (SANE_Int dn, unsigned char *bytes, unsigned int size,
       if (next_portion != BULK_READ_PAGE_SIZE)
 	{
 	  DBG (DBG_err, "%s: USB-in-USB: incomplete bulk read "
-	       "(requested %u bytes, got %u bytes)\n",
-	       __FUNCTION__, BULK_READ_PAGE_SIZE, next_portion);
+	       "(requested %u bytes, got %lu bytes)\n",
+	       __FUNCTION__, BULK_READ_PAGE_SIZE, (u_long) next_portion);
 	  return SANE_STATUS_IO_ERROR;
 	}
 
@@ -871,7 +871,7 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
 
   unsigned int len;
   unsigned char *ptr;
-  unsigned int next_portion;
+  size_t next_portion;
 
   DBG (3, "%s: USB-in-USB: command: %04x, size %u\n", __FUNCTION__, cmd,
        size);
@@ -903,8 +903,8 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
       if (len < next_portion)
 	next_portion = len;
 
-      DBG (3, "%s: USB-in-USB: next portion %u bytes\n",
-	   __FUNCTION__, next_portion);
+      DBG (3, "%s: USB-in-USB: next portion %lu bytes\n",
+	   __FUNCTION__, (u_long) next_portion);
 
       /* Prepare bulk write request */
       memset (&ctrl, 0, sizeof (ctrl));
@@ -927,8 +927,8 @@ hp5590_bulk_write (SANE_Int dn, int cmd, unsigned char *bytes,
 	return ret;
 
       /* Write bulk data */
-      DBG (3, "%s: USB-in-USB: bulk writing %u bytes\n",
-	   __FUNCTION__, next_portion);
+      DBG (3, "%s: USB-in-USB: bulk writing %lu bytes\n",
+	   __FUNCTION__, (u_long) next_portion);
       ret = sanei_usb_write_bulk (dn, ptr, &next_portion);
       if (ret != SANE_STATUS_GOOD)
 	{

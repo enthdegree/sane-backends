@@ -117,7 +117,7 @@ e2_recv(Epson_Scanner * s, void *buf, ssize_t buf_size,
 {
 	ssize_t n = 0;
 
-	DBG(15, "%s: size = %d, buf = %p\n", __func__, buf_size, buf);
+	DBG(15, "%s: size = %ld, buf = %p\n", __func__, (long) buf_size, buf);
 
 	if (s->hw->connection == SANE_EPSON_NET) {
 		n = sanei_epson_net_read(s, buf, buf_size, status);

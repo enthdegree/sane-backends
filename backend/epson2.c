@@ -3817,9 +3817,9 @@ e2_start_ext_scan(Epson_Scanner * s)
 	s->ext_counter = 0;
 
 	DBG(5, " status         : 0x%02x\n", buf[1]);
-	DBG(5, " block size     : %lu\n", le32atoh(&buf[2]));
-	DBG(5, " block count    : %lu\n", le32atoh(&buf[6]));
-	DBG(5, " last block size: %lu\n", le32atoh(&buf[10]));
+	DBG(5, " block size     : %lu\n", (u_long) le32atoh(&buf[2]));
+	DBG(5, " block count    : %lu\n", (u_long) le32atoh(&buf[6]));
+	DBG(5, " last block size: %lu\n", (u_long) le32atoh(&buf[10]));
 
 	if (s->ext_last_len) {
 		s->ext_blocks++;

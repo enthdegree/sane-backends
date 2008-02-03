@@ -1525,7 +1525,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       xfer_len_in += s->block_padding;
       i = (xfer_len_in & 0x3f);
       if (i != 0)
-        DBG (1, "BUG: sane_read(): Read size is not a multiple of 64. (0x%06x)\n", i);
+        DBG (1, "BUG: sane_read(): Read size is not a multiple of 64. (0x%06lx)\n", (long) i);
     }
 
   if (s->xfer_position + xfer_len_line > s->xfer_bytes_total)

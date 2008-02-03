@@ -1,3 +1,8 @@
+2008-02-03  Mattias Ellert <mattias.ellert@tsl.uu.se>
+
+	* Makefile.in, */Makefile.in, tools/sane-config.in :
+	  Fix warnings about ignored --datarootdir
+
 2008-02-02  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* configure, configure.in, include/sane/config.h.in,

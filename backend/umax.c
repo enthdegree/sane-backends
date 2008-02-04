@@ -3189,19 +3189,21 @@ static int umax_identify_scanner(Umax_Device *dev)
      "is currently an unrecognized device for this backend version.\n"
      "Please make sure you use the most recent version of the umax backend.\n"
      "You can download new umax-backend versions from:\n"
-     "http://www.rauch-domain.de/sane-umax\n"
+     "http://www.rauch-domain.de/sane-umax\n",
+     vendor, product, version, dev->devicename);
+
+    DBG(DBG_error0,
      "Inquiry seems to be ok.\n"
      "******************************************************************\n"
      "***             !!!! CONTINUE AT YOUR OWN RISK !!!!            ***\n"
      "******************************************************************\n"
      "If you already use the most recent umax-backend version\n"
-     "then please contact me: Oliver.Rauch@rauch-domain.de\n",
-     vendor, product, version, dev->devicename);
+     "then please contact me: Oliver.Rauch@rauch-domain.de\n");
 
     return 0; 
   }
   else									        /* inquiry-data not complete */
-  if (!strncmp(vendor, "UMAX ", 5))				    /* test UMAX-scanners with short inquiry */
+  if (!strncmp(vendor, "UMAX ", 5)) /* test UMAX-scanners with short inquiry */
   {
    inquiry_blk inq_data;
    int  i;

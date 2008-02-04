@@ -848,7 +848,7 @@ attach (const char *devname, AgfaFocus_Device ** devp)
      strings, but ?  At offset 36 my SIEMENS scanner identifies as an
      AGFA one ?!   */
 
-  if (result[0] != 6 || strncmp (result + 36, "AGFA0", 5))
+  if (result[0] != 6 || strncmp ((char *)result + 36, "AGFA0", 5))
     {
       DBG (1, "attach: device doesn't look like a Siemens 9036 scanner\n");
       return SANE_STATUS_INVAL;
@@ -870,22 +870,22 @@ attach (const char *devname, AgfaFocus_Device ** devp)
   memset (dev, 0, sizeof (*dev));
 
   dev->sane.name = strdup (devname);
-  if (!strncmp (result + 36, "AGFA01", 6)) {
+  if (!strncmp ((char *)result + 36, "AGFA01", 6)) {
     dev->sane.vendor = "AGFA";
     dev->sane.model = "Focus GS Scanner (6 bit)";
     dev->upload_user_defines = SANE_TRUE;
     dev->type = AGFAGRAY64;
-  } else if (!strncmp (result + 36, "AGFA02", 6)) {
+  } else if (!strncmp ((char *)result + 36, "AGFA02", 6)) {
     dev->sane.vendor = "AGFA";
     dev->sane.model = "Focus Lineart Scanner";
     dev->upload_user_defines = SANE_FALSE;
     dev->type = AGFALINEART;
-  } else if (!strncmp (result + 36, "AGFA03", 6)) {
+  } else if (!strncmp ((char *)result + 36, "AGFA03", 6)) {
     dev->sane.vendor = "AGFA";
     dev->sane.model = "Focus II";
     dev->upload_user_defines = SANE_TRUE;
     dev->type = AGFAGRAY256;
-  } else if (!strncmp (result + 36, "AGFA04", 6)) {
+  } else if (!strncmp ((char *)result + 36, "AGFA04", 6)) {
     dev->sane.vendor = "AGFA";
     dev->sane.model = "Focus Color";
     dev->upload_user_defines = SANE_TRUE;

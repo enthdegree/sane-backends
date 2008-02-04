@@ -1772,11 +1772,11 @@ cs2_open (const char *device, cs2_interface_t interface, cs2_t ** sp)
       return status;
     }
 
-  strncpy (s->vendor_string, s->recv_buf + 8, 8);
+  strncpy (s->vendor_string, (char *)s->recv_buf + 8, 8);
   s->vendor_string[8] = '\0';
-  strncpy (s->product_string, s->recv_buf + 16, 16);
+  strncpy (s->product_string, (char *)s->recv_buf + 16, 16);
   s->product_string[16] = '\0';
-  strncpy (s->revision_string, s->recv_buf + 32, 4);
+  strncpy (s->revision_string, (char *)s->recv_buf + 32, 4);
   s->revision_string[4] = '\0';
 
   DBG (10,

@@ -1037,9 +1037,9 @@ attach (const char *devnam, NEC_Device ** devp)
       return (status);
     }
 
-  if (inquiry_data[0] == 6 && strncmp (inquiry_data + 8, "NEC", 3) == 0)
+  if (inquiry_data[0] == 6 && strncmp ((char *)inquiry_data + 8, "NEC", 3) == 0)
     {
-      if (strncmp (inquiry_data + 16, "PC-IN500/4C", 11) == 0)
+      if (strncmp ((char *)inquiry_data + 16, "PC-IN500/4C", 11) == 0)
         sensedat.model = PCIN500;
       else
         sensedat.model = unknown;
@@ -1109,7 +1109,7 @@ attach (const char *devnam, NEC_Device ** devp)
   dev->sane.name = (SANE_String) strdup (devnam);
   dev->sane.vendor = "NEC";
   model_name = inquiry_data + 16;
-  dev->sane.model  = strndup (model_name, 10);
+  dev->sane.model  = strndup ((char *)model_name, 10);
   dev->sane.type = "flatbed scanner";
   
   dev->sensedat.model = sensedat.model;

@@ -1291,11 +1291,11 @@ coolscan_identify_scanner (Coolscan_t * s)
 
   coolscan_get_inquiry_values (s);
 
-  get_inquiry_vendor (s->buffer, vendor);
-  get_inquiry_product (s->buffer, product);
-  get_inquiry_version (s->buffer, version);
+  get_inquiry_vendor ((char *)s->buffer, (char *)vendor);
+  get_inquiry_product ((char *)s->buffer, (char *)product);
+  get_inquiry_version ((char *)s->buffer, (char *)version);
 
-  if (strncmp ("Nikon   ", vendor, 8))
+  if (strncmp ("Nikon   ", (char *)vendor, 8))
     {
       DBG (5, "identify_scanner: \"%s\" isn't a Nikon product\n", vendor);
       return 1;
@@ -1332,7 +1332,7 @@ coolscan_identify_scanner (Coolscan_t * s)
       /* Now identify full supported scanners */
       for (i = 0; i < known_scanners; i++)
 	{
-	  if (!strncmp (product, scanner_str[i], strlen (scanner_str[i])))
+	  if (!strncmp ((char *)product, scanner_str[i], strlen (scanner_str[i])))
 	    {
 	      s->LS = i;
 	      return 0;
@@ -1565,11 +1565,11 @@ get_feeder_type_LS30 (Coolscan_t * s)
 
   /* find out about Film-strip-feeder or Mount-Feeder */
   size=get_inquiery_part_LS30(s, (unsigned char) 1);
-  if(strncmp(s->buffer+5,"Strip",5)==0)
+  if(strncmp((char *)s->buffer+5,"Strip",5)==0)
   { s->feeder=STRIP_FEEDER;
     s->autofeeder = 1;
   }
-  if(strncmp(s->buffer+5,"Mount",5)==0)
+  if(strncmp((char *)s->buffer+5,"Mount",5)==0)
   { s->feeder=MOUNT_FEEDER;
   }
   /* find out about Film-strip-feeder positions*/
@@ -1651,22 +1651,24 @@ get_internal_info_LS20 (Coolscan_t * s)
   DBG (10,
        "\tadbits=%d\toutputbits=%d\tmaxres=%d\txmax=%d\tymax=%d\n"
        "\txmaxpix=%d\tymaxpix=%d\tycurrent=%d\tcurrentfocus=%d\n"
-       "\tautofeeder=%s\tanaloggamma=%s\tcurrentscanpitch=%d\n"
+       "\tautofeeder=%s\tanaloggamma=%s\tcurrentscanpitch=%d\n",
+       s->adbits, s->outputbits, s->maxres, s->xmax, s->ymax,
+       s->xmaxpix, s->ymaxpix, s->ycurrent, s->currentfocus,
+       s->autofeeder ? "Yes" : "No", s->analoggamma ? "Yes" : "No",
+       s->currentscanpitch);
+  DBG (10,
        "\tWhite balance exposure time var [RGB]=\t%d %d %d\n"
        "\tPrescan result exposure time var [RGB]=\t%d %d %d\n"
        "\tCurrent exposure time var.[RGB]=\t%d %d %d\n"
-       "\tInternal exposure time unit[RGB]=\t%d %d %d\n"
+       "\tInternal exposure time unit[RGB]=\t%d %d %d\n",
+       s->wbetr_r, s->webtr_g, s->webtr_b, s->pretv_r, s->pretv_g,
+       s->pretv_r, s->cetv_r, s->cetv_g, s->cetv_b, s->ietu_r,
+       s->ietu_g, s->ietu_b);
+  DBG (10,
        "\toffsetdata_[rgb]=\t0x%x 0x%x 0x%x\n"
        "\tlimitcondition=0x%x\n"
        "\tdevice error code = 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n"
        "\tpower-on errors = 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n",
-       s->adbits, s->outputbits, s->maxres, s->xmax, s->ymax,
-       s->xmaxpix, s->ymaxpix, s->ycurrent, s->currentfocus,
-       s->autofeeder ? "Yes" : "No", s->analoggamma ? "Yes" : "No",
-       s->currentscanpitch,
-       s->wbetr_r, s->webtr_g, s->webtr_b, s->pretv_r, s->pretv_g,
-       s->pretv_r, s->cetv_r, s->cetv_g, s->cetv_b, s->ietu_r,
-       s->ietu_g, s->ietu_b,
        s->offsetdata_r, s->offsetdata_g, s->offsetdata_b,
        s->limitcondition, 
        s->derr[0], s->derr[1], s->derr[2], s->derr[3], s->derr[4],
@@ -1705,11 +1707,11 @@ coolscan_get_inquiry_values (Coolscan_t * s)
   inquiry_block = (unsigned char *) s->buffer;
   s->inquiry_len = 36;
 
-  get_inquiry_vendor (inquiry_block, s->vendor);
+  get_inquiry_vendor ((char *)inquiry_block, (char *)s->vendor);
   s->vendor[8] = '\0';
-  get_inquiry_product (inquiry_block, s->product);
+  get_inquiry_product ((char *)inquiry_block, (char *)s->product);
   s->product[16] = '\0';
-  get_inquiry_version (inquiry_block, s->version);
+  get_inquiry_version ((char *)inquiry_block, (char *)s->version);
   s->version[4] = '\0';
 
   if (s->inquiry_len < 36)

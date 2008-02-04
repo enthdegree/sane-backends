@@ -156,14 +156,14 @@ attach (const char *devnam, Ibm_Device ** devp)
     }
 
   if (!(
-	(strncmp (ibuf.vendor, "IBM", 3) ==0
-         && strncmp (ibuf.product, "2456", 4) == 0)
-        || (strncmp (ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp (ibuf.product, "IS420", 5) == 0) 
-        || (strncmp (ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp (ibuf.product, "IS410", 5) == 0) 
-        || (strncmp (ibuf.vendor, "RICOH", 5) == 0 
-	    && strncmp (ibuf.product, "IS430", 5) == 0) 
+	(strncmp ((char *)ibuf.vendor, "IBM", 3) ==0
+         && strncmp ((char *)ibuf.product, "2456", 4) == 0)
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
+	    && strncmp ((char *)ibuf.product, "IS420", 5) == 0) 
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
+	    && strncmp ((char *)ibuf.product, "IS410", 5) == 0) 
+        || (strncmp ((char *)ibuf.vendor, "RICOH", 5) == 0 
+	    && strncmp ((char *)ibuf.product, "IS430", 5) == 0) 
 	))
     {
       DBG (1, "attach: device \"%s\" doesn't look like a scanner I know\n",
@@ -186,8 +186,8 @@ attach (const char *devnam, Ibm_Device ** devp)
    * Ignore this function ... seems to work ok
    * Suggested to George Murphy george@topfloor.ie by henning
    */
-  if (strncmp(ibuf.vendor, "RICOH", 5) != 0
-      && strncmp(ibuf.product, "IS420", 5) != 0)
+  if (strncmp((char *)ibuf.vendor, "RICOH", 5) != 0
+      && strncmp((char *)ibuf.product, "IS420", 5) != 0)
     {
       DBG (3, "attach: sending OBJECT POSITION\n");
       status = object_position (fd, OBJECT_POSITION_UNLOAD);
@@ -251,8 +251,8 @@ attach (const char *devnam, Ibm_Device ** devp)
   dev->sane.vendor = "IBM";
   str = malloc (16 + 1);
   memset (str, 0, sizeof (str));
-  strncpy (str, ibuf.product, sizeof(ibuf.product));
-  strncpy (str + sizeof(ibuf.revision), ibuf.revision, sizeof(ibuf.revision));
+  strncpy (str, (char *)ibuf.product, sizeof(ibuf.product));
+  strncpy (str + sizeof(ibuf.revision), (char *)ibuf.revision, sizeof(ibuf.revision));
   str[sizeof(ibuf.product) + sizeof(ibuf.revision)] = '\0';
   dev->sane.model = str;
   dev->sane.type = "flatbed scanner";

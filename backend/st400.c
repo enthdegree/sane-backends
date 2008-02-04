@@ -178,7 +178,7 @@ static int str_at_offset(char *str, size_t offset, unsigned char *data)
 	size_t len;
 
 	len = strlen(str);
-	return !strncmp(&data[offset], str, len);
+	return !strncmp((char *)&data[offset], str, len);
 }
 
 

@@ -578,7 +578,7 @@ attach (const char *devname, S9036_Device ** devp)
      strings, but ?  At offset 36 my SIEMENS scanner identifies as an
      AGFA one ?!   */
 
-  if (result[0] != 6 || strncmp (result + 36, "AGFA03", 6))
+  if (result[0] != 6 || strncmp ((char *)result + 36, "AGFA03", 6))
     {
       DBG (1, "attach: device doesn't look like a Siemens 9036 scanner\n");
       return SANE_STATUS_INVAL;

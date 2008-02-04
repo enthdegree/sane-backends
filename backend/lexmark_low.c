@@ -2189,8 +2189,8 @@ low_set_scan_area (SANE_Int res,
 {
 
   SANE_Status status;
-  SANE_Int vert_start;
-  SANE_Int hor_start;
+  SANE_Int vert_start = 0;
+  SANE_Int hor_start = 0;
   SANE_Int vert_end;
   SANE_Int hor_end;
 

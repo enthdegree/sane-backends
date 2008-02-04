@@ -143,15 +143,15 @@ attach (const char *devnam, Ricoh_Device ** devp)
     }
 
   if (ibuf.devtype != 6
-      || strncmp (ibuf.vendor, "RICOH", 5) != 0
-      || (strncmp (ibuf.product, "IS50", 4) != 0
-	  && strncmp (ibuf.product, "IS60", 4) != 0))
+      || strncmp ((char *)ibuf.vendor, "RICOH", 5) != 0
+      || (strncmp ((char *)ibuf.product, "IS50", 4) != 0
+	  && strncmp ((char *)ibuf.product, "IS60", 4) != 0))
     {
       DBG (1, "attach: device doesn't look like the Ricoh scanner I know\n");
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
     }
-  is50 = (strncmp (ibuf.product, "IS50", 4) == 0);
+  is50 = (strncmp ((char *)ibuf.product, "IS50", 4) == 0);
 
   DBG (3, "attach: sending TEST_UNIT_READY\n");
   status = test_unit_ready (fd);
@@ -224,8 +224,8 @@ attach (const char *devnam, Ricoh_Device ** devp)
   dev->sane.vendor = "RICOH";
   str = malloc (16 + 1);
   memset (str, 0, sizeof (str));
-  strncpy (str, ibuf.product, sizeof(ibuf.product));
-  strncpy (str + sizeof(ibuf.revision), ibuf.revision, sizeof(ibuf.revision));
+  strncpy (str, (char *)ibuf.product, sizeof(ibuf.product));
+  strncpy (str + sizeof(ibuf.revision), (char *)ibuf.revision, sizeof(ibuf.revision));
   str[sizeof(ibuf.product) + sizeof(ibuf.revision)] = '\0';
   dev->sane.model = str;
   dev->sane.type = "flatbed scanner";

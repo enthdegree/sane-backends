@@ -1,3 +1,12 @@
+2008-02-03  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/hpljm1005.c: better sane_cancel handling
+	* backend/agfafocus.c backend/coolscan.c, backend/coolscan2.c,
+	  backend/hpljm1005.c, backend/ibm.c, backend/lexmark_low.c,
+	  backend/microtek.c, backend/microtek2.c, backend/nec.c, backend/pie.c,
+	  backend/ricoh.c, backend/s9036.c, backend/st400.c, backend/umax.c:
+	  reduce gcc pedantic/ansi warnings from 690 to 280 lines, mostly
+	  via casts in str*() calls.
+
 2008-02-03  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* Makefile.in, */Makefile.in, tools/sane-config.in:

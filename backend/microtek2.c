@@ -4346,9 +4346,9 @@ scsi_inquiry(Microtek2_Info *mi, char *device)
     INQ_GET_QUAL(mi->device_qualifier, result);
     INQ_GET_DEVT(mi->device_type, result);
     INQ_GET_VERSION(mi->scsi_version, result);
-    INQ_GET_VENDOR(mi->vendor, result);
-    INQ_GET_MODEL(mi->model, result);
-    INQ_GET_REV(mi->revision, result);
+    INQ_GET_VENDOR(mi->vendor, (char *)result);
+    INQ_GET_MODEL(mi->model, (char *)result);
+    INQ_GET_REV(mi->revision, (char *)result);
     INQ_GET_MODELCODE(mi->model_code, result);
 
 

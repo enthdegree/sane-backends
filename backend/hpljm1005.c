@@ -140,6 +140,7 @@ static const SANE_String_Const mode_list[] = {
 
 #define STATUS_IDLE 0
 #define STATUS_SCANNING 1
+#define STATUS_CANCELING 2
 
 struct device_s
 {
@@ -161,6 +162,11 @@ struct device_s
   uint32_t conf_data[512];
   uint32_t packet_data[512];
 };
+
+
+static void
+do_cancel(struct device_s *dev);
+
 
 static struct device_s *devlist_head;
 static int devlist_count;	/* Number of element in the list */
@@ -532,6 +538,14 @@ sane_close (SANE_Handle h)
 {
   struct device_s *dev = (struct device_s *) h;
 
+  /* Just in case if sane_cancel() is called
+   * after starting a scan but not while a sane_read
+   */
+  if (dev->status == STATUS_CANCELING)
+    {
+       do_cancel(dev);
+    }
+
   sanei_usb_release_interface (dev->dn, 0);
   sanei_usb_close (dev->dn);
 
@@ -805,7 +819,7 @@ get_data (struct device_s *dev)
   size_t size;
   int packet_size;
   unsigned char *buffer = (unsigned char *) dev->packet_data;
-  if (dev->status != STATUS_SCANNING)
+  if (dev->status == STATUS_IDLE)
     return SANE_STATUS_IO_ERROR;
   /* first wait a standard data pkt */
   do
@@ -964,6 +978,15 @@ sane_start (SANE_Handle h)
   return get_data (dev);
 }
 
+
+static void 
+do_cancel(struct device_s *dev) 
+{
+  while (get_data (dev) == SANE_STATUS_GOOD);
+  free (dev->buffer);
+  dev->buffer = NULL;
+}
+
 static int
 min3 (int r, int g, int b)
 {
@@ -1028,6 +1051,13 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
       dev->write_offset_g = 1;
       dev->write_offset_b = 2;
     }
+
+  /* Special case where sane_cancel is called while scanning */
+  if (dev->status == STATUS_CANCELING) 
+    {
+       do_cancel(dev);
+       return SANE_STATUS_CANCELLED;
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -1036,15 +1066,13 @@ sane_cancel (SANE_Handle h)
 {
   struct device_s *dev = (struct device_s *) h;
 
-  free (dev->buffer);
-  dev->buffer = NULL;
 
+  if (dev->status == STATUS_SCANNING) 
+    {
+      dev->status = STATUS_CANCELING;
+      return;
+    }
 
-  if (dev->status != STATUS_SCANNING)
-    return;
-
-  /* Read the end of data ... */
-  while (get_data (dev) == SANE_STATUS_GOOD);
   free (dev->buffer);
   dev->buffer = NULL;
 }

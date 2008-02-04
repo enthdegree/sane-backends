@@ -1503,10 +1503,10 @@ parse_inquiry(Microtek_Info *mi, unsigned char *result)
   };
 #endif
   DBG(15, "parse_inquiry...\n");
-  strncpy(mi->vendor_id, &result[8], 8);
-  strncpy(mi->model_name, &result[16], 16);
-  strncpy(mi->revision_num, &result[32], 4);
-  strncpy(mi->vendor_string, &result[36], 20);
+  strncpy(mi->vendor_id, (char *)&result[8], 8);
+  strncpy(mi->model_name, (char *)&result[16], 16);
+  strncpy(mi->revision_num, (char *)&result[32], 4);
+  strncpy(mi->vendor_string, (char *)&result[36], 20);
   mi->vendor_id[8]   = 0;
   mi->model_name[16] = 0;
   mi->revision_num[4] = 0;
@@ -1948,9 +1948,9 @@ dump_suspect_inquiry(unsigned char *result)
   }
   fprintf(stderr, "\n\n");
 #endif
-  strncpy(vendor_id, &result[8], 8);
-  strncpy(model_name, &result[16], 16);
-  strncpy(revision_num, &result[32], 4);
+  strncpy(vendor_id, (char *)&result[8], 8);
+  strncpy(model_name, (char *)&result[16], 16);
+  strncpy(revision_num, (char *)&result[32], 4);
   vendor_id[8]    = 0;
   model_name[16]  = 0;
   revision_num[5] = 0;  
@@ -1996,15 +1996,15 @@ id_microtek(u_int8_t *result, char **model_string)
 	device_type);
     return SANE_STATUS_INVAL;
   }
-  if (!(strncmp("MICROTEK", &(result[8]), 8)) ||
-      !(strncmp("MII SC31", &(result[8]), 8)) ||  /* for the IISP */
-      !(strncmp("MII SC21", &(result[8]), 8)) ||  /* for the 600ZS */
-      !(strncmp("MII SC23", &(result[8]), 8)) ||  /* for the -other- 600ZS */
-      !(strncmp("MII SC25", &(result[8]), 8)) ||  /* for some -other- 600GS */
-      !(strncmp("AGFA    ", &(result[8]), 8)) ||  /* for Arcus II */
-      !(strncmp("Microtek", &(result[8]), 8)) ||  /* for some 35t+'s */
-      !(strncmp("Polaroid", &(result[8]), 8)) ||  /* for SprintScan 35LE */
-      !(strncmp("        ", &(result[8]), 8)) ) {
+  if (!(strncmp("MICROTEK", (char *)&(result[8]), 8)) ||
+      !(strncmp("MII SC31", (char *)&(result[8]), 8)) ||  /* the IISP */
+      !(strncmp("MII SC21", (char *)&(result[8]), 8)) ||  /* the 600ZS */
+      !(strncmp("MII SC23", (char *)&(result[8]), 8)) ||  /* the other 600ZS */
+      !(strncmp("MII SC25", (char *)&(result[8]), 8)) ||  /* some other 600GS */
+      !(strncmp("AGFA    ", (char *)&(result[8]), 8)) ||  /* Arcus II */
+      !(strncmp("Microtek", (char *)&(result[8]), 8)) ||  /* some 35t+'s */
+      !(strncmp("Polaroid", (char *)&(result[8]), 8)) ||  /* SprintScan 35LE */
+      !(strncmp("        ", (char *)&(result[8]), 8)) ) {
     switch (result[62]) {
     case 0x16 :
       *model_string = "ScanMaker 600ZS";    break;
@@ -2035,7 +2035,7 @@ id_microtek(u_int8_t *result, char **model_string)
     case 0x5f :
       *model_string = "ScanMaker E3";       break;
     case 0x62 :
-      if (!(strncmp("Polaroid", &(result[8]), 8))) 
+      if (!(strncmp("Polaroid", (char *)&(result[8]), 8))) 
 	*model_string = "Polaroid SprintScan 35/LE";
       else
 	*model_string = "ScanMaker 35t+";
@@ -2112,8 +2112,8 @@ id_microtek(u_int8_t *result, char **model_string)
     return SANE_STATUS_GOOD;
   }
   DBG(15, "id_microtek:  not microtek:  %d, %d, %d\n",
-      strncmp("MICROTEK", &(result[8]), 8),
-      strncmp("        ", &(result[8]), 8),
+      strncmp("MICROTEK", (char *)&(result[8]), 8),
+      strncmp("        ", (char *)&(result[8]), 8),
       result[62]);
   return SANE_STATUS_INVAL;
 }

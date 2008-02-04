@@ -394,7 +394,7 @@ pie_init (Pie_Device * dev)	/* pie_init is called once while driver-initializati
 
 
 static SANE_Status
-sense_handler (int scsi_fd, unsigned char *result, void *arg)	/* is called by sanei_scsi */
+sense_handler (__sane_unused__ int scsi_fd, unsigned char *result, __sane_unused__ void *arg)	/* is called by sanei_scsi */
 {
   unsigned char asc, ascq, sensekey;
   int asc_ascq, len;
@@ -1007,7 +1007,7 @@ pie_get_halftones (Pie_Device * dev, int sfd)
 
 	      DBG (DBG_info, "halftone %d: %s\n", i, s);
 
-	      dev->halftone_list[i] = strdup (s);
+	      dev->halftone_list[i] = strdup ((char *)s);
 	    }
 	}
     }
@@ -2928,7 +2928,7 @@ do_cancel (Pie_Scanner * scanner)
 
 
 SANE_Status
-sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
+sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize)
 {
   char dev_name[PATH_MAX];
   size_t len;
@@ -3011,7 +3011,7 @@ sane_exit (void)
 
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool __sane_unused__ local_only)
 {
   Pie_Device *dev;
   int i;

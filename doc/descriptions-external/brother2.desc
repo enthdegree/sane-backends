@@ -52,10 +52,9 @@
 :usbid "0x04f9" "0x018e"
 
 :model "DCP-120C"
-:status :untested
+:status :good
 :interface "USB"
-;:usbid "0x04f9" ""
-:comment "No report yet."
+:usbid "0x04f9" "0x0190"
 
 :model "DCP-310CN"
 :status :untested

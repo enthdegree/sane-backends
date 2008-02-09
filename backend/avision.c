@@ -155,6 +155,10 @@
 /* Attention: The comments must stay as they are - they are automatially parsed
    to generate the SANE avision.desc file, as well as HTML online content! */
 
+/* Attention2: This device table is part of the source code and as such
+   licensed under the terms of the license as listed above (GPL2+). By
+   using this data you obviously create derived work! -ReneR */
+
 static Avision_HWEntry Avision_Device_List [] =
   {
     { "AVISION", "AV100CS",
@@ -1005,10 +1009,7 @@ Lexmark X4500 MFP
 #define DEFAULT_WHITE_SHADING   0xFFF0
 
 #define MAX_WHITE_SHADING       0xFFFF
-/* originally the WHITE_MAP_RANGE was 0x4000 - but this always resulted in
- * slightly too dark images - thus I have choosen 0x4FFF ... */
-#define WHITE_MAP_RANGE         0x4FFF
-#define WHITE_MAP_RANGE_ORIG    0x4000
+#define WHITE_MAP_RANGE         0x4000
 
 #define INVALID_DARK_SHADING    0xFFFF
 #define DEFAULT_DARK_SHADING    0x0000
@@ -2866,10 +2867,10 @@ get_accessories_info (Avision_Scanner* s)
     dev->inquiry_duplex = 1;
     dev->inquiry_adf_need_mirror_rear = 1;
   }
-
-  dev->inquiry_light_box |= result [1];
-  if (dev->hw->feature_type & AV_NO_TRANSPARENCY)
-    dev->inquiry_light_box = 0;
+  
+  /* only honor a 1, some scanner without adapter set 0xff */
+  if (dev->inquiry_light_box == 1)
+    dev->inquiry_light_box = 1;
   
   return SANE_STATUS_GOOD;
 }
@@ -3349,25 +3350,44 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
   
   model_num = 0;
   found = 0;
-  while (Avision_Device_List [model_num].real_mfg != NULL ||
-         Avision_Device_List [model_num].scsi_mfg != NULL)
+  /* while not at at end of list NULL terminator */
+  while (Avision_Device_List[model_num].real_mfg != NULL ||
+         Avision_Device_List[model_num].scsi_mfg != NULL)
   {
+    int matches = 0, match_count = 0; /* count number of matches */
     DBG (1, "attach: Checking model: %d\n", model_num);
-    if (attaching_hw == &(Avision_Device_List [model_num]) ||
-	(Avision_Device_List [model_num].scsi_mfg != NULL &&
-	 Avision_Device_List [model_num].scsi_model != NULL &&
-	 (strcmp (mfg, Avision_Device_List [model_num].scsi_mfg) == 0) && 
-	 (strcmp (model, Avision_Device_List [model_num].scsi_model) == 0)) )
+    
+    if (Avision_Device_List[model_num].scsi_mfg) {
+      ++match_count;
+      if (strcmp(mfg, Avision_Device_List[model_num].scsi_mfg) == 0)
+        ++matches;
+    }
+    if (Avision_Device_List[model_num].scsi_model) {
+      ++match_count;
+      if (strcmp(model, Avision_Device_List[model_num].scsi_model) == 0)
+        ++matches;
+    }
+    
+    /* we need 2 matches (mfg, model) for SCSI entries, or the ones available
+       for "we know what we are locking for" USB entries */
+    if ((attaching_hw == &(Avision_Device_List [model_num]) &&
+         matches == match_count) ||
+	matches == 2)
     {
-      DBG (1, "attach: Scanner matched entry: %d\n", model_num);
+      DBG (1, "attach: Scanner matched entry: %d: \"%s\", \"%s\", 0x%x, 0x%x\n",
+           model_num,
+	   Avision_Device_List[model_num].scsi_mfg,
+	   Avision_Device_List[model_num].scsi_model,
+	   Avision_Device_List[model_num].usb_vendor,
+	   Avision_Device_List[model_num].usb_product);
       found = 1;
       break;
     }
-    ++ model_num;
+    ++model_num;
   }
   
   if (!found) {
-    DBG (0, "attach: Scanner not in the supported whitelist!\n");
+    DBG (0, "attach: \"%s\" - \"%s\" not yet in whitelist!\n", mfg, model);
     DBG (0, "attach: You might want to report this output.\n");
     DBG (0, "attach: To: rene@exactcode.de (the Avision backend author)\n");
     
@@ -3692,11 +3712,13 @@ get_double ( &(result[48] ) ));
   dev->inquiry_thresholded_boundary = result[57];
   if (dev->inquiry_thresholded_boundary == 0)
     dev->inquiry_thresholded_boundary = 8;
-  
+
   dev->inquiry_line_difference = result[53];
-  /* TODO: lock that to a feature overwrite ? */
-  if (dev->inquiry_asic_type == AV_ASIC_C7)
-    dev->inquiry_line_difference *= 2; /* needed for AV610C2 */
+  /* compensation according to real world hardware */
+  if (dev->inquiry_asic_type == AV_ASIC_C2)
+    dev->inquiry_line_difference /= 2; /* HP 5300 */
+  else if (dev->inquiry_asic_type == AV_ASIC_C7)
+    dev->inquiry_line_difference *= 2; /* AV610C2 */
   
   if (dev->inquiry_new_protocol) {
     dev->inquiry_optical_res = get_double ( &(result[89]) );
@@ -4367,15 +4389,11 @@ sort_and_average (struct calibration_format* format, uint8_t* data)
   if (!sort_data)
     return NULL;
   
-  elements_per_line = format->pixel_per_line * format->channels;
-  
   avg_data = malloc (elements_per_line * 2);
   if (!avg_data) {
     free (sort_data);
     return NULL;
   }
-  
-  stride = format->bytes_per_channel * elements_per_line;
   
   /* for each pixel */
   for (i = 0; i < elements_per_line; ++ i)
@@ -4388,7 +4406,7 @@ sort_and_average (struct calibration_format* format, uint8_t* data)
 	uint8_t* ptr2 = ptr1 + line * stride; /* pixel */
 	
 	if (format->bytes_per_channel == 1)
-	  temp = *ptr2 << 8;
+	  temp = 0xffff * *ptr2 / 255;
 	else
 	  temp = get_double_le (ptr2);	  /* little-endian! */
 	set_double ((sort_data + line*2), temp); /* store big-endian */
@@ -4429,7 +4447,8 @@ compute_dark_shading_data (Avision_Scanner* s,
   }
   
   if (format->channels == 1) {
-    rgb_map_value[1] = rgb_map_value[2] = rgb_map_value[0];
+    /* set to green, TODO: should depend on color drop-out and true-gray -ReneR */
+    rgb_map_value[0] = rgb_map_value[1] = rgb_map_value[2] = rgb_map_value[1];
   }
   
   elements_per_line = format->pixel_per_line * format->channels;
@@ -4498,10 +4517,16 @@ compute_white_shading_data (Avision_Scanner* s,
   
   /* some Avision example code was present here until SANE/Avision
    * BUILD 57. */
+
+  if (format->channels == 1) {
+    /* set to green, TODO: should depend on color drop-out and true-gray -ReneR */
+    mst[0] = mst[1] = mst[2] = mst[1];
+  }
   
   /* calculate calibration data */
   for (i = 0; i < elements_per_line; ++ i)
     {
+      int result;
       /* calculate calibration value for pixel i */
       uint16_t tmp_data = get_double((data + i*2));
       
@@ -4510,10 +4535,10 @@ compute_white_shading_data (Avision_Scanner* s,
 	++ values_invalid;
       }
       
-      result = ( (double) mst[i % 3] * WHITE_MAP_RANGE / (tmp_data + 0.5));
+      result = ( (int)mst[i % 3] * WHITE_MAP_RANGE / (tmp_data + 0.5));
       
-      /* sanity check for over-amplification */
-      if (result > WHITE_MAP_RANGE * 2) {
+      /* sanity check for over-amplification, clipping */
+      if (result > MAX_WHITE_SHADING) {
 	result = WHITE_MAP_RANGE;
 	++ values_limitted;
       }
@@ -5238,10 +5263,13 @@ set_window (Avision_Scanner* s)
       SET_BIT (cmd.window.avision.bitset1, 7);
       adf_mode--;
 
-      if (s->avdimen.interlaced_duplex) {
+      /* normal, interlaced duplex scanners */
+      if (dev->inquiry_duplex_interlaced) {
         DBG (3, "set_window: interlaced duplex type\n");
         cmd.window.avision.type.normal.bitset3 |= (adf_mode << 3);
-      } else {
+      }
+      else /* HP 2-pass duplex */
+      {
 	if (adf_mode) /* if duplex */
 	{
           DBG (3, "set_window: non-interlaced duplex type (HP)\n");
@@ -5252,9 +5280,9 @@ set_window (Avision_Scanner* s)
     }
   }
   
-  /* Newer scanners case utilize this paper length to detect double feeds.
+  /* Newer scanners can utilize this paper length to detect double feeds.
      However some others (DM152) can get confused during media flush if it
-     is set ? */
+     is set? TODO: wire to an option, ... */
   /* if (dev->inquiry_paper_length)
      set_double (cmd.window.descriptor.paper_length, (int)((double)30.0*1200)); */
 
@@ -7807,7 +7835,7 @@ sane_start (SANE_Handle handle)
   
  calib_end:
   
-  if (dev->inquiry_3x3_matrix && dev->inquiry_asic_type >= AV_ASIC_C5 &&
+  if (dev->inquiry_3x3_matrix && dev->inquiry_asic_type >= AV_ASIC_C6 &&
       s->page == 0)
   {
     status = send_3x3_matrix (s);

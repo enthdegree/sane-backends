@@ -1,3 +1,15 @@
+2008-02-09  Rene Rebe <rene@exactcode.de>
+
+        * backend/avision.ch: fixed device list matching for entries
+	  with partial matches on USB ID, but vendor / product string
+	  matches as mostly only the HP5300 vs. HP5370, fixed non-color
+	  calibration for devices not filling all RGB fields of calibration
+	  format information, do not send 3x3 color matrix to older devices
+	  (ASIC versions) as some HP53xx does not correctly handle it,
+	  improved calibration accuracy and fixed transparency adapter
+	  detection to not use non-zero as present, but just 1 (some
+	  devices now set 0xff as (-1) - not present ...
+
 2008-02-07  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc:
 	  add usb ID for LaserJet M1120

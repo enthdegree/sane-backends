@@ -1,6 +1,10 @@
+2008-02-07  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc:
+	  add usb ID for LaserJet M1120
+
 2008-02-09  Rene Rebe <rene@exactcode.de>
 
-        * backend/avision.ch: fixed device list matching for entries
+	* backend/avision.ch: fixed device list matching for entries
 	  with partial matches on USB ID, but vendor / product string
 	  matches as mostly only the HP5300 vs. HP5370, fixed non-color
 	  calibration for devices not filling all RGB fields of calibration
@@ -12,7 +16,7 @@
 
 2008-02-07  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc:
-	  add usb ID for LaserJet M1120
+	  add usb ID for LaserJet M1120n
 	* doc/descriptions-external/brother2.desc: add usb ID for DCP-120C
 
 2008-02-03  m. allan noah <kitno455 a t gmail d o t com>

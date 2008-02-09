@@ -96,7 +96,9 @@ struct usbdev_s
 static struct usbdev_s usbid[] = {
   {0x03f0, 0x3b17, "Hewlett-Packard", "LaserJet M1005",
    "multi-function peripheral"},
-  {0x03f0, 0x5717, "Hewlett-Packard", "LaserJet M1120",
+  {0x03f0, 0x5617, "Hewlett-Packard", "LaserJet M1120",
+   "multi-function peripheral"},
+  {0x03f0, 0x5717, "Hewlett-Packard", "LaserJet M1120n",
    "multi-function peripheral"},
   {0, 0, NULL, NULL, NULL},
   {0, 0, NULL, NULL, NULL}

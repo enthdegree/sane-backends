@@ -27044,14 +27044,15 @@ else
     { echo "$as_me:$LINENO: Manually selected backends: ${BACKENDS}" >&5
 echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
   else
-    BACKENDS="abaton agfafocus apple artec as6e avision bh canon \
-          canon630u cardscan coolscan coolscan2 dc25 dmc epjitsu \
-          epson fujitsu genesys gt68xx hp leo lexmark matsushita microtek \
-          microtek2 mustek mustek_usb nec pie pixma plustek \
-          ricoh s9036 sceptre sharp \
-          sp15c st400 tamarack test teco1 teco2 teco3 umax umax_pp umax1220u \
-          artec_eplus48u ma1509 ibm hs2p hp5400 u12 snapscan niash sm3840 hp4200 \
-          sm3600 hp3500 stv680 epson2 hp5590 hp3900 hpljm1005"
+    BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e avision bh \
+	  canon canon630u cardscan coolscan coolscan2 dc25 dmc \
+	  epjitsu epson epson2 fujitsu genesys gt68xx \
+	  hp hp3500 hp3900 hp4200 hp5400 hp5590 hpljm1005 hs2p \
+	  ibm leo lexmark \
+	  ma1509 matsushita microtek microtek2 mustek mustek_usb \
+	  nec niash pie pixma plustek ricoh \
+	  s9036 sceptre sharp sm3600 sm3840 snapscan sp15c st400 stv680 \
+	  tamarack teco1 teco2 teco3 test u12 umax umax_pp umax1220u"
 
     case "$host_os" in
 	gnu*)

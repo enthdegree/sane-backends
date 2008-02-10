@@ -87,103 +87,126 @@ endif
 
 LIBOBJS = $(addprefix ../lib/,$(addsuffix .lo,$(LIBLIB_FUNCS)))
 
-DISTFILES = abaton.c abaton.conf.in abaton.h agfafocus.c agfafocus.conf.in \
-  agfafocus.h apple.c apple.conf.in apple.h artec.c artec.conf.in artec.h \
-  artec_eplus48u.c artec_eplus48u.h artec_eplus48u.conf.in as6e.c \
-  as6e.h avision.c avision.conf.in avision.h bh.c bh.conf.in bh.h canon.c \
-  canon.conf.in canon.h canon-sane.c canon-scsi.c canon630u.c canon630u-common.c \
-  canon630u.conf.in canon_pp.conf.in canon_pp.h canon_pp.c canon_pp-dev.c \
+DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
+  abaton.c abaton.conf.in abaton.h \
+  agfafocus.c agfafocus.conf.in agfafocus.h \
+  apple.c apple.conf.in apple.h \
+  artec.c artec.conf.in artec.h \
+  artec_eplus48u.c artec_eplus48u.h artec_eplus48u.conf.in \
+  as6e.c as6e.h \
+  avision.c avision.conf.in avision.h \
+  bh.c bh.conf.in bh.h \
+  canon.c canon.conf.in canon.h canon-sane.c canon-scsi.c \
+  canon630u.c canon630u-common.c canon630u.conf.in \
+  canon_pp.conf.in canon_pp.h canon_pp.c canon_pp-dev.c \
   canon_pp-dev.h canon_pp-io.c canon_pp-io.h \
   cardscan.c cardscan.conf.in cardscan.h \
   coolscan.c coolscan.conf.in coolscan.h coolscan-scsidef.h \
   coolscan2.c coolscan2.conf.in \
   dc210.c dc210.conf.in dc210.h \
-  dc240.c dc240.conf.in dc240.h dc25.c dc25.conf.in dc25.h dell1600n_net.c\
-  dell1600n_net.conf.in dll.aliases dll.c dll.conf.in dmc.c dmc.conf.in dmc.h \
+  dc240.c dc240.conf.in dc240.h \
+  dc25.c dc25.conf.in dc25.h \
+  dell1600n_net.c dell1600n_net.conf.in \
+  dll.aliases dll.c dll.conf.in \
+  dmc.c dmc.conf.in dmc.h \
   epjitsu.c epjitsu.conf.in epjitsu.h epjitsu-cmd.h \
   epson.c epson_scsi.c epson_usb.c epson.conf.in epson.h epson_scsi.h \
-  epson_usb.h epson2_net.c epson2_net.h epson2.c epson2_scsi.c epson2.conf.in\
+  epson_usb.h \
+  epson2_net.c epson2_net.h epson2.c epson2.h epson2_scsi.c epson2_scsi.h \
   epson2-io.c epson2-io.h epson2-commands.c epson2-commands.h\
+  epson2.conf.in\
   fujitsu.c fujitsu.conf.in fujitsu.h fujitsu-scsi.h \
+  genesys.c genesys.h genesys_gl646.c genesys_low.h \
+  genesys.conf.in genesys_devices.c genesys_gl841.c \
+  genesys_conv.c genesys_conv_hlp.c \
   gphoto2.c gphoto2.conf.in gphoto2.h \
   gt68xx.c gt68xx.h gt68xx_high.c gt68xx_high.h gt68xx_mid.c gt68xx_mid.h \
   gt68xx_gt6801.c gt68xx_gt6801.h gt68xx_gt6816.c gt68xx_gt6816.h \
   gt68xx_low.c gt68xx_low.h gt68xx_devices.c gt68xx_generic.c \
-  gt68xx_generic.h gt68xx_shm_channel.c \
-  gt68xx_shm_channel.h gt68xx.conf.in \
-  genesys.c genesys.h genesys_gl646.c genesys_low.h \
-  genesys.conf.in genesys_devices.c genesys_gl841.c \
-  genesys_conv.c genesys_conv_hlp.c \
-  hp-accessor.c hp-accessor.h hp.c hp.conf.in \
-  hp-device.c hp-device.h hp.h hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
+  gt68xx_generic.h gt68xx_shm_channel.c gt68xx_shm_channel.h gt68xx.conf.in \
+  hp-accessor.c hp-accessor.h hp.c hp.conf.in hp-device.c hp-device.h hp.h \
+  hp-handle.c hp-handle.h hp-hpmem.c hp-option.c \
   hp-option.h hp.README hp-scl.c hp-scl.h hp-scsi.h hp.TODO \
+  hp3500.c \
   hp3900.c hp3900.conf.in hp3900_config.c hp3900_debug.c hp3900_rts8822.c \
   hp3900_sane.c hp3900_types.c hp3900_usb.c \
-  hpsj5s.c hpsj5s.conf.in hpsj5s.h \
   hp4200.c  hp4200.conf.in  hp4200.h  hp4200_lm9830.c  hp4200_lm9830.h \
-  hp3500.c \
   hp5400.c hp5400.h hp5400.conf.in hp5400_debug.c hp5400_debug.h \
-  hp5400_internal.c hp5400_internal.h hp5400_xfer.h \
-  hp5400_sane.c hp5400_sanei.c hp5400_sanei.h hpljm1005.c \
+  hp5400_internal.c hp5400_internal.h hp5400_xfer.h hp5400_sane.c \
+  hp5400_sanei.c hp5400_sanei.h \
+  hp5590.c hp5590_cmds.c hp5590_low.c hp5590_cmds.h hp5590_low.h \
+  hpljm1005.c \
+  hpsj5s.c hpsj5s.conf.in hpsj5s.h \
   hs2p.c hs2p.conf.in hs2p-scsi.c hs2p.h hs2p-scsi.h hs2p-saneopts.h \
   ibm.c ibm.conf.in ibm.h ibm-scsi.c \
   leo.c leo.h leo.conf.in \
-  lexmark.c lexmark_low.c lexmark_sensors.c lexmark_devices.c lexmark.h \
+  lexmark.c lexmark_low.c lexmark_models.c lexmark_sensors.c lexmark.h \
   lexmark.conf.in \
   lm9830.h \
   ma1509.c ma1509.conf.in ma1509.h \
-  Makefile.in matsushita.c \
-  matsushita.conf.in matsushita.h microtek2.c microtek2.conf.in microtek2.h \
-  microtek.c microtek.conf.in microtek.h mustek.c mustek.conf.in mustek.h \
+  matsushita.c matsushita.conf.in matsushita.h \
+  microtek.c microtek.conf.in microtek.h \
+  microtek2.c microtek2.conf.in microtek2.h \
+  mustek.c mustek.conf.in mustek.h \
   mustek_pp.c mustek_pp.conf.in mustek_pp.h mustek_pp_cis.c mustek_pp_cis.h \
   mustek_pp_decl.h mustek_pp_drivers.h mustek_pp_null.c mustek_pp_ccd300.c \
-  mustek_pp_ccd300.h mustek_scsi_pp.c mustek_scsi_pp.h mustek_usb.c mustek_usb.conf.in \
-  mustek_usb.h mustek_usb_high.c mustek_usb_high.h mustek_usb_low.c \
-  mustek_usb_low.h mustek_usb_mid.c mustek_usb_mid.h nec.c nec.conf.in nec.h \
-  mustek_usb2.c mustek_usb2.h mustek_usb2_asic.c \
-  mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h \
-  mustek_usb2_reflective.c mustek_usb2_transparent.c \
-  net.c net.conf.in net.h niash.c niash_core.c niash_core.h \
-  niash_xfer.c niash_xfer.h pie.c pie.conf.in pie-scsidef.h pint.c pint.h \
-  pixma.c pixma.h pixma_common.c pixma_common.h \
-  pixma_mp150.c pixma_mp730.c pixma_mp750.c \
-  pixma_sane_options.c pixma_sane_options.h pixma_io.h pixma_io_sanei.c \
-  pixma_rename.h \
-  plustek.c plustek.conf.in plustek-usbdevs.c plustek.h \
-  plustek-usb.c plustek-usb.h plustek-usbhw.c plustek-usbimg.c \
-  plustek-usbio.c plustek-usbmap.c plustek-usbscan.c plustek-usbshading.c \
-  plustek-usbcalfile.c plustek-usbcal.c \
+  mustek_pp_ccd300.h mustek_scsi_pp.c mustek_scsi_pp.h \
+  mustek_usb.c mustek_usb.conf.in mustek_usb.h mustek_usb_high.c \
+  mustek_usb_high.h mustek_usb_low.c mustek_usb_low.h mustek_usb_mid.c \
+  mustek_usb_mid.h \
+  mustek_usb2.c mustek_usb2.h mustek_usb2_asic.c mustek_usb2_asic.h \
+  mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c \
+  mustek_usb2_transparent.c \
+  nec.c nec.conf.in nec.h \
+  net.c net.conf.in net.h \
+  niash.c niash_core.c niash_core.h niash_xfer.c niash_xfer.h \
+  pie.c pie.conf.in pie-scsidef.h \
+  pint.c pint.h \
+  pixma.c pixma.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c \
+  pixma_mp750.c pixma_sane_options.c pixma_sane_options.h pixma_io.h \
+  pixma_io_sanei.c pixma_rename.h \
+  plustek.c plustek.conf.in plustek-usbdevs.c plustek.h plustek-usb.c \
+  plustek-usb.h plustek-usbhw.c plustek-usbimg.c plustek-usbio.c \
+  plustek-usbmap.c plustek-usbscan.c plustek-usbshading.c plustek-usbcalfile.c \
+  plustek-usbcal.c \
   plustek-pp_dac.c plustek-pp_dbg.h plustek-pp_detect.c plustek-pp_genericio.c \
   plustek-pp_hwdefs.h plustek-pp_image.c plustek-pp_io.c plustek-pp_map.c \
   plustek-pp_misc.c plustek-pp_models.c plustek-pp_motor.c plustek-pp_p12.c \
-  plustek-pp_p12ccd.c plustek-pp_p48xx.c plustek-pp_p9636.c plustek-pp_procfs.c \
-  plustek-pp_procs.h plustek-pp_ptdrv.c plustek-pp_scale.c plustek-pp_scan.h \
-  plustek-pp_scandata.h plustek-pp_sysdep.h plustek-pp_tpa.c plustek-pp_types.h \
-  plustek_pp.c plustek-pp_wrapper.c plustek_pp.conf.in plustek-pp.h \
-  pnm.c qcam.c qcam.conf.in qcam.h ricoh.c ricoh.conf.in ricoh.h \
-  ricoh-scsi.c s9036.c s9036.conf.in s9036.h saned.conf.in sane_strstatus.c \
-  sceptre.c sceptre.conf.in sceptre.h sharp.c sharp.conf.in sharp.h sm3600.c \
-  sm3600-color.c sm3600-gray.c sm3600.h sm3600-homerun.c sm3600-scanmtek.c \
-  sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c snapscan.c snapscan-data.c \
-  snapscan.conf.in snapscan.h snapscan-scsi.c snapscan-sources.c snapscan-mutex.c \
-  snapscan-sources.h snapscan-usb.c snapscan-usb.h snapscan-options.c sp15c.c \
-  sp15c.conf.in sp15c.h sp15c-scsi.h st400.c st400.conf.in st400.h stubs.c \
-  stv680.c stv680.conf.in stv680.h \
-  tamarack.c tamarack.conf.in tamarack.h teco1.c teco1.h teco1.conf.in \
-  teco2.c teco2.conf.in teco2.h \
-  teco3.c teco3.conf.in teco3.h \
-  test.c test.conf.in test.h test-picture.c umax1220u.c \
-  u12.c u12.h u12-scanner.h u12-hwdef.h u12.conf.in u12-shading.c u12-tpa.c \
-  u12-ccd.c u12-hw.c u12-if.c u12-image.c u12-io.c u12-map.c u12-motor.c \
-  umax1220u-common.c \
-  umax1220u.conf.in umax.c umax.conf.in umax.h umax_pp.c umax_pp.conf.in umax_pp.h \
-  umax_pp_low.c umax_pp_low.h umax_pp_mid.c umax_pp_mid.h umax-scanner.c \
-  umax-scanner.h umax-scsidef.h umax-uc1200s.c umax-uc1200se.c umax-uc1260.c \
-  umax-uc630.c umax-uc840.c umax-ug630.c umax-ug80.c umax-usb.c v4l.c \
-  v4l.conf.in v4l-frequencies.h v4l.h \
+  plustek-pp_p12ccd.c plustek-pp_p48xx.c plustek-pp_p9636.c \
+  plustek-pp_procfs.c plustek-pp_procs.h plustek-pp_ptdrv.c plustek-pp_scale.c \
+  plustek-pp_scan.h plustek-pp_scandata.h plustek-pp_sysdep.h plustek-pp_tpa.c \
+  plustek-pp_types.h plustek_pp.c plustek-pp_wrapper.c plustek_pp.conf.in \
+  plustek-pp.h \
+  pnm.c \
+  qcam.c qcam.conf.in qcam.h \
+  ricoh.c ricoh.conf.in ricoh.h ricoh-scsi.c \
+  s9036.c s9036.conf.in s9036.h \
+  sceptre.c sceptre.conf.in sceptre.h \
+  sharp.c sharp.conf.in sharp.h \
+  sm3600.c sm3600-color.c sm3600-gray.c sm3600.h sm3600-homerun.c \
+  sm3600-scanmtek.c sm3600-scantool.h sm3600-scanusb.c sm3600-scanutil.c \
   sm3840.conf.in sm3840.c sm3840_lib.c sm3840_params.h sm3840_scan.c sm3840.h \
   sm3840_lib.h \
-  hp5590.c hp5590_cmds.c hp5590_low.c hp5590_cmds.h hp5590_low.h
+  snapscan.c snapscan-data.c snapscan.conf.in snapscan.h snapscan-scsi.c \
+  snapscan-sources.c snapscan-mutex.c snapscan-sources.h snapscan-usb.c \
+  snapscan-usb.h snapscan-options.c \
+  sp15c.c sp15c.conf.in sp15c.h sp15c-scsi.h \
+  st400.c st400.conf.in st400.h \
+  stv680.c stv680.conf.in stv680.h \
+  tamarack.c tamarack.conf.in tamarack.h \
+  teco1.c teco1.conf.in teco1.h \
+  teco2.c teco2.conf.in teco2.h \
+  teco3.c teco3.conf.in teco3.h \
+  test.c test.conf.in test.h test-picture.c \
+  u12.c u12.h u12-scanner.h u12-hwdef.h u12.conf.in u12-shading.c u12-tpa.c \
+  u12-ccd.c u12-hw.c u12-if.c u12-image.c u12-io.c u12-map.c u12-motor.c \
+  umax.c umax.conf.in umax.h umax-scanner.c umax-scanner.h umax-scsidef.h \
+  umax-uc1200s.c umax-uc1200se.c umax-uc1260.c umax-uc630.c umax-uc840.c \
+  umax-ug630.c umax-ug80.c umax-usb.c \
+  umax_pp.c umax_pp.conf.in umax_pp.h umax_pp_low.c umax_pp_low.h \
+  umax_pp_mid.c umax_pp_mid.h \
+  umax1220u.c umax1220u-common.c umax1220u.conf.in \
+  v4l.c v4l.conf.in v4l-frequencies.h v4l.h
 
 .PHONY: all clean depend dist distclean install uninstall
 
@@ -399,10 +422,10 @@ libsane-fujitsu.la: ../sanei/sanei_config2.lo
 libsane-fujitsu.la: ../sanei/sanei_constrain_value.lo
 libsane-fujitsu.la: ../sanei/sanei_scsi.lo
 libsane-fujitsu.la: ../sanei/sanei_usb.lo
-libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-genesys.la: ../sanei/sanei_constrain_value.lo
 libsane-genesys.la: ../sanei/sanei_usb.lo
 libsane-genesys.la: $(addsuffix .lo,$(EXTRA_genesys))
+libsane-gphoto2.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-gt68xx.la: ../sanei/sanei_constrain_value.lo
 libsane-gt68xx.la: ../sanei/sanei_usb.lo
 libsane-hp.la: ../sanei/sanei_config2.lo
@@ -467,6 +490,10 @@ libsane-net.la: ../sanei/sanei_net.lo
 libsane-net.la: ../sanei/sanei_wire.lo
 libsane-niash.la: ../sanei/sanei_constrain_value.lo
 libsane-niash.la: ../sanei/sanei_usb.lo
+libsane-pie.la: ../sanei/sanei_config2.lo
+libsane-pie.la: ../sanei/sanei_constrain_value.lo
+libsane-pie.la: ../sanei/sanei_scsi.lo
+libsane-pie.la: ../sanei/sanei_thread.lo
 libsane-pint.la: ../sanei/sanei_constrain_value.lo
 libsane-pixma.la: ../sanei/sanei_usb.lo
 libsane-pixma.la: ../sanei/sanei_thread.lo
@@ -487,10 +514,6 @@ libsane-ricoh.la: ../sanei/sanei_scsi.lo
 libsane-s9036.la: ../sanei/sanei_config2.lo
 libsane-s9036.la: ../sanei/sanei_constrain_value.lo
 libsane-s9036.la: ../sanei/sanei_scsi.lo
-libsane-pie.la: ../sanei/sanei_config2.lo
-libsane-pie.la: ../sanei/sanei_constrain_value.lo
-libsane-pie.la: ../sanei/sanei_scsi.lo
-libsane-pie.la: ../sanei/sanei_thread.lo
 libsane-sceptre.la: ../sanei/sanei_constrain_value.lo
 libsane-sceptre.la: ../sanei/sanei_config2.lo
 libsane-sceptre.la: ../sanei/sanei_scsi.lo
@@ -541,12 +564,12 @@ libsane-umax.la: ../sanei/sanei_scsi.lo
 libsane-umax.la: ../sanei/sanei_usb.lo
 libsane-umax.la: ../sanei/sanei_pv8630.lo
 libsane-umax.la: ../sanei/sanei_thread.lo
-libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 libsane-umax_pp.la: $(addsuffix .lo,$(EXTRA_umax_pp))
 libsane-umax_pp.la: ../sanei/sanei_constrain_value.lo
 libsane-umax1220u.la: ../sanei/sanei_constrain_value.lo
 libsane-umax1220u.la: ../sanei/sanei_usb.lo
 libsane-umax1220u.la: ../sanei/sanei_pv8630.lo
+libsane-v4l.la: ../sanei/sanei_constrain_value.lo
 
 ifneq ($(DLL_PRELOAD),)
 # need to make dll dependent on all sanei files:

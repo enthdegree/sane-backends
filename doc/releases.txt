@@ -37,6 +37,7 @@ Making the release:
   and running e.g. 
   diff -uNr sane-backends-1.0.14 sane-backends-1.0.15  > sane-backends-1.0.14-1.0.15.diff'
 * check that the diff applies cleanly to the old version
+* install devel headers required to build optional backends (1284,gphoto,etc)
 * check that the new version .tar.gz can be compiled
 * upload these files together with the .diff to the FTP/HTTP servers
   (at the moment: rpm.org and alioth.debian.org).
@@ -51,6 +52,7 @@ Making the release:
 After the release:
 
 * move ChangeLog to ChangeLog-"version" and start a new ChangeLog
+* add ChangeLog-"version" to DISTFILES in Makefile.in
 * configure.in: add -cvs suffix
 * configure.in: set is_release=no
 * configure: regenerate

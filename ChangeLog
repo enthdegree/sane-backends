@@ -1,6 +1,13 @@
 ******  Release of sane-backends 1.0.19. End of code freeze ******
 
 2008-02-10  m. allan noah <kitno455 a t gmail d o t com>
+	* Makefile.in: correct DISTFILES
+	* configure.in, configure: alpha sort backend names
+	* backend/Makefile.in: correct/sort DISTFILES and .la: targets
+	* include/Makefile.in: correct/sort SANE_INCLUDES
+	* doc/releases.txt: minor updates
+
+2008-02-10  m. allan noah <kitno455 a t gmail d o t com>
 	* config.guess, config.sub: updated to latest versions
 	* configure.in, configure: updated sane version number
 	* doc/releases.txt: minor updates

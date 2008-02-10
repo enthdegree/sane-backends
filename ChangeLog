@@ -1,4 +1,13 @@
-2008-02-07  m. allan noah <kitno455 a t gmail d o t com>
+******  Release of sane-backends 1.0.19. End of code freeze ******
+
+2008-02-10  m. allan noah <kitno455 a t gmail d o t com>
+	* config.guess, config.sub: updated to latest versions
+	* configure.in, configure: updated sane version number
+	* doc/releases.txt: minor updates
+	* sane-backends.lsm: updated maintainer and keyword info
+	* NEWS: added last 18+ months of updates to 1.0.19 section
+
+2008-02-09  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hpljm1005.c, doc/descriptions/hpljm1005.desc:
 	  add usb ID for LaserJet M1120
 

@@ -4,20 +4,16 @@ Version:        _VERSION_
 Entered-date:   _DATE_
 Description:    SANE (Scanner Access Now Easy) is a universal scanner
                 interface. SANE-BACKENDS comes complete with documentation,
-                several backends, scanimage command line frontend, and
+                many backends, scanimage command line frontend, and
                 networking support. For other/graphical frontends take a look
                 at sane-frontends and XSane.
-Keywords:       camera, scanner, Abaton, Agfa, Apple, Artec, Avision, Canon,
-                DevCom, Epson, Fujitsu, gPhoto, HP, Kodak (DC25, DC210 and
-                DC240), Microtek, Mustek,  NEC, Nikon CoolScan, Polaroid
-                Digital Microscope Camera, Pacific Image Electronics, PINT,
-                Plustek, Panasonic, Connectix QuickCam, Ricoh, Sceptre, 
-                Sharp, Siemens, Tamarack, UMAX, Video for Linux, 
+Keywords:       scanner, camera, flatbed, automatic document feeder (ADF),
+		slides, diapositive, negative, film, transparency, CIS, CCD, 
                 network server & client, Java API & client
 Author:         David.Mosberger@acm.org (David Mosberger-Tang)
                 (see AUTHORS for complete list)
 Maintained-by:  henning@meier-geinitz.de (Henning Meier-Geinitz)
-                Oliver.Rauch@rauch-domain.de (Oliver Rauch)
+                kitno455@gmail.com (m. allan noah)
 Primary-site:   ftp.sane-project.org /pub/sane/sane-backends-_VERSION_
                 _T_S_ kB sane-backends-_VERSION_.tar.gz
                 _L_S_ kB sane-backends-_VERSION_.lsm

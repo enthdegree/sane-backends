@@ -1,4 +1,25 @@
 -*-Mode: outline-*-
+New with 1.0.19, released 2008-02-10:
+
+* New backends: cardscan (Corex Cardscan 800c), epjitsu (Epson-based Fujitsu), 
+  epson2 (various Epson scanners), hp3900 (HP ScanJet 3970 and more),
+  hp5590 (HP ScanJet 5590 and more), hpljm1005 (HP LaserJet M1005 and more),
+  hs2p (Ricoh IS400 series)
+* Updated backends: abaton, agfafocus, apple, artec, artec_eplus48u, as6e,
+  avision, canon, coolscan, coolscan2, dc25, dell1600n_net, dll, epson,
+  fujitsu, genesys, gt68xx, hp3500, ibm, lexmark, microtek, microtek2, mustek,
+  nec, net, pie, pint, pixma, plustek, plustek_pp, ricoh, s9036, sm3600,
+  sm3840, snapscan, sp15c, st400, tamarack, teco2, test, u12, umax, umax1220u,
+  umax_pp
+* Scanimage detects more chipsets.
+* Internal scsi, usb, tcp and udp code updates.
+* Basic HAL .fdi creation support
+* Build system updates.
+* Updated translations.
+* Documentation updates.
+* Bugfixes.
+
+
 New with 1.0.18, released 2006-07-02:
 
 * New backends: dell1600n_net (Dell 1600n), hp3500 (HP ScanJet 3500 series),

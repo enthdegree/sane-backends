@@ -15,14 +15,18 @@ Day 35: Release
 Before the release:
 
 * Make sure that config.guess and config.sub are up-to-date (get them from
-  the latest autoconf release).
+  savannah.gnu.org/projects/config)
 * configure.in: increase version number (twice!)
 * configure.in: remove -cvs from textual version number
 * configure.in: set is_release=yes
-* configure: recreate
+* OPTIONAL: aclocal.m4: recreate by running aclocal
+* OPTIONAL: include/sane/config.h.in: recreate (autoheader in root of checkout)
+* DONT run automake, it will overwrite our custom ltmain.sh
+* configure: recreate by running autoconf
 * NEWS: update and enter date of release
 * sane-backends.lsm: update
 * ChangeLog: set release marker
+* cvs commit
 * tag CVS with release tag; e.g.: 'cvs tag RELEASE_1_0_15'
 
 Making the release:
@@ -43,7 +47,6 @@ Making the release:
 * check and update platforms page on sane-project.org
 * write announcements on sane-project.org and sane-devel, maybe others
   (e.g. freshmeat), include the md5 hash
-* upload to mirrors that don't get the files automatically (ibiblio.org)
 
 After the release:
 

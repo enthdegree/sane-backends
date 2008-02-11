@@ -41,11 +41,16 @@ Making the release:
 * check that the new version .tar.gz can be compiled
 * upload these files together with the .diff to the FTP/HTTP servers
   (at the moment: rpm.org and alioth.debian.org).
-* copy sane-backends.html to sane-backends-"old-version".html,
-  update sane-backends.html, sane-mfgs.html and sane-supported-devices.html 
-  on sane-project.org
-* update SANE standard and man pages on sane-project.org
-* check and update platforms page on sane-project.org
+
+Announcing the release:
+
+* checkout the html module and:
+* copy sane-backends.html to sane-backends-"old-version".html
+* update sane-supported-devices.html with link to above "old" file
+* rebuild sane-backends.html and sane-mfgs.html (see doc/Makefile)
+* rebuild html man pages (see doc/Makefile)
+* add md5 sum to sane-md5sum.txt
+* check and update platforms page (sane-support.html)
 * write announcements on sane-project.org and sane-devel, maybe others
   (e.g. freshmeat), include the md5 hash
 
@@ -55,4 +60,4 @@ After the release:
 * add ChangeLog-"version" to DISTFILES in Makefile.in
 * configure.in: add -cvs suffix
 * configure.in: set is_release=no
-* configure: regenerate
+* configure: regenerate with autoconf

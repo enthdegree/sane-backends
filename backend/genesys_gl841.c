@@ -3434,7 +3434,7 @@ gl841_feed (Genesys_Device * dev, int steps)
       return status;
     }
 
-  while (loop < 3)		/* do not wait longer then 30 seconds */
+  while (loop < 300)		/* do not wait longer then 30 seconds */
   {
       status = sanei_genesys_get_status (dev, &val);
       if (status != SANE_STATUS_GOOD)
@@ -3452,6 +3452,7 @@ gl841_feed (Genesys_Device * dev, int steps)
 	  return SANE_STATUS_GOOD;
       }
       usleep (100000);	/* sleep 100 ms */
+      ++loop;
   }
 
   /* when we come here then the scanner needed too much time for this, so we better stop the motor */
@@ -3579,7 +3580,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
     {
       int loop = 0;
 
-      while (loop < 3)		/* do not wait longer then 30 seconds */
+      while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
 	  status = sanei_genesys_get_status (dev, &val);
 	  if (status != SANE_STATUS_GOOD)
@@ -3598,6 +3599,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	      return SANE_STATUS_GOOD;
 	    }
 	  usleep (100000);	/* sleep 100 ms */
+	  ++loop;
 	}
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
@@ -3729,6 +3731,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 		}
 	    }
 	  usleep (100000);
+	  ++loop;
 	}
     } else {
 	DBG (DBG_info,

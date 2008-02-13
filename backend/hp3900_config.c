@@ -371,6 +371,7 @@ static SANE_Int cfg_device_get(SANE_Int product, SANE_Int vendor)
 		{  0x4a5, 0x2211, BQ5550 }, /* BenQ 5550                  */
 		{  0x6dc, 0x0020, UA4900 }, /* UMAX Astra 4900            */
 		{  0x3f0, 0x2605, HP3800 }, /* HP Scanjet 3800            */
+		{  0x3f0, 0x2805, HPG2710}, /* HP Scanjet G2710           */
 		{  0x3f0, 0x2305, HP3970 }, /* HP Scanjet 3970c           */
 		{  0x3f0, 0x2405, HP4070 }, /* HP Scanjet 4070 Photosmart */
 		{  0x3f0, 0x4105, HP4370 }, /* HP Scanjet 4370            */
@@ -405,6 +406,7 @@ static SANE_Int cfg_chipset_model_get(SANE_Int device)
 	{
 		/*device , chipset      */
 		{ HP3800 , RTS8822BL_03A },
+		{ HPG2710, RTS8822BL_03A },
 		{ BQ5550 , RTS8823L_01E  },
 		{ UA4900 , RTS8822L_01H  },
 		{ HP3970 , RTS8822L_01H  },
@@ -488,6 +490,7 @@ static SANE_Int cfg_buttons_get(struct st_buttons *reg)
 			{ BQ5550 , {3    , {0x01, 0x02, 0x08,   -1,   -1,   -1}}},
 			{ UA4900 , {4    , {0x04, 0x08, 0x02, 0x01,   -1,   -1}}},
 			{ HP3800 , {3    , {0x01, 0x02, 0x04,   -1,   -1,   -1}}},
+			{ HPG2710, {3    , {0x01, 0x02, 0x04,   -1,   -1,   -1}}},
 			{ HP3970 , {4    , {0x04, 0x08, 0x02, 0x01,   -1,   -1}}},
 			{ HP4070 , {4    , {0x04, 0x08, 0x02, 0x01,   -1,   -1}}},
 			{ HP4370 , {4    , {0x04, 0x08, 0x02, 0x01,   -1,   -1}}},
@@ -531,6 +534,7 @@ static SANE_Int cfg_sscg_get(SANE_Int *enable, SANE_Int *mode, SANE_Int *clock)
 			{ BQ5550, {1     ,    1,     1}},
 			{ UA4900, {1     ,    1,     0}},
 			{ HP3800, {1     ,    1,     0}},
+			{HPG2710, {1     ,    1,     0}},
 			{ HP3970, {1     ,    1,     0}},
 			{ HP4070, {1     ,    1,     0}},
 			{ HP4370, {1     ,    1,     0}},
@@ -580,6 +584,7 @@ static SANE_Int cfg_motor_get(struct st_motorcfg *reg)
 			{ BQ5550, {MT_OUTPUTSTATE, 1200,   30,   800,        1,        0,        0,   TRUE}},
 			{ UA4900, {MT_OUTPUTSTATE, 2400,   30,   800,        1,        0,        0,   TRUE}},
 			{ HP3800, {MT_OUTPUTSTATE, 1200,   30,   800,        1,        0,        0,   TRUE}},
+			{HPG2710, {MT_OUTPUTSTATE, 1200,   30,   800,        1,        0,        0,   TRUE}},
 			{ HP3970, {MT_OUTPUTSTATE, 2400,   30,   800,        1,        0,        0,   TRUE}},
 			{ HP4070, {MT_OUTPUTSTATE, 2400,   30,   800,        1,        0,        0,   TRUE}},
 			{ HP4370, {MT_OUTPUTSTATE, 2400,   30,   800,        1,        0,        0,   TRUE}},
@@ -627,6 +632,7 @@ static SANE_Int cfg_sensor_get(struct st_sensorcfg *reg)
 			{ BQ5550, {CCD_SENSOR,      -1, 1200      , {CL_BLUE, CL_GREEN, CL_RED }, {CL_GREEN, 0}, {CL_BLUE, CL_GREEN, CL_RED }, 24       , 4           }},
 			{ UA4900, {CIS_SENSOR, SNYS575, 2400      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 24       , 0           }},
 			{ HP3800, {CCD_SENSOR, TCD2905, 2400      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 64       , 8           }},
+			{HPG2710, {CCD_SENSOR, TCD2905, 2400      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 64       , 8           }},
 			{ HP3970, {CCD_SENSOR, TCD2952, 2400      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 24       , 4           }},
 			{ HP4070, {CCD_SENSOR, TCD2952, 2400      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 24       , 4           }},
 			{ HP4370, {CCD_SENSOR, TCD2958, 4800      , {CL_RED , CL_GREEN, CL_BLUE}, {CL_RED  , 0}, {CL_RED , CL_GREEN, CL_BLUE}, 128      , 6           }},
@@ -734,6 +740,7 @@ static void cfg_refvoltages_get(SANE_Int sensortype, SANE_Byte *vrts, SANE_Byte 
 	switch(RTS_Debug->dev_model)
 	{
 		case HP3800:
+		case HPG2710:
 			hp3800_refvoltages(RTS_Debug->usbtype, sensortype, vrts, vrms, vrbs);
 			break;
 		default:
@@ -948,6 +955,7 @@ static void cfg_offset_get(SANE_Int sensortype, SANE_Int resolution, SANE_Int sc
 			break;
 
 		case HP3800:
+		case HPG2710:
 			hp3800_offset(resolution, scantype, left, width);
 			break;
 
@@ -981,6 +989,7 @@ static SANE_Int cfg_constrains_get(struct st_constrains *constrain)
 		/*       , {{left, width, top, height}, {left, width, top, height}, {left, width, top, height}}}, */
 		{ BQ5550 , {{   0,   220,   0,    300}, {  88,    42,   0,     83}, {  88,    42,   0,     83}}},
 		{ HP3800 , {{   0,   220,   0,    300}, {  89,    45,   0,     85}, {  89,    45,   0,    100}}},
+		{HPG2710 , {{   0,   220,   0,    300}, {  89,    45,   0,     85}, {  89,    45,   0,    100}}},
 		{ HP3970 , {{   0,   220,   0,    300}, {  88,    42,   0,     83}, {  88,    42,   0,     83}}},
 		{ HP4070 , {{   0,   220,   0,    300}, {  58,    99,   0,    197}, {  58,    99,   0,    197}}},
 		{ HP4370 , {{   0,   220,   0,    300}, {  90,    45,   0,     85}, {  90,    45,   0,    100}}},
@@ -1063,6 +1072,7 @@ static void cfg_autoref_get(struct st_autoref *reg)
 			{ BQ5550 , {REF_NONE           , -40, -40, 600       , 40}},
 			{ UA4900 , {REF_NONE           , -40, -40, 600       , 40}},
 			{ HP3800 , {REF_TAKEFROMSCANNER,  88, 624, 600       , 40}},
+			{HPG2710 , {REF_TAKEFROMSCANNER,  88, 624, 600       , 40}},
 			{ HP3970 , {REF_TAKEFROMSCANNER,  88, 717, 600       , 40}},
 			{ HP4070 , {REF_TAKEFROMSCANNER,  88, 717, 600       , 40}},
 			{ HP4370 , {REF_TAKEFROMSCANNER,  88, 717, 600       , 40}},
@@ -1229,6 +1239,7 @@ static SANE_Int cfg_effectivepixel_get(SANE_Int sensortype, SANE_Int resolution)
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_effectivepixel(resolution);
 			break;
 
@@ -1441,6 +1452,7 @@ static SANE_Int cfg_gainoffset_get(SANE_Int sensortype, struct st_gain_offset *r
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_gainoffset(RTS_Debug->usbtype, reg);
 			break;
 
@@ -1614,6 +1626,7 @@ static SANE_Int cfg_checkstable_get(SANE_Int lamp, struct st_checkstable *check)
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_checkstable(lamp, check);
 			break;
 
@@ -1775,6 +1788,7 @@ static SANE_Int cfg_fixedpwm_get(SANE_Int sensortype, SANE_Int scantype)
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_fixedpwm(scantype, RTS_Debug->usbtype);
 			break;
 
@@ -1798,6 +1812,7 @@ static void cfg_vrefs_get(SANE_Int sensortype, SANE_Int res, SANE_Int *ser, SANE
 	switch(RTS_Debug->dev_model)
 	{
 		case HP3800:
+		case HPG2710:
 			hp3800_vrefs(res, ser, ler);
 			break;
 
@@ -1969,6 +1984,7 @@ static SANE_Int cfg_motormove_get(SANE_Int sensortype, SANE_Int item, struct st_
 			rst = bq5550_motormove(item, reg);
 			break;
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_motormove(item, reg);
 			break;
 
@@ -2098,6 +2114,7 @@ static SANE_Int cfg_scanmode_get(SANE_Int sensortype, SANE_Int sm, struct st_sca
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_scanmodes(RTS_Debug->usbtype, sm, mymode);
 			break;
 
@@ -2384,7 +2401,7 @@ static SANE_Int hp4370_scanmodes(SANE_Int usb, SANE_Int sm, struct st_scanmode *
 		{USB20, {ST_NEG   , CM_COLOR ,  150, 0x04  ,  3   , PIXEL_RATE, 0x04 , 14879, 256    , STT_HALF, 0x00     , { 4959,  9919,     0}, { 4959,  4959, 14879},  0       ,  1     ,  1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
 
 		{USB20, {ST_NEG   , CM_GRAY  , 4800, 0x0D  , -1   , LINE_RATE , 0x05 , 60599, 256    , STT_FULL, 0x00     , {30299, 30299, 30299}, {30299, 30299, 30299},  0       ,  1     ,  1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
-		{USB20, {ST_NEG   , CM_GRAY  , 2400, 0x06  , -1   , LINE_RATE , 0x05 , 145799, 256   , STT_FULL, 0x00     , {48599, 97199,     0}, {48599, 48599, 145799},  0      ,  1     , -1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
+		{USB20, {ST_NEG   , CM_GRAY  , 2400, 0x06  , -1   , LINE_RATE , 0x05 ,145799,  256   , STT_FULL, 0x00     , {48599, 97199,     0}, {48599, 48599, 145799},  0      ,  1     , -1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
 		{USB20, {ST_NEG   , CM_GRAY  , 1200, 0x07  , -1   , LINE_RATE , 0x05 , 89999, 256    , STT_FULL, 0x00     , {29999, 59999,     0}, {29999, 29999, 89999},  0       ,  1     ,  1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
 		{USB20, {ST_NEG   , CM_GRAY  ,  600, 0x08  , -1   , LINE_RATE , 0x05 , 45999, 256    , STT_HALF, 0x00     , {15333, 30666,     0}, {15333, 15333, 45999},  0       ,  1     ,  1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
 		{USB20, {ST_NEG   , CM_GRAY  ,  300, 0x09  , -1   , LINE_RATE , 0x04 , 14879, 256    , STT_HALF, 0x00     , { 4959,  9919,     0}, { 4959,  4959, 14879},  0       ,  1     ,  1       , 0x01     , 0x01, 0x10, 0x02 , 0x02  , 0x00  }},
@@ -3127,6 +3144,7 @@ static void cfg_wrefs_get(SANE_Int sensortype, SANE_Int depth, SANE_Int res, SAN
 			break;
 
 		case HP3800:
+		case HPG2710:
 			hp3800_wrefs(res, scantype, red, green, blue);
 			break;
 
@@ -3499,6 +3517,7 @@ static void cfg_shading_cut_get(SANE_Int sensortype, SANE_Int depth, SANE_Int re
 			break;
 
 		case HP3800:
+		case HPG2710:
 			hp3800_shading_cut(res, scantype, red, green, blue);
 			break;
 
@@ -3731,6 +3750,7 @@ static SANE_Int cfg_timing_get(SANE_Int sensortype, SANE_Int tm, struct st_timin
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_timing_get(tm, reg);
 			break;
 
@@ -4127,6 +4147,7 @@ static SANE_Int *cfg_motorcurve_get()
 			break;
 
 		case HP3800:
+		case HPG2710:
 			rst = hp3800_motor();
 			break;
 
@@ -4517,6 +4538,7 @@ static int fc_calibreflective(int option, int defvalue)
 	switch(RTS_Debug->dev_model)
 	{
 		case UA4900: rst = ua4900_calibreflective(option, defvalue); break;
+		case HPG2710:
 		case HP3800: rst = hp3800_calibreflective(option, defvalue); break;
 		case HPG3010:
 		case HP4370: rst = hp4370_calibreflective(option, defvalue); break;
@@ -4900,6 +4922,7 @@ static int fc_calibtransparent(int option, int defvalue)
 	switch(RTS_Debug->dev_model)
 	{
 		case UA4900: rst = ua4900_calibtransparent(option, defvalue); break;
+		case HPG2710:
 		case HP3800: rst = hp3800_calibtransparent(option, defvalue); break;
 		case HPG3010:
 		case HP4370: rst = hp4370_calibtransparent(option, defvalue); break;
@@ -5286,6 +5309,7 @@ static int fc_calibnegative(int option, int defvalue)
 	switch(RTS_Debug->dev_model)
 	{
 		case UA4900: rst = ua4900_calibnegative(option, defvalue); break;
+		case HPG2710:
 		case HP3800: rst = hp3800_calibnegative(option, defvalue); break;
 		case HPG3010:
 		case HP4370: rst = hp4370_calibnegative(option, defvalue); break;
@@ -5725,6 +5749,7 @@ static int srt_sec_get(int file, int section, int option, int defvalue)
 		case SCAN_PARAM:
 			switch(RTS_Debug->dev_model)
 			{
+				case HPG2710:
 				case HP3800: rst = srt_hp3800_scanparam_get(option, defvalue); break;
 				case HPG3010:
 				case HP4370: rst = srt_hp4370_scanparam_get(file, option, defvalue); break;
@@ -5740,6 +5765,7 @@ static int srt_sec_get(int file, int section, int option, int defvalue)
 		case PLATFORM:
 			switch(RTS_Debug->dev_model)
 			{
+				case HPG2710:
 				case HP3800: rst = srt_hp3800_platform_get(option, defvalue); break;
 				case UA4900: rst = srt_ua4900_platform_get(option, defvalue); break;
 				case HPG3010:

@@ -283,6 +283,7 @@ bknd_resolutions (TScanner * scanner, SANE_Int model)
 	  }
 	  break;
 
+	case HPG2710:
 	case HP3800:
 	  {
 	    /* 1200 and 2400 dpi are disabled until problems are solved */
@@ -345,7 +346,7 @@ bknd_models (TScanner * scanner)
       /* at this moment all devices use the same list */
       SANE_String_Const mymodel[] =
 	{ "HP3800", "HP3970", "HP4070", "HP4370", "UA4900", "HPG3010",
-"BQ5550", 0 };
+"BQ5550", "HPG2710", 0 };
 
       /* allocate space to save list */
       model = (SANE_String_Const *) malloc (sizeof (mymodel));
@@ -636,9 +637,9 @@ set_ScannerModel (SANE_Int proposed, SANE_Int product, SANE_Int vendor)
   /* This function will set the device behaviour */
 
   SANE_Int current = Device_get (product, vendor);
-  char *sdevname[8] =
+  char *sdevname[9] =
     { "Unknown", "HP3970", "HP4070", "HP4370", "UA4900", "HP3800", "HPG3010",
-"BQ5550" };
+"BQ5550", "HPG2710" };
 
   DBG (DBG_FNC,
        "> set_ScannerModel(proposed=%i, product=%04x, vendor=%04x)\n",
@@ -981,6 +982,8 @@ Get_Model (SANE_String model)
 
   if (strcmp (model, "HP3800") == 0)
     rst = HP3800;
+  else if (strcmp (model, "HPG2710") == 0)
+    rst = HPG2710;
   else if (strcmp (model, "HP3970") == 0)
     rst = HP3970;
   else if (strcmp (model, "HP4070") == 0)
@@ -1505,7 +1508,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Emulate Grayscale");
 	      pDesc->desc =
 		SANE_I18N
-		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This may improve image quality in some circumstances.");
+		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This uses to improve image quality in some circumstances.");
 	      pDesc->type = SANE_TYPE_BOOL;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = sizeof (SANE_Word);
@@ -1643,7 +1646,7 @@ options_init (TScanner * scanner)
 		pDesc->title = strdup (title);
 		pDesc->desc =
 		  SANE_I18N
-		  ("This option reflects a front panel scanner button");
+		  ("This option reflects a front pannel scanner button");
 		pDesc->type = SANE_TYPE_BOOL;
 		pDesc->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 
@@ -1711,6 +1714,10 @@ attach_one_device (SANE_String_Const devname)
     case HP3800:
       sModel.pszVendor = (char *) strdup ("Hewlett-Packard");
       sModel.pszName = (char *) strdup ("Scanjet 3800");
+      break;
+    case HPG2710:
+      sModel.pszVendor = (char *) strdup ("Hewlett-Packard");
+      sModel.pszName = (char *) strdup ("Scanjet G2710");
       break;
     case HP3970:
       sModel.pszVendor = (char *) strdup ("Hewlett-Packard");
@@ -1795,6 +1802,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     {
       /* By default */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2605", attach_one_device);	/* HP3800  */
+      sanei_usb_attach_matching_devices ("usb 0x03f0 0x2805", attach_one_device);	/* HPG2710 */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2305", attach_one_device);	/* HP3970  */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2405", attach_one_device);	/* HP4070  */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x4105", attach_one_device);	/* HP4370  */

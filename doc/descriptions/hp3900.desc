@@ -10,7 +10,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "hp3900"
-:version "0.10"
+:version "0.12"
 :new :yes
 :manpage "sane-hp3900"
 :url "http://sourceforge.net/projects/hp3900-series/"
@@ -42,6 +42,12 @@
 :usbid "0x03f0" "0x4105"
 :status :basic
 :comment "Works with resolutions lower than 1200dpi"
+
+:model "ScanJet G2710"
+:interface "USB"
+:usbid "0x03f0" "0x2805"
+:status :basic
+:comment "Similar to hp scanjet 3800"
 
 :model "ScanJet G3010"
 :interface "USB"

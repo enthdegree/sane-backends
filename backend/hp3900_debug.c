@@ -729,6 +729,7 @@ dbg_autoref (struct st_scanparams *scancfg, SANE_Byte * pattern,
 }
 
 #ifdef developing
+
 static void
 dbg_buffer (SANE_Int level, char *title, SANE_Byte * buffer, SANE_Int size,
 	    SANE_Int start)

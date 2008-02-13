@@ -41,7 +41,7 @@
 */
 
 /* devices */
-#define DEVSCOUNT           0x07	/* Number of scanners supported by this backend */
+#define DEVSCOUNT           0x08	/* Number of scanners supported by this backend */
 
 #define HP3970              0x00	/* rts8822l-01H  HP Scanjet 3970  */
 #define HP4070              0x01	/* rts8822l-01H  HP Scanjet 4070  */
@@ -50,6 +50,7 @@
 #define HP3800              0x04	/* rts8822bl-03A HP Scanjet 3800  */
 #define HPG3010             0x05	/* rts8822l-02A  HP Scanjet G3010 */
 #define BQ5550              0x06	/* rts8823l-01E  BenQ 5550        */
+#define HPG2710             0x07	/* rts8822bl-03A HP Scanjet G2710 */
 
 /* chipset models */
 #define RTS8822L_01H        0x00
@@ -692,8 +693,8 @@ SANE_Int v14b4 = 0;
 SANE_Byte *v1600 = NULL;	/* tabla */
 SANE_Byte *v1604 = NULL;	/* tabla */
 SANE_Byte *v1608 = NULL;	/* tabla */
-SANE_Byte v160c;
-SANE_Int v1610;
+SANE_Byte v160c_block_size;
+SANE_Int mem_total;
 SANE_Byte v1619;
 SANE_Int v15f8;
 

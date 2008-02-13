@@ -1,3 +1,10 @@
+2008-02-13  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900.c, backend/hp3900_debug.c, backend/hp3900_rts8822.c,
+	  backend/hp3900_usb.c, backend/hp3900_sane.c, backend/hp3900_types.c,
+	  backend/hp3900_config.c, backend/hp3900.conf.in, /doc/sane-hp3900.man,
+	  doc/descriptions/hp3900.desc: Minor changes and added support for
+	  HP ScanJet G2710 scanner.
+
 2008-02-10  m. allan noah <kitno455 a t gmail d o t com>
 
 	* configure configure.in: Changed version to 1.0.19-cvs. Enabled

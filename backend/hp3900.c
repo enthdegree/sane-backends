@@ -43,7 +43,7 @@
 
 /* Backend info */
 #define BACKEND_NAME    hp3900
-#define BACKEND_VRSN    "0.11"
+#define BACKEND_VRSN    "0.12"
 #define BACKEND_AUTHOR  "Jonathan Bravo Lopez (JKD)"
 #define BACKEND_EMAIL   "jkdsoft@gmail.com"
 #define BACKEND_URL     "http://jkdsoftware.dyndns.org"

@@ -613,7 +613,6 @@ RTS_Scanner_Init (struct st_device *dev)
   SANE_Int rst;
 
   DBG (DBG_FNC, "> RTS_Scanner_Init:\n");
-
   DBG (DBG_FNC, "> Backend version: %s\n", BACKEND_VRSN);
 
   rst = ERROR;
@@ -986,7 +985,6 @@ RTS_Sensor_Type (USB_Handle usb_handle)
 
   SANE_Int a, b, c;
   SANE_Byte rst;
-  char *strccd[] = { "CCD", "CIS" };
 
   DBG (DBG_FNC, "+ RTS_Sensor_Type:\n");
 
@@ -1010,8 +1008,8 @@ RTS_Sensor_Type (USB_Handle usb_handle)
 
   rst = ((_B1 (c) & 1) == 0) ? CCD_SENSOR : CIS_SENSOR;
 
-  a = (rst == CCD_SENSOR) ? 0 : 1;
-  DBG (DBG_FNC, "- RTS_Sensor_Type: %s\n", strccd[a]);
+  DBG (DBG_FNC, "- RTS_Sensor_Type: %s\n",
+       (rst == CCD_SENSOR) ? "CCD" : "CIS");
 
   return rst;
 }
@@ -3704,8 +3702,8 @@ Init_Registers (struct st_device *dev)
   dev->init_regs[0x600] &= 0xfb;
   dev->init_regs[0x1d8] |= 0x08;
 
-  v160c = 0x04;
-  v1610 = 0x80000;
+  v160c_block_size = 0x04;
+  mem_total = 0x80000;
 
   /* check and setup installed ram */
   RTS_DMA_CheckType (dev, dev->init_regs);
@@ -3809,7 +3807,9 @@ RTS_WaitScanEnd (struct st_device *dev, SANE_Int msecs)
       long ticks = GetTickCount () + msecs;
       rst = OK;
       while (((data & 0x80) != 0) && (ticks > GetTickCount ()) && (rst == OK))
-	rst = Read_Byte (dev->usb_handle, 0xe800, &data);
+	{
+	  rst = Read_Byte (dev->usb_handle, 0xe800, &data);
+	}
     }
 
   DBG (DBG_FNC, "- RTS_WaitScanEnd: Ending with rst=%i\n", rst);
@@ -7781,7 +7781,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 		      opStatus = Reading_Wait (dev, rd->Channels_per_dot,
 					       rd->Channel_size,
 					       iAmount,
-					       &rd->Bytes_Available, 90, sc);
+					       &rd->Bytes_Available, 10, sc);
 
 		      /* If something fails, perhaps we can read some bytes... */
 		      if (opStatus != OK)
@@ -7916,8 +7916,9 @@ static SANE_Int
 Get_Scanner_Buffer_Size (struct st_device *dev, SANE_Byte channels_per_dot,
 			 SANE_Int channel_size)
 {
+  /* returns the ammount of bytes in scanner's buffer ready to be read */
+
   SANE_Int rst;
-  SANE_Int myAmount;
 
   DBG (DBG_FNC,
        "+ Get_Scanner_Buffer_Size(channels_per_dot=%i, channel_size=%i):\n",
@@ -7925,22 +7926,25 @@ Get_Scanner_Buffer_Size (struct st_device *dev, SANE_Byte channels_per_dot,
 
   rst = 0;
 
-  if (channels_per_dot < 1)
+  if (channel_size > 0)
     {
-      if (Read_Byte (dev->usb_handle, 0xe812, &channels_per_dot) == OK)
-	channels_per_dot = _B0 (channels_per_dot >> 6);
+      SANE_Int myAmount;
 
-      if (channels_per_dot == 0)
-	channels_per_dot++;
-    }
+      if (channels_per_dot < 1)
+	{
+	  /* read channels per dot from registers */
+	  if (Read_Byte (dev->usb_handle, 0xe812, &channels_per_dot) == OK)
+	    channels_per_dot = _B0 (channels_per_dot >> 6);
 
-  if (Read_Integer (dev->usb_handle, 0xef16, &myAmount) == OK)
-    {
-      if (channel_size > 0)
+	  if (channels_per_dot == 0)
+	    channels_per_dot++;
+	}
+
+      if (Read_Integer (dev->usb_handle, 0xef16, &myAmount) == OK)
 	rst = ((channels_per_dot * 32) / channel_size) * myAmount;
     }
 
-  DBG (DBG_FNC, "- Get_Scanner_Buffer_Size: %i\n", rst);
+  DBG (DBG_FNC, "- Get_Scanner_Buffer_Size: %i bytes\n", rst);
 
   return rst;
 }
@@ -7949,16 +7953,17 @@ static SANE_Int
 Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
 {
   SANE_Int rst = OK;
-  SANE_Byte flb_lamp, tma_lamp;
 
   DBG (DBG_FNC, "+ Lamp_Warmup(*Regs, lamp=%i)\n", lamp);
 
   if (Regs != NULL)
     {
+      SANE_Byte flb_lamp, tma_lamp;
       SANE_Int overdrivetime;
 
       Lamp_GetStatus (dev, &flb_lamp, &tma_lamp);
 
+      /* ensure that selected lamp is switched on */
       if (lamp == FLB_LAMP)
 	{
 	  overdrivetime = RTS_Debug->overdrive_flb;
@@ -7972,6 +7977,7 @@ Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
 	}
       else
 	{
+	  /* is tma device attached to scanner ? */
 	  if (RTS_isTmaAttached (dev) == TRUE)
 	    {
 	      overdrivetime = RTS_Debug->overdrive_ta;
@@ -7987,7 +7993,8 @@ Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
 	    rst = ERROR;
 	}
 
-       /**/ if (rst == OK)
+      /* perform warmup process */
+      if (rst == OK)
 	{
 	  if (waitforpwm == TRUE)
 	    Lamp_OverDrive (dev, overdrivetime, lamp);
@@ -8100,16 +8107,10 @@ Scan_Start (struct st_device *dev)
 
 	  /* No need find ref */
 	  /*57d9 */
-	  if (scan.scantype == ST_NORMAL)
-	    {
-	      Lamp_Warmup (dev, Regs, FLB_LAMP);
-	    }
-	  else
-	    {
-	      /*5836 */
-	      if (Lamp_Warmup (dev, Regs, TMA_LAMP) == ERROR)
-		return ERROR;
-	    }
+	  if (Lamp_Warmup
+	      (dev, Regs,
+	       (scan.scantype == ST_NORMAL) ? FLB_LAMP : TMA_LAMP) == ERROR)
+	    return ERROR;
 
 	  /*5895 */
 	  Refs_Set (dev, Regs, &scancfg, FALSE);
@@ -8127,10 +8128,7 @@ Scan_Start (struct st_device *dev)
 	      if (v14b4 == 0)
 		{
 		  /*590a */
-		  if (scan.scantype == ST_NORMAL)
-		    lamp = FLB_LAMP;
-		  else
-		    lamp = TMA_LAMP;
+		  lamp = (scan.scantype == ST_NORMAL) ? FLB_LAMP : TMA_LAMP;
 		}
 	      else
 		lamp = 0;	/* preview */
@@ -8874,9 +8872,9 @@ RTS_Setup_Shading (SANE_Byte * Regs, struct st_scanparams *scancfg,
 
   if ((Regs != NULL) && (hwdcfg != NULL))
     {
-      SANE_Int dots_count, myvalue, myvalue2, mydata, resolution_ratio,
+      SANE_Int dots_count, myvalue, myvalue2, mem_available, resolution_ratio,
 	sensor_line_distance;
-      SANE_Int table_size;
+      SANE_Int channels, table_size;
 
       resolution_ratio = Regs[0x0c0] & 0x1f;
 
@@ -8907,7 +8905,7 @@ RTS_Setup_Shading (SANE_Byte * Regs, struct st_scanparams *scancfg,
          to some buffer related to shading correction */
 
       Regs[0x1ba] = 0x00;
-      table_size = (v160c + table_size - 1) / v160c;
+      table_size = (table_size + v160c_block_size - 1) / v160c_block_size;
       table_size = ((table_size + 15) / 16) + 16;
 
       Regs[0x1bf] &= 0xfe;
@@ -8922,56 +8920,59 @@ RTS_Setup_Shading (SANE_Byte * Regs, struct st_scanparams *scancfg,
 
       data_wide_bitset (&Regs[0x1c0], 0xfffff, table_size * 3);
 
-      mydata = v1610 - ((table_size * 3) * 16);
-
-      dots_count = bytes_per_line;
-
+      mem_available = mem_total - ((table_size * 3) * 16);
       sensor_line_distance = Regs[0x14a] & 0x3f;
 
       /* select case channels_per_dot */
-      switch ((data_lsb_get (&Regs[0x12], 1) >> 6))
+      channels = data_lsb_get (&Regs[0x12], 1) >> 6;
+
+      switch (channels)
 	{
 	case 3:		/* 3 channels per dot */
 	  /* 528d */
 	  dots_count = bytes_per_line / 3;	/* 882 */
 	  myvalue =
-	    (((sensor_line_distance + 1) * dots_count) + v160c - 1) / v160c;
+	    (((sensor_line_distance + 1) * dots_count) + v160c_block_size -
+	     1) / v160c_block_size;
 	  myvalue2 = myvalue;
-	  mydata = (mydata - (myvalue * 3) + 2) / 3;
+	  mem_available = (mem_available - (myvalue * 3) + 2) / 3;
 
-	  myvalue += (data_lsb_get (&Regs[0x1c0], 3) & 0x0fffff) * 8;
-	  myvalue = (((myvalue * 2) + mydata) >> 4) + 1;
+	  myvalue += (table_size * 3) * 8;
+	  myvalue = ((myvalue * 2) + mem_available);
 
-	  data_bitset (&Regs[0x1c2], 0xf0, _B2 (myvalue));	/* 4 higher bits   xxxx---- */
-	  data_wide_bitset (&Regs[0x1c3], 0xffff, myvalue);	/* 16 lower bits */
+	  data_bitset (&Regs[0x1c2], 0xf0, _B2 ((myvalue / 16) + 1));	/* 4 higher bits   xxxx---- */
+	  data_wide_bitset (&Regs[0x1c3], 0xffff, (myvalue / 16) + 1);	/* 16 lower bits */
 
-	  myvalue = (((myvalue << 4) + myvalue2 + mydata) >> 4) + 1;
-	  data_wide_bitset (&Regs[0x1c5], 0xfffff, myvalue);
+	  myvalue = myvalue + myvalue2 + mem_available;
+	  data_wide_bitset (&Regs[0x1c5], 0xfffff, (myvalue / 16) + 1);
 	  break;
 	case 2:		/* 2 channels per dot */
 	  dots_count = bytes_per_line / 2;
 	  myvalue =
-	    (((sensor_line_distance + 1) * dots_count) + v160c - 1) / v160c;
-	  mydata = ((mydata - myvalue) + 1) / 2;
-	  myvalue +=
-	    (((data_lsb_get (&Regs[0x1c0], 3) & 0x0fffff) + mydata) / 16) + 1;
+	    (((sensor_line_distance + 1) * dots_count) + v160c_block_size -
+	     1) / v160c_block_size;
+	  mem_available = ((mem_available - myvalue) + 1) / 2;
+	  myvalue += (((table_size * 3) + mem_available) / 16) + 1;
 
 	  data_bitset (&Regs[0x1c2], 0xf0, _B2 (myvalue));	/* 4 higher bits   xxxx---- */
 	  data_wide_bitset (&Regs[0x1c3], 0xffff, myvalue);	/* 16 lower bits */
 	  break;
+	default:
+	  dots_count = bytes_per_line;
+	  break;
 	}
 
       Regs[0x01c7] &= 0x0f;
-      Regs[0x01c8] = _B0 ((v1610 - 1) / 16);
-      Regs[0x01c9] = _B1 ((v1610 - 1) / 16);
-      Regs[0x01c7] |= (_B2 ((v1610 - 1) / 16) & 0x0f) << 4;
+      Regs[0x01c8] = _B0 ((mem_total - 1) / 16);
+      Regs[0x01c9] = _B1 ((mem_total - 1) / 16);
+      Regs[0x01c7] |= (_B2 ((mem_total - 1) / 16) & 0x0f) << 4;
 
-      mydata -= (v160c + dots_count - 1) / v160c;
-      mydata /= 16;
+      mem_available -= (dots_count + v160c_block_size - 1) / v160c_block_size;
+      mem_available /= 16;
       Regs[0x0712] &= 0x0f;
-      Regs[0x0710] = _B0 (mydata);
-      Regs[0x0711] = _B1 (mydata);
-      Regs[0x0712] |= _B0 (_B2 (mydata) << 4);	/*xxxx---- */
+      Regs[0x0710] = _B0 (mem_available);
+      Regs[0x0711] = _B1 (mem_available);
+      Regs[0x0712] |= _B0 (_B2 (mem_available) << 4);	/*xxxx---- */
 
       Regs[0x0713] = 0x00;
       Regs[0x0714] = 0x10;
@@ -10834,7 +10835,9 @@ Lamp_OverDrive (struct st_device *dev, SANE_Int itime, SANE_Int lamp)
       DBG (DBG_VRB, "- Lamp Warmup process. Please wait...\n");
 
       while (GetTickCount () <= ticks)
-	usleep (1000 * 200);
+	{
+	  usleep (1000 * 200);
+	}
     }
   else
     DBG (DBG_FNC, " -> warmup disabled\n");

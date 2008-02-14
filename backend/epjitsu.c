@@ -90,8 +90,11 @@
         - fi-60F 300 & 600 dpi support (150 is non-square?)
         - fi-60F gray & binary support
         - fi-60F improved calibration
-      V 1.0.10, 2007-12-19, MAN
+      V 1.0.10, 2007-12-19, MAN (SANE v1.0.19)
         - fix missing function (and memory leak)
+      V 1.0.11 2008-02-14, MAN
+	 - sanei_config_read has already cleaned string (#310597)
+
 
    SANE FLOW DIAGRAM
 
@@ -151,7 +154,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 10 
+#define BUILD 11 
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -210,7 +213,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     struct scanner *dev;
     char line[PATH_MAX];
     const char *lp;
-    size_t len;
   
     authorize = authorize;        /* get rid of compiler warning */
   
@@ -233,16 +235,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   
         while (sanei_config_read (line, PATH_MAX, fp)) {
       
+            lp = line;
+
             /* ignore comments */
-            if (line[0] == '#')
+            if (*lp == '#')
                 continue;
-      
-            /* delete newline characters at end */
-            len = strlen (line);
-            if (line[len - 1] == '\n')
-                line[--len] = '\0';
-      
-            lp = sanei_config_skip_whitespace (line);
       
             /* skip empty lines */
             if (*lp == 0)

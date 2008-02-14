@@ -274,6 +274,8 @@
 	 - disable SANE_FRAME_JPEG support until SANE 1.1.0
       V 1.0.55 2007-12-29, MAN (SANE v1.0.19)
 	 - add S500M usb id
+      V 1.0.56 2008-02-14, MAN
+	 - sanei_config_read has already cleaned string (#310597)
 
    SANE FLOW DIAGRAM
 
@@ -334,7 +336,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 55 
+#define BUILD 56 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -480,7 +482,6 @@ find_scanners ()
   struct fujitsu *dev;
   char line[PATH_MAX];
   const char *lp;
-  size_t len;
   FILE *fp;
   int num_devices=0;
   int i=0;
@@ -498,16 +499,11 @@ find_scanners ()
 
       while (sanei_config_read (line, PATH_MAX, fp)) {
     
+          lp = line;
+    
           /* ignore comments */
-          if (line[0] == '#')
+          if (*lp == '#')
             continue;
-    
-          /* delete newline characters at end */
-          len = strlen (line);
-          if (line[len - 1] == '\n')
-            line[--len] = '\0';
-    
-          lp = sanei_config_skip_whitespace (line);
     
           /* skip empty lines */
           if (*lp == 0)

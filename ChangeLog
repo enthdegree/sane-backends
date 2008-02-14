@@ -1,3 +1,7 @@
+2008-02-14  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/cardscan.c, backend/epjitsu.c, backend/fujitsu.c:
+	sanei_read_config has already cleaned string, fix bug #310597
+
 2008-02-13  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	Patch by Stefan Lucke <stefan@lucke.in-berlin.de>
 	* backend/genesys_gl841.c: Fixes 3 possibilities for infinite
@@ -12,7 +16,7 @@
 
 2008-02-10  m. allan noah <kitno455 a t gmail d o t com>
 
-	* configure configure.in: Changed version to 1.0.19-cvs. Enabled
+	* configure, configure.in: Changed version to 1.0.19-cvs. Enabled
 	  compilation warnings.
 	* Makefile.in: Added ChangeLog-1.0.19 to DISTFILES.
 

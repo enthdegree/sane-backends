@@ -53,8 +53,10 @@
    Section 6 - misc functions
 
    Changes:
-      V 1.0.0, 2007-05-09, MAN
+      V 1.0.0, 2007-05-09, MAN (SANE v1.0.19)
         - initial release
+      V 1.0.1, 2008-02-14, MAN
+	 - sanei_config_read has already cleaned string (#310597)
 
 ##################################################
    DATA FROM TRACE OF WINDOWS DRIVER:
@@ -320,7 +322,6 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
     struct scanner *dev;
     char line[PATH_MAX];
     const char *lp;
-    size_t len;
     FILE *fp;
     int num_devices=0;
     int i=0;
@@ -337,16 +338,11 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   
         while (sanei_config_read (line, PATH_MAX, fp)) {
       
+            lp = line;
+
             /* ignore comments */
-            if (line[0] == '#')
+            if (*lp == '#')
                 continue;
-      
-            /* delete newline characters at end */
-            len = strlen (line);
-            if (line[len - 1] == '\n')
-                line[--len] = '\0';
-      
-            lp = sanei_config_skip_whitespace (line);
       
             /* skip empty lines */
             if (*lp == 0)

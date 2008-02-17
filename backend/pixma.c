@@ -826,6 +826,10 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
     }
   result = sanei_thread_waitpid (pid, &status);
   ss->reader_taskid = -1;
+
+  if ((ss->sp.source & (PIXMA_SOURCE_ADF | PIXMA_SOURCE_ADFDUP)) == 0)
+    ss->idle = SANE_TRUE;
+
   if (result == pid)
     {
       if (exit_code)
@@ -857,7 +861,8 @@ start_reader_task (pixma_sane_t * ss)
     }
   if (ss->reader_taskid != -1)
     {
-      PDBG (pixma_dbg (1, "BUG:reader_taskid(%d) != -1\n", ss->reader_taskid));
+      PDBG (pixma_dbg
+	    (1, "BUG:reader_taskid(%d) != -1\n", ss->reader_taskid));
       terminate_reader_task (ss, NULL);
     }
   if (pipe (fds) == -1)
@@ -1245,7 +1250,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
     return SANE_STATUS_INVAL;
   if (ss->cancel)
     return SANE_STATUS_CANCELLED;
-  if (ss->idle)
+  if ((ss->idle)
+      && ((ss->sp.source & (PIXMA_SOURCE_ADF | PIXMA_SOURCE_ADFDUP)) != 0))
     return SANE_STATUS_INVAL;
   if (!ss->scanning)
     return ss->last_read_status;

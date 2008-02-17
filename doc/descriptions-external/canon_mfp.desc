@@ -34,39 +34,14 @@
 :usbid "0x04a9" "0x172b"
 :comment "No report yet."
 
-:model "MP160"
+:model "MP220"
 :status :untested
 :interface "USB"
-:usbid "0x04a9" "0x1714"
+:usbid "0x04a9" "0x1722"
 :comment "No report yet."
 
-:model "MP210"
+:model "MP970"
 :status :untested
 :interface "USB"
-:usbid "0x04a9" "0x1721"
+:usbid "0x04a9" "0x1726"
 :comment "No report yet."
-
-:model "MP510"
-:status :untested
-:interface "USB"
-:usbid "0x04a9" "0x1717"
-:comment "No report yet."
-
-:model "MP520"
-:status :untested
-:interface "USB"
-:usbid "0x04a9" "0x1724"
-:comment "No report yet."
-
-:model "MP600"
-:status :untested
-:interface "USB"
-:usbid "0x04a9" "0x1718"
-:comment "No report yet."
-
-:model "MP610"
-:status :untested
-:interface "USB"
-:usbid "0x04a9" "0x1725"
-:comment "No report yet."
-

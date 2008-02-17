@@ -386,7 +386,7 @@ step1 (pixma_t * s)
   if (s->param->source == PIXMA_SOURCE_ADF && !has_paper (s))
     return PIXMA_ENO_PAPER;
   error = activate_cs (s, 0);
-  /*SIM*/ if (error < 0)
+   /*SIM*/ if (error < 0)
     return error;
   error = activate_cs (s, 0x20);
   if (error < 0)
@@ -628,7 +628,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
       query_status (s);
       check_status (s);
-      /*SIM*/ while (!is_calibrated (s) && --tmo >= 0)
+       /*SIM*/ while (!is_calibrated (s) && --tmo >= 0)
 	{
 	  if (s->cancel)
 	    return PIXMA_ECANCELED;
@@ -636,7 +636,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	    {
 	      block_size = 0;
 	      error = request_image_block (s, &block_size, &info);
-	      /*SIM*/ if (error < 0)
+	       /*SIM*/ if (error < 0)
 		return error;
 	    }
 	}
@@ -655,7 +655,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	}
       block_size = 0;
       request_image_block (s, &block_size, &info);
-      /*SIM*/ mp->state = state_scanning;
+       /*SIM*/ mp->state = state_scanning;
       mp->last_block = 0;
     }
 
@@ -693,7 +693,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      if (info != 0x38)
 		{
 		  query_status (s);
-		  /*SIM*/ while ((info & 0x28) != 0x28)
+		   /*SIM*/ while ((info & 0x28) != 0x28)
 		    {
 		      pixma_sleep (10000);
 		      error = request_image_block2 (s, &info);
@@ -710,8 +710,8 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	    }
 
 	  check_status (s);
-	  /*SIM*/ while (handle_interrupt (s, 1) > 0);
-	  /*SIM*/ block_size = IMAGE_BLOCK_SIZE;
+	   /*SIM*/ while (handle_interrupt (s, 1) > 0);
+	   /*SIM*/ block_size = IMAGE_BLOCK_SIZE;
 	  error = request_image_block (s, &block_size, &info);
 	  if (error < 0)
 	    {
@@ -791,7 +791,7 @@ mp750_finish_scan (pixma_t * s)
 	    }
 	}
       query_status (s);
-      /*SIM*/ activate (s, 0);
+       /*SIM*/ activate (s, 0);
       if (mp->needs_abort)
 	{
 	  mp->needs_abort = 0;

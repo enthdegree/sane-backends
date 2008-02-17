@@ -1,3 +1,20 @@
+2008-02-17  Nicolas Martin <nicols-guest at users.alioth.debian.org
+	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c,
+	  backend/pixma_io_sanei.c, backend/pixma_mp150.c, 
+	  backend/pixma_mp730.c, backend/pixma_mp750.c, 
+	  doc/sane-pixma.man, doc/descriptions/pixma.desc,
+	  doc/descriptions-external/canon_mfp.desc:
+	> New models changes: 
+	  - added: Pixma MP210, MP470, MP520, MP610
+	  - added: MultiPASS MP710
+	  - declared untested: MP140, MP220, MultiPASS MP740
+	  - declared experimental and untested: MP970
+	>  Bugs and fixes
+	  - multipage documents scan no more fails with non-ADF MPs
+	  - IO Fail bug when scanning large pages e.g. with Xsane
+	  - implement send_time message form MP710, MP730 family
+	  - run indent -gnu on all pixma_* source files.
+
 2008-02-14  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/cardscan.c, backend/epjitsu.c, backend/fujitsu.c:
 	sanei_read_config has already cleaned string, fix bug #310597

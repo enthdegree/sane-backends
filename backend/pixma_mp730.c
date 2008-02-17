@@ -42,8 +42,10 @@
  */
 #include "../include/sane/config.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>		/* localtime(C90) */
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
@@ -65,6 +67,8 @@
 #define MP700_PID 0x2630
 #define MP730_PID 0x262f
 
+#define MP740_PID 0x264c	/* Untested */
+#define MP710_PID 0x264d
 
 enum mp730_state_t
 {
@@ -243,10 +247,21 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
 static int
 send_time (pixma_t * s)
 {
-  /* TODO */
-  UNUSED (s);
-  PDBG (pixma_dbg (3, "send_time() is not yet implemented.\n"));
-  return 0;
+  /* Why does a scanner need a time? */
+  time_t now;
+  struct tm *t;
+  uint8_t *data;
+  mp730_t *mp = (mp730_t *) s->subdriver;
+
+  data = pixma_newcmd (&mp->cb, cmd_time, 20, 0);
+  pixma_get_time (&now, NULL);
+  t = localtime (&now);
+  snprintf ((char *) data, 16,
+	    "%02d/%02d/%02d %02d:%02d",
+	    t->tm_year % 100, t->tm_mon + 1, t->tm_mday,
+	    t->tm_hour, t->tm_min);
+  PDBG (pixma_dbg (3, "Sending time: '%s'\n", (char *) data));
+  return pixma_exec (s, &mp->cb);
 }
 
 static int
@@ -284,6 +299,8 @@ handle_interrupt (pixma_t * s, int timeout)
 
     case MP700_PID:
     case MP730_PID:
+    case MP710_PID:
+    case MP740_PID:
       if (len != 8)
 	{
 	  PDBG (pixma_dbg
@@ -504,7 +521,7 @@ mp730_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	      /* no image data at this moment. */
 	      /*pixma_sleep(100000); *//* FIXME: too short, too long? */
 	      handle_interrupt (s, 100);
-	    /*XXX*/}
+	     /*XXX*/}
 	}
       while (block_size == 0);
 
@@ -618,6 +635,8 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon SmartBase MP370", MP370_PID, 1200, 636, 868, 0),
   DEVICE ("Canon SmartBase MP390", MP390_PID, 1200, 636, 868, 0),
   DEVICE ("Canon MultiPASS MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
+  DEVICE ("Canon MultiPASS MP710", MP710_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon MultiPASS MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon MultiPASS MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0, 0, 0)
 };

@@ -95,6 +95,16 @@
 #define MP810_PID 0x171a
 #define MP960_PID 0x171b
 
+/* Generation 3 */
+#define MP210_PID 0x1721
+#define MP220_PID 0x1722	/* untested */
+#define MP470_PID 0x1723
+#define MP520_PID 0x1724
+#define MP610_PID 0x1725
+#define MP970_PID 0x1726	/* untested */
+#define MP140_PID 0x172b	/* untested */
+
+
 enum mp150_state_t
 {
   state_idle,
@@ -108,15 +118,19 @@ enum mp150_cmd_t
 {
   cmd_start_session = 0xdb20,
   cmd_select_source = 0xdd20,
-  cmd_gamma = 0xee20,
-  cmd_scan_param = 0xde20,
-  cmd_status = 0xf320,
+  cmd_gamma         = 0xee20,
+  cmd_scan_param    = 0xde20,
+  cmd_status        = 0xf320,
   cmd_abort_session = 0xef20,
-  cmd_time = 0xeb80,
-  cmd_read_image = 0xd420,
-  cmd_error_info = 0xff20,
+  cmd_time          = 0xeb80,
+  cmd_read_image    = 0xd420,
+  cmd_error_info    = 0xff20,
 
-  cmd_e920 = 0xe920		/* seen in MP800 */
+  cmd_scan_param_3  = 0xd820,
+  cmd_scan_start_3  = 0xd920,
+  cmd_status_3      = 0xda20,
+
+  cmd_e920          = 0xe920		/* seen in MP800 */
 };
 
 typedef struct mp150_t
@@ -127,6 +141,9 @@ typedef struct mp150_t
   uint8_t current_status[16];
   unsigned last_block;
   int generation;
+  /* for Generation 3 */
+  uint8_t *linebuf;
+  unsigned linelag;
 } mp150_t;
 
 
@@ -186,9 +203,20 @@ typedef struct mp150_t
 static void mp150_finish_scan (pixma_t * s);
 
 static int
+start_scan_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  return pixma_exec_short_cmd (s, &mp->cb, cmd_scan_start_3);
+}
+
+static int
 is_calibrated (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
+  if (mp->generation == 3)
+    {
+      return (mp->current_status[0] == 1);
+    }
   if (mp->generation == 1)
     {
       return (mp->current_status[8] == 1);
@@ -197,6 +225,31 @@ is_calibrated (pixma_t * s)
     {
       return (mp->current_status[9] == 1);
     }
+}
+
+/* For processing Generation 3 high dpi images.
+ * Each complete line in mp->imgbuf is reordered for 1200,2400 and 4800 dpi Generation 3 format. */
+static int
+process_high_dpi_3 (pixma_t * s, pixma_imagebuf_t * ib)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *rptr = mp->imgbuf;
+  unsigned i;
+  const unsigned n = s->param->xdpi / 600;
+  const unsigned m = s->param->w / n;
+  const unsigned c = s->param->channels;
+
+  while (rptr + s->param->line_size <= ib->rend)
+    {
+      for (i = 0; i < s->param->w; i++)
+	{
+	  memcpy (mp->linebuf + (c * (n * (i % m) + i / m)), rptr + (c * i),
+		  c);
+	}
+      memcpy (rptr, mp->linebuf, s->param->line_size);
+      rptr += s->param->line_size;
+    }
+  return ib->rend - rptr;
 }
 
 static int
@@ -335,7 +388,7 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
   /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
      are always padded to multiple of 4 or 12 pixels. Is this valid for
      other models, too? */
-  if (mp->generation == 2)
+  if (mp->generation >= 2)
     {
       raw_width = ALIGN (param->w, 32);
     }
@@ -357,20 +410,62 @@ send_scan_param (pixma_t * s)
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
 
-  data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
-  pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
-  pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
-  pixma_set_be32 (s->param->x, data + 0x08);
-  pixma_set_be32 (s->param->y, data + 0x0c);
-  pixma_set_be32 (raw_width, data + 0x10);
-  pixma_set_be32 (s->param->h, data + 0x14);
-  data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
-  data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
-  data[0x20] = 0xff;
-  data[0x23] = 0x81;
-  data[0x26] = 0x02;
-  data[0x27] = 0x01;
+  if (mp->generation <= 2)
+    {
+      data = pixma_newcmd (&mp->cb, cmd_scan_param, 0x30, 0);
+      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x04);
+      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x06);
+      pixma_set_be32 (s->param->x, data + 0x08);
+      pixma_set_be32 (s->param->y, data + 0x0c);
+      pixma_set_be32 (raw_width, data + 0x10);
+      pixma_set_be32 (s->param->h, data + 0x14);
+      data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
+      data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
+      data[0x20] = 0xff;
+      data[0x23] = 0x81;
+      data[0x26] = 0x02;
+      data[0x27] = 0x01;
+    }
+  else
+    {
+      data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
+      data[0x00] = 0x01;
+      data[0x01] = 0x01;
+      data[0x02] = 0x01;
+      data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
+      pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
+      pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
+      pixma_set_be32 (s->param->x, data + 0x0c);
+      pixma_set_be32 (s->param->y, data + 0x10);
+      pixma_set_be32 (raw_width, data + 0x14);
+      pixma_set_be32 (s->param->h, data + 0x18);
+      data[0x1c] = (s->param->channels == 1) ? 0x04 : 0x08;
+      data[0x1d] = s->param->channels * s->param->depth;	/* bits per pixel */
+      data[0x1f] = 0x01;
+      data[0x20] = 0xff;
+      data[0x21] = 0x81;
+      data[0x23] = 0x02;
+      data[0x24] = 0x01;
+      data[0x30] = 0x01;
+    }
   return pixma_exec (s, &mp->cb);
+}
+
+static int
+query_status_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+  int error, status_len;
+
+  status_len = 8;
+  data = pixma_newcmd (&mp->cb, cmd_status_3, 0, status_len);
+  error = pixma_exec (s, &mp->cb);
+  if (error >= 0)
+    {
+      memcpy (mp->current_status, data, status_len);
+    }
+  return error;
 }
 
 static int
@@ -526,14 +621,17 @@ handle_interrupt (pixma_t * s, int timeout)
 static int
 wait_until_ready (pixma_t * s)
 {
+  mp150_t *mp = (mp150_t *) s->subdriver;
   int error, tmo = 60;
 
-  error = query_status (s);
+  error = (mp->generation == 3) ? query_status_3 (s) : query_status (s);
   if (error < 0)
     return error;
   while (!is_calibrated (s))
     {
       error = handle_interrupt (s, 1000);
+      if (mp->generation == 3)
+	error = query_status_3 (s);
       if (s->cancel)
 	return PIXMA_ECANCELED;
       if (error != PIXMA_ECANCELED && error < 0)
@@ -597,6 +695,7 @@ mp150_open (pixma_t * s)
 
   mp->imgbuf = buf + CMDBUF_SIZE;
   mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
+  if (s->cfg->pid >= MP210_PID) mp->generation = 3;
 
   query_status (s);
   handle_interrupt (s, 200);
@@ -620,10 +719,11 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
-  if (mp->generation == 2)
+  if (mp->generation >= 2)
     {
       sp->x = ALIGN (sp->x, 32);
       sp->y = ALIGN (sp->y, 32);
+      sp->w = calc_raw_width (mp, sp);
     }
   sp->line_size = calc_raw_width (mp, sp) * sp->channels;
   return 0;
@@ -702,12 +802,14 @@ mp150_scan (pixma_t * s)
     }
   if (error >= 0)
     mp->state = state_warmup;
-  if (error >= 0)
+  if ((error >= 0) && (mp->generation <= 2))
     error = select_source (s);
   if (error >= 0)
     error = send_gamma_table (s);
   if (error >= 0)
     error = send_scan_param (s);
+  if ((error >= 0) && (mp->generation == 3))
+    error = start_scan_3 (s);
   if (error < 0)
     {
       mp150_finish_scan (s);
@@ -733,6 +835,15 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 				 * sleep 1.5 sec. */
       mp->state = state_scanning;
       mp->last_block = 0;
+
+      mp->cb.buf =
+	realloc (mp->cb.buf,
+		 CMDBUF_SIZE + IMAGE_BLOCK_SIZE + 2 * s->param->line_size);
+      if (!mp->cb.buf)
+	return PIXMA_ENOMEM;
+      mp->linebuf = mp->cb.buf + CMDBUF_SIZE;
+      mp->imgbuf = mp->linebuf + s->param->line_size;
+      mp->linelag = 0;
     }
 
   do
@@ -748,7 +859,8 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  return 0;
 	}
 
-      error = read_image_block (s, header, mp->imgbuf);
+      memcpy (mp->imgbuf, mp->linebuf, mp->linelag);
+      error = read_image_block (s, header, mp->imgbuf + mp->linelag);
       if (error < 0)
 	{
 	  if (error == PIXMA_ECANCELED)
@@ -779,6 +891,14 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
   ib->rptr = mp->imgbuf;
   ib->rend = mp->imgbuf + bytes_received;
+
+  if ((s->param->xdpi > 600) && (mp->generation >= 3))
+    {
+      ib->rend += mp->linelag;
+      mp->linelag = process_high_dpi_3 (s, ib);
+      ib->rend -= mp->linelag;
+      memcpy (mp->linebuf, ib->rend, mp->linelag);
+    }
   return ib->rend - ib->rptr;
 }
 
@@ -886,6 +1006,18 @@ const pixma_config_t pixma_mp150_devices[] = {
 	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
   DEVICE ("Canon PIXMA MP960", MP960_PID, 4800,
 	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+
+  /* Generation 3: CIS */
+  DEVICE ("Canon PIXMA MP140", MP140_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP210", MP210_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP220", MP220_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP470", MP470_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP520", MP520_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP610", MP610_PID, 4800, PIXMA_CAP_CIS),
+
+  /* Generation 3: CCD */
+  DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,
+	  PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
 
   END_OF_DEVICE_LIST
 };

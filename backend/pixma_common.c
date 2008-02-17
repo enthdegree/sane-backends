@@ -86,7 +86,8 @@ u8tohex (uint8_t x, char *str)
 {
   static const char hdigit[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
-'e', 'f' };
+    'e', 'f'
+  };
   str[0] = hdigit[(x >> 4) & 0xf];
   str[1] = hdigit[x & 0xf];
   str[2] = '\0';
@@ -745,6 +746,9 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
      xdpi = max_xdpi and ydpi = max_ydpi. */
   if (!(sp->xdpi == sp->ydpi ||
 	(sp->xdpi == s->cfg->xdpi && sp->ydpi == s->cfg->ydpi)))
+    return PIXMA_EINVAL;
+
+  if (s->ops->check_param (s, sp) < 0)
     return PIXMA_EINVAL;
 
   /* FIXME: I assume the same minimum width and height for every model. */

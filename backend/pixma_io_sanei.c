@@ -144,7 +144,8 @@ u16tohex (uint16_t x, char *str)
 {
   static const char hdigit[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-'E', 'F' };
+    'E', 'F'
+  };
   str[0] = hdigit[(x >> 12) & 0xf];
   str[1] = hdigit[(x >> 8) & 0xf];
   str[2] = hdigit[(x >> 4) & 0xf];

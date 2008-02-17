@@ -11,9 +11,10 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.13.1"                 ; version of backend (or "unmaintained")
+:version "0.14.3"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
-:url "http://home.arcor.de/wittawat/pixma/" ; backend's web page
+:url "http://home.arcor.de/wittawat/pixma/" ; 0.13.1 backend's web page
+:url "http://mp610.blogspot.com/"            ; 0.14.2 backend's web page
 ;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
 
 :devicetype :scanner              ; start of a list of devices....
@@ -22,6 +23,11 @@
 
 :mfg "Canon"                   ; name a manufacturer
 :url "http://www.canon.com/"
+
+:model "PIXMA MP140"
+:interface "USB"
+:usbid "0x04a9" "0x172b"
+:status :untested
 
 :model "PIXMA MP150"
 :interface "USB"
@@ -43,6 +49,18 @@
 :usbid "0x04a9" "0x1715"
 :status :basic
 
+:model "PIXMA MP210"
+:interface "USB"
+:usbid "0x04a9" "0x1721"
+:status :good
+:comment "up to 600DPI"
+
+:model "PIXMA MP220"
+:interface "USB"
+:usbid "0x04a9" "0x1722"
+:status :untested
+:comment "likely to use generation 3 protocol"
+
 :model "PIXMA MP450"
 :interface "USB"
 :usbid "0x04a9" "0x170b"
@@ -54,6 +72,11 @@
 :usbid "0x04a9" "0x1716"
 :status :basic
 
+:model "PIXMA MP470"
+:interface "USB"
+:usbid "0x04a9" "0x1723"
+:status :untested
+
 :model "PIXMA MP500"
 :interface "USB"
 :usbid "0x04a9" "0x170c"
@@ -63,6 +86,12 @@
 :interface "USB"
 :usbid "0x04a9" "0x1717"
 :status :basic
+
+:model "PIXMA MP520"
+:interface "USB"
+:usbid "0x04a9" "0x1724"
+:status :good
+:comment "up to 2400DPI"
 
 :model "PIXMA MP530"
 :interface "USB"
@@ -80,6 +109,12 @@
 :usbid "0x04a9" "0x1719"
 :status :minimal
 :comment "2400DPI doesn't work."
+
+:model "PIXMA MP610"
+:interface "USB"
+:usbid "0x04a9" "0x1725"
+:status :good
+:comment "up to 4800DPI"
 
 :model "PIXMA MP750"
 :interface "USB"
@@ -127,6 +162,11 @@
 :usbid "0x04a9" "0x171b"
 :status :minimal
 
+:model "PIXMA MP970"
+:interface "USB"
+:usbid "0x04a9" "0x1726"
+:status :untested
+
 :model "SmartBase MP360"
 :interface "USB"
 :usbid "0x04a9" "0x263c"
@@ -150,6 +190,18 @@
 :usbid "0x04a9" "0x2630"
 :status :basic
 :comment "Same model as SmartBase MP700 Photo?"
+
+:model "MultiPASS MP710"
+:interface "USB"
+:usbid "0x04a9" "0x264d"
+:status :good
+:comment "up to 1200DPI"
+
+:model "MultiPASS MP740"
+:interface "USB"
+:usbid "0x04a9" "0x264c"
+:status :untested
+:comment "Same protocol as MultiPASS MP710?"
 
 :model "MultiPASS MP730"
 :interface "USB"

@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "19 July 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "17 February 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -10,13 +10,13 @@ access to Canon PIXMA multi-function devices (All-in-one printers).
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MP150, MP160, MP170, MP180, MP450, MP460
+PIXMA MP150, MP160, MP170, MP180, MP210, MP450, MP460, MP470
 .br
-PIXMA MP500, MP510, MP530, MP600, MP600R
+PIXMA MP500, MP510, MP520, MP530, MP600, MP600R, MP610
 .br
 PIXMA MP800, MP800R, MP810, MP830, MP960
 .br
-MultiPASS MP700, PIXMA MP750 (no grayscale)
+MultiPASS MP700, MP710, PIXMA MP750 (no grayscale)
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -28,9 +28,20 @@ SmartBase MP360, MP370, MP390
 MultiPASS MP730, PIXMA MP760, PIXMA MP780
 .RE
 .PP
+The following models may use the same Pixma protocol as those listed 
+above, but have not yet been reported to work (or not). They are declared 
+in the backend so that they get recognized and activated. 
+Feedback in the Sane-dev mailing list welcome.
+.PP
+.RS
+MultiPASS MP740
+.br
+PIXMA MP140, MP220
+.RE
+.PP
 The backend supports
 .br
-* resolutions at 75,150,300,600,1200 and 2400 DPI (still buggy),
+* resolutions at 75,150,300,600,1200,2400 and 4800 DPI (some maybe buggy),
 .br
 * color and grayscale mode,
 .br
@@ -42,12 +53,13 @@ The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
 Example: pixma:04A91709_123456 is a MP150.
 .PP
-This backend is in
+Although based on cloning original Canon drivers protocols, this backend
+is in
 .B alpha
 stage and will stay in this stage until we get the programming manual
-for the hardware. Although we have tested it as good as we could, it will
-not work in every situations. You will find an up-to-date status at the
-project homepage. (See below)
+for the hardware (probably never). We have tested it as well as 
+we could, but it may not work in every situations. You will find an up-to-date 
+status at the project homepage. (See below)
 .SH OPTIONS
 Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
 provides the following
@@ -113,9 +125,10 @@ You should also set SANE_DEBUG_PIXMA to 10.
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane-dll (5),
-.I http://home.arcor.de/wittawat/pixma/
+.I http://home.arcor.de/wittawat/pixma/,
+.I http://mp610.blogspot.com/
 .SH AUTHOR
-Wittawat Yamwong
+Wittawat Yamwong, Nicolas Martin
 .PP
 I would like to thank all testers and helpers. Without them I would not be
 able to write subdrivers for models I don't have. See also the project

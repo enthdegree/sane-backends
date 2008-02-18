@@ -191,17 +191,17 @@
 :status :basic
 :comment "Same model as SmartBase MP700 Photo?"
 
-:model "MultiPASS MP710"
+:model "Pixma MP710"
 :interface "USB"
 :usbid "0x04a9" "0x264d"
 :status :good
 :comment "up to 1200DPI"
 
-:model "MultiPASS MP740"
+:model "Pixma MP740"
 :interface "USB"
 :usbid "0x04a9" "0x264c"
 :status :untested
-:comment "Same protocol as MultiPASS MP710?"
+:comment "Same protocol as Pixma MP710?"
 
 :model "MultiPASS MP730"
 :interface "USB"

@@ -12,11 +12,11 @@ Currently, the following models work with this backend:
 .RS
 PIXMA MP150, MP160, MP170, MP180, MP210, MP450, MP460, MP470
 .br
-PIXMA MP500, MP510, MP520, MP530, MP600, MP600R, MP610
+PIXMA MP500, MP510, MP520, MP530, MP600, MP600R, MP610, MP710
 .br
 PIXMA MP800, MP800R, MP810, MP830, MP960
 .br
-MultiPASS MP700, MP710, PIXMA MP750 (no grayscale)
+MultiPASS MP700, PIXMA MP750 (no grayscale)
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -34,9 +34,7 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-MultiPASS MP740
-.br
-PIXMA MP140, MP220
+PIXMA MP140, MP220, MP740
 .RE
 .PP
 The backend supports

@@ -1,3 +1,9 @@
+2008-02-18  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/coolscan3.c: added new coolscan3 backend
+	with improved stability and infrared support.
+	* configure.in, include/sanei.h: bumped version
+	number to 1.1.0 and enabled 1.1 frame types.
+
 2008-02-18  Nicolas Martin <nicols-guest at users.alioth.debian.org
 	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c,
 	  backend/pixma_io_sanei.c, backend/pixma_mp150.c, 

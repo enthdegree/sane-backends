@@ -103,6 +103,7 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
   cardscan.c cardscan.conf.in cardscan.h \
   coolscan.c coolscan.conf.in coolscan.h coolscan-scsidef.h \
   coolscan2.c coolscan2.conf.in \
+  coolscan3.c coolscan3.conf.in \
   dc210.c dc210.conf.in dc210.h \
   dc240.c dc240.conf.in dc240.h \
   dc25.c dc25.conf.in dc25.h \
@@ -396,6 +397,10 @@ libsane-coolscan2.la: ../sanei/sanei_config2.lo
 libsane-coolscan2.la: ../sanei/sanei_constrain_value.lo
 libsane-coolscan2.la: ../sanei/sanei_scsi.lo
 libsane-coolscan2.la: ../sanei/sanei_usb.lo
+libsane-coolscan3.la: ../sanei/sanei_config2.lo
+libsane-coolscan3.la: ../sanei/sanei_constrain_value.lo
+libsane-coolscan3.la: ../sanei/sanei_scsi.lo
+libsane-coolscan3.la: ../sanei/sanei_usb.lo
 libsane-dc25.la: ../sanei/sanei_constrain_value.lo
 libsane-dc210.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo
 libsane-dc240.la: ../sanei/sanei_constrain_value.lo  ../sanei/sanei_jpeg.lo

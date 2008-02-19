@@ -1526,8 +1526,8 @@ sane_read(SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	if ((s->type == CS3_TYPE_LS50) || (s->type == CS3_TYPE_LS5000)) {
 		xfer_len_in += s->block_padding;
 		if (xfer_len_in & 0x3f)
-			DBG(1, "BUG: %s, not a multiple of 64. (0x%06x)\n",
-			    __func__, xfer_len_in);
+			DBG(1, "BUG: %s, not a multiple of 64. (0x%06lx)\n",
+			    __func__, (long) xfer_len_in);
 	}
 
 	if (s->xfer_position + xfer_len_line > s->xfer_bytes_total)
@@ -2214,8 +2214,8 @@ cs3_issue_cmd(cs3_t * s)
 		default:
 			if (n_data) {
 				DBG(4,
-				    "%s: Unexpected non-data phase, but n_data != 0 (%d).\n",
-				    __func__, n_data);
+				    "%s: Unexpected non-data phase, but n_data != 0 (%lu).\n",
+				    __func__, (u_long) n_data);
 				status_only = 1;
 			}
 			break;

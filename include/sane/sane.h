@@ -168,24 +168,24 @@ typedef enum
     SANE_FRAME_GRAY,	/* band covering human visual range */
     SANE_FRAME_RGB,	/* pixel-interleaved red/green/blue bands */
     SANE_FRAME_RED,	/* red band only */
-    SANE_FRAME_GREEN,   /* green band only */
-    SANE_FRAME_BLUE     /* blue band only */
+    SANE_FRAME_GREEN,	/* green band only */
+    SANE_FRAME_BLUE,	/* blue band only */
 
     /* push remaining types down to match existing backends */
     /* these frame types should not be used by default, */
     /* as most front-ends will not understand them */
     /* these will be enabled in SANE 1.1.0 */
-#if 0
-    SANE_FRAME_TEXT=10, /* for various textual/xml data */
-    SANE_FRAME_JPEG,    /* complete baseline JPEG file */
-    SANE_FRAME_G31D,    /* CCITT Group 3 1-D Compressed file */
-    SANE_FRAME_G32D,    /* CCITT Group 3 2-D Compressed file */
-    SANE_FRAME_G42D,    /* CCITT Group 4 2-D Compressed file */
 
-    SANE_FRAME_IR       /* bare infrared channel */
-    SANE_FRAME_RGBI,    /* red+green+blue+infrared */
-    SANE_FRAME_GRAYI    /* gray+infrared */
-#endif
+    SANE_FRAME_TEXT = 0x0A,	/* for various textual/xml data */
+    SANE_FRAME_JPEG,		/* complete baseline JPEG file */
+    SANE_FRAME_G31D,		/* CCITT Group 3 1-D Compressed file */
+    SANE_FRAME_G32D,		/* CCITT Group 3 2-D Compressed file */
+    SANE_FRAME_G42D,		/* CCITT Group 4 2-D Compressed file */
+
+    SANE_FRAME_IR,		/* bare infrared channel */
+    SANE_FRAME_RGBI,		/* red+green+blue+infrared */
+    SANE_FRAME_GRAYI		/* gray+infrared */
+
   }
 SANE_Frame;
 

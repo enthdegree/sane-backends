@@ -214,7 +214,7 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
 	$(LDFLAGS) $(BACKENDLIBS) $^ @LIBTOOL_LINK_EXTRA@ -rpath $(libsanedir) \
-	-version-info $(V_MAJOR):$(V_REV):$(V_MINOR) $(DYNAMIC_FLAG)
+	-version-number $(V_MAJOR):$(V_MINOR):$(V_REV) $(DYNAMIC_FLAG)
 
 %-s.lo:	%-s.c
 	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DSTUBS -DBACKEND_NAME=$* $<
@@ -321,7 +321,7 @@ dll-preload.c:
 libsane.la: dll.lo dll-s.lo $(EXTRA) $(addsuffix .lo,$(DLL_PRELOAD)) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -o $@ $(LDFLAGS) $(BACKENDLIBS)  $^ \
 		$(addsuffix .lo,$(DLL_PRELOAD_EXTRAS)) @LIBTOOL_LINK_EXTRA@ \
-		-rpath $(libdir) -version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
+		-rpath $(libdir) -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
 
 # Generate .conf files for all existing .conf.in files
 becfg: $(patsubst %.conf.in,%.conf,$(wildcard *.conf.in)) 

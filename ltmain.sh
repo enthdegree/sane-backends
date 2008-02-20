@@ -27,7 +27,6 @@
 # Local changes for sane-backends (search for "Local change"):
 # 2003-04-30: Henning Meier-Geinitz
 #   * soname changed to "libsane" for every backend (all systems but AIX)
-#   * fix version number for Irix
 
 basename="s,^.*/,,g"
 
@@ -3277,11 +3276,7 @@ EOF
 	  ;;
 
 	irix | nonstopux)
-	  # Local change for sane-backends: old version:
-	  # major=`expr $current - $age + 1`
-	  # New version:
-	  major=`expr $current - $age`
-	  # End of local change.
+	  major=`expr $current - $age + 1`
 
 	  case $version_type in
 	    nonstopux) verstring_prefix=nonstopux ;;

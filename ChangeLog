@@ -1,3 +1,6 @@
+2008-02-20  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Send 32 registers at once instead of 1
+
 2008-02-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 	* backend/Makefile.in, ltmain.sh: Library version definition fixes
 	* backend/coolscan3.c: Fix format warnings

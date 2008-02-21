@@ -1,3 +1,8 @@
+2008-02-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys.c, backend/genesys_gl646.c,
+	  backend/genesys_gl841.c, backend/genesys_low.h: Add LED exposure
+	control to gl841_set_lamp_power
+
 2008-02-20  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Send 32 registers at once instead of 1
 

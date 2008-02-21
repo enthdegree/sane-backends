@@ -1322,7 +1322,8 @@ gl646_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 }
 
 static void
-gl646_set_lamp_power (Genesys_Register_Set * regs, SANE_Bool set)
+gl646_set_lamp_power (Genesys_Device * dev, 
+		      Genesys_Register_Set * regs, SANE_Bool set)
 {
   if (set)
     {

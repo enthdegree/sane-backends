@@ -302,7 +302,9 @@ typedef struct Genesys_Command_Set
     SANE_Status (*save_power) (Genesys_Device * dev, SANE_Bool enable);
 
   void (*set_motor_power) (Genesys_Register_Set * regs, SANE_Bool set);
-  void (*set_lamp_power) (Genesys_Register_Set * regs, SANE_Bool set);
+  void (*set_lamp_power) (Genesys_Device * dev, 
+			  Genesys_Register_Set * regs, 
+			  SANE_Bool set);
 
     SANE_Status (*begin_scan) (Genesys_Device * dev,
 			       Genesys_Register_Set * regs,

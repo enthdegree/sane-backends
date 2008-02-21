@@ -3061,8 +3061,11 @@ gl841_set_motor_power (Genesys_Register_Set * regs, SANE_Bool set)
 }
 
 static void
-gl841_set_lamp_power (Genesys_Register_Set * regs, SANE_Bool set)
+gl841_set_lamp_power (Genesys_Device * dev, 
+		      Genesys_Register_Set * regs, SANE_Bool set)
 {
+  Genesys_Register_Set * r;
+  int i;
 
   if (set)
     {
@@ -3070,6 +3073,14 @@ gl841_set_lamp_power (Genesys_Register_Set * regs, SANE_Bool set)
 				      sanei_genesys_read_reg_from_set (regs,
 								       0x03) |
 				      REG03_LAMPPWR);
+
+      r = sanei_genesys_get_address (regs, 0x10);
+      for (i = 0; i < 6; i++, r++) {
+	if (dev->sensor.regs_0x10_0x1d[i] == 0x00)
+	  r->value = 0x01;/*0x00 will not be accepted*/
+	else
+	  r->value = dev->sensor.regs_0x10_0x1d[i];
+      }
     }
   else
     {
@@ -3077,6 +3088,11 @@ gl841_set_lamp_power (Genesys_Register_Set * regs, SANE_Bool set)
 				      sanei_genesys_read_reg_from_set (regs,
 								       0x03) &
 				      ~REG03_LAMPPWR);
+
+      r = sanei_genesys_get_address (regs, 0x10);
+      for (i = 0; i < 6; i++, r++) {
+	r->value = 0x01;/* 0x0101 is as off as possible */
+      }
     }
 }
 

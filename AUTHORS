@@ -68,6 +68,7 @@ Backends:
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
  pixma:         Wittawat Yamwong (*)
+                Nicolas Martin (*)
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael
@@ -198,6 +199,7 @@ Michel Roelofs <michelr@stack.nl>
 Milon Firikis <milonf@ariadne-t.gr>
 Mitsuru Okaniwa <m-okaniwa@bea.hi-ho.ne.jp>
 Nathan Rutman <nathan@gordian.com>
+Nicolas Martin <nicols-guest at users.alioth.debian.org>
 Oliver Rauch <Oliver.Rauch@Rauch-domain.de>
 Oliver Schirrmeister <oschirr@abm.de>
 Oliver Schwartz <oliverschwartz@users.sourceforge.net>

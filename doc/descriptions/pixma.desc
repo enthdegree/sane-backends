@@ -27,7 +27,8 @@
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
-:status :untested
+:status :unsupported
+:comment "not working yet"
 
 :model "PIXMA MP150"
 :interface "USB"

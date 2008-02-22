@@ -1,3 +1,7 @@
+2008-02-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Fix debugging output of 
+	  gl841_bulk_write_register
+
 2008-02-21  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys_gl646.c,
 	  backend/genesys_gl841.c, backend/genesys_low.h: Add LED exposure

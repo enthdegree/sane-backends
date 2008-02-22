@@ -404,7 +404,7 @@ gl841_bulk_write_register (Genesys_Device * dev,
       buffer[i * 2 + 1] = reg[i].value;
       
       DBG (DBG_io2, "reg[0x%02x] = 0x%02x\n", buffer[i * 2 + 0],
-	   buffer[i * 2 + 0]);
+	   buffer[i * 2 + 1]);
   }
 
   for (i = 0; i < elems;) {

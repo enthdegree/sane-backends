@@ -65,10 +65,10 @@
 #define MP370_PID 0x263d
 #define MP390_PID 0x263e
 #define MP700_PID 0x2630
-#define MP730_PID 0x262f
 
 #define MP740_PID 0x264c	/* Untested */
 #define MP710_PID 0x264d
+#define MP730_PID 0x262f
 
 enum mp730_state_t
 {
@@ -83,15 +83,15 @@ enum mp730_cmd_t
 {
   cmd_start_session = 0xdb20,
   cmd_select_source = 0xdd20,
-  cmd_gamma = 0xee20,
-  cmd_scan_param = 0xde20,
-  cmd_status = 0xf320,
+  cmd_gamma         = 0xee20,
+  cmd_scan_param    = 0xde20,
+  cmd_status        = 0xf320,
   cmd_abort_session = 0xef20,
-  cmd_time = 0xeb80,
-  cmd_read_image = 0xd420,
+  cmd_time          = 0xeb80,
+  cmd_read_image    = 0xd420,
 
-  cmd_activate = 0xcf60,
-  cmd_calibrate = 0xe920
+  cmd_activate      = 0xcf60,
+  cmd_calibrate     = 0xe920
 };
 
 typedef struct mp730_t
@@ -635,7 +635,7 @@ const pixma_config_t pixma_mp730_devices[] = {
   DEVICE ("Canon SmartBase MP370", MP370_PID, 1200, 636, 868, 0),
   DEVICE ("Canon SmartBase MP390", MP390_PID, 1200, 636, 868, 0),
   DEVICE ("Canon MultiPASS MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
-  DEVICE ("Canon MultiPASS MP710", MP710_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon MultiPASS MP710", MP710_PID, 1200, 637, 868, 0),
   DEVICE ("Canon MultiPASS MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE ("Canon MultiPASS MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
   DEVICE (NULL, 0, 0, 0, 0, 0)

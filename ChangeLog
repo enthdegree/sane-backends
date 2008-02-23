@@ -1,3 +1,6 @@
+2008-02-23  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Make LEDs go really dark when "lamp" is off
+
 2008-02-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/sane-pixma.man, 
 	  doc/descriptions/pixma.desc: 

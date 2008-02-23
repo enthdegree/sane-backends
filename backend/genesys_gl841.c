@@ -2501,6 +2501,12 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 		r->value = dev->sensor.regs_0x10_0x1d[i];
     }
 
+    r = sanei_genesys_get_address (reg, 0x19);
+    if (flags & OPTICAL_FLAG_DISABLE_LAMP)
+	r->value = 0xff;
+    else
+	r->value = 0x50;
+
     /* BW threshold */
     r = sanei_genesys_get_address (reg, 0x2e);
     r->value = dev->settings.threshold;
@@ -3081,6 +3087,8 @@ gl841_set_lamp_power (Genesys_Device * dev,
 	else
 	  r->value = dev->sensor.regs_0x10_0x1d[i];
       }
+      r = sanei_genesys_get_address (regs, 0x19);
+      r->value = 0x50;
     }
   else
     {
@@ -3093,6 +3101,8 @@ gl841_set_lamp_power (Genesys_Device * dev,
       for (i = 0; i < 6; i++, r++) {
 	r->value = 0x01;/* 0x0101 is as off as possible */
       }
+      r = sanei_genesys_get_address (regs, 0x19);
+      r->value = 0xff;
     }
 }
 

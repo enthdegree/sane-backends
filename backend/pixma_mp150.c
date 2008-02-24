@@ -95,6 +95,8 @@
 #define MP810_PID 0x171a
 #define MP960_PID 0x171b
 
+#define MP140_PID 0x172b
+
 /* Generation 3 */
 #define MP210_PID 0x1721
 #define MP220_PID 0x1722	/* untested */
@@ -102,7 +104,6 @@
 #define MP520_PID 0x1724
 #define MP610_PID 0x1725
 #define MP970_PID 0x1726	/* untested */
-#define MP140_PID 0x172b	/* untested */
 
 
 enum mp150_state_t
@@ -118,19 +119,19 @@ enum mp150_cmd_t
 {
   cmd_start_session = 0xdb20,
   cmd_select_source = 0xdd20,
-  cmd_gamma         = 0xee20,
-  cmd_scan_param    = 0xde20,
-  cmd_status        = 0xf320,
+  cmd_gamma = 0xee20,
+  cmd_scan_param = 0xde20,
+  cmd_status = 0xf320,
   cmd_abort_session = 0xef20,
-  cmd_time          = 0xeb80,
-  cmd_read_image    = 0xd420,
-  cmd_error_info    = 0xff20,
+  cmd_time = 0xeb80,
+  cmd_read_image = 0xd420,
+  cmd_error_info = 0xff20,
 
-  cmd_scan_param_3  = 0xd820,
-  cmd_scan_start_3  = 0xd920,
-  cmd_status_3      = 0xda20,
+  cmd_scan_param_3 = 0xd820,
+  cmd_scan_start_3 = 0xd920,
+  cmd_status_3 = 0xda20,
 
-  cmd_e920          = 0xe920		/* seen in MP800 */
+  cmd_e920 = 0xe920		/* seen in MP800 */
 };
 
 typedef struct mp150_t
@@ -694,8 +695,14 @@ mp150_open (pixma_t * s)
   mp->cb.cmd_len_field_ofs = 14;
 
   mp->imgbuf = buf + CMDBUF_SIZE;
+
+  /* General rules for setting Pixma protocol generation # */
   mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
-  if (s->cfg->pid >= MP210_PID) mp->generation = 3;
+  if (s->cfg->pid >= MP210_PID)
+    mp->generation = 3;
+  /* And exceptions to be added here */
+  if (s->cfg->pid == MP140_PID)
+    mp->generation = 2;
 
   query_status (s);
   handle_interrupt (s, 200);
@@ -994,6 +1001,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 	  PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
 
   /* Generation 2: CIS */
+  DEVICE ("Canon PIXMA MP140", MP140_PID, 600, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP160", MP160_PID, 600, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP180", MP180_PID, 1200, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP460", MP460_PID, 1200, PIXMA_CAP_CIS),
@@ -1008,7 +1016,6 @@ const pixma_config_t pixma_mp150_devices[] = {
 	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP140", MP140_PID, 600, PIXMA_CAP_CIS | PIXMA_CAP_EXPERIMENT),
   DEVICE ("Canon PIXMA MP210", MP210_PID, 600, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP220", MP220_PID, 1200, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP470", MP470_PID, 2400, PIXMA_CAP_CIS),

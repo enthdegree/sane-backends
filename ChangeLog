@@ -1,11 +1,16 @@
+2008-02-24  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/sane-pixma.man, 
+	  doc/descriptions/pixma.desc: 
+	  Changes to have Canon PIXMA MP140 now working with pixma backend
+	  
 2008-02-23  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Make LEDs go really dark when "lamp" is off
 
 2008-02-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
-	* backend/pixma_mp150.c, doc/sane-pixma.man, 
-	  doc/descriptions/pixma.desc: 
-	  Change MP140 to experimental cause not working yet
-	  Change MP710 to non-ADF scanner
+	* backend/pixma_mp150.c, backend/pixma_mp730.c, 
+	  doc/sane-pixma.man, doc/descriptions/pixma.desc: 
+	  Changed MP140 to experimental cause not working yet
+	  Changed MP710 to non-ADF scanner
 
 2008-02-22  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Fix debugging output of 

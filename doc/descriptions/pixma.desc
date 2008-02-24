@@ -27,8 +27,8 @@
 :model "PIXMA MP140"
 :interface "USB"
 :usbid "0x04a9" "0x172b"
-:status :unsupported
-:comment "not working yet"
+:status :good
+:comment "up to 600 DPI"
 
 :model "PIXMA MP150"
 :interface "USB"
@@ -60,7 +60,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1722"
 :status :untested
-:comment "likely to use generation 3 protocol"
+:comment "Testers needed! Likely to use generation 3 protocol."
 
 :model "PIXMA MP450"
 :interface "USB"
@@ -76,7 +76,8 @@
 :model "PIXMA MP470"
 :interface "USB"
 :usbid "0x04a9" "0x1723"
-:status :untested
+:status :good
+:comment "up to 2400DPI"
 
 :model "PIXMA MP500"
 :interface "USB"
@@ -151,6 +152,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x171a"
 :status :untested
+:comment "Testers needed!"
 
 :model "PIXMA MP830"
 :interface "USB"
@@ -167,6 +169,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1726"
 :status :untested
+:comment "Testers needed!"
 
 :model "SmartBase MP360"
 :interface "USB"
@@ -192,17 +195,17 @@
 :status :basic
 :comment "Same model as SmartBase MP700 Photo?"
 
-:model "Pixma MP710"
+:model "PIXMA MP710"
 :interface "USB"
 :usbid "0x04a9" "0x264d"
 :status :good
 :comment "up to 1200DPI"
 
-:model "Pixma MP740"
+:model "PIXMA MP740"
 :interface "USB"
 :usbid "0x04a9" "0x264c"
 :status :untested
-:comment "Same protocol as Pixma MP710?"
+:comment "Same protocol as Pixma MP710? Testers needed!"
 
 :model "MultiPASS MP730"
 :interface "USB"

@@ -610,6 +610,19 @@ dbg_tiff_save (char *sFile, SANE_Int width, SANE_Int height, SANE_Int depth,
 	DBG (DBG_ERR,
 	     "- dbg_tiff_save: Enviroment HOME variable does not exist\n");
     }
+#else
+  /* silent gcc */
+  sFile = sFile;
+  width = width;
+  height = height;
+  depth = depth;
+  colortype = colortype;
+  res_x = res_x;
+  res_y = res_y;
+  buffer = buffer;
+  size = size;
+
+  DBG (DBG_ERR, "- dbg_tiff_save: tiffio not supported\n");
 #endif
 }
 

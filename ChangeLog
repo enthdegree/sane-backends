@@ -1,3 +1,8 @@
+2008-02-26  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900_sane.c: Fixed optional grayscale emulation
+	* backend/hp3900_debug.c: Silence gcc warnings when tiffio.h
+	  is not used
+
 2008-02-25  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h:
 	  add mode sense for page code 32 (color interlacing?)

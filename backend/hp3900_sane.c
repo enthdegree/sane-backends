@@ -190,16 +190,13 @@ static SANE_Status bknd_resolutions (TScanner * scanner, SANE_Int model);
 static SANE_Status bknd_sources (TScanner * scanner, SANE_Int model);
 
 /* convertions */
-static SANE_Int Color_Negative (SANE_Byte * buffer, SANE_Int size,
-				SANE_Int depth);
-static SANE_Int Color_to_Gray (SANE_Byte * buffer, SANE_Int size,
-			       SANE_Int depth);
+static void Color_Negative (SANE_Byte * buffer, SANE_Int size,
+			    SANE_Int depth);
+static void Color_to_Gray (SANE_Byte * buffer, SANE_Int size, SANE_Int depth);
 static void Gray_to_Lineart (SANE_Byte * buffer, SANE_Int size,
 			     SANE_Int threshold);
-static SANE_Int Depth_16_to_8 (SANE_Byte * from_buffer, SANE_Int size,
-			       SANE_Byte * to_buffer);
-
-static SANE_Int dot_size (SANE_Handle h, SANE_Int depth);
+static void Depth_16_to_8 (SANE_Byte * from_buffer, SANE_Int size,
+			   SANE_Byte * to_buffer);
 
 /* gamma functions */
 static void gamma_apply (TScanner * s, SANE_Byte * buffer, SANE_Int size,
@@ -264,7 +261,7 @@ bknd_resolutions (TScanner * scanner, SANE_Int model)
 {
   SANE_Status rst = SANE_STATUS_INVAL;
 
-  DBG (DBG_FNC, "> bknd_resolutions(*scanner, model=%i\n", model);
+  DBG (DBG_FNC, "> bknd_resolutions(*scanner, model=%i)\n", model);
 
   if (scanner != NULL)
     {
@@ -408,7 +405,7 @@ bknd_sources (TScanner * scanner, SANE_Int model)
 {
   SANE_Status rst = SANE_STATUS_INVAL;
 
-  DBG (DBG_FNC, "> bknd_sources(*scanner, model=%i\n", model);
+  DBG (DBG_FNC, "> bknd_sources(*scanner, model=%i)\n", model);
 
   if (scanner != NULL)
     {
@@ -693,6 +690,8 @@ Set_Coordinates (SANE_Int scantype, SANE_Int resolution,
 {
   struct st_coords *limits = Constrains_Get (device, scantype);
 
+  DBG (DBG_FNC, "> Set_Coordinates(res=%i, *coords):\n", resolution);
+
   if (coords->left == -1)
     coords->left = 0;
 
@@ -705,15 +704,24 @@ Set_Coordinates (SANE_Int scantype, SANE_Int resolution,
   if (coords->height == -1)
     coords->height = limits->height;
 
+  DBG (DBG_FNC, " -> Coords [MM] : xy(%i, %i) wh(%i, %i)\n", coords->left,
+       coords->top, coords->width, coords->height);
+
   coords->left = MM_TO_PIXEL (coords->left, resolution);
   coords->width = MM_TO_PIXEL (coords->width, resolution);
   coords->top = MM_TO_PIXEL (coords->top, resolution);
   coords->height = MM_TO_PIXEL (coords->height, resolution);
 
+  DBG (DBG_FNC, " -> Coords [px] : xy(%i, %i) wh(%i, %i)\n", coords->left,
+       coords->top, coords->width, coords->height);
+
   Constrains_Check (device, resolution, scantype, coords);
+
+  DBG (DBG_FNC, " -> Coords [check]: xy(%i, %i) wh(%i, %i)\n", coords->left,
+       coords->top, coords->width, coords->height);
 }
 
-static SANE_Int
+static void
 Color_Negative (SANE_Byte * buffer, SANE_Int size, SANE_Int depth)
 {
   if (buffer != NULL)
@@ -736,8 +744,6 @@ Color_Negative (SANE_Byte * buffer, SANE_Int size, SANE_Int depth)
 	    *(buffer + a) = max_value - *(buffer + a);
 	}
     }
-
-  return OK;
 }
 
 static SANE_Status
@@ -765,7 +771,7 @@ get_button_status (TScanner * s)
   return SANE_STATUS_GOOD;
 }
 
-static SANE_Int
+static void
 Depth_16_to_8 (SANE_Byte * from_buffer, SANE_Int size, SANE_Byte * to_buffer)
 {
   if ((from_buffer != NULL) && (to_buffer != NULL))
@@ -782,8 +788,6 @@ Depth_16_to_8 (SANE_Byte * from_buffer, SANE_Int size, SANE_Byte * to_buffer)
 	  b++;
 	}
     }
-
-  return OK;
 }
 
 static void
@@ -817,40 +821,41 @@ Gray_to_Lineart (SANE_Byte * buffer, SANE_Int size, SANE_Int threshold)
     }
 }
 
-static SANE_Int
+static void
 Color_to_Gray (SANE_Byte * buffer, SANE_Int size, SANE_Int depth)
 {
+  /* converts 3 color channel into 1 gray channel of specified bit depth */
+
   if (buffer != NULL)
     {
-      SANE_Int c;
-      SANE_Int dot_size = 3 * ((depth > 8) ? 2 : 1);
-      SANE_Int colour;
-      SANE_Byte *pColor = buffer;
-      USHORT *sColor = (void *) buffer;
+      SANE_Int c, chn, chn_size;
+      SANE_Byte *ptr_src = NULL;
+      SANE_Byte *ptr_dst = NULL;
+      float data, chn_data;
+      float coef[3] = { 0.299, 0.587, 0.114 };	/* coefficients per channel */
 
-      for (c = 0; c < size / dot_size; c++)
+      chn_size = (depth > 8) ? 2 : 1;
+      ptr_src = (void *) buffer;
+      ptr_dst = (void *) buffer;
+
+      for (c = 0; c < size / (3 * chn_size); c++)
 	{
-	  if (depth > 8)
+	  data = 0.;
+
+	  /* get, apply coeffs and sum channels */
+	  for (chn = 0; chn < 3; chn++)
 	    {
-	      colour =
-		((*sColor + *(sColor + 1) + *(sColor + 2)) / 3) & 0xffff;
-	      *sColor = colour;
-	      *(sColor + 1) = colour;
-	      *(sColor + 2) = colour;
-	      sColor += 3;
+	      chn_data = data_lsb_get (ptr_src + (chn * chn_size), chn_size);
+	      data += (chn_data * coef[chn]);
 	    }
-	  else
-	    {
-	      colour = ((*pColor + *(pColor + 1) + *(pColor + 2)) / 3) & 0xff;
-	      *pColor = colour;
-	      *(pColor + 1) = colour;
-	      *(pColor + 2) = colour;
-	      pColor += 3;
-	    }
+
+	  /* save result */
+	  data_lsb_set (ptr_dst, (SANE_Int) data, chn_size);
+
+	  ptr_src += 3 * chn_size;	/* next triplet */
+	  ptr_dst += chn_size;
 	}
     }
-
-  return OK;
 }
 
 static void
@@ -1041,7 +1046,7 @@ Translate_coords (struct st_coords *coords)
 {
   SANE_Int data;
 
-  DBG (DBG_FNC, "> translate_coords(*coords)\n");
+  DBG (DBG_FNC, "> Translate_coords(*coords)\n");
 
   if ((coords->left < 0) || (coords->top < 0) ||
       (coords->width < 0) || (coords->height < 0))
@@ -1071,23 +1076,6 @@ Translate_coords (struct st_coords *coords)
     coords->height++;
 
   return SANE_STATUS_GOOD;
-}
-
-static SANE_Int
-dot_size (SANE_Handle h, SANE_Int depth)
-{
-  /* returns size in bytes of a dot */
-
-  TScanner *scanner = (TScanner *) h;
-  SANE_Int rst = 0;
-
-  if (scanner != NULL)
-    {
-      SANE_Int channels = (scanner->ScanParams.colormode != CM_COLOR) ? 1 : 3;
-      rst = channels * ((depth > 8) ? 2 : 1);
-    }
-
-  return rst;
 }
 
 static size_t
@@ -1262,7 +1250,7 @@ options_init (TScanner * scanner)
 	      pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	      pDesc->constraint.range = &scanner->rng_horizontal;
 	      pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	      pVal->w = scanner->rng_horizontal.max;
+	      pVal->w = 0;
 	      break;
 
 	    case opt_tly:
@@ -1273,7 +1261,7 @@ options_init (TScanner * scanner)
 	      pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
 	      pDesc->constraint.range = &scanner->rng_vertical;
 	      pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-	      pVal->w = scanner->rng_vertical.max;
+	      pVal->w = 0;
 	      break;
 
 	    case opt_brx:
@@ -1800,7 +1788,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
   else
     {
-      /* By default */
+      /* default */
+      DBG (DBG_VRB, "- %s not found. Looking for hardcoded usb ids ...\n",
+	   HP3900_CONFIG_FILE);
+
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2605", attach_one_device);	/* HP3800  */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2805", attach_one_device);	/* HPG2710 */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2305", attach_one_device);	/* HP3970  */
@@ -2237,6 +2228,8 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
   SANE_Status rst = SANE_STATUS_INVAL;
   TScanner *s = (TScanner *) h;
 
+  DBG (DBG_FNC, "+ sane_get_parameters:");
+
   if (s != NULL)
     {
       struct st_coords coords;
@@ -2244,25 +2237,23 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 
       /* first do some checks */
 
-      /* Get depth */
-      depth = s->aValues[opt_depth].w;
-
       /* colormode */
       colormode = Get_Colormode (s->aValues[opt_colormode].s);
 
+      /* frameformat */
       frameformat =
 	(colormode == CM_COLOR) ? SANE_FRAME_RGB : SANE_FRAME_GRAY;
 
-      if (colormode == CM_LINEART)
-	depth = 1;
+      /* depth */
+      depth = (colormode == CM_LINEART) ? 1 : s->aValues[opt_depth].w;
 
-      /* Get Scan type */
+      /* scan type */
       source = Get_Source (s->aValues[opt_scantype].s);
 
-      /* Get resolution */
+      /* resolution */
       res = s->aValues[opt_resolution].w;
 
-      /* Get image coordinates in milimeters */
+      /* image coordinates in milimeters */
       coords.left = s->aValues[opt_tlx].w;
       coords.top = s->aValues[opt_tly].w;
       coords.width = s->aValues[opt_brx].w;
@@ -2273,10 +2264,14 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 	{
 	  Set_Coordinates (source, res, &coords);
 
-	  bpl =
-	    (colormode != CM_LINEART) ? coords.width * dot_size (h,
-								 depth)
-	    : (coords.width + 7) / 8;
+	  if (colormode != CM_LINEART)
+	    {
+	      bpl = coords.width * ((depth > 8) ? 2 : 1);
+	      if (colormode == CM_COLOR)
+		bpl *= 3;	/* three channels */
+	    }
+	  else
+	    bpl = (coords.width + 7) / 8;
 
 	  /* return the data */
 	  p->format = frameformat;
@@ -2286,11 +2281,16 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
 	  p->pixels_per_line = coords.width;
 	  p->bytes_per_line = bpl;
 
+	  DBG (DBG_FNC, " -> Depth : %i\n", depth);
+	  DBG (DBG_FNC, " -> Height: %i\n", coords.height);
+	  DBG (DBG_FNC, " -> Width : %i\n", coords.width);
+	  DBG (DBG_FNC, " -> BPL   : %i\n", bpl);
+
 	  rst = SANE_STATUS_GOOD;
 	}
     }
 
-  DBG (DBG_FNC, "> sane_get_parameters: %i\n", rst);
+  DBG (DBG_FNC, "- sane_get_parameters: %i\n", rst);
 
   return rst;
 }
@@ -2388,6 +2388,7 @@ sane_start (SANE_Handle h)
 	  /* Validate coords */
 	  if (Translate_coords (&coords) == SANE_STATUS_GOOD)
 	    {
+
 	      /* Stop previusly started scan */
 	      RTS_Scanner_StopScan (device, TRUE);
 
@@ -2473,7 +2474,19 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  else
 	    emul_maxlen = maxlen;
 
-	  /* this is important to keep lines alignment */
+	  /* if grayscale emulation is enabled check that retrieved data is multiple of three */
+	  if (s->cnv.colormode == CM_GRAY)
+	    {
+	      SANE_Int chn_size, rest;
+
+	      chn_size = (s->ScanParams.depth > 8) ? 2 : 1;
+	      rest = emul_maxlen % (3 * chn_size);
+
+	      if (rest != 0)
+		emul_maxlen -= rest;
+	    }
+
+	  /* this is important to keep lines alignment in lineart mode */
 	  if (s->cnv.colormode == CM_LINEART)
 	    emul_maxlen = s->ScanParams.coords.width;
 
@@ -2485,16 +2498,21 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 	  if (buffer != NULL)
 	    {
 	      pbuffer = buffer;
-	      /* read as many lines the buffer may contain and while there are lines to be read */
-	      thwidth =
-		(s->ScanParams.colormode !=
-		 CM_LINEART) ? s->ScanParams.coords.width * dot_size (h,
-								      s->
-								      ScanParams.
-								      depth)
-		: (s->ScanParams.coords.width + 7) / 8;
-	      /*thwidth = s->ScanParams.coords.width * dot_size(h, s->ScanParams.depth); */
 
+	      /* get bytes per line */
+	      if (s->ScanParams.colormode != CM_LINEART)
+		{
+		  thwidth =
+		    s->ScanParams.coords.width *
+		    ((s->ScanParams.depth > 8) ? 2 : 1);
+
+		  if (s->ScanParams.colormode == CM_COLOR)
+		    thwidth *= 3;	/* three channels */
+		}
+	      else
+		thwidth = (s->ScanParams.coords.width + 7) / 8;
+
+	      /* read as many lines the buffer may contain and while there are lines to be read */
 	      while ((emul_len < emul_maxlen)
 		     && (s->mylin < s->ScanParams.coords.height))
 		{
@@ -2559,7 +2577,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
 		     after this code ...
 		     buf : will contain postprocessed image
-		     len : will contain postprocessed image */
+		     len : will contain size in bytes of postprocessed image */
 
 		  /* apply gamma if neccesary */
 		  if (RTS_Debug->EnableGamma == TRUE)
@@ -2575,6 +2593,13 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 		  else if (s->cnv.negative != FALSE)
 		    Color_Negative (buffer, emul_len, s->ScanParams.depth);
 
+		  /* emulating grayscale ? */
+		  if (s->cnv.colormode == CM_GRAY)
+		    {
+		      Color_to_Gray (buffer, emul_len, s->ScanParams.depth);
+		      emul_len /= 3;
+		    }
+
 		  /* emulating depth */
 		  if (s->cnv.depth != -1)
 		    {
@@ -2589,22 +2614,18 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 			}
 		    }
 
-		  /* Lets do neccesary convertions */
-		  switch (s->cnv.colormode)
+		  /* lineart mode ? */
+		  if (s->cnv.colormode == CM_LINEART)
 		    {
-		    case CM_GRAY:
-		      Color_to_Gray (buffer, emul_len, s->ScanParams.depth);
-		      break;
-		    case CM_LINEART:
-		      {
-			SANE_Int rest = emul_len % 8;
+		      /* I didn't see any scanner supporting lineart mode.
+		         Windows drivers scan in grayscale and then convert image to lineart
+		         so let's perform convertion */
+		      SANE_Int rest = emul_len % 8;
 
-			Gray_to_Lineart (buffer, emul_len, s->cnv.threshold);
-			emul_len /= 8;
-			if (rest > 0)
-			  emul_len++;
-		      }
-		      break;
+		      Gray_to_Lineart (buffer, emul_len, s->cnv.threshold);
+		      emul_len /= 8;
+		      if (rest > 0)
+			emul_len++;
 		    }
 
 		  /* copy postprocessed image */

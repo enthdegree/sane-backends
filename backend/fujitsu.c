@@ -276,6 +276,10 @@
 	 - add S500M usb id
       V 1.0.56 2008-02-14, MAN
 	 - sanei_config_read has already cleaned string (#310597)
+      V 1.0.57 2008-02-24, MAN
+         - fi-5900 does not (initially) interlace colors
+	 - add mode sense for color interlacing? (page code 32)
+	 - more debug output in init_ms()
 
    SANE FLOW DIAGRAM
 
@@ -336,7 +340,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 56 
+#define BUILD 57 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1218,7 +1222,7 @@ init_ms(struct fujitsu *s)
 {
   int ret;
   int oldDbg=DBG_LEVEL;
-  unsigned char buffer[1];
+  unsigned char buffer[12];
   size_t inLen = sizeof(buffer);
 
   DBG (10, "init_ms: start\n");
@@ -1234,7 +1238,20 @@ init_ms(struct fujitsu *s)
 
   set_MSEN_xfer_length (mode_senseB.cmd, inLen);
 
-  /* prepick */
+  DBG (35, "init_ms: color interlace?\n");
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_color);
+  memset(buffer,0,inLen);
+  ret = do_cmd (
+    s, 1, 0,
+    mode_senseB.cmd, mode_senseB.size,
+    NULL, 0,
+    buffer, &inLen
+  );
+  if(ret == SANE_STATUS_GOOD){
+    s->has_MS_color=1;
+  }
+
+  DBG (35, "init_ms: prepick\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_prepick);
   memset(buffer,0,inLen);
   ret = do_cmd (
@@ -1247,7 +1264,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_prepick=1;
   }
 
-  /* sleep */
+  DBG (35, "init_ms: sleep\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_sleep);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1261,7 +1278,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_sleep=1;
   }
 
-  /* duplex */
+  DBG (35, "init_ms: duplex\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_duplex);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1275,7 +1292,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_duplex=1;
   }
 
-  /* rand */
+  DBG (35, "init_ms: rand\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_rand);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1289,7 +1306,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_rand=1;
   }
 
-  /* bg */
+  DBG (35, "init_ms: bg\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_bg);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1303,7 +1320,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_bg=1;
   }
 
-  /* df */
+  DBG (35, "init_ms: df\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_df);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1317,7 +1334,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_df=1;
   }
 
-  /* dropout */
+  DBG (35, "init_ms: dropout\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_dropout);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1331,7 +1348,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_dropout=1;
   }
 
-  /* buffer */
+  DBG (35, "init_ms: buffer\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_buff);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1345,7 +1362,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_buff=1;
   }
 
-  /* auto */
+  DBG (35, "init_ms: auto\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_auto);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1359,7 +1376,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_auto=1;
   }
 
-  /* lamp */
+  DBG (35, "init_ms: lamp\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_lamp);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1373,7 +1390,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_lamp=1;
   }
 
-  /* jobsep */
+  DBG (35, "init_ms: jobsep\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_jobsep);
   inLen = sizeof(buffer);
   memset(buffer,0,inLen);
@@ -1457,6 +1474,7 @@ init_model (struct fujitsu *s)
   else if (strstr (s->product_name, "M3093")){
     /* lies */
     s->has_back = 0;
+    s->adbits = 8;
 
     /* weirdness */
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
@@ -1493,6 +1511,7 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->even_scan_line = 1;
+    s->color_interlace = COLOR_INTERLACE_NONE;
 
   }
 

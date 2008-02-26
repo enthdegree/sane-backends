@@ -411,6 +411,7 @@ static scsiblk readB = { readC, sizeof (readC) };
 /* ==================================================================== */
 
 /* page codes used by mode_sense and mode_select */
+#define MS_pc_color   0x32 /* color interlacing mode? */
 #define MS_pc_prepick 0x33 /* Prepick next adf page */
 #define MS_pc_sleep   0x34 /* Sleep mode */
 #define MS_pc_duplex  0x35 /* ADF duplex transfer mode */

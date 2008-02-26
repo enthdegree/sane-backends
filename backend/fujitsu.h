@@ -212,6 +212,7 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are gathered by mode_sense command     */
 
+  int has_MS_color;
   int has_MS_prepick;
   int has_MS_sleep;
   int has_MS_duplex;

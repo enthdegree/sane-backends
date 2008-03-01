@@ -9,7 +9,7 @@
 ;
 
 :backend "as6e"			; name of backend
-:version "0.4.2"		; version of backend
+:version "0.5"			; version of backend
 :manpage "sane-as6e"		; name of manpage (if it exists)
 :url "http://as6edriver.sourceforge.net/"
 
@@ -28,6 +28,14 @@
 :comment "Carefully check the model names. Trust uses similar names for completely different hardware."
 
 :model "Easy Scan 9600 Plus"
+:interface "Parport"
+:status :basic
+:comment "Requires the program 'as6edriver' to run."
+
+:mfg "Dexxa"                    ; name a manufacturer
+:url "http://www.dexxa.com"
+
+:model "4800"
 :interface "Parport"
 :status :basic
 :comment "Requires the program 'as6edriver' to run."

@@ -1,3 +1,6 @@
+2008-03-01  Gerard klaver <gerard at gkall dot hobby dot nl>
+	* doc/descriptions/as6e.desc added Dexxa 4800
+
 2008-02-26  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_sane.c: Fixed optional grayscale emulation
 	* backend/hp3900_debug.c: Silence gcc warnings when tiffio.h

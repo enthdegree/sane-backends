@@ -1,3 +1,11 @@
+2008-03-02  Stéphane Voltz <stef.dev@free.fr>
+	* doc/descriptions/lexmark.desc: added X1195
+	* doc/descriptions/unsupported.desc: removed X11xx, X12xx and
+	  Dell A920 which are to be handled by the lexmark backend
+	* backend/umax_pp.h backend/umax_pp.c backend/umax_pp_mid.h
+	  backend/umax_pp_mid.c backend/umax_pp_low.h backend/umax_pp_low.c:
+	  copyright notice update
+
 2008-03-01  Gerard klaver <gerard at gkall dot hobby dot nl>
 	* doc/descriptions/as6e.desc added Dexxa 4800
 

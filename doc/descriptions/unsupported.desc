@@ -639,13 +639,6 @@
 :mfg "Dell"
 :url "http://www.dell.com/"
 
-:model "A920"
-:url "/unsupported/dell-a920.html"
-:interface "USB"
-:usbid "0x413c" "0x5105"
-:status :unsupported
-:comment "Not supported by stable SANE, but a backend is available in experimental CVS. See link."
-
 :model "A960"
 :url "/unsupported/dell-a960.html"
 :interface "USB"
@@ -1078,41 +1071,6 @@
 :usbid "0x043d" "0x003d"
 :status :unsupported
 :comment "Unsupported. GL640."
-
-:model "X1195"
-:url "/unsupported/lexmark-x1195.html"
-:interface "USB"
-:usbid "0x043d" "0x007c"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
-:model "X1240"
-:url "/unsupported/lexmark-x1240.html"
-:interface "USB"
-:usbid "0x043d" "0x007d"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
-:model "X1250"
-:url "/unsupported/lexmark-x1250.html"
-:interface "USB"
-:usbid "0x043d" "0x007d"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
-:model "X1270"
-:url "/unsupported/lexmark-x1270.html"
-:interface "USB"
-:usbid "0x043d" "0x007d"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
-:model "X1290"
-:url "/unsupported/lexmark-x1270.html"
-:interface "USB"
-:usbid "0x043d" "0x007d"
-:status :unsupported
-:comment "Unsupported. See link for details. Looks similar to X1240, X1250 and X1270."
 
 :model "X2330"
 :url "/unsupported/lexmark-x2330.html"

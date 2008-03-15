@@ -190,8 +190,8 @@ extern void sanei_usb_init (void);
  * @param vendor vendor id
  * @param product product id
  *
- *@return 
- * - SANE_STATUS_GOOD - if the ids could be determinded
+ * @return 
+ * - SANE_STATUS_GOOD - if the ids could be determined
  * - SANE_STATUS_UNSUPPORTED - if the OS doesn't support detection of ids
  */
 extern SANE_Status
@@ -240,6 +240,20 @@ extern SANE_Status sanei_usb_open (SANE_String_Const devname, SANE_Int * dn);
  * @param dn device number
  */
 extern void sanei_usb_close (SANE_Int dn);
+
+/** Get the filename associated with a USB device.
+ *
+ * The full filename is stored into a malloc()ed string in devpath that
+ * the caller must free() after use.
+ *
+ * @param dn device number
+ * @param devpath string pointer
+ *
+ * @return
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_INVAL - on error
+ */
+extern SANE_Status sanei_usb_get_device_path (SANE_Int dn, SANE_String * devpath);
 
 /** Set the libusb timeout for bulk and interrupt reads.
  * 

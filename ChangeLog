@@ -1,3 +1,6 @@
+2008-03-15  Julien Blache <jb@jblache.org>
+	* include/sane/sanei_usb.h: typo fix.
+
 2008-03-02  Stéphane Voltz <stef.dev@free.fr>
 	* doc/descriptions/lexmark.desc: added X1195
 	* doc/descriptions/unsupported.desc: removed X11xx, X12xx and

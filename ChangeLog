@@ -1,3 +1,9 @@
+2008-03-16  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma.h, doc/sane-pixma.man, 
+	  doc/descriptions/pixma.desc: 
+	  Changes to have new Canon PIXMA MX700 working with pixma backend
+	  Flatbed and ADF scan are supported.
+
 2008-03-15  Julien Blache <jb@jblache.org>
 	* include/sane/sanei_usb.h: typo fix.
 

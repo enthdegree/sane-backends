@@ -104,7 +104,9 @@
 #define MP520_PID 0x1724
 #define MP610_PID 0x1725
 #define MP970_PID 0x1726	/* untested */
-
+#define MX300_PID 0x1727	/* untested */
+#define MX310_PID 0x1728	/* untested */
+#define MX700_PID 0x1729
 
 enum mp150_state_t
 {
@@ -430,7 +432,7 @@ send_scan_param (pixma_t * s)
   else
     {
       data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
-      data[0x00] = 0x01;
+      data[0x00] = (s->param->source == PIXMA_SOURCE_ADF) ? 0x02 : 0x01;
       data[0x01] = 0x01;
       data[0x02] = 0x01;
       data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
@@ -1021,6 +1023,12 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP470", MP470_PID, 2400, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP520", MP520_PID, 2400, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MP610", MP610_PID, 4800, PIXMA_CAP_CIS),
+
+  DEVICE ("Canon PIXMA MX300", MX300_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX310", MX310_PID, 1200,
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 3: CCD */
   DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,

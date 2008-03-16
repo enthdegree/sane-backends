@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.14.3"                 ; version of backend (or "unmaintained")
+:version "0.14.4"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 :url "http://home.arcor.de/wittawat/pixma/" ; 0.13.1 backend's web page
 :url "http://mp610.blogspot.com/"            ; 0.14.2 backend's web page
@@ -28,7 +28,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x172b"
 :status :good
-:comment "up to 600 DPI"
+:comment "All resolutions supported (up to 600 DPI)"
 
 :model "PIXMA MP150"
 :interface "USB"
@@ -54,13 +54,13 @@
 :interface "USB"
 :usbid "0x04a9" "0x1721"
 :status :good
-:comment "up to 600DPI"
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MP220"
 :interface "USB"
 :usbid "0x04a9" "0x1722"
 :status :untested
-:comment "Testers needed! Likely to use generation 3 protocol."
+:comment "Testers needed! Likely to use generation 3 protocol like MP210."
 
 :model "PIXMA MP450"
 :interface "USB"
@@ -77,7 +77,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1723"
 :status :good
-:comment "up to 2400DPI"
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP500"
 :interface "USB"
@@ -93,7 +93,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1724"
 :status :good
-:comment "up to 2400DPI"
+:comment "All resolutions supported (up to 2400DPI)"
 
 :model "PIXMA MP530"
 :interface "USB"
@@ -116,7 +116,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1725"
 :status :good
-:comment "up to 4800DPI"
+:comment "All resolutions supported (up to 4800DPI)"
 
 :model "PIXMA MP750"
 :interface "USB"
@@ -158,7 +158,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1713"
 :status :basic
-:comment "Sigle-side ADF works but duplex doesn't work yet."
+:comment "Single-side ADF works but duplex doesn't work yet."
 
 :model "PIXMA MP960"
 :interface "USB"
@@ -199,7 +199,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x264d"
 :status :good
-:comment "up to 1200DPI"
+:comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP740"
 :interface "USB"
@@ -212,3 +212,21 @@
 :usbid "0x04a9" "0x262f"
 :status :minimal
 :comment "Do grayscale and ADF work? Same model as SmartBase MP730 Photo?"
+
+:model "PIXMA MX300"
+:interface "USB"
+:usbid "0x04a9" "0x1727"
+:status :untested
+:comment "Probably uses the same protocol as MX700 ?"
+
+:model "PIXMA MX310"
+:interface "USB"
+:usbid "0x04a9" "0x1728"
+:status :untested
+:comment "Probably uses the same protocol as MX700 ?"
+
+:model "PIXMA MX700"
+:interface "USB"
+:usbid "0x04a9" "0x1729"
+:status :good
+:comment "Flatbed and ADF scan. All resolutions supported (up to 2400DPI)"

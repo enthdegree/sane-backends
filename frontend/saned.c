@@ -2161,7 +2161,7 @@ main (int argc, char *argv[])
 	  if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
 	    {
 	      /*
-	       * binding a socket may fail, eg if we already
+	       * binding a socket may fail, eg if we already bound
 	       * to the IPv6 addr returned by getaddrinfo (usually the first one),
 	       * or if IPv6 isn't supported, but saned was built with IPv6 support
 	       */

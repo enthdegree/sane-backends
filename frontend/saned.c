@@ -2335,7 +2335,7 @@ main (int argc, char *argv[])
       memset (&sin, 0, sizeof (sin));
 
       DBG (DBG_DBG, 
-	   "main: trying to get port for service `sane' (getservbyname)\n");
+	   "main: trying to get port for service `sane-port' (getservbyname)\n");
       serv = getservbyname ("sane-port", "tcp");
       if (serv)
 	{
@@ -2345,9 +2345,9 @@ main (int argc, char *argv[])
       else
 	{
 	  port = htons (6566);
-	  DBG (DBG_WARN, "main: could not find `sane' service (%s)\n", 
-	       strerror (errno));
-	  DBG (DBG_WARN, "main: using default port %d\n", ntohs (port));
+	  DBG (DBG_WARN, "main: \"sane-port\" service unknown on your host; you should add\n");
+	  DBG (DBG_WARN, "main:      sane-port 6566/tcp saned # SANE network scanner daemon\n");
+	  DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
 	}
       sin.sin_family = AF_INET;
       sin.sin_addr.s_addr = INADDR_ANY;

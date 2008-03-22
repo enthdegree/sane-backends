@@ -2517,20 +2517,6 @@
 :status :unsupported
 :comment "Not supported, to be added to genesys backend."
 
-:model "Astra 4400"
-:url "/unsupported/umax-astra-4400.html"
-:interface "USB"
-:usbid "0x1606" "0x0070"
-:status :unsupported
-:comment "Probably not supported. See link for details."
-
-:model "Astra 4450"
-:url "/unsupported/umax-astra-4450.html"
-:interface "USB"
-:usbid "0x1606" "0x0070"
-:status :unsupported
-:comment "Probably not supported. See link for details."
-
 :model "Astra 4500"
 :url "/unsupported/umax-astra-4500.html"
 :interface "USB"

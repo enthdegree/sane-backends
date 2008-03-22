@@ -35,7 +35,7 @@ Backends:
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
- genesys:	Henning Geinitz (*), Gerhard Jaeger (*), Stephane Voltz (*),
+ genesys:	Henning Geinitz (*), Gerhard Jaeger (*), Stéphane Voltz (*),
                 Pierre Willenbrock (*)
  gt68xx:        Sergey Vlasov, Andreas Nowack, David Stevenson, and
                 Henning Geinitz (*)
@@ -52,7 +52,7 @@ Backends:
  hs2p:		Jeremy Johnson
  ibm:           M.F., Henning Geinitz (*)
  leo:           Frank Zago (*)
- lexmark:       Fred Odendaal (*)
+ lexmark:       Fred Odendaal, Stéphane Voltz (*)
  ma1509:        Henning Geinitz (*)
  matsushita:    Frank Zago (*)
  microtek:      Matthew Marjanovic (*)
@@ -77,6 +77,7 @@ Backends:
                 despeckling filter by Patrick Reynolds, 
                 B&W fixes by Andrew Kuchling
  ricoh:         Feico W. Dillema
+ rts8891:       Stéphane Voltz (*)
  s9036:         Ingo Schneider
  sceptre:       Frank Zago (*)
  sharp:         Kazuya Fukuda (*) and Abel Deuring (*)

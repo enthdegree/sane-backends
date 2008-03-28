@@ -77,7 +77,8 @@ typedef enum output_mode
   output_mode_db,
   output_mode_udev,
   output_mode_plist,
-  output_mode_hal
+  output_mode_hal,
+  output_mode_halnew
 }
 output_mode;
 
@@ -293,7 +294,7 @@ print_usage (char *program_name)
 	  "(multiple directories can be concatenated by \":\")\n");
   printf ("  -m|--mode mode         "
 	  "Output mode (ascii, html-backends-split, html-mfgs,\n"
-	  "                         xml, statistics, usermap, db, udev, plist, hal)\n");
+	  "                         xml, statistics, usermap, db, udev, plist, hal, hal-new)\n");
   printf ("  -t|--title \"title\"     The title used for HTML pages\n");
   printf ("  -i|--intro \"intro\"     A short description of the "
 	  "contents of the page\n");
@@ -399,6 +400,11 @@ get_options (int argc, char **argv)
 	    {
 	      DBG_INFO ("Output mode: %s\n", optarg);
 	      mode = output_mode_hal;
+	    }
+	  else if (strcmp (optarg, "hal-new") == 0)
+	    {
+	      DBG_INFO ("Output mode: %s\n", optarg);
+	      mode = output_mode_halnew;
 	    }
 	  else
 	    {
@@ -3272,14 +3278,17 @@ print_plist (void)
 
 
 static void
-print_hal (void)
+print_hal (int new)
 {
   int i;
   usbid_type *usbid = create_usbids_table ();
   printf ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
   printf ("<deviceinfo version=\"0.2\">\n");
   printf ("  <device>\n");
-  printf ("    <match key=\"info.bus\" string=\"usb\">\n");
+  if (new)
+    printf ("    <match key=\"info.subsystem\" string=\"usb\">\n");
+  else
+    printf ("    <match key=\"info.bus\" string=\"usb\">\n");
   while (usbid)
     {
       manufacturer_model_type * name = usbid->name;
@@ -3353,7 +3362,10 @@ main (int argc, char **argv)
       print_plist ();
       break;
     case output_mode_hal:
-      print_hal ();
+      print_hal (0);
+      break;
+    case output_mode_halnew:
+      print_hal (1);
       break;
     default:
       DBG_ERR ("Unknown output mode\n");

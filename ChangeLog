@@ -6,6 +6,10 @@
 	the devicename is not a filename. Construct an IPC key based on
 	the product ID, bus number and device number for libusb devices,
 	otherwise fallback to ftok() and check its return value.
+	* tools/sane-desc.c: HAL 0.5.11-rc2 does not support the info.bus
+	property anymore; superseded by info.subsystem. Unfortunately,
+	this is not backward-compatible, so add a new "hal-new" mode to
+	sane-desc.
 
 2008-03-28  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hp-scl.c: add usleep to improve usb performance, from

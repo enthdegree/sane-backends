@@ -476,6 +476,7 @@ sanei_usb_init (void)
 		    {
 		    case USB_CLASS_VENDOR_SPEC:
 		    case USB_CLASS_PER_INTERFACE:
+		    case 6:	/* imaging? */
 		    case 16:	/* data? */
 		      found = SANE_TRUE;
 		      break;

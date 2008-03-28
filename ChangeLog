@@ -1,4 +1,9 @@
-2008-03-02  Stéphane Voltz <stef.dev@free.fr>
+2008-03-28  m. allan noah <kitno455 a t gmail d o t com>
+	* sanei/sanei_usb.c: add usb class 6 (imaging) to detected devices
+	* sanei/sanei_scsi.c: fix bug in sanei_scsi_find_devices() which
+	  caused early return if attach callback returned error.
+
+2008-03-22  Stéphane Voltz <stef.dev@free.fr>
 	* AUTHORS configure configure.in backend/dll.conf.in
 	  backend/Makefile.in backend/rts8891.c backend/rts8891.conf.in
 	  backend/rts8891_devices.c backend/rts8891.h backend/rts8891_low.c

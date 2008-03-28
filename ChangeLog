@@ -1,4 +1,8 @@
 2008-03-28  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/hp-scl.c: add usleep to improve usb performance, from
+	  jim a t meyering d o t net
+
+2008-03-28  m. allan noah <kitno455 a t gmail d o t com>
 	* sanei/sanei_usb.c: add usb class 6 (imaging) to detected devices
 	* sanei/sanei_scsi.c: fix bug in sanei_scsi_find_devices() which
 	  caused early return if attach callback returned error.

@@ -44,7 +44,10 @@
 
 /*
    $Log$
-   Revision 1.14  2004/10/04 18:09:05  kig-guest
+   Revision 1.15  2008/03/28 14:37:36  kitno-guest
+   add usleep to improve usb performance, from jim a t meyering d o t net
+
+   Revision 1.14  2004-10-04 18:09:05  kig-guest
    Rename global function hp_init_openfd to sanei_hp_init_openfd
 
    Revision 1.13  2004/03/27 13:52:39  kig-guest
@@ -1763,6 +1766,7 @@ _hp_scl_inq (HpScsi scsi, HpScl scl, HpScl inq_cmnd,
   RETURN_IF_FAIL( hp_scsi_flush (scsi)) ;
 
   RETURN_IF_FAIL( hp_scsi_scl(scsi, inq_cmnd, SCL_INQ_ID(scl)) );
+  usleep (1000); /* 500 works, too, but not 100 */
 
   status =  hp_scsi_read(scsi, buf, &bufsize, 1);
   if (FAILED(status))

@@ -1,3 +1,12 @@
+2008-03-28  Julien Blache <jb@jblache.org>
+	* sanei/sanei_usb.c, include/sane/sanei_usb.h: add
+	sanei_usb_get_vendor_product_byname().
+	* backend/snapscan-mutex.c: do not use ftok() in
+	snapscani_mutex_open(); ftok() will fail with anything for which
+	the devicename is not a filename. Construct an IPC key based on
+	the product ID, bus number and device number for libusb devices,
+	otherwise fallback to ftok() and check its return value.
+
 2008-03-28  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/hp-scl.c: add usleep to improve usb performance, from
 	  jim a t meyering d o t net

@@ -180,6 +180,22 @@ struct sanei_usb_dev_descriptor
  */
 extern void sanei_usb_init (void);
 
+/** Get the vendor and product ids by device name.
+ *
+ * @param devname 
+ * @param vendor vendor id
+ * @param product product id
+ *
+ * @return
+ * - SANE_STATUS_GOOD - if the ids could be determined
+ * - SANE_STATUS_INVAL - if the device is not found
+ * - SANE_STATUS_UNSUPPORTED - if this method is not supported with the current
+ *   access method
+ */
+SANE_Status
+sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
+				     SANE_Word * vendor, SANE_Word * product);
+
 /** Get the vendor and product ids.
  *
  * Currently, only libusb devices and scanners supported by the Linux USB 

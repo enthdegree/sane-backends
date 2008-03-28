@@ -647,6 +647,44 @@ sanei_usb_attach_matching_devices (const char *name,
 }
 
 SANE_Status
+sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
+				     SANE_Word * vendor, SANE_Word * product)
+{
+  int devcount;
+  SANE_Bool found = SANE_FALSE;
+
+  for (devcount = 0; devcount < MAX_DEVICES && devices[devcount].devname != 0;
+       devcount++)
+    {
+      if (strcmp (devices[devcount].devname, devname) == 0)
+	{
+	  found = SANE_TRUE;
+	  break;
+	}
+    }
+
+  if (!found)
+    {
+      DBG (1, "sanei_usb_get_vendor_product_byname: can't find device `%s' in list\n", devname);
+      return SANE_STATUS_INVAL;
+    }
+
+  if ((devices[devcount].vendor == 0) && (devices[devcount].product == 0))
+    {
+      DBG (1, "sanei_usb_get_vendor_product_byname: not support for this method\n");
+      return SANE_STATUS_UNSUPPORTED;
+    }
+
+  if (vendor)
+    *vendor = devices[devcount].vendor;
+
+  if (product)
+    *product = devices[devcount].product;
+
+  return SANE_STATUS_GOOD;
+}
+
+SANE_Status
 sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
 			      SANE_Word * product)
 {

@@ -118,13 +118,51 @@ static struct sembuf sem_signal = { 0, 1, 0 };
 
 static int snapscani_mutex_open(snapscan_mutex_t* sem_id, const char* dev)
 {
-    *sem_id = semget( ftok(dev,0x12), 1, IPC_CREAT | 0660 );
-    if (*sem_id != -1)
+    static const char *me = "snapscani_mutex_open";
+    key_t ipc_key;
+    int pid, devnum, busnum;
+
+    if (strstr(dev, "libusb:") == dev)
     {
-        semop(*sem_id, &sem_signal, 1);
-        return 1;
+        if (sanei_usb_get_vendor_product_byname(dev, NULL, &pid) != SANE_STATUS_GOOD)
+	{
+	    DBG (DL_MAJOR_ERROR, "%s: could not obtain USB product ID for device %s\n", me, dev);
+	    return 0;
+	}
+
+	if (sscanf(dev, "libusb:%d:%d", &busnum, &devnum) != 2)
+	{
+	    DBG (DL_MAJOR_ERROR, "%s: could not parse device string: %s\n", me, strerror(errno));
+	    return 0;
+	}
+
+	ipc_key = pid << 16;
+	ipc_key |= (busnum & 0xff) << 8;
+	ipc_key |= (devnum & 0xff);
+
+	DBG (DL_INFO, "%s: using IPC key 0x%08x for device %s (pid 0x%04x, bus 0x%02x, dev 0x%02x)\n",
+	     me, ipc_key, dev, pid, busnum, devnum);
     }
-    return 0;
+    else
+    {
+      ipc_key = ftok(dev, 0x12);
+
+	if (ipc_key == -1)
+	{
+	  DBG (DL_MAJOR_ERROR, "%s: could not obtain IPC key for device %s: %s\n", me, dev, strerror(errno));
+	    return 0;
+	}
+    }
+
+    *sem_id = semget( ipc_key, 1, IPC_CREAT | 0660 );
+    if (*sem_id == -1)
+    {
+        DBG (DL_MAJOR_ERROR, "%s: semget failed: %s\n", me, strerror(errno));
+	return 0;
+    }
+
+    semop(*sem_id, &sem_signal, 1);
+    return 1;
 }
 
 static void snapscani_mutex_close(snapscan_mutex_t* sem_id)

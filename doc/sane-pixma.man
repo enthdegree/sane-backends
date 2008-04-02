@@ -36,17 +36,18 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP220, MP740, MP970, MX300, MX310
+PIXMA MP220, MP740, MX300, MX310
 .RE
 .PP
-.\"The following models may use partly the same Pixma protocol as MPs listed
-.\"above, but may still need some work. They are declared in the backend as 
-.\"experimental. Snoop logs are required to further investigate, please contact 
-.\"the Sane-dev mailing list.
-.\".PP
-.\".RS
-.\"PIXMA MX300, MX310, MX700
-.\".RE
+The following models may use partly the same Pixma protocol as MPs listed
+above, but may still need some work. They are declared in the backend as 
+experimental. Snoop logs are required to further investigate, please contact 
+the Sane-dev mailing list.
+.PP
+.RS
+PIXMA MX850, MP970
+.RE
+.PP
 .\".PP
 The backend supports
 .br

@@ -1,3 +1,10 @@
+2008-04-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma.c, doc/sane-pixma.man, 
+	  doc/descriptions/pixma.desc: 
+	  Added a 10s tempo before "NO PAPER" fail message appears in  ADF scan, 
+	  declared PIXMA MX850, moved MP970 to Generation 3 protocol, but yet
+	  untested.
+
 2008-03-28  Julien Blache <jb@jblache.org>
 	* sanei/sanei_usb.c, include/sane/sanei_usb.h: add
 	sanei_usb_get_vendor_product_byname().

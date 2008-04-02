@@ -99,14 +99,16 @@
 
 /* Generation 3 */
 #define MP210_PID 0x1721
-#define MP220_PID 0x1722	/* untested */
+#define MP220_PID 0x1722  /* untested */
 #define MP470_PID 0x1723
 #define MP520_PID 0x1724
 #define MP610_PID 0x1725
-#define MP970_PID 0x1726	/* untested */
-#define MX300_PID 0x1727	/* untested */
-#define MX310_PID 0x1728	/* untested */
+#define MP970_PID 0x1726  /* untested. Generation 3 ? */
+#define MX300_PID 0x1727  /* untested */
+#define MX310_PID 0x1728  /* untested */
 #define MX700_PID 0x1729
+
+#define MX850_PID 0x172c  /* untested */
 
 enum mp150_state_t
 {
@@ -755,11 +757,21 @@ mp150_scan (pixma_t * s)
   /* FIXME: Duplex ADF: check paper status only before odd pages (1,3,5,...). */
   if (is_scanning_from_adf (s))
     {
-      error = query_status (s);
-      if (error < 0)
-	return error;
-      if (!has_paper (s))
-	return PIXMA_ENO_PAPER;
+      if ((error = query_status (s)) < 0)
+        return error;
+      tmo = 10;
+      while (!has_paper(s) && --tmo >= 0)
+        {
+          error = handle_interrupt (s, 1000);
+          if (s->cancel)
+            return PIXMA_ECANCELED;
+          if (error != PIXMA_ECANCELED && error < 0)
+            return error;
+          PDBG (pixma_dbg
+            (2, "No paper in ADF. Timed out in %d sec.\n", tmo));
+        }
+      if (!has_paper(s))
+        return PIXMA_ENO_PAPER;
     }
 
   if (has_ccd_sensor (s))
@@ -1029,10 +1041,12 @@ const pixma_config_t pixma_mp150_devices[] = {
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX850", MX850_PID, 2400,
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADFDUP | PIXMA_CAP_EXPERIMENT),
 
-  /* Generation 3: CCD */
+  /* Generation 3 CCD not managed as Generation 2 */
   DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_CIS | PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
 
   END_OF_DEVICE_LIST
 };

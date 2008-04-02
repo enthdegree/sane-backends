@@ -169,7 +169,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1726"
 :status :untested
-:comment "Testers needed!"
+:comment "Not working yet, need a USB snoop."
 
 :model "SmartBase MP360"
 :interface "USB"
@@ -230,3 +230,9 @@
 :usbid "0x04a9" "0x1729"
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 2400DPI)"
+
+:model "PIXMA MX850"
+:interface "USB"
+:usbid "0x04a9" "0x172c"
+:status :untested
+:comment "Does it use Generation 3 protocol ? TBD."

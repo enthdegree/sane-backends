@@ -1,3 +1,7 @@
+2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: 
+	  split sane_control_option() to make it more readable
+
 2008-04-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma.c, doc/sane-pixma.man, 
 	  doc/descriptions/pixma.desc: 

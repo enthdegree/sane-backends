@@ -626,81 +626,249 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   return &(scanner->opt[option]);
 }
 
-
 /**
- * Gets or sets an option value.
- * 
- * From the SANE spec:
- * This function is used to set or inquire the current value of option
- * number n of the device represented by handle h. The manner in which
- * the option is controlled is specified by parameter action. The
- * possible values of this parameter are described in more detail
- * below.  The value of the option is passed through argument val. It
- * is a pointer to the memory that holds the option value. The memory
- * area pointed to by v must be big enough to hold the entire option
- * value (determined by member size in the corresponding option
- * descriptor).
- * 
- * The only exception to this rule is that when setting the value of a
- * string option, the string pointed to by argument v may be shorter
- * since the backend will stop reading the option value upon
- * encountering the first NUL terminator in the string. If argument i
- * is not NULL, the value of *i will be set to provide details on how
- * well the request has been met.
- * action is SANE_ACTION_GET_VALUE, SANE_ACTION_SET_VALUE or SANE_ACTION_SET_AUTO
- */
-SANE_Status
-sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *val, SANE_Int * info)
+ * sets automatic value for an option , called by sane_control_option after
+ * all checks have been done */
+static SANE_Status
+set_automatic_value (Rts8891_Scanner * s, int option, SANE_Int * myinfo)
 {
-  Rts8891_Scanner *s = handle;
-  SANE_Status status;
-  SANE_Word cap, tmpw;
-  SANE_Int myinfo = 0, i, min;
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Int  i, min;
   SANE_Word *dpi_list;
 
-  DBG (DBG_io2,
-       "sane_control_option: start: action = %s, option = %s (%d)\n",
-       (action == SANE_ACTION_GET_VALUE) ? "get" : (action ==
-						    SANE_ACTION_SET_VALUE) ?
-       "set" : (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
-       s->opt[option].name, option);
-
-  if (action != SANE_ACTION_SET_AUTO && action != SANE_ACTION_SET_VALUE
-      && action != SANE_ACTION_GET_VALUE)
+  switch (option)
     {
-      DBG (DBG_error0, "sane_control_option: invalid action %d\n", action);
-      return SANE_STATUS_INVAL;
-    }
-
-  if (info)
-    *info = 0;
-
-  if (s->scanning)
-    {
-      DBG (DBG_warn, "sane_control_option: don't call this function while "
-	   "scanning (option = %s (%d))\n", s->opt[option].name, option);
-
-      return SANE_STATUS_DEVICE_BUSY;
-    }
-  if (option >= NUM_OPTIONS || option < 0)
-    {
-      DBG (DBG_warn,
-	   "sane_control_option: option %d >= NUM_OPTIONS || option < 0\n",
+    case OPT_TL_X:
+      s->val[OPT_TL_X].w = x_range.min;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_TL_Y:
+      s->val[OPT_TL_Y].w = y_range.min;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_BR_X:
+      s->val[OPT_BR_X].w = x_range.max;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_BR_Y:
+      s->val[OPT_BR_Y].w = y_range.max;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_RESOLUTION:
+      /* we set up to the lowest available dpi value */
+      dpi_list = (SANE_Word *) s->opt[OPT_RESOLUTION].constraint.word_list;
+      min = 65536;
+      for (i = 1; i < dpi_list[0]; i++)
+	{
+	  if (dpi_list[i] < min)
+	    min = dpi_list[i];
+	}
+      s->val[OPT_RESOLUTION].w = min;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_THRESHOLD:
+      s->val[OPT_THRESHOLD].w = SANE_FIX (50);
+      break;
+    case OPT_PREVIEW:
+      s->val[OPT_PREVIEW].w = SANE_FALSE;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_MODE:
+      if (s->val[OPT_MODE].s)
+	free (s->val[OPT_MODE].s);
+      s->val[OPT_MODE].s = strdup (mode_list[0]);
+      *myinfo |= SANE_INFO_RELOAD_OPTIONS;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_CUSTOM_GAMMA:
+      s->val[option].b = SANE_FALSE;
+      DISABLE (OPT_GAMMA_VECTOR);
+      DISABLE (OPT_GAMMA_VECTOR_R);
+      DISABLE (OPT_GAMMA_VECTOR_G);
+      DISABLE (OPT_GAMMA_VECTOR_B);
+      break;
+    case OPT_GAMMA_VECTOR:
+    case OPT_GAMMA_VECTOR_R:
+    case OPT_GAMMA_VECTOR_G:
+    case OPT_GAMMA_VECTOR_B:
+      if (s->dev->model->gamma != s->val[option].wa)
+	free (s->val[option].wa);
+      s->val[option].wa = s->dev->model->gamma;
+      break;
+    default:
+      DBG (DBG_warn, "set_automatic_value: can't set unknown option %d\n",
 	   option);
-      return SANE_STATUS_INVAL;
     }
 
-  cap = s->opt[option].cap;
+  return status;
+}
 
-  if (!SANE_OPTION_IS_ACTIVE (cap))
+/**
+ * sets an option , called by sane_control_option after all
+ * checks have been done */
+static SANE_Status
+set_option_value (Rts8891_Scanner * s, int option, void *val,
+		  SANE_Int * myinfo)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Int  i;
+  SANE_Word tmpw;
+
+  switch (option)
     {
-      DBG (DBG_warn, "sane_control_option: option %d is inactive\n", option);
-      return SANE_STATUS_INVAL;
+    case OPT_TL_X:
+    case OPT_TL_Y:
+    case OPT_BR_X:
+    case OPT_BR_Y:
+      s->val[option].w = *(SANE_Word *) val;
+      /* we ensure geometry is coherent */
+      /* this happens when user drags TL corner right or below the BR point */
+      if (s->val[OPT_BR_Y].w < s->val[OPT_TL_Y].w)
+	{
+	  tmpw = s->val[OPT_BR_Y].w;
+	  s->val[OPT_BR_Y].w = s->val[OPT_TL_Y].w;
+	  s->val[OPT_TL_Y].w = tmpw;
+	}
+      if (s->val[OPT_BR_X].w < s->val[OPT_TL_X].w)
+	{
+	  tmpw = s->val[OPT_BR_X].w;
+	  s->val[OPT_BR_X].w = s->val[OPT_TL_X].w;
+	  s->val[OPT_TL_X].w = tmpw;
+	}
+
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+
+    case OPT_RESOLUTION:
+    case OPT_THRESHOLD:
+    case OPT_PREVIEW:
+      s->val[option].w = *(SANE_Word *) val;
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+
+    case OPT_MODE:
+      if (s->val[option].s)
+	free (s->val[option].s);
+      s->val[option].s = strdup (val);
+      if (strcmp (s->val[option].s, LINEART_MODE) == 0)
+	{
+	  ENABLE (OPT_THRESHOLD);
+	}
+      else
+	{
+	  DISABLE (OPT_THRESHOLD);
+	}
+
+      /* if custom gamma, toggle gamma table options according to the mode */
+      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
+	{
+	  if (strcmp (s->val[option].s, COLOR_MODE) == 0)
+	    {
+	      DISABLE (OPT_GAMMA_VECTOR);
+	      ENABLE (OPT_GAMMA_VECTOR_R);
+	      ENABLE (OPT_GAMMA_VECTOR_G);
+	      ENABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	  else
+	    {
+	      ENABLE (OPT_GAMMA_VECTOR);
+	      DISABLE (OPT_GAMMA_VECTOR_R);
+	      DISABLE (OPT_GAMMA_VECTOR_G);
+	      DISABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	}
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      break;
+
+    case OPT_CUSTOM_GAMMA:
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      s->val[OPT_CUSTOM_GAMMA].b = *(SANE_Bool *) val;
+
+      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
+	{
+	  if (strcmp (s->val[OPT_MODE].s, COLOR_MODE) == 0)
+	    {
+	      DISABLE (OPT_GAMMA_VECTOR);
+	      ENABLE (OPT_GAMMA_VECTOR_R);
+	      ENABLE (OPT_GAMMA_VECTOR_G);
+	      ENABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	  else
+	    {
+	      ENABLE (OPT_GAMMA_VECTOR);
+	      DISABLE (OPT_GAMMA_VECTOR_R);
+	      DISABLE (OPT_GAMMA_VECTOR_G);
+	      DISABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	}
+      else
+	{
+	  DISABLE (OPT_GAMMA_VECTOR);
+	  DISABLE (OPT_GAMMA_VECTOR_R);
+	  DISABLE (OPT_GAMMA_VECTOR_G);
+	  DISABLE (OPT_GAMMA_VECTOR_B);
+	}
+      break;
+
+    case OPT_GAMMA_VECTOR:
+    case OPT_GAMMA_VECTOR_R:
+    case OPT_GAMMA_VECTOR_G:
+    case OPT_GAMMA_VECTOR_B:
+      /* sanity checks */
+      for (i = 0; i < (int) (s->opt[option].size / sizeof (SANE_Word)); i++)
+	{
+	  if (((SANE_Int *) val)[i] < 0 || ((SANE_Int *) val)[i] > 255)
+	    {
+	      DBG (2,
+		   "sane_control_option: gamma value (%d) at index %d out of range\n",
+		   ((SANE_Int *) val)[i], i);
+	      return SANE_STATUS_INVAL;
+	    }
+	  /* avoid aa values since they will be problematic */
+	  if (((SANE_Int *) val)[i] == 0xaa)
+	    ((SANE_Int *) val)[i] = 0xab;
+	}
+
+      /* free memory from previous set */
+      if (s->dev->model->gamma != s->val[option].wa)
+	free (s->val[option].wa);
+
+      /* then alloc memory */
+      s->val[option].wa = (SANE_Word *) malloc (256 * sizeof (SANE_Word));
+      if (s->val[option].wa == NULL)
+	{
+	  s->val[option].wa = s->dev->model->gamma;
+	  DBG (DBG_error0,
+	       "set_option_value: not enough memory for %d bytes!\n",
+	       256 * sizeof (SANE_Word));
+	  return SANE_STATUS_NO_MEM;
+	}
+
+      /* data copy */
+      memcpy (s->val[option].wa, val, s->opt[option].size);
+      break;
+
+    case OPT_LAMP_ON:
+      return set_lamp_state (s, 1);
+      break;
+
+    case OPT_LAMP_OFF:
+      return set_lamp_state (s, 0);
+      break;
+
+    default:
+      DBG (DBG_warn, "set_option_value: can't set unknown option %d\n",
+	   option);
     }
+  return status;
+}
 
-  if (action == SANE_ACTION_GET_VALUE)
-    {
+/**
+ * gets an option , called by sane_control_option after all checks
+ * have been done */
+static SANE_Status
+get_option_value (Rts8891_Scanner * s, int option, void *val)
+{
       switch (option)
 	{
 	  /* word or word equivalent options: */
@@ -731,7 +899,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  if (option - OPT_BUTTON_1 > s->dev->model->buttons)
 	    {
 	      DBG (DBG_warn,
-		   "sane_control_option: invalid button option %d\n", option);
+		   "get_option_value: invalid button option %d\n", option);
 	    }
 	  else
 	    {
@@ -741,7 +909,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      /* clear the button state */
 	      s->val[option].w = SANE_FALSE;
 	      DBG (DBG_io,
-		   "sane_control_option: button option %d=%d\n", option,
+		   "get_option_value: button option %d=%d\n", option,
 		   *(SANE_Word *) val);
 	    }
 	  break;
@@ -756,12 +924,87 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  memcpy (val, s->val[option].wa, s->opt[option].size);
 	  break;
 	default:
-	  DBG (DBG_warn, "sane_control_option: can't get unknown option %d\n",
+	  DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
 	       option);
 	}
-    }
-  else if (action == SANE_ACTION_SET_VALUE)
+	return SANE_STATUS_GOOD;
+}
+
+/**
+ * Gets or sets an option value.
+ * 
+ * From the SANE spec:
+ * This function is used to set or inquire the current value of option
+ * number n of the device represented by handle h. The manner in which
+ * the option is controlled is specified by parameter action. The
+ * possible values of this parameter are described in more detail
+ * below.  The value of the option is passed through argument val. It
+ * is a pointer to the memory that holds the option value. The memory
+ * area pointed to by v must be big enough to hold the entire option
+ * value (determined by member size in the corresponding option
+ * descriptor).
+ * 
+ * The only exception to this rule is that when setting the value of a
+ * string option, the string pointed to by argument v may be shorter
+ * since the backend will stop reading the option value upon
+ * encountering the first NUL terminator in the string. If argument i
+ * is not NULL, the value of *i will be set to provide details on how
+ * well the request has been met.
+ * action is SANE_ACTION_GET_VALUE, SANE_ACTION_SET_VALUE or SANE_ACTION_SET_AUTO
+ */
+SANE_Status
+sane_control_option (SANE_Handle handle, SANE_Int option,
+		     SANE_Action action, void *val, SANE_Int * info)
+{
+  Rts8891_Scanner *s = handle;
+  SANE_Status status;
+  SANE_Word cap;
+  SANE_Int myinfo = 0;
+
+  DBG (DBG_io2,
+       "sane_control_option: start: action = %s, option = %s (%d)\n",
+       (action == SANE_ACTION_GET_VALUE) ? "get" : (action ==
+						    SANE_ACTION_SET_VALUE) ?
+       "set" : (action == SANE_ACTION_SET_AUTO) ? "set_auto" : "unknown",
+       s->opt[option].name, option);
+
+  if (info)
+    *info = 0;
+
+  /* do checks before trying to apply action */
+
+  if (s->scanning)
     {
+      DBG (DBG_warn, "sane_control_option: don't call this function while "
+	   "scanning (option = %s (%d))\n", s->opt[option].name, option);
+      return SANE_STATUS_DEVICE_BUSY;
+    }
+
+  /* option must be within existing range */
+  if (option >= NUM_OPTIONS || option < 0)
+    {
+      DBG (DBG_warn,
+	   "sane_control_option: option %d >= NUM_OPTIONS || option < 0\n",
+	   option);
+      return SANE_STATUS_INVAL;
+    }
+
+  /* don't access an inactive option */
+  cap = s->opt[option].cap;
+  if (!SANE_OPTION_IS_ACTIVE (cap))
+    {
+      DBG (DBG_warn, "sane_control_option: option %d is inactive\n", option);
+      return SANE_STATUS_INVAL;
+    }
+
+  /* now checks have been done, apply action */
+  switch (action)
+    {
+    case SANE_ACTION_GET_VALUE:
+      status = get_option_value (s, option, val);
+      break;
+
+    case SANE_ACTION_SET_VALUE:
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	{
 	  DBG (DBG_warn, "sane_control_option: option %d is not settable\n",
@@ -769,12 +1012,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_INVAL;
 	}
 
-      /* return immediatly if no change */
-      if (s->opt[option].type == SANE_TYPE_INT
-	  && *(SANE_Word *) val == s->val[option].w)
-	return SANE_STATUS_GOOD;
-
-      /* check that the value to set conforms to the constraint */
       status = sanei_constrain_value (s->opt + option, val, &myinfo);
       if (status != SANE_STATUS_GOOD)
 	{
@@ -784,156 +1021,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 	}
 
-      switch (option)
+      /* return immediatly if no change */
+      if (s->opt[option].type == SANE_TYPE_INT
+	  && *(SANE_Word *) val == s->val[option].w)
 	{
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	  s->val[option].w = *(SANE_Word *) val;
-	  /* we ensure geometry is coherent */
-	  /* this happens when user drags TL corner right or below the BR point */
-	  if (s->val[OPT_BR_Y].w < s->val[OPT_TL_Y].w)
-	    {
-	      tmpw = s->val[OPT_BR_Y].w;
-	      s->val[OPT_BR_Y].w = s->val[OPT_TL_Y].w;
-	      s->val[OPT_TL_Y].w = tmpw;
-	    }
-	  if (s->val[OPT_BR_X].w < s->val[OPT_TL_X].w)
-	    {
-	      tmpw = s->val[OPT_BR_X].w;
-	      s->val[OPT_BR_X].w = s->val[OPT_TL_X].w;
-	      s->val[OPT_TL_X].w = tmpw;
-	    }
-
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-
-	case OPT_RESOLUTION:
-	case OPT_THRESHOLD:
-	case OPT_PREVIEW:
-	  s->val[option].w = *(SANE_Word *) val;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-
-	case OPT_MODE:
-	  if (s->val[option].s)
-	    free (s->val[option].s);
-	  s->val[option].s = strdup (val);
-	  if (strcmp (s->val[option].s, LINEART_MODE) == 0)
-	    {
-	      ENABLE (OPT_THRESHOLD);
-	    }
-	  else
-	    {
-	      DISABLE (OPT_THRESHOLD);
-	    }
-
-	  /* if custom gamma, toggle gamma table options according to the mode */
-	  if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
-	    {
-	      if (strcmp (s->val[option].s, COLOR_MODE) == 0)
-		{
-		  DISABLE (OPT_GAMMA_VECTOR);
-		  ENABLE (OPT_GAMMA_VECTOR_R);
-		  ENABLE (OPT_GAMMA_VECTOR_G);
-		  ENABLE (OPT_GAMMA_VECTOR_B);
-		}
-	      else
-		{
-		  ENABLE (OPT_GAMMA_VECTOR);
-		  DISABLE (OPT_GAMMA_VECTOR_R);
-		  DISABLE (OPT_GAMMA_VECTOR_G);
-		  DISABLE (OPT_GAMMA_VECTOR_B);
-		}
-	    }
-	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  break;
-
-	case OPT_CUSTOM_GAMMA:
-	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  s->val[OPT_CUSTOM_GAMMA].b = *(SANE_Bool *) val;
-
-	  if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
-	    {
-	      if (strcmp (s->val[OPT_MODE].s, COLOR_MODE) == 0)
-		{
-		  DISABLE (OPT_GAMMA_VECTOR);
-		  ENABLE (OPT_GAMMA_VECTOR_R);
-		  ENABLE (OPT_GAMMA_VECTOR_G);
-		  ENABLE (OPT_GAMMA_VECTOR_B);
-		}
-	      else
-		{
-		  ENABLE (OPT_GAMMA_VECTOR);
-		  DISABLE (OPT_GAMMA_VECTOR_R);
-		  DISABLE (OPT_GAMMA_VECTOR_G);
-		  DISABLE (OPT_GAMMA_VECTOR_B);
-		}
-	    }
-	  else
-	    {
-	      DISABLE (OPT_GAMMA_VECTOR);
-	      DISABLE (OPT_GAMMA_VECTOR_R);
-	      DISABLE (OPT_GAMMA_VECTOR_G);
-	      DISABLE (OPT_GAMMA_VECTOR_B);
-	    }
-	  break;
-
-	case OPT_GAMMA_VECTOR:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	  /* sanity checks */
-	  if (s->val[option].wa == NULL)
-	    {
-	      s->val[option].wa = s->dev->model->gamma;
-	      DBG (DBG_error0,
-		   "sane_control_option: not enough memory for %d bytes!\n",
-		   256 * sizeof (SANE_Word));
-	      return SANE_STATUS_NO_MEM;
-	    }
-	  for (i = 0; i < (int) (s->opt[option].size / sizeof (SANE_Word));
-	       i++)
-	    {
-	      if (((SANE_Int *) val)[i] < 0 || ((SANE_Int *) val)[i] > 255)
-		{
-		  DBG (2,
-		       "sane_control_option: gamma value (%d) at index %d out of range\n",
-		       ((SANE_Int *) val)[i], i);
-		  return SANE_STATUS_INVAL;
-		}
-	      /* avoid aa values since they will be problematic */
-	      if (((SANE_Int *) val)[i] == 0xaa)
-		((SANE_Int *) val)[i] = 0xab;
-	    }
-
-	  /* free memory from previous set */
-	  if (s->dev->model->gamma != s->val[option].wa)
-	    free (s->val[option].wa);
-
-	  /* then alloc memory */
-	  s->val[option].wa = (SANE_Word *) malloc (256 * sizeof (SANE_Word));
-
-	  /* data copy */
-	  memcpy (s->val[option].wa, val, s->opt[option].size);
-	  break;
-
-	case OPT_LAMP_ON:
-	  return set_lamp_state (s, 1);
-	  break;
-
-	case OPT_LAMP_OFF:
-	  return set_lamp_state (s, 0);
-	  break;
-
-	default:
-	  DBG (DBG_warn, "sane_control_option: can't set unknown option %d\n",
-	       option);
+	  status = SANE_STATUS_GOOD;
 	}
-    }
-  else if (action == SANE_ACTION_SET_AUTO)
-    {
+      else
+	{			/* apply change */
+	  status = set_option_value (s, option, val, &myinfo);
+	}
+      break;
+
+    case SANE_ACTION_SET_AUTO:
       /* sets automatic values */
       if (!(cap & SANE_CAP_AUTOMATIC))
 	{
@@ -943,77 +1043,20 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return SANE_STATUS_INVAL;
 	}
 
-      switch (option)
-	{
-	case OPT_TL_X:
-	  s->val[OPT_TL_X].w = x_range.min;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_TL_Y:
-	  s->val[OPT_TL_Y].w = y_range.min;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_BR_X:
-	  s->val[OPT_BR_X].w = x_range.max;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_BR_Y:
-	  s->val[OPT_BR_Y].w = y_range.max;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_RESOLUTION:
-	  /* we set up to the lowest available dpi value */
-	  dpi_list =
-	    (SANE_Word *) s->opt[OPT_RESOLUTION].constraint.word_list;
-	  min = 65536;
-	  for (i = 1; i < dpi_list[0]; i++)
-	    {
-	      if (dpi_list[i] < min)
-		min = dpi_list[i];
-	    }
-	  s->val[OPT_RESOLUTION].w = min;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_THRESHOLD:
-	  s->val[OPT_THRESHOLD].w = SANE_FIX (50);
-	  break;
-	case OPT_PREVIEW:
-	  s->val[OPT_PREVIEW].w = SANE_FALSE;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_MODE:
-	  if (s->val[OPT_MODE].s)
-	    free (s->val[OPT_MODE].s);
-	  s->val[OPT_MODE].s = strdup (mode_list[0]);
-	  myinfo |= SANE_INFO_RELOAD_OPTIONS;
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_CUSTOM_GAMMA:
-	  s->val[option].b = SANE_FALSE;
-	  DISABLE (OPT_GAMMA_VECTOR);
-	  DISABLE (OPT_GAMMA_VECTOR_R);
-	  DISABLE (OPT_GAMMA_VECTOR_G);
-	  DISABLE (OPT_GAMMA_VECTOR_B);
-	  break;
-	case OPT_GAMMA_VECTOR:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	  if (s->dev->model->gamma != s->val[option].wa)
-	    free (s->val[option].wa);
-	  s->val[option].wa = s->dev->model->gamma;
-	  break;
-	default:
-	  DBG (DBG_warn, "sane_control_option: can't set unknown option %d\n",
-	       option);
-	}
+      status = set_automatic_value (s, option, &myinfo);
+      break;
+
+    default:
+      DBG (DBG_error, "sane_control_option: invalid action %d\n", action);
+      status = SANE_STATUS_INVAL;
+      break;
     }
 
   if (info)
     *info = myinfo;
 
   DBG (DBG_io2, "sane_control_option: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 /**

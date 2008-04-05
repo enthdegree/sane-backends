@@ -81,6 +81,14 @@ enum Genesys_Option
   OPT_BR_X,			/* bottom-right x */
   OPT_BR_Y,			/* bottom-right y */
 
+  /* advanced image enhancement options */
+  OPT_ENHANCEMENT_GROUP,
+  OPT_CUSTOM_GAMMA,		/* toggle to enable custom gamma tables */
+  OPT_GAMMA_VECTOR,
+  OPT_GAMMA_VECTOR_R,
+  OPT_GAMMA_VECTOR_G,
+  OPT_GAMMA_VECTOR_B,
+
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
   OPT_THRESHOLD,

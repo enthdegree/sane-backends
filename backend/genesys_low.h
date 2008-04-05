@@ -95,6 +95,7 @@
 						   creation function */
 
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /*yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
+#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /* allow custom gamma tables */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)

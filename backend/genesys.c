@@ -2,7 +2,7 @@
 
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004, 2007 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004, 2008 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
@@ -73,6 +73,8 @@
 #include "genesys.h"
 #include "genesys_devices.c"
 
+#define FREE_IFNOT_NULL(x)		if(x!=NULL) { free(x); x=NULL;}
+
 static SANE_Int num_devices = 0;
 static Genesys_Device *first_dev = 0;
 static Genesys_Scanner *first_handle = 0;
@@ -85,10 +87,10 @@ static SANE_Int new_dev_len = 0;
 static SANE_Int new_dev_alloced = 0;
 
 static SANE_String_Const mode_list[] = {
-  SANE_I18N ("Color"),
-  SANE_I18N ("Gray"),
-  /* SANE_I18N ("Halftone"),  currently unused */
-  SANE_I18N ("Lineart"),
+  SANE_VALUE_SCAN_MODE_COLOR,
+  SANE_VALUE_SCAN_MODE_GRAY,
+  /* SANE_TITLE_HALFTONE,  currently unused */
+  SANE_VALUE_SCAN_MODE_LINEART,
   0
 };
 
@@ -126,6 +128,24 @@ static SANE_Range time_range = {
 static const SANE_Range u8_range = {
   0,				/* minimum */
   255,				/* maximum */
+  0				/* quantization */
+};
+
+static const SANE_Range u12_range = {
+  0,				/* minimum */
+  4095,				/* maximum */
+  0				/* quantization */
+};
+
+static const SANE_Range u14_range = {
+  0,				/* minimum */
+  16383,			/* maximum */
+  0				/* quantization */
+};
+
+static const SANE_Range u16_range = {
+  0,				/* minimum */
+  65535,			/* maximum */
   0				/* quantization */
 };
 
@@ -686,9 +706,11 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
 					   vtarget,
 					   vstart,
 					   vend,
-					   dev->motor.slopes[power_mode][step_type].
+					   dev->motor.
+					   slopes[power_mode][step_type].
 					   minimum_steps << step_type,
-					   dev->motor.slopes[power_mode][step_type].g,
+					   dev->motor.
+					   slopes[power_mode][step_type].g,
 					   used_steps, &vfinal);
 
   if (final_exposure)
@@ -719,9 +741,8 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: %d steps, step_type = %d, "
-       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n", 
-       steps, step_type,
-       exposure_time, same_speed, yres, power_mode);
+       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n",
+       steps, step_type, exposure_time, same_speed, yres, power_mode);
 
   /* final speed */
   vtarget = (exposure_time * yres) / dev->motor.base_ydpi;
@@ -746,9 +767,11 @@ genesys_create_slope_table4 (Genesys_Device * dev,
 					   vtarget,
 					   vstart,
 					   vend,
-					   dev->motor.slopes[power_mode][step_type].
+					   dev->motor.
+					   slopes[power_mode][step_type].
 					   minimum_steps << step_type,
-					   dev->motor.slopes[power_mode][step_type].g,
+					   dev->motor.
+					   slopes[power_mode][step_type].g,
 					   NULL, NULL);
 
   DBG (DBG_proc,
@@ -774,9 +797,8 @@ genesys_create_slope_table2 (Genesys_Device * dev,
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table2: %d steps, step_type = %d, "
-       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n", 
-       steps, step_type,
-       exposure_time, same_speed, yres, power_mode);
+       "exposure_time = %d, same_speed = %d, yres = %.2f, power_mode = %d\n",
+       steps, step_type, exposure_time, same_speed, yres, power_mode);
 
   /* start speed */
   if (dev->model->motor_type == MOTOR_5345)
@@ -1104,9 +1126,9 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
 			      int led_exposure, int power_mode)
 {
   int exposure_by_ccd = endpixel + 32;
-  int exposure_by_motor = 
-      (dev->motor.slopes[power_mode][step_type].maximum_speed
-      *dev->motor.base_ydpi)/ydpi;
+  int exposure_by_motor =
+    (dev->motor.slopes[power_mode][step_type].maximum_speed
+     * dev->motor.base_ydpi) / ydpi;
   int exposure_by_led = led_exposure;
 
   int exposure = exposure_by_ccd;
@@ -2201,8 +2223,7 @@ genesys_dark_shading_calibration (Genesys_Device * dev)
   else
     channels = 1;
 
-  if (dev->dark_average_data)
-    free (dev->dark_average_data);
+  FREE_IFNOT_NULL (dev->dark_average_data);
 
   dev->dark_average_data = malloc (channels * 2 * pixels_per_line);
   if (!dev->dark_average_data)
@@ -2333,8 +2354,7 @@ genesys_dummy_dark_shading (Genesys_Device * dev)
   else
     channels = 1;
 
-  if (dev->dark_average_data)
-    free (dev->dark_average_data);
+  FREE_IFNOT_NULL (dev->dark_average_data);
 
   dev->dark_average_data = malloc (channels * 2 * pixels_per_line);
   if (!dev->dark_average_data)
@@ -3225,8 +3245,17 @@ genesys_flatbed_calibration (Genesys_Device * dev)
   if (dev->settings.yres <= dev->sensor.optical_res / 2)
     yres /= 2;
 
-  /* send default gamma table */
-  status = dev->model->cmd_set->send_gamma_table (dev, 1);
+  /* send custom or generic gamma tables depending on flag */
+  if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
+    {
+      /* use custom gamma table */
+      status = dev->model->cmd_set->send_gamma_table (dev, 0);
+    }
+  else
+    {
+      /* send default gamma table if no custom gamma */
+      status = dev->model->cmd_set->send_gamma_table (dev, 1);
+    }
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
@@ -3412,7 +3441,7 @@ genesys_flatbed_calibration (Genesys_Device * dev)
       return status;
     }
 
-  /* send gamma tables if needed */
+  /* send specific gamma tables if needed */
   status = dev->model->cmd_set->send_gamma_table (dev, 0);
   if (status != SANE_STATUS_GOOD)
     {
@@ -4488,12 +4517,13 @@ calc_parameters (Genesys_Scanner * s)
 
   s->params.last_frame = SANE_TRUE;	/* only single pass scanning supported */
 
-  if (strcmp (mode, "Gray") == 0 || strcmp (mode, "Lineart") == 0)
+  if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0
+      || strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.format = SANE_FRAME_GRAY;
   else				/* Color */
     s->params.format = SANE_FRAME_RGB;
 
-  if (strcmp (mode, "Lineart") == 0)
+  if (strcmp (mode, SANE_VALUE_SCAN_MODE_LINEART) == 0)
     s->params.depth = 1;
   else
     s->params.depth = depth;
@@ -4534,11 +4564,11 @@ calc_parameters (Genesys_Scanner * s)
   if (s->params.format == SANE_FRAME_RGB)
     s->params.bytes_per_line *= 3;
 
-  if (strcmp (mode, "Color") == 0)
+  if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
     s->dev->settings.scan_mode = 4;
-  else if (strcmp (mode, "Gray") == 0)
+  else if (strcmp (mode, SANE_VALUE_SCAN_MODE_GRAY) == 0)
     s->dev->settings.scan_mode = 2;
-  else if (strcmp (mode, "Halftone") == 0)
+  else if (strcmp (mode, SANE_TITLE_HALFTONE) == 0)
     s->dev->settings.scan_mode = 1;
   else				/* Lineart */
     s->dev->settings.scan_mode = 0;
@@ -4582,6 +4612,41 @@ create_bpp_list (Genesys_Scanner * s, SANE_Int * bpp)
       s->bpp_list[s->bpp_list[0] - count] = bpp[count];
     }
   return SANE_STATUS_GOOD;
+}
+
+/* this function initialize a gamma vector based on the ASIC:
+ * gl646: 12 or 14 bits gamma table depending on GENESYS_FLAG_14BIT_GAMMA
+ * gl84x: 16 bits
+ */
+static void
+init_gamma_vector_option (Genesys_Scanner * scanner, int option)
+{
+  /* the option is inactive until the custom gamma control
+   * is enabled */
+  scanner->opt[option].type = SANE_TYPE_INT;
+  scanner->opt[option].cap |= SANE_CAP_INACTIVE | SANE_CAP_ADVANCED;
+  scanner->opt[option].unit = SANE_UNIT_NONE;
+  scanner->opt[option].constraint_type = SANE_CONSTRAINT_RANGE;
+  if (scanner->dev->model->asic_type == GENESYS_GL646)
+    {
+      if ((scanner->dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) != 0)
+	{
+	  scanner->opt[option].size = 16384 * sizeof (SANE_Word);
+	  scanner->opt[option].constraint.range = &u14_range;
+	}
+      else
+	{			/* 12 bits gamma tables */
+	  scanner->opt[option].size = 4096 * sizeof (SANE_Word);
+	  scanner->opt[option].constraint.range = &u12_range;
+	}
+    }
+  else
+    {				/* GL841 case */
+      scanner->opt[option].size = 256 * sizeof (SANE_Word);
+      scanner->opt[option].constraint.range = &u16_range;
+    }
+  /* default value is NULL */
+  scanner->val[option].wa = NULL;
 }
 
 static SANE_Status
@@ -4629,7 +4694,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   s->opt[OPT_MODE].size = max_string_size (mode_list);
   s->opt[OPT_MODE].constraint.string_list = mode_list;
-  s->val[OPT_MODE].s = strdup ("Gray");
+  s->val[OPT_MODE].s = strdup (SANE_VALUE_SCAN_MODE_GRAY);
 
   /* scan source */
   s->opt[OPT_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -4734,6 +4799,56 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BR_Y].constraint.range = &y_range;
   s->val[OPT_BR_Y].w = y_range.max;
+
+  /* "Enhancement" group: */
+  s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
+  s->opt[OPT_ENHANCEMENT_GROUP].desc = "";
+  s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
+  s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  /* custom-gamma table */
+  s->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
+  s->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
+  s->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
+  s->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
+  s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
+  s->val[OPT_CUSTOM_GAMMA].b = SANE_FALSE;
+
+  /* grayscale gamma vector */
+  s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
+  s->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
+  s->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
+  init_gamma_vector_option (s, OPT_GAMMA_VECTOR);
+
+  /* red gamma vector */
+  s->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
+  s->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
+  s->opt[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
+  init_gamma_vector_option (s, OPT_GAMMA_VECTOR_R);
+
+  /* green gamma vector */
+  s->opt[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
+  s->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
+  s->opt[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
+  init_gamma_vector_option (s, OPT_GAMMA_VECTOR_G);
+
+  /* blue gamma vector */
+  s->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
+  s->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
+  s->opt[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
+  init_gamma_vector_option (s, OPT_GAMMA_VECTOR_B);
+
+  /* currently, there are only gamma table options in this group,
+   * so if the scanner doesn't support gamma table, disable the
+   * whole group */
+  if (!(s->dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA))
+    {
+      s->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_INACTIVE;
+      s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+      DBG (DBG_info, "init_options: custom gamma disabled\n");
+    }
 
   /* "Extras" group: */
   s->opt[OPT_EXTRAS_GROUP].title = SANE_I18N ("Extras");
@@ -5033,15 +5148,8 @@ sane_exit (void)
   DBG (DBG_proc, "sane_exit: start\n");
   for (dev = first_dev; dev; dev = next)
     {
-      if (dev->already_initialized)
-	{
-	  if (dev->sensor.red_gamma_table)
-	    free (dev->sensor.red_gamma_table);
-	  if (dev->sensor.green_gamma_table)
-	    free (dev->sensor.green_gamma_table);
-	  if (dev->sensor.blue_gamma_table)
-	    free (dev->sensor.blue_gamma_table);
-	}
+      /* sane_close() free many fields, not much things left to
+       * do here */
       next = dev->next;
       free (dev->file_name);
       free (dev);
@@ -5103,8 +5211,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   DBG (DBG_proc, "sane_open: start (devicename = `%s')\n", devicename);
 
-  if (devicename[0])
+  /* devicename="" or devicename="genesys" are default values that use
+   * first available device
+   */
+  if (devicename[0] && strcmp ("genesys", devicename) != 0)
     {
+      /* search for the given devicename in the device list */
       for (dev = first_dev; dev; dev = dev->next)
 	if (strcmp (dev->file_name, devicename) == 0)
 	  break;
@@ -5122,7 +5234,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     }
   else
     {
-      /* empty devicename -> use first device */
+      /* empty devicename or "genesys" -> use first device */
       dev = first_dev;
       if (dev)
 	{
@@ -5219,16 +5331,19 @@ sane_close (SANE_Handle handle)
   sanei_genesys_buffer_free (&(s->dev->lines_buffer));
   sanei_genesys_buffer_free (&(s->dev->shrink_buffer));
   sanei_genesys_buffer_free (&(s->dev->out_buffer));
+  FREE_IFNOT_NULL (s->dev->white_average_data);
+  FREE_IFNOT_NULL (s->dev->dark_average_data);
 
-  if (s->dev->white_average_data != NULL)
-    free (s->dev->white_average_data);
-  if (s->dev->dark_average_data != NULL)
-    free (s->dev->dark_average_data);
+  /* free allocated gamma tables */
+  FREE_IFNOT_NULL (s->dev->sensor.red_gamma_table);
+  FREE_IFNOT_NULL (s->dev->sensor.green_gamma_table);
+  FREE_IFNOT_NULL (s->dev->sensor.blue_gamma_table);
 
   /* for an handful of bytes .. */
   free (s->opt[OPT_RESOLUTION].constraint.word_list);
   free (s->val[OPT_SOURCE].s);
   free (s->val[OPT_MODE].s);
+  free (s->val[OPT_COLOR_FILTER].s);
 
   if (prev)
     prev->next = s->next;
@@ -5255,12 +5370,291 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   return s->opt + option;
 }
 
+/* gets an option , called by sane_control_option */
+static SANE_Status
+get_option_value (Genesys_Scanner * s, int option, void *val)
+{
+  unsigned int i;
+  SANE_Word *table;
+  u_int16_t *gamma;
+
+  switch (option)
+    {
+      /* word options: */
+    case OPT_NUM_OPTS:
+    case OPT_RESOLUTION:
+    case OPT_BIT_DEPTH:
+    case OPT_PREVIEW:
+    case OPT_TL_X:
+    case OPT_TL_Y:
+    case OPT_BR_X:
+    case OPT_BR_Y:
+    case OPT_THRESHOLD:
+    case OPT_DISABLE_INTERPOLATION:
+    case OPT_LAMP_OFF_TIME:
+    case OPT_CUSTOM_GAMMA:
+      *(SANE_Word *) val = s->val[option].w;
+      break;
+      /* string options: */
+    case OPT_MODE:
+    case OPT_COLOR_FILTER:
+    case OPT_SOURCE:
+      strcpy (val, s->val[option].s);
+      break;
+      /* word array options */
+    case OPT_GAMMA_VECTOR:
+      table = (SANE_Word *) val;
+      if (strcmp (s->val[OPT_COLOR_FILTER].s, "Red") == 0)
+	{
+	  gamma = s->dev->sensor.red_gamma_table;
+	}
+      else if (strcmp (s->val[OPT_COLOR_FILTER].s, "Blue") == 0)
+	{
+	  gamma = s->dev->sensor.blue_gamma_table;
+	}
+      else
+	{
+	  gamma = s->dev->sensor.green_gamma_table;
+	}
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  table[i] = gamma[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_R:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  table[i] = s->dev->sensor.red_gamma_table[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_G:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  table[i] = s->dev->sensor.green_gamma_table[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_B:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  table[i] = s->dev->sensor.blue_gamma_table[i];
+	}
+      break;
+    default:
+      DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
+	   option);
+    }
+  return SANE_STATUS_GOOD;
+}
+
+/* sets an option , called by sane_control_option */
+static SANE_Status
+set_option_value (Genesys_Scanner * s, int option, void *val,
+		  SANE_Int * myinfo)
+{
+  SANE_Status status;
+  SANE_Word *table;
+  unsigned int i;
+
+  switch (option)
+    {
+    case OPT_TL_X:
+    case OPT_TL_Y:
+    case OPT_BR_X:
+    case OPT_BR_Y:
+      s->val[option].w = *(SANE_Word *) val;
+      RIE (calc_parameters (s));
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_RESOLUTION:
+    case OPT_BIT_DEPTH:
+    case OPT_THRESHOLD:
+    case OPT_DISABLE_INTERPOLATION:
+    case OPT_PREVIEW:
+      s->val[option].w = *(SANE_Word *) val;
+      RIE (calc_parameters (s));
+      *myinfo |= SANE_INFO_RELOAD_PARAMS;
+      break;
+    case OPT_SOURCE:
+      if (strcmp (s->val[option].s, val) != 0)
+	{			/* something changed */
+	  if (s->val[option].s)
+	    free (s->val[option].s);
+	  s->val[option].s = strdup (val);
+	  *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	}
+      break;
+    case OPT_MODE:
+      if (s->val[option].s)
+	free (s->val[option].s);
+      s->val[option].s = strdup (val);
+      if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_LINEART) == 0)
+	{
+	  ENABLE (OPT_THRESHOLD);
+	  DISABLE (OPT_BIT_DEPTH);
+	  ENABLE (OPT_COLOR_FILTER);
+	}
+      else
+	{
+	  DISABLE (OPT_THRESHOLD);
+	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_GRAY) == 0)
+	    {
+	      ENABLE (OPT_COLOR_FILTER);
+	      create_bpp_list (s, s->dev->model->bpp_gray_values);
+	    }
+	  else
+	    {
+	      DISABLE (OPT_COLOR_FILTER);
+	      create_bpp_list (s, s->dev->model->bpp_color_values);
+	    }
+	  if (s->bpp_list[0] < 2)
+	    DISABLE (OPT_BIT_DEPTH);
+	  else
+	    ENABLE (OPT_BIT_DEPTH);
+	}
+      RIE (calc_parameters (s));
+
+      /* if custom gamma, toggle gamma table options according to the mode */
+      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
+	{
+	  if (strcmp (s->val[option].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
+	    {
+	      DISABLE (OPT_GAMMA_VECTOR);
+	      ENABLE (OPT_GAMMA_VECTOR_R);
+	      ENABLE (OPT_GAMMA_VECTOR_G);
+	      ENABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	  else
+	    {
+	      ENABLE (OPT_GAMMA_VECTOR);
+	      DISABLE (OPT_GAMMA_VECTOR_R);
+	      DISABLE (OPT_GAMMA_VECTOR_G);
+	      DISABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	}
+
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      break;
+    case OPT_COLOR_FILTER:
+      if (s->val[option].s)
+	free (s->val[option].s);
+      s->val[option].s = strdup (val);
+      RIE (calc_parameters (s));
+      break;
+    case OPT_LAMP_OFF_TIME:
+      if (*(SANE_Word *) val != s->val[option].w)
+	{
+	  s->val[option].w = *(SANE_Word *) val;
+	  RIE (s->dev->model->cmd_set->
+	       set_powersaving (s->dev, s->val[option].w));
+	}
+      break;
+
+    case OPT_CUSTOM_GAMMA:
+      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+      s->val[OPT_CUSTOM_GAMMA].b = *(SANE_Bool *) val;
+
+      if (s->val[OPT_CUSTOM_GAMMA].b == SANE_TRUE)
+	{
+	  if (strcmp (s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_COLOR) == 0)
+	    {
+	      DISABLE (OPT_GAMMA_VECTOR);
+	      ENABLE (OPT_GAMMA_VECTOR_R);
+	      ENABLE (OPT_GAMMA_VECTOR_G);
+	      ENABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	  else
+	    {
+	      ENABLE (OPT_GAMMA_VECTOR);
+	      DISABLE (OPT_GAMMA_VECTOR_R);
+	      DISABLE (OPT_GAMMA_VECTOR_G);
+	      DISABLE (OPT_GAMMA_VECTOR_B);
+	    }
+	}
+      else
+	{
+	  DISABLE (OPT_GAMMA_VECTOR);
+	  DISABLE (OPT_GAMMA_VECTOR_R);
+	  DISABLE (OPT_GAMMA_VECTOR_G);
+	  DISABLE (OPT_GAMMA_VECTOR_B);
+	  /* restore default sensor gamma table */
+	  /* currently there is no sensor's specific gamma table,
+	   * tables are built by sanei_genesys_create_gamma_table */
+	  sanei_genesys_create_gamma_table (s->dev->sensor.red_gamma_table,
+					    s->opt[OPT_GAMMA_VECTOR_R].size /
+					    sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_R].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_R].
+					    constraint.range->max,
+					    s->dev->sensor.red_gamma);
+	  sanei_genesys_create_gamma_table (s->dev->sensor.green_gamma_table,
+					    s->opt[OPT_GAMMA_VECTOR_G].size /
+					    sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_G].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_G].
+					    constraint.range->max,
+					    s->dev->sensor.red_gamma);
+	  sanei_genesys_create_gamma_table (s->dev->sensor.blue_gamma_table,
+					    s->opt[OPT_GAMMA_VECTOR_B].size /
+					    sizeof (SANE_Word),
+					    s->opt[OPT_GAMMA_VECTOR_B].
+					    constraint.range->max,
+					    s->opt[OPT_GAMMA_VECTOR_B].
+					    constraint.range->max,
+					    s->dev->sensor.red_gamma);
+	}
+      break;
+
+    case OPT_GAMMA_VECTOR:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  s->dev->sensor.red_gamma_table[i] = table[i];
+	  s->dev->sensor.green_gamma_table[i] = table[i];
+	  s->dev->sensor.blue_gamma_table[i] = table[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_R:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  s->dev->sensor.red_gamma_table[i] = table[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_G:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  s->dev->sensor.green_gamma_table[i] = table[i];
+	}
+      break;
+    case OPT_GAMMA_VECTOR_B:
+      table = (SANE_Word *) val;
+      for (i = 0; i < s->opt[option].size / sizeof (SANE_Word); i++)
+	{
+	  s->dev->sensor.blue_gamma_table[i] = table[i];
+	}
+      break;
+
+    default:
+      DBG (DBG_warn, "set_option_value: can't set unknown option %d\n",
+	   option);
+    }
+  return SANE_STATUS_GOOD;
+}
+
+
+/* sets and gets scanner option values */
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int * info)
 {
   Genesys_Scanner *s = handle;
-  SANE_Status status;
+  SANE_Status status = SANE_STATUS_GOOD;
   SANE_Word cap;
   SANE_Int myinfo = 0;
 
@@ -5297,37 +5691,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       return SANE_STATUS_INVAL;
     }
 
-  if (action == SANE_ACTION_GET_VALUE)
+  switch (action)
     {
-      switch (option)
-	{
-	  /* word options: */
-	case OPT_NUM_OPTS:
-	case OPT_RESOLUTION:
-	case OPT_BIT_DEPTH:
-	case OPT_PREVIEW:
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	case OPT_THRESHOLD:
-	case OPT_DISABLE_INTERPOLATION:
-	case OPT_LAMP_OFF_TIME:
-	  *(SANE_Word *) val = s->val[option].w;
-	  break;
-	  /* string options: */
-	case OPT_MODE:
-	case OPT_COLOR_FILTER:
-	case OPT_SOURCE:
-	  strcpy (val, s->val[option].s);
-	  break;
-	default:
-	  DBG (DBG_warn, "sane_control_option: can't get unknown option %d\n",
-	       option);
-	}
-    }
-  else if (action == SANE_ACTION_SET_VALUE)
-    {
+    case SANE_ACTION_GET_VALUE:
+      status = get_option_value (s, option, val);
+      break;
+
+    case SANE_ACTION_SET_VALUE:
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	{
 	  DBG (DBG_warn, "sane_control_option: option %d is not settable\n",
@@ -5336,7 +5706,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
 
       status = sanei_constrain_value (s->opt + option, val, &myinfo);
-
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_warn,
@@ -5345,112 +5714,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 	}
 
-      switch (option)
-	{
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (calc_parameters (s));
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_RESOLUTION:
-	case OPT_BIT_DEPTH:
-	case OPT_THRESHOLD:
-	case OPT_DISABLE_INTERPOLATION:
-	case OPT_PREVIEW:
-	  s->val[option].w = *(SANE_Word *) val;
-	  RIE (calc_parameters (s));
-	  myinfo |= SANE_INFO_RELOAD_PARAMS;
-	  break;
-	case OPT_SOURCE:
-	  if (strcmp (s->val[option].s, val) != 0)
-	    {			/* something changed */
-	      if (s->val[option].s)
-		free (s->val[option].s);
-	      s->val[option].s = strdup (val);
-	      if (strcmp (s->val[option].s, "Transparency Adapter") == 0)
-		{
-		  /* RIE (gt68xx_device_lamp_control
-		     (s->dev, SANE_FALSE, SANE_TRUE)); 
-		     x_range.max = s->dev->model->x_size_ta;
-		     y_range.max = s->dev->model->y_size_ta; */
-		}
-	      else
-		{
-		  /* RIE (gt68xx_device_lamp_control
-		     (s->dev, SANE_TRUE, SANE_FALSE));
-		     x_range.max = s->dev->model->x_size;
-		     y_range.max = s->dev->model->y_size; */
-		}
-	      myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	    }
-	  break;
-	case OPT_MODE:
-	  if (s->val[option].s)
-	    free (s->val[option].s);
-	  s->val[option].s = strdup (val);
-	  if (strcmp (s->val[option].s, "Lineart") == 0)
-	    {
-	      ENABLE (OPT_THRESHOLD);
-	      DISABLE (OPT_BIT_DEPTH);
-	      ENABLE (OPT_COLOR_FILTER);
-	    }
-	  else
-	    {
-	      DISABLE (OPT_THRESHOLD);
-	      if (strcmp (s->val[option].s, "Gray") == 0)
-		{
-		  ENABLE (OPT_COLOR_FILTER);
-		  create_bpp_list (s, s->dev->model->bpp_gray_values);
-		}
-	      else
-		{
-		  DISABLE (OPT_COLOR_FILTER);
-		  create_bpp_list (s, s->dev->model->bpp_color_values);
-		}
-	      if (s->bpp_list[0] < 2)
-		DISABLE (OPT_BIT_DEPTH);
-	      else
-		ENABLE (OPT_BIT_DEPTH);
-	    }
-	  RIE (calc_parameters (s));
-	  myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-	  break;
-	case OPT_COLOR_FILTER:
-	  if (s->val[option].s)
-	    free (s->val[option].s);
-	  s->val[option].s = strdup (val);
-	  RIE (calc_parameters (s));
-	  break;
-	case OPT_LAMP_OFF_TIME:
-	  if (*(SANE_Word *) val != s->val[option].w)
-	    {
-	      s->val[option].w = *(SANE_Word *) val;
-	      RIE (s->dev->model->cmd_set->
-		   set_powersaving (s->dev, s->val[option].w));
-	    }
-	  break;
-	  /* string options: */
+      status = set_option_value (s, option, val, &myinfo);
+      break;
 
-	default:
-	  DBG (DBG_warn, "sane_control_option: can't set unknown option %d\n",
-	       option);
-	}
-    }
-  else
-    {
+    case SANE_ACTION_SET_AUTO:
+      DBG (DBG_error,
+	   "sane_control_option: SANE_ACTION_SET_AUTO unsupported since no option has SANE_CAP_AUTOMATIC\n");
+      status = SANE_STATUS_INVAL;
+      break;
+
+    default:
       DBG (DBG_warn, "sane_control_option: unknown action %d for option %d\n",
 	   action, option);
-      return SANE_STATUS_INVAL;
+      status = SANE_STATUS_INVAL;
+      break;
     }
+
   if (info)
     *info = myinfo;
 
   DBG (DBG_io2, "sane_control_option: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
+
+
 
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)

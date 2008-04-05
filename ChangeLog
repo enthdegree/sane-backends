@@ -1,4 +1,12 @@
 2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
+	  backend/genesys_gl646.c backend/genesys_low.h:
+	  Fixed double free problems, made OPT_COLOR_FILTER work for
+	  GL646 scanners, added OPT_CUSTOM_GAMMA and OPT_GAMMA_VECTOR*
+	  options, split sane_control_options to make it more readable,
+	  fixed 'reset stream' problem for MD6471.
+
+2008-04-05  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: 
 	  split sane_control_option() to make it more readable
 

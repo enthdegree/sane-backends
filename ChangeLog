@@ -1,3 +1,8 @@
+2008-04-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c: 
+	  Modifications for PIXMA MP970, to manage the CCD sensor
+	  with PIXMA generation 3 protocol. To be tested.
+
 2008-04-06  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: add standalone daemon mode, building upon the
 	AF-indep/IPv6 debug mode. Reorganize code by splitting the main()

@@ -131,6 +131,8 @@ enum mp150_cmd_t
   cmd_read_image = 0xd420,
   cmd_error_info = 0xff20,
 
+  cmd1_ccd_3 = 0xd520,
+  cmd2_ccd_3 = 0xd720,
   cmd_scan_param_3 = 0xd820,
   cmd_scan_start_3 = 0xd920,
   cmd_status_3 = 0xda20,
@@ -283,6 +285,13 @@ send_cmd_e920 (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   return pixma_exec_short_cmd (s, &mp->cb, cmd_e920);
+}
+
+static int
+send_cmd_ccd1 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  return pixma_exec_short_cmd (s, &mp->cb, cmd1_ccd_3);
 }
 
 static int
@@ -469,6 +478,27 @@ query_status_3 (pixma_t * s)
   if (error >= 0)
     {
       memcpy (mp->current_status, data, status_len);
+    }
+  return error;
+}
+
+static int
+init_ccd_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+  int error, status_len;
+
+  status_len = 8;
+  error = send_cmd_ccd1 (s);
+  if (error >= 0) 
+    {
+      data = pixma_newcmd (&mp->cb, cmd2_ccd_3, 0, status_len);
+      error = pixma_exec (s, &mp->cb);
+      if (error >= 0)
+        {
+          memcpy (mp->current_status, data, status_len);
+        }
     }
   return error;
 }
@@ -777,7 +807,7 @@ mp150_scan (pixma_t * s)
   if (has_ccd_sensor (s))
     {
       /* FIXME: What does this command do? */
-      error = send_cmd_e920 (s);
+      error = (mp->generation <= 2) ? send_cmd_e920 (s) : send_cmd_ccd1 (s);
       if (error == 0)
 	{
 	  query_status (s);
@@ -785,16 +815,16 @@ mp150_scan (pixma_t * s)
       else if (error == PIXMA_ECANCELED || error == PIXMA_EBUSY)
 	{
 	  PDBG (pixma_dbg
-		(2, "cmd e920 returned %s\n", pixma_strerror (error)));
+		(2, "cmd e920 or d520 returned %s\n", pixma_strerror (error)));
 	  query_status (s);
 	}
       else
 	{
 	  PDBG (pixma_dbg
-		(1, "WARNING:cmd e920 failed %s\n", pixma_strerror (error)));
+		(1, "WARNING:cmd e920 or d520 failed %s\n", pixma_strerror (error)));
 	  return error;
 	}
-      /* pixma_sleep(30000); */
+      pixma_sleep(2000000); /* like Windows driver, CCD warmup ? */
     }
 
   tmo = 10;
@@ -821,10 +851,12 @@ mp150_scan (pixma_t * s)
       pixma_sleep (500000);
       error = start_session (s);
     }
-  if (error >= 0)
+  if ((error >= 0) || (mp->generation == 3))
     mp->state = state_warmup;
   if ((error >= 0) && (mp->generation <= 2))
     error = select_source (s);
+  if ((error >= 0) && (mp->generation == 3) && has_ccd_sensor (s))
+    error = init_ccd_3 (s);
   if (error >= 0)
     error = send_gamma_table (s);
   if (error >= 0)
@@ -913,7 +945,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   ib->rptr = mp->imgbuf;
   ib->rend = mp->imgbuf + bytes_received;
 
-  if ((s->param->xdpi > 600) && (mp->generation >= 3))
+  if ((s->param->xdpi > 600) && (mp->generation == 3))
     {
       ib->rend += mp->linelag;
       mp->linelag = process_high_dpi_3 (s, ib);
@@ -1046,7 +1078,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* Generation 3 CCD not managed as Generation 2 */
   DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,
-	  PIXMA_CAP_CIS | PIXMA_CAP_TPU | PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   END_OF_DEVICE_LIST
 };

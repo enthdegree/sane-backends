@@ -2171,6 +2171,7 @@ static void
 handle_client (int fd)
 {
   pid_t pid;
+  int i;
 
   DBG (DBG_DBG, "handle_client: spawning child process\n");
 
@@ -2178,17 +2179,28 @@ handle_client (int fd)
   if (pid == 0)
     {
       /* child */
+      if (log_to_syslog)
+	closelog();
+
+      for (i = 3; i < fd; i++)
+	close(i);
+
+      if (log_to_syslog)
+	openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
+
       handle_connection (fd);
     }
   else if (pid > 0)
     {
       /* parent */
       add_child (pid);
+      close(fd);
     }
   else
     {
       /* FAILED */
       DBG (DBG_ERR, "handle_client: fork() failed: %s\n", strerror (errno));
+      close(fd);
     }
 }
 

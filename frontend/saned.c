@@ -2161,9 +2161,12 @@ main (int argc, char *argv[])
 	  if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
 	    {
 	      /*
-	       * binding a socket may fail, eg if we already bound
-	       * to the IPv6 addr returned by getaddrinfo (usually the first one),
-	       * or if IPv6 isn't supported, but saned was built with IPv6 support
+	       * Binding a socket may fail with EADDRINUSE if we already bound
+	       * to an IPv6 addr returned by getaddrinfo (usually the first ones)
+	       * and we're trying to bind to an IPv4 addr now.
+	       * It can also fail because we're trying to bind an IPv6 socket and IPv6
+	       * is not functional on this machine.
+	       * In any case, a bind() call returning an error is not necessarily fatal.
 	       */
 	      DBG (DBG_ERR, "main: [%d] bind failed: %s\n", i, strerror (errno));
 
@@ -2193,7 +2196,7 @@ main (int argc, char *argv[])
 	  DBG (DBG_ERR, "main: couldn't bind an address. Exiting.\n");
 	  exit (1);
 	}
-	
+
       DBG (DBG_MSG, "main: waiting for control connection\n");
 
       while (1)

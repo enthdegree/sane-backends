@@ -1,8 +1,8 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 Andreas Beck
    Copyright (C) 2001 - 2004 Henning Meier-Geinitz
-   Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
-       AF-independent + IPv6 code
+   Copyright (C) 2003, 2008 Julien BLACHE <jb@jblache.org>
+       AF-independent + IPv6 code, standalone mode
 
    This file is part of the SANE package.
 
@@ -76,13 +76,14 @@
 #include <sys/types.h>
 #include <arpa/inet.h>
 
-#ifdef SANED_USES_AF_INDEP
-# if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
-#  include <sys/poll.h>
-# else
+#include <sys/wait.h>
+
+#if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
+# include <sys/poll.h>
+#else
 /* 
  * This replacement poll() using select() is only designed to cover
- * our needs in main(). It should probably be extended...
+ * our needs in run_standalone(). It should probably be extended...
  */
 struct pollfd
 {
@@ -92,34 +93,44 @@ struct pollfd
 };
 
 #define POLLIN 0x0001
+#define POLLERR 0x0002
+
+int
+poll (struct pollfd *ufds, unsigned int nfds, int timeout);
 
 int
 poll (struct pollfd *ufds, unsigned int nfds, int timeout)
 {
   struct pollfd *fdp;
 
-  fd_set fds;
+  fd_set rfds;
+  fd_set efds;
+  struct timeval tv;
   int maxfd = 0;
   unsigned int i;
   int ret;
 
-  /* unused */
-  timeout = timeout;
+  tv.tv_sec = timeout / 1000;
+  tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
 
-  FD_ZERO (&fds);
+  FD_ZERO (&rfds);
+  FD_ZERO (&efds);
 
   for (i = 0, fdp = ufds; i < nfds; i++, fdp++)
     {
+      fdp->revents = 0;
+
       if (fdp->events & POLLIN)
-	{
-	  FD_SET (fdp->fd, &fds);
-	  maxfd = (fdp->fd > maxfd) ? fdp->fd : maxfd;
-	}
+	FD_SET (fdp->fd, &rfds);
+
+      FD_SET (fdp->fd, &efds);
+
+      maxfd = (fdp->fd > maxfd) ? fdp->fd : maxfd;
     }
-  
+
   maxfd++;
 
-  ret = select (maxfd, &fds, NULL, NULL, NULL);
+  ret = select (maxfd, &rfds, NULL, &efds, &tv);
 
   if (ret < 0)
     return ret;
@@ -127,14 +138,16 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
   for (i = 0, fdp = ufds; i < nfds; i++, fdp++)
     {
       if (fdp->events & POLLIN)
-	if (FD_ISSET (fdp->fd, &fds))
-	  fdp->revents = POLLIN;
+	if (FD_ISSET (fdp->fd, &rfds))
+	  fdp->revents |= POLLIN;
+
+      if (FD_ISSET (fdp->fd, &efds))
+	fdp->revents |= POLLERR;
     }
 
   return ret;
 }
-# endif /* HAVE_SYS_POLL_H && HAVE_POLL */
-#endif /* SANED_USES_AF_INDEP */
+#endif /* HAVE_SYS_POLL_H && HAVE_POLL */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -169,7 +182,18 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
 # define MAXHOSTNAMELEN 120
 #endif
 
+struct saned_child {
+  pid_t pid;
+  struct saned_child *next;
+};
+struct saned_child *children;
+int numchildren;
+
 #define SANED_CONFIG_FILE "saned.conf"
+
+#define SANED_SERVICE_NAME   "sane-port"
+#define SANED_SERVICE_PORT   6566
+#define SANED_SERVICE_PORT_S "6566"
 
 typedef struct
 {
@@ -186,6 +210,7 @@ static int can_authorize;
 static Wire wire;
 static int num_handles;
 static int debug;
+static int run_mode;
 static Handle *handle;
 static union
 {
@@ -219,6 +244,11 @@ static SANE_Bool log_to_syslog = SANE_TRUE;
 
 /* forward declarations: */
 static void process_request (Wire * w);
+
+#define SANED_RUN_INETD  0
+#define SANED_RUN_DEBUG  1
+#define SANED_RUN_ALONE  2
+
 
 #define DBG_ERR  1
 #define DBG_WARN 2
@@ -399,7 +429,8 @@ quit (int signum)
   if (handle)
     free (handle);
   DBG (DBG_WARN, "quit: exiting\n");
-  closelog ();
+  if (log_to_syslog)
+    closelog ();
   exit (EXIT_SUCCESS);		/* This is a nowait-daemon. */
 }
 
@@ -2035,222 +2066,71 @@ process_request (Wire * w)
     }
 }
 
-#ifdef SANED_USES_AF_INDEP
-int
-main (int argc, char *argv[])
+
+static int
+wait_child (pid_t pid, int *status, int options)
 {
-  int fd = -1;
-  int on = 1;
+  struct saned_child *c;
+  struct saned_child *p = NULL;
+  int ret;
+
+  ret = waitpid(pid, status, options);
+
+  if (ret <= 0)
+    return ret;
+
+  for (c = children; (c != NULL) && (c->next != NULL); p = c, c = c->next)
+    {
+      if (c->pid == ret)
+	{
+	  if (c == children)
+	    children = c->next;
+	  else if (p != NULL)
+	    p->next = c->next;
+
+	  free(c);
+
+	  numchildren--;
+
+	  break;
+	}
+    }
+
+  return ret;
+}
+
+static int
+add_child (pid_t pid)
+{
+  struct saned_child *c;
+
+  c = (struct saned_child *) malloc (sizeof(struct saned_child));
+
+  if (c == NULL)
+    {
+      DBG (DBG_ERR, "add_child: out of memory\n");
+      return -1;
+    }
+
+  c->pid = pid;
+  c->next = children;
+
+  children = c;
+
+  return 0;
+}
+
+
+static void
+handle_connection (int fd)
+{
 #ifdef TCP_NODELAY
   int level = -1;
 #endif
 
-  debug = DBG_WARN;
-  openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
+  DBG (DBG_DBG, "handle_connection: processing client connection\n");
 
-  prog_name = strrchr (argv[0], '/');
-  if (prog_name)
-    ++prog_name;
-  else
-    prog_name = argv[0];
-
-  byte_order.w = 0;
-  byte_order.ch = 1;
-
-  sanei_w_init (&wire, sanei_codec_bin_init);
-  wire.io.read = read;
-  wire.io.write = write;
-
-  if (argc == 2 && 
-      (strncmp (argv[1], "-d", 2) == 0 || strncmp (argv[1], "-s", 2) == 0))
-    {
-      /* don't operate in daemon mode: wait for connection request: */
-      struct addrinfo *res;
-      struct addrinfo *resp;
-      struct addrinfo hints;
-      struct pollfd *fds = NULL;
-      struct pollfd *fdp = NULL;
-      int nfds;
-      int err;
-      int i;
-      short sane_port;
-      int family;
-
-      if (argv[1][2])
-	debug = atoi (argv[1] + 2);
-      if (strncmp (argv[1], "-d", 2) == 0)
-	log_to_syslog = SANE_FALSE;
-
-      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
-
-      DBG (DBG_DBG, 
-	   "main: trying to get port for service `sane-port' (getaddrinfo)\n");
-
-      memset (&hints, 0, sizeof (struct addrinfo));
-
-      hints.ai_family = PF_UNSPEC;
-      hints.ai_flags = AI_PASSIVE;
-      hints.ai_socktype = SOCK_STREAM;
-
-      err = getaddrinfo (NULL, "sane-port", &hints, &res);
-      if (err)
-	{
-	  DBG (DBG_WARN, "main: \"sane-port\" service unknown on your host; you should add\n");
-	  DBG (DBG_WARN, "main:      sane-port 6566/tcp saned # SANE network scanner daemon\n");
-	  DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
-	  err = getaddrinfo (NULL, "6566", &hints, &res);
-	  if (err)
-	    {
-	      DBG (DBG_ERR, "main: getaddrinfo() failed even with numeric port: %s\n",
-		   gai_strerror (err));
-	      exit (1);
-	    }
-	}
-
-      for (resp = res, nfds = 0; resp != NULL; resp = resp->ai_next, nfds++)
-	;
-      
-      fds = malloc (nfds * sizeof (struct pollfd));
-
-      if (fds == NULL)
-	{
-	  DBG (DBG_ERR, "main: not enough memory for fds\n");
-	  freeaddrinfo (res);
-	  exit (1);
-	}
-
-      for (resp = res, i = 0, fdp = fds; resp != NULL; resp = resp->ai_next, i++, fdp++)
-	{
-	  if (resp->ai_family == AF_INET)
-	    {
-	      family = 4;
-	      sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
-	    }
-#ifdef ENABLE_IPV6
-	  else if (resp->ai_family == AF_INET6)
-	    {
-	      family = 6;
-	      sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
-	    }
-#endif /* ENABLE_IPV6 */
-	  else
-	    {
-	      fdp--;
-	      nfds--;
-	      continue;
-	    }
-
-	  DBG (DBG_DBG, "main: [%d] socket () using IPv%d\n", i, family);
-	  if ((fd = socket (resp->ai_family, SOCK_STREAM, 0)) < 0)
-	    {
-	      DBG (DBG_ERR, "main: [%d] socket failed: %s\n", i,
-		   strerror (errno));
-	      
-	      nfds--;
-	      fdp--;
-	      continue;
-	    }
-	  
-	  DBG (DBG_DBG, "main: [%d] setsockopt ()\n", i);
-	  if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
-	    DBG (DBG_ERR, "main: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n",
-		 i, strerror (errno));
-
-	  
-	  DBG (DBG_DBG, "main: [%d] bind () to port %d\n", i, sane_port);
-	  if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
-	    {
-	      /*
-	       * Binding a socket may fail with EADDRINUSE if we already bound
-	       * to an IPv6 addr returned by getaddrinfo (usually the first ones)
-	       * and we're trying to bind to an IPv4 addr now.
-	       * It can also fail because we're trying to bind an IPv6 socket and IPv6
-	       * is not functional on this machine.
-	       * In any case, a bind() call returning an error is not necessarily fatal.
-	       */
-	      DBG (DBG_ERR, "main: [%d] bind failed: %s\n", i, strerror (errno));
-
-	      close (fd);
-	      
-	      nfds--;
-	      fdp--;
-	      continue;
-	    }
-
-	  DBG (DBG_DBG, "main: [%d] listen ()\n", i);
-	  if (listen (fd, 1) < 0)
-	    {
-	      DBG (DBG_ERR, "main: [%d] listen failed: %s\n", i, strerror (errno));
-	      exit (1);
-	    }
-
-	  fdp->fd = fd;
-	  fdp->events = POLLIN;
-	}
-
-      resp = NULL;
-      freeaddrinfo (res);
-
-      if (nfds <= 0)
-	{
-	  DBG (DBG_ERR, "main: couldn't bind an address. Exiting.\n");
-	  exit (1);
-	}
-
-      DBG (DBG_MSG, "main: waiting for control connection\n");
-
-      while (1)
-	{
-	  if (poll (fds, nfds, -1) < 0)
-	    {
-	      if (errno == EINTR)
-		continue;
-	      else
-		{
-		  DBG (DBG_ERR, "main: poll failed: %s\n", strerror (errno));
-		  free (fds);
-		  exit (1);
-		}
-	    }
-
-	  for (i = 0, fdp = fds; i < nfds; i++, fdp++)
-	    {
-	      if (! (fdp->revents & POLLIN))
-		continue;
-
-	      wire.io.fd = accept (fdp->fd, 0, 0);
-	      if (wire.io.fd < 0)
-		{
-		  DBG (DBG_ERR, "main: accept failed: %s", strerror (errno));
-		  free (fds);
-		  exit (1);
-		}
-
-	      for (i = 0, fdp = fds; i < nfds; i++, fdp++)
-		close (fdp->fd);
-
-	      free (fds);
-
-	      break;
-	    }
-	  break;
-	}
-    }
-  else
-    /* use filedescriptor opened by inetd: */
-#ifdef HAVE_OS2_H
-    /* under OS/2, the socket handle is passed as argument on the command
-       line; the socket handle is relative to IBM TCP/IP, so a call
-       to impsockethandle() is required to add it to the EMX runtime */
-  if (argc == 2)
-    {
-      wire.io.fd = _impsockhandle (atoi (argv[1]), 0);
-      if (wire.io.fd == -1)
-	perror ("impsockhandle");
-    }
-  else
-#endif /* HAVE_OS2_H */
-    wire.io.fd = 1;
+  wire.io.fd = fd;
 
   signal (SIGALRM, quit);
   signal (SIGPIPE, quit);
@@ -2265,7 +2145,7 @@ main (int argc, char *argv[])
     p = getprotobyname ("tcp");
     if (p == 0)
       {
-	DBG (DBG_WARN, "main: cannot look up `tcp' protocol number");
+	DBG (DBG_WARN, "handle_connection: cannot look up `tcp' protocol number");
       }
     else
       level = p->p_proto;
@@ -2273,16 +2153,9 @@ main (int argc, char *argv[])
 # endif	/* SOL_TCP */
   if (level == -1
       || setsockopt (wire.io.fd, level, TCP_NODELAY, &on, sizeof (on)))
-    DBG (DBG_WARN, "main: failed to put socket in TCP_NODELAY mode (%s)",
+    DBG (DBG_WARN, "handle_connection: failed to put socket in TCP_NODELAY mode (%s)",
 	 strerror (errno));
 #endif /* !TCP_NODELAY */
-
-/* define the version string depending on which network code is used */
-#ifdef ENABLE_IPV6
-  DBG (DBG_WARN, "saned (AF-indep+IPv6) from %s ready\n", PACKAGE_STRING);
-#else
-  DBG (DBG_WARN, "saned (AF-indep) from %s ready\n", PACKAGE_STRING);
-#endif /* ENABLE_IPV6 */
 
   if (init (&wire) < 0)
     quit (0);
@@ -2291,27 +2164,427 @@ main (int argc, char *argv[])
     {
       reset_watchdog ();
       process_request (&wire);
+    }  
+}
+
+static void
+handle_client (int fd)
+{
+  pid_t pid;
+
+  DBG (DBG_DBG, "handle_client: spawning child process\n");
+
+  pid = fork ();
+  if (pid == 0)
+    {
+      /* child */
+      handle_connection (fd);
+    }
+  else if (pid > 0)
+    {
+      /* parent */
+      add_child (pid);
+    }
+  else
+    {
+      /* FAILED */
+      DBG (DBG_ERR, "handle_client: fork() failed: %s\n", strerror (errno));
+    }
+}
+
+static void
+bail_out (int error)
+{
+  DBG (DBG_ERR, "%sbailing out, waiting for children...\n", (error) ? "FATAL ERROR; " : "");
+
+  while (numchildren > 0)
+    wait_child (-1, NULL, 0);
+
+  DBG (DBG_ERR, "bail_out: all children exited\n");
+
+  exit (1);
+}
+
+
+void
+sig_int_term_handler (int signum);
+
+void
+sig_int_term_handler (int signum)
+{
+  /* unused */
+  signum = signum;
+
+  signal (SIGINT, NULL);
+  signal (SIGTERM, NULL);
+
+  bail_out (0);
+}
+
+
+#ifdef SANED_USES_AF_INDEP
+static void
+do_bindings (int *nfds, struct pollfd **fds)
+{
+  struct addrinfo *res;
+  struct addrinfo *resp;
+  struct addrinfo hints;
+  struct pollfd *fdp = NULL;
+  int err;
+  int i;
+  short sane_port;
+  int family;
+  int fd = -1;
+  int on = 1;
+
+  DBG (DBG_DBG, "do_bindings: trying to get port for service \"%s\" (getaddrinfo)\n", SANED_SERVICE_NAME);
+
+  memset (&hints, 0, sizeof (struct addrinfo));
+
+  hints.ai_family = PF_UNSPEC;
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_socktype = SOCK_STREAM;
+
+  err = getaddrinfo (NULL, SANED_SERVICE_NAME, &hints, &res);
+  if (err)
+    {
+      DBG (DBG_WARN, "do_bindings: \" %s \" service unknown on your host; you should add\n", SANED_SERVICE_NAME);
+      DBG (DBG_WARN, "do_bindings:      %s %d/tcp saned # SANE network scanner daemon\n", SANED_SERVICE_NAME, SANED_SERVICE_PORT);
+      DBG (DBG_WARN, "do_bindings: to your /etc/services file (or equivalent). Proceeding anyway.\n");
+      err = getaddrinfo (NULL, SANED_SERVICE_PORT_S, &hints, &res);
+      if (err)
+	{
+	  DBG (DBG_ERR, "do_bindings: getaddrinfo() failed even with numeric port: %s\n", gai_strerror (err));
+	  bail_out (1);
+	}
+    }
+
+  for (resp = res, *nfds = 0; resp != NULL; resp = resp->ai_next, (*nfds)++)
+    ;
+
+  *fds = malloc (*nfds * sizeof (struct pollfd));
+
+  if (fds == NULL)
+    {
+      DBG (DBG_ERR, "do_bindings: not enough memory for fds\n");
+      freeaddrinfo (res);
+      bail_out (1);
+    }
+
+  for (resp = res, i = 0, fdp = *fds; resp != NULL; resp = resp->ai_next, i++, fdp++)
+    {
+      if (resp->ai_family == AF_INET)
+	{
+	  family = 4;
+	  sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
+	}
+#ifdef ENABLE_IPV6
+      else if (resp->ai_family == AF_INET6)
+	{
+	  family = 6;
+	  sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
+	}
+#endif /* ENABLE_IPV6 */
+      else
+	{
+	  fdp--;
+	  (*nfds)--;
+	  continue;
+	}
+
+      DBG (DBG_DBG, "do_bindings: [%d] socket () using IPv%d\n", i, family);
+      if ((fd = socket (resp->ai_family, SOCK_STREAM, 0)) < 0)
+	{
+	  DBG (DBG_ERR, "do_bindings: [%d] socket failed: %s\n", i, strerror (errno));
+
+	  fdp--;
+	  (*nfds)--;
+	  continue;
+	}
+
+      DBG (DBG_DBG, "do_bindings: [%d] setsockopt ()\n", i);
+      if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
+	DBG (DBG_ERR, "do_bindings: [%d] failed to put socket in SO_REUSEADDR mode (%s)\n", i, strerror (errno));
+
+
+      DBG (DBG_DBG, "do_bindings: [%d] bind () to port %d\n", i, sane_port);
+      if (bind (fd, resp->ai_addr, resp->ai_addrlen) < 0)
+	{
+	  /*
+	   * Binding a socket may fail with EADDRINUSE if we already bound
+	   * to an IPv6 addr returned by getaddrinfo (usually the first ones)
+	   * and we're trying to bind to an IPv4 addr now.
+	   * It can also fail because we're trying to bind an IPv6 socket and IPv6
+	   * is not functional on this machine.
+	   * In any case, a bind() call returning an error is not necessarily fatal.
+	   */
+	  DBG (DBG_WARN, "do_bindings: [%d] bind failed: %s\n", i, strerror (errno));
+
+	  close (fd);
+
+	  fdp--;
+	  (*nfds)--;
+	  continue;
+	}
+
+      DBG (DBG_DBG, "do_bindings: [%d] listen ()\n", i);
+      if (listen (fd, 1) < 0)
+	{
+	  DBG (DBG_ERR, "do_bindings: [%d] listen failed: %s\n", i, strerror (errno));
+
+	  close (fd);
+
+	  fdp--;
+	  (*nfds)--;
+	  continue;
+	}
+
+      fdp->fd = fd;
+      fdp->events = POLLIN;
+    }
+
+  resp = NULL;
+  freeaddrinfo (res);
+
+  if (*nfds <= 0)
+    {
+      DBG (DBG_ERR, "do_bindings: couldn't bind an address. Exiting.\n");
+      bail_out (1);
     }
 }
 
 #else /* !SANED_USES_AF_INDEP */
 
+static void
+do_bindings (int *nfds, struct pollfd **fds)
+{
+  struct sockaddr_in sin;
+  struct servent *serv;
+  short port;
+  int fd = -1;
+  int on = 1;
+
+  DBG (DBG_DBG, "do_bindings: trying to get port for service \"%s\" (getservbyname)\n", SANED_SERVICE_PORT);
+  serv = getservbyname (SANED_SERVICE_NAME, "tcp");
+
+  if (serv)
+    {
+      port = serv->s_port;
+      DBG (DBG_MSG, "main: port is %d\n", ntohs (port));
+    }
+  else
+    {
+      port = htons (SANED_SERVICE_PORT);
+      DBG (DBG_WARN, "do_bindings: \"%s\" service unknown on your host; you should add\n", SANED_SERVICE_NAME);
+      DBG (DBG_WARN, "do_bindings:      %s %d/tcp saned # SANE network scanner daemon\n", SANED_SERVICE_NAME, SANED_SERVICE_PORT);
+      DBG (DBG_WARN, "do_bindings: to your /etc/services file (or equivalent). Proceeding anyway.\n");
+    }
+
+  *nfds = 1;
+  *fds = malloc (*nfds * sizeof (struct pollfd));
+
+  if (fds == NULL)
+    {
+      DBG (DBG_ERR, "do_bindings: not enough memory for fds\n");
+      bail_out (1);
+    }
+
+  memset (&sin, 0, sizeof (sin));
+
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = INADDR_ANY;
+  sin.sin_port = port;
+
+  DBG (DBG_DBG, "do_bindings: socket ()\n");
+  fd = socket (AF_INET, SOCK_STREAM, 0);
+
+  DBG (DBG_DBG, "do_bindings: setsockopt ()\n");
+  if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
+    DBG (DBG_ERR, "do_bindings: failed to put socket in SO_REUSEADDR mode (%s)", strerror (errno));
+
+  DBG (DBG_DBG, "do_bindings: bind ()\n");
+  if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
+    {
+      DBG (DBG_ERR, "do_bindings: bind failed: %s", strerror (errno));
+      bail_out (1);
+    }
+
+  DBG (DBG_DBG, "do_bindings: listen ()\n");
+  if (listen (fd, 1) < 0)
+    {
+      DBG (DBG_ERR, "do_bindings: listen failed: %s", strerror (errno));
+      bail_out (1);
+    }
+
+  (*fds)->fd = fd;
+  (*fds)->events = POLLIN;
+}
+
+#endif /* SANED_USES_AF_INDEP */
+
+
+static void
+run_standalone (int argc, char **argv)
+{
+  struct pollfd *fds = NULL;
+  struct pollfd *fdp = NULL;
+  int nfds;
+  int fd;
+  int i;
+  int ret;
+
+  /* Unused in this function */
+  argc = argc;
+  argv = argv;
+
+  do_bindings (&nfds, &fds);
+
+  if (run_mode != SANED_RUN_DEBUG)
+    {
+      DBG (DBG_MSG, "run_standalone: daemonizing now\n");
+
+      if (daemon (0, 0) != 0)
+	{
+	  DBG (DBG_ERR, "FATAL ERROR: cannot daemonize: %s\n", strerror (errno));
+	  exit (1);
+	}
+
+      signal(SIGINT, sig_int_term_handler);
+      signal(SIGTERM, sig_int_term_handler);
+    }
+
+  DBG (DBG_MSG, "run_standalone: waiting for control connection\n");
+
+  while (1)
+    {
+      ret = poll (fds, nfds, 500);
+      if (ret < 0)
+	{
+	  if (errno == EINTR)
+	    continue;
+	  else
+	    {
+	      DBG (DBG_ERR, "run_standalone: poll failed: %s\n", strerror (errno));
+	      free (fds);
+	      bail_out (1);
+	    }
+	}
+
+      /* Wait for children */
+      while (wait_child (-1, NULL, WNOHANG) > 0)
+	;
+
+      if (ret == 0)
+	continue;
+
+      for (i = 0, fdp = fds; i < nfds; i++, fdp++)
+	{
+	  /* Error on an fd */
+	  if (! (fdp->revents & POLLIN))
+	    {
+	      for (i = 0, fdp = fds; i < nfds; i++, fdp++)
+		close (fdp->fd);
+
+	      free (fds);
+
+	      DBG (DBG_WARN, "run_standalone: invalid fd in set, attempting to re-bind\n");
+
+	      /* Reopen sockets */
+	      do_bindings (&nfds, &fds);
+
+	      break;
+	    }
+
+	  fd = accept (fdp->fd, 0, 0);
+	  if (fd < 0)
+	    {
+	      DBG (DBG_ERR, "run_standalone: accept failed: %s", strerror (errno));
+	      continue;
+	    }
+
+	  if (run_mode == SANED_RUN_DEBUG)
+	    {
+	      handle_connection (fd);
+	      break;
+	    }
+	  else
+	    handle_client (fd);
+	}
+
+      if (run_mode == SANED_RUN_DEBUG)
+	break;
+    }
+
+  for (i = 0, fdp = fds; i < nfds; i++, fdp++)
+    close (fdp->fd);
+
+  free (fds);
+}
+
+
+static void
+run_inetd (int argc, char **argv)
+{
+  int fd = 1;
+
+#ifndef HAVE_OS2_H
+  /* Unused in this function */
+  argc = argc;
+  argv = argv;
+
+#else
+  /* under OS/2, the socket handle is passed as argument on the command
+     line; the socket handle is relative to IBM TCP/IP, so a call
+     to impsockethandle() is required to add it to the EMX runtime */
+  if (argc == 2)
+    {
+      fd = _impsockhandle (atoi (argv[1]), 0);
+      if (fd == -1)
+	perror ("impsockhandle");
+    }
+#endif /* HAVE_OS2_H */
+
+  handle_connection(fd);
+}
+
+
 int
 main (int argc, char *argv[])
 {
-  int fd, on = 1;
-#ifdef TCP_NODELAY
-  int level = -1;
-#endif
-
   debug = DBG_WARN;
-  openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
 
   prog_name = strrchr (argv[0], '/');
   if (prog_name)
     ++prog_name;
   else
     prog_name = argv[0];
+
+  numchildren = 0;
+  run_mode = SANED_RUN_INETD;
+
+  if (argc == 2)
+    {
+      if (strncmp (argv[1], "-a", 2) == 0)
+	run_mode = SANED_RUN_ALONE;
+      else if (strncmp (argv[1], "-d", 2) == 0)
+	{
+	  run_mode = SANED_RUN_DEBUG;
+	  log_to_syslog = SANE_FALSE;
+	}
+      else if (strncmp (argv[1], "-s", 2) == 0)
+	run_mode = SANED_RUN_DEBUG;
+    }
+
+  if (run_mode == SANED_RUN_DEBUG)
+    {
+      if (argv[1][2])
+	debug = atoi (argv[1] + 2);
+
+      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
+    }
+
+  if (log_to_syslog)
+    openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
 
   byte_order.w = 0;
   byte_order.ch = 1;
@@ -2320,121 +2593,27 @@ main (int argc, char *argv[])
   wire.io.read = read;
   wire.io.write = write;
 
-  if (argc == 2 && 
-      (strncmp (argv[1], "-d", 2) == 0 || strncmp (argv[1], "-s", 2) == 0))
-    {
-      /* don't operate in daemon mode: wait for connection request: */
-      struct sockaddr_in sin;
-      struct servent *serv;
-      short port;
-
-      if (argv[1][2])
-	debug = atoi (argv[1] + 2);
-      if (strncmp (argv[1], "-d", 2) == 0)
-	log_to_syslog = SANE_FALSE;
-
-      DBG (DBG_WARN, "main: starting debug mode (level %d)\n", debug);
-
-      memset (&sin, 0, sizeof (sin));
-
-      DBG (DBG_DBG, 
-	   "main: trying to get port for service `sane-port' (getservbyname)\n");
-      serv = getservbyname ("sane-port", "tcp");
-      if (serv)
-	{
-	  port = serv->s_port;
-	  DBG (DBG_MSG, "main: port is %d\n", ntohs (port));
-	}
-      else
-	{
-	  port = htons (6566);
-	  DBG (DBG_WARN, "main: \"sane-port\" service unknown on your host; you should add\n");
-	  DBG (DBG_WARN, "main:      sane-port 6566/tcp saned # SANE network scanner daemon\n");
-	  DBG (DBG_WARN, "main: to your /etc/services file (or equivalent). Proceeding anyway.\n");
-	}
-      sin.sin_family = AF_INET;
-      sin.sin_addr.s_addr = INADDR_ANY;
-      sin.sin_port = port;
-
-      DBG (DBG_DBG, "main: socket ()\n");
-      fd = socket (AF_INET, SOCK_STREAM, 0);
-
-      DBG (DBG_DBG, "main: setsockopt ()\n");
-      if (setsockopt (fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof (on)))
-	DBG (DBG_ERR, "failed to put socket in SO_REUSEADDR mode (%s)",
-		strerror (errno));
-
-      DBG (DBG_DBG, "main: bind ()\n");
-      if (bind (fd, (struct sockaddr *) &sin, sizeof (sin)) < 0)
-	{
-	  DBG (DBG_ERR, "main: bind failed: %s", strerror (errno));
-	  exit (1);
-	}
-      DBG (DBG_DBG, "main: listen ()\n");
-      if (listen (fd, 1) < 0)
-	{
-	  DBG (DBG_ERR, "main: listen failed: %s", strerror (errno));
-	  exit (1);
-	}
-      DBG (DBG_MSG, "main: waiting for control connection\n");
-      wire.io.fd = accept (fd, 0, 0);
-      if (wire.io.fd < 0)
-	{
-	  DBG (DBG_ERR, "main: accept failed: %s", strerror (errno));
-	  exit (1);
-	}
-      close (fd);
-    }
-  else
-    /* use filedescriptor opened by inetd: */
-#ifdef HAVE_OS2_H
-    /* under OS/2, the socket handle is passed as argument on the command
-       line; the socket handle is relative to IBM TCP/IP, so a call
-       to impsockethandle() is required to add it to the EMX runtime */
-  if (argc == 2)
-    {
-      wire.io.fd = _impsockhandle (atoi (argv[1]), 0);
-      if (wire.io.fd == -1)
-	perror ("impsockhandle");
-    }
-  else
-#endif /* HAVE_OS2_H */
-    wire.io.fd = 1;
-
-  signal (SIGALRM, quit);
-  signal (SIGPIPE, quit);
-
-#ifdef TCP_NODELAY
-# ifdef SOL_TCP
-  level = SOL_TCP;
-# else /* !SOL_TCP */
-  /* Look up the protocol level in the protocols database. */
-  {
-    struct protoent *p;
-    p = getprotobyname ("tcp");
-    if (p == 0)
-      {
-	DBG (DBG_WARN, "main: cannot look up `tcp' protocol number");
-      }
-    else
-      level = p->p_proto;
-  }
-# endif	/* SOL_TCP */
-  if (level == -1
-      || setsockopt (wire.io.fd, level, TCP_NODELAY, &on, sizeof (on)))
-    DBG (DBG_WARN, "main: failed to put socket in TCP_NODELAY mode (%s)",
-	 strerror (errno));
-#endif /* !TCP_NODELAY */
-
+/* define the version string depending on which network code is used */
+#ifdef SANED_USES_AF_INDEP
+# ifdef ENABLE_IPV6
+  DBG (DBG_WARN, "saned (AF-indep+IPv6) from %s starting up\n", PACKAGE_STRING);
+# else
+  DBG (DBG_WARN, "saned (AF-indep) from %s starting up\n", PACKAGE_STRING);
+# endif /* ENABLE_IPV6 */
+#else
   DBG (DBG_WARN, "saned from %s ready\n", PACKAGE_STRING);
-
-  if (init (&wire) < 0)
-    quit (0);
-
-  while (1)
-    {
-      reset_watchdog ();
-      process_request (&wire);
-    }
-}
 #endif /* SANED_USES_AF_INDEP */
+
+  if ((run_mode == SANED_RUN_ALONE) || (run_mode == SANED_RUN_DEBUG))
+    {
+      run_standalone(argc, argv);
+    }
+  else
+    {
+      run_inetd(argc, argv);
+    }
+
+  DBG (DBG_WARN, "saned exiting\n");
+
+  return 0;
+}

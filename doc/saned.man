@@ -1,16 +1,32 @@
-.TH saned 8 "30 May 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "6 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.RB [ -d | -s
-.RI [ n ]]
+.B [ -a | -d 
+.I [ n ]
+.B  | -s
+.I [ n ]
+.B ]
 .SH DESCRIPTION
 .B saned
 is the SANE (Scanner Access Now Easy) daemon that allows remote clients
 to access image acquisition devices available on the local host.
 .SH OPTIONS
+.PP
+The
+.B -a
+flag requests that
+.B saned
+run in standalone daemon mode. In this mode, 
+.B saned
+will detach from the console and run in the background, listening for incoming
+client connections; 
+.B inetd
+is not required for
+.B saned
+operations in this mode.
 .PP
 The
 .B -d
@@ -80,10 +96,11 @@ scan-client.somedomain.firm
 .PP
 The case of the host names does not matter, so AHost.COM is considered
 identical to ahost.com.
-
+.SH INETD CONFIGURATION
 For
 .B saned
-to work properly, it is also necessary to add a configuration line to
+to work properly in its default mode of operation, it is also necessary to add
+a configuration line to
 .IR /etc/inetd.conf .
 Note that your inetd must support IPv6 if you
 want to connect to saned over IPv6 ; xinetd and openbsd-inetd are known to
@@ -152,7 +169,11 @@ The official IANA short name for port 6566 is "sane-port". The older name "sane"
 is now deprecated.
 
 .SH "RESTRICTIONS"
-In addition to the control connection (port 6566) saned also uses a data
+In addition to the control connection (port
+.B 6566
+)
+.B saned
+also uses a data
 connection. The port of this socket is selected by the operating system and
 can't be specified by the user currently. This may be a problem if the
 connection must go through a firewall (packet filter). If you must use a packet

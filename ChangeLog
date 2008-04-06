@@ -1,3 +1,13 @@
+2008-04-06  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: add standalone daemon mode, building upon the
+	AF-indep/IPv6 debug mode. Reorganize code by splitting the main()
+	function into a series of functions. Factorize common code between
+	the old network code and the AF-indep code. There's now only one
+	version of main().
+	* doc/saned.man: document new -a flag, reorganize manpage
+	sections (separate inetd configuration under the INETD
+	CONFIGURATION section).
+
 2008-04-05  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	  backend/genesys_gl646.c backend/genesys_low.h:

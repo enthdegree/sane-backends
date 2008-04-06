@@ -2515,10 +2515,7 @@ run_standalone (int argc, char **argv)
 	    }
 
 	  if (run_mode == SANED_RUN_DEBUG)
-	    {
-	      handle_connection (fd);
-	      break;
-	    }
+	    break; /* We have the only connection we're going to handle */
 	  else
 	    handle_client (fd);
 	}
@@ -2531,6 +2528,9 @@ run_standalone (int argc, char **argv)
     close (fdp->fd);
 
   free (fds);
+
+  if ((run_mode == SANED_RUN_DEBUG) && (fd > 0))
+    handle_connection (fd);
 }
 
 

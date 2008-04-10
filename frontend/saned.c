@@ -2441,7 +2441,7 @@ run_standalone (int argc, char **argv)
   struct pollfd *fds = NULL;
   struct pollfd *fdp = NULL;
   int nfds;
-  int fd;
+  int fd = -1;
   int i;
   int ret;
 
@@ -2455,11 +2455,35 @@ run_standalone (int argc, char **argv)
     {
       DBG (DBG_MSG, "run_standalone: daemonizing now\n");
 
-      if (daemon (0, 0) != 0)
+      fd = open ("/dev/null", O_RDWR);
+      if (fd < 0)
 	{
-	  DBG (DBG_ERR, "FATAL ERROR: cannot daemonize: %s\n", strerror (errno));
+	  DBG (DBG_ERR, "FATAL ERROR: cannot open /dev/null: %s\n", strerror (errno));
 	  exit (1);
 	}
+
+      ret = fork ();
+      if (ret > 0)
+	{
+	  _exit (0);
+	}
+      else if (ret < 0)
+	{
+	  DBG (DBG_ERR, "FATAL ERROR: fork failed: %s\n", strerror (errno));
+	  exit (1);
+	}
+
+      chdir ("/");
+
+      dup2 (fd, STDIN_FILENO);
+      dup2 (fd, STDOUT_FILENO);
+      dup2 (fd, STDERR_FILENO);
+
+      close (fd);
+
+      setsid ();
+
+      DBG (DBG_WARN, "Now daemonized\n");
 
       signal(SIGINT, sig_int_term_handler);
       signal(SIGTERM, sig_int_term_handler);

@@ -190,6 +190,7 @@ struct saned_child *children;
 int numchildren;
 
 #define SANED_CONFIG_FILE "saned.conf"
+#define SANED_PID_FILE    "/var/run/saned.pid"
 
 #define SANED_SERVICE_NAME   "sane-port"
 #define SANED_SERVICE_PORT   6566
@@ -2445,6 +2446,8 @@ run_standalone (int argc, char **argv)
   int i;
   int ret;
 
+  FILE *pidfile;
+
   /* Unused in this function */
   argc = argc;
   argv = argv;
@@ -2473,6 +2476,18 @@ run_standalone (int argc, char **argv)
 	  exit (1);
 	}
 
+      DBG (DBG_WARN, "Now daemonized\n");
+
+      /* Write out PID file */
+      pidfile = fopen (SANED_PID_FILE, "w");
+      if (pidfile)
+	{
+	  fprintf (pidfile, "%d", getpid());
+	  fclose (pidfile);
+	}
+      else
+	DBG (DBG_ERR, "Could not write PID file: %s\n", strerror (errno));
+
       chdir ("/");
 
       dup2 (fd, STDIN_FILENO);
@@ -2482,8 +2497,6 @@ run_standalone (int argc, char **argv)
       close (fd);
 
       setsid ();
-
-      DBG (DBG_WARN, "Now daemonized\n");
 
       signal(SIGINT, sig_int_term_handler);
       signal(SIGTERM, sig_int_term_handler);

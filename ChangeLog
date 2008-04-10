@@ -1,7 +1,9 @@
 2008-04-10  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: do not use daemon(), as it's a 4.4BSD/glibc
 	function; OS/2 for instance does not have it. Use an open-coded
-	equivalent. Add a PID file.
+	equivalent. Add a PID file. saned -a username now drops privileges
+	and runs as the given user (and group).
+	* doc/saned.man: document -a username.
 
 2008-04-06  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c: 

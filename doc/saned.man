@@ -1,10 +1,12 @@
-.TH saned 8 "6 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "10 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.B [ -a | -d 
+.B [ -a 
+.I [ username ]
+.B | -d 
 .I [ n ]
 .B  | -s
 .I [ n ]
@@ -26,7 +28,13 @@ client connections;
 .B inetd
 is not required for
 .B saned
-operations in this mode.
+operations in this mode. If the optional
+.B username
+is given after
+.B -a
+,
+.B saned
+will drop root privileges and run as this user (and group).
 .PP
 The
 .B -d

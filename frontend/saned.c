@@ -78,6 +78,8 @@
 
 #include <sys/wait.h>
 
+#include <pwd.h>
+
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>
 #else
@@ -2446,16 +2448,29 @@ run_standalone (int argc, char **argv)
   int i;
   int ret;
 
+  uid_t runas_uid = -1;
+  gid_t runas_gid = -1;
+  struct passwd *pwent;
   FILE *pidfile;
-
-  /* Unused in this function */
-  argc = argc;
-  argv = argv;
 
   do_bindings (&nfds, &fds);
 
   if (run_mode != SANED_RUN_DEBUG)
     {
+      if (argc > 2)
+	{
+	  pwent = getpwnam(argv[2]);
+
+	  if (pwent == NULL)
+	    {
+	      DBG (DBG_ERR, "FATAL ERROR: user %s not found on system\n", argv[2]);
+	      bail_out (1);
+	    }
+
+	  runas_uid = pwent->pw_uid;
+	  runas_gid = pwent->pw_gid;
+	}
+
       DBG (DBG_MSG, "run_standalone: daemonizing now\n");
 
       fd = open ("/dev/null", O_RDWR);
@@ -2497,6 +2512,15 @@ run_standalone (int argc, char **argv)
       close (fd);
 
       setsid ();
+
+      /* Drop privileges if requested */
+      if (runas_uid > 0)
+	{
+	  seteuid (runas_uid);
+	  setegid (runas_gid);
+
+	  DBG (DBG_WARN, "Dropped privileges to uid %d gid %d\n", runas_uid, runas_gid);
+	}
 
       signal(SIGINT, sig_int_term_handler);
       signal(SIGTERM, sig_int_term_handler);
@@ -2611,7 +2635,7 @@ main (int argc, char *argv[])
   numchildren = 0;
   run_mode = SANED_RUN_INETD;
 
-  if (argc == 2)
+  if (argc >= 2)
     {
       if (strncmp (argv[1], "-a", 2) == 0)
 	run_mode = SANED_RUN_ALONE;

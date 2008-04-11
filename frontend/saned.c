@@ -2387,6 +2387,7 @@ saned_create_avahi_services (AvahiClient *c)
 {
   char *n;
   char txt[32];
+  AvahiProtocol proto;
   int ret;
 
   if (!c)
@@ -2408,7 +2409,13 @@ saned_create_avahi_services (AvahiClient *c)
 
       snprintf(txt, sizeof (txt), "protovers=%x", SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANEI_NET_PROTOCOL_VERSION));
 
-      ret = avahi_entry_group_add_service (avahi_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, avahi_svc_name, SANED_SERVICE_DNS, NULL, NULL, SANED_SERVICE_PORT, txt, NULL);
+#ifdef ENABLE_IPV6
+      proto = AVAHI_PROTO_UNSPEC;
+#else
+      proto = AVAHI_PROTO_INET;
+#endif /* ENABLE_IPV6 */
+
+      ret = avahi_entry_group_add_service (avahi_group, AVAHI_IF_UNSPEC, proto, 0, avahi_svc_name, SANED_SERVICE_DNS, NULL, NULL, SANED_SERVICE_PORT, txt, NULL);
       if (ret < 0)
 	{
 	  if (ret == AVAHI_ERR_COLLISION)

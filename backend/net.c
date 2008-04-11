@@ -757,6 +757,8 @@ net_avahi_browse_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, Avahi
 			   AvahiBrowserEvent event, const char *name, const char *type,
 			   const char *domain, AvahiLookupResultFlags flags, void *userdata)
 {
+  AvahiProtocol proto;
+
   /* unused */
   flags = flags;
   userdata = userdata;
@@ -779,7 +781,12 @@ net_avahi_browse_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, Avahi
 	/* The resolver object will be freed in the resolver callback, or by
 	 * the server if it terminates before the callback is called.
 	 */
-	if (!(avahi_service_resolver_new (avahi_client, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, net_avahi_resolve_callback, NULL)))
+#ifdef ENABLE_IPV6
+	proto = AVAHI_PROTO_UNSPEC;
+#else
+	proto = AVAHI_PROTO_INET;
+#endif /* ENABLE_IPV6 */
+	if (!(avahi_service_resolver_new (avahi_client, interface, protocol, name, type, domain, proto, 0, net_avahi_resolve_callback, NULL)))
 	  DBG (2, "net_avahi_browse_callback: failed to resolve service '%s': %s\n", name, avahi_strerror (avahi_client_errno (avahi_client)));
 	break;
 
@@ -798,6 +805,7 @@ net_avahi_browse_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, Avahi
 static void
 net_avahi_callback (AvahiClient *c, AvahiClientState state, void * userdata)
 {
+  AvahiProtocol proto;
   int error;
 
   /* unused */
@@ -817,7 +825,13 @@ net_avahi_callback (AvahiClient *c, AvahiClientState state, void * userdata)
 	if (avahi_browser)
 	  return;
 
-	avahi_browser = avahi_service_browser_new (c, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SANED_SERVICE_DNS, NULL, 0, net_avahi_browse_callback, NULL);
+#ifdef ENABLE_IPV6
+	proto = AVAHI_PROTO_UNSPEC;
+#else
+	proto = AVAHI_PROTO_INET;
+#endif /* ENABLE_IPV6 */
+
+	avahi_browser = avahi_service_browser_new (c, AVAHI_IF_UNSPEC, proto, SANED_SERVICE_DNS, NULL, 0, net_avahi_browse_callback, NULL);
 	if (avahi_browser == NULL)
 	  {
 	    DBG (1, "net_avahi_callback: could not create service browser: %s\n", avahi_strerror (avahi_client_errno (c)));

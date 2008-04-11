@@ -80,6 +80,7 @@
 
 #include <pwd.h>
 
+
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
 # include <sys/poll.h>
 #else
@@ -150,6 +151,28 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
   return ret;
 }
 #endif /* HAVE_SYS_POLL_H && HAVE_POLL */
+
+#ifdef WITH_AVAHI
+# include <avahi-client/client.h>
+# include <avahi-client/publish.h>
+
+# include <avahi-common/alternative.h>
+# include <avahi-common/simple-watch.h>
+# include <avahi-common/malloc.h>
+# include <avahi-common/error.h>
+
+# define SANED_SERVICE_DNS "_sane-port._tcp"
+# define SANED_NAME "saned"
+
+pid_t avahi_pid = -1;
+
+char *avahi_svc_name;
+
+static AvahiClient *avahi_client = NULL;
+static AvahiSimplePoll *avahi_poll = NULL;
+static AvahiEntryGroup *avahi_group = NULL;
+#endif /* WITH_AVAHI */
+
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -2082,6 +2105,15 @@ wait_child (pid_t pid, int *status, int options)
   if (ret <= 0)
     return ret;
 
+#ifdef WITH_AVAHI
+  if ((avahi_pid > 0) && (ret == avahi_pid))
+    {
+      avahi_pid = -1;
+      numchildren--;
+      return ret;
+    }
+#endif /* WITH_AVAHI */
+
   for (c = children; (c != NULL) && (c->next != NULL); p = c, c = c->next)
     {
       if (c->pid == ret)
@@ -2212,6 +2244,11 @@ bail_out (int error)
 {
   DBG (DBG_ERR, "%sbailing out, waiting for children...\n", (error) ? "FATAL ERROR; " : "");
 
+#ifdef WITH_AVAHI
+  if (avahi_pid > 0)
+    kill (avahi_pid, SIGTERM);
+#endif /* WITH_AVAHI */
+
   while (numchildren > 0)
     wait_child (-1, NULL, 0);
 
@@ -2219,7 +2256,6 @@ bail_out (int error)
 
   exit (1);
 }
-
 
 void
 sig_int_term_handler (int signum);
@@ -2235,6 +2271,232 @@ sig_int_term_handler (int signum)
 
   bail_out (0);
 }
+
+
+#ifdef WITH_AVAHI
+static void
+saned_avahi (void);
+
+static void
+saned_create_avahi_services (AvahiClient *c);
+
+static void
+saned_avahi_callback (AvahiClient *c, AvahiClientState state, void *userdata);
+
+static void
+saned_avahi_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata);
+
+
+static void
+saned_avahi (void)
+{
+  int error;
+
+  avahi_pid = fork ();
+
+  if (avahi_pid > 0)
+    {
+      numchildren++;
+      return;
+    }
+  else if (avahi_pid < 0)
+    {
+      DBG (DBG_ERR, "saned_avahi: could not spawn Avahi process: %s\n", strerror (errno));
+      return;
+    }
+
+  signal (SIGINT, NULL);
+  signal (SIGTERM, NULL);
+
+  avahi_svc_name = avahi_strdup(SANED_NAME);
+
+  avahi_poll = avahi_simple_poll_new ();
+  if (avahi_poll == NULL)
+    {
+      DBG (DBG_ERR, "saned_avahi: failed to create simple poll object\n");
+      goto fail;
+    }
+
+  avahi_client = avahi_client_new (avahi_simple_poll_get (avahi_poll), AVAHI_CLIENT_NO_FAIL, saned_avahi_callback, NULL, &error);
+  if (avahi_client == NULL)
+    {
+      DBG (DBG_ERR, "saned_avahi: failed to create client: %s\n", avahi_strerror (error));
+      goto fail;
+    }
+
+  avahi_simple_poll_loop (avahi_poll);
+
+  return;
+
+ fail:
+  if (avahi_client)
+    avahi_client_free (avahi_client);
+
+  if (avahi_poll)
+    avahi_simple_poll_free (avahi_poll);
+
+  avahi_free (avahi_svc_name);
+}
+
+static void
+saned_avahi_group_callback (AvahiEntryGroup *g, AvahiEntryGroupState state, void *userdata)
+{
+  char *n;
+
+  /* unused */
+  userdata = userdata;
+
+  if ((!g) || (g != avahi_group))
+    return;
+
+  switch (state)
+    {
+      case AVAHI_ENTRY_GROUP_ESTABLISHED:
+	/* The entry group has been established successfully */
+	DBG (DBG_INFO, "saned_avahi_group_callback: service '%s' successfully established\n", avahi_svc_name);
+	break;
+
+      case AVAHI_ENTRY_GROUP_COLLISION:
+	/* A service name collision with a remote service
+	 * happened. Let's pick a new name */
+	n = avahi_alternative_service_name (avahi_svc_name);
+	avahi_free (avahi_svc_name);
+	avahi_svc_name = n;
+
+	DBG (DBG_WARN, "saned_avahi_group_callback: service name collision, renaming service to '%s'\n", avahi_svc_name);
+
+	/* And recreate the services */
+	saned_create_avahi_services (avahi_entry_group_get_client (g));
+	break;
+
+      case AVAHI_ENTRY_GROUP_FAILURE :
+	DBG (DBG_ERR, "saned_avahi_group_callback: entry group failure: %s\n", avahi_strerror (avahi_client_errno (avahi_entry_group_get_client (g))));
+
+	/* Some kind of failure happened while we were registering our services */
+	avahi_simple_poll_quit (avahi_poll);
+	break;
+
+      case AVAHI_ENTRY_GROUP_UNCOMMITED:
+      case AVAHI_ENTRY_GROUP_REGISTERING:
+	break;
+    }
+}
+
+static void
+saned_create_avahi_services (AvahiClient *c)
+{
+  char *n;
+  char txt[32];
+  int ret;
+
+  if (!c)
+    return;
+
+  if (!avahi_group)
+    {
+      avahi_group = avahi_entry_group_new (c, saned_avahi_group_callback, NULL);
+      if (avahi_group == NULL)
+	{
+	  DBG (DBG_ERR, "saned_create_avahi_services: avahi_entry_group_new() failed: %s\n", avahi_strerror (avahi_client_errno (c)));
+	  goto fail;
+	}
+    }
+
+  if (avahi_entry_group_is_empty (avahi_group))
+    {
+      DBG (DBG_INFO, "saned_create_avahi_services: adding service '%s'\n", avahi_svc_name);
+
+      snprintf(txt, sizeof (txt), "protovers=%x", SANE_VERSION_CODE (V_MAJOR, V_MINOR, SANEI_NET_PROTOCOL_VERSION));
+
+      ret = avahi_entry_group_add_service (avahi_group, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, 0, avahi_svc_name, SANED_SERVICE_DNS, NULL, NULL, SANED_SERVICE_PORT, txt, NULL);
+      if (ret < 0)
+	{
+	  if (ret == AVAHI_ERR_COLLISION)
+	    {
+	      n = avahi_alternative_service_name (avahi_svc_name);
+	      avahi_free (avahi_svc_name);
+	      avahi_svc_name = n;
+
+	      DBG (DBG_WARN, "saned_create_avahi_services: service name collision, renaming service to '%s'\n", avahi_svc_name);
+
+	      avahi_entry_group_reset (avahi_group);
+
+	      saned_create_avahi_services (c);
+
+	      return;
+	    }
+
+	  DBG (DBG_ERR, "saned_create_avahi_services: failed to add %s service: %s\n", SANED_SERVICE_DNS, avahi_strerror (ret));
+	  goto fail;
+	}
+
+      /* Tell the server to register the service */
+      ret = avahi_entry_group_commit (avahi_group);
+      if (ret < 0)
+	{
+	  DBG (DBG_ERR, "saned_create_avahi_services: failed to commit entry group: %s\n", avahi_strerror (ret));
+	  goto fail;
+	}
+    }
+
+  return;
+
+ fail:
+  avahi_simple_poll_quit (avahi_poll);
+}
+
+static void
+saned_avahi_callback (AvahiClient *c, AvahiClientState state, void *userdata)
+{
+  int error;
+
+  /* unused */
+  userdata = userdata;
+
+  if (!c)
+    return;
+
+  switch (state)
+    {
+      case AVAHI_CLIENT_CONNECTING:
+	break;
+
+      case AVAHI_CLIENT_S_RUNNING:
+	saned_create_avahi_services (c);
+	break;
+
+      case AVAHI_CLIENT_S_COLLISION:
+      case AVAHI_CLIENT_S_REGISTERING:
+	if (avahi_group)
+	  avahi_entry_group_reset (avahi_group);
+	break;
+
+      case AVAHI_CLIENT_FAILURE:
+	error = avahi_client_errno (c);
+
+	if (error == AVAHI_ERR_DISCONNECTED)
+	  {
+	    /* Server disappeared - try to reconnect */
+            avahi_client_free (avahi_client);
+            avahi_client = NULL;
+
+	    avahi_client = avahi_client_new (avahi_simple_poll_get (avahi_poll), AVAHI_CLIENT_NO_FAIL, saned_avahi_callback, NULL, &error);
+	    if (avahi_client == NULL)
+	      {
+		DBG (DBG_ERR, "saned_avahi_callback: failed to create client: %s\n", avahi_strerror (error));
+		avahi_simple_poll_quit (avahi_poll);
+	      }
+	  }
+	else
+	  {
+	    /* Another error happened - game over */
+	    DBG (DBG_ERR, "saned_avahi_callback: client failure: %s\n", avahi_strerror (error));
+	    avahi_simple_poll_quit (avahi_poll);
+	  }
+	break;
+    }
+}
+#endif /* WITH_AVAHI */
 
 
 #ifdef SANED_USES_AF_INDEP
@@ -2525,6 +2787,11 @@ run_standalone (int argc, char **argv)
       signal(SIGINT, sig_int_term_handler);
       signal(SIGTERM, sig_int_term_handler);
     }
+
+#ifdef WITH_AVAHI
+  DBG (DBG_INFO, "run_standalone: spawning Avahi process\n");
+  saned_avahi ();
+#endif /* WITH_AVAHI */
 
   DBG (DBG_MSG, "run_standalone: waiting for control connection\n");
 

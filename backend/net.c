@@ -1,7 +1,7 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 1997 David Mosberger-Tang
-   Copyright (C) 2003 Julien BLACHE <jb@jblache.org>
-      AF-independent code + IPv6
+   Copyright (C) 2003, 2008 Julien BLACHE <jb@jblache.org>
+      AF-independent code + IPv6, Avahi support
 
    This file is part of the SANE package.
 
@@ -65,6 +65,21 @@
 
 #include <netinet/in.h>
 #include <netdb.h> /* OS/2 needs this _after_ <netinet/in.h>, grrr... */
+
+#ifdef WITH_AVAHI
+# include <avahi-client/client.h>
+# include <avahi-client/lookup.h>
+
+# include <avahi-common/thread-watch.h>
+# include <avahi-common/malloc.h>
+# include <avahi-common/error.h>
+
+# define SANED_SERVICE_DNS "_sane-port._tcp"
+
+static AvahiClient *avahi_client = NULL;
+static AvahiThreadedPoll *avahi_thread = NULL;
+static AvahiServiceBrowser *avahi_browser = NULL;
+#endif /* WITH_AVAHI */
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -149,6 +164,17 @@ add_device (const char *name, Net_Device ** ndp)
 
   DBG (1, "add_device: adding backend %s\n", name);
 
+  for (nd = first_device; nd; nd = nd->next)
+    if (strcmp (nd->name, name) == 0)
+      {
+	DBG (1, "add_device: already in list\n");
+
+	if (ndp)
+	  *ndp = nd;
+
+	return SANE_STATUS_GOOD;
+      }
+
   memset (&hints, 0, sizeof(hints));
 
 # ifdef ENABLE_IPV6
@@ -230,6 +256,17 @@ add_device (const char *name, Net_Device ** ndp)
   struct sockaddr_in *sin;
 
   DBG (1, "add_device: adding backend %s\n", name);
+
+  for (nd = first_device; nd; nd = nd->next)
+    if (strcmp (nd->name, name) == 0)
+      {
+	DBG (1, "add_device: already in list\n");
+
+	if (ndp)
+	  *ndp = nd;
+
+	return SANE_STATUS_GOOD;
+      }
 
   he = gethostbyname (name);
   if (!he)
@@ -656,6 +693,234 @@ do_authorization (Net_Device * dev, SANE_String resource)
     DBG (1, "do_authorization: auth_active is false... strange\n");
 }
 
+
+#ifdef WITH_AVAHI
+static void
+net_avahi_resolve_callback (AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
+			    AvahiResolverEvent event, const char *name, const char *type,
+			    const char *domain, const char *host_name, const AvahiAddress *address,
+			    uint16_t port, AvahiStringList *txt, AvahiLookupResultFlags flags,
+			    void *userdata)
+{
+  char a[AVAHI_ADDRESS_STR_MAX];
+  char *t;
+
+  /* unused */
+  interface = interface;
+  protocol = protocol;
+  userdata = userdata;
+
+  if (!r)
+    return;
+
+  switch (event)
+    {
+      case AVAHI_RESOLVER_FAILURE:
+	DBG (1, "net_avahi_resolve_callback: failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
+	     name, type, domain, avahi_strerror (avahi_client_errno (avahi_service_resolver_get_client (r))));
+	break;
+
+      case AVAHI_RESOLVER_FOUND:
+	DBG (3, "net_avahi_resolve_callback: service '%s' of type '%s' in domain '%s':\n", name, type, domain);
+
+	avahi_address_snprint(a, sizeof (a), address);
+	t = avahi_string_list_to_string (txt);
+
+	DBG (3, "\t%s:%u (%s)\n\tTXT=%s\n\tcookie is %u\n\tis_local: %i\n\tour_own: %i\n"
+	     "\twide_area: %i\n\tmulticast: %i\n\tcached: %i\n",
+	     host_name, port, a, t, avahi_string_list_get_service_cookie (txt),
+	     !!(flags & AVAHI_LOOKUP_RESULT_LOCAL), !!(flags & AVAHI_LOOKUP_RESULT_OUR_OWN),
+	     !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA), !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
+	     !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
+
+	/* TODO: evaluate TXT record */
+
+	/* Try first with the name */
+	if (add_device (host_name, NULL) != SANE_STATUS_GOOD)
+	  {
+	    DBG (1, "net_avahi_resolve_callback: couldn't add backend with name %s\n", host_name);
+
+	    /* Then try the raw IP address */
+	    if (add_device (t, NULL) != SANE_STATUS_GOOD)
+	      DBG (1, "net_avahi_resolve_callback: couldn't add backend with IP address %s either\n", t);
+	  }
+
+	avahi_free (t);
+	break;
+    }
+
+  avahi_service_resolver_free(r);
+}
+
+static void
+net_avahi_browse_callback (AvahiServiceBrowser *b, AvahiIfIndex interface, AvahiProtocol protocol,
+			   AvahiBrowserEvent event, const char *name, const char *type,
+			   const char *domain, AvahiLookupResultFlags flags, void *userdata)
+{
+  /* unused */
+  flags = flags;
+  userdata = userdata;
+
+  if (!b)
+    return;
+
+  switch (event)
+    {
+      case AVAHI_BROWSER_FAILURE:
+	DBG (1, "net_avahi_browse_callback: %s\n", avahi_strerror (avahi_client_errno (avahi_service_browser_get_client (b))));
+	avahi_threaded_poll_quit (avahi_thread);
+	return;
+
+      case AVAHI_BROWSER_NEW:
+	DBG (3, "net_avahi_browse_callback: NEW: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+
+	/* The server will actually be added to our list in the resolver callback */
+
+	/* The resolver object will be freed in the resolver callback, or by
+	 * the server if it terminates before the callback is called.
+	 */
+	if (!(avahi_service_resolver_new (avahi_client, interface, protocol, name, type, domain, AVAHI_PROTO_UNSPEC, 0, net_avahi_resolve_callback, NULL)))
+	  DBG (2, "net_avahi_browse_callback: failed to resolve service '%s': %s\n", name, avahi_strerror (avahi_client_errno (avahi_client)));
+	break;
+
+      case AVAHI_BROWSER_REMOVE:
+	DBG (3, "net_avahi_browse_callback: REMOVE: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+	/* With the current architecture, we cannot safely remove a server from the list */
+	break;
+
+      case AVAHI_BROWSER_ALL_FOR_NOW:
+      case AVAHI_BROWSER_CACHE_EXHAUSTED:
+	DBG (3, "net_avahi_browse_callback: %s\n", event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
+	break;
+    }
+}
+
+static void
+net_avahi_callback (AvahiClient *c, AvahiClientState state, void * userdata)
+{
+  int error;
+
+  /* unused */
+  userdata = userdata;
+
+  if (!c)
+    return;
+
+  switch (state)
+    {
+      case AVAHI_CLIENT_CONNECTING:
+	break;
+
+      case AVAHI_CLIENT_S_COLLISION:
+      case AVAHI_CLIENT_S_REGISTERING:
+      case AVAHI_CLIENT_S_RUNNING:
+	if (avahi_browser)
+	  return;
+
+	avahi_browser = avahi_service_browser_new (c, AVAHI_IF_UNSPEC, AVAHI_PROTO_UNSPEC, SANED_SERVICE_DNS, NULL, 0, net_avahi_browse_callback, NULL);
+	if (avahi_browser == NULL)
+	  {
+	    DBG (1, "net_avahi_callback: could not create service browser: %s\n", avahi_strerror (avahi_client_errno (c)));
+	    avahi_threaded_poll_quit (avahi_thread);
+	  }
+	break;
+
+      case AVAHI_CLIENT_FAILURE:
+	error = avahi_client_errno (c);
+
+	if (error == AVAHI_ERR_DISCONNECTED)
+	  {
+	    /* Server disappeared - try to reconnect */
+	    avahi_client_free (avahi_client);
+	    avahi_client = NULL;
+
+	    if (avahi_browser)
+	      {
+		avahi_service_browser_free (avahi_browser);
+		avahi_browser = NULL;
+	      }
+
+	    avahi_client = avahi_client_new (avahi_threaded_poll_get (avahi_thread), AVAHI_CLIENT_NO_FAIL, net_avahi_callback, NULL, &error);
+	    if (avahi_client == NULL)
+	      {
+		DBG (1, "net_avahi_init: could not create Avahi client: %s\n", avahi_strerror (error));
+		avahi_threaded_poll_quit (avahi_thread);
+	      }
+	  }
+	else
+	  {
+	    /* Another error happened - game over */
+	    DBG (1, "net_avahi_callback: server connection failure: %s\n", avahi_strerror (error));
+	    avahi_threaded_poll_quit (avahi_thread);
+	  }
+	break;
+    }
+}
+
+
+static void
+net_avahi_init (void)
+{
+  int error;
+
+  avahi_thread = avahi_threaded_poll_new ();
+  if (avahi_thread == NULL)
+    {
+      DBG (1, "net_avahi_init: could not create threaded poll object\n");
+      goto fail;
+    }
+
+  avahi_client = avahi_client_new (avahi_threaded_poll_get (avahi_thread), AVAHI_CLIENT_NO_FAIL, net_avahi_callback, NULL, &error);
+  if (avahi_client == NULL)
+    {
+      DBG (1, "net_avahi_init: could not create Avahi client: %s\n", avahi_strerror (error));
+      goto fail;
+    }
+
+  if (avahi_threaded_poll_start (avahi_thread) < 0)
+    {
+      DBG (1, "net_avahi_init: Avahi thread failed to start\n");
+      goto fail;
+    }
+
+  /* All done */
+  return;
+
+ fail:
+  DBG (1, "net_avahi_init: Avahi init failed, support disabled\n");
+
+  if (avahi_client)
+    {
+      avahi_client_free (avahi_client);
+      avahi_client = NULL;
+    }
+
+  if (avahi_thread)
+    {
+      avahi_threaded_poll_free (avahi_thread);
+      avahi_thread = NULL;
+    }
+}
+
+static void
+net_avahi_cleanup (void)
+{
+  if (!avahi_thread)
+    return;
+
+  avahi_threaded_poll_stop (avahi_thread);
+
+  if (avahi_browser)
+    avahi_service_browser_free (avahi_browser);
+
+  if (avahi_client)
+    avahi_client_free (avahi_client);
+
+  avahi_threaded_poll_free (avahi_thread);
+}
+#endif /* WITH_AVAHI */
+
+
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
@@ -676,9 +941,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (2, "sane_init: authorize = %p, version_code = %p\n", (void *) authorize,
        (void *) version_code);
 
-  devlist = 0;
-  first_device = 0;
-  first_handle = 0;
+  devlist = NULL;
+  first_device = NULL;
+  first_handle = NULL;
+
+#ifdef WITH_AVAHI
+  net_avahi_init ();
+#endif /* WITH_AVAHI */
 
   auth_callback = authorize;
 
@@ -832,6 +1101,10 @@ sane_exit (void)
   int i;
 
   DBG (1, "sane_exit: exiting\n");
+
+#ifdef WITH_AVAHI
+  net_avahi_cleanup ();
+#endif /* WITH_AVAHI */
 
   /* first, close all handles: */
   for (handle = first_handle; handle; handle = next_handle)

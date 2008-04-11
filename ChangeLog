@@ -1,3 +1,15 @@
+2008-04-11  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: announce the _sane-port._tcp service via mDNS
+	(Avahi) when running in standalone or debug mode. A separate
+	process is responsible for the announcement through Avahi.
+	* backend/net.c: look for _sane-port._tcp service announcements
+	via mDNS (Avahi). A separate thread listens to announcements
+	through Avahi. Start the thread as early as possible in
+	sane_init() so as to get as much data as possible until
+	sane_get_devices() is called.
+	* aclocal.m4, configure, configure.in, include/sane/config.h.in:
+	add autofoo stuff for Avahi support, disabled by default.
+
 2008-04-10  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: do not use daemon(), as it's a 4.4BSD/glibc
 	function; OS/2 for instance does not have it. Use an open-coded

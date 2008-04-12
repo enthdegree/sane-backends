@@ -1,3 +1,8 @@
+2008-02-20  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* backend/rts8891.c, backend/rts88xx_lib.c: fix format warning
+	* doc/sane-rts8891.man: man page fixes
+	* AUTHORS: e-mail update
+
 2008-04-11  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: announce the _sane-port._tcp service via mDNS
 	(Avahi) when running in standalone or debug mode. A separate

@@ -839,8 +839,8 @@ set_option_value (Rts8891_Scanner * s, int option, void *val,
 	{
 	  s->val[option].wa = s->dev->model->gamma;
 	  DBG (DBG_error0,
-	       "set_option_value: not enough memory for %d bytes!\n",
-	       256 * sizeof (SANE_Word));
+	       "set_option_value: not enough memory for %lu bytes!\n",
+	       (u_long) (256 * sizeof (SANE_Word)));
 	  return SANE_STATUS_NO_MEM;
 	}
 

@@ -277,8 +277,8 @@ sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
     }
   if (size != (size_t) length)
     {
-      DBG (DBG_warn, "sanei_rts88xx_read_regs: read got only %d bytes\n",
-	   size);
+      DBG (DBG_warn, "sanei_rts88xx_read_regs: read got only %lu bytes\n",
+	   (u_long) size);
     }
   if (DBG_LEVEL >= DBG_io)
     {
@@ -478,8 +478,8 @@ sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
   if ((status == SANE_STATUS_GOOD) && (size != (size_t) length + 4 + extra))
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_write_mem: only wrote %d bytes out of %d\n", size,
-	   length + 4);
+	   "sanei_rts88xx_write_mem: only wrote %lu bytes out of %d\n",
+	   (u_long) size, length + 4);
       status = SANE_STATUS_IO_ERROR;
     }
   return status;
@@ -549,8 +549,8 @@ sanei_rts88xx_read_mem (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
       if (size != want)
 	{
 	  DBG (DBG_error,
-	       "sanei_rts88xx_read_mem: only read %d bytes out of %d\n", size,
-	       want);
+	       "sanei_rts88xx_read_mem: only read %lu bytes out of %lu\n",
+	       (u_long) size, (u_long) want);
 	  status = SANE_STATUS_IO_ERROR;
 	}
       length -= size;
@@ -832,7 +832,8 @@ sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
 	  DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
 	  return status;
 	}
-      DBG (DBG_io2, "sanei_rts88xx_read_data: read %d bytes\n", size);
+      DBG (DBG_io2, "sanei_rts88xx_read_data: read %lu bytes\n",
+	   (u_long) size);
       read += size;
     }
 
@@ -846,13 +847,14 @@ sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
 	  DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
 	  return status;
 	}
-      DBG (DBG_io2, "sanei_rts88xx_read_data: read %d bytes\n", remain);
+      DBG (DBG_io2, "sanei_rts88xx_read_data: read %lu bytes\n",
+	   (u_long) remain);
       read += remain;
     }
 
   /* update actual read length */
-  DBG (DBG_io, "sanei_rts88xx_read_data: read %d bytes, %d required\n",
-       read, *length);
+  DBG (DBG_io, "sanei_rts88xx_read_data: read %lu bytes, %d required\n",
+       (u_long) read, *length);
   *length = read;
   return status;
 }

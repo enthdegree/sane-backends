@@ -1,10 +1,10 @@
 .\" .IX sane-rts8891
 .TH "sane-rts8891" "5" "16 March 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH "NAME"
-sane\-rts8891 \- SANE backend for Umax Astra 4400/4450 and Hewlett-Packard Scanjet 4470c scanners
+sane-rts8891 \- SANE backend for Umax Astra 4400/4450 and Hewlett-Packard Scanjet 4470c scanners
 .SH "DESCRIPTION"
 The
-.B sane\-rts8891
+.B sane-rts8891
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to scanner based on Realtek RTS8891 ASIC.
 .PP 
@@ -32,14 +32,14 @@ maintainer or to the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage \-\-help \-d rts8891
+scanimage --help -d rts8891
 .RE
 
 .TP 
 .B Scan Mode Options
 
 .TP 
-.B \-\-mode
+.B --mode
 selects the basic mode of operation of the scanner valid choices are 
 .I auto
 .R ,
@@ -53,7 +53,7 @@ Grayscale will produce 256 levels of gray (8 bits). Gray and Lineart mode are em
 Color mode allows for over 16 million different colors produced from 24 bits of color information.
 
 .TP 
-.B \-\-resolution
+.B --resolution
 selects the resolution for a scan. The horizontal and vertical resolutions are set 
 by the value of this option. Default value is 150 dpi, automatic value is 75 dpi.
 The scanner is capable of the following resolutions for the specified option value:
@@ -73,7 +73,7 @@ The scanner is capable of the following resolutions for the specified option val
 .RE
 
 .TP 
-.B \-\-preview
+.B --preview
 requests a preview scan. The resolution used for that scan is 75 dpi
 and the scan area and the scan mode are as specified through their options, 
 or the default if not specified. The default and automatic value for preview mode is "no".
@@ -82,8 +82,8 @@ or the default if not specified. The default and automatic value for preview mod
 .B Image Enhancement Options
 
 .TP 
-.B \-\-threshold
-selects the  minimum\-brightness to get a white point. The threshold is only used with Lineart mode scans.
+.B --threshold
+selects the  minimum-brightness to get a white point. The threshold is only used with Lineart mode scans.
 It is specified as a percentage in the range 0..100% (in steps of 1).  
 The default or automatic value of the threshold option is 50.
 
@@ -128,11 +128,11 @@ is active only if custom-gamma is set to yes.
 .B Utility Options
 
 .TP
-.B \-\-lamp\-on
+.B --lamp-on
 this advanced option switches the lamp on. It is a set only option.
 
 .TP
-.B \-\-lamp\-off
+.B --lamp-off
 this advanced option switches the lamp off. It is a set only option.
 
 .SH "CONFIGURATION FILE"
@@ -141,10 +141,10 @@ The configuration file @CONFIGDIR@/rts8891.conf contains only the usb device id 
 
 .SH "FILES"
 .TP 
-.I @LIBDIR@/libsane\-rts8891.a
+.I @LIBDIR@/libsane-rts8891.a
 The static library implementing this backend.
 .TP 
-.I @LIBDIR@/libsane\-rts8891.so
+.I @LIBDIR@/libsane-rts8891.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -182,7 +182,7 @@ https://alioth.debian.org/tracker/?atid=410366&group_id=30186&func=browse
 
 
 .SH "SEE ALSO"
-sane\-usb(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane-usb(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH "AUTHOR"

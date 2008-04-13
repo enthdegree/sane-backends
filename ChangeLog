@@ -1,5 +1,12 @@
 2008-04-13  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: fix typo.
+	* backend/net.c: plug an information leak in the net backend. When
+	sending out a SANE_NET_CONTROL_OPTION RPC for the
+	SANE_ACTION_GET_VALUE action (and SANE_ACTION_SET_AUTO for the
+	network protocol versions < 3), the backend was not clearing the
+	memory area for the value argument before sending it over the
+	network, resulting in an information leak for the
+	SANE_ACTION_GET_VALUE case.
 
 2008-04-12  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/rts8891.c, backend/rts88xx_lib.c: fix format warning

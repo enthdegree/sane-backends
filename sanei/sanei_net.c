@@ -139,6 +139,7 @@ sanei_w_control_option_req (Wire *w, SANE_Control_Option_Req *req)
   sanei_w_word (w, &req->handle);
   sanei_w_word (w, &req->option);
   sanei_w_word (w, &req->action);
+
   /* Up to and including version 2, we incorrectly attempted to encode
      the option value even the action was SANE_ACTION_SET_AUTO.  */
   if (w->version < 3 || req->action != SANE_ACTION_SET_AUTO)

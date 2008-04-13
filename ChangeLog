@@ -1,3 +1,6 @@
+2008-04-13  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: fix typo.
+
 2008-04-12  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/rts8891.c, backend/rts88xx_lib.c: fix format warning
 	* doc/sane-rts8891.man: man page fixes

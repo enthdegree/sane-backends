@@ -1901,7 +1901,7 @@ process_request (Wire * w)
 	    || !handle[req.handle].inuse)
 	  {
 	    DBG (DBG_ERR,
-		 "process_rquest: (control_option) "
+		 "process_request: (control_option) "
 		 "error while decoding args h=%d (%s)\n"
 		 , req.handle, strerror (w->status));
 	    return;

@@ -108,7 +108,7 @@ typedef u_int32_t uint32_t;
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
 #define PIXMA_VERSION_MINOR 14
-#define PIXMA_VERSION_BUILD 4
+#define PIXMA_VERSION_BUILD 5
 /**@}*/
 
 /** \name Error codes */

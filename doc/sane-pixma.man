@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "16 March 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "13 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -10,13 +10,15 @@ access to Canon PIXMA multi-function devices (All-in-one printers).
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MP140, MP150, MP160, MP170, MP180, MP210, MP450, MP460, MP470
+PIXMA MP140, MP150, MP160, MP170, MP180, MP210, MP220
 .br
-PIXMA MP500, MP510, MP520, MP530, MP600, MP600R, MP610, MP710
+PIXMA MP450, MP460, MP470, MP500, MP510, MP520, MP530
 .br
-PIXMA MP800, MP800R, MP810, MP830, MP960 
+PIXMA MP600, MP600R, MP610, MP710
 .br
-PIXMA MX700 
+PIXMA MP800, MP800R, MP810, MP830, MP960, MP970 
+.br
+PIXMA MX310, MX700
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .RE
@@ -36,7 +38,7 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP220, MP740, MX300, MX310
+PIXMA MP740, MX300
 .RE
 .PP
 The following models may use partly the same Pixma protocol as MPs listed
@@ -45,7 +47,7 @@ experimental. Snoop logs are required to further investigate, please contact
 the Sane-dev mailing list.
 .PP
 .RS
-PIXMA MX850, MP970
+PIXMA MX850
 .RE
 .PP
 .\".PP

@@ -59,8 +59,8 @@
 :model "PIXMA MP220"
 :interface "USB"
 :usbid "0x04a9" "0x1722"
-:status :untested
-:comment "Testers needed! Likely to use generation 3 protocol like MP210."
+:status :good
+:comment "All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MP450"
 :interface "USB"
@@ -168,8 +168,8 @@
 :model "PIXMA MP970"
 :interface "USB"
 :usbid "0x04a9" "0x1726"
-:status :untested
-:comment "Not working yet, need a USB snoop."
+:status :good
+:comment "All resolutions supported (up to 4800DPI)"
 
 :model "SmartBase MP360"
 :interface "USB"
@@ -217,13 +217,13 @@
 :interface "USB"
 :usbid "0x04a9" "0x1727"
 :status :untested
-:comment "Probably uses the same protocol as MX700 ?"
+:comment "Probably uses the same protocol as MX310 and MX700 ?"
 
 :model "PIXMA MX310"
 :interface "USB"
 :usbid "0x04a9" "0x1728"
-:status :untested
-:comment "Probably uses the same protocol as MX700 ?"
+:status :good
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)"
 
 :model "PIXMA MX700"
 :interface "USB"
@@ -235,4 +235,4 @@
 :interface "USB"
 :usbid "0x04a9" "0x172c"
 :status :untested
-:comment "Does it use Generation 3 protocol ? TBD."
+:comment "Does it use Generation 3 protocol ?"

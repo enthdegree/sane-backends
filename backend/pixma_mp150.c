@@ -99,13 +99,13 @@
 
 /* Generation 3 */
 #define MP210_PID 0x1721
-#define MP220_PID 0x1722  /* untested */
+#define MP220_PID 0x1722
 #define MP470_PID 0x1723
 #define MP520_PID 0x1724
 #define MP610_PID 0x1725
-#define MP970_PID 0x1726  /* untested. Generation 3 ? */
+#define MP970_PID 0x1726
 #define MX300_PID 0x1727  /* untested */
-#define MX310_PID 0x1728  /* untested */
+#define MX310_PID 0x1728
 #define MX700_PID 0x1729
 
 #define MX850_PID 0x172c  /* untested */
@@ -131,8 +131,8 @@ enum mp150_cmd_t
   cmd_read_image = 0xd420,
   cmd_error_info = 0xff20,
 
-  cmd1_ccd_3 = 0xd520,
-  cmd2_ccd_3 = 0xd720,
+  cmd_start_calibrate_ccd_3 = 0xd520,
+  cmd_end_calibrate_ccd_3 = 0xd720,
   cmd_scan_param_3 = 0xd820,
   cmd_scan_start_3 = 0xd920,
   cmd_status_3 = 0xda20,
@@ -147,10 +147,13 @@ typedef struct mp150_t
   uint8_t *imgbuf;
   uint8_t current_status[16];
   unsigned last_block;
-  int generation;
-  /* for Generation 3 */
+  uint8_t generation;
+  /* for Generation 3 and CCD shift */
   uint8_t *linebuf;
-  unsigned linelag;
+  uint8_t *data_left_ofs;
+  unsigned data_left_len;
+  int shift[3];
+  unsigned lines_shift;
 } mp150_t;
 
 
@@ -234,31 +237,6 @@ is_calibrated (pixma_t * s)
     }
 }
 
-/* For processing Generation 3 high dpi images.
- * Each complete line in mp->imgbuf is reordered for 1200,2400 and 4800 dpi Generation 3 format. */
-static int
-process_high_dpi_3 (pixma_t * s, pixma_imagebuf_t * ib)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *rptr = mp->imgbuf;
-  unsigned i;
-  const unsigned n = s->param->xdpi / 600;
-  const unsigned m = s->param->w / n;
-  const unsigned c = s->param->channels;
-
-  while (rptr + s->param->line_size <= ib->rend)
-    {
-      for (i = 0; i < s->param->w; i++)
-	{
-	  memcpy (mp->linebuf + (c * (n * (i % m) + i / m)), rptr + (c * i),
-		  c);
-	}
-      memcpy (rptr, mp->linebuf, s->param->line_size);
-      rptr += s->param->line_size;
-    }
-  return ib->rend - rptr;
-}
-
 static int
 has_paper (pixma_t * s)
 {
@@ -288,10 +266,10 @@ send_cmd_e920 (pixma_t * s)
 }
 
 static int
-send_cmd_ccd1 (pixma_t * s)
+send_cmd_start_calibrate_ccd_3 (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  return pixma_exec_short_cmd (s, &mp->cb, cmd1_ccd_3);
+  return pixma_exec_short_cmd (s, &mp->cb, cmd_start_calibrate_ccd_3);
 }
 
 static int
@@ -490,10 +468,10 @@ init_ccd_3 (pixma_t * s)
   int error, status_len;
 
   status_len = 8;
-  error = send_cmd_ccd1 (s);
+  error = send_cmd_start_calibrate_ccd_3 (s);
   if (error >= 0) 
     {
-      data = pixma_newcmd (&mp->cb, cmd2_ccd_3, 0, status_len);
+      data = pixma_newcmd (&mp->cb, cmd_end_calibrate_ccd_3, 0, status_len);
       error = pixma_exec (s, &mp->cb);
       if (error >= 0)
         {
@@ -734,6 +712,7 @@ mp150_open (pixma_t * s)
   mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
   if (s->cfg->pid >= MP210_PID)
     mp->generation = 3;
+
   /* And exceptions to be added here */
   if (s->cfg->pid == MP140_PID)
     mp->generation = 2;
@@ -806,25 +785,35 @@ mp150_scan (pixma_t * s)
 
   if (has_ccd_sensor (s))
     {
-      /* FIXME: What does this command do? */
-      error = (mp->generation <= 2) ? send_cmd_e920 (s) : send_cmd_ccd1 (s);
-      if (error == 0)
-	{
-	  query_status (s);
-	}
-      else if (error == PIXMA_ECANCELED || error == PIXMA_EBUSY)
-	{
-	  PDBG (pixma_dbg
-		(2, "cmd e920 or d520 returned %s\n", pixma_strerror (error)));
-	  query_status (s);
-	}
-      else
-	{
-	  PDBG (pixma_dbg
-		(1, "WARNING:cmd e920 or d520 failed %s\n", pixma_strerror (error)));
-	  return error;
-	}
-      pixma_sleep(2000000); /* like Windows driver, CCD warmup ? */
+      error = (mp->generation <= 2) ? send_cmd_e920 (s) 
+                                    : send_cmd_start_calibrate_ccd_3 (s);
+      switch (error)
+        {
+          case PIXMA_ECANCELED:
+          case PIXMA_EBUSY:
+            PDBG (pixma_dbg
+              (2, "cmd e920 or d520 returned %s\n", pixma_strerror (error)));
+          /* fall through */
+          case 0:
+	    query_status (s);
+            break;
+          default:
+	    PDBG (pixma_dbg
+	      (1, "WARNING:cmd e920 or d520 failed %s\n", pixma_strerror (error)));
+            return error;
+        }
+      tmo = 3;  /* like Windows driver, CCD calibration ? */
+      while (--tmo >= 0)
+        {
+          error = handle_interrupt (s, 1000);
+          if (s->cancel)
+            return PIXMA_ECANCELED;
+          if (error != PIXMA_ECANCELED && error < 0)
+            return error;
+          PDBG (pixma_dbg
+            (2, "CCD Calibration ends in %d sec.\n", tmo));
+        }
+      /* pixma_sleep(2000000); */
     }
 
   tmo = 10;
@@ -859,6 +848,10 @@ mp150_scan (pixma_t * s)
     error = init_ccd_3 (s);
   if (error >= 0)
     error = send_gamma_table (s);
+  if ((error >= 0) && (mp->generation == 3)) 
+    error = send_gamma_table (s);
+  if ((error >= 0) && (mp->generation == 3)) 
+    error = send_gamma_table (s);
   if (error >= 0)
     error = send_scan_param (s);
   if ((error >= 0) && (mp->generation == 3))
@@ -871,12 +864,105 @@ mp150_scan (pixma_t * s)
   return 0;
 }
 
+/* This post process function deals both with CCD sensors PIXMAs
+ * producing shifted color planes images, and Generation 3 high dpi images.
+ * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
+ * color planes, and reordering pixels for above 600 dpi Generation 3 format. */
+static unsigned
+post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  const unsigned n = s->param->xdpi / 600;
+  const unsigned c = s->param->channels;
+  const unsigned m = (n > 0) ? s->param->w / n : 1;
+  unsigned lines, i, j;
+  uint8_t *sptr = mp->imgbuf;
+  uint8_t *dptr = mp->imgbuf;
+  const int sr = mp->shift[0];
+  const int sg = mp->shift[1];
+  const int sb = mp->shift[2];
+
+  lines = (ib->rend - ib->rptr) / s->param->line_size;
+  if (lines > 2 * mp->lines_shift)
+    {
+      for (j = 0; j < lines - 2 * mp->lines_shift; j++)
+        {
+          if (has_ccd_sensor (s) && (c == 3))
+            {  
+              for (i = 0; i < s->param->w; i++)
+                {
+                  *sptr++ = *(dptr++ + sr);
+                  *sptr++ = *(dptr++ + sg);
+                  *sptr++ = *(dptr++ + sb);
+                }
+              sptr -= s->param->line_size;
+            } 
+          if ((mp->generation == 3) && (s->cfg->pid != MP220_PID))
+            {
+              for (i = 0; i < s->param->w; i++)
+	        {
+	          memcpy (mp->linebuf + (c * (n * (i % m) + i / m)), 
+                      sptr + (c * i), c);
+	        }
+              memcpy (sptr, mp->linebuf, s->param->line_size);
+            }
+          sptr += s->param->line_size;
+        }
+    }
+  return ib->rend - sptr;
+}
+
+static unsigned
+calc_shifting (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  unsigned base_shift;
+
+  mp->lines_shift = 0;
+  if (has_ccd_sensor (s))
+    {
+      switch (s->cfg->pid)
+        {
+          case MP970_PID:
+            if  (s->param->ydpi > 75)
+              mp->lines_shift = s->param->ydpi / 50;
+            break;
+
+          case MP800_PID:
+          case MP810_PID:
+          case MP830_PID:
+          case MP960_PID:
+          default: 
+            mp->lines_shift =  s->param->ydpi / 100;
+        }
+      base_shift = mp->lines_shift * s->param->line_size;
+      switch (s->cfg->pid)
+        {
+          case MP970_PID:
+            mp->shift[0] = 0;
+            mp->shift[1] = base_shift;
+            mp->shift[2] = 2 * base_shift;
+            break;
+
+          case MP800_PID:
+          case MP810_PID:
+          case MP830_PID:
+          case MP960_PID:
+          default:
+            mp->shift[0] = 2 * base_shift;
+            mp->shift[1] = base_shift;
+            mp->shift[2] = 0;
+        }
+    }
+  return mp->lines_shift;
+}
+
 static int
 mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
   int error;
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned block_size, bytes_received;
+  unsigned block_size, bytes_received, proc_buf_size;
   uint8_t header[16];
 
   if (mp->state == state_warmup)
@@ -889,14 +975,14 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->state = state_scanning;
       mp->last_block = 0;
 
-      mp->cb.buf =
-	realloc (mp->cb.buf,
-		 CMDBUF_SIZE + IMAGE_BLOCK_SIZE + 2 * s->param->line_size);
+      proc_buf_size = (2 * calc_shifting (s) + 2) * s->param->line_size;
+      mp->cb.buf = realloc (mp->cb.buf,
+             CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
       if (!mp->cb.buf)
 	return PIXMA_ENOMEM;
       mp->linebuf = mp->cb.buf + CMDBUF_SIZE;
-      mp->imgbuf = mp->linebuf + s->param->line_size;
-      mp->linelag = 0;
+      mp->imgbuf = mp->data_left_ofs = mp->linebuf + s->param->line_size;
+      mp->data_left_len = 0;
     }
 
   do
@@ -911,9 +997,8 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  mp->state = state_finished;
 	  return 0;
 	}
-
-      memcpy (mp->imgbuf, mp->linebuf, mp->linelag);
-      error = read_image_block (s, header, mp->imgbuf + mp->linelag);
+      memmove (mp->imgbuf, mp->data_left_ofs, mp->data_left_len);
+      error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
       if (error < 0)
 	{
 	  if (error == PIXMA_ECANCELED)
@@ -939,19 +1024,16 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  /* no image data at this moment. */
 	  pixma_sleep (10000);
 	}
-    }
-  while (block_size == 0);
 
-  ib->rptr = mp->imgbuf;
-  ib->rend = mp->imgbuf + bytes_received;
+      ib->rptr = mp->imgbuf;
+      ib->rend = mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
 
-  if ((s->param->xdpi > 600) && (mp->generation == 3))
-    {
-      ib->rend += mp->linelag;
-      mp->linelag = process_high_dpi_3 (s, ib);
-      ib->rend -= mp->linelag;
-      memcpy (mp->linebuf, ib->rend, mp->linelag);
+      mp->data_left_len = post_process_image_data (s, ib);
+      mp->data_left_ofs -= mp->data_left_len;
+      ib->rend -= mp->data_left_len;
     }
+  while (ib->rend == ib->rptr);
+
   return ib->rend - ib->rptr;
 }
 

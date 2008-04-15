@@ -1,3 +1,16 @@
+2008-04-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma.h, backend/pixma_mp150.c
+	doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	With feedback from MP970 owner, updated pixma backend for MP970
+	CCD sensor support (yet in color only), and more generally, 
+	support for other CCD sensor PIXMA: MP800, MP810, MP830, MP960,
+	but yet untested, which produce shifted color planes 
+	scanned images. Current trim based on sample images provided 
+	in bug reports and other web pages, but might require some 
+	few and simple final tweaks.
+	Also fixed a bug for MP220 at 1200 dpi, MP220 is now reported 
+	to work fine.
+
 2008-04-13  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: fix typo.
 	* backend/net.c: plug an information leak in the net backend. When

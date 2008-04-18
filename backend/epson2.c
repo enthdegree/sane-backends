@@ -1323,7 +1323,6 @@ attach(const char *name, Epson_Device * *devp, int type)
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "%s: inquiry failed: %s\n", __func__,
 			    sane_strstatus(status));
-			close_scanner(s);
 			goto free;
 		}
 
@@ -1534,8 +1533,6 @@ attach(const char *name, Epson_Device * *devp, int type)
 		dev->need_reset_on_source_change = SANE_TRUE;
 	}
 
-	close_scanner(s);
-
 	/* we are done with this one, prepare for the next scanner */
 	num_devices++;
 	dev->next = first_dev;
@@ -1545,6 +1542,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 		*devp = dev;
 
       free:
+      	close_scanner(s);
 	free(s);
 	return status;
 }

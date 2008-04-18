@@ -1,3 +1,6 @@
+2008-04-18  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: fixed attach() error path.
+
 2008-04-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, backend/pixma.h, backend/pixma_mp150.c
 	doc/sane-pixma.man, doc/descriptions/pixma.desc:

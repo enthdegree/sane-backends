@@ -1,3 +1,10 @@
+2008-04-19  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v1.0.58,
+	  rename page code 32 to 'unknown', compile if NDEBUG is set,
+	  proper async sane_cancel support, re-enable JPEG support
+	  various functions rewritten (shorter, more clear)
+	* doc/descriptions/fujitsu.desc: add new fi-6xxx machines
+
 2008-04-18  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: fixed attach() error path.
 

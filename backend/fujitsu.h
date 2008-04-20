@@ -212,7 +212,7 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are gathered by mode_sense command     */
 
-  int has_MS_color;
+  int has_MS_unknown;
   int has_MS_prepick;
   int has_MS_sleep;
   int has_MS_duplex;
@@ -355,7 +355,8 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
-  int img_count; /* how many 'sides' delivered */
+  int cancelled;
+  int side;
 
   /* total to read/write */
   int bytes_tot[2];
@@ -566,11 +567,9 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
  unsigned char * inBuff, size_t * inLen
 );
 
-static int wait_scanner (struct fujitsu *s);
+static SANE_Status wait_scanner (struct fujitsu *s);
 
-static int object_position (struct fujitsu *s, int i_load);
-
-static SANE_Status do_cancel (struct fujitsu *scanner);
+static SANE_Status object_position (struct fujitsu *s, int i_load);
 
 static SANE_Status scanner_control (struct fujitsu *s, int function);
 
@@ -588,16 +587,19 @@ static SANE_Status mode_select_overscan (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
-int get_current_side (struct fujitsu *s);
 int get_page_width (struct fujitsu *s);
 int get_page_height (struct fujitsu *s);
 
 static SANE_Status send_lut (struct fujitsu *s);
-static int set_window (struct fujitsu *s);
+static SANE_Status set_window (struct fujitsu *s);
 
+/*
 static SANE_Status get_pixelsize (struct fujitsu *s, int*, int*, int*, int*);
+*/
 
-static int start_scan (struct fujitsu *s);
+static SANE_Status start_scan (struct fujitsu *s);
+
+static SANE_Status check_for_cancel(struct fujitsu *s);
 
 static SANE_Status read_from_JPEGduplex(struct fujitsu *s);
 static SANE_Status read_from_3091duplex(struct fujitsu *s);

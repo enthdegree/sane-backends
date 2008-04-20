@@ -128,12 +128,16 @@ static unsigned char scanner_controlC[] =
   { SCANNER_CONTROL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk scanner_controlB = { scanner_controlC, sizeof (scanner_controlC) };
 
-#define set_SC_function(icb, val)              setbitfield(icb + 1, 7, 0, val)
+#define set_SC_function(icb, val)              setbitfield(icb + 1, 0xf, 0, val)
+#define SC_function_adf                        0x00
+#define SC_function_fb                         0x01
+#define SC_function_fb_hs                      0x02
+#define SC_function_lamp_off                   0x03
 #define SC_function_cancel                     0x04
 #define SC_function_lamp_on                    0x05
-#define SC_function_lamp_off                   0x03
 #define SC_function_lamp_normal                0x06
 #define SC_function_lamp_saving                0x07
+#define SC_function_panel                      0x08
 
 /* ==================================================================== */
 
@@ -411,7 +415,7 @@ static scsiblk readB = { readC, sizeof (readC) };
 /* ==================================================================== */
 
 /* page codes used by mode_sense and mode_select */
-#define MS_pc_color   0x32 /* color interlacing mode? */
+#define MS_pc_unknown 0x32 /* unknown mode? */
 #define MS_pc_prepick 0x33 /* Prepick next adf page */
 #define MS_pc_sleep   0x34 /* Sleep mode */
 #define MS_pc_duplex  0x35 /* ADF duplex transfer mode */

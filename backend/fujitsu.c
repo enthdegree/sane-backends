@@ -280,6 +280,17 @@
          - fi-5900 does not (initially) interlace colors
 	 - add mode sense for color interlacing? (page code 32)
 	 - more debug output in init_ms()
+      V 1.0.58 2008-04-19, MAN
+         - page code 32 is not color interlacing, rename to 'unknown'
+         - increase number of bytes in response buffer of init_ms()
+         - protect debug modification code in init_ms() if NDEBUG is set
+         - proper async sane_cancel support
+         - re-enable JPEG support
+         - replace s->img_count with s->side
+         - sane_get_parameters(): dont round up larger than current paper size
+         - sane_start() rewritten, shorter, more clear
+         - return values are SANE_Status, not int
+         - hide unused functions
 
    SANE FLOW DIAGRAM
 
@@ -340,7 +351,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 57 
+#define BUILD 58 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1221,8 +1232,8 @@ static SANE_Status
 init_ms(struct fujitsu *s) 
 {
   int ret;
-  int oldDbg=DBG_LEVEL;
-  unsigned char buffer[12];
+  int oldDbg;
+  unsigned char buffer[0x14];
   size_t inLen = sizeof(buffer);
 
   DBG (10, "init_ms: start\n");
@@ -1232,14 +1243,19 @@ init_ms(struct fujitsu *s)
     return SANE_STATUS_GOOD;
   }
 
-  if(DBG_LEVEL < 35){
-    DBG_LEVEL = 0;
-  }
+  oldDbg=0;
+
+  /* some of the following probes will produce errors */
+  /* so we reduce the dbg level to reduce the noise */
+  /* however, if user builds with NDEBUG, we can't do that */
+  /* so we protect the code with the following macro */
+  IF_DBG( oldDbg=DBG_LEVEL; )
+  IF_DBG( if(DBG_LEVEL < 35){ DBG_LEVEL = 0; } )
 
   set_MSEN_xfer_length (mode_senseB.cmd, inLen);
 
-  DBG (35, "init_ms: color interlace?\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_color);
+  DBG (35, "init_ms: 32 (unknown)\n");
+  set_MSEN_pc(mode_senseB.cmd, MS_pc_unknown);
   memset(buffer,0,inLen);
   ret = do_cmd (
     s, 1, 0,
@@ -1248,7 +1264,7 @@ init_ms(struct fujitsu *s)
     buffer, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
-    s->has_MS_color=1;
+    s->has_MS_unknown=1;
   }
 
   DBG (35, "init_ms: prepick\n");
@@ -1404,7 +1420,7 @@ init_ms(struct fujitsu *s)
     s->has_MS_jobsep=1;
   }
 
-  DBG_LEVEL = oldDbg;
+  IF_DBG (DBG_LEVEL = oldDbg;)
 
   DBG (15, "  prepick: %d\n", s->has_MS_prepick);
   DBG (15, "  sleep: %d\n", s->has_MS_sleep);
@@ -2184,9 +2200,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->compress_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    /*if (i > 1)
+    if (i > 1)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    else*/
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -2202,12 +2218,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.range = &s->compress_arg_range;
     s->compress_arg_range.quant=1;
 
-    /*if(s->has_comp_JPG1){
+    if(s->has_comp_JPG1){
       s->compress_arg_range.min=0;
       s->compress_arg_range.max=7;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    else*/
+    else
       opt->cap = SANE_CAP_INACTIVE;
   }
 
@@ -3555,9 +3571,10 @@ get_hardware_status (struct fujitsu *s)
 static SANE_Status
 send_lut (struct fujitsu *s)
 {
-  int i, j, ret=0, bytes = 1 << s->adbits;
+  int i, j, bytes = 1 << s->adbits;
   unsigned char * p = send_lutC+S_lut_data_offset;
   double b, slope, offset;
+  SANE_Status ret=SANE_STATUS_GOOD;
 
   DBG (10, "send_lut: start\n");
 
@@ -3899,24 +3916,40 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   
     DBG (10, "sane_get_parameters: start\n");
   
-    DBG (15, "sane_get_parameters: xres=%d, tlx=%d, brx=%d, pw=%d, maxx=%d\n",
-      s->resolution_x, s->tl_x, s->br_x, s->page_width, s->max_x);
-    DBG (15, "sane_get_parameters: yres=%d, tly=%d, bry=%d, ph=%d, maxy=%d\n",
-      s->resolution_y, s->tl_y, s->br_y, s->page_height, s->max_y);
-    DBG (15, "sane_get_parameters: user_x=%d, user_y=%d\n", 
-      (s->resolution_x * (s->br_x - s->tl_x) / 1200),
-      (s->resolution_y * (s->br_y - s->tl_y) / 1200));
+    /* started? get param data from struct */
+    if(s->started){
+        DBG (15, "sane_get_parameters: started, copying to caller\n");
+        params->format = s->params.format;
+        params->last_frame = s->params.last_frame;
+        params->lines = s->params.lines;
+        params->depth = s->params.depth;
+        params->pixels_per_line = s->params.pixels_per_line;
+        params->bytes_per_line = s->params.bytes_per_line;
+    }
 
-    /* not started? update param data */
-    if(!s->started){
+    /* not started? get param data from user settings */
+    else{
         int dir = 1;
+	int pw = get_page_width(s);
+	int ph = get_page_height(s);
 
-        DBG (15, "sane_get_parameters: updating\n");
+        DBG (15, "sane_get_parameters: not started, updating\n");
+
+        DBG(15,"sane_get_parameters: x: max=%d, page=%d, curr=%d, res=%d\n",
+          s->max_x, s->page_width, pw, s->resolution_x);
+
+        DBG(15,"sane_get_parameters: y: max=%d, page=%d, curr=%d, res=%d\n",
+          s->max_y, s->page_height, ph, s->resolution_y);
+
+        DBG(15,"sane_get_parameters: usr: tlx=%d, brx=%d, pixx=%d\n",
+	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
+
+        DBG(15,"sane_get_parameters: usr: tly=%d, bry=%d, pixy=%d\n",
+	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
 
         /* this backend only sends single frame images */
         s->params.last_frame = 1;
       
-        /* update params struct from user settings */
         if (s->mode == MODE_COLOR) {
             s->params.format = SANE_FRAME_RGB;
             s->params.depth = 8;
@@ -3963,8 +3996,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
               || (s->even_scan_line && s->params.bytes_per_line % 2)
             ){
 
-                /* dont round up larger than scanners max width */
-                if(s->br_x == s->max_x){
+                /* dont round up larger than current max width */
+                if(s->br_x >= pw){
                     dir = -1;
                 }
                 s->br_x += dir;
@@ -3973,6 +4006,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
                 break;
             }
         }
+
+        DBG(15,"sane_get_parameters: adj: tlx=%d, brx=%d, pixx=%d\n",
+	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
 
         dir = 1;
 
@@ -3986,8 +4022,8 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             /* so change the user's scan length and try again */
             if( s->params.format == SANE_FRAME_JPEG && s->params.lines % 8 ){
 
-                /* dont round up larger than scanners max length */
-                if(s->br_y == s->max_y){
+                /* dont round up larger than current max length */
+                if(s->br_y >= ph){
                     dir = -1;
                 }
                 s->br_y += dir;
@@ -3996,6 +4032,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
                 break;
             }
         }
+
+        DBG(15,"sane_get_parameters: adj: tly=%d, bry=%d, pixy=%d\n",
+	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
     }
   
     DBG (15, "sane_get_parameters: scan_x=%d, Bpl=%d, depth=%d\n", 
@@ -4004,21 +4043,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     DBG (15, "sane_get_parameters: scan_y=%d, frame=%d, last=%d\n", 
       s->params.lines, s->params.format, s->params.last_frame );
 
-    if(params){
-        DBG (15, "sane_get_parameters: copying to caller\n");
-        params->format = s->params.format;
-        params->last_frame = s->params.last_frame;
-        params->lines = s->params.lines;
-        params->depth = s->params.depth;
-        params->pixels_per_line = s->params.pixels_per_line;
-        params->bytes_per_line = s->params.bytes_per_line;
-    }
-
     DBG (10, "sane_get_parameters: finish\n");
   
     return ret;
 }
 
+#if 0
 static SANE_Status
 get_pixelsize(struct fujitsu *s, int * x, int * y, int * px, int * py)
 {
@@ -4053,6 +4083,7 @@ get_pixelsize(struct fujitsu *s, int * x, int * y, int * px, int * py)
     DBG (10, "get_pixelsize: finish\n");
     return ret;
 }
+#endif
 
 /*
  * Called by SANE when a page acquisition operation is to be started.
@@ -4067,21 +4098,38 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   struct fujitsu *s = handle;
-  SANE_Status ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "sane_start: start\n");
+  DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
 
-  DBG (15, "started=%d, img_count=%d, source=%d\n", s->started,
-    s->img_count, s->source);
+  /* undo any prior sane_cancel calls */
+  s->cancelled=0;
 
-  /* first page of batch */
+  /* not finished with current side, error */
+  if (s->started && s->bytes_tx[s->side] != s->bytes_tot[s->side]) {
+      DBG(5,"sane_start: previous transfer not finished?");
+      return SANE_STATUS_INVAL;
+  }
+
+  /* set side marker at batch start */
   if(!s->started){
+      if(s->source == SOURCE_ADF_BACK){
+        s->side = SIDE_BACK;
+      }
+      else{
+        s->side = SIDE_FRONT;
+      }
+  }
+  /* if already running, duplex needs to switch sides */
+  else if(s->source == SOURCE_ADF_DUPLEX){
+      s->side = !s->side;
+  }
 
-      /* set clean defaults */
-      s->img_count=0;
-
-      s->bytes_tot[0]=0;
-      s->bytes_tot[1]=0;
+  /* set clean defaults when starting any front, or just back */
+  /* dont reset the transfer vars on backside of duplex page */
+  /* otherwise buffered back page will be lost */
+  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
 
       s->bytes_rx[0]=0;
       s->bytes_rx[1]=0;
@@ -4096,12 +4144,15 @@ sane_start (SANE_Handle handle)
       s->jpeg_ff_offset = 0;
       s->jpeg_front_rst = 0;
       s->jpeg_back_rst = 0;
+  }
 
-      /* call this, in case frontend has not already */
-      ret = sane_get_parameters ((SANE_Handle) s, NULL);
+  /* first page of batch */
+  if(!s->started){
+
+      /* load our own private copy of scan params */
+      ret = sane_get_parameters ((SANE_Handle) s, &s->params);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot get params\n");
-        do_cancel(s);
         return ret;
       }
 
@@ -4109,15 +4160,13 @@ sane_start (SANE_Handle handle)
       ret = set_window(s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot set window\n");
-        do_cancel(s);
         return ret;
       }
     
-      /* send batch setup commands */
+      /* turn lamp on */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot start lamp\n");
-        do_cancel(s);
         return ret;
       }
     
@@ -4125,120 +4174,56 @@ sane_start (SANE_Handle handle)
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
       }
+      else{
+        s->bytes_tot[SIDE_FRONT] = 0;
+      }
 
       /* store the number of back bytes */ 
       if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
       }
+      else{
+        s->bytes_tot[SIDE_BACK] = 0;
+      }
 
-      /* make temp file/large buffer to hold the image */
+      /* make temp file/large buffer to hold the images */
       ret = setup_buffers(s);
       if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot load buffers\n");
-          do_cancel(s);
           return ret;
-      }
-
-      ret = object_position (s, SANE_TRUE);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot load page\n");
-        do_cancel(s);
-        return ret;
-      }
-
-      ret = start_scan (s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start_scan\n");
-        do_cancel(s);
-        return ret;
       }
 
       s->started=1;
   }
 
-  /* already in a batch */
-  else {
-    int side = get_current_side(s);
-
-    /* not finished with current side, error */
-    if (s->bytes_tx[side] != s->bytes_tot[side]) {
-      DBG(5,"sane_start: previous transfer not finished?");
-      return do_cancel(s);
-    }
-
-    /* Finished with previous img, jump to next */
-    s->img_count++;
-    side = get_current_side(s);
-
-    /* dont reset the transfer vars on backside of duplex page */
-    /* otherwise buffered back page will be lost */
-    /* dont call object pos or scan on back side of duplex scan */
-    if (s->source == SOURCE_ADF_DUPLEX && side == SIDE_BACK) {
-        DBG (15, "sane_start: using buffered duplex backside\n");
-    }
-    else{
-      s->bytes_tot[0]=0;
-      s->bytes_tot[1]=0;
-
-      s->bytes_rx[0]=0;
-      s->bytes_rx[1]=0;
-      s->lines_rx[0]=0;
-      s->lines_rx[1]=0;
-
-      s->bytes_tx[0]=0;
-      s->bytes_tx[1]=0;
-
-      /* reset jpeg just in case... */
-      s->jpeg_stage = JPEG_STAGE_HEAD;
-      s->jpeg_ff_offset = 0;
-      s->jpeg_front_rst = 0;
-      s->jpeg_back_rst = 0;
+  /* ingest paper with adf (no-op for fb) */
+  /* dont call object pos or scan on back side of duplex scan */
+  if( s->source != SOURCE_ADF_DUPLEX
+   || (s->source == SOURCE_ADF_DUPLEX && s->side == SIDE_FRONT) ){
 
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot load page\n");
-        do_cancel(s);
+        s->started=0;
         return ret;
       }
 
       ret = start_scan (s);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot start_scan\n");
-        do_cancel(s);
+        s->started=0;
         return ret;
       }
-
-      /* store the number of front bytes */ 
-      if ( s->source != SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
-      }
-
-      /* store the number of back bytes */ 
-      if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
-        s->bytes_tot[SIDE_BACK] = s->params.bytes_per_line * s->params.lines;
-      }
-
-    }
   }
 
-  DBG (15, "started=%d, img_count=%d, source=%d\n", s->started, s->img_count, s->source);
+  DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
 
-  DBG (10, "sane_start: finish\n");
+  /* check if user cancelled during this start */
+  ret = check_for_cancel(s);
 
-  return SANE_STATUS_GOOD;
-}
+  DBG (10, "sane_start: finish %d\n", ret);
 
-/* figure out what side we are looking at currently */
-int
-get_current_side (struct fujitsu * s){
-
-    int side = SIDE_FRONT;
-
-    if ( s->source == SOURCE_ADF_BACK || (s->source == SOURCE_ADF_DUPLEX && s->img_count % 2) ){
-      side = SIDE_BACK;
-    }
-
-    return side;
+  return ret;
 }
 
 static SANE_Status
@@ -4251,7 +4236,7 @@ scanner_control (struct fujitsu *s, int function)
 
   if(s->has_cmd_scanner_ctl){
 
-    DBG (15, "scanner_control: power up lamp...\n");
+    DBG (15, "scanner_control: function %d\n",function);
 
     set_SC_function (scanner_controlB.cmd, function);
  
@@ -4274,10 +4259,10 @@ scanner_control (struct fujitsu *s, int function)
     } 
 
     if(ret == SANE_STATUS_GOOD){
-      DBG (15, "scanner_control: lamp on, tries %d, ret %d\n",tries,ret);
+      DBG (15, "scanner_control: success, tries %d, ret %d\n",tries,ret);
     }
     else{
-      DBG (5, "scanner_control: lamp error, tries %d, ret %d\n",tries,ret);
+      DBG (5, "scanner_control: error, tries %d, ret %d\n",tries,ret);
     }
 
   }
@@ -4382,12 +4367,13 @@ setup_buffers (struct fujitsu *s)
  * This routine issues a SCSI SET WINDOW command to the scanner, using the
  * values currently in the scanner data structure.
  */
-static int
+static SANE_Status
 set_window (struct fujitsu *s)
 {
   unsigned char buffer[max_WDB_size];
-  int ret, bufferLen;
+  int bufferLen;
   int length = s->br_y - s->tl_y;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "set_window: start\n");
 
@@ -4534,10 +4520,10 @@ set_window (struct fujitsu *s)
 /*
  * Issues the SCSI OBJECT POSITION command if an ADF is in use.
  */
-static int
+static SANE_Status
 object_position (struct fujitsu *s, int i_load)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "object_position: start\n");
 
@@ -4576,10 +4562,10 @@ object_position (struct fujitsu *s, int i_load)
  * (This doesn't actually read anything, it just tells the scanner
  * to start scanning.)
  */
-static int
+static SANE_Status
 start_scan (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
   unsigned char outBuff[2];
   int outLen=1;
 
@@ -4609,6 +4595,41 @@ start_scan (struct fujitsu *s)
   return ret;
 }
 
+/* checks started and cancelled flags in scanner struct,
+ * sends cancel command to scanner if required. don't call
+ * this function asyncronously, wait for pending operation */
+static SANE_Status
+check_for_cancel(struct fujitsu *s)
+{
+  SANE_Status ret=SANE_STATUS_GOOD;
+
+  DBG (10, "check_for_cancel: start\n");
+
+  if(s->started && s->cancelled){
+      DBG (15, "check_for_cancel: cancelling\n");
+
+      /* cancel scan */
+      ret = scanner_control(s, SC_function_cancel);
+      if (ret == SANE_STATUS_GOOD) {
+        ret = SANE_STATUS_CANCELLED;
+      }
+      else{
+        DBG (5, "check_for_cancel: ERROR: cannot cancel\n");
+      }
+
+      s->started = 0;
+      s->cancelled = 0;
+  }
+  else if(s->cancelled){
+    DBG (15, "check_for_cancel: already cancelled\n");
+    ret = SANE_STATUS_CANCELLED;
+    s->cancelled = 0;
+  }
+
+  DBG (10, "check_for_cancel: finish %d\n",ret);
+  return ret;
+}
+
 /*
  * Called by SANE to read data.
  * 
@@ -4627,8 +4648,7 @@ SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len)
 {
   struct fujitsu *s = (struct fujitsu *) handle;
-  int side;
-  SANE_Status ret=0;
+  SANE_Status ret=SANE_STATUS_GOOD;
 
   DBG (10, "sane_read: start\n");
 
@@ -4640,10 +4660,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_CANCELLED;
   }
 
-  side = get_current_side(s);
-
   /* sane_start required between sides */
-  if(s->bytes_tx[side] == s->bytes_tot[side]){
+  if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
       DBG (15, "sane_read: returning eof\n");
       return SANE_STATUS_EOF;
   }
@@ -4661,7 +4679,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
           return ret;
         }
     }
-
   }
 
   /* 3091/2 are on crack, get their own duplex reader function */
@@ -4686,11 +4703,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     && s->duplex_interlace == DUPLEX_INTERLACE_NONE
   ){
 
-      if(s->bytes_tot[side] > s->bytes_rx[side] ){
+      if(s->bytes_tot[s->side] > s->bytes_rx[s->side] ){
 
-        ret = read_from_scanner(s, side);
+        ret = read_from_scanner(s, s->side);
         if(ret){
-          DBG(5,"sane_read: side %d returning %d\n",side,ret);
+          DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
           return ret;
         }
 
@@ -4699,7 +4716,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   else{
     /* buffer front side */
-    if( side == SIDE_FRONT){
+    if( s->side == SIDE_FRONT){
       if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT] ){
 
         ret = read_from_scanner(s, SIDE_FRONT);
@@ -4712,7 +4729,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
     }
   
     /* buffer back side */
-    if( side == SIDE_BACK || s->source == SOURCE_ADF_DUPLEX ){
+    if( s->side == SIDE_BACK || s->source == SOURCE_ADF_DUPLEX ){
       if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
 
         ret = read_from_scanner(s, SIDE_BACK);
@@ -4726,10 +4743,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   }
 
   /* copy a block from buffer to frontend */
-  ret = read_from_buffer(s,buf,max_len,len,side);
+  ret = read_from_buffer(s,buf,max_len,len,s->side);
 
-  DBG (10, "sane_read: finish\n");
+  /* check if user cancelled during this read */
+  ret = check_for_cancel(s);
 
+  DBG (10, "sane_read: finish %d\n", ret);
   return ret;
 }
 
@@ -4751,19 +4770,15 @@ read_from_JPEGduplex(struct fujitsu *s)
         bytes = remain;
     }
   
-    /* this should never happen */
-    if(bytes < 1){
-        DBG(5, "read_from_JPEGduplex: ERROR: no bytes this pass\n");
-        ret = SANE_STATUS_INVAL;
-    }
-  
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d re:%d pa:%d\n",
       s->bytes_tot[SIDE_FRONT], s->bytes_rx[SIDE_FRONT],
       s->bytes_tot[SIDE_BACK], s->bytes_rx[SIDE_BACK],
       remain, bytes);
 
-    if(ret){
-        return ret;
+    /* this should never happen */
+    if(bytes < 1){
+        DBG(5, "read_from_JPEGduplex: ERROR: no bytes this pass\n");
+        return SANE_STATUS_INVAL;
     }
   
     inLen = bytes;
@@ -5349,25 +5364,11 @@ read_from_buffer(struct fujitsu *s, SANE_Byte * buf,
 void
 sane_cancel (SANE_Handle handle)
 {
+  struct fujitsu * s = (struct fujitsu *) handle;
+
   DBG (10, "sane_cancel: start\n");
-  do_cancel ((struct fujitsu *) handle);
+  s->cancelled = 1;
   DBG (10, "sane_cancel: finish\n");
-}
-
-/*
- * Performs cleanup.
- * FIXME: do better cleanup if scanning is ongoing...
- */
-static SANE_Status
-do_cancel (struct fujitsu *s)
-{
-  DBG (10, "do_cancel: start\n");
-
-  s->started = 0;
-
-  DBG (10, "do_cancel: finish\n");
-
-  return SANE_STATUS_CANCELLED;
 }
 
 /*
@@ -5382,11 +5383,10 @@ do_cancel (struct fujitsu *s)
 void
 sane_close (SANE_Handle handle)
 {
+  struct fujitsu * s = (struct fujitsu *) handle;
+
   DBG (10, "sane_close: start\n");
-
-  do_cancel((struct fujitsu *) handle);
-  disconnect_fd((struct fujitsu *) handle);
-
+  disconnect_fd(s);
   DBG (10, "sane_close: finish\n");
 }
 
@@ -5984,10 +5984,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     return ret;
 }
 
-static int
+static SANE_Status
 wait_scanner(struct fujitsu *s) 
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "wait_scanner: start\n");
 

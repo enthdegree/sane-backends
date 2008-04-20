@@ -1,3 +1,6 @@
+2008-04-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.h: remove #define SANE_FRAME_JPEG
+
 2008-04-19  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v1.0.58,
 	  rename page code 32 to 'unknown', compile if NDEBUG is set,

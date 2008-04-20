@@ -6,9 +6,6 @@
  * Please see opening comment in fujitsu.c
  */
 
-/* until SANE 1.1.0 is released, we wont have this frame type */
-#define SANE_FRAME_JPEG 11
-
 /* ------------------------------------------------------------------------- 
  * This option list has to contain all options for all scanners supported by
  * this driver. If a certain scanner cannot handle a certain option, there's

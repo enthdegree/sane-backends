@@ -641,7 +641,7 @@ init_option_descriptors (pixma_sane_t * ss)
       i++;
     }
 #if 1
-  if (cfg->cap & PIXMA_CAP_ADFDUP)
+  if ((cfg->cap & PIXMA_CAP_ADFDUP) == PIXMA_CAP_ADFDUP)
     {
       ss->source_list[i] = SANE_I18N ("ADF Duplex");
       ss->source_map[i] = PIXMA_SOURCE_ADFDUP;

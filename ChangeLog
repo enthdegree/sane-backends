@@ -1,3 +1,12 @@
+2008-04-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma_common.c, backend/pixma_rename.h
+	doc/sane-pixma.man, doc/descriptions/pixma.desc
+	(new) backend/pixma_imageclass.c, backend/Makefile.in:
+	Thanks to Dennis Lou, who adapted the pixma backend to add support
+	for Canon ImageCLASS series, fully tested for MF4270, and includes
+	PIDs declarations for other ImageCLASS devices, yet to be tested.
+	Fixes also a bug for ADF and ADF Duplex scan source selection.
+
 2008-04-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.h: remove #define SANE_FRAME_JPEG
 

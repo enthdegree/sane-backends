@@ -236,3 +236,63 @@
 :usbid "0x04a9" "0x172c"
 :status :untested
 :comment "Does it use Generation 3 protocol ?"
+
+:model "imageCLASS MF5630"
+:interface "USB"
+:usbid "0x04a9" "0x264e"
+:status :untested
+:comment "Testers needed!"
+
+:model "laserBase MF5650"
+:interface "USB"
+:usbid "0x04a9" "0x264f"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF8170c"
+:interface "USB"
+:usbid "0x04a9" "0x2659"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF5730"
+:interface "USB"
+:usbid "0x04a9" "0x265d"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF5750"
+:interface "USB"
+:usbid "0x04a9" "0x265e"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF5770"
+:interface "USB"
+:usbid "0x04a9" "0x265f"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF3110"
+:interface "USB"
+:usbid "0x04a9" "0x2660"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF3240"
+:interface "USB"
+:usbid "0x04a9" "0x2684"
+:status :untested
+:comment "Testers needed!"
+
+:model "imageCLASS MF4150"
+:interface "USB"
+:usbid "0x04a9" "0x26a3"
+:status :untested
+:comment "Same protocol as imageCLASS MF4270? Testers needed!"
+
+:model "imageCLASS MF4270"
+:interface "USB"
+:usbid "0x04a9" "0x26b5"
+:status :good
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"

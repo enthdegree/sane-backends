@@ -1,4 +1,75 @@
+2008-04-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Updated pixma backend to have MP970 (tested), and probably other 
+	CCD sensor MPs, working for Grayscale scan.
+
+2008-04-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma_common.c, backend/pixma_rename.h
+	doc/sane-pixma.man, doc/descriptions/pixma.desc
+	(new) backend/pixma_imageclass.c, backend/Makefile.in:
+	Thanks to Dennis Lou, who adapted the pixma backend to add support
+	for Canon ImageCLASS series, fully tested for MF4270, and includes
+	PIDs declarations for other ImageCLASS devices, yet to be tested.
+	Fixes also a bug for ADF and ADF Duplex scan source selection.
+
+2008-04-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.h: remove #define SANE_FRAME_JPEG
+
+2008-04-19  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v1.0.58,
+	  rename page code 32 to 'unknown', compile if NDEBUG is set,
+	  proper async sane_cancel support, re-enable JPEG support
+	  various functions rewritten (shorter, more clear)
+	* doc/descriptions/fujitsu.desc: add new fi-6xxx machines
+
+2008-04-18  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: fixed attach() error path.
+
 2008-04-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, backend/pixma.h, backend/pixma_mp150.c
+	doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	With feedback from MP970 owner, updated pixma backend for MP970
+	CCD sensor support (yet in color only), and more generally, 
+	support for other CCD sensor PIXMA: MP800, MP810, MP830, MP960,
+	but yet untested, which produce shifted color planes 
+	scanned images. Current trim based on sample images provided 
+	in bug reports and other web pages, but might require some 
+	few and simple final tweaks.
+	Also fixed a bug for MP220 at 1200 dpi, MP220 is now reported 
+	to work fine.
+
+2008-04-13  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: fix typo.
+	* backend/net.c: plug an information leak in the net backend. When
+	sending out a SANE_NET_CONTROL_OPTION RPC for the
+	SANE_ACTION_GET_VALUE action (and SANE_ACTION_SET_AUTO for the
+	network protocol versions < 3), the backend was not clearing the
+	memory area for the value argument before sending it over the
+	network, resulting in an information leak for the
+	SANE_ACTION_GET_VALUE case.
+
+2008-04-12  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* backend/rts8891.c, backend/rts88xx_lib.c: fix format warning
+	* doc/sane-rts8891.man: man page fixes
+	* AUTHORS: e-mail update
+
+2008-04-11  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: announce the _sane-port._tcp service via mDNS
+	(Avahi) when running in standalone or debug mode. A separate
+	process is responsible for the announcement through Avahi.
+	* backend/net.c: look for _sane-port._tcp service announcements
+	via mDNS (Avahi). A separate thread listens to announcements
+	through Avahi. Start the thread as early as possible in
+	sane_init() so as to get as much data as possible until
+	sane_get_devices() is called.
+	* aclocal.m4, configure, configure.in, include/sane/config.h.in:
+	add autofoo stuff for Avahi support, disabled by default.
+
+2008-04-10  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: do not use daemon(), as it's a 4.4BSD/glibc
+	function; OS/2 for instance does not have it. Use an open-coded
+	equivalent. Add a PID file. saned -a username now drops privileges
+2008-04-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma_common.c, backend/pixma_rename.h
 	doc/sane-pixma.man, doc/descriptions/pixma.desc
 	(new) backend/pixma_imageclass.c, backend/Makefile.in:

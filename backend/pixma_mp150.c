@@ -396,6 +396,31 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
 }
 
 static int
+has_ccd_sensor (pixma_t * s)
+{
+  return ((s->cfg->cap & PIXMA_CAP_CCD) != 0);
+}
+
+static int
+is_ccd_grayscale (pixma_t * s)
+{
+  return (has_ccd_sensor (s) && (s->param->channels == 1));
+}
+
+/* CCD sensors don't have a Grayscale mode, but use color mode instead */
+static unsigned
+get_cis_ccd_line_size (pixma_t * s)
+{
+  return (s->param->line_size * ((is_ccd_grayscale (s)) ? 3 : 1));
+}
+ 
+static int
+is_scanning_from_adf (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADF
+	  || s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+static int
 send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
@@ -411,8 +436,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
       pixma_set_be32 (s->param->h, data + 0x14);
-      data[0x18] = (s->param->channels == 1) ? 0x04 : 0x08;
-      data[0x19] = s->param->channels * s->param->depth;	/* bits per pixel */
+      data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
+      data[0x19] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x20] = 0xff;
       data[0x23] = 0x81;
       data[0x26] = 0x02;
@@ -431,8 +456,8 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (s->param->h, data + 0x18);
-      data[0x1c] = (s->param->channels == 1) ? 0x04 : 0x08;
-      data[0x1d] = s->param->channels * s->param->depth;	/* bits per pixel */
+      data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
+      data[0x1d] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x1f] = 0x01;
       data[0x20] = 0xff;
       data[0x21] = 0x81;
@@ -667,20 +692,6 @@ wait_until_ready (pixma_t * s)
 }
 
 static int
-has_ccd_sensor (pixma_t * s)
-{
-  return ((s->cfg->cap & PIXMA_CAP_CCD) != 0);
-}
-
-static int
-is_scanning_from_adf (pixma_t * s)
-{
-  return (s->param->source == PIXMA_SOURCE_ADF
-	  || s->param->source == PIXMA_SOURCE_ADFDUP);
-}
-
-
-static int
 mp150_open (pixma_t * s)
 {
   mp150_t *mp;
@@ -864,52 +875,88 @@ mp150_scan (pixma_t * s)
   return 0;
 }
 
-/* This post process function deals both with CCD sensors PIXMAs
- * producing shifted color planes images, and Generation 3 high dpi images.
+static uint8_t *
+shift_colors (uint8_t * dptr, uint8_t * sptr, unsigned w, int sr, int sg, int sb)
+{
+  unsigned i;
+
+  for (i = 0; i < w; i++)
+    {
+      *sptr++ = *(dptr++ + sr);
+      *sptr++ = *(dptr++ + sg);
+      *sptr++ = *(dptr++ + sb);
+    }
+  return dptr;
+}
+
+static uint8_t *
+rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w)
+{
+  unsigned i, g;
+
+  for (i = 0; i < w; i++)
+    {
+      g = *sptr++;
+      g += *sptr++;
+      *gptr++ = (*sptr++ + g)  / 3;
+    }
+  return gptr;
+}
+
+static void
+reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
+                unsigned m, unsigned w, unsigned line_size)
+{
+  unsigned i;
+
+  for (i = 0; i < w; i++)
+    {
+      memcpy (linebuf + c * (n * (i % m) + i / m), sptr + c * i, c);
+    }
+  memcpy (sptr, linebuf, line_size);
+}
+
+/* This function deals both with PIXMA CCD sensors producing shifted color 
+ * planes images, Grayscale CCD scan and Generation 3 high dpi images.
  * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
- * color planes, and reordering pixels for above 600 dpi Generation 3 format. */
+ * color planes, reordering pixels above 600 dpi for Generation 3, and
+ * converting to Grayscale for CCD sensors. */
 static unsigned
 post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  const unsigned n = s->param->xdpi / 600;
-  const unsigned c = s->param->channels;
-  const unsigned m = (n > 0) ? s->param->w / n : 1;
-  unsigned lines, i, j;
-  uint8_t *sptr = mp->imgbuf;
-  uint8_t *dptr = mp->imgbuf;
-  const int sr = mp->shift[0];
-  const int sg = mp->shift[1];
-  const int sb = mp->shift[2];
+  unsigned c, lines, i, line_size, n, m;
+  uint8_t *sptr, *dptr, *gptr;
 
-  lines = (ib->rend - ib->rptr) / s->param->line_size;
+  c = (is_ccd_grayscale (s)) ? 3 : s->param->channels;
+  n = s->param->xdpi / 600;
+  m = (n > 0) ? s->param->w / n : 1;
+  sptr = dptr = gptr = mp->imgbuf;
+  line_size = get_cis_ccd_line_size (s);    
+
+  lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
   if (lines > 2 * mp->lines_shift)
     {
-      for (j = 0; j < lines - 2 * mp->lines_shift; j++)
+      lines -= 2 * mp->lines_shift;
+      for (i = 0; i < lines; i++, sptr += line_size)
         {
-          if (has_ccd_sensor (s) && (c == 3))
-            {  
-              for (i = 0; i < s->param->w; i++)
-                {
-                  *sptr++ = *(dptr++ + sr);
-                  *sptr++ = *(dptr++ + sg);
-                  *sptr++ = *(dptr++ + sb);
-                }
-              sptr -= s->param->line_size;
-            } 
+          /* Color plane shift needed by e.g. CCD */
+          if (c == 3)
+            dptr = shift_colors (dptr, sptr, s->param->w,  
+                       mp->shift[0],  mp->shift[1],  mp->shift[2]);
+
+          /* special image format for *most* Generation 3 devices */
           if ((mp->generation == 3) && (s->cfg->pid != MP220_PID))
-            {
-              for (i = 0; i < s->param->w; i++)
-	        {
-	          memcpy (mp->linebuf + (c * (n * (i % m) + i / m)), 
-                      sptr + (c * i), c);
-	        }
-              memcpy (sptr, mp->linebuf, s->param->line_size);
-            }
-          sptr += s->param->line_size;
+              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->w, line_size);
+
+          /* Color to Grayscale convert for CCD sensor */
+          if (is_ccd_grayscale (s))
+              gptr = rgb_to_gray (gptr, sptr, s->param->w);
         }
     }
-  return ib->rend - sptr;
+  ib->rptr = mp->imgbuf;
+  ib->rend = (is_ccd_grayscale (s)) ? gptr : sptr;
+  return mp->data_left_ofs - sptr;    /* # of non processed bytes */
 }
 
 static unsigned
@@ -918,41 +965,43 @@ calc_shifting (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   unsigned base_shift;
 
-  mp->lines_shift = 0;
-  if (has_ccd_sensor (s))
+  /* If color plane shift, how many pixels shift */
+  switch (s->cfg->pid)
     {
-      switch (s->cfg->pid)
-        {
-          case MP970_PID:
-            if  (s->param->ydpi > 75)
-              mp->lines_shift = s->param->ydpi / 50;
-            break;
+      case MP970_PID:
+        if  (s->param->ydpi > 75)
+          mp->lines_shift = s->param->ydpi / 50;
+        break;
 
-          case MP800_PID:
-          case MP810_PID:
-          case MP830_PID:
-          case MP960_PID:
-          default: 
-            mp->lines_shift =  s->param->ydpi / 100;
-        }
-      base_shift = mp->lines_shift * s->param->line_size;
-      switch (s->cfg->pid)
-        {
-          case MP970_PID:
-            mp->shift[0] = 0;
-            mp->shift[1] = base_shift;
-            mp->shift[2] = 2 * base_shift;
-            break;
+      case MP800_PID:
+      case MP810_PID:
+      case MP830_PID:
+      case MP960_PID:
+        mp->lines_shift =  s->param->ydpi / 100;
+        break;
 
-          case MP800_PID:
-          case MP810_PID:
-          case MP830_PID:
-          case MP960_PID:
-          default:
-            mp->shift[0] = 2 * base_shift;
-            mp->shift[1] = base_shift;
-            mp->shift[2] = 0;
-        }
+      default:     /* all CIS devices */
+        mp->lines_shift = 0;
+    }
+  base_shift = get_cis_ccd_line_size (s) * mp->lines_shift;
+
+  /* If color plane shift, how to apply the shift */
+  switch (s->cfg->pid)
+    {
+      case MP970_PID:
+        mp->shift[0] = 0;
+        mp->shift[1] = base_shift;
+        mp->shift[2] = 2 * base_shift;
+        break;
+
+      case MP800_PID:
+      case MP810_PID:
+      case MP830_PID:
+      case MP960_PID:
+      default:
+        mp->shift[0] = 2 * base_shift;
+        mp->shift[1] = base_shift;
+        mp->shift[2] = 0;
     }
   return mp->lines_shift;
 }
@@ -962,7 +1011,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
   int error;
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned block_size, bytes_received, proc_buf_size;
+  unsigned block_size, bytes_received, proc_buf_size, line_size;
   uint8_t header[16];
 
   if (mp->state == state_warmup)
@@ -975,13 +1024,14 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->state = state_scanning;
       mp->last_block = 0;
 
-      proc_buf_size = (2 * calc_shifting (s) + 2) * s->param->line_size;
+      line_size = get_cis_ccd_line_size (s);
+      proc_buf_size = (2 * calc_shifting (s) + 2) * line_size;
       mp->cb.buf = realloc (mp->cb.buf,
              CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
       if (!mp->cb.buf)
 	return PIXMA_ENOMEM;
       mp->linebuf = mp->cb.buf + CMDBUF_SIZE;
-      mp->imgbuf = mp->data_left_ofs = mp->linebuf + s->param->line_size;
+      mp->imgbuf = mp->data_left_ofs = mp->linebuf + line_size;
       mp->data_left_len = 0;
     }
 
@@ -1025,12 +1075,9 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	  pixma_sleep (10000);
 	}
 
-      ib->rptr = mp->imgbuf;
-      ib->rend = mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
-
+      mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
       mp->data_left_ofs -= mp->data_left_len;
-      ib->rend -= mp->data_left_len;
     }
   while (ib->rend == ib->rptr);
 
@@ -1156,7 +1203,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX850", MX850_PID, 2400,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADFDUP | PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_EXPERIMENT),
 
   /* Generation 3 CCD not managed as Generation 2 */
   DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,

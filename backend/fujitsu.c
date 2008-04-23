@@ -291,6 +291,8 @@
          - sane_start() rewritten, shorter, more clear
          - return values are SANE_Status, not int
          - hide unused functions
+      V 1.0.59 2008-04-22, MAN
+         - add fi-6140 usb ID, and fi-6x40 color mode
 
    SANE FLOW DIAGRAM
 
@@ -351,7 +353,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 58 
+#define BUILD 59 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -618,6 +620,9 @@ find_scanners ()
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1135'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1135", attach_one_usb);
+
+      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x114d'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x114d", attach_one_usb);
 
       DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
@@ -1515,7 +1520,10 @@ init_model (struct fujitsu *s)
   else if ( strstr (s->product_name, "fi-4340")
    || strstr (s->product_name, "fi-4750")
    || strstr (s->product_name, "fi-5650")
-   || strstr (s->product_name, "fi-5750")) {
+   || strstr (s->product_name, "fi-5750")
+   || strstr (s->product_name, "fi-6140")
+   || strstr (s->product_name, "fi-6240")
+   ) {
 
     /* weirdness */
     s->color_interlace = COLOR_INTERLACE_RRGGBB;

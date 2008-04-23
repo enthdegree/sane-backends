@@ -1,3 +1,9 @@
+2008-04-22  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in: backend v1.0.59,
+	add fi-6140 PID, and fi-6x40 color mode
+	* doc/descriptions/fujitsu.desc: add fi-6140 PID, mark as 'good'
+	* doc/descriptions/epjitsu.desc: add S300M, mark as 'untested'
+
 2008-04-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
 	Updated pixma backend to have MP970 (tested), and probably other 

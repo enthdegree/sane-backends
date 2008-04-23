@@ -54,11 +54,14 @@ usb 0x04c5 0x10e7
 #fi-5110EOXM
 usb 0x04c5 0x10f2
 
-#scansnap S500
+#ScanSnap S500
 usb 0x04c5 0x10fe
 
-#scansnap S500M
+#ScanSnap S500M
 usb 0x04c5 0x1135
 
-#scansnap S510
+#fi-6140
+usb 0x04c5 0x114d
+
+#ScanSnap S510
 usb 0x04c5 0x1155

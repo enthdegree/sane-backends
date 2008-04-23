@@ -12,7 +12,7 @@
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
 :new :yes
-:version "1.0.10"                ; version of backend
+:version "1.0.11"                ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
 :comment "Only basic support provided, see sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -35,3 +35,7 @@
 :usbid "0x04c5" "0x1156"
 :comment "10 sheet ADF, 150/300 dpi, always scans in triplex color, no TWAIN driver"
 
+:model "ScanSnap S300M"
+:interface "USB"
+:status :untested
+:comment "10 sheet ADF, 150/300 dpi, always scans in triplex color, MAC only"

@@ -1,3 +1,8 @@
+2008-04-27  m. allan noah <kitno455 a t gmail d o t com>
+	* sanei/sanei_usb.c: allow sanei_usb_init() to run once per second
+	* backend/fujitsu.c: backend v1.0.60, relocate call to sanei_usb_init(),
+	  free sane_devArray before calloc'ing a new one
+
 2008-04-22  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in: backend v1.0.59,
 	add fi-6140 PID, and fi-6x40 color mode

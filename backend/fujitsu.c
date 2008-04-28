@@ -293,6 +293,9 @@
          - hide unused functions
       V 1.0.59 2008-04-22, MAN
          - add fi-6140 usb ID, and fi-6x40 color mode
+      V 1.0.60 2008-04-27, MAN
+         - move call to sanei_usb_init() from sane_init() to find_scanners
+	 - free sane_devArray before calloc'ing a new one
 
    SANE FLOW DIAGRAM
 
@@ -353,7 +356,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 59 
+#define BUILD 60 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -433,8 +436,6 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
   DBG (10, "sane_init: start\n");
 
-  sanei_usb_init();
-
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
 
@@ -504,6 +505,8 @@ find_scanners ()
   int i=0;
 
   DBG (10, "find_scanners: start\n");
+
+  sanei_usb_init();
 
   /* set this to 64K before reading the file */
   global_buffer_size = 64 * 1024;
@@ -634,6 +637,9 @@ find_scanners ()
   }
 
   DBG (15, "find_scanners: found %d scanner(s)\n",num_devices);
+
+  if (sane_devArray)
+    free (sane_devArray);
 
   sane_devArray = calloc (num_devices + 1, sizeof (SANE_Device*));
   if (!sane_devArray)

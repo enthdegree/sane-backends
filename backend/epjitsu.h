@@ -263,6 +263,7 @@ static SANE_Status get_ident(struct scanner *s);
 static SANE_Status change_params(struct scanner *s);
 void update_block_totals(struct scanner * s);
 
+static SANE_Status destroy(struct scanner *s);
 static SANE_Status teardown_buffers(struct scanner *s);
 static SANE_Status setup_buffers(struct scanner *s);
 

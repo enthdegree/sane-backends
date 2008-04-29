@@ -1,3 +1,6 @@
+2008-04-28  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu.[ch]: backend v1.0.12, fix double free bug
+
 2008-04-27  m. allan noah <kitno455 a t gmail d o t com>
 	* sanei/sanei_usb.c: allow sanei_usb_init() to run once per second
 	* backend/fujitsu.c: backend v1.0.60, relocate call to sanei_usb_init(),

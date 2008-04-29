@@ -94,6 +94,8 @@
         - fix missing function (and memory leak)
       V 1.0.11 2008-02-14, MAN
 	 - sanei_config_read has already cleaned string (#310597)
+      V 1.0.12 2008-02-28, MAN
+	 - cleanup double free bug with new destroy()
 
 
    SANE FLOW DIAGRAM
@@ -154,7 +156,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 11 
+#define BUILD 12
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -317,7 +319,7 @@ attach_one (const char *name)
     /* copy the device name */
     s->sane.name = strdup (name);
     if (!s->sane.name){
-        sane_close((SANE_Handle)s);
+        destroy(s);
         return SANE_STATUS_NO_MEM;
     }
   
@@ -327,14 +329,14 @@ attach_one (const char *name)
     s->fd = -1;
     ret = connect_fd(s);
     if(ret != SANE_STATUS_GOOD){
-        sane_close((SANE_Handle)s);
+        destroy(s);
         return ret;
     }
  
     /* load the firmware file into scanner */
     ret = load_fw(s);
     if (ret != SANE_STATUS_GOOD) {
-        sane_close((SANE_Handle)s);
+        destroy(s);
         DBG (5, "attach_one: firmware load failed\n");
         return ret;
     }
@@ -342,7 +344,7 @@ attach_one (const char *name)
     /* Now query the device to load its vendor/model/version */
     ret = get_ident(s);
     if (ret != SANE_STATUS_GOOD) {
-        sane_close((SANE_Handle)s);
+        destroy(s);
         DBG (5, "attach_one: identify failed\n");
         return ret;
     }
@@ -2986,19 +2988,6 @@ sane_close (SANE_Handle handle)
       disconnect_fd(s);
   }
 
-  if(s->sane.name){
-    free(s->sane.name);
-  }
-  if(s->sane.model){
-    free(s->sane.model);
-  }
-  if(s->sane.vendor){
-    free(s->sane.vendor);
-  }
-
-  teardown_buffers(s);
-  free(s);
-
   DBG (10, "sane_close: finish\n");
 }
 
@@ -3016,6 +3005,31 @@ disconnect_fd (struct scanner *s)
   DBG (10, "disconnect_fd: finish\n");
 
   return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+destroy(struct scanner *s)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+
+    DBG (10, "destroy: start\n");
+
+    teardown_buffers(s);
+
+    if(s->sane.name){
+      free(s->sane.name);
+    }
+    if(s->sane.vendor){
+      free(s->sane.vendor);
+    }
+    if(s->sane.model){
+      free(s->sane.model);
+    }
+  
+    free(s);
+
+    DBG (10, "destroy: finish\n");
+    return ret;
 }
 
 static SANE_Status
@@ -3086,7 +3100,7 @@ sane_exit (void)
 
   for (dev = scanner_devList; dev; dev = next) {
       next = dev->next;
-      free(dev);
+      destroy(dev);
   }
 
   if (sane_devArray)

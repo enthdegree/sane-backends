@@ -1243,6 +1243,7 @@ attach(const char *name, Epson_Device * *devp, int type)
 	 *  set dummy values.
 	 */
 
+	s->fd = -1;
 	s->hw = dev;
 
 	dev->name = NULL;

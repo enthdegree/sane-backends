@@ -3,6 +3,8 @@
 	Epson_Scanner is allocated and zeroed out in attach(). Otherwise
 	the backend sends inquiry data to fd 0, which it obviously
 	shouldn't do; this breaks scanning over saned.
+	* doc/net.tex: replace occurrences of SANE_STATUS_SUCCESS with
+	SANE_STATUS_GOOD, as SANE_STATUS_SUCCESS doesn't exist.
 
 2008-04-28  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/epjitsu.[ch]: backend v1.0.12, fix double free bug

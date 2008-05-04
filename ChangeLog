@@ -1,3 +1,7 @@
+2008-05-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc:
+	Code cleanup patch to imageClass backend (pixma) by Dennis Lou.
+
 2008-05-03  Julien Blache <jb@jblache.org>
 	* backend/epson2.c: initialize s->fd to -1 once the struct
 	Epson_Scanner is allocated and zeroed out in attach(). Otherwise

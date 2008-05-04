@@ -79,7 +79,7 @@
 #define MF3200_PID 0x2684
 #define MF4100_PID 0x26a3
 /*
- * FIXME: missing PIDs for MF6500, MF4600 and MF4010
+ * FIXME: missing PIDs for MF6500, MF4690 and MF4010
  *
  * #define MF6500_PID 
  * #define MF4600_PID 
@@ -89,9 +89,8 @@
 enum iclass_state_t
 {
   state_idle,
-  state_warmup,			/* MF4200 is always warm and calibrated, not sure of others */
+  state_warmup,			/* MF4200 always warm/calibrated; others? */
   state_scanning,
-  state_transfering,
   state_finished
 };
 
@@ -114,8 +113,8 @@ typedef struct iclass_t
   unsigned raw_width;
   uint8_t current_status[12];
 
-  uint8_t *buf, *imgbuf, *lbuf;
-  unsigned imgbuf_len;
+  uint8_t *buf, *blkptr, *lineptr;
+  unsigned buf_len, blk_len;
 
   unsigned last_block;
 } iclass_t;
@@ -142,13 +141,6 @@ has_paper (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
   return (mf->current_status[1] == 0);
-}
-
-static void
-drain_bulk_in (pixma_t * s)
-{
-  iclass_t *mf = (iclass_t *) s->subdriver;
-  while (pixma_read (s->io, mf->imgbuf, MIN_CHUNK_SIZE) >= 0);
 }
 
 static int
@@ -245,6 +237,8 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
 	{
 	  *info = mf->cb.buf[2];
 	  *size = pixma_get_be16 (mf->cb.buf + 6);
+	  /* could it be 32bit? */
+	  /* *size = pixma_get_be32 (mf->cb.buf + 4); */
 	}
       else
 	{
@@ -298,7 +292,7 @@ handle_interrupt (pixma_t * s, int timeout)
   if (buf[12] & 0x40)
     query_status (s);
   if (buf[15] & 1)
-    s->events = PIXMA_EV_BUTTON1;	/* b/w scan */
+    s->events = PIXMA_EV_BUTTON1;
   return 1;
 }
 
@@ -381,6 +375,7 @@ iclass_close (pixma_t * s)
 
   iclass_finish_scan (s);
   free (mf->cb.buf);
+  free (mf->buf);
   free (mf);
   s->subdriver = NULL;
 }
@@ -401,7 +396,7 @@ iclass_scan (pixma_t * s)
   int error, n;
   iclass_t *mf = (iclass_t *) s->subdriver;
   uint8_t *buf, ignore;
-  unsigned ignore2;
+  unsigned buf_len, ignore2;
 
   if (mf->state != state_idle)
     return PIXMA_EBUSY;
@@ -415,13 +410,18 @@ iclass_scan (pixma_t * s)
   PDBG (pixma_dbg (3, "raw_width = %u\n", mf->raw_width));
 
   n = IMAGE_BLOCK_SIZE / s->param->line_size + 1;
-  buf = (uint8_t *) malloc ((n + 1) * s->param->line_size + IMAGE_BLOCK_SIZE);
-  if (!buf)
-    return PIXMA_ENOMEM;
-  mf->buf = buf;
-  mf->lbuf = buf;
-  mf->imgbuf = buf + n * s->param->line_size;
-  mf->imgbuf_len = 0;
+  buf_len = (n + 1) * s->param->line_size + IMAGE_BLOCK_SIZE;
+  if (buf_len > mf->buf_len)
+    {
+      buf = (uint8_t *) realloc (mf->buf, buf_len);
+      if (!buf)
+	return PIXMA_ENOMEM;
+      mf->buf = buf;
+      mf->buf_len = buf_len;
+    }
+  mf->lineptr = mf->buf;
+  mf->blkptr = mf->buf + n * s->param->line_size;
+  mf->blk_len = 0;
 
   error = step1 (s);
   if (error >= 0)
@@ -449,7 +449,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
   int error, n;
   iclass_t *mf = (iclass_t *) s->subdriver;
-  unsigned block_size, bytes_received;
+  unsigned block_size, lines_size;
   uint8_t info;
 
 /*
@@ -476,7 +476,7 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	    return error;
 
 	  /* info: 0x28 = end; 0x38 = end + ADF empty */
-	  mf->last_block = ((info & 0x28) == 0x28);
+	  mf->last_block = info & 0x38;
 	  if ((info & ~0x38) != 0)
 	    {
 	      PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
@@ -492,37 +492,38 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 	}
       while (block_size == 0);
 
-      error = read_image_block (s, mf->imgbuf + mf->imgbuf_len, block_size);
-      bytes_received = error;
+      error = read_image_block (s, mf->blkptr + mf->blk_len, block_size);
+      block_size = error;
       if (error < 0)
 	return error;
 
       /* add current block to remainder of previous */
-      mf->imgbuf_len += bytes_received;
+      mf->blk_len += block_size;
       /* n = number of full lines (rows) we have in the buffer. */
-      n = mf->imgbuf_len / s->param->line_size;
+      n = mf->blk_len / s->param->line_size;
       if (n != 0)
 	{
 	  if (s->param->channels != 1)
 	    {
 	      /* color */
-	      pack_rgb (mf->imgbuf, n, mf->raw_width, mf->lbuf);
+	      pack_rgb (mf->blkptr, n, mf->raw_width, mf->lineptr);
 	    }
 	  else
 	    {
 	      /* grayscale */
-	      memcpy (mf->lbuf, mf->imgbuf, n * s->param->line_size);
+	      memcpy (mf->lineptr, mf->blkptr, n * s->param->line_size);
 	    }
-	  block_size = n * s->param->line_size;
-	  mf->imgbuf_len -= block_size;
-	  memcpy (mf->imgbuf, mf->imgbuf + block_size, mf->imgbuf_len);
+	  lines_size = n * s->param->line_size;
+	  /* cull remainder and shift left */
+	  mf->blk_len -= block_size;
+	  memcpy (mf->blkptr, mf->blkptr + block_size, mf->blk_len);
 	}
     }
   while (n == 0);
 
   /* output full lines, keep partial lines for next block */
-  ib->rptr = mf->lbuf;
-  ib->rend = mf->lbuf + block_size;
+  ib->rptr = mf->lineptr;
+  ib->rend = mf->lineptr + lines_size;
   return ib->rend - ib->rptr;
 }
 
@@ -534,12 +535,9 @@ iclass_finish_scan (pixma_t * s)
 
   switch (mf->state)
     {
-      /* this state not currently used */
-    case state_transfering:
-      drain_bulk_in (s);
       /* fall through */
-    case state_scanning:
     case state_warmup:
+    case state_scanning:
       error = abort_session (s);
       if (error < 0)
 	PDBG (pixma_dbg
@@ -551,8 +549,10 @@ iclass_finish_scan (pixma_t * s)
       query_status (s);
       activate (s, 0);
       query_status (s);
-      free (mf->buf);
-      mf->buf = mf->lbuf = mf->imgbuf = NULL;
+      if (mf->last_block == 0x28)
+	{
+	  abort_session (s);
+	}
       mf->state = state_idle;
       /* fall through */
     case state_idle:
@@ -595,7 +595,7 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
   iclass_get_status
 };
 
-#define DEVICE(name, pid, dpi, w, h, cap) {     \
+#define DEV(name, pid, dpi, w, h, cap) {     \
         name,              /* name */		\
 	0x04a9, pid,       /* vid pid */	\
 	1,                 /* iface */		\
@@ -605,30 +605,21 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
         PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap                      \
 }
 const pixma_config_t pixma_iclass_devices[] = {
-  DEVICE ("Canon imageCLASS MF4270", MF4200_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4270", MF4200_PID, 600, 640, 877, PIXMA_CAP_ADF),
 /* FIXME: the following capabilities all need updating/verifying */
-  DEVICE ("Canon imageCLASS MF5630", MF5630_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon laserBase MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF8170c", MF8100_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF5730", MF5730_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF5750", MF5750_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF5770", MF5770_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF3110", MF3110_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF3240", MF3200_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
-  DEVICE ("Canon imageCLASS MF4150", MF4100_PID, 600, 640, 877,
-	  PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF5630", MF5630_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon laserBase MF5650", MF5650_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF8170c", MF8100_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF5730", MF5730_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF5750", MF5750_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF5770", MF5770_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF3110", MF3110_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF3240", MF3200_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4150", MF4100_PID, 600, 640, 877, PIXMA_CAP_ADF),
 /*
- * DEVICE ("Canon MF6500 Series"     ,MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
- * DEVICE ("Canon imageCLASS MF4600" ,MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
- * DEVICE ("Canon imageCLASS MF4010" ,MF4010_PID, 600, 640, 877, PIXMA_CAP_ADF),
+ * DEV ("Canon MF6500 Series"     ,MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
+ * DEV ("Canon imageCLASS MF4690" ,MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
+ * DEV ("Canon imageCLASS MF4010" ,MF4010_PID, 600, 640, 877, PIXMA_CAP_ADF),
  */
-  DEVICE (NULL, 0, 0, 0, 0, 0)
+  DEV (NULL, 0, 0, 0, 0, 0)
 };

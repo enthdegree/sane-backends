@@ -1,4 +1,4 @@
-.TH "sane-pixma" "5" "20 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane-pixma" "5" "5 May 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-pixma
 .SH NAME
 sane-pixma \- SANE backend for Canon PIXMA MP series
@@ -18,7 +18,7 @@ PIXMA MP600, MP600R, MP610, MP710
 .br
 PIXMA MP800, MP800R, MP810, MP830, MP960, MP970 
 .br
-PIXMA MX310, MX700
+PIXMA MX300, MX310, MX700
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .br
@@ -40,7 +40,7 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP740, MX300
+PIXMA MP740
 .br
 ImageCLASS MF3110, MF3240, MF4150
 .br

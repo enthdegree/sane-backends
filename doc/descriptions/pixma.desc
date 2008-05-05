@@ -216,8 +216,8 @@
 :model "PIXMA MX300"
 :interface "USB"
 :usbid "0x04a9" "0x1727"
-:status :untested
-:comment "Probably uses the same protocol as MX310 and MX700 ?"
+:status :good
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MX310"
 :interface "USB"

@@ -1,3 +1,7 @@
+2008-05-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	Description and man updates for PIXMA MX300.
+
 2008-05-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc:
 	Code cleanup patch to imageClass backend (pixma) by Dennis Lou.

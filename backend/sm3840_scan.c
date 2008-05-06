@@ -47,10 +47,10 @@
 #include "sm3840_lib.h"
 
 #ifndef BACKENDNAME
-static void setup_scan (usb_dev_handle * udev, SM3840_Params * p,
+static void setup_scan (p_usb_dev_handle udev, SM3840_Params * p,
 			char *stname, int raw, int nohead);
 #else
-static void setup_scan (usb_dev_handle * udev, SM3840_Params * p);
+static void setup_scan (p_usb_dev_handle udev, SM3840_Params * p);
 #endif
 
 
@@ -142,11 +142,11 @@ main (int argc, char *argv[])
 
 #ifndef BACKENDNAME
 static void
-setup_scan (usb_dev_handle * udev, SM3840_Params * p,
+setup_scan (p_usb_dev_handle udev, SM3840_Params * p,
 	    char *stname, int raw, int nohead)
 #else
 static void
-setup_scan (usb_dev_handle * udev, SM3840_Params * p)
+setup_scan (p_usb_dev_handle udev, SM3840_Params * p)
 #endif
 {
   int gray = p->gray ? 1 : 0;

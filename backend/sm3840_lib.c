@@ -60,7 +60,7 @@ DBG (int ignored, const char *fmt, ...)
 #else
 /* For SANE compilation, convert libusb to sanei_usb */
 static int
-my_usb_bulk_write (usb_dev_handle * dev, int ep,
+my_usb_bulk_write (p_usb_dev_handle dev, int ep,
 		   unsigned char *bytes, int size, int timeout)
 {
   SANE_Status status;
@@ -77,7 +77,7 @@ my_usb_bulk_write (usb_dev_handle * dev, int ep,
 }
 
 static int
-my_usb_bulk_read (usb_dev_handle * dev, int ep,
+my_usb_bulk_read (p_usb_dev_handle dev, int ep,
 		  unsigned char *bytes, int size, int timeout)
 {
   SANE_Status status;
@@ -94,7 +94,7 @@ my_usb_bulk_read (usb_dev_handle * dev, int ep,
 }
 
 static int
-my_usb_control_msg (usb_dev_handle * dev, int requesttype,
+my_usb_control_msg (p_usb_dev_handle dev, int requesttype,
 		    int request, int value, int index,
 		    unsigned char *bytes, int size, int timeout)
 {
@@ -189,7 +189,7 @@ find_device (unsigned int idVendor, unsigned int idProduct)
 #endif
 
 static void
-idle_ab (usb_dev_handle * udev)
+idle_ab (p_usb_dev_handle udev)
 {
   int len, i;
   unsigned char buff[8] = { 0x64, 0x65, 0x16, 0x17, 0x64, 0x65, 0x44, 0x45 };
@@ -202,7 +202,7 @@ idle_ab (usb_dev_handle * udev)
 
 /* CW: 40 04 00b0 0000 <len> :  <reg1> <value1> <reg2> <value2> ... */
 static void
-write_regs (usb_dev_handle * udev, int regs, unsigned char reg1,
+write_regs (p_usb_dev_handle udev, int regs, unsigned char reg1,
 	    unsigned char val1,
 	    ... /*unsigned char reg, unsigned char val, ... */ )
 {
@@ -225,7 +225,7 @@ write_regs (usb_dev_handle * udev, int regs, unsigned char reg1,
 }
 
 static int
-write_vctl (usb_dev_handle * udev, int request, int value,
+write_vctl (p_usb_dev_handle udev, int request, int value,
 	    int index, unsigned char byte)
 {
   return usb_control_msg (udev, 0x40, request, value, index,
@@ -233,7 +233,7 @@ write_vctl (usb_dev_handle * udev, int request, int value,
 }
 
 static int
-read_vctl (usb_dev_handle * udev, int request, int value,
+read_vctl (p_usb_dev_handle udev, int request, int value,
 	   int index, unsigned char *byte)
 {
   return usb_control_msg (udev, 0xc0, request, value, index,
@@ -243,7 +243,7 @@ read_vctl (usb_dev_handle * udev, int request, int value,
 #ifndef BACKENDNAME
 /* Copy from a USB data pipe to a file with optional header */
 static void
-record_head (usb_dev_handle * udev, char *fname, int bytes, char *header)
+record_head (p_usb_dev_handle udev, char *fname, int bytes, char *header)
 {
   FILE *fp;
   unsigned char buff[65536];
@@ -273,7 +273,7 @@ record_head (usb_dev_handle * udev, char *fname, int bytes, char *header)
 
 /* Copy from a USB data pipe to a file without header */
 static void
-record (usb_dev_handle * udev, char *fname, int bytes)
+record (p_usb_dev_handle udev, char *fname, int bytes)
 {
   record_head (udev, fname, bytes, "");
 }
@@ -289,7 +289,7 @@ max (int a, int b)
 #define DPI1200SHUFFLE 6
 static void
 record_line (int reset,
-	     usb_dev_handle * udev,
+	     p_usb_dev_handle udev,
 	     unsigned char *storeline,
 	     int dpi, int scanpix, int gray, int bpp16,
 	     int *save_i,
@@ -500,7 +500,7 @@ record_line (int reset,
 #ifndef BACKENDNAME
 /* Record an image to a file with remapping/reordering/etc. */
 void
-record_image (usb_dev_handle * udev, char *fname, int dpi,
+record_image (p_usb_dev_handle udev, char *fname, int dpi,
 	      int scanpix, int scanlines, int gray, char *head, int bpp16)
 {
   FILE *fp;
@@ -539,7 +539,7 @@ record_image (usb_dev_handle * udev, char *fname, int dpi,
 #endif
 
 static void
-record_mem (usb_dev_handle * udev, unsigned char **dest, int bytes)
+record_mem (p_usb_dev_handle udev, unsigned char **dest, int bytes)
 {
   unsigned char *mem;
   unsigned char buff[65536];
@@ -564,7 +564,7 @@ record_mem (usb_dev_handle * udev, unsigned char **dest, int bytes)
 
 
 static void
-reset_scanner (usb_dev_handle * udev)
+reset_scanner (p_usb_dev_handle udev)
 {
   unsigned char rd_byte;
 
@@ -602,7 +602,7 @@ reset_scanner (usb_dev_handle * udev)
 }
 
 static void
-poll1 (usb_dev_handle * udev)
+poll1 (p_usb_dev_handle udev)
 {
   unsigned char rd_byte;
   DBG (2, "+poll1\n");
@@ -617,7 +617,7 @@ poll1 (usb_dev_handle * udev)
 }
 
 static void
-poll2 (usb_dev_handle * udev)
+poll2 (p_usb_dev_handle udev)
 {
   unsigned char rd_byte;
   DBG (2, "+poll2\n");
@@ -632,7 +632,7 @@ poll2 (usb_dev_handle * udev)
 
 #ifndef BACKENDNAME
 static void
-check_buttons (usb_dev_handle * udev, int *scan, int *print, int *mail)
+check_buttons (p_usb_dev_handle udev, int *scan, int *print, int *mail)
 {
   unsigned char rd_byte;
 
@@ -822,7 +822,7 @@ set_lightmap_white (unsigned short *map, int dpi, int color)
 
 
 static void
-set_lamp_timer (usb_dev_handle * udev, int timeout_in_mins)
+set_lamp_timer (p_usb_dev_handle udev, int timeout_in_mins)
 {
   write_regs (udev, 7, 0xa8, 0x80, 0x83, 0xa2, 0x85, 0xc8, 0x83, 0x82,
 	      0x85, 0xaf, 0x83, 0x00, 0x93, 0x00);
@@ -871,7 +871,7 @@ calculate_lut8 (double *poly, int skip, unsigned char *dest)
 }
 
 static void
-download_lut8 (usb_dev_handle * udev, int dpi, int incolor)
+download_lut8 (p_usb_dev_handle udev, int dpi, int incolor)
 {
   double color[10] = { 0.0, 1.84615261590892E-01, -2.19613868292657E-04,
     1.79549523214101E-07, -8.69378513113239E-11,
@@ -963,7 +963,7 @@ download_lut8 (usb_dev_handle * udev, int dpi, int incolor)
 
 
 static void
-set_gain_black (usb_dev_handle * udev,
+set_gain_black (p_usb_dev_handle udev,
 		int r_gain, int g_gain, int b_gain,
 		int r_black, int g_black, int b_black)
 {

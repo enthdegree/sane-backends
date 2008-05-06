@@ -161,9 +161,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  *len = 0;
 	  s->scanning = 0;
 	  /* Move to home position */
-	  reset_scanner ((usb_dev_handle *) s->udev);
+	  reset_scanner ((p_usb_dev_handle)s->udev);
 	  /* Send lamp timeout */
-	  set_lamp_timer ((usb_dev_handle *) s->udev, s->sm3840_params.lamp);
+	  set_lamp_timer ((p_usb_dev_handle)s->udev, s->sm3840_params.lamp);
 
 	  /* Free memory */
 	  if (s->save_scan_line)
@@ -180,7 +180,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	}
 
       record_line ((s->linesread == 0) ? 1 : 0,
-		   (usb_dev_handle *) s->udev,
+		   (p_usb_dev_handle) s->udev,
 		   s->line_buffer,
 		   s->sm3840_params.dpi,
 		   s->sm3840_params.scanpix,
@@ -253,9 +253,9 @@ sane_cancel (SANE_Handle h)
       if (!s->cancelled)
 	{
 	  /* Move to home position */
-	  reset_scanner ((usb_dev_handle *) s->udev);
+	  reset_scanner ((p_usb_dev_handle) s->udev);
 	  /* Send lamp timeout */
-	  set_lamp_timer ((usb_dev_handle *) s->udev, s->sm3840_params.lamp);
+	  set_lamp_timer ((p_usb_dev_handle) s->udev, s->sm3840_params.lamp);
 
 	  /* Free memory */
 	  if (s->save_scan_line)
@@ -306,7 +306,7 @@ sane_start (SANE_Handle handle)
   s->save_dither_err = 0;
   s->threshold = s->sm3840_params.threshold;
 
-  setup_scan ((usb_dev_handle *) s->udev, &(s->sm3840_params));
+  setup_scan ((p_usb_dev_handle) s->udev, &(s->sm3840_params));
 
   return (SANE_STATUS_GOOD);
 }

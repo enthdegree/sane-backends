@@ -39,7 +39,7 @@ on the list.
 .PP
 The following options are supported by the sm3840-driver:
 .PP
-.B --mode color|gray
+.B --mode color|gray|lineart|halftone
 .br
 Color or grayscale mode.
 

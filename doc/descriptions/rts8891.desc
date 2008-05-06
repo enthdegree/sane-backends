@@ -44,3 +44,8 @@
 :usbid "0x03f0" "0x0805"
 :status :good
 :comment "re-branded Astra 4400"
+
+:model "scanjet 4400c"
+:interface "USB"
+:usbid "0x03f0" "0x0705"
+:status :untested

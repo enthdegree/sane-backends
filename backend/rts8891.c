@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 2			/* release candidate 2 */
+#define BUILD 3
 
 #define MOVE_DPI 100
 
@@ -294,7 +294,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* init backend debug */
   DBG_INIT ();
-  DBG (DBG_info, "SANE Rts8891 backend version %d.%d-rc-%d\n", V_MAJOR,
+  DBG (DBG_info, "SANE Rts8891 backend version %d.%d-%d\n", V_MAJOR,
        V_MINOR, BUILD);
   DBG (DBG_proc, "sane_init: start\n");
 
@@ -633,7 +633,7 @@ static SANE_Status
 set_automatic_value (Rts8891_Scanner * s, int option, SANE_Int * myinfo)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Int  i, min;
+  SANE_Int i, min;
   SANE_Word *dpi_list;
 
   switch (option)
@@ -711,7 +711,7 @@ set_option_value (Rts8891_Scanner * s, int option, void *val,
 		  SANE_Int * myinfo)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Int  i;
+  SANE_Int i;
   SANE_Word tmpw;
 
   switch (option)
@@ -869,65 +869,65 @@ set_option_value (Rts8891_Scanner * s, int option, void *val,
 static SANE_Status
 get_option_value (Rts8891_Scanner * s, int option, void *val)
 {
-      switch (option)
+  switch (option)
+    {
+      /* word or word equivalent options: */
+    case OPT_NUM_OPTS:
+    case OPT_RESOLUTION:
+    case OPT_PREVIEW:
+    case OPT_TL_X:
+    case OPT_TL_Y:
+    case OPT_BR_X:
+    case OPT_BR_Y:
+    case OPT_THRESHOLD:
+    case OPT_CUSTOM_GAMMA:
+      *(SANE_Word *) val = s->val[option].w;
+      break;
+    case OPT_BUTTON_1:
+    case OPT_BUTTON_2:
+    case OPT_BUTTON_3:
+    case OPT_BUTTON_4:
+    case OPT_BUTTON_5:
+    case OPT_BUTTON_6:
+    case OPT_BUTTON_7:
+    case OPT_BUTTON_8:
+    case OPT_BUTTON_9:
+    case OPT_BUTTON_10:
+    case OPT_BUTTON_11:
+      /* no button pressed by default */
+      *(SANE_Word *) val = SANE_FALSE;
+      if (option - OPT_BUTTON_1 > s->dev->model->buttons)
 	{
-	  /* word or word equivalent options: */
-	case OPT_NUM_OPTS:
-	case OPT_RESOLUTION:
-	case OPT_PREVIEW:
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	case OPT_THRESHOLD:
-	case OPT_CUSTOM_GAMMA:
-	  *(SANE_Word *) val = s->val[option].w;
-	  break;
-	case OPT_BUTTON_1:
-	case OPT_BUTTON_2:
-	case OPT_BUTTON_3:
-	case OPT_BUTTON_4:
-	case OPT_BUTTON_5:
-	case OPT_BUTTON_6:
-	case OPT_BUTTON_7:
-	case OPT_BUTTON_8:
-	case OPT_BUTTON_9:
-	case OPT_BUTTON_10:
-	case OPT_BUTTON_11:
-	  /* no button pressed by default */
-	  *(SANE_Word *) val = SANE_FALSE;
-	  if (option - OPT_BUTTON_1 > s->dev->model->buttons)
-	    {
-	      DBG (DBG_warn,
-		   "get_option_value: invalid button option %d\n", option);
-	    }
-	  else
-	    {
-	      update_button_status (s);
-	      /* copy the button state */
-	      *(SANE_Word *) val = s->val[option].w;
-	      /* clear the button state */
-	      s->val[option].w = SANE_FALSE;
-	      DBG (DBG_io,
-		   "get_option_value: button option %d=%d\n", option,
-		   *(SANE_Word *) val);
-	    }
-	  break;
-	  /* string options: */
-	case OPT_MODE:
-	  strcpy (val, s->val[option].s);
-	  break;
-	case OPT_GAMMA_VECTOR:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	  memcpy (val, s->val[option].wa, s->opt[option].size);
-	  break;
-	default:
-	  DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
-	       option);
+	  DBG (DBG_warn,
+	       "get_option_value: invalid button option %d\n", option);
 	}
-	return SANE_STATUS_GOOD;
+      else
+	{
+	  update_button_status (s);
+	  /* copy the button state */
+	  *(SANE_Word *) val = s->val[option].w;
+	  /* clear the button state */
+	  s->val[option].w = SANE_FALSE;
+	  DBG (DBG_io,
+	       "get_option_value: button option %d=%d\n", option,
+	       *(SANE_Word *) val);
+	}
+      break;
+      /* string options: */
+    case OPT_MODE:
+      strcpy (val, s->val[option].s);
+      break;
+    case OPT_GAMMA_VECTOR:
+    case OPT_GAMMA_VECTOR_R:
+    case OPT_GAMMA_VECTOR_G:
+    case OPT_GAMMA_VECTOR_B:
+      memcpy (val, s->val[option].wa, s->opt[option].size);
+      break;
+    default:
+      DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
+	   option);
+    }
+  return SANE_STATUS_GOOD;
 }
 
 /**
@@ -3013,6 +3013,30 @@ find_margin (struct Rts8891_Device *dev)
   dev->regs[0xef] = 0x00;
   dev->regs[0xf0] = 0x00;
   dev->regs[0xf2] = 0x00;
+  if (dev->sensor == SENSOR_TYPE_XPA)
+    {
+      dev->regs[0xc0] = 0x00;
+      dev->regs[0xc1] = 0xf8;
+      dev->regs[0xc2] = 0x7f;
+      dev->regs[0xc4] = 0xf8;
+      dev->regs[0xc5] = 0x7f;
+      dev->regs[0xc6] = 0x00;
+      dev->regs[0xc7] = 0xf8;
+      dev->regs[0xc8] = 0x7f;
+      dev->regs[0xc9] = 0xff;
+      dev->regs[0xca] = 0xff;
+      dev->regs[0xcb] = 0x8f;
+      dev->regs[0xcd] = 0x07;
+      dev->regs[0xce] = 0x80;
+      dev->regs[0xcf] = 0xea;
+      dev->regs[0xd0] = 0xec;
+      dev->regs[0xd1] = 0xf7;
+      dev->regs[0xd2] = 0x00;
+      dev->regs[0xd3] = 0x10;
+      dev->regs[0xd4] = 0x12;
+      dev->regs[0xd7] = 0x31;
+      dev->regs[0xda] = 0xa7;
+    }
 
   /* set vertical and horizontal start/end positions */
   sanei_rts88xx_set_scan_area (dev->regs, starty, starty + height, startx,
@@ -4851,35 +4875,75 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
 
     case 150:
       /* X resolution related registers */
-      dev->regs[0x80] = 0x2e;
-      dev->regs[0x81] = 0x01;
-      dev->regs[0x82] = 0x2f;
-      dev->regs[0x83] = 0x01;
-      dev->regs[0x85] = 0x8c;
-      dev->regs[0x86] = 0x10;
-      dev->regs[0x87] = 0x18;
-      dev->regs[0x88] = 0x1b;
-      dev->regs[0x89] = 0x30;
-      dev->regs[0x8a] = 0x01;
-      dev->regs[0x8d] = 0x77;
-      dev->regs[0xc0] = 0x80;
-      dev->regs[0xc1] = 0x87;
-      dev->regs[0xc2] = 0x7f;
-      dev->regs[0xc9] = 0x00;
-      dev->regs[0xcb] = 0x78;
-      dev->regs[0xcc] = 0x7f;
-      dev->regs[0xcd] = 0x78;
-      dev->regs[0xce] = 0x80;
-      dev->regs[0xcf] = 0xe6;
-      dev->regs[0xd0] = 0xe8;
+      if (dev->sensor == SENSOR_TYPE_XPA)
+	{
+	  dev->regs[0x80] = 0x32;
+	  dev->regs[0x81] = 0x00;
+	  dev->regs[0x82] = 0x33;
+	  dev->regs[0x83] = 0x00;
+	  dev->regs[0x85] = 0x00;
+	  dev->regs[0x86] = 0x06;
+	  dev->regs[0x87] = 0x00;
+	  dev->regs[0x88] = 0x06;
+	  dev->regs[0x89] = 0x34;
+	  dev->regs[0x8a] = 0x00;
+	  dev->regs[0x8d] = 0x00;
+	  dev->regs[0xc0] = 0x67;
+	  dev->regs[0xc1] = 0x06;
+	  dev->regs[0xc2] = 0xe6;
+	  dev->regs[0xc3] = 0x98;
+	  dev->regs[0xc4] = 0xf9;
+	  dev->regs[0xc5] = 0x19;
+	  dev->regs[0xc6] = 0x67;
+	  dev->regs[0xc7] = 0x06;
+	  dev->regs[0xc8] = 0xe6;
+	  dev->regs[0xc9] = 0x01;
+	  dev->regs[0xca] = 0xf8;
+	  dev->regs[0xcb] = 0xff;
+	  dev->regs[0xcc] = 0x98;
+	  dev->regs[0xcd] = 0xf9;
+	  dev->regs[0xce] = 0x19;
+	  dev->regs[0xcf] = 0xe0;
+	  dev->regs[0xd0] = 0xe2;
+	  dev->regs[0xd1] = 0xeb;
+	  dev->regs[0xd2] = 0x0c;
+	  dev->regs[0xd3] = 0x02;
+	  dev->regs[0xd4] = 0x04;
+	  dev->regs[0xd7] = 0x10;
+	  dev->regs[0xe5] = 0xdd;
+	}
+      else
+	{
+	  dev->regs[0x80] = 0x2e;
+	  dev->regs[0x81] = 0x01;
+	  dev->regs[0x82] = 0x2f;
+	  dev->regs[0x83] = 0x01;
+	  dev->regs[0x85] = 0x8c;
+	  dev->regs[0x86] = 0x10;
+	  dev->regs[0x87] = 0x18;
+	  dev->regs[0x88] = 0x1b;
+	  dev->regs[0x89] = 0x30;
+	  dev->regs[0x8a] = 0x01;
+	  dev->regs[0x8d] = 0x77;
+	  dev->regs[0xc0] = 0x80;
+	  dev->regs[0xc1] = 0x87;
+	  dev->regs[0xc2] = 0x7f;
+	  dev->regs[0xc9] = 0x00;
+	  dev->regs[0xcb] = 0x78;
+	  dev->regs[0xcc] = 0x7f;
+	  dev->regs[0xcd] = 0x78;
+	  dev->regs[0xce] = 0x80;
+	  dev->regs[0xcf] = 0xe6;
+	  dev->regs[0xd0] = 0xe8;
 
-      dev->regs[0xd1] = 0xf7;
-      dev->regs[0xd2] = 0x00;
+	  dev->regs[0xd1] = 0xf7;
+	  dev->regs[0xd2] = 0x00;
 
-      dev->regs[0xd3] = 0x0e;
-      dev->regs[0xd4] = 0x10;
+	  dev->regs[0xd3] = 0x0e;
+	  dev->regs[0xd4] = 0x10;
 
-      dev->regs[0xe5] = 0xe4;
+	  dev->regs[0xe5] = 0xe4;
+	}
       break;
 
     case 300:
@@ -5690,45 +5754,92 @@ write_scan_registers (struct Rts8891_Scanner *scanner)
     case 75:
       break;
     case 150:
-      dev->regs[0x35] = 0x45;
-      dev->regs[0x80] = 0x2e;
-      dev->regs[0x81] = 0x01;
-      dev->regs[0x82] = 0x2f;
-      dev->regs[0x83] = 0x01;
-      dev->regs[0x85] = 0x8c;
-      dev->regs[0x86] = 0x10;
-      dev->regs[0x87] = 0x18;
-      dev->regs[0x88] = 0x1b;
-      dev->regs[0x89] = 0x30;
-      dev->regs[0x8a] = 0x01;
-      dev->regs[0x8d] = 0x77;
+      if (dev->sensor == SENSOR_TYPE_XPA)
+	{
+	  dev->regs[0x35] = 0x47;
+	  dev->regs[0x80] = 0xaf;
+	  dev->regs[0x81] = 0x00;
+	  dev->regs[0x82] = 0xb0;
+	  dev->regs[0x83] = 0x00;
+	  dev->regs[0x85] = 0x46;
+	  dev->regs[0x86] = 0x0b;
+	  dev->regs[0x87] = 0x8c;
+	  dev->regs[0x88] = 0x10;
+	  dev->regs[0x89] = 0xb1;
+	  dev->regs[0x8a] = 0x00;
+	  dev->regs[0x8d] = 0x3b;
+	  dev->regs[0xc0] = 0x67;
+	  dev->regs[0xc1] = 0x06;
+	  dev->regs[0xc2] = 0xe6;
+	  dev->regs[0xc3] = 0x98;
+	  dev->regs[0xc4] = 0xf9;
+	  dev->regs[0xc5] = 0x19;
+	  dev->regs[0xc6] = 0x67;
+	  dev->regs[0xc7] = 0x06;
+	  dev->regs[0xc8] = 0xe6;
+	  dev->regs[0xc9] = 0x01;
+	  dev->regs[0xca] = 0xf8;
+	  dev->regs[0xcb] = 0xff;
+	  dev->regs[0xcc] = 0x98;
+	  dev->regs[0xcd] = 0xf9;
+	  dev->regs[0xce] = 0x19;
+	  dev->regs[0xcf] = 0xe0;
+	  dev->regs[0xd0] = 0xe2;
+	  dev->regs[0xd1] = 0xeb;
+	  dev->regs[0xd2] = 0x0c;
+	  dev->regs[0xd3] = 0x02;
+	  dev->regs[0xd4] = 0x04;
+	  dev->regs[0xd7] = 0x10;
+	  dev->regs[0xe3] = 0x85;
+	  dev->regs[0xe5] = 0x52;
+	  dev->regs[0xe7] = 0x75;
+	  dev->regs[0xe8] = 0x01;
+	  dev->regs[0xea] = 0x54;
+	  dev->regs[0xed] = 0xb8;
+	  dev->regs[0xf0] = 0x70;
+	}
+      else
+	{
+	  dev->regs[0x35] = 0x45;
+	  dev->regs[0x80] = 0x2e;
+	  dev->regs[0x81] = 0x01;
+	  dev->regs[0x82] = 0x2f;
+	  dev->regs[0x83] = 0x01;
+	  dev->regs[0x85] = 0x8c;
+	  dev->regs[0x86] = 0x10;
+	  dev->regs[0x87] = 0x18;
+	  dev->regs[0x88] = 0x1b;
+	  dev->regs[0x89] = 0x30;
+	  dev->regs[0x8a] = 0x01;
+	  dev->regs[0x8d] = 0x77;
 
-      dev->regs[0xc0] = 0x80;
-      dev->regs[0xc1] = 0x87;
-      dev->regs[0xc2] = 0x7f;
-      dev->regs[0xc9] = 0x00;
-      dev->regs[0xcb] = 0x78;
-      dev->regs[0xcc] = 0x7f;
-      dev->regs[0xcd] = 0x78;
-      dev->regs[0xce] = 0x80;
-      dev->regs[0xcf] = 0xe6;
-      dev->regs[0xd0] = 0xe8;
+	  dev->regs[0xc0] = 0x80;
+	  dev->regs[0xc1] = 0x87;
+	  dev->regs[0xc2] = 0x7f;
+	  dev->regs[0xc9] = 0x00;
+	  dev->regs[0xcb] = 0x78;
+	  dev->regs[0xcc] = 0x7f;
+	  dev->regs[0xcd] = 0x78;
+	  dev->regs[0xce] = 0x80;
+	  dev->regs[0xcf] = 0xe6;
+	  dev->regs[0xd0] = 0xe8;
 
-      dev->regs[0xd1] = 0xf7;
-      dev->regs[0xd2] = 0x00;
+	  dev->regs[0xd1] = 0xf7;
+	  dev->regs[0xd2] = 0x00;
 
-      dev->regs[0xd3] = 0x0e;
-      dev->regs[0xd4] = 0x10;
-      dev->regs[0xe3] = 0x87;
+	  dev->regs[0xd3] = 0x0e;
+	  dev->regs[0xd4] = 0x10;
+	  dev->regs[0xe3] = 0x87;
 
-      dev->regs[0xe5] = 0x54;
-      dev->regs[0xe6] = 0x00;	/* exposure time 0x0054=84 */
+	  dev->regs[0xe5] = 0x54;
+	  dev->regs[0xe6] = 0x00;	/* exposure time 0x0054=84 */
 
-      dev->regs[0xe7] = 0xa8;
-      dev->regs[0xe8] = 0x00;
-      dev->regs[0xea] = 0x56;
-      dev->regs[0xed] = 0xba;
-      dev->regs[0xf0] = 0x72;
+	  dev->regs[0xe7] = 0xa8;
+	  dev->regs[0xe8] = 0x00;
+	  dev->regs[0xea] = 0x56;
+	  dev->regs[0xed] = 0xba;
+	  dev->regs[0xf0] = 0x72;
+	}
       break;
 
     case 300:

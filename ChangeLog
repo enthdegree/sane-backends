@@ -1,3 +1,9 @@
+2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891_low.c
+	doc/descriptions/rts8891.desc:
+	150 dpi mode fix for 'XPA' sensor HP4470 models, description
+	update
+
 2008-05-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	Description and man updates for PIXMA MX300.

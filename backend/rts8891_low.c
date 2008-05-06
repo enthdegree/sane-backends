@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           2
+#define RTS8891_BUILD           3
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */
@@ -65,7 +65,7 @@ static void
 rts8891_low_init (void)
 {
   DBG_INIT ();
-  DBG (DBG_info, "RTS8891 low-level  functions, version %d.%d-rc-%d\n",
+  DBG (DBG_info, "RTS8891 low-level  functions, version %d.%d-%d\n",
        V_MAJOR, V_MINOR, RTS8891_BUILD);
 }
 

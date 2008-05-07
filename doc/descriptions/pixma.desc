@@ -299,15 +299,18 @@
 
 :model "imageCLASS MF4690"
 :interface "USB"
-:status :unsupported
-:comment "USB IDs needed!"
+:usbid "0x04a9" "0x26b0"
+:status :untested
+:comment "Same protocol as imageCLASS MF4270? Testers needed!"
 
 :model "imageCLASS MF4010"
 :interface "USB"
-:status :unsupported
-:comment "USB IDs needed!"
+:usbid "0x04a9" "0x26b4"
+:status :untested
+:comment "Same protocol as imageCLASS MF4270? Testers needed!"
 
 :model "imageCLASS MF6500 series"
 :interface "USB"
-:status :unsupported
-:comment "USB IDs needed!"
+:usbid "0x04a9" "0x2686"
+:status :untested
+:comment "Testers needed!"

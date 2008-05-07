@@ -63,7 +63,7 @@ Backends:
  mustek_usb:    Tom Wang and Henning Geinitz (*)
  mustek_usb2:   Roy Zhou, Jack Xu, Vinci Cen, and Henning Geinitz (*)
  nec:           Kazuya Fukuda (*)
- net:           Andreas Beck and David Mosberger
+ net:           Andreas Beck, David Mosberger, Julien Blache (*)
  niash:         Ullrich Sigwanz (*), Bertrik Sikken
  pie:           Simon Munton (*)
  pint:          Gordon Matzigkeit
@@ -102,7 +102,7 @@ Backends:
 Frontends:
 
  jscanimage:    Jeff Freedman and Guido Muesch
- saned:         Andreas Beck and David Mosberger
+ saned:         Andreas Beck, David Mosberger, Julien Blache (*)
  scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit
  tstbackend:    Frank Zago (*)
 

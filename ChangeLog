@@ -1,10 +1,12 @@
+2008-05-07  Julien Blache <jb@jblache.org>
+	* doc/sane-config.man: Fix man warning.
+
 2008-05-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc:
 	USB IDs updates in imageClass backend (pixma), by Dennis Lou.
 
 2008-05-07  Jochen Eisinger <jochen@penguin-breeder.org>
-
-	* doc/sane-mustek_pp.conf: fix catman warning. Reported by
+	* doc/sane-mustek_pp.man: fix catman warning. Reported by
 	  Raymond Chen.
 
 2008-05-05  Earle Philhower <earlephilhower@yahoo.com>

@@ -237,7 +237,7 @@ all:	$(LIBS) libsane.la becfg
 install: $(INSTALL_LOCKPATH) install-be@BE_INSTALL_FLAVOR@ install-libsane install-becfg
 
 install-be:
-	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir)
+	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(configdir)/dll.d
 	@# Install all backends in $(prefix)/lib/sane/
 	@list="$(LIBS)"; for be in $$list; do \
 	  echo installing $${be} in $(DESTDIR)$(libsanedir)/$${be}...; \
@@ -263,7 +263,7 @@ install-be:
 	fi
 
 install-be-beos:
-	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(BEOS_ADDONDIR)
+	$(MKDIR) $(DESTDIR)$(libdir) $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(configdir)/dll.d $(DESTDIR)$(BEOS_ADDONDIR)
 	@list="$(ALL_BACKENDS)"; for be in $$list; do \
 	  echo installing $${be} in $(BEOS_ADDONDIR)/$${be}...; \
 	  cp -p .libs/libsane-$${be}.so $(DESTDIR)$(BEOS_ADDONDIR)/$${be} || exit 1; \

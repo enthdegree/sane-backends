@@ -1,5 +1,10 @@
 2008-05-07  Julien Blache <jb@jblache.org>
 	* doc/sane-config.man: Fix man warning.
+	* backend/dll.c: look for dll.conf snippets in
+	$configdir/dll.d; this is a facility for external backends
+	to automatically add their backends to the dll backend
+	configuration without mucking with dll.conf.
+	* backend/Makefile.in: create $configdir/dll.d.
 
 2008-05-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, doc/descriptions/pixma.desc:

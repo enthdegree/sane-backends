@@ -1,3 +1,7 @@
+2008-05-05  Earle Philhower <earlephilhower@yahoo.com>
+	* doc/sane-sm3840.man: Add lineart and halftone options to page
+	* backend/sm3840*: Remove 64-bit compile warnings
+
 2008-04-05  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c
 	doc/descriptions/rts8891.desc:

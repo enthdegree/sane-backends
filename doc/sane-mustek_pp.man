@@ -422,7 +422,7 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 .sp
 .TS
-lb lb;
+lb lb
 l l.
 level	debug output
 -	-
@@ -441,7 +441,7 @@ chipset A4S2. Note that enabling this will spam your terminal with some
 million lines of debug output.
 .sp
 .TS
-lb lb;
+lb lb
 l l.
 level	debug output
 -	-

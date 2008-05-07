@@ -1,3 +1,8 @@
+2008-05-07  Jochen Eisinger <jochen@penguin-breeder.org>
+
+	* doc/sane-mustek_pp.conf: fix catman warning. Reported by
+	  Raymond Chen.
+
 2008-05-05  Earle Philhower <earlephilhower@yahoo.com>
 	* doc/sane-sm3840.man: Add lineart and halftone options to page
 	* backend/sm3840*: Remove 64-bit compile warnings

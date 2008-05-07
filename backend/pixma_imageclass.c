@@ -77,14 +77,10 @@
 #define MF5770_PID 0x265f
 #define MF3110_PID 0x2660
 #define MF3200_PID 0x2684
+#define MF6500_PID 0x2686
 #define MF4100_PID 0x26a3
-/*
- * FIXME: missing PIDs for MF6500, MF4690 and MF4010
- *
- * #define MF6500_PID 
- * #define MF4600_PID 
- * #define MF4010_PID 
-*/
+#define MF4600_PID 0x26b0
+#define MF4010_PID 0x26b4
 
 enum iclass_state_t
 {
@@ -615,11 +611,9 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF5770", MF5770_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF3110", MF3110_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF3240", MF3200_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon MF6500 Series", MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV ("Canon imageCLASS MF4150", MF4100_PID, 600, 640, 877, PIXMA_CAP_ADF),
-/*
- * DEV ("Canon MF6500 Series"     ,MF6500_PID, 600, 640, 877, PIXMA_CAP_ADF),
- * DEV ("Canon imageCLASS MF4690" ,MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
- * DEV ("Canon imageCLASS MF4010" ,MF4010_PID, 600, 640, 877, PIXMA_CAP_ADF),
- */
+  DEV ("Canon imageCLASS MF4690", MF4600_PID, 600, 640, 877, PIXMA_CAP_ADF),
+  DEV ("Canon imageCLASS MF4010", MF4010_PID, 600, 640, 877, PIXMA_CAP_ADF),
   DEV (NULL, 0, 0, 0, 0, 0)
 };

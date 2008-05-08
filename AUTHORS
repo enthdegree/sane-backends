@@ -24,6 +24,7 @@ Backends:
  coolscan:      Didier Carlier, Andreas Rick
  cardscan:      m. allan noah (*)
  coolscan2:     Andras Major (*)
+ coolscan3:     Alessandro Zummo (*)
  dc25:          Peter Fales (*)
  dc210:         Brian J. Murrell
  dc240:         Peter Fales (*)
@@ -32,6 +33,7 @@ Backends:
  dmc:           David F. Skoll
  epjitsu:       m. allan noah (*)
  epson:         Karl Heinz Kremer (*)
+ epson2:        Alessandro Zummo (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister (*), 
                 m. allan noah (*)
  gphoto2:       Peter Fales (*)
@@ -131,6 +133,7 @@ not yet included into the SANE distribution.
 Email addresses:
 
 Abel Deuring <a.deuring@satzbau-gmbh.de>
+Alessandro Zummo <a.zummo@towertech.it>
 Andras Major <andras@users.sourceforge.net>
 Andreas Beck <becka@uni-duesseldorf.de>
 Andreas Bolsch <ab@maths.nott.ac.uk>

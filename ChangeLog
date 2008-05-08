@@ -1,3 +1,6 @@
+2008-05-08  Alessandro Zummo <a.zummo@towertech.it>
+	* AUTHORS: added myself :)
+
 2008-05-07  Julien Blache <jb@jblache.org>
 	* doc/sane-config.man: Fix man warning.
 	* backend/dll.c: look for dll.conf snippets in

@@ -461,7 +461,7 @@ static int reader_process( void *args )
 static SANE_Status do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe  )
 {
 	struct SIGACTION act;
-	pid_t            res;
+	SANE_Pid         res;
 	short            int_cnt;
 
 	DBG( _DBG_PROC,"do_cancel\n" );

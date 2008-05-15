@@ -304,7 +304,7 @@ typedef struct u12d
 typedef struct u12s
 {
 	struct u12s     *next;
-	pid_t            reader_pid;     /* process id of reader          */
+	SANE_Pid         reader_pid;     /* process id of reader          */
 	SANE_Status      exit_code;      /* status of the reader process  */
 	int              r_pipe;         /* pipe to reader process        */
 	int              w_pipe;         /* pipe from reader process      */

@@ -1144,7 +1144,7 @@ typedef struct Microtek2_Scanner {
     int cancelled;
     int sfd;                  /* SCSI filedescriptor */
     int fd[2];                /* file descriptors for pipe */
-    pid_t pid;                /* pid of child process */
+    SANE_Pid pid;             /* pid of child process */
     FILE *fp;
 
 } Microtek2_Scanner;

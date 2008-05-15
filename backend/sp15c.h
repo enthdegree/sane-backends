@@ -49,7 +49,10 @@ static const char RCSid_h[] = "$Header$";
 /* ------------------------------------------------------------------------- */
 /*
  * $Log$
- * Revision 1.7  2005/09/19 19:57:48  fzago-guest
+ * Revision 1.8  2008/05/15 12:50:24  ellert-guest
+ * Fix for bug #306751: sanei-thread with pthreads on 64 bit
+ *
+ * Revision 1.7  2005-09-19 19:57:48  fzago-guest
  * Replaced __unused__ with __sane_unused__ to avoid a namespace conflict.
  *
  * Revision 1.6  2004/11/13 19:53:04  fzago-guest
@@ -147,7 +150,7 @@ struct sp15c
     int scanning;		/* "in progress" flag */
     int autofeeder;		/* detected */
     int use_adf;		/* requested */
-    int reader_pid;		/* child is running */
+    SANE_Pid reader_pid;	/* child is running */
     int prescan;		/* ??? */
 
 /***** terms for "set window" command *****/

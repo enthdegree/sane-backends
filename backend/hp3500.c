@@ -164,7 +164,7 @@ struct hp3500_data
   int sfd;
   int pipe_r;
   int pipe_w;
-  int reader_pid;
+  SANE_Pid reader_pid;
 
   int resolution;
   int mode;

@@ -443,7 +443,7 @@ typedef struct Avision_Scanner
   /* Avision HW Access Connection (SCSI/USB abstraction) */
   Avision_Connection av_con;
 
-  pid_t reader_pid;	/* process id of reader */
+  SANE_Pid reader_pid;	/* process id of reader */
   int read_fds;		/* pipe reading end */
   int write_fds;	/* pipe writing end */
   

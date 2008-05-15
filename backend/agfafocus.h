@@ -120,7 +120,7 @@ typedef struct AgfaFocus_Scanner
     int lines_available;	/* Lines in scanner memory */
 
     int fd;			/* SCSI filedescriptor */
-    pid_t reader_pid;		/* process id of reader */
+    SANE_Pid reader_pid;		/* process id of reader */
     int pipe;			/* pipe to reader process */
     int reader_pipe;		/* pipe from reader process */
 

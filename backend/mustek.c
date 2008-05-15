@@ -2952,7 +2952,7 @@ do_stop (Mustek_Scanner * s)
       struct timeval now;
       long int scan_time;
       long int scan_size;
-      pid_t pid;
+      SANE_Pid pid;
 
       /* print scanning time */
       gettimeofday (&now, 0);

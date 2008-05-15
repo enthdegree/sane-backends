@@ -566,7 +566,7 @@ static SANE_Status
 do_cancel( Plustek_Scanner *scanner, SANE_Bool closepipe )
 {
 	struct SIGACTION act;
-	pid_t            res;
+	SANE_Pid         res;
 
 	DBG( _DBG_PROC,"do_cancel\n" );
 	scanner->scanning = SANE_FALSE;

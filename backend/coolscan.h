@@ -122,7 +122,7 @@ typedef struct Coolscan
 
     SANE_Option_Descriptor opt[NUM_OPTIONS];
 
-    pid_t reader_pid;
+    SANE_Pid reader_pid;
     int reader_fds;
     int pipe;
     int scanning;

@@ -282,7 +282,7 @@ struct Artec48U_Scanner
   Artec48U_Device *dev;
   Artec48U_Line_Reader *reader;
   FILE *pipe_handle;
-  int reader_pid;
+  SANE_Pid reader_pid;
   int pipe;
   int reader_pipe;
   SANE_Option_Descriptor opt[NUM_OPTIONS];

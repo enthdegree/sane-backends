@@ -353,7 +353,7 @@ struct snapscan_scanner
     int opens;                    /* open count */
     int rpipe[2];                 /* reader pipe descriptors */
     int orig_rpipe_flags;         /* initial reader pipe flags */
-    pid_t child;                  /* child reader process pid */
+    SANE_Pid child;               /* child reader process pid */
     SnapScan_Mode mode;           /* mode */
     SnapScan_Mode preview_mode;   /* preview mode */
     SnapScan_Source source;       /* scanning source */
@@ -424,7 +424,10 @@ struct snapscan_scanner
 
 /*
  * $Log$
- * Revision 1.41  2006/02/02 21:28:05  oliver-guest
+ * Revision 1.42  2008/05/15 12:50:24  ellert-guest
+ * Fix for bug #306751: sanei-thread with pthreads on 64 bit
+ *
+ * Revision 1.41  2006-02-02 21:28:05  oliver-guest
  * Corrected USB ID for Benq 310
  *
  * Revision 1.40  2006/01/01 22:57:01  oliver-guest

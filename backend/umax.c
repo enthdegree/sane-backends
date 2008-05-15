@@ -4664,7 +4664,8 @@ static size_t max_string_size(SANE_String_Const strings[])
 
 static SANE_Status do_cancel(Umax_Scanner *scanner)
 {
- int pid, status;
+  SANE_Pid pid;
+  int status;
 
   DBG(DBG_sane_proc,"do_cancel\n");
 

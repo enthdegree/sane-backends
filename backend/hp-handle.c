@@ -74,7 +74,7 @@ struct hp_handle_s
     HpDevice		dev;
     SANE_Parameters	scan_params;
 
-    pid_t		reader_pid;
+    SANE_Pid		reader_pid;
     int			child_forked; /* Flag if we used fork() or not */
     size_t		bytes_left;
     int			pipe_read_fd;
@@ -207,7 +207,7 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
 	  return SANE_STATUS_IO_ERROR;
 	}
 
-      DBG(1, "start_reader: reader process %d started\n", this->reader_pid);
+      DBG(1, "start_reader: reader process %ld started\n", (long) this->reader_pid);
       return SANE_STATUS_GOOD;
     }
 
@@ -226,7 +226,7 @@ hp_handle_stopScan (HpHandle this)
   if (this->reader_pid)
     {
       int info;
-      DBG(3, "hp_handle_stopScan: killing child (%d)\n", this->reader_pid);
+      DBG(3, "hp_handle_stopScan: killing child (%ld)\n", (long) this->reader_pid);
       if (this->child_forked)
       {
         kill(this->reader_pid, SIGTERM);
@@ -744,8 +744,8 @@ sanei_hp_handle_cancel (HpHandle this)
   if (    (this->reader_pid)
        && (this->dev->compat & HP_COMPAT_OJ_1150C) )
   {
-     DBG(3,"sanei_hp_handle_cancel: send SIGTERM to child (%d)\n",
-         this->reader_pid);
+     DBG(3,"sanei_hp_handle_cancel: send SIGTERM to child (%ld)\n",
+         (long) this->reader_pid);
      if (this->child_forked)
        kill(this->reader_pid, SIGTERM);
      else

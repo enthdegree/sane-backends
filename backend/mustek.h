@@ -270,7 +270,7 @@ typedef struct Mustek_Scanner
   SANE_Bool one_pass_color_scan;
   SANE_Int resolution_code;
   int fd;			/* SCSI filedescriptor */
-  pid_t reader_pid;		/* process id of reader */
+  SANE_Pid reader_pid;		/* process id of reader */
   int reader_fds;		/* OS/2: pipe write handler for reader */
   int pipe;			/* pipe to reader process */
   long start_time;		/* at this time the scan started */

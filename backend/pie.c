@@ -307,7 +307,7 @@ typedef struct Pie_Scanner
   int scanning;			/* true if actually doing a scan */
   SANE_Parameters params;
 
-  pid_t reader_pid;
+  SANE_Pid reader_pid;
   int pipe;
   int reader_fds;
   

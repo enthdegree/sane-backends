@@ -109,7 +109,7 @@ typedef struct pixma_sane_t
   unsigned image_bytes_read;
   unsigned page_count;		/* valid for ADF */
 
-  int reader_taskid;
+  SANE_Pid reader_taskid;
   int wpipe, rpipe;
   SANE_Bool reader_stop;
 } pixma_sane_t;
@@ -806,10 +806,10 @@ reader_thread (void *arg)
   return reader_loop (ss);
 }
 
-static int
+static SANE_Pid
 terminate_reader_task (pixma_sane_t * ss, int *exit_code)
 {
-  int result, pid;
+  SANE_Pid result, pid;
   int status = 0;
 
   pid = ss->reader_taskid;
@@ -847,7 +847,7 @@ static int
 start_reader_task (pixma_sane_t * ss)
 {
   int fds[2];
-  int pid;
+  SANE_Pid pid;
   int is_forked;
 
   if (ss->rpipe != -1 || ss->wpipe != -1)
@@ -862,7 +862,7 @@ start_reader_task (pixma_sane_t * ss)
   if (ss->reader_taskid != -1)
     {
       PDBG (pixma_dbg
-	    (1, "BUG:reader_taskid(%d) != -1\n", ss->reader_taskid));
+	    (1, "BUG:reader_taskid(%ld) != -1\n", (long) ss->reader_taskid));
       terminate_reader_task (ss, NULL);
     }
   if (pipe (fds) == -1)
@@ -898,7 +898,7 @@ start_reader_task (pixma_sane_t * ss)
       PDBG (pixma_dbg (1, "ERROR:unable to start reader task\n"));
       return PIXMA_ENOMEM;
     }
-  PDBG (pixma_dbg (3, "Reader task id=%d (%s)\n", pid,
+  PDBG (pixma_dbg (3, "Reader task id=%ld (%s)\n", (long) pid,
 		   (is_forked) ? "forked" : "threaded"));
   ss->reader_taskid = pid;
   return 0;
@@ -957,7 +957,7 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 		       ss->image_bytes_read, ss->sp.image_size));
       close (ss->rpipe);
       ss->rpipe = -1;
-      if (terminate_reader_task (ss, &status) > 0
+      if (terminate_reader_task (ss, &status) != -1
 	  && status != SANE_STATUS_GOOD)
 	{
 	  return status;

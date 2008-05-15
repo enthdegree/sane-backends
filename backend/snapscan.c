@@ -1813,7 +1813,7 @@ void sane_cancel (SANE_Handle h)
     char *me = "sane_snapscan_cancel";
     SnapScan_Scanner *pss = (SnapScan_Scanner *) h;
     struct SIGACTION act;
-    pid_t            res;
+    SANE_Pid         res;
 
     DBG (DL_CALL_TRACE, "%s\n", me);
     switch (pss->state)
@@ -1934,7 +1934,10 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.71  2008/01/29 17:48:42  kitno-guest
+ * Revision 1.72  2008/05/15 12:50:24  ellert-guest
+ * Fix for bug #306751: sanei-thread with pthreads on 64 bit
+ *
+ * Revision 1.71  2008-01-29 17:48:42  kitno-guest
  * fix snapscan bug, add LiDE 600F
  *
  * Revision 1.70  2007-11-18 10:59:18  ellert-guest

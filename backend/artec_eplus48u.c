@@ -3478,7 +3478,7 @@ static SANE_Status
 do_cancel (Artec48U_Scanner * s, SANE_Bool closepipe)
 {
   struct SIGACTION act;
-  pid_t res;
+  SANE_Pid res;
   XDBG ((1, "do_cancel\n"));
 
   s->scanning = SANE_FALSE;

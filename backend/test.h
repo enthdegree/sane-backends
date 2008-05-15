@@ -126,7 +126,7 @@ typedef struct Test_Device
   Option_Value val[num_options];
   SANE_Parameters params;
   SANE_String name;
-  SANE_Int reader_pid;
+  SANE_Pid reader_pid;
   SANE_Int reader_fds;
   SANE_Int pipe;
   FILE *pipe_handle;

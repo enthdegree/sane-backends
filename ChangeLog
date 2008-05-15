@@ -1,3 +1,15 @@
+2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* backend/agfafocus.h, backend/artec_eplus48u.c,
+	  backend/artec_eplus48u.h, backend/avision.h, backend/coolscan.h,
+	  backend/hp-handle.c, backend/hp3500.c, backend/microtek2.h,
+	  backend/mustek.c, backend/mustek.h, backend/pie.c, backend/pixma.c,
+	  backend/plustek-pp.h, backend/plustek.c, backend/plustek.h,
+	  backend/plustek_pp.c, backend/snapscan.c, backend/snapscan.h,
+	  backend/sp15c.h, backend/tamarack.h, backend/test.c, backend/test.h,
+	  backend/u12.c, backend/u12.h, backend/umax.c, backend/umax.h,
+	  include/sane/sanei_thread.h, sanei/sanei_thread.c:
+	Fix for bug #306751: sanei-thread with pthreads on 64 bit
+
 2008-04-12  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c 
 	150/300 dpi mode fixes for 'XPA' sensor HP4470 models

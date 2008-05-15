@@ -1,14 +1,14 @@
-.\" .IX sane-lexmark
 .TH "sane-lexmark" "5" "16 April 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-lexmark
 .SH "NAME"
-sane\-lexmark \- SANE backend for Lexmark X1100/X1200 Series scanners
+sane-lexmark \- SANE backend for Lexmark X1100/X1200 Series scanners
 .SH "DESCRIPTION"
 The
-.B sane\-lexmark
+.B sane-lexmark
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the scanner part of Lexmark X1100/X1200 AIOs. This backend
 should be considered
-.B beta\-quality
+.B beta-quality
 software! 
 .PP 
 The scanners that should work with this backend are:
@@ -41,16 +41,16 @@ maintainer or to the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage \-\-help \-d lexmark:usb:<usb port>
+scanimage --help -d lexmark:usb:<usb port>
 .RE
 
 .TP 
 .B Scan Mode Options
 
 .TP 
-.B \-\-mode
+.B --mode
 selects the basic mode of operation of the scanner valid choices are 
-.I R Color ,
+.IR Color ,
 .I Gray
 and
 .I Lineart
@@ -59,7 +59,7 @@ Grayscale will produce 256 levels of gray (8 bits). Color mode allows for over
 16 million different colors produced from 24 bits of color information.
 
 .TP 
-.B \-\-resolution
+.B --resolution
 selects the resolution for a scan. The horizontal and vertical resolutions are set 
 by the value of this option. The scanner is capable of the following resolutions for the specified option value:
 .PP 
@@ -78,14 +78,14 @@ by the value of this option. The scanner is capable of the following resolutions
 .RE
 
 .TP 
-.B \-\-preview
+.B --preview
 requests a preview scan. The resolution used for that scan is 75 dpi
 and the scan area and the scan mode are as specified through their options, 
 or the default if not specified. The default value for preview mode is "no".
 
 .TP 
-.B \-\-threshold
-selects the  minimum\-brightness to get a white point. The threshold is only used with Lineart mode scans.
+.B --threshold
+selects the  minimum-brightness to get a white point. The threshold is only used with Lineart mode scans.
 It is specified as a percentage in the range 0..100% (in steps of 1).  
 The default value of the threshold option is 50.
 
@@ -96,10 +96,10 @@ The configuration file @CONFIGDIR@/lexmark.conf contains only the usb device id 
 
 .SH "FILES"
 .TP 
-.I @LIBDIR@/libsane\-lexmark.a
+.I @LIBDIR@/libsane-lexmark.a
 The static library implementing this backend.
 .TP 
-.I @LIBDIR@/libsane\-lexmark.so
+.I @LIBDIR@/libsane-lexmark.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -130,7 +130,7 @@ No bugs currently known.
 
 
 .SH "SEE ALSO"
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH "AUTHOR"

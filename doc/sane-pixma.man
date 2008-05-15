@@ -56,7 +56,6 @@ the Sane-dev mailing list.
 PIXMA MX850
 .RE
 .PP
-.\".PP
 The backend supports
 .br
 * resolutions at 75,150,300,600,1200,2400 and 4800 DPI (some maybe buggy),

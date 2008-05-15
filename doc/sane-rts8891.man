@@ -1,5 +1,5 @@
-.\" .IX sane-rts8891
 .TH "sane-rts8891" "5" "16 March 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-rts8891
 .SH "NAME"
 sane-rts8891 \- SANE backend for Umax Astra 4400/4450 and Hewlett-Packard Scanjet 4470c scanners
 .SH "DESCRIPTION"
@@ -18,6 +18,7 @@ The scanners that should work with this backend are:
   Umax    4400            good
   Umax    4450            untested
   HP      4470c           good                re-badged Astra 4400
+  HP      4400c           untested
 .fi 
 .ft R
 .RE
@@ -41,10 +42,8 @@ scanimage --help -d rts8891
 .TP 
 .B --mode
 selects the basic mode of operation of the scanner valid choices are 
-.I auto
-.R ,
-.I Color
-.R ,
+.IR auto ,
+.IR Color ,
 .I Gray
 and
 .I Lineart

@@ -1,5 +1,5 @@
-.\" .IX sane-genesys
 .TH "sane-genesys" "5" "20 Nov 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-genesys
 .SH "NAME"
 sane-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
 .SH "DESCRIPTION"
@@ -27,7 +27,7 @@ the scan area.
 If you own a scanner other than the ones listed above that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
-.I /proc/bus/usb/devices ,
+.IR /proc/bus/usb/devices ,
 .I sane-find-scanner
 or syslog) to the sane-devel mailing list. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.

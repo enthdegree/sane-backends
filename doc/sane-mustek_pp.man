@@ -1,4 +1,3 @@
-.\" t
 .TH sane-mustek_pp 5 "November 17 2003"
 .de EX
 .sp
@@ -32,52 +31,46 @@ The following scanners might work with this backend:
 
 .SS "CCD scanners" 
 
-.TS
-lb lb lb lb
-_ _ _ _
-l l l l.
-Model:          	ASIC ID:	CCD Type:	works:
-SE 6000 P       	1013    	00      	yes
-SM 4800 P       	1013/1015	04/01   	yes
-SE 1200 ED Plus 	1015    	01      	no
-SM 1200 ED Plus 	1015    	01      	no
-SE 12000 P      	1505    	05      	no
-600 III EP Plus  	1013/1015	00/01   	yes
-SE 600 SEP      	1013    	??      	yes
-600 II EP       	????    	??      	no
-MD9848          	1015    	00      	yes
-Gallery 4800    	????    	??      	yes
-Viviscan Compact II	1013    	00      	yes
-.TE
+.EX
+Model:                  ASIC ID:        CCD Type:       works:
+--------------------------------------------------------------
+SE 6000 P               1013            00              yes
+SM 4800 P               1013/1015       04/01           yes
+SE 1200 ED Plus         1015            01              no
+SM 1200 ED Plus         1015            01              no
+SE 12000 P              1505            05              no
+600 III EP Plus         1013/1015       00/01           yes
+SE 600 SEP              1013            ??              yes
+600 II EP               ????            ??              no
+MD9848                  1015            00              yes
+Gallery 4800            ????            ??              yes
+Viviscan Compact II     1013            00              yes
+.EE
 .SS CIS scanners
-.TS
-lb lb lb
-_ _ _
-l l l.
-Model:          	ASIC ID:	works:
-Mustek 600 CP & 96 CP	1015    	yes (*)
-Mustek 1200 CP  	1015    	yes
-Mustek 1200 CP+  	1015    	yes
-.TE
+.EX
+Model:                  ASIC ID:        works:
+-----------------------------------------------
+Mustek 600 CP & 96 CP   1015            yes (*)
+Mustek 1200 CP          1015            yes
+Mustek 1200 CP+         1015            yes
+.EE
 
-.TS
-lb lb lb
-_ _ _
-l l l.
-OEM versions    	Original	works 
+.EX
+OEM versions            Original        works 
+--------------------------------------------------
 Medion/LifeTec/Tevion
-   MD/LT 9350/9351	1200 CP  	yes
-   MD/LT 9850/9851	1200 CP 	maybe (**)
-   MD/LT 9858   	1200 CP 	probably
-   MD/LT 9890/9891	1200 CP 	yes
+   MD/LT 9350/9351      1200 CP         yes
+   MD/LT 9850/9851      1200 CP         maybe (**)
+   MD/LT 9858           1200 CP         probably
+   MD/LT 9890/9891      1200 CP         yes
 Targa 
-   Funline TS12EP	1200 CP 	yes
-   Funline TS6EP	600 CP  	yes
+   Funline TS12EP       1200 CP         yes
+   Funline TS6EP        600 CP          yes
 Trust
-   Easy Connect 9600+	600 CP  	yes
+   Easy Connect 9600+   600 CP          yes
 Cybercom 
-   9352         	1200 CP 	yes (***)
-.TE
+   9352                 1200 CP         yes (***)
+.EE
 .HP 
 (*)    Calibration  problems existed with earlier version of
 this driver. They seem to be solved now.
@@ -299,7 +292,7 @@ Minimum:         0
 Maximum:       100
 .sp
 Example:  option engine_delay 1
-.TP
+
 .SS CCD driver options
 .TP
 .B top <value>
@@ -420,39 +413,34 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
-.sp
-.TS
-lb lb
-l l.
-level	debug output
--	-
- 0	nothing
- 1	errors
- 2	warnings & minor errors
- 3	additional information
- 4	debug information
- 5	code flow (not supported yet)
- 6	special debug information
-.TE
+.EX
+level   debug output
+--------------------------------------
+ 0      nothing
+ 1      errors
+ 2      warnings & minor errors
+ 3      additional information
+ 4      debug information
+ 5      code flow (not supported yet)
+ 6      special debug information
+.EE
 .TP
 .B SANE_DEBUG_SANEI_PA4S2
 This variable sets the debug level for the SANE interface for the Mustek
 chipset A4S2. Note that enabling this will spam your terminal with some
 million lines of debug output.
-.sp
-.TS
-lb lb
-l l.
-level	debug output
--	-
- 0	nothing
- 1	errors
- 2	warnings
- 3	things nice to know
- 4	code flow
- 5	detailed code flow
- 6	everything
-.TE 
+.EX
+level   debug output
+----------------------------
+ 0      nothing
+ 1      errors
+ 2      warnings
+ 3      things nice to know
+ 4      code flow
+ 5      detailed code flow
+ 6      everything
+.EE
+
 .SH "SEE ALSO"
 sane(7), sane-mustek(5), sane-net(5), saned(8), sane-find-scanner(1)
 

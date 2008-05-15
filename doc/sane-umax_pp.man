@@ -1,5 +1,5 @@
-.\" .IX sane-umax_pp
 .TH "sane-umax_pp" "5" "23 August 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane-umax_pp
 .SH "NAME"
 sane-umax_pp \- SANE backend for Umax Astra parallel port flatbed scanners
 .SH "DESCRIPTION"

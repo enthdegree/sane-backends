@@ -1,6 +1,9 @@
 2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
-	* doc/sane-microtek2.man: Less fancy man page syntax that isn't
-	  screwed up by the man2html converter for the website.
+	* doc/sane-genesys.man, doc/sane-lexmark.man, doc/sane-microtek2.man,
+	  doc/sane-mustek_pp.man, doc/sane-pixma.man, doc/sane-rts8891.man,
+	  doc/sane-umax_pp.man:	Man page fixes
+	* doc/descriptions-external/hp_rts88xx.desc: removed since its
+	  successor rts8891 is now included in the SANE distribution
 
 2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/agfafocus.h, backend/artec_eplus48u.c,

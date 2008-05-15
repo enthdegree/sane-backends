@@ -21,36 +21,36 @@ See
 .PP
 At present, the following scanners are known positively to work with this
 backend:
-.TS
-tab(:), box; 
-lb lb lb
-l l l.
-Vendor:Product id:Remark
-=
-Microtek:E3+:Parport and SCSI
-Microtek:X6:SCSI
-Microtek:X6EL:SCSI
-Microtek:X6USB:USB
-Microtek:ScanMaker V300:Parport and SCSI
-Microtek:ScanMaker V310:Parport and SCSI
-Microtek:ScanMaker V600:Parport and SCSI
-Microtek:ScanMaker 330:SCSI
-Microtek:ScanMaker 630:SCSI
-Microtek:ScanMaker 636:SCSI
-Microtek:ScanMaker 9600XL:SCSI; only flatbed mode?
-Microtek:Phantom 330CX:Parport
-Microtek:SlimScan C3:Parport
-Microtek:SlimScan C6:USB
-Microtek:Phantom 636:SCSI
-Microtek:Phantom 636CX:Parport
-Microtek:V6USL:SCSI and USB
-Microtek:V6UPL:USB; not stable
-Microtek:X12USL:SCSI; only 8bit color, work in progress
-Vobis:HighScan:SCSI (E3+ based models)
-Scanport:SQ300:Parport?
-Scanport:SQ4836:SCSI
-Scanpaq:SQ2030:Parport
-.TE
+.PP
+.ft CR
+.nf
+Vendor     Product id        Remark
+--------------------------------------------------------------------
+Microtek   E3+               Parport and SCSI
+Microtek   X6                SCSI
+Microtek   X6EL              SCSI
+Microtek   X6USB             USB
+Microtek   ScanMaker V300    Parport and SCSI
+Microtek   ScanMaker V310    Parport and SCSI
+Microtek   ScanMaker V600    Parport and SCSI
+Microtek   ScanMaker 330     SCSI
+Microtek   ScanMaker 630     SCSI
+Microtek   ScanMaker 636     SCSI
+Microtek   ScanMaker 9600XL  SCSI; only flatbed mode?
+Microtek   Phantom 330CX     Parport
+Microtek   SlimScan C3       Parport
+Microtek   SlimScan C6       USB
+Microtek   Phantom 636       SCSI
+Microtek   Phantom 636CX     Parport
+Microtek   V6USL             SCSI and USB
+Microtek   V6UPL             USB; not stable
+Microtek   X12USL            SCSI; only 8bit color, work in progress
+Vobis      HighScan          SCSI (E3+ based models)
+Scanport   SQ300             Parport?
+Scanport   SQ4836            SCSI
+Scanpaq    SQ2030            Parport
+.fi
+.ft R
 .PP
 Additional information can be found at
 .BR http://www.sane-project.org/ .

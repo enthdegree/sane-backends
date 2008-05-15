@@ -1,4 +1,8 @@
 2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* doc/sane-microtek2.man: Less fancy man page syntax that isn't
+	  screwed up by the man2html converter for the website.
+
+2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* backend/agfafocus.h, backend/artec_eplus48u.c,
 	  backend/artec_eplus48u.h, backend/avision.h, backend/coolscan.h,
 	  backend/hp-handle.c, backend/hp3500.c, backend/microtek2.h,

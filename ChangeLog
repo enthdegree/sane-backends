@@ -1,3 +1,6 @@
+2008-05-16  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: inspect correct bool to enable prepick mode
+
 2008-05-15  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/cardscan.desc, doc/descriptions/epjitsu.desc,
 	  doc/descriptions/hp3900.desc, doc/descriptions/hp5590.desc,

@@ -300,6 +300,7 @@
          - minor cleanups to init_ms()
 	 - add fi-5530C2 usb id
 	 - merge find_scanners into sane_get_devices
+	 - inspect correct bool to enable prepick mode option
 
    SANE FLOW DIAGRAM
 
@@ -3382,7 +3383,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->prepick = MSEL_ON;
           else if (!strcmp(val, string_Off))
             s->prepick = MSEL_OFF;
-          if (s->has_MS_buff)
+          if (s->has_MS_prepick)
             return mode_select_prepick(s);
           else
             return SANE_STATUS_GOOD;

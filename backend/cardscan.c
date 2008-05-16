@@ -230,7 +230,7 @@ four times {
 #include "cardscan.h"
 
 #define DEBUG 1
-#define BUILD 0 
+#define BUILD 1 
 
 /* values for SANE_DEBUG_CARDSCAN env var:
  - errors           5

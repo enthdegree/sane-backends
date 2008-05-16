@@ -525,8 +525,6 @@ void sane_exit (void);
 
 /* ------------------------------------------------------------------------- */
 
-static SANE_Status find_scanners (void);
-
 static SANE_Status attach_one_scsi (const char *name);
 static SANE_Status attach_one_usb (const char *name);
 static SANE_Status attach_one (const char *devicename, int connType);

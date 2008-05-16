@@ -296,6 +296,10 @@
       V 1.0.60 2008-04-27, MAN
          - move call to sanei_usb_init() from sane_init() to find_scanners
 	 - free sane_devArray before calloc'ing a new one
+      V 1.0.61 2008-05-11, MAN
+         - minor cleanups to init_ms()
+	 - add fi-5530C2 usb id
+	 - merge find_scanners into sane_get_devices
 
    SANE FLOW DIAGRAM
 
@@ -356,7 +360,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 60 
+#define BUILD 61 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -468,43 +472,24 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
  * explicitly by a user which would make it unnecessary and
  * undesirable to call this function first.
  */
+/*
+ * Read the config file, find scanners with help from sanei_*
+ * and store in global device structs
+ */
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  SANE_Status ret;
-
-  local_only = local_only;        /* get rid of compiler warning */
-
-  DBG (10, "sane_get_devices: start\n");
-
-  /* load the two global lists of device structs */
-  ret = find_scanners();
-
-  *device_list = sane_devArray;
-
-  DBG (10, "sane_get_devices: finish\n");
-
-  return ret;
-}
-
-/*
- * Read the config file, find scanners with help from sanei_*
- * store in global device structs
- *
- * We place the complex init code here, so it can be called
- * from sane_get_devices() and sane_open()
- */
-SANE_Status
-find_scanners ()
-{
-  struct fujitsu *dev;
+  SANE_Status ret = SANE_STATUS_GOOD;
+  struct fujitsu * dev;
   char line[PATH_MAX];
   const char *lp;
   FILE *fp;
   int num_devices=0;
   int i=0;
 
-  DBG (10, "find_scanners: start\n");
+  local_only = local_only;        /* get rid of compiler warning */
+
+  DBG (10, "sane_get_devices: start\n");
 
   sanei_usb_init();
 
@@ -515,7 +500,8 @@ find_scanners ()
 
   if (fp) {
 
-      DBG (15, "find_scanners: reading config file %s\n", FUJITSU_CONFIG_FILE);
+      DBG (15, "sane_get_devices: reading config file %s\n",
+        FUJITSU_CONFIG_FILE);
 
       while (sanei_config_read (line, PATH_MAX, fp)) {
     
@@ -543,100 +529,103 @@ find_scanners ()
                   buf = atoi (lp);
     
                   if (buf < 4096) {
-                    DBG (5, "find_scanners: config option \"buffer-size\" (%d) is < 4096, ignoring!\n", buf);
+                    DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is < 4096, ignoring!\n", buf);
                     continue;
                   }
     
                   if (buf > 64*1024) {
-                    DBG (5, "find_scanners: config option \"buffer-size\" (%d) is > %d, warning!\n", buf, 64*1024);
+                    DBG (5, "sane_get_devices: config option \"buffer-size\" (%d) is > %d, warning!\n", buf, 64*1024);
                   }
     
-                  DBG (15, "find_scanners: setting \"buffer-size\" to %d\n", buf);
+                  DBG (15, "sane_get_devices: setting \"buffer-size\" to %d\n", buf);
                   global_buffer_size = buf;
               }
               else {
-                  DBG (5, "find_scanners: config option \"%s\" unrecognized - ignored.\n", lp);
+                  DBG (5, "sane_get_devices: config option \"%s\" unrecognized - ignored.\n", lp);
               }
           }
           else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
-              DBG (15, "find_scanners: looking for '%s'\n", lp);
+              DBG (15, "sane_get_devices: looking for '%s'\n", lp);
               sanei_usb_attach_matching_devices(lp, attach_one_usb);
           }
           else if ((strncmp ("scsi", lp, 4) == 0) && isspace (lp[4])) {
-              DBG (15, "find_scanners: looking for '%s'\n", lp);
+              DBG (15, "sane_get_devices: looking for '%s'\n", lp);
               sanei_config_attach_matching_devices (lp, attach_one_scsi);
           }
           else{
-              DBG (5, "find_scanners: config line \"%s\" unrecognized - ignored.\n", lp);
+              DBG (5, "sane_get_devices: config line \"%s\" unrecognized - ignored.\n", lp);
           }
       }
       fclose (fp);
   }
 
   else {
-      DBG (5, "find_scanners: no config file '%s', using defaults\n", FUJITSU_CONFIG_FILE);
+      DBG (5, "sane_get_devices: no config file '%s', using defaults\n", FUJITSU_CONFIG_FILE);
 
-      DBG (15, "find_scanners: looking for 'scsi FUJITSU'\n");
+      DBG (15, "sane_get_devices: looking for 'scsi FUJITSU'\n");
       sanei_config_attach_matching_devices ("scsi FUJITSU", attach_one_scsi);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1041'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1041'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1041", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1042'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1042'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1042", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1095'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1095'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1095", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1096'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1096'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1096", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1097'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1097'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1097", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ad'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10ad'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10ad", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10ae'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10ae'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10ae", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10af'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10af'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10af", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e0'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e0'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e0", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e1'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e1'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e1", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e2'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e2'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e2", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10e7'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e7'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10f2'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10f2'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10f2", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x10fe'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10fe'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10fe", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1135'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1135'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1135", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x114d'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114a'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x114a", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114d'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x114d", attach_one_usb);
 
-      DBG (15, "find_scanners: looking for 'usb 0x04c5 0x1155'\n");
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
   }
 
   for (dev = fujitsu_devList; dev; dev=dev->next) {
-    DBG (15, "find_scanners: found scanner %s\n",dev->device_name);
+    DBG (15, "sane_get_devices: found scanner %s\n",dev->device_name);
     num_devices++;
   }
 
-  DBG (15, "find_scanners: found %d scanner(s)\n",num_devices);
+  DBG (15, "sane_get_devices: found %d scanner(s)\n",num_devices);
 
   if (sane_devArray)
     free (sane_devArray);
@@ -648,15 +637,18 @@ find_scanners ()
   for (dev = fujitsu_devList; dev; dev=dev->next) {
     sane_devArray[i++] = (SANE_Device *)&dev->sane;
   }
-
   sane_devArray[i] = 0;
 
-  DBG (10, "find_scanners: finish\n");
+  if(device_list){
+      *device_list = sane_devArray;
+  }
 
-  return SANE_STATUS_GOOD;
+  DBG (10, "sane_get_devices: finish\n");
+
+  return ret;
 }
 
-/* callbacks used by find_scanners */
+/* callbacks used by sane_get_devices */
 static SANE_Status
 attach_one_scsi (const char *device_name)
 {
@@ -1433,6 +1425,7 @@ init_ms(struct fujitsu *s)
 
   IF_DBG (DBG_LEVEL = oldDbg;)
 
+  DBG (15, "  unknown: %d\n", s->has_MS_unknown);
   DBG (15, "  prepick: %d\n", s->has_MS_prepick);
   DBG (15, "  sleep: %d\n", s->has_MS_sleep);
   DBG (15, "  duplex: %d\n", s->has_MS_duplex);
@@ -1667,7 +1660,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   else{
     DBG (15, "sane_open: no scanners currently attached, attaching\n");
 
-    ret = find_scanners();
+    ret = sane_get_devices(NULL,0);
     if(ret != SANE_STATUS_GOOD){
       return ret;
     }

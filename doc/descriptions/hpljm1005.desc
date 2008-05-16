@@ -10,7 +10,6 @@
 
 :backend "hpljm1005"
 :version "0"
-:new :yes
 :manpage "sane-hpljm1005"
 
 :devicetype :scanner

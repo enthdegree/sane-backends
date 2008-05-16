@@ -11,8 +11,7 @@
 
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
-:new :yes
-:version "1.0.11"                ; version of backend
+:version "1.0.12"                ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
 :comment "Only basic support provided, see sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....

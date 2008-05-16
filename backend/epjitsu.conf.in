@@ -8,11 +8,16 @@
 # to the author via email, so it can be included in next version. kitno455 at
 # gmail dot com - with epjitsu in the subject line
 
-# these devices require a firmware file in order to function
-# it can generally be found inside C:\windows\fjsti.cab or
-# C:\windows\fjmini\*.cab
-# open that file and look for a ~65K .NAL file with the scanner's name
-# and copy it someplace sane can reach it. then update the line below.
+# These devices require a firmware file in order to function, which must be
+# extracted from the Fujitsu Windows driver. Presumably the Mac versions
+# contain the firmware as well, but the author has no access such a machine.
+
+# Firmware is installed in several different locations by the fujitsu software, 
+# using the windows 'search' feature to look for '*.nal' is the easiest way to
+# find them. They should be ~65K, and have the scanner's name as part of the
+# file name. They are often inside a .cab file.
+
+# Copy the file someplace sane can reach it. Then update the line below.
 # NOTE: the firmware line must occur BEFORE the usb line for your scanner
 
 # Fujitsu fi-60F
@@ -20,5 +25,5 @@ firmware @DATADIR@/sane/epjitsu/60f_0A00.nal
 usb 0x04c5 0x10c7
 
 # Fujitsu S300
-firmware @DATADIR@/sane/epjitsu/300_0A00.nal
+firmware @DATADIR@/sane/epjitsu/300_0C00.nal
 usb 0x04c5 0x1156

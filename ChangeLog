@@ -1,3 +1,14 @@
+2008-05-15  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions/cardscan.desc, doc/descriptions/epjitsu.desc,
+	  doc/descriptions/hp3900.desc, doc/descriptions/hp5590.desc,
+	  doc/descriptions/hpljm1005.desc, doc/descriptions/hs2p.desc:
+	  remove 'new' tag from sane 1.0.19 backends
+	* doc/descriptions/fujitsu.desc, backend/fujitsu.conf.in:
+	  add fi-5530C2 usb ID
+	* backend/cardscan.c: correct version number
+	* backend/epjitsu.conf.in: improved firmware directions
+	* backend/fujitsu.[ch]: update to backend v 1.0.61
+
 2008-05-15  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* doc/sane-genesys.man, doc/sane-lexmark.man, doc/sane-microtek2.man,
 	  doc/sane-mustek_pp.man, doc/sane-pixma.man, doc/sane-rts8891.man,
@@ -17,7 +28,7 @@
 	  include/sane/sanei_thread.h, sanei/sanei_thread.c:
 	Fix for bug #306751: sanei-thread with pthreads on 64 bit
 
-2008-04-12  Stéphane Voltz <stef.dev@free.fr>
+2008-05-12  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c 
 	150/300 dpi mode fixes for 'XPA' sensor HP4470 models
 

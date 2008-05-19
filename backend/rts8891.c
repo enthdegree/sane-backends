@@ -73,7 +73,7 @@
 
 /* ------------------------------------------------------------------------- */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -91,11 +91,11 @@
 # include <libc.h>
 #endif
 
-#include "sane/sane.h"
-#include "sane/sanei_usb.h"
-#include "sane/saneopts.h"
-#include "sane/sanei_config.h"
-#include "sane/sanei_backend.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_usb.h"
+#include "../include/sane/saneopts.h"
+#include "../include/sane/sanei_config.h"
+#include "../include/sane/sanei_backend.h"
 
 #define DARK_TARGET		3.1	/* 3.5 target average for dark calibration */
 #define DARK_MARGIN		0.3	/* acceptable margin for dark average */
@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 3
+#define BUILD 4
 
 #define MOVE_DPI 100
 
@@ -4928,40 +4928,39 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
       /* X resolution related registers */
       if (dev->sensor == SENSOR_TYPE_XPA)
 	{
-	  dev->regs[0x80] = 0x32;
-	  dev->regs[0x81] = 0x00;
-	  dev->regs[0x82] = 0x33;
-	  dev->regs[0x83] = 0x00;
-	  dev->regs[0x85] = 0x00;
-	  dev->regs[0x86] = 0x06;
-	  dev->regs[0x87] = 0x00;
-	  dev->regs[0x88] = 0x06;
-	  dev->regs[0x89] = 0x34;
-	  dev->regs[0x8a] = 0x00;
-	  dev->regs[0x8d] = 0x00;
-	  dev->regs[0xc0] = 0x67;
-	  dev->regs[0xc1] = 0x06;
-	  dev->regs[0xc2] = 0xe6;
-	  dev->regs[0xc3] = 0x98;
-	  dev->regs[0xc4] = 0xf9;
-	  dev->regs[0xc5] = 0x19;
-	  dev->regs[0xc6] = 0x67;
-	  dev->regs[0xc7] = 0x06;
-	  dev->regs[0xc8] = 0xe6;
-	  dev->regs[0xc9] = 0x01;
-	  dev->regs[0xca] = 0xf8;
-	  dev->regs[0xcb] = 0xff;
-	  dev->regs[0xcc] = 0x98;
-	  dev->regs[0xcd] = 0xf9;
-	  dev->regs[0xce] = 0x19;
-	  dev->regs[0xcf] = 0xe0;
-	  dev->regs[0xd0] = 0xe2;
-	  dev->regs[0xd1] = 0xeb;
-	  dev->regs[0xd2] = 0x0c;
-	  dev->regs[0xd3] = 0x02;
-	  dev->regs[0xd4] = 0x04;
-	  dev->regs[0xd7] = 0x10;
-	  dev->regs[0xe5] = 0xdd;
+	  dev->regs[0x80] = 0x2b;
+	  dev->regs[0x81] = 0x02;
+	  dev->regs[0x82] = 0x2c;
+	  dev->regs[0x83] = 0x02;
+	  dev->regs[0x85] = 0x18;
+	  dev->regs[0x86] = 0x1b;
+	  dev->regs[0x87] = 0x30;
+	  dev->regs[0x88] = 0x30;
+	  dev->regs[0x89] = 0x2d;
+	  dev->regs[0x8a] = 0x02;
+	  dev->regs[0x8d] = 0xef;
+	  dev->regs[0xc0] = 0x00;
+	  dev->regs[0xc1] = 0x8e;
+	  dev->regs[0xc2] = 0xff;
+	  dev->regs[0xc3] = 0xff;
+	  dev->regs[0xc4] = 0x71;
+	  dev->regs[0xc5] = 0x00;
+	  dev->regs[0xc6] = 0x00;
+	  dev->regs[0xc7] = 0x8e;
+	  dev->regs[0xc8] = 0xff;
+	  dev->regs[0xc9] = 0xff;
+	  dev->regs[0xca] = 0xff;
+	  dev->regs[0xcb] = 0x1f;
+	  dev->regs[0xcc] = 0xff;
+	  dev->regs[0xcd] = 0x71;
+	  dev->regs[0xce] = 0x00;
+	  dev->regs[0xcf] = 0xe6;
+	  dev->regs[0xd0] = 0xe8;
+	  dev->regs[0xd1] = 0xf6;
+	  dev->regs[0xd2] = 0x17;
+	  dev->regs[0xd3] = 0x0b;
+	  dev->regs[0xd4] = 0x0d;
+	  dev->regs[0xe5] = 0xe4;
 	}
       else
 	{
@@ -5000,6 +4999,40 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
     case 300:
       if (dev->sensor == SENSOR_TYPE_XPA)
 	{
+	  dev->regs[0x80] = 0xb0;
+	  dev->regs[0x81] = 0x00;
+	  dev->regs[0x82] = 0xb1;
+	  dev->regs[0x83] = 0x00;
+	  dev->regs[0x85] = 0x46;
+	  dev->regs[0x86] = 0x0b;
+	  dev->regs[0x87] = 0x8c;
+	  dev->regs[0x88] = 0x10;
+	  dev->regs[0x89] = 0xb2;
+	  dev->regs[0x8a] = 0x00;
+	  dev->regs[0x8d] = 0x3b;
+	  dev->regs[0xc0] = 0x00;
+	  dev->regs[0xc1] = 0xff;
+	  dev->regs[0xc2] = 0x0f;
+	  dev->regs[0xc3] = 0xff;
+	  dev->regs[0xc4] = 0x00;
+	  dev->regs[0xc5] = 0xf0;
+	  dev->regs[0xc6] = 0x00;
+	  dev->regs[0xc7] = 0xff;
+	  dev->regs[0xc8] = 0x0f;
+	  dev->regs[0xc9] = 0xff;
+	  dev->regs[0xca] = 0xff;
+	  dev->regs[0xcb] = 0xf1;
+	  dev->regs[0xcc] = 0xff;
+	  dev->regs[0xcd] = 0x00;
+	  dev->regs[0xce] = 0xf0;
+	  dev->regs[0xcf] = 0xed;
+	  dev->regs[0xd0] = 0xef;
+	  dev->regs[0xd1] = 0xe2;
+	  dev->regs[0xd2] = 0x03;
+	  dev->regs[0xd3] = 0x17;
+	  dev->regs[0xd4] = 0x01;
+	  dev->regs[0xe5] = 0xc9;
+	  dev->regs[0xe6] = 0x01;
 	}
       else
 	{
@@ -5287,10 +5320,10 @@ send_calibration_data (struct Rts8891_Scanner *scanner)
    * 5400 max shading coefficients at 600 dpi repeated 3 times
    * overall size rounded at 32 bytes multiple
    * 675 CCD elements at 75 DPI. 16 bit per element. 1 or 3 channels.
-   * there is a 0xFF markerat end of each coefficients row.
+   * there is a 0xFF marker at end of each coefficients row.
    * a gamma table comes first 
-   * 75 DPI: 5600=1542+(675)*2*3+8                ->taille arrondie ? un multiple de 32
-   * 9664 675*2*2*3=1542+(675*2)*2*3+22
+   * 75  DPI:  5600=1542+(675)*2*3+8                ->size rounded to 'upper 32'
+   * 150 DPI: 9664=675*2*2*3=1542+(675*2)*2*3+22
    * 17760                                        4         +18
    * 33952                                        8     +10
    * 65472+896=66368=                16     +26

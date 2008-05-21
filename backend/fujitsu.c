@@ -306,6 +306,9 @@
 	 - use well-known option group strings from saneopts.h
 	 - rename pagewidth to page-width, to meet sane 1.1.0, same for height
 	 - add unused get_window()
+      V 1.0.63 2008-05-21, MAN
+         - use sane 1.1.0 well-known option names for some buttons
+	 - remove 'button-' from other buttons and sensors
 
    SANE FLOW DIAGRAM
 
@@ -366,7 +369,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 62 
+#define BUILD 63 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2563,7 +2566,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_TOP){
-    opt->name = "button-topedge";
+    opt->name = "top-edge";
     opt->title = "Top edge";
     opt->desc = "Paper is pulled partly into adf";
     opt->type = SANE_TYPE_BOOL;
@@ -2575,7 +2578,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_A3){
-    opt->name = "button-a3";
+    opt->name = "a3-paper";
     opt->title = "A3 paper";
     opt->desc = "A3 paper detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2587,7 +2590,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_B4){
-    opt->name = "button-b4";
+    opt->name = "b4-paper";
     opt->title = "B4 paper";
     opt->desc = "B4 paper detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2599,7 +2602,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_A4){
-    opt->name = "button-a4";
+    opt->name = "a4-paper";
     opt->title = "A4 paper";
     opt->desc = "A4 paper detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2611,7 +2614,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_B5){
-    opt->name = "button-b5";
+    opt->name = "b5-paper";
     opt->title = "B5 paper";
     opt->desc = "B5 paper detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2623,9 +2626,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_HOPPER){
-    opt->name = "button-adfloaded";
-    opt->title = "ADF loaded";
-    opt->desc = "Paper in adf hopper";
+    opt->name = SANE_NAME_PAGE_LOADED;
+    opt->title = SANE_TITLE_PAGE_LOADED;
+    opt->desc = SANE_DESC_PAGE_LOADED;
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
@@ -2635,7 +2638,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_OMR){
-    opt->name = "button-omrdf";
+    opt->name = "omr-df";
     opt->title = "OMR or DF";
     opt->desc = "OMR or double feed detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2647,9 +2650,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_ADF_OPEN){
-    opt->name = "button-adfopen";
-    opt->title = "ADF open";
-    opt->desc = "ADF cover open";
+    opt->name = SANE_NAME_COVER_OPEN;
+    opt->title = SANE_TITLE_COVER_OPEN;
+    opt->desc = SANE_DESC_COVER_OPEN;
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
@@ -2659,7 +2662,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_SLEEP){
-    opt->name = "button-powersave";
+    opt->name = "power-save";
     opt->title = "Power saving";
     opt->desc = "Scanner in power saving mode";
     opt->type = SANE_TYPE_BOOL;
@@ -2671,9 +2674,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_SEND_SW){
-    opt->name = "button-send";
-    opt->title = "'Send to' button";
-    opt->desc = "'Send to' button pressed";
+    opt->name = SANE_NAME_EMAIL;
+    opt->title = SANE_TITLE_EMAIL;
+    opt->desc = SANE_DESC_EMAIL;
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
@@ -2683,7 +2686,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_MANUAL_FEED){
-    opt->name = "button-manualfeed";
+    opt->name = "manual-feed";
     opt->title = "Manual feed";
     opt->desc = "Manual feed selected";
     opt->type = SANE_TYPE_BOOL;
@@ -2695,9 +2698,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_SCAN_SW){
-    opt->name = "button-scan";
-    opt->title = "'Scan' button";
-    opt->desc = "'Scan' button pressed";
+    opt->name = SANE_NAME_SCAN;
+    opt->title = SANE_TITLE_SCAN;
+    opt->desc = SANE_DESC_SCAN;
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_cmd_hw_status || s->ghs_in_rs)
@@ -2707,7 +2710,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_FUNCTION){
-    opt->name = "button-function";
+    opt->name = "function";
     opt->title = "Function";
     opt->desc = "Function character on screen";
     opt->type = SANE_TYPE_INT;
@@ -2719,7 +2722,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_INK_EMPTY){
-    opt->name = "button-inklow";
+    opt->name = "ink-low";
     opt->title = "Ink low";
     opt->desc = "Imprinter ink running low";
     opt->type = SANE_TYPE_BOOL;
@@ -2731,7 +2734,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_DOUBLE_FEED){
-    opt->name = "button-doublefeed";
+    opt->name = "double-feed";
     opt->title = "Double feed";
     opt->desc = "Double feed detected";
     opt->type = SANE_TYPE_BOOL;
@@ -2743,7 +2746,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_ERROR_CODE){
-    opt->name = "button-errorcode";
+    opt->name = "error-code";
     opt->title = "Error code";
     opt->desc = "Hardware error code";
     opt->type = SANE_TYPE_INT;
@@ -2755,7 +2758,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_SKEW_ANGLE){
-    opt->name = "button-skewangle";
+    opt->name = "skew-angle";
     opt->title = "Skew angle";
     opt->desc = "Requires black background for scanning";
     opt->type = SANE_TYPE_INT;
@@ -2767,7 +2770,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_INK_REMAIN){
-    opt->name = "button-inkremain";
+    opt->name = "ink-remain";
     opt->title = "Ink remaining";
     opt->desc = "Imprinter ink level";
     opt->type = SANE_TYPE_INT;
@@ -2779,7 +2782,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_DENSITY_SW){
-    opt->name = "button-density";
+    opt->name = "density";
     opt->title = "Density";
     opt->desc = "Density dial";
     opt->type = SANE_TYPE_INT;
@@ -2791,7 +2794,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   if(option==OPT_DUPLEX_SW){
-    opt->name = "button-duplex";
+    opt->name = "duplex";
     opt->title = "Duplex switch";
     opt->desc = "Duplex switch";
     opt->type = SANE_TYPE_BOOL;

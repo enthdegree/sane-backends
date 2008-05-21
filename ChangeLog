@@ -1,3 +1,8 @@
+2008-05-21  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/saneopts.h: add sane 1.1.0 well-known button options
+	* backend/fujitsu.c: v1.0.63, use sane 1.1.0 well-known option
+	  names for some buttons, remove 'button-' from others
+
 2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: v1.0.62,
 	  check for all supported scsi commands, use well-known option

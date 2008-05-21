@@ -141,6 +141,16 @@
 #define SANE_NAME_SELECT_LAMP_DENSITY	"select-lamp-density"
 #define SANE_NAME_LAMP_OFF_AT_EXIT	"lamp-off-at-exit"
 
+/* well known options from 'SENSORS' group*/
+#define SANE_NAME_SCAN			"scan"
+#define SANE_NAME_EMAIL			"email"
+#define SANE_NAME_FAX			"fax"
+#define SANE_NAME_COPY			"copy"
+#define SANE_NAME_PDF			"pdf"
+#define SANE_NAME_CANCEL		"cancel"
+#define SANE_NAME_PAGE_LOADED		"page_loaded"
+#define SANE_NAME_COVER_OPEN		"cover_open"
+
 #define SANE_TITLE_NUM_OPTIONS		SANE_I18N("Number of options")
 
 #define SANE_TITLE_STANDARD   		SANE_I18N("Standard")
@@ -219,6 +229,16 @@
 #define SANE_TITLE_SCAN_LAMP_DEN	SANE_I18N("Scan lamp density")
 #define SANE_TITLE_SELECT_LAMP_DENSITY	SANE_I18N("Set lamp density")
 #define SANE_TITLE_LAMP_OFF_AT_EXIT	SANE_I18N("Lamp off at exit")
+
+/* well known options from 'SENSORS' group*/
+#define SANE_TITLE_SCAN			"Scan button"
+#define SANE_TITLE_EMAIL		"Email button"
+#define SANE_TITLE_FAX			"Fax button"
+#define SANE_TITLE_COPY			"Copy button"
+#define SANE_TITLE_PDF			"PDF button"
+#define SANE_TITLE_CANCEL		"Cancel button"
+#define SANE_TITLE_PAGE_LOADED		"Page loaded"
+#define SANE_TITLE_COVER_OPEN		"Cover open"
 
 /* Descriptive/help strings for above options: */
 #define SANE_DESC_NUM_OPTIONS \
@@ -420,8 +440,17 @@ SANE_I18N("Enable selection of lamp density")
 #define SANE_DESC_LAMP_OFF_AT_EXIT \
 SANE_I18N("Turn off lamp when program exits")
 
-/* Typical values for stringlists (to keep the backends consistent) */
+/* well known options from 'SENSORS' group*/
+#define SANE_DESC_SCAN		SANE_I18N("Scan button")
+#define SANE_DESC_EMAIL		SANE_I18N("Email button")
+#define SANE_DESC_FAX		SANE_I18N("Fax button")
+#define SANE_DESC_COPY		SANE_I18N("Copy button")
+#define SANE_DESC_PDF		SANE_I18N("PDF button")
+#define SANE_DESC_CANCEL	SANE_I18N("Cancel button")
+#define SANE_DESC_PAGE_LOADED	SANE_I18N("Page loaded")
+#define SANE_DESC_COVER_OPEN	SANE_I18N("Cover open")
 
+/* Typical values for stringlists (to keep the backends consistent) */
 #define SANE_VALUE_SCAN_MODE_COLOR		SANE_I18N("Color")
 #define SANE_VALUE_SCAN_MODE_GRAY		SANE_I18N("Gray")
 #define SANE_VALUE_SCAN_MODE_LINEART		SANE_I18N("Lineart")

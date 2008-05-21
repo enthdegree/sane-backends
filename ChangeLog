@@ -1,4 +1,11 @@
 2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/sane.h: add SANE_STATUS_WARMING_UP and
+	  SANE_STATUS_HW_LOCKED, remove SANE_CAP_ALWAYS_SETTABLE,
+	  add SANE_FRAME_XML, improve comments on other new frame types.
+	* include/sane/saneopts.h: add common option groups, add new
+	  page-width and page-height well-known options
+
+2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/qcam.c, backend/v4l.c, frontend/tstbackend.c:
 	  remove undocumented and otherwise unused SANE_CAP_ALWAYS_SETTABLE
 

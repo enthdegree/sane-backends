@@ -59,6 +59,14 @@
 
 /* This _must_ be the first option (index 0): */
 #define SANE_NAME_NUM_OPTIONS		""	/* never settable */
+
+/* The common option groups */
+#define SANE_NAME_STANDARD   		"standard"
+#define SANE_NAME_GEOMETRY   		"geometry"
+#define SANE_NAME_ENHANCEMENT		"enhancement"
+#define SANE_NAME_ADVANCED   		"advanced"
+#define SANE_NAME_SENSORS    		"sensors"
+
 #define SANE_NAME_PREVIEW		"preview"
 #define SANE_NAME_GRAY_PREVIEW		"preview-in-gray"
 #define SANE_NAME_BIT_DEPTH		"depth"
@@ -78,6 +86,8 @@
 #define SANE_NAME_SCAN_RESOLUTION	"resolution"
 #define SANE_NAME_SCAN_X_RESOLUTION	"resolution"
 #define SANE_NAME_SCAN_Y_RESOLUTION	"y-resolution"
+#define SANE_NAME_PAGE_WIDTH  		"page-width"
+#define SANE_NAME_PAGE_HEIGHT 		"page-height"
 #define SANE_NAME_CUSTOM_GAMMA		"custom-gamma"
 #define SANE_NAME_GAMMA_VECTOR		"gamma-table"
 #define SANE_NAME_GAMMA_VECTOR_R	"red-gamma-table"
@@ -132,6 +142,13 @@
 #define SANE_NAME_LAMP_OFF_AT_EXIT	"lamp-off-at-exit"
 
 #define SANE_TITLE_NUM_OPTIONS		SANE_I18N("Number of options")
+
+#define SANE_TITLE_STANDARD   		SANE_I18N("Standard")
+#define SANE_TITLE_GEOMETRY   		SANE_I18N("Geometry")
+#define SANE_TITLE_ENHANCEMENT		SANE_I18N("Enhancement")
+#define SANE_TITLE_ADVANCED   		SANE_I18N("Advanced")
+#define SANE_TITLE_SENSORS    		SANE_I18N("Sensors")
+
 #define SANE_TITLE_PREVIEW		SANE_I18N("Preview")
 #define SANE_TITLE_GRAY_PREVIEW		SANE_I18N("Force monochrome preview")
 #define SANE_TITLE_BIT_DEPTH		SANE_I18N("Bit depth")
@@ -146,6 +163,8 @@
 #define SANE_TITLE_SCAN_RESOLUTION	SANE_I18N("Scan resolution")
 #define SANE_TITLE_SCAN_X_RESOLUTION	SANE_I18N("X-resolution")
 #define SANE_TITLE_SCAN_Y_RESOLUTION	SANE_I18N("Y-resolution")
+#define SANE_TITLE_PAGE_WIDTH  		SANE_I18N("Page width")
+#define SANE_TITLE_PAGE_HEIGHT 		SANE_I18N("Page height")
 #define SANE_TITLE_CUSTOM_GAMMA		SANE_I18N("Use custom gamma table")
 #define SANE_TITLE_GAMMA_VECTOR		SANE_I18N("Image intensity")
 #define SANE_TITLE_GAMMA_VECTOR_R	SANE_I18N("Red intensity")
@@ -206,6 +225,12 @@
 SANE_I18N("Read-only option that specifies how many options a specific " \
 "devices supports.")
 
+#define SANE_DESC_STANDARD    SANE_I18N("Source, mode and resolution options")
+#define SANE_DESC_GEOMETRY    SANE_I18N("Scan area and media size options")
+#define SANE_DESC_ENHANCEMENT SANE_I18N("Image modification options")
+#define SANE_DESC_ADVANCED    SANE_I18N("Hardware specific options")
+#define SANE_DESC_SENSORS     SANE_I18N("Scanner sensors and buttons")
+
 #define SANE_DESC_PREVIEW \
 SANE_I18N("Request a preview-quality scan.")
 
@@ -251,6 +276,13 @@ SANE_I18N("Sets the horizontal resolution of the scanned image.")
 
 #define SANE_DESC_SCAN_Y_RESOLUTION \
 SANE_I18N("Sets the vertical resolution of the scanned image.")
+
+#define SANE_DESC_PAGE_WIDTH \
+SANE_I18N("Specifies the width of the media.  Required for automatic " \
+"centering of sheet-fed scans.")
+
+#define SANE_DESC_PAGE_HEIGHT \
+SANE_I18N("Specifies the height of the media.")
 
 #define SANE_DESC_CUSTOM_GAMMA \
 SANE_I18N("Determines whether a builtin or a custom gamma-table should be " \

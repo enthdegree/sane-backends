@@ -301,6 +301,11 @@
 	 - add fi-5530C2 usb id
 	 - merge find_scanners into sane_get_devices
 	 - inspect correct bool to enable prepick mode option
+      V 1.0.62 2008-05-20, MAN
+         - check for all supported scsi commands
+	 - use well-known option group strings from saneopts.h
+	 - rename pagewidth to page-width, to meet sane 1.1.0, same for height
+	 - add unused get_window()
 
    SANE FLOW DIAGRAM
 
@@ -361,7 +366,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 61 
+#define BUILD 62 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1101,9 +1106,87 @@ init_vpd (struct fujitsu *s)
           s->buffer_bytes = get_IN_buffer_bytes(buffer);
           DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
 
-          /* std scsi command support */
+          /* std scsi command support byte 26*/
           s->has_cmd_msen = get_IN_has_cmd_msen(buffer);
           DBG (15, "  mode_sense cmd: %d\n", s->has_cmd_msen);
+
+          s->has_cmd_msel = get_IN_has_cmd_msel(buffer);
+          DBG (15, "  mode_select cmd: %d\n", s->has_cmd_msel);
+
+          /* std scsi command support byte 27*/
+          s->has_cmd_lsen = get_IN_has_cmd_lsen(buffer);
+          DBG (15, "  log_sense cmd: %d\n", s->has_cmd_lsen);
+
+          s->has_cmd_lsel = get_IN_has_cmd_lsel(buffer);
+          DBG (15, "  log_select cmd: %d\n", s->has_cmd_lsel);
+
+          s->has_cmd_change = get_IN_has_cmd_change(buffer);
+          DBG (15, "  change cmd: %d\n", s->has_cmd_change);
+
+          s->has_cmd_rbuff = get_IN_has_cmd_rbuff(buffer);
+          DBG (15, "  read_buffer cmd: %d\n", s->has_cmd_rbuff);
+
+          s->has_cmd_wbuff = get_IN_has_cmd_wbuff(buffer);
+          DBG (15, "  write_buffer cmd: %d\n", s->has_cmd_wbuff);
+
+          s->has_cmd_cav = get_IN_has_cmd_cav(buffer);
+          DBG (15, "  copy_and_verify cmd: %d\n", s->has_cmd_cav);
+
+          s->has_cmd_comp = get_IN_has_cmd_comp(buffer);
+          DBG (15, "  compare cmd: %d\n", s->has_cmd_comp);
+
+          s->has_cmd_gdbs = get_IN_has_cmd_gdbs(buffer);
+          DBG (15, "  get_d_b_status cmd: %d\n", s->has_cmd_gdbs);
+
+          /* std scsi command support byte 28*/
+          s->has_cmd_op = get_IN_has_cmd_op(buffer);
+          DBG (15, "  object_pos cmd: %d\n", s->has_cmd_op);
+
+          s->has_cmd_send = get_IN_has_cmd_send(buffer);
+          DBG (15, "  send cmd: %d\n", s->has_cmd_send);
+
+          s->has_cmd_read = get_IN_has_cmd_read(buffer);
+          DBG (15, "  read cmd: %d\n", s->has_cmd_read);
+
+          s->has_cmd_gwin = get_IN_has_cmd_gwin(buffer);
+          DBG (15, "  get_window cmd: %d\n", s->has_cmd_gwin);
+
+          s->has_cmd_swin = get_IN_has_cmd_swin(buffer);
+          DBG (15, "  set_window cmd: %d\n", s->has_cmd_swin);
+
+          s->has_cmd_sdiag = get_IN_has_cmd_sdiag(buffer);
+          DBG (15, "  send_diag cmd: %d\n", s->has_cmd_sdiag);
+
+          s->has_cmd_rdiag = get_IN_has_cmd_rdiag(buffer);
+          DBG (15, "  read_diag cmd: %d\n", s->has_cmd_rdiag);
+
+          s->has_cmd_scan = get_IN_has_cmd_scan(buffer);
+          DBG (15, "  scan cmd: %d\n", s->has_cmd_scan);
+
+          /* std scsi command support byte 29*/
+          s->has_cmd_msen6 = get_IN_has_cmd_msen6(buffer);
+          DBG (15, "  mode_sense_6 cmd: %d\n", s->has_cmd_msen6);
+
+          s->has_cmd_copy = get_IN_has_cmd_copy(buffer);
+          DBG (15, "  copy cmd: %d\n", s->has_cmd_copy);
+
+          s->has_cmd_rel = get_IN_has_cmd_rel(buffer);
+          DBG (15, "  release cmd: %d\n", s->has_cmd_rel);
+
+          s->has_cmd_runit = get_IN_has_cmd_runit(buffer);
+          DBG (15, "  reserve_unit cmd: %d\n", s->has_cmd_runit);
+
+          s->has_cmd_msel6 = get_IN_has_cmd_msel6(buffer);
+          DBG (15, "  mode_select_6 cmd: %d\n", s->has_cmd_msel6);
+
+          s->has_cmd_inq = get_IN_has_cmd_inq(buffer);
+          DBG (15, "  inquiry cmd: %d\n", s->has_cmd_inq);
+
+          s->has_cmd_rs = get_IN_has_cmd_rs(buffer);
+          DBG (15, "  request_sense cmd: %d\n", s->has_cmd_rs);
+
+          s->has_cmd_tur = get_IN_has_cmd_tur(buffer);
+          DBG (15, "  test_unit_ready cmd: %d\n", s->has_cmd_tur);
 
           /* vendor added scsi command support */
           /* FIXME: there are more of these... */
@@ -1732,9 +1815,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     return NULL;
 
   /* "Mode" group -------------------------------------------------------- */
-  if(option==OPT_MODE_GROUP){
-    opt->title = "Scan Mode";
-    opt->desc = "";
+  if(option==OPT_STANDARD_GROUP){
+    opt->name = SANE_NAME_STANDARD;
+    opt->title = SANE_TITLE_STANDARD;
+    opt->desc = SANE_DESC_STANDARD;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
@@ -1944,8 +2028,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /* "Geometry" group ---------------------------------------------------- */
   if(option==OPT_GEOMETRY_GROUP){
-    opt->title = "Geometry";
-    opt->desc = "";
+    opt->name = SANE_NAME_GEOMETRY;
+    opt->title = SANE_TITLE_GEOMETRY;
+    opt->desc = SANE_DESC_GEOMETRY;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
@@ -2030,9 +2115,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->paper_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
     s->paper_x_range.quant = MM_PER_UNIT_FIX;
 
-    opt->name = "pagewidth";
-    opt->title = "ADF paper width";
-    opt->desc = "Must be set properly to align scanning window";
+    opt->name = SANE_NAME_PAGE_WIDTH;
+    opt->title = SANE_TITLE_PAGE_WIDTH;
+    opt->desc = SANE_DESC_PAGE_WIDTH;
     opt->type = SANE_TYPE_FIXED;
     opt->unit = SANE_UNIT_MM;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
@@ -2053,9 +2138,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->paper_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
     s->paper_y_range.quant = MM_PER_UNIT_FIX;
 
-    opt->name = "pageheight";
-    opt->title = "ADF paper length";
-    opt->desc = "Must be set properly to eject pages";
+    opt->name = SANE_NAME_PAGE_HEIGHT;
+    opt->title = SANE_TITLE_PAGE_HEIGHT;
+    opt->desc = SANE_DESC_PAGE_HEIGHT;
     opt->type = SANE_TYPE_FIXED;
     opt->unit = SANE_UNIT_MM;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
@@ -2070,8 +2155,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /* "Enhancement" group ------------------------------------------------- */
   if(option==OPT_ENHANCEMENT_GROUP){
-    opt->title = "Enhancement";
-    opt->desc = "";
+    opt->name = SANE_NAME_ENHANCEMENT;
+    opt->title = SANE_TITLE_ENHANCEMENT;
+    opt->desc = SANE_DESC_ENHANCEMENT;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
@@ -2183,8 +2269,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /* "Advanced" group ------------------------------------------------------ */
   if(option==OPT_ADVANCED_GROUP){
-    opt->title = "Advanced";
-    opt->desc = "";
+    opt->name = SANE_NAME_ADVANCED;
+    opt->title = SANE_TITLE_ADVANCED;
+    opt->desc = SANE_DESC_ADVANCED;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
@@ -2468,8 +2555,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   /* "Sensor" group ------------------------------------------------------ */
   if(option==OPT_SENSOR_GROUP){
-    opt->title = "Sensors and Buttons";
-    opt->desc = "";
+    opt->name = SANE_NAME_SENSORS;
+    opt->title = SANE_TITLE_SENSORS;
+    opt->desc = SANE_DESC_SENSORS;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
@@ -4367,6 +4455,42 @@ setup_buffers (struct fujitsu *s)
 */
 
   DBG (10, "setup_buffers: finish\n");
+
+  return ret;
+}
+
+/*
+ * This routine issues a SCSI GET WINDOW command to the scanner
+ */
+static SANE_Status
+get_window (struct fujitsu *s)
+{
+  unsigned char buffer[max_WDB_size];
+  size_t bufferLen;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "get_window: start\n");
+
+  /* The command specifies the number of bytes in the data phase 
+   * the data phase has a header, followed by 1 or 2 window desc blocks 
+   * the header specifies the number of bytes in 1 window desc block
+   */
+
+  bufferLen = max_WDB_size;
+
+  /* cmd has data phase byte count */
+  set_GW_xferlen(get_windowB.cmd,bufferLen);
+
+  ret = do_cmd (
+    s, 1, 0,
+    get_windowB.cmd, get_windowB.size,
+    NULL, 0,
+    buffer, &bufferLen
+  );
+
+  hexdump(10, "GW: <<", buffer, bufferLen);
+
+  DBG (10, "get_window: finish\n");
 
   return ret;
 }

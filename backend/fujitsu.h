@@ -15,7 +15,7 @@ enum fujitsu_Option
 {
   OPT_NUM_OPTS = 0,
 
-  OPT_MODE_GROUP,
+  OPT_STANDARD_GROUP,
   OPT_SOURCE, /*fb/adf/front/back/duplex*/
   OPT_MODE,   /*mono/gray/color*/
   OPT_X_RES,  /*a range or a list*/
@@ -160,8 +160,36 @@ struct fujitsu
   int adbits;
   int buffer_bytes;
 
-  /*FIXME: do we need the std cmd list? */
+  /*supported scsi commands*/
   int has_cmd_msen;
+  int has_cmd_msel;
+
+  int has_cmd_lsen;
+  int has_cmd_lsel;
+  int has_cmd_change;
+  int has_cmd_rbuff;
+  int has_cmd_wbuff;
+  int has_cmd_cav;
+  int has_cmd_comp;
+  int has_cmd_gdbs;
+
+  int has_cmd_op;
+  int has_cmd_send;
+  int has_cmd_read;
+  int has_cmd_gwin;
+  int has_cmd_swin;
+  int has_cmd_sdiag;
+  int has_cmd_rdiag;
+  int has_cmd_scan;
+  
+  int has_cmd_msen6;
+  int has_cmd_copy;
+  int has_cmd_rel;
+  int has_cmd_runit;
+  int has_cmd_msel6;
+  int has_cmd_inq;
+  int has_cmd_rs;
+  int has_cmd_tur;
 
   /*FIXME: there are more vendor cmds? */
   int has_cmd_subwindow;

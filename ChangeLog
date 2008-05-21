@@ -1,4 +1,11 @@
 2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: v1.0.62,
+	  check for all supported scsi commands, use well-known option
+	  group strings from saneopts.h, rename pagewidth to page-width
+	  to meet sane 1.1.0 spec, same for height, add unused get_window()
+	* doc/descriptions/fujitsu.desc: increase version to 1.0.62.
+
+2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
 	* include/sane/sane.h: add SANE_STATUS_WARMING_UP and
 	  SANE_STATUS_HW_LOCKED, remove SANE_CAP_ALWAYS_SETTABLE,
 	  add SANE_FRAME_XML, improve comments on other new frame types.

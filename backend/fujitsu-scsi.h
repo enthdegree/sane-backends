@@ -100,6 +100,7 @@ scsiblk;
 #define SEND_DIAGNOSTIC         0x1d
 #define TEST_UNIT_READY         0x00
 #define SET_WINDOW              0x24
+#define GET_WINDOW              0x25
 #define SET_SUBWINDOW           0xc0
 #define OBJECT_POSITION         0x31
 #define SEND                    0x2a
@@ -221,9 +222,38 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_adbits(in)                  getbitfield(in+0x21, 0x0f, 0)
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
 
-/* more stuff here (std supported commands) */
-#define get_IN_has_cmd_msen(in)            getbitfield(in+0x29, 1, 7)
+/*supported scsi commands*/
+#define get_IN_has_cmd_msen(in)         getbitfield(in+0x26, 1, 1)
+#define get_IN_has_cmd_msel(in)		getbitfield(in+0x26, 1, 0)
 
+#define get_IN_has_cmd_lsen(in)		getbitfield(in+0x27, 1, 7)
+#define get_IN_has_cmd_lsel(in)		getbitfield(in+0x27, 1, 6)
+#define get_IN_has_cmd_change(in)	getbitfield(in+0x27, 1, 5)
+#define get_IN_has_cmd_rbuff(in)	getbitfield(in+0x27, 1, 4)
+#define get_IN_has_cmd_wbuff(in)	getbitfield(in+0x27, 1, 3)
+#define get_IN_has_cmd_cav(in)		getbitfield(in+0x27, 1, 2)
+#define get_IN_has_cmd_comp(in)		getbitfield(in+0x27, 1, 1)
+#define get_IN_has_cmd_gdbs(in)		getbitfield(in+0x27, 1, 0)
+
+#define get_IN_has_cmd_op(in)		getbitfield(in+0x28, 1, 7)
+#define get_IN_has_cmd_send(in)		getbitfield(in+0x28, 1, 6)
+#define get_IN_has_cmd_read(in)		getbitfield(in+0x28, 1, 5)
+#define get_IN_has_cmd_gwin(in)		getbitfield(in+0x28, 1, 4)
+#define get_IN_has_cmd_swin(in)		getbitfield(in+0x28, 1, 3)
+#define get_IN_has_cmd_sdiag(in)	getbitfield(in+0x28, 1, 2)
+#define get_IN_has_cmd_rdiag(in)	getbitfield(in+0x28, 1, 1)
+#define get_IN_has_cmd_scan(in)		getbitfield(in+0x28, 1, 0)
+  
+#define get_IN_has_cmd_msen6(in)	getbitfield(in+0x29, 1, 7)
+#define get_IN_has_cmd_copy(in)		getbitfield(in+0x29, 1, 6)
+#define get_IN_has_cmd_rel(in)		getbitfield(in+0x29, 1, 5)
+#define get_IN_has_cmd_runit(in)	getbitfield(in+0x29, 1, 4)
+#define get_IN_has_cmd_msel6(in)	getbitfield(in+0x29, 1, 3)
+#define get_IN_has_cmd_inq(in)		getbitfield(in+0x29, 1, 2)
+#define get_IN_has_cmd_rs(in)		getbitfield(in+0x29, 1, 1)
+#define get_IN_has_cmd_tur(in)		getbitfield(in+0x29, 1, 0)
+
+/* more stuff here? (vendor commands) */
 #define get_IN_has_subwindow(in)           getbitfield(in+0x2b, 1, 0) 
 #define get_IN_has_endorser(in)            getbitfield(in+0x2b, 1, 1)
 #define get_IN_has_hw_status(in)           getbitfield(in+0x2b, 1, 2)
@@ -279,6 +309,14 @@ static unsigned char test_unit_readyC[] =
   { TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk test_unit_readyB =
   { test_unit_readyC, sizeof (test_unit_readyC) };
+
+/* ==================================================================== */
+
+static unsigned char get_windowC[] =
+  { GET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
+/* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
+static scsiblk get_windowB = { get_windowC, sizeof (get_windowC) };
+#define set_GW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
 
 /* ==================================================================== */
 

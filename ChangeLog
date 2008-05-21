@@ -1,5 +1,9 @@
+2008-05-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/qcam.c, backend/v4l.c, frontend/tstbackend.c:
+	  remove undocumented and otherwise unused SANE_CAP_ALWAYS_SETTABLE
+
 2008-05-19  Stéphane Voltz <stef.dev@free.fr>
-	* backend/rts8891.c 
+	* backend/rts8891.c:
 	150/300 dpi shading calibration fixes for 'XPA' sensor HP4470 models
 
 2008-05-16  m. allan noah <kitno455 a t gmail d o t com>

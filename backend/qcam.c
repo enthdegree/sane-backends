@@ -1255,8 +1255,7 @@ init_options (QC_Scanner * s)
   for (i = 0; i < NUM_OPTIONS; ++i)
     {
       s->opt[i].size = sizeof (SANE_Word);
-      s->opt[i].cap = (SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT
-		       | SANE_CAP_ALWAYS_SETTABLE);
+      s->opt[i].cap = (SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT);
     }
 
   s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;

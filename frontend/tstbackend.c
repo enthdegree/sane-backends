@@ -381,13 +381,12 @@ test_options (SANE_Device * device, int can_do_recursive)
 		check(FATAL, (opt != NULL),
 			  "cannot get option descriptor for option %d", option_num);
 		check(WRN, ((opt->cap & ~(SANE_CAP_SOFT_SELECT |
-								SANE_CAP_HARD_SELECT |
-								SANE_CAP_SOFT_DETECT |
-								SANE_CAP_EMULATED |
-								SANE_CAP_AUTOMATIC |
-								SANE_CAP_INACTIVE |
-								SANE_CAP_ADVANCED |
-								SANE_CAP_ALWAYS_SETTABLE)) == 0),
+					SANE_CAP_HARD_SELECT |
+					SANE_CAP_SOFT_DETECT |
+					SANE_CAP_EMULATED |
+					SANE_CAP_AUTOMATIC |
+					SANE_CAP_INACTIVE |
+					SANE_CAP_ALWAYS_ADVANCED)) == 0),
 			  "invalid capabilities for option [%d, %s] (%x)", option_num, opt->name, opt->cap);
 		check(WRN, (opt->title != NULL),
 			  "option [%d, %s] must have a title", option_num, opt->name);

@@ -1,3 +1,7 @@
+2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c:
+	minor tweak for scanjet 4470cx
+
 2008-05-21  m. allan noah <kitno455 a t gmail d o t com>
 	* include/sane/saneopts.h: add sane 1.1.0 well-known button options
 	* backend/fujitsu.c: v1.0.63, use sane 1.1.0 well-known option

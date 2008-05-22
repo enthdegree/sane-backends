@@ -1115,9 +1115,6 @@ sane_start (SANE_Handle handle)
   sanei_rts88xx_write_reg (dev->devnum, LAMP_BRIGHT_REG,
 			   dev->regs + LAMP_BRIGHT_REG);
 
-  /* light source to use */
-  light = 0x3b;
-
   /* step 1: locate scan area by doing a scan, then goto calibration area */
   /* we also detect if the sensor type is inadequate and then change it   */
   do
@@ -1147,6 +1144,16 @@ sane_start (SANE_Handle handle)
 	}
     }
   while (changed);
+
+  /* light source to use */
+  if (dev->sensor == SENSOR_TYPE_XPA)
+    {
+      light = 0x3f;
+    }
+  else
+    {
+      light = 0x3b;
+    }
 
   /* step 2: dark calibration */
   status = dark_calibration (dev, light);

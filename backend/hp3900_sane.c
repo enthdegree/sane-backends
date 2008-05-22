@@ -102,7 +102,7 @@ typedef enum
   opt_infoupdate,
 
   /* supported buttons. RTS8822 supports up to 6 buttons */
-  grp_buttons,
+  grp_sensors,
   opt_button_0,
   opt_button_1,
   opt_button_2,
@@ -167,7 +167,6 @@ typedef struct
 
   SANE_Int scan_count;
   SANE_Int fScanning;		/* TRUE if actively scanning */
-  SANE_Int fCanceled;
 } TScanner;
 
 /* functions to manage backend's options */
@@ -1230,9 +1229,9 @@ options_init (TScanner * scanner)
 	      break;
 
 	    case grp_geometry:
-	      pDesc->name = "grp_geometry";
-	      pDesc->title = SANE_I18N ("Geometry");
-	      pDesc->desc = "";
+	      pDesc->name = SANE_NAME_GEOMETRY;
+	      pDesc->title = SANE_TITLE_GEOMETRY;
+	      pDesc->desc = SANE_DESC_GEOMETRY;
 	      pDesc->type = SANE_TYPE_GROUP;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = 0;
@@ -1559,7 +1558,7 @@ options_init (TScanner * scanner)
 	      pDesc->type = SANE_TYPE_STRING;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
 	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_HARD_SELECT |
+		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
 		SANE_CAP_SOFT_DETECT;
 	      pVal->s = strdup (SANE_I18N ("Unknown"));
 	      break;
@@ -1572,7 +1571,7 @@ options_init (TScanner * scanner)
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
 	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_HARD_SELECT |
+		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
 		SANE_CAP_SOFT_DETECT;
 	      pVal->w = -1;
 	      break;
@@ -1586,7 +1585,7 @@ options_init (TScanner * scanner)
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
 	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_HARD_SELECT |
+		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
 		SANE_CAP_SOFT_DETECT;
 	      pVal->w = -1;
 	      break;
@@ -1605,10 +1604,10 @@ options_init (TScanner * scanner)
 	      break;
 
 	      /* buttons support */
-	    case grp_buttons:
-	      pDesc->name = "grp_buttons";
-	      pDesc->title = SANE_I18N ("Buttons");
-	      pDesc->desc = "";
+	    case grp_sensors:
+	      pDesc->name = SANE_NAME_SENSORS;
+	      pDesc->title = SANE_TITLE_SENSORS;
+	      pDesc->desc = SANE_DESC_SENSORS;
 	      pDesc->type = SANE_TYPE_GROUP;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = 0;
@@ -2176,6 +2175,14 @@ option_set (TScanner * scanner, SANE_Int optid, void *value, SANE_Int * pInfo)
 	      if (bknd_info (scanner) == SANE_STATUS_GOOD)
 		info |= SANE_INFO_RELOAD_OPTIONS;
 	      break;
+
+	    case opt_chipname:
+	    case opt_chipid:
+	    case opt_scancount:
+	      bknd_info (scanner);
+	      info |= SANE_INFO_RELOAD_OPTIONS;
+	      break;
+
 	    default:
 	      rst = SANE_STATUS_INVAL;
 	      break;
@@ -2341,10 +2348,7 @@ sane_start (SANE_Handle h)
 	    s->cnv.colormode = -1;
 
 	  /* setting channel for colormodes different than CM_COLOR */
-	  if (colormode != CM_COLOR)
-	    channel = 1;
-	  else
-	    channel = 0;
+	  channel = (colormode != CM_COLOR) ? 1 : 0;
 
 	  /* negative colors */
 	  s->cnv.negative =
@@ -2445,7 +2449,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   SANE_Status rst = SANE_STATUS_GOOD;
   TScanner *s = (TScanner *) h;
 
-  DBG (DBG_FNC, "> sane_read\n");
+  DBG (DBG_FNC, "+ sane_read\n");
 
   if ((s != NULL) && (buf != NULL) && (len != NULL))
     {
@@ -2454,13 +2458,14 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
       /* if we read all the lines return EOF */
       if ((s->mylin == s->ScanParams.coords.height)
-	  || (device->Reading->Cancel == TRUE))
+	  || (device->status->cancel == TRUE))
 	{
+	  rst =
+	    (device->status->cancel ==
+	     TRUE) ? SANE_STATUS_CANCELLED : SANE_STATUS_EOF;
+
 	  RTS_Scanner_StopScan (device, FALSE);
 	  img_buffers_free (s);
-
-	  DBG (DBG_FNC, "> sane_read: All lines read\n");
-	  rst = SANE_STATUS_EOF;
 	}
       else
 	{
@@ -2537,8 +2542,6 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 			   &transferred) != OK)
 			{
 			  /* error, exit function */
-			  DBG (DBG_FNC,
-			       "> sane_read: Read_Image returned ERROR\n");
 			  rst = SANE_STATUS_EOF;
 			  break;
 			}
@@ -2640,6 +2643,8 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   else
     rst = SANE_STATUS_EOF;
 
+  DBG (DBG_FNC, "- sane_read: %s\n", sane_strstatus (rst));
+
   return rst;
 }
 
@@ -2651,7 +2656,7 @@ sane_cancel (SANE_Handle h)
   /* silence gcc */
   h = h;
 
-  device->Reading->Cancel = TRUE;
+  device->status->cancel = TRUE;
 }
 
 SANE_Status

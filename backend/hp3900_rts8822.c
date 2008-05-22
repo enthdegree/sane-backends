@@ -240,6 +240,9 @@ static SANE_Int RTS_Setup (struct st_device *dev, SANE_Byte * Regs,
 			   struct st_scanparams *myvar,
 			   struct st_hwdconfig *hwdcfg,
 			   struct st_gain_offset *gain_offset);
+static void RTS_Setup_Arrangeline (struct st_device *dev,
+				   struct st_hwdconfig *hwdcfg,
+				   SANE_Int colormode);
 static void RTS_Setup_Channels (struct st_device *dev, SANE_Byte * Regs,
 				struct st_scanparams *scancfg,
 				SANE_Int mycolormode);
@@ -287,9 +290,11 @@ static SANE_Int fn3730 (struct st_device *dev, struct st_cal2 *calbuffers,
 
 static SANE_Int Reading_CreateBuffers (struct st_device *dev);
 static SANE_Int Reading_DestroyBuffers (struct st_device *dev);
-static SANE_Int Reading_NotifySize (struct st_device *dev, SANE_Int data,
-				    SANE_Int size);
-static SANE_Int Reading_Start (struct st_device *dev);
+static SANE_Int Reading_BufferSize_Get (struct st_device *dev,
+					SANE_Byte channels_per_dot,
+					SANE_Int channel_size);
+static SANE_Int Reading_BufferSize_Notify (struct st_device *dev,
+					   SANE_Int data, SANE_Int size);
 static SANE_Int Reading_Wait (struct st_device *dev,
 			      SANE_Byte Channels_per_dot,
 			      SANE_Byte Channel_size, SANE_Int size,
@@ -313,17 +318,17 @@ static SANE_Int Refs_Analyze_Pattern (struct st_scanparams *scancfg,
 				      SANE_Byte * scanned_pattern,
 				      SANE_Int * ler1, SANE_Int ler1order,
 				      SANE_Int * ser1, SANE_Int ser1order);
-static SANE_Byte Refs_Counter_Load (struct st_device *dev);
 static SANE_Int Refs_Counter_Inc (struct st_device *dev);
+static SANE_Byte Refs_Counter_Load (struct st_device *dev);
 static SANE_Int Refs_Counter_Save (struct st_device *dev, SANE_Byte data);
 static SANE_Int Refs_Detect (struct st_device *dev, SANE_Byte * Regs,
-			     SANE_Int resolution_x, SANE_Int resolution_y);
-static SANE_Int Refs_Load (struct st_device *dev, SANE_Int * left_leading,
-			   SANE_Int * start_pos);
+			     SANE_Int resolution_x, SANE_Int resolution_y,
+			     SANE_Int * x, SANE_Int * y);
+static SANE_Int Refs_Load (struct st_device *dev, SANE_Int * x, SANE_Int * y);
 static SANE_Int Refs_Save (struct st_device *dev, SANE_Int left_leading,
 			   SANE_Int start_pos);
 static SANE_Int Refs_Set (struct st_device *dev, SANE_Byte * Regs,
-			  struct st_scanparams *myscan, SANE_Int autoref);
+			  struct st_scanparams *myscan);
 
 /* Coordinates' constrains functions */
 static SANE_Int Constrains_Check (struct st_device *dev, SANE_Int Resolution,
@@ -332,28 +337,16 @@ static SANE_Int Constrains_Check (struct st_device *dev, SANE_Int Resolution,
 static struct st_coords *Constrains_Get (struct st_device *dev,
 					 SANE_Byte scantype);
 
-/* Pulse-Width Modulation functions */
-static SANE_Int PWM_GetDutyCycle (struct st_device *dev, SANE_Int * data);
-static SANE_Int PWM_GetReady (struct st_device *dev, SANE_Int resolution,
-			      SANE_Int * last_colour, double diff,
-			      long totaltime, SANE_Int SANE_Interval,
-			      SANE_Int value);
-static SANE_Int PWM_SetDutyCycle (struct st_device *dev, SANE_Int duty_cycle);
-static SANE_Int PWM_use (struct st_device *dev, SANE_Int enable);
-
-/* Fixed Pulse-Width Modulation functions */
-static SANE_Int FixedPWM_Get (struct st_device *dev, SANE_Byte type);
-static SANE_Int FixedPWM_Save (struct st_device *dev, SANE_Int fixedpwm);
-static SANE_Int FixedPWM_SaveStatus (struct st_device *dev, SANE_Byte status);
-
 /* Gain and offset functions */
 static SANE_Int GainOffset_Clear (struct st_device *dev);
 static SANE_Int GainOffset_Get (struct st_device *dev);
-static SANE_Byte GainOffset_LoadCount (struct st_device *dev);
-static SANE_Int GainOffset_IncCount (struct st_device *dev, SANE_Int * arg1);
 static SANE_Int GainOffset_Save (struct st_device *dev, SANE_Int * offset,
 				 SANE_Byte * gain);
-static SANE_Int GainOffset_SaveCount (struct st_device *dev, SANE_Byte data);
+static SANE_Int GainOffset_Counter_Inc (struct st_device *dev,
+					SANE_Int * arg1);
+static SANE_Byte GainOffset_Counter_Load (struct st_device *dev);
+static SANE_Int GainOffset_Counter_Save (struct st_device *dev,
+					 SANE_Byte data);
 
 /* Gamma functions*/
 static SANE_Int Gamma_AllocTable (SANE_Byte * table);
@@ -368,25 +361,35 @@ static SANE_Int Gamma_GetTables (struct st_device *dev,
 				 SANE_Byte * Gamma_buffer);
 
 /* Lamp functions */
-static void Lamp_OverDrive (struct st_device *dev, SANE_Int itime,
-			    SANE_Int lamp);
 static SANE_Byte Lamp_GetGainMode (struct st_device *dev, SANE_Int resolution,
 				   SANE_Byte scantype);
-static SANE_Int Lamp_GetStatus (struct st_device *dev, SANE_Byte * flb_lamp,
-				SANE_Byte * tma_lamp);
-static SANE_Int Lamp_IsAtHome (struct st_device *dev, SANE_Byte * Regs);
 static void Lamp_SetGainMode (struct st_device *dev, SANE_Byte * Regs,
 			      SANE_Int resolution, SANE_Byte gainmode);
-static SANE_Int Lamp_SetStatus (struct st_device *dev, SANE_Byte * Regs,
-				SANE_Int turn_on, SANE_Int lamp);
-static SANE_Int Lamp_SetStatus2 (struct st_device *dev, SANE_Int turnon,
-				 SANE_Int lamp);
-static SANE_Int Lamp_SetTimer (struct st_device *dev, SANE_Int minutes);
-static SANE_Int Lamp_SetupPwm (struct st_device *dev, SANE_Int lamp);
-static SANE_Int Lamp_WaitForPWM (struct st_device *dev, SANE_Int resolution,
-				 SANE_Int lamp);
+static SANE_Int Lamp_PWM_DutyCycle_Get (struct st_device *dev,
+					SANE_Int * data);
+static SANE_Int Lamp_PWM_DutyCycle_Set (struct st_device *dev,
+					SANE_Int duty_cycle);
+static SANE_Int Lamp_PWM_Setup (struct st_device *dev, SANE_Int lamp);
+static SANE_Int Lamp_PWM_use (struct st_device *dev, SANE_Int enable);
+static SANE_Int Lamp_PWM_CheckStable (struct st_device *dev,
+				      SANE_Int resolution, SANE_Int lamp);
+static SANE_Int Lamp_PWM_Save (struct st_device *dev, SANE_Int fixedpwm);
+static SANE_Int Lamp_PWM_SaveStatus (struct st_device *dev, SANE_Byte status);
+static SANE_Int Lamp_Status_Get (struct st_device *dev, SANE_Byte * flb_lamp,
+				 SANE_Byte * tma_lamp);
+static SANE_Int Lamp_Status_Set (struct st_device *dev, SANE_Byte * Regs,
+				 SANE_Int turn_on, SANE_Int lamp);
+static SANE_Int Lamp_Status_Timer_Set (struct st_device *dev,
+				       SANE_Int minutes);
 static SANE_Int Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs,
-			     SANE_Int lamp);
+			     SANE_Int lamp, SANE_Int resolution);
+
+/* Head related functions */
+static SANE_Int Head_IsAtHome (struct st_device *dev, SANE_Byte * Regs);
+static SANE_Int Head_ParkHome (struct st_device *dev, SANE_Int bWait,
+			       SANE_Int movement);
+static SANE_Int Head_Relocate (struct st_device *dev, SANE_Int speed,
+			       SANE_Int direction, SANE_Int ypos);
 
 /* Motor functions */
 static SANE_Byte *Motor_AddStep (SANE_Byte * steps, SANE_Int * bwriten,
@@ -397,25 +400,19 @@ static SANE_Int Motor_GetFromResolution (SANE_Int resolution);
 static SANE_Int Motor_Move (struct st_device *dev, SANE_Byte * Regs,
 			    struct st_motormove *mymotor,
 			    struct st_motorpos *mtrpos);
-static SANE_Int Motor_ParkHome (struct st_device *dev, SANE_Int bWait,
-				SANE_Int movement);
 static void Motor_Release (struct st_device *dev);
-static SANE_Int Motor_Relocate (struct st_device *dev, SANE_Int speed,
-				SANE_Int direction, SANE_Int ypos);
 static SANE_Int Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 				   SANE_Int mysetting);
-
-/* motorcurve functions */
-static SANE_Int Motorcurve_Equal (struct st_device *dev,
-				  SANE_Int motorsetting, SANE_Int direction,
-				  SANE_Int curve1, SANE_Int curve2);
-static void Motorcurve_Free (struct st_motorcurve **motorcurves,
-			     SANE_Int * mtc_count);
-static struct st_curve *Motorcurve_Get (struct st_device *dev,
-					SANE_Int motorcurve,
-					SANE_Int direction, SANE_Int itype);
-static struct st_motorcurve **Motorcurve_Parse (SANE_Int * mtc_count,
-						SANE_Int * buffer);
+static SANE_Int Motor_Curve_Equal (struct st_device *dev,
+				   SANE_Int motorsetting, SANE_Int direction,
+				   SANE_Int curve1, SANE_Int curve2);
+static void Motor_Curve_Free (struct st_motorcurve **motorcurves,
+			      SANE_Int * mtc_count);
+static struct st_curve *Motor_Curve_Get (struct st_device *dev,
+					 SANE_Int motorcurve,
+					 SANE_Int direction, SANE_Int itype);
+static struct st_motorcurve **Motor_Curve_Parse (SANE_Int * mtc_count,
+						 SANE_Int * buffer);
 
 /* Functions to arrange scanned lines */
 static SANE_Int Arrange_Colour (struct st_device *dev, SANE_Byte * buffer,
@@ -559,9 +556,6 @@ static SANE_Int Scan_Read_BufferA (struct st_device *dev,
 				   SANE_Byte * pBuffer,
 				   SANE_Int * bytes_transfered);
 
-static SANE_Int Get_Scanner_Buffer_Size (struct st_device *dev,
-					 SANE_Byte channels_per_dot,
-					 SANE_Int channel_size);
 static SANE_Int Bulk_Operation (struct st_device *dev, SANE_Byte op,
 				SANE_Int buffer_size, SANE_Byte * buffer,
 				SANE_Int * transfered);
@@ -592,6 +586,104 @@ static char get_byte (double value);
 /*static SANE_Int RTS8822_GetRegisters(SANE_Byte *buffer);*/
 
 /* ----------------- Implementation ------------------*/
+
+static void
+RTS_Free (struct st_device *dev)
+{
+  /* this function frees space of devices's variable */
+
+  if (dev != NULL)
+    {
+      /* next function shouldn't be necessary but I can NOT assure that other
+         programmers will call Free_Config before this function */
+      Free_Config (dev);
+
+      if (dev->init_regs != NULL)
+	free (dev->init_regs);
+
+      if (dev->Resize != NULL)
+	free (dev->Resize);
+
+      if (dev->Reading != NULL)
+	free (dev->Reading);
+
+      if (dev->scanning != NULL)
+	free (dev->scanning);
+
+      if (dev->status != NULL)
+	free (dev->status);
+
+      free (dev);
+    }
+}
+
+static struct st_device *
+RTS_Alloc ()
+{
+  /* this function allocates space for device's variable */
+
+  struct st_device *dev = NULL;
+
+  dev = malloc (sizeof (struct st_device));
+  if (dev != NULL)
+    {
+      SANE_Int rst = OK;
+
+      bzero (dev, sizeof (struct st_device));
+
+      /* initial registers */
+      dev->init_regs = malloc (sizeof (SANE_Byte) * RT_BUFFER_LEN);
+      if (dev->init_regs != NULL)
+	bzero (dev->init_regs, sizeof (SANE_Byte) * RT_BUFFER_LEN);
+      else
+	rst = ERROR;
+
+      if (rst == OK)
+	{
+	  dev->scanning = malloc (sizeof (struct st_scanning));
+	  if (dev->scanning != NULL)
+	    bzero (dev->scanning, sizeof (struct st_scanning));
+	  else
+	    rst = ERROR;
+	}
+
+      if (rst == OK)
+	{
+	  dev->Reading = malloc (sizeof (struct st_readimage));
+	  if (dev->Reading != NULL)
+	    bzero (dev->Reading, sizeof (struct st_readimage));
+	  else
+	    rst = ERROR;
+	}
+
+      if (rst == OK)
+	{
+	  dev->Resize = malloc (sizeof (struct st_resize));
+	  if (dev->Resize != NULL)
+	    bzero (dev->Resize, sizeof (struct st_resize));
+	  else
+	    rst = ERROR;
+	}
+
+      if (rst == OK)
+	{
+	  dev->status = malloc (sizeof (struct st_status));
+	  if (dev->status != NULL)
+	    bzero (dev->status, sizeof (struct st_status));
+	  else
+	    rst = ERROR;
+	}
+
+      /* if something fails, free space */
+      if (rst != OK)
+	{
+	  RTS_Free (dev);
+	  dev = NULL;
+	}
+    }
+
+  return dev;
+}
 
 static void
 RTS_Scanner_End (struct st_device *dev)
@@ -714,8 +806,8 @@ Set_E950_Mode (struct st_device *dev, SANE_Byte mode)
 }
 
 static struct st_curve *
-Motorcurve_Get (struct st_device *dev, SANE_Int motorcurve,
-		SANE_Int direction, SANE_Int itype)
+Motor_Curve_Get (struct st_device *dev, SANE_Int motorcurve,
+		 SANE_Int direction, SANE_Int itype)
 {
   struct st_curve *rst = NULL;
 
@@ -758,17 +850,17 @@ Motorcurve_Get (struct st_device *dev, SANE_Int motorcurve,
 }
 
 static SANE_Int
-Motorcurve_Equal (struct st_device *dev, SANE_Int motorsetting,
-		  SANE_Int direction, SANE_Int curve1, SANE_Int curve2)
+Motor_Curve_Equal (struct st_device *dev, SANE_Int motorsetting,
+		   SANE_Int direction, SANE_Int curve1, SANE_Int curve2)
 {
   /* compares two curves of the same direction
      returns TRUE if both buffers are equal */
 
   SANE_Int rst = FALSE;
   struct st_curve *crv1 =
-    Motorcurve_Get (dev, motorsetting, direction, curve1);
+    Motor_Curve_Get (dev, motorsetting, direction, curve1);
   struct st_curve *crv2 =
-    Motorcurve_Get (dev, motorsetting, direction, curve2);
+    Motor_Curve_Get (dev, motorsetting, direction, curve2);
 
   if ((crv1 != NULL) && (crv2 != NULL))
     {
@@ -793,7 +885,7 @@ Motorcurve_Equal (struct st_device *dev, SANE_Int motorsetting,
 }
 
 static struct st_motorcurve **
-Motorcurve_Parse (SANE_Int * mtc_count, SANE_Int * buffer)
+Motor_Curve_Parse (SANE_Int * mtc_count, SANE_Int * buffer)
 {
   /* this function parses motorcurve buffer to get all motor settings */
   struct st_motorcurve **rst = NULL;
@@ -938,7 +1030,7 @@ Motorcurve_Parse (SANE_Int * mtc_count, SANE_Int * buffer)
 }
 
 static void
-Motorcurve_Free (struct st_motorcurve **motorcurves, SANE_Int * mtc_count)
+Motor_Curve_Free (struct st_motorcurve **motorcurves, SANE_Int * mtc_count)
 {
   if ((motorcurves != NULL) && (mtc_count != NULL))
     {
@@ -1221,15 +1313,9 @@ Load_Config (struct st_device *dev)
 
   scantype = ST_NORMAL;
 
-  pwmlampenabled = get_value (SCAN_PARAM, PWMLAMPENABLED, 2, usbfile);
   pwmlamplevel = get_value (SCAN_PARAM, PWMLAMPLEVEL, 1, usbfile);
 
-  dpi100Lumping = get_value (SCAN_PARAM, DPILUMPING100, 0, usbfile);
-
   arrangeline2 = get_value (SCAN_PARAM, ARRANGELINE, FIX_BY_HARD, usbfile);
-
-  binarythresholdh = get_value (PLATFORM, BINARYTHRESHOLDH, 0x80, usbfile);
-  binarythresholdl = get_value (PLATFORM, BINARYTHRESHOLDL, 0x7f, usbfile);
 
   shadingbase = get_value (TRUE_GRAY_PARAM, SHADINGBASE, 3, usbfile);
   shadingfact[0] = get_value (TRUE_GRAY_PARAM, SHADINGFACT1, 1, usbfile);
@@ -1450,7 +1536,6 @@ static SANE_Int
 RTS_Scanner_SetParams (struct st_device *dev, struct params *param)
 {
   SANE_Int rst = ERROR;
-  char scm[20], ssc[20];
 
   DBG (DBG_FNC, "+ RTS_Scanner_SetParams:\n");
   DBG (DBG_FNC, "->  param->resolution_x=%i\n", param->resolution_x);
@@ -1460,9 +1545,9 @@ RTS_Scanner_SetParams (struct st_device *dev, struct params *param)
   DBG (DBG_FNC, "->  param->top         =%i\n", param->coords.top);
   DBG (DBG_FNC, "->  param->height      =%i\n", param->coords.height);
   DBG (DBG_FNC, "->  param->colormode   =%s\n",
-       dbg_colour (scm, param->colormode));
+       dbg_colour (param->colormode));
   DBG (DBG_FNC, "->  param->scantype    =%s\n",
-       dbg_scantype (ssc, param->scantype));
+       dbg_scantype (param->scantype));
   DBG (DBG_FNC, "->  param->depth       =%i\n", param->depth);
   DBG (DBG_FNC, "->  param->channel     =%i\n", param->channel);
 
@@ -1513,9 +1598,9 @@ RTS_Scanner_SetParams (struct st_device *dev, struct params *param)
 
       /* turn on appropiate lamp */
       if (scan.scantype == ST_NORMAL)
-	Lamp_SetStatus2 (dev, TRUE, FLB_LAMP);
+	Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
       else
-	Lamp_SetStatus2 (dev, TRUE, TMA_LAMP);
+	Lamp_Status_Set (dev, NULL, TRUE, TMA_LAMP);
 
       mybuffer[0] = 0;
       if (RTS_IsExecuting (dev, mybuffer) == FALSE)
@@ -1683,10 +1768,9 @@ SetScanParams (struct st_device *dev, SANE_Byte * Regs,
   scancfg->sensorresolution = scan2.sensorresolution;
   scancfg->shadinglength = scan2.shadinglength;
 
-  if ((mycolormode != CM_LINEART) && (scan2.depth <= 8))
-    dev->scanning->arrange_compression = hwdcfg->compression;
-  else
-    dev->scanning->arrange_compression = FALSE;
+  dev->scanning->arrange_compression = ((mycolormode != CM_LINEART)
+					&& (scan2.depth <=
+					    8)) ? hwdcfg->compression : FALSE;
 
   if ((arrangeline2 == FIX_BY_HARD) || (mycolormode == CM_LINEART))
     arrangeline2 = mycolormode;	/*¿? */
@@ -1813,11 +1897,11 @@ SetScanParams (struct st_device *dev, SANE_Byte * Regs,
 }
 
 static SANE_Int
-GainOffset_SaveCount (struct st_device *dev, SANE_Byte data)
+GainOffset_Counter_Save (struct st_device *dev, SANE_Byte data)
 {
   SANE_Int rst = OK;
 
-  DBG (DBG_FNC, "> GainOffset_SaveCount(data=%i):\n", data);
+  DBG (DBG_FNC, "> GainOffset_Counter_Save(data=%i):\n", data);
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
@@ -1830,17 +1914,17 @@ GainOffset_SaveCount (struct st_device *dev, SANE_Byte data)
 }
 
 static SANE_Int
-GainOffset_IncCount (struct st_device *dev, SANE_Int * arg1)
+GainOffset_Counter_Inc (struct st_device *dev, SANE_Int * arg1)
 {
   SANE_Byte count;
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ GainOffset_IncCount:\n");
+  DBG (DBG_FNC, "+ GainOffset_Counter_Inc:\n");
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
     {
-      count = GainOffset_LoadCount (dev);
+      count = GainOffset_Counter_Load (dev);
       if ((count >= 0x0f) || (GainOffset_Get (dev) != OK))
 	{
 	  offset[CL_BLUE] = offset[CL_GREEN] = offset[CL_RED] = 0;
@@ -1854,12 +1938,12 @@ GainOffset_IncCount (struct st_device *dev, SANE_Int * arg1)
 	    *arg1 = 1;
 	}
 
-      rst = GainOffset_SaveCount (dev, count);
+      rst = GainOffset_Counter_Save (dev, count);
     }
   else
     rst = OK;
 
-  DBG (DBG_FNC, "- GainOffset_IncCount: %i\n", rst);
+  DBG (DBG_FNC, "- GainOffset_Counter_Inc: %i\n", rst);
 
   return rst;
 }
@@ -1944,7 +2028,6 @@ Scanmode_maxres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode)
   SANE_Int rst = 0;
   SANE_Int a;
   struct st_scanmode *reg;
-  char scm[20], sct[20];
 
   for (a = 0; a < dev->scanmodes_count; a++)
     {
@@ -1966,7 +2049,7 @@ Scanmode_maxres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode)
     }
 
   DBG (DBG_FNC, "> Scanmode_maxres(scantype=%s, colormode=%s): %i\n",
-       dbg_scantype (sct, scantype), dbg_colour (scm, colormode), rst);
+       dbg_scantype (scantype), dbg_colour (colormode), rst);
 
   return rst;
 }
@@ -1977,7 +2060,6 @@ Scanmode_minres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode)
   /* returns position in scanmodes table where data fits with given arguments */
   SANE_Int rst, a;
   struct st_scanmode *reg;
-  char scm[20], sct[20];
 
   rst = Scanmode_maxres (dev, scantype, colormode);
 
@@ -2001,7 +2083,7 @@ Scanmode_minres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode)
     }
 
   DBG (DBG_FNC, "> Scanmode_minres(scantype=%s, colormode=%s): %i\n",
-       dbg_scantype (sct, scantype), dbg_colour (scm, colormode), rst);
+       dbg_scantype (scantype), dbg_colour (colormode), rst);
 
   return rst;
 }
@@ -2014,7 +2096,6 @@ Scanmode_fitres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode,
   SANE_Int rst;
   SANE_Int a, nullres;
   struct st_scanmode *reg;
-  char scm[20], sct[20];
 
   nullres = Scanmode_maxres (dev, scantype, colormode) + 1;
   rst = nullres;
@@ -2048,8 +2129,7 @@ Scanmode_fitres (struct st_device *dev, SANE_Int scantype, SANE_Int colormode,
 
   DBG (DBG_FNC,
        "> Scanmode_fitres(scantype=%s, colormode=%s, resolution=%i): %i\n",
-       dbg_scantype (sct, scantype), dbg_colour (scm, colormode), resolution,
-       rst);
+       dbg_scantype (scantype), dbg_colour (colormode), resolution, rst);
 
   return rst;
 }
@@ -2062,7 +2142,6 @@ RTS_GetScanmode (struct st_device *dev, SANE_Int scantype, SANE_Int colormode,
   SANE_Int rst = -1;
   SANE_Int a;
   struct st_scanmode *reg;
-  char scm[20], sct[20];
 
   for (a = 0; a < dev->scanmodes_count; a++)
     {
@@ -2091,8 +2170,7 @@ RTS_GetScanmode (struct st_device *dev, SANE_Int scantype, SANE_Int colormode,
 
   DBG (DBG_FNC,
        "> RTS_GetScanmode(scantype=%s, colormode=%s, resolution=%i): %i\n",
-       dbg_scantype (sct, scantype), dbg_colour (scm, colormode), resolution,
-       rst);
+       dbg_scantype (scantype), dbg_colour (colormode), resolution, rst);
 
   return rst;
 }
@@ -2281,7 +2359,7 @@ static SANE_Int
 IsScannerLinked (struct st_device *dev)
 {
   SANE_Int var2;
-  SANE_Byte BL;
+  SANE_Byte lamp;
 
   DBG (DBG_FNC, "+ IsScannerLinked:\n");
 
@@ -2291,7 +2369,7 @@ IsScannerLinked (struct st_device *dev)
 
   RTS_WaitInitEnd (dev, 0x30000);
 
-  BL = 0;
+  lamp = FLB_LAMP;
 
   /* Comprobar si es la primera conexión con el escaner */
   if (Read_Word (dev->usb_handle, 0xe829, &var2) == OK)
@@ -2311,45 +2389,41 @@ IsScannerLinked (struct st_device *dev)
 
 	  flb_lamp = 0;
 	  tma_lamp = 0;
-	  Lamp_GetStatus (dev, &flb_lamp, &tma_lamp);
+	  Lamp_Status_Get (dev, &flb_lamp, &tma_lamp);
 
-	  if (flb_lamp == 0)
-	    {
-	      /* if tma_lamp is turned on, bl = 1 else bl = 0 */
-	      if (tma_lamp != 0)
-		BL = 1;
-	    }
+	  if ((flb_lamp == 0) && (tma_lamp != 0))
+	    lamp = TMA_LAMP;
 
 	  /*Clear GainOffset count */
 	  GainOffset_Clear (dev);
-	  GainOffset_SaveCount (dev, 0);
+	  GainOffset_Counter_Save (dev, 0);
 
 	  /* Clear AutoRef count */
 	  Refs_Counter_Save (dev, 0);
 
 	  Buttons_Enable (dev);
-	  Lamp_SetTimer (dev, 13);
+	  Lamp_Status_Timer_Set (dev, 13);
 	}
       else
-	BL = _B0 (var2);
+	lamp = (_B0 (var2) == 0) ? FLB_LAMP : TMA_LAMP;
     }
 
   if (RTS_Warm_Reset (dev) != OK)
     return ERROR;
 
-  Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+  Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 
-  Lamp_SetTimer (dev, 13);
+  Lamp_Status_Timer_Set (dev, 13);
 
   /* Use fixed pwm? */
   if (RTS_Debug->use_fixed_pwm != FALSE)
     {
-      FixedPWM_Save (dev, FixedPWM_Get (dev, ST_NORMAL));
+      Lamp_PWM_Save (dev, cfg_fixedpwm_get (dev->sensorcfg->type, ST_NORMAL));
       /* Lets enable using fixed pwm */
-      FixedPWM_SaveStatus (dev, TRUE);
+      Lamp_PWM_SaveStatus (dev, TRUE);
     }
 
-  Lamp_SetupPwm (dev, (BL == 0) ? FLB_LAMP : TMA_LAMP);
+  Lamp_PWM_Setup (dev, lamp);
 
   DBG (DBG_FNC, "- IsScannerLinked:\n");
 
@@ -2357,12 +2431,12 @@ IsScannerLinked (struct st_device *dev)
 }
 
 static SANE_Int
-FixedPWM_SaveStatus (struct st_device *dev, SANE_Byte status)
+Lamp_PWM_SaveStatus (struct st_device *dev, SANE_Byte status)
 {
   SANE_Byte mypwm;
   SANE_Int rst = OK;
 
-  DBG (DBG_FNC, "+ FixedPWM_SaveStatus(status=%i):\n", status);
+  DBG (DBG_FNC, "+ Lamp_PWM_SaveStatus(status=%i):\n", status);
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
@@ -2378,17 +2452,17 @@ FixedPWM_SaveStatus (struct st_device *dev, SANE_Byte status)
 	}
     }
 
-  DBG (DBG_FNC, "- FixedPWM_SaveStatus: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_SaveStatus: %i\n", rst);
 
   return rst;
 }
 
 static SANE_Int
-FixedPWM_Save (struct st_device *dev, SANE_Int fixedpwm)
+Lamp_PWM_Save (struct st_device *dev, SANE_Int fixedpwm)
 {
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ FixedPWM_Save(fixedpwm=%i):\n", fixedpwm);
+  DBG (DBG_FNC, "+ Lamp_PWM_Save(fixedpwm=%i):\n", fixedpwm);
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
@@ -2397,62 +2471,50 @@ FixedPWM_Save (struct st_device *dev, SANE_Int fixedpwm)
   else
     rst = OK;
 
-  DBG (DBG_FNC, "- FixedPWM_Save: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_Save: %i\n", rst);
 
   return rst;
 }
 
 static SANE_Int
-FixedPWM_Get (struct st_device *dev, SANE_Byte type)
-{
-  char sdebug[20];
-  SANE_Int rst;
-
-  rst = cfg_fixedpwm_get (dev->sensorcfg->type, type);
-
-  DBG (DBG_FNC, "> FixedPWM_Get(type=%s): %i\n", dbg_scantype (sdebug, type),
-       rst);
-
-  return rst;
-}
-
-static SANE_Int
-Lamp_SetupPwm (struct st_device *dev, SANE_Int lamp)
+Lamp_PWM_Setup (struct st_device *dev, SANE_Int lamp)
 {
   SANE_Int rst = OK;
 
-  DBG (DBG_FNC, "+ Lamp_SetupPwm(lamp=%s):\n",
+  DBG (DBG_FNC, "+ Lamp_PWM_Setup(lamp=%s):\n",
        (lamp == FLB_LAMP) ? "FLB_LAMP" : "TMA_LAMP");
 
-  if (PWM_use (dev, 1) == OK)
+  if (Lamp_PWM_use (dev, 1) == OK)
     {
       SANE_Int fixedpwm, currentpwd;
 
       currentpwd = 0;
-      fixedpwm = FixedPWM_Get (dev, (lamp == FLB_LAMP) ? ST_NORMAL : ST_TA);
+      fixedpwm =
+	cfg_fixedpwm_get (dev->sensorcfg->type,
+			  (lamp == FLB_LAMP) ? ST_NORMAL : ST_TA);
 
-      if (PWM_GetDutyCycle (dev, &currentpwd) == OK)
+      if (Lamp_PWM_DutyCycle_Get (dev, &currentpwd) == OK)
 	{
 	  /* set duty cycle if current one is different */
 	  if (currentpwd != fixedpwm)
-	    rst = PWM_SetDutyCycle (dev, fixedpwm);
+	    rst = Lamp_PWM_DutyCycle_Set (dev, fixedpwm);
 	}
       else
-	rst = PWM_SetDutyCycle (dev, fixedpwm);
+	rst = Lamp_PWM_DutyCycle_Set (dev, fixedpwm);
     }
 
-  DBG (DBG_FNC, "- Lamp_SetupPwm: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_Setup: %i\n", rst);
 
   return rst;
 }
 
 static SANE_Int
-PWM_GetDutyCycle (struct st_device *dev, SANE_Int * data)
+Lamp_PWM_DutyCycle_Get (struct st_device *dev, SANE_Int * data)
 {
   SANE_Byte a;
   SANE_Int rst = ERROR;
 
-  DBG (DBG_FNC, "+ PWM_GetDutyCycle:\n");
+  DBG (DBG_FNC, "+ Lamp_PWM_DutyCycle_Get:\n");
 
   if (Read_Byte (dev->usb_handle, 0xe948, &a) == OK)
     {
@@ -2460,18 +2522,18 @@ PWM_GetDutyCycle (struct st_device *dev, SANE_Int * data)
       rst = OK;
     }
 
-  DBG (DBG_FNC, "- PWM_GetDutyCycle = %i: %i\n", *data, rst);
+  DBG (DBG_FNC, "- Lamp_PWM_DutyCycle_Get = %i: %i\n", *data, rst);
 
   return rst;
 }
 
 static SANE_Int
-PWM_SetDutyCycle (struct st_device *dev, SANE_Int duty_cycle)
+Lamp_PWM_DutyCycle_Set (struct st_device *dev, SANE_Int duty_cycle)
 {
   SANE_Byte *Regs;
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ PWM_SetDutyCycle(duty_cycle=%i):\n", duty_cycle);
+  DBG (DBG_FNC, "+ Lamp_PWM_DutyCycle_Set(duty_cycle=%i):\n", duty_cycle);
 
   rst = ERROR;
 
@@ -2499,19 +2561,18 @@ PWM_SetDutyCycle (struct st_device *dev, SANE_Int duty_cycle)
       free (Regs);
     }
 
-  DBG (DBG_FNC, "- PWM_SetDutyCycle: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_DutyCycle_Set: %i\n", rst);
 
   return rst;
 }
 
 static SANE_Int
-Motor_ParkHome (struct st_device *dev, SANE_Int bWait, SANE_Int movement)
+Head_ParkHome (struct st_device *dev, SANE_Int bWait, SANE_Int movement)
 {
   SANE_Int rst = ERROR;
   SANE_Byte *Regs;
 
-  DBG (DBG_FNC, "+ Motor_ParkHome(bWait=%i, movement=%i):\n", bWait,
-       movement);
+  DBG (DBG_FNC, "+ Head_ParkHome(bWait=%i, movement=%i):\n", bWait, movement);
 
   Regs = (SANE_Byte *) malloc (RT_BUFFER_LEN * sizeof (SANE_Byte));
   if (Regs != NULL)
@@ -2525,7 +2586,7 @@ Motor_ParkHome (struct st_device *dev, SANE_Int bWait, SANE_Int movement)
 	{
 	  if (RTS_WaitScanEnd (dev, 0x3a98) != OK)
 	    {
-	      DBG (DBG_FNC, " -> Motor_ParkHome: RTS_WaitScanEnd Timeout\n");
+	      DBG (DBG_FNC, " -> Head_ParkHome: RTS_WaitScanEnd Timeout\n");
 	      rst = ERROR;	/* timeout */
 	    }
 	}
@@ -2534,21 +2595,23 @@ Motor_ParkHome (struct st_device *dev, SANE_Int bWait, SANE_Int movement)
 	  if (RTS_IsExecuting (dev, Regs) == FALSE)
 	    {
 	      DBG (DBG_FNC,
-		   " -> Motor_ParkHome: RTS_IsExecuting = 0, exiting function\n");
+		   " -> Head_ParkHome: RTS_IsExecuting = 0, exiting function\n");
 	      rst = ERROR;	/* if NOT executing */
 	    }
 	}
 
       /* Check if lamp is at home */
-      if ((rst == OK) && (Lamp_IsAtHome (dev, Regs) == FALSE))
+      if ((rst == OK) && (Head_IsAtHome (dev, Regs) == FALSE))
 	{
 	  struct st_motormove mymotor;
 	  struct st_motorpos mtrpos;
 
 	  DBG (DBG_FNC,
-	       "->   Motor_ParkHome: Lamp is not at home, lets move\n");
+	       "->   Head_ParkHome: Lamp is not at home, lets move\n");
 
 	  /* it isn't */
+	  dev->status->parkhome = TRUE;
+
 	  if ((movement != -1) && (movement < dev->motormove_count))
 	    {
 	      memcpy (&mymotor, dev->motormove[movement],
@@ -2575,12 +2638,14 @@ Motor_ParkHome (struct st_device *dev, SANE_Int bWait, SANE_Int movement)
 	  /* Should we wait? */
 	  if (bWait != FALSE)
 	    rst = RTS_WaitScanEnd (dev, 15000);
+
+	  dev->status->parkhome = FALSE;
 	}
 
       free (Regs);
     }
 
-  DBG (DBG_FNC, "- Motor_ParkHome: %i:\n", rst);
+  DBG (DBG_FNC, "- Head_ParkHome: %i:\n", rst);
 
   return rst;
 }
@@ -2702,8 +2767,8 @@ Motor_Move (struct st_device *dev, SANE_Byte * Regs,
 
 	  /* set last step of accurve.normalscan table */
 	  crv =
-	    Motorcurve_Get (dev, mymotor->motorcurve, ACC_CURVE,
-			    CRV_NORMALSCAN);
+	    Motor_Curve_Get (dev, mymotor->motorcurve, ACC_CURVE,
+			     CRV_NORMALSCAN);
 	  if (crv != NULL)
 	    data_lsb_set (&cpRegs[0xe1], crv->step[crv->step_count - 1], 3);
 
@@ -2715,8 +2780,8 @@ Motor_Move (struct st_device *dev, SANE_Byte * Regs,
 	  cpRegs[0xe0] = 0;
 
 	  crv =
-	    Motorcurve_Get (dev, mymotor->motorcurve, DEC_CURVE,
-			    CRV_NORMALSCAN);
+	    Motor_Curve_Get (dev, mymotor->motorcurve, DEC_CURVE,
+			     CRV_NORMALSCAN);
 	  if (crv != NULL)
 	    coord_y -= (v12dcf8 + crv->step_count);
 
@@ -2841,7 +2906,7 @@ Free_MotorCurves (struct st_device *dev)
 {
   DBG (DBG_FNC, "> Free_MotorCurves\n");
   if (dev->mtrsetting != NULL)
-    Motorcurve_Free (dev->mtrsetting, &dev->mtrsetting_count);
+    Motor_Curve_Free (dev->mtrsetting, &dev->mtrsetting_count);
 
   dev->mtrsetting = NULL;
   dev->mtrsetting_count = 0;
@@ -2863,7 +2928,7 @@ Load_MotorCurves (struct st_device *dev)
   if (mtc != NULL)
     {
       /* parse buffer to get all motorcurves */
-      dev->mtrsetting = Motorcurve_Parse (&dev->mtrsetting_count, mtc);
+      dev->mtrsetting = Motor_Curve_Parse (&dev->mtrsetting_count, mtc);
       if (dev->mtrsetting != NULL)
 	rst = OK;
     }
@@ -2966,7 +3031,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
   last_acc_step = 0;
 
   /* mycurve points to acc normalscan steps table */
-  mycurve = Motorcurve_Get (dev, mysetting, ACC_CURVE, CRV_NORMALSCAN);
+  mycurve = Motor_Curve_Get (dev, mysetting, ACC_CURVE, CRV_NORMALSCAN);
 
   if (mycurve != NULL)
     {
@@ -3021,7 +3086,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
   data_wide_bitset (&Regs[0xf8], 0x3fff, stepbuffer_size);
 
   /* set last step of deccurve.scanbufferfull table */
-  mycurve = Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_BUFFERFULL);
+  mycurve = Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_BUFFERFULL);
   deccurvecount = mycurve->step_count;
   data_lsb_set (&Regs[0xea], mycurve->step[mycurve->step_count - 1], 3);
 
@@ -3066,10 +3131,10 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
   steps = Motor_AddStep (steps, &bwriten, var1);
 
   /* acc.smearing step table */
-  if (Motorcurve_Get (dev, mysetting, ACC_CURVE, CRV_SMEARING) != NULL)
+  if (Motor_Curve_Get (dev, mysetting, ACC_CURVE, CRV_SMEARING) != NULL)
     {
       /* acc.smearing curve enabled */
-      if (Motorcurve_Equal
+      if (Motor_Curve_Equal
 	  (dev, mysetting, ACC_CURVE, CRV_SMEARING, CRV_NORMALSCAN) == TRUE)
 	{
 	  /* acc.smearing pointer points to acc.normalscan table */
@@ -3085,7 +3150,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_wide_bitset (&Regs[0xfa], 0x3fff, stepbuffer_size);
 
 	  /* set last step of acc.smearing table */
-	  mycurve = Motorcurve_Get (dev, mysetting, ACC_CURVE, CRV_SMEARING);
+	  mycurve = Motor_Curve_Get (dev, mysetting, ACC_CURVE, CRV_SMEARING);
 	  if (mycurve != NULL)
 	    {
 	      smearacccurvecount = mycurve->step_count;
@@ -3107,10 +3172,10 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
     }
 
   /* dec.smearing */
-  if (Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_SMEARING) != NULL)
+  if (Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_SMEARING) != NULL)
     {
       /* dec.smearing curve enabled */
-      if (Motorcurve_Equal
+      if (Motor_Curve_Equal
 	  (dev, mysetting, DEC_CURVE, CRV_SMEARING, CRV_BUFFERFULL) == TRUE)
 	{
 	  /* dec.smearing pointer points to dec.scanbufferfull table */
@@ -3127,7 +3192,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_wide_bitset (&Regs[0xfc], 0x3fff, stepbuffer_size);
 
 	  /* set last step of dec.smearing table */
-	  mycurve = Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_SMEARING);
+	  mycurve = Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_SMEARING);
 	  if (mycurve != NULL)
 	    {
 	      smeardeccurvecount = mycurve->step_count;
@@ -3149,10 +3214,10 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
     }
 
   /* dec.normalscan */
-  if (Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN) != NULL)
+  if (Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN) != NULL)
     {
       /* dec.normalscan enabled */
-      if (Motorcurve_Equal
+      if (Motor_Curve_Equal
 	  (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN, CRV_BUFFERFULL) == TRUE)
 	{
 	  /* dec.normalscan pointer points to dec.scanbufferfull table */
@@ -3162,7 +3227,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_lsb_set (&Regs[0xed], data_lsb_get (&Regs[0xea], 3), 3);
 	}
       else
-	if (Motorcurve_Equal
+	if (Motor_Curve_Equal
 	    (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN, CRV_SMEARING) == TRUE)
 	{
 	  /* dec.normalscan pointer points to dec.smearing table */
@@ -3180,7 +3245,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 
 	  /* set last step of dec.normalscan table */
 	  mycurve =
-	    Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN);
+	    Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_NORMALSCAN);
 	  if (mycurve != NULL)
 	    {
 	      data_lsb_set (&Regs[0xed],
@@ -3201,11 +3266,11 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
     }
 
   /* acc.parkhome */
-  if (Motorcurve_Get (dev, mysetting, ACC_CURVE, CRV_PARKHOME) != NULL)
+  if (Motor_Curve_Get (dev, mysetting, ACC_CURVE, CRV_PARKHOME) != NULL)
     {
       /* parkhome curve enabled */
 
-      if (Motorcurve_Equal
+      if (Motor_Curve_Equal
 	  (dev, mysetting, ACC_CURVE, CRV_PARKHOME, CRV_NORMALSCAN) == TRUE)
 	{
 	  /* acc.parkhome pointer points to acc.normalscan table */
@@ -3216,7 +3281,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_lsb_set (&Regs[0xe7], data_lsb_get (&Regs[0xe1], 3), 3);
 	}
       else
-	if (Motorcurve_Equal
+	if (Motor_Curve_Equal
 	    (dev, mysetting, ACC_CURVE, CRV_PARKHOME, CRV_SMEARING) == TRUE)
 	{
 	  /* acc.parkhome pointer points to acc.smearing table */
@@ -3233,7 +3298,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_wide_bitset (&Regs[0x100], 0x3fff, stepbuffer_size);
 
 	  /* set last step of acc.parkhome table */
-	  mycurve = Motorcurve_Get (dev, mysetting, ACC_CURVE, CRV_PARKHOME);
+	  mycurve = Motor_Curve_Get (dev, mysetting, ACC_CURVE, CRV_PARKHOME);
 	  if (mycurve != NULL)
 	    {
 	      data_lsb_set (&Regs[0xe7],
@@ -3256,10 +3321,10 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
     }
 
   /* dec.parkhome */
-  if (Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_PARKHOME) != NULL)
+  if (Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_PARKHOME) != NULL)
     {
       /* parkhome curve enabled */
-      if (Motorcurve_Equal
+      if (Motor_Curve_Equal
 	  (dev, mysetting, DEC_CURVE, CRV_PARKHOME, CRV_BUFFERFULL) == TRUE)
 	{
 	  /* dec.parkhome pointer points to dec.scanbufferfull table */
@@ -3269,7 +3334,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_lsb_set (&Regs[0xf3], data_lsb_get (&Regs[0xe4], 3), 3);
 	}
       else
-	if (Motorcurve_Equal
+	if (Motor_Curve_Equal
 	    (dev, mysetting, DEC_CURVE, CRV_PARKHOME, CRV_SMEARING) == TRUE)
 	{
 	  /* dec.parkhome pointer points to dec.smearing table */
@@ -3279,7 +3344,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_lsb_set (&Regs[0xf3], data_lsb_get (&Regs[0xf0], 3), 3);
 	}
       else
-	if (Motorcurve_Equal
+	if (Motor_Curve_Equal
 	    (dev, mysetting, DEC_CURVE, CRV_PARKHOME, CRV_NORMALSCAN) == TRUE)
 	{
 	  /* dec.parkhome pointer points to dec.normalscan table */
@@ -3296,7 +3361,7 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 	  data_wide_bitset (&Regs[0x102], 0x3fff, stepbuffer_size);
 
 	  /* set last step of dec.parkhome table */
-	  mycurve = Motorcurve_Get (dev, mysetting, DEC_CURVE, CRV_PARKHOME);
+	  mycurve = Motor_Curve_Get (dev, mysetting, DEC_CURVE, CRV_PARKHOME);
 	  if (mycurve != NULL)
 	    {
 	      data_lsb_set (&Regs[0xf3],
@@ -3378,12 +3443,12 @@ Motor_Setup_Steps (struct st_device *dev, SANE_Byte * Regs,
 }
 
 static SANE_Int
-PWM_use (struct st_device *dev, SANE_Int enable)
+Lamp_PWM_use (struct st_device *dev, SANE_Int enable)
 {
   SANE_Byte a, b;
   SANE_Int rst = ERROR;
 
-  DBG (DBG_FNC, "+ PWM_use(enable=%i):\n", enable);
+  DBG (DBG_FNC, "+ Lamp_PWM_use(enable=%i):\n", enable);
 
   if (Read_Byte (dev->usb_handle, 0xe948, &a) == OK)
     {
@@ -3416,7 +3481,7 @@ PWM_use (struct st_device *dev, SANE_Int enable)
 	}
     }
 
-  DBG (DBG_FNC, "- PWM_use: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_use: %i\n", rst);
 
   return rst;
 }
@@ -3581,7 +3646,6 @@ Init_USBData (struct st_device *dev)
   if (dev->motorcfg->changemotorcurrent != FALSE)
     Motor_Change (dev, dev->init_regs, 3);
 
-
   dev->init_regs[0xde] = 0;
   data_bitset (&dev->init_regs[0xdf], 0x0f, 0);
 
@@ -3739,11 +3803,11 @@ Read_FE3E (struct st_device *dev, SANE_Byte * destino)
 }
 
 static SANE_Int
-Lamp_IsAtHome (struct st_device *dev, SANE_Byte * Regs)
+Head_IsAtHome (struct st_device *dev, SANE_Byte * Regs)
 {
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ Lamp_IsAtHome:\n");
+  DBG (DBG_FNC, "+ Head_IsAtHome:\n");
 
   /* if returns TRUE, lamp is at home. Otherwise it returns FALSE */
   rst = 0;
@@ -3760,7 +3824,7 @@ Lamp_IsAtHome (struct st_device *dev, SANE_Byte * Regs)
 
   rst = (rst == 1) ? TRUE : FALSE;
 
-  DBG (DBG_FNC, "- Lamp_IsAtHome: %s\n", (rst == TRUE) ? "Yes" : "No");
+  DBG (DBG_FNC, "- Head_IsAtHome: %s\n", (rst == TRUE) ? "Yes" : "No");
 
   return rst;
 }
@@ -3863,12 +3927,12 @@ RTS_Warm_Reset (struct st_device *dev)
 }
 
 static SANE_Int
-Lamp_SetTimer (struct st_device *dev, SANE_Int minutes)
+Lamp_Status_Timer_Set (struct st_device *dev, SANE_Int minutes)
 {
   SANE_Byte MyBuffer[2];
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ Lamp_SetTimer(minutes=%i):\n", minutes);
+  DBG (DBG_FNC, "+ Lamp_Status_Timer_Set(minutes=%i):\n", minutes);
 
   MyBuffer[0] = dev->init_regs[0x0146] & 0xef;
   MyBuffer[1] = dev->init_regs[0x0147];
@@ -3892,7 +3956,7 @@ Lamp_SetTimer (struct st_device *dev, SANE_Int minutes)
     Write_Word (dev->usb_handle, 0xe946,
 		(SANE_Int) ((MyBuffer[1] << 8) + MyBuffer[0]));
 
-  DBG (DBG_FNC, "- Lamp_SetTimer: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_Status_Timer_Set: %i\n", rst);
 
   return rst;
 }
@@ -4022,45 +4086,50 @@ GainOffset_Clear (struct st_device *dev)
 }
 
 static SANE_Int
-Lamp_GetStatus (struct st_device *dev, SANE_Byte * flb_lamp,
-		SANE_Byte * tma_lamp)
+Lamp_Status_Get (struct st_device *dev, SANE_Byte * flb_lamp,
+		 SANE_Byte * tma_lamp)
 {
   /* The only reason that I think windows driver uses two variables to get
      which lamp is switched on instead of one variable is that some chipset
      model could have both lamps switched on, so I'm maintaining such var */
-  SANE_Int data1, rst;
-  SANE_Byte data2;
 
-  DBG (DBG_FNC, "+ Lamp_GetStatus:\n");
+  SANE_Int rst = ERROR;		/* default */
 
-  rst = ERROR;
-  if (Read_Byte (dev->usb_handle, 0xe946, &data2) == OK)
+  DBG (DBG_FNC, "+ Lamp_Status_Get:\n");
+
+  if ((flb_lamp != NULL) && (tma_lamp != NULL))
     {
-      if (Read_Word (dev->usb_handle, 0xe954, &data1) == OK)
+      SANE_Int data1;
+      SANE_Byte data2;
+
+      if (Read_Byte (dev->usb_handle, 0xe946, &data2) == OK)
 	{
-	  rst = OK;
-
-	  *flb_lamp = 0;
-	  *tma_lamp = 0;
-
-	  switch (dev->chipset->model)
+	  if (Read_Word (dev->usb_handle, 0xe954, &data1) == OK)
 	    {
-	    case RTS8822BL_03A:
-	      *flb_lamp = ((data2 & 0x40) != 0) ? 1 : 0;
-	      *tma_lamp = (((data2 & 0x20) != 0)
-			   && ((data1 & 0x10) == 1)) ? 1 : 0;
-	      break;
-	    default:
-	      if ((_B1 (data1) & 0x10) == 0)
-		*flb_lamp = (data2 >> 6) & 1;
-	      else
-		*tma_lamp = (data2 >> 6) & 1;
-	      break;
+	      rst = OK;
+
+	      *flb_lamp = 0;
+	      *tma_lamp = 0;
+
+	      switch (dev->chipset->model)
+		{
+		case RTS8822BL_03A:
+		  *flb_lamp = ((data2 & 0x40) != 0) ? 1 : 0;
+		  *tma_lamp = (((data2 & 0x20) != 0)
+			       && ((data1 & 0x10) == 1)) ? 1 : 0;
+		  break;
+		default:
+		  if ((_B1 (data1) & 0x10) == 0)
+		    *flb_lamp = (data2 >> 6) & 1;
+		  else
+		    *tma_lamp = (data2 >> 6) & 1;
+		  break;
+		}
 	    }
 	}
     }
 
-  DBG (DBG_FNC, "- Lamp_GetStatus: rst=%i flb=%i tma=%i\n", rst,
+  DBG (DBG_FNC, "- Lamp_Status_Get: rst=%i flb=%i tma=%i\n", rst,
        _B0 (*flb_lamp), _B0 (*tma_lamp));
 
   return rst;
@@ -4149,6 +4218,7 @@ Motor_Change (struct st_device *dev, SANE_Byte * buffer, SANE_Byte value)
 	  data |= 0x10;
 	  break;				     /*--01----*/
 	}
+
       buffer[0x154] = _B0 (data);
 
       rst = Write_Byte (dev->usb_handle, 0xe954, buffer[0x154]);
@@ -4505,18 +4575,18 @@ Motor_Release (struct st_device *dev)
 }
 
 static SANE_Byte
-GainOffset_LoadCount (struct st_device *dev)
+GainOffset_Counter_Load (struct st_device *dev)
 {
   SANE_Byte data = 0x0f;
 
-  DBG (DBG_FNC, "+ GainOffset_LoadCount:\n");
+  DBG (DBG_FNC, "+ GainOffset_Counter_Load:\n");
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
     if (RTS_EEPROM_ReadByte (dev->usb_handle, 0x77, &data) != OK)
       data = 0x0f;
 
-  DBG (DBG_FNC, "- GainOffset_LoadCount: %i\n", _B0 (data));
+  DBG (DBG_FNC, "- GainOffset_Counter_Load: %i\n", _B0 (data));
 
   return data;
 }
@@ -4729,8 +4799,8 @@ Refs_Analyze_Pattern (struct st_scanparams *scancfg,
 		      SANE_Byte * scanned_pattern, SANE_Int * ler1,
 		      SANE_Int ler1order, SANE_Int * ser1, SANE_Int ser1order)
 {
-  SANE_Int a, buffersize, buffer_pos, xpos, ypos, data, rst, cnt;
-  double *buffer1, *buffer2, data1, mydata1, d0, d1;
+  SANE_Int buffersize, xpos, ypos, coord, cnt, chn_size, dist, rst;
+  double *color_sum, *color_dif, diff_max;
   SANE_Int vector[3];
 
   DBG (DBG_FNC,
@@ -4738,246 +4808,192 @@ Refs_Analyze_Pattern (struct st_scanparams *scancfg,
        scancfg->depth, scancfg->coord.width, scancfg->coord.height, ler1order,
        ser1order);
 
+  rst = ERROR;			/* by default */
+  dist = 5;			/* distance to compare */
+  chn_size = (scancfg->depth > 8) ? 2 : 1;
   buffersize = max (scancfg->coord.width, scancfg->coord.height);
 
-  buffer1 = (double *) malloc (sizeof (double) * buffersize);
-  if (buffer1 == NULL)
-    return ERROR;
-
-  buffer2 = (double *) malloc (sizeof (double) * buffersize);
-  if (buffer2 == NULL)
+  color_sum = (double *) malloc (sizeof (double) * buffersize);
+  if (color_sum != NULL)
     {
-      free (buffer1);
-      return ERROR;
-    }
-
-	/*-------- 1st SER -------- */
-  /* Buffers created, clear them */
-  bzero (buffer1, sizeof (double) * buffersize);
-  bzero (buffer2, sizeof (double) * buffersize);
-
-  buffer_pos = 0;
-  for (xpos = 0; xpos < scancfg->coord.width; xpos++)
-    {
-      for (a = 0; a < 20; a++)
+      color_dif = (double *) malloc (sizeof (double) * buffersize);
+      if (color_dif != NULL)
 	{
-	  data = _B0 (scanned_pattern[(scancfg->coord.width * a) + xpos]);
-	  if (scancfg->depth > 8)
-	    data =
-	      ((_B0 (scanned_pattern[(scancfg->coord.width * a) + xpos + 1])
-		<< 8) + data) & 0xffff;
-	  buffer1[buffer_pos] += data;
-	}
-      buffer_pos++;
-    }
+			/*-------- 1st SER -------- */
+	  coord = 1;
 
-  /* d41f */
-  rst = 1;
-
-  data1 =
-    (ser1order != 0) ? buffer1[0] - buffer1[1] : buffer1[1] - buffer1[0];
-  buffer2[0] = data1;
-
-  cnt = 1;			/* contador */
-  if ((scancfg->coord.width - 5) > 1)
-    {
-      /*d473 */
-      buffer_pos = 1;
-      do
-	{
-	  mydata1 =
-	    (ser1order !=
-	     0) ? buffer1[buffer_pos] - buffer1[buffer_pos +
-						5] : buffer1[buffer_pos + 5] -
-	    buffer1[buffer_pos];
-	  buffer2[buffer_pos] = mydata1;
-
-	  if ((mydata1 >= 0) && (mydata1 > data1))
+	  if ((scancfg->coord.width - dist) > 1)
 	    {
-	      /*d4df */
-	      data1 = mydata1;
+	      /* clear buffers */
+	      bzero (color_sum, sizeof (double) * buffersize);
+	      bzero (color_dif, sizeof (double) * buffersize);
 
-	      d0 = abs (buffer2[rst] - buffer2[rst - 1]);
-	      d1 = abs (buffer2[buffer_pos] - buffer2[buffer_pos - 1]);
+	      for (xpos = 0; xpos < scancfg->coord.width; xpos++)
+		{
+		  for (ypos = 0; ypos < 20; ypos++)
+		    color_sum[xpos] +=
+		      data_lsb_get (scanned_pattern +
+				    (scancfg->coord.width * ypos) + xpos,
+				    chn_size);
+		}
 
-	      if (d1 > d0)
-		rst = cnt;
+	      diff_max =
+		(ser1order !=
+		 0) ? color_sum[0] - color_sum[1] : color_sum[1] -
+		color_sum[0];
+	      color_dif[0] = diff_max;
+	      cnt = 1;
+
+	      do
+		{
+		  color_dif[cnt] =
+		    (ser1order !=
+		     0) ? color_sum[cnt] - color_sum[cnt +
+						     dist] : color_sum[cnt +
+								       dist] -
+		    color_sum[cnt];
+
+		  if ((color_dif[cnt] >= 0) && (color_dif[cnt] > diff_max))
+		    {
+		      /*d4df */
+		      diff_max = color_dif[cnt];
+		      if (abs (color_dif[cnt] - color_dif[cnt - 1]) >
+			  abs (color_dif[coord] - color_dif[coord - 1]))
+			coord = cnt;
+		    }
+
+		  cnt++;
+		}
+	      while (cnt < (scancfg->coord.width - dist));
 	    }
-	  /*d551 */
-	  buffer_pos++;
-	  cnt++;
-	}
-      while (cnt < (scancfg->coord.width - 5));
 
-    }
+	  vector[0] = coord + dist;
 
-  vector[0] = rst + 5;
+			/*-------- 1st LER -------- */
+	  coord = 1;
 
-  if (ser1 != NULL)
-    {
-      *ser1 = rst;
-      DBG (DBG_FNC, "-> 1st SER=%x\n", *ser1);
-    }
-
-  if (_B0 (rst) < 0x0f)
-    {
-      /* Error */
-      free (buffer1);
-      free (buffer2);
-      return ERROR;
-    }
-
-  /* Clear buffers again */
-  bzero (buffer1, sizeof (double) * buffersize);
-  bzero (buffer2, sizeof (double) * buffersize);
-
-  buffer_pos = 0;
-  for (ypos = 0; ypos < scancfg->coord.height; ypos++)
-    {
-      for (a = rst; a < (rst + 0x28); a++)
-	{
-	  data = _B0 (scanned_pattern[(scancfg->coord.width * ypos) + a]);
-	  if (scancfg->depth > 8)
-	    data =
-	      ((_B0 (scanned_pattern[(scancfg->coord.width * ypos) + a + 1])
-		<< 8) + data) & 0xffff;
-	  buffer1[buffer_pos] += data;
-	}
-      buffer_pos++;
-    }
-
-  rst = 1;
-  data1 =
-    (ler1order != 0) ? buffer1[0] - buffer1[1] : buffer1[1] - buffer1[0];
-  buffer2[0] = data1;
-  cnt = 1;
-  if ((scancfg->coord.height - 5) > 1)
-    {
-      buffer_pos = 1;
-      do
-	{
-	  mydata1 =
-	    (ler1order !=
-	     0) ? buffer1[buffer_pos] - buffer1[buffer_pos +
-						5] : buffer1[buffer_pos + 5] -
-	    buffer1[buffer_pos];
-	  buffer2[buffer_pos] = mydata1;
-
-	  if ((mydata1 >= 0) && (mydata1 > data1))
+	  if ((scancfg->coord.height - dist) > 1)
 	    {
-	      data1 = mydata1;
+	      /* clear buffers */
+	      bzero (color_sum, sizeof (double) * buffersize);
+	      bzero (color_dif, sizeof (double) * buffersize);
 
-	      d0 = abs (buffer2[rst] - buffer2[rst - 1]);
-	      d1 = abs (buffer2[buffer_pos] - buffer2[buffer_pos - 1]);
+	      for (ypos = 0; ypos < scancfg->coord.height; ypos++)
+		{
+		  for (xpos = vector[0]; xpos < scancfg->coord.width - dist;
+		       xpos++)
+		    color_sum[ypos] +=
+		      data_lsb_get (scanned_pattern +
+				    (scancfg->coord.width * ypos) + xpos,
+				    chn_size);
+		}
 
-	      if (d1 > d0)
-		rst = cnt;
+	      diff_max =
+		(ler1order !=
+		 0) ? color_sum[0] - color_sum[1] : color_sum[1] -
+		color_sum[0];
+	      color_dif[0] = diff_max;
+
+	      cnt = 1;
+
+	      do
+		{
+		  color_dif[cnt] =
+		    (ler1order !=
+		     0) ? color_sum[cnt] - color_sum[cnt +
+						     dist] : color_sum[cnt +
+								       dist] -
+		    color_sum[cnt];
+
+		  if ((color_dif[cnt] >= 0) && (color_dif[cnt] > diff_max))
+		    {
+		      diff_max = color_dif[cnt];
+		      if (abs (color_dif[cnt] - color_dif[cnt - 1]) >
+			  abs (color_dif[coord] - color_dif[coord - 1]))
+			coord = cnt;
+		    }
+
+		  cnt++;
+		}
+	      while (cnt < (scancfg->coord.height - dist));
 	    }
-	  buffer_pos++;
-	  cnt++;
-	}
-      while (cnt < (scancfg->coord.height - 5));
-    }
 
-  vector[1] = rst + 5;
+	  vector[1] = coord + dist;
 
-  if (ler1 != NULL)
-    {
-      *ler1 = rst + 5;
-      DBG (DBG_FNC, "> 1st LER=%x\n", *ler1);
-    }
-
-  if ((rst + 5) < 0x96)
-    {
-      /* Error */
-      free (buffer1);
-      free (buffer2);
-      return ERROR;
-    }
-
-  /* Clear buffers again */
-  bzero (buffer1, sizeof (double) * buffersize);
-  bzero (buffer2, sizeof (double) * buffersize);
-
-  buffer_pos = 0;
-  for (xpos = 0; xpos < scancfg->coord.width; xpos++)
-    {
-      for (a = rst + 4; a < scancfg->coord.height; a++)
-	{
-	  data = _B0 (scanned_pattern[(scancfg->coord.width * a) + xpos]);
-	  if (scancfg->depth > 8)
-	    data =
-	      ((_B0 (scanned_pattern[(scancfg->coord.width * a) + xpos + 1])
-		<< 8) + data) & 0xffff;
-	  buffer1[buffer_pos] += data;
-	}
-      buffer_pos++;
-    }
-
-  data1 =
-    (ser1order != 0) ? buffer1[0] - buffer1[1] : buffer1[1] - buffer1[0];
-  buffer2[0] = data1;
-  cnt = 1;
-  if ((scancfg->coord.width - 5) > 1)
-    {
-      buffer_pos = 1;
-      do
-	{
-	  mydata1 =
-	    (ser1order !=
-	     0) ? buffer1[buffer_pos] - buffer1[buffer_pos +
-						5] : buffer1[buffer_pos + 5] -
-	    buffer1[buffer_pos];
-	  buffer2[buffer_pos] = mydata1;
-
-	  if ((mydata1 >= 0) && (mydata1 > data1))
+			/*-------- 1st LER -------- */
+	  if ((scancfg->coord.width - dist) > 1)
 	    {
-	      data1 = mydata1;
+	      /* clear buffers */
+	      bzero (color_sum, sizeof (double) * buffersize);
+	      bzero (color_dif, sizeof (double) * buffersize);
 
-	      d0 = abs (buffer2[rst] - buffer2[rst - 1]);
-	      d1 = abs (buffer2[buffer_pos] - buffer2[buffer_pos - 1]);
+	      for (xpos = 0; xpos < scancfg->coord.width; xpos++)
+		{
+		  for (ypos = coord + 4; ypos < scancfg->coord.height; ypos++)
+		    color_sum[xpos] +=
+		      data_lsb_get (scanned_pattern +
+				    (scancfg->coord.width * ypos) + xpos,
+				    chn_size);
+		}
 
-	      if (d1 > d0)
-		rst = cnt;
+	      diff_max =
+		(ser1order !=
+		 0) ? color_sum[0] - color_sum[1] : color_sum[1] -
+		color_sum[0];
+	      color_dif[0] = diff_max;
+	      cnt = 1;
+
+	      do
+		{
+		  color_dif[cnt] =
+		    (ser1order !=
+		     0) ? color_sum[cnt] - color_sum[cnt +
+						     dist] : color_sum[cnt +
+								       dist] -
+		    color_sum[cnt];
+
+		  if ((color_dif[cnt] >= 0) && (color_dif[cnt] > diff_max))
+		    {
+		      diff_max = color_dif[cnt];
+		      if (abs (color_dif[cnt] - color_dif[cnt - 1]) >
+			  abs (color_dif[coord] - color_dif[coord - 1]))
+			coord = cnt;
+		    }
+
+		  cnt++;
+		}
+	      while (cnt < (scancfg->coord.width - dist));
 	    }
-	  buffer_pos++;
-	  cnt++;
-	}
-      while (cnt < (scancfg->coord.width - 5));
 
+	  vector[2] = coord + dist;
+
+	  /* save image */
+	  if (RTS_Debug->SaveCalibFile != FALSE)
+	    dbg_autoref (scancfg, scanned_pattern, vector[0], vector[2],
+			 vector[1]);
+
+	  /* assign values detected */
+	  if (ser1 != NULL)
+	    *ser1 = vector[2];
+
+	  if (ler1 != NULL)
+	    *ler1 = vector[1];
+
+	  /* show values */
+	  DBG (DBG_FNC, " -> Vectors found: x1=%i, x2=%i, y=%i\n", vector[0],
+	       vector[2], vector[1]);
+
+	  rst = OK;
+
+	  free (color_dif);
+	}
+
+      free (color_sum);
     }
 
-  rst += 5;
+  DBG (DBG_FNC, "- Refs_Analyze_Pattern: %i\n", rst);
 
-  vector[2] = rst;
-
-  if (ser1 != NULL)
-    {
-      if (rst > *ser1)
-	{
-	  *ser1 = rst;
-	  DBG (DBG_FNC, "> 2nd SER=%x\n", *ser1);
-	}
-      else
-	{
-	  /* Free memory */
-	  free (buffer1);
-	  free (buffer2);
-	  return ERROR;
-	}
-    }
-
-  /* Free memory */
-  free (buffer1);
-  free (buffer2);
-
-  /* save image */
-  if (RTS_Debug->SaveCalibFile != FALSE)
-    dbg_autoref (scancfg, scanned_pattern, vector[0], vector[2], vector[1]);
-
-  DBG (DBG_FNC, "- Refs_Analyze_Pattern(*ser1=%i, *ler1=%i)\n", *ser1, *ler1);
-
-  return OK;
+  return rst;
 }
 
 static double
@@ -5467,14 +5483,14 @@ Lamp_SetGainMode (struct st_device *dev, SANE_Byte * Regs,
 static SANE_Int
 RTS_Scanner_StartScan (struct st_device *dev)
 {
-  SANE_Int rst;
+  SANE_Int rst = ERROR;		/* default */
   SANE_Int data;
 
   DBG (DBG_FNC, "+ RTS_Scanner_StartScan():\n");
 
   v14b4 = 1;			/* TEMPORAL */
   data = 0;
-  PWM_GetDutyCycle (dev, &data);
+  Lamp_PWM_DutyCycle_Get (dev, &data);
   data = _B0 (data);
 
   DBG (DBG_FNC, "->   Pwm used = %i\n", data);
@@ -5484,44 +5500,34 @@ RTS_Scanner_StartScan (struct st_device *dev)
      Section [SCAN_PARAM], field PwmUsed
    */
 
-  rst = Scan_Start (dev);
-  if (rst == OK)
+  dev->status->cancel = FALSE;
+
+  if (Scan_Start (dev) == OK)
     {
-      rst = Reading_Start (dev);
+      SANE_Int transferred;
+
+      rst = OK;
+
+      if (dev->scanning->imagebuffer != NULL)
+	{
+	  free (dev->scanning->imagebuffer);
+	  dev->scanning->imagebuffer = NULL;
+	}
+
+      SetLock (dev->usb_handle, NULL, (scan2.depth == 16) ? FALSE : TRUE);
+
+      /* Reservamos los buffers necesarios para leer la imagen */
+      Reading_CreateBuffers (dev);
+
+      if (dev->Resize->type != RSZ_NONE)
+	Resize_Start (dev, &transferred);	/* 6729 */
+
       RTS_ScanCounter_Inc (dev);
     }
 
   DBG (DBG_FNC, "- RTS_Scanner_StartScan: %i\n", rst);
 
   return rst;
-}
-
-static SANE_Int
-Reading_Start (struct st_device *dev)
-{
-  /* fn66d0 */
-
-  SANE_Int transferred;
-
-  DBG (DBG_FNC, "+ Reading_Start():\n");
-
-  if (dev->scanning->imagebuffer != NULL)
-    {
-      free (dev->scanning->imagebuffer);
-      dev->scanning->imagebuffer = NULL;
-    }
-
-  SetLock (dev->usb_handle, NULL, (scan2.depth == 16) ? FALSE : TRUE);
-
-  /* Reservamos los buffers necesarios para leer la imagen */
-  Reading_CreateBuffers (dev);
-
-  if (dev->Resize->type != RSZ_NONE)
-    Resize_Start (dev, &transferred);	/* 6729 */
-
-  DBG (DBG_FNC, "+ Reading_Start():\n");
-
-  return OK;
 }
 
 static void
@@ -6343,13 +6349,13 @@ RTS_Scanner_StopScan (struct st_device *dev, SANE_Int wait)
       Read_Byte (dev->usb_handle, 0xe801, &data);
       if ((data & 0x02) == 0)
 	{
-	  if (Lamp_IsAtHome (dev, dev->init_regs) == FALSE)
+	  if (Head_IsAtHome (dev, dev->init_regs) == FALSE)
 	    {
 	      /* clear execution bit */
 	      data_bitset (&dev->init_regs[0x00], 0x80, 0);
 
 	      Write_Byte (dev->usb_handle, 0x00, dev->init_regs[0x00]);
-	      Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+	      Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 	    }
 	}
     }
@@ -6360,14 +6366,14 @@ RTS_Scanner_StopScan (struct st_device *dev, SANE_Int wait)
       data_bitset (&dev->init_regs[0x00], 0x80, 0);
 
       Write_Byte (dev->usb_handle, 0x00, dev->init_regs[0x00]);
-      if (Lamp_IsAtHome (dev, dev->init_regs) == FALSE)
-	Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+      if (Head_IsAtHome (dev, dev->init_regs) == FALSE)
+	Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
     }
 
   /*66e0 */
   RTS_Enable_CCD (dev, dev->init_regs, 0);
 
-  Lamp_SetTimer (dev, 13);
+  Lamp_Status_Timer_Set (dev, 13);
 
   DBG (DBG_FNC, "- RTS_Scanner_StopScan()\n");
 }
@@ -6392,7 +6398,6 @@ Reading_CreateBuffers (struct st_device *dev)
 
   dev->Reading->Max_Size = 0xfc00;
   dev->Reading->DMAAmount = 0;
-  dev->Reading->Cancel = FALSE;
 
   a = (RTS_Debug->dmabuffersize / 63);
   b = (((RTS_Debug->dmabuffersize - a) / 2) + a) >> 0x0f;
@@ -7079,7 +7084,7 @@ static SANE_Int
 Read_ResizeBlock (struct st_device *dev, SANE_Byte * buffer,
 		  SANE_Int buffer_size, SANE_Int * transferred)
 {
-  /*
+  /*The Beach
      buffer      = FA7C   05E30048
      buffer_size = FA80   0000F906
    */
@@ -7404,11 +7409,10 @@ Read_NonColor_Block (struct st_device *dev, SANE_Byte * buffer,
   SANE_Int block_bytes_per_line;
   SANE_Int mysize;
   SANE_Byte *mybuffer;
-  char sdebug[20];
 
   DBG (DBG_FNC,
        "+ Read_NonColor_Block(*buffer, buffer_size=%i, ColorMode=%s):\n",
-       buffer_size, dbg_colour (sdebug, ColorMode));
+       buffer_size, dbg_colour (ColorMode));
 
   if (ColorMode != CM_GRAY)
     {
@@ -7563,7 +7567,7 @@ Read_NonColor_Block (struct st_device *dev, SANE_Byte * buffer,
 	  /* 64c0 */
 	  mysize -= mysize4lines;
 	}
-      while ((mysize > 0) && (dev->Reading->Cancel == FALSE));
+      while ((mysize > 0) && (dev->status->cancel == FALSE));
 
       free (mybuffer);
     }
@@ -7677,7 +7681,7 @@ arrangeline2 = 1
 	  /*6629 */
 	  mysize -= buffer_size;
 	}
-      while ((mysize > 0) && (dev->Reading->Cancel == FALSE));
+      while ((mysize > 0) && (dev->status->cancel == FALSE));
 
       free (readbuffer);
     }
@@ -7707,7 +7711,8 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
     {
       ptBuffer = pBuffer;
 
-      while ((buffer_size > 0) && (rst == OK) && (rd->Cancel == FALSE))
+      while ((buffer_size > 0) && (rst == OK)
+	     && (dev->status->cancel == FALSE))
 	{
 	  /* Check if we've already started */
 	  if (rd->Starting == TRUE)
@@ -7750,7 +7755,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 		      rd->DMAAmount =
 			((RTS_Debug->dmasetlength * 2) / iAmount) * iAmount;
 		      rd->DMAAmount = min (rd->DMAAmount, rd->ImageSize);
-		      Reading_NotifySize (dev, 0, rd->DMAAmount);
+		      Reading_BufferSize_Notify (dev, 0, rd->DMAAmount);
 		      iAmount = min (iAmount, rd->DMABufferSize - rd->RDSize);
 		    }
 		  else
@@ -7913,15 +7918,15 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 }
 
 static SANE_Int
-Get_Scanner_Buffer_Size (struct st_device *dev, SANE_Byte channels_per_dot,
-			 SANE_Int channel_size)
+Reading_BufferSize_Get (struct st_device *dev, SANE_Byte channels_per_dot,
+			SANE_Int channel_size)
 {
   /* returns the ammount of bytes in scanner's buffer ready to be read */
 
   SANE_Int rst;
 
   DBG (DBG_FNC,
-       "+ Get_Scanner_Buffer_Size(channels_per_dot=%i, channel_size=%i):\n",
+       "+ Reading_BufferSize_Get(channels_per_dot=%i, channel_size=%i):\n",
        channels_per_dot, channel_size);
 
   rst = 0;
@@ -7944,24 +7949,26 @@ Get_Scanner_Buffer_Size (struct st_device *dev, SANE_Byte channels_per_dot,
 	rst = ((channels_per_dot * 32) / channel_size) * myAmount;
     }
 
-  DBG (DBG_FNC, "- Get_Scanner_Buffer_Size: %i bytes\n", rst);
+  DBG (DBG_FNC, "- Reading_BufferSize_Get: %i bytes\n", rst);
 
   return rst;
 }
 
 static SANE_Int
-Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
+Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp,
+	     SANE_Int resolution)
 {
   SANE_Int rst = OK;
 
-  DBG (DBG_FNC, "+ Lamp_Warmup(*Regs, lamp=%i)\n", lamp);
+  DBG (DBG_FNC, "+ Lamp_Warmup(*Regs, lamp=%i, resolution=%i)\n", lamp,
+       resolution);
 
   if (Regs != NULL)
     {
       SANE_Byte flb_lamp, tma_lamp;
       SANE_Int overdrivetime;
 
-      Lamp_GetStatus (dev, &flb_lamp, &tma_lamp);
+      Lamp_Status_Get (dev, &flb_lamp, &tma_lamp);
 
       /* ensure that selected lamp is switched on */
       if (lamp == FLB_LAMP)
@@ -7971,7 +7978,7 @@ Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
 	  if (flb_lamp == 0)
 	    {
 	      /* FLB-Lamp is turned off, lets turn on */
-	      Lamp_SetStatus (dev, Regs, TRUE, FLB_LAMP);
+	      Lamp_Status_Set (dev, Regs, TRUE, FLB_LAMP);
 	      waitforpwm = TRUE;
 	    }
 	}
@@ -7985,7 +7992,7 @@ Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
 	      if (tma_lamp == 0)
 		{
 		  /* tma lamp is turned off */
-		  Lamp_SetStatus (dev, Regs, FALSE, TMA_LAMP);
+		  Lamp_Status_Set (dev, Regs, FALSE, TMA_LAMP);
 		  waitforpwm = TRUE;
 		}
 	    }
@@ -7996,15 +8003,46 @@ Lamp_Warmup (struct st_device *dev, SANE_Byte * Regs, SANE_Int lamp)
       /* perform warmup process */
       if (rst == OK)
 	{
-	  if (waitforpwm == TRUE)
-	    Lamp_OverDrive (dev, overdrivetime, lamp);
+	  Lamp_PWM_Setup (dev, lamp);
 
-	  Lamp_SetupPwm (dev, lamp);
+	  if (waitforpwm == TRUE)
+	    {
+	      /*Lamp_PWM_DutyCycle_Set(dev, (lamp == TMA_LAMP)? 0x0e : 0x00); */
+
+	      if (RTS_Debug->warmup == TRUE)
+		{
+		  long ticks = GetTickCount () + overdrivetime;
+
+		  DBG (DBG_VRB, "- Lamp Warmup process. Please wait...\n");
+
+		  dev->status->warmup = TRUE;
+
+		  while (GetTickCount () <= ticks)
+		    usleep (1000 * 200);
+
+		  Lamp_PWM_CheckStable (dev, resolution, lamp);
+
+		}
+	      else
+		DBG (DBG_VRB, "- Lamp Warmup process disabled.\n");
+	    }
+
+	  /*Lamp_PWM_Setup(dev, lamp);
+
+	     if (waitforpwm == TRUE)
+	     {
+	     if (RTS_Debug->warmup == TRUE)
+	     Lamp_PWM_CheckStable(dev, resolution, lamp);
+
+	     waitforpwm = FALSE;
+	     } */
 	}
 
     }
   else
     rst = ERROR;
+
+  dev->status->warmup = FALSE;
 
   DBG (DBG_FNC, "- Lamp_Warmup: %i\n", rst);
 
@@ -8021,9 +8059,8 @@ Scan_Start (struct st_device *dev)
   rst = ERROR;
   if (RTS_Enable_CCD (dev, dev->init_regs, 0x0f) == OK)
     {
-      SANE_Byte Regs[RT_BUFFER_LEN], data, mlock;
-      SANE_Int findref;
-      SANE_Int cl, lfaa0, ypos, xpos, runb1, gainmode;
+      SANE_Byte Regs[RT_BUFFER_LEN], mlock;
+      SANE_Int cl, ypos, xpos, runb1;
       struct st_scanparams scancfg;
       struct st_hwdconfig hwdcfg;
       struct st_calibration myCalib;
@@ -8043,100 +8080,33 @@ Scan_Start (struct st_device *dev)
          windows driver doesn't use it)
        */
       tick = GetTickCount () + 10000;
-      while ((Lamp_IsAtHome (dev, Regs) == 0) && (tick > GetTickCount ()));
+      while ((Head_IsAtHome (dev, Regs) == FALSE)
+	     && (tick > GetTickCount ()));
 
-      lfaa0 = 0;
       if (v14b4 != 0)
 	{
-	  if (GainOffset_IncCount (dev, &lfaa0) != OK)
+	  SANE_Int lfaa0 = 0;
+
+	  if (GainOffset_Counter_Inc (dev, &lfaa0) != OK)
 	    return 0x02;
 	}
 
-      data = Refs_Counter_Load (dev);
       tick = GetTickCount ();
 
-#ifdef STANDALONE
-      findref = TRUE;
-#else
-      findref = ((data != 0) && (data < 15)) ? FALSE : TRUE;
-#endif
+      /* set margin references */
+      Refs_Set (dev, Regs, &scancfg);
 
-      if (findref != FALSE)
-	{
-	  /* Need Find Ref */
-	  SANE_Byte BL;
+      /* locate head to right position */
+      Load_StripCoords (scantype, &ypos, &xpos);
+      if (ypos != 0)
+	Head_Relocate (dev, dev->motorcfg->parkhomemotormove, MTR_FORWARD,
+		       ypos);
 
-	  DBG (DBG_FNC, "Need to find ref\n");
-
-	  Lamp_Warmup (dev, Regs, FLB_LAMP);
-
-	  if (waitforpwm == TRUE)
-	    {
-	      Lamp_WaitForPWM (dev, scan.resolution_x, FLB_LAMP);
-	      waitforpwm = FALSE;
-	    }
-
-	  /*56e1 */
-	  BL = scan.scantype;	/* save scantype */
-	  scan.scantype = ST_NORMAL;
-	  Refs_Set (dev, Regs, &scancfg, TRUE);
-	  Refs_Counter_Inc (dev);
-	  scan.scantype = BL;	/* restore scantype */
-
-	  Load_StripCoords (ST_NORMAL, &ypos, &xpos);
-	  if (ypos != 0)
-	    Motor_Relocate (dev, dev->motorcfg->parkhomemotormove,
-			    MTR_FORWARD, ypos);
-
-	  if (scan.scantype != ST_NORMAL)
-	    {
-	      if (Lamp_Warmup (dev, Regs, TMA_LAMP) == ERROR)
-		return ERROR;
-
-	      /*5794 */
-	      Load_StripCoords (ST_TA, &ypos, &xpos);
-	      if (ypos != 0)
-		Motor_Relocate (dev, dev->motorcfg->parkhomemotormove,
-				MTR_FORWARD, ypos);
-	      Lamp_WaitForPWM (dev, scan.resolution_x, TMA_LAMP);
-	    }
-	}
-      else
-	{
-	  DBG (DBG_FNC, "Don't Need to find ref\n");
-
-	  /* No need find ref */
-	  /*57d9 */
-	  if (Lamp_Warmup
-	      (dev, Regs,
-	       (scan.scantype == ST_NORMAL) ? FLB_LAMP : TMA_LAMP) == ERROR)
-	    return ERROR;
-
-	  /*5895 */
-	  Refs_Set (dev, Regs, &scancfg, FALSE);
-	  Refs_Counter_Inc (dev);
-
-	  Load_StripCoords (scantype, &ypos, &xpos);
-	  if (ypos != 0)
-	    Motor_Relocate (dev, dev->motorcfg->parkhomemotormove,
-			    MTR_FORWARD, ypos);
-
-	  if (waitforpwm != FALSE)
-	    {
-	      SANE_Int lamp;
-
-	      if (v14b4 == 0)
-		{
-		  /*590a */
-		  lamp = (scan.scantype == ST_NORMAL) ? FLB_LAMP : TMA_LAMP;
-		}
-	      else
-		lamp = 0;	/* preview */
-
-	      Lamp_WaitForPWM (dev, scan.resolution_x, lamp);
-	      waitforpwm = FALSE;
-	    }
-	}
+      /* perform lamp warmup */
+      if (Lamp_Warmup
+	  (dev, Regs, (scancfg.scantype == ST_NORMAL) ? FLB_LAMP : TMA_LAMP,
+	   scan.resolution_x) == ERROR)
+	return ERROR;
 
       /* Calibration process */
 
@@ -8148,18 +8118,18 @@ Scan_Start (struct st_device *dev)
 
 /*
 if (Calib_BlackShading_jkd(dev, Regs, &myCalib, &scancfg) == OK)
-	Motor_ParkHome(dev, TRUE, dev->motorcfg->parkhomemotormove);
+	Head_ParkHome(dev, TRUE, dev->motorcfg->parkhomemotormove);
 */
 
 /*
 if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
-	Motor_ParkHome(dev, TRUE, dev->motorcfg->parkhomemotormove);
+	Head_ParkHome(dev, TRUE, dev->motorcfg->parkhomemotormove);
 */
 
 /* Calibrate White shading correction */
       if ((RTS_Debug->wshading == TRUE) && (scan.scantype == ST_NORMAL))
 	if (WShading_Calibrate (dev, Regs, &myCalib, &scancfg) == OK)
-	  Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+	  Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 
       hwdcfg.calibrate = RTS_Debug->calibrate;
 
@@ -8196,7 +8166,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 	  /*5af1 */
 	  if (RTS_Debug->ScanWhiteBoard != FALSE)
 	    {
-	      Motor_ParkHome (dev, TRUE, dev->motorcfg->basespeedmotormove);
+	      Head_ParkHome (dev, TRUE, dev->motorcfg->basespeedmotormove);
 	      scan.ler = 1;
 	    }
 
@@ -8208,20 +8178,20 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 	  /*Don't calibrate */
 	  if (scan.scantype == ST_NORMAL)
 	    {
-	      Lamp_SetStatus2 (dev, TRUE, FLB_LAMP);
+	      Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
 	    }
 	  else
 	    {
 	      if ((scan.scantype == ST_TA) || (scan.scantype == ST_NEG))
 		{
 		  /*SANE_Int ta_y_start; */
-		  Lamp_SetStatus2 (dev, FALSE, TMA_LAMP);
+		  Lamp_Status_Set (dev, NULL, FALSE, TMA_LAMP);
 		  /*ta_y_start =
 		     get_value(SCAN_PARAM, TA_Y_START, 0x2508, usbfile);
 		     ta_y_start += (((((scan.coord.top * 3) * 5) * 5) * 32) / scancfg.resolution_x);
 		     if (ta_y_start >= 500)
 		     {
-		     Motor_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, ta_y_start);
+		     Head_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, ta_y_start);
 		     scancfg.coord.top = 1;
 		     scan.ler = 1;
 		     } else
@@ -8229,7 +8199,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 		     / *5ba9* /
 		     if (ta_y_start > 0)
 		     {
-		     Motor_Relocate(dev, dev->motorcfg->basespeedmotormove, MTR_FORWARD, ta_y_start);
+		     Head_Relocate(dev, dev->motorcfg->basespeedmotormove, MTR_FORWARD, ta_y_start);
 		     scancfg.coord.top = 1;
 		     scan.ler = 1;
 		     }
@@ -8237,6 +8207,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 		}
 	    }
 	}
+
       /*5bd0 */
       usleep (1000 * 200);
 
@@ -8246,14 +8217,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
       /* Set Origin */
       if ((scan.scantype >= ST_NORMAL) || (scan.scantype <= ST_NEG))
 	{
-	  SANE_Int myser;
-	  if ((dpi100Lumping == 0)
-	      && (scancfg.resolution_x ==
-		  Scanmode_minres (dev, scan.scantype, scan.colormode)))
-	    myser = scan.ser / 2;
-	  else
-	    myser = scan.ser;
-	  scancfg.coord.left += myser;
+	  scancfg.coord.left += scan.ser;
 	  scancfg.coord.top += scan.ler;
 	}
 
@@ -8297,46 +8261,32 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
       /*5d12 */
       if (dev->sensorcfg->type == CCD_SENSOR)
 	{
-	  if ((dpi100Lumping == 0)
-	      && (scancfg.resolution_x ==
-		  Scanmode_minres (dev, scancfg.scantype, scancfg.colormode)))
-	    scancfg.coord.left += 12;
-	  else
+	  /*5d3a */
+	  scancfg.coord.left += 24;
+	  switch (scancfg.resolution_x)
 	    {
-	      /*5d3a */
-	      scancfg.coord.left += 24;
-	      switch (scancfg.resolution_x)
-		{
-		case 1200:
-		  scancfg.coord.left -= 63;
-		  break;
-		case 2400:
-		  scancfg.coord.left -= 127;
-		  break;
-		}
+	    case 1200:
+	      scancfg.coord.left -= 63;
+	      break;
+	    case 2400:
+	      scancfg.coord.left -= 127;
+	      break;
 	    }
 	}
       else
 	{
 	  /*5d5a */
 	  /* CIS sensor */
-	  if ((dpi100Lumping == 0)
-	      && (scancfg.resolution_x ==
-		  Scanmode_minres (dev, scancfg.scantype, scancfg.colormode)))
-	    scancfg.coord.left += 25;
-	  else
+	  /*5d6d */
+	  scancfg.coord.left += 50;
+	  switch (scancfg.resolution_x)
 	    {
-	      /*5d6d */
-	      scancfg.coord.left += 50;
-	      switch (scancfg.resolution_x)
-		{
-		case 1200:
-		  scancfg.coord.left -= 63;
-		  break;
-		case 2400:
-		  scancfg.coord.left -= 127;
-		  break;
-		}
+	    case 1200:
+	      scancfg.coord.left -= 63;
+	      break;
+	    case 2400:
+	      scancfg.coord.left -= 127;
+	      break;
 	    }
 	}
 
@@ -8390,7 +8340,7 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 	{
 	  SANE_Int val1 = scancfg.coord.top - (scancfg.resolution_y / 10);
 	  scancfg.coord.top -= val1;
-	  Motor_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, (dev->motorcfg->resolution / scancfg.resolution_y) * val1);	/*x168 */
+	  Head_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, (dev->motorcfg->resolution / scancfg.resolution_y) * val1);	/*x168 */
 	}
 
       /*5efe */
@@ -8458,8 +8408,9 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
 		      Motor_GetFromResolution (scancfg.resolution_x));
 
       /* set gain control mode */
-      gainmode = Lamp_GetGainMode (dev, scancfg.resolution_x, scan.scantype);
-      Lamp_SetGainMode (dev, Regs, scancfg.resolution_x, gainmode);
+      Lamp_SetGainMode (dev, Regs, scancfg.resolution_x,
+			Lamp_GetGainMode (dev, scancfg.resolution_x,
+					  scan.scantype));
 
       RTS_WaitScanEnd (dev, 15000);
       if (v14b4 == 0)
@@ -8476,14 +8427,14 @@ if (Calib_test(dev, Regs, &myCalib, &scancfg) == OK )
       /*shadingtest1(dev, Regs, &myCalib); */
 #endif
 
-      if (RTS_Warm_Reset (dev) == 0)
+      if (RTS_Warm_Reset (dev) == OK)
 	{
 	  RTS_WriteRegs (dev->usb_handle, Regs);
 	  usleep (1000 * 500);
 
 	  if (RTS_Execute (dev) == OK)
 	    {
-	      Lamp_SetTimer (dev, 0);
+	      Lamp_Status_Timer_Set (dev, 0);
 
 	      /* Let scanner some time to store some data */
 	      if ((dev->chipset->model == RTS8822L_02A)
@@ -8504,172 +8455,170 @@ static SANE_Int
 RTS_Setup_Motor (struct st_device *dev, SANE_Byte * Regs,
 		 struct st_scanparams *scancfg, SANE_Int somevalue)
 {
-  SANE_Int rst;
+  SANE_Int rst = ERROR;		/* default */
 
   DBG (DBG_FNC, "+ RTS_Setup_Motor(*Regs, *scancfg, somevalue=%i):\n",
        somevalue);
   dbg_ScanParams (scancfg);
 
-  rst = ERROR;
-
   if ((Regs != NULL) && (scancfg != NULL))
     {
-      SANE_Int colormode, mymode, step_type, dummyline, myvalue, lf02c;
-      SANE_Int step_size;
-      SANE_Int mbs[2] = { 0 };	/* motor back steps */
+      SANE_Int colormode, mymode;
 
-      struct st_scanmode *sm;
-
-      colormode = scancfg->colormode;
-      if ((colormode != CM_COLOR) && (scancfg->channel == 3))
-	colormode = 3;
-
+      colormode = ((scancfg->colormode != CM_COLOR)
+		   && (scancfg->channel == 3)) ? 3 : scancfg->colormode;
       mymode =
 	RTS_GetScanmode (dev, scantype, colormode, scancfg->resolution_x);
-      if (mymode == -1)
-	return ERROR;
 
-      sm = dev->scanmodes[mymode];
-
-      /* set motor step type */
-      data_bitset (&Regs[0xd9], 0x70, sm->scanmotorsteptype);	       /*-xxx----*/
-
-      /* set motor direction (polarity) */
-      data_bitset (&Regs[0xd9], 0x80, somevalue >> 3);	/*e------- */
-
-      /* next value doesn't seem to have any effect */
-      data_bitset (&Regs[0xd9], 0x0f, somevalue);		       /*----efgh*/
-
-      /* 0 enable/1 disable motor */
-      data_bitset (&Regs[0xdd], 0x80, somevalue >> 4);	/*d------- */
-
-      /* next value doesn't seem to have any effect */
-      data_bitset (&Regs[0xdd], 0x40, somevalue >> 4);		       /*-d------*/
-
-      switch (sm->scanmotorsteptype)
+      if (mymode != -1)
 	{
-	case STT_OCT:
-	  step_type = 8;
-	  break;
-	case STT_QUART:
-	  step_type = 4;
-	  break;
-	case STT_HALF:
-	  step_type = 2;
-	  break;
-	default:
-	  step_type = 1;
-	  break;		/* STT_FULL */
-	}
+	  SANE_Int mbs[2] = { 0 };	/* motor back steps */
+	  SANE_Int step_size, step_type, dummyline, myvalue, lf02c;
+	  struct st_scanmode *sm;
 
-      /* set dummy lines */
-      dummyline = sm->dummyline;
-      if (dummyline == 0)
-	dummyline++;
+	  sm = dev->scanmodes[mymode];
 
-      data_bitset (&Regs[0xd6], 0xf0, dummyline);	/*xxxx---- */
+	  /* set motor step type */
+	  data_bitset (&Regs[0xd9], 0x70, sm->scanmotorsteptype);	       /*-xxx----*/
 
-      /* Set if motor has curves */
-      data_bitset (&Regs[0xdf], 0x10, ((sm->motorcurve != -1) ? 1 : 0));	 /*---x----*/
+	  /* set motor direction (polarity) */
+	  data_bitset (&Regs[0xd9], 0x80, somevalue >> 3);	/*e------- */
 
-      /* set last step of deccurve.scanbufferfull table to 16 */
-      data_lsb_set (&Regs[0xea], 0x10, 3);
+	  /* next value doesn't seem to have any effect */
+	  data_bitset (&Regs[0xd9], 0x0f, somevalue);			       /*----efgh*/
 
-      /* set last step of deccurve.normalscan table to 16 */
-      data_lsb_set (&Regs[0xed], 0x10, 3);
+	  /* 0 enable/1 disable motor */
+	  data_bitset (&Regs[0xdd], 0x80, somevalue >> 4);	/*d------- */
 
-      /* set last step of deccurve.smearing table to 16 */
-      data_lsb_set (&Regs[0xf0], 0x10, 3);
+	  /* next value doesn't seem to have any effect */
+	  data_bitset (&Regs[0xdd], 0x40, somevalue >> 4);		       /*-d------*/
 
-      /* set last step of deccurve.parkhome table to 16 */
-      data_lsb_set (&Regs[0xf3], 0x10, 3);
-
-      /* set step size */
-      step_size =
-	_B0 ((dev->motorcfg->resolution * step_type) /
-	     (dummyline * scancfg->resolution_y));
-      data_lsb_set (&Regs[0xe0], step_size - 1, 1);
-
-      /* set line exposure time */
-      myvalue = data_lsb_get (&Regs[0x30], 3);
-      myvalue += ((myvalue + 1) % step_size);
-      data_lsb_set (&Regs[0x30], myvalue, 3);
-
-      /* set last step of accurve.normalscan table */
-      myvalue = ((myvalue + 1) / step_size) - 1;
-      data_lsb_set (&Regs[0xe1], myvalue, 3);
-
-      /* 42b30eb */
-      lf02c = 0;
-      if (sm->motorcurve != -1)
-	{
-	  if (sm->motorcurve < dev->mtrsetting_count)
+	  switch (sm->scanmotorsteptype)
 	    {
-	      struct st_motorcurve *ms = dev->mtrsetting[sm->motorcurve];
-	      ms->motorbackstep = sm->motorbackstep;
+	    case STT_OCT:
+	      step_type = 8;
+	      break;
+	    case STT_QUART:
+	      step_type = 4;
+	      break;
+	    case STT_HALF:
+	      step_type = 2;
+	      break;
+	    default:
+	      step_type = 1;
+	      break;		/* STT_FULL */
 	    }
 
-	  DBG (DBG_FNC, " -> Setting up step motor using motorcurve %i\n",
-	       sm->motorcurve);
-	  lf02c = Motor_Setup_Steps (dev, Regs, sm->motorcurve);
+	  /* set dummy lines */
+	  dummyline = sm->dummyline;
+	  if (dummyline == 0)
+	    dummyline++;
 
-	  /* set motor back steps */
-	  mbs[1] = sm->motorbackstep;
-	  if (mbs[1] >= (smeardeccurvecount + smearacccurvecount))
-	    mbs[0] = mbs[1] - (smeardeccurvecount + smearacccurvecount) + 2;
+	  data_bitset (&Regs[0xd6], 0xf0, dummyline);	/*xxxx---- */
+
+	  /* Set if motor has curves */
+	  data_bitset (&Regs[0xdf], 0x10, ((sm->motorcurve != -1) ? 1 : 0));		 /*---x----*/
+
+	  /* set last step of deccurve.scanbufferfull table to 16 */
+	  data_lsb_set (&Regs[0xea], 0x10, 3);
+
+	  /* set last step of deccurve.normalscan table to 16 */
+	  data_lsb_set (&Regs[0xed], 0x10, 3);
+
+	  /* set last step of deccurve.smearing table to 16 */
+	  data_lsb_set (&Regs[0xf0], 0x10, 3);
+
+	  /* set last step of deccurve.parkhome table to 16 */
+	  data_lsb_set (&Regs[0xf3], 0x10, 3);
+
+	  /* set step size */
+	  step_size =
+	    _B0 ((dev->motorcfg->resolution * step_type) /
+		 (dummyline * scancfg->resolution_y));
+	  data_lsb_set (&Regs[0xe0], step_size - 1, 1);
+
+	  /* set line exposure time */
+	  myvalue = data_lsb_get (&Regs[0x30], 3);
+	  myvalue += ((myvalue + 1) % step_size);
+	  data_lsb_set (&Regs[0x30], myvalue, 3);
+
+	  /* set last step of accurve.normalscan table */
+	  myvalue = ((myvalue + 1) / step_size) - 1;
+	  data_lsb_set (&Regs[0xe1], myvalue, 3);
+
+	  /* 42b30eb */
+	  lf02c = 0;
+	  if (sm->motorcurve != -1)
+	    {
+	      if (sm->motorcurve < dev->mtrsetting_count)
+		{
+		  struct st_motorcurve *ms = dev->mtrsetting[sm->motorcurve];
+		  ms->motorbackstep = sm->motorbackstep;
+		}
+
+	      DBG (DBG_FNC, " -> Setting up step motor using motorcurve %i\n",
+		   sm->motorcurve);
+	      lf02c = Motor_Setup_Steps (dev, Regs, sm->motorcurve);
+
+	      /* set motor back steps */
+	      mbs[1] = sm->motorbackstep;
+	      if (mbs[1] >= (smeardeccurvecount + smearacccurvecount))
+		mbs[0] =
+		  mbs[1] - (smeardeccurvecount + smearacccurvecount) + 2;
+	      else
+		mbs[0] = 0;
+
+	      if (mbs[1] >= (deccurvecount + acccurvecount))
+		mbs[1] -= (deccurvecount + acccurvecount) + 2;
+	      else
+		mbs[1] = 0;
+	    }
 	  else
-	    mbs[0] = 0;
+	    {
+	      /* this scanner hasn't got any motorcurve */
 
-	  if (mbs[1] >= (deccurvecount + acccurvecount))
-	    mbs[1] -= (deccurvecount + acccurvecount) + 2;
+	      /* set last step of accurve.smearing table (same as accurve.normalscan) */
+	      data_lsb_set (&Regs[0xe4], myvalue, 3);
+
+	      /* set last step of accurve.parkhome table (same as accurve.normalscan) */
+	      data_lsb_set (&Regs[0xe7], myvalue, 3);
+
+	      /* both motorbacksteps are equal */
+	      mbs[0] = sm->motorbackstep;
+	      mbs[1] = sm->motorbackstep;
+	    }
+
+	  /* show msi and motorbacksteps */
+	  DBG (DBG_FNC, " -> msi            = %i\n", sm->msi);
+	  DBG (DBG_FNC, " -> motorbackstep1 = %i\n", mbs[0]);
+	  DBG (DBG_FNC, " -> motorbackstep2 = %i\n", mbs[1]);
+
+	  /* set msi */
+	  data_bitset (&Regs[0xda], 0xff, _B0 (sm->msi));	/*xxxxxxxx */
+	  data_bitset (&Regs[0xdd], 0x03, _B1 (sm->msi));	      /*------xx*/
+
+	  /* set motorbackstep (a) */
+	  data_bitset (&Regs[0xdb], 0xff, _B0 (mbs[0]));	/*xxxxxxxx */
+	  data_bitset (&Regs[0xdd], 0x0c, _B1 (mbs[0]));	      /*----xx--*/
+
+	  /* set motorbackstep (b) */
+	  data_bitset (&Regs[0xdc], 0xff, _B0 (mbs[1]));	/*xxxxxxxx */
+	  data_bitset (&Regs[0xdd], 0x30, _B1 (mbs[1]));	      /*--xx----*/
+
+	  /* 328b */
+
+	  /* get dummy lines count */
+	  dummyline = data_bitget (&Regs[0xd6], 0xf0);
+
+	  myvalue = scancfg->coord.top * (dummyline * step_size);
+
+	  if (lf02c >= myvalue)
+	    scancfg->coord.top = 1;
 	  else
-	    mbs[1] = 0;
+	    scancfg->coord.top -= (lf02c / (dummyline * step_size)) - 1;
+
+	  rst = lf02c;		/* Result from Motor_Setup_Steps */
 	}
-      else
-	{
-	  /* this scanner hasn't got any motorcurve */
-
-	  /* set last step of accurve.smearing table (same as accurve.normalscan) */
-	  data_lsb_set (&Regs[0xe4], myvalue, 3);
-
-	  /* set last step of accurve.parkhome table (same as accurve.normalscan) */
-	  data_lsb_set (&Regs[0xe7], myvalue, 3);
-
-	  /* both motorbacksteps are equal */
-	  mbs[0] = sm->motorbackstep;
-	  mbs[1] = sm->motorbackstep;
-	}
-
-      /* show msi and motorbacksteps */
-      DBG (DBG_FNC, " -> msi            = %i\n", sm->msi);
-      DBG (DBG_FNC, " -> motorbackstep1 = %i\n", mbs[0]);
-      DBG (DBG_FNC, " -> motorbackstep2 = %i\n", mbs[1]);
-
-      /* set msi */
-      data_bitset (&Regs[0xda], 0xff, _B0 (sm->msi));	/*xxxxxxxx */
-      data_bitset (&Regs[0xdd], 0x03, _B1 (sm->msi));	      /*------xx*/
-
-      /* set motorbackstep (a) */
-      data_bitset (&Regs[0xdb], 0xff, _B0 (mbs[0]));	/*xxxxxxxx */
-      data_bitset (&Regs[0xdd], 0x0c, _B1 (mbs[0]));	      /*----xx--*/
-
-      /* set motorbackstep (b) */
-      data_bitset (&Regs[0xdc], 0xff, _B0 (mbs[1]));	/*xxxxxxxx */
-      data_bitset (&Regs[0xdd], 0x30, _B1 (mbs[1]));	      /*--xx----*/
-
-      /* 328b */
-
-      /* get dummy lines count */
-      dummyline = data_bitget (&Regs[0xd6], 0xf0);
-
-      myvalue = scancfg->coord.top * (dummyline * step_size);
-
-      if (lf02c >= myvalue)
-	scancfg->coord.top = 1;
-      else
-	scancfg->coord.top -= (lf02c / (dummyline * step_size)) - 1;
-
-      rst = lf02c;		/* Result from Motor_Setup_Steps */
     }
 
   DBG (DBG_FNC, "- RTS_Setup_Motor: %i\n", rst);
@@ -8981,6 +8930,24 @@ RTS_Setup_Shading (SANE_Byte * Regs, struct st_scanparams *scancfg,
 }
 
 static void
+RTS_Setup_Arrangeline (struct st_device *dev, struct st_hwdconfig *hwdcfg,
+		       SANE_Int colormode)
+{
+  dev->scanning->arrange_compression =
+    (colormode == CM_LINEART) ? FALSE : hwdcfg->compression;
+
+  if ((colormode == CM_LINEART)
+      || ((colormode == CM_GRAY) && (hwdcfg->highresolution == FALSE)))
+    arrangeline2 = 0;
+  else
+    arrangeline2 = hwdcfg->arrangeline;
+
+  dev->scanning->arrange_hres = hwdcfg->highresolution;
+  dev->scanning->arrange_sensor_evenodd_dist =
+    (hwdcfg->highresolution == FALSE) ? 0 : hwdcfg->sensorevenodddistance;
+}
+
+static void
 RTS_Setup_Channels (struct st_device *dev, SANE_Byte * Regs,
 		    struct st_scanparams *scancfg, SANE_Int mycolormode)
 {
@@ -9078,17 +9045,13 @@ RTS_Setup (struct st_device *dev, SANE_Byte * Regs,
 	   struct st_scanparams *scancfg, struct st_hwdconfig *hwdcfg,
 	   struct st_gain_offset *gain_offset)
 {
-  SANE_Int iLineDistance, lSMode, dummyline;
-  SANE_Int bytes_per_line, resolution_ratio;
+  SANE_Int rst = ERROR;		/* default */
+  SANE_Int lSMode;
   SANE_Byte mycolormode;
-  struct st_scanmode *sm;
-  struct st_coords rts_coords;
 
   DBG (DBG_FNC, "+ RTS_Setup:\n");
   dbg_ScanParams (scancfg);
   dbg_hwdcfg (hwdcfg);
-
-  iLineDistance = 0;
 
   mycolormode = scancfg->colormode;
   if (scancfg->colormode != CM_COLOR)
@@ -9111,157 +9074,158 @@ RTS_Setup (struct st_device *dev, SANE_Byte * Regs,
   scantype = hwdcfg->scantype;
   lSMode =
     RTS_GetScanmode (dev, scantype, mycolormode, scancfg->resolution_x);
-  if (lSMode < 0)
-    return ERROR;
-
-  sm = dev->scanmodes[lSMode];
-
-  scancfg->timing = sm->timing;
-  scancfg->sensorresolution = dev->timings[scancfg->timing]->sensorresolution;
-  scancfg->shadinglength =
-    (((scancfg->sensorresolution * 17) / 2) + 3) & 0xfffffffc;
-  scancfg->samplerate = sm->samplerate;
-
-  hwdcfg->motorplus = sm->motorplus;
-
-  /* set systemclock */
-  data_bitset (&Regs[0x00], 0x0f, sm->systemclock);
-
-  /* setting exposure times */
-  RTS_Setup_Exposure_Times (Regs, scancfg, sm);
-
-  dev->scanning->arrange_compression =
-    (mycolormode == CM_LINEART) ? FALSE : hwdcfg->compression;
-
-  if ((mycolormode == CM_LINEART)
-      || ((mycolormode == CM_GRAY) && (hwdcfg->highresolution == FALSE)))
-    arrangeline2 = 0;
-  else
-    arrangeline2 = hwdcfg->arrangeline;
-
-  dev->scanning->arrange_hres = hwdcfg->highresolution;
-  dev->scanning->arrange_sensor_evenodd_dist =
-    (hwdcfg->highresolution == FALSE) ? 0 : hwdcfg->sensorevenodddistance;
-
-  /* set up line distances */
-  iLineDistance =
-    RTS_Setup_Line_Distances (dev, Regs, scancfg, hwdcfg, mycolormode,
-			      arrangeline);
-
-  /* 4c67 */
-
-  /* setup channel colors */
-  RTS_Setup_Channels (dev, Regs, scancfg, mycolormode);
-
-  /* setup depth */
-  bytes_per_line = RTS_Setup_Depth (Regs, scancfg, mycolormode);
-
-  /* f61 */
-
-  /* Set resolution ratio */
-  resolution_ratio =
-    (scancfg->sensorresolution / scancfg->resolution_x) & 0x1f;
-  data_bitset (&Regs[0xc0], 0x1f, resolution_ratio);
-
-  /* set sensor timing values */
-  RTS_Setup_SensorTiming (dev, scancfg->timing, Regs);
-
-  data_bitset (&Regs[0xd8], 0x40, ((scantype == ST_NORMAL) ? 0 : 1));	  /*-x------*/
-
-  /* Use static head ? */
-  data_bitset (&Regs[0xd8], 0x80, ((hwdcfg->static_head == FALSE) ? 1 : 0));	/*x------- */
-
-  /* Setting up gamma */
-  RTS_Setup_Gamma (Regs, hwdcfg);
-
-  /* setup shading correction */
-  RTS_Setup_Shading (Regs, scancfg, hwdcfg, bytes_per_line);
-
-  /* setup stepper motor */
-  hwdcfg->startpos =
-    RTS_Setup_Motor (dev, Regs, scancfg,
-		     hwdcfg->motor_direction | MTR_ENABLED);
-
-  /* set coordinates */
-  dummyline = data_bitget (&Regs[0xd6], 0xf0);
-
-  if (scancfg->coord.left == 0)
-    scancfg->coord.left++;
-  if (scancfg->coord.top == 0)
-    scancfg->coord.top++;
-
-  rts_coords.left = scancfg->coord.left * resolution_ratio;
-  rts_coords.width = scancfg->coord.width * resolution_ratio;
-  rts_coords.top = scancfg->coord.top * dummyline;
-  rts_coords.height =
-    ((Regs[0x14d] & 0x3f) + scancfg->coord.height +
-     iLineDistance) * dummyline;
-
-  if ((rts_coords.left & 1) == 0)
-    rts_coords.left++;
-
-  RTS_Setup_Coords (Regs, rts_coords.left, rts_coords.top, rts_coords.width,
-		    rts_coords.height);
-
-  data_bitset (&Regs[0x01], 0x06, 0);	   /*-----xx-*/
-
-  /* dummy_scan? */
-  data_bitset (&Regs[0x01], 0x10, hwdcfg->dummy_scan);	    /*---x----*/
-
-  data_bitset (&Regs[0x163], 0xc0, 1);	/*xx------ */
-
-  if (dev->scanning->arrange_compression != FALSE)
+  if (lSMode >= 0)
     {
-      Regs[0x60b] &= 0x8f;
-      data_bitset (&Regs[0x60b], 0x10, 1);		 /*-001----*/
-    }
-  else
-    data_bitset (&Regs[0x60b], 0x7f, 0);	   /*-0000000*/
+      struct st_scanmode *sm = dev->scanmodes[lSMode];
 
-  if (mycolormode == 3)
-    {
-      SANE_Int channels_per_line;
-
-      /* Set channels_per_line = channels_per_dot * scan_width */
-      channels_per_line =
-	data_bitget (&Regs[0x12], 0xc0) * scancfg->coord.width;
-      data_wide_bitset (&Regs[0x060c], 0x3ffff, channels_per_line);
-
-      /* Sets 16 bits per channel */
-      data_bitset (&Regs[0x1cf], 0x30, 2);	    /*--10----*/
-
-      Regs[0x60b] |= 0x40;
-      if (v1619 == 0x21)
+      if (sm != NULL)
 	{
-	  dev->scanning->arrange_compression = FALSE;
-	  data_bitset (&Regs[0x60b], 0x10, 0);		    /*---0----*/
+	  SANE_Int dummyline, iLineDistance, resolution_ratio, bytes_per_line;
+	  struct st_coords rts_coords;
+
+	  iLineDistance = 0;
+
+	  scancfg->timing = sm->timing;
+	  scancfg->sensorresolution =
+	    dev->timings[scancfg->timing]->sensorresolution;
+	  scancfg->shadinglength =
+	    (((scancfg->sensorresolution * 17) / 2) + 3) & 0xfffffffc;
+	  scancfg->samplerate = sm->samplerate;
+
+	  hwdcfg->motorplus = sm->motorplus;
+
+	  /* set systemclock */
+	  data_bitset (&Regs[0x00], 0x0f, sm->systemclock);
+
+	  /* setting exposure times */
+	  RTS_Setup_Exposure_Times (Regs, scancfg, sm);
+
+	  /* setting arranges */
+	  RTS_Setup_Arrangeline (dev, hwdcfg, mycolormode);
+
+	  /* set up line distances */
+	  iLineDistance =
+	    RTS_Setup_Line_Distances (dev, Regs, scancfg, hwdcfg, mycolormode,
+				      arrangeline);
+
+	  /* 4c67 */
+
+	  /* setup channel colors */
+	  RTS_Setup_Channels (dev, Regs, scancfg, mycolormode);
+
+	  /* setup depth */
+	  bytes_per_line = RTS_Setup_Depth (Regs, scancfg, mycolormode);
+
+	  /* f61 */
+
+	  /* Set resolution ratio */
+	  resolution_ratio =
+	    (scancfg->sensorresolution / scancfg->resolution_x) & 0x1f;
+	  data_bitset (&Regs[0xc0], 0x1f, resolution_ratio);
+
+	  /* set sensor timing values */
+	  RTS_Setup_SensorTiming (dev, scancfg->timing, Regs);
+
+	  data_bitset (&Regs[0xd8], 0x40, ((scantype == ST_NORMAL) ? 0 : 1));		  /*-x------*/
+
+	  /* Use static head ? */
+	  data_bitset (&Regs[0xd8], 0x80, ((hwdcfg->static_head == FALSE) ? 1 : 0));	/*x------- */
+
+	  /* Setting up gamma */
+	  RTS_Setup_Gamma (Regs, hwdcfg);
+
+	  /* setup shading correction */
+	  RTS_Setup_Shading (Regs, scancfg, hwdcfg, bytes_per_line);
+
+	  /* setup stepper motor */
+	  hwdcfg->startpos =
+	    RTS_Setup_Motor (dev, Regs, scancfg,
+			     hwdcfg->motor_direction | MTR_ENABLED);
+
+	  /* set coordinates */
+	  dummyline = data_bitget (&Regs[0xd6], 0xf0);
+
+	  if (scancfg->coord.left == 0)
+	    scancfg->coord.left++;
+	  if (scancfg->coord.top == 0)
+	    scancfg->coord.top++;
+
+	  rts_coords.left = scancfg->coord.left * resolution_ratio;
+	  rts_coords.width = scancfg->coord.width * resolution_ratio;
+	  rts_coords.top = scancfg->coord.top * dummyline;
+	  rts_coords.height =
+	    ((Regs[0x14d] & 0x3f) + scancfg->coord.height +
+	     iLineDistance) * dummyline;
+
+	  if ((rts_coords.left & 1) == 0)
+	    rts_coords.left++;
+
+	  RTS_Setup_Coords (Regs, rts_coords.left, rts_coords.top,
+			    rts_coords.width, rts_coords.height);
+
+	  data_bitset (&Regs[0x01], 0x06, 0);		   /*-----xx-*/
+
+	  /* dummy_scan? */
+	  data_bitset (&Regs[0x01], 0x10, hwdcfg->dummy_scan);		    /*---x----*/
+
+	  data_bitset (&Regs[0x163], 0xc0, 1);	/*xx------ */
+
+	  if (dev->scanning->arrange_compression != FALSE)
+	    {
+	      Regs[0x60b] &= 0x8f;
+	      data_bitset (&Regs[0x60b], 0x10, 1);			 /*-001----*/
+	    }
+	  else
+	    data_bitset (&Regs[0x60b], 0x7f, 0);		   /*-0000000*/
+
+	  if (mycolormode == 3)
+	    {
+	      SANE_Int channels_per_line;
+
+	      /* Set channels_per_line = channels_per_dot * scan_width */
+	      channels_per_line =
+		data_bitget (&Regs[0x12], 0xc0) * scancfg->coord.width;
+	      data_wide_bitset (&Regs[0x060c], 0x3ffff, channels_per_line);
+
+	      /* Sets 16 bits per channel */
+	      data_bitset (&Regs[0x1cf], 0x30, 2);		    /*--10----*/
+
+	      Regs[0x60b] |= 0x40;
+	      if (v1619 == 0x21)
+		{
+		  dev->scanning->arrange_compression = FALSE;
+		  data_bitset (&Regs[0x60b], 0x10, 0);			    /*---0----*/
+		}
+
+	      switch (scancfg->depth)
+		{
+		case 8:
+		case 16:
+		  Regs[0x060b] &= 0xf3;
+		  break;
+		case 12:
+		  Regs[0x060b] = (Regs[0x060b] & 0xfb) | 0x08;
+		  break;
+		}
+
+	      if (scancfg->colormode == CM_LINEART)
+		data_bitset (&Regs[0x60b], 0x0c, 0);
+
+	      /* disable gamma correction ¿? */
+	      data_bitset (&Regs[0x1d0], 0x40, 0);
+	    }
+
+	  /* 5683 */
+	  /* Set calibration table */
+	  RTS_Setup_GainOffset (Regs, gain_offset);
+
+	  rst = OK;
 	}
-
-      switch (scancfg->depth)
-	{
-	case 8:
-	case 16:
-	  Regs[0x060b] &= 0xf3;
-	  break;
-	case 12:
-	  Regs[0x060b] = (Regs[0x060b] & 0xfb) | 0x08;
-	  break;
-	}
-
-      if (scancfg->colormode == CM_LINEART)
-	data_bitset (&Regs[0x60b], 0x0c, 0);
-
-      /* disable gamma correction ¿? */
-      data_bitset (&Regs[0x1d0], 0x40, 0);
     }
 
-  /* 5683 */
-  /* Set calibration table */
-  RTS_Setup_GainOffset (Regs, gain_offset);
+  DBG (DBG_FNC, "- RTS_Setup: %i\n", rst);
 
-  DBG (DBG_FNC, "- RTS_Setup:\n");
-
-  return OK;
+  return rst;
 }
 
 static void
@@ -10080,14 +10044,9 @@ Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
 		SANE_Byte * buffer, SANE_Int * transfered)
 {
   SANE_Int iTransferSize, iBytesToTransfer, iPos, rst, iBytesTransfered;
-  char sdebug[20];
 
-  if ((op & 0x01) != 0)
-    strcpy (sdebug, "READ");
-  else
-    strcpy (sdebug, "WRITE");
-  DBG (DBG_FNC, "+ Bulk_Operation(op=%s, buffer_size=%i, buffer):\n", sdebug,
-       buffer_size);
+  DBG (DBG_FNC, "+ Bulk_Operation(op=%s, buffer_size=%i, buffer):\n",
+       ((op & 0x01) != 0) ? "READ" : "WRITE", buffer_size);
 
   iBytesToTransfer = buffer_size;
   iPos = 0;
@@ -10153,15 +10112,17 @@ Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
 }
 
 static SANE_Int
-Reading_NotifySize (struct st_device *dev, SANE_Int data, SANE_Int size)
+Reading_BufferSize_Notify (struct st_device *dev, SANE_Int data,
+			   SANE_Int size)
 {
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ Reading_NotifySize(data=%i, size=%i):\n", data, size);
+  DBG (DBG_FNC, "+ Reading_BufferSize_Notify(data=%i, size=%i):\n", data,
+       size);
 
   rst = RTS_DMA_Enable_Read (dev, 0x0008, size, data);
 
-  DBG (DBG_FNC, "- Reading_NotifySize: %i\n", rst);
+  DBG (DBG_FNC, "- Reading_BufferSize_Notify: %i\n", rst);
 
   return rst;
 }
@@ -10184,7 +10145,7 @@ Reading_Wait (struct st_device *dev, SANE_Byte Channels_per_dot,
   cTimeout = FALSE;
   lastAmount = 0;
 
-  myAmount = Get_Scanner_Buffer_Size (dev, Channels_per_dot, Channel_size);
+  myAmount = Reading_BufferSize_Get (dev, Channels_per_dot, Channel_size);
   if (myAmount < size)
     {
       /* Wait until scanner fills its buffer */
@@ -10195,7 +10156,7 @@ Reading_Wait (struct st_device *dev, SANE_Byte Channels_per_dot,
       while (cTimeout == FALSE)
 	{
 	  myAmount =
-	    Get_Scanner_Buffer_Size (dev, Channels_per_dot, Channel_size);
+	    Reading_BufferSize_Get (dev, Channels_per_dot, Channel_size);
 
 	  /* check special case */
 	  if (op == TRUE)
@@ -10275,7 +10236,7 @@ RTS_GetImage_GetBuffer (struct st_device *dev, double dSize,
 	  rst = ERROR;
 	  if (Reading_Wait (dev, 0, 1, myLength * 2, NULL, 5, FALSE) == OK)
 	    {
-	      if (Reading_NotifySize (dev, 0, myLength * 2) == OK)
+	      if (Reading_BufferSize_Notify (dev, 0, myLength * 2) == OK)
 		rst =
 		  Bulk_Operation (dev, BLK_READ, myLength * 2, &buffer[iPos],
 				  &itransferred);
@@ -10349,397 +10310,426 @@ RTS_GetImage (struct st_device *dev, SANE_Byte * Regs,
 	      struct st_scanparams *scancfg,
 	      struct st_gain_offset *gain_offset, SANE_Byte * buffer,
 	      struct st_calibration *myCalib, SANE_Int options,
-	      SANE_Int gainmode)
+	      SANE_Int gaincontrol)
 {
   /* 42b8e10 */
 
-  SANE_Int myvalue;
-  struct st_scanparams *myscancfg;
-  struct st_hwdconfig *hwdcfg;
+  SANE_Int rst = ERROR;		/* default */
 
   DBG (DBG_FNC,
-       "+ RTS_GetImage(*Regs, *scancfg, *gain_offset, *buffer, myCalib, options=0x%08x, gainmode=%i):\n",
-       options, gainmode);
+       "+ RTS_GetImage(*Regs, *scancfg, *gain_offset, *buffer, myCalib, options=0x%08x, gaincontrol=%i):\n",
+       options, gaincontrol);
   dbg_ScanParams (scancfg);
 
-  /* Validate arguments */
-  if ((Regs == NULL) || (scancfg == NULL))
-    return ERROR;
-
-  if ((scancfg->coord.width != 0) && (scancfg->coord.height != 0))
+  /* validate arguments */
+  if ((Regs != NULL) && (scancfg != NULL))
     {
-      /* Let's make a copy of scan config */
-      myscancfg =
-	(struct st_scanparams *) malloc (sizeof (struct st_scanparams));
-      if (myscancfg != NULL)
-	memcpy (myscancfg, scancfg, sizeof (struct st_scanparams));
-      else
-	return ERROR;
-
-      /* Allocate space for low level config */
-      hwdcfg = (struct st_hwdconfig *) malloc (sizeof (struct st_hwdconfig));
-      if (hwdcfg == NULL)
+      if ((scancfg->coord.width != 0) && (scancfg->coord.height != 0))
 	{
-	  free (myscancfg);
-	  return ERROR;
-	}
-      else
-	bzero (hwdcfg, sizeof (struct st_hwdconfig));
+	  struct st_scanparams *myscancfg;
 
-      if (((options & 2) != 0) || ((_B1 (options) & 1) != 0))
-	{
-	  /* switch off lamp */
-	  data_bitset (&Regs[0x146], 0x40, 0);
-
-	  Write_Byte (dev->usb_handle, 0xe946, Regs[0x146]);
-	  if (v14b4 == 0)
-	    usleep (1000 * 500);
-	  else
-	    usleep (1000 * 300);
-	}
-
-      hwdcfg->scantype = scan.scantype;
-      hwdcfg->use_gamma_tables = ((options & OP_USE_GAMMA) != 0) ? 1 : 0;
-      hwdcfg->white_shading = ((options & OP_WHITE_SHAD) != 0) ? 1 : 0;
-      hwdcfg->black_shading = ((options & OP_BLACK_SHAD) != 0) ? 1 : 0;
-      hwdcfg->motor_direction =
-	((options & OP_BACKWARD) != 0) ? MTR_BACKWARD : MTR_FORWARD;
-      hwdcfg->compression = ((options & OP_COMPRESSION) != 0) ? 1 : 0;
-      hwdcfg->static_head = ((options & OP_STATIC_HEAD) != 0) ? 1 : 0;
-      hwdcfg->dummy_scan = (buffer == NULL) ? TRUE : FALSE;
-      hwdcfg->arrangeline = 0;
-      hwdcfg->highresolution =
-	(myscancfg->resolution_x > 1200) ? TRUE : FALSE;
-      hwdcfg->unk3 = 0;
-
-      /* Set Left coord */
-      myscancfg->coord.left +=
-	((dev->sensorcfg->type == CCD_SENSOR) ? 24 : 50);
-
-      switch (myscancfg->resolution_x)
-	{
-	case 1200:
-	  myscancfg->coord.left -= 63;
-	  break;
-	case 2400:
-	  myscancfg->coord.left -= 126;
-	  break;
-	}
-
-      if (myscancfg->coord.left < 0)
-	myscancfg->coord.left = 0;
-
-      RTS_Setup (dev, Regs, myscancfg, hwdcfg, gain_offset);
-
-      /* Setting exposure time */
-      switch (scan.scantype)
-	{
-	case ST_NORMAL:
-	  if (scan.resolution_x == 100)
+	  /* let's make a copy of scan config */
+	  myscancfg =
+	    (struct st_scanparams *) malloc (sizeof (struct st_scanparams));
+	  if (myscancfg != NULL)
 	    {
-	      SANE_Int iValue;
-	      SANE_Byte *myRegs;
+	      struct st_hwdconfig *hwdcfg;
 
-	      myRegs =
-		(SANE_Byte *) malloc (RT_BUFFER_LEN * sizeof (SANE_Byte));
-	      if (myRegs != NULL)
+	      memcpy (myscancfg, scancfg, sizeof (struct st_scanparams));
+
+	      /* Allocate space for low level config */
+	      hwdcfg =
+		(struct st_hwdconfig *) malloc (sizeof (struct st_hwdconfig));
+	      if (hwdcfg != NULL)
 		{
-		  bzero (myRegs, RT_BUFFER_LEN * sizeof (SANE_Byte));
-		  RTS_Setup (dev, myRegs, &scan, hwdcfg, gain_offset);
+		  bzero (hwdcfg, sizeof (struct st_hwdconfig));
 
-		  iValue = data_lsb_get (&myRegs[0x30], 3);
-		  data_lsb_set (&Regs[0x30], iValue, 3);
+		  if (((options & 2) != 0) || ((_B1 (options) & 1) != 0))
+		    {
+		      /* switch off lamp */
+		      data_bitset (&Regs[0x146], 0x40, 0);
 
-		  /*Copy myregisters mexpts to Regs mexpts */
-		  iValue = data_lsb_get (&myRegs[0x33], 3);
-		  data_lsb_set (&Regs[0x33], iValue, 3);
+		      Write_Byte (dev->usb_handle, 0xe946, Regs[0x146]);
+		      usleep (1000 * ((v14b4 == 0) ? 500 : 300));
+		    }
 
-		  iValue = data_lsb_get (&myRegs[0x39], 3);
-		  data_lsb_set (&Regs[0x39], iValue, 3);
+		  hwdcfg->scantype = scan.scantype;
+		  hwdcfg->use_gamma_tables =
+		    ((options & OP_USE_GAMMA) != 0) ? 1 : 0;
+		  hwdcfg->white_shading =
+		    ((options & OP_WHITE_SHAD) != 0) ? 1 : 0;
+		  hwdcfg->black_shading =
+		    ((options & OP_BLACK_SHAD) != 0) ? 1 : 0;
+		  hwdcfg->motor_direction =
+		    ((options & OP_BACKWARD) !=
+		     0) ? MTR_BACKWARD : MTR_FORWARD;
+		  hwdcfg->compression =
+		    ((options & OP_COMPRESSION) != 0) ? 1 : 0;
+		  hwdcfg->static_head =
+		    ((options & OP_STATIC_HEAD) != 0) ? 1 : 0;
+		  hwdcfg->dummy_scan = (buffer == NULL) ? TRUE : FALSE;
+		  hwdcfg->arrangeline = 0;
+		  hwdcfg->highresolution =
+		    (myscancfg->resolution_x > 1200) ? TRUE : FALSE;
+		  hwdcfg->unk3 = 0;
 
-		  iValue = data_lsb_get (&myRegs[0x3f], 3);
-		  data_lsb_set (&Regs[0x3f], iValue, 3);
+		  /* Set Left coord */
+		  myscancfg->coord.left +=
+		    ((dev->sensorcfg->type == CCD_SENSOR) ? 24 : 50);
 
-		  free (myRegs);
+		  switch (myscancfg->resolution_x)
+		    {
+		    case 1200:
+		      myscancfg->coord.left -= 63;
+		      break;
+		    case 2400:
+		      myscancfg->coord.left -= 126;
+		      break;
+		    }
+
+		  if (myscancfg->coord.left < 0)
+		    myscancfg->coord.left = 0;
+
+		  RTS_Setup (dev, Regs, myscancfg, hwdcfg, gain_offset);
+
+		  /* Setting exposure time */
+		  switch (scan.scantype)
+		    {
+		    case ST_NORMAL:
+		      if (scan.resolution_x == 100)
+			{
+			  SANE_Int iValue;
+			  SANE_Byte *myRegs;
+
+			  myRegs =
+			    (SANE_Byte *) malloc (RT_BUFFER_LEN *
+						  sizeof (SANE_Byte));
+			  if (myRegs != NULL)
+			    {
+			      bzero (myRegs,
+				     RT_BUFFER_LEN * sizeof (SANE_Byte));
+			      RTS_Setup (dev, myRegs, &scan, hwdcfg,
+					 gain_offset);
+
+			      iValue = data_lsb_get (&myRegs[0x30], 3);
+			      data_lsb_set (&Regs[0x30], iValue, 3);
+
+			      /*Copy myregisters mexpts to Regs mexpts */
+			      iValue = data_lsb_get (&myRegs[0x33], 3);
+			      data_lsb_set (&Regs[0x33], iValue, 3);
+
+			      iValue = data_lsb_get (&myRegs[0x39], 3);
+			      data_lsb_set (&Regs[0x39], iValue, 3);
+
+			      iValue = data_lsb_get (&myRegs[0x3f], 3);
+			      data_lsb_set (&Regs[0x3f], iValue, 3);
+
+			      free (myRegs);
+			    }
+			}
+		      break;
+		    case ST_NEG:
+		      {
+			SANE_Int myvalue;
+
+			/* Setting exposure times for Negative scans */
+			data_lsb_set (&Regs[0x30], myscancfg->expt, 3);
+			data_lsb_set (&Regs[0x33], myscancfg->expt, 3);
+			data_lsb_set (&Regs[0x39], myscancfg->expt, 3);
+			data_lsb_set (&Regs[0x3f], myscancfg->expt, 3);
+
+			data_lsb_set (&Regs[0x36], 0, 3);
+			data_lsb_set (&Regs[0x3c], 0, 3);
+			data_lsb_set (&Regs[0x42], 0, 3);
+
+			myvalue =
+			  ((myscancfg->expt +
+			    1) / (data_lsb_get (&Regs[0xe0], 1) + 1)) - 1;
+			data_lsb_set (&Regs[0xe1], myvalue, 3);
+		      }
+		      break;
+		    }
+
+		  /* 91a0 */
+		  if (myscancfg->resolution_y > 600)
+		    {
+		      options |= 0x20000000;
+		      if (options != 0)	/* Always true ... */
+			SetMultiExposure (dev, Regs);
+		      else
+			myscancfg->coord.top += hwdcfg->startpos;
+		    }
+		  else
+		    SetMultiExposure (dev, Regs);
+
+		  /* 91e2 */
+		  RTS_WriteRegs (dev->usb_handle, Regs);
+		  if (myCalib != NULL)
+		    Shading_apply (dev, Regs, myscancfg, myCalib);
+
+		  if (dev->motorcfg->changemotorcurrent != FALSE)
+		    Motor_Change (dev, Regs,
+				  Motor_GetFromResolution (myscancfg->
+							   resolution_x));
+
+		  /* mlock = 0 */
+		  data_bitset (&Regs[0x00], 0x10, 0);
+
+		  data_wide_bitset (&Regs[0xde], 0xfff, 0);
+
+		  /* release motor */
+		  Motor_Release (dev);
+
+		  if (RTS_Warm_Reset (dev) == OK)
+		    {
+		      rst = OK;
+
+		      SetLock (dev->usb_handle, Regs,
+			       (myscancfg->depth == 16) ? FALSE : TRUE);
+
+		      /* set gain control */
+		      Lamp_SetGainMode (dev, Regs, myscancfg->resolution_x,
+					gaincontrol);
+
+		      /* send registers to scanner */
+		      if (RTS_WriteRegs (dev->usb_handle, Regs) == OK)
+			{
+			  /* execute! */
+			  if (RTS_Execute (dev) == OK)
+			    RTS_GetImage_Read (dev, buffer, myscancfg, hwdcfg);	/*92e7 */
+			}
+
+		      /*92fc */
+		      SetLock (dev->usb_handle, Regs, FALSE);
+
+		      if ((options & 0x200) != 0)
+			{
+			  /* switch on lamp */
+			  data_bitset (&Regs[0x146], 0x40, 1);
+
+			  Write_Byte (dev->usb_handle, 0xe946, Regs[0x146]);
+			  /* Wait 3 seconds */
+			  usleep (1000 * 3000);
+			}
+
+		      /*9351 */
+		      if (dev->motorcfg->changemotorcurrent == TRUE)
+			Motor_Change (dev, dev->init_regs, 3);
+		    }
+
+		  /* free low level configuration */
+		  free (hwdcfg);
 		}
+
+	      /* free scanning configuration */
+	      free (myscancfg);
 	    }
-	  break;
-	case ST_NEG:
-	  /* Setting exposure times for Negative scans */
-	  data_lsb_set (&Regs[0x30], myscancfg->expt, 3);
-	  data_lsb_set (&Regs[0x33], myscancfg->expt, 3);
-	  data_lsb_set (&Regs[0x39], myscancfg->expt, 3);
-	  data_lsb_set (&Regs[0x3f], myscancfg->expt, 3);
-
-	  data_lsb_set (&Regs[0x36], 0, 3);
-	  data_lsb_set (&Regs[0x3c], 0, 3);
-	  data_lsb_set (&Regs[0x42], 0, 3);
-
-	  myvalue =
-	    ((myscancfg->expt + 1) / (data_lsb_get (&Regs[0xe0], 1) + 1)) - 1;
-	  data_lsb_set (&Regs[0xe1], myvalue, 3);
-	  break;
 	}
-
-      /* 91a0 */
-      if (myscancfg->resolution_y > 600)
-	{
-	  options |= 0x20000000;
-	  if (options != 0)	/* Always true ... */
-	    SetMultiExposure (dev, Regs);
-	  else
-	    myscancfg->coord.top += hwdcfg->startpos;
-	}
-      else
-	SetMultiExposure (dev, Regs);
-
-      /* 91e2 */
-      RTS_WriteRegs (dev->usb_handle, Regs);
-      if (myCalib != NULL)
-	Shading_apply (dev, Regs, myscancfg, myCalib);
-
-      if (dev->motorcfg->changemotorcurrent != FALSE)
-	Motor_Change (dev, Regs,
-		      Motor_GetFromResolution (myscancfg->resolution_x));
-
-      /* mlock = 0 */
-      data_bitset (&Regs[0x00], 0x10, 0);
-
-      data_wide_bitset (&Regs[0xde], 0xfff, 0);
-
-      /* release motor */
-      Motor_Release (dev);
-
-      if (RTS_Warm_Reset (dev) != 0)
-	return ERROR;
-
-      SetLock (dev->usb_handle, Regs,
-	       (myscancfg->depth == 16) ? FALSE : TRUE);
-
-      Lamp_SetGainMode (dev, Regs, myscancfg->resolution_x, gainmode);
-
-      if (RTS_WriteRegs (dev->usb_handle, Regs) == OK)
-	{
-	  if (RTS_Execute (dev) == OK)
-	    RTS_GetImage_Read (dev, buffer, myscancfg, hwdcfg);	/*92e7 */
-	}
-
-      /*92fc */
-      SetLock (dev->usb_handle, Regs, FALSE);
-
-      if ((options & 0x200) != 0)
-	{
-	  /* switch on lamp */
-	  data_bitset (&Regs[0x146], 0x40, 1);
-
-	  Write_Byte (dev->usb_handle, 0xe946, Regs[0x146]);
-	  /* Wait 3 seconds */
-	  usleep (1000 * 3000);
-	}
-
-      /*9351 */
-      if (dev->motorcfg->changemotorcurrent == TRUE)
-	Motor_Change (dev, dev->init_regs, 3);
-
-      free (myscancfg);
-      free (hwdcfg);
     }
 
-  DBG (DBG_FNC, "- RTS_GetImage\n");
+  DBG (DBG_FNC, "- RTS_GetImage: %i\n", rst);
 
-  return OK;
+  return rst;
 }
 
 static SANE_Int
 Refs_Detect (struct st_device *dev, SANE_Byte * Regs, SANE_Int resolution_x,
-	     SANE_Int resolution_y)
+	     SANE_Int resolution_y, SANE_Int * x, SANE_Int * y)
 {
-  struct st_scanparams scancfg;
-  struct st_gain_offset gain_offset;
-  SANE_Int rst, gainmode, pwmlamplevel_backup, C, ser1, ler1;
-  SANE_Byte *image;
+  SANE_Int rst = ERROR;		/* default */
 
   DBG (DBG_FNC, "+ Refs_Detect(*Regs, resolution_x=%i, resolution_y=%i):\n",
        resolution_x, resolution_y);
 
-  gainmode = 0;
-  if (RTS_Debug->use_fixed_pwm == FALSE)
+  if ((x != NULL) && (y != NULL))
     {
-      /* 3877 */
-      SANE_Int pwmdutycycle;
+      SANE_Byte *image;
+      struct st_scanparams scancfg;
 
-      gainmode = Lamp_GetGainMode (dev, resolution_x, scan.scantype);
-      pwmdutycycle = (gainmode == 0) ? 0x12 : 0x26;
-      pwmlamplevel = 0;
-      PWM_use (dev, 1);
-      PWM_SetDutyCycle (dev, pwmdutycycle);
+      *x = *y = 0;		/* default */
 
-      /* Enciende flb lamp */
-      Lamp_SetStatus2 (dev, TRUE, FLB_LAMP);
-      usleep (1000 * 2000);
-    }
+      /* set configuration to scan a little area at the top-left corner */
+      bzero (&scancfg, sizeof (struct st_scanparams));
+      scancfg.depth = 8;
+      scancfg.colormode = CM_GRAY;
+      scancfg.channel = CL_RED;
+      scancfg.resolution_x = resolution_x;
+      scancfg.resolution_y = resolution_y;
+      scancfg.coord.left = 4;
+      scancfg.coord.width = (resolution_x * 3) / 10;
+      scancfg.coord.top = 1;
+      scancfg.coord.height = (resolution_y * 4) / 10;
+      scancfg.shadinglength = (resolution_x * 17) / 2;
+      scancfg.bytesperline = scancfg.coord.width;
 
-  /* 38d6 */
-  pwmlamplevel_backup = pwmlamplevel;
-  pwmlamplevel = 0;
-  PWM_use (dev, 1);
-
-  bzero (&gain_offset, sizeof (struct st_gain_offset));
-  for (C = CL_RED; C <= CL_BLUE; C++)
-    {
-      gain_offset.pag[C] = 3;
-      gain_offset.vgag1[C] = 4;
-      gain_offset.vgag2[C] = 4;
-    }
-
-  /* set configuration to scan a little area at the top-left corner */
-  bzero (&scancfg, sizeof (struct st_scanparams));
-  scancfg.depth = 8;
-  scancfg.colormode = CM_GRAY;
-  scancfg.channel = CL_RED;
-  scancfg.resolution_x = resolution_x;
-  scancfg.resolution_y = resolution_y;
-  scancfg.coord.left = 4;
-  scancfg.coord.width = (resolution_x * 3) / 10;
-  scancfg.coord.top = 1;
-  scancfg.coord.height = (resolution_y * 4) / 10;
-  scancfg.shadinglength = (resolution_x * 17) / 2;
-  scancfg.bytesperline = scancfg.coord.width;
-
-  rst = ERROR;
-
-  /* allocate space to store image */
-  image =
-    (SANE_Byte *) malloc ((scancfg.coord.height * scancfg.coord.width) *
-			  sizeof (SANE_Byte));
-  if (image != NULL)
-    {
-      /* retrieve image from scanner */
-      if (RTS_GetImage
-	  (dev, Regs, &scancfg, &gain_offset, image, 0, 0x20000000,
-	   gainmode) == OK)
+      /* allocate space to store image */
+      image =
+	(SANE_Byte *) malloc ((scancfg.coord.height * scancfg.coord.width) *
+			      sizeof (SANE_Byte));
+      if (image != NULL)
 	{
-	  /* same image to disk if required by user */
-	  if (RTS_Debug->SaveCalibFile != FALSE)
+	  struct st_gain_offset gain_offset;
+	  SANE_Int gaincontrol, pwmlamplevel_backup, C;
+
+	  gaincontrol = 0;
+	  if (RTS_Debug->use_fixed_pwm == FALSE)
 	    {
-	      dbg_tiff_save ("pre-autoref.tiff",
-			     scancfg.coord.width,
-			     scancfg.coord.height,
-			     scancfg.depth,
-			     CM_GRAY,
-			     scancfg.resolution_x,
-			     scancfg.resolution_y,
-			     image,
-			     scancfg.coord.height * scancfg.coord.width);
+	      /* 3877 */
+	      gaincontrol = Lamp_GetGainMode (dev, resolution_x, ST_NORMAL);	/* scan.scantype */
+	      pwmlamplevel = 0;
+	      Lamp_PWM_use (dev, 1);
+	      Lamp_PWM_DutyCycle_Set (dev, (gaincontrol == 0) ? 0x12 : 0x26);
+
+	      /* Enciende flb lamp */
+	      Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
+	      usleep (1000 * 2000);
 	    }
 
-	  /* calculate reference position */
-	  if (Refs_Analyze_Pattern (&scancfg, image, &ler1, 1, &ser1, 0) ==
-	      OK)
+	  /* 38d6 */
+	  pwmlamplevel_backup = pwmlamplevel;
+	  pwmlamplevel = 0;
+	  Lamp_PWM_use (dev, 1);
+
+	  bzero (&gain_offset, sizeof (struct st_gain_offset));
+	  for (C = CL_RED; C <= CL_BLUE; C++)
 	    {
-	      scan.startpos = scancfg.coord.top + ler1;
-	      scan.leftleading = scancfg.coord.left + ser1;
-	      rst = OK;
+	      gain_offset.pag[C] = 3;
+	      gain_offset.vgag1[C] = 4;
+	      gain_offset.vgag2[C] = 4;
 	    }
+
+	  /* perform lamp warmup */
+	  Lamp_Warmup (dev, Regs, FLB_LAMP, resolution_x);
+
+	  /* retrieve image from scanner */
+	  if (RTS_GetImage
+	      (dev, Regs, &scancfg, &gain_offset, image, 0, 0x20000000,
+	       gaincontrol) == OK)
+	    {
+	      SANE_Int ser1, ler1;
+
+	      /* same image to disk if required by user */
+	      if (RTS_Debug->SaveCalibFile != FALSE)
+		{
+		  dbg_tiff_save ("pre-autoref.tiff",
+				 scancfg.coord.width,
+				 scancfg.coord.height,
+				 scancfg.depth,
+				 CM_GRAY,
+				 scancfg.resolution_x,
+				 scancfg.resolution_y,
+				 image,
+				 scancfg.coord.height * scancfg.coord.width);
+		}
+
+	      /* calculate reference position */
+	      if (Refs_Analyze_Pattern (&scancfg, image, &ler1, 1, &ser1, 0)
+		  == OK)
+		{
+		  *y = scancfg.coord.top + ler1;
+		  *x = scancfg.coord.left + ser1;
+
+		  rst = OK;
+		}
+	    }
+
+	  free (image);
+
+	  pwmlamplevel = pwmlamplevel_backup;
 	}
-      free (image);
+
+      DBG (DBG_FNC, " -> Detected refs: x=%i , y=%i\n", *x, *y);
     }
 
-  pwmlamplevel = pwmlamplevel_backup;
+  DBG (DBG_FNC, "- Refs_Detect: %i\n", rst);
 
-  DBG (DBG_FNC, "- Refs_Detect: scan.startpos=%i, scan.leftleading=%i : %i\n",
-       scan.startpos, scan.leftleading, rst);
-
-  return OK;
+  return rst;
 }
 
 static SANE_Int
 Refs_Set (struct st_device *dev, SANE_Byte * Regs,
-	  struct st_scanparams *myscan, SANE_Int autoref)
+	  struct st_scanparams *scancfg)
 {
   SANE_Int rst;
-  SANE_Int start_pos, left_leading;
+  SANE_Int y, x;
   struct st_autoref refcfg;
 
-  DBG (DBG_FNC, "+ Refs_Set(*Regs, *myscan, autoref=%i):\n", autoref);
-  dbg_ScanParams (myscan);
+  DBG (DBG_FNC, "+ Refs_Set(*Regs, *scancfg):\n");
+  dbg_ScanParams (scancfg);
 
   rst = OK;
 
   /* get fixed references for given resolution */
-  cfg_vrefs_get (dev->sensorcfg->type, myscan->resolution_x, &scan.ler,
+  cfg_vrefs_get (dev->sensorcfg->type, scancfg->resolution_x, &scan.ler,
 		 &scan.ser);
   scan.leftleading = scan.ser;
+  scan.startpos = scan.ler;
 
   /* get auto reference configuration */
   cfg_autoref_get (&refcfg);
 
   if (refcfg.type != REF_NONE)
     {
-      if (autoref == TRUE)
-	refcfg.type = REF_AUTODETECT;
+      /* if reference counter is == 0 perform auto detection */
+      if (Refs_Counter_Load (dev) == 0)
+	{
+	  DBG (DBG_FNC,
+	       " -> Refs_Set - Autodetection mandatory (counter == 0)\n");
+
+	  refcfg.type = REF_AUTODETECT;
+	}
 
       switch (refcfg.type)
 	{
 	case REF_AUTODETECT:
 	  /* try to autodetect references scanning a little area */
-	  if (Refs_Detect (dev, Regs, refcfg.resolution, refcfg.resolution) ==
-	      OK)
-	    Refs_Save (dev, scan.leftleading, scan.startpos);
+	  if (Refs_Detect
+	      (dev, Regs, refcfg.resolution, refcfg.resolution, &x, &y) == OK)
+	    Refs_Save (dev, x, y);
 	  else
 	    rst = ERROR;
 
-	  Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+	  Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 	  break;
 
 	case REF_TAKEFROMSCANNER:
 	  /* Try to get values from scanner */
-	  if (Refs_Load (dev, &left_leading, &start_pos) == ERROR)
+	  if (Refs_Load (dev, &x, &y) == ERROR)
 	    {
 	      if (Refs_Detect
-		  (dev, Regs, refcfg.resolution, refcfg.resolution) == OK)
-		Refs_Save (dev, left_leading, start_pos);
+		  (dev, Regs, refcfg.resolution, refcfg.resolution, &x,
+		   &y) == OK)
+		Refs_Save (dev, x, y);
 	      else
 		rst = ERROR;
 
-	      DBG (DBG_FNC,
-		   " ->  blacklinipos:ler=%i, leftBlackpos:ser = %i\n",
-		   scan.startpos, scan.leftleading);
-
-	      Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
-	    }
-	  else
-	    {
-	      scan.leftleading = left_leading;
-	      scan.startpos = start_pos;
+	      Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 	    }
 	  break;
 	}
 
       if (rst == OK)
 	{
-	  scan.leftleading *= 4;
-	  scan.startpos = (myscan->resolution_y < 1200) ?
-	    (scan.startpos - 12) * 4 : (scan.startpos - 24) * 4;
+	  /* values are based on resolution given by refcfg.resolution.
 
-	  if ((dpi100Lumping == 0)
-	      && (myscan->resolution_x ==
-		  Scanmode_minres (dev, myscan->scantype, myscan->colormode)))
-	    scan.ser = ((scan.leftleading + refcfg.offset_x) * 200) / 2400;
-	  else
-	    scan.ser =
-	      ((scan.leftleading +
-		refcfg.offset_x) * myscan->resolution_x) / 2400;
+	     offset_x and y are based on 2400 dpi so convert values to that dpi
+	     before adding offsets and then return to resolution given by user */
 
-	  scan.ler =
-	    ((scan.startpos + refcfg.offset_y) * myscan->resolution_y) / 2400;
-	  if (myscan->resolution_x <= 300)
-	    scan.ler += 3;
+	  x *= (2400 / refcfg.resolution);
+	  y *= (2400 / refcfg.resolution);
+
+	  scan.leftleading = x;
+	  scan.startpos = y;
+	  scan.ser = ((x + refcfg.offset_x) * scancfg->resolution_x) / 2400;
+	  scan.ler = ((y + refcfg.offset_y) * scancfg->resolution_y) / 2400;
 
 	  DBG (DBG_FNC,
 	       " -> After SEROffset and LEROffset, xoffset = %i, yoffset =%i\n",
 	       scan.ser, scan.ler);
 	}
+
+      /* increase refs counter */
+      Refs_Counter_Inc (dev);
     }
 
   DBG (DBG_FNC, "- Refs_Set: %i\n", rst);
@@ -10748,108 +10738,80 @@ Refs_Set (struct st_device *dev, SANE_Byte * Regs,
 }
 
 static SANE_Int
-Lamp_SetStatus (struct st_device *dev, SANE_Byte * Regs, SANE_Int turn_on,
-		SANE_Int lamp)
+Lamp_Status_Set (struct st_device *dev, SANE_Byte * Regs, SANE_Int turn_on,
+		 SANE_Int lamp)
 {
-  char sdebug1[10], sdebug2[10];
+  SANE_Int rst = ERROR;		/* default */
+  SANE_Byte freevar = FALSE;
 
-  if ((((lamp - 1) | turn_on) & 1) == 1)
-    strcpy (sdebug1, "Yes");
-  else
-    strcpy (sdebug1, "No");
+  DBG (DBG_FNC, "+ Lamp_Status_Set(*Regs, turn_on=%i->%s, lamp=%s)\n",
+       turn_on,
+       ((((lamp - 1) | turn_on) & 1) == 1) ? "Yes" : "No",
+       (lamp == FLB_LAMP) ? "FLB_LAMP" : "TMA_LAMP");
 
-  if (lamp == FLB_LAMP)
-    strcpy (sdebug2, "FLB_LAMP");
-  else
-    strcpy (sdebug2, "TMA_LAMP");
-
-  DBG (DBG_FNC, "+ Lamp_SetStatus(*Regs, turn_on=%i->%s, lamp=%s)\n", turn_on,
-       sdebug1, sdebug2);
-
-  RTS_ReadRegs (dev->usb_handle, Regs);
-
-  /* next op depends on chipset */
-  switch (dev->chipset->model)
+  if (Regs == NULL)
     {
-    case RTS8822BL_03A:
-      /* register 0xe946 has 2 bits and each one referres one lamp
-         0x40: FLB_LAMP | 0x20 : TMA_LAMP
-         if both were enabled both lamps would be switched on */
-      data_bitset (&Regs[0x146], 0x20, ((lamp == TMA_LAMP) && (turn_on == TRUE)) ? 1 : 0);	/* TMA */
-      data_bitset (&Regs[0x146], 0x40, ((lamp == FLB_LAMP) && (turn_on == TRUE)) ? 1 : 0);	/* FLB */
+      Regs = (SANE_Byte *) malloc (RT_BUFFER_LEN * sizeof (SANE_Byte));
 
-      data_bitset (&Regs[0x155], 0x10, (lamp != FLB_LAMP) ? 1 : 0);
-      break;
-    default:
-      /* the other chipsets only use one bit to indicate when a lamp is
-         switched on or not being bit 0x10 in 0xe955 who decides which lamp
-         is affected */
-      /* switch on lamp? yes if TMA_LAMP, else whatever turn_on says */
-      data_bitset (&Regs[0x146], 0x40, ((lamp - 1) | turn_on));
-      /* what lamp must be switched on? */
-      if ((Regs[0x146] & 0x40) != 0)
-	data_bitset (&Regs[0x155], 0x10, (lamp != FLB_LAMP) ? 1 : 0);
-      break;
+      if (Regs != NULL)
+	freevar = TRUE;
     }
 
-  /*42b8cd1 */
-  /* switch on/off lamp */
-  /*dev->init_regs[0x0146] = (dev->init_regs[0x146] & 0xbf) | (Regs[0x146] & 0x40); */
-  dev->init_regs[0x0146] = (dev->init_regs[0x146] & 0x9f) | (Regs[0x146] & 0x60);	/*-xx-----*/
-
-  /* Which lamp */
-  dev->init_regs[0x0155] = Regs[0x0155];
-  Write_Byte (dev->usb_handle, 0xe946, Regs[0x0146]);
-  usleep (1000 * 200);
-  Write_Buffer (dev->usb_handle, 0xe954, &Regs[0x0154], 2);
-
-  DBG (DBG_FNC, "- Lamp_SetStatus\n");
-
-  return OK;
-}
-
-static void
-Lamp_OverDrive (struct st_device *dev, SANE_Int itime, SANE_Int lamp)
-{
-  long ticks;
-  SANE_Int pwmdutycycle;
-
-  DBG (DBG_FNC, "+ Lamp_OverDrive(itime=%i, lamp=%i):\n", itime, lamp);
-
-  ticks = GetTickCount () + itime;
-
-  switch (lamp)
+  if (Regs != NULL)
     {
-    case TMA_LAMP:
-      pwmdutycycle = 0x0e;
-      break;
-    default:
-      pwmdutycycle = 0x00;
-      break;
-    }
+      RTS_ReadRegs (dev->usb_handle, Regs);
 
-  PWM_SetDutyCycle (dev, pwmdutycycle);
-
-  if (RTS_Debug->warmup == TRUE)
-    {
-      DBG (DBG_VRB, "- Lamp Warmup process. Please wait...\n");
-
-      while (GetTickCount () <= ticks)
+      /* next op depends on chipset */
+      switch (dev->chipset->model)
 	{
-	  usleep (1000 * 200);
-	}
-    }
-  else
-    DBG (DBG_FNC, " -> warmup disabled\n");
+	case RTS8822BL_03A:
+	  /* register 0xe946 has 2 bits and each one referres one lamp
+	     0x40: FLB_LAMP | 0x20 : TMA_LAMP
+	     if both were enabled both lamps would be switched on */
+	  data_bitset (&Regs[0x146], 0x20, ((lamp == TMA_LAMP) && (turn_on == TRUE)) ? 1 : 0);	/* TMA */
+	  data_bitset (&Regs[0x146], 0x40, ((lamp == FLB_LAMP) && (turn_on == TRUE)) ? 1 : 0);	/* FLB */
 
-  DBG (DBG_FNC, "- Lamp_OverDrive\n");
+	  data_bitset (&Regs[0x155], 0x10, (lamp != FLB_LAMP) ? 1 : 0);
+	  break;
+	default:
+	  /* the other chipsets only use one bit to indicate when a lamp is
+	     switched on or not being bit 0x10 in 0xe955 who decides which lamp
+	     is affected */
+	  /* switch on lamp? yes if TMA_LAMP, else whatever turn_on says */
+	  data_bitset (&Regs[0x146], 0x40, ((lamp - 1) | turn_on));
+	  /* what lamp must be switched on? */
+	  if ((Regs[0x146] & 0x40) != 0)
+	    data_bitset (&Regs[0x155], 0x10, (lamp != FLB_LAMP) ? 1 : 0);
+	  break;
+	}
+
+      /*42b8cd1 */
+      /* switch on/off lamp */
+      /*dev->init_regs[0x0146] = (dev->init_regs[0x146] & 0xbf) | (Regs[0x146] & 0x40); */
+      dev->init_regs[0x0146] = (dev->init_regs[0x146] & 0x9f) | (Regs[0x146] & 0x60);		/*-xx-----*/
+
+      /* Which lamp */
+      dev->init_regs[0x0155] = Regs[0x0155];
+      Write_Byte (dev->usb_handle, 0xe946, Regs[0x0146]);
+      usleep (1000 * 200);
+      Write_Buffer (dev->usb_handle, 0xe954, &Regs[0x0154], 2);
+    }
+
+  if (freevar != FALSE)
+    {
+      free (Regs);
+      Regs = NULL;
+    }
+
+  DBG (DBG_FNC, "- Lamp_Status_Set: %i\n", rst);
+
+  return rst;
 }
 
 static SANE_Int
 Get_PAG_Value (SANE_Byte scantype, SANE_Byte color)
 {
   SANE_Int rst, iType, iColor;
-  char sdebug[20];
 
   switch (scantype)
     {
@@ -10886,7 +10848,7 @@ Get_PAG_Value (SANE_Byte scantype, SANE_Byte color)
   rst = get_value (iType, iColor, 1, FITCALIBRATE);
 
   DBG (DBG_FNC, "> Get_PAG_Value(scantype=%s, color=%i): %i\n",
-       dbg_scantype (sdebug, scantype), color, rst);
+       dbg_scantype (scantype), color, rst);
 
   return rst;
 }
@@ -10897,7 +10859,6 @@ Lamp_GetGainMode (struct st_device *dev, SANE_Int resolution,
 {
   SANE_Byte ret;
   SANE_Int mygain, iValue;
-  char sdebug[20];
 
   switch (scantype)
     {
@@ -10997,7 +10958,7 @@ Lamp_GetGainMode (struct st_device *dev, SANE_Int resolution,
     }
 
   DBG (DBG_FNC, "> Lamp_GetGainMode(resolution=%i, scantype=%s): %i\n",
-       resolution, dbg_scantype (sdebug, scantype), ret);
+       resolution, dbg_scantype (scantype), ret);
 
   return ret;
 }
@@ -11177,70 +11138,54 @@ GetOneLineInfo (struct st_device *dev, SANE_Int resolution,
 }
 
 static SANE_Int
-PWM_GetReady (struct st_device *dev, SANE_Int resolution,
-	      SANE_Int * last_colour, double diff, long totaltime,
-	      SANE_Int interval, SANE_Int value)
-{
-  /* This function detects when lamp is lightning in maximal intensity */
-
-  SANE_Int maximus[3] = { 0 };
-  SANE_Int minimus[3] = { 0 };
-  double average[3] = { 0 };
-  SANE_Int maxbigger;
-  SANE_Int rst;
-
-  DBG (DBG_FNC,
-       "+ PWM_GetReady(resolution=%i, *unknown, diff=%f, totaltime=%li, interval=%i, value=%i):\n",
-       resolution, diff, totaltime, interval, value);
-
-  while (GetTickCount () <= totaltime)
-    {
-      rst = GetOneLineInfo (dev, resolution, maximus, minimus, average);
-      if (rst == OK)
-	{
-	  /* Takes maximal colour value */
-	  maxbigger =
-	    max (maximus[CL_GREEN], max (maximus[CL_BLUE], maximus[CL_RED]));
-
-	  /*breaks when colour intensity increases 'diff' or lower */
-	  if (abs (maxbigger - *last_colour) < diff)
-	    {
-	      DBG (DBG_FNC, " -> PWM is ready\n");
-	      break;
-	    }
-
-	  *last_colour = maxbigger;
-	}
-      usleep (1000 * interval);
-    }
-
-  DBG (DBG_FNC, "- PWM_GetReady\n");
-
-  return OK;
-}
-
-static SANE_Int
-Lamp_WaitForPWM (struct st_device *dev, SANE_Int resolution, SANE_Int lamp)
+Lamp_PWM_CheckStable (struct st_device *dev, SANE_Int resolution,
+		      SANE_Int lamp)
 {
   struct st_checkstable check;
   SANE_Int rst;
 
-  DBG (DBG_FNC, "+ Lamp_WaitForPWM(resolution=%i, lamp=%i):\n", resolution,
-       lamp);
+  DBG (DBG_FNC, "+ Lamp_PWM_CheckStable(resolution=%i, lamp=%i):\n",
+       resolution, lamp);
 
   rst = cfg_checkstable_get (lamp, &check);
 
   if (rst == OK)
     {
+      SANE_Int maximus[3] = { 0 };
+      SANE_Int minimus[3] = { 0 };
+      double average[3] = { 0 };
+      SANE_Int maxbigger;
       SANE_Int last_colour = 0;
-      long tick = GetTickCount ();
 
-      tick += check.tottime;
-      PWM_GetReady (dev, resolution, &last_colour, check.diff * 0.01,
-		    tick, check.interval, -1);
+      double diff = check.diff * 0.01;
+      long tottime = GetTickCount () + check.tottime;
+
+      while (GetTickCount () <= tottime)
+	{
+	  rst = GetOneLineInfo (dev, resolution, maximus, minimus, average);
+	  if (rst == OK)
+	    {
+	      /* Takes maximal colour value */
+	      maxbigger =
+		max (maximus[CL_GREEN],
+		     max (maximus[CL_BLUE], maximus[CL_RED]));
+
+	      /*breaks when colour intensity increases 'diff' or lower */
+	      if (abs (maxbigger - last_colour) < diff)
+		{
+		  DBG (DBG_FNC, " -> PWM is ready\n");
+		  break;
+		}
+
+	      last_colour = maxbigger;
+	    }
+
+	  usleep (1000 * check.interval);
+	}
+
     }
 
-  DBG (DBG_FNC, "- Lamp_WaitForPWM: %i\n", rst);
+  DBG (DBG_FNC, "- Lamp_PWM_CheckStable: %i\n", rst);
 
   return OK;
 }
@@ -11306,7 +11251,6 @@ static SANE_Int
 Load_StripCoords (SANE_Int scantype, SANE_Int * ypos, SANE_Int * xpos)
 {
   SANE_Int iType;
-  char sdebug[20];
 
   switch (scantype)
     {
@@ -11325,19 +11269,19 @@ Load_StripCoords (SANE_Int scantype, SANE_Int * ypos, SANE_Int * xpos)
   *ypos = get_value (iType, WSTRIPYPOS, 0, FITCALIBRATE);
 
   DBG (DBG_FNC, "> Load_StripCoords(scantype=%s): ypos=%i, xpos=%i\n",
-       dbg_scantype (sdebug, scantype), *ypos, *xpos);
+       dbg_scantype (scantype), *ypos, *xpos);
 
   return OK;
 }
 
 static SANE_Int
-Motor_Relocate (struct st_device *dev, SANE_Int speed, SANE_Int direction,
-		SANE_Int ypos)
+Head_Relocate (struct st_device *dev, SANE_Int speed, SANE_Int direction,
+	       SANE_Int ypos)
 {
   SANE_Int rst;
   SANE_Byte *Regs;
 
-  DBG (DBG_FNC, "+ Motor_Relocate(speed=%i, direction=%i, ypos=%i):\n", speed,
+  DBG (DBG_FNC, "+ Head_Relocate(speed=%i, direction=%i, ypos=%i):\n", speed,
        direction, ypos);
 
   rst = ERROR;
@@ -11372,19 +11316,9 @@ Motor_Relocate (struct st_device *dev, SANE_Int speed, SANE_Int direction,
       rst = OK;
     }
 
-  DBG (DBG_FNC, "- Motor_Relocate: %i\n", rst);
+  DBG (DBG_FNC, "- Head_Relocate: %i\n", rst);
 
   return rst;
-}
-
-static SANE_Int
-Lamp_SetStatus2 (struct st_device *dev, SANE_Int turnon, SANE_Int lamp)
-{
-  SANE_Byte Regs[RT_BUFFER_LEN];
-
-  DBG (DBG_FNC, "> Lamp_SetStatus2(turnon=%i, lamp=%i)\n", turnon, lamp);
-
-  return Lamp_SetStatus (dev, Regs, turnon, lamp);
 }
 
 static SANE_Int
@@ -11433,16 +11367,10 @@ Calib_CreateBuffers (struct st_device *dev, struct st_calibration *buffer,
   SANE_Int ebp, ret, channel;
 
   ret = ERROR;
+  dev = dev;
 
   buffer->shadinglength = scan.coord.width;
   ebp = 0x14;
-  if ((dpi100Lumping == 0)
-      && (scan.resolution_x ==
-	  Scanmode_minres (dev, scan.scantype, scan.colormode)))
-    {
-      buffer->shadinglength = scan.coord.width * 2;
-      ebp = 0x28;
-    }
 
   if (my14b4 != 0)
     {
@@ -11525,12 +11453,11 @@ Calib_LoadConfig (struct st_device *dev,
 		  SANE_Int resolution, SANE_Int bitmode)
 {
   SANE_Int section, a;
-  char sdebug[20];
   struct st_autoref refcfg;
 
   DBG (DBG_FNC,
        "> Calib_LoadConfig(*calibcfg, scantype=%s, resolution=%i, bitmode=%i)\n",
-       dbg_scantype (sdebug, scantype), resolution, bitmode);
+       dbg_scantype (scantype), resolution, bitmode);
 
   switch (scantype)
     {
@@ -11660,320 +11587,279 @@ Calib_LoadConfig (struct st_device *dev,
 
 static SANE_Int
 Calib_AdcGain (struct st_device *dev, struct st_calibration_config *calibcfg,
-	       SANE_Int arg2, SANE_Int gainmode)
+	       SANE_Int arg2, SANE_Int gaincontrol)
 {
   /*
      0606F8E0   04F60738  |Arg1 = 04F60738
      0606F8E4   0606F90C  |Arg2 = 0606F90C calibcfg
      0606F8E8   00000001  |Arg3 = 00000001 arg2
-     0606F8EC   00000001  \Arg4 = 00000001 gainmode
+     0606F8EC   00000001  \Arg4 = 00000001 gaincontrol
    */
 
-  SANE_Int a, rst;
+  SANE_Int rst = ERROR;
   SANE_Byte *myRegs;		/*f1c0 */
-  struct st_scanparams *scancfg;	/*f17c */
-  SANE_Int mywidth;		/*lf134 */
-  SANE_Int length;		/*f13c */
-  SANE_Int bytes_to_next_colour;	/*f150 */
-  SANE_Int bytes_per_pixel;	/*f171 f174 */
-  SANE_Byte *pgain;		/*f144 */
-  SANE_Byte *pcalgain;		/*f140 */
-  SANE_Byte *image;		/*f16c */
-  SANE_Int lf160, lf154, lf178, lf158;
-  SANE_Byte *pimage;		/*f130 */
-  SANE_Byte *ptrval, *ptrval2, *ptrval3 /*f170 */ ;
-  double dval[3] = { 0.0 };	/*f1a8 f1b0 f1b8 */
-  SANE_Int lf138, lf148, lf14c, lf15c;
-  SANE_Int ival;
 
-  DBG (DBG_FNC, "+ Calib_AdcGain(*calibcfg, arg2=%i, gainmode=%i)\n", arg2,
-       gainmode);
+  DBG (DBG_FNC, "+ Calib_AdcGain(*calibcfg, arg2=%i, gaincontrol=%i)\n", arg2,
+       gaincontrol);
 
   myRegs = (SANE_Byte *) malloc (sizeof (SANE_Byte) * RT_BUFFER_LEN);
-  if (myRegs == NULL)
+  if (myRegs != NULL)
     {
-      DBG (DBG_FNC, "- Calib_AdcGain: -1\n");
-      return ERROR;
-    }
-  else
-    memcpy (myRegs, &calibdata->Regs, sizeof (SANE_Byte) * RT_BUFFER_LEN);
+      struct st_scanparams *scancfg;	/*f17c */
+      SANE_Int bytes_per_line, bytes_to_next_colour, bytes_per_pixel;
 
-  scancfg = (struct st_scanparams *) malloc (sizeof (struct st_scanparams));
-  if (scancfg == NULL)
-    {
-      free (myRegs);
+      /* get register values to perform adc gain calibration */
+      memcpy (myRegs, &calibdata->Regs, sizeof (SANE_Byte) * RT_BUFFER_LEN);
 
-      DBG (DBG_FNC, "- Calib_AdcGain: -1\n");
-
-      return ERROR;
-    }
-  else
-    memcpy (scancfg, &calibdata->scancfg, sizeof (struct st_scanparams));
-
-  Lamp_SetGainMode (dev, myRegs, scancfg->resolution_x, gainmode);
-
-  scancfg->depth = 8;
-
-  /* set coordinates */
-  if ((scan.scantype > 0) && (scan.scantype < 4))
-    scancfg->coord.left += scan.ser;
-
-  if ((scancfg->coord.width & 1) == 0)
-    scancfg->coord.width++;
-
-  scancfg->coord.top = 1;
-  scancfg->coord.height = calibcfg->OffsetHeight;
-
-  switch (scancfg->colormode)
-    {
-    case CM_GRAY:
-    case CM_LINEART:
-      bytes_to_next_colour = 0;
-      bytes_per_pixel = 1;
-      length = scancfg->coord.width;
-      break;
-    default:			/* CM_COLOR */
-      /* c027 */
-      bytes_to_next_colour = 1;
-      length = scancfg->coord.width * 3;
-      if (scancfg->samplerate == LINE_RATE)
+      scancfg =
+	(struct st_scanparams *) malloc (sizeof (struct st_scanparams));
+      if (scancfg != NULL)
 	{
-	  bytes_to_next_colour = scancfg->coord.width;
-	  bytes_per_pixel = 1;
-	}
-      else
-	bytes_per_pixel = 3;
-      break;
-    }
+	  SANE_Byte *image, *pgain, *pcalgain;
 
-  /*7fc7 */
-  scancfg->v157c = length;
-  scancfg->bytesperline = length;
+	  /* get proper scan configuration */
+	  memcpy (scancfg, &calibdata->scancfg,
+		  sizeof (struct st_scanparams));
 
-  mywidth = scancfg->coord.width;
+	  /* set gain control type */
+	  Lamp_SetGainMode (dev, myRegs, scancfg->resolution_x, gaincontrol);
 
-  if (arg2 != 0)
-    {
-      pgain = &calibdata->gain_offset.vgag1[0];
-      pcalgain = &calibcfg->Gain1[0];
-    }
-  else
-    {
-      /*7ff2 */
-      pgain = &calibdata->gain_offset.vgag2[0];
-      pcalgain = &calibcfg->Gain2[0];
-    }
+	  /* 8-bit depth */
+	  scancfg->depth = 8;
 
-  /*8002 */
-  /* Allocate space for image  | size = 132912 */
-  image =
-    (SANE_Byte *) malloc (sizeof (SANE_Byte) *
-			  ((scancfg->coord.height + 16) * length));
-  if (image == NULL)
-    {
-      free (myRegs);
-      free (scancfg);
+	  /* set coordinates */
+	  if ((scan.scantype > 0) && (scan.scantype < 4))
+	    scancfg->coord.left += scan.ser;
 
-      DBG (DBG_FNC, "- Calib_AdcGain: -1\n");
+	  if ((scancfg->coord.width & 1) == 0)
+	    scancfg->coord.width++;
 
-      return ERROR;
-    }
+	  scancfg->coord.top = 1;
+	  scancfg->coord.height = calibcfg->OffsetHeight;
 
-  /* Lets read image */
-  if (RTS_GetImage
-      (dev, myRegs, scancfg, &calibdata->gain_offset, image, NULL,
-       OP_STATIC_HEAD, gainmode) != OK)
-    {
-      free (myRegs);
-      free (scancfg);
-      free (image);
-
-      DBG (DBG_FNC, "- Calib_AdcGain: -1\n");
-
-      return ERROR;
-    }
-
-  lf138 = 0xff;
-  lf160 = 0xff;
-  lf154 = 0xff;			/*min value? */
-  lf178 = 0;			/*max value? */
-  lf148 = 0;
-  lf14c = 0;
-  pimage = image;
-  ptrval3 = pimage + (bytes_to_next_colour * 2);
-
-  for (a = CL_RED; a <= CL_BLUE; a++)
-    {
-      calibcfg->unk1[a] = 0;
-      calibcfg->unk2[a] = 0xff;
-    }
-
-  if (mywidth > 0)
-    {
-      /*8104 */
-      SANE_Int pos, myheight /*f164 */ ;
-      SANE_Int value;
-
-      for (pos = mywidth; pos > 0; pos--)
-	{
-	  lf158 = 0;
-	  lf15c = 0;
-	  value = 0;
-	  ptrval2 = pimage + bytes_to_next_colour;
-
-	  if (scancfg->coord.height > 0)
+	  /* three more values to read image data after getting image from scanner */
+	  switch (scancfg->colormode)
 	    {
-	      ptrval = pimage;
-	      for (myheight = 0; myheight < scancfg->coord.height; myheight++)
+	    case CM_GRAY:
+	    case CM_LINEART:
+	      bytes_to_next_colour = 0;
+	      bytes_per_pixel = 1;
+	      bytes_per_line = scancfg->coord.width;
+	      break;
+	    default:		/* CM_COLOR */
+	      /* c027 */
+	      bytes_to_next_colour = 1;
+	      bytes_per_line = scancfg->coord.width * 3;
+	      if (scancfg->samplerate == LINE_RATE)
 		{
-		  value += *ptrval;
-		  lf15c += *ptrval2;
-		  lf158 += *ptrval3;
-
-		  ptrval += length;
-		  ptrval2 += length;
-		  ptrval3 += length;
+		  bytes_to_next_colour = scancfg->coord.width;
+		  bytes_per_pixel = 1;
 		}
+	      else
+		bytes_per_pixel = 3;
+	      break;
 	    }
 
-	  /*816e */
-	  lf154 = min (lf154, value / scancfg->coord.height);
-	  lf14c = max (lf14c, value / scancfg->coord.height);
+	  /*7fc7 */
+	  scancfg->v157c = bytes_per_line;
+	  scancfg->bytesperline = bytes_per_line;
 
-	  lf160 = min (lf160, lf15c / scancfg->coord.height);
-	  lf148 = max (lf148, lf15c / scancfg->coord.height);
-
-	  lf138 = min (lf138, lf158 / scancfg->coord.height);
-	  lf178 = max (lf178, lf158 / scancfg->coord.height);
-
-	  calibcfg->unk1[CL_RED] = max (calibcfg->unk1[CL_RED], lf14c);
-	  calibcfg->unk1[CL_GREEN] = min (calibcfg->unk1[CL_GREEN], lf148);
-	  calibcfg->unk1[CL_BLUE] = max (calibcfg->unk1[CL_BLUE], lf178);
-
-	  calibcfg->unk2[CL_RED] = min (calibcfg->unk1[CL_RED], lf154);
-	  calibcfg->unk2[CL_GREEN] = min (calibcfg->unk1[CL_GREEN], lf160);
-	  calibcfg->unk2[CL_BLUE] = min (calibcfg->unk1[CL_BLUE], lf138);
-
-	  pimage += bytes_per_pixel;
-	  ptrval3 = pimage + (bytes_to_next_colour * 2);
-	  dval[CL_RED] += lf14c & 0xffff;
-	  dval[CL_GREEN] += lf148 & 0xffff;
-	  dval[CL_BLUE] += lf178 & 0xffff;
-	}
-    }
-
-  /*82b0 */
-  dval[0] /= mywidth;
-  dval[1] /= mywidth;
-  dval[2] /= mywidth;
-
-  DBG (DBG_FNC,
-       "> adcgain : r=%f, g=%f, b=%f  -  peak-R=%i, peak-G=%i, peak-B=%i\n",
-       dval[0], dval[1], dval[2], calibcfg->unk1[0], calibcfg->unk1[1],
-       calibcfg->unk1[2]);
-
-  if (scancfg->colormode == CM_COLOR)
-    {
-      /*8353 */
-      double *pdval;		/*f138 */
-      double dvalue;
-      SANE_Int *prefs;		/*f134 */
-
-      pdval = &dval[0];
-      prefs = &calibcfg->WRef[0];
-
-      for (a = CL_RED; a <= CL_BLUE; a++)
-	{
-	  dvalue =
-	    ((((*prefs * (1 << scancfg->depth)) *
-	       calibcfg->GainTargetFactor) * 0.00390625) / *pdval) * ((44 -
-								       *pgain)
-								      / 40);
-	  if (dvalue > 0.9090909090909091)
+	  /* select type of gain parameters to set */
+	  if (arg2 != 0)
 	    {
-	      /*83d7 */
-	      dvalue = min (44 - (40 / dvalue), 31);
-	      ival = dvalue;
-	      *pgain = _B0 (ival);
-	      *pcalgain = _B0 (ival);
+	      pgain = calibdata->gain_offset.vgag1;
+	      pcalgain = calibcfg->Gain1;
 	    }
 	  else
 	    {
-	      *pgain = 0;
-	      *pcalgain = 0;
+	      /*7ff2 */
+	      pgain = calibdata->gain_offset.vgag2;
+	      pcalgain = calibcfg->Gain2;
 	    }
 
-	  /*840d */
-	  prefs++;
-	  pdval++;
-	  pgain++;
-	  pcalgain++;
-	}
-    }
-  else
-    {
-      /*843c */
-      /*falta codigo */
-      double dvalue;
-
-      dvalue =
-	((44 -
-	  *pgain) / 40) * ((((1 << scancfg->depth) *
-			     calibcfg->WRef[scancfg->channel]) * 0.9) *
-			   0.00390625) / 17.08509389671362;
-
-      for (a = CL_RED; a <= CL_BLUE; a++)
-	{
-	  if (dvalue > 0.9090909090909091)
+	  /*8002 */
+	  /* Allocate space for image  | size = 132912 */
+	  image =
+	    (SANE_Byte *) malloc (sizeof (SANE_Byte) *
+				  ((scancfg->coord.height +
+				    16) * bytes_per_line));
+	  if (image != NULL)
 	    {
-	      dvalue = min (44 - (40 / dvalue), 31);
-	      ival = dvalue;
-	      *pgain = _B0 (ival);
-	      *pcalgain = _B0 (ival);
+	      /* Lets read image */
+	      if (RTS_GetImage
+		  (dev, myRegs, scancfg, &calibdata->gain_offset, image, NULL,
+		   OP_STATIC_HEAD, gaincontrol) == OK)
+		{
+		  SANE_Int a;
+		  SANE_Int vmin[3], vmax[3];
+		  double dval[3] = { 0.0 };	/*f1a8 f1b0 f1b8 */
+		  SANE_Byte *pimage = image;
+
+		  /* initialize values */
+		  for (a = CL_RED; a <= CL_BLUE; a++)
+		    {
+		      calibcfg->unk1[a] = 0;
+		      calibcfg->unk2[a] = 0xff;
+
+		      vmin[a] = 0xff;
+		      vmax[a] = 0;
+		    }
+
+		  /* process image data */
+		  if (scancfg->coord.width > 0)
+		    {
+		      /*8104 */
+		      SANE_Int pos, myheight /*f164 */ ;
+		      SANE_Int chn_sum[3];
+
+		      for (pos = scancfg->coord.width; pos > 0; pos--)
+			{
+			  chn_sum[CL_RED] = chn_sum[CL_GREEN] =
+			    chn_sum[CL_BLUE] = 0;
+
+			  if (scancfg->coord.height > 0)
+			    for (myheight = 0;
+				 myheight < scancfg->coord.height; myheight++)
+			      for (a = CL_RED; a <= CL_BLUE; a++)
+				chn_sum[a] +=
+				  *(pimage + (bytes_per_line * myheight) +
+				    (bytes_to_next_colour * a));
+
+			  /*816e */
+			  for (a = CL_RED; a <= CL_BLUE; a++)
+			    {
+			      vmin[a] =
+				min (vmin[a],
+				     chn_sum[a] / scancfg->coord.height);
+			      vmax[a] =
+				max (vmax[a],
+				     chn_sum[a] / scancfg->coord.height);
+
+			      calibcfg->unk1[a] =
+				max (calibcfg->unk1[a], vmax[a]);
+			      calibcfg->unk2[a] =
+				min (calibcfg->unk1[a], vmin[a]);
+
+			      dval[a] += vmax[a] & 0xffff;
+			    }
+
+			  pimage += bytes_per_pixel;
+			}
+		    }
+
+		  /*82b0 */
+		  dval[CL_RED] /= scancfg->coord.width;
+		  dval[CL_GREEN] /= scancfg->coord.width;
+		  dval[CL_BLUE] /= scancfg->coord.width;
+
+		  DBG (DBG_FNC, " -> adcgain (av/l): r=%f, g=%f, b=%f\n",
+		       dval[CL_RED], dval[CL_GREEN], dval[CL_BLUE]);
+		  DBG (DBG_FNC, " ->         (max ): R=%i, G=%i, B=%i\n",
+		       calibcfg->unk1[CL_RED], calibcfg->unk1[CL_GREEN],
+		       calibcfg->unk1[CL_BLUE]);
+		  DBG (DBG_FNC, " ->         (min ): r=%i, g=%i, b=%i\n",
+		       calibcfg->unk2[CL_RED], calibcfg->unk2[CL_GREEN],
+		       calibcfg->unk2[CL_BLUE]);
+
+		  if (scancfg->colormode == CM_COLOR)
+		    {
+		      /*8353 */
+		      double dvalue;
+		      SANE_Int ival;
+
+		      for (a = CL_RED; a <= CL_BLUE; a++)
+			{
+			  dvalue =
+			    ((((calibcfg->WRef[a] * (1 << scancfg->depth)) *
+			       calibcfg->GainTargetFactor) * 0.00390625) /
+			     dval[a]) * ((44 - pgain[a]) / 40);
+			  if (dvalue > 0.9090909090909091)
+			    {
+			      /*83d7 */
+			      dvalue = min (44 - (40 / dvalue), 31);
+			      ival = dvalue;
+			      pgain[a] = _B0 (ival);
+			      pcalgain[a] = _B0 (ival);
+			    }
+			  else
+			    {
+			      pgain[a] = 0;
+			      pcalgain[a] = 0;
+			    }
+			}
+		    }
+		  else
+		    {
+		      /*843c */
+		      /*falta codigo */
+		      double dvalue;
+		      SANE_Int ival;
+
+		      dvalue =
+			((44 -
+			  pgain[CL_RED]) / 40) * ((((1 << scancfg->depth) *
+						    calibcfg->WRef[scancfg->
+								   channel]) *
+						   0.9) * 0.00390625) /
+			17.08509389671362;
+
+		      for (a = CL_RED; a <= CL_BLUE; a++)
+			{
+			  if (dvalue > 0.9090909090909091)
+			    {
+			      dvalue = min (44 - (40 / dvalue), 31);
+			      ival = dvalue;
+			      pgain[a] = _B0 (ival);
+			      pcalgain[a] = _B0 (ival);
+			    }
+			  else
+			    {
+			      /*84e3 */
+			      pgain[a] = 0;
+			      pcalgain[a] = 0;
+			    }
+			}
+		    }
+
+		  /*84fa */
+		  /* Save buffer */
+		  if (RTS_Debug->SaveCalibFile != FALSE)
+		    {
+		      dbg_tiff_save ("adcgain.tiff",
+				     scancfg->coord.width,
+				     scancfg->coord.height,
+				     scancfg->depth,
+				     CM_COLOR,
+				     scancfg->resolution_x,
+				     scancfg->resolution_y,
+				     image,
+				     (scancfg->coord.height +
+				      16) * bytes_per_line);
+		    }
+
+		  /* check if peak values are above offset average target + 5 */
+		  for (a = CL_RED; a <= CL_BLUE; a++)
+		    if (calibcfg->unk1[a] >= calibcfg->OffsetAvgTarget[a] + 5)
+		      {
+			rst = OK;
+			break;
+		      }
+		}
+
+	      free (image);
 	    }
-	  else
-	    {
-	      /*84e3 */
-	      *pgain = 0;
-	      *pcalgain = 0;
-	    }
 
-	  pgain++;
-	  pcalgain++;
+	  free (scancfg);
 	}
-    }
 
-  /*84fa */
-  /* Save buffer */
-  if (RTS_Debug->SaveCalibFile != FALSE)
-    {
-      dbg_tiff_save ("adcgain.tiff",
-		     scancfg->coord.width,
-		     scancfg->coord.height,
-		     scancfg->depth,
-		     CM_COLOR,
-		     scancfg->resolution_x,
-		     scancfg->resolution_y,
-		     image, (scancfg->coord.height + 16) * length);
-    }
-
-  /* free memory */
-  free (image);
-  free (myRegs);
-  free (scancfg);
-
-  rst = ERROR;
-
-  for (a = CL_RED; a <= CL_BLUE; a++)
-    {
-      if (calibcfg->unk1[a] >= calibcfg->OffsetAvgTarget[a] + 5)
-	{
-	  rst = OK;
-	  break;
-	}
+      free (myRegs);
     }
 
   /* v14b8 = (rst == OK)? 0: 1; */
+
+  /* show */
+  dbg_calibtable (&calibdata->gain_offset);
+
   DBG (DBG_FNC, "- Calib_AdcGain: %i\n", rst);
 
   return rst;
@@ -12202,15 +12088,13 @@ Chipset_Name (struct st_device *dev, char *name, SANE_Int size)
 }
 
 static SANE_Int
-Refs_Load (struct st_device *dev, SANE_Int * left_leading,
-	   SANE_Int * start_pos)
+Refs_Load (struct st_device *dev, SANE_Int * x, SANE_Int * y)
 {
   SANE_Int ret = OK;
 
   DBG (DBG_FNC, "+ Refs_Load:\n");
 
-  *start_pos = 0;
-  *left_leading = 0;
+  *y = *x = 0;
 
   /* check if chipset supports accessing eeprom */
   if ((dev->chipset->capabilities & CAP_EEPROM) != 0)
@@ -12221,21 +12105,20 @@ Refs_Load (struct st_device *dev, SANE_Int * left_leading,
 
       if (RTS_EEPROM_ReadWord (dev->usb_handle, 0x6a, &data) == OK)
 	{
-	  *left_leading = data;
+	  *x = data;
 	  if (RTS_EEPROM_ReadWord (dev->usb_handle, 0x6c, &data) == OK)
 	    {
-	      *start_pos = data;
+	      *y = data;
 	      if (RTS_EEPROM_ReadWord (dev->usb_handle, 0x6e, &data) == OK)
 		{
-		  if ((_B0 (*start_pos + *left_leading + data)) == 0x5a)
+		  if ((_B0 (*y + *x + data)) == 0x5a)
 		    ret = OK;
 		}
 	    }
 	}
     }
 
-  DBG (DBG_FNC, "- Refs_Load(start_pos=%i, left_leading=%i) : %i\n",
-       *start_pos, *left_leading, ret);
+  DBG (DBG_FNC, "- Refs_Load(y=%i, x=%i) : %i\n", *y, *x, ret);
 
   return ret;
 }
@@ -12786,18 +12669,6 @@ Calib_WhiteShading_3 (struct st_device *dev,
       break;
     }
 
-  /*a0e5 */
-  /* Set resolution */
-  if ((dpi100Lumping == 0)
-      && (scancfg.resolution_x ==
-	  Scanmode_minres (dev, scancfg.scantype, scancfg.colormode)))
-    {
-      scancfg.resolution_y = 200;
-      scancfg.resolution_x = 200;
-      scancfg.coord.width =
-	min (scancfg.coord.width * 2, scancfg.shadinglength);
-    }
-
   /*a11b */
   if ((scancfg.coord.width & 1) != 0)
     scancfg.coord.width++;
@@ -13310,16 +13181,6 @@ Calib_BlackShading (struct st_device *dev,
   if ((scan.scantype >= ST_NORMAL) && (scan.scantype <= ST_NEG))
     scancfg.coord.left += scan.ser;
 
-  if ((dpi100Lumping == 0)
-      && (scancfg.resolution_x ==
-	  Scanmode_minres (dev, scancfg.scantype, scancfg.colormode)))
-    {
-      scancfg.resolution_x = 200;
-      scancfg.resolution_y = 200;
-      scancfg.coord.width =
-	min (scancfg.coord.width * 2, scancfg.shadinglength);
-    }
-
   if ((scancfg.coord.width & 1) != 0)
     scancfg.coord.width++;
 
@@ -13421,7 +13282,7 @@ Calib_BlackShading (struct st_device *dev,
     return ERROR;
 
   /* Turn off lamp */
-  Lamp_SetStatus2 (dev, FALSE, FLB_LAMP);
+  Lamp_Status_Set (dev, NULL, FALSE, FLB_LAMP);
   usleep (200 * 1000);
 
   /* Scan image */
@@ -13445,11 +13306,11 @@ Calib_BlackShading (struct st_device *dev,
   /* Turn on lamp again */
   if (scan.scantype != ST_NORMAL)
     {
-      Lamp_SetStatus2 (dev, FALSE, TMA_LAMP);
+      Lamp_Status_Set (dev, NULL, FALSE, TMA_LAMP);
       usleep (1000 * 1000);
     }
   else
-    Lamp_SetStatus2 (dev, TRUE, FLB_LAMP);
+    Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
 
   /* Save buffer */
   if (RTS_Debug->SaveCalibFile != FALSE)
@@ -13800,21 +13661,6 @@ Calibration (struct st_device *dev, SANE_Byte * Regs,
   memcpy (&calibdata->scancfg, scancfg, sizeof (struct st_scanparams));
   gainmode = Lamp_GetGainMode (dev, scancfg->resolution_x, scan.scantype);	/* [lf904] = 1 */
 
-  if ((dpi100Lumping == 0)
-      && (scancfg->resolution_x ==
-	  Scanmode_minres (dev, scancfg->scantype, scancfg->colormode)))
-    {
-      /* duplicate resolution, so duplicate coords */
-      calibdata->scancfg.resolution_x = 200;
-      calibdata->scancfg.resolution_y = 200;
-      calibdata->scancfg.coord.width *= 2;
-      calibdata->scancfg.coord.height *= 2;
-      calibdata->scancfg.coord.top *= 2;
-      calibdata->scancfg.coord.left *= 2;
-      calibdata->scancfg.v157c *= 2;
-      calibdata->scancfg.bytesperline *= 2;
-    }
-
   /* 3cf3 */
   myCalib->first_position = 1;
   myCalib->shading_type = 0;
@@ -14005,14 +13851,9 @@ Calibration (struct st_device *dev, SANE_Byte * Regs,
   /*4424 */
   /* Park home after calibration */
   if (get_value (SCANINFO, PARKHOMEAFTERCALIB, TRUE, FITCALIBRATE) == FALSE)
-    scan.ler -=
-      calibcfg.WShadingHeight *
-      (((dpi100Lumping == 0)
-	&& (scancfg->resolution_x ==
-	    Scanmode_minres (dev, scancfg->scantype,
-			     scancfg->colormode))) ? 2 : 1);
+    scan.ler -= calibcfg.WShadingHeight;
   else
-    Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+    Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 
   return OK;
 }
@@ -14077,7 +13918,6 @@ Constrains_Check (struct st_device *dev, SANE_Int Resolution,
    */
 
   SANE_Int rst = ERROR;
-  char sdebug[20];
 
   if (dev->constrains != NULL)
     {
@@ -14128,8 +13968,8 @@ Constrains_Check (struct st_device *dev, SANE_Int Resolution,
 
   DBG (DBG_FNC,
        "> Constrains_Check: Source=%s, Res=%i, LW=(%i,%i), TH=(%i,%i): %i\n",
-       dbg_scantype (sdebug, scantype), Resolution, mycoords->left,
-       mycoords->width, mycoords->top, mycoords->height, rst);
+       dbg_scantype (scantype), Resolution, mycoords->left, mycoords->width,
+       mycoords->top, mycoords->height, rst);
 
   return rst;
 }
@@ -14259,107 +14099,16 @@ RTS_USBType (struct st_device *dev)
 
   SANE_Int rst = ERROR;
   SANE_Byte data;
-  char sUSB[7];
 
   DBG (DBG_FNC, "+ RTS_USBType\n");
 
   if (Read_Byte (dev->usb_handle, 0xfe11, &data) == OK)
     rst = (data & 1);
 
-  if (rst == USB11)
-    strcpy (sUSB, "USB1.1");
-  else
-    strcpy (sUSB, "USB2.0");
-
-  DBG (DBG_FNC, "- RTS_USBType(void): %s\n", sUSB);
+  DBG (DBG_FNC, "- RTS_USBType(void): %s\n",
+       (rst == USB11) ? "USB1.1" : "USB2.0");
 
   return rst;
-}
-
-static void
-RTS_Free (struct st_device *dev)
-{
-  /* this function frees space of devices's variable */
-
-  if (dev != NULL)
-    {
-      /* next function shouldn't be necessary but I can NOT assure that other
-         programmers will call Free_Config before this function */
-      Free_Config (dev);
-
-      if (dev->init_regs != NULL)
-	free (dev->init_regs);
-
-      if (dev->Resize != NULL)
-	free (dev->Resize);
-
-      if (dev->Reading != NULL)
-	free (dev->Reading);
-
-      if (dev->scanning != NULL)
-	free (dev->scanning);
-
-      free (dev);
-    }
-}
-
-static struct st_device *
-RTS_Alloc ()
-{
-  /* this function allocates space for device's variable */
-
-  struct st_device *dev = NULL;
-
-  dev = malloc (sizeof (struct st_device));
-  if (dev != NULL)
-    {
-      SANE_Int rst = OK;
-
-      bzero (dev, sizeof (struct st_device));
-
-      /* initial registers */
-      dev->init_regs = malloc (sizeof (SANE_Byte) * RT_BUFFER_LEN);
-      if (dev->init_regs != NULL)
-	bzero (dev->init_regs, sizeof (SANE_Byte) * RT_BUFFER_LEN);
-      else
-	rst = ERROR;
-
-      if (rst == OK)
-	{
-	  dev->scanning = malloc (sizeof (struct st_scanning));
-	  if (dev->scanning != NULL)
-	    bzero (dev->scanning, sizeof (struct st_scanning));
-	  else
-	    rst = ERROR;
-	}
-
-      if (rst == OK)
-	{
-	  dev->Reading = malloc (sizeof (struct st_readimage));
-	  if (dev->Reading != NULL)
-	    bzero (dev->Reading, sizeof (struct st_readimage));
-	  else
-	    rst = ERROR;
-	}
-
-      if (rst == OK)
-	{
-	  dev->Resize = malloc (sizeof (struct st_resize));
-	  if (dev->Resize != NULL)
-	    bzero (dev->Resize, sizeof (struct st_resize));
-	  else
-	    rst = ERROR;
-	}
-
-      /* if something fails, free space */
-      if (rst != OK)
-	{
-	  RTS_Free (dev);
-	  dev = NULL;
-	}
-    }
-
-  return dev;
 }
 
 static SANE_Int
@@ -15001,7 +14750,7 @@ motor_pos (struct st_device *dev, SANE_Byte * Regs,
 
   /* Scan image */
   myCalib->shading_enabled = FALSE;
-  /*Motor_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, 5500); */
+  /*Head_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, 5500); */
 
   for (a = 0; a < 10; a++)
     {
@@ -15015,12 +14764,12 @@ motor_pos (struct st_device *dev, SANE_Byte * Regs,
 
       dbg_ScanParams (myscancfg);
 
-      Motor_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD,
-		      5000);
+      Head_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD,
+		     5000);
       rst =
 	RTS_GetImage (dev, myRegs, myscancfg, &myCalibTable, scanbuffer,
 		      myCalib, 0x20000000, gainmode);
-      Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+      Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 
       if (rst != ERROR)
 	{
@@ -15140,7 +14889,7 @@ Calib_BlackShading_jkd (struct st_device *dev, SANE_Byte * Regs,
     return ERROR;
 
   /* Turn off lamp */
-  Lamp_SetStatus2 (dev, FALSE, FLB_LAMP);
+  Lamp_Status_Set (dev, NULL, FALSE, FLB_LAMP);
   usleep (200 * 1000);
 
   /* Scan image */
@@ -15152,11 +14901,11 @@ Calib_BlackShading_jkd (struct st_device *dev, SANE_Byte * Regs,
   /* Turn on lamp again */
   if (scan.scantype != ST_NORMAL)
     {
-      Lamp_SetStatus2 (dev, FALSE, TMA_LAMP);
+      Lamp_Status_Set (dev, NULL, FALSE, TMA_LAMP);
       usleep (1000 * 1000);
     }
   else
-    Lamp_SetStatus2 (dev, TRUE, FLB_LAMP);
+    Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
 
   if (rst != ERROR)
     {
@@ -15269,7 +15018,7 @@ Calib_test (struct st_device *dev, SANE_Byte * Regs,
 
   /* Scan image */
   myCalib->shading_enabled = FALSE;
-  /*Motor_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, 5500); */
+  /*Head_Relocate(dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD, 5500); */
 
   for (a = 0; a < 10; a++)
     {
@@ -15281,12 +15030,12 @@ Calib_test (struct st_device *dev, SANE_Byte * Regs,
 	  myCalibTable.edcg1[C] = a * 20;
 	}
 
-      Motor_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD,
-		      5000);
+      Head_Relocate (dev, dev->motorcfg->highspeedmotormove, MTR_FORWARD,
+		     5000);
       rst =
 	RTS_GetImage (dev, myRegs, myscancfg, &myCalibTable, scanbuffer,
 		      myCalib, 0x20000000, gainmode);
-      Motor_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
+      Head_ParkHome (dev, TRUE, dev->motorcfg->parkhomemotormove);
 
       if (rst != ERROR)
 	{

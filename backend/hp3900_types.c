@@ -639,6 +639,13 @@ struct st_buttons
   SANE_Int mask[6];		/* up to 6 buttons */
 };
 
+struct st_status
+{
+  SANE_Byte warmup;
+  SANE_Byte parkhome;
+  SANE_Byte cancel;
+};
+
 struct st_device
 {
   /* next var handles usb device, used for every usb operations */
@@ -686,6 +693,9 @@ struct st_device
 
   /* next structure will be used to arrange color channels while scanning */
   struct st_scanning *scanning;
+
+  /* next structure will contain some status which can be requested */
+  struct st_status *status;
 };
 
 /* Unknown vars */
@@ -710,10 +720,8 @@ SANE_Byte gain[3];
 static SANE_Int usbfile = -1;
 SANE_Int scantype;
 
-SANE_Byte pwmlampenabled;
 SANE_Byte pwmlamplevel;
 
-SANE_Byte dpi100Lumping;
 SANE_Byte arrangeline;
 SANE_Byte binarythresholdh;
 SANE_Byte binarythresholdl;

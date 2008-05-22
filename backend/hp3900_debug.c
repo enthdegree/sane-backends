@@ -55,14 +55,14 @@
 /* headers */
 
 static void dump_shading (struct st_calibration *myCalib);
-static char *dbg_scantype (char *text, SANE_Int type);
+static char *dbg_scantype (SANE_Int type);
 static void dbg_scanmodes (struct st_device *dev);
 static void dbg_motorcurves (struct st_device *dev);
 static void dbg_motormoves (struct st_device *dev);
 static void dbg_hwdcfg (struct st_hwdconfig *params);
 static void dbg_ScanParams (struct st_scanparams *params);
 static void dbg_calibtable (struct st_gain_offset *params);
-static char *dbg_colour (char *text, SANE_Int colour);
+static char *dbg_colour (SANE_Int colour);
 static void dbg_motorcfg (struct st_motorcfg *motorcfg);
 static void dbg_buttons (struct st_buttons *buttons);
 static void dbg_sensor (struct st_sensorcfg *sensor);
@@ -129,26 +129,23 @@ dump_shading (struct st_calibration *myCalib)
 }
 
 static char *
-dbg_scantype (char *text, SANE_Int type)
+dbg_scantype (SANE_Int type)
 {
-  if (text != NULL)
-    switch (type)
-      {
-      case ST_NORMAL:
-	strcpy (text, "ST_NORMAL");
-	break;
-      case ST_TA:
-	strcpy (text, "ST_TA");
-	break;
-      case ST_NEG:
-	strcpy (text, "ST_NEG");
-	break;
-      default:
-	snprintf (text, 10, "%i", type);
-	break;
-      }
-
-  return text;
+  switch (type)
+    {
+    case ST_NORMAL:
+      return "ST_NORMAL";
+      break;
+    case ST_TA:
+      return "ST_TA";
+      break;
+    case ST_NEG:
+      return "ST_NEG";
+      break;
+    default:
+      return "Unknown";
+      break;
+    }
 }
 
 static void
@@ -239,7 +236,6 @@ dbg_scanmodes (struct st_device *dev)
     {
       SANE_Int a;
       struct st_scanmode *reg;
-      char sdebug[20], scm[20];
 
       DBG (DBG_FNC,
 	   " -> ##, ST       , CM        , RES , TM, CV, SR, CLK, CTPC  , BKS , STT, DML, {   Exposure times     }, { Max exposure times   }, MP , MExp16, MExpF, MExp, MRI, MSI, MMTIR, MMTIRH, SK\n");
@@ -252,15 +248,13 @@ dbg_scanmodes (struct st_device *dev)
 	    {
 	      DBG (DBG_FNC,
 		   " -> %2i, %9s, %10s, %4i, %2i, %2i, %2i, %3i, %6i, %4i, %3i, %3i, {%6i, %6i, %6i}, {%6i, %6i, %6i}, %3i, %6i, %5i, %4i, %3i, %3i, %5i, %6i, %2i\n",
-		   a, dbg_scantype (sdebug, reg->scantype), dbg_colour (scm,
-									reg->
-									colormode),
-		   reg->resolution, reg->timing, reg->motorcurve,
-		   reg->samplerate, reg->systemclock, reg->ctpc,
-		   reg->motorbackstep, reg->scanmotorsteptype, reg->dummyline,
-		   reg->expt[0], reg->expt[1], reg->expt[2], reg->mexpt[0],
-		   reg->mexpt[1], reg->mexpt[2], reg->motorplus,
-		   reg->multiexposurefor16bitmode,
+		   a, dbg_scantype (reg->scantype),
+		   dbg_colour (reg->colormode), reg->resolution, reg->timing,
+		   reg->motorcurve, reg->samplerate, reg->systemclock,
+		   reg->ctpc, reg->motorbackstep, reg->scanmotorsteptype,
+		   reg->dummyline, reg->expt[0], reg->expt[1], reg->expt[2],
+		   reg->mexpt[0], reg->mexpt[1], reg->mexpt[2],
+		   reg->motorplus, reg->multiexposurefor16bitmode,
 		   reg->multiexposureforfullspeed, reg->multiexposure,
 		   reg->mri, reg->msi, reg->mmtir, reg->mmtirh,
 		   reg->skiplinecount);
@@ -421,8 +415,6 @@ dbg_hwdcfg (struct st_hwdconfig *params)
 {
   if (params != NULL)
     {
-      char sdebug[20];
-
       DBG (DBG_FNC, " -> Low level config:\n");
       DBG (DBG_FNC, " -> startpos              = %i\n", params->startpos);
       DBG (DBG_FNC, " -> arrangeline           = %s\n",
@@ -431,7 +423,7 @@ dbg_hwdcfg (struct st_hwdconfig *params)
 					    FIX_BY_HARD) ? "FIX_BY_HARD" :
 	   "FIX_BY_NONE");
       DBG (DBG_FNC, " -> scantype              = %s\n",
-	   dbg_scantype (sdebug, params->scantype));
+	   dbg_scantype (params->scantype));
       DBG (DBG_FNC, " -> compression           = %i\n", params->compression);
       DBG (DBG_FNC, " -> use_gamma_tables      = %i\n",
 	   params->use_gamma_tables);
@@ -460,11 +452,9 @@ dbg_ScanParams (struct st_scanparams *params)
 {
   if (params != NULL)
     {
-      char scm[20], ssc[20];
-
       DBG (DBG_FNC, " -> Scan params:\n");
       DBG (DBG_FNC, " -> colormode        = %s\n",
-	   dbg_colour (scm, params->colormode));
+	   dbg_colour (params->colormode));
       DBG (DBG_FNC, " -> depth            = %i\n", params->depth);
       DBG (DBG_FNC, " -> samplerate       = %i\n", params->samplerate);
       DBG (DBG_FNC, " -> timing           = %i\n", params->timing);
@@ -485,7 +475,7 @@ dbg_ScanParams (struct st_scanparams *params)
       DBG (DBG_FNC, " *> ser              = %i\n", params->ser);
       DBG (DBG_FNC, " *> ler              = %i\n", params->ler);
       DBG (DBG_FNC, " *> scantype         = %s\n",
-	   dbg_scantype (ssc, params->scantype));
+	   dbg_scantype (params->scantype));
     }
 }
 
@@ -495,6 +485,8 @@ dbg_calibtable (struct st_gain_offset *params)
   if (params != NULL)
     {
       DBG (DBG_FNC, " -> Calib table:\n");
+      DBG (DBG_FNC, " -> type     R     G     B\n");
+      DBG (DBG_FNC, " -> -----   ---   ---   ---B\n");
       DBG (DBG_FNC, " -> edcg1 = %3i , %3i , %3i\n", params->edcg1[0],
 	   params->edcg1[1], params->edcg1[2]);
       DBG (DBG_FNC, " -> edcg2 = %3i , %3i , %3i\n", params->edcg2[0],
@@ -513,26 +505,23 @@ dbg_calibtable (struct st_gain_offset *params)
 }
 
 static char *
-dbg_colour (char *text, SANE_Int colour)
+dbg_colour (SANE_Int colour)
 {
-  if (text != NULL)
-    switch (colour)
-      {
-      case CM_COLOR:
-	strcpy (text, "CM_COLOR");
-	break;
-      case CM_GRAY:
-	strcpy (text, "CM_GRAY");
-	break;
-      case CM_LINEART:
-	strcpy (text, "CM_LINEART");
-	break;
-      default:
-	snprintf (text, 20, "%i", colour);
-	break;
-      }
-
-  return text;
+  switch (colour)
+    {
+    case CM_COLOR:
+      return "CM_COLOR";
+      break;
+    case CM_GRAY:
+      return "CM_GRAY";
+      break;
+    case CM_LINEART:
+      return "CM_LINEART";
+      break;
+    default:
+      return "Unknown";
+      break;
+    }
 }
 
 static void

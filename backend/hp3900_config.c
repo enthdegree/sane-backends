@@ -202,11 +202,7 @@ enum ConfigFiles
 
 enum fcsec6
 {
-	SONY_LAMP = 0, TOSHIBA_LAMP,
-
-	CHECKSTABLE,
-
-	CALIBREFLECTIVE, CALIBTRANSPARENT, CALIBNEGATIVEFILM,
+	CALIBREFLECTIVE = 0, CALIBTRANSPARENT, CALIBNEGATIVEFILM,
 
 	SCANINFO,
 	SCAN_CALI,
@@ -281,8 +277,6 @@ enum fcsec6
 	DPIGAINCONTROL_TA600,
 	DPIGAINCONTROL_NEG600,
 
-	DPILUMPING100,
-
 	CRVS, MLOCK,
 	ENABLEWARMUP,
 
@@ -293,7 +287,7 @@ enum fcsec6
 	STABLEDIFF,
 	DELTAPWM,
 
-	PWMLAMPENABLED, PWMLAMPLEVEL,
+	PWMLAMPLEVEL,
 
 	TMAPWMDUTY,
 
@@ -1068,6 +1062,7 @@ static void cfg_autoref_get(struct st_autoref *reg)
 
 		struct st_reg myreg[] =
 		{
+			/* x and y offsets are based on 2400 dpi */
 			/* device, { type              , x  , y  , resolution, extern_boundary}*/
 			{ BQ5550 , {REF_NONE           , -40, -40, 600       , 40}},
 			{ UA4900 , {REF_NONE           , -40, -40, 600       , 40}},
@@ -5371,7 +5366,7 @@ static int srt_hp3800_scanparam_get(int option, int defvalue)
 	int rst = defvalue;
 
 	/* t_rtinifile */
-	int value3[] = {1, 0, 0, 0, 1, 0, 12, 0, 1, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 0};
+	int value3[] = {1, 0, 0, 0, 1, 12, 0, 1, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 0};
 
 	int *value = value3;
 
@@ -5383,22 +5378,20 @@ static int srt_hp3800_scanparam_get(int option, int defvalue)
 			case TA_X_START:  rst = value[2]; break;
 			case TA_Y_START:  rst = value[3]; break;
 			case DPIGAINCONTROL600: rst = value[4]; break;
-			case DPILUMPING100:     rst = value[5]; break;
-			case CRVS:  rst = value[6]; break;
-			case MLOCK: rst = value[7]; break;
-			case ENABLEWARMUP:  rst = value[8]; break;
-			case NMAXTARGET:    rst = value[9]; break;
-			case NMINTARGET:    rst = value[10]; break;
-			case NMAXTARGETTA:  rst = value[11]; break;
-			case NMINTARGETTA:  rst = value[12]; break;
-			case NMAXTARGETNEG: rst = value[13]; break;
-			case NMINTARGETNEG: rst = value[14]; break;
-			case STABLEDIFF: rst = value[15]; break;
-			case DELTAPWM:   rst = value[16]; break;
-			case PWMLAMPENABLED: rst = value[17]; break;
-			case PWMLAMPLEVEL:   rst = value[18]; break;
-			case TMAPWMDUTY: rst = value[19]; break;
-			case LEFTLEADING: rst = value[20]; break;
+			case CRVS:  rst = value[5]; break;
+			case MLOCK: rst = value[6]; break;
+			case ENABLEWARMUP:  rst = value[7]; break;
+			case NMAXTARGET:    rst = value[8]; break;
+			case NMINTARGET:    rst = value[9]; break;
+			case NMAXTARGETTA:  rst = value[10]; break;
+			case NMINTARGETTA:  rst = value[11]; break;
+			case NMAXTARGETNEG: rst = value[12]; break;
+			case NMINTARGETNEG: rst = value[13]; break;
+			case STABLEDIFF: rst = value[14]; break;
+			case DELTAPWM:   rst = value[15]; break;
+			case PWMLAMPLEVEL:   rst = value[16]; break;
+			case TMAPWMDUTY: rst = value[17]; break;
+			case LEFTLEADING: rst = value[18]; break;
 	}
 
 	return rst;
@@ -5408,13 +5401,13 @@ static int srt_hp3970_scanparam_get(int file, int option, int defvalue)
 {
 	int rst = defvalue;
 	/* s_rtinifile */
-	int value1[] = {1, 0, 150, 0, 1, 0, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 360};
+	int value1[] = {1, 0, 150, 0, 1, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 360};
 	/* s_usb1inifile */
-	int value2[] = {1, 0, 150, 0, 1, 0, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 360};
+	int value2[] = {1, 0, 150, 0, 1, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 360};
 	/* t_rtinifile */
-	int value3[] = {1, 0, 150, 0, 1, 0, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 0};
+	int value3[] = {1, 0, 150, 0, 1, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 0};
 	/* t_usb1inifile */
-	int value4[] = {1, 0, 150, 0, 1, 0, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 0};
+	int value4[] = {1, 0, 150, 0, 1, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 0};
 
 	int *value = NULL;
 
@@ -5434,22 +5427,20 @@ static int srt_hp3970_scanparam_get(int file, int option, int defvalue)
 			case TA_X_START:  rst = value[2]; break;
 			case TA_Y_START:  rst = value[3]; break;
 			case DPIGAINCONTROL600: rst = value[4]; break;
-			case DPILUMPING100:     rst = value[5]; break;
-			case CRVS:  rst = value[6]; break;
-			case MLOCK: rst = value[7]; break;
-			case ENABLEWARMUP:  rst = value[8]; break;
-			case NMAXTARGET:    rst = value[9]; break;
-			case NMINTARGET:    rst = value[10]; break;
-			case NMAXTARGETTA:  rst = value[11]; break;
-			case NMINTARGETTA:  rst = value[12]; break;
-			case NMAXTARGETNEG: rst = value[13]; break;
-			case NMINTARGETNEG: rst = value[14]; break;
-			case STABLEDIFF: rst = value[15]; break;
-			case DELTAPWM:   rst = value[16]; break;
-			case PWMLAMPENABLED: rst = value[17]; break;
-			case PWMLAMPLEVEL:   rst = value[18]; break;
-			case TMAPWMDUTY: rst = value[19]; break;
-			case LEFTLEADING: rst = value[20]; break;
+			case CRVS:  rst = value[5]; break;
+			case MLOCK: rst = value[6]; break;
+			case ENABLEWARMUP:  rst = value[7]; break;
+			case NMAXTARGET:    rst = value[8]; break;
+			case NMINTARGET:    rst = value[9]; break;
+			case NMAXTARGETTA:  rst = value[10]; break;
+			case NMINTARGETTA:  rst = value[11]; break;
+			case NMAXTARGETNEG: rst = value[12]; break;
+			case NMINTARGETNEG: rst = value[13]; break;
+			case STABLEDIFF: rst = value[14]; break;
+			case DELTAPWM:   rst = value[15]; break;
+			case PWMLAMPLEVEL:   rst = value[16]; break;
+			case TMAPWMDUTY: rst = value[17]; break;
+			case LEFTLEADING: rst = value[18]; break;
 	}
 
 	return rst;
@@ -5458,13 +5449,13 @@ static int srt_hp3970_scanparam_get(int file, int option, int defvalue)
 static int srt_hp4370_scanparam_get(int file, int option, int defvalue)
 {
 	/* s_rtinifile */
-	int value1[] = {1, 0, 150, 0, 1, 0, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 360};
+	int value1[] = {1, 0, 150, 0, 1, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 360};
 	/* s_usb1inifile */
-	int value2[] = {1, 0, 150, 0, 1, 0, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 360};
+	int value2[] = {1, 0, 150, 0, 1, 6, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 360};
 	/* t_rtinifile */
-	int value3[] = {1, 0, 150, 0, 1, 0, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 0};
+	int value3[] = {1, 0, 150, 0, 1, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 0};
 	/* t_usb1inifile */
-	int value4[] = {1, 0, 150, 0, 1, 0, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 1, 0, 36, 0};
+	int value4[] = {1, 0, 150, 0, 1, 12, 0, 0, 170, 140, 40, 30, 40, 30, 1500, 20, 0, 36, 0};
 	int *value = NULL;
 
 	int rst = defvalue;
@@ -5485,22 +5476,20 @@ static int srt_hp4370_scanparam_get(int file, int option, int defvalue)
 			case TA_X_START:  rst = value[2]; break;
 			case TA_Y_START:  rst = value[3]; break;
 			case DPIGAINCONTROL600: rst = value[4]; break;
-			case DPILUMPING100:     rst = value[5]; break;
-			case CRVS:  rst = value[6]; break;
-			case MLOCK: rst = value[7]; break;
-			case ENABLEWARMUP: rst = value[8]; break;
-			case NMAXTARGET:   rst = value[9]; break;
-			case NMINTARGET:   rst = value[10]; break;
-			case NMAXTARGETTA: rst = value[11]; break;
-			case NMINTARGETTA: rst = value[12]; break;
-			case NMAXTARGETNEG: rst = value[13]; break;
-			case NMINTARGETNEG: rst = value[14]; break;
-			case STABLEDIFF: rst = value[15]; break;
-			case DELTAPWM: rst = value[16]; break;
-			case PWMLAMPENABLED: rst = value[17]; break;
-			case PWMLAMPLEVEL: rst = value[18]; break;
-			case TMAPWMDUTY: rst = value[19]; break;
-			case LEFTLEADING: rst = value[20]; break;
+			case CRVS:  rst = value[5]; break;
+			case MLOCK: rst = value[6]; break;
+			case ENABLEWARMUP: rst = value[7]; break;
+			case NMAXTARGET:   rst = value[8]; break;
+			case NMINTARGET:   rst = value[9]; break;
+			case NMAXTARGETTA: rst = value[10]; break;
+			case NMINTARGETTA: rst = value[11]; break;
+			case NMAXTARGETNEG: rst = value[12]; break;
+			case NMINTARGETNEG: rst = value[13]; break;
+			case STABLEDIFF: rst = value[14]; break;
+			case DELTAPWM: rst = value[15]; break;
+			case PWMLAMPLEVEL: rst = value[16]; break;
+			case TMAPWMDUTY: rst = value[17]; break;
+			case LEFTLEADING: rst = value[18]; break;
 	}
 
 	return rst;

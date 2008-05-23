@@ -1458,7 +1458,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 				      int height)
 {
   int x, y;
-  int current, left, top = 0, bottom = 0;
+  int current, left, top = 0;
   u_int8_t *image;
   int size, count;
   int level = 80;		/* edge threshold level */
@@ -1574,7 +1574,7 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
   /* set up detection level */
   level = level / 3;
 
-  /* search top of horizontal black stripe */
+  /* search top of horizontal black stripe : TODO yet another flag */
   if (dev->model->ccd_type == CCD_5345
       && dev->model->motor_type == MOTOR_5345)
     {
@@ -1596,25 +1596,16 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 				      width, height);
       top = top / count;
 
-      /* find bottom of black stripe */
-      bottom = 0;
-      count = 0;
-      for (x = width / 2; x < width - 1; x++)
-	{
-	  y = top + 5;
-	  while ((y < height) && (image[x + y * width] < level))
-	    y++;
-	  bottom += y;
-	  count++;
-	}
-      bottom = bottom / count;
-      dev->model->y_offset_calib = SANE_FIX ((bottom * MM_PER_INCH) / dpi);
+      /* bottom of black stripe is of fixed witdh, this hardcoded value
+       * will be moved into device struct if more such values are needed */
+      top += 10;
+      dev->model->y_offset_calib = SANE_FIX ((top * MM_PER_INCH) / dpi);
       DBG (DBG_info,
 	   "sanei_genesys_search_reference_point: black stripe y_offset = %f mm \n",
 	   SANE_UNFIX (dev->model->y_offset_calib));
     }
 
-  /* find white corner in dark area */
+  /* find white corner in dark area : TODO yet another flag */
   if ((dev->model->ccd_type == CCD_HP2300
        && dev->model->motor_type == MOTOR_HP2300)
       || (dev->model->ccd_type == CCD_HP2400
@@ -1639,8 +1630,8 @@ sanei_genesys_search_reference_point (Genesys_Device * dev, u_int8_t * data,
 
   free (image);
   DBG (DBG_proc,
-       "sanei_genesys_search_reference_point: CCD_start_xoffset = %d, left = %d, top = %d, bottom=%d\n",
-       dev->sensor.CCD_start_xoffset, left, top, bottom);
+       "sanei_genesys_search_reference_point: CCD_start_xoffset = %d, left = %d, top = %d\n",
+       dev->sensor.CCD_start_xoffset, left, top);
 
   return SANE_STATUS_GOOD;
 }

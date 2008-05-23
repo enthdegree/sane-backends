@@ -1,3 +1,7 @@
+2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c:
+	changed top of scan area detection for MD6228/MD6471 models
+
 2008-05-23  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_sane.c: setting appropiate capabilities to some options.
 

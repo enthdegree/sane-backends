@@ -1,3 +1,6 @@
+2008-05-23  Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900_sane.c: setting appropiate capabilities to some options.
+
 2008-05-22  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_sane.c: use 1.1.0 well-known option group strings.
 	* backend/hp3900_config.c, backend/hp3900_debug.c, 

@@ -1557,9 +1557,7 @@ options_init (TScanner * scanner)
 	      pDesc->desc = SANE_I18N ("Shows chipset name used in device.");
 	      pDesc->type = SANE_TYPE_STRING;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
-	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
-		SANE_CAP_SOFT_DETECT;
+	      pDesc->cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_DETECT;
 	      pVal->s = strdup (SANE_I18N ("Unknown"));
 	      break;
 
@@ -1570,9 +1568,7 @@ options_init (TScanner * scanner)
 	      pDesc->type = SANE_TYPE_INT;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
-	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
-		SANE_CAP_SOFT_DETECT;
+	      pDesc->cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_DETECT;
 	      pVal->w = -1;
 	      break;
 
@@ -1584,9 +1580,7 @@ options_init (TScanner * scanner)
 	      pDesc->type = SANE_TYPE_INT;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->constraint_type = SANE_CONSTRAINT_NONE;
-	      pDesc->cap =
-		SANE_CAP_ADVANCED | SANE_CAP_SOFT_SELECT |
-		SANE_CAP_SOFT_DETECT;
+	      pDesc->cap = SANE_CAP_ADVANCED | SANE_CAP_SOFT_DETECT;
 	      pVal->w = -1;
 	      break;
 
@@ -2174,13 +2168,6 @@ option_set (TScanner * scanner, SANE_Int optid, void *value, SANE_Int * pInfo)
 	    case opt_infoupdate:
 	      if (bknd_info (scanner) == SANE_STATUS_GOOD)
 		info |= SANE_INFO_RELOAD_OPTIONS;
-	      break;
-
-	    case opt_chipname:
-	    case opt_chipid:
-	    case opt_scancount:
-	      bknd_info (scanner);
-	      info |= SANE_INFO_RELOAD_OPTIONS;
 	      break;
 
 	    default:

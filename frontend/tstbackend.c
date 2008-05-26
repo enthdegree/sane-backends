@@ -386,7 +386,7 @@ test_options (SANE_Device * device, int can_do_recursive)
 					SANE_CAP_EMULATED |
 					SANE_CAP_AUTOMATIC |
 					SANE_CAP_INACTIVE |
-					SANE_CAP_ALWAYS_ADVANCED)) == 0),
+					SANE_CAP_ADVANCED)) == 0),
 			  "invalid capabilities for option [%d, %s] (%x)", option_num, opt->name, opt->cap);
 		check(WRN, (opt->title != NULL),
 			  "option [%d, %s] must have a title", option_num, opt->name);
@@ -1177,8 +1177,10 @@ static void test_scan(SANE_Handle device)
 		check(MSG, 0, "TEST: scan byte per byte - %s", display_scan_parameters(device));
 
 		test_parameters(device, &params);
-
-		status = sane_start (device);
+		do {
+			status = sane_start (device);
+		}
+		while (status == SANE_STATUS_WARMING_UP);
 		rc = check(ERR, (status == SANE_STATUS_GOOD),
 				   "cannot start the scan (%s)", sane_strstatus (status));
 		if (!rc) goto the_end;
@@ -1284,7 +1286,10 @@ static void test_scan(SANE_Handle device)
 	 */
 	check(MSG, 0, "TEST: partial scan - %s", display_scan_parameters(device));
 
-	status = sane_start (device);
+	do {
+		status = sane_start (device);
+	}
+	while (status == SANE_STATUS_WARMING_UP);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;
@@ -1321,7 +1326,10 @@ static void test_scan(SANE_Handle device)
 	check(ERR, (status != SANE_STATUS_GOOD),
 		  "it is possible to sane_read outside a scan");
 
-	status = sane_start (device);
+	do {
+		status = sane_start (device);
+	}
+	while (status == SANE_STATUS_WARMING_UP);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;
@@ -1405,7 +1413,10 @@ static void test_scan(SANE_Handle device)
 
 	test_parameters(device, &params);
 
-	status = sane_start (device);
+	do {
+		status = sane_start (device);
+	}
+	while (status == SANE_STATUS_WARMING_UP);
 	rc = check(ERR, (status == SANE_STATUS_GOOD),
 			   "cannot start the scan (%s)", sane_strstatus (status));
 	if (!rc) goto the_end;

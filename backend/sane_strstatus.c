@@ -42,7 +42,11 @@
 
 #include <stdio.h>
 
-#include "sane/sane.h"
+#include "../include/sane/sane.h"
+
+#ifndef SANE_I18N
+#define SANE_I18N(text)   text
+#endif
 
 SANE_String_Const
 sane_strstatus (SANE_Status status)
@@ -52,40 +56,46 @@ sane_strstatus (SANE_Status status)
   switch (status)
     {
     case SANE_STATUS_GOOD:
-      return "Success";
+      return SANE_I18N("Success");
 
     case SANE_STATUS_UNSUPPORTED:
-      return "Operation not supported";
+      return SANE_I18N("Operation not supported");
 
     case SANE_STATUS_CANCELLED:
-      return "Operation was cancelled";
+      return SANE_I18N("Operation was cancelled");
 
     case SANE_STATUS_DEVICE_BUSY:
-      return "Device busy";
+      return SANE_I18N("Device busy");
 
     case SANE_STATUS_INVAL:
-      return "Invalid argument";
+      return SANE_I18N("Invalid argument");
 
     case SANE_STATUS_EOF:
-      return "End of file reached";
+      return SANE_I18N("End of file reached");
 
     case SANE_STATUS_JAMMED:
-      return "Document feeder jammed";
+      return SANE_I18N("Document feeder jammed");
 
     case SANE_STATUS_NO_DOCS:
-      return "Document feeder out of documents";
+      return SANE_I18N("Document feeder out of documents");
 
     case SANE_STATUS_COVER_OPEN:
-      return "Scanner cover is open";
+      return SANE_I18N("Scanner cover is open");
 
     case SANE_STATUS_IO_ERROR:
-      return "Error during device I/O";
+      return SANE_I18N("Error during device I/O");
 
     case SANE_STATUS_NO_MEM:
-      return "Out of memory";
+      return SANE_I18N("Out of memory");
 
     case SANE_STATUS_ACCESS_DENIED:
-      return "Access to resource has been denied";
+      return SANE_I18N("Access to resource has been denied");
+
+    case SANE_STATUS_WARMING_UP:
+      return SANE_I18N("Lamp not ready, please retry");
+
+    case SANE_STATUS_HW_LOCKED:
+      return SANE_I18N("Scanner mechanism locked for transport");
 
     default:
       /* non-reentrant, but better than nothing */

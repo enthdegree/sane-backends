@@ -43,10 +43,10 @@
 
 #ifndef RTS88XX_LIB_H
 #define RTS88XX_LIB_H
-#include "sane/sane.h"
-#include "sane/sanei_usb.h"
-#include "unistd.h"
-#include "string.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_usb.h"
+#include <unistd.h>
+#include <string.h>
 
 /* TODO put his in a place where it can be reused */
 

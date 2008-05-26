@@ -65,10 +65,11 @@
  */
 enum Rts8891_Option
 { OPT_NUM_OPTS = 0,
-  OPT_MODE_GROUP,
+  OPT_STANDARD_GROUP,
   OPT_MODE,
   OPT_PREVIEW,
   OPT_RESOLUTION,
+
   OPT_GEOMETRY_GROUP,
   OPT_TL_X,			/* top-left x */
   OPT_TL_Y,			/* top-left y */
@@ -90,7 +91,7 @@ enum Rts8891_Option
   OPT_LAMP_OFF,
 
   /* button group */
-  OPT_BUTTON_GROUP,
+  OPT_SENSOR_GROUP,
   OPT_BUTTON_1,
   OPT_BUTTON_2,
   OPT_BUTTON_3,
@@ -110,11 +111,11 @@ enum Rts8891_Option
  * the functions defined in SANE's standard. Informations closer 
  * to the hardware are in the Rts8891_Device structure.
  */
-typedef struct Rts8891_Scanner
+typedef struct Rts8891_Session
 {
 
   /**< Next handle in linked list */
-  struct Rts8891_Scanner *next;
+  struct Rts8891_Session *next;
 
   /**< Low-level device object */
   struct Rts8891_Device *dev;
@@ -137,6 +138,6 @@ typedef struct Rts8891_Scanner
 
    /**< bytes currently sent to frontend during the scan */
   SANE_Int sent;
-} Rts8891_Scanner;
+} Rts8891_Session;
 
 #endif /* not RTS8891_H */

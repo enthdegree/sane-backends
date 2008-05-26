@@ -43,10 +43,10 @@
 
 /* this file contains functions common to rts88xx ASICs */
 
-#include "sane/config.h"
-#include "sane/sane.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_usb.h"
+#include "../include/sane/config.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
 #include "rts88xx_lib.h"
 
 #include <stdio.h>

@@ -205,11 +205,27 @@ struct Rts8891_Device
   /* end of the data buffer */
   SANE_Byte *end;
 
-  /* amount of bytes read from scanner */
+  /**
+   * amount of bytes read from scanner
+   */
   SANE_Int read;
 
-  /* total amount of bytes to read for the scan */
+  /**
+   * total amount of bytes to read for the scan
+   */
   SANE_Int to_read;
+
+#ifdef HAVE_SYS_TIME_H
+  /**
+   * last scan time, used to detect if warming-up is needed
+   */
+  struct timeval last_scan;
+
+  /**
+   * warming-up start time
+   */
+  struct timeval start_time;
+#endif
 };
 
 /*

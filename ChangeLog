@@ -1,3 +1,9 @@
+2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.[ch], backend/rts8891_low.[ch],
+	  backend/rts88xx_lib.[ch]: renamed per frontend struct, made use of
+	  new well-known option groups. Added warming-up handling in
+	  sane_start().
+
 2008-05-22  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c:
 	changed top of scan area detection for MD6228/MD6471 models

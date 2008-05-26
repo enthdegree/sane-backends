@@ -46,10 +46,10 @@
  * and separate functions with different goals.
  */
 
-#include "sane/config.h"
-#include "sane/sane.h"
-#include "sane/sanei_backend.h"
-#include "sane/sanei_usb.h"
+#include "../include/sane/config.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei_backend.h"
+#include "../include/sane/sanei_usb.h"
 
 #include <stdio.h>
 #ifdef HAVE_SYS_TIME_H
@@ -527,11 +527,11 @@ rts8891_park (SANE_Int devnum, SANE_Byte * regs)
  * mode since we cope with it on first data wait.
  */
 static SANE_Status
-read_data (struct Rts8891_Scanner *scanner, SANE_Byte * dest, SANE_Int length)
+read_data (struct Rts8891_Session *session, SANE_Byte * dest, SANE_Int length)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int count, read, len, dummy;
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Device *dev = session->dev;
   static FILE *raw = NULL;	/* for debugging purpose we need it static */
   SANE_Byte control = 0x08;
   unsigned char buffer[RTS88XX_MAX_XFER_SIZE];
@@ -565,7 +565,7 @@ read_data (struct Rts8891_Scanner *scanner, SANE_Byte * dest, SANE_Int length)
 	  /* in case there is no data, we return BUSY since this mean    */
 	  /* that scanning head hasn't reach is position and data hasn't */
 	  /* come yet */
-	  if (scanner->non_blocking && count == 0)
+	  if (session->non_blocking && count == 0)
 	    {
 
 	      dev->regs[LAMP_REG] = 0x8d;
@@ -657,9 +657,9 @@ read_data (struct Rts8891_Scanner *scanner, SANE_Byte * dest, SANE_Int length)
 		    {
 		      /* PNM header */
 		      fprintf (raw, "P%c\n%d %d\n255\n",
-			       scanner->params.format ==
+			       session->params.format ==
 			       SANE_FRAME_RGB
-			       || scanner->emulated_gray ==
+			       || session->emulated_gray ==
 			       SANE_TRUE ? '6' : '5', dev->pixels,
 			       dev->lines);
 		    }

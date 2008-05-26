@@ -130,11 +130,12 @@
 
 #define DEEP_DEBUG 1
 
-/* pointer to the first Rts8891_Scanner in the linked list of
- * opened device. scanners are insterted here on sane_open() and
+/**
+ * Pointer to the first Rts8891_Session in the linked list of
+ * opened device. Sessions are inserted here on sane_open() and
  * removed on sane_close().
  */
-static Rts8891_Scanner *first_handle = NULL;
+static Rts8891_Session *first_handle = NULL;
 
 
 /* pointer to the first device attached to the backend
@@ -200,7 +201,7 @@ max_string_size (const SANE_String_Const strings[])
 static SANE_Status attach_Rts8891 (const char *name);
 static SANE_Status set_lamp_brightness (struct Rts8891_Device *dev,
 					int level);
-static SANE_Status init_options (struct Rts8891_Scanner *scanner);
+static SANE_Status init_options (struct Rts8891_Session *session);
 #ifndef FAST_INIT
 static SANE_Status init_device (struct Rts8891_Device *dev);
 #else
@@ -216,15 +217,15 @@ static SANE_Status gain_calibration (struct Rts8891_Device *dev, int light);
 static SANE_Status offset_calibration (struct Rts8891_Device *dev, int light);
 static SANE_Status shading_calibration (struct Rts8891_Device *dev,
 					SANE_Bool color, int light);
-static SANE_Status send_calibration_data (struct Rts8891_Scanner *scanner);
-static SANE_Status write_scan_registers (struct Rts8891_Scanner *scanner);
-static SANE_Status read_data (struct Rts8891_Scanner *scanner,
+static SANE_Status send_calibration_data (struct Rts8891_Session *session);
+static SANE_Status write_scan_registers (struct Rts8891_Session *session);
+static SANE_Status read_data (struct Rts8891_Session *session,
 			      SANE_Byte * dest, SANE_Int length);
-static SANE_Status compute_parameters (struct Rts8891_Scanner *scanner);
-static SANE_Status move_to_scan_area (struct Rts8891_Scanner *scanner);
+static SANE_Status compute_parameters (struct Rts8891_Session *session);
+static SANE_Status move_to_scan_area (struct Rts8891_Session *session);
 static SANE_Status park_head (struct Rts8891_Device *dev);
-static SANE_Status update_button_status (struct Rts8891_Scanner *scanner);
-static SANE_Status set_lamp_state (struct Rts8891_Scanner *scanner, int on);
+static SANE_Status update_button_status (struct Rts8891_Session *session);
+static SANE_Status set_lamp_state (struct Rts8891_Session *session, int on);
 
 
 /* ------------------------------------------------------------------------- */
@@ -426,8 +427,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
 
 /**
- * Called to establish connection with the scanner. This function will
- * also establish meaningful defauls and initialize the options.
+ * Called to establish connection with the session. This function will
+ * also establish meaningful defaults and initialize the options.
  *
  * From the SANE spec:
  * This function is used to establish a connection to a particular
@@ -441,7 +442,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 SANE_Status
 sane_open (SANE_String_Const name, SANE_Handle * handle)
 {
-  struct Rts8891_Scanner *scanner = NULL;
+  struct Rts8891_Session *session = NULL;
   struct Rts8891_Device *device = NULL;
   SANE_Status status;
 
@@ -534,19 +535,19 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     }
 
   /* prepare handle to return */
-  scanner = (Rts8891_Scanner *) malloc (sizeof (Rts8891_Scanner));
+  session = (Rts8891_Session *) malloc (sizeof (Rts8891_Session));
 
-  scanner->scanning = SANE_FALSE;
-  scanner->dev = device;
+  session->scanning = SANE_FALSE;
+  session->dev = device;
 
-  init_options (scanner);
-  scanner->scanning = SANE_FALSE;
-  scanner->non_blocking = SANE_FALSE;
-  *handle = scanner;
+  init_options (session);
+  session->scanning = SANE_FALSE;
+  session->non_blocking = SANE_FALSE;
+  *handle = session;
 
   /* add the handle to the list */
-  scanner->next = first_handle;
-  first_handle = scanner;
+  session->next = first_handle;
+  first_handle = session;
 
   /* release the interface to allow device sharing */
   sanei_usb_release_interface (device->devnum, 0);
@@ -563,15 +564,15 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 SANE_Status
 sane_set_io_mode (SANE_Handle handle, SANE_Bool non_blocking)
 {
-  Rts8891_Scanner *scanner = (Rts8891_Scanner *) handle;
+  Rts8891_Session *session = (Rts8891_Session *) handle;
 
   DBG (DBG_proc, "sane_set_io_mode: start\n");
-  if (scanner->scanning != SANE_TRUE)
+  if (session->scanning != SANE_TRUE)
     {
       DBG (DBG_error, "sane_set_io_mode: called out of a scan\n");
       return SANE_STATUS_INVAL;
     }
-  scanner->non_blocking = non_blocking;
+  session->non_blocking = non_blocking;
   DBG (DBG_warn, "sane_set_io_mode: I/O mode set to %sblocking.\n",
        non_blocking ? "non " : " ");
   DBG (DBG_proc, "sane_set_io_mode: exit\n");
@@ -612,7 +613,7 @@ sane_get_select_fd (SANE_Handle handle, SANE_Int * fdp)
 const SANE_Option_Descriptor *
 sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 {
-  struct Rts8891_Scanner *scanner = handle;
+  struct Rts8891_Session *session = handle;
 
   DBG (DBG_proc, "sane_get_option_descriptor: start\n");
 
@@ -620,17 +621,17 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     return NULL;
 
   DBG (DBG_info, "sane_get_option_descriptor: \"%s\"\n",
-       scanner->opt[option].name);
+       session->opt[option].name);
 
   DBG (DBG_proc, "sane_get_option_descriptor: exit\n");
-  return &(scanner->opt[option]);
+  return &(session->opt[option]);
 }
 
 /**
  * sets automatic value for an option , called by sane_control_option after
  * all checks have been done */
 static SANE_Status
-set_automatic_value (Rts8891_Scanner * s, int option, SANE_Int * myinfo)
+set_automatic_value (Rts8891_Session * s, int option, SANE_Int * myinfo)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Int i, min;
@@ -707,7 +708,7 @@ set_automatic_value (Rts8891_Scanner * s, int option, SANE_Int * myinfo)
  * sets an option , called by sane_control_option after all
  * checks have been done */
 static SANE_Status
-set_option_value (Rts8891_Scanner * s, int option, void *val,
+set_option_value (Rts8891_Session * s, int option, void *val,
 		  SANE_Int * myinfo)
 {
   SANE_Status status = SANE_STATUS_GOOD;
@@ -867,7 +868,7 @@ set_option_value (Rts8891_Scanner * s, int option, void *val,
  * gets an option , called by sane_control_option after all checks
  * have been done */
 static SANE_Status
-get_option_value (Rts8891_Scanner * s, int option, void *val)
+get_option_value (Rts8891_Session * s, int option, void *val)
 {
   switch (option)
     {
@@ -956,7 +957,7 @@ SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
 		     SANE_Action action, void *val, SANE_Int * info)
 {
-  Rts8891_Scanner *s = handle;
+  Rts8891_Session *s = handle;
   SANE_Status status;
   SANE_Word cap;
   SANE_Int myinfo = 0;
@@ -1061,21 +1062,28 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 /**
  * Called by SANE when a page acquisition operation is to be started.
- *
+ * @param handle opaque handle to a frontend session
+ * @return SANE_STATUS_GOOD on success, SANE_STATUS_BUSY if the device is
+ * in use by another session or SANE_STATUS_WARMING_UP if the device is
+ * warming up. In this case the fronted as to call sane_start again until
+ * warming up is done. Any other values returned are error status.
  */
 SANE_Status
 sane_start (SANE_Handle handle)
 {
-  struct Rts8891_Scanner *scanner = handle;
+  struct Rts8891_Session *session = handle;
   int ret = SANE_STATUS_GOOD, light;
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Device *dev = session->dev;
   SANE_Status status;
   SANE_Bool changed;
+#ifdef HAVE_SYS_TIME_H
+  struct timeval current;
+#endif
 
   DBG (DBG_proc, "sane_start: start\n");
 
   /* if allready scanning, tell we're busy */
-  if (scanner->scanning == SANE_TRUE)
+  if (session->scanning == SANE_TRUE)
     {
       DBG (DBG_warn, "sane_start: device is allready scanning\n");
       return SANE_STATUS_DEVICE_BUSY;
@@ -1089,14 +1097,32 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_DEVICE_BUSY;
     }
 
+  /* check if we need warming-up */
   sanei_rts88xx_get_lamp_status (dev->devnum, dev->regs);
   if ((dev->regs[0x8e] & 0x60) != 0x60)
     {
       DBG (DBG_info, "sane_start: lamp needs warming (0x%02x)\n",
 	   dev->regs[0x8e]);
       dev->needs_warming = SANE_TRUE;
+#ifdef HAVE_SYS_TIME_H
+      dev->start_time.tv_sec = current.tv_sec;
+      dev->last_scan.tv_sec = current.tv_sec;
+#endif
     }
 
+#ifdef HAVE_SYS_TIME_H
+  /* if last scan time is more than 10 minutes ago, scanner also needs
+   * warming-up */
+  gettimeofday (&current, NULL);
+  if ((current.tv_sec - dev->last_scan.tv_sec) / 60 > 10)
+    {
+      DBG (DBG_info,
+	   "sane_start: more than 10 minutes without scanning, lamp needs warming\n");
+      dev->needs_warming = SANE_TRUE;
+      dev->start_time.tv_sec = current.tv_sec;
+      dev->last_scan.tv_sec = current.tv_sec;
+    }
+#endif
   rts8891_set_default_regs (dev->regs);
 
   /* step 0: light up */
@@ -1106,9 +1132,19 @@ sane_start (SANE_Handle handle)
   if (dev->needs_warming == SANE_TRUE)
     {
       DBG (DBG_info, "sane_start: warming lamp ...\n");
+#ifdef HAVE_SYS_TIME_H
+      /* check if current time is >15s after warming-up start */
+      gettimeofday (&current, NULL);
+      if ((current.tv_sec - dev->start_time.tv_sec) < 15)
+	{
+	  return SANE_STATUS_WARMING_UP;
+	}
+#else
+      DBG (DBG_info, "sane_start: waiting 15s to let lamp getting warm enough ...\n");
       sleep (15);
-      dev->needs_warming = SANE_FALSE;
+#endif
     }
+  dev->needs_warming = SANE_FALSE;
 
   /* restore default brightness */
   dev->regs[LAMP_BRIGHT_REG] = 0xA7;
@@ -1198,7 +1234,7 @@ sane_start (SANE_Handle handle)
 
   /* we compute all the scan parameters so that */
   /* we will be able to set up the registers correctly */
-  compute_parameters (scanner);
+  compute_parameters (session);
 
   /* allocate buffer and compute start pointer */
   if (dev->scanned_data != NULL)
@@ -1211,7 +1247,7 @@ sane_start (SANE_Handle handle)
   dev->end = dev->start + dev->data_size;
 
   /* no bytes sent yet to frontend */
-  scanner->sent = 0;
+  session->sent = 0;
 
   sanei_rts88xx_set_offset (dev->regs, dev->red_offset, dev->green_offset,
 			    dev->blue_offset);
@@ -1220,8 +1256,8 @@ sane_start (SANE_Handle handle)
 
   /* step 6: shading calibration */
   status =
-    shading_calibration (dev, scanner->params.format == SANE_FRAME_RGB
-			 || scanner->emulated_gray == SANE_TRUE, light);
+    shading_calibration (dev, session->params.format == SANE_FRAME_RGB
+			 || session->emulated_gray == SANE_TRUE, light);
   if (status != SANE_STATUS_GOOD)
     {
       sanei_usb_release_interface (dev->devnum, 0);
@@ -1233,7 +1269,7 @@ sane_start (SANE_Handle handle)
   if (dev->ydpi > dev->model->min_ydpi
       && (dev->ystart * MOVE_DPI) / dev->ydpi > 150)
     {
-      status = move_to_scan_area (scanner);
+      status = move_to_scan_area (session);
       if (status != SANE_STATUS_GOOD)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
@@ -1244,7 +1280,7 @@ sane_start (SANE_Handle handle)
 
   /* step 7: effective scan start   */
   /* build register set and send it */
-  status = write_scan_registers (scanner);
+  status = write_scan_registers (session);
   if (status != SANE_STATUS_GOOD)
     {
       sanei_usb_release_interface (dev->devnum, 0);
@@ -1253,7 +1289,7 @@ sane_start (SANE_Handle handle)
     }
 
   /* step 8: send calibration data  */
-  status = send_calibration_data (scanner);
+  status = send_calibration_data (session);
   if (status != SANE_STATUS_GOOD)
     {
       sanei_usb_release_interface (dev->devnum, 0);
@@ -1267,7 +1303,7 @@ sane_start (SANE_Handle handle)
   status = sanei_rts88xx_write_control (dev->devnum, 0x08);
   status = sanei_rts88xx_write_control (dev->devnum, 0x08);
 
-  scanner->scanning = SANE_TRUE;
+  session->scanning = SANE_TRUE;
 
   DBG (DBG_proc, "sane_start: exit\n");
   return ret;
@@ -1279,9 +1315,9 @@ sane_start (SANE_Handle handle)
  * number of lines, total number of columns, extra line to read for data reordering... 
  */
 static SANE_Status
-compute_parameters (Rts8891_Scanner * scanner)
+compute_parameters (Rts8891_Session * session)
 {
-  Rts8891_Device *dev = scanner->dev;
+  Rts8891_Device *dev = session->dev;
   SANE_Int dpi;			/* dpi for scan */
   SANE_String mode;
   SANE_Status status = SANE_STATUS_GOOD;
@@ -1290,65 +1326,65 @@ compute_parameters (Rts8891_Scanner * scanner)
 
   int tl_x, tl_y, br_x, br_y;
 
-  mode = scanner->val[OPT_MODE].s;
-  dpi = scanner->val[OPT_RESOLUTION].w;
+  mode = session->val[OPT_MODE].s;
+  dpi = session->val[OPT_RESOLUTION].w;
 
   /* scan coordinates */
-  tl_x = SANE_UNFIX (scanner->val[OPT_TL_X].w);
-  tl_y = SANE_UNFIX (scanner->val[OPT_TL_Y].w);
-  br_x = SANE_UNFIX (scanner->val[OPT_BR_X].w);
-  br_y = SANE_UNFIX (scanner->val[OPT_BR_Y].w);
+  tl_x = SANE_UNFIX (session->val[OPT_TL_X].w);
+  tl_y = SANE_UNFIX (session->val[OPT_TL_Y].w);
+  br_x = SANE_UNFIX (session->val[OPT_BR_X].w);
+  br_y = SANE_UNFIX (session->val[OPT_BR_Y].w);
 
   /* only single pass scanning supported */
-  scanner->params.last_frame = SANE_TRUE;
-  scanner->emulated_gray = SANE_FALSE;
+  session->params.last_frame = SANE_TRUE;
+  session->emulated_gray = SANE_FALSE;
 
   /* gray modes */
-  dev->threshold = (255 * SANE_UNFIX (scanner->val[OPT_THRESHOLD].w)) / 100;
+  dev->threshold = (255 * SANE_UNFIX (session->val[OPT_THRESHOLD].w)) / 100;
   if (strcmp (mode, GRAY_MODE) == 0 || strcmp (mode, LINEART_MODE) == 0)
     {
-      scanner->params.format = SANE_FRAME_GRAY;
+      session->params.format = SANE_FRAME_GRAY;
       if (dev->model->flags & RTS8891_FLAG_EMULATED_GRAY_MODE)
-	scanner->emulated_gray = SANE_TRUE;
+	session->emulated_gray = SANE_TRUE;
     }
   else
     {
       /* Color */
-      scanner->params.format = SANE_FRAME_RGB;
+      session->params.format = SANE_FRAME_RGB;
     }
 
   /* SANE level values */
-  scanner->params.lines = ((br_y - tl_y) * dpi) / MM_PER_INCH;
-  if (scanner->params.lines == 0)
-    scanner->params.lines = 1;
-  scanner->params.pixels_per_line = ((br_x - tl_x) * dpi) / MM_PER_INCH;
-  if (scanner->params.pixels_per_line == 0)
-    scanner->params.pixels_per_line = 1;
+  session->params.lines = ((br_y - tl_y) * dpi) / MM_PER_INCH;
+  if (session->params.lines == 0)
+    session->params.lines = 1;
+  session->params.pixels_per_line = ((br_x - tl_x) * dpi) / MM_PER_INCH;
+  if (session->params.pixels_per_line == 0)
+    session->params.pixels_per_line = 1;
 
   DBG (DBG_data, "compute_parameters: pixels_per_line   =%d\n",
-       scanner->params.pixels_per_line);
+       session->params.pixels_per_line);
 
   if (strcmp (mode, LINEART_MODE) == 0)
     {
-      scanner->params.depth = 1;
+      session->params.depth = 1;
       /* in lineart, having pixels multiple of 8 avoids a costly test */
       /* at each bit to see we must go to the next byte               */
       /* TODO : implement this requirement in sane_control_option */
-      scanner->params.pixels_per_line =
-	((scanner->params.pixels_per_line + 7) / 8) * 8;
+      session->params.pixels_per_line =
+	((session->params.pixels_per_line + 7) / 8) * 8;
     }
   else
-    scanner->params.depth = 8;
+    session->params.depth = 8;
 
   /* width needs to be even */
-  if (scanner->params.pixels_per_line & 1)
-    scanner->params.pixels_per_line++;
+  if (session->params.pixels_per_line & 1)
+    session->params.pixels_per_line++;
 
   /* Hardware settings : they can differ from the ones at SANE level */
   /* for instance the effective DPI used by a sensor may be higher   */
   /* than the one needed for the SANE scan parameters                */
-  dev->lines = scanner->params.lines;
-  dev->pixels = scanner->params.pixels_per_line;
+  dev->lines = session->params.lines;
+  dev->pixels = session->params.pixels_per_line;
 
   /* motor and sensor DPI */
   dev->xdpi = dpi;
@@ -1363,10 +1399,10 @@ compute_parameters (Rts8891_Scanner * scanner)
 	dev->lines = 1;
 
       /* round number of lines */
-      scanner->params.lines =
-	(scanner->params.lines / dev->lines) * dev->lines;
-      if (scanner->params.lines == 0)
-	scanner->params.lines = 1;
+      session->params.lines =
+	(session->params.lines / dev->lines) * dev->lines;
+      if (session->params.lines == 0)
+	session->params.lines = 1;
     }
   if (dev->ydpi < dev->model->min_ydpi)
     {
@@ -1385,32 +1421,32 @@ compute_parameters (Rts8891_Scanner * scanner)
     dev->xstart++;
 
   /* computes bytes per line */
-  scanner->params.bytes_per_line = scanner->params.pixels_per_line;
+  session->params.bytes_per_line = session->params.pixels_per_line;
   dev->bytes_per_line = dev->pixels;
-  if (scanner->params.format == SANE_FRAME_RGB
-      || scanner->emulated_gray == SANE_TRUE)
+  if (session->params.format == SANE_FRAME_RGB
+      || session->emulated_gray == SANE_TRUE)
     {
-      if (scanner->emulated_gray != SANE_TRUE)
+      if (session->emulated_gray != SANE_TRUE)
 	{
-	  scanner->params.bytes_per_line *= 3;
+	  session->params.bytes_per_line *= 3;
 	}
       dev->bytes_per_line *= 3;
     }
-  scanner->to_send = scanner->params.bytes_per_line * scanner->params.lines;
+  session->to_send = session->params.bytes_per_line * session->params.lines;
 
   /* in lineart mode we adjust bytes_per_line needed by frontend */
   /* we do that here because we needed sent/to_send to be as if  */
   /* there was no lineart                                        */
-  if (scanner->params.depth == 1)
+  if (session->params.depth == 1)
     {
-      scanner->params.bytes_per_line =
-	(scanner->params.bytes_per_line + 7) / 8;
+      session->params.bytes_per_line =
+	(session->params.bytes_per_line + 7) / 8;
     }
 
   /* compute how many extra bytes we need to reorder data */
   dev->ripple = 0;
-  if (scanner->params.format == SANE_FRAME_RGB
-      || scanner->emulated_gray == SANE_TRUE)
+  if (session->params.format == SANE_FRAME_RGB
+      || session->emulated_gray == SANE_TRUE)
     {
       dev->lds_r
 	= ((dev->model->ld_shift_r * dev->ydpi) / dev->model->max_ydpi)
@@ -1509,20 +1545,20 @@ compute_parameters (Rts8891_Scanner * scanner)
   if (dev->data_size < 32 * dev->bytes_per_line)
     dev->data_size = 32 * dev->bytes_per_line;
 
-  /* buffer must be smaller than total amount to read from scanner */
+  /* buffer must be smaller than total amount to read from session */
   if (dev->data_size > dev->to_read)
     dev->data_size = dev->to_read;
 
   DBG (DBG_data, "compute_parameters: bytes_per_line    =%d\n",
-       scanner->params.bytes_per_line);
+       session->params.bytes_per_line);
   DBG (DBG_data, "compute_parameters: depth             =%d\n",
-       scanner->params.depth);
+       session->params.depth);
   DBG (DBG_data, "compute_parameters: lines             =%d\n",
-       scanner->params.lines);
+       session->params.lines);
   DBG (DBG_data, "compute_parameters: pixels_per_line   =%d\n",
-       scanner->params.pixels_per_line);
+       session->params.pixels_per_line);
   DBG (DBG_data, "compute_parameters: image size        =%d\n",
-       scanner->to_send);
+       session->to_send);
 
   DBG (DBG_data, "compute_parameters: xstart            =%d\n", dev->xstart);
   DBG (DBG_data, "compute_parameters: ystart            =%d\n", dev->ystart);
@@ -1564,14 +1600,14 @@ SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
   SANE_Status status;
-  struct Rts8891_Scanner *scanner = (struct Rts8891_Scanner *) handle;
+  struct Rts8891_Session *session = (struct Rts8891_Session *) handle;
 
   DBG (DBG_proc, "sane_get_parameters: start\n");
 
   /* call parameters computing function */
-  status = compute_parameters (scanner);
+  status = compute_parameters (session);
   if (status == SANE_STATUS_GOOD && params)
-    *params = scanner->params;
+    *params = session->params;
 
   DBG (DBG_proc, "sane_get_parameters: exit\n");
   return status;
@@ -1596,8 +1632,8 @@ SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf,
 	   SANE_Int max_len, SANE_Int * len)
 {
-  struct Rts8891_Scanner *scanner = (struct Rts8891_Scanner *) handle;
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Session *session = (struct Rts8891_Session *) handle;
+  struct Rts8891_Device *dev = session->dev;
   SANE_Status status;
   SANE_Int length;
   SANE_Int data_size;
@@ -1608,7 +1644,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   DBG (DBG_io, "sane_read: up to %d bytes required by frontend\n", max_len);
 
   /* some sanity checks first to protect from would be buggy frontends */
-  if (!scanner)
+  if (!session)
     {
       DBG (DBG_error, "sane_read: handle is null!\n");
       return SANE_STATUS_INVAL;
@@ -1630,8 +1666,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   *len = 0;
   buf[*len] = 0;
 
-  /* check if scanner is scanning */
-  if (!scanner->scanning)
+  /* check if session is scanning */
+  if (!session->scanning)
     {
       DBG (DBG_warn,
 	   "sane_read: scan was cancelled, is over or has not been initiated yet\n");
@@ -1639,7 +1675,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
     }
 
   /* check for EOF, must be done before any physical read */
-  if (scanner->sent >= scanner->to_send)
+  if (session->sent >= session->to_send)
     {
       DBG (DBG_io, "sane_read: end of scan reached\n");
       return SANE_STATUS_EOF;
@@ -1649,7 +1685,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, &(dev->regs[LAMP_REG]));
 
   /* byte length for high dpi mode */
-  length = (scanner->params.bytes_per_line * 8) / scanner->params.depth;
+  length = (session->params.bytes_per_line * 8) / session->params.depth;
 
   /* minimal physical read length */
   min = 0;
@@ -1657,8 +1693,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   /* checks if buffer has been pre filled with the extra data needed for */
   /* line distance reordering                                            */
   if (dev->read == 0
-      && (scanner->params.format == SANE_FRAME_RGB
-	  || scanner->emulated_gray == SANE_TRUE))
+      && (session->params.format == SANE_FRAME_RGB
+	  || session->emulated_gray == SANE_TRUE))
     {
       /* the data need if the size of the highest line distance shift */
       /* we must only read what's needed */
@@ -1666,7 +1702,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
       if (dev->to_read - dev->read < data_size)
 	data_size = dev->to_read - dev->read;
 
-      status = read_data (scanner, dev->scanned_data, data_size);
+      status = read_data (session, dev->scanned_data, data_size);
       if (status == SANE_STATUS_DEVICE_BUSY)
 	{
 	  DBG (DBG_io, "sane_read: no data currently available\n");
@@ -1691,7 +1727,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
       if (dev->to_read - dev->read < data_size)
 	data_size = dev->to_read - dev->read;
 
-      status = read_data (scanner, dev->start, data_size);
+      status = read_data (session, dev->start, data_size);
       if (status == SANE_STATUS_DEVICE_BUSY)
 	{
 	  DBG (DBG_io, "sane_read: no data currently available\n");
@@ -1711,8 +1747,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, &(dev->regs[LAMP_REG]));
 
   /* it seems there is no gray or lineart hardware mode for the rts8891 */
-  if (scanner->params.format == SANE_FRAME_GRAY
-      && scanner->emulated_gray == SANE_FALSE)
+  if (session->params.format == SANE_FRAME_GRAY
+      && session->emulated_gray == SANE_FALSE)
     {
       DBG (DBG_error0, "sane_read: unimplemented native gray scanning\n");
       return SANE_STATUS_INVAL;
@@ -1731,18 +1767,18 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
       /* we loop until we reach max_len or end of data buffer  */
       /* or we sent what we advised to frontend                */
       while (dev->current < dev->end && *len < max_len
-	     && scanner->sent < scanner->to_send)
+	     && session->sent < session->to_send)
 	{
 	  /* data is received in RGB format */
 	  /* these switches are there to handle reads not aligned
 	   * on pixels that are allowed by the SANE standard */
 	  if (dev->xdpi == dev->model->max_xdpi)
 	    {			/* at max xdpi, data received is distorted and ydpi is half of xdpi */
-	      if (scanner->emulated_gray == SANE_TRUE)
+	      if (session->emulated_gray == SANE_TRUE)
 		{
 		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
 		  /* at a time                                                        */
-		  switch (((scanner->sent * 3) % dev->bytes_per_line) % 6)
+		  switch (((session->sent * 3) % dev->bytes_per_line) % 6)
 		    {
 		    case 0:
 		    case 1:
@@ -1756,9 +1792,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		      break;
 		    }
 
-		  if (scanner->params.depth == 1)
+		  if (session->params.depth == 1)
 		    {
-		      bit = 7 - (scanner->sent) % 8;
+		      bit = 7 - (session->sent) % 8;
 		      if (val <= dev->threshold)
 			{
 			  buf[*len] |= 1 << bit;
@@ -1774,12 +1810,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		      buf[*len] = val;
 		      (*len)++;
 		    }
-		  scanner->sent++;
+		  session->sent++;
 		  dev->current += 3;
 		}
 	      else
 		{
-		  switch ((scanner->sent % dev->bytes_per_line) % 6)
+		  switch ((session->sent % dev->bytes_per_line) % 6)
 		    {
 		    case 0:
 		      buf[*len] = dev->current[dev->lds_r];
@@ -1801,32 +1837,32 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		      break;
 		    }
 		  (*len)++;
-		  scanner->sent++;
+		  session->sent++;
 		  dev->current++;
 		}
 
 	      /* we currently double lines to have match xdpy */
 	      /* so we logically rewind for each odd line     */
 	      /* we test at start of a scanned picture line   */
-	      if (((scanner->sent / length) % 2 == 1)
-		  && (scanner->sent % length == 0))
+	      if (((session->sent / length) % 2 == 1)
+		  && (session->sent % length == 0))
 		{
 		  DBG (DBG_io,
 		       "sane_read: rewind by %d bytes after %d bytes sent\n",
-		       dev->bytes_per_line, scanner->sent);
+		       dev->bytes_per_line, session->sent);
 		  dev->current -= dev->bytes_per_line;
 		}
 	    }
-	  else if (dev->ydpi == scanner->val[OPT_RESOLUTION].w)
+	  else if (dev->ydpi == session->val[OPT_RESOLUTION].w)
 	    {
-	      if (scanner->emulated_gray == SANE_TRUE)
+	      if (session->emulated_gray == SANE_TRUE)
 		{
 		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
 		  /* at a time, so we know where we are                               */
 		  val = dev->current[dev->lds_g];
-		  if (scanner->params.depth == 1)
+		  if (session->params.depth == 1)
 		    {
-		      bit = 7 - (scanner->sent) % 8;
+		      bit = 7 - (session->sent) % 8;
 		      if (val <= dev->threshold)
 			{
 			  buf[*len] |= 1 << bit;
@@ -1845,7 +1881,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		      buf[*len] = val;
 		      (*len)++;
 		    }
-		  scanner->sent++;
+		  session->sent++;
 		  dev->current += 3;
 		}
 	      else
@@ -1863,23 +1899,23 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		      break;
 		    }
 		  (*len)++;
-		  scanner->sent++;
+		  session->sent++;
 		  dev->current++;
 		}
 	    }
 	  else
 	    {
 	      /* we currently handle ydi=2*dpi */
-	      if (scanner->emulated_gray == SANE_TRUE)
+	      if (session->emulated_gray == SANE_TRUE)
 		{
 		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
 		  /* at a time, so we know where we are                               */
 		  val = (dev->current[dev->lds_g]
 			 + dev->current[dev->lds_g +
 					dev->bytes_per_line]) / 2;
-		  if (scanner->params.depth == 1)
+		  if (session->params.depth == 1)
 		    {
-		      bit = 7 - (scanner->sent) % 8;
+		      bit = 7 - (session->sent) % 8;
 		      if (val <= dev->threshold)
 			{
 			  buf[*len] |= 1 << bit;
@@ -1923,7 +1959,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 		  (*len)++;
 		  dev->current++;
 		}
-	      scanner->sent++;
+	      session->sent++;
 
 	      /* at the end of each line, we must count another one because */
 	      /* 2 lines are used to produce one                            */
@@ -1938,8 +1974,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
   /* buffer because of line distance handling, when blue data */
   /* is exhausted, read and green haven't been fully read yet */
   if (dev->current >= dev->end
-      && (scanner->params.format == SANE_FRAME_RGB
-	  || scanner->emulated_gray == SANE_TRUE))
+      && (session->params.format == SANE_FRAME_RGB
+	  || session->emulated_gray == SANE_TRUE))
     {
       memcpy (dev->scanned_data, dev->end - (dev->lds_max + dev->ripple),
 	      dev->lds_max + dev->ripple);
@@ -1974,13 +2010,22 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 void
 sane_cancel (SANE_Handle handle)
 {
-  Rts8891_Scanner *scanner = handle;
-  struct Rts8891_Device *dev = scanner->dev;
+  Rts8891_Session *session = handle;
+  struct Rts8891_Device *dev = session->dev;
+#ifdef HAVE_SYS_TIME_H
+  struct timeval current;
+#endif
 
   DBG (DBG_proc, "sane_cancel: start\n");
 
+#ifdef HAVE_SYS_TIME_H
+  /* store last scan time for the device */
+  gettimeofday (&current, NULL);
+  dev->last_scan.tv_sec=current.tv_sec;
+#endif
+
   /* if scanning, abort and park head */
-  if (scanner->scanning == SANE_TRUE)
+  if (session->scanning == SANE_TRUE)
     {
       /* canceling while all data hasn't bee read */
       if (dev->read < dev->to_read)
@@ -1989,7 +2034,7 @@ sane_cancel (SANE_Handle handle)
 	  usleep (500000);
 	  sanei_rts88xx_cancel (dev->devnum);
 	}
-      scanner->scanning = SANE_FALSE;
+      session->scanning = SANE_FALSE;
 
       /* head parking */
       if (park_head (dev) != SANE_STATUS_GOOD)
@@ -2018,7 +2063,7 @@ sane_cancel (SANE_Handle handle)
 
 
 /**
- * Ends use of the scanner.
+ * Ends use of the session.
  * 
  * From the SANE spec:
  * This function terminates the association between the device handle
@@ -2033,60 +2078,60 @@ sane_cancel (SANE_Handle handle)
 void
 sane_close (SANE_Handle handle)
 {
-  Rts8891_Scanner *prev, *scanner;
+  Rts8891_Session *prev, *session;
   int i;
 
   DBG (DBG_proc, "sane_close: start\n");
 
   /* remove handle from list of open handles: */
   prev = NULL;
-  for (scanner = first_handle; scanner; scanner = scanner->next)
+  for (session = first_handle; session; session = session->next)
     {
-      if (scanner == handle)
+      if (session == handle)
 	break;
-      prev = scanner;
+      prev = session;
     }
-  if (!scanner)
+  if (!session)
     {
       DBG (DBG_error, "close: invalid handle %p\n", handle);
       return;			/* oops, not a handle we know about */
     }
 
   /* cancel any active scan */
-  if (scanner->scanning == SANE_TRUE)
+  if (session->scanning == SANE_TRUE)
     {
       sane_cancel (handle);
     }
-  set_lamp_brightness (scanner->dev, 0);
+  set_lamp_brightness (session->dev, 0);
 
   if (prev)
-    prev->next = scanner->next;
+    prev->next = session->next;
   else
-    first_handle = scanner->next;
+    first_handle = session->next;
 
   /* switch off lamp and close usb */
-  sanei_usb_claim_interface (scanner->dev->devnum, 0);
-  set_lamp_state (scanner, 0);
-  sanei_usb_close (scanner->dev->devnum);
+  sanei_usb_claim_interface (session->dev->devnum, 0);
+  set_lamp_state (session, 0);
+  sanei_usb_close (session->dev->devnum);
 
-  /* free per scanner data */
-  if (scanner->dev->model->gamma != scanner->val[OPT_GAMMA_VECTOR].wa)
-    free (scanner->val[OPT_GAMMA_VECTOR].wa);
-  if (scanner->dev->model->gamma != scanner->val[OPT_GAMMA_VECTOR_R].wa)
-    free (scanner->val[OPT_GAMMA_VECTOR_R].wa);
-  if (scanner->dev->model->gamma != scanner->val[OPT_GAMMA_VECTOR_G].wa)
-    free (scanner->val[OPT_GAMMA_VECTOR_G].wa);
-  if (scanner->dev->model->gamma != scanner->val[OPT_GAMMA_VECTOR_B].wa)
-    free (scanner->val[OPT_GAMMA_VECTOR_B].wa);
-  free (scanner->val[OPT_MODE].s);
-  free (scanner->opt[OPT_RESOLUTION].constraint.word_list);
+  /* free per session data */
+  if (session->dev->model->gamma != session->val[OPT_GAMMA_VECTOR].wa)
+    free (session->val[OPT_GAMMA_VECTOR].wa);
+  if (session->dev->model->gamma != session->val[OPT_GAMMA_VECTOR_R].wa)
+    free (session->val[OPT_GAMMA_VECTOR_R].wa);
+  if (session->dev->model->gamma != session->val[OPT_GAMMA_VECTOR_G].wa)
+    free (session->val[OPT_GAMMA_VECTOR_G].wa);
+  if (session->dev->model->gamma != session->val[OPT_GAMMA_VECTOR_B].wa)
+    free (session->val[OPT_GAMMA_VECTOR_B].wa);
+  free (session->val[OPT_MODE].s);
+  free (session->opt[OPT_RESOLUTION].constraint.word_list);
   for (i = OPT_BUTTON_1; i <= OPT_BUTTON_11; i++)
     {
-      free (scanner->opt[i].name);
-      free (scanner->opt[i].title);
+      free (session->opt[i].name);
+      free (session->opt[i].title);
     }
 
-  free (scanner);
+  free (session);
 
   DBG (DBG_proc, "sane_close: exit\n");
 }
@@ -2109,18 +2154,18 @@ sane_close (SANE_Handle handle)
 void
 sane_exit (void)
 {
-  struct Rts8891_Scanner *scanner, *next;
+  struct Rts8891_Session *session, *next;
   struct Rts8891_Device *dev, *nextdev;
   int i;
 
   DBG (DBG_proc, "sane_exit: start\n");
 
-  /* free scanners structs */
-  for (scanner = first_handle; scanner; scanner = next)
+  /* free session structs */
+  for (session = first_handle; session; session = next)
     {
-      next = scanner->next;
-      sane_close ((SANE_Handle *) scanner);
-      free (scanner);
+      next = session->next;
+      sane_close ((SANE_Handle *) session);
+      free (session);
     }
   first_handle = NULL;
 
@@ -2238,7 +2283,7 @@ attach_Rts8891 (const char *devicename)
 
   /* we insert new device at start of the chained list */
   /* head of the list becomes the next, and start is replaced */
-  /* with the new scanner struct */
+  /* with the new session struct */
   num_devices++;
   device->next = first_device;
   first_device = device;
@@ -2246,6 +2291,11 @@ attach_Rts8891 (const char *devicename)
   device->reg_count = 244;
   /* intialization is done at sane_open */
   device->initialized = SANE_FALSE;
+  device->needs_warming = SANE_TRUE;
+#ifdef HAVE_SYS_TIME_H
+  device->last_scan.tv_sec = 0;
+  device->start_time.tv_sec = 0;
+#endif
 
   DBG (DBG_proc, "attach_Rts8891: exit\n");
   return SANE_STATUS_GOOD;
@@ -2254,62 +2304,63 @@ attach_Rts8891 (const char *devicename)
 
 /* set initial value for the scanning options */
 static SANE_Status
-init_options (struct Rts8891_Scanner *scanner)
+init_options (struct Rts8891_Session *session)
 {
   SANE_Int option, count, i, min, idx;
   SANE_Word *dpi_list;
-  Rts8891_Model *model = scanner->dev->model;
+  Rts8891_Model *model = session->dev->model;
 
   DBG (DBG_proc, "init_options: start\n");
 
   /* we first initialize each options with a default value */
-  memset (scanner->opt, 0, sizeof (scanner->opt));
-  memset (scanner->val, 0, sizeof (scanner->val));
+  memset (session->opt, 0, sizeof (session->opt));
+  memset (session->val, 0, sizeof (session->val));
 
   for (option = 0; option < NUM_OPTIONS; option++)
     {
-      scanner->opt[option].size = sizeof (SANE_Word);
-      scanner->opt[option].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      session->opt[option].size = sizeof (SANE_Word);
+      session->opt[option].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
 
   /* we set up all the options listed in the Rts8891_Option enum */
 
   /* last option / end of list marker */
-  scanner->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
-  scanner->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
-  scanner->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
-  scanner->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
-  scanner->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
-  scanner->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
+  session->opt[OPT_NUM_OPTS].name = SANE_NAME_NUM_OPTIONS;
+  session->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
+  session->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
+  session->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
+  session->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
+  session->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-  /* "Mode" group: */
-  scanner->opt[OPT_MODE_GROUP].title = SANE_I18N ("Scan Mode");
-  scanner->opt[OPT_MODE_GROUP].desc = "";	/* groups must not have a description */
-  scanner->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
-  scanner->opt[OPT_MODE_GROUP].size = 0;
-  scanner->opt[OPT_MODE_GROUP].cap = 0;
-  scanner->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  /* "Standard" group: */
+  session->opt[OPT_STANDARD_GROUP].title = SANE_TITLE_STANDARD;
+  session->opt[OPT_STANDARD_GROUP].name = SANE_NAME_STANDARD;
+  session->opt[OPT_STANDARD_GROUP].desc = SANE_DESC_STANDARD;
+  session->opt[OPT_STANDARD_GROUP].type = SANE_TYPE_GROUP;
+  session->opt[OPT_STANDARD_GROUP].size = 0;
+  session->opt[OPT_STANDARD_GROUP].cap = 0;
+  session->opt[OPT_STANDARD_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scan mode */
-  scanner->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
-  scanner->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
-  scanner->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
-  scanner->opt[OPT_MODE].type = SANE_TYPE_STRING;
-  scanner->opt[OPT_MODE].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-  scanner->opt[OPT_MODE].size = max_string_size (mode_list);
-  scanner->opt[OPT_MODE].constraint.string_list = mode_list;
-  scanner->val[OPT_MODE].s = strdup (mode_list[0]);
+  session->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
+  session->opt[OPT_MODE].title = SANE_TITLE_SCAN_MODE;
+  session->opt[OPT_MODE].desc = SANE_DESC_SCAN_MODE;
+  session->opt[OPT_MODE].type = SANE_TYPE_STRING;
+  session->opt[OPT_MODE].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  session->opt[OPT_MODE].size = max_string_size (mode_list);
+  session->opt[OPT_MODE].constraint.string_list = mode_list;
+  session->val[OPT_MODE].s = strdup (mode_list[0]);
 
   /* preview */
-  scanner->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
-  scanner->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
-  scanner->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
-  scanner->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
-  scanner->opt[OPT_PREVIEW].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_PREVIEW].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
-  scanner->val[OPT_PREVIEW].w = SANE_FALSE;
+  session->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
+  session->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
+  session->opt[OPT_PREVIEW].desc = SANE_DESC_PREVIEW;
+  session->opt[OPT_PREVIEW].type = SANE_TYPE_BOOL;
+  session->opt[OPT_PREVIEW].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_PREVIEW].unit = SANE_UNIT_NONE;
+  session->opt[OPT_PREVIEW].constraint_type = SANE_CONSTRAINT_NONE;
+  session->val[OPT_PREVIEW].w = SANE_FALSE;
 
   /* build resolution list */
   /* TODO we build it from xdpi, one could prefer building it from
@@ -2323,14 +2374,14 @@ init_options (struct Rts8891_Scanner *scanner)
   for (count = 0; model->xdpi_values[count] != 0; count++)
     dpi_list[count + 1] = model->xdpi_values[count];
 
-  scanner->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
-  scanner->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
-  scanner->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
-  scanner->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
-  scanner->opt[OPT_RESOLUTION].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
-  scanner->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-  scanner->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
+  session->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
+  session->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
+  session->opt[OPT_RESOLUTION].desc = SANE_DESC_SCAN_RESOLUTION;
+  session->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
+  session->opt[OPT_RESOLUTION].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
+  session->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  session->opt[OPT_RESOLUTION].constraint.word_list = dpi_list;
 
   /* initial value is lowest available dpi */
   min = 65536;
@@ -2339,153 +2390,154 @@ init_options (struct Rts8891_Scanner *scanner)
       if (dpi_list[i] < min)
 	min = dpi_list[i];
     }
-  scanner->val[OPT_RESOLUTION].w = min;
-
-  /* TODO add any other options here */
+  session->val[OPT_RESOLUTION].w = min;
 
   /* "Geometry" group: */
-  scanner->opt[OPT_GEOMETRY_GROUP].title = SANE_I18N ("Geometry");
-  scanner->opt[OPT_GEOMETRY_GROUP].desc = "";
-  scanner->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
-  scanner->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
-  scanner->opt[OPT_GEOMETRY_GROUP].size = 0;
-  scanner->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  session->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
+  session->opt[OPT_GEOMETRY_GROUP].name = SANE_NAME_GEOMETRY;
+  session->opt[OPT_GEOMETRY_GROUP].desc = SANE_DESC_GEOMETRY;
+  session->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
+  session->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+  session->opt[OPT_GEOMETRY_GROUP].size = 0;
+  session->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* adapt the constraint range to the detected model */
   x_range.max = model->x_size;
   y_range.max = model->y_size;
 
   /* top-left x */
-  scanner->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
-  scanner->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
-  scanner->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
-  scanner->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
-  scanner->opt[OPT_TL_X].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_TL_X].unit = SANE_UNIT_MM;
-  scanner->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_TL_X].constraint.range = &x_range;
-  scanner->val[OPT_TL_X].w = 0;
+  session->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
+  session->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
+  session->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
+  session->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
+  session->opt[OPT_TL_X].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_TL_X].unit = SANE_UNIT_MM;
+  session->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_TL_X].constraint.range = &x_range;
+  session->val[OPT_TL_X].w = 0;
 
   /* top-left y */
-  scanner->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
-  scanner->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
-  scanner->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
-  scanner->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
-  scanner->opt[OPT_TL_Y].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
-  scanner->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_TL_Y].constraint.range = &y_range;
-  scanner->val[OPT_TL_Y].w = 0;
+  session->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
+  session->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
+  session->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
+  session->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
+  session->opt[OPT_TL_Y].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
+  session->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_TL_Y].constraint.range = &y_range;
+  session->val[OPT_TL_Y].w = 0;
 
   /* bottom-right x */
-  scanner->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
-  scanner->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
-  scanner->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
-  scanner->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
-  scanner->opt[OPT_BR_X].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_BR_X].unit = SANE_UNIT_MM;
-  scanner->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_BR_X].constraint.range = &x_range;
-  scanner->val[OPT_BR_X].w = x_range.max;
+  session->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
+  session->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
+  session->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
+  session->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
+  session->opt[OPT_BR_X].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_BR_X].unit = SANE_UNIT_MM;
+  session->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_BR_X].constraint.range = &x_range;
+  session->val[OPT_BR_X].w = x_range.max;
 
   /* bottom-right y */
-  scanner->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
-  scanner->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
-  scanner->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
-  scanner->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
-  scanner->opt[OPT_BR_Y].cap |= SANE_CAP_AUTOMATIC;
-  scanner->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
-  scanner->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_BR_Y].constraint.range = &y_range;
-  scanner->val[OPT_BR_Y].w = y_range.max;
+  session->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
+  session->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
+  session->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
+  session->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
+  session->opt[OPT_BR_Y].cap |= SANE_CAP_AUTOMATIC;
+  session->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
+  session->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_BR_Y].constraint.range = &y_range;
+  session->val[OPT_BR_Y].w = y_range.max;
 
   /* "Enhancement" group: */
-  scanner->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
-  scanner->opt[OPT_ENHANCEMENT_GROUP].desc = "";
-  scanner->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
-  scanner->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
-  scanner->opt[OPT_ENHANCEMENT_GROUP].size = 0;
-  scanner->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  session->opt[OPT_ENHANCEMENT_GROUP].title = SANE_TITLE_ENHANCEMENT;
+  session->opt[OPT_ENHANCEMENT_GROUP].name = SANE_NAME_ENHANCEMENT;
+  session->opt[OPT_ENHANCEMENT_GROUP].desc = SANE_DESC_ENHANCEMENT;
+  session->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+  session->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
+  session->opt[OPT_ENHANCEMENT_GROUP].size = 0;
+  session->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* BW threshold */
-  scanner->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
-  scanner->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
-  scanner->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
-  scanner->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
-  scanner->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
-  scanner->opt[OPT_THRESHOLD].cap |=
+  session->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+  session->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+  session->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+  session->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
+  session->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
+  session->opt[OPT_THRESHOLD].cap |=
     SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC | SANE_CAP_EMULATED;
-  scanner->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
-  scanner->val[OPT_THRESHOLD].w = SANE_FIX (50);
+  session->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_THRESHOLD].constraint.range = &threshold_percentage_range;
+  session->val[OPT_THRESHOLD].w = SANE_FIX (50);
 
   /* custom-gamma table */
-  scanner->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
-  scanner->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
-  scanner->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
-  scanner->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
-  scanner->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
-  scanner->val[OPT_CUSTOM_GAMMA].b = SANE_FALSE;
+  session->opt[OPT_CUSTOM_GAMMA].name = SANE_NAME_CUSTOM_GAMMA;
+  session->opt[OPT_CUSTOM_GAMMA].title = SANE_TITLE_CUSTOM_GAMMA;
+  session->opt[OPT_CUSTOM_GAMMA].desc = SANE_DESC_CUSTOM_GAMMA;
+  session->opt[OPT_CUSTOM_GAMMA].type = SANE_TYPE_BOOL;
+  session->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_ADVANCED;
+  session->val[OPT_CUSTOM_GAMMA].b = SANE_FALSE;
 
   /* grayscale gamma vector */
-  scanner->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
-  scanner->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
-  scanner->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
-  scanner->opt[OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
-  scanner->opt[OPT_GAMMA_VECTOR].cap |=
+  session->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
+  session->opt[OPT_GAMMA_VECTOR].title = SANE_TITLE_GAMMA_VECTOR;
+  session->opt[OPT_GAMMA_VECTOR].desc = SANE_DESC_GAMMA_VECTOR;
+  session->opt[OPT_GAMMA_VECTOR].type = SANE_TYPE_INT;
+  session->opt[OPT_GAMMA_VECTOR].cap |=
     SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC | SANE_CAP_ADVANCED;
-  scanner->opt[OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR].size = 256 * sizeof (SANE_Word);
-  scanner->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR].constraint.range = &u8_range;
-  scanner->val[OPT_GAMMA_VECTOR].wa = model->gamma;
+  session->opt[OPT_GAMMA_VECTOR].unit = SANE_UNIT_NONE;
+  session->opt[OPT_GAMMA_VECTOR].size = 256 * sizeof (SANE_Word);
+  session->opt[OPT_GAMMA_VECTOR].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_GAMMA_VECTOR].constraint.range = &u8_range;
+  session->val[OPT_GAMMA_VECTOR].wa = model->gamma;
 
   /* red gamma vector */
-  scanner->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
-  scanner->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
-  scanner->opt[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
-  scanner->opt[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
-  scanner->opt[OPT_GAMMA_VECTOR_R].cap |=
+  session->opt[OPT_GAMMA_VECTOR_R].name = SANE_NAME_GAMMA_VECTOR_R;
+  session->opt[OPT_GAMMA_VECTOR_R].title = SANE_TITLE_GAMMA_VECTOR_R;
+  session->opt[OPT_GAMMA_VECTOR_R].desc = SANE_DESC_GAMMA_VECTOR_R;
+  session->opt[OPT_GAMMA_VECTOR_R].type = SANE_TYPE_INT;
+  session->opt[OPT_GAMMA_VECTOR_R].cap |=
     SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC | SANE_CAP_ADVANCED;
-  scanner->opt[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_R].size = 256 * sizeof (SANE_Word);
-  scanner->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_R].constraint.range = &u8_range;
-  scanner->val[OPT_GAMMA_VECTOR_R].wa = model->gamma;
+  session->opt[OPT_GAMMA_VECTOR_R].unit = SANE_UNIT_NONE;
+  session->opt[OPT_GAMMA_VECTOR_R].size = 256 * sizeof (SANE_Word);
+  session->opt[OPT_GAMMA_VECTOR_R].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_GAMMA_VECTOR_R].constraint.range = &u8_range;
+  session->val[OPT_GAMMA_VECTOR_R].wa = model->gamma;
 
   /* green gamma vector */
-  scanner->opt[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
-  scanner->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
-  scanner->opt[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
-  scanner->opt[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
-  scanner->opt[OPT_GAMMA_VECTOR_G].cap |=
+  session->opt[OPT_GAMMA_VECTOR_G].name = SANE_NAME_GAMMA_VECTOR_G;
+  session->opt[OPT_GAMMA_VECTOR_G].title = SANE_TITLE_GAMMA_VECTOR_G;
+  session->opt[OPT_GAMMA_VECTOR_G].desc = SANE_DESC_GAMMA_VECTOR_G;
+  session->opt[OPT_GAMMA_VECTOR_G].type = SANE_TYPE_INT;
+  session->opt[OPT_GAMMA_VECTOR_G].cap |=
     SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC | SANE_CAP_ADVANCED;
-  scanner->opt[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_G].size = 256 * sizeof (SANE_Word);
-  scanner->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_G].constraint.range = &u8_range;
-  scanner->val[OPT_GAMMA_VECTOR_G].wa = model->gamma;
+  session->opt[OPT_GAMMA_VECTOR_G].unit = SANE_UNIT_NONE;
+  session->opt[OPT_GAMMA_VECTOR_G].size = 256 * sizeof (SANE_Word);
+  session->opt[OPT_GAMMA_VECTOR_G].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_GAMMA_VECTOR_G].constraint.range = &u8_range;
+  session->val[OPT_GAMMA_VECTOR_G].wa = model->gamma;
 
   /* blue gamma vector */
-  scanner->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
-  scanner->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
-  scanner->opt[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
-  scanner->opt[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
-  scanner->opt[OPT_GAMMA_VECTOR_B].cap |=
+  session->opt[OPT_GAMMA_VECTOR_B].name = SANE_NAME_GAMMA_VECTOR_B;
+  session->opt[OPT_GAMMA_VECTOR_B].title = SANE_TITLE_GAMMA_VECTOR_B;
+  session->opt[OPT_GAMMA_VECTOR_B].desc = SANE_DESC_GAMMA_VECTOR_B;
+  session->opt[OPT_GAMMA_VECTOR_B].type = SANE_TYPE_INT;
+  session->opt[OPT_GAMMA_VECTOR_B].cap |=
     SANE_CAP_INACTIVE | SANE_CAP_AUTOMATIC | SANE_CAP_ADVANCED;
-  scanner->opt[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_GAMMA_VECTOR_B].size = 256 * sizeof (SANE_Word);
-  scanner->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
-  scanner->opt[OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
-  scanner->val[OPT_GAMMA_VECTOR_B].wa = model->gamma;
+  session->opt[OPT_GAMMA_VECTOR_B].unit = SANE_UNIT_NONE;
+  session->opt[OPT_GAMMA_VECTOR_B].size = 256 * sizeof (SANE_Word);
+  session->opt[OPT_GAMMA_VECTOR_B].constraint_type = SANE_CONSTRAINT_RANGE;
+  session->opt[OPT_GAMMA_VECTOR_B].constraint.range = &u8_range;
+  session->val[OPT_GAMMA_VECTOR_B].wa = model->gamma;
 
-  /* "Button" group */
-  scanner->opt[OPT_BUTTON_GROUP].title = SANE_I18N ("Buttons");
-  scanner->opt[OPT_BUTTON_GROUP].desc = "";
-  scanner->opt[OPT_BUTTON_GROUP].type = SANE_TYPE_GROUP;
-  scanner->opt[OPT_BUTTON_GROUP].cap = SANE_CAP_ADVANCED;
-  scanner->opt[OPT_BUTTON_GROUP].size = 0;
-  scanner->opt[OPT_BUTTON_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  /* "Sensors" group */
+  session->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
+  session->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
+  session->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
+  session->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+  session->opt[OPT_SENSOR_GROUP].cap = SANE_CAP_ADVANCED;
+  session->opt[OPT_SENSOR_GROUP].size = 0;
+  session->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* scanner buttons */
   for (i = OPT_BUTTON_1; i <= OPT_BUTTON_11; i++)
@@ -2500,57 +2552,57 @@ init_options (struct Rts8891_Scanner *scanner)
 	  sprintf (name, "button-%s", model->button_name[idx]);
 	  sprintf (title, "%s", model->button_title[idx]);
 
-	  scanner->opt[i].name = strdup (name);
-	  scanner->opt[i].title = strdup (title);
-	  scanner->opt[i].desc = SANE_I18N ("This option reflects the status "
+	  session->opt[i].name = strdup (name);
+	  session->opt[i].title = strdup (title);
+	  session->opt[i].desc = SANE_I18N ("This option reflects the status "
 					    "of a scanner button.");
-	  scanner->opt[i].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+	  session->opt[i].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 	}
       else
 	{
-	  scanner->opt[i].name = strdup ("unused");
-	  scanner->opt[i].title = strdup ("unused button");
-	  scanner->opt[i].cap |= SANE_CAP_INACTIVE;
+	  session->opt[i].name = strdup ("unused");
+	  session->opt[i].title = strdup ("unused button");
+	  session->opt[i].cap |= SANE_CAP_INACTIVE;
 	}
 
-      scanner->opt[i].type = SANE_TYPE_BOOL;
-      scanner->opt[i].unit = SANE_UNIT_NONE;
-      scanner->opt[i].size = sizeof (SANE_Bool);
-      scanner->opt[i].constraint_type = SANE_CONSTRAINT_NONE;
-      scanner->opt[i].constraint.range = 0;
-      scanner->val[i].w = SANE_FALSE;
+      session->opt[i].type = SANE_TYPE_BOOL;
+      session->opt[i].unit = SANE_UNIT_NONE;
+      session->opt[i].size = sizeof (SANE_Bool);
+      session->opt[i].constraint_type = SANE_CONSTRAINT_NONE;
+      session->opt[i].constraint.range = 0;
+      session->val[i].w = SANE_FALSE;
     }
 
-  update_button_status (scanner);
+  update_button_status (session);
 
   /* "Advanced" group: */
-  scanner->opt[OPT_ADVANCED_GROUP].title = SANE_I18N ("Advanced");
-  scanner->opt[OPT_ADVANCED_GROUP].desc = "";
-  scanner->opt[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
-  scanner->opt[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
-  scanner->opt[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+  session->opt[OPT_ADVANCED_GROUP].title = SANE_I18N ("Advanced");
+  session->opt[OPT_ADVANCED_GROUP].desc = "";
+  session->opt[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
+  session->opt[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
+  session->opt[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* lamp on */
-  scanner->opt[OPT_LAMP_ON].name = "lamp-on";
-  scanner->opt[OPT_LAMP_ON].title = SANE_I18N ("Lamp on");
-  scanner->opt[OPT_LAMP_ON].desc = SANE_I18N ("Turn on scanner lamp");
-  scanner->opt[OPT_LAMP_ON].type = SANE_TYPE_BUTTON;
-  scanner->opt[OPT_LAMP_ON].cap |= SANE_CAP_ADVANCED;
-  scanner->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_LAMP_ON].size = 0;
-  scanner->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
-  scanner->val[OPT_LAMP_ON].w = 0;
+  session->opt[OPT_LAMP_ON].name = "lamp-on";
+  session->opt[OPT_LAMP_ON].title = SANE_I18N ("Lamp on");
+  session->opt[OPT_LAMP_ON].desc = SANE_I18N ("Turn on scanner lamp");
+  session->opt[OPT_LAMP_ON].type = SANE_TYPE_BUTTON;
+  session->opt[OPT_LAMP_ON].cap |= SANE_CAP_ADVANCED;
+  session->opt[OPT_LAMP_ON].unit = SANE_UNIT_NONE;
+  session->opt[OPT_LAMP_ON].size = 0;
+  session->opt[OPT_LAMP_ON].constraint_type = SANE_CONSTRAINT_NONE;
+  session->val[OPT_LAMP_ON].w = 0;
 
   /* lamp off */
-  scanner->opt[OPT_LAMP_OFF].name = "lamp-off";
-  scanner->opt[OPT_LAMP_OFF].title = SANE_I18N ("Lamp off");
-  scanner->opt[OPT_LAMP_OFF].desc = SANE_I18N ("Turn off scanner lamp");
-  scanner->opt[OPT_LAMP_OFF].type = SANE_TYPE_BUTTON;
-  scanner->opt[OPT_LAMP_OFF].cap |= SANE_CAP_ADVANCED;
-  scanner->opt[OPT_LAMP_OFF].unit = SANE_UNIT_NONE;
-  scanner->opt[OPT_LAMP_OFF].size = 0;
-  scanner->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
-  scanner->val[OPT_LAMP_OFF].w = 0;
+  session->opt[OPT_LAMP_OFF].name = "lamp-off";
+  session->opt[OPT_LAMP_OFF].title = SANE_I18N ("Lamp off");
+  session->opt[OPT_LAMP_OFF].desc = SANE_I18N ("Turn off scanner lamp");
+  session->opt[OPT_LAMP_OFF].type = SANE_TYPE_BUTTON;
+  session->opt[OPT_LAMP_OFF].cap |= SANE_CAP_ADVANCED;
+  session->opt[OPT_LAMP_OFF].unit = SANE_UNIT_NONE;
+  session->opt[OPT_LAMP_OFF].size = 0;
+  session->opt[OPT_LAMP_OFF].constraint_type = SANE_CONSTRAINT_NONE;
+  session->val[OPT_LAMP_OFF].w = 0;
 
   DBG (DBG_proc, "init_options: exit\n");
   return SANE_STATUS_GOOD;
@@ -5286,12 +5338,12 @@ fill_gamma (SANE_Byte * calibration, int *idx, SANE_Word * gamma)
  * 	
  */
 static SANE_Status
-send_calibration_data (struct Rts8891_Scanner *scanner)
+send_calibration_data (struct Rts8891_Session *session)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int size, width, data_size;
   SANE_Byte *calibration = NULL, format, val;
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Device *dev = session->dev;
   int i, idx;
   unsigned int value;
   FILE *calib = NULL;
@@ -5353,19 +5405,19 @@ send_calibration_data (struct Rts8891_Scanner *scanner)
   idx = 0;
 
   /* select red gamma table */
-  if (scanner->params.format == SANE_FRAME_RGB)
+  if (session->params.format == SANE_FRAME_RGB)
     {
       /* 3 different gamma table */
-      gamma_r = scanner->val[OPT_GAMMA_VECTOR_R].wa;
-      gamma_g = scanner->val[OPT_GAMMA_VECTOR_G].wa;
-      gamma_b = scanner->val[OPT_GAMMA_VECTOR_B].wa;
+      gamma_r = session->val[OPT_GAMMA_VECTOR_R].wa;
+      gamma_g = session->val[OPT_GAMMA_VECTOR_G].wa;
+      gamma_b = session->val[OPT_GAMMA_VECTOR_B].wa;
     }
   else
     {
       /* 3 time the same gamma table */
-      gamma_r = scanner->val[OPT_GAMMA_VECTOR].wa;
-      gamma_g = scanner->val[OPT_GAMMA_VECTOR].wa;
-      gamma_b = scanner->val[OPT_GAMMA_VECTOR].wa;
+      gamma_r = session->val[OPT_GAMMA_VECTOR].wa;
+      gamma_g = session->val[OPT_GAMMA_VECTOR].wa;
+      gamma_b = session->val[OPT_GAMMA_VECTOR].wa;
     }
 
   fill_gamma (calibration, &idx, gamma_r);
@@ -5501,12 +5553,12 @@ send_calibration_data (struct Rts8891_Scanner *scanner)
  * up scanning 
  */
 static SANE_Status
-move_to_scan_area (struct Rts8891_Scanner *scanner)
+move_to_scan_area (struct Rts8891_Session *session)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte control;
   SANE_Byte regs[RTS8891_MAX_REGISTERS];
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Device *dev = session->dev;
   SANE_Int distance;
 
   DBG (DBG_proc, "move_to_scan_area: start\n");
@@ -5542,16 +5594,16 @@ move_to_scan_area (struct Rts8891_Scanner *scanner)
 /* For now, the only mode that could be done would be 300 dpi gray scan, */
 /* based on the register settings of find_origin()                       */
 static SANE_Status
-write_scan_registers (struct Rts8891_Scanner *scanner)
+write_scan_registers (struct Rts8891_Session *session)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte control;
   SANE_Byte status1, status2;
-  struct Rts8891_Device *dev = scanner->dev;
+  struct Rts8891_Device *dev = session->dev;
 
   /* only software gray modes for now */
-  if (scanner->params.format == SANE_FRAME_GRAY
-      && (scanner->dev->model->flags & RTS8891_FLAG_EMULATED_GRAY_MODE) == 0)
+  if (session->params.format == SANE_FRAME_GRAY
+      && (session->dev->model->flags & RTS8891_FLAG_EMULATED_GRAY_MODE) == 0)
     {
       DBG (DBG_warn,
 	   "write_scan_registers: native gray modes not implemented for this model, failure expected\n");
@@ -6183,13 +6235,13 @@ write_scan_registers (struct Rts8891_Scanner *scanner)
     }
 
   /* toggle front panel light to signal gray scan */
-  if (scanner->params.format == SANE_FRAME_GRAY)
+  if (session->params.format == SANE_FRAME_GRAY)
     {
       status1 = (status1 & 0x0F) | 0x10;
     }
   sanei_rts88xx_set_status (dev->devnum, dev->regs, status1, status2);
 
-  /* check if scanner is idle */
+  /* check if session is idle */
   control = 0x00;
   sanei_rts88xx_read_reg (dev->devnum, CONTROL_REG, &control);
   if (control != 0)
@@ -6263,19 +6315,19 @@ park_head (struct Rts8891_Device *dev)
  * button access is allowed during scan, which is usefull for 'cancel' button
  */
 static SANE_Status
-update_button_status (struct Rts8891_Scanner *scanner)
+update_button_status (struct Rts8891_Session *session)
 {
   SANE_Int mask = 0, i;
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool lock = SANE_FALSE;
 
   /* while scanning, interface is reserved, so don't claim/release it */
-  if (scanner->scanning != SANE_TRUE)
+  if (session->scanning != SANE_TRUE)
     {
       lock = SANE_TRUE;
 
       /* claim the interface to reserve device */
-      status = sanei_usb_claim_interface (scanner->dev->devnum, 0);
+      status = sanei_usb_claim_interface (session->dev->devnum, 0);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_warn,
@@ -6285,19 +6337,19 @@ update_button_status (struct Rts8891_Scanner *scanner)
     }
 
   /* effective button reading */
-  status = rts8891_read_buttons (scanner->dev->devnum, &mask);
+  status = rts8891_read_buttons (session->dev->devnum, &mask);
 
   /* release interface if needed */
   if (lock == SANE_TRUE)
     {
-      sanei_usb_release_interface (scanner->dev->devnum, 0);
+      sanei_usb_release_interface (session->dev->devnum, 0);
     }
 
-  for (i = 0; i < scanner->dev->model->buttons; i++)
+  for (i = 0; i < session->dev->model->buttons; i++)
     {
       if (mask & (1 << i))
 	{
-	  scanner->val[OPT_BUTTON_1 + i].w = SANE_TRUE;
+	  session->val[OPT_BUTTON_1 + i].w = SANE_TRUE;
 	  DBG (DBG_io2, "update_button_status: setting button %d to TRUE\n",
 	       i + 1);
 	}
@@ -6308,33 +6360,37 @@ update_button_status (struct Rts8891_Scanner *scanner)
 /* set lamp status, 0 for lamp off
  * other values set lamp on */
 static SANE_Status
-set_lamp_state (struct Rts8891_Scanner *scanner, int on)
+set_lamp_state (struct Rts8891_Session *session, int on)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte reg;
 
   /* claim the interface reserve device */
-  status = sanei_usb_claim_interface (scanner->dev->devnum, 0);
+  status = sanei_usb_claim_interface (session->dev->devnum, 0);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_warn, "set_lamp_state: cannot claim usb interface\n");
       return SANE_STATUS_DEVICE_BUSY;
     }
 
-  status = sanei_rts88xx_read_reg (scanner->dev->devnum, LAMP_REG, &reg);
+  status = sanei_rts88xx_read_reg (session->dev->devnum, LAMP_REG, &reg);
   if (on)
     {
       DBG (DBG_info, "set_lamp_state: lamp on\n");
-      reg = scanner->dev->regs[LAMP_REG] | 0x80;
+      reg = session->dev->regs[LAMP_REG] | 0x80;
     }
   else
     {
       DBG (DBG_info, "set_lamp_state: lamp off\n");
-      reg = scanner->dev->regs[LAMP_REG] & 0x7F;
+      reg = session->dev->regs[LAMP_REG] & 0x7F;
+#ifdef HAVE_SYS_TIME_H
+      /* if lamp is switched off, warming up will be needed */
+      session->dev->last_scan.tv_sec=0;
+#endif
     }
-  status = sanei_rts88xx_write_reg (scanner->dev->devnum, LAMP_REG, &reg);
+  status = sanei_rts88xx_write_reg (session->dev->devnum, LAMP_REG, &reg);
 
   /* release interface and return status from lamp setting */
-  sanei_usb_release_interface (scanner->dev->devnum, 0);
+  sanei_usb_release_interface (session->dev->devnum, 0);
   return status;
 }

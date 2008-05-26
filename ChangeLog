@@ -1,3 +1,7 @@
+2008-05-26 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* po/sane-backends.es.po: added spanish translation about status strings.
+	* po/Makefile.in: added backend/sane_strstatus.c to SRC_FILES section.
+
 2008-05-26  Rene Rebe <rene@exactcode.de>
 	* backend/avision.{c,h}: merged latest upstream SVN changes, bug fixes
 	  and device ID updates, including fixing uninitialized variables due

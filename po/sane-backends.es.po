@@ -4567,3 +4567,72 @@ msgstr "Establece el offset del canal verde"
 msgid "Sets blue channel offset"
 msgstr "Establece el offset del canal azul"
 
+#:.tmp/sane_strstatus.c:59
+#, no-c-format
+msgid "Success"
+msgstr "Éxito"
+
+#:.tmp/sane_strstatus.c:62
+#, no-c-format
+msgid "Operation not supported"
+msgstr "Operación no soportada"
+
+#:.tmp/sane_strstatus.c:65
+#, no-c-format
+msgid "Operation was cancelled"
+msgstr "Operación cancelada"
+
+#:.tmp/sane_strstatus.c:68
+#, no-c-format
+msgid "Device busy"
+msgstr "Dispositivo ocupado"
+
+#:.tmp/sane_strstatus.c:71
+#, no-c-format
+msgid "Invalid argument"
+msgstr "Argumento no válido"
+
+#:.tmp/sane_strstatus.c:74
+#, no-c-format
+msgid "End of file reached"
+msgstr "Alcanzado final de archivo"
+
+#:.tmp/sane_strstatus.c:77
+#, no-c-format
+msgid "Document feeder jammed"
+msgstr "Alimentador de documentos atascado"
+
+#:.tmp/sane_strstatus.c:80
+#, no-c-format
+msgid "Document feeder out of documents"
+msgstr "Alimentador de documentos sin documentos"
+
+#:.tmp/sane_strstatus.c:83
+#, no-c-format
+msgid "Scanner cover is open"
+msgstr "La tapa del escáner está abierta"
+
+#:.tmp/sane_strstatus.c:86
+#, no-c-format
+msgid "Error during device I/O"
+msgstr "Error de E/S"
+
+#:.tmp/sane_strstatus.c:89
+#, no-c-format
+msgid "Out of memory"
+msgstr "Fuera de memoria"
+
+#:.tmp/sane_strstatus.c:92
+#, no-c-format
+msgid "Access to resource has been denied"
+msgstr "El acceso al recurso ha sido denegado"
+
+#:.tmp/sane_strstatus.c:95
+#, no-c-format
+msgid "Lamp not ready, please retry"
+msgstr "La lámpara no está lista, por favor reinténtelo"
+
+#:.tmp/sane_strstatus.c:98
+#, no-c-format
+msgid "Scanner mechanism locked for transport"
+msgstr "Mecanismo del escáner bloqueado para transporte"

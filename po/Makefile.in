@@ -4,8 +4,8 @@
 
 ALL_LINGUAS = bg cs da de eo es fi fr it nl nb pl pt ru sv 
 
-SRC_FILES = ../include/sane/saneopts.h ../backend/artec_eplus48u.c \
-  ../backend/avision.h \
+SRC_FILES = ../include/sane/saneopts.h ../backend/sane_strstatus.c \
+  ../backend/artec_eplus48u.c ../backend/avision.h \
   ../backend/canon630u.c ../backend/canon.c ../backend/canon-sane.c \
   ../backend/epson.c ../backend/epson.h \
   ../backend/epson2.c ../backend/epson2.h \

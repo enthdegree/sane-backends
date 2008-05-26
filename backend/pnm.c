@@ -2,6 +2,7 @@
    Copyright (C) 1996, 1997 Andreas Beck
    Copyright (C) 2000, 2001 Michael Herder <crapsite@gmx.net>
    Copyright (C) 2001, 2002 Henning Meier-Geinitz <henning@meier-geinitz.de>
+   Copyright (C) 2008 Stéphane Voltz <stef.dev@free.fr>
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -40,7 +41,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#define BUILD 8
+#define BUILD 9
 
 #include "../include/sane/config.h"
 
@@ -50,6 +51,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/time.h>
 
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
@@ -79,6 +81,8 @@ static SANE_Word status_ioerror = SANE_FALSE;
 static SANE_Word status_nomem = SANE_FALSE;
 static SANE_Word status_accessdenied = SANE_FALSE;
 static SANE_Word test_option = 0;
+static SANE_Word warming_up = SANE_FALSE;
+static struct timeval start;
 
 static SANE_Fixed bright = 0;
 static SANE_Word res = 75;
@@ -532,13 +536,23 @@ static const SANE_Device dev[] = {
    "Noname",
    "PNM file reader",
    "virtual device"},
+  {
+   "locked",
+   "Noname",
+   "Hardware locked",
+   "virtual device"},
+  {
+   "warmup",
+   "Noname",
+   "Always warming up",
+   "virtual device"},
 };
 
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   static const SANE_Device *devlist[] = {
-    dev + 0, dev + 1, 0
+    dev + 0, dev + 1, dev + 2, dev + 3, 0
   };
 
   DBG (2, "sane_get_devices: local_only = %d\n", local_only);
@@ -576,6 +590,16 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       gamma[2][i] = i;
       gamma[3][i] = i;
     }
+
+  if(strncmp(devicename,"locked",6)==0)
+    return SANE_STATUS_HW_LOCKED;
+
+  if(strncmp(devicename,"warmup",6)==0)
+    {
+      warming_up = SANE_TRUE;
+      start.tv_sec = 0;
+    }
+
   return SANE_STATUS_GOOD;
 }
 
@@ -1070,11 +1094,24 @@ sane_start (SANE_Handle handle)
 {
   char buf[1024];
   int nlines;
+  struct timeval current;
 
   DBG (2, "sane_start\n");
   rgb_comp = 0;
   if (handle != MAGIC || !is_open)
     return SANE_STATUS_INVAL;	/* Unknown handle ... */
+
+  if(warming_up == SANE_TRUE)
+   {
+      gettimeofday(&current,NULL);
+      if(current.tv_sec-start.tv_sec>5)
+	{
+	   start.tv_sec = current.tv_sec;
+	   return SANE_STATUS_WARMING_UP;
+	}
+      if(current.tv_sec-start.tv_sec<5)
+	return SANE_STATUS_WARMING_UP;
+   }
 
   if (infile != NULL)
     {

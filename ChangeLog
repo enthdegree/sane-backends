@@ -1,4 +1,12 @@
 2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+	* backend/sane_strstatus.c: added new status and internationalization
+	  support
+	* frontend/scanimage.c, tstbackend.c: added handling of status
+	  SANE_STATUS_WARMING_UP
+	* backend/pnm.c: added 2 more virtual devices, one that is hardware
+	locked, and another that always do warming before scan.
+
+2008-05-26  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.[ch], backend/rts8891_low.[ch],
 	  backend/rts88xx_lib.[ch]: renamed per frontend struct, made use of
 	  new well-known option groups. Added warming-up handling in

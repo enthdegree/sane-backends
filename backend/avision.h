@@ -115,8 +115,8 @@ typedef struct Avision_HWEntry {
     /* if the scan area and resolution needs to be forced for films */
     AV_FORCE_FILM = (1<<6),
     
-    /* does not support bottom overscan, sigh */
-    AV_NO_TUNE_BOTTOM = (1<<7),
+    /* does not suport, or very broken background (added for AV610C2) */
+    AV_NO_BACKGROUND = (1<<7),
     
     /* is film scanner - no detection yet */
     AV_FILMSCANNER = (1<<8),
@@ -160,8 +160,8 @@ typedef struct Avision_HWEntry {
     /* allows 12bit mode, though not flagged */
     AV_12_BIT_MODE = (1<<21),
 
-    /* scanner always (mistakenly) advertises a transparency adapter */
-    AV_NO_TRANSPARENCY = (1<<22),
+    /* very broken background raster */
+    AV_BACKGROUND_QUIRK = (1<<22),
 	
     /* though marked as GRAY only the scanner can do GRAY modes */
     AV_GRAY_MODES = (1<<23),
@@ -271,6 +271,10 @@ enum Avision_Option
   OPT_GAMMA_VECTOR_R,    /* then r g b vector */
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
+
+  OPT_EXPOSURE,          /* film exposure adjustment */
+  OPT_IR,                /* infra-red */
+  OPT_MULTISAMPLE,       /* multi-sample */
   
   OPT_FRAME,             /* Film holder control */
 
@@ -350,6 +354,8 @@ typedef struct Avision_Device
   SANE_Bool inquiry_adf_bgr_order;
   SANE_Bool inquiry_light_detect;
   SANE_Bool inquiry_light_control;
+  SANE_Bool inquiry_exposure_control;
+  
   int       inquiry_max_shading_target;
   SANE_Bool inquiry_button_control;
   unsigned int inquiry_buttons;

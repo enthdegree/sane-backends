@@ -1,3 +1,8 @@
+2008-05-26  Rene Rebe <rene@exactcode.de>
+	* backend/avision.{c,h}: merged latest upstream SVN changes, bug fixes
+	  and device ID updates, including fixing uninitialized variables due
+	  former defect merge and exposure control for film / dia scanners
+
 2008-05-26  Stéphane Voltz <stef.dev@free.fr>
 	* backend/sane_strstatus.c: added new status and internationalization
 	  support

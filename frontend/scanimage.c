@@ -1776,6 +1776,10 @@ main (int argc, char **argv)
 				int_arg = i;
 				ftype = 'i';
 				break;
+			      case 'n':
+				text_arg = "\n";
+				ftype = *percent = 's';
+				break;
 			      case '%':
 				ftype = 0;
 				break;

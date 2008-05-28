@@ -137,9 +137,9 @@ option works similar to
 but requires a format string.
 .B scanimage
 replaces the placeholders
-.B %d %v %m %t %i
-with the device name, vendor name, model name, scanner type and an index
-number respectively. The command
+.B %d %v %m %t %i %n
+with the device name, vendor name, model name, scanner type, an index
+number and newline respectively. The command
 .PP
 .RS
 .B scanimage -f

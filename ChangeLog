@@ -1,5 +1,8 @@
+2008-05-27  m. allan noah <kitno455 a t gmail d o t com>
+	* frontend/scanimage.c: add %n for newline to -f option
+
 2008-05-26 Jonathan Bravo Lopez <jkdsoft@gmail.com>
-	* po/sane-backends.es.po: added spanish translation about status strings.
+	* po/sane-backends.es.po: added spanish translation about status strings
 	* po/Makefile.in: added backend/sane_strstatus.c to SRC_FILES section.
 
 2008-05-26  Rene Rebe <rene@exactcode.de>

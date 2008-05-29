@@ -22,7 +22,7 @@ SRC_FILES = ../include/sane/saneopts.h ../backend/sane_strstatus.c \
   ../backend/niash.c \
   ../backend/pixma.c ../backend/pixma_sane_options.c \
   ../backend/plustek.c ../backend/plustek_pp.c \
-  ../backend/pnm.c \
+  ../backend/pnm.c ../backend/rts8891.c \
   ../backend/sceptre.c ../backend/sceptre.h  ../backend/sm3840.c \
   ../backend/snapscan.c ../backend/snapscan-options.c \
   ../backend/stv680.c ../backend/stv680.h \

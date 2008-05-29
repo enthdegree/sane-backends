@@ -1495,7 +1495,7 @@ options_init (TScanner * scanner)
 	      pDesc->title = SANE_I18N ("Emulate Grayscale");
 	      pDesc->desc =
 		SANE_I18N
-		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This uses to improve image quality in some circumstances.");
+		("If enabled, image will be scanned in color mode and then converted to grayscale by software. This may improve image quality in some circumstances.");
 	      pDesc->type = SANE_TYPE_BOOL;
 	      pDesc->unit = SANE_UNIT_NONE;
 	      pDesc->size = sizeof (SANE_Word);
@@ -1627,7 +1627,7 @@ options_init (TScanner * scanner)
 		pDesc->title = strdup (title);
 		pDesc->desc =
 		  SANE_I18N
-		  ("This option reflects a front pannel scanner button");
+		  ("This option reflects a front panel scanner button");
 		pDesc->type = SANE_TYPE_BOOL;
 		pDesc->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
 

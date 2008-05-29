@@ -227,10 +227,16 @@ map_error (SANE_Status ss)
     case SANE_STATUS_ACCESS_DENIED:
       return PIXMA_EACCES;
     case SANE_STATUS_CANCELLED:
-    case SANE_STATUS_EOF:
+      return PIXMA_ECANCELED;
     case SANE_STATUS_JAMMED:
-    case SANE_STATUS_NO_DOCS:
+       return PIXMA_EPAPER_JAMMED;
     case SANE_STATUS_COVER_OPEN:
+       return PIXMA_ECOVER_OPEN;
+    case SANE_STATUS_NO_DOCS:
+       return PIXMA_ENO_PAPER;
+    case SANE_STATUS_EOF:
+    case SANE_STATUS_HW_LOCKED:         /* unused by pixma */
+    case SANE_STATUS_WARMING_UP:      /* unused by pixma */
       break;
     }
   PDBG (pixma_dbg (1, "BUG:Unmapped SANE Status code %d\n", ss));

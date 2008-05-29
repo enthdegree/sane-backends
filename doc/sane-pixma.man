@@ -64,19 +64,18 @@ The backend supports
 .br
 * a custom gamma table and
 .br
-* automatic document feeder (only single side).
+* automatic document feeder (only single side, duplex needs some work).
 .PP
 The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
 Example: pixma:04A91709_123456 is a MP150.
 .PP
-Although based on cloning original Canon drivers protocols, this backend
-is in
-.B alpha
-stage and will stay in this stage until we get the programming manual
-for the hardware (probably never). We have tested it as well as 
-we could, but it may not work in every situations. You will find an up-to-date 
-status at the project homepage. (See below)
+This backend, based on cloning original Canon drivers protocols, is in 
+a production stage. Designed has been carried out without any applicable
+manufacturer documentation, probably never available. However, we have tested 
+it as well as we could, but it may not work in every situations. You will find 
+an up-to-date status at the project homepage. (See below). 
+Users feedback is essential to help improve features and performances. 
 .SH OPTIONS
 Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
 provides the following
@@ -146,9 +145,9 @@ You should also set SANE_DEBUG_PIXMA to 10.
 .BR sane-dll (5),
 .I http://home.arcor.de/wittawat/pixma/,
 .I http://mp610.blogspot.com/
-.SH AUTHOR
+.SH AUTHORS
 Wittawat Yamwong, Nicolas Martin
 .PP
-I would like to thank all testers and helpers. Without them I would not be
-able to write subdrivers for models I don't have. See also the project
+We would like to thank all testers and helpers. Without them we could not be
+able to write subdrivers for models we don't have. See also the project
 homepage.

@@ -3104,7 +3104,7 @@ get_accessories_info (Avision_Scanner* s)
   }
   
   /* only honor a 1, some scanner without adapter set 0xff */
-  if (dev->inquiry_light_box == 1)
+  if (result[1] == 1)
     dev->inquiry_light_box = 1;
   
   return SANE_STATUS_GOOD;

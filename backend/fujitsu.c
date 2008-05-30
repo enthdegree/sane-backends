@@ -57,7 +57,7 @@
    Section 6 - misc functions
 
    Changes:
-      V 1.0.2, 2002-05-05, OS
+      v1, 2002-05-05, OS
          - release memory allocated by sane_get_devices
          - several bugfixes
          - supports the M3097
@@ -65,44 +65,44 @@
          - imprinter support
          - get_hardware_status now works before calling sane_start
          - avoid unnecessary reload of options when using source=fb
-      V 1.0.3, 2002-08-08, OS
+      v2, 2002-08-08, OS
          - bugfix. Imprinter didn't print the first time after
            switching on the scanner
          - bugfix. reader_generic_passthrough ignored the number of bytes
            returned by the scanner
-      V 1.0.4, 2002-09-13, OS
+      v3, 2002-09-13, OS
          - 3092 support (mgoppold a t tbz-pariv.de)
          - tested 4097 support
          - changed some functions to receive compressed data
-      V 1.0.4, 2003-02-13, OS
+      v4, 2003-02-13, OS
          - fi-4220C support (ron a t roncemer.com)
          - SCSI over USB support (ron a t roncemer.com)
-      V 1.0.5, 2003-02-20, OS
+      v5, 2003-02-20, OS
          - set availability of options THRESHOLD und VARIANCE
          - option RIF is available for 3091 and 3092
-      V 1.0.6, 2003-03-04, OS
+      v6, 2003-03-04, OS
          - renamed some variables
          - bugfix: duplex scanning now works when disconnect is enabled
-      V 1.0.7, 2003-03-10, OS
+      v7, 2003-03-10, OS
          - displays the offending byte in the window descriptor block
-      V 1.0.8, 2003-03-28, OS
+      v8, 2003-03-28, OS
          - fi-4120C support, MAN
          - display information about gamma in vital_product_data
-      V 1.0.9 2003-06-04, MAN
+      v9 2003-06-04, MAN
          - separated the 4120 and 4220 into another model
          - color support for the 4x20
-      V 1.0.10 2003-06-04, MAN
+      v10 2003-06-04, MAN
          - removed SP15 code
          - sane_open actually opens the device you request
-      V 1.0.11 2003-06-11, MAN
+      v11 2003-06-11, MAN
          - fixed bug in that code when a scanner is disconnected 
-      V 1.0.12 2003-10-06, MAN
+      v12 2003-10-06, MAN
          - added code to support color modes of more recent scanners
-      V 1.0.13 2003-11-07, OS
+      v13 2003-11-07, OS
 	 - Bugfix. If a scanner returned a color image
 	   in format rr...r gg...g bb...b the reader process crashed
 	 - Bugfix. Disable option gamma was for the fi-4120
-      V 1.0.14 2003-12-15, OS
+      v14 2003-12-15, OS
          - Bugfix: set default threshold range to 0..255 There is a problem
            with the M3093 when you are not allows to set the threshold to 0
          - Bugfix: set the allowable x- and y-DPI values from VPD. Scanning
@@ -111,22 +111,22 @@
          - Bugfix: Set the default value of gamma to 0x80 for all scanners
            that don't have built in gamma patterns
          - Bugfix: fi-4530 and fi-4210 don't support standard paper size
-      V 1.0.15 2003-12-16, OS
+      v15 2003-12-16, OS
          - Bugfix: pagewidth and pageheight were disabled for the fi-4530C
-      V 1.0.16 2004-02-20, OS
+      v16 2004-02-20, OS
          - merged the 3092-routines with the 3091-routines
          - inverted the image in mode color and grayscale
          - jpg hardware compression support (fi-4530C)
-      V 1.0.17 2004-03-04, OS
+      v17 2004-03-04, OS
          - enabled option dropoutcolor for the fi-4530C, and fi-4x20C
-      V 1.0.18 2004-06-02, OS
+      v18 2004-06-02, OS
          - bugfix: can read duplex color now
-      V 1.0.19 2004-06-28, MAN
+      v19 2004-06-28, MAN
          - 4220 use model code not strcmp (stan a t saticed.me.uk)
-      V 1.0.20 2004-08-24, OS
+      v20 2004-08-24, OS
          - bugfix: 3091 did not work since 15.12.2003 
          - M4099 supported (bw only)
-      V 1.0.21 2006-05-01, MAN
+      v21 2006-05-01, MAN
          - Complete rewrite, half code size
          - better (read: correct) usb command support
          - basic support for most fi-series
@@ -137,7 +137,7 @@
          - basic button support
          - all IPC and Imprinter options removed temporarily
          - duplex broken temporarily
-      V 1.0.22 2006-05-04, MAN
+      v22 2006-05-04, MAN
          - do_scsi_cmd gets basic looping capability
          - reverse now divided by mode
          - re-write sane_fix/unfix value handling
@@ -147,32 +147,32 @@
            known hardware sensors and buttons
          - rewrote hw status function
          - initial testing with M3091dc- color mode broken
-      V 1.0.23 2006-05-14, MAN
+      v23 2006-05-14, MAN
          - initial attempt to recover duplex mode
          - fix bad usb prodID when config file missing
-      V 1.0.24 2006-05-17, MAN
+      v24 2006-05-17, MAN
          - sane_read must set len=0 when return != good
          - simplify do_cmd() calls by removing timeouts
          - lengthen most timeouts, shorten those for wait_scanner()
-      V 1.0.25 2006-05-19, MAN
+      v25 2006-05-19, MAN
          - rename scsi-buffer-size to buffer-size, usb uses it too
          - default buffer-size increased to 64k
          - use sanei_scsi_open_extended() to set buffer size
          - fix some compiler warns: 32&64 bit gcc
-      V 1.0.26 2006-05-23, MAN
+      v26 2006-05-23, MAN
          - dont send scanner control (F1) if unsupported
-      V 1.0.27 2006-05-30, MAN
+      v27 2006-05-30, MAN
          - speed up hexdump (adeuring A T gmx D O T net)
          - duplex request same size block from both sides
          - dont #include or call sanei_thread
          - split usb/scsi command DBG into 25 and 30
-      V 1.0.28 2006-06-01, MAN
+      v28 2006-06-01, MAN
          - sane_read() usleep if scanner is busy
          - do_*_cmd() no looping (only one caller used it),
            remove unneeded casts, cleanup/add error messages
          - scanner_control() look at correct has_cmd_* var,
            handles own looping on busy
-      V 1.0.29 2006-06-04, MAN
+      v29 2006-06-04, MAN
          - M3091/2 Color mode support (duplex still broken)
          - all sensors option names start with 'button-'
          - rewrite sane_read and helpers to use buffers,
@@ -183,43 +183,43 @@
          - remove scanner cmd buf, use buf per func instead
          - print color and duplex raster offsets (inquiry)
          - print EOM, ILI, and info bytes (request sense)
-      V 1.0.30 2006-06-06, MAN
+      v30 2006-06-06, MAN
          - M3091/2 duplex support, color/gray/ht/lineart ok
          - sane_read helpers share code, report more errors
          - add error msg if VPD missing or non-extended
          - remove references to color_lineart and ht units
          - rework init_model to support more known models
          - dont send paper size data if using flatbed
-      V 1.0.31 2006-06-13, MAN
+      v31 2006-06-13, MAN
          - add 5220C usb id
          - dont show ink level buttons if no imprinter
          - run ghs/rs every second instead of every other
-      V 1.0.32 2006-06-14, MAN
+      v32 2006-06-14, MAN
          - add 4220C2 usb id
-      V 1.0.33 2006-06-14, MAN (SANE v1.0.18)
+      v33 2006-06-14, MAN (SANE v1.0.18)
          - add Fi-5900 usb id and init_model section
-      V 1.0.34 2006-07-04, MAN
+      v34 2006-07-04, MAN
          - add S500 usb id
          - gather more data from inq and vpd
          - allow background color setting
-      V 1.0.35 2006-07-05, MAN
+      v35 2006-07-05, MAN
          - allow double feed sensor settings
          - more consistent naming of global strings
-      V 1.0.36 2006-07-06, MAN
+      v36 2006-07-06, MAN
          - deal with fi-5900 even bytes problem
          - less verbose calculateDerivedValues()
-      V 1.0.37 2006-07-14, MAN
+      v37 2006-07-14, MAN
          - mode sense command support
          - detect mode page codes instead of hardcoding
          - send command support
          - brightness/contrast support via LUT
          - merge global mode page buffers
-      V 1.0.38 2006-07-15, MAN
+      v38 2006-07-15, MAN
          - add 'useless noise' debug level (35)
          - move mode sense probe errors to DBG 35
-      V 1.0.39 2006-07-17, MAN
+      v39 2006-07-17, MAN
          - rewrite contrast slope math for readability
-      V 1.0.40 2006-08-26, MAN
+      v40 2006-08-26, MAN
          - rewrite brightness/contrast more like xsane
          - initial gamma support
          - add fi-5530 usb id
@@ -230,57 +230,57 @@
          - support MS buffer (s.scipioni AT harvardgroup DOT it)
          - support MS prepick
          - read only 1 byte of mode sense output
-      V 1.0.41 2006-08-28, MAN
+      v41 2006-08-28, MAN
          - do_usb_cmd() returns io error on cmd/out/status/rs EOF
          - fix bug in MS buffer/prepick scsi data block
-      V 1.0.42 2006-08-31, MAN
+      v42 2006-08-31, MAN
          - fix bug in get_hardware_status (#303798)
-      V 1.0.43 2006-09-19, MAN
+      v43 2006-09-19, MAN
          - add model-specific code to init_vpd for M3099
-      V 1.0.44 2007-01-26, MAN
+      v44 2007-01-26, MAN
          - set SANE_CAP_HARD_SELECT on all buttons/sensors
          - disable sending gamma LUT, seems wrong on some units?
          - support MS overscan
          - clamp the scan area to the pagesize on ADF
-      V 1.0.45 2007-01-28, MAN
+      v45 2007-01-28, MAN
          - update overscan code to extend max scan area
-      V 1.0.46 2007-03-08, MAN
+      v46 2007-03-08, MAN
          - tweak fi-4x20c2 and M3093 settings
 	 - add fi-5110EOXM usb id
 	 - add M3093 non-alternating duplex code
-      V 1.0.47 2007-04-13, MAN
+      v47 2007-04-13, MAN
          - change window_gamma determination
          - add fi-5650C usb id and color mode
-      V 1.0.48 2007-04-16, MAN
+      v48 2007-04-16, MAN
          - re-enable brightness/contrast for built-in models 
-      V 1.0.49 2007-06-28, MAN
+      v49 2007-06-28, MAN
          - add fi-5750C usb id and color mode
-      V 1.0.50 2007-07-10, MAN
+      v50 2007-07-10, MAN
          - updated overscan and bgcolor option descriptions
 	 - added jpeg output support
          - restructured usb reading code to use RS len for short reads
          - combined calcDerivedValues with sane_get_params
-      V 1.0.51 2007-07-26, MAN
+      v51 2007-07-26, MAN
 	 - fix bug in jpeg output support
-      V 1.0.52 2007-07-27, MAN
+      v52 2007-07-27, MAN
 	 - remove unused jpeg function
 	 - reactivate look-up-table based brightness and contrast options
 	 - change range of hardware brightness/contrast to match LUT versions
 	 - call send_lut() from sane_control_option instead of sane_start
-      V 1.0.53 2007-11-18, MAN
+      v53 2007-11-18, MAN
          - add S510 usb id
 	 - OPT_NUM_OPTS type is SANE_TYPE_INT (jblache)
-      V 1.0.54 2007-12-29, MAN
+      v54 2007-12-29, MAN
 	 - disable SANE_FRAME_JPEG support until SANE 1.1.0
-      V 1.0.55 2007-12-29, MAN (SANE v1.0.19)
+      v55 2007-12-29, MAN (SANE v1.0.19)
 	 - add S500M usb id
-      V 1.0.56 2008-02-14, MAN
+      v56 2008-02-14, MAN
 	 - sanei_config_read has already cleaned string (#310597)
-      V 1.0.57 2008-02-24, MAN
+      v57 2008-02-24, MAN
          - fi-5900 does not (initially) interlace colors
 	 - add mode sense for color interlacing? (page code 32)
 	 - more debug output in init_ms()
-      V 1.0.58 2008-04-19, MAN
+      v58 2008-04-19, MAN
          - page code 32 is not color interlacing, rename to 'unknown'
          - increase number of bytes in response buffer of init_ms()
          - protect debug modification code in init_ms() if NDEBUG is set
@@ -291,24 +291,36 @@
          - sane_start() rewritten, shorter, more clear
          - return values are SANE_Status, not int
          - hide unused functions
-      V 1.0.59 2008-04-22, MAN
+      v59 2008-04-22, MAN
          - add fi-6140 usb ID, and fi-6x40 color mode
-      V 1.0.60 2008-04-27, MAN
+      v60 2008-04-27, MAN
          - move call to sanei_usb_init() from sane_init() to find_scanners
 	 - free sane_devArray before calloc'ing a new one
-      V 1.0.61 2008-05-11, MAN
+      v61 2008-05-11, MAN
          - minor cleanups to init_ms()
 	 - add fi-5530C2 usb id
 	 - merge find_scanners into sane_get_devices
 	 - inspect correct bool to enable prepick mode option
-      V 1.0.62 2008-05-20, MAN
+      v62 2008-05-20, MAN
          - check for all supported scsi commands
 	 - use well-known option group strings from saneopts.h
 	 - rename pagewidth to page-width, to meet sane 1.1.0, same for height
 	 - add unused get_window()
-      V 1.0.63 2008-05-21, MAN
+      v63 2008-05-21, MAN
          - use sane 1.1.0 well-known option names for some buttons
 	 - remove 'button-' from other buttons and sensors
+      v64 2008-05-28, MAN
+         - strcpy device_name[] instead of strdup/free *device_name
+	 - add send/read diag commands to get scanner serial number
+	 - use model and serial to build sane.name (idea from Ryan Duryea)
+	 - allow both serial_name and device_name to sane_open scanner
+	 - correct mode select/sense 6 vs 10 booleans
+	 - rename product_name to model_name
+	 - simulate missing VPD data for M3097G
+	 - hide get_window
+	 - improve handling of vendor unique section of set_window
+	 - add init_interlace to detect proper color mode without hardcoding
+	 - add ascii output to hexdump
 
    SANE FLOW DIAGRAM
 
@@ -369,7 +381,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 63 
+#define BUILD 64 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -683,7 +695,7 @@ attach_one (const char *device_name, int connType)
   DBG (15, "attach_one: looking for '%s'\n", device_name);
 
   for (s = fujitsu_devList; s; s = s->next) {
-    if (strcmp (s->sane.name, device_name) == 0) {
+    if (strcmp (s->device_name, device_name) == 0){
       DBG (10, "attach_one: already attached!\n");
       return SANE_STATUS_GOOD;
     }
@@ -697,11 +709,7 @@ attach_one (const char *device_name, int connType)
   s->buffer_size = global_buffer_size;
 
   /* copy the device name */
-  s->device_name = strdup (device_name);
-  if (!s->device_name){
-    free (s);
-    return SANE_STATUS_NO_MEM;
-  }
+  strcpy (s->device_name, device_name);
 
   /* connect the fd */
   s->connection = connType;
@@ -710,7 +718,6 @@ attach_one (const char *device_name, int connType)
   s->fds[1] = -1;
   ret = connect_fd(s);
   if(ret != SANE_STATUS_GOOD){
-    free (s->device_name);
     free (s);
     return ret;
   }
@@ -719,7 +726,6 @@ attach_one (const char *device_name, int connType)
   ret = init_inquire (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: inquiry failed\n");
     return ret;
@@ -729,7 +735,6 @@ attach_one (const char *device_name, int connType)
   ret = init_vpd (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: vpd failed\n");
     return ret;
@@ -739,7 +744,6 @@ attach_one (const char *device_name, int connType)
   ret = init_ms (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: ms failed\n");
     return ret;
@@ -750,7 +754,6 @@ attach_one (const char *device_name, int connType)
   ret = init_model (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: model failed\n");
     return ret;
@@ -760,7 +763,6 @@ attach_one (const char *device_name, int connType)
   ret = init_user (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: user failed\n");
     return ret;
@@ -769,21 +771,38 @@ attach_one (const char *device_name, int connType)
   ret = init_options (s);
   if (ret != SANE_STATUS_GOOD) {
     disconnect_fd(s);
-    free (s->device_name);
     free (s);
     DBG (5, "attach_one: options failed\n");
     return ret;
   }
 
+  ret = init_interlace (s);
+  if (ret != SANE_STATUS_GOOD) {
+    disconnect_fd(s);
+    free (s);
+    DBG (5, "attach_one: interlace failed\n");
+    return ret;
+  }
+
+  /* load strings into sane_device struct */
+  s->sane.name = s->device_name;
+  s->sane.vendor = s->vendor_name;
+  s->sane.model = s->model_name;
+  s->sane.type = "scanner";
+
+  /* change name in sane_device struct if scanner has serial number */
+  ret = init_serial (s);
+  if (ret == SANE_STATUS_GOOD) {
+    s->sane.name = s->serial_name;
+  }
+  else{
+    DBG (5, "attach_one: serial number unsupported?\n");
+  }
+
   /* we close the connection, so that another backend can talk to scanner */
   disconnect_fd(s);
 
-  /* load info into sane_device struct */
-  s->sane.name = s->device_name;
-  s->sane.vendor = s->vendor_name;
-  s->sane.model = s->product_name;
-  s->sane.type = "scanner";
-
+  /* store this scanner in global vars */
   s->next = fujitsu_devList;
   fujitsu_devList = s;
 
@@ -876,18 +895,18 @@ init_inquire (struct fujitsu *s)
   }
 
   get_IN_vendor (buffer, s->vendor_name);
-  get_IN_product (buffer, s->product_name);
+  get_IN_product (buffer, s->model_name);
   get_IN_version (buffer, s->version_name);
 
   s->vendor_name[8] = 0;
-  s->product_name[16] = 0;
+  s->model_name[16] = 0;
   s->version_name[4] = 0;
 
   /* gobble trailing spaces */
   for (i = 7; s->vendor_name[i] == ' ' && i >= 0; i--)
     s->vendor_name[i] = 0;
-  for (i = 15; s->product_name[i] == ' ' && i >= 0; i--)
-    s->product_name[i] = 0;
+  for (i = 15; s->model_name[i] == ' ' && i >= 0; i--)
+    s->model_name[i] = 0;
   for (i = 3; s->version_name[i] == ' ' && i >= 0; i--)
     s->version_name[i] = 0;
 
@@ -898,7 +917,7 @@ init_inquire (struct fujitsu *s)
   }
 
   DBG (15, "init_inquire: Found %s scanner %s version %s at %s\n",
-    s->vendor_name, s->product_name, s->version_name, s->device_name);
+    s->vendor_name, s->model_name, s->version_name, s->device_name);
 
   /*some scanners list random data here*/
   DBG (15, "inquiry options\n");
@@ -952,20 +971,30 @@ init_vpd (struct fujitsu *s)
   );
 
   /* M3099 gives all data, but wrong length */
-  if (strstr (s->product_name, "M3099")
+  if (strstr (s->model_name, "M3099")
     && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
     && get_IN_page_length (buffer) == 0x19){
-      DBG (5, "init_vpd: 3099 repair\n");
+      DBG (5, "init_vpd: M3099 repair\n");
       set_IN_page_length(buffer,0x5f);
   }
 
-  /* some(all?) versions of 3097 dont have vpd?
-  else if (strstr (s->product_name, "M3097")
+  /* some versions of 3097 have short vpd, fill in missing part */
+  /* FIXME: do we need another block for devices with IPC? */
+  else if (strstr (s->model_name, "M3097G")
     && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
     && get_IN_page_length (buffer) == 0x19){
-      DBG (5, "init_vpd: 3097 repair\n");
-      memcpy(buffer+0x19,buff_VPD_M3097.cmd,buff_VPD_M3097.size);
-  }*/
+      unsigned char vpd3097g[] = {
+0, 0,
+0xc2, 0x08, 0, 0, 0, 0, 0, 0, 0xed, 0xbf, 0, 1, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+0, 0, 0xff, 0xff, 0xff, 0, 0x45, 0x35, 0x40, 0xe0, 0, 0, 0, 0, 0, 0,
+0, 0, 0, 0
+      };
+      DBG (5, "init_vpd: M3097G repair\n");
+      set_IN_page_length(buffer,0x5f);
+      memcpy(buffer+0x19+5,vpd3097g,sizeof(vpd3097g));
+  }
 
   DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
 
@@ -1110,11 +1139,11 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
 
           /* std scsi command support byte 26*/
-          s->has_cmd_msen = get_IN_has_cmd_msen(buffer);
-          DBG (15, "  mode_sense cmd: %d\n", s->has_cmd_msen);
+          s->has_cmd_msen10 = get_IN_has_cmd_msen10(buffer);
+          DBG (15, "  mode_sense_10 cmd: %d\n", s->has_cmd_msen10);
 
-          s->has_cmd_msel = get_IN_has_cmd_msel(buffer);
-          DBG (15, "  mode_select cmd: %d\n", s->has_cmd_msel);
+          s->has_cmd_msel10 = get_IN_has_cmd_msel10(buffer);
+          DBG (15, "  mode_select_10 cmd: %d\n", s->has_cmd_msel10);
 
           /* std scsi command support byte 27*/
           s->has_cmd_lsen = get_IN_has_cmd_lsen(buffer);
@@ -1328,7 +1357,7 @@ init_ms(struct fujitsu *s)
 
   DBG (10, "init_ms: start\n");
 
-  if(!s->has_cmd_msen){
+  if(!s->has_cmd_msen6){
     DBG (10, "init_ms: unsupported\n");
     return SANE_STATUS_GOOD;
   }
@@ -1344,7 +1373,7 @@ init_ms(struct fujitsu *s)
 
   set_MSEN_xfer_length (mode_senseB.cmd, inLen);
 
-  DBG (35, "init_ms: 32 (unknown)\n");
+  DBG (35, "init_ms: 32 unknown)\n");
   set_MSEN_pc(mode_senseB.cmd, MS_pc_unknown);
   memset(buffer,0,inLen);
   ret = do_cmd (
@@ -1541,7 +1570,12 @@ init_model (struct fujitsu *s)
   DBG (10, "init_model: start\n");
 
   /* for most scanners these are good defaults */
-  s->color_interlace = COLOR_INTERLACE_BGR;
+  if(s->can_monochrome || s->can_halftone || s->can_grayscale){
+    s->has_vuid_mono = 1;
+  }
+  if(s->can_color_grayscale){
+    s->has_vuid_color = 1;
+  }
 
   s->reverse_by_mode[MODE_LINEART] = 0;
   s->reverse_by_mode[MODE_HALFTONE] = 0;
@@ -1557,8 +1591,8 @@ init_model (struct fujitsu *s)
 
   /* these two scanners lie about their capabilities,
    * and/or differ significantly from most other models */
-  if (strstr (s->product_name, "M3091")
-   || strstr (s->product_name, "M3092")) {
+  if (strstr (s->model_name, "M3091")
+   || strstr (s->model_name, "M3092")) {
 
     /* lies */
     s->has_rif = 1;
@@ -1566,10 +1600,12 @@ init_model (struct fujitsu *s)
     s->adbits = 8;
 
     /* weirdness */
+    s->has_vuid_3091 = 1;
+    s->has_vuid_color = 0;
+    s->has_vuid_mono = 0;
+
     s->color_interlace = COLOR_INTERLACE_3091;
     s->duplex_interlace = DUPLEX_INTERLACE_3091;
-    s->has_SW_dropout = 1;
-    s->window_vid = 0xc0;
     s->ghs_in_rs = 1;
     s->window_gamma = 0;
 
@@ -1578,7 +1614,7 @@ init_model (struct fujitsu *s)
     s->reverse_by_mode[MODE_GRAYSCALE] = 0;
     s->reverse_by_mode[MODE_COLOR] = 0;
   }
-  else if (strstr (s->product_name, "M3093")){
+  else if (strstr (s->model_name, "M3093")){
     /* lies */
     s->has_back = 0;
     s->adbits = 8;
@@ -1586,43 +1622,27 @@ init_model (struct fujitsu *s)
     /* weirdness */
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
   }
-  else if ( strstr (s->product_name, "M309")
-   || strstr (s->product_name, "M409")){
+  else if ( strstr (s->model_name, "M309")
+   || strstr (s->model_name, "M409")){
 
     /* lies */
     s->adbits = 8;
 
   }
-  else if (strstr (s->product_name, "fi-4120C2")
-   || strstr (s->product_name, "fi-4220C2") ) {
-
-    /*s->max_x = 10488;*/
+  else if (strstr (s->model_name, "fi-4120C2")
+   || strstr (s->model_name, "fi-4220C2") ) {
 
     /* missing from vpd */
     s->os_x_basic = 376;
     s->os_y_basic = 236;
   
   }
-  else if ( strstr (s->product_name, "fi-4340")
-   || strstr (s->product_name, "fi-4750")
-   || strstr (s->product_name, "fi-5650")
-   || strstr (s->product_name, "fi-5750")
-   || strstr (s->product_name, "fi-6140")
-   || strstr (s->product_name, "fi-6240")
-   ) {
-
-    /* weirdness */
-    s->color_interlace = COLOR_INTERLACE_RRGGBB;
-  
-  }
   /* some firmware versions use capital f? */
-  else if (strstr (s->product_name, "Fi-5900")
-   || strstr (s->product_name, "fi-5900") ) {
+  else if (strstr (s->model_name, "Fi-5900")
+   || strstr (s->model_name, "fi-5900") ) {
 
     /* weirdness */
     s->even_scan_line = 1;
-    s->color_interlace = COLOR_INTERLACE_NONE;
-
   }
 
   DBG (10, "init_model: finish\n");
@@ -1724,6 +1744,127 @@ init_options (struct fujitsu *s)
 }
 
 /*
+ * send set window repeatedly to color scanners,
+ * searching for valid color interlacing mode
+ */
+static SANE_Status
+init_interlace (struct fujitsu *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int curr_mode = s->mode;
+
+  DBG (10, "init_interlace: start\n");
+
+  if(!s->has_vuid_color){
+    DBG (10, "init_interlace: unneeded\n");
+    return SANE_STATUS_GOOD;
+  }
+
+  /* set to color mode first */
+  s->mode=MODE_COLOR;
+
+  /* load our own private copy of scan params */
+  ret = sane_get_parameters ((SANE_Handle) s, &s->params);
+  if (ret != SANE_STATUS_GOOD) {
+    DBG (5, "init_interlace: ERROR: cannot get params\n");
+    return ret;
+  }
+
+  /*loop thru all the formats we support*/
+  for(s->color_interlace = COLOR_INTERLACE_RGB;
+   s->color_interlace <= COLOR_INTERLACE_RRGGBB;
+   s->color_interlace++){
+
+    ret = set_window(s);
+    if (ret == SANE_STATUS_GOOD){
+      break;
+    }
+    else{
+      DBG (5, "init_interlace: not %d\n", s->color_interlace);
+    }
+  }
+
+  if (ret != SANE_STATUS_GOOD){
+    DBG (5, "init_interlace: no valid interlacings\n");
+    return SANE_STATUS_INVAL;
+  }
+
+  DBG (15, "init_interlace: color_interlace: %d\n",s->color_interlace);
+
+  /* restore mode */
+  s->mode=curr_mode;
+
+  DBG (10, "init_interlace: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+/*
+ * send diag query for serial number, and read result back
+ * use it to build a unique name for scanner in s->serial_name
+ */
+static SANE_Status
+init_serial (struct fujitsu *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  unsigned int sn = 0;
+
+  unsigned char sd_payload[] = "GET DEVICE ID   ";
+  size_t sd_payLen = sizeof(sd_payload) - 1;
+
+  unsigned char rd_payload[0x0c];
+  size_t rd_payLen = sizeof(rd_payload);
+
+  DBG (10, "init_serial: start\n");
+
+  if (!s->has_cmd_sdiag || !s->has_cmd_rdiag){
+    DBG (5, "init_serial: send/read diag not supported, returning\n");
+    return SANE_STATUS_INVAL;
+  }
+
+  set_SD_slftst(send_diagnosticB.cmd, 0);
+  set_SD_xferlen(send_diagnosticB.cmd, sd_payLen);
+ 
+  ret = do_cmd (
+    s, 1, 0, 
+    send_diagnosticB.cmd, send_diagnosticB.size,
+    sd_payload, sd_payLen,
+    NULL, NULL
+  );
+
+  if (ret != SANE_STATUS_GOOD){
+    DBG (5, "init_serial: send diag error: %d\n", ret);
+    return ret;
+  }
+
+  set_RD_xferlen(read_diagnosticB.cmd, rd_payLen);
+
+  ret = do_cmd (
+    s, 1, 0, 
+    read_diagnosticB.cmd, read_diagnosticB.size,
+    NULL, 0,
+    rd_payload, &rd_payLen
+  );
+
+  if (ret != SANE_STATUS_GOOD){
+    DBG (5, "init_serial: read diag error: %d\n", ret);
+    return ret;
+  }
+
+  sn = get_RD_id_serial(rd_payload);
+
+  DBG (15, "init_serial: found sn %d\n",sn);
+
+  sprintf(s->serial_name, "%s:%d", s->model_name, sn);
+
+  DBG (15, "init_serial: serial_name: %s\n",s->serial_name);
+
+  DBG (10, "init_serial: finish\n");
+
+  return SANE_STATUS_GOOD;
+}
+
+/*
  * From the SANE spec:
  * This function is used to establish a connection to a particular
  * device. The name of the device to be opened is passed in argument
@@ -1761,7 +1902,8 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     DBG (15, "sane_open: device %s requested\n", name);
                                                                                 
     for (dev = fujitsu_devList; dev; dev = dev->next) {
-      if (strcmp (dev->sane.name, name) == 0) {
+      if (strcmp (dev->sane.name, name) == 0
+       || strcmp (dev->device_name, name) == 0) { /*always allow sanei devname*/
         s = dev;
         break;
       }
@@ -2403,7 +2545,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->do_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if ((s->has_MS_dropout || s->has_SW_dropout) && s->mode != MODE_COLOR)
+    if ((s->has_MS_dropout || s->has_vuid_3091) && s->mode != MODE_COLOR)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -4148,6 +4290,42 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 #if 0
+/*
+ * This routine issues a SCSI GET WINDOW command to the scanner
+ */
+static SANE_Status
+get_window (struct fujitsu *s)
+{
+  unsigned char buffer[max_WDB_size];
+  size_t bufferLen;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "get_window: start\n");
+
+  /* The command specifies the number of bytes in the data phase 
+   * the data phase has a header, followed by 1 or 2 window desc blocks 
+   * the header specifies the number of bytes in 1 window desc block
+   */
+
+  bufferLen = max_WDB_size;
+
+  /* cmd has data phase byte count */
+  set_GW_xferlen(get_windowB.cmd,bufferLen);
+
+  ret = do_cmd (
+    s, 1, 0,
+    get_windowB.cmd, get_windowB.size,
+    NULL, 0,
+    buffer, &bufferLen
+  );
+
+  hexdump(10, "GW: <<", buffer, bufferLen);
+
+  DBG (10, "get_window: finish\n");
+
+  return ret;
+}
+
 static SANE_Status
 get_pixelsize(struct fujitsu *s, int * x, int * y, int * px, int * py)
 {
@@ -4463,42 +4641,6 @@ setup_buffers (struct fujitsu *s)
 }
 
 /*
- * This routine issues a SCSI GET WINDOW command to the scanner
- */
-static SANE_Status
-get_window (struct fujitsu *s)
-{
-  unsigned char buffer[max_WDB_size];
-  size_t bufferLen;
-  SANE_Status ret = SANE_STATUS_GOOD;
-
-  DBG (10, "get_window: start\n");
-
-  /* The command specifies the number of bytes in the data phase 
-   * the data phase has a header, followed by 1 or 2 window desc blocks 
-   * the header specifies the number of bytes in 1 window desc block
-   */
-
-  bufferLen = max_WDB_size;
-
-  /* cmd has data phase byte count */
-  set_GW_xferlen(get_windowB.cmd,bufferLen);
-
-  ret = do_cmd (
-    s, 1, 0,
-    get_windowB.cmd, get_windowB.size,
-    NULL, 0,
-    buffer, &bufferLen
-  );
-
-  hexdump(10, "GW: <<", buffer, bufferLen);
-
-  DBG (10, "get_window: finish\n");
-
-  return ret;
-}
-
-/*
  * This routine issues a SCSI SET WINDOW command to the scanner, using the
  * values currently in the scanner data structure.
  */
@@ -4518,11 +4660,18 @@ set_window (struct fujitsu *s)
    */
 
   /* set window desc size in header */
-  set_WPDB_wdblen (window_descriptor_headerB.cmd, window_descriptor_blockB.size);
+  set_WPDB_wdblen(window_descriptor_headerB.cmd, window_descriptor_blockB.size);
 
   /* copy header into local buffer */
-  memcpy (buffer, window_descriptor_headerB.cmd, window_descriptor_headerB.size);
+  memcpy(buffer, window_descriptor_headerB.cmd, window_descriptor_headerB.size);
   bufferLen = window_descriptor_headerB.size;
+
+  if (s->source == SOURCE_ADF_BACK) {
+    set_WD_wid (window_descriptor_blockB.cmd, WD_wid_back);
+  }
+  else{
+    set_WD_wid (window_descriptor_blockB.cmd, WD_wid_front);
+  }
 
   /* init the window block */
   set_WD_Xres (window_descriptor_blockB.cmd, s->resolution_x);
@@ -4560,11 +4709,30 @@ set_window (struct fujitsu *s)
 
   set_WD_composition (window_descriptor_blockB.cmd, s->mode);
 
-  /* FIXME: is this something else on new scanners? */
-  set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
+  set_WD_bitsperpixel (window_descriptor_blockB.cmd, s->params.depth);
 
-  /* older scanners use set window to indicate dropout color */
-  if (s->has_SW_dropout && s->mode != MODE_COLOR){
+  set_WD_rif (window_descriptor_blockB.cmd, s->rif);
+
+  set_WD_compress_type(window_descriptor_blockB.cmd, COMP_NONE);
+  set_WD_compress_arg(window_descriptor_blockB.cmd, 0);
+
+  /* some scanners support jpeg image compression, for color/gs only */
+  if(s->params.format == SANE_FRAME_JPEG){
+      set_WD_compress_type(window_descriptor_blockB.cmd, COMP_JPEG);
+      set_WD_compress_arg(window_descriptor_blockB.cmd, s->compress_arg);
+  }
+
+  /*the remainder of the block varies based on model and mode,
+   * except for gamma and paper size, those are in the same place */
+
+  /*vuid c0*/
+  if(s->has_vuid_3091){
+    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_3091);
+
+    if (s->mode == MODE_COLOR){
+      set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
+    }
+    else{
       switch (s->dropout_color) {
         case COLOR_RED:
           set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_RED);
@@ -4579,27 +4747,51 @@ set_window (struct fujitsu *s)
           set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_DEFAULT);
           break;
       }
+    }
   }
 
-  set_WD_bitsperpixel (window_descriptor_blockB.cmd, s->params.depth);
+  /*vuid c1*/
+  else if(s->mode == MODE_COLOR && s->has_vuid_color){
+    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_COLOR);
 
-  set_WD_rif (window_descriptor_blockB.cmd, s->rif);
+    if(s->color_interlace == COLOR_INTERLACE_RGB){
+      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_DOT);
+      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_RGB);
+    }
+    else if(s->color_interlace == COLOR_INTERLACE_BGR){
+      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_DOT);
+      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_BGR);
+    }
+    else if(s->color_interlace == COLOR_INTERLACE_RRGGBB){
+      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_LINE);
+      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_RGB);
+    }
+    else{
+      DBG (5,"set_window: unknown color interlacing\n");
+      return SANE_STATUS_INVAL;
+    }
 
-  set_WD_compress_type(window_descriptor_blockB.cmd, COMP_NONE);
-  set_WD_compress_arg(window_descriptor_blockB.cmd, 0);
-
-  /* some scanners support jpeg image compression, for color/gs only */
-  if(s->params.format == SANE_FRAME_JPEG){
-      set_WD_compress_type(window_descriptor_blockB.cmd, COMP_JPEG);
-      set_WD_compress_arg(window_descriptor_blockB.cmd, s->compress_arg);
+    /* just in case? */
+    set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
   }
 
-  set_WD_vendor_id_code (window_descriptor_blockB.cmd, s->window_vid);
+  /*vuid 00*/
+  else if(s->has_vuid_mono){
+    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_MONO);
+
+    /* just in case? */
+    set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
+  }
+
+  else{
+    DBG (5,"set_window: no vuid to send?\n");
+    return SANE_STATUS_INVAL;
+  }
 
   set_WD_gamma (window_descriptor_blockB.cmd, s->window_gamma);
 
   if(s->source == SOURCE_FLATBED){
-    set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_UNDEFINED);
+    set_WD_paper_selection(window_descriptor_blockB.cmd,WD_paper_SEL_UNDEFINED);
   }
   else{
     set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_NON_STANDARD);
@@ -4609,13 +4801,6 @@ set_window (struct fujitsu *s)
 
     /* dont call helper function, scanner wants actual length?  */
     set_WD_paper_length_Y (window_descriptor_blockB.cmd, s->page_height);
-  }
-
-  if (s->source == SOURCE_ADF_BACK) {
-      set_WD_wid (window_descriptor_blockB.cmd, WD_wid_back);
-  }
-  else{
-      set_WD_wid (window_descriptor_blockB.cmd, WD_wid_front);
   }
 
   /* copy first desc block into local buffer */
@@ -5571,7 +5756,6 @@ sane_exit (void)
   for (dev = fujitsu_devList; dev; dev = next) {
       disconnect_fd(dev);
       next = dev->next;
-      free (dev->device_name);
       free (dev);
   }
 
@@ -6236,38 +6420,56 @@ maxStringSize (const SANE_String_Const strings[])
   return max_size;
 }
 
-/**
+/*
  * Prints a hex dump of the given buffer onto the debug output stream.
  */
 static void
 hexdump (int level, char *comment, unsigned char *p, int l)
 {
   int i;
-  char line[128];
-  char *ptr;
+  char line[70]; /* 'xxx: xx xx ... xx xx abc */
+  char *hex = line+4;
+  char *bin = line+53;
 
   if(DBG_LEVEL < level)
     return;
 
   DBG (level, "%s\n", comment);
-  ptr = line;
-  for (i = 0; i < l; i++, p++)
-    {
-      if ((i % 16) == 0)
-        {
-          if (ptr != line)
-            {
-              *ptr = '\0';
-              DBG (level, "%s\n", line);
-              ptr = line;
-            }
-          sprintf (ptr, "%3.3x:", i);
-          ptr += 4;
-        }
-      sprintf (ptr, " %2.2x", *p);
-      ptr += 3;
+
+  for (i = 0; i < l; i++, p++) {
+
+    /* at start of line */
+    if ((i % 16) == 0) {
+
+      /* not at start of first line, print current, reset */
+      if (i) {
+        DBG (level, "%s\n", line);
+      }
+
+      memset(line,0x20,69);
+      line[69] = 0;
+      hex = line + 4;
+      bin = line + 53;
+
+      sprintf (line, "%3.3x:", i);
     }
-  *ptr = '\0';
+
+    /* the hex section */
+    sprintf (hex, " %2.2x", *p);
+    hex += 3;
+    *hex = ' ';
+
+    /* the char section */
+    if(*p >= 0x20 && *p <= 0x7e){
+      *bin=*p;
+    }
+    else{
+      *bin='.';
+    }
+    bin++;
+  }
+
+  /* print last (partial) line */
   DBG (level, "%s\n", line);
 }
 

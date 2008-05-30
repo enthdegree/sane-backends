@@ -83,7 +83,7 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during init of scanner.                */
   struct fujitsu *next;
-  char *device_name;            /* The name of the scanner device for sane */
+  char device_name[1024];             /* The name of the device from sanei */
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during reading of config file.         */
@@ -93,10 +93,8 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during inquiry probing of the scanner. */
   /* members in order found in scsi data...                                */
-  SANE_Device sane;
-
   char vendor_name[9];          /* raw data as returned by SCSI inquiry.   */
-  char product_name[17];        /* raw data as returned by SCSI inquiry.   */
+  char model_name[17];        /* raw data as returned by SCSI inquiry.   */
   char version_name[5];         /* raw data as returned by SCSI inquiry.   */
 
   int color_raster_offset;      /* offset between r and b scan line and    */
@@ -161,8 +159,8 @@ struct fujitsu
   int buffer_bytes;
 
   /*supported scsi commands*/
-  int has_cmd_msen;
-  int has_cmd_msel;
+  int has_cmd_msen10;
+  int has_cmd_msel10;
 
   int has_cmd_lsen;
   int has_cmd_lsel;
@@ -264,13 +262,23 @@ struct fujitsu
   int color_interlace;  /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently    */
   int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
-  int window_vid;    /* some models want different vendor ID in set window */
   int ghs_in_rs;
   int window_gamma;
 
-  int has_SW_dropout; /* dropout color specified in set window data */
+  int has_vuid_mono;    /* mono set window data */
+  int has_vuid_3091;    /* 3091/2 set window data */
+  int has_vuid_color;   /* color set window data */
 
   int reverse_by_mode[6]; /* mode specific */
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during serial number probing scanner   */
+  char serial_name[28];        /* 16 char model, ':', 10 byte serial, null */
+
+  /* --------------------------------------------------------------------- */
+  /* struct with pointers to device/vendor/model names, and a type value */
+  /* used to inform sane frontend about the device */
+  SANE_Device sane;
 
   /* --------------------------------------------------------------------- */
   /* changeable SANE_Option structs provide our interface to frontend.     */
@@ -479,10 +487,10 @@ struct fujitsu
 #define COLOR_WHITE 1
 #define COLOR_BLACK 2
 
-#define COLOR_INTERLACE_NONE 0
-#define COLOR_INTERLACE_3091 1
-#define COLOR_INTERLACE_BGR 2
-#define COLOR_INTERLACE_RRGGBB 3
+#define COLOR_INTERLACE_RGB 0
+#define COLOR_INTERLACE_BGR 1
+#define COLOR_INTERLACE_RRGGBB 2
+#define COLOR_INTERLACE_3091 3
 
 #define DUPLEX_INTERLACE_ALT 0 
 #define DUPLEX_INTERLACE_NONE 1 
@@ -568,6 +576,8 @@ static SANE_Status init_ms (struct fujitsu *s);
 static SANE_Status init_model (struct fujitsu *s);
 static SANE_Status init_user (struct fujitsu *s);
 static SANE_Status init_options (struct fujitsu *scanner);
+static SANE_Status init_interlace (struct fujitsu *scanner);
+static SANE_Status init_serial (struct fujitsu *scanner);
 
 static SANE_Status
 do_cmd(struct fujitsu *s, int runRS, int shortTime,
@@ -617,6 +627,7 @@ static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
 
 /*
+static SANE_Status get_window (struct fujitsu *s);
 static SANE_Status get_pixelsize (struct fujitsu *s, int*, int*, int*, int*);
 */
 

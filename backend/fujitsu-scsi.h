@@ -97,6 +97,7 @@ scsiblk;
 #define RELEASE_UNIT            0x17
 #define INQUIRY                 0x12
 #define REQUEST_SENSE           0x03
+#define READ_DIAGNOSTIC         0x1c
 #define SEND_DIAGNOSTIC         0x1d
 #define TEST_UNIT_READY         0x00
 #define SET_WINDOW              0x24
@@ -112,17 +113,55 @@ scsiblk;
 #define HW_STATUS               0xc2
 #define SCANNER_CONTROL         0xf1
 
-
 /* ==================================================================== */
-/*
+
+#if 0
 static unsigned char reserve_unitC[] =
   { RESERVE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk reserve_unitB = { reserve_unitC, sizeof (reserve_unitC) };
 
+/* ==================================================================== */
+
 static unsigned char release_unitC[] =
   { RELEASE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static scsiblk release_unitB = { release_unitC, sizeof (release_unitC) };
-*/
+#endif
+
+/* ==================================================================== */
+
+static unsigned char send_diagnosticC[] =
+  { SEND_DIAGNOSTIC, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk send_diagnosticB = {send_diagnosticC, sizeof(send_diagnosticC)};
+
+#define set_SD_slftst(in, val) setbitfield(in + 1, 1, 2, val)
+#define set_SD_xferlen(in, len) putnbyte(in + 3, len, 2)
+
+/* for 'FIRST READ DATE \0YMD' */
+#define set_SD_date_year(in, b) 	putnbyte(in + 0x11, b, 1)
+#define set_SD_date_month(in, b) 	putnbyte(in + 0x12, b, 1)
+#define set_SD_date_date(in, b) 	putnbyte(in + 0x13, b, 1)
+
+/* ==================================================================== */
+
+static unsigned char read_diagnosticC[] =
+  { READ_DIAGNOSTIC, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk read_diagnosticB = {read_diagnosticC, sizeof(read_diagnosticC)};
+
+#define set_RD_xferlen(in, len) putnbyte(in + 3, len, 2)
+
+/* for 'FIRST READ DATE \0YMD' */
+#define get_RD_date_status(in)          in[0]
+#define RD_date_stored			0
+#define RD_date_not_stored		0xff
+
+/* for 'GET FIRST DATE  ' */
+#define get_RD_date_year(in)            in[1]
+#define get_RD_date_month(in)           in[2]
+#define get_RD_date_date(in)            in[3]
+
+/* for 'GET DEVICE ID   ' */
+#define get_RD_id_serial(in)            getnbyte (in, 4)
+
 /* ==================================================================== */
 
 static unsigned char scanner_controlC[] =
@@ -223,8 +262,8 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
 
 /*supported scsi commands*/
-#define get_IN_has_cmd_msen(in)         getbitfield(in+0x26, 1, 1)
-#define get_IN_has_cmd_msel(in)		getbitfield(in+0x26, 1, 0)
+#define get_IN_has_cmd_msen10(in)       getbitfield(in+0x26, 1, 1)
+#define get_IN_has_cmd_msel10(in)	getbitfield(in+0x26, 1, 0)
 
 #define get_IN_has_cmd_lsen(in)		getbitfield(in+0x27, 1, 7)
 #define get_IN_has_cmd_lsel(in)		getbitfield(in+0x27, 1, 6)
@@ -311,13 +350,13 @@ static scsiblk test_unit_readyB =
   { test_unit_readyC, sizeof (test_unit_readyC) };
 
 /* ==================================================================== */
-
+#if 0
 static unsigned char get_windowC[] =
   { GET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
 /* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
 static scsiblk get_windowB = { get_windowC, sizeof (get_windowC) };
 #define set_GW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
-
+#endif
 /* ==================================================================== */
 
 static unsigned char set_windowC[] =
@@ -339,7 +378,6 @@ static scsiblk object_positionB =
 #define OP_Feed	0x01
 
 /* ==================================================================== */
-
 
 static unsigned char sendC[] =
   {SEND, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -779,18 +817,19 @@ static unsigned char window_descriptor_blockC[] = {
   /* 0x22-0x27 - reserved */
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
-  /* 0x28 - vendor id code
-   *        3091 - use 0xc0
-   *        3096 - use 0xc0
+  /* 0x28 - vendor unique id code, decides meaning of remaining bytes
+   *        0xc1 = color mode (fi-series)
+   *        0xc0 = weird mode (M3091 and M3092)
+   *        0x00 = mono mode (other M-series and fi-series)
    */
   0x00,
 #define set_WD_vendor_id_code(sb, val)  sb[0x28] = val
 #define get_WD_vendor_id_code(sb) sb[0x28]
+#define WD_VUID_MONO 0x00
+#define WD_VUID_3091 0xc0
+#define WD_VUID_COLOR 0xc1
 
-  /* 0x29 - pattern setting
-   *        3091 - use 0x00
-   *        3096 - reserved, use 0x00
-   */
+  /* 0x29 common gamma */
   0x00,
 #define set_WD_gamma(sb, val)  sb[0x29] = val
 #define get_WD_gamma(sb) sb[0x29]
@@ -799,25 +838,17 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_gamma_SOFT    2
 #define WD_gamma_SHARP   3
 
-  /* 0x2a - outline/scanning order
-   *        3091 - scanning order. Only 0x00 (line order) supported
-   *        3096 - outlining. 0x00=off, 0x80=on. 0x80 only permitted
-   *               when image processing option fitted.
-   */
-  0x00,
+/*==================================================================*/
+  /* 0x2a-0x34 - vary based on vuid */
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00,
+
+/*==================================================================*/
+/* vuid 0x00, mono params */
+
 #define set_WD_outline(sb, val)  sb[0x2a] = val
 #define get_WD_outline(sb) sb[0x2a]
-#define set_WD_scanning_order(sb, val)  sb[0x2a] = val
-#define get_WD_scanning_order(sb) sb[0x2a]
 
-  /* 0x2b - emphasis/scanning order argument
-   *        3091 - scanning order argument. Only 0x00 (RGB) supported
-   *        3096 - emphasis. 0x00=off, others only permitted when 
-   *               image processing option fitted: 
-   *                 0x2F=low emphasis, 0x4F=medium emphasis, 
-   *                 0x7F=high emphasis, 0xFF=smoothing
-   */
-  0x00,
 #define set_WD_emphasis(sb, val)  sb[0x2b] = val
 #define get_WD_emphasis(sb) sb[0x2b]
 #define WD_emphasis_NONE    0x00
@@ -826,41 +857,17 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_emphasis_HIGH    0x50
 #define WD_emphasis_SMOOTH  0x80
 
-  /* 0x2c - auto separation
-   *        3091 - reserved, use 0x00
-   *        3096 - auto separation. 0x00=off, 0x80=on. 0x80 only 
-   *               permitted when image processing option fitted.
-   */
-  0x00,
 #define set_WD_auto_sep(sb, val)  setbitfield(sb + 0x2c, 1, 7, val)
 #define get_WD_auto_sep(sb) getbitfield(sb + 0x2c, 1, 7)
 
-  /* 0x2d - mirroring/single color
-   *        3091 - determines which color is used in monochrome
-   *               scans: 0x00/0x04=G,0x01=B,0x02=R
-   *        3096 - window mirroring. 0x00=off, 0x80=on. 0x80 only 
-   *               permitted when image processing option fitted.
-   */
-  0x00,
 #define set_WD_mirroring(sb, val)  setbitfield(sb + 0x2d, 1, 7, val)
 #define get_WD_mirroring(sb) getbitfield(sb + 0x2d, 1, 7)
-#define set_WD_lamp_color(sb, val)  sb[0x2d] = val
-#define get_WD_lamp_color(sb) sb[0x2d]
-#define WD_LAMP_DEFAULT 0x00
-#define WD_LAMP_BLUE 0x01
-#define WD_LAMP_RED 0x02
-#define WD_LAMP_GREEN 0x04
 
-  /* 0x2e - variance/bit padding
-   *        3091 - unsupported, use 0x00
-   *        3096 - variance rate for dynamic treshold. 0x00=default,
-   *               0x1f, 0x3f, ... 0xff = small...large
-   */
-  0x00,
+/*also called Auto-II mode?*/
 #define set_WD_var_rate_dyn_thresh(sb, val)  sb[0x2e] = val
 #define get_WD_var_rate_dyn_thresh(sb) sb[0x2e]
 
-  0x00,				/* 0x2f *//* DTC mode */
+/*also called Auto-I mode?*/
 #define set_WD_dtc_threshold_curve(sb, val) setbitfield(sb + 0x2f, 7, 0, val)
 #define get_WD_dtc_threshold_curve(sb) getbitfield(sb + 0x2f, 7, 0)
 #define set_WD_gradation(sb, val) setbitfield(sb + 0x2f, 3, 3, val)
@@ -876,7 +883,6 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_filtering_BALLPOINT 0
 #define WD_filtering_ORDINARY  1
 
-  0x00,				/* 0x30 *//* DTC mode 2 */
 #define set_WD_background(sb, val) setbitfield(sb + 0x30, 1, 0, val)
 #define get_WD_background(sb) getbitfield(sb + 0x30, 1, 0)
 #define WD_background_WHITE  0
@@ -892,113 +898,112 @@ static unsigned char window_descriptor_blockC[] = {
 #define set_WD_noise_removal(sb, val) setbitfield(sb + 0x30, 1, 5, !val)
 #define get_WD_noise_removal(sb) !getbitfield(sb + 0x30, 1, 5)
 
-  0x00,				/* 0x31 *//* reserved */
+/*31 reserved*/
 
-
-  /* 0x32 - scanning mode/white level follower
-   *        3091 - scan mode 0x00=normal, 0x02=high quality
-   *        3096 - white level follower, 0x00=default,
-   *               0x80 enable (line mode), 0xc0 disable (photo mode)
-   */
-  0x00,
 #define set_WD_white_level_follow(sb, val)  sb[0x32] = val
 #define get_WD_white_level_follow(sb) sb[0x32]
-#define set_WD_quality(sb, val)  sb[0x32] = val
-#define get_WD_quality(sb) sb[0x32]
 #define WD_white_level_follow_DEFAULT  0x00
 #define WD_white_level_follow_ENABLED  0x80
 #define WD_white_level_follow_DISABLED 0xC0
 
-  /* 0x33,0x34 - subwindow list
-   *        3091 reserved, use 0x00
-   *        3096 bits 0-3 of byte 34 denote use of subwindows 1...4
-   */
-  0x00, 0x00,
 #define set_WD_subwindow_list(sb, val) putnbyte(sb + 0x33, val, 2)
 #define get_WD_subwindow_list(sb)	getnbyte(sb + 0x33, 2)
 
-  /* 0x35 - paper size
-   *        3091 unsupported, always use 0xc0
-   *        3096 if bits 6-7 both set, custom paper size enabled,  
-   *             bytes 0x36-0x3d used. Otherwise, a number of 
-   *             valid fixed values denote common paper formats.
-   */
-  0xC0,
+/*==================================================================*/
+/* vuid 0xc1, color params */
+
+#define set_WD_scanning_order(sb, val)  sb[0x2a] = val
+#define get_WD_scanning_order(sb) sb[0x2a]
+#define WD_SCAN_ORDER_LINE 0
+#define WD_SCAN_ORDER_DOT 1
+#define WD_SCAN_ORDER_FACE 2
+
+#define set_WD_scanning_order_arg(sb, val)  sb[0x2b] = val
+#define get_WD_scanning_order_arg(sb) sb[0x2b]
+#define WD_SCAN_ARG_RGB 0
+#define WD_SCAN_ARG_RBG 1
+#define WD_SCAN_ARG_GRB 2
+#define WD_SCAN_ARG_GBR 3
+#define WD_SCAN_ARG_BRG 4
+#define WD_SCAN_ARG_BGR 5
+
+/*2c-2d reserved*/
+
+/*like vuid 00, but in different location*/
+#define set_WD_c1_emphasis(sb, val)  sb[0x2e] = val
+#define get_WD_c1_emphasis(sb) sb[0x2e]
+#define set_WD_c1_mirroring(sb, val)  setbitfield(sb + 0x2f, 1, 7, val)
+#define get_WD_c1_mirroring(sb) getbitfield(sb + 0x2f, 1, 7)
+
+/*30-31 reserved*/
+
+/*32 reserved for wlf like vuid 00*/
+
+/*33-34 reserved*/
+
+/*==================================================================*/
+/* vuid 0xc0, 3091/2 params */
+
+/*2a-2b same as vuid 0xc1*/
+
+#define set_WD_lamp_color(sb, val)  sb[0x2d] = val
+#define get_WD_lamp_color(sb) sb[0x2d]
+#define WD_LAMP_DEFAULT 0x00
+#define WD_LAMP_BLUE 0x01
+#define WD_LAMP_RED 0x02
+#define WD_LAMP_GREEN 0x04
+
+/*2e-31 reserved*/
+
+#define set_WD_quality(sb, val)  sb[0x32] = val
+#define get_WD_quality(sb) sb[0x32]
+#define WD_QUAL_NORMAL 0x00
+#define WD_QUAL_HIGH   0x02
+
+/*33-34 reserved*/
+
+/*==================================================================*/
+  /* 0x35-0x3d - paper size common to all vuids */
+  0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+
 #define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
 #define WD_paper_SEL_UNDEFINED     0
 #define WD_paper_SEL_NON_STANDARD  3
 
-/* we no longer use these, custom size (0xc0) overrides,
-   and more recent scanners only use custom size anyway
-#define get_WD_paper_selection(sb)      getbitfield(sb + 0x35, 3, 6)
-#define WD_paper_SEL_STANDARD      2
-
-#define set_WD_paper_orientation(sb, val) setbitfield(sb + 0x35, 1, 4, val)
-#define get_WD_paper_orientation(sb)      getbitfield(sb + 0x35, 1, 4)
-#define WD_paper_PORTRAIT  0
-#define WD_paper_LANDSCAPE 1
-
-#define set_WD_paper_size(sb, val)  setbitfield(sb + 0x35, 0x0f, 0, val)
-#define get_WD_paper_size(sb)       getbitfield(sb + 0x35, 0x0f, 0)
-#define WD_paper_UNDEFINED 0
-#define WD_paper_A3        3
-#define WD_paper_A4        4
-#define WD_paper_A5        5
-#define WD_paper_DOUBLE    6
-#define WD_paper_LETTER    7
-#define WD_paper_B4       12
-#define WD_paper_B5       13
-#define WD_paper_LEGAL    15
-#define WD_paper_CUSTOM   14
-*/
-
-  /* 0x36-0x39 - custom paper width
-   *        3091 0<w<=10200
-   *        3096 0<w<=14592
-   */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_paper_width_X(sb, val) putnbyte(sb + 0x36, val, 4)
 #define get_WD_paper_width_X(sb)	getnbyte(sb + 0x36, 4)
 
-  /* 0x3a-0x3d - custom paper length
-   *        3091 0<w<=16832
-   *        3096 0<w<=20736
-   */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_paper_length_Y(sb, val) putnbyte(sb+0x3a, val, 4)
 #define get_WD_paper_length_Y(sb)	getnbyte(sb+0x3a, 4)
 
-  0X00,				/* 0x3e *//* DTC selection (3091: reserved) */
+/*==================================================================*/
+  /* 0x3e-end - vary based on vuid */
+  0x00, 0x00
+
+/*==================================================================*/
+/* vuid 0xc0, 3091/2 - lots more params after 3f */
+
+/*3e-3f reserved*/
+
+/*FIXME: more params here*/
+
+/*==================================================================*/
+/* vuid 0xc1, color params - no more */
+
+/*3e-3f reserved*/
+
+/*==================================================================*/
+/* vuid 0x00, mono params only 1 more byte */
+
 #define set_WD_dtc_selection(sb, val) setbitfield(sb + 0x3e, 3, 6, val)
 #define get_WD_dtc_selection(sb) getbitfield(sb + 0x3e, 3, 6)
 #define WD_dtc_selection_DEFAULT    0
 #define WD_dtc_selection_DYNAMIC    1
 #define WD_dtc_selection_SIMPLIFIED 2
-  /* - the rest of this is all zeroes, comments from the 3091 docs. */
 
-  0x00,				/* 0x3f  reserved */
-  0x00,				/* 0x40  intial slice (floating slice parameter) */
-  0x00,				/* 0x41  paper color ratio (white level slice ratio)  (floating slice parameter) */
-  0x00,				/* 0x42  black/white ratio (black/white slice)  (floating slice parameter) */
-  0x00,				/* 0x43  Up (+UP count setting) (floating slice parameter) */
-  0x00,				/* 0x44  Down (+Down count setting) (floating slice parameter) */
-  0x00,				/* 0x45  Lower Limit Slice (floating slice parameter) */
-  0x00,				/* 0x46  Compensation Line Interval (floating slice parameter) */
-  0x00,				/* 0x47  Reserved */
-  0x00,				/* 0x48  Error Diffusion upper limit slice (error diffusion parameter) */
-  0x00,				/* 0x49  Error Diffusion lower limit slice (error diffusion parameter) */
-  0x00,				/* 0x4a  Reserved */
-  0x00,				/* 0x4b  Reserved */
-  0x00,				/* 0x4c  Enhancement Setting */
-  0x00,				/* 0x4d  Laplacian Gradient Coefficient (enhancement parameter) */
-  0x00,				/* 0x4e  Gradient Coefficient (enhancement parameter) */
-  0x00,				/* 0x4f  Laplacian Slice (enhancement parameter) */
-  0x00,				/* 0x50  Gradient Slice (enhancement parameter) */
-  0x00,				/* 0x51  Reserved */
-  0x00,				/* 0x52  Primary Scan Ratio Compensation */
-  0x00, 0x00, 0x00, 0x00, 0x00,	/* 0x53 - 0x57 reserved */
-  0x00, 0x00, 0x00, 0x00, 0x00,	/* 0x58 - 0x5c reserved */
-  0x00, 0x00, 0x00		/* 0x5d - 0x5f reserved */
+/*3f reserved*/
 };
 static scsiblk window_descriptor_blockB =
   { window_descriptor_blockC, sizeof (window_descriptor_blockC) };

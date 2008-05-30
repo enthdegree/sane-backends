@@ -1,3 +1,11 @@
+2008-05-30  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
+	  doc/descriptions/fujitsu.desc: backend version 64,
+	  use model and serial to build sane.name (idea from Ryan Duryea),
+	  allow both serial_name and device_name to sane_open scanner,
+	  simulate missing VPD data for M3097G, probe scanner for color
+	  interlacing mode instead of hardcoding, other minor cleanups
+
 2008-05-29  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man: man update.
 	* backend/pixma_io_sanei.c: update status types, and take into 

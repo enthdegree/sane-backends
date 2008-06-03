@@ -3,7 +3,7 @@
    Copyright (C) 2003 Oliver Rauch
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
-   Copyright (C) 2004 - 2007 Stephane Voltz <stef.dev@free.fr>
+   Copyright (C) 2004 - 2008 Stéphane Voltz <stef.dev@free.fr>
    Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
@@ -3002,7 +3002,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
      minus the steps done during shading calibration
      - then we move by the needed offset whitin physical
      scanning area
-     - todo: substract steps done during motor acceleration or
+     - TODO: substract steps done during motor acceleration or
      will it be included in y_offset ?
 
      assumption: steps are expressed at maximum motor resolution
@@ -3031,14 +3031,48 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
   DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
 
   move += (SANE_UNFIX (dev->model->y_offset) * move_dpi) / MM_PER_INCH;
-  if (move < 0)
-    {
-      DBG (DBG_error,
-	   "gl646_init_regs_for_scan: overriding negative move value %d\n",
-	   move);
-      move = 1;
-    }
-  DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
+
+  /* the right fix involves computing distance for acceleration, do it 
+   * this crudly for now, it might also come from the way slopes table
+   * are generated, we may consider switching to the newer and more
+   * accurate method */
+  DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps/yres=%d (XXX STEF XXX)\n", move, dev->settings.yres);
+  if (dev->model->motor_type == MOTOR_5345)
+  {
+	  switch(dev->settings.yres)
+	  {
+		  case 2400:
+			  move += 50;
+			  break;
+		  case 1200:
+			  move += 100;
+			  break;
+		  case 600:
+			  move -= 150;
+			  break;
+		  case 500:
+			  move -= 150;
+			  break;
+		  case 400:
+			  move -= 100;
+			  break;
+		  case 300:
+		  case 250:
+		  case 200:
+			  break;
+		  case 150:
+			  move += 100;
+			  break;
+		  case 100:
+			  move += 120;
+			  break;
+		  case 50:
+			  move += 100;
+			  break;
+		  default:
+			  break;
+	  }
+  }
 
   /* add tl_y to base movement */
   /* move += (dev->settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH; */
@@ -3058,6 +3092,16 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
 
   /* round it */
   move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
+  DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
+
+  /* security check */
+  if (move < 0)
+    {
+      DBG (DBG_error,
+	   "gl646_init_regs_for_scan: overriding negative move value %d\n",
+	   move);
+      move = 1;
+    }
   DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps\n", move);
 
   /* set feed steps number of motor move */

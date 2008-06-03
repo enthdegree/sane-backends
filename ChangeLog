@@ -1,3 +1,7 @@
+2008-06-03  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys_gl646.c: fixed wrong offset for start
+	  of scanarea for MD6471 scanner.
+
 2008-05-30  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
 	  doc/descriptions/fujitsu.desc: backend version 64,

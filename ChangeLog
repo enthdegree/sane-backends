@@ -1,3 +1,7 @@
+2008-06-06  Julien Blache <jb@jblache.org>
+	* backend/net.c: lock the Avahi thread before stopping it and
+	tearing down the Avahi objects.
+
 2008-06-03  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: fixed wrong offset for start
 	  of scanarea for MD6471 scanner.

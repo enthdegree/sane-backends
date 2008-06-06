@@ -922,6 +922,7 @@ net_avahi_cleanup (void)
   if (!avahi_thread)
     return;
 
+  avahi_threaded_poll_lock (avahi_thread);
   avahi_threaded_poll_stop (avahi_thread);
 
   if (avahi_browser)

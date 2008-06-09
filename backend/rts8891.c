@@ -818,14 +818,7 @@ set_option_value (Rts8891_Session * s, int option, void *val,
       /* sanity checks */
       for (i = 0; i < (int) (s->opt[option].size / sizeof (SANE_Word)); i++)
 	{
-	  if (((SANE_Int *) val)[i] < 0 || ((SANE_Int *) val)[i] > 255)
-	    {
-	      DBG (2,
-		   "sane_control_option: gamma value (%d) at index %d out of range\n",
-		   ((SANE_Int *) val)[i], i);
-	      return SANE_STATUS_INVAL;
-	    }
-	  /* avoid aa values since they will be problematic */
+	  /* avoid 0xaa values since they will be problematic */
 	  if (((SANE_Int *) val)[i] == 0xaa)
 	    ((SANE_Int *) val)[i] = 0xab;
 	}
@@ -5626,7 +5619,14 @@ write_scan_registers (struct Rts8891_Session *session)
 			  dev->blue_gain);
 
   status1 = 0x20;
-  status2 = 0x3b;
+  if (dev->sensor == SENSOR_TYPE_XPA)
+    {
+      status2 = 0x3f;
+    }
+  else
+    {
+      status2 = 0x3b;
+    }
 
   /* default to 75 dpi color scan */
   dev->regs[0x0b] = 0x70;

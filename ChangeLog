@@ -1,3 +1,6 @@
+2008-06-09  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: fix for model with 'XPA' sensor
+
 2008-06-06  Julien Blache <jb@jblache.org>
 	* backend/net.c: lock the Avahi thread before stopping it and
 	tearing down the Avahi objects.
@@ -39,7 +42,7 @@
 2008-05-26  Stéphane Voltz <stef.dev@free.fr>
 	* backend/sane_strstatus.c: added new status and internationalization
 	  support
-	* frontend/scanimage.c, tstbackend.c: added handling of status
+	* frontend/scanimage.c, frontend/tstbackend.c: added handling of status
 	  SANE_STATUS_WARMING_UP
 	* backend/pnm.c: added 2 more virtual devices, one that is hardware
 	locked, and another that always do warming before scan.

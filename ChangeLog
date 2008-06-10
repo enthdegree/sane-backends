@@ -1,3 +1,9 @@
+2008-06-10  Stéphane Voltz <stef.dev@free.fr>
+	* backend/sanei_constrain_value.c: add support for arrays of SANE_Word
+	  in sanei_constrain_value
+	* backend/umax_pp.c: remove now unneede 'hand made' constrain on
+	  gamma tables
+
 2008-06-09  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fix for model with 'XPA' sensor
 

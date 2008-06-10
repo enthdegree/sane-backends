@@ -38,7 +38,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-#include "sane/config.h"
+#include "../include/sane/config.h"
 
 #include <string.h>
 
@@ -47,16 +47,16 @@
 
 #include <stdio.h>
 
-#include "sane/sane.h"
-#include "sane/sanei.h"
+#include "../include/sane/sane.h"
+#include "../include/sane/sanei.h"
 
 SANE_Status
-sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
+sanei_check_value (const SANE_Option_Descriptor * opt, void *value)
 {
-  const SANE_String_Const * string_list;
-  const SANE_Word * word_list;
+  const SANE_String_Const *string_list;
+  const SANE_Word *word_list;
   int i;
-  const SANE_Range * range;
+  const SANE_Range *range;
   SANE_Word w, v;
   size_t len;
 
@@ -73,7 +73,8 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
 
       if (range->quant)
 	{
-	  v = (unsigned int) (w - range->min + range->quant/2) / range->quant;
+	  v =
+	    (unsigned int) (w - range->min + range->quant / 2) / range->quant;
 	  v = v * range->quant + range->min;
 	  if (v != w)
 	    return SANE_STATUS_INVAL;
@@ -84,8 +85,8 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
       w = *(SANE_Word *) value;
       word_list = opt->constraint.word_list;
       for (i = 1; w != word_list[i]; ++i)
-        if (i >= word_list[0])
-          return SANE_STATUS_INVAL;
+	if (i >= word_list[0])
+	  return SANE_STATUS_INVAL;
       break;
 
     case SANE_CONSTRAINT_STRING_LIST:
@@ -97,61 +98,83 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void * value)
 	    && len == strlen (string_list[i]))
 	  return SANE_STATUS_GOOD;
       return SANE_STATUS_INVAL;
-      
+
     default:
       break;
     }
   return SANE_STATUS_GOOD;
 }
 
-
+/**
+ * This function apply the constraint defined by the option descriptor
+ * to the given value, and update the info flags holder if needed. It
+ * return SANE_STATUS_INVAL if the constraint cannot be applied, else
+ * it returns SANE_STATUS_GOOD.
+ */
 SANE_Status
-sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
+sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
 		       SANE_Word * info)
 {
-  const SANE_String_Const * string_list;
-  const SANE_Word * word_list;
+  const SANE_String_Const *string_list;
+  const SANE_Word *word_list;
   int i, k, num_matches, match;
-  const SANE_Range * range;
-  SANE_Word w, v;
+  const SANE_Range *range;
+  SANE_Word w, v, *array;
   SANE_Bool b;
   size_t len;
 
   switch (opt->constraint_type)
     {
     case SANE_CONSTRAINT_RANGE:
-      w = *(SANE_Word *) value;
-      range = opt->constraint.range;
 
-      if (w < range->min)
-      {
-        *(SANE_Word *) value = range->min;
-        if (info)
-        {
-          *info |= SANE_INFO_INEXACT;
-        }
-      }
+      /* single values are treated as arrays of length 1 */
+      array = (SANE_Word *) value;
 
-      if (w > range->max)
-      {
-        *(SANE_Word *) value = range->max;
-        if (info)
-        {
-          *info |= SANE_INFO_INEXACT;
-        }
-      }
-
-      w = *(SANE_Word *) value;
-
-      if (range->quant)
+      /* compute number of elements */
+      if (opt->size>0)
 	{
-	  v = (unsigned int) (w - range->min + range->quant/2) / range->quant;
-	  v = v * range->quant + range->min;
-	  if (v != w)
+	  k = opt->size / sizeof (SANE_Word);
+	}
+      else
+	{
+	  k = 1;
+	}
+
+      /* for each element of the array, we apply the constraint */
+      for (i = 0; i < k; i++)
+	{
+	  range = opt->constraint.range;
+
+	  if (array[i] < range->min)
 	    {
-	      *(SANE_Word *) value = v;
+	      array[i] = range->min;
 	      if (info)
-		*info |= SANE_INFO_INEXACT;
+		{
+		  *info |= SANE_INFO_INEXACT;
+		}
+	    }
+
+	  if (array[i] > range->max)
+	    {
+	      array[i] = range->max;
+	      if (info)
+		{
+		  *info |= SANE_INFO_INEXACT;
+		}
+	    }
+
+	  if (range->quant)
+	    {
+	      v =
+		(unsigned int) (array[i] - range->min +
+				range->quant / 2) / range->quant;
+	      v = v * range->quant + range->min;
+	      if (v != array[i])
+		{
+		  array[i] = v;
+		  if (info)
+		    *info |= SANE_INFO_INEXACT;
+		}
 	    }
 	}
       break;
@@ -160,10 +183,10 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
       /* If there is no exact match in the list, use the nearest value */
       w = *(SANE_Word *) value;
       word_list = opt->constraint.word_list;
-      for (i = 1, k = 1, v = abs(w - word_list[1]); i <= word_list[0]; i++)
+      for (i = 1, k = 1, v = abs (w - word_list[1]); i <= word_list[0]; i++)
 	{
 	  SANE_Word vh;
-	  if ((vh = abs(w - word_list[i])) < v)
+	  if ((vh = abs (w - word_list[i])) < v)
 	    {
 	      v = vh;
 	      k = i;
@@ -179,8 +202,8 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
 
     case SANE_CONSTRAINT_STRING_LIST:
       /* Matching algorithm: take the longest unique match ignoring
-	 case.  If there is an exact match, it is admissible even if
-	 the same string is a prefix of a longer option name. */
+         case.  If there is an exact match, it is admissible even if
+         the same string is a prefix of a longer option name. */
       string_list = opt->constraint.string_list;
       len = strlen (value);
 
@@ -211,7 +234,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void * value,
 	  return SANE_STATUS_GOOD;
 	}
       return SANE_STATUS_INVAL;
-      
+
     case SANE_CONSTRAINT_NONE:
       switch (opt->type)
 	{

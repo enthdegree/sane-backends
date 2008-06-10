@@ -1458,15 +1458,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case OPT_GAMMA_VECTOR_R:
 	case OPT_GAMMA_VECTOR_G:
 	case OPT_GAMMA_VECTOR_B:
-
-	  for (i = 0; i < dev->opt[option].size / sizeof (SANE_Word); i++)
-	    {
-	      if (((SANE_Int *) val)[i] < 0 || ((SANE_Int *) val)[i] > 255)
-		{
-		  DBG (2, "Value at index %d out of range\n", i);
-		  return SANE_STATUS_INVAL;
-		}
-	    }
 	  memcpy (val, dev->val[option].wa, dev->opt[option].size);
 	  return SANE_STATUS_GOOD;
 

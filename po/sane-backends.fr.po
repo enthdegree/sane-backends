@@ -1911,7 +1911,7 @@ msgstr "Sélectionne la matrice de couleurs du scanner."
 #: .tmp/hp-option.h:127
 #, no-c-format
 msgid "Custom color matrix."
-msgstr "Matrice personalisée."
+msgstr "Matrice personnalisée."
 
 #: .tmp/hp-option.h:132
 #, no-c-format
@@ -1921,7 +1921,7 @@ msgstr "Matrice monochrome"
 #: .tmp/hp-option.h:133
 #, no-c-format
 msgid "Custom color matrix for grayscale scans."
-msgstr "Matrice personalisée pour numérisation en niveaux de gris."
+msgstr "Matrice personnalisée pour numérisation en niveaux de gris."
 
 #: .tmp/hp-option.h:138
 #, no-c-format
@@ -2734,8 +2734,8 @@ msgstr ""
 
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
-msgid "Button-controlled scan (experimental)"
-msgstr "Numérisation controllée par le bouton (expérimental)"
+msgid "Button-controlled scan"
+msgstr "Numérisation controllée par le bouton"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format
@@ -3198,7 +3198,7 @@ msgstr "Echantillonnage Y"
 #: .tmp/saneopts.h:149
 #, no-c-format
 msgid "Use custom gamma table"
-msgstr "Utilise une table gamma personalisée"
+msgstr "Utilise une table gamma personnalisée"
 
 #: .tmp/saneopts.h:150
 #, no-c-format

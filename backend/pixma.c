@@ -640,11 +640,17 @@ init_option_descriptors (pixma_sane_t * ss)
       ss->source_map[i] = PIXMA_SOURCE_ADF;
       i++;
     }
-#if 1
   if ((cfg->cap & PIXMA_CAP_ADFDUP) == PIXMA_CAP_ADFDUP)
     {
       ss->source_list[i] = SANE_I18N ("ADF Duplex");
       ss->source_map[i] = PIXMA_SOURCE_ADFDUP;
+      i++;
+    }
+#if 0
+  if (cfg->cap & PIXMA_CAP_TPU)
+    {
+      ss->source_list[i] = SANE_I18N ("Transparency Unit");
+      ss->source_map[i] = PIXMA_SOURCE_TPU;
       i++;
     }
 #endif
@@ -718,7 +724,7 @@ reader_loop (pixma_sane_t * ss)
       int start = 0;
 #ifndef NDEBUG
       pixma_dbg (1, "==== Button-controlled scan mode is enabled.\n");
-      pixma_dbg (1, "==== To proceed, presse 'SCAN' or 'COLOR' button. "
+      pixma_dbg (1, "==== To proceed, press 'SCAN' or 'COLOR' button. "
 		 "To cancel, press 'GRAY' button.\n");
 #endif
       while (pixma_wait_event (ss->s, 10) != 0)
@@ -739,7 +745,7 @@ reader_loop (pixma_sane_t * ss)
 	      start = 1;
 	      break;
 	    case PIXMA_EV_BUTTON2:
-	      count = PIXMA_ENO_PAPER;
+	      count = PIXMA_ECANCELED;
 	      goto done;
 	    }
 	}
@@ -1394,7 +1400,7 @@ type string source[30]
   cap soft_select soft_detect
 
 type bool button-controlled
-  title Button-controlled scan (experimental)
+  title Button-controlled scan
   desc When enabled, scan process will not start immediately. To proceed, press \"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To cancel, press \"GRAY\" button.
   default SANE_FALSE
   cap soft_select soft_detect inactive

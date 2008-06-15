@@ -88,7 +88,7 @@ build_option_descriptors (struct pixma_sane_t *ss)
   opt = &(OPT_IN_CTX[opt_button_controlled]);
   sod = &opt->sod;
   sod->type = SANE_TYPE_BOOL;
-  sod->title = SANE_I18N ("Button-controlled scan (experimental)");
+  sod->title = SANE_I18N ("Button-controlled scan");
   sod->desc =
     SANE_I18N
     ("When enabled, scan process will not start immediately. To proceed, press \"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To cancel, press \"GRAY\" button.");

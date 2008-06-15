@@ -2672,8 +2672,8 @@ msgstr ""
 
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
-msgid "Button-controlled scan (experimental)"
-msgstr "Skanado mastrumita de butono (eksperimenta)"
+msgid "Button-controlled scan"
+msgstr "Skanado mastrumita de butono"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format

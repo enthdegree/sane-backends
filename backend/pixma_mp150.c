@@ -104,7 +104,7 @@
 #define MP520_PID 0x1724
 #define MP610_PID 0x1725
 #define MP970_PID 0x1726
-#define MX300_PID 0x1727  /* untested */
+#define MX300_PID 0x1727
 #define MX310_PID 0x1728
 #define MX700_PID 0x1729
 

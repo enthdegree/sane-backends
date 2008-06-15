@@ -1,3 +1,10 @@
+2008-06-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man,
+	* backend/pixma.c, backend/pixma_mp150.c, backend/pixma_sane_options.c
+	* sane-backends/po/sane-backends.??.po:
+	Remove "experimental" in pixma buttons options and text.
+	Fix some French translation typos, and update man page.
+
 2008-06-10  Stéphane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for arrays of SANE_Word
 	  in sanei_constrain_value

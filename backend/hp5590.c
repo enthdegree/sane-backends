@@ -620,6 +620,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   DBG (DBG_proc, "%s, option: %u\n", __FUNCTION__, option);
 
+  if (option >= HP5590_OPT_LAST)
+    return NULL;
+
   return &scanner->opts[option];
 }
 
@@ -637,6 +640,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (!handle)
     return SANE_STATUS_INVAL;
  
+  if (option >= HP5590_OPT_LAST)
+    return SANE_STATUS_INVAL;
+
   if (action == SANE_ACTION_GET_VALUE)
     {
       if (option == HP5590_OPT_NUM)

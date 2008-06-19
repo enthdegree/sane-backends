@@ -1,3 +1,9 @@
+2008-06-19 Ilia Sotnikov <hostcc@gmail.com>
+	* backend/hp5590.c, backend/hp5590_cmds.c, backend/hp5590_cmds.h
+	* backend/hp5590_low.c, backend/hp5590_low.h
+	* doc/descriptions/hp5590.desc, doc/sane-hp5590.man:
+	Added support for HP ScanJet 4570c (thanks to Markham Thomas)
+
 2008-06-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man,
 	* backend/pixma.c, backend/pixma_mp150.c, backend/pixma_sane_options.c

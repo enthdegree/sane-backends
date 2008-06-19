@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
+   HP ScanJet 4570c support by Markham Thomas
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,7 +39,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file is part of a SANE backend for HP 5550/5590/7650 Scanners
+   This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
 #include "sane/config.h"
@@ -68,6 +69,11 @@ struct hp5590_model
 
 static const struct hp5590_model
 hp5590_models[] = {
+  {
+    SCANNER_HP4570,
+    0x03f0, 0x1305, "SILITEKIElwood",
+    "4570", "Workgroup scanner"
+  },
   {
     SCANNER_HP5550,
     0x03f0, 0x1205, "SILITEKIPenguin",

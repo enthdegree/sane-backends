@@ -9,6 +9,8 @@ library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard Workgroup/Document scanners:
 .PP
 .RS
+ScanJet 4570
+.br
 ScanJet 5550
 .br
 ScanJet 5590

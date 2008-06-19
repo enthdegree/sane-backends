@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
+   HP ScanJet 4570c support by Markham Thomas
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,7 +39,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file is part of a SANE backend for HP 5550/5590/7650 Scanners
+   This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
 #include "sane/config.h"
@@ -71,7 +72,7 @@
 }
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		2
+#define BUILD 		3
 #define USB_TIMEOUT	30 * 1000
 
 static SANE_Word
@@ -282,6 +283,13 @@ attach_usb_device (SANE_String_Const devname,
 
 /******************************************************************************/
 static SANE_Status
+attach_hp4570 (SANE_String_Const devname)
+{
+  return attach_usb_device (devname, SCANNER_HP4570);
+}
+
+/******************************************************************************/
+static SANE_Status
 attach_hp5550 (SANE_String_Const devname)
 {
   return attach_usb_device (devname, SCANNER_HP5550);
@@ -310,7 +318,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
   
   DBG_INIT();
   
-  DBG (1, "SANE backed for HP 5550/5590/7650 %u.%u.%u\n", V_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE backed for HP 4570/5550/5590/7650 %u.%u.%u\n", V_MAJOR, V_MINOR, BUILD);
   DBG (1, "(c) Ilia Sotnikov <hostcc@gmail.com>\n");
 
   if (version_code)
@@ -321,6 +329,14 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
   sanei_usb_set_timeout (USB_TIMEOUT);
 
   scanners_list = NULL;
+
+  ret = hp5590_vendor_product_id (SCANNER_HP4570, &vendor_id, &product_id);
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
+
+  ret = sanei_usb_find_devices (vendor_id, product_id, attach_hp4570);
+  if (ret != SANE_STATUS_GOOD)
+    return ret;
 
   ret = hp5590_vendor_product_id (SCANNER_HP5550, &vendor_id, &product_id);
   if (ret != SANE_STATUS_GOOD)

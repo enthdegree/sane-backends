@@ -17,6 +17,12 @@
 :mfg "Hewlett-Packard"
 :url "http://www.hp.com"
 
+:model "ScanJet 4570C"
+:interface "USB"
+:usbid "0x03f0" "0x1305"
+:status :basic
+:comment "Lineart/grayscale/color (24 bit), 100/200/300/600/1200/2400 DPI, flatbed/TMA slides/TMA negatives"
+
 :model "ScanJet 5550C"
 :interface "USB"
 :usbid "0x03f0" "0x1205"

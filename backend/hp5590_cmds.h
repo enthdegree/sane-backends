@@ -1,5 +1,6 @@
 /* sane - Scanner Access Now Easy.
    Copyright (C) 2007 Ilia Sotnikov <hostcc@gmail.com>
+   HP ScanJet 4570c support by Markham Thomas
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -38,7 +39,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 
-   This file is part of a SANE backend for HP 5550/5590/7650 Scanners
+   This file is part of a SANE backend for HP 4570/5550/5590/7650 Scanners
 */
 
 #ifndef HP5590_H
@@ -52,6 +53,7 @@
 enum hp_scanner_types
 {
   SCANNER_NONE = 0,
+  SCANNER_HP4570,
   SCANNER_HP5550,
   SCANNER_HP5590,
   SCANNER_HP7650

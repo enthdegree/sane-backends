@@ -2864,8 +2864,13 @@ run_standalone (int argc, char **argv)
 
   free (fds);
 
-  if ((run_mode == SANED_RUN_DEBUG) && (fd > 0))
-    handle_connection (fd);
+  if (run_mode == SANED_RUN_DEBUG)
+    {
+      if (fd > 0)
+	handle_connection (fd);
+
+      bail_out(0);
+    }
 }
 
 

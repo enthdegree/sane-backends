@@ -1,3 +1,7 @@
+2008-06-22 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: terminate child processes before exiting in
+	debug mode.
+
 2008-06-19 Ilia Sotnikov <hostcc@gmail.com>
 	* backend/hp5590.c:
 	Fixed segmentation fault on invalid option passed to

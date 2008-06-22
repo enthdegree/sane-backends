@@ -2654,7 +2654,7 @@ do_bindings (int *nfds, struct pollfd **fds)
   if (serv)
     {
       port = serv->s_port;
-      DBG (DBG_MSG, "main: port is %d\n", ntohs (port));
+      DBG (DBG_MSG, "do_bindings: port is %d\n", ntohs (port));
     }
   else
     {

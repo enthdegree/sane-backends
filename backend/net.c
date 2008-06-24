@@ -1361,6 +1361,7 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   SANE_String nd_name;
   SANE_Status status;
   SANE_Word handle;
+  SANE_Word ack;
   Net_Device *dev;
   Net_Scanner *s;
   int need_auth;
@@ -1585,8 +1586,26 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
   s->next = first_handle;
   s->local_opt.desc = 0;
   s->local_opt.num_options = 0;
+
+  DBG (3, "sane_open: getting option descriptors\n");
+  status = fetch_options (s);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (1, "sane_open: fetch_options failed (%s), closing device again\n",
+	   sane_strstatus (status));
+
+      sanei_w_call (&s->hw->wire, SANE_NET_CLOSE,
+		    (WireCodecFunc) sanei_w_word, &s->handle,
+		    (WireCodecFunc) sanei_w_word, &ack);
+
+      free (s);
+
+      return status;
+    }
+
   first_handle = s;
   *meta_handle = s;
+
   DBG (3, "sane_open: success\n");
   return SANE_STATUS_GOOD;
 }
@@ -1658,7 +1677,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
   if (!s->options_valid)
     {
-      DBG (3, "sane_get_option_descripter: getting option descriptors\n");
+      DBG (3, "sane_get_option_descriptor: getting option descriptors\n");
       status = fetch_options (s);
       if (status != SANE_STATUS_GOOD)
 	{

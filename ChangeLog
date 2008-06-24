@@ -1,3 +1,8 @@
+2008-06-24 Julien Blache <jb@jblache.org>
+	* backend/net.c: do not reload options behind the frontend's back
+	in sane_control_option; rather return SANE_STATUS_INVAL and warn
+	that the frontend is buggy.
+
 2008-06-22 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: terminate child processes before exiting in
 	debug mode.

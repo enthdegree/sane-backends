@@ -1691,16 +1691,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
   if (!s->options_valid)
     {
-      DBG (3, "sane_control_option: getting option descriptors\n");
-      status = fetch_options (s);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (1, "sane_control_option: fetch_options failed (%s)\n",
-	       sane_strstatus (status));
-
-	  return status;
-	}
+      DBG (1, "sane_control_option: FRONTEND BUG: option descriptors reload needed\n");
+      return SANE_STATUS_INVAL;
     }
+
   if (((SANE_Word) option >= s->opt.num_options) || (option < 0))
     {
       DBG (1, "sane_control_option: invalid option number\n");

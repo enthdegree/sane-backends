@@ -269,7 +269,7 @@ static const char *config_file_names[] = {
 static SANE_Bool log_to_syslog = SANE_TRUE;
 
 /* forward declarations: */
-static void process_request (Wire * w);
+static int process_request (Wire * w);
 
 #define SANED_RUN_INETD  0
 #define SANED_RUN_DEBUG  1
@@ -1724,7 +1724,7 @@ do_scan (Wire * w, int h, int data_fd)
   handle[h].scanning = 0;
 }
 
-static void
+static int
 process_request (Wire * w)
 {
   SANE_Handle be_handle;
@@ -1739,7 +1739,7 @@ process_request (Wire * w)
     {
       DBG (DBG_ERR,
 	   "process_request: bad status %d\n", w->status);
-      quit (0);
+      return -1;
     }
 
   current_request = word;
@@ -1771,7 +1771,7 @@ process_request (Wire * w)
 	    DBG (DBG_ERR, 
 		 "process_request: (open) error while decoding args (%s)\n",
 		 strerror (w->status));
-	    return;
+	    return 1;
 	  }
 
 	if (!name)
@@ -1779,7 +1779,7 @@ process_request (Wire * w)
 	    DBG (DBG_ERR, "process_request: (open) device_name == NULL\n");
 	    reply.status = SANE_STATUS_INVAL;
 	    sanei_w_reply (w, (WireCodecFunc) sanei_w_open_reply, &reply);
-	    return;
+	    return 1;
 	  }
 
 	can_authorize = 1;
@@ -1813,7 +1813,6 @@ process_request (Wire * w)
 	    }
 
 	  resource = strdup (device_list[0]->name);
-	  
 	}
 
 	if (strchr (resource, ':'))
@@ -1874,7 +1873,7 @@ process_request (Wire * w)
 
 	h = decode_handle (w, "get_option_descriptors");
 	if (h < 0)
-	  return;
+	  return 1;
 	be_handle = handle[h].handle;
 	sane_control_option (be_handle, 0, SANE_ACTION_GET_VALUE,
 			     &opt.num_options, 0);
@@ -1904,7 +1903,7 @@ process_request (Wire * w)
 		 "process_request: (control_option) "
 		 "error while decoding args h=%d (%s)\n"
 		 , req.handle, strerror (w->status));
-	    return;
+	    return 1;
 	  }
 
 	can_authorize = 1;
@@ -1932,7 +1931,7 @@ process_request (Wire * w)
 
 	h = decode_handle (w, "get_parameters");
 	if (h < 0)
-	  return;
+	  return 1;
 	be_handle = handle[h].handle;
 
 	reply.status = sane_get_parameters (be_handle, &reply.params);
@@ -1949,7 +1948,7 @@ process_request (Wire * w)
 
 	h = decode_handle (w, "start");
 	if (h < 0)
-	  return;
+	  return 1;
 
 	memset (&reply, 0, sizeof (reply));	/* avoid leaking bits */
 	reply.byte_order = SANE_NET_LITTLE_ENDIAN;
@@ -1981,7 +1980,7 @@ process_request (Wire * w)
 	      {
 		DBG (DBG_ERR, "process_request: getpeername failed: %s\n",
 		     strerror (errno));
-		return;
+		return 1;
 	      }
 
 	    error = getnameinfo ((struct sockaddr *) &ss, len, text_addr,
@@ -1990,7 +1989,7 @@ process_request (Wire * w)
 	      {
 		DBG (DBG_ERR, "process_request: getnameinfo failed: %s\n",
 		     gai_strerror (error));
-		return;
+		return 1;
 	      }
 
 	    DBG (DBG_MSG, "process_request: access to data port from %s\n",
@@ -2003,7 +2002,7 @@ process_request (Wire * w)
 		DBG (DBG_ERR, "process_request: configuration problem or attack?\n");
 		close (data_fd);
 		data_fd = -1;
-		quit (0);
+		return -1;
 	      }
 
 #else /* !SANED_USES_AF_INDEP */
@@ -2024,7 +2023,7 @@ process_request (Wire * w)
 	      {
 		DBG (DBG_ERR, "process_request: getpeername failed: %s\n",
 		     strerror (errno));
-		return;
+		return 1;
 	      }
 
 	    if (memcmp (&remote_address, &sin.sin_addr,
@@ -2040,7 +2039,7 @@ process_request (Wire * w)
 		     "process_request: configuration problem or attack?\n");
 		close (data_fd);
 		data_fd = -1;
-		quit (0);
+		return -1;
 	      }
 	    else
 	      DBG (DBG_MSG, "process_request: access to data port from %s\n",
@@ -2054,7 +2053,7 @@ process_request (Wire * w)
 		handle[h].docancel = 0;
 		DBG (DBG_ERR, "process_request: accept failed! (%s)\n",
 		     strerror (errno));
-		return;
+		return 1;
 	      }
 	    fcntl (data_fd, F_SETFL, 1);      /* set non-blocking */
 	    shutdown (data_fd, 0);
@@ -2079,7 +2078,7 @@ process_request (Wire * w)
       break;
 
     case SANE_NET_EXIT:
-      quit (0);
+      return -1;
       break;
 
     case SANE_NET_INIT:
@@ -2088,8 +2087,10 @@ process_request (Wire * w)
       DBG (DBG_ERR,
 	   "process_request: received unexpected procedure number %d\n",
 	   current_request);
-      quit (0);
+      return -1;
     }
+
+  return 0;
 }
 
 
@@ -2193,12 +2194,13 @@ handle_connection (int fd)
 #endif /* !TCP_NODELAY */
 
   if (init (&wire) < 0)
-    quit (0);
+    return;
 
   while (1)
     {
       reset_watchdog ();
-      process_request (&wire);
+      if (process_request (&wire) < 0)
+	break;
     }  
 }
 
@@ -2224,6 +2226,7 @@ handle_client (int fd)
 	openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
 
       handle_connection (fd);
+      quit (0);
     }
   else if (pid > 0)
     {
@@ -2254,7 +2257,7 @@ bail_out (int error)
 
   DBG (DBG_ERR, "bail_out: all children exited\n");
 
-  exit (1);
+  exit ((error) ? 1 : 0);
 }
 
 void

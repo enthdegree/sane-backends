@@ -84,6 +84,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* ==================================================================== */
 /* SCSI commands */
 
+#define set_SCSI_opcode(out, val)          out[0]=val
+
 typedef struct
 {
   unsigned char *cmd;
@@ -109,7 +111,7 @@ scsiblk;
 #define MODE_SELECT             0x15
 #define MODE_SENSE              0x1a
 #define SCAN                    0x1b
-#define IMPRINTER               0xc1
+#define ENDORSER                0xc1
 #define HW_STATUS               0xc2
 #define SCANNER_CONTROL         0xf1
 
@@ -252,7 +254,7 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 /* vendor unique section */
 #define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
 #define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
-#define get_IN_imprinter(in)               getbitfield(in+0x20, 1, 3)
+#define get_IN_endorser(in)                getbitfield(in+0x20, 1, 3)
 #define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
 #define get_IN_transparency(in)            getbitfield(in+0x20, 1, 5)
 #define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
@@ -293,10 +295,10 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_has_cmd_tur(in)		getbitfield(in+0x29, 1, 0)
 
 /* more stuff here? (vendor commands) */
-#define get_IN_has_subwindow(in)           getbitfield(in+0x2b, 1, 0) 
-#define get_IN_has_endorser(in)            getbitfield(in+0x2b, 1, 1)
-#define get_IN_has_hw_status(in)           getbitfield(in+0x2b, 1, 2)
-#define get_IN_has_scanner_ctl(in)         getbitfield(in+0x31, 1, 1)
+#define get_IN_has_cmd_subwindow(in)       getbitfield(in+0x2b, 1, 0) 
+#define get_IN_has_cmd_endorser(in)        getbitfield(in+0x2b, 1, 1)
+#define get_IN_has_cmd_hw_status(in)       getbitfield(in+0x2b, 1, 2)
+#define get_IN_has_cmd_scanner_ctl(in)     getbitfield(in+0x31, 1, 1)
 
 #define get_IN_brightness_steps(in)        getnbyte(in+0x52, 1)
 #define get_IN_threshold_steps(in)         getnbyte(in+0x53, 1)
@@ -328,12 +330,12 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_compression_JPG_EXT(in)     getbitfield(in+0x5a, 1, 2)
 #define get_IN_compression_JPG_INDEP(in)   getbitfield(in+0x5a, 1, 1)
 
-#define get_IN_imprinter_mechanical(in)    getbitfield(in+0x5c, 1, 7)
-#define get_IN_imprinter_stamp(in)         getbitfield(in+0x5c, 1, 6)
-#define get_IN_imprinter_electrical(in)    getbitfield(in+0x5c, 1, 5)
-#define get_IN_imprinter_max_id(in)        getbitfield(in+0x5c, 0x0f, 0)
+#define get_IN_endorser_mechanical(in)    getbitfield(in+0x5c, 1, 7)
+#define get_IN_endorser_stamp(in)         getbitfield(in+0x5c, 1, 6)
+#define get_IN_endorser_electrical(in)    getbitfield(in+0x5c, 1, 5)
+#define get_IN_endorser_max_id(in)        getbitfield(in+0x5c, 0x0f, 0)
 
-#define get_IN_imprinter_size(in)          getbitfield(in+0x5d, 3, 0)
+#define get_IN_endorser_type(in)          getbitfield(in+0x5d, 3, 0)
 
 #define get_IN_connection(in)       getbitfield(in+0x62, 3, 0)
 
@@ -350,20 +352,14 @@ static scsiblk test_unit_readyB =
   { test_unit_readyC, sizeof (test_unit_readyC) };
 
 /* ==================================================================== */
-#if 0
-static unsigned char get_windowC[] =
-  { GET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
-/* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
-static scsiblk get_windowB = { get_windowC, sizeof (get_windowC) };
-#define set_GW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
-#endif
-/* ==================================================================== */
 
-static unsigned char set_windowC[] =
-  { SET_WINDOW, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
-/* opcode,  lun,  _____4 X reserved____,  transfer length, control byte */
-static scsiblk set_windowB = { set_windowC, sizeof (set_windowC) };
+#define SET_WINDOW_code         0x24
+#define SET_WINDOW_len          10
+
 #define set_SW_xferlen(sb, len) putnbyte(sb + 0x06, len, 3)
+
+#define SW_header_len		8
+#define SW_desc_len		64
 
 /* ==================================================================== */
 
@@ -388,9 +384,9 @@ static scsiblk sendB = {sendC, sizeof (sendC)};
 #define S_datatype_halftone_mask        0x02
 #define S_datatype_gamma_function       0x03*/
 #define S_datatype_lut_data             0x83
-/*#define S_datatype_jpg_q_table          0x88
-#define S_datatype_imprinter_data       0x90
-#define S_EX_datatype_lut		0x01
+/*#define S_datatype_jpg_q_table          0x88*/
+#define S_datatype_endorser_data       0x90
+/*#define S_EX_datatype_lut		0x01
 #define S_EX_datatype_shading_data	0xa0
 #define S_user_reg_gamma		0xc0
 #define S_device_internal_info		0x03
@@ -412,63 +408,82 @@ static unsigned char send_lutC[1034];
 #define set_S_lut_dsize(sb, val)    putnbyte(sb + 6, val, 2)
 #define S_lut_data_offset 0x0a
 
-/*
-static unsigned char send_imprinterC[] = 
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-   0x00, 0x00};
-static scsiblk send_imprinterB = 
-  {send_imprinterC, sizeof(send_imprinterC)};
-#define set_imprinter_cnt_dir(sb, val) setbitfield(sb + 0x01, 1, 5, val)
-#define S_im_dir_inc 0
-#define S_im_dir_dec 1
-#define set_imprinter_lap24(sb, val) setbitfield(sb + 0x01, 1, 4, val)
-#define S_im_ctr_24bit 1
-#define S_im_ctr_16bit 0
-#define set_imprinter_cstep(sb, val) setbitfield(sb + 0x01, 0x03, 0, val)
-#define set_imprinter_uly(sb, val) putnbyte(sb + 0x06, val, 4)
-#define set_imprinter_dirs(sb, val) setbitfield(sb + 0x0c, 0x03, 0, val)
-#define S_im_dir_left_right 0
-#define S_im_dir_top_bottom 1
-#define S_im_dir_right_left 2
-#define S_im_dir_bottom_top 3
-#define set_imprinter_string_length(sb, len)  putnbyte(sb + 0x11, len, 1)
-#define max_imprinter_string_length 40
-*/
+/*new style cmd sending code*/
+#define SEND_code               0x2a
+#define SEND_len                10
 
-/*
-static unsigned char gamma_user_LUT_LS1K[512] = { 0x00 };
-static scsiblk gamma_user_LUT_LS1K_LS1K = 
-  { gamma_user_LUT_LS1K, sizeof(gamma_user_LUT_LS1K) };
-*/
+#define S_e_data_min_len	18 /*minimum 18 bytes no string bytes*/
+#define S_e_data_max_len	98 /*maximum 18 bytes plus 80 string bytes*/
+
+#define set_S_endorser_data_id(sb, val) sb[0] = val
+
+#define set_S_endorser_stamp(sb, val) setbitfield(sb + 0x01, 1, 7, val)
+#define set_S_endorser_elec(sb, val) setbitfield(sb + 0x01, 1, 6, val)
+#define set_S_endorser_decr(sb, val) setbitfield(sb + 0x01, 1, 5, val)
+#define S_e_decr_inc 0
+#define S_e_decr_dec 1
+#define set_S_endorser_lap24(sb, val) setbitfield(sb + 0x01, 1, 4, val)
+#define S_e_lap_24bit 1
+#define S_e_lap_16bit 0
+#define set_S_endorser_ctstep(sb, val) setbitfield(sb + 0x01, 0x03, 0, val)
+
+#define set_S_endorser_ulx(sb, val) putnbyte(sb + 0x02, val, 4)
+#define set_S_endorser_uly(sb, val) putnbyte(sb + 0x06, val, 4)
+
+#define set_S_endorser_font(sb, val) sb[0xa] = val
+#define S_e_font_horiz 0
+#define S_e_font_vert 1
+#define S_e_font_horiz_narrow 2
+#define set_S_endorser_size(sb, val) sb[0xb] = val
+
+#define set_S_endorser_revs(sb, val) setbitfield(sb + 0x0c, 0x01, 7, val)
+#define S_e_revs_fwd 0
+#define S_e_revs_rev 1
+#define set_S_endorser_bold(sb, val) setbitfield(sb + 0x0c, 0x01, 2, val)
+#define set_S_endorser_dirs(sb, val) setbitfield(sb + 0x0c, 0x03, 0, val)
+#define S_e_dir_left_right 0
+#define S_e_dir_top_bottom 1
+#define S_e_dir_right_left 2
+#define S_e_dir_bottom_top 3
+
+#define set_S_endorser_string_length(sb, len)  sb[0x11] = len
+#define set_S_endorser_string(sb,val,len) memcpy(sb+0x12,val,(size_t)len)
 
 /* ==================================================================== */
-/*
-static unsigned char imprinterC[] =
-  { IMPRINTER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk imprinterB = { imprinterC, sizeof (imprinterC) };
 
-#define set_IM_xfer_length(sb, val) putnbyte(sb + 0x7, val, 2)
+static unsigned char endorserC[] =
+  { ENDORSER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+static scsiblk endorserB = { endorserC, sizeof (endorserC) };
 
-static unsigned char imprinter_descC[] = 
+#define set_E_xfer_length(sb, val) putnbyte(sb + 0x7, val, 2)
+
+static unsigned char endorser_desc4C[] = 
+  { 0x00, 0x00, 0x00, 0x00 };
+static scsiblk endorser_desc4B = {endorser_desc4C, sizeof(endorser_desc4C) };
+
+static unsigned char endorser_desc6C[] = 
   { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk imprinter_descB = {imprinter_descC, sizeof(imprinter_descC) };
-*/
-/* enable/disable imprinter printing*/
-#define set_IMD_enable(sb, val) setbitfield(sb + 0x01, 1, 7, val)
-#define IMD_enable 0
-#define IMD_disable 1
+static scsiblk endorser_desc6B = {endorser_desc6C, sizeof(endorser_desc6C) };
+
+#define set_ED_endorser_data_id(sb, val) sb[0] = val
+
+/* enable/disable endorser printing*/
+#define set_ED_stop(sb, val) setbitfield(sb + 0x01, 1, 7, val)
+#define ED_start 0
+#define ED_stop 1
 /* specifies thes side of a document to be printed */
-#define set_IMD_side(sb, val) setbitfield(sb + 0x01, 1, 6, val)
-#define IMD_front 0
-#define IMD_back 1
+#define set_ED_side(sb, val) setbitfield(sb + 0x01, 1, 6, val)
+#define ED_front 0
+#define ED_back 1
+
 /* format of the counter 16/24 bit*/
-#define set_IMD_format(sb, val) setbitfield(sb + 0x01, 1, 5, val)
-#define IMD_16_bit 0
-#define IMD_24_bit 1
+#define set_ED_lap24(sb, val) setbitfield(sb + 0x01, 1, 5, val)
+#define ED_lap_16bit 0
+#define ED_lap_24bit 1
+
 /* initial count */
-#define set_IMD_initial_count_16(sb, val) putnbyte(sb + 0x02, val, 2)
-#define set_IMD_initial_count_24(sb, val) putnbyte(sb + 0x03, val, 3)
+#define set_ED_initial_count_16(sb, val) putnbyte(sb + 0x02, val, 2)
+#define set_ED_initial_count_24(sb, val) putnbyte(sb + 0x03, val, 3)
 
 /* ==================================================================== */
 
@@ -574,6 +589,7 @@ static scsiblk mode_select_10byteB = {
 #define MSEL_dropout_CUSTOM  12
 
 #define set_MSEL_buff_mode(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
+#define set_MSEL_buff_clear(sb, val) setbitfield(sb + 0x07, 0x03, 6, val)
 
 #define set_MSEL_prepick(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
 
@@ -627,24 +643,14 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 
 /* ==================================================================== */
 
-/* We use the same structure for both SET WINDOW and GET WINDOW. */
-static unsigned char window_descriptor_headerC[] = {
-  0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00,		/* reserved */
-  0x00, 0x00,			/* Window Descriptor Length */
-};
-static scsiblk window_descriptor_headerB=
-  { window_descriptor_headerC, sizeof (window_descriptor_headerC) };
 #define set_WPDB_wdblen(sb, len) putnbyte(sb + 0x06, len, 2)
 
 /* ==================================================================== */
 
-static unsigned char window_descriptor_blockC[] = {
   /* 0x00 - Window Identifier
    *        0x00 for 3096
    *        0x00 (front) or 0x80 (back) for 3091
    */
-  0x00,
 #define set_WD_wid(sb, val) sb[0] = val
 #define WD_wid_front 0x00
 #define WD_wid_back 0x80
@@ -652,7 +658,6 @@ static unsigned char window_descriptor_blockC[] = {
   /* 0x01 - Reserved (bits 7-1), AUTO (bit 0)
    *        Use 0x00 for 3091, 3096
    */
-  0x00,
 #define set_WD_auto(sb, val) setbitfield(sb + 0x01, 1, 0, val)
 #define get_WD_auto(sb)	getbitfield(sb + 0x01, 1, 0)
 
@@ -661,7 +666,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096 suppors 200,240,300,400; or 100-1600 in steps of 4
    *             if image processiong option installed
    */
-  0x00, 0x00,
 #define set_WD_Xres(sb, val) putnbyte(sb + 0x02, val, 2)
 #define get_WD_Xres(sb)	getnbyte(sb + 0x02, 2)
 
@@ -671,19 +675,16 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096 suppors 200,240,300,400; or 100-1600 in steps of 4
    *             if image processiong option installed
    */
-  0x00, 0x00,
 #define set_WD_Yres(sb, val) putnbyte(sb + 0x04, val, 2)
 #define get_WD_Yres(sb)	getnbyte(sb + 0x04, 2)
 
   /* 0x06-0x09 - Upper Left X in 1/1200 inch
    */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_ULX(sb, val) putnbyte(sb + 0x06, val, 4)
 #define get_WD_ULX(sb) getnbyte(sb + 0x06, 4)
 
   /* 0x0a-0x0d - Upper Left Y in 1/1200 inch
    */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_ULY(sb, val) putnbyte(sb + 0x0a, val, 4)
 #define get_WD_ULY(sb) getnbyte(sb + 0x0a, 4)
 
@@ -692,7 +693,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096 left+width max 14592
    *        also limited to page size, see bytes 0x35ff.
    */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_width(sb, val) putnbyte(sb + 0x0e, val, 4)
 #define get_WD_width(sb) getnbyte(sb + 0x0e, 4)
 
@@ -701,7 +701,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096 top+height max 20736, also if left+width>13199,
    *             top+height has to be less than 19843
    */
-  0x00, 0x00, 0x00, 0x00,
 #define set_WD_length(sb, val) putnbyte(sb + 0x12, val, 4)
 #define get_WD_length(sb) getnbyte(sb + 0x12, 4)
 
@@ -711,7 +710,6 @@ static unsigned char window_descriptor_blockC[] = {
    ..., E0-FF)
    *             use 0x00 for user defined dither pattern
    */
-  0x00,
 #define set_WD_brightness(sb, val) sb[0x16] = val
 #define get_WD_brightness(sb)  sb[0x16]
 
@@ -722,7 +720,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096 0x00 = use "simplified dynamic treshold", otherwise
    *             same as above but resolution is only 64 steps.
    */
-  0x00,
 #define set_WD_threshold(sb, val) sb[0x17] = val
 #define get_WD_threshold(sb)  sb[0x17]
 
@@ -730,7 +727,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3091 - not supported, always use 0x00
    *        3096 - the same
    */
-  0x00,
 #define set_WD_contrast(sb, val) sb[0x18] = val
 #define get_WD_contrast(sb) sb[0x18]
 
@@ -739,7 +735,6 @@ static unsigned char window_descriptor_blockC[] = {
    *               0x02 for grayscale, 0x05 for color.
    *        3096 - same but minus color.
    */
-  0x00,
 #define set_WD_composition(sb, val)  sb[0x19] = val
 #define get_WD_composition(sb) sb[0x19]
 #define WD_comp_LA 0
@@ -753,7 +748,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3091 - use 0x01 for b/w or 0x08 for gray/color
    *        3096 - use 0x01 for b/w or 0x08 for gray
    */
-  0x08,
 #define set_WD_bitsperpixel(sb, val) sb[0x1a] = val
 #define get_WD_bitsperpixel(sb)	sb[0x1a]
 
@@ -768,7 +762,6 @@ static unsigned char window_descriptor_blockC[] = {
    *              pattern number, three builtin and five downloadable
    *              supported; higher numbers = error.
    */
-  0x00, 0x00,
 #define set_WD_halftone(sb, val) putnbyte(sb + 0x1b, val, 2)
 #define get_WD_halftone(sb)	getnbyte(sb + 0x1b, 2)
 
@@ -778,7 +771,6 @@ static unsigned char window_descriptor_blockC[] = {
    *        3096: the same; bit 7 must be set for gray and not 
    *              set for b/w. 
    */
-  0x00,
 #define set_WD_rif(sb, val) setbitfield(sb + 0x1d, 1, 7, val)
 #define get_WD_rif(sb)	getbitfield(sb + 0x1d, 1, 7)
 
@@ -786,14 +778,12 @@ static unsigned char window_descriptor_blockC[] = {
    *        3091 not supported, use 0x00
    *        3096 not supported, use 0x00
    */
-  0x00, 0x00,			/* 0x1e *//* bit ordering */
 #define set_WD_bitorder(sb, val) putnbyte(sb + 0x1e, val, 2)
 #define get_WD_bitorder(sb)	getnbyte(sb + 0x1e, 2)
 
   /* 0x20 - compression type
    *          not supported on smaller models, use 0x00
    */
-  0x00,
 #define set_WD_compress_type(sb, val)  sb[0x20] = val
 #define get_WD_compress_type(sb) sb[0x20]
 #define WD_cmp_NONE 0
@@ -810,19 +800,16 @@ static unsigned char window_descriptor_blockC[] = {
    *          specify "k" parameter with MR compress,
    *          or with JPEG- Q param, 0-7
    */
-  0x00,
 #define set_WD_compress_arg(sb, val)  sb[0x21] = val
 #define get_WD_compress_arg(sb) sb[0x21]
 
   /* 0x22-0x27 - reserved */
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
   /* 0x28 - vendor unique id code, decides meaning of remaining bytes
    *        0xc1 = color mode (fi-series)
    *        0xc0 = weird mode (M3091 and M3092)
    *        0x00 = mono mode (other M-series and fi-series)
    */
-  0x00,
 #define set_WD_vendor_id_code(sb, val)  sb[0x28] = val
 #define get_WD_vendor_id_code(sb) sb[0x28]
 #define WD_VUID_MONO 0x00
@@ -830,7 +817,6 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_VUID_COLOR 0xc1
 
   /* 0x29 common gamma */
-  0x00,
 #define set_WD_gamma(sb, val)  sb[0x29] = val
 #define get_WD_gamma(sb) sb[0x29]
 #define WD_gamma_DEFAULT 0
@@ -840,8 +826,6 @@ static unsigned char window_descriptor_blockC[] = {
 
 /*==================================================================*/
   /* 0x2a-0x34 - vary based on vuid */
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00,
 
 /*==================================================================*/
 /* vuid 0x00, mono params */
@@ -964,9 +948,6 @@ static unsigned char window_descriptor_blockC[] = {
 
 /*==================================================================*/
   /* 0x35-0x3d - paper size common to all vuids */
-  0x00,
-  0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00,
 
 #define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
 #define WD_paper_SEL_UNDEFINED     0
@@ -980,7 +961,6 @@ static unsigned char window_descriptor_blockC[] = {
 
 /*==================================================================*/
   /* 0x3e-end - vary based on vuid */
-  0x00, 0x00
 
 /*==================================================================*/
 /* vuid 0xc0, 3091/2 - lots more params after 3f */
@@ -1004,10 +984,6 @@ static unsigned char window_descriptor_blockC[] = {
 #define WD_dtc_selection_SIMPLIFIED 2
 
 /*3f reserved*/
-};
-static scsiblk window_descriptor_blockB =
-  { window_descriptor_blockC, sizeof (window_descriptor_blockC) };
-#define max_WDB_size 0xc8
 
 /* ==================================================================== */
 

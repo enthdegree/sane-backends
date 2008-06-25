@@ -1,6 +1,17 @@
 /* sane - Scanner Access Now Easy.
 
-   This file is part of the SANE package.
+   This file is part of the SANE package, and implements a SANE backend
+   for various Fujitsu scanners.
+
+   Copyright (C) 2000 Randolph Bentson
+   Copyright (C) 2001 Frederik Ramm
+   Copyright (C) 2001-2004 Oliver Schirrmeister
+   Copyright (C) 2003-2008 M. Allan Noah
+
+   JPEG output support funded by Archivista GmbH, www.archivista.ch
+   Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
+
+   --------------------------------------------------------------------------
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -39,12 +50,6 @@
    If you do not wish that, delete this exception notice.
 
    --------------------------------------------------------------------------
-
-   This file implements a SANE backend for various Fujitsu scanners.
-   Currently supported:
-    - M309x (Frederik Ramm, Randolph Bentson, Oliver Schirrmeister)
-    - M409x (Oliver Schirrmeister)
-    - fi-series (M. Allan Noah, Oliver Schirrmeister)
 
    The source code is divided in sections which you can easily find by
    searching for the tag "@@".
@@ -321,6 +326,15 @@
 	 - improve handling of vendor unique section of set_window
 	 - add init_interlace to detect proper color mode without hardcoding
 	 - add ascii output to hexdump
+      v65 2008-06-24, MAN
+         - detect endorser type during init_inquiry()
+         - add endorser options
+	 - add send_endorser() and call from sane_control_option()
+	 - add endorser() and call from sane_start()
+	 - convert set_window() to use local cmd and payload copies
+	 - remove get_window()
+	 - mode_select_buff() now clears the buffer, and called in sane_close()
+	 - fi-4990 quirks added, including modified even_scan_line code
 
    SANE FLOW DIAGRAM
 
@@ -381,7 +395,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 64 
+#define BUILD 65 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -424,6 +438,15 @@ static const char string_Both[] = "Both";
 static const char string_10mm[] = "10mm";
 static const char string_15mm[] = "15mm";
 static const char string_20mm[] = "20mm";
+
+static const char string_Horizontal[] = "Horizontal";
+static const char string_HorizontalBold[] = "Horizontal bold";
+static const char string_HorizontalNarrow[] = "Horizontal narrow";
+static const char string_Vertical[] = "Vertical";
+static const char string_VerticalBold[] = "Vertical bold";
+
+static const char string_TopToBottom[] = "Top to bottom";
+static const char string_BottomToTop[] = "Bottom to top";
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -1116,8 +1139,8 @@ init_vpd (struct fujitsu *s)
           s->has_barcode = get_IN_barcode(buffer);
           DBG (15, "  barcode: %d\n", s->has_barcode);
 
-          s->has_imprinter = get_IN_imprinter(buffer);
-          DBG (15, "  imprinter: %d\n", s->has_imprinter);
+          s->has_endorser = get_IN_endorser(buffer);
+          DBG (15, "  endorser: %d\n", s->has_endorser);
 
           s->has_duplex = get_IN_duplex(buffer);
           s->has_back = s->has_duplex;
@@ -1222,16 +1245,16 @@ init_vpd (struct fujitsu *s)
 
           /* vendor added scsi command support */
           /* FIXME: there are more of these... */
-          s->has_cmd_subwindow = get_IN_has_subwindow(buffer);
+          s->has_cmd_subwindow = get_IN_has_cmd_subwindow(buffer);
           DBG (15, "  subwindow cmd: %d\n", s->has_cmd_subwindow);
 
-          s->has_cmd_endorser = get_IN_has_endorser(buffer);
+          s->has_cmd_endorser = get_IN_has_cmd_endorser(buffer);
           DBG (15, "  endorser cmd: %d\n", s->has_cmd_endorser);
 
-          s->has_cmd_hw_status = get_IN_has_hw_status (buffer);
+          s->has_cmd_hw_status = get_IN_has_cmd_hw_status (buffer);
           DBG (15, "  hardware status cmd: %d\n", s->has_cmd_hw_status);
 
-          s->has_cmd_scanner_ctl = get_IN_has_scanner_ctl(buffer);
+          s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(buffer);
           DBG (15, "  scanner control cmd: %d\n", s->has_cmd_scanner_ctl);
 
           /* get threshold, brightness and contrast ranges. */
@@ -1308,11 +1331,13 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
 
           /* FIXME: we dont store these? */
-          DBG (15, "  imprinter mech: %d\n", get_IN_imprinter_mechanical(buffer));
-          DBG (15, "  imprinter stamp: %d\n", get_IN_imprinter_stamp(buffer));
-          DBG (15, "  imprinter elec: %d\n", get_IN_imprinter_electrical(buffer));
-          DBG (15, "  imprinter max id: %d\n", get_IN_imprinter_max_id(buffer));
-          DBG (15, "  imprinter size: %d\n", get_IN_imprinter_size(buffer));
+          DBG (15, "  endorser mech: %d\n", get_IN_endorser_mechanical(buffer));
+          DBG (15, "  endorser stamp: %d\n", get_IN_endorser_stamp(buffer));
+          DBG (15, "  endorser elec: %d\n", get_IN_endorser_electrical(buffer));
+          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(buffer));
+
+          s->endorser_type = get_IN_endorser_type(buffer);
+          DBG (15, "  endorser type: %d\n", s->endorser_type);
 
           /*not all scanners go this far*/
           if (get_IN_page_length (buffer) > 0x5f) {
@@ -1341,6 +1366,20 @@ init_vpd (struct fujitsu *s)
     DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
     DBG (5, "init_vpd: with details of your scanner model.\n");
   }
+
+  /* get EVPD for fb?
+  set_IN_return_size (inquiryB.cmd, inLen);
+  set_IN_evpd (inquiryB.cmd, 1);
+  set_IN_page_code (inquiryB.cmd, 0xf1);
+
+  ret = do_cmd (
+    s, 1, 0,
+    inquiryB.cmd, inquiryB.size,
+    NULL, 0,
+    buffer, &inLen
+  );
+  if()
+  */
 
   DBG (10, "init_vpd: finish\n");
 
@@ -1589,6 +1628,20 @@ init_model (struct fujitsu *s)
     s->window_gamma = 0x80;
   }
 
+  /* endorser type tells string length (among other things) */
+  /*old-style is 40 bytes*/
+  if(s->endorser_type == ET_OLD){
+    s->endorser_string_len = 40;
+  }
+  /*short new style is 60 bytes*/
+  else if(s->endorser_type == ET_30){
+    s->endorser_string_len = 60;
+  }
+  /*long new style is 80 bytes*/
+  else if(s->endorser_type == ET_40){
+    s->endorser_string_len = 80;
+  }
+
   /* these two scanners lie about their capabilities,
    * and/or differ significantly from most other models */
   if (strstr (s->model_name, "M3091")
@@ -1637,6 +1690,17 @@ init_model (struct fujitsu *s)
     s->os_y_basic = 236;
   
   }
+
+  /* some firmware versions use capital f? */
+  else if (strstr (s->model_name, "Fi-4990")
+   || strstr (s->model_name, "fi-4990") ) {
+
+    /* weirdness */
+    s->even_scan_line = 1;
+    s->duplex_interlace = DUPLEX_INTERLACE_NONE;
+    s->color_interlace = COLOR_INTERLACE_RRGGBB;
+  }
+
   /* some firmware versions use capital f? */
   else if (strstr (s->model_name, "Fi-5900")
    || strstr (s->model_name, "fi-5900") ) {
@@ -1705,6 +1769,12 @@ init_user (struct fujitsu *s)
 
   /* gamma ramp exponent */
   s->gamma = 1;
+
+  /* safe endorser settings */
+  s->u_endorser_bits=16;
+  s->u_endorser_step=1;
+  s->u_endorser_dir=DIR_TTB;
+  strcpy((char *)s->u_endorser_string,"%05ud");
 
   DBG (10, "init_user: finish\n");
 
@@ -2698,6 +2768,185 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /* "Endorser" group ------------------------------------------------------ */
+  if(option==OPT_ENDORSER_GROUP){
+    opt->name = "endorser-options";
+    opt->title = "Endorser Options";
+    opt->desc = "Controls for endorser unit";
+    opt->type = SANE_TYPE_GROUP;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = 0;
+    opt->cap = 0;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  if(option==OPT_ENDORSER){
+    opt->name = "endorser";
+    opt->title = "Endorser";
+    opt->desc = "Enable endorser unit";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+
+    if (s->has_endorser)
+      opt->cap= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  if(option==OPT_ENDORSER_BITS){
+    opt->name = "endorser-bits";
+    opt->title = "Endorser bits";
+    opt->desc = "Determines maximum endorser counter value.";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+
+    /*old type cant do this?*/
+    if (s->has_endorser && s->endorser_type != ET_OLD && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->endorser_bits_range;
+
+    s->endorser_bits_range.min = 16;
+    s->endorser_bits_range.max = 24;
+    s->endorser_bits_range.quant = 8;
+  }
+
+  if(option==OPT_ENDORSER_VAL){
+    opt->name = "endorser-val";
+    opt->title = "Endorser value";
+    opt->desc = "Initial endorser counter value.";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->endorser_val_range;
+
+    s->endorser_val_range.min = 0;
+    s->endorser_val_range.max = (1 << s->u_endorser_bits)-1;
+    s->endorser_val_range.quant = 1;
+  }
+
+  if(option==OPT_ENDORSER_STEP){
+    opt->name = "endorser-step";
+    opt->title = "Endorser step";
+    opt->desc = "Change endorser counter value by this much for each page.";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = sizeof(SANE_Word);
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->endorser_step_range;
+
+    s->endorser_step_range.min = -2;
+    s->endorser_step_range.max = 2;
+    s->endorser_step_range.quant = 1;
+  }
+
+  if(option==OPT_ENDORSER_Y){
+    opt->name = "endorser-y";
+    opt->title = "Endorser Y";
+    opt->desc = "Endorser print offset from top of paper.";
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->size = sizeof(SANE_Word);
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &(s->endorser_y_range);
+
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->endorser_y_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
+    s->endorser_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
+    s->endorser_y_range.quant = MM_PER_UNIT_FIX;
+  }
+
+  if(option==OPT_ENDORSER_FONT){
+    opt->name = "endorser-font";
+    opt->title = "Endorser font";
+    opt->desc = "Endorser printing font.";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    /*only newest can do this?*/
+    if (s->has_endorser && s->endorser_type == ET_40 && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->endorser_font_list;
+
+    s->endorser_font_list[0] = string_Horizontal;
+    s->endorser_font_list[1] = string_HorizontalBold;
+    s->endorser_font_list[2] = string_HorizontalNarrow;
+    s->endorser_font_list[3] = string_Vertical;
+    s->endorser_font_list[4] = string_VerticalBold;
+    s->endorser_font_list[5] = NULL;
+
+    opt->size = maxStringSize (opt->constraint.string_list);
+  }
+
+  if(option==OPT_ENDORSER_DIR){
+    opt->name = "endorser-dir";
+    opt->title = "Endorser direction";
+    opt->desc = "Endorser printing direction.";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->endorser_dir_list;
+
+    s->endorser_dir_list[0] = string_TopToBottom;
+    s->endorser_dir_list[1] = string_BottomToTop;
+    s->endorser_dir_list[2] = NULL;
+
+    opt->size = maxStringSize (opt->constraint.string_list);
+  }
+
+  if(option==OPT_ENDORSER_STRING){
+    opt->name = "endorser-string";
+    opt->title = "Endorser string";
+    opt->desc = "Endorser alphanumeric print format. %05ud or %08ud at the end will be replaced by counter value.";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+    opt->size = s->endorser_string_len + 1;
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
   /* "Sensor" group ------------------------------------------------------ */
   if(option==OPT_SENSOR_GROUP){
     opt->name = SANE_NAME_SENSORS;
@@ -2869,7 +3118,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink running low";
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status && s->has_imprinter)
+    if (s->has_cmd_hw_status && s->has_endorser)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -2917,7 +3166,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink level";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status && s->has_imprinter)
+    if (s->has_cmd_hw_status && s->has_endorser)
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -3236,6 +3485,66 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_USE_SWAPFILE:
           *val_p = s->use_temp_file;
+          return SANE_STATUS_GOOD;
+
+        /* Endorser Group */
+        case OPT_ENDORSER:
+          *val_p = s->u_endorser;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_BITS:
+          *val_p = s->u_endorser_bits;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_VAL:
+          *val_p = s->u_endorser_val;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_STEP:
+          *val_p = s->u_endorser_step;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_Y:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->u_endorser_y);
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_FONT:
+          switch (s->u_endorser_font) {
+            case FONT_H:
+              strcpy (val, string_Horizontal);
+              break;
+            case FONT_HB:
+              strcpy (val, string_HorizontalBold);
+              break;
+            case FONT_HN:
+              strcpy (val, string_HorizontalNarrow);
+              break;
+            case FONT_V:
+              strcpy (val, string_Vertical);
+              break;
+            case FONT_VB:
+              strcpy (val, string_VerticalBold);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_DIR:
+          switch (s->u_endorser_dir) {
+            case DIR_TTB:
+              strcpy (val, string_TopToBottom);
+              break;
+            case DIR_BTT:
+              strcpy (val, string_BottomToTop);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_STRING:
+	  strncpy(
+	    (SANE_String)val,
+	    (SANE_String)s->u_endorser_string,
+	    s->endorser_string_len+1
+	  );
           return SANE_STATUS_GOOD;
 
         /* Sensor Group */
@@ -3604,10 +3913,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->buff_mode= MSEL_ON;
           else if (!strcmp(val, string_Off))
             s->buff_mode= MSEL_OFF;
-          if (s->has_MS_buff)
-            return mode_select_buff(s);
-          else
-            return SANE_STATUS_GOOD;
+          return mode_select_buff(s);
 
         case OPT_PREPICK:
           if (!strcmp(val, string_Default))
@@ -3655,6 +3961,63 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->use_temp_file = val_c;
           return SANE_STATUS_GOOD;
 
+        /* Endorser Group */
+        case OPT_ENDORSER:
+          s->u_endorser = val_c;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_BITS:
+          s->u_endorser_bits = val_c;
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_VAL:
+          s->u_endorser_val = val_c;
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_STEP:
+          s->u_endorser_step = val_c;
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_Y:
+          s->u_endorser_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_FONT:
+
+          if (!strcmp (val, string_Horizontal)){
+            s->u_endorser_font = FONT_H;
+          }
+          else if (!strcmp (val, string_HorizontalBold)){
+            s->u_endorser_font = FONT_HB;
+          }
+          else if (!strcmp (val, string_HorizontalNarrow)){
+            s->u_endorser_font = FONT_HN;
+          }
+          else if (!strcmp (val, string_Vertical)){
+            s->u_endorser_font = FONT_V;
+          }
+          else if (!strcmp (val, string_VerticalBold)){
+            s->u_endorser_font = FONT_VB;
+          }
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_DIR:
+          if (!strcmp (val, string_TopToBottom)){
+            s->u_endorser_dir = DIR_TTB;
+          }
+          else if (!strcmp (val, string_BottomToTop)){
+            s->u_endorser_dir = DIR_BTT;
+          }
+          return send_endorser(s);
+          
+        case OPT_ENDORSER_STRING:
+	  strncpy(
+	    (SANE_String)s->u_endorser_string,
+	    (SANE_String)val,
+	    s->endorser_string_len+1
+	  );
+          return send_endorser(s);
       }                       /* switch */
   }                           /* else */
 
@@ -3784,6 +4147,100 @@ get_hardware_status (struct fujitsu *s)
   return ret;
 }
 
+static SANE_Status
+send_endorser(struct fujitsu *s) 
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SEND_len];
+  size_t cmdLen = SEND_len;
+ 
+  size_t strLen = strlen(s->u_endorser_string);
+
+  unsigned char out[S_e_data_max_len]; /*we probably send less below*/
+  size_t outLen = S_e_data_min_len + strLen;
+
+  DBG (10, "send_endorser: start\n");
+
+  /*build the payload*/
+  memset(out,0,outLen);
+
+  set_S_endorser_data_id(out,0);
+  set_S_endorser_stamp(out,0);
+  set_S_endorser_elec(out,0);
+
+  if(s->u_endorser_step < 0){
+    set_S_endorser_decr(out,S_e_decr_dec);
+  }
+  else{
+    set_S_endorser_decr(out,S_e_decr_inc);
+  }
+
+  if(s->u_endorser_bits == 24){
+    set_S_endorser_lap24(out,S_e_lap_24bit);
+  }
+  else{
+    set_S_endorser_lap24(out,S_e_lap_16bit);
+  }
+
+  set_S_endorser_ctstep(out,abs(s->u_endorser_step));
+  set_S_endorser_ulx(out,0);
+  set_S_endorser_uly(out,s->u_endorser_y);
+
+  switch (s->u_endorser_font) {
+    case FONT_H:
+      set_S_endorser_font(out,S_e_font_horiz);
+      set_S_endorser_bold(out,0);
+      break;
+    case FONT_HB:
+      set_S_endorser_font(out,S_e_font_horiz);
+      set_S_endorser_bold(out,1);
+      break;
+    case FONT_HN:
+      set_S_endorser_font(out,S_e_font_horiz_narrow);
+      set_S_endorser_bold(out,0);
+      break;
+    case FONT_V:
+      set_S_endorser_font(out,S_e_font_vert);
+      set_S_endorser_bold(out,0);
+      break;
+    case FONT_VB:
+      set_S_endorser_font(out,S_e_font_vert);
+      set_S_endorser_bold(out,1);
+      break;
+  }
+
+  set_S_endorser_size(out,0);
+  set_S_endorser_revs(out,0);
+
+  if(s->u_endorser_dir == DIR_BTT){
+    set_S_endorser_dirs(out,S_e_dir_bottom_top);
+  }
+  else{
+    set_S_endorser_dirs(out,S_e_dir_top_bottom);
+  }
+
+  set_S_endorser_string_length(out, strLen);
+  set_S_endorser_string(out, s->u_endorser_string, strLen);
+
+  /*build the command*/
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_code);
+  set_S_xfer_datatype (cmd, S_datatype_endorser_data);
+  set_S_xfer_length (cmd, outLen);
+
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "send_endorser: finish %d\n", ret);
+
+  return ret;
+}
+
 /* instead of internal brightness/contrast/gamma
    most scanners use a 256x256 or 1024x256 LUT
    default is linear table of slope 1 or 1/4 resp.
@@ -3861,9 +4318,6 @@ send_lut (struct fujitsu *s)
     p++;
   }
 
-  hexdump(15,"LUT:",send_lutC+S_lut_data_offset,bytes);
- 
-  DBG (10,"send_lut: skipping\n");
   ret = do_cmd (
       s, 1, 0,
       sendB.cmd, sendB.size,
@@ -4010,13 +4464,19 @@ mode_select_dropout (struct fujitsu *s)
 static SANE_Status
 mode_select_buff (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "mode_select_buff: start\n");
+
+  if (!s->has_MS_buff){
+    DBG (10, "mode_select_buff: unsupported\n");
+    return SANE_STATUS_GOOD;
+  }
 
   set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
   set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_buff);
   set_MSEL_buff_mode(mode_select_8byteB.cmd, s->buff_mode);
+  set_MSEL_buff_clear(mode_select_8byteB.cmd, 3);
   
   ret = do_cmd (
       s, 1, 0,
@@ -4234,7 +4694,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             if(
               ((s->params.depth == 1 || s->params.format == SANE_FRAME_JPEG)
                 && s->params.pixels_per_line % 8)
-              || (s->even_scan_line && s->params.bytes_per_line % 2)
+              || (s->even_scan_line && s->params.bytes_per_line % 8)
             ){
 
                 /* dont round up larger than current max width */
@@ -4288,79 +4748,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   
     return ret;
 }
-
-#if 0
-/*
- * This routine issues a SCSI GET WINDOW command to the scanner
- */
-static SANE_Status
-get_window (struct fujitsu *s)
-{
-  unsigned char buffer[max_WDB_size];
-  size_t bufferLen;
-  SANE_Status ret = SANE_STATUS_GOOD;
-
-  DBG (10, "get_window: start\n");
-
-  /* The command specifies the number of bytes in the data phase 
-   * the data phase has a header, followed by 1 or 2 window desc blocks 
-   * the header specifies the number of bytes in 1 window desc block
-   */
-
-  bufferLen = max_WDB_size;
-
-  /* cmd has data phase byte count */
-  set_GW_xferlen(get_windowB.cmd,bufferLen);
-
-  ret = do_cmd (
-    s, 1, 0,
-    get_windowB.cmd, get_windowB.size,
-    NULL, 0,
-    buffer, &bufferLen
-  );
-
-  hexdump(10, "GW: <<", buffer, bufferLen);
-
-  DBG (10, "get_window: finish\n");
-
-  return ret;
-}
-
-static SANE_Status
-get_pixelsize(struct fujitsu *s, int * x, int * y, int * px, int * py)
-{
-    SANE_Status ret;
-    unsigned char buf[0x18];
-    size_t inLen = sizeof(buf);
-
-    DBG (10, "get_pixelsize: start\n");
-
-    set_R_datatype_code (readB.cmd, R_datatype_pixelsize);
-    set_R_window_id (readB.cmd, WD_wid_front);
-    if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-      set_R_window_id (readB.cmd, WD_wid_back);
-    }
-    set_R_xfer_length (readB.cmd, inLen);
-      
-    ret = do_cmd (
-      s, 1, 0,
-      readB.cmd, readB.size,
-      NULL, 0,
-      buf, &inLen
-    );
-
-    if(ret == SANE_STATUS_GOOD){
-      *x = get_PSIZE_num_x(buf);
-      *y = get_PSIZE_num_y(buf);
-      *px = get_PSIZE_paper_w(buf);
-      *py = get_PSIZE_paper_l(buf);
-      DBG (15, "get_pixelsize: x=%d, y=%d, px=%d, py=%d\n", *x, *y, *px, *py);
-    }
-
-    DBG (10, "get_pixelsize: finish\n");
-    return ret;
-}
-#endif
 
 /*
  * Called by SANE when a page acquisition operation is to be started.
@@ -4440,6 +4827,13 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
+      /* start/stop endorser */
+      ret = endorser(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot start/stop endorser\n");
+        return ret;
+      }
+    
       /* turn lamp on */
       ret = scanner_control(s, SC_function_lamp_on);
       if (ret != SANE_STATUS_GOOD) {
@@ -4499,6 +4893,65 @@ sane_start (SANE_Handle handle)
   ret = check_for_cancel(s);
 
   DBG (10, "sane_start: finish %d\n", ret);
+
+  return ret;
+}
+
+static SANE_Status
+endorser(struct fujitsu *s) 
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "endorser: start\n");
+
+  if (s->has_endorser) {
+
+    if(s->u_endorser_bits == 24){
+      set_E_xfer_length(endorserB.cmd,6);
+
+      set_ED_endorser_data_id(endorser_desc6B.cmd,0);
+      if(s->u_endorser){
+        set_ED_stop(endorser_desc6B.cmd,ED_start);
+      }
+      else{
+        set_ED_stop(endorser_desc6B.cmd,ED_stop);
+      }
+      set_ED_side(endorser_desc6B.cmd,ED_back);
+      set_ED_lap24(endorser_desc6B.cmd,ED_lap_24bit);
+      set_ED_initial_count_24(endorser_desc6B.cmd,s->u_endorser_val);
+
+      ret = do_cmd (
+        s, 1, 0,
+        endorserB.cmd, endorserB.size,
+        endorser_desc6B.cmd, endorser_desc6B.size,
+        NULL, NULL
+      );
+    }
+
+    else{
+      set_E_xfer_length(endorserB.cmd,4);
+
+      set_ED_endorser_data_id(endorser_desc4B.cmd,0);
+      if(s->u_endorser){
+        set_ED_stop(endorser_desc4B.cmd,ED_start);
+      }
+      else{
+        set_ED_stop(endorser_desc4B.cmd,ED_stop);
+      }
+      set_ED_side(endorser_desc4B.cmd,ED_back);
+      set_ED_lap24(endorser_desc4B.cmd,ED_lap_16bit);
+      set_ED_initial_count_16(endorser_desc4B.cmd,s->u_endorser_val);
+
+      ret = do_cmd (
+        s, 1, 0,
+        endorserB.cmd, endorserB.size,
+        endorser_desc4B.cmd, endorser_desc4B.size,
+        NULL, NULL
+      );
+    }
+  }
+
+  DBG (10, "endorser: finish %d\n", ret);
 
   return ret;
 }
@@ -4647,39 +5100,53 @@ setup_buffers (struct fujitsu *s)
 static SANE_Status
 set_window (struct fujitsu *s)
 {
-  unsigned char buffer[max_WDB_size];
-  int bufferLen;
-  int length = s->br_y - s->tl_y;
   SANE_Status ret = SANE_STATUS_GOOD;
-
-  DBG (10, "set_window: start\n");
 
   /* The command specifies the number of bytes in the data phase 
    * the data phase has a header, followed by 1 or 2 window desc blocks 
    * the header specifies the number of bytes in 1 window desc block
    */
 
+  unsigned char cmd[SET_WINDOW_len];
+  size_t cmdLen = SET_WINDOW_len;
+ 
+  /*this is max size, we might send less below*/
+  unsigned char out[SW_header_len + SW_desc_len + SW_desc_len];
+  size_t outLen = SW_header_len + SW_desc_len + SW_desc_len;
+
+  unsigned char * header = out;                              /*header*/
+  unsigned char * desc1 = out + SW_header_len;               /*1st desc*/
+  unsigned char * desc2 = out + SW_header_len + SW_desc_len; /*2nd desc*/
+
+  int length = s->br_y - s->tl_y;
+
+  DBG (10, "set_window: start\n");
+
+  /* actual output length shorter if not using duplex */
+  if (s->source != SOURCE_ADF_DUPLEX) {
+    outLen -= SW_desc_len;
+  }
+
+  /*build the payload*/
+  memset(out,0,outLen);
+
   /* set window desc size in header */
-  set_WPDB_wdblen(window_descriptor_headerB.cmd, window_descriptor_blockB.size);
-
-  /* copy header into local buffer */
-  memcpy(buffer, window_descriptor_headerB.cmd, window_descriptor_headerB.size);
-  bufferLen = window_descriptor_headerB.size;
-
-  if (s->source == SOURCE_ADF_BACK) {
-    set_WD_wid (window_descriptor_blockB.cmd, WD_wid_back);
-  }
-  else{
-    set_WD_wid (window_descriptor_blockB.cmd, WD_wid_front);
-  }
+  set_WPDB_wdblen(header, SW_desc_len);
 
   /* init the window block */
-  set_WD_Xres (window_descriptor_blockB.cmd, s->resolution_x);
-  set_WD_Yres (window_descriptor_blockB.cmd, s->resolution_y);
+  if (s->source == SOURCE_ADF_BACK) {
+    set_WD_wid (desc1, WD_wid_back);
+  }
+  else{
+    set_WD_wid (desc1, WD_wid_front);
+  }
 
-  set_WD_ULX (window_descriptor_blockB.cmd, s->tl_x);
-  set_WD_ULY (window_descriptor_blockB.cmd, s->tl_y);
-  set_WD_width (window_descriptor_blockB.cmd, s->br_x - s->tl_x);
+  set_WD_Xres (desc1, s->resolution_x);
+  set_WD_Yres (desc1, s->resolution_y);
+
+  set_WD_ULX (desc1, s->tl_x);
+  set_WD_ULY (desc1, s->tl_y);
+  set_WD_width (desc1, s->br_x - s->tl_x);
 
   /* stupid trick. 3091/2 require reading extra lines,
    * because they have a gap between R G and B */
@@ -4687,39 +5154,36 @@ set_window (struct fujitsu *s)
     length += (s->color_raster_offset+s->green_offset) * 1200/300 * 2;
     DBG(5,"set_window: Increasing length to %d\n",length);
   }
-  set_WD_length (window_descriptor_blockB.cmd, length);
+  set_WD_length (desc1, length);
 
-  set_WD_brightness (window_descriptor_blockB.cmd, 0);
+  set_WD_brightness (desc1, 0);
   if(s->brightness_steps){
     /*convert our common -127 to +127 range into HW's range
      *FIXME: this code assumes hardware range of 0-255 */
-
-    set_WD_brightness (window_descriptor_blockB.cmd, s->brightness+128);
+    set_WD_brightness (desc1, s->brightness+128);
   }
 
-  set_WD_threshold (window_descriptor_blockB.cmd, s->threshold);
+  set_WD_threshold (desc1, s->threshold);
 
-  set_WD_contrast (window_descriptor_blockB.cmd, 0);
+  set_WD_contrast (desc1, 0);
   if(s->contrast_steps){
     /*convert our common -127 to +127 range into HW's range
      *FIXME: this code assumes hardware range of 0-255 */
-
-    set_WD_contrast (window_descriptor_blockB.cmd, s->contrast+128);
+    set_WD_contrast (desc1, s->contrast+128);
   }
 
-  set_WD_composition (window_descriptor_blockB.cmd, s->mode);
+  set_WD_composition (desc1, s->mode);
 
-  set_WD_bitsperpixel (window_descriptor_blockB.cmd, s->params.depth);
+  set_WD_bitsperpixel (desc1, s->params.depth);
 
-  set_WD_rif (window_descriptor_blockB.cmd, s->rif);
+  set_WD_rif (desc1, s->rif);
 
-  set_WD_compress_type(window_descriptor_blockB.cmd, COMP_NONE);
-  set_WD_compress_arg(window_descriptor_blockB.cmd, 0);
-
+  set_WD_compress_type(desc1, COMP_NONE);
+  set_WD_compress_arg(desc1, 0);
   /* some scanners support jpeg image compression, for color/gs only */
   if(s->params.format == SANE_FRAME_JPEG){
-      set_WD_compress_type(window_descriptor_blockB.cmd, COMP_JPEG);
-      set_WD_compress_arg(window_descriptor_blockB.cmd, s->compress_arg);
+      set_WD_compress_type(desc1, COMP_JPEG);
+      set_WD_compress_arg(desc1, s->compress_arg);
   }
 
   /*the remainder of the block varies based on model and mode,
@@ -4727,24 +5191,21 @@ set_window (struct fujitsu *s)
 
   /*vuid c0*/
   if(s->has_vuid_3091){
-    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_3091);
+    set_WD_vendor_id_code (desc1, WD_VUID_3091);
 
-    if (s->mode == MODE_COLOR){
-      set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
-    }
-    else{
+    if (s->mode != MODE_COLOR){
       switch (s->dropout_color) {
         case COLOR_RED:
-          set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_RED);
+          set_WD_lamp_color (desc1, WD_LAMP_RED);
           break;
         case COLOR_GREEN:
-          set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_GREEN);
+          set_WD_lamp_color (desc1, WD_LAMP_GREEN);
           break;
         case COLOR_BLUE:
-          set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_BLUE);
+          set_WD_lamp_color (desc1, WD_LAMP_BLUE);
           break;
         default:
-          set_WD_lamp_color (window_descriptor_blockB.cmd, WD_LAMP_DEFAULT);
+          set_WD_lamp_color (desc1, WD_LAMP_DEFAULT);
           break;
       }
     }
@@ -4752,35 +5213,29 @@ set_window (struct fujitsu *s)
 
   /*vuid c1*/
   else if(s->mode == MODE_COLOR && s->has_vuid_color){
-    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_COLOR);
+    set_WD_vendor_id_code (desc1, WD_VUID_COLOR);
 
     if(s->color_interlace == COLOR_INTERLACE_RGB){
-      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_DOT);
-      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_RGB);
+      set_WD_scanning_order (desc1, WD_SCAN_ORDER_DOT);
+      set_WD_scanning_order_arg (desc1, WD_SCAN_ARG_RGB);
     }
     else if(s->color_interlace == COLOR_INTERLACE_BGR){
-      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_DOT);
-      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_BGR);
+      set_WD_scanning_order (desc1, WD_SCAN_ORDER_DOT);
+      set_WD_scanning_order_arg (desc1, WD_SCAN_ARG_BGR);
     }
     else if(s->color_interlace == COLOR_INTERLACE_RRGGBB){
-      set_WD_scanning_order (window_descriptor_blockB.cmd, WD_SCAN_ORDER_LINE);
-      set_WD_scanning_order_arg (window_descriptor_blockB.cmd, WD_SCAN_ARG_RGB);
+      set_WD_scanning_order (desc1, WD_SCAN_ORDER_LINE);
+      set_WD_scanning_order_arg (desc1, WD_SCAN_ARG_RGB);
     }
     else{
       DBG (5,"set_window: unknown color interlacing\n");
       return SANE_STATUS_INVAL;
     }
-
-    /* just in case? */
-    set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
   }
 
   /*vuid 00*/
   else if(s->has_vuid_mono){
-    set_WD_vendor_id_code (window_descriptor_blockB.cmd, WD_VUID_MONO);
-
-    /* just in case? */
-    set_WD_lamp_color (window_descriptor_blockB.cmd, 0);
+    set_WD_vendor_id_code (desc1, WD_VUID_MONO);
   }
 
   else{
@@ -4788,47 +5243,42 @@ set_window (struct fujitsu *s)
     return SANE_STATUS_INVAL;
   }
 
-  set_WD_gamma (window_descriptor_blockB.cmd, s->window_gamma);
+  set_WD_gamma (desc1, s->window_gamma);
 
   if(s->source == SOURCE_FLATBED){
-    set_WD_paper_selection(window_descriptor_blockB.cmd,WD_paper_SEL_UNDEFINED);
+    set_WD_paper_selection(desc1,WD_paper_SEL_UNDEFINED);
   }
   else{
-    set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_NON_STANDARD);
+    set_WD_paper_selection (desc1, WD_paper_SEL_NON_STANDARD);
 
     /* call helper function, scanner wants lies about paper width */
-    set_WD_paper_width_X (window_descriptor_blockB.cmd, get_page_width(s));
+    set_WD_paper_width_X (desc1, get_page_width(s));
 
     /* dont call helper function, scanner wants actual length?  */
-    set_WD_paper_length_Y (window_descriptor_blockB.cmd, s->page_height);
+    set_WD_paper_length_Y (desc1, s->page_height);
   }
 
-  /* copy first desc block into local buffer */
-  memcpy (buffer + bufferLen, window_descriptor_blockB.cmd, window_descriptor_blockB.size);
-  bufferLen += window_descriptor_blockB.size;
-
-  /* when in duplex mode, add a second window */
+  /* when in duplex mode, copy first desc block into second */
   if (s->source == SOURCE_ADF_DUPLEX) {
+      memcpy (desc2, desc1, SW_desc_len);
 
-      set_WD_wid (window_descriptor_blockB.cmd, WD_wid_back);
+      set_WD_wid (desc2, WD_wid_back);
 
       /* FIXME: do we really need these on back of page? */
-      set_WD_paper_selection (window_descriptor_blockB.cmd, WD_paper_SEL_UNDEFINED);
-      set_WD_paper_width_X (window_descriptor_blockB.cmd, 0);
-      set_WD_paper_length_Y (window_descriptor_blockB.cmd, 0);
-
-      /* copy second desc block into local buffer */
-      memcpy (buffer + bufferLen, window_descriptor_blockB.cmd, window_descriptor_blockB.size);
-      bufferLen += window_descriptor_blockB.size;
+      set_WD_paper_selection (desc2, WD_paper_SEL_UNDEFINED);
+      set_WD_paper_width_X (desc2, 0);
+      set_WD_paper_length_Y (desc2, 0);
   }
 
-  /* cmd has data phase byte count */
-  set_SW_xferlen(set_windowB.cmd,bufferLen);
+  /*build the command*/
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SET_WINDOW_code);
+  set_SW_xferlen(cmd, outLen);
 
   ret = do_cmd (
     s, 1, 0,
-    set_windowB.cmd, set_windowB.size,
-    buffer, bufferLen,
+    cmd, cmdLen,
+    out, outLen,
     NULL, NULL
   );
 
@@ -5706,6 +6156,8 @@ sane_close (SANE_Handle handle)
   struct fujitsu * s = (struct fujitsu *) handle;
 
   DBG (10, "sane_close: start\n");
+  /*clears any held scans*/
+  mode_select_buff(s);
   disconnect_fd(s);
   DBG (10, "sane_close: finish\n");
 }
@@ -5870,7 +6322,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         return SANE_STATUS_DEVICE_BUSY;
       }
       if (0x14 == ascq) {
-        DBG  (5, "Medium error: imprinter error\n");
+        DBG  (5, "Medium error: endorser error\n");
         return SANE_STATUS_IO_ERROR;
       }
       DBG  (5, "Medium error: unknown ascq\n");
@@ -5915,7 +6367,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         return SANE_STATUS_IO_ERROR;
       }
       if ((0x80 == asc) && (0x10 == ascq)) {
-        DBG  (5, "Hardware error: imprinter error\n");
+        DBG  (5, "Hardware error: endorser error\n");
         return SANE_STATUS_IO_ERROR;
       }
       DBG  (5, "Hardware error: unknown asc/ascq\n");

@@ -1,3 +1,8 @@
+2008-06-24  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
+	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:
+	  backend version 65, add endorser support, add quirks for fi-4990
+
 2008-06-24 Julien Blache <jb@jblache.org>
 	* backend/net.c: do not reload options behind the frontend's back
 	in sane_control_option; rather return SANE_STATUS_INVAL and warn

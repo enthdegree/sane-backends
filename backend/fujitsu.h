@@ -52,6 +52,16 @@ enum fujitsu_Option
   OPT_BLUE_OFFSET,
   OPT_USE_SWAPFILE,
 
+  OPT_ENDORSER_GROUP,
+  OPT_ENDORSER,
+  OPT_ENDORSER_BITS,
+  OPT_ENDORSER_VAL,
+  OPT_ENDORSER_STEP,
+  OPT_ENDORSER_Y,
+  OPT_ENDORSER_FONT,
+  OPT_ENDORSER_DIR,
+  OPT_ENDORSER_STRING,
+
   OPT_SENSOR_GROUP,
   OPT_TOP,
   OPT_A3,
@@ -149,7 +159,7 @@ struct fujitsu
   /* members in order found in scsi data...                                */
   int has_operator_panel;
   int has_barcode;
-  int has_imprinter;
+  int has_endorser;
   int has_duplex;
   int has_transparency;
   int has_flatbed;
@@ -224,7 +234,8 @@ struct fujitsu
   int has_comp_JPG2;
   int has_comp_JPG3;
 
-  /*FIXME: endorser data? */
+  /*FIXME: more endorser data? */
+  int endorser_type;
 
   /*FIXME: barcode data? */
 
@@ -264,6 +275,7 @@ struct fujitsu
   int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
   int ghs_in_rs;
   int window_gamma;
+  int endorser_string_len;
 
   int has_vuid_mono;    /* mono set window data */
   int has_vuid_3091;    /* 3091/2 set window data */
@@ -329,6 +341,14 @@ struct fujitsu
   SANE_Range green_offset_range;
   SANE_Range blue_offset_range;
 
+  /*endorser group*/
+  SANE_Range endorser_bits_range;
+  SANE_Range endorser_val_range;
+  SANE_Range endorser_step_range;
+  SANE_Range endorser_y_range;
+  SANE_String_Const endorser_font_list[6];
+  SANE_String_Const endorser_dir_list[3];
+
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
 
@@ -370,6 +390,16 @@ struct fujitsu
   int green_offset;
   int blue_offset;
   int use_temp_file;
+
+  /*endorser group*/
+  int u_endorser;
+  int u_endorser_bits;
+  int u_endorser_val;
+  int u_endorser_step;
+  int u_endorser_y;
+  int u_endorser_font;
+  int u_endorser_dir;
+  char u_endorser_string[81]; /*max length, plus null byte*/
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */
@@ -502,6 +532,20 @@ struct fujitsu
 #define DF_LENGTH 3
 #define DF_BOTH 4
 
+#define FONT_H  0
+#define FONT_HB 1
+#define FONT_HN 2
+#define FONT_V  3
+#define FONT_VB 4
+
+#define DIR_TTB 0
+#define DIR_BTT 1
+
+/* endorser type, same as scsi inquiry data */
+#define ET_OLD	0
+#define ET_30	1
+#define ET_40	2
+
 /* ------------------------------------------------------------------------- */
 
 #define MM_PER_INCH    25.4
@@ -624,6 +668,8 @@ int get_page_width (struct fujitsu *s);
 int get_page_height (struct fujitsu *s);
 
 static SANE_Status send_lut (struct fujitsu *s);
+static SANE_Status send_endorser (struct fujitsu *s);
+static SANE_Status endorser (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
 
 /*

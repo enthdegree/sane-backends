@@ -255,7 +255,7 @@ read_image_block (pixma_t * s, uint8_t * data, unsigned size)
       if (size >= MAX_CHUNK_SIZE)
 	chunksize = MAX_CHUNK_SIZE;
       else if (size < MIN_CHUNK_SIZE)
-	chunksize = MIN_CHUNK_SIZE;
+	chunksize = size;
       else
 	chunksize = size - (size % MIN_CHUNK_SIZE);
       error = pixma_read (s->io, data, chunksize);

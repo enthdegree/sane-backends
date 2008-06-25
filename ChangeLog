@@ -1,3 +1,8 @@
+2008-06-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_imageclass.c:
+	Patch from Sam Varshavchik to deal with libusb 64 read issue, 
+	for ImageClass MFPs.
+
 2008-06-24  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
 	  doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man:

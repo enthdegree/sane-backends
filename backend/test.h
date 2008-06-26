@@ -124,6 +124,7 @@ typedef struct Test_Device
   SANE_Device sane;
   SANE_Option_Descriptor opt[num_options];
   Option_Value val[num_options];
+  SANE_Bool loaded[num_options];
   SANE_Parameters params;
   SANE_String name;
   SANE_Pid reader_pid;

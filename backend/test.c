@@ -295,6 +295,8 @@ init_options (Test_Device * test_device)
   od->constraint.range = 0;
   test_device->val[opt_num_opts].w = num_options;
 
+  test_device->loaded[opt_num_opts] = 1;
+
   /* opt_mode_group */
   od = &test_device->opt[opt_mode_group];
   od->name = "";
@@ -1821,6 +1823,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       return 0;
     }
 
+  test_device->loaded[option] = 1;
+
   return &test_device->opt[option];
 }
 
@@ -1858,6 +1862,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
   if (option < 0 || option >= num_options)
     {
       DBG (1, "sane_control_option: option < 0 || option > num_options\n");
+      return SANE_STATUS_INVAL;
+    }
+
+  if (!test_device->loaded[option])
+    {
+      DBG (1, "sane_control_option: option not loaded\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -2297,12 +2307,22 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
       DBG (1, "sane_control_option: trying unexpected action %d\n", action);
       return SANE_STATUS_INVAL;
     }
+
   if (info)
     *info = myinfo;
+
+  if(myinfo & SANE_INFO_RELOAD_OPTIONS){
+    SANE_Int i = 0;
+    for(i=1;i<num_options;i++){
+      test_device->loaded[i] = 0;
+    }
+  }
+
   DBG (4, "sane_control_option: finished, info=%s %s %s \n",
        myinfo & SANE_INFO_INEXACT ? "inexact" : "",
        myinfo & SANE_INFO_RELOAD_PARAMS ? "reload_parameters" : "",
        myinfo & SANE_INFO_RELOAD_OPTIONS ? "reload_options" : "");
+
   return SANE_STATUS_GOOD;
 }
 

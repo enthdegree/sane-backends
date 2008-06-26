@@ -1,3 +1,6 @@
+2008-06-26  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/test.[ch]: check for options being controlled before loading
+
 2008-06-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c:
 	Patch from Sam Varshavchik to deal with libusb 64 read issue, 

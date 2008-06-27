@@ -471,7 +471,7 @@ static scsiblk endorser_desc6B = {endorser_desc6C, sizeof(endorser_desc6C) };
 #define set_ED_stop(sb, val) setbitfield(sb + 0x01, 1, 7, val)
 #define ED_start 0
 #define ED_stop 1
-/* specifies thes side of a document to be printed */
+/* specifies the side of a document to be printed */
 #define set_ED_side(sb, val) setbitfield(sb + 0x01, 1, 6, val)
 #define ED_front 0
 #define ED_back 1
@@ -572,6 +572,7 @@ static scsiblk mode_select_10byteB = {
 
 #define set_MSEL_df_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
 #define set_MSEL_df_continue(sb, val) setbitfield(sb + 6, 1, 6, val)
+#define set_MSEL_df_skew(sb, val) setbitfield(sb + 6, 1, 5, val)
 #define set_MSEL_df_thickness(sb, val) setbitfield(sb + 6, 1, 4, val)
 #define set_MSEL_df_length(sb, val) setbitfield(sb + 6, 1, 3, val)
 #define set_MSEL_df_diff(sb, val) setbitfield(sb + 6, 3, 0, val)

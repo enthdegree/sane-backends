@@ -1,4 +1,13 @@
 2008-06-26  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v66,
+	- restructure double feed detection options for finer-grained control
+	- add endorser side option
+	- prevent init_interlace() from overriding init_model()
+	- simplify sane_start() and fix interlaced duplex jpeg support
+	- simplify sane_read() and add non-interlaced duplex jpeg support
+	- removed unused code
+
+2008-06-26  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/test.[ch]: check for options being controlled before loading
 
 2008-06-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>

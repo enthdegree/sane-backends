@@ -39,7 +39,10 @@ enum fujitsu_Option
   OPT_ADVANCED_GROUP,
   OPT_COMPRESS,
   OPT_COMPRESS_ARG,
-  OPT_DF_DETECT,
+  OPT_DF_ACTION,
+  OPT_DF_SKEW,
+  OPT_DF_THICKNESS,
+  OPT_DF_LENGTH,
   OPT_DF_DIFF,
   OPT_BG_COLOR,
   OPT_DROPOUT_COLOR,
@@ -60,6 +63,7 @@ enum fujitsu_Option
   OPT_ENDORSER_Y,
   OPT_ENDORSER_FONT,
   OPT_ENDORSER_DIR,
+  OPT_ENDORSER_SIDE,
   OPT_ENDORSER_STRING,
 
   OPT_SENSOR_GROUP,
@@ -328,7 +332,7 @@ struct fujitsu
   /*advanced group*/
   SANE_String_Const compress_list[3];
   SANE_Range compress_arg_range;
-  SANE_String_Const df_detect_list[6];
+  SANE_String_Const df_action_list[4];
   SANE_String_Const df_diff_list[5];
   SANE_String_Const bg_color_list[4];
   SANE_String_Const do_color_list[5];
@@ -348,6 +352,7 @@ struct fujitsu
   SANE_Range endorser_y_range;
   SANE_String_Const endorser_font_list[6];
   SANE_String_Const endorser_dir_list[3];
+  SANE_String_Const endorser_side_list[3];
 
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
@@ -377,7 +382,10 @@ struct fujitsu
   /*advanced group*/
   int compress;
   int compress_arg;
-  int df_detect;
+  int df_action;
+  int df_skew;
+  int df_thickness;
+  int df_length;
   int df_diff;
   int bg_color;
   int dropout_color;
@@ -399,6 +407,7 @@ struct fujitsu
   int u_endorser_y;
   int u_endorser_font;
   int u_endorser_dir;
+  int u_endorser_side;
   char u_endorser_string[81]; /*max length, plus null byte*/
 
   /* --------------------------------------------------------------------- */
@@ -517,20 +526,19 @@ struct fujitsu
 #define COLOR_WHITE 1
 #define COLOR_BLACK 2
 
-#define COLOR_INTERLACE_RGB 0
-#define COLOR_INTERLACE_BGR 1
-#define COLOR_INTERLACE_RRGGBB 2
-#define COLOR_INTERLACE_3091 3
+#define COLOR_INTERLACE_UNK 0
+#define COLOR_INTERLACE_RGB 1
+#define COLOR_INTERLACE_BGR 2
+#define COLOR_INTERLACE_RRGGBB 3
+#define COLOR_INTERLACE_3091 4
 
 #define DUPLEX_INTERLACE_ALT 0 
 #define DUPLEX_INTERLACE_NONE 1 
 #define DUPLEX_INTERLACE_3091 2 
 
 #define DF_DEFAULT 0
-#define DF_NONE 1
-#define DF_THICKNESS 2
-#define DF_LENGTH 3
-#define DF_BOTH 4
+#define DF_CONTINUE 1
+#define DF_STOP 2
 
 #define FONT_H  0
 #define FONT_HB 1
@@ -671,11 +679,6 @@ static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status send_endorser (struct fujitsu *s);
 static SANE_Status endorser (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
-
-/*
-static SANE_Status get_window (struct fujitsu *s);
-static SANE_Status get_pixelsize (struct fujitsu *s, int*, int*, int*, int*);
-*/
 
 static SANE_Status start_scan (struct fujitsu *s);
 

@@ -335,6 +335,13 @@
 	 - remove get_window()
 	 - mode_select_buff() now clears the buffer, and called in sane_close()
 	 - fi-4990 quirks added, including modified even_scan_line code
+      v66 2008-06-26, MAN
+	 - restructure double feed detection options for finer-grained control
+	 - add endorser side option
+	 - prevent init_interlace() from overriding init_model()
+	 - simplify sane_start() and fix interlaced duplex jpeg support
+	 - simplify sane_read() and add non-interlaced duplex jpeg support
+	 - removed unused code
 
    SANE FLOW DIAGRAM
 
@@ -395,7 +402,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 65 
+#define BUILD 66 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -431,9 +438,8 @@ static const char string_Black[] = "Black";
 static const char string_None[] = "None";
 static const char string_JPEG[] = "JPEG";
 
-static const char string_Thickness[] = "Thickness";
-static const char string_Length[] = "Length";
-static const char string_Both[] = "Both";
+static const char string_Continue[] = "Continue";
+static const char string_Stop[] = "Stop";
 
 static const char string_10mm[] = "10mm";
 static const char string_15mm[] = "15mm";
@@ -447,6 +453,9 @@ static const char string_VerticalBold[] = "Vertical bold";
 
 static const char string_TopToBottom[] = "Top to bottom";
 static const char string_BottomToTop[] = "Bottom to top";
+
+static const char string_Front[] = "Front";
+static const char string_Back[] = "Back";
 
 /* Also set via config file. */
 static int global_buffer_size = 64 * 1024;
@@ -1773,6 +1782,7 @@ init_user (struct fujitsu *s)
   /* safe endorser settings */
   s->u_endorser_bits=16;
   s->u_endorser_step=1;
+  s->u_endorser_side=ED_back;
   s->u_endorser_dir=DIR_TTB;
   strcpy((char *)s->u_endorser_string,"%05ud");
 
@@ -1825,8 +1835,13 @@ init_interlace (struct fujitsu *s)
 
   DBG (10, "init_interlace: start\n");
 
+  if(s->color_interlace != COLOR_INTERLACE_UNK){
+    DBG (10, "init_interlace: already loaded\n");
+    return SANE_STATUS_GOOD;
+  }
+
   if(!s->has_vuid_color){
-    DBG (10, "init_interlace: unneeded\n");
+    DBG (10, "init_interlace: color unsupported\n");
     return SANE_STATUS_GOOD;
   }
 
@@ -2538,25 +2553,68 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   /*double feed detection*/
-  if(option==OPT_DF_DETECT){
-    s->df_detect_list[0] = string_Default;
-    s->df_detect_list[1] = string_None;
-    s->df_detect_list[2] = string_Thickness;
-    s->df_detect_list[3] = string_Length;
-    s->df_detect_list[4] = string_Both;
-    s->df_detect_list[5] = NULL;
+  if(option==OPT_DF_ACTION){
+    s->df_action_list[0] = string_Default;
+    s->df_action_list[1] = string_Continue;
+    s->df_action_list[2] = string_Stop;
+    s->df_action_list[3] = NULL;
   
-    opt->name = "dfdetect";
-    opt->title = "DF detection";
-    opt->desc = "Enable double feed sensors";
+    opt->name = "df-action";
+    opt->title = "DF action";
+    opt->desc = "Action following double feed error";
     opt->type = SANE_TYPE_STRING;
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
-    opt->constraint.string_list = s->df_detect_list;
+    opt->constraint.string_list = s->df_action_list;
     opt->size = maxStringSize (opt->constraint.string_list);
     if (s->has_MS_df)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
-      opt->cap = SANE_CAP_INACTIVE;
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed by skew*/
+  if(option==OPT_DF_SKEW){
+  
+    opt->name = "df-skew";
+    opt->title = "DF skew";
+    opt->desc = "Enable double feed error due to skew";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+    if (s->has_MS_df && s->df_action)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed by thickness */
+  if(option==OPT_DF_THICKNESS){
+  
+    opt->name = "df-thickness";
+    opt->title = "DF thickness";
+    opt->desc = "Enable double feed error due to paper thickness";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+    if (s->has_MS_df && s->df_action)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed by length*/
+  if(option==OPT_DF_LENGTH){
+  
+    opt->name = "df-length";
+    opt->title = "DF length";
+    opt->desc = "Enable double feed error due to paper length";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+    if (s->has_MS_df && s->df_action)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
   }
 
   /*double feed length difference*/
@@ -2567,17 +2625,17 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->df_diff_list[3] = string_20mm;
     s->df_diff_list[4] = NULL;
   
-    opt->name = "dfdiff";
+    opt->name = "df-diff";
     opt->title = "DF length difference";
-    opt->desc = "Difference in page length to trigger double feed sensor";
+    opt->desc = "Difference in page length to trigger double feed error";
     opt->type = SANE_TYPE_STRING;
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->df_diff_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if (s->has_MS_df)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    if (s->has_MS_df && s->df_action)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
-      opt->cap = SANE_CAP_INACTIVE;
+     opt->cap = SANE_CAP_INACTIVE;
   }
 
   /*background color*/
@@ -2927,6 +2985,28 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->endorser_dir_list[0] = string_TopToBottom;
     s->endorser_dir_list[1] = string_BottomToTop;
     s->endorser_dir_list[2] = NULL;
+
+    opt->size = maxStringSize (opt->constraint.string_list);
+  }
+
+  if(option==OPT_ENDORSER_SIDE){
+    opt->name = "endorser-side";
+    opt->title = "Endorser side";
+    opt->desc = "Endorser printing side, requires hardware support to change";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    if (s->has_endorser && s->u_endorser)
+      opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->endorser_side_list;
+
+    s->endorser_side_list[0] = string_Front;
+    s->endorser_side_list[1] = string_Back;
+    s->endorser_side_list[2] = NULL;
 
     opt->size = maxStringSize (opt->constraint.string_list);
   }
@@ -3357,24 +3437,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->compress_arg;
           return SANE_STATUS_GOOD;
 
-        case OPT_DF_DETECT:
-          switch (s->df_detect) {
+        case OPT_DF_ACTION:
+          switch (s->df_action) {
             case DF_DEFAULT:
               strcpy (val, string_Default);
               break;
-            case DF_NONE:
-              strcpy (val, string_None);
+            case DF_CONTINUE:
+              strcpy (val, string_Continue);
               break;
-            case DF_THICKNESS:
-              strcpy (val, string_Thickness);
-              break;
-            case DF_LENGTH:
-              strcpy (val, string_Length);
-              break;
-            case DF_BOTH:
-              strcpy (val, string_Both);
+            case DF_STOP:
+              strcpy (val, string_Stop);
               break;
           }
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_SKEW:
+          *val_p = s->df_skew;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_THICKNESS:
+          *val_p = s->df_thickness;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_LENGTH:
+          *val_p = s->df_length;
           return SANE_STATUS_GOOD;
 
         case OPT_DF_DIFF:
@@ -3535,6 +3621,17 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
               break;
             case DIR_BTT:
               strcpy (val, string_BottomToTop);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ENDORSER_SIDE:
+          switch (s->u_endorser_side) {
+            case ED_front:
+              strcpy (val, string_Front);
+              break;
+            case ED_back:
+              strcpy (val, string_Back);
               break;
           }
           return SANE_STATUS_GOOD;
@@ -3859,17 +3956,26 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->compress_arg = val_c;
           return SANE_STATUS_GOOD;
 
-        case OPT_DF_DETECT:
+        case OPT_DF_ACTION:
           if (!strcmp(val, string_Default))
-            s->df_detect = DF_DEFAULT;
-          else if (!strcmp(val, string_None))
-            s->df_detect = DF_NONE;
-          else if (!strcmp(val, string_Thickness))
-            s->df_detect = DF_THICKNESS;
-          else if (!strcmp(val, string_Length))
-            s->df_detect = DF_LENGTH;
-          else if (!strcmp(val, string_Both))
-            s->df_detect = DF_BOTH;
+            s->df_action = DF_DEFAULT;
+          else if (!strcmp(val, string_Continue))
+            s->df_action = DF_CONTINUE;
+          else if (!strcmp(val, string_Stop))
+            s->df_action = DF_STOP;
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return mode_select_df(s);
+
+        case OPT_DF_SKEW:
+          s->df_skew = val_c;
+          return mode_select_df(s);
+
+        case OPT_DF_THICKNESS:
+          s->df_thickness = val_c;
+          return mode_select_df(s);
+
+        case OPT_DF_LENGTH:
+          s->df_length = val_c;
           return mode_select_df(s);
 
         case OPT_DF_DIFF:
@@ -3971,9 +4077,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->u_endorser_bits = val_c;
           return send_endorser(s);
           
+	/*this val not used in send_endorser*/
         case OPT_ENDORSER_VAL:
           s->u_endorser_val = val_c;
-          return send_endorser(s);
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_STEP:
           s->u_endorser_step = val_c;
@@ -4010,6 +4117,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->u_endorser_dir = DIR_BTT;
           }
           return send_endorser(s);
+          
+	/*this val not used in send_endorser*/
+        case OPT_ENDORSER_SIDE:
+          if (!strcmp (val, string_Front)){
+            s->u_endorser_side = ED_front;
+          }
+          else if (!strcmp (val, string_Back)){
+            s->u_endorser_side = ED_back;
+          }
+          return SANE_STATUS_GOOD;
           
         case OPT_ENDORSER_STRING:
 	  strncpy(
@@ -4340,47 +4457,40 @@ mode_select_df (struct fujitsu *s)
   set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
   set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_df);
 
-  /* clear everything for defaults */
-  if(s->df_detect == DF_DEFAULT){
-    set_MSEL_df_enable (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
-  }
-  /* none, still have to enable */
-  else if(s->df_detect == DF_NONE){
+  /* clear everything initially (default) */
+  set_MSEL_df_enable (mode_select_8byteB.cmd, 0);
+  set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
+  set_MSEL_df_skew (mode_select_8byteB.cmd, 0);
+  set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
+  set_MSEL_df_length (mode_select_8byteB.cmd, 0);
+  set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
+
+  /* continue/stop */
+  if(s->df_action != DF_DEFAULT){
     set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_continue (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
-  }
-  /* thickness only */
-  else if(s->df_detect == DF_THICKNESS){
-    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_length (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
-  }
-  /* length only */
-  else if(s->df_detect == DF_LENGTH){
-    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_length (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
-  }
-  /* thickness and length */
-  else{
-    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
-    set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_length (mode_select_8byteB.cmd, 1);
-    set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
-  }
+
+    /* continue */
+    if(s->df_action == DF_CONTINUE){
+      set_MSEL_df_continue (mode_select_8byteB.cmd, 1);
+    }
   
+    /* skew */
+    if(s->df_skew){
+      set_MSEL_df_skew (mode_select_8byteB.cmd, 1);
+    }
+  
+    /* thickness */
+    if(s->df_thickness){
+      set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
+    }
+  
+    /* length */
+    if(s->df_length){
+      set_MSEL_df_length (mode_select_8byteB.cmd, 1);
+      set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
+    }
+  }
+
   ret = do_cmd (
       s, 1, 0,
       mode_selectB.cmd, mode_selectB.size,
@@ -4404,24 +4514,18 @@ mode_select_bg (struct fujitsu *s)
   set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_bg);
 
   /* clear everything for defaults */
-  if(s->bg_color == COLOR_DEFAULT){
-    set_MSEL_bg_enable (mode_select_8byteB.cmd, 0);
-    set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
-    set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
-    set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
-  }
-  else{
+  set_MSEL_bg_enable (mode_select_8byteB.cmd, 0);
+  set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
+  set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
+  set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
+
+  if(s->bg_color != COLOR_DEFAULT){
     set_MSEL_bg_enable (mode_select_8byteB.cmd, 1);
 
     if(s->bg_color == COLOR_BLACK){
       set_MSEL_bg_front (mode_select_8byteB.cmd, 1);
       set_MSEL_bg_back (mode_select_8byteB.cmd, 1);
       set_MSEL_bg_fb (mode_select_8byteB.cmd, 1);
-    }
-    else{
-      set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
-      set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
-      set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
     }
   }
   
@@ -4558,57 +4662,6 @@ mode_select_overscan (struct fujitsu *s)
  * device for which the parameters should be obtained and a pointer p
  * to a parameter structure.
  */
-#if 0
-
-  /* some scanners need even number of bytes per line */
-  /* increase scan width to even number of bytes */
-  /* but dont round up larger than scanners max width */
-  while(s->even_scan_line && s->params.bytes_per_line % 2) {
-
-    if(s->br_x == s->max_x){
-      dir = -1;
-    }
-    s->br_x += dir;
-    s->params.pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-
-    if (s->mode == MODE_COLOR) {
-      s->params.bytes_per_line = s->params.pixels_per_line * 3;
-    }
-    else if (s->mode == MODE_GRAYSCALE) {
-      s->params.bytes_per_line = s->params.pixels_per_line;
-    }
-    else if (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE) {
-      s->params.bytes_per_line = s->params.pixels_per_line / 8;
-    }
-  }
-#endif
-
-/* we should be able to do this instead of all the math, but 
- * this does not seem to work in duplex mode? */
-#if 0
-    int x=0,y=0,px=0,py=0;
-
-    /* call set window to send user settings to scanner */
-    ret = set_window(s);
-    if(ret){
-        DBG (5, "sane_get_parameters: error setting window\n");
-        return ret;
-    }
-
-    /* read scanner's modified version of x and y */
-    ret = get_pixelsize(s,&x,&y,&px,&py);
-    if(ret){
-        DBG (5, "sane_get_parameters: error reading size\n");
-        return ret;
-    }
-
-    /* update x data from scanner data */
-    s->params.pixels_per_line = x;
-
-    /* update y data from scanner data */
-    s->params.lines = y;
-#endif
-
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 {
@@ -4776,42 +4829,16 @@ sane_start (SANE_Handle handle)
       return SANE_STATUS_INVAL;
   }
 
-  /* set side marker at batch start */
+  /* batch start? inititalize struct and scanner */
   if(!s->started){
+
+      /* load side marker */
       if(s->source == SOURCE_ADF_BACK){
         s->side = SIDE_BACK;
       }
       else{
         s->side = SIDE_FRONT;
       }
-  }
-  /* if already running, duplex needs to switch sides */
-  else if(s->source == SOURCE_ADF_DUPLEX){
-      s->side = !s->side;
-  }
-
-  /* set clean defaults when starting any front, or just back */
-  /* dont reset the transfer vars on backside of duplex page */
-  /* otherwise buffered back page will be lost */
-  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
-
-      s->bytes_rx[0]=0;
-      s->bytes_rx[1]=0;
-      s->lines_rx[0]=0;
-      s->lines_rx[1]=0;
-
-      s->bytes_tx[0]=0;
-      s->bytes_tx[1]=0;
-
-      /* reset jpeg just in case... */
-      s->jpeg_stage = JPEG_STAGE_HEAD;
-      s->jpeg_ff_offset = 0;
-      s->jpeg_front_rst = 0;
-      s->jpeg_back_rst = 0;
-  }
-
-  /* first page of batch */
-  if(!s->started){
 
       /* load our own private copy of scan params */
       ret = sane_get_parameters ((SANE_Handle) s, &s->params);
@@ -4840,7 +4867,33 @@ sane_start (SANE_Handle handle)
         DBG (5, "sane_start: ERROR: cannot start lamp\n");
         return ret;
       }
-    
+  }
+  /* if already running, duplex needs to switch sides */
+  else if(s->source == SOURCE_ADF_DUPLEX){
+      s->side = !s->side;
+  }
+
+  /* set clean defaults with new sheet of paper */
+  /* dont reset the transfer vars on backside of duplex page */
+  /* otherwise buffered back page will be lost */
+  /* ingest paper with adf (no-op for fb) */
+  /* dont call object pos or scan on back side of duplex scan */
+  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
+
+      s->bytes_rx[0]=0;
+      s->bytes_rx[1]=0;
+      s->lines_rx[0]=0;
+      s->lines_rx[1]=0;
+
+      s->bytes_tx[0]=0;
+      s->bytes_tx[1]=0;
+
+      /* reset jpeg just in case... */
+      s->jpeg_stage = JPEG_STAGE_HEAD;
+      s->jpeg_ff_offset = 0;
+      s->jpeg_front_rst = 0;
+      s->jpeg_back_rst = 0;
+
       /* store the number of front bytes */ 
       if ( s->source != SOURCE_ADF_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->params.bytes_per_line * s->params.lines;
@@ -4857,20 +4910,18 @@ sane_start (SANE_Handle handle)
         s->bytes_tot[SIDE_BACK] = 0;
       }
 
-      /* make temp file/large buffer to hold the images */
-      ret = setup_buffers(s);
-      if (ret != SANE_STATUS_GOOD) {
-          DBG (5, "sane_start: ERROR: cannot load buffers\n");
-          return ret;
+      /* first page of batch */
+      /* make large buffer to hold the images */
+      /* and set started flag */
+      if(!s->started){
+          ret = setup_buffers(s);
+          if (ret != SANE_STATUS_GOOD) {
+              DBG (5, "sane_start: ERROR: cannot load buffers\n");
+              return ret;
+          }
+    
+          s->started=1;
       }
-
-      s->started=1;
-  }
-
-  /* ingest paper with adf (no-op for fb) */
-  /* dont call object pos or scan on back side of duplex scan */
-  if( s->source != SOURCE_ADF_DUPLEX
-   || (s->source == SOURCE_ADF_DUPLEX && s->side == SIDE_FRONT) ){
 
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
@@ -4916,7 +4967,8 @@ endorser(struct fujitsu *s)
       else{
         set_ED_stop(endorser_desc6B.cmd,ED_stop);
       }
-      set_ED_side(endorser_desc6B.cmd,ED_back);
+
+      set_ED_side(endorser_desc6B.cmd,s->u_endorser_side);
       set_ED_lap24(endorser_desc6B.cmd,ED_lap_24bit);
       set_ED_initial_count_24(endorser_desc6B.cmd,s->u_endorser_val);
 
@@ -4938,7 +4990,8 @@ endorser(struct fujitsu *s)
       else{
         set_ED_stop(endorser_desc4B.cmd,ED_stop);
       }
-      set_ED_side(endorser_desc4B.cmd,ED_back);
+
+      set_ED_side(endorser_desc6B.cmd,s->u_endorser_side);
       set_ED_lap24(endorser_desc4B.cmd,ED_lap_16bit);
       set_ED_initial_count_16(endorser_desc4B.cmd,s->u_endorser_val);
 
@@ -5048,45 +5101,6 @@ setup_buffers (struct fujitsu *s)
         }
       }
   }
-
-/*
-  if (s->use_temp_file) {
-
-#ifdef P_tmpdir
-    static const char *tmpdir = P_tmpdir;
-#else
-    static const char *tmpdir = "/tmp";
-#endif
-    char filename[PATH_MAX];
-    unsigned int suffix = time (NULL) % 256;
-    int try = 0;
-
-    while (try++ < 10) {
-
-      sprintf (filename, "%s%csane-fujitsu-%d-%d", tmpdir, PATH_SEP, getpid (), suffix + try);
-
-#if defined(_POSIX_SOURCE)
-      s->duplex_fd = open (filename, O_RDWR | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR);
-#else
-      s->duplex_fd = open (filename, O_RDWR | O_CREAT | O_EXCL);
-#endif
-
-      if (s->duplex_fd == -1) {
-        DBG (5, "setup_duplex_buffer: attempt to create '%s' returned %d.\n", filename, errno);
-      }
-      else{
-        DBG (15, "setup_duplex_buffer: file '%s' created.\n", filename);
-        unlink (filename);
-        break;
-      }
-    }
-
-    if (s->duplex_fd == -1) {
-      DBG (5, "setup_duplex_buffer: attempt to create tempfile failed.\n");
-      ret = SANE_STATUS_IO_ERROR;
-    }
-  }
-*/
 
   DBG (10, "setup_buffers: finish\n");
 
@@ -5436,80 +5450,78 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_EOF;
   }
 
-  /* jpeg (only color/gray) duplex: fixed interlacing */
-  if(s->source == SOURCE_ADF_DUPLEX && s->params.format == SANE_FRAME_JPEG){
-
-    /* read from front side if either side has remaining */
-    if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
-      || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
-
-        ret = read_from_JPEGduplex(s);
-        if(ret){
-          DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
-          return ret;
-        }
-    }
-  }
-
-  /* 3091/2 are on crack, get their own duplex reader function */
-  else if(s->source == SOURCE_ADF_DUPLEX
-    && s->duplex_interlace == DUPLEX_INTERLACE_3091
+  /* the weird duplex modes */
+  if(s->source == SOURCE_ADF_DUPLEX
+    && s->duplex_interlace != DUPLEX_INTERLACE_NONE
   ){
 
-    if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
-      || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
+    /* 3091/2 are on crack, get their own duplex reader function */
+    if(s->duplex_interlace == DUPLEX_INTERLACE_3091){
 
+      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
+        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]
+      ){
         ret = read_from_3091duplex(s);
         if(ret){
           DBG(5,"sane_read: 3091 returning %d\n",ret);
           return ret;
         }
-
-    }
-  }
-
-  /* 3093 cant alternate? */
-  else if(s->source == SOURCE_ADF_DUPLEX
-    && s->duplex_interlace == DUPLEX_INTERLACE_NONE
-  ){
-
-      if(s->bytes_tot[s->side] > s->bytes_rx[s->side] ){
-
-        ret = read_from_scanner(s, s->side);
-        if(ret){
-          DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
-          return ret;
-        }
-
       }
-  }
 
-  else{
-    /* buffer front side */
-    if( s->side == SIDE_FRONT){
-      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT] ){
+    } /* end 3091 */
 
-        ret = read_from_scanner(s, SIDE_FRONT);
-        if(ret){
-          DBG(5,"sane_read: front returning %d\n",ret);
-          return ret;
-        }
-
-      }
-    }
+    /* alternating jpeg interlacing */
+    else if(s->params.format == SANE_FRAME_JPEG){
   
-    /* buffer back side */
-    if( s->side == SIDE_BACK || s->source == SOURCE_ADF_DUPLEX ){
-      if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
-
-        ret = read_from_scanner(s, SIDE_BACK);
+      /* read from front side if either side has remaining */
+      if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
+        || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]
+      ){
+        ret = read_from_JPEGduplex(s);
         if(ret){
-          DBG(5,"sane_read: back returning %d\n",ret);
+          DBG(5,"sane_read: jpeg duplex returning %d\n",ret);
           return ret;
         }
+      }
 
+    } /* end alt jpeg */
+
+    /* alternating pnm interlacing, and anything else */
+    else {
+
+      /* buffer front side */
+      if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]){
+          ret = read_from_scanner(s, SIDE_FRONT);
+          if(ret){
+            DBG(5,"sane_read: front returning %d\n",ret);
+            return ret;
+          }
+      }
+    
+      /* buffer back side */
+      if(s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK] ){
+          ret = read_from_scanner(s, SIDE_BACK);
+          if(ret){
+            DBG(5,"sane_read: back returning %d\n",ret);
+            return ret;
+          }
+      }
+
+    } /* end alt pnm */
+
+  } /* end weird duplex */
+
+  /* simplex or non-alternating duplex */
+  else{
+
+    if(s->bytes_tot[s->side] > s->bytes_rx[s->side] ){
+      ret = read_from_scanner(s, s->side);
+      if(ret){
+        DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
+        return ret;
       }
     }
+
   }
 
   /* copy a block from buffer to frontend */

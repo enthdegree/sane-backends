@@ -4991,7 +4991,7 @@ endorser(struct fujitsu *s)
         set_ED_stop(endorser_desc4B.cmd,ED_stop);
       }
 
-      set_ED_side(endorser_desc6B.cmd,s->u_endorser_side);
+      set_ED_side(endorser_desc4B.cmd,s->u_endorser_side);
       set_ED_lap24(endorser_desc4B.cmd,ED_lap_16bit);
       set_ED_initial_count_16(endorser_desc4B.cmd,s->u_endorser_val);
 

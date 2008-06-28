@@ -1203,7 +1203,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX850", MX850_PID, 2400,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_EXPERIMENT),
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 3 CCD not managed as Generation 2 */
   DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,

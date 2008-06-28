@@ -1,3 +1,7 @@
+2008-06-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Removed "experimental" flag for PIXMA MX850.
+
 2008-06-26  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v66,
 	- restructure double feed detection options for finer-grained control

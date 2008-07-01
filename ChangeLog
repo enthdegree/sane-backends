@@ -1,3 +1,8 @@
+2008-07-01  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v67, 
+	- add IPC/DTC/SDTC options
+	- call check_for_cancel() in sane_cancel, unless reading flag is set
+
 2008-06-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
 	Removed "experimental" flag for PIXMA MX850.

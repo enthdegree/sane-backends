@@ -342,6 +342,9 @@
 	 - simplify sane_start() and fix interlaced duplex jpeg support
 	 - simplify sane_read() and add non-interlaced duplex jpeg support
 	 - removed unused code
+      v67 2008-06-30, MAN
+         - add IPC/DTC/SDTC options
+         - call check_for_cancel() in sane_cancel, unless s->reader flag is set
 
    SANE FLOW DIAGRAM
 
@@ -402,7 +405,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 66 
+#define BUILD 67 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -428,6 +431,10 @@ static const char string_Color[] = "Color";
 static const char string_Default[] = "Default";
 static const char string_On[] = "On";
 static const char string_Off[] = "Off";
+
+static const char string_DTC[] = "DTC";
+static const char string_SDTC[] = "SDTC";
+static const char string_Disable[] = "Disable";
 
 static const char string_Red[] = "Red";
 static const char string_Green[] = "Green";
@@ -1291,13 +1298,13 @@ init_vpd (struct fujitsu *s)
 
           /* ipc functions */
 	  s->has_rif = get_IN_ipc_bw_rif (buffer);
-          DBG (15, "  black and white rif: %d\n", s->has_rif);
+          DBG (15, "  RIF: %d\n", s->has_rif);
 
-          s->has_auto1 = get_IN_ipc_auto1(buffer);
-          DBG (15, "  automatic binary DTC: %d\n", s->has_auto1);
+          s->has_dtc = get_IN_ipc_dtc(buffer);
+          DBG (15, "  DTC (AutoI): %d\n", s->has_dtc);
 
-          s->has_auto2 = get_IN_ipc_auto2(buffer);
-          DBG (15, "  simplified DTC: %d\n", s->has_auto2);
+          s->has_sdtc = get_IN_ipc_sdtc(buffer);
+          DBG (15, "  SDTC (AutoII): %d\n", s->has_sdtc);
 
           s->has_outline = get_IN_ipc_outline_extraction (buffer);
           DBG (15, "  outline extraction: %d\n", s->has_outline);
@@ -1311,11 +1318,21 @@ init_vpd (struct fujitsu *s)
           s->has_mirroring = get_IN_ipc_mirroring (buffer);
           DBG (15, "  mirror image: %d\n", s->has_mirroring);
 
-          s->has_white_level_follow = get_IN_ipc_white_level_follow (buffer);
-          DBG (15, "  white level follower: %d\n", s->has_white_level_follow);
+          s->has_wl_follow = get_IN_ipc_wl_follow (buffer);
+          DBG (15, "  white level follower: %d\n", s->has_wl_follow);
 
+          /* byte 58 */
           s->has_subwindow = get_IN_ipc_subwindow (buffer);
           DBG (15, "  subwindow: %d\n", s->has_subwindow);
+
+          s->has_diffusion = get_IN_ipc_diffusion (buffer);
+          DBG (15, "  diffusion: %d\n", s->has_diffusion);
+
+          s->has_ipc3 = get_IN_ipc_ipc3 (buffer);
+          DBG (15, "  ipc3: %d\n", s->has_ipc3);
+
+          s->has_rotation = get_IN_ipc_rotation (buffer);
+          DBG (15, "  rotation: %d\n", s->has_rotation);
 
           /* compression modes */
           s->has_comp_MH = get_IN_compression_MH (buffer);
@@ -1785,6 +1802,11 @@ init_user (struct fujitsu *s)
   s->u_endorser_side=ED_back;
   s->u_endorser_dir=DIR_TTB;
   strcpy((char *)s->u_endorser_string,"%05ud");
+
+  /* inverted logic ipc settings */
+  s->noise_removal = 1;
+  s->bp_filter = 1;
+  s->smoothing = 1;
 
   DBG (10, "init_user: finish\n");
 
@@ -2484,7 +2506,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
   }
 
-  /*rif*/
+  /* =============== common ipc params ================================ */
   if(option==OPT_RIF){
     opt->name = "rif";
     opt->title = "RIF";
@@ -2492,6 +2514,302 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     if (s->has_rif)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_OUTLINE){
+    opt->name = "outline";
+    opt->title = "Outline";
+    opt->desc = "Perform outline extraction";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_outline)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_EMPHASIS){
+    opt->name = "emphasis";
+    opt->title = "Emphasis";
+    opt->desc = "Negative to smooth or positive to sharpen image";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->emphasis_range;
+    s->emphasis_range.min=-128;
+    s->emphasis_range.max=127;
+    s->emphasis_range.quant=1;
+
+    if (s->has_emphasis)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_SEPARATION){
+    opt->name = "separation";
+    opt->title = "Separation";
+    opt->desc = "Enable automatic separation of image and text";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_autosep)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_MIRRORING){
+    opt->name = "mirroring";
+    opt->title = "Mirroring";
+    opt->desc = "Reflect output image horizontally";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_mirroring)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_WL_FOLLOW){
+    i=0;
+    s->wl_follow_list[i++]=string_Default;
+    s->wl_follow_list[i++]=string_On;
+    s->wl_follow_list[i++]=string_Off;
+    s->wl_follow_list[i]=NULL;
+  
+    opt->name = "wl-follow";
+    opt->title = "White level follower";
+    opt->desc = "Control white level follower";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->wl_follow_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if (s->has_wl_follow)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_IPC_MODE){
+    i=0;
+    s->ipc_mode_list[i++]=string_Default;
+    if(s->has_dtc){
+      s->ipc_mode_list[i++]=string_DTC;
+    }
+    if(s->has_sdtc){
+      s->ipc_mode_list[i++]=string_SDTC;
+    }
+    s->ipc_mode_list[i]=NULL;
+  
+    opt->name = "ipc-mode";
+    opt->title = "IPC mode";
+    opt->desc = "Image processing mode, enables additional options";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->ipc_mode_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if ( i > 2 && (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE))
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* =============== DTC params ================================ */
+  /* enabled when in dtc mode (manually or by default) */
+  if(option==OPT_BP_FILTER){
+    opt->name = "bp-filter";
+    opt->title = "BP filter";
+    opt->desc = "Improves quality of high resolution ball-point pen text";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_SMOOTHING){
+    opt->name = "smoothing";
+    opt->title = "Smoothing";
+    opt->desc = "Enable smoothing for improved OCR";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_GAMMA_CURVE){
+    opt->name = "gamma-curve";
+    opt->title = "Gamma curve";
+    opt->desc = "Gamma curve";
+    opt->desc = "Gamma curve, from light to dark, but upper two may not work";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->gamma_curve_range;
+    s->gamma_curve_range.min=0;
+    s->gamma_curve_range.max=3;
+    s->gamma_curve_range.quant=1;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_THRESHOLD_CURVE){
+    opt->name = "threshold-curve";
+    opt->title = "Threshold curve";
+    opt->desc = "Threshold curve, from light to dark, but upper two may not be linear";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->threshold_curve_range;
+    s->threshold_curve_range.min=0;
+    s->threshold_curve_range.max=7;
+    s->threshold_curve_range.quant=1;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_THRESHOLD_WHITE){
+    opt->name = "threshold-white";
+    opt->title = "Threshold white";
+    opt->desc = "Set pixels equal to threshold to white instead of black";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_NOISE_REMOVAL){
+    opt->name = "noise-removal";
+    opt->title = "Noise removal";
+    opt->desc = "Noise removal";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_MATRIX_5){
+    opt->name = "matrix-5x5";
+    opt->title = "Matrix 5x5";
+    opt->desc = "Remove 5 pixel square noise";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( s->noise_removal && ( 
+         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    ))
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_MATRIX_4){
+    opt->name = "matrix-4x4";
+    opt->title = "Matrix 4x4";
+    opt->desc = "Remove 4 pixel square noise";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( s->noise_removal && ( 
+         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    ))
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_MATRIX_3){
+    opt->name = "matrix-3x3";
+    opt->title = "Matrix 3x3";
+    opt->desc = "Remove 3 pixel square noise";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( s->noise_removal && ( 
+         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    ))
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_MATRIX_2){
+    opt->name = "matrix-2x2";
+    opt->title = "Matrix 2x2";
+    opt->desc = "Remove 2 pixel square noise";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+
+    if ( s->noise_removal && ( 
+         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
+      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
+    ))
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* =============== SDTC param ================================ */
+  /* enabled when in sdtc mode (manually or by default) */
+  /* called variance with ipc2, sensitivity with ipc3 */
+  if(option==OPT_VARIANCE){
+    opt->name = "variance";
+    opt->title = "Variance";
+    opt->desc = "Set SDTC variance rate (sensitivity), 0=127";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->variance_range;
+    s->variance_range.min=0;
+    s->variance_range.max=255;
+    s->variance_range.quant=1;
+
+    if (s->has_sdtc && s->ipc_mode != WD_ipc_DTC)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -3351,9 +3669,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           else if(s->source == SOURCE_ADF_DUPLEX){
             strcpy (val, string_ADFDuplex);
           }
-          else{
-            DBG(5,"missing option val for source\n"); 
-          }
           return SANE_STATUS_GOOD;
 
         case OPT_MODE:
@@ -3419,8 +3734,95 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->threshold;
           return SANE_STATUS_GOOD;
 
+        /* IPC */
         case OPT_RIF:
           *val_p = s->rif;
+          return SANE_STATUS_GOOD;
+
+        case OPT_OUTLINE:
+          *val_p = s->outline;
+          return SANE_STATUS_GOOD;
+
+        case OPT_EMPHASIS:
+          *val_p = s->emphasis;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SEPARATION:
+          *val_p = s->separation;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MIRRORING:
+          *val_p = s->mirroring;
+          return SANE_STATUS_GOOD;
+
+        case OPT_WL_FOLLOW:
+          switch (s->wl_follow) {
+            case WD_wl_follow_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case WD_wl_follow_ON:
+              strcpy (val, string_On);
+              break;
+            case WD_wl_follow_OFF:
+              strcpy (val, string_Off);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_IPC_MODE:
+          if(s->ipc_mode == WD_ipc_DEFAULT){
+            strcpy (val, string_Default);
+          }
+          else if(s->ipc_mode == WD_ipc_DTC){
+            strcpy (val, string_DTC);
+          }
+          else if(s->ipc_mode == WD_ipc_SDTC){
+            strcpy (val, string_SDTC);
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_BP_FILTER:
+          *val_p = s->bp_filter;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SMOOTHING:
+          *val_p = s->smoothing;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA_CURVE:
+          *val_p = s->gamma_curve;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_CURVE:
+          *val_p = s->threshold_curve;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_WHITE:
+          *val_p = s->threshold_white;
+          return SANE_STATUS_GOOD;
+
+        case OPT_NOISE_REMOVAL:
+          *val_p = s->noise_removal;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_5:
+          *val_p = s->matrix_5;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_4:
+          *val_p = s->matrix_4;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_3:
+          *val_p = s->matrix_3;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_2:
+          *val_p = s->matrix_2;
+          return SANE_STATUS_GOOD;
+
+        case OPT_VARIANCE:
+          *val_p = s->variance;
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
@@ -3933,8 +4335,98 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->threshold = val_c;
           return SANE_STATUS_GOOD;
 
+        /* IPC */
         case OPT_RIF:
           s->rif = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_OUTLINE:
+          s->outline = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_EMPHASIS:
+          s->emphasis = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SEPARATION:
+          s->separation = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MIRRORING:
+          s->mirroring = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_WL_FOLLOW:
+          if (!strcmp(val, string_Default))
+            s->wl_follow = WD_wl_follow_DEFAULT;
+          else if (!strcmp(val, string_On))
+            s->wl_follow = WD_wl_follow_ON;
+          else if (!strcmp(val, string_Off))
+            s->wl_follow = WD_wl_follow_OFF;
+          return SANE_STATUS_GOOD;
+
+        case OPT_IPC_MODE:
+          if (!strcmp (val, string_Default)) {
+            tmp = WD_ipc_DEFAULT;
+          }
+          else if (!strcmp (val, string_DTC)) {
+            tmp = WD_ipc_DTC;
+          }
+          else {
+            tmp = WD_ipc_SDTC;
+          }
+
+          if (tmp != s->ipc_mode)
+            *info |= SANE_INFO_RELOAD_OPTIONS;
+
+          s->ipc_mode = tmp;
+          return SANE_STATUS_GOOD;
+
+        case OPT_BP_FILTER:
+          s->bp_filter = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_SMOOTHING:
+          s->smoothing = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA_CURVE:
+          s->gamma_curve = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_CURVE:
+          s->threshold_curve = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_WHITE:
+          s->threshold_white = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_NOISE_REMOVAL:
+          if (val_c != s->noise_removal)
+            *info |= SANE_INFO_RELOAD_OPTIONS;
+
+          s->noise_removal = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_5:
+          s->matrix_5 = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_4:
+          s->matrix_4 = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_3:
+          s->matrix_3 = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_MATRIX_2:
+          s->matrix_2 = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_VARIANCE:
+          s->variance = val_c;
           return SANE_STATUS_GOOD;
 
         /* Advanced Group */
@@ -4823,6 +5315,9 @@ sane_start (SANE_Handle handle)
   /* undo any prior sane_cancel calls */
   s->cancelled=0;
 
+  /* protect this block from sane_cancel */
+  s->reading=1;
+
   /* not finished with current side, error */
   if (s->started && s->bytes_tx[s->side] != s->bytes_tot[s->side]) {
       DBG(5,"sane_start: previous transfer not finished?");
@@ -4942,6 +5437,9 @@ sane_start (SANE_Handle handle)
 
   /* check if user cancelled during this start */
   ret = check_for_cancel(s);
+
+  /* unprotect this block from sane_cancel */
+  s->reading=0;
 
   DBG (10, "sane_start: finish %d\n", ret);
 
@@ -5206,6 +5704,7 @@ set_window (struct fujitsu *s)
   /*vuid c0*/
   if(s->has_vuid_3091){
     set_WD_vendor_id_code (desc1, WD_VUID_3091);
+    set_WD_gamma (desc1, s->window_gamma);
 
     if (s->mode != MODE_COLOR){
       switch (s->dropout_color) {
@@ -5223,11 +5722,13 @@ set_window (struct fujitsu *s)
           break;
       }
     }
+    /*set_WD_quality(desc1,s->quality);*/
   }
 
   /*vuid c1*/
   else if(s->mode == MODE_COLOR && s->has_vuid_color){
     set_WD_vendor_id_code (desc1, WD_VUID_COLOR);
+    set_WD_gamma (desc1, s->window_gamma);
 
     if(s->color_interlace == COLOR_INTERLACE_RGB){
       set_WD_scanning_order (desc1, WD_SCAN_ORDER_DOT);
@@ -5245,11 +5746,59 @@ set_window (struct fujitsu *s)
       DBG (5,"set_window: unknown color interlacing\n");
       return SANE_STATUS_INVAL;
     }
+
+    /*scanner emphasis ranges from 0 to 7f and smoothing from 80 to ff*/
+    /* but we expose them to user as a single linear range smooth->emphasis */
+    /* flip the smooth part over, and tack it onto the upper end of emphasis */
+    if(s->emphasis < 0)
+      set_WD_c1_emphasis(desc1,127-s->emphasis);
+    else
+      set_WD_c1_emphasis(desc1,s->emphasis);
+
+    set_WD_c1_mirroring(desc1,s->mirroring);
+
+    set_WD_wl_follow(desc1,s->wl_follow);
   }
 
   /*vuid 00*/
   else if(s->has_vuid_mono){
     set_WD_vendor_id_code (desc1, WD_VUID_MONO);
+    set_WD_gamma (desc1, s->window_gamma);
+
+    set_WD_outline(desc1,s->outline);
+
+    /*scanner emphasis ranges from 0 to 7f and smoothing from 80 to ff*/
+    /* but we expose them to user as a single linear range smooth->emphasis */
+    /* flip the smooth part over, and tack it onto the upper end of emphasis */
+    if(s->emphasis < 0)
+      set_WD_emphasis(desc1,127-s->emphasis);
+    else
+      set_WD_emphasis(desc1,s->emphasis);
+
+    set_WD_separation(desc1,s->separation);
+    set_WD_mirroring(desc1,s->mirroring);
+
+    if (s->has_sdtc && s->ipc_mode != WD_ipc_DTC)
+      set_WD_variance(desc1,s->variance);
+
+    if ((s->has_dtc && !s->has_sdtc) || s->ipc_mode == WD_ipc_DTC){
+      set_WD_filtering(desc1,!s->bp_filter);
+      set_WD_smoothing(desc1,!s->smoothing);
+      set_WD_gamma_curve(desc1,s->gamma_curve);
+      set_WD_threshold_curve(desc1,s->threshold_curve);
+      set_WD_noise_removal(desc1,!s->noise_removal);
+      if(s->noise_removal){
+        set_WD_matrix5x5(desc1,s->matrix_5);
+        set_WD_matrix4x4(desc1,s->matrix_4);
+        set_WD_matrix3x3(desc1,s->matrix_3);
+        set_WD_matrix2x2(desc1,s->matrix_2);
+      }
+      set_WD_background(desc1,s->threshold_white);
+    }
+
+    set_WD_wl_follow(desc1,s->wl_follow);
+    set_WD_subwindow_list(desc1,0);
+    set_WD_ipc_mode(desc1,s->ipc_mode);
   }
 
   else{
@@ -5257,8 +5806,7 @@ set_window (struct fujitsu *s)
     return SANE_STATUS_INVAL;
   }
 
-  set_WD_gamma (desc1, s->window_gamma);
-
+  /* common to all vuids */
   if(s->source == SOURCE_FLATBED){
     set_WD_paper_selection(desc1,WD_paper_SEL_UNDEFINED);
   }
@@ -5450,6 +5998,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       return SANE_STATUS_EOF;
   }
 
+  /* protect this block from sane_cancel */
+  s->reading = 1;
+
   /* the weird duplex modes */
   if(s->source == SOURCE_ADF_DUPLEX
     && s->duplex_interlace != DUPLEX_INTERLACE_NONE
@@ -5529,6 +6080,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* check if user cancelled during this read */
   ret = check_for_cancel(s);
+
+  /* unprotect this block from sane_cancel */
+  s->reading = 0;
 
   DBG (10, "sane_read: finish %d\n", ret);
   return ret;
@@ -6150,6 +6704,11 @@ sane_cancel (SANE_Handle handle)
 
   DBG (10, "sane_cancel: start\n");
   s->cancelled = 1;
+
+  /* if there is no other running function to check, we do it */
+  if(!s->reading)
+    check_for_cancel(s);
+
   DBG (10, "sane_cancel: finish\n");
 }
 

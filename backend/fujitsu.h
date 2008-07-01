@@ -34,7 +34,30 @@ enum fujitsu_Option
   OPT_CONTRAST,
   OPT_GAMMA,
   OPT_THRESHOLD,
+
+  /*IPC*/
   OPT_RIF,
+  OPT_OUTLINE,
+  OPT_EMPHASIS,
+  OPT_SEPARATION,
+  OPT_MIRRORING,
+  OPT_WL_FOLLOW,
+  OPT_IPC_MODE,
+
+  /*IPC/DTC*/
+  OPT_BP_FILTER,
+  OPT_SMOOTHING,
+  OPT_GAMMA_CURVE,
+  OPT_THRESHOLD_CURVE,
+  OPT_THRESHOLD_WHITE,
+  OPT_NOISE_REMOVAL,
+  OPT_MATRIX_5,
+  OPT_MATRIX_4,
+  OPT_MATRIX_3,
+  OPT_MATRIX_2,
+
+  /*IPC/SDTC*/
+  OPT_VARIANCE,
 
   OPT_ADVANCED_GROUP,
   OPT_COMPRESS,
@@ -221,14 +244,17 @@ struct fujitsu
   int num_download_dither;
 
   int has_rif;
-  int has_auto1;
-  int has_auto2;
+  int has_dtc;
+  int has_sdtc;
   int has_outline;
   int has_emphasis;
   int has_autosep;
   int has_mirroring;
-  int has_white_level_follow;
+  int has_wl_follow;
   int has_subwindow;
+  int has_diffusion;
+  int has_ipc3;
+  int has_rotation;
 
   int has_comp_MH;
   int has_comp_MR;
@@ -328,6 +354,12 @@ struct fujitsu
   SANE_Range threshold_range;
 
   /*ipc group*/
+  SANE_Range emphasis_range;
+  SANE_String_Const wl_follow_list[5];
+  SANE_String_Const ipc_mode_list[5];
+  SANE_Range gamma_curve_range;
+  SANE_Range threshold_curve_range;
+  SANE_Range variance_range;
 
   /*advanced group*/
   SANE_String_Const compress_list[3];
@@ -377,7 +409,30 @@ struct fujitsu
   int contrast;
   int gamma;
   int threshold;
+
+  /* ipc */
   int rif;
+  int outline;
+  int emphasis;
+  int separation;
+  int mirroring;
+  int wl_follow;
+  int ipc_mode;
+
+  /* ipc_mode=DTC */
+  int bp_filter;
+  int smoothing;
+  int gamma_curve;
+  int threshold_curve;
+  int threshold_white;
+  int noise_removal;
+  int matrix_5;
+  int matrix_4;
+  int matrix_3;
+  int matrix_2;
+
+  /* ipc_mode = SDTC */
+  int variance;
 
   /*advanced group*/
   int compress;
@@ -427,6 +482,7 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
+  int reading;
   int cancelled;
   int side;
 

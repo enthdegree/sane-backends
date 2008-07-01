@@ -310,17 +310,19 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_num_gamma_internal(in)      getbitfield(in+0x57, 15, 4)
 #define get_IN_num_gamma_download(in)      getbitfield(in+0x57, 15, 0)
 
-#define get_IN_ipc_bw_rif(in)          getbitfield(in+0x58, 1, 7)
-#define get_IN_ipc_auto1(in)               getbitfield(in+0x58, 1, 6)
-#define get_IN_ipc_auto2(in)               getbitfield(in+0x58, 1, 5)
+#define get_IN_ipc_bw_rif(in)              getbitfield(in+0x58, 1, 7)
+#define get_IN_ipc_dtc(in)                 getbitfield(in+0x58, 1, 6)
+#define get_IN_ipc_sdtc(in)                getbitfield(in+0x58, 1, 5)
 #define get_IN_ipc_outline_extraction(in)  getbitfield(in+0x58, 1, 4)
 #define get_IN_ipc_image_emphasis(in)      getbitfield(in+0x58, 1, 3)
 #define get_IN_ipc_auto_separation(in)     getbitfield(in+0x58, 1, 2)
 #define get_IN_ipc_mirroring(in)           getbitfield(in+0x58, 1, 1)
-#define get_IN_ipc_white_level_follow(in)  getbitfield(in+0x58, 1, 0)
+#define get_IN_ipc_wl_follow(in)           getbitfield(in+0x58, 1, 0)
 
 #define get_IN_ipc_subwindow(in)           getbitfield(in+0x59, 1, 7)
-#define get_IN_ipc_error_diffusion(in)     getbitfield(in+0x59, 1, 6)
+#define get_IN_ipc_diffusion(in)           getbitfield(in+0x59, 1, 6)
+#define get_IN_ipc_ipc3(in)                getbitfield(in+0x59, 1, 5)
+#define get_IN_ipc_rotation(in)            getbitfield(in+0x59, 1, 4)
 
 #define get_IN_compression_MH(in)          getbitfield(in+0x5a, 1, 7)
 #define get_IN_compression_MR(in)          getbitfield(in+0x5a, 1, 6)
@@ -826,73 +828,90 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 #define WD_gamma_SHARP   3
 
 /*==================================================================*/
-  /* 0x2a-0x34 - vary based on vuid */
+/* 0x2a-0x3F - vary based on vuid */
 
 /*==================================================================*/
 /* vuid 0x00, mono params */
 
-#define set_WD_outline(sb, val)  sb[0x2a] = val
-#define get_WD_outline(sb) sb[0x2a]
+#define set_WD_outline(sb, val)  setbitfield(sb + 0x2a, 1, 7, val)
+#define get_WD_outline(sb) getbitfield(sb + 0x2a, 1, 7)
 
 #define set_WD_emphasis(sb, val)  sb[0x2b] = val
 #define get_WD_emphasis(sb) sb[0x2b]
-#define WD_emphasis_NONE    0x00
-#define WD_emphasis_LOW     0x01
-#define WD_emphasis_MEDIUM  0x30
-#define WD_emphasis_HIGH    0x50
-#define WD_emphasis_SMOOTH  0x80
 
-#define set_WD_auto_sep(sb, val)  setbitfield(sb + 0x2c, 1, 7, val)
-#define get_WD_auto_sep(sb) getbitfield(sb + 0x2c, 1, 7)
+#define set_WD_separation(sb, val)  setbitfield(sb + 0x2c, 1, 7, val)
+#define get_WD_separation(sb) getbitfield(sb + 0x2c, 1, 7)
 
 #define set_WD_mirroring(sb, val)  setbitfield(sb + 0x2d, 1, 7, val)
 #define get_WD_mirroring(sb) getbitfield(sb + 0x2d, 1, 7)
 
-/*also called Auto-II mode?*/
-#define set_WD_var_rate_dyn_thresh(sb, val)  sb[0x2e] = val
-#define get_WD_var_rate_dyn_thresh(sb) sb[0x2e]
+/* SDTC also called Auto-II mode?*/
+#define set_WD_variance(sb, val)  sb[0x2e] = val
+#define get_WD_variance(sb) sb[0x2e]
 
-/*also called Auto-I mode?*/
-#define set_WD_dtc_threshold_curve(sb, val) setbitfield(sb + 0x2f, 7, 0, val)
-#define get_WD_dtc_threshold_curve(sb) getbitfield(sb + 0x2f, 7, 0)
-#define set_WD_gradation(sb, val) setbitfield(sb + 0x2f, 3, 3, val)
-#define get_WD_gradation(sb) getbitfield(sb + 0x2f, 3, 3)
-#define WD_gradation_ORDINARY 0
-#define WD_gradation_HIGH     2
-#define set_WD_smoothing_mode(sb, val) setbitfield(sb + 0x2f, 3, 5, val)
-#define get_WD_smoothing_mode(sb) getbitfield(sb + 0x2f, 3, 5)
-#define WD_smoothing_OCR    0
-#define WD_smoothing_IMAGE  1
+/* DTC also called Auto-I mode?*/
+/*warning: filtering uses inverse logic*/
 #define set_WD_filtering(sb, val) setbitfield(sb + 0x2f, 1, 7, val)
 #define get_WD_filtering(sb) getbitfield(sb + 0x2f, 1, 7)
-#define WD_filtering_BALLPOINT 0
-#define WD_filtering_ORDINARY  1
+
+/*warning: smoothing uses inverse logic*/
+#define set_WD_smoothing(sb, val) setbitfield(sb + 0x2f, 3, 5, val)
+#define get_WD_smoothing(sb) getbitfield(sb + 0x2f, 3, 5)
+
+#define set_WD_gamma_curve(sb, val) setbitfield(sb + 0x2f, 3, 3, val)
+#define get_WD_gamma_curve(sb) getbitfield(sb + 0x2f, 3, 3)
+
+#define set_WD_threshold_curve(sb, val) setbitfield(sb + 0x2f, 7, 0, val)
+#define get_WD_threshold_curve(sb) getbitfield(sb + 0x2f, 7, 0)
+
+/*warning: noise removal uses inverse logic*/
+#define set_WD_noise_removal(sb, val) setbitfield(sb + 0x30, 1, 5, !val)
+#define get_WD_noise_removal(sb) !getbitfield(sb + 0x30, 1, 5)
+
+#define set_WD_matrix5x5(sb, val) setbitfield(sb + 0x30, 1, 4, val)
+#define get_WD_matrix5x5(sb) getbitfield(sb + 0x30, 1, 4)
+#define set_WD_matrix4x4(sb, val) setbitfield(sb + 0x30, 1, 3, val)
+#define get_WD_matrix4x4(sb) getbitfield(sb + 0x30, 1, 3)
+#define set_WD_matrix3x3(sb, val) setbitfield(sb + 0x30, 1, 2, val)
+#define get_WD_matrix3x3(sb) getbitfield(sb + 0x30, 1, 2)
+#define set_WD_matrix2x2(sb, val) setbitfield(sb + 0x30, 1, 1, val)
+#define get_WD_matrix2x2(sb) getbitfield(sb + 0x30, 1, 1)
 
 #define set_WD_background(sb, val) setbitfield(sb + 0x30, 1, 0, val)
 #define get_WD_background(sb) getbitfield(sb + 0x30, 1, 0)
 #define WD_background_WHITE  0
 #define WD_background_BLACK  1
-#define set_WD_matrix2x2(sb, val) setbitfield(sb + 0x30, 1, 1, val)
-#define get_WD_matrix2x2(sb) getbitfield(sb + 0x30, 1, 1)
-#define set_WD_matrix3x3(sb, val) setbitfield(sb + 0x30, 1, 2, val)
-#define get_WD_matrix3x3(sb) getbitfield(sb + 0x30, 1, 2)
-#define set_WD_matrix4x4(sb, val) setbitfield(sb + 0x30, 1, 3, val)
-#define get_WD_matrix4x4(sb) getbitfield(sb + 0x30, 1, 3)
-#define set_WD_matrix5x5(sb, val) setbitfield(sb + 0x30, 1, 4, val)
-#define get_WD_matrix5x5(sb) getbitfield(sb + 0x30, 1, 4)
-#define set_WD_noise_removal(sb, val) setbitfield(sb + 0x30, 1, 5, !val)
-#define get_WD_noise_removal(sb) !getbitfield(sb + 0x30, 1, 5)
 
 /*31 reserved*/
 
-#define set_WD_white_level_follow(sb, val)  sb[0x32] = val
-#define get_WD_white_level_follow(sb) sb[0x32]
-#define WD_white_level_follow_DEFAULT  0x00
-#define WD_white_level_follow_ENABLED  0x80
-#define WD_white_level_follow_DISABLED 0xC0
+#define set_WD_wl_follow(sb, val) setbitfield(sb + 0x32, 3, 6, val)
+#define get_WD_wl_follow(sb) getbitfield(sb + 0x32, 3, 6)
+#define WD_wl_follow_DEFAULT  0
+#define WD_wl_follow_ON  2
+#define WD_wl_follow_OFF 3
 
 #define set_WD_subwindow_list(sb, val) putnbyte(sb + 0x33, val, 2)
 #define get_WD_subwindow_list(sb)	getnbyte(sb + 0x33, 2)
+
+/* 0x35-0x3d - paper size */
+#define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
+#define WD_paper_SEL_UNDEFINED     0
+#define WD_paper_SEL_NON_STANDARD  3
+
+#define set_WD_paper_width_X(sb, val) putnbyte(sb + 0x36, val, 4)
+#define get_WD_paper_width_X(sb)	getnbyte(sb + 0x36, 4)
+
+#define set_WD_paper_length_Y(sb, val) putnbyte(sb+0x3a, val, 4)
+#define get_WD_paper_length_Y(sb)	getnbyte(sb+0x3a, 4)
+
+/* 3e switch ipc mode */
+#define set_WD_ipc_mode(sb, val) setbitfield(sb + 0x3e, 3, 6, val)
+#define get_WD_ipc_mode(sb) getbitfield(sb + 0x3e, 3, 6)
+#define WD_ipc_DEFAULT  0
+#define WD_ipc_DTC      1
+#define WD_ipc_SDTC     2
+
+/*3f reserved*/
 
 /*==================================================================*/
 /* vuid 0xc1, color params */
@@ -922,9 +941,13 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 
 /*30-31 reserved*/
 
-/*32 reserved for wlf like vuid 00*/
+/*32 wlf (see vuid 00)*/
 
 /*33-34 reserved*/
+
+/*35-3d paper size (see vuid 00)*/
+
+/*3e-3f reserved*/
 
 /*==================================================================*/
 /* vuid 0xc0, 3091/2 params */
@@ -947,44 +970,11 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 
 /*33-34 reserved*/
 
-/*==================================================================*/
-  /* 0x35-0x3d - paper size common to all vuids */
-
-#define set_WD_paper_selection(sb, val) setbitfield(sb + 0x35, 3, 6, val)
-#define WD_paper_SEL_UNDEFINED     0
-#define WD_paper_SEL_NON_STANDARD  3
-
-#define set_WD_paper_width_X(sb, val) putnbyte(sb + 0x36, val, 4)
-#define get_WD_paper_width_X(sb)	getnbyte(sb + 0x36, 4)
-
-#define set_WD_paper_length_Y(sb, val) putnbyte(sb+0x3a, val, 4)
-#define get_WD_paper_length_Y(sb)	getnbyte(sb+0x3a, 4)
-
-/*==================================================================*/
-  /* 0x3e-end - vary based on vuid */
-
-/*==================================================================*/
-/* vuid 0xc0, 3091/2 - lots more params after 3f */
+/*35-3d paper size (see vuid 00)*/
 
 /*3e-3f reserved*/
 
 /*FIXME: more params here*/
-
-/*==================================================================*/
-/* vuid 0xc1, color params - no more */
-
-/*3e-3f reserved*/
-
-/*==================================================================*/
-/* vuid 0x00, mono params only 1 more byte */
-
-#define set_WD_dtc_selection(sb, val) setbitfield(sb + 0x3e, 3, 6, val)
-#define get_WD_dtc_selection(sb) getbitfield(sb + 0x3e, 3, 6)
-#define WD_dtc_selection_DEFAULT    0
-#define WD_dtc_selection_DYNAMIC    1
-#define WD_dtc_selection_SIMPLIFIED 2
-
-/*3f reserved*/
 
 /* ==================================================================== */
 

@@ -765,8 +765,14 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
    *              pattern number, three builtin and five downloadable
    *              supported; higher numbers = error.
    */
-#define set_WD_halftone(sb, val) putnbyte(sb + 0x1b, val, 2)
-#define get_WD_halftone(sb)	getnbyte(sb + 0x1b, 2)
+#define set_WD_ht_type(sb, val) sb[0x1b] = val
+#define get_WD_ht_type(sb)	sb[0x1b]
+#define WD_ht_type_DEFAULT 0
+#define WD_ht_type_DITHER 1
+#define WD_ht_type_DIFFUSION 2
+
+#define set_WD_ht_pattern(sb, val) sb[0x1c] = val
+#define get_WD_ht_pattern(sb)	   sb[0x1c]
 
   /* 0x1d - Reverse image, padding type
    *        3091: bit 7=1: reverse black&white

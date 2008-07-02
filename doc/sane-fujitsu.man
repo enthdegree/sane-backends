@@ -1,4 +1,4 @@
-.TH sane-fujitsu 5 "2008-06-24" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane-fujitsu 5 "2008-07-03" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane-fujitsu
 
 .SH NAME
@@ -10,71 +10,21 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes the rewritten backend, version 21 and greater.
+This document describes backend version 68, which shipped with SANE 1.1.0.
 
-The backend supports lineart, halftone, grayscale, and color
-scanning for most USB and SCSI scanners, depending on hardware capabilities.
-Most simple scanning related features are exposed.
-This version features at least basic support for many more models.
-See KNOWN ISSUES.
+.SH SUPPORTED HARDWARE
+This version has at least basic support for every model which speaks the 
+Fujitsu SCSI and SCSI-over-USB protocols, with many scanners having nearly 
+complete support. Specifically, the SCSI M309x and M409x series, the SCSI
+fi-series, most of the USB fi-series, and the USB ScanSnap S5xx scanners 
+are supported. Please see the list at www.sane-project.org for details.
 
-.SH HARDWARE SUPPORT
-The following scanners are thought to have at least basic scanning 
-capability, either because they have been tested with a prior
-version, or because documentation indicates they are compatible
-with a tested model.
-.PP
-.RS
-.ft CR
-.nf
-WORKGROUP SIZED SCANNERS:
---------------------------------------
-SCSI:        SCSI/USB:    USB:
------------- ------------ ------------
-M3091DC      fi-4120C     fi-5110C
-M3092DC      fi-4220C     fi-5110EOX
-SP-93GX      fi-4120C2    fi-5110EOX2
-             fi-4220C2    fi-5110EOXM
-             fi-5120C     S500
-             fi-5220C     S500M
-.fi
-.ft R
-.RE
-.P
-.PP
-.RS
-.ft CR
-.nf
-DEPARTMENTAL SIZED SCANNERS:
---------------------------------------
-SCSI:        SCSI/USB:
------------- ------------
-M3093GX/DG   fi-4340C
-M3096G/GX    fi-4530C
-M3097G+/DG   fi-5530C
-fi-4640S
-fi-4750C
-.fi
-.ft R
-.RE
-.P
-.PP
-.RS
-.ft CR
-.nf
-PRODUCTION SIZED SCANNERS:
---------------------------------------
-SCSI:        SCSI/USB:
------------- ------------
-M3099G/GH/GX fi-5650C
-M4097D       fi-5750C
-fi-4750L     fi-5900C
-fi-4860C
-M4099D
-.fi
-.ft R
-.RE
-.P
+This backend may support other Fujitsu scanners. The best
+way to determine level of support is to test the scanner directly,
+or to collect a trace of the windows driver in action.
+Please contact the author with test results, positive or negative.
+
+.SH UNSUPPORTED HARDWARE
 The following scanners are known NOT to work with this backend,
 either because they have a non-fujitsu chipset, or an unsupported
 interface type. Some of these scanners may be supported by another
@@ -83,39 +33,30 @@ backend.
 .RS
 .ft CR
 .nf
-UNSUPPORTED SCANNERS:
 --------------------------------------
 SCSI:        SERIAL:      USB:
 ------------ ------------ ------------
-ScanStation  M3093E/DE/EX fi-4110EOX2
+ScanStation  M3093E/DE/EX fi-4110EOX/2
 ScanPartner  M3096EX      fi-4010CU
-SP-Jr        M3097E+/DE
-SP-10/10C    M3099A/EH/EX 
-SP-15C/300C
+SP-Jr        M3097E+/DE   S300/S300M
+SP-10/10C    M3099A/EH/EX fi-60F
+SP-15C/300C               fi-5015C
 SP-600C/620C
 .fi
 .ft R
 .RE
 .P
-This backend may support scanners not listed here. The best
-way to determine level of support is to test the scanner directly.
-Fujitsu equipment has historically been good enough to not be 
-damaged by incorrect commands if the scanner is incompatible.
-Please contact the author with test results, positive or negative.
 
 .SH OPTIONS
-A modest effort has been made to expose the standard options to the API.
-This allows a frontend to set scanning region, resolution, bit-depth,
-color mode, and enable the automatic document feeder. The fujitsu backend
-supports the following basic options for most scanners:
+Effort has been made to expose all hardware options, including:
 .PP
-source s
+source s 
 .RS
 Selects the source for the scan. Options
 may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
 .RE
 .PP
-mode m
+mode m 
 .RS
 Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
@@ -139,10 +80,14 @@ Sets paper size. Used by scanner to determine centering of scan
 coordinates when using ADF and to detect double feed errors.
 .RE
 .PP
-Other options will be available based on the capabilities of the scanner.
-Use 'scanimage --help' to get a list. Be aware that some options may
+Other options will be available based on the capabilities of the scanner:
+machines with IPC or DTC will have additional enhancement options, those
+with CMP will have compression options, those with endorser will have a
+group of imprinter options.
+
+Use 'scanimage --help' to get a list, but be aware that some options may 
 appear only when another option has been set, and that advanced options 
-may be hidden by the frontend.
+may be hidden by some frontend programs.
 .PP
 .SH CONFIGURATION FILE
 The configuration file "fujitsu.conf" is used to tell the backend how to look
@@ -214,36 +159,14 @@ enables debugging output to stderr. Valid values are:
 35 Useless noise
 .RE
 
-.SH OLDER VERSIONS
-Backend versions prior to this were numbered with a two part version,
-or with no version number at all. At the time this version was written,
-all older versions were retroactively renumbered, 1.0.2 - 1.0.20.
-.PP
-The current backend may have lost support for some feature you were using.
-The last of the "old" backends, 1.0.20, is still available as source from:
-.PP
-http://www.thebility.com/fujitsu/
-.PP
-If you find that you need to use the older version, please contact the
-author, to try and get those features restored to a later version.
-
 .SH KNOWN ISSUES
-.PP
-.RS
-All IPC, imprinter options are disabled.
-.br
-.br
-Most scanner specific 'quirks' are not accounted for, making it possible
+- Some scanner specific 'quirks' are not accounted for, making it possible
 to set some options in ways that the scanner does not support.
 .br
-.br
-Some flatbed options are affected by adf settings.
-.br
-.br
-Any model that does not support VPD during inquiry will not function.
-.RE
+- Any model that does not support VPD during inquiry will not function until 
+an override is added to the backend.
 
-.SH HISTORY
+.SH CREDITS
 m3091 backend: Frederik Ramm <frederik a t remote d o t org>
 .br
 m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
@@ -278,7 +201,8 @@ sane(7),
 sane-scsi(5),
 sane-usb(5),
 sane-sp15c(5),
-sane-avision(5)
+sane-avision(5),
+sane-epjitsu(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

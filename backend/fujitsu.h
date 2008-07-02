@@ -37,6 +37,8 @@ enum fujitsu_Option
 
   /*IPC*/
   OPT_RIF,
+  OPT_HT_TYPE,
+  OPT_HT_PATTERN,
   OPT_OUTLINE,
   OPT_EMPHASIS,
   OPT_SEPARATION,
@@ -354,9 +356,11 @@ struct fujitsu
   SANE_Range threshold_range;
 
   /*ipc group*/
+  SANE_String_Const ht_type_list[4];
+  SANE_Range ht_pattern_range;
   SANE_Range emphasis_range;
-  SANE_String_Const wl_follow_list[5];
-  SANE_String_Const ipc_mode_list[5];
+  SANE_String_Const wl_follow_list[4];
+  SANE_String_Const ipc_mode_list[4];
   SANE_Range gamma_curve_range;
   SANE_Range threshold_curve_range;
   SANE_Range variance_range;
@@ -412,6 +416,8 @@ struct fujitsu
 
   /* ipc */
   int rif;
+  int ht_type;
+  int ht_pattern;
   int outline;
   int emphasis;
   int separation;

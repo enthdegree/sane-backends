@@ -342,9 +342,12 @@
 	 - simplify sane_start() and fix interlaced duplex jpeg support
 	 - simplify sane_read() and add non-interlaced duplex jpeg support
 	 - removed unused code
-      v67 2008-06-30, MAN
+      v67 2008-07-01, MAN
          - add IPC/DTC/SDTC options
          - call check_for_cancel() in sane_cancel, unless s->reader flag is set
+      v68 2008-07-02, MAN
+	 - add halftone type and pattern options
+         - support M3097G with IPC and CMP options via modified VPD response
 
    SANE FLOW DIAGRAM
 
@@ -405,7 +408,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 67 
+#define BUILD 68 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -434,7 +437,9 @@ static const char string_Off[] = "Off";
 
 static const char string_DTC[] = "DTC";
 static const char string_SDTC[] = "SDTC";
-static const char string_Disable[] = "Disable";
+
+static const char string_Dither[] = "Dither";
+static const char string_Diffusion[] = "Diffusion";
 
 static const char string_Red[] = "Red";
 static const char string_Green[] = "Green";
@@ -1017,22 +1022,46 @@ init_vpd (struct fujitsu *s)
       set_IN_page_length(buffer,0x5f);
   }
 
-  /* some versions of 3097 have short vpd, fill in missing part */
-  /* FIXME: do we need another block for devices with IPC? */
+  /* M3097G has short vpd, fill in missing part */
   else if (strstr (s->model_name, "M3097G")
     && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
     && get_IN_page_length (buffer) == 0x19){
       unsigned char vpd3097g[] = {
 0, 0,
-0xc2, 0x08, 0, 0, 0, 0, 0, 0, 0xed, 0xbf, 0, 1, 0, 0, 0, 0,
+0xc2, 0x08, 0, 0, 0, 0, 0, 0, 0xed, 0xbf, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-0, 0, 0xff, 0xff, 0xff, 0, 0x45, 0x35, 0x40, 0xe0, 0, 0, 0, 0, 0, 0,
+0, 0, 0xff, 0xff, 0xff, 0, 0x45, 0x35, 0, 0xe0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0
       };
       DBG (5, "init_vpd: M3097G repair\n");
       set_IN_page_length(buffer,0x5f);
-      memcpy(buffer+0x19+5,vpd3097g,sizeof(vpd3097g));
+      memcpy(buffer+0x1e,vpd3097g,sizeof(vpd3097g));
+
+      /*IPC*/
+      if(strstr (s->model_name, "i")){
+         DBG (5, "init_vpd: M3097G IPC repair\n");
+
+	 /*subwin cmd*/
+	 buffer[0x2b] = 1;
+
+	 /*rif/dtc/sdtc/outline/emph/sep/mirr/wlf*/
+	 buffer[0x58] = 0xff;
+
+	 /*subwin/diffusion*/
+	 buffer[0x59] = 0xc0;
+      }
+
+      /*CMP*/
+      if(strstr (s->model_name, "m")){
+         DBG (5, "init_vpd: M3097G CMP repair\n");
+
+	 /*4megs*/
+	 buffer[0x23] = 0x40;
+
+	 /*mh/mr/mmr*/
+	 buffer[0x5a] = 0xe0;
+      }
   }
 
   DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
@@ -2519,6 +2548,48 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  if(option==OPT_HT_TYPE){
+    i=0;
+    s->ht_type_list[i++]=string_Default;
+    s->ht_type_list[i++]=string_Dither;
+    s->ht_type_list[i++]=string_Diffusion;
+    s->ht_type_list[i]=NULL;
+  
+    opt->name = "ht-type";
+    opt->title = "Halftone type";
+    opt->desc = "Control type of halftone filter";
+    opt->type = SANE_TYPE_STRING;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->ht_type_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if(s->has_diffusion && s->mode == MODE_HALFTONE )
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_HT_PATTERN){
+    opt->name = "ht-pattern";
+    opt->title = "Halftone pattern";
+    opt->desc = "Control pattern of halftone filter";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->ht_pattern_range;
+    s->ht_pattern_range.min=0;
+    s->ht_pattern_range.max=s->num_internal_dither - 1;
+    s->ht_pattern_range.quant=1;
+
+    if (s->num_internal_dither && s->mode == MODE_HALFTONE)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   if(option==OPT_OUTLINE){
     opt->name = "outline";
     opt->title = "Outline";
@@ -3739,6 +3810,24 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->rif;
           return SANE_STATUS_GOOD;
 
+        case OPT_HT_TYPE:
+          switch (s->ht_type) {
+            case WD_ht_type_DEFAULT:
+              strcpy (val, string_Default);
+              break;
+            case WD_ht_type_DITHER:
+              strcpy (val, string_Dither);
+              break;
+            case WD_ht_type_DIFFUSION:
+              strcpy (val, string_Diffusion);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_HT_PATTERN:
+          *val_p = s->ht_pattern;
+          return SANE_STATUS_GOOD;
+
         case OPT_OUTLINE:
           *val_p = s->outline;
           return SANE_STATUS_GOOD;
@@ -4338,6 +4427,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         /* IPC */
         case OPT_RIF:
           s->rif = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_HT_TYPE:
+          if (!strcmp(val, string_Default))
+            s->ht_type = WD_ht_type_DEFAULT;
+          else if (!strcmp(val, string_Dither))
+            s->ht_type = WD_ht_type_DITHER;
+          else if (!strcmp(val, string_Diffusion))
+            s->ht_type = WD_ht_type_DIFFUSION;
+          return SANE_STATUS_GOOD;
+
+        case OPT_HT_PATTERN:
+          s->ht_pattern = val_c;
           return SANE_STATUS_GOOD;
 
         case OPT_OUTLINE:
@@ -5687,6 +5789,11 @@ set_window (struct fujitsu *s)
   set_WD_composition (desc1, s->mode);
 
   set_WD_bitsperpixel (desc1, s->params.depth);
+
+  if(s->mode == MODE_HALFTONE){
+    set_WD_ht_type(desc1, s->ht_type);
+    set_WD_ht_pattern(desc1, s->ht_pattern);
+  }
 
   set_WD_rif (desc1, s->rif);
 

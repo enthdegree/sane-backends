@@ -1,3 +1,13 @@
+2008-07-03  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v69, support hot-unplugging scanners
+
+2008-07-02  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v68, 
+	- add halftone type and pattern options
+	- support M3097G with IPC and CMP options via modified VPD response
+	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: backend v68,
+	- manpage cleanup
+
 2008-07-01  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v67, 
 	- add IPC/DTC/SDTC options

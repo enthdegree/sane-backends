@@ -123,6 +123,7 @@ struct fujitsu
   /* immutable values which are set during init of scanner.                */
   struct fujitsu *next;
   char device_name[1024];             /* The name of the device from sanei */
+  int missing; 				/* used to mark unplugged scanners */
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during reading of config file.         */

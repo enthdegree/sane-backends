@@ -348,6 +348,8 @@
       v68 2008-07-02, MAN
 	 - add halftone type and pattern options
          - support M3097G with IPC and CMP options via modified VPD response
+      v69 2008-07-03, MAN
+         - support hot-unplugging scanners
 
    SANE FLOW DIAGRAM
 
@@ -408,7 +410,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 68 
+#define BUILD 69 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -545,7 +547,8 @@ SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  struct fujitsu * dev;
+  struct fujitsu * s;
+  struct fujitsu * prev = NULL;
   char line[PATH_MAX];
   const char *lp;
   FILE *fp;
@@ -555,6 +558,11 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   local_only = local_only;        /* get rid of compiler warning */
 
   DBG (10, "sane_get_devices: start\n");
+
+  /* mark all existing scanners as missing, attach_one will remove mark */
+  for (s = fujitsu_devList; s; s = s->next) {
+    s->missing = 1;
+  }
 
   sanei_usb_init();
 
@@ -685,8 +693,36 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
   }
 
-  for (dev = fujitsu_devList; dev; dev=dev->next) {
-    DBG (15, "sane_get_devices: found scanner %s\n",dev->device_name);
+  /*delete missing scanners from list*/
+  for (s = fujitsu_devList; s;) {
+    if(s->missing){
+      DBG (5, "sane_get_devices: missing scanner %s\n",s->device_name);
+
+      /*splice s out of list by changing pointer in prev to next*/
+      if(prev){
+        prev->next = s->next;
+        free(s);
+        s=prev->next;
+      }
+      /*remove s from head of list, using prev to cache it*/
+      else{
+        prev = s;
+        s = s->next;
+        free(prev);
+	prev=NULL;
+
+	/*reset head to next s*/
+	fujitsu_devList = s;
+      }
+    }
+    else{
+      prev = s;
+      s=prev->next;
+    }
+  }
+
+  for (s = fujitsu_devList; s; s=s->next) {
+    DBG (15, "sane_get_devices: found scanner %s\n",s->device_name);
     num_devices++;
   }
 
@@ -699,8 +735,8 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   if (!sane_devArray)
     return SANE_STATUS_NO_MEM;
 
-  for (dev = fujitsu_devList; dev; dev=dev->next) {
-    sane_devArray[i++] = (SANE_Device *)&dev->sane;
+  for (s = fujitsu_devList; s; s=s->next) {
+    sane_devArray[i++] = (SANE_Device *)&s->sane;
   }
   sane_devArray[i] = 0;
 
@@ -741,6 +777,7 @@ attach_one (const char *device_name, int connType)
   for (s = fujitsu_devList; s; s = s->next) {
     if (strcmp (s->device_name, device_name) == 0){
       DBG (10, "attach_one: already attached!\n");
+      s->missing = 0;
       return SANE_STATUS_GOOD;
     }
   }

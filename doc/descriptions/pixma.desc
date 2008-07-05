@@ -234,8 +234,8 @@
 :model "PIXMA MX850"
 :interface "USB"
 :usbid "0x04a9" "0x172c"
-:status :untested
-:comment "Does it use Generation 3 protocol ?"
+:status :basic
+:comment "Works in flatbed. Speed issue in ADF simplex ? USB Snoops needed to set up ADF Duplex"
 
 :model "imageCLASS MF5630"
 :interface "USB"

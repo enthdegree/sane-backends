@@ -1,3 +1,9 @@
+2008-07-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c:
+	Fix in sane_control_option () for PIXMA ADF scan.
+	Change malformed test conditions for ADF/Duplex scan source.
+	Updated PIXMA MX850 description.
+
 2008-07-03  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v69, support hot-unplugging scanners
 

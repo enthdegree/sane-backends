@@ -833,7 +833,7 @@ terminate_reader_task (pixma_sane_t * ss, int *exit_code)
   result = sanei_thread_waitpid (pid, &status);
   ss->reader_taskid = -1;
 
-  if ((ss->sp.source & (PIXMA_SOURCE_ADF | PIXMA_SOURCE_ADFDUP)) == 0)
+  if (ss->sp.source != PIXMA_SOURCE_ADF && ss->sp.source != PIXMA_SOURCE_ADFDUP)
     ss->idle = SANE_TRUE;
 
   if (result == pid)
@@ -1148,7 +1148,11 @@ sane_control_option (SANE_Handle h, SANE_Int n,
   if (n < 0 || n >= opt_last)
     return SANE_STATUS_UNSUPPORTED;
   if (!ss->idle && a != SANE_ACTION_GET_VALUE)
-    return SANE_STATUS_INVAL;
+    {
+      PDBG (pixma_dbg (3, "Warning: !idle && !SANE_ACTION_GET_VALUE\n"));
+      if (ss->sp.source != PIXMA_SOURCE_ADF && ss->sp.source != PIXMA_SOURCE_ADFDUP) 
+        return SANE_STATUS_INVAL;
+    }
 
   opt = &(OPT_IN_CTX[n]);
   if (!SANE_OPTION_IS_ACTIVE (opt->sod.cap))
@@ -1257,7 +1261,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
   if (ss->cancel)
     return SANE_STATUS_CANCELLED;
   if ((ss->idle)
-      && ((ss->sp.source & (PIXMA_SOURCE_ADF | PIXMA_SOURCE_ADFDUP)) != 0))
+      && (ss->sp.source == PIXMA_SOURCE_ADF || ss->sp.source == PIXMA_SOURCE_ADFDUP))
     return SANE_STATUS_INVAL;
   if (!ss->scanning)
     return ss->last_read_status;

@@ -1,3 +1,8 @@
+2008-07-05  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v70,
+	- fix bug in sane_get_parameters (failed to copy values)
+	- autodetect jpeg duplex interlacing mode by inspecting scan width
+
 2008-07-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c:
 	Fix in sane_control_option () for PIXMA ADF scan.

@@ -305,6 +305,7 @@ struct fujitsu
   int has_back;       /* not all duplex scanners can do adf back side only */
   int color_interlace;  /* different models interlace colors differently   */
   int duplex_interlace; /* different models interlace sides differently    */
+  int jpeg_interlace; /* different models interlace jpeg sides differently */
   int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
   int ghs_in_rs;
   int window_gamma;
@@ -512,7 +513,7 @@ struct fujitsu
   int jpeg_ff_offset;
   int jpeg_front_rst;
   int jpeg_back_rst;
-  int jpeg_x_bit;
+  int jpeg_x_byte;
 
   /* --------------------------------------------------------------------- */
   /* values which used by the command and data sending functions (scsi/usb)*/
@@ -598,6 +599,9 @@ struct fujitsu
 #define DUPLEX_INTERLACE_ALT 0 
 #define DUPLEX_INTERLACE_NONE 1 
 #define DUPLEX_INTERLACE_3091 2 
+
+#define JPEG_INTERLACE_ALT 0 
+#define JPEG_INTERLACE_NONE 1 
 
 #define DF_DEFAULT 0
 #define DF_CONTINUE 1
@@ -734,6 +738,10 @@ static SANE_Status mode_select_prepick (struct fujitsu *s);
 static SANE_Status mode_select_overscan (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
+
+#if 0
+static SANE_Status get_pixelsize(struct fujitsu *s);
+#endif
 
 int get_page_width (struct fujitsu *s);
 int get_page_height (struct fujitsu *s);

@@ -6,7 +6,7 @@
    Copyright (C) 2000 Randolph Bentson
    Copyright (C) 2001 Frederik Ramm
    Copyright (C) 2001-2004 Oliver Schirrmeister
-   Copyright (C) 2003-2008 M. Allan Noah
+   Copyright (C) 2003-2008 m. allan noah
 
    JPEG output support funded by Archivista GmbH, www.archivista.ch
    Endorser support funded by O A S Oilfield Accounting Service Ltd, www.oas.ca
@@ -350,6 +350,9 @@
          - support M3097G with IPC and CMP options via modified VPD response
       v69 2008-07-03, MAN
          - support hot-unplugging scanners
+      v70 2008-07-05, MAN
+         - fix bug in sane_get_parameters (failed to copy values)
+	 - autodetect jpeg duplex interlacing mode by inspecting scan width
 
    SANE FLOW DIAGRAM
 
@@ -410,7 +413,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 69 
+#define BUILD 70 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5333,42 +5336,42 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
 
         /* this backend only sends single frame images */
-        s->params.last_frame = 1;
+        params->last_frame = 1;
       
         if (s->mode == MODE_COLOR) {
-            s->params.format = SANE_FRAME_RGB;
-            s->params.depth = 8;
+            params->format = SANE_FRAME_RGB;
+            params->depth = 8;
             if(s->compress == COMP_JPEG){
-                s->params.format = SANE_FRAME_JPEG;
+                params->format = SANE_FRAME_JPEG;
             }
         }
         else if (s->mode == MODE_GRAYSCALE) {
-            s->params.format = SANE_FRAME_GRAY;
-            s->params.depth = 8;
+            params->format = SANE_FRAME_GRAY;
+            params->depth = 8;
             if(s->compress == COMP_JPEG){
-                s->params.format = SANE_FRAME_JPEG;
+                params->format = SANE_FRAME_JPEG;
             }
         }
         else {
-            s->params.format = SANE_FRAME_GRAY;
-            s->params.depth = 1;
+            params->format = SANE_FRAME_GRAY;
+            params->depth = 1;
         }
 
         /* adjust x data in a loop */
         while(1){
 
-            s->params.pixels_per_line =
+            params->pixels_per_line =
               s->resolution_x * (s->br_x - s->tl_x) / 1200;
     
             /* bytes per line differs by mode */
             if (s->mode == MODE_COLOR) {
-                s->params.bytes_per_line = s->params.pixels_per_line * 3;
+                params->bytes_per_line = params->pixels_per_line * 3;
             }
             else if (s->mode == MODE_GRAYSCALE) {
-                s->params.bytes_per_line = s->params.pixels_per_line;
+                params->bytes_per_line = params->pixels_per_line;
             }
             else {
-                s->params.bytes_per_line = s->params.pixels_per_line / 8;
+                params->bytes_per_line = params->pixels_per_line / 8;
             }
 
             /* binary and jpeg must have width in multiple of 8 pixels */
@@ -5376,9 +5379,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             /* so change the user's scan width and try again */
 	    /* FIXME: should change a 'hidden' copy instead? */
             if(
-              ((s->params.depth == 1 || s->params.format == SANE_FRAME_JPEG)
-                && s->params.pixels_per_line % 8)
-              || (s->even_scan_line && s->params.bytes_per_line % 8)
+              ((params->depth == 1 || params->format == SANE_FRAME_JPEG)
+                && params->pixels_per_line % 8)
+              || (s->even_scan_line && params->bytes_per_line % 8)
             ){
 
                 /* dont round up larger than current max width */
@@ -5400,12 +5403,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         /* adjust y data in a loop */
         while(1){
 
-            s->params.lines =
+            params->lines =
               s->resolution_y * (s->br_y - s->tl_y) / 1200;
     
             /* jpeg must have length in multiple of 8 pixels */
             /* so change the user's scan length and try again */
-            if( s->params.format == SANE_FRAME_JPEG && s->params.lines % 8 ){
+            if( params->format == SANE_FRAME_JPEG && params->lines % 8 ){
 
                 /* dont round up larger than current max length */
                 if(s->br_y >= ph){
@@ -5423,10 +5426,10 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
   
     DBG (15, "sane_get_parameters: scan_x=%d, Bpl=%d, depth=%d\n", 
-      s->params.pixels_per_line, s->params.bytes_per_line, s->params.depth );
+      params->pixels_per_line, params->bytes_per_line, params->depth );
       
     DBG (15, "sane_get_parameters: scan_y=%d, frame=%d, last=%d\n", 
-      s->params.lines, s->params.format, s->params.last_frame );
+      params->lines, params->format, params->last_frame );
 
     DBG (10, "sane_get_parameters: finish\n");
   
@@ -5842,7 +5845,7 @@ set_window (struct fujitsu *s)
       set_WD_compress_arg(desc1, s->compress_arg);
   }
 
-  /*the remainder of the block varies based on model and mode,
+  /* the remainder of the block varies based on model and mode,
    * except for gamma and paper size, those are in the same place */
 
   /*vuid c0*/
@@ -5992,6 +5995,38 @@ set_window (struct fujitsu *s)
 
   return ret;
 }
+
+#if 0
+static SANE_Status
+get_pixelsize(struct fujitsu *s)
+{
+    SANE_Status ret;
+    unsigned char buf[0x18];
+    size_t inLen = sizeof(buf);
+
+    DBG (10, "get_pixelsize: start\n");
+
+    set_R_datatype_code (readB.cmd, R_datatype_pixelsize);
+    set_R_window_id (readB.cmd, WD_wid_front);
+    if(/*s->source == SOURCE_ADF_DUPLEX ||*/ s->source == SOURCE_ADF_BACK){
+      set_R_window_id (readB.cmd, WD_wid_back);
+    }
+    set_R_xfer_length (readB.cmd, inLen);
+      
+    ret = do_cmd (
+      s, 1, 0,
+      readB.cmd, readB.size,
+      NULL, 0,
+      buf, &inLen
+    );
+
+    hexdump(5, "get_pixelsize:", buf, inLen);
+
+    DBG (10, "get_pixelsize: finish\n");
+
+    return ret;
+}
+#endif
 
 /*
  * Issues the SCSI OBJECT POSITION command if an ADF is in use.
@@ -6145,13 +6180,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* protect this block from sane_cancel */
   s->reading = 1;
 
-  /* the weird duplex modes */
+  /* 3091/2 are on crack, get their own duplex reader function */
   if(s->source == SOURCE_ADF_DUPLEX
-    && s->duplex_interlace != DUPLEX_INTERLACE_NONE
-  ){
-
-    /* 3091/2 are on crack, get their own duplex reader function */
-    if(s->duplex_interlace == DUPLEX_INTERLACE_3091){
+    && s->duplex_interlace == DUPLEX_INTERLACE_3091){
 
       if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
         || s->bytes_tot[SIDE_BACK] > s->bytes_rx[SIDE_BACK]
@@ -6163,10 +6194,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         }
       }
 
-    } /* end 3091 */
+  } /* end 3091 */
 
-    /* alternating jpeg interlacing */
-    else if(s->params.format == SANE_FRAME_JPEG){
+  /* alternating jpeg duplex interlacing */
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format == SANE_FRAME_JPEG 
+    && s->jpeg_interlace == JPEG_INTERLACE_ALT){
   
       /* read from front side if either side has remaining */
       if ( s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]
@@ -6179,10 +6212,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         }
       }
 
-    } /* end alt jpeg */
+  } /* end alt jpeg */
 
-    /* alternating pnm interlacing, and anything else */
-    else {
+  /* alternating pnm interlacing */
+  else if(s->source == SOURCE_ADF_DUPLEX
+    && s->params.format != SANE_FRAME_JPEG 
+    && s->duplex_interlace == DUPLEX_INTERLACE_ALT){
 
       /* buffer front side */
       if(s->bytes_tot[SIDE_FRONT] > s->bytes_rx[SIDE_FRONT]){
@@ -6202,9 +6237,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
           }
       }
 
-    } /* end alt pnm */
-
-  } /* end weird duplex */
+  } /* end alt pnm */
 
   /* simplex or non-alternating duplex */
   else{
@@ -6271,7 +6304,7 @@ read_from_JPEGduplex(struct fujitsu *s)
   
     set_R_datatype_code (readB.cmd, R_datatype_imagedata);
 
-    /* jpeg duplex always reads from front */
+    /* interlaced jpeg duplex always reads from front */
     set_R_window_id (readB.cmd, WD_wid_front);
   
     set_R_xfer_length (readB.cmd, bytes);
@@ -6365,15 +6398,53 @@ read_from_JPEGduplex(struct fujitsu *s)
         }
         s->jpeg_ff_offset++;
 
-        /* first x byte in start of frame */
+        /* first x byte in start of frame, buffer it */
         if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 7){
-          s->jpeg_x_bit = buf[i] & 0x01;
-          buf[i] = buf[i] >> 1;
+          s->jpeg_x_byte = buf[i];
+	  continue;
         }
 
         /* second x byte in start of frame */
         if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 8){
-          buf[i] = (s->jpeg_x_bit << 7) | (buf[i] >> 1);
+
+	  int width = (s->jpeg_x_byte << 8) | buf[i];
+
+	  /* if image width equals what we asked for, then
+	   * the image is not interlaced, clean up the mess */
+	  if(width == s->params.pixels_per_line){
+
+            DBG(15, "read_from_JPEGduplex: right width, req:%d got:%d\n",
+	      s->params.pixels_per_line,width);
+
+	    /* stop copying to the back */
+	    s->jpeg_interlace = JPEG_INTERLACE_NONE;
+
+	    /* clear what is already in the back */
+            s->bytes_rx[SIDE_BACK]=0;
+
+	    /* and put the high-order width byte into front unchanged */
+            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = s->jpeg_x_byte;
+            s->bytes_rx[SIDE_FRONT]++;
+	  }
+
+	  /* image is interlaced afterall, continue */
+	  else{
+            DBG(15, "read_from_JPEGduplex: wrong width, req:%d got:%d\n",
+	      s->params.pixels_per_line,width);
+
+	    /* put the high-order width byte into front side, shifted down */
+            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ]
+	      = width >> 9;
+            s->bytes_rx[SIDE_FRONT]++;
+
+	    /* put the high-order width byte into back side, shifted down */
+            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ]
+	      = width >> 9;
+            s->bytes_rx[SIDE_BACK]++;
+
+	    /* shift down low order byte */
+            buf[i] = (width >> 1) & 0xff;
+	  }
         }
 
         /* copy these stages to front */
@@ -6393,11 +6464,13 @@ read_from_JPEGduplex(struct fujitsu *s)
         }
 
         /* copy these stages to back */
-        if(s->jpeg_stage == JPEG_STAGE_HEAD
+        if( s->jpeg_interlace == JPEG_INTERLACE_ALT
+	  &&
+	  ( s->jpeg_stage == JPEG_STAGE_HEAD
           || s->jpeg_stage == JPEG_STAGE_SOF
           || s->jpeg_stage == JPEG_STAGE_SOS
           || s->jpeg_stage == JPEG_STAGE_EOI
-          || s->jpeg_stage == JPEG_STAGE_BACK
+          || s->jpeg_stage == JPEG_STAGE_BACK )
         ){
             /* first byte after ff, send the ff first */
             if(s->jpeg_ff_offset == 1){

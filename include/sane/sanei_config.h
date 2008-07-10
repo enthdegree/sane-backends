@@ -154,8 +154,10 @@ typedef SANE_Status (*config_attach)(SANEI_Config *config, const char *devname);
  * a line holds a value that is not an option, the attach function is called
  * with the name found and the configuration structure with it's current values.
  *
- * @param name name of the configuration file to read
- * @param attach attach function
+ * @param config_file name of the configuration file to read
+ * @param config configuration structure to be filled during configuration parsing
+ *  	  and passed to the attach callback function
+ * @param config_attach attach with config callback function
  *
  * @return SANE_STATUS_GOOD if no errors
  *         SANE_STATUS_ACCESS_DENIED if configuration file can't be opened

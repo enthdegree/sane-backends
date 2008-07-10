@@ -1,4 +1,7 @@
 2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+	* include/sane/sanei_config.h: doxygen fix for new function
+
+2008-07-10  Stéphane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for SANE_Bool
 	  in sanei_check_value
 	* backend/Makefile.in: add sanei_constrain_value.lo to libsane

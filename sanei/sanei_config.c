@@ -214,3 +214,219 @@ sanei_config_read (char *str, int n, FILE *stream)
 
    return rc;
 }
+
+
+SANE_Status
+sanei_configure_attach (const char *config_file, SANEI_Config * config,
+			SANE_Status (*attach) (SANEI_Config * config,
+					       const char *devname))
+{
+  SANE_Char line[PATH_MAX];
+  SANE_Char *token, *string;
+  SANE_Int len;
+  const char *lp, *lp2;
+  FILE *fp;
+  SANE_Status status = SANE_STATUS_GOOD;
+  int i, j, count;
+  void *value = NULL;
+  int size=0;
+  SANE_Bool found;
+  SANE_Word *wa;
+  SANE_Bool *ba;
+
+  DBG (3, "sanei_configure_attach: start\n");
+
+  /* open configuration file */
+  fp = sanei_config_open (config_file);
+  if (!fp)
+    {
+      DBG (2, "sanei_configure_attach: couldn't access %s\n", config_file);
+      DBG (3, "sanei_configure_attach: exit\n");
+      return SANE_STATUS_ACCESS_DENIED;
+    }
+
+  /* loop reading the configuration file, all line beginning by "option " are
+   * parsed for value to store in configuration structure, other line are 
+   * used are device to try to attach
+   */
+  while (sanei_config_read (line, PATH_MAX, fp) && status == SANE_STATUS_GOOD)
+    {
+      /* skip white spaces at beginning of line */
+      lp = sanei_config_skip_whitespace (line);
+
+      /* skip empty lines */
+      if (*lp == 0)
+	continue;
+
+      /* skip comment line */
+      if (line[0] == '#')
+	continue;
+
+      len = strlen (line);
+
+      /* delete newline characters at end */
+      if (line[len - 1] == '\n')
+	line[--len] = '\0';
+
+      lp2 = lp;
+
+      /* to ensure maximum compatibility, we accept line like:
+       * option "option_name" "option_value"
+       * "option_name" "option_value" 
+       * So we parse the line 2 time to find an option */
+      /* check if it is an option */
+      lp = sanei_config_get_string (lp, &token);
+      if (strncmp (token, "option", 6) == 0)
+	{
+	  /* skip the "option" token */
+	  free (token);
+	  lp = sanei_config_get_string (lp, &token);
+	}
+
+      /* search for a matching descriptor */
+      i = 0;
+      found = SANE_FALSE;
+      while (i < config->count && !found)
+	{
+	  if (strcmp (config->descriptors[i]->name, token) == 0)
+	    {
+	      found = SANE_TRUE;
+	      switch (config->descriptors[i]->type)
+		{
+		case SANE_TYPE_INT:
+		  size=config->descriptors[i]->size;
+		  value = malloc (size);
+		  wa = (SANE_Word *) value;
+		  count = config->descriptors[i]->size / sizeof (SANE_Word);
+		  for (j = 0; j < count; j++)
+		    {
+		      lp = sanei_config_get_string (lp, &string);
+		      if (string == NULL)
+			{
+			  DBG (2,
+			       "sanei_configure_attach: couldn't find a string to parse");
+			  return SANE_STATUS_INVAL;
+			}
+		      wa[j] = strtol (string, NULL, 0);
+		      free (string);
+		    }
+		  break;
+		case SANE_TYPE_BOOL:
+		  size=config->descriptors[i]->size;
+		  value = malloc (size);
+		  ba = (SANE_Bool *) value;
+		  count = config->descriptors[i]->size / sizeof (SANE_Bool);
+		  for (j = 0; j < count; j++)
+		    {
+		      lp = sanei_config_get_string (lp, &string);
+		      if (string == NULL)
+			{
+			  DBG (2,
+			       "sanei_configure_attach: couldn't find a string to parse");
+			  return SANE_STATUS_INVAL;
+			}
+		      if ((strcmp (string, "1") == 0)
+			  || (strcmp (string, "true") == 0))
+			{
+			  ba[j] = SANE_TRUE;
+			}
+		      else
+			{
+			  if ((strcmp (string, "0") == 0)
+			      || (strcmp (string, "false") == 0))
+			    ba[j] = SANE_FALSE;
+			  else
+			    {
+			      DBG (2,
+				   "sanei_configure_attach: couldn't find a valid boolean value");
+			      return SANE_STATUS_INVAL;
+			    }
+			}
+		      free (string);
+		    }
+		  break;
+		case SANE_TYPE_FIXED:
+		  size=config->descriptors[i]->size;
+		  value = malloc (size);
+		  wa = (SANE_Word *) value;
+		  count = config->descriptors[i]->size / sizeof (SANE_Word);
+		  for (j = 0; j < count; j++)
+		    {
+		      lp = sanei_config_get_string (lp, &string);
+		      if (string == NULL)
+			{
+			  DBG (2,
+			       "sanei_configure_attach: couldn't find a string to parse");
+			  return SANE_STATUS_INVAL;
+			}
+		      wa[j] = SANE_FIX(strtod (string, NULL));
+		      free (string);
+		    }
+		  break;
+		case SANE_TYPE_STRING:
+		  sanei_config_get_string (lp, &string);
+		  if (string == NULL)
+		    {
+		      DBG (2,
+			   "sanei_configure_attach: couldn't find a string value to parse");
+		      return SANE_STATUS_INVAL;
+		    }
+		  value = string;
+		  size=strlen(string)+1;
+		  if(size>config->descriptors[i]->size)
+		  {
+			  size=config->descriptors[i]->size-1;
+			  string[size]=0;
+		  }
+		  break;
+		default:
+		  DBG (1,
+		       "sanei_configure_attach: incorrect type %d for option %s, skipping option ...\n",
+		       config->descriptors[i]->type,
+		       config->descriptors[i]->name);
+		}
+	      
+	      /* check decoded value */
+	      status = sanei_check_value (config->descriptors[i], value);
+
+	      /* if value OK, copy it in configuration struct */
+	      if (status == SANE_STATUS_GOOD)
+		{
+		  memcpy (config->values[i], value, size);
+		}
+	      if (value != NULL)
+		{
+		  free (value);
+		  value = NULL;
+		}
+	    }
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (1,
+		   "sanei_configure_attach: failed to parse option '%s', line '%s'\n",
+		   token, line);
+	    }
+	  i++;
+	}
+      free (token);
+
+      /* not detected as an option, so we call the attach function
+       * with it */
+      if (!found && status == SANE_STATUS_GOOD)
+	{
+	  /* if not an option, try to attach */
+	  /* to avoid every backend to depend on scsi and usb functions
+	   * we call back the backend for attach. In turn it will call
+	   * sanei_usb_attach_matching_devices, sanei_config_attach_matching_devices
+	   * or other. This means 2 callback functions per backend using this 
+	   * function. */
+	  DBG (3, "sanei_configure_attach: trying to attach with '%s'\n",
+	       lp2);
+	  attach (config, lp2);
+	}
+    }
+
+  fclose (fp);
+  DBG (3, "sanei_configure_attach: exit\n");
+  return status;
+}

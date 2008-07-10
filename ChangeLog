@@ -1,3 +1,12 @@
+2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+	* backend/sanei_constrain_value.c: add support for SANE_Bool
+	  in sanei_check_value
+	* backend/Makefile.in: add sanei_constrain_value.lo to libsane
+	dependencies
+	* sanei/Makefile.in: add makedepend for .lo files
+	* include/sane/sanei_config.h sanei/sanei_config.c: add configuration
+	parsing framework
+
 2008-07-05  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v70,
 	- fix bug in sane_get_parameters (failed to copy values)

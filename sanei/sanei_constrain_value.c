@@ -55,29 +55,47 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void *value)
 {
   const SANE_String_Const *string_list;
   const SANE_Word *word_list;
-  int i;
+  int i, count;
   const SANE_Range *range;
-  SANE_Word w, v;
+  SANE_Word w, v, *array;
+  SANE_Bool *barray;
   size_t len;
 
   switch (opt->constraint_type)
     {
     case SANE_CONSTRAINT_RANGE:
-      w = *(SANE_Word *) value;
-      range = opt->constraint.range;
 
-      if (w < range->min || w > range->max)
-	return SANE_STATUS_INVAL;
+      /* single values are treated as arrays of length 1 */
+      array = (SANE_Word *) value;
 
-      w = *(SANE_Word *) value;
-
-      if (range->quant)
+      /* compute number of elements */
+      if (opt->size > 0)
 	{
-	  v =
-	    (unsigned int) (w - range->min + range->quant / 2) / range->quant;
-	  v = v * range->quant + range->min;
-	  if (v != w)
+	  count = opt->size / sizeof (SANE_Word);
+	}
+      else
+	{
+	  count = 1;
+	}
+
+      range = opt->constraint.range;
+      /* for each element of the array, we check according to the constraint */
+      for (i = 0; i < count; i++)
+	{
+	  /* test for min and max */
+	  if (array[i] < range->min || array[i] > range->max)
 	    return SANE_STATUS_INVAL;
+
+	  /* check quantization */
+	  if (range->quant)
+	    {
+	      v =
+		(unsigned int) (array[i] - range->min +
+				range->quant / 2) / range->quant;
+	      v = v * range->quant + range->min;
+	      if (v != array[i])
+		return SANE_STATUS_INVAL;
+	    }
 	}
       break;
 
@@ -98,6 +116,36 @@ sanei_check_value (const SANE_Option_Descriptor * opt, void *value)
 	    && len == strlen (string_list[i]))
 	  return SANE_STATUS_GOOD;
       return SANE_STATUS_INVAL;
+
+    case SANE_CONSTRAINT_NONE:
+      switch (opt->type)
+	{
+	case SANE_TYPE_BOOL:
+	  /* single values are treated as arrays of length 1 */
+	  array = (SANE_Word *) value;
+
+	  /* compute number of elements */
+	  if (opt->size > 0)
+	    {
+	      count = opt->size / sizeof (SANE_Bool);
+	    }
+	  else
+	    {
+	      count = 1;
+	    }
+
+	  barray = (SANE_Bool *) value;
+
+	  /* test each boolean value in the array */
+	  for (i = 0; i < count; i++)
+	    {
+	      if (barray[i] != SANE_TRUE && barray[i] != SANE_FALSE)
+		return SANE_STATUS_INVAL;
+	    }
+	  break;
+	default:
+	  break;
+	}
 
     default:
       break;
@@ -131,7 +179,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
       array = (SANE_Word *) value;
 
       /* compute number of elements */
-      if (opt->size>0)
+      if (opt->size > 0)
 	{
 	  k = opt->size / sizeof (SANE_Word);
 	}
@@ -140,11 +188,11 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
 	  k = 1;
 	}
 
+      range = opt->constraint.range;
       /* for each element of the array, we apply the constraint */
       for (i = 0; i < k; i++)
 	{
-	  range = opt->constraint.range;
-
+	  /* constrain min */
 	  if (array[i] < range->min)
 	    {
 	      array[i] = range->min;
@@ -154,6 +202,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
 		}
 	    }
 
+	  /* constrain max */
 	  if (array[i] > range->max)
 	    {
 	      array[i] = range->max;
@@ -163,6 +212,7 @@ sanei_constrain_value (const SANE_Option_Descriptor * opt, void *value,
 		}
 	    }
 
+	  /* quantization */
 	  if (range->quant)
 	    {
 	      v =

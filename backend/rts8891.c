@@ -144,6 +144,9 @@ static Rts8891_Session *first_handle = NULL;
 static Rts8891_Device *first_device = NULL;
 static SANE_Int num_devices = 0;
 
+static SANE_Word modelnumber = -1;
+static SANE_Bool allowsharing = SANE_TRUE;
+
 /*
  * needed by sane_get_devices
  */
@@ -167,6 +170,14 @@ static SANE_Range y_range = {
   SANE_FIX (0.0),		/* minimum */
   SANE_FIX (299.0),		/* maximum */
   SANE_FIX (0.0)		/* quantization */
+};
+
+/* model number ranges from 0 to 2, must be cvhnaged if
+ * Rts8891_USB_Device_Entry changes */
+static const SANE_Range model_range = {
+  0,				/* minimum */
+  2,				/* maximum */
+  0				/* quantization */
 };
 
 static const SANE_Range u8_range = {
@@ -197,7 +208,8 @@ max_string_size (const SANE_String_Const strings[])
 }
 
 /* ------------------------------------------------------------------------- */
-
+static SANE_Status config_attach_rts8891 (SANEI_Config * config,
+					  const char *devname);
 static SANE_Status attach_Rts8891 (const char *name);
 static SANE_Status set_lamp_brightness (struct Rts8891_Device *dev,
 					int level);
@@ -283,10 +295,19 @@ write_rgb_data (char *name, unsigned char *image, SANE_Int width,
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Char line[PATH_MAX];
-  SANE_Int vendor, product, len;
-  const char *lp;
-  FILE *fp;
+  int i;
+
+  /**> configuration structure used during attach */
+  SANEI_Config config;
+
+  /**> list of configuration options */
+  SANE_Option_Descriptor *options[2];
+
+  /**> placeholders for option values */
+  void *values[2];
+
+  SANE_Status status;
+
   authorize = authorize;	/* get rid of compiler warning */
 
   /* init ASIC libraries */
@@ -304,53 +325,47 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
-  /* loop on 'usb' entries in rts8891.conf, and try to 
-     attach with it. 
-     Reading the conf file allow to test only for desired
-     devices, not the all range of supported devices.
-   */
-  fp = sanei_config_open (RTS8891_CONFIG_FILE);
-  if (!fp)
+  /* initialize configuration options */
+  i = 0;
+  options[i] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[i]->name = "modelnumber";
+  options[i]->desc = "user provided scanner's internal model number";
+  options[i]->type = SANE_TYPE_INT;
+  options[i]->unit = SANE_UNIT_NONE;
+  options[i]->size = sizeof (SANE_Word);
+  options[i]->cap = SANE_CAP_SOFT_SELECT;
+  options[i]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[i]->constraint.range = &model_range;
+  values[i] = &modelnumber;
+  i++;
+
+  options[i] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[i]->name = "allowsharing";
+  options[i]->desc = "allow sharing of the scanner by several frontends";
+  options[i]->type = SANE_TYPE_BOOL;
+  options[i]->unit = SANE_UNIT_NONE;
+  options[i]->size = sizeof (SANE_Bool);
+  options[i]->cap = SANE_CAP_SOFT_SELECT;
+  options[i]->constraint_type = SANE_CONSTRAINT_NONE;
+  values[i] = &allowsharing;
+  i++;
+
+  /* set configuration options structure */
+  config.descriptors = options;
+  config.values = values;
+  config.count = i;
+
+  /* generic configure and attach function */
+  status = sanei_configure_attach (RTS8891_CONFIG_FILE, &config,
+				   config_attach_rts8891);
+  /* free allocated options */
+  while (i > 0)
     {
-      DBG (DBG_error, "sane_init: couldn't access %s\n", RTS8891_CONFIG_FILE);
-      DBG (DBG_proc, "sane_init: exit\n");
-      return SANE_STATUS_ACCESS_DENIED;
+      i--;
+      free (options[i]);
     }
-
-  /* scan the conf file to find lines like 'usb 0x.... 0x....' */
-  while (sanei_config_read (line, PATH_MAX, fp))
-    {
-      /* ignore comments */
-      if (line[0] == '#')
-	continue;
-      len = strlen (line);
-
-      /* delete newline characters at end */
-      if (line[len - 1] == '\n')
-	line[--len] = '\0';
-
-      lp = sanei_config_skip_whitespace (line);
-      /* skip empty lines */
-      if (*lp == 0)
-	continue;
-
-      if (sscanf (lp, "usb %i %i", &vendor, &product) == 2)
-	;
-      else if (strncmp ("libusb", lp, 6) == 0)
-	;
-      else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3]))
-	{
-	  lp += 3;
-	  lp = sanei_config_skip_whitespace (lp);
-	}
-      else
-	continue;
-
-      DBG (DBG_error, "sane_init: trying to attach with '%s'\n", lp);
-      sanei_usb_attach_matching_devices (lp, attach_Rts8891);
-    }
-
-  fclose (fp);
 
   DBG (DBG_proc, "sane_init: exit\n");
   return SANE_STATUS_GOOD;
@@ -550,7 +565,10 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   first_handle = session;
 
   /* release the interface to allow device sharing */
-  sanei_usb_release_interface (device->devnum, 0);
+  if (allowsharing == SANE_TRUE)
+    {
+      sanei_usb_release_interface (device->devnum, 0);
+    }
 
   DBG (DBG_proc, "sane_open: exit\n");
   return SANE_STATUS_GOOD;
@@ -1083,11 +1101,14 @@ sane_start (SANE_Handle handle)
     }
 
   /* claim the interface reserve device */
-  status = sanei_usb_claim_interface (dev->devnum, 0);
-  if (status != SANE_STATUS_GOOD)
+  if (allowsharing == SANE_TRUE)
     {
-      DBG (DBG_warn, "sane_start: cannot claim usb interface\n");
-      return SANE_STATUS_DEVICE_BUSY;
+      status = sanei_usb_claim_interface (dev->devnum, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_warn, "sane_start: cannot claim usb interface\n");
+	  return SANE_STATUS_DEVICE_BUSY;
+	}
     }
 
   /* check if we need warming-up */
@@ -1133,7 +1154,8 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_WARMING_UP;
 	}
 #else
-      DBG (DBG_info, "sane_start: waiting 15s to let lamp getting warm enough ...\n");
+      DBG (DBG_info,
+	   "sane_start: waiting 15s to let lamp getting warm enough ...\n");
       sleep (15);
 #endif
     }
@@ -1152,7 +1174,10 @@ sane_start (SANE_Handle handle)
       status = find_origin (dev, &changed);
       if (status != SANE_STATUS_GOOD)
 	{
-	  sanei_usb_release_interface (dev->devnum, 0);
+	  if (allowsharing == SANE_TRUE)
+	    {
+	      sanei_usb_release_interface (dev->devnum, 0);
+	    }
 	  DBG (DBG_error, "sane_start: failed to find origin!\n");
 	  return status;
 	}
@@ -1188,7 +1213,10 @@ sane_start (SANE_Handle handle)
   status = dark_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to do dark calibration!\n");
       return status;
     }
@@ -1197,7 +1225,10 @@ sane_start (SANE_Handle handle)
   status = find_margin (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed find left margin!\n");
       return status;
     }
@@ -1211,7 +1242,10 @@ sane_start (SANE_Handle handle)
   status = gain_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to do gain calibration!\n");
       return status;
     }
@@ -1220,7 +1254,10 @@ sane_start (SANE_Handle handle)
   status = offset_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to do offset calibration!\n");
       return status;
     }
@@ -1253,7 +1290,10 @@ sane_start (SANE_Handle handle)
 			 || session->emulated_gray == SANE_TRUE, light);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to do shading calibration!\n");
       return status;
     }
@@ -1265,7 +1305,10 @@ sane_start (SANE_Handle handle)
       status = move_to_scan_area (session);
       if (status != SANE_STATUS_GOOD)
 	{
-	  sanei_usb_release_interface (dev->devnum, 0);
+	  if (allowsharing == SANE_TRUE)
+	    {
+	      sanei_usb_release_interface (dev->devnum, 0);
+	    }
 	  DBG (DBG_error, "sane_start: failed to move to scan area!\n");
 	  return status;
 	}
@@ -1276,7 +1319,10 @@ sane_start (SANE_Handle handle)
   status = write_scan_registers (session);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to write scan registers!\n");
       return status;
     }
@@ -1285,7 +1331,10 @@ sane_start (SANE_Handle handle)
   status = send_calibration_data (session);
   if (status != SANE_STATUS_GOOD)
     {
-      sanei_usb_release_interface (dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (dev->devnum, 0);
+	}
       DBG (DBG_error, "sane_start: failed to send calibration data!\n");
       return status;
     }
@@ -2014,7 +2063,7 @@ sane_cancel (SANE_Handle handle)
 #ifdef HAVE_SYS_TIME_H
   /* store last scan time for the device */
   gettimeofday (&current, NULL);
-  dev->last_scan.tv_sec=current.tv_sec;
+  dev->last_scan.tv_sec = current.tv_sec;
 #endif
 
   /* if scanning, abort and park head */
@@ -2049,7 +2098,10 @@ sane_cancel (SANE_Handle handle)
     }
 
   /* release the interface to allow device sharing */
-  sanei_usb_release_interface (dev->devnum, 0);
+  if (allowsharing == SANE_TRUE)
+    {
+      sanei_usb_release_interface (dev->devnum, 0);
+    }
 
   DBG (DBG_proc, "sane_cancel: exit\n");
 }
@@ -2103,7 +2155,10 @@ sane_close (SANE_Handle handle)
     first_handle = session->next;
 
   /* switch off lamp and close usb */
-  sanei_usb_claim_interface (session->dev->devnum, 0);
+  if (allowsharing == SANE_TRUE)
+    {
+      sanei_usb_claim_interface (session->dev->devnum, 0);
+    }
   set_lamp_state (session, 0);
   sanei_usb_close (session->dev->devnum);
 
@@ -2186,6 +2241,32 @@ sane_exit (void)
   DBG (DBG_proc, "sane_exit: exit\n");
 }
 
+/** This function is called by sanei_configure_attach to try
+ * to attach the backend to a device specified by the configuration file.
+ *
+ * @param config configuration structure filled with values read
+ * 	         from configuration file
+ * @param devname name of the device to try to attach to, it is
+ * 	          the unprocessed line of the configuration file
+ *
+ * @return status SANE_STATUS_GOOD if no errors (even if no matching
+ * 	    devices found)
+ * 	   SANE_STATUS_INVAL in case of error
+ */
+static SANE_Status
+config_attach_rts8891 (SANEI_Config * config, const char *devname)
+{
+  /* the placeholder is a global var which is used below */
+  config = config;
+
+  /* the devname has been processed and is ready to be used 
+   * directly. Since the backend is an USB only one, we can 
+   * call sanei_usb_attach_matching_devices straight */
+  sanei_usb_attach_matching_devices (devname, attach_Rts8891);
+
+  return SANE_STATUS_GOOD;
+}
+
 /*
  * The attach tries to open the given usb device and match it
  * with devices handled by the backend.
@@ -2241,19 +2322,26 @@ attach_Rts8891 (const char *devicename)
   sanei_usb_close (dn);
 
   /* walk the list of devices to find matching entry */
-  dn = 0;
-  while ((vendor != rts8891_usb_device_list[dn].vendor_id
-	  || product != rts8891_usb_device_list[dn].product_id)
-	 && (rts8891_usb_device_list[dn].vendor_id != 0))
-    dn++;
-  /* if we reach the list termination entry, the device is unknown */
-  if (rts8891_usb_device_list[dn].vendor_id == 0)
+  if (modelnumber < 0)
     {
-      DBG (DBG_info,
-	   "attach_Rts8891: unknown device `%s': 0x%04x:0x%04x\n",
-	   devicename, vendor, product);
-      DBG (DBG_proc, "attach_Rts8891: exit\n");
-      return SANE_STATUS_UNSUPPORTED;
+      dn = 0;
+      while ((vendor != rts8891_usb_device_list[dn].vendor_id
+	      || product != rts8891_usb_device_list[dn].product_id)
+	     && (rts8891_usb_device_list[dn].vendor_id != 0))
+	dn++;
+      /* if we reach the list termination entry, the device is unknown */
+      if (rts8891_usb_device_list[dn].vendor_id == 0)
+	{
+	  DBG (DBG_info,
+	       "attach_Rts8891: unknown device `%s': 0x%04x:0x%04x\n",
+	       devicename, vendor, product);
+	  DBG (DBG_proc, "attach_Rts8891: exit\n");
+	  return SANE_STATUS_UNSUPPORTED;
+	}
+    }
+  else
+    {
+      dn = modelnumber;
     }
 
   /* allocate device struct */
@@ -6327,12 +6415,15 @@ update_button_status (struct Rts8891_Session *session)
       lock = SANE_TRUE;
 
       /* claim the interface to reserve device */
-      status = sanei_usb_claim_interface (session->dev->devnum, 0);
-      if (status != SANE_STATUS_GOOD)
+      if (allowsharing == SANE_TRUE)
 	{
-	  DBG (DBG_warn,
-	       "update_button_status: cannot claim usb interface\n");
-	  return SANE_STATUS_DEVICE_BUSY;
+	  status = sanei_usb_claim_interface (session->dev->devnum, 0);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_warn,
+		   "update_button_status: cannot claim usb interface\n");
+	      return SANE_STATUS_DEVICE_BUSY;
+	    }
 	}
     }
 
@@ -6342,7 +6433,10 @@ update_button_status (struct Rts8891_Session *session)
   /* release interface if needed */
   if (lock == SANE_TRUE)
     {
-      sanei_usb_release_interface (session->dev->devnum, 0);
+      if (allowsharing == SANE_TRUE)
+	{
+	  sanei_usb_release_interface (session->dev->devnum, 0);
+	}
     }
 
   for (i = 0; i < session->dev->model->buttons; i++)
@@ -6366,11 +6460,14 @@ set_lamp_state (struct Rts8891_Session *session, int on)
   SANE_Byte reg;
 
   /* claim the interface reserve device */
-  status = sanei_usb_claim_interface (session->dev->devnum, 0);
-  if (status != SANE_STATUS_GOOD)
+  if (allowsharing == SANE_TRUE)
     {
-      DBG (DBG_warn, "set_lamp_state: cannot claim usb interface\n");
-      return SANE_STATUS_DEVICE_BUSY;
+      status = sanei_usb_claim_interface (session->dev->devnum, 0);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_warn, "set_lamp_state: cannot claim usb interface\n");
+	  return SANE_STATUS_DEVICE_BUSY;
+	}
     }
 
   status = sanei_rts88xx_read_reg (session->dev->devnum, LAMP_REG, &reg);
@@ -6385,12 +6482,15 @@ set_lamp_state (struct Rts8891_Session *session, int on)
       reg = session->dev->regs[LAMP_REG] & 0x7F;
 #ifdef HAVE_SYS_TIME_H
       /* if lamp is switched off, warming up will be needed */
-      session->dev->last_scan.tv_sec=0;
+      session->dev->last_scan.tv_sec = 0;
 #endif
     }
   status = sanei_rts88xx_write_reg (session->dev->devnum, LAMP_REG, &reg);
 
   /* release interface and return status from lamp setting */
-  sanei_usb_release_interface (session->dev->devnum, 0);
+  if (allowsharing == SANE_TRUE)
+    {
+      sanei_usb_release_interface (session->dev->devnum, 0);
+    }
   return status;
 }

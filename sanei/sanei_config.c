@@ -286,7 +286,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
       /* search for a matching descriptor */
       i = 0;
       found = SANE_FALSE;
-      while (i < config->count && !found)
+      while (config!=NULL && i < config->count && !found)
 	{
 	  if (strcmp (config->descriptors[i]->name, token) == 0)
 	    {
@@ -422,7 +422,8 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
 	   * function. */
 	  DBG (3, "sanei_configure_attach: trying to attach with '%s'\n",
 	       lp2);
-	  attach (config, lp2);
+	  if(attach!=NULL)
+	  	attach (config, lp2);
 	}
     }
 

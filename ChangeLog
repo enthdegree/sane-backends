@@ -1,4 +1,9 @@
 2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+	* sanei/sanei_config.c: handle cases where config or callback
+	  function is NULL 
+	* backend/rts8891.c: use new configuration parsing framework
+
+2008-07-10  Stéphane Voltz <stef.dev@free.fr>
 	* include/sane/sanei_config.h: doxygen fix for new function
 
 2008-07-10  Stéphane Voltz <stef.dev@free.fr>

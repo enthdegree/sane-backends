@@ -134,7 +134,7 @@ struct fujitsu
   /* immutable values which are set during inquiry probing of the scanner. */
   /* members in order found in scsi data...                                */
   char vendor_name[9];          /* raw data as returned by SCSI inquiry.   */
-  char model_name[17];        /* raw data as returned by SCSI inquiry.   */
+  char model_name[17];          /* raw data as returned by SCSI inquiry.   */
   char version_name[5];         /* raw data as returned by SCSI inquiry.   */
 
   int color_raster_offset;      /* offset between r and b scan line and    */
@@ -302,11 +302,12 @@ struct fujitsu
   int min_x;
   int min_y;
 
-  int has_back;       /* not all duplex scanners can do adf back side only */
-  int color_interlace;  /* different models interlace colors differently   */
-  int duplex_interlace; /* different models interlace sides differently    */
-  int jpeg_interlace; /* different models interlace jpeg sides differently */
-  int even_scan_line; /* need even number of bytes in a scanline (fi-5900) */
+  int has_back;         /* not all duplex scanners can do adf back side only */
+  int color_interlace;  /* different models interlace colors differently     */
+  int duplex_interlace; /* different models interlace sides differently      */
+  int jpeg_interlace;   /* different models interlace jpeg sides differently */
+  int cropping_mode;    /* lower-end scanners dont crop from paper size      */
+  int even_scan_line;   /* need even number of bytes in a scanline (fi-5900) */
   int ghs_in_rs;
   int window_gamma;
   int endorser_string_len;
@@ -602,6 +603,9 @@ struct fujitsu
 
 #define JPEG_INTERLACE_ALT 0 
 #define JPEG_INTERLACE_NONE 1 
+
+#define CROP_RELATIVE 0 
+#define CROP_ABSOLUTE 1 
 
 #define DF_DEFAULT 0
 #define DF_CONTINUE 1

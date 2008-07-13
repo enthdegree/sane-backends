@@ -353,6 +353,11 @@
       v70 2008-07-05, MAN
          - fix bug in sane_get_parameters (failed to copy values)
 	 - autodetect jpeg duplex interlacing mode by inspecting scan width
+      v71 2008-07-13, MAN
+         - disable overscan option if vpd does not tell overscan size
+	 - fi-5110EOX crops scan area based on absolute maximum, not paper
+	 - fi-5330C and fi-5650C can't handle 10 bit LUT via USB
+	 - fi-5900 has background color, though it reports otherwise
 
    SANE FLOW DIAGRAM
 
@@ -413,7 +418,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 70 
+#define BUILD 71 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1762,7 +1767,9 @@ init_model (struct fujitsu *s)
     s->reverse_by_mode[MODE_GRAYSCALE] = 0;
     s->reverse_by_mode[MODE_COLOR] = 0;
   }
+
   else if (strstr (s->model_name, "M3093")){
+
     /* lies */
     s->has_back = 0;
     s->adbits = 8;
@@ -1770,20 +1777,35 @@ init_model (struct fujitsu *s)
     /* weirdness */
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
   }
+
   else if ( strstr (s->model_name, "M309")
    || strstr (s->model_name, "M409")){
 
     /* lies */
     s->adbits = 8;
-
   }
+
   else if (strstr (s->model_name, "fi-4120C2")
    || strstr (s->model_name, "fi-4220C2") ) {
 
     /* missing from vpd */
     s->os_x_basic = 376;
     s->os_y_basic = 236;
-  
+  }
+
+  else if (strstr (s->model_name,"fi-5110EOX")){
+
+    /* weirdness */
+    s->cropping_mode = CROP_ABSOLUTE;
+  }
+
+  /*FIXME: fi-5750 too? */
+  else if (strstr (s->model_name,"fi-5330")
+    || strstr (s->model_name,"fi-5650")){
+
+    /* lies - usb only */
+    if(s->connection == CONNECTION_USB)
+      s->adbits = 8;
   }
 
   /* some firmware versions use capital f? */
@@ -1799,6 +1821,9 @@ init_model (struct fujitsu *s)
   /* some firmware versions use capital f? */
   else if (strstr (s->model_name, "Fi-5900")
    || strstr (s->model_name, "fi-5900") ) {
+
+    /* lies */
+    s->has_bg_front=s->has_bg_back=1;
 
     /* weirdness */
     s->even_scan_line = 1;
@@ -3162,7 +3187,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->overscan_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if (s->has_MS_auto)
+    if (s->has_MS_auto && (s->os_x_basic || s->os_y_basic))
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -5799,6 +5824,12 @@ set_window (struct fujitsu *s)
   set_WD_Yres (desc1, s->resolution_y);
 
   set_WD_ULX (desc1, s->tl_x);
+  /* low-end scanners ignore paper-size,
+   * so we have to center the window ourselves */
+  if(s->cropping_mode == CROP_ABSOLUTE){
+    set_WD_ULX (desc1, s->tl_x + (s->max_x - s->page_width) / 2);
+  }
+
   set_WD_ULY (desc1, s->tl_y);
   set_WD_width (desc1, s->br_x - s->tl_x);
 

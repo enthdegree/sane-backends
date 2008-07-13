@@ -1,3 +1,10 @@
+2008-07-13  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v71,
+	- disable overscan option if vpd does not tell overscan size
+	- fi-5110EOX crops scan area based on absolute maximum, not paper
+	- fi-5330C and fi-5650C can't handle 10 bit LUT via USB
+	- fi-5900 has background color, though it reports otherwise
+
 2008-07-10  Stéphane Voltz <stef.dev@free.fr>
 	* sanei/sanei_config.c: handle cases where config or callback
 	  function is NULL 

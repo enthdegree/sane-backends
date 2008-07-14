@@ -1,4 +1,9 @@
 2008-07-13  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v72,
+	- use mode_sense to determine background color support
+	- remove fi-5900 background color override
+
+2008-07-13  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v71,
 	- disable overscan option if vpd does not tell overscan size
 	- fi-5110EOX crops scan area based on absolute maximum, not paper

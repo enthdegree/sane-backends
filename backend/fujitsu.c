@@ -358,6 +358,9 @@
 	 - fi-5110EOX crops scan area based on absolute maximum, not paper
 	 - fi-5330C and fi-5650C can't handle 10 bit LUT via USB
 	 - fi-5900 has background color, though it reports otherwise
+      v72 2008-07-13, MAN
+	 - use mode_sense to determine background color support
+	 - remove fi-5900 background color override
 
    SANE FLOW DIAGRAM
 
@@ -418,7 +421,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 71 
+#define BUILD 72 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1822,9 +1825,6 @@ init_model (struct fujitsu *s)
   else if (strstr (s->model_name, "Fi-5900")
    || strstr (s->model_name, "fi-5900") ) {
 
-    /* lies */
-    s->has_bg_front=s->has_bg_back=1;
-
     /* weirdness */
     s->even_scan_line = 1;
   }
@@ -3106,7 +3106,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->bg_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if (s->has_bg_front || s->has_bg_back)
+    if (s->has_MS_bg)
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
       opt->cap = SANE_CAP_INACTIVE;

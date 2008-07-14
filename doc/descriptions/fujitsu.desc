@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "68"                    ; version of backend
+:version "72"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.1.0, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -39,13 +39,13 @@
 :model "fi-4120C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1041"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, usb 1.1"
 
 :model "fi-4120C2"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10ae"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, usb 2.0"
 
 :model "fi-4220C"
@@ -62,36 +62,36 @@
 
 :model "fi-5110EOX"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x1096"
 :comment "small, recent, discontinued, no TWAIN driver"
 
 :model "fi-5110EOX2"
 :interface "USB"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, no TWAIN driver"
 
 :model "fi-5110EOXM"
 :interface "USB"
 :usbid "0x04c5" "0x10f2"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, Mac only"
 
 :model "ScanSnap S500"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x10fe"
 :comment "small, recent, discontinued, no TWAIN driver"
 
 :model "ScanSnap S500M"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x1135"
 :comment "small, recent, discontinued, no TWAIN driver, Mac only"
 
 :model "fi-5120C"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x10e0"
 :comment "small, recent, discontinued"
 
@@ -105,23 +105,18 @@
 ; CURRENT MODELS, SMALL
 :model "ScanSnap S510"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x1155"
 :comment "small, current, no TWAIN driver"
 
 :model "ScanSnap S510M"
 :interface "USB"
-:status :untested
+:status :complete
 :comment "small, current, no TWAIN driver, Mac only"
-
-:model "fi-5015C"
-:interface "USB"
-:status :untested
-:comment "small, current, unknown chipset, maybe Avision OEM?"
 
 :model "fi-5110C"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x1097"
 :comment "small, current"
 
@@ -223,19 +218,19 @@
 
 :model "fi-5530C"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x10e2"
 :comment "medium, current"
 
 :model "fi-5530C2"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x114a"
 :comment "medium, current"
 
 :model "fi-6140"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x114d"
 :comment "medium, current"
 
@@ -295,7 +290,7 @@
 
 :model "fi-4990C"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, recent, discontinued"
 
 :model "fi-4860C"
@@ -313,7 +308,7 @@
 :model "fi-5650C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10ad"
-:status :good
+:status :complete
 :comment "big, current"
 
 :model "fi-5750C"

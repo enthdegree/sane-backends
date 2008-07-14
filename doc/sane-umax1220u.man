@@ -1,24 +1,24 @@
-.TH sane-umax1220u 5 "17 Apr 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-umax
+.TH sane\-umax1220u 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-umax
 .SH NAME
-sane-umax1220u \- SANE backend for the UMAX Astra 1220U and similar scanners
+sane\-umax1220u \- SANE backend for the UMAX Astra 1220U and similar scanners
 
 .SH DESCRIPTION
 
 The
-.B sane-umax1220
+.B sane\-umax1220
 library implements a SANE (Scanner Access Now Easy) backend for the
 the UMAX Astra 1220U and similar scanners.
 
 For more information on this backend, please visit
-.IR http://umax1220u-sane.sourceforge.net/ .
+.IR http://umax1220u\-sane.sourceforge.net/ .
 
 .SH UMAX ASTRA 1600U/2000U/2100U SUPPORT
 
 This backend is also able to drive the UMAX Astra 1600U/2000U/2100U.  The
 2100U is confirmed to work. For the other scanners no reports have been received
 yet. Please contact us and tell us if your scanner works
-(sane-devel@lists.alioth.debian.org).
+(sane\-devel@lists.alioth.debian.org).
 
 .SH CONFIGURATION
 
@@ -37,7 +37,7 @@ configuration file is shown below:
  /dev/usb/scanner0
 .fi
 
-See sane-usb(5) for information on how to set the access permissions on the usb
+See sane\-usb(5) for information on how to set the access permissions on the usb
 device files.
 
 .SH FILES
@@ -47,10 +47,10 @@ The backend configuration file:
 .I @CONFIGDIR@/umax1220u.conf
 .TP
 The static library implementing this backend:
-.I @LIBDIR@/libsane-umax1220u.a
+.I @LIBDIR@/libsane\-umax1220u.a
 .TP
 The shared library implementing this backend:
-.I @LIBDIR@/libsane-umax1220u.so
+.I @LIBDIR@/libsane\-umax1220u.so
 (present on systems that support dynamic loading)
 
 .SH ENVIRONMENT
@@ -95,22 +95,22 @@ sure to adjust the scan area before doing a scan, since by default, the scan
 area is zero.
 
 .SH SEE ALSO
-sane(7), sane-usb(5)
+sane(7), sane\-usb(5)
 
 .TP
 (Old) homepage:
-.I http://umax1220u-sane.sourceforge.net/
+.I http://umax1220u\-sane.sourceforge.net/
 
 .SH AUTHOR
 
 Marcio Luis Teixeira <marciot@users.sourceforge.net>
 
 .SH EMAIL-CONTACT
-sane-devel@lists.alioth.debian.org
+sane\-devel@lists.alioth.debian.org
 
 .SH REPORTING BUGS
 
 This backend isn't actively maintained. Nevertheless, bug reports and comments
-should be sent to the sane-devel mailing list.  When reporting bugs, please run
+should be sent to the sane\-devel mailing list.  When reporting bugs, please run
 the backend with SANE_DEBUG_UMAX1220U set to 10 and attach a copy of the log
 messages.

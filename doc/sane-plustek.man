@@ -1,17 +1,17 @@
-.TH sane-plustek 5 "15 November 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-plustek
+.TH sane\-plustek 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-plustek
 .SH NAME
-sane-plustek \- SANE backend for LM983[1/2/3] based
+sane\-plustek \- SANE backend for LM983[1/2/3] based
 USB flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-plustek
+.B sane\-plustek
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to USB flatbed scanners based on National Semiconductor
 Merlin chipsets (LM9831, 9832 and 9833).
 If you're looking for parallel-port support for Plustek scanner
 please refer to the
-.B sane-plustek_pp
+.B sane\-plustek_pp
 backend.
 
 .SH "SUPPORTED DEVICES"
@@ -197,7 +197,7 @@ UT12               P98003     u12
 .fi
 .ft R
 For a more complete and up to date list see:
-.B http://www.sane-project.org/sane-supported-devices.html
+.B http://www.sane\-project.org/sane\-supported\-devices.html
 
 .SH "CONFIGURATION"
 To use your scanner with this backend, you need at least two
@@ -402,9 +402,9 @@ See the plustek.conf file for examples.
 You have to make sure, that the USB subsystem is loaded
 correctly and you have access to the device-node. For
 more details see
-.B sane-usb (5)
+.B sane\-usb (5)
 manpage. You might use
-.B sane-find-scanner
+.B sane\-find\-scanner
 to check that you have access to your device.
 .PP
 .B Note:
@@ -417,10 +417,10 @@ If there's no configuration file, the backend defaults to
 .I @CONFIGDIR@/plustek.conf
 The backend configuration file
 .TP
-.I @LIBDIR@/libsane-plustek.a
+.I @LIBDIR@/libsane\-plustek.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-plustek.so
+.I @LIBDIR@/libsane\-plustek.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -450,9 +450,9 @@ export SANE_DEBUG_PLUSTEK=10
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
-.BR sane-u12 (5),
-.BR sane-gt68xx (5),
+.BR sane\-usb (5),
+.BR sane\-u12 (5),
+.BR sane\-gt68xx (5),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
 .br
@@ -467,7 +467,7 @@ Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.sane-project.org/mailing-lists.html
+.B http://www.sane\-project.org/mailing\-lists.html
 .PP
 or directly from the projects' homepage at:
 .br

@@ -1,10 +1,10 @@
-.TH sane-tamarack 5 "24 Jun 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-tamarack
+.TH sane\-tamarack 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-tamarack
 .SH NAME
-sane-tamarack \- SANE backend for Tamarack flatbed scanners
+sane\-tamarack \- SANE backend for Tamarack flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-tamarack
+.B sane\-tamarack
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the following Tamarack flatbed scanners:
 .PP
@@ -29,13 +29,13 @@ Where
 is the path-name for the special device that corresponds to a
 SCSI scanner. The special device name must be a generic SCSI device or a
 symlink to such a device.  The program 
-.IR sane-find-scanner 
+.IR sane\-find\-scanner 
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane-scsi(5) for details.
+for example.  See sane\-scsi(5) for details.
 
 .SH FILES
 .TP
@@ -44,10 +44,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-tamarack.a
+.I @LIBDIR@/libsane\-tamarack.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-tamarack.so
+.I @LIBDIR@/libsane\-tamarack.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -75,6 +75,6 @@ Example:
 export SANE_DEBUG_TAMARACK=4
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 .SH AUTHOR
 Roger Wolff

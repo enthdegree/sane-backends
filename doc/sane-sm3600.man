@@ -1,16 +1,16 @@
-.TH sane-sm3600 5 "16 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-sm3600
+.TH sane\-sm3600 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-sm3600
 .SH NAME
-sane-sm3600 \- SANE backend for Microtek scanners with M011 USB chip
+sane\-sm3600 \- SANE backend for Microtek scanners with M011 USB chip
 .SH DESCRIPTION
 The
-.B sane-sm3600
+.B sane\-sm3600
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with the Toshiba M011 custom
 USB chip.  This backend should be considered alpha.
 .PP 
 There are also backends for Microtek scanners with SCSI command set.
-Refer to sane-microtek(5) and sane-microtek2(5) for details.
+Refer to sane\-microtek(5) and sane\-microtek2(5) for details.
 .PP
 At present, the following
 scanners are known positively to work with this backend:
@@ -49,10 +49,10 @@ This backend does not support a configuration file right now.
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-sm3600.a
+.I @LIBDIR@/libsane\-sm3600.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-sm3600.so
+.I @LIBDIR@/libsane\-sm3600.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -71,7 +71,7 @@ E.g. just say:
 export SANE_DEBUG_SM3600=5
 
 .SH "SEE ALSO"
-sane-microtek2(5), http://sm3600.sourceforge.net
+sane\-microtek2(5), http://sm3600.sourceforge.net
 
 .SH AUTHOR
 .br

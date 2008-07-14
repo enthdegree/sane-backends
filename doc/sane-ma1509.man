@@ -1,10 +1,10 @@
-.TH sane-ma1509 5 "24 Feb 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-ma1509
+.TH sane\-ma1509 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-ma1509
 .SH NAME
-sane-ma1509 \- SANE backend for Mustek BearPaw 1200F USB scanner
+sane\-ma1509 \- SANE backend for Mustek BearPaw 1200F USB scanner
 .SH DESCRIPTION
 The
-.B sane-ma1509
+.B sane\-ma1509
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the Mustek BearPaw 1200F USB flatbed scanner. This scanner is based
 on the MA-1509 chipset. Other scanners that use this chip (if they exist) may
@@ -14,19 +14,19 @@ This backend is ALPHA software.  Be careful and remove the power plug
 immediately if your hear unusual noises.
 .PP
 More details can be found on the ma1509 backend homepage 
-.IR http://www.meier-geinitz.de/sane/ma1509-backend/ .
+.IR http://www.meier\-geinitz.de/sane/ma1509\-backend/ .
 .PP
 Other Mustek USB scanners are supported by the gt68xx, mustek_usb and the
 plustek backends. See
-.BR sane-mustek_usb (5),
-.BR sane-gt68xx (5)
+.BR sane\-mustek_usb (5),
+.BR sane\-gt68xx (5)
 and
-.BR sane-plustek (5)
+.BR sane\-plustek (5)
 for details.
 .PP
 This backend can only work with scanners that are already detected by the
 operating system. See 
-.BR sane-usb (5)
+.BR sane\-usb (5)
 for details.
 .PP
 If you own a scanner other than the Mustek BearPaw 1200F that works with this
@@ -82,10 +82,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-ma1509.a
+.I @LIBDIR@/libsane\-ma1509.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-ma1509.so
+.I @LIBDIR@/libsane\-ma1509.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -111,17 +111,17 @@ debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
-.BR sane-gt68xx (5),
-.BR sane-plustek (5),
-.BR sane-mustek_usb (5),
-.BR sane-mustek (5),
-.BR sane-mustek_pp (5),
+.BR sane\-usb (5),
+.BR sane\-gt68xx (5),
+.BR sane\-plustek (5),
+.BR sane\-mustek_usb (5),
+.BR sane\-mustek (5),
+.BR sane\-mustek_pp (5),
 .br
-.I http://www.meier-geinitz.de/sane/ma1509-backend/
+.I http://www.meier\-geinitz.de/sane/ma1509\-backend/
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Meier-Geinitz <henning@meier\-geinitz.de>
 
 .SH BUGS
 Resolutions higher than 600 dpi don't work
@@ -131,4 +131,4 @@ Transparency adapter and automatic document feeder is not supported yet
 No support for "high-speed" mode (jpeg)
 .PP
 More detailed bug information is available at the MA-1509 backend homepage
-.IR http://www.meier-geinitz.de/sane/ma1509-backend/ .
+.IR http://www.meier\-geinitz.de/sane/ma1509-backend/ .

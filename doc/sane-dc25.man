@@ -1,10 +1,10 @@
-.TH sane-dc25 5 "12 April 1999" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-dc25
+.TH sane\-dc25 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-dc25
 .SH NAME
-sane-dc25 \- SANE backend for Kodak DC20/DC25 Digital Cameras
+sane\-dc25 \- SANE backend for Kodak DC20/DC25 Digital Cameras
 .SH DESCRIPTION
 The
-.B sane-dc25
+.B sane\-dc25
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Kodak DC20 and DC25 cameras.  At present, only
 the DC25 has been tested, but since the code is based on a DC20
@@ -20,7 +20,7 @@ specifies the maximum rate to use while downloading pictures.  (The
 camera is always initialized using 9600 baud, then switches to the
 higher rate).  On my 90MHz Pentium, I usually have no problems downloading
 at 115200 baud as long as the system is not excessively busy and 
-the "interrupt-unmask flag" is set in the IDE driver (hdparm -u1).
+the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The dumpinquiry line causes some information about the camera to 
@@ -49,10 +49,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-dc25.a
+.I @LIBDIR@/libsane\-dc25.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-dc25.so
+.I @LIBDIR@/libsane\-dc25.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -82,7 +82,7 @@ levels reduce verbosity.
 sane(7)
 
 .SH AUTHOR
-Peter Fales, dc25-devel@fales-lorenz.net
+Peter Fales, dc25\-devel@fales\-lorenz.net
 
 .SH BUGS
 Known bugs/limitations are:
@@ -94,6 +94,6 @@ updated immediately.
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to the SANE Developers mailing list 
-(see http://www.sane-project.org/mailing-lists.html for details). 
+(see http://www.sane\-project.org/mailing\-lists.html for details). 
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.

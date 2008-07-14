@@ -1,10 +1,10 @@
-.TH sane-canon_pp 5 "1 October 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-canon_pp
+.TH sane\-canon_pp 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-canon_pp
 .SH NAME
-sane-canon_pp \- SANE backend for Canon CanoScan Parallel Port flatbed scanners
+sane\-canon_pp \- SANE backend for Canon CanoScan Parallel Port flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-canon_pp
+.B sane\-canon_pp
 library implements a SANE (Scanner Access Now Easy) backend that provides 
 access to the following Canon flatbed scanners:
 .PP
@@ -123,10 +123,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-canon_pp.a
+.I @LIBDIR@/libsane\-canon_pp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-canon_pp.so
+.I @LIBDIR@/libsane\-canon_pp.so
 The shared library implementing this backend (present on systems that support 
 dynamic loading).
 .SH ENVIRONMENT
@@ -219,9 +219,9 @@ but not where another scan can be made.
 
 
 .SH "SEE ALSO"
-sane(7), sane-dll(5)
+sane(7), sane\-dll(5)
 .BR
-http://canon-fb330p.sourceforge.net/
+http://canon\-fb330p.sourceforge.net/
 
 .SH AUTHOR
 This backend is primarily the work of Simon Krix (Reverse Engineering), and 

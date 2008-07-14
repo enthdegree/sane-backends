@@ -1,10 +1,10 @@
-.TH sane-hp5400 5 "17 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-hp5400
+.TH sane\-hp5400 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-hp5400
 .SH NAME
-sane-hp5400 \- SANE backend for Hewlett-Packard 54XX scanners
+sane\-hp5400 \- SANE backend for Hewlett-Packard 54XX scanners
 .SH DESCRIPTION
 The
-.B sane-hp5400
+.B sane\-hp5400
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard USB flatbed scanners:
 .PP
@@ -26,7 +26,7 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane-find-scanner
+.I sane\-find\-scanner
 or syslog) to us. Even if the scanner's name is only slightly different from
 the models mentioned above, please let us know.
 .PP
@@ -54,10 +54,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-hp5400.a
+.I @LIBDIR@/libsane\-hp5400.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-hp5400.so
+.I @LIBDIR@/libsane\-hp5400.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -86,14 +86,14 @@ export SANE_DEBUG_HP5400=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
+.BR sane\-usb (5),
 .br
 .I http://hp5400backend.sourceforge.net/
 
 .SH AUTHOR
 Martijn van Oosterhout <kleptog@svana.org>, Thomas Soumarmon
 <soumarmt@nerim.net>. Manpage by Henning Meier-Geinitz
-<henning@meier-geinitz.de>.
+<henning@meier\-geinitz.de>.
 
 .SH BUGS
 Scanning is only tested with Linux/ix86/gcc. Be careful when testing on other

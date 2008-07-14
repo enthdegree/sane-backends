@@ -1,13 +1,13 @@
 .\" $Id$
-.TH sane-niash 5 "29 July 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-niash
+.TH sane\-niash 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-niash
 
 .SH NAME
-sane-niash \- SANE backend for scanners based on the NIASH chipset.
+sane\-niash \- SANE backend for scanners based on the NIASH chipset.
 
 .SH DESCRIPTION
 The
-.B sane-niash
+.B sane\-niash
 implements a SANE (Scanner Access Now Easy) backend that
 provides access to NIASH chipset based scanners. This backend will try to support
 the following models:
@@ -40,11 +40,11 @@ ignored. Currently no configuration options exist.
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-niash.a
+.I @LIBDIR@/libsane\-niash.a
 The static library implementing this backend.
 
 .TP
-.I @LIBDIR@/libsane-niash.so
+.I @LIBDIR@/libsane\-niash.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -74,7 +74,7 @@ export SANE_DEBUG_NIASH=255
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5)
+.BR sane\-usb (5)
 .br
 http://www.sourceforge.net/projects/hp3300backend
 .SH AUTHOR

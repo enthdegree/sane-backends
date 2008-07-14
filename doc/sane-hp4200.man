@@ -1,10 +1,10 @@
-.TH sane-hp4200 5 "14 August 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-hp4200
+.TH sane\-hp4200 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-hp4200
 .SH NAME
-sane-hp4200 \- SANE backend for Hewlett-Packard 4200 scanners
+sane\-hp4200 \- SANE backend for Hewlett-Packard 4200 scanners
 .SH DESCRIPTION
 The
-.B sane-hp4200
+.B sane\-hp4200
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard USB flatbed scanners:
 .PP
@@ -17,7 +17,7 @@ ScanJet 4200 Cse
 .RE
 .PP
 More details can be found on the hp4200 backend homepage 
-.IR http://hp4200-backend.sourceforge.net/ .
+.IR http://hp4200\-backend.sourceforge.net/ .
 .PP
 This is BETA software. Keep your hand at the scanner's plug and unplug it, if
 the head bumps at the end of the scan area. 
@@ -26,7 +26,7 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane-find-scanner
+.I sane\-find\-scanner
 or syslog) to us. Even if the scanner's name is only slightly different from
 the models mentioned above, please let us know.
 .PP
@@ -54,10 +54,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-hp4200.a
+.I @LIBDIR@/libsane\-hp4200.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-hp4200.so
+.I @LIBDIR@/libsane\-hp4200.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -86,13 +86,13 @@ export SANE_DEBUG_HP4200=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
+.BR sane\-usb (5),
 .br
-.I http://hp4200-backend.sourceforge.net/
+.I http://hp4200\-backend.sourceforge.net/
 
 .SH AUTHOR
 Adrian Perez Jorge, Andrew John Lewis, Arnar Mar Hrafnkelsson, Frank Zago,
-Henning Meier-Geinitz. Current maintainer: Henning Meier-Geinitz <henning@meier-geinitz.de>.
+Henning Meier-Geinitz. Current maintainer: Henning Meier-Geinitz <henning@meier\-geinitz.de>.
 
 .SH BUGS
 Tested only with Linux.
@@ -101,5 +101,5 @@ Only 8 bit color mode works.
 .PP
 Scanning is slow due to backtracking.
 .PP
-Send bug reports to the sane-devel mailing list:
-sane-devel@lists.alioth.debian.org.
+Send bug reports to the sane\-devel mailing list:
+sane\-devel@lists.alioth.debian.org.

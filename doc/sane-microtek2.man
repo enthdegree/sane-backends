@@ -1,9 +1,9 @@
-.TH sane-microtek2 5 "28 Jan 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-microtek2 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH NAME
-sane-microtek2 \- SANE backend for Microtek scanners with SCSI-2 command set
+sane\-microtek2 \- SANE backend for Microtek scanners with SCSI-2 command set
 .SH DESCRIPTION
 The
-.B sane-microtek2
+.B sane\-microtek2
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Microtek scanners with a SCSI-2 command set.
 This backend can be considered alpha to beta. Some scanner models are reported
@@ -13,7 +13,7 @@ obtained from
 .PP
 There exists a different backend for Microtek scanners with SCSI-1 command
 set.
-Refer to sane-microtek(5) for details.
+Refer to sane\-microtek(5) for details.
 .PP
 And there is work in progress for the ScanMaker 3600.
 See
@@ -53,7 +53,7 @@ Scanpaq    SQ2030            Parport
 .ft R
 .PP
 Additional information can be found at
-.BR http://www.sane-project.org/ .
+.BR http://www.sane\-project.org/ .
 .PP
 If you own a Microtek scanner other than the ones listed above,
 it may or may not work with SANE! Because equal scanners are sold under
@@ -98,7 +98,7 @@ file or change the existing "option dump" to "2"
 .br
 "export SANE_DEBUG_MICROTEK2=30" and then
 .br
-"scanimage -l0 -t0 -x100 -y20 2>scan.log >sout.pnm"
+"scanimage \-l0 \-t0 \-x100 \-y20 2>scan.log >sout.pnm"
 .br
 You get two files: scan.log contains the logfile and sout.pnm the scanned
 image (if there was scanned something). Zip them before sending.
@@ -159,19 +159,19 @@ Currently the following options are supported:
 .RS
 option dump <n>
 .br
-option strip-height <n>
+option strip\-height <n>
 .br
-option no-backtrack-option <on/off>
+option no\-backtrack\-option <on/off>
 .br
-option lightlid-35 <on/off>
+option lightlid\-35 <on/off>
 .br
-option toggle-lamp <on/off>
+option toggle\-lamp <on/off>
 .br
-option lineart-autoadjust <on/off>
+option lineart\-autoadjust <on/off>
 .br
-option backend-calibration <on/off>
+option backend\-calibration <on/off>
 .br
-option colorbalance-adjust <on/off>
+option colorbalance\-adjust <on/off>
 .RE
 .PP
 .I option dump <n>
@@ -192,7 +192,7 @@ printed, too. If n=4 all scan data is additionally printed to stderr.
 .PP
 The default is n=1.
 .PP
-.I option strip-height <n>
+.I option strip\-height <n>
 , where <n> is a floating point number, limits the amount of data that is
 read from the scanner with one read command.
 The unit is inch and <n> defaults to 1.0, if this option is not set in the
@@ -207,27 +207,27 @@ no restrictions apply for scanners with a letter, legal or A4 sized scan area.
 The following options enable or disable additional frontend options. If an
 option is set to <on> an appropriate option will appear in the frontend.
 .PP
-.I option no-backtrack-option <on/off>
+.I option no\-backtrack\-option <on/off>
 prevents the scanner head from moving backwards between the read commands.
 This speeds up scanning. Try it.
 .PP
-.I option lightlid-35 <on/off>
+.I option lightlid\-35 <on/off>
 If you use the LightLid-35 transparency adapter you get an advanced
 option which switches off the flatbed lamp during the scan.
 .PP
-.I option toggle-lamp <on/off>
+.I option toggle\-lamp <on/off>
 You get a button in the frontend where you can switch on and off the flatbed
 lamp.
 .PP
-.I option lineart-autoadjust <on/off>
+.I option lineart\-autoadjust <on/off>
 You can tell the backend to try to determine a good value for the lineart
 threshold.
 .PP
-.I option backend-calibration <on/off>
+.I option backend\-calibration <on/off>
 Some scanners (e.g. Phantom 330CX and 636CX) need to have calibrated the data
 by the backend. Try this option if you see vertical stripes in your pictures.
 .PP
-.I option colorbalance-adjust <on/off>
+.I option colorbalance\-adjust <on/off>
 Some scanners (e.g. Phantom 330CX and 636CX) need to have corrected
 the color balance. If this option is enabled you get advanced options
 where you can balance the colors. And you will have a button
@@ -238,17 +238,17 @@ A sample configuration file is shown below:
 .RS
 option dump 1
 .br
-option strip-height 1.0
+option strip\-height 1.0
 .br
 /dev/scanner
 .br
-option no-backtrack-option on
+option no\-backtrack\-option on
 .br
 # this is a comment
 .br
 /dev/sge
 .br
-option lightlid-35 on
+option lightlid\-35 on
 .RE
 
 This backend also supports the new configuration file format which makes
@@ -258,19 +258,19 @@ would be best to use the following configuration file for this backend:
 .RS
 option dump 1
 .br
-option strip-height 14.0
+option strip\-height 14.0
 .br
-option no-backtrack-option on
+option no\-backtrack\-option on
 .br
-option backend-calibration on
+option backend\-calibration on
 .br
-option lightlid-35 on
+option lightlid\-35 on
 .br
-option toggle-lamp on
+option toggle\-lamp on
 .br
-option lineart-autoadjust on
+option lineart\-autoadjust on
 .br
-option colorbalance-adjust off
+option colorbalance\-adjust off
 .br
 scsi * * Scanner
 .RE
@@ -286,10 +286,10 @@ line.
 .I @CONFIGDIR@/microtek2.conf
 The backend configuration file.
 .TP
-.I @LIBDIR@/libsane-microtek2.a
+.I @LIBDIR@/libsane\-microtek2.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-microtek2.so
+.I @LIBDIR@/libsane\-microtek2.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH "ENVIRONMENT"
@@ -306,7 +306,7 @@ E.g. just say:
 .br
 export SANE_DEBUG_MICROTEK2=128
 .SH "SEE ALSO"
-sane-scsi(5), sane(7)
+sane\-scsi(5), sane(7)
 .SH "AUTHORS"
 Bernd Schroeder (not active anymore)
 .br

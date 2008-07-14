@@ -1,10 +1,10 @@
-.TH sane-pint 5 "13 May 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-pint
+.TH sane\-pint 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-pint
 .SH NAME
-sane-pint \- SANE backend for scanners that use the PINT device driver
+sane\-pint \- SANE backend for scanners that use the PINT device driver
 .SH DESCRIPTION
 The
-.B sane-pint
+.B sane\-pint
 library implements a SANE (Scanner Access Now Easy) backend that
 provides generic access to hand-held and flatbed scanners using the
 PINT (PINT Is Not Twain) device driver.  The PINT driver is being
@@ -21,9 +21,9 @@ successfully.
 If have successfully used the PINT driver with your scanner, but it
 does not work using this SANE backend, please let us know.  To do
 this, send a mail with the relevant information for your scanner to
-.IR sane-devel@lists.alioth.debian.org .
-Have a look at http://www.sane-project.org/mailing-lists.html concerning subscription
-to sane-devel.
+.IR sane\-devel@lists.alioth.debian.org .
+Have a look at http://www.sane\-project.org/mailing\-lists.html concerning subscription
+to sane\-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -62,10 +62,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-pint.a
+.I @LIBDIR@/libsane\-pint.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-pint.so
+.I @LIBDIR@/libsane\-pint.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT

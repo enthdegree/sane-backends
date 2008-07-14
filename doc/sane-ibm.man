@@ -1,14 +1,14 @@
-.TH sane-ibm 5 "15 Apr 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-ibm
+.TH sane\-ibm 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-ibm
 .SH NAME
-sane-ibm \- SANE backend for IBM and Ricoh SCSI flatbed scanners
+sane\-ibm \- SANE backend for IBM and Ricoh SCSI flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-ibm
+.B sane\-ibm
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the IBM 2456 and the Ricoh IS-410, IS-420, and IS-430 flatbed
 scanners. Support for the IS-410 and IS-430 is untested. Please contact the
-maintainer or the sane-devel mailing list if you own such a scanner.
+maintainer or the sane\-devel mailing list if you own such a scanner.
 .PP
 This backend is alpha-quality. It may have bugs and some scanners haven't been
 tested at all. Be careful and pull the plug if the scanner causes unusual
@@ -25,13 +25,13 @@ Where
 .I special
 is either the path-name for the special device that corresponds to a SCSI
 scanner. The program
-.I sane-find-scanner 
+.I sane\-find\-scanner 
 helps to find out the correct device. Under Linux, such a device name could be
 .I /dev/sg0
 or
 .IR /dev/sga ,
 for example.  See 
-.BR sane-scsi (5)
+.BR sane\-scsi (5)
 for details.
 
 .SH CONFIGURATION
@@ -40,7 +40,7 @@ The contents of the
 file is a list of device names that correspond to SCSI
 scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  See 
-.BR sane-scsi (5)
+.BR sane\-scsi (5)
 on details of what constitutes a valid device name.
 
 .SH FILES
@@ -50,10 +50,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-ibm.a
+.I @LIBDIR@/libsane\-ibm.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-ibm.so
+.I @LIBDIR@/libsane\-ibm.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -79,10 +79,10 @@ debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-find-scanner (1),
-.BR sane-scsi (5),
+.BR sane\-find\-scanner (1),
+.BR sane\-scsi (5),
 
 .SH AUTHOR
 mf <massifr@tiscalinet.it>
 .br
-Maintained by Henning Meier-Geinitz <henning@meier-geinitz.de>
+Maintained by Henning Meier-Geinitz <henning@meier\-geinitz.de>

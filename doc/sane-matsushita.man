@@ -1,10 +1,10 @@
-.TH sane-matsushita 5 "February 11th, 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-matsushita
+.TH sane\-matsushita 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-matsushita
 .SH NAME
-sane-matsushita \- SANE backend for Panasonic KV-SS high speed scanners
+sane\-matsushita \- SANE backend for Panasonic KV-SS high speed scanners
 .SH DESCRIPTION
 The
-.B sane-matsushita
+.B sane\-matsushita
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Panasonic KV-SS high speed scanners. This
 backend is stable.
@@ -33,72 +33,72 @@ Other Panasonic high speed scanners may or may not work with that backend.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d matsushita
+scanimage \-\-help \-d matsushita
 .RE
 
 .TP
 .B Scan Mode
 
 .TP
-.B --mode
+.B \-\-mode
 selects the basic mode of operation of the scanner.
 .TP
-.B --resolution
+.B \-\-resolution
 selects the resolution for a scan. Each model supports all or a subset of these resolutions: 100, 150, 200, 240, 300, 360, 400.
 .TP
-.B --duplex
+.B \-\-duplex
 indicates whether to scan both side of the sheet.
 .TP
-.B --feeder-mode
+.B \-\-feeder\-mode
 selects the number of pages to scan (one or until the tray is empty).
 
 .TP
 .B Geometry
 
 .TP
-.B --paper-size A4|...|Legal|Letter [A4]
+.B \-\-paper\-size A4|...|Legal|Letter [A4]
 options selects the area to scan. It adjust the 
-.B -l -t -x -y
+.B \-l \-t \-x \-y
 options accordingly. It does not need to be the real size of the paper.
 
 .TP
-.B -l -t -x -y 
-control the scan area: -l sets the top left x coordinate, -t the top
-left y coordinate, -x selects the width and -y the height of the scan
+.B \-l \-t \-x \-y 
+control the scan area: \-l sets the top left x coordinate, \-t the top
+left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters. It is possible to use
 the option
-.I --paper-size
+.I \-\-paper\-size
 instead.
 
 .TP
 .B Enhancement
 
 .TP
-.B --brightness
+.B \-\-brightness
 controls the brightness of the acquired image. The value varies from 1 to 255, or less, depending on the scanner model.
 .TP
-.B --contrast
+.B \-\-contrast
 controls the contrast of the acquired image. Some models do not support that option.
 .TP
-.B --automatic-threshold
-automatically sets brightness, contrast, white level, gamma, noise reduction and image emphasis. These options are not available when automatic-threshold is in use.
+.B \-\-automatic\-threshold
+automatically sets brightness, contrast, white level, gamma, noise reduction and image emphasis. These options are not available when automatic\-threshold is in use.
 .TP
-.B --halftone-pattern
+.B \-\-halftone\-pattern
 option sets the tonal gradation for the halftone mode. Pattern downloading is not implemented by the backend.
 .TP
-.B --autoseparation
+.B \-\-autoseparation
 provides automatic separation of text and images. 
 .TP
-.B --white-level
+.B \-\-white\-level
 option indicate the source of the white base.
 .TP
-.B --noise-reduction
+.B \-\-noise\-reduction
 reduces the isolated dot noise. This option is not supported by all scanners.
 .TP
-.B --image-emphasis
+.B \-\-image\-emphasis
 option sets the image emphasis. Some selection are not available on all scanners.
 .TP
-.B --gamma
+.B \-\-gamma
 options set the gamma curve. It is only valid for Gray modes, and is not available on all scanners. Gamma downloading is not implemented by the backend.
 
 
@@ -108,10 +108,10 @@ The configuration file @CONFIGDIR@/matsushita.conf supports the device name to u
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-matsushita.a
+.I @LIBDIR@/libsane\-matsushita.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-matsushita.so
+.I @LIBDIR@/libsane\-matsushita.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -149,7 +149,7 @@ scanadf.
 
 A scanadf command line would be:
 
-scanadf -d matsushita --output-file scan%04d.pbm --start-count 0 --duplex --resolution 300 --feeder-mode="All pages" --paper-size="A4"
+scanadf \-d matsushita \-\-output\-file scan%04d.pbm \-\-start\-count 0 \-\-duplex \-\-resolution 300 \-\-feeder\-mode="All pages" \-\-paper\-size="A4"
 
 
 .SH BUGS
@@ -159,7 +159,7 @@ None known.
 
 .SH "SEE ALSO"
 
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR

@@ -1,10 +1,10 @@
-.TH sane-qcam 5 "25 October 1997" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-qcam
+.TH sane\-qcam 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-qcam
 .SH NAME
-sane-qcam \- SANE backend for Connectix QuickCam cameras
+sane\-qcam \- SANE backend for Connectix QuickCam cameras
 .SH DESCRIPTION
 The
-.B sane-qcam
+.B sane\-qcam
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access Connectix QuickCam cameras.
 .SH "DEVICE NAMES"
@@ -50,10 +50,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-qcam.a
+.I @LIBDIR@/libsane\-qcam.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-qcam.so
+.I @LIBDIR@/libsane\-qcam.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT

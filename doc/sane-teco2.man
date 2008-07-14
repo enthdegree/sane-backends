@@ -1,10 +1,10 @@
-.TH sane-teco2 5 "29 July 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-teco2
+.TH sane\-teco2 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-teco2
 .SH NAME
-sane-teco2 \- SANE backend for TECO / RELISYS scanners
+sane\-teco2 \- SANE backend for TECO / RELISYS scanners
 .SH DESCRIPTION
 The
-.B sane-teco2
+.B sane\-teco2
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some TECO SCSI flatbed scanners. This backend
 should be considered
@@ -58,14 +58,14 @@ the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d teco2
+scanimage \-\-help \-d teco2
 .RE
 
 .TP
 .B Scan Mode
 
 .TP
-.B --mode
+.B \-\-mode
 selects the basic mode of operation of the scanner valid choices are 
 .I Lineart
 ,
@@ -77,7 +77,7 @@ will produce 256 levels of gray (8 bits). Color will produce a 24 bits
 color image.
 
 .TP
-.B --resolution
+.B \-\-resolution
 Lineart and Gray
 selects the resolution for a scan. The scanner can do all resolutions
 between 1 and 600, in increments of 1.
@@ -98,9 +98,9 @@ e.g. 600dpi adjust with: convert -geometry 200%x100%
 .B Geometry options
 
 .TP
-.B -l -t -x -y 
-control the scan area: -l sets the top left x coordinate, -t the top
-left y coordinate, -x selects the width and -y the height of the scan
+.B \-l \-t \-x \-y 
+control the scan area: \-l sets the top left x coordinate, \-t the top
+left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
 
 
@@ -108,45 +108,45 @@ area. All parameters are specified in millimeters by default.
 .B Enhancement options
 
 .TP
-.B --custom-gamma (no custom gamma option for the VM3564 and VM356A)
+.B \-\-custom\-gamma (no custom gamma option for the VM3564 and VM356A)
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
 .TP 
-.B --red-gamma-table 
+.B \-\-red\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
 .TP 
-.B --green-gamma-table 
+.B \-\-green\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B --blue-gamma-table 
+.B \-\-blue\-gamma\-table 
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
-.B --white-level-r
+.B \-\-white\-level\-r
 (VM3564, VM356A, VM3575 and VM6575 only) Selects what red radiance level should be
 considered "white", when scanning some sheets by changing the calibration 
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP
-.B --white-level-g
+.B \-\-white\-level\-g
 (VM3564, VM356A, VM3575 and VM6575 only) Selects what green radiance level should be
 considered "white", when scanning some sheets by changing the calibration i
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP
-.B --white-level-b
+.B \-\-white\-level\-b
 (VM3564, VM356A, VM3575 and VM6575 only) Selects what blue radiance level should be
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP 
-.B --preview
+.B \-\-preview
 requests a preview scan. The resolution used for that scan is 50  dpi
 (for VM356A and VM6575 75 dpi) and the scan area is the maximum allowed. 
 The scan mode is user selected. The default is "no".
@@ -159,10 +159,10 @@ information: the device name to use (eg /dev/scanner).
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-teco2.a
+.I @LIBDIR@/libsane\-teco2.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-teco2.so
+.I @LIBDIR@/libsane\-teco2.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -196,7 +196,7 @@ Plenty. Parts of this backend are still under development.
 
 .SH "SEE ALSO"
 
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHORS

@@ -1,7 +1,7 @@
-.TH sane-usb 5 "19 Jun 2006"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-usb
+.TH sane\-usb 5 "14 Jul 2008"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-usb
 .SH NAME
-sane-usb \- USB configuration tips for SANE
+sane\-usb \- USB configuration tips for SANE
 .SH DESCRIPTION
 This manual page contains information on how to access scanners with a USB
 interface. It focusses on two main topics: getting the scanner detected by the
@@ -11,20 +11,20 @@ This page applies to USB most backends and scanners, as they use the generic
 sanei_usb interface. However, there is one exceptions: USB Scanners
 supported by the microtek2 backend need a special USB kernel
 driver, see
-.BR sane-microtek2 (5)
+.BR sane\-microtek2 (5)
 for details. 
 
 .SH "QUICK START"
 This is a short HOWTO-like section. For the full details, read the following
 sections. The goal of this section is to get the scanner detected by
-.BR sane-find-scanner (1).
+.BR sane\-find\-scanner (1).
 .PP
-Run sane-find-scanner. If it lists your scanner with the correct vendor and
+Run sane\-find\-scanner. If it lists your scanner with the correct vendor and
 product ids, you are done. See section
 .B "SANE ISSUES"
 for details on how to go on.
 .PP
-Sane-find-scanner doesn't list your scanner? Does it work as root? If yes,
+sane\-find\-scanner doesn't list your scanner? Does it work as root? If yes,
 there is a permission issue. See the
 .B LIBUSB
 section for details.
@@ -64,7 +64,7 @@ access. Otherwise only root can use SANE devices. For
 the devices are located in /proc/bus/usb/ or in /dev/bus/usb, if you use
 udev. There are directories named e.g. "001" (the bus name) containing files
 "001", "002" etc. (the device files). The right device files can be found out by
-running scanimage -L as root. Setting permissions with "chmod" is not permanent,
+running scanimage \-L as root. Setting permissions with "chmod" is not permanent,
 however. They will be reset after reboot or replugging the scanner.
 .PP
 Usually udev or for older distributions the hotplug utilities are used, which
@@ -81,12 +81,12 @@ Use chmod to apply appropriate permissions.
 
 .SH "SANE ISSUES"
 .PP
-This section assumes that your scanner is detected by sane-find-scanner. It
-doesn't make sense to go on, if this is not the case. While sane-find-scanner
+This section assumes that your scanner is detected by sane\-find\-scanner. It
+doesn't make sense to go on, if this is not the case. While sane\-find\-scanner
 is able to detect any USB scanner, actual scanning will only work if the
 scanner is supported by a SANE backend. Information on the level of support
 can be found on the SANE webpage
-.RI ( http://www.sane-project.org/ ),
+.RI ( http://www.sane\-project.org/ ),
 and the individual backend manpages.
 .PP
 Most backends can detect USB scanners automatically using "usb" configuration
@@ -104,7 +104,7 @@ is the USB vendor id, and
 .I PRODUCT
 is the USB product id of the scanner. Both ids are non-negative integer numbers
 in decimal or hexadecimal format. The correct values for these fields can be
-found by running sane-find-scanner, looking into the syslog (e.g.,
+found by running sane\-find\-scanner, looking into the syslog (e.g.,
 /var/log/messages) or under Linux by issuing the command "cat
 /proc/bus/usb/devices".  This is an example of a config file line:
 .PP
@@ -120,7 +120,7 @@ If your scanner is not detected automatically, it may be necessary to edit the
 appropriate backend configuration file before using SANE for the first time.
 For a detailed description of each backend's configuration file, please refer to
 the relevant backend manual page (e.g.
-.BR sane-mustek_usb (5)
+.BR sane\-mustek_usb (5)
 for Mustek USB scanners).
 .PP
 Do
@@ -141,9 +141,9 @@ libusb debugging (if available). Example: export SANE_DEBUG_SANEI_USB=4.
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-find-scanner (1),
-.BR sane-"backendname" (5),
-.BR sane-scsi (5)
+.BR sane\-find\-scanner (1),
+.BR sane\-"backendname" (5),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Meier-Geinitz <henning@meier\-geinitz.de>

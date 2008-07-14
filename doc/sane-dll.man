@@ -1,14 +1,14 @@
-.TH sane-dll 5 "4 Dec 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-dll
+.TH sane\-dll 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-dll
 .SH NAME
-sane-dll \- SANE dynamic backend loader
+sane\-dll \- SANE dynamic backend loader
 .SH DESCRIPTION
 The
-.B sane-dll
+.B sane\-dll
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to an arbitrary number of other SANE backends.  These
 backends may either be pre-loaded at the time the
-.B sane-dll
+.B sane\-dll
 library is built or, on systems that support dynamic loading of shared
 libraries, the backends may be loaded at runtime.  In the latter case,
 adding support for a new backend simply involves installing the
@@ -114,10 +114,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-dll.a
+.I @LIBDIR@/libsane\-dll.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-dll.so
+.I @LIBDIR@/libsane\-dll.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -160,7 +160,7 @@ export SANE_DEBUG_DLL=3
 .SH "SEE ALSO"
 .BR sane (7),
 .BR scanimage (1),
-.BR sane-"backendname" (5)
+.BR sane\-"backendname" (5)
 
 .SH AUTHOR
 David Mosberger

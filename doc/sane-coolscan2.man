@@ -1,10 +1,10 @@
-.TH sane-coolscan2 5 "22/08/2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-coolscan2
+.TH sane\-coolscan2 5 "11 Jul 2008"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-coolscan2
 .SH NAME
-sane-coolscan2 \- SANE backend for Nikon Coolscan film scanners
+sane\-coolscan2 \- SANE backend for Nikon Coolscan film scanners
 .SH DESCRIPTION
 The
-.B sane-coolscan2
+.B sane\-coolscan2
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Nikon Coolscan film scanners.  Some functions of this 
 backend should be considered
@@ -40,14 +40,14 @@ options to programs like scanimage or through GUI elements in xscanimage or xsan
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d coolscan2:<interface>:<device>
+scanimage \-\-help \-d coolscan2:<interface>:<device>
 .RE
 where <interface> and <device> specify the device in question, as in the
-configuration file (see next section). The "-d" parameter and its argument
+configuration file (see next section). The \-d parameter and its argument
 can be omitted to obtain information on the first scanner identified. Use
 the command
 .RS
-scanimage -L
+scanimage \-L
 .RE
 to list all devices recognized by your SANE installation.
 
@@ -55,25 +55,25 @@ The options should be fully described by the description or tooltips given by
 frontend. Here is a description of some of the most important options, in the
 syntax with which they must be supplied to scanimage:
 .TP
-.I --frame <n>
+.I \-\-frame <n>
 This option specifies which frame to operate on, if a motorized film strip
 feeder or APS adapter are used. The frame number
 .I <n>
 ranges from 1 to the number of frames available, which is sensed each time
 the backend is initialized (usually each time you start the frontend).
 .TP
-.I --subframe <x>
+.I \-\-subframe <x>
 This option shifts the scan window by the specified amount (default
 unit is mm).
 .TP
-.I --infrared=yes/no
+.I \-\-infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
 with no options altered. The backend must not be restarted between the scans. 
-If you use scanimage, perform a batch scan with batch-count=2 to obtain the
+If you use scanimage, perform a batch scan with batch\-count=2 to obtain the
 IR information.
 .TP
-.I --depth <n>
+.I \-\-depth <n>
 Here <n> can either be 8 or the maximum number of bits supported by the
 scanner (10, 12, or 14). It specifies whether or not the scanner reduces
 the scanned data to 8 bits before sending it to the backend. If 8 bits are
@@ -81,36 +81,36 @@ used, some information and thus image quality is lost, but the amount of data
 is smaller compared to higher depths. Also, many imaging programs and image
 formats cannot handle depths greater than 8 bits.
 .TP
-.I --autofocus
+.I \-\-autofocus
 Perform autofocus operation. Unless otherwise specified by the other options (
-.I --focus-on-centre
+.I \-\-focus\-on\-centre
 and friends), focusing is performed on the centre of the selected scan area.
 .TP
-.I --ae-wb
+.I \-\-ae\-wb
 .TP
-.I --ae
+.I \-\-ae
 Perform a pre-scan to calculate exposure values automatically.
-.I --ae-wb
+.I \-\-ae\-wb
 will maintain the white balance, while
-.I --ae
+.I \-\-ae
 will adjust each channel separately.
 .TP
-.I --exposure
+.I \-\-exposure
 Multiply all exposure times with this value. This allows exposure
 correction without modifying white balance.
 .TP
-.I --load
+.I \-\-load
 Load the next slide when using the slide loader.
 .TP
-.I --eject
+.I \-\-eject
 Eject the film strip or mounted slide when using the slide loader.
 .TP
-.I --reset
+.I \-\-reset
 Reset scanner. The scanner will perform the same action as when power is
 turned on: it will eject the film strip and calibrate itself. Use this
 whenever the scanner refuses to load a film strip properly, as a result of
 which
-.I --eject
+.I \-\-eject
 does not work.
 
 .SH CONFIGURATION FILE
@@ -137,10 +137,10 @@ module in the kernel and appear to SANE as SCSI devices.
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-coolscan2.a
+.I @LIBDIR@/libsane\-coolscan2.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-coolscan2.so
+.I @LIBDIR@/libsane\-coolscan2.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
@@ -157,12 +157,12 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane-scsi(5), sane-usb(5), scanimage(1), xscanimage(1), xsane(1)
+sane\-scsi(5), sane\-usb(5), scanimage(1), xscanimage(1), xsane(1)
 
 .SH BUGS
 Currently, the SANE protocol does not allow automatically updating options
 whenever the hardware changes. Thus the number of choices for the
-.B --frame
+.B \-\-frame
 option will be fixed when the backend is initialized (usually when the user
 runs the frontend). In particular, if there is no film strip in the
 automatic film strip feeder when the backend is initialized, the frame option

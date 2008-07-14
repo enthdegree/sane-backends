@@ -1,10 +1,10 @@
-.TH sane-dmc 5 "13 May 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-dmc
+.TH sane\-dmc 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-dmc
 .SH NAME
-sane-dmc \- SANE backend for the Polaroid Digital Microscope Camera
+sane\-dmc \- SANE backend for the Polaroid Digital Microscope Camera
 .SH DESCRIPTION
 The
-.B sane-dmc
+.B sane\-dmc
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Polaroid Digital Microscope Camera.
 .SH "DEVICE NAMES"
@@ -87,10 +87,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-dmc.a
+.I @LIBDIR@/libsane\-dmc.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-dmc.so
+.I @LIBDIR@/libsane\-dmc.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -131,10 +131,10 @@ be read in one SCSI transfer.  In this case, the driver performs
 buffering and you can read the image in as small an increment as you
 like.
 .SH "SEE ALSO"
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 .SH AUTHOR
 David F. Skoll
 .PP
 The backend is derived from
-.BR sane-hp
+.BR sane\-hp
 by David Mosberger

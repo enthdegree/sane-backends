@@ -1,3 +1,8 @@
+2008-07-14 Julien Blache <jb@jblache.org>
+	* doc/*.man: Fix hyphen vs. minus sign issues in the manpages,
+	breaking copy/paste of command-lines and options in UTF-8
+	environments.
+
 2008-07-13  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v72,
 	- use mode_sense to determine background color support

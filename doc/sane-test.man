@@ -1,10 +1,10 @@
-.TH sane-test 5 "2 Jan 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-test
+.TH sane\-test 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-test
 .SH NAME
-sane-test \- SANE backend for testing frontends
+sane\-test \- SANE backend for testing frontends
 .SH DESCRIPTION
 The
-.B sane-test
+.B sane\-test
 library implements a SANE (Scanner Access Now Easy) backend that allows
 testing the SANE installation and SANE frontends.  It provides access to a
 (nearly) unlimited number of virtual devices.  There is no support for real
@@ -13,13 +13,13 @@ options.
 .PP
 The idea is not only to find bugs in frontends but also to show all
 capabilities of SANE.  Therefore
-.B sane-test
+.B sane\-test
 implements functions and options that are not (or seldom) found in other
 backends. 
 .PP
 The backend is commented out in @CONFIGDIR@/dll.conf, so either the comment
 character must be removed or the backend must be called explicitly.  E.g. 
-`scanimage -d test' or `xscanimage test'.
+`scanimage \-d test' or `xscanimage test'.
 
 .SH SCAN MODE OPTIONS
 Option
@@ -37,20 +37,20 @@ colors) but allowed in the SANE standard. However, the meaning of bits is not
 defined. Currently 1 = high intensity and 0 = low intensity is used.
 .PP
 Setting option
-.B hand-scanner
+.B hand\-scanner
 results in the test-backend behaving like a hand-scanner.  Hand-scanners do
-not know the image height a priori.  Instead, they return a height of -1.
+not know the image height a priori.  Instead, they return a height of \-1.
 Setting this option allows to test whether a frontend can handle this
 correctly.  This option also enables a fixed width of 11 cm.
 .PP
 Setting option
-.B three-pass
+.B three\-pass
 simulates a three-pass scanner.  Older color scanners needed to scan the image
 once per color (reg/green/blue) to get the full image.  Therefore, in this mode
 three single frames are transmitted in color mode.
 .PP
 Option
-.B three-pass-order
+.B three\-pass\-order
 provides support for changing the order of the three frames (see option
 three-pass above).  A frontend should support all orders.
 .PP
@@ -67,93 +67,93 @@ ADF will be "empty".
 
 .SH SPECIAL OPTIONS
 Option
-.B test-picture
+.B test\-picture
 allows to set the image that's returned to the frontend.  While "Solid white"
 and "Solid black" are quite obvious, the other options need some more
 explanation.  Color patterns are used to determine if all modes and their
 colors are represented correctly by the frontend.  The grid should look like the
 same in every mode and resolution.  A table of all the test pictures can be
-found at: http://www.meier-geinitz.de/sane/test-backend/test-pictures.html.
+found at: http://www.meier\-geinitz.de/sane/test\-backend/test\-pictures.html.
 .PP
 If option
-.B invert-endianess
+.B invert\-endianess
 is set, the upper and lower bytes of image data in 16 bit modes are exchanged.
 This option can be used to test the 16 bit modes of frontends, e.g. if the
 frontend uses the correct endianess.
 .PP
 If option
-.B read-limit
+.B read\-limit
 is set, the maximum amount of data transferred with each call to sane_read() is
 limited.
 .PP
 Option 
-.B read-limit-size
+.B read\-limit\-size
 sets the limit for option read-limit.  A low limit slows down scanning.  It
 can be used to detect errors in frontend that occur because of wrong
 assumptions on the size of the buffer or timing problems.
 .PP
 Option
-.B read-delay
+.B read\-delay
 enables delaying data to the frontend.
 .PP
 Option
-.B read-delay-duration
+.B read\-delay\-duration
 selects the number of microseconds the backends waits after each transfer of a
 buffer.  This option is useful to find timing-related bugs, especially if
 used over the network.
 .PP
 If option
-.B read-return-value
+.B read\-return\-value
 is different from "Default", the selected status will be returned by every
 call to sane_read().  This is useful to test the frontend's handling of the
 SANE statii.
 .PP
 If option
-.B ppl-loss
+.B ppl\-loss
 is different from 0, it determines the number of pixels that are "lost" at the
 end of each line.  That means, lines are padded with unused data.
 .PP
 Option
-.B fuzzy-parameters
+.B fuzzy\-parameters
 selects that fuzzy (inexact) parameters are returned as long as the scan
 hasn't been started.  This option can be used to test if the frontend uses the
 parameters it got before the start of the scan (which it shouldn't).
 .PP
 Option
-.B non-blocking
+.B non\-blocking
 determines if non-blocking IO for sane_read() should be used if supported by
 the frontend.
 .PP
 If option
-.B select-fd
+.B select\-fd
 is set, the backend offers a select filedescriptor for detecting if
 sane_read() will return data.
 .PP
 If option
-.B enable-test-options
+.B enable\-test\-options
 is set, a fairly big list of options for testing the various SANE option
 types is enabled.
 .PP
 Option
-.B print-options
+.B print\-options
 can be used to print a list of all options to standard error.
 .PP
 
 .SH GEOMETRY OPTIONS
 Option
-.B tl-x
+.B tl\-x
 determines the top-left x position of the scan area.
 .PP
 Option
-.B tl-y
+.B tl\-y
 determines the top-left y position of the scan area.
 .PP
 Option
-.B br-x
+.B br\-x
 determines the bottom-right x position of the scan area.
 .PP
 Option
-.B br-y
+.B br\-y
 determines the bottom-right y position of the scan area.
 .PP
 
@@ -164,34 +164,34 @@ detection of options not displayed by the frontend (because of missing support
 or bugs).
 .PP
 Option
-.B bool-soft-select-soft-detect
+.B bool\-soft\-select\-soft\-detect
 (1/6) is a bool test option that has soft select and soft detect (and
 advanced) capabilities.  That's just a normal bool option.
 .PP
 Option
-.B bool-hard-select-soft-detect
+.B bool\-hard\-select\-soft\-detect
 (2/6) is a bool test option that has hard select and soft detect (and
 advanced) capabilities.  That means the option can't be set by the frontend
 but by the user (e.g. by pressing a button at the device).
 .PP
 Option
-.B bool-hard-select
+.B bool\-hard\-select
 (3/6) is a bool test option that has hard select (and advanced) capabilities.
 That means the option can't be set by the frontend but by the user (e.g. by
 pressing a button at the device) and can't be read by the frontend.
 .PP
 Option
-.B bool-soft-detect
+.B bool\-soft\-detect
 (4/6) is a bool test option that has soft detect (and advanced)
 capabilities.  That means the option is read-only.
 .PP
 Option
-.B bool-soft-select-soft-detect-emulated
+.B bool\-soft\-select\-soft\-detect\-emulated
 (5/6) is a Bool test option that has soft select, soft detect, and emulated
 (and advanced) capabilities.
 .PP
 Option
-.B bool-soft-select-soft-detect-auto
+.B bool\-soft\-select\-soft\-detect\-auto
 (6/6) is a Bool test option that has soft select, soft detect, and automatic
 (and advanced) capabilities.  This option can be automatically set by the
 backend.
@@ -205,26 +205,26 @@ Option
 (1/6) is an int test option with no unit and no constraint set.
 .PP
 Option
-.B int-constraint-range
+.B int\-constraint\-range
 (2/6) is an int test option with unit pixel and constraint range set.  Minimum
 is 4, maximum 192, and quant is 2.
 .PP
 Option
-.B int-constraint-word-list
+.B int\-constraint\-word\-list
 (3/6) is an int test option with unit bits and constraint word list set.
 .PP
 Option
-.B int-constraint-array
+.B int\-constraint\-array
 (4/6) is an int test option with unit mm and using an array without
 constraints.
 .PP
 Option
-.B int-constraint-array-constraint-range
+.B int\-constraint\-array\-constraint\-range
 (5/6) is an int test option with unit mm and using an array with a range
 constraint.  Minimum is 4, maximum 192, and quant is 2.
 .PP
 Option
-.B int-constraint-array-constraint-word-list
+.B int\-constraint\-array\-constraint\-word\-list
 (6/6) is an int test option with unit percent and using an array a word list
 constraint.
 
@@ -236,12 +236,12 @@ Option
 (1/3) is a fixed test option with no unit and no constraint set.
 .PP
 Option
-.B fixed-constraint-range
+.B fixed\-constraint\-range
 (2/3) is a fixed test option with unit microsecond and constraint range
-set. Minimum is -42.17, maximum 32767.9999, and quant is 2.0.
+set. Minimum is \-42.17, maximum 32767.9999, and quant is 2.0.
 .PP
 Option
-.B fixed-constraint-word-list
+.B fixed\-constraint\-word\-list
 (3/3) is a Fixed test option with no unit and constraint word list set.
 .PP
 
@@ -253,11 +253,11 @@ Option
 (1/3) is a string test option without constraint.
 .PP
 Option
-.B string-constraint-string-list
+.B string\-constraint\-string\-list
 (2/3) is a string test option with string list constraint.
 .PP
 Option
-.B string-constraint-long-string-list
+.B string\-constraint\-long\-string\-list
 (3/3) is a string test option with string list constraint. Contains some more
 entries...
 .PP
@@ -282,10 +282,10 @@ The config values concerning resolution and geometry can be useful to test
 the handling of big file sizes.
 
 .TP
-.I @LIBDIR@/libsane-test.a
+.I @LIBDIR@/libsane\-test.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-test.so
+.I @LIBDIR@/libsane\-test.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -314,11 +314,11 @@ export SANE_DEBUG_TEST=4
 
 .SH "SEE ALSO"
 sane(7), 
-.IR http://www.meier-geinitz.de/sane/test-backend/
+.IR http://www.meier\-geinitz.de/sane/test\-backend/
 
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Meier-Geinitz <henning@meier\-geinitz.de>
 
 .SH BUGS
 \- config file values aren't tested for correctness

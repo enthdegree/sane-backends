@@ -1,12 +1,12 @@
-.TH sane-cardscan 5 "2007-07-14" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-cardscan
+.TH sane\-cardscan 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-cardscan
 
 .SH NAME
-sane-cardscan \- SANE backend for Corex CardScan 800c usb scanner
+sane\-cardscan \- SANE backend for Corex CardScan 800c usb scanner
 
 .SH DESCRIPTION
 The 
-.B sane-cardscan
+.B sane\-cardscan
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to the Corex CardScan 800c small-format scanner.
 
@@ -91,7 +91,7 @@ The hardware to build this driver was provided to the author by:
 
 .SH "SEE ALSO"
 sane(7),
-sane-usb(5)
+sane\-usb(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

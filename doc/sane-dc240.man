@@ -1,10 +1,10 @@
-.TH sane-dc240 5 "23 March 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-dc240
+.TH sane\-dc240 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-dc240
 .SH NAME
-sane-dc240 \- SANE backend for Kodak DC240 Digital Camera
+sane\-dc240 \- SANE backend for Kodak DC240 Digital Camera
 .SH DESCRIPTION
 The
-.B sane-dc240
+.B sane\-dc240
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Kodak DC240 camera. THIS IS EXTREMELY ALPHA
 CODE!  USE AT YOUR OWN RISK!!
@@ -20,7 +20,7 @@ camera is always initialized using 9600 baud, then switches to the
 higher rate).  On a 450MHz Pentium, I usually have no problems downloading
 at 115200 baud, though the camera sometimes has to resend packets due
 to lost characters.  Results are better when 
-the "interrupt-unmask flag" is set in the IDE driver (hdparm -u1).
+the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The dumpinquiry line causes some information about the camera to 
@@ -57,10 +57,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-dc240.a
+.I @LIBDIR@/libsane\-dc240.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-dc240.so
+.I @LIBDIR@/libsane\-dc240.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -107,7 +107,7 @@ actually be found in multiple directories.
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to the SANE Developers mailing list 
-(see http://www.sane-project.org/mailing-lists.html for details). 
+(see http://www.sane\-project.org/mailing\-lists.html for details). 
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.
 

@@ -1,10 +1,10 @@
-.TH sane-stv680 5 "09 June 2006" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-stv680
+.TH sane\-stv680 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-stv680
 .SH NAME
-sane-stv680 \- SANE backend for STV680 camera's
+sane\-stv680 \- SANE backend for STV680 camera's
 .SH DESCRIPTION
 The
-.B sane-stv680
+.B sane\-stv680
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some STV680 cameras. This backend
 should be considered
@@ -40,21 +40,21 @@ should contact the author for that.
 
 The options the backend supports can either be selected through
 command line options to programs like scanimage or through GUI
-elements in xcam. For both programs use the -B option needed for size buffer.
+elements in xcam. For both programs use the \-B option needed for size buffer.
 
 Some frontends examples:
 .br
 xcam
 .RS
-xcam -B
+xcam \-B
 .RE
 
 scanimage: for writing in batch mode to a file or to a new file each time.
 .RS
-scanimage -B -d stv680:libusb:001:002 --batch=out.ppm --batch-count 5 --mode "Color RGB"
+scanimage \-B \-d stv680:libusb:001:002 \-\-batch=out.ppm \-\-batch-count 5 \-\-mode "Color RGB"
 .RE
 .RS
-scanimage -B -d stv680:libusb:001:002 --batch=out%d.ppm --batch-count 5 --mode "Color RGB"
+scanimage \-B \-d stv680:libusb:001:002 \-\-batch=out%d.ppm \-\-batch-count 5 \-\-mode "Color RGB"
 .RE
 
 .br
@@ -64,7 +64,7 @@ the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d stv680
+scanimage \-\-help \-d stv680
 .RE
 
 
@@ -72,23 +72,23 @@ scanimage --help -d stv680
 .B Scan Mode
 
 .TP
-.B --mode
+.B \-\-mode
 selects the basic mode of operation of the webcams valid choices.
 
 The read resolution mode is 8 bits, output resolution is 24 bits. 
 Selects the resolution for a scan.
 The camera can do only the resolutions listed.
 .TP
-.B --Raw
+.B \-\-Raw
 In this mode raw data is displayed
 .TP
-.B --Color
+.B \-\-Color
 In this mode the bayer unshuffle is done but no color correction
 .TP
-.B --Color_RGB
+.B \-\-Color_RGB
 Bayer unshuffle, color correction
 .TP
-.B --Color_RGB_TXT
+.B \-\-Color_RGB_TXT
 Bayer unshuffle, color correction, textline with date and time is added
 
 
@@ -96,22 +96,22 @@ Bayer unshuffle, color correction, textline with date and time is added
 .B Enhancement options
 
 .TP
-.B --white-level-r
+.B \-\-white\-level\-r
 Selects what red radiance level should be
 considered "white", when scanning some sheets by changing the calibration 
-value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
+value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .TP
-.B --white-level-g
+.B \-\-white\-level\-g
 Selects what green radiance level should be
 considered "white", when scanning some sheets by changing the calibration i
-value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
+value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .TP
-.B --white-level-b
+.B \-\-white\-level\-b
 Selects what blue radiance level should be
 considered "white", when scanning some sheets by changing the calibration
-value loaded into the scanner. Scale -32 .. 0 .. +32 in steps of 1.
+value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .SH CONFIGURATION FILE
 The configuration file @CONFIGDIR@/stv680.conf supports only one
@@ -120,10 +120,10 @@ information: the device name to use (eg usb 0x.... 0x....).
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-stv680.a
+.I @LIBDIR@/libsane\-stv680.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-stv680.so
+.I @LIBDIR@/libsane\-stv680.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -155,7 +155,7 @@ Plenty. Parts of this backend are still under development.
 
 .SH "SEE ALSO"
 
-sane-usb(5), scanimage(1), xcam(1), sane(7)
+sane\-usb(5), scanimage(1), xcam(1), sane(7)
 
 
 .SH AUTHORS

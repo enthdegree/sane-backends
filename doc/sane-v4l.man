@@ -1,10 +1,10 @@
-.TH sane-v4l 5 "28 Aug 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-v4l
+.TH sane\-v4l 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-v4l
 .SH NAME
-sane-v4l \- SANE interface for Video for Linux API
+sane\-v4l \- SANE interface for Video for Linux API
 .SH DESCRIPTION
 The
-.B sane-v4l
+.B sane\-v4l
 library implements a SANE (Scanner Access Now Easy) backend that
 provides generic access to video cameras and similar equipment using
 the V4L (Video for Linux) API.
@@ -49,10 +49,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-v4l.a
+.I @LIBDIR@/libsane\-v4l.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-v4l.so
+.I @LIBDIR@/libsane\-v4l.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -83,9 +83,9 @@ Juergen G. Schimmer, Henning Meier-Geinitz
 If more than one video card is present, a crash may occur. Frequency and geometry
 selection is missing.
 .br
-Send bug reports to the SANE mailing list: sane-devel@lists.alioth.debian.org.  You must
+Send bug reports to the SANE mailing list: sane\-devel@lists.alioth.debian.org.  You must
 be subscribed to the list to send mail. See
-http://www.sane-project.org/mailing-lists.html for details.
+http://www.sane\-project.org/mailing\-lists.html for details.
 
 .SH SEE ALSO
 sane(7), xcam(1).

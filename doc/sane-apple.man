@@ -1,10 +1,10 @@
-.TH sane-apple 5 "13 May 1998"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-apple
+.TH sane\-apple 5 "11 Jul 2008"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-apple
 .SH NAME
-sane-apple \- SANE backend for Apple flatbed scanners
+sane\-apple \- SANE backend for Apple flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-apple
+.B sane\-apple
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Apple flatbed scanners. At present, the following
 scanners are supported from this backend:
@@ -23,9 +23,9 @@ ColorOneScanner 24bit RGB color          3-pass
 If you own a Apple scanner other than the ones listed above that
 works with this backend, please let us know by sending the scanner's
 model name, SCSI id, and firmware revision to
-.IR sane-devel@lists.alioth.debian.org .
-See http://www.sane-project.org/mailing-lists.html for details on how to subscribe to
-sane-devel.
+.IR sane\-devel@lists.alioth.debian.org .
+See http://www.sane\-project.org/mailing\-lists.html for details on how to subscribe to
+sane\-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -43,13 +43,13 @@ symlink to such a device.  Under Linux, such a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane-scsi(5) for details.
+for example.  See sane\-scsi(5) for details.
 .SH CONFIGURATION
 The
 .I apple.conf
 file is a list of options and device names that correspond to Apple
 scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  See sane-scsi(5) on details of what constitutes a valid
+ignored.  See sane\-scsi(5) on details of what constitutes a valid
 device name.
 .PP
 Options come in two flavors: global and positional ones.  Global
@@ -70,10 +70,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-apple.a
+.I @LIBDIR@/libsane\-apple.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-apple.so
+.I @LIBDIR@/libsane\-apple.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -130,7 +130,7 @@ to describe any array type besides gamma.
 
 .SH UNSUPPORTED FEATURES
 The following "features" will never be supported, at least while I maintain
-the sane-apple backend.
+the sane\-apple backend.
 .TP
 .B NoHome (AppleScanner)
 The scanner lamp stays on and the carriage assembly remains where it stops
@@ -233,7 +233,7 @@ the report.
 .SH TODO
 .TP
 .B Non Blocking Support
-Make sane-apple a non blocking backend. Properly support
+Make sane\-apple a non blocking backend. Properly support
 .B sane_set_io_mode
 and
 .B sane_get_select_fd
@@ -244,9 +244,9 @@ Make scanning possible for all models in all supported modes.
 .B Missing Functionality
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
-The sane-apple backend was written not entirely from scratch by
+The sane\-apple backend was written not entirely from scratch by
 Milon Firikis. It is mostly based on the mustek backend from
 David Mosberger and Andreas Czechanowski

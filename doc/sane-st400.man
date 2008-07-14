@@ -1,10 +1,10 @@
-.TH sane-st400 5 "08 Mar 1999" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-st400
+.TH sane\-st400 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-st400
 .SH NAME
-sane-st400 \- SANE backend for Siemens ST/Highscan flatbed scanners
+sane\-st400 \- SANE backend for Siemens ST/Highscan flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-st400
+.B sane\-st400
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Siemens ST400 flatbed scanners and compatibles.
 At present, the following scanners are supported by this backend:
@@ -22,9 +22,9 @@ The Siemens ST/Highscan series includes several more models, e.g. the ST300
 and ST600.  If you own one of these scanners, or a scanner other than the
 ones listed above that works with this backend, please let us know by sending
 the scanner's model name, SCSI ID, and firmware revision to
-.IR sane-devel@lists.alioth.debian.org .
-Have a look at http://www.sane-project.org/mailing-lists.html concerning subscription
-to sane-devel.
+.IR sane\-devel@lists.alioth.debian.org .
+Have a look at http://www.sane\-project.org/mailing\-lists.html concerning subscription
+to sane\-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -42,7 +42,7 @@ a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane-scsi(5) for details.
+for example.  See sane\-scsi(5) for details.
 .SH CONFIGURATION
 The contents of the
 .I st400.conf
@@ -82,10 +82,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-st400.a
+.I @LIBDIR@/libsane\-st400.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-st400.so
+.I @LIBDIR@/libsane\-st400.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -137,7 +137,7 @@ also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending
 me the report.
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 .br
 http://www.informatik.uni-oldenburg.de/~ingo/sane/ 
 

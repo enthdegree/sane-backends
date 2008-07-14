@@ -1,4 +1,4 @@
-.TH sane-mustek_pp 5 "November 17 2003"
+.TH sane\-mustek_pp 5 "13 Jul 2008"
 .de EX
 .sp
 .nf
@@ -9,12 +9,12 @@
 .fi
 .sp
 ..
-.IX sane-mustek_pp
+.IX sane\-mustek_pp
 .SH NAME
-sane-mustek_pp \- SANE backend for Mustek parallel port flatbed scanners
+sane\-mustek_pp \- SANE backend for Mustek parallel port flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-mustek_pp
+.B sane\-mustek_pp
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Mustek parallel port flatbed scanners and OEM versions.
 
@@ -99,14 +99,14 @@ BIOS or disable it in the backend itself (see GLOBAL OPTIONS).
 Note that the backend needs to run as root or has to have appropriate access
 rights to /dev/parport* if libieee1284 support is compiled in. To allow user 
 access to the scanner run the backend through the network interface (See 
-saned(8) and sane-net(5)). Note also that the backend
+saned(8) and sane\-net(5)). Note also that the backend
 .I does not
 support
 .IR "parport sharing" ,
 i.e. if you try printing while scanning, your computer may crash. To enable
 parport sharing, you have to enable libieee1284 at compile time. This backend
 also conflicts with the
-.I sane-musteka4s2
+.I sane\-musteka4s2
 backend. You can only enable one of them in your dll.conf. However, you have
 to enable the backend explicitly in your dll.conf, just remove the hash mark
 in the line "mustek_pp".
@@ -202,7 +202,7 @@ scanner Mustek_600IIIEP * ccd300
 
 If in doubt which port you have to use, or whether your scanner is
 detected at all, you can use 
-.B sane-find-scanner -p
+.B sane\-find\-scanner \-p
 to probe all configured ports.
 
 .SH CONFIGURATION
@@ -248,12 +248,12 @@ runs in the order of 1 to 2 mm are not unusual.
 .br
 Default value: 0.0
 .br
-Minimum:      -5.0
+Minimum:      \-5.0
 .br
 Maximum:       5.0
 .br
 .sp
-Example:  option top_adjust -2.5
+Example:  option top_adjust \-2.5
 .TP
 .B slow_skip
 Turns fast skipping to the start of the scan region off. When the region to
@@ -330,7 +330,7 @@ scanner "LifeTec 9350" 0x378 cis1200
 
 # Some calibration options (examples!).
 option bw 127
-option top_skip -0.8
+option top_skip \-0.8
 
 #
 # A Mustek 600CP on port 0x3BC
@@ -385,10 +385,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-mustek_pp.a
+.I @LIBDIR@/libsane\-mustek_pp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-mustek_pp.so
+.I @LIBDIR@/libsane\-mustek_pp.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -442,11 +442,11 @@ level   debug output
 .EE
 
 .SH "SEE ALSO"
-sane(7), sane-mustek(5), sane-net(5), saned(8), sane-find-scanner(1)
+sane(7), sane\-mustek(5), sane\-net(5), saned(8), sane\-find\-scanner(1)
 
 .TP
 For latest bug fixes and information see
-.I http://www.penguin-breeder.org/sane/mustek_pp/
+.I http://www.penguin\-breeder.org/sane/mustek_pp/
 
 .TP
 For additional information on the CIS driver, see
@@ -454,15 +454,15 @@ For additional information on the CIS driver, see
 
 .SH AUTHORS
 .nf
-Jochen Eisinger <jochen at penguin-breeder dot org> 
+Jochen Eisinger <jochen at penguin\-breeder dot org> 
 Eddy De Greef <eddy_de_greef at scarlet dot be>
 .fi
 
 .SH BUGS
 Too many... please send bug reports to 
-.I sane-devel@lists.alioth.debian.org
+.I sane\-devel@lists.alioth.debian.org
 (note that you have to subscribe first to the list before you can send
-emails... see http://www.sane-project.org/mailing-lists.html)
+emails... see http://www.sane\-project.org/mailing\-lists.html)
 
 .SH BUG REPORTS
 If something doesn't work, please contact us (Jochen for the CCD scanners,
@@ -471,10 +471,10 @@ your scanner to be able to help you...
 
 .TP
 .I SANE version
-run "scanimage -V" to determine this
+run "scanimage \-V" to determine this
 .TP
 .I the backend version and your scanner hardware
-run "SANE_DEBUG_MUSTEK_PP=128 scanimage -L" as root. If you don't get any output
+run "SANE_DEBUG_MUSTEK_PP=128 scanimage \-L" as root. If you don't get any output
 from the mustek_pp backend, make sure a line "mustek_pp" is included into
 your @CONFIGDIR@/dll.conf.
 If your scanner isn't detected, make sure you've defined the right port address

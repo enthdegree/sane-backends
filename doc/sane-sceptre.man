@@ -1,10 +1,10 @@
-.TH sane-sceptre 5 "April 21st, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-sceptre
+.TH sane\-sceptre 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-sceptre
 .SH NAME
-sane-sceptre \- SANE backend for SCEPTRE scanners
+sane\-sceptre \- SANE backend for SCEPTRE scanners
 .SH DESCRIPTION
 The
-.B sane-sceptre
+.B sane\-sceptre
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Sceptre flatbed scanners. This backend should be
 considered
@@ -31,14 +31,14 @@ options to programs like scanimage or through GUI elements in xscanimage or xsan
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d sceptre
+scanimage \-\-help \-d sceptre
 .RE
 
 .TP
 .B Scan Mode
 
 .TP
-.B --mode 
+.B \-\-mode 
 selects the basic mode of operation of the scanner valid choices are 
 .I Lineart, Halftone, Gray and Color. 
 The Lineart and Halftone mode are black and white only (1 bit). Gray
@@ -47,48 +47,48 @@ color image. The scanner supports 30 bits internally but it only
 exports 24.
 
 .TP
-.B --resolution
+.B \-\-resolution
 selects the resolution for a scan. The scanner can do several
 resolutions between 50 and 1200.
 
 .TP
-.B --halftone-pattern
+.B \-\-halftone\-pattern
 selects the pattern mode that is used in Halftone mode. Valid options
 are 1, 2, 3 and 4.
 
 .TP 
-.B --gamma-correction
+.B \-\-gamma\-correction
 controls the scanner internal gamma correction. Valid options are
 "Default", "User defined", "High density printing" "Low density
 printing" and "High contrast printing".
 
 .TP
-.B --custom-gamma
+.B \-\-custom\-gamma
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
 .TP 
-.B --red-gamma-table 
+.B \-\-red\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
 .TP 
-.B --green-gamma-table 
+.B \-\-green\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B --blue-gamma-table 
+.B \-\-blue\-gamma\-table 
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
-.B --threshold
+.B \-\-threshold
 sets the threshold for black and white pixels in lineart
 mode. Possible values are from 0 (darker) to 255 (lighter).
 
 .TP 
-.B --preview
+.B \-\-preview
 requests a preview scan. The resolution used for that scan is 30 dpi
 and the scan area is the maximum allowed. The scan mode is user
 selected. The default is "no".
@@ -97,9 +97,9 @@ selected. The default is "no".
 .B The geometry options
 
 .TP
-.B -l -t -x -y 
-control the scan area: -l sets the top left x coordinate, -t the top
-left y coordinate, -x selects the width and -y the height of the scan
+.B \-l \-t \-x \-y 
+control the scan area: \-l sets the top left x coordinate, \-t the top
+left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
 
 
@@ -109,10 +109,10 @@ The configuration file @CONFIGDIR@/sceptre.conf supports only one information: t
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-sceptre.a
+.I @LIBDIR@/libsane\-sceptre.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-sceptre.so
+.I @LIBDIR@/libsane\-sceptre.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -142,7 +142,7 @@ None known.
 
 .SH "SEE ALSO"
 
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR

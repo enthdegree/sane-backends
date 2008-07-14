@@ -1,10 +1,10 @@
-.TH sane-dc210 5 "15 July 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-dc210
+.TH sane\-dc210 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-dc210
 .SH NAME
-sane-dc210 \- SANE backend for Kodak DC210 Digital Camera
+sane\-dc210 \- SANE backend for Kodak DC210 Digital Camera
 .SH DESCRIPTION
 The
-.B sane-dc210
+.B sane\-dc210
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Kodak DC210 camera. THIS IS EXTREMELY ALPHA
 CODE!  USE AT YOUR OWN RISK!!
@@ -19,7 +19,7 @@ specifies the maximum rate to use while downloading pictures.  (The
 camera is always initialized using 9600 baud, then switches to the
 higher rate).  On my 90MHz Pentium, I usually have no problems downloading
 at 115200 baud as long as the system is not excessively busy and 
-the "interrupt-unmask flag" is set in the IDE driver (hdparm -u1).
+the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The dumpinquiry line causes some information about the camera to 
@@ -56,10 +56,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-dc210.a
+.I @LIBDIR@/libsane\-dc210.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-dc210.so
+.I @LIBDIR@/libsane\-dc210.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -102,6 +102,6 @@ Known bugs/limitations are: ?
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to the SANE Developers mailing list 
-(see http://www.sane-project.org/mailing-lists.html for details). 
+(see http://www.sane\-project.org/mailing\-lists.html for details). 
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.

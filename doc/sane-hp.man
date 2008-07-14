@@ -1,10 +1,10 @@
-.TH sane-hp 5 "27 Mar 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-hp
+.TH sane\-hp 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-hp
 .SH NAME
-sane-hp \- SANE backend for HP ScanJet scanners
+sane\-hp \- SANE backend for HP ScanJet scanners
 .SH DESCRIPTION
 The
-.B sane-hp
+.B sane\-hp
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to HP ScanJet scanners which support SCL (Scanner
 Control Language by HP).  The following
@@ -47,7 +47,7 @@ and
 .PP
 Support for models 5200C/62X0C/63X0C connected to the USB require
 the kernel scanner driver or libusb. See
-.BR sane-usb (5)
+.BR sane\-usb (5)
 for more details.
 .PP
 The "hp" backend no longer supports OfficeJet multi-function peripherals.
@@ -62,9 +62,9 @@ SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
 Other HP scanners are not supported by the "hp" backend, but might be supported
 by another one. See
-.IR http://www.sane-project.org/ .
-You can also watch the sane-devel mailing list at
-.IR http://www.sane-project.org/mailing-lists.html .
+.IR http://www.sane\-project.org/ .
+You can also watch the sane\-devel mailing list at
+.IR http://www.sane\-project.org/mailing\-lists.html .
 .PP
 More details about the hp backend can be found on its homepage 
 .IR http://www.kirchgessner.net/sane.html .
@@ -91,7 +91,7 @@ that corresponds to the parallel interface card that was shipped with the
 scanner. That is
 .IR /dev/hpscan .
 A special driver is required for this card.
-See ftp://rvs.ctrl-c.liu.se/pub/wingel/hpscan for details. If the link
+See ftp://rvs.ctrl\-c.liu.se/pub/wingel/hpscan for details. If the link
 does not work, try ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners.
 .SH CONFIGURATION
 The contents of the
@@ -99,9 +99,9 @@ The contents of the
 file is a list of options and device names that correspond to HP ScanJet
 scanners.  Empty lines and lines starting with a hash mark
 (#) are ignored. See
-.BR sane-scsi (5)
+.BR sane\-scsi (5)
 and
-.BR sane-usb (5)
+.BR sane\-usb (5)
 on details of what constitutes a valid device name.
 .PP
 Options specified in front of the first line that contains a device name 
@@ -109,37 +109,37 @@ are defaults for all devices. Options specified below a line that
 contains a device name apply just to the most recently mentioned device.
 .PP
 Supported options are
-.BR connect-scsi ,
-.BR connect-device ,
-.BR enable-image-buffering ,
+.BR connect\-scsi ,
+.BR connect\-device ,
+.BR enable\-image\-buffering ,
 and
-.BR dumb-read .
+.BR dumb\-read .
 
 Option
-.B connect-scsi
+.B connect\-scsi
 specifies that the scanner is connected to the system by SCSI.
 Input/output is performed using SCSI-commands. This is the default.
 But if your SCSI device name contains "usb", "uscanner" or "ugen",
-option connect-scsi must be specified. Otherwise it is assumed that
+option connect\-scsi must be specified. Otherwise it is assumed that
 the scanner is connected by USB.
 
 Option
-.B connect-device
+.B connect\-device
 specifies that the scanner is connected to the system by a special
 device. Input/output is performed by read()/write()-operations
 on the device. This option must be used for HP ScanJet Plus
 or scanners connected to USB which are accessed through a named device
 (e.g. /dev/usb/scanner0).
 For device names that contain "usb", "uscanner" or "ugen", it is not
-necessary to specify option connect-device.
+necessary to specify option connect\-device.
 
 Option
-.B enable-image-buffering
+.B enable\-image\-buffering
 stores the scanned image in memory before passing it to the frontend. Could be
 used in case of forward/backward moving scanner lamp.
 
 Option
-.B dumb-read
+.B dumb\-read
 can be used to work around problems with "Error during device I/O". These
 problems may occur with certain SCSI-to-USB converters or Buslogic SCSI cards.
 The option should not be used for SCSI devices which are working correctly.
@@ -153,7 +153,7 @@ A sample configuration file is shown below:
 /dev/scanner
 # this is a comment
 /dev/hpscan
-  option connect-device
+  option connect\-device
 .fi
 .ft R
 .RE
@@ -167,10 +167,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-hp.a
+.I @LIBDIR@/libsane\-hp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-hp.so
+.I @LIBDIR@/libsane\-hp.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
@@ -211,7 +211,7 @@ Is used to save and read the calibration file.
 .B SANE_HP_KEEPOPEN_USB
 .TP
 .B SANE_HP_KEEPOPEN_DEVICE
-For each type of connection (connect-scsi, connect-usb, connect-device)
+For each type of connection (connect\-scsi, connect\-usb, connect\-device)
 it can be specified if the connection to the device should be kept open ("1")
 or not ("0").
 Usually the connections are closed after an operation is performed.
@@ -267,7 +267,7 @@ These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5), sane-usb(5)
+sane(7), sane\-scsi(5), sane\-usb(5)
 .SH AUTHOR
-The sane-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
+The sane\-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
 PhotoScanner support by Peter Kirchgessner.

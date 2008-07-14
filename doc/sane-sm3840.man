@@ -1,18 +1,18 @@
-.TH sane-sm3840 5 "Mar 15, 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-sm3840
+.TH sane\-sm3840 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-sm3840
 .SH NAME
-sane-sm3840 \- SANE backend for Microtek scanners with SCAN08 USB chip
+sane\-sm3840 \- SANE backend for Microtek scanners with SCAN08 USB chip
 .SH DESCRIPTION
 The
-.B sane-sm3840
+.B sane\-sm3840
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some Microtek scanners with the SCAN08
 USB chip.
 .PP 
 There exist backends for Microtek scanners with SCSI command set.
-Refer to sane-microtek(5) and sane-microtek2(5) for details.
+Refer to sane\-microtek(5) and sane\-microtek2(5) for details.
 .PP
-There also exists a Microtek 3600 series driver, see sane-sm3600(5) for
+There also exists a Microtek 3600 series driver, see sane\-sm3600(5) for
 details.
 .PP
 At present, the following
@@ -39,27 +39,27 @@ on the list.
 .PP
 The following options are supported by the sm3840-driver:
 .PP
-.B --mode color|gray|lineart|halftone
+.B \-\-mode color|gray|lineart|halftone
 .br
 Color or grayscale mode.
 
-.B --resolution 150|300|600|1200
+.B \-\-resolution 150|300|600|1200
 .br
 Pixels per inch for scans.
 
-.B --depth 8|16
+.B \-\-depth 8|16
 .br
 Note that the least significant bits of 16bpp mode may be noise.
 
-.B --brightness 1..4096
+.B \-\-brightness 1..4096
 .br
 Higher numbers increase brightness of returned image.
 
-.B --contrast 0.1..9.9
+.B \-\-contrast 0.1..9.9
 .br
 Larger numbers decrease contrast of returned image.
 
-.B --lamp-timeout 1..15
+.B \-\-lamp\-timeout 1..15
 .br
 Time in minutes until the lamp is turned off after a scan.
 
@@ -68,10 +68,10 @@ This backend does not support a configuration file right now.
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-sm3840.a
+.I @LIBDIR@/libsane\-sm3840.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-sm3840.so
+.I @LIBDIR@/libsane\-sm3840.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -86,7 +86,7 @@ levels reduce verbosity. To see error messages on stderr set
 SANE_DEBUG_SM3840 to 1.
 
 .SH "SEE ALSO"
-sane-microtek2(5), sane-sm3600(5), http://www.ziplabel.com/sm3840
+sane\-microtek2(5), sane\-sm3600(5), http://www.ziplabel.com/sm3840
 
 .SH AUTHOR
 .br

@@ -1,10 +1,10 @@
-.TH sane-microtek 5 "February 8, 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-microtek
+.TH sane\-microtek 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-microtek
 .SH NAME
-sane-microtek \- SANE backend for Microtek scanners
+sane\-microtek \- SANE backend for Microtek scanners
 .SH DESCRIPTION
 The
-.B sane-microtek
+.B sane\-microtek
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the "second generation" Microtek scanners.  At present,
 the following hardware is known to work with this backend:
@@ -119,10 +119,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-microtek.a
+.I @LIBDIR@/libsane\-microtek.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-microtek.so
+.I @LIBDIR@/libsane\-microtek.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -149,7 +149,7 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 Matt Marjanovic
@@ -177,7 +177,7 @@ option in the configuration file (first one, then both), and see if it helps.
 (If it does, report it.)
 .PP
 Send lengthy bug reports and new scanner information to
-.BR mtek-bugs@mir.com .
+.BR mtek\-bugs@mir.com .
 All bug reports and new scanner inquiries should include an error log file.
 You can generate copious
 stderr output by setting the SANE_DEBUG_MICROTEK environment variable
@@ -189,6 +189,6 @@ setenv SANE_DEBUG_MICROTEK 128
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to 
-.BR sane-devel@lists.alioth.debian.org ,
+.BR sane\-devel@lists.alioth.debian.org ,
 the SANE Developers mailing list. Have a look at
-http://www.sane-project.org/mailing-lists.html concerning subscription to sane-devel.
+http://www.sane\-project.org/mailing\-lists.html concerning subscription to sane\-devel.

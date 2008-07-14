@@ -1,11 +1,11 @@
-.TH sane-plustek_pp 5 "18 June 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-plustek_pp
+.TH sane\-plustek_pp 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-plustek_pp
 .SH NAME
-sane-plustek_pp \- SANE backend for Plustek parallel port
+sane\-plustek_pp \- SANE backend for Plustek parallel port
 flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-plustek_pp
+.B sane\-plustek_pp
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Plustek ASIC 9600[1/3] and P9800[1/3] based
 parallel port flatbed scanners.
@@ -233,10 +233,10 @@ See the plustek_pp.conf file for examples.
 .SH "BUILDING THE KERNEL MODULE"
 As mentioned before, the plustek_pp backend code can also
 be compiled and installed as linux kernel module. To do so,
-you will need the source-files of this sane-backend installation.
+you will need the source-files of this sane\-backend installation.
 Unpack this tar-ball and go to the directory:
 .br
-.I sane-backends/doc/plustek
+.I sane\-backends/doc/plustek
 .br
 Within this directory, you should find a script called:
 .br
@@ -363,7 +363,7 @@ Sample entry for file
 .B "/etc/modules.conf"
 :
 .br
-.I alias char-major-40 pt_drv
+.I alias char\-major\-40 pt_drv
 .br
 .I pre-install pt_drv modprobe -k parport
 .br
@@ -406,10 +406,10 @@ See the plustek_pp.conf file for examples.
 .I @CONFIGDIR@/plustek_pp.conf
 The backend configuration file
 .TP
-.I @LIBDIR@/libsane-plustek_pp.a
+.I @LIBDIR@/libsane\-plustek_pp.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-plustek_pp.so
+.I @LIBDIR@/libsane\-plustek_pp.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
@@ -447,7 +447,7 @@ export SANE_DEBUG_PLUSTEK_PP=10
 .SH "SEE ALSO"
 .BR sane (7),
 .br
-.I @DOCDIR@/plustek/Plustek-PARPORT.changes
+.I @DOCDIR@/plustek/Plustek\-PARPORT.changes
 .br
 .I http://www.gjaeger.de/scanner/plustek_pp/
 
@@ -460,7 +460,7 @@ Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.sane-project.org/mailing-lists.html
+.B http://www.sane\-project.org/mailing\-lists.html
 .PP
 or directly from the projects' homepage at:
 .br

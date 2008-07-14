@@ -1,12 +1,12 @@
-.TH sane-fujitsu 5 "2008-07-03" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-fujitsu
+.TH sane\-fujitsu 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-fujitsu
 
 .SH NAME
-sane-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
+sane\-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 
 .SH DESCRIPTION
 The 
-.B sane-fujitsu
+.B sane\-fujitsu
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
@@ -18,7 +18,7 @@ Fujitsu SCSI and SCSI-over-USB protocols, with many scanners having
 complete support. Specifically, the SCSI M309x and M409x series, the SCSI
 fi-series, most of the USB fi-series, and the USB ScanSnap S5xx scanners 
 are supported. Please see the list at 
-http://www.sane-project.org/sane-supported-devices.html for details.
+http://www.sane\-project.org/sane\-supported\-devices.html for details.
 
 This backend may support other Fujitsu scanners. The best
 way to determine level of support is to test the scanner directly,
@@ -65,11 +65,11 @@ may include "Lineart", "Halftone", "Gray", and "Color".
 .PP
 resolution, y-resolution
 .RS
-Controls scan resolution. Setting --resolution also sets --y-resolution, 
+Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, 
 though this behavior is overridden by some frontends.
 .RE
 .PP
-tl-x, tl-y, br-x, br-y
+tl\-x, tl\-y, br\-x, br\-y
 .RS
 Sets scan area upper left and lower right coordinates. These are renamed 
 t, l, x, y by some frontends.
@@ -86,7 +86,7 @@ machines with IPC or DTC will have additional enhancement options, those
 with CMP will have compression options, those with endorser will have a
 group of imprinter options.
 
-Use 'scanimage --help' to get a list, but be aware that some options may 
+Use 'scanimage \-\-help' to get a list, but be aware that some options may 
 appear only when another option has been set, and that advanced options 
 may be hidden by some frontend programs.
 .PP
@@ -125,7 +125,7 @@ to determine if it is a Fujitsu scanner.
 Some systems use a kernel driver to access usb scanners. This method is untested.
 .RE
 .PP
-The only configuration option supported is "buffer-size=xxx", allowing you
+The only configuration option supported is "buffer\-size=xxx", allowing you
 to set the number of bytes in the data buffer to something other than the 
 compiled-in default, 65536 (64K). Some users report that their scanner will
 "hang" mid-page, or fail to transmit the image if the buffer is not large
@@ -199,11 +199,11 @@ Endorser support funded by:
 
 .SH "SEE ALSO"
 sane(7),
-sane-scsi(5),
-sane-usb(5),
-sane-sp15c(5),
-sane-avision(5),
-sane-epjitsu(5)
+sane\-scsi(5),
+sane\-usb(5),
+sane\-sp15c(5),
+sane\-avision(5),
+sane\-epjitsu(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

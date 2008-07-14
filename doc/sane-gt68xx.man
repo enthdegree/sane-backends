@@ -1,15 +1,15 @@
-.TH sane-gt68xx 5 "29 September 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-gt68xx
+.TH sane\-gt68xx 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-gt68xx
 .SH NAME
-sane-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
+sane\-gt68xx \- SANE backend for GT-68XX based USB flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-gt68xx
+.B sane\-gt68xx
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Grandtech GT-6801 and GT-6816
 chips.  A list of supported scanners can be found on the gt68xx backend
 homepage: 
-.IR http://www.meier-geinitz.de/sane/gt68xx-backend/ .
+.IR http://www.meier\-geinitz.de/sane/gt68xx\-backend/ .
 .PP
 This is BETA software. Especially if you test new or untested scanners, keep
 your hand at the scanner's plug and unplug it, if the head bumps at the end of
@@ -18,21 +18,21 @@ the scan area.
 If you own a scanner other than the ones listed on the gt68xx homepage that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
-.I sane-find-scanner
+.I sane\-find\-scanner
 or syslog) to me. Even if the scanner's name is only slightly different from
 the models already listed as supported, please let me know.
 .PP
 If you own a scanner that isn't detected by the gt68xx backend but has a GT-6801
 or GT-6816 chipset, you can try to add it to the backend. Have a look at the
 following web page: 
-.I http://www.meier-geinitz.de/sane/gt68xx-backend/adding.html
+.I http://www.meier\-geinitz.de/sane/gt68xx\-backend/adding.html
 .PP
 .SH LIBUSB ISSUES
 Please use libusb-0.1.8 or later. Without libusb or with older libusb versions
 all kinds of trouble can be expected. The scanner should be found by
-sane-find-scanner without further actions. For setting permissions and general
+sane\-find\-scanner without further actions. For setting permissions and general
 USB information looks at
-.BR sane-usb (5).
+.BR sane\-usb (5).
 .PP
 
 .SH FIRMWARE FILE
@@ -83,14 +83,14 @@ is used to override the default model parameters. That's necessary for some
 scanners that use the same vendor/product ids but are different. For these
 scanners there are already commented out override lines in the configuration
 file. 
-.B override "mustek-scanexpress-1200-ub-plus"
+.B override "mustek\-scanexpress\-1200\-ub\-plus"
 is necessary for the Mustek Scanexpress 1200 UB Plus, the
 Medion/Lifetec/Tevion LT 9452, and the Trust Compact Scan USB 19200.
-.B override "artec-ultima-2000"
+.B override "artec\-ultima\-2000"
 is used for the Artec Ultima 2000, the Boeder SmartScan Slim Edition, the
 Medion/ Lifetec/ Tevion/ Cytron MD/LT 9385, the Medion/ Lifetec/ Tevion MD
 9458, and the Trust Flat Scan USB 19200.
-.B override "mustek-bearpaw-2400-cu"
+.B override "mustek\-bearpaw\-2400\-cu"
 is necessary for the Mustek BearPaw 2400 CU and the Fujitsu 1200CUS. The
 .B override
 option must be the first one after the 
@@ -131,7 +131,7 @@ A sample configuration file is shown below:
 .RS
 usb 0x05d8 0x4002
 .br
-override "mustek-scanexpress-1200-ub-plus"
+override "mustek\-scanexpress\-1200\-ub\-plus"
 .br
 firmware "/opt/gt68xx/SBfw.usb"
 .br
@@ -149,10 +149,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-gt68xx.a
+.I @LIBDIR@/libsane\-gt68xx.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-gt68xx.so
+.I @LIBDIR@/libsane\-gt68xx.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -183,20 +183,20 @@ export SANE_DEBUG_GT68XX=4
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
-.BR sane-artec_eplus48u (5)
-.BR sane-plustek (5),
-.BR sane-ma1509 (5),
-.BR sane-mustek_usb (5),
-.BR sane-mustek (5),
-.BR sane-mustek_pp (5)
+.BR sane\-usb (5),
+.BR sane\-artec_eplus48u (5)
+.BR sane\-plustek (5),
+.BR sane\-ma1509 (5),
+.BR sane\-mustek_usb (5),
+.BR sane\-mustek (5),
+.BR sane\-mustek_pp (5)
 .br
 .I @DOCDIR@/gt68xx/gt68xx.CHANGES
 .br
-.I http://www.meier-geinitz.de/sane/gt68xx
+.I http://www.meier\-geinitz.de/sane/gt68xx
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Meier-Geinitz <henning@meier\-geinitz.de>
 .br
 The original gt68xx driver was written by Sergey Vlasov, Andreas Nowack, and
 David Stevenson. Thanks for sending patches and answering questions to them
@@ -212,7 +212,7 @@ Y-resolution differ.
 Support for buttons is missing.
 .PP
 More detailed bug information is available at the gt68xx backend homepage
-.IR http://www.meier-geinitz.de/sane/gt68xx-backend/ .
+.IR http://www.meier\-geinitz.de/sane/gt68xx\-backend/ .
 Please contact us if you find a bug or missing feature:
-<sane-devel@lists.alioth.debian.org>. Please send a debug log if your scanner isn't
+<sane\-devel@lists.alioth.debian.org>. Please send a debug log if your scanner isn't
 detected correctly (see SANE_DEBUG_GT68XX above).

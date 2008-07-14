@@ -1,10 +1,10 @@
-.TH sane-net 5 "24 Oct 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-net
+.TH sane\-net 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-net
 .SH NAME
-sane-net \- SANE network backend
+sane\-net \- SANE network backend
 .SH DESCRIPTION
 The
-.B sane-net
+.B sane\-net
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to image acquisition devices through a network
 connection.  This makes it possible to control devices attached to a
@@ -20,7 +20,7 @@ This backend expects device names of the form:
 .PP
 Where
 .I host
-is the name (or IP address) of the (remote-) host and
+is the name (or IP address) of the (remote) host and
 .I device
 is the name of the device on this host that should be addressed.
 If the device name does not contain a colon (:), then the entire string
@@ -57,7 +57,7 @@ ignored.  Note that IPv6 addresses in this file do not need to be enclosed
 in square brackets.  A sample configuration file is shown below:
 .PP
 .RS
-scan-server.somedomain.firm
+scan\-server.somedomain.firm
 .br
 192.168.0.1
 .br
@@ -91,7 +91,7 @@ and
 are contacted in addition to the hosts listed above.
 .PP
 For this backend to function properly, it is also necessary to define the
-.B sane-port
+.B sane\-port
 service in
 .IR /etc/services .
 The
@@ -99,7 +99,7 @@ The
 service should be defined using a line of the following form:
 .PP
 .RS
-sane-port 6566/tcp # SANE network scanner daemon
+sane\-port 6566/tcp # SANE network scanner daemon
 .RE
 .PP
 .SH FILES
@@ -109,10 +109,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-net.a
+.I @LIBDIR@/libsane\-net.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-net.so
+.I @LIBDIR@/libsane\-net.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -148,8 +148,8 @@ levels reduce verbosity.
 .SH BUGS
 If saned has timed out, the net backend may loop with authorization requests.
 .SH "SEE ALSO"
-sane(7), saned(8), sane-dll(5), scanimage(1)
+sane(7), saned(8), sane\-dll(5), scanimage(1)
 
-.I http://www.penguin-breeder.org/?page=sane-net
+.I http://www.penguin-breeder.org/?page=sane\-net
 .SH AUTHOR
 David Mosberger and Andreas Beck

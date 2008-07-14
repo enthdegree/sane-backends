@@ -1,11 +1,11 @@
-.TH sane-u12 5 "18 June 2004" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-u12
+.TH sane\-u12 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-u12
 .SH NAME
-sane-u12 \- SANE backend for Plustek USB flatbed scanners,
+sane\-u12 \- SANE backend for Plustek USB flatbed scanners,
 based on older parport designs
 .SH DESCRIPTION
 The
-.B sane-u12
+.B sane\-u12
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to USB flatbed scanners based on Plusteks' ASIC
 98003 (parallel-port ASIC) and a GeneSys Logics' USB-parport
@@ -98,9 +98,9 @@ See the u12.conf file for examples.
 You have to make sure, that the USB subsystem is loaded
 correctly and you have access to the device-node. For
 more details see
-.B sane-usb (5)
+.B sane\-usb (5)
 manpage. You might use
-.B sane-find-scanner
+.B sane\-find\-scanner
 to check that you have access to your device.
 .PP
 .B Note:
@@ -113,10 +113,10 @@ If there's no configuration file, the backend defaults to
 .I @CONFIGDIR@/u12.conf
 The backend configuration file
 .TP
-.I @LIBDIR@/libsane-u12.a
+.I @LIBDIR@/libsane\-u12.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-u12.so
+.I @LIBDIR@/libsane\-u12.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -146,8 +146,8 @@ export SANE_DEBUG_U12=10
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5),
-.BR sane-plustek (5),
+.BR sane\-usb (5),
+.BR sane\-plustek (5),
 .br
 .I @DOCDIR@/u12/U12.changes
 .br
@@ -162,7 +162,7 @@ Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.sane-project.org/mailing-lists.html
+.B http://www.sane\-project.org/mailing\-lists.html
 .PP
 or directly from the projects' homepage at:
 .br

@@ -1,10 +1,10 @@
-.TH sane-leo 5 "16 April 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-leo
+.TH sane\-leo 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-leo
 .SH NAME
-sane-leo \- SANE backend for LEO Technologies scanners
+sane\-leo \- SANE backend for LEO Technologies scanners
 .SH DESCRIPTION
 The
-.B sane-leo
+.B sane\-leo
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some LEO SCSI flatbed scanners. This backend
 should be considered
@@ -34,14 +34,14 @@ maintainer or to the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d leo
+scanimage \-\-help \-d leo
 .RE
 
 .TP
 .B Scan Mode
 
 .TP
-.B --mode
+.B \-\-mode
 selects the basic mode of operation of the scanner valid choices are 
 .I Black & White
 ,
@@ -53,7 +53,7 @@ will produce 256 levels of gray (8 bits). Color will produce a 24 bits
 color image.
 
 .TP
-.B --resolution
+.B \-\-resolution
 selects the resolution for a scan. The scanner can do all resolutions
 between 1 and 300, in increments of 1.
 
@@ -62,9 +62,9 @@ between 1 and 300, in increments of 1.
 .B Geometry options
 
 .TP
-.B -l -t -x -y 
-control the scan area: -l sets the top left x coordinate, -t the top
-left y coordinate, -x selects the width and -y the height of the scan
+.B \-l \-t \-x \-y 
+control the scan area: \-l sets the top left x coordinate, \-t the top
+left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
 
 
@@ -72,27 +72,27 @@ area. All parameters are specified in millimeters by default.
 .B Enhancement options
 
 .TP
-.B --custom-gamma
+.B \-\-custom\-gamma
 (grayscale and color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
 .TP 
-.B --red-gamma-table 
+.B \-\-red\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
 .TP 
-.B --green-gamma-table 
+.B \-\-green\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B --blue-gamma-table 
+.B \-\-blue\-gamma\-table 
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
-.B --halftone
+.B \-\-halftone
 (Black & White only) select the halftone mask to use. Possible values are 
 .I Diamond
 ,
@@ -105,7 +105,7 @@ and
 .I 8x8 Vertical Line
 
 .TP 
-.B --preview
+.B \-\-preview
 requests a preview scan. The resolution used for that scan is 28 dpi
 and the scan area is the maximum allowed. The scan mode is user
 selected. The default is "no".
@@ -117,10 +117,10 @@ The configuration file @CONFIGDIR@/leo.conf supports only one information: the d
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-leo.a
+.I @LIBDIR@/libsane\-leo.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-leo.so
+.I @LIBDIR@/libsane\-leo.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -147,7 +147,7 @@ None known.
 
 .SH "SEE ALSO"
 
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR

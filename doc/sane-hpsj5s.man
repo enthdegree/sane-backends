@@ -1,10 +1,10 @@
-.TH sane-hpsj5s 5 "24 Feb 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-hpsj5s
+.TH sane\-hpsj5s 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-hpsj5s
 .SH NAME
-sane-hpsj5s \- SANE backend for HP ScanJet 5S sheet-fed scanner
+sane\-hpsj5s \- SANE backend for HP ScanJet 5S sheet-fed scanner
 .SH DESCRIPTION
 The
-.B sane-hpsj5s
+.B sane\-hpsj5s
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to a parallel port Hewlett-Packard ScanJet 5S scanner.
 .PP
@@ -67,10 +67,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-hpsj5s.a
+.I @LIBDIR@/libsane\-hpsj5s.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-hpsj5s.so
+.I @LIBDIR@/libsane\-hpsj5s.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT

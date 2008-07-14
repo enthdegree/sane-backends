@@ -1,14 +1,14 @@
-.TH saned 8 "10 April 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
 .SH SYNOPSIS
 .B saned
-.B [ -a 
+.B [ \-a 
 .I [ username ]
-.B | -d 
+.B | \-d 
 .I [ n ]
-.B  | -s
+.B  | \-s
 .I [ n ]
 .B ]
 .SH DESCRIPTION
@@ -18,7 +18,7 @@ to access image acquisition devices available on the local host.
 .SH OPTIONS
 .PP
 The
-.B -a
+.B \-a
 flag requests that
 .B saned
 run in standalone daemon mode. In this mode, 
@@ -31,15 +31,15 @@ is not required for
 operations in this mode. If the optional
 .B username
 is given after
-.B -a
+.B \-a
 ,
 .B saned
 will drop root privileges and run as this user (and group).
 .PP
 The
-.B -d
+.B \-d
 and
-.B -s
+.B \-s
 flags request that
 .B saned
 run in debug mode (as opposed to
@@ -50,12 +50,12 @@ explicitly waits for a connection request.  When compiled with
 debugging enabled, these flags may be followed by a number to request
 debug info. The larger the number, the more verbose the debug output.
 E.g.,
-.B -d128
+.B \-d128
 will request printing of all debug info. Debug level 0 means no debug output
 at all. The default value is 2. If flag
-.B -d
+.B \-d
 is used, the debug messages will be printed to stderr while
-.B -s
+.B \-s
 requests using syslog.
 .PP
 If 
@@ -89,7 +89,7 @@ risk, so this shouldn't be used unless you know what you're doing.  A sample
 configuration file is shown below:
 .PP
 .RS
-scan-client.somedomain.firm
+scan\-client.somedomain.firm
 .br
 # this is a comment
 .br
@@ -117,7 +117,7 @@ support IPv6, check the documentation for your inetd daemon.
 The configuration line normally looks like this:
 .PP
 .RS
-sane-port stream tcp nowait saned.saned @SBINDIR@/saned saned
+sane\-port stream tcp nowait saned.saned @SBINDIR@/saned saned
 .RE
 .PP
 However, if your system uses
@@ -130,7 +130,7 @@ and use a line of the following form in
 instead:
 .PP
 .RS
-sane-port stream tcp nowait saned.saned /usr/sbin/tcpd @SBINDIR@/saned
+sane\-port stream tcp nowait saned.saned /usr/sbin/tcpd @SBINDIR@/saned
 .RE
 .PP
 Note that both examples assume that there is a
@@ -153,7 +153,7 @@ for xinetd.conf may be helpful:
 # description: The sane server accepts requests 
 # for network access to a local scanner via the
 # network.
-service sane-port
+service sane\-port
 {
    port        = 6566
    socket_type = stream
@@ -170,10 +170,10 @@ Finally, it is also necessary to add a line of the following form to
 .IR /etc/services :
 .PP
 .RS
-sane-port 6566/tcp # SANE network scanner daemon
+sane\-port 6566/tcp # SANE network scanner daemon
 .RE
 .PP
-The official IANA short name for port 6566 is "sane-port". The older name "sane"
+The official IANA short name for port 6566 is "sane\-port". The older name "sane"
 is now deprecated.
 
 .SH "RESTRICTIONS"
@@ -207,7 +207,7 @@ If this file contains lines of the form
 user:password:backend
 
 access to the listed backends is restricted. A backend may be listed multiple
-times for different user/password combinations. The server uses MD5 encryption
+times for different user/password combinations. The server uses MD5 hashing
 if supported by the client.
 .SH ENVIRONMENT
 .TP
@@ -230,10 +230,10 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .BR scanimage (1),
 .BR xscanimage (1),
 .BR xcam (1),
-.BR sane-dll (5),
-.BR sane-net (5),
-.BR sane-"backendname" (5)
+.BR sane\-dll (5),
+.BR sane\-net (5),
+.BR sane\-"backendname" (5)
 .br
-.I http://www.penguin-breeder.org/?page=sane-net
+.I http://www.penguin-breeder.org/?page=sane\-net
 .SH AUTHOR
 David Mosberger

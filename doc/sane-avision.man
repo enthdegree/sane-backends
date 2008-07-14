@@ -1,8 +1,8 @@
-.TH sane-avision 5 "04 Mar 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-avision
+.TH sane\-avision 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-avision
 
 .SH NAME
-sane-avision \- SANE backend for original Avision and Avision OEM scanners
+sane\-avision \- SANE backend for original Avision and Avision OEM scanners
 (HP, Minolta, Mitsubishi, UMAX and possibly more) flatbed and film scanners.
 
 .SH ABOUT THIS FILE
@@ -11,7 +11,7 @@ This file is a short descripton for the avision-backend shipped with SANE.
 
 .SH DESCRIPTION
 The
-.B sane-avision
+.B sane\-avision
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to various Avision scanners and the Avision OEM
 scanners labelled by HP, Minolta, Mitsubishi or Fujitsu.
@@ -34,10 +34,10 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
 .nf
  # this is a comment
 \ 
- option force-a4
- option force-a3
- option disable-gamma-table
- option disable-calibration
+ option force\-a4
+ option force\-a3
+ option disable\-gamma\-table
+ option disable\-calibration
 \ 
  #scsi Vendor Model Type Bus Channel ID LUN 
  scsi AVISION
@@ -47,26 +47,26 @@ a hash mark (#) are ignored. A sample configuration file is shown below:
 .fi
 
 .TP
-force-a4:
+force\-a4:
 Forces the backend to overwrite the scanable area
 returned by the scanner to ISO A4. Scanner that are
 known to return bogus data are marked in the backend
 so if you need this option please report this to the
 backend maintainer. USE WITH CARE!
 .TP
-force-a3:
+force\-a3:
 Forces the backend to overwrite the scanable area
 returned by the scanner to ISO A3. Scanner that are
 known to return bogus data are marked in the backend
 so if you need this option please report this to the
 backend maintainer. USE WITH CARE!
 .TP
-disable-gamma-table:
+disable\-gamma\-table:
 Disables the usage of the scanner's gamma-table. You
 might try this if your scans hang or only produces
 random garbage.
 .TP
-disable-calibration:
+disable\-calibration:
 Disables the scanner's color calibration. You
 might try this if your scans hang or only produces
 random garbage.
@@ -94,7 +94,7 @@ is the path-name to a special device or a device ID for the device that
 corresponds to a SCSI scanner. The special device name must be a generic
 SCSI device or a symlink to such a device, for example on Linux "/dev/sga"
 or "/dev/sg0". The device ID is the ID returned by the scanner, for example
-"HP" or "AVISION". See sane-scsi(5) for details.
+"HP" or "AVISION". See sane\-scsi(5) for details.
 .TP
 Note:
 Since the backend now includes native USB access,
@@ -106,10 +106,10 @@ the HP 53xx, HP 74xx or Minolta film-scanners.
 .I usb-spec
 is the USB device name, the vendor/product ID pair or the name used by
 libusb corresponding to the USB scanner. For example "0x03f0 0x0701" or
-"libusb:002:003". See sane-usb(5) for details.
+"libusb:002:003". See sane\-usb(5) for details.
 
 The program
-.IR sane-find-scanner 
+.IR sane\-find\-scanner 
 helps to find out the correct scsi or usb device name.
 
 A list with supported devices is built into the avision backend so
@@ -122,10 +122,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-avision.a
+.I @LIBDIR@/libsane\-avision.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-avision.so
+.I @LIBDIR@/libsane\-avision.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -155,7 +155,7 @@ Example:
 export SANE_DEBUG_AVISION=7
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5), sane-usb(5)
+sane(7), sane\-scsi(5), sane\-usb(5)
 .br
 http://www.exactcode.de/oss/avision/
 

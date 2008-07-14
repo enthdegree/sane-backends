@@ -1,4 +1,4 @@
-.TH gamma4scanimage 1 "11 Sep 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH gamma4scanimage 1 "10 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX gamma4scanimage
 .SH NAME
 gamma4scanimage \- create a gamma table for scanimage
@@ -48,11 +48,11 @@ out what value maxin has to be call scanimage with a very large gamma table
 the gamma table.
 .PP
 .BR maxout
-defines the maximum output value. Take a look at the output of scanimage -h to
+defines the maximum output value. Take a look at the output of scanimage \-h to
 find out what maxout has to be. The default value is 255.
 .PP
 .SH EXAMPLE
-.B scanimage --custom-gamma=yes --gamma-table 
+.B scanimage \-\-custom\-gamma=yes \-\-gamma\-table 
 .I `gamma4scanimage 1.8 0 11500 16383 255`
 >image.pnm
 

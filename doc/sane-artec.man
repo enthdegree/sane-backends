@@ -1,12 +1,12 @@
-.TH sane-artec 5 "24 Jan 2000" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-artec
+.TH sane\-artec 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-artec
 
 .SH NAME
-sane-artec \- SANE backend for Artec flatbed scanners
+sane\-artec \- SANE backend for Artec flatbed scanners
 
 .SH DESCRIPTION
 The
-.B sane-artec
+.B sane\-artec
 library implements a SANE (Scanner Access Now Easy) backend
 that provides access to Artec/Ultima SCSI flatbed scanners.  At present,
 the following scanners are known to work at least partially with this backend:
@@ -48,7 +48,7 @@ The contents of the
 file are a list of device names that
 correspond to Artec scanners.  Empty lines and lines starting with a
 hash mark (#) are ignored.  See
-.I sane-scsi(5)
+.I sane\-scsi(5)
 on details of what constitutes a valid device name.
 
 Sample file:
@@ -101,10 +101,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-artec.a
+.I @LIBDIR@/libsane\-artec.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-artec.so
+.I @LIBDIR@/libsane\-artec.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -143,8 +143,8 @@ Number  Remark
  7       print major called procedures
  8       print all called procedures
  9       print procedure info/data messages
- 10      print called sane-init-routines
- 11      print called sane-procedures
+ 10      print called sane\-init-routines
+ 11      print called sane\-procedures
  12      print sane infos
  13      print sane option-control messages
 \ 
@@ -171,7 +171,7 @@ correction is not totally working on models other than the AT3.
 
 .SH "SEE ALSO"
 
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 

@@ -1,10 +1,10 @@
-.TH sane-agfafocus 5 "17 Oct 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-agfafocus
+.TH sane\-agfafocus 5 "10 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-agfafocus
 .SH NAME
-sane-agfafocus \- SANE backend for AGFA Focus flatbed scanners
+sane\-agfafocus \- SANE backend for AGFA Focus flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-agfafocus
+.B sane\-agfafocus
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to AGFA Focus flatbed scanners. At present, the following
 scanners are supported from this backend:
@@ -31,9 +31,9 @@ color scans.
 If you own a scanner other than the ones listed above that works with
 this backend, please let us know by sending the scanner's model name,
 SCSI id, and firmware revision to
-.IR sane-devel@lists.alioth.debian.org .
-Have a look at http://www.sane-project.org/mailing-lists.html
-concerning subscription to sane-devel.
+.IR sane\-devel@lists.alioth.debian.org .
+Have a look at http://www.sane\-project.org/mailing\-lists.html
+concerning subscription to sane\-devel.
 .PP
 All of these scanners are pre-SCSI-2, and do not even report properly
 to SCSI Inquiry.  This is typically evident in SCSI bus scans, where
@@ -55,7 +55,7 @@ a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane-scsi(5) for details.
+for example.  See sane\-scsi(5) for details.
 .SH CONFIGURATION
 The contents of the
 .I agfafocus.conf
@@ -79,10 +79,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I /usr/lib/libsane-agfafocus.a
+.I /usr/lib/libsane\-agfafocus.a
 The static library implementing this backend.
 .TP
-.I /usr/lib/libsane-agfafocus.so
+.I /usr/lib/libsane\-agfafocus.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -121,8 +121,8 @@ Number  Remark
  6       print less important informations
  7       print called procedures
  8       print reader_process messages
- 10      print called sane-init-routines
- 11      print called sane-procedures
+ 10      print called sane\-init-routines
+ 11      print called sane\-procedures
  12      print sane infos
  13      print sane option-control messages
 .fi
@@ -138,7 +138,7 @@ these options have been disabled.
 The scanners that do not support disconnect have problems with SCSI
 timeouts if the SCSI bus gets loaded, eg. if you do a kernel build at
 the same time as scanning.  To see if your scanner supports
-disconnect, run "SANE_DEBUG_AGFAFOCUS=128 scanimage -L" in sh and look
+disconnect, run "SANE_DEBUG_AGFAFOCUS=128 scanimage \-L" in sh and look
 for the "disconnect:" line)
 
 .SH DEBUG
@@ -167,7 +167,7 @@ a scanner, I could be helpful in adding support for these scanners.
 The AGFA HORIZON scanners are SCSI-2 scanners, and it would probably
 be easier to support these scanners in a SCSI-2 compliant backend.
 .SH SEE ALSO
-sane(7), sane-scsi(5)
+sane(7), sane\-scsi(5)
 
 .SH AUTHOR
 

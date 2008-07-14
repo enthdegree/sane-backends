@@ -1,14 +1,14 @@
-.TH sane-hs2p 5 "01 Nov 2007" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-hs2p
+.TH sane\-hs2p 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-hs2p
 .SH NAME
-sane-hs2p \- SANE backend for Ricoh SCSI flatbed/ADF scanners
+sane\-hs2p \- SANE backend for Ricoh SCSI flatbed/ADF scanners
 .SH DESCRIPTION
 The
-.B sane-hs2p
+.B sane\-hs2p
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the Ricoh IS450 family of scanners. Should also work with the IS420,
 IS410, and IS430 scanners, but these are untested.
-Please contact the maintainer or the sane-devel mailing list if you own such a scanner.
+Please contact the maintainer or the sane\-devel mailing list if you own such a scanner.
 .PP
 This backend is alpha-quality. It may have bugs and some scanners haven't been
 tested at all. Be careful and pull the plug if the scanner causes unusual
@@ -25,13 +25,13 @@ Where
 .I special
 is either the path-name for the special device that corresponds to a SCSI
 scanner. The program
-.I sane-find-scanner 
+.I sane\-find\-scanner 
 helps to find out the correct device. Under Linux, such a device name could be
 .I /dev/sg0
 or
 .IR /dev/sga ,
 for example.  See 
-.BR sane-scsi (5)
+.BR sane\-scsi (5)
 for details.
 
 .SH CONFIGURATION
@@ -40,7 +40,7 @@ The contents of the
 file is a list of device names that correspond to SCSI
 scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  See 
-.BR sane-scsi (5)
+.BR sane\-scsi (5)
 on details of what constitutes a valid device name.
 
 .SH FILES
@@ -50,10 +50,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-hs2p.a
+.I @LIBDIR@/libsane\-hs2p.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-hs2p.so
+.I @LIBDIR@/libsane\-hs2p.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -111,8 +111,8 @@ wish to use their IPU for image data processing.
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-find-scanner (1),
-.BR sane-scsi (5),
+.BR sane\-find\-scanner (1),
+.BR sane\-scsi (5),
 
 .SH AUTHOR
 jeremy <jeremy@acjlaw.net>

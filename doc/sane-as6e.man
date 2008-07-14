@@ -1,11 +1,11 @@
-.TH sane-as6e 5 "Dec 14th, 2003" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-as6e 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 
 .SH NAME
-sane-as6e \- SANE backend for using the Artec AS6E parallel port interface scanner.
+sane\-as6e \- SANE backend for using the Artec AS6E parallel port interface scanner.
 
 .SH DESCRIPTION
 The
-.B sane-as6e
+.B sane\-as6e
 library implements a SANE (Scanner Access Now Easy) backend
 that provides access to Artec AS6E flatbed scanner.  
 .B It requires the as6edriver program in order to operate. 

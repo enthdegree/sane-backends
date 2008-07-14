@@ -1,10 +1,10 @@
-.TH sane-pnm 5 "22 April 2001" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-pnm
+.TH sane\-pnm 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-pnm
 .SH NAME
-sane-pnm \- SANE PNM image reader pseudo-backend
+sane\-pnm \- SANE PNM image reader pseudo-backend
 .SH DESCRIPTION
 The
-.B sane-pnm
+.B sane\-pnm
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to PNM (Portable aNyMap files, which covers PBM bitmap
 files, PGM grayscale files, and PPM pixmap files).  The purpose of
@@ -19,10 +19,10 @@ and
 No configuration required.
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-pnm.a
+.I @LIBDIR@/libsane\-pnm.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-pnm.so
+.I @LIBDIR@/libsane\-pnm.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -38,7 +38,7 @@ computers to scan on the local machine, pnm files can be read by the remote
 user. This is limited to the files saned can access (usually it's running as
 user "sane"). All pnm files can be read if saned runs as root which isn't
 recommended anyway. The pnm backend is disabled by default. If you want to use
-it, enable it with configure (see configure --help for details). Be sure that
+it, enable it with configure (see configure \-\-help for details). Be sure that
 only trusted users can access the pnm backend over saned.
 .SH AUTHOR
 Andreas Beck, Gordon Matzigkeit, and David Mosberger

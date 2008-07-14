@@ -1,10 +1,10 @@
-.TH "sane-pixma" "5" "5 May 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-pixma
+.TH "sane\-pixma" "5" "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-pixma
 .SH NAME
-sane-pixma \- SANE backend for Canon PIXMA MP series
+sane\-pixma \- SANE backend for Canon PIXMA MP series
 .SH DESCRIPTION
 The
-.B sane-pixma
+.B sane\-pixma
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to Canon PIXMA multi-function devices (All-in-one printers).
 Currently, the following models work with this backend:
@@ -50,7 +50,7 @@ ImageCLASS MF5630, MF5650, MF5730, MF5750, MF5770, MF8170c
 The following models may use partly the same Pixma protocol as MPs listed
 above, but may still need some work. They are declared in the backend as 
 experimental. Snoop logs are required to further investigate, please contact 
-the Sane-dev mailing list.
+the sane\-devel mailing list.
 .PP
 .RS
 PIXMA MX850
@@ -82,7 +82,7 @@ provides the following
 \#.B experimental
 options for button handling, i.e. the options might change in the future.
 .TP
-.I button-controlled
+.I button\-controlled
 This option can be used in combination with
 .BR scanadf (1)
 and
@@ -95,24 +95,24 @@ first page in the scanner, press the button, then the next page, press
 the button and so on. When you finished, press the gray-scan button. (For
 MP150 you have to stop the frontend by pressing Ctrl-C for example.)
 .TP
-.I button-update button-1 button-2
+.I button\-update button\-1 button\-2
 These options are interesting for developers. To check button status: (1) set
-.I button-1
+.I button\-1
 and
-.I button-2
+.I button\-2
 to zero, (2) set
 .I button-update
 (Its type is SANE_TYPE_BUTTON.), (3) get
-.I button-1
+.I button\-1
 and
-.IR button-2 .
+.IR button\-2 .
 If the result is not zero, the corresponding button was pressed.
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-pixma.a
+.I @LIBDIR@/libsane\-pixma.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-pixma.so
+.I @LIBDIR@/libsane\-pixma.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -142,7 +142,7 @@ Setting to a non-zero value will enable the support for experimental models.
 You should also set SANE_DEBUG_PIXMA to 10.
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-dll (5),
+.BR sane\-dll (5),
 .I http://home.arcor.de/wittawat/pixma/,
 .I http://mp610.blogspot.com/
 .SH AUTHORS

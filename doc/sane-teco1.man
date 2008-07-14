@@ -1,10 +1,10 @@
-.TH sane-teco1 5 "August 30th, 2002" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-teco1
+.TH sane\-teco1 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-teco1
 .SH NAME
-sane-teco1 \- SANE backend for TECO / RELISYS scanners
+sane\-teco1 \- SANE backend for TECO / RELISYS scanners
 .SH DESCRIPTION
 The
-.B sane-teco1
+.B sane\-teco1
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to some TECO SCSI flatbed scanners. This backend
 should be considered
@@ -47,7 +47,7 @@ Note that the untested scanner will not be directly supported. You
 should contact the author for that.
 
 The TECO VM number can usually be found at the back of the scanner. It
-is also part of the FCC ID. "sane-find-scanner -v" will also show the
+is also part of the FCC ID. "sane\-find\-scanner \-v" will also show the
 scsi inquiry, and if it is a TECO scanner, the name will be there too.
 
 The options the backend supports can either be selected through
@@ -61,14 +61,14 @@ the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using 
 .RS
-scanimage --help -d teco1
+scanimage \-\-help \-d teco1
 .RE
 
 .TP
 .B Scan Mode
 
 .TP
-.B --mode
+.B \-\-mode
 selects the basic mode of operation of the scanner valid choices are 
 .I Black & White
 ,
@@ -80,7 +80,7 @@ will produce 256 levels of gray (8 bits). Color will produce a 24 bits
 color image.
 
 .TP
-.B --resolution
+.B \-\-resolution
 selects the resolution for a scan. The scanner can do all resolutions
 between 1 and 600, in increments of 1.
 
@@ -89,9 +89,9 @@ between 1 and 600, in increments of 1.
 .B Geometry options
 
 .TP
-.B -l -t -x -y 
-control the scan area: -l sets the top left x coordinate, -t the top
-left y coordinate, -x selects the width and -y the height of the scan
+.B \-l \-t \-x \-y 
+control the scan area: \-l sets the top left x coordinate, \-t the top
+left y coordinate, \-x selects the width and \-y the height of the scan
 area. All parameters are specified in millimeters by default.
 
 
@@ -99,27 +99,27 @@ area. All parameters are specified in millimeters by default.
 .B Enhancement options
 
 .TP
-.B --custom-gamma
+.B \-\-custom\-gamma
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
 .TP 
-.B --red-gamma-table 
+.B \-\-red\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
 .TP 
-.B --green-gamma-table 
+.B \-\-green\-gamma\-table 
 (color mode only) can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
-.B --blue-gamma-table 
+.B \-\-blue\-gamma\-table 
 (color mode only) can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
 .TP
-.B --dither
+.B \-\-dither
 (Black & White only) select the dither mask to use. Possible values are 
 .I Line art
 ,
@@ -141,7 +141,7 @@ and
 
 
 .TP 
-.B --preview
+.B \-\-preview
 requests a preview scan. The resolution used for that scan is 22 dpi
 and the scan area is the maximum allowed. The scan mode is user
 selected. The default is "no".
@@ -153,10 +153,10 @@ The configuration file @CONFIGDIR@/teco1.conf supports only one information: the
 
 .SH FILES
 .TP
-.I @LIBDIR@/libsane-teco1.a
+.I @LIBDIR@/libsane\-teco1.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-teco1.so
+.I @LIBDIR@/libsane\-teco1.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 
@@ -183,7 +183,7 @@ None known.
 
 .SH "SEE ALSO"
 
-sane-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH AUTHOR

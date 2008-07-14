@@ -1,10 +1,10 @@
-.TH sane-canon630u 5 "06 Apr 2002"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-canon630u
+.TH sane\-canon630u 5 "11 Jul 2008"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-canon630u
 .SH NAME
-sane-canon630u \- SANE backend for the Canon 630u USB flatbed scanner
+sane\-canon630u \- SANE backend for the Canon 630u USB flatbed scanner
 .SH DESCRIPTION
 The
-.B sane-canon630u
+.B sane\-canon630u
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the following Canon flatbed scanners:
 .PP
@@ -29,11 +29,11 @@ USB scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  Only one device name can be listed in 
 .IR canon630u.conf .
 The program
-.IR sane-find-scanner 
+.IR sane\-find\-scanner 
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/usb/scanner0
-for example.  See sane-usb(5) for details.
+for example.  See sane\-usb(5) for details.
 .PP
 This product-specific scanner driver uses the lower-level kernel USB driver
 "scanner".  Check for "Driver=usbscanner" under /proc/bus/usb/devices.  If
@@ -61,10 +61,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-canon630u.a
+.I @LIBDIR@/libsane\-canon630u.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-canon630u.so
+.I @LIBDIR@/libsane\-canon630u.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .TP
@@ -97,7 +97,7 @@ Example:
 .br 
 SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
-sane(7), sane-usb(5), sane-find-scanner(1)
+sane(7), sane\-usb(5), sane\-find\-scanner(1)
 .br
 http://canon-fb630u.sourceforge.net/
 .br

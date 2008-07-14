@@ -1,10 +1,10 @@
-.TH sane-abaton 5 "19 Nov 1998" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-abaton
+.TH sane\-abaton 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-abaton
 .SH NAME
-sane-abaton \- SANE backend for Abaton flatbed scanners
+sane\-abaton \- SANE backend for Abaton flatbed scanners
 .SH DESCRIPTION
 The
-.B sane-abaton
+.B sane\-abaton
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Abaton flatbed scanners. At present, only the Scan
 300/GS (8bit, 256 levels of gray) is fully supported, due to the
@@ -14,10 +14,10 @@ is recognized, but support for it is untested.
 If you own a Abaton scanner other than the ones listed above that
 works with this backend, or if you own an Abaton scanner that does not
 work with this backend, please contact
-.IR sane-devel@lists.alioth.debian.org
+.IR sane\-devel@lists.alioth.debian.org
 with the model number, so that arrangements can be made to include
-support for it. Have a look at http://www.sane-project.org/mailing-lists.html
-concerning subscription to sane-devel.
+support for it. Have a look at http://www.sane\-project.org/mailing\-lists.html
+concerning subscription to sane\-devel.
 .PP
 Abaton is out of business, and these scanners are not supported by
 Everex (the parent company of Abaton), nor is there any programming
@@ -48,13 +48,13 @@ name takes a format such as
 .I /dev/sga
 or
 .IR /dev/sg0 ,
-for example.  See sane-scsi(5) for details.
+for example.  See sane\-scsi(5) for details.
 .SH CONFIGURATION
 The contents of the
 .I abaton.conf
 file is a list of device names that correspond to Abaton scanners.
 Empty lines and lines starting with a hash mark (#) are ignored.  See
-sane-scsi(5) on details of what constitutes a valid device name.
+sane\-scsi(5) on details of what constitutes a valid device name.
 
 .SH FILES
 .TP
@@ -63,10 +63,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP
-.I @LIBDIR@/libsane-abaton.a
+.I @LIBDIR@/libsane\-abaton.a
 The static library implementing this backend.
 .TP
-.I @LIBDIR@/libsane-abaton.so
+.I @LIBDIR@/libsane\-abaton.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH ENVIRONMENT
@@ -107,7 +107,7 @@ former is more likely than the latter.
 If you have found something that you think is a bug, please attempt to
 recreate it with the SANE_DEBUG_ABATON environment variable set to
 255, and send a report detailing the conditions surrounding the bug to
-.IR sane-devel@lists.alioth.debian.org .
+.IR sane\-devel@lists.alioth.debian.org .
 
 .SH TODO
 .TP
@@ -119,8 +119,8 @@ confidence that it will work, as well as to fully exploit the
 information returned by the INQUIRY command.
 
 .SH "SEE ALSO"
-sane(7), sane-scsi(5), scanimage(1)
+sane(7), sane\-scsi(5), scanimage(1)
 
 .SH AUTHOR
-The sane-abaton backend was partially written by David Huggins-Daines,
-based on the sane-apple backend by Milon Firikis.
+The sane\-abaton backend was partially written by David Huggins-Daines,
+based on the sane\-apple backend by Milon Firikis.

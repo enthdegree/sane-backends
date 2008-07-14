@@ -1,12 +1,12 @@
-.TH sane-epjitsu 5 "2007-12-17" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-epjitsu
+.TH sane\-epjitsu 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-epjitsu
 
 .SH NAME
-sane-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
+sane\-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
 
 .SH DESCRIPTION
 The 
-.B sane-epjitsu
+.B sane\-epjitsu
 library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi-60F and ScanSnap S300 scanners.
 
 .SH HARDWARE SUPPORT
@@ -30,10 +30,10 @@ Selects the mode for the scan. Options may include "Lineart", "Gray", "Color".
 .PP
 resolution, y-resolution
 .RS
-Controls scan resolution. Setting --resolution also sets --y-resolution, though this behavior is overridden by some frontends.
+Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, though this behavior is overridden by some frontends.
 .RE
 .PP
-Other options will be available based on the capabilities of the scanner. Use 'scanimage --help' to get a list. Be aware that some options may appear only when another option has been set, and that advanced options may be hidden by the frontend.
+Other options will be available based on the capabilities of the scanner. Use 'scanimage \-\-help' to get a list. Be aware that some options may appear only when another option has been set, and that advanced options may be hidden by the frontend.
 .PP
 .SH CONFIGURATION FILE
 The configuration file "@CONFIGDIR@/epjitsu.conf" is used to tell the backend how to look for scanners, and provide options controlling the operation of the backend. This file is read each time the frontend asks the backend for a list of scanners, generally only when the frontend starts. If the configuration file is missing, the backend will not work.
@@ -103,7 +103,7 @@ fi-60F support funded by TrueCheck, Inc.
 
 .SH "SEE ALSO"
 sane(7),
-sane-usb(5)
+sane\-usb(5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

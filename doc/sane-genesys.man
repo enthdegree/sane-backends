@@ -1,10 +1,10 @@
-.TH "sane-genesys" "5" "20 Nov 2005" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane-genesys
+.TH "sane\-genesys" "5" "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-genesys
 .SH "NAME"
-sane-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
+sane\-genesys \- SANE backend for GL646 and GL841 based USB flatbed scanners
 .SH "DESCRIPTION"
 The
-.B sane-genesys
+.B sane\-genesys
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Genesys GL646 and GL841 chips.
 At present, the following scanners are known to work with this backend:
@@ -28,8 +28,8 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane-find-scanner
-or syslog) to the sane-devel mailing list. Even if the scanner's name is only
+.I sane\-find\-scanner
+or syslog) to the sane\-devel mailing list. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
 .PP 
 If you own a scanner that isn't detected by the genesys backend but has a GL646
@@ -40,7 +40,7 @@ This backend needs libusb-0.1.6 or later installed, and hasn't tested in other
 configuration than a linux kernel 2.6.9 or higher. However, it should work any
 system with libusb where the SANE package can be compiled. For
 setting permissions and general USB information look at
-.BR sane-usb (5).
+.BR sane\-usb (5).
 
 
 .SH "CONFIGURATION"
@@ -64,10 +64,10 @@ The backend configuration file (see also description of
 .B SANE_CONFIG_DIR
 below).
 .TP 
-.I @LIBDIR@/libsane-genesys.a
+.I @LIBDIR@/libsane\-genesys.a
 The static library implementing this backend.
 .TP 
-.I @LIBDIR@/libsane-genesys.so
+.I @LIBDIR@/libsane\-genesys.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
 .SH "ENVIRONMENT"
@@ -110,14 +110,14 @@ export SANE_DEBUG_GENESYS_GL646=255
 
 .SH "SEE ALSO"
 .BR sane (7),
-.BR sane-usb (5)
+.BR sane\-usb (5)
 .br 
 
 
 .SH "AUTHOR"
 Oliver Rauch
 .br 
-Henning Meier-Geinitz <henning@meier-geinitz.de>
+Henning Meier-Geinitz <henning@meier\-geinitz.de>
 .br 
 Gerhard Jaeger <gerhard@gjaeger.de>
 .br 

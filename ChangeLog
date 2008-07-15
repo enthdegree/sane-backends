@@ -1,3 +1,7 @@
+2008-07-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Changed page scan end condition to handle correctly PIXMA ADF.
+
 2008-07-14 Julien Blache <jb@jblache.org>
 	* doc/*.man: Fix hyphen vs. minus sign issues in the manpages,
 	breaking copy/paste of command-lines and options in UTF-8

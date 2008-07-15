@@ -1042,8 +1042,6 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       if ((mp->last_block & 0x28) == 0x28)
 	{
 	  /* end of image */
-	  if (mp->last_block != 0x38)
-	    abort_session (s);	/* FIXME: it probably doesn't work in duplex mode! */
 	  mp->state = state_finished;
 	  return 0;
 	}
@@ -1102,6 +1100,8 @@ mp150_finish_scan (pixma_t * s)
 	PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
       /* fall through */
     case state_finished:
+      if (mp->last_block != 0x38)
+        abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
       mp->state = state_idle;
       /* fall through */
     case state_idle:
@@ -1147,7 +1147,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
 
 #define DEVICE(name, pid, dpi, cap) {		\
         name,              /* name */		\
-	CANON_VID, pid,       /* vid pid */	\
+	CANON_VID, pid,    /* vid pid */	\
 	0,                 /* iface */		\
 	&pixma_mp150_ops,  /* ops */		\
 	dpi, 2*(dpi),      /* xdpi, ydpi */	\

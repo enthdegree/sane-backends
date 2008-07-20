@@ -90,9 +90,9 @@ resolutions listed.
 All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in 
 a wrong proportion for the scan. The proportion can be adjusted with 
 the following imagemagick command: 
-convert -geometry (dpi/max_xdpi * 100%)x100% 
+convert \-geometry (dpi/max_xdpi * 100%)x100% 
 max_xdpi is for the vm3575 constant with 300 dpi      
-e.g. 600dpi adjust with: convert -geometry 200%x100%  
+e.g. 600dpi adjust with: convert \-geometry 200%x100%  
 
 .TP
 .B Geometry options

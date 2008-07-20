@@ -228,7 +228,7 @@ The Options:
 option warmup t
 .RS
 .I t
-specifies the warmup period in seconds, if set to -1, the 
+specifies the warmup period in seconds, if set to \-1, the 
 automatic warmup function will be used
 .RE
 .PP
@@ -390,7 +390,7 @@ option blue_offset bo
 .RS
 .I r g b ro go bo
 These values can be used to set the gain and offset values of
-the AFE for each channel. The range is between 0 and 63. -1
+the AFE for each channel. The range is between 0 and 63. \-1
 means autocalibration.
 .RE
 

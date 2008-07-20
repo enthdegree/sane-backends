@@ -1705,6 +1705,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   size_t value_size;
   int need_auth;
+  SANE_Word local_info;
 
   DBG (3, "sane_control_option: option %d, action %d\n", option, action);
 
@@ -1755,6 +1756,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   req.value_size = value_size;
   req.value = value;
 
+  local_info = 0;
+
   DBG (3, "sane_control_option: remote control option\n");
   sanei_w_call (&s->hw->wire, SANE_NET_CONTROL_OPTION,
 		(WireCodecFunc) sanei_w_control_option_req, &req,
@@ -1779,6 +1782,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
       else if (status == SANE_STATUS_GOOD)
 	{
+	  local_info = reply.info;
+
 	  if (info)
 	    *info = reply.info;
 	  if (value_size > 0)
@@ -1800,7 +1805,19 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     }
   while (need_auth);
 
-  DBG (2, "sane_control_option: done (%s)\n", sane_strstatus (status));
+  DBG (2, "sane_control_option: remote done (%s, info %x)\n", sane_strstatus (status), local_info);
+
+  if ((status == SANE_STATUS_GOOD) && (info == NULL) && (local_info & SANE_INFO_RELOAD_OPTIONS))
+    {
+      DBG (2, "sane_control_option: reloading options as frontend does not care\n");
+
+      status = fetch_options (s);
+
+      DBG (2, "sane_control_option: reload done (%s)\n", sane_strstatus (status));
+    }
+
+  DBG (2, "sane_control_option: done (%s, info %x)\n", sane_strstatus (status), local_info);
+
   return status;
 }
 

@@ -1,3 +1,9 @@
+2008-07-20 Julien Blache <jb@jblache.org>
+	* backend/net.c: sane_control_option: when the frontend doesn't
+	care (info == NULL) and the remote backend asks for a reload,
+	perform the reload. Hopefully this brings the behaviour back in
+	line with standard backends.
+
 2008-07-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
 	Changed page scan end condition to handle correctly PIXMA ADF.

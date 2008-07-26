@@ -1,3 +1,10 @@
+2008-07-25  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/saneopts.h: separate x-resolution from resolution
+	* backend/abaton.c, backend/artec.c, backend/canon-sane.c,
+	  backend/epjitsu.c, backend/fujitsu.c, backend/microtek2.c,
+	  backend/sp15c.c, backend/umax.c: use SANE_NAME_SCAN_RESOLUTION
+	  instead of SANE_NAME_SCAN_X_RESOLUTION, to avoid ui change
+
 2008-07-20 Julien Blache <jb@jblache.org>
 	* backend/net.c: sane_control_option: when the frontend doesn't
 	care (info == NULL) and the remote backend asks for a reload,

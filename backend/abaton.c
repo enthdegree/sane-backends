@@ -686,7 +686,7 @@ init_options (Abaton_Scanner * s)
   s->val[OPT_MODE].s = strdup (mode_list[0]);
 
   /* resolution - horizontal */
-  s->opt[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_X_RESOLUTION;
+  s->opt[OPT_X_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
   s->opt[OPT_X_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
   s->opt[OPT_X_RESOLUTION].desc = SANE_DESC_SCAN_X_RESOLUTION;
   s->opt[OPT_X_RESOLUTION].type = SANE_TYPE_INT;

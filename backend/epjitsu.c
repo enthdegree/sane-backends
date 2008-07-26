@@ -898,7 +898,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     }
     s->x_res_list[0] = i;
 
-    opt->name = SANE_NAME_SCAN_X_RESOLUTION;
+    opt->name = SANE_NAME_SCAN_RESOLUTION;
     opt->title = SANE_TITLE_SCAN_X_RESOLUTION;
     opt->desc = SANE_DESC_SCAN_X_RESOLUTION;
     opt->type = SANE_TYPE_INT;

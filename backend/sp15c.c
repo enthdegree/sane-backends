@@ -45,7 +45,11 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
- * Revision 1.15  2007/11/18 10:59:18  ellert-guest
+ * Revision 1.16  2008/07/26 03:53:44  kitno-guest
+ * separate x-resolution from resolution, and update all backends that use
+ * it, to prevent ui change
+ *
+ * Revision 1.15  2007-11-18 10:59:18  ellert-guest
  * Fix handling of valid "negative" PIDs
  *
  * Revision 1.14  2007-10-26 14:56:38  jblache
@@ -1441,7 +1445,7 @@ init_options (struct sp15c *scanner)
   scanner->opt[OPT_PRESCAN].unit = SANE_UNIT_NONE;
 
   /* resolution */
-  scanner->opt[OPT_X_RES].name = SANE_NAME_SCAN_X_RESOLUTION;
+  scanner->opt[OPT_X_RES].name = SANE_NAME_SCAN_RESOLUTION;
   scanner->opt[OPT_X_RES].title = SANE_TITLE_SCAN_X_RESOLUTION;
   scanner->opt[OPT_X_RES].desc = SANE_DESC_SCAN_X_RESOLUTION;
   scanner->opt[OPT_X_RES].type = SANE_TYPE_INT;

@@ -6740,7 +6740,7 @@ SANE_Status sane_control_option(SANE_Handle handle, SANE_Int option, SANE_Action
           { /* don't bind */
             scanner->opt[OPT_Y_RESOLUTION].cap &= ~SANE_CAP_INACTIVE;
             scanner->opt[OPT_X_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
-            scanner->opt[OPT_X_RESOLUTION].name  = SANE_NAME_SCAN_X_RESOLUTION;
+            scanner->opt[OPT_X_RESOLUTION].name  = SANE_NAME_SCAN_RESOLUTION;
             scanner->opt[OPT_X_RESOLUTION].desc  = SANE_DESC_SCAN_X_RESOLUTION;
           }
           else

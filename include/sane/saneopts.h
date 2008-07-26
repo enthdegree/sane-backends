@@ -84,7 +84,7 @@
 #define SANE_NAME_SCAN_BR_X		"br-x"
 #define SANE_NAME_SCAN_BR_Y		"br-y"
 #define SANE_NAME_SCAN_RESOLUTION	"resolution"
-#define SANE_NAME_SCAN_X_RESOLUTION	"resolution"
+#define SANE_NAME_SCAN_X_RESOLUTION	"x-resolution"
 #define SANE_NAME_SCAN_Y_RESOLUTION	"y-resolution"
 #define SANE_NAME_PAGE_WIDTH  		"page-width"
 #define SANE_NAME_PAGE_HEIGHT 		"page-height"

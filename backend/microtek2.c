@@ -2425,7 +2425,7 @@ init_options(Microtek2_Scanner *ms, u_int8_t current_scan_source)
         sod[OPT_HALFTONE].constraint.string_list = md->halftone_mode_list;
 
         /* Resolution */
-        sod[OPT_RESOLUTION].name = SANE_NAME_SCAN_X_RESOLUTION;
+        sod[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
         sod[OPT_RESOLUTION].title = SANE_TITLE_SCAN_X_RESOLUTION;
         sod[OPT_RESOLUTION].desc = SANE_DESC_SCAN_X_RESOLUTION;
         sod[OPT_RESOLUTION].unit = SANE_UNIT_DPI;

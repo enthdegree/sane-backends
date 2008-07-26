@@ -3047,7 +3047,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		  s->opt[OPT_X_RESOLUTION].title =
 		    SANE_TITLE_SCAN_X_RESOLUTION;
 		  s->opt[OPT_X_RESOLUTION].name =
-		    SANE_NAME_SCAN_X_RESOLUTION;
+		    SANE_NAME_SCAN_RESOLUTION;
 		  s->opt[OPT_X_RESOLUTION].desc =
 		    SANE_DESC_SCAN_X_RESOLUTION;
 		}

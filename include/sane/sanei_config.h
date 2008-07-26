@@ -144,9 +144,6 @@ typedef struct
 
 } SANEI_Config;
 
-/** attach with configuration callback function type. */
-typedef SANE_Status (*config_attach)(SANEI_Config *config, const char *devname);
-
 /** Parse configuration file, reading configuration options and trying to
  * attach devices found in file.
  *
@@ -155,13 +152,16 @@ typedef SANE_Status (*config_attach)(SANEI_Config *config, const char *devname);
  * with the name found and the configuration structure with it's current values.
  *
  * @param config_file name of the configuration file to read
- * @param config configuration structure to be filled during configuration parsing
- *  	  and passed to the attach callback function
+ * @param config configuration structure to be filled during configuration
+ *  	  parsing and passed to the attach callback function
  * @param config_attach attach with config callback function
  *
  * @return SANE_STATUS_GOOD if no errors
  *         SANE_STATUS_ACCESS_DENIED if configuration file can't be opened
  */
-extern SANE_Status sanei_configure_attach (const char *config_file,SANEI_Config *config,
-					   config_attach);
+extern SANE_Status sanei_configure_attach (
+  const char *config_file,
+  SANEI_Config *config,
+  SANE_Status (*config_attach)(SANEI_Config *config, const char *devname)
+);
 #endif	/* sanei_config_h */

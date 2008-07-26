@@ -1,4 +1,9 @@
 2008-07-25  m. allan noah <kitno455 a t gmail d o t com>
+	* AUTHORS: Earle has commit perms
+	* doc/descriptions/unsupported.desc: add Lexmark X7170
+	* include/sane/sanei_config.h: remove typedef so doxygen will shutup
+
+2008-07-25  m. allan noah <kitno455 a t gmail d o t com>
 	* include/sane/saneopts.h: separate x-resolution from resolution
 	* backend/abaton.c, backend/artec.c, backend/canon-sane.c,
 	  backend/epjitsu.c, backend/fujitsu.c, backend/microtek2.c,

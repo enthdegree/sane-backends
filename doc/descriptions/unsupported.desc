@@ -1114,6 +1114,12 @@
 :status :unsupported
 :comment "Unsupported. See link for details."
 
+:model "X7170"
+:interface "USB"
+:usbid "0x043d" "0x0098"
+:status :unsupported
+:comment "Unsupported. See bug #310889 for details."
+
 :model "X7350"
 :url "/unsupported/lexmark-x7350.html"
 :interface "USB"

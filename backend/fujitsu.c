@@ -356,11 +356,16 @@
       v71 2008-07-13, MAN
          - disable overscan option if vpd does not tell overscan size
 	 - fi-5110EOX crops scan area based on absolute maximum, not paper
-	 - fi-5330C and fi-5650C can't handle 10 bit LUT via USB
+	 - fi-5530C/2 and fi-5650C can't handle 10 bit LUT via USB
 	 - fi-5900 has background color, though it reports otherwise
       v72 2008-07-13, MAN
 	 - use mode_sense to determine background color support
 	 - remove fi-5900 background color override
+      v73 2008-07-14, MAN
+	 - correct overscan dimension calculation
+	 - provide correct overscan size overrides for fi-5110C and fi-4x20C2
+         - add fi-6130 usb ID
+	 - fi-5750C can't handle 10 bit LUT via USB
 
    SANE FLOW DIAGRAM
 
@@ -421,7 +426,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 72 
+#define BUILD 73 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -699,6 +704,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114d'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x114d", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114f'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x114f", attach_one_usb);
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
@@ -1792,8 +1800,15 @@ init_model (struct fujitsu *s)
    || strstr (s->model_name, "fi-4220C2") ) {
 
     /* missing from vpd */
-    s->os_x_basic = 376;
-    s->os_y_basic = 236;
+    s->os_x_basic = 118;
+    s->os_y_basic = 118;
+  }
+
+  else if (strstr (s->model_name,"fi-5110C")){
+
+    /* missing from vpd */
+    s->os_x_basic = 147;
+    s->os_y_basic = 147;
   }
 
   else if (strstr (s->model_name,"fi-5110EOX")){
@@ -1802,9 +1817,9 @@ init_model (struct fujitsu *s)
     s->cropping_mode = CROP_ABSOLUTE;
   }
 
-  /*FIXME: fi-5750 too? */
-  else if (strstr (s->model_name,"fi-5330")
-    || strstr (s->model_name,"fi-5650")){
+  else if (strstr (s->model_name,"fi-5530")
+    || strstr (s->model_name,"fi-5650")
+    || strstr (s->model_name,"fi-5750")){
 
     /* lies - usb only */
     if(s->connection == CONNECTION_USB)
@@ -5801,11 +5816,6 @@ set_window (struct fujitsu *s)
 
   DBG (10, "set_window: start\n");
 
-  /* actual output length shorter if not using duplex */
-  if (s->source != SOURCE_ADF_DUPLEX) {
-    outLen -= SW_desc_len;
-  }
-
   /*build the payload*/
   memset(out,0,outLen);
 
@@ -6008,6 +6018,10 @@ set_window (struct fujitsu *s)
       set_WD_paper_selection (desc2, WD_paper_SEL_UNDEFINED);
       set_WD_paper_width_X (desc2, 0);
       set_WD_paper_length_Y (desc2, 0);
+  }
+  /* output shorter if not using duplex */
+  else{
+    outLen -= SW_desc_len;
   }
 
   /*build the command*/
@@ -7624,6 +7638,7 @@ wait_scanner(struct fujitsu *s)
 int
 get_page_width(struct fujitsu *s) 
 {
+  int width = s->page_width + 2 * (s->os_x_basic*1200/s->basic_x_res);
 
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){
@@ -7636,12 +7651,12 @@ get_page_width(struct fujitsu *s)
   }
 
   /* cant overscan larger than scanner max */
-  if((s->page_width + s->os_x_basic*2) > s->max_x){
+  if(width > s->max_x){
       return s->max_x;
   }
 
   /* overscan adds a margin to both sides */
-  return (s->page_width + s->os_x_basic*2);
+  return width;
 }
 
 /* s->page_height stores the user setting
@@ -7652,6 +7667,7 @@ get_page_width(struct fujitsu *s)
 int
 get_page_height(struct fujitsu *s) 
 {
+  int height = s->page_height + 2 * (s->os_y_basic*1200/s->basic_y_res);
 
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){
@@ -7664,12 +7680,12 @@ get_page_height(struct fujitsu *s)
   }
 
   /* cant overscan larger than scanner max */
-  if((s->page_height + s->os_y_basic*2) > s->max_y){
+  if(height > s->max_y){
       return s->max_y;
   }
 
   /* overscan adds a margin to both sides */
-  return (s->page_height + s->os_y_basic*2);
+  return height;
 }
 
 

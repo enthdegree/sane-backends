@@ -1,3 +1,11 @@
+2008-07-27  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
+	  doc/descriptions/fujitsu.desc: backend v73
+	- add fi-6130 usb ID
+	- correct overscan dimension calculation
+	- provide correct overscan size overrides for fi-5110C and fi-4x20C2
+	- fi-5750C can't handle 10 bit LUT via USB
+
 2008-07-25  m. allan noah <kitno455 a t gmail d o t com>
 	* AUTHORS: Earle has commit perms
 	* doc/descriptions/unsupported.desc: add Lexmark X7170

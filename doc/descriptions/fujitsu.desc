@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "72"                    ; version of backend
+:version "73"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.1.0, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -127,7 +127,8 @@
 
 :model "fi-6130"
 :interface "SCSI USB"
-:status :untested
+:status :good
+:usbid "0x04c5" "0x114f"
 :comment "medium, current"
 
 :model "fi-6230"

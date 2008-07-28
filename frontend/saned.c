@@ -2788,8 +2788,21 @@ run_standalone (int argc, char **argv)
       /* Drop privileges if requested */
       if (runas_uid > 0)
 	{
-	  seteuid (runas_uid);
-	  setegid (runas_gid);
+	  ret = setegid (runas_gid);
+	  if (ret < 0)
+	    {
+	      DBG (DBG_ERR, "FATAL ERROR: setegid to gid %d failed: %s\n", runas_gid, strerror (errno));
+
+	      exit (1);
+	    }
+
+	  ret = seteuid (runas_uid);
+	  if (ret < 0)
+	    {
+	      DBG (DBG_ERR, "FATAL ERROR: seteuid to uid %d failed: %s\n", runas_uid, strerror (errno));
+
+	      exit (1);
+	    }
 
 	  DBG (DBG_WARN, "Dropped privileges to uid %d gid %d\n", runas_uid, runas_gid);
 	}

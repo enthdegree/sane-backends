@@ -1,3 +1,7 @@
+2008-07-28 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: call setegid() before seteuid(), aka while
+	we're still root. Patch from Nick Andrew <nick@nick-andrew.net>.
+
 2008-07-27  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: backend v73

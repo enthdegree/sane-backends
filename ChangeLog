@@ -1,3 +1,7 @@
+2008-07-31 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: set supplemental group list in addition to
+	setting euid and egid. Reported by Cameron Hutchison.
+
 2008-07-28 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: call setegid() before seteuid(), aka while
 	we're still root. Patch from Nick Andrew <nick@nick-andrew.net>.

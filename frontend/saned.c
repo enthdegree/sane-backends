@@ -79,6 +79,7 @@
 #include <sys/wait.h>
 
 #include <pwd.h>
+#include <grp.h>
 
 
 #if defined(HAVE_SYS_POLL_H) && defined(HAVE_POLL)
@@ -2723,6 +2724,8 @@ run_standalone (int argc, char **argv)
   uid_t runas_uid = -1;
   gid_t runas_gid = -1;
   struct passwd *pwent;
+  gid_t *grplist;
+  int ngroups;
   FILE *pidfile;
 
   do_bindings (&nfds, &fds);
@@ -2741,6 +2744,37 @@ run_standalone (int argc, char **argv)
 
 	  runas_uid = pwent->pw_uid;
 	  runas_gid = pwent->pw_gid;
+
+	  /* Get group list for runas_uid */
+	  ngroups = 10;
+	  grplist = (gid_t *) malloc (ngroups * sizeof(gid_t));
+
+	  if (grplist == NULL)
+	    {
+	      DBG (DBG_ERR, "FATAL ERROR: cannot allocate memory for group list\n");
+
+	      exit (1);
+	    }
+
+	  ret = getgrouplist (argv[2], runas_gid, grplist, &ngroups);
+	  if (ret < 0)
+	    {
+	      grplist = (gid_t *) realloc (grplist, ngroups * sizeof(gid_t));
+	      if (grplist == NULL)
+		{
+		  DBG (DBG_ERR, "FATAL ERROR: cannot reallocate memory for group list\n");
+
+		  exit (1);
+		}
+
+	      ret = getgrouplist (argv[2], runas_gid, grplist, &ngroups);
+	      if (ret < 0)
+		{
+		  DBG (DBG_ERR, "FATAL ERROR: getgrouplist() failed again\n");
+
+		  exit (1);
+		}
+	    }
 	}
 
       DBG (DBG_MSG, "run_standalone: daemonizing now\n");
@@ -2788,6 +2822,16 @@ run_standalone (int argc, char **argv)
       /* Drop privileges if requested */
       if (runas_uid > 0)
 	{
+	  ret = setgroups(ngroups, grplist);
+	  if (ret < 0)
+	    {
+	      DBG (DBG_ERR, "FATAL ERROR: could not set group list: %s\n", strerror(errno));
+
+	      exit (1);
+	    }
+
+	  free(grplist);
+
 	  ret = setegid (runas_gid);
 	  if (ret < 0)
 	    {

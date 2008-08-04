@@ -1,3 +1,7 @@
+2008-08-04 Julien Blache <jb@jblache.org>
+	* frontend/scanimage.c: fetch_options(), actually get option
+	descriptor 0 before attempting to get the value of option 0.
+
 2008-08-04  Stéphane Voltz <stef.dev@free.fr>
 	* backend/umax_pp.c backend/umaxp_pp.h backend/umax_pp.conf.in: 
 	  use configuration framework

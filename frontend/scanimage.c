@@ -838,15 +838,33 @@ fetch_options (SANE_Device * device)
   const SANE_Option_Descriptor *opt;
   SANE_Int num_dev_options;
   int i, option_count;
+  SANE_Status status;
 
   /* and now build the full table of long options: */
 
-  sane_control_option (device, 0, SANE_ACTION_GET_VALUE, &num_dev_options, 0);
+  opt = sane_get_option_descriptor (device, 0);
+  if (opt == NULL)
+    {
+      fprintf (stderr, "Could not get option descriptor for option 0\n");
+      exit (1);
+    }
+
+  status = sane_control_option (device, 0, SANE_ACTION_GET_VALUE, &num_dev_options, 0);
+  if (status != SANE_STATUS_GOOD)
+    {
+      fprintf (stderr, "Could not get value for option 0: %s\n", sane_strstatus (status));
+      exit (1);
+    }
 
   option_count = 0;
-  for (i = 0; i < num_dev_options; ++i)
+  for (i = 1; i < num_dev_options; ++i)
     {
       opt = sane_get_option_descriptor (device, i);
+      if (opt == NULL)
+	{
+	  fprintf (stderr, "Could not get option descriptor for option %d\n", i);
+	  exit (1);
+	}
 
       if (!SANE_OPTION_IS_SETTABLE (opt->cap))
 	continue;

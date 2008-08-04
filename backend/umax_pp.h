@@ -174,6 +174,25 @@ typedef struct Umax_PP_Device
 Umax_PP_Device;
 
 
+/**
+ * enumeration of configuration options
+ */
+enum Umax_PP_Configure_Option
+{
+  CFG_BUFFER = 0,
+  CFG_RED_GAIN,
+  CFG_GREEN_GAIN,
+  CFG_BLUE_GAIN,
+  CFG_RED_OFFSET,
+  CFG_GREEN_OFFSET,
+  CFG_BLUE_OFFSET,
+  CFG_VENDOR,
+  CFG_NAME,
+  CFG_MODEL,
+  CFG_ASTRA,
+  NUM_CFG_OPTIONS
+};
+
 #if (!defined __GNUC__ || __GNUC__ < 2 || \
      __GNUC_MINOR__ < (defined __cplusplus ? 6 : 4))
 

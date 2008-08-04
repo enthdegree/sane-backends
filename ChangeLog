@@ -1,3 +1,7 @@
+2008-08-04  Stéphane Voltz <stef.dev@free.fr>
+	* backend/umax_pp.c backend/umaxp_pp.h backend/umax_pp.conf.in: 
+	  use configuration framework
+
 2008-08-02  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu-scsi.h: backend v74
 	 - replace global scsi blocks with local ones in each function

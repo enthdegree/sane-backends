@@ -6,25 +6,6 @@
 option buffer 2097152
 
 
-# DEVICES #
-
-# specify the port your scanner is connected to. 
-#
-# the value 'auto' will make the backend find the correct value
-# by itself, it will scan  ppdev, ppi device, then hardware address
-# 'safe-auto' will do the same but won't do direct hardware access
-# on linux systems, you may provide the device name of the ppdev character 
-# device : /dev/parport0, /dev/parport1, ......
-#
-# on *BSD, you may provide the device name of the ppi device: /dev/ppi0,
-# /dev/ppi1, ...
-#
-# Possible hardware addresses are 0x378 (lp0)
-# 0x278 (lp2) and 0x3c8 (lp1)
-#
-
-port safe-auto
-
 # the following options are local to this scanner
 # gain for red channel, if not given, will be automatically computed
 # must be between 0 and 15
@@ -62,3 +43,22 @@ port safe-auto
 # you may override detection by providing the
 # model number
 #option astra 1220
+
+# DEVICES #
+
+# specify the port your scanner is connected to. 
+#
+# the value 'auto' will make the backend find the correct value
+# by itself, it will scan  ppdev, ppi device, then hardware address
+# 'safe-auto' will do the same but won't do direct hardware access
+# on linux systems, you may provide the device name of the ppdev character 
+# device : /dev/parport0, /dev/parport1, ......
+#
+# on *BSD, you may provide the device name of the ppi device: /dev/ppi0,
+# /dev/ppi1, ...
+#
+# Possible hardware addresses are 0x378 (lp0)
+# 0x278 (lp2) and 0x3c8 (lp1)
+#
+
+port safe-auto

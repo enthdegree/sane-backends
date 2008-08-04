@@ -106,8 +106,8 @@
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	610
-#define UMAX_PP_STATE	"stable"
+#define UMAX_PP_BUILD	700
+#define UMAX_PP_STATE	"testing"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;
@@ -117,19 +117,19 @@ static Umax_PP_Device *first_dev = NULL;
 
 
 /* 2 Meg scan buffer */
-static long int buf_size = 2048 * 1024;
+static SANE_Word buf_size = 2048 * 1024;
 
+static SANE_Word red_gain = 0;
+static SANE_Word green_gain = 0;
+static SANE_Word blue_gain = 0;
 
-static int red_gain = 0;
-static int green_gain = 0;
-static int blue_gain = 0;
-
-static int red_offset = 0;
-static int green_offset = 0;
-static int blue_offset = 0;
-
-
-
+static SANE_Word red_offset = 0;
+static SANE_Word green_offset = 0;
+static SANE_Word blue_offset = 0;
+static SANE_Char scanner_vendor[128]="";
+static SANE_Char scanner_name[128]="";
+static SANE_Char scanner_model[128]="";
+static SANE_Char astra[128];
 
 
 
@@ -148,6 +148,24 @@ static const SANE_Range u8_range = {
   255,				/* maximum */
   0				/* quantization */
 };
+
+/* range for int value in [0-15] */
+static const SANE_Range value16_range = {
+  0,				/* minimum */
+  15,				/* maximum */
+  1				/* quantization */
+};
+
+/* range for buffer size */
+static const SANE_Range buffer_range = {
+  2048,				/* minimum */
+  4096 * 4096,			/* maximum */
+  1				/* quantization */
+};
+
+/* list of astra models */
+static const SANE_String_Const astra_models[] =
+  { "610", "1220", "1600", "2000", NULL };
 
 
 #define UMAX_PP_CHANNEL_RED		0
@@ -171,10 +189,6 @@ static const SANE_Range u8_range = {
 
 #define UMAX_PP_RESERVE			259200
 
-static int
-parse_int_option (const char *string, char *name, long int *value,
-		  long int fallback);
-
 /*
  * devname may be either an hardware address for direct I/O (0x378 for instance)
  * or the device name used by ppdev on linux systems        (/dev/parport0 )
@@ -182,7 +196,7 @@ parse_int_option (const char *string, char *name, long int *value,
 
 
 static SANE_Status
-attach (const char *devname)
+umax_pp_attach (SANEI_Config * config, const char *devname)
 {
   Umax_PP_Descriptor *dev;
   int i;
@@ -190,11 +204,14 @@ attach (const char *devname)
   int ret, prt = 0, mdl;
   char model[32];
   char name[64];
+  char *val;
 
   memset (name, 0, 64);
 
   if ((strlen (devname) < 3))
     return SANE_STATUS_INVAL;
+
+  sanei_umax_pp_setastra (atoi((SANE_Char *) config->values[CFG_ASTRA]));
 
   /* if the name begins with a slash, it's a device, else it's an addr */
   if (devname != NULL)
@@ -238,18 +255,19 @@ attach (const char *devname)
       status = SANE_STATUS_DEVICE_BUSY;
       break;
     case UMAX1220P_TRANSPORT_FAILED:
-      DBG (1, "attach: failed to init transport layer on %s\n", devname);
+      DBG (1, "umax_pp_attach: failed to init transport layer on %s\n",
+	   devname);
       status = SANE_STATUS_IO_ERROR;
       break;
     case UMAX1220P_PROBE_FAILED:
-      DBG (1, "attach: failed to probe scanner on %s\n", devname);
+      DBG (1, "umax_pp_attach: failed to probe scanner on %s\n", devname);
       status = SANE_STATUS_IO_ERROR;
       break;
     }
 
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (2, "attach: couldn't attach to `%s' (%s)\n", devname,
+      DBG (2, "umax_pp_attach: couldn't attach to `%s' (%s)\n", devname,
 	   sane_strstatus (status));
       DEBUG ();
       return status;
@@ -262,14 +280,16 @@ attach (const char *devname)
       ret = sanei_umax_pp_model (prt, &mdl);
       if (ret != UMAX1220P_OK)
 	{
-	  DBG (1, "attach: waiting for busy scanner on %s\n", devname);
+	  DBG (1, "umax_pp_attach: waiting for busy scanner on %s\n",
+	       devname);
 	}
     }
   while (ret == UMAX1220P_BUSY);
 
   if (ret != UMAX1220P_OK)
     {
-      DBG (1, "attach: failed to recognize scanner model on %s\n", devname);
+      DBG (1, "umax_pp_attach: failed to recognize scanner model on %s\n",
+	   devname);
       return SANE_STATUS_IO_ERROR;
     }
   sprintf (model, "Astra %dP", mdl);
@@ -279,7 +299,7 @@ attach (const char *devname)
 
   if (dev == NULL)
     {
-      DBG (2, "attach: not enough memory for device descriptor\n");
+      DBG (2, "umax_pp_attach: not enough memory for device descriptor\n");
       DEBUG ();
       return SANE_STATUS_NO_MEM;
     }
@@ -295,8 +315,17 @@ attach (const char *devname)
   devlist = dev;
   num_devices++;
 
-  dev->sane.name = strdup (devname);
-  dev->sane.vendor = strdup ("UMAX");
+  /* if there are user provided values, use them */
+  val=(SANE_Char *) config->values[CFG_NAME];
+  if(strlen(val)==0)
+  	dev->sane.name = strdup (devname);
+  else
+  	dev->sane.name = strdup (val);
+  val=(SANE_Char *) config->values[CFG_VENDOR];
+  if(strlen(val)==0)
+  	dev->sane.vendor = strdup ("UMAX");
+  else
+  	dev->sane.vendor = strdup (val);
   dev->sane.type = "flatbed scanner";
 
   if (devname[0] == '/')
@@ -319,10 +348,14 @@ attach (const char *devname)
       dev->max_h_size = 2550;
       dev->max_v_size = 3500;
     }
+  val=(SANE_Char *) config->values[CFG_MODEL];
+  if(strlen(val)==0)
   dev->sane.model = strdup (model);
+  else
+  dev->sane.model = strdup (val);
 
 
-  DBG (3, "attach: device %s attached\n", devname);
+  DBG (3, "umax_pp_attach: device %s attached\n", devname);
 
   return SANE_STATUS_GOOD;
 }
@@ -332,7 +365,7 @@ attach (const char *devname)
  *
  */
 static SANE_Int
-umax_pp_try_ports (char **ports)
+umax_pp_try_ports (SANEI_Config * config, char **ports)
 {
   int i;
   int rc = SANE_STATUS_INVAL;
@@ -346,11 +379,14 @@ umax_pp_try_ports (char **ports)
 	  if (rc != SANE_STATUS_GOOD)
 	    {
 	      DBG (3, "umax_pp_try_ports: trying port `%s'\n", ports[i]);
-	      rc = attach (ports[i]);
+	      rc = umax_pp_attach (config, ports[i]);
 	      if (rc != SANE_STATUS_GOOD)
-		DBG (3, "init: couldn't attach to port `%s'\n", ports[i]);
+		DBG (3, "umax_pp_try_ports: couldn't attach to port `%s'\n",
+		     ports[i]);
 	      else
-		DBG (3, "init: attach to port `%s' successfull\n", ports[i]);
+		DBG (3,
+		     "umax_pp_try_ports: attach to port `%s' successfull\n",
+		     ports[i]);
 	    }
 	  free (ports[i]);
 	  i++;
@@ -363,10 +399,10 @@ umax_pp_try_ports (char **ports)
 /*
  * attempt to auto detect right parallel port
  * if safe set to SANE_TRUE, no direct hardware access
- *
+ * is tried
  */
 static SANE_Int
-umax_pp_auto_attach (SANE_Int safe)
+umax_pp_auto_attach (SANEI_Config * config, SANE_Int safe)
 {
   char **ports;
   int rc = SANE_STATUS_INVAL;
@@ -374,16 +410,56 @@ umax_pp_auto_attach (SANE_Int safe)
   /* safe tests: user parallel port devices */
   ports = sanei_parport_find_device ();
   if (ports != NULL)
-    rc = umax_pp_try_ports (ports);
+    rc = umax_pp_try_ports (config, ports);
 
   /* try for direct hardware access */
   if ((safe != SANE_TRUE) && (rc != SANE_STATUS_GOOD))
     {
       ports = sanei_parport_find_port ();
       if (ports != NULL)
-	rc = umax_pp_try_ports (ports);
+	rc = umax_pp_try_ports (config, ports);
     }
   return rc;
+}
+
+/** callback use by sanei_configure_attach, it is called with the
+ * device name to use for attach try.
+ */
+static SANE_Status
+umax_pp_configure_attach (SANEI_Config * config, const char *devname)
+{
+  const char *lp;
+  SANE_Char *token;
+  SANE_Status status = SANE_STATUS_INVAL;
+
+  /* check for mandatory 'port' token */
+  lp = sanei_config_get_string (devname, &token);
+  if (strncmp (token, "port", 4) != 0)
+    {
+      DBG (3, "umax_pp_configure_attach: invalid port line `%s'\n", devname);
+      free (token);
+      return SANE_STATUS_INVAL;
+    }
+  free (token);
+
+  /* get argument */
+  lp = sanei_config_get_string (lp, &token);
+
+  /* if "safe-auto" or "auto" devname, use umax_pp_attach_auto */
+  if (strncmp (token, "safe-auto", 9) == 0)
+    {
+      status = umax_pp_auto_attach (config, SANE_TRUE);
+    }
+  else if (strncmp (token, "auto", 4) == 0)
+    {
+      status = umax_pp_auto_attach (config, SANE_FALSE);
+    }
+  else
+    {
+      status = umax_pp_attach (config, token);
+    }
+  free (token);
+  return status;
 }
 
 static SANE_Int
@@ -747,50 +823,21 @@ init_options (Umax_PP_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
-static int
-parse_int_option (const char *string, char *name, long int *value,
-		  long int fallback)
-{
-  int len;
-  char *end;
-
-  len = strlen (name);
-  if ((strncmp (string, name, len) == 0) && isspace (string[len]))
-    {
-
-      string += len + 1;
-
-      errno = 0;
-      *value = strtol (string, &end, 0);
-
-      if (end == string || errno)
-	{
-	  DBG (2, "init: invalid value `%s`, using fallback '%ld'\n", string,
-	       fallback);
-	  *value = fallback;
-	}
-      DBG (3, "init: option %s %ld\n", name, *value);
-      return 1;
-    }
-  return 0;
-}
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  char dev_name[512];
-  const char *cp;
-  size_t len;
-  FILE *fp;
-  SANE_Status ret;
-  int portdone = 0;
-  long int val = 0;
+  SANE_Status status;
+  SANEI_Config config;
+  SANE_Option_Descriptor *options[NUM_CFG_OPTIONS];
+  void *values[NUM_CFG_OPTIONS];
+  int i = 0;
 
   DBG_INIT ();
 
   if (authorize != NULL)
     {
-      DBG (2, "init: SANE_Auth_Callback not supported (yet) ...\n");
+      DBG (2, "init: SANE_Auth_Callback not supported ...\n");
     }
 
   if (version_code != NULL)
@@ -799,234 +846,137 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (3, "init: SANE v%s, backend v%d.%d.%d-%s\n", VERSION, V_MAJOR, V_MINOR,
        UMAX_PP_BUILD, UMAX_PP_STATE);
 
-  fp = sanei_config_open (UMAX_PP_CONFIG_FILE);
+  /* set up configuration options to parse */
+  options[CFG_BUFFER] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_BUFFER]->name = "buffer";
+  options[CFG_BUFFER]->type = SANE_TYPE_INT;
+  options[CFG_BUFFER]->unit = SANE_UNIT_NONE;
+  options[CFG_BUFFER]->size = sizeof (SANE_Word);
+  options[CFG_BUFFER]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_BUFFER]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_BUFFER]->constraint.range = &buffer_range;
+  values[CFG_BUFFER] = &buf_size;
 
+  options[CFG_RED_GAIN] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_RED_GAIN]->name = "red-gain";
+  options[CFG_RED_GAIN]->type = SANE_TYPE_INT;
+  options[CFG_RED_GAIN]->unit = SANE_UNIT_NONE;
+  options[CFG_RED_GAIN]->size = sizeof (SANE_Word);
+  options[CFG_RED_GAIN]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_RED_GAIN]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_RED_GAIN]->constraint.range = &value16_range;
+  values[CFG_RED_GAIN] = &red_gain;
 
-  if (fp == NULL)
+  options[CFG_GREEN_GAIN] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_GREEN_GAIN]->name = "green-gain";
+  options[CFG_GREEN_GAIN]->type = SANE_TYPE_INT;
+  options[CFG_GREEN_GAIN]->unit = SANE_UNIT_NONE;
+  options[CFG_GREEN_GAIN]->size = sizeof (SANE_Word);
+  options[CFG_GREEN_GAIN]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_GREEN_GAIN]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_GREEN_GAIN]->constraint.range = &value16_range;
+  values[CFG_GREEN_GAIN] = &green_gain;
+
+  options[CFG_BLUE_GAIN] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_BLUE_GAIN]->name = "blue-gain";
+  options[CFG_BLUE_GAIN]->type = SANE_TYPE_INT;
+  options[CFG_BLUE_GAIN]->unit = SANE_UNIT_NONE;
+  options[CFG_BLUE_GAIN]->size = sizeof (SANE_Word);
+  options[CFG_BLUE_GAIN]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_BLUE_GAIN]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_BLUE_GAIN]->constraint.range = &value16_range;
+  values[CFG_BLUE_GAIN] = &blue_gain;
+
+  options[CFG_RED_OFFSET] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_RED_OFFSET]->name = "red-offset";
+  options[CFG_RED_OFFSET]->type = SANE_TYPE_INT;
+  options[CFG_RED_OFFSET]->unit = SANE_UNIT_NONE;
+  options[CFG_RED_OFFSET]->size = sizeof (SANE_Word);
+  options[CFG_RED_OFFSET]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_RED_OFFSET]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_RED_OFFSET]->constraint.range = &value16_range;
+  values[CFG_RED_OFFSET] = &red_offset;
+
+  options[CFG_GREEN_OFFSET] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_GREEN_OFFSET]->name = "green-offset";
+  options[CFG_GREEN_OFFSET]->type = SANE_TYPE_INT;
+  options[CFG_GREEN_OFFSET]->unit = SANE_UNIT_NONE;
+  options[CFG_GREEN_OFFSET]->size = sizeof (SANE_Word);
+  options[CFG_GREEN_OFFSET]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_GREEN_OFFSET]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_GREEN_OFFSET]->constraint.range = &value16_range;
+  values[CFG_GREEN_OFFSET] = &green_offset;
+
+  options[CFG_BLUE_OFFSET] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_BLUE_OFFSET]->name = "blue-offset";
+  options[CFG_BLUE_OFFSET]->type = SANE_TYPE_INT;
+  options[CFG_BLUE_OFFSET]->unit = SANE_UNIT_NONE;
+  options[CFG_BLUE_OFFSET]->size = sizeof (SANE_Word);
+  options[CFG_BLUE_OFFSET]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_BLUE_OFFSET]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_BLUE_OFFSET]->constraint.range = &value16_range;
+  values[CFG_BLUE_OFFSET] = &blue_offset;
+
+  options[CFG_VENDOR] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_VENDOR]->name = "vendor";
+  options[CFG_VENDOR]->type = SANE_TYPE_STRING;
+  options[CFG_VENDOR]->unit = SANE_UNIT_NONE;
+  options[CFG_VENDOR]->size = 128;
+  options[CFG_VENDOR]->cap = SANE_CAP_SOFT_SELECT;
+  values[CFG_VENDOR] = scanner_vendor;
+
+  options[CFG_NAME] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_NAME]->name = "name";
+  options[CFG_NAME]->type = SANE_TYPE_STRING;
+  options[CFG_NAME]->unit = SANE_UNIT_NONE;
+  options[CFG_NAME]->size = 128;
+  options[CFG_NAME]->cap = SANE_CAP_SOFT_SELECT;
+  values[CFG_NAME] = scanner_name;
+
+  options[CFG_MODEL] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_MODEL]->name = "model";
+  options[CFG_MODEL]->type = SANE_TYPE_STRING;
+  options[CFG_MODEL]->unit = SANE_UNIT_NONE;
+  options[CFG_MODEL]->size = 128;
+  options[CFG_MODEL]->cap = SANE_CAP_SOFT_SELECT;
+  values[CFG_MODEL] = scanner_model;
+
+  options[CFG_ASTRA] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_ASTRA]->name = "astra";
+  options[CFG_ASTRA]->type = SANE_TYPE_STRING;
+  options[CFG_ASTRA]->unit = SANE_UNIT_NONE;
+  options[CFG_ASTRA]->size = 128;
+  options[CFG_ASTRA]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_ASTRA]->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  options[CFG_ASTRA]->constraint.string_list = astra_models;
+  values[CFG_ASTRA] = astra;
+
+  config.descriptors = options;
+  config.values = values;
+  config.count = NUM_CFG_OPTIONS;
+
+  /* generic configure and attach function */
+  status = sanei_configure_attach (UMAX_PP_CONFIG_FILE, &config,
+				   umax_pp_configure_attach);
+
+  /* free option descriptors */
+  for (i = 0; i < NUM_CFG_OPTIONS; i++)
     {
-      DBG (2, "init: no configuration file, using default `port %s'\n",
-	   UMAX_PP_DEFAULT_PORT);
-
-      ret = attach (UMAX_PP_DEFAULT_PORT);
-      return ret;
+      free (options[i]);
     }
 
-  while (sanei_config_read (dev_name, sizeof (dev_name), fp))
-    {
-      cp = sanei_config_skip_whitespace (dev_name);
-      if (!*cp || *cp == '#')	/* ignore line comments & empty lines */
-	continue;
-
-      len = strlen (cp);
-
-      if (!len)
-	continue;		/* ignore empty lines */
-
-
-      if (strncmp (cp, "option", 6) == 0 && isspace (cp[6]))
-	{
-
-	  DBG (3, "init: evaluating option <%s>\n", cp);
-	  cp += 7;
-	  cp = sanei_config_skip_whitespace (cp);
-
-	  if (parse_int_option (cp, "buffer", &val, buf_size))
-	    {
-	      if (val < 8192)
-		{
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, buf_size);
-		  val = buf_size;	/* safe fallback */
-		}
-	      DBG (3, "init: option buffer %ld\n", val);
-
-	      if (num_devices == 0)
-		{
-		  DBG (3, "init: setting global option buffer to %ld\n", val);
-		  buf_size = val;
-		}
-	      else
-		{
-		  DBG (3, "init: setting buffer to %ld for device %s\n",
-		       val, devlist[0].sane.name);
-		  devlist[0].buf_size = val;
-		}
-	    }
-	  else if (parse_int_option (cp, "astra", &val, 0))
-	    {
-	      if ((val != 610) && (val != 1200) && (val != 1600)
-		  && (val != 2000))
-		{
-		  val = 0;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option astra to %ld\n", val);
-	      sanei_umax_pp_setastra (val);
-	    }
-	  else if (parse_int_option (cp, "red-gain", &val, 12))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 12;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option red-gain to %ld\n", val);
-	      red_gain = val;
-	    }
-	  else if (parse_int_option (cp, "green-gain", &val, 6))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 6;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option green-gain to %ld\n", val);
-	      green_gain = val;
-	    }
-	  else if (parse_int_option (cp, "blue-gain", &val, 12))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 12;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option blue-gain to %ld\n", val);
-	      blue_gain = val;
-	    }
-	  else if (parse_int_option (cp, "red-offset", &val, 10))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 10;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option red-offset to %ld\n", val);
-	      red_offset = val;
-	    }
-	  else if (parse_int_option (cp, "green-offset", &val, 10))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 10;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option green-offset to %ld\n",
-		   val);
-	      green_offset = val;
-	    }
-	  else if (parse_int_option (cp, "blue-offset", &val, 10))
-	    {
-	      if ((val < 0) || (val > 15))
-		{
-		  val = 10;
-		  DBG (2, "init: invalid value `%s`, falling back to %ld\n",
-		       cp, val);
-		}
-	      DBG (3, "init: setting global option red-offset to %ld\n", val);
-	      blue_offset = val;
-	    }
-	  else
-	    DBG (2, "init: don't know what to do with option `%s'\n", cp);
-	}
-      else if ((strncmp (cp, "port", 4) == 0) && isspace (cp[4]))
-	{
-	  /* protect ourself from buggy configuration tool such as
-	   * mandrake's 9.2 control panel */
-	  if (portdone)
-	    {
-	      DBG (2,
-		   "'port' option given more than once, check your umax_pp.conf file!!\n");
-	      return SANE_STATUS_INVAL;
-	    }
-
-	  cp += 5;
-	  cp = sanei_config_skip_whitespace (cp);
-	  portdone = 1;
-
-	  if (*cp)
-	    {
-	      /* here, the argument maybe a device, an address, or special
-	       * keywords 'auto' and 'safe-auto'
-	       */
-	      if (strcmp (cp, "safe-auto") == 0)
-		{
-		  /* try every device we can find */
-		  if (umax_pp_auto_attach (SANE_TRUE) != SANE_STATUS_GOOD)
-		    DBG (2, "init: safe-auto attach failed !");
-		}
-	      else if (strcmp (cp, "auto") == 0)
-		{
-		  /* try every port/device we can find */
-		  if (umax_pp_auto_attach (SANE_FALSE) != SANE_STATUS_GOOD)
-		    {
-		      DBG (2, "init: auto attach failed !");
-		    }
-		}
-	      else
-		{
-		  DBG (3, "init: trying port `%s'\n", cp);
-
-		  DBG (3, "attach(%s)\n", cp);
-		  if (attach (cp) != SANE_STATUS_GOOD)
-		    DBG (2, "init: couldn't attach to port `%s'\n", cp);
-		}
-	    }
-	}
-      else if ((strncmp (cp, "name", 4) == 0) && isspace (cp[4]))
-	{
-	  cp += 5;
-	  cp = sanei_config_skip_whitespace (cp);
-
-	  if (num_devices == 0)
-	    DBG (2, "init: 'name' only allowed after 'port'\n");
-	  else
-	    {
-	      DBG (3, "init: naming device %s '%s'\n", devlist[0].port, cp);
-	      free (devlist[0].sane.name);
-	      devlist[0].sane.name = strdup (cp);
-	    }
-	}
-      else if ((strncmp (cp, "model", 5) == 0) && isspace (cp[5]))
-	{
-	  cp += 6;
-	  cp = sanei_config_skip_whitespace (cp);
-
-	  if (num_devices == 0)
-	    DBG (2, "init: 'model' only allowed after 'port'\n");
-	  else
-	    {
-	      DBG (3, "init: device %s is a '%s'\n", devlist[0].port, cp);
-	      free (devlist[0].sane.model);
-	      devlist[0].sane.model = strdup (cp);
-	    }
-	}
-      else if ((strncmp (cp, "vendor", 6) == 0) && isspace (cp[6]))
-	{
-	  cp += 7;
-	  cp = sanei_config_skip_whitespace (cp);
-
-	  if (num_devices == 0)
-	    DBG (2, "init: 'vendor' only allowed after 'port'\n");
-	  else
-	    {
-	      DBG (3, "init: device %s is from '%s'\n", devlist[0].port, cp);
-	      free (devlist[0].sane.vendor);
-	      devlist[0].sane.vendor = strdup (cp);
-	    }
-	}
-      else
-	DBG (2, "init: don't know what to do with `%s'\n", cp);
-    }
-
-  fclose (fp);
-
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 void
@@ -1122,7 +1072,35 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 
   DBG (3, "open: device `%s'\n", devicename);
 
-  if (devicename[0])
+  /* if no device given or 'umax_pp' default value given */
+  if (devicename == NULL || devicename[0] == 0
+      || strncmp (devicename, "umax_pp", 7) == 0)
+    {
+
+      if (num_devices == 0)
+	{
+	  DBG (1, "open: no devices present\n");
+	  return SANE_STATUS_INVAL;
+	}
+
+      DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
+	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
+      if (devlist[0].port != NULL)
+	{
+	  if ((devlist[0].port[0] == '0')
+	      && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
+	    prt = strtol (devlist[0].port + 2, NULL, 16);
+	  else
+	    prt = atoi (devlist[0].port);
+	  rc = sanei_umax_pp_open (prt, NULL);
+	}
+      else
+	{
+	  rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
+	}
+      desc = &devlist[0];
+    }
+  else				/* specific value */
     {
       for (i = 0; i < num_devices; i++)
 	if (strcmp (devlist[i].sane.name, devicename) == 0)
@@ -1161,32 +1139,8 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
 	}
       rc = sanei_umax_pp_open (prt, name);
     }
-  else
-    {
 
-      if (num_devices == 0)
-	{
-	  DBG (1, "open: no devices present\n");
-	  return SANE_STATUS_INVAL;
-	}
-
-      DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
-	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
-      if (devlist[0].port != NULL)
-	{
-	  if ((devlist[0].port[0] == '0')
-	      && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
-	    prt = strtol (devlist[0].port + 2, NULL, 16);
-	  else
-	    prt = atoi (devlist[0].port);
-	  rc = sanei_umax_pp_open (prt, NULL);
-	}
-      else
-	{
-	  rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
-	}
-      desc = &devlist[0];
-    }
+  /* treat return code from open */
   switch (rc)
     {
     case UMAX1220P_TRANSPORT_FAILED:
@@ -1388,7 +1342,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   SANE_Word w, cap, tmpw;
   int dpi, rc;
-  unsigned int i;
 
   DBG (6, "control_option: option %d, action %d\n", option, action);
 
@@ -1398,14 +1351,12 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (dev->state == UMAX_PP_STATE_SCANNING)
     {
       DBG (2, "control_option: device is scanning\n");
-      DEBUG ();
       return SANE_STATUS_DEVICE_BUSY;
     }
 
   if ((unsigned int) option >= NUM_OPTIONS)
     {
       DBG (2, "control_option: option doesn't exist\n");
-      DEBUG ();
       return SANE_STATUS_INVAL;
     }
 
@@ -1415,7 +1366,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (!SANE_OPTION_IS_ACTIVE (cap))
     {
       DBG (2, "control_option: option isn't active\n");
-      DEBUG ();
       return SANE_STATUS_INVAL;
     }
 
@@ -1475,7 +1425,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (!SANE_OPTION_IS_SETTABLE (cap))
 	{
 	  DBG (2, "control_option: option can't be set\n");
-	  DEBUG ();
 	  return SANE_STATUS_INVAL;
 	}
 
@@ -1485,7 +1434,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	{
 	  DBG (2, "control_option: constrain_value failed (%s)\n",
 	       sane_strstatus (status));
-	  DEBUG ();
 	  return status;
 	}
 
@@ -1886,7 +1834,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
 
   DBG (2, "control_option: unknown action %d \n", action);
-  DEBUG ();
   return SANE_STATUS_INVAL;
 }
 

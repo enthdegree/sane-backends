@@ -2151,7 +2151,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
     {
       /* boy, is this painful or what? */
       
-      DBG (4, "sane_read: reading paket length\n");
+      DBG (4, "sane_read: reading packet length\n");
       nread = read (s->data, s->reclen_buf + s->reclen_buf_offset,
 		    4 - s->reclen_buf_offset);
       if (nread < 0)

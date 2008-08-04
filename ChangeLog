@@ -1,3 +1,7 @@
+2008-08-02  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu-scsi.h: backend v74
+	 - replace global scsi blocks with local ones in each function
+
 2008-07-31 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: set supplemental group list in addition to
 	setting euid and egid. Reported by Cameron Hutchison.

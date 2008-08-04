@@ -364,8 +364,10 @@
       v73 2008-07-14, MAN
 	 - correct overscan dimension calculation
 	 - provide correct overscan size overrides for fi-5110C and fi-4x20C2
-         - add fi-6130 usb ID
+	 - add fi-6130 usb ID
 	 - fi-5750C can't handle 10 bit LUT via USB
+      v74 2008-08-02, MAN
+	 - replace global scsi blocks with local ones in each function
 
    SANE FLOW DIAGRAM
 
@@ -426,7 +428,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 73 
+#define BUILD 74 
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -969,34 +971,40 @@ init_inquire (struct fujitsu *s)
 {
   int i;
   SANE_Status ret;
-  unsigned char buffer[96];
-  size_t inLen = sizeof(buffer);
+
+  unsigned char cmd[INQUIRY_len];
+  size_t cmdLen = INQUIRY_len;
+
+  unsigned char in[INQUIRY_std_len];
+  size_t inLen = INQUIRY_std_len;
 
   DBG (10, "init_inquire: start\n");
 
-  set_IN_return_size (inquiryB.cmd, inLen);
-  set_IN_evpd (inquiryB.cmd, 0);
-  set_IN_page_code (inquiryB.cmd, 0);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, INQUIRY_code);
+  set_IN_return_size (cmd, inLen);
+  set_IN_evpd (cmd, 0);
+  set_IN_page_code (cmd, 0);
  
   ret = do_cmd (
     s, 1, 0, 
-    inquiryB.cmd, inquiryB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
 
   if (ret != SANE_STATUS_GOOD){
     return ret;
   }
 
-  if (get_IN_periph_devtype (buffer) != IN_periph_devtype_scanner){
+  if (get_IN_periph_devtype (in) != IN_periph_devtype_scanner){
     DBG (5, "The device at '%s' is not a scanner.\n", s->device_name);
     return SANE_STATUS_INVAL;
   }
 
-  get_IN_vendor (buffer, s->vendor_name);
-  get_IN_product (buffer, s->model_name);
-  get_IN_version (buffer, s->version_name);
+  get_IN_vendor (in, s->vendor_name);
+  get_IN_product (in, s->model_name);
+  get_IN_version (in, s->version_name);
 
   s->vendor_name[8] = 0;
   s->model_name[16] = 0;
@@ -1022,23 +1030,23 @@ init_inquire (struct fujitsu *s)
   /*some scanners list random data here*/
   DBG (15, "inquiry options\n");
 
-  s->color_raster_offset = get_IN_color_offset(buffer);
+  s->color_raster_offset = get_IN_color_offset(in);
   DBG (15, "  color offset: %d lines\n",s->color_raster_offset);
 
   /* FIXME: we dont store all of these? */
-  DBG (15, "  long color scan: %d\n",get_IN_long_color(buffer));
-  DBG (15, "  long gray scan: %d\n",get_IN_long_gray(buffer));
-  DBG (15, "  3091 duplex: %d\n",get_IN_duplex_3091(buffer));
+  DBG (15, "  long color scan: %d\n",get_IN_long_color(in));
+  DBG (15, "  long gray scan: %d\n",get_IN_long_gray(in));
+  DBG (15, "  3091 duplex: %d\n",get_IN_duplex_3091(in));
 
-  s->has_bg_front = get_IN_bg_front(buffer);
+  s->has_bg_front = get_IN_bg_front(in);
   DBG (15, "  background front: %d\n",s->has_bg_front);
 
-  s->has_bg_back = get_IN_bg_back(buffer);
+  s->has_bg_back = get_IN_bg_back(in);
   DBG (15, "  background back: %d\n",s->has_bg_back);
 
-  DBG (15, "  emulation mode: %d\n",get_IN_emulation(buffer));
+  DBG (15, "  emulation mode: %d\n",get_IN_emulation(in));
 
-  s->duplex_raster_offset = get_IN_duplex_offset(buffer);
+  s->duplex_raster_offset = get_IN_duplex_offset(in);
   DBG (15, "  duplex offset: %d lines\n",s->duplex_raster_offset);
 
   DBG (10, "init_inquire: finish\n");
@@ -1053,35 +1061,41 @@ static SANE_Status
 init_vpd (struct fujitsu *s)
 {
   SANE_Status ret;
-  unsigned char buffer[0x68];
-  size_t inLen = sizeof(buffer);
+
+  unsigned char cmd[INQUIRY_len];
+  size_t cmdLen = INQUIRY_len;
+
+  unsigned char in[INQUIRY_vpd_len];
+  size_t inLen = INQUIRY_vpd_len;
 
   DBG (10, "init_vpd: start\n");
 
   /* get EVPD */
-  set_IN_return_size (inquiryB.cmd, inLen);
-  set_IN_evpd (inquiryB.cmd, 1);
-  set_IN_page_code (inquiryB.cmd, 0xf0);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, INQUIRY_code);
+  set_IN_return_size (cmd, inLen);
+  set_IN_evpd (cmd, 1);
+  set_IN_page_code (cmd, 0xf0);
 
   ret = do_cmd (
     s, 1, 0,
-    inquiryB.cmd, inquiryB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
 
   /* M3099 gives all data, but wrong length */
   if (strstr (s->model_name, "M3099")
     && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
-    && get_IN_page_length (buffer) == 0x19){
+    && get_IN_page_length (in) == 0x19){
       DBG (5, "init_vpd: M3099 repair\n");
-      set_IN_page_length(buffer,0x5f);
+      set_IN_page_length(in,0x5f);
   }
 
   /* M3097G has short vpd, fill in missing part */
   else if (strstr (s->model_name, "M3097G")
     && (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF)
-    && get_IN_page_length (buffer) == 0x19){
+    && get_IN_page_length (in) == 0x19){
       unsigned char vpd3097g[] = {
 0, 0,
 0xc2, 0x08, 0, 0, 0, 0, 0, 0, 0xed, 0xbf, 0, 0, 0, 0, 0, 0,
@@ -1091,21 +1105,21 @@ init_vpd (struct fujitsu *s)
 0, 0, 0, 0
       };
       DBG (5, "init_vpd: M3097G repair\n");
-      set_IN_page_length(buffer,0x5f);
-      memcpy(buffer+0x1e,vpd3097g,sizeof(vpd3097g));
+      set_IN_page_length(in,0x5f);
+      memcpy(in+0x1e,vpd3097g,sizeof(vpd3097g));
 
       /*IPC*/
       if(strstr (s->model_name, "i")){
          DBG (5, "init_vpd: M3097G IPC repair\n");
 
 	 /*subwin cmd*/
-	 buffer[0x2b] = 1;
+	 in[0x2b] = 1;
 
 	 /*rif/dtc/sdtc/outline/emph/sep/mirr/wlf*/
-	 buffer[0x58] = 0xff;
+	 in[0x58] = 0xff;
 
 	 /*subwin/diffusion*/
-	 buffer[0x59] = 0xc0;
+	 in[0x59] = 0xc0;
       }
 
       /*CMP*/
@@ -1113,14 +1127,14 @@ init_vpd (struct fujitsu *s)
          DBG (5, "init_vpd: M3097G CMP repair\n");
 
 	 /*4megs*/
-	 buffer[0x23] = 0x40;
+	 in[0x23] = 0x40;
 
 	 /*mh/mr/mmr*/
-	 buffer[0x5a] = 0xe0;
+	 in[0x5a] = 0xe0;
       }
   }
 
-  DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (buffer));
+  DBG (15, "init_vpd: length=%0x\n",get_IN_page_length (in));
 
   /* This scanner supports vital product data.
    * Use this data to set dpi-lists etc. */
@@ -1128,336 +1142,336 @@ init_vpd (struct fujitsu *s)
 
       DBG (15, "standard options\n");
 
-      s->basic_x_res = get_IN_basic_x_res (buffer);
+      s->basic_x_res = get_IN_basic_x_res (in);
       DBG (15, "  basic x res: %d dpi\n",s->basic_x_res);
 
-      s->basic_y_res = get_IN_basic_y_res (buffer);
+      s->basic_y_res = get_IN_basic_y_res (in);
       DBG (15, "  basic y res: %d dpi\n",s->basic_y_res);
 
-      s->step_x_res = get_IN_step_x_res (buffer);
+      s->step_x_res = get_IN_step_x_res (in);
       DBG (15, "  step x res: %d dpi\n", s->step_x_res);
 
-      s->step_y_res = get_IN_step_y_res (buffer);
+      s->step_y_res = get_IN_step_y_res (in);
       DBG (15, "  step y res: %d dpi\n", s->step_y_res);
 
-      s->max_x_res = get_IN_max_x_res (buffer);
+      s->max_x_res = get_IN_max_x_res (in);
       DBG (15, "  max x res: %d dpi\n", s->max_x_res);
 
-      s->max_y_res = get_IN_max_y_res (buffer);
+      s->max_y_res = get_IN_max_y_res (in);
       DBG (15, "  max y res: %d dpi\n", s->max_y_res);
 
-      s->min_x_res = get_IN_min_x_res (buffer);
+      s->min_x_res = get_IN_min_x_res (in);
       DBG (15, "  min x res: %d dpi\n", s->min_x_res);
 
-      s->min_y_res = get_IN_min_y_res (buffer);
+      s->min_y_res = get_IN_min_y_res (in);
       DBG (15, "  min y res: %d dpi\n", s->min_y_res);
 
       /* some scanners list B&W resolutions. */
-      s->std_res_60 = get_IN_std_res_60 (buffer);
+      s->std_res_60 = get_IN_std_res_60 (in);
       DBG (15, "  60 dpi: %d\n", s->std_res_60);
 
-      s->std_res_75 = get_IN_std_res_75 (buffer);
+      s->std_res_75 = get_IN_std_res_75 (in);
       DBG (15, "  75 dpi: %d\n", s->std_res_75);
 
-      s->std_res_100 = get_IN_std_res_100 (buffer);
+      s->std_res_100 = get_IN_std_res_100 (in);
       DBG (15, "  100 dpi: %d\n", s->std_res_100);
 
-      s->std_res_120 = get_IN_std_res_120 (buffer);
+      s->std_res_120 = get_IN_std_res_120 (in);
       DBG (15, "  120 dpi: %d\n", s->std_res_120);
 
-      s->std_res_150 = get_IN_std_res_150 (buffer);
+      s->std_res_150 = get_IN_std_res_150 (in);
       DBG (15, "  150 dpi: %d\n", s->std_res_150);
 
-      s->std_res_160 = get_IN_std_res_160 (buffer);
+      s->std_res_160 = get_IN_std_res_160 (in);
       DBG (15, "  160 dpi: %d\n", s->std_res_160);
 
-      s->std_res_180 = get_IN_std_res_180 (buffer);
+      s->std_res_180 = get_IN_std_res_180 (in);
       DBG (15, "  180 dpi: %d\n", s->std_res_180);
 
-      s->std_res_200 = get_IN_std_res_200 (buffer);
+      s->std_res_200 = get_IN_std_res_200 (in);
       DBG (15, "  200 dpi: %d\n", s->std_res_200);
 
-      s->std_res_240 = get_IN_std_res_240 (buffer);
+      s->std_res_240 = get_IN_std_res_240 (in);
       DBG (15, "  240 dpi: %d\n", s->std_res_240);
 
-      s->std_res_300 = get_IN_std_res_300 (buffer);
+      s->std_res_300 = get_IN_std_res_300 (in);
       DBG (15, "  300 dpi: %d\n", s->std_res_300);
 
-      s->std_res_320 = get_IN_std_res_320 (buffer);
+      s->std_res_320 = get_IN_std_res_320 (in);
       DBG (15, "  320 dpi: %d\n", s->std_res_320);
 
-      s->std_res_400 = get_IN_std_res_400 (buffer);
+      s->std_res_400 = get_IN_std_res_400 (in);
       DBG (15, "  400 dpi: %d\n", s->std_res_400);
 
-      s->std_res_480 = get_IN_std_res_480 (buffer);
+      s->std_res_480 = get_IN_std_res_480 (in);
       DBG (15, "  480 dpi: %d\n", s->std_res_480);
 
-      s->std_res_600 = get_IN_std_res_600 (buffer);
+      s->std_res_600 = get_IN_std_res_600 (in);
       DBG (15, "  600 dpi: %d\n", s->std_res_600);
 
-      s->std_res_800 = get_IN_std_res_800 (buffer);
+      s->std_res_800 = get_IN_std_res_800 (in);
       DBG (15, "  800 dpi: %d\n", s->std_res_800);
 
-      s->std_res_1200 = get_IN_std_res_1200 (buffer);
+      s->std_res_1200 = get_IN_std_res_1200 (in);
       DBG (15, "  1200 dpi: %d\n", s->std_res_1200);
 
       /* maximum window width and length are reported in basic units.*/
-      s->max_x_basic = get_IN_window_width(buffer);
+      s->max_x_basic = get_IN_window_width(in);
       s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
       DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
 
-      s->max_y_basic = get_IN_window_length(buffer);
+      s->max_y_basic = get_IN_window_length(in);
       s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
       DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
 
       /* known modes */
-      s->can_overflow = get_IN_overflow(buffer);
+      s->can_overflow = get_IN_overflow(in);
       DBG (15, "  overflow: %d\n", s->can_overflow);
 
-      s->can_monochrome = get_IN_monochrome (buffer);
+      s->can_monochrome = get_IN_monochrome (in);
       DBG (15, "  monochrome: %d\n", s->can_monochrome);
 
-      s->can_halftone = get_IN_half_tone (buffer);
+      s->can_halftone = get_IN_half_tone (in);
       DBG (15, "  halftone: %d\n", s->can_halftone);
 
-      s->can_grayscale = get_IN_multilevel (buffer);
+      s->can_grayscale = get_IN_multilevel (in);
       DBG (15, "  grayscale: %d\n", s->can_grayscale);
 
-      DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(buffer));
-      DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(buffer));
+      DBG (15, "  color_monochrome: %d\n", get_IN_monochrome_rgb(in));
+      DBG (15, "  color_halftone: %d\n", get_IN_half_tone_rgb(in));
 
-      s->can_color_grayscale = get_IN_multilevel_rgb (buffer);
+      s->can_color_grayscale = get_IN_multilevel_rgb (in);
       DBG (15, "  color_grayscale: %d\n", s->can_color_grayscale);
 
       /* now we look at vendor specific data */
-      if (get_IN_page_length (buffer) >= 0x5f) {
+      if (get_IN_page_length (in) >= 0x5f) {
 
           DBG (15, "vendor options\n");
 
-          s->has_operator_panel = get_IN_operator_panel(buffer);
+          s->has_operator_panel = get_IN_operator_panel(in);
           DBG (15, "  operator panel: %d\n", s->has_operator_panel);
 
-          s->has_barcode = get_IN_barcode(buffer);
+          s->has_barcode = get_IN_barcode(in);
           DBG (15, "  barcode: %d\n", s->has_barcode);
 
-          s->has_endorser = get_IN_endorser(buffer);
+          s->has_endorser = get_IN_endorser(in);
           DBG (15, "  endorser: %d\n", s->has_endorser);
 
-          s->has_duplex = get_IN_duplex(buffer);
+          s->has_duplex = get_IN_duplex(in);
           s->has_back = s->has_duplex;
           DBG (15, "  duplex: %d\n", s->has_duplex);
 
-          s->has_transparency = get_IN_transparency(buffer);
+          s->has_transparency = get_IN_transparency(in);
           DBG (15, "  transparency: %d\n", s->has_transparency);
 
-          s->has_flatbed = get_IN_flatbed(buffer);
+          s->has_flatbed = get_IN_flatbed(in);
           DBG (15, "  flatbed: %d\n", s->has_flatbed);
 
-          s->has_adf = get_IN_adf(buffer);
+          s->has_adf = get_IN_adf(in);
           DBG (15, "  adf: %d\n", s->has_adf);
 
-          s->adbits = get_IN_adbits(buffer);
+          s->adbits = get_IN_adbits(in);
           DBG (15, "  A/D bits: %d\n",s->adbits);
 
-          s->buffer_bytes = get_IN_buffer_bytes(buffer);
+          s->buffer_bytes = get_IN_buffer_bytes(in);
           DBG (15, "  buffer bytes: %d\n",s->buffer_bytes);
 
           /* std scsi command support byte 26*/
-          s->has_cmd_msen10 = get_IN_has_cmd_msen10(buffer);
+          s->has_cmd_msen10 = get_IN_has_cmd_msen10(in);
           DBG (15, "  mode_sense_10 cmd: %d\n", s->has_cmd_msen10);
 
-          s->has_cmd_msel10 = get_IN_has_cmd_msel10(buffer);
+          s->has_cmd_msel10 = get_IN_has_cmd_msel10(in);
           DBG (15, "  mode_select_10 cmd: %d\n", s->has_cmd_msel10);
 
           /* std scsi command support byte 27*/
-          s->has_cmd_lsen = get_IN_has_cmd_lsen(buffer);
+          s->has_cmd_lsen = get_IN_has_cmd_lsen(in);
           DBG (15, "  log_sense cmd: %d\n", s->has_cmd_lsen);
 
-          s->has_cmd_lsel = get_IN_has_cmd_lsel(buffer);
+          s->has_cmd_lsel = get_IN_has_cmd_lsel(in);
           DBG (15, "  log_select cmd: %d\n", s->has_cmd_lsel);
 
-          s->has_cmd_change = get_IN_has_cmd_change(buffer);
+          s->has_cmd_change = get_IN_has_cmd_change(in);
           DBG (15, "  change cmd: %d\n", s->has_cmd_change);
 
-          s->has_cmd_rbuff = get_IN_has_cmd_rbuff(buffer);
+          s->has_cmd_rbuff = get_IN_has_cmd_rbuff(in);
           DBG (15, "  read_buffer cmd: %d\n", s->has_cmd_rbuff);
 
-          s->has_cmd_wbuff = get_IN_has_cmd_wbuff(buffer);
+          s->has_cmd_wbuff = get_IN_has_cmd_wbuff(in);
           DBG (15, "  write_buffer cmd: %d\n", s->has_cmd_wbuff);
 
-          s->has_cmd_cav = get_IN_has_cmd_cav(buffer);
+          s->has_cmd_cav = get_IN_has_cmd_cav(in);
           DBG (15, "  copy_and_verify cmd: %d\n", s->has_cmd_cav);
 
-          s->has_cmd_comp = get_IN_has_cmd_comp(buffer);
+          s->has_cmd_comp = get_IN_has_cmd_comp(in);
           DBG (15, "  compare cmd: %d\n", s->has_cmd_comp);
 
-          s->has_cmd_gdbs = get_IN_has_cmd_gdbs(buffer);
+          s->has_cmd_gdbs = get_IN_has_cmd_gdbs(in);
           DBG (15, "  get_d_b_status cmd: %d\n", s->has_cmd_gdbs);
 
           /* std scsi command support byte 28*/
-          s->has_cmd_op = get_IN_has_cmd_op(buffer);
+          s->has_cmd_op = get_IN_has_cmd_op(in);
           DBG (15, "  object_pos cmd: %d\n", s->has_cmd_op);
 
-          s->has_cmd_send = get_IN_has_cmd_send(buffer);
+          s->has_cmd_send = get_IN_has_cmd_send(in);
           DBG (15, "  send cmd: %d\n", s->has_cmd_send);
 
-          s->has_cmd_read = get_IN_has_cmd_read(buffer);
+          s->has_cmd_read = get_IN_has_cmd_read(in);
           DBG (15, "  read cmd: %d\n", s->has_cmd_read);
 
-          s->has_cmd_gwin = get_IN_has_cmd_gwin(buffer);
+          s->has_cmd_gwin = get_IN_has_cmd_gwin(in);
           DBG (15, "  get_window cmd: %d\n", s->has_cmd_gwin);
 
-          s->has_cmd_swin = get_IN_has_cmd_swin(buffer);
+          s->has_cmd_swin = get_IN_has_cmd_swin(in);
           DBG (15, "  set_window cmd: %d\n", s->has_cmd_swin);
 
-          s->has_cmd_sdiag = get_IN_has_cmd_sdiag(buffer);
+          s->has_cmd_sdiag = get_IN_has_cmd_sdiag(in);
           DBG (15, "  send_diag cmd: %d\n", s->has_cmd_sdiag);
 
-          s->has_cmd_rdiag = get_IN_has_cmd_rdiag(buffer);
+          s->has_cmd_rdiag = get_IN_has_cmd_rdiag(in);
           DBG (15, "  read_diag cmd: %d\n", s->has_cmd_rdiag);
 
-          s->has_cmd_scan = get_IN_has_cmd_scan(buffer);
+          s->has_cmd_scan = get_IN_has_cmd_scan(in);
           DBG (15, "  scan cmd: %d\n", s->has_cmd_scan);
 
           /* std scsi command support byte 29*/
-          s->has_cmd_msen6 = get_IN_has_cmd_msen6(buffer);
+          s->has_cmd_msen6 = get_IN_has_cmd_msen6(in);
           DBG (15, "  mode_sense_6 cmd: %d\n", s->has_cmd_msen6);
 
-          s->has_cmd_copy = get_IN_has_cmd_copy(buffer);
+          s->has_cmd_copy = get_IN_has_cmd_copy(in);
           DBG (15, "  copy cmd: %d\n", s->has_cmd_copy);
 
-          s->has_cmd_rel = get_IN_has_cmd_rel(buffer);
+          s->has_cmd_rel = get_IN_has_cmd_rel(in);
           DBG (15, "  release cmd: %d\n", s->has_cmd_rel);
 
-          s->has_cmd_runit = get_IN_has_cmd_runit(buffer);
+          s->has_cmd_runit = get_IN_has_cmd_runit(in);
           DBG (15, "  reserve_unit cmd: %d\n", s->has_cmd_runit);
 
-          s->has_cmd_msel6 = get_IN_has_cmd_msel6(buffer);
+          s->has_cmd_msel6 = get_IN_has_cmd_msel6(in);
           DBG (15, "  mode_select_6 cmd: %d\n", s->has_cmd_msel6);
 
-          s->has_cmd_inq = get_IN_has_cmd_inq(buffer);
+          s->has_cmd_inq = get_IN_has_cmd_inq(in);
           DBG (15, "  inquiry cmd: %d\n", s->has_cmd_inq);
 
-          s->has_cmd_rs = get_IN_has_cmd_rs(buffer);
+          s->has_cmd_rs = get_IN_has_cmd_rs(in);
           DBG (15, "  request_sense cmd: %d\n", s->has_cmd_rs);
 
-          s->has_cmd_tur = get_IN_has_cmd_tur(buffer);
+          s->has_cmd_tur = get_IN_has_cmd_tur(in);
           DBG (15, "  test_unit_ready cmd: %d\n", s->has_cmd_tur);
 
           /* vendor added scsi command support */
           /* FIXME: there are more of these... */
-          s->has_cmd_subwindow = get_IN_has_cmd_subwindow(buffer);
+          s->has_cmd_subwindow = get_IN_has_cmd_subwindow(in);
           DBG (15, "  subwindow cmd: %d\n", s->has_cmd_subwindow);
 
-          s->has_cmd_endorser = get_IN_has_cmd_endorser(buffer);
+          s->has_cmd_endorser = get_IN_has_cmd_endorser(in);
           DBG (15, "  endorser cmd: %d\n", s->has_cmd_endorser);
 
-          s->has_cmd_hw_status = get_IN_has_cmd_hw_status (buffer);
+          s->has_cmd_hw_status = get_IN_has_cmd_hw_status (in);
           DBG (15, "  hardware status cmd: %d\n", s->has_cmd_hw_status);
 
-          s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(buffer);
+          s->has_cmd_scanner_ctl = get_IN_has_cmd_scanner_ctl(in);
           DBG (15, "  scanner control cmd: %d\n", s->has_cmd_scanner_ctl);
 
           /* get threshold, brightness and contrast ranges. */
-          s->brightness_steps = get_IN_brightness_steps(buffer);
+          s->brightness_steps = get_IN_brightness_steps(in);
           DBG (15, "  brightness steps: %d\n", s->brightness_steps);
 
-          s->threshold_steps = get_IN_threshold_steps(buffer);
+          s->threshold_steps = get_IN_threshold_steps(in);
           DBG (15, "  threshold steps: %d\n", s->threshold_steps);
 
-          s->contrast_steps = get_IN_contrast_steps(buffer);
+          s->contrast_steps = get_IN_contrast_steps(in);
           DBG (15, "  contrast steps: %d\n", s->contrast_steps);
 
           /* dither/gamma patterns */
-	  s->num_internal_gamma = get_IN_num_gamma_internal (buffer);
+	  s->num_internal_gamma = get_IN_num_gamma_internal (in);
           DBG (15, "  built in gamma patterns: %d\n", s->num_internal_gamma);
 
-	  s->num_download_gamma = get_IN_num_gamma_download (buffer);
+	  s->num_download_gamma = get_IN_num_gamma_download (in);
           DBG (15, "  download gamma patterns: %d\n", s->num_download_gamma);
 
-	  s->num_internal_dither = get_IN_num_dither_internal (buffer);
+	  s->num_internal_dither = get_IN_num_dither_internal (in);
           DBG (15, "  built in dither patterns: %d\n", s->num_internal_dither);
 
-	  s->num_download_dither = get_IN_num_dither_download (buffer);
+	  s->num_download_dither = get_IN_num_dither_download (in);
           DBG (15, "  download dither patterns: %d\n", s->num_download_dither);
 
           /* ipc functions */
-	  s->has_rif = get_IN_ipc_bw_rif (buffer);
+	  s->has_rif = get_IN_ipc_bw_rif (in);
           DBG (15, "  RIF: %d\n", s->has_rif);
 
-          s->has_dtc = get_IN_ipc_dtc(buffer);
+          s->has_dtc = get_IN_ipc_dtc(in);
           DBG (15, "  DTC (AutoI): %d\n", s->has_dtc);
 
-          s->has_sdtc = get_IN_ipc_sdtc(buffer);
+          s->has_sdtc = get_IN_ipc_sdtc(in);
           DBG (15, "  SDTC (AutoII): %d\n", s->has_sdtc);
 
-          s->has_outline = get_IN_ipc_outline_extraction (buffer);
+          s->has_outline = get_IN_ipc_outline_extraction (in);
           DBG (15, "  outline extraction: %d\n", s->has_outline);
 
-          s->has_emphasis = get_IN_ipc_image_emphasis (buffer);
+          s->has_emphasis = get_IN_ipc_image_emphasis (in);
           DBG (15, "  image emphasis: %d\n", s->has_emphasis);
 
-          s->has_autosep = get_IN_ipc_auto_separation (buffer);
+          s->has_autosep = get_IN_ipc_auto_separation (in);
           DBG (15, "  automatic separation: %d\n", s->has_autosep);
 
-          s->has_mirroring = get_IN_ipc_mirroring (buffer);
+          s->has_mirroring = get_IN_ipc_mirroring (in);
           DBG (15, "  mirror image: %d\n", s->has_mirroring);
 
-          s->has_wl_follow = get_IN_ipc_wl_follow (buffer);
+          s->has_wl_follow = get_IN_ipc_wl_follow (in);
           DBG (15, "  white level follower: %d\n", s->has_wl_follow);
 
           /* byte 58 */
-          s->has_subwindow = get_IN_ipc_subwindow (buffer);
+          s->has_subwindow = get_IN_ipc_subwindow (in);
           DBG (15, "  subwindow: %d\n", s->has_subwindow);
 
-          s->has_diffusion = get_IN_ipc_diffusion (buffer);
+          s->has_diffusion = get_IN_ipc_diffusion (in);
           DBG (15, "  diffusion: %d\n", s->has_diffusion);
 
-          s->has_ipc3 = get_IN_ipc_ipc3 (buffer);
+          s->has_ipc3 = get_IN_ipc_ipc3 (in);
           DBG (15, "  ipc3: %d\n", s->has_ipc3);
 
-          s->has_rotation = get_IN_ipc_rotation (buffer);
+          s->has_rotation = get_IN_ipc_rotation (in);
           DBG (15, "  rotation: %d\n", s->has_rotation);
 
           /* compression modes */
-          s->has_comp_MH = get_IN_compression_MH (buffer);
+          s->has_comp_MH = get_IN_compression_MH (in);
           DBG (15, "  compression MH: %d\n", s->has_comp_MH);
 
-          s->has_comp_MR = get_IN_compression_MR (buffer);
+          s->has_comp_MR = get_IN_compression_MR (in);
           DBG (15, "  compression MR: %d\n", s->has_comp_MR);
 
-          s->has_comp_MMR = get_IN_compression_MMR (buffer);
+          s->has_comp_MMR = get_IN_compression_MMR (in);
           DBG (15, "  compression MMR: %d\n", s->has_comp_MMR);
 
-          s->has_comp_JBIG = get_IN_compression_JBIG (buffer);
+          s->has_comp_JBIG = get_IN_compression_JBIG (in);
           DBG (15, "  compression JBIG: %d\n", s->has_comp_JBIG);
 
-          s->has_comp_JPG1 = get_IN_compression_JPG_BASE (buffer);
+          s->has_comp_JPG1 = get_IN_compression_JPG_BASE (in);
           DBG (15, "  compression JPG1: %d\n", s->has_comp_JPG1);
 
-          s->has_comp_JPG2 = get_IN_compression_JPG_EXT (buffer);
+          s->has_comp_JPG2 = get_IN_compression_JPG_EXT (in);
           DBG (15, "  compression JPG2: %d\n", s->has_comp_JPG2);
 
-          s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (buffer);
+          s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (in);
           DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
 
           /* FIXME: we dont store these? */
-          DBG (15, "  endorser mech: %d\n", get_IN_endorser_mechanical(buffer));
-          DBG (15, "  endorser stamp: %d\n", get_IN_endorser_stamp(buffer));
-          DBG (15, "  endorser elec: %d\n", get_IN_endorser_electrical(buffer));
-          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(buffer));
+          DBG (15, "  endorser mech: %d\n", get_IN_endorser_mechanical(in));
+          DBG (15, "  endorser stamp: %d\n", get_IN_endorser_stamp(in));
+          DBG (15, "  endorser elec: %d\n", get_IN_endorser_electrical(in));
+          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(in));
 
-          s->endorser_type = get_IN_endorser_type(buffer);
+          s->endorser_type = get_IN_endorser_type(in);
           DBG (15, "  endorser type: %d\n", s->endorser_type);
 
           /*not all scanners go this far*/
-          if (get_IN_page_length (buffer) > 0x5f) {
-              DBG (15, "  connection type: %d\n", get_IN_connection(buffer));
+          if (get_IN_page_length (in) > 0x5f) {
+              DBG (15, "  connection type: %d\n", get_IN_connection(in));
     
-              s->os_x_basic = get_IN_x_overscan_size(buffer);
+              s->os_x_basic = get_IN_x_overscan_size(in);
               DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
     
-              s->os_y_basic = get_IN_y_overscan_size(buffer);
+              s->os_y_basic = get_IN_y_overscan_size(in);
               DBG (15, "  vertical overscan: %d\n", s->os_y_basic);
           }
 
@@ -1479,15 +1493,17 @@ init_vpd (struct fujitsu *s)
   }
 
   /* get EVPD for fb?
-  set_IN_return_size (inquiryB.cmd, inLen);
-  set_IN_evpd (inquiryB.cmd, 1);
-  set_IN_page_code (inquiryB.cmd, 0xf1);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, INQUIRY_code);
+  set_IN_return_size (cmd, inLen);
+  set_IN_evpd (cmd, 1);
+  set_IN_page_code (cmd, 0xf1);
 
   ret = do_cmd (
     s, 1, 0,
-    inquiryB.cmd, inquiryB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if()
   */
@@ -1502,8 +1518,12 @@ init_ms(struct fujitsu *s)
 {
   int ret;
   int oldDbg;
-  unsigned char buffer[0x14];
-  size_t inLen = sizeof(buffer);
+
+  unsigned char cmd[MODE_SENSE_len];
+  size_t cmdLen = MODE_SENSE_len;
+
+  unsigned char in[MODE_SENSE_data_len];
+  size_t inLen = MODE_SENSE_data_len;
 
   DBG (10, "init_ms: start\n");
 
@@ -1521,169 +1541,160 @@ init_ms(struct fujitsu *s)
   IF_DBG( oldDbg=DBG_LEVEL; )
   IF_DBG( if(DBG_LEVEL < 35){ DBG_LEVEL = 0; } )
 
-  set_MSEN_xfer_length (mode_senseB.cmd, inLen);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SENSE_code);
+  set_MSEN_xfer_length (cmd, inLen);
 
   DBG (35, "init_ms: 32 unknown)\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_unknown);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_unknown);
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_unknown=1;
   }
 
   DBG (35, "init_ms: prepick\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_prepick);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_prepick);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_prepick=1;
   }
 
   DBG (35, "init_ms: sleep\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_sleep);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_sleep);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_sleep=1;
   }
 
   DBG (35, "init_ms: duplex\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_duplex);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_duplex);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_duplex=1;
   }
 
   DBG (35, "init_ms: rand\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_rand);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_rand);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_rand=1;
   }
 
   DBG (35, "init_ms: bg\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_bg);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_bg);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_bg=1;
   }
 
   DBG (35, "init_ms: df\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_df);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_df);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_df=1;
   }
 
   DBG (35, "init_ms: dropout\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_dropout);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_dropout);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_dropout=1;
   }
 
   DBG (35, "init_ms: buffer\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_buff);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_buff);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_buff=1;
   }
 
   DBG (35, "init_ms: auto\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_auto);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_auto);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_auto=1;
   }
 
   DBG (35, "init_ms: lamp\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_lamp);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_lamp);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_lamp=1;
   }
 
   DBG (35, "init_ms: jobsep\n");
-  set_MSEN_pc(mode_senseB.cmd, MS_pc_jobsep);
-  inLen = sizeof(buffer);
-  memset(buffer,0,inLen);
+  set_MSEN_pc(cmd, MS_pc_jobsep);
+  inLen = MODE_SENSE_data_len;
   ret = do_cmd (
     s, 1, 0,
-    mode_senseB.cmd, mode_senseB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buffer, &inLen
+    in, &inLen
   );
   if(ret == SANE_STATUS_GOOD){
     s->has_MS_jobsep=1;
@@ -2025,11 +2036,14 @@ init_serial (struct fujitsu *s)
   SANE_Status ret = SANE_STATUS_GOOD;
   unsigned int sn = 0;
 
-  unsigned char sd_payload[] = "GET DEVICE ID   ";
-  size_t sd_payLen = sizeof(sd_payload) - 1;
+  unsigned char cmd[SEND_DIAGNOSTIC_len]; /*also big enough for READ_DIAG*/
+  size_t cmdLen = SEND_DIAGNOSTIC_len;
 
-  unsigned char rd_payload[0x0c];
-  size_t rd_payLen = sizeof(rd_payload);
+  unsigned char out[SD_gdi_len];
+  size_t outLen = SD_gdi_len;
+
+  unsigned char in[RD_gdi_len];
+  size_t inLen = RD_gdi_len;
 
   DBG (10, "init_serial: start\n");
 
@@ -2038,13 +2052,17 @@ init_serial (struct fujitsu *s)
     return SANE_STATUS_INVAL;
   }
 
-  set_SD_slftst(send_diagnosticB.cmd, 0);
-  set_SD_xferlen(send_diagnosticB.cmd, sd_payLen);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_DIAGNOSTIC_code);
+  set_SD_slftst(cmd, 0);
+  set_SD_xferlen(cmd, outLen);
  
+  memcpy(out,SD_gdi_string,outLen);
+
   ret = do_cmd (
     s, 1, 0, 
-    send_diagnosticB.cmd, send_diagnosticB.size,
-    sd_payload, sd_payLen,
+    cmd, cmdLen,
+    out, outLen,
     NULL, NULL
   );
 
@@ -2053,13 +2071,15 @@ init_serial (struct fujitsu *s)
     return ret;
   }
 
-  set_RD_xferlen(read_diagnosticB.cmd, rd_payLen);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, READ_DIAGNOSTIC_code);
+  set_RD_xferlen(cmd, inLen);
 
   ret = do_cmd (
     s, 1, 0, 
-    read_diagnosticB.cmd, read_diagnosticB.size,
+    cmd, cmdLen,
     NULL, 0,
-    rd_payload, &rd_payLen
+    in, &inLen
   );
 
   if (ret != SANE_STATUS_GOOD){
@@ -2067,7 +2087,7 @@ init_serial (struct fujitsu *s)
     return ret;
   }
 
-  sn = get_RD_id_serial(rd_payload);
+  sn = get_RD_id_serial(in);
 
   DBG (15, "init_serial: found sn %d\n",sn);
 
@@ -4818,18 +4838,30 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 static SANE_Status
 set_sleep_mode(struct fujitsu *s) 
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "set_sleep_mode: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_sleep);
-  set_MSEL_sleep_mode(mode_select_8byteB.cmd, s->sleep_time);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_sleep);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
+  set_MSEL_sleep_mode(page, s->sleep_time);
 
   ret = do_cmd (
     s, 1, 0,
-    mode_selectB.cmd, mode_selectB.size,
-    mode_select_8byteB.cmd, mode_select_8byteB.size,
+    cmd, cmdLen,
+    out, outLen,
     NULL, NULL
   );
 
@@ -4845,87 +4877,100 @@ get_hardware_status (struct fujitsu *s)
 
   DBG (10, "get_hardware_status: start\n");
 
-  /* only run this once every couple seconds */
+  /* only run this once every second */
   if (s->last_ghs < time(NULL)) {
 
       DBG (15, "get_hardware_status: running\n");
 
       if (s->has_cmd_hw_status){
-          unsigned char buffer[12];
-          size_t inLen = sizeof(buffer);
+          unsigned char cmd[GET_HW_STATUS_len];
+          size_t cmdLen = GET_HW_STATUS_len;
+
+          unsigned char in[GHS_data_len];
+          size_t inLen = GHS_data_len;
+
+          memset(cmd,0,cmdLen);
+          set_SCSI_opcode(cmd, GET_HW_STATUS_code);
+          set_GHS_allocation_length(cmd, inLen);
 
           DBG (15, "get_hardware_status: calling ghs\n");
   
-          set_HW_allocation_length (hw_statusB.cmd, inLen);
-        
           ret = do_cmd (
             s, 1, 0,
-            hw_statusB.cmd, hw_statusB.size,
+            cmd, cmdLen,
             NULL, 0,
-            buffer, &inLen
+            in, &inLen
           );
         
           if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
 
               s->last_ghs = time(NULL);
 
-              s->hw_top = get_HW_top(buffer);
-              s->hw_A3 = get_HW_A3(buffer);
-              s->hw_B4 = get_HW_B4(buffer);
-              s->hw_A4 = get_HW_A4(buffer);
-              s->hw_B5 = get_HW_B5(buffer);
+              s->hw_top = get_GHS_top(in);
+              s->hw_A3 = get_GHS_A3(in);
+              s->hw_B4 = get_GHS_B4(in);
+              s->hw_A4 = get_GHS_A4(in);
+              s->hw_B5 = get_GHS_B5(in);
       
-              s->hw_hopper = get_HW_hopper(buffer);
-              s->hw_omr = get_HW_omr(buffer);
-              s->hw_adf_open = get_HW_adf_open(buffer);
+              s->hw_hopper = get_GHS_hopper(in);
+              s->hw_omr = get_GHS_omr(in);
+              s->hw_adf_open = get_GHS_adf_open(in);
       
-              s->hw_sleep = get_HW_sleep(buffer);
-              s->hw_send_sw = get_HW_send_sw(buffer);
-              s->hw_manual_feed = get_HW_manual_feed(buffer);
-              s->hw_scan_sw = get_HW_scan_sw(buffer);
+              s->hw_sleep = get_GHS_sleep(in);
+              s->hw_send_sw = get_GHS_send_sw(in);
+              s->hw_manual_feed = get_GHS_manual_feed(in);
+              s->hw_scan_sw = get_GHS_scan_sw(in);
       
-              s->hw_function = get_HW_function(buffer);
-              s->hw_ink_empty = get_HW_ink_empty(buffer);
+              s->hw_function = get_GHS_function(in);
+              s->hw_ink_empty = get_GHS_ink_empty(in);
 
-              s->hw_double_feed = get_HW_double_feed(buffer);
+              s->hw_double_feed = get_GHS_double_feed(in);
       
-              s->hw_error_code = get_HW_error_code(buffer);
+              s->hw_error_code = get_GHS_error_code(in);
       
-              s->hw_skew_angle = get_HW_skew_angle(buffer);
+              s->hw_skew_angle = get_GHS_skew_angle(in);
 
               if(inLen > 9){
-                s->hw_ink_remain = get_HW_ink_remain(buffer);
+                s->hw_ink_remain = get_GHS_ink_remain(in);
               }
           }
       }
 
       /* 3091/2 put hardware status in RS data */
       else if (s->ghs_in_rs){
-          unsigned char buffer[RS_return_size];
-          size_t inLen = sizeof(buffer);
-          
+          unsigned char cmd[REQUEST_SENSE_len];
+          size_t cmdLen = REQUEST_SENSE_len;
+
+          unsigned char in[RS_return_size];
+          size_t inLen = RS_return_size;
+
+          memset(cmd,0,cmdLen);
+          set_SCSI_opcode(cmd, REQUEST_SENSE_code);
+	  set_RS_return_size(cmd, inLen);
+
           DBG(15,"get_hardware_status: calling rs\n");
 
           ret = do_cmd(
             s,0,0,
-            request_senseB.cmd, request_senseB.size,
+            cmd, cmdLen,
             NULL,0,
-            buffer, &inLen
+            in, &inLen
           );
     
           /* parse the rs data */
-          if(ret == SANE_STATUS_GOOD && get_RS_sense_key(buffer)==0 && get_RS_ASC(buffer)==0x80){
+          if(ret == SANE_STATUS_GOOD && get_RS_sense_key(in)==0
+            && get_RS_ASC(in)==0x80){
 
               s->last_ghs = time(NULL);
     
-              s->hw_adf_open = get_RS_adf_open(buffer);
-              s->hw_send_sw = get_RS_send_sw(buffer);
-              s->hw_scan_sw = get_RS_scan_sw(buffer);
-              s->hw_duplex_sw = get_RS_duplex_sw(buffer);
-              s->hw_top = get_RS_top(buffer);
-              s->hw_hopper = get_RS_hopper(buffer);
-              s->hw_function = get_RS_function(buffer);
-              s->hw_density_sw = get_RS_density(buffer);
+              s->hw_adf_open = get_RS_adf_open(in);
+              s->hw_send_sw = get_RS_send_sw(in);
+              s->hw_scan_sw = get_RS_scan_sw(in);
+              s->hw_duplex_sw = get_RS_duplex_sw(in);
+              s->hw_top = get_RS_top(in);
+              s->hw_hopper = get_RS_hopper(in);
+              s->hw_function = get_RS_function(in);
+              s->hw_density_sw = get_RS_density(in);
           }
           else{
             return SANE_STATUS_GOOD;
@@ -5061,9 +5106,16 @@ static SANE_Status
 send_lut (struct fujitsu *s)
 {
   int i, j, bytes = 1 << s->adbits;
-  unsigned char * p = send_lutC+S_lut_data_offset;
   double b, slope, offset;
-  SANE_Status ret=SANE_STATUS_GOOD;
+
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SEND_len];
+  size_t cmdLen = SEND_len;
+
+  unsigned char out[S_lut_header_len + S_lut_data_max_len];
+  size_t outLen = S_lut_header_len + S_lut_data_max_len;
+  unsigned char * p = out + S_lut_header_len;
 
   DBG (10, "send_lut: start\n");
 
@@ -5087,12 +5139,17 @@ send_lut (struct fujitsu *s)
   DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b,
     s->contrast, slope, offset);
 
-  set_S_xfer_datatype (sendB.cmd, S_datatype_lut_data);
-  set_S_xfer_length (sendB.cmd, S_lut_data_offset+bytes);
+  outLen = S_lut_header_len + bytes;
 
-  set_S_lut_order (send_lutC, S_lut_order_single);
-  set_S_lut_ssize (send_lutC, bytes);
-  set_S_lut_dsize (send_lutC, 256);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SEND_code);
+
+  set_S_xfer_datatype (cmd, S_datatype_lut_data);
+  set_S_xfer_length (cmd, outLen);
+
+  set_S_lut_order (out, S_lut_order_single);
+  set_S_lut_ssize (out, bytes);
+  set_S_lut_dsize (out, 256);
  
   for(i=0;i<bytes;i++){
     j=slope*i + offset + b;
@@ -5111,8 +5168,8 @@ send_lut (struct fujitsu *s)
 
   ret = do_cmd (
       s, 1, 0,
-      sendB.cmd, sendB.size,
-      send_lutC, S_lut_data_offset+bytes,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5124,51 +5181,55 @@ send_lut (struct fujitsu *s)
 static SANE_Status
 mode_select_df (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_df: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_df);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
 
-  /* clear everything initially (default) */
-  set_MSEL_df_enable (mode_select_8byteB.cmd, 0);
-  set_MSEL_df_continue (mode_select_8byteB.cmd, 0);
-  set_MSEL_df_skew (mode_select_8byteB.cmd, 0);
-  set_MSEL_df_thickness (mode_select_8byteB.cmd, 0);
-  set_MSEL_df_length (mode_select_8byteB.cmd, 0);
-  set_MSEL_df_diff (mode_select_8byteB.cmd, 0);
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_df);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   /* continue/stop */
   if(s->df_action != DF_DEFAULT){
-    set_MSEL_df_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_df_enable (page, 1);
 
     /* continue */
     if(s->df_action == DF_CONTINUE){
-      set_MSEL_df_continue (mode_select_8byteB.cmd, 1);
+      set_MSEL_df_continue (page, 1);
     }
   
     /* skew */
     if(s->df_skew){
-      set_MSEL_df_skew (mode_select_8byteB.cmd, 1);
+      set_MSEL_df_skew (page, 1);
     }
   
     /* thickness */
     if(s->df_thickness){
-      set_MSEL_df_thickness (mode_select_8byteB.cmd, 1);
+      set_MSEL_df_thickness (page, 1);
     }
   
     /* length */
     if(s->df_length){
-      set_MSEL_df_length (mode_select_8byteB.cmd, 1);
-      set_MSEL_df_diff (mode_select_8byteB.cmd, s->df_diff);
+      set_MSEL_df_length (page, 1);
+      set_MSEL_df_diff (page, s->df_diff);
     }
   }
 
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5180,33 +5241,39 @@ mode_select_df (struct fujitsu *s)
 static SANE_Status
 mode_select_bg (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_bg: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_bg);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
 
-  /* clear everything for defaults */
-  set_MSEL_bg_enable (mode_select_8byteB.cmd, 0);
-  set_MSEL_bg_front (mode_select_8byteB.cmd, 0);
-  set_MSEL_bg_back (mode_select_8byteB.cmd, 0);
-  set_MSEL_bg_fb (mode_select_8byteB.cmd, 0);
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_bg);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
 
   if(s->bg_color != COLOR_DEFAULT){
-    set_MSEL_bg_enable (mode_select_8byteB.cmd, 1);
+    set_MSEL_bg_enable (page, 1);
 
     if(s->bg_color == COLOR_BLACK){
-      set_MSEL_bg_front (mode_select_8byteB.cmd, 1);
-      set_MSEL_bg_back (mode_select_8byteB.cmd, 1);
-      set_MSEL_bg_fb (mode_select_8byteB.cmd, 1);
+      set_MSEL_bg_front (page, 1);
+      set_MSEL_bg_back (page, 1);
+      set_MSEL_bg_fb (page, 1);
     }
   }
   
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5218,19 +5285,32 @@ mode_select_bg (struct fujitsu *s)
 static SANE_Status
 mode_select_dropout (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_max_len];
+  size_t outLen = MSEL_header_len + MSEL_data_max_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_dropout: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_10byteB.size);
-  set_MSEL_pc(mode_select_10byteB.cmd, MS_pc_dropout);
-  set_MSEL_dropout_front (mode_select_10byteB.cmd, s->dropout_color);
-  set_MSEL_dropout_back (mode_select_10byteB.cmd, s->dropout_color);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_dropout);
+  set_MSEL_page_len(page, MSEL_data_max_len-2);
+
+  set_MSEL_dropout_front (page, s->dropout_color);
+  set_MSEL_dropout_back (page, s->dropout_color);
   
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_10byteB.cmd, mode_select_10byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5244,6 +5324,13 @@ mode_select_buff (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
+
   DBG (10, "mode_select_buff: start\n");
 
   if (!s->has_MS_buff){
@@ -5251,15 +5338,21 @@ mode_select_buff (struct fujitsu *s)
     return SANE_STATUS_GOOD;
   }
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_buff);
-  set_MSEL_buff_mode(mode_select_8byteB.cmd, s->buff_mode);
-  set_MSEL_buff_clear(mode_select_8byteB.cmd, 3);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_buff);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
+
+  set_MSEL_buff_mode(page, s->buff_mode);
+  set_MSEL_buff_clear(page, 3);
   
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5271,18 +5364,31 @@ mode_select_buff (struct fujitsu *s)
 static SANE_Status
 mode_select_prepick (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_prepick: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_prepick);
-  set_MSEL_prepick(mode_select_8byteB.cmd, s->prepick);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_prepick);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
+
+  set_MSEL_prepick(page, s->prepick);
   
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5294,18 +5400,31 @@ mode_select_prepick (struct fujitsu *s)
 static SANE_Status
 mode_select_overscan (struct fujitsu *s)
 {
-  int ret;
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[MODE_SELECT_len];
+  size_t cmdLen = MODE_SELECT_len;
+
+  unsigned char out[MSEL_header_len + MSEL_data_min_len];
+  size_t outLen = MSEL_header_len + MSEL_data_min_len;
+  unsigned char * page = out+MSEL_header_len;
 
   DBG (10, "mode_select_overscan: start\n");
 
-  set_MSEL_xfer_length (mode_selectB.cmd, mode_select_8byteB.size);
-  set_MSEL_pc(mode_select_8byteB.cmd, MS_pc_auto);
-  set_MSEL_overscan(mode_select_8byteB.cmd, s->overscan);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_xferlen(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_MSEL_pc(page, MS_pc_auto);
+  set_MSEL_page_len(page, MSEL_data_min_len-2);
+
+  set_MSEL_overscan(page, s->overscan);
   
   ret = do_cmd (
       s, 1, 0,
-      mode_selectB.cmd, mode_selectB.size,
-      mode_select_8byteB.cmd, mode_select_8byteB.size,
+      cmd, cmdLen,
+      out, outLen,
       NULL, NULL
   );
 
@@ -5633,55 +5752,49 @@ endorser(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
+  unsigned char cmd[ENDORSER_len];
+  size_t cmdLen = ENDORSER_len;
+
+  unsigned char out[ED_max_len];
+  size_t outLen = ED_max_len;
+
   DBG (10, "endorser: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, ENDORSER_code);
+
+  memset(out,0,outLen);
 
   if (s->has_endorser) {
 
+    set_ED_endorser_data_id(out,0);
+    if(s->u_endorser){
+      set_ED_stop(out,ED_start);
+    }
+    else{
+      set_ED_stop(out,ED_stop);
+    }
+
+    set_ED_side(out,s->u_endorser_side);
+
     if(s->u_endorser_bits == 24){
-      set_E_xfer_length(endorserB.cmd,6);
-
-      set_ED_endorser_data_id(endorser_desc6B.cmd,0);
-      if(s->u_endorser){
-        set_ED_stop(endorser_desc6B.cmd,ED_start);
-      }
-      else{
-        set_ED_stop(endorser_desc6B.cmd,ED_stop);
-      }
-
-      set_ED_side(endorser_desc6B.cmd,s->u_endorser_side);
-      set_ED_lap24(endorser_desc6B.cmd,ED_lap_24bit);
-      set_ED_initial_count_24(endorser_desc6B.cmd,s->u_endorser_val);
-
-      ret = do_cmd (
-        s, 1, 0,
-        endorserB.cmd, endorserB.size,
-        endorser_desc6B.cmd, endorser_desc6B.size,
-        NULL, NULL
-      );
+      set_ED_lap24(out,ED_lap_24bit);
+      set_ED_initial_count_24(out,s->u_endorser_val);
     }
 
     else{
-      set_E_xfer_length(endorserB.cmd,4);
-
-      set_ED_endorser_data_id(endorser_desc4B.cmd,0);
-      if(s->u_endorser){
-        set_ED_stop(endorser_desc4B.cmd,ED_start);
-      }
-      else{
-        set_ED_stop(endorser_desc4B.cmd,ED_stop);
-      }
-
-      set_ED_side(endorser_desc4B.cmd,s->u_endorser_side);
-      set_ED_lap24(endorser_desc4B.cmd,ED_lap_16bit);
-      set_ED_initial_count_16(endorser_desc4B.cmd,s->u_endorser_val);
-
-      ret = do_cmd (
-        s, 1, 0,
-        endorserB.cmd, endorserB.size,
-        endorser_desc4B.cmd, endorser_desc4B.size,
-        NULL, NULL
-      );
+      outLen = ED_min_len;
+      set_ED_lap24(out,ED_lap_16bit);
+      set_ED_initial_count_16(out,s->u_endorser_val);
     }
+
+    set_E_xferlen(cmd, outLen);
+    ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+    );
   }
 
   DBG (10, "endorser: finish %d\n", ret);
@@ -5692,23 +5805,28 @@ endorser(struct fujitsu *s)
 static SANE_Status
 scanner_control (struct fujitsu *s, int function) 
 {
-  int ret = SANE_STATUS_GOOD;
+  SANE_Status ret = SANE_STATUS_GOOD;
   int tries = 0;
+
+  unsigned char cmd[SCANNER_CONTROL_len];
+  size_t cmdLen = SCANNER_CONTROL_len;
 
   DBG (10, "scanner_control: start\n");
 
   if(s->has_cmd_scanner_ctl){
 
-    DBG (15, "scanner_control: function %d\n",function);
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SCANNER_CONTROL_code);
+    set_SC_function (cmd, function);
 
-    set_SC_function (scanner_controlB.cmd, function);
+    DBG (15, "scanner_control: function %d\n",function);
  
     /* extremely long retry period */
     while(tries++ < 120){
 
       ret = do_cmd (
         s, 1, 0,
-        scanner_controlB.cmd, scanner_controlB.size,
+        cmd, cmdLen,
         NULL, 0,
         NULL, NULL
       );
@@ -5718,7 +5836,6 @@ scanner_control (struct fujitsu *s, int function)
       }
 
       usleep(500000);
-
     } 
 
     if(ret == SANE_STATUS_GOOD){
@@ -5727,7 +5844,6 @@ scanner_control (struct fujitsu *s, int function)
     else{
       DBG (5, "scanner_control: error, tries %d, ret %d\n",tries,ret);
     }
-
   }
 
   DBG (10, "scanner_control: finish\n");
@@ -6081,24 +6197,31 @@ object_position (struct fujitsu *s, int i_load)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
+  unsigned char cmd[OBJECT_POSITION_len];
+  size_t cmdLen = OBJECT_POSITION_len;
+
   DBG (10, "object_position: start\n");
 
-  DBG (15, "object_position: %s\n", (i_load==SANE_TRUE)?"load":"discharge");
-
   if (s->source == SOURCE_FLATBED) {
+    DBG (10, "object_position: flatbed no-op\n");
     return SANE_STATUS_GOOD;
   }
 
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, OBJECT_POSITION_code);
+
   if (i_load) {
-    set_OP_autofeed (object_positionB.cmd, OP_Feed);
+    DBG (15, "object_position: load\n");
+    set_OP_autofeed (cmd, OP_Feed);
   }
   else {
-    set_OP_autofeed (object_positionB.cmd, OP_Discharge);
+    DBG (15, "object_position: eject\n");
+    set_OP_autofeed (cmd, OP_Discharge);
   }
 
   ret = do_cmd (
     s, 1, 0,
-    object_positionB.cmd, object_positionB.size,
+    cmd, cmdLen,
     NULL, 0,
     NULL, NULL
   );
@@ -6122,27 +6245,30 @@ static SANE_Status
 start_scan (struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
-  unsigned char outBuff[2];
-  int outLen=1;
+
+  unsigned char cmd[SCAN_len];
+  size_t cmdLen = SCAN_len;
+
+  unsigned char out[] = {WD_wid_front, WD_wid_back};
+  size_t outLen = 2;
 
   DBG (10, "start_scan: start\n");
 
-  outBuff[0] = WD_wid_front;
-
-  if(s->source == SOURCE_ADF_BACK) {
-      outBuff[0] = WD_wid_back;
-  }
-  else if (s->source == SOURCE_ADF_DUPLEX) {
-      outBuff[1] = WD_wid_back;
-      outLen++;
+  if (s->source != SOURCE_ADF_DUPLEX) {
+    outLen--;
+    if(s->source == SOURCE_ADF_BACK) {
+      out[0] = WD_wid_back;
+    }
   }
 
-  set_SC_xfer_length (scanB.cmd, outLen);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SCAN_code);
+  set_SC_xfer_length (cmd, outLen);
 
   ret = do_cmd (
     s, 1, 0,
-    scanB.cmd, scanB.size,
-    outBuff, outLen,
+    cmd, cmdLen,
+    out, outLen,
     NULL, NULL
   );
 
@@ -6314,11 +6440,16 @@ static SANE_Status
 read_from_JPEGduplex(struct fujitsu *s)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
+
+    unsigned char cmd[READ_len];
+    size_t cmdLen = READ_len;
+
+    unsigned char * in;
+    size_t inLen = 0;
+
     int bytes = s->buffer_size;
     int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT])
       + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
-    unsigned char * buf;
-    size_t inLen = 0;
     int i=0;
   
     DBG (10, "read_from_JPEGduplex: start\n");
@@ -6340,25 +6471,24 @@ read_from_JPEGduplex(struct fujitsu *s)
     }
   
     inLen = bytes;
-  
-    buf = malloc(bytes);
-    if(!buf){
-        DBG(5, "read_from_JPEGduplex: not enough mem for buffer: %d\n",bytes);
+    in = malloc(inLen);
+    if(!in){
+        DBG(5, "read_from_JPEGduplex: not enough mem for buffer: %d\n",(int)inLen);
         return SANE_STATUS_NO_MEM;
     }
-  
-    set_R_datatype_code (readB.cmd, R_datatype_imagedata);
 
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, R_datatype_imagedata);
     /* interlaced jpeg duplex always reads from front */
-    set_R_window_id (readB.cmd, WD_wid_front);
-  
-    set_R_xfer_length (readB.cmd, bytes);
+    set_R_window_id (cmd, WD_wid_front);
+    set_R_xfer_length (cmd, inLen);
   
     ret = do_cmd (
       s, 1, 0,
-      readB.cmd, readB.size,
+      cmd, cmdLen,
       NULL, 0,
-      buf, &inLen
+      in, &inLen
     );
   
     if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
@@ -6371,15 +6501,14 @@ read_from_JPEGduplex(struct fujitsu *s)
         ret = SANE_STATUS_GOOD;
     }
     else {
-        DBG(5, "read_from_JPEGduplex: error reading data block status = %d\n",
-	  ret);
+        DBG(5, "read_from_JPEGduplex: error reading data status = %d\n", ret);
         inLen = 0;
     }
   
     for(i=0;i<(int)inLen;i++){
 
         /* about to change stage */
-        if(buf[i] == 0xff){
+        if(in[i] == 0xff){
             s->jpeg_ff_offset=0;
             continue;
         }
@@ -6388,29 +6517,29 @@ read_from_JPEGduplex(struct fujitsu *s)
         if(s->jpeg_ff_offset == 0){
 
             /* headers (SOI/HuffTab/QTab/DRI), in both sides */
-            if(buf[i] == 0xd8 || buf[i] == 0xc4
-              || buf[i] == 0xdb || buf[i] == 0xdd){
+            if(in[i] == 0xd8 || in[i] == 0xc4
+              || in[i] == 0xdb || in[i] == 0xdd){
                 s->jpeg_stage = JPEG_STAGE_HEAD;
                 DBG(15, "read_from_JPEGduplex: stage head\n");
             }
 
             /* start of frame, in both sides, update x first */
-            else if(buf[i]==0xc0){
+            else if(in[i]==0xc0){
                 s->jpeg_stage = JPEG_STAGE_SOF;
                 DBG(15, "read_from_JPEGduplex: stage sof\n");
             }
 
             /* start of scan, first few bytes of marker in both sides
              * but rest in front */
-            else if(buf[i]==0xda){
+            else if(in[i]==0xda){
                 s->jpeg_stage = JPEG_STAGE_SOS;
                 DBG(15, "read_from_JPEGduplex: stage sos\n");
             }
 
             /* finished front image block, switch to back */
             /* also change from even RST to proper one */
-            else if(buf[i] == 0xd0 || buf[i] == 0xd2
-              || buf[i] == 0xd4 || buf[i] == 0xd6){
+            else if(in[i] == 0xd0 || in[i] == 0xd2
+              || in[i] == 0xd4 || in[i] == 0xd6){
                 s->jpeg_stage = JPEG_STAGE_BACK;
                 DBG(35, "read_from_JPEGduplex: stage back\n");
 
@@ -6422,21 +6551,21 @@ read_from_JPEGduplex(struct fujitsu *s)
                   continue;
                 }
 
-                buf[i] = 0xd0 + (s->jpeg_back_rst-1) % 8;
+                in[i] = 0xd0 + (s->jpeg_back_rst-1) % 8;
                 s->jpeg_back_rst++;
             }
 
             /* finished back image block, switch to front */
-            else if(buf[i] == 0xd1 || buf[i] == 0xd3
-              || buf[i] == 0xd5 || buf[i] == 0xd7){
+            else if(in[i] == 0xd1 || in[i] == 0xd3
+              || in[i] == 0xd5 || in[i] == 0xd7){
                 s->jpeg_stage = JPEG_STAGE_FRONT;
                 DBG(35, "read_from_JPEGduplex: stage front\n");
-                buf[i] = 0xd0 + (s->jpeg_front_rst % 8);
+                in[i] = 0xd0 + (s->jpeg_front_rst % 8);
                 s->jpeg_front_rst++;
             }
 
             /* finished image, in both, update totals */
-            else if(buf[i]==0xd9){
+            else if(in[i]==0xd9){
                 s->jpeg_stage = JPEG_STAGE_EOI;
                 DBG(15, "read_from_JPEGduplex: stage eoi %d %d\n",(int)inLen,i);
             }
@@ -6445,14 +6574,14 @@ read_from_JPEGduplex(struct fujitsu *s)
 
         /* first x byte in start of frame, buffer it */
         if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 7){
-          s->jpeg_x_byte = buf[i];
+          s->jpeg_x_byte = in[i];
 	  continue;
         }
 
         /* second x byte in start of frame */
         if(s->jpeg_stage == JPEG_STAGE_SOF && s->jpeg_ff_offset == 8){
 
-	  int width = (s->jpeg_x_byte << 8) | buf[i];
+	  int width = (s->jpeg_x_byte << 8) | in[i];
 
 	  /* if image width equals what we asked for, then
 	   * the image is not interlaced, clean up the mess */
@@ -6488,7 +6617,7 @@ read_from_JPEGduplex(struct fujitsu *s)
             s->bytes_rx[SIDE_BACK]++;
 
 	    /* shift down low order byte */
-            buf[i] = (width >> 1) & 0xff;
+            in[i] = (width >> 1) & 0xff;
 	  }
         }
 
@@ -6504,7 +6633,7 @@ read_from_JPEGduplex(struct fujitsu *s)
               s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = 0xff;
               s->bytes_rx[SIDE_FRONT]++;
             }
-            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = buf[i];
+            s->buffers[SIDE_FRONT][ s->bytes_rx[SIDE_FRONT] ] = in[i];
             s->bytes_rx[SIDE_FRONT]++;
         }
 
@@ -6522,7 +6651,7 @@ read_from_JPEGduplex(struct fujitsu *s)
               s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = 0xff;
               s->bytes_rx[SIDE_BACK]++;
             }
-            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = buf[i];
+            s->buffers[SIDE_BACK][ s->bytes_rx[SIDE_BACK] ] = in[i];
             s->bytes_rx[SIDE_BACK]++;
         }
 
@@ -6538,7 +6667,7 @@ read_from_JPEGduplex(struct fujitsu *s)
         }
     }
       
-    free(buf);
+    free(in);
   
     DBG (10, "read_from_JPEGduplex: finish\n");
   
@@ -6549,13 +6678,19 @@ static SANE_Status
 read_from_3091duplex(struct fujitsu *s)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
+
+  unsigned char cmd[READ_len];
+  size_t cmdLen = READ_len;
+
+  unsigned char * in;
+  size_t inLen = 0;
+
   int side = SIDE_FRONT;
   int bytes = s->buffer_size;
-  int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT]) + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
+  int remain = (s->bytes_tot[SIDE_FRONT] - s->bytes_rx[SIDE_FRONT])
+    + (s->bytes_tot[SIDE_BACK] - s->bytes_rx[SIDE_BACK]);
   int off = (s->duplex_raster_offset+s->duplex_offset) * s->resolution_y/300;
   unsigned int i;
-  unsigned char * buf;
-  size_t inLen = 0;
 
   DBG (10, "read_from_3091duplex: start\n");
 
@@ -6585,21 +6720,24 @@ read_from_3091duplex(struct fujitsu *s)
 
   inLen = bytes;
 
-  buf = malloc(bytes);
-  if(!buf){
-    DBG(5, "read_from_3091duplex: not enough mem for buffer: %d\n",bytes);
+  in = malloc(inLen);
+  if(!in){
+    DBG(5, "read_from_3091duplex: not enough mem for buffer: %d\n",(int)inLen);
     return SANE_STATUS_NO_MEM;
   }
 
-  set_R_datatype_code (readB.cmd, R_datatype_imagedata);
-  set_R_window_id (readB.cmd, WD_wid_front);
-  set_R_xfer_length (readB.cmd, bytes);
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, READ_code);
+  set_R_datatype_code (cmd, R_datatype_imagedata);
+  /* 3091 duplex always reads from front */
+  set_R_window_id (cmd, WD_wid_front);
+  set_R_xfer_length (cmd, inLen);
 
   ret = do_cmd (
     s, 1, 0,
-    readB.cmd, readB.size,
+    cmd, cmdLen,
     NULL, 0,
-    buf, &inLen
+    in, &inLen
   );
 
   if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
@@ -6640,14 +6778,14 @@ read_from_3091duplex(struct fujitsu *s)
       }
 
       if(s->mode == MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-        copy_3091 (s, buf + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+        copy_3091 (s, in + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
       }
       else{
-        copy_buffer (s, buf + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
+        copy_buffer (s, in + i*s->params.bytes_per_line, s->params.bytes_per_line, side);
       }
   }
 
-  free(buf);
+  free(in);
 
   DBG (10, "read_from_3091duplex: finish\n");
 
@@ -6658,10 +6796,15 @@ static SANE_Status
 read_from_scanner(struct fujitsu *s, int side)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
+
+    unsigned char cmd[READ_len];
+    size_t cmdLen = READ_len;
+
+    unsigned char * in;
+    size_t inLen = 0;
+
     int bytes = s->buffer_size;
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
-    unsigned char * buf;
-    size_t inLen = 0;
   
     DBG (10, "read_from_scanner: start\n");
   
@@ -6687,29 +6830,30 @@ read_from_scanner(struct fujitsu *s, int side)
     }
   
     inLen = bytes;
-  
-    buf = malloc(bytes);
-    if(!buf){
-        DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",bytes);
+    in = malloc(inLen);
+    if(!in){
+        DBG(5, "read_from_scanner: not enough mem for buffer: %d\n",(int)inLen);
         return SANE_STATUS_NO_MEM;
     }
   
-    set_R_datatype_code (readB.cmd, R_datatype_imagedata);
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, R_datatype_imagedata);
   
     if (side == SIDE_BACK) {
-        set_R_window_id (readB.cmd, WD_wid_back);
+        set_R_window_id (cmd, WD_wid_back);
     }
     else{
-        set_R_window_id (readB.cmd, WD_wid_front);
+        set_R_window_id (cmd, WD_wid_front);
     }
   
-    set_R_xfer_length (readB.cmd, bytes);
+    set_R_xfer_length (cmd, inLen);
   
     ret = do_cmd (
       s, 1, 0,
-      readB.cmd, readB.size,
+      cmd, cmdLen,
       NULL, 0,
-      buf, &inLen
+      in, &inLen
     );
   
     if (ret == SANE_STATUS_GOOD) {
@@ -6730,14 +6874,14 @@ read_from_scanner(struct fujitsu *s, int side)
   
     if(inLen){
         if(s->mode==MODE_COLOR && s->color_interlace == COLOR_INTERLACE_3091){
-            copy_3091 (s, buf, inLen, side);
+            copy_3091 (s, in, inLen, side);
         }
         else{
-            copy_buffer (s, buf, inLen, side);
+            copy_buffer (s, in, inLen, side);
         }
     }
   
-    free(buf);
+    free(in);
   
     if(ret == SANE_STATUS_EOF){
       s->bytes_tot[side] = s->bytes_rx[side];
@@ -7543,15 +7687,22 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
 
       /* caller is interested in having RS run on errors */
       if(runRS){
-        unsigned char rsBuff[RS_return_size];
-        size_t rs_datLen = RS_return_size;
-  
+        unsigned char rs_cmd[REQUEST_SENSE_len];
+        size_t rs_cmdLen = REQUEST_SENSE_len;
+
+        unsigned char rs_in[RS_return_size];
+        size_t rs_inLen = RS_return_size;
+
+        memset(rs_cmd,0,rs_cmdLen);
+        set_SCSI_opcode(rs_cmd, REQUEST_SENSE_code);
+	set_RS_return_size(rs_cmd, rs_inLen);
+
         DBG(25,"rs sub call >>\n");
         ret2 = do_cmd(
           s,0,0,
-          request_senseB.cmd, request_senseB.size,
+          rs_cmd, rs_cmdLen,
           NULL,0,
-          rsBuff, &rs_datLen
+          rs_in, &rs_inLen
         );
         DBG(25,"rs sub call <<\n");
   
@@ -7565,7 +7716,7 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
         }
 
         /* parse the rs data */
-        ret2 = sense_handler( 0, rsBuff, (void *)s );
+        ret2 = sense_handler( 0, rs_in, (void *)s );
 
         /* this was a short read, but the usb layer did not know */
         if(ret2 == SANE_STATUS_EOF && s->rs_info
@@ -7593,11 +7744,17 @@ wait_scanner(struct fujitsu *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
+  unsigned char cmd[TEST_UNIT_READY_len];
+  size_t cmdLen = TEST_UNIT_READY_len;
+
   DBG (10, "wait_scanner: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd,TEST_UNIT_READY_code);
 
   ret = do_cmd (
     s, 0, 1,
-    test_unit_readyB.cmd, test_unit_readyB.size,
+    cmd, cmdLen,
     NULL, 0,
     NULL, NULL
   );
@@ -7606,7 +7763,7 @@ wait_scanner(struct fujitsu *s)
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick\n");
     ret = do_cmd (
       s, 0, 1,
-      test_unit_readyB.cmd, test_unit_readyB.size,
+      cmd, cmdLen,
       NULL, 0,
       NULL, NULL
     );
@@ -7615,7 +7772,7 @@ wait_scanner(struct fujitsu *s)
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again\n");
     ret = do_cmd (
       s, 0, 1,
-      test_unit_readyB.cmd, test_unit_readyB.size,
+      cmd, cmdLen,
       NULL, 0,
       NULL, NULL
     );

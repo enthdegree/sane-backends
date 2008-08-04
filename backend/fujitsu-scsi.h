@@ -28,16 +28,6 @@ setbitfield (unsigned char *pageaddr, int mask, int shift, int val)
 
 /* ------------------------------------------------------------------------- */
 
-/*static inline void */
-/*static  void
-resetbitfield (unsigned char *pageaddr, int mask, int shift, int val) \
-{
-  *pageaddr = (*pageaddr & ~(mask << shift)) | (((!val) & mask) << shift);
-}
-*/
-
-/* ------------------------------------------------------------------------- */
-
 /*static inline int */
 static int
 getbitfield (unsigned char *pageaddr, int mask, int shift)
@@ -80,111 +70,62 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
     }
 }
 
-
 /* ==================================================================== */
 /* SCSI commands */
 
 #define set_SCSI_opcode(out, val)          out[0]=val
-
-typedef struct
-{
-  unsigned char *cmd;
-  int size;
-}
-scsiblk;
+#define set_SCSI_lun(out, val)             setbitfield(out + 1, 7, 5, val)
 
 /* ==================================================================== */
-
-#define RESERVE_UNIT            0x16
-#define RELEASE_UNIT            0x17
-#define INQUIRY                 0x12
-#define REQUEST_SENSE           0x03
-#define READ_DIAGNOSTIC         0x1c
-#define SEND_DIAGNOSTIC         0x1d
-#define TEST_UNIT_READY         0x00
-#define SET_WINDOW              0x24
-#define GET_WINDOW              0x25
-#define SET_SUBWINDOW           0xc0
-#define OBJECT_POSITION         0x31
-#define SEND                    0x2a
-#define READ                    0x28
-#define MODE_SELECT             0x15
-#define MODE_SENSE              0x1a
-#define SCAN                    0x1b
-#define ENDORSER                0xc1
-#define HW_STATUS               0xc2
-#define SCANNER_CONTROL         0xf1
+/* TEST_UNIT_READY */
+#define TEST_UNIT_READY_code    0x00
+#define TEST_UNIT_READY_len     6
 
 /* ==================================================================== */
+/* REQUEST_SENSE */
+#define REQUEST_SENSE_code      0x03
+#define REQUEST_SENSE_len       6
 
-#if 0
-static unsigned char reserve_unitC[] =
-  { RESERVE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk reserve_unitB = { reserve_unitC, sizeof (reserve_unitC) };
+#define RS_return_size          0x12
+#define set_RS_return_size(icb,val)        icb[0x04]=val
 
-/* ==================================================================== */
+/* defines for request sense return block */
+#define get_RS_information_valid(b)       getbitfield(b + 0x00, 1, 7)
+#define get_RS_error_code(b)              getbitfield(b + 0x00, 0x7f, 0)
+#define get_RS_filemark(b)                getbitfield(b + 0x02, 1, 7)
+#define get_RS_EOM(b)                     getbitfield(b + 0x02, 1, 6)
+#define get_RS_ILI(b)                     getbitfield(b + 0x02, 1, 5)
+#define get_RS_sense_key(b)               getbitfield(b + 0x02, 0x0f, 0)
+#define get_RS_information(b)             getnbyte(b+0x03, 4)	/* normally 0 */
+#define get_RS_additional_length(b)       b[0x07]	/* always 10 */
+#define get_RS_ASC(b)                     b[0x0c]
+#define get_RS_ASCQ(b)                    b[0x0d]
+#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7) /* valid=0 */
+#define get_RS_SKSB(b)                    getnbyte(b+0x0f, 3)
 
-static unsigned char release_unitC[] =
-  { RELEASE_UNIT, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk release_unitB = { release_unitC, sizeof (release_unitC) };
-#endif
+/* when RS is 0x05/0x26 bad bytes listed in sksb */
+#define get_RS_offending_byte(b)          getnbyte(b+0x10, 2)
 
-/* ==================================================================== */
+/* 3091 and 3092 use RS instead of ghs. RS must be 0x00/0x80 */
+/* in ascq */
+#define get_RS_adf_open(in)        getbitfield(in+0x0d, 1, 7)
+#define get_RS_send_sw(in)         getbitfield(in+0x0d, 1, 5)
+#define get_RS_scan_sw(in)         getbitfield(in+0x0d, 1, 4)
+#define get_RS_duplex_sw(in)       getbitfield(in+0x0d, 1, 2)
+#define get_RS_top(in)             getbitfield(in+0x0d, 1, 1)
+#define get_RS_hopper(in)          getbitfield(in+0x0d, 1, 0)
 
-static unsigned char send_diagnosticC[] =
-  { SEND_DIAGNOSTIC, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk send_diagnosticB = {send_diagnosticC, sizeof(send_diagnosticC)};
-
-#define set_SD_slftst(in, val) setbitfield(in + 1, 1, 2, val)
-#define set_SD_xferlen(in, len) putnbyte(in + 3, len, 2)
-
-/* for 'FIRST READ DATE \0YMD' */
-#define set_SD_date_year(in, b) 	putnbyte(in + 0x11, b, 1)
-#define set_SD_date_month(in, b) 	putnbyte(in + 0x12, b, 1)
-#define set_SD_date_date(in, b) 	putnbyte(in + 0x13, b, 1)
-
-/* ==================================================================== */
-
-static unsigned char read_diagnosticC[] =
-  { READ_DIAGNOSTIC, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk read_diagnosticB = {read_diagnosticC, sizeof(read_diagnosticC)};
-
-#define set_RD_xferlen(in, len) putnbyte(in + 3, len, 2)
-
-/* for 'FIRST READ DATE \0YMD' */
-#define get_RD_date_status(in)          in[0]
-#define RD_date_stored			0
-#define RD_date_not_stored		0xff
-
-/* for 'GET FIRST DATE  ' */
-#define get_RD_date_year(in)            in[1]
-#define get_RD_date_month(in)           in[2]
-#define get_RD_date_date(in)            in[3]
-
-/* for 'GET DEVICE ID   ' */
-#define get_RD_id_serial(in)            getnbyte (in, 4)
+/* in sksb */
+#define get_RS_function(in)        getbitfield(in+0x0f, 0x0f, 3)
+#define get_RS_density(in)         getbitfield(in+0x0f, 0x07, 0)
 
 /* ==================================================================== */
+/* INQUIRY */
+#define INQUIRY_code            0x12
+#define INQUIRY_len             6
 
-static unsigned char scanner_controlC[] =
-  { SCANNER_CONTROL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk scanner_controlB = { scanner_controlC, sizeof (scanner_controlC) };
-
-#define set_SC_function(icb, val)              setbitfield(icb + 1, 0xf, 0, val)
-#define SC_function_adf                        0x00
-#define SC_function_fb                         0x01
-#define SC_function_fb_hs                      0x02
-#define SC_function_lamp_off                   0x03
-#define SC_function_cancel                     0x04
-#define SC_function_lamp_on                    0x05
-#define SC_function_lamp_normal                0x06
-#define SC_function_lamp_saving                0x07
-#define SC_function_panel                      0x08
-
-/* ==================================================================== */
-
-static unsigned char inquiryC[] = { INQUIRY, 0x00, 0x00, 0x00, 0x1f, 0x00 };
-static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
+#define INQUIRY_std_len         96
+#define INQUIRY_vpd_len         104
 
 #define set_IN_evpd(icb, val)              setbitfield(icb + 1, 1, 0, val)
 #define set_IN_page_code(icb, val)         icb[0x02]=val
@@ -344,17 +285,159 @@ static scsiblk inquiryB = { inquiryC, sizeof (inquiryC) };
 #define get_IN_x_overscan_size(in)  getnbyte(in + 0x64, 2)
 #define get_IN_y_overscan_size(in)  getnbyte(in + 0x66, 2)
 
-/* = some scanners need inquiry data manipulated ====================== */
+/* some scanners need evpd inquiry data manipulated */
 #define set_IN_page_length(in,val)             in[0x04]=val
-/* ==================================================================== */
-
-static unsigned char test_unit_readyC[] =
-  { TEST_UNIT_READY, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk test_unit_readyB =
-  { test_unit_readyC, sizeof (test_unit_readyC) };
 
 /* ==================================================================== */
+/* page codes used by mode_sense and mode_select */
+#define MS_pc_unknown 0x32 /* unknown mode? */
+#define MS_pc_prepick 0x33 /* Prepick next adf page */
+#define MS_pc_sleep   0x34 /* Sleep mode */
+#define MS_pc_duplex  0x35 /* ADF duplex transfer mode */
+#define MS_pc_rand    0x36 /* All sorts of device controls */
+#define MS_pc_bg      0x37 /* Backing switch control */
+#define MS_pc_df      0x38 /* Double feed detection */
+#define MS_pc_dropout 0x39 /* Drop out color */
+#define MS_pc_buff    0x3a /* Scan buffer control */
+#define MS_pc_auto    0x3c /* Auto paper size detection */
+#define MS_pc_lamp    0x3d /* Lamp light timer set */
+#define MS_pc_jobsep  0x3e /* Detect job separation sheet */
+#define MS_pc_all     0x3f /* Only used with mode_sense */
 
+/* ==================================================================== */
+/* MODE_SELECT */
+#define MODE_SELECT_code        0x15
+#define MODE_SELECT_len         6
+
+#define set_MSEL_xferlen(sb, val) sb[0x04] = (unsigned char)val
+
+/* MS payloads are combined 4 byte header and 8 or 10 byte page 
+ * there is also 'descriptor block' & 'vendor-specific block'
+ * but fujitsu seems not to use these */
+/* 10 byte page only used by dropout? */
+#define MSEL_header_len           4
+#define MSEL_data_min_len         8
+#define MSEL_data_max_len         10
+
+#define set_MSEL_pc(sb, val) sb[0x00]=val
+#define set_MSEL_page_len(sb, val) sb[0x01]=val
+
+#define set_MSEL_sleep_mode(sb, val) sb[0x03]=val
+
+#define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
+
+#define set_MSEL_bg_enable(sb, val) setbitfield(sb + 2, 1, 7, val)
+#define set_MSEL_bg_front(sb, val) setbitfield(sb + 2, 1, 5, val)
+#define set_MSEL_bg_back(sb, val) setbitfield(sb + 2, 1, 4, val)
+#define set_MSEL_bg_fb(sb, val) setbitfield(sb + 2, 1, 3, val)
+
+#define set_MSEL_df_enable(sb, val) setbitfield(sb + 2, 1, 7, val)
+#define set_MSEL_df_continue(sb, val) setbitfield(sb + 2, 1, 6, val)
+#define set_MSEL_df_skew(sb, val) setbitfield(sb + 2, 1, 5, val)
+#define set_MSEL_df_thickness(sb, val) setbitfield(sb + 2, 1, 4, val)
+#define set_MSEL_df_length(sb, val) setbitfield(sb + 2, 1, 3, val)
+#define set_MSEL_df_diff(sb, val) setbitfield(sb + 2, 3, 0, val)
+#define MSEL_df_diff_DEFAULT 0 
+#define MSEL_df_diff_10MM 1
+#define MSEL_df_diff_15MM 2
+#define MSEL_df_diff_20MM 3
+
+#define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x02, 0x0f, 0, val)
+#define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x02, 0x0f, 4, val)
+#define MSEL_dropout_DEFAULT 0
+#define MSEL_dropout_GREEN   8
+#define MSEL_dropout_RED     9
+#define MSEL_dropout_BLUE    11
+#define MSEL_dropout_CUSTOM  12
+
+#define set_MSEL_buff_mode(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
+#define set_MSEL_buff_clear(sb, val) setbitfield(sb + 0x03, 0x03, 6, val)
+
+#define set_MSEL_prepick(sb, val) setbitfield(sb + 0x02, 0x03, 6, val)
+
+/*more automatic stuff with this one...*/
+#define set_MSEL_overscan(sb, val) setbitfield(sb + 0x05, 0x03, 6, val)
+
+/*buffer, prepick, overscan use these*/
+#define MSEL_DEFAULT 0
+#define MSEL_OFF 2
+#define MSEL_ON 3
+
+/* ==================================================================== */
+/* RESERVE_UNIT */
+#define RESERVE_UNIT_code       0x16
+#define RESERVE_UNIT_len        6
+
+/* ==================================================================== */
+/* RELEASE_UNIT */
+
+#define RELEASE_UNIT_code       0x17
+#define RELEASE_UNIT_len        6
+
+/* ==================================================================== */
+/* MODE_SENSE */
+#define MODE_SENSE_code         0x1a
+#define MODE_SENSE_len          6
+
+#define MODE_SENSE_data_len     0x14
+
+#define set_MSEN_DBD(b, val)    setbitfield(b, 0x01, 3, (val?1:0))
+#define set_MSEN_pc(sb, val)    setbitfield(sb + 0x02, 0x3f, 0, val)
+#define set_MSEN_xfer_length(sb, val) sb[0x04] = (unsigned char)val
+#define get_MSEN_MUD(b)		getnbyte(b+(0x04+((int)*(b+0x3)))+0x4,2)
+
+/* ==================================================================== */
+/* SCAN */
+#define SCAN_code               0x1b
+#define SCAN_len                6
+
+#define set_SC_xfer_length(sb, val) sb[0x04] = (unsigned char)val
+
+/* ==================================================================== */
+/* READ_DIAGNOSTIC */
+#define READ_DIAGNOSTIC_code    0x1c
+#define READ_DIAGNOSTIC_len     6
+
+#define set_RD_xferlen(in, len) putnbyte(in + 3, len, 2)
+
+/* for 'FIRST READ DATE \0YMD' */
+#define RD_frd_len                      10
+#define get_RD_date_status(in)          in[0]
+#define RD_date_stored			0
+#define RD_date_not_stored		0xff
+
+/* for 'GET FIRST DATE  ' */
+#define RD_gfd_len                      10
+#define get_RD_date_year(in)            in[1]
+#define get_RD_date_month(in)           in[2]
+#define get_RD_date_date(in)            in[3]
+
+/* for 'GET DEVICE ID   ' */
+#define RD_gdi_len                      10
+#define get_RD_id_serial(in)            getnbyte (in, 4)
+
+/* ==================================================================== */
+/* SEND_DIAGNOSTIC */
+#define SEND_DIAGNOSTIC_code    0x1d
+#define SEND_DIAGNOSTIC_len     6
+
+#define set_SD_slftst(in, val) setbitfield(in + 1, 1, 2, val)
+#define set_SD_xferlen(in, len) putnbyte(in + 3, len, 2)
+
+#define SD_frd_string                   "FIRST READ DATE \0YMD"
+#define SD_frd_len                      20
+#define set_SD_frd_year(in, b) 		putnbyte(in + 0x11, b, 1)
+#define set_SD_frd_month(in, b) 	putnbyte(in + 0x12, b, 1)
+#define set_SD_frd_date(in, b) 		putnbyte(in + 0x13, b, 1)
+
+#define SD_gfd_string                   "GET FIRST DATE  "
+#define SD_gfd_len                      16
+
+#define SD_gdi_string                   "GET DEVICE ID   "
+#define SD_gdi_len                      16
+
+/* ==================================================================== */
+/* SET_WINDOW */
 #define SET_WINDOW_code         0x24
 #define SET_WINDOW_len          10
 
@@ -364,22 +447,30 @@ static scsiblk test_unit_readyB =
 #define SW_desc_len		64
 
 /* ==================================================================== */
-
-static unsigned char object_positionC[] =
-  { OBJECT_POSITION, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* ADF, _____Count_____,  ________Reserved______, Ctl */
-static scsiblk object_positionB =
-  { object_positionC, sizeof (object_positionC) };
-
-#define set_OP_autofeed(b,val) setbitfield(b+0x01, 0x07, 0, val)
-#define OP_Discharge	0x00
-#define OP_Feed	0x01
+/* GET_WINDOW */
+#define GET_WINDOW_code         0x25
+#define GET_WINDOW_len          0
 
 /* ==================================================================== */
+/* READ */
+#define READ_code               0x28
+#define READ_len                10
 
-static unsigned char sendC[] =
-  {SEND, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-static scsiblk sendB = {sendC, sizeof (sendC)};
+#define set_R_datatype_code(sb, val) sb[0x02] = val
+#define R_datatype_imagedata		0x00
+#define R_datatype_pixelsize		0x80
+#define set_R_window_id(sb, val)       sb[0x05] = val
+#define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
+
+#define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
+#define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
+#define get_PSIZE_paper_w(in)            getnbyte(in + 0x08, 4)
+#define get_PSIZE_paper_l(in)            getnbyte(in + 0x0C, 4)
+
+/* ==================================================================== */
+/* SEND */
+#define SEND_code               0x2a
+#define SEND_len                10
 
 #define set_S_xfer_datatype(sb, val) sb[0x02] = (unsigned char)val
 /*#define S_datatype_imagedatai		0x00
@@ -403,17 +494,16 @@ static scsiblk sendB = {sendC, sizeof (sendC)};
 #define set_S_xfer_id(sb, val)    putnbyte(sb + 4, val, 2)
 #define set_S_xfer_length(sb, val)    putnbyte(sb + 6, val, 3)
 
-static unsigned char send_lutC[1034];
+/*lut*/
+#define S_lut_header_len   0x0a
 #define set_S_lut_order(sb, val)    putnbyte(sb + 2, val, 1)
 #define S_lut_order_single 0x10
 #define set_S_lut_ssize(sb, val)    putnbyte(sb + 4, val, 2)
 #define set_S_lut_dsize(sb, val)    putnbyte(sb + 6, val, 2)
-#define S_lut_data_offset 0x0a
+#define S_lut_data_min_len          256
+#define S_lut_data_max_len          1024
 
-/*new style cmd sending code*/
-#define SEND_code               0x2a
-#define SEND_len                10
-
+/*endorser*/
 #define S_e_data_min_len	18 /*minimum 18 bytes no string bytes*/
 #define S_e_data_max_len	98 /*maximum 18 bytes plus 80 string bytes*/
 
@@ -452,20 +542,29 @@ static unsigned char send_lutC[1034];
 #define set_S_endorser_string(sb,val,len) memcpy(sb+0x12,val,(size_t)len)
 
 /* ==================================================================== */
+/* OBJECT_POSITION */
+#define OBJECT_POSITION_code    0x31
+#define OBJECT_POSITION_len     10
 
-static unsigned char endorserC[] =
-  { ENDORSER, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk endorserB = { endorserC, sizeof (endorserC) };
+#define set_OP_autofeed(b,val) setbitfield(b+0x01, 0x07, 0, val)
+#define OP_Discharge	0x00
+#define OP_Feed	        0x01
 
-#define set_E_xfer_length(sb, val) putnbyte(sb + 0x7, val, 2)
+/* ==================================================================== */
+/* SET_SUBWINDOW */
+#define SET_SUBWINDOW_code      0xc0
+#define SET_SUBWINDOW_len       0
 
-static unsigned char endorser_desc4C[] = 
-  { 0x00, 0x00, 0x00, 0x00 };
-static scsiblk endorser_desc4B = {endorser_desc4C, sizeof(endorser_desc4C) };
+/* ==================================================================== */
+/* ENDORSER */
+#define ENDORSER_code           0xc1
+#define ENDORSER_len            10
 
-static unsigned char endorser_desc6C[] = 
-  { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk endorser_desc6B = {endorser_desc6C, sizeof(endorser_desc6C) };
+#define set_E_xferlen(sb, val) putnbyte(sb + 0x7, val, 2)
+
+/*endorser data*/
+#define ED_min_len               4
+#define ED_max_len               6
 
 #define set_ED_endorser_data_id(sb, val) sb[0] = val
 
@@ -488,163 +587,58 @@ static scsiblk endorser_desc6B = {endorser_desc6C, sizeof(endorser_desc6C) };
 #define set_ED_initial_count_24(sb, val) putnbyte(sb + 0x03, val, 3)
 
 /* ==================================================================== */
+/* GET_HW_STATUS*/
+#define GET_HW_STATUS_code      0xc2
+#define GET_HW_STATUS_len       10
 
-static unsigned char readC[] =
-  { READ, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-/* Type, rsvd, type qual, __xfer length__, Ctl */
-static scsiblk readB = { readC, sizeof (readC) };
+#define set_GHS_allocation_length(sb, len) putnbyte(sb + 0x07, len, 2)
 
-#define set_R_datatype_code(sb, val) sb[0x02] = val
-#define R_datatype_imagedata		0x00
-#define R_datatype_pixelsize		0x80
-#define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
-#define set_R_window_id(sb, val)       sb[0x05] = val
-#define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
-#define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
-#define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
-#define get_PSIZE_paper_w(in)            getnbyte(in + 0x08, 4)
-#define get_PSIZE_paper_l(in)            getnbyte(in + 0x0C, 4)
+#define GHS_data_len            12
 
-/* ==================================================================== */
+#define get_GHS_top(in)             getbitfield(in+0x02, 1, 7)
+#define get_GHS_A3(in)              getbitfield(in+0x02, 1, 3)
+#define get_GHS_B4(in)              getbitfield(in+0x02, 1, 2)
+#define get_GHS_A4(in)              getbitfield(in+0x02, 1, 1)
+#define get_GHS_B5(in)              getbitfield(in+0x02, 1, 0)
 
-/* page codes used by mode_sense and mode_select */
-#define MS_pc_unknown 0x32 /* unknown mode? */
-#define MS_pc_prepick 0x33 /* Prepick next adf page */
-#define MS_pc_sleep   0x34 /* Sleep mode */
-#define MS_pc_duplex  0x35 /* ADF duplex transfer mode */
-#define MS_pc_rand    0x36 /* All sorts of device controls */
-#define MS_pc_bg      0x37 /* Backing switch control */
-#define MS_pc_df      0x38 /* Double feed detection */
-#define MS_pc_dropout 0x39 /* Drop out color */
-#define MS_pc_buff    0x3a /* Scan buffer control */
-#define MS_pc_auto    0x3c /* Auto paper size detection */
-#define MS_pc_lamp    0x3d /* Lamp light timer set */
-#define MS_pc_jobsep  0x3e /* Detect job separation sheet */
-#define MS_pc_all     0x3f /* Only used with mode_sense */
+#define get_GHS_hopper(in)          !getbitfield(in+0x03, 1, 7)
+#define get_GHS_omr(in)             getbitfield(in+0x03, 1, 6)
+#define get_GHS_adf_open(in)        getbitfield(in+0x03, 1, 5)
 
-/* ==================================================================== */
+#define get_GHS_sleep(in)           getbitfield(in+0x04, 1, 7)
+#define get_GHS_send_sw(in)         getbitfield(in+0x04, 1, 2)
+#define get_GHS_manual_feed(in)     getbitfield(in+0x04, 1, 1)
+#define get_GHS_scan_sw(in)         getbitfield(in+0x04, 1, 0)
 
-static unsigned char mode_senseC[] =
-  { MODE_SENSE, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk mode_senseB = { mode_senseC, sizeof (mode_senseC) };
-#define set_MSEN_DBD(b, val)    setbitfield(b, 0x01, 3, (val?1:0))
-#define set_MSEN_pc(sb, val)    setbitfield(sb + 0x02, 0x3f, 0, val)
-#define set_MSEN_xfer_length(sb, val) sb[0x04] = (unsigned char)val
-#define get_MSEN_MUD(b)		getnbyte(b+(0x04+((int)*(b+0x3)))+0x4,2)
+#define get_GHS_function(in)        getbitfield(in+0x05, 0x0f, 0)
+
+#define get_GHS_ink_empty(in)       getbitfield(in+0x06, 1, 7)
+#define get_GHS_double_feed(in)     getbitfield(in+0x06, 1, 0)
+
+#define get_GHS_error_code(in)      in[0x07]
+
+#define get_GHS_skew_angle(in)      getnbyte(in+0x08, 2)
+
+#define get_GHS_ink_remain(in)      in[0x0a]
 
 /* ==================================================================== */
+/* SCANNER_CONTROL */
+#define SCANNER_CONTROL_code    0xf1
+#define SCANNER_CONTROL_len     10
 
-static unsigned char mode_selectC[] =
-  { MODE_SELECT, 0x10, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk mode_selectB = { mode_selectC, sizeof (mode_selectC) };
-#define set_MSEL_xfer_length(sb, val) sb[0x04] = (unsigned char)val
-
-/* following are combined 4 byte header and 8 or 10 byte page 
- * there is also 'descriptor block' & 'vendor-specific block'
- * but fujitsu seems not to use these */
-
-/* 8 byte page used by all pages except dropout? */
-static unsigned char mode_select_8byteC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_8byteB = {
-  mode_select_8byteC, sizeof (mode_select_8byteC)
-};
-
-/* 10 byte page only used by dropout? */
-static unsigned char mode_select_10byteC[] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
-static scsiblk mode_select_10byteB = {
-  mode_select_10byteC, sizeof (mode_select_10byteC)
-};
-
-#define set_MSEL_pc(sb, val) sb[0x04]=val
-
-#define set_MSEL_sleep_mode(sb, val) sb[0x06]=val
-
-#define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
-
-#define set_MSEL_bg_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
-#define set_MSEL_bg_front(sb, val) setbitfield(sb + 6, 1, 5, val)
-#define set_MSEL_bg_back(sb, val) setbitfield(sb + 6, 1, 4, val)
-#define set_MSEL_bg_fb(sb, val) setbitfield(sb + 6, 1, 3, val)
-
-#define set_MSEL_df_enable(sb, val) setbitfield(sb + 6, 1, 7, val)
-#define set_MSEL_df_continue(sb, val) setbitfield(sb + 6, 1, 6, val)
-#define set_MSEL_df_skew(sb, val) setbitfield(sb + 6, 1, 5, val)
-#define set_MSEL_df_thickness(sb, val) setbitfield(sb + 6, 1, 4, val)
-#define set_MSEL_df_length(sb, val) setbitfield(sb + 6, 1, 3, val)
-#define set_MSEL_df_diff(sb, val) setbitfield(sb + 6, 3, 0, val)
-#define MSEL_df_diff_DEFAULT 0 
-#define MSEL_df_diff_10MM 1
-#define MSEL_df_diff_15MM 2
-#define MSEL_df_diff_20MM 3
-
-#define set_MSEL_dropout_front(sb, val) setbitfield(sb + 0x06, 0x0f, 0, val)
-#define set_MSEL_dropout_back(sb, val) setbitfield(sb + 0x06, 0x0f, 4, val)
-#define MSEL_dropout_DEFAULT 0
-#define MSEL_dropout_GREEN   8
-#define MSEL_dropout_RED     9
-#define MSEL_dropout_BLUE    11
-#define MSEL_dropout_CUSTOM  12
-
-#define set_MSEL_buff_mode(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
-#define set_MSEL_buff_clear(sb, val) setbitfield(sb + 0x07, 0x03, 6, val)
-
-#define set_MSEL_prepick(sb, val) setbitfield(sb + 0x06, 0x03, 6, val)
-
-#define set_MSEL_overscan(sb, val) setbitfield(sb + 0x09, 0x03, 6, val)
-
-/*buffer, prepick, overscan use these*/
-#define MSEL_DEFAULT 0
-#define MSEL_OFF 2
-#define MSEL_ON 3
+#define set_SC_function(icb, val)              setbitfield(icb + 1, 0xf, 0, val)
+#define SC_function_adf                        0x00
+#define SC_function_fb                         0x01
+#define SC_function_fb_hs                      0x02
+#define SC_function_lamp_off                   0x03
+#define SC_function_cancel                     0x04
+#define SC_function_lamp_on                    0x05
+#define SC_function_lamp_normal                0x06
+#define SC_function_lamp_saving                0x07
+#define SC_function_panel                      0x08
 
 /* ==================================================================== */
-
-static unsigned char scanC[] = { SCAN, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk scanB = { scanC, sizeof (scanC) };
-
-#define set_SC_xfer_length(sb, val) sb[0x04] = (unsigned char)val
-
-/* ==================================================================== */
-
-static unsigned char hw_statusC[] =
-  { HW_STATUS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
-
-#define set_HW_allocation_length(sb, len) putnbyte(sb + 0x07, len, 2)
-
-#define get_HW_top(in)             getbitfield(in+0x02, 1, 7)
-#define get_HW_A3(in)              getbitfield(in+0x02, 1, 3)
-#define get_HW_B4(in)              getbitfield(in+0x02, 1, 2)
-#define get_HW_A4(in)              getbitfield(in+0x02, 1, 1)
-#define get_HW_B5(in)              getbitfield(in+0x02, 1, 0)
-
-#define get_HW_hopper(in)          !getbitfield(in+0x03, 1, 7)
-#define get_HW_omr(in)             getbitfield(in+0x03, 1, 6)
-#define get_HW_adf_open(in)        getbitfield(in+0x03, 1, 5)
-
-#define get_HW_sleep(in)           getbitfield(in+0x04, 1, 7)
-#define get_HW_send_sw(in)         getbitfield(in+0x04, 1, 2)
-#define get_HW_manual_feed(in)     getbitfield(in+0x04, 1, 1)
-#define get_HW_scan_sw(in)         getbitfield(in+0x04, 1, 0)
-
-#define get_HW_function(in)        getbitfield(in+0x05, 0x0f, 0)
-
-#define get_HW_ink_empty(in)       getbitfield(in+0x06, 1, 7)
-#define get_HW_double_feed(in)     getbitfield(in+0x06, 1, 0)
-
-#define get_HW_error_code(in)      in[0x07]
-
-#define get_HW_skew_angle(in)      getnbyte(in+0x08, 2)
-
-#define get_HW_ink_remain(in)      in[0x0a]
-
-/* ==================================================================== */
+/* window descriptor macros for SET_WINDOW and GET_WINDOW */
 
 #define set_WPDB_wdblen(sb, len) putnbyte(sb + 0x06, len, 2)
 
@@ -981,44 +975,6 @@ static scsiblk hw_statusB = { hw_statusC, sizeof (hw_statusC) };
 /*3e-3f reserved*/
 
 /*FIXME: more params here*/
-
-/* ==================================================================== */
-
-#define RS_return_size                    0x12
-
-static unsigned char request_senseC[] =
-{REQUEST_SENSE, 0x00, 0x00, 0x00, RS_return_size, 0x00};
-static scsiblk request_senseB = {request_senseC, sizeof (request_senseC)};
-
-/* defines for request sense return block */
-#define get_RS_information_valid(b)       getbitfield(b + 0x00, 1, 7)
-#define get_RS_error_code(b)              getbitfield(b + 0x00, 0x7f, 0)
-#define get_RS_filemark(b)                getbitfield(b + 0x02, 1, 7)
-#define get_RS_EOM(b)                     getbitfield(b + 0x02, 1, 6)
-#define get_RS_ILI(b)                     getbitfield(b + 0x02, 1, 5)
-#define get_RS_sense_key(b)               getbitfield(b + 0x02, 0x0f, 0)
-#define get_RS_information(b)             getnbyte(b+0x03, 4)	/* normally 0 */
-#define get_RS_additional_length(b)       b[0x07]	/* always 10 */
-#define get_RS_ASC(b)                     b[0x0c]
-#define get_RS_ASCQ(b)                    b[0x0d]
-#define get_RS_SKSV(b)                    getbitfield(b+0x0f,1,7) /* valid=0 */
-#define get_RS_SKSB(b)                    getnbyte(b+0x0f, 3)
-
-/* when RS is 0x05/0x26 bad bytes listed in sksb */
-#define get_RS_offending_byte(b)          getnbyte(b+0x10, 2)
-
-/* 3091 and 3092 use RS instead of ghs. RS must be 0x00/0x80 */
-/* in ascq */
-#define get_RS_adf_open(in)        getbitfield(in+0x0d, 1, 7)
-#define get_RS_send_sw(in)         getbitfield(in+0x0d, 1, 5)
-#define get_RS_scan_sw(in)         getbitfield(in+0x0d, 1, 4)
-#define get_RS_duplex_sw(in)       getbitfield(in+0x0d, 1, 2)
-#define get_RS_top(in)             getbitfield(in+0x0d, 1, 1)
-#define get_RS_hopper(in)          getbitfield(in+0x0d, 1, 0)
-
-/* in sksb */
-#define get_RS_function(in)        getbitfield(in+0x0f, 0x0f, 3)
-#define get_RS_density(in)         getbitfield(in+0x0f, 0x07, 0)
 
 /* ==================================================================== */
 

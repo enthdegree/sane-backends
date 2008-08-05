@@ -1,3 +1,7 @@
+2008-08-05 Julien Blache <jb@jblache.org>
+	* frontend/saned.c: initialize runas_{u,g}id to 0 instead of -1;
+	initialize ngroups to 0.
+
 2008-08-04 Julien Blache <jb@jblache.org>
 	* frontend/scanimage.c: fetch_options(), actually get option
 	descriptor 0 before attempting to get the value of option 0.

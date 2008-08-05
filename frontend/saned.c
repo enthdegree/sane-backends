@@ -2721,11 +2721,11 @@ run_standalone (int argc, char **argv)
   int i;
   int ret;
 
-  uid_t runas_uid = -1;
-  gid_t runas_gid = -1;
+  uid_t runas_uid = 0;
+  gid_t runas_gid = 0;
   struct passwd *pwent;
   gid_t *grplist;
-  int ngroups;
+  int ngroups = 0;
   FILE *pidfile;
 
   do_bindings (&nfds, &fds);

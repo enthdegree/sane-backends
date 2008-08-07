@@ -126,14 +126,15 @@
 :comment "small, current, integrated touchscreen and keyboard"
 
 :model "fi-6130"
-:interface "SCSI USB"
+:interface "USB"
 :status :good
 :usbid "0x04c5" "0x114f"
 :comment "medium, current"
 
 :model "fi-6230"
-:interface "SCSI USB"
-:status :untested
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x1150"
 :comment "medium, current"
 
 ;==================================================

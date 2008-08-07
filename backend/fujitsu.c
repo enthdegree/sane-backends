@@ -368,6 +368,8 @@
 	 - fi-5750C can't handle 10 bit LUT via USB
       v74 2008-08-02, MAN
 	 - replace global scsi blocks with local ones in each function
+      v75 2008-08-07, ReneR
+	 - added fi-6230 usb ID
 
    SANE FLOW DIAGRAM
 
@@ -428,7 +430,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 74 
+#define BUILD 75
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -709,6 +711,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114f'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x114f", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1150\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1150", attach_one_usb);
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);

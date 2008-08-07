@@ -1,3 +1,8 @@
+2008-08-07 Rene Rebe <rene@exactcode.de>
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
+	  doc/descriptions/fujitsu.desc: backend v75
+	- added fi-6230 ID, updated fi-6130, fi-6230 status
+
 2008-08-05 Julien Blache <jb@jblache.org>
 	* frontend/saned.c: initialize runas_{u,g}id to 0 instead of -1;
 	initialize ngroups to 0.

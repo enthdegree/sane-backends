@@ -139,13 +139,10 @@ static Rts8891_Session *first_handle = NULL;
 
 
 /* pointer to the first device attached to the backend
- * the same device may be opened sevaral time
- * entry are inseted here by attach_Rts8891 */
+ * the same device may be opened several time
+ * entry are inserted here by attach_rts8891 */
 static Rts8891_Device *first_device = NULL;
 static SANE_Int num_devices = 0;
-
-static SANE_Word modelnumber = -1;
-static SANE_Bool allowsharing = SANE_TRUE;
 
 /*
  * needed by sane_get_devices
@@ -207,10 +204,14 @@ max_string_size (const SANE_String_Const strings[])
   return max_size;
 }
 
+  /**> placeholders for decoded configuration values */
+static  Rts8891_Config rtscfg;
+
 /* ------------------------------------------------------------------------- */
+static SANE_Status probe_rts8891_devices(void);
 static SANE_Status config_attach_rts8891 (SANEI_Config * config,
 					  const char *devname);
-static SANE_Status attach_Rts8891 (const char *name);
+static SANE_Status attach_rts8891 (const char *name);
 static SANE_Status set_lamp_brightness (struct Rts8891_Device *dev,
 					int level);
 static SANE_Status init_options (struct Rts8891_Session *session);
@@ -295,17 +296,6 @@ write_rgb_data (char *name, unsigned char *image, SANE_Int width,
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  int i;
-
-  /**> configuration structure used during attach */
-  SANEI_Config config;
-
-  /**> list of configuration options */
-  SANE_Option_Descriptor *options[2];
-
-  /**> placeholders for option values */
-  void *values[2];
-
   SANE_Status status;
 
   authorize = authorize;	/* get rid of compiler warning */
@@ -320,55 +310,15 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
        V_MINOR, BUILD);
   DBG (DBG_proc, "sane_init: start\n");
 
-  sanei_usb_init ();
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
-  /* initialize configuration options */
-  i = 0;
-  options[i] =
-    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
-  options[i]->name = "modelnumber";
-  options[i]->desc = "user provided scanner's internal model number";
-  options[i]->type = SANE_TYPE_INT;
-  options[i]->unit = SANE_UNIT_NONE;
-  options[i]->size = sizeof (SANE_Word);
-  options[i]->cap = SANE_CAP_SOFT_SELECT;
-  options[i]->constraint_type = SANE_CONSTRAINT_RANGE;
-  options[i]->constraint.range = &model_range;
-  values[i] = &modelnumber;
-  i++;
-
-  options[i] =
-    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
-  options[i]->name = "allowsharing";
-  options[i]->desc = "allow sharing of the scanner by several frontends";
-  options[i]->type = SANE_TYPE_BOOL;
-  options[i]->unit = SANE_UNIT_NONE;
-  options[i]->size = sizeof (SANE_Bool);
-  options[i]->cap = SANE_CAP_SOFT_SELECT;
-  options[i]->constraint_type = SANE_CONSTRAINT_NONE;
-  values[i] = &allowsharing;
-  i++;
-
-  /* set configuration options structure */
-  config.descriptors = options;
-  config.values = values;
-  config.count = i;
-
-  /* generic configure and attach function */
-  status = sanei_configure_attach (RTS8891_CONFIG_FILE, &config,
-				   config_attach_rts8891);
-  /* free allocated options */
-  while (i > 0)
-    {
-      i--;
-      free (options[i]);
-    }
+  /* cold-plugging case : probe for allready plugged devices */
+  status = probe_rts8891_devices();
 
   DBG (DBG_proc, "sane_init: exit\n");
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 
@@ -404,6 +354,10 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   DBG (DBG_proc, "sane_get_devices: start: local_only = %s\n",
        local_only == SANE_TRUE ? "true" : "false");
 
+  /* hot-plugging case : probe for devices plugged since sane_init called */
+  probe_rts8891_devices();
+
+  /* reset devlist first if needed */
   if (devlist)
     {
       for (i = 0; i < num_devices; i++)
@@ -565,7 +519,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
   first_handle = session;
 
   /* release the interface to allow device sharing */
-  if (allowsharing == SANE_TRUE)
+  if (session->dev->conf.allowsharing == SANE_TRUE)
     {
       sanei_usb_release_interface (device->devnum, 0);
     }
@@ -1101,7 +1055,7 @@ sane_start (SANE_Handle handle)
     }
 
   /* claim the interface reserve device */
-  if (allowsharing == SANE_TRUE)
+  if (dev->conf.allowsharing == SANE_TRUE)
     {
       status = sanei_usb_claim_interface (dev->devnum, 0);
       if (status != SANE_STATUS_GOOD)
@@ -1174,7 +1128,7 @@ sane_start (SANE_Handle handle)
       status = find_origin (dev, &changed);
       if (status != SANE_STATUS_GOOD)
 	{
-	  if (allowsharing == SANE_TRUE)
+	  if (dev->conf.allowsharing == SANE_TRUE)
 	    {
 	      sanei_usb_release_interface (dev->devnum, 0);
 	    }
@@ -1213,7 +1167,7 @@ sane_start (SANE_Handle handle)
   status = dark_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1225,7 +1179,7 @@ sane_start (SANE_Handle handle)
   status = find_margin (dev);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1242,7 +1196,7 @@ sane_start (SANE_Handle handle)
   status = gain_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1254,7 +1208,7 @@ sane_start (SANE_Handle handle)
   status = offset_calibration (dev, light);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1290,7 +1244,7 @@ sane_start (SANE_Handle handle)
 			 || session->emulated_gray == SANE_TRUE, light);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1305,7 +1259,7 @@ sane_start (SANE_Handle handle)
       status = move_to_scan_area (session);
       if (status != SANE_STATUS_GOOD)
 	{
-	  if (allowsharing == SANE_TRUE)
+	  if (dev->conf.allowsharing == SANE_TRUE)
 	    {
 	      sanei_usb_release_interface (dev->devnum, 0);
 	    }
@@ -1319,7 +1273,7 @@ sane_start (SANE_Handle handle)
   status = write_scan_registers (session);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -1331,7 +1285,7 @@ sane_start (SANE_Handle handle)
   status = send_calibration_data (session);
   if (status != SANE_STATUS_GOOD)
     {
-      if (allowsharing == SANE_TRUE)
+      if (dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (dev->devnum, 0);
 	}
@@ -2098,7 +2052,7 @@ sane_cancel (SANE_Handle handle)
     }
 
   /* release the interface to allow device sharing */
-  if (allowsharing == SANE_TRUE)
+  if (dev->conf.allowsharing == SANE_TRUE)
     {
       sanei_usb_release_interface (dev->devnum, 0);
     }
@@ -2155,7 +2109,7 @@ sane_close (SANE_Handle handle)
     first_handle = session->next;
 
   /* switch off lamp and close usb */
-  if (allowsharing == SANE_TRUE)
+  if (session->dev->conf.allowsharing == SANE_TRUE)
     {
       sanei_usb_claim_interface (session->dev->devnum, 0);
     }
@@ -2241,6 +2195,73 @@ sane_exit (void)
   DBG (DBG_proc, "sane_exit: exit\n");
 }
 
+
+/** This function tries to find plugged relevant devices
+ */
+static SANE_Status probe_rts8891_devices(void)
+{
+  /**> configuration structure used during attach */
+  SANEI_Config config;
+  /**> list of configuration options */
+  SANE_Option_Descriptor *options[2];
+  /**> placeholders pointers for option values */
+  void *values[2];
+  int i;
+  SANE_Status status;
+  
+  DBG (DBG_proc, "probe_rts8891_devices: start\n");
+
+  /* sharing is on by default and no model option */
+  rtscfg.allowsharing = SANE_TRUE;
+  rtscfg.modelnumber = -1;
+
+  /* initialize configuration options */
+  options[CFG_MODEL_NUMBER] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_MODEL_NUMBER]->name = "modelnumber";
+  options[CFG_MODEL_NUMBER]->desc =
+    "user provided scanner's internal model number";
+  options[CFG_MODEL_NUMBER]->type = SANE_TYPE_INT;
+  options[CFG_MODEL_NUMBER]->unit = SANE_UNIT_NONE;
+  options[CFG_MODEL_NUMBER]->size = sizeof (SANE_Word);
+  options[CFG_MODEL_NUMBER]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_MODEL_NUMBER]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_MODEL_NUMBER]->constraint.range = &model_range;
+  values[CFG_MODEL_NUMBER] = &rtscfg.modelnumber;
+
+  options[CFG_ALLOW_SHARING] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_ALLOW_SHARING]->name = "allowsharing";
+  options[CFG_ALLOW_SHARING]->desc =
+    "allow sharing of the scanner by several frontends";
+  options[CFG_ALLOW_SHARING]->type = SANE_TYPE_BOOL;
+  options[CFG_ALLOW_SHARING]->unit = SANE_UNIT_NONE;
+  options[CFG_ALLOW_SHARING]->size = sizeof (SANE_Bool);
+  options[CFG_ALLOW_SHARING]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_ALLOW_SHARING]->constraint_type = SANE_CONSTRAINT_NONE;
+  values[CFG_ALLOW_SHARING] = &rtscfg.allowsharing;
+
+  /* set configuration options structure */
+  config.descriptors = options;
+  config.values = values;
+  config.count = NUM_CFG_OPTIONS;
+  
+  /* init usb use */
+  sanei_usb_init ();
+
+  /* generic configure and attach function */
+  status = sanei_configure_attach (RTS8891_CONFIG_FILE, &config,
+				   config_attach_rts8891);
+  /* free allocated options */
+  for (i = 0; i < NUM_CFG_OPTIONS; i++)
+    {
+      free (options[i]);
+    }
+  
+  DBG (DBG_proc, "probe_rts8891_devices: end\n");
+  return status;
+}
+
 /** This function is called by sanei_configure_attach to try
  * to attach the backend to a device specified by the configuration file.
  *
@@ -2256,30 +2277,44 @@ sane_exit (void)
 static SANE_Status
 config_attach_rts8891 (SANEI_Config * config, const char *devname)
 {
-  /* the placeholder is a global var which is used below */
+  /* currently, the config is a global variable so config is useless here */
+  /* the correct thing would be to have a generic sanei_attach_matching_devices
+   * using an attach function with a config parameter */
   config = config;
 
   /* the devname has been processed and is ready to be used 
    * directly. Since the backend is an USB only one, we can 
    * call sanei_usb_attach_matching_devices straight */
-  sanei_usb_attach_matching_devices (devname, attach_Rts8891);
+  sanei_usb_attach_matching_devices (devname, attach_rts8891);
 
   return SANE_STATUS_GOOD;
 }
 
-/*
+/**
  * The attach tries to open the given usb device and match it
- * with devices handled by the backend.
+ * with devices handled by the backend. The configuration parameter
+ * contains the values of the allready parsed configuration options
+ * from the conf file.
+ * @param config configuration structure filled with values read
+ * 	         from configuration file
+ * @param devicename name of the device to try to attach to, it is
+ * 	          the unprocessed line of the configuration file
+ *
+ * @return status SANE_STATUS_GOOD if no errors (even if no matching
+ * 	    devices found)
+ * 	   SANE_STATUS_NOM_MEM if there isn't enough memory to allocate the
+ * 	   			device structure
+ * 	   SANE_STATUS_UNSUPPORTED if the device if unknown by the backend
+ * 	   SANE_STATUS_INVAL in case of other error
  */
-
 static SANE_Status
-attach_Rts8891 (const char *devicename)
+attach_rts8891 (const char *devicename)
 {
   struct Rts8891_Device *device;
   SANE_Int dn, vendor, product;
   SANE_Status status;
 
-  DBG (DBG_proc, "attach_Rts8891(%s): start\n", devicename);
+  DBG (DBG_proc, "attach_rts8891(%s): start\n", devicename);
 
   /* search if we already have it attached */
   for (device = first_device; device; device = device->next)
@@ -2287,24 +2322,23 @@ attach_Rts8891 (const char *devicename)
       if (strcmp (device->file_name, devicename) == 0)
 	{
 	  DBG (DBG_warn,
-	       "attach_Rts8891: device already attached (is ok)!\n");
-	  DBG (DBG_proc, "attach_Rts8891: exit\n");
+	       "attach_rts8891: device already attached (is ok)!\n");
+	  DBG (DBG_proc, "attach_rts8891: exit\n");
 	  return SANE_STATUS_GOOD;
 	}
     }
-
 
   /* open usb device */
   status = sanei_usb_open (devicename, &dn);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (DBG_error, "attach_Rts8891: couldn't open device `%s': %s\n",
+      DBG (DBG_error, "attach_rts8891: couldn't open device `%s': %s\n",
 	   devicename, sane_strstatus (status));
       return status;
     }
   else
     {
-      DBG (DBG_info, "attach_Rts8891: device `%s' successfully opened\n",
+      DBG (DBG_info, "attach_rts8891: device `%s' successfully opened\n",
 	   devicename);
     }
 
@@ -2313,17 +2347,19 @@ attach_Rts8891 (const char *devicename)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "attach_Rts8891: couldn't get vendor and product ids of device `%s': %s\n",
+	   "attach_rts8891: couldn't get vendor and product ids of device `%s': %s\n",
 	   devicename, sane_strstatus (status));
       sanei_usb_close (dn);
-      DBG (DBG_proc, "attach_Rts8891: exit\n");
+      DBG (DBG_proc, "attach_rts8891: exit\n");
       return status;
     }
   sanei_usb_close (dn);
 
-  /* walk the list of devices to find matching entry */
-  if (modelnumber < 0)
+  /* get the index of the device in the device description table */
+  /* if the value is provided by configuration option, just use it */
+  if (rtscfg.modelnumber < 0)
     {
+  /* walk the list of devices to find matching entry */
       dn = 0;
       while ((vendor != rts8891_usb_device_list[dn].vendor_id
 	      || product != rts8891_usb_device_list[dn].product_id)
@@ -2333,15 +2369,16 @@ attach_Rts8891 (const char *devicename)
       if (rts8891_usb_device_list[dn].vendor_id == 0)
 	{
 	  DBG (DBG_info,
-	       "attach_Rts8891: unknown device `%s': 0x%04x:0x%04x\n",
+	       "attach_rts8891: unknown device `%s': 0x%04x:0x%04x\n",
 	       devicename, vendor, product);
-	  DBG (DBG_proc, "attach_Rts8891: exit\n");
+	  DBG (DBG_proc, "attach_rts8891: exit\n");
 	  return SANE_STATUS_UNSUPPORTED;
 	}
     }
   else
     {
-      dn = modelnumber;
+      /* user provided value */
+      dn = rtscfg.modelnumber;
     }
 
   /* allocate device struct */
@@ -2358,7 +2395,7 @@ attach_Rts8891 (const char *devicename)
   /* name of the device */
   device->file_name = strdup (devicename);
 
-  DBG (DBG_info, "attach_Rts8891: found %s %s %s at %s\n",
+  DBG (DBG_info, "attach_rts8891: found %s %s %s at %s\n",
        device->model->vendor,
        device->model->product, device->model->type, device->file_name);
 
@@ -2378,7 +2415,11 @@ attach_Rts8891 (const char *devicename)
   device->start_time.tv_sec = 0;
 #endif
 
-  DBG (DBG_proc, "attach_Rts8891: exit\n");
+  /* copy configuration settings to device */
+  device->conf.modelnumber=dn;
+  device->conf.allowsharing=rtscfg.allowsharing;
+
+  DBG (DBG_proc, "attach_rts8891: exit\n");
   return SANE_STATUS_GOOD;
 }
 
@@ -5426,7 +5467,7 @@ send_calibration_data (struct Rts8891_Session *session)
   SANE_Byte *calibration = NULL, format, val;
   struct Rts8891_Device *dev = session->dev;
   int i, idx;
-  unsigned int value;
+  unsigned int value,red_code,blue_code,green_code;
   FILE *calib = NULL;
   SANE_Word *gamma_r, *gamma_g, *gamma_b;
 
@@ -5510,6 +5551,11 @@ send_calibration_data (struct Rts8891_Session *session)
    * shading data calibration starts at 1542. There are 3 rows of 16 bits values
    * first row is green calibration
    */
+
+  /* to avoid problems with 0xaa values which must be escaped, we change them
+   * into 0xab values, which unnoticeable on scans */
+  for (i = 0; i < width; i++)
+    {
   /* average TARGET CODE 3431046 */
 /* #define RED_SHADING_TARGET_CODE   3000000
    #define GREEN_SHADING_TARGET_CODE 300000
@@ -5518,10 +5564,24 @@ send_calibration_data (struct Rts8891_Session *session)
 #define GREEN_SHADING_TARGET_CODE 2800000
 #define BLUE_SHADING_TARGET_CODE  2700000
 
-  /* to avoid problems with 0xaa values which must be escaped, we change them
-   * into 0xab values, which unnoticeable on scans */
-  for (i = 0; i < width; i++)
-    {
+      red_code=RED_SHADING_TARGET_CODE;
+      green_code=GREEN_SHADING_TARGET_CODE;
+      blue_code=BLUE_SHADING_TARGET_CODE;
+
+      /* target code debug, will be removed for the release */
+      if(getenv("RED_CODE")!=NULL)
+      {
+	      red_code=atoi(getenv("RED_CODE"));
+      }
+      if(getenv("GREEN_CODE")!=NULL)
+      {
+	      blue_code=atoi(getenv("GREEN_CODE"));
+      }
+      if(getenv("BLUE_CODE")!=NULL)
+      {
+	      green_code=atoi(getenv("BLUE_CODE"));
+      }
+
       /* correction coefficient is target code divided by average scanned value 
        * but it is put in a 16 bits number. Only 10 first bits are significants.
        */
@@ -5529,7 +5589,7 @@ send_calibration_data (struct Rts8891_Session *session)
       if (gamma_r[dev->shading_data[i * 3]] < 5)
 	value = 0x8000;
       else
-	value = RED_SHADING_TARGET_CODE / gamma_r[dev->shading_data[i * 3]];
+	value = red_code / gamma_r[dev->shading_data[i * 3]];
       val = (SANE_Byte) (value / 256);
       if (val == 0xaa)
 	val++;
@@ -5541,7 +5601,7 @@ send_calibration_data (struct Rts8891_Session *session)
 	value = 0x8000;
       else
 	value =
-	  GREEN_SHADING_TARGET_CODE / gamma_g[dev->shading_data[i * 3 + 1]];
+	  green_code / gamma_g[dev->shading_data[i * 3 + 1]];
       val = (SANE_Byte) (value / 256);
       if (val == 0xaa)
 	val++;
@@ -5554,7 +5614,7 @@ send_calibration_data (struct Rts8891_Session *session)
 	value = 0x8000;
       else
 	value =
-	  BLUE_SHADING_TARGET_CODE / gamma_b[dev->shading_data[i * 3 + 2]];
+	  blue_code / gamma_b[dev->shading_data[i * 3 + 2]];
       val = (SANE_Byte) (value / 256);
       if (val == 0xaa)
 	val++;
@@ -6415,7 +6475,7 @@ update_button_status (struct Rts8891_Session *session)
       lock = SANE_TRUE;
 
       /* claim the interface to reserve device */
-      if (allowsharing == SANE_TRUE)
+      if (session->dev->conf.allowsharing == SANE_TRUE)
 	{
 	  status = sanei_usb_claim_interface (session->dev->devnum, 0);
 	  if (status != SANE_STATUS_GOOD)
@@ -6433,7 +6493,7 @@ update_button_status (struct Rts8891_Session *session)
   /* release interface if needed */
   if (lock == SANE_TRUE)
     {
-      if (allowsharing == SANE_TRUE)
+      if (session->dev->conf.allowsharing == SANE_TRUE)
 	{
 	  sanei_usb_release_interface (session->dev->devnum, 0);
 	}
@@ -6460,7 +6520,7 @@ set_lamp_state (struct Rts8891_Session *session, int on)
   SANE_Byte reg;
 
   /* claim the interface reserve device */
-  if (allowsharing == SANE_TRUE)
+  if (session->dev->conf.allowsharing == SANE_TRUE)
     {
       status = sanei_usb_claim_interface (session->dev->devnum, 0);
       if (status != SANE_STATUS_GOOD)
@@ -6488,7 +6548,7 @@ set_lamp_state (struct Rts8891_Session *session, int on)
   status = sanei_rts88xx_write_reg (session->dev->devnum, LAMP_REG, &reg);
 
   /* release interface and return status from lamp setting */
-  if (allowsharing == SANE_TRUE)
+  if (session->dev->conf.allowsharing == SANE_TRUE)
     {
       sanei_usb_release_interface (session->dev->devnum, 0);
     }

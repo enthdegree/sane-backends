@@ -126,6 +126,22 @@ typedef struct Rts8891_Model
 } Rts8891_Model;
 
 
+/**
+ * device specific configuration structure to hold option values */
+typedef struct Rts8891_Config
+{
+  /**< index number in device table to override detection */
+  SANE_Word modelnumber;
+
+  /**< if true, use release/acquire to allow the same device
+   * to be used by several frontends */
+  SANE_Bool allowsharing;
+} Rts8891_Config;
+
+
+/**
+ * device descriptor
+ */
 struct Rts8891_Device
 {
   /**< Next device in linked list */
@@ -226,6 +242,11 @@ struct Rts8891_Device
    */
   struct timeval start_time;
 #endif
+
+  /**
+   * device configuration options
+   */
+  Rts8891_Config conf;
 };
 
 /*

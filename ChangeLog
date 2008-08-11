@@ -1,3 +1,7 @@
+2008-08-11 Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891.h backend/rts8891_low.h:
+	improve configuration framework use.
+
 2008-08-07 Rene Rebe <rene@exactcode.de>
 	* backend/fujitsu.c, backend/fujitsu.conf.in,
 	  doc/descriptions/fujitsu.desc: backend v75

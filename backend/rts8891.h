@@ -107,9 +107,20 @@ enum Rts8891_Option
   NUM_OPTIONS
 };
 
+/**
+ * enumeration of configuration options
+ */
+enum Umax_PP_Configure_Option
+{
+  CFG_MODEL_NUMBER = 0,		/* first option number must be zero */
+  CFG_ALLOW_SHARING,
+  NUM_CFG_OPTIONS		/* MUST be last */
+};
+
 /** Scanner object. This struct holds informations usefull for
  * the functions defined in SANE's standard. Informations closer 
- * to the hardware are in the Rts8891_Device structure.
+ * to the hardware are in the Rts8891_Device structure. There is
+ * as many session structure than frontends using the scanner.
  */
 typedef struct Rts8891_Session
 {

@@ -3339,10 +3339,10 @@ initialize_device (struct Rts8891_Device *dev)
 
   /* read scanner present register */
   sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &control);
-  if (control != 0x00)
+  if (control != 0x00 && control != 0x01)
     {
       DBG (DBG_warn,
-	   "initialize_device: expected LINK_REG=0x00, got 0x%02x\n",
+	   "initialize_device: unexpected LINK_REG=0x%02x\n",
 	   control);
     }
 
@@ -3467,7 +3467,7 @@ init_device (struct Rts8891_Device *dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte control, reg;
-  SANE_Int i, page;
+  SANE_Int i, page, id;
   SANE_Byte buffer[2072];
   char message[256 * 6];
 
@@ -3560,13 +3560,13 @@ init_device (struct Rts8891_Device *dev)
        dev->regs[0x20], dev->regs[0x21], dev->regs[0x22]);
 
   /* read mainboard ID/scanner present register */
-  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &control);
-  DBG (DBG_io, "init_device: link=0x%02x\n", control);
+  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &id);
+  DBG (DBG_io, "init_device: link=0x%02x\n", id);
 
-  /* only known ID is currently 0x00 */
-  if (control != 0x00)
+  /* only known ID is currently 0x00 or 0x01 */
+  if (id != 0x00 && id!=0x01)
     {
-      DBG (DBG_warn, "init_device: expected id=0x00, got 0x%02x\n", control);
+      DBG (DBG_warn, "init_device: expected id=0x00 or 0x01, got 0x%02x\n", id);
     }
 
   /* write 0x00 twice to control */
@@ -3851,10 +3851,10 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_read_reg (dev->devnum, LAMP_REG, &control);
   sanei_rts88xx_write_control (dev->devnum, 0x00);
   sanei_rts88xx_write_control (dev->devnum, 0x00);
-  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &control);
-  if (control != 0x00)
+  sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &id);
+  if (id != 0x00 && id !=0x01)
     {
-      DBG (DBG_warn, "init_device: expected id=0x00, got 0x%02x\n", control);
+      DBG (DBG_warn, "init_device: got unexpected id 0x%02x\n", id);
     }
 
 
@@ -3906,11 +3906,11 @@ init_device (struct Rts8891_Device *dev)
   /* check the data returned */
   for (i = 0; i < 2072; i++)
     {
-      if (buffer[i] != 0)
+      if (buffer[i] != id)
 	{
-	  DBG (DBG_error, "init_device: memory at %d is not 0x00 (0x%02x)\n",
-	       i, buffer[i]);
-	  return SANE_STATUS_IO_ERROR;
+	  DBG (DBG_error, "init_device: memory at %d is not 0x%02d (0x%02x)\n",
+	       i, id, buffer[i]);
+	  /* XXX STEF XXX return SANE_STATUS_IO_ERROR; */
 	}
     }
   DBG (DBG_info, "init_device: memory set #1 passed\n");
@@ -3932,7 +3932,7 @@ init_device (struct Rts8891_Device *dev)
 	  DBG (DBG_error,
 	       "init_device: memory at %d is not 0x%02x (0x%02x)\n", i,
 	       (i + 0x36) % 97, buffer[i]);
-	  return SANE_STATUS_IO_ERROR;
+	  /* XXX STEF XXX return SANE_STATUS_IO_ERROR; */
 	}
     }
   for (i = 993; i < 2072; i++)
@@ -3942,7 +3942,7 @@ init_device (struct Rts8891_Device *dev)
 	  DBG (DBG_error,
 	       "init_device: memory at %d is invalid 0x%02x, instead of 0x%02x\n",
 	       i, buffer[i], i % 97);
-	  return SANE_STATUS_IO_ERROR;
+	  /* XXX STEF XXX return SANE_STATUS_IO_ERROR; */
 	}
     }
   DBG (DBG_info, "init_device: memory set #2 passed\n");
@@ -4223,7 +4223,6 @@ detect_device (struct Rts8891_Device *dev)
     {
       DBG (DBG_warn, "detect_device: expected LINK_REG=0x00, got 0x%02x\n",
 	   control);
-      /* TODO : fail here ? */
     }
 
   /* write 0x00 twice to control:  cancel/stop ? */

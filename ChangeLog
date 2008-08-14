@@ -1,3 +1,6 @@
+2008-08-14  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts88xx_lib.c: fix for hp4400 init
+
 2008-08-13  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v76
 	- add independent maximum area values for flatbed

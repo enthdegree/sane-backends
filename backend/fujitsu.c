@@ -370,6 +370,9 @@
 	 - replace global scsi blocks with local ones in each function
       v75 2008-08-07, ReneR
 	 - added fi-6230 usb ID
+      v76 2008-08-13, MAN
+	 - add independent maximum area values for flatbed
+	 - override said values for fi-4220C, fi-4220C2 and fi-5220C
 
    SANE FLOW DIAGRAM
 
@@ -430,7 +433,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 75
+#define BUILD 76
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1223,10 +1226,12 @@ init_vpd (struct fujitsu *s)
       /* maximum window width and length are reported in basic units.*/
       s->max_x_basic = get_IN_window_width(in);
       s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
+      s->max_x_fb = s->max_x;
       DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
 
       s->max_y_basic = get_IN_window_length(in);
       s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
+      s->max_y_fb = s->max_y;
       DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
 
       /* known modes */
@@ -1818,6 +1823,13 @@ init_model (struct fujitsu *s)
     /* missing from vpd */
     s->os_x_basic = 118;
     s->os_y_basic = 118;
+    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
+  }
+
+  else if (strstr (s->model_name, "fi-4220C")){
+
+    /* missing from vpd */
+    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
   }
 
   else if (strstr (s->model_name,"fi-5110C")){
@@ -1831,6 +1843,13 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->cropping_mode = CROP_ABSOLUTE;
+  }
+
+  else if (strstr (s->model_name,"fi-5220C")){
+
+    /* missing from vpd */
+    s->max_x_fb = 0x1506 * 1200 / s->basic_x_res;
+    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
   }
 
   else if (strstr (s->model_name,"fi-5530")
@@ -7804,7 +7823,7 @@ get_page_width(struct fujitsu *s)
 
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){
-      return s->max_x;
+      return s->max_x_fb;
   }
 
   /* current paper size for adf not overscan */
@@ -7833,7 +7852,7 @@ get_page_height(struct fujitsu *s)
 
   /* scanner max for fb */
   if(s->source == SOURCE_FLATBED){
-      return s->max_y;
+      return s->max_y_fb;
   }
 
   /* current paper size for adf not overscan */

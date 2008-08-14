@@ -301,6 +301,8 @@ struct fujitsu
   int max_y;
   int min_x;
   int min_y;
+  int max_x_fb;
+  int max_y_fb;
 
   int has_back;         /* not all duplex scanners can do adf back side only */
   int color_interlace;  /* different models interlace colors differently     */

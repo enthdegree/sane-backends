@@ -1,3 +1,8 @@
+2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891_devices.c backend/rts8891_low.c
+	  backend/rts88xx_lib.c: add sensor type field and use it in geometry
+	  detection.
+
 2008-08-14  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts88xx_lib.c: fix for hp4400 init
 

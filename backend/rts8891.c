@@ -205,10 +205,10 @@ max_string_size (const SANE_String_Const strings[])
 }
 
   /**> placeholders for decoded configuration values */
-static  Rts8891_Config rtscfg;
+static Rts8891_Config rtscfg;
 
 /* ------------------------------------------------------------------------- */
-static SANE_Status probe_rts8891_devices(void);
+static SANE_Status probe_rts8891_devices (void);
 static SANE_Status config_attach_rts8891 (SANEI_Config * config,
 					  const char *devname);
 static SANE_Status attach_rts8891 (const char *name);
@@ -315,7 +315,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
 
   /* cold-plugging case : probe for allready plugged devices */
-  status = probe_rts8891_devices();
+  status = probe_rts8891_devices ();
 
   DBG (DBG_proc, "sane_init: exit\n");
   return status;
@@ -355,7 +355,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
        local_only == SANE_TRUE ? "true" : "false");
 
   /* hot-plugging case : probe for devices plugged since sane_init called */
-  probe_rts8891_devices();
+  probe_rts8891_devices ();
 
   /* reset devlist first if needed */
   if (devlist)
@@ -1119,6 +1119,8 @@ sane_start (SANE_Handle handle)
   dev->regs[LAMP_BRIGHT_REG] = 0xA7;
   sanei_rts88xx_write_reg (dev->devnum, LAMP_BRIGHT_REG,
 			   dev->regs + LAMP_BRIGHT_REG);
+
+  DBG (DBG_info, "sane_start: sensor type is %d\n", dev->sensor);
 
   /* step 1: locate scan area by doing a scan, then goto calibration area */
   /* we also detect if the sensor type is inadequate and then change it   */
@@ -2198,7 +2200,8 @@ sane_exit (void)
 
 /** This function tries to find plugged relevant devices
  */
-static SANE_Status probe_rts8891_devices(void)
+static SANE_Status
+probe_rts8891_devices (void)
 {
   /**> configuration structure used during attach */
   SANEI_Config config;
@@ -2208,7 +2211,7 @@ static SANE_Status probe_rts8891_devices(void)
   void *values[2];
   int i;
   SANE_Status status;
-  
+
   DBG (DBG_proc, "probe_rts8891_devices: start\n");
 
   /* sharing is on by default and no model option */
@@ -2245,7 +2248,7 @@ static SANE_Status probe_rts8891_devices(void)
   config.descriptors = options;
   config.values = values;
   config.count = NUM_CFG_OPTIONS;
-  
+
   /* init usb use */
   sanei_usb_init ();
 
@@ -2257,7 +2260,7 @@ static SANE_Status probe_rts8891_devices(void)
     {
       free (options[i]);
     }
-  
+
   DBG (DBG_proc, "probe_rts8891_devices: end\n");
   return status;
 }
@@ -2359,7 +2362,7 @@ attach_rts8891 (const char *devicename)
   /* if the value is provided by configuration option, just use it */
   if (rtscfg.modelnumber < 0)
     {
-  /* walk the list of devices to find matching entry */
+      /* walk the list of devices to find matching entry */
       dn = 0;
       while ((vendor != rts8891_usb_device_list[dn].vendor_id
 	      || product != rts8891_usb_device_list[dn].product_id)
@@ -2416,8 +2419,8 @@ attach_rts8891 (const char *devicename)
 #endif
 
   /* copy configuration settings to device */
-  device->conf.modelnumber=dn;
-  device->conf.allowsharing=rtscfg.allowsharing;
+  device->conf.modelnumber = dn;
+  device->conf.allowsharing = rtscfg.allowsharing;
 
   DBG (DBG_proc, "attach_rts8891: exit\n");
   return SANE_STATUS_GOOD;
@@ -2814,8 +2817,16 @@ set_lamp_brightness (struct Rts8891_Device *dev, int level)
   sanei_rts88xx_get_status (dev->devnum, dev->regs);
   DBG (DBG_io, "set_lamp_brightness: status=0x%02x 0x%02x\n", dev->regs[0x10],
        dev->regs[0x11]);
-  dev->regs[0x10] = 0x28;
-  dev->regs[0x11] = 0x3f;
+  if (dev->sensor != SENSOR_TYPE_4400)
+    {
+      dev->regs[0x10] = 0x28;
+      dev->regs[0x11] = 0x3f;
+    }
+  else
+    {
+      dev->regs[0x10] = 0x10;
+      dev->regs[0x11] = 0x2f;
+    }
   reg = dev->regs[LAMP_REG];
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, &reg);
   status = sanei_rts88xx_read_reg (dev->devnum, CONTROL_REG, &reg);
@@ -2849,10 +2860,18 @@ init_lamp (struct Rts8891_Device *dev)
   sanei_rts88xx_write_regs (dev->devnum, 0x14, dev->regs + 0x14, 2);
   sanei_rts88xx_write_control (dev->devnum, 0x00);
   sanei_rts88xx_write_control (dev->devnum, 0x00);
-  sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x28, 0x3f);
+  if (dev->sensor != SENSOR_TYPE_4400)
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x28, 0x3f);
+      dev->regs[0x11] = 0x3f;
+    }
+  else
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x10, 0x22);
+      dev->regs[0x11] = 0x22;
+    }
   reg = 0x8d;
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, &reg);
-  dev->regs[0x11] = 0x3f;
   dev->regs[LAMP_REG] = 0xa2;
   dev->regs[LAMP_BRIGHT_REG] = 0xa0;
   rts8891_write_all (dev->devnum, dev->regs, dev->reg_count);
@@ -2969,7 +2988,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   dev->regs[0xe8] = 0x00;
   dev->regs[0xe9] = 0x00;
 
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  if (dev->sensor != SENSOR_TYPE_BARE)
     {
       dev->regs[0xc3] = 0x00;
       dev->regs[0xc4] = 0xf0;
@@ -2979,6 +2998,19 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
       dev->regs[0xca] = 0xf1;
       dev->regs[0xcb] = 0xff;
       dev->regs[0xd7] = 0x10;
+    }
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      /* 4400 values / 'XPA' values */
+      dev->regs[0x13] = 0x39;	/* 0x20 */
+      dev->regs[0x14] = 0xf0;	/* 0xf8 */
+      dev->regs[0x15] = 0x29;	/* 0x28 */
+      dev->regs[0x16] = 0x0f;	/* 0x07 */
+      dev->regs[0x17] = 0x10;	/* 0x00 */
+
+      dev->regs[0x23] = 0x00;	/* 0xff */
+
+      dev->regs[0x39] = 0x00;	/* 0x02 */
     }
 
   /* allocate memory for the data */
@@ -3000,7 +3032,14 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   /* gray level scan */
   dev->regs[LAMP_REG] = 0xad;
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, dev->regs + LAMP_REG);
-  sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, 0x3b);
+  if (dev->sensor != SENSOR_TYPE_4400)
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, 0x3b);
+    }
+  else
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x10, 0x22);
+    }
 
   status =
     rts8891_simple_scan (dev->devnum, dev->regs, dev->reg_count, 0x03,
@@ -3316,9 +3355,9 @@ initialize_device (struct Rts8891_Device *dev)
   DBG (DBG_io, "initialize_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
   /* sensor type the one for 4470c sold with XPA is slightly different 
-   * than those sold bare, we allways start with xpa type sensor, and
-   * change it later if we detect black scans */
-  dev->sensor = SENSOR_TYPE_XPA;
+   * than those sold bare, for this modelwe allways start with xpa type sensor,
+   * and change it later if we detect black scans in find_origin() */
+  dev->sensor = device->model->sensor;
   DBG (DBG_info, "initialize_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
 
   /* detects if warming up is needed */
@@ -3342,8 +3381,7 @@ initialize_device (struct Rts8891_Device *dev)
   if (control != 0x00 && control != 0x01)
     {
       DBG (DBG_warn,
-	   "initialize_device: unexpected LINK_REG=0x%02x\n",
-	   control);
+	   "initialize_device: unexpected LINK_REG=0x%02x\n", control);
     }
 
   /* head parking if needed */
@@ -3466,8 +3504,8 @@ static SANE_Status
 init_device (struct Rts8891_Device *dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Byte control, reg;
-  SANE_Int i, page, id;
+  SANE_Byte control, reg, id;
+  SANE_Int i, page;
   SANE_Byte buffer[2072];
   char message[256 * 6];
 
@@ -3537,9 +3575,8 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_get_lamp_status (dev->devnum, dev->regs);
   DBG (DBG_io, "init_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
-  /* sensor type the one for 4470c sold with XPA is slightly different 
-   * than those sold bare */
-  dev->sensor = SENSOR_TYPE_XPA;
+  /* initalize sensor with default from model */
+  dev->sensor = dev->model->sensor;
   DBG (DBG_info, "init_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
 
   /* reset lamp */
@@ -3564,9 +3601,10 @@ init_device (struct Rts8891_Device *dev)
   DBG (DBG_io, "init_device: link=0x%02x\n", id);
 
   /* only known ID is currently 0x00 or 0x01 */
-  if (id != 0x00 && id!=0x01)
+  if (id != 0x00 && id != 0x01)
     {
-      DBG (DBG_warn, "init_device: expected id=0x00 or 0x01, got 0x%02x\n", id);
+      DBG (DBG_warn, "init_device: expected id=0x00 or 0x01, got 0x%02x\n",
+	   id);
     }
 
   /* write 0x00 twice to control */
@@ -3852,7 +3890,7 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_write_control (dev->devnum, 0x00);
   sanei_rts88xx_write_control (dev->devnum, 0x00);
   sanei_rts88xx_read_reg (dev->devnum, LINK_REG, &id);
-  if (id != 0x00 && id !=0x01)
+  if (id != 0x00 && id != 0x01)
     {
       DBG (DBG_warn, "init_device: got unexpected id 0x%02x\n", id);
     }
@@ -3908,8 +3946,9 @@ init_device (struct Rts8891_Device *dev)
     {
       if (buffer[i] != id)
 	{
-	  DBG (DBG_error, "init_device: memory at %d is not 0x%02d (0x%02x)\n",
-	       i, id, buffer[i]);
+	  DBG (DBG_error,
+	       "init_device: memory at %d is not 0x%02d (0x%02x)\n", i, id,
+	       buffer[i]);
 	  /* XXX STEF XXX return SANE_STATUS_IO_ERROR; */
 	}
     }
@@ -5466,7 +5505,7 @@ send_calibration_data (struct Rts8891_Session *session)
   SANE_Byte *calibration = NULL, format, val;
   struct Rts8891_Device *dev = session->dev;
   int i, idx;
-  unsigned int value,red_code,blue_code,green_code;
+  unsigned int value, red_code, blue_code, green_code;
   FILE *calib = NULL;
   SANE_Word *gamma_r, *gamma_g, *gamma_b;
 
@@ -5555,7 +5594,7 @@ send_calibration_data (struct Rts8891_Session *session)
    * into 0xab values, which unnoticeable on scans */
   for (i = 0; i < width; i++)
     {
-  /* average TARGET CODE 3431046 */
+      /* average TARGET CODE 3431046 */
 /* #define RED_SHADING_TARGET_CODE   3000000
    #define GREEN_SHADING_TARGET_CODE 300000
    #define BLUE_SHADING_TARGET_CODE  2800000*/
@@ -5563,23 +5602,23 @@ send_calibration_data (struct Rts8891_Session *session)
 #define GREEN_SHADING_TARGET_CODE 2800000
 #define BLUE_SHADING_TARGET_CODE  2700000
 
-      red_code=RED_SHADING_TARGET_CODE;
-      green_code=GREEN_SHADING_TARGET_CODE;
-      blue_code=BLUE_SHADING_TARGET_CODE;
+      red_code = RED_SHADING_TARGET_CODE;
+      green_code = GREEN_SHADING_TARGET_CODE;
+      blue_code = BLUE_SHADING_TARGET_CODE;
 
       /* target code debug, will be removed for the release */
-      if(getenv("RED_CODE")!=NULL)
-      {
-	      red_code=atoi(getenv("RED_CODE"));
-      }
-      if(getenv("GREEN_CODE")!=NULL)
-      {
-	      blue_code=atoi(getenv("GREEN_CODE"));
-      }
-      if(getenv("BLUE_CODE")!=NULL)
-      {
-	      green_code=atoi(getenv("BLUE_CODE"));
-      }
+      if (getenv ("RED_CODE") != NULL)
+	{
+	  red_code = atoi (getenv ("RED_CODE"));
+	}
+      if (getenv ("GREEN_CODE") != NULL)
+	{
+	  blue_code = atoi (getenv ("GREEN_CODE"));
+	}
+      if (getenv ("BLUE_CODE") != NULL)
+	{
+	  green_code = atoi (getenv ("BLUE_CODE"));
+	}
 
       /* correction coefficient is target code divided by average scanned value 
        * but it is put in a 16 bits number. Only 10 first bits are significants.
@@ -5599,8 +5638,7 @@ send_calibration_data (struct Rts8891_Session *session)
       if (gamma_r[dev->shading_data[i * 3 + 1]] < 5)
 	value = 0x8000;
       else
-	value =
-	  green_code / gamma_g[dev->shading_data[i * 3 + 1]];
+	value = green_code / gamma_g[dev->shading_data[i * 3 + 1]];
       val = (SANE_Byte) (value / 256);
       if (val == 0xaa)
 	val++;
@@ -5612,8 +5650,7 @@ send_calibration_data (struct Rts8891_Session *session)
       if (gamma_r[dev->shading_data[i * 3 + 2]] < 5)
 	value = 0x8000;
       else
-	value =
-	  blue_code / gamma_b[dev->shading_data[i * 3 + 2]];
+	value = blue_code / gamma_b[dev->shading_data[i * 3 + 2]];
       val = (SANE_Byte) (value / 256);
       if (val == 0xaa)
 	val++;

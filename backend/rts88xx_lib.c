@@ -388,6 +388,9 @@ sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs)
 	   "sanei_rts88xx_reset_lamp: expected reg[0xda]=0xa7, got 0x%02x\n",
 	   reg);
     }
+  
+  /* store read value in shadow register */
+  regs[0xda] = reg;
 
   return status;
 }

@@ -73,6 +73,7 @@
 
 #define SENSOR_TYPE_BARE	0	/* sensor for hp4470 sold bare     */
 #define SENSOR_TYPE_XPA		1	/* sensor for hp4470 sold with XPA */
+#define SENSOR_TYPE_4400	2	/* sensor for hp4400 */
 
 /* Forward typedefs */
 typedef struct Rts8891_Device Rts8891_Device;
@@ -116,6 +117,9 @@ typedef struct Rts8891_Model
   SANE_Int ld_shift_r;		/* red */
   SANE_Int ld_shift_g;		/* green */
   SANE_Int ld_shift_b;		/* blue */
+  
+  /* default sensor type */
+  SANE_Int sensor;
 
   /* default gamma table */
   SANE_Word gamma[256];

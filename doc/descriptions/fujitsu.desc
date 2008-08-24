@@ -26,12 +26,12 @@
 :model "M3091DC"
 :interface "SCSI"
 :url "http://www.remote.org/frederik/projects/software/sane/" 
-:status :good
+:status :complete
 :comment "small, old, discontinued"
 
 :model "M3092DC"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "small, old, discontinued"
 
 ;==================================================
@@ -51,13 +51,13 @@
 :model "fi-4220C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1042"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, usb 1.1"
 
 :model "fi-4220C2"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10af"
-:status :good
+:status :complete
 :comment "small, recent, discontinued, usb 2.0"
 
 :model "fi-5110EOX"
@@ -97,7 +97,7 @@
 
 :model "fi-5220C"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x10e1"
 :comment "small, recent, discontinued"
 
@@ -127,15 +127,15 @@
 
 :model "fi-6130"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x114f"
-:comment "medium, current"
+:comment "small, current"
 
 :model "fi-6230"
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x1150"
-:comment "medium, current"
+:comment "small, current, might need flatbed max size override"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM
@@ -151,7 +151,7 @@
 
 :model "M3093DG"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, old, discontinued"
 
 :model "M3093EX"
@@ -161,7 +161,7 @@
 
 :model "M3093GX"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, old, discontinued"
 
 :model "M3096EX"
@@ -171,7 +171,7 @@
 
 :model "M3096GX"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, old, discontinued"
 
 :model "M3097E+"
@@ -181,7 +181,7 @@
 
 :model "M3097G+"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, old, discontinued"
 
 :model "M3097DE"
@@ -191,31 +191,31 @@
 
 :model "M3097DG"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, old, discontinued"
 
 ;==================================================
 ; DISCONTINUED NEWER MODELS, MEDIUM
 :model "fi-4530C"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :comment "medium, recent, discontinued"
 
 :model "fi-4640S"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, recent, discontinued"
 
 :model "fi-4750C"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "medium, recent, discontinued"
 
 ;==================================================
 ; CURRENT MODELS, MEDIUM
 :model "fi-4340C"
 :interface "SCSI USB"
-:status :good
+:status :complete
 :comment "medium, current"
 
 :model "fi-5530C"
@@ -238,8 +238,8 @@
 
 :model "fi-6240"
 :interface "SCSI USB"
-:status :untested
-:comment "medium, current"
+:status :good
+:comment "medium, current, might need flatbed max size override"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, BIG
@@ -250,7 +250,7 @@
 
 :model "M3099G"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, old, discontinued"
 
 :model "M3099EH"
@@ -260,7 +260,7 @@
 
 :model "M3099GH"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, old, discontinued"
 
 :model "M3099EX"
@@ -270,24 +270,24 @@
 
 :model "M3099GX"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, old, discontinued"
 
 :model "M4097D"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, old, discontinued"
 
 :model "M4099D"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, old, discontinued"
 
 ;==================================================
 ; DISCONTINUED NEWER MODELS, BIG
 :model "fi-4750L"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, recent, discontinued"
 
 :model "fi-4990C"
@@ -297,14 +297,14 @@
 
 :model "fi-4860C"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, recent, discontinued"
 
 ;==================================================
 ; CURRENT MODELS, BIG
 :model "fi-4860C2"
 :interface "SCSI"
-:status :good
+:status :complete
 :comment "big, current"
 
 :model "fi-5650C"
@@ -317,20 +317,20 @@
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1095"
 :status :good
-:comment "big, current"
+:comment "big, current, might need flatbed max area override"
 
 :model "fi-5900C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10e7"
 :status :good
-:comment "big, current"
+:comment "big, current, possibly some multi-feed options unsupported"
 
 :model "fi-6670C"
 :interface "SCSI USB"
 :status :untested
-:comment "big, current"
+:comment "big, current, faster version of fi-5650C?"
 
 :model "fi-6770C"
 :interface "SCSI USB"
 :status :untested
-:comment "big, current"
+:comment "big, current, faster version of fi-5750C?"

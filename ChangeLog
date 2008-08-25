@@ -1,9 +1,11 @@
 2008-08-25  Gerhard Jaeger <gerhard@gjaeger.de>
-	* backend/plustek-usb.c backend/plustek-usbdevs.c: 
+	* backend/plustek-usb.c backend/plustek-usbdevs.c:
 	  Added preliminary support for Visioneer XP100
 	  Tweaked entry for LM9831 version of Plustek UT12
 	* backend/plustek.c: Bumped build number
 	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
+	* doc/descriptions/plustek.desc: Added entry for Strobe XP100
+	* doc/descriptions/unsupported.desc: Removed entry for Strobe XP100
 
 2008-08-21  St�phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: calibration updating and 75 dpi scan for hp400

@@ -47,6 +47,7 @@
  *        - added SCANFLAG_Calibration handling
  * - 0.52 - added _WAF_LOFF_ON_START and _WAF_INC_DARKTGT
  *          handling in usbDev_startScan()
+ *          added Visioneer
  * .
  * <hr>
  * This file is part of the SANE package.
@@ -106,6 +107,7 @@ static TabDef usbVendors[] = {
 	{ 0x0458, "KYE/Genius",      NULL     },
 	{ 0x03F0, "Hewlett-Packard", NULL     },
 	{ 0x04B8, "Epson",           NULL     },
+	{ 0x04A7, "Visioneer",       NULL     },
 	{ 0x04A9, "Canon",           NULL     },
 	{ 0x1606, "UMAX",            NULL     },
 	{ 0x049F, "Compaq",          NULL     },

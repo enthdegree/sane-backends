@@ -274,7 +274,7 @@ static DCapsDef Cap0x07B3_0x000F_0 =
 	4, 5, kNEC3799, 0x0F, _WAF_NONE, _NO_MIO
 };
 
-/* Plustek Model: ???
+/* Plustek Model: UT12
  * KH: NS9831 + TPA + Button + NEC3799
  */
 static DCapsDef Cap0x07B3_0x0013_0 =
@@ -1046,7 +1046,7 @@ static HWDef Hw0x07B3_0x000F_0 =
 	1.0
 };
 
-/** U12 and U24
+/** U12/UT12 and U24
  */
 static HWDef Hw0x07B3_0x0013_0 =
 {
@@ -2664,6 +2664,7 @@ static SetDef Settings[] =
 	/* LM9831 based */
 	{"0x07B3-0x0010-0", &Cap0x07B3_0x0010_0, &Hw0x07B3_0x0013_0, "OpticPro U12"   },
 	{"0x07B3-0x0011-0", &Cap0x07B3_0x0011_0, &Hw0x07B3_0x0013_0, "OpticPro U24"   },
+	{"0x07B3-0x0013-0", &Cap0x07B3_0x0013_0, &Hw0x07B3_0x0013_0, "OpticPro UT12"  },
 
 	/* LM9832 based */
 	{"0x07B3-0x0017-0", &Cap0x07B3_0x0017_0, &Hw0x07B3_0x0017_0, "OpticPro UT12/UT16" },
@@ -2672,7 +2673,6 @@ static SetDef Settings[] =
 	{"0x07B3-0x0017-4", &Cap0x07B3_0x0017_4, &Hw0x07B3_0x0017_4, "OpticPro UT24"  },
 
 	/* never seen yet */
-	{"0x07B3-0x0013-0", &Cap0x07B3_0x0013_0, &Hw0x07B3_0x0013_0, "Unknown device" },
 	{"0x07B3-0x0013-4", &Cap0x07B3_0x0013_4, &Hw0x07B3_0x0013_4, "Unknown device" },
 	{"0x07B3-0x0011-4", &Cap0x07B3_0x0011_4, &Hw0x07B3_0x0013_4, "Unknown device" },
 	{"0x07B3-0x0010-4", &Cap0x07B3_0x0010_4, &Hw0x07B3_0x0013_4, "Unknown device" },
@@ -2728,6 +2728,9 @@ static SetDef Settings[] =
 	/* SYSCAN... */
 	{"0x0A82-0x4600",   &Cap0x0A82_0x4600, &Hw0x0A82_0x4600, "TravelScan 460/464" },
 	{"0x0A82-0x6620",   &Cap0x0A82_0x6620, &Hw0x0A82_0x6620, "TravelScan 662" },
+
+	/* Visioneer... */
+	{"0x04A7-0x0427",   &Cap0x0A82_0x4600, &Hw0x0A82_0x4600, "XP100" },
 
 	/* Portable Peripheral Co., Ltd. */
 	{"0x0A53-0x1000",   &Cap0x0A53_0x1000, &Hw0x0A53_0x1000, "Q-Scan USB001" },

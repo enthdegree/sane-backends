@@ -1,15 +1,22 @@
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-08-25  Gerhard Jaeger <gerhard@gjaeger.de>
+	* backend/plustek-usb.c backend/plustek-usbdevs.c: 
+	  Added preliminary support for Visioneer XP100
+	  Tweaked entry for LM9831 version of Plustek UT12
+	* backend/plustek.c: Bumped build number
+	* doc/sane-plustek.man doc/plustek/Plustek-USB.changes: Update
+
+2008-08-21  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: calibration updating and 75 dpi scan for hp400
 
 2008-08-23  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: set lots of scanners to complete :)
 
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-08-21  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_devices.c backend/rts8891_low.c
 	  backend/rts88xx_lib.c: add sensor type field and use it in geometry
 	  detection.
 
-2008-08-14  Stéphane Voltz <stef.dev@free.fr>
+2008-08-14  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts88xx_lib.c: fix for hp4400 init
 
 2008-08-13  m. allan noah <kitno455 a t gmail d o t com>
@@ -31,7 +38,7 @@
 	* frontend/scanimage.c: fetch_options(), actually get option
 	descriptor 0 before attempting to get the value of option 0.
 
-2008-08-04  Stéphane Voltz <stef.dev@free.fr>
+2008-08-04  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/umax_pp.c backend/umaxp_pp.h backend/umax_pp.conf.in: 
 	  use configuration framework
 
@@ -94,19 +101,19 @@
 	- fi-5330C and fi-5650C can't handle 10 bit LUT via USB
 	- fi-5900 has background color, though it reports otherwise
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* sanei/sanei_config.c: handle cases where config or callback
 	  function is NULL 
 	* backend/rts8891.c: use new configuration parsing framework
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* include/sane/sanei_config.h: doxygen fix for new function
 
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for SANE_Bool
 	  in sanei_check_value
 	* backend/Makefile.in: add sanei_constrain_value.lo to libsane
-2008-07-10  Stéphane Voltz <stef.dev@free.fr>
+2008-07-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for SANE_Bool
 	  in sanei_check_value
 	* backend/Makefile.in: add sanei_constrain_value.lo to libsane
@@ -199,20 +206,20 @@
 	Remove "experimental" in pixma buttons options and text.
 	Fix some French translation typos, and update man page.
 
-2008-06-10  Stéphane Voltz <stef.dev@free.fr>
+2008-06-10  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sanei_constrain_value.c: add support for arrays of SANE_Word
 	  in sanei_constrain_value
 	* backend/umax_pp.c: remove now unneede 'hand made' constrain on
 	  gamma tables
 
-2008-06-09  Stéphane Voltz <stef.dev@free.fr>
+2008-06-09  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fix for model with 'XPA' sensor
 
 2008-06-06  Julien Blache <jb@jblache.org>
 	* backend/net.c: lock the Avahi thread before stopping it and
 	tearing down the Avahi objects.
 
-2008-06-03  Stéphane Voltz <stef.dev@free.fr>
+2008-06-03  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys_gl646.c: fixed wrong offset for start
 	  of scanarea for MD6471 scanner.
 
@@ -246,7 +253,7 @@
 	  and device ID updates, including fixing uninitialized variables due
 	  former defect merge and exposure control for film / dia scanners
 
-2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+2008-05-26  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/sane_strstatus.c: added new status and internationalization
 	  support
 	* frontend/scanimage.c, frontend/tstbackend.c: added handling of status
@@ -254,13 +261,13 @@
 	* backend/pnm.c: added 2 more virtual devices, one that is hardware
 	locked, and another that always do warming before scan.
 
-2008-05-26  Stéphane Voltz <stef.dev@free.fr>
+2008-05-26  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.[ch], backend/rts8891_low.[ch],
 	  backend/rts88xx_lib.[ch]: renamed per frontend struct, made use of
 	  new well-known option groups. Added warming-up handling in
 	  sane_start().
 
-2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+2008-05-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c:
 	changed top of scan area detection for MD6228/MD6471 models
 
@@ -274,7 +281,7 @@
 	  backend/hp3900_usb.c: Fixed reference position detection for
 	  HP3800/HPG2710 scanners. Code clean up.
 
-2008-05-22  Stéphane Voltz <stef.dev@free.fr>
+2008-05-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c:
 	minor tweak for scanjet 4470cx
 
@@ -301,7 +308,7 @@
 	* backend/qcam.c, backend/v4l.c, frontend/tstbackend.c:
 	  remove undocumented and otherwise unused SANE_CAP_ALWAYS_SETTABLE
 
-2008-05-19  Stéphane Voltz <stef.dev@free.fr>
+2008-05-19  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c:
 	150/300 dpi shading calibration fixes for 'XPA' sensor HP4470 models
 
@@ -338,7 +345,7 @@
 	  include/sane/sanei_thread.h, sanei/sanei_thread.c:
 	Fix for bug #306751: sanei-thread with pthreads on 64 bit
 
-2008-05-12  Stéphane Voltz <stef.dev@free.fr>
+2008-05-12  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c 
 	150/300 dpi mode fixes for 'XPA' sensor HP4470 models
 
@@ -365,7 +372,7 @@
 	* doc/sane-sm3840.man: Add lineart and halftone options to page
 	* backend/sm3840*: Remove 64-bit compile warnings
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c
 	doc/descriptions/rts8891.desc:
 	150 dpi mode fix for 'XPA' sensor HP4470 models, description
@@ -556,7 +563,7 @@
 	sections (separate inetd configuration under the INETD
 	CONFIGURATION section).
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.h backend/genesys_devices.c
 	  backend/genesys_gl646.c backend/genesys_low.h:
 	  Fixed double free problems, made OPT_COLOR_FILTER work for
@@ -564,7 +571,7 @@
 	  options, split sane_control_options to make it more readable,
 	  fixed 'reset stream' problem for MD6471.
 
-2008-04-05  Stéphane Voltz <stef.dev@free.fr>
+2008-04-05  Stï¿½phane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: 
 	  split sane_control_option() to make it more readable
 
@@ -597,7 +604,7 @@
 	* sanei/sanei_scsi.c: fix bug in sanei_scsi_find_devices() which
 	  caused early return if attach callback returned error.
 
-2008-03-22  Stéphane Voltz <stef.dev@free.fr>
+2008-03-22  Stï¿½phane Voltz <stef.dev@free.fr>
 	* AUTHORS configure configure.in backend/dll.conf.in
 	  backend/Makefile.in backend/rts8891.c backend/rts8891.conf.in
 	  backend/rts8891_devices.c backend/rts8891.h backend/rts8891_low.c
@@ -622,7 +629,7 @@
 2008-03-15  Julien Blache <jb@jblache.org>
 	* include/sane/sanei_usb.h: typo fix.
 
-2008-03-02  Stéphane Voltz <stef.dev@free.fr>
+2008-03-02  Stï¿½phane Voltz <stef.dev@free.fr>
 	* doc/descriptions/lexmark.desc: added X1195
 	* doc/descriptions/unsupported.desc: removed X11xx, X12xx and
 	  Dell A920 which are to be handled by the lexmark backend

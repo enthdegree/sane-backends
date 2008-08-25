@@ -262,3 +262,13 @@
 :interface "USB"
 :usbid "0x0a53" "0x1000"
 :status :complete
+
+;* Visioneer ****************************************************************************************
+
+:mfg "Visioneer"
+:url "http://www.visioneer.com/"
+
+:model "Strobe XP 100"
+:interface "USB"
+:usbid  "0x04a7" "0x0427"
+:status :basic

@@ -155,7 +155,6 @@ Travelscan 662     LM9833  600x1200dpi 48bit 512Kb 0x6620
 Travelscan 464     LM9833  600x1200dpi 48bit 512Kb 0x4600
 .fi
 .ft R
-
 .PP
 
 Vendor Portable Peripheral Co., Ltd. \- ID: 0x0A53
@@ -168,6 +167,7 @@ USB Model:         ASIC:  Properties:              Prod-ID
 Q-Scan USB001      LM9832   300x600dpi 42bit 512Kb 0x1000
 .fi
 .ft R
+.PP
 
 Vendor Visioneer \- ID: 0x04A7
 .br
@@ -179,7 +179,6 @@ USB Model:         ASIC:  Properties:              Prod-ID
 Strobe XP100       LM9833  600x1200dpi 48bit 512Kb 0x0427
 .fi
 .ft R
-
 .PP
 
 .SH "OTHER PLUSTEK SCANNERS"

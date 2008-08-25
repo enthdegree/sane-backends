@@ -1,4 +1,4 @@
-.TH sane\-plustek 5 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-plustek 5 "25 Aug 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-plustek
 .SH NAME
 sane\-plustek \- SANE backend for LM983[1/2/3] based
@@ -168,6 +168,19 @@ USB Model:         ASIC:  Properties:              Prod-ID
 Q-Scan USB001      LM9832   300x600dpi 42bit 512Kb 0x1000
 .fi
 .ft R
+
+Vendor Visioneer \- ID: 0x04A7
+.br
+.ft CR
+.nf
+----------------------------------------------------------
+USB Model:         ASIC:  Properties:              Prod-ID
+----------------------------------------------------------
+Strobe XP100       LM9833  600x1200dpi 48bit 512Kb 0x0427
+.fi
+.ft R
+
+.PP
 
 .SH "OTHER PLUSTEK SCANNERS"
 For parallelport device support see the

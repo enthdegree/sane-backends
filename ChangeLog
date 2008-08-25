@@ -1,3 +1,6 @@
+2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: calibration updating and 75 dpi scan for hp400
+
 2008-08-23  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: set lots of scanners to complete :)
 

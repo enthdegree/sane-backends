@@ -225,11 +225,14 @@ static SANE_Status init_lamp (struct Rts8891_Device *dev);
 static SANE_Status find_origin (struct Rts8891_Device *dev,
 				SANE_Bool * changed);
 static SANE_Status find_margin (struct Rts8891_Device *dev);
-static SANE_Status dark_calibration (struct Rts8891_Device *dev, int light);
-static SANE_Status gain_calibration (struct Rts8891_Device *dev, int light);
-static SANE_Status offset_calibration (struct Rts8891_Device *dev, int light);
+static SANE_Status dark_calibration (struct Rts8891_Device *dev, int mode,
+				     int light);
+static SANE_Status gain_calibration (struct Rts8891_Device *dev, int mode,
+				     int light);
+static SANE_Status offset_calibration (struct Rts8891_Device *dev, int mode,
+				       int light);
 static SANE_Status shading_calibration (struct Rts8891_Device *dev,
-					SANE_Bool color, int light);
+					SANE_Bool color, int mode, int light);
 static SANE_Status send_calibration_data (struct Rts8891_Session *session);
 static SANE_Status write_scan_registers (struct Rts8891_Session *session);
 static SANE_Status read_data (struct Rts8891_Session *session,
@@ -1037,7 +1040,7 @@ SANE_Status
 sane_start (SANE_Handle handle)
 {
   struct Rts8891_Session *session = handle;
-  int ret = SANE_STATUS_GOOD, light;
+  int ret = SANE_STATUS_GOOD, light, mode;
   struct Rts8891_Device *dev = session->dev;
   SANE_Status status;
   SANE_Bool changed;
@@ -1156,17 +1159,28 @@ sane_start (SANE_Handle handle)
   while (changed);
 
   /* light source to use */
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  switch (dev->sensor)
     {
+    case SENSOR_TYPE_XPA:
       light = 0x3f;
-    }
-  else
-    {
+      mode = 0x20;
+      break;
+    case SENSOR_TYPE_BARE:
       light = 0x3b;
+      mode = 0x20;
+      break;
+    case SENSOR_TYPE_4400:
+      light = 0x2a;
+      mode = 0x10;
+      break;
+    default:
+      light = SENSOR_TYPE_XPA;
+      mode = 0x20;
+      break;
     }
 
   /* step 2: dark calibration */
-  status = dark_calibration (dev, light);
+  status = dark_calibration (dev, mode, light);
   if (status != SANE_STATUS_GOOD)
     {
       if (dev->conf.allowsharing == SANE_TRUE)
@@ -1195,7 +1209,7 @@ sane_start (SANE_Handle handle)
 			   dev->regs + LAMP_BRIGHT_REG);
 
   /* step 4: gain calibration */
-  status = gain_calibration (dev, light);
+  status = gain_calibration (dev, mode, light);
   if (status != SANE_STATUS_GOOD)
     {
       if (dev->conf.allowsharing == SANE_TRUE)
@@ -1207,7 +1221,7 @@ sane_start (SANE_Handle handle)
     }
 
   /* step 5: fine offset calibration */
-  status = offset_calibration (dev, light);
+  status = offset_calibration (dev, mode, light);
   if (status != SANE_STATUS_GOOD)
     {
       if (dev->conf.allowsharing == SANE_TRUE)
@@ -1243,7 +1257,7 @@ sane_start (SANE_Handle handle)
   /* step 6: shading calibration */
   status =
     shading_calibration (dev, session->params.format == SANE_FRAME_RGB
-			 || session->emulated_gray == SANE_TRUE, light);
+			 || session->emulated_gray == SANE_TRUE, mode, light);
   if (status != SANE_STATUS_GOOD)
     {
       if (dev->conf.allowsharing == SANE_TRUE)
@@ -2988,7 +3002,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   dev->regs[0xe8] = 0x00;
   dev->regs[0xe9] = 0x00;
 
-  if (dev->sensor != SENSOR_TYPE_BARE)
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       dev->regs[0xc3] = 0x00;
       dev->regs[0xc4] = 0xf0;
@@ -3129,17 +3143,32 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   if (sum > 11)
     {
       /* now go back to the white area so that calibration can work on it */
-      dev->regs[0x11] = 0x3f;	/* 0x3b */
       dev->regs[0x35] = 0x0e;
-      dev->regs[0x36] = 0x24;	/* direction reverse (0x08) */
       dev->regs[0x3a] = 0x0e;
 
       dev->regs[0xb2] = 0x06;	/* no data (0x04) */
 
-      dev->regs[0xe2] = 0x07;
+      if (dev->sensor == SENSOR_TYPE_4400)
+	{
+	  dev->regs[0x36] = 0x21;	/* direction reverse (& ~0x08) */
 
-      dev->regs[0xe5] = 0x06;
-      dev->regs[0xe6] = 0x04;	/* 406=1030 */
+	  dev->regs[0xe2] = 0x03;
+	  dev->regs[0xe2] = 0x03;	/* 0x01 */
+
+	  dev->regs[0xe5] = 0x0d;	/* 0x1c */
+	  dev->regs[0xe6] = 0x08;	/* 0x10 080d=2061=1030*2+1 */
+	}
+      else
+	{
+	  dev->regs[0x11] = 0x3f;	/* 0x3b */
+
+	  dev->regs[0x36] = 0x24;	/* direction reverse (& ~0x08) */
+
+	  dev->regs[0xe2] = 0x07;
+
+	  dev->regs[0xe5] = 0x06;
+	  dev->regs[0xe6] = 0x04;	/* 406=1030 */
+	}
 
       /* move by a fixed amount relative to the 'top' of the scanner */
       sanei_rts88xx_set_scan_area (dev->regs, height - sum + 10,
@@ -3183,7 +3212,14 @@ find_margin (struct Rts8891_Device *dev)
   sanei_rts88xx_write_reg (dev->devnum, LAMP_BRIGHT_REG, &reg);
 
   /* maximum gain, offsets untouched */
-  sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x28, 0x3b);
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x10, 0x23);
+    }
+  else
+    {
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x28, 0x3b);
+    }
 
   sanei_rts88xx_set_gain (dev->regs, 0x3f, 0x3f, 0x3f);
 
@@ -3219,6 +3255,9 @@ find_margin (struct Rts8891_Device *dev)
   dev->regs[0xd6] = 0xab;
   dev->regs[0xd7] = 0x14;
   dev->regs[0xd8] = 0xf6;
+
+  dev->regs[0xda] = 0xa7;	/* XXX STEF XXX à l'origine, pas 'bare' */
+
   dev->regs[0xe2] = 0x01;
 
   dev->regs[0xe5] = 0x7b;
@@ -3234,7 +3273,7 @@ find_margin (struct Rts8891_Device *dev)
   dev->regs[0xef] = 0x00;
   dev->regs[0xf0] = 0x00;
   dev->regs[0xf2] = 0x00;
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       dev->regs[0xc0] = 0x00;
       dev->regs[0xc1] = 0xf8;
@@ -3256,7 +3295,6 @@ find_margin (struct Rts8891_Device *dev)
       dev->regs[0xd3] = 0x10;
       dev->regs[0xd4] = 0x12;
       dev->regs[0xd7] = 0x31;
-      dev->regs[0xda] = 0xa7;
     }
 
   /* set vertical and horizontal start/end positions */
@@ -4295,7 +4333,7 @@ detect_device (struct Rts8891_Device *dev)
  * currently done at 75 dpi regardless of the final scan dpi.
  */
 static SANE_Status
-dark_calibration (struct Rts8891_Device *dev, int light)
+dark_calibration (struct Rts8891_Device *dev, int mode, int light)
 {
   SANE_Status status = SANE_STATUS_GOOD;
 /* red, green and blue offset, within a 't'op and 'b'ottom value */
@@ -4312,6 +4350,8 @@ dark_calibration (struct Rts8891_Device *dev, int light)
   /* set up starting values */
   sanei_rts88xx_set_gain (dev->regs, 0, 0, 0);
   sanei_rts88xx_set_scan_area (dev->regs, 1, 2, 4, 4 + CALIBRATION_WIDTH);
+
+  sanei_rts88xx_set_status (dev->devnum, dev->regs, mode, light);
 
   dev->regs[0x00] = 0xe5;	/* scan */
   dev->regs[0x32] = 0x00;
@@ -4358,8 +4398,8 @@ dark_calibration (struct Rts8891_Device *dev, int light)
   dev->regs[0xf0] = 0x70;
   dev->regs[0xf2] = 0x01;
 
-  /* handling of different sensor */
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  /* handling of different sensors */
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       dev->regs[0xc0] = 0x67;
       dev->regs[0xc1] = 0x06;
@@ -4383,9 +4423,29 @@ dark_calibration (struct Rts8891_Device *dev, int light)
       dev->regs[0xd7] = 0x10;
       dev->regs[0xda] = 0xa7;
     }
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      dev->regs[0x13] = 0x39;	/* 0x20 */
+      dev->regs[0x14] = 0xf0;	/* 0xf8 */
+      dev->regs[0x15] = 0x29;	/* 0x28 */
+      dev->regs[0x16] = 0x0f;	/* 0x07 */
+      dev->regs[0x17] = 0x10;	/* 0x00 */
+      dev->regs[0x23] = 0x00;	/* 0xff */
+      dev->regs[0x35] = 0x48;	/* 0x45 */
+      dev->regs[0x39] = 0x00;	/* 0x02 */
+      dev->regs[0xe2] = 0x0f;	/* 0x1f */
+      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      dev->regs[0xe7] = 0x0e;	/* 0x75 */
+      dev->regs[0xe9] = 0x0a;	/* 0x0b */
+      dev->regs[0xea] = 0xc2;	/* 0x54 */
+      dev->regs[0xed] = 0xf6;	/* 0xb8 */
+      dev->regs[0xef] = 0x02;	/* 0x03 */
+      dev->regs[0xf0] = 0xa8;	/* 0x70 */
+    }
+
   /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode 
    * until each black average reaches the desired value */
-  sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, light);
+  sanei_rts88xx_set_status (dev->devnum, dev->regs, mode, light);
   do
     {
       /* set scan with the values to try */
@@ -4498,7 +4558,7 @@ dark_calibration (struct Rts8891_Device *dev, int light)
  * the target code. We're doing a dichotomy again.
  */
 static SANE_Status
-gain_calibration (struct Rts8891_Device *dev, int light)
+gain_calibration (struct Rts8891_Device *dev, int mode, int light)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   float global, ra, ga, ba;
@@ -4533,7 +4593,9 @@ gain_calibration (struct Rts8891_Device *dev, int light)
 
   dev->regs[0x8d] = 0x00;
   dev->regs[0x8e] = 0x60;
+
   dev->regs[0xb2] = 0x02;
+
   dev->regs[0xc0] = 0x06;
   dev->regs[0xc1] = 0xe6;
   dev->regs[0xc2] = 0x67;
@@ -4578,55 +4640,8 @@ gain_calibration (struct Rts8891_Device *dev, int light)
 
   dev->regs[0xd7] = 0x30;
 
-  if (dev->sensor == SENSOR_TYPE_XPA)
-    {				/* kept for a while while experimenting */
-      /*
-         dev->regs[0x72] = 0x3a;
-         dev->regs[0x73] = 0x15;
-         dev->regs[0x74] = 0x62;
-
-         dev->regs[0xc0] = 0x00;
-         dev->regs[0xc1] = 0xf8;
-         dev->regs[0xc2] = 0x7f;
-         dev->regs[0xc3] = 0x00;
-         dev->regs[0xc4] = 0xf8;
-         dev->regs[0xc5] = 0x7f;
-         dev->regs[0xc6] = 0x00;
-         dev->regs[0xc7] = 0xf8;
-         dev->regs[0xc8] = 0x7f;
-         dev->regs[0xc9] = 0xff;
-         dev->regs[0xca] = 0xff;
-         dev->regs[0xcb] = 0x8f;
-         dev->regs[0xcc] = 0xff;
-         dev->regs[0xcd] = 0x07;
-         dev->regs[0xce] = 0x80;
-         dev->regs[0xcf] = 0xea;
-         dev->regs[0xd0] = 0xec;
-         dev->regs[0xd1] = 0xf7;
-         dev->regs[0xd2] = 0x00;
-         dev->regs[0xd3] = 0x10;
-         dev->regs[0xd4] = 0x12;
-         dev->regs[0xd6] = 0xab;
-         dev->regs[0xd7] = 0x31;
-         dev->regs[0xd8] = 0xf6;
-         dev->regs[0xe2] = 0x01;
-
-         dev->regs[0xe5] = 0x7b;
-         dev->regs[0xe6] = 0x15;
-
-         dev->regs[0xe7] = 0x00;
-         dev->regs[0xe8] = 0x00;
-         dev->regs[0xe9] = 0x00;
-         dev->regs[0xea] = 0x00;
-         dev->regs[0xeb] = 0x00;
-         dev->regs[0xec] = 0x00;
-         dev->regs[0xed] = 0x00;
-         dev->regs[0xef] = 0x00;
-         dev->regs[0xf0] = 0x00;
-         dev->regs[0xf2] = 0x00; */
-      dev->regs[0x72] = 0xe1;
-      dev->regs[0x73] = 0x14;
-      dev->regs[0x74] = 0x18;
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
+    {
       dev->regs[0xc0] = 0x67;
       dev->regs[0xc1] = 0x06;
       dev->regs[0xc2] = 0xe6;
@@ -4665,6 +4680,19 @@ gain_calibration (struct Rts8891_Device *dev, int light)
       dev->regs[0xf0] = 0x70;
       dev->regs[0xf2] = 0x01;
     }
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      dev->regs[0x35] = 0x48;	/* 0x45 */
+      /* c5, c6 ? : untouched from previous scan ... */
+      dev->regs[0xe2] = 0x0f;	/* 0x1f */
+      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      dev->regs[0xe7] = 0x0e;	/* 0x75 */
+      dev->regs[0xe9] = 0x0a;	/* 0x0b */
+      dev->regs[0xea] = 0xc2;	/* 0x54 */
+      dev->regs[0xed] = 0xf6;	/* 0xb8 */
+      dev->regs[0xef] = 0x02;	/* 0x03 */
+      dev->regs[0xf0] = 0xa8;	/* 0x70 */
+    }
 
   /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode until each white average
    * reaches the desired value, doing a dichotomy */
@@ -4695,7 +4723,7 @@ gain_calibration (struct Rts8891_Device *dev, int light)
 	   "gain_calibration: trying gains=(0x%02x,0x%02x,0x%02x)\n", rg, gg,
 	   bg);
       sanei_rts88xx_set_gain (dev->regs, rg, gg, bg);
-      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, light);
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, mode, light);
 
       /* scan on line in RGB */
       status =
@@ -4858,7 +4886,7 @@ gain_calibration (struct Rts8891_Device *dev, int light)
  * reaches the desired value (OFFSET_TARGET).
  */
 static SANE_Status
-offset_calibration (struct Rts8891_Device *dev, int light)
+offset_calibration (struct Rts8891_Device *dev, int mode, int light)
 {
 
   SANE_Status status = SANE_STATUS_GOOD;
@@ -4918,7 +4946,7 @@ offset_calibration (struct Rts8891_Device *dev, int light)
   dev->regs[0xef] = 0x03;
   dev->regs[0xf0] = 0x70;
   dev->regs[0xf2] = 0x01;
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       dev->regs[0x72] = 0xe1;
       dev->regs[0x73] = 0x14;
@@ -4945,6 +4973,19 @@ offset_calibration (struct Rts8891_Device *dev, int light)
       dev->regs[0xd2] = 0x0c;
       dev->regs[0xd7] = 0x10;
     }
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      dev->regs[0x35] = 0x48;	/* 0x45 */
+      /* c5,c6 ?? */
+      dev->regs[0xe2] = 0x0f;	/* 0x1f */
+      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      dev->regs[0xe7] = 0x0e;	/* 0x75 */
+      dev->regs[0xe9] = 0x0a;	/* 0x0b */
+      dev->regs[0xea] = 0xc2;	/* 0x54 */
+      dev->regs[0xed] = 0xf6;	/* 0xb8 */
+      dev->regs[0xef] = 0x02;	/* 0x03 */
+      dev->regs[0xf0] = 0xa8;	/* 0x70 */
+    }
 
   /* we loop scanning a 637 (1911 bytes) pixels wide area in color mode until each black average
    * reaches the desired value */
@@ -4953,7 +4994,7 @@ offset_calibration (struct Rts8891_Device *dev, int light)
       DBG (DBG_info, "offset_calibration: trying offsets=(%d,%d,%d) ...\n",
 	   ro, go, bo);
       sanei_rts88xx_set_offset (dev->regs, ro, go, bo);
-      sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, light);
+      sanei_rts88xx_set_status (dev->devnum, dev->regs, mode, light);
       rts8891_simple_scan (dev->devnum, dev->regs, dev->reg_count, 0x02,
 			   CALIBRATION_SIZE, image);
 
@@ -5051,7 +5092,8 @@ offset_calibration (struct Rts8891_Device *dev, int light)
 y			 offset=1 , yend=67, lines =66
  */
 static SANE_Status
-shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
+shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
+		     int light)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   int width;
@@ -5088,10 +5130,10 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
 
   /* set up registers */
   /* 0x20/0x28 0x3b/0x3f seen in logs */
-  status1 = 0x20;
+  status1 = mode;
   if (dev->xdpi > 300)
     {
-      status1 = 0x28;
+      status1 |= 0x08;
     }
 
   dev->regs[0x32] = 0x20;
@@ -5116,7 +5158,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
     {
     case 75:
       dev->regs[0xe5] = 0xdd;
-      if (dev->sensor == SENSOR_TYPE_XPA)
+      if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
 	{
 	  dev->regs[0xc0] = 0x67;
 	  dev->regs[0xc1] = 0x06;
@@ -5140,6 +5182,28 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int light)
 	  dev->regs[0xd2] = 0x0c;
 
 	  dev->regs[0xd7] = 0x10;
+	}
+      if (dev->sensor == SENSOR_TYPE_4400)
+	{
+	  light &= 0xf7;	/* clear bit 3 */
+	  dev->regs[0x36] = 0x29;	/* 0x2c */
+	  dev->regs[0x80] = 0x32;	/* 0x2e */
+	  dev->regs[0x81] = 0x00;	/* 0x01 */
+	  dev->regs[0x82] = 0x33;	/* 0x2f */
+	  dev->regs[0x83] = 0x00;	/* 0x01 */
+	  dev->regs[0x85] = 0x00;	/* 0x8c */
+	  dev->regs[0x86] = 0x06;	/* 0x10 */
+	  dev->regs[0x87] = 0x00;	/* 0x18 */
+	  dev->regs[0x88] = 0x06;	/* 0x1b */
+	  dev->regs[0x89] = 0x34;	/* 0x30 */
+	  dev->regs[0x8a] = 0x00;	/* 0x01 */
+	  dev->regs[0x8d] = 0x00;	/* 0x77 */
+	  /* c5,c6 ?? */
+	  dev->regs[0xd3] = 0x02;	/* 0x0e */
+	  dev->regs[0xd4] = 0x04;	/* 0x10 */
+	  dev->regs[0xe2] = 0x02;	/* 0x05 */
+	  dev->regs[0xe5] = 0xbb;	/* 0xe4 */
+	  dev->regs[0xe6] = 0x01;	/* 0x00 */
 	}
       break;
 
@@ -5802,13 +5866,19 @@ write_scan_registers (struct Rts8891_Session *session)
   sanei_rts88xx_set_gain (dev->regs, dev->red_gain, dev->green_gain,
 			  dev->blue_gain);
 
-  status1 = 0x20;
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  /* TODO :do the same for shading calibration ?? */
+  switch (dev->sensor)
     {
+    case SENSOR_TYPE_4400:
+      status1 = 0x10;
+      status2 = 0x2a;
+      break;
+    case SENSOR_TYPE_XPA:
+      status1 = 0x20;
       status2 = 0x3f;
-    }
-  else
-    {
+      break;
+    default:
+      status1 = 0x20;
       status2 = 0x3b;
     }
 
@@ -6057,7 +6127,7 @@ write_scan_registers (struct Rts8891_Session *session)
   dev->regs[0xf1] = 0x00;
   dev->regs[0xf2] = 0x01;
   dev->regs[0xf3] = 0x00;
-  if (dev->sensor == SENSOR_TYPE_XPA)
+  if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
     {
       dev->regs[0xc0] = 0x67;
       dev->regs[0xc1] = 0x06;
@@ -6081,6 +6151,42 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0xd2] = 0x0c;
 
       dev->regs[0xd7] = 0x10;
+    }
+  if (dev->sensor == SENSOR_TYPE_4400)
+    {
+      dev->regs[0x13] = 0x39;	/* 0x20 */
+      dev->regs[0x14] = 0xf0;	/* 0xf8 */
+      dev->regs[0x15] = 0x29;	/* 0x28 */
+      dev->regs[0x16] = 0x00;	/* 0x01 */
+      dev->regs[0x17] = 0x10;	/* 0x00 */
+      dev->regs[0x23] = 0x00;	/* 0x80 */
+      dev->regs[0x35] = 0x47;	/* 0x45 */
+      dev->regs[0x36] = 0x29;	/* 0x2c */
+      dev->regs[0x39] = 0x00;	/* 0x02 */
+      dev->regs[0x80] = 0xaf;	/* 0x2e */
+      dev->regs[0x81] = 0x00;	/* 0x01 */
+      dev->regs[0x82] = 0xb0;	/* 0x2f */
+      dev->regs[0x83] = 0x00;	/* 0x01 */
+      dev->regs[0x85] = 0x46;	/* 0x8c */
+      dev->regs[0x86] = 0x0b;	/* 0x10 */
+      dev->regs[0x87] = 0x8c;	/* 0x18 */
+      dev->regs[0x88] = 0x10;	/* 0x1b */
+      dev->regs[0x89] = 0xb1;	/* 0x30 */
+      dev->regs[0x8a] = 0x00;	/* 0x01 */
+      dev->regs[0x8d] = 0x3b;	/* 0x77 */
+
+      dev->regs[0xd3] = 0x02;	/* 0x0e */
+      dev->regs[0xd4] = 0x04;	/* 0x10 */
+      dev->regs[0xe2] = 0x07;	/* 0x0f */
+      dev->regs[0xe3] = 0x84;	/* 0x87 */
+      dev->regs[0xe5] = 0xa5;	/* 0x54 */
+      dev->regs[0xe7] = 0x0e;	/* 0xa8 */
+      dev->regs[0xe8] = 0x01;	/* 0x00 */
+      dev->regs[0xe9] = 0x0a;	/* 0x0b */
+      dev->regs[0xea] = 0xc2;	/* 0x56 */
+      dev->regs[0xed] = 0xf6;	/* 0xba */
+      dev->regs[0xef] = 0x02;	/* 0x03 */
+      dev->regs[0xf0] = 0xa8;	/* 0x72 */
     }
   switch (dev->xdpi)
     {

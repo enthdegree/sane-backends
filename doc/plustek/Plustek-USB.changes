@@ -3,6 +3,11 @@ Plustek.changes - Gerhard Jaeger <gerhard@gjaeger.de>
 
 Note: All other not mentioned builds have never been released.
 
+V 0.52-8 (2008-08-25)
+---------------------
+Added preliminary support for Visioneer XP100
+Tweaked entry for LM9831 version of Plustek UT12
+
 V 0.52-7 (2007-12-13)
 ---------------------
 Fixed alignment issues for archs like XScale/ARM

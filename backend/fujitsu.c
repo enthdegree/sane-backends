@@ -373,11 +373,15 @@
       v76 2008-08-13, MAN
 	 - add independent maximum area values for flatbed
 	 - override said values for fi-4220C, fi-4220C2 and fi-5220C
-      v77 2008-08-25, MAN
+      v77 2008-08-26, MAN
 	 - override flatbed maximum area for fi-6230C and fi-6240C
 	 - set PF bit in all mode_select(6) CDB's
 	 - set SANE_CAP_INACTIVE on all disabled options
          - fix bug in mode_select page for sleep timer
+      v78 2008-08-26, MAN
+	 - recent model names (fi-6xxx) dont end in 'C'
+         - simplify flatbed area overrides
+         - call scanner_control to change source during sane_start
 
    SANE FLOW DIAGRAM
 
@@ -438,7 +442,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 77
+#define BUILD 78
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1230,13 +1234,9 @@ init_vpd (struct fujitsu *s)
 
       /* maximum window width and length are reported in basic units.*/
       s->max_x_basic = get_IN_window_width(in);
-      s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
-      s->max_x_fb = s->max_x;
       DBG(15, "  max width: %2.2f inches\n",(float)s->max_x_basic/s->basic_x_res);
 
       s->max_y_basic = get_IN_window_length(in);
-      s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
-      s->max_y_fb = s->max_y;
       DBG(15, "  max length: %2.2f inches\n",(float)s->max_y_basic/s->basic_y_res);
 
       /* known modes */
@@ -1779,6 +1779,14 @@ init_model (struct fujitsu *s)
     s->endorser_string_len = 80;
   }
 
+  /* convert to 1200dpi units */
+  s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
+  s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
+
+  /* assume these are same as adf, override below */
+  s->max_x_fb = s->max_x;
+  s->max_y_fb = s->max_y;
+
   /* these two scanners lie about their capabilities,
    * and/or differ significantly from most other models */
   if (strstr (s->model_name, "M3091")
@@ -1828,13 +1836,13 @@ init_model (struct fujitsu *s)
     /* missing from vpd */
     s->os_x_basic = 118;
     s->os_y_basic = 118;
-    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
+    s->max_y_fb = 14032;
   }
 
   else if (strstr (s->model_name, "fi-4220C")){
 
     /* missing from vpd */
-    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
+    s->max_y_fb = 14032;
   }
 
   else if (strstr (s->model_name,"fi-5110C")){
@@ -1853,8 +1861,8 @@ init_model (struct fujitsu *s)
   else if (strstr (s->model_name,"fi-5220C")){
 
     /* missing from vpd */
-    s->max_x_fb = 0x1506 * 1200 / s->basic_x_res;
-    s->max_y_fb = 0x1b68 * 1200 / s->basic_y_res;
+    s->max_x_fb = 10764;
+    s->max_y_fb = 14032;
   }
 
   else if (strstr (s->model_name,"fi-5530")
@@ -1884,8 +1892,8 @@ init_model (struct fujitsu *s)
     s->even_scan_line = 1;
   }
 
-  else if (strstr (s->model_name,"fi-6230C")
-   || strstr (s->model_name,"fi-6240C")){
+  else if (strstr (s->model_name,"fi-6230")
+   || strstr (s->model_name,"fi-6240")){
 
     /* missing from vpd */
     s->max_x_fb = 10488;
@@ -5797,6 +5805,22 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot get params\n");
         return ret;
+      }
+
+      /* switch source */
+      if(s->source == SOURCE_FLATBED){
+        ret = scanner_control(s, SC_function_fb);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot control fb\n");
+          return ret;
+        }
+      }
+      else{
+        ret = scanner_control(s, SC_function_adf);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot control adf\n");
+          return ret;
+        }
       }
 
       /* set window command */

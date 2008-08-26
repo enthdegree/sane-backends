@@ -1,4 +1,10 @@
 2008-08-26  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v78
+	- recent model names (fi-6xxx) dont end in 'C'
+	- simplify flatbed area overrides
+	- call scanner_control to change source during sane_start
+
+2008-08-26  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, backend/fujitsu-scsi.h: backend v77
 	- override flatbed maximum area for fi-6230C and fi-6240C
 	- set PF bit in all mode_select(6) CDB's

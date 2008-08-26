@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "76"                    ; version of backend
+:version "78"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.1.0, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -325,12 +325,12 @@
 :status :good
 :comment "big, current, possibly some multi-feed options unsupported"
 
-:model "fi-6670C"
+:model "fi-6670"
 :interface "SCSI USB"
 :status :untested
 :comment "big, current, faster version of fi-5650C?"
 
-:model "fi-6770C"
+:model "fi-6770"
 :interface "SCSI USB"
 :status :untested
 :comment "big, current, faster version of fi-5750C?"

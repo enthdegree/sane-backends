@@ -1,3 +1,10 @@
+2008-08-26  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu-scsi.h: backend v77
+	- override flatbed maximum area for fi-6230C and fi-6240C
+	- set PF bit in all mode_select(6) CDB's
+	- set SANE_CAP_INACTIVE on all disabled options
+	- fix bug in mode_select page for sleep timer
+
 2008-08-25  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek-usb.c backend/plustek-usbdevs.c:
 	  Added preliminary support for Visioneer XP100

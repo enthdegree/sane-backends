@@ -309,6 +309,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define MODE_SELECT_code        0x15
 #define MODE_SELECT_len         6
 
+#define set_MSEL_pf(sb, val) setbitfield(sb + 1, 1, 4, val)
 #define set_MSEL_xferlen(sb, val) sb[0x04] = (unsigned char)val
 
 /* MS payloads are combined 4 byte header and 8 or 10 byte page 
@@ -322,7 +323,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_MSEL_pc(sb, val) sb[0x00]=val
 #define set_MSEL_page_len(sb, val) sb[0x01]=val
 
-#define set_MSEL_sleep_mode(sb, val) sb[0x03]=val
+#define set_MSEL_sleep_mode(sb, val) sb[0x02]=val
 
 #define set_MSEL_transfer_mode(sb, val) setbitfield(sb + 0x02, 0x01, 0, val)
 

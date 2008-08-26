@@ -373,6 +373,11 @@
       v76 2008-08-13, MAN
 	 - add independent maximum area values for flatbed
 	 - override said values for fi-4220C, fi-4220C2 and fi-5220C
+      v77 2008-08-25, MAN
+	 - override flatbed maximum area for fi-6230C and fi-6240C
+	 - set PF bit in all mode_select(6) CDB's
+	 - set SANE_CAP_INACTIVE on all disabled options
+         - fix bug in mode_select page for sleep timer
 
    SANE FLOW DIAGRAM
 
@@ -433,7 +438,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 76
+#define BUILD 77
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1879,6 +1884,14 @@ init_model (struct fujitsu *s)
     s->even_scan_line = 1;
   }
 
+  else if (strstr (s->model_name,"fi-6230C")
+   || strstr (s->model_name,"fi-6240C")){
+
+    /* missing from vpd */
+    s->max_x_fb = 10488;
+    s->max_y_fb = 14173;
+  }
+
   DBG (10, "init_model: finish\n");
 
   return SANE_STATUS_GOOD;
@@ -2527,11 +2540,15 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_MM;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_x_range;
-    if(s->source == SOURCE_FLATBED){
-      opt->cap = SANE_CAP_INACTIVE;
+
+    if(s->has_adf){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->source == SOURCE_FLATBED){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
     }
     else{
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      opt->cap = SANE_CAP_INACTIVE;
     }
   }
 
@@ -2550,11 +2567,15 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_MM;
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_y_range;
-    if(s->source == SOURCE_FLATBED){
-      opt->cap = SANE_CAP_INACTIVE;
+
+    if(s->has_adf){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->source == SOURCE_FLATBED){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
     }
     else{
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      opt->cap = SANE_CAP_INACTIVE;
     }
   }
 
@@ -2651,9 +2672,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->threshold_range.min=0;
     s->threshold_range.max=s->threshold_steps;
     s->threshold_range.quant=1;
-    if (s->threshold_steps && s->mode == MODE_LINEART) {
+
+    if (s->threshold_steps){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    } 
+      if(s->mode != MODE_LINEART){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else {
       opt->cap = SANE_CAP_INACTIVE;
     }
@@ -2689,8 +2714,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->ht_type_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    if(s->has_diffusion && s->mode == MODE_HALFTONE )
+    if(s->has_diffusion){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->mode != MODE_HALFTONE){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2708,8 +2737,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->ht_pattern_range.max=s->num_internal_dither - 1;
     s->ht_pattern_range.quant=1;
 
-    if (s->num_internal_dither && s->mode == MODE_HALFTONE)
+    if (s->num_internal_dither){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->mode != MODE_HALFTONE){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2813,8 +2846,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->ipc_mode_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    if ( i > 2 && (s->mode == MODE_LINEART || s->mode == MODE_HALFTONE))
+    if ( i > 2 ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->mode != MODE_HALFTONE && s->mode != MODE_LINEART){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2828,10 +2865,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2843,10 +2883,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2865,10 +2908,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->gamma_curve_range.max=3;
     s->gamma_curve_range.quant=1;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2886,10 +2932,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->threshold_curve_range.max=7;
     s->threshold_curve_range.quant=1;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2901,10 +2950,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2916,10 +2968,13 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    )
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2931,11 +2986,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( s->noise_removal && ( 
-         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    ))
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if( !s->noise_removal
+       || s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2947,11 +3005,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( s->noise_removal && ( 
-         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    ))
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if( !s->noise_removal
+       || s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2963,11 +3024,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( s->noise_removal && ( 
-         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    ))
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if( !s->noise_removal
+       || s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -2979,11 +3043,14 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
 
-    if ( s->noise_removal && ( 
-         (s->has_dtc && s->ipc_mode == WD_ipc_DTC)
-      || (s->has_dtc && !s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)
-    ))
+    if ( s->has_dtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if( !s->noise_removal
+       || s->ipc_mode == WD_ipc_SDTC 
+       || (s->has_sdtc && s->ipc_mode == WD_ipc_DEFAULT)){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3004,8 +3071,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->variance_range.max=255;
     s->variance_range.quant=1;
 
-    if (s->has_sdtc && s->ipc_mode != WD_ipc_DTC)
+    if ( s->has_sdtc ){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if (s->ipc_mode == WD_ipc_DTC){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3038,8 +3109,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.string_list = s->compress_list;
     opt->size = maxStringSize (opt->constraint.string_list);
 
-    if (i > 1)
+    if (i > 1){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if (s->mode != MODE_COLOR && s->mode != MODE_GRAYSCALE){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3060,6 +3135,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       s->compress_arg_range.min=0;
       s->compress_arg_range.max=7;
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+      if(s->compress != COMP_JPEG){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
     }
     else
       opt->cap = SANE_CAP_INACTIVE;
@@ -3079,6 +3158,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->df_action_list;
     opt->size = maxStringSize (opt->constraint.string_list);
+
     if (s->has_MS_df)
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
@@ -3094,8 +3174,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
-    if (s->has_MS_df && s->df_action)
+
+    if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     if(!s->df_action)
+       opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
      opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3109,8 +3193,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
-    if (s->has_MS_df && s->df_action)
+
+    if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     /*if(!s->df_action)
+       opt->cap |= SANE_CAP_INACTIVE;*/
+    }
     else
      opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3124,8 +3212,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
-    if (s->has_MS_df && s->df_action)
+
+    if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     if(!s->df_action)
+       opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
      opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3145,8 +3237,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->df_diff_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if (s->has_MS_df && s->df_action)
+
+    if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     if(!s->df_action)
+       opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
      opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3186,8 +3282,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
     opt->constraint.string_list = s->do_color_list;
     opt->size = maxStringSize (opt->constraint.string_list);
-    if ((s->has_MS_dropout || s->has_vuid_3091) && s->mode != MODE_COLOR)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+
+    if (s->has_MS_dropout || s->has_vuid_3091){
+      opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
+      if(s->mode == MODE_COLOR)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -3345,10 +3445,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->title = "Endorser Options";
     opt->desc = "Controls for endorser unit";
     opt->type = SANE_TYPE_GROUP;
-    opt->unit = SANE_UNIT_NONE;
-    opt->size = 0;
-    opt->cap = 0;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    /*flaming hack to get scanimage to hide group*/
+    if (!s->has_endorser)
+      opt->type = SANE_TYPE_BOOL;
   }
 
   if(option==OPT_ENDORSER){
@@ -3376,8 +3477,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->size = sizeof(SANE_Word);
 
     /*old type cant do this?*/
-    if (s->has_endorser && s->endorser_type != ET_OLD && s->u_endorser)
+    if (s->has_endorser && s->endorser_type != ET_OLD){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3397,8 +3501,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3418,8 +3525,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3439,8 +3549,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_MM;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3462,8 +3575,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
 
     /*only newest can do this?*/
-    if (s->has_endorser && s->endorser_type == ET_40 && s->u_endorser)
+    if (s->has_endorser && s->endorser_type == ET_40){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3487,8 +3603,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_STRING;
     opt->unit = SANE_UNIT_NONE;
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3509,8 +3628,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_STRING;
     opt->unit = SANE_UNIT_NONE;
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -3532,8 +3654,11 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = s->endorser_string_len + 1;
 
-    if (s->has_endorser && s->u_endorser)
+    if (s->has_endorser){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+      if(!s->u_endorser)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
     else
       opt->cap = SANE_CAP_INACTIVE;
 
@@ -4875,6 +5000,7 @@ set_sleep_mode(struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5218,6 +5344,7 @@ mode_select_df (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5278,6 +5405,7 @@ mode_select_bg (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5322,6 +5450,7 @@ mode_select_dropout (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5364,6 +5493,7 @@ mode_select_buff (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5401,6 +5531,7 @@ mode_select_prepick (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);
@@ -5437,6 +5568,7 @@ mode_select_overscan (struct fujitsu *s)
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, MODE_SELECT_code);
+  set_MSEL_pf(cmd, 1);
   set_MSEL_xferlen(cmd, outLen);
 
   memset(out,0,outLen);

@@ -1,3 +1,6 @@
+2008-08-27  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions/fujitsu.desc: mark fi-6230 and fi-6240 complete
+
 2008-08-26  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v78
 	- recent model names (fi-6xxx) dont end in 'C'

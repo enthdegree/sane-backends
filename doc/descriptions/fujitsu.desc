@@ -133,9 +133,9 @@
 
 :model "fi-6230"
 :interface "USB"
-:status :good
+:status :complete
 :usbid "0x04c5" "0x1150"
-:comment "small, current, might need flatbed max size override"
+:comment "small, current"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, MEDIUM
@@ -238,8 +238,8 @@
 
 :model "fi-6240"
 :interface "SCSI USB"
-:status :good
-:comment "medium, current, might need flatbed max size override"
+:status :complete
+:comment "medium, current"
 
 ;==================================================
 ; DISCONTINUED OLDER MODELS, BIG

@@ -1,3 +1,10 @@
+2008-06-03  St�phane Voltz <stef.dev@free.fr>
+	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
+	- move to configuration framework
+	- fix GL646 GPO value usage
+	- HP2400/G2410 tidbits
+	- don't reset ASIC anymore
+
 2008-08-27  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: mark fi-6230 and fi-6240 complete
 

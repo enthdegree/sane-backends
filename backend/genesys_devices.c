@@ -251,7 +251,7 @@ static Genesys_Gpo Gpo[] = {
   ,
   /* MD5345/MD6471 */
   {
-   {0x30, 0x00}
+   {0x30, 0x18}
    ,				/* bits 11-12 are for bipolar V-ref input voltage */
    {0xa0, 0x18}
    ,
@@ -576,7 +576,7 @@ static Genesys_Model hp2400c_model = {
   NULL,
 
   {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {2400, 1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -607,7 +607,6 @@ static Genesys_Model hp2400c_model = {
   GENESYS_FLAG_UNTESTED		/* not fully working yet */
     | GENESYS_FLAG_REPARK
     | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_SEARCH_START
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION

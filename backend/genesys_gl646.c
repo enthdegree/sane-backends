@@ -1190,6 +1190,9 @@ gl646_set_fe (Genesys_Device * dev, u_int8_t set)
       return SANE_STATUS_UNSUPPORTED;
     }
 
+  status = sanei_genesys_read_register (dev, 0x70, &val);
+  DBG (DBG_proc, "gl646_set_fe: R70=0x%02d\n", val);
+
   if (set == AFE_INIT)
     {
       DBG (DBG_proc, "gl646_set_fe(): setting DAC %u\n",
@@ -1231,7 +1234,10 @@ gl646_set_fe (Genesys_Device * dev, u_int8_t set)
       return status;
     }
 
-  /* todo :  base this test on cfg reg3 or a CCD family flag to be created */
+  status = sanei_genesys_read_register (dev, 0x70, &val);
+  DBG (DBG_proc, "gl646_set_fe: R70=0x%02d\n", val);
+
+  /* TODO :  base this test on cfg reg3 or a CCD family flag to be created */
   /*if (dev->model->ccd_type!=CCD_HP2300 && dev->model->ccd_type!=CCD_HP2400) */
   {
     status = sanei_genesys_fe_write_data (dev, 0x00, dev->frontend.reg[0]);
@@ -2616,8 +2622,8 @@ gl646_init_regs_for_shading (Genesys_Device * dev)
       /* set all available bits */
       if (dev->model->motor_type == MOTOR_5345)
 	{
-	  dev->calib_reg[reg_0x66].value = 0x30;
-	  dev->calib_reg[reg_0x67].value = dev->gpo.enable[1];
+	  dev->calib_reg[reg_0x66].value = dev->gpo.value[0];
+	  dev->calib_reg[reg_0x67].value = dev->gpo.value[1];
 	}
     }
 
@@ -3036,43 +3042,44 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
    * this crudly for now, it might also come from the way slopes table
    * are generated, we may consider switching to the newer and more
    * accurate method */
-  DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps/yres=%d (XXX STEF XXX)\n", move, dev->settings.yres);
+  DBG (DBG_info, "gl646_init_regs_for_scan: move=%d steps/yres=%d\n", move,
+       dev->settings.yres);
   if (dev->model->motor_type == MOTOR_5345)
-  {
-	  switch(dev->settings.yres)
-	  {
-		  case 2400:
-			  move += 50;
-			  break;
-		  case 1200:
-			  move += 100;
-			  break;
-		  case 600:
-			  move -= 150;
-			  break;
-		  case 500:
-			  move -= 150;
-			  break;
-		  case 400:
-			  move -= 100;
-			  break;
-		  case 300:
-		  case 250:
-		  case 200:
-			  break;
-		  case 150:
-			  move += 100;
-			  break;
-		  case 100:
-			  move += 120;
-			  break;
-		  case 50:
-			  move += 100;
-			  break;
-		  default:
-			  break;
-	  }
-  }
+    {
+      switch (dev->settings.yres)
+	{
+	case 2400:
+	  move += 50;
+	  break;
+	case 1200:
+	  move += 100;
+	  break;
+	case 600:
+	  move -= 150;
+	  break;
+	case 500:
+	  move -= 150;
+	  break;
+	case 400:
+	  move -= 100;
+	  break;
+	case 300:
+	case 250:
+	case 200:
+	  break;
+	case 150:
+	  move += 100;
+	  break;
+	case 100:
+	  move += 120;
+	  break;
+	case 50:
+	  move += 100;
+	  break;
+	default:
+	  break;
+	}
+    }
 
   /* add tl_y to base movement */
   /* move += (dev->settings.tl_y * dev->motor.optical_ydpi) / MM_PER_INCH; */
@@ -3132,7 +3139,7 @@ gl646_init_regs_for_scan (Genesys_Device * dev)
     }
   else
     dev->reg[reg_0x65].value = 0x3f;
-  dev->reg[reg_0x67].value = dev->gpo.enable[1];
+  dev->reg[reg_0x67].value = dev->gpo.value[1];
 
   /* prepares data reordering */
 
@@ -4086,8 +4093,8 @@ gl646_init_regs_for_warmup (Genesys_Device * dev,
   local_reg[reg_0x63].value = 0x00;	/* (3Dh+3Eh+3Fh)/LPeriod for one-table mode,(21h+1Fh)/LPeriod */
   local_reg[reg_0x64].value = 0x00;	/* motor PWM frequency */
 
-  local_reg[reg_0x66].value = dev->gpo.enable[0] & 0x10;
-  local_reg[reg_0x67].value = dev->gpo.enable[1];
+  local_reg[reg_0x66].value = dev->gpo.value[0] & 0x10;
+  local_reg[reg_0x67].value = dev->gpo.value[1];
   local_reg[reg_0x68].value = dev->gpo.enable[0];
   local_reg[reg_0x69].value = dev->gpo.enable[1];
 
@@ -4206,8 +4213,8 @@ gl646_repark_head (Genesys_Device * dev)
   local_reg[reg_0x65].value = 0x3f;
 
   /* todo : maybe move thes in init once for all */
-  local_reg[reg_0x66].value = dev->gpo.enable[0] & 0x10;
-  local_reg[reg_0x67].value = dev->gpo.enable[1];
+  local_reg[reg_0x66].value = dev->gpo.value[0] & 0x10;
+  local_reg[reg_0x67].value = dev->gpo.value[1];
   local_reg[reg_0x68].value = dev->gpo.enable[0];
   local_reg[reg_0x69].value = dev->gpo.enable[1];
   local_reg[reg_0x6a].value = 0x7f;
@@ -4442,7 +4449,7 @@ gl646_init (Genesys_Device * dev)
 			      VALUE_INIT, INDEX, 1, &val));
 
   /* ASIC reset */
-  RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
+  /* XXX STEF XXX RIE (sanei_genesys_write_register (dev, 0x0e, 0x00)); */
   usleep (10000UL);		/* sleep 100 ms */
 
   /* Write initial registers */
@@ -4460,6 +4467,10 @@ gl646_init (Genesys_Device * dev)
   /*  fix for timeouts at init */
   if (dev->model->ccd_type == CCD_5345)
     {
+
+      status = sanei_genesys_read_register (dev, 0x70, &val);
+      DBG (DBG_proc, "gl646_init: R70=0x%02d\n", val);
+
       sanei_usb_set_timeout (2 * 1000);
       /* we read data without any pending scan to trigger timeout */
       status = dev->model->cmd_set->bulk_read_data (dev, 0x45, data, 64);

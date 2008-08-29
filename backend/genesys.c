@@ -3535,13 +3535,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
          fixes the communication with scanner . Put usb timeout to a friendly
          value first, so that 'recovery' doesn't take too long */
       sanei_usb_set_timeout (2 * 1000);
-      status =
+      /* status =
 	sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  RIE (sanei_genesys_read_data_from_scanner
 	       (dev, first_line, total_size));
-	}
+	} */
       /* back to normal time out */
       sanei_usb_set_timeout (30 * 1000);
       RIE (dev->model->cmd_set->end_scan (dev, local_reg, SANE_FALSE));
@@ -3687,7 +3687,7 @@ genesys_start_scan (Genesys_Device * dev)
   else
     {
       /* Go home */
-      /* too: check we can drop this since we cannot have the
+      /* TODO: check we can drop this since we cannot have the
          scanner's head wandering here */
       if (dev->model->flags & GENESYS_FLAG_USE_PARK)
 	status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
@@ -5029,17 +5029,59 @@ attach_one_device (SANE_String_Const devname)
   return SANE_STATUS_GOOD;
 }
 
+/* configuration framework functions */
+static SANE_Status config_attach_genesys (SANEI_Config * config,
+					  const char *devname)
+{
+  /* no options yet for this backend */
+  config=config;
+
+  /* the devname has been processed and is ready to be used 
+   * directly. Since the backend is an USB only one, we can 
+   * call sanei_usb_attach_matching_devices straight */
+  sanei_usb_attach_matching_devices (devname, attach_one_device);
+
+  return SANE_STATUS_GOOD;
+}
+
+/* probes for scanner to attach to the backend */
+static SANE_Status probe_genesys_devices(void)
+{
+  SANEI_Config config;
+  SANE_Status status;
+  
+  DBG (DBG_proc, "probe_genesys_devices: start\n");
+
+  new_dev = 0;
+  new_dev_len = 0;
+  new_dev_alloced = 0;
+  
+  /* set configuration options structure : no option for this backend */
+  config.descriptors = NULL;
+  config.values = NULL;
+  config.count = 0;
+
+  /* generic configure and attach function */
+  status = sanei_configure_attach (GENESYS_CONFIG_FILE, &config,
+				   config_attach_genesys);
+
+  if (new_dev_alloced > 0)
+    {
+      new_dev_len = new_dev_alloced = 0;
+      free (new_dev);
+    }
+
+  DBG (DBG_proc, "probe_genesys_devices: exit\n");
+
+  return status;
+}
 
 /* -------------------------- SANE API functions ------------------------- */
 
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  SANE_Char line[PATH_MAX];
-  SANE_Char *word;
-  SANE_String_Const cp;
-  SANE_Int linenumber;
-  FILE *fp;
+  SANE_Status status;
 
   DBG_INIT ();
   DBG (DBG_init, "SANE Genesys backend version %d.%d build %d from %s\n",
@@ -5050,27 +5092,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG (DBG_proc, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
 
+  /* init usb use */
   sanei_usb_init ();
-
-  num_devices = 0;
-  first_dev = 0;
-  first_handle = 0;
-  devlist = 0;
-  new_dev = 0;
-  new_dev_len = 0;
-  new_dev_alloced = 0;
-
-  fp = sanei_config_open (GENESYS_CONFIG_FILE);
-  if (!fp)
-    {
-      /* default to /dev/usb/scanner instead of insisting on config file */
-      DBG (DBG_warn, "sane_init: couldn't open config file `%s': %s. Using "
-	   "/dev/usb/scanner directly\n", GENESYS_CONFIG_FILE,
-	   strerror (errno));
-      attach ("/dev/usb/scanner", 0, SANE_FALSE);
-      return SANE_STATUS_GOOD;
-    }
-
+  
   DBG (DBG_info, "sane_init: %s endian machine\n",
 #ifdef WORDS_BIGENDIAN
        "big"
@@ -5079,56 +5103,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
     );
 
-  linenumber = 0;
-  DBG (DBG_info, "sane_init: reading config file `%s'\n",
-       GENESYS_CONFIG_FILE);
-  while (sanei_config_read (line, sizeof (line), fp))
-    {
-      word = 0;
-      linenumber++;
+  /* set up to no devices at first */
+  num_devices = 0;
+  first_dev = 0;
+  first_handle = 0;
+  devlist = 0;
 
-      cp = sanei_config_get_string (line, &word);
-      if (!word || cp == line)
-	{
-	  DBG (DBG_io,
-	       "sane_init: config file line %d: ignoring empty line\n",
-	       linenumber);
-	  if (word)
-	    free (word);
-	  continue;
-	}
-      if (word[0] == '#')
-	{
-	  DBG (DBG_io,
-	       "sane_init: config file line %d: ignoring comment line\n",
-	       linenumber);
-	  free (word);
-	  continue;
-	}
+  /* cold-plug case :detection of allready connected scanners */
+  status = probe_genesys_devices();
 
-      /*      else */
-      {
-	new_dev_len = 0;
-	DBG (DBG_info,
-	     "sane_init: config file line %d: trying to attach `%s'\n",
-	     linenumber, line);
-	sanei_usb_attach_matching_devices (line, attach_one_device);
-	if (word)
-	  free (word);
-	word = 0;
-      }
-    }
-
-  if (new_dev_alloced > 0)
-    {
-      new_dev_len = new_dev_alloced = 0;
-      free (new_dev);
-    }
-
-  fclose (fp);
   DBG (DBG_proc, "sane_init: exit\n");
 
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 void
@@ -5162,6 +5148,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
   DBG (DBG_proc, "sane_get_devices: start: local_only = %s\n",
        local_only == SANE_TRUE ? "true" : "false");
+
+  /* hot-plug case :detection of newly connected scanners */
+  probe_genesys_devices();
 
   if (devlist)
     free (devlist);

@@ -1,3 +1,7 @@
+2008-09-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c:
+	Some tweaks to have PIXMA MP810 supported by the pixma backend.
+
 2008-06-03  St�phane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	- move to configuration framework

@@ -929,7 +929,12 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   uint8_t *sptr, *dptr, *gptr;
 
   c = (is_ccd_grayscale (s)) ? 3 : s->param->channels;
-  n = s->param->xdpi / 600;
+  
+  if (mp->generation == 3)
+    n = s->param->xdpi / 600;
+  else    /* FIXME: maybe need different values for CIS and CCD sensors */
+    n = s->param->xdpi / 2400;
+  
   m = (n > 0) ? s->param->w / n : 1;
   sptr = dptr = gptr = mp->imgbuf;
   line_size = get_cis_ccd_line_size (s);    
@@ -945,8 +950,9 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
             dptr = shift_colors (dptr, sptr, s->param->w,  
                        mp->shift[0],  mp->shift[1],  mp->shift[2]);
 
-          /* special image format for *most* Generation 3 devices */
-          if ((mp->generation == 3) && (s->cfg->pid != MP220_PID))
+          /* special image format for *most* devices at high dpi. 
+           * MP220 is a gen3 exception */
+          if (s->cfg->pid != MP220_PID && n > 0)
               reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->w, line_size);
 
           /* Color to Grayscale convert for CCD sensor */
@@ -965,19 +971,17 @@ calc_shifting (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   unsigned base_shift;
 
-  /* If color plane shift, how many pixels shift */
+  /* If color plane shift (CCD devices), how many pixels shift */
   switch (s->cfg->pid)
     {
-      case MP970_PID:
-        if  (s->param->ydpi > 75)
-          mp->lines_shift = s->param->ydpi / 50;
-        break;
-
       case MP800_PID:
       case MP810_PID:
       case MP830_PID:
       case MP960_PID:
-        mp->lines_shift =  s->param->ydpi / 100;
+      case MP970_PID:
+        mp->lines_shift = 0;
+        if  (s->param->ydpi > 75)
+          mp->lines_shift = s->param->ydpi / 50;
         break;
 
       default:     /* all CIS devices */
@@ -1100,6 +1104,9 @@ mp150_finish_scan (pixma_t * s)
 	PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
       /* fall through */
     case state_finished:
+      /* FIXME: to process several pages ADF scan, must not send 
+       * abort_session and start_session between pages (last_block=0x28)
+       * if (mp->last_block != 0x28 || !is_scanning_from_adf(s)) */
       if (mp->last_block != 0x38)
         abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
       mp->state = state_idle;

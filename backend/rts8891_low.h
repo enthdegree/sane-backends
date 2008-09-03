@@ -78,6 +78,7 @@
 /* Forward typedefs */
 typedef struct Rts8891_Device Rts8891_Device;
 
+#define SET_DOUBLE(regs,idx,value) regs[idx]=(SANE_Byte)((value)>>8); regs[idx-1]=(SANE_Byte)((value) & 0xff);
 /* 
  * defines for RTS8891 registers name
  */
@@ -85,6 +86,10 @@ typedef struct Rts8891_Device Rts8891_Device;
 #define LINK_REG                0xb1
 #define LAMP_REG                0xd9
 #define LAMP_BRIGHT_REG         0xda
+
+/* double reg (E6,E5) -> timing doubles when y resolution doubles
+ * E6 is high byte */
+#define EXPOSURE_REG            0xe6
 
 
 /* this struc describes a particular model which is handled by the backend */

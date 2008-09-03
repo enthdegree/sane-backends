@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 4
+#define BUILD 5
 
 #define MOVE_DPI 100
 
@@ -1174,10 +1174,11 @@ sane_start (SANE_Handle handle)
       mode = 0x10;
       break;
     default:
-      light = SENSOR_TYPE_XPA;
+      light = 0x3b;
       mode = 0x20;
       break;
     }
+   DBG (DBG_info, "sane_start: mode=0x%02x, light=0x%02x\n", mode, light);
 
   /* step 2: dark calibration */
   status = dark_calibration (dev, mode, light);
@@ -2959,13 +2960,13 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   dev->regs[0x35] = 0x1b;
   dev->regs[0x36] = 0x29;
   dev->regs[0x3a] = 0x1b;
-  dev->regs[0x80] = 0x32;
-  dev->regs[0x82] = 0x33;
+  dev->regs[0x80] = 0x32;	/* 8180-> 50 */
+  dev->regs[0x82] = 0x33;	/* 8382-> 51 */
   dev->regs[0x85] = 0x00;
   dev->regs[0x86] = 0x06;
   dev->regs[0x87] = 0x00;
   dev->regs[0x88] = 0x06;
-  dev->regs[0x89] = 0x34;
+  dev->regs[0x89] = 0x34;	/* 8a89-> 52 */
   dev->regs[0x8d] = 0x80;
   dev->regs[0x8e] = 0x68;
 
@@ -2996,8 +2997,9 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   dev->regs[0xe2] = 0x01;
   dev->regs[0xe3] = 0x00;
   dev->regs[0xe4] = 0x00;
-  dev->regs[0xe5] = 0x1c;
-  dev->regs[0xe6] = 0x10;	/* 101c=4124 */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 4124);
+  /* dev->regs[0xe5] = 0x1c;
+     dev->regs[0xe6] = 0x10;     101c=4124 */
   dev->regs[0xe7] = 0x00;
   dev->regs[0xe8] = 0x00;
   dev->regs[0xe9] = 0x00;
@@ -3155,8 +3157,9 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 	  dev->regs[0xe2] = 0x03;
 	  dev->regs[0xe2] = 0x03;	/* 0x01 */
 
-	  dev->regs[0xe5] = 0x0d;	/* 0x1c */
-	  dev->regs[0xe6] = 0x08;	/* 0x10 080d=2061=1030*2+1 */
+	  /* dev->regs[0xe5] = 0x0d;     0x1c 
+	     dev->regs[0xe6] = 0x08;     0x10 080d=2061=1030*2+1 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 2061);
 	}
       else
 	{
@@ -3166,8 +3169,10 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
 
 	  dev->regs[0xe2] = 0x07;
 
-	  dev->regs[0xe5] = 0x06;
-	  dev->regs[0xe6] = 0x04;	/* 406=1030 */
+	  /*
+	     dev->regs[0xe5] = 0x06;
+	     dev->regs[0xe6] = 0x04;     406=1030 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 1030);
 	}
 
       /* move by a fixed amount relative to the 'top' of the scanner */
@@ -3260,8 +3265,9 @@ find_margin (struct Rts8891_Device *dev)
 
   dev->regs[0xe2] = 0x01;
 
-  dev->regs[0xe5] = 0x7b;
-  dev->regs[0xe6] = 0x15;	/* 157b=5499 */
+  /* dev->regs[0xe5] = 0x7b;
+     dev->regs[0xe6] = 0x15;     157b=5499 */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 5499);
 
   dev->regs[0xe7] = 0x00;
   dev->regs[0xe8] = 0x00;
@@ -3522,7 +3528,8 @@ initialize_device (struct Rts8891_Device *dev)
   dev->regs[0xd9] = 0x80;	/* 0x00 */
   dev->regs[0xda] = 0x00;	/* 0x15 */
   dev->regs[0xe2] = 0x01;	/* 0x00 */
-  dev->regs[0xe5] = 0x14;	/* 0x0f */
+  /* dev->regs[0xe5] = 0x14;     0x0f */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 20);
 
   status = rts8891_write_all (dev->devnum, dev->regs, dev->reg_count);
 
@@ -3889,8 +3896,9 @@ init_device (struct Rts8891_Device *dev)
   dev->regs[0xe3] = 0x00;
   dev->regs[0xe4] = 0x00;
 
-  dev->regs[0xe5] = 0x14;
-  dev->regs[0xe6] = 0x00;	/* 14=20 */
+  /*dev->regs[0xe5] = 0x14;
+     dev->regs[0xe6] = 0x00;    14=20 */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 20);
 
   dev->regs[0xe7] = 0x00;
   dev->regs[0xe8] = 0x00;
@@ -4384,8 +4392,9 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
   dev->regs[0xd8] = 0x52;
   dev->regs[0xe2] = 0x1f;
 
-  dev->regs[0xe5] = 0x28;	/* 28=40 */
-  dev->regs[0xe6] = 0x00;
+  /*dev->regs[0xe5] = 0x28;      28=40 
+     dev->regs[0xe6] = 0x00; */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
 
   dev->regs[0xe7] = 0x75;
   dev->regs[0xe8] = 0x01;
@@ -4434,7 +4443,8 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0x35] = 0x48;	/* 0x45 */
       dev->regs[0x39] = 0x00;	/* 0x02 */
       dev->regs[0xe2] = 0x0f;	/* 0x1f */
-      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      /* dev->regs[0xe5] = 0x52; 0x28 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 82);	/* 2*40+2 */
       dev->regs[0xe7] = 0x0e;	/* 0x75 */
       dev->regs[0xe9] = 0x0a;	/* 0x0b */
       dev->regs[0xea] = 0xc2;	/* 0x54 */
@@ -4615,8 +4625,9 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
   dev->regs[0xd8] = 0x52;
   dev->regs[0xe2] = 0x1f;
 
-  dev->regs[0xe5] = 0x28;
-  dev->regs[0xe6] = 0x00;	/* 28=40 */
+  /* dev->regs[0xe5] = 0x28;
+     dev->regs[0xe6] = 0x00;    28=40  */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
 
   dev->regs[0xe7] = 0x75;
   dev->regs[0xe8] = 0x01;
@@ -4667,8 +4678,9 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0xd7] = 0x10;
       dev->regs[0xd8] = 0x52;
       dev->regs[0xe2] = 0x1f;
-      dev->regs[0xe5] = 0x28;
-      dev->regs[0xe6] = 0x00;
+      /* dev->regs[0xe5] = 0x28;    0028 -> 40 
+         dev->regs[0xe6] = 0x00; */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
       dev->regs[0xe7] = 0x75;
       dev->regs[0xe8] = 0x01;
       dev->regs[0xe9] = 0x0b;
@@ -4685,7 +4697,8 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0x35] = 0x48;	/* 0x45 */
       /* c5, c6 ? : untouched from previous scan ... */
       dev->regs[0xe2] = 0x0f;	/* 0x1f */
-      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      /* dev->regs[0xe5] = 0x52;        */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 82);	/* 2*40+2 */
       dev->regs[0xe7] = 0x0e;	/* 0x75 */
       dev->regs[0xe9] = 0x0a;	/* 0x0b */
       dev->regs[0xea] = 0xc2;	/* 0x54 */
@@ -4934,8 +4947,9 @@ offset_calibration (struct Rts8891_Device *dev, int mode, int light)
   dev->regs[0xd6] = 0x0f;
   dev->regs[0xd8] = 0x52;
   dev->regs[0xe2] = 0x1f;
-  dev->regs[0xe5] = 0x28;
-  dev->regs[0xe6] = 0x00;	/* 0x28=40 */
+  /* dev->regs[0xe5] = 0x28;
+     dev->regs[0xe6] = 0x00;     0x0028=40 */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 40);
   dev->regs[0xe7] = 0x75;
   dev->regs[0xe8] = 0x01;
   dev->regs[0xe9] = 0x0b;
@@ -4978,7 +4992,8 @@ offset_calibration (struct Rts8891_Device *dev, int mode, int light)
       dev->regs[0x35] = 0x48;	/* 0x45 */
       /* c5,c6 ?? */
       dev->regs[0xe2] = 0x0f;	/* 0x1f */
-      dev->regs[0xe5] = 0x52;	/* 0x28 */
+      /* dev->regs[0xe5] = 0x52;        0x28 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 82);	/* 2*40+2 */
       dev->regs[0xe7] = 0x0e;	/* 0x75 */
       dev->regs[0xe9] = 0x0a;	/* 0x0b */
       dev->regs[0xea] = 0xc2;	/* 0x54 */
@@ -5157,7 +5172,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
   switch (dev->xdpi)
     {
     case 75:
-      dev->regs[0xe5] = 0xdd;
+      /* dev->regs[0xe5] = 0xdd; */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 221);
       if (dev->sensor == SENSOR_TYPE_XPA || dev->sensor == SENSOR_TYPE_4400)
 	{
 	  dev->regs[0xc0] = 0x67;
@@ -5202,8 +5218,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd3] = 0x02;	/* 0x0e */
 	  dev->regs[0xd4] = 0x04;	/* 0x10 */
 	  dev->regs[0xe2] = 0x02;	/* 0x05 */
-	  dev->regs[0xe5] = 0xbb;	/* 0xe4 */
-	  dev->regs[0xe6] = 0x01;	/* 0x00 */
+	  /* dev->regs[0xe5] = 0xbb;    
+	     dev->regs[0xe6] = 0x01;    1bb =443 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 443);	/* 221*2+1 */
 	}
       break;
 
@@ -5212,15 +5229,15 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       if (dev->sensor == SENSOR_TYPE_XPA)
 	{
 	  dev->regs[0x80] = 0x2b;
-	  dev->regs[0x81] = 0x02;
+	  dev->regs[0x81] = 0x02; 	/* 22b=555 */
 	  dev->regs[0x82] = 0x2c;
-	  dev->regs[0x83] = 0x02;
+	  dev->regs[0x83] = 0x02;	/* 22c=556 */
 	  dev->regs[0x85] = 0x18;
 	  dev->regs[0x86] = 0x1b;
 	  dev->regs[0x87] = 0x30;
 	  dev->regs[0x88] = 0x30;
 	  dev->regs[0x89] = 0x2d;
-	  dev->regs[0x8a] = 0x02;
+	  dev->regs[0x8a] = 0x02;  /* 22d=557=3*150+107 */
 	  dev->regs[0x8d] = 0xef;
 	  dev->regs[0xc0] = 0x00;
 	  dev->regs[0xc1] = 0x8e;
@@ -5243,20 +5260,21 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd2] = 0x17;
 	  dev->regs[0xd3] = 0x0b;
 	  dev->regs[0xd4] = 0x0d;
-	  dev->regs[0xe5] = 0xe4;
+	  /* dev->regs[0xe5] = 0xe4; */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 228);
 	}
       else
 	{
 	  dev->regs[0x80] = 0x2e;
-	  dev->regs[0x81] = 0x01;
-	  dev->regs[0x82] = 0x2f;
-	  dev->regs[0x83] = 0x01;
+	  dev->regs[0x81] = 0x01;	/* 12e=302 */
+	  dev->regs[0x82] = 0x2f;	
+	  dev->regs[0x83] = 0x01;	/* 12f */
 	  dev->regs[0x85] = 0x8c;
 	  dev->regs[0x86] = 0x10;
 	  dev->regs[0x87] = 0x18;
 	  dev->regs[0x88] = 0x1b;
 	  dev->regs[0x89] = 0x30;
-	  dev->regs[0x8a] = 0x01;
+	  dev->regs[0x8a] = 0x01;	/* 130 */
 	  dev->regs[0x8d] = 0x77;
 	  dev->regs[0xc0] = 0x80;
 	  dev->regs[0xc1] = 0x87;
@@ -5275,7 +5293,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd3] = 0x0e;
 	  dev->regs[0xd4] = 0x10;
 
-	  dev->regs[0xe5] = 0xe4;
+	  /* dev->regs[0xe5] = 0xe4; */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 228);
 	}
       break;
 
@@ -5314,8 +5333,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd2] = 0x03;
 	  dev->regs[0xd3] = 0x17;
 	  dev->regs[0xd4] = 0x01;
-	  dev->regs[0xe5] = 0xc9;
-	  dev->regs[0xe6] = 0x01;
+	  /* dev->regs[0xe5] = 0xc9;
+	     dev->regs[0xe6] = 0x01;     0x01c9=457 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	}
       else
 	{
@@ -5351,8 +5371,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 
 	  dev->regs[0xd3] = 0x17;
 	  dev->regs[0xd4] = 0x01;
-	  dev->regs[0xe5] = 0xc9;
-	  dev->regs[0xe6] = 0x01;	/* 0x1c9=457 */
+	  /* dev->regs[0xe5] = 0xc9;
+	     dev->regs[0xe6] = 0x01;    0x1c9=457 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	}
       break;
 
@@ -5397,8 +5418,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 
       dev->regs[0xd7] = 0x14;
 
-      dev->regs[0xe5] = 0x93;
-      dev->regs[0xe6] = 0x03;	/* 0x393=915 */
+      /* dev->regs[0xe5] = 0x93;
+         dev->regs[0xe6] = 0x03;         0x393=915 = 457*2+1 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 915);
       break;
 
     case 1200:
@@ -5444,8 +5466,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       dev->regs[0xd4] = 0xc1;
       dev->regs[0xd7] = 0x14;
       dev->regs[0xd8] = 0xa4;
-      dev->regs[0xe5] = 0x28;
-      dev->regs[0xe6] = 0x07;	/* 0x728=1832 */
+      /* dev->regs[0xe5] = 0x28;
+         dev->regs[0xe6] = 0x07;         0x728=1832=915*2+2 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 1832);
       break;
     }
 
@@ -6111,8 +6134,9 @@ write_scan_registers (struct Rts8891_Session *session)
   dev->regs[0xe3] = 0x85;
   dev->regs[0xe4] = 0x03;
 
-  dev->regs[0xe5] = 0x52;
-  dev->regs[0xe6] = 0x00;	/* exposure time 0x0052=82 */
+  /* dev->regs[0xe5] = 0x52;
+     dev->regs[0xe6] = 0x00;     exposure time 0x0052=82 */
+  SET_DOUBLE (dev->regs, EXPOSURE_REG, 82);
 
   dev->regs[0xe7] = 0x75;
   dev->regs[0xe8] = 0x01;
@@ -6179,7 +6203,8 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0xd4] = 0x04;	/* 0x10 */
       dev->regs[0xe2] = 0x07;	/* 0x0f */
       dev->regs[0xe3] = 0x84;	/* 0x87 */
-      dev->regs[0xe5] = 0xa5;	/* 0x54 */
+      /*dev->regs[0xe5] = 0xa5; 0x54 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 165);	/* 82*2+1 */
       dev->regs[0xe7] = 0x0e;	/* 0xa8 */
       dev->regs[0xe8] = 0x01;	/* 0x00 */
       dev->regs[0xe9] = 0x0a;	/* 0x0b */
@@ -6214,8 +6239,9 @@ write_scan_registers (struct Rts8891_Session *session)
 
       dev->regs[0xe3] = 0x87;
 
-      dev->regs[0xe5] = 0x54;
-      dev->regs[0xe6] = 0x00;	/* exposure time 0x0054=84 */
+      /* dev->regs[0xe5] = 0x54;
+         dev->regs[0xe6] = 0x00;        exposure time 0x0054=84 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 84);
 
       dev->regs[0xe7] = 0xa8;
       dev->regs[0xe8] = 0x00;
@@ -6365,8 +6391,9 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xe2] = 0x07;
 	  dev->regs[0xe3] = 0x00;
 	  dev->regs[0xe4] = 0x00;
-	  dev->regs[0xe5] = 0x56;
-	  dev->regs[0xe6] = 0x01;
+	  /* dev->regs[0xe5] = 0x56;
+	     dev->regs[0xe6] = 0x01; */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 342);	/* 171*2 */
 	  dev->regs[0xf2] = 0x00;
 	}
       else
@@ -6396,8 +6423,9 @@ write_scan_registers (struct Rts8891_Session *session)
 	  dev->regs[0xe3] = 0x00;
 	  dev->regs[0xe4] = 0x00;
 
-	  dev->regs[0xe5] = 0x56;
-	  dev->regs[0xe6] = 0x01;	/* exposure time 0x156 (~ 5500 /16) */
+	  /* dev->regs[0xe5] = 0x56;
+	     dev->regs[0xe6] = 0x01;     exposure time 0x156 (~ 5500 /16) */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 342);
 
 	}
       break;
@@ -6413,15 +6441,15 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0x73] = 0x15;
       dev->regs[0x74] = 0x62;
 
-      dev->regs[0x80] = 0x25;
+      dev->regs[0x80] = 0x25;  /* 425=1061 */
       dev->regs[0x81] = 0x04;
-      dev->regs[0x82] = 0x26;
+      dev->regs[0x82] = 0x26;  /* 426=1062 */
       dev->regs[0x83] = 0x04;
       dev->regs[0x85] = 0x30;
       dev->regs[0x86] = 0x30;
       dev->regs[0x87] = 0x60;
       dev->regs[0x88] = 0x5a;
-      dev->regs[0x89] = 0x27;
+      dev->regs[0x89] = 0x27;  /* 427=1063 */
       dev->regs[0x8a] = 0x04;
 
       dev->regs[0x8d] = 0xde;
@@ -6447,8 +6475,9 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0xe2] = 0x01;
       dev->regs[0xe3] = 0x00;
       dev->regs[0xe4] = 0x00;
-      dev->regs[0xe5] = 0xbd;
-      dev->regs[0xe6] = 0x0a;	/* exposure time = 0x0abd=2749 (5500/2-1) */
+      /* dev->regs[0xe5] = 0xbd;
+         dev->regs[0xe6] = 0x0a;         exposure time = 0x0abd=2749 (5500/2-1) */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 2749);
       dev->regs[0xe7] = 0x00;
       dev->regs[0xe8] = 0x00;
       dev->regs[0xe9] = 0x00;
@@ -6469,15 +6498,15 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0x3a] = 0x1b;
       dev->regs[0x40] = 0xac;
       dev->regs[0x80] = 0x1a;
-      dev->regs[0x81] = 0x08;
+      dev->regs[0x81] = 0x08; /* 81a=2074 */
       dev->regs[0x82] = 0x1b;
-      dev->regs[0x83] = 0x08;
+      dev->regs[0x83] = 0x08; /* 81b=2075 */
       dev->regs[0x85] = 0x60;
       dev->regs[0x86] = 0x5a;
       dev->regs[0x87] = 0xc0;
       dev->regs[0x88] = 0xae;
       dev->regs[0x89] = 0x1c;
-      dev->regs[0x8a] = 0x08;
+      dev->regs[0x8a] = 0x08; /* 81c=2076 */
 
       dev->regs[0x8d] = 0xbd;	/* about twice the 600 dpi values */
       dev->regs[0x8e] = 0x63;	/* low nibble of 8e and 8d are proportional to 
@@ -6509,8 +6538,9 @@ write_scan_registers (struct Rts8891_Session *session)
       dev->regs[0xe2] = 0x01;
       dev->regs[0xe3] = 0x00;
       dev->regs[0xe4] = 0x00;
-      dev->regs[0xe5] = 0x7b;
-      dev->regs[0xe6] = 0x15;	/* exposure time = 0x157b=5499 */
+      /* dev->regs[0xe5] = 0x7b;
+         dev->regs[0xe6] = 0x15;         exposure time = 0x157b=5499 */
+      SET_DOUBLE (dev->regs, EXPOSURE_REG, 5499);
       dev->regs[0xe7] = 0x00;
       dev->regs[0xe8] = 0x00;
       dev->regs[0xe9] = 0x00;

@@ -52,7 +52,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#define RTS88XX_LIB_BUILD 2
+#define RTS88XX_LIB_BUILD 5
 
 /* init rts88xx library */
 void

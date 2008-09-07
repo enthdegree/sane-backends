@@ -1,3 +1,11 @@
+2008-09-07  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c backend/pixma_imageclass.c backend/pixma_common.h
+	doc/sane-pixma.man doc/descriptions/pixma.desc:
+	- Updated doc for MF4140, MF4150 and MP810
+	- Remove white lines previously padded to image bottom for CCD sensors
+	- Modified scan area adjustments to enhance frontend area selection fit
+	but to be confirmed that it does not bring backward compatibility issues.
+
 2008-08-21  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h
 	  backend/rts88xx_lib.c: minor changes for hp4400 support

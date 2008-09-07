@@ -420,12 +420,60 @@ is_scanning_from_adf (pixma_t * s)
   return (s->param->source == PIXMA_SOURCE_ADF
 	  || s->param->source == PIXMA_SOURCE_ADFDUP);
 }
+
+static unsigned
+calc_shifting (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  unsigned base_shift;
+
+  /* If color plane shift (CCD devices), how many pixels shift */
+  switch (s->cfg->pid)
+    {
+      case MP800_PID:
+      case MP810_PID:
+      case MP830_PID:
+      case MP960_PID:
+      case MP970_PID:
+        mp->lines_shift = 0;
+        if  (s->param->ydpi > 75)
+          mp->lines_shift = s->param->ydpi / 50;
+        break;
+
+      default:     /* all CIS devices */
+        mp->lines_shift = 0;
+    }
+  base_shift = get_cis_ccd_line_size (s) * mp->lines_shift;
+
+  /* If color plane shift, how to apply the shift */
+  switch (s->cfg->pid)
+    {
+      case MP970_PID:
+        mp->shift[0] = 0;
+        mp->shift[1] = base_shift;
+        mp->shift[2] = 2 * base_shift;
+        break;
+
+      case MP800_PID:
+      case MP810_PID:
+      case MP830_PID:
+      case MP960_PID:
+      default:
+        mp->shift[0] = 2 * base_shift;
+        mp->shift[1] = base_shift;
+        mp->shift[2] = 0;
+    }
+  return mp->lines_shift;
+}
+
 static int
 send_scan_param (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
+  unsigned h = MIN (s->param->h + 2 * calc_shifting (s), 
+                    s->cfg->height * s->param->ydpi / 75);
 
   if (mp->generation <= 2)
     {
@@ -435,7 +483,7 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->x, data + 0x08);
       pixma_set_be32 (s->param->y, data + 0x0c);
       pixma_set_be32 (raw_width, data + 0x10);
-      pixma_set_be32 (s->param->h, data + 0x14);
+      pixma_set_be32 (h, data + 0x14);
       data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
       data[0x19] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x20] = 0xff;
@@ -455,7 +503,7 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (s->param->x, data + 0x0c);
       pixma_set_be32 (s->param->y, data + 0x10);
       pixma_set_be32 (raw_width, data + 0x14);
-      pixma_set_be32 (s->param->h, data + 0x18);
+      pixma_set_be32 (h, data + 0x18);
       data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
       data[0x1d] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
       data[0x1f] = 0x01;
@@ -752,9 +800,14 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
   if (mp->generation >= 2)
     {
-      sp->x = ALIGN (sp->x, 32);
-      sp->y = ALIGN (sp->y, 32);
+      /* mod 32 and expansion of the X scan limits */
+      sp->w += (sp->x) % 32;
       sp->w = calc_raw_width (mp, sp);
+      sp->x = ALIGN_INF (sp->x, 32);
+      /* FIXME: TBC, if all gen2 and gen3 devices do not need
+       *  modulo 32 alignment on Y axis. If needed, uncomment next 2 lines */
+      /* sp->h += (sp->y) % 32;
+      sp->y = ALIGN_INF (sp->y, 32);*/
     }
   sp->line_size = calc_raw_width (mp, sp) * sp->channels;
   return 0;
@@ -963,51 +1016,6 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   ib->rptr = mp->imgbuf;
   ib->rend = (is_ccd_grayscale (s)) ? gptr : sptr;
   return mp->data_left_ofs - sptr;    /* # of non processed bytes */
-}
-
-static unsigned
-calc_shifting (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned base_shift;
-
-  /* If color plane shift (CCD devices), how many pixels shift */
-  switch (s->cfg->pid)
-    {
-      case MP800_PID:
-      case MP810_PID:
-      case MP830_PID:
-      case MP960_PID:
-      case MP970_PID:
-        mp->lines_shift = 0;
-        if  (s->param->ydpi > 75)
-          mp->lines_shift = s->param->ydpi / 50;
-        break;
-
-      default:     /* all CIS devices */
-        mp->lines_shift = 0;
-    }
-  base_shift = get_cis_ccd_line_size (s) * mp->lines_shift;
-
-  /* If color plane shift, how to apply the shift */
-  switch (s->cfg->pid)
-    {
-      case MP970_PID:
-        mp->shift[0] = 0;
-        mp->shift[1] = base_shift;
-        mp->shift[2] = 2 * base_shift;
-        break;
-
-      case MP800_PID:
-      case MP810_PID:
-      case MP830_PID:
-      case MP960_PID:
-      default:
-        mp->shift[0] = 2 * base_shift;
-        mp->shift[1] = base_shift;
-        mp->shift[2] = 0;
-    }
-  return mp->lines_shift;
 }
 
 static int

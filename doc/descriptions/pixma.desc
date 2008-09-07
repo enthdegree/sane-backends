@@ -151,8 +151,8 @@
 :model "PIXMA MP810"
 :interface "USB"
 :usbid "0x04a9" "0x171a"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported up to 1200 dpi. Vertical lines issue at 2400 and 4800 dpi, can these modes be handled? USB Snoops needed for TPU film scan."
 
 :model "PIXMA MP830"
 :interface "USB"
@@ -285,11 +285,17 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "imageCLASS MF4140"
+:interface "USB"
+:usbid "0x04a9" "0x26a3"
+:status :good
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4150"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"
-:status :untested
-:comment "Same protocol as imageCLASS MF4270? Testers needed!"
+:status :good
+:comment "Flatbed and ADF scan.  All resolutions supported (up to 600DPI)"
 
 :model "imageCLASS MF4270"
 :interface "USB"

@@ -76,6 +76,7 @@
 #define MIN(x,y) (((x) < (y)) ? (x):(y))
 #define MAX(x,y) (((x) < (y)) ? (y):(x))
 #define ALIGN(x,n) (((x) + (n) - 1) / (n) * (n))
+#define ALIGN_INF(x,n) (((x) / (n)) * (n))
 
 struct pixma_io_t;
 

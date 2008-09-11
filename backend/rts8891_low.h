@@ -283,6 +283,6 @@ static SANE_Status rts8891_commit (SANE_Int devnum, SANE_Byte value);
   * move the head backward by a huge line number then poll home sensor until
   * head has get back home
   */
-static SANE_Status rts8891_park (SANE_Int devnum, SANE_Byte * regs);
+static SANE_Status rts8891_park (struct Rts8891_Device *device, SANE_Byte * regs);
 
 #endif /* not RTS8891_LOW_H */

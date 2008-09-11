@@ -4355,6 +4355,14 @@ dark_calibration (struct Rts8891_Device *dev, int mode, int light)
 
   DBG (DBG_proc, "dark_calibration: start\n");
 
+  /* set up sensor specific bottom values */
+  if(dev->sensor == SENSOR_TYPE_4400)
+  {
+	  bro = 128;
+	  bgo = 128;
+	  bbo = 128;
+  }
+
   /* set up starting values */
   sanei_rts88xx_set_gain (dev->regs, 0, 0, 0);
   sanei_rts88xx_set_scan_area (dev->regs, 1, 2, 4, 4 + CALIBRATION_WIDTH);
@@ -5837,7 +5845,7 @@ move_to_scan_area (struct Rts8891_Session *session)
        dev->ystart);
 
   /* then send move command */
-  rts8891_move (dev->devnum, regs, distance, SANE_TRUE);
+  rts8891_move (dev, regs, distance, SANE_TRUE);
 
   /* wait for completion */
   do
@@ -6621,7 +6629,7 @@ park_head (struct Rts8891_Device *dev)
     }
 
   /* head parking */
-  status = rts8891_park (dev->devnum, regs);
+  status = rts8891_park (dev, regs);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "park_head: failed to park head!\n");

@@ -40,7 +40,7 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP740
+PIXMA MP740, MX7600
 .br
 ImageCLASS MF3110, MF3240
 .br

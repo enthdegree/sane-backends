@@ -98,6 +98,7 @@
 #define MP140_PID 0x172b
 
 /* Generation 3 */
+#define MX7600_PID 0x171c  /* untested */
 #define MP210_PID 0x1721
 #define MP220_PID 0x1722
 #define MP470_PID 0x1723
@@ -107,8 +108,7 @@
 #define MX300_PID 0x1727
 #define MX310_PID 0x1728
 #define MX700_PID 0x1729
-
-#define MX850_PID 0x172c  /* untested */
+#define MX850_PID 0x172c
 
 enum mp150_state_t
 {
@@ -769,7 +769,7 @@ mp150_open (pixma_t * s)
 
   /* General rules for setting Pixma protocol generation # */
   mp->generation = (s->cfg->pid >= MP160_PID) ? 2 : 1;
-  if (s->cfg->pid >= MP210_PID)
+  if (s->cfg->pid >= MX7600_PID)
     mp->generation = 3;
 
   /* And exceptions to be added here */
@@ -987,6 +987,8 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     n = s->param->xdpi / 600;
   else    /* FIXME: maybe need different values for CIS and CCD sensors */
     n = s->param->xdpi / 2400;
+  if (s->cfg->pid == MP970_PID) 
+    n = MIN (n, 4);
   
   m = (n > 0) ? s->param->w / n : 1;
   sptr = dptr = gptr = mp->imgbuf;
@@ -1218,6 +1220,8 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX850", MX850_PID, 2400,
+	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX7600", MX7600_PID, 4800,
 	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 3 CCD not managed as Generation 2 */

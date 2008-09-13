@@ -1,3 +1,8 @@
+2008-09-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/sane-pixma.man, doc/description/pixma.desc:
+	Changes in pixma backend for PIXMA MP970 at 4800 dpi (to be continued).
+	Declare MX7600 but yet untested.
+
 2008-08-21  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: fix
 	parking for HP4400, tune dark calibration for HP4400

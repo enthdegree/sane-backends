@@ -73,7 +73,8 @@
 
 #define SENSOR_TYPE_BARE	0	/* sensor for hp4470 sold bare     */
 #define SENSOR_TYPE_XPA		1	/* sensor for hp4470 sold with XPA */
-#define SENSOR_TYPE_4400	2	/* sensor for hp4400 */
+#define SENSOR_TYPE_4400	2	/* sensor for hp4400               */
+#define SENSOR_TYPE_4400_BARE	3	/* sensor for hp4400               */
 
 /* Forward typedefs */
 typedef struct Rts8891_Device Rts8891_Device;

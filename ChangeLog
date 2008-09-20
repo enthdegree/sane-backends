@@ -1,9 +1,14 @@
+2008-09-20  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: more
+	fix for HP4400 head parking, 75 dpi support for another HP4400 sensor
+	variant, better variant detector and initial setting
+
 2008-09-13  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/sane-pixma.man, doc/description/pixma.desc:
 	Changes in pixma backend for PIXMA MP970 at 4800 dpi (to be continued).
 	Declare MX7600 but yet untested.
 
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-09-11  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: fix
 	parking for HP4400, tune dark calibration for HP4400
 
@@ -15,7 +20,7 @@
 	- Modified scan area adjustments to enhance frontend area selection fit
 	but to be confirmed that it does not bring backward compatibility issues.
 
-2008-08-21  Stéphane Voltz <stef.dev@free.fr>
+2008-09-03  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h
 	  backend/rts88xx_lib.c: minor changes for hp4400 support
 
@@ -23,7 +28,7 @@
 	* backend/pixma_mp150.c:
 	Some tweaks to have PIXMA MP810 supported by the pixma backend.
 
-2008-06-03  Stéphane Voltz <stef.dev@free.fr>
+2008-08-29  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	- move to configuration framework
 	- fix GL646 GPO value usage

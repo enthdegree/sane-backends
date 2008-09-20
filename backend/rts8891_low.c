@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           5
+#define RTS8891_BUILD           6
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */
@@ -330,7 +330,7 @@ rts8891_data_format (SANE_Int dpi)
 }
 
 /**
- * set up default values for a 75xdpy, 150 ydpi scan
+ * set up default values for a 75xdpi, 150 ydpi scan
  */
 static void
 rts8891_set_default_regs (SANE_Byte * scanner_regs)
@@ -369,19 +369,27 @@ rts8891_set_default_regs (SANE_Byte * scanner_regs)
 }
 
 static SANE_Status
-rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs, SANE_Int distance,
-	      SANE_Bool forward)
+rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
+	      SANE_Int distance, SANE_Bool forward)
 {
   SANE_Status status = SANE_STATUS_GOOD;
 
   DBG (DBG_proc, "rts8891_move: start\n");
-  DBG (DBG_io, "rts8891_move: %d lines %s\n", distance,
-       forward == SANE_TRUE ? "forward" : "backward");
+  DBG (DBG_io, "rts8891_move: %d lines %s, sensor=%d\n", distance,
+       forward == SANE_TRUE ? "forward" : "backward",device->sensor);
 
   /* prepare scan */
   rts8891_set_default_regs (regs);
-  regs[0x10] = 0x20;
-  regs[0x11] = 0x28;
+  if (device->sensor != SENSOR_TYPE_4400 && device->sensor != SENSOR_TYPE_4400_BARE)
+    {
+      regs[0x10] = 0x20;
+      regs[0x11] = 0x28;
+    }
+  else
+    {
+      regs[0x10] = 0x10;
+      regs[0x11] = 0x2a;
+    }
 
   regs[0x32] = 0x80;
   regs[0x33] = 0x81;
@@ -439,10 +447,8 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs, SANE_Int distance
   regs[0xe9] = 0x02;
 
   /* hp4400 sensor */
-  if (device->sensor == SENSOR_TYPE_4400)
+  if (device->sensor == SENSOR_TYPE_4400 || device->sensor == SENSOR_TYPE_4400_BARE)
     {
-      device->regs[0x10] = 0x10;	/* 0x20 */
-      device->regs[0x11] = 0x2a;	/* 0x28 */
       device->regs[0x13] = 0x39;	/* 0x20 */
       device->regs[0x14] = 0xf0;	/* 0xf8 */
       device->regs[0x15] = 0x29;	/* 0x28 */
@@ -458,7 +464,6 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs, SANE_Int distance
       device->regs[0xe5] = 0xf3;	/* 0xf9 */
       device->regs[0xe6] = 0x01;	/* 0x00 */
     }
-
 
   /* disable CCD */
   regs[0] = 0xf5;

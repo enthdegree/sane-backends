@@ -1,4 +1,7 @@
 2008-09-20  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: fix typo in HP4400 variant detection
+
+2008-09-20  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h: more
 	fix for HP4400 head parking, 75 dpi support for another HP4400 sensor
 	variant, better variant detector and initial setting

@@ -3707,7 +3707,7 @@ init_device (struct Rts8891_Device *dev)
   /* initial sensor guess */
   val = dev->regs[0x44] + 256 * dev->regs[0x45];
   DBG (DBG_io, "init_device: R44/45=0x%04x\n", val);
-  if (dev->sensor == SENSOR_TYPE_4400 && val == 0x00)
+  if (dev->sensor == SENSOR_TYPE_4400 && val != 0x00)
     {
       dev->sensor = SENSOR_TYPE_4400_BARE;
       DBG (DBG_info, "init_device: changing to SENSOR_TYPE_4400_BARE\n");

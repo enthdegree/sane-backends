@@ -1,3 +1,8 @@
+2008-09-25  m. allan noah <kitno455 a t gmail d o t com>
+	* include/sane/saneopts.h: underscore not allowed in option names
+	* frontend/scanimage.c: fix broken unknown length (-1) binary scans,
+	  fix invalid tiff height with unknown length scans, fix compiler warn 
+
 2008-09-20  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fix typo in HP4400 variant detection
 

@@ -148,8 +148,8 @@
 #define SANE_NAME_COPY			"copy"
 #define SANE_NAME_PDF			"pdf"
 #define SANE_NAME_CANCEL		"cancel"
-#define SANE_NAME_PAGE_LOADED		"page_loaded"
-#define SANE_NAME_COVER_OPEN		"cover_open"
+#define SANE_NAME_PAGE_LOADED		"page-loaded"
+#define SANE_NAME_COVER_OPEN		"cover-open"
 
 #define SANE_TITLE_NUM_OPTIONS		SANE_I18N("Number of options")
 

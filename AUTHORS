@@ -105,7 +105,8 @@ Frontends:
 
  jscanimage:    Jeff Freedman and Guido Muesch
  saned:         Andreas Beck, David Mosberger, Julien Blache (*)
- scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit
+ scanimage:     Andreas Beck, David Mosberger, Gordon Matzigkeit,
+                m. allan noah (*), Julien Blache (*), Stéphane Voltz (*)
  tstbackend:    Frank Zago (*)
 
 Sanei internal code:

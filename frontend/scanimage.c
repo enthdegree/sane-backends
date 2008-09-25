@@ -2,7 +2,7 @@
    Uses the SANE library.
    Copyright (C) 1996, 1997, 1998 Andreas Beck and David Mosberger
    
-   Copyright (C) 1999 - 2005 by the SANE Project -- See AUTHORS and ChangeLog
+   Copyright (C) 1999 - 2008 by the SANE Project -- See AUTHORS and ChangeLog
    for details.
 
    For questions and comments contact the sane-devel mailinglist (see
@@ -60,8 +60,7 @@
 typedef struct
 {
   u_char *data;
-  int Bpp;			/* bytes/pixel */
-  int width;
+  int width;    /*WARNING: this is in bytes, get pixel width from param*/
   int height;
   int x;
   int y;
@@ -871,7 +870,7 @@ fetch_options (SANE_Device * device)
 
       option_number[option_count] = i;
 
-      all_options[option_count].name = (char *) opt->name;
+      all_options[option_count].name = (const char *) opt->name;
       all_options[option_count].flag = 0;
       all_options[option_count].val = 0;
 
@@ -1131,10 +1130,10 @@ advance (Image * image)
 	  size_t old_size = 0, new_size;
 
 	  if (image->data)
-	    old_size = image->height * image->width * image->Bpp;
+	    old_size = image->height * image->width;
 
 	  image->height += STRIP_HEIGHT;
-	  new_size = image->height * image->width * image->Bpp;
+	  new_size = image->height * image->width;
 
 	  if (image->data)
 	    image->data = realloc (image->data, new_size);
@@ -1157,7 +1156,7 @@ scan_it (void)
   SANE_Byte min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = { 0, 0, 0, 0, 0, 0 };
+  Image image = { 0, 0, 0, 0, 0 };
   static const char *format_name[] = {
     "gray", "RGB", "red", "green", "blue"
   };
@@ -1257,7 +1256,8 @@ scan_it (void)
 	         will be (common for hand-held scanners).  In either
 	         case, we need to buffer all data before we can write
 	         the image.  */
-	      image.width = parm.pixels_per_line;
+	      image.width = parm.bytes_per_line;
+
 	      if (parm.lines >= 0)
 		/* See advance(); we allocate one extra line so we
 		   don't end up realloc'ing in when the image has been
@@ -1265,11 +1265,7 @@ scan_it (void)
 		image.height = parm.lines - STRIP_HEIGHT + 1;
 	      else
 		image.height = 0;
-	      image.Bpp = 3;
-	      if (parm.format == SANE_FRAME_GRAY)
-		image.Bpp = 1;
-	      if (parm.depth == 16)
-		image.Bpp *= 2;
+
 	      image.x = image.width - 1;
 	      image.y = -1;
 	      if (!advance (&image))
@@ -1337,8 +1333,7 @@ scan_it (void)
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
-		      if (image.Bpp == 3 || (offset + i) % 2 == 0)
-			if ((offset + i) % 3 == 0 && !advance (&image))
+		      if (!advance (&image))
 			  {
 			    status = SANE_STATUS_NO_MEM;
 			    goto cleanup;
@@ -1351,8 +1346,7 @@ scan_it (void)
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
-		      if (image.Bpp == 1 || (offset + i) % 2 == 0)
-			if (!advance (&image))
+		      if (!advance (&image))
 			  {
 			    status = SANE_STATUS_NO_MEM;
 			    goto cleanup;
@@ -1420,29 +1414,32 @@ scan_it (void)
   if (must_buffer)
     {
       image.height = image.y;
+
       if (output_format == OUTPUT_TIFF)
 	sanei_write_tiff_header (parm.format, parm.pixels_per_line,
-				 parm.lines, parm.depth, resolution_value,
+				 image.height, parm.depth, resolution_value,
 				 icc_profile);
       else
-	write_pnm_header (parm.format, image.width, image.height, parm.depth);
-      if ((output_format == OUTPUT_TIFF) || (image.Bpp == 1)
-	  || (image.Bpp == 3))
-	fwrite (image.data, image.Bpp, image.height * image.width, stdout);
-      else			/* image.Bpp == 2 or image.Bpp == 6 assumed */
-	{
+	write_pnm_header (parm.format, parm.pixels_per_line,
+                          image.height, parm.depth);
+
 #if !defined(WORDS_BIGENDIAN)
+      /* multibyte pnm file may need byte swap to LE */
+      /* FIXME: other bit depths? */
+      if (output_format != OUTPUT_TIFF && parm.depth == 16)
+	{
 	  int i;
-	  for (i = 0; i < image.Bpp * image.height * image.width; i += 2)
+	  for (i = 0; i < image.height * image.width; i += 2)
 	    {
 	      unsigned char LSB;
 	      LSB = image.data[i];
 	      image.data[i] = image.data[i + 1];
 	      image.data[i + 1] = LSB;
 	    }
-#endif
-	  fwrite (image.data, image.Bpp, image.height * image.width, stdout);
 	}
+#endif
+
+	fwrite (image.data, 1, image.height * image.width, stdout);
     }
 
   /* flush the output buffer */
@@ -1497,7 +1494,7 @@ test_it (void)
   int i, len;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = { 0, 0, 0, 0, 0, 0 };
+  Image image = { 0, 0, 0, 0, 0 };
   static const char *format_name[] =
     { "gray", "RGB", "red", "green", "blue" };
 

@@ -21,6 +21,28 @@ enum scanner_Option
   OPT_X_RES,
   OPT_Y_RES,
 
+  OPT_GEOMETRY_GROUP,
+  OPT_TL_X,
+  OPT_TL_Y,
+  OPT_BR_X,
+  OPT_BR_Y,
+  OPT_PAGE_WIDTH,
+  OPT_PAGE_HEIGHT,
+
+  OPT_ENHANCEMENT_GROUP,
+  OPT_BRIGHTNESS,
+  OPT_CONTRAST,
+  OPT_GAMMA,
+  OPT_THRESHOLD,
+  OPT_THRESHOLD_CURVE,
+
+  OPT_SENSOR_GROUP,
+  OPT_SCAN_SW,
+  OPT_HOPPER,
+  OPT_TOP,
+  OPT_ADF_OPEN,
+  OPT_SLEEP,
+
   /* must come last: */
   NUM_OPTIONS
 };
@@ -41,6 +63,8 @@ struct transfer {
   int rx_bytes;
   int tx_bytes;
 
+  int done;
+
   unsigned char * buffer;
 };
 
@@ -50,16 +74,28 @@ struct scanner
   /* immutable values which are set during init of scanner.                */
   struct scanner *next;
 
+  int missing;
+
   int model;
+  int usb_power;
 
   int has_fb;
   int has_adf;
   int x_res_150;
+  int x_res_225;
   int x_res_300;
   int x_res_600;
+
   int y_res_150;
+  int y_res_225;
   int y_res_300;
   int y_res_600;
+
+  /* the scan size in 1/1200th inches, NOT basic_units or sane units */
+  int max_x;
+  int max_y;
+  int min_x;
+  int min_y;
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during inquiry probing of the scanner. */
@@ -81,6 +117,21 @@ struct scanner
   SANE_Int x_res_list[4];
   SANE_Int y_res_list[4];
 
+  /*geometry group*/
+  SANE_Range tl_x_range;
+  SANE_Range tl_y_range;
+  SANE_Range br_x_range;
+  SANE_Range br_y_range;
+  SANE_Range paper_x_range;
+  SANE_Range paper_y_range;
+
+  /*enhancement group*/
+  SANE_Range brightness_range;
+  SANE_Range contrast_range;
+  SANE_Range gamma_range;
+  SANE_Range threshold_range;
+  SANE_Range threshold_curve_range;
+
   /* --------------------------------------------------------------------- */
   /* changeable vars to hold user input. modified by SANE_Options above    */
 
@@ -90,7 +141,23 @@ struct scanner
   int res;            /* from a limited list, x and y same */
   int resolution_x;   /* unused dummy */
   int resolution_y;   /* unused dummy */
+
+  /*geometry group*/
+  /* The desired size of the scan, all in 1/1200 inch */
+  int tl_x;
+  int tl_y;
+  int br_x;
+  int br_y;
+  int page_width;
+  int page_height;
+
+  /*enhancement group*/
+  int brightness;
+  int contrast;
+  int gamma;
   int threshold;
+  int threshold_curve;
+
   int height;         /* may run out on adf */
 
   /* --------------------------------------------------------------------- */
@@ -117,7 +184,7 @@ struct scanner
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
   int side;
-  int send_eof; /*we've sent all of image*/
+  int last43;
 
   /* requested size params (almost no relation to actual data?) */
   int req_width;   /* pixel width of first read-head? */
@@ -156,10 +223,20 @@ struct scanner
   /* values used by the command and data sending function                  */
   int fd;                       /* The scanner device file descriptor.     */
 
+  /* --------------------------------------------------------------------- */
+  /* values which are used by the get hardware status command              */
+  time_t last_ghs;
+
+  int hw_scan_sw;
+  int hw_hopper;
+  int hw_top;
+  int hw_adf_open;
+  int hw_sleep;
 };
 
-#define MODEL_S300 0
-#define MODEL_FI60F 1
+#define MODEL_NONE 0
+#define MODEL_S300 1
+#define MODEL_FI60F 2
 
 #define USB_COMMAND_TIME   10000
 #define USB_DATA_TIME      10000
@@ -261,7 +338,6 @@ static SANE_Status load_fw(struct scanner *s);
 static SANE_Status get_ident(struct scanner *s);
 
 static SANE_Status change_params(struct scanner *s);
-void update_block_totals(struct scanner * s);
 
 static SANE_Status destroy(struct scanner *s);
 static SANE_Status teardown_buffers(struct scanner *s);
@@ -270,6 +346,7 @@ static SANE_Status setup_buffers(struct scanner *s);
 static SANE_Status ingest(struct scanner *s);
 static SANE_Status coarsecal(struct scanner *s);
 static SANE_Status finecal(struct scanner *s);
+static SANE_Status send_lut(struct scanner *s);
 static SANE_Status lamp(struct scanner *s, unsigned char set);
 static SANE_Status set_window(struct scanner *s, int window);
 static SANE_Status scan(struct scanner *s);
@@ -278,7 +355,14 @@ static SANE_Status read_from_scanner(struct scanner *s, struct transfer *tp);
 static SANE_Status fill_frontback_buffers_S300(struct scanner *s);
 static SANE_Status fill_frontback_buffers_FI60F(struct scanner *s);
 
+static SANE_Status get_hardware_status (struct scanner *s);
+
+int get_page_width (struct scanner *s);
+int get_page_height (struct scanner *s);
+unsigned char get_stat(struct scanner *s);
+
 /* utils */
+void update_transfer_totals(struct transfer * t);
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 static size_t maxStringSize (const SANE_String_Const strings[]);
 

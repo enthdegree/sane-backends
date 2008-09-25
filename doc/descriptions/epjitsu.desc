@@ -11,9 +11,9 @@
 
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
-:version "1.0.12"                ; version of backend
+:version "15"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
-:comment "Only basic support provided, see sane-epjitsu manpage"
+:comment "See sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -30,9 +30,9 @@
 
 :model "ScanSnap S300"
 :interface "USB"
-:status :basic
+:status :good
 :usbid "0x04c5" "0x1156"
-:comment "10 sheet ADF, 150/300 dpi, always scans in triplex color, no TWAIN driver"
+:comment "Duplex, 150/225/300/600 dpi, binary/gray/color, AC/USB power, buttons/sensors all supported. Scanner always scans in _triplex_ color, fast USB required. Calibration only fair at high resolution."
 
 :model "ScanSnap S300M"
 :interface "USB"

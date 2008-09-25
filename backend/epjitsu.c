@@ -42,8 +42,10 @@
 
    This file implements a SANE backend for the Fujitsu fi-60F, the
    ScanSnap S300, and (hopefully) other Epson-based Fujitsu scanners. 
-   This code is Copyright 2007 by m. allan noah <kitno455 at gmail dot com>
-   and was funded by Microdea, Inc. and TrueCheck, Inc.
+
+   Copyright 2007-2008 by m. allan noah <kitno455 at gmail dot com>
+
+   Development funded by Microdea, Inc., TrueCheck, Inc. and Archivista, GmbH
 
    --------------------------------------------------------------------------
 
@@ -58,45 +60,55 @@
    Section 6 - misc functions
 
    Changes:
-      V 1.0.0, 2007-08-08, MAN
+      v0, 2007-08-08, MAN
         - initial alpha release, S300 raw data only
-      V 1.0.1, 2007-09-03, MAN
+      v1, 2007-09-03, MAN
         - only supports 300dpi duplex binary for S300
-      V 1.0.2, 2007-09-05, MAN
+      v2, 2007-09-05, MAN
         - add resolution option (only one choice)
 	- add simplex option
-      V 1.0.3, 2007-09-12, MAN
+      v3, 2007-09-12, MAN
         - add support for 150 dpi resolution
-      V 1.0.4, 2007-10-03, MAN
+      v4, 2007-10-03, MAN
         - change binarization algo to use average of all channels
-      V 1.0.5, 2007-10-10, MAN
+      v5, 2007-10-10, MAN
         - move data blocks to separate file
         - add basic fi-60F support (600dpi color)
-      V 1.0.6, 2007-11-12, MAN
+      v6, 2007-11-12, MAN
         - move various data vars into transfer structs
         - move most of read_from_scanner to sane_read
 	- add single line reads to calibration code
 	- generate calibration buffer from above reads
-      V 1.0.7, 2007-12-05, MAN
+      v7, 2007-12-05, MAN
         - split calibration into fine and coarse functions
         - add S300 fine calibration code
         - add S300 color and grayscale support
-      V 1.0.8, 2007-12-06, MAN
+      v8, 2007-12-06, MAN
         - change sane_start to call ingest earlier
         - enable SOURCE_ADF_BACK
         - add if() around memcopy and better debugs in sane_read
         - shorten default scan sizes from 15.4 to 11.75 inches
-      V 1.0.9, 2007-12-17, MAN
+      v9, 2007-12-17, MAN
         - fi-60F 300 & 600 dpi support (150 is non-square?)
         - fi-60F gray & binary support
         - fi-60F improved calibration
-      V 1.0.10, 2007-12-19, MAN (SANE v1.0.19)
+      v10, 2007-12-19, MAN (SANE v1.0.19)
         - fix missing function (and memory leak)
-      V 1.0.11 2008-02-14, MAN
-	 - sanei_config_read has already cleaned string (#310597)
-      V 1.0.12 2008-02-28, MAN
-	 - cleanup double free bug with new destroy()
-
+      v11 2008-02-14, MAN
+	- sanei_config_read has already cleaned string (#310597)
+      v12 2008-02-28, MAN
+	- cleanup double free bug with new destroy()
+      v13 2008-09-18, MAN
+	- add working page-height control
+	- add working brightness, contrast and threshold controls
+        - add disabled threshold curve and geometry controls
+        - move initialization code to sane_get_devices, for hotplugging
+      v14 2008-09-24, MAN
+        - support S300 on USB power
+        - support S300 225x200 and 600x600 scans
+        - support for automatic paper length detection (parm.lines = -1)
+      v15 2008-09-24, MAN
+        - expose hardware buttons/sensors as options for S300
 
    SANE FLOW DIAGRAM
 
@@ -156,7 +168,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 12
+#define BUILD 15
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -208,32 +220,74 @@ static struct scanner *scanner_devList = NULL;
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-    FILE *fp;
-    int num_devices=0;
-    int i=0;
-
-    struct scanner *dev;
-    char line[PATH_MAX];
-    const char *lp;
-  
     authorize = authorize;        /* get rid of compiler warning */
-  
+
     DBG_INIT ();
     DBG (10, "sane_init: start\n");
-  
-    sanei_usb_init();
   
     if (version_code)
       *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
   
     DBG (5, "sane_init: epjitsu backend %d.%d.%d, from %s\n",
       V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+
+    DBG (10, "sane_init: finish\n");
+  
+    return SANE_STATUS_GOOD;
+}
+
+/*
+ * Called by SANE to find out about supported devices.
+ * 
+ * From the SANE spec:
+ * This function can be used to query the list of devices that are
+ * available. If the function executes successfully, it stores a
+ * pointer to a NULL terminated array of pointers to SANE_Device
+ * structures in *device_list. The returned list is guaranteed to
+ * remain unchanged and valid until (a) another call to this function
+ * is performed or (b) a call to sane_exit() is performed. This
+ * function can be called repeatedly to detect when new devices become
+ * available. If argument local_only is true, only local devices are
+ * returned (devices directly attached to the machine that SANE is
+ * running on). If it is false, the device list includes all remote
+ * devices that are accessible to the SANE library.
+ * 
+ * SANE does not require that this function is called before a
+ * sane_open() call is performed. A device name may be specified
+ * explicitly by a user which would make it unnecessary and
+ * undesirable to call this function first.
+ *
+ * Read the config file, find scanners with help from sanei_*
+ * store in global device structs
+ */
+SANE_Status
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+    struct scanner * s;
+    struct scanner * prev = NULL;
+    char line[PATH_MAX];
+    const char *lp;
+    FILE *fp;
+    int num_devices=0;
+    int i=0;
+  
+    local_only = local_only;        /* get rid of compiler warning */
+  
+    DBG (10, "sane_get_devices: start\n");
+ 
+    /* mark all existing scanners as missing, attach_one will remove mark */
+    for (s = scanner_devList; s; s = s->next) {
+      s->missing = 1;
+    }
+
+    sanei_usb_init();
   
     fp = sanei_config_open (CONFIG_FILE);
   
     if (fp) {
   
-        DBG (15, "sane_init: reading config file %s\n", CONFIG_FILE);
+        DBG (15, "sane_get_devices: reading config file %s\n", CONFIG_FILE);
   
         while (sanei_config_read (line, PATH_MAX, fp)) {
       
@@ -250,45 +304,79 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
             if ((strncmp ("firmware", lp, 8) == 0) && isspace (lp[8])) {
                 lp += 8;
                 lp = sanei_config_skip_whitespace (lp);
-                DBG (15, "sane_init: firmware '%s'\n", lp);
+                DBG (15, "sane_get_devices: firmware '%s'\n", lp);
                 strncpy((char *)global_firmware_filename,lp,PATH_MAX);
             }
             else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
-                DBG (15, "sane_init: looking for '%s'\n", lp);
+                DBG (15, "sane_get_devices: looking for '%s'\n", lp);
                 sanei_usb_attach_matching_devices(lp, attach_one);
             }
             else{
-                DBG (5, "sane_init: config line \"%s\" ignored.\n", lp);
+                DBG (5, "sane_get_devices: config line \"%s\" ignored.\n", lp);
             }
         }
         fclose (fp);
     }
   
     else {
-        DBG (5, "sane_init: no config file '%s'!\n",
+        DBG (5, "sane_get_devices: no config file '%s'!\n",
           CONFIG_FILE);
     }
+
+    /*delete missing scanners from list*/
+    for (s = scanner_devList; s;) {
+      if(s->missing){
+        DBG (5, "sane_get_devices: missing scanner %s\n",s->sane.name);
   
-    for (dev = scanner_devList; dev; dev=dev->next) {
-        DBG (15, "sane_init: found scanner %s\n",dev->sane.name);
+        /*splice s out of list by changing pointer in prev to next*/
+        if(prev){
+          prev->next = s->next;
+          free(s);
+          s=prev->next;
+        }
+        /*remove s from head of list, using prev to cache it*/
+        else{
+          prev = s;
+          s = s->next;
+          free(prev);
+          prev=NULL;
+  
+          /*reset head to next s*/
+          scanner_devList = s;
+        }
+      }
+      else{
+        prev = s;
+        s=prev->next;
+      }
+    }
+  
+    for (s = scanner_devList; s; s=s->next) {
+        DBG (15, "sane_get_devices: found scanner %s\n",s->sane.name);
         num_devices++;
     }
   
-    DBG (15, "sane_init: found %d scanner(s)\n",num_devices);
+    DBG (15, "sane_get_devices: found %d scanner(s)\n",num_devices);
+
+    if (sane_devArray)
+      free (sane_devArray);
   
     sane_devArray = calloc (num_devices + 1, sizeof (SANE_Device*));
     if (!sane_devArray)
         return SANE_STATUS_NO_MEM;
   
-    for (dev = scanner_devList; dev; dev=dev->next) {
-        sane_devArray[i++] = (SANE_Device *)&dev->sane;
+    for (s = scanner_devList; s; s=s->next) {
+        sane_devArray[i++] = (SANE_Device *)&s->sane;
     }
-  
     sane_devArray[i] = 0;
+
+    if(device_list){
+        *device_list = sane_devArray;
+    }
  
-    DBG (10, "sane_init: finish\n");
+    DBG (10, "sane_get_devices: finish\n");
   
-    return SANE_STATUS_GOOD;
+    return ret;
 }
 
 /* callback used by sane_init
@@ -306,6 +394,7 @@ attach_one (const char *name)
     for (s = scanner_devList; s; s = s->next) {
         if (strcmp (s->sane.name, name) == 0) {
             DBG (10, "attach_one: already attached!\n");
+            s->missing = 0;
             return SANE_STATUS_GOOD;
         }
     }
@@ -353,23 +442,36 @@ attach_one (const char *name)
       s->sane.vendor, s->sane.model, s->sane.name);
   
     if (strstr (s->sane.model, "S300")){
+        unsigned char stat;
+
         DBG (15, "attach_one: Found S300\n");
 
+        stat = get_stat(s);
+        if(stat & 0x01){
+          DBG (5, "attach_one: on USB power?\n");
+          s->usb_power=1;
+        }
+    
         s->model = MODEL_S300;
 
         s->has_adf = 1;
         s->x_res_150 = 1;
+        s->x_res_225 = 1;
         s->x_res_300 = 1;
-        /*s->x_res_600 = 1;*/
+        s->x_res_600 = 1;
         s->y_res_150 = 1;
+        s->y_res_225 = 1;
         s->y_res_300 = 1;
-        /*s->y_res_600 = 1;*/
+        s->y_res_600 = 1;
 
         s->source = SOURCE_ADF_FRONT;
 	s->mode = MODE_LINEART;
         s->resolution_x = 300;
         s->resolution_y = 300;
-        s->threshold = 128;
+        s->page_height = 11.5 * 1200;
+
+        s->threshold = 120;
+        s->threshold_curve = 55;
     }
 
     else if (strstr (s->sane.model, "fi-60F")){
@@ -389,7 +491,10 @@ attach_one (const char *name)
 	s->mode = MODE_COLOR;
         s->resolution_x = 300;
         s->resolution_y = 300;
-        s->threshold = 128;
+        s->page_height = 5.83 * 1200;
+
+        s->threshold = 120;
+        s->threshold_curve = 55;
     }
 
     else{
@@ -476,21 +581,9 @@ load_fw (struct scanner *s)
     DBG (10, "load_fw: start\n");
 
     /*check status*/
-    cmd[0] = 0x1b;
-    cmd[1] = 0x03;
-    cmdLen = 2;
-    statLen = 2;
-    
-    ret = do_cmd(
-      s, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      stat, &statLen
-    );
-    if(ret){
-        DBG (5, "load_fw: error checking status\n");
-        return ret;
-    }
+    /*reuse stat buffer*/
+    stat[0] = get_stat(s);
+
     if(stat[0] & 0x10){
         DBG (5, "load_fw: firmware already loaded?\n");
         return SANE_STATUS_GOOD;
@@ -641,6 +734,32 @@ load_fw (struct scanner *s)
         return SANE_STATUS_IO_ERROR;
     }
 
+    /*reuse stat buffer*/
+    stat[0] = get_stat(s);
+
+    if(!(stat[0] & 0x10)){
+        DBG (5, "load_fw: firmware not loaded? %#x\n",stat[0]);
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    return ret;
+}
+
+/*
+ * try to load fw into scanner
+ */
+unsigned char
+get_stat(struct scanner *s)
+{
+    SANE_Status ret = SANE_STATUS_GOOD;
+
+    unsigned char cmd[2];
+    size_t cmdLen;
+    unsigned char stat[2];
+    size_t statLen;
+  
+    DBG (10, "get_stat: start\n");
+
     /*check status*/
     cmd[0] = 0x1b;
     cmd[1] = 0x03;
@@ -654,15 +773,11 @@ load_fw (struct scanner *s)
       stat, &statLen
     );
     if(ret){
-        DBG (5, "load_fw: error rechecking status\n");
-        return ret;
+        DBG (5, "get_stat: error checking status\n");
+        return 0;
     }
-    if(!(stat[0] & 0x10)){
-        DBG (5, "load_fw: firmware not loaded? %#x\n",stat[0]);
-        return SANE_STATUS_IO_ERROR;
-    }
-    
-    return ret;
+
+    return stat[0];
 }
 
 static SANE_Status
@@ -707,45 +822,6 @@ get_ident(struct scanner *s)
 }
 
 /*
- * Called by SANE to find out about supported devices.
- * 
- * From the SANE spec:
- * This function can be used to query the list of devices that are
- * available. If the function executes successfully, it stores a
- * pointer to a NULL terminated array of pointers to SANE_Device
- * structures in *device_list. The returned list is guaranteed to
- * remain unchanged and valid until (a) another call to this function
- * is performed or (b) a call to sane_exit() is performed. This
- * function can be called repeatedly to detect when new devices become
- * available. If argument local_only is true, only local devices are
- * returned (devices directly attached to the machine that SANE is
- * running on). If it is false, the device list includes all remote
- * devices that are accessible to the SANE library.
- * 
- * SANE does not require that this function is called before a
- * sane_open() call is performed. A device name may be specified
- * explicitly by a user which would make it unnecessary and
- * undesirable to call this function first.
- *
- * Read the config file, find scanners with help from sanei_*
- * store in global device structs
- */
-SANE_Status
-sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
-{
-    local_only = local_only;        /* get rid of compiler warning */
-  
-    DBG (10, "sane_get_devices: start\n");
-  
-    /*FIXME: rebuild this list every time*/
-    *device_list = sane_devArray;
-  
-    DBG (10, "sane_get_devices: finish\n");
-  
-    return SANE_STATUS_GOOD;
-}
-
-/*
  * From the SANE spec:
  * This function is used to establish a connection to a particular
  * device. The name of the device to be opened is passed in argument
@@ -762,15 +838,22 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     SANE_Status ret;
    
     DBG (10, "sane_open: start\n");
+
+    if(scanner_devList){
+      DBG (15, "sane_open: searching currently attached scanners\n");
+    }
+    else{
+      DBG (15, "sane_open: no scanners currently attached, attaching\n");
+  
+      ret = sane_get_devices(NULL,0);
+      if(ret != SANE_STATUS_GOOD){
+        return ret;
+      }
+    }
   
     if(name[0] == 0){
-        if(scanner_devList){
-            DBG (15, "sane_open: no device requested, using first\n");
-            s = scanner_devList;
-        }
-        else{
-            DBG (15, "sane_open: no device requested, none found\n");
-        }
+        DBG (15, "sane_open: no device requested, using default\n");
+        s = scanner_devList;
     }
     else{
         DBG (15, "sane_open: device %s requested, attaching\n", name);
@@ -890,6 +973,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     if(s->x_res_150){
       s->x_res_list[++i] = 150;
     }
+    if(s->x_res_225){
+      s->x_res_list[++i] = 225;
+    }
     if(s->x_res_300){
       s->x_res_list[++i] = 300;
     }
@@ -916,6 +1002,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     if(s->y_res_150){
       s->y_res_list[++i] = 150;
     }
+    if(s->y_res_225){
+      s->y_res_list[++i] = 225;
+    }
     if(s->y_res_300){
       s->y_res_list[++i] = 300;
     }
@@ -933,6 +1022,320 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
     opt->constraint.word_list = s->y_res_list;
+  }
+
+  /* "Geometry" group ---------------------------------------------------- */
+  if(option==OPT_GEOMETRY_GROUP){
+    opt->name = SANE_NAME_GEOMETRY;
+    opt->title = SANE_TITLE_GEOMETRY;
+    opt->desc = SANE_DESC_GEOMETRY;
+    opt->type = SANE_TYPE_GROUP;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  /* top-left x */
+  if(option==OPT_TL_X){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->tl_x_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
+    s->tl_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s)-s->min_x);
+    s->tl_x_range.quant = MM_PER_UNIT_FIX;
+  
+    opt->name = SANE_NAME_SCAN_TL_X;
+    opt->title = SANE_TITLE_SCAN_TL_X;
+    opt->desc = SANE_DESC_SCAN_TL_X;
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &(s->tl_x_range);
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* top-left y */
+  if(option==OPT_TL_Y){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->tl_y_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
+    s->tl_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s)-s->min_y);
+    s->tl_y_range.quant = MM_PER_UNIT_FIX;
+  
+    opt->name = SANE_NAME_SCAN_TL_Y;
+    opt->title = SANE_TITLE_SCAN_TL_Y;
+    opt->desc = SANE_DESC_SCAN_TL_Y;
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &(s->tl_y_range);
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* bottom-right x */
+  if(option==OPT_BR_X){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->br_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
+    s->br_x_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_width(s));
+    s->br_x_range.quant = MM_PER_UNIT_FIX;
+  
+    opt->name = SANE_NAME_SCAN_BR_X;
+    opt->title = SANE_TITLE_SCAN_BR_X;
+    opt->desc = SANE_DESC_SCAN_BR_X;
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &(s->br_x_range);
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* bottom-right y */
+  if(option==OPT_BR_Y){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->br_y_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_y);
+    s->br_y_range.max = SCANNER_UNIT_TO_FIXED_MM(get_page_height(s));
+    s->br_y_range.quant = MM_PER_UNIT_FIX;
+  
+    opt->name = SANE_NAME_SCAN_BR_Y;
+    opt->title = SANE_TITLE_SCAN_BR_Y;
+    opt->desc = SANE_DESC_SCAN_BR_Y;
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &(s->br_y_range);
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* page width */
+  if(option==OPT_PAGE_WIDTH){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->paper_x_range.min = SCANNER_UNIT_TO_FIXED_MM(s->min_x);
+    s->paper_x_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_x);
+    s->paper_x_range.quant = MM_PER_UNIT_FIX;
+
+    opt->name = SANE_NAME_PAGE_WIDTH;
+    opt->title = SANE_TITLE_PAGE_WIDTH;
+    opt->desc = SANE_DESC_PAGE_WIDTH;
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->paper_x_range;
+
+    if(s->has_adf){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->source == SOURCE_FLATBED){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
+    else{
+      opt->cap = SANE_CAP_INACTIVE;
+    }
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* page height */
+  if(option==OPT_PAGE_HEIGHT){
+    /* values stored in 1200 dpi units */
+    /* must be converted to MM for sane */
+    s->paper_y_range.min = SCANNER_UNIT_TO_FIXED_MM(0);
+    s->paper_y_range.max = SCANNER_UNIT_TO_FIXED_MM(s->max_y);
+    s->paper_y_range.quant = MM_PER_UNIT_FIX;
+
+    opt->name = SANE_NAME_PAGE_HEIGHT;
+    opt->title = SANE_TITLE_PAGE_HEIGHT;
+    opt->desc = "Specifies the height of the media, 0 will auto-detect.";
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_MM;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->paper_y_range;
+
+    if(s->has_adf){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if(s->source == SOURCE_FLATBED){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
+    else{
+      opt->cap = SANE_CAP_INACTIVE;
+    }
+  }
+
+  /* "Enhancement" group ------------------------------------------------- */
+  if(option==OPT_ENHANCEMENT_GROUP){
+    opt->name = SANE_NAME_ENHANCEMENT;
+    opt->title = SANE_TITLE_ENHANCEMENT;
+    opt->desc = SANE_DESC_ENHANCEMENT;
+    opt->type = SANE_TYPE_GROUP;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  /* brightness */
+  if(option==OPT_BRIGHTNESS){
+    opt->name = SANE_NAME_BRIGHTNESS;
+    opt->title = SANE_TITLE_BRIGHTNESS;
+    opt->desc = SANE_DESC_BRIGHTNESS;
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->brightness_range;
+    s->brightness_range.quant=1;
+    s->brightness_range.min=-127;
+    s->brightness_range.max=127;
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  }
+
+  /* contrast */
+  if(option==OPT_CONTRAST){
+    opt->name = SANE_NAME_CONTRAST;
+    opt->title = SANE_TITLE_CONTRAST;
+    opt->desc = SANE_DESC_CONTRAST;
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->contrast_range;
+    s->contrast_range.quant=1;
+    s->contrast_range.min=-127;
+    s->contrast_range.max=127;
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+  }
+
+  /* gamma */
+  if(option==OPT_GAMMA){
+    opt->name = "gamma";
+    opt->title = "Gamma function exponent";
+    opt->desc = "Changes intensity of midtones";
+    opt->type = SANE_TYPE_FIXED;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->gamma_range;
+
+    /* value ranges from .3 to 5, should be log scale? */
+    s->gamma_range.quant=SANE_FIX(0.01);
+    s->gamma_range.min=SANE_FIX(0.3);
+    s->gamma_range.max=SANE_FIX(5);
+
+    /*if (s->num_download_gamma){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    }*/
+
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*threshold*/
+  if(option==OPT_THRESHOLD){
+    opt->name = SANE_NAME_THRESHOLD;
+    opt->title = SANE_TITLE_THRESHOLD;
+    opt->desc = SANE_DESC_THRESHOLD;
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->threshold_range;
+    s->threshold_range.min=0;
+    s->threshold_range.max=255;
+    s->threshold_range.quant=1;
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    if(s->mode != MODE_LINEART){
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
+  }
+
+  if(option==OPT_THRESHOLD_CURVE){
+    opt->name = "threshold-curve";
+    opt->title = "Threshold curve";
+    opt->desc = "Dynamic hreshold curve, from light to dark, normally 50-65";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->threshold_curve_range;
+    s->threshold_curve_range.min=0;
+    s->threshold_curve_range.max=127;
+    s->threshold_curve_range.quant=1;
+
+    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    if(s->mode != MODE_LINEART){
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
+    opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* "Sensor" group ------------------------------------------------------ */
+  if(option==OPT_SENSOR_GROUP){
+    opt->name = SANE_NAME_SENSORS;
+    opt->title = SANE_TITLE_SENSORS;
+    opt->desc = SANE_DESC_SENSORS;
+    opt->type = SANE_TYPE_GROUP;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  if(option==OPT_SCAN_SW){
+    opt->name = SANE_NAME_SCAN;
+    opt->title = SANE_TITLE_SCAN;
+    opt->desc = SANE_DESC_SCAN;
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_adf)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_HOPPER){
+    opt->name = SANE_NAME_PAGE_LOADED;
+    opt->title = SANE_TITLE_PAGE_LOADED;
+    opt->desc = SANE_DESC_PAGE_LOADED;
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_adf)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_TOP){
+    opt->name = "top-edge";
+    opt->title = "Top edge";
+    opt->desc = "Paper is pulled partly into adf";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_adf)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_ADF_OPEN){
+    opt->name = SANE_NAME_COVER_OPEN;
+    opt->title = SANE_TITLE_COVER_OPEN;
+    opt->desc = SANE_DESC_COVER_OPEN;
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_adf)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  if(option==OPT_SLEEP){
+    opt->name = "power-save";
+    opt->title = "Power saving";
+    opt->desc = "Scanner in power saving mode";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_adf)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else 
+      opt->cap = SANE_CAP_INACTIVE;
   }
 
   return opt;
@@ -1035,6 +1438,75 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->resolution_y;
           return SANE_STATUS_GOOD;
 
+        case OPT_TL_X:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->tl_x);
+          return SANE_STATUS_GOOD;
+
+        case OPT_TL_Y:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->tl_y);
+          return SANE_STATUS_GOOD;
+
+        case OPT_BR_X:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->br_x);
+          return SANE_STATUS_GOOD;
+
+        case OPT_BR_Y:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->br_y);
+          return SANE_STATUS_GOOD;
+
+        case OPT_PAGE_WIDTH:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->page_width);
+          return SANE_STATUS_GOOD;
+
+        case OPT_PAGE_HEIGHT:
+          *val_p = SCANNER_UNIT_TO_FIXED_MM(s->page_height);
+          return SANE_STATUS_GOOD;
+
+        case OPT_BRIGHTNESS:
+          *val_p = s->brightness;
+          return SANE_STATUS_GOOD;
+
+        case OPT_CONTRAST:
+          *val_p = s->contrast;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA:
+          *val_p = SANE_FIX(s->gamma);
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD:
+          *val_p = s->threshold;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_CURVE:
+          *val_p = s->threshold_curve;
+          return SANE_STATUS_GOOD;
+
+        /* Sensor Group */
+        case OPT_SCAN_SW:
+          get_hardware_status(s);
+          *val_p = s->hw_scan_sw;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_HOPPER:
+          get_hardware_status(s);
+          *val_p = s->hw_hopper;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_TOP:
+          get_hardware_status(s);
+          *val_p = s->hw_top;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_ADF_OPEN:
+          get_hardware_status(s);
+          *val_p = s->hw_adf_open;
+          return SANE_STATUS_GOOD;
+          
+        case OPT_SLEEP:
+          get_hardware_status(s);
+          *val_p = s->hw_sleep;
+          return SANE_STATUS_GOOD;
       }
   }
   else if (action == SANE_ACTION_SET_VALUE) {
@@ -1138,18 +1610,196 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return change_params(s);
 
+        /* Geometry Group */
+        case OPT_TL_X:
+          if (s->tl_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->tl_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return SANE_STATUS_GOOD;
+
+        case OPT_TL_Y:
+          if (s->tl_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->tl_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return SANE_STATUS_GOOD;
+
+        case OPT_BR_X:
+          if (s->br_x == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->br_x = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return SANE_STATUS_GOOD;
+
+        case OPT_BR_Y:
+          if (s->br_y == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->br_y = FIXED_MM_TO_SCANNER_UNIT(val_c);
+
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return SANE_STATUS_GOOD;
+
+        case OPT_PAGE_WIDTH:
+          if (s->page_width == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->page_width = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          *info |= SANE_INFO_RELOAD_OPTIONS;
+          return SANE_STATUS_GOOD;
+
+        case OPT_PAGE_HEIGHT:
+          if (s->page_height == FIXED_MM_TO_SCANNER_UNIT(val_c))
+              return SANE_STATUS_GOOD;
+
+          s->page_height = FIXED_MM_TO_SCANNER_UNIT(val_c);
+          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+          return change_params(s);
+
+        /* Enhancement Group */
+        case OPT_BRIGHTNESS:
+          s->brightness = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_CONTRAST:
+          s->contrast = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_GAMMA:
+          s->gamma = SANE_UNFIX(val_c);
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD:
+          s->threshold = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_THRESHOLD_CURVE:
+          s->threshold_curve = val_c;
+          return SANE_STATUS_GOOD;
+
       }                       /* switch */
   }                           /* else */
 
   return SANE_STATUS_INVAL;
 }
 
-/* add extra bytes to total because of block trailer */
-void update_block_totals(struct scanner * s)
+/* use height and width to initialize rest of transfer vals */
+void update_transfer_totals(struct transfer * t)
 {
-    s->block.total_pix = s->block.width_pix * s->block.height;
-    s->block.total_bytes = s->block.width_bytes * s->block.height + 8;
+    t->total_pix = t->width_pix * t->height;
+    t->total_bytes = t->width_bytes * t->height;
+
+    t->rx_bytes = 0;
+    t->tx_bytes = 0;
+
+    t->done = 0;
 }
+
+/* each model has various settings that differ based on X resolution */
+/* we hard-code the list (determined from usb snoops) here */
+struct model_res {
+  int model;
+  int resolution;
+  int usb_power;
+
+  int max_x;
+  int min_x;
+  int max_y;
+  int min_y;
+
+  int act_width;
+  int req_width;
+  int head_width;
+  int pad_width;
+
+  int block_height;
+
+  int cal_width;
+
+  unsigned char * sw_coarsecal;
+  unsigned char * sw_finecal;
+  unsigned char * sw_sendcal;
+
+  unsigned char * head_cal1;
+  unsigned char * head_cal2;
+  unsigned char * sw_scan;
+
+};
+
+struct model_res settings[] = {
+
+ /*S300 AC*/
+/* model        res  u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
+ { MODEL_S300,  150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512,
+   setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
+   setWindowSendCal_S300_150, sendCal1Header_S300_150,
+   sendCal2Header_S300_150, setWindowScan_S300_150 },
+
+ { MODEL_S300,  225, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192,
+   setWindowCoarseCal_S300_225, setWindowFineCal_S300_225,
+   setWindowSendCal_S300_225, sendCal1Header_S300_225,
+   sendCal2Header_S300_225, setWindowScan_S300_225 },
+
+ { MODEL_S300,  300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192,
+   setWindowCoarseCal_S300_300, setWindowFineCal_S300_300,
+   setWindowSendCal_S300_300, sendCal1Header_S300_300,
+   sendCal2Header_S300_300, setWindowScan_S300_300 },
+
+ { MODEL_S300,  600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+   setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
+   setWindowSendCal_S300_600, sendCal1Header_S300_600,
+   sendCal2Header_S300_600, setWindowScan_S300_600 },
+
+ /*S300 USB*/
+/* model        res  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh    calw */
+ { MODEL_S300,  150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432,
+   setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
+   setWindowSendCal_S300_150_U, sendCal1Header_S300_150_U,
+   sendCal2Header_S300_150_U, setWindowScan_S300_150_U },
+
+ { MODEL_S300,  225, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112,
+   setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
+   setWindowSendCal_S300_225_U, sendCal1Header_S300_225_U,
+   sendCal2Header_S300_225_U, setWindowScan_S300_225_U },
+
+ { MODEL_S300,  300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872,
+   setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
+   setWindowSendCal_S300_300_U, sendCal1Header_S300_300_U,
+   sendCal2Header_S300_300_U, setWindowScan_S300_300_U },
+
+ { MODEL_S300,  600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+   setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
+   setWindowSendCal_S300_600, sendCal1Header_S300_600,
+   sendCal2Header_S300_600, setWindowScan_S300_600 },
+
+ /*fi-60F*/
+/* model        res  u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
+ { MODEL_FI60F, 150, 0,  600, 32,  875, 32, 1480, 1480,  216, 1114, 41, 1480,
+   setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
+   setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
+   sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
+
+ { MODEL_FI60F, 300, 0, 1296, 32, 1749, 32, 2400, 2400,  432,  526, 72, 2400,
+   setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
+   setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
+   sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
+
+ { MODEL_FI60F, 600, 0, 2592, 32, 3498, 32, 2848, 2848,  864,  114, 61, 2848,
+   setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
+   setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
+   sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
+
+ { MODEL_NONE,    0, 0,    0,  0,    0,  0,    0,    0,    0,    0,  0,    0,
+   NULL, NULL, NULL, NULL, NULL, NULL },
+
+};
 
 /*
  * clean up scanner struct vals when user changes mode, res, etc
@@ -1158,291 +1808,102 @@ static SANE_Status
 change_params(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
-  
+
+    int i=0;
+
     DBG (10, "change_params: start\n");
+
+    do {
+      if(settings[i].model == s->model
+        && settings[i].resolution == s->resolution_x
+        && settings[i].usb_power == s->usb_power){
+
+          /*1200 dpi*/
+          s->max_x = settings[i].max_x * 1200/s->resolution_x;
+          s->min_x = settings[i].min_x * 1200/s->resolution_x;
+          s->max_y = settings[i].max_y * 1200/s->resolution_y;
+          s->min_y = settings[i].min_y * 1200/s->resolution_y;
+
+          /*current dpi*/
+          s->scan.width_pix = settings[i].act_width;
+          s->block.height = settings[i].block_height;
+
+          s->req_width = settings[i].req_width;
+          s->head_width = settings[i].head_width;
+          s->pad_width = settings[i].pad_width;
+
+          s->coarsecal.width_pix = settings[i].cal_width;
+          s->coarsecal.width_bytes = settings[i].cal_width*3;
+
+          s->setWindowCoarseCal = settings[i].sw_coarsecal;
+          s->setWindowCoarseCalLen = SET_WINDOW_LEN;
+
+          s->setWindowFineCal = settings[i].sw_finecal;
+          s->setWindowFineCalLen = SET_WINDOW_LEN;
+
+          s->setWindowSendCal = settings[i].sw_sendcal;
+          s->setWindowSendCalLen = SET_WINDOW_LEN;
+
+          s->sendCal1Header = settings[i].head_cal1;
+          s->sendCal1HeaderLen = 14;
+
+          s->sendCal2Header = settings[i].head_cal2;
+          s->sendCal2HeaderLen = 7;
+
+          s->setWindowScan = settings[i].sw_scan;
+          s->setWindowScanLen = SET_WINDOW_LEN;
+
+          break;
+      }
+      i++;
+    } while (settings[i].model);
   
-    if (s->model == MODEL_S300){
-
-        if(s->resolution_x == 150){
-            /*s->scan.height = 2317;*/
-            s->scan.height = 1762;
-            s->scan.width_pix = 4256;
-            s->block.height = 41;
-            s->front.width_pix = 1296;
-
-            s->req_width = 1480;
-            s->head_width = 1296;
-            s->pad_width = 184;
-
-            /* cal reads at 300 dpi? */
-            s->coarsecal.width_pix = 8512;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_S300_150;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_S300_150);
-	    
-	    s->setWindowFineCal = setWindowFineCal_S300_150;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_S300_150);
-	    
-	    s->setWindowSendCal = setWindowSendCal_S300_150;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_S300_150);
-	    
-	    s->sendCal1Header = sendCal1Header_S300_150;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_S300_150);
-
-	    s->sendCal2Header = sendCal2Header_S300_150;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_S300_150);
-
-	    s->setWindowScan = setWindowScan_S300_150;
-	    s->setWindowScanLen = sizeof(setWindowScan_S300_150);
-        }
-        else if(s->resolution_x == 300){
-            /*s->scan.height = 4632;*/
-            s->scan.height = 3524;
-            s->scan.width_pix = 8192;
-            s->block.height = 21;
-            s->front.width_pix = 2592;
-
-            s->req_width = 2800;
-            s->head_width = 2592;
-            s->pad_width = 208;
-
-            s->coarsecal.width_pix = 0x2000;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_S300_300;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_S300_300);
-	    
-	    s->setWindowFineCal = setWindowFineCal_S300_300;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_S300_300);
-	    
-	    s->setWindowSendCal = setWindowSendCal_S300_300;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_S300_300);
-	    
-	    s->sendCal1Header = sendCal1Header_S300_300;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_S300_300);
-
-	    s->sendCal2Header = sendCal2Header_S300_300;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_S300_300);
-
-	    s->setWindowScan = setWindowScan_S300_300;
-	    s->setWindowScanLen = sizeof(setWindowScan_S300_300);
-        }
-#if 0
-no actual 600 dpi support?
-        else if(s->resolution_x == 600){
-            s->scan.height = 9249;
-            s->scan.width_pix = 16064;
-            s->block.height = 10;
-            s->front.width_pix = 5000;
-
-            s->req_width = 5440;
-            s->head_width = 5000;
-            s->pad_width = 440;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_S300_600;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_S300_600);
-	    
-	    s->setWindowFineCal = setWindowFineCal_S300_600;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_S300_600);
-	    
-	    s->setWindowSendCal = setWindowSendCal_S300_600;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_S300_600);
-	    
-	    s->sendCal1Header = sendCal1Header_S300_600;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_S300_600);
-
-	    s->sendCal2Header = sendCal2Header_S300_600;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_S300_600);
-
-	    s->setWindowScan = setWindowScan_S300_600;
-	    s->setWindowScanLen = sizeof(setWindowScan_S300_600);
-        }
-#endif
-	else{
-            DBG (5, "change_params: unsupported res\n");
-            ret = SANE_STATUS_INVAL;
-	}
-
-        /* fill in scan settings */
-        /* S300 always scans in color? */
-        s->scan.width_bytes = s->scan.width_pix * 3;
-
-        /* cal is always color? */
-        s->coarsecal.height = 1;
-        s->coarsecal.width_bytes = s->coarsecal.width_pix * 3;
-
-        s->darkcal.height = 16;
-        s->darkcal.width_pix = s->coarsecal.width_pix;
-        s->darkcal.width_bytes = s->coarsecal.width_bytes;
-
-        s->lightcal.height = 16;
-        s->lightcal.width_pix = s->coarsecal.width_pix;
-        s->lightcal.width_bytes = s->coarsecal.width_bytes;
-
-        /* 2 bytes per channel (gain&offset) */
-        s->sendcal.height = 1;
-        s->sendcal.width_pix = s->coarsecal.width_pix;
-        s->sendcal.width_bytes = s->coarsecal.width_bytes * 2;
-    }
-
-    else if (s->model == MODEL_FI60F){
-
-        if(s->resolution_x == 150){
-            s->scan.height = 1750;
-            s->scan.width_pix = 1200;
-            s->block.height = 41;
-            s->front.width_pix = 1296;
-
-            s->req_width = 1480;
-            /*
-            s->head_width = 864;
-            s->pad_width = 114;
-            */
-
-            s->coarsecal.width_pix = 1200;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_FI60F_150;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_FI60F_150);
-	    
-	    s->setWindowFineCal = setWindowFineCal_FI60F_150;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_FI60F_150);
-	    
-	    s->setWindowSendCal = setWindowSendCal_FI60F_150;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_FI60F_150);
-	    
-	    s->sendCal1Header = sendCal1Header_FI60F_150;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_FI60F_150);
-
-	    s->sendCal2Header = sendCal2Header_FI60F_150;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_FI60F_150);
-
-	    s->setWindowScan = setWindowScan_FI60F_150;
-	    s->setWindowScanLen = sizeof(setWindowScan_FI60F_150);
-        }
-	/* FIXME: too short? */
-        else if(s->resolution_x == 300){
-            s->scan.height = 1749;
-            s->scan.width_pix = 2400;
-            s->block.height = 72;
-            s->front.width_pix = 1296;
-
-            s->req_width = 2400;
-            s->head_width = 432;
-            s->pad_width = 526;
-
-            s->coarsecal.width_pix = 2400;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_FI60F_300;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_FI60F_300);
-	    
-	    s->setWindowFineCal = setWindowFineCal_FI60F_300;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_FI60F_300);
-	    
-	    s->setWindowSendCal = setWindowSendCal_FI60F_300;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_FI60F_300);
-	    
-	    s->sendCal1Header = sendCal1Header_FI60F_300;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_FI60F_300);
-
-	    s->sendCal2Header = sendCal2Header_FI60F_300;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_FI60F_300);
-
-	    s->setWindowScan = setWindowScan_FI60F_300;
-	    s->setWindowScanLen = sizeof(setWindowScan_FI60F_300);
-        }
-	/* FIXME: too short? */
-        else if(s->resolution_x == 600){
-            s->scan.height = 3498;
-            s->scan.width_pix = 2848;
-            s->block.height = 61;
-            s->front.width_pix = 2592;
-
-            s->req_width = 2848;
-            s->head_width = 864;
-            s->pad_width = 114;
-
-            s->coarsecal.width_pix = 2848;
-
-	    s->setWindowCoarseCal = setWindowCoarseCal_FI60F_600;
-	    s->setWindowCoarseCalLen = sizeof(setWindowCoarseCal_FI60F_600);
-	    
-	    s->setWindowFineCal = setWindowFineCal_FI60F_600;
-	    s->setWindowFineCalLen = sizeof(setWindowFineCal_FI60F_600);
-	    
-	    s->setWindowSendCal = setWindowSendCal_FI60F_600;
-	    s->setWindowSendCalLen = sizeof(setWindowSendCal_FI60F_600);
-	    
-	    s->sendCal1Header = sendCal1Header_FI60F_600;
-	    s->sendCal1HeaderLen = sizeof(sendCal1Header_FI60F_600);
-
-	    s->sendCal2Header = sendCal2Header_FI60F_600;
-	    s->sendCal2HeaderLen = sizeof(sendCal2Header_FI60F_600);
-
-	    s->setWindowScan = setWindowScan_FI60F_600;
-	    s->setWindowScanLen = sizeof(setWindowScan_FI60F_600);
-        }
-	else{
-            DBG (5, "change_params: unsupported res\n");
-            ret = SANE_STATUS_INVAL;
-	}
-
-	/*gray or binary scans in 8 bit gray*/
-        if (s->mode == MODE_COLOR) {
-            s->scan.width_bytes = s->scan.width_pix*3;
-	}
-        else{
-            s->scan.width_bytes = s->scan.width_pix*3;
-        }
-
-	/* FIXME: is this always in color? */
-        s->coarsecal.height = 1;
-        s->coarsecal.width_pix = s->scan.width_pix;
-        s->coarsecal.width_bytes = s->scan.width_bytes;
-
-        s->darkcal.height = 16;
-        s->darkcal.width_pix = s->scan.width_pix;
-        s->darkcal.width_bytes = s->scan.width_bytes;
-
-        s->lightcal.height = 16;
-        s->lightcal.width_pix = s->scan.width_pix;
-        s->lightcal.width_bytes = s->scan.width_bytes;
-
-        /* 2 bytes per channel (gain&offset) */
-        s->sendcal.height = 1;
-        s->sendcal.width_pix = s->scan.width_pix * 2;
-        s->sendcal.width_bytes = s->scan.width_bytes * 2;
+    /*pull in user height setting, or the max if they dont know*/
+    if(!s->page_height){
+      s->scan.height = s->max_y * s->resolution_y / 1200;
     }
     else{
-        DBG (5, "change_params: cant handle this scanner\n");
-        ret = SANE_STATUS_INVAL;
+      s->scan.height = s->page_height * s->resolution_y / 1200;
     }
+
+    /* FIXME: make these vals dynamic? */
+    s->front.width_pix = s->max_x * s->resolution_x / 1200;
+    s->page_width = s->max_x;
+    s->br_x = s->max_x;
+    s->br_y = s->max_y;
+
+    /*FIXME: fi-60f gray or binary could scan in 8 bit gray*/
+    if (s->model == MODEL_FI60F && s->mode != MODE_COLOR){
+        s->scan.width_bytes = s->scan.width_pix*3;
+    }
+    else{
+        s->scan.width_bytes = s->scan.width_pix*3;
+    }
+    update_transfer_totals(&s->scan);
+
+    s->coarsecal.height = 1;
+    update_transfer_totals(&s->coarsecal);
+
+    s->darkcal.height = 16;
+    s->darkcal.width_pix = s->coarsecal.width_pix;
+    s->darkcal.width_bytes = s->coarsecal.width_bytes;
+    update_transfer_totals(&s->darkcal);
+
+    s->lightcal.height = 16;
+    s->lightcal.width_pix = s->coarsecal.width_pix;
+    s->lightcal.width_bytes = s->coarsecal.width_bytes;
+    update_transfer_totals(&s->lightcal);
+
+    /* 2 bytes per channel (gain&offset) */
+    s->sendcal.height = 1;
+    s->sendcal.width_pix = s->coarsecal.width_pix * 2;
+    s->sendcal.width_bytes = s->coarsecal.width_bytes * 2;
+    update_transfer_totals(&s->sendcal);
      
-    /* fill in scan settings */
-    /* add extra bytes to total because of block trailers */
-    s->scan.total_pix = s->scan.width_pix * s->scan.height;
-    s->scan.total_bytes = s->scan.width_bytes * s->scan.height;
-    s->scan.total_bytes += (s->scan.height/s->block.height*8);
-    if(s->scan.height % s->block.height){
-        s->scan.total_bytes += 8;
-    }
-
-    /* fill in cal settings */
-    /* add extra bytes to total because of block trailer */
-    s->coarsecal.total_pix = s->coarsecal.width_pix * s->coarsecal.height;
-    s->coarsecal.total_bytes = s->coarsecal.width_bytes * s->coarsecal.height + 8;
-
-    s->darkcal.total_pix = s->darkcal.width_pix * s->darkcal.height;
-    s->darkcal.total_bytes = s->darkcal.width_bytes * s->darkcal.height + 8;
-
-    s->lightcal.total_pix = s->lightcal.width_pix * s->lightcal.height;
-    s->lightcal.total_bytes = s->lightcal.width_bytes * s->lightcal.height + 8;
-
-    s->sendcal.total_pix = s->sendcal.width_pix * s->sendcal.height;
-    s->sendcal.total_bytes = s->sendcal.width_bytes * s->sendcal.height;
-
-    /* fill in block settings, function so we can call it elsewhere */
+    /* fill in block settings */
     s->block.width_bytes = s->scan.width_bytes;
     s->block.width_pix = s->scan.width_pix;
-    update_block_totals(s);
+    update_transfer_totals(&s->block);
 
     /* fill in front settings */
     switch (s->mode) {
@@ -1457,8 +1918,7 @@ no actual 600 dpi support?
         break;
     }
     s->front.height = s->scan.height;
-    s->front.total_pix = s->front.width_pix * s->front.height;
-    s->front.total_bytes = s->front.width_bytes * s->front.height;
+    update_transfer_totals(&s->front);
 
     /* back settings always same as front settings */
     if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
@@ -1504,7 +1964,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   params->pixels_per_line = s->front.width_pix;
   params->bytes_per_line = s->front.width_bytes;
-  params->lines = s->scan.height;
+  if(!s->page_height){
+    params->lines = -1;
+  }
+  else{
+    params->lines = s->scan.height;
+  }
   params->last_frame = 1;
 
   if (s->mode == MODE_COLOR) {
@@ -1542,9 +2007,6 @@ sane_start (SANE_Handle handle)
   
     DBG (10, "sane_start: start\n");
   
-    /* start next image */
-    s->send_eof=0;
-
     /* set side marker on first page */
     if(!s->started){
       if(s->source == SOURCE_ADF_BACK){
@@ -1611,6 +2073,13 @@ sane_start (SANE_Handle handle)
             sane_cancel((SANE_Handle)s);
             return ret;
         }
+
+        ret = send_lut(s);
+        if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: failed to send lut\n");
+            sane_cancel((SANE_Handle)s);
+            return ret;
+        }
       
         ret = lamp(s,1);
         if (ret != SANE_STATUS_GOOD) {
@@ -1635,20 +2104,16 @@ sane_start (SANE_Handle handle)
         DBG(15,"sane_start: reset counters\n");
 
         /* reset scan */
-	s->scan.rx_bytes = 0;
-	s->scan.tx_bytes = 0;
+        update_transfer_totals(&s->scan);
     
         /* reset block */
-	s->block.rx_bytes = 0;
-	s->block.tx_bytes = 0;
+        update_transfer_totals(&s->block);
 
         /* reset front */
-	s->front.rx_bytes = 0;
-	s->front.tx_bytes = 0;
+        update_transfer_totals(&s->front);
 
         /* reset back */
-	s->back.rx_bytes = 0;
-	s->back.tx_bytes = 0;
+        update_transfer_totals(&s->back);
 
         ret = scan(s);
         if (ret != SANE_STATUS_GOOD) {
@@ -1666,6 +2131,7 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_GOOD;
 }
 
+/* the +8 on all the lengths is to makeup for potential block trailers */
 static SANE_Status
 setup_buffers(struct scanner *s)
 {
@@ -1674,32 +2140,32 @@ setup_buffers(struct scanner *s)
     DBG (10, "setup_buffers: start\n");
 
     /* temporary cal data */
-    s->coarsecal.buffer = calloc (1,s->coarsecal.total_bytes);
+    s->coarsecal.buffer = calloc (1,s->coarsecal.total_bytes+8);
     if(!s->coarsecal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup coarse cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->darkcal.buffer = calloc (1,s->darkcal.total_bytes);
+    s->darkcal.buffer = calloc (1,s->darkcal.total_bytes+8);
     if(!s->darkcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup fine cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->lightcal.buffer = calloc (1,s->lightcal.total_bytes);
+    s->lightcal.buffer = calloc (1,s->lightcal.total_bytes+8);
     if(!s->lightcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup fine cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
-    s->sendcal.buffer = calloc (1,s->sendcal.total_bytes);
+    s->sendcal.buffer = calloc (1,s->sendcal.total_bytes+8);
     if(!s->sendcal.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup send cal buffer\n");
         return SANE_STATUS_NO_MEM;
     }
 
     /* grab up to 512K at a time */
-    s->block.buffer = calloc (1,s->block.total_bytes);
+    s->block.buffer = calloc (1,s->block.total_bytes+8);
     if(!s->block.buffer){
         DBG (5, "setup_buffers: ERROR: failed to setup block buffer\n");
         return SANE_STATUS_NO_MEM;
@@ -1707,7 +2173,7 @@ setup_buffers(struct scanner *s)
 
     /* make image buffer to hold frontside data */
     if(s->source != SOURCE_ADF_BACK){
-        s->front.buffer = calloc (1,s->front.total_bytes);
+        s->front.buffer = calloc (1,s->front.total_bytes+8);
         if(!s->front.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup front buffer\n");
             return SANE_STATUS_NO_MEM;
@@ -1716,7 +2182,7 @@ setup_buffers(struct scanner *s)
 
     /* make image buffer to hold backside data */
     if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-        s->back.buffer = calloc (1,s->back.total_bytes);
+        s->back.buffer = calloc (1,s->back.total_bytes+8);
         if(!s->back.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup back buffer\n");
             return SANE_STATUS_NO_MEM;
@@ -1842,13 +2308,14 @@ coarsecal(struct scanner *s)
         s->coarsecal.rx_bytes = 0;
         s->coarsecal.tx_bytes = 0;
     
-        while(s->coarsecal.rx_bytes < s->coarsecal.total_bytes){
+        while(!s->coarsecal.done){
             ret = read_from_scanner(s,&s->coarsecal);
             if(ret){
                 DBG (5, "coarsecal: cant read from scanner\n");
                 return ret;
             }
         }
+        s->coarsecal.done = 0;
 
         /* FIXME inspect data, change coarse cal data */
         if(s->model == MODEL_S300){
@@ -1936,13 +2403,14 @@ coarsecal(struct scanner *s)
         s->coarsecal.rx_bytes = 0;
         s->coarsecal.tx_bytes = 0;
     
-        while(s->coarsecal.rx_bytes < s->coarsecal.total_bytes){
+        while(!s->coarsecal.done){
             ret = read_from_scanner(s,&s->coarsecal);
             if(ret){
                 DBG (5, "coarsecal: cant read from scanner\n");
                 return ret;
             }
         }
+        s->coarsecal.done = 0;
 
         /* FIXME inspect data, change coarse cal data */
         if(s->model == MODEL_S300){
@@ -2011,13 +2479,14 @@ finecal(struct scanner *s)
     s->darkcal.rx_bytes = 0;
     s->darkcal.tx_bytes = 0;
 
-    while(s->darkcal.rx_bytes < s->darkcal.total_bytes){
+    while(!s->darkcal.done){
         ret = read_from_scanner(s,&s->darkcal);
         if(ret){
             DBG (5, "finecal: cant read from scanner\n");
             return ret;
         }
     }
+    s->darkcal.done = 0;
 
     /* grab rows with lamp on */
     lamp(s,1);
@@ -2046,13 +2515,14 @@ finecal(struct scanner *s)
     s->lightcal.rx_bytes = 0;
     s->lightcal.tx_bytes = 0;
 
-    while(s->lightcal.rx_bytes < s->lightcal.total_bytes){
+    while(!s->lightcal.done){
         ret = read_from_scanner(s,&s->lightcal);
         if(ret){
             DBG (5, "finecal: cant read from scanner\n");
             return ret;
         }
     }
+    s->lightcal.done = 0;
 
     /* sum up light and dark scans */
     for(j=0; j<s->darkcal.width_bytes; j++){
@@ -2290,12 +2760,13 @@ static SANE_Status
 set_window(struct scanner *s, int window)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
+
     unsigned char cmd[] = {0x1b, 0xd1};
     size_t cmdLen = sizeof(cmd);
     unsigned char stat[] = {0};
     size_t statLen = sizeof(stat);
     unsigned char * payload;
-    size_t paylen;
+    size_t paylen = SET_WINDOW_LEN;
 
     DBG (10, "set_window: start, window %d\n",window);
 
@@ -2315,6 +2786,7 @@ set_window(struct scanner *s, int window)
       case WINDOW_SCAN:
         payload = s->setWindowScan;
 	paylen  = s->setWindowScanLen;
+        set_SW_ypix(payload,s->scan.height);
 	break;
       default:
         DBG (5, "set_window: unknown window\n");
@@ -2359,6 +2831,178 @@ set_window(struct scanner *s, int window)
     return ret;
 }
 
+/* instead of internal brightness/contrast/gamma
+   scanners uses 12bit x 12bit LUT
+   default is linear table of slope 1
+   brightness and contrast inputs are -127 to +127 
+
+   contrast rotates slope of line around central input val
+
+       high           low
+       .       x      .
+       .      x       .         xx
+   out .     x        . xxxxxxxx
+       .    x         xx
+       ....x.......   ............
+            in             in
+
+   then brightness moves line vertically, and clamps to 8bit
+
+       bright         dark
+       .   xxxxxxxx   .
+       . x            . 
+   out x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+            in             in
+  */
+static SANE_Status
+send_lut (struct scanner *s)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+
+    unsigned char cmd[] = {0x1b, 0xc5};
+    size_t cmdLen = 2;
+    unsigned char stat[1];
+    size_t statLen = 1;
+    unsigned char out[0x6000];
+    size_t outLen = 0x6000;
+    
+    int i, j;
+    double b, slope, offset;
+    int width = outLen / 6; /* 3 colors, 2 bytes */
+    int height = width; /* square table */
+  
+    DBG (10, "send_lut: start\n");
+
+    /* contrast is converted to a slope [0,90] degrees:
+     * first [-127,127] to [0,254] then to [0,1]
+     * then multiply by PI/2 to convert to radians
+     * then take the tangent to get slope (T.O.A)
+     * then multiply by the normal linear slope 
+     * because the table may not be square, i.e. 1024x256*/
+    slope = tan(((double)s->contrast+127)/254 * M_PI/2);
+
+    /* contrast slope must stay centered, so figure
+     * out vertical offset at central input value */
+    offset = height/2 - slope*width/2;
+
+    /* convert the user brightness setting (-127 to +127)
+     * into a scale that covers the range required
+     * to slide the contrast curve entirely off the table */
+    b = ((double)s->brightness/127) * (slope*(width-1) + offset);
+  
+    DBG (15, "send_lut: %d %f %d %f %f\n", s->brightness, b,
+      s->contrast, slope, offset);
+  
+    for(i=0;i<width;i++){
+      j=slope*i + offset + b;
+  
+      if(j<0){
+        j=0;
+      }
+  
+      if(j>(height-1)){
+        j=height-1;
+      }
+  
+      /*first table, le order*/
+      out[i*2] = j & 0xff;
+      out[i*2+1] = (j >> 8) & 0x0f;
+
+      /*second table, le order*/
+      out[width*2 + i*2] = j & 0xff;
+      out[width*2 + i*2+1] = (j >> 8) & 0x0f;
+
+      /*third table, le order*/
+      out[width*4 + i*2] = j & 0xff;
+      out[width*4 + i*2+1] = (j >> 8) & 0x0f;
+    }
+
+    ret = do_cmd(
+      s, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+        DBG (5, "send_lut: error sending cmd\n");
+        return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "send_lut: cmd bad status?\n");
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    statLen = 1;
+    ret = do_cmd(
+      s, 0,
+      out, outLen,
+      NULL, 0,
+      stat, &statLen
+    );
+    if(ret){
+        DBG (5, "send_lut: error sending out\n");
+        return ret;
+    }
+    if(stat[0] != 6){
+        DBG (5, "send_lut: out bad status?\n");
+        return SANE_STATUS_IO_ERROR;
+    }
+
+    DBG (10, "send_lut: finish\n");
+
+    return ret;
+}
+
+static SANE_Status
+get_hardware_status (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "get_hardware_status: start\n");
+
+  /* only run this once every second */
+  if (s->last_ghs < time(NULL)) {
+
+    unsigned char cmd[2];
+    size_t cmdLen = sizeof(cmd);
+    unsigned char pay[4];
+    size_t payLen = sizeof(pay);
+
+    DBG (15, "get_hardware_status: running\n");
+
+    cmd[0] = 0x1b;
+    cmd[1] = 0x33;
+    
+    ret = do_cmd(
+      s, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      pay, &payLen
+    );
+    if(ret){
+        DBG (5, "get_hardware_status: error sending cmd\n");
+        return ret;
+    }
+
+    hexdump(5,"ghspayload: ", pay, payLen);
+
+    s->last_ghs = time(NULL);
+
+    s->hw_top      =  ((pay[0] >> 7) & 0x01);
+    s->hw_hopper   = !((pay[0] >> 6) & 0x01);
+    s->hw_adf_open =  ((pay[0] >> 5) & 0x01);
+
+    s->hw_sleep    =  ((pay[1] >> 7) & 0x01);
+    s->hw_scan_sw  =  ((pay[1] >> 0) & 0x01);
+  }
+
+  DBG (10, "get_hardware_status: finish\n");
+
+  return ret;
+}
+
 static SANE_Status
 ingest(struct scanner *s)
 {
@@ -2392,8 +3036,8 @@ ingest(struct scanner *s)
             return ret;
         }
         if(stat[0] != 6){
-            DBG (5, "ingest: cmd bad status?\n");
-            return SANE_STATUS_IO_ERROR;
+            DBG (5, "ingest: cmd bad status? %d\n",stat[0]);
+            continue;
         }
     
         /*send payload*/
@@ -2415,12 +3059,12 @@ ingest(struct scanner *s)
             DBG (5, "ingest: found paper?\n");
             break;
         }
-        if(stat[0] == 0x15){
+        else if(stat[0] == 0x15 || stat[0] == 0){
             DBG (5, "ingest: no paper?\n");
             ret=SANE_STATUS_NO_DOCS;
 	    continue;
         }
-        if(stat[0] != 6){
+        else{
             DBG (5, "ingest: payload bad status?\n");
             return SANE_STATUS_IO_ERROR;
         }
@@ -2496,14 +3140,21 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         return SANE_STATUS_CANCELLED;
     }
   
+    if(s->side == SIDE_FRONT){
+        tp = &s->front;
+    }
+    else{
+        tp = &s->back;
+    }
+
     /* have sent all of current buffer */
-    if(s->send_eof){
+    if(tp->done){
         DBG (10, "sane_read: returning eof\n");
         return SANE_STATUS_EOF;
     } 
 
     /* scan not finished, get more into block buffer */
-    if(s->scan.rx_bytes != s->scan.total_bytes){
+    if(!s->scan.done){
 
         /* block buffer currently empty, clean up */ 
 	if(!s->block.rx_bytes){
@@ -2550,9 +3201,11 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         }
 
         /* block filled, copy to front/back */
-	if(s->block.rx_bytes == s->block.total_bytes){
+	if(s->block.done){
 
             DBG (15, "sane_read: block buffer full\n");
+
+            s->block.done = 0;
 
             /* get the 0x43 cmd for the S300 */
             if(s->model == MODEL_S300){
@@ -2568,7 +3221,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                   NULL, 0,
                   in, &inLen
                 );
-                hexdump(30, "cmd 43: ", in, inLen);
+                hexdump(15, "cmd 43: ", in, inLen);
     
                 if(ret){
                     DBG (5, "sane_read: error sending 43 cmd\n");
@@ -2580,6 +3233,20 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                     DBG (5, "sane_read: cant copy to front/back\n");
                     return ret;
                 }
+
+                s->scan.rx_bytes += s->block.rx_bytes;
+
+                /* autodetect mode and paper just ran out, change length */
+                if( !s->page_height && s->last43 & 0x80 && !(in[1] & 0x80) ){
+
+                    int moreblocks = s->resolution_y/s->block.height;
+                    DBG (5, "sane_read: paper out? %d\n",moreblocks);
+
+                    s->scan.total_bytes = s->scan.rx_bytes 
+                      + s->block.total_bytes * moreblocks;
+                }
+
+                s->last43 = in[1];
             }
 
             else { /*fi-60f*/
@@ -2588,29 +3255,19 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                     DBG (5, "sane_read: cant copy to front/back\n");
                     return ret;
                 }
+
+                s->scan.rx_bytes += s->block.rx_bytes;
 	    }
 
-            /* count block_rx_bytes in scan_rx_bytes */
-            s->scan.rx_bytes += s->block.rx_bytes;
-            s->scan.tx_bytes += s->block.rx_bytes;
-
             /* reset for next pass */
-            s->block.rx_bytes = 0;
-            s->block.tx_bytes = 0;
+            update_transfer_totals(&s->block);
 
-            /* scan now finished, reset size of block buffer */
+            /* scan now finished */
             if(s->scan.rx_bytes == s->scan.total_bytes){
-                DBG (15, "sane_read: growing block\n");
-                update_block_totals(s);
+                DBG (15, "sane_read: last block\n");
+                s->scan.done = 1;
             }
 	}
-    }
-
-    if(s->side == SIDE_FRONT){
-        tp = &s->front;
-    }
-    else{
-        tp = &s->back;
     }
 
     *len = tp->rx_bytes - tp->tx_bytes;
@@ -2626,9 +3283,9 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         tp->tx_bytes += *len;
     
         /* sent it all, return eof on next read */
-        if(tp->tx_bytes == tp->total_bytes){
+        if(s->scan.done && tp->tx_bytes == tp->rx_bytes){
             DBG (10, "sane_read: side done\n");
-            s->send_eof=1;
+            tp->done=1;
         }
     }  
 
@@ -2643,7 +3300,7 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
     size_t bytes = MAX_IMG_PASS;
-    size_t remainBlock = tp->total_bytes - tp->rx_bytes;
+    size_t remainBlock = tp->total_bytes - tp->rx_bytes + 8;
   
     /* determine amount to ask for */
     if(bytes > remainBlock){
@@ -2669,6 +3326,13 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     if (ret == SANE_STATUS_GOOD || (ret == SANE_STATUS_EOF && bytes) ) {
 
         DBG(15,"read_from_scanner: got GOOD/EOF (%lu)\n",(unsigned long)bytes);
+
+        if(bytes == remainBlock){
+          DBG(15,"read_from_scanner: block done, ignoring trailer\n");
+          bytes -= 8;
+          tp->done = 1;
+        }
+
         ret = SANE_STATUS_GOOD;
         tp->rx_bytes += bytes;
     }
@@ -3306,4 +3970,36 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
   DBG (10, "sane_get_select_fd\n");
   DBG (15, "%p %d\n", h, *fdp);
   return SANE_STATUS_UNSUPPORTED;
+}
+
+/* s->page_width stores the user setting
+ * for the paper width in adf. sometimes,
+ * we need a value that differs from this
+ * due to using FB
+ */
+int
+get_page_width(struct scanner *s) 
+{
+  /* scanner max for fb */
+  if(s->source == SOURCE_FLATBED){
+      return s->max_x;
+  }
+
+  return s->page_width;
+}
+
+/* s->page_height stores the user setting
+ * for the paper height in adf. sometimes,
+ * we need a value that differs from this
+ * due to using FB.
+ */
+int
+get_page_height(struct scanner *s) 
+{
+  /* scanner max for fb */
+  if(s->source == SOURCE_FLATBED){
+      return s->max_y;
+  }
+
+  return s->page_height;
 }

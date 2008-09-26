@@ -1,3 +1,6 @@
+2008-09-26  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891_low.c: fix HP4400 head parking
+
 2008-09-25  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/epjitsu.[ch], backend/epjitsu-cmd.h: backend v 13, 14 and 15:
 	- add working page-height control

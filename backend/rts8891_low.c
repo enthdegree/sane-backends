@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           6
+#define RTS8891_BUILD           7
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */
@@ -373,6 +373,7 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
 	      SANE_Int distance, SANE_Bool forward)
 {
   SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Byte regs10,regs11;
 
   DBG (DBG_proc, "rts8891_move: start\n");
   DBG (DBG_io, "rts8891_move: %d lines %s, sensor=%d\n", distance,
@@ -382,13 +383,13 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
   rts8891_set_default_regs (regs);
   if (device->sensor != SENSOR_TYPE_4400 && device->sensor != SENSOR_TYPE_4400_BARE)
     {
-      regs[0x10] = 0x20;
-      regs[0x11] = 0x28;
+      regs10 = 0x20;
+      regs11 = 0x28;
     }
   else
     {
-      regs[0x10] = 0x10;
-      regs[0x11] = 0x2a;
+      regs10 = 0x10;
+      regs11 = 0x2a;
     }
 
   regs[0x32] = 0x80;
@@ -446,29 +447,29 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
   regs[0xe8] = 0x02;
   regs[0xe9] = 0x02;
 
-  /* hp4400 sensor */
+  /* hp4400 sensors */
   if (device->sensor == SENSOR_TYPE_4400 || device->sensor == SENSOR_TYPE_4400_BARE)
     {
-      device->regs[0x13] = 0x39;	/* 0x20 */
-      device->regs[0x14] = 0xf0;	/* 0xf8 */
-      device->regs[0x15] = 0x29;	/* 0x28 */
-      device->regs[0x16] = 0x0f;	/* 0x07 */
-      device->regs[0x17] = 0x10;	/* 0x00 */
-      device->regs[0x23] = 0x00;	/* 0xff */
-      device->regs[0x35] = 0x29;	/* 0x10 */
-      device->regs[0x36] = 0x21;	/* 0x24 */
-      device->regs[0x39] = 0x00;	/* 0x02 */
-      device->regs[0x80] = 0xb0;	/* 0x32 */
-      device->regs[0x82] = 0xb1;	/* 0x33 */
-      device->regs[0xe2] = 0x0b;	/* 0x17 */
-      device->regs[0xe5] = 0xf3;	/* 0xf9 */
-      device->regs[0xe6] = 0x01;	/* 0x00 */
+      regs[0x13] = 0x39;	/* 0x20 */
+      regs[0x14] = 0xf0;	/* 0xf8 */
+      regs[0x15] = 0x29;	/* 0x28 */
+      regs[0x16] = 0x0f;	/* 0x07 */
+      regs[0x17] = 0x10;	/* 0x00 */
+      regs[0x23] = 0x00;	/* 0xff */
+      regs[0x35] = 0x29;	/* 0x10 */
+      regs[0x36] = 0x21;	/* 0x24 */
+      regs[0x39] = 0x00;	/* 0x02 */
+      regs[0x80] = 0xb0;	/* 0x32 */
+      regs[0x82] = 0xb1;	/* 0x33 */
+      regs[0xe2] = 0x0b;	/* 0x17 */
+      regs[0xe5] = 0xf3;	/* 0xf9 */
+      regs[0xe6] = 0x01;	/* 0x00 */
     }
 
   /* disable CCD */
   regs[0] = 0xf5;
 
-  sanei_rts88xx_set_status (device->devnum, regs, 0x20, 0x28);
+  sanei_rts88xx_set_status (device->devnum, regs, regs10, regs11);
   sanei_rts88xx_set_scan_area (regs, distance, distance + 1, 100, 200);
   sanei_rts88xx_set_gain (regs, 16, 16, 16);
   sanei_rts88xx_set_offset (regs, 127, 127, 127);

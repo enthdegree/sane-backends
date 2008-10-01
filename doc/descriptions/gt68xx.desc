@@ -394,6 +394,12 @@
 :status :good
 :comment "Works up to 1200 dpi."
 
+:model "OpticSlim 2400 plus"
+:interface "USB"
+:usbid "0x07b3" "0x0454"
+:status :good
+:comment "Same as OpticSlim 2400."
+
 :model "OpticSlim M12"
 :interface "USB"
 :usbid "0x07b3" "0x0412"

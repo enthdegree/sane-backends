@@ -197,6 +197,12 @@ usb 0x07b3 0x0413
 usb 0x07b3 0x0422
 
 ##############################################################################
+# Autodetect Plustek OpticSlim 2400 plus
+usb 0x07b3 0x0454
+model "OpticSlim 2400 Plus"
+override "plustek-opticslim-2400"
+
+##############################################################################
 # Autodetect Genius Colorpage SF600
 usb 0x0458 0x2021
 

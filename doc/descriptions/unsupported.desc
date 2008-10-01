@@ -2040,27 +2040,9 @@
 :status :unsupported
 :comment "Probably unsupported. Scanner name not known yet."
 
-:model "Unknown Plustek Device (UT12?)"
-:interface "USB"
-:usbid "0x07b3" "0x0013"
-:status :unsupported
-:comment "Probably unsupported. Scanner name not known yet."
-
-:model "Unknown Plustek Device"
-:interface "USB"
-:usbid "0x07b3" "0x0012"
-:status :unsupported
-:comment "Probably unsupported. Scanner name not known yet."
-
 :model "Unknown Plustek Device"
 :interface "USB"
 :usbid "0x07b3" "0x0014"
-:status :unsupported
-:comment "Probably unsupported. Scanner name not known yet."
-
-:model "Unknown Plustek Device"
-:interface "USB"
-:usbid "0x07b3" "0x0012"
 :status :unsupported
 :comment "Probably unsupported. Scanner name not known yet."
 

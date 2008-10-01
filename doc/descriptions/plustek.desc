@@ -24,6 +24,11 @@
 
 :model "OpticPro UT12"
 :interface "USB"
+:usbid "0x07b3" "0x0013"
+:status :complete
+
+:model "OpticPro UT12"
+:interface "USB"
 :usbid "0x07b3" "0x0017"
 :status :complete
 :comment "Note: Devices with product ID 0x0001 are not supported!"

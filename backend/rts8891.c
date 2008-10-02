@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 6
+#define BUILD 7
 
 #define MOVE_DPI 100
 
@@ -166,21 +166,28 @@ static SANE_Range x_range = {
 static SANE_Range y_range = {
   SANE_FIX (0.0),		/* minimum */
   SANE_FIX (299.0),		/* maximum */
-  SANE_FIX (0.0)		/* quantization */
+  SANE_FIX (0.0)		/* no quantization */
 };
 
-/* model number ranges from 0 to 2, must be cvhnaged if
+/* model number ranges from 0 to 2, must be changed if
  * Rts8891_USB_Device_Entry changes */
 static const SANE_Range model_range = {
   0,				/* minimum */
   2,				/* maximum */
-  0				/* quantization */
+  0				/* no quantization */
+};
+
+/* sensor number ranges from 0 to SENSOR_TYPE_MAX, must be changed if */
+static const SANE_Range sensor_range = {
+  0,				/* minimum */
+  SENSOR_TYPE_MAX,		/* maximum */
+  0				/* no quantization */
 };
 
 static const SANE_Range u8_range = {
   0,				/* minimum */
   255,				/* maximum */
-  0				/* quantization */
+  0				/* no quantization */
 };
 
 static const SANE_Range threshold_percentage_range = {
@@ -2236,6 +2243,7 @@ probe_rts8891_devices (void)
   /* sharing is on by default and no model option */
   rtscfg.allowsharing = SANE_TRUE;
   rtscfg.modelnumber = -1;
+  rtscfg.sensornumber = -1;
 
   /* initialize configuration options */
   options[CFG_MODEL_NUMBER] =
@@ -2262,6 +2270,20 @@ probe_rts8891_devices (void)
   options[CFG_ALLOW_SHARING]->cap = SANE_CAP_SOFT_SELECT;
   options[CFG_ALLOW_SHARING]->constraint_type = SANE_CONSTRAINT_NONE;
   values[CFG_ALLOW_SHARING] = &rtscfg.allowsharing;
+
+  /* sensor type override */
+  options[CFG_SENSOR_NUMBER] =
+    (SANE_Option_Descriptor *) malloc (sizeof (SANE_Option_Descriptor));
+  options[CFG_SENSOR_NUMBER]->name = "sensornumber";
+  options[CFG_SENSOR_NUMBER]->desc =
+    "user provided scanner's internal sensor number";
+  options[CFG_SENSOR_NUMBER]->type = SANE_TYPE_INT;
+  options[CFG_SENSOR_NUMBER]->unit = SANE_UNIT_NONE;
+  options[CFG_SENSOR_NUMBER]->size = sizeof (SANE_Word);
+  options[CFG_SENSOR_NUMBER]->cap = SANE_CAP_SOFT_SELECT;
+  options[CFG_SENSOR_NUMBER]->constraint_type = SANE_CONSTRAINT_RANGE;
+  options[CFG_SENSOR_NUMBER]->constraint.range = &sensor_range;
+  values[CFG_SENSOR_NUMBER] = &rtscfg.sensornumber;
 
   /* set configuration options structure */
   config.descriptors = options;
@@ -2436,6 +2458,9 @@ attach_rts8891 (const char *devicename)
   device->last_scan.tv_sec = 0;
   device->start_time.tv_sec = 0;
 #endif
+
+  /* in case autodection au sensor doesn't work, use the given override */
+ device->sensor = rtscfg.sensornumber;
 
   /* copy configuration settings to device */
   device->conf.modelnumber = dn;
@@ -3434,9 +3459,14 @@ initialize_device (struct Rts8891_Device *dev)
   DBG (DBG_io, "initialize_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
   /* sensor type the one for 4470c sold with XPA is slightly different 
-   * than those sold bare, for this modelwe allways start with xpa type sensor,
-   * and change it later if we detect black scans in find_origin() */
-  dev->sensor = device->model->sensor;
+   * than those sold bare, for this model we allways start with xpa type sensor,
+   * and change it later if we detect black scans in find_origin(). In case the
+   * attach function set up the sensor type, we don't modify it */
+  if(dev->sensor == -1)
+  {
+  	dev->sensor = device->model->sensor;
+  }
+  DBG (DBG_info, "sane_start: initial sensor type is %d\n", dev->sensor);
   DBG (DBG_info, "initialize_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
 
   /* detects if warming up is needed */

@@ -113,6 +113,7 @@ enum Rts8891_Option
 enum Umax_PP_Configure_Option
 {
   CFG_MODEL_NUMBER = 0,		/* first option number must be zero */
+  CFG_SENSOR_NUMBER,		/* first option number must be zero */
   CFG_ALLOW_SHARING,
   NUM_CFG_OPTIONS		/* MUST be last */
 };

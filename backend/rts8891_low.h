@@ -75,6 +75,7 @@
 #define SENSOR_TYPE_XPA		1	/* sensor for hp4470 sold with XPA */
 #define SENSOR_TYPE_4400	2	/* sensor for hp4400               */
 #define SENSOR_TYPE_4400_BARE	3	/* sensor for hp4400               */
+#define SENSOR_TYPE_MAX         3       /* maximum sensor number value     */
 
 /* Forward typedefs */
 typedef struct Rts8891_Device Rts8891_Device;
@@ -142,6 +143,9 @@ typedef struct Rts8891_Config
 {
   /**< index number in device table to override detection */
   SANE_Word modelnumber;
+
+  /**< id of the snedor type, must match SENSOR_TYPE_* defines */
+  SANE_Word sensornumber;
 
   /**< if true, use release/acquire to allow the same device
    * to be used by several frontends */

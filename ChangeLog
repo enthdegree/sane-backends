@@ -1,3 +1,7 @@
+2008-10-02  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891.h backend/rts8891_low.h: 
+	add a 'sensornumber' option to override detected sensor model
+
 2008-10-02  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions-external/epkowa.desc:
 	- iscan 2.12.0 updates from olaf.meeuwissen@avasys.jp

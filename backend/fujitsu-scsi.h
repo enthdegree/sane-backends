@@ -193,15 +193,18 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_multilevel_rgb(in)          getbitfield(in+0x1c, 1, 7)
 
 /* vendor unique section */
-#define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
-#define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
-#define get_IN_endorser(in)                getbitfield(in+0x20, 1, 3)
-#define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
-#define get_IN_transparency(in)            getbitfield(in+0x20, 1, 5)
-#define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
 #define get_IN_adf(in)                     getbitfield(in+0x20, 1, 7)
+#define get_IN_flatbed(in)                 getbitfield(in+0x20, 1, 6)
+#define get_IN_transparency(in)            getbitfield(in+0x20, 1, 5)
+#define get_IN_duplex(in)                  getbitfield(in+0x20, 1, 4)
+#define get_IN_endorser_b(in)              getbitfield(in+0x20, 1, 3)
+#define get_IN_barcode(in)                 getbitfield(in+0x20, 1, 2)
+#define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
+#define get_IN_endorser_f(in)              getbitfield(in+0x20, 1, 0)
 
+#define get_IN_unused(in)                  getbitfield(in+0x21, 0x0f, 4)
 #define get_IN_adbits(in)                  getbitfield(in+0x21, 0x0f, 0)
+
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
 
 /*supported scsi commands*/

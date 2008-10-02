@@ -187,13 +187,14 @@ struct fujitsu
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during vndr VPD probing of the scanner */
   /* members in order found in scsi data...                                */
-  int has_operator_panel;
-  int has_barcode;
-  int has_endorser;
-  int has_duplex;
-  int has_transparency;
-  int has_flatbed;
   int has_adf;
+  int has_flatbed;
+  int has_transparency;
+  int has_duplex;
+  int has_endorser_b;
+  int has_barcode;
+  int has_operator_panel;
+  int has_endorser_f;
 
   int adbits;
   int buffer_bytes;

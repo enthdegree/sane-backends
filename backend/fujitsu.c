@@ -382,6 +382,12 @@
 	 - recent model names (fi-6xxx) dont end in 'C'
          - simplify flatbed area overrides
          - call scanner_control to change source during sane_start
+      v79 2008-10-01, MAN
+	 - add usb ids for several models
+         - print additional hardware capability bits
+         - detect front-side endorser
+         - disable endorser-side controls if only one side installed
+         - add quirks for fi-6x70
 
    SANE FLOW DIAGRAM
 
@@ -442,7 +448,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 78
+#define BUILD 79
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -676,6 +682,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1042'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1042", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1078'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1078", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1095'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1095", attach_one_usb);
 
@@ -694,6 +703,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10af'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10af", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10cf'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10cf", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e0'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e0", attach_one_usb);
 
@@ -702,6 +714,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e2'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e2", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e6'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x10e6", attach_one_usb);
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x10e7'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x10e7", attach_one_usb);
@@ -721,6 +736,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114d'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x114d", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114e'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x114e", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x114f'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x114f", attach_one_usb);
 
@@ -729,6 +747,15 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1174'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1174", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1176'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1176", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1178'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1178", attach_one_usb);
   }
 
   /*delete missing scanners from list*/
@@ -1263,27 +1290,32 @@ init_vpd (struct fujitsu *s)
 
           DBG (15, "vendor options\n");
 
-          s->has_operator_panel = get_IN_operator_panel(in);
-          DBG (15, "  operator panel: %d\n", s->has_operator_panel);
+          s->has_adf = get_IN_adf(in);
+          DBG (15, "  adf: %d\n", s->has_adf);
 
-          s->has_barcode = get_IN_barcode(in);
-          DBG (15, "  barcode: %d\n", s->has_barcode);
+          s->has_flatbed = get_IN_flatbed(in);
+          DBG (15, "  flatbed: %d\n", s->has_flatbed);
 
-          s->has_endorser = get_IN_endorser(in);
-          DBG (15, "  endorser: %d\n", s->has_endorser);
+          s->has_transparency = get_IN_transparency(in);
+          DBG (15, "  transparency: %d\n", s->has_transparency);
 
           s->has_duplex = get_IN_duplex(in);
           s->has_back = s->has_duplex;
           DBG (15, "  duplex: %d\n", s->has_duplex);
 
-          s->has_transparency = get_IN_transparency(in);
-          DBG (15, "  transparency: %d\n", s->has_transparency);
+          s->has_endorser_b = get_IN_endorser_b(in);
+          DBG (15, "  back endorser: %d\n", s->has_endorser_b);
 
-          s->has_flatbed = get_IN_flatbed(in);
-          DBG (15, "  flatbed: %d\n", s->has_flatbed);
+          s->has_barcode = get_IN_barcode(in);
+          DBG (15, "  barcode: %d\n", s->has_barcode);
 
-          s->has_adf = get_IN_adf(in);
-          DBG (15, "  adf: %d\n", s->has_adf);
+          s->has_operator_panel = get_IN_operator_panel(in);
+          DBG (15, "  operator panel: %d\n", s->has_operator_panel);
+
+          s->has_endorser_f = get_IN_endorser_f(in);
+          DBG (15, "  front endorser: %d\n", s->has_endorser_f);
+
+          DBG (15, "  unused caps: %d\n", get_IN_unused(in));
 
           s->adbits = get_IN_adbits(in);
           DBG (15, "  A/D bits: %d\n",s->adbits);
@@ -1900,6 +1932,13 @@ init_model (struct fujitsu *s)
     s->max_y_fb = 14173;
   }
 
+  else if (strstr (s->model_name, "fi-6670")
+   || strstr (s->model_name, "fi-6770") ) {
+
+    /* weirdness */
+    s->even_scan_line = 1;
+  }
+
   DBG (10, "init_model: finish\n");
 
   return SANE_STATUS_GOOD;
@@ -1965,6 +2004,9 @@ init_user (struct fujitsu *s)
   s->u_endorser_bits=16;
   s->u_endorser_step=1;
   s->u_endorser_side=ED_back;
+  if(s->has_endorser_f){
+    s->u_endorser_side=ED_front;
+  }
   s->u_endorser_dir=DIR_TTB;
   strcpy((char *)s->u_endorser_string,"%05ud");
 
@@ -3456,7 +3498,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
 
     /*flaming hack to get scanimage to hide group*/
-    if (!s->has_endorser)
+    if ( !(s->has_endorser_f || s->has_endorser_b) )
       opt->type = SANE_TYPE_BOOL;
   }
 
@@ -3468,7 +3510,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser)
+    if (s->has_endorser_f || s->has_endorser_b)
       opt->cap= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -3485,7 +3527,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->size = sizeof(SANE_Word);
 
     /*old type cant do this?*/
-    if (s->has_endorser && s->endorser_type != ET_OLD){
+    if ((s->has_endorser_f || s->has_endorser_b) && s->endorser_type != ET_OLD){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3509,7 +3551,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser){
+    if (s->has_endorser_f || s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3533,7 +3575,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser){
+    if (s->has_endorser_f || s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3557,7 +3599,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_MM;
     opt->size = sizeof(SANE_Word);
 
-    if (s->has_endorser){
+    if (s->has_endorser_f || s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3583,7 +3625,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
 
     /*only newest can do this?*/
-    if (s->has_endorser && s->endorser_type == ET_40){
+    if ((s->has_endorser_f || s->has_endorser_b) && s->endorser_type == ET_40){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3611,7 +3653,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_STRING;
     opt->unit = SANE_UNIT_NONE;
 
-    if (s->has_endorser){
+    if (s->has_endorser_f || s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3636,7 +3678,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->type = SANE_TYPE_STRING;
     opt->unit = SANE_UNIT_NONE;
 
-    if (s->has_endorser){
+    /* only show if both endorsers are installed */
+    if (s->has_endorser_f && s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3662,7 +3705,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = s->endorser_string_len + 1;
 
-    if (s->has_endorser){
+    if (s->has_endorser_f || s->has_endorser_b){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3844,7 +3887,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink running low";
     opt->type = SANE_TYPE_BOOL;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status && s->has_endorser)
+    if (s->has_cmd_hw_status && (s->has_endorser_f || s->has_endorser_b))
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -3892,7 +3935,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = "Imprinter ink level";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
-    if (s->has_cmd_hw_status && s->has_endorser)
+    if (s->has_cmd_hw_status && (s->has_endorser_f || s->has_endorser_b))
       opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
     else 
       opt->cap = SANE_CAP_INACTIVE;
@@ -5945,7 +5988,7 @@ endorser(struct fujitsu *s)
 
   memset(out,0,outLen);
 
-  if (s->has_endorser) {
+  if (s->has_endorser_f || s->has_endorser_b){
 
     set_ED_endorser_data_id(out,0);
     if(s->u_endorser){

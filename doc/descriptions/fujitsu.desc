@@ -11,7 +11,7 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/" 
-:version "78"                    ; version of backend
+:version "79"                    ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.1.0, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -60,15 +60,16 @@
 :status :complete
 :comment "small, recent, discontinued, usb 2.0"
 
-:model "fi-5110EOX"
+:model "fi-5110EOX/2"
 :interface "USB"
 :status :complete
 :usbid "0x04c5" "0x1096"
 :comment "small, recent, discontinued, no TWAIN driver"
 
-:model "fi-5110EOX2"
+:model "fi-5110EOX3"
 :interface "USB"
 :status :complete
+:usbid "0x04c5" "0x10e6"
 :comment "small, recent, discontinued, no TWAIN driver"
 
 :model "fi-5110EOXM"
@@ -199,6 +200,7 @@
 :model "fi-4530C"
 :interface "SCSI USB"
 :status :complete
+:usbid "0x04c5" "0x1078"
 :comment "medium, recent, discontinued"
 
 :model "fi-4640S"
@@ -215,6 +217,7 @@
 ; CURRENT MODELS, MEDIUM
 :model "fi-4340C"
 :interface "SCSI USB"
+:usbid "0x04c5" "0x10cf"
 :status :complete
 :comment "medium, current"
 
@@ -239,6 +242,7 @@
 :model "fi-6240"
 :interface "SCSI USB"
 :status :complete
+:usbid "0x04c5" "0x114f"
 :comment "medium, current"
 
 ;==================================================
@@ -316,21 +320,29 @@
 :model "fi-5750C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x1095"
-:status :good
-:comment "big, current, might need flatbed max area override"
+:status :complete
+:comment "big, current"
 
 :model "fi-5900C"
 :interface "SCSI USB"
 :usbid "0x04c5" "0x10e7"
-:status :good
-:comment "big, current, possibly some multi-feed options unsupported"
+:status :complete
+:comment "big, current"
+
+:model "fi-6750"
+:interface "SCSI USB"
+:status :untested
+:usbid "0x04c5" "0x1178"
+:comment "Unreleased lighter duty version of fi-6770?"
 
 :model "fi-6670"
 :interface "SCSI USB"
-:status :untested
-:comment "big, current, faster version of fi-5650C?"
+:status :good
+:usbid "0x04c5" "0x1176"
+:comment "big, current, might have usb power suspend problems?"
 
 :model "fi-6770"
 :interface "SCSI USB"
-:status :untested
-:comment "big, current, faster version of fi-5750C?"
+:status :good
+:usbid "0x04c5" "0x1174"
+:comment "big, current, might have usb power suspend problems?"

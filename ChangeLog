@@ -1,3 +1,7 @@
+2008-10-02  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions-external/epkowa.desc:
+	- iscan 2.12.0 updates from olaf.meeuwissen@avasys.jp
+
 2008-10-01  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc, backend/fujitsu.conf.in,
 	  backend/fujitsu.[ch], backend/fujitsu-scsi.h: backend v79

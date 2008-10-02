@@ -213,6 +213,10 @@ struct scanner
   /* the block struct holds the most recent buffer */
   struct transfer block;
 
+  /* temporary buffers used by dynamic threshold code */
+  struct transfer dt;
+  unsigned char dt_lut[256];
+
   /* final-sized front image, always used */
   struct transfer front;
 
@@ -352,10 +356,15 @@ static SANE_Status set_window(struct scanner *s, int window);
 static SANE_Status scan(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, struct transfer *tp);
-static SANE_Status fill_frontback_buffers_S300(struct scanner *s);
+static SANE_Status copy_S300_color(struct scanner *s, int side);
+static SANE_Status copy_S300_gray(struct scanner *s, int side);
+static SANE_Status copy_S300_binary(struct scanner *s, int side);
 static SANE_Status fill_frontback_buffers_FI60F(struct scanner *s);
 
 static SANE_Status get_hardware_status (struct scanner *s);
+
+static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
+  int out_min, int out_max, int slope, int offset);
 
 int get_page_width (struct scanner *s);
 int get_page_height (struct scanner *s);

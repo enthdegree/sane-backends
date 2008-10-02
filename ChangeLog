@@ -1,3 +1,11 @@
+2008-10-01  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu.[ch]: backend v16:
+	- split fill_frontback_buffers_S300 into 3 functions
+	- enable threshold_curve option
+	- add 1-D dynamic binary thresholding code
+	- remove y-resolution option
+	- pad 225x200 data to 255x225
+
 2008-10-01  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions/plustek.desc: Added entry for UT12 devid 0x0013
 	* doc/descriptions/unsupported.desc: Removed entry for UT12 devid 0x0013

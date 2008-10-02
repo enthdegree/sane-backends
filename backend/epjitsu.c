@@ -109,6 +109,12 @@
         - support for automatic paper length detection (parm.lines = -1)
       v15 2008-09-24, MAN
         - expose hardware buttons/sensors as options for S300
+      v16 2008-10-01, MAN
+        - split fill_frontback_buffers_S300 into 3 functions
+        - enable threshold_curve option
+        - add 1-D dynamic binary thresholding code
+        - remove y-resolution option
+        - pad 225x200 data to 255x225
 
    SANE FLOW DIAGRAM
 
@@ -168,7 +174,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 15
+#define BUILD 16
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -467,7 +473,6 @@ attach_one (const char *name)
         s->source = SOURCE_ADF_FRONT;
 	s->mode = MODE_LINEART;
         s->resolution_x = 300;
-        s->resolution_y = 300;
         s->page_height = 11.5 * 1200;
 
         s->threshold = 120;
@@ -490,7 +495,6 @@ attach_one (const char *name)
         s->source = SOURCE_FLATBED;
 	s->mode = MODE_COLOR;
         s->resolution_x = 300;
-        s->resolution_y = 300;
         s->page_height = 5.83 * 1200;
 
         s->threshold = 120;
@@ -997,33 +1001,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint.word_list = s->x_res_list;
   }
 
-  else if(option==OPT_Y_RES){
-    i=0;
-    if(s->y_res_150){
-      s->y_res_list[++i] = 150;
-    }
-    if(s->y_res_225){
-      s->y_res_list[++i] = 225;
-    }
-    if(s->y_res_300){
-      s->y_res_list[++i] = 300;
-    }
-    if(s->y_res_600){
-      s->y_res_list[++i] = 600;
-    }
-    s->y_res_list[0] = i;
-
-    opt->name = SANE_NAME_SCAN_Y_RESOLUTION;
-    opt->title = SANE_TITLE_SCAN_Y_RESOLUTION;
-    opt->desc = SANE_DESC_SCAN_Y_RESOLUTION;
-    opt->type = SANE_TYPE_INT;
-    opt->unit = SANE_UNIT_DPI;
-    opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-
-    opt->constraint_type = SANE_CONSTRAINT_WORD_LIST;
-    opt->constraint.word_list = s->y_res_list;
-  }
-
   /* "Geometry" group ---------------------------------------------------- */
   if(option==OPT_GEOMETRY_GROUP){
     opt->name = SANE_NAME_GEOMETRY;
@@ -1252,7 +1229,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_THRESHOLD_CURVE){
     opt->name = "threshold-curve";
     opt->title = "Threshold curve";
-    opt->desc = "Dynamic hreshold curve, from light to dark, normally 50-65";
+    opt->desc = "Dynamic threshold curve, from light to dark, normally 50-65";
     opt->type = SANE_TYPE_INT;
     opt->unit = SANE_UNIT_NONE;
 
@@ -1266,7 +1243,6 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     if(s->mode != MODE_LINEART){
         opt->cap |= SANE_CAP_INACTIVE;
     }
-    opt->cap = SANE_CAP_INACTIVE;
   }
 
   /* "Sensor" group ------------------------------------------------------ */
@@ -1276,6 +1252,10 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->desc = SANE_DESC_SENSORS;
     opt->type = SANE_TYPE_GROUP;
     opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    /*flaming hack to get scanimage to hide group*/
+    if (!s->has_adf)
+      opt->type = SANE_TYPE_BOOL;
   }
 
   if(option==OPT_SCAN_SW){
@@ -1434,10 +1414,6 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->resolution_x;
           return SANE_STATUS_GOOD;
 
-        case OPT_Y_RES:
-          *val_p = s->resolution_y;
-          return SANE_STATUS_GOOD;
-
         case OPT_TL_X:
           *val_p = SCANNER_UNIT_TO_FIXED_MM(s->tl_x);
           return SANE_STATUS_GOOD;
@@ -1589,23 +1565,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           if (s->resolution_x == val_c)
               return SANE_STATUS_GOOD;
 
-          /* currently the same? move y too */
-          if (s->resolution_x == s->resolution_y){
-            s->resolution_y = val_c;
-            /*sanei_constrain_value (s->opt + OPT_Y_RES, (void *) &val_c, 0) == SANE_STATUS_GOOD*/
-          }
-
           s->resolution_x = val_c;
-
-          *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return change_params(s);
-
-        case OPT_Y_RES:
-
-          if (s->resolution_y == val_c)
-              return SANE_STATUS_GOOD;
-
-          s->resolution_y = val_c;
 
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
           return change_params(s);
@@ -1706,7 +1666,8 @@ void update_transfer_totals(struct transfer * t)
 /* we hard-code the list (determined from usb snoops) here */
 struct model_res {
   int model;
-  int resolution;
+  int x_res;
+  int y_res;
   int usb_power;
 
   int max_x;
@@ -1736,67 +1697,67 @@ struct model_res {
 struct model_res settings[] = {
 
  /*S300 AC*/
-/* model        res  u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
- { MODEL_S300,  150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512,
+/* model       xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
+ { MODEL_S300,  150, 150, 0, 1296, 32, 2662, 32, 4256, 1480, 1296, 184, 41, 8512,
    setWindowCoarseCal_S300_150, setWindowFineCal_S300_150,
    setWindowSendCal_S300_150, sendCal1Header_S300_150,
    sendCal2Header_S300_150, setWindowScan_S300_150 },
 
- { MODEL_S300,  225, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192,
+ { MODEL_S300,  225, 200, 0, 1944, 32, 3993, 32, 6144, 2100, 1944, 156, 28, 8192,
    setWindowCoarseCal_S300_225, setWindowFineCal_S300_225,
    setWindowSendCal_S300_225, sendCal1Header_S300_225,
    sendCal2Header_S300_225, setWindowScan_S300_225 },
 
- { MODEL_S300,  300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192,
+ { MODEL_S300,  300, 300, 0, 2592, 32, 5324, 32, 8192, 2800, 2592, 208, 21, 8192,
    setWindowCoarseCal_S300_300, setWindowFineCal_S300_300,
    setWindowSendCal_S300_300, sendCal1Header_S300_300,
    sendCal2Header_S300_300, setWindowScan_S300_300 },
 
- { MODEL_S300,  600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+ { MODEL_S300,  600, 600, 0, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*S300 USB*/
-/* model        res  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh    calw */
- { MODEL_S300,  150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432,
+/* model       xres yres  u  mxx   mnx mxy   mny actw   reqw  hedw  padw  bh    calw */
+ { MODEL_S300,  150, 150, 1, 1296, 32, 2662, 32, 7216,  2960, 1296, 1664, 24, 14432,
    setWindowCoarseCal_S300_150_U, setWindowFineCal_S300_150_U,
    setWindowSendCal_S300_150_U, sendCal1Header_S300_150_U,
    sendCal2Header_S300_150_U, setWindowScan_S300_150_U },
 
- { MODEL_S300,  225, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112,
+ { MODEL_S300,  225, 200, 1, 1944, 32, 3993, 32, 10584, 4320, 1944, 2376, 16, 14112,
    setWindowCoarseCal_S300_225_U, setWindowFineCal_S300_225_U,
    setWindowSendCal_S300_225_U, sendCal1Header_S300_225_U,
    sendCal2Header_S300_225_U, setWindowScan_S300_225_U },
 
- { MODEL_S300,  300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872,
+ { MODEL_S300,  300, 300, 1, 2592, 32, 5324, 32, 15872, 6640, 2592, 4048, 11, 15872,
    setWindowCoarseCal_S300_300_U, setWindowFineCal_S300_300_U,
    setWindowSendCal_S300_300_U, sendCal1Header_S300_300_U,
    sendCal2Header_S300_300_U, setWindowScan_S300_300_U },
 
- { MODEL_S300,  600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
+ { MODEL_S300,  600, 600, 1, 5184, 32, 10648, 32, 16064, 5440, 5184, 256, 10, 16064,
    setWindowCoarseCal_S300_600, setWindowFineCal_S300_600,
    setWindowSendCal_S300_600, sendCal1Header_S300_600,
    sendCal2Header_S300_600, setWindowScan_S300_600 },
 
  /*fi-60F*/
-/* model        res  u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
- { MODEL_FI60F, 150, 0,  600, 32,  875, 32, 1480, 1480,  216, 1114, 41, 1480,
+/* model       xres  yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
+ { MODEL_FI60F, 150, 150, 0,  600, 32,  875, 32, 1480, 1480,  216, 1114, 41, 1480,
    setWindowCoarseCal_FI60F_150, setWindowFineCal_FI60F_150,
    setWindowSendCal_FI60F_150, sendCal1Header_FI60F_150,
    sendCal2Header_FI60F_150, setWindowScan_FI60F_150 },
 
- { MODEL_FI60F, 300, 0, 1296, 32, 1749, 32, 2400, 2400,  432,  526, 72, 2400,
+ { MODEL_FI60F, 300, 300, 0, 1296, 32, 1749, 32, 2400, 2400,  432,  526, 72, 2400,
    setWindowCoarseCal_FI60F_300, setWindowFineCal_FI60F_300,
    setWindowSendCal_FI60F_300, sendCal1Header_FI60F_300,
    sendCal2Header_FI60F_300, setWindowScan_FI60F_300 },
 
- { MODEL_FI60F, 600, 0, 2592, 32, 3498, 32, 2848, 2848,  864,  114, 61, 2848,
+ { MODEL_FI60F, 600, 600, 0, 2592, 32, 3498, 32, 2848, 2848,  864,  114, 61, 2848,
    setWindowCoarseCal_FI60F_600, setWindowFineCal_FI60F_600,
    setWindowSendCal_FI60F_600, sendCal1Header_FI60F_600,
    sendCal2Header_FI60F_600, setWindowScan_FI60F_600 },
 
- { MODEL_NONE,    0, 0,    0,  0,    0,  0,    0,    0,    0,    0,  0,    0,
+ { MODEL_NONE,    0, 0, 0, 0,  0,    0,  0,    0,    0,    0,    0,  0,    0,
    NULL, NULL, NULL, NULL, NULL, NULL },
 
 };
@@ -1815,8 +1776,11 @@ change_params(struct scanner *s)
 
     do {
       if(settings[i].model == s->model
-        && settings[i].resolution == s->resolution_x
+        && settings[i].x_res == s->resolution_x
         && settings[i].usb_power == s->usb_power){
+
+          /*pull in closest y resolution*/
+          s->resolution_y = settings[i].y_res;
 
           /*1200 dpi*/
           s->max_x = settings[i].max_x * 1200/s->resolution_x;
@@ -1917,21 +1881,109 @@ change_params(struct scanner *s)
         s->front.width_bytes = s->front.width_pix/8;
         break;
     }
-    s->front.height = s->scan.height;
+    /*output image might be taller than scan due to interpolation*/
+    s->front.height = s->scan.height * s->resolution_x / s->resolution_y;
     update_transfer_totals(&s->front);
 
+    /* dynamic threshold temp buffer, in gray */
+    s->dt.width_pix = s->front.width_pix;
+    s->dt.width_bytes = s->front.width_pix;
+    s->dt.height = 1;
+    update_transfer_totals(&s->dt);
+
     /* back settings always same as front settings */
-    if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-        s->back.height = s->front.height;
-        s->back.width_pix = s->front.width_pix;
-        s->back.width_bytes = s->front.width_bytes;
-        s->back.total_pix = s->front.total_pix;
-        s->back.total_bytes = s->front.total_bytes;
-    }
+    s->back.height = s->front.height;
+    s->back.width_pix = s->front.width_pix;
+    s->back.width_bytes = s->front.width_bytes;
+    update_transfer_totals(&s->back);
 
     DBG (10, "change_params: finish\n");
   
     return ret;
+}
+
+/* Function to build a lookup table (LUT), often
+   used by scanners to implement brightness/contrast/gamma
+   or by backends to speed binarization/thresholding
+
+   offset and slope inputs are -127 to +127 
+
+   slope rotates line around central input/output val,
+   0 makes horizontal line
+
+       pos           zero          neg
+       .       x     .             .  x
+       .      x      .             .   x
+   out .     x       .xxxxxxxxxxx  .    x
+       .    x        .             .     x
+       ....x.......  ............  .......x....
+            in            in            in
+
+   offset moves line vertically, and clamps to output range
+   0 keeps the line crossing the center of the table
+
+       high           low 
+       .   xxxxxxxx   .
+       . x            . 
+   out x              .          x
+       .              .        x
+       ............   xxxxxxxx....
+            in             in
+
+   out_min/max provide bounds on output values,
+   useful when building thresholding lut.
+   0 and 255 are good defaults otherwise.
+  */
+static SANE_Status
+load_lut (unsigned char * lut,
+  int in_bits, int out_bits,
+  int out_min, int out_max,
+  int slope, int offset)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j;
+  double shift, rise;
+  int max_in_val = (1 << in_bits) - 1;
+  int max_out_val = (1 << out_bits) - 1;
+  unsigned char * lut_p = lut;
+
+  DBG (10, "load_lut: start\n");
+
+  /* slope is converted to rise per unit run:
+   * first [-127,127] to [-1,1]
+   * then multiply by PI/2 to convert to radians
+   * then take the tangent (T.O.A)
+   * then multiply by the normal linear slope 
+   * because the table may not be square, i.e. 1024x256*/
+  rise = tan((double)slope/127 * M_PI/2) * max_out_val / max_in_val;
+
+  /* line must stay vertically centered, so figure
+   * out vertical offset at central input value */
+  shift = (double)max_out_val/2 - (rise*max_in_val/2);
+
+  /* convert the user offset setting to scale of output
+   * first [-127,127] to [-1,1]
+   * then to [-max_out_val/2,max_out_val/2]*/
+  shift += (double)offset / 127 * max_out_val / 2;
+
+  for(i=0;i<=max_in_val;i++){
+    j = rise*i + shift;
+
+    if(j<out_min){
+      j=out_min;
+    }
+    else if(j>out_max){
+      j=out_max;
+    }
+
+    *lut_p=j;
+    lut_p++;
+  }
+
+  hexdump(5, "load_lut: ", lut, max_in_val+1);
+
+  DBG (10, "load_lut: finish\n");
+  return ret;
 }
 
 /*
@@ -1968,7 +2020,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     params->lines = -1;
   }
   else{
-    params->lines = s->scan.height;
+    params->lines = s->front.height;
   }
   params->last_frame = 1;
 
@@ -2058,6 +2110,14 @@ sane_start (SANE_Handle handle)
             DBG (5, "sane_start: ERROR: failed to setup buffers\n");
             sane_cancel((SANE_Handle)s);
             return SANE_STATUS_NO_MEM;
+        }
+
+        ret = load_lut(s->dt_lut, 8, 8, 50, 205,
+            s->threshold_curve, s->threshold-127);
+        if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: failed to load_lut for dt\n");
+            sane_cancel((SANE_Handle)s);
+            return ret;
         }
 
         ret = coarsecal(s);
@@ -2171,8 +2231,16 @@ setup_buffers(struct scanner *s)
         return SANE_STATUS_NO_MEM;
     }
 
+    /* one grayscale line for dynamic threshold */
+    s->dt.buffer = calloc (1,s->dt.total_bytes);
+    if(!s->dt.buffer){
+        DBG (5, "setup_buffers: ERROR: failed to setup dt buffer\n");
+        return SANE_STATUS_NO_MEM;
+    }
+
     /* make image buffer to hold frontside data */
     if(s->source != SOURCE_ADF_BACK){
+
         s->front.buffer = calloc (1,s->front.total_bytes+8);
         if(!s->front.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup front buffer\n");
@@ -2182,6 +2250,7 @@ setup_buffers(struct scanner *s)
 
     /* make image buffer to hold backside data */
     if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
+
         s->back.buffer = calloc (1,s->back.total_bytes+8);
         if(!s->back.buffer){
             DBG (5, "setup_buffers: ERROR: failed to setup back buffer\n");
@@ -2240,7 +2309,11 @@ coarsecal(struct scanner *s)
     }
 
     /* dark cal, lamp off */
-    lamp(s,0);
+    ret = lamp(s,0);
+    if(ret){
+        DBG (5, "coarsecal: error lamp off\n");
+        return ret;
+    }
 
     while(try++ < 1){
 
@@ -2332,7 +2405,11 @@ coarsecal(struct scanner *s)
     }
 
     /* light cal, lamp on */
-    lamp(s,1);
+    ret = lamp(s,1);
+    if(ret){
+        DBG (5, "coarsecal: error lamp on\n");
+        return ret;
+    }
 
     try = 0;
     direction = -1;
@@ -2453,7 +2530,11 @@ finecal(struct scanner *s)
     }
 
     /* dark cal, lamp off */
-    lamp(s,0);
+    ret = lamp(s,0);
+    if(ret){
+        DBG (5, "finecal: error lamp off\n");
+        return ret;
+    }
 
     /* send scan d2 command */
     cmd[0] = 0x1b;
@@ -2489,7 +2570,11 @@ finecal(struct scanner *s)
     s->darkcal.done = 0;
 
     /* grab rows with lamp on */
-    lamp(s,1);
+    ret = lamp(s,1);
+    if(ret){
+        DBG (5, "finecal: error lamp on\n");
+        return ret;
+    }
 
     /* send scan d2 command */
     cmd[0] = 0x1b;
@@ -3194,6 +3279,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
             }
 	}
 
+	/*while(!s->block.done){*/
         ret = read_from_scanner(s, &s->block);
         if(ret){
             DBG (5, "sane_read: cant read from scanner\n");
@@ -3228,7 +3314,43 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                     return ret;
                 }
 
-                ret = fill_frontback_buffers_S300(s);
+                /*copy backside data into buffer*/
+                if( s->source == SOURCE_ADF_DUPLEX
+                 || s->source == SOURCE_ADF_BACK ){
+
+                  switch (s->mode) {
+                    case MODE_COLOR:
+                      ret = copy_S300_color(s,SIDE_BACK);
+                      break;
+  
+                    case MODE_GRAYSCALE:
+                      ret = copy_S300_gray(s,SIDE_BACK);
+                      break;
+  
+                    default:
+                      ret = copy_S300_binary(s,SIDE_BACK);
+                      break;
+                  }
+                }
+
+                /*copy frontside data into buffer*/
+                if( s->source != SOURCE_ADF_BACK ){
+
+                  switch (s->mode) {
+                    case MODE_COLOR:
+                      ret = copy_S300_color(s,SIDE_FRONT);
+                      break;
+  
+                    case MODE_GRAYSCALE:
+                      ret = copy_S300_gray(s,SIDE_FRONT);
+                      break;
+  
+                    default:
+                      ret = copy_S300_binary(s,SIDE_FRONT);
+                      break;
+                  }
+                }
+
                 if(ret){
                     DBG (5, "sane_read: cant copy to front/back\n");
                     return ret;
@@ -3346,153 +3468,287 @@ read_from_scanner(struct scanner *s, struct transfer * tp)
     return ret;
 }
 
-/* copies block buffer into front and back buffers */
-/* moves front/back rx_bytes forward */
+/* copies block buffer into front or back buffer */
+/* moves rx_bytes forward */
 static SANE_Status
-fill_frontback_buffers_S300(struct scanner *s)
+copy_S300_color(struct scanner *s,int side)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
+    struct transfer * tp;
     int i,j;
-    int thresh = s->threshold * 3;
 
-    DBG (10, "fill_frontback_buffers_S300: start\n");
+    DBG (10, "copy_S300_color: start\n");
 
-    switch (s->mode) {
-      case MODE_COLOR:
-        /* put frontside data into buffer */
-        if(s->source != SOURCE_ADF_BACK){
+    /*front side data*/
+    if(side == SIDE_FRONT){
+      tp = &s->front;
 
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-                for(j=0; j<s->front.width_pix; j++){
+      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
 
-                    /*red*/
-                    s->front.buffer[s->front.rx_bytes++] =
-                      s->block.buffer[i + s->req_width*3 + j*3];
+        int lineStart = tp->rx_bytes;
 
-                    /*green*/
-                    s->front.buffer[s->front.rx_bytes++] =
-                      s->block.buffer[i + s->req_width*6 + j*3];
-
-                    /*blue*/
-                    s->front.buffer[s->front.rx_bytes++] =
-                      s->block.buffer[i + j*3];
-                }
-            }
-        }
-
-        /* put backside data into buffer */
-        if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-                for(j=0; j<s->back.width_pix; j++){
-
-                    /*red*/
-                    s->back.buffer[s->back.rx_bytes++] =
-                      s->block.buffer[i + s->req_width*3 + (s->back.width_pix-1)*3 - j*3 + 1];
-
-                    /*green*/
-                    s->back.buffer[s->back.rx_bytes++] =
-                      s->block.buffer[i + s->req_width*6 + (s->back.width_pix-1)*3 - j*3 + 1];
-
-                    /*blue*/
-                    s->back.buffer[s->back.rx_bytes++] =
-                      s->block.buffer[i + (s->back.width_pix-1)*3 - j*3 + 1];
-                }
-            }
-        }
-
-        break;
-
-      case MODE_GRAYSCALE:
-
-        /* put frontside data into buffer */
-        if(s->source != SOURCE_ADF_BACK){
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-                for(j=0; j<s->front.width_pix; j++){
-
-                    /* GS is (red+green+blue)/3 */
-                    s->front.buffer[s->front.rx_bytes++] =
-                      ( s->block.buffer[i + s->req_width*3 + j*3]
-                      + s->block.buffer[i + s->req_width*6 + j*3]
-                      + s->block.buffer[i + j*3]) / 3;
-                }
-            }
-        }
-
-        /* put backside data into buffer */
-        if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-                for(j=0; j<s->back.width_pix; j++){
-
-                    /* GS is (red+green+blue)/3 */
-                    s->back.buffer[s->back.rx_bytes++] =
-                      ( (int)s->block.buffer[i + s->req_width*3 + (s->back.width_pix-1)*3 - j*3 + 1]
-                      + s->block.buffer[i + s->req_width*6 + (s->back.width_pix-1)*3 - j*3 + 1]
-                      + s->block.buffer[i + (s->back.width_pix-1)*3 - j*3 + 1]) / 3;
-                }
-            }
-        }
-        break;
-
-      default: /* binary */
-
-        /* put frontside data into buffer */
-        if(s->source != SOURCE_ADF_BACK){
-
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-                for(j=0; j<s->front.width_pix; j++){
-        
-                    int offset = j%8;
-                    unsigned char mask = 0x80 >> offset;
-                    int curr = s->block.buffer[i+j*3] +  /*blue*/
-                    s->block.buffer[i+(s->req_width+j)*3] + /*green*/
-                    s->block.buffer[i+(s->req_width*2+j)*3];  /*red*/
-        
-                    /* looks white */
-                    if(curr > thresh){
-                        s->front.buffer[s->front.rx_bytes] &= ~mask;
-                    }
-                    else{
-                        s->front.buffer[s->front.rx_bytes] |= mask;
-                    }
-                    
-                    if(offset == 7){
-                        s->front.rx_bytes++;
-                    }
-                }
-            }
-        }
-    
-        /* put backside data into buffer */
-        if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK){
-    
-            for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
-              for(j=0; j<s->back.width_pix; j++){
+        for(j=0; j<tp->width_pix; j++){
   
-                int offset = j%8;
-                unsigned char mask = 0x80 >> offset;
-                int curr = s->block.buffer[i+(s->back.width_pix-1-j)*3+1] +
-                s->block.buffer[i+(s->req_width+s->back.width_pix-1-j)*3+1] +
-                s->block.buffer[i+(s->req_width*2+s->back.width_pix-1-j)*3+1];
- 
-         	/* looks white */
-                if(curr > thresh){
-                    s->back.buffer[s->back.rx_bytes] &= ~mask;
-                }
-                else{
-                    s->back.buffer[s->back.rx_bytes] |= mask;
-                }
-                 
-                if(offset == 7){
-                    s->back.rx_bytes++;
-                }
-      	      }
-            }
+          /*red*/
+          tp->buffer[tp->rx_bytes++]
+            = s->block.buffer[i + s->req_width*3 + j*3];
+  
+          /*green*/
+          tp->buffer[tp->rx_bytes++]
+            = s->block.buffer[i + s->req_width*6 + j*3];
+  
+          /*blue*/
+          tp->buffer[tp->rx_bytes++]
+            = s->block.buffer[i + j*3];
         }
-        break;
+
+        /*add a periodic row because of non-square pixels*/
+        /*FIXME: only works with 225x200*/
+        if(s->resolution_x > s->resolution_y
+         && tp->rx_bytes != tp->total_bytes
+         && tp->rx_bytes/tp->width_bytes % 9 == 8
+        ){
+          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
+          tp->rx_bytes+=tp->width_bytes;
+        }
+      }
     }
 
-    DBG (10, "fill_frontback_buffers_S300: finish\n");
+    /*back side data*/
+    else{
+      tp = &s->back;
+
+      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
+
+        int lineStart = tp->rx_bytes;
+
+        for(j=0; j<tp->width_pix; j++){
   
+           /*red*/
+           tp->buffer[tp->rx_bytes++] =
+            s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1];
+  
+           /*green*/
+           tp->buffer[tp->rx_bytes++] =
+            s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1];
+  
+           /*blue*/
+           tp->buffer[tp->rx_bytes++] =
+            s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1];
+        }
+
+        /*add a periodic row because of non-square pixels*/
+        /*FIXME: only works with 225x200*/
+        if(s->resolution_x > s->resolution_y
+         && tp->rx_bytes != tp->total_bytes
+         && tp->rx_bytes/tp->width_bytes % 9 == 8
+        ){
+          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
+          tp->rx_bytes+=tp->width_bytes;
+        }
+      }
+    }
+
+    DBG (10, "copy_S300_color: finish\n");
+
+    return ret;
+}
+
+static SANE_Status
+copy_S300_gray(struct scanner *s,int side)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+    struct transfer * tp;
+    int i,j;
+
+    DBG (10, "copy_S300_gray: start\n");
+
+    /*front side data*/
+    if(side == SIDE_FRONT){
+      tp = &s->front;
+
+      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
+
+        int lineStart = tp->rx_bytes;
+
+        for(j=0; j<tp->width_pix; j++){
+  
+          tp->buffer[tp->rx_bytes++] =
+
+            /*red*/
+            ( s->block.buffer[i + s->req_width*3 + j*3]
+  
+            /*green*/
+            + s->block.buffer[i + s->req_width*6 + j*3]
+  
+            /*blue*/
+            + s->block.buffer[i + j*3]) / 3;
+        }
+
+        /*add a periodic row because of non-square pixels*/
+        /*FIXME: only works with 225x200*/
+        if(s->resolution_x > s->resolution_y
+         && tp->rx_bytes != tp->total_bytes
+         && tp->rx_bytes/tp->width_bytes % 9 == 8
+        ){
+          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
+          tp->rx_bytes+=tp->width_bytes;
+        }
+      }
+    }
+
+    /*back side data*/
+    else{
+      tp = &s->back;
+
+      for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
+
+        int lineStart = tp->rx_bytes;
+
+        for(j=0; j<tp->width_pix; j++){
+  
+           tp->buffer[tp->rx_bytes++] =
+            /*red*/
+            (s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1]
+  
+            /*green*/
+            +s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1]
+  
+            /*blue*/
+            +s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1]) / 3;
+        }
+
+        /*add a periodic row because of non-square pixels*/
+        /*FIXME: only works with 225x200*/
+        if(s->resolution_x > s->resolution_y
+         && tp->rx_bytes != tp->total_bytes
+         && tp->rx_bytes/tp->width_bytes % 9 == 8
+        ){
+          memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
+          tp->rx_bytes+=tp->width_bytes;
+        }
+      }
+    }
+
+    DBG (10, "copy_S300_gray: finish\n");
+
+    return ret;
+}
+
+/*uses the threshold/threshold_curve to control binarization*/
+static SANE_Status
+copy_S300_binary(struct scanner *s,int side)
+{
+    SANE_Status ret=SANE_STATUS_GOOD;
+    struct transfer * tp;
+    int i,j,windowX;
+
+    DBG (10, "copy_S300_binary: start\n");
+
+    /* ~1mm works best, but the window needs to have odd # of pixels */
+    windowX = 6 * s->resolution_x/150;
+    if(!(windowX % 2)){
+      windowX++;
+    }
+
+    for(i=0; i<s->block.rx_bytes-8; i+=s->block.width_bytes){
+
+      int sum = 0;
+      int lineStart = 0;
+
+      /*first, load a gray line into the dt buffer*/
+      if(side == SIDE_FRONT){
+        tp = &s->front;
+
+        for(j=0; j<tp->width_pix; j++){
+  
+          s->dt.buffer[j] =
+
+            /*red*/
+            ( s->block.buffer[i + s->req_width*3 + j*3]
+  
+            /*green*/
+            + s->block.buffer[i + s->req_width*6 + j*3]
+  
+            /*blue*/
+            + s->block.buffer[i + j*3]) / 3;
+        }
+      }
+      else{
+        tp = &s->back;
+
+        for(j=0; j<tp->width_pix; j++){
+  
+          s->dt.buffer[j] =
+
+            /*red*/
+            (s->block.buffer[i + s->req_width*3 + (tp->width_pix-1)*3 - j*3 + 1]
+  
+            /*green*/
+            +s->block.buffer[i + s->req_width*6 + (tp->width_pix-1)*3 - j*3 + 1]
+  
+            /*blue*/
+            +s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1]) / 3;
+        }
+      }
+
+      /*second, prefill the sliding sum*/
+      for(j=0; j<windowX; j++){
+        sum += s->dt.buffer[j];
+      }
+
+      lineStart = tp->rx_bytes;
+
+      /* third, walk the dt buffer, update the sliding sum, */
+      /* determine threshold, output bits */
+      for(j=0; j<tp->width_pix; j++){
+
+        /*output image location*/
+        int offset = j%8;
+        unsigned char mask = 0x80 >> offset;
+        int thresh = s->threshold;
+
+        /* move sum/update threshold only if there is a curve*/
+        if(s->threshold_curve){
+          int addCol  = j + windowX/2;
+          int dropCol = addCol - windowX;
+  
+          if(dropCol >= 0 && addCol < tp->width_pix){
+            sum -= s->dt.buffer[dropCol];
+            sum += s->dt.buffer[addCol];
+          }
+
+          thresh = s->dt_lut[sum/windowX];
+        }
+
+        /*use average to lookup threshold*/
+        /* white */
+        if(s->dt.buffer[j] > thresh){
+          tp->buffer[tp->rx_bytes] &= ~mask;
+        }
+        /* black */
+        else{
+          tp->buffer[tp->rx_bytes] |= mask;
+        }
+                  
+        if(offset == 7){
+          tp->rx_bytes++;
+        }
+      }
+
+      /*add a periodic row because of non-square pixels*/
+      /*FIXME: only works with 225x200*/
+      if(s->resolution_x > s->resolution_y
+       && tp->rx_bytes != tp->total_bytes
+       && tp->rx_bytes/tp->width_bytes % 9 == 8
+      ){
+        memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
+        tp->rx_bytes+=tp->width_bytes;
+      }
+    }
+
+    DBG (10, "copy_S300_binary: finish\n");
+
     return ret;
 }
 
@@ -3725,13 +3981,19 @@ teardown_buffers(struct scanner *s)
 	s->block.buffer = NULL;
     }
 
-    /* make image buffer to hold frontside data */
+    /* dynamic thresh slice */
+    if(s->dt.buffer){
+        free(s->dt.buffer);
+	s->dt.buffer = NULL;
+    }
+
+    /* image buffer to hold frontside data */
     if(s->front.buffer){
         free(s->front.buffer);
 	s->front.buffer = NULL;
     }
 
-    /* make image buffer to hold backside data */
+    /* image buffer to hold backside data */
     if(s->back.buffer){
         free(s->back.buffer);
 	s->back.buffer = NULL;

@@ -184,7 +184,6 @@ struct scanner
   /* values which are set by scanning functions to keep track of pages, etc */
   int started;
   int side;
-  int last43;
 
   /* requested size params (almost no relation to actual data?) */
   int req_width;   /* pixel width of first read-head? */

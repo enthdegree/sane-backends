@@ -1,3 +1,8 @@
+2008-10-03  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/epjitsu.[ch]: backend v17:
+	- increase scan height ~1/2 inch due to head offset
+	- change page length autodetection condition
+
 2008-10-03  Stéphane Voltz <stef.dev@free.fr>
 	* include/sane/sane.h: added a SANE_CURRENT_MINOR define 
 

@@ -115,6 +115,9 @@
         - add 1-D dynamic binary thresholding code
         - remove y-resolution option
         - pad 225x200 data to 255x225
+      v17 2008-10-03, MAN
+        - increase scan height ~1/2 inch due to head offset
+        - change page length autodetection condition
 
    SANE FLOW DIAGRAM
 
@@ -174,7 +177,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 16
+#define BUILD 17
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -1822,12 +1825,13 @@ change_params(struct scanner *s)
       i++;
     } while (settings[i].model);
   
-    /*pull in user height setting, or the max if they dont know*/
-    if(!s->page_height){
+    /*flatbed and adf in autodetect always ask for all*/
+    if(s->source == SOURCE_FLATBED || !s->page_height){
       s->scan.height = s->max_y * s->resolution_y / 1200;
     }
+    /* adf with specified paper size requires padding (~1/2in) */
     else{
-      s->scan.height = s->page_height * s->resolution_y / 1200;
+      s->scan.height = (s->page_height+600) * s->resolution_y / 1200;
     }
 
     /* FIXME: make these vals dynamic? */
@@ -1881,6 +1885,7 @@ change_params(struct scanner *s)
         s->front.width_bytes = s->front.width_pix/8;
         break;
     }
+
     /*output image might be taller than scan due to interpolation*/
     s->front.height = s->scan.height * s->resolution_x / s->resolution_y;
     update_transfer_totals(&s->front);
@@ -3358,17 +3363,20 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
                 s->scan.rx_bytes += s->block.rx_bytes;
 
-                /* autodetect mode and paper just ran out, change length */
-                if( !s->page_height && s->last43 & 0x80 && !(in[1] & 0x80) ){
+                /* autodetect mode, check for change length */
+                if( s->source != SOURCE_FLATBED && !s->page_height ){
+                    int get = (in[6] << 8) | in[7];
 
-                    int moreblocks = s->resolution_y/s->block.height;
-                    DBG (5, "sane_read: paper out? %d\n",moreblocks);
+                    /*always have to get full blocks*/
+                    if(get % s->block.height){
+                      get += s->block.height - (get % s->block.height);
+                    }
 
-                    s->scan.total_bytes = s->scan.rx_bytes 
-                      + s->block.total_bytes * moreblocks;
+                    if(get < s->scan.height){
+                      DBG (15, "sane_read: paper out? %d\n",get);
+                      s->scan.total_bytes = s->scan.width_bytes * get;
+                    }
                 }
-
-                s->last43 = in[1];
             }
 
             else { /*fi-60f*/
@@ -3502,10 +3510,14 @@ copy_S300_color(struct scanner *s,int side)
             = s->block.buffer[i + j*3];
         }
 
+        /*have filled last row of buffer, bail out*/
+        if(tp->rx_bytes == tp->total_bytes){
+          return ret;
+        }
+
         /*add a periodic row because of non-square pixels*/
         /*FIXME: only works with 225x200*/
         if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes != tp->total_bytes
          && tp->rx_bytes/tp->width_bytes % 9 == 8
         ){
           memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
@@ -3537,10 +3549,14 @@ copy_S300_color(struct scanner *s,int side)
             s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1];
         }
 
+        /*have filled last row of buffer, bail out*/
+        if(tp->rx_bytes == tp->total_bytes){
+          return ret;
+        }
+
         /*add a periodic row because of non-square pixels*/
         /*FIXME: only works with 225x200*/
         if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes != tp->total_bytes
          && tp->rx_bytes/tp->width_bytes % 9 == 8
         ){
           memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
@@ -3585,10 +3601,14 @@ copy_S300_gray(struct scanner *s,int side)
             + s->block.buffer[i + j*3]) / 3;
         }
 
+        /*have filled last row of buffer, bail out*/
+        if(tp->rx_bytes == tp->total_bytes){
+          return ret;
+        }
+
         /*add a periodic row because of non-square pixels*/
         /*FIXME: only works with 225x200*/
         if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes != tp->total_bytes
          && tp->rx_bytes/tp->width_bytes % 9 == 8
         ){
           memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
@@ -3618,10 +3638,14 @@ copy_S300_gray(struct scanner *s,int side)
             +s->block.buffer[i + (tp->width_pix-1)*3 - j*3 + 1]) / 3;
         }
 
+        /*have filled last row of buffer, bail out*/
+        if(tp->rx_bytes == tp->total_bytes){
+          return ret;
+        }
+
         /*add a periodic row because of non-square pixels*/
         /*FIXME: only works with 225x200*/
         if(s->resolution_x > s->resolution_y
-         && tp->rx_bytes != tp->total_bytes
          && tp->rx_bytes/tp->width_bytes % 9 == 8
         ){
           memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);
@@ -3736,10 +3760,14 @@ copy_S300_binary(struct scanner *s,int side)
         }
       }
 
+      /*have filled last row of buffer, bail out*/
+      if(tp->rx_bytes == tp->total_bytes){
+          return ret;
+      }
+
       /*add a periodic row because of non-square pixels*/
       /*FIXME: only works with 225x200*/
       if(s->resolution_x > s->resolution_y
-       && tp->rx_bytes != tp->total_bytes
        && tp->rx_bytes/tp->width_bytes % 9 == 8
       ){
         memcpy(tp->buffer+tp->rx_bytes,tp->buffer+lineStart,tp->width_bytes);

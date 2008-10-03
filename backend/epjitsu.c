@@ -114,7 +114,7 @@
         - enable threshold_curve option
         - add 1-D dynamic binary thresholding code
         - remove y-resolution option
-        - pad 225x200 data to 255x225
+        - pad 225x200 data to 225x225
       v17 2008-10-03, MAN
         - increase scan height ~1/2 inch due to head offset
         - change page length autodetection condition

@@ -1,3 +1,6 @@
+2008-10-03  Stéphane Voltz <stef.dev@free.fr>
+	* include/sane/sane.h: added a SANE_CURRENT_MINOR define 
+
 2008-10-02  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891.h backend/rts8891_low.h: 
 	add a 'sensornumber' option to override detected sensor model

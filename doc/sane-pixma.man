@@ -18,7 +18,7 @@ PIXMA MP600, MP600R, MP610, MP710
 .br
 PIXMA MP800, MP800R, MP810, MP830, MP960, MP970 
 .br
-PIXMA MX300, MX310, MX700
+PIXMA MX300, MX310, MX700, MX850, MX7600
 .br
 MultiPASS MP700, PIXMA MP750 (no grayscale)
 .br
@@ -47,13 +47,13 @@ ImageCLASS MF3110, MF3240
 ImageCLASS MF5630, MF5650, MF5730, MF5750, MF5770, MF8170c
 .RE
 .PP
-The following models may use partly the same Pixma protocol as MPs listed
-above, but may still need some work. They are declared in the backend as 
-experimental. Snoop logs are required to further investigate, please contact 
-the sane\-devel mailing list.
+\#The following models may use partly the same Pixma protocol as MPs listed
+\#above, but may still need some work. They are declared in the backend as 
+\#experimental. Snoop logs are required to further investigate, please contact 
+\#the sane\-devel mailing list.
 .PP
 .RS
-PIXMA MX850
+\#PIXMA MX850
 .RE
 .PP
 The backend supports
@@ -64,7 +64,9 @@ The backend supports
 .br
 * a custom gamma table and
 .br
-* automatic document feeder (only single side, duplex needs some work).
+* Automatic Document Feeder (Duplex for some models).
+.br
+* Transparency Unit support is still experimental.
 .PP
 The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.

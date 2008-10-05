@@ -272,19 +272,19 @@ pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
   for (i = 0; pixma_devices[i]; i++)
     {
       for (cfg = pixma_devices[i]; cfg->name; cfg++)
-	{
-	  sanei_usb_find_devices (cfg->vid, cfg->pid, attach);
-	  si = first_scanner;
-	  while (j < nscanners)
-	    {
-	      PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
-			       cfg->name, si->devname));
-	      si->cfg = cfg;
-	      read_serial_number (si);
-	      si = si->next;
-	      j++;
-	    }
-	}
+      {
+        sanei_usb_find_devices (cfg->vid, cfg->pid, attach);
+        si = first_scanner;
+        while (j < nscanners)
+          {
+            PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
+                 cfg->name, si->devname));
+            si->cfg = cfg;
+            read_serial_number (si);
+            si = si->next;
+            j++;
+          }
+      }
     }
   return nscanners;
 }

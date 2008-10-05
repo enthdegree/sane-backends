@@ -158,7 +158,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1713"
 :status :basic
-:comment "Single-side ADF works but duplex doesn't work yet."
+:comment "Single-side ADF works, Duplex ADF to be tested."
 
 :model "PIXMA MP960"
 :interface "USB"
@@ -169,7 +169,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1726"
 :status :good
-:comment "All resolutions supported (up to 4800DPI)"
+:comment "All resolutions supported (up to 4800DPI). TPU support currently experimental."
 
 :model "SmartBase MP360"
 :interface "USB"
@@ -240,8 +240,8 @@
 :model "PIXMA MX7600"
 :interface "USB"
 :usbid "0x04a9" "0x171c"
-:status :untested
-:comment "Generation 3 protocol? Testers needed!"
+:status :good
+:comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
 
 :model "imageCLASS MF5630"
 :interface "USB"

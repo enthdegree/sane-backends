@@ -266,6 +266,9 @@ struct pixma_scan_param_t
 
     /** \see #pixma_paper_source_t */
   pixma_paper_source_t source;
+
+    /** The current page # in the same ADF scan session, 0 in non ADF */
+  unsigned adf_pageid;
 };
 
 /** PIXMA model information */

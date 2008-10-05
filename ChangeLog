@@ -1,3 +1,20 @@
+2008-10-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c, 
+	backend/pixma_io_sanei.c, backend/pixma_mp150.c, 
+	doc/sane-pixma.man, doc/description/pixma.desc:
+	MP970 scanning improvements, up to 4800 dpi. On the way soon, 
+	network BJNP protocol designed by Louis Lagendijk to be added to CVS.
+	MX7600 reported to work fine with the backend.
+	ADF scanning: 
+	- improved for latest PIXMAs like MX850, MX310.
+	- bug fix in Sane_start, when scanning several pages with ADF.
+	ADF DUPLEX scanning:
+	- new code for ADF Duplex, (to be tested) based on a MX850 Snoop. Changes
+	might fit also MP830 (To be confirmed).
+	TPU scanning:
+	- MP970 TPU scanning: Protocol works, get scanned TPU images with 48 bits
+	to 24 bits conversion, full 48 bit version yet to be debugged.
+
 2008-10-03  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/epjitsu.[ch]: backend v17:
 	- increase scan height ~1/2 inch due to head offset

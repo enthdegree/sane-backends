@@ -57,6 +57,19 @@
 #include "pixma_common.h"
 #include "pixma_io.h"
 
+/* Some macro code to enhance readability */
+#define RET_IF_ERR(x) do {	\
+    if ((error = (x)) < 0)	\
+      return error;		\
+  } while(0)
+  
+#define WAIT_INTERRUPT(x) do {			\
+    error = handle_interrupt (s, x);		\
+    if (s->cancel)				\
+      return PIXMA_ECANCELED;			\
+    if (error != PIXMA_ECANCELED && error < 0)	\
+      return error;				\
+  } while(0)
 
 #ifdef __GNUC__
 # define UNUSED(v) (void) v
@@ -136,6 +149,8 @@ enum mp150_cmd_t
   cmd_scan_param_3 = 0xd820,
   cmd_scan_start_3 = 0xd920,
   cmd_status_3 = 0xda20,
+  cmd_get_tpu_info_3 = 0xf520,
+  cmd_set_tpu_info_3 = 0xea20,
 
   cmd_e920 = 0xe920		/* seen in MP800 */
 };
@@ -153,9 +168,11 @@ typedef struct mp150_t
   uint8_t *data_left_ofs;
   unsigned data_left_len;
   int shift[3];
-  unsigned lines_shift;
+  unsigned color_shift;
+  unsigned stripe_shift;
+  uint8_t tpu_datalen;
+  uint8_t tpu_data[0x40];
 } mp150_t;
-
 
 /*
   STAT:  0x0606 = ok,
@@ -213,10 +230,57 @@ typedef struct mp150_t
 static void mp150_finish_scan (pixma_t * s);
 
 static int
+is_scanning_from_adf (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADF
+	  || s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+
+static int
+is_scanning_from_adfdup (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_ADFDUP);
+}
+
+static int
+is_scanning_from_tpu (pixma_t * s)
+{
+  return (s->param->source == PIXMA_SOURCE_TPU);
+}
+
+static void
+new_cmd_tpu_msg (pixma_t *s, pixma_cmdbuf_t * cb, uint16_t cmd)
+{
+  pixma_newcmd (cb, cmd, 0, 0);
+  cb->buf[3] = (is_scanning_from_tpu (s)) ? 0x01 : 0x00;
+}
+
+static int
+start_session (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+
+  new_cmd_tpu_msg (s, &mp->cb, cmd_start_session);
+  return pixma_exec (s, &mp->cb);
+}
+
+static int
 start_scan_3 (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  return pixma_exec_short_cmd (s, &mp->cb, cmd_scan_start_3);
+
+  new_cmd_tpu_msg (s, &mp->cb, cmd_scan_start_3);
+  return pixma_exec (s, &mp->cb);
+}
+
+static int
+send_cmd_start_calibrate_ccd_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  
+  pixma_newcmd (&mp->cb, cmd_start_calibrate_ccd_3, 0, 0);
+  mp->cb.buf[3] = 0x01;
+  return pixma_exec (s, &mp->cb);
 }
 
 static int
@@ -241,7 +305,11 @@ static int
 has_paper (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  return (mp->current_status[1] == 0);
+  
+  if (is_scanning_from_adfdup (s))
+    return (mp->current_status[1] == 0 || mp->current_status[2] == 0);
+  else
+    return (mp->current_status[1] == 0);
 }
 
 static void
@@ -266,20 +334,6 @@ send_cmd_e920 (pixma_t * s)
 }
 
 static int
-send_cmd_start_calibrate_ccd_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  return pixma_exec_short_cmd (s, &mp->cb, cmd_start_calibrate_ccd_3);
-}
-
-static int
-start_session (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  return pixma_exec_short_cmd (s, &mp->cb, cmd_start_session);
-}
-
-static int
 select_source (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
@@ -289,39 +343,65 @@ select_source (pixma_t * s)
   if (s->cfg->pid == MP830_PID)
     {
       switch (s->param->source)
-	{
-	case PIXMA_SOURCE_ADF:
-	  data[0] = 2;
-	  data[5] = 1;
-	  data[6] = 1;
-	  break;
+        {
+        case PIXMA_SOURCE_ADF:
+          data[0] = 2;
+          data[5] = 1;
+          data[6] = 1;
+          break;
 
-	case PIXMA_SOURCE_ADFDUP:
-	  data[0] = 2;
-	  data[5] = 3;
-	  data[6] = 3;
-	  break;
+        case PIXMA_SOURCE_ADFDUP:
+          data[0] = 2;
+          data[5] = 3;
+          data[6] = 3;
+          break;
 
-	case PIXMA_SOURCE_TPU:
-	  PDBG (pixma_dbg (1, "BUG:select_source(): unsupported source %d\n",
-			   s->param->source));
-	  /* fall through */
+        case PIXMA_SOURCE_TPU:
+          PDBG (pixma_dbg (1, "BUG:select_source(): unsupported source %d\n",
+               s->param->source));
+          /* fall through */
 
-	case PIXMA_SOURCE_FLATBED:
-	  data[0] = 1;
-	  data[1] = 1;
-	  break;
-	}
+        case PIXMA_SOURCE_FLATBED:
+          data[0] = 1;
+          data[1] = 1;
+          break;
+        }
     }
   else
     {
       data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
       data[1] = 1;
       if (mp->generation == 2)
-	{
-	  data[5] = 1;
-	}
+        {
+          data[5] = 1;
+        }
     }
+  return pixma_exec (s, &mp->cb);
+}
+
+static int
+send_get_tpu_info_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+  int error;
+
+  data = pixma_newcmd (&mp->cb, cmd_get_tpu_info_3, 0, 0x34);
+  RET_IF_ERR (pixma_exec (s, &mp->cb));
+  memcpy (mp->tpu_data, data, 0x34);
+  return error;
+}
+
+static int
+send_set_tpu_info_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+
+  if (mp->tpu_datalen == 0)
+    return 0;
+  data = pixma_newcmd (&mp->cb, cmd_set_tpu_info_3, 0x34, 0);
+  memcpy (data, mp->tpu_data, 0x34);
   return pixma_exec (s, &mp->cb);
 }
 
@@ -338,9 +418,9 @@ send_gamma_table (pixma_t * s)
       data[0] = (s->param->channels == 3) ? 0x10 : 0x01;
       pixma_set_be16 (0x1004, data + 2);
       if (lut)
-	memcpy (data + 4, lut, 4096);
+	      memcpy (data + 4, lut, 4096);
       else
-	pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
+        pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
     }
   else
     {
@@ -349,26 +429,26 @@ send_gamma_table (pixma_t * s)
       data[0] = 0x10;
       pixma_set_be16 (0x0804, data + 2);
       if (lut)
-	{
-	  int i;
-	  for (i = 0; i < 1024; i++)
-	    {
-	      int j = (i << 2) + (i >> 8);
-	      data[4 + 2 * i + 0] = lut[j];
-	      data[4 + 2 * i + 1] = lut[j];
-	    }
-	}
+        {
+          int i;
+          for (i = 0; i < 1024; i++)
+            {
+              int j = (i << 2) + (i >> 8);
+              data[4 + 2 * i + 0] = lut[j];
+              data[4 + 2 * i + 1] = lut[j];
+            }
+        }
       else
-	{
-	  int i;
-	  pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 2048);
-	  for (i = 0; i < 1024; i++)
-	    {
-	      int j = (i << 1) + (i >> 9);
-	      data[4 + 2 * i + 0] = data[4 + j];
-	      data[4 + 2 * i + 1] = data[4 + j];
-	    }
-	}
+        {
+          int i;
+          pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 2048);
+          for (i = 0; i < 1024; i++)
+            {
+              int j = (i << 1) + (i >> 9);
+              data[4 + 2 * i + 0] = data[4 + j];
+              data[4 + 2 * i + 1] = data[4 + j];
+            }
+        }
     }
   return pixma_exec (s, &mp->cb);
 }
@@ -414,36 +494,35 @@ get_cis_ccd_line_size (pixma_t * s)
   return (s->param->line_size * ((is_ccd_grayscale (s)) ? 3 : 1));
 }
  
-static int
-is_scanning_from_adf (pixma_t * s)
-{
-  return (s->param->source == PIXMA_SOURCE_ADF
-	  || s->param->source == PIXMA_SOURCE_ADFDUP);
-}
-
 static unsigned
 calc_shifting (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   unsigned base_shift;
 
+  /* Default: no shift to apply (e.g. CIS sensord) */
+  mp->stripe_shift = 0;
+  mp->color_shift = 0;
+
   /* If color plane shift (CCD devices), how many pixels shift */
   switch (s->cfg->pid)
     {
+      case MP970_PID:	/* MP970 at 4800 dpi */
+        if (s->param->xdpi == 4800) 
+          mp->stripe_shift = 3;
+      /* fall through */
       case MP800_PID:
       case MP810_PID:
       case MP830_PID:
       case MP960_PID:
-      case MP970_PID:
-        mp->lines_shift = 0;
         if  (s->param->ydpi > 75)
-          mp->lines_shift = s->param->ydpi / 50;
+          mp->color_shift = s->param->ydpi / 50;
         break;
 
       default:     /* all CIS devices */
-        mp->lines_shift = 0;
+        break;
     }
-  base_shift = get_cis_ccd_line_size (s) * mp->lines_shift;
+  base_shift = get_cis_ccd_line_size (s) * mp->color_shift;
 
   /* If color plane shift, how to apply the shift */
   switch (s->cfg->pid)
@@ -463,7 +542,7 @@ calc_shifting (pixma_t * s)
         mp->shift[1] = base_shift;
         mp->shift[2] = 0;
     }
-  return mp->lines_shift;
+  return (2 * mp->color_shift + mp->stripe_shift);
 }
 
 static int
@@ -472,7 +551,7 @@ send_scan_param (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
   unsigned raw_width = calc_raw_width (mp, s->param);
-  unsigned h = MIN (s->param->h + 2 * calc_shifting (s), 
+  unsigned h = MIN (s->param->h + calc_shifting (s), 
                     s->cfg->height * s->param->ydpi / 75);
 
   if (mp->generation <= 2)
@@ -494,9 +573,20 @@ send_scan_param (pixma_t * s)
   else
     {
       data = pixma_newcmd (&mp->cb, cmd_scan_param_3, 0x38, 0);
-      data[0x00] = (s->param->source == PIXMA_SOURCE_ADF) ? 0x02 : 0x01;
+      data[0x00] = (is_scanning_from_adf (s)) ? 0x02 : 0x01;
       data[0x01] = 0x01;
+      if (is_scanning_from_tpu (s))
+        {
+          data[0x00] = 0x04;
+          data[0x01] = 0x02;
+          data[0x1e] = 0x02;
+        }
       data[0x02] = 0x01;
+      if (is_scanning_from_adfdup (s))
+        {
+          data[0x02] = 0x03;
+          data[0x03] = 0x03;
+        }
       data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
       pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (s->param->ydpi | 0x8000, data + 0x0a);
@@ -505,7 +595,9 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
       data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
-      data[0x1d] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
+      data[0x1d] = s->param->depth * 
+                   ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * 
+                   ((is_scanning_from_tpu (s)) ? 2 : 1);	/* bits per pixel */
       data[0x1f] = 0x01;
       data[0x20] = 0xff;
       data[0x21] = 0x81;
@@ -525,32 +617,8 @@ query_status_3 (pixma_t * s)
 
   status_len = 8;
   data = pixma_newcmd (&mp->cb, cmd_status_3, 0, status_len);
-  error = pixma_exec (s, &mp->cb);
-  if (error >= 0)
-    {
-      memcpy (mp->current_status, data, status_len);
-    }
-  return error;
-}
-
-static int
-init_ccd_3 (pixma_t * s)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  uint8_t *data;
-  int error, status_len;
-
-  status_len = 8;
-  error = send_cmd_start_calibrate_ccd_3 (s);
-  if (error >= 0) 
-    {
-      data = pixma_newcmd (&mp->cb, cmd_end_calibrate_ccd_3, 0, status_len);
-      error = pixma_exec (s, &mp->cb);
-      if (error >= 0)
-        {
-          memcpy (mp->current_status, data, status_len);
-        }
-    }
+  RET_IF_ERR (pixma_exec (s, &mp->cb));
+  memcpy (mp->current_status, data, status_len);
   return error;
 }
 
@@ -563,13 +631,10 @@ query_status (pixma_t * s)
 
   status_len = (mp->generation == 1) ? 12 : 16;
   data = pixma_newcmd (&mp->cb, cmd_status, 0, status_len);
-  error = pixma_exec (s, &mp->cb);
-  if (error >= 0)
-    {
-      memcpy (mp->current_status, data, status_len);
-      PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u busy=%u\n",
+  RET_IF_ERR (pixma_exec (s, &mp->cb));
+  memcpy (mp->current_status, data, status_len);
+  PDBG (pixma_dbg (3, "Current status: paper=%u cal=%u lamp=%u busy=%u\n",
 		       data[1], data[8], data[7], data[9]));
-    }
   return error;
 }
 
@@ -623,19 +688,16 @@ read_image_block (pixma_t * s, uint8_t * header, uint8_t * data)
       memcpy (data, mp->cb.buf + hlen, datalen);
       data += datalen;
       if (mp->cb.reslen == 512)
-	{
-	  error = pixma_read (s->io, data, IMAGE_BLOCK_SIZE - 512 + hlen);
-	  if (error < 0)
-	    return error;
-	  datalen += error;
-	}
+        {
+          error = pixma_read (s->io, data, IMAGE_BLOCK_SIZE - 512 + hlen);
+          RET_IF_ERR (error);
+          datalen += error;
+        }
     }
 
   mp->state = state_scanning;
   mp->cb.expected_reslen = 0;
-  error = pixma_check_result (&mp->cb);
-  if (error < 0)
-    return error;
+  RET_IF_ERR (pixma_check_result (&mp->cb));
   if (mp->cb.reslen < hlen)
     return PIXMA_EPROTO;
   return datalen;
@@ -650,11 +712,10 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
   int error;
 
   data = pixma_newcmd (&mp->cb, cmd_error_info, 0, len);
-  error = pixma_exec (s, &mp->cb);
-  if (error >= 0 && buf)
+  RET_IF_ERR (pixma_exec (s, &mp->cb));
+  if (buf && len < size)
     {
-      if (len < size)
-	size = len;
+      size = len;
       /* NOTE: I've absolutely no idea what the returned data mean. */
       memcpy (buf, data, size);
       error = len;
@@ -705,23 +766,44 @@ handle_interrupt (pixma_t * s, int timeout)
 }
 
 static int
+init_ccd_lamp_3 (pixma_t * s)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  uint8_t *data;
+  int error, status_len, tmo;
+
+  status_len = 8;
+  RET_IF_ERR (query_status (s));
+  RET_IF_ERR (query_status (s));
+  RET_IF_ERR (send_cmd_start_calibrate_ccd_3 (s));
+  RET_IF_ERR (query_status (s));
+  tmo = 20;  /* like Windows driver, CCD lamp adjustment */
+  while (--tmo >= 0)
+    {
+      data = pixma_newcmd (&mp->cb, cmd_end_calibrate_ccd_3, 0, status_len);
+      RET_IF_ERR (pixma_exec (s, &mp->cb));
+      memcpy (mp->current_status, data, status_len);
+      PDBG (pixma_dbg (3, "Lamp status: %u , timeout in: %u\n", data[0], tmo));
+      if (mp->current_status[0] == 3 || !is_scanning_from_tpu (s))
+        break;
+      WAIT_INTERRUPT (1000);
+    }
+  return error;
+}
+
+static int
 wait_until_ready (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   int error, tmo = 60;
 
-  error = (mp->generation == 3) ? query_status_3 (s) : query_status (s);
-  if (error < 0)
-    return error;
+  RET_IF_ERR ((mp->generation == 3) ? query_status_3 (s) 
+                                    : query_status (s));
   while (!is_calibrated (s))
     {
-      error = handle_interrupt (s, 1000);
       if (mp->generation == 3)
-	error = query_status_3 (s);
-      if (s->cancel)
-	return PIXMA_ECANCELED;
-      if (error != PIXMA_ECANCELED && error < 0)
-	return error;
+        RET_IF_ERR (query_status_3 (s));
+      WAIT_INTERRUPT (1000);
       if (--tmo == 0)
 	{
 	  PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
@@ -731,12 +813,144 @@ wait_until_ready (pixma_t * s)
 #if 0
       /* If we use sanei_usb_*, we sometimes lose interrupts! So poll the
        * status here. */
-      error = query_status (s);
-      if (error < 0)
-	return error;
+      RET_IF_ERR (query_status (s));
 #endif
     }
   return 0;
+}
+
+static uint8_t *
+shift_colors (uint8_t * dptr, uint8_t * sptr, 
+              unsigned w, unsigned dpi, unsigned pid, 
+              int * colshft, unsigned strshft)
+{
+  unsigned i, sr, sg, sb, st;
+  sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
+  
+  for (i = 0; i < w; i++)
+    {
+      /* MP970 at 4800 dpi exception stripes shift */
+      st = (pid == MP970_PID && dpi == 4800 && (i % 2) == 0) ? strshft : 0;
+        
+      *sptr++ = *(dptr++ + sr + st);
+      *sptr++ = *(dptr++ + sg + st);
+      *sptr++ = *(dptr++ + sb + st);
+    }
+  return dptr;
+}
+
+static uint8_t *
+rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w)
+{
+  unsigned i, g;
+
+  for (i = 0; i < w; i++)
+    {
+      g = *sptr++;
+      g += *sptr++;
+      *gptr++ = (*sptr++ + g) / 3;
+    }
+  return gptr;
+}
+
+static void
+reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
+                unsigned m, unsigned w, unsigned line_size)
+{
+  unsigned i;
+
+  for (i = 0; i < w; i++)
+    {
+      memcpy (linebuf + c * (n * (i % m) + i / m), sptr + c * i, c);
+    }
+  memcpy (sptr, linebuf, line_size);
+}
+
+static void
+mp970_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, 
+                      unsigned w, unsigned line_size)
+{
+  unsigned i, i8;
+
+  for (i = 0; i < w; i++)
+    {
+      i8 = i % 8;
+      memcpy (linebuf + c * (i + i8 - ((i8 > 3) ? 7 : 0)), sptr + c * i, c);
+    }
+  memcpy (sptr, linebuf, line_size);
+}
+
+static unsigned
+pack_48_24_bpc (uint8_t * sptr, unsigned n)
+{
+  unsigned i;
+  uint8_t *cptr;
+  
+  cptr = sptr;
+  if (n % 2 != 0)
+    PDBG (pixma_dbg (3, "Warning: Odd number of bytes received, misaligned image.\n"));
+  for (i = 0; i < n; i += 2)
+    {
+      sptr++;
+      *cptr++ = *sptr++;
+    }
+  return (n / 2);
+}
+
+/* This function deals both with PIXMA CCD sensors producing shifted color 
+ * planes images, Grayscale CCD scan and Generation 3 high dpi images.
+ * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
+ * color planes, reordering pixels above 600 dpi for Generation 3, and
+ * converting to Grayscale for CCD sensors. */
+static unsigned
+post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
+{
+  mp150_t *mp = (mp150_t *) s->subdriver;
+  unsigned c, lines, i, line_size, n, m;
+  uint8_t *sptr, *dptr, *gptr;
+
+  c = (is_ccd_grayscale (s)) ? 3 : s->param->channels;
+  
+  if (mp->generation == 3)
+    n = s->param->xdpi / 600;
+  else    /* FIXME: maybe need different values for CIS and CCD sensors */
+    n = s->param->xdpi / 2400;
+  if (s->cfg->pid == MP970_PID) 
+    n = MIN (n, 4);
+  
+  m = (n > 0) ? s->param->w / n : 1;
+  sptr = dptr = gptr = mp->imgbuf;
+  line_size = get_cis_ccd_line_size (s);    
+
+  lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
+  if (lines > 2 * mp->color_shift + mp->stripe_shift)
+    {
+      lines -= 2 * mp->color_shift + mp->stripe_shift;
+      for (i = 0; i < lines; i++, sptr += line_size)
+        {
+          /* Color plane and stripes shift needed by e.g. CCD */
+          if (c == 3)
+            dptr = shift_colors (dptr, sptr, 
+                                 s->param->w, s->param->xdpi, s->cfg->pid, 
+                                 mp->shift, mp->stripe_shift);
+                       
+          /* special image format for *most* devices at high dpi. 
+           * MP220 is a gen3 exception */
+          if (s->cfg->pid != MP220_PID && n > 0)
+              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->w, line_size);
+          
+          /* MP970 specific reordering for 4800 dpi */
+          if (s->cfg->pid == MP970_PID && s->param->xdpi == 4800)
+              mp970_reorder_pixels (mp->linebuf, sptr, c, s->param->w, line_size);
+
+          /* Color to Grayscale convert for CCD sensor */
+          if (is_ccd_grayscale (s))
+              gptr = rgb_to_gray (gptr, sptr, s->param->w);
+        }
+    }
+  ib->rptr = mp->imgbuf;
+  ib->rend = (is_ccd_grayscale (s)) ? gptr : sptr;
+  return mp->data_left_ofs - sptr;    /* # of non processed bytes */
 }
 
 static int
@@ -776,8 +990,13 @@ mp150_open (pixma_t * s)
   if (s->cfg->pid == MP140_PID)
     mp->generation = 2;
 
+  /* TPU info data setup */
+  mp->tpu_datalen = 0;
+  
   query_status (s);
   handle_interrupt (s, 200);
+  if (mp->generation == 3 && has_ccd_sensor (s)) 
+    send_cmd_start_calibrate_ccd_3 (s);
   return 0;
 }
 
@@ -798,25 +1017,24 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
+/*  if (mp->generation == 3 && sp->source == PIXMA_SOURCE_TPU)
+      sp->depth = 16; */  /* TPU in 16 bits mode */
+    
   if (mp->generation >= 2)
     {
       /* mod 32 and expansion of the X scan limits */
       sp->w += (sp->x) % 32;
       sp->w = calc_raw_width (mp, sp);
       sp->x = ALIGN_INF (sp->x, 32);
-      /* FIXME: TBC, if all gen2 and gen3 devices do not need
-       *  modulo 32 alignment on Y axis. If needed, uncomment next 2 lines */
-      /* sp->h += (sp->y) % 32;
-      sp->y = ALIGN_INF (sp->y, 32);*/
     }
-  sp->line_size = calc_raw_width (mp, sp) * sp->channels;
+  sp->line_size = calc_raw_width (mp, sp) * sp->channels * (sp->depth / 8);
   return 0;
 }
 
 static int
 mp150_scan (pixma_t * s)
 {
-  int error = 0, tmo;
+  int error = 0, tmo, i;
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   if (mp->state != state_idle)
@@ -833,89 +1051,85 @@ mp150_scan (pixma_t * s)
       if ((error = query_status (s)) < 0)
         return error;
       tmo = 10;
-      while (!has_paper(s) && --tmo >= 0)
+      while (!has_paper (s) && --tmo >= 0)
         {
-          error = handle_interrupt (s, 1000);
-          if (s->cancel)
-            return PIXMA_ECANCELED;
-          if (error != PIXMA_ECANCELED && error < 0)
-            return error;
+          WAIT_INTERRUPT (1000);
           PDBG (pixma_dbg
             (2, "No paper in ADF. Timed out in %d sec.\n", tmo));
         }
-      if (!has_paper(s))
+      if (!has_paper (s))
         return PIXMA_ENO_PAPER;
     }
 
-  if (has_ccd_sensor (s))
+  if (has_ccd_sensor (s) && (mp->generation <= 2))
     {
-      error = (mp->generation <= 2) ? send_cmd_e920 (s) 
-                                    : send_cmd_start_calibrate_ccd_3 (s);
+      error = send_cmd_e920 (s);
       switch (error)
         {
           case PIXMA_ECANCELED:
           case PIXMA_EBUSY:
-            PDBG (pixma_dbg
-              (2, "cmd e920 or d520 returned %s\n", pixma_strerror (error)));
-          /* fall through */
+            PDBG (pixma_dbg (2, "cmd e920 or d520 returned %s\n", 
+                             pixma_strerror (error)));
+            /* fall through */
           case 0:
-	    query_status (s);
+            query_status (s);
             break;
           default:
-	    PDBG (pixma_dbg
-	      (1, "WARNING:cmd e920 or d520 failed %s\n", pixma_strerror (error)));
+            PDBG (pixma_dbg (1, "WARNING:cmd e920 or d520 failed %s\n", 
+                             pixma_strerror (error)));
             return error;
         }
       tmo = 3;  /* like Windows driver, CCD calibration ? */
       while (--tmo >= 0)
         {
-          error = handle_interrupt (s, 1000);
-          if (s->cancel)
-            return PIXMA_ECANCELED;
-          if (error != PIXMA_ECANCELED && error < 0)
-            return error;
-          PDBG (pixma_dbg
-            (2, "CCD Calibration ends in %d sec.\n", tmo));
+          WAIT_INTERRUPT (1000);
+          PDBG (pixma_dbg (2, "CCD Calibration ends in %d sec.\n", tmo));
         }
       /* pixma_sleep(2000000); */
     }
 
   tmo = 10;
-  error = start_session (s);
-  while (error == PIXMA_EBUSY && --tmo >= 0)
+  if (s->param->adf_pageid == 0 || mp->generation <= 2)
     {
-      if (s->cancel)
-	{
-	  error = PIXMA_ECANCELED;
-	  break;
-	}
-      PDBG (pixma_dbg
-	    (2, "Scanner is busy. Timed out in %d sec.\n", tmo + 1));
-      pixma_sleep (1000000);
       error = start_session (s);
+      while (error == PIXMA_EBUSY && --tmo >= 0)
+        {
+          if (s->cancel)
+            {
+              error = PIXMA_ECANCELED;
+              break;
+            }
+          PDBG (pixma_dbg
+          (2, "Scanner is busy. Timed out in %d sec.\n", tmo + 1));
+          pixma_sleep (1000000);
+          error = start_session (s);
+        }
+      if (error == PIXMA_EBUSY || error == PIXMA_ETIMEDOUT)
+        {
+          /* The scanner maybe hangs. We try to empty output buffer of the
+           * scanner and issue the cancel command. */
+          PDBG (pixma_dbg (2, "Scanner hangs? Sending abort_session command.\n"));
+          drain_bulk_in (s);
+          abort_session (s);
+          pixma_sleep (500000);
+          error = start_session (s);
+        }
+      if ((error >= 0) || (mp->generation == 3))
+        mp->state = state_warmup;
+      if ((error >= 0) && (mp->generation <= 2))
+        error = select_source (s);
+      if ((error >= 0) && (mp->generation == 3) && has_ccd_sensor (s))
+        error = init_ccd_lamp_3 (s);
+      if ((error >= 0) && !is_scanning_from_tpu (s))
+        for (i = (mp->generation == 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
+          error = send_gamma_table (s);
+      else if (mp->generation == 3)  /* FIXME: Does this apply also to gen2 ? */
+        error = send_set_tpu_info_3 (s);
     }
-  if (error == PIXMA_EBUSY || error == PIXMA_ETIMEDOUT)
-    {
-      /* The scanner maybe hangs. We try to empty output buffer of the
-       * scanner and issue the cancel command. */
-      PDBG (pixma_dbg (2, "Scanner hangs? Sending abort_session command.\n"));
-      drain_bulk_in (s);
-      abort_session (s);
-      pixma_sleep (500000);
-      error = start_session (s);
-    }
+  else   /* ADF pageid != 0 and gen3 */
+    pixma_sleep (1000000);
   if ((error >= 0) || (mp->generation == 3))
-    mp->state = state_warmup;
-  if ((error >= 0) && (mp->generation <= 2))
-    error = select_source (s);
-  if ((error >= 0) && (mp->generation == 3) && has_ccd_sensor (s))
-    error = init_ccd_3 (s);
-  if (error >= 0)
-    error = send_gamma_table (s);
-  if ((error >= 0) && (mp->generation == 3)) 
-    error = send_gamma_table (s);
-  if ((error >= 0) && (mp->generation == 3)) 
-    error = send_gamma_table (s);
+    mp->state = state_warmup;    
   if (error >= 0)
     error = send_scan_param (s);
   if ((error >= 0) && (mp->generation == 3))
@@ -928,98 +1142,6 @@ mp150_scan (pixma_t * s)
   return 0;
 }
 
-static uint8_t *
-shift_colors (uint8_t * dptr, uint8_t * sptr, unsigned w, int sr, int sg, int sb)
-{
-  unsigned i;
-
-  for (i = 0; i < w; i++)
-    {
-      *sptr++ = *(dptr++ + sr);
-      *sptr++ = *(dptr++ + sg);
-      *sptr++ = *(dptr++ + sb);
-    }
-  return dptr;
-}
-
-static uint8_t *
-rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w)
-{
-  unsigned i, g;
-
-  for (i = 0; i < w; i++)
-    {
-      g = *sptr++;
-      g += *sptr++;
-      *gptr++ = (*sptr++ + g)  / 3;
-    }
-  return gptr;
-}
-
-static void
-reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n, 
-                unsigned m, unsigned w, unsigned line_size)
-{
-  unsigned i;
-
-  for (i = 0; i < w; i++)
-    {
-      memcpy (linebuf + c * (n * (i % m) + i / m), sptr + c * i, c);
-    }
-  memcpy (sptr, linebuf, line_size);
-}
-
-/* This function deals both with PIXMA CCD sensors producing shifted color 
- * planes images, Grayscale CCD scan and Generation 3 high dpi images.
- * Each complete line in mp->imgbuf is processed for shifting CCD sensor 
- * color planes, reordering pixels above 600 dpi for Generation 3, and
- * converting to Grayscale for CCD sensors. */
-static unsigned
-post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
-{
-  mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned c, lines, i, line_size, n, m;
-  uint8_t *sptr, *dptr, *gptr;
-
-  c = (is_ccd_grayscale (s)) ? 3 : s->param->channels;
-  
-  if (mp->generation == 3)
-    n = s->param->xdpi / 600;
-  else    /* FIXME: maybe need different values for CIS and CCD sensors */
-    n = s->param->xdpi / 2400;
-  if (s->cfg->pid == MP970_PID) 
-    n = MIN (n, 4);
-  
-  m = (n > 0) ? s->param->w / n : 1;
-  sptr = dptr = gptr = mp->imgbuf;
-  line_size = get_cis_ccd_line_size (s);    
-
-  lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
-  if (lines > 2 * mp->lines_shift)
-    {
-      lines -= 2 * mp->lines_shift;
-      for (i = 0; i < lines; i++, sptr += line_size)
-        {
-          /* Color plane shift needed by e.g. CCD */
-          if (c == 3)
-            dptr = shift_colors (dptr, sptr, s->param->w,  
-                       mp->shift[0],  mp->shift[1],  mp->shift[2]);
-
-          /* special image format for *most* devices at high dpi. 
-           * MP220 is a gen3 exception */
-          if (s->cfg->pid != MP220_PID && n > 0)
-              reorder_pixels (mp->linebuf, sptr, c, n, m, s->param->w, line_size);
-
-          /* Color to Grayscale convert for CCD sensor */
-          if (is_ccd_grayscale (s))
-              gptr = rgb_to_gray (gptr, sptr, s->param->w);
-        }
-    }
-  ib->rptr = mp->imgbuf;
-  ib->rend = (is_ccd_grayscale (s)) ? gptr : sptr;
-  return mp->data_left_ofs - sptr;    /* # of non processed bytes */
-}
-
 static int
 mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 {
@@ -1030,9 +1152,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
   if (mp->state == state_warmup)
     {
-      error = wait_until_ready (s);
-      if (error < 0)
-	return error;
+      RET_IF_ERR (wait_until_ready (s));
       pixma_sleep (1000000);	/* No need to sleep, actually, but Window's driver
 				 * sleep 1.5 sec. */
       mp->state = state_scanning;
@@ -1043,7 +1163,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       mp->cb.buf = realloc (mp->cb.buf,
              CMDBUF_SIZE + IMAGE_BLOCK_SIZE + proc_buf_size);
       if (!mp->cb.buf)
-	return PIXMA_ENOMEM;
+        return PIXMA_ENOMEM;
       mp->linebuf = mp->cb.buf + CMDBUF_SIZE;
       mp->imgbuf = mp->data_left_ofs = mp->linebuf + line_size;
       mp->data_left_len = 0;
@@ -1052,41 +1172,44 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   do
     {
       if (s->cancel)
-	return PIXMA_ECANCELED;
+        return PIXMA_ECANCELED;
       if ((mp->last_block & 0x28) == 0x28)
-	{
-	  /* end of image */
-	  mp->state = state_finished;
-	  return 0;
-	}
+        {       /* end of image */
+           mp->state = state_finished;
+           return 0;
+        }
       memmove (mp->imgbuf, mp->data_left_ofs, mp->data_left_len);
       error = read_image_block (s, header, mp->imgbuf + mp->data_left_len);
       if (error < 0)
-	{
-	  if (error == PIXMA_ECANCELED)
-	    {
-	      /* NOTE: I see this in traffic logs but I don't know its meaning. */
-	      read_error_info (s, NULL, 0);
-	    }
-	  return error;
-	}
+        {
+          if (error == PIXMA_ECANCELED)
+            {
+               /* NOTE: I see this in traffic logs but I don't know its meaning. */
+               read_error_info (s, NULL, 0);
+            }
+          return error;
+        }
 
       bytes_received = error;
       block_size = pixma_get_be32 (header + 12);
       mp->last_block = header[8] & 0x38;
       if ((header[8] & ~0x38) != 0)
-	{
-	  PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
-	  PDBG (pixma_hexdump (1, header, 16));
-	}
+        {
+          PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
+          PDBG (pixma_hexdump (1, header, 16));
+        }
       PASSERT (bytes_received == block_size);
 
       if (block_size == 0)
-	{
-	  /* no image data at this moment. */
-	  pixma_sleep (10000);
-	}
+        {     /* no image data at this moment. */
+          pixma_sleep (10000);
+        }
 
+      /* In case of TPU, at 48 bits/col scan, pack the newly received data */
+      if (mp->generation == 3 && is_scanning_from_tpu (s))
+        bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
+
+      /* Post-process the image data */
       mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
       mp->data_left_ofs -= mp->data_left_len;
@@ -1109,17 +1232,20 @@ mp150_finish_scan (pixma_t * s)
       /* fall through */
     case state_scanning:
     case state_warmup:
-      error = abort_session (s);
-      if (error < 0)
-	PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
-      /* fall through */
     case state_finished:
+      /* For gen3 TPU , send the get TPU info message */
+      if (mp->generation == 3 && is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
+        send_get_tpu_info_3 (s);
       /* FIXME: to process several pages ADF scan, must not send 
        * abort_session and start_session between pages (last_block=0x28)
        * if (mp->last_block != 0x28 || !is_scanning_from_adf(s)) */
-      if (mp->last_block != 0x38)
-        abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
-      mp->state = state_idle;
+      if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
+        {
+          error = abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */
+          if (error < 0)
+            PDBG (pixma_dbg (1, "WARNING:abort_session() failed %d\n", error));
+          mp->state = state_idle;
+        }
       /* fall through */
     case state_idle:
       break;
@@ -1141,9 +1267,7 @@ mp150_get_status (pixma_t * s, pixma_device_status_t * status)
 {
   int error;
 
-  error = query_status (s);
-  if (error < 0)
-    return error;
+  RET_IF_ERR (query_status (s));
   status->hardware = PIXMA_HARDWARE_OK;
   status->adf = (has_paper (s)) ? PIXMA_ADF_OK : PIXMA_ADF_NO_PAPER;
   status->cal =
@@ -1162,15 +1286,15 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_get_status
 };
 
-#define DEVICE(name, pid, dpi, cap) {		\
-        name,              /* name */		\
-	CANON_VID, pid,    /* vid pid */	\
-	0,                 /* iface */		\
-	&pixma_mp150_ops,  /* ops */		\
-	dpi, 2*(dpi),      /* xdpi, ydpi */	\
-	638, 877,          /* width, height */	\
-	PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|	\
-        PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap	\
+#define DEVICE(name, pid, dpi, cap) {               \
+        name,              /* name */               \
+        CANON_VID, pid,    /* vid pid */            \
+        0,                 /* iface */              \
+        &pixma_mp150_ops,  /* ops */                \
+        dpi, 2*(dpi),      /* xdpi, ydpi */         \
+        638, 877,          /* width, height */      \
+        PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
+        PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 
 #define END_OF_DEVICE_LIST DEVICE(NULL, 0, 0, 0)

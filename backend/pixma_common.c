@@ -122,16 +122,16 @@ pixma_hexdump (int level, const void *d_, unsigned len)
       line[9] = ':';
       p = line + 10;
       for (c = 0; c != 16 && (ofs + c) < len; c++)
-	{
-	  u8tohex (d[ofs + c], p);
-	  p[2] = ' ';
-	  p += 3;
-	  if (c == 7)
-	    {
-	      p[0] = ' ';
-	      p++;
-	    }
-	}
+        {
+          u8tohex (d[ofs + c], p);
+          p[2] = ' ';
+          p += 3;
+          if (c == 7)
+            {
+              p[0] = ' ';
+              p++;
+            }
+        }
       p[0] = '\0';
       pixma_dbg (level, "%s\n", line);
       ofs += c;
@@ -621,67 +621,65 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
   if (s->underrun)
     {
       if (s->cur_image_size < s->param->image_size)
-	{
-	  ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
-	}
-      else
-	{
-	  PDBG (pixma_dbg
-		(3, "pixma_read_image():completed (underrun detected)\n"));
-	  s->scanning = 0;
-	}
+        {
+          ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
+        }
+            else
+        {
+          PDBG (pixma_dbg
+          (3, "pixma_read_image():completed (underrun detected)\n"));
+          s->scanning = 0;
+        }
       return ib.wptr - (uint8_t *) buf;
     }
 
   while (ib.wptr != ib.wend)
     {
       if (ib.rptr == ib.rend)
-	{
-	  ib.rptr = ib.rend = NULL;
-	  result = s->ops->fill_buffer (s, &ib);
-	  if (result < 0)
-	    goto cancel;
-	  if (result == 0)
-	    {			/* end of image? */
-	      s->ops->finish_scan (s);
-#ifndef NDEBUG
-	      if (s->cur_image_size != s->param->image_size)
-		{
-		  pixma_dbg (1, "WARNING:image size mismatches\n");
-		  pixma_dbg (1,
-			     "    %u expected (%d lines) but %u received (%d lines)\n",
-			     s->param->image_size, s->param->h,
-			     s->cur_image_size,
-			     s->cur_image_size / s->param->line_size);
-		  if ((s->cur_image_size % s->param->line_size) != 0)
-		    {
-		      pixma_dbg (1,
-				 "BUG:received data not multiple of line_size\n");
-		    }
-		}
-#endif /* !NDEBUG */
-	      if (s->cur_image_size < s->param->image_size)
-		{
-		  s->underrun = 1;
-		  ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
-		}
-	      else
-		{
-		  PDBG (pixma_dbg (3, "pixma_read_image():completed\n"));
-		  s->scanning = 0;
-		}
-	      break;
-	    }
-	  s->cur_image_size += result;
-	  PASSERT (s->cur_image_size <= s->param->image_size);
-	}
+        {
+          ib.rptr = ib.rend = NULL;
+          result = s->ops->fill_buffer (s, &ib);
+          if (result < 0)
+            goto cancel;
+          if (result == 0)
+            {			/* end of image? */
+              s->ops->finish_scan (s);
+              if (s->cur_image_size != s->param->image_size)
+                {
+                  pixma_dbg (1, "WARNING:image size mismatches\n");
+                  pixma_dbg (1,
+                       "    %u expected (%d lines) but %u received (%d lines)\n",
+                       s->param->image_size, s->param->h,
+                       s->cur_image_size,
+                       s->cur_image_size / s->param->line_size);
+                  if ((s->cur_image_size % s->param->line_size) != 0)
+                    {
+                      pixma_dbg (1,
+                     "BUG:received data not multiple of line_size\n");
+                    }
+                }
+              if (s->cur_image_size < s->param->image_size)
+                {
+                  s->underrun = 1;
+                  ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
+                }
+                    else
+                {
+                  PDBG (pixma_dbg (3, "pixma_read_image():completed\n"));
+                  s->scanning = 0;
+                }
+              break;
+            }
+          s->cur_image_size += result;
+          PASSERT (s->cur_image_size <= s->param->image_size);
+        }
       if (ib.rptr)
-	{
-	  unsigned count = MIN (ib.rend - ib.rptr, ib.wend - ib.wptr);
-	  memcpy (ib.wptr, ib.rptr, count);
-	  ib.rptr += count;
-	  ib.wptr += count;
-	}
+        {
+          unsigned count = MIN (ib.rend - ib.rptr, ib.wend - ib.wptr);
+          memcpy (ib.wptr, ib.rptr, count);
+          ib.rptr += count;
+          ib.wptr += count;
+        }
     }
   s->imagebuf = ib;		/* store rptr and rend */
   return ib.wptr - (uint8_t *) buf;
@@ -764,37 +762,37 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
 
     case PIXMA_SOURCE_TPU:
       if ((s->cfg->cap & PIXMA_CAP_TPU) != PIXMA_CAP_TPU)
-	{
-	  sp->source = PIXMA_SOURCE_FLATBED;
-	  PDBG (pixma_dbg
-		(1, "WARNING: TPU unsupported, fallback to flatbed.\n"));
-	}
+        {
+          sp->source = PIXMA_SOURCE_FLATBED;
+          PDBG (pixma_dbg
+          (1, "WARNING: TPU unsupported, fallback to flatbed.\n"));
+        }
       break;
 
     case PIXMA_SOURCE_ADF:
       if ((s->cfg->cap & PIXMA_CAP_ADF) != PIXMA_CAP_ADF)
-	{
-	  sp->source = PIXMA_SOURCE_FLATBED;
-	  PDBG (pixma_dbg
-		(1, "WARNING: ADF unsupported, fallback to flatbed.\n"));
-	}
+        {
+          sp->source = PIXMA_SOURCE_FLATBED;
+          PDBG (pixma_dbg
+          (1, "WARNING: ADF unsupported, fallback to flatbed.\n"));
+        }
       break;
 
     case PIXMA_SOURCE_ADFDUP:
       if ((s->cfg->cap & PIXMA_CAP_ADFDUP) != PIXMA_CAP_ADFDUP)
-	{
-	  if (s->cfg->cap & PIXMA_CAP_ADF)
-	    {
-	      sp->source = PIXMA_SOURCE_ADF;
-	    }
-	  else
-	    {
-	      sp->source = PIXMA_SOURCE_FLATBED;
-	    }
-	  PDBG (pixma_dbg
-		(1, "WARNING: ADF duplex unsupported, fallback to %d.\n",
-		 sp->source));
-	}
+        {
+          if (s->cfg->cap & PIXMA_CAP_ADF)
+            {
+              sp->source = PIXMA_SOURCE_ADF;
+            }
+          else
+            {
+              sp->source = PIXMA_SOURCE_FLATBED;
+            }
+          PDBG (pixma_dbg
+          (1, "WARNING: ADF duplex unsupported, fallback to %d.\n",
+           sp->source));
+        }
       break;
     }
 

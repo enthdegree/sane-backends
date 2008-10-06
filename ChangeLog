@@ -1,3 +1,7 @@
+2008-10-06  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891.h: fixed configuration option
+	  bug
+
 2008-10-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma.h, backend/pixma_common.c, 
 	backend/pixma_io_sanei.c, backend/pixma_mp150.c, 

@@ -2232,9 +2232,9 @@ probe_rts8891_devices (void)
   /**> configuration structure used during attach */
   SANEI_Config config;
   /**> list of configuration options */
-  SANE_Option_Descriptor *options[2];
+  SANE_Option_Descriptor *options[NUM_CFG_OPTIONS];
   /**> placeholders pointers for option values */
-  void *values[2];
+  void *values[NUM_CFG_OPTIONS];
   int i;
   SANE_Status status;
 

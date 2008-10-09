@@ -1,3 +1,7 @@
+2008-10-08  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: backend v80
+	- front-side endorser uses data ID 0x80
+
 2008-10-06  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891.h: fixed configuration option
 	  bug

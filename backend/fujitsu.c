@@ -388,6 +388,8 @@
          - detect front-side endorser
          - disable endorser-side controls if only one side installed
          - add quirks for fi-6x70
+      v80 2008-10-08, MAN
+         - front-side endorser uses data ID 0x80
 
    SANE FLOW DIAGRAM
 
@@ -448,7 +450,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 79
+#define BUILD 80
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5195,14 +5197,21 @@ send_endorser(struct fujitsu *s)
   size_t strLen = strlen(s->u_endorser_string);
 
   unsigned char out[S_e_data_max_len]; /*we probably send less below*/
-  size_t outLen = S_e_data_min_len + strLen;
+  size_t outLen = S_e_data_min_len + strLen; /*fi-5900 might want 1 more byte?*/
 
   DBG (10, "send_endorser: start\n");
 
   /*build the payload*/
   memset(out,0,outLen);
 
-  set_S_endorser_data_id(out,0);
+  /*fi-5900 front side uses 0x80, assume all others*/
+  if(s->u_endorser_side == ED_front){
+    set_S_endorser_data_id(out,0x80);
+  }
+  else{
+    set_S_endorser_data_id(out,0);
+  }
+
   set_S_endorser_stamp(out,0);
   set_S_endorser_elec(out,0);
 
@@ -5990,7 +5999,14 @@ endorser(struct fujitsu *s)
 
   if (s->has_endorser_f || s->has_endorser_b){
 
-    set_ED_endorser_data_id(out,0);
+    /*fi-5900 front side uses 0x80, assume all others*/
+    if(s->u_endorser_side == ED_front){
+      set_ED_endorser_data_id(out,0x80);
+    }
+    else{
+      set_ED_endorser_data_id(out,0);
+    }
+
     if(s->u_endorser){
       set_ED_stop(out,ED_start);
     }

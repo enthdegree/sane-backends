@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "11 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "09 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,20 +10,19 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 72, which shipped with SANE 1.1.0.
+This document describes backend version 80, slated to ship with SANE 1.1.0.
 
 .SH SUPPORTED HARDWARE
-This version has at least basic support for every model which speaks the 
-Fujitsu SCSI and SCSI-over-USB protocols, with many scanners having 
-complete support. Specifically, the SCSI M309x and M409x series, the SCSI
-fi-series, most of the USB fi-series, and the USB ScanSnap S5xx scanners 
+This version supports every known model which speaks the Fujitsu SCSI and 
+SCSI-over-USB protocols. Specifically, the SCSI M309x and M409x series, the 
+SCSI fi-series, most of the USB fi-series, and the USB ScanSnap S5xx scanners 
 are supported. Please see the list at 
 http://www.sane\-project.org/sane\-supported\-devices.html for details.
 
 This backend may support other Fujitsu scanners. The best
 way to determine level of support is to test the scanner directly,
 or to collect a trace of the windows driver in action.
-Please contact the author with test results, positive or negative.
+Please contact the author for help or with test results.
 
 .SH UNSUPPORTED HARDWARE
 The following scanners are known NOT to work with this backend,
@@ -75,7 +74,7 @@ Sets scan area upper left and lower right coordinates. These are renamed
 t, l, x, y by some frontends.
 .RE
 .PP
-pagewidth, pageheight
+page\-width, page\-height
 .RS
 Sets paper size. Used by scanner to determine centering of scan
 coordinates when using ADF and to detect double feed errors.
@@ -83,11 +82,11 @@ coordinates when using ADF and to detect double feed errors.
 .PP
 Other options will be available based on the capabilities of the scanner:
 machines with IPC or DTC will have additional enhancement options, those
-with CMP will have compression options, those with endorser will have a
-group of imprinter options.
+with CMP will have compression options, those with a printer will have a
+group of endorser options.
 
 Use 'scanimage \-\-help' to get a list, but be aware that some options may 
-appear only when another option has been set, and that advanced options 
+be settable only when another option has been set, and that advanced options 
 may be hidden by some frontend programs.
 .PP
 .SH CONFIGURATION FILE
@@ -161,11 +160,13 @@ enables debugging output to stderr. Valid values are:
 .RE
 
 .SH KNOWN ISSUES
-- Some scanner specific 'quirks' are not accounted for, making it possible
-to set some options in ways that the scanner does not support.
-.br
-- Any model that does not support VPD during inquiry will not function until 
+Flatbed units may fail to scan at maximum area, particularly at
+high resolution.
+.PP
+Any model that does not support VPD during inquiry will not function until 
 an override is added to the backend.
+.PP
+CCITT Fax compression used by older scanners is not supported.
 
 .SH CREDITS
 m3091 backend: Frederik Ramm <frederik a t remote d o t org>

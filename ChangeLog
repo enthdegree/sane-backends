@@ -1,3 +1,6 @@
+2008-10-09  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: backend v80
+
 2008-10-08  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c: backend v80
 	- front-side endorser uses data ID 0x80

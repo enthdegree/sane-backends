@@ -1,4 +1,5 @@
 /* SANE - Scanner Access Now Easy.
+ * For limitations, see function sanei_usb_get_vendor_product().
 
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
@@ -44,11 +45,13 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>		/* INT_MAX */
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
 #include "pixma_io.h"
+#include "pixma_bjnp.h"
 
 #include "../include/sane/sanei_usb.h"
 
@@ -63,18 +66,22 @@
 struct pixma_io_t
 {
   pixma_io_t *next;
-  SANE_Int usb;
+  int interface;
+  SANE_Int dev;
 };
 
 typedef struct scanner_info_t
 {
   struct scanner_info_t *next;
   char *devname;
+  int interface;
   const pixma_config_t *cfg;
   char serial[PIXMA_MAX_ID_LEN + 1];	/* "xxxxyyyy_zzzzzzz..."
 					   x = vid, y = pid, z = serial */
 } scanner_info_t;
 
+#define INT_USB 0
+#define INT_BJNP 1
 
 static scanner_info_t *first_scanner = NULL;
 static pixma_io_t *first_io = NULL;
@@ -91,6 +98,36 @@ get_scanner_info (unsigned devnr)
   return si;
 }
 
+static const struct pixma_config_t *lookup_scanner(const char *makemodel, 
+                                                   const struct pixma_config_t *const pixma_devices[])
+{ 
+  int i;
+  const struct pixma_config_t *cfg;
+  char *match;
+
+  for (i = 0; pixma_devices[i]; i++)
+    {
+      /* loop through the device classes (mp150, mp730 etc) */
+      for (cfg = pixma_devices[i]; cfg->name; cfg++)
+        {
+          /* loop through devices in class */
+          if ((match = strcasestr (makemodel, cfg->model)) != NULL)
+            { 
+              /* possible match found, make sure it is not a partial match */
+              /* MP600 and MP600R are different models! */
+              if ((match[strlen(cfg->model)] == ' ') || 
+                  (match[strlen(cfg->model)] == '\0'))
+                {
+                  pixma_dbg (13, "Scanner model found: Name %s(%s) matches %s\n", cfg->model, cfg->name, makemodel);
+                  return cfg;
+                }
+            }
+          pixma_dbg (13, "Name %s(%s) does not match %s\n", cfg->model, cfg->name, makemodel);
+       }
+    }
+  return NULL;
+}
+
 static SANE_Status
 attach (SANE_String_Const devname)
 {
@@ -102,6 +139,35 @@ attach (SANE_String_Const devname)
   si->devname = strdup (devname);
   if (!si->devname)
     return SANE_STATUS_NO_MEM;
+  si -> interface = INT_USB;
+  si->next = first_scanner;
+  first_scanner = si;
+  nscanners++;
+  return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel, 
+             SANE_String_Const serial, 
+             const struct pixma_config_t *const pixma_devices[])
+{
+  scanner_info_t *si;
+  const pixma_config_t *cfg;
+/*  const struct pixma_config_t *const *pixma_devices; 
+  
+  pixma_devices = input; */
+  si = (scanner_info_t *) calloc (1, sizeof (*si));
+  if (!si)
+    return SANE_STATUS_NO_MEM;
+  si->devname = strdup (devname);
+  if (!si->devname)
+    return SANE_STATUS_NO_MEM;
+  if ((cfg = lookup_scanner(makemodel, pixma_devices)) == (struct pixma_config_t *)NULL)
+    return SANE_STATUS_INVAL;
+  si->cfg = cfg;
+  sprintf(si->serial, "%04x%04x_%s", (unsigned int) cfg->vid, (unsigned int) cfg->pid, serial);
+  si -> interface = INT_BJNP;
   si->next = first_scanner;
   first_scanner = si;
   nscanners++;
@@ -145,7 +211,7 @@ u16tohex (uint16_t x, char *str)
   static const char hdigit[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
     'E', 'F'
-  };
+    };
   str[0] = hdigit[(x >> 12) & 0xf];
   str[1] = hdigit[(x >> 8) & 0xf];
   str[2] = hdigit[(x >> 4) & 0xf];
@@ -177,26 +243,25 @@ read_serial_number (scanner_info_t * si)
       int iSerialNumber = ddesc[16];
       /* Read the first language code. Assumed that there is at least one. */
       if (get_string_descriptor (usb, 0, 0, 4, unicode) != SANE_STATUS_GOOD)
-	goto done;
+        goto done;
       /* Read the serial number string. */
-      status =
-	get_string_descriptor (usb, iSerialNumber,
-			       unicode[3] * 256 + unicode[2],
-			       sizeof (unicode), unicode);
+      status = get_string_descriptor (usb, iSerialNumber,
+                                      unicode[3] * 256 + unicode[2],
+                                      sizeof (unicode), unicode);
       if (status != SANE_STATUS_GOOD)
-	goto done;
+        goto done;
       /* Assumed charset: Latin1 */
       len = unicode[0];
       if (len > (int) sizeof (unicode))
-	{
-	  len = sizeof (unicode);
-	  PDBG (pixma_dbg (1, "WARNING:Truncated serial number\n"));
-	}
-      serial[8] = '_';
-      for (i = 2; i < len; i += 2)
-	{
-	  serial[9 + i / 2 - 1] = unicode[i];
-	}
+        {
+          len = sizeof (unicode);
+          PDBG (pixma_dbg (1, "WARNING:Truncated serial number\n"));
+        }
+            serial[8] = '_';
+            for (i = 2; i < len; i += 2)
+        {
+          serial[9 + i / 2 - 1] = unicode[i];
+        }
       serial[9 + i / 2 - 1] = '\0';
     }
   else
@@ -248,6 +313,7 @@ int
 pixma_io_init (void)
 {
   sanei_usb_init ();
+  sanei_bjnp_init();
   nscanners = 0;
   return 0;
 }
@@ -264,27 +330,37 @@ unsigned
 pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
 {
   unsigned i, j;
-  scanner_info_t *si;
-  const pixma_config_t *cfg;
+  struct scanner_info_t *si;
+  const struct pixma_config_t *cfg;
 
   clear_scanner_list ();
   j = 0;
   for (i = 0; pixma_devices[i]; i++)
     {
       for (cfg = pixma_devices[i]; cfg->name; cfg++)
-      {
-        sanei_usb_find_devices (cfg->vid, cfg->pid, attach);
-        si = first_scanner;
-        while (j < nscanners)
-          {
-            PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
-                 cfg->name, si->devname));
-            si->cfg = cfg;
-            read_serial_number (si);
-            si = si->next;
-            j++;
-          }
-      }
+        {
+          sanei_usb_find_devices (cfg->vid, cfg->pid, attach);
+          si = first_scanner;
+          while (j < nscanners)
+            {
+              PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
+                   cfg->name, si->devname));
+              si->cfg = cfg;
+              read_serial_number (si);
+              si = si->next;
+              j++;
+            }
+        }
+    }
+  sanei_bjnp_find_devices(attach_bjnp, pixma_devices);
+  si = first_scanner;
+  while (j < nscanners)
+    {
+      PDBG (pixma_dbg (3, "pixma_collect_devices() found %s at %s\n",
+               si->cfg->name, si->devname));
+      si = si->next;
+      j++;
+
     }
   return nscanners;
 }
@@ -307,7 +383,7 @@ int
 pixma_connect (unsigned devnr, pixma_io_t ** handle)
 {
   pixma_io_t *io;
-  SANE_Int usb;
+  SANE_Int dev;
   const scanner_info_t *si;
   int error;
 
@@ -315,18 +391,26 @@ pixma_connect (unsigned devnr, pixma_io_t ** handle)
   si = get_scanner_info (devnr);
   if (!si)
     return PIXMA_EINVAL;
-  error = map_error (sanei_usb_open (si->devname, &usb));
+  if (si-> interface == INT_BJNP)
+    error = map_error (sanei_bjnp_open (si->devname, &dev));
+  else
+    error = map_error (sanei_usb_open (si->devname, &dev));
+      
   if (error < 0)
     return error;
   io = (pixma_io_t *) calloc (1, sizeof (*io));
   if (!io)
     {
-      sanei_usb_close (usb);
+      if (si -> interface == INT_BJNP)
+        sanei_bjnp_close (dev);
+      else 
+        sanei_usb_close (dev);
       return PIXMA_ENOMEM;
     }
   io->next = first_io;
   first_io = io;
-  io->usb = usb;
+  io->dev = dev;
+  io->interface = si->interface;
   *handle = io;
   return 0;
 }
@@ -345,7 +429,10 @@ pixma_disconnect (pixma_io_t * io)
   PASSERT (*p);
   if (!(*p))
     return;
-  sanei_usb_close (io->usb);
+  if (io-> interface == INT_BJNP)
+    sanei_bjnp_close (io->dev);
+  else
+    sanei_usb_close (io->dev);
   *p = io->next;
   free (io);
 }
@@ -363,10 +450,18 @@ pixma_write (pixma_io_t * io, const void *cmd, unsigned len)
   size_t count = len;
   int error;
 
+  if (io->interface == INT_BJNP)
+    {
+    sanei_bjnp_set_timeout (io->dev, PIXMA_BULKOUT_TIMEOUT);
+    error = map_error (sanei_bjnp_write_bulk (io->dev, cmd, &count));
+    }
+  else
+    {
 #ifdef HAVE_SANEI_USB_SET_TIMEOUT
-  sanei_usb_set_timeout (PIXMA_BULKOUT_TIMEOUT);
+    sanei_usb_set_timeout (PIXMA_BULKOUT_TIMEOUT);
 #endif
-  error = map_error (sanei_usb_write_bulk (io->usb, cmd, &count));
+    error = map_error (sanei_usb_write_bulk (io->dev, cmd, &count));
+    }
   if (error == PIXMA_EIO)
     error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (count != len)
@@ -387,10 +482,19 @@ pixma_read (pixma_io_t * io, void *buf, unsigned size)
   size_t count = size;
   int error;
 
+  if (io-> interface == INT_BJNP)
+    {
+    sanei_bjnp_set_timeout (io->dev, PIXMA_BULKIN_TIMEOUT);
+    error = map_error (sanei_bjnp_read_bulk (io->dev, buf, &count));
+    }
+  else
+    {
 #ifdef HAVE_SANEI_USB_SET_TIMEOUT
-  sanei_usb_set_timeout (PIXMA_BULKIN_TIMEOUT);
+      sanei_usb_set_timeout (PIXMA_BULKIN_TIMEOUT);
 #endif
-  error = map_error (sanei_usb_read_bulk (io->usb, buf, &count));
+      error = map_error (sanei_usb_read_bulk (io->dev, buf, &count));
+    }
+
   if (error == PIXMA_EIO)
     error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (error >= 0)
@@ -405,15 +509,23 @@ pixma_wait_interrupt (pixma_io_t * io, void *buf, unsigned size, int timeout)
   size_t count = size;
   int error;
 
-#ifdef HAVE_SANEI_USB_SET_TIMEOUT
   /* FIXME: What is the meaning of "timeout" in sanei_usb? */
   if (timeout < 0)
     timeout = INT_MAX;
   else if (timeout < 10)
     timeout = 10;
-  sanei_usb_set_timeout (timeout);
+  if (io-> interface == INT_BJNP)
+    {
+      sanei_bjnp_set_timeout (io->dev, timeout);
+      error = map_error (sanei_bjnp_read_int (io->dev, buf, &count));
+    }
+  else
+    {
+#ifdef HAVE_SANEI_USB_SET_TIMEOUT
+      sanei_usb_set_timeout (timeout);
 #endif
-  error = map_error (sanei_usb_read_int (io->usb, buf, &count));
+      error = map_error (sanei_usb_read_int (io->dev, buf, &count));
+    }
   if (error == PIXMA_EIO)
     error = PIXMA_ETIMEDOUT;	/* FIXME: SANE doesn't have ETIMEDOUT!! */
   if (error == 0)

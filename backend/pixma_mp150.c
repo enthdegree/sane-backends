@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -111,7 +112,8 @@
 #define MP140_PID 0x172b
 
 /* Generation 3 */
-#define MX7600_PID 0x171c  /* untested */
+/* PIXMA 2007 vintage */
+#define MX7600_PID 0x171c
 #define MP210_PID 0x1721
 #define MP220_PID 0x1722
 #define MP470_PID 0x1723
@@ -122,6 +124,18 @@
 #define MX310_PID 0x1728
 #define MX700_PID 0x1729
 #define MX850_PID 0x172c
+
+/* PIXMA 2008 vintage */
+#define MP980_PID 0x172d    /* Untested */
+#define MP630_PID 0x172e    /* Untested */
+#define MP620_PID 0x172f    /* Untested */
+#define MP540_PID 0x1730    /* Untested */
+#define MP480_PID 0x1731    /* Untested */
+#define MP240_PID 0x1732    /* Untested */
+#define MP260_PID 0x1733    /* Untested */
+#define MP190_PID 0x1734    /* Untested */
+
+
 
 enum mp150_state_t
 {
@@ -884,15 +898,15 @@ static unsigned
 pack_48_24_bpc (uint8_t * sptr, unsigned n)
 {
   unsigned i;
-  uint8_t *cptr;
+  uint8_t *cptr, lsb;
   
   cptr = sptr;
   if (n % 2 != 0)
     PDBG (pixma_dbg (3, "Warning: Odd number of bytes received, misaligned image.\n"));
   for (i = 0; i < n; i += 2)
     {
-      sptr++;
-      *cptr++ = *sptr++;
+      lsb = *sptr++;
+      *cptr++ = ((*sptr++) << 0) | lsb >> 8;
     }
   return (n / 2);
 }
@@ -1136,6 +1150,7 @@ mp150_scan (pixma_t * s)
     error = start_scan_3 (s);
   if (error < 0)
     {
+      mp->last_block = 0x38;   /* Force abort session if ADF scan */
       mp150_finish_scan (s);
       return error;
     }
@@ -1286,8 +1301,9 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_get_status
 };
 
-#define DEVICE(name, pid, dpi, cap) {               \
+#define DEVICE(name, model, pid, dpi, cap) {        \
         name,              /* name */               \
+        model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
@@ -1297,60 +1313,60 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 
-#define END_OF_DEVICE_LIST DEVICE(NULL, 0, 0, 0)
+#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0)
 
 const pixma_config_t pixma_mp150_devices[] = {
   /* Generation 1: CIS */
-  DEVICE ("Canon PIXMA MP150", MP150_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP170", MP170_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP450", MP450_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP500", MP500_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP530", MP530_PID, 1200,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 1: CCD */
-  DEVICE ("Canon PIXMA MP800", MP800_PID, 2400,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP800R", MP800R_PID, 2400,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP830", MP830_PID, 2400,
-	  PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
 
   /* Generation 2: CIS */
-  DEVICE ("Canon PIXMA MP140", MP140_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP160", MP160_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP180", MP180_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP460", MP460_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP510", MP510_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600", MP600_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600R", MP600R_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, PIXMA_CAP_CIS),
 
   /* Generation 2: CCD */
-  DEVICE ("Canon PIXMA MP810", MP810_PID, 4800,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP960", MP960_PID, 4800,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP210", MP210_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP220", MP220_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP470", MP470_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP520", MP520_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP610", MP610_PID, 4800, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, PIXMA_CAP_CIS),
 
-  DEVICE ("Canon PIXMA MX300", MX300_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX310", MX310_PID, 1200,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX700", MX700_PID, 2400,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX850", MX850_PID, 2400,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX7600", MX7600_PID, 4800,
-	  PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 3 CCD not managed as Generation 2 */
-  DEVICE ("Canon PIXMA MP970", MP970_PID, 4800,
-	  PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+
+  /* PIXMA 2008 vintage */
+  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+
+  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

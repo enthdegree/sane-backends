@@ -234,14 +234,62 @@
 :model "PIXMA MX850"
 :interface "USB"
 :usbid "0x04a9" "0x172c"
-:status :basic
-:comment "Works in flatbed. Speed issue in ADF simplex ? USB Snoops needed to set up ADF Duplex"
+:status :good
+:comment "Works in flatbed and ADF simplex. ADF Duplex supported, but no report yet."
 
 :model "PIXMA MX7600"
 :interface "USB"
 :usbid "0x04a9" "0x171c"
 :status :good
 :comment "Flatbed and ADF scan. All resolutions supported (up to 4800DPI)"
+
+:model "PIXMA MP980"
+:interface "USB"
+:usbid "0x04a9" "0x172d"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP630"
+:interface "USB"
+:usbid "0x04a9" "0x172e"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP620"
+:interface "USB"
+:usbid "0x04a9" "0x172f"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP540"
+:interface "USB"
+:usbid "0x04a9" "0x1730"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP480"
+:interface "USB"
+:usbid "0x04a9" "0x1731"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP240"
+:interface "USB"
+:usbid "0x04a9" "0x1732"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP260"
+:interface "USB"
+:usbid "0x04a9" "0x1733"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
+
+:model "PIXMA MP190"
+:interface "USB"
+:usbid "0x04a9" "0x1734"
+:status :untested
+:comment "Same protocol as Pixma Generation 3? Testers needed!"
 
 :model "imageCLASS MF5630"
 :interface "USB"

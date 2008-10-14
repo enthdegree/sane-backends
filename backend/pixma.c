@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -482,17 +483,17 @@ control_option (pixma_sane_t * ss, SANE_Int n,
           }
         return SANE_STATUS_GOOD;
 
-    case opt_button_update:
-      if (a == SANE_ACTION_SET_VALUE)
-        {
-          update_button_state (ss, info);
-          return SANE_STATUS_GOOD;
-        }
-      else
-        {
-          return SANE_STATUS_INVAL;
-        }
-      break;
+      case opt_button_update:
+        if (a == SANE_ACTION_SET_VALUE)
+          {
+            update_button_state (ss, info);
+            return SANE_STATUS_GOOD;
+          }
+        else
+          {
+            return SANE_STATUS_INVAL;
+          }
+        break;
     }
 
   switch (SOD (n).type)
@@ -647,14 +648,12 @@ init_option_descriptors (pixma_sane_t * ss)
       ss->source_map[i] = PIXMA_SOURCE_ADFDUP;
       i++;
     }
-#if 1
   if (cfg->cap & PIXMA_CAP_TPU)
     {
       ss->source_list[i] = SANE_I18N ("Transparency Unit");
       ss->source_map[i] = PIXMA_SOURCE_TPU;
       i++;
     }
-#endif
 
   build_option_descriptors (ss);
 
@@ -1003,8 +1002,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   status = pixma_init ();
   if (status < 0)
     {
-      PDBG (pixma_dbg
-	    (2, "pixma_init() failed %s\n", pixma_strerror (status)));
+      PDBG (pixma_dbg (2, "pixma_init() failed %s\n", pixma_strerror (status)));
     }
   return map_error (status);
 }
@@ -1162,18 +1160,18 @@ sane_control_option (SANE_Handle h, SANE_Int n,
     {
     case SANE_ACTION_SET_VALUE:
       if ((opt->sod.type != SANE_TYPE_BUTTON && !v) ||
-	  !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
-	return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-      break;
+          !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
+        return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
+        break;
     case SANE_ACTION_SET_AUTO:
       if (!(opt->sod.cap & SANE_CAP_AUTOMATIC) ||
-	  !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
-	return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-      break;
+          !SANE_OPTION_IS_SETTABLE (opt->sod.cap))
+        return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
+        break;
     case SANE_ACTION_GET_VALUE:
       if (!v || !(opt->sod.cap & SANE_CAP_SOFT_DETECT))
-	return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
-      break;
+        return SANE_STATUS_INVAL;	/* or _UNSUPPORTED? */
+        break;
     default:
       return SANE_STATUS_UNSUPPORTED;
     }

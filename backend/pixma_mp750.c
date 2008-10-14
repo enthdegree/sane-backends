@@ -844,8 +844,9 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
   mp750_get_status
 };
 
-#define DEVICE(name, pid, dpi, cap) {			\
+#define DEVICE(name, model, pid, dpi, cap) {			\
 	name,                  /* name */		\
+	model,                 /* model */		\
 	0x04a9, pid,           /* vid pid */		\
 	0,                     /* iface */		\
 	&pixma_mp750_ops,      /* ops */		\
@@ -855,8 +856,8 @@ static const pixma_scan_ops_t pixma_mp750_ops = {
 }
 
 const pixma_config_t pixma_mp750_devices[] = {
-  DEVICE ("Canon PIXMA MP750", MP750_PID, 2400, PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MP760", MP760_PID, 2400, PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP780", MP780_PID, 2400, PIXMA_CAP_ADF),
-  DEVICE (NULL, 0, 0, 0)
+  DEVICE ("Canon PIXMA MP750", "MP750", MP750_PID, 2400, PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP760", "MP760", MP760_PID, 2400, PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP780", "MP780", MP780_PID, 2400, PIXMA_CAP_ADF),
+  DEVICE (NULL, NULL, 0, 0, 0)
 };

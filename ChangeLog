@@ -1,3 +1,16 @@
+2008-10-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma*.c, backend/pixma*.h (all pixma backend files),  
+	doc/sane-pixma.man, doc/description/pixma.desc, 
+	backend/Makefile.in
+	Added 3 new files backend/pixma_bjnp.c, backend/pixma_bjnp.h, 
+	backend/pixma_bjnp_private.h:
+	- Thanks to Louis Lagendijk, added an implementation of Canon's BJNP
+	network protocol to the pixma backend, for scanning with PIXMA devices
+	over a LAN network.
+	- Fix for ADF scan reset session when ADF is loaded with more pages 
+	to scan than the frontend requests.
+	- Updated pixma backend documentation and file headers.
+
 2008-10-09  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: backend v80
 

@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -277,15 +278,16 @@ struct pixma_config_t
   /* If you change this structure, don't forget to update the device list in
    * subdrivers. */
   const char *name;	   /**< Model name. */
-  uint16_t vid;		   /**< USB Vendor ID */
-  uint16_t pid;		   /**< USB Product ID */
-  unsigned iface;	   /**< USB Interface number */
+  const char *model;   /**< Short model */
+  uint16_t vid;		     /**< USB Vendor ID */
+  uint16_t pid;		     /**< USB Product ID */
+  unsigned iface;	     /**< USB Interface number */
   const pixma_scan_ops_t *ops;	  /**< Subdriver ops */
-  unsigned xdpi;	   /**< Maximum horizontal resolution[DPI] */
-  unsigned ydpi;	   /**< Maximum vertical resolution[DPI] */
-  unsigned width;	   /**< Maximum width of scannable area in pixels at 75DPI */
+  unsigned xdpi;	     /**< Maximum horizontal resolution[DPI] */
+  unsigned ydpi;	     /**< Maximum vertical resolution[DPI] */
+  unsigned width;	     /**< Maximum width of scannable area in pixels at 75DPI */
   unsigned height;	   /**< Maximum height of scannable area in pixels at 75DPI */
-  unsigned cap;		   /**< Capability bitfield \see PIXMA_CAP_* */
+  unsigned cap;		     /**< Capability bitfield \see PIXMA_CAP_* */
 };
 
 

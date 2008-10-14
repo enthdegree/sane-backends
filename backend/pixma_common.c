@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -89,7 +90,7 @@ u8tohex (uint8_t x, char *str)
   static const char hdigit[16] =
     { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd',
     'e', 'f'
-  };
+    };
   str[0] = hdigit[(x >> 4) & 0xf];
   str[1] = hdigit[x & 0xf];
   str[2] = '\0';
@@ -108,20 +109,25 @@ void
 pixma_hexdump (int level, const void *d_, unsigned len)
 {
   const uint8_t *d = (const uint8_t *) (d_);
-  unsigned ofs, c;
+  unsigned ofs, c, plen;
   char line[100];		/* actually only 1+8+1+8*3+1+8*3+1 = 61 bytes needed */
 
   if (level > debug_level)
     return;
+  if (level == debug_level)
+    /* if debuglevel == exact match and buffer contains more than 3 lines, print 2 lines + .... */
+    plen = (len > 64) ? 32: len;
+  else
+    plen = len;
   ofs = 0;
-  while (ofs < len)
+  while (ofs < plen)
     {
       char *p;
       line[0] = ' ';
       u32tohex (ofs, line + 1);
       line[9] = ':';
       p = line + 10;
-      for (c = 0; c != 16 && (ofs + c) < len; c++)
+      for (c = 0; c != 16 && (ofs + c) < plen; c++)
         {
           u8tohex (d[ofs + c], p);
           p[2] = ' ';
@@ -136,6 +142,8 @@ pixma_hexdump (int level, const void *d_, unsigned len)
       pixma_dbg (level, "%s\n", line);
       ofs += c;
     }
+  if (len > plen)
+    pixma_dbg(level, "......\n");
 }
 
 static void

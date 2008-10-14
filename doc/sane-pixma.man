@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "7 Sep 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "11 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -7,6 +7,8 @@ The
 .B sane\-pixma
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to Canon PIXMA multi-function devices (All-in-one printers).
+The backend implements both USB interface and Network LAN interface
+using Canon's BJNP protocol.
 Currently, the following models work with this backend:
 .PP
 .RS
@@ -40,7 +42,9 @@ in the backend so that they get recognized and activated.
 Feedback in the Sane-dev mailing list welcome.
 .PP
 .RS
-PIXMA MP740, MX7600
+PIXMA MP740
+.br
+PIXMA MP190, MP240, MP260, MP480, MP540, MP620, MP630, MP980
 .br
 ImageCLASS MF3110, MF3240
 .br
@@ -62,11 +66,11 @@ The backend supports
 .br
 * color and grayscale mode,
 .br
-* a custom gamma table and
+* a custom gamma table,
 .br
 * Automatic Document Feeder (Duplex for some models).
 .br
-* Transparency Unit support is still experimental.
+* Transparency Unit.
 .PP
 The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
@@ -148,7 +152,7 @@ You should also set SANE_DEBUG_PIXMA to 10.
 .I http://home.arcor.de/wittawat/pixma/,
 .I http://mp610.blogspot.com/
 .SH AUTHORS
-Wittawat Yamwong, Nicolas Martin
+Wittawat Yamwong, Nicolas Martin, Dennis Lou, Louis Lagendijk
 .PP
 We would like to thank all testers and helpers. Without them we could not be
 able to write subdrivers for models we don't have. See also the project

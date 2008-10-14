@@ -1,5 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
+   Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 
    This file is part of the SANE package.
@@ -620,23 +621,24 @@ static const pixma_scan_ops_t pixma_mp730_ops = {
   mp730_get_status
 };
 
-#define DEVICE(name, pid, dpi, w, h, cap) {     \
-        name,              /* name */		\
-	0x04a9, pid,       /* vid pid */	\
-	1,                 /* iface */		\
-	&pixma_mp730_ops,  /* ops */		\
-	dpi, dpi,          /* xdpi, ydpi */	\
-	w, h,              /* width, height */	\
-        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap                      \
+#define DEVICE(name, model, pid, dpi, w, h, cap) {           \
+              name,              /* name */           \
+              model,             /* model */		      \
+              0x04a9, pid,       /* vid pid */	      \
+              1,                 /* iface */		      \
+              &pixma_mp730_ops,  /* ops */            \
+              dpi, dpi,          /* xdpi, ydpi */	    \
+              w, h,              /* width, height */	\
+        PIXMA_CAP_GRAY|PIXMA_CAP_EVENTS|cap           \
 }
 const pixma_config_t pixma_mp730_devices[] = {
 /* TODO: check area limits */
-  DEVICE ("Canon SmartBase MP360", MP360_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon SmartBase MP370", MP370_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon SmartBase MP390", MP390_PID, 1200, 636, 868, 0),
-  DEVICE ("Canon MultiPASS MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
-  DEVICE ("Canon MultiPASS MP710", MP710_PID, 1200, 637, 868, 0),
-  DEVICE ("Canon MultiPASS MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
-  DEVICE ("Canon MultiPASS MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
-  DEVICE (NULL, 0, 0, 0, 0, 0)
+  DEVICE ("Canon SmartBase MP360", "MP360", MP360_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon SmartBase MP370", "MP370", MP370_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon SmartBase MP390", "MP390", MP390_PID, 1200, 636, 868, 0),
+  DEVICE ("Canon MultiPASS MP700", "MP700", MP700_PID, 1200, 638, 877 /*1035 */ , 0),
+  DEVICE ("Canon MultiPASS MP710", "MP710", MP710_PID, 1200, 637, 868, 0),
+  DEVICE ("Canon MultiPASS MP730", "MP730", MP730_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE ("Canon MultiPASS MP740", "MP740", MP740_PID, 1200, 637, 868, PIXMA_CAP_ADF),
+  DEVICE (NULL, NULL, 0, 0, 0, 0, 0)
 };

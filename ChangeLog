@@ -1,3 +1,7 @@
+2008-10-15  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: fixed HP4400 sensor detection, added 150
+	  dpi scan mode for HP4400
+
 2008-10-14  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma*.c, backend/pixma*.h (all pixma backend files),  
 	doc/sane-pixma.man, doc/description/pixma.desc, 

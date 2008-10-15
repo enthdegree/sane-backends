@@ -1,4 +1,7 @@
 2008-10-15  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: added 300 dpi scan for HP4400
+
+2008-10-15  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fixed HP4400 sensor detection, added 150
 	  dpi scan mode for HP4400
 

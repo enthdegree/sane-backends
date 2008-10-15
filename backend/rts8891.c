@@ -1158,12 +1158,13 @@ sane_start (SANE_Handle handle)
 	      DBG (DBG_info, "sane_start: sensor changed to type 'xpa'!\n");
 	      dev->sensor = SENSOR_TYPE_XPA;
 	      break;
-	    case SENSOR_TYPE_BARE:
+	    case SENSOR_TYPE_XPA:
 	      DBG (DBG_info, "sane_start: sensor changed to type 'bare'!\n");
 	      dev->sensor = SENSOR_TYPE_BARE;
 	      break;
 	    case SENSOR_TYPE_4400:
-	      DBG (DBG_info, "sane_start: sensor changed to type '4400 bare'!\n");
+	      DBG (DBG_info,
+		   "sane_start: sensor changed to type '4400 bare'!\n");
 	      dev->sensor = SENSOR_TYPE_4400_BARE;
 	      break;
 	    case SENSOR_TYPE_4400_BARE:
@@ -5625,8 +5626,9 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       break;
 
     case 300:
-      if (dev->sensor == SENSOR_TYPE_XPA)
+      switch (dev->sensor)
 	{
+	case SENSOR_TYPE_XPA:
 	  dev->regs[0x80] = 0xb0;
 	  dev->regs[0x81] = 0x00;
 	  dev->regs[0x82] = 0xb1;
@@ -5662,9 +5664,8 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  /* dev->regs[0xe5] = 0xc9;
 	     dev->regs[0xe6] = 0x01;     0x01c9=457 */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
-	}
-      else
-	{
+	  break;
+	case SENSOR_TYPE_BARE:
 	  dev->regs[0x80] = 0x2e;
 	  dev->regs[0x81] = 0x01;
 	  dev->regs[0x82] = 0x2f;
@@ -5700,6 +5701,43 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  /* dev->regs[0xe5] = 0xc9;
 	     dev->regs[0xe6] = 0x01;    0x1c9=457 */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
+	  break;
+	case SENSOR_TYPE_4400:
+	  dev->regs[0x80] = 0x2b;
+	  dev->regs[0x81] = 0x02;
+	  dev->regs[0x82] = 0x2c;
+	  dev->regs[0x83] = 0x02;
+	  dev->regs[0x85] = 0x18;
+	  dev->regs[0x86] = 0x1b;
+	  dev->regs[0x87] = 0x30;
+	  dev->regs[0x88] = 0x30;
+	  dev->regs[0x89] = 0x2d;
+	  dev->regs[0x8a] = 0x02;
+	  dev->regs[0x8d] = 0xef;
+	  dev->regs[0xc0] = 0x00;
+	  dev->regs[0xc1] = 0xff;
+	  dev->regs[0xc2] = 0x0f;
+	  dev->regs[0xc3] = 0xff;
+	  dev->regs[0xc4] = 0x00;
+	  dev->regs[0xc5] = 0xf0;
+	  dev->regs[0xc6] = 0x00;
+	  dev->regs[0xc7] = 0xff;
+	  dev->regs[0xc8] = 0x0f;
+	  dev->regs[0xc9] = 0xff;
+	  dev->regs[0xca] = 0xff;
+	  dev->regs[0xcb] = 0xf1;
+	  dev->regs[0xcc] = 0xff;
+	  dev->regs[0xcd] = 0x00;
+	  dev->regs[0xce] = 0xf0;
+	  dev->regs[0xcf] = 0xed;
+	  dev->regs[0xd0] = 0xef;
+	  dev->regs[0xd1] = 0xe2;
+	  dev->regs[0xd2] = 0x03;
+	  dev->regs[0xd3] = 0x17;
+	  dev->regs[0xd4] = 0x01;
+	  /* 0x0393 = 915 = 2*457+1 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 915);
+	  break;
 	}
       break;
 
@@ -6707,35 +6745,36 @@ write_scan_registers (struct Rts8891_Session *session)
       break;
 
     case 300:
-      dev->regs[0x35] = 0x0e;	/* fast ? */
-      dev->regs[0x3a] = 0x0e;
-
-      dev->regs[0x80] = 0x2b;
-      dev->regs[0x81] = 0x02;
-
-      dev->regs[0x82] = 0x2c;
-      dev->regs[0x83] = 0x02;	/* x8180 +1 */
-
-      dev->regs[0x85] = 0x18;
-      dev->regs[0x86] = 0x1b;
-
-      dev->regs[0x87] = 0x30;
-      dev->regs[0x88] = 0x30;
-
-      dev->regs[0x89] = 0x2d;
-      dev->regs[0x8a] = 0x02;	/* x8180 +2 */
-
-      dev->regs[0xe7] = 0x00;
-      dev->regs[0xe8] = 0x00;
-      dev->regs[0xe9] = 0x00;
-      dev->regs[0xea] = 0x00;
-      dev->regs[0xeb] = 0x00;
-      dev->regs[0xec] = 0x00;
-      dev->regs[0xed] = 0x00;
-      dev->regs[0xef] = 0x00;
-      dev->regs[0xf0] = 0x00;
-      if (dev->sensor == SENSOR_TYPE_XPA)
+      switch (dev->sensor)
 	{
+	case SENSOR_TYPE_XPA:
+	  dev->regs[0x35] = 0x0e;	/* fast ? */
+	  dev->regs[0x3a] = 0x0e;
+
+	  dev->regs[0x80] = 0x2b;
+	  dev->regs[0x81] = 0x02;
+
+	  dev->regs[0x82] = 0x2c;
+	  dev->regs[0x83] = 0x02;	/* x8180 +1 */
+
+	  dev->regs[0x85] = 0x18;
+	  dev->regs[0x86] = 0x1b;
+
+	  dev->regs[0x87] = 0x30;
+	  dev->regs[0x88] = 0x30;
+
+	  dev->regs[0x89] = 0x2d;
+	  dev->regs[0x8a] = 0x02;	/* x8180 +2 */
+
+	  dev->regs[0xe7] = 0x00;
+	  dev->regs[0xe8] = 0x00;
+	  dev->regs[0xe9] = 0x00;
+	  dev->regs[0xea] = 0x00;
+	  dev->regs[0xeb] = 0x00;
+	  dev->regs[0xec] = 0x00;
+	  dev->regs[0xed] = 0x00;
+	  dev->regs[0xef] = 0x00;
+	  dev->regs[0xf0] = 0x00;
 	  dev->regs[0x8d] = 0xef;
 	  dev->regs[0xc0] = 0x00;
 	  dev->regs[0xc1] = 0xff;
@@ -6765,9 +6804,35 @@ write_scan_registers (struct Rts8891_Session *session)
 	     dev->regs[0xe6] = 0x01; */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 342);	/* 171*2 */
 	  dev->regs[0xf2] = 0x00;
-	}
-      else
-	{
+	  break;
+	case SENSOR_TYPE_BARE:
+	  dev->regs[0x35] = 0x0e;	/* fast ? */
+	  dev->regs[0x3a] = 0x0e;
+
+	  dev->regs[0x80] = 0x2b;
+	  dev->regs[0x81] = 0x02;
+
+	  dev->regs[0x82] = 0x2c;
+	  dev->regs[0x83] = 0x02;	/* x8180 +1 */
+
+	  dev->regs[0x85] = 0x18;
+	  dev->regs[0x86] = 0x1b;
+
+	  dev->regs[0x87] = 0x30;
+	  dev->regs[0x88] = 0x30;
+
+	  dev->regs[0x89] = 0x2d;
+	  dev->regs[0x8a] = 0x02;	/* x8180 +2 */
+
+	  dev->regs[0xe7] = 0x00;
+	  dev->regs[0xe8] = 0x00;
+	  dev->regs[0xe9] = 0x00;
+	  dev->regs[0xea] = 0x00;
+	  dev->regs[0xeb] = 0x00;
+	  dev->regs[0xec] = 0x00;
+	  dev->regs[0xed] = 0x00;
+	  dev->regs[0xef] = 0x00;
+	  dev->regs[0xf0] = 0x00;
 	  dev->regs[0x8d] = 0xf0;
 	  dev->regs[0x8e] = 0x60;	/* low nibble of 8e and 8d are proportional to 
 					   the scanned width 1de => 5100 wide scan */
@@ -6796,7 +6861,59 @@ write_scan_registers (struct Rts8891_Session *session)
 	  /* dev->regs[0xe5] = 0x56;
 	     dev->regs[0xe6] = 0x01;     exposure time 0x156 (~ 5500 /16) */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 342);
-
+	  break;
+	case SENSOR_TYPE_4400:
+	  dev->regs[0x11] = 0x22;
+	  dev->regs[0x35] = 0x0e;
+	  dev->regs[0x3a] = 0x0e;
+	  dev->regs[0x80] = 0x2b;
+	  dev->regs[0x81] = 0x02;
+	  dev->regs[0x82] = 0x2c;
+	  dev->regs[0x83] = 0x02;
+	  dev->regs[0x85] = 0x18;
+	  dev->regs[0x86] = 0x1b;
+	  dev->regs[0x87] = 0x30;
+	  dev->regs[0x88] = 0x30;
+	  dev->regs[0x89] = 0x2d;
+	  dev->regs[0x8a] = 0x02;
+	  dev->regs[0x8d] = 0xef;
+	  dev->regs[0xc0] = 0x00;
+	  dev->regs[0xc1] = 0xff;
+	  dev->regs[0xc2] = 0x0f;
+	  dev->regs[0xc3] = 0xff;
+	  dev->regs[0xc4] = 0x00;
+	  dev->regs[0xc5] = 0xf0;
+	  dev->regs[0xc6] = 0x00;
+	  dev->regs[0xc7] = 0xff;
+	  dev->regs[0xc8] = 0x0f;
+	  dev->regs[0xc9] = 0xff;
+	  dev->regs[0xca] = 0xff;
+	  dev->regs[0xcb] = 0xf1;
+	  dev->regs[0xcc] = 0xff;
+	  dev->regs[0xcd] = 0x00;
+	  dev->regs[0xce] = 0xf0;
+	  dev->regs[0xcf] = 0xed;
+	  dev->regs[0xd0] = 0xef;
+	  dev->regs[0xd1] = 0xe2;
+	  dev->regs[0xd2] = 0x03;
+	  dev->regs[0xd3] = 0x17;
+	  dev->regs[0xd4] = 0x01;
+	  dev->regs[0xe2] = 0x03;
+	  dev->regs[0xe3] = 0x00;
+	  dev->regs[0xe4] = 0x00;
+	  /* 0x2ae=686 = 342*2+2 */
+	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 686);
+	  dev->regs[0xe7] = 0x00;
+	  dev->regs[0xe8] = 0x00;
+	  dev->regs[0xe9] = 0x00;
+	  dev->regs[0xea] = 0x00;
+	  dev->regs[0xeb] = 0x00;
+	  dev->regs[0xec] = 0x00;
+	  dev->regs[0xed] = 0x00;
+	  dev->regs[0xef] = 0x00;
+	  dev->regs[0xf0] = 0x00;
+	  dev->regs[0xf2] = 0x00;
+	  break;
 	}
       break;
     case 600:

@@ -53,7 +53,9 @@
 #include "../include/sane/sane.h"
 #include "pixma.h"
 
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>		/* for size_t */
+#endif
 
 /** Initialize sanei_bjnp.
  *

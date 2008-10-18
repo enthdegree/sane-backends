@@ -226,7 +226,7 @@ int udp_command (const int dev_no, char *command, int cmd_len, char *response,
 		 int resp_len);
 int get_scanner_id (const int dev_no, char *model, char *IEEE1284_id);
 void parse_scanner_address (char *resp_buf, char *name, char *serial);
-int bjnp_send_broadcast (struct ifaddrs *interface, struct BJNP_command cmd,
+int bjnp_send_broadcast (struct in_addr broadcast_addr, struct BJNP_command cmd,
 			 int size);
 int split_uri (const char *devname, char *method, char *hostname, int *port,
 	       char *args);

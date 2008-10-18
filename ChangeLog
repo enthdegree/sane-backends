@@ -1,3 +1,11 @@
+2008-10-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* configure.in, configure, 
+	backend/pixma_bjnp.c, backend/pixma_bjnp.h, backend/pixma_bjnp_private.h,
+	pixma.h, doc/descriptions/pixma.desc:
+	From Louis Lagendijk for bjnp protocol on pixma backend, add a header check 
+	for ifaddrs.h  (necessary on different platforms BeOS, OS/2, ...)
+	Increment pixma backend version number.
+
 2008-10-15  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: added 300 dpi scan for HP4400
 

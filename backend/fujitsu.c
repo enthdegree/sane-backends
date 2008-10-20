@@ -390,6 +390,10 @@
          - add quirks for fi-6x70
       v80 2008-10-08, MAN
          - front-side endorser uses data ID 0x80
+      v81 2008-10-20, MAN
+         - increase USB timeouts
+         - enable get_pixelsize() to update scan params after set_window()
+         - remove even_scan_line hack
 
    SANE FLOW DIAGRAM
 
@@ -450,7 +454,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 80
+#define BUILD 81
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1913,17 +1917,8 @@ init_model (struct fujitsu *s)
    || strstr (s->model_name, "fi-4990") ) {
 
     /* weirdness */
-    s->even_scan_line = 1;
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->color_interlace = COLOR_INTERLACE_RRGGBB;
-  }
-
-  /* some firmware versions use capital f? */
-  else if (strstr (s->model_name, "Fi-5900")
-   || strstr (s->model_name, "fi-5900") ) {
-
-    /* weirdness */
-    s->even_scan_line = 1;
   }
 
   else if (strstr (s->model_name,"fi-6230")
@@ -1932,13 +1927,6 @@ init_model (struct fujitsu *s)
     /* missing from vpd */
     s->max_x_fb = 10488;
     s->max_y_fb = 14173;
-  }
-
-  else if (strstr (s->model_name, "fi-6670")
-   || strstr (s->model_name, "fi-6770") ) {
-
-    /* weirdness */
-    s->even_scan_line = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -5691,34 +5679,23 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     }
 
     /* not started? get param data from user settings */
-    else{
-        int dir = 1;
-	int pw = get_page_width(s);
-	int ph = get_page_height(s);
-
+    else {
         DBG (15, "sane_get_parameters: not started, updating\n");
-
-        DBG(15,"sane_get_parameters: x: max=%d, page=%d, curr=%d, res=%d\n",
-          s->max_x, s->page_width, pw, s->resolution_x);
-
-        DBG(15,"sane_get_parameters: y: max=%d, page=%d, curr=%d, res=%d\n",
-          s->max_y, s->page_height, ph, s->resolution_y);
-
-        DBG(15,"sane_get_parameters: usr: tlx=%d, brx=%d, pixx=%d\n",
-	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
-
-        DBG(15,"sane_get_parameters: usr: tly=%d, bry=%d, pixy=%d\n",
-	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
 
         /* this backend only sends single frame images */
         params->last_frame = 1;
       
+        params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+
+        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
+    
         if (s->mode == MODE_COLOR) {
             params->format = SANE_FRAME_RGB;
             params->depth = 8;
             if(s->compress == COMP_JPEG){
                 params->format = SANE_FRAME_JPEG;
             }
+            params->bytes_per_line = params->pixels_per_line * 3;
         }
         else if (s->mode == MODE_GRAYSCALE) {
             params->format = SANE_FRAME_GRAY;
@@ -5726,85 +5703,29 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
             if(s->compress == COMP_JPEG){
                 params->format = SANE_FRAME_JPEG;
             }
+            params->bytes_per_line = params->pixels_per_line;
         }
         else {
             params->format = SANE_FRAME_GRAY;
             params->depth = 1;
+            params->bytes_per_line = (params->pixels_per_line+7) / 8;
         }
-
-        /* adjust x data in a loop */
-        while(1){
-
-            params->pixels_per_line =
-              s->resolution_x * (s->br_x - s->tl_x) / 1200;
-    
-            /* bytes per line differs by mode */
-            if (s->mode == MODE_COLOR) {
-                params->bytes_per_line = params->pixels_per_line * 3;
-            }
-            else if (s->mode == MODE_GRAYSCALE) {
-                params->bytes_per_line = params->pixels_per_line;
-            }
-            else {
-                params->bytes_per_line = params->pixels_per_line / 8;
-            }
-
-            /* binary and jpeg must have width in multiple of 8 pixels */
-            /* plus, some larger scanners require even bytes per line */
-            /* so change the user's scan width and try again */
-	    /* FIXME: should change a 'hidden' copy instead? */
-            if(
-              ((params->depth == 1 || params->format == SANE_FRAME_JPEG)
-                && params->pixels_per_line % 8)
-              || (s->even_scan_line && params->bytes_per_line % 8)
-            ){
-
-                /* dont round up larger than current max width */
-                if(s->br_x >= pw){
-                    dir = -1;
-                }
-                s->br_x += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tlx=%d, brx=%d, pixx=%d\n",
-	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
-
-        dir = 1;
-
-        /* adjust y data in a loop */
-        while(1){
-
-            params->lines =
-              s->resolution_y * (s->br_y - s->tl_y) / 1200;
-    
-            /* jpeg must have length in multiple of 8 pixels */
-            /* so change the user's scan length and try again */
-            if( params->format == SANE_FRAME_JPEG && params->lines % 8 ){
-
-                /* dont round up larger than current max length */
-                if(s->br_y >= ph){
-                    dir = -1;
-                }
-                s->br_y += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tly=%d, bry=%d, pixy=%d\n",
-	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
     }
-  
-    DBG (15, "sane_get_parameters: scan_x=%d, Bpl=%d, depth=%d\n", 
-      params->pixels_per_line, params->bytes_per_line, params->depth );
-      
-    DBG (15, "sane_get_parameters: scan_y=%d, frame=%d, last=%d\n", 
-      params->lines, params->format, params->last_frame );
+
+    DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",
+      s->max_x, s->page_width, get_page_width(s), s->resolution_x);
+
+    DBG(15,"sane_get_parameters: y: max=%d, page=%d, gph=%d, res=%d\n",
+      s->max_y, s->page_height, get_page_height(s), s->resolution_y);
+
+    DBG(15,"sane_get_parameters: area: tlx=%d, brx=%d, tly=%d, bry=%d\n",
+      s->tl_x, s->br_x, s->tl_y, s->br_y);
+
+    DBG (15, "sane_get_parameters: params: ppl=%d, Bpl=%d, lines=%d\n", 
+      params->pixels_per_line, params->bytes_per_line, params->lines);
+
+    DBG (15, "sane_get_parameters: params: format=%d, depth=%d, last=%d\n", 
+      params->format, params->depth, params->last_frame);
 
     DBG (10, "sane_get_parameters: finish\n");
   
@@ -5882,6 +5803,13 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
+      /* try to read actual scan size from scanner */
+      ret = get_pixelsize(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
+        return ret;
+      }
+
       /* start/stop endorser */
       ret = endorser(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -6396,37 +6324,112 @@ set_window (struct fujitsu *s)
   return ret;
 }
 
-#if 0
+/* update our private copy of params with actual data size scanner reports */
 static SANE_Status
 get_pixelsize(struct fujitsu *s)
 {
     SANE_Status ret;
-    unsigned char buf[0x18];
-    size_t inLen = sizeof(buf);
+
+    unsigned char cmd[READ_len];
+    size_t cmdLen = READ_len;
+
+    unsigned char in[R_PSIZE_len];
+    size_t inLen = R_PSIZE_len;
 
     DBG (10, "get_pixelsize: start\n");
 
-    set_R_datatype_code (readB.cmd, R_datatype_pixelsize);
-    set_R_window_id (readB.cmd, WD_wid_front);
-    if(/*s->source == SOURCE_ADF_DUPLEX ||*/ s->source == SOURCE_ADF_BACK){
-      set_R_window_id (readB.cmd, WD_wid_back);
-    }
-    set_R_xfer_length (readB.cmd, inLen);
-      
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, READ_code);
+    set_R_datatype_code (cmd, R_datatype_pixelsize);
+    set_R_window_id (cmd, WD_wid_front);
+    set_R_xfer_length (cmd, inLen);
+  
     ret = do_cmd (
       s, 1, 0,
-      readB.cmd, readB.size,
+      cmd, cmdLen,
       NULL, 0,
-      buf, &inLen
+      in, &inLen
     );
+    if (ret == SANE_STATUS_GOOD){
 
-    hexdump(5, "get_pixelsize:", buf, inLen);
+      s->params.pixels_per_line = get_PSIZE_num_x(in);
+      s->params.lines = get_PSIZE_num_y(in);
+  
+      /* bytes per line differs by mode */
+      if (s->mode == MODE_COLOR) {
+        s->params.bytes_per_line = s->params.pixels_per_line * 3;
+      }
+      else if (s->mode == MODE_GRAYSCALE) {
+        s->params.bytes_per_line = s->params.pixels_per_line;
+      }
+      else {
+        s->params.bytes_per_line = s->params.pixels_per_line / 8;
+      }
+  
+      DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
+        s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
+        
+    }
+
+#if 0
+    /* if READ pixelsize fails, we attempt to guess */
+    else {
+        int dir = 1;
+
+        /* adjust x data in a loop */
+        while(1){
+
+            /* binary and jpeg must have width in multiple of 8 pixels */
+            /* plus, some larger scanners require even bytes per line */
+            /* so change the scan width and try again */
+            if(
+              ((params->depth == 1 || params->format == SANE_FRAME_JPEG)
+                && params->pixels_per_line % 8)
+              || (s->even_scan_line && params->bytes_per_line % 8)
+            ){
+                /* dont round up larger than current max width */
+                if(s->br_x >= pw){
+                    dir = -1;
+                }
+                s->br_x += dir;
+            }
+            else{
+                break;
+            }
+        }
+
+        DBG(15,"sane_get_parameters: adj: tlx=%d, brx=%d, pixx=%d\n",
+	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
+
+        dir = 1;
+
+        /* adjust y data in a loop */
+        while(1){
+
+            /* jpeg must have length in multiple of 8 pixels */
+            /* so change the user's scan length and try again */
+            if( params->format == SANE_FRAME_JPEG && params->lines % 8 ){
+
+                /* dont round up larger than current max length */
+                if(s->br_y >= ph){
+                    dir = -1;
+                }
+                s->br_y += dir;
+            }
+            else{
+                break;
+            }
+        }
+
+        DBG(15,"sane_get_parameters: adj: tly=%d, bry=%d, pixy=%d\n",
+	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
+    }
+#endif
 
     DBG (10, "get_pixelsize: finish\n");
 
     return ret;
 }
-#endif
 
 /*
  * Issues the SCSI OBJECT POSITION command if an ADF is in use.
@@ -7794,10 +7797,10 @@ do_usb_cmd(struct fujitsu *s, int runRS, int shortTime,
     DBG (10, "do_usb_cmd: start\n");
 
     if(shortTime){
-        cmdTime = USB_COMMAND_TIME/20;
-        outTime = USB_DATA_TIME/20;
-        inTime = USB_DATA_TIME/20;
-        statTime = USB_STATUS_TIME/20;
+        cmdTime = USB_COMMAND_TIME/60;
+        outTime = USB_DATA_TIME/60;
+        inTime = USB_DATA_TIME/60;
+        statTime = USB_STATUS_TIME/60;
     }
 
     /* build a USB packet around the SCSI command */

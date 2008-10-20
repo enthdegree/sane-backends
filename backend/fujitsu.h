@@ -310,7 +310,6 @@ struct fujitsu
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
   int cropping_mode;    /* lower-end scanners dont crop from paper size      */
-  int even_scan_line;   /* need even number of bytes in a scanline (fi-5900) */
   int ghs_in_rs;
   int window_gamma;
   int endorser_string_len;
@@ -746,10 +745,6 @@ static SANE_Status mode_select_overscan (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
-#if 0
-static SANE_Status get_pixelsize(struct fujitsu *s);
-#endif
-
 int get_page_width (struct fujitsu *s);
 int get_page_height (struct fujitsu *s);
 
@@ -757,6 +752,7 @@ static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status send_endorser (struct fujitsu *s);
 static SANE_Status endorser (struct fujitsu *s);
 static SANE_Status set_window (struct fujitsu *s);
+static SANE_Status get_pixelsize(struct fujitsu *s);
 
 static SANE_Status start_scan (struct fujitsu *s);
 

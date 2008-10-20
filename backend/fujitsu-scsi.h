@@ -12,12 +12,12 @@
 #define USB_COMMAND_CODE   0x43
 #define USB_COMMAND_LEN    0x1F
 #define USB_COMMAND_OFFSET 0x13
-#define USB_COMMAND_TIME   10000
-#define USB_DATA_TIME      10000
+#define USB_COMMAND_TIME   30000
+#define USB_DATA_TIME      30000
 #define USB_STATUS_CODE    0x53
 #define USB_STATUS_LEN     0x0D
 #define USB_STATUS_OFFSET  0x09
-#define USB_STATUS_TIME    10000
+#define USB_STATUS_TIME    30000
 
 /*static inline void */
 static void
@@ -466,6 +466,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_R_window_id(sb, val)       sb[0x05] = val
 #define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 
+#define R_PSIZE_len                0x18
 #define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
 #define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
 #define get_PSIZE_paper_w(in)            getnbyte(in + 0x08, 4)

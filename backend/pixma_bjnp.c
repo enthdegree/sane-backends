@@ -54,23 +54,23 @@
 #include <unistd.h>
 #include <stdio.h>
 #ifdef HAVE_STDINT_H
-/* #include <stdint.h> */
+#include <stdint.h> 
 #endif
 #ifdef HAVE_SYS_TYPES_H
-/* #include <sys/types.h> */
+#include <sys/types.h> 
 #endif
 #ifdef HAVE_SYS_TIME_H
-/* #include <sys/timeb.h> */
+#include <sys/timeb.h> 
 #endif
 
 /* 
  * networking stuff
  */
 #ifdef HAVE_SYS_SOCKET_H
-/* #include <sys/socket.h> */
+#include <sys/socket.h> 
 #endif
 #ifdef HAVE_NETINET_IN_H
-/* #include <netinet/in.h> */
+#include <netinet/in.h> 
 #endif
 #include <netinet/tcp.h> 
 #include <arpa/inet.h> 
@@ -80,7 +80,7 @@
 #include <ifaddrs.h>
 #endif 
 #ifdef HAVE_SYS_SELSECT_H
-// #include <sys/select.h>
+#include <sys/select.h>
 #endif
 
 #include <errno.h>
@@ -522,7 +522,7 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
   /* do reverse name lookup, if hostname can not be fouund return ip-address */
 
   res = inet_aton (ip_address, &ip_addr);
-  myhost = gethostbyaddr (&ip_addr, sizeof (ip_addr), AF_INET);
+  myhost = gethostbyaddr ((void *)&ip_addr, sizeof (ip_addr), AF_INET);
 
   if (myhost == NULL)
     strcpy (address, ip_address);
@@ -1009,8 +1009,8 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
   char hostname[256];
   int port;
   char args[256];
-  struct addrinfo *result;
-  struct addrinfo *ptr;
+  struct hostent *result;
+  struct in_addr *addr_list;
 #ifdef PIXMA_BJNP_STATUS
   SANE_Byte dummy[16];
 #endif
@@ -1043,7 +1043,8 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
    * TODO: implement scanning of ALL returned addressess
    */
 
-  if (getaddrinfo (hostname, NULL, NULL, &result) != 0)
+  result = gethostbyname(hostname);
+  if ((result == NULL) || result->h_addrtype != AF_INET)
     {
       PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve hostname: %s", hostname));
       return SANE_STATUS_INVAL;
@@ -1052,24 +1053,11 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
     {
       port = BJNP_PORT_SCAN;
     }
-  ptr = result;
-  while (ptr != NULL)
-    {
-      if (ptr->ai_family == AF_INET)
-	break;
-      ptr = ptr->ai_next;
 
-    }
-  if (ptr == NULL)
-    {
-      PDBG (pixma_dbg
-	    (LOG_CRIT, "Cannot find a valid IPv4 address for %s\n",
-	     hostname));
-      return SANE_STATUS_INVAL;
-    }
-  memcpy (&device[*dn].addr, ptr->ai_addr, sizeof (ptr->ai_addr));
+  addr_list = (struct in_addr *) *result->h_addr_list; 
+  device[*dn].addr.sin_family = AF_INET;
   device[*dn].addr.sin_port = htons (port);
-  freeaddrinfo (result);
+  device[*dn].addr.sin_addr = addr_list[0];
 
   device[*dn].session_id = 0;
   device[*dn].serial = 0;
@@ -1530,37 +1518,6 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
     }
   return SANE_STATUS_GOOD;
 }
-
-#if 0
-
-/** Send/receive a control message to/from a BJNP device.
- *
- *  This function is not implemented for the time being.
- *  Serial number and device type are handled by bjnp_find_devices/ attach_bjnp
- *
- * @param dn device number
- * @param rtype specifies the characteristics of the request (e.g. data
- *    direction)
- * @param req actual request
- * @param value parameter specific to the request
- * @param index parameter specific to the request (often used to select
- *     endpoint)
- * @param len length of data to send/receive
- * @param data buffer to send/receive data
- *
- * @return
- * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - on error
- * - SANE_STATUS_UNSUPPORTED - if the feature is not supported by the OS or
- *   SANE.
- */
-extern SANE_Status
-sanei_bjnp_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
-			SANE_Int value, SANE_Int index, SANE_Int len,
-			SANE_Byte * data)
-{
-}
-#endif
 
 /** Initiate a interrupt transfer read.
  *

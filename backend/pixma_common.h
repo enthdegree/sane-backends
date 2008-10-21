@@ -73,8 +73,13 @@
 
 #define PIXMA_MAX_ID_LEN 30
 
+/* These may have been defined elsewhere */
+#ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x):(y))
+#endif
+#ifndef MAX
 #define MAX(x,y) (((x) < (y)) ? (y):(x))
+#endif
 #define ALIGN(x,n) (((x) + (n) - 1) / (n) * (n))
 #define ALIGN_INF(x,n) (((x) / (n)) * (n))
 

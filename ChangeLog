@@ -1,3 +1,9 @@
+2008-10-21  Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+	* Added #ifdef around defintions of MIN and MAX in pixma_common.h 
+	- Re-enable includes in pixma_bjnp.c as they are needed on Freebsd
+	- Replaced getaddrinfo by gethostbyname in pixma_bjnp.c as this is 
+	  supported on OS/2 as well
+	  `
 2008-10-21  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: backend v81, fix fi-6240 usb id
 

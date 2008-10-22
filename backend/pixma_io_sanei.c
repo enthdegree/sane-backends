@@ -154,9 +154,7 @@ attach_bjnp (SANE_String_Const devname,  SANE_String_Const makemodel,
 {
   scanner_info_t *si;
   const pixma_config_t *cfg;
-/*  const struct pixma_config_t *const *pixma_devices; 
-  
-  pixma_devices = input; */
+
   si = (scanner_info_t *) calloc (1, sizeof (*si));
   if (!si)
     return SANE_STATUS_NO_MEM;

@@ -47,6 +47,11 @@
    3. start scan while busy (status 0x1414)
    4. cancel using ctrl-c (must send abort command)
  */
+
+#define TPU_48         /* uncomment to activate TPU scan at 48 bits */
+/*#define DEBUG_TPU_48*/   /* uncomment to debug 48 bits TPU on a non TPU device */
+/*#define DEBUG_TPU_24*/   /* uncomment to debug 24 bits TPU on a non TPU device */
+
 #include "../include/sane/config.h"
 
 #include <stdio.h>
@@ -524,18 +529,21 @@ calc_shifting (pixma_t * s)
       case MP970_PID:	/* MP970 at 4800 dpi */
         if (s->param->xdpi == 4800) 
           mp->stripe_shift = 3;
-      /* fall through */
-      case MP800_PID:
+          break;
       case MP810_PID:
+        if (s->param->xdpi == 2400) 
+          mp->stripe_shift = 3;
+          break;
+      case MP800_PID:
       case MP830_PID:
       case MP960_PID:
-        if  (s->param->ydpi > 75)
-          mp->color_shift = s->param->ydpi / 50;
-        break;
 
       default:     /* all CIS devices */
         break;
     }
+  if (has_ccd_sensor (s) && s->param->ydpi > 75)
+    mp->color_shift = s->param->ydpi / 50;
+    
   base_shift = get_cis_ccd_line_size (s) * mp->color_shift;
 
   /* If color plane shift, how to apply the shift */
@@ -609,9 +617,14 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (raw_width, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
       data[0x1c] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
-      data[0x1d] = s->param->depth * 
-                   ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * 
-                   ((is_scanning_from_tpu (s)) ? 2 : 1);	/* bits per pixel */
+      
+#ifdef DEBUG_TPU_48
+      data[0x1d] = 24;
+#else
+      data[0x1d] = (is_scanning_from_tpu (s)) ? 48 :
+                   s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);  /* bits per pixel */
+#endif
+
       data[0x1f] = 0x01;
       data[0x20] = 0xff;
       data[0x21] = 0x81;
@@ -835,7 +848,7 @@ wait_until_ready (pixma_t * s)
 
 static uint8_t *
 shift_colors (uint8_t * dptr, uint8_t * sptr, 
-              unsigned w, unsigned dpi, unsigned pid, 
+              unsigned w, unsigned dpi, unsigned pid, unsigned c, 
               int * colshft, unsigned strshft)
 {
   unsigned i, sr, sg, sb, st;
@@ -845,24 +858,35 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
     {
       /* MP970 at 4800 dpi exception stripes shift */
       st = (pid == MP970_PID && dpi == 4800 && (i % 2) == 0) ? strshft : 0;
+      /* MP810 at 2400 dpi exception stripes shift */
+      st = (pid == MP810_PID && dpi == 2400 && (i % 2) == 0) ? strshft : 0;
         
       *sptr++ = *(dptr++ + sr + st);
+      if (c == 6) *sptr++ = *(dptr++ + sr + st);
       *sptr++ = *(dptr++ + sg + st);
+      if (c == 6) *sptr++ = *(dptr++ + sg + st);
       *sptr++ = *(dptr++ + sb + st);
+      if (c == 6) *sptr++ = *(dptr++ + sb + st);
     }
   return dptr;
 }
 
 static uint8_t *
-rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w)
+rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 {
-  unsigned i, g;
+  unsigned i, j, g;
 
   for (i = 0; i < w; i++)
     {
-      g = *sptr++;
-      g += *sptr++;
-      *gptr++ = (*sptr++ + g) / 3;
+      for (j = 0, g = 0; j < 3; j++)
+        {
+          g += *sptr++;
+          if (c == 6) g += (*sptr++ << 8);
+        }
+        
+      g /= 3;
+      *gptr++ = g;
+      if (c == 6) *gptr++ = (g >> 8);
     }
   return gptr;
 }
@@ -899,14 +923,16 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
 {
   unsigned i;
   uint8_t *cptr, lsb;
+  static uint8_t offset = 0;
   
   cptr = sptr;
   if (n % 2 != 0)
-    PDBG (pixma_dbg (3, "Warning: Odd number of bytes received, misaligned image.\n"));
+    PDBG (pixma_dbg (3, "WARNING: misaligned image.\n"));
   for (i = 0; i < n; i += 2)
     {
+      /* offset = 1 + (offset % 3); */
       lsb = *sptr++;
-      *cptr++ = ((*sptr++) << 0) | lsb >> 8;
+      *cptr++ = ((*sptr++) << offset) | lsb >> (8 - offset);
     }
   return (n / 2);
 }
@@ -923,7 +949,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   unsigned c, lines, i, line_size, n, m;
   uint8_t *sptr, *dptr, *gptr;
 
-  c = (is_ccd_grayscale (s)) ? 3 : s->param->channels;
+  c = ((is_ccd_grayscale (s)) ? 3 : s->param->channels) * s->param->depth / 8;
   
   if (mp->generation == 3)
     n = s->param->xdpi / 600;
@@ -934,7 +960,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
   
   m = (n > 0) ? s->param->w / n : 1;
   sptr = dptr = gptr = mp->imgbuf;
-  line_size = get_cis_ccd_line_size (s);    
+  line_size = get_cis_ccd_line_size (s);
 
   lines = (mp->data_left_ofs - mp->imgbuf) / line_size;
   if (lines > 2 * mp->color_shift + mp->stripe_shift)
@@ -943,9 +969,9 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
       for (i = 0; i < lines; i++, sptr += line_size)
         {
           /* Color plane and stripes shift needed by e.g. CCD */
-          if (c == 3)
+          if (c >= 3)
             dptr = shift_colors (dptr, sptr, 
-                                 s->param->w, s->param->xdpi, s->cfg->pid, 
+                                 s->param->w, s->param->xdpi, s->cfg->pid, c,
                                  mp->shift, mp->stripe_shift);
                        
           /* special image format for *most* devices at high dpi. 
@@ -959,7 +985,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
 
           /* Color to Grayscale convert for CCD sensor */
           if (is_ccd_grayscale (s))
-              gptr = rgb_to_gray (gptr, sptr, s->param->w);
+              gptr = rgb_to_gray (gptr, sptr, s->param->w, c);
         }
     }
   ib->rptr = mp->imgbuf;
@@ -1031,9 +1057,13 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp150_t *mp = (mp150_t *) s->subdriver;
 
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
-/*  if (mp->generation == 3 && sp->source == PIXMA_SOURCE_TPU)
-      sp->depth = 16; */  /* TPU in 16 bits mode */
-    
+#ifdef TPU_48
+#ifndef DEBUG_TPU_48
+  if (mp->generation == 3 && sp->source == PIXMA_SOURCE_TPU)
+#endif
+      sp->depth = 16;   /* TPU in 16 bits mode */
+#endif
+
   if (mp->generation >= 2)
     {
       /* mod 32 and expansion of the X scan limits */
@@ -1042,6 +1072,26 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
       sp->x = ALIGN_INF (sp->x, 32);
     }
   sp->line_size = calc_raw_width (mp, sp) * sp->channels * (sp->depth / 8);
+  
+  /* Some exceptions here for particular devices */
+  /* MX850 and MX7600 can scan up to 14" with ADF, but A4 11.7" in flatbed */
+  if ((s->cfg->pid == MX850_PID || s->cfg->pid == MX7600_PID)
+       && sp->source == PIXMA_SOURCE_FLATBED)
+    sp->h = MIN (sp->h, 877 * sp->ydpi / 75);
+    
+  /* MP970 in TPU mode: lowest res is 300 dpi */
+  if (s->cfg->pid == MP970_PID && sp->source == PIXMA_SOURCE_TPU)
+    {
+      uint8_t k;
+      k = MAX (sp->xdpi, 300) / sp->xdpi;
+      sp->x *= k;
+      sp->y *= k;
+      sp->w *= k;
+      sp->h *= k;
+      sp->xdpi *= k;
+      sp->ydpi = sp->xdpi;
+    }
+    
   return 0;
 }
 
@@ -1219,11 +1269,15 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
         {     /* no image data at this moment. */
           pixma_sleep (10000);
         }
-
-      /* In case of TPU, at 48 bits/col scan, pack the newly received data */
+      /* For TPU at 48 bits/pixel to output at 24 bits/pixel */
+#ifndef DEBUG_TPU_48
+#ifndef TPU_48
+#ifndef DEBUG_TPU_24
       if (mp->generation == 3 && is_scanning_from_tpu (s))
-        bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
-
+#endif
+          bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
+#endif
+#endif        
       /* Post-process the image data */
       mp->data_left_ofs = mp->imgbuf + mp->data_left_len + bytes_received;
       mp->data_left_len = post_process_image_data (s, ib);
@@ -1301,72 +1355,72 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
   mp150_get_status
 };
 
-#define DEVICE(name, model, pid, dpi, cap) {        \
+#define DEVICE(name, model, pid, dpi, w, h, cap) { \
         name,              /* name */               \
         model,             /* model */              \
         CANON_VID, pid,    /* vid pid */            \
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
-        638, 877,          /* width, height */      \
+        w, h,              /* width, height */      \
         PIXMA_CAP_EASY_RGB|PIXMA_CAP_GRAY|          \
         PIXMA_CAP_GAMMA_TABLE|PIXMA_CAP_EVENTS|cap  \
 }
 
-#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0)
+#define END_OF_DEVICE_LIST DEVICE(NULL, NULL, 0, 0, 0, 0, 0)
 
 const pixma_config_t pixma_mp150_devices[] = {
   /* Generation 1: CIS */
-  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MP150", "MP150", MP150_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP170", "MP170", MP170_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP450", "MP450", MP450_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP500", "MP500", MP500_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP530", "MP530", MP530_PID, 1200, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
 
   /* Generation 1: CCD */
-  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
-  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP800", "MP800", MP800_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP800R", "MP800R", MP800R_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU | PIXMA_CAP_48BIT),
+  DEVICE ("Canon PIXMA MP830", "MP830", MP830_PID, 2400, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_ADFDUP | PIXMA_CAP_48BIT),
 
   /* Generation 2: CIS */
-  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP140", "MP140", MP140_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP160", "MP160", MP160_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP180", "MP180", MP180_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP460", "MP460", MP460_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP510", "MP510", MP510_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600", "MP600", MP600_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP600R", "MP600R", MP600R_PID, 2400, 638, 877, PIXMA_CAP_CIS),
 
   /* Generation 2: CCD */
-  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
-  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP810", "MP810", MP810_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon PIXMA MP960", "MP960", MP960_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* Generation 3: CIS */
-  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP210", "MP210", MP210_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP220", "MP220", MP220_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP470", "MP470", MP470_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP520", "MP520", MP520_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP610", "MP610", MP610_PID, 4800, 638, 877, PIXMA_CAP_CIS),
 
-  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
-  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX300", "MX300", MX300_PID, 600, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MX310", "MX310", MX310_PID, 1200, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX700", "MX700", MX700_PID, 2400, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX850", "MX850", MX850_PID, 2400, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon PIXMA MX7600", "MX7600", MX7600_PID, 4800, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 
   /* Generation 3 CCD not managed as Generation 2 */
-  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon Pixma MP970", "MP970", MP970_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
   /* PIXMA 2008 vintage */
-  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
+  DEVICE ("Canon MP980 series", "MP980", MP980_PID, 4800, 638, 877, PIXMA_CAP_CCD | PIXMA_CAP_TPU),
 
-  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP630", "MP630", MP630_PID, 4800, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP620", "MP620", MP620_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP540", "MP540", MP540_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP480", "MP480", MP480_PID, 2400, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP240", "MP240", MP240_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP260", "MP260", MP260_PID, 1200, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 600, 638, 877, PIXMA_CAP_CIS),
 
   END_OF_DEVICE_LIST
 };

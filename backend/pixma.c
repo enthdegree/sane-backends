@@ -711,7 +711,8 @@ reader_loop (pixma_sane_t * ss)
   int count = 0;
 
   PDBG (pixma_dbg (3, "Reader task started\n"));
-  bufsize = ss->sp.line_size + 1;	/* XXX: "odd" bufsize for testing pixma_read_image() */
+  /*bufsize = ss->sp.line_size + 1;*/	/* XXX: "odd" bufsize for testing pixma_read_image() */
+  bufsize = ss->sp.line_size;   /* bufsize EVEN needed by Xsane for 48 bits depth */
   buf = malloc (bufsize);
   if (!buf)
     {

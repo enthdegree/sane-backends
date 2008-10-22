@@ -41,7 +41,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
  */
-# include "../include/sane/config.h"
+#include "../include/sane/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -632,7 +632,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
         {
           ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
         }
-            else
+      else
         {
           PDBG (pixma_dbg
           (3, "pixma_read_image():completed (underrun detected)\n"));
@@ -671,7 +671,7 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
                   s->underrun = 1;
                   ib.wptr = fill_pixels (s, ib.wptr, ib.wend, 0xff);
                 }
-                    else
+              else
                 {
                   PDBG (pixma_dbg (3, "pixma_read_image():completed\n"));
                   s->scanning = 0;

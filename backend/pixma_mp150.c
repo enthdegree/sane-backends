@@ -527,13 +527,18 @@ calc_shifting (pixma_t * s)
   switch (s->cfg->pid)
     {
       case MP970_PID:	/* MP970 at 4800 dpi */
-        if (s->param->xdpi == 4800) 
-          mp->stripe_shift = 3;
-          break;
+        if (s->param->xdpi == 4800)
+          {
+             if (is_scanning_from_tpu(s))
+               mp->stripe_shift = 6;
+             else
+               mp->stripe_shift = 3;
+           }
+        break;
       case MP810_PID:
         if (s->param->xdpi == 2400) 
           mp->stripe_shift = 3;
-          break;
+        break;
       case MP800_PID:
       case MP830_PID:
       case MP960_PID:
@@ -856,10 +861,11 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
   
   for (i = 0; i < w; i++)
     {
+      st = 0;
       /* MP970 at 4800 dpi exception stripes shift */
-      st = (pid == MP970_PID && dpi == 4800 && (i % 2) == 0) ? strshft : 0;
+      if (pid == MP970_PID && dpi == 4800 && i % 2 == 0) st = strshft;
       /* MP810 at 2400 dpi exception stripes shift */
-      st = (pid == MP810_PID && dpi == 2400 && (i % 2) == 0) ? strshft : 0;
+      if (pid == MP810_PID && dpi == 2400 && i % 2 == 0) st = strshft;      
         
       *sptr++ = *(dptr++ + sr + st);
       if (c == 6) *sptr++ = *(dptr++ + sr + st);
@@ -918,6 +924,7 @@ mp970_reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c,
   memcpy (sptr, linebuf, line_size);
 }
 
+#ifndef TPU_48
 static unsigned
 pack_48_24_bpc (uint8_t * sptr, unsigned n)
 {
@@ -936,6 +943,7 @@ pack_48_24_bpc (uint8_t * sptr, unsigned n)
     }
   return (n / 2);
 }
+#endif
 
 /* This function deals both with PIXMA CCD sensors producing shifted color 
  * planes images, Grayscale CCD scan and Generation 3 high dpi images.

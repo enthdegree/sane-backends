@@ -152,7 +152,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x171a"
 :status :good
-:comment "All resolutions supported up to 1200 dpi. Vertical lines issue at 2400 and 4800 dpi, can these modes be handled? USB Snoops needed for TPU film scan."
+:comment "All resolutions supported up to 4800 dpi (but vertical lines issue at 4800 dpi). USB Snoops needed for TPU film scan."
 
 :model "PIXMA MP830"
 :interface "USB"
@@ -169,7 +169,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x1726"
 :status :good
-:comment "All resolutions supported (up to 4800DPI). TPU support currently experimental."
+:comment "All resolutions supported (up to 4800DPI). Full TPU support (negativa and slides) at 24 or 48 bits."
 
 :model "SmartBase MP360"
 :interface "USB"

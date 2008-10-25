@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "11 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "25 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -70,7 +70,7 @@ The backend supports
 .br
 * Automatic Document Feeder (Duplex for some models).
 .br
-* Transparency Unit.
+* Transparency Unit, 24 or 48 bits depth.
 .PP
 The device name is in the form pixma:xxxxyyyy_zzzzz
 where x, y and z are vendor ID, product ID and serial number respectively.
@@ -137,9 +137,9 @@ the verbosity.
 .br
 3  print debug-level messages
 .br
-10 dump USB traffics
+11 dump USB traffics
 .br
-20 full dump USB traffics
+21 full dump USB traffics
 .br
 .RE
 .TP

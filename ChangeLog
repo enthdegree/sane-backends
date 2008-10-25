@@ -1,3 +1,8 @@
+2008-10-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, doc/sane-pixma.man doc/descriptions/pixma.desc:
+	Tweaks for TPU scan at 4800 dpi, and MP810 at 2400 dpi (now works).
+	Updated docs around that.
+
 2008-10-25 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
         * Added configuration  file support for pixma backend
 	Currently used only for configuration of network scanners.

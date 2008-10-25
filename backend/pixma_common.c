@@ -1,4 +1,4 @@
-/* SANE - Scanner Access Now Easy.
+/** SANE - Scanner Access Now Easy.
 
    Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
@@ -856,9 +856,9 @@ pixma_fill_gamma_table (double gamma, uint8_t * table, unsigned n)
 }
 
 int
-pixma_find_scanners (void)
+pixma_find_scanners (const char **conf_devices)
 {
-  return pixma_collect_devices (pixma_devices);
+  return pixma_collect_devices (conf_devices, pixma_devices);
 }
 
 const char *

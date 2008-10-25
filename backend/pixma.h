@@ -153,6 +153,8 @@ typedef u_int32_t uint32_t;
 /**@}*/
 /** @} end of API group */
 
+#define PIXMA_CONFIG_FILE "pixma.conf"
+#define MAX_CONF_DEVICES 15
 
 struct pixma_t;
 struct pixma_scan_ops_t;
@@ -316,7 +318,7 @@ void pixma_set_debug_level (int level);
  *
  *  \return The number of scanners found currently. The return value is
  *  guaranteed to be valid until the next call to pixma_find_scanners(). */
-int pixma_find_scanners (void);
+int pixma_find_scanners (const char **conf_devices);
 
 /** Return the model name of the device \a devnr. */
 const char *pixma_get_device_model (unsigned devnr);

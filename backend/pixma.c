@@ -64,6 +64,7 @@
 # include "../include/sane/saneopts.h"
 # include "../include/sane/sanei_thread.h"
 # include "../include/sane/sanei_backend.h"
+# include "../include/sane/sanei_config.h"
 
 #ifdef NDEBUG
 # define PDBG(x)
@@ -121,7 +122,22 @@ static const char type_str[] = "multi-function peripheral";
 
 static pixma_sane_t *first_scanner = NULL;
 static const SANE_Device **dev_list = NULL;
+static const char* conf_devices[MAX_CONF_DEVICES];
 
+static SANE_Status config_attach_pixma(SANEI_Config * config, const char *devname)
+{
+  int i;
+  UNUSED(config);
+  for (i=0; i < (MAX_CONF_DEVICES -1); i++)
+    {
+      if(conf_devices[i] == NULL)
+        {
+          conf_devices[i] = strdup(devname);
+          return SANE_STATUS_GOOD;
+        }
+    }
+  return SANE_STATUS_INVAL;
+}
 
 static SANE_Status
 map_error (int error)
@@ -191,7 +207,7 @@ find_scanners (void)
   unsigned i, nscanners;
 
   cleanup_device_list ();
-  nscanners = pixma_find_scanners ();
+  nscanners = pixma_find_scanners (conf_devices);
   PDBG (pixma_dbg (3, "pixma_find_scanners() found %u devices\n", nscanners));
   dev_list =
     (const SANE_Device **) calloc (nscanners + 1, sizeof (*dev_list));
@@ -988,7 +1004,8 @@ read_image (pixma_sane_t * ss, void *buf, unsigned size, int *readlen)
 SANE_Status
 sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 {
-  int status, myversion;
+  int status, myversion, i;
+  SANEI_Config config;
 
   UNUSED (authorize);
 
@@ -999,6 +1016,18 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG_INIT ();
   sanei_thread_init ();
   pixma_set_debug_level (DBG_LEVEL);
+
+  for (i = 0; i < MAX_CONF_DEVICES; i++)
+    conf_devices[i] = NULL;
+
+  config.count = 0;
+  config.descriptors = NULL;
+  config.values = NULL;
+
+  if (sanei_configure_attach(PIXMA_CONFIG_FILE, &config, config_attach_pixma) !=
+       SANE_STATUS_GOOD)
+    PDBG(pixma_dbg(2, "Could not read pixma configuration file: %s\n",
+                   PIXMA_CONFIG_FILE));
 
   status = pixma_init ();
   if (status < 0)
@@ -1041,7 +1070,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     return SANE_STATUS_INVAL;
 
   *h = NULL;
-  nscanners = pixma_find_scanners ();
+  nscanners = pixma_find_scanners (conf_devices);
   if (nscanners == 0)
     return SANE_STATUS_INVAL;
   if (name[0] == '\0')

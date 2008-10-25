@@ -54,38 +54,38 @@
 #include <unistd.h>
 #include <stdio.h>
 #ifdef HAVE_STDINT_H
-#include <stdint.h> 
+#include <stdint.h>
 #endif
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h> 
+#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_TIME_H
-#include <sys/timeb.h> 
+#include <sys/timeb.h>
 #endif
 
 /* 
  * networking stuff
  */
 #ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h> 
+#include <sys/socket.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h> 
+#include <netinet/in.h>
 #endif
-#include <netinet/tcp.h> 
-#include <arpa/inet.h> 
-#include <netdb.h> 
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <net/if.h>
 #ifdef HAVE_IFADDRS_H
 #include <ifaddrs.h>
-#endif 
+#endif
 #ifdef HAVE_SYS_SELSECT_H
 #include <sys/select.h>
 #endif
 
 #include <errno.h>
 #ifdef HAVE_FCNTL_H
-#include <fcntl.h> 
+#include <fcntl.h>
 #endif
 #include "pixma_bjnp_private.h"
 #include "pixma_bjnp.h"
@@ -522,7 +522,7 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
   /* do reverse name lookup, if hostname can not be fouund return ip-address */
 
   res = inet_aton (ip_address, &ip_addr);
-  myhost = gethostbyaddr ((void *)&ip_addr, sizeof (ip_addr), AF_INET);
+  myhost = gethostbyaddr ((void *) &ip_addr, sizeof (ip_addr), AF_INET);
 
   if (myhost == NULL)
     strcpy (address, ip_address);
@@ -805,7 +805,7 @@ bjnp_write (int devno, const SANE_Byte * buf, size_t count)
 
   if ((sent_bytes =
        send (device[devno].fd, &bjnp_buf,
-	      sizeof (struct BJNP_command) + count, 0)) <
+	     sizeof (struct BJNP_command) + count, 0)) <
       (ssize_t) (sizeof (struct BJNP_command) + count))
     {
       /* return result from write */
@@ -850,7 +850,8 @@ bjnp_send_read_request (int devno)
 		 sizeof (struct BJNP_command));
 
   if ((sent_bytes =
-       send (device[devno].fd, &bjnp_buf, sizeof (struct BJNP_command), 0)) < 0)
+       send (device[devno].fd, &bjnp_buf, sizeof (struct BJNP_command),
+	     0)) < 0)
     {
       /* return result from write */
       terrno = errno;
@@ -909,7 +910,8 @@ bjnp_recv_header (int devno)
 
   if ((recv_bytes =
        recv (fd, (char *) &resp_buf,
-	     sizeof (struct BJNP_command), 0)) != sizeof (struct BJNP_command))
+	     sizeof (struct BJNP_command),
+	     0)) != sizeof (struct BJNP_command))
     {
       terrno = errno;
       PDBG (pixma_dbg (LOG_CRIT,
@@ -1043,10 +1045,10 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
    * TODO: implement scanning of ALL returned addressess
    */
 
-  result = gethostbyname(hostname);
+  result = gethostbyname (hostname);
   if ((result == NULL) || result->h_addrtype != AF_INET)
     {
-      PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve hostname: %s", hostname));
+      PDBG (pixma_dbg (LOG_CRIT, "Cannot resolve hostname: %s\n", hostname));
       return SANE_STATUS_INVAL;
     }
   if (port == 0)
@@ -1054,7 +1056,9 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
       port = BJNP_PORT_SCAN;
     }
 
-  addr_list = (struct in_addr *) *result->h_addr_list; 
+
+  device[*dn].fd = -1;
+  addr_list = (struct in_addr *) *result->h_addr_list;
   device[*dn].addr.sin_family = AF_INET;
   device[*dn].addr.sin_port = htons (port);
   device[*dn].addr.sin_addr = addr_list[0];
@@ -1109,7 +1113,8 @@ sanei_bjnp_init (void)
  * @return SANE_STATUS_GOOD - on success (even if no scanner was found)
  */
 extern SANE_Status
-sanei_bjnp_find_devices (SANE_Status (*attach_bjnp)
+sanei_bjnp_find_devices (const char **conf_devices,
+			 SANE_Status (*attach_bjnp)
 			 (SANE_String_Const devname,
 			  SANE_String_Const makemodel,
 			  SANE_String_Const serial,
@@ -1161,58 +1166,61 @@ sanei_bjnp_find_devices (SANE_Status (*attach_bjnp)
       /* send broadcast packet to each suitable  interface */
 
       if ((interface->ifa_addr->sa_family != AF_INET) ||
-          (((struct sockaddr_in *)interface->ifa_addr)->sin_addr.s_addr == htonl (INADDR_LOOPBACK)))
-        {
-          /* not an IPv4 address */
+	  (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.s_addr ==
+	   htonl (INADDR_LOOPBACK)))
+	{
+	  /* not an IPv4 address */
 
-          PDBG (pixma_dbg (LOG_DEBUG, "%s is not a valid IPv4 interface, skipping...\n",
-                       interface->ifa_name));
+	  PDBG (pixma_dbg
+		(LOG_DEBUG, "%s is not a valid IPv4 interface, skipping...\n",
+		 interface->ifa_name));
 
-        }
-      else 
-        {
-          PDBG (pixma_dbg (LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
-                     interface->ifa_name));
+	}
+      else
+	{
+	  PDBG (pixma_dbg
+		(LOG_INFO, "%s is IPv4 capable, sending broadcast..\n",
+		 interface->ifa_name));
 
-          if ((socket_fd[no_sockets] = 
-  	          bjnp_send_broadcast (((struct sockaddr_in *) interface->ifa_broadaddr)->sin_addr, 
-                                          cmd, sizeof (cmd))) != -1)
-          {
-	    if (socket_fd[no_sockets] > last_socketfd)
-	      {
-	        /* track highest used socket for use in select */
+	  if ((socket_fd[no_sockets] =
+	       bjnp_send_broadcast (((struct sockaddr_in *) interface->
+				     ifa_broadaddr)->sin_addr, cmd,
+				    sizeof (cmd))) != -1)
+	    {
+	      if (socket_fd[no_sockets] > last_socketfd)
+		{
+		  /* track highest used socket for use in select */
 
-	        last_socketfd = socket_fd[no_sockets];
-	      }
-	    FD_SET (socket_fd[no_sockets], &fdset);
-	    no_sockets++;
-	  }
-        }
+		  last_socketfd = socket_fd[no_sockets];
+		}
+	      FD_SET (socket_fd[no_sockets], &fdset);
+	      no_sockets++;
+	    }
+	}
       interface = interface->ifa_next;
     }
 
   freeifaddrs (interfaces);
 #else
   /* we have no easy way to find interfaces with their broadcast addresses, use global broadcast */
- 
-  no_sockets = 0; 
+
+  no_sockets = 0;
   broadcast.s_addr = INADDR_BROADCAST;
 
   if ((socket_fd[no_sockets] =
-                bjnp_send_broadcast (broadcast,
-                                        cmd, sizeof (cmd))) != -1)
+       bjnp_send_broadcast (broadcast, cmd, sizeof (cmd))) != -1)
     {
       if (socket_fd[no_sockets] > last_socketfd)
-        {
-          /* track highest used socket for use in select */
+	{
+	  /* track highest used socket for use in select */
 
-          last_socketfd = socket_fd[no_sockets];
-        }
+	  last_socketfd = socket_fd[no_sockets];
+	}
       FD_SET (socket_fd[no_sockets], &fdset);
       no_sockets++;
     }
 #endif
- 
+
   /* wait for up to 1 second for a UDP response */
 
   timeout.tv_sec = 1;
@@ -1278,7 +1286,6 @@ sanei_bjnp_find_devices (SANE_Status (*attach_bjnp)
 		   * inform caller of found scanner
 		   */
 		  attach_bjnp (uri, makemodel, serial, pixma_devices);
-		  /* no longer required: sanei_bjnp_close(dev_no); */
 		  num_scanners++;
 		}
 	    }
@@ -1292,6 +1299,38 @@ sanei_bjnp_find_devices (SANE_Status (*attach_bjnp)
   for (i = 0; i < no_sockets; i++)
     close (socket_fd[i]);
 
+  /* add pre-configures devices */
+
+  for (i = 0; conf_devices[i] != NULL; i++)
+    {
+      PDBG (pixma_dbg
+	    (LOG_DEBUG, "Adding pre-configured scanner: %s\n",
+	     conf_devices[i]));
+
+      /* Test scanner connection by attaching it and reading its IEEE1284 id */
+      if ((result = sanei_bjnp_attach (conf_devices[i], &dev_no)) != SANE_STATUS_GOOD)
+	{
+	  PDBG (pixma_dbg
+		(LOG_NOTICE,
+		 "Scanner at %s defined in configuration file, but can not open it\n",
+		 uri));
+	}
+      else
+	{
+	  if (get_scanner_id (dev_no, makemodel, IEEE1284_id) != 0)
+	    {
+	      PDBG (pixma_dbg
+		    (LOG_CRIT,
+		     "Cannot read scanner make & model: %s\n", uri));
+	      return SANE_STATUS_INVAL;
+	    }
+	  /*
+	   * inform caller of found scanner
+	   */
+	  attach_bjnp (conf_devices[i], makemodel, serial, pixma_devices);
+	  num_scanners++;
+	}
+    }
   return SANE_STATUS_GOOD;
 }
 
@@ -1349,8 +1388,9 @@ void
 sanei_bjnp_close (SANE_Int dn)
 {
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_close(%d):\n", dn));
-  device[dn].open = 0;
   bjnp_finish_job (dn);
+  close(device[dn].fd);
+   device[dn].fd = -1;
 }
 
 /** Set the timeout for bulk and interrupt reads.

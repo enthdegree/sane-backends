@@ -67,12 +67,15 @@ extern void sanei_bjnp_init (void);
  *
  * The function attach is called for every device which has been found.
  *
+ * @param conf_devices lsit of pre-configures device URI's to attach
  * @param attach attach function
+ * @param pixma_devices device informatio needed by attach function
  *
  * @return SANE_STATUS_GOOD - on success (even if no scanner was found)
  */
 extern SANE_Status
-sanei_bjnp_find_devices (SANE_Status (*attach_bjnp)
+sanei_bjnp_find_devices (const char **conf_devices,
+                         SANE_Status (*attach_bjnp)
 			 (SANE_String_Const devname,
 			  SANE_String_Const makemodel,
 			  SANE_String_Const serial,

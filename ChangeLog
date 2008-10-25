@@ -1,3 +1,7 @@
+2008-10-25 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+        * Added configuration  file support for pixma backend
+	Currently used only for configuration of network scanners.
+	
 2008-10-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma_io_sanei.c, backend/pixma_mp150.c:
 	TPU scanning in 48 bits mode now works fine on MP970, with Xsane or

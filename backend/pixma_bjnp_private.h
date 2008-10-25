@@ -200,11 +200,8 @@ typedef enum bjnp_paper_status_e
 
 typedef struct device_s
 {
-  char open;			/* device state open/closed */
   int fd;			/* file descriptor */
   struct sockaddr_in addr;
-  char makemodel[BJNP_MODEL_MAX];	/* make & model reported by the scanner */
-  char IEEE1284_id[BJNP_IEEE1284_MAX];	/* IEEE1284 string reported by scanner */
   int session_id;		/* session id used in bjnp protocol for TCP packets */
   uint32_t serial;		/* sequence number of command */
   int bjnp_timeout_sec;		/* timeout (seconds) for next command */

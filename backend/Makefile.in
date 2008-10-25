@@ -166,7 +166,7 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
   pixma.c pixma.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c \
   pixma_mp750.c pixma_sane_options.c pixma_sane_options.h pixma_io.h \
   pixma_io_sanei.c pixma_rename.h pixma_imageclass.c \
-  pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h \
+  pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma.conf.in\
   plustek.c plustek.conf.in plustek-usbdevs.c plustek.h plustek-usb.c \
   plustek-usb.h plustek-usbhw.c plustek-usbimg.c plustek-usbio.c \
   plustek-usbmap.c plustek-usbscan.c plustek-usbshading.c plustek-usbcalfile.c \

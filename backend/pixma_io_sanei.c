@@ -325,7 +325,8 @@ pixma_io_cleanup (void)
 }
 
 unsigned
-pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
+pixma_collect_devices (const char **conf_devices,
+                       const struct pixma_config_t *const pixma_devices[])
 {
   unsigned i, j;
   struct scanner_info_t *si;
@@ -350,7 +351,7 @@ pixma_collect_devices (const struct pixma_config_t *const pixma_devices[])
             }
         }
     }
-  sanei_bjnp_find_devices(attach_bjnp, pixma_devices);
+  sanei_bjnp_find_devices(conf_devices, attach_bjnp, pixma_devices);
   si = first_scanner;
   while (j < nscanners)
     {

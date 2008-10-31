@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           7
+#define RTS8891_BUILD           8
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */

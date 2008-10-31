@@ -1,3 +1,8 @@
+2008-10-31  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h:
+	  added 600 and 1200 dpi scan for HP4400 and HP4470 with 'xpa' 
+	  sensor.
+
 2008-10-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, doc/sane-pixma.man doc/descriptions/pixma.desc:
 	Tweaks for TPU scan at 4800 dpi, and MP810 at 2400 dpi (now works).

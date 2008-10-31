@@ -1,4 +1,7 @@
 2008-10-31 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+           * backend/pixma_bjnp.c corrected small typo
+
+2008-10-31 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
            * backend/pixma_bjnp.c
 	   Added retry to select() calls when they get interrupted by a
 	   signal. This solves problems in xsane after a first scan completed.

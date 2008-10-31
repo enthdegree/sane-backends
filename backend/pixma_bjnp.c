@@ -1404,7 +1404,7 @@ sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
 void
 sanei_bjnp_close (SANE_Int dn)
 {
-  PDBG (pixma_dbg (LOG_CRIT, "sanei_bjnp_close(%d):\n", dn));
+  PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_close(%d):\n", dn));
   bjnp_finish_job (dn);
   close(device[dn].fd);
   device[dn].fd = -1;

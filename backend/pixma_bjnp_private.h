@@ -211,30 +211,3 @@ typedef struct device_s
   char short_read;		/* last TCP read command was shorter than blocksize */
 } device_t;
 
-/*
- * Private functions for bjnp protocol
- */
-
-int parse_IEEE1284_to_model (char *scanner_id, char *model);
-int charTo2byte (char d[], char s[], int len);
-void set_cmd (int devno, struct BJNP_command *cmd, char cmd_code,
-	      int payload_len);
-int udp_command (const int dev_no, char *command, int cmd_len, char *response,
-		 int resp_len);
-int get_scanner_id (const int dev_no, char *model, char *IEEE1284_id);
-void parse_scanner_address (char *resp_buf, char *name, char *serial);
-int bjnp_send_broadcast (struct in_addr broadcast_addr, struct BJNP_command cmd,
-			 int size);
-int split_uri (const char *devname, char *method, char *hostname, int *port,
-	       char *args);
-void bjnp_finish_job (int devno);
-int bjnp_send_job_details (int devno, char *hostname, char *user,
-			   char *title);
-int bjnp_get_intr (int devno, char type, char *hostname, char *user,
-		   SANE_Byte * buffer, int len);
-int bjnp_send_read_request (int devno);
-int bjnp_write (int devno, const SANE_Byte * buf, size_t count);
-int bjnp_open_tcp (int devno);
-SANE_Status bjnp_recv_header (int devno);
-SANE_Status bjnp_recv_data (int devno, SANE_Byte * buffer, size_t * len);
-SANE_Status sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn);

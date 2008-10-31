@@ -1,3 +1,12 @@
+2008-10-31 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+           * backend/pixma_bjnp.c
+	   Added retry to select() calls when they get interrupted by a
+	   signal. This solves problems in xsane after a first scan completed.
+	   There is still an issue that scanner closes tcp connection after
+	   30 seconds of inactivity
+	   backend/pixma_bjnp.c backend/bjnp_private.h
+	   Marked local functions as static and removed them from ..private.h
+
 2008-10-31  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c backend/rts8891_low.h:
 	  added 600 and 1200 dpi scan for HP4400 and HP4470 with 'xpa' 

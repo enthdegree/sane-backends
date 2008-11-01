@@ -139,8 +139,6 @@ struct fujitsu
 
   int color_raster_offset;      /* offset between r and b scan line and    */
                                 /* between b and g scan line (0 or 4)      */
-  int has_bg_front;             /* background color can be changed for f/r */
-  int has_bg_back;
 
   int duplex_raster_offset;     /* offset between front and rear page when */
                                 /* when scanning 3091 style duplex         */
@@ -269,7 +267,8 @@ struct fujitsu
   int has_comp_JPG3;
 
   /*FIXME: more endorser data? */
-  int endorser_type;
+  int endorser_type_f;
+  int endorser_type_b;
 
   /*FIXME: barcode data? */
 
@@ -730,6 +729,7 @@ static SANE_Status wait_scanner (struct fujitsu *s);
 static SANE_Status object_position (struct fujitsu *s, int i_load);
 
 static SANE_Status scanner_control (struct fujitsu *s, int function);
+static SANE_Status scanner_control_ric (struct fujitsu *s, int bytes, int side);
 
 static SANE_Status mode_select_df(struct fujitsu *s);
 

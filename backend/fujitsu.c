@@ -394,6 +394,10 @@
          - increase USB timeouts
          - enable get_pixelsize() to update scan params after set_window()
          - remove even_scan_line hack
+      v82 2008-10-31, MAN
+         - improved front-side endorser vpd detection
+         - send scanner_control_ric during sane_read of each side
+         - add fi-6770A and fi-6670A USB ID's
 
    SANE FLOW DIAGRAM
 
@@ -454,7 +458,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 81
+#define BUILD 82
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -757,8 +761,14 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1174'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1174", attach_one_usb);
 
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1175'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1175", attach_one_usb);
+
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1176'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1176", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1177'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x1177", attach_one_usb);
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1178'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1178", attach_one_usb);
@@ -1084,17 +1094,14 @@ init_inquire (struct fujitsu *s)
   DBG (15, "  color offset: %d lines\n",s->color_raster_offset);
 
   /* FIXME: we dont store all of these? */
-  DBG (15, "  long color scan: %d\n",get_IN_long_color(in));
   DBG (15, "  long gray scan: %d\n",get_IN_long_gray(in));
-  DBG (15, "  3091 duplex: %d\n",get_IN_duplex_3091(in));
-
-  s->has_bg_front = get_IN_bg_front(in);
-  DBG (15, "  background front: %d\n",s->has_bg_front);
-
-  s->has_bg_back = get_IN_bg_back(in);
-  DBG (15, "  background back: %d\n",s->has_bg_back);
+  DBG (15, "  long color scan: %d\n",get_IN_long_color(in));
 
   DBG (15, "  emulation mode: %d\n",get_IN_emulation(in));
+  DBG (15, "  VRS CGA: %d\n",get_IN_vrs_cga(in));
+  DBG (15, "  background back: %d\n",get_IN_bg_back(in));
+  DBG (15, "  background front: %d\n",get_IN_bg_front(in));
+  DBG (15, "  back only scan: %d\n",get_IN_has_back(in));
 
   s->duplex_raster_offset = get_IN_duplex_offset(in);
   DBG (15, "  duplex offset: %d lines\n",s->duplex_raster_offset);
@@ -1321,6 +1328,8 @@ init_vpd (struct fujitsu *s)
           s->has_endorser_f = get_IN_endorser_f(in);
           DBG (15, "  front endorser: %d\n", s->has_endorser_f);
 
+          DBG (15, "  multi-purpose stacker: %d\n", get_IN_mp_stacker(in));
+
           DBG (15, "  unused caps: %d\n", get_IN_unused(in));
 
           s->adbits = get_IN_adbits(in);
@@ -1509,18 +1518,31 @@ init_vpd (struct fujitsu *s)
           DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
 
           /* FIXME: we dont store these? */
-          DBG (15, "  endorser mech: %d\n", get_IN_endorser_mechanical(in));
-          DBG (15, "  endorser stamp: %d\n", get_IN_endorser_stamp(in));
-          DBG (15, "  endorser elec: %d\n", get_IN_endorser_electrical(in));
-          DBG (15, "  endorser max id: %d\n", get_IN_endorser_max_id(in));
+          DBG (15, " back endorser mech: %d\n", get_IN_endorser_b_mech(in));
+          DBG (15, " back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
+          DBG (15, " back endorser elec: %d\n", get_IN_endorser_b_elec(in));
+          DBG (15, " endorser max id: %d\n", get_IN_endorser_max_id(in));
 
-          s->endorser_type = get_IN_endorser_type(in);
-          DBG (15, "  endorser type: %d\n", s->endorser_type);
+          DBG (15, " front endorser mech: %d\n", get_IN_endorser_f_mech(in));
+          DBG (15, " front endorser stamp: %d\n", get_IN_endorser_f_stamp(in));
+          DBG (15, " front endorser elec: %d\n", get_IN_endorser_f_elec(in));
+
+          s->endorser_type_b = get_IN_endorser_b_type(in);
+          DBG (15, " back endorser type: %d\n", s->endorser_type_b);
+
+          s->endorser_type_f = get_IN_endorser_f_type(in);
+          DBG (15, " back endorser type: %d\n", s->endorser_type_f);
 
           /*not all scanners go this far*/
           if (get_IN_page_length (in) > 0x5f) {
               DBG (15, "  connection type: %d\n", get_IN_connection(in));
     
+              DBG (15, "  endorser ext: %d\n", get_IN_endorser_type_ext(in));
+              DBG (15, "  endorser pr_b: %d\n", get_IN_endorser_pre_back(in));
+              DBG (15, "  endorser pr_f: %d\n", get_IN_endorser_pre_front(in));
+              DBG (15, "  endorser po_b: %d\n", get_IN_endorser_post_back(in));
+              DBG (15, "  endorser po_f: %d\n", get_IN_endorser_post_front(in));
+
               s->os_x_basic = get_IN_x_overscan_size(in);
               DBG (15, "  horizontal overscan: %d\n", s->os_x_basic);
     
@@ -1544,22 +1566,6 @@ init_vpd (struct fujitsu *s)
     DBG (5, "init_vpd: Please contact kitno455 at gmail dot com\n");
     DBG (5, "init_vpd: with details of your scanner model.\n");
   }
-
-  /* get EVPD for fb?
-  memset(cmd,0,cmdLen);
-  set_SCSI_opcode(cmd, INQUIRY_code);
-  set_IN_return_size (cmd, inLen);
-  set_IN_evpd (cmd, 1);
-  set_IN_page_code (cmd, 0xf1);
-
-  ret = do_cmd (
-    s, 1, 0,
-    cmd, cmdLen,
-    NULL, 0,
-    in, &inLen
-  );
-  if()
-  */
 
   DBG (10, "init_vpd: finish\n");
 
@@ -1804,17 +1810,33 @@ init_model (struct fujitsu *s)
   }
 
   /* endorser type tells string length (among other things) */
-  /*old-style is 40 bytes*/
-  if(s->endorser_type == ET_OLD){
-    s->endorser_string_len = 40;
+  if(s->has_endorser_b){
+    /*old-style is 40 bytes*/
+    if(s->endorser_type_b == ET_OLD){
+      s->endorser_string_len = 40;
+    }
+    /*short new style is 60 bytes*/
+    else if(s->endorser_type_b == ET_30){
+      s->endorser_string_len = 60;
+    }
+    /*long new style is 80 bytes*/
+    else if(s->endorser_type_b == ET_40){
+      s->endorser_string_len = 80;
+    }
   }
-  /*short new style is 60 bytes*/
-  else if(s->endorser_type == ET_30){
-    s->endorser_string_len = 60;
-  }
-  /*long new style is 80 bytes*/
-  else if(s->endorser_type == ET_40){
-    s->endorser_string_len = 80;
+  else if(s->has_endorser_f){
+    /*old-style is 40 bytes*/
+    if(s->endorser_type_f == ET_OLD){
+      s->endorser_string_len = 40;
+    }
+    /*short new style is 60 bytes*/
+    else if(s->endorser_type_f == ET_30){
+      s->endorser_string_len = 60;
+    }
+    /*long new style is 80 bytes*/
+    else if(s->endorser_type_f == ET_40){
+      s->endorser_string_len = 80;
+    }
   }
 
   /* convert to 1200dpi units */
@@ -3517,7 +3539,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->size = sizeof(SANE_Word);
 
     /*old type cant do this?*/
-    if ((s->has_endorser_f || s->has_endorser_b) && s->endorser_type != ET_OLD){
+    if ((s->has_endorser_f && s->endorser_type_f != ET_OLD)
+     || (s->has_endorser_b && s->endorser_type_b != ET_OLD)){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3615,7 +3638,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
 
     /*only newest can do this?*/
-    if ((s->has_endorser_f || s->has_endorser_b) && s->endorser_type == ET_40){
+    if ((s->has_endorser_f && s->endorser_type_f == ET_40)
+     || (s->has_endorser_b && s->endorser_type_b == ET_40)){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
       if(!s->u_endorser)
         opt->cap |= SANE_CAP_INACTIVE;
@@ -6018,6 +6042,65 @@ scanner_control (struct fujitsu *s, int function)
   return ret;
 }
 
+static SANE_Status
+scanner_control_ric (struct fujitsu *s, int bytes, int side) 
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int tries = 0;
+
+  unsigned char cmd[SCANNER_CONTROL_len];
+  size_t cmdLen = SCANNER_CONTROL_len;
+
+  DBG (10, "scanner_control_ric: start\n");
+
+  if(s->has_cmd_scanner_ctl){
+
+    memset(cmd,0,cmdLen);
+    set_SCSI_opcode(cmd, SCANNER_CONTROL_code);
+
+    set_SC_ric(cmd, 1);
+    if (side == SIDE_BACK) {
+        set_SC_ric_dtq(cmd, WD_wid_back);
+    }
+    else{
+        set_SC_ric_dtq(cmd, WD_wid_front);
+    }
+
+    set_SC_ric_len(cmd, bytes);
+
+    DBG (15, "scanner_control_ric: %d %d\n",bytes,side);
+ 
+    /* extremely long retry period */
+    while(tries++ < 120){
+
+      ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        NULL, 0,
+        NULL, NULL
+      );
+
+      if(ret != SANE_STATUS_DEVICE_BUSY){
+        break;
+      }
+
+      usleep(500000);
+    } 
+
+    if(ret == SANE_STATUS_GOOD){
+      DBG (15, "scanner_control_ric: success, tries %d, ret %d\n",tries,ret);
+    }
+    else{
+      DBG (5, "scanner_control_ric: error %d, ret %d\n",tries,ret);
+      ret = SANE_STATUS_GOOD;
+    }
+  }
+
+  DBG (10, "scanner_control_ric: finish\n");
+
+  return ret;
+}
+
 /*
  * Creates a temporary file, opens it, and stores file pointer for it.
  * OR, callocs a buffer to hold the scan data
@@ -6712,6 +6795,16 @@ read_from_JPEGduplex(struct fujitsu *s)
         return SANE_STATUS_INVAL;
     }
   
+    /* fi-6770A gets mad if you 'read' too soon on usb, see if it is ready */
+    if(!s->bytes_rx[SIDE_FRONT] && s->connection == CONNECTION_USB){
+      DBG (15, "read: start of usb page, checking RIC\n");
+      ret = scanner_control_ric(s,bytes,SIDE_FRONT);
+      if(ret){
+        DBG(5,"read: ric returning %d\n",ret);
+        return ret;
+      }
+    }
+
     inLen = bytes;
     in = malloc(inLen);
     if(!in){
@@ -7071,6 +7164,16 @@ read_from_scanner(struct fujitsu *s, int side)
         return ret;
     }
   
+    /* fi-6770A gets mad if you 'read' too soon on usb, see if it is ready */
+    if(!s->bytes_rx[side] && s->connection == CONNECTION_USB){
+      DBG (15, "read_from_scanner: start of usb page, checking RIC\n");
+      ret = scanner_control_ric(s,bytes,side);
+      if(ret){
+        DBG(5,"read_from_scanner: ric returning %d\n",ret);
+        return ret;
+      }
+    }
+
     inLen = bytes;
     in = malloc(inLen);
     if(!in){

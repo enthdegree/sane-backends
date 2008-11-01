@@ -146,13 +146,14 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_color_offset(in)            getnbyte (in+0x2A, 2) /* offset between colors */
 
 /* these only in some scanners */
-#define get_IN_long_color(in)              getbitfield(in+0x2C, 1, 0)
 #define get_IN_long_gray(in)               getbitfield(in+0x2C, 1, 1)
+#define get_IN_long_color(in)              getbitfield(in+0x2C, 1, 0)
 
-#define get_IN_duplex_3091(in)             getbitfield(in+0x2D, 1, 0)
-#define get_IN_bg_front(in)                getbitfield(in+0x2D, 1, 2)
-#define get_IN_bg_back(in)                 getbitfield(in+0x2D, 1, 3)
 #define get_IN_emulation(in)               getbitfield(in+0x2D, 1, 6)
+#define get_IN_vrs_cga(in)                 getbitfield(in+0x2D, 1, 5)
+#define get_IN_bg_back(in)                 getbitfield(in+0x2D, 1, 3)
+#define get_IN_bg_front(in)                getbitfield(in+0x2D, 1, 2)
+#define get_IN_has_back(in)                getbitfield(in+0x2D, 1, 0)
 
 #define get_IN_duplex_offset(in)           getnbyte (in+0x2E, 2)
 
@@ -202,7 +203,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_operator_panel(in)          getbitfield(in+0x20, 1, 1)
 #define get_IN_endorser_f(in)              getbitfield(in+0x20, 1, 0)
 
-#define get_IN_unused(in)                  getbitfield(in+0x21, 0x0f, 4)
+#define get_IN_mp_stacker(in)              getbitfield(in+0x21, 1, 7)
+#define get_IN_unused(in)                  getbitfield(in+0x21, 0x07, 4)
 #define get_IN_adbits(in)                  getbitfield(in+0x21, 0x0f, 0)
 
 #define get_IN_buffer_bytes(in)            getnbyte(in + 0x22, 4)
@@ -267,6 +269,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_ipc_diffusion(in)           getbitfield(in+0x59, 1, 6)
 #define get_IN_ipc_ipc3(in)                getbitfield(in+0x59, 1, 5)
 #define get_IN_ipc_rotation(in)            getbitfield(in+0x59, 1, 4)
+#define get_IN_ipc_hybrid_clip_deskew(in)  getbitfield(in+0x59, 1, 3)
+#define get_IN_ipc_ipc2_byte67(in)         getbitfield(in+0x59, 1, 0)
 
 #define get_IN_compression_MH(in)          getbitfield(in+0x5a, 1, 7)
 #define get_IN_compression_MR(in)          getbitfield(in+0x5a, 1, 6)
@@ -276,17 +280,49 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_IN_compression_JPG_EXT(in)     getbitfield(in+0x5a, 1, 2)
 #define get_IN_compression_JPG_INDEP(in)   getbitfield(in+0x5a, 1, 1)
 
-#define get_IN_endorser_mechanical(in)    getbitfield(in+0x5c, 1, 7)
-#define get_IN_endorser_stamp(in)         getbitfield(in+0x5c, 1, 6)
-#define get_IN_endorser_electrical(in)    getbitfield(in+0x5c, 1, 5)
-#define get_IN_endorser_max_id(in)        getbitfield(in+0x5c, 0x0f, 0)
+#define get_IN_compression_JPG_gray(in)    getbitfield(in+0x5b, 3, 6)
+#define IN_comp_JPG_gray_unsup 1
+#define IN_comp_JPG_gray_color 2
+#define IN_comp_JPG_gray_gray  3
+#define get_IN_compression_JPG_YUV_422(in) getbitfield(in+0x5b, 1, 0)
 
-#define get_IN_endorser_type(in)          getbitfield(in+0x5d, 3, 0)
+#define get_IN_endorser_b_mech(in)          getbitfield(in+0x5c, 1, 7)
+#define get_IN_endorser_b_stamp(in)         getbitfield(in+0x5c, 1, 6)
+#define get_IN_endorser_b_elec(in)          getbitfield(in+0x5c, 1, 5)
+#define get_IN_endorser_max_id(in)          getbitfield(in+0x5c, 0x0f, 0)
 
-#define get_IN_connection(in)       getbitfield(in+0x62, 3, 0)
+#define get_IN_endorser_f_mech(in)          getbitfield(in+0x5d, 1, 7)
+#define get_IN_endorser_f_stamp(in)         getbitfield(in+0x5d, 1, 6)
+#define get_IN_endorser_f_elec(in)          getbitfield(in+0x5d, 1, 5)
+#define get_IN_endorser_f_type(in)          getbitfield(in+0x5d, 3, 2)
+#define get_IN_endorser_b_type(in)          getbitfield(in+0x5d, 3, 0)
+
+#define get_IN_connection(in)               getbitfield(in+0x62, 3, 0)
+
+#define get_IN_endorser_type_ext(in)        getbitfield(in+0x63, 1, 4)
+#define get_IN_endorser_pre_back(in)        getbitfield(in+0x63, 1, 3)
+#define get_IN_endorser_pre_front(in)       getbitfield(in+0x63, 1, 2)
+#define get_IN_endorser_post_back(in)       getbitfield(in+0x63, 1, 1)
+#define get_IN_endorser_post_front(in)      getbitfield(in+0x63, 1, 0)
 
 #define get_IN_x_overscan_size(in)  getnbyte(in + 0x64, 2)
 #define get_IN_y_overscan_size(in)  getnbyte(in + 0x66, 2)
+
+#define get_IN_default_bg_adf_b(in)      getbitfield(in+0x68, 1, 3)
+#define get_IN_default_bg_adf_f(in)      getbitfield(in+0x68, 1, 2)
+#define get_IN_default_bg_fb(in)         getbitfield(in+0x68, 1, 1)
+
+#define get_IN_auto_color(in)         getbitfield(in+0x69, 1, 7)
+#define get_IN_blank_skip(in)         getbitfield(in+0x69, 1, 6)
+#define get_IN_multi_image(in)        getbitfield(in+0x69, 1, 5)
+#define get_IN_f_b_type_indep(in)     getbitfield(in+0x69, 1, 4)
+#define get_IN_f_b_res_indep(in)      getbitfield(in+0x69, 1, 3)
+
+#define get_IN_dropout_spec(in)       getbitfield(in+0x6a, 1, 7)
+#define get_IN_dropout_non(in)        getbitfield(in+0x6a, 1, 7)
+#define get_IN_dropout_white(in)      getbitfield(in+0x6a, 1, 7)
+
+#define get_IN_skew_check(in)         getbitfield(in+0x6d, 1, 7)
 
 /* some scanners need evpd inquiry data manipulated */
 #define set_IN_page_length(in,val)             in[0x04]=val
@@ -609,16 +645,31 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_GHS_hopper(in)          !getbitfield(in+0x03, 1, 7)
 #define get_GHS_omr(in)             getbitfield(in+0x03, 1, 6)
 #define get_GHS_adf_open(in)        getbitfield(in+0x03, 1, 5)
+#define get_GHS_imp_open(in)        getbitfield(in+0x03, 1, 4)
+#define get_GHS_fb_open(in)         getbitfield(in+0x03, 1, 3)
+#define get_GHS_paper_end(in)       getbitfield(in+0x03, 1, 2)
+#define get_GHS_fb_on(in)           getbitfield(in+0x03, 1, 1)
 
 #define get_GHS_sleep(in)           getbitfield(in+0x04, 1, 7)
+#define get_GHS_clean(in)           getbitfield(in+0x04, 1, 6)
 #define get_GHS_send_sw(in)         getbitfield(in+0x04, 1, 2)
 #define get_GHS_manual_feed(in)     getbitfield(in+0x04, 1, 1)
 #define get_GHS_scan_sw(in)         getbitfield(in+0x04, 1, 0)
 
+#define get_GHS_picalm(in)          getbitfield(in+0x05, 1, 7)
+#define get_GHS_fadalm(in)          getbitfield(in+0x05, 1, 6)
+#define get_GHS_brkalm(in)          getbitfield(in+0x05, 1, 5)
+#define get_GHS_sepalm(in)          getbitfield(in+0x05, 1, 4)
 #define get_GHS_function(in)        getbitfield(in+0x05, 0x0f, 0)
 
-#define get_GHS_ink_empty(in)       getbitfield(in+0x06, 1, 7)
-#define get_GHS_double_feed(in)     getbitfield(in+0x06, 1, 0)
+#define get_GHS_ink_empty(in)      getbitfield(in+0x06, 1, 7)
+#define get_GHS_consume(in)        getbitfield(in+0x06, 1, 6)
+#define get_GHS_overskew(in)       getbitfield(in+0x06, 1, 5)
+#define get_GHS_overthick(in)      getbitfield(in+0x06, 1, 4)
+#define get_GHS_plen(in)           getbitfield(in+0x06, 1, 3)
+#define get_GHS_ink_side(in)       getbitfield(in+0x06, 1, 2)
+#define get_GHS_mf_to(in)          getbitfield(in+0x06, 1, 1)
+#define get_GHS_double_feed(in)    getbitfield(in+0x06, 1, 0)
 
 #define get_GHS_error_code(in)      in[0x07]
 
@@ -631,6 +682,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SCANNER_CONTROL_code    0xf1
 #define SCANNER_CONTROL_len     10
 
+#define set_SC_ric(icb, val)                   setbitfield(icb + 1, 1, 4, val)
 #define set_SC_function(icb, val)              setbitfield(icb + 1, 0xf, 0, val)
 #define SC_function_adf                        0x00
 #define SC_function_fb                         0x01
@@ -641,6 +693,12 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SC_function_lamp_normal                0x06
 #define SC_function_lamp_saving                0x07
 #define SC_function_panel                      0x08
+#define SC_function_scan_complete              0x09
+#define SC_function_eject_complete             0x0a
+#define SC_function_manual_feed                0x0c
+
+#define set_SC_ric_dtq(sb, val) sb[2] = val
+#define set_SC_ric_len(sb, val) putnbyte(sb + 0x06, val, 3)
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

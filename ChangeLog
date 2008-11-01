@@ -1,8 +1,15 @@
-2008-10-31 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-           * backend/pixma_bjnp.c corrected small typo
+2008-10-31  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
+	  backend/fujitsu.conf.in, doc/descriptions/fujitsu.desc: backend v82
+	- improved front-side endorser vpd detection
+	- send scanner_control_ric during sane_read of each side
+	- add fi-6770A and fi-6670A USB ID's
 
-2008-10-31 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-           * backend/pixma_bjnp.c
+2008-10-31  Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+	* backend/pixma_bjnp.c: corrected small typo
+
+2008-10-31  Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+	* backend/pixma_bjnp.c:
 	   Added retry to select() calls when they get interrupted by a
 	   signal. This solves problems in xsane after a first scan completed.
 	   There is still an issue that scanner closes tcp connection after
@@ -20,10 +27,10 @@
 	Tweaks for TPU scan at 4800 dpi, and MP810 at 2400 dpi (now works).
 	Updated docs around that.
 
-2008-10-25 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
-        * Added configuration  file support for pixma backend
+2008-10-25  Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+	* Added configuration file support for pixma backend
 	Currently used only for configuration of network scanners.
-	
+
 2008-10-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c, backend/pixma_io_sanei.c, backend/pixma_mp150.c:
 	TPU scanning in 48 bits mode now works fine on MP970, with Xsane or
@@ -38,7 +45,7 @@
 	- Re-enable includes in pixma_bjnp.c as they are needed on Freebsd
 	- Replaced getaddrinfo by gethostbyname in pixma_bjnp.c as this is 
 	  supported on OS/2 as well
-	  `
+
 2008-10-21  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/fujitsu.desc: backend v81, fix fi-6240 usb id
 

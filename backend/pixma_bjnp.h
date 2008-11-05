@@ -110,7 +110,22 @@ extern SANE_Status sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn);
  * 
  * @param dn device number
  */
+
 extern void sanei_bjnp_close (SANE_Int dn);
+
+/** Activate a BJNP device connection
+ *
+ *  @param dn device number
+ */
+
+extern SANE_Status sanei_bjnp_activate (SANE_Int dn);
+
+/** De-activate a BJNP device connection
+ *
+ * @param dn device number
+ */
+
+extern SANE_Status sanei_bjnp_deactivate (SANE_Int dn);
 
 /** Set the libbjnp timeout for bulk and interrupt reads.
  * 

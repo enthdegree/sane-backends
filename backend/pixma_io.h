@@ -116,6 +116,12 @@ int pixma_connect (unsigned devnr, pixma_io_t ** handle);
 /** Release the scanner interface and disconnect from the device. */
 void pixma_disconnect (pixma_io_t *);
 
+/** Activate connection to scanner */
+int pixma_activate (pixma_io_t *);
+
+/** De-activate connection to scanner */
+int pixma_deactivate (pixma_io_t *);
+
 /** Reset the USB interface. \warning Use with care! */
 int pixma_reset_device (pixma_io_t *);
 

@@ -514,6 +514,9 @@ pixma_open (unsigned devnr, pixma_t ** handle)
   error = s->ops->open (s);
   if (error < 0)
     goto rollback;
+  error = pixma_deactivate (s->io);
+  if (error < 0)
+    goto rollback;
   *handle = s;
   return 0;
 
@@ -718,6 +721,18 @@ int
 pixma_enable_background (pixma_t * s, int enabled)
 {
   return pixma_set_interrupt_mode (s->io, enabled);
+}
+
+int
+pixma_activate_connection(pixma_t * s)
+{
+  return pixma_activate (s->io);
+}
+
+int
+pixma_deactivate_connection(pixma_t * s)
+{
+  return pixma_deactivate (s->io);
 }
 
 unsigned

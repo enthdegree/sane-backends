@@ -387,6 +387,14 @@ int pixma_check_scan_param (pixma_t *, pixma_scan_param_t *);
  */
 uint32_t pixma_wait_event (pixma_t *, int timeout);
 
+/** Activate connection to scanner */
+int pixma_activate_connection (pixma_t *);
+
+/** De-activate connection to scanner */
+
+int pixma_deactivate_connection (pixma_t *);
+
+
 /** Enable or disable background tasks. Currently, the only one task
  *  is submitting interrupt URB in background.
  *  \param[in] enabled if not zero, enable background task.

@@ -436,6 +436,33 @@ pixma_disconnect (pixma_io_t * io)
   free (io);
 }
 
+int pixma_activate (pixma_io_t * io)
+{
+  int error;
+  if (io->interface == INT_BJNP)
+    {
+      error = map_error(sanei_bjnp_activate (io->dev));
+    }
+  else
+    /* noop for USB interface */
+    error = 0;
+  return error;
+}
+
+int pixma_deactivate (pixma_io_t * io)
+{
+  int error;
+  if (io->interface == INT_BJNP)
+    {
+      error = map_error(sanei_bjnp_deactivate (io->dev));
+    }
+  else
+    /* noop for USB interface */
+    error = 0;
+  return error;
+
+}
+
 int
 pixma_reset_device (pixma_io_t * io)
 {

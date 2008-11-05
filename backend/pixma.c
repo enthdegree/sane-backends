@@ -735,6 +735,11 @@ reader_loop (pixma_sane_t * ss)
       count = PIXMA_ENOMEM;
       goto done;
     }
+
+  count = pixma_activate_connection (ss->s);
+  if (count < 0)
+    goto done;
+
   pixma_enable_background (ss->s, 1);
   if (OVAL (opt_button_controlled).b && ss->page_count == 0)
     {
@@ -779,6 +784,7 @@ reader_loop (pixma_sane_t * ss)
 
 done:
   pixma_enable_background (ss->s, 0);
+  pixma_deactivate_connection (ss->s);
   free (buf);
   close (ss->wpipe);
   ss->wpipe = -1;

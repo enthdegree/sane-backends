@@ -64,14 +64,16 @@
 #define BJNP_IEEE1284_MAX 1024	/* max. allowed size of IEEE1284 id */
 #define BJNP_NO_DEVICES 16	/* max number of open devices */
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
-#define MAX_RECV_REQ 0x4000	/* max size of a single recv request */
-				/* must be < SSIZE_MAX */
-#define LOG_DEBUG 11
-#define LOG_DEBUG2 12
-#define LOG_DEBUG3 13
+#define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
+
+/* loglevel definitions */
+
 #define LOG_CRIT 0
 #define LOG_NOTICE 1
 #define LOG_INFO 2
+#define LOG_DEBUG 11
+#define LOG_DEBUG2 12
+#define LOG_DEBUG3 13
 
 /*
  * BJNP protocol related definitions
@@ -200,6 +202,8 @@ typedef enum bjnp_paper_status_e
 
 typedef struct device_s
 {
+  int open;			/* connection to printer is opened */
+  int active;			/* connection is active (has open tcp connection */
   int fd;			/* file descriptor */
   struct sockaddr_in addr;
   int session_id;		/* session id used in bjnp protocol for TCP packets */
@@ -208,6 +212,7 @@ typedef struct device_s
   int bjnp_timeout_msec;	/* timeout (msec) for next command */
   size_t scanner_data_left;	/* TCP data left from last read request */
   int last_cmd;			/* last command sent */
+  size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
   char short_read;		/* last TCP read command was shorter than blocksize */
 } device_t;
 

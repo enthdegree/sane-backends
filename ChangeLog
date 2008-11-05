@@ -1,3 +1,8 @@
+2008-11-04  m. allan noah <kitno455 a t gmail d o t com>
+	* sanei/sanei_usb.c, include/sane/sanei_usb.h:
+	- shorten debug lines to fit in 80 chars
+	- add sanei_usb_clear_halt() required by upcoming canon_dr backend
+
 2008-10-31  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h,
 	  backend/fujitsu.conf.in, doc/descriptions/fujitsu.desc: backend v82

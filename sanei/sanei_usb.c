@@ -1,8 +1,9 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2003 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2001 - 2005 Henning Meier-Geinitz
    Copyright (C) 2001 Frank Zago (sanei_usb_control_msg)
+   Copyright (C) 2003 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2005 Paul Smedley <paul@smedley.info> (OS/2 usbcalls)
+   Copyright (C) 2008 m. allan noah (bus rescan support, sanei_usb_clear_halt)
    This file is part of the SANE package.
 
    This program is free software; you can redistribute it and/or
@@ -187,7 +188,7 @@ static void
 print_buffer (const SANE_Byte * buffer, SANE_Int size)
 {
 #define NUM_COLUMNS 16
-#define PRINT_BUFFER_SIZE (6 + NUM_COLUMNS * (3 + 1) + 1 + 1)
+#define PRINT_BUFFER_SIZE (4 + NUM_COLUMNS * (3 + 1) + 1 + 1)
   char line_str[PRINT_BUFFER_SIZE];
   char *pp;
   int column;
@@ -198,8 +199,8 @@ print_buffer (const SANE_Byte * buffer, SANE_Int size)
   for (line = 0; line < ((size + NUM_COLUMNS - 1) / NUM_COLUMNS); line++)
     {
       pp = line_str;
-      sprintf (pp, "%04X: ", line * NUM_COLUMNS);
-      pp += 6;
+      sprintf (pp, "%03X ", line * NUM_COLUMNS);
+      pp += 4;
       for (column = 0; column < NUM_COLUMNS; column++)
 	{
 	  if ((line * NUM_COLUMNS + column) < size)
@@ -216,7 +217,7 @@ print_buffer (const SANE_Byte * buffer, SANE_Int size)
 		     (buffer[line * NUM_COLUMNS + column] > 31) ?
 		     buffer[line * NUM_COLUMNS + column] : '.');
 	  else
-	    sprintf (pp, ".");
+	    sprintf (pp, " ");
 	  pp += 1;
 	}
       DBG (11, "%s\n", line_str);
@@ -1316,6 +1317,36 @@ sanei_usb_set_timeout (SANE_Int timeout)
 #else
   DBG (1, "sanei_usb_set_timeout: libusb support missing\n");
 #endif /* HAVE_LIBUSB */
+}
+
+SANE_Status
+sanei_usb_clear_halt (SANE_Int dn)
+{
+#ifdef HAVE_LIBUSB
+  int ret;
+
+  ret = usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+  if (ret){
+    DBG (1, "sanei_usb_clear_halt: BULK_IN ret=%d\n", ret);
+    return SANE_STATUS_INVAL;
+  }
+
+  ret = usb_clear_halt (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+  if (ret){
+    DBG (1, "sanei_usb_clear_halt: BULK_OUT ret=%d\n", ret);
+    return SANE_STATUS_INVAL;
+  }
+
+  /* be careful, we don't know if we are in DATA0 stage now
+  ret = usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_in_ep);
+  ret = usb_resetep (devices[dn].libusb_handle, devices[dn].bulk_out_ep);
+  */
+
+#else
+  DBG (1, "sanei_usb_clear_halt: libusb support missing\n");
+#endif /* HAVE_LIBUSB */
+
+  return SANE_STATUS_GOOD;
 }
 
 SANE_Status

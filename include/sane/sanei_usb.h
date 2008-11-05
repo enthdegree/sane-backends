@@ -1,6 +1,7 @@
 /* sane - Scanner Access Now Easy.
-   Copyright (C) 2003, 2005 Rene Rebe (sanei_read_int,sanei_set_timeout)
    Copyright (C) 2001, 2002 Henning Meier-Geinitz
+   Copyright (C) 2003, 2005 Rene Rebe (sanei_read_int,sanei_set_timeout)
+   Copyright (C) 2008 m. allan noah (sanei_usb_clear_halt)
    This file is part of the SANE package.
 
    SANE is free software; you can redistribute it and/or modify it
@@ -266,6 +267,16 @@ extern void sanei_usb_set_timeout (SANE_Int timeout);
 /** Check if sanei_usb_set_timeout() is available.
  */
 #define HAVE_SANEI_USB_SET_TIMEOUT
+
+/** Clear halt condition on bulk endpoints
+ * 
+ * @param dn device number
+ */
+extern SANE_Status sanei_usb_clear_halt (SANE_Int dn);
+
+/** Check if sanei_usb_clear_halt() is available.
+ */
+#define HAVE_SANEI_USB_CLEAR_HALT
 
 /** Initiate a bulk transfer read.
  *

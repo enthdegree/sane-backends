@@ -398,6 +398,10 @@
          - improved front-side endorser vpd detection
          - send scanner_control_ric during sane_read of each side
          - add fi-6770A and fi-6670A USB ID's
+      v83 2008-11-05, MAN
+         - round binary bpl and Bpl up to byte boundary
+         - use s->params instead of user data in set_window()
+         - read_from_scanner() only grabs an even number of lines
 
    SANE FLOW DIAGRAM
 
@@ -5708,11 +5712,12 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
         /* this backend only sends single frame images */
         params->last_frame = 1;
-      
-        params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
 
+        /* FIXME should we round to even # of lines? */
         params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
     
+        params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
+
         if (s->mode == MODE_COLOR) {
             params->format = SANE_FRAME_RGB;
             params->depth = 8;
@@ -5732,7 +5737,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         else {
             params->format = SANE_FRAME_GRAY;
             params->depth = 1;
-            params->bytes_per_line = (params->pixels_per_line+7) / 8;
+            /* round up to byte boundary */
+            params->pixels_per_line += params->pixels_per_line % 8;
+            params->bytes_per_line = params->pixels_per_line / 8;
         }
     }
 
@@ -6178,7 +6185,7 @@ set_window (struct fujitsu *s)
   unsigned char * desc1 = out + SW_header_len;               /*1st desc*/
   unsigned char * desc2 = out + SW_header_len + SW_desc_len; /*2nd desc*/
 
-  int length = s->br_y - s->tl_y;
+  int length = 0;
 
   DBG (10, "set_window: start\n");
 
@@ -6207,7 +6214,9 @@ set_window (struct fujitsu *s)
   }
 
   set_WD_ULY (desc1, s->tl_y);
-  set_WD_width (desc1, s->br_x - s->tl_x);
+  set_WD_width (desc1, s->params.pixels_per_line * 1200/s->resolution_x);
+
+  length = s->params.lines * 1200/s->resolution_y;
 
   /* stupid trick. 3091/2 require reading extra lines,
    * because they have a gap between R G and B */
@@ -7150,6 +7159,11 @@ read_from_scanner(struct fujitsu *s, int side)
   
     /* all requests must end on line boundary */
     bytes -= (bytes % s->params.bytes_per_line);
+
+    /* some larger scanners require even bytes per block */
+    if(bytes % 2){
+       bytes -= s->params.bytes_per_line;
+    }
   
     /* this should never happen */
     if(bytes < 1){

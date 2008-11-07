@@ -1,5 +1,11 @@
+2008-11-06  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: backend v83
+	- round binary bpl and Bpl up to byte boundary
+	- use s->params instead of user data in set_window()
+	- read_from_scanner() only grabs an even number of lines
+
 2008-10-31  Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-        * Pixma backend (pixma.c/pixma_common.c/pixma_io_sanei.c/pixma_bjnp.c)
+	* Pixma backend (pixma.c/pixma_common.c/pixma_io_sanei.c/pixma_bjnp.c):
 	  bjnp tcp connection is now de-activated after initialization and
 	  re-activated at start of scanning. If we do not do this, the scanner
 	  closes its side of the connection after 30 secods of inactivity.

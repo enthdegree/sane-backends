@@ -1,3 +1,8 @@
+2008-11-07  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c: backend v84
+	- round lines down to even number to get even # of total bytes
+	- round binary bpl and Bpl down to byte boundary
+
 2008-11-06  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c: backend v83
 	- round binary bpl and Bpl up to byte boundary

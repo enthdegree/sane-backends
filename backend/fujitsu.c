@@ -398,10 +398,13 @@
          - improved front-side endorser vpd detection
          - send scanner_control_ric during sane_read of each side
          - add fi-6770A and fi-6670A USB ID's
-      v83 2008-11-05, MAN
+      v83 2008-11-06, MAN
          - round binary bpl and Bpl up to byte boundary
          - use s->params instead of user data in set_window()
          - read_from_scanner() only grabs an even number of lines
+      v84 2008-11-07, MAN
+         - round lines down to even number to get even # of total bytes
+         - round binary bpl and Bpl down to byte boundary
 
    SANE FLOW DIAGRAM
 
@@ -462,7 +465,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 82
+#define BUILD 84
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -5713,9 +5716,6 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         /* this backend only sends single frame images */
         params->last_frame = 1;
 
-        /* FIXME should we round to even # of lines? */
-        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
-    
         params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
 
         if (s->mode == MODE_COLOR) {
@@ -5737,10 +5737,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         else {
             params->format = SANE_FRAME_GRAY;
             params->depth = 1;
-            /* round up to byte boundary */
-            params->pixels_per_line += params->pixels_per_line % 8;
+
+            /* round down to byte boundary */
+            params->pixels_per_line -= params->pixels_per_line % 8;
+
             params->bytes_per_line = params->pixels_per_line / 8;
         }
+
+        /* some scanners require even number of bytes in each transfer block,
+         * so we round to even # of total lines, to ensure last block is even */
+        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
+        params->lines -= params->lines % 2;
     }
 
     DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",

@@ -1,0 +1,51 @@
+# NOTE: any 'option' lines only apply to
+# scanners discovered later in this file
+
+# to set data buffer size, in bytes
+# the value ranges from 4096 - infinity
+# but you may have scanning problems with
+# a value larger than 65536 (the default)
+option buffer-size 65536
+
+# To search for all CANON scsi devices, who's name starts with 'DR'
+scsi CANON DR
+
+# To use a specific scsi device
+#scsi /dev/sg1
+
+# For Canon scanners connected via USB on a known device (kernel driver):
+#usb /dev/usb/scanner0
+
+# For Canon scanners connected via USB using vendor and device ids (libusb):
+#usb VENDORID PRODUCTID
+
+# NOTE: if you have to add your device here- please send the id and model
+# to the author via email, so it can be included in next version. kitno455 at
+# gmail dot com - with Fujitsu in the subject line
+
+# DR-9080C
+usb 0x04a9 0x1603
+
+# DR-7080C
+usb 0x04a9 0x1604
+
+# DR-5010C
+usb 0x04a9 0x1606
+
+# DR-6080C
+usb 0x04a9 0x1607
+
+# DR-2580C
+usb 0x04a9 0x1608
+
+# DR-3080CII
+usb 0x04a9 0x1609
+
+# DR-7580
+usb 0x04a9 0x160b
+
+# DR-4010C
+usb 0x04a9 0x1614
+
+# DR-X10C
+usb 0x04a9 0x1618

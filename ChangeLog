@@ -1,3 +1,12 @@
+2008-11-09  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h, doc/sane-canon_dr.man,
+	  backend/canon_dr.conf.in, doc/descriptions/canon_dr.desc:
+	- New Canon DR-series backend v3
+	- support all modes and resolutions of DR-9080C
+	- advanced options (MF detection, compression) not yet supported
+	- other larger models believed similar, smaller ones unknown
+	* doc/descriptions/unsupported.desc: remove Canon DR-series machines
+
 2008-11-07  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c: backend v84
 	- round lines down to even number to get even # of total bytes

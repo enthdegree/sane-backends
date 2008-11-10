@@ -20,6 +20,7 @@ Backends:
  canon:         Helmut Koeberle, Manuel Panea, and Markus Mertinat
                 Mitsuru Okaniwa, Ulrich Deiters (*)
  canon630u:     Nathan Rutman (*)
+ canon_dr:      m. allan noah (*)
  canon_pp:      Matthew Duggan (*), Simon Krix
  coolscan:      Didier Carlier, Andreas Rick
  cardscan:      m. allan noah (*)
@@ -114,7 +115,7 @@ Sanei internal code:
   Adrian Perez Jorge, Andreas Beck, Andreas Czechanowski, Christian Bucher,
   David Mosberger-Tang, Frank Zago (*), Henning Geinitz (*),
   Jeff Freedman, Jochen Eisinger (*), Marcio Teixeira, Yuri Dario,
-  Gerhard Jaeger (*)
+  Gerhard Jaeger (*), m. allan noah (*)
 
 Miscellaneous coding:
 

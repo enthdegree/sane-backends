@@ -1,0 +1,156 @@
+.TH sane\-canon_dr 5 "09 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-canon_dr
+
+.SH NAME
+sane\-canon_dr \- SANE backend for Canon DR-series scanners
+
+.SH DESCRIPTION
+The 
+.B sane\-canon_dr
+library implements a SANE (Scanner Access Now Easy) backend which
+provides access to some Canon DR-series scanners.
+
+This document describes backend version 3, slated to ship with SANE 1.1.0.
+
+.SH SUPPORTED HARDWARE
+This version has only been tested with the DR\-9080C and DR\-7580C. Please see 
+http://www.sane\-project.org/sane\-supported\-devices.html for a more recent 
+list.
+
+This backend may support other Canon scanners. The best
+way to determine level of support is to test the scanner directly,
+or to collect a trace of the windows driver in action.
+Please contact the author for help or with test results.
+
+.SH OPTIONS
+Effort has been made to expose most hardware options, including:
+.PP
+source s 
+.RS
+Selects the source for the scan. Options
+may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
+.RE
+.PP
+mode m 
+.RS
+Selects the mode for the scan. Options
+may include "Lineart", "Halftone", "Gray", and "Color".
+.RE
+.PP
+resolution, y\-resolution
+.RS
+Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, 
+though this behavior is overridden by some frontends.
+.RE
+.PP
+tl\-x, tl\-y, br\-x, br\-y
+.RS
+Sets scan area upper left and lower right coordinates. These are renamed 
+t, l, x, y by some frontends.
+.RE
+.PP
+page\-width, page\-height
+.RS
+Sets paper size. Used by scanner to determine centering of scan
+coordinates when using ADF and to detect double feed errors.
+.RE
+.PP
+Other options will be available based on the capabilities of the scanner:
+machines with IPC or DTC will have additional enhancement options, those
+with CMP will have compression options, those with a printer will have a
+group of endorser options.
+
+Use 'scanimage \-\-help' to get a list, but be aware that some options may 
+be settable only when another option has been set, and that advanced options 
+may be hidden by some frontend programs.
+.PP
+.SH CONFIGURATION FILE
+The configuration file "canon_dr.conf" is used to tell the backend how to look
+for scanners, and provide options controlling the operation of the backend.
+This file is read each time the frontend asks the backend for a list 
+of scanners, generally only when the frontend starts. If the configuration
+file is missing, the backend will use a set of compiled defaults, which
+are identical to the default configuration file shipped with SANE.
+.PP
+Scanners can be specified in the configuration file in 4 ways:
+.PP
+"scsi CANON DR"
+.RS
+Requests backend to search all scsi busses in the system for a device 
+which reports itself to be a scanner made by 'CANON', with a model name
+starting with 'DR'. 
+.RE
+.PP
+"scsi /dev/sg0" (or other scsi device file)
+.RS
+Requests backend to open the named scsi device. Only useful if you have
+multiple compatible scanners connected to your system, and need to
+specify one. Probably should not be used with the other "scsi" line above.
+.RE
+.PP
+"usb 0x04a9 0x1603" (or other vendor/product ids)
+.RS
+Requests backend to search all usb busses in the system for a device 
+which uses that vendor and product id. The device will then be queried
+to determine if it is a Canon scanner.
+.RE
+.PP
+"usb /dev/usb/scanner0" (or other device file)
+.RS
+Some systems use a kernel driver to access usb scanners. This method is untested.
+.RE
+.PP
+The only configuration option supported is "buffer\-size=xxx", allowing you
+to set the number of bytes in the data buffer to something other than the 
+compiled\-in default, 65536 (64K). Some users report that their scanner will
+"hang" mid\-page, or fail to transmit the image if the buffer is not large
+enough.
+.PP
+Note: This option may appear multiple times in the configuration file. It only
+applies to scanners discovered by 'scsi/usb' lines that follow this option.
+.PP
+Note: The backend does not place an upper bound on this value, as some users
+required it to be quite large. Values above the default are not recommended,
+and may crash your OS or lockup your scsi card driver. You have been
+warned.
+.PP
+
+.SH ENVIRONMENT
+The backend uses a single environment variable, SANE_DEBUG_CANON_DR, which
+enables debugging output to stderr. Valid values are:
+.PP
+.RS
+5  Errors
+.br
+10 Function trace
+.br
+15 Function detail
+.br
+20 Option commands
+.br
+25 SCSI/USB trace
+.br
+30 SCSI/USB detail
+.br
+35 Useless noise
+.RE
+
+.SH KNOWN ISSUES
+This backend was entirely reverse engineered from usb traces of the proprietary 
+driver. Various advanced features of the machines may not be enabled. No small 
+machines or flatbed models have been tested. Their protocol is unknown.
+
+.SH CREDITS
+  
+The various authors of the sane\-fujitsu backend provided useful code
+Corcaribe Tecnología C.A. www.cc.com.ve provided significant funding
+EvriChart, Inc. www.evrichart.com provided funding and equipment
+
+.SH "SEE ALSO"
+sane(7),
+sane\-scsi(5),
+sane\-usb(5),
+
+.SH AUTHOR
+m. allan noah: <kitno455 a t gmail d o t com>
+

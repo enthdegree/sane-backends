@@ -98,6 +98,7 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
   bh.c bh.conf.in bh.h \
   canon.c canon.conf.in canon.h canon-sane.c canon-scsi.c \
   canon630u.c canon630u-common.c canon630u.conf.in \
+  canon_dr.c canon_dr.conf.in canon_dr.h canon_dr-cmd.h \
   canon_pp.conf.in canon_pp.h canon_pp.c canon_pp-dev.c \
   canon_pp-dev.h canon_pp-io.c canon_pp-io.h \
   cardscan.c cardscan.conf.in cardscan.h \
@@ -390,6 +391,10 @@ libsane-canon.la: ../sanei/sanei_constrain_value.lo
 libsane-canon.la: ../sanei/sanei_scsi.lo
 libsane-canon630u.la: ../sanei/sanei_constrain_value.lo
 libsane-canon630u.la: ../sanei/sanei_usb.lo
+libsane-canon_dr.la: ../sanei/sanei_config2.lo
+libsane-canon_dr.la: ../sanei/sanei_constrain_value.lo
+libsane-canon_dr.la: ../sanei/sanei_scsi.lo
+libsane-canon_dr.la: ../sanei/sanei_usb.lo
 libsane-canon_pp.la: $(addsuffix .lo,$(EXTRA_canon_pp))
 libsane-cardscan.la: ../sanei/sanei_constrain_value.lo
 libsane-cardscan.la: ../sanei/sanei_usb.lo

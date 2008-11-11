@@ -1,3 +1,7 @@
+2008-11-11  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.c: backend v4
+	- eject document when sane_read() returns EOF
+
 2008-11-09  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h, doc/sane-canon_dr.man,
 	  backend/canon_dr.conf.in, doc/descriptions/canon_dr.desc:

@@ -70,6 +70,8 @@
          - back window uses id 1
          - add option and functions to read/send page counter
          - add rif option
+      v4 2008-11-11, MAN
+         - eject document when sane_read() returns EOF
 
    SANE FLOW DIAGRAM
 
@@ -130,7 +132,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 2
+#define BUILD 4
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -2623,6 +2625,16 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* sane_start required between sides */
   if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
+
+      /* eject paper at the end */
+      if(s->source == SOURCE_ADF_FRONT || s->source == SOURCE_ADF_BACK
+        || (s->source == SOURCE_ADF_DUPLEX && s->side == SIDE_BACK)
+      ){
+        if(object_position (s, SANE_FALSE)){
+          DBG (5, "sane_read: ERROR: cannot eject page\n");
+        }
+      }
+
       DBG (15, "sane_read: returning eof\n");
       return SANE_STATUS_EOF;
   }

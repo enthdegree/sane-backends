@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 8
+#define BUILD 9
 
 #define MOVE_DPI 100
 
@@ -1187,11 +1187,8 @@ sane_start (SANE_Handle handle)
       mode = 0x20;
       break;
     case SENSOR_TYPE_4400:
-      light = 0x2a;
-      mode = 0x10;
-      break;
     case SENSOR_TYPE_4400_BARE:
-      light = 0x22;
+      light = 0x2a;
       mode = 0x10;
       break;
     default:
@@ -3750,8 +3747,11 @@ init_device (struct Rts8891_Device *dev)
   DBG (DBG_io, "init_device: R44/45=0x%04x\n", val);
   if (dev->sensor == SENSOR_TYPE_4400 && val != 0x00)
     {
-      dev->sensor = SENSOR_TYPE_4400_BARE;
-      DBG (DBG_info, "init_device: changing to SENSOR_TYPE_4400_BARE\n");
+      DBG (DBG_info, "init_device: SENSOR_TYPE_4400 detected\n");
+    }
+  else
+    {
+      DBG (DBG_info, "init_device: SENSOR_TYPE_4400_BARE detected\n");
     }
 
   /* initial set written to scanner
@@ -5836,7 +5836,6 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  break;
 
 	case SENSOR_TYPE_4400:
-	  status1 = 0x10;
 	  light = 0x23;
 
 	  dev->regs[0x13] = 0x39;
@@ -6045,7 +6044,6 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd7] = 0x10;
 	  dev->regs[0xd8] = 0x52;
 	  dev->regs[0xe2] = 0x02;
-	  status1 = 0x10;
 	  light = 0x23;
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 3665);
 	  break;
@@ -6474,7 +6472,6 @@ write_scan_registers (struct Rts8891_Session *session)
   sanei_rts88xx_set_gain (dev->regs, dev->red_gain, dev->green_gain,
 			  dev->blue_gain);
 
-  /* TODO :do the same for shading calibration ?? */
   switch (dev->sensor)
     {
     case SENSOR_TYPE_4400:

@@ -22,9 +22,8 @@
 
 ;;;  This list of devices was compiled from the following sources:
 ;;;
-;;;  * iscan-2.12.0/NEWS
-;;;  * iscan-2.12.0/doc/sane-epkowa.man
-;;;  * iscan-2.12.0/backend/epkowa_usb.c
+;;;  * iscan-2.14.0/NEWS
+;;;  * iscan-2.14.0/backend/usb
 ;;;  * sane-backends/backend/epson_usb.c (CVS 1.18)
 ;;;  * sane-backends/doc/descriptions/epson.desc (CVS 1.26)
 ;;;  * http://www.freecolormanagement.com/sane/supported.html
@@ -39,7 +38,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "2.12.0"
+:version "2.14.0"
 :url     "http://avasys.jp/english/linux_e/"
 
 ;:comment "Based on the epson backend of sane-backends-1.0.15."
@@ -101,6 +100,18 @@
 :status    :good
 :comment   "network interface not supported"
 
+:model     "Artisan 700"
+:interface "USB"
+:usbid     "0x04b8" "0x0846"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
+
+:model     "Artisan 800"
+:interface "USB"
+:usbid     "0x04b8" "0x0844"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
 :model     "CC-500L"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x010d"
@@ -130,6 +141,24 @@
 :usbid     "0x04b8" "0x0108"
 :status    :unsupported
 :comment   "all-in-one"
+
+:model     "EP-801A"
+:interface "USB"
+:usbid     "0x04b8" "0x0846"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "EP-901A"
+:interface "USB"
+:usbid     "0x04b8" "0x0844"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "EP-901F"
+:interface "USB"
+:usbid     "0x04b8" "0x0844"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
 
 :model     "ES-300C"
 :interface "SCSI parallel"
@@ -189,7 +218,7 @@
 :interface "SCSI USB"
 :usbid     "0x04b8" "0x0126"
 :status    :good
-:comment   "100Base-TX/10Base-T unsupported<br>IEEE1394 untested"
+:comment   "network interface unsupported<br>IEEE1394 untested"
 
 :model     "ES-8000"
 :interface "SCSI"
@@ -210,19 +239,19 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0129"
 :status    :good
-:comment   "100Base-TX/10Base-T unsupported<br>IEEE1394 untested"
+:comment   "network interface unsupported<br>IEEE1394 untested"
 
 :model     "ES-H300"
 :interface "USB"
 :usbid     "0x04b8" "0x012b"
 :status    :good
-:comment   "Ethernet option not supported<br>simplex ADF support only"
+:comment   "network interface not supported"
 
 :model     "ES-H7200"
 :interface "USB"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "Ethernet option not supported<br>simplex ADF support only"
+:comment   "network interface not supported"
 
 :model     "Expression 636"
 :interface "SCSI"
@@ -270,17 +299,17 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0129"
 :status    :good
-:comment   "100Base-TX/10Base-T unsupported<br>IEEE1394 untested<br>overseas version of the ES-10000G"
+:comment   "network interface not supported<br>IEEE1394 untested<br>overseas version of the ES-10000G"
 
 :model     "Expression 10000XL Graphic Arts"
 :interface "USB IEEE1394"
 :status    :untested
-:comment   "Ethernet option"
+:comment   "network interface not supported"
 
 :model     "Expression 10000XL Photo"
 :interface "USB IEEE1394"
 :status    :untested
-:comment   "Ethernet option"
+:comment   "network interface not supported"
 
 :model     "F-3200"			; product spec (JP)
 :interface "USB IEEE1394"
@@ -314,7 +343,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x012b"
 :status    :good
-:comment   "Ethernet option not supported<br>simplex ADF support only<br>overseas version of the ES-H300"
+:comment   "network interface not supported<br>overseas version of the ES-H300"
 
 :model     "GT-4000"
 :status    :untested
@@ -500,7 +529,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0138"
 :status    :good
-:comment   "Ethernet option not supported<br>simplex ADF support only<br>overseas version of the ES-H7200"
+:comment   "network interface not supported<br>overseas version of the ES-H7200"
 
 :model     "GT-30000"			; command spec
 :interface "SCSI"
@@ -598,19 +627,19 @@
 :url       "http://avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-X800"			; product spec (JP)
-:interface "USB IEEE1394"
+:interface "USB"
 :usbid     "0x04b8" "0x012a"
 :status    :complete
 :comment   "film area guide mode not supported<br>IEEE1394 untested"
 
 :model     "GT-X900"
-:interface "USB IEEE1394"
+:interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested"
 
 :model     "GT-X970"
-:interface "USB IEEE1394"
+:interface "USB"
 :usbid     "0x04b8" "0x0135"
 :status    :good
 :comment   "IEEE1394 untested"
@@ -691,6 +720,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "ME 300"
+:interface "USB"
+:usbid     "0x04b8" "0x0841"
+:status    :unsupported
+:comment   "all-in-one"
+
 :model     "PM-A700"			; product spec (JP)
 :interface "USB"
 :usbid     "0x04b8" "0x0814"
@@ -714,6 +749,12 @@
 :usbid     "0x04b8" "0x083c"
 :status    :good
 :comment   "all-in-one"
+
+:model     "PM-A840S"
+:interface "USB"
+:usbid     "0x04b8" "0x083c"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
 
 :model     "PM-A850"			; product spec (JP)
 :interface "USB"
@@ -773,7 +814,13 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0829"
 :status    :good
-:comment   "all-in-one<br>PM-A970 with network option"
+:comment   "all-in-one<br>PM-A970 with network interface"
+
+:model     "PX-501A"
+:interface "USB"
+:usbid     "0x04b8" "0x084a"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
 
 :model     "PX-A550"			; product spec (JP)
 :interface "USB"
@@ -1074,13 +1121,13 @@
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
 :model     "Perfection V700"
-:interface "USB IEEE1394"
+:interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested<br>overseas version of the GT-X900"
 
 :model     "Perfection V750"
-:interface "USB IEEE1394"
+:interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested<br>overseas version of the GT-X900"
@@ -1443,6 +1490,42 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PX-FA700"
 
+:model     "Stylus Office BX300F"
+:interface "USB"
+:usbid     "0x04b8" "0x0848"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus Office BX600FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus Office TX300F"
+:interface "USB"
+:usbid     "0x04b8" "0x0848"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus Office TX600FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
+:model     "Stylus Photo PX700W"
+:interface "USB"
+:usbid     "0x04b8" "0x0846"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
+
+:model     "Stylus Photo PX800FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0844"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
 :model     "Stylus Photo RX420"
 :interface "USB"
 :usbid     "0x04b8" "0x080f"
@@ -1575,9 +1658,27 @@
 :status    :good
 :comment   "all-in-one<br>overseas version of the PM-A900"
 
+:model     "Stylus Photo TX700W"
+:interface "USB"
+:usbid     "0x04b8" "0x0846"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
+
+:model     "Stylus NX100"
+:interface "USB"
+:usbid     "0x04b8" "0x0841"
+:status    :unsupported
+:comment   "all-in-one"
+
 :model     "Stylus NX200"
 :interface "USB"
 :usbid     "0x04b8" "0x0849"
+:status    :good
+:comment   "all-in-one"
+
+:model     "Stylus NX300"
+:interface "USB"
+:usbid     "0x04b8" "0x0848"
 :status    :good
 :comment   "all-in-one"
 
@@ -1585,6 +1686,12 @@
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
+
+:model     "Stylus SX100"
+:interface "USB"
+:usbid     "0x04b8" "0x0841"
+:status    :unsupported
 :comment   "all-in-one"
 
 :model     "Stylus SX200"
@@ -1603,13 +1710,19 @@
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
-:comment   "all-in-one"
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
 
 :model     "Stylus SX405"
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
 :comment   "all-in-one"
+
+:model     "Stylus SX600FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
 
 :model     "Stylus Scan 2000"
 :interface "USB"
@@ -1622,6 +1735,12 @@
 :usbid     "0x04b8" "0x0106"
 :status    :untested
 :comment   "scanner is apparently a GT-7000"
+
+:model     "Stylus TX100"
+:interface "USB"
+:usbid     "0x04b8" "0x0841"
+:status    :unsupported
+:comment   "all-in-one"
 
 :model     "Stylus TX200"
 :interface "USB"
@@ -1645,4 +1764,16 @@
 :interface "USB"
 :usbid     "0x04b8" "0x084a"
 :status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
+
+:model     "WorkForce 500"
+:interface "USB"
+:usbid     "0x04b8" "0x084c"
+:status    :good
 :comment   "all-in-one"
+
+:model     "WorkForce 600"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"

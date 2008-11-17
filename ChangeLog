@@ -1,3 +1,7 @@
+2008-11-17  Gerhard Jaeger <gerhard@gjaeger.de>
+	* doc/descriptions-external/epkowa.desc:
+	  iscan 2.14.0 updates on behalf of olaf.meeuwissen@avasys.jp
+
 2008-11-12  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: sensor detection fix. Lamp setting
 	  change for HP4400 sensor type 3.

@@ -989,7 +989,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 	}
 
 	/* FS I, request extended identity */
-	if (dev->extended_commands) {
+	if (dev->extended_commands && dev->cmd->request_extended_identity) {
 		unsigned char buf[80];
 
 		status = esci_request_extended_identity(s, buf);
@@ -3782,6 +3782,7 @@ e2_start_std_scan(Epson_Scanner * s)
 
 	e2_send(s, params, 2, 6 + (s->lcount * s->params.bytes_per_line),
 		&status);
+
 	return status;
 }
 

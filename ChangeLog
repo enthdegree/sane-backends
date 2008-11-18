@@ -1,3 +1,8 @@
+2008-11-18  Alessandro Zummo <a.zummo@towertech.it>
+	* backend/epson2.c: fixed bug when an extended command
+	was used with D8 level scanners. bug reported
+	by Kare Sars <kare.sars@kolumbus.fi>
+
 2008-11-17  Gerhard Jaeger <gerhard@gjaeger.de>
 	* doc/descriptions-external/epkowa.desc:
 	  iscan 2.14.0 updates on behalf of olaf.meeuwissen@avasys.jp

@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 9
+#define BUILD 10
 
 #define MOVE_DPI 100
 
@@ -1196,7 +1196,7 @@ sane_start (SANE_Handle handle)
       mode = 0x20;
       break;
     }
-  DBG (DBG_info, "sane_start: sensor=%d\n",dev->sensor);
+  DBG (DBG_info, "sane_start: sensor=%d\n", dev->sensor);
   DBG (DBG_info, "sane_start: mode=0x%02x, light=0x%02x\n", mode, light);
 
   /* step 2: dark calibration */
@@ -3098,7 +3098,8 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   /* gray level scan */
   dev->regs[LAMP_REG] = 0xad;
   sanei_rts88xx_write_reg (dev->devnum, LAMP_REG, dev->regs + LAMP_REG);
-  if (dev->sensor != SENSOR_TYPE_4400)
+  if (dev->sensor != SENSOR_TYPE_4400
+      && (dev->sensor != SENSOR_TYPE_4400_BARE))
     {
       sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x20, 0x3b);
     }
@@ -4910,22 +4911,30 @@ gain_calibration (struct Rts8891_Device *dev, int mode, int light)
     }
   if (dev->sensor == SENSOR_TYPE_4400_BARE)
     {
-      dev->regs[0x13] = 0x39;	/* 0x20 */
-      dev->regs[0x14] = 0xf0;	/* 0xf8 */
-      dev->regs[0x15] = 0x29;	/* 0x28 */
-      dev->regs[0x16] = 0x0f;	/* 0x07 */
-      dev->regs[0x17] = 0x10;	/* 0x00 */
-      dev->regs[0x23] = 0x00;	/* 0xff */
-      dev->regs[0x35] = 0x48;	/* 0x45 */
-      dev->regs[0x39] = 0x00;	/* 0x02 */
-      dev->regs[0xe2] = 0x0f;	/* 0x1f */
+      dev->regs[0x13] = 0x39;
+      dev->regs[0x14] = 0xf0;
+      dev->regs[0x15] = 0x29;
+      dev->regs[0x16] = 0x0f;
+      dev->regs[0x17] = 0x10;
+      dev->regs[0x23] = 0x00;
+      dev->regs[0x35] = 0x48;
+      dev->regs[0x39] = 0x00;
+      dev->regs[0xe2] = 0x0f;
       SET_DOUBLE (dev->regs, EXPOSURE_REG, 82);
-      dev->regs[0xe7] = 0x0e;	/* 0x75 */
-      dev->regs[0xe9] = 0x0a;	/* 0x0b */
-      dev->regs[0xea] = 0xc2;	/* 0x54 */
-      dev->regs[0xed] = 0xf6;	/* 0xb8 */
-      dev->regs[0xef] = 0x02;	/* 0x03 */
-      dev->regs[0xf0] = 0xa8;	/* 0x70 */
+      dev->regs[0xe7] = 0x0e;
+      dev->regs[0xe9] = 0x0a;
+      dev->regs[0xea] = 0xc2;
+      dev->regs[0xed] = 0xf6;
+      dev->regs[0xef] = 0x02;
+      dev->regs[0xf0] = 0xa8;
+
+      dev->regs[0x80] = 0x32;
+      dev->regs[0x82] = 0x33;
+      dev->regs[0x85] = 0x00;
+      dev->regs[0x86] = 0x06;
+      dev->regs[0x87] = 0x00;
+      dev->regs[0x88] = 0x06;
+      dev->regs[0x89] = 0x34;
     }
 
 

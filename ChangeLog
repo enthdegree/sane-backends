@@ -1,3 +1,6 @@
+2008-11-20  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c: calibration fixes for HP4400 sensor type 3.
+
 2008-11-18  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: fixed bug when an extended command
 	was used with D8 level scanners. bug reported

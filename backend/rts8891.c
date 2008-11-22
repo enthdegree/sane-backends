@@ -2757,6 +2757,7 @@ init_options (struct Rts8891_Session *session)
   session->opt[OPT_ADVANCED_GROUP].desc = "";
   session->opt[OPT_ADVANCED_GROUP].type = SANE_TYPE_GROUP;
   session->opt[OPT_ADVANCED_GROUP].cap = SANE_CAP_ADVANCED;
+  session->opt[OPT_ADVANCED_GROUP].size = 0;
   session->opt[OPT_ADVANCED_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
   /* lamp on */
@@ -6357,7 +6358,8 @@ send_calibration_data (struct Rts8891_Session *session)
     }
 
   /* signals color format from hardware */
-  format = rts8891_data_format (dev->xdpi);
+  /* XXX STEF XXX format = rts8891_data_format (dev->xdpi); */
+  format= dev->regs[0xd3];
   status = sanei_rts88xx_write_reg (dev->devnum, 0xd3, &format);
 
   /* for some reason, we have to add 6 to the size for the first write */

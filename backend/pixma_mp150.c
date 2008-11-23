@@ -308,7 +308,7 @@ is_calibrated (pixma_t * s)
   mp150_t *mp = (mp150_t *) s->subdriver;
   if (mp->generation == 3)
     {
-      return (mp->current_status[0] == 1);
+      return ((mp->current_status[0] & 0x01) == 1);
     }
   if (mp->generation == 1)
     {
@@ -833,15 +833,15 @@ wait_until_ready (pixma_t * s)
                                     : query_status (s));
   while (!is_calibrated (s))
     {
+      WAIT_INTERRUPT (1000);
       if (mp->generation == 3)
         RET_IF_ERR (query_status_3 (s));
-      WAIT_INTERRUPT (1000);
       if (--tmo == 0)
-	{
-	  PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
-	  PDBG (query_status (s));
-	  return PIXMA_ETIMEDOUT;
-	}
+        {
+          PDBG (pixma_dbg (1, "WARNING:Timed out in wait_until_ready()\n"));
+          PDBG (query_status (s));
+          return PIXMA_ETIMEDOUT;
+        }
 #if 0
       /* If we use sanei_usb_*, we sometimes lose interrupts! So poll the
        * status here. */
@@ -1314,8 +1314,7 @@ mp150_finish_scan (pixma_t * s)
       if (mp->generation == 3 && is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
         send_get_tpu_info_3 (s);
       /* FIXME: to process several pages ADF scan, must not send 
-       * abort_session and start_session between pages (last_block=0x28)
-       * if (mp->last_block != 0x28 || !is_scanning_from_adf(s)) */
+       * abort_session and start_session between pages (last_block=0x28) */
       if (mp->generation <= 2 || !is_scanning_from_adf (s) || mp->last_block == 0x38)
         {
           error = abort_session (s);  /* FIXME: it probably doesn't work in duplex mode! */

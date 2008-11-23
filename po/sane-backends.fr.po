@@ -359,7 +359,7 @@ msgstr "erreur de test du matériel"
 #: .tmp/canon.c:409
 #, no-c-format
 msgid "transparency unit lamp failure"
-msgstr "lampe de l'adapteur de transparent défectueuse"
+msgstr "lampe de l'adaptateur de transparent défectueuse"
 
 #: .tmp/canon.c:412
 #, no-c-format
@@ -379,7 +379,7 @@ msgstr "code commande invalide"
 #: .tmp/canon.c:434
 #, no-c-format
 msgid "invalid field in CDB"
-msgstr "champ du block de description de commande (CDB) invalide"
+msgstr "champ du bloc de description de commande (CDB) invalide"
 
 #: .tmp/canon.c:438
 #, no-c-format
@@ -1088,7 +1088,7 @@ msgstr "Affiche une liste réduite d'échantillonnage"
 #: .tmp/epson2.c:2186 .tmp/epson.c:3350
 #, no-c-format
 msgid "Optional equipment"
-msgstr "Equipement optionel"
+msgstr "Equipement optionnel"
 
 #: .tmp/epson2.c:2240 .tmp/epson.c:3421
 #, no-c-format
@@ -1796,7 +1796,7 @@ msgstr "Activé"
 #: .tmp/hp-option.c:3327 .tmp/hp-option.c:3340
 #, no-c-format
 msgid "Conditional"
-msgstr "Conditionel"
+msgstr "Conditionnel"
 
 #: .tmp/hp-option.c:3413
 #, no-c-format
@@ -2566,32 +2566,32 @@ msgstr "2x2 - Normal"
 #: .tmp/mustek.c:175
 #, no-c-format
 msgid "8x8 custom"
-msgstr "8x8 - Personalisé"
+msgstr "8x8 - Personnalisé"
 
 #: .tmp/mustek.c:176
 #, no-c-format
 msgid "6x6 custom"
-msgstr "6x6 - Personalisé"
+msgstr "6x6 - Personnalisé"
 
 #: .tmp/mustek.c:177
 #, no-c-format
 msgid "5x5 custom"
-msgstr "5x5 - Personalisé"
+msgstr "5x5 - Personnalisé"
 
 #: .tmp/mustek.c:177
 #, no-c-format
 msgid "4x4 custom"
-msgstr "4x4 - Personalisé"
+msgstr "4x4 - Personnalisé"
 
 #: .tmp/mustek.c:178
 #, no-c-format
 msgid "3x3 custom"
-msgstr "3x3 - Personalisé"
+msgstr "3x3 - Personnalisé"
 
 #: .tmp/mustek.c:179
 #, no-c-format
 msgid "2x2 custom"
-msgstr "2x2 - Personalisé"
+msgstr "2x2 - Personnalisé"
 
 #: .tmp/mustek.c:4231
 #, no-c-format
@@ -2671,7 +2671,7 @@ msgstr "Contraste - rouge"
 #: .tmp/mustek.c:4480
 #, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
-msgstr "Contrôle le constraste rouge de l'image à numériser."
+msgstr "Contrôle le contraste rouge de l'image à numériser."
 
 #: .tmp/mustek.c:4492
 #, no-c-format
@@ -2681,7 +2681,7 @@ msgstr "Contraste - vert"
 #: .tmp/mustek.c:4493
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
-msgstr "Contrôle le constraste vert de l'image à numériser."
+msgstr "Contrôle le contraste vert de l'image à numériser."
 
 #: .tmp/mustek.c:4505
 #, no-c-format
@@ -2691,7 +2691,7 @@ msgstr "Contraste - bleu"
 #: .tmp/mustek.c:4506
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
-msgstr "Contrôle le constraste bleu de l'image à numériser."
+msgstr "Contrôle le contraste bleu de l'image à numériser."
 
 #: .tmp/mustek_usb2.c:105
 #, no-c-format
@@ -2735,7 +2735,7 @@ msgstr ""
 #: .tmp/pixma_sane_options.c:91
 #, no-c-format
 msgid "Button-controlled scan"
-msgstr "Numérisation controllée par le bouton"
+msgstr "Numérisation contrôlée par le bouton du scanner"
 
 #: .tmp/pixma_sane_options.c:94
 #, no-c-format
@@ -2891,32 +2891,32 @@ msgstr "Décalage des bleus du frontal analogique (AFE)"
 #: .tmp/plustek.c:1048
 #, no-c-format
 msgid "Red lamp off"
-msgstr "Délai avant extionction de la lampe rouge."
+msgstr "Délai avant extinction de la lampe rouge."
 
 #: .tmp/plustek.c:1049
 #, no-c-format
 msgid "Defines red lamp off parameter"
-msgstr "Définit le délai avant extionction de la lampe rouge."
+msgstr "Définit le délai avant extinction de la lampe rouge."
 
 #: .tmp/plustek.c:1056
 #, no-c-format
 msgid "Green lamp off"
-msgstr "Délai avant extionction de la lampe verte."
+msgstr "Délai avant extinction de la lampe verte."
 
 #: .tmp/plustek.c:1057
 #, no-c-format
 msgid "Defines green lamp off parameter"
-msgstr "Définit le délai avant extionction de la lampe verte."
+msgstr "Définit le délai avant extinction de la lampe verte."
 
 #: .tmp/plustek.c:1064
 #, no-c-format
 msgid "Blue lamp off"
-msgstr "Délai avant extionction de la lampe bleue."
+msgstr "Délai avant extinction de la lampe bleue."
 
 #: .tmp/plustek.c:1065
 #, no-c-format
 msgid "Defines blue lamp off parameter"
-msgstr "Définit le délai avant extionction de la lampe bleue."
+msgstr "Définit le délai avant extinction de la lampe bleue."
 
 #: .tmp/plustek.c:1095
 #, no-c-format
@@ -3198,7 +3198,7 @@ msgstr "Echantillonnage Y"
 #: .tmp/saneopts.h:149
 #, no-c-format
 msgid "Use custom gamma table"
-msgstr "Utilise une table gamma personnalisée"
+msgstr "Utiliser une table gamma personnalisée"
 
 #: .tmp/saneopts.h:150
 #, no-c-format
@@ -3586,7 +3586,7 @@ msgstr "Contrôle la brillance de l'image à numériser."
 #: .tmp/saneopts.h:277
 #, no-c-format
 msgid "Controls the contrast of the acquired image."
-msgstr "Contrôle le constraste de l'image à numériser."
+msgstr "Contrôle le contraste de l'image à numériser."
 
 #: .tmp/saneopts.h:280
 #, no-c-format
@@ -3728,7 +3728,7 @@ msgstr "Inverse le noir et le blanc"
 #: .tmp/saneopts.h:345
 #, no-c-format
 msgid "Do a quality white-calibration"
-msgstr "Faire une qualibration de qualité pour les blancs"
+msgstr "Faire une calibration de qualité pour les blancs"
 
 #: .tmp/saneopts.h:347
 #, no-c-format
@@ -3793,22 +3793,22 @@ msgstr "Définit le temps d'exposition pour la calibration du bleu"
 #: .tmp/saneopts.h:373
 #, no-c-format
 msgid "Define exposure-time for scan"
-msgstr "Definit le temps d'exposition pour la numérisation"
+msgstr "Définit le temps d'exposition pour la numérisation"
 
 #: .tmp/saneopts.h:375
 #, no-c-format
 msgid "Define exposure-time for red scan"
-msgstr "Definit le temps d'exposition pour la numérisation du rouge"
+msgstr "Définit le temps d'exposition pour la numérisation du rouge"
 
 #: .tmp/saneopts.h:377
 #, no-c-format
 msgid "Define exposure-time for green scan"
-msgstr "Definit le temps d'exposition pour la numérisation du vert"
+msgstr "Définit le temps d'exposition pour la numérisation du vert"
 
 #: .tmp/saneopts.h:379
 #, no-c-format
 msgid "Define exposure-time for blue scan"
-msgstr "Definit le temps d'exposition pour la numérisation du bleu"
+msgstr "Définit le temps d'exposition pour la numérisation du bleu"
 
 #: .tmp/saneopts.h:381
 #, no-c-format
@@ -3818,12 +3818,12 @@ msgstr "Autorise la sélection du temps d'exposition"
 #: .tmp/saneopts.h:383
 #, no-c-format
 msgid "Define lamp density for calibration"
-msgstr "Definit la puissance de la lampe pour la calibration"
+msgstr "Définit la puissance de la lampe pour la calibration"
 
 #: .tmp/saneopts.h:385
 #, no-c-format
 msgid "Define lamp density for scan"
-msgstr "Definit la puissance de la lampe pour la numérisation"
+msgstr "Définit la puissance de la lampe pour la numérisation"
 
 #: .tmp/saneopts.h:387
 #, no-c-format
@@ -4130,7 +4130,7 @@ msgstr ""
 #: .tmp/test.c:509
 #, no-c-format
 msgid "Read delay"
-msgstr "Delai à la lecture"
+msgstr "Délai à la lecture"
 
 #: .tmp/test.c:510
 #, no-c-format
@@ -4459,28 +4459,28 @@ msgstr ""
 #: .tmp/test.c:1003
 #, no-c-format
 msgid "String test options"
-msgstr "Options test - chaines de caratères"
+msgstr "Options test - chaînes de caractères"
 
 #: .tmp/test.c:1016
 #, no-c-format
 msgid "(1/3) String"
-msgstr "(1/3) Chaine"
+msgstr "(1/3) Chaîne"
 
 #: .tmp/test.c:1017
 #, no-c-format
 msgid "(1/3) String test option without constraint."
-msgstr "(1/3) Chaine de caratèers sans contrainte."
+msgstr "(1/3) Chaîne de caractères sans contrainte."
 
 #: .tmp/test.c:1034
 #, no-c-format
 msgid "(2/3) String constraint string list"
-msgstr "(2/3) Chaine listée"
+msgstr "(2/3) Chaîne listée"
 
 #: .tmp/test.c:1035
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr ""
-"(2/3) Chaine de caratères dont les valeurs possibles sont dans une liste."
+"(2/3) Chaîne de caractères dont les valeurs possibles sont dans une liste."
 
 #: .tmp/test.c:1054
 #, no-c-format
@@ -4493,7 +4493,7 @@ msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
-"(3/3) Chaine de caratères dont les valeurs possibles sont dans une "
+"(3/3) Chaine de caractères dont les valeurs possibles sont dans une "
 "liste. Plus de choix..."
 
 #: .tmp/test.c:1075

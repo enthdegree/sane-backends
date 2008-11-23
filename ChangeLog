@@ -1,3 +1,10 @@
+2008-11-23  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_mp150.c, sane-backends/po/sane-backends.fr.po, 
+	doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	Support for MP630 in pixma backend.
+	Updated docs for MP630, and network interface to various PIXMA models in pixma.desc.
+	Fixed some typos in French translations.
+
 2008-11-20  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c: fixes 'commit scan value' for HP4400.
 

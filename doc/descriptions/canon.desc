@@ -50,5 +50,11 @@
 :comment "1 pass; 36bit film scanner"
 :status :good
 
-; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.
+:mfg "Apple"			; name a manufacturer
+:url "http://www.apple.com/"
+
+:model "Color OneScanner 600/27"	; name models for above-specified mfg.
+:interface "SCSI"
+:comment "Rebadged CanoScan 300"
+:status :good
+

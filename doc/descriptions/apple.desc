@@ -20,7 +20,7 @@
 :status :basic                  ; :alpha, :beta, :stable, :new
 
 
-:model "ColorOneScanner"
+:model "Color OneScanner"
 :interface "SCSI"
 :status :minimal                  ; :alpha, :beta, :stable, :new
 :comment "truecolor (needs much work) but it scans in non color modes."

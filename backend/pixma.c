@@ -691,11 +691,12 @@ static pixma_sane_t *reader_ss = NULL;
 static RETSIGTYPE
 reader_signal_handler (int sig)
 {
-  UNUSED (sig);
   if (reader_ss)
     {
       reader_ss->reader_stop = SANE_TRUE;
-      pixma_cancel (reader_ss->s);
+      /* reader process is ended by SIGTERM, so no cancel in this case */
+      if (sig != SIGTERM)
+        pixma_cancel (reader_ss->s);
     }
 }
 

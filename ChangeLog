@@ -1,3 +1,8 @@
+2008-11-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma.c:
+	Fixed regression bug at end of scan for all PIXMA, noticeable 
+	in multipage ADF scan.
+
 2008-11-23  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c, sane-backends/po/sane-backends.fr.po, 
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:

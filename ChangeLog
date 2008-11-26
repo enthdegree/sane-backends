@@ -1,3 +1,16 @@
+2008-11-25  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.c,
+	doc/descriptions/canon_dr.desc: backend v5
+	- remove EOF ejection code
+	- add SSM and GSM commands
+	- add dropout, doublefeed, and jpeg compression options
+	- disable adf backside
+	- fix adf duplex
+	- read two extra lines (ignore errors) at end of image
+	- only send scan command at beginning of batch
+	- fix bug in hexdump with 0 length string
+	- DR-7580 support
+
 2008-11-25  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma.c:
 	Fixed regression bug at end of scan for all PIXMA, noticeable 
@@ -7,7 +20,8 @@
 	* backend/pixma_mp150.c, sane-backends/po/sane-backends.fr.po, 
 	doc/descriptions/pixma.desc, doc/sane-pixma.man:
 	Support for MP630 in pixma backend.
-	Updated docs for MP630, and network interface to various PIXMA models in pixma.desc.
+	Updated docs for MP630, and network interface to various PIXMA models
+	in pixma.desc.
 	Fixed some typos in French translations.
 
 2008-11-20  Stéphane Voltz <stef.dev@free.fr>

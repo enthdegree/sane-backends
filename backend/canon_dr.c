@@ -72,6 +72,16 @@
          - add rif option
       v4 2008-11-11, MAN
          - eject document when sane_read() returns EOF
+      v5 2008-11-25, MAN
+         - remove EOF ejection code
+         - add SSM and GSM commands
+         - add dropout, doublefeed, and jpeg compression options
+         - disable adf backside
+         - fix adf duplex
+         - read two extra lines (ignore errors) at end of image
+         - only send scan command at beginning of batch
+	 - fix bug in hexdump with 0 length string
+         - DR-7580 support
 
    SANE FLOW DIAGRAM
 
@@ -132,7 +142,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 4
+#define BUILD 5
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -159,36 +169,21 @@ static const char string_Default[] = "Default";
 static const char string_On[] = "On";
 static const char string_Off[] = "Off";
 
-static const char string_DTC[] = "DTC";
-static const char string_SDTC[] = "SDTC";
-
 static const char string_Dither[] = "Dither";
 static const char string_Diffusion[] = "Diffusion";
 
 static const char string_Red[] = "Red";
 static const char string_Green[] = "Green";
 static const char string_Blue[] = "Blue";
+static const char string_En_Red[] = "Enhance Red";
+static const char string_En_Green[] = "Enhance Green";
+static const char string_En_Blue[] = "Enhance Blue";
+
 static const char string_White[] = "White";
 static const char string_Black[] = "Black";
 
 static const char string_None[] = "None";
 static const char string_JPEG[] = "JPEG";
-
-static const char string_Continue[] = "Continue";
-static const char string_Stop[] = "Stop";
-
-static const char string_10mm[] = "10mm";
-static const char string_15mm[] = "15mm";
-static const char string_20mm[] = "20mm";
-
-static const char string_Horizontal[] = "Horizontal";
-static const char string_HorizontalBold[] = "Horizontal bold";
-static const char string_HorizontalNarrow[] = "Horizontal narrow";
-static const char string_Vertical[] = "Vertical";
-static const char string_VerticalBold[] = "Vertical bold";
-
-static const char string_TopToBottom[] = "Top to bottom";
-static const char string_BottomToTop[] = "Bottom to top";
 
 static const char string_Front[] = "Front";
 static const char string_Back[] = "Back";
@@ -864,6 +859,13 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 0;
   s->reverse_by_mode[MODE_COLOR] = 0;
 
+  s->can_color = 1;
+  s->has_rif = 1;
+  s->has_adf = 1;
+  s->has_duplex = 1;
+  s->has_back = 0;
+  s->has_comp_JPEG = 0;
+
   /* convert to 1200dpi units */
   s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
   s->max_y = s->max_y_basic * 1200 / s->basic_y_res;
@@ -874,12 +876,12 @@ init_model (struct scanner *s)
 
   /* any settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")){
-    s->can_color = 1;
+    s->has_comp_JPEG = 1;
+  }
 
-    s->has_rif = 1;
-    s->has_adf = 1;
-    s->has_duplex = 1;
-    s->has_back = 1;
+  if (strstr (s->model_name,"DR-7580")){
+    s->can_color = 0;
+    s->has_comp_JPEG = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1512,6 +1514,166 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /* "Advanced" group ------------------------------------------------------ */
+  if(option==OPT_ADVANCED_GROUP){
+    opt->name = SANE_NAME_ADVANCED;
+    opt->title = SANE_TITLE_ADVANCED;
+    opt->desc = SANE_DESC_ADVANCED;
+    opt->type = SANE_TYPE_GROUP;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
+  /*image compression*/
+  if(option==OPT_COMPRESS){
+    i=0;
+    s->compress_list[i++]=string_None;
+
+    if(s->has_comp_JPEG){
+      s->compress_list[i++]=string_JPEG;
+    }
+
+    s->compress_list[i]=NULL;
+
+    opt->name = "compression";
+    opt->title = "Compression";
+    opt->desc = "Enable compressed data. May crash your front-end program";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->compress_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if (i > 1){
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      if (s->mode != MODE_COLOR && s->mode != MODE_GRAYSCALE){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*image compression arg*/
+  if(option==OPT_COMPRESS_ARG){
+
+    opt->name = "compression-arg";
+    opt->title = "Compression argument";
+    opt->desc = "Level of JPEG compression. 1 is small file, 100 is large file.";
+    opt->type = SANE_TYPE_INT;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_RANGE;
+    opt->constraint.range = &s->compress_arg_range;
+    s->compress_arg_range.quant=1;
+
+    if(s->has_comp_JPEG){
+      s->compress_arg_range.min=0;
+      s->compress_arg_range.max=100;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+
+      if(s->compress != COMP_JPEG){
+        opt->cap |= SANE_CAP_INACTIVE;
+      }
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed by length*/
+  if(option==OPT_DF_LENGTH){
+    opt->name = "df-length";
+    opt->title = "DF by length";
+    opt->desc = "Detect double feeds by comparing document lengths";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*double feed by thickness */
+  if(option==OPT_DF_THICKNESS){
+  
+    opt->name = "df-thickness";
+    opt->title = "DF by thickness";
+    opt->desc = "Detect double feeds using thickness sensor";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+
+    if (1){
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    }
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*dropout color front*/
+  if(option==OPT_DROPOUT_COLOR_F){
+    s->do_color_list[0] = string_None;
+    s->do_color_list[1] = string_Red;
+    s->do_color_list[2] = string_Green;
+    s->do_color_list[3] = string_Blue;
+    s->do_color_list[4] = string_En_Red;
+    s->do_color_list[5] = string_En_Green;
+    s->do_color_list[6] = string_En_Blue;
+    s->do_color_list[7] = NULL;
+  
+    opt->name = "dropout-front";
+    opt->title = "Dropout color front";
+    opt->desc = "One-pass scanners use only one color during gray or binary scanning, useful for colored paper or ink";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->do_color_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if (1){
+      opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
+      if(s->mode == MODE_COLOR)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*dropout color back*/
+  if(option==OPT_DROPOUT_COLOR_B){
+    s->do_color_list[0] = string_None;
+    s->do_color_list[1] = string_Red;
+    s->do_color_list[2] = string_Green;
+    s->do_color_list[3] = string_Blue;
+    s->do_color_list[4] = string_En_Red;
+    s->do_color_list[5] = string_En_Green;
+    s->do_color_list[6] = string_En_Blue;
+    s->do_color_list[7] = NULL;
+  
+    opt->name = "dropout-back";
+    opt->title = "Dropout color back";
+    opt->desc = "One-pass scanners use only one color during gray or binary scanning, useful for colored paper or ink";
+    opt->type = SANE_TYPE_STRING;
+    opt->constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    opt->constraint.string_list = s->do_color_list;
+    opt->size = maxStringSize (opt->constraint.string_list);
+
+    if (1){
+      opt->cap = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_ADVANCED;
+      if(s->mode == MODE_COLOR)
+        opt->cap |= SANE_CAP_INACTIVE;
+    }
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /* "Sensor" group ------------------------------------------------------ */
+  if(option==OPT_SENSOR_GROUP){
+    opt->name = SANE_NAME_SENSORS;
+    opt->title = SANE_TITLE_SENSORS;
+    opt->desc = SANE_DESC_SENSORS;
+    opt->type = SANE_TYPE_GROUP;
+    opt->constraint_type = SANE_CONSTRAINT_NONE;
+  }
+
   if(option==OPT_COUNTER){
     opt->name = "counter";
     opt->title = "Counter";
@@ -1670,6 +1832,81 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->rif;
           return SANE_STATUS_GOOD;
 
+        /* Advanced Group */
+        case OPT_COMPRESS:
+          if(s->compress == COMP_JPEG){
+            strcpy (val, string_JPEG);
+          }
+          else{
+            strcpy (val, string_None);
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_COMPRESS_ARG:
+          *val_p = s->compress_arg;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_LENGTH:
+          *val_p = s->df_length;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_THICKNESS:
+          *val_p = s->df_thickness;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DROPOUT_COLOR_F:
+          switch (s->dropout_color_f) {
+            case COLOR_NONE:
+              strcpy (val, string_None);
+              break;
+            case COLOR_RED:
+              strcpy (val, string_Red);
+              break;
+            case COLOR_GREEN:
+              strcpy (val, string_Green);
+              break;
+            case COLOR_BLUE:
+              strcpy (val, string_Blue);
+              break;
+            case COLOR_EN_RED:
+              strcpy (val, string_En_Red);
+              break;
+            case COLOR_EN_GREEN:
+              strcpy (val, string_En_Green);
+              break;
+            case COLOR_EN_BLUE:
+              strcpy (val, string_En_Blue);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_DROPOUT_COLOR_B:
+          switch (s->dropout_color_b) {
+            case COLOR_NONE:
+              strcpy (val, string_None);
+              break;
+            case COLOR_RED:
+              strcpy (val, string_Red);
+              break;
+            case COLOR_GREEN:
+              strcpy (val, string_Green);
+              break;
+            case COLOR_BLUE:
+              strcpy (val, string_Blue);
+              break;
+            case COLOR_EN_RED:
+              strcpy (val, string_En_Red);
+              break;
+            case COLOR_EN_GREEN:
+              strcpy (val, string_En_Green);
+              break;
+            case COLOR_EN_BLUE:
+              strcpy (val, string_En_Blue);
+              break;
+          }
+          return SANE_STATUS_GOOD;
+
+        /* Sensor Group */
         case OPT_COUNTER:
           return read_counter (s,val_p);
 
@@ -1730,7 +1967,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
           s->source = tmp;
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return SANE_STATUS_GOOD;
+          return ssm_duplex(s);
 
         case OPT_MODE:
           if (!strcmp (val, string_Lineart)) {
@@ -1845,17 +2082,250 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->threshold = val_c;
           return SANE_STATUS_GOOD;
 
-        /* IPC */
         case OPT_RIF:
           s->rif = val_c;
           return SANE_STATUS_GOOD;
 
+        /* Advanced Group */
+        case OPT_COMPRESS:
+          if (!strcmp (val, string_JPEG)) {
+            s->compress = COMP_JPEG;
+          }
+          else{
+            s->compress = COMP_NONE;
+          }
+          return SANE_STATUS_GOOD;
+
+        case OPT_COMPRESS_ARG:
+          s->compress_arg = val_c;
+          return SANE_STATUS_GOOD;
+
+        case OPT_DF_LENGTH:
+          s->df_length = val_c;
+          return ssm_df(s);
+
+        case OPT_DF_THICKNESS:
+          s->df_thickness = val_c;
+          return ssm_df(s);
+
+        case OPT_DROPOUT_COLOR_F:
+          if (!strcmp(val, string_None))
+            s->dropout_color_f = COLOR_NONE;
+          else if (!strcmp(val, string_Red))
+            s->dropout_color_f = COLOR_RED;
+          else if (!strcmp(val, string_Green))
+            s->dropout_color_f = COLOR_GREEN;
+          else if (!strcmp(val, string_Blue))
+            s->dropout_color_f = COLOR_BLUE;
+          else if (!strcmp(val, string_En_Red))
+            s->dropout_color_f = COLOR_EN_RED;
+          else if (!strcmp(val, string_En_Green))
+            s->dropout_color_f = COLOR_EN_GREEN;
+          else if (!strcmp(val, string_En_Blue))
+            s->dropout_color_f = COLOR_EN_BLUE;
+          return ssm_do(s);
+
+        case OPT_DROPOUT_COLOR_B:
+          if (!strcmp(val, string_None))
+            s->dropout_color_b = COLOR_NONE;
+          else if (!strcmp(val, string_Red))
+            s->dropout_color_b = COLOR_RED;
+          else if (!strcmp(val, string_Green))
+            s->dropout_color_b = COLOR_GREEN;
+          else if (!strcmp(val, string_Blue))
+            s->dropout_color_b = COLOR_BLUE;
+          else if (!strcmp(val, string_En_Red))
+            s->dropout_color_b = COLOR_EN_RED;
+          else if (!strcmp(val, string_En_Green))
+            s->dropout_color_b = COLOR_EN_GREEN;
+          else if (!strcmp(val, string_En_Blue))
+            s->dropout_color_b = COLOR_EN_BLUE;
+          return ssm_do(s);
+
+        /* Sensor Group */
         case OPT_COUNTER:
           return send_counter(s,val_c);
       }
   }                           /* else */
 
   return SANE_STATUS_INVAL;
+}
+
+static SANE_Status
+ssm_duplex (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SET_SCAN_MODE_len];
+  size_t cmdLen = SET_SCAN_MODE_len;
+
+  unsigned char out[SSM_PAY_len];
+  size_t outLen = SSM_PAY_len;
+
+  DBG (10, "ssm_duplex: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+  set_SSM_pf(cmd, 1);
+  set_SSM_pay_len(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_SSM_page_code(out, SM_pc_duplex);
+  set_SSM_page_len(out, SSM_PAGE_len);
+
+  if(s->source == SOURCE_ADF_DUPLEX){
+    set_SSM_DUP_1(out, 0x02);
+    set_SSM_DUP_2(out, 0x40);
+  }
+
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "ssm_duplex: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+ssm_df (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SET_SCAN_MODE_len];
+  size_t cmdLen = SET_SCAN_MODE_len;
+
+  unsigned char out[SSM_PAY_len];
+  size_t outLen = SSM_PAY_len;
+
+  DBG (10, "ssm_df: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+  set_SSM_pf(cmd, 1);
+  set_SSM_pay_len(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_SSM_page_code(out, SM_pc_df);
+  set_SSM_page_len(out, SSM_PAGE_len);
+
+  if(s->df_thickness || s->df_length){
+    set_SSM_DF_unk1(out, 1);
+
+    /* thickness */
+    if(s->df_thickness){
+      set_SSM_DF_thick(out, 1);
+    }
+  
+    /* length */
+    if(s->df_length){
+      set_SSM_DF_len(out, 1);
+    }
+  }
+
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "ssm_df: finish\n");
+
+  return ret;
+}
+
+static SANE_Status
+ssm_do (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  unsigned char cmd[SET_SCAN_MODE_len];
+  size_t cmdLen = SET_SCAN_MODE_len;
+
+  unsigned char out[SSM_PAY_len];
+  size_t outLen = SSM_PAY_len;
+
+  DBG (10, "ssm_do: start\n");
+
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
+  set_SSM_pf(cmd, 1);
+  set_SSM_pay_len(cmd, outLen);
+
+  memset(out,0,outLen);
+  set_SSM_page_code(out, SM_pc_dropout);
+  set_SSM_page_len(out, SSM_PAGE_len);
+
+  set_SSM_DO_unk1(out, 0x03);
+
+  switch(s->dropout_color_f){
+    case COLOR_RED:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_do(out,SSM_DO_red);
+      break;
+    case COLOR_GREEN:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_do(out,SSM_DO_green);
+      break;
+    case COLOR_BLUE:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_do(out,SSM_DO_blue);
+      break;
+    case COLOR_EN_RED:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_en(out,SSM_DO_red);
+      break;
+    case COLOR_EN_GREEN:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_en(out,SSM_DO_green);
+      break;
+    case COLOR_EN_BLUE:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_f_en(out,SSM_DO_blue);
+      break;
+  }
+
+  switch(s->dropout_color_b){
+    case COLOR_RED:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_do(out,SSM_DO_red);
+      break;
+    case COLOR_GREEN:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_do(out,SSM_DO_green);
+      break;
+    case COLOR_BLUE:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_do(out,SSM_DO_blue);
+      break;
+    case COLOR_EN_RED:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_en(out,SSM_DO_red);
+      break;
+    case COLOR_EN_GREEN:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_en(out,SSM_DO_green);
+      break;
+    case COLOR_EN_BLUE:
+      set_SSM_DO_unk2(out, 0x05);
+      set_SSM_DO_b_en(out,SSM_DO_blue);
+      break;
+  }
+
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      out, outLen,
+      NULL, NULL
+  );
+
+  DBG (10, "ssm_do: finish\n");
+
+  return ret;
 }
 
 static SANE_Status
@@ -1996,11 +2466,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
               params->format = SANE_FRAME_RGB;
               params->depth = 8;
               params->bytes_per_line = params->pixels_per_line * 3;
+              if(s->compress == COMP_JPEG){
+                params->format = SANE_FRAME_JPEG;
+              }
           }
           else if (s->mode == MODE_GRAYSCALE) {
               params->format = SANE_FRAME_GRAY;
               params->depth = 8;
               params->bytes_per_line = params->pixels_per_line;
+              if(s->compress == COMP_JPEG){
+                params->format = SANE_FRAME_JPEG;
+              }
           }
           else {
               params->format = SANE_FRAME_GRAY;
@@ -2126,6 +2602,11 @@ sane_start (SANE_Handle handle)
         return ret;
       }
       */
+
+      /* eject paper leftover*/
+      if(object_position (s, SANE_FALSE)){
+        DBG (5, "sane_read: ERROR: cannot eject page\n");
+      }
   }
   /* if already running, duplex needs to switch sides */
   else if(s->source == SOURCE_ADF_DUPLEX){
@@ -2163,23 +2644,6 @@ sane_start (SANE_Handle handle)
         s->bytes_tot[SIDE_BACK] = 0;
       }
 
-      /* first page of batch: make large buffer to hold the images, */
-      /* eject any existing paper, and set started flag */
-      if(!s->started){
-          ret = setup_buffers(s);
-          if (ret != SANE_STATUS_GOOD) {
-              DBG (5, "sane_start: ERROR: cannot load buffers\n");
-              return ret;
-          }
-    
-          ret = object_position (s, SANE_FALSE);
-          if (ret != SANE_STATUS_GOOD) {
-            DBG (5, "sane_start: ERROR: cannot eject page\n");
-          }
-
-          s->started=1;
-      }
-
       ret = object_position (s, SANE_TRUE);
       if (ret != SANE_STATUS_GOOD) {
         DBG (5, "sane_start: ERROR: cannot load page\n");
@@ -2187,12 +2651,24 @@ sane_start (SANE_Handle handle)
         return ret;
       }
 
-      ret = start_scan (s);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start_scan\n");
-        s->started=0;
-        return ret;
+      /* first page of batch: make large buffer to hold the images, */
+      /* and set started flag */
+      if(!s->started){
+          ret = setup_buffers(s);
+          if (ret != SANE_STATUS_GOOD) {
+              DBG (5, "sane_start: ERROR: cannot load buffers\n");
+              return ret;
+          }
+    
+          ret = start_scan (s);
+          if (ret != SANE_STATUS_GOOD) {
+              DBG (5, "sane_start: ERROR: cannot start_scan\n");
+              return ret;
+          }
+
+          s->started=1;
       }
+
   }
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
@@ -2333,8 +2809,13 @@ set_window (struct scanner *s)
   /*FIXME: what is this? */
   set_WD_reserved(desc1, 1);
 
-  set_WD_compress_type(desc1, 0);
+  set_WD_compress_type(desc1, COMP_NONE);
   set_WD_compress_arg(desc1, 0);
+  /* some scanners support jpeg image compression, for color/gs only */
+  if(s->params.format == SANE_FRAME_JPEG){
+      set_WD_compress_type(desc1, COMP_JPEG);
+      set_WD_compress_arg(desc1, s->compress_arg);
+  }
 
   /*build the command*/
   memset(cmd,0,cmdLen);
@@ -2625,16 +3106,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* sane_start required between sides */
   if(s->bytes_tx[s->side] == s->bytes_tot[s->side]){
-
-      /* eject paper at the end */
-      if(s->source == SOURCE_ADF_FRONT || s->source == SOURCE_ADF_BACK
-        || (s->source == SOURCE_ADF_DUPLEX && s->side == SIDE_BACK)
-      ){
-        if(object_position (s, SANE_FALSE)){
-          DBG (5, "sane_read: ERROR: cannot eject page\n");
-        }
-      }
-
       DBG (15, "sane_read: returning eof\n");
       return SANE_STATUS_EOF;
   }
@@ -2675,8 +3146,13 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
         DBG(5,"sane_read: side %d returning %d\n",s->side,ret);
         return ret;
       }
-    }
 
+      /* we have finished reading, clean up */
+      /* grab a bit more so scanner will send eof */
+      if(s->bytes_rx[s->side] == s->bytes_tot[s->side]){
+        read_from_scanner(s, s->side);
+      }
+    }
   }
 
   /* copy a block from buffer to frontend */
@@ -2705,6 +3181,7 @@ read_from_scanner(struct scanner *s, int side)
 
     int bytes = s->buffer_size;
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
+    int extra = 0;
   
     DBG (10, "read_from_scanner: start\n");
   
@@ -2716,18 +3193,16 @@ read_from_scanner(struct scanner *s, int side)
     /* all requests must end on line boundary */
     bytes -= (bytes % s->params.bytes_per_line);
 
-    /* this should never happen */
-    if(bytes < 1){
-        DBG(5, "read_from_scanner: ERROR: no bytes this pass\n");
-        ret = SANE_STATUS_INVAL;
+    /* these machines always send 1 extra line, and they need to send EOF too
+     * so we ask for two full lines extra, and throw them away */
+    if(!bytes){
+        DBG(5, "read_from_scanner: no bytes, asking for two lines\n");
+        bytes = 2 * s->params.bytes_per_line;
+	extra = 1;
     }
   
     DBG(15, "read_from_scanner: si:%d to:%d rx:%d re:%d bu:%d pa:%d\n", side,
       s->bytes_tot[side], s->bytes_rx[side], remain, s->buffer_size, bytes);
-  
-    if(ret){
-        return ret;
-    }
   
     inLen = bytes;
     in = malloc(inLen);
@@ -2739,13 +3214,6 @@ read_from_scanner(struct scanner *s, int side)
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, R_datatype_imagedata);
-  
-    if (side == SIDE_BACK) {
-        set_R_window_id (cmd, WD_wid_back);
-    }
-    else{
-        set_R_window_id (cmd, WD_wid_front);
-    }
   
     set_R_xfer_length (cmd, inLen);
   
@@ -2772,7 +3240,7 @@ read_from_scanner(struct scanner *s, int side)
         inLen = 0;
     }
   
-    if(inLen){
+    if(inLen && !extra){
         copy_buffer (s, in, inLen, side);
     }
   
@@ -3693,6 +4161,8 @@ hexdump (int level, char *comment, unsigned char *p, int l)
 
   if(DBG_LEVEL < level)
     return;
+
+  line[0] = 0;
 
   DBG (level, "%s\n", comment);
 

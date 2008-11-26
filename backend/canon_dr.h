@@ -55,6 +55,16 @@ enum scanner_Option
   OPT_THRESHOLD,
   OPT_RIF,
 
+  OPT_ADVANCED_GROUP,
+  OPT_COMPRESS,
+  OPT_COMPRESS_ARG,
+  OPT_DF_THICKNESS,
+  OPT_DF_LENGTH,
+  OPT_DROPOUT_COLOR_F,
+  OPT_DROPOUT_COLOR_B,
+
+  /*sensor group*/
+  OPT_SENSOR_GROUP,
   OPT_COUNTER,
 
   /* must come last: */
@@ -142,6 +152,7 @@ struct scanner
   int has_flatbed;
   int has_duplex;
   int has_back;         /* not all duplex scanners can do adf back side only */
+  int has_comp_JPEG;
 
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */
@@ -187,6 +198,12 @@ struct scanner
   SANE_Range contrast_range;
   SANE_Range threshold_range;
 
+  /*advanced group*/
+  SANE_String_Const compress_list[3];
+  SANE_Range compress_arg_range;
+  SANE_String_Const do_color_list[8];
+
+  /*sensor group*/
   SANE_Range counter_range;
 
   /* --------------------------------------------------------------------- */
@@ -212,6 +229,14 @@ struct scanner
   int contrast;
   int threshold;
   int rif;
+
+  /*advanced group*/
+  int compress;
+  int compress_arg;
+  int df_length;
+  int df_thickness;
+  int dropout_color_f;
+  int dropout_color_b;
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */
@@ -265,20 +290,26 @@ struct scanner
 #define SOURCE_ADF_BACK 2
 #define SOURCE_ADF_DUPLEX 3
 
+#define COMP_NONE WD_cmp_NONE
+#define COMP_JPEG WD_cmp_JPEG
+
 /* these are same as scsi data to make code easier */
 #define MODE_LINEART WD_comp_LA
 #define MODE_HALFTONE WD_comp_HT
 #define MODE_GRAYSCALE WD_comp_GS
-#define MODE_COLOR_LINEART WD_comp_CL
-#define MODE_COLOR_HALFTONE WD_comp_CH
 #define MODE_COLOR WD_comp_CG
 
-/* these are same as dropout scsi data to make code easier */
-#define COLOR_DEFAULT 0
-#define COLOR_GREEN 8
-#define COLOR_RED 9
-#define COLOR_BLUE 11
+enum {
+ COLOR_NONE = 0,
+ COLOR_RED,
+ COLOR_GREEN,
+ COLOR_BLUE,
+ COLOR_EN_RED,
+ COLOR_EN_GREEN,
+ COLOR_EN_BLUE
+};
 
+/* these are same as scsi data to make code easier */
 #define COLOR_WHITE 1
 #define COLOR_BLACK 2
 
@@ -286,11 +317,9 @@ struct scanner
 #define COLOR_INTERLACE_RGB 1
 #define COLOR_INTERLACE_BGR 2
 #define COLOR_INTERLACE_RRGGBB 3
-#define COLOR_INTERLACE_3091 4
 
-#define DUPLEX_INTERLACE_ALT 0 
-#define DUPLEX_INTERLACE_NONE 1 
-#define DUPLEX_INTERLACE_3091 2 
+#define DUPLEX_INTERLACE_NONE 0 
+#define DUPLEX_INTERLACE_ALT 1 
 
 #define CROP_RELATIVE 0 
 #define CROP_ABSOLUTE 1 
@@ -395,6 +424,10 @@ static SANE_Status do_usb_reset(struct scanner *s, int runRS);
 static SANE_Status wait_scanner (struct scanner *s);
 
 static SANE_Status object_position (struct scanner *s, int i_load);
+
+static SANE_Status ssm_duplex (struct scanner *s);
+static SANE_Status ssm_do (struct scanner *s);
+static SANE_Status ssm_df (struct scanner *s);
 
 int get_page_width (struct scanner *s);
 int get_page_height (struct scanner *s);

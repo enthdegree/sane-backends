@@ -82,14 +82,14 @@
 :model "DR-7580"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x160b"
-:status :untested
-:comment "Please test!"
+:status :good
+:comment "Jpeg output broken, simplex/duplex working, multi-feed/dropout untested, imprinter unsupported"
 
 :model "DR-9080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1603"
 :status :good
-:comment "No support for advanced options like compression, multifeed detection, etc."
+:comment "Jpeg output broken, simplex/duplex working, multi-feed/dropout untested, imprinter unsupported"
 
 :model "DR-X10C"
 :interface "USB SCSI"

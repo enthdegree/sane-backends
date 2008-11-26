@@ -280,9 +280,13 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SM_pc_adf                      0x01
 #define SM_pc_tpu                      0x02
 #define SM_pc_scan_ctl                 0x20
-#define SM_pc_unknown30                0x30
-#define SM_pc_unknown32                0x32
-#define SM_pc_unknown34                0x34
+
+#define SM_pc_df                       0x30
+#define SM_pc_duplex                   0x32
+#define SM_pc_imprinter                0x34
+#define SM_pc_dropout                  0x36
+#define SM_pc_unknown                  0x37
+
 #define SM_pc_all_pc                   0x3F
 
 /* ==================================================================== */
@@ -301,11 +305,35 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SET_SCAN_MODE_code               0xd6
 #define SET_SCAN_MODE_len                6
 
-#define set_SSM_unkown(sb, val)         sb[0x01] = val
-#define set_SSM_page_code(sb, val)      sb[0x02] = val
-#define set_SSM_len(sb, val)            sb[0x04] = val
+#define set_SSM_pf(sb, val)             setbitfield(sb + 1, 1, 4, val)
+#define set_SSM_pay_len(sb, val)        sb[0x04] = val
 
-#define SSM_PSIZE_len                   0x14
+/* the payload */
+#define SSM_PAY_len                     0x14
+#define set_SSM_page_code(sb, val)      sb[0x04] = val
+#define SSM_PAGE_len                    0x0e
+#define set_SSM_page_len(sb, val)       sb[0x05] = val
+
+/* for DF page */
+#define set_SSM_DF_unk1(sb, val)        setbitfield(sb+7, 1, 5, val)
+#define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
+#define set_SSM_DF_thick(sb, val)       setbitfield(sb+7, 1, 2, val)
+
+/* for DUPLEX page */
+#define set_SSM_DUP_1(sb, val)          sb[0x06] = val
+#define set_SSM_DUP_2(sb, val)          sb[0x0a] = val
+
+/* for DO page */
+#define SSM_DO_none                     0
+#define SSM_DO_red                      1
+#define SSM_DO_green                    2
+#define SSM_DO_blue                     3
+#define set_SSM_DO_unk1(sb, val)        sb[0x07] = val
+#define set_SSM_DO_unk2(sb, val)        sb[0x09] = val
+#define set_SSM_DO_f_do(sb, val)        sb[0x0b] = val
+#define set_SSM_DO_b_do(sb, val)        sb[0x0c] = val
+#define set_SSM_DO_f_en(sb, val)        sb[0x0d] = val
+#define set_SSM_DO_b_en(sb, val)        sb[0x0e] = val
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */
@@ -400,10 +428,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define WD_cmp_MH   1
 #define WD_cmp_MR   2
 #define WD_cmp_MMR  3
-#define WD_cmp_JBIG 0x80
-#define WD_cmp_JPG1 0x81
-#define WD_cmp_JPG2 0x82
-#define WD_cmp_JPG3 0x83
+#define WD_cmp_JPEG 0x80
 
   /* 0x21 - compression argument
    *          specify "k" parameter with MR compress,

@@ -1462,11 +1462,11 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
   test_device = 0;
   previous_device = 0;
 
-  DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n", V_MAJOR,
+  DBG (1, "sane_init: SANE test backend version %d.%d.%d from %s\n", SANE_CURRENT_MAJOR,
        V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   if (inited)
     DBG (3, "sane_init: warning: already inited\n");

@@ -5085,10 +5085,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   DBG_INIT ();
   DBG (DBG_init, "SANE Genesys backend version %d.%d build %d from %s\n",
-       V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+       SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   DBG (DBG_proc, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
 

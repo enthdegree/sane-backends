@@ -3152,11 +3152,11 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authorize)
     DBG_INIT();
     DBG(3, "sane_init called\n");
     DBG(1, "Bell+Howell SANE backend %d.%d build %d %s endian\n",
-	V_MAJOR, V_MINOR, BUILD,
+	SANE_CURRENT_MAJOR, V_MINOR, BUILD,
 	_is_host_little_endian() ? "little" : "big");
 
     if (version_code)
-	*version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+	*version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
     
     fp = sanei_config_open(BH_CONFIG_FILE);
     if (fp)

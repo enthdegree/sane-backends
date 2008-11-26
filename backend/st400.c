@@ -683,7 +683,7 @@ sane_init( SANE_Int *versionP, SANE_Auth_Callback authorize )
 	DBG(DCODE, "sane_init(%p, %p)\n", (void *) versionP, (void *) authorize);
 
 	if( versionP != NULL )
-		*versionP = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
+		*versionP = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, 0);
 
 	status = SANE_STATUS_GOOD;
 	if( (fp = sanei_config_open(ST400_CONFIG_FILE)) != NULL ) {

@@ -2525,13 +2525,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 
   DBG (DBG_sane_init, "sane_init\n");
 
-  DBG (DBG_error, "This is sane-teco2 version %d.%d-%d\n", V_MAJOR,
+  DBG (DBG_error, "This is sane-teco2 version %d.%d-%d\n", SANE_CURRENT_MAJOR,
        V_MINOR, BUILD);
   DBG (DBG_error, "(C) 2002 - 2003 by Frank Zago, update 2003 - 2008 by Gerard Klaver\n");
 
   if (version_code)
     {
-      *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+      *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
     }
 
   fp = sanei_config_open (TECO2_CONFIG_FILE);

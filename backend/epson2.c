@@ -1588,7 +1588,7 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	if (version_code != NULL)
 		*version_code =
-			SANE_VERSION_CODE(V_MAJOR, V_MINOR,
+			SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR,
 					  SANE_EPSON2_BUILD);
 
 	sanei_usb_init();

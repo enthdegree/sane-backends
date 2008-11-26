@@ -387,7 +387,7 @@ sane_init (SANE_Int * version_code,
 {
 
   if (version_code != NULL)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   DBG_INIT();
 

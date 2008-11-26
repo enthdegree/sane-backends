@@ -59,7 +59,7 @@ void
 sanei_rts88xx_lib_init (void)
 {
   DBG_INIT ();
-  DBG (DBG_info, "RTS88XX library, version %d.%d-%d\n", V_MAJOR, V_MINOR,
+  DBG (DBG_info, "RTS88XX library, version %d.%d-%d\n", SANE_CURRENT_MAJOR, V_MINOR,
        RTS88XX_LIB_BUILD);
 }
 

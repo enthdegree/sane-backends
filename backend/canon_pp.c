@@ -155,7 +155,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 #endif
 
 	if(vc)
-		*vc = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+		*vc = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
 
 	DBG(2,"sane_init: >> ieee1284_find_ports\n");
 	/* Find lp ports */

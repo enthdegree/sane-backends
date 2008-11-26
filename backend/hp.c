@@ -49,7 +49,13 @@ static char *hp_backend_revision = "$Revision$";
 
    V 1.06:
    $Log$
-   Revision 1.21  2004/10/04 18:09:05  kig-guest
+   Revision 1.22  2008/11/26 21:21:25  kitno-guest
+   * backend/*.[ch]: nearly every backend used V_MAJOR
+   instead of SANE_CURRENT_MAJOR in sane_init()
+   * backend/snapscan.c: remove EXPECTED_VERSION check
+   since new SANE standard is forward compatible
+
+   Revision 1.21  2004-10-04 18:09:05  kig-guest
    Rename global function hp_init_openfd to sanei_hp_init_openfd
 
    Revision 1.20  2004/03/27 13:52:39  kig-guest
@@ -816,7 +822,7 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback UNUSEDARG authorize)
   hp_destroy();
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, VERSIO);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, VERSIO);
 
   status = hp_init();
   DBG(3, "sane_init will finish with %s\n", sane_strstatus (status));

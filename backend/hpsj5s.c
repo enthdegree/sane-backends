@@ -169,11 +169,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (2, "sane_init: version_code %s 0, authorize %s 0\n",
        version_code == 0 ? "=" : "!=", authorize == 0 ? "=" : "!=");
   DBG (1, "sane_init: SANE hpsj5s backend version %d.%d.%d\n",
-       V_MAJOR, V_MINOR, BUILD);
+       SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   /*Inform about supported version */
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   /*Open configuration file for this backend */
   config_file = sanei_config_open (HPSJ5S_CONFIG_FILE);

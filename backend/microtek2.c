@@ -455,7 +455,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
            MICROTEK2_MAJOR, MICROTEK2_MINOR, MICROTEK2_BUILD);
 
     if ( version_code )
-        *version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
+        *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, 0);
 
 #ifdef HAVE_AUTHORIZATION
     auth_callback = authorize;

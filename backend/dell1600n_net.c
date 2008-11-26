@@ -88,7 +88,7 @@
 #define MAX_SCANNERS 32
 
 /* version number */
-#define DRIVER_VERSION SANE_VERSION_CODE( V_MAJOR, V_MINOR, 0 )
+#define DRIVER_VERSION SANE_VERSION_CODE( SANE_CURRENT_MAJOR, V_MINOR, 0 )
 
 /* size of buffer for socket communication */
 #define SOCK_BUF_SIZE 2048

@@ -77,7 +77,6 @@
 #define PATH_MAX        1024
 #endif
 
-#define EXPECTED_MAJOR       1
 #define MINOR_VERSION        4
 #define BUILD               53
 #define BACKEND_NAME snapscan
@@ -678,21 +677,7 @@ SANE_Status sane_init (SANE_Int *version_code,
     DBG (DL_CALL_TRACE, "%s\n", me);
     DBG (DL_VERBOSE, "%s: Snapscan backend version %d.%d.%d\n",
         me,
-        EXPECTED_MAJOR, MINOR_VERSION, BUILD);
-
-    /* version check */
-    if (SANE_CURRENT_MAJOR != EXPECTED_MAJOR)
-    {
-        DBG (DL_MAJOR_ERROR,
-             "%s: this version of the SnapScan backend is intended for use\n"
-             "with SANE major version %ld, but the major version of this SANE\n"
-             "release is %ld. Sorry, but you need a different version of\n"
-             "this backend.\n\n",
-             me,
-             (long) /*SANE_CURRENT_MAJOR */ V_MAJOR,
-             (long) EXPECTED_MAJOR);
-        return SANE_STATUS_INVAL;
-    }
+        SANE_CURRENT_MAJOR, MINOR_VERSION, BUILD);
 
     if (version_code != NULL)
     {
@@ -1934,7 +1919,13 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 
 /*
  * $Log$
- * Revision 1.72  2008/05/15 12:50:24  ellert-guest
+ * Revision 1.73  2008/11/26 21:21:29  kitno-guest
+ * * backend/*.[ch]: nearly every backend used V_MAJOR
+ * instead of SANE_CURRENT_MAJOR in sane_init()
+ * * backend/snapscan.c: remove EXPECTED_VERSION check
+ * since new SANE standard is forward compatible
+ *
+ * Revision 1.72  2008-05-15 12:50:24  ellert-guest
  * Fix for bug #306751: sanei-thread with pthreads on 64 bit
  *
  * Revision 1.71  2008-01-29 17:48:42  kitno-guest

@@ -1525,13 +1525,13 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   authorize = authorize;	/* silence gcc */
 
-  DBG (DBG_error, "This is sane-stv680 version %d.%d-%d\n", V_MAJOR,
+  DBG (DBG_error, "This is sane-stv680 version %d.%d-%d\n", SANE_CURRENT_MAJOR,
        V_MINOR, BUILD);
   DBG (DBG_error, "(C) 2004-2006 by Gerard Klaver\n");
 
   if (version_code)
     {
-      *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+      *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
     }
 
   DBG (DBG_proc, "sane_init: authorize %s null\n", authorize ? "!=" : "==");

@@ -5990,7 +5990,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
   DBG_INIT();
 
   DBG(DBG_sane_init,"sane_init\n");
-  DBG(DBG_error,"This is sane-umax version %d.%d build %d\n", V_MAJOR, V_MINOR, BUILD);
+  DBG(DBG_error,"This is sane-umax version %d.%d build %d\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 #ifdef UMAX_ENABLE_USB
   DBG(DBG_error,"compiled with USB support for Astra 2200\n");
 #else
@@ -6001,7 +6001,7 @@ SANE_Status sane_init(SANE_Int *version_code, SANE_Auth_Callback authorize)
 
   if (version_code)
   {
-    *version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, BUILD);
   }
 
   frontend_authorize_callback = authorize; /* store frontend authorize callback */

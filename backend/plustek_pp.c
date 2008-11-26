@@ -1168,7 +1168,7 @@ SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 #endif
 
 	if( version_code != NULL )
-		*version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, 0);
+		*version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, 0);
 
 	fp = sanei_config_open( PLUSTEK_CONFIG_FILE );
 

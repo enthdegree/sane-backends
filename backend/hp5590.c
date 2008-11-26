@@ -318,11 +318,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
   
   DBG_INIT();
   
-  DBG (1, "SANE backed for HP 4570/5550/5590/7650 %u.%u.%u\n", V_MAJOR, V_MINOR, BUILD);
+  DBG (1, "SANE backed for HP 4570/5550/5590/7650 %u.%u.%u\n", SANE_CURRENT_MAJOR, V_MINOR, BUILD);
   DBG (1, "(c) Ilia Sotnikov <hostcc@gmail.com>\n");
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE(V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   sanei_usb_init();
 

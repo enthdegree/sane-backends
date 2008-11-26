@@ -563,10 +563,10 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (10, "sane_init: start\n");
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   DBG (5, "sane_init: fujitsu backend %d.%d.%d, from %s\n",
-    V_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
+    SANE_CURRENT_MAJOR, V_MINOR, BUILD, PACKAGE_STRING);
 
   DBG (10, "sane_init: finish\n");
 

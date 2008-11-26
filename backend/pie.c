@@ -2939,7 +2939,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
   DBG (DBG_sane_init, "sane_init() build %d\n", BUILD);
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   fp = sanei_config_open (PIE_CONFIG_FILE);
   if (!fp)

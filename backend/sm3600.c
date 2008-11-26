@@ -392,9 +392,9 @@ sane_init (SANE_Int *version_code, SANE_Auth_Callback authCB)
   DBG(DEBUG_VERBOSE,"SM3600 init\n");
   if (version_code)
    {
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
     DBG(DEBUG_VERBOSE,"SM3600 version: %x\n",
-    	SANE_VERSION_CODE(V_MAJOR, V_MINOR, BUILD));
+    	SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR, BUILD));
    }
 
   pdevFirst=NULL;

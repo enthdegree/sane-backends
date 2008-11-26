@@ -1019,7 +1019,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   if (!version_code)
     return SANE_STATUS_INVAL;
   myversion = 100 * PIXMA_VERSION_MAJOR + PIXMA_VERSION_MINOR;
-  *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, myversion);
+  *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, myversion);
   DBG_INIT ();
   sanei_thread_init ();
   pixma_set_debug_level (DBG_LEVEL);

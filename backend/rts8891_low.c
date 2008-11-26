@@ -66,7 +66,7 @@ rts8891_low_init (void)
 {
   DBG_INIT ();
   DBG (DBG_info, "RTS8891 low-level  functions, version %d.%d-%d\n",
-       V_MAJOR, V_MINOR, RTS8891_BUILD);
+       SANE_CURRENT_MAJOR, V_MINOR, RTS8891_BUILD);
 }
 
 

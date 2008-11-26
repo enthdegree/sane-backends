@@ -45,7 +45,13 @@ static const char RCSid[] = "$Header$";
 
 /*
  * $Log$
- * Revision 1.16  2008/07/26 03:53:44  kitno-guest
+ * Revision 1.17  2008/11/26 21:21:30  kitno-guest
+ * * backend/*.[ch]: nearly every backend used V_MAJOR
+ * instead of SANE_CURRENT_MAJOR in sane_init()
+ * * backend/snapscan.c: remove EXPECTED_VERSION check
+ * since new SANE standard is forward compatible
+ *
+ * Revision 1.16  2008-07-26 03:53:44  kitno-guest
  * separate x-resolution from resolution, and update all backends that use
  * it, to prevent ui change
  *
@@ -279,7 +285,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   sanei_thread_init ();
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
   fp = sanei_config_open (SP15C_CONFIG_FILE);
   if (!fp)
     {

@@ -841,9 +841,9 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
     }
 
   if (version_code != NULL)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, UMAX_PP_BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, UMAX_PP_BUILD);
 
-  DBG (3, "init: SANE v%s, backend v%d.%d.%d-%s\n", VERSION, V_MAJOR, V_MINOR,
+  DBG (3, "init: SANE v%s, backend v%d.%d.%d-%s\n", VERSION, SANE_CURRENT_MAJOR, V_MINOR,
        UMAX_PP_BUILD, UMAX_PP_STATE);
 
   /* set up configuration options to parse */

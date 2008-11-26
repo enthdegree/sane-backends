@@ -1797,7 +1797,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* Return backend version */
   if (version_code != NULL)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
 
   return SANE_STATUS_GOOD;
 }

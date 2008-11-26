@@ -7349,14 +7349,14 @@ sane_init (SANE_Int* version_code, SANE_Auth_Callback authorize)
 #endif
   
   DBG (3, "sane_init:(Version: %i.%i Build: %i)\n",
-       V_MAJOR, V_MINOR, BACKEND_BUILD);
+       SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
   
   /* must come first */
   sanei_usb_init ();
   sanei_thread_init ();
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BACKEND_BUILD);
   
   fp = sanei_config_open (AVISION_CONFIG_FILE);
   if (fp <= (FILE*)0)

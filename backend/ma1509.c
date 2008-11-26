@@ -1109,11 +1109,11 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   debug_level = 0;
 #endif
 
-  DBG (2, "SANE ma1509 backend version %d.%d build %d from %s\n", V_MAJOR,
+  DBG (2, "SANE ma1509 backend version %d.%d build %d from %s\n", SANE_CURRENT_MAJOR,
        V_MINOR, BUILD, PACKAGE_STRING);
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BUILD);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   DBG (4, "sane_init: authorize %s null\n", authorize ? "!=" : "==");
 

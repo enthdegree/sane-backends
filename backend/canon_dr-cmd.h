@@ -282,7 +282,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SM_pc_scan_ctl                 0x20
 
 #define SM_pc_df                       0x30
-#define SM_pc_duplex                   0x32
+#define SM_pc_buffer                   0x32
 #define SM_pc_imprinter                0x34
 #define SM_pc_dropout                  0x36
 #define SM_pc_unknown                  0x37
@@ -320,8 +320,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_DF_thick(sb, val)       setbitfield(sb+7, 1, 2, val)
 
 /* for DUPLEX page */
-#define set_SSM_DUP_1(sb, val)          sb[0x06] = val
-#define set_SSM_DUP_2(sb, val)          sb[0x0a] = val
+#define set_SSM_BUFF_duplex(sb, val)    sb[0x06] = val
+#define set_SSM_BUFF_async(sb, val)     sb[0x0a] = val
 
 /* for DO page */
 #define SSM_DO_none                     0

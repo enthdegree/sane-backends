@@ -82,6 +82,14 @@
          - only send scan command at beginning of batch
 	 - fix bug in hexdump with 0 length string
          - DR-7580 support
+      v6 2008-11-29, MAN
+         - fix adf simplex
+         - rename ssm_duplex to ssm_buffer
+         - add --buffer option
+         - reduce inter-page commands when buffering is enabled
+         - improve sense_handler output
+         - enable counter option
+         - drop unused code
 
    SANE FLOW DIAGRAM
 
@@ -142,7 +150,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 5
+#define BUILD 6
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -863,6 +871,7 @@ init_model (struct scanner *s)
   s->has_rif = 1;
   s->has_adf = 1;
   s->has_duplex = 1;
+  s->has_buffer = 1;
   s->has_back = 0;
   s->has_comp_JPEG = 0;
 
@@ -877,11 +886,13 @@ init_model (struct scanner *s)
   /* any settings missing from vpd */
   if (strstr (s->model_name,"DR-9080")){
     s->has_comp_JPEG = 1;
+    s->has_counter = 1;
   }
 
   if (strstr (s->model_name,"DR-7580")){
     s->can_color = 0;
     s->has_comp_JPEG = 1;
+    s->has_counter = 1;
   }
 
   DBG (10, "init_model: finish\n");
@@ -1665,6 +1676,18 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /*buffer mode*/
+  if(option==OPT_BUFFER){
+    opt->name = "buffer";
+    opt->title = "Buffer";
+    opt->desc = "Request scanner to read pages quickly from ADF into internal memory";
+    opt->type = SANE_TYPE_BOOL;
+    if (s->has_buffer)
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /* "Sensor" group ------------------------------------------------------ */
   if(option==OPT_SENSOR_GROUP){
     opt->name = SANE_NAME_SENSORS;
@@ -1906,6 +1929,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           return SANE_STATUS_GOOD;
 
+        case OPT_BUFFER:
+          *val_p = s->buffer;
+          return SANE_STATUS_GOOD;
+
         /* Sensor Group */
         case OPT_COUNTER:
           return read_counter (s,val_p);
@@ -1967,7 +1994,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
           s->source = tmp;
           *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-          return ssm_duplex(s);
+          return ssm_buffer(s);
 
         case OPT_MODE:
           if (!strcmp (val, string_Lineart)) {
@@ -2142,6 +2169,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color_b = COLOR_EN_BLUE;
           return ssm_do(s);
 
+        case OPT_BUFFER:
+          s->buffer = val_c;
+          return ssm_buffer(s);
+
         /* Sensor Group */
         case OPT_COUNTER:
           return send_counter(s,val_c);
@@ -2152,7 +2183,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 static SANE_Status
-ssm_duplex (struct scanner *s)
+ssm_buffer (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
@@ -2162,7 +2193,7 @@ ssm_duplex (struct scanner *s)
   unsigned char out[SSM_PAY_len];
   size_t outLen = SSM_PAY_len;
 
-  DBG (10, "ssm_duplex: start\n");
+  DBG (10, "ssm_buffer: start\n");
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, SET_SCAN_MODE_code);
@@ -2170,12 +2201,14 @@ ssm_duplex (struct scanner *s)
   set_SSM_pay_len(cmd, outLen);
 
   memset(out,0,outLen);
-  set_SSM_page_code(out, SM_pc_duplex);
+  set_SSM_page_code(out, SM_pc_buffer);
   set_SSM_page_len(out, SSM_PAGE_len);
 
   if(s->source == SOURCE_ADF_DUPLEX){
-    set_SSM_DUP_1(out, 0x02);
-    set_SSM_DUP_2(out, 0x40);
+    set_SSM_BUFF_duplex(out, 0x02);
+  }
+  if(s->buffer){
+    set_SSM_BUFF_async(out, 0x40);
   }
 
   ret = do_cmd (
@@ -2185,7 +2218,7 @@ ssm_duplex (struct scanner *s)
       NULL, NULL
   );
 
-  DBG (10, "ssm_duplex: finish\n");
+  DBG (10, "ssm_buffer: finish\n");
 
   return ret;
 }
@@ -2580,6 +2613,11 @@ sane_start (SANE_Handle handle)
       }
        * */
 
+      /* eject paper leftover*/
+      if(object_position (s, SANE_FALSE)){
+        DBG (5, "sane_read: ERROR: cannot eject page\n");
+      }
+
       /* set window command */
       ret = set_window(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -2587,25 +2625,11 @@ sane_start (SANE_Handle handle)
         return ret;
       }
     
-      /* try to read actual scan size from scanner
-      ret = get_pixelsize(s);
+      /* buffer command */
+      ret = ssm_buffer(s);
       if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot get pixelsize\n");
+        DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
         return ret;
-      }
-      */
-
-      /* turn lamp on
-      ret = scanner_control(s, SC_function_lamp_on);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot start lamp\n");
-        return ret;
-      }
-      */
-
-      /* eject paper leftover*/
-      if(object_position (s, SANE_FALSE)){
-        DBG (5, "sane_read: ERROR: cannot eject page\n");
       }
   }
   /* if already running, duplex needs to switch sides */
@@ -2644,31 +2668,35 @@ sane_start (SANE_Handle handle)
         s->bytes_tot[SIDE_BACK] = 0;
       }
 
-      ret = object_position (s, SANE_TRUE);
-      if (ret != SANE_STATUS_GOOD) {
-        DBG (5, "sane_start: ERROR: cannot load page\n");
-        s->started=0;
-        return ret;
-      }
-
-      /* first page of batch: make large buffer to hold the images, */
-      /* and set started flag */
+      /* first page of batch: make large buffer to hold the images */
       if(!s->started){
           ret = setup_buffers(s);
           if (ret != SANE_STATUS_GOOD) {
               DBG (5, "sane_start: ERROR: cannot load buffers\n");
               return ret;
           }
+      }
     
+      /* first page of batch or user wants unbuffered scans */
+      /* send scan command */
+      if(!s->started || !s->buffer){
+
+          ret = object_position (s, SANE_TRUE);
+          if (ret != SANE_STATUS_GOOD) {
+            DBG (5, "sane_start: ERROR: cannot load page\n");
+            s->started=0;
+            return ret;
+          }
+
           ret = start_scan (s);
           if (ret != SANE_STATUS_GOOD) {
               DBG (5, "sane_start: ERROR: cannot start_scan\n");
               return ret;
           }
-
-          s->started=1;
       }
 
+      /* set started flag */
+      s->started=1;
   }
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
@@ -2842,113 +2870,6 @@ set_window (struct scanner *s)
   DBG (10, "set_window: finish\n");
 
   return ret;
-}
-
-/* update our private copy of params with actual data size scanner reports */
-static SANE_Status
-get_pixelsize(struct scanner *s)
-{
-    SANE_Status ret;
-
-    unsigned char cmd[READ_len];
-    size_t cmdLen = READ_len;
-
-    unsigned char in[R_PSIZE_len];
-    size_t inLen = R_PSIZE_len;
-
-    DBG (10, "get_pixelsize: start\n");
-
-    memset(cmd,0,cmdLen);
-    set_SCSI_opcode(cmd, READ_code);
-    set_R_datatype_code (cmd, R_datatype_pixelsize);
-    set_R_window_id (cmd, WD_wid_front);
-    set_R_xfer_length (cmd, inLen);
-  
-    ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      in, &inLen
-    );
-    if (ret == SANE_STATUS_GOOD){
-
-      s->params.pixels_per_line = get_PSIZE_num_x(in);
-      s->params.lines = get_PSIZE_num_y(in);
-  
-      /* bytes per line differs by mode */
-      if (s->mode == MODE_COLOR) {
-        s->params.bytes_per_line = s->params.pixels_per_line * 3;
-      }
-      else if (s->mode == MODE_GRAYSCALE) {
-        s->params.bytes_per_line = s->params.pixels_per_line;
-      }
-      else {
-        s->params.bytes_per_line = s->params.pixels_per_line / 8;
-      }
-  
-      DBG (15, "get_pixelsize: scan_x=%d, Bpl=%d, scan_y=%d\n", 
-        s->params.pixels_per_line, s->params.bytes_per_line, s->params.lines );
-        
-    }
-
-#if 0
-    /* if READ pixelsize fails, we attempt to guess */
-    else {
-        int dir = 1;
-
-        /* adjust x data in a loop */
-        while(1){
-
-            /* binary and jpeg must have width in multiple of 8 pixels */
-            /* plus, some larger scanners require even bytes per line */
-            /* so change the scan width and try again */
-            if(
-              ((params->depth == 1 || params->format == SANE_FRAME_JPEG)
-                && params->pixels_per_line % 8)
-              || (s->even_scan_line && params->bytes_per_line % 8)
-            ){
-                /* dont round up larger than current max width */
-                if(s->br_x >= pw){
-                    dir = -1;
-                }
-                s->br_x += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tlx=%d, brx=%d, pixx=%d\n",
-	  s->tl_x, s->br_x, (s->resolution_x * (s->br_x - s->tl_x) / 1200));
-
-        dir = 1;
-
-        /* adjust y data in a loop */
-        while(1){
-
-            /* jpeg must have length in multiple of 8 pixels */
-            /* so change the user's scan length and try again */
-            if( params->format == SANE_FRAME_JPEG && params->lines % 8 ){
-
-                /* dont round up larger than current max length */
-                if(s->br_y >= ph){
-                    dir = -1;
-                }
-                s->br_y += dir;
-            }
-            else{
-                break;
-            }
-        }
-
-        DBG(15,"sane_get_parameters: adj: tly=%d, bry=%d, pixy=%d\n",
-	  s->tl_y, s->br_y, (s->resolution_y * (s->br_y - s->tl_y) / 1200));
-    }
-#endif
-
-    DBG (10, "get_pixelsize: finish\n");
-
-    return ret;
 }
 
 /*
@@ -3505,7 +3426,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         DBG  (5, "No sense: unknown ascq\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if (eom == 1 && ili == 1) {
+      if (ili == 1) {
         s->rs_info = get_RS_information (sensed_data);
         DBG  (5, "No sense: EOM remainder:%lu\n",(unsigned long)s->rs_info);
         return SANE_STATUS_EOF;
@@ -3648,6 +3569,10 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       if ((0x2C == asc) && (0x02 == ascq)) {
         DBG  (5, "Illegal request: wrong window combination \n");
         return SANE_STATUS_INVAL;
+      }
+      if ((0x3a == asc) && (0x00 == ascq)) {
+        DBG  (5, "Illegal request: no paper?\n");
+        return SANE_STATUS_NO_DOCS;
       }
       DBG  (5, "Illegal request: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;

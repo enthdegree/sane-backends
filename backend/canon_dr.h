@@ -62,6 +62,7 @@ enum scanner_Option
   OPT_DF_LENGTH,
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
+  OPT_BUFFER,
 
   /*sensor group*/
   OPT_SENSOR_GROUP,
@@ -153,6 +154,7 @@ struct scanner
   int has_duplex;
   int has_back;         /* not all duplex scanners can do adf back side only */
   int has_comp_JPEG;
+  int has_buffer;
 
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */
@@ -237,6 +239,7 @@ struct scanner
   int df_thickness;
   int dropout_color_f;
   int dropout_color_b;
+  int buffer;
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */
@@ -425,7 +428,7 @@ static SANE_Status wait_scanner (struct scanner *s);
 
 static SANE_Status object_position (struct scanner *s, int i_load);
 
-static SANE_Status ssm_duplex (struct scanner *s);
+static SANE_Status ssm_buffer (struct scanner *s);
 static SANE_Status ssm_do (struct scanner *s);
 static SANE_Status ssm_df (struct scanner *s);
 
@@ -433,7 +436,6 @@ int get_page_width (struct scanner *s);
 int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
-static SANE_Status get_pixelsize(struct scanner *s);
 
 static SANE_Status read_counter(struct scanner *s, SANE_Word *);
 static SANE_Status send_counter(struct scanner *s, SANE_Word);

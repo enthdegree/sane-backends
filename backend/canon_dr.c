@@ -90,6 +90,18 @@
          - improve sense_handler output
          - enable counter option
          - drop unused code
+      v7 2008-11-29, MAN
+         - jpeg support (size rounding and header overwrite)
+         - call object_position(load) between pages even if buffering is on
+         - use request sense info bytes on short scsi reads
+         - byte swap color BGR to RGB
+         - round image width down, not up
+         - round image height down to even # of lines
+         - always transfer even # of lines per block
+         - scsi and jpeg don't require reading extra lines to reach EOF
+         - rename buffer option to buffermode to avoid conflict with scanimage
+         - send ssm_do and ssm_df during sane_start
+         - improve sense_handler output
 
    SANE FLOW DIAGRAM
 
@@ -150,7 +162,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 6
+#define BUILD 7
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -954,6 +966,7 @@ init_user (struct scanner *s)
   s->br_y = s->page_height;
 
   s->threshold = 0x80;
+  s->compress_arg = 50;
 
   DBG (10, "init_user: finish\n");
 
@@ -1677,9 +1690,9 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   }
 
   /*buffer mode*/
-  if(option==OPT_BUFFER){
-    opt->name = "buffer";
-    opt->title = "Buffer";
+  if(option==OPT_BUFFERMODE){
+    opt->name = "buffermode";
+    opt->title = "Buffer mode";
     opt->desc = "Request scanner to read pages quickly from ADF into internal memory";
     opt->type = SANE_TYPE_BOOL;
     if (s->has_buffer)
@@ -1929,8 +1942,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           return SANE_STATUS_GOOD;
 
-        case OPT_BUFFER:
-          *val_p = s->buffer;
+        case OPT_BUFFERMODE:
+          *val_p = s->buffermode;
           return SANE_STATUS_GOOD;
 
         /* Sensor Group */
@@ -2169,8 +2182,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
             s->dropout_color_b = COLOR_EN_BLUE;
           return ssm_do(s);
 
-        case OPT_BUFFER:
-          s->buffer = val_c;
+        case OPT_BUFFERMODE:
+          s->buffermode = val_c;
           return ssm_buffer(s);
 
         /* Sensor Group */
@@ -2207,7 +2220,7 @@ ssm_buffer (struct scanner *s)
   if(s->source == SOURCE_ADF_DUPLEX){
     set_SSM_BUFF_duplex(out, 0x02);
   }
-  if(s->buffer){
+  if(s->buffermode){
     set_SSM_BUFF_async(out, 0x40);
   }
 
@@ -2481,52 +2494,53 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
     /* not started? get param data from user settings */
     else {
-        int offset = 0;
-
         DBG (15, "sane_get_parameters: not started, updating\n");
 
         /* this backend only sends single frame images */
         params->last_frame = 1;
 
-	while(1){
-      
-          params->pixels_per_line
-	    = s->resolution_x * (s->br_x - s->tl_x) / 1200 + offset;
+        params->pixels_per_line
+	  = s->resolution_x * (s->br_x - s->tl_x) / 1200;
   
-          params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
-      
-          if (s->mode == MODE_COLOR) {
-              params->format = SANE_FRAME_RGB;
-              params->depth = 8;
-              params->bytes_per_line = params->pixels_per_line * 3;
-              if(s->compress == COMP_JPEG){
-                params->format = SANE_FRAME_JPEG;
-              }
-          }
-          else if (s->mode == MODE_GRAYSCALE) {
-              params->format = SANE_FRAME_GRAY;
-              params->depth = 8;
-              params->bytes_per_line = params->pixels_per_line;
-              if(s->compress == COMP_JPEG){
-                params->format = SANE_FRAME_JPEG;
-              }
-          }
-          else {
-              params->format = SANE_FRAME_GRAY;
-              params->depth = 1;
-              /* round down to byte boundary */
-              params->pixels_per_line -= params->pixels_per_line % 8;
-              params->bytes_per_line = params->pixels_per_line / 8;
-          }
+        params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
 
-	  /*scanners require even bytes per line*/
-	  if(params->bytes_per_line % 2){
-	    offset++;
-	  }
-	  else{
-	    break;
-	  }
-	}
+        /* round lines down to even number */
+        params->lines -= params->lines % 2;
+      
+        if (s->mode == MODE_COLOR) {
+            params->format = SANE_FRAME_RGB;
+            params->depth = 8;
+
+            /* jpeg requires 8x8 squares */
+            if(s->compress == COMP_JPEG){
+              params->format = SANE_FRAME_JPEG;
+              params->pixels_per_line -= params->pixels_per_line % 8;
+              params->lines -= params->lines % 8;
+            }
+
+            params->bytes_per_line = params->pixels_per_line * 3;
+        }
+        else if (s->mode == MODE_GRAYSCALE) {
+            params->format = SANE_FRAME_GRAY;
+            params->depth = 8;
+
+            /* jpeg requires 8x8 squares */
+            if(s->compress == COMP_JPEG){
+              params->format = SANE_FRAME_JPEG;
+              params->pixels_per_line -= params->pixels_per_line % 8;
+              params->lines -= params->lines % 8;
+            }
+
+            params->bytes_per_line = params->pixels_per_line;
+        }
+        else {
+            params->format = SANE_FRAME_GRAY;
+            params->depth = 1;
+
+            /* round down to byte boundary */
+            params->pixels_per_line -= params->pixels_per_line % 8;
+            params->bytes_per_line = params->pixels_per_line / 8;
+        }
     }
 
     DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",
@@ -2631,6 +2645,18 @@ sane_start (SANE_Handle handle)
         DBG (5, "sane_start: ERROR: cannot ssm buffer\n");
         return ret;
       }
+
+      ret = ssm_do(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot ssm do\n");
+        return ret;
+      }
+
+      ret = ssm_df(s);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot ssm df\n");
+        return ret;
+      }
   }
   /* if already running, duplex needs to switch sides */
   else if(s->source == SOURCE_ADF_DUPLEX){
@@ -2643,6 +2669,13 @@ sane_start (SANE_Handle handle)
   /* ingest paper with adf (no-op for fb) */
   /* dont call object pos or scan on back side of duplex scan */
   if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
+
+      ret = object_position (s, SANE_TRUE);
+      if (ret != SANE_STATUS_GOOD) {
+        DBG (5, "sane_start: ERROR: cannot load page\n");
+        s->started=0;
+        return ret;
+      }
 
       s->bytes_rx[0]=0;
       s->bytes_rx[1]=0;
@@ -2679,15 +2712,7 @@ sane_start (SANE_Handle handle)
     
       /* first page of batch or user wants unbuffered scans */
       /* send scan command */
-      if(!s->started || !s->buffer){
-
-          ret = object_position (s, SANE_TRUE);
-          if (ret != SANE_STATUS_GOOD) {
-            DBG (5, "sane_start: ERROR: cannot load page\n");
-            s->started=0;
-            return ret;
-          }
-
+      if(!s->started || !s->buffermode){
           ret = start_scan (s);
           if (ret != SANE_STATUS_GOOD) {
               DBG (5, "sane_start: ERROR: cannot start_scan\n");
@@ -2698,6 +2723,10 @@ sane_start (SANE_Handle handle)
       /* set started flag */
       s->started=1;
   }
+
+  /* reset jpeg params on each page */
+  s->jpeg_stage=JPEG_STAGE_NONE;
+  s->jpeg_ff_offset=0;
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
 
@@ -3070,7 +3099,12 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
       /* we have finished reading, clean up */
       /* grab a bit more so scanner will send eof */
-      if(s->bytes_rx[s->side] == s->bytes_tot[s->side]){
+      if(s->connection == CONNECTION_USB 
+        && s->bytes_rx[s->side] == s->bytes_tot[s->side]
+        && (s->compress != COMP_JPEG
+          || s->mode == MODE_HALFTONE
+          || s->mode == MODE_LINEART)
+      ){
         read_from_scanner(s, s->side);
       }
     }
@@ -3103,6 +3137,7 @@ read_from_scanner(struct scanner *s, int side)
     int bytes = s->buffer_size;
     int remain = s->bytes_tot[side] - s->bytes_rx[side];
     int extra = 0;
+    size_t i;
   
     DBG (10, "read_from_scanner: start\n");
   
@@ -3114,6 +3149,11 @@ read_from_scanner(struct scanner *s, int side)
     /* all requests must end on line boundary */
     bytes -= (bytes % s->params.bytes_per_line);
 
+    /* some larger scanners require even bytes per block */
+    if(bytes % 2){
+       bytes -= s->params.bytes_per_line;
+    }
+  
     /* these machines always send 1 extra line, and they need to send EOF too
      * so we ask for two full lines extra, and throw them away */
     if(!bytes){
@@ -3161,6 +3201,62 @@ read_from_scanner(struct scanner *s, int side)
         inLen = 0;
     }
   
+    /* this is jpeg data, and we are near the beginning */
+    /* look for the SOF header, and fix the image size */
+    if(s->compress == COMP_JPEG
+      && (s->mode == MODE_GRAYSCALE || s->mode == MODE_COLOR)
+      && (s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d)
+    ){
+        for(i=0;i<inLen;i++){
+    
+            /* about to change stage */
+            if(s->jpeg_stage == JPEG_STAGE_NONE && in[i] == 0xff){
+                s->jpeg_ff_offset=0;
+                continue;
+            }
+    
+            s->jpeg_ff_offset++;
+
+            /* last byte was an ff, this byte is SOF */
+            if(s->jpeg_ff_offset == 1 && in[i] == 0xc0){
+                s->jpeg_stage = JPEG_STAGE_SOF;
+                continue;
+            }
+    
+            if(s->jpeg_stage == JPEG_STAGE_SOF){
+
+                /* lines in start of frame, overwrite it */
+                if(s->jpeg_ff_offset == 5){
+                    in[i] = (s->params.lines >> 8) & 0xff;
+        	    continue;
+                }
+                if(s->jpeg_ff_offset == 6){
+                    in[i] = s->params.lines & 0xff;
+        	    continue;
+                }
+        
+                /* width in start of frame, overwrite it */
+                if(s->jpeg_ff_offset == 7){
+                    in[i] = (s->params.pixels_per_line >> 8) & 0xff;
+        	    continue;
+                }
+                if(s->jpeg_ff_offset == 8){
+                    in[i] = s->params.pixels_per_line & 0xff;
+        	    continue;
+                }
+            }
+        }
+    }
+    /* non-jpeg color, swap bgr to rgb, assumes full lines */
+    else if (s->mode == MODE_COLOR){
+        unsigned char temp;
+        for (i=0; i < inLen/3; i++){
+            temp = in[i*3];
+            in[i*3] = in[i*3+2];
+            in[i*3+2] = temp;
+        }
+    }
+
     if(inLen && !extra){
         copy_buffer (s, in, inLen, side);
     }
@@ -3413,131 +3509,44 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
   DBG (5, "Sense=%#02x, ASC=%#02x, ASCQ=%#02x, EOM=%d, ILI=%d, info=%#08x\n", sense, asc, ascq, eom, ili, info);
 
   switch (sense) {
-    case 0x0:
-      if (0x80 == asc) {
-        DBG  (5, "No sense: hardware status bits?\n");
-        return SANE_STATUS_GOOD;
-      }
-      if (0x00 != asc) {
-        DBG  (5, "No sense: unknown asc\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if (0x00 != ascq) {
-        DBG  (5, "No sense: unknown ascq\n");
-        return SANE_STATUS_IO_ERROR;
-      }
+    case 0:
       if (ili == 1) {
         s->rs_info = get_RS_information (sensed_data);
         DBG  (5, "No sense: EOM remainder:%lu\n",(unsigned long)s->rs_info);
         return SANE_STATUS_EOF;
       }
-      DBG  (5, "No sense: ready\n");
+      DBG  (5, "No sense: unknown asc/ascq\n");
       return SANE_STATUS_GOOD;
 
-    case 0x2:
-      if (0x00 != asc) {
-        DBG  (5, "Not ready: unknown asc\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if (0x00 != ascq) {
-        DBG  (5, "Not ready: unknown ascq\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      DBG  (5, "Not ready: busy\n");
-      return SANE_STATUS_DEVICE_BUSY;
-      break;
+    case 1:
+      DBG  (5, "Recovered error: unknown asc/ascq\n");
+      return SANE_STATUS_GOOD;
 
-    case 0x3:
+    case 2:
+      DBG  (5, "Not ready: unknown asc/ascq\n");
+      return SANE_STATUS_DEVICE_BUSY;
+
+    case 3:
       if (asc == 0x3a && ascq == 0) {
         DBG  (5, "Medium error: hopper empty\n");
         return SANE_STATUS_NO_DOCS;
       }
-      if (0x80 != asc) {
-        DBG  (5, "Medium error: unknown asc\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if (0x01 == ascq) {
+      if (asc == 0x81 && ascq == 1) {
         DBG  (5, "Medium error: paper jam\n");
         return SANE_STATUS_JAMMED;
       }
-      if (0x02 == ascq) {
+      if (asc == 0x80 && (ascq == 0 || ascq == 1)) {
         DBG  (5, "Medium error: cover open\n");
         return SANE_STATUS_COVER_OPEN;
       }
-      if (0x03 == ascq) {
-        DBG  (5, "Medium error: hopper empty\n");
-        return SANE_STATUS_NO_DOCS;
-      }
-      if (0x04 == ascq) {
-        DBG  (5, "Medium error: unusual paper\n");
-        return SANE_STATUS_JAMMED;
-      }
-      if (0x07 == ascq) {
-        DBG  (5, "Medium error: double feed\n");
-        return SANE_STATUS_JAMMED;
-      }
-      if (0x10 == ascq) {
-        DBG  (5, "Medium error: no ink cartridge\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if (0x13 == ascq) {
-        DBG  (5, "Medium error: temporary no data\n");
-        return SANE_STATUS_DEVICE_BUSY;
-      }
-      if (0x14 == ascq) {
-        DBG  (5, "Medium error: endorser error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      DBG  (5, "Medium error: unknown ascq\n");
+      DBG  (5, "Medium error: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
-      break;
 
-    case 0x4:
-      if (0x80 != asc && 0x44 != asc && 0x47 != asc) {
-        DBG  (5, "Hardware error: unknown asc\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x44 == asc) && (0x00 == ascq)) {
-        DBG  (5, "Hardware error: EEPROM error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x01 == ascq)) {
-        DBG  (5, "Hardware error: FB motor fuse\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x02 == ascq)) {
-        DBG  (5, "Hardware error: heater fuse\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x04 == ascq)) {
-        DBG  (5, "Hardware error: ADF motor fuse\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x05 == ascq)) {
-        DBG  (5, "Hardware error: mechanical error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x06 == ascq)) {
-        DBG  (5, "Hardware error: optical error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x07 == ascq)) {
-        DBG  (5, "Hardware error: Fan error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x08 == ascq)) {
-        DBG  (5, "Hardware error: IPC option error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x10 == ascq)) {
-        DBG  (5, "Hardware error: endorser error\n");
-        return SANE_STATUS_IO_ERROR;
-      }
+    case 4:
       DBG  (5, "Hardware error: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
-      break;
 
-    case 0x5:
+    case 5:
       if ((0x00 == asc) && (0x00 == ascq)) {
         DBG  (5, "Illegal request: paper edge detected too soon\n");
         return SANE_STATUS_INVAL;
@@ -3578,7 +3587,7 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       return SANE_STATUS_IO_ERROR;
       break;
 
-    case 0x6:
+    case 6:
       if ((0x00 == asc) && (0x00 == ascq)) {
         DBG  (5, "Unit attention: device reset\n");
         return SANE_STATUS_GOOD;
@@ -3590,6 +3599,22 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       DBG  (5, "Unit attention: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
       break;
+
+    case 7:
+      DBG  (5, "Data protect: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
+
+    case 8:
+      DBG  (5, "Blank check: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
+
+    case 9:
+      DBG  (5, "Vendor defined: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
+
+    case 0xa:
+      DBG  (5, "Copy aborted: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
 
     case 0xb:
       if ((0x43 == asc) && (0x00 == ascq)) {
@@ -3623,6 +3648,18 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       DBG  (5, "Aborted command: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
       break;
+
+    case 0xc:
+      DBG  (5, "Equal: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
+
+    case 0xd:
+      DBG  (5, "Volume overflow: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
+
+    case 0xe:
+      DBG  (5, "Miscompare: unknown asc/ascq\n");
+      return SANE_STATUS_IO_ERROR;
 
     default:
       DBG (5, "Unknown Sense Code\n");
@@ -3697,8 +3734,11 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
     return ret;
   }
 
-  /* FIXME: should we look at s->rs_info here? */
   if (inBuff && inLen){
+    if(ret == SANE_STATUS_EOF){
+      DBG(25, "in: short read, remainder %d bytes\n", s->rs_info);
+      *inLen -= s->rs_info;
+    }
     hexdump(30, "in: <<", inBuff, *inLen);
     DBG(25, "in: read %d bytes\n", (int)*inLen);
   }

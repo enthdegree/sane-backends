@@ -1,4 +1,19 @@
 2008-11-29  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch]: backend v7
+	- jpeg support (size rounding and header overwrite)
+	- call object_position(load) between pages even if buffering is on
+	- use request sense info bytes on short scsi reads
+	- byte swap color BGR to RGB
+	- round image width down, not up
+	- round image height down to even # of lines
+	- always transfer even # of lines per block
+	- scsi and jpeg don't require reading extra lines to reach EOF
+	- rename buffer option to buffermode to avoid conflict with scanimage
+	- send ssm_do and ssm_df during sane_start
+	- improve sense_handler output
+	* doc/descriptions/canon_dr.desc: backend v7
+
+2008-11-29  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.c: backend v6
 	- fix adf simplex
 	- rename ssm_duplex to ssm_buffer

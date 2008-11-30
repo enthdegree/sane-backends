@@ -62,7 +62,7 @@ enum scanner_Option
   OPT_DF_LENGTH,
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
-  OPT_BUFFER,
+  OPT_BUFFERMODE,
 
   /*sensor group*/
   OPT_SENSOR_GROUP,
@@ -239,7 +239,7 @@ struct scanner
   int df_thickness;
   int dropout_color_f;
   int dropout_color_b;
-  int buffer;
+  int buffermode;
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */
@@ -261,6 +261,8 @@ struct scanner
   int reading;
   int cancelled;
   int side;
+  int jpeg_stage;
+  int jpeg_ff_offset;
 
   /* total to read/write */
   int bytes_tot[2];
@@ -295,6 +297,9 @@ struct scanner
 
 #define COMP_NONE WD_cmp_NONE
 #define COMP_JPEG WD_cmp_JPEG
+
+#define JPEG_STAGE_NONE 0
+#define JPEG_STAGE_SOF 1
 
 /* these are same as scsi data to make code easier */
 #define MODE_LINEART WD_comp_LA

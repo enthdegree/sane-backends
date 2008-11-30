@@ -1,3 +1,7 @@
+2008-11-30  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
+	MP620 supported by pixma backend confirmed, doc and man pages updated.
+
 2008-11-29  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch]: backend v7
 	- jpeg support (size rounding and header overwrite)

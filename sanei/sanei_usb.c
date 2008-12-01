@@ -572,7 +572,7 @@ sanei_usb_init (void)
 	    }
 	  found = SANE_FALSE;
           
-          if (pDevDesc->bDeviceClass = USB_CLASS_VENDOR_SPEC)
+          if (pDevDesc->bDeviceClass == USB_CLASS_VENDOR_SPEC)
            {
              found = SANE_TRUE;
            }

@@ -57,7 +57,7 @@
 #endif
 #include "rts8891_low.h"
 
-#define RTS8891_BUILD           8
+#define RTS8891_BUILD           12
 #define RTS8891_MAX_REGISTERS	244
 
 /* init rts8891 library */
@@ -301,30 +301,74 @@ rts8891_simple_scan (SANE_Int devnum, SANE_Byte * regs, int regcount,
 }
 
  /**
-  * set the data format. Is part of the commit sequence
+  * set the data format. Is part of the commit sequence. Then returned
+  * value is the value used in d3 register for a scan.
   */
 static SANE_Int
-rts8891_data_format (SANE_Int dpi)
+rts8891_data_format (SANE_Int dpi, int sensor)
 {
   SANE_Byte reg = 0x00;
 
-  switch (dpi)
+  /* it seems that lower nibble is a divisor */
+  if (sensor == SENSOR_TYPE_BARE || sensor == SENSOR_TYPE_XPA)
     {
-    case 75:
-      reg = 0x02;
-      break;
-    case 150:
-      reg = 0x0e;		/* 0x0b : gray */
-      break;
-    case 300:
-      reg = 0x17;
-      break;
-    case 600:
-      reg = 0x02;		/* 0x0e : gray */
-      break;
-    case 1200:
-      reg = 0x17;		/* 0x05 : gray */
-      break;
+      switch (dpi)
+	{
+	case 75:
+	  reg = 0x02;
+	  break;
+	case 150:
+	  if (sensor == SENSOR_TYPE_BARE)
+	    reg = 0x0e;
+	  else
+	    reg = 0x0b;
+	  break;
+	case 300:
+	  reg = 0x17;
+	  break;
+	case 600:
+	  if (sensor == SENSOR_TYPE_BARE)
+	    reg = 0x02;
+	  else
+	    reg = 0x0e;
+	  break;
+	case 1200:
+	  if (sensor == SENSOR_TYPE_BARE)
+	    reg = 0x17;
+	  else
+	    reg = 0x05;
+	  break;
+	}
+    }
+  if (sensor == SENSOR_TYPE_4400 || sensor == SENSOR_TYPE_4400_BARE)
+    {
+      switch (dpi)
+	{
+	case 75:
+	  reg = 0x02;
+	  break;
+	case 150:
+	  if (sensor == SENSOR_TYPE_4400)
+	    reg = 0x0b;
+	  else
+	    reg = 0x17;
+	  break;
+	case 300:
+	  reg = 0x17;
+	  break;
+	case 600:
+	  if (sensor == SENSOR_TYPE_4400)
+	    reg = 0x0e;
+	  else
+	    reg = 0x02;
+	  break;
+	case 1200:
+	  if (sensor == SENSOR_TYPE_4400)
+	    reg = 0x05;
+	  else
+	    reg = 0x17;
+	  break;
+	}
     }
   return reg;
 }
@@ -373,15 +417,16 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
 	      SANE_Int distance, SANE_Bool forward)
 {
   SANE_Status status = SANE_STATUS_GOOD;
-  SANE_Byte regs10,regs11;
+  SANE_Byte regs10, regs11;
 
   DBG (DBG_proc, "rts8891_move: start\n");
   DBG (DBG_io, "rts8891_move: %d lines %s, sensor=%d\n", distance,
-       forward == SANE_TRUE ? "forward" : "backward",device->sensor);
+       forward == SANE_TRUE ? "forward" : "backward", device->sensor);
 
   /* prepare scan */
   rts8891_set_default_regs (regs);
-  if (device->sensor != SENSOR_TYPE_4400 && device->sensor != SENSOR_TYPE_4400_BARE)
+  if (device->sensor != SENSOR_TYPE_4400
+      && device->sensor != SENSOR_TYPE_4400_BARE)
     {
       regs10 = 0x20;
       regs11 = 0x28;
@@ -448,7 +493,8 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
   regs[0xe9] = 0x02;
 
   /* hp4400 sensors */
-  if (device->sensor == SENSOR_TYPE_4400 || device->sensor == SENSOR_TYPE_4400_BARE)
+  if (device->sensor == SENSOR_TYPE_4400
+      || device->sensor == SENSOR_TYPE_4400_BARE)
     {
       regs[0x13] = 0x39;	/* 0x20 */
       regs[0x14] = 0xf0;	/* 0xf8 */

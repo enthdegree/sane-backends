@@ -1,3 +1,7 @@
+2008-12-03  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c backend/rts8891_low.c: possible fix for
+	  failed scan at 300 and 1200 dpi for HP4400, sensor type 2.
+
 2008-12-01  Julien Blache <jb@jblache.org>
 	* sanei/sanei_usb.c: fix assignment in if clause, reported on
 	sane-devel.

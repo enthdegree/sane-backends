@@ -118,7 +118,7 @@
 
 /* #define FAST_INIT 1 */
 
-#define BUILD 10
+#define BUILD 12
 
 #define MOVE_DPI 100
 
@@ -321,7 +321,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   DBG (DBG_proc, "sane_init: start\n");
 
   if (version_code)
-    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, 0);
+    *version_code = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
 
   /* cold-plugging case : probe for allready plugged devices */
   status = probe_rts8891_devices ();
@@ -5463,7 +5463,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
       dev->regs[0x8a] = 0x00;	/* 0x01 */
       dev->regs[0x8d] = 0x00;	/* 0x77 */
       /* c5,c6 ?? */
-      dev->regs[0xd3] = 0x02;	/* 0x0e */
+      /* dev->regs[0xd3] = 0x02;	 0x0e */
       dev->regs[0xd4] = 0x04;	/* 0x10 */
       dev->regs[0xe2] = 0x02;	/* 0x05 */
       /* dev->regs[0xe5] = 0xbb;    
@@ -5524,7 +5524,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xe8;
 	  dev->regs[0xd1] = 0xf6;
 	  dev->regs[0xd2] = 0x17;
-	  dev->regs[0xd3] = 0x0b;
+	  /* dev->regs[0xd3] = 0x0b; */
 	  dev->regs[0xd4] = 0x0d;
 	  /* dev->regs[0xe5] = 0xe4; */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 228);
@@ -5555,7 +5555,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd1] = 0xf7;
 	  dev->regs[0xd2] = 0x00;
 
-	  dev->regs[0xd3] = 0x0e;
+	  /* dev->regs[0xd3] = 0x0e; */
 	  dev->regs[0xd4] = 0x10;
 
 	  /* dev->regs[0xe5] = 0xe4; */
@@ -5592,7 +5592,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xe8;
 	  dev->regs[0xd1] = 0xf6;
 	  dev->regs[0xd2] = 0x17;
-	  dev->regs[0xd3] = 0x0b;
+	  /* dev->regs[0xd3] = 0x0b; */
 	  dev->regs[0xd4] = 0x0d;
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 457);
 	  break;
@@ -5626,7 +5626,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf7;	/* 0xea */
 	  dev->regs[0xd1] = 0xea;	/* 0xf3 */
 	  dev->regs[0xd2] = 0x0b;	/* 0x14 */
-	  dev->regs[0xd3] = 0x17;	/* 0x02 */
+	  /* dev->regs[0xd3] = 0x17;	 0x02 */
 	  dev->regs[0xd4] = 0x01;	/* 0x04 */
 	  dev->regs[0xe2] = 0x02;	/* 0x05 */
 	  /* regs[0xe5] = 0x93;   regs[0xe6] = 0x03; */
@@ -5669,7 +5669,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xef;
 	  dev->regs[0xd1] = 0xe2;
 	  dev->regs[0xd2] = 0x03;
-	  dev->regs[0xd3] = 0x17;
+	  /* dev->regs[0xd3] = 0x17; */
 	  dev->regs[0xd4] = 0x01;
 	  /* dev->regs[0xe5] = 0xc9;
 	     dev->regs[0xe6] = 0x01;     0x01c9=457 */
@@ -5706,7 +5706,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd1] = 0xea;
 	  dev->regs[0xd2] = 0x0b;
 
-	  dev->regs[0xd3] = 0x17;
+	  /* dev->regs[0xd3] = 0x17; */
 	  dev->regs[0xd4] = 0x01;
 	  /* dev->regs[0xe5] = 0xc9;
 	     dev->regs[0xe6] = 0x01;    0x1c9=457 */
@@ -5743,7 +5743,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xef;
 	  dev->regs[0xd1] = 0xe2;
 	  dev->regs[0xd2] = 0x03;
-	  dev->regs[0xd3] = 0x17;
+	  /* dev->regs[0xd3] = 0x17; */
 	  dev->regs[0xd4] = 0x01;
 	  /* 0x0393 = 915 = 2*457+1 */
 	  SET_DOUBLE (dev->regs, EXPOSURE_REG, 915);
@@ -5840,7 +5840,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  dev->regs[0xd3] = 0x0e;
+	  /* dev->regs[0xd3] = 0x0e; */
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
 	  break;
@@ -5891,7 +5891,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf4;
 	  dev->regs[0xd1] = 0xe7;
 	  dev->regs[0xd2] = 0x08;
-	  dev->regs[0xd3] = 0x0e;
+	  /*dev->regs[0xd3] = 0x0e;*/
 	  dev->regs[0xd4] = 0x10;
 	  dev->regs[0xd7] = 0x31;
 	  dev->regs[0xe2] = 0x02;
@@ -5947,7 +5947,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf7;
 	  dev->regs[0xd1] = 0xea;
 	  dev->regs[0xd2] = 0x0b;
-	  dev->regs[0xd3] = 0x17;
+	  /* dev->regs[0xd3] = 0x17; */
 	  dev->regs[0xd4] = 0xc1;
 	  dev->regs[0xd7] = 0x14;
 	  dev->regs[0xd8] = 0xa4;
@@ -6001,7 +6001,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xcd] = 0x00;
 	  dev->regs[0xd1] = 0xec;
 	  dev->regs[0xd2] = 0x0d;
-	  dev->regs[0xd3] = 0x05;
+	  /* dev->regs[0xd3] = 0x05; */
 	  dev->regs[0xd4] = 0x67;
 	  dev->regs[0xd7] = 0x10;
 	  dev->regs[0xd8] = 0x52;
@@ -6049,7 +6049,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 	  dev->regs[0xd0] = 0xf7;
 	  dev->regs[0xd1] = 0xec;
 	  dev->regs[0xd2] = 0x0d;
-	  dev->regs[0xd3] = 0x05;
+	  /* dev->regs[0xd3] = 0x05; */
 	  dev->regs[0xd4] = 0x67;
 	  dev->regs[0xd7] = 0x10;
 	  dev->regs[0xd8] = 0x52;
@@ -6075,7 +6075,7 @@ shading_calibration (struct Rts8891_Device *dev, SANE_Bool color, int mode,
 
   /* scan shading area */
   sanei_rts88xx_set_status (dev->devnum, dev->regs, status1, light);
-  format = rts8891_data_format (dev->xdpi);
+  format = rts8891_data_format (dev->xdpi, dev->sensor);
   status =
     rts8891_simple_scan (dev->devnum, dev->regs, dev->reg_count, format,
 			 size, image);
@@ -6357,9 +6357,8 @@ send_calibration_data (struct Rts8891_Session *session)
       fclose (calib);
     }
 
-  /* signals color format from hardware */
-  /* XXX STEF XXX format = rts8891_data_format (dev->xdpi); */
-  format= dev->regs[0xd3];
+  /* signals color format/divisor from hardware */
+  rts8891_data_format (dev->xdpi, dev->sensor);
   status = sanei_rts88xx_write_reg (dev->devnum, 0xd3, &format);
 
   /* for some reason, we have to add 6 to the size for the first write */
@@ -7557,6 +7556,9 @@ write_scan_registers (struct Rts8891_Session *session)
 	}
       break;
     }
+
+  /* sets divisor */
+  dev->regs[0xd3] = rts8891_data_format (dev->xdpi, dev->sensor);
 
   /* toggle front panel light to signal gray scan */
   if (session->params.format == SANE_FRAME_GRAY)

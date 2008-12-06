@@ -166,6 +166,19 @@ charTo2byte (char d[], char s[], int len)
   return copied;
 }
 
+static char *getusername(void)
+{
+  static char noname[] = "USERNAME NOT FOUND";
+  char *login;
+ 
+  if (((login = getlogin()) == NULL) &&
+      ((login = getenv("USER")) == NULL)) 
+    {
+      login = noname;
+    }
+  return login;
+}
+
 static int
 bjnp_open_tcp (int devno)
 {
@@ -697,11 +710,17 @@ bjnp_get_intr (int devno, char type, char *hostname, char *user,
 
   request.type = htons (type);
   request.unknown_2 = htonl (0);
-  request.dialogue = htons (1);
-
+  if (type < 2)
+    {
+      request.dialogue = htons (0);
+    }
+  else
+    {
+      request.dialogue = htons (device[devno].dialogue);
+    }
+  request.unknown_4 = htons (0x14);
   sprintf (details, "%s  %s", user, hostname);
   charTo2byte (request.user_details, details, sizeof (request.user_details));
-  request.unknown_4 = htons (0x14);
 
   memset (request.unknown_5, 0, sizeof (request.unknown_5));
   request.date_len = (type < 2) ? 0 : sizeof (request.ascii_date);
@@ -1036,9 +1055,6 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
   char args[256];
   struct hostent *result;
   struct in_addr *addr_list;
-#ifdef PIXMA_BJNP_STATUS
-  SANE_Byte dummy[16];
-#endif
 
   if (split_uri (devname, method, hostname, &port, args) != 0)
     {
@@ -1081,6 +1097,10 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
 
   device[*dn].open = 1;
   device[*dn].active = 0;
+#ifdef PIXMA_BJNP_STATUS
+  device[*dn].polling = 0;
+  device[*dn].dialogue = 0;
+#endif
   device[*dn].fd = -1;
   addr_list = (struct in_addr *) *result->h_addr_list;
   device[*dn].addr.sin_family = AF_INET;
@@ -1099,21 +1119,6 @@ sanei_bjnp_attach (SANE_String_Const devname, SANE_Int * dn)
   device[*dn].blocksize = 1024;
   device[*dn].short_read = 0;
 
-#ifdef PIXMA_BJNP_STATUS
-  /* establish status/read_intr dialogue */
-
-  gethostname (hostname, 32);
-  hostname[32] = '\0';
-  if ((bjnp_get_intr (*dn, 0, hostname, getlogin (), dummy,
-		      sizeof (dummy)) != sizeof (dummy))
-      || (bjnp_get_intr (*dn, 1, hostname, getlogin (), dummy,
-			 sizeof (dummy)) != sizeof (dummy)))
-    {
-      PDBG (pixma_dbg
-	    (LOG_NOTICE,
-	     "Failed to setup read_intr dialogue with device!\n"));
-    }
-#endif
   return SANE_STATUS_GOOD;
 }
 
@@ -1327,7 +1332,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
   for (i = 0; i < no_sockets; i++)
     close (socket_fd[i]);
 
-  /* add pre-configures devices */
+  /* add pre-configured devices */
 
   for (i = 0; conf_devices[i] != NULL; i++)
     {
@@ -1397,7 +1402,7 @@ sanei_bjnp_open (SANE_String_Const devname, SANE_Int * dn)
 
   sanei_bjnp_attach (devname, dn);
 
-  login = getlogin ();
+  login = getusername ();
   gethostname (hostname, 256);
   hostname[255] = '\0';
   sprintf (pid_str, "Process ID = %d", getpid ());
@@ -1432,17 +1437,15 @@ sanei_bjnp_close (SANE_Int dn)
 
 SANE_Status sanei_bjnp_activate(SANE_Int dn)
 {
-  char * login;
   char hostname[256];
   char pid_str[64];
 
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_activate (%d)\n", dn));
-  login = getlogin ();
   gethostname (hostname, 256);
   hostname[255] = '\0';
   sprintf (pid_str, "Process ID = %d", getpid ());
 
-  bjnp_send_job_details (dn, hostname, login, pid_str);
+  bjnp_send_job_details (dn, hostname, getusername(), pid_str);
 
   if (bjnp_open_tcp (dn) != 0)
     return SANE_STATUS_INVAL;
@@ -1461,6 +1464,9 @@ SANE_Status sanei_bjnp_deactivate(SANE_Int dn)
   bjnp_finish_job (dn);
   close(device[dn].fd);
   device[dn].fd = -1;
+#ifdef PIXMA_BJNP_STATUS
+  device[dn].polling = 0;
+#endif
   return SANE_STATUS_GOOD;
 }
 
@@ -1671,32 +1677,35 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
   char hostname[256];
   int result;
   int i;
-  char done;
-  struct timeb end_time;
-  struct timeb current_time;
 
   PDBG (pixma_dbg
 	(LOG_INFO, "bjnp_read_int(%d, bufferptr, %d):\n", dn, (int) *size));
 
-  /* calculate timeout time */
+  gethostname (hostname, 32);
+  hostname[32] = '\0';
 
-  ftime (&end_time);
-  if ((end_time.millitm =
-       end_time.millitm + device[dn].bjnp_timeout_msec) > 999)
-    {
-      end_time.millitm = end_time.millitm - 1000;
-      end_time.time++;
+
+  if (device[dn].polling == 0)
+    { 
+      /* establish status/read_intr dialogue */
+
+      device[dn].dialogue++; 
+
+      if ((bjnp_get_intr (dn, 0, hostname, getusername (), buffer,
+		      *size) != (ssize_t)*size)
+         || sleep(4)
+          || (bjnp_get_intr (dn, 1, hostname, getusername (), buffer,
+			 *size) != (ssize_t)*size))
+        {
+          PDBG (pixma_dbg
+	    (LOG_NOTICE,
+	     "Failed to setup read_intr dialogue with device!\n"));
+        }
+      device[dn].polling =1;
     }
-  end_time.time = end_time.time + device[dn].bjnp_timeout_sec;
 
-
-  gethostname (hostname, 30);
-  hostname[30] = '\0';
-
-  do
-    {
-      result = bjnp_get_intr (dn, 2, hostname, getlogin (), buffer, *size);
-      if (result < (int) *size)
+  result = bjnp_get_intr (dn, 2, hostname, getusername (), buffer, *size);
+    if (result < (int) *size)
 	{
 	  *size = (result > 0) ? result : 0;
 	  PDBG (pixma_dbg
@@ -1704,7 +1713,7 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 		 "Could not retrieve interrupt information from device!\n"));
 	  return SANE_STATUS_IO_ERROR;
 	}
-      for (i = 0; i < result; i++)
+    for (i = 0; i < result; i++)
 	{
 	  if (buffer[i] != '\0')
 	    {
@@ -1713,28 +1722,15 @@ sanei_bjnp_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 	      return SANE_STATUS_GOOD;
 	    }
 	}
-      /* no interrupt received, wait for a while and try again */
+      /* no interrupt received, we just sleep for the indicated mount of time
+       * and leave it to the caller to retry */
 
-      ftime (&current_time);
-      if ((end_time.time - current_time.time) > 2)
-	sleep (2);
-      else if ((end_time.time - current_time.time) > 0)
-	sleep (end_time.time - current_time.time);
-      else
-	usleep (500 * USLEEP_MS);
-
-      /* have we timed out yet? */
-      done = ((current_time.time > end_time.time) ||
-	      ((current_time.time == end_time.time)
-	       && (current_time.millitm > end_time.millitm)));
-    }
-  while (!done);
-
+     sleep(4);
+ 
   PDBG (pixma_dbg
 	(LOG_NOTICE,
-	 "sanei_bjnp_read_int timed out waiting for interrupt (%d sec)\n",
-	 device[dn].bjnp_timeout_sec));
-  /* I/O error here means that time out occured */
-  return SANE_STATUS_EOF;
+	 "sanei_bjnp_read_int: no data received\n"));
+
+  return SANE_STATUS_IO_ERROR;
 #endif
 }

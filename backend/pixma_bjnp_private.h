@@ -66,6 +66,9 @@
 #define SCAN_BUF_MAX 65536	/* size of scanner data intermediate buffer */
 #define MAX_SELECT_ATTEMPTS 5   /* max nr of retries on select (EINTR) */
 
+/* Do not yet use this, it does not work */
+#define PIXMA_BJNP_STATUS 1
+
 /* loglevel definitions */
 
 #define LOG_CRIT 0
@@ -214,5 +217,9 @@ typedef struct device_s
   int last_cmd;			/* last command sent */
   size_t blocksize;		/* size of (TCP) blocks returned by the scanner */
   char short_read;		/* last TCP read command was shorter than blocksize */
+#ifdef PIXMA_BJNP_STATUS
+  char polling;			/* status polling ongoing */
+  int dialogue;			/* polling dialogue-id */
+#endif
 } device_t;
 

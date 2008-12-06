@@ -1,4 +1,7 @@
 2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+        * replaced getlogin/getenv by getpwuid(geteuid)
+
+2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
         * backend/pixma_bjnp.c pixma_bjnp_private.h 
           On Ubuntu getlogin() returns NULL. So we noew first try getlogin()
           and if that fails, we try getenv("USER") and if that fails we use

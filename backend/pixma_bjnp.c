@@ -82,7 +82,9 @@
 #ifdef HAVE_SYS_SELSECT_H
 #include <sys/select.h>
 #endif
-
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 #include <errno.h>
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -168,15 +170,15 @@ charTo2byte (char d[], char s[], int len)
 
 static char *getusername(void)
 {
-  static char noname[] = "USERNAME NOT FOUND";
-  char *login;
+  static char noname[] = "sane_pixma";
+  struct passwd *pwdent;
  
-  if (((login = getlogin()) == NULL) &&
-      ((login = getenv("USER")) == NULL)) 
-    {
-      login = noname;
-    }
-  return login;
+#ifdef HAVE_PWD_H 
+  if (((pwdent = getpwuid(geteuid())) != NULL) &&
+      (pwdent->pw_name != NULL))
+    return pwdent->pw_name;
+#endif
+  return noname;
 }
 
 static int

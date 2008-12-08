@@ -1,3 +1,7 @@
+2008-12-08  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/avision.c: backend v289
+	- fix sending SIGTERM when reader_pid == 0
+
 2008-12-07  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v8
 	- rename read/send_counter to read/send_panel

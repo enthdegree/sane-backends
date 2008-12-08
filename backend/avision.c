@@ -134,7 +134,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 288 /* avision backend BUILD version */
+#define BACKEND_BUILD 289 /* avision backend BUILD version */
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
@@ -6082,7 +6082,7 @@ do_cancel (Avision_Scanner* s)
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
   
-  if (s->reader_pid != -1) {
+  if (s->reader_pid > 0) {
     int exit_status;
     
     /* ensure child knows it's time to stop: */

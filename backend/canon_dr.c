@@ -102,6 +102,13 @@
          - rename buffer option to buffermode to avoid conflict with scanimage
          - send ssm_do and ssm_df during sane_start
          - improve sense_handler output
+      v8 2008-12-07, MAN
+         - rename read/send_counter to read/send_panel
+         - enable control panel during init
+         - add options for all buttons
+         - call TUR twice in wait_scanner(), even if first succeeds
+         - disable rif
+         - enable brightness/contrast/threshold options
 
    SANE FLOW DIAGRAM
 
@@ -162,7 +169,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 7
+#define BUILD 8
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -544,6 +551,15 @@ attach_one (const char *device_name, int connType)
     return ret;
   }
 
+  /* enable/read the buttons */
+  ret = init_panel (s);
+  if (ret != SANE_STATUS_GOOD) {
+    disconnect_fd(s);
+    free (s);
+    DBG (5, "attach_one: model failed\n");
+    return ret;
+  }
+
   /* sets SANE option 'values' to good defaults */
   ret = init_user (s);
   if (ret != SANE_STATUS_GOOD) {
@@ -607,6 +623,7 @@ connect_fd (struct scanner *s)
   else if (s->connection == CONNECTION_USB) {
     DBG (15, "connect_fd: opening USB device\n");
     ret = sanei_usb_open (s->device_name, &(s->fd));
+    ret = sanei_usb_clear_halt(s->fd);
   }
   else {
     DBG (15, "connect_fd: opening SCSI device\n");
@@ -880,12 +897,16 @@ init_model (struct scanner *s)
   s->reverse_by_mode[MODE_COLOR] = 0;
 
   s->can_color = 1;
-  s->has_rif = 1;
+  s->has_rif = 0;
   s->has_adf = 1;
   s->has_duplex = 1;
   s->has_buffer = 1;
   s->has_back = 0;
   s->has_comp_JPEG = 0;
+
+  s->brightness_steps = 255;
+  s->contrast_steps = 255;
+  s->threshold_steps = 255;
 
   /* convert to 1200dpi units */
   s->max_x = s->max_x_basic * 1200 / s->basic_x_res;
@@ -910,6 +931,24 @@ init_model (struct scanner *s)
   DBG (10, "init_model: finish\n");
 
   return SANE_STATUS_GOOD;
+}
+
+/*
+ * This function enables the buttons and preloads the current panel values
+ */
+static SANE_Status
+init_panel (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "init_panel: start\n");
+
+  ret = read_panel(s);
+  ret = send_panel(s);
+
+  DBG (10, "init_panel: finish\n");
+
+  return ret;
 }
 
 /*
@@ -1710,6 +1749,51 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_NONE;
   }
 
+  if(option==OPT_START){
+    opt->name = "start";
+    opt->title = "Start button";
+    opt->desc = "Big green button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
+  if(option==OPT_STOP){
+    opt->name = "stop";
+    opt->title = "Stop button";
+    opt->desc = "Little orange button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
+  if(option==OPT_NEWFILE){
+    opt->name = "newfile";
+    opt->title = "New File button";
+    opt->desc = "New File button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
+  if(option==OPT_COUNTONLY){
+    opt->name = "countonly";
+    opt->title = "Count Only button";
+    opt->desc = "Count Only button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
+  if(option==OPT_BYPASSMODE){
+    opt->name = "bypassmode";
+    opt->title = "Bypass Mode button";
+    opt->desc = "Bypass Mode button";
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  }
+
   if(option==OPT_COUNTER){
     opt->name = "counter";
     opt->title = "Counter";
@@ -1723,7 +1807,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     s->counter_range.quant=1;
 
     if (s->has_counter)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT;
     else
       opt->cap = SANE_CAP_INACTIVE;
   }
@@ -1947,8 +2031,35 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           return SANE_STATUS_GOOD;
 
         /* Sensor Group */
+        case OPT_START:
+          read_panel(s);
+          *val_p = s->panel_start;
+          return SANE_STATUS_GOOD;
+
+        case OPT_STOP:
+          read_panel(s);
+          *val_p = s->panel_stop;
+          return SANE_STATUS_GOOD;
+
+        case OPT_NEWFILE:
+          read_panel(s);
+          *val_p = s->panel_new_file;
+          return SANE_STATUS_GOOD;
+
+        case OPT_COUNTONLY:
+          read_panel(s);
+          *val_p = s->panel_count_only;
+          return SANE_STATUS_GOOD;
+
+        case OPT_BYPASSMODE:
+          read_panel(s);
+          *val_p = s->panel_bypass_mode;
+          return SANE_STATUS_GOOD;
+
         case OPT_COUNTER:
-          return read_counter (s,val_p);
+          read_panel(s);
+          *val_p = s->panel_counter;
+          return SANE_STATUS_GOOD;
 
       }
   }
@@ -2188,7 +2299,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Sensor Group */
         case OPT_COUNTER:
-          return send_counter(s,val_c);
+          s->panel_counter = val_c;
+          return send_panel(s);
       }
   }                           /* else */
 
@@ -2375,65 +2487,73 @@ ssm_do (struct scanner *s)
 }
 
 static SANE_Status
-read_counter(struct scanner *s,SANE_Word * val_p)
+read_panel(struct scanner *s)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
 
     unsigned char cmd[READ_len];
     size_t cmdLen = READ_len;
 
-    unsigned char in[R_COUNTER_len];
-    size_t inLen = R_COUNTER_len;
+    unsigned char in[R_PANEL_len];
+    size_t inLen = R_PANEL_len;
 
-    DBG (10, "read_counter: start\n");
-  
-    memset(cmd,0,cmdLen);
-    set_SCSI_opcode(cmd, READ_code);
-    set_R_datatype_code (cmd, R_datatype_counter);
-    set_R_xfer_length (cmd, inLen);
-  
-    ret = do_cmd (
-      s, 1, 0,
-      cmd, cmdLen,
-      NULL, 0,
-      in, &inLen
-    );
-  
-    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-        DBG(15, "read_counter: got GOOD/EOF, returning GOOD\n");
-        *val_p = get_R_COUNTER_count(in);
-        ret = SANE_STATUS_GOOD;
+    DBG (10, "read_panel: start\n");
+ 
+    /* only run this once every second */
+    if (s->last_panel < time(NULL)) {
+
+        DBG (15, "read_panel: running\n");
+        memset(cmd,0,cmdLen);
+        set_SCSI_opcode(cmd, READ_code);
+        set_R_datatype_code (cmd, SR_datatype_panel);
+        set_R_xfer_length (cmd, inLen);
+      
+        ret = do_cmd (
+          s, 1, 0,
+          cmd, cmdLen,
+          NULL, 0,
+          in, &inLen
+        );
+      
+        if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
+            s->last_panel = time(NULL);
+            s->panel_start = get_R_PANEL_start(in);
+            s->panel_stop = get_R_PANEL_stop(in);
+            s->panel_new_file = get_R_PANEL_new_file(in);
+            s->panel_count_only = get_R_PANEL_count_only(in);
+            s->panel_bypass_mode = get_R_PANEL_bypass_mode(in);
+            s->panel_enable_led = get_R_PANEL_enable_led(in);
+            s->panel_counter = get_R_PANEL_counter(in);
+            ret = SANE_STATUS_GOOD;
+        }
     }
-    else {
-        DBG(5, "read_counter: error, status = %d\n",ret);
-        *val_p = -1;
-    }
   
-    DBG (10, "read_counter: finish\n");
+    DBG (10, "read_panel: finish\n");
   
     return ret;
 }
 
 static SANE_Status
-send_counter(struct scanner *s,SANE_Word val)
+send_panel(struct scanner *s)
 {
     SANE_Status ret=SANE_STATUS_GOOD;
 
     unsigned char cmd[SEND_len];
     size_t cmdLen = SEND_len;
 
-    unsigned char out[S_COUNTER_len];
-    size_t outLen = S_COUNTER_len;
+    unsigned char out[S_PANEL_len];
+    size_t outLen = S_PANEL_len;
 
-    DBG (10, "send_counter: start\n");
+    DBG (10, "send_panel: start\n");
   
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SEND_code);
-    set_S_xfer_datatype (cmd, S_datatype_counter);
+    set_S_xfer_datatype (cmd, SR_datatype_panel);
     set_S_xfer_length (cmd, outLen);
 
     memset(out,0,outLen);
-    set_S_COUNTER_count(out,val);
+    set_S_PANEL_enable_led(out,1);
+    set_S_PANEL_counter(out,s->panel_counter);
   
     ret = do_cmd (
       s, 1, 0,
@@ -2442,12 +2562,11 @@ send_counter(struct scanner *s,SANE_Word val)
       NULL, NULL
     );
   
-    if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-        DBG(15, "send_counter: got GOOD/EOF, returning GOOD\n");
+    if (ret == SANE_STATUS_EOF) {
         ret = SANE_STATUS_GOOD;
     }
   
-    DBG (10, "send_counter: finish %d\n", ret);
+    DBG (10, "send_panel: finish %d\n", ret);
   
     return ret;
 }
@@ -3174,7 +3293,7 @@ read_from_scanner(struct scanner *s, int side)
   
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
-    set_R_datatype_code (cmd, R_datatype_imagedata);
+    set_R_datatype_code (cmd, SR_datatype_image);
   
     set_R_xfer_length (cmd, inLen);
   
@@ -4011,6 +4130,13 @@ wait_scanner(struct scanner *s)
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd,TEST_UNIT_READY_code);
 
+  ret = do_cmd (
+    s, 0, 1,
+    cmd, cmdLen,
+    NULL, 0,
+    NULL, NULL
+  );
+  
   ret = do_cmd (
     s, 0, 1,
     cmd, cmdLen,

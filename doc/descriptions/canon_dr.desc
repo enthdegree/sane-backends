@@ -83,13 +83,13 @@
 :interface "USB SCSI"
 :usbid "0x04a9" "0x160b"
 :status :good
-:comment "Simplex, duplex, dropout-color, multifeed detection and JPEG working, imprinter unsupported"
+:comment "Simplex, duplex, all resolutions, binary/ht/gray, async mode, dropout-color, multifeed detection, buttons and gray JPEG working, imprinter unsupported"
 
 :model "DR-9080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1603"
 :status :good
-:comment "Simplex, duplex, dropout-color, multifeed detection and JPEG working, imprinter unsupported"
+:comment "Simplex, duplex, all resolutions, binary/ht/gray/color, async mode, dropout-color, multifeed detection, buttons and gray JPEG working, imprinter unsupported, color JPEG broken"
 
 :model "DR-X10C"
 :interface "USB SCSI"

@@ -1,26 +1,6 @@
 #ifndef CANON_DR_H
 #define CANON_DR_H
 
-#if V_MINOR == 0
-#define SANE_NAME_STANDARD   		"standard"
-#define SANE_TITLE_STANDARD   		SANE_I18N("Standard")
-#define SANE_DESC_STANDARD    SANE_I18N("Source, mode and resolution options")
-#define SANE_NAME_GEOMETRY   		"geometry"
-#define SANE_TITLE_GEOMETRY   		SANE_I18N("Geometry")
-#define SANE_DESC_GEOMETRY    SANE_I18N("Scan area and media size options")
-#define SANE_NAME_PAGE_WIDTH  		"page-width"
-#define SANE_TITLE_PAGE_WIDTH  		SANE_I18N("Page width")
-#define SANE_DESC_PAGE_WIDTH \
-SANE_I18N("Specifies the width of the media.  Required for automatic " \
-"centering of sheet-fed scans.")
-#define SANE_NAME_PAGE_HEIGHT 		"page-height"
-#define SANE_TITLE_PAGE_HEIGHT 		SANE_I18N("Page height")
-#define SANE_DESC_PAGE_HEIGHT \
-SANE_I18N("Specifies the height of the media.")
-#define SANE_NAME_ENHANCEMENT		"enhancement"
-#define SANE_TITLE_ENHANCEMENT		SANE_I18N("Enhancement")
-#define SANE_DESC_ENHANCEMENT SANE_I18N("Image modification options")
-#endif
 /* 
  * Part of SANE - Scanner Access Now Easy.
  * Please see opening comment in canon_dr.c
@@ -66,6 +46,11 @@ enum scanner_Option
 
   /*sensor group*/
   OPT_SENSOR_GROUP,
+  OPT_START,
+  OPT_STOP,
+  OPT_NEWFILE,
+  OPT_COUNTONLY,
+  OPT_BYPASSMODE,
   OPT_COUNTER,
 
   /* must come last: */
@@ -278,10 +263,21 @@ struct scanner
   int fds[2];
 
   /* --------------------------------------------------------------------- */
-  /* values which used by the command and data sending functions (scsi/usb)*/
-  int fd;                      /* The scanner device file descriptor.     */
+  /* values used by the command and data sending functions (scsi/usb)      */
+  int fd;                      /* The scanner device file descriptor.      */
   size_t rs_info;
 
+  /* --------------------------------------------------------------------- */
+  /* values used to hold hardware or control panel status                  */
+
+  time_t last_panel;
+  int panel_start;
+  int panel_stop;
+  int panel_new_file;
+  int panel_count_only;
+  int panel_bypass_mode;
+  int panel_enable_led;
+  int panel_counter;
 };
 
 #define CONNECTION_SCSI   0 /* SCSI interface */
@@ -403,6 +399,7 @@ static SANE_Status sense_handler (int scsi_fd, u_char * result, void *arg);
 static SANE_Status init_inquire (struct scanner *s);
 static SANE_Status init_vpd (struct scanner *s);
 static SANE_Status init_model (struct scanner *s);
+static SANE_Status init_panel (struct scanner *s);
 static SANE_Status init_user (struct scanner *s);
 static SANE_Status init_options (struct scanner *s);
 
@@ -442,8 +439,8 @@ int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
 
-static SANE_Status read_counter(struct scanner *s, SANE_Word *);
-static SANE_Status send_counter(struct scanner *s, SANE_Word);
+static SANE_Status read_panel(struct scanner *s);
+static SANE_Status send_panel(struct scanner *s);
 
 static SANE_Status start_scan (struct scanner *s);
 

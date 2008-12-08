@@ -1,11 +1,21 @@
-2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-        * replaced getlogin/getenv by getpwuid(geteuid)
+2008-12-07  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v8
+	- rename read/send_counter to read/send_panel
+	- enable control panel during init
+	- add options for all buttons
+	- call TUR twice in wait_scanner(), even if first succeeds
+	- disable rif
+	- enable brightness/contrast/threshold options
+	* doc/descriptions/canon_dr.desc, doc/sane-canon_dr.man: backend v8
 
 2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-        * backend/pixma_bjnp.c pixma_bjnp_private.h 
-          On Ubuntu getlogin() returns NULL. So we noew first try getlogin()
-          and if that fails, we try getenv("USER") and if that fails we use
-          a defaul user string
+	* replaced getlogin/getenv by getpwuid(geteuid)
+
+2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
+	* backend/pixma_bjnp.c pixma_bjnp_private.h 
+	  On Ubuntu getlogin() returns NULL. So we noew first try getlogin()
+	  and if that fails, we try getenv("USER") and if that fails we use
+	  a defaul user string
 
 2008-12-03  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c: possible fix for

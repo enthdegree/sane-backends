@@ -203,27 +203,40 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define GET_WINDOW_len          0
 
 /* ==================================================================== */
+/* READ/SEND page codes */
+#define SR_datatype_image		0x00
+#define SR_datatype_lut                 0x83
+#define SR_datatype_panel  		0x84
+#define SR_datatype_counters 		0x8c
+#define SR_datatype_endorser            0x90
+
+/* ==================================================================== */
 /* READ */
 #define READ_code               0x28
 #define READ_len                10
 
-#define set_R_datatype_code(sb, val)    sb[0x02] = val
-#define R_datatype_imagedata		0x00
-#define R_datatype_pixelsize		0x80
-#define R_datatype_counter  		0x84
-#define set_R_window_id(sb, val)       sb[0x05] = val
+#define set_R_datatype_code(sb, val)   sb[0x02] = val
 #define set_R_xfer_length(sb, val)     putnbyte(sb + 0x06, val, 3)
 
-/*pixelsize*/
-#define R_PSIZE_len                    0x18
-#define get_PSIZE_num_x(in)            getnbyte(in + 0x00, 4)
-#define get_PSIZE_num_y(in)            getnbyte(in + 0x04, 4)
-#define get_PSIZE_paper_w(in)          getnbyte(in + 0x08, 4)
-#define get_PSIZE_paper_l(in)          getnbyte(in + 0x0C, 4)
+/*image needs no macros?*/
 
-/*counter*/
-#define R_COUNTER_len                  0x08
-#define get_R_COUNTER_count(in)        getnbyte(in + 0x04, 4)
+/*lut unread?*/
+
+/*panel*/
+#define R_PANEL_len                     0x08
+#define get_R_PANEL_start(in)	        getbitfield(in, 1, 7)
+#define get_R_PANEL_stop(in)	        getbitfield(in, 1, 6)
+#define get_R_PANEL_new_file(in)	getbitfield(in+1, 1, 0)
+#define get_R_PANEL_count_only(in)	getbitfield(in+1, 1, 1)
+#define get_R_PANEL_bypass_mode(in)	getbitfield(in+1, 1, 2)
+#define get_R_PANEL_enable_led(in)	getbitfield(in+2, 1, 0)
+#define get_R_PANEL_counter(in)         getnbyte(in + 0x04, 4)
+
+/*counters*/
+#define R_COUNTERS_len                 0x80
+#define get_R_COUNTERS_scans(in)       getnbyte(in + 0x04, 4)
+
+/*endorser unread?*/
 
 /* ==================================================================== */
 /* SEND */
@@ -231,40 +244,18 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SEND_len                10
 
 #define set_S_xfer_datatype(sb, val) sb[0x02] = (unsigned char)val
-/*#define S_datatype_imagedatai		0x00
-#define S_datatype_halftone_mask        0x02
-#define S_datatype_gamma_function       0x03*/
-#define S_datatype_lut_data             0x83
-#define S_datatype_counter  		0x84
-/*#define S_datatype_jpg_q_table          0x88*/
-#define S_datatype_endorser_data       0x90
-/*#define S_EX_datatype_lut		0x01
-#define S_EX_datatype_shading_data	0xa0
-#define S_user_reg_gamma		0xc0
-#define S_device_internal_info		0x03
-#define set_S_datatype_qual_upper(sb, val) sb[0x04] = (unsigned char)val
-#define S_DQ_none	0x00
-#define S_DQ_Rcomp	0x06
-#define S_DQ_Gcomp	0x07
-#define S_DQ_Bcomp	0x08
-#define S_DQ_Reg1	0x01
-#define S_DQ_Reg2	0x02
-#define S_DQ_Reg3	0x03*/
-#define set_S_xfer_id(sb, val)    putnbyte(sb + 4, val, 2)
-#define set_S_xfer_length(sb, val)    putnbyte(sb + 6, val, 3)
+#define set_S_xfer_id(sb, val)       putnbyte(sb + 4, val, 2)
+#define set_S_xfer_length(sb, val)   putnbyte(sb + 6, val, 3)
 
 /*lut*/
-#define S_lut_header_len   0x0a
-#define set_S_lut_order(sb, val)    putnbyte(sb + 2, val, 1)
-#define S_lut_order_single 0x10
-#define set_S_lut_ssize(sb, val)    putnbyte(sb + 4, val, 2)
-#define set_S_lut_dsize(sb, val)    putnbyte(sb + 6, val, 2)
-#define S_lut_data_min_len          256
-#define S_lut_data_max_len          1024
 
-/*counter*/
-#define S_COUNTER_len               0x08
-#define set_S_COUNTER_count(sb,val) putnbyte(sb + 0x04, val, 4)
+/*panel*/
+#define S_PANEL_len                     0x08
+#define set_S_PANEL_enable_led(in,val)	setbitfield(in+2, 1, 0, val)
+#define set_S_PANEL_counter(sb,val)     putnbyte(sb + 0x04, val, 4)
+
+/*counters*/
+/*endorser*/
 
 /* ==================================================================== */
 /* OBJECT_POSITION */
@@ -316,8 +307,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /* for DF page */
 #define set_SSM_DF_unk1(sb, val)        setbitfield(sb+7, 1, 5, val)
+#define set_SSM_DF_staple(sb, val)      setbitfield(sb+7, 1, 4, val)
 #define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
 #define set_SSM_DF_thick(sb, val)       setbitfield(sb+7, 1, 2, val)
+#define set_SSM_DF_textdir(sb, val)     setbitfield(sb+9, 0xf, 0, val)
 
 /* for DUPLEX page */
 #define set_SSM_BUFF_duplex(sb, val)    sb[0x06] = val

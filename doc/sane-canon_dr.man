@@ -10,10 +10,10 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 3, slated to ship with SANE 1.1.0.
+This document describes backend version 8, slated to ship with SANE 1.1.0.
 
 .SH SUPPORTED HARDWARE
-This version has only been tested with the DR\-9080C and DR\-7580C. Please see 
+This version has only been tested with the DR\-9080C and DR\-7580. Please see 
 http://www.sane\-project.org/sane\-supported\-devices.html for a more recent 
 list.
 
@@ -56,9 +56,7 @@ coordinates when using ADF and to detect double feed errors.
 .RE
 .PP
 Other options will be available based on the capabilities of the scanner:
-machines with IPC or DTC will have additional enhancement options, those
-with CMP will have compression options, those with a printer will have a
-group of endorser options.
+enhancement, compression, buttons and sensors, etc.
 
 Use 'scanimage \-\-help' to get a list, but be aware that some options may 
 be settable only when another option has been set, and that advanced options 
@@ -74,7 +72,7 @@ are identical to the default configuration file shipped with SANE.
 .PP
 Scanners can be specified in the configuration file in 4 ways:
 .PP
-"scsi CANON DR"
+"scsi CANON"
 .RS
 Requests backend to search all scsi busses in the system for a device 
 which reports itself to be a scanner made by 'CANON', with a model name

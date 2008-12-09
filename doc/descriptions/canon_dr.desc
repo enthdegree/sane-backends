@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/" 
-:version "8"                     ; version of backend
+:version "9"                     ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "New backend as of SANE release 1.1.0, testers needed, see manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -83,13 +83,13 @@
 :interface "USB SCSI"
 :usbid "0x04a9" "0x160b"
 :status :good
-:comment "Simplex, duplex, all resolutions, binary/ht/gray, async mode, dropout-color, multifeed detection, buttons and gray JPEG working, imprinter unsupported"
+:comment "Simplex, duplex, all resolutions, binary/ht/gray, async mode, dropout-color, multifeed/staple detection, deskew, buttons and gray JPEG working, imprinter unsupported"
 
 :model "DR-9080C"
 :interface "USB SCSI"
 :usbid "0x04a9" "0x1603"
 :status :good
-:comment "Simplex, duplex, all resolutions, binary/ht/gray/color, async mode, dropout-color, multifeed detection, buttons and gray JPEG working, imprinter unsupported, color JPEG broken"
+:comment "Simplex, duplex, all resolutions, binary/ht/gray/color, async mode, dropout-color, multifeed/staple detection, deskew, buttons and gray JPEG working, imprinter unsupported, color JPEG broken"
 
 :model "DR-X10C"
 :interface "USB SCSI"

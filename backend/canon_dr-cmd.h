@@ -306,10 +306,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_page_len(sb, val)       sb[0x05] = val
 
 /* for DF page */
-#define set_SSM_DF_unk1(sb, val)        setbitfield(sb+7, 1, 5, val)
+#define set_SSM_DF_deskew_roll(sb, val) setbitfield(sb+7, 1, 5, val)
 #define set_SSM_DF_staple(sb, val)      setbitfield(sb+7, 1, 4, val)
-#define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
 #define set_SSM_DF_thick(sb, val)       setbitfield(sb+7, 1, 2, val)
+#define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
 #define set_SSM_DF_textdir(sb, val)     setbitfield(sb+9, 0xf, 0, val)
 
 /* for DUPLEX page */

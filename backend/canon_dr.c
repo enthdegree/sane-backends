@@ -109,6 +109,9 @@
          - call TUR twice in wait_scanner(), even if first succeeds
          - disable rif
          - enable brightness/contrast/threshold options
+      v9 2008-12-07, MAN
+         - add rollerdeskew and stapledetect options
+         - add rollerdeskew and stapledetect bits to ssm_df()
 
    SANE FLOW DIAGRAM
 
@@ -169,7 +172,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 8
+#define BUILD 9
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1672,6 +1675,30 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
      opt->cap = SANE_CAP_INACTIVE;
   }
 
+  /*deskew by roller*/
+  if(option==OPT_ROLLERDESKEW){
+    opt->name = "rollerdeskew";
+    opt->title = "Roller deskew";
+    opt->desc = "Request scanner to correct skewed pages mechanically";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
+  /*staple detection*/
+  if(option==OPT_STAPLEDETECT){
+    opt->name = "stapledetect";
+    opt->title = "Staple detect";
+    opt->desc = "Request scanner to halt if stapled pages are detected";
+    opt->type = SANE_TYPE_BOOL;
+    if (1)
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+    else
+     opt->cap = SANE_CAP_INACTIVE;
+  }
+
   /*dropout color front*/
   if(option==OPT_DROPOUT_COLOR_F){
     s->do_color_list[0] = string_None;
@@ -1732,12 +1759,12 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
   if(option==OPT_BUFFERMODE){
     opt->name = "buffermode";
     opt->title = "Buffer mode";
-    opt->desc = "Request scanner to read pages quickly from ADF into internal memory";
+    opt->desc = "Request scanner to read pages async into internal memory";
     opt->type = SANE_TYPE_BOOL;
     if (s->has_buffer)
-      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
+     opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
     else
-      opt->cap = SANE_CAP_INACTIVE;
+     opt->cap = SANE_CAP_INACTIVE;
   }
 
   /* "Sensor" group ------------------------------------------------------ */
@@ -1972,6 +1999,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         case OPT_DF_THICKNESS:
           *val_p = s->df_thickness;
+          return SANE_STATUS_GOOD;
+
+        case OPT_ROLLERDESKEW:
+          *val_p = s->rollerdeskew;
+          return SANE_STATUS_GOOD;
+
+        case OPT_STAPLEDETECT:
+          *val_p = s->stapledetect;
           return SANE_STATUS_GOOD;
 
         case OPT_DROPOUT_COLOR_F:
@@ -2259,6 +2294,14 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           s->df_thickness = val_c;
           return ssm_df(s);
 
+        case OPT_ROLLERDESKEW:
+          s->rollerdeskew = val_c;
+          return ssm_df(s);
+
+        case OPT_STAPLEDETECT:
+          s->stapledetect = val_c;
+          return ssm_df(s);
+
         case OPT_DROPOUT_COLOR_F:
           if (!strcmp(val, string_None))
             s->dropout_color_f = COLOR_NONE;
@@ -2370,18 +2413,24 @@ ssm_df (struct scanner *s)
   set_SSM_page_code(out, SM_pc_df);
   set_SSM_page_len(out, SSM_PAGE_len);
 
-  if(s->df_thickness || s->df_length){
-    set_SSM_DF_unk1(out, 1);
-
-    /* thickness */
-    if(s->df_thickness){
-      set_SSM_DF_thick(out, 1);
-    }
+  /* deskew by roller */
+  if(s->rollerdeskew){
+    set_SSM_DF_deskew_roll(out, 1);
+  }
   
-    /* length */
-    if(s->df_length){
-      set_SSM_DF_len(out, 1);
-    }
+  /* staple detection */
+  if(s->stapledetect){
+    set_SSM_DF_staple(out, 1);
+  }
+
+  /* thickness */
+  if(s->df_thickness){
+    set_SSM_DF_thick(out, 1);
+  }
+  
+  /* length */
+  if(s->df_length){
+    set_SSM_DF_len(out, 1);
   }
 
   ret = do_cmd (

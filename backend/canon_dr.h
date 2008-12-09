@@ -40,6 +40,8 @@ enum scanner_Option
   OPT_COMPRESS_ARG,
   OPT_DF_THICKNESS,
   OPT_DF_LENGTH,
+  OPT_ROLLERDESKEW,
+  OPT_STAPLEDETECT,
   OPT_DROPOUT_COLOR_F,
   OPT_DROPOUT_COLOR_B,
   OPT_BUFFERMODE,
@@ -225,6 +227,8 @@ struct scanner
   int dropout_color_f;
   int dropout_color_b;
   int buffermode;
+  int rollerdeskew;
+  int stapledetect;
 
   /* --------------------------------------------------------------------- */
   /* values which are derived from setting the options above */

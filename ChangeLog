@@ -1,4 +1,10 @@
 2008-12-08  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v9
+	- add rollerdeskew and stapledetect options
+	- add rollerdeskew and stapledetect bits to ssm_df()
+	* doc/descriptions/canon_dr.desc: backend v9
+
+2008-12-08  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/avision.c: backend v289
 	- fix sending SIGTERM when reader_pid == 0
 
@@ -13,13 +19,14 @@
 	* doc/descriptions/canon_dr.desc, doc/sane-canon_dr.man: backend v8
 
 2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-	* replaced getlogin/getenv by getpwuid(geteuid)
+	* backend/pixma_bjnp.c pixma_bjnp_private.h: 
+	  replaced getlogin/getenv by getpwuid(geteuid)
 
 2008-12-06 Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-	* backend/pixma_bjnp.c pixma_bjnp_private.h 
-	  On Ubuntu getlogin() returns NULL. So we noew first try getlogin()
+	* backend/pixma_bjnp.c pixma_bjnp_private.h: 
+	  On Ubuntu getlogin() returns NULL. So we now first try getlogin()
 	  and if that fails, we try getenv("USER") and if that fails we use
-	  a defaul user string
+	  a default user string
 
 2008-12-03  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c backend/rts8891_low.c: possible fix for

@@ -956,7 +956,7 @@ set_option (SANE_Handle device, int optnum, void *valuep)
   const SANE_Option_Descriptor *opt;
   SANE_Status status;
   SANE_Word orig = 0;
-  SANE_Int info;
+  SANE_Int info = 0;
 
   opt = sane_get_option_descriptor (device, optnum);
   if (opt && (!SANE_OPTION_IS_ACTIVE (opt->cap)))
@@ -1476,7 +1476,7 @@ pass_fail (int max, int len, SANE_Byte * buffer, SANE_Status status)
     fprintf (stderr, "FAIL Error: %s\n", sane_strstatus (status));
   else if (buffer[len] != 0x23)
     {
-      while (buffer[len] != 0x23)
+      while (len <= max && buffer[len] != 0x23)
 	++len;
       fprintf (stderr, "FAIL Cheat: %d bytes\n", len);
     }

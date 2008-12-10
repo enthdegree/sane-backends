@@ -405,6 +405,10 @@
       v84 2008-11-07, MAN
          - round lines down to even number to get even # of total bytes
          - round binary bpl and Bpl down to byte boundary
+      v85 2008-11-10, MAN
+         - round pixels_per_line down to arbitrary limits for fi-4990 & fi-4860
+         - fi-4860 returns random garbage to serial number queries
+         - initialize *info to 0 in sane_control_option()
 
    SANE FLOW DIAGRAM
 
@@ -465,7 +469,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 84
+#define BUILD 85
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1809,6 +1813,11 @@ init_model (struct fujitsu *s)
   s->reverse_by_mode[MODE_GRAYSCALE] = 1;
   s->reverse_by_mode[MODE_COLOR] = 1;
 
+  s->ppl_mod_by_mode[MODE_LINEART] = 8;
+  s->ppl_mod_by_mode[MODE_HALFTONE] = 8;
+  s->ppl_mod_by_mode[MODE_GRAYSCALE] = 1;
+  s->ppl_mod_by_mode[MODE_COLOR] = 1;
+
   /* if scanner has built-in gamma tables, we use the first one (0) */
   /* otherwise, we use the first downloaded one (0x80) */
   /* note that you may NOT need to send the table to use it? */
@@ -1948,6 +1957,24 @@ init_model (struct fujitsu *s)
     /* weirdness */
     s->duplex_interlace = DUPLEX_INTERLACE_NONE;
     s->color_interlace = COLOR_INTERLACE_RRGGBB;
+
+    s->ppl_mod_by_mode[MODE_LINEART] = 32;
+    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
+    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
+    s->ppl_mod_by_mode[MODE_COLOR] = 4;
+  }
+
+  /* some firmware versions use capital f? */
+  else if (strstr (s->model_name, "Fi-4860")
+   || strstr (s->model_name, "fi-4860") ) {
+
+    /* weirdness */
+    s->broken_diag_serial = 1;
+
+    s->ppl_mod_by_mode[MODE_LINEART] = 32;
+    s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
+    s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
+    s->ppl_mod_by_mode[MODE_COLOR] = 4;
   }
 
   else if (strstr (s->model_name,"fi-6230")
@@ -2153,7 +2180,7 @@ init_serial (struct fujitsu *s)
 
   DBG (10, "init_serial: start\n");
 
-  if (!s->has_cmd_sdiag || !s->has_cmd_rdiag){
+  if (!s->has_cmd_sdiag || !s->has_cmd_rdiag || s->broken_diag_serial){
     DBG (5, "init_serial: send/read diag not supported, returning\n");
     return SANE_STATUS_INVAL;
   }
@@ -4023,6 +4050,9 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   if (info == 0)
     info = &dummy;
 
+  /*blast info in case frontend forgot*/
+  *info = 0;
+
   if (option >= NUM_OPTIONS) {
     DBG (5, "sane_control_option: %d too big\n", option);
     return SANE_STATUS_INVAL;
@@ -5716,38 +5746,55 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
         /* this backend only sends single frame images */
         params->last_frame = 1;
 
+        /* initial ppl from user settings */
         params->pixels_per_line = s->resolution_x * (s->br_x - s->tl_x) / 1200;
-
-        if (s->mode == MODE_COLOR) {
-            params->format = SANE_FRAME_RGB;
-            params->depth = 8;
-            if(s->compress == COMP_JPEG){
-                params->format = SANE_FRAME_JPEG;
-            }
-            params->bytes_per_line = params->pixels_per_line * 3;
-        }
-        else if (s->mode == MODE_GRAYSCALE) {
-            params->format = SANE_FRAME_GRAY;
-            params->depth = 8;
-            if(s->compress == COMP_JPEG){
-                params->format = SANE_FRAME_JPEG;
-            }
-            params->bytes_per_line = params->pixels_per_line;
-        }
-        else {
-            params->format = SANE_FRAME_GRAY;
-            params->depth = 1;
-
-            /* round down to byte boundary */
-            params->pixels_per_line -= params->pixels_per_line % 8;
-
-            params->bytes_per_line = params->pixels_per_line / 8;
-        }
 
         /* some scanners require even number of bytes in each transfer block,
          * so we round to even # of total lines, to ensure last block is even */
         params->lines = s->resolution_y * (s->br_y - s->tl_y) / 1200;
         params->lines -= params->lines % 2;
+
+        if (s->mode == MODE_COLOR) {
+            params->depth = 8;
+
+            /* jpeg requires 8x8 squares */
+            if(s->compress == COMP_JPEG){
+              params->format = SANE_FRAME_JPEG;
+              params->pixels_per_line -= params->pixels_per_line % 8;
+              params->lines -= params->lines % 8;
+            }
+            else{
+              params->format = SANE_FRAME_RGB;
+              params->pixels_per_line 
+                -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+            }
+
+            params->bytes_per_line = params->pixels_per_line * 3;
+        }
+        else if (s->mode == MODE_GRAYSCALE) {
+            params->depth = 8;
+
+            /* jpeg requires 8x8 squares */
+            if(s->compress == COMP_JPEG){
+              params->format = SANE_FRAME_JPEG;
+              params->pixels_per_line -= params->pixels_per_line % 8;
+              params->lines -= params->lines % 8;
+            }
+            else{
+              params->format = SANE_FRAME_GRAY;
+              params->pixels_per_line 
+                -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+            }
+
+            params->bytes_per_line = params->pixels_per_line;
+        }
+        else {
+            params->depth = 1;
+            params->format = SANE_FRAME_GRAY;
+            params->pixels_per_line 
+              -= params->pixels_per_line % s->ppl_mod_by_mode[s->mode];
+            params->bytes_per_line = params->pixels_per_line / 8;
+        }
     }
 
     DBG(15,"sane_get_parameters: x: max=%d, page=%d, gpw=%d, res=%d\n",

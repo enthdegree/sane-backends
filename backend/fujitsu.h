@@ -313,11 +313,14 @@ struct fujitsu
   int window_gamma;
   int endorser_string_len;
 
+  int broken_diag_serial;   /* some scanners are just plain borked */
+
   int has_vuid_mono;    /* mono set window data */
   int has_vuid_3091;    /* 3091/2 set window data */
   int has_vuid_color;   /* color set window data */
 
   int reverse_by_mode[6]; /* mode specific */
+  int ppl_mod_by_mode[6]; /* mode specific scanline length limitation */
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during serial number probing scanner   */

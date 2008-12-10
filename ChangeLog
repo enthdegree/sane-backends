@@ -1,4 +1,12 @@
 2008-12-10  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v85
+	- round pixels_per_line down to arbitrary limits for fi-4990 & fi-4860
+	- fi-4860 returns random garbage to serial number queries
+	- initialize *info to 0 in sane_control_option()
+	* doc/descriptions/fujitsu.desc: backend v85, improve status/comments
+	* frontend/scanimage.c: initialize *info, fix buffer overwalk
+
+2008-12-10  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.c: backend v10
 	- add all documented request sense codes to sense_handler()
 	- fix color jpeg (remove unneeded BGR to RGB swapping code)

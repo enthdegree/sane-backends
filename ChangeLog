@@ -1,3 +1,11 @@
+2008-12-10  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.c: backend v10
+	- add all documented request sense codes to sense_handler()
+	- fix color jpeg (remove unneeded BGR to RGB swapping code)
+	- add macros for LUT data
+	* backend/canon_dr.conf.in: add DR-2080C usb ID
+	* doc/descriptions/canon_dr.desc: backend v10, add DR 3020
+
 2008-12-08  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v9
 	- add rollerdeskew and stapledetect options

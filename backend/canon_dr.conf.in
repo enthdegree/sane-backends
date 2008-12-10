@@ -23,6 +23,9 @@ scsi CANON DR
 # to the author via email, so it can be included in next version. kitno455 at
 # gmail dot com - with Fujitsu in the subject line
 
+# DR-2080C
+usb 0x04a9 0x1601
+
 # DR-9080C
 usb 0x04a9 0x1603
 

@@ -205,7 +205,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 /* ==================================================================== */
 /* READ/SEND page codes */
 #define SR_datatype_image		0x00
-#define SR_datatype_lut                 0x83
+#define SR_datatype_lut                 0x03
 #define SR_datatype_panel  		0x84
 #define SR_datatype_counters 		0x8c
 #define SR_datatype_endorser            0x90
@@ -248,6 +248,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_S_xfer_length(sb, val)   putnbyte(sb + 6, val, 3)
 
 /*lut*/
+#define S_LUT_len                     0x100
+#define S_LUT_id_front                0x82
+#define S_LUT_id_unk1                 0x84
+#define S_LUT_id_unk2                 0x88
+#define S_LUT_id_unk3                 0x90
 
 /*panel*/
 #define S_PANEL_len                     0x08

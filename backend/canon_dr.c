@@ -112,6 +112,10 @@
       v9 2008-12-07, MAN
          - add rollerdeskew and stapledetect options
          - add rollerdeskew and stapledetect bits to ssm_df()
+      v10 2008-12-10, MAN
+         - add all documented request sense codes to sense_handler()
+         - fix color jpeg (remove unneeded BGR to RGB swapping code)
+         - add macros for LUT data
 
    SANE FLOW DIAGRAM
 
@@ -172,7 +176,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 9
+#define BUILD 10
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -3369,12 +3373,14 @@ read_from_scanner(struct scanner *s, int side)
         inLen = 0;
     }
   
-    /* this is jpeg data, and we are near the beginning */
-    /* look for the SOF header, and fix the image size */
+    /* this is jpeg data, we need to fix the missing image size */
     if(s->compress == COMP_JPEG
       && (s->mode == MODE_GRAYSCALE || s->mode == MODE_COLOR)
-      && (s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d)
     ){
+
+      /* look for the SOF header near the beginning */
+      if(s->jpeg_stage == JPEG_STAGE_NONE || s->jpeg_ff_offset < 0x0d){
+
         for(i=0;i<inLen;i++){
     
             /* about to change stage */
@@ -3414,8 +3420,9 @@ read_from_scanner(struct scanner *s, int side)
                 }
             }
         }
+      }
     }
-    /* non-jpeg color, swap bgr to rgb, assumes full lines */
+    /* non-jpeg color, swap bgr to rgb, assumes full lines
     else if (s->mode == MODE_COLOR){
         unsigned char temp;
         for (i=0; i < inLen/3; i++){
@@ -3424,6 +3431,7 @@ read_from_scanner(struct scanner *s, int side)
             in[i*3+2] = temp;
         }
     }
+		*/
 
     if(inLen && !extra){
         copy_buffer (s, in, inLen, side);
@@ -3482,18 +3490,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf,
         return SANE_STATUS_GOOD;
     }
   
-    /* scanner returns pixel data as bgrbgr... */
-    if(s->mode == MODE_COLOR){
-        int byteOff;
- 
-        for (i=0; i < bytes; i++){
-          byteOff = s->bytes_tx[side] + i;
-          buf[i] = s->buffers[side][ byteOff-((byteOff%3)-1)*2 ];
-        }
-    }
-    else{
-        memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
-    }
+    memcpy(buf,s->buffers[side]+s->bytes_tx[side],bytes);
     
     /* invert image if scanner needs it for this mode */
     if (s->reverse_by_mode[s->mode]){
@@ -3687,81 +3684,129 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       return SANE_STATUS_GOOD;
 
     case 1:
+      if (asc == 0x37 && ascq == 0x00) {
+        DBG  (5, "Recovered error: parameter rounded\n");
+        return SANE_STATUS_GOOD;
+      }
       DBG  (5, "Recovered error: unknown asc/ascq\n");
       return SANE_STATUS_GOOD;
 
     case 2:
+      if (asc == 0x04 && ascq == 0x01) {
+        DBG  (5, "Not ready: previous command unfinished\n");
+        return SANE_STATUS_DEVICE_BUSY;
+      }
       DBG  (5, "Not ready: unknown asc/ascq\n");
       return SANE_STATUS_DEVICE_BUSY;
 
     case 3:
-      if (asc == 0x3a && ascq == 0) {
+      if (asc == 0x36 && ascq == 0x00) {
+        DBG  (5, "Medium error: no cartridge\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x3a && ascq == 0x00) {
         DBG  (5, "Medium error: hopper empty\n");
         return SANE_STATUS_NO_DOCS;
       }
-      if (asc == 0x81 && ascq == 1) {
+      if (asc == 0x80 && ascq == 0x00) {
         DBG  (5, "Medium error: paper jam\n");
         return SANE_STATUS_JAMMED;
       }
-      if (asc == 0x80 && (ascq == 0 || ascq == 1)) {
+      if (asc == 0x80 && ascq == 0x01) {
         DBG  (5, "Medium error: cover open\n");
         return SANE_STATUS_COVER_OPEN;
+      }
+      if (asc == 0x81 && ascq == 0x01) {
+        DBG  (5, "Medium error: double feed\n");
+        return SANE_STATUS_JAMMED;
+      }
+      if (asc == 0x81 && ascq == 0x02) {
+        DBG  (5, "Medium error: skew detected\n");
+        return SANE_STATUS_JAMMED;
+      }
+      if (asc == 0x81 && ascq == 0x04) {
+        DBG  (5, "Medium error: staple detected\n");
+        return SANE_STATUS_JAMMED;
       }
       DBG  (5, "Medium error: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
 
     case 4:
+      if (asc == 0x60 && ascq == 0x00) {
+        DBG  (5, "Hardware error: lamp error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x80 && ascq == 0x01) {
+        DBG  (5, "Hardware error: CPU check error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x80 && ascq == 0x02) {
+        DBG  (5, "Hardware error: RAM check error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x80 && ascq == 0x03) {
+        DBG  (5, "Hardware error: ROM check error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x80 && ascq == 0x04) {
+        DBG  (5, "Hardware error: hardware check error\n");
+        return SANE_STATUS_IO_ERROR;
+      }
       DBG  (5, "Hardware error: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
 
     case 5:
-      if ((0x00 == asc) && (0x00 == ascq)) {
-        DBG  (5, "Illegal request: paper edge detected too soon\n");
-        return SANE_STATUS_INVAL;
-      }
-      if ((0x1a == asc) && (0x00 == ascq)) {
+      if (asc == 0x1a && ascq == 0x00) {
         DBG  (5, "Illegal request: Parameter list error\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x20 == asc) && (0x00 == ascq)) {
+      if (asc == 0x20 && ascq == 0x00) {
         DBG  (5, "Illegal request: invalid command\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x24 == asc) && (0x00 == ascq)) {
+      if (asc == 0x24 && ascq == 0x00) {
         DBG  (5, "Illegal request: invalid CDB field\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x25 == asc) && (0x00 == ascq)) {
+      if (asc == 0x25 && ascq == 0x00) {
         DBG  (5, "Illegal request: unsupported logical unit\n");
         return SANE_STATUS_UNSUPPORTED;
       }
-      if ((0x26 == asc) && (0x00 == ascq)) {
+      if (asc == 0x26 && ascq == 0x00) {
         DBG  (5, "Illegal request: invalid field in parm list\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x2C == asc) && (0x00 == ascq)) {
+      if (asc == 0x2c && ascq == 0x00) {
         DBG  (5, "Illegal request: command sequence error\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x2C == asc) && (0x02 == ascq)) {
-        DBG  (5, "Illegal request: wrong window combination \n");
+      if (asc == 0x2c && ascq == 0x01) {
+        DBG  (5, "Illegal request: too many windows\n");
         return SANE_STATUS_INVAL;
       }
-      if ((0x3a == asc) && (0x00 == ascq)) {
-        DBG  (5, "Illegal request: no paper?\n");
+      if (asc == 0x3a && ascq == 0x00) {
+        DBG  (5, "Illegal request: no paper\n");
         return SANE_STATUS_NO_DOCS;
+      }
+      if (asc == 0x3d && ascq == 0x00) {
+        DBG  (5, "Illegal request: invalid IDENTIFY\n");
+        return SANE_STATUS_INVAL;
+      }
+      if (asc == 0x55 && ascq == 0x00) {
+        DBG  (5, "Illegal request: scanner out of memory\n");
+        return SANE_STATUS_NO_MEM;
       }
       DBG  (5, "Illegal request: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
       break;
 
     case 6:
-      if ((0x00 == asc) && (0x00 == ascq)) {
+      if (asc == 0x29 && ascq == 0x00) {
         DBG  (5, "Unit attention: device reset\n");
         return SANE_STATUS_GOOD;
       }
-      if ((0x80 == asc) && (0x01 == ascq)) {
-        DBG  (5, "Unit attention: power saving\n");
+      if (asc == 0x2a && ascq == 0x00) {
+        DBG  (5, "Unit attention: param changed by 2nd initiator\n");
         return SANE_STATUS_GOOD;
       }
       DBG  (5, "Unit attention: unknown asc/ascq\n");
@@ -3785,33 +3830,29 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       return SANE_STATUS_IO_ERROR;
 
     case 0xb:
-      if ((0x43 == asc) && (0x00 == ascq)) {
-        DBG  (5, "Aborted command: message error\n");
+      if (asc == 0x00 && ascq == 0x00) {
+        DBG  (5, "Aborted command: no sense/cancelled\n");
+        return SANE_STATUS_CANCELLED;
+      }
+      if (asc == 0x45 && ascq == 0x00) {
+        DBG  (5, "Aborted command: reselect failure\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if ((0x45 == asc) && (0x00 == ascq)) {
-        DBG  (5, "Aborted command: select failure\n");
-        return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x47 == asc) && (0x00 == ascq)) {
+      if (asc == 0x47 && ascq == 0x00) {
         DBG  (5, "Aborted command: SCSI parity error\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if ((0x48 == asc) && (0x00 == ascq)) {
+      if (asc == 0x48 && ascq == 0x00) {
         DBG  (5, "Aborted command: initiator error message\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if ((0x4e == asc) && (0x00 == ascq)) {
-        DBG  (5, "Aborted command: overlapped commands\n");
+      if (asc == 0x49 && ascq == 0x00) {
+        DBG  (5, "Aborted command: invalid message\n");
         return SANE_STATUS_IO_ERROR;
       }
-      if ((0x80 == asc) && (0x01 == ascq)) {
-        DBG  (5, "Aborted command: image transfer error\n");
+      if (asc == 0x80 && ascq == 0x00) {
+        DBG  (5, "Aborted command: timeout\n");
         return SANE_STATUS_IO_ERROR;
-      }
-      if ((0x80 == asc) && (0x03 == ascq)) {
-        DBG  (5, "Aborted command: JPEG overflow error\n");
-        return SANE_STATUS_NO_MEM;
       }
       DBG  (5, "Aborted command: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
@@ -3826,6 +3867,14 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
       return SANE_STATUS_IO_ERROR;
 
     case 0xe:
+      if (asc == 0x3b && ascq == 0x0d) {
+        DBG  (5, "Miscompare: too many docs\n");
+        return SANE_STATUS_IO_ERROR;
+      }
+      if (asc == 0x3b && ascq == 0x0e) {
+        DBG  (5, "Miscompare: too few docs\n");
+        return SANE_STATUS_IO_ERROR;
+      }
       DBG  (5, "Miscompare: unknown asc/ascq\n");
       return SANE_STATUS_IO_ERROR;
 

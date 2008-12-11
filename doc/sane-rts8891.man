@@ -1,24 +1,23 @@
-.TH "sane\-rts8891" "5" "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
-.IX sane\-rts8891
+.TH "sane\-rts8891" "5" "8 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .SH "NAME"
-sane\-rts8891 \- SANE backend for Umax Astra 4400/4450 and Hewlett-Packard Scanjet 4470c scanners
+sane\-rts8891 \- SANE backend for rts8891 based scanners
 .SH "DESCRIPTION"
 The
 .B sane\-rts8891
 library implements a SANE (Scanner Access Now Easy) backend that
-provides access to scanner based on Realtek RTS8891 ASIC.
+provides access to scanners based on the rts8891 ASIC.
 .PP 
-The scanners that should work with this backend are:
+The scanners that work with this backend are:
 .PP 
 .RS
 .ft CR
 .nf 
    Vendor Model           status
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-  \-\-\-\-\-\-\-\-\-\-\-
-  Umax    4400            good
-  Umax    4450            untested
-  HP      4470c           good                re-badged Astra 4400
-  HP      4400c           untested
+  Umax Astra 4400       untested
+  Umax Astra 4450       untested
+  HP scanjet 4000c      good
+  HP scanjet 4470c      good
 .fi 
 .ft R
 .RE
@@ -42,31 +41,29 @@ scanimage \-\-help \-d rts8891
 .TP 
 .B \-\-mode
 selects the basic mode of operation of the scanner valid choices are 
-.IR auto ,
-.IR Color ,
+.I R Color ,
 .I Gray
 and
 .I Lineart
-The default or automatic mode is Color. The Lineart mode is black and white only (1 bit). 
-Grayscale will produce 256 levels of gray (8 bits). Gray and Lineart mode are emulated.
-Color mode allows for over 16 million different colors produced from 24 bits of color information.
+The default mode is Color. The Lineart mode is black and white only (1 bit). 
+Grayscale will produce 256 levels of gray (8 bits). Color mode allows for over
+16 million different colors produced from 24 bits of color information.
 
 .TP 
 .B \-\-resolution
 selects the resolution for a scan. The horizontal and vertical resolutions are set 
-by the value of this option. Default value is 150 dpi, automatic value is 75 dpi.
-The scanner is capable of the following resolutions for the specified option value:
+by the value of this option. The scanner is capable of the following resolutions for the specified option value:
 .PP 
 .RS
 .ft CR
 .nf 
   Value   Hor. Resolution  Vert. Resolution 
   \-\-\-\-\-   \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-  \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
-  75      75dpi            150dpi lines are averaged to match dpi
-  150     150dpi           150dpi
-  300     300dpi           300dpi
-  600     600dpi           600dpi
-  1200    1200dpi          600dpi lines are duplicated to match dpi
+  75      75dpi            75dpi
+  150     150dpi           150dpi 
+  300     300dpi           300dpi 
+  600     600dpi           600dpi 
+  1200    1200dpi          1200dpi
 .fi 
 .ft R
 .RE
@@ -75,69 +72,46 @@ The scanner is capable of the following resolutions for the specified option val
 .B \-\-preview
 requests a preview scan. The resolution used for that scan is 75 dpi
 and the scan area and the scan mode are as specified through their options, 
-or the default if not specified. The default and automatic value for preview mode is "no".
-
-.TP 
-.B Image Enhancement Options
+or the default if not specified. The default value for preview mode is "no".
 
 .TP 
 .B \-\-threshold
-selects the  minimum-brightness to get a white point. The threshold is only used with Lineart mode scans.
+selects the  minimum\-brightness to get a white point. The threshold is only used with Lineart mode scans.
 It is specified as a percentage in the range 0..100% (in steps of 1).  
-The default or automatic value of the threshold option is 50.
+The default value of the threshold option is 50.
 
-.TP
-.B \-\-custom\-gamma 
-allows the user to specify a gamma table (see gamma-table options). The default and automatic
-value is 'no'.
-
-.TP 
-.B \-\-gamma\-table 
-(gray and lineart modes) can be used to download a user defined
-gamma table for the gray channel. The table must be 256 SANE_Word long.
-Valid values are in the [0..255] range. 
-The automatic or default value is a builtin gamma table. This option
-is active only if custom\-gamma is set to yes.
-
-.TP 
-.B \-\-red\-gamma\-table 
-(color mode only) can be used to download a user defined
-gamma table for the red channel. The table must be 256 SANE_Word long. 
-Valid values are in the [0..255] range. 
-The automatic or default value is a builtin gamma table. This option
-is active only if custom\-gamma is set to yes.
-
-.TP 
-.B \-\-green\-gamma\-table 
-(color mode only) can be used to download a user defined
-gamma table for the green channel. The table must be 256 SANE_Word long.
-Valid values are in the [0..255] range. 
-The automatic or default value is a builtin gamma table. This option
-is active only if custom\-gamma is set to yes.
-
-.TP
-.B \-\-blue\-gamma\-table 
-(color mode only) can be used to download a user defined gamma table
-for the blue channel. The table must be 256 SANE_Word long.
-Valid values are in the [0..255] range. 
-The automatic or default value is a builtin gamma table. This option
-is active only if custom\-gamma is set to yes.
-
-.TP 
-.B Utility Options
-
-.TP
-.B \-\-lamp\-on
-this advanced option switches the lamp on. It is a set only option.
-
-.TP
-.B \-\-lamp\-off
-this advanced option switches the lamp off. It is a set only option.
 
 .SH "CONFIGURATION FILE"
-The configuration file @CONFIGDIR@/rts8891.conf contains only the usb device id (eg usb 0x043d 0x007c).
+The configuration file
+.B @CONFIGDIR@/rts8891.conf
+contains the usb device ids of supported scanners (eg usb 0x043d 0x007c) and scanner configuration options.
+Empty lines and lines starting with a hash mark (#) are
+ignored.
+.PP 
+The two options supported are
+.B allowsharing
+,
+.B modelnumber 
+.
 
+Option
+.PP
+.B allowsharing
+enables or not the sharing of the scanner between multiple frontends at the same time.
+.PP
+.B modelnumber
+is used to force the reported model by the backend and is only usefull in the case of a scanner which NVRAM has been erased.
+.RS
+.ft CR
+.nf 
+0 to report a HP4470c.
+1 to report a HP4400c.
+2 to report an Astra 4400.
+.fi 
+.ft R
+.RE
 
+.PP 
 .SH "FILES"
 .TP 
 .I @LIBDIR@/libsane\-rts8891.a
@@ -150,48 +124,36 @@ support dynamic loading).
 
 .SH "ENVIRONMENT"
 .TP 
-.B SANE_DEBUG_RTS88XX_LIB
-rts88xx library debugging messages control.
-.TP
-.B SANE_DEBUG_RTS8891_LOW
-rts8891 low-level access debugging messages control.
-.TP
-.B SANE_DEBUG_RTS8891
-rts8891 backend debugging messages control.
-.br
-.br
-If the library or backend was compiled with debug support enabled, these
+.B SANE_DEBUG_RTS8891 SANE_DEBUG_RTS8891_LOW SANE_DEBUG_RTS88XX_LIB
+If the library was compiled with debug support enabled, these
 environment variables controls the debug level for this backend. E.g.,
 a value of 255 requests all debug output to be printed. Smaller levels
-reduce verbosity. Higher levels of debugging also gives PNM files holding
-data scanned at various stages of calibration and during final scan. In case
-you find a bug and want ot report about it, it is recommended to reproduce
-the bug whit these values set to 255, and join the debugging output to the
-report.
+reduce verbosity.
 
 
 .SH "LIMITATIONS"
-There is no support for transparency adaptor.
-
+Scanners of the same model exist with different sensors, due to lack of data
+(ie USB logs) some sensors are better supported than others. At least 75 dpi
+mode is working for any model. Sharing the a scanner between several frontends
+at the same time may not work on some USB controllers.
+.PP
+XPA is no (yet) supported.
 .SH "BUGS"
 .br 
-No bugs are currently known. In case you find a bug, you may report it to the maintainer,
-the sane\-devel mailing list or fill a bug report at 
-https://alioth.debian.org/tracker/?atid=410366&group_id=30186&func=browse
+No bugs currently known.
 
 
 .SH "SEE ALSO"
-sane\-usb(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
 
 
 .SH "AUTHOR"
 .TP 
-This backend is currently developped by Stéphane Voltz.
+This backend has been developped by Stéphane Voltz.
 .I http://stef.dev.free.fr/sane/rts8891
 .SH "CREDITS"
 .TP 
 Many thanks go to:
-Laurent Fournier who lent me his scanjet 4470c.
-Henry Wieland for the time spent recording USB activity and testing the experimental version.
-The ASIC registers analysis by Troy Rollo and Johannes Hub did provide me of some important
-hints on the operation of the RTS8891.
+Laurent Fournier who donated me a HP4470c.
+Vladimir Sysoev and "TheUnruly Squash" for the time they spent recording
+USB activity and testing the experimental version on HP4400 models.

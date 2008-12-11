@@ -48,4 +48,5 @@
 :model "scanjet 4400c"
 :interface "USB"
 :usbid "0x03f0" "0x0705"
-:status :untested
+:status :good
+:comment "exists with 2 different sensors of which only one works"

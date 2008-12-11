@@ -1,3 +1,8 @@
+2008-12-11  Stéphane Voltz <stef.dev@free.fr>
+	* backend/rts8891.c doc/sane-rts8891.man doc/descriptions/rts8891.desc:
+	  scan register setting fix, documentation update
+	  
+
 2008-12-10  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v85
 	- round pixels_per_line down to arbitrary limits for fi-4990 & fi-4860

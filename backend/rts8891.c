@@ -6358,7 +6358,7 @@ send_calibration_data (struct Rts8891_Session *session)
     }
 
   /* signals color format/divisor from hardware */
-  rts8891_data_format (dev->xdpi, dev->sensor);
+  format=rts8891_data_format (dev->xdpi, dev->sensor);
   status = sanei_rts88xx_write_reg (dev->devnum, 0xd3, &format);
 
   /* for some reason, we have to add 6 to the size for the first write */

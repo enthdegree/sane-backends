@@ -252,6 +252,10 @@ byte_order;
 static const char *default_username = "saned-user";
 static char *remote_ip;
 
+/* data port range */
+static in_port_t data_port_lo;
+static in_port_t data_port_hi;
+
 #ifdef SANED_USES_AF_INDEP
 static struct sockaddr_storage remote_address;
 static int remote_address_len;
@@ -925,10 +929,13 @@ check_host (int fd)
 	{
 	  config_line = config_line_buf; /* from now on, use a pointer */
 	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
-	  if (config_line[0] == '#')	/* ignore line comments */
-	    continue;
+	  if (config_line[0] == '#')
+	    continue;           /* ignore comments */
+
+	  if (strchr (config_line, '='))
+	    continue;           /* ignore lines with an = sign */
+
 	  len = strlen (config_line);
-	  
 	  if (!len)
 	    continue;		/* ignore empty lines */
 
@@ -1214,13 +1221,16 @@ check_host (int fd)
 	{
 	  config_line = config_line_buf; /* from now on, use a pointer */
 	  DBG (DBG_DBG, "check_host: config file line: `%s'\n", config_line);
-	  if (config_line[0] == '#')	/* ignore line comments */
-	    continue;
+	  if (config_line[0] == '#')
+	    continue;           /* ignore comments */
+
+	  if (strchr (config_line, '='))
+	    continue;           /* ignore lines with an = sign */
+
 	  len = strlen (config_line);
-	  
 	  if (!len)
 	    continue;		/* ignore empty lines */
-	  
+
 	  /* look for a subnet specification */
 	  netmask = strchr (config_line, '/');
 	  if (netmask != NULL)
@@ -1385,6 +1395,8 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
 #endif /* ENABLE_IPV6 */
   SANE_Handle be_handle;
   int fd, len;
+  in_port_t data_port;
+  int ret;
 
   be_handle = handle[h].handle;
 
@@ -1410,19 +1422,41 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
     {
       case AF_INET:
 	sin = (struct sockaddr_in *) &ss;
-	sin->sin_port = 0;
 	break;
 #ifdef ENABLE_IPV6
       case AF_INET6:
 	sin6 = (struct sockaddr_in6 *) &ss;
-	sin6->sin6_port = 0;
 	break;
 #endif /* ENABLE_IPV6 */
       default:
 	break;
     }
 
-  if (bind (fd, (struct sockaddr *) &ss, len) < 0)
+  /* Try to bind a port between data_port_lo and data_port_hi for the data connection */
+  for (data_port = data_port_lo; data_port <= data_port_hi; data_port++)
+    {
+      switch (SS_FAMILY(ss))
+        {
+          case AF_INET:
+            sin->sin_port = htons(data_port);
+            break;
+#ifdef ENABLE_IPV6
+          case AF_INET6:
+            sin6->sin6_port = htons(data_port);
+            break;
+#endif /* ENABLE_IPV6 */
+          default:
+            break;
+       }
+
+      DBG (DBG_INFO, "start_scan: trying to bind data port %d\n", data_port);
+
+      ret = bind (fd, (struct sockaddr *) &ss, len);
+      if (ret == 0)
+        break;
+    }
+
+  if (ret < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to bind address (%s)\n",
 	   strerror (errno));
@@ -1482,6 +1516,8 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
   struct sockaddr_in sin;
   SANE_Handle be_handle;
   int fd, len;
+  in_port_t data_port;
+  int ret;
 
   be_handle = handle[h].handle;
 
@@ -1503,8 +1539,19 @@ start_scan (Wire * w, int h, SANE_Start_Reply * reply)
       return -1;
     }
 
-  sin.sin_port = 0;
-  if (bind (fd, (struct sockaddr *) &sin, len) < 0)
+  /* Try to bind a port between data_port_lo and data_port_hi for the data connection */
+  for (data_port = data_port_lo; data_port <= data_port_hi; data_port++)
+    {
+      sin.sin_port = htons(data_port);
+
+      DBG(DBG_INFO, "start_scan: trying to bind data port %d\n", data_port);
+
+      ret = bind (fd, (struct sockaddr *) &sin, len);
+      if (ret == 0)
+        break;
+    }
+
+  if (ret < 0)
     {
       DBG (DBG_ERR, "start_scan: failed to bind address (%s)\n",
 	   strerror (errno));
@@ -2510,6 +2557,100 @@ saned_avahi_callback (AvahiClient *c, AvahiClientState state, void *userdata)
 #endif /* WITH_AVAHI */
 
 
+static void
+read_config (void)
+{
+  char config_line[PATH_MAX];
+  const char *optval;
+  char *endval;
+  long val;
+  FILE *fp;
+  int len;
+
+  DBG (DBG_INFO, "read_config: searching for config file\n");
+  fp = sanei_config_open (SANED_CONFIG_FILE);
+  if (fp)
+    {
+      while (sanei_config_read (config_line, sizeof (config_line), fp))
+        {
+          if (config_line[0] == '#')
+            continue;           /* ignore line comments */
+
+	  optval = strchr (config_line, '=');
+	  if (optval == NULL)
+	    continue;           /* only interested in options, skip hosts */
+
+          len = strlen (config_line);
+          if (!len)
+            continue;           /* ignore empty lines */
+
+          /*
+           * Check for saned options.
+           * Anything that isn't an option is a client.
+           */
+          if (strstr(config_line, "data_portrange") != NULL)
+            {
+              optval = sanei_config_skip_whitespace (++optval);
+              if ((optval != NULL) && (*optval != '\0'))
+                {
+		  val = strtol (optval, &endval, 10);
+		  if (optval == endval)
+		    {
+		      DBG (DBG_ERR, "read_config: invalid value for data_portrange\n");
+		      continue;
+		    }
+		  else if ((val < 0) || (val > 65535))
+		    {
+		      DBG (DBG_ERR, "read_config: data_portrange start port is invalid\n");
+		      continue;
+		    }
+
+		  optval = strchr (endval, '-');
+		  if (optval == NULL)
+		    {
+		      DBG (DBG_ERR, "read_config: no end port value for data_portrange\n");
+		      continue;
+		    }
+
+		  optval = sanei_config_skip_whitespace (++optval);
+
+		  data_port_lo = val;
+
+		  val = strtol (optval, &endval, 10);
+		  if (optval == endval)
+		    {
+		      DBG (DBG_ERR, "read_config: invalid value for data_portrange\n");
+		      data_port_lo = 0;
+		      continue;
+		    }
+		  else if ((val < 0) || (val > 65535))
+		    {
+		      DBG (DBG_ERR, "read_config: data_portrange end port is invalid\n");
+		      data_port_lo = 0;
+		      continue;
+		    }
+		  else if (val < data_port_lo)
+		    {
+		      DBG (DBG_ERR, "read_config: data_portrange end port is less than start port\n");
+		      data_port_lo = 0;
+		      continue;
+		    }
+
+		  data_port_hi = val;
+
+                  DBG (DBG_INFO, "read_config: data port range: %d - %d\n", data_port_lo, data_port_hi);
+                }
+            }
+        }
+      fclose (fp);
+      DBG (DBG_INFO, "read_config: done reading config\n");
+    }
+  else
+    DBG (DBG_ERR, "read_config: could not open config file (%s): %s\n",
+	 SANED_CONFIG_FILE, strerror (errno));
+}
+
+
 #ifdef SANED_USES_AF_INDEP
 static void
 do_bindings (int *nfds, struct pollfd **fds)
@@ -2997,6 +3138,8 @@ main (int argc, char *argv[])
 
   if (log_to_syslog)
     openlog ("saned", LOG_PID | LOG_CONS, LOG_DAEMON);
+
+  read_config ();
 
   byte_order.w = 0;
   byte_order.ch = 1;

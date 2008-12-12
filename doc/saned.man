@@ -1,4 +1,4 @@
-.TH saned 8 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH saned 8 "12 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX saned
 .SH NAME
 saned \- SANE network daemon
@@ -76,19 +76,38 @@ install
 .B saned
 as setuid root.
 .PP
-The contents of the
+The 
 .I saned.conf
-file is a list of host names, IP addresses or IP subnets (CIDR notation) that
-are permitted to use local SANE devices. IPv6 addresses must be enclosed in
-brackets, and should always be specified in their compressed form.
-Connections from localhost are always permitted.
-Empty lines and lines starting with a hash mark (#) are ignored.  A line
-containing the single character ``+'' is interpreted to match any hostname.
-This allows any remote machine to use your scanner and may present a security
-risk, so this shouldn't be used unless you know what you're doing.  A sample
-configuration file is shown below:
+configuration file contains both options for the daemon and the access
+list.
+.TP
+\fBdata_portrange\fP = \fImin_port\fP - \fImax_port\fP
+Specify the port range to use for the data connection. Pick a port
+range between 1024 and 65535; don't pick a too large port range, as it
+may have performance issues. Use this option if your \fBsaned\fP
+server is sitting behind a firewall. If that firewall is a Linux
+machine, we strongly recommend using the Netfilter
+\fInf_conntrack_sane\fP module instead.
+.PP
+The access list is a list of host names, IP addresses or IP subnets
+(CIDR notation) that are permitted to use local SANE devices. IPv6
+addresses must be enclosed in brackets, and should always be specified
+in their compressed form. Connections from localhost are always
+permitted. Empty lines and lines starting with a hash mark (#) are
+ignored. A line containing the single character ``+'' is interpreted
+to match any hostname. This allows any remote machine to use your
+scanner and may present a security risk, so this shouldn't be used
+unless you know what you're doing.
+.PP
+A sample configuration file is shown below:
 .PP
 .RS
+# Daemon options
+.br
+data_portrange = 10000 - 10100
+.br
+# Access list
+.br
 scan\-client.somedomain.firm
 .br
 # this is a comment

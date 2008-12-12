@@ -1,7 +1,14 @@
+2008-12-12  Julien Blache <jb@jblache.org>
+	* frontend/saned.c: add a data_portrange config file option to
+	saned to specify a port range for the data connection. Based on a
+	patch contributed by Oren Held.
+	* backend/saned.conf.in: add the data_portrange option to the
+	config file and rework the comments.
+	* doc/saned.man: document the data_portrange option.
+
 2008-12-11  Stéphane Voltz <stef.dev@free.fr>
 	* backend/rts8891.c doc/sane-rts8891.man doc/descriptions/rts8891.desc:
 	  scan register setting fix, documentation update
-	  
 
 2008-12-10  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v85

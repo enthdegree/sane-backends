@@ -44,7 +44,7 @@
 # endif
 #else
 # undef ENABLE_IPV6
-#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO && HAVE_POLL */
+#endif /* HAVE_GETADDRINFO && HAVE_GETNAMEINFO */
 
 #include <assert.h>
 #include <errno.h>

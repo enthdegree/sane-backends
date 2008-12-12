@@ -2652,7 +2652,7 @@ do_bindings (int *nfds, struct pollfd **fds)
   int fd = -1;
   int on = 1;
 
-  DBG (DBG_DBG, "do_bindings: trying to get port for service \"%s\" (getservbyname)\n", SANED_SERVICE_PORT);
+  DBG (DBG_DBG, "do_bindings: trying to get port for service \"%s\" (getservbyname)\n", SANED_SERVICE_NAME);
   serv = getservbyname (SANED_SERVICE_NAME, "tcp");
 
   if (serv)

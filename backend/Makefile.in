@@ -211,7 +211,8 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
   umax_pp.c umax_pp.conf.in umax_pp.h umax_pp_low.c umax_pp_low.h \
   umax_pp_mid.c umax_pp_mid.h \
   umax1220u.c umax1220u-common.c umax1220u.conf.in \
-  v4l.c v4l.conf.in v4l-frequencies.h v4l.h
+  v4l.c v4l.conf.in v4l-frequencies.h v4l.h \
+  xerox_mfp.c xerox_mfp.h
 
 .PHONY: all clean depend dist distclean install uninstall
 
@@ -587,6 +588,8 @@ libsane-umax1220u.la: ../sanei/sanei_constrain_value.lo
 libsane-umax1220u.la: ../sanei/sanei_usb.lo
 libsane-umax1220u.la: ../sanei/sanei_pv8630.lo
 libsane-v4l.la: ../sanei/sanei_constrain_value.lo
+libsane-xerox_mfp.la: ../sanei/sanei_constrain_value.lo
+libsane-xerox_mfp.la: ../sanei/sanei_usb.lo
 
 ifneq ($(DLL_PRELOAD),)
 # need to make dll dependent on all sanei files:

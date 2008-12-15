@@ -1,4 +1,6 @@
 :backend "xerox_mfp"
+:version "1.0-3"
+:manpage "sane-xerox_mfp"
 :comment "Phaser 3200MFP support"
 :devicetype :scanner
 

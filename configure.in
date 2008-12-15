@@ -382,7 +382,8 @@ else
 	  ma1509 matsushita microtek microtek2 mustek mustek_usb \
 	  nec niash pie pixma plustek ricoh rts8891 \
 	  s9036 sceptre sharp sm3600 sm3840 snapscan sp15c st400 stv680 \
-	  tamarack teco1 teco2 teco3 test u12 umax umax_pp umax1220u"
+	  tamarack teco1 teco2 teco3 test u12 umax umax_pp umax1220u \
+	  xerox_mfp"
 
     case "$host_os" in
 	gnu*) 

@@ -101,6 +101,7 @@ Backends:
  umax_pp:       Stéphane Voltz (*)
  umax1220u:     Marcio L. Teixeira, Patrick Lessard
  v4l:           Juergen G. Schimmer, and Henning Geinitz (*)
+ xerox_mfp:     Alex Belkin (*)
 
 Frontends:
 
@@ -136,6 +137,7 @@ Email addresses:
 
 Abel Deuring <a.deuring@satzbau-gmbh.de>
 Alessandro Zummo <a.zummo@towertech.it>
+Alex Belkin <abc@telekom.ru>
 Andras Major <andras@users.sourceforge.net>
 Andreas Beck <becka@uni-duesseldorf.de>
 Andreas Bolsch <ab@maths.nott.ac.uk>

@@ -903,8 +903,11 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
 
   DBG (3, "%s: %p, %d\n", __FUNCTION__, (void *)device_list, local);
 
-  if (devlist)
+  if (devlist) {
+    if (device_list)
+      *device_list = devlist;
     return SANE_STATUS_GOOD;
+  }
 
   free_devices ();
   sanei_usb_set_timeout (1000);

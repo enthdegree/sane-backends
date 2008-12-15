@@ -224,7 +224,7 @@ static SANE_Status dev_stop(struct device *dev)
   int state = dev->state;
 
   DBG (3, "%s: %p, scanning %d, reserved %d\n", __FUNCTION__,
-       dev, dev->scanning, dev->reserved);
+       (void *)dev, dev->scanning, dev->reserved);
   dev->scanning = 0;
 
   /* release */
@@ -704,7 +704,7 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %d, <%d>, %p, %p\n", __FUNCTION__, h, opt, act, val, info);
+  DBG (3, "%s: %p, %d, <%d>, %p, %p\n", __FUNCTION__, h, opt, act, val, (void *)info);
   if (!dev || opt >= NUM_OPTIONS || opt < 0)
     return SANE_STATUS_INVAL;
 
@@ -745,7 +745,7 @@ dev_open (struct device *dev)
 {
   SANE_Status status;
 
-  DBG (3, "%s: open %p\n", __FUNCTION__, dev);
+  DBG (3, "%s: open %p\n", __FUNCTION__, (void *)dev);
   status = sanei_usb_open (dev->sane.name, &dev->dn);
   if (status != SANE_STATUS_GOOD) {
       DBG (1, "%s: sanei_usb_open(%s): %s\n", __FUNCTION__,
@@ -762,7 +762,7 @@ dev_close (struct device *dev)
 {
   if (!dev)
     return;
-  DBG (3, "%s: closing dev %p\n", __FUNCTION__, dev);
+  DBG (3, "%s: closing dev %p\n", __FUNCTION__, (void *)dev);
 
   /* finish all operations */
   if (dev->scanning) {
@@ -872,7 +872,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback cb)
 {
   DBG_INIT ();
   DBG (2, "sane_init: Xerox backend (build %d) %p, %p\n", BACKEND_BUILD,
-       version_code, cb);
+       (void *)version_code, (void *)cb);
 
   if (version_code)
     *version_code = SANE_VERSION_CODE (V_MAJOR, V_MINOR, BACKEND_BUILD);
@@ -901,7 +901,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
   int dev_count;
   int i;
 
-  DBG (3, "%s: %p, %d\n", __FUNCTION__, device_list, local);
+  DBG (3, "%s: %p, %d\n", __FUNCTION__, (void *)device_list, local);
 
   if (devlist)
     return SANE_STATUS_GOOD;
@@ -944,7 +944,7 @@ sane_close (SANE_Handle h)
   if (!dev)
     return;
 
-  DBG (3, "%s: %p (%s)\n", __FUNCTION__, dev, dev->sane.name);
+  DBG (3, "%s: %p (%s)\n", __FUNCTION__, (void *)dev, dev->sane.name);
   dev_close (dev);
 }
 
@@ -983,7 +983,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * para)
 {
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, para);
+  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, (void *)para);
   if (!para)
     return SANE_STATUS_INVAL;
 
@@ -1113,7 +1113,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * lenp)
   SANE_Status status;
   struct device *dev = h;
 
-  DBG (3, "%s: %p, %p, %d, %p\n", __FUNCTION__, h, buf, maxlen, lenp);
+  DBG (3, "%s: %p, %p, %d, %p\n", __FUNCTION__, h, buf, maxlen, (void *)lenp);
 
   if (lenp)
     *lenp = 0;
@@ -1343,7 +1343,7 @@ SANE_Status sane_set_io_mode (SANE_Handle h, SANE_Bool non_blocking)
 
 SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fdp)
 {
-  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, fdp);
+  DBG (3, "%s: %p, %p\n", __FUNCTION__, h, (void *)fdp);
   /* supporting of this will require thread creation */
   return SANE_STATUS_UNSUPPORTED;
 }

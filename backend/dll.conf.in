@@ -78,6 +78,7 @@ umax
 #umax_pp
 umax1220u
 v4l
+xerox_mfp
 #
 # The following backends are not included in the sane-backends distribution
 # If you want to use them, download them from their webpages and read their

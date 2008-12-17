@@ -1080,9 +1080,15 @@ sane_cancel (SANE_Handle handle)
 
   DBG (2, "sane_cancel\n");
   /* ??? buffer isn't checked in sane_read? */
-  if ((buffer != 0) && (s->is_mmap == SANE_FALSE))
-    free (buffer);
-  buffer = 0;
+  if (buffer)
+    {
+      if (s->is_mmap)
+	munmap (buffer, s->mbuf.size);
+      else
+	free (buffer);
+
+      buffer = NULL;
+    }
 }
 
 

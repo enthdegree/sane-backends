@@ -1,3 +1,6 @@
+2008-12-17  Julien Blache <jb@jblache.org>
+	* backend/v4l.c: unmap mapped buffer in sane_cancel().
+
 2008-12-15  Alex Belkin <abc@telekom.ru>
 	* AUTHORS, configure, configure.in, backend/Makefile.in,
 	backend/xerox_mfp.c, backend/xerox_mfp.h, doc/Makefile.in,

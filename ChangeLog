@@ -1,5 +1,8 @@
 2008-12-17  Julien Blache <jb@jblache.org>
-	* backend/v4l.c: unmap mapped buffer in sane_cancel().
+	* backend/v4l.c: unmap mapped buffer in sane_cancel(). Use libv4l1
+	for v4l device access, buys us some support for v4l2 devices for
+	free thanks to libv4l1, libv4l2 and libv4lconvert.
+	* configure.in, configure: check for libv4l1 availability.
 
 2008-12-15  Alex Belkin <abc@telekom.ru>
 	* AUTHORS, configure, configure.in, backend/Makefile.in,

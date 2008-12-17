@@ -117,6 +117,12 @@ SANE_CHECK_LOCKING
 SANE_CHECK_GPHOTO2
 
 
+PKG_CHECK_MODULES(libv4l1, [ libv4l1 ],
+			[ LIBS="${LIBS} ${libv4l1_LIBS}"
+				CFLAGS="${CFLAGS} ${libv4l1_CFLAGS}"
+				have_libv4l1=yes ],
+			[ have_libv4l1=no ])
+
 AC_ARG_ENABLE(avahi,
 	AC_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
 	[enable_avahi=$enableval], [enable_avahi=no])
@@ -449,7 +455,7 @@ else
     BACKENDS="${BACKENDS} qcam"
   fi
 
-  if test "${have_linux_ioctl_defines}" != "yes"
+  if test "${have_linux_ioctl_defines}" != "yes" || test "${have_libv4l1}" != "yes"
   then
     echo "*** disabling v4l (Video for Linux) backend"
   else

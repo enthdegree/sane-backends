@@ -854,6 +854,8 @@ LOCKPATH_GROUP
 HAVE_GPHOTO2
 GPHOTO2_LDFLAGS
 PKG_CONFIG
+libv4l1_CFLAGS
+libv4l1_LIBS
 AVAHI_CFLAGS
 AVAHI_LIBS
 ALLOCA
@@ -898,6 +900,8 @@ LIBS
 CPPFLAGS
 CPP
 PKG_CONFIG
+libv4l1_CFLAGS
+libv4l1_LIBS
 AVAHI_CFLAGS
 AVAHI_LIBS
 CXX
@@ -1534,6 +1538,10 @@ Some influential environment variables:
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
   PKG_CONFIG  path to pkg-config utility
+  libv4l1_CFLAGS
+              C compiler flags for libv4l1, overriding pkg-config
+  libv4l1_LIBS
+              linker flags for libv4l1, overriding pkg-config
   AVAHI_CFLAGS
               C compiler flags for AVAHI, overriding pkg-config
   AVAHI_LIBS  linker flags for AVAHI, overriding pkg-config
@@ -8180,15 +8188,6 @@ done
 
 
 
-# Check whether --enable-avahi was given.
-if test "${enable_avahi+set}" = set; then
-  enableval=$enable_avahi; enable_avahi=$enableval
-else
-  enable_avahi=no
-fi
-
-
-if test "$enable_avahi" = "yes"; then
 
 
 if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
@@ -8309,6 +8308,89 @@ echo "${ECHO_T}no" >&6; }
 	fi
 
 fi
+
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for libv4l1" >&5
+echo $ECHO_N "checking for libv4l1... $ECHO_C" >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$libv4l1_CFLAGS"; then
+        pkg_cv_libv4l1_CFLAGS="$libv4l1_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" libv4l1 \"") >&5
+  ($PKG_CONFIG --exists --print-errors " libv4l1 ") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_libv4l1_CFLAGS=`$PKG_CONFIG --cflags " libv4l1 " 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$libv4l1_LIBS"; then
+        pkg_cv_libv4l1_LIBS="$libv4l1_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" libv4l1 \"") >&5
+  ($PKG_CONFIG --exists --print-errors " libv4l1 ") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_libv4l1_LIBS=`$PKG_CONFIG --libs " libv4l1 " 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        libv4l1_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors " libv4l1 "`
+        else
+	        libv4l1_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors " libv4l1 "`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$libv4l1_PKG_ERRORS" >&5
+
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                 have_libv4l1=no
+elif test $pkg_failed = untried; then
+	 have_libv4l1=no
+else
+	libv4l1_CFLAGS=$pkg_cv_libv4l1_CFLAGS
+	libv4l1_LIBS=$pkg_cv_libv4l1_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	 LIBS="${LIBS} ${libv4l1_LIBS}"
+				CFLAGS="${CFLAGS} ${libv4l1_CFLAGS}"
+				have_libv4l1=yes
+fi
+
+# Check whether --enable-avahi was given.
+if test "${enable_avahi+set}" = set; then
+  enableval=$enable_avahi; enable_avahi=$enableval
+else
+  enable_avahi=no
+fi
+
+
+if test "$enable_avahi" = "yes"; then
 
 pkg_failed=no
 { echo "$as_me:$LINENO: checking for AVAHI" >&5
@@ -8677,6 +8759,7 @@ fi
 
 
 
+
 for ac_header in fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/time.h sys/shm.h sys/ipc.h sys/signal.h \
     sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
@@ -8688,7 +8771,7 @@ for ac_header in fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     IOKit/cdb/IOSCSILib.h IOKit/scsi/SCSICommandOperationCodes.h \
     IOKit/scsi-commands/SCSICommandOperationCodes.h \
     windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h\
-    netinet/in.h tiffio.h ifaddrs.h
+    netinet/in.h tiffio.h ifaddrs.h pwd.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -12645,7 +12728,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 12648 "configure"' > conftest.$ac_ext
+  echo '#line 12731 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -15088,11 +15171,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15091: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15174: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15095: \$? = $ac_status" >&5
+   echo "$as_me:15178: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15356,11 +15439,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15359: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15442: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15363: \$? = $ac_status" >&5
+   echo "$as_me:15446: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15460,11 +15543,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15463: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15546: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15467: \$? = $ac_status" >&5
+   echo "$as_me:15550: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17768,7 +17851,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17771 "configure"
+#line 17854 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17868,7 +17951,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17871 "configure"
+#line 17954 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -20208,11 +20291,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20211: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20294: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:20215: \$? = $ac_status" >&5
+   echo "$as_me:20298: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -20312,11 +20395,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:20315: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:20398: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:20319: \$? = $ac_status" >&5
+   echo "$as_me:20402: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21882,11 +21965,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21885: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:21968: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:21889: \$? = $ac_status" >&5
+   echo "$as_me:21972: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -21986,11 +22069,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:21989: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:22072: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:21993: \$? = $ac_status" >&5
+   echo "$as_me:22076: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -24188,11 +24271,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24191: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24274: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:24195: \$? = $ac_status" >&5
+   echo "$as_me:24278: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -24456,11 +24539,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24459: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24542: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:24463: \$? = $ac_status" >&5
+   echo "$as_me:24546: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -24560,11 +24643,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24563: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24646: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:24567: \$? = $ac_status" >&5
+   echo "$as_me:24650: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -27341,7 +27424,7 @@ echo "$as_me: Manually selected backends: ${BACKENDS}" >&6;}
     BACKENDS="${BACKENDS} qcam"
   fi
 
-  if test "${have_linux_ioctl_defines}" != "yes"
+  if test "${have_linux_ioctl_defines}" != "yes" || test "${have_libv4l1}" != "yes"
   then
     echo "*** disabling v4l (Video for Linux) backend"
   else
@@ -28185,6 +28268,8 @@ LOCKPATH_GROUP!$LOCKPATH_GROUP$ac_delim
 HAVE_GPHOTO2!$HAVE_GPHOTO2$ac_delim
 GPHOTO2_LDFLAGS!$GPHOTO2_LDFLAGS$ac_delim
 PKG_CONFIG!$PKG_CONFIG$ac_delim
+libv4l1_CFLAGS!$libv4l1_CFLAGS$ac_delim
+libv4l1_LIBS!$libv4l1_LIBS$ac_delim
 AVAHI_CFLAGS!$AVAHI_CFLAGS$ac_delim
 AVAHI_LIBS!$AVAHI_LIBS$ac_delim
 ALLOCA!$ALLOCA$ac_delim
@@ -28194,8 +28279,6 @@ ECHO!$ECHO$ac_delim
 AR!$AR$ac_delim
 RANLIB!$RANLIB$ac_delim
 STRIP!$STRIP$ac_delim
-DLLTOOL!$DLLTOOL$ac_delim
-AS!$AS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -28237,6 +28320,8 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+DLLTOOL!$DLLTOOL$ac_delim
+AS!$AS$ac_delim
 OBJDUMP!$OBJDUMP$ac_delim
 CXX!$CXX$ac_delim
 CXXFLAGS!$CXXFLAGS$ac_delim
@@ -28261,7 +28346,7 @@ DISTCLEAN_FILES!$DISTCLEAN_FILES$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 22; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 24; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

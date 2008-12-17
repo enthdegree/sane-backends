@@ -43,7 +43,7 @@
    This file implements a SANE backend for v4l-Devices.
 */
 
-#define BUILD 4
+#define BUILD 5
 
 #include "../include/sane/config.h"
 
@@ -85,6 +85,8 @@
 #define V4L_CONFIG_FILE "v4l.conf"
 
 #include "v4l.h"
+
+#include <libv4l1.h>
 
 static const SANE_Device **devlist = NULL;
 static int num_devices;
@@ -139,27 +141,27 @@ attach (const char *devname, V4L_Device ** devp)
       }
 
   DBG (3, "attach: trying to open %s\n", devname);
-  v4lfd = open (devname, O_RDWR);
+  v4lfd = v4l1_open (devname, O_RDWR);
   if (v4lfd != -1)
     {
-      if (ioctl (v4lfd, VIDIOCGCAP, &capability) == -1)
+      if (v4l1_ioctl (v4lfd, VIDIOCGCAP, &capability) == -1)
 	{
 	  DBG (1,
 	       "attach: ioctl (%d, VIDIOCGCAP,..) failed on `%s': %s\n",
 	       v4lfd, devname, strerror (errno));
-	  close (v4lfd);
+	  v4l1_close (v4lfd);
 	  return SANE_STATUS_INVAL;
 	}
       if (!(VID_TYPE_CAPTURE & capability.type))
 	{
 	  DBG (1, "attach: device %s can't capture to memory -- exiting\n",
 	       devname);
-	  close (v4lfd);
+	  v4l1_close (v4lfd);
 	  return SANE_STATUS_UNSUPPORTED;
 	}
       DBG (2, "attach: found videodev `%s' on `%s'\n", capability.name,
 	   devname);
-      close (v4lfd);
+      v4l1_close (v4lfd);
     }
   else
     {
@@ -536,7 +538,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
       return SANE_STATUS_INVAL;
     }
 
-  v4lfd = open (devname, O_RDWR);
+  v4lfd = v4l1_open (devname, O_RDWR);
   if (v4lfd == -1)
     {
       DBG (1, "sane_open: can't open %s (%s)\n", devname, strerror (errno));
@@ -550,11 +552,11 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   s->devicename = devname;
   s->fd = v4lfd;
 
-  if (ioctl (s->fd, VIDIOCGCAP, &s->capability) == -1)
+  if (v4l1_ioctl (s->fd, VIDIOCGCAP, &s->capability) == -1)
     {
       DBG (1, "sane_open: ioctl (%d, VIDIOCGCAP,..) failed on `%s': %s\n",
 	   s->fd, devname, strerror (errno));
-      close (s->fd);
+      v4l1_close (s->fd);
       return SANE_STATUS_INVAL;
     }
 
@@ -590,7 +592,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
   for (i = 0; i < max_channels; i++)
     {
       channel.channel = i;
-      if (-1 == ioctl (v4lfd, VIDIOCGCHAN, &channel))
+      if (-1 == v4l1_ioctl (v4lfd, VIDIOCGCHAN, &channel))
 	{
 	  DBG (1, "sane_open: can't ioctl VIDIOCGCHAN %s: %s\n", devname,
 	       strerror (errno));
@@ -612,7 +614,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
 	return SANE_STATUS_NO_MEM;
     }
   s->channel[i] = 0;
-  if (-1 == ioctl (v4lfd, VIDIOCGPICT, &s->pict))
+  if (-1 == v4l1_ioctl (v4lfd, VIDIOCGPICT, &s->pict))
     {
       DBG (1, "sane_open: can't ioctl VIDIOCGPICT %s: %s\n", devname,
 	   strerror (errno));
@@ -625,12 +627,12 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
 
   /* ??? */
   s->pict.palette = VIDEO_PALETTE_GREY;
-  if (-1 == ioctl (s->fd, VIDIOCSPICT, &s->pict))
+  if (-1 == v4l1_ioctl (s->fd, VIDIOCSPICT, &s->pict))
     {
       DBG (1, "sane_open: ioctl VIDIOCSPICT failed (%s)\n", strerror (errno));
     }
 
-  if (-1 == ioctl (s->fd, VIDIOCGWIN, &s->window))
+  if (-1 == v4l1_ioctl (s->fd, VIDIOCGWIN, &s->window))
     {
       DBG (1, "sane_open: can't ioctl VIDIOCGWIN %s: %s\n", devname,
 	   strerror (errno));
@@ -640,7 +642,7 @@ sane_open (SANE_String_Const devname, SANE_Handle * handle)
        s->window.x, s->window.y, s->window.width, s->window.height);
 
   /* already done in sane_start 
-     if (-1 == ioctl (v4lfd, VIDIOCGMBUF, &mbuf))
+     if (-1 == v4l1_ioctl (v4lfd, VIDIOCGMBUF, &mbuf))
      DBG (1, "sane_open: can't ioctl VIDIOCGMBUF (no Fbuffer?)\n");
    */
 
@@ -684,7 +686,7 @@ sane_close (SANE_Handle handle)
 
   if (s->scanning)
     sane_cancel (handle);
-  close (s->fd);
+  v4l1_close (s->fd);
   free (s);
 }
 
@@ -771,7 +773,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       if (option >= OPT_TL_X && option <= OPT_BR_Y)
 	{
 	  s->user_corner |= 1 << (option - OPT_TL_X);
-	  if (-1 == ioctl (s->fd, VIDIOCGWIN, &s->window))
+	  if (-1 == v4l1_ioctl (s->fd, VIDIOCGWIN, &s->window))
 	    {
 	      DBG (1, "sane_control_option: ioctl VIDIOCGWIN failed "
 		   "(can not get window geometry)\n");
@@ -848,13 +850,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		if (strcmp (s->channel[i], val) == 0)
 		  {
 		    channel.channel = i;
-		    if (-1 == ioctl (s->fd, VIDIOCGCHAN, &channel))
+		    if (-1 == v4l1_ioctl (s->fd, VIDIOCGCHAN, &channel))
 		      {
 			DBG (1, "sane_open: can't ioctl VIDIOCGCHAN %s: %s\n",
 			     s->devicename, strerror (errno));
 			return SANE_STATUS_INVAL;
 		      }
-		    if (-1 == ioctl (s->fd, VIDIOCSCHAN, &channel))
+		    if (-1 == v4l1_ioctl (s->fd, VIDIOCSCHAN, &channel))
 		      {
 			DBG (1, "sane_open: can't ioctl VIDIOCSCHAN %s: %s\n",
 			     s->devicename, strerror (errno));
@@ -872,13 +874,13 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
       if (option >= OPT_TL_X && option <= OPT_BR_Y)
 	{
-	  if (-1 == ioctl (s->fd, VIDIOCSWIN, &s->window))
+	  if (-1 == v4l1_ioctl (s->fd, VIDIOCSWIN, &s->window))
 	    {
 	      DBG (1, "sane_control_option: ioctl VIDIOCSWIN failed (%s)\n",
 		   strerror (errno));
 	      /* return SANE_STATUS_INVAL; */
 	    }
-	  if (-1 == ioctl (s->fd, VIDIOCGWIN, &s->window))
+	  if (-1 == v4l1_ioctl (s->fd, VIDIOCGWIN, &s->window))
 	    {
 	      DBG (1, "sane_control_option: ioctl VIDIOCGWIN failed (%s)\n",
 		   strerror (errno));
@@ -887,7 +889,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	}
       if (option >= OPT_BRIGHTNESS && option <= OPT_WHITE_LEVEL)
 	{
-	  if (-1 == ioctl (s->fd, VIDIOCSPICT, &s->pict))
+	  if (-1 == v4l1_ioctl (s->fd, VIDIOCSPICT, &s->pict))
 	    {
 	      DBG (1, "sane_control_option: ioctl VIDIOCSPICT failed (%s)\n",
 		   strerror (errno));
@@ -928,7 +930,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
       DBG (1, "sane_get_parameters: params == 0\n");
       return SANE_STATUS_INVAL;
     }
-  if (-1 == ioctl (s->fd, VIDIOCGWIN, &s->window))
+  if (-1 == v4l1_ioctl (s->fd, VIDIOCGWIN, &s->window))
     {
       DBG (1, "sane_control_option: ioctl VIDIOCGWIN failed "
 	   "(can not get window geometry)\n");
@@ -961,14 +963,14 @@ sane_start (SANE_Handle handle)
       DBG (1, "sane_start: bad handle %p\n", handle);
       return SANE_STATUS_INVAL;	/* oops, not a handle we know about */
     }
-  len = ioctl (s->fd, VIDIOCGCAP, &s->capability);
+  len = v4l1_ioctl (s->fd, VIDIOCGCAP, &s->capability);
   if (-1 == len)
     {
       DBG (1, "sane_start: can not get capabilities\n");
       return SANE_STATUS_INVAL;
     }
   s->buffercount = 0;
-  if (-1 == ioctl (s->fd, VIDIOCGMBUF, &s->mbuf))
+  if (-1 == v4l1_ioctl (s->fd, VIDIOCGMBUF, &s->mbuf))
     {
       s->is_mmap = SANE_FALSE;
       buffer =
@@ -977,7 +979,7 @@ sane_start (SANE_Handle handle)
       if (0 == buffer)
 	return SANE_STATUS_NO_MEM;
       DBG (3, "sane_start: V4L trying to read frame\n");
-      len = read (s->fd, buffer, parms.bytes_per_line * parms.lines);
+      len = v4l1_read (s->fd, buffer, parms.bytes_per_line * parms.lines);
       DBG (3, "sane_start: %d bytes read\n", len);
     }
   else
@@ -987,10 +989,11 @@ sane_start (SANE_Handle handle)
 	   "sane_start: mmap frame, buffersize: %d bytes, buffers: %d, offset 0 %d\n",
 	   s->mbuf.size, s->mbuf.frames, s->mbuf.offsets[0]);
       buffer =
-	mmap (0, s->mbuf.size, PROT_READ | PROT_WRITE, MAP_SHARED, s->fd, 0);
+	v4l1_mmap (0, s->mbuf.size, PROT_READ | PROT_WRITE, MAP_SHARED, s->fd, 0);
       if (buffer == (void *)-1)
 	{
 	  DBG (1, "sane_start: mmap failed: %s\n", strerror (errno));
+	  buffer = NULL;
 	  return SANE_STATUS_IO_ERROR;
 	}
       DBG (3, "sane_start: mmapped frame, capture 1 pict into %p\n", buffer);
@@ -1000,9 +1003,9 @@ sane_start (SANE_Handle handle)
       s->mmap.height = s->window.height;
       /*      s->mmap.height = parms.lines;  ??? huh? */
       s->mmap.format = s->pict.palette;
-      DBG (2, "sane_start: mmappeded frame %d x %d with palette %d\n",
+      DBG (2, "sane_start: mmapped frame %d x %d with palette %d\n",
 	   s->mmap.width, s->mmap.height, s->mmap.format);
-      len = ioctl (s->fd, VIDIOCMCAPTURE, &s->mmap);
+      len = v4l1_ioctl (s->fd, VIDIOCMCAPTURE, &s->mmap);
       if (len == -1)
 	{
 	  DBG (1, "sane_start: ioctl VIDIOCMCAPTURE failed: %s\n",
@@ -1010,7 +1013,7 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_INVAL;
 	}
       DBG (3, "sane_start: waiting for frame %x\n", s->mmap.frame);
-      len = ioctl (s->fd, VIDIOCSYNC, &(s->mmap.frame));
+      len = v4l1_ioctl (s->fd, VIDIOCSYNC, &(s->mmap.frame));
       if (-1 == len)
 	{
 	  DBG (1, "sane_start: call to ioctl(%d, VIDIOCSYNC, ..) failed\n",
@@ -1053,7 +1056,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       *lenp = (parms.lines * parms.bytes_per_line - s->buffercount);
       if (max_len < *lenp)
 	*lenp = max_len;
-      DBG (3, "sane_read: tranfered %d bytes (from %d to %d)\n", *lenp,
+      DBG (3, "sane_read: transferred %d bytes (from %d to %d)\n", *lenp,
 	   s->buffercount, i);
       s->buffercount = i;
     }
@@ -1066,7 +1069,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       *lenp = (parms.lines * parms.bytes_per_line - s->buffercount);
       if ((i - s->buffercount) < *lenp)
 	*lenp = (i - s->buffercount);
-      DBG (3, "sane_read: tranfered %d bytes (from %d to %d)\n", *lenp,
+      DBG (3, "sane_read: transferred %d bytes (from %d to %d)\n", *lenp,
 	   s->buffercount, i);
       s->buffercount = i;
     }
@@ -1079,11 +1082,12 @@ sane_cancel (SANE_Handle handle)
   V4L_Scanner *s = handle;
 
   DBG (2, "sane_cancel\n");
+
   /* ??? buffer isn't checked in sane_read? */
   if (buffer)
     {
       if (s->is_mmap)
-	munmap (buffer, s->mbuf.size);
+	v4l1_munmap(buffer, s->mbuf.size);
       else
 	free (buffer);
 

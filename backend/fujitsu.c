@@ -405,10 +405,12 @@
       v84 2008-11-07, MAN
          - round lines down to even number to get even # of total bytes
          - round binary bpl and Bpl down to byte boundary
-      v85 2008-11-10, MAN
+      v85 2008-12-10, MAN
          - round pixels_per_line down to arbitrary limits for fi-4990 & fi-4860
          - fi-4860 returns random garbage to serial number queries
          - initialize *info to 0 in sane_control_option()
+      v86 2008-12-18, MAN
+         - get_pixelsize() sets back window ID for back side scans
 
    SANE FLOW DIAGRAM
 
@@ -469,7 +471,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 85
+#define BUILD 86
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -6487,7 +6489,12 @@ get_pixelsize(struct fujitsu *s)
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, READ_code);
     set_R_datatype_code (cmd, R_datatype_pixelsize);
-    set_R_window_id (cmd, WD_wid_front);
+    if(s->source == SOURCE_ADF_BACK){
+      set_R_window_id (cmd, WD_wid_back);
+    }
+    else{
+      set_R_window_id (cmd, WD_wid_front);
+    }
     set_R_xfer_length (cmd, inLen);
   
     ret = do_cmd (

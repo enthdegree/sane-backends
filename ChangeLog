@@ -1,3 +1,8 @@
+2008-12-18  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v86
+	- get_pixelsize() sets back window ID for back side scans
+	* doc/sane-fujitsu.man, doc/descriptions/fujitsu.desc: backend v86
+
 2008-12-17  Julien Blache <jb@jblache.org>
 	* backend/v4l.c: unmap mapped buffer in sane_cancel(). Use libv4l1
 	for v4l device access, buys us some support for v4l2 devices for

@@ -599,11 +599,25 @@
 :comment   "requires DFSG non-free iscan-plugin-gt-f700"
 :url       "http://avasys.jp/lx-bin2/linux/scan/DL1.do"
 
+:model     "GT-F720"
+:interface "USB"
+:usbid     "0x04b8" "0x0131"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-f720<br>GT-S620 with TPU"
+:url       "http://avasys.jp/lx-bin2/linux/scan/DL1.do"
+
 :model     "GT-S600"
 :interface "USB"
 :usbid     "0x04b8" "0x012d"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-s600"
+:url       "http://avasys.jp/lx-bin2/linux/scan/DL1.do"
+
+:model     "GT-S620"
+:interface "USB"
+:usbid     "0x04b8" "0x0131"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-f720"
 :url       "http://avasys.jp/lx-bin2/linux/scan/DL1.do"
 
 :model     "GT-X700"			; product spec (JP)
@@ -690,6 +704,12 @@
 :status    :good
 :comment   "network interface not supported<br>business all-in-one"
 
+:model     "LP-M5000"
+:interface "USB"
+:usbid     "0x04b8" "0x0843"
+:status    :good
+:comment   "network interface not supported<br>business all-in-one"
+
 :model     "LP-M5500"
 :interface "USB"
 :usbid     "0x04b8" "0x0817"
@@ -714,7 +734,7 @@
 :status    :good
 :comment   "network interface not supported<br>business all-in-one"
 
-:model     "ME200"
+:model     "ME 200"
 :interface "USB"
 :usbid     "0x04b8" "0x0830"
 :status    :good
@@ -724,6 +744,12 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
 :status    :unsupported
+:comment   "all-in-one"
+
+:model     "ME Office 600F"
+:interface "USB"
+:usbid     "0x04b8" "0x0848"
+:status    :good
 :comment   "all-in-one"
 
 :model     "PM-A700"			; product spec (JP)
@@ -1092,41 +1118,55 @@
 :comment   "requires DFSG non-free iscan-plugin-gt-s600<br>overseas version of the GT-S600"
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
-:model     "Perfection V100 PHOTO"
+:model     "Perfection V30"
+:interface "USB"
+:usbid     "0x04b8" "0x0131"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-S620"
+:url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model     "Perfection V100 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012d"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-s600<br>overseas version of the GT-F650"
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
-:model     "Perfection V200 PHOTO"
+:model     "Perfection V200 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012e"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-f670<br>overseas version of the GT-F670"
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
-:model     "Perfection V350 PHOTO"
+:model     "Perfection V300 Photo"
+:interface "USB"
+:usbid     "0x04b8" "0x0131"
+:status    :good
+:comment   "requires DFSG non-free esci-interpreter-gt-f720<br>overseas version of the GT-F620"
+:url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
+
+:model     "Perfection V350 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012f"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-f700<br>overseas version of the GT-F700"
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
-:model     "Perfection V500 PHOTO"
+:model     "Perfection V500 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x0130"
 :status    :good
 :comment   "requires DFSG non-free iscan-plugin-gt-x770<br>overseas version of the GT-X770"
 :url       "http://avasys.jp/lx-bin2/linux_e/scan/DL1.do"
 
-:model     "Perfection V700"
+:model     "Perfection V700 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
 :comment   "IEEE1394 untested<br>overseas version of the GT-X900"
 
-:model     "Perfection V750"
+:model     "Perfection V750 Photo"
 :interface "USB"
 :usbid     "0x04b8" "0x012c"
 :status    :good
@@ -1508,12 +1548,6 @@
 :status    :good
 :comment   "all-in-one"
 
-:model     "Stylus Office TX600FW"
-:interface "USB"
-:usbid     "0x04b8" "0x0847"
-:status    :good
-:comment   "network interface not supported<br>all-in-one"
-
 :model     "Stylus Photo PX700W"
 :interface "USB"
 :usbid     "0x04b8" "0x0846"
@@ -1664,6 +1698,12 @@
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-801A"
 
+:model     "Stylus Photo TX800FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0844"
+:status    :good
+:comment   "network interface not supported<br>all-in-one<br>overseas version of the EP-901A"
+
 :model     "Stylus NX100"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
@@ -1765,6 +1805,12 @@
 :usbid     "0x04b8" "0x084a"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
+
+:model     "Stylus TX600FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
 
 :model     "WorkForce 500"
 :interface "USB"

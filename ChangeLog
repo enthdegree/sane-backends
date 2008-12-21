@@ -1,3 +1,9 @@
+2008-12-21  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.[ch]: backend v87
+	- accept null pointer as empty device name
+	- track frontend reading sensor/button values to reload
+	- deactivate double feed options if df-action == default
+
 2008-12-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
 	backend/pixma_mp150.c:

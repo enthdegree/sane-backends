@@ -527,7 +527,6 @@ struct fujitsu
 
   /* --------------------------------------------------------------------- */
   /* values which are used by the get hardware status command              */
-  time_t last_ghs;
 
   int hw_top;
   int hw_A3;
@@ -555,6 +554,9 @@ struct fujitsu
 
   int hw_duplex_sw;
   int hw_density_sw;
+
+  /* values which are used to track the frontend's access to sensors  */
+  char hw_read[NUM_OPTIONS-OPT_TOP];
 };
 
 #define CONNECTION_SCSI   0 /* SCSI interface */
@@ -772,7 +774,7 @@ static SANE_Status read_from_buffer(struct fujitsu *s, SANE_Byte * buf, SANE_Int
 
 static SANE_Status setup_buffers (struct fujitsu *s);
 
-static SANE_Status get_hardware_status (struct fujitsu *s);
+static SANE_Status get_hardware_status (struct fujitsu *s, SANE_Int option);
 
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 

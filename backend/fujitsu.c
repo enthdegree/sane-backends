@@ -411,6 +411,10 @@
          - initialize *info to 0 in sane_control_option()
       v86 2008-12-18, MAN
          - get_pixelsize() sets back window ID for back side scans
+      v87 2008-12-21, MAN
+         - accept null pointer as empty device name
+         - track frontend reading sensor/button values to reload
+         - deactivate double feed options if df-action == default
 
    SANE FLOW DIAGRAM
 
@@ -452,7 +456,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <time.h>
+/*#include <time.h>*/
 #include <math.h>
 
 #include <sys/types.h>
@@ -471,7 +475,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 86
+#define BUILD 87
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2265,7 +2269,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
     }
   }
 
-  if(name[0] == 0){
+  if(!name || !name[0]){
     DBG (15, "sane_open: no device requested, using default\n");
     s = fujitsu_devList;
   }
@@ -3294,8 +3298,8 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-     /*if(!s->df_action)
-       opt->cap |= SANE_CAP_INACTIVE;*/
+     if(!s->df_action)
+       opt->cap |= SANE_CAP_INACTIVE;
     }
     else
      opt->cap = SANE_CAP_INACTIVE;
@@ -3338,7 +3342,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
     if (s->has_MS_df){
      opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-     if(!s->df_action)
+     if(!s->df_action || !s->df_diff)
        opt->cap |= SANE_CAP_INACTIVE;
     }
     else
@@ -4490,102 +4494,102 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 
         /* Sensor Group */
         case OPT_TOP:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_top;
           return SANE_STATUS_GOOD;
           
         case OPT_A3:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_A3;
           return SANE_STATUS_GOOD;
           
         case OPT_B4:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_B4;
           return SANE_STATUS_GOOD;
           
         case OPT_A4:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_A4;
           return SANE_STATUS_GOOD;
           
         case OPT_B5:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_B5;
           return SANE_STATUS_GOOD;
           
         case OPT_HOPPER:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_hopper;
           return SANE_STATUS_GOOD;
           
         case OPT_OMR:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_omr;
           return SANE_STATUS_GOOD;
           
         case OPT_ADF_OPEN:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_adf_open;
           return SANE_STATUS_GOOD;
           
         case OPT_SLEEP:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_sleep;
           return SANE_STATUS_GOOD;
           
         case OPT_SEND_SW:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_send_sw;
           return SANE_STATUS_GOOD;
           
         case OPT_MANUAL_FEED:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_manual_feed;
           return SANE_STATUS_GOOD;
           
         case OPT_SCAN_SW:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_scan_sw;
           return SANE_STATUS_GOOD;
           
         case OPT_FUNCTION:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_function;
           return SANE_STATUS_GOOD;
           
         case OPT_INK_EMPTY:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_ink_empty;
           return SANE_STATUS_GOOD;
           
         case OPT_DOUBLE_FEED:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_double_feed;
           return SANE_STATUS_GOOD;
           
         case OPT_ERROR_CODE:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_error_code;
           return SANE_STATUS_GOOD;
           
         case OPT_SKEW_ANGLE:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_skew_angle;
           return SANE_STATUS_GOOD;
           
         case OPT_INK_REMAIN:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_ink_remain;
           return SANE_STATUS_GOOD;
           
         case OPT_DENSITY_SW:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_density_sw;
           return SANE_STATUS_GOOD;
           
         case OPT_DUPLEX_SW:
-          get_hardware_status(s);
+          get_hardware_status(s,option);
           *val_p = s->hw_duplex_sw;
           return SANE_STATUS_GOOD;
           
@@ -5125,16 +5129,19 @@ set_sleep_mode(struct fujitsu *s)
 }
 
 static SANE_Status
-get_hardware_status (struct fujitsu *s)
+get_hardware_status (struct fujitsu *s, SANE_Int option)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
 
   DBG (10, "get_hardware_status: start\n");
 
-  /* only run this once every second */
-  if (s->last_ghs < time(NULL)) {
+  /* only run this if frontend has already read the last time we got it */
+  if (s->hw_read[option-OPT_TOP]) {
 
       DBG (15, "get_hardware_status: running\n");
+
+      /* mark all values as unread */
+      memset(s->hw_read,0,sizeof(s->hw_read));
 
       if (s->has_cmd_hw_status){
           unsigned char cmd[GET_HW_STATUS_len];
@@ -5157,8 +5164,6 @@ get_hardware_status (struct fujitsu *s)
           );
         
           if (ret == SANE_STATUS_GOOD || ret == SANE_STATUS_EOF) {
-
-              s->last_ghs = time(NULL);
 
               s->hw_top = get_GHS_top(in);
               s->hw_A3 = get_GHS_A3(in);
@@ -5215,8 +5220,6 @@ get_hardware_status (struct fujitsu *s)
           if(ret == SANE_STATUS_GOOD && get_RS_sense_key(in)==0
             && get_RS_ASC(in)==0x80){
 
-              s->last_ghs = time(NULL);
-    
               s->hw_adf_open = get_RS_adf_open(in);
               s->hw_send_sw = get_RS_send_sw(in);
               s->hw_scan_sw = get_RS_scan_sw(in);
@@ -5231,6 +5234,8 @@ get_hardware_status (struct fujitsu *s)
           }
       }
   }
+
+  s->hw_read[option-OPT_TOP] = 1;
 
   DBG (10, "get_hardware_status: finish\n");
 

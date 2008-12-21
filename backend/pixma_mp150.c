@@ -132,13 +132,13 @@
 
 /* PIXMA 2008 vintage */
 #define MP980_PID 0x172d    /* Untested */
-#define MP630_PID 0x172e    /* Untested */
-#define MP620_PID 0x172f    /* Untested */
+#define MP630_PID 0x172e
+#define MP620_PID 0x172f
 #define MP540_PID 0x1730    /* Untested */
 #define MP480_PID 0x1731    /* Untested */
 #define MP240_PID 0x1732    /* Untested */
 #define MP260_PID 0x1733    /* Untested */
-#define MP190_PID 0x1734    /* Untested */
+#define MP190_PID 0x1734
 
 
 
@@ -359,7 +359,32 @@ select_source (pixma_t * s)
   uint8_t *data;
 
   data = pixma_newcmd (&mp->cb, cmd_select_source, 12, 0);
-  if (s->cfg->pid == MP830_PID)
+  data[5] = ((mp->generation == 2) ? 1 : 0);
+  switch (s->param->source)
+    {
+      case PIXMA_SOURCE_FLATBED:
+        data[0] = 1;
+        data[1] = 1;
+        break;
+        
+      case PIXMA_SOURCE_ADF:
+        data[0] = 2;
+        data[5] = 1;
+        data[6] = 1;
+        break;
+        
+      case PIXMA_SOURCE_ADFDUP:
+        data[0] = 2;
+        data[5] = 3;
+        data[6] = 3;
+        break;
+        
+      case PIXMA_SOURCE_TPU:
+        data[0] = 4;
+        data[1] = 2;
+        break;
+    }
+/*  if (s->cfg->pid == MP830_PID)
     {
       switch (s->param->source)
         {
@@ -378,7 +403,6 @@ select_source (pixma_t * s)
         case PIXMA_SOURCE_TPU:
           PDBG (pixma_dbg (1, "BUG:select_source(): unsupported source %d\n",
                s->param->source));
-          /* fall through */
 
         case PIXMA_SOURCE_FLATBED:
           data[0] = 1;
@@ -394,7 +418,7 @@ select_source (pixma_t * s)
         {
           data[5] = 1;
         }
-    }
+    } */
   return pixma_exec (s, &mp->cb);
 }
 
@@ -412,7 +436,7 @@ send_get_tpu_info_3 (pixma_t * s)
 }
 
 static int
-send_set_tpu_info_3 (pixma_t * s)
+send_set_tpu_info (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
   uint8_t *data;
@@ -517,13 +541,9 @@ static unsigned
 calc_shifting (pixma_t * s)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
-  unsigned base_shift;
 
-  /* Default: no shift to apply (e.g. CIS sensord) */
+  /* If stripes shift needed (CCD devices), how many pixels shift */
   mp->stripe_shift = 0;
-  mp->color_shift = 0;
-
-  /* If color plane shift (CCD devices), how many pixels shift */
   switch (s->cfg->pid)
     {
       case MP970_PID:	/* MP970 at 4800 dpi */
@@ -535,39 +555,54 @@ calc_shifting (pixma_t * s)
                mp->stripe_shift = 3;
            }
         break;
+
+      case MP800_PID:
+      case MP800R_PID:
+      case MP830_PID:
+      case MP960_PID:
       case MP810_PID:
         if (s->param->xdpi == 2400) 
           mp->stripe_shift = 3;
         break;
-      case MP800_PID:
-      case MP830_PID:
-      case MP960_PID:
 
-      default:     /* all CIS devices */
+      default:     /* Default, and all CIS devices */
         break;
     }
-  if (has_ccd_sensor (s) && s->param->ydpi > 75)
-    mp->color_shift = s->param->ydpi / 50;
-    
-  base_shift = get_cis_ccd_line_size (s) * mp->color_shift;
-
-  /* If color plane shift, how to apply the shift */
-  switch (s->cfg->pid)
+  /* If color plane shift (CCD devices), how many pixels shift */
+  mp->color_shift = mp->shift[0] = mp->shift[1] = mp->shift[2] = 0;
+  if (s->param->ydpi > 75)
     {
-      case MP970_PID:
-        mp->shift[0] = 0;
-        mp->shift[1] = base_shift;
-        mp->shift[2] = 2 * base_shift;
-        break;
+      switch (s->cfg->pid)
+        {
+          case MP970_PID:
+            mp->color_shift = s->param->ydpi / 50;
+            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+            mp->shift[0] = 0;
+            mp->shift[2] = 2 * mp->shift[1];
+            break;
 
-      case MP800_PID:
-      case MP810_PID:
-      case MP830_PID:
-      case MP960_PID:
-      default:
-        mp->shift[0] = 2 * base_shift;
-        mp->shift[1] = base_shift;
-        mp->shift[2] = 0;
+          case MP800_PID:
+          case MP800R_PID:
+          case MP830_PID:
+            mp->color_shift = s->param->ydpi / ((s->param->ydpi < 1200) ? 150 : 75);
+            if (is_scanning_from_tpu (s)) 
+              mp->color_shift = s->param->ydpi / 75;
+            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+            mp->shift[0] = 2 * mp->shift[1];
+            mp->shift[2] = 0;
+            break;
+
+          case MP810_PID:
+          case MP960_PID:
+            mp->color_shift = s->param->ydpi / 50;
+            mp->shift[1] = mp->color_shift * get_cis_ccd_line_size (s);
+            mp->shift[0] = 2 * mp->shift[1];
+            mp->shift[2] = 0;
+            break;
+            
+          default:
+            break;
+        }
     }
   return (2 * mp->color_shift + mp->stripe_shift);
 }
@@ -592,6 +627,7 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (h, data + 0x14);
       data[0x18] = ((s->param->channels != 1) || is_ccd_grayscale (s)) ? 0x08 : 0x04;
       data[0x19] = s->param->depth * ((is_ccd_grayscale (s)) ? 3 : s->param->channels);	/* bits per pixel */
+      data[0x1a] = (is_scanning_from_tpu (s) ? 1 : 0);
       data[0x20] = 0xff;
       data[0x23] = 0x81;
       data[0x26] = 0x02;
@@ -857,15 +893,14 @@ shift_colors (uint8_t * dptr, uint8_t * sptr,
               int * colshft, unsigned strshft)
 {
   unsigned i, sr, sg, sb, st;
+  UNUSED(dpi);
+  UNUSED(pid);
   sr = colshft[0]; sg = colshft[1]; sb = colshft[2];
   
   for (i = 0; i < w; i++)
     {
-      st = 0;
-      /* MP970 at 4800 dpi exception stripes shift */
-      if (pid == MP970_PID && dpi == 4800 && i % 2 == 0) st = strshft;
-      /* MP810 at 2400 dpi exception stripes shift */
-      if (pid == MP810_PID && dpi == 2400 && i % 2 == 0) st = strshft;      
+      /* stripes shift for MP970 at 4800 dpi, MP800, MP800R, MP810 at 2400 dpi */
+      st = (i % 2 == 0) ? strshft : 0;
         
       *sptr++ = *(dptr++ + sr + st);
       if (c == 6) *sptr++ = *(dptr++ + sr + st);
@@ -1067,7 +1102,7 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   sp->depth = 8;		/* MP150 only supports 8 bit per channel. */
 #ifdef TPU_48
 #ifndef DEBUG_TPU_48
-  if (mp->generation == 3 && sp->source == PIXMA_SOURCE_TPU)
+  if (sp->source == PIXMA_SOURCE_TPU)
 #endif
       sp->depth = 16;   /* TPU in 16 bits mode */
 #endif
@@ -1076,10 +1111,10 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
     {
       /* mod 32 and expansion of the X scan limits */
       sp->w += (sp->x) % 32;
-      sp->w = calc_raw_width (mp, sp);
       sp->x = ALIGN_INF (sp->x, 32);
     }
-  sp->line_size = calc_raw_width (mp, sp) * sp->channels * (sp->depth / 8);
+  sp->w = calc_raw_width (mp, sp);
+  sp->line_size = sp->w * sp->channels * (sp->depth / 8);
   
   /* Some exceptions here for particular devices */
   /* MX850 and MX7600 can scan up to 14" with ADF, but A4 11.7" in flatbed */
@@ -1087,11 +1122,14 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
        && sp->source == PIXMA_SOURCE_FLATBED)
     sp->h = MIN (sp->h, 877 * sp->ydpi / 75);
     
-  /* MP970 in TPU mode: lowest res is 300 dpi */
-  if (s->cfg->pid == MP970_PID && sp->source == PIXMA_SOURCE_TPU)
+  /* TPU mode: lowest res is 150 or 300 dpi */
+  if (sp->source == PIXMA_SOURCE_TPU)
     {
       uint8_t k;
-      k = MAX (sp->xdpi, 300) / sp->xdpi;
+      if (mp->generation >= 3)
+        k = MAX (sp->xdpi, 300) / sp->xdpi;
+      else
+        k = MAX (sp->xdpi, 150) / sp->xdpi;
       sp->x *= k;
       sp->y *= k;
       sp->w *= k;
@@ -1195,8 +1233,8 @@ mp150_scan (pixma_t * s)
       if ((error >= 0) && !is_scanning_from_tpu (s))
         for (i = (mp->generation == 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
           error = send_gamma_table (s);
-      else if (mp->generation == 3)  /* FIXME: Does this apply also to gen2 ? */
-        error = send_set_tpu_info_3 (s);
+      else /* if (mp->generation == 3)   FIXME: Does this apply also to gen1/2 ? YES */
+        error = send_set_tpu_info (s);
     }
   else   /* ADF pageid != 0 and gen3 */
     pixma_sleep (1000000);
@@ -1281,7 +1319,7 @@ mp150_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 #ifndef DEBUG_TPU_48
 #ifndef TPU_48
 #ifndef DEBUG_TPU_24
-      if (mp->generation == 3 && is_scanning_from_tpu (s))
+      if (is_scanning_from_tpu (s))
 #endif
           bytes_received = pack_48_24_bpc (mp->imgbuf + mp->data_left_len, bytes_received);
 #endif
@@ -1310,8 +1348,8 @@ mp150_finish_scan (pixma_t * s)
     case state_scanning:
     case state_warmup:
     case state_finished:
-      /* For gen3 TPU , send the get TPU info message */
-      if (mp->generation == 3 && is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
+      /* Send the get TPU info message */
+      if (is_scanning_from_tpu (s) && mp->tpu_datalen == 0)
         send_get_tpu_info_3 (s);
       /* FIXME: to process several pages ADF scan, must not send 
        * abort_session and start_session between pages (last_block=0x28) */

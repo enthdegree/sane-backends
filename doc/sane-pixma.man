@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "25 Oct 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "21 Dec 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon PIXMA MP series
@@ -12,7 +12,7 @@ using Canon's BJNP protocol.
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA MP140, MP150, MP160, MP170, MP180, MP210, MP220
+PIXMA MP140, MP150, MP160, MP170, MP180, MP190, MP210, MP220
 .br
 PIXMA MP450, MP460, MP470, MP500, MP510, MP520, MP530
 .br
@@ -44,7 +44,7 @@ Feedback in the Sane-dev mailing list welcome.
 .RS
 PIXMA MP740
 .br
-PIXMA MP190, MP240, MP260, MP480, MP540, MP980
+PIXMA MP240, MP260, MP480, MP540, MP980
 .br
 ImageCLASS MF3110, MF3240
 .br

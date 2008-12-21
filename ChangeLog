@@ -1,3 +1,11 @@
+2008-12-21  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/descriptions/pixma.desc, doc/sane-pixma.man, 
+	backend/pixma_mp150.c:
+	MP800/MP800R: Fixed bug and color planes shift issues, added TPU support
+	for 48 bits images depth up to 1200 dpi.
+	MP980: following a user feedback, declared as working.
+	Doc and man pages updated.
+
 2008-12-18  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.[ch]: backend v86
 	- get_pixelsize() sets back window ID for back side scans

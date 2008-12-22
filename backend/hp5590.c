@@ -72,7 +72,7 @@
 }
 
 /* #define HAS_WORKING_COLOR_48 */
-#define BUILD 		3
+#define BUILD 		4
 #define USB_TIMEOUT	30 * 1000
 
 static SANE_Word
@@ -424,9 +424,14 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (!handle)
     return SANE_STATUS_INVAL;
 
-  for (ptr = scanners_list;
-       ptr && strcmp (ptr->sane.name, devicename) != 0;
-       ptr = ptr->next);
+  /* Allow to open the first available device by specifying zero-length name */
+  if (!devicename || !devicename[0]) {
+    ptr = scanners_list;
+  } else {
+    for (ptr = scanners_list;
+	 ptr && strcmp (ptr->sane.name, devicename) != 0;
+	 ptr = ptr->next);
+  }
 
   if (!ptr)
     return SANE_STATUS_INVAL;

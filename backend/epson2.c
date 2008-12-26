@@ -15,8 +15,9 @@
  * published by the Free Software Foundation, version 2.
  */
 
-#define	SANE_EPSON2_VERSION	"SANE Epson 2 Backend v0.1.16 - 2007-12-30"
-#define SANE_EPSON2_BUILD	116
+#define EPSON2_VERSION	1
+#define EPSON2_REVISION	0
+#define EPSON2_BUILD	117
 
 /* debugging levels:
  *
@@ -1191,7 +1192,8 @@ attach(const char *name, Epson_Device * *devp, int type)
 	struct Epson_Device *dev;
 	int port;
 
-	DBG(1, "%s\n", SANE_EPSON2_VERSION);
+	DBG(1, "epson2 backend, version %i.%i.%i\n",
+		EPSON2_VERSION, EPSON2_REVISION, EPSON2_BUILD);
 
 	DBG(7, "%s: devname = %s, type = %d\n", __func__, name, type);
 
@@ -1587,9 +1589,8 @@ sane_init(SANE_Int * version_code, SANE_Auth_Callback authorize)
 	DBG(2, "%s: " PACKAGE " " VERSION "\n", __func__);
 
 	if (version_code != NULL)
-		*version_code =
-			SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR,
-					  SANE_EPSON2_BUILD);
+		*version_code = SANE_VERSION_CODE(SANE_CURRENT_MAJOR, V_MINOR,
+					  EPSON2_BUILD);
 
 	sanei_usb_init();
 
@@ -2734,10 +2735,16 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int * info)
 		reload = SANE_TRUE;
 		break;
 
-	case OPT_TL_X:
-	case OPT_TL_Y:
 	case OPT_BR_X:
 	case OPT_BR_Y:
+		sval->w = *((SANE_Word *) value);
+		if (SANE_UNFIX(sval->w) == 0) {
+			DBG(17, "invalid br-x or br-y\n");
+			return SANE_STATUS_INVAL;
+		}
+		/* passthru */
+	case OPT_TL_X:
+	case OPT_TL_Y:
 		sval->w = *((SANE_Word *) value);
 		DBG(17, "setting size to %f\n", SANE_UNFIX(sval->w));
 		if (NULL != info)
@@ -3469,6 +3476,10 @@ e2_init_parameters(Epson_Scanner * s)
 
 	mparam = &mode_params[s->val[OPT_MODE].w];
 
+	if (SANE_UNFIX(s->val[OPT_BR_Y].w) == 0 ||
+		SANE_UNFIX(s->val[OPT_BR_X].w) == 0)
+		return SANE_STATUS_INVAL;
+
 	s->left = SANE_UNFIX(s->val[OPT_TL_X].w) / MM_PER_INCH *
 		s->val[OPT_RESOLUTION].w + 0.5;
 
@@ -3883,7 +3894,9 @@ sane_start(SANE_Handle handle)
 		return status;
 
 	/* calc scanning parameters */
-	e2_init_parameters(s);
+	status = e2_init_parameters(s);
+	if (status != SANE_STATUS_GOOD)
+		return status;
 
 	/* ESC , bay */
 	if (SANE_OPTION_IS_ACTIVE(s->opt[OPT_BAY].cap)) {

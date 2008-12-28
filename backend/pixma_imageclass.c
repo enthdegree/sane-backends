@@ -173,7 +173,15 @@ activate (pixma_t * s, uint8_t x)
   uint8_t *data = pixma_newcmd (&mf->cb, cmd_activate, 10, 0);
   data[0] = 1;
   data[3] = x;
-  return iclass_exec (s, &mf->cb, 1);
+  switch (s->cfg->pid)
+    {
+    case MF4200_PID:
+      return iclass_exec (s, &mf->cb, 1);
+      break;
+    case MF4100_PID:
+    default:
+      return pixma_exec (s, &mf->cb);
+    }
 }
 
 static int
@@ -189,7 +197,15 @@ select_source (pixma_t * s)
   iclass_t *mf = (iclass_t *) s->subdriver;
   uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 11, 0);
   data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
-  return iclass_exec (s, &mf->cb, 0);
+  switch (s->cfg->pid)
+    {
+    case MF4200_PID:
+      return iclass_exec (s, &mf->cb, 1);
+      break;
+    case MF4100_PID:
+    default:
+      return pixma_exec (s, &mf->cb);
+    }
 }
 
 static int
@@ -210,7 +226,15 @@ send_scan_param (pixma_t * s)
   data[0x1f] = 0x7f;
   data[0x20] = 0xff;
   data[0x23] = 0x81;
-  return iclass_exec (s, &mf->cb, 0);
+  switch (s->cfg->pid)
+    {
+    case MF4200_PID:
+      return iclass_exec (s, &mf->cb, 1);
+      break;
+    case MF4100_PID:
+    default:
+      return pixma_exec (s, &mf->cb);
+    }
 }
 
 static int

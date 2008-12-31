@@ -1,3 +1,6 @@
+2008-12-31  Stéphane Voltz <stef.dev@free.fr>
+	* backend/genesys.c: restored warming up broken by a previuos commit
+
 2008-12-28  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c:
 	Change to include different checksumming for MF41xx and MF42xx series

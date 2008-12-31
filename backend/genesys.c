@@ -3535,13 +3535,13 @@ genesys_warmup_lamp (Genesys_Device * dev)
          fixes the communication with scanner . Put usb timeout to a friendly
          value first, so that 'recovery' doesn't take too long */
       sanei_usb_set_timeout (2 * 1000);
-      /* status =
+      status =
 	sanei_genesys_read_data_from_scanner (dev, first_line, total_size);
       if (status != SANE_STATUS_GOOD)
 	{
 	  RIE (sanei_genesys_read_data_from_scanner
 	       (dev, first_line, total_size));
-	} */
+	}
       /* back to normal time out */
       sanei_usb_set_timeout (30 * 1000);
       RIE (dev->model->cmd_set->end_scan (dev, local_reg, SANE_FALSE));

@@ -1,3 +1,7 @@
+2009-01-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
+	Updated doc for pixma backend (ImageClass)
+
 2008-12-31  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c: restored warming up broken by a previuos commit
 

@@ -54,6 +54,12 @@
 :status :basic
 :comment "Similar to hp scanjet 4370"
 
+:model "ScanJet G3110"
+:interface "USB"
+:usbid "0x03f0" "0x4305"
+:status :basic
+:comment "Similar to hp scanjet 4370"
+
 ; -----------------------------------------------------
 :mfg "UMAX"
 :url "http://www.umax.com"

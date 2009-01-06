@@ -1,6 +1,6 @@
 /* HP Scanjet 3900 series - Structures and global variables
 
-   Copyright (C) 2005-2008 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+   Copyright (C) 2005-2009 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
    This file is part of the SANE package.
 
@@ -41,7 +41,7 @@
 */
 
 /* devices */
-#define DEVSCOUNT           0x08	/* Number of scanners supported by this backend */
+#define DEVSCOUNT           0x09	/* Number of scanners supported by this backend */
 
 #define HP3970              0x00	/* rts8822l-01H  HP Scanjet 3970  */
 #define HP4070              0x01	/* rts8822l-01H  HP Scanjet 4070  */
@@ -51,6 +51,7 @@
 #define HPG3010             0x05	/* rts8822l-02A  HP Scanjet G3010 */
 #define BQ5550              0x06	/* rts8823l-01E  BenQ 5550        */
 #define HPG2710             0x07	/* rts8822bl-03A HP Scanjet G2710 */
+#define HPG3110             0x08	/* rts8822l-02A  HP Scanjet G3110 */
 
 /* chipset models */
 #define RTS8822L_01H        0x00

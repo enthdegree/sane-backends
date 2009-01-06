@@ -20,6 +20,9 @@ usb 0x03f0 0x2805
 # HP Scanjet G3010
 usb 0x03f0 0x4205
 
+# HP Scanjet G3110
+usb 0x03f0 0x4305
+
 # UMAX Astra 4900/4950
 usb 0x06dc 0x0020
 

@@ -1,5 +1,5 @@
 /* HP Scanjet 3900 series - SANE Backend controller
-   Copyright (C) 2005-2008 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+   Copyright (C) 2005-2009 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 
    This file is part of the SANE package.
 
@@ -293,6 +293,7 @@ bknd_resolutions (TScanner * scanner, SANE_Int model)
 
 	case HP4370:
 	case HPG3010:
+	case HPG3110:
 	  {
 	    SANE_Int myres[] =
 	      { 10, 50, 75, 100, 150, 200, 300, 600, 1200, 2400, 4800 };
@@ -342,7 +343,7 @@ bknd_models (TScanner * scanner)
       /* at this moment all devices use the same list */
       SANE_String_Const mymodel[] =
 	{ "HP3800", "HP3970", "HP4070", "HP4370", "UA4900", "HPG3010",
-"BQ5550", "HPG2710", 0 };
+"BQ5550", "HPG2710", "HPG3110", 0 };
 
       /* allocate space to save list */
       model = (SANE_String_Const *) malloc (sizeof (mymodel));
@@ -633,9 +634,9 @@ set_ScannerModel (SANE_Int proposed, SANE_Int product, SANE_Int vendor)
   /* This function will set the device behaviour */
 
   SANE_Int current = Device_get (product, vendor);
-  char *sdevname[9] =
+  char *sdevname[10] =
     { "Unknown", "HP3970", "HP4070", "HP4370", "UA4900", "HP3800", "HPG3010",
-"BQ5550", "HPG2710" };
+"BQ5550", "HPG2710", "HPG3110" };
 
   DBG (DBG_FNC,
        "> set_ScannerModel(proposed=%i, product=%04x, vendor=%04x)\n",
@@ -996,6 +997,8 @@ Get_Model (SANE_String model)
     rst = HP4370;
   else if (strcmp (model, "HPG3010") == 0)
     rst = HPG3010;
+  else if (strcmp (model, "HPG3110") == 0)
+    rst = HPG3110;
   else if (strcmp (model, "UA4900") == 0)
     rst = UA4900;
   else if (strcmp (model, "BQ5550") == 0)
@@ -1716,6 +1719,10 @@ attach_one_device (SANE_String_Const devname)
       sModel.pszVendor = (char *) strdup ("Hewlett-Packard");
       sModel.pszName = (char *) strdup ("Scanjet G3010");
       break;
+    case HPG3110:
+      sModel.pszVendor = (char *) strdup ("Hewlett-Packard");
+      sModel.pszName = (char *) strdup ("Scanjet G3110");
+      break;
     case UA4900:
       sModel.pszVendor = (char *) strdup ("UMAX");
       sModel.pszName = (char *) strdup ("Astra 4900");
@@ -1791,6 +1798,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x2405", attach_one_device);	/* HP4070  */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x4105", attach_one_device);	/* HP4370  */
       sanei_usb_attach_matching_devices ("usb 0x03f0 0x4205", attach_one_device);	/* HPG3010 */
+      sanei_usb_attach_matching_devices ("usb 0x03f0 0x4305", attach_one_device);	/* HPG3110 */
       sanei_usb_attach_matching_devices ("usb 0x06dc 0x0020", attach_one_device);	/* UA4900  */
       sanei_usb_attach_matching_devices ("usb 0x04a5 0x2211", attach_one_device);	/* BQ5550  */
     }

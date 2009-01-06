@@ -1,3 +1,9 @@
+2009-01-06 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	* backend/hp3900_sane.c, backend/hp3900_config.c,
+	  backend/hp3900_types.c, backend/hp3900.conf.in, doc/sane-hp3900.man,
+	  doc/descriptions/hp3900.desc:
+	  Added support for HP Scanjet G3110 scanner.
+
 2009-01-05 Jeremy Johnson <jeremy a t acjlaw dot net>
 	Added code to read_data() to pad image data to
 	requested length and to zero out any garbage using

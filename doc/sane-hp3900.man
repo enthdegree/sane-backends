@@ -1,4 +1,4 @@
-.TH sane\-hp3900 5 "13 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-hp3900 5 "06 Jan 2009" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-hp3900
 .SH NAME
 sane\-hp3900 \- SANE backend for RTS8822 chipset based scanners
@@ -19,6 +19,7 @@ HP ScanJet 4070 Photosmart RTS8822L-01H
 HP ScanJet 4370            RTS8822L-02A
 HP ScanJet G2710           RTS8822BL-03A
 HP ScanJet G3010           RTS8822L-02A
+HP ScanJet G3110           RTS8822L-02A
 UMAX Astra 4900/4950       RTS8822L-01H *
 BenQ 5550                  RTS8823L-01E *
 .fi

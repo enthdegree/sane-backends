@@ -169,6 +169,10 @@
 #define SANE_TITLE_ICON_LENGTH "Icon Length"
 #define SANE_DESC_ICON_LENGTH "Length of icon (thumbnail) image in pixels"
 
+#define SANE_NAME_ORIENTATION "orientation"
+#define SANE_TITLE_ORIENTATION "Paper Orientation"
+#define SANE_DESC_ORIENTATION "[Portrait]/Landscape" \
+
 #define SANE_NAME_PAPER_SIZE "paper-size"
 #define SANE_TITLE_PAPER_SIZE "Paper Size"
 #define SANE_DESC_PAPER_SIZE "Specify the scan window geometry by specifying the paper size " \
@@ -283,6 +287,7 @@ typedef enum
   /*OPT_AUTOBORDER,       automatic border detection */
   /*OPT_ROTATION,         hardware rotation */
   /*OPT_DESKEW,           hardware deskew */
+  OPT_PAGE_ORIENTATION,		/* portrait, landscape */
   OPT_PAPER_SIZE,		/* paper size */
   OPT_TL_X,			/* top-left x */
   OPT_TL_Y,			/* top-left y */
@@ -331,6 +336,30 @@ typedef enum
      OPT_PARITION_FUNCTION
      OPT_SECTION
    */
+
+  OPT_DATA_GROUP,
+  OPT_UPDATE,
+  OPT_NREGX_ADF,
+  OPT_NREGY_ADF,
+  OPT_NREGX_BOOK,
+  OPT_NREGY_BOOK,
+  OPT_NSCANS_ADF,
+  OPT_NSCANS_BOOK,
+  OPT_LAMP_TIME,
+  OPT_EO_ODD,
+  OPT_EO_EVEN,
+  OPT_BLACK_LEVEL_ODD,
+  OPT_BLACK_LEVEL_EVEN,
+  OPT_WHITE_LEVEL_ODD,
+  OPT_WHITE_LEVEL_EVEN,
+  OPT_DENSITY,
+  OPT_FIRST_ADJ_WHITE_ODD,
+  OPT_FIRST_ADJ_WHITE_EVEN,
+  OPT_NREGX_REVERSE,
+  OPT_NREGY_REVERSE,
+  OPT_NSCANS_REVERSE_ADF,
+  OPT_REVERSE_TIME,
+  OPT_NCHARS,
 
   NUM_OPTIONS			/* must come last: */
 } HS2P_Option;

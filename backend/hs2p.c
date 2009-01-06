@@ -341,12 +341,22 @@ init_options (HS2P_Scanner * s)
   s->opt[OPT_PADDING].constraint_type = SANE_CONSTRAINT_NONE;
   s->val[OPT_PADDING].w = SANE_TRUE;
   /*if (!s->hw->info.hasADF)
-    s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE;
-  FIXME: compare to user setting, not the existence of FB?
-  if (!strcmp (scan_source_list, "FB"))
-    s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE;*/
+     s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE;
+     FIXME: compare to user setting, not the existence of FB?
+     if (!strcmp (scan_source_list, "FB"))
+     s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE; */
   /* Permanently disable OPT_PADDING */
   s->opt[OPT_PADDING].cap |= SANE_CAP_INACTIVE;
+
+  /* Paper Orientation */
+  s->opt[OPT_PAGE_ORIENTATION].name = SANE_NAME_ORIENTATION;
+  s->opt[OPT_PAGE_ORIENTATION].title = SANE_TITLE_ORIENTATION;
+  s->opt[OPT_PAGE_ORIENTATION].desc = SANE_DESC_ORIENTATION;
+  s->opt[OPT_PAGE_ORIENTATION].type = SANE_TYPE_STRING;
+  s->opt[OPT_PAGE_ORIENTATION].size = max_string_size (orientation_list);
+  s->opt[OPT_PAGE_ORIENTATION].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+  s->opt[OPT_PAGE_ORIENTATION].constraint.string_list = &orientation_list[0];
+  s->val[OPT_PAGE_ORIENTATION].s = strdup (orientation_list[0]);
 
   /* Paper Size */
   s->opt[OPT_PAPER_SIZE].name = SANE_NAME_PAPER_SIZE;
@@ -749,12 +759,207 @@ init_options (HS2P_Scanner * s)
   s->opt[OPT_OPTICAL_ADJUSTMENT].desc = SANE_DESC_OPTICAL_ADJUSTMENT;
   s->opt[OPT_OPTICAL_ADJUSTMENT].type = SANE_TYPE_BUTTON;
 
+  /* MAINTENANCE DATA */
+  s->opt[OPT_DATA_GROUP].name = "";
+  s->opt[OPT_DATA_GROUP].title = "Maintenance Data";
+  s->opt[OPT_DATA_GROUP].desc = "";
+  s->opt[OPT_DATA_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_DATA_GROUP].cap = SANE_CAP_ADVANCED;
+  s->opt[OPT_DATA_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_UPDATE].name = "Update";
+  s->opt[OPT_UPDATE].title = "Update";
+  s->opt[OPT_UPDATE].desc = "Update scanner data";
+  s->opt[OPT_UPDATE].type = SANE_TYPE_BUTTON;
+  s->opt[OPT_NREGX_ADF].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGX_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGX_ADF].name = "# registers in main-scanning in ADF mode";
+  s->opt[OPT_NREGX_ADF].title = "# registers in main-scanning in ADF mode";
+  s->opt[OPT_NREGX_ADF].desc = "# registers in main-scanning in ADF mode";
+  s->opt[OPT_NREGX_ADF].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGX_ADF].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGX_ADF].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGX_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGY_ADF].name = "# registers in sub-scanning in ADF mode";
+  s->opt[OPT_NREGY_ADF].title = "# registers in sub-scanning in ADF mode";
+  s->opt[OPT_NREGY_ADF].desc = "# registers in sub-scanning in ADF mode";
+  s->opt[OPT_NREGY_ADF].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGY_ADF].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGY_ADF].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGY_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGX_BOOK].name = "# registers in main-scanning in book mode";
+  s->opt[OPT_NREGX_BOOK].title = "# registers in main-scanning in book mode";
+  s->opt[OPT_NREGX_BOOK].desc = "# registers in main-scanning in book mode";
+  s->opt[OPT_NREGX_BOOK].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGX_BOOK].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGX_BOOK].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGX_BOOK].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGY_BOOK].name = "# registers in sub-scanning in book mode";
+  s->opt[OPT_NREGY_BOOK].title = "# registers in sub-scanning in book mode";
+  s->opt[OPT_NREGY_BOOK].desc = "# registers in sub-scanning in book mode";
+  s->opt[OPT_NREGY_BOOK].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGY_BOOK].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGY_BOOK].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGY_BOOK].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NSCANS_ADF].name = "# ADF Scans";
+  s->opt[OPT_NSCANS_ADF].title = "# ADF Scans";
+  s->opt[OPT_NSCANS_ADF].desc = "# ADF Scans";
+  s->opt[OPT_NSCANS_ADF].type = SANE_TYPE_INT;
+  s->opt[OPT_NSCANS_ADF].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NSCANS_ADF].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NSCANS_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NSCANS_BOOK].name = "# BOOK Scans";
+  s->opt[OPT_NSCANS_BOOK].title = "# BOOK Scans";
+  s->opt[OPT_NSCANS_BOOK].desc = "# BOOK Scans";
+  s->opt[OPT_NSCANS_BOOK].type = SANE_TYPE_INT;
+  s->opt[OPT_NSCANS_BOOK].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NSCANS_BOOK].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NSCANS_BOOK].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_LAMP_TIME].name = "LAMP TIME";
+  s->opt[OPT_LAMP_TIME].title = "LAMP TIME";
+  s->opt[OPT_LAMP_TIME].desc = "LAMP TIME";
+  s->opt[OPT_LAMP_TIME].type = SANE_TYPE_INT;
+  s->opt[OPT_LAMP_TIME].unit = SANE_UNIT_NONE;
+  s->opt[OPT_LAMP_TIME].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_LAMP_TIME].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_EO_ODD].name = "E/O Balance ODD";
+  s->opt[OPT_EO_ODD].title = "E/O Balance ODD";
+  s->opt[OPT_EO_ODD].desc = "Adj. of E/O Balance in black level ODD";
+  s->opt[OPT_EO_ODD].type = SANE_TYPE_INT;
+  s->opt[OPT_EO_ODD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_EO_ODD].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_EO_ODD].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_EO_EVEN].name = "E/O Balance EVEN";
+  s->opt[OPT_EO_EVEN].title = "E/O Balance EVEN";
+  s->opt[OPT_EO_EVEN].desc = "Adj. of E/O Balance in black level EVEN";
+  s->opt[OPT_EO_EVEN].type = SANE_TYPE_INT;
+  s->opt[OPT_EO_EVEN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_EO_EVEN].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_EO_EVEN].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_BLACK_LEVEL_ODD].name = "Black Level ODD";
+  s->opt[OPT_BLACK_LEVEL_ODD].title = "Black Level ODD";
+  s->opt[OPT_BLACK_LEVEL_ODD].desc = "Adj. data in black level (ODD)";
+  s->opt[OPT_BLACK_LEVEL_ODD].type = SANE_TYPE_INT;
+  s->opt[OPT_BLACK_LEVEL_ODD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_BLACK_LEVEL_ODD].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_BLACK_LEVEL_ODD].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_BLACK_LEVEL_EVEN].name = "Black Level EVEN";
+  s->opt[OPT_BLACK_LEVEL_EVEN].title = "Black Level EVEN";
+  s->opt[OPT_BLACK_LEVEL_EVEN].desc = "Adj. data in black level (EVEN)";
+  s->opt[OPT_BLACK_LEVEL_EVEN].type = SANE_TYPE_INT;
+  s->opt[OPT_BLACK_LEVEL_EVEN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_BLACK_LEVEL_EVEN].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_BLACK_LEVEL_EVEN].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_WHITE_LEVEL_ODD].name = "White Level ODD";
+  s->opt[OPT_WHITE_LEVEL_ODD].title = "White Level ODD";
+  s->opt[OPT_WHITE_LEVEL_ODD].desc = "Adj. data in White level (ODD)";
+  s->opt[OPT_WHITE_LEVEL_ODD].type = SANE_TYPE_INT;
+  s->opt[OPT_WHITE_LEVEL_ODD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_WHITE_LEVEL_ODD].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_WHITE_LEVEL_ODD].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_WHITE_LEVEL_EVEN].name = "White Level EVEN";
+  s->opt[OPT_WHITE_LEVEL_EVEN].title = "White Level EVEN";
+  s->opt[OPT_WHITE_LEVEL_EVEN].desc = "Adj. data in White level (EVEN)";
+  s->opt[OPT_WHITE_LEVEL_EVEN].type = SANE_TYPE_INT;
+  s->opt[OPT_WHITE_LEVEL_EVEN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_WHITE_LEVEL_EVEN].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_WHITE_LEVEL_EVEN].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_WHITE_LEVEL_EVEN].name = "White Level EVEN";
+  s->opt[OPT_WHITE_LEVEL_EVEN].title = "White Level EVEN";
+  s->opt[OPT_WHITE_LEVEL_EVEN].desc = "Adj. data in White level (EVEN)";
+  s->opt[OPT_WHITE_LEVEL_EVEN].type = SANE_TYPE_INT;
+  s->opt[OPT_WHITE_LEVEL_EVEN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_WHITE_LEVEL_EVEN].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_WHITE_LEVEL_EVEN].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_DENSITY].name = "Density Adjustment";
+  s->opt[OPT_DENSITY].title = "Density Adjustment";
+  s->opt[OPT_DENSITY].desc = "Density adjustment of std. white board";
+  s->opt[OPT_DENSITY].type = SANE_TYPE_INT;
+  s->opt[OPT_DENSITY].unit = SANE_UNIT_NONE;
+  s->opt[OPT_DENSITY].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_DENSITY].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].name = "1st adj. in white level (ODD)";
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].title = "1st adj. in white level (ODD)";
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].desc = "1st adj. in white level (ODD)";
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].type = SANE_TYPE_INT;
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].unit = SANE_UNIT_NONE;
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_FIRST_ADJ_WHITE_ODD].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].name = "1st adj. in white level (EVEN)";
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].title = "1st adj. in white level (EVEN)";
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].desc = "1st adj. in white level (EVEN)";
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].type = SANE_TYPE_INT;
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].unit = SANE_UNIT_NONE;
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_FIRST_ADJ_WHITE_EVEN].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGX_REVERSE].name = "# registers of main-scanning of backside";
+  s->opt[OPT_NREGX_REVERSE].title =
+    "# registers of main-scanning of backside";
+  s->opt[OPT_NREGX_REVERSE].desc =
+    "# registers of main-scanning of ADF backside";
+  s->opt[OPT_NREGX_REVERSE].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGX_REVERSE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGX_REVERSE].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGX_REVERSE].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NREGY_REVERSE].name = "# registers of sub-scanning of backside";
+  s->opt[OPT_NREGY_REVERSE].title = "# registers of sub-scanning of backside";
+  s->opt[OPT_NREGY_REVERSE].desc =
+    "# registers of sub-scanning of ADF backside";
+  s->opt[OPT_NREGY_REVERSE].type = SANE_TYPE_INT;
+  s->opt[OPT_NREGY_REVERSE].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NREGY_REVERSE].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NREGY_REVERSE].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NSCANS_REVERSE_ADF].name = "# of scans of reverse side in ADF";
+  s->opt[OPT_NSCANS_REVERSE_ADF].title = "# of scans of reverse side in ADF";
+  s->opt[OPT_NSCANS_REVERSE_ADF].desc = "# of scans of reverse side in ADF";
+  s->opt[OPT_NSCANS_REVERSE_ADF].type = SANE_TYPE_INT;
+  s->opt[OPT_NSCANS_REVERSE_ADF].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NSCANS_REVERSE_ADF].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NSCANS_REVERSE_ADF].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_REVERSE_TIME].name = "LAMP TIME (reverse)";
+  s->opt[OPT_REVERSE_TIME].title = "LAMP TIME (reverse)";
+  s->opt[OPT_REVERSE_TIME].desc = "LAMP TIME (reverse)";
+  s->opt[OPT_REVERSE_TIME].type = SANE_TYPE_INT;
+  s->opt[OPT_REVERSE_TIME].unit = SANE_UNIT_NONE;
+  s->opt[OPT_REVERSE_TIME].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_REVERSE_TIME].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_NCHARS].name = "# of endorser characters";
+  s->opt[OPT_NCHARS].title = "# of endorser characters";
+  s->opt[OPT_NCHARS].desc = "# of endorser characters";
+  s->opt[OPT_NCHARS].type = SANE_TYPE_INT;
+  s->opt[OPT_NCHARS].unit = SANE_UNIT_NONE;
+  s->opt[OPT_NCHARS].cap = SANE_CAP_SOFT_DETECT;
+  s->opt[OPT_NCHARS].constraint_type = SANE_CONSTRAINT_NONE;
+
   DBG (DBG_proc, "<< init_options\n");
   return SANE_STATUS_GOOD;
 }
 
 static SANE_Status
-attach (SANE_String_Const devname, HS2P_Device ** devp)
+attach (SANE_String_Const devname, int __sane_unused__ connType,
+	HS2P_Device ** devp)
 {
   SANE_Status status;
   HS2P_Device *dev;
@@ -783,13 +988,16 @@ attach (SANE_String_Const devname, HS2P_Device ** devp)
 	}
     }
   DBG (DBG_sane_proc, ">>> attach: opening \"%s\"\n", devname);
-  status = sanei_scsi_open (devname, &fd, sense_handler, NULL);
+
+  /* sanei_scsi_open takes an option bufsize argument */
+  status = sanei_scsi_open (devname, &fd, &sense_handler, &(dev->sense_data));
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, ">>> attach: open failed: %s\n",
 	   sane_strstatus (status));
       return (status);
     }
+
   DBG (DBG_sane_proc, ">>> attach: opened %s fd=%d\n", devname, fd);
 
   DBG (DBG_sane_proc, ">>> attach: sending INQUIRY (standard data)\n");
@@ -1239,8 +1447,8 @@ attach (SANE_String_Const devname, HS2P_Device ** devp)
 static SANE_Status
 attach_one_scsi (const char *devname)
 {
-  attach (devname, NULL);
-  return SANE_STATUS_GOOD;
+  return attach (devname, CONNECTION_SCSI, NULL);
+  /* return SANE_STATUS_GOOD; */
 }
 
 static void
@@ -1319,6 +1527,7 @@ do_cancel (HS2P_Scanner * s)
 
   s->scanning = SANE_FALSE;
   s->cancelled = SANE_TRUE;
+  s->EOM = SANE_FALSE;
 
   if (s->fd >= 0)
     {
@@ -1457,7 +1666,7 @@ sane_open (SANE_String_Const devnam, SANE_Handle * handle)
 	}
       if (!dev)
 	{
-	  status = attach (devnam, &dev);
+	  status = attach (devnam, CONNECTION_SCSI, &dev);
 	  if (status != SANE_STATUS_GOOD)
 	    return (status);
 	}
@@ -1550,6 +1759,285 @@ get_scan_mode_id (char *s)	/* sequential search */
   return scan_mode_list[i] ? i : 0;
 }
 #endif
+SANE_Status
+update_hs2p_data (HS2P_Scanner * s)
+{
+
+  DBG (DBG_proc, ">> update_hs2p_data\n");
+  /* OPT_NREGX_ADF: */
+  DBG (DBG_sane_option, "OPT_NREGX_ADF\n");
+  s->val[OPT_NREGX_ADF].w = (SANE_Word) s->data.maintenance.nregx_adf;
+
+  /* OPT_NREGY_ADF: */
+  DBG (DBG_sane_option, "OPT_NREGY_ADF\n");
+  s->val[OPT_NREGY_ADF].w = (SANE_Word) s->data.maintenance.nregx_book;
+
+  /* OPT_NREGX_BOOK: */
+  DBG (DBG_sane_option, "OPT_NREGX_BOOK\n");
+  s->val[OPT_NREGX_BOOK].w = (SANE_Word) s->data.maintenance.nregx_book;
+
+  /* OPT_NREGY_BOOK: */
+  DBG (DBG_sane_option, "OPT_NREGY_BOOK\n");
+  s->val[OPT_NREGY_BOOK].w = (SANE_Word) s->data.maintenance.nregy_book;
+
+  /* OPT_NSCANS_ADF: */
+  DBG (DBG_sane_option, "OPT_NSCANS_ADF\n");
+  s->val[OPT_NSCANS_ADF].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.nscans_adf[0]));
+
+  /* OPT_NSCANS_BOOK: */
+  DBG (DBG_sane_option, "OPT_NSCANS_BOOK\n");
+  s->val[OPT_NSCANS_BOOK].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.nscans_book[0]));
+
+  /* OPT_LAMP_TIME: */
+  DBG (DBG_sane_option, "OPT_LAMP_TIME\n");
+  s->val[OPT_LAMP_TIME].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.lamp_time[0]));
+
+  /* OPT_EO_ODD: */
+  DBG (DBG_sane_option, "OPT_EO_ODD\n");
+  s->val[OPT_EO_ODD].w = (SANE_Word) s->data.maintenance.eo_odd;
+
+  /* OPT_EO_EVEN: */
+  DBG (DBG_sane_option, "OPT_EO_EVEN\n");
+  s->val[OPT_EO_EVEN].w = (SANE_Word) s->data.maintenance.eo_even;
+
+  /* OPT_BLACK_LEVEL_ODD: */
+  DBG (DBG_sane_option, "OPT_BLACK_LEVEL_ODD\n");
+  s->val[OPT_BLACK_LEVEL_ODD].w =
+    (SANE_Word) s->data.maintenance.black_level_odd;
+
+  /* OPT_BLACK_LEVEL_EVEN: */
+  DBG (DBG_sane_option, "OPT_BLACK_LEVEL_EVEN\n");
+  s->val[OPT_BLACK_LEVEL_EVEN].w =
+    (SANE_Word) s->data.maintenance.black_level_even;
+
+  /* OPT_WHITE_LEVEL_ODD: */
+  DBG (DBG_sane_option, "OPT_WHITE_LEVEL_ODD\n");
+  s->val[OPT_WHITE_LEVEL_ODD].w =
+    (SANE_Word) _2btol (&(s->data.maintenance.white_level_odd[0]));
+
+  /* OPT_WHITE_LEVEL_EVEN: */
+  DBG (DBG_sane_option, "OPT_WHITE_LEVEL_EVEN\n");
+  s->val[OPT_WHITE_LEVEL_EVEN].w =
+    (SANE_Word) _2btol (&(s->data.maintenance.white_level_even[0]));
+
+  /* OPT_FIRST_ADJ_WHITE_ODD: */
+  DBG (DBG_sane_option, "OPT_FIRST_ADJ_WHITE_ODD\n");
+  s->val[OPT_FIRST_ADJ_WHITE_ODD].w =
+    (SANE_Word) _2btol (&(s->data.maintenance.first_adj_white_odd[0]));
+
+  /* OPT_FIRST_ADJ_WHITE_EVEN: */
+  DBG (DBG_sane_option, "OPT_FIRST_ADJ_WHITE_EVEN\n");
+  s->val[OPT_FIRST_ADJ_WHITE_EVEN].w =
+    (SANE_Word) _2btol (&(s->data.maintenance.first_adj_white_even[0]));
+
+  /* OPT_DENSITY: */
+  DBG (DBG_sane_option, "OPT_DENSITY\n");
+  s->val[OPT_DENSITY].w = (SANE_Word) s->data.maintenance.density_adj;
+
+  /* OPT_NREGX_REVERSE: */
+  DBG (DBG_sane_option, "OPT_NREGX_REVERSE\n");
+  s->val[OPT_NREGX_REVERSE].w = (SANE_Word) s->data.maintenance.nregx_reverse;
+
+  /* OPT_NREGY_REVERSE: */
+  DBG (DBG_sane_option, "OPT_NREGY_REVERSE\n");
+  s->val[OPT_NREGY_REVERSE].w = (SANE_Word) s->data.maintenance.nregy_reverse;
+
+  /* OPT_NSCANS_REVERSE_ADF: */
+  DBG (DBG_sane_option, "OPT_NSCANS_REVERSE_ADF\n");
+  s->val[OPT_NSCANS_REVERSE_ADF].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.nscans_reverse_adf[0]));
+
+  /* OPT_REVERSE_TIME: */
+  DBG (DBG_sane_option, "OPT_REVERSE_TIME\n");
+  s->val[OPT_REVERSE_TIME].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.reverse_time[0]));
+
+  /* OPT_NCHARS: */
+  DBG (DBG_sane_option, "OPT_NCHARS\n");
+  s->val[OPT_NCHARS].w =
+    (SANE_Word) _4btol (&(s->data.maintenance.nchars[0]));
+
+  DBG (DBG_proc, "<< update_hs2p_data\n");
+  return SANE_STATUS_GOOD;
+}
+
+static SANE_Status
+hs2p_open (HS2P_Scanner * s)
+{
+  SANE_Status status;
+  DBG (DBG_proc, ">> hs2p_open\n");
+  DBG (DBG_info, ">> hs2p_open: trying to open: name=\"%s\" fd=%d\n",
+       s->hw->sane.name, s->fd);
+  if ((status =
+       sanei_scsi_open (s->hw->sane.name, &s->fd, &sense_handler,
+			&(s->hw->sense_data))) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "sane_start: open of %s failed: %d %s\n",
+	   s->hw->sane.name, status, sane_strstatus (status));
+      return (status);
+    }
+  DBG (DBG_info, ">>hs2p_open: OPENED \"%s\" fd=%d\n", s->hw->sane.name,
+       s->fd);
+
+  if ((status = test_unit_ready (s->fd)) != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error, "hs2p_open: test_unit_ready() failed: %s\n",
+	   sane_strstatus (status));
+      sanei_scsi_close (s->fd);
+      s->fd = -1;
+      return status;
+    }
+  DBG (DBG_proc, "<< hs2p_open\n");
+}
+
+static SANE_Status
+hs2p_close (HS2P_Scanner * s)
+{
+
+  DBG (DBG_proc, ">> hs2p_close\n");
+
+  release_unit (s->fd);
+  sanei_scsi_close (s->fd);
+  s->fd = -1;
+
+  DBG (DBG_proc, "<< hs2p_close\n");
+  return SANE_STATUS_GOOD;
+}
+
+#include <stdarg.h>
+static SANE_Status
+get_hs2p_data (HS2P_Scanner * s, ...)
+{
+  SANE_Status status;
+  SANE_Byte *buf;
+  size_t *len = &(s->data.bufsize);
+  int dtc, fd = s->fd;
+  u_long dtq = 0;		/* two bytes */
+  va_list ap;
+
+  DBG (DBG_proc, ">> get_hs2p_data\n");
+  if (fd < 0)
+    {
+      status = hs2p_open (s);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "get_hs2p_data: error opening scanner: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  for (va_start (ap, s), dtc = va_arg (ap, int); dtc != DATA_TYPE_EOL;
+       dtc = va_arg (ap, int))
+    {
+      DBG (DBG_proc, ">> get_hs2p_data 0x%2.2x\n", (int) dtc);
+      switch (dtc)
+	{
+	case DATA_TYPE_GAMMA:
+	  buf = &(s->data.gamma[0]);
+	  *len = sizeof (s->data.gamma);
+	  break;
+	case DATA_TYPE_ENDORSER:
+	  buf = &(s->data.endorser[0]);
+	  *len = sizeof (s->data.endorser);
+	  break;
+	case DATA_TYPE_SIZE:
+	  buf = &(s->data.size);
+	  *len = sizeof (s->data.size);
+	  break;
+	case DATA_TYPE_PAGE_LEN:
+	  buf = s->data.nlines;
+	  *len = sizeof (s->data.nlines);
+	  break;
+	case DATA_TYPE_MAINTENANCE:
+	  buf = (SANE_Byte *) & (s->data.maintenance);
+	  *len = sizeof (s->data.maintenance);
+	  break;
+	case DATA_TYPE_ADF_STATUS:
+	  buf = &(s->data.adf_status);
+	  *len = sizeof (s->data.adf_status);
+	  break;
+	case DATA_TYPE_IMAGE:
+	case DATA_TYPE_HALFTONE:
+	default:
+	  DBG (DBG_info, "Data Type Code %2.2x not handled.\n", dtc);
+	  return SANE_STATUS_INVAL;
+	}
+      DBG (DBG_info,
+	   "get_hs2p_data calling read_data for dtc=%2.2x and bufsize=%lu\n",
+	   (int) dtc, (u_long) * len);
+      status = read_data (s->fd, buf, len, (SANE_Byte) dtc, dtq);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "get_scanner_data: ERROR %s\n",
+	       sane_strstatus (status));
+	}
+    }
+  va_end (ap);
+
+  if (fd < 0)
+    {				/* need to return fd to original state */
+      status = hs2p_close (s);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "get_hs2p_data: error closing fd: %s\n",
+	       sane_strstatus (status));
+	}
+    }
+  DBG (DBG_proc, "<< get_hs2p_data: %d\n", status);
+  return (status);
+}
+
+static SANE_Status
+print_maintenance_data (MAINTENANCE_DATA * d)
+{
+  DBG (DBG_proc, ">> print_maintenance_data: \n");
+
+  DBG (DBG_LEVEL, "nregx_adf = %d\n", d->nregx_adf);
+  DBG (DBG_LEVEL, "nregy_adf = %d\n", d->nregy_adf);
+
+  DBG (DBG_LEVEL, "nregx_book = %d\n", d->nregx_book);
+  DBG (DBG_LEVEL, "nregy_book = %d\n", d->nregy_book);
+
+  DBG (DBG_LEVEL, "nscans_adf = %lu\n", _4btol (&(d->nscans_adf[0])));
+  DBG (DBG_LEVEL, "nscans_adf = %lu\n", _4btol (&(d->nscans_adf[0])));
+
+  DBG (DBG_LEVEL, "lamp time = %lu\n", _4btol (&(d->lamp_time[0])));
+
+  DBG (DBG_LEVEL, "eo_odd = %d\n", d->eo_odd);
+  DBG (DBG_LEVEL, "eo_even = %d\n", d->eo_even);
+
+  DBG (DBG_LEVEL, "black_level_odd = %d\n", d->black_level_odd);
+  DBG (DBG_LEVEL, "black_level_even = %d\n", d->black_level_even);
+
+  DBG (DBG_LEVEL, "white_level_odd = %lu\n",
+       _2btol (&(d->white_level_odd[0])));
+  DBG (DBG_LEVEL, "white_level_even = %lu\n",
+       _2btol (&(d->white_level_even[0])));
+
+  DBG (DBG_LEVEL, "first_adj_white_odd = %lu\n",
+       _2btol (&(d->first_adj_white_odd[0])));
+  DBG (DBG_LEVEL, "first_adj_white_even = %lu\n",
+       _2btol (&(d->first_adj_white_even[0])));
+
+  DBG (DBG_LEVEL, "density_adj = %d\n", d->density_adj);
+
+  DBG (DBG_LEVEL, "nregx_reverse = %d\n", d->nregx_reverse);
+  DBG (DBG_LEVEL, "nregy_reverse = %d\n", d->nregy_reverse);
+
+  DBG (DBG_LEVEL, "nscans_reverse_adf = %lu\n",
+       _4btol (&(d->nscans_reverse_adf[0])));
+
+  DBG (DBG_LEVEL, "reverse_time = %lu\n", _4btol (&(d->reverse_time[0])));
+
+  DBG (DBG_LEVEL, "nchars = %lu\n", _4btol (&(d->nchars[0])));
+
+  DBG (DBG_proc, "<< print_maintenance_data: \n");
+  return SANE_STATUS_GOOD;
+}
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
@@ -1559,6 +2047,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
   SANE_Status status;
   SANE_Word cap;
   SANE_String_Const name;
+  SANE_Int paper_id;
 
 
 
@@ -1620,6 +2109,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  /* case OPT_SECTION:  */
 	case OPT_INQUIRY:
 	case OPT_SCAN_SOURCE:
+	case OPT_PAGE_ORIENTATION:
 	case OPT_PAPER_SIZE:
 	case OPT_SCAN_MODE:
 	case OPT_ENDORSER_STRING:
@@ -1644,6 +2134,109 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  memcpy (val, s->val[option].wa, s->opt[option].size);
 	  return SANE_STATUS_GOOD;
 
+	  /* MAINTENANCE DATA */
+	case OPT_DATA_GROUP:
+	case OPT_UPDATE:
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGX_ADF:
+	  DBG (DBG_sane_option, "OPT_NREGX_ADF\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregx_adf;
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGY_ADF:
+	  DBG (DBG_sane_option, "OPT_NREGY_ADF\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregx_book;
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGX_BOOK:
+	  DBG (DBG_sane_option, "OPT_NREGX_BOOK\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregx_book;
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGY_BOOK:
+	  DBG (DBG_sane_option, "OPT_NREGY_BOOK\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregy_book;
+	  return SANE_STATUS_GOOD;
+	case OPT_NSCANS_ADF:
+	  DBG (DBG_sane_option, "OPT_NSCANS_ADF\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.nscans_adf[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_NSCANS_BOOK:
+	  DBG (DBG_sane_option, "OPT_NSCANS_BOOK\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.nscans_book[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_LAMP_TIME:
+	  DBG (DBG_sane_option, "OPT_LAMP_TIME\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.lamp_time[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_EO_ODD:
+	  DBG (DBG_sane_option, "OPT_EO_ODD\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.eo_odd;
+	  return SANE_STATUS_GOOD;
+	case OPT_EO_EVEN:
+	  DBG (DBG_sane_option, "OPT_EO_EVEN\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.eo_even;
+	  return SANE_STATUS_GOOD;
+	case OPT_BLACK_LEVEL_ODD:
+	  DBG (DBG_sane_option, "OPT_BLACK_LEVEL_ODD\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) s->data.maintenance.black_level_odd;
+	  return SANE_STATUS_GOOD;
+	case OPT_BLACK_LEVEL_EVEN:
+	  DBG (DBG_sane_option, "OPT_BLACK_LEVEL_EVEN\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) s->data.maintenance.black_level_even;
+	  return SANE_STATUS_GOOD;
+	case OPT_WHITE_LEVEL_ODD:
+	  DBG (DBG_sane_option, "OPT_WHITE_LEVEL_ODD\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _2btol (&(s->data.maintenance.white_level_odd[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_WHITE_LEVEL_EVEN:
+	  DBG (DBG_sane_option, "OPT_WHITE_LEVEL_EVEN\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _2btol (&(s->data.maintenance.white_level_even[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_FIRST_ADJ_WHITE_ODD:
+	  DBG (DBG_sane_option, "OPT_FIRST_ADJ_WHITE_ODD\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word)
+	    _2btol (&(s->data.maintenance.first_adj_white_odd[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_FIRST_ADJ_WHITE_EVEN:
+	  DBG (DBG_sane_option, "OPT_FIRST_ADJ_WHITE_EVEN\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word)
+	    _2btol (&(s->data.maintenance.first_adj_white_even[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_DENSITY:
+	  DBG (DBG_sane_option, "OPT_DENSITY\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.density_adj;
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGX_REVERSE:
+	  DBG (DBG_sane_option, "OPT_NREGX_REVERSE\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregx_reverse;
+	  return SANE_STATUS_GOOD;
+	case OPT_NREGY_REVERSE:
+	  DBG (DBG_sane_option, "OPT_NREGY_REVERSE\n");
+	  *(SANE_Word *) val = (SANE_Word) s->data.maintenance.nregy_reverse;
+	  return SANE_STATUS_GOOD;
+	case OPT_NSCANS_REVERSE_ADF:
+	  DBG (DBG_sane_option, "OPT_NSCANS_REVERSE_ADF\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.nscans_reverse_adf[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_REVERSE_TIME:
+	  DBG (DBG_sane_option, "OPT_REVERSE_TIME\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.reverse_time[0]));
+	  return SANE_STATUS_GOOD;
+	case OPT_NCHARS:
+	  DBG (DBG_sane_option, "OPT_NCHARS\n");
+	  *(SANE_Word *) val =
+	    (SANE_Word) _4btol (&(s->data.maintenance.nchars[0]));
+	  return (SANE_STATUS_GOOD);
+
 	default:
 	  DBG (DBG_proc, "sane_control_option:invalid option number %d\n",
 	       option);
@@ -1667,6 +2260,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	case SANE_TYPE_STRING:
 	  DBG (DBG_proc, "sane_control_option: set_value %s [#%d] to %s\n",
 	       name, option, (char *) val);
+	  break;
+	case SANE_TYPE_BUTTON:
+	  DBG (DBG_proc, "sane_control_option: set_value %s [#%d]\n",
+	       name, option);
+	  update_hs2p_data (s);
 	  break;
 	default:
 	  DBG (DBG_proc, "sane_control_option: set_value %s [#%d]\n", name,
@@ -1880,20 +2478,32 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  return SANE_STATUS_GOOD;
 
+	case OPT_PAGE_ORIENTATION:
+	  if (strcmp (s->val[option].s, (SANE_String) val))
+	    {
+	      free (s->val[option].s);
+	      s->val[option].s = strdup (val);
+	      if (info)
+		*info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	    }
+	  /* set val to current selected paper size */
+	  paper_id = get_paper_id ((SANE_String) s->val[OPT_PAPER_SIZE].s);
+	  goto paper_id;
 	case OPT_PAPER_SIZE:
 	  /* a string option */
 	  /* changes geometry options, therefore _RELOAD_PARAMS and _RELOAD_OPTIONS */
 	  s->opt[OPT_AUTO_SIZE].cap |= SANE_CAP_INACTIVE;	/* disable auto size */
 	  if (strcmp (s->val[option].s, (SANE_String) val))
 	    {
-	      SANE_Int paper_id = get_paper_id ((SANE_String) val);
+	      paper_id = get_paper_id ((SANE_String) val);
 
 	      /* paper_id 0 is a special case (custom) that
 	       * disables the paper size control of geometry
 	       */
+	    paper_id:
 	      if (paper_id != 0)
 		{
-		  double x_max, y_max, x, y;
+		  double x_max, y_max, x, y, temp;
 
 		  x_max = SANE_UNFIX (s->hw->info.x_range.max);
 		  y_max = SANE_UNFIX (s->hw->info.y_range.max);
@@ -1908,6 +2518,16 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 		    *info |=
 		      SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
 
+		  if (!strcmp (s->val[OPT_PAGE_ORIENTATION].s, LANDSCAPE))	/* swap */
+		    {
+		      temp = y_max;
+		      y_max = x_max;
+		      x_max = temp;
+		      temp = y;
+		      y = x;
+		      x = temp;
+		    }
+
 		  s->val[OPT_TL_X].w = SANE_FIX (0.0);
 		  s->val[OPT_TL_Y].w = SANE_FIX (0.0);
 		  s->val[OPT_BR_X].w = SANE_FIX (MIN (x, x_max));
@@ -1916,6 +2536,26 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	      free (s->val[option].s);
 	      s->val[option].s = strdup (val);
 	    }
+	  return SANE_STATUS_GOOD;
+	case OPT_UPDATE:	/* SANE_TYPE_BUTTON */
+	  DBG (DBG_info,
+	       "OPT_UPDATE: ready to call get_hs2p_data: fd=%d\n", s->fd);
+	  get_hs2p_data (s,
+			 /* DATA_TYPE_GAMMA, */
+			 /* DATA_TYPE_ENDORSER, */
+			 /* DATA_TYPE_SIZE, */
+			 /* DATA_TYPE_PAGE_LEN, */
+			 DATA_TYPE_MAINTENANCE,
+			 /* DATA_TYPE_ADF_STATUS, */
+			 /* DATA_TYPE_IMAGE, */
+			 /* DATA_TYPE_HALFTONE, */
+			 DATA_TYPE_EOL);	/* va_list end */
+	  update_hs2p_data (s);
+	  if (DBG_LEVEL >= DBG_info)
+	    print_maintenance_data (&(s->data.maintenance));
+	  if (info)
+	    *info |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
+	  return SANE_STATUS_GOOD;
 	}
       return (SANE_STATUS_GOOD);
     }
@@ -2038,7 +2678,6 @@ set_window_data (HS2P_Scanner * s, SWD * wbuf)
   width = (long) SANE_UNFIX (s->val[OPT_BR_X].w - s->val[OPT_TL_X].w);	/* Window Width */
   length = (long) SANE_UNFIX (s->val[OPT_BR_Y].w - s->val[OPT_TL_Y].w);	/* Window Length */
   DBG (DBG_info, "set_window_data: WxL= %ld x %ld\n", width, length);
-
 
   /* NOTE: the width in inches converted to byte unit must be the following values or less
    * Binary:       620 bytes
@@ -2262,7 +2901,7 @@ sane_start (SANE_Handle handle)	/* begin scanning */
   SANE_Status status;
   SWD wbuf;			/* Set Window Data: hdr + data */
   GWD gbuf;			/* Get Window Data: hdr + data */
-  SANE_Byte mode, prefeed, adf_status, mwt = 0;
+  SANE_Byte mode, prefeed, mwt = 0;
 
   DBG (DBG_proc, ">> sane_start\n");
   s->cancelled = SANE_FALSE;
@@ -2300,8 +2939,8 @@ sane_start (SANE_Handle handle)	/* begin scanning */
   DBG (DBG_info, ">> sane_start: trying to open: name=\"%s\" fd=%d\n",
        s->hw->sane.name, s->fd);
   if ((status =
-       sanei_scsi_open (s->hw->sane.name, &s->fd, sense_handler,
-			NULL)) != SANE_STATUS_GOOD)
+       sanei_scsi_open (s->hw->sane.name, &s->fd, &sense_handler,
+			&(s->hw->sense_data))) != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "sane_start: open of %s failed: %d %s\n",
 	   s->hw->sane.name, status, sane_strstatus (status));
@@ -2476,20 +3115,23 @@ sane_start (SANE_Handle handle)	/* begin scanning */
 
   /* DONE WITH SETTING UP SCANNER ONCE PER BATCH */
 
+  s->EOM = SANE_FALSE;
   if (mode != FLATBED)
     {
-      if ((status = read_adf_status (s->fd, &adf_status)) != SANE_STATUS_GOOD)
+      if ((status =
+	   get_hs2p_data (s, DATA_TYPE_ADF_STATUS,
+			  DATA_TYPE_EOL)) != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "sane_start: error with read_adf_status: %s\n",
+	  DBG (DBG_error, "sane_start: error reading adf_status:  %s\n",
 	       sane_strstatus (status));
 	  return (status);
 	}
-      if ((adf_status & 0x00) == 0x01)
+      if ((s->data.adf_status & 0x00) == 0x01)
 	{
 	  DBG (DBG_warning, "sane_start: No document on ADF\n");
 	  return (SANE_STATUS_NO_DOCS);
 	}
-      else if ((adf_status & 0x02) == 0x02)
+      else if ((s->data.adf_status & 0x02) == 0x02)
 	{
 	  DBG (DBG_warning, "sane_start: ADF cover open!\n");
 	  return (SANE_STATUS_COVER_OPEN);
@@ -2535,7 +3177,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 {
   HS2P_Scanner *s = handle;
   SANE_Status status;
-  size_t nread, bytes_requested, i;
+  size_t nread, bytes_requested, i, start;
   SANE_Byte color;
   DBG (DBG_proc, ">> sane_read\n");
 
@@ -2574,18 +3216,20 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
   if (nread > s->bytes_to_read)
     nread = s->bytes_to_read;
   bytes_requested = nread;
+  start = 0;
 
-  DBG (DBG_info, "sane_read: read %ld bytes\n", (u_long) nread);
-  status = read_data (s->fd, buf, &nread);
-  switch (status)
+pad:
+  if (s->EOM)
     {
-    case SANE_STATUS_NO_DOCS:
-      DBG (DBG_error, "sane_read: End-Of-Medium detected\n");
       if (s->val[OPT_PADDING].w)
 	{
+	  DBG (DBG_info, "sane_read s->EOM padding from %ld to %ld\n",
+	       (u_long) start, (ulong) bytes_requested);
 	  color = (s->val[OPT_NEGATIVE].w) ? 0 : 255;
-	  for (i = nread; i < bytes_requested; i++)
+	  /* pad to requested length */
+	  for (i = start; i < bytes_requested; i++)
 	    buf[i] = color;
+	  nread = bytes_requested;	/* we've padded to bytes_requested */
 	  *len = nread;
 	  s->bytes_to_read -= nread;
 	}
@@ -2594,15 +3238,37 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 	  *len = nread;
 	  s->bytes_to_read = 0;	/* EOM */
 	}
-      break;
-    case SANE_STATUS_GOOD:
-      *len = nread;
-      s->bytes_to_read -= nread;
-      break;
-    default:
-      DBG (DBG_error, "sane_read: read error\n");
-      do_cancel (s);
-      return (SANE_STATUS_IO_ERROR);
+    }
+  else
+    {
+      DBG (DBG_info, "sane_read: trying to read %ld bytes\n", (u_long) nread);
+      status = read_data (s->fd, buf, &nread, DATA_TYPE_IMAGE, DTQ);
+      switch (status)
+	{
+	case SANE_STATUS_NO_DOCS:
+	  DBG (DBG_error, "sane_read: End-Of-Medium detected\n");
+	  s->EOM = SANE_TRUE;
+	  /* 
+	   * If status != SANE_STATUS_GOOD, then sense_handler() has already
+	   * been called and the sanei_* functions have already gotten the
+	   * sense data buffer (which apparently clears the error conditionn)
+	   * so the following doesn't work:
+	   get_sense_data (s->fd, &(s->hw->sense_data));
+	   print_sense_data (&(s->hw->sense_data));
+	   */
+	  start = (isset_ILI (s->hw->sense_data)) ?	/* Invalid Length Indicator */
+	    bytes_requested - _4btol (s->hw->sense_data.information) : nread;
+	  goto pad;
+	  break;
+	case SANE_STATUS_GOOD:
+	  *len = nread;
+	  s->bytes_to_read -= nread;
+	  break;
+	default:
+	  DBG (DBG_error, "sane_read: read error\n");
+	  do_cancel (s);
+	  return (SANE_STATUS_IO_ERROR);
+	}
     }
   DBG (DBG_proc, "<< sane_read\n");
   return (SANE_STATUS_GOOD);

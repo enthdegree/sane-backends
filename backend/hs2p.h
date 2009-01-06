@@ -72,8 +72,35 @@ typedef struct
   const char *model;
 } HS2P_HWEntry;
 
+enum CONNECTION_TYPES
+{ CONNECTION_SCSI = 0, CONNECTION_USB };
+
 enum media
 { FLATBED = 0x00, SIMPLEX, DUPLEX };
+
+
+typedef struct data
+{
+  size_t bufsize;
+  /* 00H IMAGE */
+  /* 01H RESERVED */
+  /* 02H Halftone Mask  */
+  SANE_Byte gamma[256];		/* 03H Gamma Function */
+  /* 04H - 7FH Reserved */
+  SANE_Byte endorser[19];	/* 80H Endorser */
+  SANE_Byte size;		/* 81H startpos(4bits) + width(4bits) */
+  /* 82H Reserved */
+  /* 83H Reserved (Vendor Unique) */
+  SANE_Byte nlines[5];		/* 84H Page Length */
+  MAINTENANCE_DATA maintenance;	/* 85H */
+  SANE_Byte adf_status;		/* 86H */
+  /* 87H Reserved (Skew Data) */
+  /* 88H-91H Reserved (Vendor Unique) */
+  /* 92H Reserved (Scanner Extension I/O Access) */
+  /* 93H Reserved (Vendor Unique) */
+  /* 94H-FFH Reserved (Vendor Unique) */
+} HS2P_DATA;
+
 typedef struct
 {
   SANE_Range xres_range;
@@ -210,8 +237,13 @@ typedef struct
 typedef struct HS2P_Device
 {
   struct HS2P_Device *next;
+  /*
+   * struct with pointers to device/vendor/model names, and a type value
+   * used to inform sane frontend about the device 
+   */
   SANE_Device sane;
   HS2P_Info info;
+  SENSE_DATA sense_data;
 } HS2P_Device;
 
 #define GAMMA_LENGTH 256
@@ -220,6 +252,12 @@ typedef struct HS2P_Scanner
   /* all the state needed to define a scan request: */
   struct HS2P_Scanner *next;	/* linked list for housekeeping */
   int fd;			/* SCSI filedescriptor */
+
+  /* --------------------------------------------------------------------- */
+  /* immutable values which are set during reading of config file.         */
+  int buffer_size;		/* for sanei_open */
+  int connection;		/* hardware interface type */
+
 
   /* SANE option descriptors and values */
   SANE_Option_Descriptor opt[NUM_OPTIONS];
@@ -245,6 +283,9 @@ typedef struct HS2P_Scanner
   /*SANE_Bool backpage; */
   SANE_Bool scanning;
   SANE_Bool another_side;
+  SANE_Bool EOM;
+
+  HS2P_DATA data;
 } HS2P_Scanner;
 
 static const SANE_Range u8_range = {
@@ -299,6 +340,14 @@ static const HS2P_Paper paper_sizes[] = {	/* Name, Width, Height in mm */
   {"B4", 250, 353},
   {"B5", 182, 257},
   {"Full", 0.0, 0.0},
+};
+
+#define PORTRAIT "Portait"
+#define LANDSCAPE "Landscape"
+static SANE_String_Const orientation_list[] = {
+  PORTRAIT,
+  LANDSCAPE,
+  NULL				/* sentinel */
 };
 
 /* MUST be kept in sync with paper_sizes */
@@ -377,11 +426,10 @@ _4btol (SANE_Byte * bytes)
 static inline SANE_Int
 _2btol(SANE_Byte *bytes)
 {
-        SANE_Int rv;
+  SANE_Int rv;
 
-        rv = (bytes[0] << 8) |
-             bytes[1];
-        return (rv);
+  rv = (bytes[0] << 8) | bytes[1];
+  return (rv);
 }
 */
 static inline SANE_Int
@@ -460,6 +508,9 @@ enum adf_ret_bytes
 
 #define get_service_mode(fd)      (service_mode( (fd),     0, GET ))
 #define set_service_mode(fd,val)  (service_mode( (fd), (val), SET ))
+
+#define isset_ILI(sd) ( ((sd).sense_key & 0x20) != 0)
+#define isset_EOM(sd) ( ((sd).sense_key & 0x40) != 0)
 
 
 #endif /* HS2P_H */

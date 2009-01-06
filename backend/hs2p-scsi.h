@@ -217,7 +217,7 @@ static struct ASCQ ascq_errmsg[74] = {
   {0x8c00, "Size detection failed"}
 };
 
-struct request_sense
+typedef struct sense_data
 {				/* HS2P_REQUEST_SENSE_DATA  */
   /* bit7:valid is 1 if information byte is valid, 
      bits6:0 error_code */
@@ -241,7 +241,7 @@ struct request_sense
   SANE_Byte command_specific_information[4];
   SANE_Byte sense_code;
   SANE_Byte sense_code_qualifier;
-};
+} SENSE_DATA;
 
 /* page codes used with HS2P_SCSI_INQUIRY */
 #define HS2P_INQUIRY_STANDARD_PAGE_CODE 0x00
@@ -1065,8 +1065,10 @@ typedef struct get_window_data
 /* 92H Reserved (Scanner Extension I/O Access)  */
 /* 93H Reserved (Vendor Unique)                 */
 /* 94H-FFH Reserved (Vendor Unique)             */
+#define DATA_TYPE_EOL			     -1	/* va_end */
 
 /* DATA TYPE QUALIFIER CODES when DTC=93H       */
+#define DTQ				     0x00	/* ignored */
 #define DTQ_AUTO_PHOTOLETTER                 0x00	/* default */
 #define DTQ_DYNAMIC_THRESHOLDING             0x01	/* default */
 #define DTQ_LIGHT_CHARS_ENHANCEMENT          0x02
@@ -1120,32 +1122,34 @@ struct scsi_rs_scanner_cmd
  * PAGE LENGTH: 5bytes: 1st byte is MSB, Last byte is LSB
 */
 
-struct
+typedef struct maintenance_data
 {
   SANE_Byte nregx_adf;		/* number of registers of main-scanning in ADF mode */
   SANE_Byte nregy_adf;		/* number of registers of sub-scanning  in ADF mode */
   SANE_Byte nregx_book;		/* number of registers of main-scanning in Book mode */
   SANE_Byte nregy_book;		/* number of registers of sub-scanning  in Book mode */
-  SANE_Byte nscans_adf[5];	/* Number of scanned pages in ADF mode */
-  SANE_Byte nscans_book[5];	/* Number of scanned pages in Book mode */
+  SANE_Byte nscans_adf[4];	/* Number of scanned pages in ADF mode */
+  SANE_Byte nscans_book[4];	/* Number of scanned pages in Book mode */
+  SANE_Byte lamp_time[4];	/* Lamp Time */
   SANE_Byte eo_odd;		/* Adjustment data of E/O balance in black level (ODD) */
   SANE_Byte eo_even;		/* Adjustment data of E/O balance in black level (EVEN) */
+  SANE_Byte black_level_odd;	/* The adjustment data in black level (ODD) */
   SANE_Byte black_level_even;	/* The adjustment data in black level (EVEN) */
-  SANE_Byte white_odd[2];	/* The adjustment data in white level (ODD) */
-  SANE_Byte white_even[2];	/* The adjustment data in white level (EVEN) */
+  SANE_Byte white_level_odd[2];	/* The adjustment data in white level (ODD) */
+  SANE_Byte white_level_even[2];	/* The adjustment data in white level (EVEN) */
   SANE_Byte first_adj_white_odd[2];	/* First adjustment data in white level (ODD) */
   SANE_Byte first_adj_white_even[2];	/* First adjustment data in white level (EVEN) */
   SANE_Byte density_adj;	/* Density adjustment */
   SANE_Byte nregx_reverse;	/* The number of registers of main-scanning of the reverse-side ADF */
   SANE_Byte nregy_reverse;	/* The number of registers of sub-scanning of the reverse-side ADF */
-  SANE_Byte nscans_reverse_adf[5];	/* Number of scanned pages of the reverse side ADF */
-  SANE_Byte duration[4];	/* The period of lamp turn on of the reverse side */
+  SANE_Byte nscans_reverse_adf[4];	/* Number of scanned pages of the reverse side ADF */
+  SANE_Byte reverse_time[4];	/* The period of lamp turn on of the reverse side */
   SANE_Byte nchars[4];		/* The number of endorser characters */
   SANE_Byte reserved0;
   SANE_Byte reserved1;
   SANE_Byte reserved2;
   SANE_Byte zero[2];		/* All set as 0 */
-} maintenance_data;
+} MAINTENANCE_DATA;
 /* ADF status 1byte: 
  * 7-3:Reserved; 
  *   2:Reserved; 

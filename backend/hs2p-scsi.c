@@ -322,22 +322,66 @@ test_unit_ready (int fd)
   Byte4: |                     Allocation Length                |
   Byte5: | 7-6 Vendor Unique | 5-2   Reserved | 1 Flag | 0 Link |
 */
+
 #if 0
 static SANE_Status
-request_sense (int fd)
+get_sense_data (int fd, SENSE_DATA * sense_data)
 {
-  static SANE_Byte cmd[6];
   SANE_Status status;
-  DBG (DBG_proc, ">> request sense\n");
+  DBG (DBG_sane_proc, ">> get_sense_data\n");
+
+  static SANE_Byte cmd[6];
+  size_t len;
+
+  len = sizeof (*sense_data);
+  memset (sense_data, 0, len);
+  memset (cmd, 0, sizeof (cmd));
 
   cmd[0] = HS2P_SCSI_REQUEST_SENSE;
-  memset (cmd, 0, sizeof (cmd));
-  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), 0, 0);
+  cmd[4] = len;
 
-  DBG (DBG_proc, "<< request_sense\n");
+  status = sanei_scsi_cmd (fd, cmd, sizeof (cmd), sense_data, &len);
+
+  DBG (DBG_proc, "<< get_sense_data\n");
   return (status);
 }
 #endif
+
+static SANE_Status
+print_sense_data (int dbg_level, SENSE_DATA * data)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Byte *bp, *end;
+  SANE_Int i;
+
+  DBG (DBG_sane_proc, ">> print_sense_data\n");
+
+  bp = (SANE_Byte *) data;
+  end = bp + (SANE_Byte) sizeof (SENSE_DATA);
+  for (i = 0; bp < end; bp++, i++)
+    {
+      DBG (dbg_level, "Byte #%2d is %3d, 0x%02x\n", i, *bp, *bp);
+    }
+
+  DBG (dbg_level, "Valid=%1d, ErrorCode=%#x\n",
+       (data->error_code & 0x80) >> 7, data->error_code & 0x7F);
+  DBG (dbg_level, "Segment number = %d\n", data->segment_number);
+  DBG (dbg_level,
+       "F-mark=%1d, EOM=%1d, ILI=%1d, Reserved=%1d, SenseKey=%#x\n",
+       (data->sense_key & 0x80) >> 7, (data->sense_key & 0x40) >> 6,
+       (data->sense_key & 0x20) >> 5, (data->sense_key & 0x10) >> 4,
+       (data->sense_key & 0x0F));
+  DBG (dbg_level, "Information Byte = %lu\n", _4btol (data->information));
+  DBG (dbg_level, "Additional Sense Length = %d\n", data->sense_length);
+  DBG (dbg_level, "Command Specific Infomation = %lu\n",
+       _4btol (data->command_specific_information));
+  DBG (dbg_level, "Additional Sense Code = %#x\n", data->sense_code);
+  DBG (dbg_level, "Additional Sense Code Qualifier = %#x\n",
+       data->sense_code_qualifier);
+
+  DBG (DBG_proc, "<< print_sense_data\n");
+  return (status);
+}
 
 static struct sense_key *
 lookup_sensekey_errmsg (int code)
@@ -382,42 +426,50 @@ lookup_ascq_errmsg (unsigned int code)
    Byte 13: Additional Sense Code Qualifier
 */
 static SANE_Status
-sense_handler (int scsi_fd, u_char * result, void *arg)
+sense_handler (int __sane_unused__ scsi_fd, u_char * sense_buffer, void *sd)
 {
   u_char sense, asc, ascq, EOM, ILI, ErrorCode, ValidData;
-  u_long InvalidBytes;
+  u_long MissingBytes;
   char *sense_str = "";
 
   struct sense_key *skey;
   struct ASCQ *ascq_key;
-
+  SENSE_DATA *sdp = (SENSE_DATA *) sd;
   SANE_Int i;
   SANE_Status status = SANE_STATUS_INVAL;
   SANE_Char print_sense[(16 * 3) + 1];
 
   DBG (DBG_proc, ">> sense_handler\n");
-  (void) arg;
+  if (DBG_LEVEL >= DBG_info)
+    print_sense_data (DBG_LEVEL, (SENSE_DATA *) sense_buffer);
 
-  scsi_fd = scsi_fd;		/* get rid of compiler warning */
-  ErrorCode = result[0] & 0x7F;
-  ValidData = (result[0] & 0x80) != 0;
-  sense = result[2] & 0x0f;	/* Sense Key */
-  asc = result[12];		/* Additional Sense Code */
-  ascq = result[13];		/* Additional Sense Code Qualifier */
-  EOM = (result[2] & 0x40) != 0;	/* End Of Media */
-  ILI = (result[2] & 0x20) != 0;	/* Invalid Length Indicator */
-  InvalidBytes = ValidData ? _4btol (&result[3]) : 0;
+  /* store sense_buffer */
+  DBG (DBG_info, ">> copying %d bytes from sense_buffer[] to sense_data\n",
+       sizeof (SENSE_DATA));
+  memcpy (sdp, sense_buffer, sizeof (SENSE_DATA));
+  if (DBG_LEVEL >= DBG_info)
+    print_sense_data (DBG_LEVEL, sdp);
 
-  DBG (DBG_sense, "sense_handler: result=%#x, sense=%#x, asc=%#x, ascq=%#x\n",
-       result[0], sense, asc, ascq);
+  ErrorCode = sense_buffer[0] & 0x7F;
+  ValidData = (sense_buffer[0] & 0x80) != 0;
+  sense = sense_buffer[2] & 0x0f;	/* Sense Key */
+  asc = sense_buffer[12];	/* Additional Sense Code */
+  ascq = sense_buffer[13];	/* Additional Sense Code Qualifier */
+  EOM = (sense_buffer[2] & 0x40) != 0;	/* End Of Media */
+  ILI = (sense_buffer[2] & 0x20) != 0;	/* Invalid Length Indicator */
+  MissingBytes = ValidData ? _4btol (&sense_buffer[3]) : 0;
+
+  DBG (DBG_sense,
+       "sense_handler: sense_buffer=%#x, sense=%#x, asc=%#x, ascq=%#x\n",
+       sense_buffer[0], sense, asc, ascq);
   DBG (DBG_sense,
        "sense_handler: ErrorCode %02x ValidData: %d "
-       "EOM: %d ILI: %d InvalidBytes: %lu\n", ErrorCode, ValidData, EOM, ILI,
-       InvalidBytes);
+       "EOM: %d ILI: %d MissingBytes: %lu\n", ErrorCode, ValidData, EOM,
+       ILI, MissingBytes);
 
   memset (print_sense, '\0', sizeof (print_sense));
   for (i = 0; i < 16; i++)
-    sprintf (print_sense + strlen (print_sense), "%02x ", result[i]);
+    sprintf (print_sense + strlen (print_sense), "%02x ", sense_buffer[i]);
   DBG (DBG_sense, "sense_handler: sense=%s\n", print_sense);
 
   if (ErrorCode != 0x70 && ErrorCode != 0x71)
@@ -1102,16 +1154,28 @@ print_window_data (SWD * buf)
 }
 
 static SANE_Status
-read_data (int fd, void *buf, size_t * buf_size)
+read_data (int fd, void *buf, size_t * buf_size, SANE_Byte dtc, u_long dtq)
 {
   static struct scsi_rs_scanner_cmd cmd;
   SANE_Status status;
-  DBG (DBG_proc, ">> read_data %lu\n", (unsigned long) *buf_size);
+  DBG (DBG_proc, ">> read_data buf_size=%lu dtc=0x%2.2x dtq=%lu\n",
+       (unsigned long) *buf_size, (int) dtc, dtq);
+  if (fd < 0)
+    {
+      DBG (DBG_error, "read_data: scanner is closed!\n");
+      return SANE_STATUS_INVAL;
+    }
 
   memset (&cmd, 0, sizeof (cmd));	/* CLEAR */
   cmd.opcode = HS2P_SCSI_READ_DATA;
-  cmd.dtc = DATA_TYPE_IMAGE;
+  cmd.dtc = dtc;
+  _lto2b (dtq, cmd.dtq);
   _lto3b (*buf_size, cmd.len);
+
+  DBG (DBG_info, "read_data ready to send scsi cmd\n");
+  DBG (DBG_info, "opcode=0x%2.2x, dtc=0x%2.2x, dtq=%lu, transfer len =%d\n",
+       cmd.opcode, cmd.dtc, _2btol (cmd.dtq), _3btol (cmd.len));
+
   status = sanei_scsi_cmd (fd, &cmd, sizeof (cmd), buf, buf_size);
 
   if (status != SANE_STATUS_GOOD)
@@ -1407,7 +1471,9 @@ read_size_data (int fd)
   SANE_Status status = SANE_STATUS_GOOD;
   return (status);
 }
+#endif
 
+#if 0
 static SANE_Status
 read_maintenance_data (int fd)
 {
@@ -1421,6 +1487,9 @@ read_maintenance_data (int fd)
  * Bit2: reserved
  * Bits7-3: reserved
 */
+
+
+#if 0
 static SANE_Status
 read_adf_status (int fd, SANE_Byte * adf_status_byte)
 {
@@ -1440,10 +1509,10 @@ read_adf_status (int fd, SANE_Byte * adf_status_byte)
     {
       DBG (DBG_error, "read_adf_status ERROR: %s\n", sane_strstatus (status));
     }
-
   DBG (DBG_proc, "<< read_adf_status\n");
   return (status);
 }
+#endif
 
 /*
  * read_ipu_photoletter_parameters

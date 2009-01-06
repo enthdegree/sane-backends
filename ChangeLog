@@ -1,3 +1,44 @@
+2009-01-05 Jeremy Johnson <jeremy a t acjlaw dot net>
+	Added code to read_data() to pad image data to
+	requested length and to zero out any garbage using
+	information from sense data command. Added new
+	MAINTENANCE_DATA struct and options to display
+	scanner's maintenance/callibration statistics.
+	*backend/hs2p.h
+	- added enum CONNECTION_TYPES
+	- added HS2P_DATA struct
+	- added SENSE_DATA struct to struct HS2P_Device
+	- added SANE_String_Const orientation_list[]
+	- added macros isset_ILI() and isset_EOM()
+	*backend/hs2p-scsi.h
+	- replaced request_sense struct with SENSE_DATA struct
+	- added #define DATA_TYPE_EOL (va_list sentinel)
+	- added MAINTENANCE_DATA struct
+	*backend/hs2p-saneopts.h
+	- added OPT_ORIENTATION
+	- added MAINTENANCE_DATA options
+	*backend/hs2p.c
+	- added MAINTENANCE_DATA options
+	- added unused connType to attach()
+	- added update_hs2p_data() to fill in options
+	- added hs2p_open() and hs2p_close()
+	- added get_hs2p_data() to read scanner data
+	- added print_maintenance_data()
+	- modified sane_control_options() to
+	  accomodate new maintenance options and to
+	  handle Portrait/Landscape option
+	  replaced adf_status macro with s->data.adf_status
+	- modified sane_read() to correctly zero out the
+	  missing bytes on an incomplete read and to pad
+	  to the requested length
+	*backend/hs2p-scsi.c
+	- replaced request_sense() with get_sense_data()
+	- added print_sense_data()
+	- added SENSE_DATA *sdp to sense_handler()
+	- modified read_data() to handler other data type codes/qualifiers
+	- read_adf_status() now is replaced with call to 
+	  read_data(fd,*buf,*bufsize,dtc,dtq)
+
 2009-01-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man, doc/descriptions/pixma.desc:
 	Updated doc for pixma backend (ImageClass)

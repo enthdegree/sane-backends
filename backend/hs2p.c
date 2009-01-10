@@ -3224,7 +3224,7 @@ pad:
       if (s->val[OPT_PADDING].w)
 	{
 	  DBG (DBG_info, "sane_read s->EOM padding from %ld to %ld\n",
-	       (u_long) start, (ulong) bytes_requested);
+	       (u_long) start, (u_long) bytes_requested);
 	  color = (s->val[OPT_NEGATIVE].w) ? 0 : 255;
 	  /* pad to requested length */
 	  for (i = start; i < bytes_requested; i++)

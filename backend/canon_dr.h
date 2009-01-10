@@ -448,7 +448,7 @@ static SANE_Status send_panel(struct scanner *s);
 
 static SANE_Status start_scan (struct scanner *s);
 
-static SANE_Status check_for_cancel(struct scanner *s);
+static SANE_Status cancel(struct scanner *s);
 
 static SANE_Status read_from_scanner(struct scanner *s, int side);
 

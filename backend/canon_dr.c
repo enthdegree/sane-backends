@@ -116,6 +116,11 @@
          - add all documented request sense codes to sense_handler()
          - fix color jpeg (remove unneeded BGR to RGB swapping code)
          - add macros for LUT data
+      v11 2009-01-10, MAN
+         - send_panel() can disable too
+         - add cancel() to send d8 command
+         - call cancel() only after final read from scanner
+         - stop button reqests cancel
 
    SANE FLOW DIAGRAM
 
@@ -951,6 +956,7 @@ init_panel (struct scanner *s)
   DBG (10, "init_panel: start\n");
 
   ret = read_panel(s);
+  s->panel_enable_led = 1;
   ret = send_panel(s);
 
   DBG (10, "init_panel: finish\n");
@@ -2605,7 +2611,7 @@ send_panel(struct scanner *s)
     set_S_xfer_length (cmd, outLen);
 
     memset(out,0,outLen);
-    set_S_PANEL_enable_led(out,1);
+    set_S_PANEL_enable_led(out,s->panel_enable_led);
     set_S_PANEL_counter(out,s->panel_counter);
   
     ret = do_cmd (
@@ -2755,9 +2761,6 @@ sane_start (SANE_Handle handle)
   /* undo any prior sane_cancel calls */
   s->cancelled=0;
 
-  /* protect this block from sane_cancel */
-  s->reading=1;
-
   /* not finished with current side, error */
   if (s->started && s->bytes_tx[s->side] != s->bytes_tot[s->side]) {
       DBG(5,"sane_start: previous transfer not finished?");
@@ -2901,12 +2904,6 @@ sane_start (SANE_Handle handle)
   s->jpeg_ff_offset=0;
 
   DBG (15, "started=%d, side=%d, source=%d\n", s->started, s->side, s->source);
-
-  /* check if user cancelled during this start */
-  ret = check_for_cancel(s);
-
-  /* unprotect this block from sane_cancel */
-  s->reading=0;
 
   DBG (10, "sane_start: finish %d\n", ret);
 
@@ -3161,39 +3158,37 @@ start_scan (struct scanner *s)
   return ret;
 }
 
-/* checks started and cancelled flags in scanner struct,
- * sends cancel command to scanner if required. don't call
- * this function asyncronously, wait for pending operation */
+/* sends cancel command to scanner, clears s->started. don't call
+ * this function asyncronously, wait for scan to complete */
 static SANE_Status
-check_for_cancel(struct scanner *s)
+cancel(struct scanner *s)
 {
-  SANE_Status ret=SANE_STATUS_GOOD;
+  SANE_Status ret = SANE_STATUS_GOOD;
 
-  DBG (10, "check_for_cancel: start\n");
+  unsigned char cmd[CANCEL_len];
+  size_t cmdLen = CANCEL_len;
 
-  if(s->started && s->cancelled){
-      DBG (15, "check_for_cancel: cancelling\n");
+  DBG (10, "cancel: start\n");
 
-      /* cancel scan */
-      /*ret = scanner_control(s, SC_function_cancel);*/
-      if (ret == SANE_STATUS_GOOD) {
-        ret = SANE_STATUS_CANCELLED;
-      }
-      else{
-        DBG (5, "check_for_cancel: ERROR: cannot cancel\n");
-      }
+  memset(cmd,0,cmdLen);
+  set_SCSI_opcode(cmd, CANCEL_code);
 
-      s->started = 0;
-      s->cancelled = 0;
-  }
-  else if(s->cancelled){
-    DBG (15, "check_for_cancel: already cancelled\n");
-    ret = SANE_STATUS_CANCELLED;
-    s->cancelled = 0;
+  ret = do_cmd (
+      s, 1, 0,
+      cmd, cmdLen,
+      NULL, 0,
+      NULL, NULL
+  );
+
+  if(!object_position(s,SANE_FALSE)){
+    DBG (5, "cancel: ignoring bad eject\n");
   }
 
-  DBG (10, "check_for_cancel: finish %d\n",ret);
-  return ret;
+  s->started = 0;
+
+  DBG (10, "cancel: finish\n");
+
+  return SANE_STATUS_CANCELLED;
 }
 
 /*
@@ -3231,9 +3226,6 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
       DBG (15, "sane_read: returning eof\n");
       return SANE_STATUS_EOF;
   }
-
-  /* protect this block from sane_cancel */
-  s->reading = 1;
 
   /* alternating pnm interlacing */
   if(s->source == SOURCE_ADF_DUPLEX
@@ -3285,11 +3277,15 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   /* copy a block from buffer to frontend */
   ret = read_from_buffer(s,buf,max_len,len,s->side);
 
-  /* check if user cancelled during this read */
-  ret = check_for_cancel(s);
-
-  /* unprotect this block from sane_cancel */
-  s->reading = 0;
+  /* we've read everything, and user cancelled */
+  /* tell scanner to stop */
+  if(s->bytes_rx[s->side] == s->bytes_tot[s->side]
+    && 
+    (s->cancelled || (!read_panel(s) && s->panel_stop))
+  ){
+      DBG(5,"sane_read: user cancelled\n");
+      return cancel(s);
+  }
 
   DBG (10, "sane_read: finish %d\n", ret);
   return ret;
@@ -3554,11 +3550,6 @@ sane_cancel (SANE_Handle handle)
 
   DBG (10, "sane_cancel: start\n");
   s->cancelled = 1;
-
-  /* if there is no other running function to check, we do it */
-  if(!s->reading)
-    check_for_cancel(s);
-
   DBG (10, "sane_cancel: finish\n");
 }
 

@@ -317,7 +317,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_DF_len(sb, val)         setbitfield(sb+7, 1, 0, val)
 #define set_SSM_DF_textdir(sb, val)     setbitfield(sb+9, 0xf, 0, val)
 
-/* for DUPLEX page */
+/* for BUFFER page */
 #define set_SSM_BUFF_duplex(sb, val)    sb[0x06] = val
 #define set_SSM_BUFF_async(sb, val)     sb[0x0a] = val
 
@@ -332,6 +332,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define set_SSM_DO_b_do(sb, val)        sb[0x0c] = val
 #define set_SSM_DO_f_en(sb, val)        sb[0x0d] = val
 #define set_SSM_DO_b_en(sb, val)        sb[0x0e] = val
+
+/* ==================================================================== */
+/* Cancel */
+#define CANCEL_code               0xd8
+#define CANCEL_len                6
 
 /* ==================================================================== */
 /* window descriptor macros for SET_WINDOW and GET_WINDOW */

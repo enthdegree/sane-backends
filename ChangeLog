@@ -1,5 +1,6 @@
 2009-01-10 Jeremy Johnson <jeremy a t acjlaw dot net>
-	*backend/hs2p.c replaced ulong with u_long
+	*backend/hs2p.c replaced ulong with u_long, 
+	added static keyword for SANE_Status update_hs2p_data()
 2009-01-06 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_sane.c, backend/hp3900_config.c,
 	  backend/hp3900_types.c, backend/hp3900.conf.in, doc/sane-hp3900.man,

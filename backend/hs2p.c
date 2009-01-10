@@ -1759,7 +1759,7 @@ get_scan_mode_id (char *s)	/* sequential search */
   return scan_mode_list[i] ? i : 0;
 }
 #endif
-SANE_Status
+static SANE_Status
 update_hs2p_data (HS2P_Scanner * s)
 {
 

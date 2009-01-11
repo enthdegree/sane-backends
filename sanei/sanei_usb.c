@@ -75,7 +75,8 @@ USBHANDLE dh;
 PHEV pUsbIrqStartHev=NULL;
 
 static
-struct usb_descriptor_header *GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR  *lastBytePtr)
+struct usb_descriptor_header *
+GetNextDescriptor( struct usb_descriptor_header *currHead, UCHAR *lastBytePtr)
 {
   UCHAR    *currBytePtr, *nextBytePtr;
 
@@ -129,6 +130,7 @@ typedef struct
   SANE_Int control_in_ep;
   SANE_Int control_out_ep;
   SANE_Int interface_nr;
+  SANE_Int missing;
 #ifdef HAVE_LIBUSB
   usb_dev_handle *libusb_handle;
   struct usb_device *libusb_device;
@@ -137,11 +139,17 @@ typedef struct
 }
 device_list_type;
 
-/* total number of devices that can be opened at the same time */
+/** 
+ * total number of devices that can be found at the same time */
 #define MAX_DEVICES 100
 
-/* per-device information, using the functions' parameters dn as index */
+/** 
+ * per-device information, using the functions' parameters dn as index */
 static device_list_type devices[MAX_DEVICES];
+
+/**
+ * total number of detected devices in devices array */
+static int device_number=0;
 
 #ifdef HAVE_LIBUSB
 static int libusb_timeout = 30 * 1000;	/* 30 seconds */
@@ -178,8 +186,6 @@ cmsg;
 #include <drivers/USB_scanner.h>
 #include <kernel/OS.h>
 #endif /* __linux__ */
-
-static time_t last_time = 0;
 
 /* Debug level from sanei_init_debug */
 static SANE_Int debug_level;
@@ -298,6 +304,50 @@ kernel_get_vendor_product (int fd, const char *name, int *vendorID, int *product
   /* put more os-dependant stuff ... */
 }
 
+/**
+ * store the given device in device list if it isn't already
+ * in it
+ * @param device device to store if new
+ */
+static void
+store_device (device_list_type device)
+{
+  int i = 0;
+  int pos = -1;
+
+  /* if there are already some devices present, check against 
+   * them and leave if an equal one is found */
+  for (i = 0; i < device_number; i++)
+    {
+      if (devices[i].method == device.method
+       && !strcmp (devices[i].devname, device.devname)
+       && devices[i].vendor == device.vendor
+       && devices[i].product == device.product)
+	{
+          devices[i].missing=0;
+	  DBG (3, "store_device: not storing device %s\n", device.devname);
+	  return;
+	}
+      if (devices[i].missing >= 2)
+        pos = i;
+    }
+
+  if(pos > -1){
+    DBG (3, "store_device: overwrite dn %d with %s\n", pos, device.devname);
+  }
+  else{
+    if(device_number >= MAX_DEVICES){
+      DBG (3, "store_device: no room for %s\n", device.devname);
+      return;
+    }
+    pos = device_number;
+    device_number++;
+    DBG (3, "store_device: add dn %d with %s\n", pos, device.devname);
+  }
+  memcpy (&(devices[pos]), &device, sizeof (device));
+  devices[pos].open = SANE_FALSE;
+}
+
 void
 sanei_usb_init (void)
 {
@@ -315,9 +365,9 @@ sanei_usb_init (void)
   };
   SANE_Int vendor, product;
   SANE_Char devname[1024];
-  SANE_Int dn = 0;
   int fd;
-  time_t curr_time = time(NULL);
+  int i;
+  device_list_type device;
 #ifdef HAVE_LIBUSB
   struct usb_bus *bus;
   struct usb_device *dev;
@@ -330,15 +380,14 @@ sanei_usb_init (void)
   debug_level = 0;
 #endif
 
-  /* init only once per second */
-  if (last_time == curr_time){
-    DBG (4, "sanei_usb_init: skipping probe: %lu\n",(unsigned long)last_time);
-    return;
+  /* if no device yet, clean up memory */
+  if(device_number==0)
+    memset (devices, 0, sizeof (devices));
+
+  DBG (4, "sanei_usb_init: marking existing devices\n");
+  for (i = 0; i < device_number; i++) {
+    devices[i].missing++;
   }
-
-  last_time = curr_time;
-
-  memset (devices, 0, sizeof (devices));
 
   DBG (4, "sanei_usb_init: Looking for kernel scanner devices\n");
   /* Check for devices using the kernel scanner driver */
@@ -397,25 +446,20 @@ sanei_usb_init (void)
 	      product = -1;
 	      kernel_get_vendor_product (fd, devname, &vendor, &product);
 	      close (fd);
-	      devices[dn].devname = strdup (devname);
-	      if (!devices[dn].devname)
+    	      memset (&device, 0, sizeof (device));
+	      device.devname = strdup (devname);
+	      if (!device.devname)
 		{
 		  closedir (dir);
 		  return;
 		}
-	      devices[dn].vendor = vendor;
-	      devices[dn].product = product;
-	      devices[dn].method = sanei_usb_method_scanner_driver;
-	      devices[dn].open = SANE_FALSE;
+	      device.vendor = vendor;
+	      device.product = product;
+	      device.method = sanei_usb_method_scanner_driver;
 	      DBG (4,
 		   "sanei_usb_init: found kernel scanner device (0x%04x/0x%04x) at %s\n",
 		   vendor, product, devname);
-	      dn++;
-	      if (dn >= MAX_DEVICES)
-		{
-		  closedir (dir);
-		  return;
-		}
+	      store_device(device);
 	    }
 	}
       closedir (dir);
@@ -439,7 +483,7 @@ sanei_usb_init (void)
       for (dev = bus->devices; dev; dev = dev->next)
 	{
 	  int interface;
-	  SANE_Bool found;
+	  SANE_Bool found = SANE_FALSE;
 
 	  if (!dev->config)
 	    {
@@ -451,11 +495,11 @@ sanei_usb_init (void)
 	  if (dev->descriptor.idVendor == 0 || dev->descriptor.idProduct == 0)
 	    {
 	      DBG (5,
-		   "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
-		   dev->descriptor.idVendor, dev->descriptor.idProduct);
+		 "sanei_usb_init: device 0x%04x/0x%04x looks like a root hub\n",
+		 dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
-	  found = SANE_FALSE;
+
 	  for (interface = 0;
 	       interface < dev->config[0].bNumInterfaces && !found;
 	       interface++)
@@ -489,40 +533,41 @@ sanei_usb_init (void)
 		}
 	      if (!found)
 		DBG (5,
-		     "sanei_usb_init: device 0x%04x/0x%04x, interface %d doesn't look like a "
+		     "sanei_usb_init: device 0x%04x/0x%04x, interface %d "
+                     "doesn't look like a "
 		     "scanner (%d/%d)\n", dev->descriptor.idVendor,
 		     dev->descriptor.idProduct, interface,
 		     dev->descriptor.bDeviceClass,
-		     dev->config[0].interface[interface].altsetting != 0 ? dev->config[0].interface[interface].altsetting[0].
-		     bInterfaceClass : -1);
+		     dev->config[0].interface[interface].altsetting != 0 
+                       ? dev->config[0].interface[interface].altsetting[0].
+		       bInterfaceClass : -1);
 	    }
 	  interface--;
 	  if (!found)
 	    {
 	      DBG (5,
-		   "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
-		   dev->descriptor.idVendor, dev->descriptor.idProduct);
+	       "sanei_usb_init: device 0x%04x/0x%04x: no suitable interfaces\n",
+	        dev->descriptor.idVendor, dev->descriptor.idProduct);
 	      continue;
 	    }
 
-	  devices[dn].libusb_device = dev;
+    	  memset (&device, 0, sizeof (device));
+	  device.libusb_device = dev;
 	  snprintf (devname, sizeof (devname), "libusb:%s:%s",
 		    dev->bus->dirname, dev->filename);
-	  devices[dn].devname = strdup (devname);
-	  if (!devices[dn].devname)
+	  device.devname = strdup (devname);
+	  if (!device.devname)
 	    return;
-	  devices[dn].vendor = dev->descriptor.idVendor;
-	  devices[dn].product = dev->descriptor.idProduct;
-	  devices[dn].method = sanei_usb_method_libusb;
-	  devices[dn].open = SANE_FALSE;
-	  devices[dn].interface_nr = interface;
+	  device.vendor = dev->descriptor.idVendor;
+	  device.product = dev->descriptor.idProduct;
+	  device.method = sanei_usb_method_libusb;
+	  device.interface_nr = interface;
 	  DBG (4,
-	       "sanei_usb_init: found libusb device (0x%04x/0x%04x) interface %d  at %s\n",
+	       "sanei_usb_init: found libusb device (0x%04x/0x%04x) interface "
+               "%d  at %s\n",
 	       dev->descriptor.idVendor, dev->descriptor.idProduct, interface,
 	       devname);
-	  dn++;
-	  if (dn >= MAX_DEVICES)
-	    return;
+	  store_device(device);
 	}
     }
 #else /* HAVE_LIBUSB */
@@ -586,25 +631,31 @@ sanei_usb_init (void)
 
 	  snprintf (devname, sizeof (devname), "usbcalls:%d",
 		    ulDev);
-	  devices[dn].devname = strdup (devname);
-          devices[dn].fd = ulDev; /* store usbcalls device number */
-	  devices[dn].vendor = pDevDesc->idVendor;
-	  devices[dn].product = pDevDesc->idProduct;
-	  devices[dn].method = sanei_usb_method_usbcalls;
-	  devices[dn].open = SANE_FALSE;
-	  devices[dn].interface_nr = interface;
+    	  memset (&device, 0, sizeof (device));
+	  device.devname = strdup (devname);
+          device.fd = ulDev; /* store usbcalls device number */
+	  device.vendor = pDevDesc->idVendor;
+	  device.product = pDevDesc->idProduct;
+	  device.method = sanei_usb_method_usbcalls;
+	  device.interface_nr = interface;
 	  DBG (4, "sanei_usb_init: found usbcalls device (0x%04x/0x%04x) as device number %s\n",
-	       pDevDesc->idVendor, pDevDesc->idProduct,devices[dn].devname);
-          dn++;
-          if (dn >= MAX_DEVICES)
-	    return;
-
+	       pDevDesc->idVendor, pDevDesc->idProduct,device.devname);
+	  store_device(device);
        }
    }
 
 #endif /* HAVE_USBCALLS */
 
-  DBG (5, "sanei_usb_init: found %d devices\n", dn);
+  DBG (5, "sanei_usb_init: found %d devices\n", device_number);
+  if (debug_level > 5)
+    {
+      for (i = 0; i < device_number; i++)
+        {
+          if(devices[i].missing)
+            continue;
+	  DBG (6, "sanei_usb_init: device %02d is %s\n", i, devices[i].devname);
+        }
+    }
 }
 
 
@@ -654,13 +705,15 @@ SANE_Status
 sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
 				     SANE_Word * vendor, SANE_Word * product)
 {
-  int devcount;
+  int i;
   SANE_Bool found = SANE_FALSE;
 
-  for (devcount = 0; devcount < MAX_DEVICES && devices[devcount].devname != 0;
-       devcount++)
+  for (i = 0; i < device_number && devices[i].devname; i++)
     {
-      if (strcmp (devices[devcount].devname, devname) == 0)
+      if(devices[i].missing)
+        continue;
+
+      if (strcmp (devices[i].devname, devname) == 0)
 	{
 	  found = SANE_TRUE;
 	  break;
@@ -673,17 +726,17 @@ sanei_usb_get_vendor_product_byname (SANE_String_Const devname,
       return SANE_STATUS_INVAL;
     }
 
-  if ((devices[devcount].vendor == 0) && (devices[devcount].product == 0))
+  if ((devices[i].vendor == 0) && (devices[i].product == 0))
     {
       DBG (1, "sanei_usb_get_vendor_product_byname: not support for this method\n");
       return SANE_STATUS_UNSUPPORTED;
     }
 
   if (vendor)
-    *vendor = devices[devcount].vendor;
+    *vendor = devices[i].vendor;
 
   if (product)
-    *product = devices[devcount].product;
+    *product = devices[i].product;
 
   return SANE_STATUS_GOOD;
 }
@@ -695,9 +748,9 @@ sanei_usb_get_vendor_product (SANE_Int dn, SANE_Word * vendor,
   SANE_Word vendorID = 0;
   SANE_Word productID = 0;
 
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_get_vendor_product: dn >= MAX_DEVICES || dn < 0\n");
+      DBG (1, "sanei_usb_get_vendor_product: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -759,10 +812,12 @@ sanei_usb_find_devices (SANE_Int vendor, SANE_Int product,
        "sanei_usb_find_devices: vendor=0x%04x, product=0x%04x\n",
        vendor, product);
 
-  while (devices[dn].devname && dn < MAX_DEVICES)
+  while (devices[dn].devname && dn < device_number)
     {
-      if (devices[dn].vendor == vendor && devices[dn].product == product)
-	if (attach)
+      if (devices[dn].vendor == vendor
+        && devices[dn].product == product
+        && !devices[dn].missing
+	&& attach)
 	  attach (devices[dn].devname);
       dn++;
     }
@@ -783,9 +838,13 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
       return SANE_STATUS_INVAL;
     }
 
-  for (devcount = 0; devcount < MAX_DEVICES && devices[devcount].devname != 0;
+  for (devcount = 0;
+       devcount < device_number && devices[devcount].devname != 0;
        devcount++)
     {
+      if(devices[devcount].missing)
+        continue;
+
       if (strcmp (devices[devcount].devname, devname) == 0)
 	{
 	  if (devices[devcount].open)
@@ -1262,9 +1321,9 @@ void
 sanei_usb_close (SANE_Int dn)
 {
   DBG (5, "sanei_usb_close: closing device %d\n", dn);
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_close: dn >= MAX_DEVICES || dn < 0\n");
+      DBG (1, "sanei_usb_close: dn >= device number || dn < 0\n");
       return;
     }
   if (!devices[dn].open)
@@ -1360,9 +1419,9 @@ sanei_usb_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_read_bulk: dn >= MAX_DEVICES || dn < 0\n");
+      DBG (1, "sanei_usb_read_bulk: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
   DBG (5, "sanei_usb_read_bulk: trying to read %lu bytes\n",
@@ -1469,9 +1528,9 @@ sanei_usb_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_write_bulk: dn >= MAX_DEVICES || dn < 0\n");
+      DBG (1, "sanei_usb_write_bulk: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
   DBG (5, "sanei_usb_write_bulk: trying to write %lu bytes\n",
@@ -1566,9 +1625,9 @@ sanei_usb_control_msg (SANE_Int dn, SANE_Int rtype, SANE_Int req,
 		       SANE_Int value, SANE_Int index, SANE_Int len,
 		       SANE_Byte * data)
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_control_msg: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+      DBG (1, "sanei_usb_control_msg: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }
@@ -1694,9 +1753,9 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       return SANE_STATUS_INVAL;
     }
 
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
-      DBG (1, "sanei_usb_read_int: dn >= MAX_DEVICES || dn < 0\n");
+      DBG (1, "sanei_usb_read_int: dn >= device number || dn < 0\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -1795,10 +1854,10 @@ sanei_usb_read_int (SANE_Int dn, SANE_Byte * buffer, size_t * size)
 SANE_Status
 sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
       DBG (1,
-	   "sanei_usb_set_configuration: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   "sanei_usb_set_configuration: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }
@@ -1847,10 +1906,10 @@ sanei_usb_set_configuration (SANE_Int dn, SANE_Int configuration)
 SANE_Status
 sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number)
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
       DBG (1,
-	   "sanei_usb_claim_interface: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   "sanei_usb_claim_interface: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }
@@ -1897,10 +1956,10 @@ sanei_usb_claim_interface (SANE_Int dn, SANE_Int interface_number)
 SANE_Status
 sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number)
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
       DBG (1,
-	   "sanei_usb_release_interface: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   "sanei_usb_release_interface: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }
@@ -1948,10 +2007,10 @@ sanei_usb_release_interface (SANE_Int dn, SANE_Int interface_number)
 SANE_Status
 sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
       DBG (1,
-	   "sanei_usb_set_altinterface: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   "sanei_usb_set_altinterface: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }
@@ -1999,10 +2058,10 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
 extern SANE_Status
 sanei_usb_get_descriptor( SANE_Int dn, struct sanei_usb_dev_descriptor *desc )
 {
-  if (dn >= MAX_DEVICES || dn < 0)
+  if (dn >= device_number || dn < 0)
     {
       DBG (1,
-	   "sanei_usb_get_descriptor: dn >= MAX_DEVICES || dn < 0, dn=%d\n",
+	   "sanei_usb_get_descriptor: dn >= device number || dn < 0, dn=%d\n",
 	   dn);
       return SANE_STATUS_INVAL;
     }

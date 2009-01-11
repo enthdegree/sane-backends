@@ -1,4 +1,9 @@
 2009-01-10  m. allan noah <kitno455 a t gmail d o t com>
+	* sanei/sanei_usb.c: rescan usb every time sanei_usb_init() is called
+	- remove missing devices, add new devices to global lists
+	- based on code from stef.dev@free.fr
+
+2009-01-10  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v11
 	- send_panel() can disable too
 	- add cancel() to send d8 command
@@ -14,6 +19,7 @@
 	  backend/hp3900_types.c, backend/hp3900.conf.in, doc/sane-hp3900.man,
 	  doc/descriptions/hp3900.desc:
 	  Added support for HP Scanjet G3110 scanner.
+
 2009-01-05 Jeremy Johnson <jeremy a t acjlaw dot net>
 	Added code to read_data() to pad image data to
 	requested length and to zero out any garbage using

@@ -115,7 +115,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-u12.man sane-niash.man sane-sm3840.man sane-genesys.man sane-hp4200.man \
   sane-mustek_usb2.man sane-hp3500.man sane-pixma.man sane-stv680.man \
   sane-hp5590.man sane-hpljm1005.man sane-cardscan.man sane-hp3900.man \
-  sane-epjitsu.man sane-hs2p.man sane-canon_dr.man sane_xerox_mfp.man
+  sane-epjitsu.man sane-hs2p.man sane-canon_dr.man sane-xerox_mfp.man
 
 .PHONY: all clean depend dist distclean html html-man install \
   sane-html uninstall

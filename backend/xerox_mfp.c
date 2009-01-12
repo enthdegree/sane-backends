@@ -26,7 +26,7 @@
 #include <sane/sanei_backend.h>
 #include "xerox_mfp.h"
 
-#define BACKEND_BUILD 3
+#define BACKEND_BUILD 5
 #define XEROX_CONFIG_FILE "xerox_mfp.conf"
 
 static const SANE_Device **devlist = NULL;	/* sane_get_devices array */
@@ -428,7 +428,7 @@ static void init_options(struct device *dev)
   dev->opt[OPT_NUMOPTIONS].cap = SANE_CAP_SOFT_DETECT;
   dev->val[OPT_NUMOPTIONS].w = NUM_OPTIONS;
 
-  dev->opt[OPT_GROUP_STD].name = SANE_TITLE_STANDARD;
+  dev->opt[OPT_GROUP_STD].name = SANE_NAME_STANDARD;
   dev->opt[OPT_GROUP_STD].title = SANE_TITLE_STANDARD;
   dev->opt[OPT_GROUP_STD].desc = SANE_DESC_STANDARD;
   dev->opt[OPT_GROUP_STD].type = SANE_TYPE_GROUP;
@@ -469,7 +469,7 @@ static void init_options(struct device *dev)
   dev->opt[OPT_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
   dev->opt[OPT_SOURCE].constraint.string_list = doc_sources;
 
-  dev->opt[OPT_GROUP_GEO].name = SANE_TITLE_GEOMETRY;
+  dev->opt[OPT_GROUP_GEO].name = SANE_NAME_GEOMETRY;
   dev->opt[OPT_GROUP_GEO].title = SANE_TITLE_GEOMETRY;
   dev->opt[OPT_GROUP_GEO].desc = SANE_DESC_GEOMETRY;
   dev->opt[OPT_GROUP_GEO].type = SANE_TYPE_GROUP;

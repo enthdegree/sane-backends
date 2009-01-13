@@ -3236,7 +3236,7 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
+      printf ("ATTR{idVendor}==\"%s\", ATTR{idProduct}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
 	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2, DEVMODE, DEVGROUP);
       usbid = usbid->next;
     }

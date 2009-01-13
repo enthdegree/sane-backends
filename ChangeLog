@@ -1,7 +1,8 @@
 2009-01-13 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: replace opencoded device permissions and
 	ownership by proper definitions. Group USB devices by vendor in
-	the HAL FDI output.
+	the HAL FDI output. Replace obsolete SYSFS{} key by the newer
+	ATTR{} key in the udev output.
 	All of the above based on a patch contributed by Dieter Jurzitza.
 
 2009-01-10  m. allan noah <kitno455 a t gmail d o t com>

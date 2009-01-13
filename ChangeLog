@@ -5,6 +5,10 @@
 	ATTR{} key in the udev output. Add a new :scsi keyword for SCSI
 	devices, add support for SCSI devices in the udev and HAL FDI
 	outputs.
+	* doc/descriptions/hp.desc, doc/descriptions/epson.desc: add :scsi
+	keyword to a handful of SCSI scanners known to advertise
+	themselves as type "Processor".
+
 	All of the above based on a patch contributed by Dieter Jurzitza.
 
 2009-01-10  m. allan noah <kitno455 a t gmail d o t com>

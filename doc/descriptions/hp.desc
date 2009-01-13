@@ -53,6 +53,7 @@
 :model "ScanJet 4p"
 :interface "SCSI"
 :status :complete
+:scsi "HP" "C1130A" "processor"
 
 :model "ScanJet 4100C"
 :interface "USB"
@@ -62,6 +63,7 @@
 :model "ScanJet 5p"
 :interface "SCSI"
 :status :complete
+:scsi "HP" "C5110A" "processor"
 
 :model "ScanJet 5100C"
 :interface "Parport"
@@ -80,6 +82,7 @@
 
 :model "ScanJet 6200C"
 :interface "SCSI USB"
+:scsi "HP" "C6270A" "processor"
 :usbid "0x03f0" "0x0201"
 :status :complete
 
@@ -90,6 +93,7 @@
 
 :model "ScanJet 6300C"
 :interface "SCSI USB"
+:scsi "HP" "C7670A" "processor"
 :usbid "0x03f0" "0x0601"
 :status :complete
 

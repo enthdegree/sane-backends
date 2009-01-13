@@ -97,6 +97,7 @@
 
 :model "Perfection 1200S"
 :interface "SCSI"
+:scsi "EPSON" "Perfection1200" "processor"
 :status :complete
 
 :model "Perfection 1200U"

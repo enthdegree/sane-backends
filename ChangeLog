@@ -1,3 +1,7 @@
+2009-01-13 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+        * backend/pixma_bjnp.c: send broadcasts from bjnp port to make
+        firewalling easier
+
 2009-01-13 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: replace opencoded device permissions and
 	ownership by proper definitions. Group USB devices by vendor in

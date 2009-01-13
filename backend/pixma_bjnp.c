@@ -563,8 +563,8 @@ parse_scanner_address (char *resp_buf, char *address, char *serial)
 }
 
 static int
-bjnp_send_broadcast (struct in_addr broadcast_addr, struct BJNP_command cmd,
-		     int size)
+bjnp_send_broadcast (struct in_addr local_addr, struct in_addr broadcast_addr,
+                     struct BJNP_command cmd, int size)
 {
   /*
    * send command to interface and return open socket
@@ -595,11 +595,11 @@ bjnp_send_broadcast (struct in_addr broadcast_addr, struct BJNP_command cmd,
       return -1;
     };
 
-  /* Bind to local address, let OS select local address and port */
+  /* Bind to local address, use BJNP port */
 
   sendaddr.sin_family = AF_INET;
-  sendaddr.sin_port = htons (0);
-  sendaddr.sin_addr.s_addr = htonl (INADDR_ANY);
+  sendaddr.sin_port = htons (BJNP_PORT_SCAN);
+  sendaddr.sin_addr = local_addr;
   memset (sendaddr.sin_zero, '\0', sizeof sendaddr.sin_zero);
 
   if (bind
@@ -1180,6 +1180,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
   struct ifaddrs *interface;
 #else
   struct in_addr broadcast;
+  struct in_addr local;
 #endif
 
   PDBG (pixma_dbg (LOG_INFO, "sanei_bjnp_find_devices:\n"));
@@ -1219,8 +1220,10 @@ sanei_bjnp_find_devices (const char **conf_devices,
 
 	  if ((socket_fd[no_sockets] =
 	       bjnp_send_broadcast (((struct sockaddr_in *) interface->
-				     ifa_broadaddr)->sin_addr, cmd,
-				    sizeof (cmd))) != -1)
+				     ifa_addr)->sin_addr, 
+                                    ((struct sockaddr_in *) interface->
+                                     ifa_broadaddr)->sin_addr,
+                                    cmd, sizeof (cmd))) != -1)
 	    {
 	      if (socket_fd[no_sockets] > last_socketfd)
 		{
@@ -1240,10 +1243,11 @@ sanei_bjnp_find_devices (const char **conf_devices,
   /* we have no easy way to find interfaces with their broadcast addresses, use global broadcast */
 
   no_sockets = 0;
-  broadcast.s_addr = INADDR_BROADCAST;
+  broadcast.s_addr = htonl(INADDR_BROADCAST);
+  local.s_addr = htonl(INADDR_ANY);
 
   if ((socket_fd[no_sockets] =
-       bjnp_send_broadcast (broadcast, cmd, sizeof (cmd))) != -1)
+       bjnp_send_broadcast (local, broadcast, cmd, sizeof (cmd))) != -1)
     {
       if (socket_fd[no_sockets] > last_socketfd)
 	{

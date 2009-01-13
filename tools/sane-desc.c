@@ -4,6 +4,7 @@
    Copyright (C) 2002-2006 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Jose Gato <jgato@gsyc.escet.urjc.es> (XML output)
    Copyright (C) 2006 Mattias Ellert <mattias.ellert@tsl.uu.se> (plist output)
+   Copyright (C) 2009 Dr. Ing. Dieter Jurzitza <dieter.jurzitza@t-online.de>
 
    This file is part of the SANE package.
 
@@ -22,18 +23,6 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
 */
-
-#define SANE_DESC_VERSION "3.3"
-
-#define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
-#define COLOR_MINIMAL      "\"#B00000\""
-#define COLOR_BASIC        "\"#FF9000\""
-#define COLOR_GOOD         "\"#90B000\""
-#define COLOR_COMPLETE     "\"#007000\""
-#define COLOR_UNTESTED     "\"#0000B0\""
-#define COLOR_UNSUPPORTED  "\"#F00000\""
-#define COLOR_NEW          "\"#F00000\""
-#define COLOR_UNKNOWN      "\"#000000\""
 
 #include <../include/sane/config.h>
 
@@ -55,8 +44,20 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 
-#define DEVMODE  "0664" 
-#define DEVOWNER "root" 
+#define SANE_DESC_VERSION "3.5"
+
+#define MAN_PAGE_LINK "http://www.sane-project.org/man/%s.5.html"
+#define COLOR_MINIMAL      "\"#B00000\""
+#define COLOR_BASIC        "\"#FF9000\""
+#define COLOR_GOOD         "\"#90B000\""
+#define COLOR_COMPLETE     "\"#007000\""
+#define COLOR_UNTESTED     "\"#0000B0\""
+#define COLOR_UNSUPPORTED  "\"#F00000\""
+#define COLOR_NEW          "\"#F00000\""
+#define COLOR_UNKNOWN      "\"#000000\""
+
+#define DEVMODE  "0664"
+#define DEVOWNER "root"
 #define DEVGROUP "scanner"
 
 #ifndef PATH_MAX
@@ -67,7 +68,6 @@
 #define DBG_WARN current_debug_level = 1; debug_call
 #define DBG_INFO current_debug_level = 2; debug_call
 #define DBG_DBG current_debug_level = 3; debug_call
-
 
 typedef enum output_mode
 {
@@ -90,7 +90,8 @@ typedef enum parameter_type
 {
   param_none = 0,
   param_string,
-  param_two_strings
+  param_two_strings,
+  param_three_strings
 }
 parameter_type;
 
@@ -144,6 +145,9 @@ typedef struct model_entry
   char *usb_vendor_id;
   char *usb_product_id;
   SANE_Bool ignore_usb_id;
+  char *scsi_vendor_id;
+  char *scsi_product_id;
+  SANE_Bool scsi_is_processor;
 }
 model_entry;
 
@@ -198,6 +202,9 @@ typedef struct model_record_entry
   enum status_entry status;
   char *usb_vendor_id;
   char *usb_product_id;
+  char *scsi_vendor_id;
+  char *scsi_product_id;
+  SANE_Bool scsi_is_processor;
   struct backend_entry *be;
 }
 model_record_entry;
@@ -231,6 +238,16 @@ typedef struct usbid_type
 }
 usbid_type;
 
+typedef struct scsiid_type
+{
+  struct scsiid_type * next;
+  char *scsi_vendor_id;
+  char *scsi_product_id;
+  SANE_Bool is_processor;
+  struct manufacturer_model_type *name;
+}
+scsiid_type;
+
 static char *program_name;
 static int debug = 0;
 static int current_debug_level = 0;
@@ -252,6 +269,7 @@ static const char *device_type_aname[] =
 static const char *status_color[] =
   {COLOR_UNKNOWN, COLOR_UNSUPPORTED, COLOR_UNTESTED, COLOR_MINIMAL, 
    COLOR_BASIC, COLOR_GOOD, COLOR_COMPLETE};
+
 
 static void
 debug_call (const char *fmt, ...)
@@ -654,6 +672,56 @@ read_keyword (SANE_String line, SANE_String keyword_token,
 	* (SANE_String **) argument = strings;
 	break;
       }
+    case param_three_strings:
+      {
+	char *pos;
+	char **strings = malloc (3 * sizeof (SANE_String));
+
+	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	  *pos = ' ';
+	DBG_INFO ("read_keyword: set first entry of `%s' to `%s'\n", keyword_token,
+		 word);
+	strings[0] = strdup (word);
+	if (word)
+	  free (word);
+
+	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	  *pos = ' ';
+	DBG_INFO ("read_keyword: set second entry of `%s' to `%s'\n", keyword_token,
+		 word);
+	strings[1] = strdup (word);
+	if (word)
+	  free (word);
+
+	cp = get_token (cp, &word);
+	if (!word)
+	  {
+	    DBG_ERR ("read_keyword: missing quotation mark: %s\n", line);
+	    return SANE_STATUS_INVAL;
+	  }
+	/* remove escaped quotations */
+	while ((pos = strstr (word, "\\\"")) != 0)
+	  *pos = ' ';
+	DBG_INFO ("read_keyword: set third entry of `%s' to `%s'\n", keyword_token,
+		 word);
+	strings[2] = strdup (word);
+	* (SANE_String **) argument = strings;
+	break;
+      }
     default:
       DBG_ERR ("read_keyword: unknown param_type %d\n", p_type);
       return SANE_STATUS_INVAL;
@@ -825,6 +893,7 @@ read_files (void)
 		{
 		  char *string_entry = 0;
 		  char **two_string_entry;
+		  char **three_string_entry;
 		  word = 0;
 
 		  cp = get_token (line, &word);
@@ -1280,6 +1349,39 @@ read_files (void)
 		      continue;
 		    }
 		  if (read_keyword
+		      (line, ":scsi", param_three_strings,
+		       &three_string_entry) == SANE_STATUS_GOOD)
+		    {
+		      if (!current_model)
+			{
+			  DBG_WARN
+			    ("ignored `%s' :scsi, only allowed for "
+			     "hardware devices\n", current_backend->name);
+			  continue;
+			}
+
+		      DBG_INFO ("setting scsi vendor and product ids of model `%s' to `%s/%s'\n",
+				current_model->name, three_string_entry[0], three_string_entry[1]);
+		      if (strcasecmp (three_string_entry[0], "ignore") == 0)
+			 {
+				DBG_INFO ("Ignoring `%s's scsi-entries of `%s'\n",
+						current_backend->name,
+						current_model->name);
+				continue;
+			 }
+			 if (strcasecmp (three_string_entry[2], "processor") == 0){
+				current_model->scsi_is_processor = SANE_TRUE;
+				current_model->scsi_vendor_id = three_string_entry[0];
+				current_model->scsi_product_id = three_string_entry[1];
+			 }
+			 else
+			 {
+				DBG_INFO ("scsi-format info in %s is invalid -> break\n", current_backend->name);
+				continue;
+			 }
+		      continue;
+		    }
+		  if (read_keyword
 		      (line, ":usbid", param_two_strings,
 		       &two_string_entry) == SANE_STATUS_GOOD)
 		    {
@@ -1455,6 +1557,9 @@ create_model_record (model_entry * model)
   model_record->comment = model->comment;
   model_record->usb_vendor_id = model->usb_vendor_id;
   model_record->usb_product_id = model->usb_product_id;
+  model_record->scsi_vendor_id = model->scsi_vendor_id;
+  model_record->scsi_product_id = model->scsi_product_id;
+  model_record->scsi_is_processor = model->scsi_is_processor;
   return model_record;
 }
 
@@ -2939,6 +3044,25 @@ create_usbid (char *manufacturer, char *model,
   return usbid;
 }
 
+static scsiid_type *
+create_scsiid (char *manufacturer, char *model, 
+	       char *scsi_vendor_id, char *scsi_product_id, SANE_Bool is_processor)
+{
+  scsiid_type * scsiid = calloc (1, sizeof (scsiid_type));
+
+  scsiid->scsi_vendor_id = strdup (scsi_vendor_id);
+  scsiid->scsi_product_id = strdup (scsi_product_id);
+  scsiid->is_processor = is_processor;
+  scsiid->name = calloc (1, sizeof (manufacturer_model_type));
+  scsiid->name->name = calloc (1, strlen (manufacturer) + strlen (model) + 3);
+  sprintf (scsiid->name->name, "%s %s", manufacturer, model);
+  scsiid->name->next = 0;
+  scsiid->next = 0;
+  DBG_DBG ("New SCSI ids: %s/%s (%s %s)\n", scsi_vendor_id, scsi_product_id,
+	    manufacturer, model);
+  return scsiid;
+}
+
 static usbid_type *
 add_usbid (usbid_type *first_usbid, char *manufacturer, char *model, 
 	   char *usb_vendor_id, char *usb_product_id)
@@ -2992,6 +3116,59 @@ add_usbid (usbid_type *first_usbid, char *manufacturer, char *model,
   return first_usbid;
 }
 
+static scsiid_type *
+add_scsiid (scsiid_type *first_scsiid, char *manufacturer, char *model, 
+	    char *scsi_vendor_id, char *scsi_product_id, SANE_Bool is_processor)
+{
+  scsiid_type *scsiid = first_scsiid;
+  scsiid_type *prev_scsiid = 0, *tmp_scsiid = 0;
+
+  if (!first_scsiid)
+    first_scsiid = create_scsiid (manufacturer, model, scsi_vendor_id, scsi_product_id, is_processor);
+  else
+    {
+      while (scsiid)
+	{
+	  if (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) == 0 &&
+	      strcmp (scsi_product_id, scsiid->scsi_product_id) == 0)
+	    {
+	      manufacturer_model_type *man_mod = scsiid->name;
+
+	      while (man_mod->next)
+		man_mod = man_mod->next;
+	      man_mod->next = malloc (sizeof (manufacturer_model_type));
+	      man_mod->next->name = malloc (strlen (manufacturer) + strlen (model) + 3);
+	      sprintf (man_mod->next->name, "%s %s", manufacturer, model);
+	      man_mod->next->next = 0;
+	      DBG_DBG ("Added manufacturer/model %s %s to SCSI ids %s/%s\n", manufacturer, model,
+			scsi_vendor_id, scsi_product_id);
+	      break;
+	    }
+	  if (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) < 0 || 
+	      (strcmp (scsi_vendor_id, scsiid->scsi_vendor_id) == 0 &&
+	       strcmp (scsi_product_id, scsiid->scsi_product_id) < 0))
+	    {
+	      
+	      tmp_scsiid = create_scsiid (manufacturer, model, scsi_vendor_id, scsi_product_id, is_processor);
+	      tmp_scsiid->next = scsiid;
+	      if (prev_scsiid)
+		prev_scsiid->next = tmp_scsiid;
+	      else
+		first_scsiid = tmp_scsiid;
+	      break;
+	    }
+	  prev_scsiid = scsiid;
+	  scsiid = scsiid->next;
+	}
+      if (!scsiid)
+	{
+	  prev_scsiid->next = create_scsiid (manufacturer, model, scsi_vendor_id, scsi_product_id, is_processor);
+	  scsiid = prev_scsiid->next;
+	}
+    }
+  return first_scsiid;
+}
+
 static usbid_type *
 create_usbids_table (void)
 {
@@ -3038,6 +3215,55 @@ create_usbids_table (void)
       be = be->next;
     }				/* while (be) */
   return first_usbid;
+}
+
+static scsiid_type *
+create_scsiids_table (void)
+{
+  backend_entry *be = first_backend;
+  scsiid_type *first_scsiid = 0;
+
+  while (be)
+    {
+      type_entry *type = be->type;
+
+      while (type)
+	{
+	  mfg_entry *mfg = type->mfg;
+	  model_entry *model;
+
+	  if (!mfg)
+	    {
+	      type = type->next;
+	      continue;
+	    }
+
+	  mfg = type->mfg;
+	  while (mfg)
+	    {
+	      model = mfg->model;
+	      if (model)
+		{
+		  while (model)
+		    {
+		      if (model->scsi_vendor_id && model->scsi_product_id)
+			{
+			  first_scsiid = add_scsiid (first_scsiid, mfg->name, 
+						     model->name,
+						     model->scsi_vendor_id,
+						     model->scsi_product_id,
+						     model->scsi_is_processor);
+			}
+		      model = model->next;
+		    }	/* while (model) */
+		}		/* if (model) */
+	      mfg = mfg->next;
+	    }		/* while (mfg) */
+	  type = type->next;
+	}			/* while (type) */
+      be = be->next;
+    }				/* while (be) */
+  return first_scsiid;
 }
 
 /* print USB usermap file to be used by the hotplug tools */
@@ -3167,10 +3393,16 @@ print_udev_header (void)
 
   printf 
     ("#\n"
-     "# udev rules file for supported USB devices\n"
+     "# udev rules file for supported USB and SCSI devices\n"
      "#\n"
-     "# To add a USB device, add a rule to the list below between the\n"
-     "# LABEL=\"libsane_rules_begin\" and LABEL=\"libsane_rules_end\" lines.\n"
+     "# The SCSI device support is very basic and includes only\n"
+     "# scanners that mark themselves as type \"scanner\" or\n"
+     "# SCSI-scanners from HP and other vendors that are entitled \"processor\"\n"
+     "# but are treated accordingly.\n"
+     "#\n");
+  printf
+    ("# To add a USB device, add a rule to the list below between the\n"
+     "# LABEL=\"libsane_usb_rules_begin\" and LABEL=\"libsane_usb_rules_end\" lines.\n"
      "#\n"
      "# To run a script when your device is plugged in, add RUN+=\"/path/to/script\"\n"
      "# to the appropriate rule.\n");
@@ -3186,13 +3418,15 @@ static void
 print_udev (void)
 {
   usbid_type *usbid = create_usbids_table ();
+  scsiid_type *scsiid = create_scsiids_table ();
   int i;
 
   print_udev_header ();
   printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n"
 	 "ENV{DEVTYPE}==\"usb_device\", GOTO=\"libsane_create_usb_dev\"\n"
-	 "SUBSYSTEM==\"usb_device\", GOTO=\"libsane_rules_begin\"\n"
-	 "SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_rules_end\"\n"
+	 "SUBSYSTEMS==\"scsi\", GOTO=\"libsane_scsi_rules_begin\"\n"
+	 "SUBSYSTEM==\"usb_device\", GOTO=\"libsane_usb_rules_begin\"\n"
+	 "SUBSYSTEM!=\"usb_device\", GOTO=\"libsane_usb_rules_end\"\n"
 	 "\n");
 
   printf("# Kernel >= 2.6.22 jumps here\n"
@@ -3206,7 +3440,7 @@ print_udev (void)
 	 "\n");
 
   printf("# Kernel < 2.6.22 jumps here\n"
-	 "LABEL=\"libsane_rules_begin\"\n"
+	 "LABEL=\"libsane_usb_rules_begin\"\n"
 	 "\n");
 
   while (usbid)
@@ -3244,7 +3478,51 @@ print_udev (void)
   printf("\n# The following rule will disable USB autosuspend for the device\n");
   printf("ENV{libsane_matched}==\"yes\", RUN+=\"/bin/sh -c 'test -e /sys/$env{DEVPATH}/power/level && echo on > /sys/$env{DEVPATH}/power/level'\"\n");
 
-  printf ("\nLABEL=\"libsane_rules_end\"\n");
+  printf ("\nLABEL=\"libsane_usb_rules_end\"\n\n");
+
+  printf ("SUBSYSTEMS!=\"scsi\", GOTO=\"libsane_scsi_rules_end\"\n\n");
+  printf ("LABEL=\"libsane_scsi_rules_begin\"\n");
+  printf ("# Generic: SCSI device type 6 indicates a scanner\n");
+  printf ("KERNEL==\"sg[0-9]*\", NAME=\"%%k\", ATTRS{type}==\"6\", MODE=\"%s\", GROUP=\"%s\"\n", DEVMODE, DEVGROUP);
+  printf ("# Some scanners advertise themselves as SCSI device type 3\n");
+
+  while (scsiid)
+    {
+      manufacturer_model_type * name = scsiid->name;
+
+      if (!scsiid->is_processor)
+	continue;
+
+      i = 0;
+      printf ("# ");
+      while (name)
+        {
+          if ((name != scsiid->name) && (i > 0))
+            printf (" | ");
+          printf ("%s", name->name);
+          name = name->next;
+
+	  i++;
+
+	  /*
+	   * Limit the number of model names on the same line to 3,
+	   * as udev cannot handle very long lines and prints a warning
+	   * message while loading the rules files.
+	   */
+	  if ((i == 3) && (name != NULL))
+	    {
+	      printf("\n# ");
+	      i = 0;
+	    }
+        }
+      printf ("\n");
+      printf ("KERNEL==\"sg[0-9]*\", NAME=\"%%k\", ATTRS{type}==\"3\", ATTRS{vendor}==\"%s\", ATTRS{model}==\"%s\", MODE=\"%s\", GROUP=\"%s\"\n",
+	      scsiid->scsi_vendor_id, scsiid->scsi_product_id, DEVMODE, DEVGROUP);
+      scsiid = scsiid->next;
+    }
+  printf ("LABEL=\"libsane_scsi_rules_end\"\n\n");
+
+  printf ("LABEL=\"libsane_rules_end\"\n");
 }
 
 static void
@@ -3287,11 +3565,61 @@ print_hal (int new)
   int i;
   SANE_Bool in_match;
   char *last_vendor;
+  scsiid_type *scsiid = create_scsiids_table ();
   usbid_type *usbid = create_usbids_table ();
 
   printf ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
   printf ("<deviceinfo version=\"0.2\">\n");
   printf ("  <device>\n");
+  printf ("    <!-- SCSI-SUBSYSTEM -->\n");
+  printf ("    <match key=\"info.category\" string=\"scsi_generic\">\n");
+  printf ("      <!-- Some SCSI Scanners announce themselves \"processor\" -->\n");
+  printf ("      <match key=\"@info.parent:scsi.type\" string=\"processor\">\n");
+
+  last_vendor = "";
+  in_match = SANE_FALSE;
+  while (scsiid)
+    {
+      manufacturer_model_type * name = scsiid->name;
+
+      if (!scsiid->is_processor)
+	{
+	  scsiid = scsiid->next;
+	  continue;
+	}
+
+      if (strcmp(last_vendor, scsiid->scsi_vendor_id) != 0)
+	{
+	  if (in_match)
+	    printf ("        </match>\n");
+
+	  printf ("        <match key=\"@info.parent:scsi.vendor\" string=\"%s\">\n", scsiid->scsi_vendor_id);
+	  last_vendor = scsiid->scsi_vendor_id;
+	  in_match = SANE_TRUE;
+	}
+
+      printf ("          <!-- SCSI Scanner ");
+      while (name)
+	{
+	  if (name != scsiid->name)
+	    printf (" | ");
+	  printf ("\"%s\"", name->name);
+	  name = name->next;
+	}
+      printf (" -->\n");
+      printf ("          <match key=\"@info.parent:scsi.model\" string=\"%s\">\n", scsiid->scsi_product_id);
+      printf ("            <append key=\"info.capabilities\" type=\"strlist\">scanner</append>\n");
+      printf ("          </match>\n");
+
+      scsiid = scsiid->next;
+    }
+
+  if (in_match)
+    printf ("        </match>\n");
+
+  printf ("      </match>\n");
+  printf ("    </match>\n");
+  printf ("    <!-- USB-SUBSYSTEM -->\n");
 
   if (new)
     printf ("    <match key=\"info.subsystem\" string=\"usb\">\n");

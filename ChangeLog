@@ -2,7 +2,9 @@
 	* tools/sane-desc.c: replace opencoded device permissions and
 	ownership by proper definitions. Group USB devices by vendor in
 	the HAL FDI output. Replace obsolete SYSFS{} key by the newer
-	ATTR{} key in the udev output.
+	ATTR{} key in the udev output. Add a new :scsi keyword for SCSI
+	devices, add support for SCSI devices in the udev and HAL FDI
+	outputs.
 	All of the above based on a patch contributed by Dieter Jurzitza.
 
 2009-01-10  m. allan noah <kitno455 a t gmail d o t com>

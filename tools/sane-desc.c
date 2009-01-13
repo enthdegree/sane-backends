@@ -55,6 +55,10 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 
+#define DEVMODE  "0664" 
+#define DEVOWNER "root" 
+#define DEVGROUP "scanner"
+
 #ifndef PATH_MAX
 # define PATH_MAX 1024
 #endif
@@ -3112,13 +3116,13 @@ print_db_header (void)
      "# respectively):\n");
   printf 
     ("#\n"
-     "# 0xVVVV<tab>0xPPPP<tab>root:scanner<tab>0664<tab>[/usr/local/bin/foo.sh]\n"
+     "# 0xVVVV<tab>0xPPPP<tab>%s:%s<tab>%s<tab>[/usr/local/bin/foo.sh]\n"
      "# Fields:\n"
      "#   vendor ID\n"
      "#   product ID\n"
      "#   ownership (user:group)\n"
      "#   permissions\n"
-     "#   path of an optional script to run (it can be omitted)\n");
+     "#   path of an optional script to run (it can be omitted)\n", DEVOWNER, DEVGROUP, DEVMODE);
   printf
     ("#\n"
      "# The following list already contains a lot of scanners. If your scanner\n"
@@ -3146,8 +3150,8 @@ print_db (void)
 	  name = name->next;
 	}
       printf ("\n");
-      printf ("%s\t%s\troot:scanner\t0664\t\n", usbid->usb_vendor_id,
-	      usbid->usb_product_id);
+      printf ("%s\t%s\t%s:%s\t%s\t\n", usbid->usb_vendor_id,
+	      usbid->usb_product_id, DEVOWNER, DEVGROUP, DEVMODE);
       usbid = usbid->next;
     }
 }
@@ -3232,8 +3236,8 @@ print_udev (void)
 	    }
 	}
       printf ("\n");
-      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"0664\", GROUP=\"scanner\", ENV{libsane_matched}=\"yes\"\n",
-	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2);
+      printf ("SYSFS{idVendor}==\"%s\", SYSFS{idProduct}==\"%s\", MODE=\"%s\", GROUP=\"%s\", ENV{libsane_matched}=\"yes\"\n",
+	      usbid->usb_vendor_id + 2,  usbid->usb_product_id + 2, DEVMODE, DEVGROUP);
       usbid = usbid->next;
     }
 

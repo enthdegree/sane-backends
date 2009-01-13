@@ -1,3 +1,8 @@
+2009-01-13 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: replace opencoded device permissions and
+	ownership by proper definitions.
+	All of the above based on a patch contributed by Dieter Jurzitza.
+
 2009-01-10  m. allan noah <kitno455 a t gmail d o t com>
 	* sanei/sanei_usb.c: rescan usb every time sanei_usb_init() is called
 	- remove missing devices, add new devices to global lists

@@ -3285,40 +3285,66 @@ static void
 print_hal (int new)
 {
   int i;
+  SANE_Bool in_match;
+  char *last_vendor;
   usbid_type *usbid = create_usbids_table ();
+
   printf ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
   printf ("<deviceinfo version=\"0.2\">\n");
   printf ("  <device>\n");
+
   if (new)
     printf ("    <match key=\"info.subsystem\" string=\"usb\">\n");
   else
     printf ("    <match key=\"info.bus\" string=\"usb\">\n");
+
+  last_vendor = "";
+  in_match = SANE_FALSE;
   while (usbid)
     {
       manufacturer_model_type * name = usbid->name;
 
+      if (strcmp(last_vendor, usbid->usb_vendor_id) != 0)
+	{
+	  if (in_match)
+	    printf ("      </match>\n");
+
+	  printf ("      <match key=\"usb.vendor_id\" int=\"%s\">\n", usbid->usb_vendor_id);
+	  last_vendor = usbid->usb_vendor_id;
+	  in_match = SANE_TRUE;
+	}
+
       i = 0;
-      printf ("      <!-- ");
+      printf ("        <!-- ");
       while (name)
 	{
 	  if ((name != usbid->name) && (i > 0))
 	    printf (" | ");
+
 	  printf ("%s", name->name);
 	  name = name->next;
 	  i++;
+
+	  if ((i == 3) && (name != NULL))
+	    {
+	      printf("\n             ");
+	      i = 0;
+	    }
 	}
       printf (" -->\n");
-      printf ("      <match key=\"usb.vendor_id\" int=\"%s\">\n", usbid->usb_vendor_id);
       printf ("        <match key=\"usb.product_id\" int=\"%s\">\n", usbid->usb_product_id);
       printf ("          <append key=\"info.capabilities\" type=\"strlist\">scanner</append>\n");
       printf ("          <merge key=\"scanner.access_method\" type=\"string\">proprietary</merge>\n");
       printf ("        </match>\n");
-      printf ("      </match>\n");
+
       usbid = usbid->next;
     }
 
+  if (in_match)
+    printf ("      </match>\n");
 
   printf ("    </match>\n");
+
   printf ("  </device>\n");
   printf ("</deviceinfo>\n");
 }

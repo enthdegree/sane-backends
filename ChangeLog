@@ -1,3 +1,9 @@
+2009-01-15  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man, doc/descriptions/pixma.desc, 
+	pixma_mp150.c, AUTHORS:
+	Updated docs and comments in pixma backend. 
+	Added Dennis Lou to pixma backend authors
+
 2009-01-13 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
         * AUTHORS: added myself as co-responsible for pixma backend
 

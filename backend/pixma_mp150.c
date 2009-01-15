@@ -131,11 +131,11 @@
 #define MX850_PID 0x172c
 
 /* PIXMA 2008 vintage */
-#define MP980_PID 0x172d    /* Untested */
+#define MP980_PID 0x172d
 #define MP630_PID 0x172e
 #define MP620_PID 0x172f
 #define MP540_PID 0x1730    /* Untested */
-#define MP480_PID 0x1731    /* Untested */
+#define MP480_PID 0x1731
 #define MP240_PID 0x1732    /* Untested */
 #define MP260_PID 0x1733    /* Untested */
 #define MP190_PID 0x1734

@@ -1053,7 +1053,6 @@ e2_discover_capabilities(Epson_Scanner *s)
 			dev->TPU = SANE_TRUE;
 		}
 
-
 		/* fix problem with broken report of dpi */
 		fix_up_dpi(s);
 	}
@@ -1066,7 +1065,7 @@ e2_discover_capabilities(Epson_Scanner *s)
 	 * get the information from the scanner and store it in dev
 	 */
 
-	if (dev->cmd->request_identity2) {
+	if (dev->cmd->request_identity2 && dev->connection != SANE_EPSON_NET) {
 		unsigned char *buf;
 		status = esci_request_identity2(s, &buf);
 		if (status != SANE_STATUS_GOOD)
@@ -1485,13 +1484,20 @@ attach(const char *name, Epson_Device * *devp, int type)
 	 */
 
 	if (dev->res_list_size == 0 && dev->connection == SANE_EPSON_NET) {
-		int val = 150;
 
-		DBG(1, "networked scanner, faking resolution list\n");
+		int val = (dev->dpi_range.min < 150) ? 150 : dev->dpi_range.min;
 
-		e2_add_resolution(s, 50);
-		e2_add_resolution(s, 75);
-		e2_add_resolution(s, 100);
+		DBG(1, "networked scanner, faking resolution list (%d-%d)\n",
+		        dev->dpi_range.min, dev->dpi_range.max);
+
+                if (dev->dpi_range.min <= 50)
+        		e2_add_resolution(s, 50);
+
+                if (dev->dpi_range.min <= 75)
+        		e2_add_resolution(s, 75);
+
+                if (dev->dpi_range.min <= 100)
+        		e2_add_resolution(s, 100);
 
 		while (val <= dev->dpi_range.max) {
 			e2_add_resolution(s, val);

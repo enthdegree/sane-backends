@@ -1,3 +1,6 @@
+2009-01-13 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
+        * AUTHORS: added myself as co-responsible for pixma backend
+
 2009-01-15  Alessandro Zummo <a.zummo@towertech.it>
 	* backend/epson2.c: do not use request_identity2 with
 	networked scanners, fixed generation of resolution

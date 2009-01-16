@@ -7,7 +7,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/frontend
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -64,7 +64,7 @@ SCAN_OBJS = scanimage.o stiff.o
 
 DISTFILES = Makefile.in saned.c scanimage.c stiff.c stiff.h test.c tstbackend.c
 
-.PHONY: all clean depend dist distclean install uninstall
+.PHONY: all clean depend dist distdir distclean install uninstall
 
 .c.o:
 	$(COMPILE) $<
@@ -84,10 +84,10 @@ install: $(PROGRAMS)
 
 uninstall:
 	@for program in $(BINPROGS); do \
-	  rm -f $(bindir)/$${program}; \
+	  rm -f $(DESTDIR)$(bindir)/$${program}; \
 	done
 	@for program in $(SBINPROGS); do \
-	  rm -f $(sbindir)/$${program}; \
+	  rm -f $(DESTDIR)$(sbindir)/$${program}; \
 	done
 
 test: test.o $(LIBSANE) $(LIBLIB)
@@ -116,9 +116,15 @@ distclean: clean
 depend:
 	makedepend $(INCLUDES) *.c 2>/dev/null
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/frontend 2> /dev/null \
-	    || cp -p $$file $(distdir)/frontend ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

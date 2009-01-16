@@ -11,7 +11,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/japi
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -75,7 +75,7 @@ DISTFILES = ImageCanvas.java ImageCanvasClient.java Jscanimage.java \
   SaneOption.java SaneParameters.java SaneRange.java ScanIt.java \
   Test.java
 
-.PHONY: all clean dist distclean install uninstall
+.PHONY: all clean dist distdir distclean install uninstall
 
 .SUFFIXES: .c .o .h .la .lo .java .class
 
@@ -119,9 +119,15 @@ install:
 # fixme
 uninstall:
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/japi 2> /dev/null \
-	    || cp -p $$file $(distdir)/japi ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

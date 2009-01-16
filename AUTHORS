@@ -122,7 +122,8 @@ Sanei internal code:
 
 Miscellaneous coding:
 
-  Julien Blache (*), Mattias Ellert (*), Petter Reinholdtsen (*)
+  Julien Blache (*), Mattias Ellert (*), Petter Reinholdtsen (*),
+  Chris Bagwell (*)
 
 Translators:
 
@@ -150,7 +151,7 @@ Andrew Kuchling <amk@magnet.com>
 Bernd Schroeder <bernd@aquila.muc.de>
 Bertrik Sikken <bertrik@zonnet.nl>
 Brian J. Murrell <brian@interlinx.bc.ca>
-Chris Bagwell <cbagwell@users.sourceforge.net>
+Chris Bagwell <cbagwell-guest@users.alioth.debian.org>
 Chris Pinkham <cpinkham@corp.infi.net>
 Christian Bucher <cbucher@vernetzt.at>
 David Etherton <etherton@netcom.com>

@@ -1,3 +1,12 @@
+2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* doc/Makefile.in, frontend/Makefile.in, include/Makefile.in,
+	japi/Makefile.in, lib/Makefile.in, po/Makefile.in, 
+	sanei/Makefile.in, testsuite/Makefile.in, tools/Makefile.in:
+	Updates to Makefiles to prepare for transition to automake.
+	Fix a few bugs with "all" and "uninstall" targets to work when
+	$(builddir) != $(srcdir).  Added $(DESTDIR) to uninstall target.
+	Made $(distdir) related to current directory to match automake.
+
 2009-01-16  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys.c, backend/genesys.h, backend/genesys_devices.c,
 	backend/genesys_gl646.c, backend/genesys_gl841.c, 

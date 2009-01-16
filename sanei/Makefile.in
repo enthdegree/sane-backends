@@ -7,7 +7,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/sanei
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -73,7 +73,7 @@ DISTFILES = Makefile.in linux_sg3_err.h os2_srb.h sanei_DomainOS.c \
   sanei_scsi.c sanei_thread.c sanei_usb.c sanei_pp.c \
   sanei_wire.c test_wire.c sanei_access.c sanei_tcp.c sanei_udp.c
 
-.PHONY: all check clean depend dist distclean install uninstall
+.PHONY: all check clean depend dist distdir distclean install uninstall
 
 .SUFFIXES:
 .SUFFIXES: .c .o .lo
@@ -114,9 +114,15 @@ distclean: clean
 	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/sanei 2> /dev/null \
-	    || cp -p $$file $(distdir)/sanei ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

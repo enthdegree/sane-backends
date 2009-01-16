@@ -8,7 +8,7 @@ top_builddir = ..
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 package_version = @PACKAGE_STRING@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/doc
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -117,7 +117,7 @@ DISTFILES = Makefile.in backend-writing.txt descriptions.txt \
   sane-hp5590.man sane-hpljm1005.man sane-cardscan.man sane-hp3900.man \
   sane-epjitsu.man sane-hs2p.man sane-canon_dr.man sane-xerox_mfp.man
 
-.PHONY: all clean depend dist distclean html html-man install \
+.PHONY: all clean depend dist distdir distclean html html-man install \
   sane-html uninstall
 
 all: $(STANDARD) $(MANPAGES) html-pages
@@ -175,21 +175,21 @@ install: all
 uninstall:
 	@for page in $(SECT1); do \
 	  echo removing $${page} in $(mandir)/man1/$${page}...; \
-	  rm -f $(mandir)/man1/$${page}; \
+	  rm -f $(DESTDIR)$(mandir)/man1/$${page}; \
 	done
 	@for page in $(SECT5); do \
 	  echo removing $${page} in $(mandir)/man5/$${page}...; \
-	  rm -f $(mandir)/man5/$${page}; \
+	  rm -f $(DESTDIR)$(mandir)/man5/$${page}; \
 	done
 	@for page in $(SECT7); do \
 	  echo removing $${page} in $(mandir)/man7/$${page}...; \
-	  rm -f $(mandir)/man7/$${page}; \
+	  rm -f $(DESTDIR)$(mandir)/man7/$${page}; \
 	done
 	@for page in $(SECT8); do \
 	  echo removing $${page} in $(mandir)/man8/$${page}...; \
-	  rm -f $(mandir)/man8/$${page}; \
+	  rm -f $(DESTDIR)$(mandir)/man8/$${page}; \
 	done
-	rm -rf $(docdir)
+	rm -rf $(DESTDIR)$(docdir)
 
 sane.ind: sane.tex net.tex
 	@echo Generating index for sane.ps...
@@ -274,17 +274,23 @@ distclean: clean
 
 depend:
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for subdir in $(SUBDIRS) ; do \
-	  $(MKDIR) $(distdir)/doc/$${subdir} ; \
+	  $(MKDIR) $(distdir)/$${subdir} ; \
 	  for file in $${subdir}/* ; do \
-	    ln $$file $(distdir)/doc/$${subdir} 2> /dev/null \
-	      || cp -p $$file $(distdir)/doc/$${subdir} \
+	    ln $(srcdir)/$$file $(distdir)/$${subdir} 2> /dev/null \
+	      || cp -p $(srcdir)/$$file $(distdir)/$${subdir} \
 	      || echo "ignoring: $$file" ; \
 	  done ; \
 	done
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/doc 2> /dev/null \
-	    || cp -p $$file $(distdir)/doc ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir)/doc ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

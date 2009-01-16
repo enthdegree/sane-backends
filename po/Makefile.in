@@ -50,7 +50,7 @@ VPATH = @srcdir@
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/po
 
 INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
 ifeq ($(INSTALL_TRANSLATIONS),install-translations)
@@ -71,7 +71,7 @@ TMP_FILE_DIR = .tmp
 
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 
-.PHONY: all clean depend dist distclean install install-translations \
+.PHONY: all clean depend dist distdir distclean install install-translations \
   uninstall uninstall-translations all-mos update
 
 all: $(ALL)
@@ -120,7 +120,7 @@ uninstall-translations:
 	@for lang in $(ALL_LINGUAS) ; do \
 	   dir=$(gnulocaledir)/$${lang}/LC_MESSAGES ; \
 	   echo removing $${dir}/sane-*.mo ; \
-	   rm -f $${dir}/sane-*.mo ; \
+	   rm -f $(DESTDIR)$${dir}/sane-*.mo ; \
 	 done
 
 uninstall: $(UNINSTALL_TRANSLATIONS)
@@ -137,8 +137,15 @@ distclean: clean
 
 depend:
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/po 2> /dev/null \
-	    || cp -p $$file $(distdir)/po ; \
+	  ln $(srcidr)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
+
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

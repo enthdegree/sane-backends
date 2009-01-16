@@ -8,7 +8,7 @@ subdir = tools
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/tools
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -78,7 +78,7 @@ DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
 
 SUBDIRS = hotplug hotplug-ng udev hal
 
-.PHONY: all clean depend dist distclean install uninstall
+.PHONY: all clean depend dist distdir distclean install uninstall dirs
 
 .c.o:
 	$(COMPILE) $<
@@ -86,7 +86,12 @@ SUBDIRS = hotplug hotplug-ng udev hal
 %.lo:	%.c
 	@$(LIBTOOL) $(MCOMP) $(COMPILE) -DLIBDIR=$(libdir) $<
 
-all:	$(DESTINATIONS)
+all:	dirs $(DESTINATIONS)
+
+dirs:
+	for subdir in $(SUBDIRS); do \
+	  $(MKDIR) $$subdir || exit 1; \
+	done
 
 install: sane-config sane-find-scanner gamma4scanimage
 	$(INSTALL_SCRIPT) sane-config $(DESTDIR)$(bindir)/sane-config
@@ -94,7 +99,7 @@ install: sane-config sane-find-scanner gamma4scanimage
 	$(INSTALL_PROGRAM) gamma4scanimage $(DESTDIR)$(bindir)/gamma4scanimage
 
 uninstall: 
-	rm -f $(bindir)/sane-config $(bindir)/sane-find-scanner $(bindir)/gamma4scanimage
+	rm -f $(DESTDIR)$(bindir)/sane-config $(DESTDIR)$(bindir)/sane-find-scanner $(DESTDIR)$(bindir)/gamma4scanimage
 
 sane-config: sane-config.in $(top_builddir)/config.status 
 	cd $(top_builddir) \
@@ -109,8 +114,8 @@ sane-find-scanner: sane-find-scanner.o check-usb-chip.o ../backend/sane_strstatu
 gamma4scanimage: gamma4scanimage.o
 	@$(LIBTOOL) $(MLINK) $(LINK) gamma4scanimage.o -lm
 
-../backend/umax_pp_low.o: ../backend/umax_pp_low.c 
-	$(COMPILE) ../backend/umax_pp_low.c -o ../backend/umax_pp_low.o \
+../backend/umax_pp_low.o: ${top_srcdir}/backend/umax_pp_low.c 
+	$(COMPILE) ${top_srcdir}/backend/umax_pp_low.c -o ../backend/umax_pp_low.o \
 	  -DBACKEND_NAME=umax_pp_low
 
 umax_pp: umax_pp.o ../backend/umax_pp_low.o
@@ -152,17 +157,23 @@ distclean: clean
 	  ( cd $$subdir ; rm -f $(DISTCLEAN_FILES) ); \
 	done
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for subdir in $(SUBDIRS) ; do \
-	  $(MKDIR) $(distdir)/tools/$${subdir} ; \
-	  for file in $${subdir}/* ; do \
-	    ln $$file $(distdir)/tools/$${subdir} 2> /dev/null \
-	      || cp -p $$file $(distdir)/tools/$${subdir} \
+	  $(MKDIR) $(distdir)/$${subdir} ; \
+	  for file in $(srcdir)/$${subdir}/* ; do \
+	    ln $$file $(distdir)/$${subdir} 2> /dev/null \
+	      || cp -p $$file $(distdir)/$${subdir} \
 	      || echo "ignoring: $$file" ; \
 	  done ; \
 	done
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/tools 2> /dev/null \
-	    || cp -p $$file $(distdir)/tools ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

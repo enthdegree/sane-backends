@@ -8,7 +8,7 @@ top_builddir = .
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/include
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -51,7 +51,7 @@ OTHER_INCLUDES = $(addprefix $(top_srcdir)/include/,Makefile.in getopt.h \
 
 DISTFILES = $(SANE_INCLUDES) $(OTHER_INCLUDES)
 
-.PHONY: all clean depend dist distclean install uninstall 
+.PHONY: all clean depend dist distdir distclean install uninstall 
 
 all:
 
@@ -73,17 +73,24 @@ install:
 	done
 
 uninstall:
-	rm -rf $(includedir)/sane
+	rm -rf $(DESTDIR)$(includedir)/sane
 
 depend:
 
-dist: $(DISTFILES)
-	$(MKDIR) $(distdir)/include/sane
+dist: distdir
+distdir: $(DISTFILES)
+	$(MKDIR) $(distdir)/sane
 	for file in $(OTHER_INCLUDES); do \
-	  ln $$file $(distdir)/include 2> /dev/null \
-	    || cp -p $$file $(distdir)/include; \
+	  ln $$file $(distdir) 2> /dev/null \
+	    || cp -p $$file $(distdir); \
 	done
 	for file in $(SANE_INCLUDES); do \
-	  ln $$file $(distdir)/include/sane 2> /dev/null \
-	    || cp -p $$file $(distdir)/include/sane; \
+	  ln $$file $(distdir)/sane 2> /dev/null \
+	    || cp -p $$file $(distdir)/sane; \
 	done
+
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

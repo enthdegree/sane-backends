@@ -7,7 +7,7 @@ top_builddir = ..
 
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/lib
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -58,7 +58,7 @@ DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
   inet_ntop.c inet_pton.c isfdtype.c md5.c sigprocmask.c snprintf.c strdup.c \
   strndup.c strsep.c usleep.c vsyslog.c
 
-.PHONY: all check clean depend dist distclean install uninstall
+.PHONY: all check clean depend dist distdir distclean install uninstall
 
 .SUFFIXES:
 .SUFFIXES: .c .o .lo
@@ -90,9 +90,15 @@ distclean: clean
 	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/lib 2> /dev/null \
-	    || cp -p $$file $(distdir)/lib ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcidr)/$$file $(distdir) ; \
 	done
 
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

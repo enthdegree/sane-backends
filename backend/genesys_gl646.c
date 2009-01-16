@@ -4,7 +4,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004 - 2008 Stéphane Voltz <stef.dev@free.fr>
-   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
    This file is part of the SANE package.
@@ -4529,6 +4529,17 @@ gl646_init (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status
+gl646_update_hardware_sensors (Genesys_Scanner * s, SANE_Int option)
+{
+  /* do what is needed to get a new set of events, but try to not lose
+     any of them.
+   */
+  SANE_Status status = SANE_STATUS_GOOD;
+
+  return status;
+}
+
 /** the gl646 command set */
 static Genesys_Command_Set gl646_cmd_set = {
   "gl646-generic",		/* the name of this set */
@@ -4572,6 +4583,8 @@ static Genesys_Command_Set gl646_cmd_set = {
   gl646_bulk_write_register,
   gl646_bulk_write_data,
   gl646_bulk_read_data,
+
+  gl646_update_hardware_sensors,
 };
 
 SANE_Status

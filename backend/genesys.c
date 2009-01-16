@@ -3,7 +3,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2008 Stéphane Voltz <stef.dev@free.fr>
-   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
 
@@ -4834,7 +4834,7 @@ init_options (Genesys_Scanner * s)
   /* currently, there are only gamma table options in this group,
    * so if the scanner doesn't support gamma table, disable the
    * whole group */
-  if (!(s->dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA))
+  if (!(model->flags & GENESYS_FLAG_CUSTOM_GAMMA))
     {
       s->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_INACTIVE;
       s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
@@ -4897,6 +4897,73 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_LAMP_OFF_TIME].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_LAMP_OFF_TIME].constraint.range = &time_range;
   s->val[OPT_LAMP_OFF_TIME].w = 15;	/* 15 minutes */
+
+  s->opt[OPT_SENSOR_GROUP].name = SANE_NAME_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].title = SANE_TITLE_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].desc = SANE_DESC_SENSORS;
+  s->opt[OPT_SENSOR_GROUP].type = SANE_TYPE_GROUP;
+  s->opt[OPT_SENSOR_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+  s->opt[OPT_SCAN_SW].name = SANE_NAME_SCAN;
+  s->opt[OPT_SCAN_SW].title = SANE_TITLE_SCAN;
+  s->opt[OPT_SCAN_SW].desc = SANE_DESC_SCAN;
+  s->opt[OPT_SCAN_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_SCAN_SW].unit = SANE_UNIT_NONE;
+  if (model->flags & GENESYS_FLAG_SCAN_SW) 
+    s->opt[OPT_SCAN_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_SCAN_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_SCAN_SW].b = 0;
+  s->last_val[OPT_SCAN_SW].b = 0;
+
+  /* SANE_NAME_FILE is not for buttons */
+  s->opt[OPT_FILE_SW].name = "file";
+  s->opt[OPT_FILE_SW].title = "File button";
+  s->opt[OPT_FILE_SW].desc = "File button";
+  s->opt[OPT_FILE_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_FILE_SW].unit = SANE_UNIT_NONE;
+  if (model->flags & GENESYS_FLAG_FILE_SW) 
+    s->opt[OPT_FILE_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_FILE_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_FILE_SW].b = 0;
+  s->last_val[OPT_FILE_SW].b = 0;
+
+  s->opt[OPT_EMAIL_SW].name = SANE_NAME_EMAIL;
+  s->opt[OPT_EMAIL_SW].title = SANE_TITLE_EMAIL;
+  s->opt[OPT_EMAIL_SW].desc = SANE_DESC_EMAIL;
+  s->opt[OPT_EMAIL_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_EMAIL_SW].unit = SANE_UNIT_NONE;
+  if (model->flags & GENESYS_FLAG_EMAIL_SW) 
+    s->opt[OPT_EMAIL_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_EMAIL_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_EMAIL_SW].b = 0;
+  s->last_val[OPT_EMAIL_SW].b = 0;
+
+  s->opt[OPT_COPY_SW].name = SANE_NAME_COPY;
+  s->opt[OPT_COPY_SW].title = SANE_TITLE_COPY;
+  s->opt[OPT_COPY_SW].desc = SANE_DESC_COPY;
+  s->opt[OPT_COPY_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_COPY_SW].unit = SANE_UNIT_NONE;
+  if (model->flags & GENESYS_FLAG_COPY_SW) 
+    s->opt[OPT_COPY_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_COPY_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_COPY_SW].b = 0;
+  s->last_val[OPT_COPY_SW].b = 0;
+
+  s->opt[OPT_PAGE_LOADED_SW].name = SANE_NAME_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].title = SANE_TITLE_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].desc = SANE_DESC_PAGE_LOADED;
+  s->opt[OPT_PAGE_LOADED_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_PAGE_LOADED_SW].unit = SANE_UNIT_NONE;
+  if (model->flags & GENESYS_FLAG_PAGE_LOADED_SW) 
+    s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_PAGE_LOADED_SW].b = 0;
+  s->last_val[OPT_PAGE_LOADED_SW].b = 0;
 
   RIE (calc_parameters (s));
 
@@ -5357,6 +5424,7 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
   unsigned int i;
   SANE_Word *table;
   u_int16_t *gamma;
+  SANE_Status status = SANE_STATUS_GOOD;
 
   switch (option)
     {
@@ -5422,11 +5490,19 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
 	  table[i] = s->dev->sensor.blue_gamma_table[i];
 	}
       break;
+      /* buttons */
+    case OPT_SCAN_SW:
+    case OPT_FILE_SW:
+    case OPT_EMAIL_SW:
+    case OPT_COPY_SW:
+      RIE(s->dev->model->cmd_set->update_hardware_sensors(s,option));
+      s->last_val[option].b = *(SANE_Bool *) val = s->val[option].b;
+      break;
     default:
       DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
 	   option);
     }
-  return SANE_STATUS_GOOD;
+  return status;
 }
 
 /* sets an option , called by sane_control_option */

@@ -3,6 +3,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2005 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
+   Copyright (C) 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    
    This file is part of the SANE package.
    
@@ -94,6 +95,14 @@ enum Genesys_Option
   OPT_THRESHOLD,
   OPT_DISABLE_INTERPOLATION,
   OPT_COLOR_FILTER,
+
+  OPT_SENSOR_GROUP,
+  OPT_SCAN_SW,
+  OPT_FILE_SW,
+  OPT_EMAIL_SW,
+  OPT_COPY_SW,
+  OPT_PAGE_LOADED_SW,
+
   /* must come last: */
   NUM_OPTIONS
 };
@@ -110,6 +119,7 @@ typedef struct Genesys_Scanner
   SANE_Bool scanning;			   /**< We are currently scanning */
   SANE_Option_Descriptor opt[NUM_OPTIONS]; /**< Option descriptors */
   Option_Value val[NUM_OPTIONS];	   /**< Option values */
+  Option_Value last_val[NUM_OPTIONS];	   /**< Option values as read by the frontend. used for sensors. */
   SANE_Parameters params;		   /**< SANE Parameters */
   SANE_Int bpp_list[5];			   /**< */
 } Genesys_Scanner;

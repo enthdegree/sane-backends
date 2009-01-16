@@ -4,7 +4,7 @@
    Copyright (C) 2003, 2004 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stef.dev@free.fr>
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    Parts of the structs have been taken from the gt68xx backend by
    Sergey Vlasov <vsu@altlinux.ru> et al.
@@ -96,6 +96,12 @@
 
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /*yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /* allow custom gamma tables */
+
+#define GENESYS_FLAG_SCAN_SW          (1 << 14)       /* scanner has SCAN button */
+#define GENESYS_FLAG_FILE_SW          (1 << 15)       /* scanner has FILE button */
+#define GENESYS_FLAG_COPY_SW          (1 << 16)       /* scanner has COPY button */
+#define GENESYS_FLAG_EMAIL_SW         (1 << 17)       /* scanner has EMAIL button */
+#define GENESYS_FLAG_PAGE_LOADED_SW      (1 << 18)       /* scanner has paper in detection */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)
@@ -326,6 +332,7 @@ typedef struct Genesys_Command_Set
     SANE_Status (*park_head) (Genesys_Device * dev,
 			      Genesys_Register_Set * reg,
 			      SANE_Bool wait_until_home);
+
     SANE_Status (*bulk_write_register) (Genesys_Device * dev,
 					Genesys_Register_Set * reg, 
 					size_t elems);
@@ -335,6 +342,15 @@ typedef struct Genesys_Command_Set
     SANE_Status (*bulk_read_data) (Genesys_Device * dev, u_int8_t addr,
 				   u_int8_t * data, size_t len);
 
+  /* Updates hardware sensor information in Genesys_Scanner.val[].
+     If possible, just get information for given option.
+     The sensor state in Genesys_Scanner.val[] should be merged with the
+     new sensor state, using the information that was last read by the frontend
+     in Genesys_Scanner.last_val[], in such a way that a button up/down 
+     relative to Genesys_Scanner.last_val[] is not lost.
+   */
+  SANE_Status (*update_hardware_sensors) (Genesys_Device * dev,
+					  SANE_Int option);
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model

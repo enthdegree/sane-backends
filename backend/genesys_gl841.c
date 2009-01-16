@@ -5,7 +5,7 @@
    Copyright (C) 2004 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004, 2005 Stephane Voltz <stef.dev@free.fr>
    Copyright (C) 2005 Philipp Schmid <philipp8288@web.de>
-   Copyright (C) 2005, 2006 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005 - 2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2006 Laurent Charpentier <laurent_pubs@yahoo.com>
    
     
@@ -5270,6 +5270,31 @@ gl841_init (Genesys_Device * dev)
   return SANE_STATUS_GOOD;
 }
 
+static SANE_Status
+gl841_update_hardware_sensors (Genesys_Scanner * s, SANE_Int option)
+{
+  /* do what is needed to get a new set of events, but try to not lose
+     any of them.
+   */
+  SANE_Status status = SANE_STATUS_GOOD;
+  u_int8_t val;
+  
+  if (s->dev->model->gpo_type == GPO_CANONLIDE35) 
+    {
+      RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
+
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+	s->val[OPT_SCAN_SW].b = (val & 0x01) == 0;
+      if (s->val[OPT_FILE_SW].b == s->last_val[OPT_FILE_SW].b)
+	s->val[OPT_FILE_SW].b = (val & 0x02) == 0;
+      if (s->val[OPT_EMAIL_SW].b == s->last_val[OPT_EMAIL_SW].b)
+	s->val[OPT_EMAIL_SW].b = (val & 0x04) == 0;
+      if (s->val[OPT_COPY_SW].b == s->last_val[OPT_COPY_SW].b)
+	s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
+    }
+
+  return status;
+}
 
 /** the gl841 command set */
 static Genesys_Command_Set gl841_cmd_set = {
@@ -5315,6 +5340,8 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_bulk_write_register,
   gl841_bulk_write_data,
   gl841_bulk_read_data,
+
+  gl841_update_hardware_sensors,
 };
 
 SANE_Status

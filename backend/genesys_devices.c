@@ -4,7 +4,7 @@
    Copyright (C) 2003-2005 Henning Meier-Geinitz <henning@meier-geinitz.de>
    Copyright (C) 2004, 2005 Gerhard Jaeger <gerhard@gjaeger.de>
    Copyright (C) 2004-2007 Stephane Voltz <stef.dev@free.fr>
-   Copyright (C) 2005 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+   Copyright (C) 2005-2009 Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
    Copyright (C) 2007 Luke <iceyfor@gmail.com>
    
    This file is part of the SANE package.
@@ -475,7 +475,14 @@ static Genesys_Model canon_lide_50_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT | GENESYS_FLAG_SKIP_WARMUP | GENESYS_FLAG_OFFSET_CALIBRATION | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT | 	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_SKIP_WARMUP | 
+  GENESYS_FLAG_OFFSET_CALIBRATION | 
+  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
+  GENESYS_FLAG_SCAN_SW |
+  GENESYS_FLAG_FILE_SW |
+  GENESYS_FLAG_EMAIL_SW |
+  GENESYS_FLAG_COPY_SW,
   280,
   400
 };

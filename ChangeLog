@@ -1,7 +1,8 @@
 2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* doc/Makefile.in, frontend/Makefile.in, include/Makefile.in,
 	japi/Makefile.in, lib/Makefile.in, po/Makefile.in, 
-	sanei/Makefile.in, testsuite/Makefile.in, tools/Makefile.in:
+	sanei/Makefile.in, testsuite/Makefile.in, tools/Makefile.in,
+	backend/Makefile.in:
 	Updates to Makefiles to prepare for transition to automake.
 	Fix a few bugs with "all" and "uninstall" targets to work when
 	$(builddir) != $(srcdir).  Added $(DESTDIR) to uninstall target.

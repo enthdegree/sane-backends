@@ -8,7 +8,7 @@ top_builddir = ..
 PACKAGE = @PACKAGE@
 VERSION = @VERSION@
 package_version = @PACKAGE_STRING@
-distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)
+distdir = $(top_srcdir)/$(PACKAGE)-$(VERSION)/backend
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -214,7 +214,7 @@ DISTFILES = Makefile.in saned.conf.in sane_strstatus.c stubs.c \
   v4l.c v4l.conf.in v4l-frequencies.h v4l.h \
   xerox_mfp.c xerox_mfp.h
 
-.PHONY: all clean depend dist distclean install uninstall
+.PHONY: all clean depend dist distdir distclean install uninstall
 
 libsane-%.la: %.lo %-s.lo $(EXTRA) $(LIBOBJS)
 	@$(LIBTOOL) $(MLINK) $(CC) -export-dynamic -o $@ $($*_LIBS) \
@@ -297,10 +297,10 @@ install-lockpath:
 	$(MKDIR) -m 775 -g $(LOCKPATH_GROUP) $(DESTDIR)$(locksanedir)
 
 uninstall:
-	rm -rf $(libsanedir) $(configdir) $(locksanedir)
-	rm -f $(libdir)/libsane.*
+	rm -rf $(DESTDIR)$(libsanedir) $(DESTDIR)$(configdir) $(DESTDIR)$(locksanedir)
+	rm -f $(DESTDIR)$(libdir)/libsane.*
 	-for dir in $(FIRMWARE_DIRS) ; do \
-	   rmdir $(datadir)/sane/$${dir} ; \
+	   rmdir $(DESTDIR)$(datadir)/sane/$${dir} ; \
 	 done
 
 dll.lo: dll-preload.c
@@ -628,8 +628,15 @@ distclean: clean
 	rm -f $(DISTCLEAN_FILES)
 	rm -f Makefile libsane.so
 
-dist: $(DISTFILES)
+dist: distdir
+distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
-	  ln $$file $(distdir)/backend 2> /dev/null \
-	    || cp -p $$file $(distdir)/backend ; \
+	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
+
+# Used by top level distcheck target
+dvi:
+check:
+installcheck:
+distuninstallcheck:

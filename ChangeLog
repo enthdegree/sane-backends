@@ -1,3 +1,7 @@
+2009-01-17  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* pixma_mp150.c:
+	Fixed "Busy mode" exit processing. 
+
 2009-01-17 Julien Blache <jb@jblache.org>
 	* doc/descriptions/hp.desc: add SCSI identifiers for the ScanJet
 	IIc, from Daniel Golle (sane-devel, 20061105).

@@ -1233,7 +1233,7 @@ mp150_scan (pixma_t * s)
       if ((error >= 0) && !is_scanning_from_tpu (s))
         for (i = (mp->generation == 3) ? 3 : 1 ; i > 0 && error >= 0; i--)
           error = send_gamma_table (s);
-      else /* if (mp->generation == 3)   FIXME: Does this apply also to gen1/2 ? YES */
+      else if (error >= 0)  /* in TPU mode, for gen 1, 2, and 3 */
         error = send_set_tpu_info (s);
     }
   else   /* ADF pageid != 0 and gen3 */

@@ -1,6 +1,8 @@
 2009-01-17 Julien Blache <jb@jblache.org>
 	* doc/descriptions/hp.desc: add SCSI identifiers for the ScanJet
 	IIc, from Daniel Golle (sane-devel, 20061105).
+	* frontend/scanimage.c: make batch mode create output files
+	atomically. Patch by Simon Matter <simon.matter@invoca.ch>.
 
 2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* doc/Makefile.in, frontend/Makefile.in, include/Makefile.in,

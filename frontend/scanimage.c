@@ -2,7 +2,7 @@
    Uses the SANE library.
    Copyright (C) 1996, 1997, 1998 Andreas Beck and David Mosberger
    
-   Copyright (C) 1999 - 2008 by the SANE Project -- See AUTHORS and ChangeLog
+   Copyright (C) 1999 - 2009 by the SANE Project -- See AUTHORS and ChangeLog
    for details.
 
    For questions and comments contact the sane-devel mailinglist (see
@@ -2161,8 +2161,13 @@ List of available devices:", prog_name);
       do
 	{
 	  char path[PATH_MAX];
+	  char part_path[PATH_MAX];
 	  if (batch)		/* format is NULL unless batch mode */
-	    sprintf (path, format, n);	/* love --(C++) */
+	    {
+	      sprintf (path, format, n);	/* love --(C++) */
+	      strcpy (part_path, path);
+	      strcat (part_path, ".part");
+	    }
 
 
 	  if (batch)
@@ -2199,9 +2204,10 @@ List of available devices:", prog_name);
 	      break;
 	    }
 
-	  if (batch && NULL == freopen (path, "w", stdout))
+	  /* write to .part file while scanning is in progress */
+	  if (batch && NULL == freopen (part_path, "w", stdout))
 	    {
-	      fprintf (stderr, "cannot open %s\n", path);
+	      fprintf (stderr, "cannot open %s\n", part_path);
 	      sane_cancel (device);
 	      return SANE_STATUS_ACCESS_DENIED;
 	    }
@@ -2216,15 +2222,36 @@ List of available devices:", prog_name);
 	  switch (status)
 	    {
 	    case SANE_STATUS_GOOD:
-	      break;
 	    case SANE_STATUS_EOF:
 	      status = SANE_STATUS_GOOD;
+	      if (batch)
+		{	
+		  /* close output file by redirecting, do not close
+		     stdout here! */
+		  if (NULL == freopen ("/dev/null", "w", stdout))
+		    {
+		      fprintf (stderr, "cannot open /dev/null\n");
+		      sane_cancel (device);
+		      return SANE_STATUS_ACCESS_DENIED;
+		    }
+		  else
+		    {
+		      /* let the fully scanned file show up */
+		      if (rename (part_path, path))
+			{
+			  fprintf (stderr, "cannot rename %s to %s\n",
+				part_path, path);
+			  sane_cancel (device);
+			  return SANE_STATUS_ACCESS_DENIED;
+			}
+		    }
+		}
 	      break;
 	    default:
 	      if (batch)
 		{
 		  fclose (stdout);
-		  unlink (path);
+		  unlink (part_path);
 		}
 	      break;
 	    }			/* switch */

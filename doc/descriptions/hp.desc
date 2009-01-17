@@ -29,6 +29,7 @@
 :model "ScanJet IIc"
 :interface "SCSI"
 :status :complete
+:scsi "HP" "C1750A" "processor"
 
 :model "ScanJet IIp"
 :interface "SCSI"

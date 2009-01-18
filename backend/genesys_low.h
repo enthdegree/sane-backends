@@ -265,6 +265,7 @@ Genesys_Color_Order;
 
 /* Forward typedefs */
 typedef struct Genesys_Device Genesys_Device;
+struct Genesys_Scanner;
 
 /**
  * Scanner command set description.
@@ -349,7 +350,7 @@ typedef struct Genesys_Command_Set
      in Genesys_Scanner.last_val[], in such a way that a button up/down 
      relative to Genesys_Scanner.last_val[] is not lost.
    */
-  SANE_Status (*update_hardware_sensors) (Genesys_Device * dev,
+  SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s,
 					  SANE_Int option);
 } Genesys_Command_Set;
 

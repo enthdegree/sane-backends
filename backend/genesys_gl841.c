@@ -1156,12 +1156,9 @@ sanei_gl841_setup_sensor (Genesys_Device * dev,
   for (i = 0x06; i < 0x0a; i++, r++)
     r->value = dev->sensor.regs_0x10_0x1d[i];
 
-/*TODO the ommitted values may be necessary for ccd*/
-/*  r = sanei_genesys_get_address (regs, 0x);
+  r = sanei_genesys_get_address (regs, 0x1a);
   for (i = 0x0a; i < 0x0e; i++, r++)
-  r->value = dev->sensor.regs_0x10_0x1d[i];*/
-  r = sanei_genesys_get_address (regs, 0x1d);
-  r->value = 0x02;
+    r->value = dev->sensor.regs_0x10_0x1d[i];
 
   r = sanei_genesys_get_address (regs, 0x52);
   for (i = 0; i < 9; i++, r++)
@@ -1472,6 +1469,7 @@ gl841_init_registers (Genesys_Device * dev)
 
   dev->reg[reg_0x06].value |= REG06_PWRBIT;
   dev->reg[reg_0x06].value |= REG06_GAIN4;
+  dev->reg[reg_0x06].value |= 0 << REG06S_SCANMOD;
   
   dev->reg[reg_0x09].value |= 1 << REG09S_CLKSET;
 

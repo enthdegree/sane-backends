@@ -4,8 +4,10 @@
 	* backend/genesys_gl841.c: Make dpihw depend on sensor pixel count 
 	instead of sensor resolution. Make some Canon LiDE 35 specific
 	gpio handling conditional, add missing SCANMOD shift. Make
-	half-ccd mode optional.
+	half-ccd mode optional. Reenable clock register setup from sensor
+	struct, set SCANMOD.
 	* backend/genesys_devices.c: Make half-ccd mode optional.
+	Reenable clock register setup from sensor struct, set SCANMOD.
 
 2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* .cvsignore, Makefile.in, aclocal.m4, config.sub, configure,

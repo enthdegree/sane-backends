@@ -433,7 +433,8 @@ static Genesys_Model umax_astra_4500_model = {
   DAC_WOLFSON_UMAX,
   GPO_UMAX,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_HALF_CCD_MODE,
   /* untested, values set by hmg */
   20,
   200
@@ -482,7 +483,8 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_FLAG_SCAN_SW |
   GENESYS_FLAG_FILE_SW |
   GENESYS_FLAG_EMAIL_SW |
-  GENESYS_FLAG_COPY_SW,
+  GENESYS_FLAG_COPY_SW | 
+  GENESYS_FLAG_HALF_CCD_MODE,
   280,
   400
 };
@@ -523,7 +525,11 @@ static Genesys_Model canon_lide_60_model = {
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
   MOTOR_CANONLIDE35,
-  GENESYS_FLAG_LAZY_INIT | GENESYS_FLAG_SKIP_WARMUP | GENESYS_FLAG_OFFSET_CALIBRATION | GENESYS_FLAG_DARK_WHITE_CALIBRATION,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_DARK_WHITE_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE,
   300,
   400
 };				/* this is completely untested -- hmg */
@@ -570,7 +576,8 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
+    | GENESYS_FLAG_CUSTOM_GAMMA
+    | GENESYS_FLAG_HALF_CCD_MODE,
   9,
   132
 };
@@ -617,7 +624,8 @@ static Genesys_Model hp2400c_model = {
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
+    | GENESYS_FLAG_CUSTOM_GAMMA
+    | GENESYS_FLAG_HALF_CCD_MODE,
   20,
   132
 };
@@ -658,7 +666,8 @@ static Genesys_Model hp3670c_model = {
   DAC_WOLFSON_UMAX,
   GPO_UMAX,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_HALF_CCD_MODE,
   /* untested, values set by mike p. according to vendor's datasheet. */
   20,
   200
@@ -700,7 +709,9 @@ static Genesys_Model plustek_st12_model = {
   DAC_WOLFSON_ST12,
   GPO_ST12,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA,	/* Which flags are needed for this scanner? */
+  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_HALF_CCD_MODE,
   20,
   200
 };
@@ -746,7 +757,9 @@ static Genesys_Model plustek_st24_model = {
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_USE_PARK
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SEARCH_START | GENESYS_FLAG_OFFSET_CALIBRATION,
+    | GENESYS_FLAG_SEARCH_START
+    | GENESYS_FLAG_OFFSET_CALIBRATION
+    | GENESYS_FLAG_HALF_CCD_MODE,
   20,
   200
 };
@@ -795,7 +808,8 @@ static Genesys_Model medion_md5345_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA,
+    | GENESYS_FLAG_CUSTOM_GAMMA
+    | GENESYS_FLAG_HALF_CCD_MODE,
   32,
   200
 };

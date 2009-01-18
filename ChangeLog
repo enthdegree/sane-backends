@@ -1,8 +1,11 @@
 2009-01-18  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
-	* backend/genesys_low.h: Fix prototype of update_hardware_sensors
+	* backend/genesys_low.h: Fix prototype of update_hardware_sensors.
+	Make half-ccd mode optional.
 	* backend/genesys_gl841.c: Make dpihw depend on sensor pixel count 
 	instead of sensor resolution. Make some Canon LiDE 35 specific
-	gpio handling conditional, add missing SCANMOD shift.
+	gpio handling conditional, add missing SCANMOD shift. Make
+	half-ccd mode optional.
+	* backend/genesys_devices.c: Make half-ccd mode optional.
 
 2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* .cvsignore, Makefile.in, aclocal.m4, config.sub, configure,

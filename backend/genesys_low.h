@@ -103,6 +103,8 @@
 #define GENESYS_FLAG_EMAIL_SW         (1 << 17)       /* scanner has EMAIL button */
 #define GENESYS_FLAG_PAGE_LOADED_SW      (1 << 18)       /* scanner has paper in detection */
 
+#define GENESYS_FLAG_HALF_CCD_MODE     (1 << 19)       /* scanner has setting for half ccd mode */
+
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)
 #define REQUEST_TYPE_OUT	(USB_TYPE_VENDOR | USB_DIR_OUT)

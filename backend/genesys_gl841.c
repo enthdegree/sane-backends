@@ -112,6 +112,7 @@
 #define REG05_MTLBASE	0x03
 
 #define REG06_SCANMOD	0xe0
+#define REG06S_SCANMOD	5
 #define REG06_PWRBIT	0x10
 #define REG06_GAIN4	0x08
 #define REG06_OPTEST	0x07
@@ -1524,8 +1525,11 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x6e].value = dev->gpo.enable[0];
   dev->reg[reg_0x6f].value = dev->gpo.enable[1];
 
-  dev->reg[reg_0x6b].value |= REG6B_GPO18;
-  dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
+  if (dev->model->gpo_type == GPO_CANONLIDE35) 
+    {
+      dev->reg[reg_0x6b].value |= REG6B_GPO18;
+      dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
+    }
 
   DBG (DBG_proc, "gl841_init_registers complete\n");
 }
@@ -2472,14 +2476,16 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     else
 	dpiset = used_res;
     
-/* gpio part. here: for canon lide 35 */
-    
-    r = sanei_genesys_get_address (reg, 0x6c);
-    if (half_ccd)
-	r->value &= ~0x80;
-    else
-	r->value |= 0x80;
-    
+    if (dev->model->gpo_type == GPO_CANONLIDE35) 
+      {
+/* gpio part.*/
+	r = sanei_genesys_get_address (reg, 0x6c);
+	if (half_ccd)
+	  r->value &= ~0x80;
+	else
+	  r->value |= 0x80;
+      }
+
     /* enable shading */
 /*  dev->reg[reg_0x01].value |= REG01_DVDSET | REG01_SCAN;*/
     r = sanei_genesys_get_address (reg, 0x01);

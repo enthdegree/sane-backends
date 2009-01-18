@@ -61,8 +61,6 @@ distclean: clean
 	rm -f $(DISTCLEAN_FILES)
 	rm -f $(addprefix sane/,$(DISTCLEAN_FILES))
 	rm -f Makefile
-	rm -f sane/config.h
-	rm -f _stdint.h byteorder.h
 
 install:
 	$(MKDIR) $(DESTDIR)$(includedir)/sane

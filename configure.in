@@ -10,6 +10,10 @@ V_REV=0
 is_release=no
 dnl ***********************************************************************
 
+m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
+
+AM_INIT_AUTOMAKE
+
 AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.
 AC_ARG_PROGRAM

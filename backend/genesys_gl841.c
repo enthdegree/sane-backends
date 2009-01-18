@@ -1454,17 +1454,18 @@ gl841_init_registers (Genesys_Device * dev)
   dev->reg[reg_0x04].value |= 1 << REG04S_AFEMOD;
 
   dev->reg[reg_0x05].value = 0x00;	/* disable gamma, 24 clocks/pixel */
-  switch (dev->sensor.optical_res)
+  if (dev->sensor.sensor_pixels < 0x1500)
+    dev->reg[reg_0x05].value |= REG05_DPIHW_600;
+  else if (dev->sensor.sensor_pixels < 0x2a80)
+    dev->reg[reg_0x05].value |= REG05_DPIHW_1200;
+  else if (dev->sensor.sensor_pixels < 0x5400)
+    dev->reg[reg_0x05].value |= REG05_DPIHW_2400;
+  else
     {
-    case 600:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_600;
-      break;
-    case 1200:
-      dev->reg[reg_0x05].value |= REG05_DPIHW_1200;
-      break;
-    case 2400:
       dev->reg[reg_0x05].value |= REG05_DPIHW_2400;
-      break;
+      DBG (DBG_warn, 
+	   "gl841_init_registers: Cannot handle sensor pixel count %d\n",
+	   dev->sensor.sensor_pixels);
     }
 
 
@@ -2379,6 +2380,20 @@ HOME_FREE: 3
     return SANE_STATUS_GOOD;	
 }
 
+static int
+gl841_get_dpihw(Genesys_Device * dev) 
+{
+  Genesys_Register_Set * r;
+  r = sanei_genesys_get_address (dev->reg, 0x05);
+  if ((r->value & REG05_DPIHW) == REG05_DPIHW_600)
+    return 600;
+  if ((r->value & REG05_DPIHW) == REG05_DPIHW_1200)
+    return 1200;
+  if ((r->value & REG05_DPIHW) == REG05_DPIHW_2400)
+    return 2400;
+  return 0;
+}
+
 #define OPTICAL_FLAG_DISABLE_GAMMA 1
 #define OPTICAL_FLAG_DISABLE_SHADING 2
 #define OPTICAL_FLAG_DISABLE_LAMP 4
@@ -2415,7 +2430,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     unsigned int words_per_line;
     unsigned int end;
     unsigned int dpiset;
-    unsigned int optical_res;
     unsigned int i;
     Genesys_Register_Set * r;
     SANE_Status status;
@@ -2434,13 +2448,6 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 
     end = start + pixels;
     
-/* optical_res */
-
-    optical_res = dev->sensor.optical_res;
-    if (half_ccd)
-	optical_res /= 2;
-
-
     status = gl841_set_fe (dev, AFE_SET);
     if (status != SANE_STATUS_GOOD)
     {
@@ -2450,6 +2457,9 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 	return status;
     }
     
+    /* adjust used_res for chosen dpihw */
+    used_res = used_res * gl841_get_dpihw(dev) / dev->sensor.optical_res;
+
 /*
   with half_ccd the optical resolution of the ccd is halfed. We don't apply this
   to dpihw, so we need to double dpiset.
@@ -2576,7 +2586,7 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     r->value = LOBYTE (end);
     
 /* words(16bit) before gamma, conversion to 8 bit or lineart*/
-    words_per_line = (pixels * used_res) / optical_res; 
+    words_per_line = (pixels * dpiset) / gl841_get_dpihw(dev); 
     
     words_per_line *= channels;
 

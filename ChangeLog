@@ -1,5 +1,7 @@
 2009-01-18  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_low.h: Fix prototype of update_hardware_sensors
+	* backend/genesys_gl841.c: Make dpihw depend on sensor pixel count 
+	instead of sensor resolution
 
 2009-01-16 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* .cvsignore, Makefile.in, aclocal.m4, config.sub, configure,

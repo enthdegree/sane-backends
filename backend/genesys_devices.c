@@ -59,59 +59,66 @@ static Genesys_Frontend Wolfson[] = {
    , {0x02, 0x02, 0x02}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* UMAX */
+  ,				/* 0: UMAX */
   {{0x00, 0x03, 0x05, 0x03}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* ST12 */
+  ,				/* 1: ST12 */
   {{0x00, 0x03, 0x05, 0x21}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x06, 0x06, 0x06}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* ST24 */
+  ,				/* 2: ST24 */
   {{0x00, 0x03, 0x05, 0x12}
    , {0x00, 0x00, 0x00}
    , {0xc8, 0xc8, 0xc8}
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* MD6228/MD6471 */
+  ,				/* 3: MD6228/MD6471 */
   {{0x00, 0x03, 0x05, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xc0, 0xc0, 0xc0}
    , {0x07, 0x07, 0x07}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* HP2400c */
+  ,				/* 4: HP2400c */
   {{0x00, 0x03, 0x04, 0x02}
    , {0x00, 0x00, 0x00}
    , {0xb0, 0xb0, 0xb0}
    , {0x04, 0x04, 0x04}
    , {0x00, 0x00, 0x00}
    }
-  ,				/* HP2300c */
+  ,				/* 5: HP2300c */
   {{0x00, 0x3d, 0x08, 0x00}
    , {0x00, 0x00, 0x00}
    , {0xe1, 0xe1, 0xe1}
    , {0x93, 0x93, 0x93}
    , {0x00, 0x19, 0x06}
    }
-  ,				/* CANONLIDE35 */
+  ,				/* 6: CANONLIDE35 */
+  {{0x58, 0x00, 0x00, 0x00}     /* TODO create an AnalogDevice struct */
+   , {0x00, 0x00, 0x00}
+   , {0x06, 0x00, 0x00}
+   , {0x0c, 0x00, 0x00}
+   , {0x00, 0x00, 0x00}
+   }
+  ,                             /* 7: XP200 */
 };
 
 
 /** for setting up the sensor-specific settings:
  * Optical Resolution, number of black pixels, number of dummy pixels, 
  * CCD_start_xoffset, and overall number of sensor pixels
- * registers 0x08-0x0b, 0x10-0x1d and 0x52-0x59
+ * registers 0x08-0x0b, 0x10-0x1d and 0x52-0x5e
  */
 static Genesys_Sensor Sensor[] = {
-  /* UMAX */
+  /* 0: UMAX */
   {1200, 48, 64, 0, 10800, 210, 230,
    {0x01, 0x03, 0x05, 0x07}
    ,
@@ -124,7 +131,7 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
-  /* Plustek OpticPro S12/ST12 */
+  /* 1: Plustek OpticPro S12/ST12 */
   {600, 48, 85, 152, 5416, 210, 230,
    {0x02, 0x00, 0x06, 0x04}
    ,
@@ -137,7 +144,7 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
-  /* Plustek OpticPro S24/ST24 */
+  /* 2: Plustek OpticPro S24/ST24 */
   {1200, 48, 64, 0, 10800, 210, 230,
    {0x0e, 0x0c, 0x00, 0x0c}
    ,
@@ -150,7 +157,7 @@ static Genesys_Sensor Sensor[] = {
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
-  /* MD6471 */
+  /* 3: MD6471 */
   {1200,
    48,
    16, 0, 10872,
@@ -166,22 +173,22 @@ static Genesys_Sensor Sensor[] = {
    2.38, 2.35, 2.34,
    NULL, NULL, NULL}
   ,
-  /* HP2400c */
+  /* 4: HP2400c */
   {1200,
    48,
    15, 0, 10872, 210, 200,
-   {0x14, 0x15, 0x00, 0x00}
+   {0x14, 0x15, 0x00, 0x00} /* registers 0x08-0x0b */
    ,
    {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xbf, 0x08, 0x3f, 0x2a, 0x00, 0x00,
     0x00, 0x02}
    ,
-   {0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x00, 0x00,
+   {0x0b, 0x0f, 0x13, 0x17, 0x03, 0x07, 0x63, 0x00, 0xc1, 0x00, 0x0e, 0x00,
     0x00}
    ,
    1.0, 1.0, 1.0,
    NULL, NULL, NULL}
   ,
-  /* HP2300c */
+  /* 5: HP2300c */
   {600,
    48,
    20, 0, 5454, 210, 200,
@@ -217,6 +224,21 @@ static Genesys_Sensor Sensor[] = {
     }
    ,
    1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
+  ,
+  /* 7: Strobe XP200 */
+  {600,
+   48,
+   38, 0, 5454, 210, 200,
+   {0x16, 0x00, 0x01, 0x03}
+   ,
+   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb7, 0x0a, 0x20, 0x2a, 0x6a, 0x8a,
+    0x00, 0x05}
+   ,
+   {0x0f, 0x13, 0x17, 0x03, 0x07, 0x0b, 0x83, 0x00, 0xc1, 0x06, 0x0b, 0x10,
+    0x16}
+   ,
+   2.1, 2.1, 2.1,
    NULL, NULL, NULL}
 };
 
@@ -278,6 +300,14 @@ static Genesys_Gpo Gpo[] = {
    {0x81, 0x80}
    ,
    {0xef, 0x80}
+   ,
+   }
+  ,
+  /* 7: XP200 */
+  {
+   {0x30, 0x00}
+   ,
+   {0xb0, 0x00}
    ,
    }
 };
@@ -345,16 +375,16 @@ static Genesys_Motor Motor[] = {
    1,
    1,
    {{{
-     11000,
-     3000,
-     128,
-     1.0,
+     11000,	/* start speed */
+     3000,	/* max speed */
+     128,	/* min steps */
+     0.25,
      },
     {
      11000,
      3000,
      128,
-     1.0,
+     0.5,
     },},},
   },
   {				/* HP 2300c */
@@ -393,6 +423,24 @@ static Genesys_Motor Motor[] = {
      0.8,
     },},},
   },
+  {				/* Strobe XP200 */
+   600,
+   600,
+   1,
+   1,
+   {{{
+     3500,
+     1300,
+     60,
+     0.25,
+     },
+    {
+     3500,
+     1400,
+     60,
+     0.5,
+    },},},
+  },
 };
 
 /* here we have the various device settings...
@@ -429,13 +477,14 @@ static Genesys_Model umax_astra_4500_model = {
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_UMAX,
   DAC_WOLFSON_UMAX,
   GPO_UMAX,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
   /* untested, values set by hmg */
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
 };
@@ -472,6 +521,7 @@ static Genesys_Model canon_lide_50_model = {
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_CANONLIDE35,
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
@@ -480,11 +530,11 @@ static Genesys_Model canon_lide_50_model = {
   GENESYS_FLAG_SKIP_WARMUP | 
   GENESYS_FLAG_OFFSET_CALIBRATION | 
   GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-  GENESYS_FLAG_SCAN_SW |
-  GENESYS_FLAG_FILE_SW |
-  GENESYS_FLAG_EMAIL_SW |
-  GENESYS_FLAG_COPY_SW | 
   GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_HAS_SCAN_SW |
+  GENESYS_HAS_FILE_SW |
+  GENESYS_HAS_EMAIL_SW |
+  GENESYS_HAS_COPY_SW,
   280,
   400
 };
@@ -521,6 +571,7 @@ static Genesys_Model canon_lide_60_model = {
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_CANONLIDE35,
   DAC_CANONLIDE35,
   GPO_CANONLIDE35,
@@ -530,6 +581,8 @@ static Genesys_Model canon_lide_60_model = {
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_DARK_WHITE_CALIBRATION
     | GENESYS_FLAG_HALF_CCD_MODE,
+
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   300,
   400
 };				/* this is completely untested -- hmg */
@@ -566,6 +619,7 @@ static Genesys_Model hp2300c_model = {
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_HP2300,
   DAC_WOLFSON_HP2300,
   GPO_HP2300,
@@ -576,21 +630,22 @@ static Genesys_Model hp2300c_model = {
     | GENESYS_FLAG_MUST_WAIT
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW,
   9,
   132
 };
 
-static Genesys_Model hp2400c_model = {
+static 
+Genesys_Model hp2400c_model = {
   "hewlett-packard-scanjet-2400c",	/* Name */
   "Hewlett Packard",		/* Device vendor string */
   "ScanJet 2400c",		/* Device model name */
   GENESYS_GL646,
   NULL,
 
-  {1200, 600, 300, 150, 75, 0},	/* possible x-resolutions */
-  {1200, 600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible x-resolutions */
+  {1200, 600, 300, 150, 75, 50, 0},	/* possible y-resolutions */
   {16, 8, 0},			/* possible depths in gray mode */
   {16, 8, 0},			/* possible depths in color mode */
 
@@ -609,11 +664,12 @@ static Genesys_Model hp2400c_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
-  0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_HP2400,
   DAC_WOLFSON_HP2400,
   GPO_HP2400,
@@ -625,7 +681,57 @@ static Genesys_Model hp2400c_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_OFFSET_CALIBRATION
     | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
+  20,
+  132
+};
+
+static 
+Genesys_Model visioneer_xp200_model = {
+  "visioneer-strobe-xp200",	/* Name */
+  "Visioneer",			/* Device vendor string */
+  "Strobe XP200",		/* Device model name */
+  GENESYS_GL646,
+  NULL,
+
+  {600, 300, 200, 100, 75, 0},	/* possible x-resolutions */
+  {600, 300, 200, 100, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.5),		/* Start of scan area in mm  (x) */
+  SANE_FIX (10.5),		/* Start of scan area in mm (y) */
+  SANE_FIX (215.9),		/* Size of scan area in mm (x) */
+  SANE_FIX (297.2),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CIS_XP200,
+  DAC_AD_XP200,			/* Analog Device frontend */
+  GPO_XP200,
+  MOTOR_XP200,
+  GENESYS_FLAG_UNTESTED		/* not fully working yet */
+    | GENESYS_FLAG_14BIT_GAMMA
+    | GENESYS_FLAG_CUSTOM_GAMMA
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
   20,
   132
 };
@@ -662,13 +768,14 @@ static Genesys_Model hp3670c_model = {
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_UMAX,
   DAC_WOLFSON_UMAX,
   GPO_UMAX,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_UNTESTED,	/* Which flags are needed for this scanner? */
   /* untested, values set by mike p. according to vendor's datasheet. */
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
 };
@@ -705,13 +812,13 @@ static Genesys_Model plustek_st12_model = {
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_ST12,
   DAC_WOLFSON_ST12,
   GPO_ST12,
   MOTOR_UMAX,
-  GENESYS_FLAG_UNTESTED 	/* Which flags are needed for this scanner? */
-    | GENESYS_FLAG_14BIT_GAMMA
-    | GENESYS_FLAG_HALF_CCD_MODE,
+  GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA,	/* Which flags are needed for this scanner? */
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
 };
@@ -748,6 +855,7 @@ static Genesys_Model plustek_st24_model = {
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_ST24,
   DAC_WOLFSON_ST24,
   GPO_ST24,
@@ -757,9 +865,8 @@ static Genesys_Model plustek_st24_model = {
     | GENESYS_FLAG_LAZY_INIT
     | GENESYS_FLAG_USE_PARK
     | GENESYS_FLAG_SKIP_WARMUP
-    | GENESYS_FLAG_SEARCH_START
-    | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_SEARCH_START | GENESYS_FLAG_OFFSET_CALIBRATION,
+  GENESYS_HAS_NO_BUTTONS, /* no buttons supported */
   20,
   200
 };
@@ -796,6 +903,7 @@ static Genesys_Model medion_md5345_model = {
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
 
   SANE_FALSE,			/* Is this a CIS scanner? */
+  SANE_FALSE,			/* Is this a sheetfed scanner? */
   CCD_5345,
   DAC_WOLFSON_5345,
   GPO_5345,
@@ -808,8 +916,8 @@ static Genesys_Model medion_md5345_model = {
     | GENESYS_FLAG_DARK_CALIBRATION
     | GENESYS_FLAG_STAGGERED_LINE
     | GENESYS_FLAG_OFFSET_CALIBRATION
-    | GENESYS_FLAG_CUSTOM_GAMMA
-    | GENESYS_FLAG_HALF_CCD_MODE,
+    | GENESYS_FLAG_CUSTOM_GAMMA,
+  GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_POWER_SW | GENESYS_HAS_OCR_SW | GENESYS_HAS_SCAN_SW,
   32,
   200
 };
@@ -824,5 +932,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x07b3, 0x0600, &plustek_st12_model},
   {0x07b3, 0x0601, &plustek_st24_model},
   {0x0461, 0x0377, &medion_md5345_model},
+  {0x04a7, 0x0426, &visioneer_xp200_model},
   {0, 0, NULL}
 };

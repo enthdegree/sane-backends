@@ -33,3 +33,6 @@ usb 0x04a9 0x2213
 
 # Canon LiDE 60
 usb 0x04a9 0x221c
+
+# Visioneer Strobe XP200
+usb 0x04a7 0x0426

@@ -94,16 +94,19 @@
 #define GENESYS_FLAG_ALT_SLOPE_CREATE (1 << 11)	/* use alternative slope
 						   creation function */
 
-#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /*yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
+#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /* yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /* allow custom gamma tables */
+#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /* allow scanners to use skip the calibration, needed for sheetfed scanners */
+#define GENESYS_FLAG_HALF_CCD_MODE    (1 << 15)       /* scanner has setting for half ccd mode */
 
-#define GENESYS_FLAG_SCAN_SW          (1 << 14)       /* scanner has SCAN button */
-#define GENESYS_FLAG_FILE_SW          (1 << 15)       /* scanner has FILE button */
-#define GENESYS_FLAG_COPY_SW          (1 << 16)       /* scanner has COPY button */
-#define GENESYS_FLAG_EMAIL_SW         (1 << 17)       /* scanner has EMAIL button */
-#define GENESYS_FLAG_PAGE_LOADED_SW      (1 << 18)       /* scanner has paper in detection */
-
-#define GENESYS_FLAG_HALF_CCD_MODE     (1 << 19)       /* scanner has setting for half ccd mode */
+#define GENESYS_HAS_NO_BUTTONS       0              /* scanner has no supported button */
+#define GENESYS_HAS_SCAN_SW          (1 << 0)       /* scanner has SCAN button */
+#define GENESYS_HAS_FILE_SW          (1 << 1)       /* scanner has FILE button */
+#define GENESYS_HAS_COPY_SW          (1 << 2)       /* scanner has COPY button */
+#define GENESYS_HAS_EMAIL_SW         (1 << 3)       /* scanner has EMAIL button */
+#define GENESYS_HAS_PAGE_LOADED_SW   (1 << 4)       /* scanner has paper in detection */
+#define GENESYS_HAS_OCR_SW           (1 << 5)       /* scanner has OCR button */
+#define GENESYS_HAS_POWER_SW         (1 << 6)       /* scanner has power button */
 
 /* USB control message values */
 #define REQUEST_TYPE_IN		(USB_TYPE_VENDOR | USB_DIR_IN)
@@ -132,6 +135,8 @@
 #define BULK_REGISTER		0x11
 
 #define BULKIN_MAXSIZE          0xFE00
+#define GL646_BULKIN_MAXSIZE    0xFFC0
+#define GL646_BULKIN_MINSIZE    0x0800
 #define BULKOUT_MAXSIZE         0xF000
 
 /* AFE values */
@@ -233,13 +238,14 @@ Genesys_Color_Order;
 /*135 registers for gl841 + 1 null-reg*/
 #define GENESYS_MAX_REGS 136
 
-#define DAC_WOLFSON_UMAX 0
-#define DAC_WOLFSON_ST12 1
-#define DAC_WOLFSON_ST24 2
-#define DAC_WOLFSON_5345 3
+#define DAC_WOLFSON_UMAX   0
+#define DAC_WOLFSON_ST12   1
+#define DAC_WOLFSON_ST24   2
+#define DAC_WOLFSON_5345   3
 #define DAC_WOLFSON_HP2400 4
 #define DAC_WOLFSON_HP2300 5
-#define DAC_CANONLIDE35  6
+#define DAC_CANONLIDE35    6
+#define DAC_AD_XP200       7   /* Analog Device frontend */
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -248,6 +254,7 @@ Genesys_Color_Order;
 #define CCD_HP2400       4
 #define CCD_HP2300       5
 #define CCD_CANONLIDE35  6
+#define CIS_XP200        7      /* CIS sensor for Strobe XP200 */
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -256,6 +263,7 @@ Genesys_Color_Order;
 #define GPO_HP2400       4
 #define GPO_HP2300       5
 #define GPO_CANONLIDE35  6
+#define GPO_XP200        7
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -263,6 +271,7 @@ Genesys_Color_Order;
 #define MOTOR_HP2400     3
 #define MOTOR_HP2300     4
 #define MOTOR_CANONLIDE35 5
+#define MOTOR_XP200      6
 
 
 /* Forward typedefs */
@@ -352,8 +361,23 @@ typedef struct Genesys_Command_Set
      in Genesys_Scanner.last_val[], in such a way that a button up/down 
      relative to Genesys_Scanner.last_val[] is not lost.
    */
-  SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s,
-					  SANE_Int option);
+  SANE_Status (*update_hardware_sensors) (struct Genesys_Scanner * s);
+
+    /* functions for sheetfed scanners */
+    /**
+     * load document into scanner
+     */
+    SANE_Status (*load_document) (Genesys_Device * dev);
+    /**
+     * detects is the scanned document has left scanner. In this
+     * case it updates the amount of data to read and set up
+     * flags in the dev struct
+     */
+    SANE_Status (*detect_document_end) (Genesys_Device * dev);
+    /**
+     * eject document from scanner
+     */
+    SANE_Status (*eject_document) (Genesys_Device * dev);
 } Genesys_Command_Set;
 
 typedef struct Genesys_Model
@@ -393,12 +417,14 @@ typedef struct Genesys_Model
   Genesys_Color_Order line_mode_color_order;	/* Order of the CCD/CIS colors */
 
   SANE_Bool is_cis;		/* Is this a CIS or CCD scanner? */
+  SANE_Bool is_sheetfed;	/* Is this sheetfed scanner? */
 
   SANE_Int ccd_type;		/* which SENSOR type do we have ? */
   SANE_Int dac_type;		/* which DAC do we have ? */
   SANE_Int gpo_type;		/* General purpose output type */
   SANE_Int motor_type;		/* stepper motor type */
   SANE_Word flags;		/* Which hacks are needed for this scanner? */
+  SANE_Word buttons;		/* Button flags, described existing buttons for the model */
   /*@} */
   SANE_Int shading_lines;	/* how many lines are used for shading calibration */
   SANE_Int search_lines;	/* how many lines are used to search start position */
@@ -469,6 +495,7 @@ struct Genesys_Device
   Genesys_Motor motor;
   u_int16_t slope_table0[256];
   u_int16_t slope_table1[256];
+  u_int8_t  control[6];
   time_t init_date;
 
   u_int8_t *white_average_data;
@@ -480,6 +507,8 @@ struct Genesys_Device
   SANE_Int lamp_off_time;
 
   SANE_Bool read_active;
+  SANE_Bool document;		/* for sheetfed scanner's, is TRUE when there
+				   is a document in the scanner */
 
   Genesys_Buffer read_buffer;
   Genesys_Buffer lines_buffer;
@@ -490,6 +519,7 @@ struct Genesys_Device
 
   size_t total_bytes_read;	/* total bytes read sent to frontend */
   size_t total_bytes_to_read;	/* total bytes read to be sent to frontend */
+  size_t wpl;			/* asic's word per line */
 
   Genesys_Current_Setup current_setup; /* contains the real used values */
 
@@ -536,6 +566,9 @@ extern void sanei_genesys_init_structs (Genesys_Device * dev);
 extern SANE_Status
 sanei_genesys_init_shading_data (Genesys_Device * dev, int pixels_per_line);
 
+extern SANE_Status sanei_genesys_read_valid_words (Genesys_Device * dev,
+						  unsigned int *steps);
+
 extern SANE_Status sanei_genesys_read_feed_steps (Genesys_Device * dev,
 						  unsigned int *steps);
 
@@ -571,6 +604,12 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev,
 extern SANE_Int
 sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 			     int xdpi);
+extern SANE_Int
+sanei_genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
+			      unsigned int use_steps, u_int16_t stop_at,
+			      u_int16_t vstart, u_int16_t vend,
+			      unsigned int steps, double g,
+			      unsigned int *used_steps, unsigned int *vfinal);
 
 extern SANE_Int
 sanei_genesys_create_slope_table (Genesys_Device * dev,

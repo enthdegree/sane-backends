@@ -5286,7 +5286,7 @@ gl841_init (Genesys_Device * dev)
 }
 
 static SANE_Status
-gl841_update_hardware_sensors (Genesys_Scanner * s, SANE_Int option)
+gl841_update_hardware_sensors (Genesys_Scanner * s)
 {
   /* do what is needed to get a new set of events, but try to not lose
      any of them.
@@ -5357,6 +5357,10 @@ static Genesys_Command_Set gl841_cmd_set = {
   gl841_bulk_read_data,
 
   gl841_update_hardware_sensors,
+
+  NULL,
+  NULL,
+  NULL,
 };
 
 SANE_Status

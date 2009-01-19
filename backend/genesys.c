@@ -52,7 +52,7 @@
 
 #include "../include/sane/config.h"
 
-#define BUILD 9
+#define BUILD 10
 
 #include <errno.h>
 #include <string.h>
@@ -493,13 +493,13 @@ genesys_dpiset (Genesys_Register_Set * reg)
  * ie registers 42-43-44
  */
 /*candidate for moving into chip specific files?*/
-static SANE_Status
-genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
+SANE_Status
+sanei_genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
 {
   SANE_Status status;
   u_int8_t value;
 
-  DBG (DBG_proc, "genesys_read_valid_words\n");
+  DBG (DBG_proc, "sanei_genesys_read_valid_words\n");
 
   RIE (sanei_genesys_read_register (dev, 0x44, &value));
   *words = value;
@@ -511,7 +511,7 @@ genesys_read_valid_words (Genesys_Device * dev, unsigned int *words)
   else
     *words += ((value & 0x0f) * 256 * 256);
 
-  DBG (DBG_proc, "genesys_read_valid_words: %d words\n", *words);
+  DBG (DBG_proc, "sanei_genesys_read_valid_words: %d words\n", *words);
   return SANE_STATUS_GOOD;
 }
 
@@ -544,10 +544,9 @@ sanei_genesys_stop_motor (Genesys_Device * dev)
  * This function generates a slope table using the given slope 
  * truncated at the given exposure time or step count, whichever comes first. 
  * The reached step time is then stored in final_exposure and used for the rest
- * of the table. The summed time of the acerleation steps is returned, and the
+ * of the table. The summed time of the acceleration steps is returned, and the
  * number of accerelation steps is put into used_steps. 
  *
- * @param dev            Device struct
  * @param slope_table    Table to write to
  * @param max_step       Size of slope_table in steps
  * @param use_steps      Maximum number of steps to use for acceleration
@@ -562,12 +561,14 @@ sanei_genesys_stop_motor (Genesys_Device * dev)
  * @note  All times in pixel time. Correction for other motor timings is not 
  *        done.
  */
-static SANE_Int
-genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
-			      unsigned int use_steps, u_int16_t stop_at,
-			      u_int16_t vstart, u_int16_t vend,
-			      unsigned int steps, double g,
-			      unsigned int *used_steps, unsigned int *vfinal)
+SANE_Int
+sanei_genesys_generate_slope_table (u_int16_t * slope_table,
+				    unsigned int max_steps,
+				    unsigned int use_steps, u_int16_t stop_at,
+				    u_int16_t vstart, u_int16_t vend,
+				    unsigned int steps, double g,
+				    unsigned int *used_steps,
+				    unsigned int *vfinal)
 {
   double t;
   SANE_Int sum = 0;
@@ -581,14 +582,15 @@ genesys_generate_slope_table (u_int16_t * slope_table, unsigned int max_steps,
   if (!vfinal)
     vfinal = &_vfinal;
 
-  DBG (DBG_proc, "genesys_generate_slope_table: table size: %d\n", max_steps);
+  DBG (DBG_proc, "sanei_genesys_generate_slope_table: table size: %d\n",
+       max_steps);
 
   DBG (DBG_proc,
-       "genesys_generate_slope_table: stop at time: %d, use %d steps max\n",
+       "sanei_genesys_generate_slope_table: stop at time: %d, use %d steps max\n",
        stop_at, use_steps);
 
   DBG (DBG_proc,
-       "genesys_generate_slope_table: target slope: "
+       "sanei_genesys_generate_slope_table: target slope: "
        "vstart: %d, vend: %d, steps: %d, g: %g\n", vstart, vend, steps, g);
 
   sum = 0;
@@ -701,17 +703,19 @@ sanei_genesys_create_slope_table3 (Genesys_Device * dev,
   if (vend > 65535)
     vend = 65535;
 
-  sum_time = genesys_generate_slope_table (slope_table, max_step,
-					   use_steps,
-					   vtarget,
-					   vstart,
-					   vend,
-					   dev->motor.
-					   slopes[power_mode][step_type].
-					   minimum_steps << step_type,
-					   dev->motor.
-					   slopes[power_mode][step_type].g,
-					   used_steps, &vfinal);
+  sum_time = sanei_genesys_generate_slope_table (slope_table, max_step,
+						 use_steps,
+						 vtarget,
+						 vstart,
+						 vend,
+						 dev->motor.
+						 slopes[power_mode]
+						 [step_type].
+						 minimum_steps << step_type,
+						 dev->motor.
+						 slopes[power_mode]
+						 [step_type].g, used_steps,
+						 &vfinal);
 
   if (final_exposure)
     *final_exposure = (vfinal * dev->motor.base_ydpi) / yres;
@@ -762,17 +766,18 @@ genesys_create_slope_table4 (Genesys_Device * dev,
   if (vend > 65535)
     vend = 65535;
 
-  sum_time = genesys_generate_slope_table (slope_table, 128,
-					   steps,
-					   vtarget,
-					   vstart,
-					   vend,
-					   dev->motor.
-					   slopes[power_mode][step_type].
-					   minimum_steps << step_type,
-					   dev->motor.
-					   slopes[power_mode][step_type].g,
-					   NULL, NULL);
+  sum_time = sanei_genesys_generate_slope_table (slope_table, 128,
+						 steps,
+						 vtarget,
+						 vstart,
+						 vend,
+						 dev->motor.
+						 slopes[power_mode]
+						 [step_type].
+						 minimum_steps << step_type,
+						 dev->motor.
+						 slopes[power_mode]
+						 [step_type].g, NULL, NULL);
 
   DBG (DBG_proc,
        "sanei_genesys_create_slope_table: returns sum_time=%d, completed\n",
@@ -828,7 +833,7 @@ genesys_create_slope_table2 (Genesys_Device * dev,
   /*
      type=1 : full
      type=2 : half
-     type=4 : quater
+     type=4 : quarter
      vend * type * base_ydpi / exposure = yres
    */
 
@@ -928,7 +933,8 @@ sanei_genesys_create_slope_table (Genesys_Device * dev,
 					same_speed, yres, power_mode);
 
   if (dev->model->motor_type == MOTOR_5345
-      || dev->model->motor_type == MOTOR_HP2300)
+      || dev->model->motor_type == MOTOR_HP2300
+      || dev->model->motor_type == MOTOR_HP2400)
     return genesys_create_slope_table2 (dev, slope_table, steps,
 					step_type, exposure_time,
 					same_speed, yres, power_mode);
@@ -1101,9 +1107,9 @@ sanei_genesys_create_gamma_table (u_int16_t * gamma_table, int size,
       if (value > maximum)
 	value = maximum;
       gamma_table[i] = value;
-      DBG (DBG_data,
-	   "sanei_genesys_create_gamma_table: gamma_table[%.3d] = %.5d\n",
-	   i, (int) value);
+      /* DBG (DBG_data,
+         "sanei_genesys_create_gamma_table: gamma_table[%.3d] = %.5d\n",
+         i, (int) value); */
     }
   DBG (DBG_proc, "sanei_genesys_create_gamma_table: completed\n");
 }
@@ -1207,7 +1213,7 @@ sanei_genesys_exposure_time (Genesys_Device * dev, Genesys_Register_Set * reg,
 	  switch (xdpi)
 	    {
 	    case 600:
-	      return 19200;	/*11902; */
+	      return 8751;	/*11902; 19200 */
 	    default:
 	      return 11111;
 	    }
@@ -1413,7 +1419,7 @@ sanei_genesys_read_data_from_scanner (Genesys_Device * dev, u_int8_t * data,
   /* wait until buffer not empty for up to 5 seconds */
   do
     {
-      status = genesys_read_valid_words (dev, &words);
+      status = sanei_genesys_read_valid_words (dev, &words);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
@@ -3658,59 +3664,106 @@ genesys_start_scan (Genesys_Device * dev)
       RIE (genesys_warmup_lamp (dev));
     }
 
-  /* set top left x and y values */
-  if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
-      && (dev->model->y_offset_calib == 0))
+  /* set top left x and y values if flatbed scanners */
+  if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      status = dev->model->cmd_set->search_start_position (dev);
+      if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
+	  && (dev->model->y_offset_calib == 0))
+	{
+	  status = dev->model->cmd_set->search_start_position (dev);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_start_scan: failed to search start position: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
+
+	  if (dev->model->flags & GENESYS_FLAG_USE_PARK)
+	    status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
+	  else
+	    status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_start_scan: failed to move scanhead to "
+		   "home position: %s\n", sane_strstatus (status));
+	      return status;
+	    }
+	  dev->scanhead_position_in_steps = 0;
+	}
+      else
+	{
+	  /* Go home */
+	  /* TODO: check we can drop this since we cannot have the
+	     scanner's head wandering here */
+	  if (dev->model->flags & GENESYS_FLAG_USE_PARK)
+	    status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
+	  else
+	    status = dev->model->cmd_set->slow_back_home (dev, 1);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_start_scan: failed to move scanhead to "
+		   "home position: %s\n", sane_strstatus (status));
+	      return status;
+	    }
+	  dev->scanhead_position_in_steps = 0;
+	}
+    }
+
+  /* load document if needed (for sheetfed scanner for instance) */
+  if (dev->model->is_sheetfed == SANE_TRUE
+      && dev->model->cmd_set->load_document != NULL)
+    {
+      status = dev->model->cmd_set->load_document (dev);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_start_scan: failed to search start position: %s\n",
+	       "genesys_start_scan: failed to load document: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+    }
+
+  /* calibration : sheetfed scanners can't calibrate before each scan */
+  /* so we use a NO_CALIBRATION flags for those scanners              */
+  if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
+    {
+      /* TODO send predefined calibration values from default
+       * values or built from a calibration scan */
+      /* send custom or generic gamma tables depending on flag */
+      if (dev->model->flags & GENESYS_FLAG_CUSTOM_GAMMA)
+	{
+	  /* use custom gamma table */
+	  status = dev->model->cmd_set->send_gamma_table (dev, 0);
+	}
+      else
+	{
+	  /* send default gamma table if no custom gamma */
+	  status = dev->model->cmd_set->send_gamma_table (dev, 1);
+	}
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "genesys_start_scan: failed to init gamma table: %s\n",
 	       sane_strstatus (status));
 	  return status;
 	}
 
-      if (dev->model->flags & GENESYS_FLAG_USE_PARK)
-	status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
-      else
-	status = dev->model->cmd_set->slow_back_home (dev, 1);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "genesys_start_scan: failed to move scanhead to "
-	       "home position: %s\n", sane_strstatus (status));
-	  return status;
-	}
+      /* head hasn't moved */
       dev->scanhead_position_in_steps = 0;
     }
   else
     {
-      /* Go home */
-      /* TODO: check we can drop this since we cannot have the
-         scanner's head wandering here */
-      if (dev->model->flags & GENESYS_FLAG_USE_PARK)
-	status = dev->model->cmd_set->park_head (dev, dev->reg, 1);
-      else
-	status = dev->model->cmd_set->slow_back_home (dev, 1);
+      status = genesys_flatbed_calibration (dev);
       if (status != SANE_STATUS_GOOD)
 	{
 	  DBG (DBG_error,
-	       "genesys_start_scan: failed to move scanhead to "
-	       "home position: %s\n", sane_strstatus (status));
+	       "genesys_start_scan: failed to do flatbed calibration: %s\n",
+	       sane_strstatus (status));
 	  return status;
 	}
-      dev->scanhead_position_in_steps = 0;
-    }
-
-  /* calibration */
-  status = genesys_flatbed_calibration (dev);
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (DBG_error,
-	   "genesys_start_scan: failed to do flatbed calibration: %s\n",
-	   sane_strstatus (status));
-      return status;
     }
 
   status = dev->model->cmd_set->init_regs_for_scan (dev);
@@ -3778,19 +3831,22 @@ genesys_start_scan (Genesys_Device * dev)
   /* then we wait for at least one word of valid scan data 
 
      this is also done in sanei_genesys_read_data_from_scanner -- pierre */
-  do
+  if (dev->model->is_sheetfed == SANE_FALSE)
     {
-      usleep (100 * 1000);
-      status = genesys_read_valid_words (dev, &steps);
-      if (status != SANE_STATUS_GOOD)
+      do
 	{
-	  DBG (DBG_error,
-	       "genesys_start_scan: Failed to read valid words: %s\n",
-	       sane_strstatus (status));
-	  return status;
+	  usleep (100 * 1000);
+	  status = sanei_genesys_read_valid_words (dev, &steps);
+	  if (status != SANE_STATUS_GOOD)
+	    {
+	      DBG (DBG_error,
+		   "genesys_start_scan: Failed to read valid words: %s\n",
+		   sane_strstatus (status));
+	      return status;
+	    }
 	}
+      while (steps < 1);
     }
-  while (steps < 1);
 
   DBG (DBG_proc, "genesys_start_scan: completed\n");
   return SANE_STATUS_GOOD;
@@ -3883,6 +3939,15 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   DBG (DBG_proc, "genesys_fill_read_buffer: start\n");
 
+  /* for sheetfed scanner, we must check is document is shorter than
+   * the requested scan */
+  if (dev->model->is_sheetfed == SANE_TRUE)
+    {
+      status = dev->model->cmd_set->detect_document_end (dev);
+      if (status != SANE_STATUS_GOOD)
+	return status;
+    }
+
   space = dev->read_buffer.size - dev->read_buffer.avail;
 
   work_buffer_dst = sanei_genesys_buffer_get_write_pos (&(dev->read_buffer),
@@ -3910,7 +3975,8 @@ genesys_fill_read_buffer (Genesys_Device * dev)
 
   DBG (DBG_error, "genesys_fill_read_buffer: reading %lu bytes\n",
        (u_long) size);
-/* size is already maxed to our needs. bulk_read_data
+
+/* size is already maxed to our needs. for most models bulk_read_data
    will read as much data as requested. */
   status =
     dev->model->cmd_set->bulk_read_data (dev, 0x45, work_buffer_dst, size);
@@ -3937,6 +4003,8 @@ genesys_fill_read_buffer (Genesys_Device * dev)
   dev->read_bytes_left -= size;
 
   RIE (sanei_genesys_buffer_produce (&(dev->read_buffer), size));
+
+  DBG (DBG_proc, "genesys_fill_read_buffer: end\n");
 
   return SANE_STATUS_GOOD;
 }
@@ -4458,6 +4526,12 @@ Problems with the first approach:
       *len = bytes;
     }
 
+  /* avoid signaling some extra data because we have treated a full block
+   * on  the last block */
+  if (dev->total_bytes_read + *len > dev->total_bytes_to_read)
+    *len = dev->total_bytes_to_read - dev->total_bytes_read;
+
+  /* count bytes sent to frontend */
   dev->total_bytes_read += *len;
 
   RIE (sanei_genesys_buffer_consume (src_buffer, bytes));
@@ -4909,7 +4983,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_SCAN_SW].desc = SANE_DESC_SCAN;
   s->opt[OPT_SCAN_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_SCAN_SW].unit = SANE_UNIT_NONE;
-  if (model->flags & GENESYS_FLAG_SCAN_SW) 
+  if (model->buttons & GENESYS_HAS_SCAN_SW) 
     s->opt[OPT_SCAN_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_SCAN_SW].cap = SANE_CAP_INACTIVE;
@@ -4922,7 +4996,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_FILE_SW].desc = "File button";
   s->opt[OPT_FILE_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_FILE_SW].unit = SANE_UNIT_NONE;
-  if (model->flags & GENESYS_FLAG_FILE_SW) 
+  if (model->buttons & GENESYS_HAS_FILE_SW) 
     s->opt[OPT_FILE_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_FILE_SW].cap = SANE_CAP_INACTIVE;
@@ -4934,7 +5008,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_EMAIL_SW].desc = SANE_DESC_EMAIL;
   s->opt[OPT_EMAIL_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_EMAIL_SW].unit = SANE_UNIT_NONE;
-  if (model->flags & GENESYS_FLAG_EMAIL_SW) 
+  if (model->buttons & GENESYS_HAS_EMAIL_SW) 
     s->opt[OPT_EMAIL_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_EMAIL_SW].cap = SANE_CAP_INACTIVE;
@@ -4946,7 +5020,7 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_COPY_SW].desc = SANE_DESC_COPY;
   s->opt[OPT_COPY_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_COPY_SW].unit = SANE_UNIT_NONE;
-  if (model->flags & GENESYS_FLAG_COPY_SW) 
+  if (model->buttons & GENESYS_HAS_COPY_SW) 
     s->opt[OPT_COPY_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_COPY_SW].cap = SANE_CAP_INACTIVE;
@@ -4958,12 +5032,38 @@ init_options (Genesys_Scanner * s)
   s->opt[OPT_PAGE_LOADED_SW].desc = SANE_DESC_PAGE_LOADED;
   s->opt[OPT_PAGE_LOADED_SW].type = SANE_TYPE_BOOL;
   s->opt[OPT_PAGE_LOADED_SW].unit = SANE_UNIT_NONE;
-  if (model->flags & GENESYS_FLAG_PAGE_LOADED_SW) 
+  if (model->buttons & GENESYS_HAS_PAGE_LOADED_SW) 
     s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
   else
     s->opt[OPT_PAGE_LOADED_SW].cap = SANE_CAP_INACTIVE;
   s->val[OPT_PAGE_LOADED_SW].b = 0;
   s->last_val[OPT_PAGE_LOADED_SW].b = 0;
+
+  /* OCR button */
+  s->opt[OPT_OCR_SW].name = "ocr";
+  s->opt[OPT_OCR_SW].title = "OCR button";
+  s->opt[OPT_OCR_SW].desc = "OCR button";
+  s->opt[OPT_OCR_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_OCR_SW].unit = SANE_UNIT_NONE;
+  if (model->buttons & GENESYS_HAS_OCR_SW) 
+    s->opt[OPT_OCR_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_OCR_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_OCR_SW].b = 0;
+  s->last_val[OPT_OCR_SW].b = 0;
+
+  /* power button */
+  s->opt[OPT_POWER_SW].name = "power";
+  s->opt[OPT_POWER_SW].title = "Power button";
+  s->opt[OPT_POWER_SW].desc = "Power button";
+  s->opt[OPT_POWER_SW].type = SANE_TYPE_BOOL;
+  s->opt[OPT_POWER_SW].unit = SANE_UNIT_NONE;
+  if (model->buttons & GENESYS_HAS_POWER_SW) 
+    s->opt[OPT_POWER_SW].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+  else
+    s->opt[OPT_POWER_SW].cap = SANE_CAP_INACTIVE;
+  s->val[OPT_POWER_SW].b = 0;
+  s->last_val[OPT_POWER_SW].b = 0;
 
   RIE (calc_parameters (s));
 
@@ -5097,11 +5197,11 @@ attach_one_device (SANE_String_Const devname)
 }
 
 /* configuration framework functions */
-static SANE_Status config_attach_genesys (SANEI_Config * config,
-					  const char *devname)
+static SANE_Status
+config_attach_genesys (SANEI_Config * config, const char *devname)
 {
   /* no options yet for this backend */
-  config=config;
+  config = config;
 
   /* the devname has been processed and is ready to be used 
    * directly. Since the backend is an USB only one, we can 
@@ -5112,17 +5212,18 @@ static SANE_Status config_attach_genesys (SANEI_Config * config,
 }
 
 /* probes for scanner to attach to the backend */
-static SANE_Status probe_genesys_devices(void)
+static SANE_Status
+probe_genesys_devices (void)
 {
   SANEI_Config config;
   SANE_Status status;
-  
+
   DBG (DBG_proc, "probe_genesys_devices: start\n");
 
   new_dev = 0;
   new_dev_len = 0;
   new_dev_alloced = 0;
-  
+
   /* set configuration options structure : no option for this backend */
   config.descriptors = NULL;
   config.values = NULL;
@@ -5161,7 +5262,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* init usb use */
   sanei_usb_init ();
-  
+
   DBG (DBG_info, "sane_init: %s endian machine\n",
 #ifdef WORDS_BIGENDIAN
        "big"
@@ -5177,7 +5278,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   devlist = 0;
 
   /* cold-plug case :detection of allready connected scanners */
-  status = probe_genesys_devices();
+  status = probe_genesys_devices ();
 
   DBG (DBG_proc, "sane_init: exit\n");
 
@@ -5217,7 +5318,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
        local_only == SANE_TRUE ? "true" : "false");
 
   /* hot-plug case :detection of newly connected scanners */
-  probe_genesys_devices();
+  probe_genesys_devices ();
 
   if (devlist)
     free (devlist);
@@ -5495,8 +5596,12 @@ get_option_value (Genesys_Scanner * s, int option, void *val)
     case OPT_FILE_SW:
     case OPT_EMAIL_SW:
     case OPT_COPY_SW:
-      RIE(s->dev->model->cmd_set->update_hardware_sensors(s,option));
-      s->last_val[option].b = *(SANE_Bool *) val = s->val[option].b;
+    case OPT_PAGE_LOADED_SW:
+    case OPT_OCR_SW:
+    case OPT_POWER_SW:
+      RIE(s->dev->model->cmd_set->update_hardware_sensors(s));
+      *(SANE_Bool *) val = s->val[option].b;
+      s->last_val[option].b = *(SANE_Bool *) val;
       break;
     default:
       DBG (DBG_warn, "get_option_value: can't get unknown option %d\n",
@@ -5908,20 +6013,33 @@ sane_cancel (SANE_Handle handle)
       return;
     }
 
-  /* park head */
-  if (s->dev->model->flags & GENESYS_FLAG_USE_PARK)
-    status = s->dev->model->cmd_set->park_head (s->dev, s->dev->reg, 1);
-  else
-    status = s->dev->model->cmd_set->slow_back_home (s->dev, 1);
-  if (status != SANE_STATUS_GOOD)
+  /* park head if flatbed scanner */
+  if (s->dev->model->is_sheetfed == SANE_FALSE)
     {
-      DBG (DBG_error,
-	   "sane_cancel: failed to move scanhead to home position: %s\n",
-	   sane_strstatus (status));
-      return;
+      if (s->dev->model->flags & GENESYS_FLAG_USE_PARK)
+	status = s->dev->model->cmd_set->park_head (s->dev, s->dev->reg, 1);
+      else
+	status = s->dev->model->cmd_set->slow_back_home (s->dev, 1);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "sane_cancel: failed to move scanhead to home position: %s\n",
+	       sane_strstatus (status));
+	  return;
+	}
+    }
+  else
+    {				/* in case of sheetfed scanners, we have to eject the document if still present */
+      status = s->dev->model->cmd_set->eject_document (s->dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "sane_cancel: failed to eject document: %s\n",
+	       sane_strstatus (status));
+	  return;
+	}
     }
 
-/*enable power saving mode*/
+  /*enable power saving mode */
   status = s->dev->model->cmd_set->save_power (s->dev, SANE_TRUE);
   if (status != SANE_STATUS_GOOD)
     {

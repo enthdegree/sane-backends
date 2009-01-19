@@ -62,7 +62,6 @@
 #define SANE_I18N(text) text
 #endif
 
-
 /** List of SANE options
  */
 enum Genesys_Option
@@ -102,6 +101,8 @@ enum Genesys_Option
   OPT_EMAIL_SW,
   OPT_COPY_SW,
   OPT_PAGE_LOADED_SW,
+  OPT_OCR_SW,
+  OPT_POWER_SW,
 
   /* must come last: */
   NUM_OPTIONS

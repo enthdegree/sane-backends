@@ -9,7 +9,7 @@
 ;
 
 :backend "unsupported"		; name of backend
-:version "2007-01-28"		; version of backend
+:version "2008-01-18"		; version of backend
 :url "/contrib.html"
 ;:manpage "sane-mustek"		; name of manpage (if it exists)
 :comment "The devices mentioned here are not supported by any SANE backend. However, there may be links to information about them or stand-alone programs."
@@ -193,6 +193,12 @@
 :usbid "0x04a5" "0x2211"
 :status :unsupported
 :comment "Unsupported, see link for details."
+
+:model "5560"
+:interface "USB"
+:usbid "0x04a5" "0x2311"
+:status :unsupported
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023447.html"
 
 :model "7400UT"
 :url "/unsupported/benq-7400ut.html"
@@ -416,7 +422,7 @@
 :interface "USB"
 :usbid "0x04a9" "0x2225"
 :status :unsupported
-:comment "See link for details"
+:comment "Same chip as LiDE 600? See link for details"
 
 :model "CanoScan LiDE 80"
 :url "/unsupported/canon-lide-80.html"
@@ -431,6 +437,19 @@
 :usbid "0x04a9" "0x1900"
 :status :unsupported
 :comment "Unsupported. See link for details."
+
+:model "CanoScan LiDE 100"
+:interface "USB"
+:usbid "0x04a9" "0x1904"
+:status :unsupported
+:comment "GL843?"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2008-November/023133.html"
+
+:model "CanoScan LiDE 200"
+:interface "USB"
+:usbid "0x04a9" "0x1905"
+:status :unsupported
+:comment "GL843? see Bugs item #311335"
 
 :model "CanoScan LiDE 500F"
 :url "/unsupported/canon-canoscan-lide-500f.html"
@@ -633,7 +652,6 @@
 :interface "USB"
 :status :unsupported
 :comment "Probably unsupported at the moment. Not compatible to snapscan backend. It's not known if it may work with epson or epkowa backend."
-
 
 ;********************************************************************************************
 
@@ -1622,6 +1640,11 @@
 :mfg "Olympus"
 :url "http://www.olympus.com"
 
+:model "ES-10P"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2008-December/023326.html"
+:interface "Parport"
+:status :unsupported
+
 :model "ES-10S"
 :url "/unsupported/olympus-es10s.html"
 :interface "SCSI"
@@ -1776,6 +1799,11 @@
 :usbid "0x05e3" "0x0120"
 :status :unsupported
 :comment "Not supported. See link for details."
+
+:model "Primefilm 2700"
+:interface "USB"
+:status :unsupported
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2009-January/023442.html"
 
 :model "Primefilm 3600PRO"
 :interface "USB IEEE-1394"
@@ -2403,6 +2431,11 @@
 :usbid "0x05cb" "0x1483"
 :status :unsupported
 :comment "Unsupported. See link for details."
+
+:model "EasyScan 19200"
+:url "http://lists.alioth.debian.org/pipermail/sane-devel/2008-October/022955.html"
+:interface "Parport"
+:status :unsupported
 
 :model "SCSI Scan 19200 -Excellence Series-"
 :url "/unsupported/trust-scsi-scan-19200.html"

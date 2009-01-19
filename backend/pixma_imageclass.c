@@ -176,6 +176,7 @@ activate (pixma_t * s, uint8_t x)
   switch (s->cfg->pid)
     {
     case MF4200_PID:
+    case MF4600_PID:
       return iclass_exec (s, &mf->cb, 1);
       break;
     case MF4100_PID:
@@ -195,12 +196,13 @@ static int
 select_source (pixma_t * s)
 {
   iclass_t *mf = (iclass_t *) s->subdriver;
-  uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 11, 0);
+  uint8_t *data = pixma_newcmd (&mf->cb, cmd_select_source, 10, 0);
   data[0] = (s->param->source == PIXMA_SOURCE_ADF) ? 2 : 1;
   switch (s->cfg->pid)
     {
     case MF4200_PID:
-      return iclass_exec (s, &mf->cb, 1);
+    case MF4600_PID:
+      return iclass_exec (s, &mf->cb, 0);
       break;
     case MF4100_PID:
     default:
@@ -229,7 +231,8 @@ send_scan_param (pixma_t * s)
   switch (s->cfg->pid)
     {
     case MF4200_PID:
-      return iclass_exec (s, &mf->cb, 1);
+    case MF4600_PID:
+      return iclass_exec (s, &mf->cb, 0);
       break;
     case MF4100_PID:
     default:

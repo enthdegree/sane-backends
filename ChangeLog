@@ -1,3 +1,8 @@
+2009-01-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* pixma_imageclass.c:
+	Fixed select_source message length, and typo bug in last update.
+	Set MP4600 series for inverted checksumming. 
+
 2009-01-19  Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys.conf.in backend/genesys.h
 	backend/genesys_devices.c backend/genesys_gl646.c 

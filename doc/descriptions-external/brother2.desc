@@ -198,6 +198,12 @@
 :usbid "0x04f9" "0x0181"
 :comment "Network connection reported to work."
 
+:model "MFC-7840W"
+:status :good
+:interface "USB"
+:usbid "0x04f9" "0x01e5"
+:comment "Reported to work with brscan3 driver."
+
 :model "MFC-820CW"
 :status :untested
 :interface "USB"

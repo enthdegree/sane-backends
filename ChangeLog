@@ -1,3 +1,6 @@
+2009-01-19  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions-external/brother2.desc: add MFC-7840W
+
 2009-01-19  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* pixma_imageclass.c:
 	Fixed select_source message length, and typo bug in last update.

@@ -60,7 +60,11 @@
 #define sanei_thread_h
 #include "../include/sane/config.h"
 
+#ifdef USE_PTHREAD
+typedef long SANE_Pid;
+#else
 typedef int SANE_Pid;
+#endif
 
 /** Initialize sanei_thread.
  *

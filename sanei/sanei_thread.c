@@ -81,12 +81,6 @@
 #include "../include/sane/sanei_debug.h"
 #include "../include/sane/sanei_thread.h"
 
-#ifdef USE_PTHREAD
-typedef pthread_t SANEI_Pid;
-#else
-typedef int SANEI_Pid;
-#endif
-
 #ifndef _VAR_NOT_USED
 # define _VAR_NOT_USED(x)	((x)=(x))
 #endif
@@ -100,11 +94,6 @@ typedef struct {
 } ThreadDataDef, *pThreadDataDef;
 
 static ThreadDataDef td;
-
-#define MAX_THREADS 100
-
-/* per-thread information, using the functions' parameters pid as index */
-static SANEI_Pid threads[MAX_THREADS];
 
 /** for init issues - here only for the debug output
  */
@@ -133,14 +122,14 @@ sanei_thread_kill( SANE_Pid pid )
 	DBG(2, "sanei_thread_kill() will kill %ld\n", (long) pid);
 #ifdef USE_PTHREAD
 #if defined (__APPLE__) && defined (__MACH__)
-	return pthread_kill(threads[pid], SIGUSR2);
+	return pthread_kill((pthread_t)pid, SIGUSR2);
 #else
-	return pthread_cancel(threads[pid]);
+	return pthread_cancel((pthread_t)pid);
 #endif
 #elif defined HAVE_OS2_H
-	return DosKillThread(threads[pid]);
+	return DosKillThread(pid);
 #else
-	return kill( threads[pid], SIGTERM );
+	return kill( pid, SIGTERM );
 #endif
 }
 

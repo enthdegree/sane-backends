@@ -438,8 +438,8 @@ static SANE_Status ssm_buffer (struct scanner *s);
 static SANE_Status ssm_do (struct scanner *s);
 static SANE_Status ssm_df (struct scanner *s);
 
-int get_page_width (struct scanner *s);
-int get_page_height (struct scanner *s);
+static int get_page_width (struct scanner *s);
+static int get_page_height (struct scanner *s);
 
 static SANE_Status set_window (struct scanner *s);
 

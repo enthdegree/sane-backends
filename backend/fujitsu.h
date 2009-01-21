@@ -750,8 +750,8 @@ static SANE_Status mode_select_overscan (struct fujitsu *s);
 
 static SANE_Status set_sleep_mode(struct fujitsu *s);
 
-int get_page_width (struct fujitsu *s);
-int get_page_height (struct fujitsu *s);
+static int get_page_width (struct fujitsu *s);
+static int get_page_height (struct fujitsu *s);
 
 static SANE_Status send_lut (struct fujitsu *s);
 static SANE_Status send_endorser (struct fujitsu *s);

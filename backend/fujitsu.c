@@ -415,6 +415,8 @@
          - accept null pointer as empty device name
          - track frontend reading sensor/button values to reload
          - deactivate double feed options if df-action == default
+      v88 2009-01-21, MAN
+         - dont export private symbols
 
    SANE FLOW DIAGRAM
 
@@ -475,7 +477,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 87
+#define BUILD 88
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -8217,7 +8219,7 @@ wait_scanner(struct fujitsu *s)
  * we need a value that differs from this
  * due to using FB or overscan.
  */
-int
+static int
 get_page_width(struct fujitsu *s) 
 {
   int width = s->page_width + 2 * (s->os_x_basic*1200/s->basic_x_res);
@@ -8246,7 +8248,7 @@ get_page_width(struct fujitsu *s)
  * we need a value that differs from this
  * due to using FB or overscan.
  */
-int
+static int
 get_page_height(struct fujitsu *s) 
 {
   int height = s->page_height + 2 * (s->os_y_basic*1200/s->basic_y_res);

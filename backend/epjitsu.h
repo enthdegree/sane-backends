@@ -365,12 +365,12 @@ static SANE_Status get_hardware_status (struct scanner *s);
 static SANE_Status load_lut (unsigned char * lut, int in_bits, int out_bits,
   int out_min, int out_max, int slope, int offset);
 
-int get_page_width (struct scanner *s);
-int get_page_height (struct scanner *s);
-unsigned char get_stat(struct scanner *s);
+static int get_page_width (struct scanner *s);
+static int get_page_height (struct scanner *s);
+static unsigned char get_stat(struct scanner *s);
 
 /* utils */
-void update_transfer_totals(struct transfer * t);
+static void update_transfer_totals(struct transfer * t);
 static void hexdump (int level, char *comment, unsigned char *p, int l);
 static size_t maxStringSize (const SANE_String_Const strings[]);
 

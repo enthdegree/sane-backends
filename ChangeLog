@@ -1,3 +1,7 @@
+2009-01-21  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/canon_dr.[ch], backend/epjitsu.[ch], backend/fujitsu.[ch]:
+	- dont export private symbols
+
 2009-01-19  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions-external/brother2.desc: add MFC-7840W
 

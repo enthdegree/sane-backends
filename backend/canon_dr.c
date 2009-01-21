@@ -121,6 +121,8 @@
          - add cancel() to send d8 command
          - call cancel() only after final read from scanner
          - stop button reqests cancel
+      v12 2009-01-21, MAN
+         - dont export private symbols
 
    SANE FLOW DIAGRAM
 
@@ -181,7 +183,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 10
+#define BUILD 12
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -4266,7 +4268,7 @@ wait_scanner(struct scanner *s)
  * we need a value that differs from this
  * due to using FB or overscan.
  */
-int
+static int
 get_page_width(struct scanner *s) 
 {
   int width = s->page_width;
@@ -4290,7 +4292,7 @@ get_page_width(struct scanner *s)
  * we need a value that differs from this
  * due to using FB or overscan.
  */
-int
+static int
 get_page_height(struct scanner *s) 
 {
   int height = s->page_height;

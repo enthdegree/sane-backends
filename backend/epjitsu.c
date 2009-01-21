@@ -118,6 +118,8 @@
       v17 2008-10-03, MAN
         - increase scan height ~1/2 inch due to head offset
         - change page length autodetection condition
+      v18 2009-01-21, MAN
+         - dont export private symbols
 
    SANE FLOW DIAGRAM
 
@@ -177,7 +179,7 @@
 #include "epjitsu-cmd.h"
 
 #define DEBUG 1
-#define BUILD 17
+#define BUILD 18
 
 unsigned char global_firmware_filename[PATH_MAX];
 
@@ -755,7 +757,7 @@ load_fw (struct scanner *s)
 /*
  * try to load fw into scanner
  */
-unsigned char
+static unsigned char
 get_stat(struct scanner *s)
 {
     SANE_Status ret = SANE_STATUS_GOOD;
@@ -1654,7 +1656,8 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 }
 
 /* use height and width to initialize rest of transfer vals */
-void update_transfer_totals(struct transfer * t)
+static void
+update_transfer_totals(struct transfer * t)
 {
     t->total_pix = t->width_pix * t->height;
     t->total_bytes = t->width_bytes * t->height;
@@ -1697,7 +1700,7 @@ struct model_res {
 
 };
 
-struct model_res settings[] = {
+static struct model_res settings[] = {
 
  /*S300 AC*/
 /* model       xres yres u  mxx   mnx mxy   mny actw  reqw  hedw  padw bh calw */
@@ -4267,7 +4270,7 @@ sane_get_select_fd (SANE_Handle h, SANE_Int *fdp)
  * we need a value that differs from this
  * due to using FB
  */
-int
+static int
 get_page_width(struct scanner *s) 
 {
   /* scanner max for fb */
@@ -4283,7 +4286,7 @@ get_page_width(struct scanner *s)
  * we need a value that differs from this
  * due to using FB.
  */
-int
+static int
 get_page_height(struct scanner *s) 
 {
   /* scanner max for fb */

@@ -1,3 +1,8 @@
+2009-01-22  Stéphane Voltz <stef.dev@free.fr>
+	* doc/Makefile.in doc/descriptions/genesys.desc : added the rts8891
+	man page to the generation and install . added XP200 to the genesys
+	desc file.
+
 2009-01-21 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* Makefile.am, lib/Makefile.in: Run all libcheck tests before
 	failure and look for both static and shared libraries.

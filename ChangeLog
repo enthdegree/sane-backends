@@ -1,3 +1,8 @@
+2009-01-21 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* Makefile.am, lib/Makefile.in: Run all libcheck tests before
+	failure and look for both static and shared libraries.
+	Fixed $srcdir typo in lib/Makefile.in.
+
 2009-01-21  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/epjitsu.[ch], backend/fujitsu.[ch]:
 	- dont export private symbols

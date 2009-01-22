@@ -94,7 +94,7 @@ dist: distdir
 distdir: $(DISTFILES)
 	for file in $(DISTFILES); do \
 	  ln $(srcdir)/$$file $(distdir) 2> /dev/null \
-	    || cp -p $(srcidr)/$$file $(distdir) ; \
+	    || cp -p $(srcdir)/$$file $(distdir) ; \
 	done
 
 # Used by top level distcheck target

@@ -13,6 +13,9 @@
 	Add references to epson and epson2 man pages about
 	SANE_DEBUG_EPSONx_SCSI and _NET options.
 	Created an epson2 man page; based mostly on epson page.
+	* backend/stubs.c: Currently, compiling stubs.c requires its
+	own compile rule simply to pass in -DSTUBS.  Since its always
+	required, just define it in stubs.c
 
 2009-01-22  Stéphane Voltz <stef.dev@free.fr>
 	* doc/Makefile.in doc/descriptions/genesys.desc : added the rts8891

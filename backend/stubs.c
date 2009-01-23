@@ -1,3 +1,5 @@
+#define STUBS
+
 #include "sane/sanei_backend.h"
 
 /* Now define the wrappers (we could use aliases here, but go for
@@ -29,7 +31,7 @@ sane_get_option_descriptor (SANE_Handle h, SANE_Int opt)
 
 SANE_Status
 sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
-		     void *val, SANE_Word *info)
+                     void *val, SANE_Word *info)
 {
   return ENTRY(control_option) (h, opt, act, val, info);
 }

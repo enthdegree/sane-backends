@@ -743,7 +743,7 @@
 :model     "ME 300"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
-:status    :unsupported
+:status    :good
 :comment   "all-in-one"
 
 :model     "ME Office 600F"
@@ -1548,6 +1548,12 @@
 :status    :good
 :comment   "all-in-one"
 
+:model     "Stylus Office TX600FW"
+:interface "USB"
+:usbid     "0x04b8" "0x0847"
+:status    :good
+:comment   "network interface not supported<br>all-in-one"
+
 :model     "Stylus Photo PX700W"
 :interface "USB"
 :usbid     "0x04b8" "0x0846"
@@ -1707,7 +1713,7 @@
 :model     "Stylus NX100"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
-:status    :unsupported
+:status    :good
 :comment   "all-in-one"
 
 :model     "Stylus NX200"
@@ -1731,7 +1737,7 @@
 :model     "Stylus SX100"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
-:status    :unsupported
+:status    :good
 :comment   "all-in-one"
 
 :model     "Stylus SX200"
@@ -1779,7 +1785,7 @@
 :model     "Stylus TX100"
 :interface "USB"
 :usbid     "0x04b8" "0x0841"
-:status    :unsupported
+:status    :good
 :comment   "all-in-one"
 
 :model     "Stylus TX200"
@@ -1805,12 +1811,6 @@
 :usbid     "0x04b8" "0x084a"
 :status    :good
 :comment   "network interface not supported<br>all-in-one<br>overseas version of the PX-501A"
-
-:model     "Stylus TX600FW"
-:interface "USB"
-:usbid     "0x04b8" "0x0847"
-:status    :good
-:comment   "network interface not supported<br>all-in-one"
 
 :model     "WorkForce 500"
 :interface "USB"

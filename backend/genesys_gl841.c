@@ -48,6 +48,9 @@
    If you do not wish that, delete this exception notice. 
 */
 
+#undef BACKEND_NAME
+#define BACKEND_NAME genesys_gl841
+
 #include "../include/sane/config.h"
 
 #include <math.h>

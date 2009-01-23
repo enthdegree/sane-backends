@@ -1,3 +1,19 @@
+2009-01-22 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* Makefile.in: Submit Makefile.in from Makefile.am submitted
+	previously.
+	* backend/epson.c, backend/epson_scsi.c, backend/epson2_net.c,
+	backend/epson2_scsi.c, backend/genesys_gl646.c,
+	backend/genesys_gl841.c, backend/lexmark_low.c, backend/rts88xx_lib.c,
+	backend/umax_pp.c, backend/umax_pp_low.c, backend/umax_pp_mid.c,
+	doc/Makefile.in, doc/sane-epson.man, doc/sane-epson2.man:
+	Updated backends with EXTRA_* files to allow Makefile's
+	to always pass in BACKEND_NAME to be fixed to backend name
+	instead of filename; while still making sure that
+	SANE_DEBUG_${BACKEND}* exist as documented in man pages. 
+	Add references to epson and epson2 man pages about
+	SANE_DEBUG_EPSONx_SCSI and _NET options.
+	Created an epson2 man page; based mostly on epson page.
+
 2009-01-22  Stéphane Voltz <stef.dev@free.fr>
 	* doc/Makefile.in doc/descriptions/genesys.desc : added the rts8891
 	man page to the generation and install . added XP200 to the genesys

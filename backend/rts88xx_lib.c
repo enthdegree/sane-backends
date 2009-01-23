@@ -43,6 +43,9 @@
 
 /* this file contains functions common to rts88xx ASICs */
 
+#undef BACKEND_NAME
+#define BACKEND_NAME rts88xx_lib
+
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei_backend.h"
@@ -88,7 +91,7 @@ sanei_rts88xx_set_color_scan (SANE_Byte * regs)
 
 void
 sanei_rts88xx_set_offset (SANE_Byte * regs, SANE_Byte red, SANE_Byte green,
-			  SANE_Byte blue)
+                          SANE_Byte blue)
 {
   /* offset for odd pixels */
   regs[0x02] = red;
@@ -103,7 +106,7 @@ sanei_rts88xx_set_offset (SANE_Byte * regs, SANE_Byte red, SANE_Byte green,
 
 void
 sanei_rts88xx_set_gain (SANE_Byte * regs, SANE_Byte red, SANE_Byte green,
-			SANE_Byte blue)
+                        SANE_Byte blue)
 {
   regs[0x08] = red;
   regs[0x09] = green;
@@ -177,7 +180,7 @@ sanei_rts88xx_write_reg (SANE_Int devnum, SANE_Int index, SANE_Byte * reg)
  */
 SANE_Status
 sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
-			  SANE_Byte * source, SANE_Int length)
+                          SANE_Byte * source, SANE_Int length)
 {
   size_t size = 0;
   size_t i;
@@ -187,11 +190,11 @@ sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
   if (DBG_LEVEL > DBG_io)
     {
       for (i = 0; i < (size_t) length; i++)
-	{
-	  sprintf (message + 5 * i, "0x%02x ", source[i]);
-	}
+        {
+          sprintf (message + 5 * i, "0x%02x ", source[i]);
+        }
       DBG (DBG_io, "sanei_rts88xx_write_regs : write_regs(0x%02x,%d)=%s\n",
-	   start, length, message);
+           start, length, message);
     }
 
   /* when writing several registers at a time, we avoid writing the 0xb3 register 
@@ -204,15 +207,15 @@ sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
       buffer[2] = 0x00;
       buffer[3] = size;
       for (i = 0; i < size; i++)
-	buffer[i + 4] = source[i];
+        buffer[i + 4] = source[i];
       /* the USB block is size + 4 bytes of header long */
       size += 4;
       if (sanei_usb_write_bulk (devnum, buffer, &size) != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "sanei_rts88xx_write_regs : write registers part 1 failed ...\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (DBG_error,
+               "sanei_rts88xx_write_regs : write registers part 1 failed ...\n");
+          return SANE_STATUS_IO_ERROR;
+        }
 
       /* skip 0xb3 register */
       size -= 3;
@@ -231,7 +234,7 @@ sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
   if (sanei_usb_write_bulk (devnum, buffer, &size) != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_write_regs : write registers part 2 failed ...\n");
+           "sanei_rts88xx_write_regs : write registers part 2 failed ...\n");
       return SANE_STATUS_IO_ERROR;
     }
 
@@ -242,7 +245,7 @@ sanei_rts88xx_write_regs (SANE_Int devnum, SANE_Int start,
 /* read several registers starting at the given index */
 SANE_Status
 sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
-			 SANE_Byte * dest, SANE_Int length)
+                         SANE_Byte * dest, SANE_Int length)
 {
   SANE_Status status;
   static SANE_Byte command_block[] = { 0x80, 0, 0x00, 0xFF };
@@ -252,7 +255,7 @@ sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
   if (start + length > 255)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_read_regs: start and length must be within [0..255]\n");
+           "sanei_rts88xx_read_regs: start and length must be within [0..255]\n");
       return SANE_STATUS_INVAL;
     }
 
@@ -278,14 +281,14 @@ sanei_rts88xx_read_regs (SANE_Int devnum, SANE_Int start,
   if (size != (size_t) length)
     {
       DBG (DBG_warn, "sanei_rts88xx_read_regs: read got only %lu bytes\n",
-	   (u_long) size);
+           (u_long) size);
     }
   if (DBG_LEVEL >= DBG_io)
     {
       for (i = 0; i < size; i++)
-	sprintf (message + 5 * i, "0x%02x ", dest[i]);
+        sprintf (message + 5 * i, "0x%02x ", dest[i]);
       DBG (DBG_io, "sanei_rts88xx_read_regs: read_regs(0x%02x,%d)=%s\n",
-	   start, length, message);
+           start, length, message);
     }
   return status;
 }
@@ -308,7 +311,7 @@ sanei_rts88xx_get_status (SANE_Int devnum, SANE_Byte * regs)
  */
 SANE_Status
 sanei_rts88xx_set_status (SANE_Int devnum, SANE_Byte * regs,
-			  SANE_Byte reg10, SANE_Byte reg11)
+                          SANE_Byte reg10, SANE_Byte reg11)
 {
   SANE_Status status;
 
@@ -344,7 +347,7 @@ sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_reset_lamp: failed to read 0xda register\n");
+           "sanei_rts88xx_reset_lamp: failed to read 0xda register\n");
       return status;
     }
   reg = 0xa0;
@@ -352,7 +355,7 @@ sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_reset_lamp: failed to write 0xda register\n");
+           "sanei_rts88xx_reset_lamp: failed to write 0xda register\n");
       return status;
     }
 
@@ -372,21 +375,21 @@ sanei_rts88xx_reset_lamp (SANE_Int devnum, SANE_Byte * regs)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_reset_lamp: failed to write 0xda register\n");
+           "sanei_rts88xx_reset_lamp: failed to write 0xda register\n");
       return status;
     }
   status = sanei_rts88xx_read_reg (devnum, 0xda, &reg);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_reset_lamp: failed to read 0xda register\n");
+           "sanei_rts88xx_reset_lamp: failed to read 0xda register\n");
       return status;
     }
   if (reg != 0xa7)
     {
       DBG (DBG_warn,
-	   "sanei_rts88xx_reset_lamp: expected reg[0xda]=0xa7, got 0x%02x\n",
-	   reg);
+           "sanei_rts88xx_reset_lamp: expected reg[0xda]=0xa7, got 0x%02x\n",
+           reg);
     }
   
   /* store read value in shadow register */
@@ -447,7 +450,7 @@ sanei_rts88xx_cancel (SANE_Int devnum)
  */
 SANE_Status
 sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
-			 SANE_Byte * value)
+                         SANE_Byte * value)
 {
   SANE_Status status;
   SANE_Byte *buffer;
@@ -468,9 +471,9 @@ sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
       buffer[i + 4] = value[i];
 
       if (DBG_LEVEL > DBG_io2)
-	{
-	  sprintf (message + 3 * i, "%02x ", buffer[i + 4]);
-	}
+        {
+          sprintf (message + 3 * i, "%02x ", buffer[i + 4]);
+        }
     }
   DBG (DBG_io, "sanei_rts88xx_write_mem: %02x %02x %02x %02x -> %s\n",
        buffer[0], buffer[1], buffer[2], buffer[3], message);
@@ -481,8 +484,8 @@ sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
   if ((status == SANE_STATUS_GOOD) && (size != (size_t) length + 4 + extra))
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_write_mem: only wrote %lu bytes out of %d\n",
-	   (u_long) size, length + 4);
+           "sanei_rts88xx_write_mem: only wrote %lu bytes out of %d\n",
+           (u_long) size, length + 4);
       status = SANE_STATUS_IO_ERROR;
     }
   return status;
@@ -493,7 +496,7 @@ sanei_rts88xx_write_mem (SANE_Int devnum, SANE_Int length, SANE_Int extra,
  */
 SANE_Status
 sanei_rts88xx_set_mem (SANE_Int devnum, SANE_Byte ctrl1,
-		       SANE_Byte ctrl2, SANE_Int length, SANE_Byte * value)
+                       SANE_Byte ctrl2, SANE_Int length, SANE_Byte * value)
 {
   SANE_Status status;
   SANE_Byte regs[2];
@@ -504,7 +507,7 @@ sanei_rts88xx_set_mem (SANE_Int devnum, SANE_Byte ctrl1,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_set_mem: failed to write 0x91/0x92 registers\n");
+           "sanei_rts88xx_set_mem: failed to write 0x91/0x92 registers\n");
       return status;
     }
   status = sanei_rts88xx_write_mem (devnum, length, 0, value);
@@ -535,7 +538,7 @@ sanei_rts88xx_read_mem (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_read_mem: failed to write length header\n");
+           "sanei_rts88xx_read_mem: failed to write length header\n");
       return status;
     }
   DBG (DBG_io, "sanei_rts88xx_read_mem: %02x %02x %02x %02x -> ...\n",
@@ -544,18 +547,18 @@ sanei_rts88xx_read_mem (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
   while (length > 0)
     {
       if (length > 2048)
-	want = 2048;
+        want = 2048;
       else
-	want = length;
+        want = length;
       size = want;
       status = sanei_usb_read_bulk (devnum, value + read, &size);
       if (size != want)
-	{
-	  DBG (DBG_error,
-	       "sanei_rts88xx_read_mem: only read %lu bytes out of %lu\n",
-	       (u_long) size, (u_long) want);
-	  status = SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (DBG_error,
+               "sanei_rts88xx_read_mem: only read %lu bytes out of %lu\n",
+               (u_long) size, (u_long) want);
+          status = SANE_STATUS_IO_ERROR;
+        }
       length -= size;
       read += size;
     }
@@ -567,7 +570,7 @@ sanei_rts88xx_read_mem (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
  */
 SANE_Status
 sanei_rts88xx_get_mem (SANE_Int devnum, SANE_Byte ctrl1,
-		       SANE_Byte ctrl2, SANE_Int length, SANE_Byte * value)
+                       SANE_Byte ctrl2, SANE_Int length, SANE_Byte * value)
 {
   SANE_Status status;
   SANE_Byte regs[2];
@@ -578,7 +581,7 @@ sanei_rts88xx_get_mem (SANE_Int devnum, SANE_Byte ctrl1,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_get_mem: failed to write 0x91/0x92 registers\n");
+           "sanei_rts88xx_get_mem: failed to write 0x91/0x92 registers\n");
       return status;
     }
   status = sanei_rts88xx_read_mem (devnum, length, value);
@@ -604,11 +607,11 @@ sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
   if (DBG_LEVEL > DBG_io)
     {
       for (i = 0; i < length; i++)
-	{
-	  sprintf (message + 5 * i, "0x%02x ", value[i]);
-	}
+        {
+          sprintf (message + 5 * i, "0x%02x ", value[i]);
+        }
       DBG (DBG_io, "sanei_rts88xx_nvram_ctrl : nvram_ctrl(0x00,%d)=%s\n",
-	   length, message);
+           length, message);
     }
 
   buffer[0] = 0x8a;
@@ -637,7 +640,7 @@ sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)
  */
 SANE_Status
 sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
-			   SANE_Byte * value)
+                           SANE_Byte * value)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte local[2], reg;
@@ -659,19 +662,19 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
     {
       status = sanei_rts88xx_nvram_ctrl (devnum, 2, local);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "sanei_rts88xx_setup_nvram : failed loop #%d ...\n",
-	       i);
-	  return status;
-	}
+        {
+          DBG (DBG_error, "sanei_rts88xx_setup_nvram : failed loop #%d ...\n",
+               i);
+          return status;
+        }
       status = sanei_rts88xx_read_reg (devnum, 0x10, &reg);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "sanei_rts88xx_setup_nvram : register reading failed loop #%d ...\n",
-	       i);
-	  return status;
-	}
+        {
+          DBG (DBG_error,
+               "sanei_rts88xx_setup_nvram : register reading failed loop #%d ...\n",
+               i);
+          return status;
+        }
       DBG (DBG_io, "sanei_rts88xx_setup_nvram: reg[0x10]=0x%02x\n", reg);
     }
   reg = 0;
@@ -679,7 +682,7 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_setup_nvram : controler register write failed\n");
+           "sanei_rts88xx_setup_nvram : controler register write failed\n");
       return status;
     }
   reg = 1;
@@ -687,7 +690,7 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_setup_nvram : controler register write failed\n");
+           "sanei_rts88xx_setup_nvram : controler register write failed\n");
       return status;
     }
   return status;
@@ -698,7 +701,7 @@ sanei_rts88xx_setup_nvram (SANE_Int devnum, SANE_Int length,
  */
 void
 sanei_rts88xx_set_scan_area (SANE_Byte * regs, SANE_Int ystart,
-			     SANE_Int yend, SANE_Int xstart, SANE_Int xend)
+                             SANE_Int yend, SANE_Int xstart, SANE_Int xend)
 {
   /* vertical lines to move before scan */
   regs[START_LINE] = LOBYTE (ystart);
@@ -747,7 +750,7 @@ sanei_rts88xx_data_count (SANE_Int devnum, SANE_Word * count)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "sanei_rts88xx_data_count : failed to read data count\n");
+           "sanei_rts88xx_data_count : failed to read data count\n");
       return status;
     }
   *count = result[0] + (result[1] << 8) + (result[2] << 16);
@@ -771,23 +774,23 @@ sanei_rts88xx_wait_data (SANE_Int devnum, SANE_Bool busy, SANE_Word * count)
     {
       status = sanei_rts88xx_data_count (devnum, count);
       if (*count != 0)
-	{
-	  DBG (DBG_io, "sanei_rts88xx_wait_data: %d bytes available\n",
-	       *count);
-	  return SANE_STATUS_GOOD;
-	}
+        {
+          DBG (DBG_io, "sanei_rts88xx_wait_data: %d bytes available\n",
+               *count);
+          return SANE_STATUS_GOOD;
+        }
 
       /* check that the scanner is busy scanning */
       if (busy)
-	{
-	  sanei_rts88xx_read_reg (devnum, CONTROL_REG, &control);
-	  if ((control & 0x08) == 0 && (*count == 0))
-	    {
-	      DBG (DBG_error,
-		   "sanei_rts88xx_wait_data: scanner stopped being busy before data are available\n");
-	      return SANE_STATUS_IO_ERROR;
-	    }
-	}
+        {
+          sanei_rts88xx_read_reg (devnum, CONTROL_REG, &control);
+          if ((control & 0x08) == 0 && (*count == 0))
+            {
+              DBG (DBG_error,
+                   "sanei_rts88xx_wait_data: scanner stopped being busy before data are available\n");
+              return SANE_STATUS_IO_ERROR;
+            }
+        }
     }
 
   /* we hit timeout */
@@ -799,7 +802,7 @@ sanei_rts88xx_wait_data (SANE_Int devnum, SANE_Bool busy, SANE_Word * count)
  */
 SANE_Status
 sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
-			 unsigned char *dest)
+                         unsigned char *dest)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Byte header[4];
@@ -831,12 +834,12 @@ sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
       size = (len - read) & 0xFFC0;
       status = sanei_usb_read_bulk (devnum, dest + read, &size);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
-	  return status;
-	}
+        {
+          DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
+          return status;
+        }
       DBG (DBG_io2, "sanei_rts88xx_read_data: read %lu bytes\n",
-	   (u_long) size);
+           (u_long) size);
       read += size;
     }
 
@@ -846,12 +849,12 @@ sanei_rts88xx_read_data (SANE_Int devnum, SANE_Word * length,
     {
       status = sanei_usb_read_bulk (devnum, dest + read, &remain);
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
-	  return status;
-	}
+        {
+          DBG (DBG_error, "sanei_rts88xx_read_data: failed to read data\n");
+          return status;
+        }
       DBG (DBG_io2, "sanei_rts88xx_read_data: read %lu bytes\n",
-	   (u_long) remain);
+           (u_long) remain);
       read += remain;
     }
 

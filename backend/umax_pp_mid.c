@@ -40,6 +40,8 @@
 
    This file implements a SANE backend for Umax PP flatbed scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+
 #include "../include/sane/config.h"
 #include <stdlib.h>
 #include <string.h>
@@ -78,14 +80,14 @@ lock_parport (void)
   if ((fd > 0) && (!locked))
     {
       if (ioctl (sanei_umax_pp_getparport (), PPCLAIM))
-	{
-	  return UMAX1220P_BUSY;
-	}
+        {
+          return UMAX1220P_BUSY;
+        }
 #ifdef PPGETMODE
       if (ioctl (fd, PPGETMODE, &exmode))
-	exmode = IEEE1284_MODE_COMPAT;
+        exmode = IEEE1284_MODE_COMPAT;
       if (ioctl (fd, PPGETFLAGS, &exflags))
-	exflags = 0;
+        exflags = 0;
 #endif
       mode = IEEE1284_MODE_EPP;
       ioctl (fd, PPNEGOT, &mode);
@@ -165,7 +167,7 @@ sanei_umax_pp_model (int port, int *model)
   if (rc != 1)
     {
       DBG (0, "sanei_umax_pp_initTransport() failed (%s:%d)\n", __FILE__,
-	   __LINE__);
+           __LINE__);
       unlock_parport ();
       return UMAX1220P_TRANSPORT_FAILED;
     }
@@ -184,7 +186,7 @@ sanei_umax_pp_model (int port, int *model)
   if (rc < 600)
     {
       DBG (0, "sanei_umax_pp_CheckModel() failed (%s:%d)\n", __FILE__,
-	   __LINE__);
+           __LINE__);
       return UMAX1220P_PROBE_FAILED;
     }
   *model = rc;
@@ -219,21 +221,21 @@ sanei_umax_pp_attach (int port, char *name)
   if (sanei_umax_pp_probeScanner (recover) != 1)
     {
       if (recover)
-	{
-	  sanei_umax_pp_initTransport (recover);
-	  sanei_umax_pp_endSession ();
-	  if (sanei_umax_pp_probeScanner (recover) != 1)
-	    {
-	      DBG (0, "Recover failed ....\n");
-	      unlock_parport ();
-	      return UMAX1220P_PROBE_FAILED;
-	    }
-	}
+        {
+          sanei_umax_pp_initTransport (recover);
+          sanei_umax_pp_endSession ();
+          if (sanei_umax_pp_probeScanner (recover) != 1)
+            {
+              DBG (0, "Recover failed ....\n");
+              unlock_parport ();
+              return UMAX1220P_PROBE_FAILED;
+            }
+        }
       else
-	{
-	  unlock_parport ();
-	  return UMAX1220P_PROBE_FAILED;
-	}
+        {
+          unlock_parport ();
+          return UMAX1220P_PROBE_FAILED;
+        }
     }
   sanei_umax_pp_endSession ();
   unlock_parport ();
@@ -281,7 +283,7 @@ sanei_umax_pp_open (int port, char *name)
     {
 
       DBG (0, "sanei_umax_pp_initTransport() failed (%s:%d)\n", __FILE__,
-	   __LINE__);
+           __LINE__);
       unlock_parport ();
       return UMAX1220P_TRANSPORT_FAILED;
     }
@@ -289,7 +291,7 @@ sanei_umax_pp_open (int port, char *name)
   if (sanei_umax_pp_initScanner (recover) == 0)
     {
       DBG (0, "sanei_umax_pp_initScanner() failed (%s:%d)\n", __FILE__,
-	   __LINE__);
+           __LINE__);
       sanei_umax_pp_endSession ();
       unlock_parport ();
       return UMAX1220P_SCANNER_FAILED;
@@ -328,9 +330,9 @@ sanei_umax_pp_cancel (void)
 
 int
 sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
-		     int autoset,
-		     int gain, int offset, int *rbpp, int *rtw,
-		     int *rth)
+                     int autoset,
+                     int gain, int offset, int *rbpp, int *rtw,
+                     int *rth)
 {
   int col = BW_MODE;
 
@@ -372,7 +374,7 @@ sanei_umax_pp_start (int x, int y, int width, int height, int dpi, int color,
 
 int
 sanei_umax_pp_read (long len, int window, int dpi, int last,
-		    unsigned char *buffer)
+                    unsigned char *buffer)
 {
   int read = 0;
   int bytes;
@@ -387,13 +389,13 @@ sanei_umax_pp_read (long len, int window, int dpi, int last,
   while (read < len)
     {
       bytes =
-	sanei_umax_pp_readBlock (len - read, window, dpi, last,
-				 buffer + read);
+        sanei_umax_pp_readBlock (len - read, window, dpi, last,
+                                 buffer + read);
       if (bytes == 0)
-	{
-	  sanei_umax_pp_endSession ();
-	  return UMAX1220P_READ_FAILED;
-	}
+        {
+          sanei_umax_pp_endSession ();
+          return UMAX1220P_READ_FAILED;
+        }
       read += bytes;
     }
   unlock_parport ();

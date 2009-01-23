@@ -738,23 +738,25 @@ sort-cvsignore:
 #
 libcheck:
 	@echo "Libraries exporting 'illegal' symbols:"
-	@for lib in backend/.libs/*.so; do \
+	@for lib in backend/.libs/*.so backend/.libs/*.a; do \
 	lines=`nm -g $$lib|grep '\( T \)\|\( D \)'|egrep -v ' _fini| _init'|egrep -v ' sane_| sanei_'`; \
 	if test -n "$$lines" ; then \
 	  echo -e "*** $$lib:\n$$lines"; \
-	  exit 1; \
+	  found_errors="yes"; \
 	fi \
-	done
-	@echo
-	@echo "Libraries exporting 'non-standard sane_*' symbols:"
-	@for lib in backend/.libs/*.so; do \
+	done; \
+	echo; \
+	echo "Libraries exporting 'non-standard sane_*' symbols:"; \
+	for lib in backend/.libs/*.so backend/.libs/*.a; do \
 	lines=`nm -g $$lib|grep '\( T \)\|\( D \)'|egrep ' sane_' | egrep -v 'sane_.*init|sane_.*exit|sane_.*get_devices|sane_.*open|sane_.*close|sane_.*get_option_descriptor|sane_.*control_option|sane_.*get_parameters|sane_.*start|sane_.*read|sane_.*cancel|sane_.*set_io_mode|sane_.*get_select_fd|sane_strstatus'` ; \
 	if test -n "$$lines" ; then \
 	  echo -e "*** $$lib:\n$$lines"; \
 	  found_errors="yes"; \
-	  exit 1; \
 	fi \
-	done
+	done;
+	if test ! -z $$found_errors ; then \
+	  exit 1; \
+	fi
 
 # TODO: If software can be updated to pass the libcheck tests again then
 # the following line can be uncommented.  Then we will have a single

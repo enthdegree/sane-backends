@@ -13,6 +13,9 @@
 
 #include "../include/sane/config.h"
 
+#undef BACKEND_NAME
+#define BACKEND_NAME epson2_net
+
 #include <sane/sane.h>
 #include <sane/saneopts.h>
 #include <sane/sanei_tcp.h>
@@ -23,9 +26,6 @@
 #include "epson2_net.h"
 
 #include "byteorder.h"
-
-#undef BACKEND_NAME
-#define BACKEND_NAME epson2_net
 
 #include <sane/sanei_debug.h>
 

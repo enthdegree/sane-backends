@@ -1,6 +1,8 @@
 #ifdef _AIX
-#include "../include/lalloca.h"	/* MUST come first for AIX! */
+#include "../include/lalloca.h" /* MUST come first for AIX! */
 #endif
+#undef BACKEND_NAME
+#define BACKEND_NAME epson_scsi
 #include "../include/sane/config.h"
 #include <sane/sanei_debug.h>
 #include <sane/sanei_scsi.h>
@@ -20,7 +22,7 @@
 #include <sys/types.h>
 #endif
 
-#include <string.h>		/* for memset and memcpy */
+#include <string.h>             /* for memset and memcpy */
 #include <stdio.h>
 
 /*
@@ -69,7 +71,7 @@ sanei_epson_scsi_inquiry (int fd, int page_code, void *buf, size_t * buf_size)
  */
 int
 sanei_epson_scsi_read (int fd, void *buf, size_t buf_size,
-		       SANE_Status * status)
+                       SANE_Status * status)
 {
   u_char cmd[6];
 
@@ -92,7 +94,7 @@ sanei_epson_scsi_read (int fd, void *buf, size_t buf_size,
  */
 int
 sanei_epson_scsi_write (int fd, const void *buf, size_t buf_size,
-			SANE_Status * status)
+                        SANE_Status * status)
 {
   u_char *cmd;
 

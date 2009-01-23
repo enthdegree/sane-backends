@@ -61,6 +61,9 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 
+#undef BACKEND_NAME
+#define BACKEND_NAME genesys_gl646
+
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 #include "../include/sane/sanei_usb.h"

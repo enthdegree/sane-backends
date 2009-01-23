@@ -43,6 +43,9 @@
 
    **************************************************************************/
 
+#undef BACKEND_NAME
+#define BACKEND_NAME lexmark_low
+
 #include "../include/sane/config.h"
 
 #include <stdio.h>

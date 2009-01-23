@@ -70,13 +70,14 @@
 #include <sys/types.h>
 #endif
 
+#define DEBUG_NOT_STATIC
+
 #include "../include/sane/sane.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei_config.h"
 
-
-#define BACKEND_NAME	umax_pp
+#define BACKEND_NAME    umax_pp
 #include "../include/sane/sanei_backend.h"
 
 #include "umax_pp_mid.h"
@@ -88,26 +89,26 @@
 
 #define UMAX_PP_CONFIG_FILE "umax_pp.conf"
 
-#define MIN(a,b)	((a) < (b) ? (a) : (b))
+#define MIN(a,b)        ((a) < (b) ? (a) : (b))
 
 
 /* DEBUG
- * 	for debug output, set SANE_DEBUG_UMAX_PP to
- * 		0	for nothing
- * 		1	for errors
- * 		2	for warnings
- * 		3	for additional information
- * 		4	for debug information
- * 		5	for code flow protocol (there isn't any)
- * 		129	if you want to know which parameters are unused
+ *      for debug output, set SANE_DEBUG_UMAX_PP to
+ *              0       for nothing
+ *              1       for errors
+ *              2       for warnings
+ *              3       for additional information
+ *              4       for debug information
+ *              5       for code flow protocol (there isn't any)
+ *              129     if you want to know which parameters are unused
  */
 
 /* history:
  *  see Changelog
  */
 
-#define UMAX_PP_BUILD	700
-#define UMAX_PP_STATE	"testing"
+#define UMAX_PP_BUILD   700
+#define UMAX_PP_STATE   "testing"
 
 static int num_devices = 0;
 static Umax_PP_Descriptor *devlist = NULL;
@@ -138,29 +139,29 @@ static const SANE_String_Const mode_list[] = {
 };
 
 static const SANE_Range u4_range = {
-  0,				/* minimum */
-  15,				/* maximum */
-  0				/* quantization */
+  0,                            /* minimum */
+  15,                           /* maximum */
+  0                             /* quantization */
 };
 
 static const SANE_Range u8_range = {
-  0,				/* minimum */
-  255,				/* maximum */
-  0				/* quantization */
+  0,                            /* minimum */
+  255,                          /* maximum */
+  0                             /* quantization */
 };
 
 /* range for int value in [0-15] */
 static const SANE_Range value16_range = {
-  0,				/* minimum */
-  15,				/* maximum */
-  1				/* quantization */
+  0,                            /* minimum */
+  15,                           /* maximum */
+  1                             /* quantization */
 };
 
 /* range for buffer size */
 static const SANE_Range buffer_range = {
-  2048,				/* minimum */
-  4096 * 4096,			/* maximum */
-  1				/* quantization */
+  2048,                         /* minimum */
+  4096 * 4096,                  /* maximum */
+  1                             /* quantization */
 };
 
 /* list of astra models */
@@ -168,26 +169,26 @@ static const SANE_String_Const astra_models[] =
   { "610", "1220", "1600", "2000", NULL };
 
 
-#define UMAX_PP_CHANNEL_RED		0
-#define UMAX_PP_CHANNEL_GREEN		1
-#define UMAX_PP_CHANNEL_BLUE		2
-#define UMAX_PP_CHANNEL_GRAY		1
+#define UMAX_PP_CHANNEL_RED             0
+#define UMAX_PP_CHANNEL_GREEN           1
+#define UMAX_PP_CHANNEL_BLUE            2
+#define UMAX_PP_CHANNEL_GRAY            1
 
-#define UMAX_PP_STATE_SCANNING		2
-#define UMAX_PP_STATE_CANCELLED		1
-#define UMAX_PP_STATE_IDLE		0
+#define UMAX_PP_STATE_SCANNING          2
+#define UMAX_PP_STATE_CANCELLED         1
+#define UMAX_PP_STATE_IDLE              0
 
-#define UMAX_PP_MODE_LINEART		0
-#define UMAX_PP_MODE_GRAYSCALE		1
-#define UMAX_PP_MODE_COLOR		2
+#define UMAX_PP_MODE_LINEART            0
+#define UMAX_PP_MODE_GRAYSCALE          1
+#define UMAX_PP_MODE_COLOR              2
 
-#define MM_PER_INCH			25.4
-#define MM_TO_PIXEL(mm, res)	(SANE_UNFIX(mm) * (float )res / MM_PER_INCH)
-#define PIXEL_TO_MM(px, res)	(SANE_FIX((float )(px * MM_PER_INCH / (res / 10)) / 10.0))
+#define MM_PER_INCH                     25.4
+#define MM_TO_PIXEL(mm, res)    (SANE_UNFIX(mm) * (float )res / MM_PER_INCH)
+#define PIXEL_TO_MM(px, res)    (SANE_FIX((float )(px * MM_PER_INCH / (res / 10)) / 10.0))
 
-#define UMAX_PP_DEFAULT_PORT		"/dev/parport0"
+#define UMAX_PP_DEFAULT_PORT            "/dev/parport0"
 
-#define UMAX_PP_RESERVE			259200
+#define UMAX_PP_RESERVE                 259200
 
 /*
  * devname may be either an hardware address for direct I/O (0x378 for instance)
@@ -217,32 +218,32 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   if (devname != NULL)
     {
       if ((devname[0] == '/'))
-	{
-	  strncpy (name, devname, 64);
-	}
+        {
+          strncpy (name, devname, 64);
+        }
       else
-	{
-	  if ((devname[0] == '0')
-	      && ((devname[1] == 'x') || (devname[1] == 'X')))
-	    prt = strtol (devname + 2, NULL, 16);
-	  else
-	    prt = atoi (devname);
-	}
+        {
+          if ((devname[0] == '0')
+              && ((devname[1] == 'x') || (devname[1] == 'X')))
+            prt = strtol (devname + 2, NULL, 16);
+          else
+            prt = atoi (devname);
+        }
     }
 
 
   for (i = 0; i < num_devices; i++)
     {
       if (devname[0] == '/')
-	{
-	  if (strcmp (devlist[i].ppdevice, devname) == 0)
-	    return SANE_STATUS_GOOD;
-	}
+        {
+          if (strcmp (devlist[i].ppdevice, devname) == 0)
+            return SANE_STATUS_GOOD;
+        }
       else
-	{
-	  if (strcmp (devlist[i].port, devname) == 0)
-	    return SANE_STATUS_GOOD;
-	}
+        {
+          if (strcmp (devlist[i].port, devname) == 0)
+            return SANE_STATUS_GOOD;
+        }
     }
 
   ret = sanei_umax_pp_attach (prt, name);
@@ -256,7 +257,7 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
       break;
     case UMAX1220P_TRANSPORT_FAILED:
       DBG (1, "umax_pp_attach: failed to init transport layer on %s\n",
-	   devname);
+           devname);
       status = SANE_STATUS_IO_ERROR;
       break;
     case UMAX1220P_PROBE_FAILED:
@@ -268,7 +269,7 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   if (status != SANE_STATUS_GOOD)
     {
       DBG (2, "umax_pp_attach: couldn't attach to `%s' (%s)\n", devname,
-	   sane_strstatus (status));
+           sane_strstatus (status));
       DEBUG ();
       return status;
     }
@@ -279,17 +280,17 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
     {
       ret = sanei_umax_pp_model (prt, &mdl);
       if (ret != UMAX1220P_OK)
-	{
-	  DBG (1, "umax_pp_attach: waiting for busy scanner on %s\n",
-	       devname);
-	}
+        {
+          DBG (1, "umax_pp_attach: waiting for busy scanner on %s\n",
+               devname);
+        }
     }
   while (ret == UMAX1220P_BUSY);
 
   if (ret != UMAX1220P_OK)
     {
       DBG (1, "umax_pp_attach: failed to recognize scanner model on %s\n",
-	   devname);
+           devname);
       return SANE_STATUS_IO_ERROR;
     }
   sprintf (model, "Astra %dP", mdl);
@@ -318,14 +319,14 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   /* if there are user provided values, use them */
   val=(SANE_Char *) config->values[CFG_NAME];
   if(strlen(val)==0)
-  	dev->sane.name = strdup (devname);
+        dev->sane.name = strdup (devname);
   else
-  	dev->sane.name = strdup (val);
+        dev->sane.name = strdup (val);
   val=(SANE_Char *) config->values[CFG_VENDOR];
   if(strlen(val)==0)
-  	dev->sane.vendor = strdup ("UMAX");
+        dev->sane.vendor = strdup ("UMAX");
   else
-  	dev->sane.vendor = strdup (val);
+        dev->sane.vendor = strdup (val);
   dev->sane.type = "flatbed scanner";
 
   if (devname[0] == '/')
@@ -335,14 +336,14 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   dev->buf_size = buf_size;
 
   if (mdl > 610)
-    {				/* Astra 1220, 1600 and 2000 */
+    {                           /* Astra 1220, 1600 and 2000 */
       dev->max_res = 1200;
       dev->ccd_res = 600;
       dev->max_h_size = 5100;
-      dev->max_v_size = 7000 - 8;	/* -8: workaround 'y overflow bug at 600 dpi' */
+      dev->max_v_size = 7000 - 8;       /* -8: workaround 'y overflow bug at 600 dpi' */
     }
   else
-    {				/* Astra 610 */
+    {                           /* Astra 610 */
       dev->max_res = 600;
       dev->ccd_res = 300;
       dev->max_h_size = 2550;
@@ -375,22 +376,22 @@ umax_pp_try_ports (SANEI_Config * config, char **ports)
       i = 0;
       rc = SANE_STATUS_INVAL;
       while (ports[i] != NULL)
-	{
-	  if (rc != SANE_STATUS_GOOD)
-	    {
-	      DBG (3, "umax_pp_try_ports: trying port `%s'\n", ports[i]);
-	      rc = umax_pp_attach (config, ports[i]);
-	      if (rc != SANE_STATUS_GOOD)
-		DBG (3, "umax_pp_try_ports: couldn't attach to port `%s'\n",
-		     ports[i]);
-	      else
-		DBG (3,
-		     "umax_pp_try_ports: attach to port `%s' successfull\n",
-		     ports[i]);
-	    }
-	  free (ports[i]);
-	  i++;
-	}
+        {
+          if (rc != SANE_STATUS_GOOD)
+            {
+              DBG (3, "umax_pp_try_ports: trying port `%s'\n", ports[i]);
+              rc = umax_pp_attach (config, ports[i]);
+              if (rc != SANE_STATUS_GOOD)
+                DBG (3, "umax_pp_try_ports: couldn't attach to port `%s'\n",
+                     ports[i]);
+              else
+                DBG (3,
+                     "umax_pp_try_ports: attach to port `%s' successfull\n",
+                     ports[i]);
+            }
+          free (ports[i]);
+          i++;
+        }
       free (ports);
     }
   return rc;
@@ -417,7 +418,7 @@ umax_pp_auto_attach (SANEI_Config * config, SANE_Int safe)
     {
       ports = sanei_parport_find_port ();
       if (ports != NULL)
-	rc = umax_pp_try_ports (config, ports);
+        rc = umax_pp_try_ports (config, ports);
     }
   return rc;
 }
@@ -469,35 +470,35 @@ umax_pp_get_sync (SANE_Int dpi)
   if (sanei_umax_pp_getastra () > 610)
     {
       switch (dpi)
-	{
-	case 1200:
-	  return 8;
-	case 600:
-	  return 4;
-	case 300:
-	  return 2;
-	case 150:
-	  return 1;
-	default:
-	  return 0;
-	}
+        {
+        case 1200:
+          return 8;
+        case 600:
+          return 4;
+        case 300:
+          return 2;
+        case 150:
+          return 1;
+        default:
+          return 0;
+        }
     }
   else
     {
       switch (dpi)
-	{
-	case 600:
-	  return 16;
-	case 300:
-	  return 8;		/* 8 double-checked */
-	case 150:
-	  /* wrong: 2, 3, 5
-	   * double-checked : 4
-	   */
-	  return 4;
-	default:
-	  return 2;		/* 2 double-checked */
-	}
+        {
+        case 600:
+          return 16;
+        case 300:
+          return 8;             /* 8 double-checked */
+        case 150:
+          /* wrong: 2, 3, 5
+           * double-checked : 4
+           */
+          return 4;
+        default:
+          return 2;             /* 2 double-checked */
+        }
     }
 }
 
@@ -968,7 +969,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
   /* generic configure and attach function */
   status = sanei_configure_attach (UMAX_PP_CONFIG_FILE, &config,
-				   umax_pp_configure_attach);
+                                   umax_pp_configure_attach);
 
   /* free option descriptors */
   for (i = 0; i < NUM_CFG_OPTIONS; i++)
@@ -1078,65 +1079,65 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
 
       if (num_devices == 0)
-	{
-	  DBG (1, "open: no devices present\n");
-	  return SANE_STATUS_INVAL;
-	}
+        {
+          DBG (1, "open: no devices present\n");
+          return SANE_STATUS_INVAL;
+        }
 
       DBG (3, "open: trying default device %s, port=%s,ppdev=%s\n",
-	   devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
+           devlist[0].sane.name, devlist[0].port, devlist[0].ppdevice);
       if (devlist[0].port != NULL)
-	{
-	  if ((devlist[0].port[0] == '0')
-	      && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
-	    prt = strtol (devlist[0].port + 2, NULL, 16);
-	  else
-	    prt = atoi (devlist[0].port);
-	  rc = sanei_umax_pp_open (prt, NULL);
-	}
+        {
+          if ((devlist[0].port[0] == '0')
+              && ((devlist[0].port[1] == 'x') || (devlist[0].port[1] == 'X')))
+            prt = strtol (devlist[0].port + 2, NULL, 16);
+          else
+            prt = atoi (devlist[0].port);
+          rc = sanei_umax_pp_open (prt, NULL);
+        }
       else
-	{
-	  rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
-	}
+        {
+          rc = sanei_umax_pp_open (0, devlist[0].ppdevice);
+        }
       desc = &devlist[0];
     }
-  else				/* specific value */
+  else                          /* specific value */
     {
       for (i = 0; i < num_devices; i++)
-	if (strcmp (devlist[i].sane.name, devicename) == 0)
-	  break;
+        if (strcmp (devlist[i].sane.name, devicename) == 0)
+          break;
 
       if (i >= num_devices)
-	for (i = 0; i < num_devices; i++)
-	  if (strcmp (devlist[i].port, devicename) == 0)
-	    break;
+        for (i = 0; i < num_devices; i++)
+          if (strcmp (devlist[i].port, devicename) == 0)
+            break;
 
       if (i >= num_devices)
-	{
-	  DBG (2, "open: device doesn't exist\n");
-	  DEBUG ();
-	  return SANE_STATUS_INVAL;
-	}
+        {
+          DBG (2, "open: device doesn't exist\n");
+          DEBUG ();
+          return SANE_STATUS_INVAL;
+        }
 
       desc = &devlist[i];
 
       if (devlist[i].ppdevice != NULL)
-	{
-	  if (devlist[i].ppdevice[0] == '/')
-	    {
-	      name = devlist[i].ppdevice;
-	    }
-	}
+        {
+          if (devlist[i].ppdevice[0] == '/')
+            {
+              name = devlist[i].ppdevice;
+            }
+        }
       else
-	{
-	  if ((devlist[i].port[0] == '0')
-	      && ((devlist[i].port[1] == 'x') || (devlist[i].port[1] == 'X')))
-	    prt = strtol (devlist[i].port + 2, NULL, 16);
-	  else
-	    prt = atoi (devlist[i].port);
-	  DBG (64, "open: devlist[i].port='%s' -> port=0x%X\n",
-	       devlist[i].port, prt);
-	}
+        {
+          if ((devlist[i].port[0] == '0')
+              && ((devlist[i].port[1] == 'x') || (devlist[i].port[1] == 'X')))
+            prt = strtol (devlist[i].port + 2, NULL, 16);
+          else
+            prt = atoi (devlist[i].port);
+          DBG (64, "open: devlist[i].port='%s' -> port=0x%X\n",
+               devlist[i].port, prt);
+        }
       rc = sanei_umax_pp_open (prt, name);
     }
 
@@ -1145,34 +1146,34 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
     {
     case UMAX1220P_TRANSPORT_FAILED:
       if (name == NULL)
-	{
-	  DBG (1, "failed to init transport layer on port 0x%03X\n", prt);
-	}
+        {
+          DBG (1, "failed to init transport layer on port 0x%03X\n", prt);
+        }
       else
-	{
-	  DBG (1, "failed to init transport layer on device %s\n", name);
-	}
+        {
+          DBG (1, "failed to init transport layer on device %s\n", name);
+        }
       return SANE_STATUS_IO_ERROR;
 
     case UMAX1220P_SCANNER_FAILED:
       if (name == NULL)
-	{
-	  DBG (1, "failed to initialize scanner on port 0x%03X\n", prt);
-	}
+        {
+          DBG (1, "failed to initialize scanner on port 0x%03X\n", prt);
+        }
       else
-	{
-	  DBG (1, "failed to initialize scanner on device %s\n", name);
-	}
+        {
+          DBG (1, "failed to initialize scanner on device %s\n", name);
+        }
       return SANE_STATUS_IO_ERROR;
     case UMAX1220P_BUSY:
       if (name == NULL)
-	{
-	  DBG (1, "busy scanner on port 0x%03X\n", prt);
-	}
+        {
+          DBG (1, "busy scanner on port 0x%03X\n", prt);
+        }
       else
-	{
-	  DBG (1, "busy scanner on device %s\n", name);
-	}
+        {
+          DBG (1, "busy scanner on device %s\n", name);
+        }
       return SANE_STATUS_DEVICE_BUSY;
     }
 
@@ -1225,7 +1226,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   if (dev->buf == NULL)
     {
       DBG (2, "open: not enough memory for scan buffer (%lu bytes)\n",
-	   (long int) dev->desc->buf_size);
+           (long int) dev->desc->buf_size);
       DEBUG ();
       free (dev);
       return SANE_STATUS_NO_MEM;
@@ -1260,7 +1261,7 @@ sane_close (SANE_Handle handle)
   for (dev = first_dev; dev; dev = dev->next)
     {
       if (dev == handle)
-	break;
+        break;
       prev = dev;
     }
 
@@ -1268,12 +1269,12 @@ sane_close (SANE_Handle handle)
     {
       DBG (2, "close: unknown device\n");
       DEBUG ();
-      return;			/* oops, not a handle we know about */
+      return;                   /* oops, not a handle we know about */
     }
 
   if (dev->state == UMAX_PP_STATE_SCANNING)
-    sane_cancel (handle);	/* remember: sane_cancel is a macro and
-				   expands to sane_umax_pp_cancel ()... */
+    sane_cancel (handle);       /* remember: sane_cancel is a macro and
+                                   expands to sane_umax_pp_cancel ()... */
 
 
   /* if the scanner is parking head, we wait it to finish */
@@ -1284,10 +1285,10 @@ sane_close (SANE_Handle handle)
 
       /* check if scanner busy parking */
       if (rc != UMAX1220P_BUSY)
-	{
-	  DBG (2, "close: scanner head parked\n");
-	  dev->state = UMAX_PP_STATE_IDLE;
-	}
+        {
+          DBG (2, "close: scanner head parked\n");
+          dev->state = UMAX_PP_STATE_IDLE;
+        }
     }
 
   /* then we switch off gain if needed */
@@ -1295,9 +1296,9 @@ sane_close (SANE_Handle handle)
     {
       rc = sanei_umax_pp_lamp (0);
       if (rc == UMAX1220P_TRANSPORT_FAILED)
-	{
-	  DBG (1, "close: switch off gain failed (ignored....)\n");
-	}
+        {
+          DBG (1, "close: switch off gain failed (ignored....)\n");
+        }
     }
 
   sanei_umax_pp_close ();
@@ -1336,7 +1337,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 
 SANE_Status
 sane_control_option (SANE_Handle handle, SANE_Int option,
-		     SANE_Action action, void *val, SANE_Int * info)
+                     SANE_Action action, void *val, SANE_Int * info)
 {
   Umax_PP_Device *dev = handle;
   SANE_Status status;
@@ -1376,460 +1377,460 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
     {
       DBG (6, " get value\n");
       switch (option)
-	{
-	  /* word options: */
-	case OPT_PREVIEW:
-	case OPT_GRAY_PREVIEW:
-	case OPT_LAMP_CONTROL:
-	case OPT_UTA_CONTROL:
-	case OPT_RESOLUTION:
-	case OPT_TL_X:
-	case OPT_TL_Y:
-	case OPT_BR_X:
-	case OPT_BR_Y:
-	case OPT_NUM_OPTS:
-	case OPT_CUSTOM_GAMMA:
-	case OPT_MANUAL_GAIN:
-	case OPT_GRAY_GAIN:
-	case OPT_GREEN_GAIN:
-	case OPT_RED_GAIN:
-	case OPT_BLUE_GAIN:
-	case OPT_MANUAL_OFFSET:
-	case OPT_GRAY_OFFSET:
-	case OPT_GREEN_OFFSET:
-	case OPT_RED_OFFSET:
-	case OPT_BLUE_OFFSET:
+        {
+          /* word options: */
+        case OPT_PREVIEW:
+        case OPT_GRAY_PREVIEW:
+        case OPT_LAMP_CONTROL:
+        case OPT_UTA_CONTROL:
+        case OPT_RESOLUTION:
+        case OPT_TL_X:
+        case OPT_TL_Y:
+        case OPT_BR_X:
+        case OPT_BR_Y:
+        case OPT_NUM_OPTS:
+        case OPT_CUSTOM_GAMMA:
+        case OPT_MANUAL_GAIN:
+        case OPT_GRAY_GAIN:
+        case OPT_GREEN_GAIN:
+        case OPT_RED_GAIN:
+        case OPT_BLUE_GAIN:
+        case OPT_MANUAL_OFFSET:
+        case OPT_GRAY_OFFSET:
+        case OPT_GREEN_OFFSET:
+        case OPT_RED_OFFSET:
+        case OPT_BLUE_OFFSET:
 
-	  *(SANE_Word *) val = dev->val[option].w;
-	  return SANE_STATUS_GOOD;
+          *(SANE_Word *) val = dev->val[option].w;
+          return SANE_STATUS_GOOD;
 
-	  /* word-array options: */
-	case OPT_GAMMA_VECTOR:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
-	  memcpy (val, dev->val[option].wa, dev->opt[option].size);
-	  return SANE_STATUS_GOOD;
+          /* word-array options: */
+        case OPT_GAMMA_VECTOR:
+        case OPT_GAMMA_VECTOR_R:
+        case OPT_GAMMA_VECTOR_G:
+        case OPT_GAMMA_VECTOR_B:
+          memcpy (val, dev->val[option].wa, dev->opt[option].size);
+          return SANE_STATUS_GOOD;
 
-	  /* string options: */
-	case OPT_MODE:
+          /* string options: */
+        case OPT_MODE:
 
-	  strcpy (val, dev->val[option].s);
-	  return SANE_STATUS_GOOD;
-	}
+          strcpy (val, dev->val[option].s);
+          return SANE_STATUS_GOOD;
+        }
     }
   else if (action == SANE_ACTION_SET_VALUE)
     {
       DBG (6, " set value\n");
 
       if (!SANE_OPTION_IS_SETTABLE (cap))
-	{
-	  DBG (2, "control_option: option can't be set\n");
-	  return SANE_STATUS_INVAL;
-	}
+        {
+          DBG (2, "control_option: option can't be set\n");
+          return SANE_STATUS_INVAL;
+        }
 
       status = sanei_constrain_value (dev->opt + option, val, info);
 
       if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (2, "control_option: constrain_value failed (%s)\n",
-	       sane_strstatus (status));
-	  return status;
-	}
+        {
+          DBG (2, "control_option: constrain_value failed (%s)\n",
+               sane_strstatus (status));
+          return status;
+        }
 
       if (option == OPT_RESOLUTION)
-	{
-	  DBG (16, "control_option: setting resolution to %d\n",
-	       *(SANE_Int *) val);
-	}
+        {
+          DBG (16, "control_option: setting resolution to %d\n",
+               *(SANE_Int *) val);
+        }
       if (option == OPT_PREVIEW)
-	{
-	  DBG (16, "control_option: setting preview to %d\n",
-	       *(SANE_Word *) val);
-	}
+        {
+          DBG (16, "control_option: setting preview to %d\n",
+               *(SANE_Word *) val);
+        }
 
       switch (option)
-	{
-	  /* (mostly) side-effect-free word options: */
-	case OPT_PREVIEW:
-	case OPT_GRAY_PREVIEW:
-	case OPT_TL_Y:
-	case OPT_BR_Y:
+        {
+          /* (mostly) side-effect-free word options: */
+        case OPT_PREVIEW:
+        case OPT_GRAY_PREVIEW:
+        case OPT_TL_Y:
+        case OPT_BR_Y:
 
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
+          if (info)
+            *info |= SANE_INFO_RELOAD_PARAMS;
 
-	case OPT_GRAY_GAIN:
-	case OPT_GREEN_GAIN:
-	case OPT_RED_GAIN:
-	case OPT_BLUE_GAIN:
-	case OPT_GRAY_OFFSET:
-	case OPT_GREEN_OFFSET:
-	case OPT_RED_OFFSET:
-	case OPT_BLUE_OFFSET:
+        case OPT_GRAY_GAIN:
+        case OPT_GREEN_GAIN:
+        case OPT_RED_GAIN:
+        case OPT_BLUE_GAIN:
+        case OPT_GRAY_OFFSET:
+        case OPT_GREEN_OFFSET:
+        case OPT_RED_OFFSET:
+        case OPT_BLUE_OFFSET:
 
-	  dev->val[option].w = *(SANE_Word *) val;
-	  /* sanity check */
-	  if (dev->val[OPT_BR_Y].w < dev->val[OPT_TL_Y].w)
-	    {
-	      tmpw = dev->val[OPT_BR_Y].w;
-	      dev->val[OPT_BR_Y].w = dev->val[OPT_TL_Y].w;
-	      dev->val[OPT_TL_Y].w = tmpw;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	      DBG (16, "control_option: swapping Y coordinates\n");
-	    }
-	  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
-	    {
-	      dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
-	      if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
-		{
-		  DBG (16, "control_option: correcting TL_Y coordinates\n");
-		  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
-		  if (info)
-		    *info |= SANE_INFO_INEXACT;
-		}
-	    }
-	  return SANE_STATUS_GOOD;
+          dev->val[option].w = *(SANE_Word *) val;
+          /* sanity check */
+          if (dev->val[OPT_BR_Y].w < dev->val[OPT_TL_Y].w)
+            {
+              tmpw = dev->val[OPT_BR_Y].w;
+              dev->val[OPT_BR_Y].w = dev->val[OPT_TL_Y].w;
+              dev->val[OPT_TL_Y].w = tmpw;
+              if (info)
+                *info |= SANE_INFO_INEXACT;
+              DBG (16, "control_option: swapping Y coordinates\n");
+            }
+          if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+            {
+              dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
+              if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+                {
+                  DBG (16, "control_option: correcting TL_Y coordinates\n");
+                  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+                  if (info)
+                    *info |= SANE_INFO_INEXACT;
+                }
+            }
+          return SANE_STATUS_GOOD;
 
-	  /* side-effect-free word-array options: */
-	case OPT_GAMMA_VECTOR:
-	case OPT_GAMMA_VECTOR_R:
-	case OPT_GAMMA_VECTOR_G:
-	case OPT_GAMMA_VECTOR_B:
+          /* side-effect-free word-array options: */
+        case OPT_GAMMA_VECTOR:
+        case OPT_GAMMA_VECTOR_R:
+        case OPT_GAMMA_VECTOR_G:
+        case OPT_GAMMA_VECTOR_B:
 
-	  memcpy (dev->val[option].wa, val, dev->opt[option].size);
-	  return SANE_STATUS_GOOD;
-
-
-	  /* options with side-effects: */
-	case OPT_UTA_CONTROL:
-	  dev->val[option].w = *(SANE_Word *) val;
-	  return SANE_STATUS_GOOD;
-
-	case OPT_LAMP_CONTROL:
-	  if (dev->state != UMAX_PP_STATE_IDLE)
-	    {
-	      rc = sanei_umax_pp_status ();
-
-	      /* check if scanner busy parking */
-	      if (rc == UMAX1220P_BUSY)
-		{
-		  DBG (2, "control_option: scanner busy\n");
-		  if (info)
-		    *info |= SANE_INFO_RELOAD_PARAMS;
-		  return SANE_STATUS_DEVICE_BUSY;
-		}
-	      dev->state = UMAX_PP_STATE_IDLE;
-	    }
-	  dev->val[option].w = *(SANE_Word *) val;
-	  if (dev->val[option].w == SANE_TRUE)
-	    rc = sanei_umax_pp_lamp (1);
-	  else
-	    rc = sanei_umax_pp_lamp (0);
-	  if (rc == UMAX1220P_TRANSPORT_FAILED)
-	    return SANE_STATUS_IO_ERROR;
-	  return SANE_STATUS_GOOD;
-
-	case OPT_TL_X:
-	case OPT_BR_X:
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
-	  dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
-	  dev->val[option].w = *(SANE_Word *) val;
-	  /* coords rounded to allow 32 bit IO/transfer */
-	  /* at high resolution                         */
-	  if (dpi >= 600)
-	    {
-	      if (dev->val[option].w & 0x03)
-		{
-		  if (info)
-		    *info |= SANE_INFO_INEXACT;
-		  dev->val[option].w = dev->val[option].w & 0xFFFC;
-		  *(SANE_Word *) val = dev->val[option].w;
-		  DBG (16, "control_option: rounding X to %d\n",
-		       *(SANE_Word *) val);
-		}
-	    }
-	  /* sanity check */
-	  if (dev->val[OPT_BR_X].w < dev->val[OPT_TL_X].w)
-	    {
-	      tmpw = dev->val[OPT_BR_X].w;
-	      dev->val[OPT_BR_X].w = dev->val[OPT_TL_X].w;
-	      dev->val[OPT_TL_X].w = tmpw;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	      DBG (16, "control_option: swapping X coordinates\n");
-	    }
-	  return SANE_STATUS_GOOD;
+          memcpy (dev->val[option].wa, val, dev->opt[option].size);
+          return SANE_STATUS_GOOD;
 
 
+          /* options with side-effects: */
+        case OPT_UTA_CONTROL:
+          dev->val[option].w = *(SANE_Word *) val;
+          return SANE_STATUS_GOOD;
 
-	case OPT_RESOLUTION:
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_PARAMS;
-	  /* resolution : only have 75, 150, 300, 600 and 1200 */
-	  dpi = (int) (SANE_UNFIX (*(SANE_Word *) val));
-	  if ((dpi != 75)
-	      && (dpi != 150)
-	      && (dpi != 300) && (dpi != 600) && (dpi != 1200))
-	    {
-	      if (dpi <= 75)
-		dpi = 75;
-	      else if (dpi <= 150)
-		dpi = 150;
-	      else if (dpi <= 300)
-		dpi = 300;
-	      else if (dpi <= 600)
-		dpi = 600;
-	      else
-		dpi = 1200;
-	      if (info)
-		*info |= SANE_INFO_INEXACT;
-	      *(SANE_Word *) val = SANE_FIX ((SANE_Word) dpi);
-	    }
-	  dev->val[option].w = *(SANE_Word *) val;
+        case OPT_LAMP_CONTROL:
+          if (dev->state != UMAX_PP_STATE_IDLE)
+            {
+              rc = sanei_umax_pp_status ();
 
-	  /* correct top x and bottom x if needed */
-	  if (dpi >= 600)
-	    {
-	      dev->val[OPT_TL_X].w = dev->val[OPT_TL_X].w & 0xFFFC;
-	      dev->val[OPT_BR_X].w = dev->val[OPT_BR_X].w & 0xFFFC;
-	    }
-	  /* corrects top y for offset */
-	  if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
-	    {
-	      if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
-		{
-		  DBG (16, "control_option: correcting TL_Y coordinates\n");
-		  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
-		  if (info)
-		    *info |= SANE_INFO_INEXACT;
-		}
-	    }
-	  return SANE_STATUS_GOOD;
+              /* check if scanner busy parking */
+              if (rc == UMAX1220P_BUSY)
+                {
+                  DBG (2, "control_option: scanner busy\n");
+                  if (info)
+                    *info |= SANE_INFO_RELOAD_PARAMS;
+                  return SANE_STATUS_DEVICE_BUSY;
+                }
+              dev->state = UMAX_PP_STATE_IDLE;
+            }
+          dev->val[option].w = *(SANE_Word *) val;
+          if (dev->val[option].w == SANE_TRUE)
+            rc = sanei_umax_pp_lamp (1);
+          else
+            rc = sanei_umax_pp_lamp (0);
+          if (rc == UMAX1220P_TRANSPORT_FAILED)
+            return SANE_STATUS_IO_ERROR;
+          return SANE_STATUS_GOOD;
 
-	case OPT_MANUAL_OFFSET:
-	  w = *(SANE_Word *) val;
-
-	  if (w == dev->val[OPT_MANUAL_OFFSET].w)
-	    return SANE_STATUS_GOOD;	/* no change */
-
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-
-	  dev->val[OPT_MANUAL_OFFSET].w = w;
-
-	  if (w == SANE_TRUE)
-	    {
-	      const char *mode = dev->val[OPT_MODE].s;
-
-	      if ((strcmp (mode, "Grayscale") == 0)
-		  || (strcmp (mode, "Lineart") == 0))
-		dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (mode, "Color") == 0)
-		{
-		  dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
-		  dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		}
-	    }
-	  else
-	    {
-	      dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
-	    }
-	  return SANE_STATUS_GOOD;
+        case OPT_TL_X:
+        case OPT_BR_X:
+          if (info)
+            *info |= SANE_INFO_RELOAD_PARAMS;
+          dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
+          dev->val[option].w = *(SANE_Word *) val;
+          /* coords rounded to allow 32 bit IO/transfer */
+          /* at high resolution                         */
+          if (dpi >= 600)
+            {
+              if (dev->val[option].w & 0x03)
+                {
+                  if (info)
+                    *info |= SANE_INFO_INEXACT;
+                  dev->val[option].w = dev->val[option].w & 0xFFFC;
+                  *(SANE_Word *) val = dev->val[option].w;
+                  DBG (16, "control_option: rounding X to %d\n",
+                       *(SANE_Word *) val);
+                }
+            }
+          /* sanity check */
+          if (dev->val[OPT_BR_X].w < dev->val[OPT_TL_X].w)
+            {
+              tmpw = dev->val[OPT_BR_X].w;
+              dev->val[OPT_BR_X].w = dev->val[OPT_TL_X].w;
+              dev->val[OPT_TL_X].w = tmpw;
+              if (info)
+                *info |= SANE_INFO_INEXACT;
+              DBG (16, "control_option: swapping X coordinates\n");
+            }
+          return SANE_STATUS_GOOD;
 
 
 
-	case OPT_MANUAL_GAIN:
-	  w = *(SANE_Word *) val;
+        case OPT_RESOLUTION:
+          if (info)
+            *info |= SANE_INFO_RELOAD_PARAMS;
+          /* resolution : only have 75, 150, 300, 600 and 1200 */
+          dpi = (int) (SANE_UNFIX (*(SANE_Word *) val));
+          if ((dpi != 75)
+              && (dpi != 150)
+              && (dpi != 300) && (dpi != 600) && (dpi != 1200))
+            {
+              if (dpi <= 75)
+                dpi = 75;
+              else if (dpi <= 150)
+                dpi = 150;
+              else if (dpi <= 300)
+                dpi = 300;
+              else if (dpi <= 600)
+                dpi = 600;
+              else
+                dpi = 1200;
+              if (info)
+                *info |= SANE_INFO_INEXACT;
+              *(SANE_Word *) val = SANE_FIX ((SANE_Word) dpi);
+            }
+          dev->val[option].w = *(SANE_Word *) val;
 
-	  if (w == dev->val[OPT_MANUAL_GAIN].w)
-	    return SANE_STATUS_GOOD;	/* no change */
+          /* correct top x and bottom x if needed */
+          if (dpi >= 600)
+            {
+              dev->val[OPT_TL_X].w = dev->val[OPT_TL_X].w & 0xFFFC;
+              dev->val[OPT_BR_X].w = dev->val[OPT_BR_X].w & 0xFFFC;
+            }
+          /* corrects top y for offset */
+          if (strcmp (dev->val[OPT_MODE].s, "Color") == 0)
+            {
+              if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+                {
+                  DBG (16, "control_option: correcting TL_Y coordinates\n");
+                  dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+                  if (info)
+                    *info |= SANE_INFO_INEXACT;
+                }
+            }
+          return SANE_STATUS_GOOD;
 
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
+        case OPT_MANUAL_OFFSET:
+          w = *(SANE_Word *) val;
 
-	  dev->val[OPT_MANUAL_GAIN].w = w;
+          if (w == dev->val[OPT_MANUAL_OFFSET].w)
+            return SANE_STATUS_GOOD;    /* no change */
 
-	  if (w == SANE_TRUE)
-	    {
-	      const char *mode = dev->val[OPT_MODE].s;
+          if (info)
+            *info |= SANE_INFO_RELOAD_OPTIONS;
 
-	      if ((strcmp (mode, "Grayscale") == 0)
-		  || (strcmp (mode, "Lineart") == 0))
-		dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
-	      else if (strcmp (mode, "Color") == 0)
-		{
-		  dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
-		  dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		}
-	    }
-	  else
-	    {
-	      dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
-	    }
-	  return SANE_STATUS_GOOD;
+          dev->val[OPT_MANUAL_OFFSET].w = w;
 
+          if (w == SANE_TRUE)
+            {
+              const char *mode = dev->val[OPT_MODE].s;
 
-
-
-	case OPT_CUSTOM_GAMMA:
-	  w = *(SANE_Word *) val;
-
-	  if (w == dev->val[OPT_CUSTOM_GAMMA].w)
-	    return SANE_STATUS_GOOD;	/* no change */
-
-	  if (info)
-	    *info |= SANE_INFO_RELOAD_OPTIONS;
-
-	  dev->val[OPT_CUSTOM_GAMMA].w = w;
-
-	  if (w == SANE_TRUE)
-	    {
-	      const char *mode = dev->val[OPT_MODE].s;
-
-	      if ((strcmp (mode, "Grayscale") == 0)
-		  || (strcmp (mode, "Lineart") == 0))
-		{
-		  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		  sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
-				       NULL);
-		}
-	      else if (strcmp (mode, "Color") == 0)
-		{
-		  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		  dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-		  sanei_umax_pp_gamma (dev->val[OPT_GAMMA_VECTOR_R].wa,
-				       dev->val[OPT_GAMMA_VECTOR_G].wa,
-				       dev->val[OPT_GAMMA_VECTOR_B].wa);
-		}
-	    }
-	  else
-	    {
-	      dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-	      dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	      sanei_umax_pp_gamma (NULL, NULL, NULL);
-	    }
-
-	  return SANE_STATUS_GOOD;
-
-	case OPT_MODE:
-	  {
-	    char *old_val = dev->val[option].s;
-
-	    if (old_val)
-	      {
-		if (strcmp (old_val, val) == 0)
-		  return SANE_STATUS_GOOD;	/* no change */
-
-		free (old_val);
-	      }
-
-	    if (info)
-	      *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
-
-	    dev->val[option].s = strdup (val);
-
-	    /* corrects top y for offset */
-	    if (strcmp (val, "Color") == 0)
-	      {
-		dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
-		if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
-		  {
-		    dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
-		    DBG (16, "control_option: correcting TL_Y coordinates\n");
-		    if (info)
-		      *info |= SANE_INFO_INEXACT;
-		  }
-	      }
-
-	    dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
-	    sanei_umax_pp_gamma (NULL, NULL, NULL);
+              if ((strcmp (mode, "Grayscale") == 0)
+                  || (strcmp (mode, "Lineart") == 0))
+                dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+              else if (strcmp (mode, "Color") == 0)
+                {
+                  dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+                  dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                }
+            }
+          else
+            {
+              dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
+            }
+          return SANE_STATUS_GOOD;
 
 
-	    if (dev->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
-	      {
-		if ((strcmp (val, "Grayscale") == 0)
-		    || (strcmp (val, "Lineart") == 0))
-		  {
-		    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		    sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
-					 NULL);
-		  }
-		else if (strcmp (val, "Color") == 0)
-		  {
-		    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
-		    sanei_umax_pp_gamma (dev->val[OPT_GAMMA_VECTOR_R].wa,
-					 dev->val[OPT_GAMMA_VECTOR_G].wa,
-					 dev->val[OPT_GAMMA_VECTOR_B].wa);
-		  }
-	      }
 
-	    /* rebuild OPT OFFSET */
-	    dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
+        case OPT_MANUAL_GAIN:
+          w = *(SANE_Word *) val;
 
+          if (w == dev->val[OPT_MANUAL_GAIN].w)
+            return SANE_STATUS_GOOD;    /* no change */
 
-	    if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
-	      {
-		if ((strcmp (val, "Grayscale") == 0)
-		    || (strcmp (val, "Lineart") == 0))
-		  dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		else if (strcmp (val, "Color") == 0)
-		  {
-		    dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
-		  }
-	      }
+          if (info)
+            *info |= SANE_INFO_RELOAD_OPTIONS;
 
-	    /* rebuild OPT GAIN */
-	    dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
-	    dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
+          dev->val[OPT_MANUAL_GAIN].w = w;
+
+          if (w == SANE_TRUE)
+            {
+              const char *mode = dev->val[OPT_MODE].s;
+
+              if ((strcmp (mode, "Grayscale") == 0)
+                  || (strcmp (mode, "Lineart") == 0))
+                dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
+              else if (strcmp (mode, "Color") == 0)
+                {
+                  dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+                  dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                }
+            }
+          else
+            {
+              dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
+            }
+          return SANE_STATUS_GOOD;
 
 
-	    if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
-	      {
-		if ((strcmp (val, "Grayscale") == 0)
-		    || (strcmp (val, "Lineart") == 0))
-		  dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		else if (strcmp (val, "Color") == 0)
-		  {
-		    dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		    dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
-		  }
-	      }
 
-	    return SANE_STATUS_GOOD;
-	  }
-	}
+
+        case OPT_CUSTOM_GAMMA:
+          w = *(SANE_Word *) val;
+
+          if (w == dev->val[OPT_CUSTOM_GAMMA].w)
+            return SANE_STATUS_GOOD;    /* no change */
+
+          if (info)
+            *info |= SANE_INFO_RELOAD_OPTIONS;
+
+          dev->val[OPT_CUSTOM_GAMMA].w = w;
+
+          if (w == SANE_TRUE)
+            {
+              const char *mode = dev->val[OPT_MODE].s;
+
+              if ((strcmp (mode, "Grayscale") == 0)
+                  || (strcmp (mode, "Lineart") == 0))
+                {
+                  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+                  sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
+                                       NULL);
+                }
+              else if (strcmp (mode, "Color") == 0)
+                {
+                  dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+                  dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+                  sanei_umax_pp_gamma (dev->val[OPT_GAMMA_VECTOR_R].wa,
+                                       dev->val[OPT_GAMMA_VECTOR_G].wa,
+                                       dev->val[OPT_GAMMA_VECTOR_B].wa);
+                }
+            }
+          else
+            {
+              dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+              dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+              sanei_umax_pp_gamma (NULL, NULL, NULL);
+            }
+
+          return SANE_STATUS_GOOD;
+
+        case OPT_MODE:
+          {
+            char *old_val = dev->val[option].s;
+
+            if (old_val)
+              {
+                if (strcmp (old_val, val) == 0)
+                  return SANE_STATUS_GOOD;      /* no change */
+
+                free (old_val);
+              }
+
+            if (info)
+              *info |= SANE_INFO_RELOAD_OPTIONS | SANE_INFO_RELOAD_PARAMS;
+
+            dev->val[option].s = strdup (val);
+
+            /* corrects top y for offset */
+            if (strcmp (val, "Color") == 0)
+              {
+                dpi = (int) (SANE_UNFIX (dev->val[OPT_RESOLUTION].w));
+                if (dev->val[OPT_TL_Y].w < 2 * umax_pp_get_sync (dpi))
+                  {
+                    dev->val[OPT_TL_Y].w = 2 * umax_pp_get_sync (dpi);
+                    DBG (16, "control_option: correcting TL_Y coordinates\n");
+                    if (info)
+                      *info |= SANE_INFO_INEXACT;
+                  }
+              }
+
+            dev->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GAMMA_VECTOR].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GAMMA_VECTOR_R].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GAMMA_VECTOR_G].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GAMMA_VECTOR_B].cap |= SANE_CAP_INACTIVE;
+            sanei_umax_pp_gamma (NULL, NULL, NULL);
+
+
+            if (dev->val[OPT_CUSTOM_GAMMA].w == SANE_TRUE)
+              {
+                if ((strcmp (val, "Grayscale") == 0)
+                    || (strcmp (val, "Lineart") == 0))
+                  {
+                    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+                    sanei_umax_pp_gamma (NULL, dev->val[OPT_GAMMA_VECTOR].wa,
+                                         NULL);
+                  }
+                else if (strcmp (val, "Color") == 0)
+                  {
+                    dev->opt[OPT_GAMMA_VECTOR].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_GAMMA_VECTOR_R].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_GAMMA_VECTOR_G].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_GAMMA_VECTOR_B].cap &= ~SANE_CAP_INACTIVE;
+                    sanei_umax_pp_gamma (dev->val[OPT_GAMMA_VECTOR_R].wa,
+                                         dev->val[OPT_GAMMA_VECTOR_G].wa,
+                                         dev->val[OPT_GAMMA_VECTOR_B].wa);
+                  }
+              }
+
+            /* rebuild OPT OFFSET */
+            dev->opt[OPT_GRAY_OFFSET].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_RED_OFFSET].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GREEN_OFFSET].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_BLUE_OFFSET].cap |= SANE_CAP_INACTIVE;
+
+
+            if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
+              {
+                if ((strcmp (val, "Grayscale") == 0)
+                    || (strcmp (val, "Lineart") == 0))
+                  dev->opt[OPT_GRAY_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                else if (strcmp (val, "Color") == 0)
+                  {
+                    dev->opt[OPT_RED_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_GREEN_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_BLUE_OFFSET].cap &= ~SANE_CAP_INACTIVE;
+                  }
+              }
+
+            /* rebuild OPT GAIN */
+            dev->opt[OPT_GRAY_GAIN].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_RED_GAIN].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_GREEN_GAIN].cap |= SANE_CAP_INACTIVE;
+            dev->opt[OPT_BLUE_GAIN].cap |= SANE_CAP_INACTIVE;
+
+
+            if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
+              {
+                if ((strcmp (val, "Grayscale") == 0)
+                    || (strcmp (val, "Lineart") == 0))
+                  dev->opt[OPT_GRAY_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                else if (strcmp (val, "Color") == 0)
+                  {
+                    dev->opt[OPT_RED_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_GREEN_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                    dev->opt[OPT_BLUE_GAIN].cap &= ~SANE_CAP_INACTIVE;
+                  }
+              }
+
+            return SANE_STATUS_GOOD;
+          }
+        }
     }
 
 
@@ -1851,9 +1852,9 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (strcmp (dev->val[OPT_MODE].s, "Color") != 0)
     {
       if (strcmp (dev->val[OPT_MODE].s, "Grayscale") != 0)
-	dev->color = UMAX_PP_MODE_LINEART;
+        dev->color = UMAX_PP_MODE_LINEART;
       else
-	dev->color = UMAX_PP_MODE_GRAYSCALE;
+        dev->color = UMAX_PP_MODE_GRAYSCALE;
     }
   else
     dev->color = UMAX_PP_MODE_COLOR;
@@ -1862,17 +1863,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (dev->val[OPT_MANUAL_OFFSET].w == SANE_TRUE)
     {
       if (dev->color != UMAX_PP_MODE_COLOR)
-	{
-	  dev->red_offset = 0;
-	  dev->green_offset = (int) (dev->val[OPT_GRAY_OFFSET].w);
-	  dev->blue_offset = 0;
-	}
+        {
+          dev->red_offset = 0;
+          dev->green_offset = (int) (dev->val[OPT_GRAY_OFFSET].w);
+          dev->blue_offset = 0;
+        }
       else
-	{
-	  dev->red_offset = (int) (dev->val[OPT_RED_OFFSET].w);
-	  dev->green_offset = (int) (dev->val[OPT_GREEN_OFFSET].w);
-	  dev->blue_offset = (int) (dev->val[OPT_BLUE_OFFSET].w);
-	}
+        {
+          dev->red_offset = (int) (dev->val[OPT_RED_OFFSET].w);
+          dev->green_offset = (int) (dev->val[OPT_GREEN_OFFSET].w);
+          dev->blue_offset = (int) (dev->val[OPT_BLUE_OFFSET].w);
+        }
     }
   else
     {
@@ -1885,17 +1886,17 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   if (dev->val[OPT_MANUAL_GAIN].w == SANE_TRUE)
     {
       if (dev->color != UMAX_PP_MODE_COLOR)
-	{
-	  dev->red_gain = 0;
-	  dev->green_gain = (int) (dev->val[OPT_GRAY_GAIN].w);
-	  dev->blue_gain = 0;
-	}
+        {
+          dev->red_gain = 0;
+          dev->green_gain = (int) (dev->val[OPT_GRAY_GAIN].w);
+          dev->blue_gain = 0;
+        }
       else
-	{
-	  dev->red_gain = (int) (dev->val[OPT_RED_GAIN].w);
-	  dev->green_gain = (int) (dev->val[OPT_GREEN_GAIN].w);
-	  dev->blue_gain = (int) (dev->val[OPT_BLUE_GAIN].w);
-	}
+        {
+          dev->red_gain = (int) (dev->val[OPT_RED_GAIN].w);
+          dev->green_gain = (int) (dev->val[OPT_GREEN_GAIN].w);
+          dev->blue_gain = (int) (dev->val[OPT_BLUE_GAIN].w);
+        }
     }
   else
     {
@@ -1931,35 +1932,35 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
     {
       remain = (dev->BottomX - dev->TopX) & 0x03;
       if (remain)
-	{
-	  DBG (64, "sane_get_parameters: %d-%d -> remain is %d\n",
-	       dev->BottomX, dev->TopX, remain);
-	  if (dev->BottomX + remain < dev->desc->max_h_size)
-	    dev->BottomX += remain;
-	  else
-	    {
-	      remain -= (dev->desc->max_h_size - dev->BottomX);
-	      dev->BottomX = dev->desc->max_h_size;
-	      dev->TopX -= remain;
-	    }
-	}
+        {
+          DBG (64, "sane_get_parameters: %d-%d -> remain is %d\n",
+               dev->BottomX, dev->TopX, remain);
+          if (dev->BottomX + remain < dev->desc->max_h_size)
+            dev->BottomX += remain;
+          else
+            {
+              remain -= (dev->desc->max_h_size - dev->BottomX);
+              dev->BottomX = dev->desc->max_h_size;
+              dev->TopX -= remain;
+            }
+        }
     }
 
   if (dev->val[OPT_PREVIEW].w == SANE_TRUE)
     {
 
       if (dev->val[OPT_GRAY_PREVIEW].w == SANE_TRUE)
-	{
-	  DBG (16, "sane_get_parameters: gray preview\n");
-	  dev->color = UMAX_PP_MODE_GRAYSCALE;
-	  dev->params.format = SANE_FRAME_GRAY;
-	}
+        {
+          DBG (16, "sane_get_parameters: gray preview\n");
+          dev->color = UMAX_PP_MODE_GRAYSCALE;
+          dev->params.format = SANE_FRAME_GRAY;
+        }
       else
-	{
-	  DBG (16, "sane_get_parameters: color preview\n");
-	  dev->color = UMAX_PP_MODE_COLOR;
-	  dev->params.format = SANE_FRAME_RGB;
-	}
+        {
+          DBG (16, "sane_get_parameters: color preview\n");
+          dev->color = UMAX_PP_MODE_COLOR;
+          dev->params.format = SANE_FRAME_RGB;
+        }
 
       dev->dpi = 75;
       dev->TopX = 0;
@@ -2026,17 +2027,17 @@ sane_start (SANE_Handle handle)
       /* if so, wait parking completion */
       DBG (2, "sane_start: scanner busy\n");
       while ((rc == UMAX1220P_BUSY) && (points < 30))
-	{
-	  sleep (1);
-	  rc = sanei_umax_pp_status ();
-	  points++;
-	}
+        {
+          sleep (1);
+          rc = sanei_umax_pp_status ();
+          points++;
+        }
       /* timeout waiting for scanner */
       if (rc == UMAX1220P_BUSY)
-	{
-	  DBG (2, "sane_start: scanner still busy\n");
-	  return SANE_STATUS_DEVICE_BUSY;
-	}
+        {
+          DBG (2, "sane_start: scanner still busy\n");
+          return SANE_STATUS_DEVICE_BUSY;
+        }
       dev->state = UMAX_PP_STATE_IDLE;
     }
 
@@ -2061,60 +2062,60 @@ sane_start (SANE_Handle handle)
       points = 2 * delta;
       /* first lines are 'garbage' for 610P */
       if (sanei_umax_pp_getastra () < 1210)
-	points *= 2;
+        points *= 2;
       DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,1,%X,%X)\n",
-	   dev->TopX,
-	   dev->TopY - points,
-	   dev->BottomX - dev->TopX,
-	   dev->BottomY - dev->TopY + points,
-	   dev->dpi,
-	   (dev->red_gain << 8) + (dev->green_gain << 4) +
-	   dev->blue_gain,
-	   (dev->red_offset << 8) + (dev->green_offset << 4) +
-	   dev->blue_offset);
+           dev->TopX,
+           dev->TopY - points,
+           dev->BottomX - dev->TopX,
+           dev->BottomY - dev->TopY + points,
+           dev->dpi,
+           (dev->red_gain << 8) + (dev->green_gain << 4) +
+           dev->blue_gain,
+           (dev->red_offset << 8) + (dev->green_offset << 4) +
+           dev->blue_offset);
 
       rc = sanei_umax_pp_start (dev->TopX,
-				dev->TopY - points,
-				dev->BottomX - dev->TopX,
-				dev->BottomY - dev->TopY + points,
-				dev->dpi,
-				2,
-				autoset,
-				(dev->red_gain << 8) |
-				(dev->green_gain << 4) |
-				dev->blue_gain,
-				(dev->red_offset << 8) |
-				(dev->green_offset << 4) |
-				dev->blue_offset, &(dev->bpp), &(dev->tw),
-				&(dev->th));
+                                dev->TopY - points,
+                                dev->BottomX - dev->TopX,
+                                dev->BottomY - dev->TopY + points,
+                                dev->dpi,
+                                2,
+                                autoset,
+                                (dev->red_gain << 8) |
+                                (dev->green_gain << 4) |
+                                dev->blue_gain,
+                                (dev->red_offset << 8) |
+                                (dev->green_offset << 4) |
+                                dev->blue_offset, &(dev->bpp), &(dev->tw),
+                                &(dev->th));
       /* we enlarged the scanning zone   */
       /* to allow reordering, we must    */
       /* substract it from real scanning */
       /* zone                            */
       dev->th -= points;
       DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
-	   dev->th);
+           dev->th);
     }
   else
     {
       DBG (64, "sane_start:umax_pp_start(%d,%d,%d,%d,%d,0,%X,%X)\n",
-	   dev->TopX,
-	   dev->TopY,
-	   dev->BottomX - dev->TopX,
-	   dev->BottomY - dev->TopY, dev->dpi, dev->gray_gain << 4,
-	   dev->gray_offset << 4);
+           dev->TopX,
+           dev->TopY,
+           dev->BottomX - dev->TopX,
+           dev->BottomY - dev->TopY, dev->dpi, dev->gray_gain << 4,
+           dev->gray_offset << 4);
       rc = sanei_umax_pp_start (dev->TopX,
-				dev->TopY,
-				dev->BottomX - dev->TopX,
-				dev->BottomY - dev->TopY,
-				dev->dpi,
-				1,
-				autoset,
-				dev->gray_gain << 4,
-				dev->gray_offset << 4, &(dev->bpp),
-				&(dev->tw), &(dev->th));
+                                dev->TopY,
+                                dev->BottomX - dev->TopX,
+                                dev->BottomY - dev->TopY,
+                                dev->dpi,
+                                1,
+                                autoset,
+                                dev->gray_gain << 4,
+                                dev->gray_offset << 4, &(dev->bpp),
+                                &(dev->tw), &(dev->th));
       DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,
-	   dev->th);
+           dev->th);
     }
 
   if (rc != UMAX1220P_OK)
@@ -2135,15 +2136,15 @@ sane_start (SANE_Handle handle)
       && (dev->color == UMAX_PP_MODE_COLOR))
     {
       rc =
-	sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
-			    0,
-			    dev->buf + UMAX_PP_RESERVE -
-			    2 * delta * dev->tw * dev->bpp);
+        sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
+                            0,
+                            dev->buf + UMAX_PP_RESERVE -
+                            2 * delta * dev->tw * dev->bpp);
       if (rc != UMAX1220P_OK)
-	{
-	  DBG (2, "sane_start: first lines discarding failed\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (2, "sane_start: first lines discarding failed\n");
+          return SANE_STATUS_IO_ERROR;
+        }
     }
 
   /* in case of color, we have to preload blue and green */
@@ -2151,15 +2152,15 @@ sane_start (SANE_Handle handle)
   if ((dev->color == UMAX_PP_MODE_COLOR) && (delta > 0))
     {
       rc =
-	sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
-			    0,
-			    dev->buf + UMAX_PP_RESERVE -
-			    2 * delta * dev->tw * dev->bpp);
+        sanei_umax_pp_read (2 * delta * dev->tw * dev->bpp, dev->tw, dev->dpi,
+                            0,
+                            dev->buf + UMAX_PP_RESERVE -
+                            2 * delta * dev->tw * dev->bpp);
       if (rc != UMAX1220P_OK)
-	{
-	  DBG (2, "sane_start: preload buffer failed\n");
-	  return SANE_STATUS_IO_ERROR;
-	}
+        {
+          DBG (2, "sane_start: preload buffer failed\n");
+          return SANE_STATUS_IO_ERROR;
+        }
     }
 
   /* OK .... */
@@ -2169,7 +2170,7 @@ sane_start (SANE_Handle handle)
 
 SANE_Status
 sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
-	   SANE_Int * len)
+           SANE_Int * len)
 {
   Umax_PP_Device *dev = handle;
   long int length;
@@ -2211,111 +2212,111 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
 
       /* does all fit in a single last read ? */
       if (length <= dev->bufsize)
-	{
-	  last = 1;
-	}
+        {
+          last = 1;
+        }
       else
-	{
-	  last = 0;
-	  /* round number of scan lines */
-	  length = (dev->bufsize / ll) * ll;
-	}
+        {
+          last = 0;
+          /* round number of scan lines */
+          length = (dev->bufsize / ll) * ll;
+        }
 
 
       if (dev->color == UMAX_PP_MODE_COLOR)
-	{
-	  delta = umax_pp_get_sync (dev->dpi);
-	  rc =
-	    sanei_umax_pp_read (length, dev->tw, dev->dpi, last,
-				dev->buf + UMAX_PP_RESERVE);
-	}
+        {
+          delta = umax_pp_get_sync (dev->dpi);
+          rc =
+            sanei_umax_pp_read (length, dev->tw, dev->dpi, last,
+                                dev->buf + UMAX_PP_RESERVE);
+        }
       else
-	rc = sanei_umax_pp_read (length, dev->tw, dev->dpi, last, dev->buf);
+        rc = sanei_umax_pp_read (length, dev->tw, dev->dpi, last, dev->buf);
       if (rc != UMAX1220P_OK)
-	return SANE_STATUS_IO_ERROR;
+        return SANE_STATUS_IO_ERROR;
       dev->buflen = length;
       DBG (64, "sane_read: got %ld bytes of data from scanner\n", length);
 
       /* we transform data for software lineart */
       if (dev->color == UMAX_PP_MODE_LINEART)
-	{
-	  DBG (64, "sane_read: software lineart\n");
+        {
+          DBG (64, "sane_read: software lineart\n");
 
-	  for (y = 0; y < length; y++)
-	    {
-	      if (dev->buf[y] > max)
-		max = dev->buf[y];
-	      if (dev->buf[y] < min)
-		min = dev->buf[y];
-	    }
-	  max = (min + max) / 2;
-	  for (y = 0; y < length; y++)
-	    {
-	      if (dev->buf[y] > max)
-		dev->buf[y] = 255;
-	      else
-		dev->buf[y] = 0;
-	    }
-	}
+          for (y = 0; y < length; y++)
+            {
+              if (dev->buf[y] > max)
+                max = dev->buf[y];
+              if (dev->buf[y] < min)
+                min = dev->buf[y];
+            }
+          max = (min + max) / 2;
+          for (y = 0; y < length; y++)
+            {
+              if (dev->buf[y] > max)
+                dev->buf[y] = 255;
+              else
+                dev->buf[y] = 0;
+            }
+        }
       else if (dev->color == UMAX_PP_MODE_COLOR)
-	{
-	  /* number of lines */
-	  nl = dev->buflen / ll;
-	  DBG (64, "sane_read: reordering %ld bytes of data (lines=%d)\n",
-	       length, nl);
-	  lbuf = (SANE_Byte *) malloc (dev->bufsize + UMAX_PP_RESERVE);
-	  if (lbuf == NULL)
-	    {
-	      DBG (1, "sane_read: couldn't allocate %ld bytes\n",
-		   dev->bufsize + UMAX_PP_RESERVE);
-	      return SANE_STATUS_NO_MEM;
-	    }
-	  /* reorder data in R,G,B values */
-	  for (y = 0; y < nl; y++)
-	    {
-	      for (x = 0; x < dev->tw; x++)
-		{
-		  switch (sanei_umax_pp_getastra ())
-		    {
-		    case 610:
-		      /* green value: sync'ed */
-		      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
-			dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
+        {
+          /* number of lines */
+          nl = dev->buflen / ll;
+          DBG (64, "sane_read: reordering %ld bytes of data (lines=%d)\n",
+               length, nl);
+          lbuf = (SANE_Byte *) malloc (dev->bufsize + UMAX_PP_RESERVE);
+          if (lbuf == NULL)
+            {
+              DBG (1, "sane_read: couldn't allocate %ld bytes\n",
+                   dev->bufsize + UMAX_PP_RESERVE);
+              return SANE_STATUS_NO_MEM;
+            }
+          /* reorder data in R,G,B values */
+          for (y = 0; y < nl; y++)
+            {
+              for (x = 0; x < dev->tw; x++)
+                {
+                  switch (sanei_umax_pp_getastra ())
+                    {
+                    case 610:
+                      /* green value: sync'ed */
+                      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
+                        dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
 
-		      /* blue value, +delta line ahead of sync */
-		      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
-			dev->buf[x + (y - delta) * ll + dev->tw +
-				 UMAX_PP_RESERVE];
+                      /* blue value, +delta line ahead of sync */
+                      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
+                        dev->buf[x + (y - delta) * ll + dev->tw +
+                                 UMAX_PP_RESERVE];
 
-		      /* red value, +2*delta line ahead of sync */
-		      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
-			dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+                      /* red value, +2*delta line ahead of sync */
+                      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
+                        dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
 
-		      break;
-		    default:
-		      /* red value: sync'ed */
-		      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
-			dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
+                      break;
+                    default:
+                      /* red value: sync'ed */
+                      lbuf[x * dev->bpp + y * ll + UMAX_PP_RESERVE] =
+                        dev->buf[x + y * ll + 2 * dev->tw + UMAX_PP_RESERVE];
 
-		      /* green value, +delta line ahead of sync */
-		      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
-			dev->buf[x + (y - delta) * ll + dev->tw +
-				 UMAX_PP_RESERVE];
+                      /* green value, +delta line ahead of sync */
+                      lbuf[x * dev->bpp + y * ll + 1 + UMAX_PP_RESERVE] =
+                        dev->buf[x + (y - delta) * ll + dev->tw +
+                                 UMAX_PP_RESERVE];
 
-		      /* blue value, +2*delta line ahead of sync */
-		      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
-			dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
-		    }
-		}
-	    }
-	  /* store last data lines for next reordering */
-	  if (!last)
-	    memcpy (lbuf + UMAX_PP_RESERVE - 2 * delta * ll,
-		    dev->buf + UMAX_PP_RESERVE + dev->buflen - 2 * delta * ll,
-		    2 * delta * ll);
-	  free (dev->buf);
-	  dev->buf = lbuf;
-	}
+                      /* blue value, +2*delta line ahead of sync */
+                      lbuf[x * dev->bpp + y * ll + 2 + UMAX_PP_RESERVE] =
+                        dev->buf[x + (y - 2 * delta) * ll + UMAX_PP_RESERVE];
+                    }
+                }
+            }
+          /* store last data lines for next reordering */
+          if (!last)
+            memcpy (lbuf + UMAX_PP_RESERVE - 2 * delta * ll,
+                    dev->buf + UMAX_PP_RESERVE + dev->buflen - 2 * delta * ll,
+                    2 * delta * ll);
+          free (dev->buf);
+          dev->buf = lbuf;
+        }
       dev->bufread = 0;
     }
 
@@ -2370,10 +2371,10 @@ sane_cancel (SANE_Handle handle)
 
       /* check if scanner busy parking */
       if (rc == UMAX1220P_BUSY)
-	{
-	  DBG (2, "cancel: scanner busy\n");
-	  return;
-	}
+        {
+          DBG (2, "cancel: scanner busy\n");
+          return;
+        }
       dev->state = UMAX_PP_STATE_IDLE;
     }
 }

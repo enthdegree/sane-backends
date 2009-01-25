@@ -4980,7 +4980,7 @@ gl841_coarse_gain_calibration (Genesys_Device * dev, int dpi)
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	    
-	  return SANE_STATUS_JAMMED;/* in search for something better */
+	  return SANE_STATUS_HW_LOCKED;
         }
 	
     }

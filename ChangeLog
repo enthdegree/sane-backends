@@ -1,3 +1,7 @@
+2009-01-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Change status code for locked head to 
+	SANE_STATUS_HW_LOCKED
+	
 2009-01-21  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions/canon_dr.desc: correct version, status = new
 	* doc/descriptions/epjitsu.desc, doc/descriptions/fujitsu.desc: version

@@ -30,8 +30,7 @@
 :model "Astra 1600U"
 :interface "USB"
 :usbid "0x1606" "0x0030"
-:status :untested
-:comment "Untested but probably works. Please tell us how well the scanner works."
+:status :good
 
 :model "Astra 2000U"
 :interface "USB"

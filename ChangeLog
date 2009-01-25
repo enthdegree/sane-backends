@@ -1,3 +1,9 @@
+2009-01-21  m. allan noah <kitno455 a t gmail d o t com>
+	* doc/descriptions/canon_dr.desc: correct version, status = new
+	* doc/descriptions/epjitsu.desc, doc/descriptions/fujitsu.desc: version
+	* doc/descriptions/umax1220u.desc: correct status of 1600U
+	* doc/descriptions/xerox_mfp.desc: status = new
+
 2009-01-23 Julien Blache <jb@jblache.org>
 	* doc/descriptions-external/epkowa.desc: Update for iScan 2.16.0,
 	from Olaf Meeuwissen.

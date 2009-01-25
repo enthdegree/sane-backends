@@ -3,7 +3,7 @@
 :manpage "sane-xerox_mfp"
 :comment "Phaser 3200MFP support"
 :devicetype :scanner
-:status :new
+:new :yes
 
 :mfg "Xerox"
 :url "http://www.office.xerox.com/"

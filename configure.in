@@ -13,6 +13,10 @@ dnl ***********************************************************************
 m4_ifdef([AC_CONFIG_MACRO_DIR], [AC_CONFIG_MACRO_DIR([m4])])
 
 AM_INIT_AUTOMAKE
+dnl Turn off feature were automake will automatically run autoreconf.
+dnl This is because we check in generated files into CVS which has
+dnl known timestamp issues.
+AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([include/sane/config.h])
 AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.

@@ -1,3 +1,8 @@
+2009-01-26 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in: Add AM_MAINTAINER_MODE to disable regenerating
+	configure files.  This was behavior of Makefiles before automake
+	and works around various timestamp issues.
+
 2009-01-25  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Change status code for locked head to 
 	SANE_STATUS_HW_LOCKED

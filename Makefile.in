@@ -147,6 +147,7 @@ LINKER_RPATH = @LINKER_RPATH@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
 LTLIBOBJS = @LTLIBOBJS@
+MAINT = @MAINT@
 MAKEDEPEND = @MAKEDEPEND@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
@@ -259,7 +260,7 @@ all: all-recursive
 .SUFFIXES:
 am--refresh:
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -286,9 +287,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(srcdir) && $(AUTOCONF)
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 
 include/sane/config.h: include/sane/stamp-h1
@@ -300,7 +301,7 @@ include/sane/config.h: include/sane/stamp-h1
 include/sane/stamp-h1: $(top_srcdir)/include/sane/config.h.in $(top_builddir)/config.status
 	@rm -f include/sane/stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status include/sane/config.h
-$(top_srcdir)/include/sane/config.h.in:  $(am__configure_deps) 
+$(top_srcdir)/include/sane/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_deps) 
 	cd $(top_srcdir) && $(AUTOHEADER)
 	rm -f include/sane/stamp-h1
 	touch $@

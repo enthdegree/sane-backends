@@ -1201,7 +1201,8 @@ sanei_bjnp_find_devices (const char **conf_devices,
     {
       /* send broadcast packet to each suitable  interface */
 
-      if ((interface->ifa_addr->sa_family != AF_INET) ||
+      if ( (interface->ifa_addr == NULL) || (interface->ifa_broadaddr == NULL) ||
+          (interface->ifa_addr->sa_family != AF_INET) ||
 	  (((struct sockaddr_in *) interface->ifa_addr)->sin_addr.s_addr ==
 	   htonl (INADDR_LOOPBACK)))
 	{

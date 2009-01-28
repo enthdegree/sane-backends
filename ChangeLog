@@ -1,3 +1,7 @@
+2009-01-28 Julien Blache <jb@jblache.org>
+	* doc/descriptions/epson.desc: added :scsi data for the GT-7000
+	and Perfection1200S. Patch from Dieter Jurzitza.
+
 2009-01-27 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
 	* backend/pixma_bjnp.c: fixed bug that caused scanner discovery to
 	fail when it encountered a point to point link (check data returned

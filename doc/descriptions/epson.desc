@@ -65,6 +65,7 @@
 
 :model "GT-7000"
 :interface "SCSI"
+:scsi "EPSON" "SCANNER GT-7000" "processor"
 :status :good
 
 :model "GT-8000"
@@ -78,6 +79,7 @@
 :model "Perfection 636S"
 :comment "US version of GT-7000"
 :interface "SCSI"
+:scsi "EPSON" "Perfection1200" "processor"
 :status :complete
 
 :model "Perfection 636U"

@@ -172,7 +172,7 @@ sanei_udp_write_broadcast(int fd, int port, const u_char * buf, int count)
 ssize_t
 sanei_udp_read(int fd, u_char * buf, int count)
 {
-	return recv(fd, buf, count, MSG_WAITALL);
+	return recv(fd, buf, count, 0);
 }
 
 ssize_t
@@ -184,8 +184,7 @@ sanei_udp_recvfrom(int fd, u_char * buf, int count, char **fromp)
 
 	fl = sizeof(from);
 
-	l = recvfrom(fd, buf, count, MSG_DONTWAIT,
-		(struct sockaddr *) &from, &fl);
+	l = recvfrom(fd, buf, count, 0, (struct sockaddr *) &from, &fl);
 
 	if (l > 0 && fromp) {
 		*fromp = inet_ntoa(from.sin_addr);

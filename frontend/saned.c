@@ -2209,6 +2209,7 @@ static void
 handle_connection (int fd)
 {
 #ifdef TCP_NODELAY
+  int on = 1;
   int level = -1;
 #endif
 

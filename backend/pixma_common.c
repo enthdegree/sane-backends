@@ -735,7 +735,7 @@ pixma_deactivate_connection(pixma_t * s)
   return pixma_deactivate (s->io);
 }
 
-unsigned
+uint32_t
 pixma_wait_event (pixma_t * s, int timeout /*ms */ )
 {
   unsigned events;

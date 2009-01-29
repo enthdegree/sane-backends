@@ -417,7 +417,7 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 	  continue;
 	}
 
-      if ((numbytes = recv (sockfd, response, resp_len, MSG_WAITALL)) == -1)
+      if ((numbytes = recv (sockfd, response, resp_len, 0)) == -1)
 	{
 	  PDBG (pixma_dbg
 		(LOG_CRIT, "udp_command: no data received (recv): %s",
@@ -1278,7 +1278,7 @@ sanei_bjnp_find_devices (const char **conf_devices,
 	    {
 	      if ((numbytes =
 		   recv (socket_fd[i], resp_buf, sizeof (resp_buf),
-			 MSG_WAITALL)) == -1)
+			 0)) == -1)
 		{
 		  PDBG (pixma_dbg
 			(LOG_CRIT, "discover_scanners: no data received"));

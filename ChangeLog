@@ -1,3 +1,16 @@
+2009-01-26 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* backend/epson2.c backend/pixma_bjnp.c, include/sane/sanei_backend.h,
+	sanei/sanei_tcp.c, sanie/sanei_udp.c: Improve portablity by
+	removing usage of MSG_WAITALL since not all platforms support
+	that (cygwin).  Default is to be blocking anyways.  Changed
+	usage of MSG_NOTWAIT to use fcntl() function as needed as well.
+	* configure.in, lib/Makefile.in, lib/strcasestr.c: Add internal
+	strcasestr() for platforms missing it (cygwin).
+	* pixma_common.c: My source match header prototype for picky
+	compilers (cygwin).
+	* backend/umax_pp_mid.c: Allow BACKEND_NAME to be filename
+	yet debug to be SANE_DEBUG_UMAX_PP to match man page. 
+
 2009-01-28 Julien Blache <jb@jblache.org>
 	* doc/descriptions/epson.desc: added :scsi data for the GT-7000
 	and Perfection1200S. Patch from Dieter Jurzitza.

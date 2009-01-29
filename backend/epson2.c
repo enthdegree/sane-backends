@@ -588,6 +588,8 @@ e2_network_discovery(void)
 
 	struct timeval to;
 
+        long save_flags, flags;
+
 	status = sanei_udp_open_broadcast(&fd);
 	if (status != SANE_STATUS_GOOD)
 		return;
@@ -602,6 +604,9 @@ e2_network_discovery(void)
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 
+        save_flags = flags = fcntl(fd, F_GETFL, 0L);
+        flags |= O_NONBLOCK;
+        fcntl(fd, F_SETFL, flags);
 	if (select(fd + 1, &rfds, NULL, NULL, &to) > 0) {
 		while ((len = sanei_udp_recvfrom(fd, buf, 76, &ip)) == 76) {
 			DBG(5, " response from %s\n", ip);
@@ -611,6 +616,7 @@ e2_network_discovery(void)
 				attach_one_net(ip);
 		}
 	}
+        fcntl(fd, F_SETFL, save_flags);
 
 	DBG(5, "%s, end\n", __func__);
 

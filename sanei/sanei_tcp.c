@@ -48,10 +48,6 @@
 
 #include <sys/socket.h>
 
-#if defined(__CYGWIN__) && !defined(MSG_WAITALL)
-#define MSG_WAITALL  0x08
-#endif
-
 #define BACKEND_NAME sanei_tcp
 
 #include "../include/sane/sane.h"
@@ -110,5 +106,5 @@ sanei_tcp_write(int fd, const u_char * buf, int count)
 ssize_t
 sanei_tcp_read(int fd, u_char * buf, int count)
 {
-	return recv(fd, buf, count, MSG_WAITALL);
+	return recv(fd, buf, count, 0);
 }

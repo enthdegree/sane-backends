@@ -55,8 +55,8 @@ LIBLIB_LTOBJS    = $(addsuffix .lo,$(basename $(LIBLIB_OBJS)))
 TARGETS = liblib.a $(LIBLIB_LTOBJS)
 
 DISTFILES = Makefile.in alloca.c getenv.c getopt.c getopt1.c \
-  inet_ntop.c inet_pton.c isfdtype.c md5.c sigprocmask.c snprintf.c strdup.c \
-  strndup.c strsep.c usleep.c vsyslog.c
+  inet_ntop.c inet_pton.c isfdtype.c md5.c sigprocmask.c snprintf.c \
+  strcasestr.c strdup.c strndup.c strsep.c usleep.c vsyslog.c
 
 .PHONY: all check clean depend dist distdir distclean install uninstall
 

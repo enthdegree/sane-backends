@@ -41,6 +41,8 @@
    This file implements a SANE backend for Umax PP flatbed scanners.  */
 
 #define DEBUG_DECLARE_ONLY
+#undef BACKEND_NAME
+#define BACKEND_NAME umax_pp
 
 #include "../include/sane/config.h"
 #include <stdlib.h>

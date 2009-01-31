@@ -38,7 +38,7 @@ CC = @CC@
 INCLUDES = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-LDFLAGS = @LDFLAGS@
+LDFLAGS = -L../backend @LDFLAGS@
 LIBS = @LIBS@
 DEFS = @DEFS@
 
@@ -70,7 +70,7 @@ EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 
 LIBSANEI = ../sanei/libsanei.a
 # Library routines that should be part of libc, but aren't on some systems:
-LIBLIB = ../lib/liblib.a
+LIBLIB = ../lib/liblib.la ../lib/libfelib.la
 
 DISTFILES = Makefile.in RenSaneDlls.cmd README libtool-get-dll-ext     \
 	mustek600iin-off.c sane-config.in sane-desc.c check-usb-chip.c \
@@ -109,7 +109,7 @@ sane-find-scanner: sane-find-scanner.o check-usb-chip.o ../backend/sane_strstatu
 	../sanei/sanei_scsi.lo ../sanei/sanei_usb.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-find-scanner.o check-usb-chip.o \
-	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS)
+	  ../backend/sane_strstatus.lo $(LIBSANEI) $(LIBLIB) $(LIBS) @IEEE1284_LIBS@
 
 gamma4scanimage: gamma4scanimage.o
 	@$(LIBTOOL) $(MLINK) $(LINK) gamma4scanimage.o -lm
@@ -120,7 +120,8 @@ gamma4scanimage: gamma4scanimage.o
 
 umax_pp: umax_pp.o ../backend/umax_pp_low.o
 	@$(LIBTOOL) $(MLINK) $(LINK) umax_pp.o ../backend/umax_pp_low.o \
-	   $(LIBSANEI) $(LIBLIB) $(LIBS)
+	   $(LIBSANEI) $(LIBLIB) $(LIBS) @MATH_LIB@
+
 sane-desc: sane-desc.o
 	@$(LIBTOOL) $(MLINK) $(LINK) sane-desc.o $(LIBSANEI) $(LIBLIB)
 

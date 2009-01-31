@@ -56,7 +56,7 @@ BINPROGS = scanimage # tstbackend
 SBINPROGS = $(SANED)
 PROGRAMS = $(BINPROGS) $(SBINPROGS)
 TESTPROGRAMS = test
-LIBLIB = ../lib/liblib.a
+LIBLIB = ../lib/liblib.la ../lib/libfelib.la
 LIBSANE = ../backend/libsane.la
 LIBSANEI = ../sanei/libsanei.a
 
@@ -95,7 +95,7 @@ test: test.o $(LIBSANE) $(LIBLIB)
 
 saned: saned.o $(LIBSANEI) $(LIBSANE) $(LIBLIB)
 	@$(LIBTOOL) $(MLINK) $(LINK) saned.o $(LIBSANEI) $(LIBLIB) $(LIBSANE)  \
-		$(LIBS)
+		$(LIBS) @SYSLOG_LIBS@
 
 scanimage: $(SCAN_OBJS) $(LIBSANE) $(LIBLIB)
 	@$(LIBTOOL) $(MLINK) $(LINK) $(SCAN_OBJS) $(LIBLIB) $(LIBSANE)  $(LIBS)

@@ -2,6 +2,32 @@
 	* frontend/saned.c: Replace usage of getgrouplist() with
 	getgrent() and friends.  getgrouplist is not posix and not
 	on several platforms including cygwin.
+	* acinclude.m4, configure.in:  Put all libraries into their
+	own *_LIB variables instead of $LIB so that we do not have to 
+	link in the world to all executables. Modified SANE_CHECK_U_TYPES
+	to be a little more portable to platforms that use #define
+	for u_* types. Create SANE_CHECK_BACKENDS macro so that
+	PRELOADABLE_BACKENDS can also be valided.  Auto-populated
+	PRELAODABLE_BACKENDS when detect dlopen() won't work.
+	Various protability cleanups.
+	* backend/dll.c: Make dll-preload.c a .h since its an include and
+	not compilable byitself.
+	* frontend/Makefile.in, frontend/scanimage.c, include/laaloca.h,
+	lib/Makefile.am, lib/alloca.c, strcasestr.c, tools/Makefile.in,
+	tools/sane-desc.c: Convert lib/ to automake.  Create a liblib.la
+	for everyone to use and a libfelib.la for only frontend programs.
+	Make all internal programs be prefixed with sanei_ as not to conflict
+	with other programs libsane is linked in with that will also most
+	likely create similar internal utils on problem platforms.
+	* include/getopt.h, lib/getopt.c, lib/getopt1.c: Always compile
+	and link in getopt_long() but prefix it with sanei_.  Its
+	easier to always use internal version then try to figure out what
+	platforms support getopt_long() and what header files to use.
+	* backend/Makefile.am: Convert backend makefile to automake.
+	Initial version that is feature parity with original but uses
+	specific rules instead of wildcards and only links in libraries/objs
+	really required. Room for more cleanup of whats linked in once
+	all makefiles have been converted to automake.
 
 2009-01-29 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/epson2.c backend/pixma_bjnp.c, include/sane/sanei_backend.h,

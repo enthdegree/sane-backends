@@ -57,6 +57,10 @@
 #pragma alloca
 #  else
 #   ifndef alloca /* predefined by HP cc +Olibcalls */
+/* Remap to internal version name as not to conflict with
+ * other libraries that also add as util to their libraries.
+ */
+#define alloca sanei_alloca
 #    if __STDC__
 void *alloca ();
 #    else

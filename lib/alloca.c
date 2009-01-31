@@ -27,6 +27,8 @@
 
 #ifndef HAVE_ALLOCA
 
+#include "lalloca.h"
+
 #ifdef emacs
 #include "blockinput.h"
 #endif

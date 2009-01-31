@@ -211,7 +211,7 @@ struct backend
 }
 
 #ifndef __BEOS__
-#include "dll-preload.c"
+#include "dll-preload.h"
 #endif
 
 struct meta_scanner

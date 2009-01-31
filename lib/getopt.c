@@ -27,8 +27,10 @@
 # define _NO_PROTO
 #endif
 
+#if 0
 #ifdef HAVE_CONFIG_H
 # include <config.h>
+#endif
 #endif
 
 #if !defined __STDC__ || !__STDC__
@@ -55,6 +57,11 @@
 # if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
 #  define ELIDE_CODE
 # endif
+#endif
+
+/* For Sane, always compile this */
+#if defined ELIDE_CODE
+#undef ELIDE_CODE
 #endif
 
 #ifndef ELIDE_CODE
@@ -109,7 +116,7 @@
    GNU application programs can use a third alternative mode in which
    they can distinguish the relative order of options and other arguments.  */
 
-#include "getopt.h"
+#include "../include/getopt.h"
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -117,7 +124,7 @@
    Also, when `ordering' is RETURN_IN_ORDER,
    each non-option ARGV-element is returned here.  */
 
-char *optarg;
+char *optarg = NULL;
 
 /* Index in ARGV of the next element to be scanned.
    This is used for communication to and from the caller

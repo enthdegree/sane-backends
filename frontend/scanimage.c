@@ -22,18 +22,18 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-#ifdef _AIX
+/* Put anything that may use a macro that can conflict with our
+ * internal remapping functions in liblib.la before we include
+ * include/sane/config.h.
+ */
+#include <stdlib.h> /* Can define getopt() */
 # include "../include/lalloca.h"	/* MUST come first for AIX! */
-#endif
-
 #include "../include/sane/config.h"
-#include "../include/lalloca.h"
 
 #include <assert.h>
-#include <getopt.h>
+#include "../include/getopt.h"
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -59,7 +59,7 @@
 
 typedef struct
 {
-  u_char *data;
+  u_int8_t *data;
   int width;    /*WARNING: this is in bytes, get pixel width from param*/
   int height;
   int x;

@@ -144,23 +144,11 @@
 /* Define to 1 if you have the `isfdtype' function. */
 #undef HAVE_ISFDTYPE
 
-/* Define to 1 if you have the `cam' library (-lcam). */
-#undef HAVE_LIBCAM
-
 /* Define to 1 if you have the <libc.h> header file. */
 #undef HAVE_LIBC_H
 
 /* Define to 1 if you have the `ieee1284' library (-lcam). */
 #undef HAVE_LIBIEEE1284
-
-/* Define to 1 if you have the `m' library (-lm). */
-#undef HAVE_LIBM
-
-/* Define to 1 if you have the `pthread' library (-lpthread). */
-#undef HAVE_LIBPTHREAD
-
-/* Define to 1 if you have the `scsi' library (-lscsi). */
-#undef HAVE_LIBSCSI
 
 /* Define to 1 if you have the `usb' library (-lusb). */
 #undef HAVE_LIBUSB
@@ -390,6 +378,24 @@
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
 
+/* Define to 1 if the system has the type `u_char'. */
+#undef HAVE_U_CHAR
+
+/* Define to 1 if the system has the type `u_int'. */
+#undef HAVE_U_INT
+
+/* Define to 1 if the system has the type `u_int16_t'. */
+#undef HAVE_U_INT16_T
+
+/* Define to 1 if the system has the type `u_int32_t'. */
+#undef HAVE_U_INT32_T
+
+/* Define to 1 if the system has the type `u_int8_t'. */
+#undef HAVE_U_INT8_T
+
+/* Define to 1 if the system has the type `u_long'. */
+#undef HAVE_U_LONG
+
 /* Define to 1 if you have the `vsyslog' function. */
 #undef HAVE_VSYSLOG
 
@@ -538,88 +544,104 @@
 /* Define for OS/2 only */
 #undef strncasecmp
 
-/* Define to `unsigned char' if <sys/types.h> does not define. */
-#undef u_char
-
-/* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef u_int
-
-/* Define to `unsigned short' if <sys/types.h> does not define. */
-#undef u_int16_t
-
-/* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef u_int32_t
-
-/* Define to `unsigned char' if <sys/types.h> does not define. */
-#undef u_int8_t
-
-/* Define to `unsigned long' if <sys/types.h> does not define. */
-#undef u_long
 
 
+/* FIXME: Do not use these types in code anymore.  Use types defined
+ * in C99 stdint.h and available in our cross-platform _stdint.h.
+ */
+#ifndef HAVE_U_INT8_T
+#define u_int8_t unsigned char
+#endif
+#ifndef HAVE_U_INT16_T
+#define u_int16_t unsigned int
+#endif
+#ifndef HAVE_U_INT32_T
+#define u_int32_t unsigned long
+#endif
+#ifndef HAVE_U_CHAR
+#define u_char unsigned char
+#endif
+#ifndef HAVE_U_INT
+#define u_int unsigned int
+#endif
+#ifndef HAVE_U_LONG
+#define u_long unsigned long
+#endif
+/* END of FIXME: Do not use above types */
 
 /* Prototype for getenv */
 #ifndef HAVE_GETENV
+#define getenv sanei_getenv
 char * getenv(const char *name);
 #endif
 
 /* Prototype for inet_ntop */
 #ifndef HAVE_INET_NTOP
+#define inet_ntop sanei_inet_ntop
 #include <sys/types.h>
 const char * inet_ntop (int af, const void *src, char *dst, size_t cnt);
 #endif
 
 /* Prototype for inet_pton */
 #ifndef HAVE_INET_PTON
+#define inet_pton sanei_inet_pton
 int inet_pton (int af, const char *src, void *dst);
 #endif
 
 /* Prototype for isfdtype */
 #ifndef HAVE_ISFDTYPE
+#define isfdtype sanei_isfdtype
 int isfdtype(int fd, int fdtype);
 #endif
 
 /* Prototype for sigprocmask */
 #ifndef HAVE_SIGPROCMASK
+#define sigprocmask sanei_sigprocmask
 int sigprocmask (int how, int *new, int *old);
 #endif
 
 /* Prototype for snprintf */
 #ifndef HAVE_SNPRINTF
+#define snprintf sanei_snprintf
 #include <sys/types.h>
 int snprintf (char *str,size_t count,const char *fmt,...);
 #endif
 
+/* Prototype for strcasestr */
+#ifndef HAVE_STRCASESTR
+#define strcasestr sanei_strcasestr
+int strcasestr (const char *phaystack, const char *pneedle);
+#endif
+
 /* Prototype for strdup */
 #ifndef HAVE_STRDUP
+#define strdup sanei_strdup
 char *strdup (const char * s);
 #endif
 
 /* Prototype for strndup */
 #ifndef HAVE_STRNDUP
+#define strndup sanei_strndup
 #include <sys/types.h>
 char *strndup(const char * s, size_t n);
 #endif
 
 /* Prototype for strsep */
 #ifndef HAVE_STRSEP
+#define strsep sanei_strsep
 char *strsep(char **stringp, const char *delim);
 #endif
 
 /* Prototype for usleep */
 #ifndef HAVE_USLEEP
+#define strsep sanei_usleep
 unsigned int usleep (unsigned int useconds);
 #endif
 
 /* Prototype for vsyslog */
 #ifndef HAVE_VSYSLOG
+#define vsyslog sanei_vsyslog
 #include <stdarg.h>
 void vsyslog(int priority, const char *format, va_list args);
-#endif
-
-
-
-#ifdef __INNOTEK_LIBC__
-#define ELIDE_CODE 1
 #endif
 

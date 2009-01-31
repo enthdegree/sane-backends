@@ -33,19 +33,19 @@ build_triplet = @build@
 host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/backend/Makefile.in \
-	$(top_srcdir)/configure $(top_srcdir)/doc/Makefile.in \
+	$(srcdir)/Makefile.in $(top_srcdir)/configure \
+	$(top_srcdir)/doc/Makefile.in \
 	$(top_srcdir)/doc/doxygen-sanei.conf.in \
 	$(top_srcdir)/frontend/Makefile.in \
 	$(top_srcdir)/include/Makefile.in \
 	$(top_srcdir)/include/sane/config.h.in \
-	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/lib/Makefile.in \
-	$(top_srcdir)/po/Makefile.in $(top_srcdir)/sanei/Makefile.in \
+	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/po/Makefile.in \
+	$(top_srcdir)/sanei/Makefile.in \
 	$(top_srcdir)/testsuite/Makefile.in \
 	$(top_srcdir)/tools/Makefile.in \
 	$(top_srcdir)/tools/sane-config.in AUTHORS COPYING ChangeLog \
-	INSTALL NEWS config.guess config.sub install-sh ltmain.sh \
-	missing mkinstalldirs
+	INSTALL NEWS config.guess config.sub depcomp install-sh \
+	ltmain.sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
@@ -56,10 +56,9 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
-CONFIG_CLEAN_FILES = lib/Makefile sanei/Makefile frontend/Makefile \
-	japi/Makefile backend/Makefile include/Makefile doc/Makefile \
-	po/Makefile testsuite/Makefile tools/Makefile \
-	doc/doxygen-sanei.conf tools/sane-config
+CONFIG_CLEAN_FILES = sanei/Makefile frontend/Makefile japi/Makefile \
+	include/Makefile doc/Makefile po/Makefile testsuite/Makefile \
+	tools/Makefile doc/doxygen-sanei.conf tools/sane-config
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -95,9 +94,9 @@ AUTOMAKE = @AUTOMAKE@
 AVAHI_CFLAGS = @AVAHI_CFLAGS@
 AVAHI_LIBS = @AVAHI_LIBS@
 AWK = @AWK@
-BACKENDS = @BACKENDS@
-BEOS_ADDONDIR = @BEOS_ADDONDIR@
-BE_INSTALL_FLAVOR = @BE_INSTALL_FLAVOR@
+BACKEND_CONFS_ENABLED = @BACKEND_CONFS_ENABLED@
+BACKEND_LIBS_ENABLED = @BACKEND_LIBS_ENABLED@
+CAM_LIBS = @CAM_LIBS@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -114,10 +113,8 @@ DEPDIR = @DEPDIR@
 DEPEND_RECURSIVE = @DEPEND_RECURSIVE@
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 DLLTOOL = @DLLTOOL@
-DLL_PRELOAD = @DLL_PRELOAD@
-DL_LIB = @DL_LIB@
+DL_LIBS = @DL_LIBS@
 DVIPS = @DVIPS@
-DYNAMIC_FLAG = @DYNAMIC_FLAG@
 ECHO = @ECHO@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -126,9 +123,12 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
 FFLAGS = @FFLAGS@
-GPHOTO2_LDFLAGS = @GPHOTO2_LDFLAGS@
+GETHOSTBYADDR_LIBS = @GETHOSTBYADDR_LIBS@
+GPHOTO2_CPPFLAGS = @GPHOTO2_CPPFLAGS@
+GPHOTO2_LIBS = @GPHOTO2_LIBS@
 GREP = @GREP@
 HAVE_GPHOTO2 = @HAVE_GPHOTO2@
+IEEE1284_LIBS = @IEEE1284_LIBS@
 INCLUDES = @INCLUDES@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -137,12 +137,14 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INSTALL_TRANSLATIONS = @INSTALL_TRANSLATIONS@
+JPEG_LIBS = @JPEG_LIBS@
 LATEX = @LATEX@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
-LIBTOOL_LINK_EXTRA = @LIBTOOL_LINK_EXTRA@
+LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
+LIBV4L_LIBS = @LIBV4L_LIBS@
 LINKER_RPATH = @LINKER_RPATH@
 LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
@@ -151,9 +153,11 @@ MAINT = @MAINT@
 MAKEDEPEND = @MAKEDEPEND@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
+MATH_LIB = @MATH_LIB@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
 MSGMERGE = @MSGMERGE@
+NO_UNDEFINED_LDFLAGS = @NO_UNDEFINED_LDFLAGS@
 NUMBER_VERSION = @NUMBER_VERSION@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
@@ -165,16 +169,23 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
+PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
+PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
+PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
 SANED = @SANED@
 SANEI_JPEG = @SANEI_JPEG@
 SANEI_JPEG_LO = @SANEI_JPEG_LO@
 SANE_CONFIG_PATH = @SANE_CONFIG_PATH@
+SCSI_LIBS = @SCSI_LIBS@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SOCKET_LIBS = @SOCKET_LIBS@
+STRICT_LDFLAGS = @STRICT_LDFLAGS@
 STRIP = @STRIP@
+SYSLOG_LIBS = @SYSLOG_LIBS@
+TIFF_LIBS = @TIFF_LIBS@
 USE_LATEX = @USE_LATEX@
-USE_LINKS = @USE_LINKS@
 VERSION = @VERSION@
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
@@ -216,8 +227,6 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-libv4l1_CFLAGS = @libv4l1_CFLAGS@
-libv4l1_LIBS = @libv4l1_LIBS@
 localedir = @localedir@
 localstatedir = @localstatedir@
 locksanedir = @locksanedir@
@@ -308,15 +317,11 @@ $(top_srcdir)/include/sane/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_d
 
 distclean-hdr:
 	-rm -f include/sane/config.h include/sane/stamp-h1
-lib/Makefile: $(top_builddir)/config.status $(top_srcdir)/lib/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 sanei/Makefile: $(top_builddir)/config.status $(top_srcdir)/sanei/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 frontend/Makefile: $(top_builddir)/config.status $(top_srcdir)/frontend/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 japi/Makefile: $(top_builddir)/config.status $(top_srcdir)/japi/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-backend/Makefile: $(top_builddir)/config.status $(top_srcdir)/backend/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 include/Makefile: $(top_builddir)/config.status $(top_srcdir)/include/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

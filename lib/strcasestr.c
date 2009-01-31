@@ -27,7 +27,7 @@
  * Stephen R. van den Berg, berg@pool.informatik.rwth-aachen.de	*/
 /* added strcasestr support, davidm@lineo.com */
 
-#include <../include/sane/config.h>
+#include "../include/sane/config.h"
 
 #ifndef HAVE_STRCASESTR 
 
@@ -39,10 +39,8 @@ typedef unsigned chartype;
 
 #include <ctype.h>
 #define VAL(x)	tolower(x)
-#define FUNC strcasestr
-#undef strcasestr
 
-char * FUNC ( const char *phaystack, const char *pneedle)
+char * strcasestr ( const char *phaystack, const char *pneedle)
 {
 	register const unsigned char *haystack, *needle;
 	register chartype b, c;

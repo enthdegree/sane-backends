@@ -38,6 +38,10 @@
 extern "C" {
 #endif
 
+#define optind sanei_optind
+#define optarg sanei_optarg
+#define getopt sanei_getopt
+
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
    the argument value is returned here.

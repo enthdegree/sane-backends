@@ -54,6 +54,11 @@
 #endif
 #endif
 
+/* Always compile for Sane */
+#if defined ELIDE_CODE
+#undef ELIDE_CODE
+#endif
+
 #ifndef ELIDE_CODE
 
 

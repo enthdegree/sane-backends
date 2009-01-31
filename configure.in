@@ -107,16 +107,28 @@ dnl Checks for libraries
 dnl ***********************************************************************
 SANE_CHECK_DLL_LIB
 dnl Checks for Backend libraries.
-AC_CHECK_LIB(m,sqrt)
-AC_CHECK_LIB(scsi, scsireq_enter)	# FreeBSD needs this
-AC_CHECK_LIB(cam, cam_open_device)      # FreeBSD 3+ needs this
-dnl IRIX sometimes has SYSVR3/4 network DSOs, but we do not need or want
-dnl to use them!
-if test "`uname`" != "IRIX" -a "`uname`" != "IRIX64"; then
-    AC_SEARCH_LIBS(gethostbyaddr, nsl bind)
-    AC_SEARCH_LIBS(socket, socket)
-    AC_SEARCH_LIBS(syslog, syslog be)            # OS/2 needs -lsyslog, BeOS needs -lbe
-fi
+AC_CHECK_LIB(m, sqrt, MATH_LIB="-lm")
+AC_SUBST(MATH_LIB)
+AC_CHECK_LIB(scsi, scsireq_enter, SCSI_LIBS="-lscsi") # FreeBSD needs this
+AC_SUBST(SCSI_LIBS)
+AC_CHECK_LIB(cam, cam_open_device, CAM_LIBS="-lcam")  # FreeBSD 3+ needs this
+AC_SUBST(CAM_LIBS)
+case ${host_os} in
+  os2*)
+  AC_CHECK_LIB(syslog, sylog, SYSLOG_LIBS="-lsyslog")
+  ;;
+  beos*)
+  AC_CHECK_LIB(be, syslog, SYSLOG_LIBS="-lbe")
+  ;;
+esac
+AC_SUBST(SYSLOG_LIBS)
+
+AC_CHECK_FUNC(gethostbyaddr, [GETHOSTBYADDR_LIBS=], [AC_CHECK_LIB(nsl, gethostbyaddr, GETHOSTBYADDR_LIBS="-lnsl", [AC_CHECK_LIB(bind, gethostbyaddr, GETHOSTBYADDR_LIBS="-lbind")])])
+AC_SUBST(GETHOSTBYADDR_LIBS)
+
+AC_CHECK_LIB(socket, socket, SOCKET_LIBS="-lsocket -lnsl",, -lnsl)
+AC_SUBST(SOCKET_LIBS)
+
 SANE_CHECK_JPEG
 SANE_CHECK_TIFF
 SANE_CHECK_IEEE1284
@@ -125,22 +137,17 @@ SANE_CHECK_LOCKING
 SANE_CHECK_GPHOTO2
 
 
-PKG_CHECK_MODULES(libv4l1, [ libv4l1 ],
-			[ LIBS="${LIBS} ${libv4l1_LIBS}"
-				CFLAGS="${CFLAGS} ${libv4l1_CFLAGS}"
-				have_libv4l1=yes ],
-			[ have_libv4l1=no ])
+PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
+AC_SUBST(LIBV4L_LIBS)
+AC_SUBST(LIBV4L_CFLAGS)
 
 AC_ARG_ENABLE(avahi,
 	AC_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
 	[enable_avahi=$enableval], [enable_avahi=no])
 
 if test "$enable_avahi" = "yes"; then
-	PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.4 ],
-		[ AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])
-			LIBS="${LIBS} ${AVAHI_LIBS}"
-			CFLAGS="${CFLAGS} ${AVAHI_CFLAGS}" ],
-			[ enable_avahi=no ])
+  PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.4 ],
+                    [AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])], enable_avahi=no)
 fi
 
 dnl check sane to make sure we don't have two installations
@@ -293,12 +300,6 @@ if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp, strnicmp, [Define for OS/2 only])
   AC_DEFINE(strcasecmp, stricmp, [Define for OS/2 only])
 fi
-dnl On OS/2, libc knows getopt
-AH_BOTTOM([
-#ifdef __INNOTEK_LIBC__
-#define ELIDE_CODE 1
-#endif
-])
 dnl ***********************************************************************
 dnl checks for system services
 dnl ***********************************************************************
@@ -347,10 +348,11 @@ AC_PROG_LIBTOOL
 
 dnl Windows/Cygwin needs this, else the library creation fails
 dnl BeOS also needs this (why isnt it the default anyway ???)
-if test "$ac_cv_header_windows_h" = "yes" -o "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
-  LIBTOOL_LINK_EXTRA=-no-undefined
-  AC_SUBST(LIBTOOL_LINK_EXTRA)
-fi
+case $target in
+  *cygwin* | *mingw* | *beos*)
+  NO_UNDEFINED_LDFLAGS=-no-undefined
+esac
+AC_SUBST(NO_UNDEFINED_LDFLAGS)
 
 dnl Check for lock dir
 
@@ -382,141 +384,116 @@ AC_ARG_ENABLE(local-backends,
   AC_HELP_STRING([--disable-local-backends],
                  [turn off compilation of all backends but net]))
 
+ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
+        avision bh canon canon630u canon_dr canon_pp cardscan \
+        coolscan coolscan2 coolscan3 dc25 dc210 dc240 \
+        dell1600n_net dmc epjitsu epson epson2 fujitsu genesys \
+        gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
+        hp5590 hpsj5s hpljm1005 hs2p ibm leo lexmark ma1509 \
+        matsushita microtek microtek2 mustek mustek_pp \
+        mustek_usb mustek_usb2 nec net niash pie pint \
+        pixma plustek plustek_pp qcam ricoh rts8891 s9036 \
+        sceptre sharp sm3600 sm3840 snapscan sp15c st400 \
+        stv680 tamarack teco1 teco2 teco3 test u12 umax 
+        umax_pp umax1220u v4l xerox_mfp"
+
+# If user specifies backends manually then cause configure
+# to fail if its detected it can't be compiled.  If we
+# are in automatic mode then remove backend from list instead.
+user_selected_backends="yes"
+
 if eval "test x$enable_local_backends = xno"; then 
    BACKENDS="net"
 else
   if test "${BACKENDS}" != "" ; then
     AC_MSG_NOTICE([Manually selected backends: ${BACKENDS}])
   else
-    BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e avision bh \
-	  canon canon630u canon_dr cardscan coolscan coolscan2 coolscan3 \
-          dc25 dmc epjitsu epson epson2 fujitsu genesys gt68xx \
-	  hp hp3500 hp3900 hp4200 hp5400 hp5590 hpljm1005 hs2p \
-	  ibm leo lexmark \
-	  ma1509 matsushita microtek microtek2 mustek mustek_usb \
-	  nec niash pie pixma plustek ricoh rts8891 \
-	  s9036 sceptre sharp sm3600 sm3840 snapscan sp15c st400 stv680 \
-	  tamarack teco1 teco2 teco3 test u12 umax umax_pp umax1220u \
-	  xerox_mfp"
-
-    case "$host_os" in
-	gnu*) 
-	  echo "*** disabling PLUSTEK_PP backend (GNU/Hurd not supported)"
-	  ;;
-	*)
-	  BACKENDS="${BACKENDS} plustek_pp"
-	  ;;
-    esac
-
-  if test "${sane_cv_use_libjpeg}" != "yes"; then
-    echo "*** disabling DC210 backend (failed to find JPEG library)"
-    echo "*** disabling DC240 backend (failed to find JPEG library)"
-  else
-    BACKENDS="${BACKENDS} dc210 dc240"
-    SANEI_JPEG="sanei_jpeg.o"
-    SANEI_JPEG_LO="sanei_jpeg.lo"
+    BACKENDS="$ALL_BACKENDS"
+    user_selected_backends="no"
   fi
-  AC_SUBST(SANEI_JPEG)
-  AC_SUBST(SANEI_JPEG_LO)
-
-  if test "${sane_cv_use_libieee1284}" != "yes"
-    then
-    echo "*** disabling CANON_PP backend (failed to find libieee1284 library)"
-    echo "*** disabling HPSJ5S backend (failed to find libieee1284 library)"
-  else
-    BACKENDS="${BACKENDS} canon_pp hpsj5s"
-  fi
-
-  if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"
-    then
-    echo "*** disabling MUSTEK_PP backend (failed to find libieee1284 library"
-    echo "***                              and parport-directio is disabled)"
-  else
-    BACKENDS="${BACKENDS} mustek_pp"
-  fi
-
-  if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"
-    then
-    echo "*** disabling DELL1600N_NET backend (failed to find jpeg and/or tiff library)"
-  else
-    BACKENDS="${BACKENDS} dell1600n_net"
-  fi
-
-  if test "${HAVE_GPHOTO2}" != "true" \
-        -o "${sane_cv_use_libjpeg}" != "yes"; then
-    echo "*** disabling GPHOTO2 backend (not requested, or failed to find required libraries)"
-  else
-    BACKENDS="${BACKENDS} gphoto2"
-  fi
-
-  if test "${ac_cv_header_sys_scanio_h}" = "no"; then
-    echo "*** disabling PINT backend (sys/scanio.h not found)"
-  else
-    BACKENDS="${BACKENDS} pint"
-  fi
-
-  if test "${ac_cv_func_ioperm}" = "no" \
-      && test "${ac_cv_func__portaccess}" = "no"
-  then
-    echo "*** disabling qcam backend (ioperm or portaccess not found)"
-  else
-    BACKENDS="${BACKENDS} qcam"
-  fi
-
-  if test "${have_linux_ioctl_defines}" != "yes" || test "${have_libv4l1}" != "yes"
-  then
-    echo "*** disabling v4l (Video for Linux) backend"
-  else
-    BACKENDS="${BACKENDS} v4l"
-  fi
-
-  if test "${ac_cv_header_sys_socket_h}" = "no"; then
-    echo "*** disabling net backend (sys/socket.h not found)"
-  else
-    BACKENDS="${BACKENDS} net"
-  fi
-
-  if test "${have_pthread}" != "yes"; then
-    echo "*** disabling MUSTEK_USB2 backend (failed to find pthread library)"
-  else
-    BACKENDS="${BACKENDS} mustek_usb2"
-  fi
-
-  AC_ARG_ENABLE(pnm-backend, 
-    AC_HELP_STRING([--enable-pnm-backend],
-                   [enable the pnm backend for testing frontends (possible
-                    security risk, see PROBLEMS file)]),
-    [
-    BACKENDS="${BACKENDS} pnm"
-    ], [
-    echo "*** disabling pnm backend (not selected manually)"
-  ])
-fi
 fi
 
-AC_SUBST(BACKENDS)
+SANE_CHECK_BACKENDS
+
+#FIXME: This only works in sanie/ directory.  What needs to be
+#done to get it working for backend as well?  Is it even needed?
+#why is usb/scsi/firewire not optionally compiling sanei items as well?
+AC_SUBST(SANEI_JPEG)
+AC_SUBST(SANEI_JPEG_LO)
+
+AC_ARG_ENABLE(pnm-backend, 
+  AC_HELP_STRING([--enable-pnm-backend],
+                 [enable the pnm backend for testing frontends (possible security risk, see PROBLEMS file)]),
+                 [FILTERED_BACKENDS="${FILTERED_BACKENDS} pnm"],
+                 [echo "*** pnm backend not manually selected - disabling"])
+
+BACKENDS="$FILTERED_BACKENDS"
+BACKEND_LIBS_ENABLED=""
+BACKEND_CONFS_ENABLED=""
+for backend in ${BACKENDS} ; do
+  BACKEND_LIBS_ENABLED="${BACKEND_LIBS_ENABLED} libsane-${backend}.la"
+  BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+done
+AC_SUBST(BACKEND_LIBS_ENABLED)
 
 if test "${enable_shared}" = "no"; then
   enable_preload=yes
 fi
 if test "${enable_dynamic}" != yes || test "${enable_preload}" = "yes"; then
   echo "preloading backends into DLL"
-  DLL_PRELOAD="\$(PRELOADABLE_BACKENDS)"
+
+  # If user specifies backends manually then cause configure
+  # to fail if its detected it can't be compiled.  If we
+  # are in automatic mode then remove backend from list instead.
+  user_selected_backends="yes"
+
+  if eval "test x$enable_local_backends = xno"; then 
+    PRELOADABLE_BACKENDS="net"
+  else
+    if test "${PRELOADABLE_BACKENDS}" != "" ; then
+      AC_MSG_NOTICE([Manually selected preloadable backends: ${PRELOADABLE_BACKENDS}])
+    else
+      PRELOADABLE_BACKENDS="$ALL_BACKENDS"
+      user_selected_backends="no"
+    fi
+  fi
+
+  saved_BACKENDS="$BACKENDS"
+  BACKENDS="${PRELOADABLE_BACKENDS}"
+
+  SANE_CHECK_BACKENDS
+
+  PRELOADABLE_BACKENDS="$FILTERED_BACKENDS"
+  BACKENDS="$saved_BACKENDS"
 else
-  DLL_PRELOAD=""
+  PRELOADABLE_BACKENDS=""
 fi
-AC_SUBST(DLL_PRELOAD)
+PRELOADABLE_BACKENDS_ENABLED=""
+# Do not initialize BACKEND_CONFS_ENABLED so that its a combination
+# of all backends.
+for backend in ${PRELOADABLE_BACKENDS} ; do
+  BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+  # Special hacks.  Normally, we create a convenience library that
+  # matches the backend's name but in some cases that will conflict
+  # with an external library name that also matches backend name.
+  # Work around that here by renaming internal library.
+  if test "${backend}" = "gphoto2"; then
+    backend=gphoto2_i
+  fi
+  PRELOADABLE_BACKENDS_ENABLED="${PRELOADABLE_BACKENDS_ENABLED} lib${backend}.la"
+done
 
-dnl in BeOS, backends are not installed in lib/sane, but add-ons/SANE/
+AC_SUBST(PRELOADABLE_BACKENDS)
+AC_SUBST(PRELOADABLE_BACKENDS_ENABLED)
+AC_SUBST(BACKEND_CONFS_ENABLED)
+
+dnl in BeOS, backends are not installed in lib/sane, but add-ons/sane/
 dnl we account for both installing in /boot/beos and ~/config
-dnl faster than: if test "`uname`" = "BeOS" -o "`uname`" = "Zeta" ; then
-if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
-  BEOS_ADDONDIR="${libdir}/../add-ons/SANE"
-  AC_SUBST(BEOS_ADDONDIR)
-  BE_INSTALL_FLAVOR=-beos
-  AC_SUBST(BE_INSTALL_FLAVOR)
-fi
-
+case $host_os in
+  beos*)
+  libdir='${exec_prefix}/add-ons'
+  ;;
+esac
 
 AC_ARG_ENABLE(scsibuffersize, 
   AC_HELP_STRING([--enable-scsibuffersize=N],
@@ -622,6 +599,12 @@ echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do
+  echo $ECHO_N "${backend} " 
+done
+echo 
+echo
+echo "-> The following preload backends will be built:"
+for backend in ${PRELOADABLE_BACKENDS} ; do
   echo $ECHO_N "${backend} " 
 done
 echo

@@ -4,7 +4,6 @@ dnl   SANE_SET_CFLAGS(is_release)
 dnl   SANE_CHECK_MISSING_HEADERS
 dnl   SANE_SET_LDFLAGS
 dnl   SANE_CHECK_DLL_LIB
-dnl   SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
 dnl   SANE_CHECK_JPEG
 dnl   SANE_CHECK_IEEE1284
 dnl   SANE_CHECK_PTHREAD
@@ -14,6 +13,7 @@ dnl   SANE_LINKER_RPATH
 dnl   SANE_CHECK_U_TYPES
 dnl   SANE_CHECK_GPHOTO2
 dnl   SANE_CHECK_IPV6
+dnl   SANE_CHECK_BACKENDS
 dnl   SANE_PROTOTYPES
 dnl   AC_PROG_LIBTOOL
 dnl
@@ -108,6 +108,17 @@ AC_DEFUN([SANE_CHECK_MISSING_HEADERS],
 # Add special LDFLAGS
 AC_DEFUN([SANE_SET_LDFLAGS],
 [
+  # Define stricter linking policy on GNU systems.  This is not
+  # added to global LDFLAGS because we may want to create convenience
+  # libraries that don't require such strick linking.
+  if test "$GCC" = yes; then
+    case ${host_os} in
+    linux* | solaris*)
+      STRICT_LDFLAGS="-Wl,-z,defs"
+      ;;
+    esac
+  fi
+  AC_SUBST(STRICT_LDFLAGS)
   case "${host_os}" in  
     aix*) #enable .so libraries, disable archives
       LDFLAGS="$LDFLAGS -Wl,-brtl"
@@ -123,71 +134,32 @@ AC_DEFUN([SANE_SET_LDFLAGS],
 AC_DEFUN([SANE_CHECK_DLL_LIB],
 [
   dnl Checks for dll libraries: dl
-  DL_LIB=""
+  DL_LIBS=""
   if test "${enable_dynamic}" != "no"; then
       # dlopen
       AC_CHECK_HEADERS(dlfcn.h,
-      [AC_CHECK_LIB(dl,dlopen, DL_LIB=-ldl)
+      [AC_CHECK_LIB(dl, dlopen, DL_LIBS=-ldl)
        saved_LIBS="${LIBS}"
-       LIBS="${LIBS} ${DL_LIB}"
+       LIBS="${LIBS} ${DL_LIBS}"
        AC_CHECK_FUNCS(dlopen, enable_dynamic=yes,)
        LIBS="${saved_LIBS}"
       ],)
       # HP/UX DLL handling
       AC_CHECK_HEADERS(dl.h,
-      [AC_CHECK_LIB(dld,shl_load, DL_LIB=-ldld)
+      [AC_CHECK_LIB(dld,shl_load, DL_LIBS=-ldld)
        saved_LIBS="${LIBS}"
-       LIBS="${LIBS} ${DL_LIB}"
+       LIBS="${LIBS} ${DL_LIBS}"
        AC_CHECK_FUNCS(shl_load, enable_dynamic=yes,)
        LIBS="${saved_LIBS}"
       ],)
-      if test -z "$DL_LIB" ; then
+      if test -z "$DL_LIBS" ; then
       # old Mac OS X/Darwin (without dlopen)
       AC_CHECK_HEADERS(mach-o/dyld.h,
       [AC_CHECK_FUNCS(NSLinkModule, enable_dynamic=yes,)
       ],)
       fi
   fi
-  AC_SUBST(DL_LIB)
-
-  DYNAMIC_FLAG=
-  if test "${enable_dynamic}" = yes ; then
-    DYNAMIC_FLAG=-module
-  fi
-  AC_SUBST(DYNAMIC_FLAG)
-
-  #check if links for dynamic libs should be created
-  case "${host_os}" in
-  darwin*) 
-    USE_LINKS=no
-    ;;
-  *)
-    USE_LINKS=yes
-  esac
-  AC_SUBST(USE_LINKS)
-])
-
-#
-# Separate LIBS from LDFLAGS to link correctly on HP/UX (and other
-# platforms who care about the order of params to ld.  It removes all
-# non '-l..'-params from $2(LIBS), and appends them to $1(LDFLAGS)
-#
-# Use like this: SANE_EXTRACT_LDFLAGS(LDFLAGS, LIBS)
-AC_DEFUN([SANE_EXTRACT_LDFLAGS],
-[tmp_LIBS=""
-for param in ${$2}; do
-  case "${param}" in
-    -l*)
-         tmp_LIBS="${tmp_LIBS} ${param}"
-         ;;
-     *)
-         $1="${$1} ${param}"
-         ;;
-  esac
-done
-$2="${tmp_LIBS}"
-unset tmp_LIBS
-unset param
+  AC_SUBST(DL_LIBS)
 ])
 
 #
@@ -200,13 +172,14 @@ AC_DEFUN([SANE_CHECK_IEEE1284],
 	struct parport p; char *buf; 
 	ieee1284_nibble_read(&p, 0, buf, 1);
  	], 
-        [sane_cv_use_libieee1284="yes"; LIBS="${LIBS} -lieee1284"
+        [sane_cv_use_libieee1284="yes"; IEEE1284_LIBS="-lieee1284"
       ],[sane_cv_use_libieee1284="no"])
     ],)
   ],)
   if test "$sane_cv_use_libieee1284" = "yes" ; then
     AC_DEFINE(HAVE_LIBIEEE1284,1,[Define to 1 if you have the `ieee1284' library (-lcam).])
   fi
+  AC_SUBST(IEEE1284_LIBS)
 ])
 
 #
@@ -235,11 +208,15 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
     ])
   AC_CHECK_HEADERS(pthread.h,
     [
-       AC_CHECK_LIB(pthread,pthread_create)
+       AC_CHECK_LIB(pthread, pthread_create, PTHREAD_LIBS="-lpthread")
        have_pthread=yes
+       save_LIBS="$LIBS"
+       LIBS="$LIBS $PTHREAD_LIBS"
        AC_CHECK_FUNCS([pthread_create pthread_kill pthread_join pthread_detach pthread_cancel pthread_testcancel],
 	,[ have_pthread=no; use_pthread=no ])
+        LIBS="$save_LIBS"
     ],)
+  AC_SUBST(PTHREAD_LIBS)
  
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
@@ -270,10 +247,11 @@ AC_DEFUN([SANE_CHECK_JPEG],
         #if JPEG_LIB_VERSION >= 61
           sane_correct_jpeg_lib_version_found
         #endif
-      ],[sane_cv_use_libjpeg="yes"; LIBS="${LIBS} -ljpeg"; 
+      ], [sane_cv_use_libjpeg="yes"; JPEG_LIBS="-ljpeg"; 
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
+  AC_SUBST(JPEG_LIBS)
 ])
 
 # Checks for tiff library dell1600n_net backend.
@@ -282,8 +260,9 @@ AC_DEFUN([SANE_CHECK_TIFF],
   AC_CHECK_LIB(tiff,TIFFFdOpen, 
   [
     AC_CHECK_HEADER(tiffio.h, 
-    [sane_cv_use_libtiff="yes"; LIBS="${LIBS} -ltiff"],)
+    [sane_cv_use_libtiff="yes"; TIFF_LIBS="-ltiff"],)
   ],)
+  AC_SUBST(TIFF_LIBS)
 ])
 
 #
@@ -391,8 +370,14 @@ dnl Some of the following  types seem to be defined only in sys/bitypes.h on
 dnl some systems (e.g. Tru64 Unix). This is a problem for files that include
 dnl sys/bitypes.h indirectly (e.g. net.c). If this is true, we add
 dnl sys/bitypes.h to CPPFLAGS.
+dnl
+dnl FIXME: stdint.h is apart of C99 so we have datatypes that can be
+dnl used in place of these and we have a macro to create a replacement
+dnl stdint.h on platforms that do not support it.  The types below
+dnl are tricky to support; as the code below shows.
 AC_DEFUN([SANE_CHECK_U_TYPES],
-[if test "$ac_cv_header_sys_bitypes_h" = "yes" ; then
+[
+if test "$ac_cv_header_sys_bitypes_h" = "yes" ; then
   AC_MSG_CHECKING([for u_int8_t only in sys/bitypes.h])
   AC_EGREP_CPP(u_int8_t,
   [
@@ -413,12 +398,11 @@ AC_DEFUN([SANE_CHECK_U_TYPES],
 	AC_MSG_RESULT(yes)],
        [AC_MSG_RESULT([no, not even included with netinet/in.h])])])
 fi
-AC_CHECK_TYPE(u_int8_t, unsigned char)
-AC_CHECK_TYPE(u_int16_t, unsigned short)
-AC_CHECK_TYPE(u_int32_t, unsigned int)
-AC_CHECK_TYPE(u_char, unsigned char)
-AC_CHECK_TYPE(u_int, unsigned int)
-AC_CHECK_TYPE(u_long, unsigned long)
+dnl Use new style of check types that doesn't take default to use.
+dnl The old style would add an #undef of the type check on platforms
+dnl that defined that type... That is not portable to platform that
+dnl define it as a #define.
+AC_CHECK_TYPES([u_int8_t, u_int16_t, u_int32_t, u_char, u_int, u_long],,,)
 ])
 
 #
@@ -428,12 +412,8 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	AC_ARG_WITH(gphoto2,
 	  AC_HELP_STRING([--with-gphoto2],
                          [include the gphoto2 backend @<:@default=yes@:>@]),
-	[
-	
-	# If --with-gphoto2=no or --without-gphoto2, disable backend
-	# as "$with_gphoto2" will be set to "no"
-
-	])
+              [# If --with-gphoto2=no or --without-gphoto2, disable backend
+               # as "$with_gphoto2" will be set to "no"])
 
 	# If --with-gphoto2=yes (or not supplied), first check if 
 	# pkg-config exists, then use it to check if libgphoto2 is
@@ -442,31 +422,35 @@ AC_DEFUN([SANE_CHECK_GPHOTO2],
 	# LIBS and any other flags to GPHOTO2_LDFLAGS to pass to 
 	# sane-config.
 	if test "$with_gphoto2" != "no" ; then 
-
 		AC_CHECK_TOOL(HAVE_GPHOTO2, pkg-config, false)
 	
-		if test $HAVE_GPHOTO2 != "false" ; then
+    if test ${HAVE_GPHOTO2} != "false" ; then
 			if pkg-config --exists libgphoto2 ; then
-				with_gphoto2=`pkg-config --modversion libgphoto2`
-				CPPFLAGS="${CPPFLAGS} `pkg-config --cflags libgphoto2`"
+        with_gphoto2="`pkg-config --modversion libgphoto2`"
+        GPHOTO2_CPPFLAGS="`pkg-config --cflags libgphoto2`"
 				GPHOTO2_LIBS="`pkg-config --libs libgphoto2`"
-				SANE_EXTRACT_LDFLAGS(GPHOTO2_LDFLAGS, GPHOTO2_LIBS)
-				LDFLAGS="$LDFLAGS $GPHOTO2_LDFLAGS"
 
-				AC_SUBST(GPHOTO2_LDFLAGS)
-
+        saved_CPPFLAGS="${CPPFLAGS}"
+        CPPFLAGS="${GPHOTO2_CPPFLAGS}"
 			 	saved_LIBS="${LIBS}"
 				LIBS="${LIBS} ${GPHOTO2_LIBS}"
 				# Make sure we an really use the library
-				AC_CHECK_FUNCS(gp_camera_init,HAVE_GPHOTO2=true, 
-					[ LIBS="${saved_LIBS}"
-					HAVE_GPHOTO2=false ])
+        AC_CHECK_FUNCS(gp_camera_init,
+                       HAVE_GPHOTO2=true, 
+                       HAVE_GPHOTO2=false)
+        CPPFLAGS="${saved_CPPFLAGS}"
+        LIBS="${saved_LIBS}"
 			else
 				HAVE_GPHOTO2=false
 			fi
+      if test "${HAVE_GPHOTO2}" = "false"; then
+        GPHOTO2_CPPFLAGS="" 
+        GPHOTO2_LIBS="" 
 		fi
 	fi
-
+  fi
+  AC_SUBST(GPHOTO2_CPPFLAGS)
+  AC_SUBST(GPHOTO2_LIBS)
 ])
 
 #
@@ -537,66 +521,216 @@ AC_DEFUN([SANE_CHECK_IPV6],
 ])
 
 #
+# Verifies that values in $BACKENDS and updates FILTERED_BACKEND
+# with either backends that can be compiled or fails the script.
+AC_DEFUN([SANE_CHECK_BACKENDS],
+[
+if test "${user_selected_backends}" = "yes"; then
+  DISABLE_MSG="aborting"
+else
+  DISABLE_MSG="disabling"
+fi
+
+FILTERED_BACKENDS=""
+for be in ${BACKENDS}; do
+  backend_supported="yes"
+  case $be in
+    plustek_pp)
+    case "$host_os" in
+      gnu*) 
+      echo "*** $be backend not supported on GNU/Hurd - $DISABLE_MSG"
+      backend_supported="no"
+      ;;
+    esac
+    ;;
+
+    dc210|dc240)
+    if test "${sane_cv_use_libjpeg}" != "yes"; then
+      echo "*** $be backend requires JPEG library - $DISABLE_MSG"
+      backend_supported="no"
+    else
+      SANEI_JPEG="sanei_jpeg.o"
+      SANEI_JPEG_LO="sanei_jpeg.lo"
+    fi
+    ;;
+
+    canon_pp|hpsj5s)
+    if test "${sane_cv_use_libieee1284}" != "yes"; then
+      echo "*** $be backend requires libieee1284 library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    mustek_pp)
+    if test "${sane_cv_use_libieee1284}" != "yes" && test "${enable_parport_directio}" != "yes"; then
+      echo "*** $be backend requires libieee1284 and paraport-directio libraries - DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    dell1600n_net) 
+    if test "${sane_cv_use_libjpeg}" != "yes" || test "${sane_cv_use_libtiff}" != "yes"; then
+      echo "*** $be backend requires JPEG and/or TIFF library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    gphoto2)
+    if test "${HAVE_GPHOTO2}" != "true" \
+      -o "${sane_cv_use_libjpeg}" != "yes"; then
+      echo "*** $be backend requires gphoto2 and JPEG libraries - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    pint)
+    if test "${ac_cv_header_sys_scanio_h}" = "no"; then
+      echo "*** $be backend requires sys/scanio.h - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    qcam)
+    if test "${ac_cv_func_ioperm}" = "no" \
+      && test "${ac_cv_func__portaccess}" = "no"; then
+      echo "*** $be backend requires ioperm and portaccess functions - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    v4l)
+    if test "${have_linux_ioctl_defines}" != "yes" \
+      || test "${have_libv4l1}" != "yes"; then
+      echo "*** $be backend requires v4l libraries - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    net)
+    if test "${ac_cv_header_sys_socket_h}" = "no"; then
+      echo "*** $be backend requires sys/socket.h - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
+    mustek_usb2)
+    if test "${have_pthread}" != "yes"; then
+      echo "*** $be backend requires pthread library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+  esac
+  if test "${backend_supported}" = "no"; then
+    if test "${user_selected_backends}" = "yes"; then
+      exit 1
+    fi
+  else
+    FILTERED_BACKENDS="${FILTERED_BACKENDS} $be"
+  fi
+done
+])
+
+#
 # Generate prototypes for functions not available on the system
 AC_DEFUN([SANE_PROTOTYPES],
 [
 AH_BOTTOM([
 
+/* FIXME: Do not use these types in code anymore.  Use types defined
+ * in C99 stdint.h and available in our cross-platform _stdint.h.
+ */
+#ifndef HAVE_U_INT8_T
+#define u_int8_t unsigned char
+#endif
+#ifndef HAVE_U_INT16_T
+#define u_int16_t unsigned int
+#endif
+#ifndef HAVE_U_INT32_T
+#define u_int32_t unsigned long
+#endif
+#ifndef HAVE_U_CHAR
+#define u_char unsigned char
+#endif
+#ifndef HAVE_U_INT
+#define u_int unsigned int
+#endif
+#ifndef HAVE_U_LONG
+#define u_long unsigned long
+#endif
+/* END of FIXME: Do not use above types */
+
 /* Prototype for getenv */
 #ifndef HAVE_GETENV
+#define getenv sanei_getenv
 char * getenv(const char *name);
 #endif
 
 /* Prototype for inet_ntop */
 #ifndef HAVE_INET_NTOP
+#define inet_ntop sanei_inet_ntop
 #include <sys/types.h>
 const char * inet_ntop (int af, const void *src, char *dst, size_t cnt);
 #endif
 
 /* Prototype for inet_pton */
 #ifndef HAVE_INET_PTON
+#define inet_pton sanei_inet_pton
 int inet_pton (int af, const char *src, void *dst);
 #endif
 
 /* Prototype for isfdtype */
 #ifndef HAVE_ISFDTYPE
+#define isfdtype sanei_isfdtype
 int isfdtype(int fd, int fdtype);
 #endif
 
 /* Prototype for sigprocmask */
 #ifndef HAVE_SIGPROCMASK
+#define sigprocmask sanei_sigprocmask
 int sigprocmask (int how, int *new, int *old);
 #endif
 
 /* Prototype for snprintf */
 #ifndef HAVE_SNPRINTF
+#define snprintf sanei_snprintf
 #include <sys/types.h>
 int snprintf (char *str,size_t count,const char *fmt,...);
 #endif
 
+/* Prototype for strcasestr */
+#ifndef HAVE_STRCASESTR
+#define strcasestr sanei_strcasestr
+int strcasestr (const char *phaystack, const char *pneedle);
+#endif
+
 /* Prototype for strdup */
 #ifndef HAVE_STRDUP
+#define strdup sanei_strdup
 char *strdup (const char * s);
 #endif
 
 /* Prototype for strndup */
 #ifndef HAVE_STRNDUP
+#define strndup sanei_strndup
 #include <sys/types.h>
 char *strndup(const char * s, size_t n);
 #endif
 
 /* Prototype for strsep */
 #ifndef HAVE_STRSEP
+#define strsep sanei_strsep
 char *strsep(char **stringp, const char *delim);
 #endif
 
 /* Prototype for usleep */
 #ifndef HAVE_USLEEP
+#define strsep sanei_usleep
 unsigned int usleep (unsigned int useconds);
 #endif
 
 /* Prototype for vsyslog */
 #ifndef HAVE_VSYSLOG
+#define vsyslog sanei_vsyslog
 #include <stdarg.h>
 void vsyslog(int priority, const char *format, va_list args);
 #endif

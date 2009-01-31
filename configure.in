@@ -418,6 +418,10 @@ SANE_CHECK_BACKENDS
 #FIXME: This only works in sanie/ directory.  What needs to be
 #done to get it working for backend as well?  Is it even needed?
 #why is usb/scsi/firewire not optionally compiling sanei items as well?
+if test "${sane_cv_use_libjpeg}" = "yes"; then
+  SANEI_JPEG="sanei_jpeg.o"
+  SANEI_JPEG_LO="sanei_jpeg.lo"
+fi
 AC_SUBST(SANEI_JPEG)
 AC_SUBST(SANEI_JPEG_LO)
 

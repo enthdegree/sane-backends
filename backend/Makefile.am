@@ -44,19 +44,19 @@ dll.c: dll-preload.h
 dll-preload.h:
 	rm -f $@
 	list="$(PRELOADABLE_BACKENDS)"; for be in $$list; do \
-	     echo "PRELOAD_DECL($$be)" >> $@; \
-	     done
+	  echo "PRELOAD_DECL($$be)" >> $@; \
+	done
 	echo "static struct backend preloaded_backends[] = {" >> $@
 	sep=""; \
-	    list="$(PRELOADABLE_BACKENDS)"; \
-	    if test -z "$${list}"; then \
-	    echo { 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }} >> $@; \
-	    else \
-	    for be in $$list; do \
+	list="$(PRELOADABLE_BACKENDS)"; \
+	if test -z "$${list}"; then \
+	  echo { 0, 0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }} >> $@; \
+	else \
+	  for be in $$list; do \
 	    echo "$${sep}PRELOAD_DEFN($$be)" >> $@; \
 	    sep=","; \
-	    done; \
-	    fi
+	  done; \
+	fi
 	echo "};" >> $@
 
 # TODO: This really belongs together with the saned sources and
@@ -124,7 +124,7 @@ uninstall-hook:
 	rm -f $(DESTDIR)$(libdir)/libsane.*
 	-for dir in $(FIRMWARE_DIRS) ; do \
 	  rmdir $(DESTDIR)$(datadir)/sane/$${dir} ; \
-	  done
+	done
 
 CLEANFILES = dll-preload.h $(BACKEND_CONFS) $(be_convenience_libs)
 clean-local:

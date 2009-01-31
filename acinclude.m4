@@ -548,9 +548,6 @@ for be in ${BACKENDS}; do
     if test "${sane_cv_use_libjpeg}" != "yes"; then
       echo "*** $be backend requires JPEG library - $DISABLE_MSG"
       backend_supported="no"
-    else
-      SANEI_JPEG="sanei_jpeg.o"
-      SANEI_JPEG_LO="sanei_jpeg.lo"
     fi
     ;;
 

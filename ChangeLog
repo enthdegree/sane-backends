@@ -1,5 +1,9 @@
 2009-01-31 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
-	* backend/Makefil.am: Add missing math library to coolscan2.
+	* backend/Makefil.am: Add missing math library to coolscan2
+	and coolscan3.
+	* acinclude.m4, configure.in: Define JPEG objects based on
+	existence of JPEG library and not on the dc* backends alone
+	since more backends then that use JPEG support.
 
 2009-01-30 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* frontend/saned.c: Replace usage of getgrouplist() with

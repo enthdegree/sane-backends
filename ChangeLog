@@ -1,4 +1,9 @@
-2009-01-26 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+2009-01-30 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* frontend/saned.c: Replace usage of getgrouplist() with
+	getgrent() and friends.  getgrouplist is not posix and not
+	on several platforms including cygwin.
+
+2009-01-29 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/epson2.c backend/pixma_bjnp.c, include/sane/sanei_backend.h,
 	sanei/sanei_tcp.c, sanie/sanei_udp.c: Improve portablity by
 	removing usage of MSG_WAITALL since not all platforms support
@@ -6,7 +11,7 @@
 	usage of MSG_NOTWAIT to use fcntl() function as needed as well.
 	* configure.in, lib/Makefile.in, lib/strcasestr.c: Add internal
 	strcasestr() for platforms missing it (cygwin).
-	* pixma_common.c: My source match header prototype for picky
+	* pixma_common.c: Make source match header prototype for picky
 	compilers (cygwin).
 	* backend/umax_pp_mid.c: Allow BACKEND_NAME to be filename
 	yet debug to be SANE_DEBUG_UMAX_PP to match man page. 

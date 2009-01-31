@@ -1656,8 +1656,8 @@ do_scan (Wire * w, int h, int data_fd)
 	  if (be_fd >= 0 && errno == EBADF)
 	    {
 	      /* This normally happens when a backend closes a select
-	         filedescriptor when reaching the end of file.  So
-	         pass back this status to the client: */
+		 filedescriptor when reaching the end of file.  So
+		 pass back this status to the client: */
 	      FD_CLR (be_fd, &rd_mask);
 	      be_fd = -1;
 	      /* only set status_dirty if EOF hasn't been already detected */
@@ -2866,7 +2866,8 @@ run_standalone (int argc, char **argv)
   uid_t runas_uid = 0;
   gid_t runas_gid = 0;
   struct passwd *pwent;
-  gid_t *grplist;
+  gid_t *grplist = NULL;
+  struct group *grp;
   int ngroups = 0;
   FILE *pidfile;
 
@@ -2888,8 +2889,7 @@ run_standalone (int argc, char **argv)
 	  runas_gid = pwent->pw_gid;
 
 	  /* Get group list for runas_uid */
-	  ngroups = 10;
-	  grplist = (gid_t *) malloc (ngroups * sizeof(gid_t));
+          grplist = (gid_t *)malloc(sizeof(gid_t));
 
 	  if (grplist == NULL)
 	    {
@@ -2898,25 +2898,47 @@ run_standalone (int argc, char **argv)
 	      exit (1);
 	    }
 
-	  ret = getgrouplist (argv[2], runas_gid, grplist, &ngroups);
-	  if (ret < 0)
+          ngroups = 1;
+          grplist[0] = runas_gid;
+
+          setgrent();
+          while ((grp = getgrent()) != NULL)
 	    {
-	      grplist = (gid_t *) realloc (grplist, ngroups * sizeof(gid_t));
-	      if (grplist == NULL)
+              int i = 0;
+
+              /* Already added current group */
+              if (grp->gr_gid == runas_gid)
+                continue;
+
+              while (grp->gr_mem[i])
 		{
-		  DBG (DBG_ERR, "FATAL ERROR: cannot reallocate memory for group list\n");
+                  if (strcmp(grp->gr_mem[i], argv[2]) == 0)
+                    {
+                      int need_to_add = 1, j;
 
-		  exit (1);
-		}
+                      /* Make sure its not already in list */
+                      for (j = 0; j < ngroups; j++)
+                        {
+                          if (grp->gr_gid == grplist[i])
+                            need_to_add = 0;
+			}
+                      if (need_to_add)
+                        {
+                          grplist = (gid_t *)realloc(grplist, 
+                                                     sizeof(gid_t)*ngroups+1);
+                          if (grplist == NULL)
+			    {
+			      DBG (DBG_ERR, "FATAL ERROR: cannot reallocate memory for group list\n");
 
-	      ret = getgrouplist (argv[2], runas_gid, grplist, &ngroups);
-	      if (ret < 0)
-		{
-		  DBG (DBG_ERR, "FATAL ERROR: getgrouplist() failed again\n");
-
-		  exit (1);
-		}
+			      exit (1);
+			    }
+                          grplist[ngroups++] = grp->gr_gid;
+                        }
+                    }
+                  i++;
+                }
 	    }
+          endgrent();
 	}
 
       DBG (DBG_MSG, "run_standalone: daemonizing now\n");

@@ -1,3 +1,6 @@
+2009-01-31 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* backend/Makefil.am: Add missing math library to coolscan2.
+
 2009-01-30 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* frontend/saned.c: Replace usage of getgrouplist() with
 	getgrent() and friends.  getgrouplist is not posix and not

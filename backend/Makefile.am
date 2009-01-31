@@ -330,7 +330,7 @@ libcoolscan2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan2
 nodist_libsane_coolscan2_la_SOURCES = coolscan2-s.c
 libsane_coolscan2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan2
 libsane_coolscan2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_coolscan2_la_LIBADD = $(COMMON_LIBS) libcoolscan2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo @SCSI_LIBS@ @CAM_LIBS@
+libsane_coolscan2_la_LIBADD = $(COMMON_LIBS) libcoolscan2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo @SCSI_LIBS@ @CAM_LIBS@ @MATH_LIB@
 EXTRA_DIST += coolscan2.conf.in
 
 libcoolscan3_la_SOURCES = coolscan3.c
@@ -339,7 +339,7 @@ libcoolscan3_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan3
 nodist_libsane_coolscan3_la_SOURCES = coolscan3-s.c
 libsane_coolscan3_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=coolscan3
 libsane_coolscan3_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_coolscan3_la_LIBADD = $(COMMON_LIBS) libcoolscan3.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo @SCSI_LIBS@ @CAM_LIBS@
+libsane_coolscan3_la_LIBADD = $(COMMON_LIBS) libcoolscan3.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo @SCSI_LIBS@ @CAM_LIBS@ @MATH_LIB@
 EXTRA_DIST += coolscan3.conf.in
 
 libdc25_la_SOURCES = dc25.c dc25.h

@@ -21,7 +21,7 @@ AM_LDFLAGS = @STRICT_LDFLAGS@ @NO_UNDEFINED_LDFLAGS@
 # The -rpath option is added because we are creating _LTLIBRARIES based
 # on configure substitution.  This causes automake to not know the
 # correct $libdir and must be added here.
-DIST_SANELIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)/sane' -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
+DIST_SANELIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)/sane' -version-number $(V_MAJOR):$(V_MINOR):$(V_REV) $(DYNAMIC_FLAG)
 DIST_LIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)' -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
 
 # LIBTOOL install is a little to noisy for my liking.

@@ -1,3 +1,7 @@
+2009-02-11  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* acinclude.m4, backend/Makefile.am: Restore the removed
+	DYNAMIC_FLAG configuration.
+
 2009-01-31 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/Makefil.am: Add missing math library to coolscan2
 	and coolscan3.

@@ -160,6 +160,12 @@ AC_DEFUN([SANE_CHECK_DLL_LIB],
       fi
   fi
   AC_SUBST(DL_LIBS)
+
+  DYNAMIC_FLAG=
+  if test "${enable_dynamic}" = yes ; then
+    DYNAMIC_FLAG=-module
+  fi
+  AC_SUBST(DYNAMIC_FLAG)
 ])
 
 #

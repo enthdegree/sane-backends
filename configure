@@ -844,6 +844,7 @@ CAM_LIBS
 SCSI_LIBS
 MATH_LIB
 DL_LIBS
+DYNAMIC_FLAG
 effective_target
 LINKER_RPATH
 STRICT_LDFLAGS
@@ -7958,6 +7959,12 @@ fi
 done
 
       fi
+  fi
+
+
+  DYNAMIC_FLAG=
+  if test "${enable_dynamic}" = yes ; then
+    DYNAMIC_FLAG=-module
   fi
 
 

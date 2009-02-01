@@ -3946,7 +3946,7 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
 
   if (inBuff && inLen){
     if(ret == SANE_STATUS_EOF){
-      DBG(25, "in: short read, remainder %d bytes\n", s->rs_info);
+      DBG(25, "in: short read, remainder %lu bytes\n", (u_long)s->rs_info);
       *inLen -= s->rs_info;
     }
     hexdump(30, "in: <<", inBuff, *inLen);
@@ -4005,7 +4005,8 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     sanei_usb_set_timeout(cmdTime);
 
     /* write the command out */
-    DBG(25, "cmd: writing %d bytes, timeout %d\n", usb_cmdLen, cmdTime);
+    DBG(25, "cmd: writing %lu bytes, timeout %d\n", (u_long)usb_cmdLen,
+        cmdTime);
     hexdump(30, "cmd: >>", usb_cmdBuff, usb_cmdLen);
     ret = sanei_usb_write_bulk(s->fd, usb_cmdBuff, &usb_cmdLen);
     DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)usb_cmdLen, ret);

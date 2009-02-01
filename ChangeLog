@@ -3,7 +3,8 @@
 	DYNAMIC_FLAG configuration.
 	* acinclude.m4, sanei/sanei_jpeg.c: Don't compile sanei_jpeg
 	if libjpeg is unavailable.
-	* backend/hs2p-scsi.c: format fix.
+	* backend/canon_dr.c, backend/hs2p-scsi.c, backend/xerox_mfp.c:
+	format fixes.
 	* backend/hs2p.c: fix missing return.
 	* backend/canon630u-common.c: avoid redefinition warning.
 

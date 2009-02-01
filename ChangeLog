@@ -5,6 +5,7 @@
 	if libjpeg is unavailable.
 	* backend/hs2p-scsi.c: format fix.
 	* backend/hs2p.c: fix missing return.
+	* backend/canon630u-common.c: avoid redefinition warning.
 
 2009-01-31 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/Makefil.am: Add missing math library to coolscan2

@@ -66,7 +66,7 @@
 
 #define USB_TYPE_VENDOR                 (0x02 << 5)
 #define USB_RECIP_DEVICE                0x00
-#define USB_DIR_OUT                     0
+#define USB_DIR_OUT                     0x00
 #define USB_DIR_IN                      0x80
 
 /* Assign status and verify a good return code */

@@ -444,8 +444,8 @@ sense_handler (int __sane_unused__ scsi_fd, u_char * sense_buffer, void *sd)
     print_sense_data (DBG_LEVEL, (SENSE_DATA *) sense_buffer);
 
   /* store sense_buffer */
-  DBG (DBG_info, ">> copying %d bytes from sense_buffer[] to sense_data\n",
-       sizeof (SENSE_DATA));
+  DBG (DBG_info, ">> copying %lu bytes from sense_buffer[] to sense_data\n",
+       (u_long) sizeof (SENSE_DATA));
   memcpy (sdp, sense_buffer, sizeof (SENSE_DATA));
   if (DBG_LEVEL >= DBG_info)
     print_sense_data (DBG_LEVEL, sdp);

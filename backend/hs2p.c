@@ -1891,6 +1891,7 @@ hs2p_open (HS2P_Scanner * s)
       return status;
     }
   DBG (DBG_proc, "<< hs2p_open\n");
+  return SANE_STATUS_GOOD;
 }
 
 static SANE_Status

@@ -634,7 +634,7 @@ char *strsep(char **stringp, const char *delim);
 
 /* Prototype for usleep */
 #ifndef HAVE_USLEEP
-#define strsep sanei_usleep
+#define usleep sanei_usleep
 unsigned int usleep (unsigned int useconds);
 #endif
 

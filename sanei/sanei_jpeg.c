@@ -3,6 +3,10 @@
    README.jpeg in the top level directory.
  */
 
+#include "../include/sane/config.h"
+
+#ifdef HAVE_LIBJPEG
+
 #include "sane/sanei_jpeg.h"
 
 typedef struct
@@ -227,3 +231,5 @@ sanei_jpeg_jinit_write_ppm (j_decompress_ptr cinfo)
 
   return (djpeg_dest_ptr) dest;
 }
+
+#endif

@@ -1,6 +1,8 @@
 2009-02-11  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* acinclude.m4, backend/Makefile.am: Restore the removed
 	DYNAMIC_FLAG configuration.
+	* acinclude.m4, sanei/sanei_jpeg.c: Don't compile sanei_jpeg
+	if libjpeg is unavailable.
 
 2009-01-31 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* backend/Makefil.am: Add missing math library to coolscan2

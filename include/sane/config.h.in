@@ -150,6 +150,9 @@
 /* Define to 1 if you have the `ieee1284' library (-lcam). */
 #undef HAVE_LIBIEEE1284
 
+/* Define to 1 if you have the libjpeg library. */
+#undef HAVE_LIBJPEG
+
 /* Define to 1 if you have the `usb' library (-lusb). */
 #undef HAVE_LIBUSB
 

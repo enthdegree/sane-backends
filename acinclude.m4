@@ -257,6 +257,9 @@ AC_DEFUN([SANE_CHECK_JPEG],
       AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     ],)
   ],)
+  if test "$sane_cv_use_libjpeg" = "yes" ; then
+    AC_DEFINE(HAVE_LIBJPEG,1,[Define to 1 if you have the libjpeg library.])
+  fi
   AC_SUBST(JPEG_LIBS)
 ])
 

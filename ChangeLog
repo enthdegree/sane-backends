@@ -1,3 +1,9 @@
+2009-02-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* backend/pixma_common.c backend/pixma_common.h /backend/pixma_imageclass.c
+	backend/pixma_mp150.c backend/pixma_mp730.c backend/pixma_mp750.c:
+	Change ALIGN macro name to ALIGN_SUP for PPC compatibility.
+	Some cosmetic changes to source code alignment.
+
 2009-02-01 Alex belkin <abc@telekom.ru>
 	* backend/xerox_mfp.c backend/xerox_mfp.h:
 	Proper handling of parameters (to fix xsane crash).

@@ -98,6 +98,7 @@ enum iclass_cmd_t
   cmd_status = 0xf320,
   cmd_abort_session = 0xef20,
   cmd_read_image = 0xd420,
+  cmd_error_info = 0xff20,
 
   cmd_activate = 0xcf60
 };
@@ -257,19 +258,18 @@ request_image_block (pixma_t * s, unsigned flag, uint8_t * info,
   if (error >= 0)
     {
       if (mf->cb.reslen == 8)
-	{
-	  *info = mf->cb.buf[2];
-	  *size = pixma_get_be16 (mf->cb.buf + 6);
-	  /* could it be 32bit? */
-	  /* *size = pixma_get_be32 (mf->cb.buf + 4); */
-	}
+        {
+          *info = mf->cb.buf[2];
+          *size = pixma_get_be16 (mf->cb.buf + 6);
+          /* could it be 32bit? */
+          /* *size = pixma_get_be32 (mf->cb.buf + 4); */
+        }
       else
-	{
-	  error = PIXMA_EPROTO;
-	}
+        {
+          error = PIXMA_EPROTO;
+        }
     }
   return error;
-
 }
 
 static int
@@ -280,19 +280,50 @@ read_image_block (pixma_t * s, uint8_t * data, unsigned size)
   while (size)
     {
       if (size >= MAX_CHUNK_SIZE)
-	chunksize = MAX_CHUNK_SIZE;
+      	chunksize = MAX_CHUNK_SIZE;
       else if (size < MIN_CHUNK_SIZE)
-	chunksize = size;
+      	chunksize = size;
       else
-	chunksize = size - (size % MIN_CHUNK_SIZE);
+      	chunksize = size - (size % MIN_CHUNK_SIZE);
       error = pixma_read (s->io, data, chunksize);
       if (error < 0)
-	return count;
+      	return count;
       count += error;
       data += error;
       size -= error;
     }
   return count;
+}
+
+static int
+read_error_info (pixma_t * s, void *buf, unsigned size)
+{
+  unsigned len = 16;
+  iclass_t *mf = (iclass_t *) s->subdriver;
+  uint8_t *data;
+  int error;
+
+  data = pixma_newcmd (&mf->cb, cmd_error_info, 0, len);
+  switch (s->cfg->pid)
+    {
+    case MF4200_PID:
+    case MF4600_PID:
+      error = iclass_exec (s, &mf->cb, 0);
+      break;
+    case MF4100_PID:
+    default:
+      error = pixma_exec (s, &mf->cb);
+    }
+  if (error < 0)
+    return error;
+  if (buf && len < size)
+    {
+      size = len;
+      /* NOTE: I've absolutely no idea what the returned data mean. */
+      memcpy (buf, data, size);
+      error = len;
+    }
+  return error;
 }
 
 static int
@@ -348,11 +379,11 @@ pack_rgb (const uint8_t * src, unsigned nlines, unsigned w, uint8_t * dst)
     {
       unsigned x;
       for (x = 0; x != w; x++)
-	{
-	  *dst++ = src[x + 0];
-	  *dst++ = src[x + w];
-	  *dst++ = src[x + w2];
-	}
+        {
+          *dst++ = src[x + 0];
+          *dst++ = src[x + w];
+          *dst++ = src[x + w2];
+        }
       src += stride;
     }
 }
@@ -409,7 +440,7 @@ iclass_check_param (pixma_t * s, pixma_scan_param_t * sp)
   UNUSED (s);
 
   sp->depth = 8;
-  sp->line_size = ALIGN (sp->w, 32) * sp->channels;
+  sp->line_size = ALIGN_SUP (sp->w, 32) * sp->channels;
   return 0;
 }
 
@@ -429,7 +460,7 @@ iclass_scan (pixma_t * s)
     {
     }
 
-  mf->raw_width = ALIGN (s->param->w, 32);
+  mf->raw_width = ALIGN_SUP (s->param->w, 32);
   PDBG (pixma_dbg (3, "raw_width = %u\n", mf->raw_width));
 
   n = IMAGE_BLOCK_SIZE / s->param->line_size + 1;
@@ -484,63 +515,68 @@ iclass_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   do
     {
       do
-	{
-	  if (s->cancel)
-	    return PIXMA_ECANCELED;
-	  if (mf->last_block)
-	    {
-	      /* end of image */
-	      mf->state = state_finished;
-	      return 0;
-	    }
+        {
+          if (s->cancel)
+            return PIXMA_ECANCELED;
+          if (mf->last_block)
+            {
+              /* end of image */
+              mf->state = state_finished;
+              return 0;
+            }
 
-	  error = request_image_block (s, 4, &info, &block_size);
-	  if (error < 0)
-	    return error;
+          error = request_image_block (s, 4, &info, &block_size);
+          if (error < 0)
+            {
+              /* NOTE: seen in traffic logs but don't know the meaning. */
+              read_error_info (s, NULL, 0);
+              if (error == PIXMA_ECANCELED)
+                return error;
+            }
 
-	  /* info: 0x28 = end; 0x38 = end + ADF empty */
-	  mf->last_block = info & 0x38;
-	  if ((info & ~0x38) != 0)
-	    {
-	      PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
-	      PDBG (pixma_hexdump (1, &info, 1));
-	    }
+          /* info: 0x28 = end; 0x38 = end + ADF empty */
+          mf->last_block = info & 0x38;
+          if ((info & ~0x38) != 0)
+            {
+              PDBG (pixma_dbg (1, "WARNING: Unexpected result header\n"));
+              PDBG (pixma_hexdump (1, &info, 1));
+            }
 
-	  if (block_size == 0)
-	    {
-	      /* no image data at this moment. */
-	      /*pixma_sleep(100000); *//* FIXME: too short, too long? */
-	      handle_interrupt (s, 100);
-	    }
-	}
+          if (block_size == 0)
+            {
+              /* no image data at this moment. */
+              /*pixma_sleep(100000); *//* FIXME: too short, too long? */
+              handle_interrupt (s, 100);
+            }
+        }
       while (block_size == 0);
 
       error = read_image_block (s, mf->blkptr + mf->blk_len, block_size);
       block_size = error;
       if (error < 0)
-	return error;
+        return error;
 
       /* add current block to remainder of previous */
       mf->blk_len += block_size;
       /* n = number of full lines (rows) we have in the buffer. */
       n = mf->blk_len / s->param->line_size;
       if (n != 0)
-	{
-	  if (s->param->channels != 1)
-	    {
-	      /* color */
-	      pack_rgb (mf->blkptr, n, mf->raw_width, mf->lineptr);
-	    }
-	  else
-	    {
-	      /* grayscale */
-	      memcpy (mf->lineptr, mf->blkptr, n * s->param->line_size);
-	    }
-	  lines_size = n * s->param->line_size;
-	  /* cull remainder and shift left */
-	  mf->blk_len -= block_size;
-	  memcpy (mf->blkptr, mf->blkptr + block_size, mf->blk_len);
-	}
+        {
+          if (s->param->channels != 1)
+            {
+              /* color */
+              pack_rgb (mf->blkptr, n, mf->raw_width, mf->lineptr);
+            }
+          else
+            {
+              /* grayscale */
+              memcpy (mf->lineptr, mf->blkptr, n * s->param->line_size);
+            }
+          lines_size = n * s->param->line_size;
+          /* cull remainder and shift left */
+          mf->blk_len -= block_size;
+          memcpy (mf->blkptr, mf->blkptr + block_size, mf->blk_len);
+        }
     }
   while (n == 0);
 

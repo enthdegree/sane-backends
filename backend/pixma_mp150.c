@@ -505,15 +505,15 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
      other models, too? */
   if (mp->generation >= 2)
     {
-      raw_width = ALIGN (param->w, 32);
+      raw_width = ALIGN_SUP (param->w, 32);
     }
   else if (param->channels == 1)
     {
-      raw_width = ALIGN (param->w, 12);
+      raw_width = ALIGN_SUP (param->w, 12);
     }
   else
     {
-      raw_width = ALIGN (param->w, 4);
+      raw_width = ALIGN_SUP (param->w, 4);
     }
   return raw_width;
 }

@@ -333,21 +333,21 @@ pixma_check_result (pixma_cmdbuf_t * cb)
     {
       error = pixma_map_status_errno (pixma_get_be16 (r));
       if (expected_reslen != 0)
-	{
-	  if (len == expected_reslen)
-	    {
-	      if (pixma_sum_bytes (r + header_len, len - header_len) != 0)
-		error = PIXMA_EPROTO;
-	    }
-	  else
-	    {
-	      /* This case will happen when a command cannot be completely
-	         executed, e.g. because you press the cancel button. The
-	         device will return only a header with PIXMA_STATUS_FAILED. */
-	      if (len != header_len)
-		error = PIXMA_EPROTO;
-	    }
-	}
+        {
+          if (len == expected_reslen)
+            {
+              if (pixma_sum_bytes (r + header_len, len - header_len) != 0)
+                 error = PIXMA_EPROTO;
+            }
+          else
+            {
+              /* This case will happen when a command cannot be completely
+                 executed, e.g. because you press the cancel button. The
+                 device will return only a header with PIXMA_STATUS_FAILED. */
+              if (len != header_len)
+                 error = PIXMA_EPROTO;
+            }
+        }
     }
   else
     error = PIXMA_EPROTO;
@@ -373,13 +373,13 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
   if (error != (int) cmdlen)
     {
       if (error >= 0)
-	{
-	  /* Write timeout is too low? */
-	  PDBG (pixma_dbg
-		(1, "ERROR:incomplete write, %u out of %u written\n",
-		 (unsigned) error, cmdlen));
-	  error = PIXMA_ETIMEDOUT;
-	}
+        {
+          /* Write timeout is too low? */
+          PDBG (pixma_dbg
+          (1, "ERROR:incomplete write, %u out of %u written\n",
+           (unsigned) error, cmdlen));
+          error = PIXMA_ETIMEDOUT;
+        }
       return error;
     }
 
@@ -396,7 +396,7 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
     {
       error = pixma_read (s->io, data, expected_len);
       if (error == PIXMA_ETIMEDOUT)
-	PDBG (pixma_dbg (2, "No response yet. Timed out in %d sec.\n", tmo));
+        PDBG (pixma_dbg (2, "No response yet. Timed out in %d sec.\n", tmo));
     }
   while (error == PIXMA_ETIMEDOUT && --tmo != 0);
   if (error < 0)
@@ -404,10 +404,8 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
       PDBG (pixma_dbg (1, "WARNING:Error in response phase. cmd:%02x%02x\n",
 		       ((const uint8_t *) cmd)[0],
 		       ((const uint8_t *) cmd)[1]));
-      PDBG (pixma_dbg
-	    (1,
-	     "   If the scanner hangs, reset it and/or unplug the "
-	     "USB cable.\n"));
+      PDBG (pixma_dbg (1,"  If the scanner hangs, reset it and/or unplug the "
+	                       "USB cable.\n"));
     }
   return error;			/* length of the result packet or error */
 }

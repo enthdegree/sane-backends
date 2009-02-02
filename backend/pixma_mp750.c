@@ -262,14 +262,14 @@ request_image_block_ex (pixma_t * s, unsigned *size, uint8_t * info,
   if (error >= 0)
     {
       if (mp->cb.reslen == 6)
-	{
-	  *info = mp->cb.buf[2];
-	  *size = pixma_get_be16 (mp->cb.buf + 4);
-	}
+        {
+          *info = mp->cb.buf[2];
+          *size = pixma_get_be16 (mp->cb.buf + 4);
+        }
       else
-	{
-	  error = PIXMA_EPROTO;
-	}
+        {
+          error = PIXMA_EPROTO;
+        }
     }
   return error;
 }
@@ -299,10 +299,10 @@ read_image_block (pixma_t * s, uint8_t * data)
     {
       int error;
       if ((error = pixma_read (s->io, &temp, 0)) < 0)
-	{
-	  PDBG (pixma_dbg
-		(1, "WARNING:reading zero-length packet failed %d\n", error));
-	}
+        {
+          PDBG (pixma_dbg
+          (1, "WARNING:reading zero-length packet failed %d\n", error));
+        }
     }
   return count;
 }
@@ -320,7 +320,7 @@ read_error_info (pixma_t * s, void *buf, unsigned size)
   if (error >= 0 && buf)
     {
       if (len < size)
-	size = len;
+        size = len;
       /* NOTE: I've absolutely no idea what the returned data mean. */
       memcpy (buf, data, size);
       error = len;
@@ -549,9 +549,9 @@ mp750_check_param (pixma_t * s, pixma_scan_param_t * sp)
 
   sp->depth = 8;		/* FIXME: Does MP750 supports other depth? */
   if (sp->channels == 1)
-    raw_width = ALIGN (sp->w, 12);
+    raw_width = ALIGN_SUP (sp->w, 12);
   else
-    raw_width = ALIGN (sp->w, 4);
+    raw_width = ALIGN_SUP (sp->w, 4);
   sp->line_size = raw_width * sp->channels;
   return 0;
 }
@@ -573,9 +573,9 @@ mp750_scan (pixma_t * s)
     }
 
   if (s->param->channels == 1)
-    mp->raw_width = ALIGN (s->param->w, 12);
+    mp->raw_width = ALIGN_SUP (s->param->w, 12);
   else
-    mp->raw_width = ALIGN (s->param->w, 4);
+    mp->raw_width = ALIGN_SUP (s->param->w, 4);
 
   dpi = s->param->ydpi;
   spare = 2 * calc_component_shifting (s);	/* FIXME: or maybe (2*... + 1)? */
@@ -628,31 +628,31 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
 
       query_status (s);
       check_status (s);
-       /*SIM*/ while (!is_calibrated (s) && --tmo >= 0)
-	{
-	  if (s->cancel)
-	    return PIXMA_ECANCELED;
-	  if (handle_interrupt (s, 1000) > 0)
-	    {
-	      block_size = 0;
-	      error = request_image_block (s, &block_size, &info);
-	       /*SIM*/ if (error < 0)
-		return error;
-	    }
-	}
+ /*SIM*/ while (!is_calibrated (s) && --tmo >= 0)
+        {
+          if (s->cancel)
+            return PIXMA_ECANCELED;
+          if (handle_interrupt (s, 1000) > 0)
+            {
+              block_size = 0;
+              error = request_image_block (s, &block_size, &info);
+               /*SIM*/ if (error < 0)
+          return error;
+            }
+        }
       if (tmo < 0)
-	{
-	  PDBG (pixma_dbg (1, "WARNING:Timed out waiting for calibration\n"));
-	  return PIXMA_ETIMEDOUT;
-	}
+        {
+          PDBG (pixma_dbg (1, "WARNING:Timed out waiting for calibration\n"));
+          return PIXMA_ETIMEDOUT;
+        }
       pixma_sleep (100000);
       query_status (s);
       if (is_warming_up (s) || !is_calibrated (s))
-	{
-	  PDBG (pixma_dbg (1, "WARNING:Wrong status: wup=%d cal=%d\n",
-			   is_warming_up (s), is_calibrated (s)));
-	  return PIXMA_EPROTO;
-	}
+        {
+          PDBG (pixma_dbg (1, "WARNING:Wrong status: wup=%d cal=%d\n",
+               is_warming_up (s), is_calibrated (s)));
+          return PIXMA_EPROTO;
+        }
       block_size = 0;
       request_image_block (s, &block_size, &info);
        /*SIM*/ mp->state = state_scanning;
@@ -677,59 +677,59 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
   do
     {
       if (mp->last_block_size > 0)
-	{
-	  block_size = mp->imgbuf_len - mp->last_block_size;
-	  memcpy (mp->img, mp->img + mp->last_block_size, block_size);
-	}
+        {
+          block_size = mp->imgbuf_len - mp->last_block_size;
+          memcpy (mp->img, mp->img + mp->last_block_size, block_size);
+        }
 
       do
-	{
-	  if (s->cancel)
-	    return PIXMA_ECANCELED;
-	  if (mp->last_block)
-	    {
-	      /* end of image */
-	      info = mp->last_block;
-	      if (info != 0x38)
-		{
-		  query_status (s);
-		   /*SIM*/ while ((info & 0x28) != 0x28)
-		    {
-		      pixma_sleep (10000);
-		      error = request_image_block2 (s, &info);
-		      if (s->cancel)
-			return PIXMA_ECANCELED;	/* FIXME: Is it safe to cancel here? */
-		      if (error < 0)
-			return error;
-		    }
-		}
-	      mp->needs_abort = (info != 0x38);
-	      mp->last_block = info;
-	      mp->state = state_finished;
-	      return 0;
-	    }
+        {
+          if (s->cancel)
+            return PIXMA_ECANCELED;
+          if (mp->last_block)
+            {
+              /* end of image */
+              info = mp->last_block;
+              if (info != 0x38)
+                {
+                  query_status (s);
+                   /*SIM*/ while ((info & 0x28) != 0x28)
+                    {
+                      pixma_sleep (10000);
+                      error = request_image_block2 (s, &info);
+                      if (s->cancel)
+                        return PIXMA_ECANCELED;	/* FIXME: Is it safe to cancel here? */
+                      if (error < 0)
+                        return error;
+                    }
+                }
+              mp->needs_abort = (info != 0x38);
+              mp->last_block = info;
+              mp->state = state_finished;
+              return 0;
+            }
 
-	  check_status (s);
-	   /*SIM*/ while (handle_interrupt (s, 1) > 0);
-	   /*SIM*/ block_size = IMAGE_BLOCK_SIZE;
-	  error = request_image_block (s, &block_size, &info);
-	  if (error < 0)
-	    {
-	      if (error == PIXMA_ECANCELED)
-		read_error_info (s, NULL, 0);
-	      return error;
-	    }
-	  mp->last_block = info;
-	  if ((info & ~0x38) != 0)
-	    {
-	      PDBG (pixma_dbg (1, "WARNING: Unknown info byte %x\n", info));
-	    }
-	  if (block_size == 0)
-	    {
-	      /* no image data at this moment. */
-	      pixma_sleep (10000);
-	    }
-	}
+          check_status (s);
+           /*SIM*/ while (handle_interrupt (s, 1) > 0);
+           /*SIM*/ block_size = IMAGE_BLOCK_SIZE;
+          error = request_image_block (s, &block_size, &info);
+          if (error < 0)
+            {
+              if (error == PIXMA_ECANCELED)
+                read_error_info (s, NULL, 0);
+              return error;
+            }
+          mp->last_block = info;
+          if ((info & ~0x38) != 0)
+            {
+              PDBG (pixma_dbg (1, "WARNING: Unknown info byte %x\n", info));
+            }
+          if (block_size == 0)
+            {
+              /* no image data at this moment. */
+              pixma_sleep (10000);
+            }
+        }
       while (block_size == 0);
 
       error = read_image_block (s, mp->rawimg + mp->rawimg_left);

@@ -80,7 +80,7 @@
 #ifndef MAX
 #define MAX(x,y) (((x) < (y)) ? (y):(x))
 #endif
-#define ALIGN(x,n) (((x) + (n) - 1) / (n) * (n))
+#define ALIGN_SUP(x,n) (((x) + (n) - 1) / (n) * (n))
 #define ALIGN_INF(x,n) (((x) / (n)) * (n))
 
 struct pixma_io_t;

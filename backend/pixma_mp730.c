@@ -421,9 +421,9 @@ calc_raw_width (const pixma_scan_param_t * sp)
   unsigned raw_width;
   /* FIXME: Does MP730 need the alignment? */
   if (sp->channels == 1)
-    raw_width = ALIGN (sp->w, 12);
+    raw_width = ALIGN_SUP (sp->w, 12);
   else
-    raw_width = ALIGN (sp->w, 4);
+    raw_width = ALIGN_SUP (sp->w, 4);
   return raw_width;
 }
 

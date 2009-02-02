@@ -1,7 +1,7 @@
 :backend "xerox_mfp"
 :version "1.0-3"
 :manpage "sane-xerox_mfp"
-:comment "Phaser 3200MFP support"
+:comment "Could be compatible with other Samsung manufactured devices"
 :devicetype :scanner
 :new :yes
 

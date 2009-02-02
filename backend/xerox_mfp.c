@@ -571,7 +571,7 @@ static int fix_window(struct device *dev)
   }
   threshold = SANE_UNFIX(dev->val[OPT_THRESHOLD].w);
   dev->threshold = (threshold - 30) / 10;
-  dev->val[OPT_THRESHOLD].w = dev->threshold * 10 + 30;
+  dev->val[OPT_THRESHOLD].w = SANE_FIX(dev->threshold * 10 + 30);
 
   dev->doc_source = doc_source_to_code[string_match_index(doc_sources, dev->val[OPT_SOURCE].s)];
 

@@ -1,4 +1,16 @@
-2009-02-11  Mattias Ellert <mattias.ellert@fysast.uu.se>
+2009-02-01 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* aclocalm4: fix prototype of internal strcasestr and usleep.
+	* configure.in: Group all USB logic together and all SCSI
+	logic together to aid understanding of whats no longer
+	valid.  Allow sharing enable/disable options between all 
+	USB drivers on multiple platforms.  Combined CAM_LIBS and 
+	SCSI_LIBS since they are mutually exclusive.  
+	Skip some USB/SCSI checks when previous tests show it will always fail.
+	* backend/Makefile.am, tools/Makefile.in: Combine CAM_LIBS and 
+	SCSI_LIBS. Add missing SOCKET_LIBS to epson2.  Add USB_LIB.
+	* saned.c: Add limits.h for PATH_MAX.
+
+2009-02-01  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* acinclude.m4, backend/Makefile.am: Restore the removed
 	DYNAMIC_FLAG configuration.
 	* acinclude.m4, sanei/sanei_jpeg.c: Don't compile sanei_jpeg

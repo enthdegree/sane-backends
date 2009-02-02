@@ -57,6 +57,7 @@
 #include <syslog.h>
 #include <time.h>
 #include <unistd.h>
+#include <limits.h>
 #ifdef HAVE_LIBC_H
 # include <libc.h>		/* NeXTStep/OpenStep */
 #endif

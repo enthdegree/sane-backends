@@ -94,9 +94,6 @@
 /* Define to 1 if you have the `gp_camera_init' function. */
 #undef HAVE_GP_CAMERA_INIT
 
-/* Define to 1 if you have the <gscdds.h> header file. */
-#undef HAVE_GSCDDS_H
-
 /* Define to 1 if you have the `i386_set_ioperm' function. */
 #undef HAVE_I386_SET_IOPERM
 
@@ -132,6 +129,9 @@
    file. */
 #undef HAVE_IOKIT_SCSI_SCSICOMMANDOPERATIONCODES_H
 
+/* Define to 1 if you have the <IOKit/scsi/SCSITaskLib.h> header file. */
+#undef HAVE_IOKIT_SCSI_SCSITASKLIB_H
+
 /* Define to 1 if you have the `ioperm' function. */
 #undef HAVE_IOPERM
 
@@ -153,7 +153,7 @@
 /* Define to 1 if you have the libjpeg library. */
 #undef HAVE_LIBJPEG
 
-/* Define to 1 if you have the `usb' library (-lusb). */
+/* Define to 1 if you have libusb. */
 #undef HAVE_LIBUSB
 
 /* Define to 1 if you have the <limits.h> header file. */
@@ -218,6 +218,9 @@
 
 /* define if you have the resmgr library */
 #undef HAVE_RESMGR
+
+/* Define to 1 if you have the <scdds.h> header file. */
+#undef HAVE_SCDDS_H
 
 /* Define to 1 if you have the `scsireq_enter' function. */
 #undef HAVE_SCSIREQ_ENTER
@@ -372,11 +375,8 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* define if you have the usbcalls library */
-#undef HAVE_USBCALLS
-
-/* Define to 1 if you have the <usb.h> header file. */
-#undef HAVE_USB_H
+/* Define to 1 if you have usbcall.dll. */
+#undef HAVE_USBCALL
 
 /* Define to 1 if you have the `usleep' function. */
 #undef HAVE_USLEEP
@@ -407,10 +407,6 @@
 
 /* Define to 1 if you have the `_portaccess' function. */
 #undef HAVE__PORTACCESS
-
-/* Define to 1 if you have the </usr/src/linux/include/scsi/sg.h> header file.
-   */
-#undef HAVE__USR_SRC_LINUX_INCLUDE_SCSI_SG_H
 
 /* Do we need <sys/bitypes.h>? */
 #undef NEED_SYS_BITYPES_H
@@ -529,13 +525,13 @@
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
 
-/* Define scsireq_t as \`struct scsireq\' if necessary. */
+/* Define scsireq_t as \'struct scsireq\' if necessary. */
 #undef scsireq_t
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
 
-/* Define socklen_t as \`int\' if necessary. */
+/* Define socklen_t as \'int\' if necessary. */
 #undef socklen_t
 
 /* Define to `long' if <sys/types.h> does not define. */
@@ -613,7 +609,7 @@ int snprintf (char *str,size_t count,const char *fmt,...);
 /* Prototype for strcasestr */
 #ifndef HAVE_STRCASESTR
 #define strcasestr sanei_strcasestr
-int strcasestr (const char *phaystack, const char *pneedle);
+char * strcasestr (const char *phaystack, const char *pneedle);
 #endif
 
 /* Prototype for strdup */

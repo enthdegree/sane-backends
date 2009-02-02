@@ -706,7 +706,7 @@ int snprintf (char *str,size_t count,const char *fmt,...);
 /* Prototype for strcasestr */
 #ifndef HAVE_STRCASESTR
 #define strcasestr sanei_strcasestr
-int strcasestr (const char *phaystack, const char *pneedle);
+char * strcasestr (const char *phaystack, const char *pneedle);
 #endif
 
 /* Prototype for strdup */
@@ -730,7 +730,7 @@ char *strsep(char **stringp, const char *delim);
 
 /* Prototype for usleep */
 #ifndef HAVE_USLEEP
-#define strsep sanei_usleep
+#define usleep sanei_usleep
 unsigned int usleep (unsigned int useconds);
 #endif
 

@@ -109,10 +109,6 @@ SANE_CHECK_DLL_LIB
 dnl Checks for Backend libraries.
 AC_CHECK_LIB(m, sqrt, MATH_LIB="-lm")
 AC_SUBST(MATH_LIB)
-AC_CHECK_LIB(scsi, scsireq_enter, SCSI_LIBS="-lscsi") # FreeBSD needs this
-AC_SUBST(SCSI_LIBS)
-AC_CHECK_LIB(cam, cam_open_device, CAM_LIBS="-lcam")  # FreeBSD 3+ needs this
-AC_SUBST(CAM_LIBS)
 case ${host_os} in
   os2*)
   AC_CHECK_LIB(syslog, sylog, SYSLOG_LIBS="-lsyslog")
@@ -158,19 +154,12 @@ dnl Checks for header files.
 dnl ***********************************************************************
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
-    sys/time.h sys/shm.h sys/ipc.h sys/signal.h \
-    sys/scanio.h scsi.h sys/scsi.h sys/scsicmd.h sys/scsiio.h \
-    bsd/dev/scsireg.h scsi/sg.h /usr/src/linux/include/scsi/sg.h \
-    camlib.h os2.h sys/socket.h sys/io.h gscdds.h sys/hw.h \
-    sys/types.h sys/scsi/scsi.h sys/scsi/sgdefs.h sys/scsi/targets/scgio.h \
-    apollo/scsi.h sys/sdi_comm.h sys/passthrudef.h linux/ppdev.h \
-    dev/ppbus/ppi.h machine/cpufunc.h usb.h sys/bitypes.h sys/sem.h sys/poll.h \
-    IOKit/cdb/IOSCSILib.h IOKit/scsi/SCSICommandOperationCodes.h \
-    IOKit/scsi-commands/SCSICommandOperationCodes.h \
-    windows.h be/kernel/OS.h be/drivers/USB_scanner.h limits.h sys/ioctl.h asm/types.h\
+    sys/time.h sys/shm.h sys/ipc.h sys/signal.h sys/scanio.h os2.h \
+    sys/socket.h sys/io.h sys/hw.h sys/types.h linux/ppdev.h \
+    dev/ppbus/ppi.h machine/cpufunc.h sys/bitypes.h sys/sem.h sys/poll.h \
+    windows.h be/kernel/OS.h limits.h sys/ioctl.h asm/types.h\
     netinet/in.h tiffio.h ifaddrs.h pwd.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
-AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
 
 SANE_CHECK_MISSING_HEADERS
 
@@ -183,13 +172,6 @@ AC_CHECK_HEADER(resmgr.h,[
 		]
 	)
 ])
-
-AC_CHECK_HEADER(usbcalls.h,[
-			AC_DEFINE(HAVE_USBCALLS,1,[define if you have the usbcalls library])
-			LIBS="$LIBS -lusbcalls"
-		],,[
-#include <usb.h> 
-#include <os2.h>])
 
 
 dnl ***********************************************************************
@@ -207,23 +189,12 @@ have_long_long=no
 AC_TRY_COMPILE([], [long long x; x = (long long)0;], AC_DEFINE(HAVE_LONG_LONG, 1, [Define if the long long type is available.]) have_long_long=yes)
 AC_MSG_RESULT($have_long_long)
 
-if test "$ac_cv_header_sys_scsiio_h" = "yes" \
-     -a "$ac_cv_header_scsi_h" = "yes";
-then
- AC_TRY_COMPILE([
-#include <sys/scsiio.h>
-#include <scsi.h>
-],[scsireq_t req],,
-   AC_DEFINE(scsireq_t, struct scsireq_t,
-             [Define scsireq_t as \`struct scsireq\' if necessary.]))
-fi
-
 AC_MSG_CHECKING([for socklen_t in <sys/socket.h>])
 AC_TRY_COMPILE([
 #include <sys/socket.h>
 ],[socklen_t len],AC_MSG_RESULT(yes),
 [AC_MSG_RESULT(no); AC_DEFINE(socklen_t,int,
-[Define socklen_t as \`int\' if necessary.])])
+[Define socklen_t as \'int\' if necessary.])])
 
 AC_MSG_CHECKING([for union semun in <sys/sem.h>])
 AC_TRY_COMPILE([
@@ -232,19 +203,6 @@ AC_TRY_COMPILE([
 #include <sys/sem.h>
 ],[union semun test_semun],[AC_MSG_RESULT(yes);
 AC_DEFINE(HAVE_UNION_SEMUN,1,[Define if union semun is available.])],
-AC_MSG_RESULT(no))
-
-AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
-AC_TRY_COMPILE([
-#include <sys/types.h>
-#include <scsi/sg.h>
-],[
-struct sg_header hdr;
-hdr.target_status = 1;
-return 0;
-],[AC_MSG_RESULT(yes);
-AC_DEFINE(HAVE_SG_TARGET_STATUS,1,[Define if sg_header.target_status is
-available.])],
 AC_MSG_RESULT(no))
 
 AC_MSG_CHECKING([for struct flock in fcntl.h])
@@ -260,17 +218,6 @@ AC_TRY_COMPILE([
 __u32 houba = _IOR('v',14, unsigned long);
 ],[AC_MSG_RESULT(yes);
 have_linux_ioctl_defines="yes";],AC_MSG_RESULT(no))
-
-AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
-AC_TRY_COMPILE([
-#undef VERSION
-#include <IOKit/scsi/SCSITaskLib.h>
-],[
-SCSITaskSGElement range;
-return 0;
-],[AC_MSG_RESULT(yes);
-AC_DEFINE(HAVE_SCSITASKSGELEMENT,1,[Define if SCSITaskSGElement is available.])],
-AC_MSG_RESULT(no))
 
 dnl ***********************************************************************
 dnl Checks for compiler characteristics
@@ -289,8 +236,8 @@ if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
 fi
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm mkdir \
-    scsireq_enter strftime strstr strtod  \
+AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm \
+    mkdir strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll setitimer iopl )
 AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
@@ -307,29 +254,157 @@ if test -c /dev/urandom ; then
     AC_DEFINE(HAVE_DEV_URANDOM, 1, [Is /dev/urandom available?])
 fi
 
-dnl libusb on enabled by default (if found)
-USE_LIBUSB=yes
-AC_ARG_ENABLE(libusb,
-  AC_HELP_STRING([--disable-libusb],
-                 [disable support for libusb]),
-  [
-    if eval "test x$enable_libusb = xno"; then
-      USE_LIBUSB=
-    fi
-  ])
+dnl ***********
+dnl USB Support
+dnl ***********
 
-dnl we need both libusb header and a libusb providing usb_interrupt_read
-if test "${ac_cv_header_usb_h}" = "yes" && test "$USE_LIBUSB" = "yes" ; then
-  AC_CHECK_LIB(usb, usb_interrupt_read)
-  if test "${ac_cv_lib_usb_usb_interrupt_read}" = "yes" ; then
-    HAVE_LIBUSB="yes"
-  fi
+dnl USB support enabled by default (if found).  Note: Overloading libusb
+dnl option right now to disable USB support on any platform; even
+dnl if they use a different library name.
+AC_ARG_ENABLE(libusb, 
+    AC_HELP_STRING([--disable-libusb], [disable support for libusb]),,
+    enable_libusb=auto)
+HAVE_USB=no
+if test "$enable_libusb" != "no"; then
+  case ${host_os} in
+  beos*)
+  AC_CHECK_HEADERS(be/drivers/USB_scanner.h, HAVE_USB=yes, AC_MSG_ERROR([USB_scanner.h is required on BeOS]))
+  ;;
+  os2*)
+  AC_CHECK_HEADER(usbcalls.h,
+		  AC_CHECK_LIB(usbcall, UsbQueryNumberDevices, 
+       			       [USB_LIBS="$USB_LIBS -lusbcall"
+				HAVE_USB=yes]),,[#include <usb.h> 
+#include <os2.h>
+])
+  ;;
+  *)
+  dnl we need both libusb header and a libusb providing usb_interrupt_read
+  AC_CHECK_HEADER(usb.h,
+		  AC_CHECK_LIB(usb, usb_interrupt_read, 
+       			       [USB_LIBS="$USB_LIBS -lusb"
+				HAVE_USB=yes]))
+  ;;
+  esac
+fi
+dnl The following logic is useful for distributions.  If they force
+dnl USB support with --enable-libusb=yes then configure will fail
+dnl when its detected that it can not be supported.  Default is
+dnl "auto" which means only enable if libraries are found and do
+dnl not error out.
+if test "$enable_libusb" = "yes" && test "$HAVE_USB" = "no"; then
+  AC_MSG_ERROR([USB support requested but required libraries not found.])
+fi
+if test "$HAVE_USB" = "yes"; then
+  case ${host_os} in
+  os2*)
+  AC_DEFINE(HAVE_USBCALL, 1, [Define to 1 if you have usbcall.dll.])
+  ;;
+  *)
+  AC_DEFINE(HAVE_LIBUSB, 1, [Define to 1 if you have libusb.])
+  ;;
+  esac
+fi
+AC_SUBST(USB_LIBS)
+
+dnl ************
+dnl SCSI Support
+dnl ************
+
+dnl FIXME: These are a lot of header files to scan.  We should
+dnl scan for just one that is unique per platform and then do
+dnl conditional scans for more specific only as needed.
+AC_CHECK_HEADERS(IOKit/scsi/SCSITaskLib.h IOKit/cdb/IOSCSILib.h \
+  IOKit/scsi/SCSICommandOperationCodes.h \
+  IOKit/scsi-commands/SCSICommandOperationCodes.h scsi.h sys/scsi.h \
+  sys/scsicmd.h sys/scsiio.h bsd/dev/scsireg.h scsi/sg.h \
+  camlib.h scdds.h sys/scsi/scsi.h sys/scsi/sgdefs.h \
+  sys/scsi/targets/scgio.h apollo/scsi.h sys/sdi_comm.h \
+  sys/passthrudef.h)
+AC_CHECK_HEADERS([io/cam/cam.h],,,[#include <io/common/iotypes.h>])
+
+dnl FreeBSD < 3
+if test "$ac_cv_header_sys_scsiio_h" = "yes" \
+  -a "$ac_cv_header_scsi_h" = "yes"; then
+  AC_MSG_CHECKING([if 'scsireq_t' needs to be defined as 'struct scsireq'])
+  AC_TRY_COMPILE([
+#include <sys/scsiio.h>
+#include <scsi.h>
+],[scsireq_t req],,
+   [AC_MSG_RESULT(yes);
+    AC_DEFINE(scsireq_t, struct scsireq_t,
+    	      [Define scsireq_t as \'struct scsireq\' if necessary.])],
+	      AC_MSG_RESULT(no))
+fi
+AC_CHECK_LIB(scsi, scsireq_enter, SCSI_LIBS="-lscsi") # FreeBSD needs this
+
+dnl FreeBSD >= 3
+AC_CHECK_LIB(cam, cam_open_device, SCSI_LIBS="-lcam")  # FreeBSD 3+ needs this
+
+AC_CHECK_FUNCS(scsireq_enter)
+
+if test "$ac_cv_header_scsi_sg_h" = "yes"; then
+  AC_MSG_CHECKING([for sg_header.target_status in <scsi/sg.h>])
+  AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <scsi/sg.h>
+],[
+struct sg_header hdr;
+hdr.target_status = 1;
+return 0;
+],[AC_MSG_RESULT(yes);
+   AC_DEFINE(HAVE_SG_TARGET_STATUS,1,
+	     [Define if sg_header.target_status is available.])],
+	     AC_MSG_RESULT(no))
+fi
+
+if test "$ac_cv_header_IOKit_scsi_SCSITaskLib_h" = "yes"; then
+  AC_MSG_CHECKING([for SCSITaskSGElement in IOKit/scsi/SCSITaskLib.h])
+  AC_TRY_COMPILE([
+#undef VERSION
+#include <IOKit/scsi/SCSITaskLib.h>
+],[
+SCSITaskSGElement range;
+return 0;
+],[AC_MSG_RESULT(yes);
+  AC_DEFINE(HAVE_SCSITASKSGELEMENT, 1,
+	    [Define if SCSITaskSGElement is available.])],
+  AC_MSG_RESULT(no))
 fi
 
 dnl disable Linux SCSI generic version 3 to avoid 32/64 bit problems
 if sparc64 -q > /dev/null 2>&1 ; then
   AC_DEFINE(DISABLE_LINUX_SG_IO, 1, [Should we disable SCSI generic v3?])
 fi
+
+# Multiple platforms can set SCSI_LIBS so do substitution at end.
+AC_SUBST(SCSI_LIBS)
+
+AC_ARG_ENABLE(scsibuffersize, 
+  AC_HELP_STRING([--enable-scsibuffersize=N],
+                 [specify the default size in bytes of the buffer for SCSI
+                  commands [[default=131072]]]),
+  [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
+AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
+                   [SCSI command buffer size])
+dnl FIXME: Move tihs to configuration printout area but probably
+dnl but probably needs to be wrapped by what ever uses it so its
+dnl only printed when used.
+echo "scsi buffersize: $set_scsibuffersize"
+
+AC_ARG_ENABLE(scsi-directio,
+  AC_HELP_STRING([--enable-scsi-directio],
+                 [enable SCSI direct IO (Linux only, dangerous, see
+                  README.linux)]),
+  [
+    if eval "test x$enable_scsi_directio = xyes"; then
+      CFLAGS="$CFLAGS -DENABLE_SCSI_DIRECTIO"
+    fi
+  ])
+
+dnl ****
+dnl IPv6
+dnl ****
 
 dnl check for IPv6 (can be overriden by --enable-ipv6)
 if test "$ac_cv_func_getnameinfo" = "yes" \
@@ -348,8 +423,8 @@ AC_PROG_LIBTOOL
 
 dnl Windows/Cygwin needs this, else the library creation fails
 dnl BeOS also needs this (why isnt it the default anyway ???)
-case $target in
-  *cygwin* | *mingw* | *beos*)
+case $host_os in
+  cygwin* | mingw* | beos*)
   NO_UNDEFINED_LDFLAGS=-no-undefined
 esac
 AC_SUBST(NO_UNDEFINED_LDFLAGS)
@@ -415,9 +490,6 @@ fi
 
 SANE_CHECK_BACKENDS
 
-#FIXME: This only works in sanie/ directory.  What needs to be
-#done to get it working for backend as well?  Is it even needed?
-#why is usb/scsi/firewire not optionally compiling sanei items as well?
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_JPEG="sanei_jpeg.o"
   SANEI_JPEG_LO="sanei_jpeg.lo"
@@ -498,25 +570,6 @@ case $host_os in
   libdir='${exec_prefix}/add-ons'
   ;;
 esac
-
-AC_ARG_ENABLE(scsibuffersize, 
-  AC_HELP_STRING([--enable-scsibuffersize=N],
-                 [specify the default size in bytes of the buffer for SCSI
-                  commands [[default=131072]]]),
-  [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
-AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
-                   [SCSI command buffer size])
-echo "scsi buffersize: $set_scsibuffersize"
-
-AC_ARG_ENABLE(scsi-directio,
-  AC_HELP_STRING([--enable-scsi-directio],
-                 [enable SCSI direct IO (Linux only, dangerous, see
-                  README.linux)]),
-  [
-    if eval "test x$enable_scsi_directio = xyes"; then
-      CFLAGS="$CFLAGS -DENABLE_SCSI_DIRECTIO"
-    fi
-  ])
 
 AC_ARG_ENABLE(parport-directio,
   AC_HELP_STRING([--enable-parport-directio],
@@ -638,7 +691,7 @@ if test "$SELECTED_BACKENDS" != "" ; then
   echo "*** connected to your local computer won't be supported.  Only a network"
   echo "*** connection to a remote host is possible."
 fi
-if test "$HAVE_LIBUSB" != "yes" && test "$USE_LIBUSB" = "yes" ; then
+if test "$enable_libusb" != "no" && test "$HAVE_USB" != "yes" ; then
   echo "*** Warning: sane-backends will be built without libusb support.  There may"
   echo "*** be valid reasons to do so, e.g. if you don't use USB scanners or on"
   echo "*** platforms without libusb support but generally this means that you"

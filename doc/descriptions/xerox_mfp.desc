@@ -1,5 +1,5 @@
 :backend "xerox_mfp"
-:version "1.0-3"
+:version "1.0-9"
 :manpage "sane-xerox_mfp"
 :comment "Could be compatible with other Samsung manufactured devices"
 :devicetype :scanner

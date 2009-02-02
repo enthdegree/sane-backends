@@ -26,7 +26,7 @@
 #include <sane/sanei_backend.h>
 #include "xerox_mfp.h"
 
-#define BACKEND_BUILD 5
+#define BACKEND_BUILD 9
 #define XEROX_CONFIG_FILE "xerox_mfp.conf"
 
 static const SANE_Device **devlist = NULL;	/* sane_get_devices array */
@@ -505,15 +505,55 @@ static void init_options(struct device *dev)
   dev->opt[OPT_SCAN_BR_Y].constraint.range = &dev->win_y_range;
 }
 
+/* fill parameters from options */
+static void set_parameters(struct device *dev)
+{
+  double px_to_len;
+
+  dev->para.last_frame = SANE_TRUE;
+  dev->para.lines = -1;
+  px_to_len = 1200.0 / dev->val[OPT_RESOLUTION].w;
+#define BETTER_BASEDPI 1
+  /* tests prove that 1200dpi base is very inexact
+   * so I calculated better values for each axis */
+#if BETTER_BASEDPI 
+  px_to_len = 1180.0 / dev->val[OPT_RESOLUTION].w;
+#endif
+  dev->para.pixels_per_line = dev->win_width / px_to_len;
+  dev->para.bytes_per_line = dev->para.pixels_per_line;
+#if BETTER_BASEDPI
+  px_to_len = 1213.9 / dev->val[OPT_RESOLUTION].w;
+#endif
+  dev->para.lines = dev->win_len / px_to_len;
+  if (dev->composition == MODE_LINEART ||
+      dev->composition == MODE_HALFTONE) {
+    dev->para.format = SANE_FRAME_GRAY;
+    dev->para.depth = 1;
+    dev->para.bytes_per_line = (dev->para.pixels_per_line + 7) / 8;
+  } else if (dev->composition == MODE_GRAY8) {
+    dev->para.format = SANE_FRAME_GRAY;
+    dev->para.depth = 8;
+    dev->para.bytes_per_line = dev->para.pixels_per_line;
+  } else if (dev->composition == MODE_RGB24) {
+    dev->para.format = SANE_FRAME_RGB;
+    dev->para.depth = 8;
+    dev->para.bytes_per_line *= 3;
+  } else {
+    /* this will never happen */
+    DBG (1, "%s: impossible image composition %d\n",
+	 __FUNCTION__, dev->composition);
+    dev->para.format = SANE_FRAME_GRAY;
+    dev->para.depth = 8;
+  }
+}
+
 /* resolve all options related to scan window */
 /* called after option changed and in set_window */
 static int fix_window(struct device *dev)
 {
-  int max_len = dev->max_len;
   double win_width_mm, win_len_mm;
   int i;
   int threshold = SANE_UNFIX(dev->val[OPT_THRESHOLD].w);
-  int thrcap = dev->opt[OPT_THRESHOLD].cap;
 
   dev->resolution = dpi_to_code(dev->val[OPT_RESOLUTION].w);
   dev->composition = scan_mode_to_code[string_match_index(scan_modes, dev->val[OPT_MODE].s)];
@@ -524,17 +564,14 @@ static int fix_window(struct device *dev)
   } else {
     dev->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
   }
-  if (thrcap != dev->opt[OPT_THRESHOLD].cap)
-    dev->opt_reload++;
   if (threshold < 30) {
     dev->val[OPT_THRESHOLD].w = SANE_FIX(30);
-    dev->opt_reload++;
   } else if (threshold > 70) {
     dev->val[OPT_THRESHOLD].w = SANE_FIX(70);
-    dev->opt_reload++;
   }
   threshold = SANE_UNFIX(dev->val[OPT_THRESHOLD].w);
   dev->threshold = (threshold - 30) / 10;
+  dev->val[OPT_THRESHOLD].w = dev->threshold * 10 + 30;
 
   dev->doc_source = doc_source_to_code[string_match_index(doc_sources, dev->val[OPT_SOURCE].s)];
 
@@ -545,23 +582,21 @@ static int fix_window(struct device *dev)
   else
     dev->max_len = dev->max_len_adf;
 
-  if (dev->max_len != max_len)
-    dev->opt_reload++;
-
   /* parameters */
   dev->win_y_range.max = SANE_FIX((double)dev->max_len / PNT_PER_MM);
 
   /* window sanity checking */
   for (i = OPT_SCAN_TL_X; i <= OPT_SCAN_BR_Y; i++) {
-    if (dev->val[i].w < dev->opt[i].constraint.range->min) {
-      dev->opt_reload++;
+    if (dev->val[i].w < dev->opt[i].constraint.range->min)
       dev->val[i].w = dev->opt[i].constraint.range->min;
-    }
-    if (dev->val[i].w > dev->opt[i].constraint.range->max) {
-      dev->opt_reload++;
+    if (dev->val[i].w > dev->opt[i].constraint.range->max)
       dev->val[i].w = dev->opt[i].constraint.range->max;
-    }
   }
+
+  if (dev->val[OPT_SCAN_TL_X].w > dev->val[OPT_SCAN_BR_X].w)
+    SWAP_Word(dev->val[OPT_SCAN_TL_X].w, dev->val[OPT_SCAN_BR_X].w);
+  if (dev->val[OPT_SCAN_TL_Y].w > dev->val[OPT_SCAN_BR_Y].w)
+    SWAP_Word(dev->val[OPT_SCAN_TL_Y].w, dev->val[OPT_SCAN_BR_Y].w);
 
   /* recalculate millimeters to inches */
   dev->win_off_x = SANE_UNFIX(dev->val[OPT_SCAN_TL_X].w) / MM_PER_INCH;
@@ -644,9 +679,12 @@ dev_inquiry (struct device *dev)
     *optr++ = *ptr++;
   *optr++ = 0;
 
+  for (; ptr < &dev->res[0x24] && (!*ptr || *ptr == ' '); ptr++)
+    /* skip spaces */;
+
   dev->sane.model = optr = (SANE_Char *) malloc (33);
   xptr = optr;			/* is last non space character + 1 */
-  for (ptr++; ptr < &dev->res[0x24] && *ptr;) {
+  for (; ptr < &dev->res[0x24] && *ptr;) {
     if (*ptr != ' ')
       xptr = optr + 1;
     *optr++ = *ptr++;
@@ -683,6 +721,7 @@ dev_inquiry (struct device *dev)
   init_options(dev);
   reset_options(dev);
   fix_window(dev);
+  set_parameters(dev);
   resolv_inq_dpi(dev);
 
   return SANE_STATUS_GOOD;
@@ -718,21 +757,38 @@ sane_control_option (SANE_Handle h, SANE_Int opt, SANE_Action act,
     else
       *(SANE_Word *)val = dev->val[opt].w;
   } else if (act == SANE_ACTION_SET_VALUE) { /* SET */
-    dev->opt_reload = 0;
+    SANE_Parameters xpara = dev->para;
+    SANE_Option_Descriptor xopt[NUM_OPTIONS];
+    Option_Value xval[NUM_OPTIONS];
+    int i;
 
-    if (dev->opt[opt].constraint_type == SANE_CONSTRAINT_STRING_LIST)
+    if (dev->opt[opt].constraint_type == SANE_CONSTRAINT_STRING_LIST) {
       dev->val[opt].s = string_match(dev->opt[opt].constraint.string_list, val);
-    else if (opt == OPT_RESOLUTION)
+      if (info && strcasecmp(dev->val[opt].s, val))
+	*info |= SANE_INFO_INEXACT;
+    } else if (opt == OPT_RESOLUTION)
       dev->val[opt].w = res_dpi_codes[dpi_to_code(*(SANE_Word *)val)];
     else
       dev->val[opt].w = *(SANE_Word *)val;
 
+    memcpy(&xopt, &dev->opt, sizeof(xopt));
+    memcpy(&xval, &dev->val, sizeof(xval));
     fix_window(dev);
-    if (dev->opt_reload) {
-      dev->opt_reload = 0;
-      DBG (3, "SANE_INFO_RELOAD_OPTIONS\n");
-      if (info)
-	*info = SANE_INFO_RELOAD_OPTIONS;
+    set_parameters(dev);
+
+    /* check for side effects */
+    if (info) {
+      if (memcmp(&xpara, &dev->para, sizeof(xpara)))
+	*info |= SANE_INFO_RELOAD_PARAMS;
+      if (memcmp(&xopt, &dev->opt, sizeof(xopt)))
+	*info |= SANE_INFO_RELOAD_OPTIONS;
+      for (i = 0; i < NUM_OPTIONS; i++)
+	if (xval[i].w != dev->val[i].w) {
+	  if (i == opt)
+	    *info |= SANE_INFO_INEXACT;
+	  else
+	    *info |= SANE_INFO_RELOAD_OPTIONS;
+	}
     }
   }
 
@@ -902,7 +958,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local)
   int dev_count;
   int i;
 
-  DBG (3, "%s: %p, %d\n", __FUNCTION__, (void *)device_list, local);
+  DBG (3, "%s: %p, %d\n", __FUNCTION__, (const void *)device_list, local);
 
   if (devlist) {
     if (device_list)
@@ -1238,7 +1294,6 @@ SANE_Status
 sane_start (SANE_Handle h)
 {
   struct device *dev = h;
-  double px_to_len;
 
   DBG (3, "%s: %p\n", __FUNCTION__, h);
 
@@ -1272,38 +1327,7 @@ sane_start (SANE_Handle h)
   dev->bytes_per_line = 0;
   dev->ulines = 0;
 
-  dev->para.last_frame = SANE_TRUE;
-  dev->para.lines = -1;
-  px_to_len = 1200.0 / dev->val[OPT_RESOLUTION].w;
-#define BETTER_BASEDPI 1
-  /* tests prove that 1200dpi base is very inexact
-   * so I calculated better values for each axis */
-#if BETTER_BASEDPI 
-  px_to_len = 1180.0 / dev->val[OPT_RESOLUTION].w;
-#endif
-  dev->para.pixels_per_line = dev->win_width / px_to_len;
-  dev->para.bytes_per_line = dev->para.pixels_per_line;
-#if BETTER_BASEDPI
-  px_to_len = 1213.9 / dev->val[OPT_RESOLUTION].w;
-#endif
-  dev->para.lines = dev->win_len / px_to_len;
-  if (dev->composition == MODE_LINEART ||
-      dev->composition == MODE_HALFTONE) {
-    dev->para.format = SANE_FRAME_GRAY;
-    dev->para.depth = 1;
-  } else if (dev->composition == MODE_GRAY8) {
-    dev->para.format = SANE_FRAME_GRAY;
-    dev->para.depth = 8;
-  } else if (dev->composition == MODE_RGB24) {
-    dev->para.format = SANE_FRAME_RGB;
-    dev->para.depth = 8;
-  } else {
-    /* this will never happen */
-    DBG (1, "%s: impossible image composition %d\n",
-	 __FUNCTION__, dev->composition);
-    dev->para.format = SANE_FRAME_GRAY;
-    dev->para.depth = 8;
-  }
+  set_parameters(dev);
 
   if (!dev->data && !(dev->data = malloc(DATASIZE)))
     return ret_cancel(dev, SANE_STATUS_NO_MEM);

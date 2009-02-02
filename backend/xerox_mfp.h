@@ -21,6 +21,8 @@
 
 #define PADDING_SIZE	16
 
+#define SWAP_Word(x, y) { SANE_Word z = x; x = y; y = z; }
+
 enum options {
   OPT_NUMOPTIONS,
   OPT_GROUP_STD,
@@ -44,9 +46,8 @@ struct device {
   size_t reslen;		/* response len */
   SANE_Option_Descriptor opt[NUM_OPTIONS];
   Option_Value val[NUM_OPTIONS];
-  int opt_reload;
-  SANE_Bool non_blocking;
   SANE_Parameters para;
+  SANE_Bool non_blocking;
   int scanning;			/* scanning is started */
   int cancel;			/* cancel flag */
   int state;			/* current state */

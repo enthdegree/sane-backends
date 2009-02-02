@@ -1,3 +1,7 @@
+2009-02-01 Alex belkin <abc@telekom.ru>
+	* backend/xerox_mfp.conf doc/descriptions/xerox_mfp.desc:
+	Added Dell MFP 1815dn.
+
 2009-02-01 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* aclocalm4: fix prototype of internal strcasestr and usleep.
 	* configure.in: Group all USB logic together and all SCSI

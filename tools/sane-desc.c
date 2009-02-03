@@ -3203,10 +3203,7 @@ create_usbids_table (void)
 		{
 		  if ((model->status == status_unsupported)
 		      || (model->status == status_unknown))
-		    {
-		      fprintf(stderr, "%s is unsupported\n", model->name);
 		    continue;
-		    }
 
 		  if (model->usb_vendor_id && model->usb_product_id)
 		    {

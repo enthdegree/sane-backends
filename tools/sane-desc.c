@@ -3172,97 +3172,106 @@ add_scsiid (scsiid_type *first_scsiid, char *manufacturer, char *model,
 static usbid_type *
 create_usbids_table (void)
 {
-  backend_entry *be = first_backend;
-  usbid_type *first_usbid = 0;
+  backend_entry *be;
+  usbid_type *first_usbid = NULL;
 
-  while (be)
+  if (!first_backend)
+    return NULL;
+
+  for (be = first_backend; be; be = be->next)
     {
-      type_entry *type = be->type;
+      type_entry *type;
 
-      while (type)
+      if (!be->type)
+	continue;
+
+      for (type = be->type; type; type = type->next)
 	{
-	  mfg_entry *mfg = type->mfg;
-	  model_entry *model;
+	  mfg_entry *mfg;
 
-	  if (!mfg)
-	    {
-	      type = type->next;
+	  if (!type->mfg)
 	      continue;
-	    }
 
-	  mfg = type->mfg;
-	  while (mfg)
+	  for (mfg = type->mfg; mfg; mfg = mfg->next)
 	    {
-	      model = mfg->model;
-	      if (model)
+	      model_entry *model;
+
+	      if (!mfg->model)
+		continue;
+
+	      for (model = mfg->model; model; model = model->next)
 		{
-		  while (model)
+		  if ((model->status == status_unsupported)
+		      || (model->status == status_unknown))
 		    {
-		      if (model->usb_vendor_id && model->usb_product_id)
-			{
-			  first_usbid = add_usbid (first_usbid, mfg->name, 
-						   model->name,
-						   model->usb_vendor_id,
-						   model->usb_product_id);
-			}
-		      model = model->next;
-		    }	/* while (model) */
-		}		/* if (model) */
-	      mfg = mfg->next;
-	    }		/* while (mfg) */
-	  type = type->next;
-	}			/* while (type) */
-      be = be->next;
-    }				/* while (be) */
+		      fprintf(stderr, "%s is unsupported\n", model->name);
+		    continue;
+		    }
+
+		  if (model->usb_vendor_id && model->usb_product_id)
+		    {
+		      first_usbid = add_usbid (first_usbid, mfg->name, 
+					       model->name,
+					       model->usb_vendor_id,
+					       model->usb_product_id);
+		    }
+		} /* for (model) */
+	    } /* for (mfg) */
+	} /* for (type) */
+    } /* for (be) */
+
   return first_usbid;
 }
 
 static scsiid_type *
 create_scsiids_table (void)
 {
-  backend_entry *be = first_backend;
-  scsiid_type *first_scsiid = 0;
+  backend_entry *be;
+  scsiid_type *first_scsiid = NULL;
 
-  while (be)
+  if (!first_backend)
+    return NULL;
+
+  for (be = first_backend; be; be = be->next)
     {
-      type_entry *type = be->type;
+      type_entry *type;
 
-      while (type)
+      if (!be->type)
+	continue;
+
+      for (type = be->type; type; type = type->next)
 	{
-	  mfg_entry *mfg = type->mfg;
-	  model_entry *model;
+	  mfg_entry *mfg;
 
-	  if (!mfg)
-	    {
-	      type = type->next;
-	      continue;
-	    }
+	  if (!type->mfg)
+	    continue;
 
-	  mfg = type->mfg;
-	  while (mfg)
+	  for (mfg = type->mfg; mfg; mfg = mfg->next)
 	    {
-	      model = mfg->model;
-	      if (model)
+	      model_entry *model;
+
+	      if (!mfg->model)
+		continue;
+
+	      for (model = mfg->model; model; model = model->next)
 		{
-		  while (model)
+		  if ((model->status == status_unsupported)
+		      || (model->status == status_unknown))
+		    continue;
+
+		  if (model->scsi_vendor_id && model->scsi_product_id)
 		    {
-		      if (model->scsi_vendor_id && model->scsi_product_id)
-			{
-			  first_scsiid = add_scsiid (first_scsiid, mfg->name, 
-						     model->name,
-						     model->scsi_vendor_id,
-						     model->scsi_product_id,
-						     model->scsi_is_processor);
-			}
-		      model = model->next;
-		    }	/* while (model) */
-		}		/* if (model) */
-	      mfg = mfg->next;
-	    }		/* while (mfg) */
-	  type = type->next;
-	}			/* while (type) */
-      be = be->next;
-    }				/* while (be) */
+		      first_scsiid = add_scsiid (first_scsiid, mfg->name, 
+						 model->name,
+						 model->scsi_vendor_id,
+						 model->scsi_product_id,
+						 model->scsi_is_processor);
+		    }
+		} /* for (model) */
+	    } /* for (mfg) */
+	} /* for (type) */
+    } /* for (be) */
+
   return first_scsiid;
 }
 

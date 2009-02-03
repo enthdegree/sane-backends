@@ -1,3 +1,7 @@
+2009-02-03 Julien Blache <jb@jblache.org>
+	* tools/sane-desc.c: filter out unsupported/unknown models from
+	output (udev/hal).
+
 2009-02-02  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_common.c backend/pixma_common.h /backend/pixma_imageclass.c
 	backend/pixma_mp150.c backend/pixma_mp730.c backend/pixma_mp750.c:

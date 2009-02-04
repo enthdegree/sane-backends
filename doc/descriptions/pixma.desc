@@ -339,6 +339,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "imageCLASS MF4120"
+:interface "USB"
+:usbid "0x04a9" "0x26a3"
+:status :good
+:comment "All resolutions supported (up to 600DPI)"
+
 :model "imageCLASS MF4122"
 :interface "USB"
 :usbid "0x04a9" "0x26a3"

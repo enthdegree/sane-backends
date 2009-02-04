@@ -1,3 +1,7 @@
+2009-02-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
+	* doc/sane-pixma.man doc/descriptions/pixma.desc: 
+	Added ImageClass MF4120 support in pixma backend docs.
+
 2009-02-03 Julien Blache <jb@jblache.org>
 	* tools/sane-desc.c: filter out unsupported/unknown models from
 	output (udev/hal).

@@ -1,3 +1,23 @@
+2009-02-04 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, acinclude.ac: Cleanup autoconf 2.63 warnings.  
+	add cv_ prefix to cached variable.  Remove AC_ARG_PROGRAM as
+	automake already invokes this. When prefered AC_USE_SYSTEM_EXTENSIONS
+	exists, use that instead of AC_GNU_SOURCE/AC_AIX/AC_MINUX.
+	Cleanup socket detection more by creating only a single
+	SOCKET_LIBS that contains list of all optional libraries
+	for any socket related funciton.  Make sure that checks
+	for socket related functions use SOCKET_LIBS when searching.
+	Check for getopt_long() and getopt.h.  Make OS/2 use
+	-no-undefined (same as windows).
+	* ltmain.sh, m4/libtool.m4: Upgrade to libtool 1.5.26.
+	* Makefile.am: Cleanups to match configure updates.
+	* frontend/scanimage.c, include/Makefile.in, lib/getopt.c
+	lib/getopt1.c, toosl/sane-desc.c, include/lgetopt.h:
+	Rename internal getopt.h to lgetopt.h to allow using
+	external getopt.h when it exists.  This allows to go
+	back to optionally compiling getopt()/getopt_long() and its 
+	prototypes and not have conflicts with external headers/symbols.
+
 2009-02-04  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/sane-pixma.man doc/descriptions/pixma.desc: 
 	Added ImageClass MF4120 support in pixma backend docs.

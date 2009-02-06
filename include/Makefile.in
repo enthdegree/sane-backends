@@ -46,7 +46,7 @@ SANE_INCLUDES = $(addprefix $(top_srcdir)/include/sane/,$(INSTALLED_INCLUDES)) \
 		sanei_pio.h sanei_pp.h sanei_pv8630.h sanei_scsi.h sanei_tcp.h \
 		sanei_thread.h sanei_udp.h sanei_usb.h sanei_wire.h )
 
-OTHER_INCLUDES = $(addprefix $(top_srcdir)/include/,Makefile.in getopt.h \
+OTHER_INCLUDES = $(addprefix $(top_srcdir)/include/,Makefile.in lgetopt.h \
                 lalloca.h lassert.h md5.h font_6x11.h)
 
 DISTFILES = $(SANE_INCLUDES) $(OTHER_INCLUDES)

@@ -26,7 +26,7 @@
 
 #include <../include/sane/config.h>
 
-#include "../include/getopt.h"
+#include "lgetopt.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -822,7 +822,7 @@ read_files (void)
 		  return SANE_FALSE;
 		}
 	      /* now we check if everything is ok with the previous backend 
-	         before we read the new one */
+		 before we read the new one */
 	      if (current_backend)
 		{
 		  type_entry *current_type = current_backend->type;

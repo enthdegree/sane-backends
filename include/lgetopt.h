@@ -17,6 +17,12 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#if defined(HAVE_GETOPT_H) && defined(HAVE_GETOPT_LONG)
+
+#include <getopt.h>
+
+#else
+
 #ifndef _GETOPT_H
 
 #ifndef __need_getopt
@@ -37,10 +43,6 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-
-#define optind sanei_optind
-#define optarg sanei_optarg
-#define getopt sanei_getopt
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -82,7 +84,7 @@ extern int optopt;
    The field `has_arg' is:
    no_argument		(or 0) if the option does not take an argument,
    required_argument	(or 1) if the option requires an argument,
-   optional_argument 	(or 2) if the option takes an optional argument.
+   optional_argument	(or 2) if the option takes an optional argument.
 
    If the field `flag' is not NULL, it points to a variable that is set
    to the value given in the field `val' when the option is found, but
@@ -154,15 +156,15 @@ extern int getopt ();
 # ifndef __need_getopt
 extern int getopt_long (int ___argc, char *const *___argv,
 			const char *__shortopts,
-		        const struct option *__longopts, int *__longind);
+			const struct option *__longopts, int *__longind);
 extern int getopt_long_only (int ___argc, char *const *___argv,
 			     const char *__shortopts,
-		             const struct option *__longopts, int *__longind);
+			     const struct option *__longopts, int *__longind);
 
 /* Internal only.  Users should not call this directly.  */
 extern int _getopt_internal (int ___argc, char *const *___argv,
 			     const char *__shortopts,
-		             const struct option *__longopts, int *__longind,
+			     const struct option *__longopts, int *__longind,
 			     int __long_only);
 # endif
 #else /* not __STDC__ */
@@ -182,4 +184,6 @@ extern int _getopt_internal ();
 /* Make sure we later can get all the definitions and declarations.  */
 #undef __need_getopt
 
-#endif /* getopt.h */
+#endif /* lgetopt.h */
+
+#endif /* !external getopt.h */

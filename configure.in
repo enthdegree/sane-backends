@@ -19,8 +19,7 @@ dnl known timestamp issues.
 AM_MAINTAINER_MODE
 
 AC_CONFIG_HEADERS([include/sane/config.h])
-AC_PREREQ(2.54)dnl		dnl Minimum Autoconf version required.
-AC_ARG_PROGRAM
+AC_PREREQ(2.54) dnl Minimum Autoconf version required.
 
 PACKAGE=AC_PACKAGE_NAME
 VERSION=AC_PACKAGE_VERSION
@@ -94,9 +93,10 @@ SANE_LINKER_RPATH
 dnl ***********************************************************************
 dnl Checks for unix variants
 dnl ***********************************************************************
-AC_GNU_SOURCE
-AC_AIX
-AC_MINIX
+m4_ifdef([AC_USE_SYSTEM_EXTENSIONS], [AC_USE_SYSTEM_EXTENSIONS])
+m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_GNU_SOURCE])
+m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_AIX])
+m4_ifndef([AC_USE_SYSTEM_EXTENSIONS],[AC_MINIX])
 AC_ISC_POSIX
 
 AC_NEED_BYTEORDER_H([include/byteorder.h])
@@ -118,12 +118,6 @@ case ${host_os} in
   ;;
 esac
 AC_SUBST(SYSLOG_LIBS)
-
-AC_CHECK_FUNC(gethostbyaddr, [GETHOSTBYADDR_LIBS=], [AC_CHECK_LIB(nsl, gethostbyaddr, GETHOSTBYADDR_LIBS="-lnsl", [AC_CHECK_LIB(bind, gethostbyaddr, GETHOSTBYADDR_LIBS="-lbind")])])
-AC_SUBST(GETHOSTBYADDR_LIBS)
-
-AC_CHECK_LIB(socket, socket, SOCKET_LIBS="-lsocket -lnsl",, -lnsl)
-AC_SUBST(SOCKET_LIBS)
 
 SANE_CHECK_JPEG
 SANE_CHECK_TIFF
@@ -158,7 +152,7 @@ AC_CHECK_HEADERS(fcntl.h unistd.h libc.h sys/dsreq.h sys/select.h \
     sys/socket.h sys/io.h sys/hw.h sys/types.h linux/ppdev.h \
     dev/ppbus/ppi.h machine/cpufunc.h sys/bitypes.h sys/sem.h sys/poll.h \
     windows.h be/kernel/OS.h limits.h sys/ioctl.h asm/types.h\
-    netinet/in.h tiffio.h ifaddrs.h pwd.h)
+    netinet/in.h tiffio.h ifaddrs.h pwd.h getopt.h)
 AC_CHECK_HEADERS([asm/io.h],,,[#include <sys/types.h>])
 
 SANE_CHECK_MISSING_HEADERS
@@ -229,24 +223,53 @@ AC_C_INLINE
 dnl ***********************************************************************
 dnl Checks for library functions
 dnl ***********************************************************************
+
+dnl Define SOCKET_LIB, NSL_LIB, BIND_LIB, and RESOLV_LIB  when required 
+dnl for functions we use.
+AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(bind, gethostbyaddr, BIND_LIB="-lbind")])
+AC_CHECK_FUNC(gethostbyaddr,, [AC_CHECK_LIB(nsl, gethostbyaddr, NSL_LIB="-lnsl")])
+AC_CHECK_FUNC(socket, [SOCKET_LIBS=], [AC_CHECK_LIB(socket, socket, SOCKET_LIB="-lsocket")])
+AC_CHECK_FUNC(inet_aton,, [AC_CHECK_LIB(resolv, inet_aton, RESOLV_LIB="-lresolv")])
+
+dnl Group related network libraries together so they can always be linked
+dnl in.
+SOCKET_LIBS="$SOCKET_LIB $NSL_LIB $BIND_LIB $RESOLV_LIB"
+AC_SUBST(SOCKET_LIBS)
+
+dnl define HAVE_* values for network functions.  This may require
+dnl SOCKET_LIBS so set LIBS temporarily.
+save_LIBS="$LIBS"
+LIBS="$LIBS $SOCKET_LIBS"
+AC_CHECK_FUNCS(inet_addr inet_aton inet_ntoa)
+AC_REPLACE_FUNCS(inet_ntop inet_pton)
+LIBS="$save_LIBS"
+
 if test "$ac_cv_header_be_kernel_OS_h" = "yes" ; then
     dnl those are known to be broken in BeOS (BONE)
     ac_cv_func_getaddrinfo=no
     ac_cv_func_getnameinfo=no
 fi
+
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
-AC_CHECK_FUNCS(atexit inet_addr inet_aton inet_ntoa ioperm i386_set_ioperm \
+AC_CHECK_FUNCS(atexit ioperm i386_set_ioperm \
     mkdir strftime strstr strtod  \
     cfmakeraw tcsendbreak strcasecmp strncasecmp _portaccess \
     getaddrinfo getnameinfo poll setitimer iopl )
-AC_REPLACE_FUNCS(getenv inet_ntop inet_pton isfdtype sigprocmask snprintf \
+AC_REPLACE_FUNCS(getenv isfdtype sigprocmask snprintf \
     strcasestr strdup strndup strsep usleep vsyslog)
+
 SANE_PROTOTYPES
+
 if test "$ac_cv_header_os2_h" = "yes" ; then
   AC_DEFINE(strncasecmp, strnicmp, [Define for OS/2 only])
   AC_DEFINE(strcasecmp, stricmp, [Define for OS/2 only])
 fi
+
+if test "$ac_cv_header_getopt_h" = "yes" ; then
+  AC_CHECK_FUNCS(getopt_long)
+fi
+
 dnl ***********************************************************************
 dnl checks for system services
 dnl ***********************************************************************
@@ -421,13 +444,11 @@ AC_LIBTOOL_WIN32_DLL
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-dnl Windows/Cygwin needs this, else the library creation fails
-dnl BeOS also needs this (why isnt it the default anyway ???)
+dnl Windows (cygwin/mingw), BeOS, and OS/2 need this.
 case $host_os in
-  cygwin* | mingw* | beos*)
-  NO_UNDEFINED_LDFLAGS=-no-undefined
+  cygwin* | mingw* | beos* | os2*)
+  LDFLAGS="$LDFLAGS -no-undefined"
 esac
-AC_SUBST(NO_UNDEFINED_LDFLAGS)
 
 dnl Check for lock dir
 

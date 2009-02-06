@@ -17,7 +17,7 @@ V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
 V_REV = @V_REV@
 
-AM_LDFLAGS = @STRICT_LDFLAGS@ @NO_UNDEFINED_LDFLAGS@
+AM_LDFLAGS = @STRICT_LDFLAGS@
 # The -rpath option is added because we are creating _LTLIBRARIES based
 # on configure substitution.  This causes automake to not know the
 # correct $libdir and must be added here.
@@ -376,7 +376,7 @@ libdell1600n_net_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dell1600n_net
 nodist_libsane_dell1600n_net_la_SOURCES = dell1600n_net-s.c
 libsane_dell1600n_net_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dell1600n_net
 libsane_dell1600n_net_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_dell1600n_net_la_LIBADD = $(COMMON_LIBS) libdell1600n_net.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @TIFF_LIBS@ @JPEG_LIBS@ @SOCKET_LIBS@ @GETHOSTBYADDR_LIBS@
+libsane_dell1600n_net_la_LIBADD = $(COMMON_LIBS) libdell1600n_net.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @TIFF_LIBS@ @JPEG_LIBS@ @SOCKET_LIBS@
 EXTRA_DIST += dell1600n_net.conf.in
 
 libdmc_la_SOURCES = dmc.c dmc.h
@@ -412,7 +412,7 @@ libepson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 nodist_libsane_epson2_la_SOURCES = epson2-s.c
 libsane_epson2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=epson2
 libsane_epson2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo @SCSI_LIBS@ @USB_LIBS@ @SOCKET_LIBS@ @GETHOSTBYADDR_LIBS@
+libsane_epson2_la_LIBADD = $(COMMON_LIBS) libepson2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo @SCSI_LIBS@ @USB_LIBS@ @SOCKET_LIBS@
 EXTRA_DIST += epson2.conf.in
 
 libfujitsu_la_SOURCES = fujitsu.c fujitsu.h fujitsu-scsi.h
@@ -656,7 +656,7 @@ libnet_la_CPPFLAGS = $(AM_CPPFLAGS) @AVAHI_CFLAGS@ -DBACKEND_NAME=net
 nodist_libsane_net_la_SOURCES = net-s.c
 libsane_net_la_CPPFLAGS = $(AM_CPPFLAGS) @AVAHI_CFLAGS@ -DBACKEND_NAME=net
 libsane_net_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_net_la_LIBADD = $(COMMON_LIBS) libnet.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo @AVAHI_LIBS@ @SOCKET_LIBS@ @GETHOSTBYADDR_LIBS@
+libsane_net_la_LIBADD = $(COMMON_LIBS) libnet.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo @AVAHI_LIBS@ @SOCKET_LIBS@
 EXTRA_DIST += net.conf.in
 
 libniash_la_SOURCES = niash.c
@@ -691,7 +691,7 @@ libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
 libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo @MATH_LIB@ @SOCKET_LIBS@ @GETHOSTBYADDR_LIBS@ @USB_LIBS@
+libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo @MATH_LIB@ @SOCKET_LIBS@ @USB_LIBS@
 EXTRA_DIST += pixma.conf.in
 EXTRA_DIST += pixma_sane_options.c pixma_sane_options.h
 
@@ -963,6 +963,6 @@ EXTRA_DIST += dll.conf.in dll.aliases
 nodist_libsane_la_SOURCES =  dll-s.c dll-preload.h
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_jpeg.lo @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @IEEE1284_LIBS@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @GETHOSTBYADDR_LIBS@ @USB_LIBS@ @AVAHI_LIBS@
+libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_jpeg.lo @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @IEEE1284_LIBS@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @USB_LIBS@ @AVAHI_LIBS@
 # WARNING: Automake is getting this wrong so have to do it ourselves.
 libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_jpeg.lo

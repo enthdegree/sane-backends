@@ -357,18 +357,19 @@ dnl
 
 AC_DEFUN([SANE_LINKER_RPATH],
 [dnl AC_REQUIRE([AC_SUBST])dnl This line resulted in an empty AC_SUBST() !!
-  AC_CACHE_CHECK([linker parameter to set runtime link path], LINKER_RPATH,
-    [LINKER_RPATH=
+  AC_CACHE_CHECK([linker parameter to set runtime link path], my_cv_LINKER_RPATH,
+    [my_cv_LINKER_RPATH=
     case "$host_os" in
     linux* | freebsd* | netbsd* | openbsd* | irix*)
       # I believe this only works with GNU ld [pere 2001-04-16]
-      LINKER_RPATH="-Wl,-rpath,"
+      my_cv_LINKER_RPATH="-Wl,-rpath,"
       ;;
     solaris*)
-      LINKER_RPATH="-R "
+      my_cv_LINKER_RPATH="-R "
       ;;
     esac
     ])
+    LINKER_RPATH="$my_cv_LINKER_RPATH"
   AC_SUBST(LINKER_RPATH)dnl
 ])
 

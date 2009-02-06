@@ -26,14 +26,14 @@
  * internal remapping functions in liblib.la before we include
  * include/sane/config.h.
  */
-#include <stdlib.h> /* Can define getopt() */
-# include "../include/lalloca.h"	/* MUST come first for AIX! */
+#include "../include/lalloca.h"	/* MUST come first for AIX! */
 #include "../include/sane/config.h"
 
 #include <assert.h>
-#include "../include/getopt.h"
+#include "lgetopt.h"
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdarg.h>
@@ -1252,10 +1252,10 @@ scan_it (void)
 	  if (must_buffer)
 	    {
 	      /* We're either scanning a multi-frame image or the
-	         scanner doesn't know what the eventual image height
-	         will be (common for hand-held scanners).  In either
-	         case, we need to buffer all data before we can write
-	         the image.  */
+		 scanner doesn't know what the eventual image height
+		 will be (common for hand-held scanners).  In either
+		 case, we need to buffer all data before we can write
+		 the image.  */
 	      image.width = parm.bytes_per_line;
 
 	      if (parm.lines >= 0)
@@ -1356,7 +1356,7 @@ scan_it (void)
 		  break;
 
                 default:
-	          break;
+		  break;
 		}
 	    }
 	  else			/* ! must_buffer */

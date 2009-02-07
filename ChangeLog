@@ -1,3 +1,10 @@
+2009-02-06 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, backend/Makefile.am: Add back in support for
+	optionally linking in sanei_jpeg.lo under backend directory; 
+	but using configure and not with GNU make extensions.
+	Move back to libtool's -version-info instead of -version-number
+	because the later has known bugs on platforms such as OS/2.
+
 2009-02-04 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, acinclude.ac: Cleanup autoconf 2.63 warnings.  
 	add cv_ prefix to cached variable.  Remove AC_ARG_PROGRAM as

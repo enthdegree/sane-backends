@@ -21,8 +21,8 @@ AM_LDFLAGS = @STRICT_LDFLAGS@
 # The -rpath option is added because we are creating _LTLIBRARIES based
 # on configure substitution.  This causes automake to not know the
 # correct $libdir and must be added here.
-DIST_SANELIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)/sane' -version-number $(V_MAJOR):$(V_MINOR):$(V_REV) $(DYNAMIC_FLAG)
-DIST_LIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)' -version-number $(V_MAJOR):$(V_MINOR):$(V_REV)
+DIST_SANELIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)/sane' -version-info $(V_MAJOR):$(V_REV):$(V_MINOR) $(DYNAMIC_FLAG)
+DIST_LIBS_LDFLAGS = $(AM_LDFLAGS) -rpath '$(libdir)' -version-info $(V_MAJOR):$(V_REV):$(V_MINOR)
 
 # LIBTOOL install is a little to noisy for my liking.
 LIBTOOL = @LIBTOOL@ --silent
@@ -357,7 +357,7 @@ libdc210_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc210
 nodist_libsane_dc210_la_SOURCES = dc210-s.c
 libsane_dc210_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc210
 libsane_dc210_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_dc210_la_LIBADD = $(COMMON_LIBS) libdc210.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_jpeg.lo @JPEG_LIBS@
+libsane_dc210_la_LIBADD = $(COMMON_LIBS) libdc210.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ @JPEG_LIBS@
 EXTRA_DIST += dc210.conf.in
 
 libdc240_la_SOURCES = dc240.c dc240.h
@@ -366,7 +366,7 @@ libdc240_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc240
 nodist_libsane_dc240_la_SOURCES = dc240-s.c
 libsane_dc240_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dc240
 libsane_dc240_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_dc240_la_LIBADD = $(COMMON_LIBS) libdc240.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_jpeg.lo @JPEG_LIBS@
+libsane_dc240_la_LIBADD = $(COMMON_LIBS) libdc240.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ @JPEG_LIBS@
 
 EXTRA_DIST += dc240.conf.in
 
@@ -440,7 +440,7 @@ libgphoto2_i_la_CPPFLAGS = $(AM_CPPFLAGS) @GPHOTO2_CPPFLAGS@ -DBACKEND_NAME=gpho
 nodist_libsane_gphoto2_la_SOURCES = gphoto2-s.c 
 libsane_gphoto2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=gphoto2
 libsane_gphoto2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_gphoto2_la_LIBADD = $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_jpeg.lo @GPHOTO2_LIBS@ @JPEG_LIBS@
+libsane_gphoto2_la_LIBADD = $(COMMON_LIBS) libgphoto2_i.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo @SANEI_SANEI_JPEG_LO@ @GPHOTO2_LIBS@ @JPEG_LIBS@
 EXTRA_DIST += gphoto2.conf.in
 
 libgt68xx_la_SOURCES = gt68xx.c gt68xx.h
@@ -963,6 +963,6 @@ EXTRA_DIST += dll.conf.in dll.aliases
 nodist_libsane_la_SOURCES =  dll-s.c dll-preload.h
 libsane_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libsane_la_LDFLAGS = $(DIST_LIBS_LDFLAGS)
-libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_jpeg.lo @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @IEEE1284_LIBS@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @USB_LIBS@ @AVAHI_LIBS@
+libsane_la_LIBADD = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo @SANEI_SANEI_JPEG_LO@ @DL_LIBS@ @LIBV4L_LIBS@ @MATH_LIB@ @IEEE1284_LIBS@ @TIFF_LIBS@ @JPEG_LIBS@ @GPHOTO2_LIBS@ @SOCKET_LIBS@ @USB_LIBS@ @AVAHI_LIBS@
 # WARNING: Automake is getting this wrong so have to do it ourselves.
-libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo ../sanei/sanei_jpeg.lo
+libsane_la_DEPENDENCIES = $(COMMON_LIBS) @PRELOADABLE_BACKENDS_ENABLED@ libdll.la sane_strstatus.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_pv8630.lo ../sanei/sanei_pp.lo ../sanei/sanei_thread.lo  ../sanei/sanei_lm983x.lo ../sanei/sanei_access.lo ../sanei/sanei_net.lo ../sanei/sanei_wire.lo ../sanei/sanei_codec_bin.lo ../sanei/sanei_pa4s2.lo ../sanei/sanei_ab306.lo ../sanei/sanei_pio.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo @SANEI_SANEI_JPEG_LO@

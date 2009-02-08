@@ -109,6 +109,13 @@ static Genesys_Frontend Wolfson[] = {
    , {0x00, 0x00, 0x00}
    }
   ,                             /* 7: XP200 */
+  {{0x00, 0x35, 0x20, 0x14}
+   , {0x00, 0x00, 0x00}
+   , {0xe1, 0xe1, 0xe1}
+   , {0x93, 0x93, 0x93}
+   , {0x07, 0x00, 0x00}
+   }
+  ,				/* 8: XP300 */
 };
 
 
@@ -240,11 +247,35 @@ static Genesys_Sensor Sensor[] = {
    ,
    2.1, 2.1, 2.1,
    NULL, NULL, NULL}
+  ,
+  /* 8: Strobe XP300 */
+  {600,
+/*TODO: find a good reason for keeping all three following variables*/
+   87,				/*(black) */
+   87,				/* (dummy) */
+   0,				/* (startxoffset) */
+   10240,			/*sensor_pixels */
+   210,
+   200,
+   {0x00, 0x00, 0x00, 0x00},
+   {0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x00, 0x02, 0x04, 0x50,
+    0x10, 0x00, 0x20, 0x02	
+    },
+   {0x04, 0x05,
+    0x00, 0x00, 0x00, 0x00,	/*[GB](HI|LOW) not needed for cis */
+    0x54, 0x03,
+    0x00,			/*TODO: bit7 */
+    0x00, 0x00, 0x00, 0x01	/*TODO (these do no harm, but may be neccessery for CCD) */
+    }
+   ,
+   1.0, 1.0, 1.0,
+   NULL, NULL, NULL}
 };
 
 /** for General Purpose Output specific settings:
  * initial GPO value (registers 0x66-0x67/0x6c-0x6d)
  * GPO enable mask (registers 0x68-0x69/0x6e-0x6f)
+ * The first register is for GPIO9-GPIO16, the second for GPIO1-GPIO8
  */
 static Genesys_Gpo Gpo[] = {
   /* UMAX */
@@ -310,11 +341,17 @@ static Genesys_Gpo Gpo[] = {
    {0xb0, 0x00}
    ,
    }
+  ,
+  /* 8: XP300 */
+  {
+   {0x09, 0xc6},
+   {0xbb, 0x00},
+   }
 };
 
 #define MOTOR_ST24       2
 static Genesys_Motor Motor[] = {
-  /* UMAX */
+  /* 0: UMAX */
   {
    1200,			/* motor base steps */
    2400,			/* maximum motor resolution */
@@ -333,7 +370,7 @@ static Genesys_Motor Motor[] = {
      1.0,
    },},},
   },
-  {				/* MD5345/6228/6471 */
+  {				/* 1: MD5345/6228/6471 */
    1200,
    2400,
    1,
@@ -351,7 +388,7 @@ static Genesys_Motor Motor[] = {
      0.5,
     },},},
   },
-  {				/* ST24 */
+  {				/* 2: ST24 */
    2400,
    2400,
    1,
@@ -369,7 +406,7 @@ static Genesys_Motor Motor[] = {
      0.3,
     },},}, 
   },
-  {				/* HP 2400c */
+  {				/* 3: HP 2400c */
    1200,
    2400,
    1,
@@ -387,7 +424,7 @@ static Genesys_Motor Motor[] = {
      0.5,
     },},},
   },
-  {				/* HP 2300c */
+  {				/* 4: HP 2300c */
    600,
    1200,
    1,
@@ -405,7 +442,7 @@ static Genesys_Motor Motor[] = {
      0.5,
    },},},
   },
-  {				/* Canon LiDE 35 */
+  {				/* 5: Canon LiDE 35 */
    1200,
    2400,
    1,
@@ -423,7 +460,7 @@ static Genesys_Motor Motor[] = {
      0.8,
     },},},
   },
-  {				/* Strobe XP200 */
+  {				/* 6: Strobe XP200 */
    600,
    600,
    1,
@@ -440,6 +477,24 @@ static Genesys_Motor Motor[] = {
      60,
      0.5,
     },},},
+  },
+  {				/* 7: Visioneer Strobe XP300 */
+   300,
+   600,
+   1,
+   1,
+   {{{ /* works best with GPIO10, GPIO14 off */
+     3700,
+     3700,
+     2,
+     0.8,
+     },
+    {
+     11000,
+     11000,
+     2,
+     0.8,
+     },},},
   },
 };
 
@@ -922,6 +977,51 @@ static Genesys_Model medion_md5345_model = {
   200
 };
 
+static Genesys_Model visioneer_xp300_model = {
+  "visioneer-strobe-xp300",		/* Name */
+  "Visioneer",			/* Device vendor string */
+  "Strobe XP300",			/* Device model name */
+  GENESYS_GL841,
+  NULL,
+
+  {600, 300, 150, 75, 0},	/* possible x-resolutions */
+  {600, 300, 150, 75, 0},	/* possible y-resolutions */
+  {16, 8, 0},			/* possible depths in gray mode */
+  {16, 8, 0},			/* possible depths in color mode */
+
+  SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
+  SANE_FIX (3.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (435.0),		/* Size of scan area in mm (x) */
+  SANE_FIX (511),		/* Size of scan area in mm (y) */
+
+  SANE_FIX (3.0),		/* Start of white strip in mm (y) */
+  SANE_FIX (0.0),		/* Start of black mark in mm (x) */
+
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (x) */
+  SANE_FIX (0.0),		/* Start of scan area in TA mode in mm (y) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (x) */
+  SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
+
+  COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
+
+  SANE_TRUE,			/* Is this a CIS scanner? */
+  SANE_TRUE,			/* Is this a sheetfed scanner? */
+  CCD_XP300,
+  DAC_WOLFSON_XP300,
+  GPO_XP300,
+  MOTOR_XP300,
+  GENESYS_FLAG_LAZY_INIT 	/* Which flags are needed for this scanner? */
+    | GENESYS_FLAG_SKIP_WARMUP
+    | GENESYS_FLAG_NO_CALIBRATION,
+  GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW,
+  300,
+  400
+};
+
 static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x0638, 0x0a10, &umax_astra_4500_model},
   {0x04a9, 0x2213, &canon_lide_50_model},
@@ -933,5 +1033,6 @@ static Genesys_USB_Device_Entry genesys_usb_device_list[] = {
   {0x07b3, 0x0601, &plustek_st24_model},
   {0x0461, 0x0377, &medion_md5345_model},
   {0x04a7, 0x0426, &visioneer_xp200_model},
+  {0x04a7, 0x0474, &visioneer_xp300_model},
   {0, 0, NULL}
 };

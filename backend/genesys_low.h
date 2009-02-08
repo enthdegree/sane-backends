@@ -246,6 +246,7 @@ Genesys_Color_Order;
 #define DAC_WOLFSON_HP2300 5
 #define DAC_CANONLIDE35    6
 #define DAC_AD_XP200       7   /* Analog Device frontend */
+#define DAC_WOLFSON_XP300  8
 
 #define CCD_UMAX         0
 #define CCD_ST12         1	/* SONY ILX548: 5340 Pixel  ??? */
@@ -255,6 +256,7 @@ Genesys_Color_Order;
 #define CCD_HP2300       5
 #define CCD_CANONLIDE35  6
 #define CIS_XP200        7      /* CIS sensor for Strobe XP200 */
+#define CCD_XP300        8
 
 #define GPO_UMAX         0
 #define GPO_ST12         1
@@ -264,6 +266,7 @@ Genesys_Color_Order;
 #define GPO_HP2300       5
 #define GPO_CANONLIDE35  6
 #define GPO_XP200        7
+#define GPO_XP300        8
 
 #define MOTOR_UMAX       0
 #define MOTOR_5345       1
@@ -272,7 +275,7 @@ Genesys_Color_Order;
 #define MOTOR_HP2300     4
 #define MOTOR_CANONLIDE35 5
 #define MOTOR_XP200      6
-
+#define MOTOR_XP300      7
 
 /* Forward typedefs */
 typedef struct Genesys_Device Genesys_Device;

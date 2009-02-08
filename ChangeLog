@@ -1,3 +1,12 @@
+2009-02-08  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+	* backend/genesys_gl841.c: Remove "init device" usb request.
+	* backend/genesys_gl841.c, backend/genesys_devices.c,
+	backend/genesys_low.h: Add support for uncalibrated scans in all
+	modes for Visioneer Strobe XP300. Front- and backside are
+	side-by-side, backside mirrored horizontally.
+	* doc/descriptions/genesys.desc: Added XP300 to the genesys
+	desc file.
+
 2009-02-06 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, backend/Makefile.am: Add back in support for
 	optionally linking in sanei_jpeg.lo under backend directory; 

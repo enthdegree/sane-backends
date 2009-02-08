@@ -77,3 +77,14 @@
 :usbid  "0x04a7" "0x0426"
 :status :basic
 :comment "All resolution and mode supported, but uncorrected scans"
+
+; -----------------------------------------------------------------------------
+
+:mfg "Visioneer"
+:url "http://www.visioneer.com/"
+
+:model "Strobe XP 300"
+:interface "USB"
+:usbid  "0x04a7" "0x0474"
+:status :basic
+:comment "All resolution and mode supported, but uncorrected scans, front- and backside side-by-side, with backside mirrored horizontally."

@@ -1532,6 +1532,11 @@ gl841_init_registers (Genesys_Device * dev)
       dev->reg[reg_0x6b].value &= ~REG6B_GPO17;
     }
 
+  if (dev->model->gpo_type == GPO_XP300) 
+    {
+      dev->reg[reg_0x6b].value |= REG6B_GPO17;
+    }
+
   DBG (DBG_proc, "gl841_init_registers complete\n");
 }
 
@@ -2165,7 +2170,13 @@ gl841_init_motor_regs_scan(Genesys_Device * dev,
 	&fast_exposure,
 	scan_power_mode);
     
-    if (feed_steps < fast_slope_steps*2 + (slow_slope_steps >> scan_step_type)) {
+    if (dev->model->gpo_type == GPO_XP300) 
+      {
+	/* quirk: looks like at least this scanner is unable to use 
+	   2-feed mode */
+	use_fast_fed = 0;
+      }
+    else if (feed_steps < fast_slope_steps*2 + (slow_slope_steps >> scan_step_type)) {
 	use_fast_fed = 0;
 	DBG(DBG_info,"gl841_init_motor_regs_scan: feed too short, slow move forced.\n");
     } else {
@@ -2491,7 +2502,8 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
 /*  dev->reg[reg_0x01].value |= REG01_DVDSET | REG01_SCAN;*/
     r = sanei_genesys_get_address (reg, 0x01);
     r->value |= REG01_SCAN;
-    if (flags & OPTICAL_FLAG_DISABLE_SHADING)
+    if ((flags & OPTICAL_FLAG_DISABLE_SHADING) ||
+	(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
 	r->value &= ~REG01_DVDSET;
     else
 	r->value |= REG01_DVDSET;
@@ -2602,6 +2614,8 @@ gl841_init_optical_regs_scan(Genesys_Device * dev,
     else
 	words_per_line *= depth / 8;
     
+    dev->wpl = words_per_line;
+
     r = sanei_genesys_get_address (reg, 0x35);
     r->value = LOBYTE (HIWORD (words_per_line));
     r = sanei_genesys_get_address (reg, 0x36);
@@ -3054,7 +3068,7 @@ dummy \ scanned lines
       dev->total_bytes_to_read =
 	  dev->settings.pixels * dev->settings.lines * channels * (depth / 8);
 
-  DBG (DBG_info, "gl646_init_scan_regs: total bytes to send = %lu\n",
+  DBG (DBG_info, "gl841_init_scan_regs: total bytes to send = %lu\n",
        (u_long) dev->total_bytes_to_read);
 /* END TODO */
 
@@ -3300,6 +3314,339 @@ gl841_set_powersaving (Genesys_Device * dev,
   return status;
 }
 
+static SANE_Status
+gl841_get_paper_sensor(Genesys_Device * dev, SANE_Bool * paper_loaded)
+{
+  SANE_Status status;
+  u_int8_t val;
+  
+  status = sanei_genesys_read_register(dev, 0x6d, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_get_paper_sensor: Failed to read gpio: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  *paper_loaded = (val & 0x1) == 0;
+  return SANE_STATUS_GOOD;
+
+  return SANE_STATUS_INVAL;
+}
+
+static SANE_Status
+gl841_eject_document (Genesys_Device * dev)
+{
+  Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
+  SANE_Status status;
+  u_int8_t val;
+  int i;
+  SANE_Bool paper_loaded;
+
+  DBG (DBG_proc, "gl841_eject_document\n");
+
+  if (!dev->model->is_sheetfed == SANE_TRUE)
+    {
+      DBG (DBG_proc, "gl841_eject_document: there is no \"eject sheet\"-concept for non sheet fed\n");
+      DBG (DBG_proc, "gl841_eject_document: finished\n");
+      return SANE_STATUS_GOOD;
+    }
+  
+
+  memset (local_reg, 0, sizeof (local_reg));
+  val = 0;
+
+  status = sanei_genesys_get_status (dev, &val);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_slow_back_home: Failed to read status register: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  /* stop motor if needed */
+  if (val & REG41_MOTORENB)
+    {
+      status = sanei_genesys_stop_motor (dev);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_eject_document: failed to stop motor: %s\n",
+	       sane_strstatus (status));
+	  return SANE_STATUS_IO_ERROR;
+	}
+      usleep (200 * 1000);
+    }
+
+/* when scanhead is moving then wait until scanhead stops or timeout */
+  DBG (DBG_info, "gl841_eject_document: ensuring that motor is off\n");
+  for (i = 400; i > 0; i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
+    {
+      status = sanei_genesys_get_status (dev, &val);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_eject_document: Failed to read motor status: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      if (!(val & REG41_MOTORENB))	/* motor is off */
+	{
+	  DBG (DBG_info,
+	       "gl841_eject_document: motor is off\n");
+	  break;		/* motor is off: continue */
+	}
+
+      usleep (100 * 1000);	/* sleep 100 ms */
+    }
+
+  if (!i)			/* the loop counted down to 0, scanner still is busy */
+    {
+      DBG (DBG_error,
+	   "gl841_eject_document: motor is still on: device busy\n");
+      return SANE_STATUS_DEVICE_BUSY;
+    }
+
+  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
+
+  gl841_init_optical_regs_off(dev,local_reg);
+
+  gl841_init_motor_regs(dev,local_reg,
+			65536,MOTOR_ACTION_FEED,0);
+
+  status =
+    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_eject_document: Failed to bulk write registers: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+
+  status = sanei_genesys_start_motor (dev);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_eject_document: Failed to start motor: %s\n",
+	   sane_strstatus (status));
+      sanei_genesys_stop_motor (dev);
+      /* send original registers */
+      gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS);
+      return status;
+    }
+
+  RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+  if (paper_loaded)
+    {
+      DBG (DBG_info,
+	   "gl841_eject_document: paper still loaded\n");
+      dev->scanhead_position_in_steps = 0;
+
+
+      int loop = 300;
+      while (loop > 0)		/* do not wait longer then 30 seconds */
+	{
+
+	  RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+
+	  if (!paper_loaded)
+	    {
+	      DBG (DBG_info,
+		   "gl841_eject_document: reached home position\n");
+	      DBG (DBG_proc, "gl841_eject_document: finished\n");
+	      break;
+	    }
+	  usleep (100000);	/* sleep 100 ms */
+	  --loop;
+	}
+
+      if (loop == 0)
+	{
+	  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
+	  sanei_genesys_stop_motor (dev);
+	  DBG (DBG_error,
+	       "gl841_eject_document: timeout while waiting for scanhead to go home\n");
+	  return SANE_STATUS_IO_ERROR;
+	}
+    }
+
+  unsigned int init_steps;
+
+  status = sanei_genesys_read_feed_steps(dev, &init_steps);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_eject_document: Failed to read feed steps: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  
+  /* now feed for extra <number> steps */
+  int loop = 0;
+  
+  while (loop < 300)		/* do not wait longer then 30 seconds */
+    {
+      unsigned int steps;
+      
+      status = sanei_genesys_read_feed_steps(dev, &steps);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "gl841_eject_document: Failed to read feed steps: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+
+      DBG (DBG_info, "gl841_eject_document: init_steps: %d, steps: %d\n",
+	   init_steps, steps);
+
+      if (steps > init_steps + 400)
+	{
+	  break;
+	}
+
+      usleep (100000);	/* sleep 100 ms */
+      ++loop;
+    }
+
+  /* reprogram for motor off */
+  gl841_init_motor_regs_off(dev,local_reg, 0);
+  status =
+    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "gl841_eject_document: Failed to bulk write registers: %s\n",
+	   sane_strstatus (status));
+      return status;
+    }
+  status = sanei_genesys_write_register (dev, 0x0f, 0x00);	/* disable motor */
+
+  dev->document = SANE_FALSE;
+
+  DBG (DBG_proc, "gl841_eject_document: finished\n");
+  return SANE_STATUS_GOOD;
+}
+
+
+static SANE_Status
+gl841_load_document (Genesys_Device * dev)
+{
+  SANE_Status status;
+  SANE_Bool paper_loaded;
+  int loop = 300;
+  DBG (DBG_proc, "gl841_load_document\n");
+  while (loop > 0)		/* do not wait longer then 30 seconds */
+    {
+      
+      RIE(gl841_get_paper_sensor(dev, &paper_loaded));
+      
+      if (paper_loaded)
+	{
+	  DBG (DBG_info,
+	       "gl841_load_document: document inserted\n");
+
+	  /* when loading OK, document is here */
+	  dev->document = SANE_TRUE;
+
+	  usleep (1000000); /* give user 1000ms to place document correctly */
+	  break;
+	}
+      usleep (100000);	/* sleep 100 ms */
+      --loop;
+    }
+
+  if (loop == 0)
+    {
+      /* when we come here then the user needed to much time for this */
+      DBG (DBG_error,
+	   "gl841_load_document: timeout while waiting for document\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  DBG (DBG_proc, "gl841_load_document: finished\n");
+  return SANE_STATUS_GOOD;
+}
+
+/**
+ * detects end of document and adjust current scan
+ * to take it into account
+ * used by sheetfed scanners
+ */
+static SANE_Status
+gl841_detect_document_end (Genesys_Device * dev)
+{
+  SANE_Status status = SANE_STATUS_GOOD;
+  SANE_Bool paper_loaded;
+  int bytes_to_flush, lines, sub_bytes;
+  u_int32_t flines, channels, depth, bytes_remain, sublines;
+  DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
+
+  RIE (gl841_get_paper_sensor (dev, &paper_loaded));
+
+  /* sheetfed scanner uses home sensor as paper present */
+  if ((dev->document == SANE_TRUE) && !paper_loaded)
+    {
+      DBG (DBG_info, "%s: no more document\n", __FUNCTION__);
+      dev->document = SANE_FALSE;
+
+      channels = dev->current_setup.channels;
+      depth = dev->current_setup.depth;
+
+      /* adjust number of bytes to read 
+       * we need to read the final bytes which are word per line * number of last lines
+       * to have doc leaving feeder */
+      lines =
+	(29 * dev->current_setup.yres) /
+	MM_PER_INCH;
+      DBG (DBG_io, "gl841_detect_document_end: adding %d line to flush\n", lines);
+      /* number of bytes to read from scanner to get document out of it after
+       * end of document dectected by hardware sensor */
+      bytes_to_flush = lines * dev->wpl;
+
+      /* if we are already close to end of scan, flushing isn't needed */
+      if (bytes_to_flush < dev->read_bytes_left)
+	{
+	  bytes_remain = dev->total_bytes_to_read - dev->total_bytes_read;
+
+	  /* remaining lines to read by frontend for the current scan */
+	  if (depth == 1 || dev->settings.scan_mode == 0)
+	    flines = bytes_remain * 8 
+	      / dev->settings.pixels / channels;
+	  else
+	    flines = bytes_remain / (depth / 8) 
+	      / dev->settings.pixels / channels;
+
+	  if (flines > lines)
+	    {
+	      /* change the value controlling communication with the frontend :
+	       * total bytes to read is current value plus the number of remaining lines 
+	       * multiplied by bytes per line */
+	      sublines = flines - lines;
+
+	      if (depth == 1 || dev->settings.scan_mode == 0)
+		sub_bytes =
+		  ((dev->settings.pixels * sublines) / 8 +
+		   (((dev->settings.pixels * sublines)%8)?1:0)
+		   ) * channels;
+	      else
+		sub_bytes =
+		  dev->settings.pixels * sublines * channels * (depth / 8);
+
+	      dev->total_bytes_to_read -= sub_bytes;
+
+	      /* then adjust the physical bytes to read */
+	      dev->read_bytes_left -= sub_bytes;
+	    }
+	}
+    }
+
+  DBG (DBG_proc, "%s: finished\n", __FUNCTION__);
+  return SANE_STATUS_GOOD;
+}
+
 /* Send the low-level scan command */
 /* todo : is this that useful ? */
 static SANE_Status
@@ -3354,39 +3701,51 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   DBG (DBG_proc, "gl841_end_scan (check_stop = %d)\n", check_stop);
 
-  status = sanei_genesys_write_register (dev, 0x01, sanei_genesys_read_reg_from_set (reg, 0x01) & ~REG01_SCAN);	/* disable scan */
-  if (status != SANE_STATUS_GOOD)
+  if (dev->model->is_sheetfed == SANE_TRUE && dev->document == SANE_TRUE)
     {
-      DBG (DBG_error, "gl841_end_scan: Failed to write registers: %s\n",
-	   sane_strstatus (status));
-      return status;
-    }
-
-  if (check_stop)
-    {
-      for (i = 0; i < 300; i++)	/* do not wait longer than 3 seconds */
+      status = gl841_eject_document (dev);
+      if (status != SANE_STATUS_GOOD)
 	{
-	  status = sanei_genesys_get_status (dev, &val);
-	  if (status != SANE_STATUS_GOOD)
-	    {
-	      DBG (DBG_error,
-		   "gl841_end_scan: Failed to read register: %s\n",
-		   sane_strstatus (status));
-	      return status;
-	    }
-
-	  if ((!(val & REG41_MOTORENB)) && (val & REG41_SCANFSH))
-	    {
-	      DBG (DBG_proc, "gl841_end_scan: scan finished\n");
-	      break;		/* leave while loop */
-	    }
-
-
-	  usleep (10000);	/* sleep 100 ms */
+	  DBG (DBG_error, "gl841_end_scan: failed to eject document\n");
+	  return status;
 	}
-
     }
+  else				/* flat bed scanners */
+    {
+      status = sanei_genesys_write_register (dev, 0x01, sanei_genesys_read_reg_from_set (reg, 0x01) & ~REG01_SCAN);	/* disable scan */
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error, "gl841_end_scan: Failed to write registers: %s\n",
+	       sane_strstatus (status));
+	  return status;
+	}
+      
+      if (check_stop)
+	{
+	  for (i = 0; i < 300; i++)	/* do not wait longer than 3 seconds */
+	    {
+	      status = sanei_genesys_get_status (dev, &val);
+	      if (status != SANE_STATUS_GOOD)
+		{
+		  DBG (DBG_error,
+		       "gl841_end_scan: Failed to read register: %s\n",
+		       sane_strstatus (status));
+		  return status;
+		}
+	      
+	      if ((!(val & REG41_MOTORENB)) && (val & REG41_SCANFSH))
+		{
+		  DBG (DBG_proc, "gl841_end_scan: scan finished\n");
+		  break;		/* leave while loop */
+		}
+	      
+	      
+	      usleep (10000);	/* sleep 100 ms */
+	    }
 
+	}
+    }
+  
   DBG (DBG_proc, "gl841_end_scan: completed (i=%u)\n", i);
 
   return status;
@@ -3524,6 +3883,13 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
 
+  if (dev->model->is_sheetfed == SANE_TRUE)
+    {
+      DBG (DBG_proc, "gl841_slow_back_home: there is no \"home\"-concept for sheet fed\n");
+      DBG (DBG_proc, "gl841_slow_back_home: finished\n");
+      return SANE_STATUS_GOOD;
+    }
+  
   memset (local_reg, 0, sizeof (local_reg));
   val = 0;
   status = sanei_genesys_get_status (dev, &val);
@@ -5135,11 +5501,6 @@ gl841_init (Genesys_Device * dev)
   /* Set default values for registers */
   gl841_init_registers (dev);
 
-  /* Init device */
-  val = 0x04;
-  RIE (sanei_usb_control_msg (dev->dn, REQUEST_TYPE_OUT, REQUEST_REGISTER,
-			      VALUE_INIT, INDEX, 1, &val));
-
   /* ASIC reset */
   RIE (sanei_genesys_write_register (dev, 0x0e, 0x00));
 
@@ -5311,6 +5672,16 @@ gl841_update_hardware_sensors (Genesys_Scanner * s)
 	s->val[OPT_COPY_SW].b = (val & 0x08) == 0;
     }
 
+  if (s->dev->model->gpo_type == GPO_XP300) 
+    {
+      RIE(sanei_genesys_read_register(s->dev, 0x6d, &val));
+
+      if (s->val[OPT_PAGE_LOADED_SW].b == s->last_val[OPT_PAGE_LOADED_SW].b)
+	s->val[OPT_PAGE_LOADED_SW].b = (val & 0x01) == 0;
+      if (s->val[OPT_SCAN_SW].b == s->last_val[OPT_SCAN_SW].b)
+	s->val[OPT_SCAN_SW].b = (val & 0x02) == 0;
+    }
+
   return status;
 }
 
@@ -5361,9 +5732,10 @@ static Genesys_Command_Set gl841_cmd_set = {
 
   gl841_update_hardware_sensors,
 
-  NULL,
-  NULL,
-  NULL,
+  gl841_load_document,
+  gl841_detect_document_end,
+  gl841_eject_document,
+
 };
 
 SANE_Status

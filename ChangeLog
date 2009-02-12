@@ -1,3 +1,12 @@
+2009-02-06 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, backend/Makefile.am: Add back change to
+	use -version-number even though its known not to work on
+	some platforms (OS/2). -version-info results in a variety of
+	version numbers in soname based on platform and would not
+	be easily mappable back to values currently return by
+	each backend's sane_init().  ltmain.sh will need to be
+	hand patched for any known issues.
+
 2009-02-08  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_gl841.c: Remove "init device" usb request.
 	* backend/genesys_gl841.c, backend/genesys_devices.c,

@@ -7,17 +7,17 @@
 SUBDIRS = include lib sanei backend frontend tools doc po
 DIST_SUBDIRS = include lib sanei backend frontend tools doc po japi testsuite
 
-EXTRA_DIST = AUTHORS ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
- ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 \
- ChangeLog-1.0.6 ChangeLog-1.0.7 ChangeLog-1.0.8 ChangeLog-1.0.9 \
- ChangeLog-1.0.10 ChangeLog-1.0.12 ChangeLog-1.0.13 ChangeLog-1.0.14 \
- ChangeLog-1.0.15 ChangeLog-1.0.16 ChangeLog-1.0.17 ChangeLog-1.0.18 \
- ChangeLog-1.0.19 \
- LICENSE PROBLEMS PROJECTS \
- README.aix README.beos README.darwin README.djpeg README.freebsd \
+dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
+ README README.aix README.beos README.darwin README.djpeg README.freebsd \
  README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
  README.solaris README.unixware2 README.unixware7 README.windows \
- README.zeta $(PACKAGE).lsm
+ README.zeta
+EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
+ ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 ChangeLog-1.0.6 \
+ ChangeLog-1.0.7 ChangeLog-1.0.8 ChangeLog-1.0.9 ChangeLog-1.0.10 \
+ ChangeLog-1.0.12 ChangeLog-1.0.13 ChangeLog-1.0.14 ChangeLog-1.0.15 \
+ ChangeLog-1.0.16 ChangeLog-1.0.17 ChangeLog-1.0.18 ChangeLog-1.0.19 \
+ $(PACKAGE).lsm
 
 #
 # Keep the .cvsignore files sorted, and use this target to do it.

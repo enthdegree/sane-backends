@@ -66,20 +66,17 @@ AC_PATH_PROG(MSGMERGE, msgmerge$EXEEXT, no)
 AC_PATH_PROG(LATEX, latex$EXEEXT, no)
 AC_PATH_PROG(DVIPS, dvips$EXEEXT, no)
 AC_PATH_PROG(MAKEINDEX, makeindex$EXEEXT, no)
-AC_PATH_PROG(MAKEDEPEND, makedepend$EXEEXT, no)
 AC_SUBST(MSGFMT)
 AC_SUBST(XGETTEXT)
 AC_SUBST(MSGMERGE)
 AC_SUBST(LATEX)
 AC_SUBST(DVIPS)
 AC_SUBST(MAKEINDEX)
-if test "$MAKEDEPEND" != "no"; then
-  DEPEND_RECURSIVE="depend-recursive"
-fi
-AC_SUBST(DEPEND_RECURSIVE)
 
 CROSS_COMPILING=$cross_compiling
+# FIXME: Remove AC_SUBSAT once tools directory is done
 AC_SUBST(CROSS_COMPILING)
+AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
 dnl ***********************************************************************
 dnl set compiler/linker flags
@@ -529,9 +526,11 @@ AC_ARG_ENABLE(pnm-backend,
 BACKENDS="$FILTERED_BACKENDS"
 BACKEND_LIBS_ENABLED=""
 BACKEND_CONFS_ENABLED=""
+BACKEND_MANS_ENABLED=""
 for backend in ${BACKENDS} ; do
   BACKEND_LIBS_ENABLED="${BACKEND_LIBS_ENABLED} libsane-${backend}.la"
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+  BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
 done
 AC_SUBST(BACKEND_LIBS_ENABLED)
 
@@ -572,6 +571,7 @@ PRELOADABLE_BACKENDS_ENABLED=""
 # of all backends.
 for backend in ${PRELOADABLE_BACKENDS} ; do
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+  BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
   # Special hacks.  Normally, we create a convenience library that
   # matches the backend's name but in some cases that will conflict
   # with an external library name that also matches backend name.
@@ -585,6 +585,7 @@ done
 AC_SUBST(PRELOADABLE_BACKENDS)
 AC_SUBST(PRELOADABLE_BACKENDS_ENABLED)
 AC_SUBST(BACKEND_CONFS_ENABLED)
+AC_SUBST(BACKEND_MANS_ENABLED)
 
 dnl in BeOS, backends are not installed in lib/sane, but add-ons/sane/
 dnl we account for both installing in /boot/beos and ~/config
@@ -634,7 +635,7 @@ if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ;
 else
   USE_LATEX="no"
 fi
-AC_SUBST(USE_LATEX)
+AM_CONDITIONAL(USE_LATEX, test x$USE_LATEX = xyes)
 
 dnl ***********************************************************************
 dnl Write output files

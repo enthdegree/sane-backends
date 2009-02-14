@@ -13,6 +13,7 @@
 # PARTICULAR PURPOSE.
 
 @SET_MAKE@
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -32,11 +33,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure \
-	$(top_srcdir)/doc/Makefile.in \
-	$(top_srcdir)/doc/doxygen-sanei.conf.in \
-	$(top_srcdir)/frontend/Makefile.in \
+DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(top_srcdir)/configure $(top_srcdir)/frontend/Makefile.in \
 	$(top_srcdir)/include/Makefile.in \
 	$(top_srcdir)/include/sane/config.h.in \
 	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/po/Makefile.in \
@@ -57,8 +56,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
 CONFIG_CLEAN_FILES = sanei/Makefile frontend/Makefile japi/Makefile \
-	include/Makefile doc/Makefile po/Makefile testsuite/Makefile \
-	tools/Makefile doc/doxygen-sanei.conf tools/sane-config
+	include/Makefile po/Makefile testsuite/Makefile tools/Makefile \
+	tools/sane-config
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -68,6 +67,15 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(docdir)"
+dist_docDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(dist_doc_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -96,6 +104,7 @@ AVAHI_LIBS = @AVAHI_LIBS@
 AWK = @AWK@
 BACKEND_CONFS_ENABLED = @BACKEND_CONFS_ENABLED@
 BACKEND_LIBS_ENABLED = @BACKEND_LIBS_ENABLED@
+BACKEND_MANS_ENABLED = @BACKEND_MANS_ENABLED@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -109,7 +118,6 @@ CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
-DEPEND_RECURSIVE = @DEPEND_RECURSIVE@
 DISTCLEAN_FILES = @DISTCLEAN_FILES@
 DLLTOOL = @DLLTOOL@
 DL_LIBS = @DL_LIBS@
@@ -150,7 +158,6 @@ LN_S = @LN_S@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@
 LTLIBOBJS = @LTLIBOBJS@
 MAINT = @MAINT@
-MAKEDEPEND = @MAKEDEPEND@
 MAKEINDEX = @MAKEINDEX@
 MAKEINFO = @MAKEINFO@
 MATH_LIB = @MATH_LIB@
@@ -188,7 +195,6 @@ STRIP = @STRIP@
 SYSLOG_LIBS = @SYSLOG_LIBS@
 TIFF_LIBS = @TIFF_LIBS@
 USB_LIBS = @USB_LIBS@
-USE_LATEX = @USE_LATEX@
 VERSION = @VERSION@
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
@@ -250,17 +256,18 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = include lib sanei backend frontend tools doc po
 DIST_SUBDIRS = include lib sanei backend frontend tools doc po japi testsuite
-EXTRA_DIST = AUTHORS ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 \
- ChangeLog-1.0.2 ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 \
- ChangeLog-1.0.6 ChangeLog-1.0.7 ChangeLog-1.0.8 ChangeLog-1.0.9 \
- ChangeLog-1.0.10 ChangeLog-1.0.12 ChangeLog-1.0.13 ChangeLog-1.0.14 \
- ChangeLog-1.0.15 ChangeLog-1.0.16 ChangeLog-1.0.17 ChangeLog-1.0.18 \
- ChangeLog-1.0.19 \
- LICENSE PROBLEMS PROJECTS \
- README.aix README.beos README.darwin README.djpeg README.freebsd \
+dist_doc_DATA = AUTHORS ChangeLog COPYING LICENSE NEWS PROBLEMS PROJECTS \
+ README README.aix README.beos README.darwin README.djpeg README.freebsd \
  README.hp-ux README.linux README.netbsd README.openbsd README.os2 \
  README.solaris README.unixware2 README.unixware7 README.windows \
- README.zeta $(PACKAGE).lsm
+ README.zeta
+
+EXTRA_DIST = ChangeLog-1.0.0 ChangeLog-1.0.1  ChangeLog-1.0.2 \
+ ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5 ChangeLog-1.0.6 \
+ ChangeLog-1.0.7 ChangeLog-1.0.8 ChangeLog-1.0.9 ChangeLog-1.0.10 \
+ ChangeLog-1.0.12 ChangeLog-1.0.13 ChangeLog-1.0.14 ChangeLog-1.0.15 \
+ ChangeLog-1.0.16 ChangeLog-1.0.17 ChangeLog-1.0.18 ChangeLog-1.0.19 \
+ $(PACKAGE).lsm
 
 
 #
@@ -328,15 +335,11 @@ japi/Makefile: $(top_builddir)/config.status $(top_srcdir)/japi/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 include/Makefile: $(top_builddir)/config.status $(top_srcdir)/include/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
-doc/Makefile: $(top_builddir)/config.status $(top_srcdir)/doc/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 po/Makefile: $(top_builddir)/config.status $(top_srcdir)/po/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 testsuite/Makefile: $(top_builddir)/config.status $(top_srcdir)/testsuite/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 tools/Makefile: $(top_builddir)/config.status $(top_srcdir)/tools/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-doc/doxygen-sanei.conf: $(top_builddir)/config.status $(top_srcdir)/doc/doxygen-sanei.conf.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 tools/sane-config: $(top_builddir)/config.status $(top_srcdir)/tools/sane-config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
@@ -349,6 +352,23 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
+install-dist_docDATA: $(dist_doc_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
+	@list='$(dist_doc_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(dist_docDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(docdir)/$$f'"; \
+	  $(dist_docDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(docdir)/$$f"; \
+	done
+
+uninstall-dist_docDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_doc_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(docdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(docdir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -630,9 +650,12 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-recursive
-all-am: Makefile
+all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
+	for dir in "$(DESTDIR)$(docdir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
 install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
@@ -677,7 +700,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am:
+install-data-am: install-dist_docDATA
 
 install-dvi: install-dvi-recursive
 
@@ -713,7 +736,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am:
+uninstall-am: uninstall-dist_docDATA
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -726,14 +749,15 @@ uninstall-am:
 	distclean-libtool distclean-local distclean-tags \
 	distcleancheck distdir distuninstallcheck dvi dvi-am html \
 	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs installdirs-am maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-recursive \
-	uninstall uninstall-am
+	install-data-am install-dist_docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am tags tags-recursive uninstall uninstall-am \
+	uninstall-dist_docDATA
 
 sort-cvsignore:
 	for f in `find . -name .cvsignore`; do \

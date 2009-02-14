@@ -792,8 +792,10 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 DISTCLEAN_FILES
-USE_LATEX
+USE_LATEX_FALSE
+USE_LATEX_TRUE
 INSTALL_TRANSLATIONS
+BACKEND_MANS_ENABLED
 BACKEND_CONFS_ENABLED
 PRELOADABLE_BACKENDS_ENABLED
 PRELOADABLE_BACKENDS
@@ -851,9 +853,9 @@ effective_target
 LINKER_RPATH
 STRICT_LDFLAGS
 INCLUDES
+CROSS_COMPILING_FALSE
+CROSS_COMPILING_TRUE
 CROSS_COMPILING
-DEPEND_RECURSIVE
-MAKEDEPEND
 MAKEINDEX
 DVIPS
 LATEX
@@ -4737,59 +4739,23 @@ $as_echo "no" >&6; }
 fi
 
 
-# Extract the first word of "makedepend$EXEEXT", so it can be a program name with args.
-set dummy makedepend$EXEEXT; ac_word=$2
-{ $as_echo "$as_me:$LINENO: checking for $ac_word" >&5
-$as_echo_n "checking for $ac_word... " >&6; }
-if test "${ac_cv_path_MAKEDEPEND+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-  case $MAKEDEPEND in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_MAKEDEPEND="$MAKEDEPEND" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_MAKEDEPEND="$as_dir/$ac_word$ac_exec_ext"
-    $as_echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_MAKEDEPEND" && ac_cv_path_MAKEDEPEND="no"
-  ;;
-esac
-fi
-MAKEDEPEND=$ac_cv_path_MAKEDEPEND
-if test -n "$MAKEDEPEND"; then
-  { $as_echo "$as_me:$LINENO: result: $MAKEDEPEND" >&5
-$as_echo "$MAKEDEPEND" >&6; }
-else
-  { $as_echo "$as_me:$LINENO: result: no" >&5
-$as_echo "no" >&6; }
-fi
 
 
 
 
 
-
-
-
-if test "$MAKEDEPEND" != "no"; then
-  DEPEND_RECURSIVE="depend-recursive"
-fi
 
 
 CROSS_COMPILING=$cross_compiling
+# FIXME: Remove AC_SUBSAT once tools directory is done
+
+ if test x$cross_compiling = xyes; then
+  CROSS_COMPILING_TRUE=
+  CROSS_COMPILING_FALSE='#'
+else
+  CROSS_COMPILING_TRUE='#'
+  CROSS_COMPILING_FALSE=
+fi
 
 
 INCLUDES="${INCLUDES} -I/usr/local/include"
@@ -15979,7 +15945,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 15982 "configure"' > conftest.$ac_ext
+  echo '#line 15948 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -18859,11 +18825,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:18862: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:18828: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:18866: \$? = $ac_status" >&5
+   echo "$as_me:18832: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19149,11 +19115,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19152: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19118: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19156: \$? = $ac_status" >&5
+   echo "$as_me:19122: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19253,11 +19219,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19256: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19222: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:19260: \$? = $ac_status" >&5
+   echo "$as_me:19226: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -21655,7 +21621,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 21658 "configure"
+#line 21624 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -21755,7 +21721,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 21758 "configure"
+#line 21724 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -24168,11 +24134,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24171: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24137: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:24175: \$? = $ac_status" >&5
+   echo "$as_me:24141: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -24272,11 +24238,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:24275: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:24241: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:24279: \$? = $ac_status" >&5
+   echo "$as_me:24245: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -25857,11 +25823,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25860: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25826: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:25864: \$? = $ac_status" >&5
+   echo "$as_me:25830: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -25961,11 +25927,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:25964: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:25930: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:25968: \$? = $ac_status" >&5
+   echo "$as_me:25934: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -28182,11 +28148,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:28185: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:28151: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:28189: \$? = $ac_status" >&5
+   echo "$as_me:28155: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -28472,11 +28438,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:28475: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:28441: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:28479: \$? = $ac_status" >&5
+   echo "$as_me:28445: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -28576,11 +28542,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:28579: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:28545: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:28583: \$? = $ac_status" >&5
+   echo "$as_me:28549: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -31453,9 +31419,11 @@ fi
 BACKENDS="$FILTERED_BACKENDS"
 BACKEND_LIBS_ENABLED=""
 BACKEND_CONFS_ENABLED=""
+BACKEND_MANS_ENABLED=""
 for backend in ${BACKENDS} ; do
   BACKEND_LIBS_ENABLED="${BACKEND_LIBS_ENABLED} libsane-${backend}.la"
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+  BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
 done
 
 
@@ -31598,6 +31566,7 @@ PRELOADABLE_BACKENDS_ENABLED=""
 # of all backends.
 for backend in ${PRELOADABLE_BACKENDS} ; do
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
+  BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
   # Special hacks.  Normally, we create a convenience library that
   # matches the backend's name but in some cases that will conflict
   # with an external library name that also matches backend name.
@@ -31607,6 +31576,7 @@ for backend in ${PRELOADABLE_BACKENDS} ; do
   fi
   PRELOADABLE_BACKENDS_ENABLED="${PRELOADABLE_BACKENDS_ENABLED} lib${backend}.la"
 done
+
 
 
 
@@ -31659,6 +31629,13 @@ if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ;
   USE_LATEX="yes"
 else
   USE_LATEX="no"
+fi
+ if test x$USE_LATEX = xyes; then
+  USE_LATEX_TRUE=
+  USE_LATEX_FALSE='#'
+else
+  USE_LATEX_TRUE='#'
+  USE_LATEX_FALSE=
 fi
 
 
@@ -31788,12 +31765,26 @@ $as_echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
+if test -z "${CROSS_COMPILING_TRUE}" && test -z "${CROSS_COMPILING_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"CROSS_COMPILING\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"CROSS_COMPILING\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
 
 if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${USE_LATEX_TRUE}" && test -z "${USE_LATEX_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"USE_LATEX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"USE_LATEX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi

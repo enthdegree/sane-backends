@@ -1,3 +1,10 @@
+2009-02-13 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* Makefile.am, configure.in, doc/Makefile.am: Convert
+	doc/Makefile to use automake. Main difference is that
+	no longer installs man pages for backends that are not
+	compiled.  Moved install ownership of $top_srcdir docs
+	to $top_srcdir's Makefile.
+
 2009-02-06 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, backend/Makefile.am: Add back change to
 	use -version-number even though its known not to work on

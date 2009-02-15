@@ -1,3 +1,10 @@
+2009-02-14 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, doc/Makefile.am, frontend/Makefile.am, 
+	include/Makefile.am, sanei/Makefile.am, tools/Makefile.am:
+	convert frontend, include, and sanei directories to use
+	automake.  Only reference libsanei.la now. Use am_conditional
+	to compile sanei_jpeg.lo.  distcheck now runs sanei/wire_test.
+
 2009-02-13 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* Makefile.am, configure.in, doc/Makefile.am: Convert
 	doc/Makefile to use automake. Main difference is that

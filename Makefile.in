@@ -35,11 +35,8 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
-	$(top_srcdir)/configure $(top_srcdir)/frontend/Makefile.in \
-	$(top_srcdir)/include/Makefile.in \
-	$(top_srcdir)/include/sane/config.h.in \
+	$(top_srcdir)/configure $(top_srcdir)/include/sane/config.h.in \
 	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/po/Makefile.in \
-	$(top_srcdir)/sanei/Makefile.in \
 	$(top_srcdir)/testsuite/Makefile.in \
 	$(top_srcdir)/tools/Makefile.in \
 	$(top_srcdir)/tools/sane-config.in AUTHORS COPYING ChangeLog \
@@ -55,9 +52,8 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
-CONFIG_CLEAN_FILES = sanei/Makefile frontend/Makefile japi/Makefile \
-	include/Makefile po/Makefile testsuite/Makefile tools/Makefile \
-	tools/sane-config
+CONFIG_CLEAN_FILES = japi/Makefile po/Makefile testsuite/Makefile \
+	tools/Makefile tools/sane-config
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -180,9 +176,6 @@ PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
-SANED = @SANED@
-SANEI_JPEG = @SANEI_JPEG@
-SANEI_JPEG_LO = @SANEI_JPEG_LO@
 SANEI_SANEI_JPEG_LO = @SANEI_SANEI_JPEG_LO@
 SANE_CONFIG_PATH = @SANE_CONFIG_PATH@
 SCSI_LIBS = @SCSI_LIBS@
@@ -327,13 +320,7 @@ $(top_srcdir)/include/sane/config.h.in: @MAINTAINER_MODE_TRUE@ $(am__configure_d
 
 distclean-hdr:
 	-rm -f include/sane/config.h include/sane/stamp-h1
-sanei/Makefile: $(top_builddir)/config.status $(top_srcdir)/sanei/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-frontend/Makefile: $(top_builddir)/config.status $(top_srcdir)/frontend/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 japi/Makefile: $(top_builddir)/config.status $(top_srcdir)/japi/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-include/Makefile: $(top_builddir)/config.status $(top_srcdir)/include/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 po/Makefile: $(top_builddir)/config.status $(top_srcdir)/po/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@

@@ -68,7 +68,7 @@ EXTRA = sane_strstatus.lo ../sanei/sanei_init_debug.lo \
 	../sanei/sanei_config.lo ../sanei/sanei_config2.lo \
 	../lib/usleep.lo ../lib/strndup.lo
 
-LIBSANEI = ../sanei/libsanei.a
+LIBSANEI = ../sanei/libsanei.la
 # Library routines that should be part of libc, but aren't on some systems:
 LIBLIB = ../lib/liblib.la ../lib/libfelib.la
 

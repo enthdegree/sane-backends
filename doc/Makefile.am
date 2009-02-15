@@ -121,6 +121,8 @@ install-beman5: $(BACKEND_5MANS)
 	  || exit 1; \
 	done
 
+# FIXME: See if nobase_doc_DATA will install subdirectories then
+# we can get read of install-bedocs target
 BEDOCS = canon/canon.changes canon/canon.install2700F.txt
 BEDOCS += gt68xx/gt68xx.CHANGES gt68xx/gt68xx.TODO
 BEDOCS += leo/leo.txt

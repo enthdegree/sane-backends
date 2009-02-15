@@ -162,9 +162,6 @@ PRELOADABLE_BACKENDS = @PRELOADABLE_BACKENDS@
 PRELOADABLE_BACKENDS_ENABLED = @PRELOADABLE_BACKENDS_ENABLED@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
-SANED = @SANED@
-SANEI_JPEG = @SANEI_JPEG@
-SANEI_JPEG_LO = @SANEI_JPEG_LO@
 SANEI_SANEI_JPEG_LO = @SANEI_SANEI_JPEG_LO@
 SANE_CONFIG_PATH = @SANE_CONFIG_PATH@
 SCSI_LIBS = @SCSI_LIBS@
@@ -371,6 +368,9 @@ MAN2HTML = nroff -man |\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'
 
 beman5dir = $(mandir)/man5
+
+# FIXME: See if nobase_doc_DATA will install subdirectories then
+# we can get read of install-bedocs target
 BEDOCS = canon/canon.changes canon/canon.install2700F.txt \
 	gt68xx/gt68xx.CHANGES gt68xx/gt68xx.TODO leo/leo.txt \
 	matsushita/matsushita.txt mustek/mustek.CHANGES \

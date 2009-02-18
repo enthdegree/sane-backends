@@ -922,13 +922,9 @@ net_avahi_cleanup (void)
   if (!avahi_thread)
     return;
 
-  /* Not needed anymore? */
-  /* avahi_threaded_poll_lock (avahi_thread); */
-
   DBG (1, "net_avahi_cleanup: stopping thread\n");
-  avahi_threaded_poll_stop (avahi_thread);
 
-  DBG (1, "net_avahi_cleanup: locking thread\n");
+  avahi_threaded_poll_stop (avahi_thread);
 
   if (avahi_browser)
     avahi_service_browser_free (avahi_browser);

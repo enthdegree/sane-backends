@@ -9229,12 +9229,12 @@ if test -n "$AVAHI_CFLAGS"; then
     pkg_cv_AVAHI_CFLAGS="$AVAHI_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" avahi-client >= 0.6.4 \"") >&5
-  ($PKG_CONFIG --exists --print-errors " avahi-client >= 0.6.4 ") 2>&5
+    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" avahi-client >= 0.6.24 \"") >&5
+  ($PKG_CONFIG --exists --print-errors " avahi-client >= 0.6.24 ") 2>&5
   ac_status=$?
   $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_AVAHI_CFLAGS=`$PKG_CONFIG --cflags " avahi-client >= 0.6.4 " 2>/dev/null`
+  pkg_cv_AVAHI_CFLAGS=`$PKG_CONFIG --cflags " avahi-client >= 0.6.24 " 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -9245,12 +9245,12 @@ if test -n "$AVAHI_LIBS"; then
     pkg_cv_AVAHI_LIBS="$AVAHI_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" avahi-client >= 0.6.4 \"") >&5
-  ($PKG_CONFIG --exists --print-errors " avahi-client >= 0.6.4 ") 2>&5
+    { ($as_echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \" avahi-client >= 0.6.24 \"") >&5
+  ($PKG_CONFIG --exists --print-errors " avahi-client >= 0.6.24 ") 2>&5
   ac_status=$?
   $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_AVAHI_LIBS=`$PKG_CONFIG --libs " avahi-client >= 0.6.4 " 2>/dev/null`
+  pkg_cv_AVAHI_LIBS=`$PKG_CONFIG --libs " avahi-client >= 0.6.24 " 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -9268,9 +9268,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        AVAHI_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors " avahi-client >= 0.6.4 " 2>&1`
+	        AVAHI_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors " avahi-client >= 0.6.24 " 2>&1`
         else
-	        AVAHI_PKG_ERRORS=`$PKG_CONFIG --print-errors " avahi-client >= 0.6.4 " 2>&1`
+	        AVAHI_PKG_ERRORS=`$PKG_CONFIG --print-errors " avahi-client >= 0.6.24 " 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$AVAHI_PKG_ERRORS" >&5

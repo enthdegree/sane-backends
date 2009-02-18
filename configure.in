@@ -133,7 +133,7 @@ AC_ARG_ENABLE(avahi,
 	[enable_avahi=$enableval], [enable_avahi=no])
 
 if test "$enable_avahi" = "yes"; then
-  PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.4 ],
+  PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.24 ],
                     [AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])], enable_avahi=no)
 fi
 

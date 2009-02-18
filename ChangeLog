@@ -1,3 +1,7 @@
+2009-02-18 Julien Blache <jb@jblache.org>
+	* backend/net.c: do not lock the Avahi thread before stopping
+	it. It looks like it's no longer necessary to do so.
+
 2009-02-14 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, doc/Makefile.am, frontend/Makefile.am, 
 	include/Makefile.am, sanei/Makefile.am, tools/Makefile.am:

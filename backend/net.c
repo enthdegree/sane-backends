@@ -922,8 +922,13 @@ net_avahi_cleanup (void)
   if (!avahi_thread)
     return;
 
-  avahi_threaded_poll_lock (avahi_thread);
+  /* Not needed anymore? */
+  /* avahi_threaded_poll_lock (avahi_thread); */
+
+  DBG (1, "net_avahi_cleanup: stopping thread\n");
   avahi_threaded_poll_stop (avahi_thread);
+
+  DBG (1, "net_avahi_cleanup: locking thread\n");
 
   if (avahi_browser)
     avahi_service_browser_free (avahi_browser);
@@ -932,6 +937,8 @@ net_avahi_cleanup (void)
     avahi_client_free (avahi_client);
 
   avahi_threaded_poll_free (avahi_thread);
+
+  DBG (1, "net_avahi_cleanup: done\n");
 }
 #endif /* WITH_AVAHI */
 

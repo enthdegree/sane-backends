@@ -2519,26 +2519,35 @@ saned_avahi_callback (AvahiClient *c, AvahiClientState state, void *userdata)
   switch (state)
     {
       case AVAHI_CLIENT_CONNECTING:
+	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_CONNECTING\n");
 	break;
 
       case AVAHI_CLIENT_S_RUNNING:
+	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_S_RUNNING\n");
 	saned_create_avahi_services (c);
 	break;
 
       case AVAHI_CLIENT_S_COLLISION:
+	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_S_COLLISION\n");
+
       case AVAHI_CLIENT_S_REGISTERING:
+	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_S_REGISTERING\n");
 	if (avahi_group)
 	  avahi_entry_group_reset (avahi_group);
 	break;
 
       case AVAHI_CLIENT_FAILURE:
-	error = avahi_client_errno (c);
+	DBG (DBG_INFO, "saned_avahi_callback: AVAHI_CLIENT_FAILURE\n");
 
+	error = avahi_client_errno (c);
 	if (error == AVAHI_ERR_DISCONNECTED)
 	  {
+	    DBG (DBG_INFO, "saned_avahi_callback: AVAHI_ERR_DISCONNECTED\n");
+
 	    /* Server disappeared - try to reconnect */
             avahi_client_free (avahi_client);
             avahi_client = NULL;
+	    avahi_group = NULL;
 
 	    avahi_client = avahi_client_new (avahi_simple_poll_get (avahi_poll), AVAHI_CLIENT_NO_FAIL, saned_avahi_callback, NULL, &error);
 	    if (avahi_client == NULL)

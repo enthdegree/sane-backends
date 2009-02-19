@@ -25,9 +25,11 @@
    MA 02111-1307, USA.
 */
 
-#ifdef HAVE_LIBUSB
 
 #include "../include/sane/config.h"
+
+#ifdef HAVE_LIBUSB
+
 #include "../include/sane/sane.h"
 #include <stdio.h>
 #include <string.h>

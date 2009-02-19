@@ -1,3 +1,11 @@
+2009-02-19 Julien Blache <jb@jblache.org>
+	* configure.in: add --enable-libusb_1_0 and check for libusb-1.0
+	using pkg-config.
+	* sanei/sanei_usb.c: add support for libusb-1.0.
+	* tools/sane-find-scanner.c: add support for libusb-1.0.
+	* tools/check-usb-chip.c: compile as an empty file if libusb-1.0
+	is used.
+
 2009-02-18 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, tools/Makefile.am: convert tools to automake.
 	Add tools/openbsd to distribution package.

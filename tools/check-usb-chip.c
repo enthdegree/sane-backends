@@ -25,6 +25,7 @@
    MA 02111-1307, USA.
 */
 
+#ifdef HAVE_LIBUSB
 
 #include "../include/sane/config.h"
 #include "../include/sane/sane.h"
@@ -32,16 +33,14 @@
 #include <string.h>
 #include <errno.h>
 
+#include <usb.h>
+
 static int verbose = 0;
 static SANE_Bool no_chipset_access;
 #define TIMEOUT 1000
 
-#ifdef HAVE_LIBUSB
-#include <usb.h>
-
 extern char *check_usb_chip (struct usb_device *dev, int verbosity,
 			     SANE_Bool from_file);
-
 
 static int
 prepare_interface (struct usb_device *dev, usb_dev_handle ** handle)

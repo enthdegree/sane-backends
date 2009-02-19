@@ -5,7 +5,7 @@
 ##  included LICENSE file for license information.
 
 SCANIMAGE = ../frontend/scanimage
-TESTFILE  = testfile.pnm
+TESTFILE  = $(srcdir)/testfile.pnm
 OUTFILE   = outfile.pnm
 DEVICE    = test
 OPTIONS   = --mode Color --depth 16 --test-picture "Color pattern" --resolution 50 -y 20 -x 20 > $(OUTFILE)

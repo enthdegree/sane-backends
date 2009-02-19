@@ -1320,6 +1320,8 @@ LIBS = @LIBS@
 
 # LIBTOOL install is a little to noisy for my liking.
 LIBTOOL = @LIBTOOL@ --silent
+LIBUSB_1_0_CFLAGS = @LIBUSB_1_0_CFLAGS@
+LIBUSB_1_0_LIBS = @LIBUSB_1_0_LIBS@
 LIBV4L_CFLAGS = @LIBV4L_CFLAGS@
 LIBV4L_LIBS = @LIBV4L_LIBS@
 LINKER_RPATH = @LINKER_RPATH@
@@ -1385,6 +1387,7 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
+configdir = @configdir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
@@ -1420,7 +1423,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-configdir = ${sysconfdir}/sane.d
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include -I$(top_srcdir)/include -DLIBDIR="$(libdir)/sane"
 AM_LDFLAGS = @STRICT_LDFLAGS@
 # The -rpath option is added because we are creating _LTLIBRARIES based

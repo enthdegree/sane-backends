@@ -1,3 +1,9 @@
+2009-02-19 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, Makefile.am, backend/Makefile.am: Have
+	configure define configdir so all makefiles can use
+	it (fixes bug introduce with sanei converted to automake).
+	Enable running testsuite during distcheck.
+
 2009-02-19 Julien Blache <jb@jblache.org>
 	* configure.in: add --enable-libusb_1_0 and check for libusb-1.0
 	using pkg-config.

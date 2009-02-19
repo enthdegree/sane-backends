@@ -3,7 +3,6 @@
 ##
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
-configdir = ${sysconfdir}/sane.d
 
 INSTALL_LOCKPATH = @INSTALL_LOCKPATH@
 LOCKPATH_GROUP = @LOCKPATH_GROUP@

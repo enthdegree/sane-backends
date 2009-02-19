@@ -479,10 +479,14 @@ AC_ARG_WITH(lockdir, AC_HELP_STRING([--with-lockdir=DIR],
                                     [locksanedir=$withval],[locksanedir=${localstatedir}/lock/sane])
 AC_SUBST(locksanedir)
 
+configdir="${sysconfdir}/sane.d"
+AC_SUBST(configdir)
+
 dnl ***********************************************************************
 dnl enable/disable backends and features based on previous tests and user's
 dnl choice
 dnl ***********************************************************************
+
 CPPFLAGS="${CPPFLAGS} -DPATH_SANE_CONFIG_DIR=\$(configdir) \
 	  -DPATH_SANE_DATA_DIR=\$(datadir) \
 	  -DPATH_SANE_LOCK_DIR=\$(locksanedir) \

@@ -55,11 +55,19 @@ libcheck:
 	  exit 1; \
 	fi
 
-# TODO: If software can be updated to pass the libcheck tests again then
-# the following line can be uncommented.  Then we will have a single
-# target to verify the package compiles and installs correctly and does
-# not contain any unwanted public symbols.
+# Verify that backends do not contain any unwanted public symbols
+# anytime check or distcheck is ran.
+# TODO: Currently this doesn't pass.  Uncomment once symbols have
+# been cleaned up.
 #check-am: libcheck
+
+# Run testsuite any time installcheck or distcheck is ran.
+# Must run testsuite after install or else shared library backends
+# will not be found (including test backend).
+# TODO: The test backend isn't working in current CVS.  Once
+# working again, uncomment the following line.
+#installcheck-local:
+#	cd testsuite && $(MAKE) test.local
 
 $(distdir).lsm: dist $(PACKAGE).lsm
 	( cat $(PACKAGE).lsm | \

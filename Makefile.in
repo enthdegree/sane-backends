@@ -37,9 +37,8 @@ DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/configure $(top_srcdir)/include/sane/config.h.in \
 	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/po/Makefile.in \
-	$(top_srcdir)/testsuite/Makefile.in AUTHORS COPYING ChangeLog \
-	INSTALL NEWS compile config.guess config.sub depcomp \
-	install-sh ltmain.sh missing mkinstalldirs
+	AUTHORS COPYING ChangeLog INSTALL NEWS compile config.guess \
+	config.sub depcomp install-sh ltmain.sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
@@ -50,7 +49,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
-CONFIG_CLEAN_FILES = japi/Makefile po/Makefile testsuite/Makefile
+CONFIG_CLEAN_FILES = japi/Makefile po/Makefile
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -319,8 +318,6 @@ distclean-hdr:
 japi/Makefile: $(top_builddir)/config.status $(top_srcdir)/japi/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 po/Makefile: $(top_builddir)/config.status $(top_srcdir)/po/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-testsuite/Makefile: $(top_builddir)/config.status $(top_srcdir)/testsuite/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
@@ -770,11 +767,19 @@ libcheck:
 	  exit 1; \
 	fi
 
-# TODO: If software can be updated to pass the libcheck tests again then
-# the following line can be uncommented.  Then we will have a single
-# target to verify the package compiles and installs correctly and does
-# not contain any unwanted public symbols.
+# Verify that backends do not contain any unwanted public symbols
+# anytime check or distcheck is ran.
+# TODO: Currently this doesn't pass.  Uncomment once symbols have
+# been cleaned up.
 #check-am: libcheck
+
+# Run testsuite any time installcheck or distcheck is ran.
+# Must run testsuite after install or else shared library backends
+# will not be found (including test backend).
+# TODO: The test backend isn't working in current CVS.  Once
+# working again, uncomment the following line.
+#installcheck-local:
+#	cd testsuite && $(MAKE) test.local
 
 $(distdir).lsm: dist $(PACKAGE).lsm
 	( cat $(PACKAGE).lsm | \

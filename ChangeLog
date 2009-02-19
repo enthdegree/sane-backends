@@ -1,3 +1,11 @@
+2009-02-14 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* configure.in, tools/Makefile.am: convert tools to automake.
+	Add tools/openbsd to distribution package.
+	* include/Makefile.am: include files should have been installed
+	under sane/ directory when converted to automake.
+	* doc/Makefile.am: Cleanup. Use automake's built in support to
+	install docs within subdirectories.
+
 2009-02-18 Julien Blache <jb@jblache.org>
 	* configure.in, configure: raise avahi-client dependency to
 	0.6.24, following a needed bugfix in this release.

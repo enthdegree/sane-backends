@@ -55,6 +55,7 @@ dnl ***********************************************************************
 dnl Checks for programs.
 dnl ***********************************************************************
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_CPP
@@ -74,8 +75,6 @@ AC_SUBST(DVIPS)
 AC_SUBST(MAKEINDEX)
 
 CROSS_COMPILING=$cross_compiling
-# FIXME: Remove AC_SUBSAT once tools directory is done
-AC_SUBST(CROSS_COMPILING)
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
 dnl ***********************************************************************

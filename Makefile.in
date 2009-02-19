@@ -37,11 +37,9 @@ DIST_COMMON = README $(am__configure_deps) $(dist_doc_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(top_srcdir)/configure $(top_srcdir)/include/sane/config.h.in \
 	$(top_srcdir)/japi/Makefile.in $(top_srcdir)/po/Makefile.in \
-	$(top_srcdir)/testsuite/Makefile.in \
-	$(top_srcdir)/tools/Makefile.in \
-	$(top_srcdir)/tools/sane-config.in AUTHORS COPYING ChangeLog \
-	INSTALL NEWS config.guess config.sub depcomp install-sh \
-	ltmain.sh missing mkinstalldirs
+	$(top_srcdir)/testsuite/Makefile.in AUTHORS COPYING ChangeLog \
+	INSTALL NEWS compile config.guess config.sub depcomp \
+	install-sh ltmain.sh missing mkinstalldirs
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
@@ -52,8 +50,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/include/sane/config.h
-CONFIG_CLEAN_FILES = japi/Makefile po/Makefile testsuite/Makefile \
-	tools/Makefile tools/sane-config
+CONFIG_CLEAN_FILES = japi/Makefile po/Makefile testsuite/Makefile
 SOURCES =
 DIST_SOURCES =
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
@@ -106,7 +103,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CROSS_COMPILING = @CROSS_COMPILING@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -325,10 +321,6 @@ japi/Makefile: $(top_builddir)/config.status $(top_srcdir)/japi/Makefile.in
 po/Makefile: $(top_builddir)/config.status $(top_srcdir)/po/Makefile.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 testsuite/Makefile: $(top_builddir)/config.status $(top_srcdir)/testsuite/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-tools/Makefile: $(top_builddir)/config.status $(top_srcdir)/tools/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-tools/sane-config: $(top_builddir)/config.status $(top_srcdir)/tools/sane-config.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:

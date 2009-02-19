@@ -33,8 +33,9 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = doc
-DIST_COMMON = $(dist_doc_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/doxygen-sanei.conf.in
+DIST_COMMON = $(dist_doc_DATA) $(nobase_dist_doc_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/doxygen-sanei.conf.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/byteorder.m4 \
@@ -49,7 +50,7 @@ DIST_SOURCES =
 man1dir = $(mandir)/man1
 am__installdirs = "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man7dir)" \
 	"$(DESTDIR)$(man8dir)" "$(DESTDIR)$(docdir)" \
-	"$(DESTDIR)$(docdir)"
+	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"
 man7dir = $(mandir)/man7
 man8dir = $(mandir)/man8
 NROFF = nroff
@@ -62,7 +63,8 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 dist_docDATA_INSTALL = $(INSTALL_DATA)
 docDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(dist_doc_DATA) $(doc_DATA)
+nobase_dist_docDATA_INSTALL = $(install_sh_DATA)
+DATA = $(dist_doc_DATA) $(doc_DATA) $(nobase_dist_doc_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
@@ -92,7 +94,6 @@ CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
-CROSS_COMPILING = @CROSS_COMPILING@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -261,48 +262,48 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 	sane-epjitsu.man sane-hs2p.man sane-canon_dr.man \
 	sane-xerox_mfp.man sane-rts8891.man sane.man saned.man \
 	descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
-	sane.png $(BEDOCS) sane.tex net.tex html.sty \
-	descriptions/abaton.desc descriptions/agfafocus.desc \
-	descriptions/apple.desc descriptions/artec.desc \
-	descriptions/artec_eplus48u.desc descriptions/as6e.desc \
-	descriptions/avision.desc descriptions/bh.desc \
-	descriptions/canon630u.desc descriptions/canon.desc \
-	descriptions/canon_dr.desc descriptions/canon_pp.desc \
-	descriptions/cardscan.desc descriptions/coolscan2.desc \
-	descriptions/coolscan.desc descriptions/dc210.desc \
-	descriptions/dc240.desc descriptions/dc25.desc \
-	descriptions/dell1600n_net.desc descriptions/dll.desc \
-	descriptions/dmc.desc descriptions/epjitsu.desc \
-	descriptions/epson2.desc descriptions/epson.desc \
-	descriptions/fujitsu.desc descriptions/genesys.desc \
-	descriptions/gphoto2.desc descriptions/gt68xx.desc \
-	descriptions/hp3500.desc descriptions/hp3900.desc \
-	descriptions/hp4200.desc descriptions/hp5400.desc \
-	descriptions/hp5590.desc descriptions/hp.desc \
-	descriptions/hpljm1005.desc descriptions/hpsj5s.desc \
-	descriptions/hs2p.desc descriptions/ibm.desc \
-	descriptions/leo.desc descriptions/lexmark.desc \
-	descriptions/ma1509.desc descriptions/matsushita.desc \
-	descriptions/microtek2.desc descriptions/microtek.desc \
-	descriptions/mustek.desc descriptions/mustek_pp.desc \
-	descriptions/mustek_usb2.desc descriptions/mustek_usb.desc \
-	descriptions/nec.desc descriptions/net.desc \
-	descriptions/niash.desc descriptions/pie.desc \
-	descriptions/pint.desc descriptions/pixma.desc \
-	descriptions/plustek.desc descriptions/plustek_pp.desc \
-	descriptions/pnm.desc descriptions/qcam.desc \
-	descriptions/ricoh.desc descriptions/rts8891.desc \
-	descriptions/s9036.desc descriptions/sceptre.desc \
-	descriptions/sharp.desc descriptions/sm3600.desc \
-	descriptions/sm3840.desc descriptions/snapscan.desc \
-	descriptions/sp15c.desc descriptions/st400.desc \
-	descriptions/stv680.desc descriptions/tamarack.desc \
-	descriptions/teco1.desc descriptions/teco2.desc \
-	descriptions/teco3.desc descriptions/template.desc. \
-	descriptions/test.desc descriptions/u12.desc \
-	descriptions/umax1220u.desc descriptions/umax.desc \
-	descriptions/umax_pp.desc descriptions/unsupported.desc \
-	descriptions/v4l.desc descriptions/xerox_mfp.desc \
+	sane.png sane.tex net.tex html.sty descriptions/abaton.desc \
+	descriptions/agfafocus.desc descriptions/apple.desc \
+	descriptions/artec.desc descriptions/artec_eplus48u.desc \
+	descriptions/as6e.desc descriptions/avision.desc \
+	descriptions/bh.desc descriptions/canon630u.desc \
+	descriptions/canon.desc descriptions/canon_dr.desc \
+	descriptions/canon_pp.desc descriptions/cardscan.desc \
+	descriptions/coolscan2.desc descriptions/coolscan.desc \
+	descriptions/dc210.desc descriptions/dc240.desc \
+	descriptions/dc25.desc descriptions/dell1600n_net.desc \
+	descriptions/dll.desc descriptions/dmc.desc \
+	descriptions/epjitsu.desc descriptions/epson2.desc \
+	descriptions/epson.desc descriptions/fujitsu.desc \
+	descriptions/genesys.desc descriptions/gphoto2.desc \
+	descriptions/gt68xx.desc descriptions/hp3500.desc \
+	descriptions/hp3900.desc descriptions/hp4200.desc \
+	descriptions/hp5400.desc descriptions/hp5590.desc \
+	descriptions/hp.desc descriptions/hpljm1005.desc \
+	descriptions/hpsj5s.desc descriptions/hs2p.desc \
+	descriptions/ibm.desc descriptions/leo.desc \
+	descriptions/lexmark.desc descriptions/ma1509.desc \
+	descriptions/matsushita.desc descriptions/microtek2.desc \
+	descriptions/microtek.desc descriptions/mustek.desc \
+	descriptions/mustek_pp.desc descriptions/mustek_usb2.desc \
+	descriptions/mustek_usb.desc descriptions/nec.desc \
+	descriptions/net.desc descriptions/niash.desc \
+	descriptions/pie.desc descriptions/pint.desc \
+	descriptions/pixma.desc descriptions/plustek.desc \
+	descriptions/plustek_pp.desc descriptions/pnm.desc \
+	descriptions/qcam.desc descriptions/ricoh.desc \
+	descriptions/rts8891.desc descriptions/s9036.desc \
+	descriptions/sceptre.desc descriptions/sharp.desc \
+	descriptions/sm3600.desc descriptions/sm3840.desc \
+	descriptions/snapscan.desc descriptions/sp15c.desc \
+	descriptions/st400.desc descriptions/stv680.desc \
+	descriptions/tamarack.desc descriptions/teco1.desc \
+	descriptions/teco2.desc descriptions/teco3.desc \
+	descriptions/template.desc. descriptions/test.desc \
+	descriptions/u12.desc descriptions/umax1220u.desc \
+	descriptions/umax.desc descriptions/umax_pp.desc \
+	descriptions/unsupported.desc descriptions/v4l.desc \
+	descriptions/xerox_mfp.desc \
 	descriptions-external/brother2.desc \
 	descriptions-external/brother.desc \
 	descriptions-external/brother-mfc4600.desc \
@@ -361,6 +362,7 @@ doc_DATA = $(HTML_PAGES) $(STANDARD)
 @USE_LATEX_FALSE@STANDARD = 
 @USE_LATEX_TRUE@STANDARD = sane.ps
 dist_doc_DATA = backend-writing.txt
+nobase_dist_doc_DATA = $(BEDOCS)
 DLH = TEXINPUTS=$(srcdir):$$TEXINPUTS dlh
 MAN2HTML = nroff -man |\
 	  man2html -compress -topm 6 -botm 6 -nodepage -title $${page} \
@@ -368,9 +370,6 @@ MAN2HTML = nroff -man |\
 	  sed 's,<BODY>,<BODY BGCOLOR=\#FFFFFF TEXT=\#000000><H1 ALIGN=CENTER><IMG SRC="/images/sane.png" HEIGHT=117 WIDTH=346></H1>,'
 
 beman5dir = $(mandir)/man5
-
-# FIXME: See if nobase_doc_DATA will install subdirectories then
-# we can get read of install-bedocs target
 BEDOCS = canon/canon.changes canon/canon.install2700F.txt \
 	gt68xx/gt68xx.CHANGES gt68xx/gt68xx.TODO leo/leo.txt \
 	matsushita/matsushita.txt mustek/mustek.CHANGES \
@@ -608,6 +607,25 @@ uninstall-docDATA:
 	  echo " rm -f '$(DESTDIR)$(docdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(docdir)/$$f"; \
 	done
+install-nobase_dist_docDATA: $(nobase_dist_doc_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(docdir)" || $(MKDIR_P) "$(DESTDIR)$(docdir)"
+	@$(am__vpath_adj_setup) \
+	list='$(nobase_dist_doc_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  $(am__vpath_adj) \
+	  echo " $(nobase_dist_docDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(docdir)/$$f'"; \
+	  $(nobase_dist_docDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(docdir)/$$f"; \
+	done
+
+uninstall-nobase_dist_docDATA:
+	@$(NORMAL_UNINSTALL)
+	@$(am__vpath_adj_setup) \
+	list='$(nobase_dist_doc_DATA)'; for p in $$list; do \
+	  $(am__vpath_adj) \
+	  echo " rm -f '$(DESTDIR)$(docdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(docdir)/$$f"; \
+	done
 tags: TAGS
 TAGS:
 
@@ -645,7 +663,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(MANS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man7dir)" "$(DESTDIR)$(man8dir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"; do \
+	for dir in "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man7dir)" "$(DESTDIR)$(man8dir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -689,7 +707,7 @@ info: info-am
 info-am:
 
 install-data-am: install-data-local install-dist_docDATA \
-	install-docDATA install-man
+	install-docDATA install-man install-nobase_dist_docDATA
 
 install-dvi: install-dvi-am
 
@@ -724,7 +742,7 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-dist_docDATA uninstall-docDATA uninstall-local \
-	uninstall-man
+	uninstall-man uninstall-nobase_dist_docDATA
 
 uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 
@@ -737,13 +755,15 @@ uninstall-man: uninstall-man1 uninstall-man7 uninstall-man8
 	install-data-local install-dist_docDATA install-docDATA \
 	install-dvi install-dvi-am install-exec install-exec-am \
 	install-html install-html-am install-info install-info-am \
-	install-man install-man1 install-man7 install-man8 install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-man install-man1 install-man7 install-man8 \
+	install-nobase_dist_docDATA install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am uninstall uninstall-am \
 	uninstall-dist_docDATA uninstall-docDATA uninstall-local \
-	uninstall-man uninstall-man1 uninstall-man7 uninstall-man8
+	uninstall-man uninstall-man1 uninstall-man7 uninstall-man8 \
+	uninstall-nobase_dist_docDATA
 
 
 all: bemans $(STANDARD) html-pages
@@ -768,21 +788,7 @@ install-beman5: $(BACKEND_5MANS)
 	  || exit 1; \
 	done
 
-install-bedocs: $(BEDOCS)
-	@list='$(BEDOCS)'; \
-	  doc_files=`for file in $$list; do echo $$file; done`; \
-	  case $$doc_files in \
-	  */*) $(MKDIR_P) `echo "$$doc_files" | \
-	  sed 's|^|$(DESTDIR)$(docdir)/|;s,/[^/]*$$,,' | \
-	  sort -u` ; \
-	  esac; \
-	  for doc in $$doc_files; do \
-	  echo "installing $(srcdir)/$${doc} in $(docdir)/$${doc}..."; \
-	  $(INSTALL_DATA) $(srcdir)/$${doc} $(DESTDIR)$(docdir)/$${doc} \
-	  || exit 1; \
-	  done
-
-install-data-local: install-beman5 install-bedocs
+install-data-local: install-beman5
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)

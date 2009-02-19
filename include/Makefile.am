@@ -4,7 +4,7 @@
 ##  This file is part of the "Sane" build infra-structure.  See
 ##  included LICENSE file for license information.
 
-include_HEADERS = sane/sane.h sane/saneopts.h
+nobase_include_HEADERS = sane/sane.h sane/saneopts.h
 
 EXTRA_DIST = lalloca.h lassert.h lgetopt.h md5.h font_6x11.h
 

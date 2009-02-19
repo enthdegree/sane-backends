@@ -86,6 +86,7 @@ endif
 all: bemans $(STANDARD) html-pages
 
 dist_doc_DATA = backend-writing.txt
+nobase_dist_doc_DATA = $(BEDOCS)
 doc_DATA += $(STANDARD)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
@@ -121,8 +122,6 @@ install-beman5: $(BACKEND_5MANS)
 	  || exit 1; \
 	done
 
-# FIXME: See if nobase_doc_DATA will install subdirectories then
-# we can get read of install-bedocs target
 BEDOCS = canon/canon.changes canon/canon.install2700F.txt
 BEDOCS += gt68xx/gt68xx.CHANGES gt68xx/gt68xx.TODO
 BEDOCS += leo/leo.txt
@@ -154,21 +153,7 @@ BEDOCS += umax/negative-types.txt umax/sane-logo.jpg \
   umax/sane-umax.jpg umax/umax.BUGS umax/umax.CHANGES umax/umax.FAQ \
   umax/umax.TODO
 
-EXTRA_DIST += $(BEDOCS) sane.tex net.tex html.sty
-
-install-bedocs: $(BEDOCS)
-	@list='$(BEDOCS)'; \
-	  doc_files=`for file in $$list; do echo $$file; done`; \
-	  case $$doc_files in \
-	  */*) $(MKDIR_P) `echo "$$doc_files" | \
-	  sed 's|^|$(DESTDIR)$(docdir)/|;s,/[^/]*$$,,' | \
-	  sort -u` ; \
-	  esac; \
-	  for doc in $$doc_files; do \
-	  echo "installing $(srcdir)/$${doc} in $(docdir)/$${doc}..."; \
-	  $(INSTALL_DATA) $(srcdir)/$${doc} $(DESTDIR)$(docdir)/$${doc} \
-	  || exit 1; \
-	  done
+EXTRA_DIST += sane.tex net.tex html.sty
 
 EXTRA_DIST += descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/apple.desc descriptions/artec.desc \
@@ -232,7 +217,7 @@ EXTRA_DIST += icons/contents.gif icons/index.gif icons/next.gif \
   icons/next_gr.gif icons/previous.gif icons/previous_gr.gif \
   icons/references.gif icons/references_gr.gif icons/up.gif icons/up_gr.gif
 
-install-data-local: install-beman5 install-bedocs
+install-data-local: install-beman5
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)

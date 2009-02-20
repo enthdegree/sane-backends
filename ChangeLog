@@ -3,6 +3,7 @@
 	configure define configdir so all makefiles can use
 	it (fixes bug introduce with sanei converted to automake).
 	Enable running testsuite during distcheck.
+	* japa/Makefile.am: Convert japi to automake.
 
 2009-02-19 Julien Blache <jb@jblache.org>
 	* configure.in: add --enable-libusb_1_0 and check for libusb-1.0

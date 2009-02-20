@@ -8,7 +8,7 @@ AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
  -I$(top_srcdir)/include
 
 bin_PROGRAMS = sane-find-scanner gamma4scanimage
-noinst_PROGRAMS = sane-desc umax_pp gamma4scanimage
+noinst_PROGRAMS = sane-desc umax_pp
 
 if CROSS_COMPILING
 HOTPLUG =
@@ -28,10 +28,11 @@ CLEANFILES = $(bin_SCRIPTS) $(dist_noinst_SCRIPTS)
 
 EXTRA_DIST = check-po.awk libtool-get-dll-ext mustek600iin-off.c \
 	     RenSaneDlls.cmd README xerox
-	     
+
 sane_find_scanner_SOURCES = sane-find-scanner.c check-usb-chip.c \
-  ../backend/sane_strstatus.c
-sane_find_scanner_LDADD = ../sanei/libsanei.la @USB_LIBS@ @IEEE1284_LIBS@
+			    ../backend/sane_strstatus.c
+sane_find_scanner_LDADD = ../sanei/libsanei.la ../lib/liblib.la \
+			  @USB_LIBS@ @IEEE1284_LIBS@
 
 gamma4scanimage_SOURCES = gamma4scanimage.c
 gamma4scanimage_LDADD = @MATH_LIB@
@@ -41,7 +42,7 @@ umax_pp_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=umax_pp_low
 umax_pp_LDADD = ../sanei/libsanei.la ../lib/liblib.la @MATH_LIB@
 
 sane_desc_SOURCES = sane-desc.c
-sane_desc_LDADD = ../sanei/libsanei.la
+sane_desc_LDADD = ../sanei/libsanei.la ../lib/liblib.la
 
 EXTRA_DIST += hotplug/README hotplug/libusbscanner
 EXTRA_DIST += hotplug-ng/README hotplug-ng/libsane.hotplug

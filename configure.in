@@ -77,7 +77,6 @@ AC_SUBST(MAKEINDEX)
 dnl Call explicitely before using PKG_*
 PKG_PROG_PKG_CONFIG
 
-CROSS_COMPILING=$cross_compiling
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
 
 dnl ***********************************************************************

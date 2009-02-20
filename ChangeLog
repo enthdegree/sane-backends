@@ -1,3 +1,7 @@
+2009-02-01  Mattias Ellert <mattias.ellert@fysast.uu.se>
+	* tools/Makefile.am: Add missing liblib dependencies
+	* frontend/scanimage.c: Restore alloca include order
+
 2009-02-19 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, Makefile.am, backend/Makefile.am: Have
 	configure define configdir so all makefiles can use

@@ -22,12 +22,12 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-/* Put anything that may use a macro that can conflict with our
- * internal remapping functions in liblib.la before we include
- * include/sane/config.h.
- */
-#include "../include/lalloca.h"	/* MUST come first for AIX! */
+#ifdef _AIX
+# include "../include/lalloca.h"                /* MUST come first for AIX! */
+#endif
+
 #include "../include/sane/config.h"
+#include "../include/lalloca.h"
 
 #include <assert.h>
 #include "lgetopt.h"

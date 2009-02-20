@@ -1,3 +1,11 @@
+2009-03-20  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/avision.c: backend v290, fix reader_pid and NVRAM option
+	  issues, by Mattias Ellert.
+	* backend/fujitsu.c: backend v89, fi-4750 has no serial number support
+	* doc/descriptions/fujitsu.desc: backend v89, remove 'MAC/TWAIN' text
+	* doc/sane-fujitsu.man: backend v89
+	* backend/.cvsignore: ignore *.loT
+
 2009-02-01  Mattias Ellert <mattias.ellert@fysast.uu.se>
 	* tools/Makefile.am: Add missing liblib dependencies
 	* frontend/scanimage.c: Restore alloca include order

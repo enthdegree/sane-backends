@@ -417,6 +417,8 @@
          - deactivate double feed options if df-action == default
       v88 2009-01-21, MAN
          - dont export private symbols
+      v89 2009-03-20, MAN
+         - fi-4750 returns random garbage to serial number queries
 
    SANE FLOW DIAGRAM
 
@@ -477,7 +479,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 88
+#define BUILD 89
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -1970,6 +1972,11 @@ init_model (struct fujitsu *s)
     s->ppl_mod_by_mode[MODE_HALFTONE] = 32;
     s->ppl_mod_by_mode[MODE_GRAYSCALE] = 4;
     s->ppl_mod_by_mode[MODE_COLOR] = 4;
+  }
+
+  else if (strstr (s->model_name, "fi-4750") ) {
+    /* weirdness */
+    s->broken_diag_serial = 1;
   }
 
   /* some firmware versions use capital f? */

@@ -134,7 +134,7 @@
 #include <math.h>
 
 #define BACKEND_NAME avision
-#define BACKEND_BUILD 289 /* avision backend BUILD version */
+#define BACKEND_BUILD 290 /* avision backend BUILD version */
 
 #include <sane/sane.h>
 #include <sane/sanei.h>
@@ -6082,7 +6082,7 @@ do_cancel (Avision_Scanner* s)
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
   
-  if (s->reader_pid > 0) {
+  if (s->reader_pid != -1) {
     int exit_status;
     
     /* ensure child knows it's time to stop: */
@@ -6501,9 +6501,9 @@ init_options (Avision_Scanner* s)
   s->val[OPT_MESSAGE].s[0] = 0;
   
   /* NVRAM */
+  s->opt[OPT_NVRAM].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   if (!dev->inquiry_nvram_read)
     s->opt[OPT_NVRAM].cap |= SANE_CAP_INACTIVE;
-  s->opt[OPT_NVRAM].cap |= SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
   s->opt[OPT_NVRAM].name = "nvram-values";
   s->opt[OPT_NVRAM].title = "Obtain NVRAM values";
   s->opt[OPT_NVRAM].desc = "Allows access obtaining the scanner's NVRAM values as pretty printed text.";
@@ -7607,7 +7607,9 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
   s->av_con.scsi_fd = -1;
   s->av_con.usb_dn = -1;
   
+  s->reader_pid = -1;
   s->read_fds = -1;
+
   s->hw = dev;
   
   /* We initilize the table to a gamma value of 2.22, since this is what
@@ -8282,8 +8284,6 @@ sane_start (SANE_Handle handle)
   
   s->read_fds = fds[0];
   s->write_fds = fds[1];
-
-  s->reader_pid = -1; /* the thread will be started upon the first read */
 
   /* create reader routine as new process or thread */
   DBG (3, "sane_start: starting thread\n");

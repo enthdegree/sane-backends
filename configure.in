@@ -632,19 +632,11 @@ AC_ARG_ENABLE(parport-directio,
 
 AC_ARG_ENABLE(translations,
   AC_HELP_STRING([--disable-translations],
-                 [don't install translations of backend options]),
-  [
-      if eval "test x$enable_translations = xno"; then 
-        INSTALL_TRANSLATIONS=
-      else
-        INSTALL_TRANSLATIONS=install-translations
-      fi
-  ],
-  INSTALL_TRANSLATIONS=install-translations
-)
-if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
+                 [don't install translations of backend options]),,
+		 enable_translations=yes)
+if eval "test x$enable_translations = xyes" ; then
   if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
-    INSTALL_TRANSLATIONS=
+    enable_translations=no
     echo "disabling translations (missing msgfmt, xgettext or msgmerge)"
   else
     echo "enabling translations"
@@ -652,8 +644,7 @@ if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
 else
   echo "disabling translations"
 fi  
-AC_SUBST(INSTALL_TRANSLATIONS)
-
+AM_CONDITIONAL(ENABLE_TRANSLATIONS, test x$enable_translations = xyes)
 
 if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
   USE_LATEX="yes"

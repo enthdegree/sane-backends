@@ -794,7 +794,8 @@ ac_subst_vars='LTLIBOBJS
 DISTCLEAN_FILES
 USE_LATEX_FALSE
 USE_LATEX_TRUE
-INSTALL_TRANSLATIONS
+ENABLE_TRANSLATIONS_FALSE
+ENABLE_TRANSLATIONS_TRUE
 BACKEND_MANS_ENABLED
 BACKEND_CONFS_ENABLED
 PRELOADABLE_BACKENDS_ENABLED
@@ -4037,9 +4038,8 @@ fi
 # FIXME: we rely on the cache variable name because
 # there is no other way.
 set dummy $CC
-am_cc=`echo $2 | sed 's/[^a-zA-Z0-9_]/_/g;s/^[0-9]/_/'`
-eval am_t=\$ac_cv_prog_cc_${am_cc}_c_o
-if test "$am_t" != yes; then
+ac_cc=`echo $2 | sed 's/[^a-zA-Z0-9_]/_/g;s/^[0-9]/_/'`
+if eval "test \"`echo '$ac_cv_prog_cc_'${ac_cc}_c_o`\" != yes"; then
    # Losing compiler, so override with the script.
    # FIXME: It is wrong to rewrite CC.
    # But if we don't then we get into trouble of one sort or another.
@@ -31851,20 +31851,13 @@ fi
 # Check whether --enable-translations was given.
 if test "${enable_translations+set}" = set; then
   enableval=$enable_translations;
-      if eval "test x$enable_translations = xno"; then
-        INSTALL_TRANSLATIONS=
-      else
-        INSTALL_TRANSLATIONS=install-translations
-      fi
-
 else
-  INSTALL_TRANSLATIONS=install-translations
-
+  enable_translations=yes
 fi
 
-if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
+if eval "test x$enable_translations = xyes" ; then
   if test x$MSGFMT = xno || test x$XGETTEXT = xno || test $MSGMERGE = no ; then
-    INSTALL_TRANSLATIONS=
+    enable_translations=no
     echo "disabling translations (missing msgfmt, xgettext or msgmerge)"
   else
     echo "enabling translations"
@@ -31872,7 +31865,13 @@ if eval "test x$INSTALL_TRANSLATIONS = xinstall-translations" ; then
 else
   echo "disabling translations"
 fi
-
+ if test x$enable_translations = xyes; then
+  ENABLE_TRANSLATIONS_TRUE=
+  ENABLE_TRANSLATIONS_FALSE='#'
+else
+  ENABLE_TRANSLATIONS_TRUE='#'
+  ENABLE_TRANSLATIONS_FALSE=
+fi
 
 
 if test "$LATEX" != "no" && test "$DVIPS" != "no" && test "$MAKEINDEX" != "no" ; then
@@ -32042,6 +32041,13 @@ if test -z "${HAVE_JPEG_TRUE}" && test -z "${HAVE_JPEG_FALSE}"; then
   { { $as_echo "$as_me:$LINENO: error: conditional \"HAVE_JPEG\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 $as_echo "$as_me: error: conditional \"HAVE_JPEG\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${ENABLE_TRANSLATIONS_TRUE}" && test -z "${ENABLE_TRANSLATIONS_FALSE}"; then
+  { { $as_echo "$as_me:$LINENO: error: conditional \"ENABLE_TRANSLATIONS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+$as_echo "$as_me: error: conditional \"ENABLE_TRANSLATIONS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -33229,16 +33235,7 @@ $as_echo "$as_me: executing $ac_file commands" >&6;}
 
 
   case $ac_file$ac_mode in
-    "depfiles":C) test x"$AMDEP_TRUE" != x"" || # Autoconf 2.62 quotes --file arguments for eval, but not when files
-# are listed without --file.  Let's play safe and only enable the eval
-# if we detect the quoting.
-case $CONFIG_FILES in
-*\'*) eval set x "$CONFIG_FILES" ;;
-*)   set x $CONFIG_FILES ;;
-esac
-shift
-for mf
-do
+    "depfiles":C) test x"$AMDEP_TRUE" != x"" || for mf in $CONFIG_FILES; do
   # Strip MF so we end up with the name of the file.
   mf=`echo "$mf" | sed -e 's/:.*$//'`
   # Check whether this is an Automake generated Makefile or not.

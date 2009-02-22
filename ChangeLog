@@ -1,6 +1,8 @@
 2009-02-21 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* po/Makefile.am, configure.in: convert remaining directory,
 	po, to use automake.
+	* doc/Makefile.am: Get rid of unneeded gnu extensions to quieten
+	down autotools warnings.
 
 2009-03-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/avision.c: backend v290, fix reader_pid and NVRAM option

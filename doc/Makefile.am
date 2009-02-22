@@ -155,7 +155,7 @@ BEDOCS += umax/negative-types.txt umax/sane-logo.jpg \
 
 EXTRA_DIST += sane.tex net.tex html.sty
 
-EXTRA_DIST += descriptions/abaton.desc descriptions/agfafocus.desc \
+DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/apple.desc descriptions/artec.desc \
   descriptions/artec_eplus48u.desc descriptions/as6e.desc \
   descriptions/avision.desc descriptions/bh.desc descriptions/canon630u.desc \
@@ -187,8 +187,9 @@ EXTRA_DIST += descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/umax1220u.desc descriptions/umax.desc \
   descriptions/umax_pp.desc  descriptions/unsupported.desc \
   descriptions/v4l.desc descriptions/xerox_mfp.desc
+EXTRA_DIST += $(DESC_FILES)
 
-EXTRA_DIST += descriptions-external/brother2.desc \
+DESC_EXT_FILES = descriptions-external/brother2.desc \
   descriptions-external/brother.desc \
   descriptions-external/brother-mfc4600.desc \
   descriptions-external/canon_mfp.desc \
@@ -208,6 +209,7 @@ EXTRA_DIST += descriptions-external/brother2.desc \
   descriptions-external/template.desc. \
   descriptions-external/v4l2.desc \
   descriptions-external/viceo.desc
+EXTRA_DIST += $(DESC_EXT_FILES)
 
 EXTRA_DIST += figs/area.eps figs/area.fig figs/flow.eps figs/flow.fig \
   figs/hierarchy.eps figs/hierarchy.fig figs/image-data.eps \
@@ -250,14 +252,13 @@ html-man: $(MANPAGES)
 ../tools/sane-desc:
 	cd ../tools ; $(MAKE) sane-desc
 
-sane-backends.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
+sane-backends.html: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m html-backends-split -s ${srcdir}/descriptions \
 	  -i "The following table summarizes the backends/drivers distributed \
 	  with $(PACKAGE)-$(VERSION), and the hardware or software they \
 	  support." -d 0 > sane-backends.html
 
-sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
-                             ../tools/sane-desc
+sane-backends-external.html: $(DESC_EXT_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m html-backends-split \
 	  -s ${srcdir}/descriptions-external \
 	  -i "The following table summarizes the backends/drivers that \
@@ -266,14 +267,13 @@ sane-backends-external.html: $(wildcard descriptions-external/*.desc) \
 	  -t "SANE: External Backends (Drivers)" -d 0 \
 	  > sane-backends-external.html
 
-sane-mfgs.html: $(wildcard descriptions/*.desc) ../tools/sane-desc
+sane-mfgs.html: $(DESC_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions \
 	  -i "The following table summarizes the devices supported \
 	  by $(PACKAGE)-$(VERSION)." \
 	  -d 0 > sane-mfgs.html
 
-sane-mfgs-external.html: $(wildcard descriptions-external/*.desc) \
-                             ../tools/sane-desc
+sane-mfgs-external.html: $(DESC_EXT_FILES) ../tools/sane-desc
 	@../tools/sane-desc -m html-mfgs -s ${srcdir}/descriptions-external \
 	  -i "The following table summarizes the devices that \
 	  are supported by external backends." \

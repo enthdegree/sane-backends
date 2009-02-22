@@ -3,6 +3,7 @@
 	po, to use automake.
 	* doc/Makefile.am: Get rid of unneeded gnu extensions to quieten
 	down autotools warnings.
+	* lib/getopt.c, lib/getopt1.c: Fix disabling getopt compile again.
 
 2009-03-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/avision.c: backend v290, fix reader_pid and NVRAM option

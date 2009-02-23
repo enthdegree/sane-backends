@@ -11,7 +11,7 @@
 
 :backend "epjitsu"               ; name of backend
 :url "http://www.thebility.com/epjitsu/" 
-:version "17"                    ; version of backend
+:version "18"                    ; version of backend
 :manpage "sane-epjitsu"          ; name of manpage (if it exists)
 :comment "See sane-epjitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -37,4 +37,5 @@
 :model "ScanSnap S300M"
 :interface "USB"
 :status :untested
-:comment "10 sheet ADF, 150/300 dpi, always scans in triplex color, MAC only"
+:usbid "0x04c5" "0x117f"
+:comment "Same as S300, with different usb id?"

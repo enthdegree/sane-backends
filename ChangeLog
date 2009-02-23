@@ -1,3 +1,10 @@
+2009-02-23  m. allan noah <kitno455 a t gmail d o t com>
+	* backend/fujitsu.c, backend/fujitsu.conf.in,
+	doc/descriptions/fujitsu.desc, doc/sane-fujitsu.man: backend v90,
+	add S510M usb ID's, add fi-6010N to .desc
+	* backend/epjitsu.conf.in, doc/descriptions/epjitsu.desc,
+	doc/sane-epjitsu.man: add S300M usb ID's
+
 2009-02-23  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 	* backend/genesys_devices.c, backend/genesys_gl841.c, 
 	backend/genesys_low.h: Add post_scan and eject_feed to struct 
@@ -29,7 +36,7 @@
 	down autotools warnings.
 	* lib/getopt.c, lib/getopt1.c: Fix disabling getopt compile again.
 
-2009-03-20  m. allan noah <kitno455 a t gmail d o t com>
+2009-02-20  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/avision.c: backend v290, fix reader_pid and NVRAM option
 	  issues, by Mattias Ellert.
 	* backend/fujitsu.c: backend v89, fi-4750 has no serial number support

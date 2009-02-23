@@ -7,7 +7,7 @@ sane\-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
 .SH DESCRIPTION
 The 
 .B sane\-epjitsu
-library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi-60F and ScanSnap S300 scanners.
+library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F and ScanSnap S300 scanners.
 
 .SH HARDWARE SUPPORT
 These scanners are fairly limited, only supporting a couple of modes and resolutions, and always scanning full width. The backend supports missing modes (binary, grayscale) in software, but makes no effort to offer intermediate resolutions or scan area controls. See 
@@ -28,7 +28,7 @@ mode m
 Selects the mode for the scan. Options may include "Lineart", "Gray", "Color".
 .RE
 .PP
-resolution, y-resolution
+resolution, y\-resolution
 .RS
 Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, though this behavior is overridden by some frontends.
 .RE
@@ -90,16 +90,16 @@ No scan area options are exposed.
 No brightness, contrast, or threshold options are exposed.
 .br
 .br
-fi-60F hardware grayscale mode is not used.
+fi\-60F hardware grayscale mode is not used.
 .br
 .br
 Calibration is far from perfect.
 .RE
 
 .SH CREDITS
-S300 support funded by Microdea, Inc.
+S300 support funded by Microdea, Inc. and Archivista, GmbH.
 .br
-fi-60F support funded by TrueCheck, Inc.
+fi\-60F support funded by TrueCheck, Inc.
 
 .SH "SEE ALSO"
 sane(7),

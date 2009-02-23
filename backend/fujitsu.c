@@ -419,6 +419,8 @@
          - dont export private symbols
       v89 2009-03-20, MAN
          - fi-4750 returns random garbage to serial number queries
+      v90 2009-03-23, MAN
+         - added ScanSnap S510M usb ids
 
    SANE FLOW DIAGRAM
 
@@ -479,7 +481,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 89
+#define BUILD 90
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -778,6 +780,9 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1155'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1155", attach_one_usb);
+
+      DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x116f'\n");
+      sanei_usb_attach_matching_devices("usb 0x04c5 0x116f", attach_one_usb);
 
       DBG (15, "sane_get_devices: looking for 'usb 0x04c5 0x1174'\n");
       sanei_usb_attach_matching_devices("usb 0x04c5 0x1174", attach_one_usb);

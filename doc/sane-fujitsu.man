@@ -14,8 +14,8 @@ This document describes backend version 89, slated to ship with SANE 1.1.0.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and 
-SCSI-over-USB protocols. Specifically, the SCSI M309x and M409x series, the 
-SCSI fi-series, most of the USB fi-series, and the USB ScanSnap S5xx scanners 
+SCSI\-over\-USB protocols. Specifically, the SCSI M309x and M409x series, the 
+SCSI fi\-series, most of the USB fi\-series, and the USB ScanSnap S5xx scanners 
 are supported. Please see the list at 
 http://www.sane\-project.org/sane\-supported\-devices.html for details.
 
@@ -26,22 +26,22 @@ Please contact the author for help or with test results.
 
 .SH UNSUPPORTED HARDWARE
 The following scanners are known NOT to work with this backend,
-either because they have a non-fujitsu chipset, or an unsupported
+either because they have a non\-fujitsu chipset, or an unsupported
 interface type. Some of these scanners may be supported by another
 backend.
 .PP
 .RS
 .ft CR
 .nf
---------------------------------------
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 SCSI:        SERIAL:      USB:
------------- ------------ ------------
-ScanStation  M3093E/DE/EX fi-4110EOX/2
-ScanPartner  M3096EX      fi-4010CU
-SP-Jr        M3097E+/DE   S300/S300M
-SP-10/10C    M3099A/EH/EX fi-60F
-SP-15C/300C               fi-5015C
-SP-600C/620C
+\-\-\-\-\-\-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\- \-\-\-\-\-\-\-\-\-\-\-\-
+ScanStation  M3093E/DE/EX fi\-4110EOX/2
+ScanPartner  M3096EX      fi\-4010CU
+SP\-Jr        M3097E+/DE   S300/S300M
+SP\-10/10C    M3099A/EH/EX fi\-60F
+SP\-15C/300C               fi\-5015C
+SP\-600C/620C
 .fi
 .ft R
 .RE
@@ -62,7 +62,7 @@ Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
-resolution, y-resolution
+resolution, y\-resolution
 .RS
 Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, 
 though this behavior is overridden by some frontends.
@@ -126,8 +126,8 @@ Some systems use a kernel driver to access usb scanners. This method is untested
 .PP
 The only configuration option supported is "buffer\-size=xxx", allowing you
 to set the number of bytes in the data buffer to something other than the 
-compiled-in default, 65536 (64K). Some users report that their scanner will
-"hang" mid-page, or fail to transmit the image if the buffer is not large
+compiled\-in default, 65536 (64K). Some users report that their scanner will
+"hang" mid\-page, or fail to transmit the image if the buffer is not large
 enough.
 .PP
 Note: This option may appear multiple times in the configuration file. It only
@@ -175,15 +175,15 @@ m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
 .br
   (with credit to the unnamed author of the coolscan driver)
 .br
-fujitsu backend, m3093, fi-4340C, ipc, cmp, long-time maintainer:
+fujitsu backend, m3093, fi\-4340C, ipc, cmp, long\-time maintainer:
 .br
   Oliver Schirrmeister <oschirr a t abm d o t de>
 .br
-m3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc-chemnitz dot de>
+m3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc\-chemnitz dot de>
 .br
-fi-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
+fi\-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
 .br
-fi-4120, fi-series color, backend re-write, jpeg, current maintainer:
+fi\-4120, fi\-series color, backend re\-write, jpeg, current maintainer:
   m. allan noah: <kitno455 a t gmail d o t com>
 
 JPEG output support funded by:
@@ -192,10 +192,10 @@ JPEG output support funded by:
 
 Endorser support funded by:
   O A S Oilfield Accounting Service Ltd
-  1500, 840 - 7th Avenue S.W.
+  1500, 840 \- 7th Avenue S.W.
   Calgary, Alberta
   T2P 3G2 Canada
-  1-403-263-2600
+  1\-403\-263\-2600
   www.oas.ca
 
 .SH "SEE ALSO"

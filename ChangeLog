@@ -1,3 +1,7 @@
+2009-02-23 Jonathan Bravo Lopez <jkdsoft@gmail.com>
+	backend/hp3900_config.c: Fix area of negative/slide scans for
+	HP ScanJet G3110.
+
 2009-02-22 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* japi/Makefile.am: Add back -version-number to java library but
 	also add V_REV.

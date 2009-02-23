@@ -190,6 +190,10 @@ static int hp4370_calibtransparent(int option, int defvalue);
 static int hp4370_calibnegative(int option, int defvalue);
 static int srt_hp4370_scanparam_get(int file, int option, int defvalue);
 
+/* HP Scanjet g3110 */
+static int hpg3110_calibnegative(int option, int defvalue);
+static int hpg3110_calibtransparent(int option, int defvalue);
+
 /* ----- Implementation ----- */
 
 enum ConfigFiles
@@ -996,7 +1000,7 @@ static SANE_Int cfg_constrains_get(struct st_constrains *constrain)
 		{ HP4370 , {{   0,   220,   0,    300}, {  90,    45,   0,     85}, {  90,    45,   0,    100}}},
 		{ UA4900 , {{   0,   220,   0,    300}, {  88,    42,   0,     83}, {  88,    42,   0,     83}}},
 		{HPG3010 , {{   0,   220,   0,    300}, {  90,    45,   0,     85}, {  89,    45,   0,    100}}},
-		{HPG3110 , {{   0,   220,   0,    300}, {  90,    45,   0,     85}, {  89,    45,   0,    100}}}
+		{HPG3110 , {{   0,   220,   0,    300}, {  92,    28,   0,    190}, {  85,    44,   0,    190}}}
 	};
 
 	if (constrain != NULL)
@@ -4930,6 +4934,102 @@ static int hp4370_calibtransparent(int option, int defvalue)
 	return rst;
 }
 
+static int hpg3110_calibtransparent(int option, int defvalue)
+{
+	int rst = defvalue;
+	switch(option)
+	{
+		case WSTRIPXPOS: rst = 0; break;
+		case WSTRIPYPOS: rst = 5100; break;
+		case BSTRIPXPOS: rst = 0; break;
+		case BSTRIPYPOS: rst = 0; break;
+		case BREFR: rst = 2; break;
+		case BREFG: rst = 2; break;
+		case BREFB: rst = 2; break;
+		case REFBITDEPTH: rst = 8; break;
+		case OFFSETHEIGHT: rst = 10; break;
+		case OFFSETNSIGMA: rst = 2; break;
+		case OFFSETTARGETMAX: rst = 50; break;
+		case OFFSETTARGETMIN: rst = 2; break;
+		case OFFSETAVGTARGETR: rst = 10; break;
+		case OFFSETAVGTARGETG: rst = 10; break;
+		case OFFSETAVGTARGETB: rst = 10; break;
+		case ADCOFFEVENODD: rst = 1; break;
+		case CALIBOFFSET1ON: rst = 2; break;
+		case ADCOFFQUICKWAY: rst = 1; break;
+		case ADCOFFPREDICTSTART: rst = 200; break;
+		case ADCOFFPREDICTEND: rst = 500; break;
+		case OFFSETTUNESTEP1: rst = 5; break;
+		case OFFSETBOUNDARYRATIO1: rst = 100; break;
+		case OFFSETAVGRATIO1: rst = 100; break;
+		case OFFSETEVEN1R: rst = 315; break;
+		case OFFSETODD1R: rst = 321; break;
+		case OFFSETEVEN1G: rst = 321; break;
+		case OFFSETODD1G: rst = 324; break;
+		case OFFSETEVEN1B: rst = 324; break;
+		case OFFSETODD1B: rst = 327; break;
+		case ADCOFFPREDICTR: rst = 333; break;
+		case ADCOFFPREDICTG: rst = 313; break;
+		case ADCOFFPREDICTB: rst = 317; break;
+		case ADCOFFEVEN1R_1ST: rst = 69; break;
+		case ADCOFFODD1R_1ST: rst = 69; break;
+		case ADCOFFEVEN1G_1ST: rst = 87; break;
+		case ADCOFFODD1G_1ST: rst = 87; break;
+		case ADCOFFEVEN1B_1ST: rst = 106; break;
+		case ADCOFFODD1B_1ST: rst = 106; break;
+		case PEAKR: rst = 62; break;
+		case PEAKG: rst = 66; break;
+		case PEAKB: rst = 54; break;
+		case MINR: rst = 42; break;
+		case MING: rst = 45; break;
+		case MINB: rst = 45; break;
+		case CALIBOFFSET2ON: rst = 0; break;
+		case OFFSETTUNESTEP2: rst = 1; break;
+		case OFFSETBOUNDARYRATIO2: rst = 100; break;
+		case OFFSETAVGRATIO2: rst = 100; break;
+		case OFFSETEVEN2R: rst = 0; break;
+		case OFFSETODD2R: rst = 0; break;
+		case OFFSETEVEN2G: rst = 0; break;
+		case OFFSETODD2G: rst = 0; break;
+		case OFFSETEVEN2B: rst = 0; break;
+		case OFFSETODD2B: rst = 0; break;
+		case GAINHEIGHT: rst = 30; break;
+		case GAINTARGETFACTOR: rst = 80; break;
+		case CALIBPAGON: rst = 0; break;
+		case HIPAGR: rst = 3; break;
+		case HIPAGG: rst = 3; break;
+		case HIPAGB: rst = 2; break;
+		case LOPAGR: rst = 3; break;
+		case LOPAGG: rst = 3; break;
+		case LOPAGB: rst = 2; break;
+		case PAGR: rst = 3; break;
+		case PAGG: rst = 3; break;
+		case PAGB: rst = 2; break;
+		case CALIBGAIN1ON: rst = 1; break;
+		case GAIN1R: rst = 11; break;
+		case GAIN1G: rst = 9; break;
+		case GAIN1B: rst = 12; break;
+		case CALIBGAIN2ON: rst = 0; break;
+		case GAIN2R: rst = 4; break;
+		case GAIN2G: rst = 4; break;
+		case GAIN2B: rst = 4; break;
+		case TOTSHADING: rst = 0; break;
+		case BSHADINGON: rst = -2; break;
+		case BSHADINGHEIGHT: rst = 30; break;
+		case BSHADINGPREDIFFR: rst = 2; break;
+		case BSHADINGPREDIFFG: rst = 2; break;
+		case BSHADINGPREDIFFB: rst = 2; break;
+		case BSHADINGDEFCUTOFF: rst = 0; break;
+		case WSHADINGON: rst = 3; break;
+		case WSHADINGHEIGHT: rst = 24; break;
+		case WSHADINGPREDIFFR: rst = -1; break;
+		case WSHADINGPREDIFFG: rst = -1; break;
+		case WSHADINGPREDIFFB: rst = -1; break;
+	}
+
+	return rst;
+}
+
 static int fc_calibtransparent(int option, int defvalue)
 {
 	int rst;
@@ -4940,8 +5040,8 @@ static int fc_calibtransparent(int option, int defvalue)
 		case HPG2710:
 		case HP3800: rst = hp3800_calibtransparent(option, defvalue); break;
 		case HPG3010:
-		case HPG3110:
 		case HP4370: rst = hp4370_calibtransparent(option, defvalue); break;
+		case HPG3110: rst = hpg3110_calibtransparent(option, defvalue); break;
 		default    : rst = hp3970_calibtransparent(option, defvalue); break;
 	}
 
@@ -5221,6 +5321,103 @@ static int hp3970_calibnegative(int option, int defvalue)
 	return rst;
 }
 
+static int hpg3110_calibnegative(int option, int defvalue)
+{
+	int rst = defvalue;
+
+	switch(option)
+	{
+		case WSTRIPXPOS: rst = 0; break;
+		case WSTRIPYPOS: rst = 5100; break;
+		case BSTRIPXPOS: rst = 0; break;
+		case BSTRIPYPOS: rst = 0; break;
+		case BREFR: rst = 10; break;
+		case BREFG: rst = 10; break;
+		case BREFB: rst = 10; break;
+		case REFBITDEPTH: rst = 8; break;
+		case OFFSETHEIGHT: rst = 10; break;
+		case OFFSETNSIGMA: rst = 2; break;
+		case OFFSETTARGETMAX: rst = 50; break;
+		case OFFSETTARGETMIN: rst = 2; break;
+		case OFFSETAVGTARGETR: rst = 10; break;
+		case OFFSETAVGTARGETG: rst = 10; break;
+		case OFFSETAVGTARGETB: rst = 10; break;
+		case ADCOFFEVENODD: rst = 1; break;
+		case CALIBOFFSET1ON: rst = 2; break;
+		case ADCOFFQUICKWAY: rst = 1; break;
+		case ADCOFFPREDICTSTART: rst = 200; break;
+		case ADCOFFPREDICTEND: rst = 500; break;
+		case OFFSETTUNESTEP1: rst = 5; break;
+		case OFFSETBOUNDARYRATIO1: rst = 100; break;
+		case OFFSETAVGRATIO1: rst = 100; break;
+		case OFFSETEVEN1R: rst = 308; break;
+		case OFFSETODD1R: rst = 308; break;
+		case OFFSETEVEN1G: rst = 317; break;
+		case OFFSETODD1G: rst = 317; break;
+		case OFFSETEVEN1B: rst = 319; break;
+		case OFFSETODD1B: rst = 319; break;
+		case ADCOFFPREDICTR: rst = 333; break;
+		case ADCOFFPREDICTG: rst = 313; break;
+		case ADCOFFPREDICTB: rst = 317; break;
+		case ADCOFFEVEN1R_1ST: rst = 69; break;
+		case ADCOFFODD1R_1ST: rst = 69; break;
+		case ADCOFFEVEN1G_1ST: rst = 87; break;
+		case ADCOFFODD1G_1ST: rst = 87; break;
+		case ADCOFFEVEN1B_1ST: rst = 106; break;
+		case ADCOFFODD1B_1ST: rst = 106; break;
+		case PEAKR: rst = 116; break;
+		case PEAKG: rst = 126; break;
+		case PEAKB: rst = 102; break;
+		case MINR: rst = 103; break;
+		case MING: rst = 112; break;
+		case MINB: rst = 80; break;
+		case CALIBOFFSET2ON: rst = 0; break;
+		case OFFSETTUNESTEP2: rst = 1; break;
+		case OFFSETBOUNDARYRATIO2: rst = 100; break;
+		case OFFSETAVGRATIO2: rst = 100; break;
+		case OFFSETEVEN2R: rst = 0; break;
+		case OFFSETODD2R: rst = 0; break;
+		case OFFSETEVEN2G: rst = 0; break;
+		case OFFSETODD2G: rst = 0; break;
+		case OFFSETEVEN2B: rst = 0; break;
+		case OFFSETODD2B: rst = 0; break;
+		case GAINHEIGHT: rst = 30; break;
+		case GAINTARGETFACTOR: rst = 80; break;
+		case CALIBPAGON: rst = 0; break;
+		case HIPAGR: rst = 3; break;
+		case HIPAGG: rst = 3; break;
+		case HIPAGB: rst = 3; break;
+		case LOPAGR: rst = 3; break;
+		case LOPAGG: rst = 3; break;
+		case LOPAGB: rst = 3; break;
+		case PAGR: rst = 3; break;
+		case PAGG: rst = 3; break;
+		case PAGB: rst = 3; break;
+		case CALIBGAIN1ON: rst = 1; break;
+		case GAIN1R: rst = 6; break;
+		case GAIN1G: rst = 1; break;
+		case GAIN1B: rst = 7; break;
+		case CALIBGAIN2ON: rst = 0; break;
+		case GAIN2R: rst = 4; break;
+		case GAIN2G: rst = 4; break;
+		case GAIN2B: rst = 4; break;
+		case TOTSHADING: rst = 0; break;
+		case BSHADINGON: rst = -2; break;
+		case BSHADINGHEIGHT: rst = 30; break;
+		case BSHADINGPREDIFFR: rst = 2; break;
+		case BSHADINGPREDIFFG: rst = 2; break;
+		case BSHADINGPREDIFFB: rst = 2; break;
+		case BSHADINGDEFCUTOFF: rst = 0; break;
+		case WSHADINGON: rst = 3; break;
+		case WSHADINGHEIGHT: rst = 24; break;
+		case WSHADINGPREDIFFR: rst = -1; break;
+		case WSHADINGPREDIFFG: rst = -1; break;
+		case WSHADINGPREDIFFB: rst = -1; break;
+	}
+
+	return rst;
+}
+
 static int hp4370_calibnegative(int option, int defvalue)
 {
 	int rst = defvalue;
@@ -5328,8 +5525,8 @@ static int fc_calibnegative(int option, int defvalue)
 		case HPG2710:
 		case HP3800: rst = hp3800_calibnegative(option, defvalue); break;
 		case HPG3010:
-		case HPG3110:
 		case HP4370: rst = hp4370_calibnegative(option, defvalue); break;
+		case HPG3110: rst = hpg3110_calibnegative(option, defvalue); break;
 		default    : rst = hp3970_calibnegative(option, defvalue); break;
 	}
 

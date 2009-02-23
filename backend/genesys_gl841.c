@@ -3315,15 +3315,90 @@ gl841_set_powersaving (Genesys_Device * dev,
 }
 
 static SANE_Status
-gl841_start_motor (Genesys_Device * dev)
+gl841_start_action (Genesys_Device * dev)
 {
   return sanei_genesys_write_register (dev, 0x0f, 0x01);
 }
 
 static SANE_Status
-gl841_stop_motor (Genesys_Device * dev)
+gl841_stop_action (Genesys_Device * dev)
 {
-  return sanei_genesys_write_register (dev, 0x0f, 0x00);
+  Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
+  SANE_Status status;
+  u_int8_t val40;
+  unsigned int loop;
+
+  DBG (DBG_proc,
+       "%s\n", __FUNCTION__);
+
+  val40 = 0;
+  status = sanei_genesys_read_register(dev, 0x40, &val40);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "%s: Failed to read home sensor: %s\n",__FUNCTION__,
+	   sane_strstatus (status));
+      DBG (DBG_proc,
+	   "%s: completed\n", __FUNCTION__);
+      return status;
+    }
+
+  /* stop motor if needed */
+  if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
+    {
+      DBG (DBG_proc,
+	   "%s: completed\n", __FUNCTION__);
+      return SANE_STATUS_GOOD;
+    }
+
+  memset (local_reg, 0, sizeof (local_reg));
+
+  memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
+
+  gl841_init_optical_regs_off(dev,local_reg);
+
+  gl841_init_motor_regs_off(dev,local_reg,0);
+  status =
+    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  if (status != SANE_STATUS_GOOD)
+    {
+      DBG (DBG_error,
+	   "%s: Failed to bulk write registers: %s\n", __FUNCTION__,
+	   sane_strstatus (status));
+      return status;
+    }
+
+  loop = 10;
+  while (loop > 0) 
+    {
+      val40 = 0;
+      status = sanei_genesys_read_register(dev, 0x40, &val40);
+      if (status != SANE_STATUS_GOOD)
+	{
+	  DBG (DBG_error,
+	       "%s: Failed to read home sensor: %s\n",__FUNCTION__,
+	       sane_strstatus (status));
+	  DBG (DBG_proc,
+	       "%s: completed\n", __FUNCTION__);
+	  return status;
+	}
+      
+      /* if scanner is in command mode, we are done */
+      if (!(val40 & REG40_DATAENB) && !(val40 & REG40_MOTMFLG))
+	{
+	  DBG (DBG_proc,
+	       "%s: completed\n", __FUNCTION__);
+	  return SANE_STATUS_GOOD;
+	}
+
+      usleep(100*1000);
+      loop--;
+    }
+
+  DBG (DBG_proc,
+       "%s: completed\n", __FUNCTION__);
+
+  return SANE_STATUS_IO_ERROR;
 }
 
 static SANE_Status
@@ -3380,47 +3455,13 @@ gl841_eject_document (Genesys_Device * dev)
       return status;
     }
 
-  /* stop motor if needed */
-  if (val & REG41_MOTORENB)
-    {
-      status = gl841_stop_motor (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_eject_document: failed to stop motor: %s\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-      usleep (200 * 1000);
-    }
-
-/* when scanhead is moving then wait until scanhead stops or timeout */
-  DBG (DBG_info, "gl841_eject_document: ensuring that motor is off\n");
-  for (i = 400; i > 0; i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
-    {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_eject_document: Failed to read motor status: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      if (!(val & REG41_MOTORENB))	/* motor is off */
-	{
-	  DBG (DBG_info,
-	       "gl841_eject_document: motor is off\n");
-	  break;		/* motor is off: continue */
-	}
-
-      usleep (100 * 1000);	/* sleep 100 ms */
-    }
-
-  if (!i)			/* the loop counted down to 0, scanner still is busy */
+  status = gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl841_eject_document: motor is still on: device busy\n");
-      return SANE_STATUS_DEVICE_BUSY;
+	   "gl841_eject_document: failed to stop motor: %s\n",
+	   sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
     }
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
@@ -3440,13 +3481,13 @@ gl841_eject_document (Genesys_Device * dev)
       return status;
     }
 
-  status = gl841_start_motor (dev);
+  status = gl841_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
 	   "gl841_eject_document: Failed to start motor: %s\n",
 	   sane_strstatus (status));
-      gl841_stop_motor (dev);
+      gl841_stop_action (dev);
       /* send original registers */
       gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS);
       return status;
@@ -3481,7 +3522,7 @@ gl841_eject_document (Genesys_Device * dev)
       if (loop == 0)
 	{
 	  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-	  gl841_stop_motor (dev);
+	  gl841_stop_action (dev);
 	  DBG (DBG_error,
 	       "gl841_eject_document: timeout while waiting for scanhead to go home\n");
 	  return SANE_STATUS_IO_ERROR;
@@ -3530,18 +3571,14 @@ gl841_eject_document (Genesys_Device * dev)
       ++loop;
     }
 
-  /* reprogram for motor off */
-  gl841_init_motor_regs_off(dev,local_reg, 0);
-  status =
-    gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
+  status = gl841_stop_action(dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
-	   "gl841_eject_document: Failed to bulk write registers: %s\n",
+	   "gl841_eject_document: Failed to stop motor: %s\n",
 	   sane_strstatus (status));
       return status;
     }
-  status = sanei_genesys_write_register (dev, 0x0f, 0x00);	/* disable motor */
 
   dev->document = SANE_FALSE;
 
@@ -3726,37 +3763,13 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
   else				/* flat bed scanners */
     {
-      status = sanei_genesys_write_register (dev, 0x01, sanei_genesys_read_reg_from_set (reg, 0x01) & ~REG01_SCAN);	/* disable scan */
+      status = gl841_stop_action (dev);
       if (status != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "gl841_end_scan: Failed to write registers: %s\n",
+	  DBG (DBG_error,
+	       "gl841_end_scan: Failed to stop: %s\n",
 	       sane_strstatus (status));
 	  return status;
-	}
-      
-      if (check_stop)
-	{
-	  for (i = 0; i < 300; i++)	/* do not wait longer than 3 seconds */
-	    {
-	      status = sanei_genesys_get_status (dev, &val);
-	      if (status != SANE_STATUS_GOOD)
-		{
-		  DBG (DBG_error,
-		       "gl841_end_scan: Failed to read register: %s\n",
-		       sane_strstatus (status));
-		  return status;
-		}
-	      
-	      if ((!(val & REG41_MOTORENB)) && (val & REG41_SCANFSH))
-		{
-		  DBG (DBG_proc, "gl841_end_scan: scan finished\n");
-		  break;		/* leave while loop */
-		}
-	      
-	      
-	      usleep (10000);	/* sleep 100 ms */
-	    }
-
 	}
     }
   
@@ -3778,22 +3791,17 @@ gl841_feed (Genesys_Device * dev, int steps)
   DBG (DBG_proc, "gl841_feed (steps = %d)\n",
        steps);
 
-  memset (local_reg, 0, sizeof(local_reg));
-  val = 0;
-
-  /* stop motor if needed */
-  if (val & REG41_MOTORENB)
+  status =
+    gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
     {
-      status = gl841_stop_motor (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_feed: failed to stop motor: %s\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-      usleep (200 * 1000);
+      DBG (DBG_error,
+	   "gl841_feed: Failed to stop action: %s\n",
+	   sane_strstatus (status));
+      return status;
     }
+
+  memset (local_reg, 0, sizeof(local_reg));
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
 
@@ -3801,36 +3809,6 @@ gl841_feed (Genesys_Device * dev, int steps)
 
   gl841_init_motor_regs(dev,local_reg,
 			steps,MOTOR_ACTION_FEED,0);
-
-/* when scanhead is moving then wait until scanhead stops or timeout */
-  DBG (DBG_info, "gl841_feed: ensuring that motor is off\n");
-  for (i = 400; i > 0; i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
-    {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_feed: Failed to read home sensor & motor status: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-
-      if (!(val & REG41_MOTORENB))	/* motor is off */
-	{
-	  DBG (DBG_info,
-	       "gl841_feed: motor is off\n");
-	  break;		/* motor is off and scanhead is not at home: continue */
-	}
-
-      usleep (100 * 1000);	/* sleep 100 ms */
-    }
-
-  if (!i)			/* the loop counted down to 0, scanner still is busy */
-    {
-      DBG (DBG_error,
-	   "gl841_feed: motor is still on: device busy\n");
-      return SANE_STATUS_DEVICE_BUSY;
-    }
 
   status =
     gl841_bulk_write_register (dev, local_reg,
@@ -3843,13 +3821,13 @@ gl841_feed (Genesys_Device * dev, int steps)
       return status;
     }
 
-  status = gl841_start_motor (dev);
+  status = gl841_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
 	   "gl841_feed: Failed to start motor: %s\n",
 	   sane_strstatus (status));
-      gl841_stop_motor (dev);
+      gl841_stop_action (dev);
       /* send original registers */
       gl841_bulk_write_register (dev, dev->reg,
 				 GENESYS_GL841_MAX_REGS);
@@ -3878,7 +3856,7 @@ gl841_feed (Genesys_Device * dev, int steps)
   }
 
   /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-  gl841_stop_motor (dev);
+  gl841_stop_action (dev);
 
   DBG (DBG_error,
        "gl841_slow_back_home: timeout while waiting for scanhead to go home\n");
@@ -3925,18 +3903,13 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return SANE_STATUS_GOOD;
     }
 
-  /* stop motor if needed */
-  if (val & REG41_MOTORENB)
+  status = gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
     {
-      status = gl841_stop_motor (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_slow_back_home: failed to stop motor: %s\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-      usleep (200 * 1000);
+      DBG (DBG_error,
+	   "gl841_slow_back_home: failed to stop motor: %s\n",
+	   sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
     }
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
@@ -3945,43 +3918,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 
   gl841_init_motor_regs(dev,local_reg,
 			65536,MOTOR_ACTION_GO_HOME,0);
-
-/* when scanhead is moving then wait until scanhead stops or timeout */
-  DBG (DBG_info, "gl841_slow_back_home: ensuring that motor is off\n");
-  for (i = 400; i > 0; i--)	/* do not wait longer than 40 seconds, count down to get i = 0 when busy */
-    {
-      status = sanei_genesys_get_status (dev, &val);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_slow_back_home: Failed to read home sensor & motor status: %s\n",
-	       sane_strstatus (status));
-	  return status;
-	}
-      if (((val & (REG41_MOTORENB | REG41_HOMESNR)) == REG41_HOMESNR))	/* at home and motor is off */
-	{
-	  DBG (DBG_info,
-	       "gl841_slow_back_home: already at home and nor moving\n");
-	  dev->scanhead_position_in_steps = 0;
-	  return SANE_STATUS_GOOD;
-	}
-
-      if (!(val & REG41_MOTORENB))	/* motor is off */
-	{
-	  DBG (DBG_info,
-	       "gl841_slow_back_home: motor is off but scanhead is not home\n");
-	  break;		/* motor is off and scanhead is not at home: continue */
-	}
-
-      usleep (100 * 1000);	/* sleep 100 ms */
-    }
-
-  if (!i)			/* the loop counted down to 0, scanner still is busy */
-    {
-      DBG (DBG_error,
-	   "gl841_slow_back_home: motor is still on: device busy\n");
-      return SANE_STATUS_DEVICE_BUSY;
-    }
 
   status =
     gl841_bulk_write_register (dev, local_reg, GENESYS_GL841_MAX_REGS);
@@ -3993,13 +3929,13 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
       return status;
     }
 
-  status = gl841_start_motor (dev);
+  status = gl841_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error,
 	   "gl841_slow_back_home: Failed to start motor: %s\n",
 	   sane_strstatus (status));
-      gl841_stop_motor (dev);
+      gl841_stop_action (dev);
       /* send original registers */
       gl841_bulk_write_register (dev, dev->reg, GENESYS_GL841_MAX_REGS);
       return status;
@@ -4032,7 +3968,7 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
 	}
 
       /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl841_stop_motor (dev);
+      gl841_stop_action (dev);
       DBG (DBG_error,
 	   "gl841_slow_back_home: timeout while waiting for scanhead to go home\n");
       return SANE_STATUS_IO_ERROR;
@@ -4080,18 +4016,13 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
       return status;
     }
 
-  /* stop motor if needed */
-  if (val & REG41_MOTORENB)
+  status = gl841_stop_action (dev);
+  if (status != SANE_STATUS_GOOD)
     {
-      status = gl841_stop_motor (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error,
-	       "gl841_park_head: failed to stop motor: %s\n",
-	       sane_strstatus (status));
-	  return SANE_STATUS_IO_ERROR;
-	}
-      usleep (200 * 1000);
+      DBG (DBG_error,
+	   "gl841_park_head: failed to stop motor: %s\n",
+	   sane_strstatus (status));
+      return SANE_STATUS_IO_ERROR;
     }
 
   memcpy (local_reg, dev->reg, (GENESYS_GL841_MAX_REGS+1) * sizeof (Genesys_Register_Set));
@@ -4112,12 +4043,12 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
     }
 
   /* start motor */
-  status = gl841_start_motor (dev);
+  status = gl841_start_action (dev);
   if (status != SANE_STATUS_GOOD)
     {
       DBG (DBG_error, "gl841_park_head: failed to start motor: %s\n",
 	   sane_strstatus (status));
-      gl841_stop_motor (dev);
+      gl841_stop_action (dev);
       /* restore original registers */
       gl841_bulk_write_register (dev, reg, GENESYS_GL841_MAX_REGS);
       return status;
@@ -4151,7 +4082,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 	  if (!(val & REG41_MOTORENB))
 	    {
 	      DBG (DBG_info, "gl841_park_head: restarting motor\n");
-	      status = gl841_start_motor (dev);
+	      status = gl841_start_action (dev);
 	      if (status != SANE_STATUS_GOOD)
 		{
 		  DBG (DBG_error,
@@ -4170,7 +4101,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   /* when we come here then the scanner needed too much time for this,
      so we better stop the motor */
-  gl841_stop_motor (dev);
+  gl841_stop_action (dev);
   DBG (DBG_error,
        "gl841_park_head: timeout while waiting for scanhead to go home\n");
   return SANE_STATUS_IO_ERROR;
@@ -5061,6 +4992,8 @@ gl841_offset_calibration (Genesys_Device * dev)
       
       DBG (DBG_info,
 	   "gl841_offset_calibration: starting second line reading\n");
+      RIE (gl841_bulk_write_register
+	   (dev, dev->calib_reg, GENESYS_GL841_MAX_REGS));
       RIE (gl841_begin_scan (dev, dev->calib_reg, SANE_TRUE));
       RIE (sanei_genesys_read_data_from_scanner (dev, second_line, total_size));
       

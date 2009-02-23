@@ -527,18 +527,6 @@ sanei_genesys_get_address (Genesys_Register_Set * regs, SANE_Byte addr)
   return NULL;
 }
 
-SANE_Status
-sanei_genesys_start_motor (Genesys_Device * dev)
-{
-  return sanei_genesys_write_register (dev, 0x0f, 0x01);
-}
-
-SANE_Status
-sanei_genesys_stop_motor (Genesys_Device * dev)
-{
-  return sanei_genesys_write_register (dev, 0x0f, 0x00);
-}
-
 /* main function for slope creation */
 /**
  * This function generates a slope table using the given slope 

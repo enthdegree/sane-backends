@@ -2,6 +2,9 @@
 	* backend/genesys_devices.c, backend/genesys_gl841.c, 
 	backend/genesys_low.h: Add post_scan and eject_feed to struct 
 	Genesys_Model
+	* backend/genesys.c, backend/genesys_gl646.c,
+	backend/genesys_gl841.c: Move sanei_genesys_{start,stop}_motor into
+	chip specific sources
 
 2009-02-23 Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	backend/hp3900_config.c: Fix area of negative/slide scans for

@@ -3343,7 +3343,8 @@ gl841_eject_document (Genesys_Device * dev)
   int i;
   SANE_Bool paper_loaded;
   unsigned int init_steps;
-  int loop = 0;
+  float feed_mm;
+  int loop;
 
   DBG (DBG_proc, "gl841_eject_document\n");
 
@@ -3442,13 +3443,13 @@ gl841_eject_document (Genesys_Device * dev)
   RIE(gl841_get_paper_sensor(dev, &paper_loaded));
   if (paper_loaded)
     {
-      int loop = 300;
-
       DBG (DBG_info,
 	   "gl841_eject_document: paper still loaded\n");
+      /* force document TRUE, because it is definitely present */
+      dev->document = SANE_TRUE;
       dev->scanhead_position_in_steps = 0;
 
-
+      loop = 300;
       while (loop > 0)		/* do not wait longer then 30 seconds */
 	{
 
@@ -3475,6 +3476,12 @@ gl841_eject_document (Genesys_Device * dev)
 	}
     }
 
+  feed_mm = SANE_UNFIX(dev->model->eject_feed);
+  if (dev->document) 
+    {
+      feed_mm += SANE_UNFIX(dev->model->post_scan);
+    }
+
   status = sanei_genesys_read_feed_steps(dev, &init_steps);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3485,7 +3492,7 @@ gl841_eject_document (Genesys_Device * dev)
     }
   
   /* now feed for extra <number> steps */
-  
+  loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
     {
       unsigned int steps;
@@ -3502,7 +3509,7 @@ gl841_eject_document (Genesys_Device * dev)
       DBG (DBG_info, "gl841_eject_document: init_steps: %d, steps: %d\n",
 	   init_steps, steps);
 
-      if (steps > init_steps + 400)
+      if (steps > init_steps + (feed_mm * dev->motor.base_ydpi) / MM_PER_INCH)
 	{
 	  break;
 	}
@@ -3599,7 +3606,7 @@ gl841_detect_document_end (Genesys_Device * dev)
        * we need to read the final bytes which are word per line * number of last lines
        * to have doc leaving feeder */
       lines =
-	(29 * dev->current_setup.yres) /
+	(SANE_UNFIX(dev->model->post_scan) * dev->current_setup.yres) /
 	MM_PER_INCH;
       DBG (DBG_io, "gl841_detect_document_end: adding %d line to flush\n", lines);
       /* number of bytes to read from scanner to get document out of it after
@@ -3701,14 +3708,9 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 
   DBG (DBG_proc, "gl841_end_scan (check_stop = %d)\n", check_stop);
 
-  if (dev->model->is_sheetfed == SANE_TRUE && dev->document == SANE_TRUE)
+  if (dev->model->is_sheetfed == SANE_TRUE)
     {
-      status = gl841_eject_document (dev);
-      if (status != SANE_STATUS_GOOD)
-	{
-	  DBG (DBG_error, "gl841_end_scan: failed to eject document\n");
-	  return status;
-	}
+      status = SANE_STATUS_GOOD;
     }
   else				/* flat bed scanners */
     {

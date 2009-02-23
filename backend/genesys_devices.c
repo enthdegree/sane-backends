@@ -527,6 +527,11 @@ static Genesys_Model umax_astra_4500_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
@@ -570,6 +575,11 @@ static Genesys_Model canon_lide_50_model = {
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
 
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
@@ -621,6 +631,11 @@ static Genesys_Model canon_lide_60_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
@@ -668,6 +683,11 @@ static Genesys_Model hp2300c_model = {
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
 
   16, 8, 0,			/* RGB CCD Line-distance correction in pixel */
 
@@ -718,6 +738,11 @@ Genesys_Model hp2400c_model = {
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
 
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
@@ -771,6 +796,11 @@ Genesys_Model visioneer_xp200_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
@@ -818,6 +848,11 @@ static Genesys_Model hp3670c_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
@@ -862,6 +897,11 @@ static Genesys_Model plustek_st12_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_BGR,		/* Order of the CCD/CIS colors */
@@ -904,6 +944,11 @@ static Genesys_Model plustek_st24_model = {
   SANE_FIX (100.0),		/* Size of scan area in TA mode in mm (y) */
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
+
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
 
   0, 8, 16,			/* RGB CCD Line-distance correction in pixel */
 
@@ -953,6 +998,11 @@ static Genesys_Model medion_md5345_model = {
 
   SANE_FIX (0.00),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (0.0),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
+
   48, 24, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */
@@ -990,7 +1040,7 @@ static Genesys_Model visioneer_xp300_model = {
   {16, 8, 0},			/* possible depths in color mode */
 
   SANE_FIX (0.0),		/* Start of scan area in mm  (x) */
-  SANE_FIX (3.0),		/* Start of scan area in mm (y) */
+  SANE_FIX (1.0),		/* Start of scan area in mm (y) */
   SANE_FIX (435.0),		/* Size of scan area in mm (x) */
   SANE_FIX (511),		/* Size of scan area in mm (y) */
 
@@ -1004,6 +1054,12 @@ static Genesys_Model visioneer_xp300_model = {
 
   SANE_FIX (0.0),		/* Start of white strip in TA mode in mm (y) */
 
+  SANE_FIX (26.5),		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  /* this is larger than needed -- accounts for second sensor head, which is a 
+     calibration item */
+  SANE_FIX (0.0),		/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
   0, 0, 0,			/* RGB CCD Line-distance correction in pixel */
 
   COLOR_ORDER_RGB,		/* Order of the CCD/CIS colors */

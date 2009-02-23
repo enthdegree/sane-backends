@@ -398,7 +398,8 @@ typedef struct Genesys_Model
   SANE_Int bpp_color_values[MAX_DPI];	/* possible depths in color mode */
 
   SANE_Fixed x_offset;		/* Start of scan area in mm */
-  SANE_Fixed y_offset;		/* Start of scan area in mm */
+  SANE_Fixed y_offset;		/* Start of scan area in mm (Amount of 
+				   feeding needed to get to the medium) */
   SANE_Fixed x_size;		/* Size of scan area in mm */
   SANE_Fixed y_size;		/* Size of scan area in mm */
 
@@ -411,6 +412,11 @@ typedef struct Genesys_Model
   SANE_Fixed y_size_ta;		/* Size of scan area in TA mode in mm */
 
   SANE_Fixed y_offset_calib_ta;	/* Start of white strip in TA mode in mm */
+
+  SANE_Fixed post_scan;		/* Size of scan area after paper sensor stops
+				   sensing document in mm */
+  SANE_Fixed eject_feed;	/* Amount of feeding needed to eject document 
+				   after finishing scanning in mm */
 
   /* Line-distance correction (in pixel at optical_ydpi) for CCD scanners */
   SANE_Int ld_shift_r;		/* red */

@@ -3427,7 +3427,6 @@ gl841_eject_document (Genesys_Device * dev)
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
   u_int8_t val;
-  int i;
   SANE_Bool paper_loaded;
   unsigned int init_steps;
   float feed_mm;
@@ -3636,8 +3635,8 @@ gl841_detect_document_end (Genesys_Device * dev)
 {
   SANE_Status status = SANE_STATUS_GOOD;
   SANE_Bool paper_loaded;
-  int bytes_to_flush, lines, sub_bytes;
-  u_int32_t flines, channels, depth, bytes_remain, sublines;
+  unsigned int flines, channels, depth, bytes_remain, sublines,
+    bytes_to_flush, lines, sub_bytes;
   DBG (DBG_proc, "%s: begin\n", __FUNCTION__);
 
   RIE (gl841_get_paper_sensor (dev, &paper_loaded));
@@ -3752,8 +3751,6 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 		      SANE_Bool check_stop)
 {
   SANE_Status status;
-  int i = 0;
-  u_int8_t val;
 
   DBG (DBG_proc, "gl841_end_scan (check_stop = %d)\n", check_stop);
 
@@ -3773,7 +3770,7 @@ gl841_end_scan (Genesys_Device * dev, Genesys_Register_Set * reg,
 	}
     }
   
-  DBG (DBG_proc, "gl841_end_scan: completed (i=%u)\n", i);
+  DBG (DBG_proc, "gl841_end_scan: completed\n");
 
   return status;
 }
@@ -3785,8 +3782,7 @@ gl841_feed (Genesys_Device * dev, int steps)
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
   u_int8_t val;
-  int i;
-  int loop = 0;  
+  int loop;
 
   DBG (DBG_proc, "gl841_feed (steps = %d)\n",
        steps);
@@ -3834,6 +3830,7 @@ gl841_feed (Genesys_Device * dev, int steps)
       return status;
     }
 
+  loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
       status = sanei_genesys_get_status (dev, &val);
@@ -3870,7 +3867,6 @@ gl841_slow_back_home (Genesys_Device * dev, SANE_Bool wait_until_home)
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
   u_int8_t val;
-  int i;
 
   DBG (DBG_proc, "gl841_slow_back_home (wait_until_home = %d)\n",
        wait_until_home);
@@ -3991,7 +3987,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
   Genesys_Register_Set local_reg[GENESYS_GL841_MAX_REGS+1];
   SANE_Status status;
   u_int8_t val = 0;
-  int loop = 0;
+  int loop;
   int i = 0;
 
   DBG (DBG_proc, "gl841_park_head (wait_until_home = %d)\n",
@@ -4057,6 +4053,7 @@ gl841_park_head (Genesys_Device * dev, Genesys_Register_Set * reg,
   /* wait for head to park if needed */
   if (wait_until_home)
     {
+      loop = 0;
       /* no more than 300 loops of 100 ms each -> 30 second time out */
       while (loop < 300)
 	{

@@ -10,7 +10,7 @@
 
 V_MAJOR = @V_MAJOR@
 V_MINOR = @V_MINOR@
-DLL_PRELOAD = @DLL_PRELOAD@
+V_REV = @V_REV@
 
 JAVAROOT=.
 CLASSPATH_ENV=.
@@ -20,6 +20,7 @@ JAVAH=javah -jni -cp $(CLASSPATH_ENV)
 AM_CPPFLAGS = -I. -I$(srcdir) -I$(top_builddir)/include \
 	      -I$(top_srcdir)/include -I${JDK_HOME}/include \
 	      -I${JDK_HOME}/include/genunix
+AM_LDFLAGS = @STRICT_LDFLAGS@ -version-number $(V_MAJOR):$(V_MINOR):$(VREV)
 
 JAVA_SRC = SaneDevice.java SaneOption.java SaneRange.java\
 	   Sane.java SaneParameters.java ScanIt.java \

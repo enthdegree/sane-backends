@@ -3342,6 +3342,8 @@ gl841_eject_document (Genesys_Device * dev)
   u_int8_t val;
   int i;
   SANE_Bool paper_loaded;
+  unsigned int init_steps;
+  int loop = 0;
 
   DBG (DBG_proc, "gl841_eject_document\n");
 
@@ -3440,12 +3442,13 @@ gl841_eject_document (Genesys_Device * dev)
   RIE(gl841_get_paper_sensor(dev, &paper_loaded));
   if (paper_loaded)
     {
+      int loop = 300;
+
       DBG (DBG_info,
 	   "gl841_eject_document: paper still loaded\n");
       dev->scanhead_position_in_steps = 0;
 
 
-      int loop = 300;
       while (loop > 0)		/* do not wait longer then 30 seconds */
 	{
 
@@ -3472,8 +3475,6 @@ gl841_eject_document (Genesys_Device * dev)
 	}
     }
 
-  unsigned int init_steps;
-
   status = sanei_genesys_read_feed_steps(dev, &init_steps);
   if (status != SANE_STATUS_GOOD)
     {
@@ -3484,7 +3485,6 @@ gl841_eject_document (Genesys_Device * dev)
     }
   
   /* now feed for extra <number> steps */
-  int loop = 0;
   
   while (loop < 300)		/* do not wait longer then 30 seconds */
     {

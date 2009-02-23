@@ -1,3 +1,13 @@
+2009-02-22 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
+	* japi/Makefile.am: Add back -version-number to java library but
+	also add V_REV.
+	* backend/Makefile.am: Use variables to add libraries to backends
+	instead of direct substitution. Easier to touch up variables on
+	problem platforms then substitution.  Also, add back in creating
+	dll.d directory; missed during conversion.
+	* backend/genesys_gl841.c: Portablity fixes for strict
+	C compilers.
+
 2009-02-21 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* po/Makefile.am, configure.in: convert remaining directory,
 	po, to use automake.
